@@ -1,0 +1,11 @@
+{
+  "mongo": {
+    "connectionString": ""
+  },
+  "rabbitMQ": {
+    "connectionString": ""
+  },
+  "postgres": {
+    "connectionString": ""
+  }
+}
