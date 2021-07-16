@@ -1,11 +1,9 @@
 const _has = require('lodash/has')
 
-const jira = require('./jira')
+const producer = require('./producer')
 
 module.exports = {
   async createJobs (project) {
-    if (_has(project, 'jira')) {
-      await jira.collect(project.jira)
-    }
+    await producer.produce(JSON.stringify(project), 'collection')
   }
 }
