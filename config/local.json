@@ -1,11 +1,11 @@
 {
   "mongo": {
-    "connectionString": ""
+    "connectionString": "mongodb://localhost:27017/test?retryWrites=true&w=majority"
   },
   "rabbitMQ": {
-    "connectionString": ""
+    "connectionString": "amqp://guest:guest@localhost:5672/rabbitmq"
   },
   "postgres": {
-    "connectionString": ""
+    "connectionString": "postgres://postgres:postgres@localhost:5432/lake"
   }
 }

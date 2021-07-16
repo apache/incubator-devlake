@@ -29,10 +29,10 @@ services:
       - ./postgres-data:/var/lib/postgresql/data
   rabbitmq:
     environment:
-      RABBITMQ_DEFAULT_PASS: rabbitmq
-      RABBITMQ_DEFAULT_USER: rabbitmq
+      RABBITMQ_DEFAULT_PASS: guest
+      RABBITMQ_DEFAULT_USER: guest
       RABBITMQ_DEFAULT_VHOST: rabbitmq
-    image: rabbitmq:3.9-rc
+    image: rabbitmq:3-management
     networks:
       merico: null
     ports:
@@ -41,17 +41,17 @@ services:
       - published: 5672
         target: 5672
     volumes:
-      - ./.docker/rabbitmq/etc/:/etc/rabbitmq/
-      - ./.docker/rabbitmq/data/:/var/lib/rabbitmq/
-      - ./.docker/rabbitmq/logs/:/var/log/rabbitmq/
+      - /tmp/rabbitmq/etc/:/tmp/etc/rabbitmq/
+      - /tmp/rabbitmq/data/:/var/lib/rabbitmq/
+      - /tmp/rabbitmq/logs/:/var/log/rabbitmq/
   mongodb:
     image: mongo:5.0.0
     container_name: mongodb
-    environment:
-      - PUID=1000
-      - PGID=1000
+    # environment:
+    #   - MONGO_INITDB_ROOT_USERNAME=merico
+    #   - MONGO_INITDB_ROOT_PASSWORD=merico
     volumes:
       - ./data:/data/db
     ports:
       - 27017:27017
-    restart: unless-stopped
+    restart: on-failure
