@@ -15,5 +15,10 @@
   "bugs": {
     "url": "https://github.com/merico-dev/lake/issues"
   },
-  "homepage": "https://github.com/merico-dev/lake#readme"
+  "homepage": "https://github.com/merico-dev/lake#readme",
+  "dependencies": {
+    "amqplib": "^0.8.0",
+    "mongodb": "*",
+    "pg": "^8.6.0"
+  }
 }
