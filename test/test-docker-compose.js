@@ -1,4 +1,4 @@
-const config = require('../../config/local')
+const config = require('../config/local.json')
 
 testOutMongoDB = async () => {
   const {
@@ -8,13 +8,13 @@ testOutMongoDB = async () => {
   const connection = config.mongo.connectionString
   const client = new MongoClient(connection);
 
-  console.log('JON >>> attempting to connect to mongodb', connection)
   try {
     await client.connect();
 
     let dbs = await client.db().admin().listDatabases();
-    console.log('INFO: Mongo dbs')
-    dbs.databases.forEach(db => console.log(` - ${db.name}`));
+    if (dbs.databases.some(db => db.name.length > 0)) {
+      console.log('Connected to MongoDB')
+    }
   } catch (e) {
     console.error(e);
   } finally {
@@ -25,7 +25,8 @@ testOutMongoDB = async () => {
 
 testOutRabbitMQ = async () => {
   var amqp = require('amqplib/callback_api');
-  amqp.connect('amqp://localhost', function (error0, connection) {
+  var conString = config.rabbitMQ.connectionString;
+  amqp.connect(conString, function (error0, connection) {
     if (error0) {
       throw error0;
     }
@@ -41,7 +42,7 @@ testOutRabbitMQ = async () => {
       });
 
       channel.sendToQueue(queue, Buffer.from(msg));
-      console.log(" [x] Sent %s", msg);
+      console.log("Connected to RabbitMQ");
     });
 
     // close connection
@@ -54,21 +55,25 @@ testOutRabbitMQ = async () => {
 
 testOutPostgres = async () => {
   var pg = require('pg');
-  var conString = "postgres://YourUserName:YourPassword@localhost:5432/YourDatabase";
+  var conString = config.postgres.connectionString;
 
   var client = new pg.Client(conString);
   client.connect();
 
-  var query = client.query("SELECT true;");
+  await client
+    .query('SELECT NOW() as now')
+    .then(res => {
+      if (res.rows[0].now instanceof Date) {
+        console.log('Connected to postgres')
+      }
+    })
+    .catch(e => console.error(e.stack))
 
-  query.on('row', function (row) {
-    console.log(row);
-  });
-
-  // close connection
-  query.on('end', function () {
-    client.end();
-  });
+  await client.end(err => {
+    if (err) {
+      console.log('error during disconnection', err.stack)
+    }
+  })
 }
 
 let main = async () => {
