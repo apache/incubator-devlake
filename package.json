@@ -1,0 +1,19 @@
+{
+  "name": "lake",
+  "version": "1.0.0",
+  "description": "The data lake for dev.",
+  "main": "test-docker-compose.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/merico-dev/lake.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/merico-dev/lake/issues"
+  },
+  "homepage": "https://github.com/merico-dev/lake#readme"
+}
