@@ -1,2 +1,3 @@
-# lake
-This is where all the data is stored and collected
+# Dev Lake
+
+The data lake for dev.
