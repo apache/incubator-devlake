@@ -1,0 +1,57 @@
+version: "3"
+networks:
+  merico:
+    external: true
+    name: merico_default
+services:
+  lake:
+    container_name: lake
+    restart: always
+    build: .
+    ports:
+      - "3000:3000"
+    links:
+      - postgresdb
+      - rabbitmq
+      - mongodb
+  postgresdb:
+    environment:
+      POSTGRES_DB: lake
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_USER: postgres
+    image: postgres:13
+    networks:
+      merico: null
+    ports:
+      - published: 5432
+        target: 5432
+    volumes:
+      - ./postgres-data:/var/lib/postgresql/data
+  rabbitmq:
+    environment:
+      RABBITMQ_DEFAULT_PASS: rabbitmq
+      RABBITMQ_DEFAULT_USER: rabbitmq
+      RABBITMQ_DEFAULT_VHOST: rabbitmq
+    image: rabbitmq:3.9-rc
+    networks:
+      merico: null
+    ports:
+      - published: 15672
+        target: 15672
+      - published: 5672
+        target: 5672
+    volumes:
+      - ./.docker/rabbitmq/etc/:/etc/rabbitmq/
+      - ./.docker/rabbitmq/data/:/var/lib/rabbitmq/
+      - ./.docker/rabbitmq/logs/:/var/log/rabbitmq/
+  mongodb:
+    image: mongo:5.0.0
+    container_name: mongodb
+    environment:
+      - PUID=1000
+      - PGID=1000
+    volumes:
+      - ./data:/data/db
+    ports:
+      - 27017:27017
+    restart: unless-stopped
