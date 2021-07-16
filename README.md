@@ -12,6 +12,29 @@
 
 ## Usage
 
+### Create a collection job
+
+1. From the terminal, execute `npm run collect`
+2. In another tab, execute `npm run collection-worker`
+3. From Postman (or similar), send a request like...
+```
+POST http://localhost:3001/
+
+[
+    {
+        "projectId": 126,
+        "jira": {
+            "apiKey": "abc123",
+            "accountUri": "merico.atlassian.net"
+        }
+    }
+]
+```
+4. See in the collection api terminal that the job was published
+5. See in the collection-worker terminal that the job was received by the jira collector
+
+## Connection Information
+
 ### Postgres Connection
 
 - DB Name: lake
