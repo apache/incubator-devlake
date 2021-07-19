@@ -5,10 +5,11 @@ const jira = require('@collectors/jira')
 
 let main = async ()=>{
   // get data from Jira
-  const issues = await jira.issues.collectIssues('test-api')
-  console.log(issues)
-
-  // store data in mongodb
+    // get users
+    // get issues
+    const issues = await jira.issues.collectIssues('test-api')
+    console.log(issues) 
+    // get changelogs
 
   // store data in postgress
   let jiraUser = await JiraUser.create({})
