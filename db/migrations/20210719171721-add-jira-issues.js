@@ -12,16 +12,16 @@ module.exports = {
         field: 'project_id'
       },
       id: {
-        type: Sequelize.INTEGER,
+        type: Sequelize.INTEGER
       },
       url: {
-        type: Sequelize.STRING,
+        type: Sequelize.STRING
       },
       title: {
-        type: Sequelize.STRING,
+        type: Sequelize.STRING
       },
       description: {
-        type: Sequelize.STRING,
+        type: Sequelize.STRING
       },
       leadTime: {
         type: Sequelize.INTEGER,
