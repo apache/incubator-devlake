@@ -42,7 +42,7 @@ const main = async () => {
     // Insert data in postgress
     foundIssues.forEach(issue => {
 
-      await JiraIssue.create({
+      JiraIssue.create({
         id: issue.id,
         url: issue.self,
         title: issue.fields.summary,
