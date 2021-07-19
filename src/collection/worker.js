@@ -4,7 +4,7 @@ require('module-alias/register')
 const axios = require('axios')
 const _has = require('lodash/has')
 
-const jira = require('./jira')
+const jira = require('../collectors/jira')
 const consumer = require('../queue/consumer')
 const enrichmentApiUrl = require('@config/resolveConfig').enrichment.connectionString
 

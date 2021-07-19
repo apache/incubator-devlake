@@ -1,5 +1,5 @@
 module.exports = {
-  async collect (config) {
+  async enrich (config) {
     console.log('jira enrichment', config)
   }
 }
