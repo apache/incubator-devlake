@@ -1,6 +1,4 @@
-// const _has = require('lodash/has')
-
-const producer = require('./producer')
+const producer = require('../queue/producer')
 
 module.exports = {
   async createJobs (project) {

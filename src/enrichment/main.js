@@ -1,10 +1,22 @@
 const express = require('express')
+const bodyParser = require('body-parser')
+
+const dispatch = require('./dispatch')
 
 const app = express()
+app.use(bodyParser.json())
+
 const port = 3000
 
 app.get('/', async (req, res) => {
-  res.send("Let's enrich!w")
+  res.send("Let's enrich!")
+})
+
+app.post('/', async (req, res) => {
+  console.log('paul >>> req.body', req.body)
+  await dispatch.createJobs(req.body)
+
+  res.status(200).send(req.body)
 })
 
 app.listen(port, () => {
