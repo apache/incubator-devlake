@@ -10,7 +10,7 @@ const queue = 'enrichment'
 
 const jobHandler = async (job) => {
   if (_has(job, 'jira')) {
-    await jira.collect(job.jira)
+    await jira.enrich(job.jira)
   }
 }
 
