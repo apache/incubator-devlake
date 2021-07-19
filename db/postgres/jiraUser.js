@@ -6,7 +6,7 @@ const {
 
 module.exports = (sequelize, DataTypes) => {
   class JiraUser extends Model {
-    
+
   }
 
   JiraUser.init({
@@ -32,7 +32,7 @@ module.exports = (sequelize, DataTypes) => {
       allowNull: false,
       type: DataTypes.DATE,
       defaultValue: DataTypes.NOW
-    },
+    }
   }, {
     sequelize,
     modelName: 'JiraUser',
