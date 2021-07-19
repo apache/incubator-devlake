@@ -8,3 +8,7 @@
 
 `npx sequelize-cli db:migrate`
 
+## How to undo a migration
+
+`npx sequelize-cli db:migrate:undo`
+
