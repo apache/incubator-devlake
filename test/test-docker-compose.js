@@ -1,4 +1,4 @@
-const config = require('../config/local.json')
+const config = require('../config/local')
 
 testOutMongoDB = async () => {
   const {

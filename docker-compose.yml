@@ -4,16 +4,6 @@ networks:
     external: true
     name: merico_default
 services:
-  lake:
-    container_name: lake
-    restart: always
-    build: .
-    ports:
-      - "3000:3000"
-    links:
-      - postgresdb
-      - rabbitmq
-      - mongodb
   postgresdb:
     environment:
       POSTGRES_DB: lake
