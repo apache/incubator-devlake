@@ -26,7 +26,8 @@
     "express": "^4.17.1",
     "lodash": "^4.17.21",
     "mongodb": "*",
-    "pg": "^8.6.0"
+    "pg": "^8.6.0",
+    "sequelize": "^6.3.4"
   },
   "devDependencies": {
     "eslint": "^7.31.0"
