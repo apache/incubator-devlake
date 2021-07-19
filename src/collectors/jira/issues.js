@@ -5,7 +5,6 @@ module.exports = {
 
   async collectIssues (project) {
     try {
-
       const response = await axios.get(`${config.host}/rest/api/3/search?jql=project="${project}"`, {
         headers: {
           Accept: 'application/json',
