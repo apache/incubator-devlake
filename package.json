@@ -11,7 +11,8 @@
     "collection-worker": "./src/collection/worker.js",
     "enrich": "nodemon src/enrichment/main.js",
     "enrichment-worker": "./src/enrichment/worker.js",
-    "lint": "./node_modules/eslint/bin/eslint.js . --max-warnings=0 --report-unused-disable-directives --fix && echo '✔  Your .js files look good.'"
+    "lint": "./node_modules/eslint/bin/eslint.js . --max-warnings=0 --report-unused-disable-directives --fix && echo '✔  Your .js files look good.'",
+    "all": "concurrently \"nodemon src/collection/main.js\" \"./src/collection/worker.js\" \"nodemon src/enrichment/main.js\" \"./src/enrichment/worker.js\""
   },
   "repository": {
     "type": "git",
@@ -33,6 +34,7 @@
     "amqplib": "^0.8.0",
     "axios": "^0.21.1",
     "body-parser": "^1.19.0",
+    "concurrently": "^6.2.0",
     "express": "^4.17.1",
     "lodash": "^4.17.21",
     "module-alias": "^2.2.2",

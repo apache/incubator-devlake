@@ -13,7 +13,6 @@ app.get('/', async (req, res) => {
 })
 
 app.post('/', async (req, res) => {
-  console.log('paul >>> req.body', req.body)
   await dispatch.createJobs(req.body)
 
   res.status(200).send(req.body)
