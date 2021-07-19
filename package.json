@@ -15,6 +15,10 @@
     "url": "git+https://github.com/merico-dev/lake.git"
   },
   "author": "",
+  "_moduleAliases": {
+    "@db": "db",
+    "@src": "src"
+  },
   "license": "ISC",
   "bugs": {
     "url": "https://github.com/merico-dev/lake/issues"
@@ -26,6 +30,7 @@
     "express": "^4.17.1",
     "lodash": "^4.17.21",
     "mongodb": "*",
+    "module-alias": "^2.2.2",
     "pg": "^8.6.0",
     "sequelize": "^6.3.4"
   },
