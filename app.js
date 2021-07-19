@@ -1,7 +1,7 @@
 require('module-alias/register')
 
-const { JiraUser } = require('@db/postgres')
 const jira = require('@collectors/jira')
+const { JiraIssue } = require('@db/postgres')
 
 let main = async ()=>{
   // get data from Jira
@@ -12,7 +12,7 @@ let main = async ()=>{
     // get changelogs
 
   // store data in postgress
-  let jiraUser = await JiraUser.create({})
+  let jiraIssue = await JiraIssue.create({})
 
   // enhance data in postgres db
 
