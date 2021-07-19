@@ -58,3 +58,14 @@ POST http://localhost:3001/
 - Port: 5672
 - Username: guest
 - Password: guest
+
+## Services
+
+### Jira
+
+__Jira auth setup__
+
+1. Create an API key on Jira
+3. Create a __basic auth header__ from your API key - [Jira Docs](https://developer.atlassian.com/cloud/jira/platform/basic-auth-for-rest-apis/#supply-basic-auth-headers)
+3. Copy your __basic auth header__ into the `jira.basicAuth` field in `/config/local.js` file
+4. Add your jira hostname to the `jira.host` field in the `/config/local.js` file
