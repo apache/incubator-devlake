@@ -12,18 +12,15 @@ module.exports = (sequelize, DataTypes) => {
   JiraUser.init({
     uuid: {
       primaryKey: true,
-      type: DataTypes.UUID
+      type: DataTypes.UUID,
+      defaultValue: DataTypes.UUIDV4
     },
     self: DataTypes.STRING,
-    account_id: DataTypes.STRING,
+    accountId: DataTypes.STRING,
     name: DataTypes.STRING,
     key: DataTypes.STRING,
-    email_address: DataTypes.STRING,
-    avatar_urls_48x48: DataTypes.STRING,
-    avatar_urls_32x32: DataTypes.STRING,
-    avatar_urls_24x24: DataTypes.STRING,
-    avatar_urls_16x16: DataTypes.STRING,
-    display_name: DataTypes.STRING,
+    emailAddress: DataTypes.STRING,
+    displayName: DataTypes.STRING,
     active: DataTypes.BOOLEAN,
     timezone: DataTypes.STRING,
     createdAt: {
@@ -38,7 +35,8 @@ module.exports = (sequelize, DataTypes) => {
     },
   }, {
     sequelize,
-    modelName: 'JiraJiraUser'
+    modelName: 'JiraUser',
+    underscored: true
   })
 
   return JiraUser
