@@ -120,3 +120,6 @@ dist
 postgres-data/
 data/
 .docker/
+
+# config files
+config/local.js
