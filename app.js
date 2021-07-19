@@ -40,9 +40,9 @@ const main = async () => {
     let foundIssues = await foundIssuesCursor.toArray()
 
     // Insert data in postgress
-    foundIssues.forEach(issue => {
+    foundIssues.forEach(async issue => {
 
-      JiraIssue.create({
+      await JiraIssue.create({
         id: issue.id,
         url: issue.self,
         title: issue.fields.summary,

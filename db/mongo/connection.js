@@ -22,7 +22,7 @@ module.exports = {
 	},
 	createCollection: async (db, collection, options = { capped : true, size : 5242880, max : 5000 }) => {
 		try {
-			const collection await db.createCollection(collection, options)
+			const collection = await db.createCollection(collection, options)
 			return collection
 		} catch (e) {
 			console.log('MONGO.DB createCollection() >> ERROR: ', e)
