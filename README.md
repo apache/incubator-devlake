@@ -1,6 +1,6 @@
 # Dev Lake
 
-![example workflow](https://github.com/merico-dev/lake/actions/workflows/main/badge.svg)
+![badge](https://github.com/merico-dev/lake/actions/workflows/main.yml/badge.svg)
 
 ## Requirements
 
