@@ -1,6 +1,6 @@
 # Dev Lake
 
-![example branch parameter](https://github.com/github/docs/actions/workflows/main.yml/badge.svg?branch=main)
+![example workflow](https://github.com/merico-dev/lake/actions/workflows/main/badge.svg)
 
 ## Requirements
 
