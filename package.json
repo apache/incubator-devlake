@@ -5,6 +5,7 @@
   "main": "test-docker-compose.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
+    "unit-test": "ENCRYPTION_KEY=123 NODE_ENV=test ./node_modules/mocha/bin/mocha \"test/unit/**/*.test.js\"",
     "collect": "nodemon src/collection/main.js",
     "collection-worker": "./src/collection/worker.js",
     "enrich": "nodemon src/enrichment/main.js",
@@ -35,6 +36,7 @@
     "sequelize": "^6.3.4"
   },
   "devDependencies": {
-    "eslint": "^7.31.0"
+    "eslint": "^7.31.0",
+    "mocha": "^9.0.2"
   }
 }
