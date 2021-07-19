@@ -19,8 +19,8 @@ const main = async () => {
     await client.connect()
 
     let issueCollection
-    let foundCollectionsCursor = await client.db().listCollections()
-    let foundCollections = await foundCollectionsCursor.toArray()
+    const foundCollectionsCursor = await client.db().listCollections()
+    const foundCollections = await foundCollectionsCursor.toArray()
     const collectionName = 'jira_issues'
 
     // check if Jira collection exists
@@ -29,19 +29,17 @@ const main = async () => {
 
     if (collectionExists === true) {
       issueCollection = client.db().collection(collectionName)
-    }
-    else {
+    } else {
       issueCollection = client.db().createCollection(collectionName)
     }
 
     // Insert issues into mongodb
     await issueCollection.insertMany(issues)
-    let foundIssuesCursor = await issueCollection.find()
-    let foundIssues = await foundIssuesCursor.toArray()
+    const foundIssuesCursor = await issueCollection.find()
+    const foundIssues = await foundIssuesCursor.toArray()
 
     // Insert data in postgress
     foundIssues.forEach(async issue => {
-
       await JiraIssue.create({
         id: issue.id,
         url: issue.self,
@@ -53,12 +51,9 @@ const main = async () => {
         // leadTime: issue.fields.timespent
       })
     })
-
-  }
-  catch (e) {
+  } catch (e) {
     console.error(e)
-  }
-  finally {
+  } finally {
     await client.close()
   }
 
