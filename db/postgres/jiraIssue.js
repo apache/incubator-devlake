@@ -6,7 +6,7 @@ const {
 
 module.exports = (sequelize, DataTypes) => {
   class JiraIssue extends Model {
-    
+
   }
 
   JiraIssue.init({
@@ -16,22 +16,22 @@ module.exports = (sequelize, DataTypes) => {
       defaultValue: DataTypes.UUIDV4
     },
     projectId: {
-      type: DataTypes.INTEGER,
+      type: DataTypes.INTEGER
     },
     id: {
-      type: DataTypes.INTEGER,
+      type: DataTypes.INTEGER
     },
     url: {
-      type: DataTypes.STRING,
+      type: DataTypes.STRING
     },
     title: {
-      type: DataTypes.STRING,
+      type: DataTypes.STRING
     },
     description: {
-      type: DataTypes.STRING,
+      type: DataTypes.STRING
     },
     leadTime: {
-      type: DataTypes.INTEGER,
+      type: DataTypes.INTEGER
     },
     createdAt: {
       allowNull: false,
@@ -42,7 +42,7 @@ module.exports = (sequelize, DataTypes) => {
       allowNull: false,
       type: DataTypes.DATE,
       defaultValue: DataTypes.NOW
-    },
+    }
   }, {
     sequelize,
     modelName: 'JiraIssue',

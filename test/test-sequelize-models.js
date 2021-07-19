@@ -1,6 +1,6 @@
 // All with sequelize ORM
 
 // coonect
-// create 
+// create
 // update
 // delete
