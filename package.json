@@ -42,6 +42,7 @@
   "devDependencies": {
     "eslint": "^7.31.0",
     "eslint-config-standard": "^16.0.3",
+    "pg": "^8.6.0",
     "mocha": "^9.0.2"
   }
 }
