@@ -1,3 +1,5 @@
+require('module-alias/register')
+
 const { MongoClient } = require('mongodb')
 const MONGO_URI = require('@config/resolveConfig').mongo.connectionString
 
