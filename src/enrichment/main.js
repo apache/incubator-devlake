@@ -13,7 +13,7 @@ app.get('/', async (req, res) => {
 })
 
 app.post('/', async (req, res) => {
-  await dispatch.createJobs(req.body)
+  await dispatch.createJob(req.body)
 
   res.status(200).send(req.body)
 })

@@ -1,5 +1,6 @@
 module.exports = {
   async enrich (config) {
-    console.log('jira enrichment', config)
+    // get the postgres db
+    console.log('Jira Enrichment', config)
   }
 }
