@@ -12,7 +12,7 @@
     "enrich": "nodemon src/enrichment/main.js",
     "enrichment-worker": "./src/enrichment/worker.js",
     "lint": "./node_modules/eslint/bin/eslint.js . --max-warnings=0 --report-unused-disable-directives --fix && echo '✔  Your .js files look good.'",
-    "all": "concurrently \"nodemon src/collection/main.js\" \"./src/collection/worker.js\" \"nodemon src/enrichment/main.js\" \"./src/enrichment/worker.js\""
+    "all": "concurrently \"nodemon src/collection/main.js\" \"nodemon src/collection/worker.js\" \"nodemon src/enrichment/main.js\" \"nodemon src/enrichment/worker.js\""
   },
   "repository": {
     "type": "git",
@@ -22,6 +22,7 @@
   "_moduleAliases": {
     "@config": "config",
     "@db": "db",
+    "@mongo": "db/mongo",
     "@src": "src",
     "@collectors": "src/collectors"
   },
