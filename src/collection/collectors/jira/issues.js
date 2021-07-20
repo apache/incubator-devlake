@@ -1,7 +1,7 @@
-const axios = require('axios')
+require('module-alias/register')
 
-const config = require('@config/resolveConfig').jira
 const dbConnector = require('@mongo/connection')
+const fetcher = require('./fetcher')
 
 const collectionName = 'jira_issues'
 
@@ -10,7 +10,7 @@ module.exports = {
     const { client, db } = await dbConnector.connect()
 
     try {
-      const issues = await module.exports.fetchIssues(projectId)
+      const { issues } = await module.exports.fetchIssues(projectId)
 
       const issueCollection = await dbConnector.findOrCreateCollection(db, collectionName)
 
@@ -24,28 +24,19 @@ module.exports = {
   },
 
   async fetchIssues (project) {
-    try {
-      const response = await axios.get(`${config.host}/rest/api/3/search?jql=project="${project}"`, {
-        headers: {
-          Accept: 'application/json',
-          Authorization: `Basic ${config.basicAuth}`
-        }
-      })
+    const requestUri = `search?jql=project="${project}"`
 
-      return response.data.issues
-    } catch (error) {
-      console.error(error)
-    }
+    return fetcher.fetch(requestUri)
   },
 
-  async findIssues (limit = null) {
+  async findIssues (where, limit = null) {
     const { client, db } = await dbConnector.connect()
 
     let issues = []
 
     try {
       const issueCollection = await dbConnector.findOrCreateCollection(db, collectionName)
-      const foundIssuesCursor = await issueCollection.find().limit(limit)
+      const foundIssuesCursor = await issueCollection.find(where).limit(limit)
 
       issues = await foundIssuesCursor.toArray()
     } finally {
