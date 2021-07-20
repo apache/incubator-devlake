@@ -29,7 +29,7 @@ module.exports = {
     return fetcher.fetch(requestUri)
   },
 
-  async findIssues (where, limit = null) {
+  async findIssues (where, limit = 99999999) {
     const { client, db } = await dbConnector.connect()
 
     let issues = []
