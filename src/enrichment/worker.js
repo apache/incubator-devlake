@@ -3,7 +3,7 @@
 require('module-alias/register')
 const _has = require('lodash/has')
 
-const jira = require('./jira')
+const jira = require('./enrichers/jira')
 const consumer = require('../queue/consumer')
 
 const queue = 'enrichment'
