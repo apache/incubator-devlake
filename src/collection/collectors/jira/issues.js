@@ -1,0 +1,57 @@
+const axios = require('axios')
+
+const config = require('@config/resolveConfig').jira
+const dbConnector = require('@mongo/connection')
+
+const collectionName = 'jira_issues'
+
+module.exports = {
+  async collectIssues (projectId) {
+    const { client, db } = await dbConnector.connect()
+
+    try {
+      const issues = await module.exports.fetchIssues(projectId)
+
+      const issueCollection = await dbConnector.findOrCreateCollection(db, collectionName)
+
+      // Insert issues into mongodb
+      await issueCollection.insertMany(issues)
+    } catch (error) {
+      console.error(error)
+    } finally {
+      dbConnector.disconnect(client)
+    }
+  },
+
+  async fetchIssues (project) {
+    try {
+      const response = await axios.get(`${config.host}/rest/api/3/search?jql=project="${project}"`, {
+        headers: {
+          Accept: 'application/json',
+          Authorization: `Basic ${config.basicAuth}`
+        }
+      })
+
+      return response.data.issues
+    } catch (error) {
+      console.error(error)
+    }
+  },
+
+  async findIssues (limit = null) {
+    const { client, db } = await dbConnector.connect()
+
+    let issues = []
+
+    try {
+      const issueCollection = await dbConnector.findOrCreateCollection(db, collectionName)
+      const foundIssuesCursor = await issueCollection.find().limit(limit)
+
+      issues = await foundIssuesCursor.toArray()
+    } finally {
+      dbConnector.disconnect(client)
+    }
+
+    return issues
+  }
+}
