@@ -22,9 +22,9 @@
 POST http://localhost:3001/
 
 {
-    "projectId": 126,
+    "projectId": 555555,
     "jira": {
-        "apiKey": "abc123",
+        "projectId": "test-api",
         "accountUri": "merico.atlassian.net"
     }
 }
