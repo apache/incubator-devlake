@@ -19,7 +19,7 @@ module.exports = {
     } catch (error) {
       console.error(error)
     } finally {
-      await client.close()
+      dbConnector.disconnect(client)
     }
   },
 
@@ -49,7 +49,7 @@ module.exports = {
 
       issues = await foundIssuesCursor.toArray()
     } finally {
-      client.close()
+      dbConnector.disconnect(client)
     }
 
     return issues
