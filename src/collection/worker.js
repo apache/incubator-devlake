@@ -1,34 +1,21 @@
 #!/usr/bin/env node
 
-const amqp = require('amqplib/callback_api')
+require('module-alias/register')
+const axios = require('axios')
 const _has = require('lodash/has')
 
-const jira = require('./jira')
+const jira = require('./collectors/jira')
+const consumer = require('../queue/consumer')
+const enrichmentApiUrl = require('@config/resolveConfig').enrichment.connectionString
 
-const amqpUrl = 'amqp://guest:guest@localhost:5672/rabbitmq'
+const queue = 'collection'
 
-amqp.connect(amqpUrl, function (error0, connection) {
-  if (error0) {
-    throw error0
+const jobHandler = async (job) => {
+  if (_has(job, 'jira')) {
+    await jira.collect(job.jira)
   }
-  connection.createChannel(function (error1, channel) {
-    if (error1) {
-      throw error1
-    }
-    const queue = 'collection'
 
-    channel.assertQueue(queue)
+  await axios.post(enrichmentApiUrl, job)
+}
 
-    console.log(' [*] Waiting for messages in %s. To exit press CTRL+C', queue)
-
-    channel.consume(queue, async function (msg) {
-      const job = JSON.parse(msg.content.toString())
-
-      if (_has(job, 'jira')) {
-        await jira.collect(job.jira)
-      }
-    }, {
-      noAck: true
-    })
-  })
-})
+consumer(queue, jobHandler)

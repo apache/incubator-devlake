@@ -1,3 +1,5 @@
+require('module-alias/register')
+
 const { MongoClient } = require('mongodb')
 const MONGO_URI = require('@config/resolveConfig').mongo.connectionString
 
@@ -19,9 +21,18 @@ module.exports = {
       console.log('MONGO.DB disconnect() >> ERROR: ', e)
     }
   },
-  createCollection: async (db, collection, options = { capped: true, size: 5242880, max: 5000 }) => {
+  async findOrCreateCollection (db, collectionName, options = {}) {
     try {
-      return await db.createCollection(collection, options)
+      const foundCollectionsCursor = await db.listCollections()
+      const foundCollections = await foundCollectionsCursor.toArray()
+
+      // check if Jira collection exists
+      const collectionExists = foundCollections
+        .some(collection => collection.name === collectionName)
+
+      return collectionExists
+        ? await db.collection(collectionName)
+        : await db.createCollection(collectionName, options)
     } catch (e) {
       console.log('MONGO.DB createCollection() >> ERROR: ', e)
     }
