@@ -5,7 +5,7 @@ module.exports = {
   async enrich (config) {
     console.log('Jira Enrichment', config)
     const limit = 99999
-    const issues = await issueCollector.findIssues(limit)
+    const issues = await issueCollector.findIssues({}, limit)
 
     issues.forEach(async issue => {
       await JiraIssue.create({
