@@ -10,34 +10,17 @@ module.exports = {
     const { client, db } = await dbConnector.connect()
 
     try {
-      const issues = await module.exports.fetchIssues(projectId)
+      // const issues = await module.exports.fetchIssues(projectId)
 
-      const issueCollection = await dbConnector.findOrCreateCollection(db, collectionName)
+      // const issueCollection = await dbConnector.findOrCreateCollection(db, collectionName)
 
-      // Insert issues into mongodb
-      await issueCollection.insertMany(issues)
+      // // Insert issues into mongodb
+      // await issueCollection.insertMany(issues)
     } catch (error) {
       console.error(error)
     } finally {
       await client.close()
     }
-  },
-
-  async findIssues () {
-    const { client, db } = await dbConnector.connect()
-
-    let issues = []
-
-    try {
-      const issueCollection = await dbConnector.findOrCreateCollection(db, collectionName)
-      const foundIssuesCursor = await issueCollection.find()
-
-      issues = await foundIssuesCursor.toArray()
-    } finally {
-      client.close()
-    }
-
-    return issues
   },
 
   async fetchIssues (project) {
@@ -53,5 +36,22 @@ module.exports = {
     } catch (error) {
       console.error(error)
     }
+  },
+
+  async findIssues (limit = null) {
+    const { client, db } = await dbConnector.connect()
+
+    let issues = []
+
+    try {
+      const issueCollection = await dbConnector.findOrCreateCollection(db, collectionName)
+      const foundIssuesCursor = await issueCollection.find().limit(limit)
+
+      issues = await foundIssuesCursor.toArray()
+    } finally {
+      client.close()
+    }
+
+    return issues
   }
 }
