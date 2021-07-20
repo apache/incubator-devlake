@@ -10,12 +10,12 @@ module.exports = {
     const { client, db } = await dbConnector.connect()
 
     try {
-      // const issues = await module.exports.fetchIssues(projectId)
+      const issues = await module.exports.fetchIssues(projectId)
 
-      // const issueCollection = await dbConnector.findOrCreateCollection(db, collectionName)
+      const issueCollection = await dbConnector.findOrCreateCollection(db, collectionName)
 
-      // // Insert issues into mongodb
-      // await issueCollection.insertMany(issues)
+      // Insert issues into mongodb
+      await issueCollection.insertMany(issues)
     } catch (error) {
       console.error(error)
     } finally {
