@@ -1,4 +1,4 @@
-const issueCollector = require('../collection/collectors/jira/issues')
+const issueCollector = require('../../collection/collectors/jira/issues')
 const { JiraIssue } = require('@db/postgres')
 
 module.exports = {
