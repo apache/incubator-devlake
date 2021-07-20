@@ -17,5 +17,8 @@ module.exports = {
   jira: {
     host: 'https://your-domain.atlassian.net',
     basicAuth: '***'
+  },
+  enrichment: {
+    connectionString: 'http://localhost:3000/'
   }
 }
