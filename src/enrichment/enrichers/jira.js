@@ -11,7 +11,7 @@ module.exports = {
   async enrich ({ projectId }) {
     console.log('Jira Enrichment', projectId)
 
-    const issues = await issueCollector.findIssues({ 'fields.project.name': `${projectId}` })
+    const issues = await issueCollector.findIssues({ 'fields.project.id': `${projectId}` })
 
     issues.forEach(async issue => {
       const leadTime = await module.exports.calculateLeadTime(issue)
