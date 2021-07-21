@@ -1,0 +1,12 @@
+[
+  {
+    "package": "jira-pond",
+    "name": "collector",
+    "type": "collector"
+  },
+  {
+    "package": "jira-pond",
+    "name": "enricher",
+    "type": "enricher"
+  }
+]
