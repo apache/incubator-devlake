@@ -14,13 +14,15 @@
 
 ## Usage
 
-### Create a collection job
+### Create a Collection or Enrichment Job
 
 1. From the terminal, execute `npm run all`
 2. From Postman (or similar), send a request like...
-```
-POST http://localhost:3001/
 
+- Collection: `POST http://localhost:3001/`
+- Enrichment: `POST http://localhost:3000/`
+
+```json
 {
     "projectId": 555555,
     "jira": {
@@ -28,8 +30,8 @@ POST http://localhost:3001/
         "accountUri": "merico.atlassian.net"
     }
 }
-
 ```
+
 3. See that the collection job was published, jira collection ran, the enrichment job was published, and jira enrichment ran
 
 ## Connection Information
