@@ -50,6 +50,7 @@
     "eslint-plugin-node": "^11.1.0",
     "eslint-plugin-promise": "^5.1.0",
     "mocha": "^9.0.2",
-    "pg": "^8.6.0"
+    "pg": "^8.6.0",
+    "sequelize-cli": "^6.2.0"
   }
 }
