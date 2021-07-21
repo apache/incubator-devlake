@@ -1,12 +1,15 @@
 require('module-alias/register')
 
-const fetcher = require('./fetcher')
-const projectUri = '/projects'
+const fetcher = require('../util/fetcher')
+const modelName = 'projects'
+const host = 'https://gitlab.com'
+const path = 'api/v4'
 
 module.exports = {
   async fetchProject (projectId) {
-    const requestUri = `${projectUri}${projectId}`
-
-    return fetcher.fetch(requestUri)
+    return fetcher.fetchOne(host, path, modelName, projectId)
   },
+  async fetchAllProjects () {
+    return fetcher.fetchAll(host, path, modelName)
+  }
 }

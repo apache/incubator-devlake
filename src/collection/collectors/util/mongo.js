@@ -1,12 +1,11 @@
 const dbConnector = require('@mongo/connection')
-const collectionName = 'gitlab_projects'
 
 const mongo = {
-  async storeRawData(data){
+  async storeRawData(data, collectionName){
     const { client, db } = await dbConnector.connect()
     try {
-      const projectCollection = await dbConnector.findOrCreateCollection(db, collectionName)
-      await projectCollection.insert(data)
+      const collection = await dbConnector.findOrCreateCollection(db, collectionName)
+      await collection.insert(data)
     } catch (error) {
       console.error(error)
     } finally {
