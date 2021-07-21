@@ -12,6 +12,8 @@ module.exports = {
     try {
       const { issues } = await module.exports.fetchIssues(projectId)
 
+      await db.collection(collectionName).remove()
+
       const issueCollection = await dbConnector.findOrCreateCollection(db, collectionName)
 
       // Insert issues into mongodb
