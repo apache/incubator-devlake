@@ -10,7 +10,7 @@ module.exports = {
     const { client, db } = await dbConnector.connect()
 
     try {
-      const issues = await issueUtil.findIssues({ 'fields.project.name': projectId })
+      const issues = await issueUtil.findIssues({ 'fields.project.id': projectId })
 
       const changelogCollection = await dbConnector.findOrCreateCollection(db, collectionName)
 
