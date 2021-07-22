@@ -1,13 +1,18 @@
 const mongo = require('../mongo')
+const groups = require('./groups')
+const standalone = require('./standalone')
 const projects = require('./projects')
-const projectId = '/28270340'
-const collectionName = 'gitlab_projects'
+// const collectionName = 'gitlab_projects'
 
 module.exports = {
-  async collect () {
+  async collect (projectId) {
+    console.log('Gitlab collection: projectId', projectId);
     try {
-      const project = await projects.collectOne(projectId)
-      await mongo.storeRawData(project, collectionName)
+      let projectToSave = {}
+      const commits = await projects.fetchProjectRepoCommits(projectId)
+      projectToSave.numberOfCommits = commits.length
+      // await mongo.storeRawData(projectToSave, collectionName)
+      
     } catch (error) {
       console.error(error)
     }
