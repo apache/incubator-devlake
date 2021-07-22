@@ -2,7 +2,7 @@ require('module-alias/register')
 
 const fetcher = require('../util/fetcher')
 const modelName = 'projects'
-const { gitlab: { host, apiPath, token } } = require('../../../../config/resolveConfig')
+const { gitlab: { host, apiPath } } = require('../../../../config/resolveConfig')
 
 module.exports = {
   async fetchProject (projectId) {
@@ -21,13 +21,13 @@ module.exports = {
   },
   async fetchProjectFiles (projectId, tree, defaultBranch) {
     const routeName = 'repository/files'
-    let files = []
-    for(let treeNode of tree) {
-      let path = treeNode.path.replace('.', '%2E').replace('/', '%2F')
-      console.log('path', path);
-      let url = `${host}/${apiPath}/${modelName}/${projectId}/${routeName}/${path}/raw`
-      console.log('url', url);
-      let file = await fetcher.fetch(url)
+    const files = []
+    for (const treeNode of tree) {
+      const path = treeNode.path.replace('.', '%2E').replace('/', '%2F')
+      console.log('path', path)
+      const url = `${host}/${apiPath}/${modelName}/${projectId}/${routeName}/${path}/raw`
+      console.log('url', url)
+      const file = await fetcher.fetch(url)
       files.push(file)
     }
     return files

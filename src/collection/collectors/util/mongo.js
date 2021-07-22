@@ -1,7 +1,7 @@
 const dbConnector = require('@mongo/connection')
 
 const mongo = {
-  async storeRawData(data, collectionName){
+  async storeRawData (data, collectionName) {
     const { client, db } = await dbConnector.connect()
     try {
       const collection = await dbConnector.findOrCreateCollection(db, collectionName)
