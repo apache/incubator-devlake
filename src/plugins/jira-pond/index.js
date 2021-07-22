@@ -1,19 +1,19 @@
 module.exports = {
-  collector: { 
+  collector: {
     name: 'jiraCollector',
-    exec: function(raw_db, options) {
-        // do stuff
-        console.log('collection')
-        return ['jira_enricher']
+    exec: function (rawDb, options) {
+      // do stuff
+      console.log('collection')
+      return ['jira_enricher']
     }
   },
 
-  enricher: { 
+  enricher: {
     name: 'jiraEnricher',
-    exec: function(raw_db, enriched_db, options) {
+    exec: function (rawDb, enrichedDbs, options) {
       // do stuff
       console.log('enrichment')
       return []
-    } 
+    }
   }
 }
