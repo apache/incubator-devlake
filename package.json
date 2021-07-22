@@ -4,7 +4,6 @@
   "description": "The data lake for dev.",
   "main": "test-docker-compose.js",
   "scripts": {
-    "start": "node app.js",
     "test": "mocha",
     "unit-test": "ENCRYPTION_KEY=123 NODE_ENV=test ./node_modules/mocha/bin/mocha \"test/unit/**/*.test.js\"",
     "collect": "nodemon src/collection/main.js",
