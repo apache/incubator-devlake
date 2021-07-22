@@ -7,10 +7,10 @@ const collectionName = 'jira_issue_changelogs'
 
 module.exports = {
   async collect (options) {
-    const issues = await issueUtil.findIssues({ 'fields.project.name': options.projectId }, options.db)
+    const issues = await issueUtil.findIssues({ 'fields.project.id': options.projectId }, options.db)
 
     const changelogCollection = await dbConnector.findOrCreateCollection(options.db, collectionName)
-    let promises = []
+    const promises = []
     for (const issue of issues) {
       // todo we cant have this line. It needs to be a promise.all async
       const changelog = await module.exports.fetchChangelogForIssue(issue.id)
