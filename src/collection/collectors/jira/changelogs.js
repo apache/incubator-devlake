@@ -6,29 +6,25 @@ const fetcher = require('./fetcher')
 const collectionName = 'jira_issue_changelogs'
 
 module.exports = {
-  async collectChangelogs (projectId) {
-    const { client, db } = await dbConnector.connect()
+  async collect (options) {
+    const issues = await issueUtil.findIssues({ 'fields.project.id': options.projectId }, options.db)
 
-    try {
-      const issues = await issueUtil.findIssues({ 'fields.project.id': projectId })
-
-      const changelogCollection = await dbConnector.findOrCreateCollection(db, collectionName)
-
-      for (const issue of issues) {
-        const changelog = await module.exports.fetchChangelogForIssue(issue.id)
-
-        for (const change of changelog.values) {
-          await changelogCollection.insertOne({
-            issueId: issue.id,
-            ...change
-          })
-        }
+    const changelogCollection = await dbConnector.findOrCreateCollection(options.db, collectionName)
+    const promises = []
+    for (const issue of issues) {
+      // todo we cant have this line. It needs to be a promise.all async
+      const changelog = await module.exports.fetchChangelogForIssue(issue.id)
+      console.log('JON >>> changelog', changelog)
+      for (const change of changelog.values) {
+        // todo we need to add our own primary key
+        // todo only update based on primary key
+        promises.push(changelogCollection.insertOne({
+          issueId: issue.id,
+          ...change
+        }))
       }
-    } catch (error) {
-      console.error(error)
-    } finally {
-      dbConnector.disconnect(client)
     }
+    await Promise.all(promises)
   },
 
   async fetchChangelogForIssue (issueId) {
@@ -37,20 +33,10 @@ module.exports = {
     return fetcher.fetch(requestUri)
   },
 
-  async findChangelogs (where, limit = 999999, sort = { createdAt: 1 }) {
-    const { client, db } = await dbConnector.connect()
+  async findChangelogs (where, db, limit = 999999, sort = { createdAt: 1 }) {
+    const changelogCollection = await dbConnector.findOrCreateCollection(db, collectionName)
+    const changelogsCursor = await changelogCollection.find(where).limit(limit).sort(sort)
 
-    let changelogs = []
-
-    try {
-      const changelogCollection = await dbConnector.findOrCreateCollection(db, collectionName)
-      const changelogsCursor = await changelogCollection.find(where).limit(limit).sort(sort)
-
-      changelogs = await changelogsCursor.toArray()
-    } finally {
-      dbConnector.disconnect(client)
-    }
-
-    return changelogs
+    return await changelogsCursor.toArray()
   }
 }
