@@ -1,5 +1,5 @@
 const assert = require('assert')
-const gitlabProjectCollector = require('../../../src/collection/collectors/gitlab/projects')
+// const gitlabProjectCollector = require('../../../src/collection/collectors/gitlab/projects')
 
 // TODO: these tests are great but lets not have them actually go to the third party api
 describe.skip('gitlab collector', () => {
