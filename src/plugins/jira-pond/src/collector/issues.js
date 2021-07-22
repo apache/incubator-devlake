@@ -44,9 +44,27 @@ module.exports = {
   },
 
   async fetchIssues (project) {
-    const requestUri = `search?jql=project="${project}"`
+    let issues = []
+    let retry = 0
+    const startAt = issues.length > 0 ? issues.length : 0
+    const searchUri = `search?jql=project=${project}`
+    const total = await fetcher.fetch(`${searchUri}&fields=key`).total
 
-    return fetcher.fetch(requestUri)
+    while (issues.length < total) {
+      try {
+        const pagination = await fetcher.fetch(`${searchUri}&maxResults=100&startAt=${startAt}`)
+        issues = issues.concat(pagination.issues)
+      } catch (e) {
+        console.error(`Jira Get Issue Keys Error start:[${issues.length}] retry:[${retry}]`, { error: e })
+        if (retry > 3) {
+          throw e
+        }
+        retry++
+        continue
+      }
+    }
+
+    return issues.map(issue => issue.key)
   },
 
   async findIssues (where, db, limit = 99999999) {
