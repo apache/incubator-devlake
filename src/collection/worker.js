@@ -25,7 +25,7 @@ const jobHandler = async (job) => {
     dbConnector.disconnect(client)
   }
 
-  // await axios.post(enrichmentApiUrl, job)
+  await axios.post(enrichmentApiUrl, job)
 }
 
 consumer(queue, jobHandler)
