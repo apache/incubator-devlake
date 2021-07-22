@@ -4,13 +4,21 @@
 
 ## Requirements
 
+- Node.js
 - Docker
 
 ## Installation
 
 1. Clone this repository
 2. From the newly cloned repo directory, run `docker-compose up --build`
-3. Test that it's working by opening another terminal and running the test script, `node test/test-docker-compose.js`. You should see `Connected to MongoDB`, `Connected to postgres`,  `Connected to RabbitMQ`.
+3. Run `docker-compose ps` to see containers runnning.
+4. Install dependencies with `npm i`
+5. Run migration with `npx sequelize-cli db:migrate`
+
+## Configuration
+
+1. Make a copy of `config/local.sample.js` under the name of `config/local.js`
+2. We can use default values for most fields except the Jira section. For how to set up basic authorization with Jira, please see this [section](#jira) below
 
 ## Usage
 
@@ -22,9 +30,8 @@
 POST http://localhost:3001/
 
 {
-    "projectId": 555555,
     "jira": {
-        "projectId": "test-api",
+        "projectId": "10003",
         "accountUri": "merico.atlassian.net"
     }
 }
