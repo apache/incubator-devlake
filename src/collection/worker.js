@@ -15,9 +15,12 @@ const jobHandler = async (job) => {
   const {
     db, client
   } = await dbConnector.connect()
+
+  const enrichmentJob = {}
+
   try {
     if (_has(job, 'jira')) {
-      await collection.plugins.jiraCollector(db, job.jira)
+      enrichmentJob.jira = await collection.plugins.jiraCollector(db, job.jira)
     }
   } catch (error) {
     console.log('Failed to collect', error)
@@ -25,7 +28,7 @@ const jobHandler = async (job) => {
     dbConnector.disconnect(client)
   }
 
-  await axios.post(enrichmentApiUrl, job)
+  await axios.post(enrichmentApiUrl, enrichmentJob)
 }
 
 consumer(queue, jobHandler)
