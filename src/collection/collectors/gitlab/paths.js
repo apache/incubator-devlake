@@ -1,4 +1,4 @@
-const endpoints = {
+module.exports = {
   projects: [
     {
       requiredFields: {
@@ -15,5 +15,5 @@ const endpoints = {
       path: 'epics',
       name: 'Epics'
     }
-  ],
+  ]
 }

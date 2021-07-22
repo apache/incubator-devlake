@@ -17,12 +17,12 @@ module.exports = {
       console.error(error)
     }
   },
-  async fetchAll (host, path, modelName){
+  async fetchAll (host, path, modelName) {
     try {
       const res = await axios.get(`${host}/${path}/${modelName}`)
       return res.data
     } catch (error) {
       console.error(error)
     }
-  } 
+  }
 }
