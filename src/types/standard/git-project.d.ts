@@ -23,9 +23,9 @@ export namespace GitProject {
         author: User;
         comments: Comment[];
         commits: Git.Commit[];
-        // participators can be enriched by comments
+        // participants can be enriched by comments
         // or get from third-party api (eg: https://docs.gitlab.com/ee/api/merge_requests.html#get-single-mr-participants)
-        participators: User[];
+        participants: User[];
     }
 
     interface Issue extends Base.TimeProps { }
