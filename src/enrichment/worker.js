@@ -3,14 +3,26 @@
 require('module-alias/register')
 const _has = require('lodash/has')
 
-const jira = require('./enrichers/jira')
+const dbConnector = require('@mongo/connection')
+const { enrichment } = require('../plugins')
 const consumer = require('../queue/consumer')
+const enrichedDb = require('@db/postgres')
 
 const queue = 'enrichment'
 
 const jobHandler = async (job) => {
-  if (_has(job, 'jira')) {
-    await jira.enrich(job.jira)
+  const {
+    db: rawDb, client
+  } = await dbConnector.connect()
+
+  try {
+    if (_has(job, 'jira')) {
+      await enrichment.plugins.jiraEnricher(rawDb, enrichedDb, job.jira)
+    }
+  } catch (error) {
+    console.log('Failed to enrich', error)
+  } finally {
+    dbConnector.disconnect(client)
   }
 }
 
