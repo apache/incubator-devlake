@@ -1,0 +1,11 @@
+{
+  "name": "commondb",
+  "version": "1.0.0",
+  "description": "Common database functions for triforce collectors and enrichers",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": ""
+}
