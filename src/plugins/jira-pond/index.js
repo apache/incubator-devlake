@@ -1,10 +1,19 @@
+const issues = require('./src/issues')
+const changelogs = require('./src/changelogs')
+
 module.exports = {
   collector: {
     name: 'jiraCollector',
-    exec: function (rawDb, options) {
-      // do stuff
-      console.log('collection')
-      return ['jira_enricher']
+    exec: async function (rawDb, options) {
+      const { projectId } = options
+
+      console.log('paul >>> projectId', projectId)
+      await issues.collect({ db: rawDb, projectId })
+      await changelogs.collect({ db: rawDb, projectId })
+
+      console.log('INFO >>> done collecting')
+
+      return ['jiraEnricher']
     }
   },
 
