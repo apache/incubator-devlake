@@ -1,6 +1,14 @@
 const axios = require('axios')
 
 module.exports = {
+  async fetch (url) {
+    try {
+      const res = await axios.get(`${url}`)
+      return res.data
+    } catch (error) {
+      console.error(error)
+    }
+  },
   async fetchOne (host, path, modelName, id) {
     try {
       const res = await axios.get(`${host}/${path}/${modelName}/${id}`)
