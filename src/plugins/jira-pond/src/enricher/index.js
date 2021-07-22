@@ -1,47 +1,33 @@
 require('module-alias/register')
 
-const issueCollector = require('../../collection/collectors/jira/issues')
-const changelogCollector = require('../../collection/collectors/jira/changelogs')
+const issueCollector = require('../collector/issues')
+const changelogCollector = require('../collector/changelogs')
 
-const {
-  JiraIssue
-} = require('@db/postgres')
-const dbConnector = require('@db/mongo/connection')
 const closedStatuses = ['Done', 'Closed']
 
 module.exports = {
-  async enrich ({
-    projectId
-  }) {
-    const {
-      db,
-      client
-    } = await dbConnector.connect()
-
-    try {
-      console.log('Jira Enrichment', projectId)
-      await module.exports.enrichLeadTimeOnIssues({
-        db,
-        projectId
-      })
-      console.log('Done enriching issues')
-    } catch (error) {
-      console.log('>>> error', error)
-    } finally {
-      dbConnector.disconnect(client)
-    }
+  async enrich (rawDb, enrichedDb, projectId) {
+    console.log('Jira Enrichment', projectId)
+    await module.exports.enrichLeadTimeOnIssues(
+      rawDb,
+      enrichedDb,
+      projectId
+    )
+    console.log('Done enriching issues')
   },
 
-  async enrichLeadTimeOnIssues (options) {
+  async enrichLeadTimeOnIssues (rawDb, enrichedDb, projectId) {
+    const { JiraIssue } = enrichedDb
+
     const issues = await issueCollector.findIssues({
-      'fields.project.id': `${options.projectId}`
-    }, options.db)
+      'fields.project.id': `${projectId}`
+    }, rawDb)
 
     const creationPromises = []
     const leadTimePromises = []
     const issuesToCreate = []
     issues.forEach(async issue => {
-      leadTimePromises.push(module.exports.calculateLeadTime(issue, options.db))
+      leadTimePromises.push(module.exports.calculateLeadTime(issue, rawDb))
       issuesToCreate.push({
         id: issue.id,
         url: issue.self,
@@ -67,7 +53,6 @@ module.exports = {
   },
 
   async calculateLeadTime (issue, db) {
-    console.log('JON >>> db', db)
     const changelogs = await changelogCollector.findChangelogs({
       issueId: `${issue.id}`
     }, db)
