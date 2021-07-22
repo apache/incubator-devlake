@@ -48,7 +48,8 @@ module.exports = {
     let retry = 0
     const startAt = issues.length > 0 ? issues.length : 0
     const searchUri = `search?jql=project=${project}`
-    const total = await fetcher.fetch(`${searchUri}&fields=key`).total
+    const totalResponse = await fetcher.fetch(`${searchUri}&fields=key`)
+    const total = totalResponse.total
 
     while (issues.length < total) {
       try {
@@ -64,7 +65,7 @@ module.exports = {
       }
     }
 
-    return issues.map(issue => issue.key)
+    return issues
   },
 
   async findIssues (where, db, limit = 99999999) {
