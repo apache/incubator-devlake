@@ -1,18 +1,32 @@
+const issues = require('./src/collector/issues')
+const changelogs = require('./src/collector/changelogs')
+const enrichment = require('jira-pond/src/enricher')
+
 module.exports = {
   collector: {
     name: 'jiraCollector',
-    exec: function (rawDb, options) {
-      // do stuff
-      console.log('collection')
-      return ['jira_enricher']
+    exec: async function (rawDb, options) {
+      const { projectId } = options
+
+      await issues.collect({ db: rawDb, projectId })
+      await changelogs.collect({ db: rawDb, projectId })
+
+      console.log('INFO >>> done collecting')
+
+      return {
+        ...options,
+        enricher: 'jiraEnricher'
+      }
     }
   },
 
   enricher: {
     name: 'jiraEnricher',
-    exec: function (rawDb, enrichedDbs, options) {
-      // do stuff
-      console.log('enrichment')
+    exec: async function (rawDb, enrichedDb, options) {
+      const { projectId } = options
+
+      await enrichment.enrich(rawDb, enrichedDb, projectId)
+
       return []
     }
   }

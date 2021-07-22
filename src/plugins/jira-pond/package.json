@@ -15,5 +15,9 @@
   "bugs": {
     "url": "https://github.com/merico-dev/jira-pond/issues"
   },
-  "homepage": "https://github.com/merico-dev/jira-pond#readme"
+  "homepage": "https://github.com/merico-dev/jira-pond#readme",
+  "dependencies": {
+    "axios": "^0.21.1",
+    "commondb": "file:../commondb"
+  }
 }
