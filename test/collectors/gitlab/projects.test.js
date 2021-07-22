@@ -1,7 +1,8 @@
 const assert = require('assert')
 const gitlabProjectCollector = require('../../../src/collection/collectors/gitlab/projects')
 
-describe('gitlab collector', () => {
+// TODO: these tests are great but lets not have them actually go to the third party api
+describe.skip('gitlab collector', () => {
   describe('Project collector', () => {
     describe('fetchProject', () => {
       it('Gets a project from gitlab with the expected name', async () => {
