@@ -53,7 +53,6 @@ module.exports = {
   },
 
   async calculateLeadTime (issue, db) {
-    console.log('JON >>> db', db)
     const changelogs = await changelogCollector.findChangelogs({
       issueId: `${issue.id}`
     }, db)

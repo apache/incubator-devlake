@@ -15,7 +15,6 @@ module.exports = {
     for (const issue of issues) {
       // todo we cant have this line. It needs to be a promise.all async
       const changelog = await module.exports.fetchChangelogForIssue(issue.id)
-      console.log('JON >>> changelog', changelog)
 
       for (const change of changelog.values) {
         // todo we need to add our own primary key
