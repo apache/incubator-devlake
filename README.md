@@ -11,6 +11,15 @@
 
 1. Clone this repository
 2. From the newly cloned repo directory, run `docker-compose up --build`
+    
+    > NOTE: If you get an error like this:
+
+    >"Error response from daemon: invalid mount config for type "bind": bind source path does not exist: /tmp/rabbitmq/etc/"
+
+    >You can fix it by adding the directory in the terminal:
+```
+    mkdir /tmp/rabbitmq/etc
+```
 3. Run `docker-compose ps` to see containers runnning.
 4. Install dependencies with `npm i`
 5. Run migration with `npx sequelize-cli db:migrate`
