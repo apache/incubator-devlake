@@ -18,6 +18,11 @@ module.exports = {
     host: 'https://your-domain.atlassian.net',
     basicAuth: '***'
   },
+  gitlab: {
+    host: 'https://gitlab.com',
+    apiPath: 'api/v4',
+    token: '***'
+  },
   enrichment: {
     connectionString: 'http://localhost:3000/'
   }
