@@ -1,25 +1,23 @@
 require('module-alias/register')
-
 const dbConnector = require('@mongo/connection')
+
+const JiraIssue = require('../../../model/jira/issue')
 const fetcher = require('./fetcher')
 
 const collectionName = 'jira_issues'
 
 module.exports = {
   async collectIssues (projectId) {
-    const { client, db } = await dbConnector.connect()
-
     try {
       const { issues } = await module.exports.fetchIssues(projectId)
-
-      const issueCollection = await dbConnector.findOrCreateCollection(db, collectionName)
-
+      const saved = issues.map(issuse => {
+        const jiraIssue = new JiraIssue(issuse)
+        return jiraIssue.save()
+      })
       // Insert issues into mongodb
-      await issueCollection.insertMany(issues)
+      await Promise.all(saved)
     } catch (error) {
       console.error(error)
-    } finally {
-      dbConnector.disconnect(client)
     }
   },
 
