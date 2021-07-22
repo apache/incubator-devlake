@@ -1,0 +1,19 @@
+{
+  "name": "jira-pond",
+  "version": "1.0.0",
+  "description": "A jira plugin for lake",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/merico-dev/jira-pond.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/merico-dev/jira-pond/issues"
+  },
+  "homepage": "https://github.com/merico-dev/jira-pond#readme"
+}
