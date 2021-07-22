@@ -10,7 +10,7 @@ const dbConnector = require('@db/mongo/connection')
 const closedStatuses = ['Done', 'Closed']
 
 module.exports = {
-  async enrich({
+  async enrich ({
     projectId
   }) {
     const {
@@ -32,26 +32,26 @@ module.exports = {
     }
   },
 
-  async enrichLeadTimeOnIssues(options) {
+  async enrichLeadTimeOnIssues (options) {
     const issues = await issueCollector.findIssues({
-      'fields.project.name': `${options.projectId}`
+      'fields.project.id': `${options.projectId}`
     }, options.db)
 
-    let creationPromises = []
-    let leadTimePromises = []
-    let issuesToCreate = []
+    const creationPromises = []
+    const leadTimePromises = []
+    const issuesToCreate = []
     issues.forEach(async issue => {
       leadTimePromises.push(module.exports.calculateLeadTime(issue, options.db))
       issuesToCreate.push({
         id: issue.id,
         url: issue.self,
         title: issue.fields.summary,
-        projectId: issue.fields.project.id,
-        description: issue.fields.description
+        projectId: issue.fields.project.id
+        // description: issue.fields.description
       })
     })
 
-    let leadTimes = await Promise.all(leadTimePromises)
+    const leadTimes = await Promise.all(leadTimePromises)
 
     leadTimes.forEach((leadTime, index) => {
       console.log('JON >>> leadTime', leadTime)
@@ -66,7 +66,7 @@ module.exports = {
     await Promise.all(creationPromises)
   },
 
-  async calculateLeadTime(issue, db) {
+  async calculateLeadTime (issue, db) {
     console.log('JON >>> db', db)
     const changelogs = await changelogCollector.findChangelogs({
       issueId: `${issue.id}`
@@ -93,8 +93,8 @@ module.exports = {
       }
     }
 
-    return isDone ?
-      Math.round(leadTime / 1000) :
-      0
+    return isDone
+      ? Math.round(leadTime / 1000)
+      : 0
   }
 }

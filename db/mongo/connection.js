@@ -16,7 +16,7 @@ module.exports = {
   },
   disconnect: (client) => {
     try {
-			console.log('INFO >>> closing mongo connection')
+      console.log('INFO >>> closing mongo connection')
       client.close()
     } catch (e) {
       console.log('MONGO.DB disconnect() >> ERROR: ', e)
