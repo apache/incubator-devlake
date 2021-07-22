@@ -22,11 +22,13 @@
 
 ## Usage
 
-### Create a collection job
+### Create a Collection Job
 
 1. From the terminal, execute `npm run all`
 2. From Postman (or similar), send a request like...
-```
+
+```json
+
 POST http://localhost:3001/
 
 {
@@ -37,7 +39,10 @@ POST http://localhost:3001/
 }
 
 ```
+
 3. See that the collection job was published, jira collection ran, the enrichment job was published, and jira enrichment ran
+
+To run only the enrichment job on existing collections: `POST http://localhost:3000/`
 
 ## Connection Information
 
