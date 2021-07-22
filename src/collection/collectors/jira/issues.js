@@ -7,19 +7,20 @@ const collectionName = 'jira_issues'
 
 module.exports = {
   async collectIssues (projectId) {
-    const { client, db } = await dbConnector.connect()
+    // const { client, db } = await dbConnector.connect()
 
     try {
       const { issues } = await module.exports.fetchIssues(projectId)
 
-      const issueCollection = await dbConnector.findOrCreateCollection(db, collectionName)
+      // const issueCollection = await dbConnector.findOrCreateCollection(db, collectionName)
 
-      // Insert issues into mongodb
-      await issueCollection.insertMany(issues)
+      // // Insert issues into mongodb
+      // await issueCollection.insertMany(issues)
+      return issues
     } catch (error) {
       console.error(error)
     } finally {
-      dbConnector.disconnect(client)
+      // dbConnector.disconnect(client)
     }
   },
 
