@@ -1,8 +1,4 @@
 version: "3"
-networks:
-  merico:
-    external: true
-    name: merico_default
 services:
   postgresdb:
     environment:
@@ -10,11 +6,8 @@ services:
       POSTGRES_PASSWORD: postgres
       POSTGRES_USER: postgres
     image: postgres:13
-    networks:
-      merico: null
     ports:
-      - published: 5432
-        target: 5432
+      - 5432:5432
     volumes:
       - ./postgres-data:/var/lib/postgresql/data
   rabbitmq:
@@ -23,13 +16,9 @@ services:
       RABBITMQ_DEFAULT_USER: guest
       RABBITMQ_DEFAULT_VHOST: rabbitmq
     image: rabbitmq:3-management
-    networks:
-      merico: null
     ports:
-      - published: 15672
-        target: 15672
-      - published: 5672
-        target: 5672
+      - 15672:15672
+      - 5672:5672
     volumes:
       - /tmp/rabbitmq/etc/:/tmp/etc/rabbitmq/
       - /tmp/rabbitmq/data/:/var/lib/rabbitmq/
