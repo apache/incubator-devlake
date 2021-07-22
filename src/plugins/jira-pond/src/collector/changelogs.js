@@ -1,3 +1,5 @@
+const { findOrCreateCollection } = require('commondb')
+
 const issueUtil = require('./issues')
 
 const fetcher = require('./fetcher')
@@ -8,8 +10,7 @@ module.exports = {
   async collect (options) {
     const issues = await issueUtil.findIssues({ 'fields.project.id': options.projectId }, options.db)
 
-    const changelogCollection = await module.exports.findOrCreateCollection(options.db, collectionName)
-    await changelogCollection.deleteMany({}) // temporary
+    const changelogCollection = await findOrCreateCollection(options.db, collectionName)
 
     const promises = []
     for (const issue of issues) {
@@ -35,26 +36,9 @@ module.exports = {
   },
 
   async findChangelogs (where, db, limit = 999999, sort = { createdAt: 1 }) {
-    const changelogCollection = await module.exports.findOrCreateCollection(db, collectionName)
+    const changelogCollection = await findOrCreateCollection(db, collectionName)
     const changelogsCursor = await changelogCollection.find(where).limit(limit).sort(sort)
 
     return await changelogsCursor.toArray()
-  },
-
-  async findOrCreateCollection (db, collectionName, options = {}) {
-    try {
-      const foundCollectionsCursor = await db.listCollections()
-      const foundCollections = await foundCollectionsCursor.toArray()
-
-      // check if Jira collection exists
-      const collectionExists = foundCollections
-        .some(collection => collection.name === collectionName)
-
-      return collectionExists
-        ? await db.collection(collectionName)
-        : await db.createCollection(collectionName, options)
-    } catch (e) {
-      console.log('MONGO.DB createCollection() >> ERROR: ', e)
-    }
   }
 }
