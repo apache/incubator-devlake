@@ -3,7 +3,7 @@ const axios = require('axios')
 module.exports = {
   async fetch (url, headers) {
     try {
-      const res = await axios.get(`${url}`, {headers})
+      const res = await axios.get(`${url}`, { headers })
       return res.data
     } catch (error) {
       console.error(error)

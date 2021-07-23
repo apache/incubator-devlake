@@ -3,7 +3,7 @@ require('module-alias/register')
 const fetcher = require('../util/fetcher')
 const modelName = 'projects'
 const { gitlab: { host, apiPath, token } } = require('../../../../../../config/resolveConfig')
-const privateTokenHeader = {"PRIVATE-TOKEN": token}
+const privateTokenHeader = { 'PRIVATE-TOKEN': token }
 
 module.exports = {
   async fetchProject (projectId) {
@@ -34,6 +34,6 @@ module.exports = {
   async fetchMergeRequests (projectId) {
     const routeName = 'merge_requests'
     const url = `${host}/${apiPath}/${modelName}/${projectId}/${routeName}`
-    return fetcher.fetch(url, privateTokenHeader) 
+    return fetcher.fetch(url, privateTokenHeader)
   }
 }
