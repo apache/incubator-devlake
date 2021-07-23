@@ -9,7 +9,7 @@ const fetcher = require('./fetcher')
 const collectionName = 'jira_issue_changelogs'
 
 module.exports = {
-  async collect(options) {
+  async collect (options) {
     try {
       console.log('INFO >>> collecting changelogs...', options.projectId)
       const issues = await issueUtil.findIssues({
@@ -24,7 +24,7 @@ module.exports = {
         // todo we cant have this line. It needs to be a promise.all async
         const changelog = await module.exports.fetchChangelogForIssue(issue.id)
         for (const change of changelog.values) {
-          let primaryKey = changelog.id
+          const primaryKey = changelog.id
 
           promises.push(changelogCollection.findOneAndUpdate({
             primaryKey
@@ -42,16 +42,15 @@ module.exports = {
     } catch (error) {
       console.log(error)
     }
-
   },
 
-  async fetchChangelogForIssue(issueId) {
+  async fetchChangelogForIssue (issueId) {
     const requestUri = `issue/${issueId}/changelog`
 
     return fetcher.fetch(requestUri)
   },
 
-  async findChangelogs(where, db, limit = 999999, sort = {
+  async findChangelogs (where, db, limit = 999999, sort = {
     createdAt: 1
   }) {
     const changelogCollection = await findOrCreateCollection(db, collectionName)
