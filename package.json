@@ -39,6 +39,7 @@
     "concurrently": "^6.2.0",
     "express": "^4.17.1",
     "jira-pond": "src/plugins/jira-pond",
+    "commondb": "src/plugins/commondb",
     "lodash": "^4.17.21",
     "module-alias": "^2.2.2",
     "mongodb": "*",
