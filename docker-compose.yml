@@ -34,3 +34,7 @@ services:
     ports:
       - 27017:27017
     restart: on-failure
+  grafana:
+    image: grafana/grafana:8.0.6
+    ports:
+      - 3002:3000
