@@ -19,26 +19,29 @@ module.exports = {
 
       const changelogCollection = await findOrCreateCollection(options.db, collectionName)
 
-      const promises = []
+      const insertDataPromises = []
+      const changelogPromises = []
       for (const issue of issues) {
-        // todo we cant have this line. It needs to be a promise.all async
-        const changelog = await module.exports.fetchChangelogForIssue(issue.id)
+        changelogPromises.push(module.exports.fetchChangelogForIssue(issue.id))
+      }
+      let changelogs = await Promise.all(changelogPromises)
+      changelogs.forEach((changelog, index) => {
         for (const change of changelog.values) {
           const primaryKey = changelog.id
-
-          promises.push(changelogCollection.findOneAndUpdate({
+  
+          insertDataPromises.push(changelogCollection.findOneAndUpdate({
             primaryKey
           }, {
             $set: {
-              issueId: issue.id,
+              issueId: issues[index].id,
               ...change
             }
           }, {
             upsert: true
           }))
         }
-      }
-      await Promise.all(promises)
+      })
+      await Promise.all(insertDataPromises)
     } catch (error) {
       console.log(error)
     }
