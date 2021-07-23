@@ -1,5 +1,5 @@
 const assert = require('assert')
-// const gitlabProjectCollector = require('../../../src/collection/collectors/gitlab/projects')
+const gitlabProjectCollector = require('../src/collector/projects')
 
 // TODO: these tests are great but lets not have them actually go to the third party api
 describe.skip('gitlab collector', () => {
@@ -47,7 +47,7 @@ describe.skip('gitlab collector', () => {
       it('gets merge requests by project repo', async () => {
         const projectId = 20103385
         const mrs = await gitlabProjectCollector.fetchMergeRequests(projectId)
-        console.log('mrs', mrs);
+        console.log('mrs', mrs)
       })
     })
   })
