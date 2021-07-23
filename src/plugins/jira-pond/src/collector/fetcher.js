@@ -3,7 +3,7 @@ const axios = require('axios')
 const config = require('@config/resolveConfig').jira
 
 module.exports = {
-  async fetch (resourceUri) {
+  async fetch(resourceUri) {
     try {
       const response = await axios.get(`${config.host}/rest/api/3/${resourceUri}`, {
         headers: {

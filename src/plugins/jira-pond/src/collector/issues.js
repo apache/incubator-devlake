@@ -26,10 +26,10 @@ module.exports = {
       const issuesCollection = await findOrCreateCollection(db, collectionName)
 
       issuesResponse.issues.forEach(issue => {
-        const id = Number(issue.id)
+        issue.primaryKey = Number(issue.id)
 
         promises.push(issuesCollection.findOneAndUpdate({
-          id
+          primaryKey: issue.primaryKey
         }, {
           $set: issue
         }, {
