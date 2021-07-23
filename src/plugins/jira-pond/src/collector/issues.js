@@ -25,7 +25,7 @@ module.exports = {
       const promises = []
       const issuesCollection = await findOrCreateCollection(db, collectionName)
 
-      issuesResponse.issues.forEach(issue => {
+      issuesResponse.forEach(issue => {
         issue.primaryKey = Number(issue.id)
 
         promises.push(issuesCollection.findOneAndUpdate({
@@ -46,14 +46,19 @@ module.exports = {
   async fetchIssues (project) {
     let issues = []
     let retry = 0
-    const startAt = issues.length > 0 ? issues.length : 0
+    const pageSize = 100
     const searchUri = `search?jql=project=${project}`
     const totalResponse = await fetcher.fetch(`${searchUri}&fields=key`)
-    const total = totalResponse.total
+    let total = totalResponse.total
+
+    const deleteMeFakeTotalForTesting = 300
+    total = deleteMeFakeTotalForTesting
+
+    console.log(`INFO: Fetching ${total} issues from project: ${project}`)
 
     while (issues.length < total) {
       try {
-        const pagination = await fetcher.fetch(`${searchUri}&maxResults=100&startAt=${startAt}`)
+        const pagination = await fetcher.fetch(`${searchUri}&maxResults=${pageSize}&startAt=${issues.length}`)
         issues = issues.concat(pagination.issues)
       } catch (e) {
         console.error(`Jira Get Issue Keys Error start:[${issues.length}] retry:[${retry}]`, { error: e })
@@ -64,7 +69,7 @@ module.exports = {
         continue
       }
     }
-
+    console.log('JON >>> fetchIssues issues.length', issues.length)
     return issues
   },
 

@@ -24,10 +24,15 @@ module.exports = {
       for (const issue of issues) {
         changelogPromises.push(module.exports.fetchChangelogForIssue(issue.id))
       }
+      
       let changelogs = await Promise.all(changelogPromises)
+
       changelogs.forEach((changelog, index) => {
-        for (const change of changelog.values) {
-          const primaryKey = changelog.id
+        changelog && changelog.values && changelog.values.forEach(change => {
+          // console.log('JON >>> itterate', change)
+          let primaryKey = change.id
+          console.log('JON >>> primaryKey', primaryKey)
+          change.primaryKey = primaryKey
   
           insertDataPromises.push(changelogCollection.findOneAndUpdate({
             primaryKey
@@ -39,8 +44,9 @@ module.exports = {
           }, {
             upsert: true
           }))
-        }
-      })
+        })
+      });
+
       await Promise.all(insertDataPromises)
     } catch (error) {
       console.log(error)

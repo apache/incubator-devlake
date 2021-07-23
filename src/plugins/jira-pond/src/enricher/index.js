@@ -3,10 +3,10 @@ require('module-alias/register')
 const issueCollector = require('../collector/issues')
 const changelogCollector = require('../collector/changelogs')
 
-const closedStatuses = ['Done', 'Closed']
+const closedStatuses = ['Done', 'Closed', '关闭', '完全的', '已关闭']
 
 module.exports = {
-  async enrich (rawDb, enrichedDb, projectId) {
+  async enrich(rawDb, enrichedDb, projectId) {
     console.log('Jira Enrichment', projectId)
     await module.exports.enrichLeadTimeOnIssues(
       rawDb,
@@ -16,8 +16,10 @@ module.exports = {
     console.log('Done enriching issues')
   },
 
-  async enrichLeadTimeOnIssues (rawDb, enrichedDb, projectId) {
-    const { JiraIssue } = enrichedDb
+  async enrichLeadTimeOnIssues(rawDb, enrichedDb, projectId) {
+    const {
+      JiraIssue
+    } = enrichedDb
 
     const issues = await issueCollector.findIssues({
       'fields.project.id': `${projectId}`
@@ -46,13 +48,18 @@ module.exports = {
         leadTime,
         ...issue
       }
-      creationPromises.push(JiraIssue.create(issue))
+      creationPromises.push(JiraIssue.findOrCreate({
+        where: {
+          id: issue.id
+        },
+        defaults: issue
+      }))
     })
 
     await Promise.all(creationPromises)
   },
 
-  async calculateLeadTime (issue, db) {
+  async calculateLeadTime(issue, db) {
     const changelogs = await changelogCollector.findChangelogs({
       issueId: `${issue.id}`
     }, db)
@@ -64,6 +71,7 @@ module.exports = {
     for (const change of changelogs) {
       for (const item of change.items) {
         if (item.field === 'status') {
+          console.log('JON >>> item.field', item.field)
           const changeTime = new Date(change.created).getTime()
 
           if (!closedStatuses.includes(item.fromString)) {
@@ -78,8 +86,8 @@ module.exports = {
       }
     }
 
-    return isDone
-      ? Math.round(leadTime / 1000)
-      : 0
+    return isDone ?
+      Math.round(leadTime / 1000) :
+      0
   }
 }
