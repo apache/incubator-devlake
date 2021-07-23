@@ -11,7 +11,7 @@
 
 1. Clone this repository
 2. From the newly cloned repo directory, run `docker-compose up --build`
-    
+
     > NOTE: If you get an error like this:
 
     >"Error response from daemon: invalid mount config for type "bind": bind source path does not exist: /tmp/rabbitmq/etc/"
@@ -78,6 +78,13 @@ To run only the enrichment job on existing collections: `POST http://localhost:3
 - Port: 5672
 - Username: guest
 - Password: guest
+
+### Grafana Connection
+
+- Hostname: localhost
+- Port: 3002
+- Username: admin
+- Password: admin
 
 ## Services
 
