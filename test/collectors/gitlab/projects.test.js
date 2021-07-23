@@ -35,13 +35,19 @@ describe.skip('gitlab collector', () => {
         console.log('tree', tree)
       })
     })
-    describe.only('fetchProjectRepoFiles', () => {
+    describe('fetchProjectRepoFiles', () => {
       it('Gets project repo files', async () => {
         const projectId = 28270340
-        const project = await gitlabProjectCollector.fetchProject(projectId)
         const tree = await gitlabProjectCollector.fetchProjectRepoTree(projectId)
-        const files = await gitlabProjectCollector.fetchProjectFiles(projectId, tree, project.default_branch)
+        const files = await gitlabProjectCollector.fetchProjectFiles(projectId, tree)
         console.log('files', files)
+      })
+    })
+    describe('fetchMergeRequests', () => {
+      it('gets merge requests by project repo', async () => {
+        const projectId = 20103385
+        const mrs = await gitlabProjectCollector.fetchMergeRequests(projectId)
+        console.log('mrs', mrs);
       })
     })
   })
