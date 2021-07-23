@@ -10,7 +10,9 @@ module.exports = {
     try {
       const projectToSave = {}
       const commits = await projects.fetchProjectRepoCommits(projectId)
-      projectToSave.numberOfCommits = commits.length
+      const merge_requests = await projects.fetchMergeRequests(projectId)
+      projectToSave.commits = commits
+      projectToSave.merge_requests = merge_requests
       // await mongo.storeRawData(projectToSave, collectionName)
     } catch (error) {
       console.error(error)

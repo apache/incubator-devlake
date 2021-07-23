@@ -2,7 +2,7 @@ require('module-alias/register')
 
 const fetcher = require('../util/fetcher')
 const modelName = 'projects'
-const { gitlab: { host, apiPath, token } } = require('../../../../config/resolveConfig')
+const { gitlab: { host, apiPath, token } } = require('../../../../../../config/resolveConfig')
 const privateTokenHeader = {"PRIVATE-TOKEN": token}
 
 module.exports = {
