@@ -16,7 +16,12 @@ module.exports = {
   },
   jira: {
     host: 'https://your-domain.atlassian.net',
-    basicAuth: '***'
+    basicAuth: '***',
+    restAuth: {
+      enabled: true,
+      username: 'me@example.com',
+      apiToken: 'my-api-token'
+    },    
   },
   gitlab: {
     host: 'https://gitlab.com',

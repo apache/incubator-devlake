@@ -92,7 +92,17 @@ To run only the enrichment job on existing collections: `POST http://localhost:3
 
 __Jira auth setup__
 
+#### Basic Auth
 1. Create an API key on Jira
 3. Create a __basic auth header__ from your API key - [Jira Docs](https://developer.atlassian.com/cloud/jira/platform/basic-auth-for-rest-apis/#supply-basic-auth-headers)
 3. Copy your __basic auth header__ into the `jira.basicAuth` field in `/config/local.js` file
 4. Add your jira hostname to the `jira.host` field in the `/config/local.js` file
+
+
+#### Basic Auth w/ API Token
+1. Create an API Token from your Atlassian Account [Manage API tokens](https://support.atlassian.com/atlassian-account/docs/manage-api-tokens-for-your-atlassian-account/)
+2. Add the new **token** to the `jira.restAuth.apiToken` configuration field in `/config/local.js` file
+3. Add your JIRA **username** to the `jira.restAuth.username` field in in `/config/local.js` file
+4. **ENABLE** API REST Authentication by setting `jira.restAuth.enabled` to `true`
+
+NOTE: If Using 2-Factor on your account, you will need enable this method of authentication.
