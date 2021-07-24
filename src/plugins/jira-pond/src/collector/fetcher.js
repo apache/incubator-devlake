@@ -17,6 +17,21 @@ module.exports = {
         }
       })
 
+      const hasAuthFailures = (
+        header,
+        value,
+        loginReasonXHeader = 'x-seraph-loginreason',
+        deniedReason = 'AUTHENTICATION_DENIED'
+      ) => {
+        return header === loginReasonXHeader && value === deniedReason
+      }
+
+      if (response &&
+          response.headers.find((value, header) => hasAuthFailures(header.toLowerCase(), value))
+      ) {
+        throw new Error('CAPTCHA Triggered! Too many failed authentication attempts w/ REST API.')
+      }
+
       return response.data
     } catch (error) {
       console.error(error)
