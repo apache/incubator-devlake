@@ -6,7 +6,7 @@ module.exports = {
   async fetch (resourceUri) {
     try {
       const Authorization = config.restAuth.enabled
-        ? `Basic ${new Buffer(`${config.restAuth.username}:${config.restAuth.apiToken}`).toString('base64')}`
+        ? `Basic ${Buffer.from(`${config.restAuth.username}:${config.restAuth.apiToken}`).toString('base64')}`
         : `Basic ${config.basicAuth}`
 
       const response = await axios.get(`${config.host}/rest/api/3/${resourceUri}`, {
