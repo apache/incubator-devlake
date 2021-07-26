@@ -1,6 +1,7 @@
 version: "3"
 services:
   postgresdb:
+    hostname: postgresdb
     environment:
       POSTGRES_DB: lake
       POSTGRES_PASSWORD: postgres
@@ -20,9 +21,9 @@ services:
       - 15672:15672
       - 5672:5672
     volumes:
-      - /tmp/rabbitmq/etc/:/tmp/etc/rabbitmq/
-      - /tmp/rabbitmq/data/:/var/lib/rabbitmq/
-      - /tmp/rabbitmq/logs/:/var/log/rabbitmq/
+      - ./tmp/rabbitmq/etc/:/tmp/etc/rabbitmq/
+      - ./tmp/rabbitmq/data/:/var/lib/rabbitmq/
+      - ./tmp/rabbitmq/logs/:/var/log/rabbitmq/
   mongodb:
     image: mongo:5.0.0
     container_name: mongodb
@@ -35,6 +36,27 @@ services:
       - 27017:27017
     restart: on-failure
   grafana:
+    hostname: grafana
     image: grafana/grafana:8.0.6
     ports:
       - 3002:3000
+    volumes:
+      - grafana-storage:/var/lib/grafana
+    env_file:
+      - ./config/grafana.config
+    depends_on:
+      - postgresdb
+    environment:
+      # GF_DATASOURCES_NAME: Postgres
+      # GF_DATASOURCES_TYPE: postgres
+      # GF_DATASOURCES_URL: localhost:5432
+      # GF_DATASOURCES_DATABASE: lake
+      # GF_DATASOURCES_USER: postgres
+      # GF_DATASOURCES_SECUREJSONDATA_PASSWORD: "postgres"
+      GF_DATABASE_TYPE: postgres
+      GF_DATABASE_HOST: postgresdb:5432
+      GF_DATABASE_NAME: lake
+      GF_DATABASE_USER: postgres
+      GF_DATABASE_PASSWORD: postgres
+volumes:
+  grafana-storage: {}
