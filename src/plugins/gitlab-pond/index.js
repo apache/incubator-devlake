@@ -2,6 +2,8 @@
 // const changelogs = require('./src/collector/changelogs')
 // const enrichment = require('jira-pond/src/enricher')
 
+const commits = require("./src/collector/commits")
+
 module.exports = {
   collector: {
     name: 'gitlabCollector',
@@ -11,7 +13,7 @@ module.exports = {
       console.log('projectId', projectId)
       // await issues.collect({ db: rawDb, projectId })
       // await changelogs.collect({ db: rawDb, projectId })
-
+      await commits.collect({ db: rawDb, projectId })
       console.log('INFO >>> done collecting')
 
       return {
