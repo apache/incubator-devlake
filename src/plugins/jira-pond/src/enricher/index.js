@@ -40,13 +40,18 @@ module.exports = {
     const leadTimes = await Promise.all(leadTimePromises)
 
     leadTimes.forEach((leadTime, index) => {
-      console.log('JON >>> leadTime', leadTime)
       let issue = issuesToCreate[index]
+      console.log('INFO >>> issueId & leadTime', issue.id, leadTime)
       issue = {
         leadTime,
         ...issue
       }
-      creationPromises.push(JiraIssue.create(issue))
+      creationPromises.push(JiraIssue.findOrCreate({
+        where: {
+          id: issue.id
+        },
+        defaults: issue
+      }))
     })
 
     await Promise.all(creationPromises)
