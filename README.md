@@ -29,30 +29,6 @@
 1. Make a copy of `config/local.sample.js` under the name of `config/local.js`
 2. We can use default values for most fields except the Jira section. For how to set up basic authorization with Jira, please see this [section](#jira) below
 
-## Usage
-
-### Create a Collection Job
-
-1. From the terminal, execute `npm run all`
-2. From Postman (or similar), send a request like...
-
-```json
-
-POST http://localhost:3001/
-
-{
-    "jira": {
-        "projectId": "10003",
-        "accountUri": "merico.atlassian.net"
-    }
-}
-
-```
-
-3. See that the collection job was published, jira collection ran, the enrichment job was published, and jira enrichment ran
-
-To run only the enrichment job on existing collections: `POST http://localhost:3000/`
-
 ## Connection Information
 
 ### Postgres Connection
@@ -81,10 +57,17 @@ To run only the enrichment job on existing collections: `POST http://localhost:3
 
 ### Grafana Connection
 
-- Hostname: localhost
-- Port: 3002
-- Username: admin
-- Password: admin
+Connect to the Grafana database:
+Inside `docker-compose.yml` edit the environment variables as needed to connect to your local postgres instance, specifically:
+- `GF_DATABASE_NAME`
+- `GF_DATABASE_USER`
+- `GF_DATABASE_PASSWORD`
+
+Connect the Grafana data source:
+Additionally to use the postgres database as  data source inside grafana, ensure postgres config options are correct in `./grafana/datasources/datasource.yml`, specifically:
+- `database`
+- `user`
+- `secureJsonData/password`
 
 ## Services
 
@@ -96,3 +79,33 @@ __Jira auth setup__
 3. Create a __basic auth header__ from your API key - [Jira Docs](https://developer.atlassian.com/cloud/jira/platform/basic-auth-for-rest-apis/#supply-basic-auth-headers)
 3. Copy your __basic auth header__ into the `jira.basicAuth` field in `/config/local.js` file
 4. Add your jira hostname to the `jira.host` field in the `/config/local.js` file
+
+## Usage
+
+### Create a Collection Job
+
+1. From the terminal, execute `npm run all`
+2. From Postman (or similar), send a request like...
+
+```json
+
+POST http://localhost:3001/
+
+{
+    "jira": {
+        "projectId": "10003",
+        "accountUri": "merico.atlassian.net"
+    }
+}
+
+```
+
+3. See that the collection job was published, jira collection ran, the enrichment job was published, and jira enrichment ran
+
+To run only the enrichment job on existing collections: `POST http://localhost:3000/`
+
+### Using the Grafana Dashboard
+
+- Visit: `http://localhost:3002`
+- Username: `admin`
+- Password: `admin`
