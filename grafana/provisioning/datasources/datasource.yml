@@ -1,0 +1,18 @@
+# config file version
+apiVersion: 1
+
+datasources:
+  - name: Postgres
+    type: postgres
+    url: postgresdb:5432
+    database: grafana
+    user: postgres
+    secureJsonData:
+      password: "postgres"
+    jsonData:
+      sslmode: "disable"
+      maxOpenConns: 0
+      maxIdleConns: 2
+      connMaxLifetime: 14400
+      postgresVersion: 903
+      timescaledb: false

@@ -42,21 +42,17 @@ services:
       - 3002:3000
     volumes:
       - grafana-storage:/var/lib/grafana
+      - ./grafana/provisioning/:/etc/grafana/provisioning/
     env_file:
-      - ./config/grafana.config
+      - ./grafana/grafana.config
     depends_on:
       - postgresdb
     environment:
-      # GF_DATASOURCES_NAME: Postgres
-      # GF_DATASOURCES_TYPE: postgres
-      # GF_DATASOURCES_URL: localhost:5432
-      # GF_DATASOURCES_DATABASE: lake
-      # GF_DATASOURCES_USER: postgres
-      # GF_DATASOURCES_SECUREJSONDATA_PASSWORD: "postgres"
       GF_DATABASE_TYPE: postgres
       GF_DATABASE_HOST: postgresdb:5432
       GF_DATABASE_NAME: lake
       GF_DATABASE_USER: postgres
       GF_DATABASE_PASSWORD: postgres
+      GF_DATABASE_SSL_MODE: disable
 volumes:
   grafana-storage: {}
