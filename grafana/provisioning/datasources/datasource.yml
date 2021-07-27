@@ -5,7 +5,7 @@ datasources:
   - name: Postgres
     type: postgres
     url: postgresdb:5432
-    database: grafana
+    database: lake
     user: postgres
     secureJsonData:
       password: "postgres"
