@@ -19,26 +19,36 @@ module.exports = {
 
       const changelogCollection = await findOrCreateCollection(options.db, collectionName)
 
-      const promises = []
-      for (const issue of issues) {
-        // todo we cant have this line. It needs to be a promise.all async
-        const changelog = await module.exports.fetchChangelogForIssue(issue.id)
-        for (const change of changelog.values) {
-          const primaryKey = changelog.id
+      const fetchPromises = []
+      const savePromises = []
 
-          promises.push(changelogCollection.findOneAndUpdate({
+      // fetch changelogs for all issues
+      for (const issue of issues) {
+        fetchPromises.push(module.exports.fetchChangelogForIssue(issue.id))
+      }
+      const changelogs = await Promise.all(fetchPromises)
+
+      // save changelogs into mongodb
+      changelogs.forEach((changelog, index) => {
+        changelog && changelog.values && changelog.values.forEach(change => {
+          // set changelog id as its primaryKey
+          const primaryKey = change.id
+          change.primaryKey = primaryKey
+
+          savePromises.push(changelogCollection.findOneAndUpdate({
             primaryKey
           }, {
             $set: {
-              issueId: issue.id,
+              issueId: issues[index].id,
               ...change
             }
           }, {
             upsert: true
           }))
-        }
-      }
-      await Promise.all(promises)
+        })
+      })
+
+      await Promise.all(savePromises)
     } catch (error) {
       console.log(error)
     }
