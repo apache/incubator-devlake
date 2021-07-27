@@ -16,17 +16,12 @@ module.exports = {
       console.log(error)
     }
   },
-  async fetchProjectRepoCommits (projectId) {
-     const requestUri = `projects/${projectId}/repository/commits?all=true&with_stats=true`
-
-    return fetcher.fetch(requestUri)
-  },
   async save ( {response, db} ){
     try {
       const promises = []
       const commitsCollection = await findOrCreateCollection(db, collectionName)
       response.forEach(commit => {
-        commit.primaryKey = commit.id + 'ygers8438ht'
+        commit.primaryKey = commit.id
 
         promises.push(commitsCollection.findOneAndUpdate({
           primaryKey: commit.primaryKey
@@ -42,6 +37,11 @@ module.exports = {
       console.error(error)
     }
   },
+  async fetchProjectRepoCommits (projectId) {
+    const requestUri = `projects/${projectId}/repository/commits?all=true&with_stats=true`
+
+   return fetcher.fetch(requestUri)
+ },
   async findCommits (where, db, limit = 99999999) {
     console.log('INFO >>> findCommits where', where)
     const commitsCollection = await findOrCreateCollection(db, collectionName)
