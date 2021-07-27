@@ -3,7 +3,7 @@ require('module-alias/register')
 const issueCollector = require('../collector/issues')
 const changelogCollector = require('../collector/changelogs')
 
-const closedStatuses = ['Done', 'Closed']
+const closedStatuses = ['Done', 'Closed', '已关闭']
 
 module.exports = {
   async enrich (rawDb, enrichedDb, projectId) {
