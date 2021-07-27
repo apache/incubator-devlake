@@ -4,8 +4,8 @@ const dbConnector = require('@mongo/connection')
 const assert = require('assert')
 
 // SKIP API calls
-describe('MergeRequests', () => {
-  describe.skip('fetchProjectMergeRequests', () => {
+describe.skip('MergeRequests', () => {
+  describe('fetchProjectMergeRequests', () => {
     it('gets mergeRequests for a project', async () => {
       let projectId = 28270340
       let foundMergeRequests = await mergeRequests.fetchProjectMergeRequests(projectId)
