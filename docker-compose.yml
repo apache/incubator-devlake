@@ -1,6 +1,7 @@
 version: "3"
 services:
   postgresdb:
+    hostname: postgresdb
     environment:
       POSTGRES_DB: lake
       POSTGRES_PASSWORD: postgres
@@ -35,6 +36,24 @@ services:
       - 27017:27017
     restart: on-failure
   grafana:
+    hostname: grafana
     image: grafana/grafana:8.0.6
     ports:
       - 3002:3000
+    volumes:
+      - grafana-storage:/var/lib/grafana
+      - ./grafana/provisioning/:/etc/grafana/provisioning/
+      - ./grafana/dashboards:/etc/grafana/dashboards/
+    env_file:
+      - ./grafana/grafana.config
+    depends_on:
+      - postgresdb
+    environment:
+      GF_DATABASE_TYPE: postgres
+      GF_DATABASE_HOST: postgresdb:5432
+      GF_DATABASE_NAME: lake
+      GF_DATABASE_USER: postgres
+      GF_DATABASE_PASSWORD: postgres
+      GF_DATABASE_SSL_MODE: disable
+volumes:
+  grafana-storage: {}
