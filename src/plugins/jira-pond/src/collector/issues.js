@@ -9,23 +9,20 @@ const collectionName = 'jira_issues'
 module.exports = {
   async collect (options) {
     try {
-      const issuesResponse = await module.exports.fetchIssues(options.projectId)
+      const issues = await module.exports.fetchIssues(options.projectId)
 
-      await module.exports.save({ issuesResponse, db: options.db })
+      await module.exports.save({ issues, db: options.db })
     } catch (error) {
       console.log(error)
     }
   },
 
-  async save ({
-    issuesResponse,
-    db
-  }) {
+  async save ({ issues, db }) {
     try {
       const promises = []
       const issuesCollection = await findOrCreateCollection(db, collectionName)
 
-      issuesResponse.issues.forEach(issue => {
+      issues.forEach(issue => {
         issue.primaryKey = Number(issue.id)
 
         promises.push(issuesCollection.findOneAndUpdate({
