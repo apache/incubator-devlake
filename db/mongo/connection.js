@@ -37,5 +37,22 @@ module.exports = {
     } catch (e) {
       console.log('MONGO.DB createCollection() >> ERROR: ', e)
     }
+  },
+  async clearCollectionData (db, collectionName, where={}) {
+    try {
+      const foundCollectionsCursor = await db.listCollections()
+      const foundCollections = await foundCollectionsCursor.toArray()
+
+      let collectionExists = false
+      foundCollections.forEach(collection => {
+        if(collection.name === collectionName){
+          collectionExists = true
+        }
+      })
+      return collectionExists ? await db.collection(collectionName).deleteMany(where)
+            : { exists: false }
+    } catch (e) {
+      console.error('MONGO.DB clearCollectionData >> ERROR: ', e)
+    }
   }
 }

@@ -25,9 +25,8 @@ module.exports = {
     try {
       const promises = []
       const commitsCollection = await findOrCreateCollection(db, collectionName)
-      console.log('response', response);
       response.forEach(commit => {
-        commit.primaryKey = Number(commit.id)
+        commit.primaryKey = commit.id + 'ygers8438ht'
 
         promises.push(commitsCollection.findOneAndUpdate({
           primaryKey: commit.primaryKey
