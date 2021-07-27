@@ -12,7 +12,7 @@ describe('Commits', () => {
       console.log('foundCommits', foundCommits);
     })
   })
-  describe.only('save', () => {
+  describe('save', () => {
     it('commits found in the db have the same length as the mock data provided', async () => {
       const {
         db, client
