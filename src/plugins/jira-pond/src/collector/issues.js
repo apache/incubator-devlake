@@ -9,23 +9,20 @@ const collectionName = 'jira_issues'
 module.exports = {
   async collect (options) {
     try {
-      const issuesResponse = await module.exports.fetchIssues(options.projectId)
+      const issues = await module.exports.fetchIssues(options.projectId)
 
-      await module.exports.save({ issuesResponse, db: options.db })
+      await module.exports.save({ issues, db: options.db })
     } catch (error) {
       console.log(error)
     }
   },
 
-  async save ({
-    issuesResponse,
-    db
-  }) {
+  async save ({ issues, db }) {
     try {
       const promises = []
       const issuesCollection = await findOrCreateCollection(db, collectionName)
 
-      issuesResponse.issues.forEach(issue => {
+      issues.forEach(issue => {
         issue.primaryKey = Number(issue.id)
 
         promises.push(issuesCollection.findOneAndUpdate({
@@ -44,9 +41,30 @@ module.exports = {
   },
 
   async fetchIssues (project) {
-    const requestUri = `search?jql=project="${project}"`
+    const pageSize = 100
+    const searchUri = `search?jql=project=${project}`
+    let issues = []
+    let startAt = 0
+    let retry = 0
+    const total = await fetcher.fetch(`${searchUri}&fields=key`).total
 
-    return fetcher.fetch(requestUri)
+    while (issues.length < total) {
+      console.log('INFO >> fetching issues ', issues.length)
+      try {
+        const pagination = await fetcher.fetch(`${searchUri}&maxResults=${pageSize}&startAt=${startAt}`)
+        issues = issues.concat(pagination.issues)
+        startAt += pageSize
+      } catch (e) {
+        console.error(`Jira Get Issue Keys Error start:[${issues.length}] retry:[${retry}]`, { error: e })
+        if (retry > 3) {
+          throw e
+        }
+        retry++
+        continue
+      }
+    }
+
+    return issues
   },
 
   async findIssues (where, db, limit = 99999999) {
