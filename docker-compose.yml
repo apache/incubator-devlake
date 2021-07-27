@@ -21,9 +21,9 @@ services:
       - 15672:15672
       - 5672:5672
     volumes:
-      - ./tmp/rabbitmq/etc/:/tmp/etc/rabbitmq/
-      - ./tmp/rabbitmq/data/:/var/lib/rabbitmq/
-      - ./tmp/rabbitmq/logs/:/var/log/rabbitmq/
+      - /tmp/rabbitmq/etc/:/tmp/etc/rabbitmq/
+      - /tmp/rabbitmq/data/:/var/lib/rabbitmq/
+      - /tmp/rabbitmq/logs/:/var/log/rabbitmq/
   mongodb:
     image: mongo:5.0.0
     container_name: mongodb
