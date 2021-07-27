@@ -3,8 +3,9 @@ const mockData = require('./data/commits')
 const dbConnector = require('@mongo/connection')
 const assert = require('assert')
 
+// SKIP API calls
 describe('Commits', () => {
-  describe('fetchProjectRepoCommits', () => {
+  describe.skip('fetchProjectRepoCommits', () => {
     it('gets commits for a project', async () => {
       let projectId = 28270340
       let foundCommits = await commits.fetchProjectRepoCommits(projectId)
@@ -16,10 +17,11 @@ describe('Commits', () => {
       const {
         db, client
       } = await dbConnector.connect()
+      const collectionName = 'gitlab_project_repo_commits'
       try {
+        await dbConnector.clearCollectionData(db, collectionName)
         await commits.save({ response: mockData, db})
         let foundCommits = await commits.findCommits('', db)
-        console.log('foundCommits', foundCommits);
         assert.equal(foundCommits.length, mockData.length)
       } catch (error) {
         console.log('Failed to collect', error)
