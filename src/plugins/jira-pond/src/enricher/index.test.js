@@ -31,8 +31,8 @@ describe('Jira-pond enricher', () => {
     })
 
     it('when no issue type is passed in, return empty string', () => {
-      assert(enricher.mapIssueTypeFromConfiguration(null), '')
-      assert(enricher.mapIssueTypeFromConfiguration(''), '')
+      assert.deepStrictEqual(enricher.mapIssueTypeFromConfiguration(), '')
+      assert.deepStrictEqual(enricher.mapIssueTypeFromConfiguration(''), '')
     })
   })
 })
