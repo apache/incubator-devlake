@@ -11,6 +11,8 @@ module.exports = {
     try {
       const issues = await module.exports.fetchIssues(options.projectId)
 
+      console.log('THE ISSUES', issues)
+
       await module.exports.save({ issues, db: options.db })
     } catch (error) {
       console.log(error)
@@ -46,9 +48,9 @@ module.exports = {
     let issues = []
     let startAt = 0
     let retry = 0
-    const total = await fetcher.fetch(`${searchUri}&fields=key`).total
+    const totalResults = await fetcher.fetch(`${searchUri}&fields=key`)
 
-    while (issues.length < total) {
+    while (issues.length < totalResults.total) {
       console.log('INFO >> fetching issues ', issues.length)
       try {
         const pagination = await fetcher.fetch(`${searchUri}&maxResults=${pageSize}&startAt=${startAt}`)
