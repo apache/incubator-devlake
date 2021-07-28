@@ -1,7 +1,7 @@
 const assert = require('assert')
-const enricher = require('./index')
+const { mapValue } = require('../../../../util/mapping')
 
-describe('Jira-pond enricher', () => {
+describe('Mapping', () => {
   describe('mapValue()', () => {
     it('returns the lake value for Bug from the jira issue of the user', () => {
       const config = {
@@ -9,8 +9,8 @@ describe('Jira-pond enricher', () => {
         "Incident": "OurJiraIncidentType"
       }
       
-      assert(enricher.mapValue('Bugzilla', config), 'Bug')
-      assert(enricher.mapValue('OurJiraIncidentType', config), 'Incident')
+      assert(mapValue('Bugzilla', config), 'Bug')
+      assert(mapValue('OurJiraIncidentType', config), 'Incident')
     })
     it('handles case insensitivity', () => {
       const config = {
@@ -18,8 +18,8 @@ describe('Jira-pond enricher', () => {
         "Incident": "OurJiraIncidentType"
       }
       
-      assert(enricher.mapValue('bugzilla', config), 'Bug')
-      assert(enricher.mapValue('ourjiraINCIDENTType', config), 'Incident')
+      assert(mapValue('bugzilla', config), 'Bug')
+      assert(mapValue('ourjiraINCIDENTType', config), 'Incident')
     })
     it('returns the passed in issue type if no mapping exists', () => {
       const config = {
@@ -27,12 +27,12 @@ describe('Jira-pond enricher', () => {
         "Incident": "OurJiraIncidentType"
       }
       
-      assert(enricher.mapValue('myOtherJiraIssueType', config), 'myOtherJiraIssueType')
+      assert(mapValue('myOtherJiraIssueType', config), 'myOtherJiraIssueType')
     })
 
     it('when no issue type is passed in, return empty string', () => {
-      assert.deepStrictEqual(enricher.mapValue(), '')
-      assert.deepStrictEqual(enricher.mapValue(''), '')
+      assert.deepStrictEqual(mapValue(), '')
+      assert.deepStrictEqual(mapValue(''), '')
     })
 
     it('handles an array of values', () => {
@@ -41,8 +41,8 @@ describe('Jira-pond enricher', () => {
         "Done": ["Closed", "Complete"]
       }
 
-      assert.deepStrictEqual(enricher.mapValue('Complete', config), 'Done')
-      assert.deepStrictEqual(enricher.mapValue('Closed', config), 'Done')
+      assert.deepStrictEqual(mapValue('Complete', config), 'Done')
+      assert.deepStrictEqual(mapValue('Closed', config), 'Done')
     })
   })
 })
