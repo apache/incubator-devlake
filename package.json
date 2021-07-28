@@ -38,14 +38,15 @@
     "amqplib": "^0.8.0",
     "axios": "^0.21.1",
     "body-parser": "^1.19.0",
+    "commondb": "src/plugins/commondb",
     "concurrently": "^6.2.0",
     "express": "^4.17.1",
     "jira-pond": "src/plugins/jira-pond",
-    "commondb": "src/plugins/commondb",
     "lodash": "^4.17.21",
     "module-alias": "^2.2.2",
     "mongodb": "*",
     "pg": "^8.6.0",
+    "proxy-agent": "^5.0.0",
     "sequelize": "^6.3.4"
   },
   "devDependencies": {
