@@ -26,18 +26,18 @@ module.exports = {
   mapIssueTypeFromConfiguration (jiraIssueTypeString, issueTypes) {
     if(!jiraIssueTypeString || jiraIssueTypeString === ''){
       return ''
-    }
-    
-    for (const key in issueTypes) {
-      if (Object.hasOwnProperty.call(issueTypes, key)) {
-        const element = issueTypes[key];
-        if(element.toLowerCase() === jiraIssueTypeString.toLowerCase()){
-          return key
+    } else {
+      for (const key in issueTypes) {
+        if (Object.hasOwnProperty.call(issueTypes, key)) {
+          const element = issueTypes[key];
+          if(element.toLowerCase() === jiraIssueTypeString.toLowerCase()){
+            return key
+          }
         }
       }
+      // If no mapping is found, return the original value from the Jira API
+      return jiraIssueTypeString
     }
-    // If no mapping is found, return the original value from the Jira API
-    return jiraIssueTypeString
   },
 
   async enrichLeadTimeOnIssues (rawDb, enrichedDb, projectId) {
