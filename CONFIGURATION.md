@@ -12,10 +12,14 @@
 This can be set up in `/config/constants.js`.
 
 ```
-"jira": {
-  "Closed": ["Done", "Closed", "已关闭"],
-  "Bug": "Bug",
-  "Incident": "Incident"
+{
+  "jira": {
+    "mappings": {
+      "Closed": ["Done", "Closed", "已关闭"],
+      "Bug": "Bug",
+      "Incident": "Incident"
+    } 
+  }
 }
 ```
 

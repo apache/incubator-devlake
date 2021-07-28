@@ -58,7 +58,7 @@ module.exports = {
       // Update all existing records
       updatePromises.push(JiraIssue.update(issue, {
         where: {
-          url: issue.url
+          id: issue.id
         }
       }))
     })

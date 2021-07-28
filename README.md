@@ -27,9 +27,9 @@
 ## Configuration
 
 1. Make a copy of `config/local.sample.js` under the name of `config/local.js`
-2. We can use default values for most fields except the Jira section. For how to set up basic authorization with Jira, please see this [section](#jira) below
+2. We can use default values for most fields except the Jira section. 
 
-Note: You can see more configuration in [CONFIGURATION.md](CONFIGURATION.md)
+For how to set up basic authorization with Jira, and many more things, please see [CONFIGURATION.md](CONFIGURATION.md)
 
 ### Grafana Connection For Data Visualization (https://localhost:3002)
 
