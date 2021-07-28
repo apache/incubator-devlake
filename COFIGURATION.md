@@ -19,6 +19,7 @@ This can be set up in `/config/constants.js`.
 }
 ```
 
+You can set multiple values to map from your system as well. Just put the values in an array.
 In this object, you can set the values of the object to map to your Jira status definitions. IE:
 
 ```
