@@ -7,7 +7,7 @@ const privateTokenHeader = { 'PRIVATE-TOKEN': token }
 module.exports = {
   async fetch (url) {
     try {
-      const res = await axios.get(`${host}/${apiPath}/${url}`, privateTokenHeader)
+      const res = await axios.get(`${host}/${apiPath}/${url}`, { headers: privateTokenHeader })
       return res.data
     } catch (error) {
       console.error(error)
