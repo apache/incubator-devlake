@@ -29,14 +29,12 @@ module.exports = {
     const issuesToCreate = []
     issues.forEach(async issue => {
       leadTimePromises.push(module.exports.calculateLeadTime(issue, rawDb))
-      console.log('JON >>> issue?.fields?.issuetype?.name', issue?.fields?.issuetype?.name)
-      console.log('JON >>> constants.mappings', constants.mappings)
       issuesToCreate.push({
-        id: issue?.id,
-        url: issue?.self,
-        title: issue?.fields?.summary,
-        projectId: issue?.fields?.project?.id,
-        issueType: mapValue(issue?.fields?.issuetype?.name, constants.mappings)
+        id: issue.id,
+        url: issue.self,
+        title: issue.fields.summary,
+        projectId: issue.fields.project.id,
+        issueType: mapValue(issue.fields.issuetype.name, constants.mappings)
         // description: issue.fields.description
       })
     })
@@ -58,7 +56,6 @@ module.exports = {
         defaults: issue
       }))
       // Update all existing records
-      console.log('JON >>> issue to update', issue)
       updatePromises.push(JiraIssue.update(issue, {
         where: {
           url: issue.url
@@ -84,14 +81,14 @@ module.exports = {
         if (item.field === 'status') {
           const changeTime = new Date(change.created).getTime()
 
-          if (!constants.mappings["Closed"].includes(item.fromString)) {
+          if (!constants.mappings.Closed.includes(item.fromString)) {
             const elapsedTime = changeTime - lastTime
 
             leadTime += elapsedTime
           }
 
           lastTime = changeTime
-          isDone = constants.mappings["Closed"].includes(item.toString)
+          isDone = constants.mappings.Closed.includes(item.toString)
         }
       }
     }

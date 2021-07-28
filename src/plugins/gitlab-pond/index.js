@@ -2,7 +2,7 @@
 // const changelogs = require('./src/collector/changelogs')
 // const enrichment = require('jira-pond/src/enricher')
 
-const commits = require("./src/collector/commits")
+const commits = require('./src/collector/commits')
 
 module.exports = {
   collector: {
