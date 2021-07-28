@@ -16,7 +16,9 @@ module.exports = {
   },
   jira: {
     host: 'https://your-domain.atlassian.net',
-    basicAuth: '***'
+    basicAuth: '***',
+    proxy: 'http://localhost:4780',
+    timeout: 15000
   },
   gitlab: {
     host: 'https://gitlab.com',
