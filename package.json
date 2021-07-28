@@ -5,7 +5,7 @@
   "main": "test-docker-compose.js",
   "scripts": {
     "start": "node app.js",
-    "test": "mocha \"test/**\"",
+    "test": "mocha \"test/**\" src/**/*.test.js",
     "unit-test": "ENCRYPTION_KEY=123 NODE_ENV=test ./node_modules/mocha/bin/mocha \"test/unit/**/*.test.js\"",
     "collect": "nodemon src/collection/main.js",
     "collection-worker": "./src/collection/worker.js",

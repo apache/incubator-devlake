@@ -33,6 +33,9 @@ module.exports = (sequelize, DataTypes) => {
     leadTime: {
       type: DataTypes.INTEGER
     },
+    issueType: {
+      type: DataTypes.STRING
+    },
     createdAt: {
       allowNull: false,
       type: DataTypes.DATE,
