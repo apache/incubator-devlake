@@ -11,8 +11,6 @@ module.exports = {
     try {
       const issues = await module.exports.fetchIssues(options.projectId)
 
-      console.log('THE ISSUES', issues)
-
       await module.exports.save({ issues, db: options.db })
     } catch (error) {
       console.log(error)
