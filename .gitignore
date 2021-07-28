@@ -123,3 +123,14 @@ data/
 
 # config files
 config/local.js
+
+# Editors
+.idea
+*.iml
+
+# OS metadata
+.DS_Store
+Thumbs.db
+
+# yarn
+yarn.lock
