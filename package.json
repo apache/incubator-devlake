@@ -12,7 +12,9 @@
     "enrich": "nodemon src/enrichment/main.js",
     "enrichment-worker": "./src/enrichment/worker.js",
     "lint": "./node_modules/eslint/bin/eslint.js . --max-warnings=0 --report-unused-disable-directives --fix && echo '✔  Your .js files look good.'",
-    "all": "concurrently \"nodemon src/collection/main.js\" \"nodemon src/collection/worker.js\" \"nodemon src/enrichment/main.js\" \"nodemon src/enrichment/worker.js\""
+    "all": "concurrently \"nodemon src/collection/main.js\" \"nodemon src/collection/worker.js\" \"nodemon src/enrichment/main.js\" \"nodemon src/enrichment/worker.js\"",
+    "prepare": "husky install",
+    "commit": "cz"
   },
   "repository": {
     "type": "git",
@@ -47,14 +49,24 @@
     "sequelize": "^6.3.4"
   },
   "devDependencies": {
+    "@commitlint/cli": "^13.1.0",
+    "@commitlint/config-conventional": "^13.1.0",
+    "commitizen": "^4.2.4",
+    "cz-conventional-changelog": "^3.3.0",
     "eslint": "^7.31.0",
     "eslint-config-standard": "^16.0.3",
     "eslint-plugin-import": "^2.23.4",
     "eslint-plugin-node": "^11.1.0",
     "eslint-plugin-promise": "^5.1.0",
+    "husky": "^7.0.1",
     "mocha": "^9.0.2",
     "nodemon": "^2.0.12",
     "pg": "^8.6.0",
     "sequelize-cli": "^6.2.0"
+  },
+  "config": {
+    "commitizen": {
+      "path": "./node_modules/cz-conventional-changelog"
+    }
   }
 }
