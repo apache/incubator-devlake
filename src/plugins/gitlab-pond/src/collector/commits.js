@@ -16,7 +16,7 @@ module.exports = {
       console.log(error)
     }
   },
-  async save ( {response, db} ){
+  async save ({ response, db }) {
     try {
       const promises = []
       const commitsCollection = await findOrCreateCollection(db, collectionName)
@@ -40,8 +40,8 @@ module.exports = {
   async fetchProjectRepoCommits (projectId) {
     const requestUri = `projects/${projectId}/repository/commits?all=true&with_stats=true`
 
-   return fetcher.fetch(requestUri)
- },
+    return fetcher.fetch(requestUri)
+  },
   async findCommits (where, db, limit = 99999999) {
     console.log('INFO >>> findCommits where', where)
     const commitsCollection = await findOrCreateCollection(db, collectionName)

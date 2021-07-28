@@ -5,28 +5,28 @@ describe('Mapping', () => {
   describe('mapValue()', () => {
     it('returns the lake value for Bug from the jira issue of the user', () => {
       const config = {
-        "Bug": "Bugzilla",
-        "Incident": "OurJiraIncidentType"
+        Bug: 'Bugzilla',
+        Incident: 'OurJiraIncidentType'
       }
-      
+
       assert(mapValue('Bugzilla', config), 'Bug')
       assert(mapValue('OurJiraIncidentType', config), 'Incident')
     })
     it('handles case insensitivity', () => {
       const config = {
-        "Bug": "Bugzilla",
-        "Incident": "OurJiraIncidentType"
+        Bug: 'Bugzilla',
+        Incident: 'OurJiraIncidentType'
       }
-      
+
       assert(mapValue('bugzilla', config), 'Bug')
       assert(mapValue('ourjiraINCIDENTType', config), 'Incident')
     })
     it('returns the passed in issue type if no mapping exists', () => {
       const config = {
-        "Bug": "Bugzilla",
-        "Incident": "OurJiraIncidentType"
+        Bug: 'Bugzilla',
+        Incident: 'OurJiraIncidentType'
       }
-      
+
       assert(mapValue('myOtherJiraIssueType', config), 'myOtherJiraIssueType')
     })
 
@@ -36,9 +36,8 @@ describe('Mapping', () => {
     })
 
     it('handles an array of values', () => {
-
       const config = {
-        "Done": ["Closed", "Complete"]
+        Done: ['Closed', 'Complete']
       }
 
       assert.deepStrictEqual(mapValue('Complete', config), 'Done')
