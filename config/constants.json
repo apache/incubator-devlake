@@ -1,9 +1,7 @@
 {
   "jira": {
-    "closedStatuses": ["Done", "Closed", "已关闭"],
-    "issueTypes": {
-      "Bug": "Bug",
-      "Incident": "Incident"
-    }
+    "Closed": ["Done", "Closed", "已关闭"],
+    "Bug": "Bug",
+    "Incident": "Incident"
   }
 }
