@@ -14,7 +14,6 @@
     "lint": "./node_modules/eslint/bin/eslint.js . --max-warnings=0 --report-unused-disable-directives --fix && echo '✔  Your .js files look good.'",
     "all": "concurrently \"nodemon src/collection/main.js\" \"nodemon src/collection/worker.js\" \"nodemon src/enrichment/main.js\" \"nodemon src/enrichment/worker.js\"",
     "prepare": "husky install",
-    "commit-msg": "commitlint -e $HUSKY_GIT_PARAMS",
     "commit": "cz"
   },
   "repository": {
