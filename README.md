@@ -29,33 +29,9 @@
 1. Make a copy of `config/local.sample.js` under the name of `config/local.js`
 2. We can use default values for most fields except the Jira section. For how to set up basic authorization with Jira, please see this [section](#jira) below
 
-## Connection Information
+Note: You can see more configuration in [CONFIGURATION.md](CONFIGURATION.md)
 
-### Postgres Connection
-
-- DB Name: lake
-- Hostname: localhost
-- Port: 5432
-- Username: postgres
-- Password: postgres
-
-### MongoDB Connection
-
-- DB Name: test
-- Hostname: localhost
-- Port: 27017
-- Username: (none required)
-- Password: (none required)
-
-### RabbitMQ Connection
-
-- Vhost Name: rabbitmq
-- Hostname: localhost
-- Port: 5672
-- Username: guest
-- Password: guest
-
-### Grafana Connection
+### Grafana Connection For Data Visualization (https://localhost:3002)
 
 Connect to the Grafana database:
 Inside `docker-compose.yml` edit the environment variables as needed to connect to your local postgres instance, specifically:
@@ -64,21 +40,10 @@ Inside `docker-compose.yml` edit the environment variables as needed to connect 
 - `GF_DATABASE_PASSWORD`
 
 Connect the Grafana data source:
-Additionally to use the postgres database as  data source inside grafana, ensure postgres config options are correct in `./grafana/datasources/datasource.yml`, specifically:
+Additionally to use the postgres database as data source inside grafana, ensure postgres config options are correct in `./grafana/datasources/datasource.yml`, specifically:
 - `database`
 - `user`
 - `secureJsonData/password`
-
-## Services
-
-### Jira
-
-__Jira auth setup__
-
-1. Create an API key on Jira
-3. Create a __basic auth header__ from your API key - [Jira Docs](https://developer.atlassian.com/cloud/jira/platform/basic-auth-for-rest-apis/#supply-basic-auth-headers)
-3. Copy your __basic auth header__ into the `jira.basicAuth` field in `/config/local.js` file
-4. Add your jira hostname to the `jira.host` field in the `/config/local.js` file
 
 ## Usage
 
@@ -109,3 +74,7 @@ To run only the enrichment job on existing collections: `POST http://localhost:3
 - Visit: `http://localhost:3002`
 - Username: `admin`
 - Password: `admin`
+
+## Contributing
+
+[CONTRIBUTING.md](CONTRIBUTING.md)
