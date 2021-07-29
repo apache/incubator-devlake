@@ -7,7 +7,7 @@ module.exports = {
     exec: async function (rawDb, options) {
       const { projectId } = options
       console.log('projectId', projectId)
-      await collectionManager.collectProjectDetails(options, rawDb)
+      await collectionManager.collectProjectsDetails(options, rawDb)
       // await collectionManager.collectProjectDetails(options)
       // await collectionManager.collectProjectDetails(options)
       // await collectionManager.collectProjectDetails(options)

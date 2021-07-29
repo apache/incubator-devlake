@@ -9,7 +9,7 @@ module.exports = {
       await module.exports.saveProjectsToPsql(
         rawDb,
         enrichedDb,
-        options.projectId
+        options.projectIds
       )
       console.log('Done enriching issues')
     } catch (error) {
@@ -17,42 +17,46 @@ module.exports = {
     }
   },
 
-  async saveProjectsToPsql(rawDb, enrichedDb, projectId) {
+  async saveProjectsToPsql(rawDb, enrichedDb, projectIds) {
     const {
       GitlabProject
     } = enrichedDb
 
     // find the project in mongo
-    let project = await collectionManager.findCollection('projects', {
-      'id': projectId
-    }, rawDb)
+    let projects = await collectionManager.findCollection('projects', 
+      { id: { $in: projectIds } }
+    , rawDb)
 
     // mongo always returns an array
-    project = project[0]
+    creationPromises = []
+    updatePromises = []
 
-    project = {
-      name: project.name,
-      id: project.id,
-      pathWithNamespace: project.path_with_namespace,
-      webUrl: project.web_url,
-      visibility: project.visibility,
-      openIssuesCount: project.open_issues_count,
-      starCount: project.star_count,
-    }
-
-    console.log('JON >>> project', project)
-    // save the project in psql
-    await GitlabProject.findOrCreate({
-      where: {
-        id: project.id
-      },
-      defaults: project
-    })
-
-    await GitlabProject.update(project, {
-      where: {
-        id: project.id
+    projects.forEach(project => {
+      project = {
+        name: project.name,
+        id: project.id,
+        pathWithNamespace: project.path_with_namespace,
+        webUrl: project.web_url,
+        visibility: project.visibility,
+        openIssuesCount: project.open_issues_count,
+        starCount: project.star_count,
       }
+
+      creationPromises.push(GitlabProject.findOrCreate({
+        where: {
+          id: project.id
+        },
+        defaults: project
+      }))
+
+      updatePromises.push(GitlabProject.update(project, {
+        where: {
+          id: project.id
+        }
+      }))
     })
+
+    await Promise.all(creationPromises)
+    await Promise.all(updatePromises)
   },
 }

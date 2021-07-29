@@ -3,48 +3,18 @@ require('module-alias/register')
 const { findOrCreateCollection } = require('../../../commondb')
 
 const fetcher = require('./fetcher')
-const projectIds = require('../../config/deleteme')
-
 
 module.exports = {
-  async collectAll () {
-    // get poject details 
-    // store project in pqsl 
-    
-    // get all commits for all projects
-    // store all in psql
-
-    // get all MR 
-    // get all notes for all MR
-    // Save all MR data in the psql
-
-    console.log('JON >>> collecting all gitlab')
-    let promises = []
-    projectIds.forEach(projectId => {
-    //   promises.push(collect({
-    //     modelName: 'projects',
-    //     apiUrl:  
-    //   }))
-    })
-  },
-
-  async collectProjectDetails(options, db) {
+  async collectProjectsDetails(options, db) {
     let modelName = 'projects'
-    let id = options.projectId
 
-    let response = await module.exports.fetchCollectionData(modelName, id, '')
-    await module.exports.saveOne(response, db, modelName)
+    for (let index = 0; index < options.projectIds.length; index++) {
+      const projectId = options.projectIds[index];
+      
+      let response = await module.exports.fetchCollectionData(modelName, projectId, '')
+      await module.exports.saveOne(response, db, modelName)
+    }
   },
-
-  // async collect (options) {
-  //   try {
-  //     let { id, db, modelName, uriComponent } = options
-
-  //     // await module.exports.saveMany({ response, db }, modelName)
-  //   } catch (error) {
-  //     console.log(error)
-  //   }
-  // },
 
   async saveOne (response, db, collectionName){
     try {
