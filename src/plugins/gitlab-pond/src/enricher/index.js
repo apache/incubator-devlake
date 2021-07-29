@@ -38,6 +38,7 @@ module.exports = {
 
     commits.forEach(commit => {
       commit = {
+        projectId: commit.projectId,
         id: commit.id,
         shortId: commit.short_id,
         title: commit.title,
