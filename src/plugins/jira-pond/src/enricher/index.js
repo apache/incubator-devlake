@@ -1,87 +1,57 @@
 require('module-alias/register')
 
-const issueCollector = require('../collector/issues')
-const changelogCollector = require('../collector/changelogs')
-const constants = require('@config/constants.json').jira
-const { mapValue } = require('@src/util/mapping')
+const dayjs = require('dayjs')
+const duration = require('dayjs/plugin/duration')
+const { findOrCreateCollection } = require('commondb')
+dayjs.extend(duration)
 
 module.exports = {
-  async enrich (rawDb, enrichedDb, projectId) {
-    console.log('INFO: Starting Jira Enrichment for projectId: ', projectId)
-    await module.exports.enrichLeadTimeOnIssues(
+  async enrich (rawDb, enrichedDb, { forceAll }) {
+    console.log('start enrichment for jira')
+    await module.exports.enrichIssues(
       rawDb,
       enrichedDb,
-      projectId
+      forceAll
     )
-    console.log('INFO: Done enriching Jira issues')
+    console.log('end enrichment for jira')
   },
 
-  async enrichLeadTimeOnIssues (rawDb, enrichedDb, projectId) {
+  async enrichIssues (rawDb, enrichedDb, forceAll) {
+    const issueCollection = await findOrCreateCollection(rawDb, 'jira_issues')
     const { JiraIssue } = enrichedDb
+    // filtering out portion of records that need to be enriched
+    const curosr = (
+      forceAll
+        ? issueCollection.find()
+        : issueCollection.find({ $where: 'this.enriched < this.fields.updated || !this.enriched' })
+    )
 
-    const issues = await issueCollector.findIssues({
-      'fields.project.id': `${projectId}`
-    }, rawDb)
-
-    const upsertPromises = []
-    const leadTimePromises = []
-    const issuesToCreate = []
-    issues.forEach(async issue => {
-      leadTimePromises.push(module.exports.calculateLeadTime(issue, rawDb))
-      issuesToCreate.push({
-        id: issue.id,
-        url: issue.self,
-        title: issue.fields.summary,
-        projectId: issue.fields.project.id,
-        issueType: mapValue(issue.fields.issuetype.name, constants.mappings)
-        // description: issue.fields.description
-      })
-    })
-
-    const leadTimes = await Promise.all(leadTimePromises)
-
-    leadTimes.forEach((leadTime, index) => {
-      let issue = issuesToCreate[index]
-      console.log('INFO: issueId & leadTime', issue.id, leadTime)
-      issue = {
-        leadTime,
-        ...issue
-      }
-      // Create all new records
-      upsertPromises.push(JiraIssue.upsert(issue))
-    })
-
-    await Promise.all(upsertPromises)
-  },
-
-  async calculateLeadTime (issue, db) {
-    const changelogs = await changelogCollector.findChangelogs({
-      issueId: `${issue.id}`
-    }, db)
-
-    let leadTime = 0
-    let lastTime = new Date(issue.fields.created).getTime()
-    let isDone = false
-
-    for (const change of changelogs) {
-      for (const item of change.items) {
-        if (item.field === 'status') {
-          const changeTime = new Date(change.created).getTime()
-
-          if (!constants.mappings.Closed.includes(item.fromString)) {
-            const elapsedTime = changeTime - lastTime
-
-            leadTime += elapsedTime
-          }
-
-          lastTime = changeTime
-          isDone = constants.mappings.Closed.includes(item.toString)
+    try {
+      let counter = 0
+      while (await curosr.hasNext()) {
+        const issue = await curosr.next()
+        const enriched = {
+          id: issue.id,
+          url: issue.self,
+          title: issue.fields.summary,
+          projectId: issue.fields.project.id,
+          leadTime: null
         }
+        // by standard, leadtime = days of (resolutiondate - creationdate)
+        if (issue.fields.resolutiondate) {
+          enriched.leadTime = dayjs.duration(dayjs(issue.fields.resolutiondate) - dayjs(issue.fields.created)).days()
+        }
+        await JiraIssue.upsert(enriched)
+        // update enrichment timestamp
+        await issueCollection.updateOne(
+          { id: issue.id },
+          { $set: { enriched: issue.fields.updated } }
+        )
+        counter++
       }
+      console.log('[jira] total enriched ', counter)
+    } finally {
+      await curosr.close()
     }
-
-    return isDone
-      ? Math.round(leadTime / 1000)
-      : 0
   }
 }

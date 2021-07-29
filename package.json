@@ -41,6 +41,7 @@
     "body-parser": "^1.19.0",
     "commondb": "src/plugins/commondb",
     "concurrently": "^6.2.0",
+    "dayjs": "^1.10.6",
     "express": "^4.17.1",
     "jira-pond": "src/plugins/jira-pond",
     "gitlab-pond": "src/plugins/gitlab-pond",
