@@ -12,12 +12,7 @@ module.exports = {
       const projectId = options.projectIds[index];
       
       let response = await module.exports.fetchCollectionData('projects', projectId, 'merge_requests')
-      response = response.map(res => {
-        return {
-          projectId,
-          ...res
-        }
-      })
+    
       await module.exports.saveMany(response, db, 'gitlab_merge_requests')
     }
   },
