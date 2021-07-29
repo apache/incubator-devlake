@@ -1,11 +1,11 @@
 const collectionManager = require('./src/collector/collection-manager')
+const enrichment = require('gitlab-pond/src/enricher')
 
 module.exports = {
   collector: {
     name: 'gitlabCollector',
     exec: async function (rawDb, options) {
       const { projectId } = options
-      console.log('rawDb', rawDb)
       console.log('projectId', projectId)
       await collectionManager.collectProjectDetails(options, rawDb)
       // await collectionManager.collectProjectDetails(options)
@@ -24,10 +24,7 @@ module.exports = {
   enricher: {
     name: 'gitlabEnricher',
     exec: async function (rawDb, enrichedDb, options) {
-      const { projectId } = options
-      console.log('rawDb, enrichedDb, projectId', rawDb, enrichedDb, projectId)
-      // await enrichment.enrich(rawDb, enrichedDb, projectId)
-
+      await enrichment.enrich(rawDb, enrichedDb, options)
       return []
     }
   }
