@@ -33,11 +33,11 @@ module.exports = {
       , rawDb)
 
     // mongo always returns an array
-    const creationPromises = []
-    const updatePromises = []
+    const upsertPromises = []
 
     commits.forEach(commit => {
       commit = {
+        projectId: commit.projectId,
         id: commit.id,
         shortId: commit.short_id,
         title: commit.title,
@@ -54,22 +54,10 @@ module.exports = {
         total: commit.stats.total
       }
 
-      creationPromises.push(GitlabCommit.findOrCreate({
-        where: {
-          id: commit.id
-        },
-        defaults: commit
-      }))
-
-      updatePromises.push(GitlabCommit.update(commit, {
-        where: {
-          id: commit.id
-        }
-      }))
+      upsertPromises.push(GitlabCommit.upsert(commit))
     })
 
-    await Promise.all(creationPromises)
-    await Promise.all(updatePromises)
+    await Promise.all(upsertPromises)
   },
 
   async saveProjectsToPsql (rawDb, enrichedDb, projectIds) {
@@ -82,8 +70,7 @@ module.exports = {
       { id: { $in: projectIds } }
       , rawDb)
 
-    const creationPromises = []
-    const updatePromises = []
+    const upsertPromises = []
 
     // mongo always returns an array
     projects.forEach(project => {
@@ -97,21 +84,9 @@ module.exports = {
         starCount: project.star_count
       }
 
-      creationPromises.push(GitlabProject.findOrCreate({
-        where: {
-          id: project.id
-        },
-        defaults: project
-      }))
-
-      updatePromises.push(GitlabProject.update(project, {
-        where: {
-          id: project.id
-        }
-      }))
+      upsertPromises.push(GitlabProject.upsert(project))
     })
 
-    await Promise.all(creationPromises)
-    await Promise.all(updatePromises)
+    await Promise.all(upsertPromises)
   }
 }

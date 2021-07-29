@@ -23,7 +23,7 @@
 ```
 3. Run `docker-compose ps` to see containers runnning.
 4. Install dependencies with `npm i`
-5. Run migration with `npx sequelize-cli db:migrate`
+5. (optional: Revert all current migrations - `npx sequelize-cli db:migrate:undo:all`) Run migration with `npx sequelize-cli db:migrate`
 
 ## Configuration
 
@@ -61,6 +61,9 @@ POST http://localhost:3001/
     "jira": {
         "projectId": "10003",
         "accountUri": "merico.atlassian.net"
+    },
+    "gitlab": {
+        "projectIds": [19688130, 8967944, 20103385]
     }
 }
 

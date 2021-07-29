@@ -11,7 +11,6 @@ module.exports = (sequelize, DataTypes) => {
 
   JiraUser.init({
     uuid: {
-      primaryKey: true,
       type: DataTypes.UUID,
       defaultValue: DataTypes.UUIDV4
     },
@@ -19,7 +18,10 @@ module.exports = (sequelize, DataTypes) => {
     accountId: DataTypes.STRING,
     name: DataTypes.STRING,
     key: DataTypes.STRING,
-    emailAddress: DataTypes.STRING,
+    emailAddress: {
+      type: DataTypes.STRING,
+      primaryKey: true
+    },
     displayName: DataTypes.STRING,
     active: DataTypes.BOOLEAN,
     timezone: DataTypes.STRING,
