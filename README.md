@@ -23,7 +23,7 @@
 ```
 3. Run `docker-compose ps` to see containers runnning.
 4. Install dependencies with `npm i`
-5. Run migration with `npx sequelize-cli db:migrate`
+5. (optional: Revert all current migrations - `npx sequelize-cli db:migrate:undo:all`) Run migration with `npx sequelize-cli db:migrate`
 
 ## Configuration
 
