@@ -12,15 +12,12 @@ services:
     volumes:
       - ./postgres-data:/var/lib/postgresql/data
   rabbitmq:
-    environment:
-      RABBITMQ_DEFAULT_PASS: guest
-      RABBITMQ_DEFAULT_USER: guest
-      RABBITMQ_DEFAULT_VHOST: rabbitmq
     image: rabbitmq:3-management
     ports:
       - 15672:15672
       - 5672:5672
     volumes:
+      - ./rabbit.conf:/etc/rabbitmq/rabbitmq.config
       - /tmp/rabbitmq/etc/:/tmp/etc/rabbitmq/
       - /tmp/rabbitmq/data/:/var/lib/rabbitmq/
       - /tmp/rabbitmq/logs/:/var/log/rabbitmq/

@@ -10,6 +10,7 @@
 ## Installation
 
 1. Clone this repository
+1-1. Create the rabbitMQ log directory: `mkdir -p /tmp/rabbitmq/logs/`
 2. From the newly cloned repo directory, run `docker-compose up --build`
 
     > NOTE: If you get an error like this:
