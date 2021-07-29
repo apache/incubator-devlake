@@ -2,16 +2,12 @@
 module.exports = {
   up: async (queryInterface, Sequelize) => {
     await queryInterface.createTable('gitlab_projects', {
-      uuid: {
-        primaryKey: true,
-        type: Sequelize.UUID,
-        defaultValue: Sequelize.UUIDV4
-      },
       name: {
         type: Sequelize.STRING
       },
       id: {
-        type: Sequelize.INTEGER
+        type: Sequelize.INTEGER,
+        primaryKey: true,
       },
       pathWithNamespace: {
         type: Sequelize.STRING,

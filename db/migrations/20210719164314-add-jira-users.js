@@ -2,11 +2,6 @@
 module.exports = {
   up: async (queryInterface, Sequelize) => {
     await queryInterface.createTable('jira_users', {
-      uuid: {
-        primaryKey: true,
-        type: Sequelize.UUID,
-        defaultValue: Sequelize.UUIDV4
-      },
       self: {
         type: Sequelize.STRING
       },
@@ -22,6 +17,7 @@ module.exports = {
       },
       emailAddress: {
         type: Sequelize.STRING,
+        primaryKey: true,
         field: 'email_address'
       },
       displayName: {
