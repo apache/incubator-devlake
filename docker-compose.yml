@@ -46,6 +46,7 @@ services:
       - ./grafana/grafana.config
     depends_on:
       - postgresdb
+    command: sh -c './scripts/wait-for postgresdb:5432 -- grafana'
     environment:
       GF_DATABASE_TYPE: postgres
       GF_DATABASE_HOST: postgresdb:5432
