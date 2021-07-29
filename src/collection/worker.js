@@ -22,6 +22,9 @@ const jobHandler = async (job) => {
     if (_has(job, 'jira')) {
       enrichmentJob.jira = await collection.plugins.jiraCollector(db, job.jira)
     }
+    if (_has(job, 'gitlab')) {
+      enrichmentJob.gitlab = await collection.plugins.gitlabCollector(db, job.gitlab)
+    }
   } catch (error) {
     console.log('Failed to collect', error)
   } finally {

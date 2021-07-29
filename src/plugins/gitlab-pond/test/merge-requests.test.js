@@ -1,11 +1,11 @@
-// const mergeRequests = require("../src/collector/merge-requests")
+// const mergeRequests = require("../src/collector/deprecated/merge-requests")
 // const mockData = require('./data/merge-requests')
 // const dbConnector = require('@mongo/connection')
 // const assert = require('assert')
 
 // // SKIP API calls
 // describe.skip('MergeRequests', () => {
-//   describe.skip('fetchProjectMergeRequests', () => {
+//   describe('fetchProjectMergeRequests', () => {
 //     it('gets mergeRequests for a project', async () => {
 //       let projectId = 28270340
 //       let foundMergeRequests = await mergeRequests.fetchProjectMergeRequests(projectId)
