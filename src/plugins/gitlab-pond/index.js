@@ -8,6 +8,7 @@ module.exports = {
       console.log('INFO >>> gitlab collecting')
       await collectionManager.collectProjectsDetails(options, rawDb)
       await collectionManager.collectProjectCommits(options, rawDb)
+      // await collectionManager.collectProjectMergeRequests(options, rawDb)
       console.log('INFO >>> done collecting')
 
       return {
