@@ -22,19 +22,19 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.INTEGER
     },
     pathWithNamespace: {
-      type: DataTypes.STRING,
+      type: DataTypes.STRING
     },
     webUrl: {
-      type: DataTypes.STRING,
+      type: DataTypes.STRING
     },
     visibility: {
-      type: DataTypes.STRING,
+      type: DataTypes.STRING
     },
     openIssuesCount: {
-      type: DataTypes.INTEGER,
+      type: DataTypes.INTEGER
     },
     starCount: {
-      type: DataTypes.INTEGER,
+      type: DataTypes.INTEGER
     },
     createdAt: {
       allowNull: false,

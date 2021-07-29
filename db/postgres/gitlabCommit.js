@@ -19,7 +19,7 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.STRING
     },
     shortId: {
-      type: DataTypes.STRING,
+      type: DataTypes.STRING
     },
     title: {
       type: DataTypes.STRING
@@ -28,34 +28,34 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.STRING
     },
     authorName: {
-      type: DataTypes.STRING,
+      type: DataTypes.STRING
     },
     authorEmail: {
-      type: DataTypes.STRING,
+      type: DataTypes.STRING
     },
     authoredDate: {
-      type: DataTypes.STRING,
+      type: DataTypes.STRING
     },
     committerName: {
-      type: DataTypes.STRING,
+      type: DataTypes.STRING
     },
     committerEmail: {
-      type: DataTypes.STRING,
+      type: DataTypes.STRING
     },
     committedDate: {
-      type: DataTypes.STRING,
+      type: DataTypes.STRING
     },
     webUrl: {
-      type: DataTypes.STRING,
+      type: DataTypes.STRING
     },
     additions: {
-      type: DataTypes.INTEGER,
+      type: DataTypes.INTEGER
     },
     deletions: {
-      type: DataTypes.INTEGER,
+      type: DataTypes.INTEGER
     },
     total: {
-      type: DataTypes.INTEGER,
+      type: DataTypes.INTEGER
     },
     createdAt: {
       allowNull: false,
