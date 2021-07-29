@@ -5,14 +5,14 @@
   "main": "test-docker-compose.js",
   "scripts": {
     "start": "node app.js",
-    "test": "mocha \"test/**\"",
+    "test": "mocha \"test/**\" src/**/*.test.js",
     "unit-test": "ENCRYPTION_KEY=123 NODE_ENV=test ./node_modules/mocha/bin/mocha \"test/unit/**/*.test.js\"",
     "collect": "nodemon src/collection/main.js",
     "collection-worker": "./src/collection/worker.js",
     "enrich": "nodemon src/enrichment/main.js",
     "enrichment-worker": "./src/enrichment/worker.js",
     "lint": "./node_modules/eslint/bin/eslint.js . --max-warnings=0 --report-unused-disable-directives --fix && echo '✔  Your .js files look good.'",
-    "all": "concurrently \"nodemon src/collection/main.js\" \"nodemon src/collection/worker.js\" \"nodemon src/enrichment/main.js\" \"nodemon src/enrichment/worker.js\"",
+    "all": "concurrently \"DEBUG=true nodemon src/collection/main.js\" \"DEBUG=true nodemon src/collection/worker.js\" \"DEBUG=true nodemon src/enrichment/main.js\" \"DEBUG=true nodemon src/enrichment/worker.js\"",
     "prepare": "husky install",
     "commit": "cz"
   },

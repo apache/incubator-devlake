@@ -2,18 +2,18 @@ require('module-alias/register')
 
 const issueCollector = require('../collector/issues')
 const changelogCollector = require('../collector/changelogs')
-
-const closedStatuses = ['Done', 'Closed', '已关闭']
+const constants = require('@config/constants.json').jira
+const { mapValue } = require('@src/util/mapping')
 
 module.exports = {
   async enrich (rawDb, enrichedDb, projectId) {
-    console.log('Jira Enrichment', projectId)
+    console.log('INFO: Starting Jira Enrichment for projectId: ', projectId)
     await module.exports.enrichLeadTimeOnIssues(
       rawDb,
       enrichedDb,
       projectId
     )
-    console.log('Done enriching issues')
+    console.log('INFO: Done enriching Jira issues')
   },
 
   async enrichLeadTimeOnIssues (rawDb, enrichedDb, projectId) {
@@ -24,6 +24,7 @@ module.exports = {
     }, rawDb)
 
     const creationPromises = []
+    const updatePromises = []
     const leadTimePromises = []
     const issuesToCreate = []
     issues.forEach(async issue => {
@@ -32,7 +33,8 @@ module.exports = {
         id: issue.id,
         url: issue.self,
         title: issue.fields.summary,
-        projectId: issue.fields.project.id
+        projectId: issue.fields.project.id,
+        issueType: mapValue(issue.fields.issuetype.name, constants.mappings)
         // description: issue.fields.description
       })
     })
@@ -41,20 +43,28 @@ module.exports = {
 
     leadTimes.forEach((leadTime, index) => {
       let issue = issuesToCreate[index]
-      console.log('INFO >>> issueId & leadTime', issue.id, leadTime)
+      console.log('INFO: issueId & leadTime', issue.id, leadTime)
       issue = {
         leadTime,
         ...issue
       }
+      // Create all new records
       creationPromises.push(JiraIssue.findOrCreate({
         where: {
           id: issue.id
         },
         defaults: issue
       }))
+      // Update all existing records
+      updatePromises.push(JiraIssue.update(issue, {
+        where: {
+          id: issue.id
+        }
+      }))
     })
 
     await Promise.all(creationPromises)
+    await Promise.all(updatePromises)
   },
 
   async calculateLeadTime (issue, db) {
@@ -71,14 +81,14 @@ module.exports = {
         if (item.field === 'status') {
           const changeTime = new Date(change.created).getTime()
 
-          if (!closedStatuses.includes(item.fromString)) {
+          if (!constants.mappings.Closed.includes(item.fromString)) {
             const elapsedTime = changeTime - lastTime
 
             leadTime += elapsedTime
           }
 
           lastTime = changeTime
-          isDone = closedStatuses.includes(item.toString)
+          isDone = constants.mappings.Closed.includes(item.toString)
         }
       }
     }
