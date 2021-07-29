@@ -14,7 +14,8 @@
     "lint": "./node_modules/eslint/bin/eslint.js . --max-warnings=0 --report-unused-disable-directives --fix && echo '✔  Your .js files look good.'",
     "all": "concurrently \"DEBUG=true nodemon src/collection/main.js\" \"DEBUG=true nodemon src/collection/worker.js\" \"DEBUG=true nodemon src/enrichment/main.js\" \"DEBUG=true nodemon src/enrichment/worker.js\"",
     "prepare": "husky install",
-    "commit": "cz"
+    "commit": "cz",
+    "docker": "docker-compose up --build --force-recreate"
   },
   "repository": {
     "type": "git",
