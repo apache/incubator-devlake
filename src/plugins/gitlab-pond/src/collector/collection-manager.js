@@ -7,9 +7,9 @@ const {
 const fetcher = require('./fetcher')
 
 module.exports = {
-  async collectProjectCommits(options, db) {
+  async collectProjectCommits (options, db) {
     for (let index = 0; index < options.projectIds.length; index++) {
-      const projectId = options.projectIds[index];
+      const projectId = options.projectIds[index]
 
       // TODO: this only get 20 commits... we need to page through all of them
       let response = await module.exports.fetchCollectionData('projects', projectId, 'repository/commits?with_stats=true')
@@ -23,16 +23,16 @@ module.exports = {
     }
   },
 
-  async collectProjectsDetails(options, db) {
+  async collectProjectsDetails (options, db) {
     for (let index = 0; index < options.projectIds.length; index++) {
-      const projectId = options.projectIds[index];
+      const projectId = options.projectIds[index]
 
-      let response = await module.exports.fetchCollectionData('projects', projectId, '')
+      const response = await module.exports.fetchCollectionData('projects', projectId, '')
       await module.exports.saveOne(response, db, 'gitlab_projects')
     }
   },
 
-  async saveOne(response, db, collectionName) {
+  async saveOne (response, db, collectionName) {
     try {
       const collection = await findOrCreateCollection(db, collectionName)
       response.primaryKey = response.id
@@ -49,7 +49,7 @@ module.exports = {
     }
   },
 
-  async saveMany(response, db, collectionName) {
+  async saveMany (response, db, collectionName) {
     try {
       const promises = []
       const collection = await findOrCreateCollection(db, collectionName)
@@ -70,12 +70,12 @@ module.exports = {
       console.error(error)
     }
   },
-  async fetchCollectionData(modelName, id, uriComponent = '') {
-    const requestUri = `${modelName}/${id}${uriComponent && `/` + uriComponent}`
-    console.log('INFO: requestUri', requestUri);
+  async fetchCollectionData (modelName, id, uriComponent = '') {
+    const requestUri = `${modelName}/${id}${uriComponent && '/' + uriComponent}`
+    console.log('INFO: requestUri', requestUri)
     return fetcher.fetch(requestUri)
   },
-  async findCollection(collectionName, where, db, limit = 99999999) {
+  async findCollection (collectionName, where, db, limit = 99999999) {
     console.log(`INFO >>> ${collectionName} where`, where)
     const collection = await findOrCreateCollection(db, collectionName)
     const collectionDataCursor = await collection.find(where).limit(limit)
