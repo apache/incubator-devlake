@@ -1,0 +1,9 @@
+{
+  "jira": {
+    "mappings": {
+      "Closed": ["Done", "Closed", "已关闭"],
+      "Bug": "Bug",
+      "Incident": "Incident"
+    } 
+  }
+}

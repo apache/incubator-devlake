@@ -12,7 +12,7 @@ module.exports = {
     } catch (error) {
       console.error(error)
     }
-  },
+  }
   // async fetchOne (host, path, modelName, id) {
   //   try {
   //     const res = await axios.get(`${host}/${path}/${modelName}/${id}`)

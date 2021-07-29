@@ -16,7 +16,7 @@ module.exports = {
       console.log(error)
     }
   },
-  async save ( {response, db} ){
+  async save ({ response, db }) {
     try {
       const promises = []
       const mergeRequestsCollection = await findOrCreateCollection(db, collectionName)
@@ -40,8 +40,8 @@ module.exports = {
   async fetchProjectMergeRequests (projectId) {
     const requestUri = `projects/${projectId}/merge_requests`
 
-   return fetcher.fetch(requestUri)
- },
+    return fetcher.fetch(requestUri)
+  },
   async findMergeRequests (where, db, limit = 99999999) {
     console.log('INFO >>> findMergeRequests where', where)
     const mergeRequestsCollection = await findOrCreateCollection(db, collectionName)
