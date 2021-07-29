@@ -23,8 +23,7 @@ module.exports = {
       'fields.project.id': `${projectId}`
     }, rawDb)
 
-    const creationPromises = []
-    const updatePromises = []
+    const upsertPromises = []
     const leadTimePromises = []
     const issuesToCreate = []
     issues.forEach(async issue => {
@@ -49,22 +48,10 @@ module.exports = {
         ...issue
       }
       // Create all new records
-      creationPromises.push(JiraIssue.findOrCreate({
-        where: {
-          id: issue.id
-        },
-        defaults: issue
-      }))
-      // Update all existing records
-      updatePromises.push(JiraIssue.update(issue, {
-        where: {
-          id: issue.id
-        }
-      }))
+      upsertPromises.push(JiraIssue.upsert(issue))
     })
 
-    await Promise.all(creationPromises)
-    await Promise.all(updatePromises)
+    await Promise.all(upsertPromises)
   },
 
   async calculateLeadTime (issue, db) {

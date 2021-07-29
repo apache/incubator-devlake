@@ -2,16 +2,12 @@
 module.exports = {
   up: async (queryInterface, Sequelize) => {
     await queryInterface.createTable('jira_issues', {
-      uuid: {
-        primaryKey: true,
-        type: Sequelize.UUID,
-        defaultValue: Sequelize.UUIDV4
-      },
       projectId: {
         type: Sequelize.INTEGER,
         field: 'project_id'
       },
       id: {
+        primaryKey: true,
         type: Sequelize.INTEGER
       },
       url: {

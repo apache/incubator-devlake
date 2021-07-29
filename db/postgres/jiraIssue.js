@@ -10,15 +10,11 @@ module.exports = (sequelize, DataTypes) => {
   }
 
   JiraIssue.init({
-    uuid: {
-      primaryKey: true,
-      type: DataTypes.UUID,
-      defaultValue: DataTypes.UUIDV4
-    },
     projectId: {
       type: DataTypes.INTEGER
     },
     id: {
+      primaryKey: true,
       type: DataTypes.INTEGER
     },
     url: {
