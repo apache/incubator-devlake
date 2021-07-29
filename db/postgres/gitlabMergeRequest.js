@@ -12,52 +12,49 @@ module.exports = (sequelize, DataTypes) => {
   GitlabMergeRequest.init({
     id: {
       primaryKey: true,
-      type: DataTypes.INTEGER,
+      type: DataTypes.INTEGER
     },
     title: {
-      type: DataTypes.STRING,
+      type: DataTypes.STRING
     },
     projectId: {
-      type: DataTypes.INTEGER,
+      type: DataTypes.INTEGER
     },
     numberOfReviewers: {
-      type: DataTypes.INTEGER,
+      type: DataTypes.INTEGER
     },
     state: {
       type: DataTypes.STRING
     },
-    title: {
+    webUrl: {
       type: DataTypes.STRING
     },
-    webUrl: {
-      type: DataTypes.STRING,
-    },
     userNotesCount: {
-      type: DataTypes.INTEGER,
+      type: DataTypes.INTEGER
     },
     workInProgress: {
-      type: DataTypes.BOOLEAN,
+      type: DataTypes.BOOLEAN
     },
     sourceBranch: {
-      type: DataTypes.STRING,
+      type: DataTypes.STRING
     },
     mergedAt: {
-      type: DataTypes.DATE,
+      type: DataTypes.DATE
     },
     gitlabCreatedAt: {
-      type: DataTypes.DATE,
+      type: DataTypes.DATE
     },
     closedAt: {
-      type: DataTypes.DATE,
+      type: DataTypes.DATE
     },
     mergedByUsername: {
-      type: DataTypes.STRING,
+      type: DataTypes.STRING
     },
     description: {
       type: DataTypes.STRING
     },
     authorUsername: {
-      type: DataTypes.STRING,
+      type: DataTypes.STRING
     },
     createdAt: {
       allowNull: false,
