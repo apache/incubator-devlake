@@ -17,7 +17,7 @@ services:
       - 15672:15672
       - 5672:5672
     volumes:
-      - ./rabbit.conf:/etc/rabbitmq/rabbitmq.config
+      - ./rabbitmq.conf:/etc/rabbitmq/rabbitmq.conf
       - /tmp/rabbitmq/etc/:/tmp/etc/rabbitmq/
       - /tmp/rabbitmq/data/:/var/lib/rabbitmq/
       - /tmp/rabbitmq/logs/:/var/log/rabbitmq/
