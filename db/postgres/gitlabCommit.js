@@ -10,15 +10,11 @@ module.exports = (sequelize, DataTypes) => {
   }
 
   GitlabCommit.init({
-    uuid: {
-      primaryKey: true,
-      type: DataTypes.UUID,
-      defaultValue: DataTypes.UUIDV4
-    },
     projectId: {
       type: DataTypes.INTEGER
     },
     id: {
+      primaryKey: true,
       type: DataTypes.STRING
     },
     shortId: {
