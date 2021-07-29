@@ -5,8 +5,13 @@ const collectionManager = require('../collector/collection-manager')
 module.exports = {
   async enrich(rawDb, enrichedDb, options) {
     try {
-      console.log('INFO: Gitlab Enrichment for projectId: ', options.projectId)
+      console.log('INFO: Gitlab Enrichment for projectIds: ', options.projectIds)
       await module.exports.saveProjectsToPsql(
+        rawDb,
+        enrichedDb,
+        options.projectIds
+      )
+      await module.exports.saveCommitsToPsqlBasedOnProjectIds(
         rawDb,
         enrichedDb,
         options.projectIds
@@ -17,13 +22,63 @@ module.exports = {
     }
   },
 
+  async saveCommitsToPsqlBasedOnProjectIds(rawDb, enrichedDb, projectIds) {
+    const {
+      GitlabCommit
+    } = enrichedDb
+
+    // find the project in mongo
+    let commits = await collectionManager.findCollection('gitlab_commits', 
+      { projectId: { $in: projectIds } }
+    , rawDb)
+
+    // mongo always returns an array
+    creationPromises = []
+    updatePromises = []
+
+    commits.forEach(commit => {
+      commit = {
+        id: commit.id, 
+        shortId: commit.short_id, 
+        title: commit.title, 
+        message: commit.message, 
+        authorName: commit.author_name, 
+        authorEmail: commit.author_email, 
+        authoredDate: commit.authored_date, 
+        committerName: commit.committer_name, 
+        committerEmail: commit.committer_email, 
+        committedDate: commit.committed_date, 
+        webUrl: commit.web_url, 
+        additions: commit.stats.additions, 
+        deletions: commit.stats.deletions, 
+        total: commit.stats.total, 
+      }
+
+      creationPromises.push(GitlabCommit.findOrCreate({
+        where: {
+          id: commit.id
+        },
+        defaults: commit
+      }))
+
+      updatePromises.push(GitlabCommit.update(commit, {
+        where: {
+          id: commit.id
+        }
+      }))
+    })
+
+    await Promise.all(creationPromises)
+    await Promise.all(updatePromises)
+  },
+
   async saveProjectsToPsql(rawDb, enrichedDb, projectIds) {
     const {
       GitlabProject
     } = enrichedDb
 
     // find the project in mongo
-    let projects = await collectionManager.findCollection('projects', 
+    let projects = await collectionManager.findCollection('gitlab_projects', 
       { id: { $in: projectIds } }
     , rawDb)
 

@@ -12,14 +12,13 @@ module.exports = {
       const projectId = options.projectIds[index];
 
       // TODO: this only get 20 commits... we need to page through all of them
-      let response = await module.exports.fetchCollectionData('projects', projectId, 'repository/commits')
+      let response = await module.exports.fetchCollectionData('projects', projectId, 'repository/commits?with_stats=true')
       response = response.map(res => {
         return {
           projectId,
           ...res
         }
       })
-      console.log('JON >>> response', response)
       await module.exports.saveMany(response, db, 'gitlab_commits')
     }
   },
