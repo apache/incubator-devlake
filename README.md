@@ -63,7 +63,7 @@ POST http://localhost:3001/
         "accountUri": "merico.atlassian.net"
     },
     "gitlab": {
-        "projectIds": [19688130, 8967944, 20103385]
+        "projectId": 19688130
     }
 }
 

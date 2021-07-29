@@ -2,7 +2,7 @@ require('module-alias/register')
 const { findOrCreateCollection } = require('../../../commondb')
 const fetcher = require('./fetcher')
 
-const collectionName = 'gitlab_project_merge_requests'
+const collectionName = 'gitlab_projects'
 
 module.exports = {
   async collect ({ db, projectId, forceAll }) {
@@ -14,14 +14,13 @@ module.exports = {
   },
 
   async collectByProjectId (db, projectId, forceAll) {
-    const mrsCollection = await findOrCreateCollection(db, collectionName)
-    for await (const mr of fetcher.fetchPaged(`projects/${projectId}/merge_requests`)) {
-      mr.projectId = projectId
-      await mrsCollection.findOneAndUpdate(
-        { id: mr.id },
-        { $set: mr },
-        { upsert: true }
-      )
-    }
+    const projectsCollection = await findOrCreateCollection(db, collectionName)
+    const response = await fetcher.fetch(`projects/${projectId}`)
+    const project = response.data
+    await projectsCollection.findOneAndUpdate(
+      { id: project.id },
+      { $set: project },
+      { upsert: true }
+    )
   }
 }
