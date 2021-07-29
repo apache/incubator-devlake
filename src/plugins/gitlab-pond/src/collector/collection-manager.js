@@ -1,26 +1,43 @@
 require('module-alias/register')
 
-const { findOrCreateCollection } = require('../../../commondb')
+const {
+  findOrCreateCollection
+} = require('../../../commondb')
 
 const fetcher = require('./fetcher')
 
 module.exports = {
-  async collectProjectsDetails(options, db) {
-    let modelName = 'projects'
-
+  async collectProjectCommits(options, db) {
     for (let index = 0; index < options.projectIds.length; index++) {
       const projectId = options.projectIds[index];
-      
-      let response = await module.exports.fetchCollectionData(modelName, projectId, '')
-      await module.exports.saveOne(response, db, modelName)
+
+      // TODO: this only get 20 commits... we need to page through all of them
+      let response = await module.exports.fetchCollectionData('projects', projectId, 'repository/commits')
+      response = response.map(res => {
+        return {
+          projectId,
+          ...res
+        }
+      })
+      console.log('JON >>> response', response)
+      await module.exports.saveMany(response, db, 'gitlab_commits')
     }
   },
 
-  async saveOne (response, db, collectionName){
+  async collectProjectsDetails(options, db) {
+    for (let index = 0; index < options.projectIds.length; index++) {
+      const projectId = options.projectIds[index];
+
+      let response = await module.exports.fetchCollectionData('projects', projectId, '')
+      await module.exports.saveOne(response, db, 'gitlab_projects')
+    }
+  },
+
+  async saveOne(response, db, collectionName) {
     try {
       const collection = await findOrCreateCollection(db, collectionName)
       response.primaryKey = response.id
-  
+
       await collection.findOneAndUpdate({
         primaryKey: response.primaryKey
       }, {
@@ -33,7 +50,7 @@ module.exports = {
     }
   },
 
-  async saveMany (response, db, collectionName ){
+  async saveMany(response, db, collectionName) {
     try {
       const promises = []
       const collection = await findOrCreateCollection(db, collectionName)
@@ -54,12 +71,12 @@ module.exports = {
       console.error(error)
     }
   },
-  async fetchCollectionData (modelName, id, uriComponent = '') {
+  async fetchCollectionData(modelName, id, uriComponent = '') {
     const requestUri = `${modelName}/${id}${uriComponent && `/` + uriComponent}`
     console.log('INFO: requestUri', requestUri);
-   return fetcher.fetch(requestUri)
- },
-  async findCollection (collectionName, where, db, limit = 99999999) {
+    return fetcher.fetch(requestUri)
+  },
+  async findCollection(collectionName, where, db, limit = 99999999) {
     console.log(`INFO >>> ${collectionName} where`, where)
     const collection = await findOrCreateCollection(db, collectionName)
     const collectionDataCursor = await collection.find(where).limit(limit)

@@ -5,13 +5,9 @@ module.exports = {
   collector: {
     name: 'gitlabCollector',
     exec: async function (rawDb, options) {
-      const { projectId } = options
-      console.log('projectId', projectId)
+      console.log('INFO >>> gitlab collecting')
       await collectionManager.collectProjectsDetails(options, rawDb)
-      // await collectionManager.collectProjectDetails(options)
-      // await collectionManager.collectProjectDetails(options)
-      // await collectionManager.collectProjectDetails(options)
-      // await collectionManager.collectProjectDetails(options)
+      await collectionManager.collectProjectCommits(options, rawDb)
       console.log('INFO >>> done collecting')
 
       return {
