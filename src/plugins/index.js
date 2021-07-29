@@ -1,4 +1,4 @@
-const registryConfig = require('../../config/plugins.json')
+const registryConfig = require('../../config/plugins')
 
 module.exports = {
   collection: buildPluginRegistry('collector'),

@@ -7,7 +7,11 @@ module.exports = {
       const { projectId } = options
       console.log('rawDb', rawDb)
       console.log('projectId', projectId)
-      await collectionManager.collectAll()
+      await collectionManager.collectProjectDetails(options, rawDb)
+      // await collectionManager.collectProjectDetails(options)
+      // await collectionManager.collectProjectDetails(options)
+      // await collectionManager.collectProjectDetails(options)
+      // await collectionManager.collectProjectDetails(options)
       console.log('INFO >>> done collecting')
 
       return {
