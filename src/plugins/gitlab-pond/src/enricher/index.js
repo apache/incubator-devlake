@@ -16,12 +16,53 @@ module.exports = {
         enrichedDb,
         options.projectIds
       )
+      await module.exports.saveMergeRequestsToPsqlBasedOnProjectIds(
+        rawDb,
+        enrichedDb,
+        options.projectIds
+      )
       console.log('Done enriching issues')
     } catch (error) {
       console.error(error)
     }
   },
+  async saveMergeRequestsToPsqlBasedOnProjectIds (rawDb, enrichedDb, projectIds) {
+    const {
+      GitlabMergeRequest
+    } = enrichedDb
 
+    // find the project in mongo
+    const mergeRequests = await collectionManager.findCollection('gitlab_merge_requests',
+      { projectId: { $in: projectIds } }
+      , rawDb)
+
+    // mongo always returns an array
+    const upsertPromises = []
+
+    mergeRequests.forEach(mergeRequest => {
+      mergeRequest = {
+        projectId: mergeRequest.project_id,
+        id: mergeRequest.id,
+        numberOfReviewers: mergeRequest.reviewers && mergeRequest.reviewers.length,
+        state: mergeRequest.state,
+        title: mergeRequest.title,
+        webUrl: mergeRequest.web_url,
+        userNotesCount: mergeRequest.user_notes_count,
+        workInProgress: mergeRequest.work_in_progress,
+        sourceBranch: mergeRequest.source_branch,
+        mergedAt: mergeRequest.merged_at,
+        gitlabCreatedAt: mergeRequest.created_at,
+        closedAt: mergeRequest.closed_at,
+        mergedByUsername: mergeRequest.merged_by && mergeRequest.merged_by.username,
+        description: mergeRequest.description,
+        authorUsername: mergeRequest.author && mergeRequest.author.username
+      }
+
+      upsertPromises.push(GitlabMergeRequest.upsert(mergeRequest))
+    })
+
+    await Promise.all(upsertPromises)
+  },
   async saveCommitsToPsqlBasedOnProjectIds (rawDb, enrichedDb, projectIds) {
     const {
       GitlabCommit
