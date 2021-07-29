@@ -28,7 +28,7 @@
 ## Configuration
 
 1. Make a copy of `config/local.sample.js` under the name of `config/local.js`
-2. We can use default values for most fields except the Jira section. 
+2. We can use default values for most fields except the Jira section.
 
 For how to set up basic authorization with Jira, and many more things, please see [CONFIGURATION.md](CONFIGURATION.md)
 
@@ -70,11 +70,22 @@ POST http://localhost:3001/
 
 To run only the enrichment job on existing collections: `POST http://localhost:3000/`
 
-### Using the Grafana Dashboard
+### Using Grafana
+
+**Login Credentials**
 
 - Visit: `http://localhost:3002`
 - Username: `admin`
 - Password: `admin`
+
+**Provisioning a Grafana Dashboard**
+
+To save a dashboard in the `lake` repo and load it:
+1. Create a dashboard in browser (visit `/dashboard/new`, or use sidebar)
+2. Save dashboard (in top right of screen)
+3. Go to dashboard settings (in top right of screen)
+4. Click on _JSON Model_ in sidebar
+5. Copy code into a new `.json` file in `/grafana/dashboards`
 
 ## Contributing
 
