@@ -1,11 +1,11 @@
-// const commits = require("../src/collector/commits")
+// const commits = require("../src/collector/deprecated/commits")
 // const mockData = require('./data/commits')
 // const dbConnector = require('@mongo/connection')
 // const assert = require('assert')
 
 // // SKIP API calls
 // describe.skip('Commits', () => {
-//   describe.skip('fetchProjectRepoCommits', () => {
+//   describe('fetchProjectRepoCommits', () => {
 //     it('gets commits for a project', async () => {
 //       let projectId = 28270340
 //       let foundCommits = await commits.fetchProjectRepoCommits(projectId)

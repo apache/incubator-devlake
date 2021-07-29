@@ -19,6 +19,9 @@ const jobHandler = async (job) => {
     if (_has(job, 'jira')) {
       await enrichment.plugins[job.jira.enricher](rawDb, enrichedDb, job.jira)
     }
+    if (_has(job, 'gitlab')) {
+      await enrichment.plugins[job.gitlab.enricher](rawDb, enrichedDb, job.gitlab)
+    }
   } catch (error) {
     console.log('Failed to enrich', error)
   } finally {
