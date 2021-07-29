@@ -1,4 +1,4 @@
-[
+module.exports = [
   {
     "package": "jira-pond",
     "name": "collector",

@@ -18,26 +18,52 @@ module.exports = {
     // get all notes for all MR
     // Save all MR data in the psql
 
+    console.log('JON >>> collecting all gitlab')
     let promises = []
     projectIds.forEach(projectId => {
-      promises.push(collect({
-        modelName: 'projects',
-        apiUrl:  
-      }))
+    //   promises.push(collect({
+    //     modelName: 'projects',
+    //     apiUrl:  
+    //   }))
     })
   },
 
-  async collect (options) {
-    try {
-      let { id, db, modelName, uriComponent } = options
-      const response = await module.exports.fetchCollectionData(modelName, id, uriComponent)
+  async collectProjectDetails(options, db) {
+    let modelName = 'projects'
+    let id = options.projectId
 
-      await module.exports.save({ response, db })
+    let response = await module.exports.fetchCollectionData(modelName, id, '')
+    await module.exports.saveOne(response, db, modelName)
+  },
+
+  // async collect (options) {
+  //   try {
+  //     let { id, db, modelName, uriComponent } = options
+
+  //     // await module.exports.saveMany({ response, db }, modelName)
+  //   } catch (error) {
+  //     console.log(error)
+  //   }
+  // },
+
+  async saveOne (response, db, collectionName){
+    try {
+      const collection = await findOrCreateCollection(db, collectionName)
+      response.primaryKey = response.id
+  
+      await collection.findOneAndUpdate({
+        primaryKey: response.primaryKey
+      }, {
+        $set: response
+      }, {
+        upsert: true
+      })
     } catch (error) {
-      console.log(error)
+      console.error(error)
     }
   },
-  async save ( {response, db}, collectionName ){
+
+  async saveMany (response, db, collectionName ){
     try {
       const promises = []
       const collection = await findOrCreateCollection(db, collectionName)
@@ -60,7 +86,7 @@ module.exports = {
   },
   async fetchCollectionData (modelName, id, uriComponent = '') {
     const requestUri = `${modelName}/${id}${uriComponent && `/` + uriComponent}`
-    console.log('requestUri', requestUri);
+    console.log('INFO: requestUri', requestUri);
    return fetcher.fetch(requestUri)
  },
   async findCommits (collectionName, where, db, limit = 99999999) {
