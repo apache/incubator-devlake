@@ -8,7 +8,7 @@ module.exports = {
     let retry = 0
     let res
     while (retry < maxRetry) {
-      console.log(`[gitlab] Fetching data from ${resourceUri} #${retry}`)
+      console.log(`[gitlab] Fetching data from ${resourceUri} - retry #${retry}`)
       try {
         res = await axios.get(`${host}/${apiPath}/${resourceUri}`, {
           headers: { 'PRIVATE-TOKEN': token },

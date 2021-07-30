@@ -1,6 +1,6 @@
 require('module-alias/register')
 
-const collectionManager = require('../collector/collection-manager')
+const mongo = require('../util/mongo')
 
 module.exports = {
   async enrich (rawDb, enrichedDb, options) {
@@ -32,7 +32,7 @@ module.exports = {
     } = enrichedDb
 
     // find the project in mongo
-    const mergeRequests = await collectionManager.findCollection('gitlab_merge_requests',
+    const mergeRequests = await mongo.findCollection('gitlab_merge_requests',
       { projectId: { $in: projectIds } }
       , rawDb)
 
@@ -69,7 +69,7 @@ module.exports = {
     } = enrichedDb
 
     // find the project in mongo
-    const commits = await collectionManager.findCollection('gitlab_commits',
+    const commits = await mongo.findCollection('gitlab_commits',
       { projectId: { $in: projectIds } }
       , rawDb)
 
@@ -107,7 +107,7 @@ module.exports = {
     } = enrichedDb
 
     // find the project in mongo
-    const projects = await collectionManager.findCollection('gitlab_projects',
+    const projects = await mongo.findCollection('gitlab_projects',
       { id: { $in: projectIds } }
       , rawDb)
 
