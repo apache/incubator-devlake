@@ -55,6 +55,7 @@ module.exports = {
         closedAt: mergeRequest.closed_at,
         mergedByUsername: mergeRequest.merged_by && mergeRequest.merged_by.username,
         description: mergeRequest.description,
+        reviewers: mergeRequest.reviewers && mergeRequest.reviewers.map(reviewer => reviewer.username),
         authorUsername: mergeRequest.author && mergeRequest.author.username
       }
 
