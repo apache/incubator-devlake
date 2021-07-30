@@ -47,6 +47,7 @@ services:
     depends_on:
       - postgresdb
     command: sh -c './scripts/wait-for postgresdb:5432 -- grafana'
+    restart: always
     environment:
       GF_DATABASE_TYPE: postgres
       GF_DATABASE_HOST: postgresdb:5432
