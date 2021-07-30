@@ -127,6 +127,7 @@ config/local.js
 # Editors
 .idea
 *.iml
+.vscode
 
 # OS metadata
 .DS_Store
