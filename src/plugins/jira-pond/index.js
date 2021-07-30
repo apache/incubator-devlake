@@ -29,10 +29,10 @@ module.exports = {
 
 if (require.main === module) {
   require('module-alias/register')
-  const dbConnector = require('@mongo/connection')
-  const enrichedDb = require('@db/postgres');
+  const dbConnector = require('@mongo/connection');
+  // const enrichedDb = require('@db/postgres');
 
-  (async function() {
+  (async function () {
     const { db, client } = await dbConnector.connect()
     try {
       await module.exports.collector.exec(db, { boardId: process.argv[2], forceAll: process.argv[3] })
