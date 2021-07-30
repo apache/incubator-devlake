@@ -30,6 +30,11 @@ module.exports = {
         enrichedDb,
         options.projectId
       )
+      await module.exports.saveNotesToPsqlBasedOnProjectId(
+        rawDb,
+        enrichedDb,
+        options.projectId
+      )
       console.log('Done enriching issues')
     } catch (error) {
       console.error(error)
@@ -78,7 +83,7 @@ module.exports = {
 
     await Promise.all(upsertPromises)
   },
-  async saveMergeRequestsToPsqlBasedOnProjectIds (rawDb, enrichedDb, projectIds) {
+  async saveMergeRequestsToPsqlBasedOnProjectId (rawDb, enrichedDb, projectId) {
     const {
       GitlabMergeRequest
     } = enrichedDb
