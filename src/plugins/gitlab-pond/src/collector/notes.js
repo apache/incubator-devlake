@@ -11,10 +11,10 @@ module.exports = {
       throw new Error('Failed to collect gitlab data, projectId is required')
     }
 
-    console.log('finding MRs...');
-    let mergeRequests = await mongo.findCollection('gitlab_merge_requests', { projectId }, db)
-    console.log('collecting notes...');
-    for(let mr of mergeRequests){
+    console.log('finding MRs...')
+    const mergeRequests = await mongo.findCollection('gitlab_merge_requests', { projectId }, db)
+    console.log('collecting notes...')
+    for (const mr of mergeRequests) {
       await module.exports.collectByMergeRequestIid(db, projectId, mr.iid, forceAll)
     }
   },
@@ -24,7 +24,7 @@ module.exports = {
     const response = await fetcher.fetch(`projects/${projectId}/merge_requests/${mergeRequestIid}/notes`)
     const notes = response.data
 
-    for(let note of notes){
+    for (const note of notes) {
       await notesCollection.findOneAndUpdate(
         { id: note.id },
         { $set: note },

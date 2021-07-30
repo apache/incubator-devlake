@@ -35,13 +35,13 @@ module.exports = {
       console.error(error)
     }
   },
-  /* 
+  /*
     The purpose of this method is to save all the notes from all the merge requests
     into the Postgres db.
     First, we get all MRs from mongo.
     Second, for each MR, we map values from mongo to new values for Postgres.
     Finally, we store GitlabMergeRequestNotes using our PG model.
-  */ 
+  */
 
   async saveNotesToPsqlBasedOnProjectId (rawDb, enrichedDb, projectId) {
     const {
@@ -52,9 +52,9 @@ module.exports = {
       { projectId }
       , rawDb)
 
-    let responseNotes = []
-    for(let mr of mergeRequests){
-      let res = await mongo.findCollection('gitlab_merge_request_notes',
+    const responseNotes = []
+    for (const mr of mergeRequests) {
+      const res = await mongo.findCollection('gitlab_merge_request_notes',
         { noteable_id: mr.id }
         , rawDb)
       responseNotes.push(res)
@@ -63,7 +63,7 @@ module.exports = {
     const upsertPromises = []
 
     mrNotes.forEach(mrNote => {
-      noteToAdd = {
+      const noteToAdd = {
         id: mrNote.id,
         noteableId: mrNote.noteable_id,
         noteableIid: mrNote.noteable_iid,
