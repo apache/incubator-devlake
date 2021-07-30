@@ -59,14 +59,18 @@ POST http://localhost:3001/
 
 {
     "jira": {
-        "projectId": "10003",
-        "accountUri": "merico.atlassian.net"
+        "boardId": 8
     },
     "gitlab": {
         "projectId": 19688130
     }
 }
 
+```
+    Or, by using `curl`
+```sh
+curl -X POST "http://localhost:3001/" -H 'content-type: application/json' \
+    -d '{"jira":{"boardId": 8}}'
 ```
 
 3. See that the collection job was published, jira collection ran, the enrichment job was published, and jira enrichment ran
