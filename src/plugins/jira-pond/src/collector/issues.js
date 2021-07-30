@@ -14,7 +14,7 @@ module.exports = {
     await module.exports.collectByBoardId(db, boardId, forceAll)
   },
 
-  async collectByBoardId(db, boardId, forceAll) {
+  async collectByBoardId (db, boardId, forceAll) {
     const issuesCollection = await findOrCreateCollection(db, collectionName)
     const latestUpdated = await issuesCollection.find().sort({ 'fields.updated': -1 }).limit(1).next()
     let jql = ''
