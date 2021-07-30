@@ -16,7 +16,7 @@
   "gnetId": null,
   "graphTooltip": 0,
   "id": 1,
-  "iteration": 1627587557191,
+  "iteration": 1627670210682,
   "links": [],
   "panels": [
     {
@@ -49,7 +49,7 @@
         "x": 0,
         "y": 0
       },
-      "id": 16,
+      "id": 18,
       "options": {
         "colorMode": "value",
         "graphMode": "area",
@@ -73,21 +73,19 @@
           "metricColumn": "none",
           "queryType": "randomWalk",
           "rawQuery": true,
-          "rawSql": "SELECT\n  count(id) as \"Merge Requests\"\nFROM gitlab_merge_requests\nWHERE\n  $__timeFilter(gitlab_created_at) AND project_id = $ProjectId\nORDER BY 1",
+          "rawSql": "SELECT count(id) from (\n  SELECT\n    unnest(reviewers) as reviewer\n  FROM\n    gitlab_merge_requests\n  WHERE\n    $__timeFilter(gitlab_created_at) AND project_id = $ProjectId\n  group by \n    reviewer\n) as id\n\n",
           "refId": "A",
           "select": [
             [
               {
                 "params": [
-                  "value_double"
+                  "value"
                 ],
                 "type": "column"
               }
             ]
           ],
-          "table": "test_data",
-          "timeColumn": "time_date_time",
-          "timeColumnType": "timestamp",
+          "timeColumn": "time",
           "where": [
             {
               "name": "$__timeFilter",
@@ -97,7 +95,7 @@
           ]
         }
       ],
-      "title": "Merge Requests",
+      "title": "Reviewers",
       "type": "stat"
     },
     {
@@ -195,6 +193,87 @@
               {
                 "color": "green",
                 "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 8
+      },
+      "id": 16,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "text": {},
+        "textMode": "auto"
+      },
+      "pluginVersion": "8.0.6",
+      "targets": [
+        {
+          "format": "table",
+          "group": [],
+          "metricColumn": "none",
+          "queryType": "randomWalk",
+          "rawQuery": true,
+          "rawSql": "SELECT\n  count(id) as \"Merge Requests\"\nFROM gitlab_merge_requests\nWHERE\n  $__timeFilter(gitlab_created_at) AND project_id = $ProjectId\nORDER BY 1",
+          "refId": "A",
+          "select": [
+            [
+              {
+                "params": [
+                  "value_double"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "table": "test_data",
+          "timeColumn": "time_date_time",
+          "timeColumnType": "timestamp",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        }
+      ],
+      "title": "Merge Requests",
+      "type": "stat"
+    },
+    {
+      "datasource": "Postgres",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
               }
             ]
           }
@@ -205,7 +284,7 @@
         "h": 19,
         "w": 11,
         "x": 0,
-        "y": 8
+        "y": 16
       },
       "id": 12,
       "options": {
@@ -264,7 +343,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 27
+        "y": 35
       },
       "id": 10,
       "title": "Row title",
@@ -312,7 +391,7 @@
         "h": 16,
         "w": 24,
         "x": 0,
-        "y": 28
+        "y": 36
       },
       "id": 2,
       "options": {
@@ -389,7 +468,7 @@
         "h": 10,
         "w": 12,
         "x": 0,
-        "y": 44
+        "y": 52
       },
       "id": 4,
       "options": {
@@ -461,7 +540,7 @@
         "h": 10,
         "w": 12,
         "x": 12,
-        "y": 44
+        "y": 52
       },
       "hiddenSeries": false,
       "id": 6,
@@ -571,7 +650,7 @@
       {
         "allValue": null,
         "current": {
-          "selected": true,
+          "selected": false,
           "text": "20103385",
           "value": "20103385"
         },
