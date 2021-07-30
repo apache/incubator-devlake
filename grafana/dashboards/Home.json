@@ -16,7 +16,7 @@
   "gnetId": null,
   "graphTooltip": 0,
   "id": 1,
-  "iteration": 1627580781029,
+  "iteration": 1627587557191,
   "links": [],
   "panels": [
     {
@@ -33,6 +33,10 @@
               {
                 "color": "green",
                 "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
               }
             ]
           }
@@ -40,16 +44,16 @@
         "overrides": []
       },
       "gridPos": {
-        "h": 19,
-        "w": 11,
+        "h": 8,
+        "w": 12,
         "x": 0,
         "y": 0
       },
-      "id": 12,
+      "id": 16,
       "options": {
         "colorMode": "value",
         "graphMode": "area",
-        "justifyMode": "center",
+        "justifyMode": "auto",
         "orientation": "auto",
         "reduceOptions": {
           "calcs": [
@@ -69,7 +73,7 @@
           "metricColumn": "none",
           "queryType": "randomWalk",
           "rawQuery": true,
-          "rawSql": "SELECT\n  count(id) as \"Commits\",\n  sum(additions) as \"Additions\",\n  sum(deletions) as \"Deletions\",\n  sum(additions - deletions) as \"LOC\"\nFROM gitlab_commits\nWHERE\n  $__timeFilter(gitlab_commits.committed_date) AND gitlab_commits.project_id = $ProjectId\nORDER BY 1",
+          "rawSql": "SELECT\n  count(id) as \"Merge Requests\"\nFROM gitlab_merge_requests\nWHERE\n  $__timeFilter(gitlab_created_at) AND project_id = $ProjectId\nORDER BY 1",
           "refId": "A",
           "select": [
             [
@@ -93,7 +97,7 @@
           ]
         }
       ],
-      "title": "Lines Of Code",
+      "title": "Merge Requests",
       "type": "stat"
     },
     {
@@ -178,12 +182,89 @@
       "type": "stat"
     },
     {
+      "datasource": "Postgres",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 19,
+        "w": 11,
+        "x": 0,
+        "y": 8
+      },
+      "id": 12,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "center",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "text": {},
+        "textMode": "auto"
+      },
+      "pluginVersion": "8.0.6",
+      "targets": [
+        {
+          "format": "table",
+          "group": [],
+          "metricColumn": "none",
+          "queryType": "randomWalk",
+          "rawQuery": true,
+          "rawSql": "SELECT\n  count(id) as \"Commits\",\n  sum(additions) as \"Additions\",\n  sum(deletions) as \"Deletions\",\n  sum(additions - deletions) as \"LOC\"\nFROM gitlab_commits\nWHERE\n  $__timeFilter(gitlab_commits.committed_date) AND gitlab_commits.project_id = $ProjectId\nORDER BY 1",
+          "refId": "A",
+          "select": [
+            [
+              {
+                "params": [
+                  "value_double"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "table": "test_data",
+          "timeColumn": "time_date_time",
+          "timeColumnType": "timestamp",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        }
+      ],
+      "title": "Lines Of Code",
+      "type": "stat"
+    },
+    {
       "datasource": null,
       "gridPos": {
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 19
+        "y": 27
       },
       "id": 10,
       "title": "Row title",
@@ -231,7 +312,7 @@
         "h": 16,
         "w": 24,
         "x": 0,
-        "y": 20
+        "y": 28
       },
       "id": 2,
       "options": {
@@ -308,7 +389,7 @@
         "h": 10,
         "w": 12,
         "x": 0,
-        "y": 36
+        "y": 44
       },
       "id": 4,
       "options": {
@@ -380,7 +461,7 @@
         "h": 10,
         "w": 12,
         "x": 12,
-        "y": 36
+        "y": 44
       },
       "hiddenSeries": false,
       "id": 6,
@@ -490,9 +571,9 @@
       {
         "allValue": null,
         "current": {
-          "selected": false,
-          "text": "19688130",
-          "value": "19688130"
+          "selected": true,
+          "text": "20103385",
+          "value": "20103385"
         },
         "datasource": "Postgres",
         "definition": "Select id from gitlab_projects",
@@ -521,5 +602,5 @@
   "timezone": "",
   "title": "Lead Times",
   "uid": "0BwAzlZ7k",
-  "version": 7
+  "version": 2
 }
