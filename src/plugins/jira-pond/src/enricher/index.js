@@ -3,6 +3,8 @@ require('module-alias/register')
 const dayjs = require('dayjs')
 const duration = require('dayjs/plugin/duration')
 const { findOrCreateCollection } = require('commondb')
+const constants = require('@config/constants.json').jira
+const { mapValue } = require('@src/util/mapping')
 dayjs.extend(duration)
 
 module.exports = {
@@ -35,6 +37,7 @@ module.exports = {
           url: issue.self,
           title: issue.fields.summary,
           projectId: issue.fields.project.id,
+          issueType: mapValue(issue.fields.issuetype.name, constants.mappings),
           leadTime: null
         }
         // by standard, leadtime = days of (resolutiondate - creationdate)
