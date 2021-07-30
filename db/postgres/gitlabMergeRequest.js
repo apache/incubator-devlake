@@ -56,6 +56,9 @@ module.exports = (sequelize, DataTypes) => {
     authorUsername: {
       type: DataTypes.STRING
     },
+    reviewers: {
+      type: DataTypes.ARRAY(DataTypes.STRING)
+    },
     createdAt: {
       allowNull: false,
       type: DataTypes.DATE,
