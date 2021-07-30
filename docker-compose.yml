@@ -44,16 +44,6 @@ services:
       - ./src/img/grafana_icon.svg:/usr/share/grafana/public/img/grafana_icon.svg:rw
     env_file:
       - ./grafana/grafana.config
-    depends_on:
-      - postgresdb
-    command: sh -c './scripts/wait-for postgresdb:5432 -- grafana'
     restart: always
-    environment:
-      GF_DATABASE_TYPE: postgres
-      GF_DATABASE_HOST: postgresdb:5432
-      GF_DATABASE_NAME: lake
-      GF_DATABASE_USER: postgres
-      GF_DATABASE_PASSWORD: postgres
-      GF_DATABASE_SSL_MODE: disable
 volumes:
   grafana-storage: {}
