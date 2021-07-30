@@ -2,7 +2,7 @@ require('module-alias/register')
 const { findOrCreateCollection } = require('../../../commondb')
 const fetcher = require('./fetcher')
 
-const collectionName = 'gitlab_project_repo_commits'
+const collectionName = 'gitlab_commits'
 
 module.exports = {
   async collect ({ db, projectId, forceAll }) {
@@ -15,7 +15,7 @@ module.exports = {
 
   async collectByProjectId (db, projectId, forceAll) {
     const commitsCollection = await findOrCreateCollection(db, collectionName)
-    for await (const commit of fetcher.fetchPaged(`projects/${projectId}/repository/commits?all=true&with_stats=true`)) {
+    for await (const commit of fetcher.fetchPaged(`projects/${projectId}/repository/commits?with_stats=true`)) {
       commit.projectId = projectId
       await commitsCollection.findOneAndUpdate(
         { id: commit.id },

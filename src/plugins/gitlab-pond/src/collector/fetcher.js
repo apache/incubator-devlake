@@ -31,10 +31,16 @@ module.exports = {
     resourceUri = `${resourceUri}${resourceUri.includes('?') ? '&' : '?'}`
 
     let page = 1
-
-    while (page) {
+    
+    while (true) {
       const res = await module.exports.fetch(`${resourceUri}per_page=${pageSize}&page=${page}`, maxRetry)
-      page = res.headers['x-next-page']
+      // we always simply want the next page of data
+      page += 1
+      // If no data is returned, we must be on the last page of refults
+      if(res.data.length === 0){
+        console.log('INFO: fetchPaged: No data for this page, done fetching paged')
+        break
+      }
       for (const item of res.data) {
         yield item
       }
