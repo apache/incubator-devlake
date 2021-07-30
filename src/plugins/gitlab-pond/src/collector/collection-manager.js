@@ -7,6 +7,15 @@ const {
 const fetcher = require('./fetcher')
 
 module.exports = {
+  async collectProjectMergeRequests (options, db) {
+    for (let index = 0; index < options.projectIds.length; index++) {
+      const projectId = options.projectIds[index]
+
+      const response = await module.exports.fetchCollectionData('projects', projectId, 'merge_requests')
+
+      await module.exports.saveMany(response, db, 'gitlab_merge_requests')
+    }
+  },
   async collectProjectCommits (options, db) {
     for (let index = 0; index < options.projectIds.length; index++) {
       const projectId = options.projectIds[index]
