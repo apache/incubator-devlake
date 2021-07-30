@@ -5,35 +5,35 @@ const mongo = require('../util/mongo')
 module.exports = {
   async enrich (rawDb, enrichedDb, options) {
     try {
-      console.log('INFO: Gitlab Enrichment for projectIds: ', options.projectIds)
+      console.log('INFO: Gitlab Enrichment for projectId: ', options.projectId)
       await module.exports.saveProjectsToPsql(
         rawDb,
         enrichedDb,
-        options.projectIds
+        options.projectId
       )
-      await module.exports.saveCommitsToPsqlBasedOnProjectIds(
+      await module.exports.saveCommitsToPsqlBasedOnProjectId(
         rawDb,
         enrichedDb,
-        options.projectIds
+        options.projectId
       )
-      await module.exports.saveMergeRequestsToPsqlBasedOnProjectIds(
+      await module.exports.saveMergeRequestsToPsqlBasedOnProjectId(
         rawDb,
         enrichedDb,
-        options.projectIds
+        options.projectId
       )
       console.log('Done enriching issues')
     } catch (error) {
       console.error(error)
     }
   },
-  async saveMergeRequestsToPsqlBasedOnProjectIds (rawDb, enrichedDb, projectIds) {
+  async saveMergeRequestsToPsqlBasedOnProjectId (rawDb, enrichedDb, projectId) {
     const {
       GitlabMergeRequest
     } = enrichedDb
 
     // find the project in mongo
     const mergeRequests = await mongo.findCollection('gitlab_merge_requests',
-      { projectId: { $in: projectIds } }
+      { projectId: projectId }
       , rawDb)
 
     // mongo always returns an array
@@ -63,14 +63,14 @@ module.exports = {
 
     await Promise.all(upsertPromises)
   },
-  async saveCommitsToPsqlBasedOnProjectIds (rawDb, enrichedDb, projectIds) {
+  async saveCommitsToPsqlBasedOnProjectId (rawDb, enrichedDb, projectId) {
     const {
       GitlabCommit
     } = enrichedDb
 
     // find the project in mongo
     const commits = await mongo.findCollection('gitlab_commits',
-      { projectId: { $in: projectIds } }
+      { projectId: projectId }
       , rawDb)
 
     // mongo always returns an array
@@ -101,14 +101,14 @@ module.exports = {
     await Promise.all(upsertPromises)
   },
 
-  async saveProjectsToPsql (rawDb, enrichedDb, projectIds) {
+  async saveProjectsToPsql (rawDb, enrichedDb, projectId) {
     const {
       GitlabProject
     } = enrichedDb
 
     // find the project in mongo
     const projects = await mongo.findCollection('gitlab_projects',
-      { id: { $in: projectIds } }
+      { id: projectId }
       , rawDb)
 
     const upsertPromises = []
