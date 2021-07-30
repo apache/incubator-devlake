@@ -21,10 +21,10 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.STRING
     },
     title: {
-      type: DataTypes.STRING
+      type: DataTypes.TEXT
     },
     message: {
-      type: DataTypes.STRING
+      type: DataTypes.TEXT
     },
     authorName: {
       type: DataTypes.STRING

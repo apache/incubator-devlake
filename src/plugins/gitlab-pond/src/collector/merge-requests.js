@@ -2,7 +2,7 @@ require('module-alias/register')
 const { findOrCreateCollection } = require('../../../commondb')
 const fetcher = require('./fetcher')
 
-const collectionName = 'gitlab_project_merge_requests'
+const collectionName = 'gitlab_merge_requests'
 
 module.exports = {
   async collect ({ db, projectId, forceAll }) {

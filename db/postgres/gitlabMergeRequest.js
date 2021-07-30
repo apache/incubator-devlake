@@ -15,7 +15,7 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.INTEGER
     },
     title: {
-      type: DataTypes.STRING
+      type: DataTypes.TEXT
     },
     projectId: {
       type: DataTypes.INTEGER
@@ -51,7 +51,7 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.STRING
     },
     description: {
-      type: DataTypes.STRING
+      type: DataTypes.TEXT
     },
     authorUsername: {
       type: DataTypes.STRING
