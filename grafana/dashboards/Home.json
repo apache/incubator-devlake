@@ -16,7 +16,7 @@
   "gnetId": null,
   "graphTooltip": 0,
   "id": 1,
-  "iteration": 1627670210682,
+  "iteration": 1627670210686,
   "links": [],
   "panels": [
     {
@@ -44,8 +44,8 @@
         "overrides": []
       },
       "gridPos": {
-        "h": 8,
-        "w": 12,
+        "h": 5,
+        "w": 3,
         "x": 0,
         "y": 0
       },
@@ -123,9 +123,9 @@
         "overrides": []
       },
       "gridPos": {
-        "h": 8,
-        "w": 12,
-        "x": 12,
+        "h": 5,
+        "w": 3,
+        "x": 3,
         "y": 0
       },
       "id": 14,
@@ -193,10 +193,6 @@
               {
                 "color": "green",
                 "value": null
-              },
-              {
-                "color": "red",
-                "value": 80
               }
             ]
           }
@@ -204,10 +200,10 @@
         "overrides": []
       },
       "gridPos": {
-        "h": 8,
-        "w": 12,
-        "x": 0,
-        "y": 8
+        "h": 5,
+        "w": 5,
+        "x": 6,
+        "y": 0
       },
       "id": 16,
       "options": {
@@ -281,10 +277,85 @@
         "overrides": []
       },
       "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 11,
+        "y": 0
+      },
+      "id": 20,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "text": {},
+        "textMode": "auto"
+      },
+      "pluginVersion": "8.0.6",
+      "targets": [
+        {
+          "format": "table",
+          "group": [],
+          "metricColumn": "none",
+          "queryType": "randomWalk",
+          "rawQuery": true,
+          "rawSql": "\nWITH merged as (\nSELECT\n  count(id)\nFROM\n  gitlab_merge_requests\nWHERE\n  merged_at IS NOT NULL AND\n  $__timeFilter(gitlab_created_at) AND \n  project_id = $ProjectId\n), notMerged as (SELECT\n  count(id)\nFROM\n  gitlab_merge_requests\nWHERE\n  merged_at IS NULL AND\n  $__timeFilter(gitlab_created_at) AND \n  project_id = $ProjectId)\n\nSELECT (SELECT * FROM notMerged) as \"Not Merged\",\n (SELECT * FROM merged) as \"Merged\",\n \n(((SELECT * FROM merged)::float/((SELECT * FROM notMerged) + (SELECT * FROM merged)))::float) as \"Ratio\"\n  \n  \n\n\n\n\n",
+          "refId": "A",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "timeColumn": "time",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        }
+      ],
+      "title": "Merge Request Ratio",
+      "type": "stat"
+    },
+    {
+      "datasource": "Postgres",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
         "h": 19,
         "w": 11,
         "x": 0,
-        "y": 16
+        "y": 5
       },
       "id": 12,
       "options": {
@@ -343,7 +414,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 35
+        "y": 24
       },
       "id": 10,
       "title": "Row title",
@@ -391,7 +462,7 @@
         "h": 16,
         "w": 24,
         "x": 0,
-        "y": 36
+        "y": 25
       },
       "id": 2,
       "options": {
@@ -468,7 +539,7 @@
         "h": 10,
         "w": 12,
         "x": 0,
-        "y": 52
+        "y": 41
       },
       "id": 4,
       "options": {
@@ -540,7 +611,7 @@
         "h": 10,
         "w": 12,
         "x": 12,
-        "y": 52
+        "y": 41
       },
       "hiddenSeries": false,
       "id": 6,
@@ -650,7 +721,7 @@
       {
         "allValue": null,
         "current": {
-          "selected": false,
+          "selected": true,
           "text": "20103385",
           "value": "20103385"
         },
@@ -681,5 +752,5 @@
   "timezone": "",
   "title": "Lead Times",
   "uid": "0BwAzlZ7k",
-  "version": 2
+  "version": 4
 }
