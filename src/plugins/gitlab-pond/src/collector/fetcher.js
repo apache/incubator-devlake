@@ -34,7 +34,7 @@ async function * fetchPaged (resourceUri, page = 1, pageSize = 100) {
   resourceUri = `${resourceUri}${resourceUri.includes('?') ? '&' : '?'}`
 
   while (page) {
-    const res = await module.exports.fetch(`${resourceUri}per_page=${pageSize}&page=${page}`)
+    const res = await fetch(`${resourceUri}per_page=${pageSize}&page=${page}`)
     page = res.headers['x-next-page']
     for (const item of res.data) {
       yield item
