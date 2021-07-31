@@ -33,10 +33,11 @@ if (require.main === module) {
     const dbConnector = require('@mongo/connection');
     const enrichedDb = require('@db/postgres')
 
+    const projectId = process.argv[2] || 24547305
     const { db, client } = await dbConnector.connect()
     try {
-      await module.exports.collector.exec(db, { projectId: 24547305 })
-      await module.exports.enricher.exec(db, enrichedDb, { projectId: 24547305 })
+      await module.exports.collector.exec(db, { projectId })
+      await module.exports.enricher.exec(db, enrichedDb, { projectId })
     } finally {
       dbConnector.disconnect(client)
     }
