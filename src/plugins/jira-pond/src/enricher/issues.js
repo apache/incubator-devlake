@@ -33,6 +33,8 @@ async function enrichIssues (rawDb, enrichedDb, boardId, forceAll) {
         title: issue.fields.summary,
         projectId: issue.fields.project.id,
         issueType: mapValue(issue.fields.issuetype.name, constants.mappings),
+        issueCreatedAt: issue.fields.created,
+        issueUpdatedAt: issue.fields.updated,
         leadTime: null
       }
       // by standard, leadtime = days of (resolutiondate - creationdate)
