@@ -1,0 +1,270 @@
+{
+  "annotations": {
+    "list": [
+      {
+        "builtIn": 1,
+        "datasource": "-- Grafana --",
+        "enable": true,
+        "hide": true,
+        "iconColor": "rgba(0, 211, 255, 1)",
+        "name": "Annotations & Alerts",
+        "type": "dashboard"
+      }
+    ]
+  },
+  "editable": true,
+  "gnetId": null,
+  "graphTooltip": 0,
+  "id": 2,
+  "links": [],
+  "panels": [
+    {
+      "aliasColors": {},
+      "bars": true,
+      "dashLength": 10,
+      "dashes": false,
+      "datasource": "Postgres",
+      "fill": 1,
+      "fillGradient": 0,
+      "gridPos": {
+        "h": 10,
+        "w": 24,
+        "x": 0,
+        "y": 0
+      },
+      "hiddenSeries": false,
+      "id": 2,
+      "legend": {
+        "avg": false,
+        "current": false,
+        "max": false,
+        "min": false,
+        "show": false,
+        "total": false,
+        "values": false
+      },
+      "lines": false,
+      "linewidth": 1,
+      "nullPointMode": "null",
+      "options": {
+        "alertThreshold": true
+      },
+      "percentage": false,
+      "pluginVersion": "8.0.6",
+      "pointradius": 2,
+      "points": false,
+      "renderer": "flot",
+      "seriesOverrides": [],
+      "spaceLength": 10,
+      "stack": false,
+      "steppedLine": false,
+      "targets": [
+        {
+          "format": "time_series",
+          "group": [],
+          "metricColumn": "none",
+          "queryType": "randomWalk",
+          "rawQuery": true,
+          "rawSql": "with \n\tnoi as (\n\t\tselect to_char(issue_created_at, 'YYYY-MM') as month, count(*) as noi\n\t\tfrom jira_issues ji \n\t\tleft join jira_board_issues jbi on (jbi.issue_id = ji.id)\n\t\twhere jbi.board_id = 8 and ji.issue_type = 'Bug'\n\t\t  and $__timeFilter(ji.issue_created_at)\n\t\tgroup by to_char(issue_created_at, 'YYYY-MM')\n\t),\n\tloc as (\n\t\tselect to_char(to_timestamp(authored_date, 'YYYY-MM-DD\"T\"HH24:MI:SS\"Z\"'), 'YYYY-MM') as month, sum(additions + deletions) as loc\n\t\tfrom gitlab_commits gc \n\t\tleft join jira_board_gitlab_projects jbgp on (jbgp.project_id = gc.project_id)\n\t\twhere jbgp.board_id = 8\n\t\t  and $__timeFilter(authored_date)\n\t\tgroup by to_char(to_timestamp(authored_date, 'YYYY-MM-DD\"T\"HH24:MI:SS\"Z\"'), 'YYYY-MM')\n\t)\nselect now() as time, loc.month as metric, noi::decimal / loc.loc::decimal * 1000 as value\nfrom loc\nleft join noi on (noi.month = loc.month)\nwhere noi.noi is not null and loc.loc is not null\norder by 1;\n",
+          "refId": "A",
+          "select": [
+            [
+              {
+                "params": [
+                  "value_double"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "table": "test_data",
+          "timeColumn": "time_date_time",
+          "timeColumnType": "timestamp",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        }
+      ],
+      "thresholds": [],
+      "timeFrom": null,
+      "timeRegions": [],
+      "timeShift": null,
+      "title": "Bug Count Per 1k Line Of Code",
+      "tooltip": {
+        "shared": false,
+        "sort": 0,
+        "value_type": "individual"
+      },
+      "type": "graph",
+      "xaxis": {
+        "buckets": null,
+        "mode": "series",
+        "name": null,
+        "show": true,
+        "values": [
+          "total"
+        ]
+      },
+      "yaxes": [
+        {
+          "$$hashKey": "object:132",
+          "format": "short",
+          "label": null,
+          "logBase": 1,
+          "max": null,
+          "min": null,
+          "show": true
+        },
+        {
+          "$$hashKey": "object:133",
+          "format": "short",
+          "label": null,
+          "logBase": 1,
+          "max": null,
+          "min": null,
+          "show": true
+        }
+      ],
+      "yaxis": {
+        "align": false,
+        "alignLevel": null
+      }
+    },
+    {
+      "aliasColors": {},
+      "bars": true,
+      "dashLength": 10,
+      "dashes": false,
+      "datasource": "Postgres",
+      "fill": 1,
+      "fillGradient": 0,
+      "gridPos": {
+        "h": 10,
+        "w": 24,
+        "x": 0,
+        "y": 10
+      },
+      "hiddenSeries": false,
+      "id": 3,
+      "legend": {
+        "avg": false,
+        "current": false,
+        "max": false,
+        "min": false,
+        "show": false,
+        "total": false,
+        "values": false
+      },
+      "lines": false,
+      "linewidth": 1,
+      "nullPointMode": "null",
+      "options": {
+        "alertThreshold": true
+      },
+      "percentage": false,
+      "pluginVersion": "8.0.6",
+      "pointradius": 2,
+      "points": false,
+      "renderer": "flot",
+      "seriesOverrides": [],
+      "spaceLength": 10,
+      "stack": false,
+      "steppedLine": false,
+      "targets": [
+        {
+          "format": "time_series",
+          "group": [],
+          "metricColumn": "none",
+          "queryType": "randomWalk",
+          "rawQuery": true,
+          "rawSql": "with \n\tnoi as (\n\t\tselect to_char(issue_created_at, 'YYYY-MM') as month, count(*) as noi\n\t\tfrom jira_issues ji \n\t\tleft join jira_board_issues jbi on (jbi.issue_id = ji.id)\n\t\twhere jbi.board_id = 8 and ji.issue_type = 'Incident'\n\t\t  and $__timeFilter(ji.issue_created_at)\n\t\tgroup by to_char(issue_created_at, 'YYYY-MM')\n\t),\n\tloc as (\n\t\tselect to_char(to_timestamp(authored_date, 'YYYY-MM-DD\"T\"HH24:MI:SS\"Z\"'), 'YYYY-MM') as month, sum(additions + deletions) as loc\n\t\tfrom gitlab_commits gc \n\t\tleft join jira_board_gitlab_projects jbgp on (jbgp.project_id = gc.project_id)\n\t\twhere jbgp.board_id = 8\n\t\t  and $__timeFilter(authored_date)\n\t\tgroup by to_char(to_timestamp(authored_date, 'YYYY-MM-DD\"T\"HH24:MI:SS\"Z\"'), 'YYYY-MM')\n\t)\nselect now() as time, loc.month as metric, noi::decimal / loc.loc::decimal * 1000 as value\nfrom loc\nleft join noi on (noi.month = loc.month)\nwhere noi.noi is not null and loc.loc is not null\norder by 1;\n",
+          "refId": "A",
+          "select": [
+            [
+              {
+                "params": [
+                  "value_double"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "table": "test_data",
+          "timeColumn": "time_date_time",
+          "timeColumnType": "timestamp",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        }
+      ],
+      "thresholds": [],
+      "timeFrom": null,
+      "timeRegions": [],
+      "timeShift": null,
+      "title": "Incident Count Per 1k Line Of Code",
+      "tooltip": {
+        "shared": false,
+        "sort": 0,
+        "value_type": "individual"
+      },
+      "type": "graph",
+      "xaxis": {
+        "buckets": null,
+        "mode": "series",
+        "name": null,
+        "show": true,
+        "values": [
+          "total"
+        ]
+      },
+      "yaxes": [
+        {
+          "$$hashKey": "object:132",
+          "format": "short",
+          "label": null,
+          "logBase": 1,
+          "max": null,
+          "min": null,
+          "show": true
+        },
+        {
+          "$$hashKey": "object:133",
+          "format": "short",
+          "label": null,
+          "logBase": 1,
+          "max": null,
+          "min": null,
+          "show": true
+        }
+      ],
+      "yaxis": {
+        "align": false,
+        "alignLevel": null
+      }
+    }
+  ],
+  "refresh": "",
+  "schemaVersion": 30,
+  "style": "dark",
+  "tags": [],
+  "templating": {
+    "list": []
+  },
+  "time": {
+    "from": "now-1y",
+    "to": "now"
+  },
+  "timepicker": {},
+  "timezone": "",
+  "title": "Compound Figures",
+  "uid": "4XTy0kMnk",
+  "version": 4
+}

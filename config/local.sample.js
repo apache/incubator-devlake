@@ -25,6 +25,9 @@ module.exports = {
     apiPath: 'api/v4',
     token: '***'
   },
+  jiraBoardGitlabProject: {
+    8: 8967944
+  },
   enrichment: {
     connectionString: 'http://localhost:3000/'
   }
