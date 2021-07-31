@@ -18,12 +18,16 @@ module.exports = {
     host: 'https://your-domain.atlassian.net',
     basicAuth: '***',
     proxy: 'http://localhost:4780',
-    timeout: 15000
+    timeout: 10000,
+    maxRetry: 10
   },
   gitlab: {
     host: 'https://gitlab.com',
     apiPath: 'api/v4',
-    token: '***'
+    token: '***',
+    proxy: 'http://localhost:4780',
+    timeout: 10000,
+    maxRetry: 10
   },
   enrichment: {
     connectionString: 'http://localhost:3000/'

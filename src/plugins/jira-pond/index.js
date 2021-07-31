@@ -1,15 +1,13 @@
-const issues = require('./src/collector/issues')
-const enrichment = require('jira-pond/src/enricher')
+const collection = require('./src/collector')
+const enrichment = require('./src/enricher')
 
 module.exports = {
   collector: {
     name: 'jiraCollector',
     exec: async function (rawDb, options) {
-      const args = { db: rawDb, ...options }
-
-      console.info('start collecting jira data', options)
-      await issues.collect(args)
-      console.info('end collecting jira data')
+      console.info('INFO >>> jira collecting', options)
+      await collection.collect(rawDb, options)
+      console.info('INFO >>> jira collecting done!')
 
       return {
         ...options,
@@ -27,18 +25,23 @@ module.exports = {
   }
 }
 
+// for debugging only, skip if module being required
 if (require.main === module) {
-  require('module-alias/register')
-  const dbConnector = require('@mongo/connection');
-  // const enrichedDb = require('@db/postgres');
+  async function main () {
+    require('module-alias/register')
+    const dbConnector = require('@mongo/connection')
+    const enrichedDb = require('@db/postgres')
 
-  (async function () {
+    const boardId = Number(process.argv[2]) || 8
+    const forceCollectAll = Number(process.argv[3])
+    const forceEnrichAll = Number(process.argv[4])
     const { db, client } = await dbConnector.connect()
     try {
-      await module.exports.collector.exec(db, { boardId: process.argv[2], forceAll: process.argv[3] })
-      // await module.exports.enricher.exec(db, enrichedDb, { boardId: process.argv[2], forceAll: process.argv[3] })
+      await module.exports.collector.exec(db, { boardId, forceAll: forceCollectAll })
+      await module.exports.enricher.exec(db, enrichedDb, { boardId, forceAll: forceEnrichAll })
     } finally {
       dbConnector.disconnect(client)
     }
-  })()
+  }
+  main()
 }
