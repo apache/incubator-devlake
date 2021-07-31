@@ -1,0 +1,22 @@
+{
+  "name": "compound-figures",
+  "version": "1.0.0",
+  "description": "A compound-figure enricher plugin for lake",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/merico-dev/compound-figures.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/merico-dev/compound-figures/issues"
+  },
+  "homepage": "https://github.com/merico-dev/compound-figures#readme",
+  "dependencies": {
+    "commondb": "file:../commondb"
+  }
+}
