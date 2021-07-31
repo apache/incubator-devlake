@@ -29,6 +29,9 @@ module.exports = {
     timeout: 10000,
     maxRetry: 10
   },
+  jiraBoardGitlabProject: {
+    8: 8967944
+  },
   enrichment: {
     connectionString: 'http://localhost:3000/'
   }

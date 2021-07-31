@@ -4,13 +4,14 @@ require('module-alias/register')
 const _has = require('lodash/has')
 
 const dbConnector = require('@mongo/connection')
-const { enrichment } = require('../plugins')
+const { buildPluginRegistry } = require('../plugins')
 const consumer = require('../queue/consumer')
 const enrichedDb = require('@db/postgres')
 
 const queue = 'enrichment'
 
 const jobHandler = async (job) => {
+  const enrichment = await buildPluginRegistry('enricher')
   const {
     db: rawDb, client
   } = await dbConnector.connect()
