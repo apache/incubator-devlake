@@ -12,7 +12,7 @@
     "enrich": "nodemon src/enrichment/main.js",
     "enrichment-worker": "./src/enrichment/worker.js",
     "lint": "./node_modules/eslint/bin/eslint.js . --max-warnings=0 --report-unused-disable-directives --fix && echo '✔  Your .js files look good.'",
-    "all": "concurrently \"DEBUG=true nodemon src/collection/main.js\" \"DEBUG=true nodemon src/collection/worker.js\" \"DEBUG=true nodemon src/enrichment/main.js\" \"DEBUG=true nodemon src/enrichment/worker.js\"",
+    "all": "node src/plugins/index.js && concurrently \"DEBUG=true nodemon src/collection/main.js\" \"DEBUG=true nodemon src/collection/worker.js\" \"DEBUG=true nodemon src/enrichment/main.js\" \"DEBUG=true nodemon src/enrichment/worker.js\"",
     "prepare": "husky install",
     "commit": "cz",
     "docker": "docker-compose up --build --force-recreate"
@@ -45,6 +45,7 @@
     "express": "^4.17.1",
     "jira-pond": "src/plugins/jira-pond",
     "gitlab-pond": "src/plugins/gitlab-pond",
+    "compound-figures": "src/plugins/compound-figures",
     "lodash": "^4.17.21",
     "module-alias": "^2.2.2",
     "mongodb": "*",

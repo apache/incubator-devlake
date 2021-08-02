@@ -1,22 +1,17 @@
 module.exports = [
   {
     package: 'jira-pond',
-    name: 'collector',
-    type: 'collector'
-  },
-  {
-    package: 'jira-pond',
-    name: 'enricher',
-    type: 'enricher'
+    name: 'jira',
+    configuration: {}
   },
   {
     package: 'gitlab-pond',
-    name: 'collector',
-    type: 'collector'
+    name: 'gitlab',
+    configuration: {}
   },
   {
-    package: 'gitlab-pond',
-    name: 'enricher',
-    type: 'enricher'
+    package: 'compound-figures',
+    name: 'compound-figures',
+    configuration: {}
   }
 ]
