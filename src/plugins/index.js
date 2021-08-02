@@ -1,60 +1,88 @@
 require('module-alias/register')
+const _merge = require('lodash/merge')
 const registryConfig = require('../../config/plugins')
 const dbConnector = require('@mongo/connection')
 const enrichedDb = require('@db/postgres')
 
-module.exports = {
-  collection: buildPluginRegistry('collector'),
-  enrichment: buildPluginRegistry('enricher')
-}
+const plugins = {}
+const collection = {}
+const enrichment = {}
 
-async function buildPluginRegistry (type) {
-  const pluginRegistry = pluginRegistryFactory()
-
-  for (const pluginModule of registryConfig) {
-    if (pluginModule.type !== type) {
-      continue
-    }
-
-    const plugin = require(pluginModule.package)
-
-    pluginRegistry.register(plugin[pluginModule.name])
+registryConfig.forEach((item, index) => {
+  const { package: packageName, name: pluginName, configuration: pluginConfiguration } = item
+  if (!packageName) {
+    throw new Error(`package fields is missing for plugin #${index}, check your config/plugin.js file`)
+  }
+  if (!pluginName) {
+    throw new Error(`name fields is missing for plugin #${index}, check your config/plugin.js file`)
   }
 
-  await pluginRegistry.initialize()
+  // load module
+  const plugin = require(packageName)
+  plugin.packageName = packageName
+  plugin.pluginName = pluginName
 
-  return pluginRegistry
-}
+  // setup configuration for plugin
+  //   plugin can have a default confgiration, which is subjected to be overwritten
+  //   TODO: check if configuration keys are perfectly matched
+  _merge(plugin.configuration, pluginConfiguration)
 
-function pluginRegistryFactory () {
-  return {
-    plugins: {},
+  // register plugin
+  plugins[pluginName] = plugin
 
-    register (plugin) {
-      const { name, exec } = plugin
-      this.plugins[name] = exec
-    },
-
-    // initialize all plugins due to some of them need to do some preparation
-    // all database migration should be moved to plugin initialization in the
-    // future
-    async initialize () {
-      const {
-        db: rawDb, client
-      } = await dbConnector.connect()
-
-      try {
-        for (const key of Object.keys(this.plugins)) {
-          const plugin = this.plugins[key]
-          if (typeof plugin.initialize === 'function') {
-            plugin.initialize(rawDb, enrichedDb, this.plugins)
-          }
-        }
-      } finally {
-        dbConnector.disconnect(client)
-      }
+  // distribute collector
+  if (plugin.collector) {
+    const { name: collectorName, exec: collector } = plugin.collector
+    if (!collectorName) {
+      throw new Error(`Error: name is missing for collector of ${pluginName}`)
     }
+    if (collection[collectorName]) {
+      throw new Error(`Error: conflicted plugin name ${pluginName}`)
+    }
+    if (!collector) {
+      throw new Error(`Error: exec is missing for collector of ${pluginName}`)
+    }
+    collector.collectorName = collectorName
+    collection[pluginName] = collector
   }
+
+  // distribute enricher
+  if (plugin.enricher) {
+    const { name: enricherName, exec: enricher } = plugin.enricher
+    if (!enricherName) {
+      throw new Error(`Error: name is missing for enricher of ${pluginName}`)
+    }
+    if (!enricher) {
+      throw new Error(`Error: exec is missing for enricher of ${pluginName}`)
+    }
+    enricher.enricherName = enricherName
+    enrichment[pluginName] = enricher
+  }
+})
+
+// run all initializations of all plugins
+async function initialize () {
+  console.log('INFO: initializing plugins')
+  const {
+    db: rawDb, client
+  } = await dbConnector.connect()
+
+  try {
+    // assuming no dependencies among plugins
+    await Promise.all(
+      Object.values(plugins)
+        .filter(plugin => plugin.initialize)
+        .map(plugin => plugin.initialize(rawDb, enrichedDb, plugins))
+    )
+  } finally {
+    dbConnector.disconnect(client)
+  }
+  console.log('INFO: initializing plugins done!')
 }
 
-module.exports = { buildPluginRegistry }
+module.exports = { collection, enrichment, initialize }
+
+// initialize all plugin with `node src/plugins/index.js`
+if (require.main === module) {
+  initialize()
+}

@@ -2,6 +2,10 @@ require('module-alias/register')
 const config = require('@config/resolveConfig').jiraBoardGitlabProject
 
 module.exports = {
+  configuration: {
+    // default configuration which could be overrided by `config/plugins.js`
+  },
+
   async initialize (rawDb, enrichedDb, plugins) {
     if (!config) {
       return
