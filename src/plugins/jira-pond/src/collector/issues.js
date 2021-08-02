@@ -14,11 +14,11 @@ async function collect ({ db, boardId, forceAll }) {
 async function collectByBoardId (db, boardId, forceAll) {
   const issuesCollection = await getCollection(db)
   const latestUpdated = await issuesCollection.find().sort({ 'fields.updated': -1 }).limit(1).next()
-  const $addToSet = { boardIds: Number(boardId) }
+  const $addToSet = { boardIds: boardId }
   let jql = ''
   if (!forceAll && latestUpdated) {
     const jiraDate = dayjs(latestUpdated.fields.updated).format('YYYY/MM/DD HH:mm')
-    jql = encodeURIComponent(`updated >= '${jiraDate}'`)
+    jql = encodeURIComponent(`updated >= '${jiraDate}' ORDER BY updated ASC`)
   }
   for await (const issue of fetcher.fetchPaged(`agile/1.0/board/${boardId}/issue?jql=${jql}`, 'issues')) {
     await issuesCollection.findOneAndUpdate(
