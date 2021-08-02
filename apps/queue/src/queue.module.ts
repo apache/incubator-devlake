@@ -11,7 +11,7 @@ import { QueueService } from './queue.service';
       name: 'default',
       imports: [ConfigModule],
       useFactory: (config: ConfigService): Bull.QueueOptions => {
-        const redis = config.get<string>('REDIS');
+        const redis = config.get<string>('REDIS_URL');
         return {
           redis,
           defaultJobOptions: {
