@@ -8,6 +8,11 @@ async function fetch (resourceUri) {
   let res
   while (retry < maxRetry) {
     console.log(`INFO >>> jira fetching data from ${resourceUri} #${retry}`)
+    const abort = axios.CancelToken.source()
+    const id = setTimeout(
+      () => abort.cancel(`Timeout of ${config.timeout}ms.`),
+      config.timeout
+    )
     try {
       res = await axios.get(`${config.host}/rest/${resourceUri}`, {
         headers: {
@@ -15,8 +20,9 @@ async function fetch (resourceUri) {
           Authorization: `Basic ${config.basicAuth}`
         },
         agent: config.proxy && new ProxyAgent(config.proxy),
-        timeout: config.timeout
+        cancelToken: abort.token
       })
+      clearTimeout(id)
       break
     } catch (error) {
       retry++

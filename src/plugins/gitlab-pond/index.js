@@ -2,6 +2,10 @@ const collection = require('./src/collector')
 const enrichment = require('./src/enricher')
 
 module.exports = {
+  configuration: {
+    // default configuration which could be overrided by `config/plugins.js`
+  },
+
   collector: {
     name: 'gitlabCollector',
     exec: async function (rawDb, options) {
