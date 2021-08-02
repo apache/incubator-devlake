@@ -13,7 +13,7 @@ async function enrich ({ rawDb, enrichedDb, boardId, forceAll }) {
 }
 
 async function enrichIssues (rawDb, enrichedDb, boardId, forceAll) {
-  console.info('INFO >>> jira enriching issues, forceAll', forceAll)
+  console.info(`INFO >>> jira enriching issues for board #${boardId}, forceAll ${forceAll}`)
   const issueCollection = await issuesCollecotr.getCollection(rawDb)
   const { JiraIssue, JiraBoardIssue } = enrichedDb
   // filtering out portion of records that need to be enriched
