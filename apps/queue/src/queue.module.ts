@@ -2,6 +2,7 @@ import { BullModule } from '@nestjs/bull';
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import Bull from 'bull';
+import Jira from 'plugins/jira/src';
 import { QueueService } from './queue.service';
 
 @Module({
@@ -21,6 +22,6 @@ import { QueueService } from './queue.service';
       inject: [ConfigService],
     }),
   ],
-  providers: [QueueService],
+  providers: [QueueService, { provide: 'Jira', useClass: Jira }],
 })
 export class QueueModule {}
