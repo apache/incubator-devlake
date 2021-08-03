@@ -12,7 +12,7 @@
     "lake": "node src/plugins/index.js && concurrently \"nodemon src/collection/main.js\" \"nodemon src/collection/worker.js\" \"nodemon src/enrichment/main.js\" \"nodemon src/enrichment/worker.js\"",
     "lake-debug": "node src/plugins/index.js && concurrently \"DEBUG=true nodemon src/collection/main.js\" \"DEBUG=true nodemon src/collection/worker.js\" \"DEBUG=true nodemon src/enrichment/main.js\" \"DEBUG=true nodemon src/enrichment/worker.js\"",
     "lake-prod": "npx sequelize-cli db:migrate && node src/plugins/index.js && node concurrently.js",
-    "test": "mocha \"test/**\" src/**/*.test.js",
+    "test": "mocha test/beforeAll.js \"test/**\" src/**/*.test.js",
     "unit-test": "ENCRYPTION_KEY=123 NODE_ENV=test ./node_modules/mocha/bin/mocha \"test/unit/**/*.test.js\"",
     "lint": "./node_modules/eslint/bin/eslint.js . --max-warnings=0 --report-unused-disable-directives --fix && echo '✔  Your .js files look good.'",
     "prepare": "husky install",
@@ -57,6 +57,7 @@
   "devDependencies": {
     "@commitlint/cli": "^13.1.0",
     "@commitlint/config-conventional": "^13.1.0",
+    "chai": "^4.3.4",
     "commitizen": "^4.2.4",
     "cz-conventional-changelog": "^3.3.0",
     "eslint": "^7.31.0",
@@ -68,7 +69,9 @@
     "mocha": "^9.0.2",
     "nodemon": "^2.0.12",
     "pg": "^8.6.0",
-    "sequelize-cli": "^6.2.0"
+    "sequelize-cli": "^6.2.0",
+    "sinon": "^11.1.2",
+    "sinon-chai": "^3.7.0"
   },
   "config": {
     "commitizen": {
