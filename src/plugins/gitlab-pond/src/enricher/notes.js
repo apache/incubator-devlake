@@ -26,7 +26,8 @@ async function enrichNotesByProjectId (rawDb, enrichedDb, projectId) {
   const responseNotes = []
   for (const mr of mergeRequests) {
     const res = await mongo.findCollection('gitlab_merge_request_notes',
-      { noteable_id: mr.id }
+    // { system: false } is necessary to specifically get comments only vs. system notes
+      { noteable_id: mr.id, system: false }
       , rawDb)
     responseNotes.push(res)
   }
