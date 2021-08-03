@@ -17,7 +17,7 @@ module.exports = {
   down: async (queryInterface) => {
     const transaction = await queryInterface.sequelize.transaction()
     try {
-      await queryInterface.removeColumn('gitlab_merge_requests', 'projfirst_comment_timeect_id', { transaction })
+      await queryInterface.removeColumn('gitlab_merge_requests', 'first_comment_time', { transaction })
       await transaction.commit()
     } catch (err) {
       await transaction.rollback()

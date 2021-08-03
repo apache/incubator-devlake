@@ -2,14 +2,14 @@ const projects = require('./projects')
 const commits = require('./commits')
 const mergeRequests = require('./merge-requests')
 const notes = require('./notes')
-const { gitlab } = require('@config/resolveConfig')
+const { maybeSkip } = require('../util/async')
 
 async function enrich (rawDb, enrichedDb, { projectId }) {
   const args = { rawDb, enrichedDb, projectId: Number(projectId) }
-  !gitlab.skip.projects && await projects.enrich(args)
-  !gitlab.skip.commits && await commits.enrich(args)
-  !gitlab.skip.mergeRequests && await mergeRequests.enrich(args)
-  !gitlab.skip.notes && await notes.enrich(args)
+  await maybeSkip(projects.enrich(args), 'projects')
+  await maybeSkip(commits.enrich(args), 'commits')
+  await maybeSkip(mergeRequests.enrich(args), 'mergeRequests')
+  await maybeSkip(notes.enrich(args), 'notes')
 }
 
 module.exports = { enrich }

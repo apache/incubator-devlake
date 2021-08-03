@@ -3,13 +3,14 @@ const mergeRequests = require('./merge-requests')
 const commits = require('./commits')
 const notes = require('./notes')
 const { gitlab } = require('@config/resolveConfig')
+const { maybeSkip } = require('../util/async')
 
 async function collect (db, { projectId, forceAll }) {
   const args = { db, projectId: Number(projectId), forceAll }
-  !gitlab.skip.projects && await projects.collect(args)
-  !gitlab.skip.commits && await commits.collect(args)
-  !gitlab.skip.mergeRequests && await mergeRequests.collect(args)
-  !gitlab.skip.notes && await notes.collect(args)
+  await maybeSkip(projects.collect(args), 'projects')
+  await maybeSkip(commits.collect(args), 'commits')
+  await maybeSkip(mergeRequests.collect(args), 'mergeRequests')
+  await maybeSkip(notes.collect(args), 'notes')
 }
 
 module.exports = { collect }

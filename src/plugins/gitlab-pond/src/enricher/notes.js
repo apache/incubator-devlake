@@ -7,6 +7,36 @@ async function enrich ({ rawDb, enrichedDb, projectId }) {
 
   await enrichNotesByProjectId(rawDb, enrichedDb, projectId)
 }
+
+function findEarliestNote(notes){
+  if(notes && notes.length > 0){
+    let earliestNote = notes.reduce((a, b) => {
+      return new Date (a.created_at) < new Date(b.created_at) ? a : b
+    })
+    return earliestNote
+  }
+}
+
+// we need a metric that measures a merge request duration as the time from first comment to MR close
+async function updateMergeRequestWithFirstCommentTime (notes, mr, enrichedDb) {
+  const {
+    GitlabMergeRequest
+  } = enrichedDb
+
+  console.log('JON >>> notes', notes)
+  let earliestNote = findEarliestNote(notes)
+  console.log('JON >>> earliestNote', earliestNote)
+  if(earliestNote){
+    await GitlabMergeRequest.update({
+      firstCommentTime: earliestNote.created_at
+    }, {
+      where: {
+        id: mr.id
+      }
+    })
+  }
+}
+
 /*
   The purpose of this method is to save all the notes from all the merge requests
   into the Postgres db.
@@ -25,11 +55,12 @@ async function enrichNotesByProjectId (rawDb, enrichedDb, projectId) {
 
   const responseNotes = []
   for (const mr of mergeRequests) {
-    const res = await mongo.findCollection('gitlab_merge_request_notes',
+    const mongoNotes = await mongo.findCollection('gitlab_merge_request_notes',
     // { system: false } is necessary to specifically get comments only vs. system notes
       { noteable_id: mr.id, system: false }
       , rawDb)
-    responseNotes.push(res)
+    responseNotes.push(mongoNotes)
+    await updateMergeRequestWithFirstCommentTime(mongoNotes, mr, enrichedDb)
   }
   const mrNotes = responseNotes.flat(1)
   const upsertPromises = []
@@ -51,4 +82,4 @@ async function enrichNotesByProjectId (rawDb, enrichedDb, projectId) {
   await Promise.all(upsertPromises)
 }
 
-module.exports = { enrich }
+module.exports = { enrich, findEarliestNote }
