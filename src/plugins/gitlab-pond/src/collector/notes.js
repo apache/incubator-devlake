@@ -11,12 +11,13 @@ module.exports = {
       throw new Error('Failed to collect gitlab data, projectId is required')
     }
 
-    console.log('finding MRs...')
+    console.info('INFO >>> gitlab collecting notes for project', projectId)
     const mergeRequests = await mongo.findCollection('gitlab_merge_requests', { projectId }, db)
-    console.log('collecting notes...')
+    console.log(`INFO >>> gitlab collecting notes, found ${mergeRequests.length} MRs for project ${projectId}`)
     for (const mr of mergeRequests) {
       await module.exports.collectByMergeRequestIid(db, projectId, mr.iid, forceAll)
     }
+    console.info('INFO >>> gitlab collecting notes for project done!', projectId)
   },
 
   async collectByMergeRequestIid (db, projectId, mergeRequestIid, forceAll) {
