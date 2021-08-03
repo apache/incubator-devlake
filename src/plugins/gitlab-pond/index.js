@@ -34,7 +34,7 @@ module.exports = {
 if (require.main === module) {
   async function main () {
     require('module-alias/register')
-    const dbConnector = require('@mongo/connection');
+    const dbConnector = require('@mongo/connection')
     const enrichedDb = require('@db/postgres')
 
     const projectId = process.argv[2] || 24547305

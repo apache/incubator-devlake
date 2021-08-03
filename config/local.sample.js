@@ -27,7 +27,13 @@ module.exports = {
     token: '***',
     proxy: 'http://localhost:4780',
     timeout: 10000,
-    maxRetry: 10
+    maxRetry: 10,
+    skip: {
+      commits: false,
+      projects: false,
+      mergeRequests: false,
+      notes: false
+    }
   },
   jiraBoardGitlabProject: {
     8: 8967944
