@@ -43,6 +43,7 @@ async function updateMergeRequestWithFirstCommentTime (notes, mr, enrichedDb) {
   Finally, we store GitlabMergeRequestNotes using our PG model.
 */
 async function enrichNotesByProjectId (rawDb, enrichedDb, projectId) {
+  console.info('INFO >>> gitlab enriching notes for project', projectId)
   const {
     GitlabMergeRequestNote
   } = enrichedDb
@@ -78,6 +79,7 @@ async function enrichNotesByProjectId (rawDb, enrichedDb, projectId) {
   })
 
   await Promise.all(upsertPromises)
+  console.info('INFO >>> gitlab enriching notes for project done!', projectId, upsertPromises.length)
 }
 
 module.exports = { enrich, findEarliestNote }
