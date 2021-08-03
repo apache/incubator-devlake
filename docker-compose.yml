@@ -16,10 +16,8 @@ services:
     ports:
       - 15672:15672
       - 5672:5672
-    environment:
-      RABBITMQ_DEFAULT_USER: guest
-      RABBITMQ_DEFAULT_PASS: guest
-      RABBITMQ_DEFAULT_VHOST: rabbitmq
+    volumes:
+      - ./rabbitmq.conf:/etc/rabbitmq/rabbitmq.conf
   mongodb:
     image: mongo:5.0.0
     container_name: mongodb
