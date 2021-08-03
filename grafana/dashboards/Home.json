@@ -16,7 +16,7 @@
   "gnetId": null,
   "graphTooltip": 0,
   "id": 1,
-  "iteration": 1627944564089,
+  "iteration": 1627959426484,
   "links": [],
   "panels": [
     {
@@ -193,10 +193,6 @@
               {
                 "color": "green",
                 "value": null
-              },
-              {
-                "color": "red",
-                "value": 80
               }
             ]
           }
@@ -209,7 +205,7 @@
         "x": 0,
         "y": 8
       },
-      "id": 16,
+      "id": 20,
       "options": {
         "colorMode": "value",
         "graphMode": "area",
@@ -233,21 +229,19 @@
           "metricColumn": "none",
           "queryType": "randomWalk",
           "rawQuery": true,
-          "rawSql": "SELECT\n  count(id) as \"Merge Requests\"\nFROM gitlab_merge_requests\nWHERE\n  $__timeFilter(gitlab_created_at) AND project_id = $ProjectId\nORDER BY 1",
+          "rawSql": "\nWITH merged as (\nSELECT\n  count(id)\nFROM\n  gitlab_merge_requests\nWHERE\n  merged_at IS NOT NULL AND\n  $__timeFilter(gitlab_created_at) AND \n  project_id = $ProjectId\n), notMerged as (SELECT\n  count(id)\nFROM\n  gitlab_merge_requests\nWHERE\n  merged_at IS NULL AND\n  $__timeFilter(gitlab_created_at) AND \n  project_id = $ProjectId)\n\nSELECT (SELECT * FROM notMerged) as \"Not Merged\",\n (SELECT * FROM merged) as \"Merged\",\n \n(((SELECT * FROM merged)::float/((SELECT * FROM notMerged) + (SELECT * FROM merged)))::float) as \"Ratio\"\n  \n  \n\n\n\n\n",
           "refId": "A",
           "select": [
             [
               {
                 "params": [
-                  "value_double"
+                  "value"
                 ],
                 "type": "column"
               }
             ]
           ],
-          "table": "test_data",
-          "timeColumn": "time_date_time",
-          "timeColumnType": "timestamp",
+          "timeColumn": "time",
           "where": [
             {
               "name": "$__timeFilter",
@@ -257,7 +251,7 @@
           ]
         }
       ],
-      "title": "Merge Requests",
+      "title": "Merge Request Ratio",
       "type": "stat"
     },
     {
@@ -282,10 +276,10 @@
         "overrides": []
       },
       "gridPos": {
-        "h": 19,
-        "w": 11,
-        "x": 0,
-        "y": 16
+        "h": 16,
+        "w": 12,
+        "x": 12,
+        "y": 8
       },
       "id": 12,
       "options": {
@@ -339,12 +333,93 @@
       "type": "stat"
     },
     {
+      "datasource": "Postgres",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 16
+      },
+      "id": 16,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "text": {},
+        "textMode": "auto"
+      },
+      "pluginVersion": "8.0.6",
+      "targets": [
+        {
+          "format": "table",
+          "group": [],
+          "metricColumn": "none",
+          "queryType": "randomWalk",
+          "rawQuery": true,
+          "rawSql": "SELECT\n  count(id) as \"Merge Requests\"\nFROM gitlab_merge_requests\nWHERE\n  $__timeFilter(gitlab_created_at) AND project_id = $ProjectId\nORDER BY 1",
+          "refId": "A",
+          "select": [
+            [
+              {
+                "params": [
+                  "value_double"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "table": "test_data",
+          "timeColumn": "time_date_time",
+          "timeColumnType": "timestamp",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        }
+      ],
+      "title": "Merge Requests",
+      "type": "stat"
+    },
+    {
       "datasource": null,
       "gridPos": {
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 35
+        "y": 24
       },
       "id": 10,
       "title": "Row title",
@@ -392,7 +467,7 @@
         "h": 16,
         "w": 24,
         "x": 0,
-        "y": 36
+        "y": 25
       },
       "id": 2,
       "options": {
@@ -469,7 +544,7 @@
         "h": 10,
         "w": 12,
         "x": 0,
-        "y": 52
+        "y": 41
       },
       "id": 4,
       "options": {
@@ -586,7 +661,7 @@
         "h": 10,
         "w": 12,
         "x": 12,
-        "y": 52
+        "y": 41
       },
       "id": 6,
       "options": {
@@ -677,5 +752,5 @@
   "timezone": "",
   "title": "Jira lead times & Gitlab basics",
   "uid": "0BwAzlZ7k",
-  "version": 4
+  "version": 9
 }
