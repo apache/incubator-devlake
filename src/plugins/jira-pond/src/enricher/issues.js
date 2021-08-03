@@ -19,7 +19,7 @@ async function enrichIssues (rawDb, enrichedDb, boardId, forceAll) {
   // filtering out portion of records that need to be enriched
   const curosr = (
     forceAll
-      ? issueCollection.find()
+      ? issueCollection.find({ boardIds: boardId })
       : issueCollection.find({ $where: 'this.enriched < this.fields.updated || !this.enriched', boardIds: boardId })
   )
 
@@ -33,8 +33,11 @@ async function enrichIssues (rawDb, enrichedDb, boardId, forceAll) {
         title: issue.fields.summary,
         projectId: issue.fields.project.id,
         issueType: mapValue(issue.fields.issuetype.name, constants.mappings),
+        epicKey: issue.fields[constants.epicKeyField],
+        status: issue.fields.status.name,
         issueCreatedAt: issue.fields.created,
         issueUpdatedAt: issue.fields.updated,
+        issueResolvedAt: issue.fields.resolutiondate,
         leadTime: null
       }
       // by standard, leadtime = days of (resolutiondate - creationdate)
