@@ -24,7 +24,7 @@ async function fetch (resourceUri) {
       clearTimeout(id)
       break
     } catch (error) {
-      console.log('ERROR: ', error);
+      console.log('ERROR: ', error)
       retry++
     }
   }

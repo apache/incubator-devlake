@@ -13,5 +13,3 @@ async function enrich (rawDb, enrichedDb, { projectId }) {
 }
 
 module.exports = { enrich }
-
-
