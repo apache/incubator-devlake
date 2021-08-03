@@ -41,6 +41,9 @@ module.exports = (sequelize, DataTypes) => {
     mergedAt: {
       type: DataTypes.DATE
     },
+    firstCommentTime: {
+      type: DataTypes.DATE
+    },
     gitlabCreatedAt: {
       type: DataTypes.DATE
     },
