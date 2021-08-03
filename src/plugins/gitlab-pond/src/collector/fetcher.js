@@ -3,6 +3,7 @@ const ProxyAgent = require('proxy-agent')
 const config = require('@config/resolveConfig').gitlab
 const { host, apiPath, token } = config
 const maxRetry = config.maxRetry || 3
+const timeout = config.timeout || 10000
 
 async function fetch (resourceUri) {
   let retry = 0
@@ -11,8 +12,8 @@ async function fetch (resourceUri) {
     console.log(`INFO >>> gitlab fetching data from ${resourceUri} #${retry}`)
     const abort = axios.CancelToken.source()
     const id = setTimeout(
-      () => abort.cancel(`Timeout of ${config.timeout}ms.`),
-      config.timeout
+      () => abort.cancel(`Timeout of ${timeout}ms.`),
+      timeout
     )
     try {
       res = await axios.get(`${host}/${apiPath}/${resourceUri}`, {
@@ -23,6 +24,7 @@ async function fetch (resourceUri) {
       clearTimeout(id)
       break
     } catch (error) {
+      console.log('ERROR: ', error)
       retry++
     }
   }

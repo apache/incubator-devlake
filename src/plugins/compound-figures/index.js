@@ -28,7 +28,7 @@ module.exports = {
 }
 
 if (require.main === module) {
-  const dbConnector = require('@mongo/connection');
+  const dbConnector = require('@mongo/connection')
   const enrichedDb = require('@db/postgres');
 
   (async function () {
