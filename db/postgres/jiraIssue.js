@@ -32,10 +32,19 @@ module.exports = (sequelize, DataTypes) => {
     issueType: {
       type: DataTypes.STRING
     },
+    epicKey: {
+      type: DataTypes.STRING
+    },
+    status: {
+      type: DataTypes.STRING
+    },
     issueCreatedAt: {
       type: DataTypes.DATE
     },
     issueUpdatedAt: {
+      type: DataTypes.DATE
+    },
+    issueResolvedAt: {
       type: DataTypes.DATE
     },
     createdAt: {
