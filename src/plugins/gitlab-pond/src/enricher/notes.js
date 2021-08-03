@@ -8,10 +8,10 @@ async function enrich ({ rawDb, enrichedDb, projectId }) {
   await enrichNotesByProjectId(rawDb, enrichedDb, projectId)
 }
 
-function findEarliestNote(notes){
-  if(notes && notes.length > 0){
-    let earliestNote = notes.reduce((a, b) => {
-      return new Date (a.created_at) < new Date(b.created_at) ? a : b
+function findEarliestNote (notes) {
+  if (notes && notes.length > 0) {
+    const earliestNote = notes.reduce((a, b) => {
+      return new Date(a.created_at) < new Date(b.created_at) ? a : b
     })
     return earliestNote
   }
@@ -23,8 +23,8 @@ async function updateMergeRequestWithFirstCommentTime (notes, mr, enrichedDb) {
     GitlabMergeRequest
   } = enrichedDb
 
-  let earliestNote = findEarliestNote(notes)
-  if(earliestNote){
+  const earliestNote = findEarliestNote(notes)
+  if (earliestNote) {
     await GitlabMergeRequest.update({
       firstCommentTime: earliestNote.created_at
     }, {
