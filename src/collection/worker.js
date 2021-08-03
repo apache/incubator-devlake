@@ -7,7 +7,6 @@ const _has = require('lodash/has')
 const dbConnector = require('@mongo/connection')
 const { collection } = require('../plugins')
 const consumer = require('../queue/consumer')
-const enrichmentApiUrl = require('@config/resolveConfig').enrichment.connectionString
 const config = require('@config/resolveConfig').api || {}
 
 const queue = 'collection'
@@ -29,7 +28,11 @@ const jobHandler = async (job) => {
     dbConnector.disconnect(client)
   }
 
-  await axios.post(enrichmentApiUrl, job, { headers: { 'x-token': config.token || '' } })
+  await axios.post(
+    `http://localhost:${process.env.ENRICHMENT_PORT || 3000}`,
+    job,
+    { headers: { 'x-token': config.token || '' } }
+  )
 }
 
 consumer(queue, jobHandler)

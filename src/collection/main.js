@@ -7,7 +7,7 @@ const dispatch = require('./dispatch')
 const app = express()
 app.use(bodyParser.json())
 
-const port = 3001
+const port = process.env.COLLECTION_PORT || 3001
 
 app.get('/', async (req, res) => {
   res.send('Collector is running')

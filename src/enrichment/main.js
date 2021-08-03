@@ -7,7 +7,7 @@ const dispatch = require('./dispatch')
 const app = express()
 app.use(bodyParser.json())
 
-const port = 3000
+const port = process.env.ENRICHMENT_PORT || 3000
 
 app.get('/', async (req, res) => {
   res.send("Let's enrich!")
