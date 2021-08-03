@@ -16,7 +16,7 @@
   "gnetId": null,
   "graphTooltip": 0,
   "id": 1,
-  "iteration": 1627959426484,
+  "iteration": 1628008959930,
   "links": [],
   "panels": [
     {
@@ -24,7 +24,20 @@
       "fieldConfig": {
         "defaults": {
           "color": {
-            "mode": "thresholds"
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "axisSoftMin": 0,
+            "fillOpacity": 80,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineWidth": 1
           },
           "mappings": [],
           "thresholds": {
@@ -33,10 +46,6 @@
               {
                 "color": "green",
                 "value": null
-              },
-              {
-                "color": "red",
-                "value": 80
               }
             ]
           }
@@ -49,23 +58,22 @@
         "x": 0,
         "y": 0
       },
-      "id": 18,
+      "id": 22,
       "options": {
-        "colorMode": "value",
-        "graphMode": "area",
-        "justifyMode": "auto",
-        "orientation": "auto",
-        "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
-          "fields": "",
-          "values": false
+        "barWidth": 0.97,
+        "groupWidth": 0.7,
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom"
         },
+        "orientation": "auto",
+        "showValue": "auto",
         "text": {},
-        "textMode": "auto"
+        "tooltip": {
+          "mode": "single"
+        }
       },
-      "pluginVersion": "8.0.6",
       "targets": [
         {
           "format": "table",
@@ -73,7 +81,7 @@
           "metricColumn": "none",
           "queryType": "randomWalk",
           "rawQuery": true,
-          "rawSql": "SELECT count(id) from (\n  SELECT\n    unnest(reviewers) as reviewer\n  FROM\n    gitlab_merge_requests\n  WHERE\n    $__timeFilter(gitlab_created_at) AND project_id = $ProjectId\n  group by \n    reviewer\n) as id\n\n",
+          "rawSql": "SELECT\n  merged_at::varchar as \"Merged At Time\",\n  (merged_at::date - first_comment_time::date) as \"Review Time in Days\"\nFROM\n  gitlab_merge_requests\nWHERE\n  $__timeFilter(merged_at) AND project_id = $ProjectId \n\n",
           "refId": "A",
           "select": [
             [
@@ -95,8 +103,8 @@
           ]
         }
       ],
-      "title": "Reviewers",
-      "type": "stat"
+      "title": "Merge Review Time (Days)",
+      "type": "barchart"
     },
     {
       "datasource": "Postgres",
@@ -193,6 +201,10 @@
               {
                 "color": "green",
                 "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
               }
             ]
           }
@@ -205,7 +217,7 @@
         "x": 0,
         "y": 8
       },
-      "id": 20,
+      "id": 18,
       "options": {
         "colorMode": "value",
         "graphMode": "area",
@@ -229,7 +241,7 @@
           "metricColumn": "none",
           "queryType": "randomWalk",
           "rawQuery": true,
-          "rawSql": "\nWITH merged as (\nSELECT\n  count(id)\nFROM\n  gitlab_merge_requests\nWHERE\n  merged_at IS NOT NULL AND\n  $__timeFilter(gitlab_created_at) AND \n  project_id = $ProjectId\n), notMerged as (SELECT\n  count(id)\nFROM\n  gitlab_merge_requests\nWHERE\n  merged_at IS NULL AND\n  $__timeFilter(gitlab_created_at) AND \n  project_id = $ProjectId)\n\nSELECT (SELECT * FROM notMerged) as \"Not Merged\",\n (SELECT * FROM merged) as \"Merged\",\n \n(((SELECT * FROM merged)::float/((SELECT * FROM notMerged) + (SELECT * FROM merged)))::float) as \"Ratio\"\n  \n  \n\n\n\n\n",
+          "rawSql": "SELECT count(id) from (\n  SELECT\n    unnest(reviewers) as reviewer\n  FROM\n    gitlab_merge_requests\n  WHERE\n    $__timeFilter(gitlab_created_at) AND project_id = $ProjectId\n  group by \n    reviewer\n) as id\n\n",
           "refId": "A",
           "select": [
             [
@@ -251,7 +263,7 @@
           ]
         }
       ],
-      "title": "Merge Request Ratio",
+      "title": "Reviewers",
       "type": "stat"
     },
     {
@@ -346,6 +358,81 @@
               {
                 "color": "green",
                 "value": null
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 16
+      },
+      "id": 20,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "text": {},
+        "textMode": "auto"
+      },
+      "pluginVersion": "8.0.6",
+      "targets": [
+        {
+          "format": "table",
+          "group": [],
+          "metricColumn": "none",
+          "queryType": "randomWalk",
+          "rawQuery": true,
+          "rawSql": "\nWITH merged as (\nSELECT\n  count(id)\nFROM\n  gitlab_merge_requests\nWHERE\n  merged_at IS NOT NULL AND\n  $__timeFilter(gitlab_created_at) AND \n  project_id = $ProjectId\n), notMerged as (SELECT\n  count(id)\nFROM\n  gitlab_merge_requests\nWHERE\n  merged_at IS NULL AND\n  $__timeFilter(gitlab_created_at) AND \n  project_id = $ProjectId)\n\nSELECT (SELECT * FROM notMerged) as \"Not Merged\",\n (SELECT * FROM merged) as \"Merged\",\n \n(((SELECT * FROM merged)::float/((SELECT * FROM notMerged) + (SELECT * FROM merged)))::float) as \"Ratio\"\n  \n  \n\n\n\n\n",
+          "refId": "A",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "timeColumn": "time",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        }
+      ],
+      "title": "Merge Request Ratio",
+      "type": "stat"
+    },
+    {
+      "datasource": "Postgres",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
               },
               {
                 "color": "red",
@@ -360,7 +447,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 16
+        "y": 24
       },
       "id": 16,
       "options": {
@@ -419,7 +506,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 24
+        "y": 32
       },
       "id": 10,
       "title": "Row title",
@@ -467,7 +554,7 @@
         "h": 16,
         "w": 24,
         "x": 0,
-        "y": 25
+        "y": 33
       },
       "id": 2,
       "options": {
@@ -544,7 +631,7 @@
         "h": 10,
         "w": 12,
         "x": 0,
-        "y": 41
+        "y": 49
       },
       "id": 4,
       "options": {
@@ -661,7 +748,7 @@
         "h": 10,
         "w": 12,
         "x": 12,
-        "y": 41
+        "y": 49
       },
       "id": 6,
       "options": {
@@ -721,9 +808,9 @@
       {
         "allValue": null,
         "current": {
-          "selected": false,
-          "text": "8967944",
-          "value": "8967944"
+          "selected": true,
+          "text": "20103385",
+          "value": "20103385"
         },
         "datasource": "Postgres",
         "definition": "Select id from gitlab_projects",

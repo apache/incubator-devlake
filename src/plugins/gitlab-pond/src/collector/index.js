@@ -2,7 +2,6 @@ const projects = require('./projects')
 const mergeRequests = require('./merge-requests')
 const commits = require('./commits')
 const notes = require('./notes')
-const { gitlab } = require('@config/resolveConfig')
 const { maybeSkip } = require('../util/async')
 
 async function collect (db, { projectId, forceAll }) {
