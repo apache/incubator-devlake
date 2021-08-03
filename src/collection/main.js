@@ -1,6 +1,7 @@
+require('module-alias/register')
 const express = require('express')
 const bodyParser = require('body-parser')
-
+const config = require('@config/resolveConfig').api || {}
 const dispatch = require('./dispatch')
 
 const app = express()
@@ -13,8 +14,11 @@ app.get('/', async (req, res) => {
 })
 
 app.post('/', async (req, res) => {
-  await dispatch.createJobs(req.body)
+  if (config.token && req.headers['x-token'] !== config.token) {
+    return res.status(401).json({ message: 'UNAUTHORIZED' })
+  }
 
+  await dispatch.createJobs(req.body)
   res.status(200).send(req.body)
 })
 
