@@ -12,7 +12,7 @@
     "lake": "node src/plugins/index.js && concurrently \"nodemon src/collection/main.js\" \"nodemon src/collection/worker.js\" \"nodemon src/enrichment/main.js\" \"nodemon src/enrichment/worker.js\"",
     "lake-debug": "node src/plugins/index.js && concurrently \"DEBUG=true nodemon src/collection/main.js\" \"DEBUG=true nodemon src/collection/worker.js\" \"DEBUG=true nodemon src/enrichment/main.js\" \"DEBUG=true nodemon src/enrichment/worker.js\"",
     "lake-prod": "npx sequelize-cli db:migrate && node src/plugins/index.js && node concurrently.js",
-    "test": "mocha test/beforeAll.js \"test/**\" src/**/*.test.js",
+    "test": "NODE_ENV=test mocha test/beforeAll.js \"test/**\" src/**/*.test.js",
     "unit-test": "ENCRYPTION_KEY=123 NODE_ENV=test ./node_modules/mocha/bin/mocha \"test/unit/**/*.test.js\"",
     "lint": "./node_modules/eslint/bin/eslint.js . --max-warnings=0 --report-unused-disable-directives --fix && echo '✔  Your .js files look good.'",
     "prepare": "husky install",
