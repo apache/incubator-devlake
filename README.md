@@ -32,20 +32,6 @@
 
 For how to set up basic authorization with Jira, and many more things, please see [CONFIGURATION.md](CONFIGURATION.md)
 
-### Grafana Connection For Data Visualization (https://localhost:3002)
-
-Connect to the Grafana database:
-Inside `docker-compose.yml` edit the environment variables as needed to connect to your local postgres instance, specifically:
-- `GF_DATABASE_NAME`
-- `GF_DATABASE_USER`
-- `GF_DATABASE_PASSWORD`
-
-Connect the Grafana data source:
-Additionally to use the postgres database as data source inside grafana, ensure postgres config options are correct in `./grafana/datasources/datasource.yml`, specifically:
-- `database`
-- `user`
-- `secureJsonData/password`
-
 ## Usage
 
 ### Create a Collection Job
