@@ -62,7 +62,8 @@ POST http://localhost:3001/
         "boardId": 8
     },
     "gitlab": {
-        "projectId": 8967944
+        "projectId": 8967944,
+        "branch": "<your-branch-name>", // branch is optional, we fetch Gitlab default branch if this arg is absent
     }
 }
 

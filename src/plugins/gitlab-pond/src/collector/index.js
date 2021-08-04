@@ -4,8 +4,8 @@ const commits = require('./commits')
 const notes = require('./notes')
 const { gitlab } = require('@config/resolveConfig')
 
-async function collect (db, { projectId, forceAll }) {
-  const args = { db, projectId: Number(projectId), forceAll }
+async function collect (db, { projectId, branch, forceAll }) {
+  const args = { db, projectId: Number(projectId), branch, forceAll }
   const skipFlags = gitlab.skip
   if (skipFlags) {
     !skipFlags.projects && await projects.collect(args)
