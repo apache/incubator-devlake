@@ -5,6 +5,15 @@
 1. Make a copy of `config/local.sample.js` under the name of `config/local.js`
 2. We can use default values for most fields except the Jira section. For how to set up basic authorization with Jira, please see this [section](#jira) below
 
+## Core Configuration
+
+### Grafana Connection For Data Visualization (https://localhost:3002)
+
+To ensure we have properly connected our database to the data source in Grafana, check database settings in `./grafana/datasources/datasource.yml`, specifically:
+- `database`
+- `user`
+- `secureJsonData/password`
+
 ## Plugin Level Configuration
 
 ### Jira Specific String Configuration
@@ -18,7 +27,7 @@ This can be set up in `/config/constants.js`.
       "Closed": ["Done", "Closed", "已关闭"],
       "Bug": "Bug",
       "Incident": "Incident"
-    } 
+    }
   }
 }
 ```
