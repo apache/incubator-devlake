@@ -1,7 +1,7 @@
 require('module-alias/register')
 const express = require('express')
 const bodyParser = require('body-parser')
-const config = require('@config/resolveConfig').api || {}
+const config = require('@config/resolveConfig').lake || {}
 const dispatch = require('./dispatch')
 
 const app = express()

@@ -1,5 +1,5 @@
 module.exports = {
-  api: {
+  lake: {
     token: 'mytoken'
   },
   mongo: {
