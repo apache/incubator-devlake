@@ -29,9 +29,10 @@ async function enrichCommitsByProjectId (rawDb, enrichedDb, projectId) {
         committerEmail: commit.committer_email,
         committedDate: commit.committed_date,
         webUrl: commit.web_url,
-        additions: commit.stats.additions,
-        deletions: commit.stats.deletions,
-        total: commit.stats.total
+        // some commits can happen with no additions or deletions so stats is not populated
+        additions: commit.stats && commit.stats.additions,
+        deletions: commit.stats && commit.stats.deletions,
+        total: commit.stats && commit.stats.total
       }
       await enrichedDb.GitlabCommit.upsert(enriched)
       counter++

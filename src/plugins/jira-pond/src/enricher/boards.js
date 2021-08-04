@@ -17,7 +17,7 @@ async function enrichBoardById (rawDb, enrichedDb, boardId) {
     projectId: board.location.projectId,
     name: board.name,
     type: board.type,
-    webUrl: board.self,
+    webUrl: board.self
   }
   await enrichedDb.JiraBoard.upsert(enriched)
   console.info('INFO >>> jira enriching board done!', boardId)
