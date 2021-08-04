@@ -45,13 +45,13 @@ module.exports = {
         field: 'web_url'
       },
       additions: {
-        type: Sequelize.INTEGER,
+        type: Sequelize.INTEGER
       },
       deletions: {
-        type: Sequelize.INTEGER,
+        type: Sequelize.INTEGER
       },
       total: {
-        type: Sequelize.INTEGER,
+        type: Sequelize.INTEGER
       },
       createdAt: {
         allowNull: false,

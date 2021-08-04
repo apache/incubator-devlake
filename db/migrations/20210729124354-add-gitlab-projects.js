@@ -7,7 +7,7 @@ module.exports = {
       },
       id: {
         type: Sequelize.INTEGER,
-        primaryKey: true,
+        primaryKey: true
       },
       pathWithNamespace: {
         type: Sequelize.STRING,
@@ -18,7 +18,7 @@ module.exports = {
         field: 'web_url'
       },
       visibility: {
-        type: Sequelize.STRING,
+        type: Sequelize.STRING
       },
       openIssuesCount: {
         type: Sequelize.INTEGER,
@@ -28,7 +28,7 @@ module.exports = {
         type: Sequelize.INTEGER,
         field: 'star_count'
       },
-      
+
       createdAt: {
         allowNull: false,
         type: Sequelize.DATE,
