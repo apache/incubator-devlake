@@ -1,6 +1,6 @@
 const assert = require('assert')
 
-const { findEarliestNote } = require('../src/enricher/notes')
+const { findEarliestNote } = require('./notes')
 
 describe('Notes', () => {
   describe('', () => {
