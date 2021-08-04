@@ -3,8 +3,8 @@ const assert = require('assert')
 const { findEarliestNote } = require('./notes')
 
 describe('Notes', () => {
-  describe('', () => {
-    it('findEarliestNote', () => {
+  describe('findEarliestNote', () => {
+    it('finds the earliest note in a collection of notes', () => {
       const mongoNotes = [
         {
           title: 'a',
@@ -25,6 +25,11 @@ describe('Notes', () => {
       ]
       const earlistNote = findEarliestNote(mongoNotes)
       assert.deepStrictEqual(earlistNote.title, 'b')
+    })
+  })
+  describe('mapResponseToSchema', () => {
+    it('maps the right object', () => {
+
     })
   })
 })

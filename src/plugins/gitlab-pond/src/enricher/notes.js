@@ -4,8 +4,10 @@ async function enrich ({ rawDb, enrichedDb, projectId }) {
   if (!projectId) {
     throw new Error('Failed to enrich gitlab project, projectId is required')
   }
-
+  
+  console.info('INFO >>> gitlab enriching notes for project', projectId)
   await enrichNotesByProjectId(rawDb, enrichedDb, projectId)
+  console.info('INFO >>> gitlab enriching notes for project done!', projectId, upsertPromises.length)
 }
 
 function findEarliestNote (notes) {
@@ -19,13 +21,9 @@ function findEarliestNote (notes) {
 
 // we need a metric that measures a merge request duration as the time from first comment to MR close
 async function updateMergeRequestWithFirstCommentTime (notes, mr, enrichedDb) {
-  const {
-    GitlabMergeRequest
-  } = enrichedDb
-
   const earliestNote = findEarliestNote(notes)
   if (earliestNote) {
-    await GitlabMergeRequest.update({
+    await enrichedDb.GitlabMergeRequest.update({
       firstCommentTime: earliestNote.created_at
     }, {
       where: {
@@ -43,11 +41,6 @@ async function updateMergeRequestWithFirstCommentTime (notes, mr, enrichedDb) {
   Finally, we store GitlabMergeRequestNotes using our PG model.
 */
 async function enrichNotesByProjectId (rawDb, enrichedDb, projectId) {
-  console.info('INFO >>> gitlab enriching notes for project', projectId)
-  const {
-    GitlabMergeRequestNote
-  } = enrichedDb
-
   const mergeRequests = await mongo.findCollection('gitlab_merge_requests',
     { projectId }
     , rawDb)
@@ -65,21 +58,24 @@ async function enrichNotesByProjectId (rawDb, enrichedDb, projectId) {
   const upsertPromises = []
 
   mrNotes.forEach(mrNote => {
-    const noteToAdd = {
-      id: mrNote.id,
-      noteableId: mrNote.noteable_id,
-      noteableIid: mrNote.noteable_iid,
-      authorUsername: mrNote.author && mrNote.author.username,
-      body: mrNote.body,
-      gitlabCreatedAt: mrNote.created_at,
-      noteableType: mrNote.noteable_type,
-      confidential: mrNote.confidential
-    }
-    upsertPromises.push(GitlabMergeRequestNote.upsert(noteToAdd))
+    const noteToAdd = mapResponseToSchema(mrNote)
+    upsertPromises.push(enrichedDb.GitlabMergeRequestNote.upsert(noteToAdd))
   })
 
   await Promise.all(upsertPromises)
-  console.info('INFO >>> gitlab enriching notes for project done!', projectId, upsertPromises.length)
+}
+
+function mapResponseToSchema (mrNote) {
+  return {
+    id: mrNote.id,
+    noteableId: mrNote.noteable_id,
+    noteableIid: mrNote.noteable_iid,
+    authorUsername: mrNote.author && mrNote.author.username,
+    body: mrNote.body,
+    gitlabCreatedAt: mrNote.created_at,
+    noteableType: mrNote.noteable_type,
+    confidential: mrNote.confidential
+  }
 }
 
 module.exports = { enrich, findEarliestNote }

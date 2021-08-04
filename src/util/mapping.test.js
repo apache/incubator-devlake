@@ -1,5 +1,5 @@
 const assert = require('assert')
-const { mapValue } = require('../../../../util/mapping')
+const { mapValue } = require('./mapping')
 
 describe('Mapping', () => {
   describe('mapValue()', () => {

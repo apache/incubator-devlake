@@ -7,11 +7,12 @@ async function collect ({ db, boardId, forceAll }) {
     throw new Error('Failed to collect jira data, boardId is required')
   }
 
+  console.info('INFO >>> jira collecting board', boardId)
   await collectByBoardId(db, boardId, forceAll)
+  console.info('INFO >>> jira collecting board done!', boardId)
 }
 
 async function collectByBoardId (db, boardId, forceAll) {
-  console.info('INFO >>> jira collecting board', boardId)
   const boardsCollection = await getCollection(db)
   const response = await fetcher.fetch(`agile/1.0/board/${boardId}`)
   const board = response.data
@@ -20,7 +21,6 @@ async function collectByBoardId (db, boardId, forceAll) {
     { $set: board },
     { upsert: true }
   )
-  console.info('INFO >>> jira collecting board done!', boardId)
 }
 
 async function getCollection (db) {

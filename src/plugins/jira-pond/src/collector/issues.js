@@ -8,11 +8,12 @@ async function collect ({ db, boardId, forceAll }) {
   if (!boardId) {
     throw new Error('Failed to collect jira issues, boardId is required')
   }
+  console.info('INFO >>> jira collecting issues for board', boardId)
   await collectByBoardId(db, boardId, forceAll)
+  console.info('INFO >>> jira collecting issues for board done!', boardId, counter)
 }
 
 async function collectByBoardId (db, boardId, forceAll) {
-  console.info('INFO >>> jira collecting issues for board', boardId)
   const issuesCollection = await getCollection(db)
   const latestUpdated = await issuesCollection.find().sort({ 'fields.updated': -1 }).limit(1).next()
   const $addToSet = { boardIds: boardId }
@@ -30,7 +31,6 @@ async function collectByBoardId (db, boardId, forceAll) {
     )
     counter++
   }
-  console.info('INFO >>> jira collecting issues for board done!', boardId, counter)
 }
 
 async function getCollection (db) {

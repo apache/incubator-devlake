@@ -5,22 +5,26 @@ async function enrich ({ rawDb, enrichedDb, boardId }) {
     throw new Error('Failed to enrich jira board, boardId is required')
   }
 
+  console.info('INFO >>> jira enriching board', boardId)
   await enrichBoardById(rawDb, enrichedDb, boardId)
+  console.info('INFO >>> jira enriching board done!', boardId)
 }
 
 async function enrichBoardById (rawDb, enrichedDb, boardId) {
-  console.info('INFO >>> jira enriching board', boardId)
   const boardsCollection = await boardsCollector.getCollection(rawDb)
   const board = await boardsCollection.findOne({ id: boardId })
-  const enriched = {
+  const enriched = mapResponseToSchema(board)
+  await enrichedDb.JiraBoard.upsert(enriched)
+}
+
+function mapResponseToSchema (board) {
+  return {
     id: board.id,
     projectId: board.location.projectId,
     name: board.name,
     type: board.type,
     webUrl: board.self
   }
-  await enrichedDb.JiraBoard.upsert(enriched)
-  console.info('INFO >>> jira enriching board done!', boardId)
 }
 
 module.exports = { enrich }

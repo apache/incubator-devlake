@@ -1,3 +1,5 @@
+// TODO: this is a duplicate file!!! move to common module
+
 const axios = require('axios')
 const ProxyAgent = require('proxy-agent')
 const config = require('@config/resolveConfig').jira

@@ -12,6 +12,10 @@ async function enrich ({ rawDb, enrichedDb, boardId, forceAll }) {
   await enrichIssues(rawDb, enrichedDb, boardId, forceAll)
 }
 
+function calculateLeadTime(issue){
+  return dayjs.duration(dayjs(issue.fields.resolutiondate) - dayjs(issue.fields.created)).days()
+}
+
 async function enrichIssues (rawDb, enrichedDb, boardId, forceAll) {
   console.info(`INFO >>> Jira enriching issues for board #${boardId}, forceAll: ${forceAll}`)
   const issueCollection = await issuesCollecotr.getCollection(rawDb)
@@ -27,22 +31,10 @@ async function enrichIssues (rawDb, enrichedDb, boardId, forceAll) {
     let counter = 0
     while (await curosr.hasNext()) {
       const issue = await curosr.next()
-      const enriched = {
-        id: issue.id,
-        url: issue.self,
-        title: issue.fields.summary,
-        projectId: issue.fields.project.id,
-        issueType: mapValue(issue.fields.issuetype.name, constants.mappings),
-        epicKey: issue.fields[constants.epicKeyField],
-        status: issue.fields.status.name,
-        issueCreatedAt: issue.fields.created,
-        issueUpdatedAt: issue.fields.updated,
-        issueResolvedAt: issue.fields.resolutiondate,
-        leadTime: null
-      }
+      const enriched = mapResponseToSchema(issue)
       // by standard, leadtime = days of (resolutiondate - creationdate)
       if (issue.fields.resolutiondate) {
-        enriched.leadTime = dayjs.duration(dayjs(issue.fields.resolutiondate) - dayjs(issue.fields.created)).days()
+        enriched.leadTime = calculateLeadTime(issue)
       }
       await JiraIssue.upsert(enriched)
       // update board-issue ManyToMany relationship
@@ -64,6 +56,22 @@ async function enrichIssues (rawDb, enrichedDb, boardId, forceAll) {
     await curosr.close()
   }
   console.info('INFO >>> Jira enriching issues done!')
+}
+
+function mapResponseToSchema(issue){
+  return {
+    id: issue.id,
+    url: issue.self,
+    title: issue.fields.summary,
+    projectId: issue.fields.project.id,
+    issueType: mapValue(issue.fields.issuetype.name, constants.mappings),
+    epicKey: issue.fields[constants.epicKeyField],
+    status: issue.fields.status.name,
+    issueCreatedAt: issue.fields.created,
+    issueUpdatedAt: issue.fields.updated,
+    issueResolvedAt: issue.fields.resolutiondate,
+    leadTime: null
+  }
 }
 
 module.exports = { enrich }

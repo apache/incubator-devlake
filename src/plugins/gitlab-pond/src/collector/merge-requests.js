@@ -7,11 +7,12 @@ async function collect ({ db, projectId, forceAll }) {
     throw new Error('Failed to collect gitlab data, projectId is required')
   }
 
+  console.info('INFO >>> gitlab collecting merge-requests for project', projectId)
   await collectByProjectId(db, projectId, forceAll)
+  console.info('INFO >>> gitlab collecting merge-requests for project done!', projectId)
 }
 
 async function collectByProjectId (db, projectId, forceAll) {
-  console.info('INFO >>> gitlab collecting merge-requests for project', projectId)
   const mrsCollection = await getCollection(db)
   for await (const mr of fetcher.fetchPaged(`projects/${projectId}/merge_requests`)) {
     mr.projectId = projectId
@@ -21,7 +22,6 @@ async function collectByProjectId (db, projectId, forceAll) {
       { upsert: true }
     )
   }
-  console.info('INFO >>> gitlab collecting merge-requests for project done!', projectId)
 }
 
 async function getCollection (db) {
