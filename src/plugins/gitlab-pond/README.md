@@ -8,13 +8,13 @@ https://merico.feishu.cn/docs/doccnRszNS8i7mhvtjRynIGGR4g#
 
 1. Number of contributors
 2. Number of commits
-3. Removed lines of code
-4. Added lines of code
-5. Accumulated lines (defined as the sum of added lines of code and removed lines of code during a time window)
-6. Number of reviewers
-7. Number of merge requests
-8. MR review pass ratio (defined as the percentage of merged MRs vs all MRs)
-9. Merge review time (defined as from the first comment to merge, the MR should have at least one comment to be considered as reviewed)
+3. Number of merge reviewers
+4. Merge review time (defined as from the first comment to merge, the MR should have at least one comment to be considered as reviewed)
+5. Number of merge requests
+6. Merge review pass rate (defined as the percentage of merged MRs vs all MRs)
+7. Added lines of code
+8. Removed lines of code
+9. Accumulated lines (defined as the sum of added lines of code and removed lines of code during a time window)
 
 ## The Endpoints
 
