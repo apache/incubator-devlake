@@ -4,6 +4,7 @@
       "Closed": ["Done", "Closed", "已关闭"],
       "Bug": "Bug",
       "Incident": "Incident"
-    } 
+    },
+    "epicKeyField": "customfield_10014"
   }
 }

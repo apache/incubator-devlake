@@ -1,4 +1,7 @@
 module.exports = {
+  lake: {
+    token: 'mytoken'
+  },
   mongo: {
     connectionString: 'mongodb://localhost:27017/test?retryWrites=true&w=majority'
   },

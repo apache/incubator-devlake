@@ -18,9 +18,6 @@ services:
       - 5672:5672
     volumes:
       - ./rabbitmq.conf:/etc/rabbitmq/rabbitmq.conf
-      - ./rabbitmq/etc/:/etc/rabbitmq/
-      - ./rabbitmq/data/:/var/lib/rabbitmq/
-      - ./rabbitmq/logs/:/var/log/rabbitmq/
   mongodb:
     image: mongo:5.0.0
     container_name: mongodb
@@ -39,8 +36,8 @@ services:
       - 3002:3000
     volumes:
       - grafana-storage:/var/lib/grafana
-      - ./grafana/provisioning/:/etc/grafana/provisioning/
-      - ./grafana/dashboards:/etc/grafana/dashboards/
+      - ./grafana/provisioning:/etc/grafana/provisioning
+      - ./grafana/dashboards:/etc/grafana/dashboards
       - ./src/img/grafana_icon.svg:/usr/share/grafana/public/img/grafana_icon.svg:rw
     env_file:
       - ./grafana/grafana.config
