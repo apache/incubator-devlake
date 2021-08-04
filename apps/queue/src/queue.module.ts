@@ -1,27 +1,10 @@
-import { BullModule } from '@nestjs/bull';
 import { Module } from '@nestjs/common';
-import { ConfigModule, ConfigService } from '@nestjs/config';
-import Bull from 'bull';
+import { ConfigModule } from '@nestjs/config';
 import Jira from 'plugins/jira/src';
-import { QueueService } from './queue.service';
+import { ConsumerModule } from './consumer';
 
 @Module({
-  imports: [
-    BullModule.registerQueueAsync({
-      name: 'default',
-      imports: [ConfigModule],
-      useFactory: (config: ConfigService): Bull.QueueOptions => {
-        const redis = config.get<string>('REDIS_URL');
-        return {
-          redis,
-          defaultJobOptions: {
-            attempts: 3,
-          },
-        };
-      },
-      inject: [ConfigService],
-    }),
-  ],
-  providers: [QueueService, { provide: 'Jira', useClass: Jira }],
+  imports: [ConfigModule.forRoot({ isGlobal: true }), ConsumerModule.forRoot()],
+  providers: [{ provide: 'Jira', useClass: Jira }],
 })
 export class QueueModule {}
