@@ -1,6 +1,6 @@
 const config = require('../config/local')
 
-testOutMongoDB = async () => {
+const testOutMongoDB = async () => {
   const {
     MongoClient
   } = require('mongodb')
@@ -23,7 +23,7 @@ testOutMongoDB = async () => {
   }
 }
 
-testOutRabbitMQ = async () => {
+const testOutRabbitMQ = async () => {
   const amqp = require('amqplib/callback_api')
   const conString = config.rabbitMQ.connectionString
   amqp.connect(conString, function (error0, connection) {
@@ -53,7 +53,7 @@ testOutRabbitMQ = async () => {
   })
 }
 
-testOutPostgres = async () => {
+const testOutPostgres = async () => {
   const pg = require('pg')
   const conString = config.postgres.connectionString
 
