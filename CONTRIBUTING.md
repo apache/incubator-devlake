@@ -1,5 +1,17 @@
 # Contributing to Lake
 
+## Run lake as a developer
+
+```
+npm i
+cp config/local.sample.js config/local.js
+npm run dev
+npm run all
+```
+
+Make your post requests to http://localhost:3000 for collection jobs only
+Make your post requests to http://localhost:3001 for collection and enrichment
+
 ## Style guides
 ### Git Commit message
 We follow the [conventional commits](https://www.conventionalcommits.org/en/v1.0.0/#summary) guidelines. 
