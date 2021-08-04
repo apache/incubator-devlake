@@ -1,7 +1,7 @@
 {
   "development": {
     "username": "postgres",
-    "password": "postgres",
+    "password": "postgresWhat",
     "host": "localhost",
     "database": "lake",
     "port": 5432,

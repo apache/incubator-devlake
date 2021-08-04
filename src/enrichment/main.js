@@ -8,6 +8,7 @@ const app = express()
 app.use(bodyParser.json())
 
 const port = process.env.ENRICHMENT_PORT || 3000
+const host = process.env.ENRICHMENT_HOST || 'localhost'
 
 app.get('/', async (req, res) => {
   res.send("Let's enrich!")
@@ -22,6 +23,6 @@ app.post('/', async (req, res) => {
   res.status(200).send(req.body)
 })
 
-app.listen(port, () => {
+app.listen(port, host, () => {
   console.log(`Example app listening at http://localhost:${port}`)
 })

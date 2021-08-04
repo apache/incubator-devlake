@@ -8,6 +8,7 @@ const app = express()
 app.use(bodyParser.json())
 
 const port = process.env.COLLECTION_PORT || 3001
+const host = process.env.COLLECTION_HOST || 'localhost'
 
 app.get('/', async (req, res) => {
   res.send('Collector is running')
@@ -22,6 +23,6 @@ app.post('/', async (req, res) => {
   res.status(200).send(req.body)
 })
 
-app.listen(port, () => {
+app.listen(port, host, () => {
   console.log(`Example app listening at http://localhost:${port}`)
 })
