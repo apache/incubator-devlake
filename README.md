@@ -1,43 +1,136 @@
-# Dev Lake
+<br />
+<img src="https://user-images.githubusercontent.com/3789273/128085813-92845abd-7c26-4fa2-9f98-928ce2246616.png" width="120px">
 
+# Dev Lake
+[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat&logo=github&color=2370ff&labelColor=454545)](http://makeapullrequest.com)
+[![Discord](https://img.shields.io/discord/844603288082186240.svg?style=flat?label=&logo=discord&logoColor=ffffff&color=747df7&labelColor=454545)](https://discord.gg/83rDG6ydVZ)
 ![badge](https://github.com/merico-dev/lake/actions/workflows/main.yml/badge.svg)
 
-## Requirements
+### What is Dev Lake?
 
-- Node.js
-- Docker
+Dev Lake is the one-stop solution that _**integrates, analyzes, and visualizes**_ the development data throughout the _**software development life cycle (SDLC)**_ for engineering teams.
 
-## Installation
+### Why choose Dev Lake?
 
-1. Clone this repository
-1-1. Create the rabbitMQ log directory: `mkdir -p /tmp/rabbitmq/logs/`
-2. From the newly cloned repo directory, run `docker-compose up --build`
+1.  Supports various data sources and quickly growing
+2.  Comprehensive dev metrics built-in
+3.  Customizable visualizations and dashboard
+4.  Easy-to-setup via docker
+5.  Extensible plugin system to add your own data collectors
+6.  Designed to process enterprise-scale data
 
-    > NOTE: If you get an error like this:
+## Contents
 
-    >"Error response from daemon: invalid mount config for type "bind": bind source path does not exist: /tmp/rabbitmq/etc/"
+Section | Description | Link
+:------------ | :------------- | :-------------
+Requirements | Underlying software used | [View Section](#requirements)
+Installation | Getting all the required files | [View Section](#installation)
+Setup | Steps to get up and running | [View Section](#setup)
+Core Usage | Using core `lake` features | [View Section](#core-usage)
+Plugin Usage | Links to specific plugin usage & details | [View Section](#plugin-usage)
+Configuration | Local file config settings info | [Link](CONFIGURATION.md)
+Contributing | How to contribute to this repo | [Link](CONTRIBUTING.md)
 
-    >You can fix it by adding the directory in the terminal:
-```
-    mkdir /tmp/rabbitmq/etc
-```
-3. Run `docker-compose ps` to see containers runnning.
-4. Install dependencies with `npm i`
-5. (optional: Revert all current migrations - `npx sequelize-cli db:migrate:undo:all`) Run migration with `npx sequelize-cli db:migrate`
+## Requirements<a id="requirements" />
 
-## Configuration
+- [Node.js](https://nodejs.org/en/download)
+- [Docker](https://docs.docker.com/get-docker)
 
-1. Make a copy of `config/local.sample.js` under the name of `config/local.js`
-2. We can use default values for most fields except the Jira section.
+## Installation<a id="installation" />
 
-For how to set up basic authorization with Jira, and many more things, please see [CONFIGURATION.md](CONFIGURATION.md)
+1. Clone this repository<br>
 
-## Usage
+   ```shell
+   git clone https://github.com/merico-dev/lake.git
+   ```
+2. Install dependencies with<br>
 
-### Create a Collection Job
+   ```
+   npm i
+   ```
+3. Configure local settings for services & plugins, see [CONFIGURATION.md](CONFIGURATION.md)
 
-1. From the terminal, execute `npm run all`
-2. From Postman (or similar), send a request like...
+## Setup<a id="setup" />
+
+1. From the root directory, run
+   ```shell
+   npm run docker
+   ```
+
+      > NOTE: If you get an error like this:
+      > **"Error response from daemon: invalid mount config for type "bind": bind source path does not exist: /tmp/rabbitmq/etc/"**
+
+      > You can fix it by creating the directories in the terminal:
+
+      > `mkdir -p ./rabbitmq/logs/ ./rabbitmq/etc/ ./rabbitmq/data/`
+
+2. In another tab run
+   ```shell
+   npm run all
+   ```
+3. Create a collection job to collect data. See that the:
+      - collection job was published
+      - _lake plugin_ collection ran
+      - enrichment job was published
+      - _lake plugin_ enrichment ran<br><br>
+
+      > This process will run through each lake plugin, collecting data from each<br>
+
+   From Postman (or similar), send a request like (`branch` is optional):
+
+   ```json
+   POST http://localhost:3001/
+
+    {
+        "jira": {
+            "boardId": 8
+        },
+        "gitlab": {
+            "projectId": 8967944,
+            "branch": "<your-branch-name>",
+        }
+    }
+   ```
+
+   Or, by using `curl`
+
+   ```shell
+   # ee
+   curl -X POST "http://localhost:3001/" -H 'content-type: application/json' \
+       -d '{"jira":{"boardId": 8}, "gitlab": {"projectId": 8967944}}'
+
+   # small data set for test
+   curl -X POST "http://localhost:3001/" -H 'content-type: application/json' \
+       -d '{"jira":{"boardId": 29}, "gitlab": {"projectId": 24547305}}'
+   ```
+
+4. Visualize data in Grafana dashboard
+
+   From here you can see existing data visualized from collected & enriched data
+
+   - Navigate to http://localhost:3002 (username: `admin`, password: `admin`)
+   - You can also create/modify existing/save dashboards to `lake`
+   - For more info: [Provisioning a Dashboard](#grafana-provisioning-a-dashboard)
+
+**Migrations**
+
+-  Revert all current migrations `npx sequelize-cli db:migrate:undo:all`
+-  Run migration with `npx sequelize-cli db:migrate`
+
+## Core Usage<a id="core-usage" />
+
+Section | Section Info
+------------ | -------------
+Collections | Create a Collection Job
+Grafana | Logging In
+Grafana | Provisioning a Dashboard
+
+### Collections: Create a Collection Job <a id="create-a-collection-job" />
+<details><summary><b>Details</b></summary>
+<ol>
+    <li>From the terminal, execute <code>npm run all</code></li>
+    <li>From Postman (or similar), send a request like:</li>
+</ol>
 
 ```json
 
@@ -54,8 +147,10 @@ POST http://localhost:3001/
 }
 
 ```
-    Or, by using `curl`
-```sh
+
+Or, by using `curl`
+
+```shell
 # ee
 curl -X POST "http://localhost:3001/" -H 'content-type: application/json' \
     -d '{"jira":{"boardId": 8}, "gitlab": {"projectId": 8967944}}'
@@ -65,26 +160,41 @@ curl -X POST "http://localhost:3001/" -H 'content-type: application/json' \
     -d '{"jira":{"boardId": 29}, "gitlab": {"projectId": 24547305}}'
 ```
 
-3. See that the collection job was published, jira collection ran, the enrichment job was published, and jira enrichment ran
+3. See that the:
+    - collection job was published
+    - jira collection ran
+    - enrichment job was published
+    - jira enrichment ran
+</details>
 
-To run only the enrichment job on existing collections: `POST http://localhost:3000/`
+### Grafana: Logging In<a id="grafana-logging-in" />
+<details><summary><b>Details</b></summary>
+Once the app is up and running, visit <code>http://localhost:3002</code> to view the Grafana dashboard.
+<br><br>
+Default login credentials are:
 
-### Using Grafana
-
-**Login Credentials**
-
-- Visit: `http://localhost:3002`
 - Username: `admin`
 - Password: `admin`
+</details>
 
-**Provisioning a Grafana Dashboard**
+### Grafana: Provisioning a Dasboard<a id="grafana-provisioning-a-dashboard" />
+<details><summary><b>Details</b></summary>
 
 To save a dashboard in the `lake` repo and load it:
+
 1. Create a dashboard in browser (visit `/dashboard/new`, or use sidebar)
 2. Save dashboard (in top right of screen)
 3. Go to dashboard settings (in top right of screen)
 4. Click on _JSON Model_ in sidebar
 5. Copy code into a new `.json` file in `/grafana/dashboards`
+</details>
+
+## Plugin Usage<a id="plugin-usage" />
+
+Section | Section Info | Docs
+------------ | ------------- | -------------
+Jira | Metrics, Generating API Token, Find Project/Board ID | [Link](src/plugins/jira-pond/README.md)
+Gitlab | Metrics, Generating API Token | [Link](src/plugins/gitlab-pond/README.md)
 
 ## Contributing
 
