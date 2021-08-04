@@ -3,13 +3,10 @@ services:
   mongodb:
     image: mongo:5.0.0
     environment:
-      - MONGO_INITDB_ROOT_USERNAME=merico
-      - MONGO_INITDB_ROOT_PASSWORD=mericoIScoming
-      - MONGO_INITDB_ADMIN_USERNAME=lake
-      - MONGO_INITDB_ADMIN_PASSWORD=lakeIScoming
+      - MONGO_INITDB_ROOT_USERNAME=lake
+      - MONGO_INITDB_ROOT_PASSWORD=lakeIScoming
     volumes:
       - ./data:/data/db
-      - ./init-mongo.sh:/docker-entrypoint-initdb.d/init-mongo.sh
     ports:
       - 127.0.0.1:27017:27017
     restart: always
