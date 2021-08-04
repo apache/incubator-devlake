@@ -1,10 +1,10 @@
-"use strict";
+'use strict'
 module.exports = {
   up: async (queryInterface, Sequelize) => {
-    await queryInterface.createTable("gitlab_merge_request_notes", {
+    await queryInterface.createTable('gitlab_merge_request_notes', {
       id: {
         primaryKey: true,
-        type: Sequelize.INTEGER,
+        type: Sequelize.INTEGER
       },
       noteableId: {
         type: Sequelize.INTEGER,
@@ -35,16 +35,16 @@ module.exports = {
       createdAt: {
         allowNull: false,
         type: Sequelize.DATE,
-        field: "created_at",
+        field: 'created_at'
       },
       updatedAt: {
         allowNull: false,
         type: Sequelize.DATE,
-        field: "updated_at",
-      },
-    });
+        field: 'updated_at'
+      }
+    })
   },
   down: async (queryInterface, Sequelize) => {
-    await queryInterface.dropTable("gitlab_merge_request_notes");
-  },
-};
+    await queryInterface.dropTable('gitlab_merge_request_notes')
+  }
+}
