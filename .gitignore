@@ -139,3 +139,5 @@ yarn.lock
 # rabbitmq
 
 rabbitmq
+
+commitmsg.md

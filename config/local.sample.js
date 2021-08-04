@@ -3,15 +3,14 @@ module.exports = {
     token: 'mytoken'
   },
   mongo: {
-    connectionString: 'mongodb://localhost:27017/test?retryWrites=true&w=majority'
+    connectionString: 'mongodb://lake:lakeIScoming@localhost:27017/lake?authSource=admin'
   },
   rabbitMQ: {
-    connectionString: 'amqp://guest:guest@localhost:5672/rabbitmq'
+    connectionString: 'amqp://guest:guestWhat@localhost:5672/rabbitmq'
   },
   postgres: {
-    connectionString: 'postgres://postgres:postgres@localhost:5432/lake',
     username: 'postgres',
-    password: 'postgres',
+    password: 'postgresWhat',
     host: 'localhost',
     database: 'lake',
     port: 5432,
@@ -40,8 +39,5 @@ module.exports = {
   },
   jiraBoardGitlabProject: {
     8: 8967944
-  },
-  enrichment: {
-    connectionString: 'http://localhost:3000/'
   }
 }
