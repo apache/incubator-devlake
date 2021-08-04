@@ -7,7 +7,7 @@ const _has = require('lodash/has')
 const dbConnector = require('@mongo/connection')
 const { collection } = require('../plugins')
 const consumer = require('../queue/consumer')
-const config = require('@config/resolveConfig').api || {}
+const config = require('@config/resolveConfig').lake || {}
 
 const queue = 'collection'
 
