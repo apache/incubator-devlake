@@ -1,5 +1,19 @@
 version: "3"
 services:
+  lake:
+    container_name: lake
+    restart: always
+    build: .
+    ports:
+      - 3000:3000
+      - 3001:3001
+    links:
+      - postgresdb
+      - rabbitmq
+      - mongodb
+      - grafana
+    networks:
+      - lake
   mongodb:
     image: mongo:5.0.0
     environment:
