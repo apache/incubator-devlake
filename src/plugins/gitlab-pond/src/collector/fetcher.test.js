@@ -1,4 +1,4 @@
-let fetcher = require('./fetcher')
+const fetcher = require('./fetcher')
 const axios = require('axios')
 const sinon = require('sinon')
 const chai = require('chai')
@@ -15,7 +15,6 @@ describe('fetcher', () => {
 
   describe('fetchPaged', () => {
     it('if only one page, only fetch once', async () => {
-
       sinon.stub(axios, 'get').resolves({
         data: [],
         headers: {
@@ -25,14 +24,14 @@ describe('fetcher', () => {
 
       fetcher.fetchPaged('https://fake.com/projects')
 
-      for await (const item of fetcher.fetchPaged(`https://fake.com/projects`)) {
+      for await (const item of fetcher.fetchPaged('https://fake.com/projects')) {
         return null
       }
       expect(axios.get).to.have.been.calledOnce
     })
 
     it('if more than one page, only fetch more than once', async () => {
-      let stub = sinon.stub(axios, 'get')
+      const stub = sinon.stub(axios, 'get')
 
       stub.onCall(0).resolves({
         data: [],
@@ -48,7 +47,7 @@ describe('fetcher', () => {
         }
       })
 
-      for await (const item of fetcher.fetchPaged(`https://fake.com/projects`)) {
+      for await (const item of fetcher.fetchPaged('https://fake.com/projects')) {
         return null
       }
       expect(axios.get).to.have.been.calledTwice
