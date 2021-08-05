@@ -4,8 +4,11 @@
   "description": "The data lake for dev.",
   "main": "test-docker-compose.js",
   "scripts": {
-    "start": "docker-compose up  --build --force-recreate --remove-orphans",
-    "dev": "docker-compose -f docker-compose.development.yml up -d --build --force-recreate --remove-orphans",
+    "start": "docker-compose -f docker-compose.prod.yml up -d --build --force-recreate",
+    "stop": "docker-compose stop",
+    "restart": "npm run stop; npm run start",
+    "logs": "docker-compose logs -f",
+    "dev": "docker-compose -f docker-compose.yml up -d --build --force-recreate",
     "all": "node src/plugins/index.js && concurrently \"nodemon src/collection/main.js\" \"nodemon src/collection/worker.js\" \"nodemon src/enrichment/main.js\" \"nodemon src/enrichment/worker.js\"",
     "test": "mocha \"test/**\" src/**/*.test.js",
     "unit-test": "ENCRYPTION_KEY=123 NODE_ENV=test ./node_modules/mocha/bin/mocha \"test/unit/**/*.test.js\"",

@@ -41,18 +41,16 @@ Contributing | How to contribute to this repo | [Link](CONTRIBUTING.md)
 **NOTE: If you only plan to run the product, this is the only section you should need**
 
 1. Clone this repository
-2. Make a copy of `config/local.sample.js` under the name of `config/local.js`
-4. Install dependencies with `npm i`
-5. From the newly cloned repo directory, start the service with `docker-compose up -d`
-- you can see the logs with `docker-compose logs -f`
-- you can stop all container with `docker-compose stop`
-6. Send a post request to the service
+2. From the newly cloned repo directory, start the service with `npm start`
+- you can see the logs with `npm logs`
+- you can stop all container with `npm stop`
+3. Send a post request to the service
 ```
 curl -X POST "http://localhost:3001/" -H 'content-type: application/json' \
     -d '{"jira":{"boardId": 29}, "gitlab": {"projectId": 24547305}}'
 ```
-7. Check the console logs for docker-compose to see when the logs stop collecting your data. This can take up to 30 minutes for very large projects. (gitlab 2000+ commits or jira 2000+ issues)
-8. Navigate to Grafana Dashboard `https://localhost:3002` (Username: `admin`, password: `admin`)
+4. Check the console logs for docker-compose to see when the logs stop collecting your data. This can take up to 30 minutes for very large projects. (gitlab 2000+ commits or jira 2000+ issues)
+5. Navigate to Grafana Dashboard `https://localhost:3002` (Username: `admin`, password: `admin`)
 
 ## Installation<a id="installation" />
 
