@@ -1,7 +1,16 @@
-import { Injectable } from "@nestjs/common";
-import Plugin from "plugins/core/src";
+import { Injectable } from '@nestjs/common';
+import Plugin from 'plugins/core/src';
 
-export type JiraOptions = {}
+export type JiraCollector =
+  | 'ISSUE'
+  | 'CHANGELOG'
+  | 'COMMENTS'
+  | 'REMOTELINK'
+  | 'BOARD';
+
+export type JiraOptions = {
+  collectors: JiraCollector[];
+};
 
 @Injectable()
 class Jira implements Plugin {
