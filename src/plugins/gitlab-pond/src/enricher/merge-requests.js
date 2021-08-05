@@ -7,19 +7,17 @@ async function enrich ({ rawDb, enrichedDb, projectId }) {
 
   console.info('INFO >>> gitlab enriching merge-requests for project', projectId)
   await enrichMergeRequestsByProjectId(rawDb, enrichedDb, projectId)
-  console.info('INFO >>> gitlab enriching merge-requests for project done!', projectId, counter)
+  console.info('INFO >>> gitlab enriching merge-requests for project done!', projectId)
 }
 
 async function enrichMergeRequestsByProjectId (rawDb, enrichedDb, projectId) {
   const mergeRequestsCollection = await mergeRequestsCollector.getCollection(rawDb)
   const cursor = mergeRequestsCollection.find({ projectId })
-  let counter = 0
   try {
     while (await cursor.hasNext()) {
       const mergeRequest = await cursor.next()
       const enriched = mapResponseToSchema(mergeRequest)
       await enrichedDb.GitlabMergeRequest.upsert(enriched)
-      counter++
     }
   } finally {
     await cursor.close()

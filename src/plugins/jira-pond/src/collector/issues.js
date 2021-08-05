@@ -10,7 +10,7 @@ async function collect ({ db, boardId, forceAll }) {
   }
   console.info('INFO >>> jira collecting issues for board', boardId)
   await collectByBoardId(db, boardId, forceAll)
-  console.info('INFO >>> jira collecting issues for board done!', boardId, counter)
+  console.info('INFO >>> jira collecting issues for board done!', boardId)
 }
 
 async function collectByBoardId (db, boardId, forceAll) {
@@ -22,14 +22,12 @@ async function collectByBoardId (db, boardId, forceAll) {
     const jiraDate = dayjs(latestUpdated.fields.updated).format('YYYY/MM/DD HH:mm')
     jql = encodeURIComponent(`updated >= '${jiraDate}' ORDER BY updated ASC`)
   }
-  let counter = 0
   for await (const issue of fetcher.fetchPaged(`agile/1.0/board/${boardId}/issue?jql=${jql}`, 'issues')) {
     await issuesCollection.findOneAndUpdate(
       { id: issue.id },
       { $set: issue, $addToSet },
       { upsert: true }
     )
-    counter++
   }
 }
 
