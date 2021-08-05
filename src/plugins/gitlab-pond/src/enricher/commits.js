@@ -61,10 +61,10 @@ function mapResponseToSchema (commit) {
     committerEmail: commit.committer_email,
     committedDate: commit.committed_date,
     webUrl: commit.web_url,
-    additions: commit.stats.additions,
-    deletions: commit.stats.deletions,
-    total: commit.stats.total
+    additions: commit.stats && commit.stats.additions,
+    deletions: commit.stats && commit.stats.deletions,
+    total: commit.stats && commit.stats.total
   }
 }
 
-module.exports = { enrich }
+module.exports = { enrich, mapResponseToSchema }
