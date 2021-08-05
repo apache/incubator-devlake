@@ -9,6 +9,9 @@ npm run dev
 npm run all
 ```
 
+- you can see the logs with `docker-compose logs -f`
+- you can stop all container with `docker-compose stop`
+
 Make your post requests to http://localhost:3000 for collection jobs only
 Make your post requests to http://localhost:3001 for collection and enrichment
 
