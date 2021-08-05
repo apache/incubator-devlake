@@ -28,5 +28,5 @@ module.exports = {
     database: 'lake',
     port: 5432,
     dialect: 'postgres'
-  },
+  }
 }

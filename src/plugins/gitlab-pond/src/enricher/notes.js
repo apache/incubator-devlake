@@ -4,7 +4,7 @@ async function enrich ({ rawDb, enrichedDb, projectId }) {
   if (!projectId) {
     throw new Error('Failed to enrich gitlab project, projectId is required')
   }
-  
+
   console.info('INFO >>> gitlab enriching notes for project', projectId)
   await enrichNotesByProjectId(rawDb, enrichedDb, projectId)
   console.info('INFO >>> gitlab enriching notes for project done!', projectId, upsertPromises.length)

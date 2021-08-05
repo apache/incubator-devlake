@@ -12,7 +12,7 @@ async function enrich ({ rawDb, enrichedDb, boardId, forceAll }) {
   await enrichIssues(rawDb, enrichedDb, boardId, forceAll)
 }
 
-function calculateLeadTime(issue){
+function calculateLeadTime (issue) {
   return dayjs.duration(dayjs(issue.fields.resolutiondate) - dayjs(issue.fields.created)).days()
 }
 
@@ -58,7 +58,7 @@ async function enrichIssues (rawDb, enrichedDb, boardId, forceAll) {
   console.info('INFO >>> Jira enriching issues done!')
 }
 
-function mapResponseToSchema(issue){
+function mapResponseToSchema (issue) {
   return {
     id: issue.id,
     url: issue.self,
