@@ -1,7 +1,18 @@
 version: "3"
 services:
+  lake:
+    container_name: lake
+    name: lake
+    restart: always
+    build: .
+    ports:
+      - 3000:3000
+      - 3001:3001
+    networks:
+      - lake-network
   mongodb:
     image: mongo:5.0.0
+    name: mongodb
     environment:
       - MONGO_INITDB_ROOT_USERNAME=lake
       - MONGO_INITDB_ROOT_PASSWORD=lakeIScoming
@@ -11,9 +22,10 @@ services:
       - 127.0.0.1:27017:27017
     restart: always
     networks:
-      - lake
+      - lake-network
   postgresdb:
     image: postgres:13
+    name: postgresdb
     environment:
       - POSTGRES_DB=lake
       - POSTGRES_PASSWORD=postgresWhat
@@ -24,9 +36,10 @@ services:
       - ./postgres-data:/var/lib/postgresql/data
     restart: always
     networks:
-      - lake
+      - lake-network
   rabbitmq:
     image: rabbitmq:3-management
+    name: rabbitmq
     ports:
       - 127.0.0.1:15672:15672
       - 127.0.0.1:5672:5672
@@ -34,9 +47,10 @@ services:
       - ./rabbitmq.conf:/etc/rabbitmq/rabbitmq.conf
     restart: always
     networks:
-      - lake
+      - lake-network
   grafana:
     image: grafana/grafana:8.0.6
+    name: grafana
     environment:
       - GF_USERS_ALLOW_SIGN_UP=false
       - GF_DASHBOARDS_JSON_ENABLED=true
@@ -49,8 +63,9 @@ services:
       - ./src/img/grafana_icon.svg:/usr/share/grafana/public/img/grafana_icon.svg:rw
     restart: always
     networks:
-      - lake
+      - lake-network
 volumes:
   grafana-storage: {}
 networks:
-  lake:
+  lake-network:
+    driver: bridge

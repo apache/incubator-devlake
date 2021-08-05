@@ -1,4 +1,4 @@
-'use strict';
+'use strict'
 
 module.exports = {
   up: async (queryInterface, Sequelize) => {
@@ -25,9 +25,9 @@ module.exports = {
         type: Sequelize.DATE,
         field: 'updated_at'
       }
-    });
+    })
   },
   down: async (queryInterface, Sequelize) => {
-    await queryInterface.dropTable('jira_board_issues');
+    await queryInterface.dropTable('jira_board_issues')
   }
-};
+}
