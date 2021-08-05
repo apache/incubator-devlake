@@ -10,10 +10,10 @@ npm run all
 ```
 
 - you can see the logs with `docker-compose logs -f`
-- you can stop all container with `docker-compose stop`
+- you can stop and remove all containers with `docker-compose down`
 
-Make your post requests to http://localhost:3000 for collection jobs only
-Make your post requests to http://localhost:3001 for collection and enrichment
+Make your post requests to http://localhost:3000 for enrichment jobs only
+Make your post requests to http://localhost:3001 for both collection and enrichment jobs
 
 ## Style guides
 ### Git Commit message
