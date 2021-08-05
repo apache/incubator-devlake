@@ -1,6 +1,5 @@
 import { DynamicModule } from '@nestjs/common';
 import { BullQueueModule } from '../bull/queue.module';
-import { providers } from './providers';
 import { ProducerService } from './service';
 
 export class ProducerModule {
@@ -8,7 +7,7 @@ export class ProducerModule {
     return {
       module: ProducerModule,
       imports: [BullQueueModule.forRoot(queue), ProducerService],
-      providers,
+      providers: [],
       exports: [ProducerService],
     };
   }
