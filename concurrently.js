@@ -1,3 +1,9 @@
+/**
+ * https://dev.to/tylerlwsmith/exiting-node-js-when-programmatically-using-concurrently-to-run-multiple-scripts-1o78
+ * 
+ * Since we run our process with concurrently, we need to kill the parent process when one connection fails. This allows us to have `restart: always` in the docker-compose file
+ */
+
 const concurrently = require('concurrently');
 
 concurrently([
