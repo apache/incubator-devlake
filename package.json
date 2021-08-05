@@ -9,7 +9,7 @@
     "restart": "npm run stop; npm run start",
     "logs": "docker-compose logs -f",
     "dev": "docker-compose -f docker-compose.yml up -d --build --force-recreate",
-    "all": "node src/plugins/index.js && concurrently \"nodemon src/collection/main.js\" \"nodemon src/collection/worker.js\" \"nodemon src/enrichment/main.js\" \"nodemon src/enrichment/worker.js\"",
+    "all": "export ENRICHMENT_PORT=43000; export ENRICHMENT_HOST=0.0.0.0; export COLLECTION_PORT=43001; export COLLECTION_HOST=0.0.0.0; node src/plugins/index.js && concurrently \"nodemon src/collection/main.js\" \"nodemon src/collection/worker.js\" \"nodemon src/enrichment/main.js\" \"nodemon src/enrichment/worker.js\"",
     "test": "mocha \"test/**\" src/**/*.test.js",
     "unit-test": "ENCRYPTION_KEY=123 NODE_ENV=test ./node_modules/mocha/bin/mocha \"test/unit/**/*.test.js\"",
     "collect": "nodemon src/collection/main.js",
