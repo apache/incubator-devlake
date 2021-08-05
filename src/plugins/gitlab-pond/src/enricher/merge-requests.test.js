@@ -7,7 +7,7 @@ const db = require('@db/postgres')
 const tableName = 'gitlab_merge_requests'
 const stringUtil = require('../../../../util/string')
 
-describe.only('Merge Requests', () => {
+describe('Merge Requests', () => {
   describe('mapResponseToSchema', () => {
     let enrichedMergeRequest
     let responseMergeRequest
