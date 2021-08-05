@@ -124,6 +124,7 @@ data/
 # config files
 config/local.js
 config/docker.js
+config/test.js
 
 # Editors
 .idea
