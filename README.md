@@ -41,15 +41,15 @@ Contributing | How to contribute to this repo | [Link](CONTRIBUTING.md)
 **NOTE: If you only plan to run the product, this is the only section you should need**
 
 1. Clone this repository
-2. From the newly cloned repo directory, start the service with `npm start`
-- you can see the logs with `npm logs`
-- you can stop all container with `npm stop`
+2. From the newly cloned repo directory, start the service with `npm run compose-prod`
+- you can see the logs with `npm run compose-logs`
+- you can stop all docker containers with `npm run compose-down`
 3. Send a post request to the service
 ```
 curl -X POST "http://localhost:3001/" -H 'content-type: application/json' \
     -d '{"jira":{"boardId": 29}, "gitlab": {"projectId": 24547305}}'
 ```
-4. Check the console logs for docker-compose to see when the logs stop collecting your data. This can take up to 30 minutes for very large projects. (gitlab 2000+ commits or jira 2000+ issues)
+4. Check the console logs for docker-compose to see when the logs stop collecting your data. This can take up to 30 minutes for large projects. (gitlab 10k+ commits or jira 10k+ issues)
 5. Navigate to Grafana Dashboard `https://localhost:3002` (Username: `admin`, password: `admin`)
 
 ## Installation<a id="installation" />

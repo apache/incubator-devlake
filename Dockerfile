@@ -26,4 +26,4 @@ ENV ENRICHMENT_PORT=3000
 ENV COLLECTION_PORT=3001
 
 # Start the application
-CMD ["npm", "run", "all-docker"]
+CMD ["npm", "run", "lake-prod"]
