@@ -5,8 +5,8 @@
 ```
 npm i
 cp config/local.sample.js config/local.js
-npm run dev
-npm run all
+npm run compose-dev
+npm run lake
 ```
 
 - you can see the logs with `docker-compose logs -f`
