@@ -5,7 +5,7 @@
   "main": "test-docker-compose.js",
   "scripts": {
     "start": "docker-compose -f docker-compose.prod.yml up -d --build --force-recreate",
-    "stop": "docker-compose stop",
+    "stop": "docker-compose down",
     "restart": "npm run stop; npm run start",
     "logs": "docker-compose logs -f",
     "dev": "docker-compose -f docker-compose.yml up -d --build --force-recreate",
