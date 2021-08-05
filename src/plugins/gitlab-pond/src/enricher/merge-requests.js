@@ -47,4 +47,4 @@ function mapResponseToSchema (mergeRequest) {
   }
 }
 
-module.exports = { enrich }
+module.exports = { enrich, mapResponseToSchema }
