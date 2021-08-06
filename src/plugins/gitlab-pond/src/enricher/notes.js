@@ -78,4 +78,4 @@ function mapResponseToSchema (mrNote) {
   }
 }
 
-module.exports = { enrich, findEarliestNote }
+module.exports = { enrich, findEarliestNote, mapResponseToSchema }
