@@ -6,27 +6,37 @@ You love getting data from a source like GitLab, but perhaps you're not getting 
 the metric you want. Good news! You can get any metric you like by contributing a little
 bit of code.
 
-Let's say we are getting data on GitLab for projects, and commits, but you want to see
-data on issues.
+Each plugin has an Enricher. Just navigate into the plugin folder to find the enrichment folder. There, you should find all the various enrichment methods. The job of the Enricher is to grab the data that was collected by the Collector, augment it, and add it to a new DB in accordance with a new schema (which you will have to create).
 
-To add this metric, all you need to do is visit the documentation, and find the API routes
-that support your metrics. Don't forget authentication and pagination. It will take some research, but you'll get it!
+An the index file of an enricher contains something like this:
 
-As it turns out, GitLab has a lot of docs on their Issues API: (https://docs.gitlab.com/ee/api/issues.html)
+```
+async function enrich (rawDb, enrichedDb, { thingId }) {
+  const args = { rawDb, enrichedDb, thingId: Number(projectId) }
+  await thingNumberOne.enrich(args)
+  await thingNumberTwo.enrich(args)
+  await thingNumberThree.enrich(args)
+}
 
-Let's say you want to see number of comments per issue. After a little reading you will notice
-that comments are found through the Notes API rather than the Issues API. This is why a little
-reading goes a long way! (https://docs.gitlab.com/ee/api/issues.html#comments-on-issues)
+```
 
-So you've done some research, and you've pinpointed the endpoint you'd like to call:
+It gathers all the enrich functions into one, so you can keep your implementations separate. For example:
 
-GET /projects/:id/issues/:issue_iid/notes
+```
+async function enrichSomeThing (rawDb, enrichedDb, id) {
+  const collectionOfRawThings = await collector.getCollection(rawDb)
+  const rawThing = await collectionOfRawThings.findOne({ id: id })
+  const computedField = computeThings(rawThing.somethingToCompute, rawThing.otherThingToCompute)
+  const enrichedThing = {
+    name: rawThing.name,
+    id: rawThing.id,
+    aFieldYouWant: rawThing.a_field_you_want,
+    computedField: computedField
+  }
+  await enrichedDb.ThingModel.upsert(enrichedThing)
+}
+```
 
-This one looks correct. But wait... you need a project id AND an issue iid! This means you'll
-have to provide a project ID somehow, and then get all the issues from the project, then loop
-through the issues to get all the notes! 
-
-Once you've done all that, you need to store the data in the DB. Next step is enrichment.
-
+In order for the enriched DB to have a ThingModel for you to upsert into, you will need to write a Model file in the [model directory](../../db/postgres) and a migration script for Sequelize in the [migrations directory](../../db/migrations)
 
 
