@@ -44,7 +44,7 @@ Contributing | How to contribute to this repo | [Link](CONTRIBUTING.md)
 2. Configure settings for services & plugins with `cp config/docker.sample.js config/docker.js` and edit the newly created file
 3. Start the service with `npm run compose-prod`
 - you can see the logs with `npm run compose-logs`
-- you can stop all docker containers with `npm run compose-down`
+- you can stop all docker containers with `npm run compose-down-prod`
 4. Send a post request to the service
 ```
 curl -X POST "http://localhost:3001/" -H 'content-type: application/json' \
