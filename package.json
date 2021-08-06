@@ -5,8 +5,9 @@
   "main": "test-docker-compose.js",
   "scripts": {
     "compose-dev": "docker-compose -f docker-compose.yml up -d --build --force-recreate",
-    "compose-prod": "docker-compose -f docker-compose.prod.yml up -d --build --force-recreate",
-    "compose-down": "docker-compose down",
+    "compose-prod": "docker-compose -f docker-compose.yml -f docker-compose.prod.yml up -d --build --force-recreate",
+    "compose-down-dev": "docker-compose down",
+    "compose-down-prod": "docker-compose -f docker-compose.yml -f docker-compose.prod.yml down",
     "compose-logs": "docker-compose logs -f",
     "lake": "node src/plugins/index.js && concurrently \"nodemon src/collection/main.js\" \"nodemon src/collection/worker.js\" \"nodemon src/enrichment/main.js\" \"nodemon src/enrichment/worker.js\"",
     "lake-debug": "node src/plugins/index.js && concurrently \"DEBUG=true nodemon src/collection/main.js\" \"DEBUG=true nodemon src/collection/worker.js\" \"DEBUG=true nodemon src/enrichment/main.js\" \"DEBUG=true nodemon src/enrichment/worker.js\"",
