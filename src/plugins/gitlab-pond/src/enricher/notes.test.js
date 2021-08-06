@@ -7,7 +7,7 @@ const stringUtil = require('../../../../util/string')
 const { findEarliestNote, mapResponseToSchema } = require('./notes')
 const mockRawMergeRequestNotes = require('./mockData/mockRawMergeRequestNotes')
 
-describe.only('Notes', () => {
+describe('Notes', () => {
   describe('findEarliestNote', () => {
     it('finds the earliest note in a collection of notes', () => {
       const mongoNotes = [
