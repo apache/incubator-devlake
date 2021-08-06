@@ -16,28 +16,7 @@ async function enrichCommitsByProjectId (rawDb, enrichedDb, projectId) {
   try {
     while (await cursor.hasNext()) {
       const commit = await cursor.next()
-<<<<<<< HEAD
-      const enriched = {
-        projectId: commit.projectId,
-        id: commit.id,
-        shortId: commit.short_id,
-        title: commit.title,
-        message: commit.message,
-        authorName: commit.author_name,
-        authorEmail: commit.author_email,
-        authoredDate: commit.authored_date,
-        committerName: commit.committer_name,
-        committerEmail: commit.committer_email,
-        committedDate: commit.committed_date,
-        webUrl: commit.web_url,
-        // some commits can happen with no additions or deletions so stats is not populated
-        additions: commit.stats && commit.stats.additions,
-        deletions: commit.stats && commit.stats.deletions,
-        total: commit.stats && commit.stats.total
-      }
-=======
       const enriched = mapResponseToSchema(commit)
->>>>>>> cda9245 (chore: set up the tests for kevin to fill in)
       await enrichedDb.GitlabCommit.upsert(enriched)
     }
   } finally {

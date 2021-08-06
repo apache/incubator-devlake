@@ -7,20 +7,11 @@ async function collect ({ db, projectId, branch, forceAll }) {
     throw new Error('Failed to collect gitlab data, projectId is required')
   }
 
-<<<<<<< HEAD
   await collectByProjectId(db, projectId, branch, forceAll)
 }
 
 async function collectByProjectId (db, projectId, branch, forceAll) {
   console.info('INFO >>> gitlab collecting commits for project', projectId)
-=======
-  console.info('INFO >>> gitlab collecting commits for project', projectId)
-  await collectByProjectId(db, projectId, forceAll)
-  console.info('INFO >>> gitlab collecting commits for project done!', projectId)
-}
-
-async function collectByProjectId (db, projectId, forceAll) {
->>>>>>> cda9245 (chore: set up the tests for kevin to fill in)
   const commitsCollection = await getCollection(db)
 
   let queryParams = 'with_stats=true'
