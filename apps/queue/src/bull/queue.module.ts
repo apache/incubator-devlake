@@ -17,7 +17,7 @@ export class BullQueueModule {
             port: parseInt(redisUrl.port),
             db: parseInt(redisUrl.pathname.slice(1)),
             username: redisUrl.username,
-            password: redisUrl.pathname,
+            password: redisUrl.password,
           },
           defaultJobOptions: {
             attempts: 3,

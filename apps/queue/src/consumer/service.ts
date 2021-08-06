@@ -11,6 +11,7 @@ export class ConsumerService {
     private moduleRef: ModuleRef,
   ) {
     this.queue.process('*', this.process.bind(this));
+    this.queue.on('failed', this.jobFailed.bind(this));
   }
 
   async process(job: Bull.Job): Promise<void> {
@@ -19,5 +20,9 @@ export class ConsumerService {
     if (executor) {
       executor.execute(data);
     }
+  }
+
+  async jobFailed(job: Bull.Job, error: Error): Promise<void> {
+    console.error(`${job.name}-${job.id}`, error);
   }
 }
