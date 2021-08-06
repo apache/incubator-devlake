@@ -40,6 +40,7 @@ services:
     environment:
       - GF_USERS_ALLOW_SIGN_UP=false
       - GF_DASHBOARDS_JSON_ENABLED=true
+      - GF_INSTALL_PLUGINS=grafana-piechart-panel
     ports:
       - 3002:3000
     volumes:
