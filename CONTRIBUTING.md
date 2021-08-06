@@ -1,5 +1,20 @@
 # Contributing to Lake
 
+## Run lake as a developer
+
+```
+npm i
+cp config/local.sample.js config/local.js
+npm run compose-dev
+npm run lake
+```
+
+- you can see the logs with `docker-compose logs -f`
+- you can stop and remove all containers with `docker-compose down`
+
+Make your post requests to http://localhost:3000 for enrichment jobs only
+Make your post requests to http://localhost:3001 for both collection and enrichment jobs
+
 ## Style guides
 ### Git Commit message
 We follow the [conventional commits](https://www.conventionalcommits.org/en/v1.0.0/#summary) guidelines. 

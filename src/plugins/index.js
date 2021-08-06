@@ -63,17 +63,20 @@ registryConfig.forEach((item, index) => {
 // run all initializations of all plugins
 async function initialize () {
   console.log('INFO: initializing plugins')
-  const {
-    db: rawDb, client
-  } = await dbConnector.connect()
-
+  let client
   try {
+    const connection = await dbConnector.connect()
+    client = connection.client
+
     // assuming no dependencies among plugins
     await Promise.all(
       Object.values(plugins)
         .filter(plugin => plugin.initialize)
-        .map(plugin => plugin.initialize(rawDb, enrichedDb, plugins))
+        .map(plugin => plugin.initialize(connection.rawDb, enrichedDb, plugins))
     )
+  } catch (error) {
+    console.log('ERROR: connecting to mongodb', error)
+    process.exit()
   } finally {
     dbConnector.disconnect(client)
   }

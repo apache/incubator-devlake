@@ -24,5 +24,5 @@ app.post('/', async (req, res) => {
 })
 
 app.listen(port, host, () => {
-  console.log(`Example app listening at http://localhost:${port}`)
+  console.log(`Enrichment API listening at http://${host}:${port}`)
 })
