@@ -1,0 +1,33 @@
+
+version: "3"
+services:
+  postgresdb:
+    hostname: postgresdb
+    environment:
+      POSTGRES_DB: lake
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_USER: postgres
+    image: postgres:13
+    ports:
+      - 5432:5432
+    volumes:
+      - ./postgres-data:/var/lib/postgresql/data
+  redis:
+    image: redis:6
+    ports:
+      - 6379:6379
+  grafana:
+    hostname: grafana
+    image: grafana/grafana:8.0.6
+    ports:
+      - 3002:3000
+    volumes:
+      - grafana-storage:/var/lib/grafana
+      - ./grafana/provisioning:/etc/grafana/provisioning
+      - ./grafana/dashboards:/etc/grafana/dashboards
+      - ./src/img/grafana_icon.svg:/usr/share/grafana/public/img/grafana_icon.svg:rw
+    env_file:
+      - ./grafana/grafana.config
+    restart: always
+volumes:
+  grafana-storage: {}
