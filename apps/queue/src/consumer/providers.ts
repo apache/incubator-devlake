@@ -1,6 +1,9 @@
-import { Provider } from '@nestjs/common';
+import { ClassProvider } from '@nestjs/common';
 import Jira from 'plugins/jira/src';
 
-const JiraProvider: Provider<Jira> = { provide: 'Jira', useClass: Jira };
+const JiraProvider: ClassProvider<Jira> = {
+  provide: 'Jira',
+  useClass: Jira,
+};
 
 export const providers = [JiraProvider];

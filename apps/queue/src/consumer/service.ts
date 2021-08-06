@@ -16,7 +16,9 @@ export class ConsumerService {
 
   async process(job: Bull.Job): Promise<void> {
     const { name, data } = job;
-    const executor = this.moduleRef.get<Plugin>(name);
+    const executor = this.moduleRef.get<Plugin>(name, {
+      strict: false,
+    });
     if (executor) {
       executor.execute(data);
     }

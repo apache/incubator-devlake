@@ -1,6 +1,5 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
-import Jira from 'plugins/jira/src';
 import { ConsumerModule } from './consumer';
 import { ProducerModule } from './producer';
 
@@ -10,6 +9,6 @@ import { ProducerModule } from './producer';
     ConsumerModule.forRoot(),
     ProducerModule.forRoot(),
   ],
-  providers: [{ provide: 'Jira', useClass: Jira }],
+  providers: [],
 })
 export class QueueModule {}
