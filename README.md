@@ -27,7 +27,7 @@ Requirements | Underlying software used | [View Section](#requirements)
 User Setup | Quick and easy setup | [View Section](#user-setup)
 Developer Setup | Steps to get up and running | [View Section](#developer-setup)
 Plugins | Links to specific plugin usage & details | [View Section](#plugins)
-Configuration | Local file config settings info | [Link](CONFIGURATION.md)
+Configuration | Local file config settings info | [Link](docs/CONFIGURATION.md)
 Contributing | How to contribute to this repo | [Link](CONTRIBUTING.md)
 
 ## Requirements<a id="requirements" />
@@ -65,7 +65,7 @@ curl -X POST "http://localhost:3001/" -H 'content-type: application/json' \
    ```
    npm i
    ```
-3. Configure local settings for services & plugins, see [CONFIGURATION.md](CONFIGURATION.md)
+3. Configure local settings for services & plugins, see [CONFIGURATION.md](docs/CONFIGURATION.md)
 
 4. From the root directory, run
    ```shell
