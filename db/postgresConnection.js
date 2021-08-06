@@ -32,17 +32,22 @@ module.exports = {
     }
   },
   sequelize: (dbConfig) => {
-    return new Sequelize(dbConfig.database, dbConfig.username, dbConfig.password, {
-      host: dbConfig.host,
-      dialect: 'postgres',
-      port: dbConfig.port,
-      logging: DEBUG ? console.log : false,
-      pool: {
-        max: 100,
-        min: 0,
-        acquire: 30000,
-        idle: 10000
-      }
-    })
+    try {
+      return new Sequelize(dbConfig.database, dbConfig.username, dbConfig.password, {
+        host: dbConfig.host,
+        dialect: 'postgres',
+        port: dbConfig.port,
+        logging: DEBUG ? console.log : false,
+        pool: {
+          max: 100,
+          min: 0,
+          acquire: 30000,
+          idle: 10000
+        }
+      })
+    } catch (error) {
+      console.error('ERROR: Could not connect to postgres', error)
+      process.exit()
+    }
   }
 }

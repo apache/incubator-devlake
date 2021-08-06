@@ -123,6 +123,7 @@ data/
 
 # config files
 config/local.js
+config/docker.js
 
 # Editors
 .idea

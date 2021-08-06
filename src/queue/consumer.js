@@ -6,7 +6,8 @@ const connectionString = require('@config/resolveConfig').rabbitMQ.connectionStr
 module.exports = (queue, callback) => {
   amqp.connect(connectionString, function (error0, connection) {
     if (error0) {
-      throw error0
+      console.log('ERROR: consumer cound not connect', error0)
+      process.exit()
     }
     connection.createChannel(function (error1, channel) {
       if (error1) {

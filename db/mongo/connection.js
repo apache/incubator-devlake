@@ -13,6 +13,7 @@ module.exports = {
       return { client, db }
     } catch (e) {
       console.log('MONGO.DB connect() >> ERROR: ', e)
+      process.exit()
     }
   },
   disconnect: (client) => {
