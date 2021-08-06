@@ -33,7 +33,7 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.STRING
     },
     authoredDate: {
-      type: DataTypes.STRING
+      type: DataTypes.DATE
     },
     committerName: {
       type: DataTypes.STRING
@@ -42,7 +42,7 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.STRING
     },
     committedDate: {
-      type: DataTypes.STRING
+      type: DataTypes.DATE
     },
     webUrl: {
       type: DataTypes.STRING
