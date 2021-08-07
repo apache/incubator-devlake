@@ -48,6 +48,7 @@ Contributing | How to contribute to this repo | [Link](CONTRIBUTING.md)
 4. Send a post request to the service
 ```
 curl -X POST "http://localhost:3001/" -H 'content-type: application/json' \
+    -H 'x-token: mytoken' \
     -d '{"jira":{"boardId": 29}, "gitlab": {"projectId": 24547305}}'
 ```
 5. Check the console logs for docker-compose to see when the logs stop collecting your data. This can take up to 30 minutes for large projects. (gitlab 10k+ commits or jira 10k+ issues)
@@ -114,10 +115,12 @@ curl -X POST "http://localhost:3001/" -H 'content-type: application/json' \
    ```shell
    # ee
    curl -X POST "http://localhost:3001/" -H 'content-type: application/json' \
+       -H 'x-token: mytoken' \
        -d '{"jira":{"boardId": 8}, "gitlab": {"projectId": 8967944}}'
 
    # small data set for test
    curl -X POST "http://localhost:3001/" -H 'content-type: application/json' \
+       -H 'x-token: mytoken' \
        -d '{"jira":{"boardId": 29}, "gitlab": {"projectId": 24547305}}'
    ```
 
@@ -170,10 +173,12 @@ Or, by using `curl`
 ```shell
 # ee
 curl -X POST "http://localhost:3001/" -H 'content-type: application/json' \
+    -H 'x-token: mytoken' \
     -d '{"jira":{"boardId": 8}, "gitlab": {"projectId": 8967944}}'
 
 # small data set for test
 curl -X POST "http://localhost:3001/" -H 'content-type: application/json' \
+    -H 'x-token: mytoken' \
     -d '{"jira":{"boardId": 29}, "gitlab": {"projectId": 24547305}}'
 ```
 
