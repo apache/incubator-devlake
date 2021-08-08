@@ -1,37 +1,33 @@
-## gitlab-pond
+# Gitlab Pond
 
-## Summary of API calls to cover metrics
+## Metrics
 
-https://merico.feishu.cn/docs/doccnRszNS8i7mhvtjRynIGGR4g#
+Metric Name | Description
+:------------ | :-------------
+Number of Merge Requests | Number of Merge Requests
+Merge Request Pass Rate	| Ratio of merge requests to merged
+Code Reviewer Count	| Number of Merge Reviewers
+Code Review Time | Time from the first Merge Review comment until merged
+Commit Author Count | Number of Contributors
+Commit Count | Number of Commits
+Accumulated New Lines of Code | Accumulated Number of New Lines
+Accumulated Deleted Lines of Code | Accumulated Number of Removed Lines
 
-## Metrics we want to cover for a GitLab Project:
+## Finding Project Id
+To get the project id for a specific Gitlab repository:
+- Visit the repository page on gitlab
+- Find the project id just below the title
 
-1. Number of contributors
-2. Number of commits
-3. Number of merge reviewers
-4. Merge review time (defined as from the first comment to merge, the MR should have at least one comment to be considered as reviewed)
-5. Number of merge requests
-6. Merge review pass rate (defined as the percentage of merged MRs vs all MRs)
-7. Added lines of code
-8. Removed lines of code
-9. Accumulated lines (defined as the sum of added lines of code and removed lines of code during a time window)
+  ![Screen Shot 2021-08-06 at 4 32 53 PM](https://user-images.githubusercontent.com/3789273/128568416-a47b2763-51d8-4a6a-8a8b-396512bffb03.png)
 
-## The Endpoints
+> Use this project id in your requests, to collect data from this project
 
-1. Commits API
-  - Link to Docs: https://docs.gitlab.com/ee/api/commits.html#list-repository-commits 
-  - Endpoint: GET /projects/:id/repository/commits?with_stats=true
-  - Metrics: #1-5
-2. Merge Requests API
-  - Link to Docs: https://docs.gitlab.com/ee/api/merge_requests.html#list-project-merge-requests 
-  - Endpoint: GET /projects/:id/merge_requests
-  - Metrics: #6-8
-3. Notes API
-  - Link to Docs: https://docs.gitlab.com/ee/api/notes.html#list-all-merge-request-notes
-  - Endpoint: GET /projects/:id/merge_requests/:merge_request_iid/notes
-  - Metrics: #9
-4. Projects API
-  - Link to Docs: https://docs.gitlab.com/ee/api/projects.html#get-single-project
-  - Endpoint: GET /projects/:id
+## Create a Gitlab API Token
 
+1. When logged into Gitlab visit `https://gitlab.com/-/profile/personal_access_tokens`
+2. Give the token any name, no expiration date and all scopes (excluding write access)
 
+    ![Screen Shot 2021-08-06 at 4 44 01 PM](https://user-images.githubusercontent.com/3789273/128569148-96f50d4e-5b3b-4110-af69-a68f8d64350a.png)
+
+3. Click the **Create Personal Access Token** button
+4. Copy the token into the `lake` repo config
