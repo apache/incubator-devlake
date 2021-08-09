@@ -61,7 +61,7 @@
       "type": "row"
     },
     {
-      "datasource": "PostgreSQL2",
+      "datasource": "Postgres",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -140,7 +140,7 @@
       "type": "stat"
     },
     {
-      "datasource": "PostgreSQL2",
+      "datasource": "Postgres",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -255,7 +255,7 @@
       "type": "row"
     },
     {
-      "datasource": "PostgreSQL2",
+      "datasource": "Postgres",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -334,7 +334,7 @@
       "type": "stat"
     },
     {
-      "datasource": "PostgreSQL2",
+      "datasource": "Postgres",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -449,7 +449,7 @@
       "type": "row"
     },
     {
-      "datasource": "PostgreSQL2",
+      "datasource": "Postgres",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -528,7 +528,7 @@
       "type": "stat"
     },
     {
-      "datasource": "PostgreSQL2",
+      "datasource": "Postgres",
       "description": "",
       "fieldConfig": {
         "defaults": {
@@ -644,7 +644,7 @@
       "type": "row"
     },
     {
-      "datasource": "PostgreSQL2",
+      "datasource": "Postgres",
       "description": "合并请求次数\nFiltered by **MR create time**",
       "fieldConfig": {
         "defaults": {
@@ -738,7 +738,7 @@
       "type": "row"
     },
     {
-      "datasource": "PostgreSQL2",
+      "datasource": "Postgres",
       "description": "MR评审通过率\nFiltered by **MR create time**",
       "fieldConfig": {
         "defaults": {
@@ -820,7 +820,7 @@
       "type": "stat"
     },
     {
-      "datasource": "PostgreSQL2",
+      "datasource": "Postgres",
       "description": "MR评审通过率\nFiltered by **MR create time**",
       "fieldConfig": {
         "defaults": {
@@ -944,7 +944,7 @@
           "text": "迭代开发看板",
           "value": "8"
         },
-        "datasource": "PostgreSQL2",
+        "datasource": "Postgres",
         "definition": "select distinct format('%s: %s', name, id) from jira_boards",
         "description": null,
         "error": null,
