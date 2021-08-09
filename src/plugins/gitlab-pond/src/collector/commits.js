@@ -14,7 +14,7 @@ async function collectByProjectId (db, projectId, branch, forceAll) {
   console.info('INFO >>> gitlab collecting commits for project', projectId)
   const commitsCollection = await getCollection(db)
 
-  let queryParams = 'withStats=true'
+  let queryParams = 'with_stats=true'
   // in some cases, the user does not want to pull commits from the default branch.
   if (branch) {
     queryParams += `&ref_name=${branch}`
