@@ -15,7 +15,7 @@ const jobHandler = async (job) => {
     db: rawDb, client
   } = await dbConnector.connect()
 
-  console.log('INFO >>> recieve enriche job')
+  console.log('INFO >>> received an enrichment job')
   try {
     await Promise.all(
       Object.keys(job)

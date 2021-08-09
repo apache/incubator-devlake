@@ -64,14 +64,14 @@ const testOutPostgres = async () => {
     .query('SELECT NOW() as now')
     .then(res => {
       if (res.rows[0].now instanceof Date) {
-        console.log('Connected to postgres')
+        console.log('Connected to Postgres')
       }
     })
     .catch(e => console.error(e.stack))
 
   await client.end(err => {
     if (err) {
-      console.log('error during disconnection', err.stack)
+      console.log('Error during disconnection', err.stack)
     }
   })
 }

@@ -8,7 +8,7 @@ async function fetch (resourceUri) {
   let retry = 0
   let res
   while (retry < maxRetry) {
-    console.log(`INFO >>> jira fetching data from ${resourceUri} #${retry}`)
+    console.log(`INFO >>> jira fetching data from ${resourceUri}, retry: #${retry}`)
     const abort = axios.CancelToken.source()
     const id = setTimeout(
       () => abort.cancel(`Timeout of ${timeout}ms.`),
@@ -30,10 +30,10 @@ async function fetch (resourceUri) {
     }
   }
   if (!res) {
-    throw new Error('INFO >>> jira fetching data failed: retry limit exceeding', retry)
+    throw new Error('INFO >>> Jira fetching data failed. Retry limit exceeding. retry: #', retry)
   }
   if (res.data && res.data.message) {
-    throw new Error(`INFO >>> jira fetching data failed: status: ${res.status} messgae: ${res.data.message}`)
+    throw new Error(`INFO >>> Jira fetching data failed. Status: ${res.status} Message: ${res.data.message}`)
   }
   return res
 }
