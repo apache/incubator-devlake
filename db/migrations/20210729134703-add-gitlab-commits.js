@@ -25,7 +25,7 @@ module.exports = {
         field: 'author_email'
       },
       authoredDate: {
-        type: Sequelize.STRING,
+        type: Sequelize.DATE,
         field: 'authored_date'
       },
       committerName: {
