@@ -14,7 +14,7 @@ Customizing a Dashboard | [View Section](#customizing-a-dashboard)
 Dashboard Settings | [View Section](#dashboard-settings)
 Provisioning a Dashboard | [View Section](#provisioning-a-dashboard)
 
-## Logging In<a id="logging-in" />
+## Logging In<a id="logging-in"></a>
 
 Once the app is up and running, visit `http://localhost:3002` to view the Grafana dashboard.
 
@@ -23,7 +23,7 @@ Default login credentials are:
 - Username: `admin`
 - Password: `admin`
 
-## Viewing All Dashboards<a id="viewing-all-dashboards" />
+## Viewing All Dashboards<a id="viewing-all-dashboards"></a>
 
 To see all dashboards created in Grafana visit `/dashboards`
 
@@ -32,7 +32,7 @@ Or, use the sidebar and click on **Manage**:
 ![Screen Shot 2021-08-06 at 11 27 08 AM](https://user-images.githubusercontent.com/3789273/128534617-1992c080-9385-49d5-b30f-be5c96d5142a.png)
 
 
-## Customizing a Dashboard<a id="customizing-a-dashboard" />
+## Customizing a Dashboard<a id="customizing-a-dashboard"></a>
 
 When viewing a dashboard, click the top bar of a panel, and go to **edit**
 
@@ -77,7 +77,7 @@ In the top right of the window are buttons for:
 - Modify chart styling
 - Other Grafana specific settings
 
-## Dashboard Settings<a id="dashboard-settings" />
+## Dashboard Settings<a id="dashboard-settings"></a>
 
 When viewing a dashboard click on the settings icon to view dashboard settings. In here there is 2 pages important sections to use:
 
@@ -93,7 +93,7 @@ When viewing a dashboard click on the settings icon to view dashboard settings. 
 
   ![Screen Shot 2021-08-06 at 2 02 52 PM](https://user-images.githubusercontent.com/3789273/128553176-65a5ae43-742f-4abf-9c60-04722033339e.png)
 
-## Provisioning a Dashboard<a id="provisioning-a-dashboard" />
+## Provisioning a Dashboard<a id="provisioning-a-dashboard"></a>
 
 To save a dashboard in the `lake` repo and load it:
 
@@ -102,3 +102,20 @@ To save a dashboard in the `lake` repo and load it:
 3. Go to dashboard settings (in top right of screen)
 4. Click on _JSON Model_ in sidebar
 5. Copy code into a new `.json` file in `/grafana/dashboards`
+
+<br>
+
+---
+
+## Other Docs
+
+Section | Description | Link
+:------------ | :------------- | :-------------
+Requirements | Underlying software used | [Link](../README.md#requirements)
+User Setup | Quick and easy setup | [Link](../README.md#user-setup)
+Developer Setup | Steps to get up and running | [Link](../README.md#developer-setup)
+Plugins | Links to specific plugin usage & details | [Link](../README.md#plugins)
+Build a Plugin | Details on how to make your own | [Link](../src/plugins/README.md)
+Add Plugin Metrics | Guide to adding plugin metrics | [Link](../src/plugins/HOW-TO-ADD-METRICS.md)
+Configuration | Local file config settings info | [Link](CONFIGURATION.md)
+Contributing | How to contribute to this repo | [Link](../CONTRIBUTING.md)

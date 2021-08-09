@@ -27,15 +27,18 @@ Requirements | Underlying software used | [View Section](#requirements)
 User Setup | Quick and easy setup | [View Section](#user-setup)
 Developer Setup | Steps to get up and running | [View Section](#developer-setup)
 Plugins | Links to specific plugin usage & details | [View Section](#plugins)
+Build a Plugin | Details on how to make your own | [Link](src/plugins/README.md)
+Add Plugin Metrics | Guide to adding plugin metrics | [Link](src/plugins/HOW-TO-ADD-METRICS.md)
 Configuration | Local file config settings info | [Link](docs/CONFIGURATION.md)
+Grafana | How to visualize the data | [Link](docs/GRAFANA.md)
 Contributing | How to contribute to this repo | [Link](CONTRIBUTING.md)
 
-## Requirements<a id="requirements" />
+## Requirements<a id="requirements"></a>
 
 - [Node.js](https://nodejs.org/en/download)
 - [Docker](https://docs.docker.com/get-docker)
 
-## User Setup<a id="user-setup" />
+## User Setup<a id="user-setup"></a>
 
 **NOTE: If you only plan to run the product, this is the only section you should need**
 
@@ -53,7 +56,7 @@ curl -X POST "http://localhost:3001/" -H 'content-type: application/json' \
 5. Check the console logs for docker-compose to see when the logs stop collecting your data. This can take up to 30 minutes for large projects. (gitlab 10k+ commits or jira 10k+ issues)
 6. Navigate to Grafana Dashboard `https://localhost:3002` (Username: `admin`, password: `admin`)
 
-## Developer Setup<a id="developer-setup" />
+## Developer Setup<a id="developer-setup"></a>
 
 1. Clone this repository<br>
 
@@ -140,7 +143,7 @@ We use Grafana as a visualization tool to build charts for the data stored in ou
 
 All the details on provisioning, and customizing a dashboard can be found in the [Grafana Doc](docs/GRAFANA.md)
 
-## Plugins<a id="plugins" />
+## Plugins<a id="plugins"></a>
 
 Section | Section Info | Docs
 ------------ | ------------- | -------------
