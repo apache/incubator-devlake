@@ -1,5 +1,4 @@
-import Jira, {JiraOptions} from "../src";
-
+import Jira, { JiraOptions } from '../src';
 
 describe('Jira Plugin', () => {
   it('Jira', async () => {
@@ -7,4 +6,4 @@ describe('Jira Plugin', () => {
     expect(jira).toBeDefined();
     expect(jira.execute).toBeDefined();
   });
-})
+});
