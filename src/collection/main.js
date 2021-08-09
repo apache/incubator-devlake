@@ -16,7 +16,7 @@ app.get('/', async (req, res) => {
 
 app.post('/', async (req, res) => {
   if (config.token && req.headers['x-token'] !== config.token) {
-    return res.status(401).json({ message: 'UNAUTHORIZED' })
+    return res.status(401).json({ message: 'UNAUTHORIZED: Please provide a token >>> x-token: myToken' })
   }
 
   await dispatch.createJobs(req.body)
