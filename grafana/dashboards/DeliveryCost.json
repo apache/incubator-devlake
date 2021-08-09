@@ -16,7 +16,7 @@
   "gnetId": null,
   "graphTooltip": 0,
   "id": 6,
-  "iteration": 1628220515512,
+  "iteration": 1628501395973,
   "links": [
     {
       "asDropdown": false,
@@ -49,14 +49,25 @@
     {
       "datasource": null,
       "gridPos": {
-        "h": 1,
-        "w": 24,
+        "h": 12,
+        "w": 3,
         "x": 0,
         "y": 0
       },
-      "id": 11,
-      "title": "Metric 14 - Commit Author Count",
-      "type": "row"
+      "id": 15,
+      "options": {
+        "content": "<div style=\"text-align:center;\">\n    <img border=\"0\" src=\"https://z3.ax1x.com/2021/08/06/fu5TUS.png\" alt=\"No.1\" width=\"120\"><br>\n    <img border=\"0\" src=\"https://z3.ax1x.com/2021/08/09/f8VkmF.png\" alt=\"Development\" width=\"120\"> \n    <p style=\"text-align:center;font-size:18px;margin:10px;text-decoration-color:rgb(255, 255, 255);color:#828487\"><b>Development<b></p>\n</div>",
+        "mode": "html"
+      },
+      "pluginVersion": "8.0.6",
+      "targets": [
+        {
+          "queryType": "randomWalk",
+          "refId": "A"
+        }
+      ],
+      "transparent": true,
+      "type": "text"
     },
     {
       "datasource": "Postgres",
@@ -70,10 +81,6 @@
               {
                 "color": "green",
                 "value": null
-              },
-              {
-                "color": "red",
-                "value": 80
               }
             ]
           }
@@ -81,10 +88,10 @@
         "overrides": []
       },
       "gridPos": {
-        "h": 8,
-        "w": 12,
-        "x": 0,
-        "y": 1
+        "h": 9,
+        "w": 7,
+        "x": 3,
+        "y": 0
       },
       "id": 13,
       "options": {
@@ -109,7 +116,7 @@
           "group": [],
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "SELECT\n  now() AS \"time\",\n  count(distinct author_email) as value\nFROM gitlab_commits\nWHERE\n  $__timeFilter(authored_date)\n  and project_id in ($repo)\ngroup by 1\nORDER BY 1",
+          "rawSql": "SELECT\n  now() AS \"time\",\n  count(distinct author_name) as value\nFROM gitlab_commits\nWHERE\n  $__timeFilter(authored_date)\n  and project_id in ($repo)\ngroup by 1\nORDER BY 1",
           "refId": "A",
           "select": [
             [
@@ -139,18 +146,6 @@
       "type": "stat"
     },
     {
-      "datasource": null,
-      "gridPos": {
-        "h": 1,
-        "w": 24,
-        "x": 0,
-        "y": 9
-      },
-      "id": 4,
-      "title": "Metric 12 - Merge Reviewer Count",
-      "type": "row"
-    },
-    {
       "datasource": "Postgres",
       "description": "Filtered by **MR_create_time**",
       "fieldConfig": {
@@ -162,10 +157,6 @@
               {
                 "color": "green",
                 "value": null
-              },
-              {
-                "color": "red",
-                "value": 80
               }
             ]
           }
@@ -173,10 +164,10 @@
         "overrides": []
       },
       "gridPos": {
-        "h": 8,
-        "w": 12,
-        "x": 0,
-        "y": 10
+        "h": 9,
+        "w": 7,
+        "x": 10,
+        "y": 0
       },
       "id": 8,
       "options": {
@@ -254,10 +245,10 @@
         "overrides": []
       },
       "gridPos": {
-        "h": 8,
-        "w": 12,
-        "x": 12,
-        "y": 10
+        "h": 9,
+        "w": 7,
+        "x": 17,
+        "y": 0
       },
       "id": 9,
       "options": {
@@ -312,6 +303,7 @@
       "type": "stat"
     }
   ],
+  "refresh": "",
   "schemaVersion": 30,
   "style": "dark",
   "tags": [
@@ -354,5 +346,5 @@
   "timezone": "",
   "title": "Delivery Cost",
   "uid": "TV-BnpM7k",
-  "version": 15
+  "version": 26
 }
