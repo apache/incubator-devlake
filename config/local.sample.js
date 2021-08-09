@@ -32,7 +32,10 @@ module.exports = {
     // Set timeout for sending requests to Jira API
     timeout: 10000,
     // Set max retry times for sending requests to Jira API
-    maxRetry: 3
+    maxRetry: 3,
+    dataEnrichment: {
+      "boardId": 8
+    }
   },
   // Configuration of Gitlab plugin
   gitlab: {
@@ -55,6 +58,11 @@ module.exports = {
       projects: false,
       mergeRequests: false,
       notes: false
+    },
+    dataEnrichment: {
+      "gitlab": {
+        "projectId": 20103385
+      }
     }
   },
   // COnfiguration of Jira <> Gitlab mapping
