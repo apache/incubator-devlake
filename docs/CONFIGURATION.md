@@ -77,3 +77,20 @@ __Jira auth setup__
 - Port: 5672
 - Username: guest
 - Password: guest
+
+<br>
+
+---
+
+## Other Docs
+
+Section | Description | Link
+:------------ | :------------- | :-------------
+Requirements | Underlying software used | [Link](../README.md#requirements)
+User Setup | Quick and easy setup | [Link](../README.md#user-setup)
+Developer Setup | Steps to get up and running | [Link](../README.md#developer-setup)
+Plugins | Links to specific plugin usage & details | [Link](../README.md#plugins)
+Build a Plugin | Details on how to make your own | [Link](../src/plugins/README.md)
+Add Plugin Metrics | Guide to adding plugin metrics | [Link](../src/plugins/HOW-TO-ADD-METRICS.md)
+Grafana | How to visualize the data | [Link](GRAFANA.md)
+Contributing | How to contribute to this repo | [Link](../CONTRIBUTING.md)

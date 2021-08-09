@@ -2,7 +2,7 @@
 
 ...you've never had a better idea than that!
 
-You love getting data from a source like GitLab, but perhaps you're not getting the 
+You love getting data from a source like GitLab, but perhaps you're not getting the
 the metric you want. Good news! You can get any metric you like by contributing a little
 bit of code.
 
@@ -10,7 +10,7 @@ Each plugin has an Enricher. Just navigate into the plugin folder to find the en
 
 An the index file of an enricher contains something like this:
 
-```
+```js
 async function enrich (rawDb, enrichedDb, { thingId }) {
   const args = { rawDb, enrichedDb, thingId: Number(projectId) }
   await thingNumberOne.enrich(args)
@@ -22,7 +22,7 @@ async function enrich (rawDb, enrichedDb, { thingId }) {
 
 It gathers all the enrich functions into one, so you can keep your implementations separate. For example:
 
-```
+```js
 async function enrichSomeThing (rawDb, enrichedDb, id) {
   const collectionOfRawThings = await collector.getCollection(rawDb)
   const rawThing = await collectionOfRawThings.findOne({ id: id })
@@ -39,4 +39,19 @@ async function enrichSomeThing (rawDb, enrichedDb, id) {
 
 In order for the enriched DB to have a ThingModel for you to upsert into, you will need to write a Model file in the [model directory](../../db/postgres) and a migration script for Sequelize in the [migrations directory](../../db/migrations)
 
+<br>
 
+---
+
+## Other Docs
+
+Section | Description | Link
+:------------ | :------------- | :-------------
+Requirements | Underlying software used | [Link](../../README.md#requirements)
+User Setup | Quick and easy setup | [Link](../../README.md#user-setup)
+Developer Setup | Steps to get up and running | [Link](../../README.md#developer-setup)
+Plugins | Links to specific plugin usage & details | [Link](../../README.md#plugins)
+Build a Plugin | Details on how to make your own | [Link](README.md)
+Configuration | Local file config settings info | [Link](../../docs/CONFIGURATION.md)
+Grafana | How to visualize the data | [Link](../../docs/GRAFANA.md)
+Contributing | How to contribute to this repo | [Link](../../CONTRIBUTING.md)
