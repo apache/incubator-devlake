@@ -61,7 +61,7 @@
       "type": "row"
     },
     {
-      "datasource": "PostgreSQL2",
+      "datasource": "Postgres",
       "description": "The total number of requirements created.",
       "fieldConfig": {
         "defaults": {
@@ -141,7 +141,7 @@
       "type": "stat"
     },
     {
-      "datasource": "PostgreSQL2",
+      "datasource": "Postgres",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -215,7 +215,7 @@
       "type": "piechart"
     },
     {
-      "datasource": "PostgreSQL2",
+      "datasource": "Postgres",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -303,7 +303,7 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": "PostgreSQL2",
+      "datasource": "Postgres",
       "fill": 1,
       "fillGradient": 0,
       "gridPos": {
@@ -423,7 +423,7 @@
       "id": 10,
       "panels": [
         {
-          "datasource": "PostgreSQL2",
+          "datasource": "Postgres",
           "description": "Filtered by **issue resolution time**",
           "fieldConfig": {
             "defaults": {
@@ -503,7 +503,7 @@
           "type": "stat"
         },
         {
-          "datasource": "PostgreSQL2",
+          "datasource": "Postgres",
           "description": "Filtered by **issue resolution time**",
           "fieldConfig": {
             "defaults": {
@@ -587,7 +587,7 @@
           "bars": false,
           "dashLength": 10,
           "dashes": false,
-          "datasource": "PostgreSQL2",
+          "datasource": "Postgres",
           "description": "Filtered by **issue resolution time**",
           "fill": 1,
           "fillGradient": 0,
@@ -702,7 +702,7 @@
           "bars": true,
           "dashLength": 10,
           "dashes": false,
-          "datasource": "PostgreSQL2",
+          "datasource": "Postgres",
           "description": "",
           "fill": 1,
           "fillGradient": 0,
@@ -817,7 +817,7 @@
           "bars": false,
           "dashLength": 10,
           "dashes": false,
-          "datasource": "PostgreSQL2",
+          "datasource": "Postgres",
           "description": "Filtered by **issue resolution time**",
           "fieldConfig": {
             "defaults": {
@@ -961,7 +961,7 @@
       "id": 20,
       "panels": [
         {
-          "datasource": "PostgreSQL2",
+          "datasource": "Postgres",
           "description": "",
           "fieldConfig": {
             "defaults": {
@@ -1042,7 +1042,7 @@
           "type": "stat"
         },
         {
-          "datasource": "PostgreSQL2",
+          "datasource": "Postgres",
           "description": "",
           "fieldConfig": {
             "defaults": {
@@ -1128,7 +1128,7 @@
           "cacheTimeout": null,
           "dashLength": 10,
           "dashes": false,
-          "datasource": "PostgreSQL2",
+          "datasource": "Postgres",
           "description": "",
           "fill": 1,
           "fillGradient": 0,
@@ -1243,7 +1243,7 @@
           "cacheTimeout": null,
           "dashLength": 10,
           "dashes": false,
-          "datasource": "PostgreSQL2",
+          "datasource": "Postgres",
           "description": "",
           "fill": 1,
           "fillGradient": 0,
@@ -1370,7 +1370,7 @@
       "id": 27,
       "panels": [
         {
-          "datasource": "PostgreSQL2",
+          "datasource": "Postgres",
           "description": "平均合并请求评审时长\nFiltered by **MR create time**",
           "fieldConfig": {
             "defaults": {
@@ -1465,7 +1465,7 @@
       "id": 32,
       "panels": [
         {
-          "datasource": "PostgreSQL2",
+          "datasource": "Postgres",
           "description": "Filtered by **authored_time**",
           "fieldConfig": {
             "defaults": {
@@ -1549,7 +1549,7 @@
           "bars": false,
           "dashLength": 10,
           "dashes": false,
-          "datasource": "PostgreSQL2",
+          "datasource": "Postgres",
           "description": "Filtered by **authored_time**",
           "fill": 1,
           "fillGradient": 0,
@@ -1663,7 +1663,7 @@
           "bars": true,
           "dashLength": 10,
           "dashes": false,
-          "datasource": "PostgreSQL2",
+          "datasource": "Postgres",
           "description": "Filtered by **authored_time**",
           "fill": 1,
           "fillGradient": 0,
@@ -1779,7 +1779,7 @@
           "bars": true,
           "dashLength": 10,
           "dashes": false,
-          "datasource": "PostgreSQL2",
+          "datasource": "Postgres",
           "description": "Filtered by **authored_time**",
           "fill": 1,
           "fillGradient": 0,
@@ -1906,7 +1906,7 @@
       "id": 40,
       "panels": [
         {
-          "datasource": "PostgreSQL2",
+          "datasource": "Postgres",
           "description": "Filtered by **authored_time**",
           "fieldConfig": {
             "defaults": {
@@ -1990,7 +1990,7 @@
           "bars": false,
           "dashLength": 10,
           "dashes": false,
-          "datasource": "PostgreSQL2",
+          "datasource": "Postgres",
           "description": "Filtered by **authored_time**",
           "fill": 1,
           "fillGradient": 0,
@@ -2127,7 +2127,7 @@
           }
         },
         {
-          "datasource": "PostgreSQL2",
+          "datasource": "Postgres",
           "description": "Filtered by **authored_time**",
           "fieldConfig": {
             "defaults": {
@@ -2238,7 +2238,7 @@
       "id": 45,
       "panels": [
         {
-          "datasource": "PostgreSQL2",
+          "datasource": "Postgres",
           "description": "Filtered by **authored_time**",
           "fieldConfig": {
             "defaults": {
@@ -2333,7 +2333,7 @@
       "id": 51,
       "panels": [
         {
-          "datasource": "PostgreSQL2",
+          "datasource": "Postgres",
           "description": "Filtered by **issue resolution time**",
           "fieldConfig": {
             "defaults": {
@@ -2413,7 +2413,7 @@
           "type": "stat"
         },
         {
-          "datasource": "PostgreSQL2",
+          "datasource": "Postgres",
           "description": "Filtered by **issue resolution time**",
           "fieldConfig": {
             "defaults": {
@@ -2497,7 +2497,7 @@
           "bars": false,
           "dashLength": 10,
           "dashes": false,
-          "datasource": "PostgreSQL2",
+          "datasource": "Postgres",
           "description": "Filtered by **issue resolution time**",
           "fill": 1,
           "fillGradient": 0,
@@ -2612,7 +2612,7 @@
           "bars": true,
           "dashLength": 10,
           "dashes": false,
-          "datasource": "PostgreSQL2",
+          "datasource": "Postgres",
           "description": "",
           "fill": 1,
           "fillGradient": 0,
@@ -2727,7 +2727,7 @@
           "bars": false,
           "dashLength": 10,
           "dashes": false,
-          "datasource": "PostgreSQL2",
+          "datasource": "Postgres",
           "description": "Filtered by **issue resolution time**",
           "fieldConfig": {
             "defaults": {
@@ -2871,7 +2871,7 @@
       "id": 63,
       "panels": [
         {
-          "datasource": "PostgreSQL2",
+          "datasource": "Postgres",
           "description": "Filtered by **issue resolution time**",
           "fieldConfig": {
             "defaults": {
@@ -2951,7 +2951,7 @@
           "type": "stat"
         },
         {
-          "datasource": "PostgreSQL2",
+          "datasource": "Postgres",
           "description": "Filtered by **issue resolution time**",
           "fieldConfig": {
             "defaults": {
@@ -3035,7 +3035,7 @@
           "bars": false,
           "dashLength": 10,
           "dashes": false,
-          "datasource": "PostgreSQL2",
+          "datasource": "Postgres",
           "description": "Filtered by **issue resolution time**",
           "fill": 1,
           "fillGradient": 0,
@@ -3150,7 +3150,7 @@
           "bars": true,
           "dashLength": 10,
           "dashes": false,
-          "datasource": "PostgreSQL2",
+          "datasource": "Postgres",
           "description": "",
           "fill": 1,
           "fillGradient": 0,
@@ -3265,7 +3265,7 @@
           "bars": false,
           "dashLength": 10,
           "dashes": false,
-          "datasource": "PostgreSQL2",
+          "datasource": "Postgres",
           "description": "Filtered by **issue resolution time**",
           "fieldConfig": {
             "defaults": {
@@ -3418,7 +3418,7 @@
             "$__all"
           ]
         },
-        "datasource": "PostgreSQL2",
+        "datasource": "Postgres",
         "definition": "select distinct format('%s: %s', name, id) from jira_boards",
         "description": null,
         "error": null,
@@ -3473,7 +3473,7 @@
           "text": "All",
           "value": "$__all"
         },
-        "datasource": "PostgreSQL2",
+        "datasource": "Postgres",
         "definition": "select distinct format('%s: %s', name, id) from gitlab_projects",
         "description": null,
         "error": null,
