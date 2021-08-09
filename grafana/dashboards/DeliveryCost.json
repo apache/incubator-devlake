@@ -70,7 +70,7 @@
       "type": "text"
     },
     {
-      "datasource": "postgreSQL",
+      "datasource": "postgres",
       "description": "Filtered by **authored_time**",
       "fieldConfig": {
         "defaults": {
@@ -146,7 +146,7 @@
       "type": "stat"
     },
     {
-      "datasource": "postgreSQL",
+      "datasource": "postgres",
       "description": "Filtered by **MR_create_time**",
       "fieldConfig": {
         "defaults": {
@@ -222,7 +222,7 @@
       "type": "stat"
     },
     {
-      "datasource": "postgreSQL",
+      "datasource": "postgres",
       "description": "Filtered by **MR_create_time**",
       "fieldConfig": {
         "defaults": {
@@ -319,7 +319,7 @@
           "text": "All",
           "value": "$__all"
         },
-        "datasource": "postgreSQL",
+        "datasource": "postgres",
         "definition": "select distinct format('%s: %s', name, id) from gitlab_projects",
         "description": null,
         "error": null,
