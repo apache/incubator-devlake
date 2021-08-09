@@ -4,7 +4,7 @@
 
 ### Basic Interface
 
-```
+```js
 const collection = require('./src/collector')
 const enrichment = require('./src/enricher')
 
@@ -41,13 +41,13 @@ To build a new plugin you will need a few things. You should choose an API that 
 
 #### What to Collect
 
-Then you will want to build a collector to gather data. You will need to do some reading of the API documentation to figure out what metrics you will want to see at the end in your Grafana dashboard (configuring Grafana is the final step).  
+Then you will want to build a collector to gather data. You will need to do some reading of the API documentation to figure out what metrics you will want to see at the end in your Grafana dashboard (configuring Grafana is the final step).
 
 #### Build a Fetcher to make Requests
 
 We're working with Node, so you will want your collector to use some sort of HTTP requests to gather data from the api. A package like axios can be used here, or there may be a Node package you can download and use. You will probably want to create a 'fetcher' file that handles your requests as well as pagination. Your api calls may look something like this:
 
-```
+```js
 res = await axios.get(`${host}/${apiPath}/${resourceUri}`, {
         headers: { 'PRIVATE-TOKEN': token },
         agent: config.proxy && new ProxyAgent(config.proxy),
@@ -59,7 +59,7 @@ res = await axios.get(`${host}/${apiPath}/${resourceUri}`, {
 
 Once you have fetched raw data, you will want to store that data in a DB. If you are storing it in a document DB like Mongo, you can store it as is. If you are using a relational DB like Postgres, you will need a schema to be defined according to the fields you get from your API requests. Storing data will look something like this:
 
-```
+```js
  await yourCollection.findOneAndUpdate(
     { id: yourData.id },
     { $set: yourData },
@@ -80,7 +80,7 @@ c) Eliminate fields you don't need
 
 #### Adding to the DB
 
-To build the enricher, you will want to query your DB to find the raw data you've stored. Then you may perform actions to enrich data. You will need to define a new model for your data, and migrations for your enrichment DB. These folders can be found at [migrations](../db/migrations) and [models](../db/postgres). Once you have that set up, you can store your raw data in its new format in your enriched data DB. This is recommended to be a relational DB. 
+To build the enricher, you will want to query your DB to find the raw data you've stored. Then you may perform actions to enrich data. You will need to define a new model for your data, and migrations for your enrichment DB. These folders can be found at [migrations](../db/migrations) and [models](../db/postgres). Once you have that set up, you can store your raw data in its new format in your enriched data DB. This is recommended to be a relational DB.
 
 It is good to build a collector and an enricher together, because knowledge of the API will help with both.
 
@@ -90,14 +90,14 @@ Let's walk through a short example.
 
 1. Choose an API you're interested in.
 
-Let's say you want to see data from the Movie Database. 
+Let's say you want to see data from the Movie Database.
 
 2. Choose some metrics you would like to see about movies.
 
 You would like to know how movie production has increased over the last 50 years.
 Let's start with how many movies have been produced each year as a metric.
 
-3. Look for the data to support this from the Movie DB API 
+3. Look for the data to support this from the Movie DB API
 
 Lets assume this data is available through an endpoint like (this may not be the case):
 
@@ -105,7 +105,7 @@ GET /movies
 
 4. Get an API key for authentication.
 
-You will need an API key to access the data. 
+You will need an API key to access the data.
 
 5. Understand Rate Limits and Pagination
 
@@ -123,5 +123,19 @@ There are limits to accessing API data. You will need to work around these limit
 
 9. Congrats on building your first plugin!
 
+<br>
 
+---
 
+## Other Docs
+
+Section | Description | Link
+:------------ | :------------- | :-------------
+Requirements | Underlying software used | [Link](../../README.md#requirements)
+User Setup | Quick and easy setup | [Link](../../README.md#user-setup)
+Developer Setup | Steps to get up and running | [Link](../../README.md#developer-setup)
+Plugins | Links to specific plugin usage & details | [Link](../../README.md#plugins)
+Add Plugin Metrics | Guide to adding plugin metrics | [Link](HOW-TO-ADD-METRICS.md)
+Configuration | Local file config settings info | [Link](../../docs/CONFIGURATION.md)
+Grafana | How to visualize the data | [Link](../../docs/GRAFANA.md)
+Contributing | How to contribute to this repo | [Link](../../CONTRIBUTING.md)
