@@ -13,6 +13,7 @@ Viewing All Dashboards | [View Section](#viewing-all-dashboards)
 Customizing a Dashboard | [View Section](#customizing-a-dashboard)
 Dashboard Settings | [View Section](#dashboard-settings)
 Provisioning a Dashboard | [View Section](#provisioning-a-dashboard)
+Troubleshooting DB Connection | [View Section](#troubleshooting-db-connection)
 
 ## Logging In<a id="logging-in"></a>
 
@@ -103,6 +104,13 @@ To save a dashboard in the `lake` repo and load it:
 4. Click on _JSON Model_ in sidebar
 5. Copy code into a new `.json` file in `/grafana/dashboards`
 
+## Troubleshooting DB Connection<a id="troubleshooting-db-connection"></a>
+
+To ensure we have properly connected our database to the data source in Grafana, check database settings in `./grafana/datasources/datasource.yml`, specifically:
+- `database`
+- `user`
+- `secureJsonData/password`
+
 <br>
 
 ---
@@ -117,5 +125,4 @@ Developer Setup | Steps to get up and running | [Link](../README.md#developer-se
 Plugins | Links to specific plugin usage & details | [Link](../README.md#plugins)
 Build a Plugin | Details on how to make your own | [Link](../src/plugins/README.md)
 Add Plugin Metrics | Guide to adding plugin metrics | [Link](../src/plugins/HOW-TO-ADD-METRICS.md)
-Configuration | Local file config settings info | [Link](CONFIGURATION.md)
 Contributing | How to contribute to this repo | [Link](../CONTRIBUTING.md)
