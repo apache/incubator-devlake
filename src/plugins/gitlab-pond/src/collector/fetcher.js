@@ -7,7 +7,7 @@ const timeout = config.timeout || 10000
 
 async function fetch (resourceUri) {
   let retry = 0
-  let res
+  let res, lastError
   while (retry < maxRetry) {
     console.log(`INFO >>> GitLab fetching data from: ${resourceUri}, retry: #${retry}`)
     const abort = axios.CancelToken.source()
@@ -24,17 +24,24 @@ async function fetch (resourceUri) {
       clearTimeout(id)
       break
     } catch (error) {
-      console.log('ERROR: ', error)
+      lastError = error
+      if (error.response) {
+        const { status } = error.response
+        if (status >= 400 && status < 500) { // no point to retry on client side errors
+          break
+        }
+      }
+      await new Promise(resolve => setTimeout(resolve, 200))
       retry++
     }
   }
   if (!res) {
-    throw new Error('INFO >>> GitLab fetching data failed. Retry limit exceeding. retry: #', retry)
+    if (lastError && lastError.response) {
+      const { status, data } = lastError.response
+      lastError = `status: ${status}, body: ${JSON.stringify(data)}`
+    }
+    throw new Error(`INFO >>> gitlab fetching data failed! retry: ${retry} , last error: ${lastError}`)
   }
-  if (res.data && res.data.message) {
-    throw new Error(`INFO >>> GitLab fetching data failed. Status: ${res.status} Message: ${res.data.message}`)
-  }
-  console.log(`INFO >>> GitLab fetched data from ${resourceUri}`)
   return res
 }
 
