@@ -2,7 +2,7 @@ import { InjectQueue } from '@nestjs/bull';
 import { Injectable } from '@nestjs/common';
 import { ModuleRef } from '@nestjs/core';
 import Bull, { Queue } from 'bull';
-import Plugin from 'plugins/core/src';
+import Plugin from 'plugins/core/src/plugin';
 
 @Injectable()
 export class ConsumerService {
