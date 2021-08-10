@@ -75,7 +75,7 @@ async function initialize () {
         .map(plugin => plugin.initialize(connection.rawDb, enrichedDb, plugins))
     )
   } catch (error) {
-    console.log('ERROR: connecting to mongodb', error)
+    console.log('ERROR: failed to initialize plugins', error)
     process.exit()
   } finally {
     dbConnector.disconnect(client)
