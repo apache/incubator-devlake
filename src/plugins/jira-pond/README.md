@@ -6,13 +6,13 @@ Metric Name | Description
 :------------ | :-------------
 Requirement Count	| Number of issues with type "Requirement"
 Requirement Lead Time	| Lead time of issues with type "Requirement"
-Requirement Completion Rate |	Ratio of delivered requirements to all requirements
+Requirement Delivery Rate |	Ratio of delivered requirements to all requirements
 Bug Count	| Number of issues with type "Bug"<br><i>bugs are found during testing</i>
-Bug Age	| Lead time of issues with type "Bug"
+Bug Age	| Lead time of issues with type "Bug"<br><i>both new and deleted lines count</i>
 Bugs Count per 1k Lines of Code |	Amount of bugs per 1000 lines of code
 Incident Count | Number of issues with type "Incident"<br><i>incidents are found when running in production</i>
 Incident Age | Lead time of issues with type "Incident"
-Incident Count per 1k Lines of Code | Amount of incidents per 1000 lines of code!
+Incident Count per 1k Lines of Code | Amount of incidents per 1000 lines of code
 
 ## Find Board Id
 1. Navigate to the Jira board in the browser
