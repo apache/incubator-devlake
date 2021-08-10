@@ -23,7 +23,9 @@ module.exports = {
   enricher: {
     name: 'jiraEnricher',
     exec: async function (rawDb, enrichedDb, options) {
+      console.info('INFO >>> jira enriching', options)
       await enrichment.enrich(rawDb, enrichedDb, options)
+      console.info('INFO >>> jira enriching done!', options)
       return []
     }
   }
