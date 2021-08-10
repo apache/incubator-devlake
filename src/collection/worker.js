@@ -23,17 +23,16 @@ const jobHandler = async (job) => {
         .filter(key => _has(collection, key))
         .map(pluginName => collection[pluginName](db, job[pluginName]))
     )
+    await axios.post(
+      `http://localhost:${process.env.ENRICHMENT_PORT || 3000}`,
+      job,
+      { headers: { 'x-token': config.token || '' } }
+    )
   } catch (error) {
     console.log('Failed to collect', error)
   } finally {
     dbConnector.disconnect(client)
   }
-
-  await axios.post(
-    `http://localhost:${process.env.ENRICHMENT_PORT || 3000}`,
-    job,
-    { headers: { 'x-token': config.token || '' } }
-  )
 }
 
 consumer(queue, jobHandler)
