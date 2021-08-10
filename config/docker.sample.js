@@ -3,6 +3,8 @@ module.exports = {
   lake: {
     // Enable basic authentication to the lake API
     // token: 'mytoken'
+    // This is the time between fetching new data from all sources on automated loop
+    loopIntervalInMinutes: 60
   },
   // Configuration of MongoDB
   mongo: {
@@ -59,7 +61,7 @@ module.exports = {
       projects: false,
       mergeRequests: false,
       notes: false
-    },
+    }
     // This property is used to automatically collect data from gitlab every 60 minutes
     // dataCollection: {
     //   "projectId": 0
