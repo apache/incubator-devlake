@@ -4,14 +4,14 @@
 
 Metric Name | Description
 :------------ | :-------------
-Number of Merge Requests | Number of Merge Requests
-Merge Request Pass Rate	| Ratio of merge requests to merged
-Code Reviewer Count	| Number of Merge Reviewers
-Code Review Time | Time from the first Merge Review comment until merged
+Pull Request Count | Number of Pull/Merge Requests
+Pull Request Pass Rate | Ratio of Pull/Merge Review requests to merged
+Pull Request Reviewer Count | Number of Pull/Merge Reviewers
+Pull Request Review Time | Time from the first Pull/Merge Review comment until merged
 Commit Author Count | Number of Contributors
 Commit Count | Number of Commits
-Accumulated New Lines of Code | Accumulated Number of New Lines
-Accumulated Deleted Lines of Code | Accumulated Number of Removed Lines
+Added Lines | Accumulated Number of New Lines
+Deleted Lines | Accumulated Number of Removed Lines
 
 ## Finding Project Id
 To get the project id for a specific Gitlab repository:
@@ -31,3 +31,30 @@ To get the project id for a specific Gitlab repository:
 
 3. Click the **Create Personal Access Token** button
 4. Copy the token into the `lake` repo config
+
+## Jira Specific String Configuration
+
+Adjust what is considered "Closed", "Bug" or "Incident". This can be modified in `/config/constants.js`.
+
+```
+{
+  "jira": {
+    "mappings": {
+      "Closed": ["Done", "Closed", "已关闭"],
+      "Bug": "Bug",
+      "Incident": "Incident"
+    }
+  }
+}
+```
+
+You can set multiple values to map from your system as well. Just put the values in an array.
+In this object, you can set the values of the object to map to your Jira status definitions. IE:
+
+```
+"jira": {
+  "Closed": ["MyClosedStatusInJira"],
+  "Bug": "MyBugStatusInJira",
+  "Incident": "MyIncidentStatusinJira"
+}
+```
