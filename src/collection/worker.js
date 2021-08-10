@@ -13,27 +13,27 @@ const queue = 'collection'
 
 const jobHandler = async (job) => {
   console.log('INFO: Collection worker received job: ', job)
-  // const {
-  //   db, client
-  // } = await dbConnector.connect()
+  const {
+    db, client
+  } = await dbConnector.connect()
 
-  // try {
-  //   await Promise.all(
-  //     Object.keys(job)
-  //       .filter(key => _has(collection, key))
-  //       .map(pluginName => collection[pluginName](db, job[pluginName]))
-  //   )
-  // } catch (error) {
-  //   console.log('Failed to collect', error)
-  // } finally {
-  //   dbConnector.disconnect(client)
-  // }
+  try {
+    await Promise.all(
+      Object.keys(job)
+        .filter(key => _has(collection, key))
+        .map(pluginName => collection[pluginName](db, job[pluginName]))
+    )
+  } catch (error) {
+    console.log('Failed to collect', error)
+  } finally {
+    dbConnector.disconnect(client)
+  }
 
-  // await axios.post(
-  //   `http://localhost:${process.env.ENRICHMENT_PORT || 3000}`,
-  //   job,
-  //   { headers: { 'x-token': config.token || '' } }
-  // )
+  await axios.post(
+    `http://localhost:${process.env.ENRICHMENT_PORT || 3000}`,
+    job,
+    { headers: { 'x-token': config.token || '' } }
+  )
 }
 
 consumer(queue, jobHandler)
