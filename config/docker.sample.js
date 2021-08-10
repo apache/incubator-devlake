@@ -33,6 +33,10 @@ module.exports = {
     timeout: 10000,
     // Set max retry times for sending requests to Jira API
     maxRetry: 3
+    // This property is used to automatically collect data from jira every 60 minutes
+    // dataCollection: {
+    //   "boardId": 0
+    // }
   },
   // Configuration of Gitlab plugin
   gitlab: {
@@ -55,7 +59,11 @@ module.exports = {
       projects: false,
       mergeRequests: false,
       notes: false
-    }
+    },
+    // This property is used to automatically collect data from gitlab every 60 minutes
+    // dataCollection: {
+    //   "projectId": 0
+    // }
   },
   // COnfiguration of Jira <> Gitlab mapping
   jiraBoardGitlabProject: {

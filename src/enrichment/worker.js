@@ -12,21 +12,21 @@ const queue = 'enrichment'
 
 const jobHandler = async (job) => {
   console.log('INFO >>> recieved enrich job')
-  // const {
-  //   db: rawDb, client
-  // } = await dbConnector.connect()
+  const {
+    db: rawDb, client
+  } = await dbConnector.connect()
 
-  // try {
-  //   await Promise.all(
-  //     Object.keys(job)
-  //       .filter(key => _has(enrichment, key))
-  //       .map(pluginName => enrichment[pluginName](rawDb, enrichedDb, job[pluginName]))
-  //   )
-  // } catch (error) {
-  //   console.log('Failed to enrich', error)
-  // } finally {
-  //   dbConnector.disconnect(client)
-  // }
+  try {
+    await Promise.all(
+      Object.keys(job)
+        .filter(key => _has(enrichment, key))
+        .map(pluginName => enrichment[pluginName](rawDb, enrichedDb, job[pluginName]))
+    )
+  } catch (error) {
+    console.log('Failed to enrich', error)
+  } finally {
+    dbConnector.disconnect(client)
+  }
 }
 
 consumer(queue, jobHandler)

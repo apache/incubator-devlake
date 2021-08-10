@@ -60,9 +60,7 @@ module.exports = {
       notes: false
     },
     dataEnrichment: {
-      "gitlab": {
-        "projectId": 20103385
-      }
+      "projectId": 20103385
     }
   },
   // COnfiguration of Jira <> Gitlab mapping
