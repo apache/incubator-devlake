@@ -25,18 +25,17 @@ Section | Description | Link
 :------------ | :------------- | :-------------
 Requirements | Underlying software used | [View Section](#requirements)
 User Setup | Quick and easy setup | [View Section](#user-setup)
-Developer Setup | Steps to get up and running | [View Section](#developer-setup)
 Plugins | Links to specific plugin usage & details | [View Section](#plugins)
+Developer Setup | Steps to get up and running | [View Section](#developer-setup)
 Build a Plugin | Details on how to make your own | [Link](src/plugins/README.md)
 Add Plugin Metrics | Guide to adding plugin metrics | [Link](src/plugins/HOW-TO-ADD-METRICS.md)
-Configuration | Local file config settings info | [Link](docs/CONFIGURATION.md)
 Grafana | How to visualize the data | [Link](docs/GRAFANA.md)
 Contributing | How to contribute to this repo | [Link](CONTRIBUTING.md)
 
 ## Requirements<a id="requirements"></a>
 
-- [Node.js](https://nodejs.org/en/download)
 - [Docker](https://docs.docker.com/get-docker)
+- [Node.js](https://nodejs.org/en/download) (Developer setup only)
 
 ## User Setup<a id="user-setup"></a>
 
@@ -44,17 +43,25 @@ Contributing | How to contribute to this repo | [Link](CONTRIBUTING.md)
 
 1. Clone this repository and `cd` into it
 2. Configure settings for services & plugins with `cp config/docker.sample.js config/docker.js` and edit the newly created file
-3. Start the service with `npm run compose-prod`
+3. Configure local settings for services & plugins, see [View Section](#plugins)
+4. Start the service with `npm run compose-prod`
     > you can see the logs with `npm run compose-logs`
 
     > you can stop all docker containers with `npm run compose-down-prod`
-4. Send a post request to the service
+5. Send a post request to the service
 ```
 curl -X POST "http://localhost:3001/" -H 'content-type: application/json' \
     -d '{"jira":{"boardId": 29}, "gitlab": {"projectId": 24547305}}'
 ```
-5. Check the console logs for docker-compose to see when the logs stop collecting your data. This can take up to 30 minutes for large projects. (gitlab 10k+ commits or jira 10k+ issues)
-6. Navigate to Grafana Dashboard `https://localhost:3002` (Username: `admin`, password: `admin`)
+6. Check the console logs for docker-compose to see when the logs stop collecting your data. This can take up to 30 minutes for large projects. (gitlab 10k+ commits or jira 10k+ issues)
+7. Navigate to Grafana Dashboard `https://localhost:3002` (Username: `admin`, password: `admin`)
+
+## Plugins<a id="plugins"></a>
+
+Section | Section Info | Docs
+------------ | ------------- | -------------
+Jira | Metrics, Generating API Token, Find Project/Board ID | [Link](src/plugins/jira-pond/README.md)
+Gitlab | Metrics, Generating API Token | [Link](src/plugins/gitlab-pond/README.md)
 
 ## Developer Setup<a id="developer-setup"></a>
 
@@ -68,7 +75,7 @@ curl -X POST "http://localhost:3001/" -H 'content-type: application/json' \
    ```
    npm i
    ```
-3. Configure local settings for services & plugins, see [CONFIGURATION.md](docs/CONFIGURATION.md)
+3. Configure local settings for services & plugins, see [View Section](#plugins)
 
 4. From the root directory, run
    ```shell
@@ -142,13 +149,6 @@ curl -X POST "http://localhost:3001/" -H 'content-type: application/json' \
 We use Grafana as a visualization tool to build charts for the data stored in our database. Using SQL queries we can add panels to build, save, and edit customized dashboards.
 
 All the details on provisioning, and customizing a dashboard can be found in the [Grafana Doc](docs/GRAFANA.md)
-
-## Plugins<a id="plugins"></a>
-
-Section | Section Info | Docs
------------- | ------------- | -------------
-Jira | Metrics, Generating API Token, Find Project/Board ID | [Link](src/plugins/jira-pond/README.md)
-Gitlab | Metrics, Generating API Token | [Link](src/plugins/gitlab-pond/README.md)
 
 ## Contributing
 
