@@ -4,7 +4,7 @@ const amqp = require('amqplib')
 const connectionString = require('@config/resolveConfig').rabbitMQ.connectionString
 
 module.exports = {
-  async produce(task, queue) {
+  async produce (task, queue) {
     const conn = await amqp.connect(connectionString, 'heartbeat=60')
     const ch = await conn.createChannel()
     const exch = `${queue}_exchange`
