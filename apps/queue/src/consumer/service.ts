@@ -2,7 +2,7 @@ import { InjectQueue } from '@nestjs/bull';
 import { Injectable } from '@nestjs/common';
 import { ModuleRef } from '@nestjs/core';
 import Bull, { Queue } from 'bull';
-import Plugin from 'plugins/core/src/plugin';
+import Scheduler from 'plugins/core/src/scheculer';
 
 @Injectable()
 export class ConsumerService {
@@ -16,7 +16,7 @@ export class ConsumerService {
 
   async process(job: Bull.Job): Promise<void> {
     const { name, data } = job;
-    const executor = this.moduleRef.get<Plugin>(name, {
+    const executor = this.moduleRef.get<Scheduler<any>>(name, {
       strict: false,
     });
     if (executor) {

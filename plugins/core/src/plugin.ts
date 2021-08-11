@@ -1,9 +1,9 @@
-import { DynamicModule, Provider } from '@nestjs/common';
+import { DynamicModule, Provider, Type } from '@nestjs/common';
 import Scheduler from './scheculer';
 
 export type ScheduleProvider = {
   name: string;
-  schedule: typeof Scheduler;
+  schedule: Type<Scheduler<any>>;
 };
 
 class PluginModule {
