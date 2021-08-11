@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import Plugin from 'plugins/core/src/plugin';
+import Scheduler from 'plugins/core/src/scheculer';
 
 export type JiraCollector =
   | 'ISSUE'
@@ -13,7 +13,7 @@ export type JiraOptions = {
 };
 
 @Injectable()
-class Jira extends Plugin {
+class Jira extends Scheduler<void> {
   name(): string {
     return 'jira';
   }
