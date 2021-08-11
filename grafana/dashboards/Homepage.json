@@ -15,7 +15,7 @@
   "editable": true,
   "gnetId": null,
   "graphTooltip": 0,
-  "id": 10,
+  "id": 18,
   "links": [],
   "panels": [
     {
@@ -31,7 +31,7 @@
       "interval": null,
       "links": [],
       "options": {
-        "content": "<a href=\"/d/0vrodFM7z/delivery-efficiency\">\n    <div style=\"vertical-align:center;text-align:center;margin:15px;padding-top:60px;\">\n        <img border=\"0\" src=\"https://z3.ax1x.com/2021/08/09/f8VPyT.png\" alt=\"efficiency\" width=\"120\">\n        <p style=\"text-align:center;font-size:20px;margin:20px; text-decoration-color:rgb(255, 255, 255);color:#828487\"><b>Delivery Efficiency<b></p>\n    </div>\n</a>",
+        "content": "<a href=\"/d/0vrodFM7z/delivery-efficiency\">\n    <div style=\"vertical-align:center;text-align:center;margin:15px;padding-top:60px;\">\n        <img border=\"0\" src=\"/public/img/lake/delivery_efficiency.png\" alt=\"efficiency\" width=\"120\">\n        <p style=\"text-align:center;font-size:20px;margin:20px; text-decoration-color:rgb(255, 255, 255);color:#828487\"><b>Delivery Efficiency<b></p>\n    </div>\n</a>",
         "mode": "html"
       },
       "pluginVersion": "8.0.6",
@@ -82,7 +82,7 @@
       "interval": null,
       "links": [],
       "options": {
-        "content": "<a href=\"/d/nUC-7tGnk/delivery-quality\">\n    <div style=\"vertical-align:center;text-align:center;margin:15px;padding-top:60px;\">\n        <img border=\"0\" src=\"https://z3.ax1x.com/2021/08/09/f8ViOU.png\" alt=\"quality\" width=\"120\">\n        <p style=\"text-align:center;font-size:20px;margin:20px;text-decoration-color:rgb(255, 255, 255);color:#828487\"><b>Delivery Quality<b></p>\n    </div>\n</a>",
+        "content": "<a href=\"/d/nUC-7tGnk/delivery-quality\">\n    <div style=\"vertical-align:center;text-align:center;margin:15px;padding-top:60px;\">\n        <img border=\"0\" src=\"/public/img/lake/delivery_quality.png\" alt=\"quality\" width=\"120\">\n        <p style=\"text-align:center;font-size:20px;margin:20px;text-decoration-color:rgb(255, 255, 255);color:#828487\"><b>Delivery Quality<b></p>\n    </div>\n</a>",
         "mode": "html"
       },
       "pluginVersion": "8.0.6",
@@ -136,7 +136,7 @@
         }
       ],
       "options": {
-        "content": "![Merico Logo](https://z3.ax1x.com/2021/08/09/f8VeYR.png \"Merico\")\n***\n# **研发效能指标MARI指南(To Be Translated)**\n***\n### 事故关闭周期\n***\n- **度量**（Measure）\n（描述该指标的统计方法）\n    1. 统计说明：从项目或团队维度统计产品上线后运维周期内每个事故从发现到修复的时长，该时长来自于事故从提交到修复过程中各状态流转时长的累加。\n    2. 统计方法：对各事故从发现到修复的状态时长求平均，得到项目或团队维度平均事故关闭周期。\n\n\n- **分析**（Analysis）\n（描述如何分析该指标，基于分析范围，给出分析方法、可能的话，给出典型分析结论。）\n    1. 按项目或团队维度，横向分析、比较事故关闭总时长，即事故关闭周期，观察最大值、最小值及各数值间的差异，给出初步分析结论。\n    2. 进一步分析，事故从打开到关闭过程中各流转状态的时长，识别耗时最多的瓶颈状态，并提供量化分析结论。\n\n\n- **调研**（Review）\n（基于量化分析结果，对异常数据或分析结果进行根本原因挖掘、调研分析结果与实际情况是否一致，可能的话，给出根因分析方法。）\n对应项目/团队，基于指标分析结果，采用石川图（鱼骨图）或根因分析法（RCA），对事故关闭周期偏长、驻留时间最长的状态，进行根本原因的挖掘，并给出根因分析。例如：是否存在冗余等待、状态更新不及时等流程及行为原因造成的某一状态下驻留时间过长。\n\n\n- **改进**（Improve）\n（根据调研的根因分析，描述如何从流程、工具、行为等方面进行针对性改进，明确提升目标、改进措施、验证周期及责任人。）\n针对调研结果，对阻塞环节，从规范、流程、工具、行为等方面给出针对性改进措施，明确提升目标、改进措施、验证周期及责任人。针对改进效果做新一轮的MARI（度量、分析、调研、验证），量化提升效果。\n\n\n***\n### 代码评审人数\n***\n### 代码评审通过率    \n***    \n\nRead the full article: https://merico.feishu.cn/docs/doccnDqL7k1grCcisSeBOVlU7oe#4Tr7Rt",
+        "content": "![Merico Logo](/public/img/lake/logo.png \"Merico\")\n***\n# **研发效能指标MARI指南(To Be Translated)**\n***\n### 事故关闭周期\n***\n- **度量**（Measure）\n（描述该指标的统计方法）\n    1. 统计说明：从项目或团队维度统计产品上线后运维周期内每个事故从发现到修复的时长，该时长来自于事故从提交到修复过程中各状态流转时长的累加。\n    2. 统计方法：对各事故从发现到修复的状态时长求平均，得到项目或团队维度平均事故关闭周期。\n\n\n- **分析**（Analysis）\n（描述如何分析该指标，基于分析范围，给出分析方法、可能的话，给出典型分析结论。）\n    1. 按项目或团队维度，横向分析、比较事故关闭总时长，即事故关闭周期，观察最大值、最小值及各数值间的差异，给出初步分析结论。\n    2. 进一步分析，事故从打开到关闭过程中各流转状态的时长，识别耗时最多的瓶颈状态，并提供量化分析结论。\n\n\n- **调研**（Review）\n（基于量化分析结果，对异常数据或分析结果进行根本原因挖掘、调研分析结果与实际情况是否一致，可能的话，给出根因分析方法。）\n对应项目/团队，基于指标分析结果，采用石川图（鱼骨图）或根因分析法（RCA），对事故关闭周期偏长、驻留时间最长的状态，进行根本原因的挖掘，并给出根因分析。例如：是否存在冗余等待、状态更新不及时等流程及行为原因造成的某一状态下驻留时间过长。\n\n\n- **改进**（Improve）\n（根据调研的根因分析，描述如何从流程、工具、行为等方面进行针对性改进，明确提升目标、改进措施、验证周期及责任人。）\n针对调研结果，对阻塞环节，从规范、流程、工具、行为等方面给出针对性改进措施，明确提升目标、改进措施、验证周期及责任人。针对改进效果做新一轮的MARI（度量、分析、调研、验证），量化提升效果。\n\n\n***\n### 代码评审人数\n***\n### 代码评审通过率    \n***    \n\nRead the full article: https://merico.feishu.cn/docs/doccnDqL7k1grCcisSeBOVlU7oe#4Tr7Rt",
         "mode": "markdown"
       },
       "pluginVersion": "8.0.6",
@@ -187,7 +187,7 @@
       "interval": null,
       "links": [],
       "options": {
-        "content": "<a href=\"/d/TV-BnpM7k/delivery-cost\"> \n    <div style=\"vertical-align:center;text-align:center;margin:15px;padding-top:60px;\">\n        <img border=\"0\" src=\"https://z3.ax1x.com/2021/08/09/f8eprT.png\" alt=\"cost\" width=\"120\">\n        <p style=\"text-align:center;font-size:20px;margin:20px;text-decoration-color:rgb(255, 255, 255);color:#828487\"><b>Delivery Cost<b></p>\n    </div>\n</a>",
+        "content": "<a href=\"/d/TV-BnpM7k/delivery-cost\"> \n    <div style=\"vertical-align:center;text-align:center;margin:15px;padding-top:60px;\">\n        <img border=\"0\" src=\"/public/img/lake/delivery_cost.png\" alt=\"cost\" width=\"120\">\n        <p style=\"text-align:center;font-size:20px;margin:20px;text-decoration-color:rgb(255, 255, 255);color:#828487\"><b>Delivery Cost<b></p>\n    </div>\n</a>",
         "mode": "html"
       },
       "pluginVersion": "8.0.6",
@@ -239,7 +239,7 @@
       "interval": null,
       "links": [],
       "options": {
-        "content": "<a href=\"/dashboard/new?orgId=1\">\n    <div style=\"vertical-align:center;text-align:center;margin:15px;padding-top:60px;\">\n        <img border=\"0\" src=\"https://z3.ax1x.com/2021/08/04/fkqdKK.png\" alt=\"requirement\" width=\"120\">\n        <p style=\"text-align:center;font-size:20px;margin:20px;text-decoration-color:rgb(255, 255, 255);color:#828487\">New Dashboard</p>\n    </div>\n</a>",
+        "content": "<a href=\"/dashboard/new?orgId=1\">\n    <div style=\"vertical-align:center;text-align:center;margin:15px;padding-top:60px;\">\n        <img border=\"0\" src=\"/public/img/lake/more.png\" alt=\"requirement\" width=\"120\">\n        <p style=\"text-align:center;font-size:20px;margin:20px;text-decoration-color:rgb(255, 255, 255);color:#828487\">New Dashboard</p>\n    </div>\n</a>",
         "mode": "html"
       },
       "pluginVersion": "8.0.6",
@@ -358,5 +358,5 @@
   "timezone": "",
   "title": "Homepage",
   "uid": "RXJZNpMnz",
-  "version": 21
+  "version": 6
 }
