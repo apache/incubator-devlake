@@ -10,7 +10,8 @@ concurrently([
   'node src/collection/main.js',
   'node src/collection/worker.js',
   'node src/enrichment/main.js',
-  'node src/enrichment/worker.js'
+  'node src/enrichment/worker.js',
+  'node src/dataCollectionLoop.js'
 ], {
   killOthers: ['failure', 'success']
 }).then(
