@@ -1,11 +1,43 @@
 const axios = require('axios')
 const ProxyAgent = require('proxy-agent')
-const config = require('@config/resolveConfig').gitlab
-const { host, apiPath, token } = config
-const maxRetry = config.maxRetry || 3
-const timeout = config.timeout || 10000
+const { merge } = require('lodash')
+
+const configuration = {
+  verified: false,
+  host: null,
+  apiPath: null,
+  token: null,
+  timeout: 10000,
+  maxRetry: 3,
+  skip: {
+    commits: false,
+    projects: false,
+    mergeRequests: false,
+    notes: false
+  }
+}
+
+async function configure (config) {
+  merge(configuration, config)
+  configuration.verified = false
+  const { host, apiPath, token } = configuration
+  if (!host) {
+    throw new Error('gitlab configuration error: host is required')
+  }
+  if (!apiPath) {
+    throw new Error('gitlab configuration error: apiPath is required')
+  }
+  if (!token) {
+    throw new Error('gitlab configuration error: apiPath is required')
+  }
+  configuration.verified = true
+}
 
 async function fetch (resourceUri) {
+  if (!configuration.verified) {
+    throw new Error('not configured!')
+  }
+  const { host, apiPath, token, proxy, timeout, maxRetry } = configuration
   let retry = 0
   let res, lastError
   while (retry < maxRetry) {
@@ -18,7 +50,7 @@ async function fetch (resourceUri) {
     try {
       res = await axios.get(`${host}/${apiPath}/${resourceUri}`, {
         headers: { 'PRIVATE-TOKEN': token },
-        agent: config.proxy && new ProxyAgent(config.proxy),
+        agent: proxy && new ProxyAgent(proxy),
         cancelToken: abort.token
       })
       clearTimeout(id)
@@ -57,4 +89,4 @@ async function * fetchPaged (resourceUri, page = 1, pageSize = 100) {
   }
 }
 
-module.exports = { fetch, fetchPaged }
+module.exports = { configure, fetch, fetchPaged }

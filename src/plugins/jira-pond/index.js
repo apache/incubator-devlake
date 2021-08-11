@@ -4,6 +4,14 @@ const enrichment = require('./src/enricher')
 module.exports = {
   configuration: {
     // default configuration which could be overrided by `config/plugins.js`
+    collection: null,
+    enrichment: null
+  },
+
+  async configure (configuration) {
+    module.exports.configuration = configuration
+    await collection.configure(configuration.collection)
+    await enrichment.configure(configuration.enrichment)
   },
 
   collector: {
@@ -37,11 +45,13 @@ if (require.main === module) {
     require('module-alias/register')
     const dbConnector = require('@mongo/connection')
     const enrichedDb = require('@db/postgres')
+    const configuration = require('@config/plugins-conf.js').find(p => p.name === 'jira').configuration
 
     const boardId = Number(process.argv[2]) || 8
     const forceCollectAll = Number(process.argv[3])
     const forceEnrichAll = Number(process.argv[4])
     const { db, client } = await dbConnector.connect()
+    await module.exports.configure(configuration)
     try {
       await module.exports.collector.exec(db, { boardId, forceAll: forceCollectAll })
       await module.exports.enricher.exec(db, enrichedDb, { boardId, forceAll: forceEnrichAll })
