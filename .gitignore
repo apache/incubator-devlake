@@ -142,3 +142,5 @@ yarn.lock
 rabbitmq
 
 commitmsg.md
+
+config/plugins-conf.js

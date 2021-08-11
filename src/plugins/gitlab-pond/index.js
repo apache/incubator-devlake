@@ -3,7 +3,13 @@ const enrichment = require('./src/enricher')
 
 module.exports = {
   configuration: {
-    // default configuration which could be overrided by `config/plugins.js`
+    collection: null,
+    enrichment: null
+  },
+
+  async configure (configuration) {
+    module.exports.configuration = configuration
+    await collection.configure(configuration.collection)
   },
 
   collector: {
@@ -36,9 +42,11 @@ if (require.main === module) {
     require('module-alias/register')
     const dbConnector = require('@mongo/connection')
     const enrichedDb = require('@db/postgres')
+    const configuration = require('@config/plugins-conf.js').find(p => p.name === 'gitlab').configuration
 
     const projectId = process.argv[2] || 24547305
     const { db, client } = await dbConnector.connect()
+    await module.exports.configure(configuration)
     try {
       await module.exports.collector.exec(db, { projectId })
       await module.exports.enricher.exec(db, enrichedDb, { projectId })

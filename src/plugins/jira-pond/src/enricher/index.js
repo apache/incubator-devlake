@@ -1,6 +1,16 @@
 const boards = require('./boards')
 const issues = require('./issues')
 const boardsCollector = require('../collector/boards')
+const { merge } = require('lodash')
+
+const configuration = {
+  issue: null
+}
+
+async function configure (config) {
+  merge(configuration, config)
+  await issues.configure(configuration.issue)
+}
 
 async function enrich (rawDb, enrichedDb, { boardId, forceAll }) {
   // verify collected data existence
@@ -15,4 +25,4 @@ async function enrich (rawDb, enrichedDb, { boardId, forceAll }) {
   await issues.enrich(args)
 }
 
-module.exports = { enrich }
+module.exports = { configure, enrich }

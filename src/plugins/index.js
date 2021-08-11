@@ -1,8 +1,8 @@
 require('module-alias/register')
-const _merge = require('lodash/merge')
-const registryConfig = require('../../config/plugins')
+const registryConfig = require('@config/plugins-conf')
 const dbConnector = require('@mongo/connection')
 const enrichedDb = require('@db/postgres')
+const { merge } = require('lodash')
 
 const plugins = {}
 const collection = {}
@@ -24,8 +24,7 @@ registryConfig.forEach((item, index) => {
 
   // setup configuration for plugin
   //   plugin can have a default confgiration, which is subjected to be overwritten
-  //   TODO: check if configuration keys are perfectly matched
-  _merge(plugin.configuration, pluginConfiguration)
+  plugin.configure(merge({}, plugin.configuration, pluginConfiguration))
 
   // register plugin
   plugins[pluginName] = plugin
