@@ -15,8 +15,8 @@
   "editable": true,
   "gnetId": null,
   "graphTooltip": 0,
-  "id": 5,
-  "iteration": 1628501369217,
+  "id": 17,
+  "iteration": 1628690915556,
   "links": [
     {
       "asDropdown": false,
@@ -56,7 +56,7 @@
       },
       "id": 32,
       "options": {
-        "content": "<div style=\"text-align:center;\">\n    <img border=\"0\" src=\"https://z3.ax1x.com/2021/08/06/fu5TUS.png\" alt=\"No.1\" width=\"120\"><br>\n    <img border=\"0\" src=\"https://z3.ax1x.com/2021/08/09/f8VkmF.png\" alt=\"Development\" width=\"120\"> \n    <p style=\"text-align:center;font-size:18px;margin:10px;text-decoration-color:rgb(255, 255, 255);color:#828487\"><b>Development<b></p>\n</div>",
+        "content": "<div style=\"text-align:center;\">\n    <img border=\"0\" src=\"/public/img/lake/1.png\" alt=\"No.1\" width=\"120\"><br>\n    <img border=\"0\" src=\"/public/img/lake/practice_development.png\" alt=\"Development\" width=\"120\"> \n    <p style=\"text-align:center;font-size:18px;margin:10px;text-decoration-color:rgb(255, 255, 255);color:#828487\"><b>Development<b></p>\n</div>",
         "mode": "html"
       },
       "pluginVersion": "8.0.6",
@@ -431,7 +431,7 @@
       },
       "id": 34,
       "options": {
-        "content": "<div style=\"text-align:center;\">\n  <img border=\"0\" src=\"https://z3.ax1x.com/2021/08/06/fu574g.png\" alt=\"No.2\" width=\"120\"><br>\n  <img border=\"0\" src=\"https://z3.ax1x.com/2021/08/09/f8VSWq.png\" alt=\"Test\" width=\"120\">\n  <p style=\"text-align:center;font-size:20px;margin:10px;text-decoration-color:rgb(255, 255, 255);color:#828487\"><b>Test<b></p>\n</div>",
+        "content": "<div style=\"text-align:center;\">\n  <img border=\"0\" src=\"/public/img/lake/2.png\" alt=\"No.2\" width=\"120\"><br>\n  <img border=\"0\" src=\"/public/img/lake/practice_test.png\" alt=\"Test\" width=\"120\">\n  <p style=\"text-align:center;font-size:20px;margin:10px;text-decoration-color:rgb(255, 255, 255);color:#828487\"><b>Test<b></p>\n</div>",
         "mode": "html"
       },
       "pluginVersion": "8.0.6",
@@ -815,7 +815,7 @@
       },
       "id": 36,
       "options": {
-        "content": "<div style=\"text-align:center;\">\n  <img border=\"0\" src=\"https://z3.ax1x.com/2021/08/06/fu5q3j.png\" alt=\"No.3\" width=\"120\"><br>\n  <img border=\"0\" src=\"https://z3.ax1x.com/2021/08/09/f8VZk9.png\" alt=\"Operation\"\" width=\"120\">\n  <p style=\"text-align:center;font-size:20px;margin:10px;text-decoration-color:rgb(255, 255, 255);color:#828487\"><b>Operation<b></p>\n</div>",
+        "content": "<div style=\"text-align:center;\">\n  <img border=\"0\" src=\"/public/img/lake/3.png\" alt=\"No.3\" width=\"120\"><br>\n  <img border=\"0\" src=\"/public/img/lake/practice_operation.png\" alt=\"Operation\"\" width=\"120\">\n  <p style=\"text-align:center;font-size:20px;margin:10px;text-decoration-color:rgb(255, 255, 255);color:#828487\"><b>Operation<b></p>\n</div>",
         "mode": "html"
       },
       "pluginVersion": "8.0.6",
@@ -1289,5 +1289,5 @@
   "timezone": "",
   "title": "Delivery Quality",
   "uid": "nUC-7tGnk",
-  "version": 73
+  "version": 4
 }

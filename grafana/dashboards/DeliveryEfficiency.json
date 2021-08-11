@@ -15,8 +15,8 @@
   "editable": true,
   "gnetId": null,
   "graphTooltip": 0,
-  "id": 3,
-  "iteration": 1628501299418,
+  "id": 16,
+  "iteration": 1628690898911,
   "links": [
     {
       "asDropdown": false,
@@ -56,7 +56,7 @@
       },
       "id": 70,
       "options": {
-        "content": "<div style=\"text-align:center;\">\n    <img border=\"0\" src=\"https://z3.ax1x.com/2021/08/06/fu5TUS.png\" alt=\"No.1\" width=\"120\"><br>\n    <img border=\"0\" src=\"https://z3.ax1x.com/2021/08/09/f8VAw4.png\" alt=\"Cross-practice Domain\" width=\"120\"> \n    <p style=\"text-align:center;font-size:18px;margin:10px;text-decoration-color:rgb(255, 255, 255);color:#828487\"><b>Cross-Practice Domain<b></p>\n</div>",
+        "content": "<div style=\"text-align:center;\">\n    <img border=\"0\" src=\"/public/img/lake/1.png\" alt=\"No.1\" width=\"120\"><br>\n    <img border=\"0\" src=\"/public/img/lake/practice_cross_domain.png\" alt=\"Cross-practice Domain\" width=\"120\"> \n    <p style=\"text-align:center;font-size:18px;margin:10px;text-decoration-color:rgb(255, 255, 255);color:#828487\"><b>Cross-Practice Domain<b></p>\n</div>",
         "mode": "html"
       },
       "pluginVersion": "8.0.6",
@@ -596,7 +596,7 @@
       },
       "id": 76,
       "options": {
-        "content": "<div style=\"text-align:center;\">\n  <img border=\"0\" src=\"https://z3.ax1x.com/2021/08/06/fu574g.png\" alt=\"No.2\" width=\"120\"><br>\n  <img border=\"0\" src=\"https://z3.ax1x.com/2021/08/09/f8VETJ.png\" alt=\"requirement\" width=\"120\">\n  <p style=\"text-align:center;font-size:20px;margin:10px;text-decoration-color:rgb(255, 255, 255);color:#828487\"><b>Requirement<b></p>\n</div>",
+        "content": "<div style=\"text-align:center;\">\n  <img border=\"0\" src=\"/public/img/lake/2.png\" alt=\"No.2\" width=\"120\"><br>\n  <img border=\"0\" src=\"/public/img/lake/practice_requirement.png\" alt=\"requirement\" width=\"120\">\n  <p style=\"text-align:center;font-size:20px;margin:10px;text-decoration-color:rgb(255, 255, 255);color:#828487\"><b>Requirement<b></p>\n</div>",
         "mode": "html"
       },
       "pluginVersion": "8.0.6",
@@ -1276,7 +1276,7 @@
       },
       "id": 71,
       "options": {
-        "content": "<div style=\"text-align:center;\">\n  <img border=\"0\" src=\"https://z3.ax1x.com/2021/08/06/fu5q3j.png\" alt=\"No.3\" width=\"120\"><br>\n  <img border=\"0\" src=\"https://z3.ax1x.com/2021/08/09/f8VkmF.png\" alt=\"requirement\" width=\"120\">\n  <p style=\"text-align:center;font-size:20px;margin:10px;text-decoration-color:rgb(255, 255, 255);color:#828487\"><b>Development<b></p>\n</div>",
+        "content": "<div style=\"text-align:center;\">\n  <img border=\"0\" src=\"/public/img/lake/3.png\" alt=\"No.3\" width=\"120\"><br>\n  <img border=\"0\" src=\"/public/img/lake/practice_development.png\" alt=\"requirement\" width=\"120\">\n  <p style=\"text-align:center;font-size:20px;margin:10px;text-decoration-color:rgb(255, 255, 255);color:#828487\"><b>Development<b></p>\n</div>",
         "mode": "html"
       },
       "pluginVersion": "8.0.6",
@@ -2350,7 +2350,7 @@
       },
       "id": 77,
       "options": {
-        "content": "<div style=\"text-align:center;\">\n  <img border=\"0\" src=\"https://z3.ax1x.com/2021/08/06/fu5bCQ.png\" alt=\"No.4\" width=\"120\"><br>\n  <img border=\"0\" src=\"https://z3.ax1x.com/2021/08/09/f8VSWq.png\" alt=\"Test\" width=\"120\">\n  <p style=\"text-align:center;font-size:20px;margin:10px;text-decoration-color:rgb(255, 255, 255);color:#828487\"><b>Test<b></p>\n</div>",
+        "content": "<div style=\"text-align:center;\">\n  <img border=\"0\" src=\"/public/img/lake/4.png\" alt=\"No.4\" width=\"120\"><br>\n  <img border=\"0\" src=\"/public/img/lake/practice_test.png\" alt=\"Test\" width=\"120\">\n  <p style=\"text-align:center;font-size:20px;margin:10px;text-decoration-color:rgb(255, 255, 255);color:#828487\"><b>Test<b></p>\n</div>",
         "mode": "html"
       },
       "pluginVersion": "8.0.6",
@@ -2890,7 +2890,7 @@
       },
       "id": 78,
       "options": {
-        "content": "<div style=\"text-align:center;\">\n  <img border=\"0\" src=\"https://z3.ax1x.com/2021/08/06/fu5oE8.png\" alt=\"No.5\" width=\"120\"><br>\n  <img border=\"0\" src=\"https://z3.ax1x.com/2021/08/09/f8VZk9.png\" alt=\"Operation\" width=\"120\">\n  <p style=\"text-align:center;font-size:20px;margin:10px;text-decoration-color:rgb(255, 255, 255);color:#828487\"><b>Operation<b></p>\n</div>",
+        "content": "<div style=\"text-align:center;\">\n  <img border=\"0\" src=\"/public/img/lake/5.png\" alt=\"No.5\" width=\"120\"><br>\n  <img border=\"0\" src=\"/public/img/lake/practice_operation.png\" alt=\"Operation\" width=\"120\">\n  <p style=\"text-align:center;font-size:20px;margin:10px;text-decoration-color:rgb(255, 255, 255);color:#828487\"><b>Operation<b></p>\n</div>",
         "mode": "html"
       },
       "pluginVersion": "8.0.6",
@@ -3522,5 +3522,5 @@
   "timezone": "",
   "title": "Delivery Efficiency",
   "uid": "0vrodFM7z",
-  "version": 241
+  "version": 6
 }
