@@ -82,6 +82,28 @@ response:
 { task: 'task id' }
 ```
 
+### Waiting Task Finished
+
+```
+GET  /tasks/${task id}
+
+response:
+{
+    task: {
+        id: 'task id',
+        status: 'finished',
+        progress: {
+            collector: [
+                {name: 'Issue', status: 'finished'}
+            ],
+            enricher: [
+                {name: 'LeadTime', status: 'finished'}
+            ]
+        }
+    } 
+}
+```
+
 ### Using Grafana
 
 **Login Credentials**
