@@ -20,7 +20,7 @@ set -e
 
 # reset databases
 docker-compose down
-sudo rm -rf data postgres_data
+sudo rm -rf data postgres-data
 
 # kick off all services
 docker-compose up -d
