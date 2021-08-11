@@ -41,19 +41,26 @@ Contributing | How to contribute to this repo | [Link](CONTRIBUTING.md)
 
 **NOTE: If you only plan to run the product, this is the only section you should need**
 
-1. Clone this repository and `cd` into it
-2. Configure settings for services & plugins with `cp config/docker.sample.js config/docker.js` and edit the newly created file
-3. Configure local settings for services & plugins, see [View Section](#plugins)
-4. Start the service with `npm run compose-prod`
-    > you can see the logs with `npm run compose-logs`
+1. Clone this repository<br>
 
-    > you can stop all docker containers with `npm run compose-down-prod`
+   ```shell
+   git clone https://github.com/merico-dev/lake.git
+   cd lake
+   ```
+2. Create a copy of the sample configuration file with
+
+   ```
+   cp config/docker.sample.js config/docker.js
+   ```
+3. Configure settings for services & plugins by editing the newly created `config/docker.js`. For how to configure plugins, please refer to the [plugins](#plugins) section.
+4. Start the service with `npm start`
+    > you can stop all docker containers with `npm run stop`
 5. Send a post request to the service
 ```
 curl -X POST "http://localhost:3001/" -H 'content-type: application/json' \
     -d '{"jira":{"boardId": 29}, "gitlab": {"projectId": 24547305}}'
 ```
-6. Check the console logs for docker-compose to see when the logs stop collecting your data. This can take up to 30 minutes for large projects. (gitlab 10k+ commits or jira 10k+ issues)
+6. Run `docker-compose logs -f lake` to check the logs and see when lake stops collecting your data. This can take up to 20 minutes for large projects. (gitlab 10k+ commits or jira 5k+ issues)
 7. Navigate to Grafana Dashboard `https://localhost:3002` (Username: `admin`, password: `admin`)
 
 ## Plugins<a id="plugins"></a>
@@ -69,29 +76,24 @@ Gitlab | Metrics, Generating API Token | [Link](src/plugins/gitlab-pond/README.m
 
    ```shell
    git clone https://github.com/merico-dev/lake.git
+   cd lake
    ```
 2. Install dependencies with<br>
 
    ```
    npm i
    ```
-3. Configure local settings for services & plugins, see [View Section](#plugins)
+3. Create a copy of the sample configuration file with
 
-4. From the root directory, run
-   ```shell
-   npm run docker
    ```
+   cp config/local.sample.js config/local.js
+   ```
+4. Configure settings for services & plugins by editing the newly created `config/local.js`. For how to configure plugins, please refer to the [plugins](#plugins) section.
 
-      > NOTE: If you get an error like this:
-      > **"Error response from daemon: invalid mount config for type "bind": bind source path does not exist: /tmp/rabbitmq/etc/"**
+5. Start all third-party services and lake's own services with
 
-      > You can fix it by creating the directories in the terminal:
-
-      > `mkdir -p ./rabbitmq/logs/ ./rabbitmq/etc/ ./rabbitmq/data/`
-
-5. In another tab run
-   ```shell
-   npm run all
+   ```
+   npm run dev
    ```
 6. Create a collection job to collect data. See that the:
       - collection job was published
@@ -115,18 +117,6 @@ Gitlab | Metrics, Generating API Token | [Link](src/plugins/gitlab-pond/README.m
             "branch": "<your-branch-name>",
         }
     }
-   ```
-
-   Or, by using `curl`
-
-   ```shell
-   # ee
-   curl -X POST "http://localhost:3001/" -H 'content-type: application/json' \
-       -d '{"jira":{"boardId": 8}, "gitlab": {"projectId": 8967944}}'
-
-   # small data set for test
-   curl -X POST "http://localhost:3001/" -H 'content-type: application/json' \
-       -d '{"jira":{"boardId": 29}, "gitlab": {"projectId": 24547305}}'
    ```
 
 7. Visualize data in Grafana dashboard
