@@ -122,7 +122,7 @@ Section | Description | Link
 Requirements | Underlying software used | [Link](../README.md#requirements)
 User Setup | Quick and easy setup | [Link](../README.md#user-setup)
 Developer Setup | Steps to get up and running | [Link](../README.md#developer-setup)
-Plugins | Links to specific plugin usage & details | [Link](../README.md#plugins)
+Data Source Plugins | Links to specific plugin usage & details | [Link](../README.md#data-source-plugins)
 Build a Plugin | Details on how to make your own | [Link](../src/plugins/README.md)
 Add Plugin Metrics | Guide to adding plugin metrics | [Link](../src/plugins/HOW-TO-ADD-METRICS.md)
 Contributing | How to contribute to this repo | [Link](../CONTRIBUTING.md)

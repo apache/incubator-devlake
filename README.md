@@ -25,7 +25,7 @@ Section | Description | Link
 :------------ | :------------- | :-------------
 Requirements | Underlying software used | [View Section](#requirements)
 User Setup | Quick and easy setup | [View Section](#user-setup)
-Plugins | Links to specific plugin usage & details | [View Section](#plugins)
+Data Source Plugins | Links to specific plugin usage & details | [View Section](#data-source-plugins)
 Developer Setup | Steps to get up and running | [View Section](#developer-setup)
 Build a Plugin | Details on how to make your own | [Link](src/plugins/README.md)
 Add Plugin Metrics | Guide to adding plugin metrics | [Link](src/plugins/HOW-TO-ADD-METRICS.md)
@@ -36,6 +36,17 @@ Contributing | How to contribute to this repo | [Link](CONTRIBUTING.md)
 
 - [Docker](https://docs.docker.com/get-docker)
 - [Node.js](https://nodejs.org/en/download) (Developer setup only)
+
+## Data Source Plugins<a id="data-source-plugins"></a>
+
+Below is a list of _data source plugins_ used to collect & enrich data from specific sources. Each have a `README.md` file with basic setup, troubleshooting and metrics info.
+
+For more information on building a new _data source plugin_ see [Build a Plugin](src/plugins/README.md).
+
+Section | Section Info | Docs
+------------ | ------------- | -------------
+Jira | Metrics, Generating API Token, Find Project/Board ID | [Link](src/plugins/jira-pond/README.md)
+Gitlab | Metrics, Generating API Token | [Link](src/plugins/gitlab-pond/README.md)
 
 ## User Setup<a id="user-setup"></a>
 
@@ -52,18 +63,11 @@ Contributing | How to contribute to this repo | [Link](CONTRIBUTING.md)
    ```
    cp config/docker.sample.js config/docker.js
    ```
-3. Configure settings for services & plugins by editing the newly created `config/docker.js`. For how to configure plugins, please refer to the [plugins](#plugins) section.
+3. Configure settings for services & plugins by editing the newly created `config/docker.js`. For how to configure plugins, please refer to the [data source plugins](#data-source-plugins) section.
 4. Start the service with `npm start`
     > you can stop all docker containers with `npm run stop`
 5. Run `docker-compose logs -f lake` to check the logs and see when lake stops collecting your data. This can take up to 20 minutes for large projects. (gitlab 10k+ commits or jira 5k+ issues)
 6. Navigate to Grafana Dashboard `https://localhost:3002` (Username: `admin`, password: `admin`)
-
-## Plugins<a id="plugins"></a>
-
-Section | Section Info | Docs
------------- | ------------- | -------------
-Jira | Metrics, Generating API Token, Find Project/Board ID | [Link](src/plugins/jira-pond/README.md)
-Gitlab | Metrics, Generating API Token | [Link](src/plugins/gitlab-pond/README.md)
 
 ## Developer Setup<a id="developer-setup"></a>
 
@@ -83,7 +87,7 @@ Gitlab | Metrics, Generating API Token | [Link](src/plugins/gitlab-pond/README.m
    ```
    cp config/local.sample.js config/local.js
    ```
-4. Configure settings for services & plugins by editing the newly created `config/local.js`. For how to configure plugins, please refer to the [plugins](#plugins) section.
+4. Configure settings for services & plugins by editing the newly created `config/local.js`. For how to configure plugins, please refer to the [data source plugins](#data-source-plugins) section.
 
 5. Start all third-party services and lake's own services with
 
