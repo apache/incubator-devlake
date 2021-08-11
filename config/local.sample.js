@@ -3,7 +3,7 @@ module.exports = {
   lake: {
     // Enable basic authentication to the lake API
     // token: 'mytoken'
-    // This is the time between fetching new data from all sources on automated loop
+    // Set how often does lake fetch new data from data sources, defaults to every hour
     loopIntervalInMinutes: 60
   },
   // Configuration of MongoDB
@@ -35,8 +35,10 @@ module.exports = {
     timeout: 10000,
     // Set max retry times for sending requests to Jira API
     maxRetry: 3,
-    dataEnrichment: {
-      boardId: 8
+    // This property specifies which Jira board data to collect
+    dataToCollect: {
+      // Replace -1 with your own board ID
+      boardId: -1
     }
   },
   // Configuration of Gitlab plugin
@@ -61,8 +63,10 @@ module.exports = {
       mergeRequests: false,
       notes: false
     },
-    dataEnrichment: {
-      projectId: 20103385
+    // This property specifies which Gitlab project data to collect
+    dataToCollect: {
+      // Replace -1 with your own project ID
+      projectId: -1
     }
   },
   // COnfiguration of Jira <> Gitlab mapping
