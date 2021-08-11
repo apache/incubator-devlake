@@ -55,13 +55,8 @@ Contributing | How to contribute to this repo | [Link](CONTRIBUTING.md)
 3. Configure settings for services & plugins by editing the newly created `config/docker.js`. For how to configure plugins, please refer to the [plugins](#plugins) section.
 4. Start the service with `npm start`
     > you can stop all docker containers with `npm run stop`
-5. Send a post request to the service
-```
-curl -X POST "http://localhost:3001/" -H 'content-type: application/json' \
-    -d '{"jira":{"boardId": 29}, "gitlab": {"projectId": 24547305}}'
-```
-6. Run `docker-compose logs -f lake` to check the logs and see when lake stops collecting your data. This can take up to 20 minutes for large projects. (gitlab 10k+ commits or jira 5k+ issues)
-7. Navigate to Grafana Dashboard `https://localhost:3002` (Username: `admin`, password: `admin`)
+5. Run `docker-compose logs -f lake` to check the logs and see when lake stops collecting your data. This can take up to 20 minutes for large projects. (gitlab 10k+ commits or jira 5k+ issues)
+6. Navigate to Grafana Dashboard `https://localhost:3002` (Username: `admin`, password: `admin`)
 
 ## Plugins<a id="plugins"></a>
 
@@ -117,6 +112,13 @@ Gitlab | Metrics, Generating API Token | [Link](src/plugins/gitlab-pond/README.m
             "branch": "<your-branch-name>",
         }
     }
+   ```
+
+   Or, using curl:
+
+   ```
+   curl -X POST "http://localhost:3001/" -H 'content-type: application/json' \
+    -d '{"jira":{"boardId": 8}, "gitlab": {"projectId": 8967944}}'
    ```
 
 7. Visualize data in Grafana dashboard
