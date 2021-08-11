@@ -32,13 +32,9 @@ class Jira implements Plugin {
     return 'hx8f23r1';
   }
 
-  async register(): Promise<void> {
+  async execute(options: JiraOptions): Promise<void> {
     //TODO: Add jira collector and enrichment
-    console.info('Excute Jira');
-    return;
-  }
-
-  async unregister(): Promise<void> {
+    console.info('Excute Jira', options);
     return;
   }
 }

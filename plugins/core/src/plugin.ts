@@ -12,18 +12,11 @@ interface Plugin {
   version(): number;
 
   /**
-   * 注册插件，其中应该包括各种组件的定义
-   * register plugin
-   * It should include collector define/enricher define/or more
+   * 运行插件，使用指定参数自行创建collector/enricher
+   * start plugin
+   * It should include collector init/enricher init/or more by args
    */
-  register(): Promise<void>;
-
-  /**
-   * 注销插件，其中可以包含各种服务的停止
-   * unregister plugin
-   * It can iniclude collector stop/enricher stop/or more
-   */
-  unregister(): Promise<void>;
+  execute(...args: any[]): Promise<void>;
 
   /**
    * 初始化所需的环境，其中应该包括数据表的初始化、文件目录的创建等

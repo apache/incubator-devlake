@@ -1,12 +1,8 @@
+import Collector from './collector';
+
 type PrimaryValues = Record<string, string | number | boolean>;
 
-interface Enricher {
-  /**
-   * collector的名字，需要plugin内唯一
-   * name of collector with unique in plugin
-   */
-  name(): string;
-
+interface Enricher extends Collector {
   /**
    * 返回改依赖项，enricher可以依赖collector或者enricher，但不能循环依赖
    * return dependencies
@@ -27,14 +23,6 @@ interface Enricher {
    * You must query data by queryData() when support lazy load
    */
   couldLazyLoad(): boolean;
-
-  /**
-   * 返回对应主键的数据是否已经准备好，需要快速的返回结果
-   * get if data have prepared for these primaryKeys
-   * it should return result as soon as.
-   * @param primaryKeys
-   */
-  isDataPrepared(primaryKeys: PrimaryValues): boolean;
 
   /**
    * 使用队列开始计算数据，此时不应该请求任何外部数据
@@ -59,13 +47,6 @@ interface Enricher {
    * @throws Error error of self check failure reason 自检失败原因
    */
   selfCheck(primaryKeys: PrimaryValues): Promise<boolean>;
-
-  /**
-   * 清除指定主键对应的数据
-   * clean data for these primaryKeys
-   * @param primaryKeys
-   */
-  cleanData(primaryKeys?: PrimaryValues): Promise<boolean>;
 }
 
 export default Enricher;
