@@ -1,7 +1,7 @@
 # Dev Lake
 
 ![badge](https://github.com/merico-dev/lake/actions/workflows/test.yml/badge.svg?branch=ts-main)
-[![codecov](https://codecov.io/gh/narrowizard/lake/branch/ts-main/graph/badge.svg?token=MRL1RZ7CXD)](https://codecov.io/gh/narrowizard/lake)
+[![codecov](https://codecov.io/gh/merico-dev/lake/branch/ts-main/graph/badge.svg?token=UN126GAU9D)](https://codecov.io/gh/merico-dev/lake)
 
 ## Requirements
 
