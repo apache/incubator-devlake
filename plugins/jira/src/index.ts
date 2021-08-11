@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Scope } from '@nestjs/common';
 import Scheduler from 'plugins/core/src/scheculer';
 
 export type JiraCollector =
@@ -12,7 +12,9 @@ export type JiraOptions = {
   collectors: JiraCollector[];
 };
 
-@Injectable()
+@Injectable({
+  scope: Scope.TRANSIENT,
+})
 class Jira extends Scheduler<void> {
   name(): string {
     return 'jira';

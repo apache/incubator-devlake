@@ -1,6 +1,6 @@
 import { InjectQueue } from '@nestjs/bull';
 import { Injectable } from '@nestjs/common';
-import { ModuleRef } from '@nestjs/core';
+import { ContextIdFactory, ModuleRef } from '@nestjs/core';
 import Bull, { Queue } from 'bull';
 import Scheduler from 'plugins/core/src/scheculer';
 
@@ -16,9 +16,14 @@ export class ConsumerService {
 
   async process(job: Bull.Job): Promise<void> {
     const { name, data } = job;
-    const executor = this.moduleRef.get<Scheduler<any>>(name, {
-      strict: false,
-    });
+    const context = ContextIdFactory.create();
+    const executor = await this.moduleRef.resolve<Scheduler<any>>(
+      name,
+      context,
+      {
+        strict: false,
+      },
+    );
     if (executor) {
       executor.execute(data);
     }
