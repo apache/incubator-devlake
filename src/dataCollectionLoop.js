@@ -9,7 +9,7 @@ const delay = 5000
 module.exports = {
   loop: async () => {
     try {
-      console.log('INFO: Collection Loop: Starting data enrichment loop')
+      console.log('INFO: Collection Loop: Starting data collection loop')
       // run on startup
       setTimeout(async () => {
         await module.exports.collectionLoop()
@@ -26,8 +26,8 @@ module.exports = {
 
   getMessageFromConfig: (config) => {
     return {
-      jira: config.jira && config.jira.dataCollection,
-      gitlab: config.gitlab && config.gitlab.dataCollection
+      jira: config.jira && config.jira.dataToCollect,
+      gitlab: config.gitlab && config.gitlab.dataToCollect
     }
   },
 
@@ -42,7 +42,7 @@ module.exports = {
       )
     } catch (error) {
       console.error('*********************************************')
-      console.error('ERROR: Failed to run collection loop. You may need to set up a config/docker.js file that has the right properties. The main ones to look at would be the config.jira.dataCollection and config.gitlab.dataCollection. You can also look at config/docker.sample.js')
+      console.error('ERROR: Failed to run collection loop. You may need to set up a config/docker.js file that has the right properties.')
       console.error('*********************************************')
     }
   }
