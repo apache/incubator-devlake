@@ -11,11 +11,11 @@ const enrichedDb = require('@db/postgres')
 const queue = 'enrichment'
 
 const jobHandler = async (job) => {
+  console.log('INFO >>> recieved enrich job')
   const {
     db: rawDb, client
   } = await dbConnector.connect()
 
-  console.log('INFO >>> received an enrichment job')
   try {
     await Promise.all(
       Object.keys(job)

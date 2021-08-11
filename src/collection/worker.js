@@ -12,6 +12,7 @@ const config = require('@config/resolveConfig').lake || {}
 const queue = 'collection'
 
 const jobHandler = async (job) => {
+  console.log('INFO: Collection worker received job: ', job)
   const {
     db, client
   } = await dbConnector.connect()
