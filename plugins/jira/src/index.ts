@@ -13,7 +13,7 @@ export type JiraOptions = {
 };
 
 @Injectable()
-class Jira implements Plugin {
+class Jira extends Plugin {
   name(): string {
     return 'jira';
   }
