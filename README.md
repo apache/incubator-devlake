@@ -8,12 +8,24 @@
 - Node.js
 - Docker
 
-## Installation
+## Setup
+
+### Local
 
 1. Clone this repository
-2. From the newly cloned repo directory, run `docker-compose up --build -f devops/docker-compose.yml `
+2. Install dependencies with `npm i`
+3. Install `postgres` and `redis` and startup
+4. Create config file `cp .env.sample .env`. change `DB_URL` and `REDIS_URL` to your local db
+5. Start services `npm run all`
+
+### Docker
+
+1. Clone this repository
+2. From the newly cloned repo directory, run `docker-compose -f ./devops/docker-compose.yml --project-directory ./ --build up `
 3. Run `docker-compose ps` to see containers runnning.
 4. Install dependencies with `npm i`
+5. Create config file `cp .env.sample .env`. change `DB_URL` and `REDIS_URL` to your docker container db
+6. Start services `npm run all`
 
 ## Configuration
 
@@ -23,7 +35,7 @@
 ### Grafana Connection For Data Visualization (https://localhost:3002)
 
 Connect to the Grafana database:
-Inside `docker-compose.yml` edit the environment variables as needed to connect to your local postgres instance, specifically:
+Inside `./devops/docker-compose.yml` edit the environment variables as needed to connect to your local postgres instance, specifically:
 - `GF_DATABASE_NAME`
 - `GF_DATABASE_USER`
 - `GF_DATABASE_PASSWORD`
@@ -36,34 +48,39 @@ Additionally to use the postgres database as data source inside grafana, ensure 
 
 ## Usage
 
-### Create a Collection Job
+### Add Data Source
 
-1. From the terminal, execute `npm run all`
-2. From Postman (or similar), send a request like...
-
-```json
-
-POST http://localhost:3001/
-
+```
+POST  /sources
 {
-    "jira": {
-        "boardId": 8
-    },
-    "gitlab": {
-        "projectId": 19688130
+    type: 'Jira',
+    options: {
+        host: '',
+        username: '',
+        password: 'password or api token'
     }
 }
 
-```
-    Or, by using `curl`
-```sh
-curl -X POST "http://localhost:3001/" -H 'content-type: application/json' \
-    -d '{"jira":{"boardId": 8}}'
+response:
+{ source: 'source id' }
 ```
 
-3. See that the collection job was published, jira collection ran, the enrichment job was published, and jira enrichment ran
+### Add Data Source Task
 
-To run only the enrichment job on existing collections: `POST http://localhost:3000/`
+```
+POST  /sources/${source id}
+{
+    collector: ['Issue'],
+    enricher: ['LeadTime'],
+    options: {
+        projects: ['ProjectName'],
+        boards: ['Scrum Board Id']
+    }
+}
+
+response:
+{ task: 'task id' }
+```
 
 ### Using Grafana
 
