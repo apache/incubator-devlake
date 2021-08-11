@@ -1,4 +1,5 @@
 require('module-alias/register')
+const { isArray } = require('lodash')
 
 module.exports = {
   configuration: {
@@ -20,8 +21,13 @@ module.exports = {
     // remove all board-to-repo mapping
     await JiraBoardGitlabProject.destroy({ where: {}, truncate: true })
     // sync from configuration to database for JOIN query
-    for (const [boardId, projectId] of Object.entries(jiraBoardId2GitlabProjectId)) {
-      await JiraBoardGitlabProject.create({ boardId, projectId })
+    for (let [boardId, projectIds] of Object.entries(jiraBoardId2GitlabProjectId)) {
+      if (!isArray(projectIds)) {
+        projectIds = [projectIds]
+      }
+      for (const projectId of projectIds) {
+        await JiraBoardGitlabProject.create({ boardId, projectId })
+      }
     }
   },
   enricher: {
