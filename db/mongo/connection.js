@@ -6,7 +6,6 @@ const MONGO_URI = require('@config/resolveConfig').mongo.connectionString
 module.exports = {
   connect: async () => {
     try {
-      console.log('INFO: connecting to Mongo with connection string: ', MONGO_URI)
       const client = new MongoClient(MONGO_URI)
       await client.connect()
       const db = client.db()

@@ -21,7 +21,6 @@ module.exports = {
     await ch.bindQueue(queue, exch, rkey)
 
     await ch.publish(exch, rkey, Buffer.from(task))
-    console.log(`INFO: publishing to ${queue}`, Buffer.from(task))
 
     setTimeout(function () {
       ch.close()

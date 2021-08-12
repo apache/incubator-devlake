@@ -1,12 +1,36 @@
 const axios = require('axios')
 const ProxyAgent = require('proxy-agent')
-const config = require('@config/resolveConfig').jira
-const maxRetry = config.maxRetry || 3
-const timeout = config.timeout || 10000
+const { merge } = require('lodash')
+
+const configuration = {
+  verified: false,
+  host: null,
+  basicAuth: null,
+  proxy: null,
+  timeout: 10000,
+  maxRetry: 3
+}
+
+function configure (config) {
+  merge(configuration, config)
+  configuration.verified = false
+  const { host, basicAuth } = configuration
+  if (!host) {
+    throw new Error('jira configuration error: host is required')
+  }
+  if (!basicAuth) {
+    throw new Error('jira configuration error: basicAuth is required')
+  }
+  configuration.verified = true
+}
 
 async function fetch (resourceUri) {
+  if (!configuration.verified) {
+    throw new Error('jira fetcher is not configured properly!')
+  }
   let retry = 0
-  let res
+  let res, lastError
+  const { host, basicAuth, proxy, timeout, maxRetry } = configuration
   while (retry < maxRetry) {
     console.log(`INFO: jira fetching data from ${resourceUri}, retry: #${retry}`)
     const abort = axios.CancelToken.source()
@@ -15,26 +39,34 @@ async function fetch (resourceUri) {
       timeout
     )
     try {
-      res = await axios.get(`${config.host}/rest/${resourceUri}`, {
+      res = await axios.get(`${host}/rest/${resourceUri}`, {
         headers: {
           Accept: 'application/json',
-          Authorization: `Basic ${config.basicAuth}`
+          Authorization: `Basic ${basicAuth}`
         },
-        agent: config.proxy && new ProxyAgent(config.proxy),
+        agent: proxy && new ProxyAgent(proxy),
         cancelToken: abort.token
       })
       clearTimeout(id)
       break
     } catch (error) {
-      console.error(`ERROR: Failed to call ${resourceUri}`, error)
+      lastError = error
+      if (error.response) {
+        const { status } = error.response
+        if (status >= 400 && status < 500) { // no point to retry on client side errors
+          break
+        }
+      }
+      await new Promise(resolve => setTimeout(resolve, 200))
       retry++
     }
   }
   if (!res) {
-    throw new Error('INFO: Jira fetching data failed. Retry limit exceeding. retry: #', retry)
-  }
-  if (res.data && res.data.message) {
-    throw new Error(`INFO: Jira fetching data failed. Status: ${res.status} Message: ${res.data.message}`)
+    if (lastError && lastError.response) {
+      const { status, data } = lastError.response
+      lastError = `status: ${status}, body: ${JSON.stringify(data)}`
+    }
+    throw new Error(`INFO >>> jira fetching data failed! retry: ${retry} , last error: ${lastError}`)
   }
   return res
 }
@@ -55,4 +87,4 @@ async function * fetchPaged (resourceUri, prop = 'values', startAt = 0, pageSize
   }
 }
 
-module.exports = { fetch, fetchPaged }
+module.exports = { configure, fetch, fetchPaged }

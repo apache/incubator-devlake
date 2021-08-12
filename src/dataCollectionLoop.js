@@ -1,13 +1,17 @@
 require('module-alias/register')
-const config = require('@config/resolveConfig')
+const config = require('@config/resolveConfig').cron || {}
 const axios = require('axios')
 
-const loopTimeInMinutes = config.lake.loopIntervalInMinutes || 60
+const loopTimeInMinutes = config.loopIntervalInMinutes || 60
 const loopTime = 1000 * 60 * loopTimeInMinutes
 const delay = 5000
 
 module.exports = {
   loop: async () => {
+    if (!config.job || (!config.job.gitlab && !config.job.jira)) {
+      console.error('please define your job request body first!')
+      return
+    }
     try {
       console.log('INFO: Collection Loop: Starting data collection loop')
       // run on startup
@@ -24,20 +28,12 @@ module.exports = {
     }
   },
 
-  getMessageFromConfig: (config) => {
-    return {
-      jira: config.jira && config.jira.dataToCollect,
-      gitlab: config.gitlab && config.gitlab.dataToCollect
-    }
-  },
-
   collectionLoop: async () => {
     try {
-      const message = module.exports.getMessageFromConfig(config)
-      console.log('INFO: Collection Loop: processing message', message)
+      console.log('INFO: Collection Loop: processing message', config.job)
       await axios.post(
         `http://localhost:${process.env.COLLECTION_PORT || 3001}`,
-        message,
+        config.job,
         { headers: { 'x-token': config.token || '' } }
       )
     } catch (error) {

@@ -1,12 +1,30 @@
+const fetcher = require('./fetcher')
 const projects = require('./projects')
 const mergeRequests = require('./merge-requests')
 const commits = require('./commits')
 const notes = require('./notes')
-const { gitlab } = require('@config/resolveConfig')
+const { merge } = require('lodash')
+
+const configuration = {
+  verified: false,
+  fetcher: null,
+  skip: {
+    commits: false,
+    projects: false,
+    mergeRequests: false,
+    notes: false
+  }
+}
+
+function configure (config) {
+  fetcher.configure(config.fetcher)
+  merge(configuration.skip, config.skip)
+  configuration.verified = true
+}
 
 async function collect (db, { projectId, branch, forceAll }) {
   const args = { db, projectId: Number(projectId), branch, forceAll }
-  const skipFlags = gitlab.skip
+  const skipFlags = configuration.skip
   if (skipFlags) {
     !skipFlags.projects && await projects.collect(args)
     !skipFlags.commits && await commits.collect(args)
@@ -20,4 +38,4 @@ async function collect (db, { projectId, branch, forceAll }) {
   }
 }
 
-module.exports = { collect }
+module.exports = { configure, collect }
