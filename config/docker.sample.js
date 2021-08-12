@@ -3,7 +3,8 @@ module.exports = {
   lake: {
     // Enable basic authentication to the lake API
     // token: 'mytoken',
-    // Set how often does lake fetch new data from data sources, defaults to every hour
+
+    // Set how often lake will fetch new data from data sources (default every hour)
     loopIntervalInMinutes: 60
   },
   // Configuration of MongoDB
