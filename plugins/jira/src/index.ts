@@ -1,22 +1,19 @@
 import { Module } from '@nestjs/common';
-import { TypeOrmModule } from '@nestjs/typeorm';
 import JiraPlugin from './JiraPlugin';
 import { ScheduleModule } from '@nestjs/schedule';
 import IssueCollector from './runners/IssueCollector';
-import { ConfigModule, ConfigService } from '@nestjs/config';
+import CustomTypeOrmModule from '../../../apps/rest/src/customTypeOrmModule';
 
 @Module({
   imports: [
-    TypeOrmModule.forRootAsync({
-      imports: [ConfigModule],
-      useFactory: (config: ConfigService) => ({
-        type: config.get<'postgres' | 'mysql'>('DB_TYPE', 'mysql'),
-        url: config.get<string>('DB_URL'),
-        name: 'jiraModuleDb',
-        entityPrefix: 'plugin_jira_',
-        entities: [],
-      }),
-      inject: [ConfigService],
+    CustomTypeOrmModule.forRootAsync('jiraModuleDb', {
+      entityPrefix: 'plugin_jira_',
+      synchronize: true,
+      entitiesFunc: () => {
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        return require.context('./entities', true, /\.ts/);
+      },
     }),
     ScheduleModule.forRoot(),
   ],

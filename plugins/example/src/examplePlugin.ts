@@ -28,9 +28,8 @@ class ExamplePlugin implements Plugin {
     return 1;
   }
 
-  async migrateDown(currentVersion: string): Promise<void> {
-    console.info(currentVersion);
-    return;
+  async migrateDown(): Promise<void> {
+    throw new Error('not support');
   }
 
   async migrateUp(pluginPrev: string): Promise<void> {
@@ -41,6 +40,9 @@ class ExamplePlugin implements Plugin {
     // 如果希望执行完整的typeorm migrate
     // If you want to perform a complete typeorm migrate
     await this.connection.runMigrations({ transaction: 'each' });
+
+    // 也可以在声明typeormModule时传递 synchronize/migrationsRun: true，这里什么都不做
+    // Or you can do nothing here if add `synchronize/migrationsRun: true` in typeormModule declare
 
     // 或者按照其他任何插件作者换的方式
     // Or follow any other way as plugin author want

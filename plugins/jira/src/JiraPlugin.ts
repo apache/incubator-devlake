@@ -28,9 +28,8 @@ class JiraPlugin implements Plugin {
     return 1;
   }
 
-  async migrateDown(currentVersion: string): Promise<void> {
-    console.info(currentVersion);
-    return;
+  async migrateDown(): Promise<void> {
+    throw new Error('not support');
   }
 
   async migrateUp(pluginPrev: string): Promise<void> {

@@ -1,19 +1,22 @@
 import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { TypeOrmModule } from '@nestjs/typeorm';
-import { ConfigModule, ConfigService } from '@nestjs/config';
+import { ConfigModule } from '@nestjs/config';
+import CustomTypeOrmModule from './customTypeOrmModule';
 
 @Module({
   imports: [
-    TypeOrmModule.forRootAsync({
-      imports: [ConfigModule],
-      useFactory: (config: ConfigService) => ({
-        type: config.get<'postgres' | 'mysql'>('DB_TYPE', 'mysql'),
-        url: config.get<string>('DB_URL'),
-        entities: [__dirname + '/**/*.model{.ts,.js}'],
-      }),
-      inject: [ConfigService],
+    CustomTypeOrmModule.forRootAsync(null, {
+      entitiesFunc: () => {
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        return require.context('./', true, /\.model\.ts/);
+      },
+      migrationsFunc: () => {
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        return require.context('./', true, /\.migration\.ts/);
+      },
     }),
     ConfigModule.forRoot({ isGlobal: true }),
   ],

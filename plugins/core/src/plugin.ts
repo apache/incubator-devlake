@@ -29,9 +29,8 @@ interface Plugin {
   /**
    * 销毁所需的环境，其中应该包括数据表、文件目录的删除等
    * migrateDown should include db table drop / path remove and so on
-   * @param currentVersion 当前版本号
    */
-  migrateDown(currentVersion: string): Promise<void>;
+  migrateDown(): Promise<void>;
 }
 
 export default Plugin;
