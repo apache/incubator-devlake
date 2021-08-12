@@ -1,6 +1,6 @@
 import { DynamicModule } from '@nestjs/common';
 import { BullQueueModule } from '../bull/queue.module';
-import PluginModule from 'plugins/core/src/plugin';
+import PluginModule from 'plugins/core/src/plugin.module';
 import { ConsumerService } from './service';
 import Jira from 'plugins/jira/src';
 
