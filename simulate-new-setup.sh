@@ -26,7 +26,7 @@ sudo rm -rf data postgres-data
 docker-compose up -d
 npm i
 npx sequelize-cli db:migrate
-npm run lake | tee /tmp/lake.log &
+npm run dev | tee /tmp/lake.log &
 
 # wait untill services ready
 echo waiting services to be ready
