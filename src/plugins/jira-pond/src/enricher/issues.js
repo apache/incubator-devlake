@@ -8,9 +8,6 @@ dayjs.extend(duration)
 const configuration = {
   verified: false,
   mapping: {
-    status: {
-      Closed: ['Done', 'Closed']
-    },
     type: {
       Bug: ['Bug'],
       Incident: ['Incident']
