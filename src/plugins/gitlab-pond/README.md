@@ -30,4 +30,4 @@ To get the project id for a specific Gitlab repository:
     ![Screen Shot 2021-08-06 at 4 44 01 PM](https://user-images.githubusercontent.com/3789273/128569148-96f50d4e-5b3b-4110-af69-a68f8d64350a.png)
 
 3. Click the **Create Personal Access Token** button
-4. Copy the token into the `lake` plugin config file `config/plugins-conf.js`
+4. Copy the token into the `lake` plugin config file `config/plugins.js`
