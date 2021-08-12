@@ -1,7 +1,7 @@
 import { IExecutable } from './executable.interface';
 
-class Scheduler<T> implements IExecutable<T> {
-  async execute(...args: any[]): Promise<T> {
+class Scheduler<T, P> implements IExecutable<T> {
+  async execute(options: P): Promise<T> {
     return;
   }
 }

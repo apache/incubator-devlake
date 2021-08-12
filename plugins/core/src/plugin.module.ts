@@ -3,7 +3,7 @@ import Scheduler from './scheculer';
 
 export type ScheduleProvider = {
   name: string;
-  schedule: Type<Scheduler<any>>;
+  schedule: Type<Scheduler<any, any>>;
 };
 
 class PluginModule {

@@ -15,7 +15,7 @@ export type JiraOptions = {
 @Injectable({
   scope: Scope.TRANSIENT,
 })
-class Jira extends Scheduler<void> {
+class Jira extends Scheduler<void, JiraOptions> {
   name(): string {
     return 'jira';
   }

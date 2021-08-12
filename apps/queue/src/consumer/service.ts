@@ -17,7 +17,7 @@ export class ConsumerService {
   async process(job: Bull.Job): Promise<void> {
     const { name, data } = job;
     const context = ContextIdFactory.create();
-    const executor = await this.moduleRef.resolve<Scheduler<any>>(
+    const executor = await this.moduleRef.resolve<Scheduler<any, any>>(
       name,
       context,
       {
