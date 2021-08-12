@@ -1,8 +1,9 @@
 import { Injectable, Scope } from '@nestjs/common';
 import { ContextIdFactory } from '@nestjs/core';
 import { Test, TestingModule } from '@nestjs/testing';
+import CollectorRef from 'plugins/core/src/collectorref';
 import PluginModule from 'plugins/core/src/plugin.module';
-import Jira from '../src';
+import Jira, { JiraCollector } from '../src';
 
 //exnted new plugin class to change scope to default.so test module could resolve the instance
 @Injectable({ scope: Scope.DEFAULT })
@@ -27,5 +28,24 @@ describe('Jira Plugin', () => {
     });
     expect(jira).toBeDefined();
     expect(jira.execute).toBeDefined();
+  });
+
+  describe('Collector', () => {
+    it('Issue ', async () => {
+      const collectorRef = await testModule.resolve(
+        CollectorRef,
+        ContextIdFactory.create(),
+        {
+          strict: false,
+        },
+      );
+      const issueCollector = await collectorRef.resolve(
+        JiraCollector.ISSUE,
+        'Jira',
+        ContextIdFactory.create(),
+      );
+      expect(issueCollector).toBeDefined();
+      expect(issueCollector.execute).toBeDefined();
+    });
   });
 });
