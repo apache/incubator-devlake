@@ -1,20 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import Plugin from '../../core/src/plugin';
-import { Cron, CronExpression } from '@nestjs/schedule';
 import IssueCollector from './runners/IssueCollector';
 import { Connection } from 'typeorm';
 import { InjectConnection } from '@nestjs/typeorm';
-
-export type JiraCollector =
-  | 'ISSUE'
-  | 'CHANGELOG'
-  | 'COMMENTS'
-  | 'REMOTELINK'
-  | 'BOARD';
-
-export type JiraOptions = {
-  collectors: JiraCollector[];
-};
 
 @Injectable()
 class ExamplePlugin implements Plugin {
@@ -48,10 +36,10 @@ class ExamplePlugin implements Plugin {
     // Or follow any other way as plugin author want
   }
 
-  async execute(options: JiraOptions): Promise<void> {
+  async execute(): Promise<void> {
     await this.issueCollector.collectData({}, null);
     //TODO: Add jira collector and enrichment
-    console.info('Execute Example', options);
+    console.info('Execute Example');
     return;
   }
 }

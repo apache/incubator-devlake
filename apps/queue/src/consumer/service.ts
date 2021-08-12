@@ -2,8 +2,8 @@ import { InjectQueue } from '@nestjs/bull';
 import { Injectable, OnModuleInit } from '@nestjs/common';
 import { ModuleRef } from '@nestjs/core';
 import Bull, { Queue } from 'bull';
-import Plugin from '../../../../plugins/core/src/plugin';
-import { plugins } from './plugins';
+import Plugin from 'plugins/core/src/plugin';
+import { plugins } from 'plugins';
 
 @Injectable()
 export class ConsumerService implements OnModuleInit {

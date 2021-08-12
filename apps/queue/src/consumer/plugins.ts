@@ -1,11 +1,5 @@
 import { DynamicModule } from '@nestjs/common';
-import JiraModule from '../../../../plugins/jira/src';
-import JiraPlugin from '../../../../plugins/jira/src/JiraPlugin';
-import ExamplePlugin from '../../../../plugins/example/src/examplePlugin';
-import ExampleModule from '../../../../plugins/example/src';
-
-export const modules = [JiraModule, ExampleModule];
-export const plugins = [JiraPlugin, ExamplePlugin];
+import { modules } from 'plugins';
 
 export class PluginModule {
   static async forRootAsync(): Promise<DynamicModule> {
