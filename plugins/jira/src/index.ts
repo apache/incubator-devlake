@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import Plugin from 'plugins/core/src/plugin';
+import { PrimaryValues } from 'plugins/core/src/types';
 
 export type JiraCollector =
   | 'ISSUE'
@@ -36,6 +37,9 @@ class Jira implements Plugin {
     //TODO: Add jira collector and enrichment
     console.info('Excute Jira', options);
     return;
+  }
+  async collectData(primaryKeys: PrimaryValues, consumerModule) {
+    
   }
 }
 
