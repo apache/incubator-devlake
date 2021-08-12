@@ -28,14 +28,14 @@ function configure (config) {
     throw new Error('gitlab configuration error: apiPath is required')
   }
   if (!token) {
-    throw new Error('gitlab configuration error: apiPath is required')
+    throw new Error('gitlab configuration error: token is required')
   }
   configuration.verified = true
 }
 
 async function fetch (resourceUri) {
   if (!configuration.verified) {
-    throw new Error('not configured!')
+    throw new Error('gitlab fetcher is not configured properly!')
   }
   const { host, apiPath, token, proxy, timeout, maxRetry } = configuration
   let retry = 0

@@ -26,7 +26,7 @@ function configure (config) {
 
 async function fetch (resourceUri) {
   if (!configuration.verified) {
-    throw new Error('not configured!')
+    throw new Error('jira fetcher is not configured properly!')
   }
   let retry = 0
   let res, lastError
