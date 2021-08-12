@@ -45,7 +45,7 @@ if (require.main === module) {
     require('module-alias/register')
     const dbConnector = require('@mongo/connection')
     const enrichedDb = require('@db/postgres')
-    const configuration = require('@config/plugins-conf.js').find(p => p.name === 'jira').configuration
+    const configuration = require('@config/plugins.js').find(p => p.name === 'jira').configuration
 
     const boardId = Number(process.argv[2]) || 8
     const forceCollectAll = Number(process.argv[3])

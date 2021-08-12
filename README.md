@@ -58,15 +58,20 @@ Gitlab | Metrics, Generating API Token | [Link](src/plugins/gitlab-pond/README.m
    git clone https://github.com/merico-dev/lake.git
    cd lake
    ```
-2. Create a copy of the sample configuration file with
+2. Create a copy of the sample configuration files with
 
    ```
    cp config/docker.sample.js config/docker.js
+   cp config/plugins.sample.js config/plugins.js
    ```
-3. Configure settings for services & plugins by editing the newly created `config/docker.js`. For how to configure plugins, please refer to the [data source plugins](#data-source-plugins) section.
+
+3. Configure settings for services & plugins by editing the newly created config files. The comments will guide you through the process and look for "Replace" keyword in these config files would help as well. For how to configure plugins, please refer to the [data source plugins](#data-source-plugins) section.
+
 4. Start the service with `npm start`
     > you can stop all docker containers with `npm run stop`
+
 5. Run `docker-compose logs -f lake` to check the logs and see when lake stops collecting your data. This can take up to 20 minutes for large projects. (gitlab 10k+ commits or jira 5k+ issues)
+
 6. Navigate to Grafana Dashboard `https://localhost:3002` (Username: `admin`, password: `admin`)
 
 ## Developer Setup<a id="developer-setup"></a>
@@ -82,12 +87,13 @@ Gitlab | Metrics, Generating API Token | [Link](src/plugins/gitlab-pond/README.m
    ```
    npm i
    ```
-3. Create a copy of the sample configuration file with
+3. Create a copy of the sample configuration files with
 
    ```
    cp config/local.sample.js config/local.js
+   cp config/plugins.sample.js config/plugins.js
    ```
-4. Configure settings for services & plugins by editing the newly created `config/local.js`. For how to configure plugins, please refer to the [data source plugins](#data-source-plugins) section.
+4. Configure settings for services & plugins by editing the newly created config files. The comments will guide you through the process and look for "Replace" keyword in these config files would help as well. For how to configure plugins, please refer to the [data source plugins](#data-source-plugins) section.
 
 5. Start all third-party services and lake's own services with
 

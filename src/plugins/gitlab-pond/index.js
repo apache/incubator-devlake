@@ -41,7 +41,7 @@ if (require.main === module) {
     require('module-alias/register')
     const dbConnector = require('@mongo/connection')
     const enrichedDb = require('@db/postgres')
-    const configuration = require('@config/plugins-conf.js').find(p => p.name === 'gitlab').configuration
+    const configuration = require('@config/plugins.js').find(p => p.name === 'gitlab').configuration
 
     const projectId = process.argv[2] || 24547305
     const { db, client } = await dbConnector.connect()
