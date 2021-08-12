@@ -1,11 +1,12 @@
-type PrimaryValues = Record<string, string | number | boolean>;
+export type PrimaryValues = Record<string, string | number | boolean>;
 
 interface Collector {
   /**
-   * collector的名字，需要plugin内唯一
-   * name of collector with unique in plugin
+   * 当前插件的名字，如果未继承默认为去掉后缀的类名
+   * name of plugin
+   * If you do not inherit name(),  it defaults to the class name removing the suffix
    */
-  name(): string;
+  name?(): string;
 
   /**
    * 返回改依赖项，collector只能依赖collector
@@ -19,7 +20,7 @@ interface Collector {
    *   'pluginName' + '/' + 'collectorName': primaryKeyObject
    * }
    */
-  dependencies(primaryKeys: PrimaryValues): Record<string, PrimaryValues>;
+  dependencies?(primaryKeys: PrimaryValues): Record<string, PrimaryValues>;
 
   /**
    * 返回对应主键的数据是否已经准备好，需要快速的返回结果

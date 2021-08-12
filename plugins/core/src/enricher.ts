@@ -21,8 +21,9 @@ interface Enricher extends Collector {
    * 是否支持懒加载，即查询数据时才进行计算，如果支持，那么查询数据必须通过queryData
    * return if support lazy load for query data,
    * You must query data by queryData() when support lazy load
+   * 默认为不支持 default: false
    */
-  couldLazyLoad(): boolean;
+  couldLazyLoad?(): boolean;
 
   /**
    * 使用队列开始计算数据，此时不应该请求任何外部数据

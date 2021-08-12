@@ -1,8 +1,9 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import JiraPlugin from './JiraPlugin';
+import ExamplePlugin from './examplePlugin';
 import { ScheduleModule } from '@nestjs/schedule';
 import IssueCollector from './runners/IssueCollector';
+import { User } from './entities/user';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 
 @Module({
@@ -12,17 +13,17 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
       useFactory: (config: ConfigService) => ({
         type: config.get<'postgres' | 'mysql'>('DB_TYPE', 'mysql'),
         url: config.get<string>('DB_URL'),
-        name: 'jiraModuleDb',
-        entityPrefix: 'plugin_jira_',
-        entities: [],
+        entityPrefix: 'plugin_example_',
+        entities: [User,/*'./plugins/jira/src/entities/*.{js,ts}'*/],
+        migrations: ['./plugins/jira/src/migration/*.{js,ts}'],
       }),
       inject: [ConfigService],
     }),
     ScheduleModule.forRoot(),
   ],
-  providers: [JiraPlugin, IssueCollector],
-  exports: [JiraPlugin],
+  providers: [ExamplePlugin, IssueCollector],
+  exports: [ExamplePlugin],
 })
-class JiraModule {}
+class ExampleModule {}
 
-export default JiraModule;
+export default ExampleModule;

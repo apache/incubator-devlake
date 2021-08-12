@@ -7,12 +7,8 @@ export class ConsumerModule {
   static forRoot(queue = 'default'): DynamicModule {
     return {
       module: ConsumerModule,
-      imports: [
-        BullQueueModule.forRoot(queue),
-        PluginModule.forRootAsync(),
-        ConsumerService,
-      ],
-      providers: [],
+      imports: [BullQueueModule.forRoot(queue), PluginModule.forRootAsync()],
+      providers: [ConsumerService],
       exports: [ConsumerService],
     };
   }
