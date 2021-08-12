@@ -23,15 +23,12 @@ function configure (config) {
   merge(configuration, config)
   configuration.verified = false
 
-  const { epicKeyField, mapping: { status, type } } = configuration
+  const { epicKeyField, mapping: { type } } = configuration
   if (!epicKeyField || !epicKeyField.startsWith('customfield')) {
     throw new Error('jira enrichment configuration error: issue.epicKeyField is invalid')
   }
 
   const isValidArray = (a) => isArray(a) && !isEmpty(a)
-  if (!isValidArray(status.Closed)) {
-    throw new Error('jira configuration error: issue.mapping.status.Closed is invalid')
-  }
   if (!isValidArray(type.Bug)) {
     throw new Error('jira configuration error: issue.mapping.type.Bug is invalid')
   }
@@ -72,7 +69,7 @@ async function enrichIssues (rawDb, enrichedDb, boardId, forceAll) {
         issueType: Object.keys(mapping.type).find(k => mapping.type[k].includes(issue.fields.issuetype.name)) ||
                       issue.fields.issuetype.name,
         epicKey: issue.fields[epicKeyField],
-        status: mapping.status.Closed.includes(issue.fields.status.name) ? 'Closed' : issue.fields.status.name,
+        status: issue.fields.status.name,
         issueCreatedAt: issue.fields.created,
         issueUpdatedAt: issue.fields.updated,
         issueResolvedAt: issue.fields.resolutiondate,
