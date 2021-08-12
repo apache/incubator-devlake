@@ -20,13 +20,12 @@ module.exports = [
       enrichment: {
         issue: {
           mapping: {
-            status: {
-            // Format: <Standard Status>: <Jira Status>
-              Closed: ['Done', 'Closed']
-            },
+            //  This maps issue types in your Jira system to the standard issue type in dev lake
+            // Format: <Standard Type>: [<Jira Type>]
             type: {
-            // Format: <Standard Type>: <Jira Type>
+              // This mapping powers the metrics like Bug Count, But Age, and etc
               Bug: ['Bug'],
+              // This mapping powers the metrics like Incident Count, Incident Age, and etc
               Incident: ['Incident']
             }
           },

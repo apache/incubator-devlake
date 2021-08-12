@@ -3,8 +3,7 @@ const enrichment = require('./src/enricher')
 
 module.exports = {
   configuration: {
-    collection: null,
-    enrichment: null
+    collection: null
   },
 
   configure (configuration) {

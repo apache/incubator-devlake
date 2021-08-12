@@ -29,3 +29,61 @@ Incident Count per 1k Lines of Code | Amount of incidents per 1000 lines of code
 
     `echo -n user@example.com:api_token_string | base64`
 5. Copy the encoded API token string into the `lake` plugin config file `config/plugins-conf.js`
+
+## Jira Specific String Configuration
+
+Adjust what is considered "Bug", "Incident" or "Requirement". This can be modified in `config/plugins-conf.js`.
+
+
+
+```js
+{
+  package: 'jira-pond',
+  name: 'jira',
+  configuration: {
+    enrichment: {
+      issue: {
+        mapping: {
+          //  This maps issue types in your Jira system to the standard issue type in dev lake
+          // Format: <Standard Type>: [<Jira Type>]
+          type: {
+            // This mapping powers the metrics like Bug Count, But Age, and etc
+            Bug: ['Bug'],
+            // This mapping powers the metrics like Incident Count, Incident Age, and etc
+            Incident: ['Incident']
+          }
+        },
+        epicKeyField: 'customfield_10014'
+      }
+    }
+  }
+}
+```
+
+You can set multiple values to map from your system as well. Just put the values in an array.
+In this object, you can set the values of the object to map to your Jira status definitions. IE:
+
+```js
+{
+  package: 'jira-pond',
+  name: 'jira',
+  configuration: {
+    enrichment: {
+      issue: {
+        mapping: {
+          status: {
+          // Format: <Standard Status>: <Jira Status>
+            Closed: ['MyClosedStatusInJira']
+          },
+          type: {
+          // Format: <Standard Type>: <Jira Type>
+            Bug: ['MyBugStatusInJira'],
+            Incident: ['MyIncidentStatusinJira']
+          }
+        },
+        epicKeyField: 'customfield_10014'
+      }
+    }
+  }
+}
+```
