@@ -1,5 +1,5 @@
-import { Column, Entity, PrimaryGeneratedColumn } from "typeorm";
-import Fields from "./fields.entity";
+import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import Fields from './fields.entity';
 
 @Entity()
 class JiraIssue {

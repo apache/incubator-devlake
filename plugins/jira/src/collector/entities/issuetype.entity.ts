@@ -1,5 +1,5 @@
-import { Column } from "typeorm";
-import JiraType from "./jiratype.entity";
+import { Column } from 'typeorm';
+import JiraType from './jiratype.entity';
 
 class IssueType extends JiraType {
   @Column()
