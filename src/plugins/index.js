@@ -1,5 +1,5 @@
 require('module-alias/register')
-const registryConfig = require('@config/plugins-conf')
+const registryConfig = require('@config/plugins')
 const dbConnector = require('@mongo/connection')
 const enrichedDb = require('@db/postgres')
 const { merge } = require('lodash')
