@@ -124,6 +124,7 @@ data/
 # config files
 config/local.js
 config/docker.js
+config/plugins.js
 
 # Editors
 .idea
@@ -142,5 +143,3 @@ yarn.lock
 rabbitmq
 
 commitmsg.md
-
-config/plugins-conf.js
