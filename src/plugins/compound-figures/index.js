@@ -1,21 +1,33 @@
 require('module-alias/register')
-const config = require('@config/resolveConfig').jiraBoardGitlabProject
+const { isArray } = require('lodash')
 
 module.exports = {
   configuration: {
     // default configuration which could be overrided by `config/plugins.js`
+    enrichment: {
+      jiraBoardId2GitlabProjectId: {
+      }
+    }
+  },
+
+  configure (configuration) {
+    module.exports.configuration = configuration
   },
 
   async initialize (rawDb, enrichedDb, plugins) {
-    if (!config) {
-      return
-    }
+    const { configuration: { enrichment: { jiraBoardId2GitlabProjectId } } } = module.exports
+
     const { JiraBoardGitlabProject } = enrichedDb
     // remove all board-to-repo mapping
     await JiraBoardGitlabProject.destroy({ where: {}, truncate: true })
     // sync from configuration to database for JOIN query
-    for (const [boardId, projectId] of Object.entries(config)) {
-      await JiraBoardGitlabProject.create({ boardId, projectId })
+    for (let [boardId, projectIds] of Object.entries(jiraBoardId2GitlabProjectId)) {
+      if (!isArray(projectIds)) {
+        projectIds = [projectIds]
+      }
+      for (const projectId of projectIds) {
+        await JiraBoardGitlabProject.create({ boardId, projectId })
+      }
     }
   },
   enricher: {
