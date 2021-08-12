@@ -7,9 +7,9 @@ module.exports = {
     enrichment: null
   },
 
-  async configure (configuration) {
+  configure (configuration) {
     module.exports.configuration = configuration
-    await collection.configure(configuration.collection)
+    collection.configure(configuration.collection)
   },
 
   collector: {

@@ -7,9 +7,9 @@ const configuration = {
   issue: null
 }
 
-async function configure (config) {
+function configure (config) {
   merge(configuration, config)
-  await issues.configure(configuration.issue)
+  issues.configure(configuration.issue)
 }
 
 async function enrich (rawDb, enrichedDb, { boardId, forceAll }) {

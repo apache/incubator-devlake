@@ -16,8 +16,8 @@ const configuration = {
   }
 }
 
-async function configure (config) {
-  await fetcher.configure(config.fetcher)
+function configure (config) {
+  fetcher.configure(config.fetcher)
   merge(configuration.skip, config.skip)
   configuration.verified = true
 }
