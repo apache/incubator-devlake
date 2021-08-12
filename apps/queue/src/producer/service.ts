@@ -4,11 +4,7 @@ import { Queue } from 'bull';
 
 @Injectable()
 export class ProducerService {
-  constructor(@InjectQueue('default') private queue: Queue) {
-    this.queue.add('Jira', {s: 1});
-    this.queue.add('Jira', {s: 2});
-    console.info('init')
-  }
+  constructor(@InjectQueue('default') private queue: Queue) {}
 
   async addJob<T>(name: string, options: T): Promise<string> {
     const job = await this.queue.add(name, options);
