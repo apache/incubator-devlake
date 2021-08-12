@@ -30,19 +30,32 @@ To get the project id for a specific Gitlab repository:
     ![Screen Shot 2021-08-06 at 4 44 01 PM](https://user-images.githubusercontent.com/3789273/128569148-96f50d4e-5b3b-4110-af69-a68f8d64350a.png)
 
 3. Click the **Create Personal Access Token** button
-4. Copy the token into the `lake` repo config
+4. Copy the token into the `lake` plugin config file `config/plugins-conf.js`
 
 ## Jira Specific String Configuration
 
-Adjust what is considered "Closed", "Bug" or "Incident". This can be modified in `/config/constants.js`.
+Adjust what is considered "Closed", "Bug" or "Incident". This can be modified in `config/plugins-conf.js`.
 
-```
+```js
 {
-  "jira": {
-    "mappings": {
-      "Closed": ["Done", "Closed", "已关闭"],
-      "Bug": "Bug",
-      "Incident": "Incident"
+  package: 'jira-pond',
+  name: 'jira',
+  configuration: {
+    enrichment: {
+      issue: {
+        mapping: {
+          status: {
+          // Format: <Standard Status>: <Jira Status>
+            Closed: ['Done', 'Closed']
+          },
+          type: {
+          // Format: <Standard Type>: <Jira Type>
+            Bug: ['Bug'],
+            Incident: ['Incident']
+          }
+        },
+        epicKeyField: 'customfield_10014'
+      }
     }
   }
 }
@@ -51,10 +64,27 @@ Adjust what is considered "Closed", "Bug" or "Incident". This can be modified in
 You can set multiple values to map from your system as well. Just put the values in an array.
 In this object, you can set the values of the object to map to your Jira status definitions. IE:
 
-```
-"jira": {
-  "Closed": ["MyClosedStatusInJira"],
-  "Bug": "MyBugStatusInJira",
-  "Incident": "MyIncidentStatusinJira"
+```js
+{
+  package: 'jira-pond',
+  name: 'jira',
+  configuration: {
+    enrichment: {
+      issue: {
+        mapping: {
+          status: {
+          // Format: <Standard Status>: <Jira Status>
+            Closed: ['MyClosedStatusInJira']
+          },
+          type: {
+          // Format: <Standard Type>: <Jira Type>
+            Bug: ['MyBugStatusInJira'],
+            Incident: ['MyIncidentStatusinJira']
+          }
+        },
+        epicKeyField: 'customfield_10014'
+      }
+    }
+  }
 }
 ```
