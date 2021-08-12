@@ -1,5 +1,5 @@
 import { Body, Controller, Post } from '@nestjs/common';
-import Source from 'apps/model/core/source';
+import Source from './source.model';
 import { SourceService } from './source.service';
 import { CreateSource } from './source.type';
 

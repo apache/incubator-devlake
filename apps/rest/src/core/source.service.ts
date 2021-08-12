@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import Source from 'apps/model/core/source';
+import Source from './source.model';
 import { CreateSource } from './source.type';
 
 @Injectable()
