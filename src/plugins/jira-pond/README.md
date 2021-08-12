@@ -44,43 +44,21 @@ Adjust what is considered "Bug", "Incident" or "Requirement". This can be modifi
     enrichment: {
       issue: {
         mapping: {
-          //  This maps issue types in your Jira system to the standard issue type in dev lake
+          // This maps issue types in your Jira system to the standard issue type in dev lake
+          // In lake, we define bugs as issues found in development process whereas
+          // incidents are issues found in production environment
           // Format: <Standard Type>: [<Jira Type>]
           type: {
             // This mapping powers the metrics like Bug Count, But Age, and etc
+            // Replace 'Bug' with your own issue types for bugs.
             Bug: ['Bug'],
             // This mapping powers the metrics like Incident Count, Incident Age, and etc
+            // Replace 'Incident' with your own issue types for incidents
             Incident: ['Incident']
           }
         },
-        epicKeyField: 'customfield_10014'
-      }
-    }
-  }
-}
-```
-
-You can set multiple values to map from your system as well. Just put the values in an array.
-In this object, you can set the values of the object to map to your Jira status definitions. IE:
-
-```js
-{
-  package: 'jira-pond',
-  name: 'jira',
-  configuration: {
-    enrichment: {
-      issue: {
-        mapping: {
-          status: {
-          // Format: <Standard Status>: <Jira Status>
-            Closed: ['MyClosedStatusInJira']
-          },
-          type: {
-          // Format: <Standard Type>: <Jira Type>
-            Bug: ['MyBugStatusInJira'],
-            Incident: ['MyIncidentStatusinJira']
-          }
-        },
+        // Enables lake to track which epic an issue belongs to
+        // Replace 'customfiled_10014' with your own field ID for the epic key
         epicKeyField: 'customfield_10014'
       }
     }
