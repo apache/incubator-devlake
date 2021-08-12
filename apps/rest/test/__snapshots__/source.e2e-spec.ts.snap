@@ -1,0 +1,31 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`SourceController (e2e) /source (POST) should return validate error 1`] = `
+Object {
+  "error": "Bad Request",
+  "message": Array [
+    "type must be one of the following values: jira, gitlab",
+  ],
+  "statusCode": 400,
+}
+`;
+
+exports[`SourceController (e2e) /source (POST) should return validate error 2 1`] = `
+Object {
+  "error": "Bad Request",
+  "message": Array [
+    "type must be one of the following values: jira, gitlab",
+  ],
+  "statusCode": 400,
+}
+`;
+
+exports[`SourceController (e2e) /source (POST) should return validate error 3 1`] = `
+Object {
+  "error": "Bad Request",
+  "message": Array [
+    "options should not be empty",
+  ],
+  "statusCode": 400,
+}
+`;
