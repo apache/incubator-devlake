@@ -5,9 +5,9 @@ module.exports = [
     configuration: {
       collection: {
         fetcher: {
-          // ➡️ Replace example host with your own host
+          // ➤➤➤ Replace example host with your own host
           host: 'https://your-domain.atlassian.net',
-          // ➡️ Replace *** with your jira API token, please see Jira plugin readme for details
+          // ➤➤➤ Replace *** with your jira API token, please see Jira plugin readme for details
           basicAuth: '***',
           // Set timeout for sending requests to Jira API
           timeout: 10000,
@@ -35,7 +35,7 @@ module.exports = [
             }
           },
           // Enables lake to track which epic an issue belongs to
-          // ➡️ Replace 'customfiled_10014' with your own field ID for the epic key
+          // ➤➤➤ Replace 'customfiled_10014' with your own field ID for the epic key
           epicKeyField: 'customfield_10014'
         }
       }
@@ -47,11 +47,11 @@ module.exports = [
     configuration: {
       collection: {
         fetcher: {
-          // ➡️ Replace example host with your host if your Gitlab is self-hosted
+          // ➤➤➤ Replace example host with your host if your Gitlab is self-hosted
           // Leave this unchanged if you use Gitlab's cloud service
           host: 'https://gitlab.com',
           apiPath: 'api/v4',
-          // ➡️ Replace *** with your Gitlab API token, see Gitlab plugin readme for details
+          // ➤➤➤ Replace *** with your Gitlab API token, see Gitlab plugin readme for details
           token: '***',
           // Set timeout for sending requests to Jira API
           timeout: 10000,
@@ -77,7 +77,7 @@ module.exports = [
     name: 'compound-figures',
     configuration: {
       enrichment: {
-        // ➡️ Replace example mapping your own mapping
+        // ➤➤➤ Replace example mapping your own mapping
         // Format: <Jira boardID>: <Gitlab projectId>
         jiraBoardId2GitlabProjectId: {
           8: 8967944
