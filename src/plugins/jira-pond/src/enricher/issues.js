@@ -7,12 +7,32 @@ dayjs.extend(duration)
 
 const configuration = {
   verified: false,
-  mapping: {
-    type: {
-      Bug: ['Bug'],
-      Incident: ['Incident']
+  typeMappings: [
+    {
+      originTypes: ['Bug'],
+      standardType: 'Bug',
+      statusMappings: [
+        { originStatuses: ['Rejected', 'Abandoned', 'Cancelled', 'ByDesign', 'Irreproducible'], standardStatus: 'Rejected' },
+        { originStatuses: ['Resolved', 'Approved', 'Verified', 'Done', 'Closed'], standardStatus: 'Resolved' }
+      ]
+    },
+    {
+      originTypes: ['Incident'],
+      standardType: 'Incident',
+      statusMappings: [
+        { originStatuses: ['Rejected', 'Abandoned', 'Cancelled', 'Irreproducible'], standardStatus: 'Rejected' },
+        { originStatuses: ['Resolved', 'Approved', 'Verified', 'Done', 'Closed'], standardStatus: 'Resolved' }
+      ]
+    },
+    {
+      originTypes: ['Story'],
+      standardType: 'Requirement',
+      statusMappings: [
+        { originStatuses: ['Rejected', 'Abandoned', 'Cancelled', 'OnHold'], standardStatus: 'Rejected' },
+        { originStatuses: ['Resolved', 'Done', 'Closed'], standardStatus: 'Resolved' }
+      ]
     }
-  },
+  ],
   epicKeyField: null
 }
 
@@ -52,7 +72,7 @@ async function enrichIssues (rawDb, enrichedDb, boardId, forceAll) {
       : issueCollection.find({ $where: 'this.enriched < this.fields.updated || !this.enriched', boardIds: boardId })
   )
 
-  const { epicKeyField, mapping } = configuration
+  const { epicKeyField, typeMappings } = configuration
 
   try {
     let counter = 0
@@ -63,8 +83,7 @@ async function enrichIssues (rawDb, enrichedDb, boardId, forceAll) {
         url: issue.self,
         title: issue.fields.summary,
         projectId: issue.fields.project.id,
-        issueType: Object.keys(mapping.type).find(k => mapping.type[k].includes(issue.fields.issuetype.name)) ||
-                      issue.fields.issuetype.name,
+        issueType: issue.fields.issuetype.name,
         epicKey: issue.fields[epicKeyField],
         status: issue.fields.status.name,
         issueCreatedAt: issue.fields.created,
@@ -72,8 +91,16 @@ async function enrichIssues (rawDb, enrichedDb, boardId, forceAll) {
         issueResolvedAt: issue.fields.resolutiondate,
         leadTime: null
       }
+      const typeMapping = typeMappings.find(tm => tm.originTypes.includes(enriched.issueType))
+      if (typeMapping) {
+        enriched.issueType = typeMapping.standardType
+        const statusMapping = typeMapping.statusMappings.find(sm => sm.originStatuses.includes(enriched.status))
+        if (statusMapping) {
+          enriched.status = statusMapping.standardStatus
+        }
+      }
       // by standard, leadtime = days of (resolutiondate - creationdate)
-      if (issue.fields.resolutiondate) {
+      if (enriched.status === 'Resolved' && issue.fields.resolutiondate) {
         enriched.leadTime = dayjs.duration(dayjs(issue.fields.resolutiondate) - dayjs(issue.fields.created)).days()
       }
       await JiraIssue.upsert(enriched)
