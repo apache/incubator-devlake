@@ -2,7 +2,7 @@ module.exports = {
   // Configuration of lake's own services
   lake: {
     // Enable basic authentication to the lake API
-    // token: 'mytoken'
+    // token: 'mytoken',
     // Set how often does lake fetch new data from data sources, defaults to every hour
     loopIntervalInMinutes: 60
   },
