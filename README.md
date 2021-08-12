@@ -1,3 +1,4 @@
+
 <br />
 <img src="https://user-images.githubusercontent.com/3789273/128085813-92845abd-7c26-4fa2-9f98-928ce2246616.png" width="120px">
 
@@ -9,6 +10,8 @@
 ### What is Dev Lake?
 
 Dev Lake is the one-stop solution that _**integrates, analyzes, and visualizes**_ the development data throughout the _**software development life cycle (SDLC)**_ for engineering teams.
+
+<img width="1769" alt="Screen Shot 2021-08-12 at 4 52 09 PM" src="https://user-images.githubusercontent.com/3011407/129260553-968f0993-c88a-424f-9041-52127b309403.png">
 
 ### Why choose Dev Lake?
 
