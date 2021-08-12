@@ -8,8 +8,8 @@ const configuration = {
   fetcher: null
 }
 
-async function configure (config) {
-  await fetcher.configure(config.fetcher)
+function configure (config) {
+  fetcher.configure(config.fetcher)
   merge(configuration, config)
   configuration.verified = true
 }

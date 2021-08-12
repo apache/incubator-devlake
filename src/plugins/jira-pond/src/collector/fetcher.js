@@ -11,7 +11,7 @@ const configuration = {
   maxRetry: 3
 }
 
-async function configure (config) {
+function configure (config) {
   merge(configuration, config)
   configuration.verified = false
   const { host, basicAuth } = configuration

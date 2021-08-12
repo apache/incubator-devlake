@@ -10,7 +10,7 @@ module.exports = {
     }
   },
 
-  async configure (configuration) {
+  configure (configuration) {
     module.exports.configuration = configuration
   },
 

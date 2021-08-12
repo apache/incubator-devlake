@@ -8,10 +8,10 @@ module.exports = {
     enrichment: null
   },
 
-  async configure (configuration) {
+  configure (configuration) {
     module.exports.configuration = configuration
-    await collection.configure(configuration.collection)
-    await enrichment.configure(configuration.enrichment)
+    collection.configure(configuration.collection)
+    enrichment.configure(configuration.enrichment)
   },
 
   collector: {

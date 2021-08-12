@@ -19,7 +19,7 @@ const configuration = {
   epicKeyField: null
 }
 
-async function configure (config) {
+function configure (config) {
   merge(configuration, config)
   configuration.verified = false
 
