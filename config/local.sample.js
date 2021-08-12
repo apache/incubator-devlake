@@ -34,7 +34,6 @@ module.exports = {
       }
     },
     */
-    interval: 5000,
     loopIntervalInMinutes: 60
   }
 }
