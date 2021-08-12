@@ -25,7 +25,6 @@ services:
       - grafana-storage:/var/lib/grafana
       - ./grafana/provisioning:/etc/grafana/provisioning
       - ./grafana/dashboards:/etc/grafana/dashboards
-      - ./src/img/grafana_icon.svg:/usr/share/grafana/public/img/grafana_icon.svg:rw
     env_file:
       - ./grafana/grafana.config
     restart: always
