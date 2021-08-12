@@ -39,9 +39,29 @@ export class SomeService {
 }
 ```
 
-## How To Create Your Own Plugin
+## How To Add a Plugin
 
 Add the plugin entry extends the Scheduler and implement the execute method.
+
+- create your collector an enricher
+```
+\\ plugins/myplugin/src/collector/sample.ts
+
+@Injectable({
+  scope: Scope.TRANSIENT, //set to TRANSIENT, so collector would not be single instance
+})
+class SampleCollector implements IExecutable<void> {
+  constructor() {}
+  async execute(): Promise<void> {
+    return;
+  }
+}
+
+export default SampleCollector;
+
+```
+
+declare the collectors in plugin entry
 
 ```
 \\ plugins/myplugin/src/index.ts
@@ -49,9 +69,17 @@ Add the plugin entry extends the Scheduler and implement the execute method.
 @Injectable({
   scope: Scope.TRANSIENT,
 })
+@Collector({
+  'Sample': SampleCollector,
+})
 class MyPlugin extends Scheduler<void> {
-   async execute(options: JiraOptions): Promise<void> {
-    //TODO: schedule the task here
+   async execute(options: any, contextId: ContextId): Promise<void> {
+    const collector = await this.collectorRef.resolve(
+      'Sample',
+      'Jira',//name Registed in PluginModule
+      contextId,
+    );
+    await collector.execute(options);
     return;
   }
 }
