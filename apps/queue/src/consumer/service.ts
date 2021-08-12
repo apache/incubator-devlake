@@ -25,7 +25,7 @@ export class ConsumerService {
       },
     );
     if (executor) {
-      executor.execute(data);
+      executor.execute(data, context);
     }
   }
 

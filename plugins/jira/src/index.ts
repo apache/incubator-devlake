@@ -1,8 +1,7 @@
 import { Injectable, Scope } from '@nestjs/common';
-import Collector, {
-  CollectorMap,
-  COLLECTORS_METADATA,
-} from 'plugins/core/src/collector.decorate';
+import { ContextId } from '@nestjs/core';
+import Collector from 'plugins/core/src/collector.decorate';
+import CollectorRef from 'plugins/core/src/collectorref';
 import Scheduler from 'plugins/core/src/scheculer';
 import IssueCollector from './collector/issue';
 
@@ -25,14 +24,18 @@ export type JiraOptions = {
   [JiraCollector.ISSUE]: IssueCollector,
 })
 class Jira extends Scheduler<void, JiraOptions> {
-  async execute(options: JiraOptions): Promise<void> {
+  constructor(private collectorRef: CollectorRef) {
+    super();
+  }
+
+  async execute(options: JiraOptions, contextId?: ContextId): Promise<void> {
     //TODO: Add jira collector and enrichment
-    const collectorMaps: CollectorMap = Reflect.getMetadata(
-      COLLECTORS_METADATA,
-      Jira,
+    const collector = await this.collectorRef.resolve(
+      JiraCollector.ISSUE,
+      'Jira',
+      contextId,
     );
-    const collector = new collectorMaps[JiraCollector.ISSUE]();
-    await collector.execute(options)
+    await collector.execute(options);
     return;
   }
 }
