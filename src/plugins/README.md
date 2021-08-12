@@ -74,9 +74,10 @@ Note the use of "upsert". This is useful for only saving modified records.
 #### Reasons to Enrich
 
 Once you are able to store the raw data from your queries, you will want to enrich that data to:
-a) Add fields you don't currently have
-b) Compute fields you might want for metrics
-c) Eliminate fields you don't need
+
+- Add fields you don't currently have
+- Compute fields you might want for metrics
+- Eliminate fields you don't need
 
 #### Adding to the DB
 
@@ -88,40 +89,38 @@ It is good to build a collector and an enricher together, because knowledge of t
 
 Let's walk through a short example.
 
-1. Choose an API you're interested in.
+  1. Choose an API you're interested in.
 
 Let's say you want to see data from the Movie Database.
 
-2. Choose some metrics you would like to see about movies.
+  2. Choose some metrics you would like to see about movies.
 
 You would like to know how movie production has increased over the last 50 years.
 Let's start with how many movies have been produced each year as a metric.
 
-3. Look for the data to support this from the Movie DB API
+  3. Look for the data to support this from the Movie DB API
 
-Lets assume this data is available through an endpoint like (this may not be the case):
+Lets assume this data is available through an endpoint like (this may not be the case): `GET /movies`
 
-GET /movies
-
-4. Get an API key for authentication.
+  4. Get an API key for authentication.
 
 You will need an API key to access the data.
 
-5. Understand Rate Limits and Pagination
+  5. Understand Rate Limits and Pagination
 
 There are limits to accessing API data. You will need to work around these limits.
 
-6. Build the collector to fetch data from the API and store the raw data in a DB.
+  6. Build the collector to fetch data from the API and store the raw data in a DB.
 
-7. Build the enricher to find data from the raw data DB, perform enrichment, and store it in
+  7. Build the enricher to find data from the raw data DB, perform enrichment, and store it in
    a relational DB with a new schema.
 
-8. Build a graph you'd like to see within Grafana
+  8. Build a graph you'd like to see within Grafana
    You may now use your enriched DB as a data source within Grafana. Once you've connected
    the data source, you can write SQL within Grafana to get the data and present it in a
    variety of ways!
 
-9. Congrats on building your first plugin!
+  9. Congrats on building your first plugin!
 
 <br>
 
