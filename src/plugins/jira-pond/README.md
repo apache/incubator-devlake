@@ -68,6 +68,7 @@ NOTE: If you don't know how to find the boardId, see the section below :)
 **Example:**
 `https://<your_jira_url>/secure/RapidBoard.jspa?rapidView=51`
 
+![Screen Shot 2021-08-13 at 10 07 19 AM](https://user-images.githubusercontent.com/27032263/129363083-df0afa18-e147-4612-baf9-d284a8bb7a59.png)
 
 > Use this board ID in your requests, to collect data from this board
 
