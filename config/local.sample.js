@@ -3,38 +3,35 @@ module.exports = {
   lake: {
     // Enable basic authentication to the lake API
     // token: 'mytoken'
-
     // Set how often lake will fetch new data from data sources (default every hour)
   },
   // Configuration of MongoDB
   mongo: {
-    connectionString: 'mongodb://lake:lakeIScoming@localhost:27017/lake?authSource=admin'
+    connectionString:
+      "mongodb://lake:lakeIScoming@localhost:27017/lake?authSource=admin",
   },
   // Configuration of rabbitMQ
   rabbitMQ: {
-    connectionString: 'amqp://guest:guestWhat@localhost:5672/rabbitmq'
+    connectionString: "amqp://guest:guestWhat@localhost:5672/rabbitmq",
   },
   // Configuration of PostgreSQL
   postgres: {
-    username: 'postgres',
-    password: 'postgresWhat',
-    host: 'localhost',
-    database: 'lake',
+    username: "postgres",
+    password: "postgresWhat",
+    host: "localhost",
+    database: "lake",
     port: 5432,
-    dialect: 'postgres'
+    dialect: "postgres",
   },
   cron: {
-    // uncomment and update the following configuration to enable the cron job
-    /*
     job: {
       jira: {
-        boardId: 123
+        boardId: "<your-board-id>",
       },
       gitlab: {
-        projectId: 123
-      }
+        projectId: "<your-gitlab-project-id>",
+      },
     },
-    */
-    loopIntervalInMinutes: 60
-  }
-}
+    loopIntervalInMinutes: 60,
+  },
+};
