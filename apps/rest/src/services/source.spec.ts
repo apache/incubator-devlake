@@ -2,8 +2,8 @@ import { Test } from '@nestjs/testing';
 import { SourceService } from './source';
 import { CreateSource } from '../types/source';
 import { EntityManager } from 'typeorm';
-import { ConfigModule } from '@nestjs/config';
-import CustomTypeOrmModule from '../providers/typeorm.module';
+
+const mockedEntityManager = new EntityManager(null);
 
 describe('SourceService', () => {
   let sourceService: SourceService;
@@ -11,11 +11,13 @@ describe('SourceService', () => {
 
   beforeEach(async () => {
     const app = await Test.createTestingModule({
-      imports: [
-        ConfigModule.forRoot({ isGlobal: true, envFilePath: '.env.test' }),
-        CustomTypeOrmModule.forRootAsync(null),
+      providers: [
+        {
+          provide: EntityManager,
+          useFactory: () => mockedEntityManager,
+        },
+        SourceService,
       ],
-      providers: [SourceService],
     }).compile();
 
     sourceService = app.get(SourceService);

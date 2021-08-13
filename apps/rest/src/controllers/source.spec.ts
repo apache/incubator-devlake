@@ -1,9 +1,9 @@
-import { ConfigModule } from '@nestjs/config';
 import { Test } from '@nestjs/testing';
 import Source from '../models/source';
-import CustomTypeOrmModule from '../providers/typeorm.module';
 import { SourceService } from '../services/source';
 import { SourceController } from './source';
+
+const mockedSourceService = new SourceService(null);
 
 describe('SourceController', () => {
   let sourceController: SourceController;
@@ -11,12 +11,13 @@ describe('SourceController', () => {
 
   beforeEach(async () => {
     const app = await Test.createTestingModule({
-      imports: [
-        ConfigModule.forRoot({ isGlobal: true, envFilePath: '.env.test' }),
-        CustomTypeOrmModule.forRootAsync(null),
-      ],
       controllers: [SourceController],
-      providers: [SourceService],
+      providers: [
+        {
+          provide: SourceService,
+          useFactory: () => mockedSourceService,
+        },
+      ],
     }).compile();
 
     sourceController = app.get(SourceController);
