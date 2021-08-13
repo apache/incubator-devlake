@@ -47,11 +47,14 @@ Once you have [lake](https://github.com/merico-dev/lake/blob/main/README.md) run
 ```
 2. You can configure lake to get all of your data automatically.
 
-- Make sure you have a file called `config/local.js`
-- `cp config/local.sample.js config/local.js`
+Note: the following instructions are for *User Setup*. For *Developer Setup*, simply replace `config/docker.sample.js` and `config/docker.js` with `config/local.sample.js` and `config/local.js`.
+
+- Make sure you have a file called `config/docker.js`. You can create one from the sample file: `cp config/docker.sample.js config/docker.js`
 - Open this file for editing with your editor of choice or use `vi config/local.js`
 - In this file, there is a section for cron.
 - Set the boardId fo your own board ID in Jira.
+
+NOTE: If you don't know how to find the boardId, see the section below :)
 
 ```
 jira: {
@@ -59,7 +62,7 @@ jira: {
 }
 ```
 
-NOTE: If you don't know how to find the boardId, see the section below :)
+- Restart lake services for the new configurtion to take effect immediately
 
 ## Find Board Id
 1. Navigate to the Jira board in the browser
