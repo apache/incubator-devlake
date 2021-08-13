@@ -1,26 +1,34 @@
 # Contributing to Lake
 
-## Run lake as a developer
+👍🎉 First off, thanks for taking the time to contribute! 🎉👍
 
-```
-npm i
-cp config/local.sample.js config/local.js
-npm run compose-dev
-npm run lake
-```
+The following is a set of guidelines for contributing to Lake. These are mostly guidelines, not rules. Use your best judgment, and feel free to propose changes to this document in a pull request.*
 
-- you can see the logs with `docker-compose logs -f`
-- you can stop and remove all containers with `docker-compose down`
 
-Make your post requests to http://localhost:3000 for enrichment jobs only
-Make your post requests to http://localhost:3001 for both collection and enrichment jobs
+## How Can I Contribute?
+
+1. Reporting bugs by filling out the required issue template and labeling the new issue as 'bug'.
+
+2. Suggesting enhancements.
+
+If you intend to change the public API, or make any non-trivial changes to the implementation, we recommend filing an issue. This lets us reach an agreement on your proposal before you put significant effort into it.
+
+If you’re only fixing a bug, it’s fine to submit a pull request right away but we still recommend to file an issue detailing what you’re fixing. This is helpful in case we don’t accept that specific fix but want to keep track of the issue.
+
+## Maintainer team @ Merico
+
+Dev Lake is maintained by a group of engineers at Merico, led by [@hezyin](https://github.com/hezyin). We aim to achieve an SLA of 24 hrs for replying to issues.
 
 ## Style guides
+
 ### Git Commit message
-We follow the [conventional commits](https://www.conventionalcommits.org/en/v1.0.0/#summary) guidelines. 
+
+We follow the [conventional commits](https://www.conventionalcommits.org/en/v1.0.0/#summary) guidelines.
 
 #### Commit tool
-It's recommended to use [commitizen](https://www.npmjs.com/package/commitizen) to generate "conventional commit message".  
+
+It's recommended to use [commitizen](https://www.npmjs.com/package/commitizen) to generate "conventional commit message".
+
 ```shell
 # npm run commit or npx cz
 $ npm run commit
@@ -34,12 +42,12 @@ cz-cli@4.2.4, cz-conventional-changelog@3.3.0
 > feat:     A new feature
   fix:      A bug fix
   docs:     Documentation only changes
-  style:    Changes that do not affect the meaning of the code (white-space, formatting, missing semi-colons, etc) 
+  style:    Changes that do not affect the meaning of the code (white-space, formatting, missing semi-colons, etc)
   refactor: A code change that neither fixes a bug nor adds a feature
   perf:     A code change that improves performance
   test:     Adding missing tests or correcting existing tests
 (Move up and down to reveal more choices)
-? What is the scope of this change (e.g. component or file name): (press enter to skip) 
+? What is the scope of this change (e.g. component or file name): (press enter to skip)
 ? Write a short, imperative tense description of the change (max 93 chars):
  (23) add commit message tool
 ? Provide a longer description of the change: (press enter to skip)
@@ -49,3 +57,8 @@ cz-cli@4.2.4, cz-conventional-changelog@3.3.0
 [chore/commit_message dc34f57] chore: add commit message tool
  5 files changed, 585 insertions(+), 4 deletions(-)
 ```
+
+--Attribution: 
+
+*quoted from Atom documentation
+**quoted from React documentation
