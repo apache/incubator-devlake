@@ -83,7 +83,9 @@ All the details on provisioning, and customizing a dashboard can be found in the
    cp config/plugins.sample.js config/plugins.js
    ```
 
-3. Configure settings for services & plugins by editing the newly created config files. The comments will guide you through the process and looking for "Replace" keyword in these config files would help as well. For how to configure plugins, please refer to the [data source plugins](#data-source-plugins) section.
+3. Run the command `npm run config` to setup your configuration files
+
+    > For more info on how to configure plugins, please refer to the [data source plugins](#data-source-plugins) section
 
 4. Start the service with `npm start`
     > you can stop all docker containers with `npm run stop`

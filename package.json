@@ -17,7 +17,8 @@
     "unit-test": "ENCRYPTION_KEY=123 NODE_ENV=test ./node_modules/mocha/bin/mocha \"test/unit/**/*.test.js\"",
     "lint": "./node_modules/eslint/bin/eslint.js . --max-warnings=0 --report-unused-disable-directives --fix && echo '✔  Your .js files look good.'",
     "prepare": "husky install",
-    "commit": "cz"
+    "commit": "cz",
+    "config": "node scripts/command-line-config.js"
   },
   "repository": {
     "type": "git",
