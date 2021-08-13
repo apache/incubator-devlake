@@ -114,10 +114,12 @@ module.exports = {
   },
 
   async setJiraToken(value) {
+    let bufferValue = Buffer.from(value, 'utf-8')
+    let b64Value = bufferValue.toString('base64')
     await module.exports.replaceInFile(
       `${__dirname}/config/plugins.js`,
       /<your-jira-token>/i,
-      value
+      b64Value
     );
   },
 
