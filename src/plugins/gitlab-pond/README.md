@@ -13,7 +13,45 @@ Commit Count | Number of Commits
 Added Lines | Accumulated Number of New Lines
 Deleted Lines | Accumulated Number of Removed Lines
 
+## Configuration
+
+First, you have to configure `lake/config/plugins.js`.
+
+1. `cp config/plugins.sample.js config/plugins.js`
+2. Look though this config file to make sure it is set to your needs. `cat config/plugins.js`
+
+## Gathering Data with Gitlab
+
+Once you have [lake](https://github.com/merico-dev/lake/blob/main/README.md) running, you can fetch information from Github in one two ways:
+
+1. Send a POST request to http://localhost:3001/
+```
+ {
+     "gitlab": {
+         "projectId": 8967944,
+         "branch": "<your-branch-name>", (Optional, default branch is used)
+     }
+ }
+```
+2. You can configure lake to get all of your data automatically.
+
+- Make sure you have a file called `config/local.js` and `config/docker.js`
+- `cp config/local.sample.js config/local.js`
+- `cp config/docker.sample.js config/docker.js`
+- Open this file for editing with your editor of choice or use `vi config/local.js`
+- In this file, there is a section for cron.
+- Set the projectId fo your own project Id in gitlab.
+
+```
+gitlab: {
+  projectId: 123
+}
+```
+
+NOTE: If you don't know how to find the projectId, see the section below :)
+
 ## Finding Project Id
+
 To get the project id for a specific Gitlab repository:
 - Visit the repository page on gitlab
 - Find the project id just below the title
