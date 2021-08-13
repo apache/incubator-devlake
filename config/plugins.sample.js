@@ -20,20 +20,46 @@ module.exports = [
       },
       enrichment: {
         issue: {
-          mapping: {
+          //  This maps issue types in your Jira system to the standard issue type in dev lake
+          typeMappings: [
             // This maps issue types in your Jira system to the standard issue type in dev lake
             // In lake, we define bugs as issues found in the development process whereas
             // incidents are issues found in production environment
-            // Format: <Standard Type>: [<Jira Type>]
-            type: {
-              // This mapping powers the metrics like Bug Count, Bug Age, and etc
-              // Replace 'Bug' with your own issue types for bugs.
-              Bug: ['Bug'],
-              // This mapping powers the metrics like Incident Count, Incident Age, and etc
-              // Replace 'Incident' with your own issue types for incidents
-              Incident: ['Incident']
+
+            // This mapping powers the metrics like Bug Count, Bug Age, and etc
+            // Replace 'Bug' with your own issue types for bugs.
+            {
+              originTypes: ['Bug'],
+              standardType: 'Bug',
+              statusMappings: [
+                // This mapping powers the metrics like Bug Age
+                { originStatuses: ['Rejected', 'Abandoned', 'Cancelled', 'ByDesign', 'Irreproducible'], standardStatus: 'Rejected' },
+                { originStatuses: ['Resolved', 'Approved', 'Verified', 'Done', 'Closed'], standardStatus: 'Resolved' }
+              ]
+            },
+            // This mapping powers the metrics like Incident Count, Incident Age, and etc
+            // Replace 'Incident' with your own issue types for incidents
+            {
+              originTypes: ['Incident'],
+              standardType: 'Incident',
+              statusMappings: [
+                // This mapping powers the metrics like Incident Age
+                { originStatuses: ['Rejected', 'Abandoned', 'Cancelled', 'Irreproducible'], standardStatus: 'Rejected' },
+                { originStatuses: ['Resolved', 'Approved', 'Verified', 'Done', 'Closed'], standardStatus: 'Resolved' }
+              ]
+            },
+            // This mapping powers the metrics like Requirement Count, Requirement Age, and etc
+            // Replace 'Story' with your own issue types for requirements
+            {
+              originTypes: ['Story'],
+              standardType: 'Requirement',
+              statusMappings: [
+                // This mapping powers the metrics like Requirement Lead Time, Requirement Count
+                { originStatuses: ['Rejected', 'Abandoned', 'Cancelled'], standardStatus: 'Rejected' },
+                { originStatuses: ['Resolved', 'Done', 'Closed'], standardStatus: 'Resolved' }
+              ]
             }
-          },
+          ],
           // Enables lake to track which epic an issue belongs to
           // ➤➤➤ Replace 'customfiled_10014' with your own field ID for the epic key
           epicKeyField: 'customfield_10014'
