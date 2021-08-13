@@ -75,6 +75,9 @@ NOTE: If you don't know how to find the boardId, see the section below :)
 ## Generating API token
 1. Once logged into Jira, visit the url `https://id.atlassian.com/manage-profile/security/api-tokens`
 2. Click the **Create API Token** button, and give it any label name
+
+![image](https://user-images.githubusercontent.com/27032263/129363611-af5077c9-7a27-474a-a685-4ad52366608b.png)
+
 3. Copy and save the API token somewhere
 4. In a terminal run the following command, with **user email** and **API token** string
 
