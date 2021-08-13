@@ -33,12 +33,7 @@ Add Plugin Metrics | Guide to adding plugin metrics | [Link](src/plugins/HOW-TO-
 Grafana | How to visualize the data | [Link](docs/GRAFANA.md)
 Contributing | How to contribute to this repo | [Link](CONTRIBUTING.md)
 
-## Required Packages to Install<a id="requirements"></a>
 
-- <a href="https://docs.docker.com/get-docker" target="_blank">Docker</a>
-- <a href="https://nodejs.org/en/download" target="_blank">Node.js</a> (Developer setup only)
-
-**NOTE:** After installing docker, you may need to run the docker application and restart your terminal
 
 ## Data Sources We Currently Support<a id="data-source-plugins"></a>
 
@@ -59,11 +54,22 @@ We use <a href="https://grafana.com/" target="_blank">Grafana</a> as a visualiza
 
 All the details on provisioning, and customizing a dashboard can be found in the [Grafana Doc](docs/GRAFANA.md)
 
+
+
 ## User Setup<a id="user-setup"></a>
 
 **NOTE: If you only plan to run the product, this is the only section you should need**
 
-1. Clone this repository<br>
+### Required Packages to Install<a id="requirements"></a>
+
+- <a href="https://docs.docker.com/get-docker" target="_blank">Docker</a>
+- <a href="https://nodejs.org/en/download" target="_blank">Node.js</a> (Developer setup only)
+
+**NOTE:** After installing docker, you may need to run the docker application and restart your terminal
+
+### Commands to run in your terminal
+
+1. Navigate to where you would like to install this project and clone the repository<br>
 
    ```shell
    git clone https://github.com/merico-dev/lake.git
@@ -76,7 +82,7 @@ All the details on provisioning, and customizing a dashboard can be found in the
    cp config/plugins.sample.js config/plugins.js
    ```
 
-3. Configure settings for services & plugins by editing the newly created config files. The comments will guide you through the process and look for "Replace" keyword in these config files would help as well. For how to configure plugins, please refer to the [data source plugins](#data-source-plugins) section.
+3. Configure settings for services & plugins by editing the newly created config files. The comments will guide you through the process and looking for "Replace" keyword in these config files would help as well. For how to configure plugins, please refer to the [data source plugins](#data-source-plugins) section.
 
 4. Start the service with `npm start`
     > you can stop all docker containers with `npm run stop`
