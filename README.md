@@ -8,17 +8,17 @@
 
 ### What is Dev Lake?
 
-Dev Lake is the one-stop solution that _**integrates, analyzes, and visualizes**_ the development data throughout the _**software development life cycle (SDLC)**_ for engineering teams.
+Dev Lake is the one-stop solution that _**integrates, analyzes, and visualizes**_ software development data throughout the _**software development life cycle (SDLC)**_ for engineering teams.
 
 ### Why choose Dev Lake?
 
-1.  Supports various data sources and quickly growing
-2.  Comprehensive dev metrics built-in
-3.  Customizable visualizations and dashboard
-4.  Easy-to-setup via [docker](https://docs.docker.com/desktop/)
+1.  Supports various data sources (<a href="https://gitlab.com/" target="_blank">Gitlab</a>, <a href="https://www.atlassian.com/software/jira" target="_blank">Jira</a>) and more are being added all the time
+2.  Relevant, customizable data metrics ready to view as visual charts
+3.  Customizable visualizations and dashboards
+4.  Easy-to-setup via <a href="https://docs.docker.com/desktop/" target="_blank">Docker</a>
 5.  Extensible plugin system to add your own data collectors
 6.  Designed to process enterprise-scale data
-7.  Easily build and view new charts with [Grafana](https://grafana.com/)
+7.  Easily build and view new charts with <a href="https://grafana.com/" target="_blank">Grafana</a>
 
 ## Contents
 
@@ -35,8 +35,8 @@ Contributing | How to contribute to this repo | [Link](CONTRIBUTING.md)
 
 ## Required Packages to Install<a id="requirements"></a>
 
-- [Docker](https://docs.docker.com/get-docker)
-- [Node.js](https://nodejs.org/en/download) (Developer setup only)
+- <a href="https://docs.docker.com/get-docker" target="_blank">Docker</a>
+- <a href="https://nodejs.org/en/download" target="_blank">Node.js</a> (Developer setup only)
 
 **NOTE:** After installing docker, you may need to run the docker application and restart your terminal
 
@@ -55,7 +55,7 @@ Gitlab | Metrics, Generating API Token | [Link](src/plugins/gitlab-pond/README.m
 
 <img src="https://user-images.githubusercontent.com/3789273/128533901-3107e9bf-c3e3-4320-ba47-879fe2b0ea4d.png" width="450px" />
 
-We use [Grafana](https://grafana.com/) as a visualization tool to build charts for the data stored in our database. Using SQL queries we can add panels to build, save, and edit customized dashboards.
+We use <a href="https://grafana.com/" target="_blank">Grafana</a> as a visualization tool to build charts for the data stored in our database. Using SQL queries we can add panels to build, save, and edit customized dashboards.
 
 All the details on provisioning, and customizing a dashboard can be found in the [Grafana Doc](docs/GRAFANA.md)
 
@@ -95,4 +95,4 @@ All the details on provisioning, and customizing a dashboard can be found in the
 
 ## Need help?
 
-Message us on [Discord](https://discord.com/invite/83rDG6ydVZ)!
+Message us on <a href="https://discord.com/invite/83rDG6ydVZ" target="_blank">Discord</a>
