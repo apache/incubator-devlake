@@ -14,11 +14,10 @@ Dev Lake is the one-stop solution that _**integrates, analyzes, and visualizes**
 
 1.  Supports various data sources (<a href="https://gitlab.com/" target="_blank">Gitlab</a>, <a href="https://www.atlassian.com/software/jira" target="_blank">Jira</a>) and more are being added all the time
 2.  Relevant, customizable data metrics ready to view as visual charts
-3.  Customizable visualizations and dashboards
+7.  Easily build and view new charts and dashboards with <a href="https://grafana.com/" target="_blank">Grafana</a>
 4.  Easy-to-setup via <a href="https://docs.docker.com/desktop/" target="_blank">Docker</a>
 5.  Extensible plugin system to add your own data collectors
 6.  Designed to process enterprise-scale data
-7.  Easily build and view new charts with <a href="https://grafana.com/" target="_blank">Grafana</a>
 
 ## Contents
 
