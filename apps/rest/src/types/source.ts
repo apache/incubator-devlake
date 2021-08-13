@@ -1,5 +1,5 @@
 import { IsIn, IsNotEmpty } from 'class-validator';
-import { SourceType, SupportedSourceType } from './source.model';
+import { SourceType, SupportedSourceType } from '../models/source';
 
 export class CreateSource {
   @IsIn(SupportedSourceType)

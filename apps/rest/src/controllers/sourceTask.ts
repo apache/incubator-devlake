@@ -6,10 +6,10 @@ import {
   Param,
   Post,
 } from '@nestjs/common';
-import { UniqueID } from './base.model';
-import { SourceTask } from './sourceTask.model';
-import { SourceTaskService } from './sourceTask.service';
-import { CreateSourceTask } from './sourceTask.type';
+import { UniqueID } from '../models/base';
+import { SourceTask } from '../models/sourceTask';
+import { SourceTaskService } from '../services/sourceTask';
+import { CreateSourceTask } from '../types/sourceTask';
 
 @Controller('source')
 export class SourceTaskController {

@@ -1,7 +1,7 @@
 import { Body, Controller, Delete, Get, Post, Put } from '@nestjs/common';
-import Source from './source.model';
-import { SourceService } from './source.service';
-import { CreateSource } from './source.type';
+import Source from '../models/source';
+import { SourceService } from '../services/source';
+import { CreateSource } from '../types/source';
 
 @Controller('source')
 export class SourceController {

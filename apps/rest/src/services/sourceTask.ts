@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
-import { UniqueID } from './base.model';
-import { SourceTask } from './sourceTask.model';
-import { CreateSourceTask } from './sourceTask.type';
+import { UniqueID } from '../models/base';
+import { SourceTask } from '../models/sourceTask';
+import { CreateSourceTask } from '../types/sourceTask';
 
 @Injectable()
 export class SourceTaskService {

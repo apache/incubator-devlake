@@ -1,11 +1,21 @@
 import { Module } from '@nestjs/common';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
-import { SourceController } from './core/source.controller';
-import { SourceService } from './core/source.service';
+import { ConfigModule } from '@nestjs/config';
+import { AppController } from './controllers/app.controller';
+import { SourceController } from './controllers/source';
+import Source from './models/source';
+import { SourceTask } from './models/sourceTask';
+import CustomTypeOrmModule from './providers/typeorm.module';
+import { AppService } from './services/app';
+import { SourceService } from './services/source';
 
 @Module({
-  imports: [],
+  imports: [
+    ConfigModule.forRoot({ isGlobal: true }),
+    CustomTypeOrmModule.forRootAsync(null, {
+      entities: [Source, SourceTask],
+      synchronize: true,
+    }),
+  ],
   controllers: [AppController, SourceController],
   providers: [AppService, SourceService],
 })

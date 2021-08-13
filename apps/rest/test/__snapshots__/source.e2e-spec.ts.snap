@@ -1,11 +1,5 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`SourceController (e2e) /source (POST) should return source type 1`] = `
-Object {
-  "type": "jira",
-}
-`;
-
 exports[`SourceController (e2e) /source (POST) should return validate error 1`] = `
 Object {
   "error": "Bad Request",

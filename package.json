@@ -32,13 +32,16 @@
     "@nestjs/core": "^8.0.0",
     "@nestjs/microservices": "^8.0.5",
     "@nestjs/platform-express": "^8.0.0",
+    "@nestjs/typeorm": "^8.0.2",
     "bull": "^3.27.0",
     "class-transformer": "^0.4.0",
     "class-validator": "^0.13.1",
+    "mysql2": "^2.3.0",
     "reflect-metadata": "^0.1.13",
     "rimraf": "^3.0.2",
     "rxjs": "^7.2.0",
-    "typeorm": "^0.2.36"
+    "typeorm": "^0.2.36",
+    "uuid": "^8.3.2"
   },
   "devDependencies": {
     "@commitlint/cli": "^13.1.0",
@@ -51,6 +54,7 @@
     "@types/jest": "^26.0.24",
     "@types/node": "^16.0.0",
     "@types/supertest": "^2.0.11",
+    "@types/uuid": "^8.3.1",
     "@typescript-eslint/eslint-plugin": "^4.28.2",
     "@typescript-eslint/parser": "^4.28.2",
     "concurrently": "^6.2.0",
