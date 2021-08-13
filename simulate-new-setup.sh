@@ -2,8 +2,8 @@
 
 
 cleanup() {
-    CON_PATH=$(npx which concurrently)
-    PID=$(pgrep -f "node $CON_PATH")
+    # CON_PATH=$(npx which node)
+    PID=$(pgrep -f "concurrently.js")
     if [ -n "$PID" ]; then
         kill -s TERM $PID
         wait $PID || true
@@ -26,7 +26,8 @@ sudo rm -rf data postgres-data
 docker-compose up -d
 npm i
 npx sequelize-cli db:migrate
-npm run dev | tee /tmp/lake.log &
+node src/plugins/index.js
+nodemon concurrently.js | tee /tmp/lake.log &
 
 # wait untill services ready
 echo waiting services to be ready
