@@ -1,26 +1,40 @@
 # Contributing to Lake
 
-## Run lake as a developer
+## Collaboration Guidelines
 
-```
-npm i
-cp config/local.sample.js config/local.js
-npm run compose-dev
-npm run lake
-```
+1. Good collaboration relies on high-quality asynchronous communication (Issues, PRs, and READMEs). Writing down our thoughts as clearly and specifically as possible may slow us down in the short term, but will definitely benefit us all in the long term.
 
-- you can see the logs with `docker-compose logs -f`
-- you can stop and remove all containers with `docker-compose down`
+2. If you'd like to start working on a new feature, bug, or change of any kind, please open a new Issue in GitHub with the "proposal" label before you begin work. Describe your proposal in great detail. You may use code samples. Invite the related colleagues to discuss and iterate on your proposal. Once it's approved, you can start implementing it and remove the proposal label, and add "in progress" label. This is our mechanism for "acquiring the lock".
 
-Make your post requests to http://localhost:3000 for enrichment jobs only
-Make your post requests to http://localhost:3001 for both collection and enrichment jobs
+3. If you're mentioned in an Issue, the default SLA (Service Level Agreement) to reply is 24 hours. If you're busy that day, no worries. Simply reply and explain the situation. A timely reply to Issues will encourage our colleagues to communicate via high-quality Issues.
+
+## Closing Issues
+- Initiate discussion by asking questions before closing issues
+- Wait for 5 days of inactivity before closing any issues
+
+## Approval of Issues
+- Read, understand, and discuss Issues and get consensus from contributors
+- Assign the Issue to @hezheng or mention him in a comment
+- An Issue is approved when Hezheng comments on it as "approved"
+
+## Proposing a Change
+
+"If you intend to change the public API, or make any non-trivial changes to the implementation, we recommend filing an issue. This lets us reach an agreement on your proposal before you put significant effort into it.
+
+If you’re only fixing a bug, it’s fine to submit a pull request right away but we still recommend to file an issue detailing what you’re fixing. This is helpful in case we don’t accept that specific fix but want to keep track of the issue."
+
+--Attribution: quoted from React documentation
 
 ## Style guides
+
 ### Git Commit message
-We follow the [conventional commits](https://www.conventionalcommits.org/en/v1.0.0/#summary) guidelines. 
+
+We follow the [conventional commits](https://www.conventionalcommits.org/en/v1.0.0/#summary) guidelines.
 
 #### Commit tool
-It's recommended to use [commitizen](https://www.npmjs.com/package/commitizen) to generate "conventional commit message".  
+
+It's recommended to use [commitizen](https://www.npmjs.com/package/commitizen) to generate "conventional commit message".
+
 ```shell
 # npm run commit or npx cz
 $ npm run commit
@@ -34,12 +48,12 @@ cz-cli@4.2.4, cz-conventional-changelog@3.3.0
 > feat:     A new feature
   fix:      A bug fix
   docs:     Documentation only changes
-  style:    Changes that do not affect the meaning of the code (white-space, formatting, missing semi-colons, etc) 
+  style:    Changes that do not affect the meaning of the code (white-space, formatting, missing semi-colons, etc)
   refactor: A code change that neither fixes a bug nor adds a feature
   perf:     A code change that improves performance
   test:     Adding missing tests or correcting existing tests
 (Move up and down to reveal more choices)
-? What is the scope of this change (e.g. component or file name): (press enter to skip) 
+? What is the scope of this change (e.g. component or file name): (press enter to skip)
 ? Write a short, imperative tense description of the change (max 93 chars):
  (23) add commit message tool
 ? Provide a longer description of the change: (press enter to skip)
