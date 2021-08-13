@@ -10,6 +10,8 @@
 
 Dev Lake is the one-stop solution that _**integrates, analyzes, and visualizes**_ software development data throughout the _**software development life cycle (SDLC)**_ for engineering teams.
 
+<img src="https://user-images.githubusercontent.com/3789273/129271522-4b3b6451-2292-40c7-82d6-86df4ac13cd7.png" width="100%" alt="Dev Lake Grafana Dashboard" />
+
 ### Why choose Dev Lake?
 
 1.  Supports various data sources (<a href="https://gitlab.com/" target="_blank">Gitlab</a>, <a href="https://www.atlassian.com/software/jira" target="_blank">Jira</a>) and more are being added all the time
