@@ -6,34 +6,35 @@ module.exports = {
   },
   // Configuration of MongoDB
   mongo: {
-    connectionString: 'mongodb://lake:lakeIScoming@localhost:27017/lake?authSource=admin'
+    connectionString:
+      "mongodb://lake:lakeIScoming@localhost:27017/lake?authSource=admin",
   },
   // Configuration of rabbitMQ
   rabbitMQ: {
-    connectionString: 'amqp://guest:guestWhat@localhost:5672/rabbitmq'
+    connectionString: "amqp://guest:guestWhat@localhost:5672/rabbitmq",
   },
   // Configuration of PostgreSQL
   postgres: {
-    username: 'postgres',
-    password: 'postgresWhat',
-    host: 'localhost',
-    database: 'lake',
+    username: "postgres",
+    password: "postgresWhat",
+    host: "localhost",
+    database: "lake",
     port: 5432,
-    dialect: 'postgres'
+    dialect: "postgres",
   },
   cron: {
     // uncomment and update following configuration to enable the cron job
     /*
     job: {
       jira: {
-        boardId: 123
+        boardId: "<your-board-id>",
       },
       gitlab: {
-        projectId: 123
-      }
+        projectId: "<your-gitlab-project-id>",
+      },
     },
     */
     // Set how often does lake fetch new data from data sources, defaults to every hour
     loopIntervalInMinutes: 60
   }
-}
+};
