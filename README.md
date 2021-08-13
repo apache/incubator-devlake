@@ -15,13 +15,14 @@ Dev Lake is the one-stop solution that _**integrates, analyzes, and visualizes**
 1.  Supports various data sources and quickly growing
 2.  Comprehensive dev metrics built-in
 3.  Customizable visualizations and dashboard
-4.  Easy-to-setup via docker
+4.  Easy-to-setup via [docker](https://docs.docker.com/desktop/)
 5.  Extensible plugin system to add your own data collectors
 6.  Designed to process enterprise-scale data
+7.  Easily build and view new charts with [Grafana](https://grafana.com/)
 
 ## Contents
 
-Section | Description | Link
+Section | Description | Documentation Link
 :------------ | :------------- | :-------------
 Requirements | Underlying software used | [View Section](#requirements)
 User Setup | Quick and easy setup | [View Section](#user-setup)
@@ -32,12 +33,14 @@ Add Plugin Metrics | Guide to adding plugin metrics | [Link](src/plugins/HOW-TO-
 Grafana | How to visualize the data | [Link](docs/GRAFANA.md)
 Contributing | How to contribute to this repo | [Link](CONTRIBUTING.md)
 
-## Requirements<a id="requirements"></a>
+## Required Packages to Install<a id="requirements"></a>
 
 - [Docker](https://docs.docker.com/get-docker)
 - [Node.js](https://nodejs.org/en/download) (Developer setup only)
 
-## Data Source Plugins<a id="data-source-plugins"></a>
+**NOTE:** After installing docker, you may need to run the docker application and restart your terminal
+
+## Data Sources We Currently Support<a id="data-source-plugins"></a>
 
 Below is a list of _data source plugins_ used to collect & enrich data from specific sources. Each have a `README.md` file with basic setup, troubleshooting and metrics info.
 
@@ -47,6 +50,14 @@ Section | Section Info | Docs
 ------------ | ------------- | -------------
 Jira | Metrics, Generating API Token, Find Project/Board ID | [Link](src/plugins/jira-pond/README.md)
 Gitlab | Metrics, Generating API Token | [Link](src/plugins/gitlab-pond/README.md)
+
+## Grafana
+
+<img src="https://user-images.githubusercontent.com/3789273/128533901-3107e9bf-c3e3-4320-ba47-879fe2b0ea4d.png" width="450px" />
+
+We use [Grafana](https://grafana.com/) as a visualization tool to build charts for the data stored in our database. Using SQL queries we can add panels to build, save, and edit customized dashboards.
+
+All the details on provisioning, and customizing a dashboard can be found in the [Grafana Doc](docs/GRAFANA.md)
 
 ## User Setup<a id="user-setup"></a>
 
@@ -76,82 +87,12 @@ Gitlab | Metrics, Generating API Token | [Link](src/plugins/gitlab-pond/README.m
 
 ## Developer Setup<a id="developer-setup"></a>
 
-1. Clone this repository<br>
-
-   ```shell
-   git clone https://github.com/merico-dev/lake.git
-   cd lake
-   ```
-2. Install dependencies with<br>
-
-   ```
-   npm i
-   ```
-3. Create a copy of the sample configuration files with
-
-   ```
-   cp config/local.sample.js config/local.js
-   cp config/plugins.sample.js config/plugins.js
-   ```
-4. Configure settings for services & plugins by editing the newly created config files. The comments will guide you through the process and look for "Replace" keyword in these config files would help as well. For how to configure plugins, please refer to the [data source plugins](#data-source-plugins) section.
-
-5. Start all third-party services and lake's own services with
-
-   ```
-   npm run dev
-   ```
-6. Create a collection job to collect data. See that the:
-      - collection job was published
-      - _lake plugin_ collection ran
-      - enrichment job was published
-      - _lake plugin_ enrichment ran<br><br>
-
-      > This process will run through each lake plugin, collecting data from each<br>
-
-   From Postman (or similar), send a request like (`branch` is optional):
-
-   ```json
-   POST http://localhost:3001/
-
-    {
-        "jira": {
-            "boardId": 8
-        },
-        "gitlab": {
-            "projectId": 8967944,
-            "branch": "<your-branch-name>",
-        }
-    }
-   ```
-
-   Or, using curl:
-
-   ```
-   curl -X POST "http://localhost:3001/" -H 'content-type: application/json' \
-    -d '{"jira":{"boardId": 8}, "gitlab": {"projectId": 8967944}}'
-   ```
-
-7. Visualize data in Grafana dashboard
-
-   From here you can see existing data visualized from collected & enriched data
-
-   - Navigate to http://localhost:3002 (username: `admin`, password: `admin`)
-   - You can also create/modify existing/save dashboards to `lake`
-   - For more info on working with Grafana in Dev Lake see [Grafana Doc](docs/GRAFANA.md)
-
-**Migrations**
-
--  Revert all current migrations `npx sequelize-cli db:migrate:undo:all`
--  Run migration with `npx sequelize-cli db:migrate`
-
-## Grafana
-
-<img src="https://user-images.githubusercontent.com/3789273/128533901-3107e9bf-c3e3-4320-ba47-879fe2b0ea4d.png" width="450px" />
-
-We use Grafana as a visualization tool to build charts for the data stored in our database. Using SQL queries we can add panels to build, save, and edit customized dashboards.
-
-All the details on provisioning, and customizing a dashboard can be found in the [Grafana Doc](docs/GRAFANA.md)
+[docs/DEVELOPER_SETUP.md](docs/DEVELOPER_SETUP.md)
 
 ## Contributing
 
 [CONTRIBUTING.md](CONTRIBUTING.md)
+
+## Need help?
+
+Message us on [Discord](https://discord.com/invite/83rDG6ydVZ)!
