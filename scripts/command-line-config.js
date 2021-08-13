@@ -55,7 +55,6 @@ module.exports = {
   },
 
   openReadSyncLocal (pathSample, path) {
-    console.log('🚧 Opening Read File Sync')
     const readInterface = readline.createInterface({
       input: fs.createReadStream(pathSample),
       output: false,
@@ -91,7 +90,6 @@ module.exports = {
   },
 
   openReadSyncPlugins (pathSample, path) {
-    console.log('🚧 Opening Read File Sync')
     const readInterface = readline.createInterface({
       input: fs.createReadStream(pathSample),
       output: false,
