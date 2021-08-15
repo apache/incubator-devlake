@@ -17,6 +17,10 @@ describe('SourceController (e2e)', () => {
     await app.init();
   });
 
+  afterAll(async () => {
+    await app.close();
+  });
+
   describe('/source (POST)', () => {
     it('should return source type', () => {
       const newSource = {
