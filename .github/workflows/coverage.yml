@@ -1,5 +1,5 @@
 # This action will upload coverage info to codecov.io
-name: coverage
+name: test
 on:
   pull_request:
   push:

@@ -1,17 +1,12 @@
 # This action run unit test and e2e test for pull requests
-name: CI
+name: test
 on: [pull_request]
 jobs:
-  Unit-Test:
+  unit:
     runs-on: ubuntu-latest
     strategy:
       matrix:
         node-version: [12.x, 15.x]
-    env: 
-      DB_DATABASE: lake_db
-      DB_USER: root
-      DB_PASSWORD: root
-      DB_URL: mysql://root:root@localhost:3306/lake_db
     steps:
       - uses: actions/checkout@v2
       - name: Use Node.js ${{ matrix.node-version }}
@@ -20,8 +15,3 @@ jobs:
           node-version: ${{ matrix.node-version }}
       - run: 'npm install'
       - run: 'npm run test'
-      - name: set up mysql
-        run: |
-          sudo /etc/init.d/mysql start
-          mysql -e 'CREATE DATABASE ${{ env.DB_DATABASE }};' -u${{ env.DB_USER }} -p${{ env.DB_PASSWORD }}
-      - run: 'npm run test:e2e'

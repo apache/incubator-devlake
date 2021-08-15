@@ -19,7 +19,7 @@ export default class CustomTypeOrmModule {
       imports: [ConfigModule],
       useFactory: async (config: ConfigService) => {
         return <TypeOrmModuleOptions>{
-          type: 'mysql',
+          type: config.get<string>('DB_TYPE'),
           url: config.get<string>('DB_URL'),
           ...options,
         };
