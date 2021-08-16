@@ -87,7 +87,7 @@ All the details on provisioning, and customizing a dashboard can be found in the
 4. Start the service by running the command `npm start`
     > you can stop all docker containers with `npm run stop`
 
-5. Run `docker-compose logs -f lake` to check the logs and see when lake stops collecting your data. This can take up to 20 minutes for large projects. (gitlab 10k+ commits or jira 5k+ issues)
+5. Run `docker-compose -f docker-compose.yml -f docker-compose.prod.yml logs -f lake` to check the logs and see when lake stops collecting your data. This can take up to 20 minutes for large projects. (gitlab 10k+ commits or jira 5k+ issues)
 
 6. Navigate to Grafana Dashboard `https://localhost:3002` (Username: `admin`, password: `admin`)
 
