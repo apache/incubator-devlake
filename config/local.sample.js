@@ -23,17 +23,14 @@ module.exports = {
     dialect: 'postgres'
   },
   cron: {
-    // uncomment and update following configuration to enable the cron job
-    /*
     job: {
       jira: {
-        boardId: "<your-board-id>",
+        boardId: '<your-board-id>'
       },
       gitlab: {
-        projectId: "<your-gitlab-project-id>",
-      },
+        projectId: '<your-gitlab-project-id>'
+      }
     },
-    */
     // Set how often does lake fetch new data from data sources, defaults to every hour
     loopIntervalInMinutes: 60
   }
