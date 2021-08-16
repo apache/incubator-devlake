@@ -18,66 +18,104 @@ const allConfig = groupConfig(configNames, false)
 const allConfigSample = groupConfig(configNames, true)
 
 module.exports = {
-  welcomePrompt () {
-    console.log('*******************************************************')
+  welcomePrompt() {
+    console.log("*******************************************************");
     console.log(
-    `██       █████  ██   ██ ███████
+      `██       █████  ██   ██ ███████
 ██      ██   ██ ██  ██  ██
 ██      ███████ █████   █████
 ██      ██   ██ ██  ██  ██
 ███████ ██   ██ ██   ██ ███████`
-    )
+    );
 
-    console.log('')
-    console.log('... by Merico (https://meri.co)')
-    console.log('*******************************************************')
+    console.log("");
+    console.log("... by Merico (https://meri.co)");
+    console.log("*******************************************************");
   },
 
-  checkAndCreateConfig () {
-    const createConfig = prompt(`➤➤➤ Would you like us to create config files for you? ${confirmationString}`)
+  checkAndCreateConfig() {
+    const createConfig = prompt(
+      `➤➤➤ Would you like us to create config files for you? ${confirmationString}`
+    );
 
-    if (createConfig === 'y') {
+    if (createConfig === "y") {
       allConfig.forEach((path, i) => {
         if (fs.existsSync(path)) {
           // We have a config file, skip
-          console.log(`Config detected for ${path}`)
+          console.log(`Config detected for ${path}`);
         } else {
           // We need to create a new config file from example
-          console.log(`➤➤➤ Creating new Sample ${allConfig[i]}`)
-          fs.copyFile(allConfigSample[i], allConfig[i], err => {
-            if (err) throw err
-          })
+          console.log(`➤➤➤ Creating new Sample ${allConfig[i]}`);
+          fs.copyFile(allConfigSample[i], allConfig[i], (err) => {
+            if (err) throw err;
+          });
         }
-      })
+      });
     } else {
-      process.exit(1)
+      process.exit(1);
     }
   },
 
-  openReadSyncLocal (pathSample, path) {
+  askForDataSourceIds() {
+    // Collect replacement vars in local.js
+    console.log("");
+    console.log(
+      "\x1b[36m%s\x1b[0m",
+      `❕ TIP: You can read more on how to get your jira board id here:
+    \nhttps://github.com/merico-dev/lake/tree/main/src/plugins/jira-pond#find-board-id \n`
+    );
+    const jiraBoardId = prompt("➤➤➤ What is your jira board id?  ");
+
+    console.log("");
+    console.log(
+      "\x1b[36m%s\x1b[0m",
+      `❕ TIP: You can read more on how to get your gitlab project id here:
+    \nhttps://github.com/merico-dev/lake/tree/main/src/plugins/gitlab-pond#finding-project-id \n`
+    );
+    const gitlabProjectId = prompt("➤➤➤ What is your gitlab project id?  ");
+    return { gitlabProjectId, jiraBoardId };
+  },
+
+  openReadSyncLocal(pathSample, path, { gitlabProjectId, jiraBoardId }) {
     const readInterface = readline.createInterface({
       input: fs.createReadStream(pathSample),
       output: false,
-      console: false
-    })
+      console: false,
+    });
 
-    const writeStream = fs.createWriteStream(path)
-
-    // Collect replacement vars in local.js
-    console.log('')
-    console.log('\x1b[36m%s\x1b[0m',
-    `❕ TIP: You can read more on how to get your jira board id here:
-    \nhttps://github.com/merico-dev/lake/tree/main/src/plugins/jira-pond#find-board-id \n`)
-    const jiraBoardId = prompt('➤➤➤ What is your jira board id?  ')
-
-    console.log('')
-    console.log('\x1b[36m%s\x1b[0m',
-    `❕ TIP: You can read more on how to get your gitlab project id here:
-    \nhttps://github.com/merico-dev/lake/tree/main/src/plugins/gitlab-pond#finding-project-id \n`)
-    const gitlabProjectId = prompt('➤➤➤ What is your gitlab project id?  ')
+    const localWriteStream = fs.createWriteStream(path);
+    // const dockerWriteStream = fs.createWriteStream(path)
 
     // Replace lines in local.js
-    readInterface.on('line', (line) => {
+    readInterface.on("line", (line) => {
+      // Jira board ID
+      if (line.match('"<your-board-id>"')) {
+        localWriteStream.write(
+          line.replace('"<your-board-id>"', jiraBoardId) + "\n"
+        );
+      } else if (line.match('"<your-gitlab-project-id>"')) {
+        localWriteStream.write(
+          line.replace('"<your-gitlab-project-id>"', gitlabProjectId) + "\n"
+        );
+      } else {
+        localWriteStream.write(line + "\n");
+      }
+    });
+
+    openReadSyncDocker;
+  },
+
+  openReadSyncLocal(pathSample, path, { gitlabProjectId, jiraBoardId }) {
+    const readInterface = readline.createInterface({
+      input: fs.createReadStream(pathSample),
+      output: false,
+      console: false,
+    });
+
+    const writeStream = fs.createWriteStream(path);
+
+    // Replace lines in local.js
+    readInterface.on("line", (line) => {
       // Jira board ID
       if (line.match('"<your-board-id>"')) {
         writeStream.write(line.replace('"<your-board-id>"', jiraBoardId) + '\n')
@@ -88,17 +126,44 @@ module.exports = {
       else {
         writeStream.write(line + '\n')
       }
-    })
+    });
   },
 
-  openReadSyncPlugins (pathSample, path) {
+  openReadSyncDocker(pathSample, path, { gitlabProjectId, jiraBoardId }) {
     const readInterface = readline.createInterface({
       input: fs.createReadStream(pathSample),
       output: false,
-      console: false
-    })
+      console: false,
+    });
 
-    const writeStream = fs.createWriteStream(path)
+    const writeStream = fs.createWriteStream(path);
+    // const dockerWriteStream = fs.createWriteStream(path)
+
+    // Replace lines in local.js
+    readInterface.on("line", (line) => {
+      // Jira board ID
+      if (line.match('"<your-board-id>"')) {
+        writeStream.write(
+          line.replace('"<your-board-id>"', jiraBoardId) + "\n"
+        );
+      } else if (line.match('"<your-gitlab-project-id>"')) {
+        writeStream.write(
+          line.replace('"<your-gitlab-project-id>"', gitlabProjectId) + "\n"
+        );
+      } else {
+        writeStream.write(line + "\n");
+      }
+    });
+  },
+
+  openReadSyncPlugins(pathSample, path) {
+    const readInterface = readline.createInterface({
+      input: fs.createReadStream(pathSample),
+      output: false,
+      console: false,
+    });
+
+    const writeStream = fs.createWriteStream(path);
 
     // Collect replacement vars in plugins.js
     console.log('')
@@ -117,14 +182,16 @@ module.exports = {
     );
     const jiraHost = prompt('➤➤➤ What is your jira host url?  ')
 
-    console.log('')
-    console.log('\x1b[36m%s\x1b[0m',
-    `❕ TIP: You can read more on how to get your github token here:
-    \nhttps://github.com/merico-dev/lake/tree/main/src/plugins/gitlab-pond#create-a-gitlab-api-token \n`)
-    const gitlabToken = prompt('➤➤➤ What is your gitlab token?  ')
+    console.log("");
+    console.log(
+      "\x1b[36m%s\x1b[0m",
+      `❕ TIP: You can read more on how to get your github token here:
+    \nhttps://github.com/merico-dev/lake/tree/main/src/plugins/gitlab-pond#create-a-gitlab-api-token \n`
+    );
+    const gitlabToken = prompt("➤➤➤ What is your gitlab token?  ");
 
     // Replace lines in plugins.js
-    readInterface.on('line', (line) => {
+    readInterface.on("line", (line) => {
       // Jira board ID
       if (line.match('"<your-jira-token>"')) {
         writeStream.write(line.replace('<your-jira-token>', jiraToken) + '\n')
@@ -141,15 +208,17 @@ module.exports = {
       else {
         writeStream.write(line + '\n\n')
       }
-    })
+    });
   },
 
-  main () {
-    module.exports.welcomePrompt()
-    module.exports.checkAndCreateConfig()
-    module.exports.openReadSyncLocal(allConfigSample[1], allConfig[1]) // local.js
-    module.exports.openReadSyncPlugins(allConfigSample[2], allConfig[2]) // plugins.js
-  }
-}
+  main() {
+    module.exports.welcomePrompt();
+    module.exports.checkAndCreateConfig();
+    const ids = module.exports.askForDataSourceIds();
+    module.exports.openReadSyncDocker(allConfigSample[0], allConfig[0], ids); // docker.js
+    module.exports.openReadSyncLocal(allConfigSample[1], allConfig[1], ids); // local.js
+    module.exports.openReadSyncPlugins(allConfigSample[2], allConfig[2]); // plugins.js
+  },
+};
 
 module.exports.main()
