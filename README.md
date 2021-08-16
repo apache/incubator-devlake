@@ -65,7 +65,7 @@ All the details on provisioning, and customizing a dashboard can be found in the
 ### Required Packages to Install<a id="requirements"></a>
 
 - <a href="https://docs.docker.com/get-docker" target="_blank">Docker</a>
-- <a href="https://nodejs.org/en/download" target="_blank">Node.js</a> (Developer setup only)
+- <a href="https://nodejs.org/en/download" target="_blank">Node.js</a>
 
 **NOTE:** After installing docker, you may need to run the docker application and restart your terminal
 
