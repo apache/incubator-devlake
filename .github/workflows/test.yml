@@ -1,8 +1,8 @@
-# This action run unit test and e2e test for pull requests
-name: CI
+# This action run unit test for pull requests
+name: test
 on: [pull_request]
 jobs:
-  Unit-Test:
+  unit:
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -15,4 +15,3 @@ jobs:
           node-version: ${{ matrix.node-version }}
       - run: 'npm install'
       - run: 'npm run test'
-      - run: 'npm run test:e2e'
