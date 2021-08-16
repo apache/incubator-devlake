@@ -103,6 +103,16 @@ module.exports = {
     `❕ TIP: You can read more on how to get jira token here:
     \nhttps://github.com/merico-dev/lake/tree/main/src/plugins/jira-pond#generating-api-token`)
     const jiraToken = prompt('➤➤➤ What is your jira token?  ')
+    
+    console.log('\x1b[36m%s\x1b[0m',
+    `❕ TIP: This is the email you use to login to Jira`)
+    const jiraEmail = prompt('➤➤➤ What is your jira user email?  ')
+    
+    console.log(
+      "\x1b[36m%s\x1b[0m",
+      `❕ TIP: This is the base url for jira that you use. IE: for this url: https://merico.atlassian.net/secure/RapidBoard.jspa?rapidView=8&projectKey=EE, you would use https://merico.atlassian.net`
+    );
+    const jiraHost = prompt('➤➤➤ What is your jira host url?  ')
 
     console.log('\x1b[36m%s\x1b[0m',
     `❕ TIP: You can read more on how to get your github token here:
@@ -113,10 +123,16 @@ module.exports = {
     readInterface.on('line', (line) => {
       // Jira board ID
       if (line.match('"<your-jira-token>"')) {
-        writeStream.write(line.replace('"<your-jira-token>"', jiraToken) + '\n')
+        writeStream.write(line.replace('<your-jira-token>', jiraToken) + '\n')
       }
       else if (line.match('"<your-gitlab-token>"')) {
-        writeStream.write(line.replace('"<your-gitlab-token>"', gitlabToken) + '\n')
+        writeStream.write(line.replace('<your-gitlab-token>', gitlabToken) + '\n')
+      }
+      else if (line.match('"<your-jira-email>"')) {
+        writeStream.write(line.replace('<your-jira-email>', jiraEmail) + '\n')
+      }
+      else if (line.match('"<your-jira-host>"')) {
+        writeStream.write(line.replace("<your-jira-host>", jiraHost) + "\n");
       }
       else {
         writeStream.write(line + '\n')

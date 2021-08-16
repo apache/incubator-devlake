@@ -60,6 +60,7 @@ All the details on provisioning, and customizing a dashboard can be found in the
 ## User Setup<a id="user-setup"></a>
 
 **NOTE: If you only plan to run the product, this is the only section you should need**
+**NOTE: Commands written `like this` are to be run in your terminal**
 
 ### Required Packages to Install<a id="requirements"></a>
 
@@ -76,23 +77,17 @@ All the details on provisioning, and customizing a dashboard can be found in the
    git clone https://github.com/merico-dev/lake.git
    cd lake
    ```
-2. Create a copy of the sample configuration files with
 
-   ```
-   cp config/docker.sample.js config/docker.js
-   cp config/plugins.sample.js config/plugins.js
-   ```
-
-3. Run the command `npm run config` to setup your configuration files
+2. Run the command `npm run config` to setup your configuration files
 
     > For more info on how to configure plugins, please refer to the [data source plugins](#data-source-plugins) section
 
-4. Start the service with `npm start`
+3. Start the service by running the command `npm start`
     > you can stop all docker containers with `npm run stop`
 
-5. Run `docker-compose logs -f lake` to check the logs and see when lake stops collecting your data. This can take up to 20 minutes for large projects. (gitlab 10k+ commits or jira 5k+ issues)
+4. Run `docker-compose logs -f lake` to check the logs and see when lake stops collecting your data. This can take up to 20 minutes for large projects. (gitlab 10k+ commits or jira 5k+ issues)
 
-6. Navigate to Grafana Dashboard `https://localhost:3002` (Username: `admin`, password: `admin`)
+5. Navigate to Grafana Dashboard `https://localhost:3002` (Username: `admin`, password: `admin`)
 
 ## Developer Setup<a id="developer-setup"></a>
 

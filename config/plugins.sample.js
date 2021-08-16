@@ -5,15 +5,16 @@ module.exports = [
     configuration: {
       collection: {
         fetcher: {
-          // ➤➤➤ Replace example host with your own host
-          host: "https://your-domain.atlassian.net",
+          // ➤➤➤ Replace example host with your own host. IE: https://your-domain.atlassian.net
+          host: "<your-jira-host>",
           // ➤➤➤ Replace *** with your jira API token, please see Jira plugin readme for details
           basicAuth: "<your-jira-token>",
           // Set timeout for sending requests to Jira API
           timeout: 10000,
           // Set max retry times for sending requests to Jira API
           maxRetry: 3,
-
+          // This is the email you use to log into jira
+          email: "<your-jira-email>",
           // Enable proxy for interacting with Jira API
           // proxy: 'http://localhost:4780',
         },
