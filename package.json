@@ -3,10 +3,10 @@
   "version": "1.0.0",
   "description": "The data lake for dev.",
   "scripts": {
-    "start": "docker-compose -f docker-compose.yml -f docker-compose.prod.yml up -d --build --force-recreate",
+    "start": "docker-compose -f docker-compose.yml -f docker-compose.prod.yml up -d --build --force-recreate --remove-orphans",
     "stop": "docker-compose -f docker-compose.yml -f docker-compose.prod.yml down",
     "dev": "npm run dev:services && sleep 10 && npm run dev:migrate && npm run dev:init-plugins && npm run dev:lake",
-    "dev:services": "docker-compose -f docker-compose.yml up -d --build --force-recreate",
+    "dev:services": "docker-compose -f docker-compose.yml up -d --build --force-recreate --remove-orphans",
     "dev:migrate": "npx sequelize-cli db:migrate",
     "dev:init-plugins": "node src/plugins/index.js",
     "dev:lake": "nodemon concurrently.js",

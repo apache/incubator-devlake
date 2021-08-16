@@ -40,7 +40,7 @@ function configure (config) {
   merge(configuration, config)
   configuration.verified = false
 
-  const { epicKeyField, typeMappings} = configuration
+  const { epicKeyField, typeMappings } = configuration
   if (!epicKeyField || !epicKeyField.startsWith('customfield')) {
     throw new Error('jira enrichment configuration error: issue.epicKeyField is invalid')
   }
