@@ -64,11 +64,13 @@ module.exports = {
     const writeStream = fs.createWriteStream(path)
 
     // Collect replacement vars in local.js
+    console.log('')
     console.log('\x1b[36m%s\x1b[0m',
     `❕ TIP: You can read more on how to get your jira board id here:
     \nhttps://github.com/merico-dev/lake/tree/main/src/plugins/jira-pond#find-board-id \n`)
     const jiraBoardId = prompt('➤➤➤ What is your jira board id?  ')
 
+    console.log('')
     console.log('\x1b[36m%s\x1b[0m',
     `❕ TIP: You can read more on how to get your gitlab project id here:
     \nhttps://github.com/merico-dev/lake/tree/main/src/plugins/gitlab-pond#finding-project-id \n`)
@@ -99,9 +101,10 @@ module.exports = {
     const writeStream = fs.createWriteStream(path)
 
     // Collect replacement vars in plugins.js
+    console.log('')
     console.log('\x1b[36m%s\x1b[0m',
     `❕ TIP: You can read more on how to get jira token here:
-    \nhttps://github.com/merico-dev/lake/tree/main/src/plugins/jira-pond#generating-api-token`)
+    \nhttps://github.com/merico-dev/lake/tree/main/src/plugins/jira-pond#generating-api-token \n`)
     const jiraToken = prompt('➤➤➤ What is your jira token?  ')
     
     console.log('\x1b[36m%s\x1b[0m',
@@ -114,9 +117,10 @@ module.exports = {
     );
     const jiraHost = prompt('➤➤➤ What is your jira host url?  ')
 
+    console.log('')
     console.log('\x1b[36m%s\x1b[0m',
     `❕ TIP: You can read more on how to get your github token here:
-    \nhttps://github.com/merico-dev/lake/tree/main/src/plugins/gitlab-pond#create-a-gitlab-api-token`)
+    \nhttps://github.com/merico-dev/lake/tree/main/src/plugins/gitlab-pond#create-a-gitlab-api-token \n`)
     const gitlabToken = prompt('➤➤➤ What is your gitlab token?  ')
 
     // Replace lines in plugins.js
@@ -135,7 +139,7 @@ module.exports = {
         writeStream.write(line.replace("<your-jira-host>", jiraHost) + "\n");
       }
       else {
-        writeStream.write(line + '\n')
+        writeStream.write(line + '\n\n')
       }
     })
   },
