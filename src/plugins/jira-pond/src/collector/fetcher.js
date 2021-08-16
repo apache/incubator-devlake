@@ -12,8 +12,8 @@ const configuration = {
 }
 
 // Jira tokens need base 64 auth to work properly
-function base64EncodeToken(token, email){
-  let bufferValue = Buffer.from(`${email}:${token}`, "utf-8");
+function base64EncodeToken (token, email) {
+  const bufferValue = Buffer.from(`${email}:${token}`, 'utf-8')
   return bufferValue.toString('base64')
 }
 
@@ -23,8 +23,7 @@ function configure (config) {
   configuration.basicAuth = base64EncodeToken(
     configuration.basicAuth,
     configuration.email
-  );
-  console.log("JON >>> configuration", configuration);
+  )
   const { host, basicAuth } = configuration
   if (!host) {
     throw new Error('jira configuration error: host is required')
