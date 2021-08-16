@@ -5,7 +5,7 @@
   "scripts": {
     "start": "docker-compose -f docker-compose.yml -f docker-compose.prod.yml up -d --build --force-recreate",
     "stop": "docker-compose -f docker-compose.yml -f docker-compose.prod.yml down",
-    "dev": "npm run dev:services && npm run dev:migrate && npm run dev:init-plugins && npm run dev:lake",
+    "dev": "npm run dev:services && sleep 10 && npm run dev:migrate && npm run dev:init-plugins && npm run dev:lake",
     "dev:services": "docker-compose -f docker-compose.yml up -d --build --force-recreate",
     "dev:migrate": "npx sequelize-cli db:migrate",
     "dev:init-plugins": "node src/plugins/index.js",
@@ -17,7 +17,8 @@
     "unit-test": "ENCRYPTION_KEY=123 NODE_ENV=test ./node_modules/mocha/bin/mocha \"test/unit/**/*.test.js\"",
     "lint": "./node_modules/eslint/bin/eslint.js . --max-warnings=0 --report-unused-disable-directives --fix && echo '✔  Your .js files look good.'",
     "prepare": "husky install",
-    "commit": "cz"
+    "commit": "cz",
+    "config": "node scripts/command-line-config.js"
   },
   "repository": {
     "type": "git",
@@ -42,16 +43,17 @@
     "axios": "^0.21.1",
     "body-parser": "^1.19.0",
     "commondb": "src/plugins/commondb",
+    "compound-figures": "src/plugins/compound-figures",
     "concurrently": "^6.2.0",
     "dayjs": "^1.10.6",
     "express": "^4.17.1",
-    "jira-pond": "src/plugins/jira-pond",
     "gitlab-pond": "src/plugins/gitlab-pond",
-    "compound-figures": "src/plugins/compound-figures",
+    "jira-pond": "src/plugins/jira-pond",
     "lodash": "^4.17.21",
     "module-alias": "^2.2.2",
     "mongodb": "*",
     "pg": "^8.6.0",
+    "prompt-sync": "^4.2.0",
     "proxy-agent": "^5.0.0",
     "sequelize": "^6.3.4"
   },

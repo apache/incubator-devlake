@@ -1,22 +1,23 @@
 module.exports = [
   {
-    package: 'jira-pond',
-    name: 'jira',
+    package: "jira-pond",
+    name: "jira",
     configuration: {
       collection: {
         fetcher: {
-          // ➤➤➤ Replace example host with your own host
-          host: 'https://your-domain.atlassian.net',
+          // ➤➤➤ Replace example host with your own host. IE: https://your-domain.atlassian.net
+          host: "<your-jira-host>",
           // ➤➤➤ Replace *** with your jira API token, please see Jira plugin readme for details
-          basicAuth: '***',
+          basicAuth: "<your-jira-token>",
           // Set timeout for sending requests to Jira API
           timeout: 10000,
           // Set max retry times for sending requests to Jira API
-          maxRetry: 3
-
+          maxRetry: 3,
+          // This is the email you use to log into jira
+          email: "<your-jira-email>",
           // Enable proxy for interacting with Jira API
           // proxy: 'http://localhost:4780',
-        }
+        },
       },
       enrichment: {
         issue: {
@@ -62,27 +63,27 @@ module.exports = [
           ],
           // Enables lake to track which epic an issue belongs to
           // ➤➤➤ Replace 'customfiled_10014' with your own field ID for the epic key
-          epicKeyField: 'customfield_10014'
-        }
-      }
-    }
+          epicKeyField: "customfield_10014",
+        },
+      },
+    },
   },
   {
-    package: 'gitlab-pond',
-    name: 'gitlab',
+    package: "gitlab-pond",
+    name: "gitlab",
     configuration: {
       collection: {
         fetcher: {
           // ➤➤➤ Replace example host with your host if your Gitlab is self-hosted
           // Leave this unchanged if you use Gitlab's cloud service
-          host: 'https://gitlab.com',
-          apiPath: 'api/v4',
+          host: "https://gitlab.com",
+          apiPath: "api/v4",
           // ➤➤➤ Replace *** with your Gitlab API token, see Gitlab plugin readme for details
-          token: '***',
+          token: "<your-gitlab-token>",
           // Set timeout for sending requests to Jira API
           timeout: 10000,
           // Set max retry times for sending requests to Jira API
-          maxRetry: 3
+          maxRetry: 3,
 
           // Enable proxy for interacting with Gitlab API
           // proxy: 'http://localhost:4780',
@@ -93,22 +94,22 @@ module.exports = [
           commits: false,
           projects: false,
           mergeRequests: false,
-          notes: false
-        }
-      }
-    }
+          notes: false,
+        },
+      },
+    },
   },
   {
-    package: 'compound-figures',
-    name: 'compound-figures',
+    package: "compound-figures",
+    name: "compound-figures",
     configuration: {
       enrichment: {
         // ➤➤➤ Replace example mapping your own mapping
         // Format: <Jira boardID>: <Gitlab projectId>
         jiraBoardId2GitlabProjectId: {
-          8: 8967944
-        }
-      }
-    }
-  }
-]
+          8: 8967944,
+        },
+      },
+    },
+  },
+];
