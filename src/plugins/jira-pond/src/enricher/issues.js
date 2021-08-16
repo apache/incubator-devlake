@@ -40,18 +40,11 @@ function configure (config) {
   merge(configuration, config)
   configuration.verified = false
 
-  const { epicKeyField, mapping: { type } } = configuration
+  const { epicKeyField } = configuration
   if (!epicKeyField || !epicKeyField.startsWith('customfield')) {
     throw new Error('jira enrichment configuration error: issue.epicKeyField is invalid')
   }
 
-  const isValidArray = (a) => isArray(a) && !isEmpty(a)
-  if (!isValidArray(type.Bug)) {
-    throw new Error('jira configuration error: issue.mapping.type.Bug is invalid')
-  }
-  if (!isValidArray(type.Incident)) {
-    throw new Error('jira configuration error: issue.mapping.type.Incident is invalid')
-  }
   configuration.verified = true
 }
 
