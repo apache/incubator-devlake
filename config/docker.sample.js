@@ -6,7 +6,8 @@ module.exports = {
   },
   // Configuration of MongoDB
   mongo: {
-    connectionString: 'mongodb://lake:lakeIScoming@mongodb:27017/lake?authSource=admin'
+    connectionString:
+      'mongodb://lake:lakeIScoming@mongodb:27017/lake?authSource=admin'
   },
   // Configuration of rabbitMQ
   rabbitMQ: {
@@ -22,17 +23,14 @@ module.exports = {
     dialect: 'postgres'
   },
   cron: {
-    // uncomment and update following configuration to enable the cron job
-    /*
     job: {
       jira: {
-        boardId: 123
+        boardId: '<your-board-id>'
       },
       gitlab: {
-        projectId: 123
+        projectId: '<your-gitlab-project-id>'
       }
     },
-    */
     // Set how often does lake fetch new data from data sources, defaults to every hour
     loopIntervalInMinutes: 60
   }
