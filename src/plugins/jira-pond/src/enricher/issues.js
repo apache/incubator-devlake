@@ -2,7 +2,7 @@
 const issuesCollecotr = require('../collector/issues')
 const dayjs = require('dayjs')
 const duration = require('dayjs/plugin/duration')
-const { merge, isEmpty, isArray } = require('lodash')
+const { merge } = require('lodash')
 dayjs.extend(duration)
 
 const configuration = {
