@@ -88,10 +88,10 @@ module.exports = {
     // Replace lines in local.js
     readInterface.on('line', (line) => {
       // Jira board ID
-      if (line.match('"<your-board-id>"')) {
-        writeStream.write(line.replace('"<your-board-id>"', jiraBoardId) + '\n')
-      } else if (line.match('"<your-gitlab-project-id>"')) {
-        writeStream.write(line.replace('"<your-gitlab-project-id>"', gitlabProjectId) + '\n')
+      if (line.match("'<your-board-id>'")) {
+        writeStream.write(line.replace("'<your-board-id>'", jiraBoardId) + '\n')
+      } else if (line.match("'<your-gitlab-project-id>'")) {
+        writeStream.write(line.replace("'<your-gitlab-project-id>'", gitlabProjectId) + '\n')
       } else {
         writeStream.write(line + '\n')
       }
@@ -111,13 +111,11 @@ module.exports = {
     // Replace lines in local.js
     readInterface.on('line', (line) => {
       // Jira board ID
-      if (line.match('"<your-board-id>"')) {
+      if (line.match("'<your-board-id>'")) {
+        writeStream.write(line.replace("'<your-board-id>'", jiraBoardId) + '\n')
+      } else if (line.match("'<your-gitlab-project-id>'")) {
         writeStream.write(
-          line.replace('"<your-board-id>"', jiraBoardId) + '\n'
-        )
-      } else if (line.match('"<your-gitlab-project-id>"')) {
-        writeStream.write(
-          line.replace('"<your-gitlab-project-id>"', gitlabProjectId) + '\n'
+          line.replace("'<your-gitlab-project-id>'", gitlabProjectId) + '\n'
         )
       } else {
         writeStream.write(line + '\n')
@@ -162,13 +160,13 @@ module.exports = {
     // Replace lines in plugins.js
     readInterface.on('line', (line) => {
       // Jira board ID
-      if (line.match('"<your-jira-token>"')) {
+      if (line.match('<your-jira-token>')) {
         writeStream.write(line.replace('<your-jira-token>', jiraToken) + '\n')
-      } else if (line.match('"<your-gitlab-token>"')) {
+      } else if (line.match('<your-gitlab-token>')) {
         writeStream.write(line.replace('<your-gitlab-token>', gitlabToken) + '\n')
-      } else if (line.match('"<your-jira-email>"')) {
+      } else if (line.match('<your-jira-email>')) {
         writeStream.write(line.replace('<your-jira-email>', jiraEmail) + '\n')
-      } else if (line.match('"<your-jira-host>"')) {
+      } else if (line.match('<your-jira-host>')) {
         writeStream.write(line.replace('<your-jira-host>', jiraHost) + '\n')
       } else {
         writeStream.write(line + '\n\n')
