@@ -15,8 +15,8 @@
   "editable": true,
   "gnetId": null,
   "graphTooltip": 0,
-  "id": 16,
-  "iteration": 1628690898911,
+  "id": 17,
+  "iteration": 1629095914252,
   "links": [
     {
       "asDropdown": false,
@@ -47,16 +47,69 @@
   ],
   "panels": [
     {
+      "cacheTimeout": null,
       "datasource": null,
       "gridPos": {
-        "h": 22,
-        "w": 3,
+        "h": 5,
+        "w": 24,
         "x": 0,
         "y": 0
       },
-      "id": 70,
+      "id": 89,
+      "interval": null,
+      "links": [],
       "options": {
-        "content": "<div style=\"text-align:center;\">\n    <img border=\"0\" src=\"/public/img/lake/1.png\" alt=\"No.1\" width=\"120\"><br>\n    <img border=\"0\" src=\"/public/img/lake/practice_cross_domain.png\" alt=\"Cross-practice Domain\" width=\"120\"> \n    <p style=\"text-align:center;font-size:18px;margin:10px;text-decoration-color:rgb(255, 255, 255);color:#828487\"><b>Cross-Practice Domain<b></p>\n</div>",
+        "content": "<div style=\"text-align:center;\">\n    <div style=\"display:inline-block;text-align:center;padding-top:10px;\">\n        <img border=\"0\" src=\"/public/img/lake/practice_process_delivery_efficiency.png\" alt=\"R&D Process\" width=\"60%\">\n    </div>\n</div>",
+        "mode": "html"
+      },
+      "pluginVersion": "8.0.6",
+      "targets": [
+        {
+          "format": "time_series",
+          "group": [],
+          "metricColumn": "none",
+          "rawQuery": false,
+          "rawSql": "SELECT\n  create_time AS \"time\",\n  progress\nFROM ca_analysis\nWHERE\n  $__timeFilter(create_time)\nORDER BY 1",
+          "refId": "A",
+          "select": [
+            [
+              {
+                "params": [
+                  "progress"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "table": "ca_analysis",
+          "timeColumn": "create_time",
+          "timeColumnType": "timestamp",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        }
+      ],
+      "timeFrom": null,
+      "timeShift": null,
+      "title": "Charts are organized by the Research & Development stages below",
+      "transparent": true,
+      "type": "text"
+    },
+    {
+      "datasource": null,
+      "gridPos": {
+        "h": 4,
+        "w": 24,
+        "x": 0,
+        "y": 5
+      },
+      "id": 76,
+      "options": {
+        "content": "<div style=\"display: block;text-align: center;margin-top: 56px;\">\n  <div style=\"display: inline-flex;\">\n    <img src=\"/public/img/lake/practice_cross_domain.png\" alt=\"Cross-stage\" width=\"56\">\n    <p style=\"font-size:24px; margin:10px;color:#CCCCDC;\"><b>Cross-stage Metrics<b></b></b></p><b><b>\n  </div>\n</div>",
         "mode": "html"
       },
       "pluginVersion": "8.0.6",
@@ -71,7 +124,7 @@
     },
     {
       "datasource": "Postgres",
-      "description": "Filtered by **issue resolution time**",
+      "description": "1. The average lead time of requirements.\n2. Lead time refers to the length of time from requirement creation to delivery.\n3. The requirements being calculated are filtered by \"requirement resolution time\" (time filter at the upper-right corner) and \"Jira board\"(\"Choose Board\" filter at the upper-left corner)",
       "fieldConfig": {
         "defaults": {
           "decimals": 1,
@@ -85,7 +138,7 @@
               },
               {
                 "color": "red",
-                "value": 80
+                "value": 14
               }
             ]
           }
@@ -94,9 +147,9 @@
       },
       "gridPos": {
         "h": 6,
-        "w": 5,
-        "x": 3,
-        "y": 0
+        "w": 6,
+        "x": 0,
+        "y": 9
       },
       "id": 12,
       "options": {
@@ -121,7 +174,7 @@
           "group": [],
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "select \r\n  now() as time,\r\n  avg(lead_time) as value\r\nfrom jira_issues ji\r\n  join jira_board_issues jbi on ji.id = jbi.issue_id\r\nwhere \r\n  issue_type in ('Story','Task') \r\n  and issue_created_at is not null\r\n  -- and issue_status = '已完成'\r\n  and lead_time is not null\r\n  and $__timeFilter(issue_created_at)\r\n  and jbi.board_id in ($board)\r\ngroup by 1;",
+          "rawSql": "select \r\n  now() as time,\r\n  avg(lead_time) as value\r\nfrom jira_issues ji\r\n  join jira_board_issues jbi on ji.id = jbi.issue_id\r\nwhere \r\n  issue_type in ('Story','Task') \r\n  and issue_resolved_at is not null\r\n  and lead_time is not null\r\n  and $__timeFilter(issue_resolved_at)\r\n  and jbi.board_id = $board_id\r\ngroup by 1;",
           "refId": "A",
           "select": [
             [
@@ -147,12 +200,12 @@
       ],
       "timeFrom": null,
       "timeShift": null,
-      "title": "2.1 Avg Requirement Lead Time (day)",
+      "title": "Avg Requirement Lead Time (day)",
       "type": "stat"
     },
     {
       "datasource": "Postgres",
-      "description": "Filtered by **issue resolution time**",
+      "description": "1. The lead time at which 80% requirements‘ lead time lies below it.\n2. The requirements being calculated are filtered by \"requirement resolution time\" (time filter at the upper-right corner) and \"Jira board\" (\"Choose Board\" filter at the upper-left corner)",
       "fieldConfig": {
         "defaults": {
           "mappings": [],
@@ -165,7 +218,7 @@
               },
               {
                 "color": "red",
-                "value": 80
+                "value": 21
               }
             ]
           }
@@ -174,9 +227,9 @@
       },
       "gridPos": {
         "h": 6,
-        "w": 5,
-        "x": 8,
-        "y": 0
+        "w": 6,
+        "x": 6,
+        "y": 9
       },
       "id": 13,
       "options": {
@@ -201,7 +254,7 @@
           "group": [],
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "select \r\n  now() as time,\r\n  '<=' as value,\r\n  percentile_disc(0.8) within group (order by lead_time asc)\r\nfrom jira_issues ji\r\n  join jira_board_issues jbi on ji.id = jbi.issue_id\r\nwhere \r\n  issue_type in ('Story','Task') \r\n  and issue_resolved_at is not null\r\n  -- and issue_status = '已完成'\r\n  and lead_time is not null\r\n  -- to be modified\r\n  and $__timeFilter(issue_resolved_at)\r\n  and jbi.board_id in ($board)\r\ngroup by 1;",
+          "rawSql": "select \r\n  now() as time,\r\n  '<=' as value,\r\n  percentile_disc(0.8) within group (order by lead_time asc)\r\nfrom jira_issues ji\r\n  join jira_board_issues jbi on ji.id = jbi.issue_id\r\nwhere \r\n  issue_type in ('Story','Task') \r\n  and issue_resolved_at is not null\r\n  -- and issue_status = '已完成'\r\n  and lead_time is not null\r\n  and $__timeFilter(issue_resolved_at)\r\n  and jbi.board_id = $board_id\r\ngroup by 1;",
           "refId": "A",
           "select": [
             [
@@ -227,7 +280,7 @@
       ],
       "timeFrom": null,
       "timeShift": null,
-      "title": "2.2 80% Requirement Lead Time <= (day)",
+      "title": "80th Percentile Requirement Lead Time (day)",
       "type": "stat"
     },
     {
@@ -236,7 +289,7 @@
       "dashLength": 10,
       "dashes": false,
       "datasource": "Postgres",
-      "description": "Filtered by **issue resolution time**",
+      "description": "1. The cumulative distribution of requirement lead time. \n2. Each point refers to the percent rank of a lead time.",
       "fieldConfig": {
         "defaults": {
           "unit": "none"
@@ -246,10 +299,10 @@
       "fill": 0,
       "fillGradient": 4,
       "gridPos": {
-        "h": 14,
-        "w": 11,
-        "x": 13,
-        "y": 0
+        "h": 12,
+        "w": 12,
+        "x": 12,
+        "y": 9
       },
       "hiddenSeries": false,
       "id": 15,
@@ -285,7 +338,7 @@
           "group": [],
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "select \r\n  now() as time,\r\n  format('%3sd', lead_time) as metric,\r\n  percent_rank() over(order by lead_time asc) as value\r\nfrom jira_issues ji\r\n  join jira_board_issues jbi on ji.id = jbi.issue_id\r\nwhere \r\n  issue_type in ('Story','Task') \r\n  and issue_resolved_at is not null\r\n  and lead_time is not null\r\n  and $__timeFilter(issue_resolved_at)\r\n  and jbi.board_id in ($board)\r\norder by lead_time asc",
+          "rawSql": "select \r\n  now() as time,\r\n  format('%3sd', lead_time) as metric,\r\n  percent_rank() over(order by lead_time asc) as value\r\nfrom jira_issues ji\r\n  join jira_board_issues jbi on ji.id = jbi.issue_id\r\nwhere \r\n  issue_type in ('Story','Task') \r\n  and issue_resolved_at is not null\r\n  and lead_time is not null\r\n  and $__timeFilter(issue_resolved_at)\r\n  and jbi.board_id = $board_id\r\norder by lead_time asc",
           "refId": "A",
           "select": [
             [
@@ -322,7 +375,7 @@
       "timeFrom": null,
       "timeRegions": [],
       "timeShift": null,
-      "title": "2.3 Requirement Lead Time Distribution (Percent Rank)",
+      "title": "Requirement Lead Time (Cumulative Distribution)",
       "tooltip": {
         "shared": false,
         "sort": 0,
@@ -365,7 +418,7 @@
     },
     {
       "datasource": "Postgres",
-      "description": "Filtered by **issue resolution time**",
+      "description": "1. The average and 80th percentile requirement lead time over time.\n2. The time granularity can be switched to Week or Month by \"Time Interval\" above. \n3. When Time Interval is set to \"Month\", the average_lead_time of \"2021-06-01\" refers to the average lead time of requirements whose resolution time falls under [2020-06-01, 2020-07-01).",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -418,10 +471,10 @@
         "overrides": []
       },
       "gridPos": {
-        "h": 8,
-        "w": 10,
-        "x": 3,
-        "y": 6
+        "h": 6,
+        "w": 12,
+        "x": 0,
+        "y": 15
       },
       "id": 17,
       "interval": "",
@@ -442,7 +495,7 @@
           "group": [],
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "with _requirement as(\r\n  select \r\n    ji.id,\r\n    ji.issue_resolved_at,\r\n    lead_time\r\n  from jira_issues ji\r\n    join jira_board_issues jbi on ji.id = jbi.issue_id\r\n  where \r\n    issue_type in ('Story','Task') \r\n    and issue_resolved_at is not null\r\n    and lead_time is not null\r\n    and $__timeFilter(issue_resolved_at)\r\n    and jbi.board_id in ($board)\r\n)\r\n\r\nselect \r\n  case \r\n    when '$interval' = 'week' then to_timestamp(to_char(issue_resolved_at,'YYYY-WW'),'YYYY-WW')\r\n    when '$interval' = 'month' then to_timestamp(to_char(issue_resolved_at,'YYYY-MM'),'YYYY-MM')\r\n    end as time,\r\n  avg(lead_time) as average_lead_time,\r\n  percentile_disc(0.8) within group (order by lead_time asc) as percentile_80_lead_time\r\nfrom _requirement\r\ngroup by 1\r\norder by 1 asc",
+          "rawSql": "with _requirement as(\r\n  select \r\n    ji.id,\r\n    to_char(ji.issue_resolved_at, '$interval') as time,\r\n    lead_time\r\n  from jira_issues ji\r\n    join jira_board_issues jbi on ji.id = jbi.issue_id\r\n  where \r\n    issue_type in ('Story','Task') \r\n    and issue_resolved_at is not null\r\n    and lead_time is not null\r\n    and $__timeFilter(issue_resolved_at)\r\n    and jbi.board_id = $board_id\r\n)\r\n\r\nselect \r\n  to_timestamp(time,'$interval') as time,\r\n  avg(lead_time) as average_lead_time,\r\n  percentile_disc(0.8) within group (order by lead_time asc) as percentile_80_lead_time\r\nfrom _requirement\r\ngroup by 1\r\norder by 1 asc",
           "refId": "A",
           "select": [
             [
@@ -468,7 +521,7 @@
       ],
       "timeFrom": null,
       "timeShift": null,
-      "title": "2.4 Requirement Lead Time (Breakdown by Time)",
+      "title": "Requirement Lead Time (Breakdown by Time)",
       "type": "timeseries"
     },
     {
@@ -477,14 +530,14 @@
       "dashLength": 10,
       "dashes": false,
       "datasource": "Postgres",
-      "description": "",
+      "description": "The average lead time of requirements under different Jira Epics.",
       "fill": 1,
       "fillGradient": 0,
       "gridPos": {
-        "h": 8,
-        "w": 21,
-        "x": 3,
-        "y": 14
+        "h": 6,
+        "w": 24,
+        "x": 0,
+        "y": 21
       },
       "hiddenSeries": false,
       "id": 18,
@@ -519,7 +572,7 @@
           "metricColumn": "none",
           "queryType": "randomWalk",
           "rawQuery": true,
-          "rawSql": "with _requirement as(\r\n  select\r\n    ji.id,\r\n    ji.epic_key,\r\n    ji.lead_time\r\n  from\r\n    jira_issues ji\r\n    join jira_board_issues jbi on ji.id = jbi.issue_id\r\n    -- join jira_boards jb on jbi.board_id = jb.id\r\n  where \r\n    issue_type in ('Story','Task') \r\n    and issue_resolved_at is not null\r\n    and epic_key is not null\r\n    and $__timeFilter(issue_resolved_at)\r\n    and jbi.board_id in ($board)\r\n)\r\n\r\nselect \r\n  now() as time,\r\n  epic_key as metric,\r\n  avg(lead_time) as value\r\nfrom _requirement\r\ngroup by 1,2\r\norder by avg(lead_time) desc\r\nlimit 10",
+          "rawSql": "with _requirement as(\r\n  select\r\n    ji.id,\r\n    ji.epic_key,\r\n    ji.lead_time\r\n  from\r\n    jira_issues ji\r\n    join jira_board_issues jbi on ji.id = jbi.issue_id\r\n    -- join jira_boards jb on jbi.board_id = jb.id\r\n  where \r\n    issue_type in ('Story','Task') \r\n    and issue_resolved_at is not null\r\n    and epic_key is not null\r\n    and $__timeFilter(issue_resolved_at)\r\n    and jbi.board_id = $board_id\r\n)\r\n\r\nselect \r\n  now() as time,\r\n  epic_key as metric,\r\n  avg(lead_time) as value\r\nfrom _requirement\r\ngroup by 1,2\r\norder by avg(lead_time) desc\r\nlimit 10",
           "refId": "A",
           "select": [
             [
@@ -545,7 +598,7 @@
       "timeFrom": null,
       "timeRegions": [],
       "timeShift": null,
-      "title": "2.6 - Average Requirement Lead Time (Breakdown by Epic)",
+      "title": "Average Requirement Lead Time (Breakdown by Epic)",
       "tooltip": {
         "shared": false,
         "sort": 0,
@@ -589,14 +642,14 @@
     {
       "datasource": null,
       "gridPos": {
-        "h": 22,
-        "w": 3,
+        "h": 4,
+        "w": 24,
         "x": 0,
-        "y": 22
+        "y": 27
       },
-      "id": 76,
+      "id": 92,
       "options": {
-        "content": "<div style=\"text-align:center;\">\n  <img border=\"0\" src=\"/public/img/lake/2.png\" alt=\"No.2\" width=\"120\"><br>\n  <img border=\"0\" src=\"/public/img/lake/practice_requirement.png\" alt=\"requirement\" width=\"120\">\n  <p style=\"text-align:center;font-size:20px;margin:10px;text-decoration-color:rgb(255, 255, 255);color:#828487\"><b>Requirement<b></p>\n</div>",
+        "content": "<div style=\"display: block;text-align: center;margin-top: 56px;\">\n  <div style=\"display: inline-flex;\">\n    <img src=\"/public/img/lake/1.png\" alt=\"No.1\" width=\"56\">\n    <p style=\"font-size:24px; margin:10px; color:#BFC1C8;\"><b>Requirement<b></b></b></p><b><b>\n  </div>\n</div>",
         "mode": "html"
       },
       "pluginVersion": "8.0.6",
@@ -611,7 +664,7 @@
     },
     {
       "datasource": "Postgres",
-      "description": "The total number of requirements created.",
+      "description": "1. Total number of requirements created.\n2. The requirements being calculated are filtered by \"requirement creation time\" (time filter at the upper-right corner) and \"Jira board\" (\"Choose Board\" filter at the upper-left corner)",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -624,10 +677,6 @@
               {
                 "color": "green",
                 "value": null
-              },
-              {
-                "color": "red",
-                "value": 80
               }
             ]
           }
@@ -635,10 +684,10 @@
         "overrides": []
       },
       "gridPos": {
-        "h": 7,
-        "w": 5,
-        "x": 3,
-        "y": 22
+        "h": 6,
+        "w": 6,
+        "x": 0,
+        "y": 31
       },
       "id": 2,
       "options": {
@@ -664,7 +713,7 @@
           "metricColumn": "none",
           "queryType": "randomWalk",
           "rawQuery": true,
-          "rawSql": "select \r\n  now() as time,\r\n  count(*) as value\r\nfrom jira_issues ji\r\n  join jira_board_issues jbi on ji.id = jbi.issue_id\r\n  -- join jira_boards jb on jbi.board_id = jb.id\r\nwhere \r\n  issue_type in ('Story','Task') \r\n  and issue_created_at is not null \r\n  and $__timeFilter(issue_created_at)\r\n  and jbi.board_id in ($board)\r\ngroup by 1;",
+          "rawSql": "select \r\n  now() as time,\r\n  count(*) as value\r\nfrom jira_issues ji\r\n  join jira_board_issues jbi on ji.id = jbi.issue_id\r\nwhere \r\n  issue_type in ('Story','Task') \r\n  and issue_created_at is not null \r\n  and $__timeFilter(issue_created_at)\r\n  and jbi.board_id = $board_id\r\ngroup by 1;",
           "refId": "A",
           "select": [
             [
@@ -686,11 +735,12 @@
           ]
         }
       ],
-      "title": "1.1 - Requirement Count (Total)",
+      "title": "Requirement Count (Total)",
       "type": "stat"
     },
     {
       "datasource": "Postgres",
+      "description": "1. The number of requirements created over time.\n2. The time granularity can be switched to week or month by \"Time Interval\" above. \n3. When Time Interval is set to \"month\", the requirement_count of \"2021-06-01\" refers to the number of requirements whose creation time falls under [2020-06-01, 2020-07-01)",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -743,10 +793,10 @@
         "overrides": []
       },
       "gridPos": {
-        "h": 7,
-        "w": 9,
-        "x": 8,
-        "y": 22
+        "h": 6,
+        "w": 18,
+        "x": 6,
+        "y": 31
       },
       "id": 6,
       "interval": null,
@@ -768,7 +818,7 @@
           "metricColumn": "none",
           "queryType": "randomWalk",
           "rawQuery": true,
-          "rawSql": "with _requirement as(\r\n  select\r\n    ji.id,\r\n    ji.issue_created_at\r\n  from\r\n    jira_issues ji\r\n    join jira_board_issues jbi on ji.id = jbi.issue_id\r\n    -- join jira_boards jb on jbi.board_id = jb.id\r\n  where \r\n    issue_type in ('Story','Task') \r\n    and issue_created_at is not null \r\n    and $__timeFilter(issue_created_at)\r\n    and jbi.board_id in ($board)\r\n)\r\n\r\nselect\r\n  case \r\n    when '$interval' = 'week' then to_timestamp(to_char(issue_created_at,'YYYY-WW'),'YYYY-WW')\r\n    when '$interval' = 'month' then to_timestamp(to_char(issue_created_at,'YYYY-MM'),'YYYY-MM')\r\n    end as time,\r\n  count(distinct id) as requirement_count\r\nfrom _requirement\r\ngroup by 1\r\norder by 1 asc",
+          "rawSql": "with _requirement as(\r\n  select\r\n    ji.id,\r\n    to_char(ji.issue_created_at, '$interval') as time\r\n  from\r\n    jira_issues ji\r\n    join jira_board_issues jbi on ji.id = jbi.issue_id\r\n  where \r\n    issue_type in ('Story','Task') \r\n    and issue_created_at is not null \r\n    and $__timeFilter(issue_created_at)\r\n    and jbi.board_id = $board_id\r\n)\r\n\r\nselect\r\n  to_timestamp(time,'$interval') as time,\r\n  count(distinct id) as requirement_count\r\nfrom _requirement\r\ngroup by 1\r\norder by 1 asc",
           "refId": "A",
           "select": [
             [
@@ -792,59 +842,50 @@
       ],
       "timeFrom": null,
       "timeShift": null,
-      "title": "1.2 - Requirement Count (Breakdown by Time)",
+      "title": "Requirement Count (Breakdown by Time)",
       "type": "timeseries"
     },
     {
+      "aliasColors": {},
+      "bars": true,
+      "dashLength": 10,
+      "dashes": false,
       "datasource": "Postgres",
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "palette-classic"
-          },
-          "custom": {
-            "hideFrom": {
-              "legend": false,
-              "tooltip": false,
-              "viz": false
-            }
-          },
-          "mappings": []
-        },
-        "overrides": []
-      },
+      "description": "1. The number of requirements under different Jira Epics.",
+      "fill": 1,
+      "fillGradient": 0,
       "gridPos": {
-        "h": 7,
-        "w": 7,
-        "x": 17,
-        "y": 22
+        "h": 6,
+        "w": 24,
+        "x": 0,
+        "y": 37
       },
+      "hiddenSeries": false,
       "id": 7,
-      "options": {
-        "displayLabels": [
-          "name",
-          "percent"
-        ],
-        "legend": {
-          "displayMode": "list",
-          "placement": "bottom",
-          "values": [
-            "percent"
-          ]
-        },
-        "pieType": "pie",
-        "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
-          "fields": "",
-          "values": false
-        },
-        "tooltip": {
-          "mode": "single"
-        }
+      "legend": {
+        "avg": false,
+        "current": false,
+        "max": false,
+        "min": false,
+        "show": false,
+        "total": false,
+        "values": false
       },
+      "lines": false,
+      "linewidth": 1,
+      "nullPointMode": "null",
+      "options": {
+        "alertThreshold": true
+      },
+      "percentage": false,
       "pluginVersion": "8.0.6",
+      "pointradius": 2,
+      "points": false,
+      "renderer": "flot",
+      "seriesOverrides": [],
+      "spaceLength": 10,
+      "stack": false,
+      "steppedLine": false,
       "targets": [
         {
           "format": "time_series",
@@ -852,7 +893,7 @@
           "metricColumn": "none",
           "queryType": "randomWalk",
           "rawQuery": true,
-          "rawSql": "with _requirement as(\r\n  select\r\n    ji.id,\r\n    ji.epic_key\r\n  from\r\n    jira_issues ji\r\n    join jira_board_issues jbi on ji.id = jbi.issue_id\r\n    -- join jira_boards jb on jbi.board_id = jb.id\r\n  where \r\n    issue_type in ('Story','Task') \r\n    and issue_created_at is not null\r\n    and epic_key is not null\r\n    and $__timeFilter(issue_created_at)\r\n    and jbi.board_id in ($board)\r\n)\r\n\r\nselect \r\n  now() as time,\r\n  epic_key as metric,\r\n  count(*) as value\r\nfrom _requirement\r\ngroup by 1,2\r\norder by 3 desc",
+          "rawSql": "with _requirement as(\r\n  select\r\n    ji.id,\r\n    ji.epic_key\r\n  from\r\n    jira_issues ji\r\n    join jira_board_issues jbi on ji.id = jbi.issue_id\r\n  where \r\n    issue_type in ('Story','Task') \r\n    and issue_created_at is not null\r\n    and epic_key is not null\r\n    and $__timeFilter(issue_created_at)\r\n    and jbi.board_id = $board_id\r\n)\r\n\r\nselect \r\n  now() as time,\r\n  epic_key as metric,\r\n  count(*) as value\r\nfrom _requirement\r\ngroup by 1,2\r\norder by 3 desc\r\nlimit 20",
           "refId": "A",
           "select": [
             [
@@ -874,14 +915,54 @@
           ]
         }
       ],
+      "thresholds": [],
       "timeFrom": null,
+      "timeRegions": [],
       "timeShift": null,
-      "title": "1.4 - Requirement Count (Breakdown by Epic)",
-      "type": "piechart"
+      "title": "Requirement Count (Breakdown by Epic)",
+      "tooltip": {
+        "shared": false,
+        "sort": 0,
+        "value_type": "individual"
+      },
+      "type": "graph",
+      "xaxis": {
+        "buckets": null,
+        "mode": "series",
+        "name": null,
+        "show": true,
+        "values": [
+          "total"
+        ]
+      },
+      "yaxes": [
+        {
+          "$$hashKey": "object:94",
+          "format": "short",
+          "label": null,
+          "logBase": 1,
+          "max": null,
+          "min": null,
+          "show": true
+        },
+        {
+          "$$hashKey": "object:95",
+          "format": "short",
+          "label": null,
+          "logBase": 1,
+          "max": null,
+          "min": null,
+          "show": true
+        }
+      ],
+      "yaxis": {
+        "align": false,
+        "alignLevel": null
+      }
     },
     {
       "datasource": "Postgres",
-      "description": "",
+      "description": "1. Number of requirements that have been delivered.\n2. A requirement is delivered when its status equals to 'delivered'.\n3. The requirements being calculated are filtered by \"requirement creation time\" (time filter at the upper-right corner) and \"Jira board\" (\"Choose Board\" filter at the upper-left corner)",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -894,10 +975,6 @@
               {
                 "color": "green",
                 "value": null
-              },
-              {
-                "color": "red",
-                "value": 80
               }
             ]
           },
@@ -906,10 +983,10 @@
         "overrides": []
       },
       "gridPos": {
-        "h": 7,
-        "w": 5,
-        "x": 3,
-        "y": 29
+        "h": 6,
+        "w": 6,
+        "x": 0,
+        "y": 43
       },
       "id": 25,
       "options": {
@@ -935,7 +1012,7 @@
           "metricColumn": "none",
           "queryType": "randomWalk",
           "rawQuery": true,
-          "rawSql": "select\r\n  now() as time,\r\n  count(case when ji.issue_resolved_at is not null then 1 else null end) as delivered_count\r\nfrom jira_issues ji\r\n  join jira_board_issues jbi on ji.id = jbi.issue_id\r\nwhere \r\n  issue_type in ('Story','Task') \r\n  and issue_created_at is not null\r\n  and $__timeFilter(issue_created_at)\r\n  and jbi.board_id in ($board)",
+          "rawSql": "select\r\n  now() as time,\r\n  count(*) as delivered_count\r\nfrom jira_issues ji\r\n  join jira_board_issues jbi on ji.id = jbi.issue_id\r\nwhere \r\n  issue_type in ('Story','Task')\r\n  and ji.issue_resolved_at is not null\r\n  and issue_created_at is not null\r\n  and $__timeFilter(issue_created_at)\r\n  and jbi.board_id = $board_id",
           "refId": "A",
           "select": [
             [
@@ -957,12 +1034,12 @@
           ]
         }
       ],
-      "title": "3.1 Delivered Requirement Count",
+      "title": "Delivered Requirement Count",
       "type": "stat"
     },
     {
       "datasource": "Postgres",
-      "description": "",
+      "description": "Delivered Requirement Count/Requirement Count (Total)",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -970,15 +1047,15 @@
           },
           "mappings": [],
           "thresholds": {
-            "mode": "absolute",
+            "mode": "percentage",
             "steps": [
               {
-                "color": "green",
+                "color": "red",
                 "value": null
               },
               {
-                "color": "red",
-                "value": 80
+                "color": "green",
+                "value": 50
               }
             ]
           },
@@ -987,10 +1064,10 @@
         "overrides": []
       },
       "gridPos": {
-        "h": 7,
-        "w": 5,
-        "x": 8,
-        "y": 29
+        "h": 6,
+        "w": 6,
+        "x": 6,
+        "y": 43
       },
       "id": 22,
       "options": {
@@ -1016,7 +1093,7 @@
           "metricColumn": "none",
           "queryType": "randomWalk",
           "rawQuery": true,
-          "rawSql": "with _requirement as(\r\n  select\r\n    count(distinct ji.id) as total_count,\r\n    count(case when ji.issue_resolved_at is not null then 1 else null end) as delivered_count\r\n  from jira_issues ji\r\n    join jira_board_issues jbi on ji.id = jbi.issue_id\r\n  where \r\n    issue_type in ('Story','Task') \r\n    and issue_created_at is not null\r\n    and $__timeFilter(issue_created_at)\r\n    and jbi.board_id in ($board)\r\n)\r\n\r\n\r\nselect \r\n  now() as time,\r\n  1.0 * delivered_count/total_count as requirement_delivery_rate\r\nfrom _requirement",
+          "rawSql": "with _requirement as(\r\n  select\r\n    count(distinct ji.id) as total_count,\r\n    count(case when ji.issue_resolved_at is not null then 1 else null end) as delivered_count\r\n  from jira_issues ji\r\n    join jira_board_issues jbi on ji.id = jbi.issue_id\r\n  where \r\n    issue_type in ('Story','Task') \r\n    and issue_created_at is not null\r\n    and $__timeFilter(issue_created_at)\r\n    and jbi.board_id = $board_id\r\n)\r\n\r\n\r\nselect \r\n  now() as time,\r\n  1.0 * delivered_count/total_count as requirement_delivery_rate\r\nfrom _requirement",
           "refId": "A",
           "select": [
             [
@@ -1038,13 +1115,13 @@
           ]
         }
       ],
-      "title": "3.2 Requirement Delivery Rate (Total)",
+      "title": "Requirement Delivery Rate (Total)",
       "type": "stat"
     },
     {
       "cacheTimeout": null,
       "datasource": "Postgres",
-      "description": "",
+      "description": "1. The requirement delivery rate over time.\n2. When Time Interval is set to \"month\", value \"requirement_delivery_rate\" of \"2021-06-01\" calculates the requirements whose creation time falls under [2020-06-01, 2020-07-01)",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -1097,10 +1174,10 @@
         "overrides": []
       },
       "gridPos": {
-        "h": 7,
-        "w": 11,
-        "x": 13,
-        "y": 29
+        "h": 6,
+        "w": 12,
+        "x": 12,
+        "y": 43
       },
       "id": 23,
       "links": [],
@@ -1122,7 +1199,7 @@
           "metricColumn": "none",
           "queryType": "randomWalk",
           "rawQuery": true,
-          "rawSql": "with _requirement as(\r\n  select\r\n    case \r\n      when '$interval' = 'week' then to_timestamp(to_char(issue_created_at,'YYYY-WW'),'YYYY-WW')\r\n      when '$interval' = 'month' then to_timestamp(to_char(issue_created_at,'YYYY-MM'),'YYYY-MM')\r\n      end as time,\r\n    count(distinct ji.id) as total_count,\r\n    count(case when ji.issue_resolved_at is not null then 1 else null end) as delivered_count\r\n  from jira_issues ji\r\n    join jira_board_issues jbi on ji.id = jbi.issue_id\r\n  where \r\n    issue_type in ('Story','Task') \r\n    and issue_created_at is not null\r\n    and $__timeFilter(issue_created_at)\r\n    and jbi.board_id in ($board)\r\n  group by 1\r\n)\r\n\r\n\r\nselect \r\n  time,\r\n  1.0 * delivered_count/total_count as requirement_delivery_rate\r\nfrom _requirement\r\norder by 1",
+          "rawSql": "with _requirement as(\r\n  select\r\n    to_char(issue_created_at, '$interval') as time,\r\n    count(distinct ji.id) as total_count,\r\n    count(case when ji.issue_resolved_at is not null then 1 else null end) as delivered_count\r\n  from jira_issues ji\r\n    join jira_board_issues jbi on ji.id = jbi.issue_id\r\n  where \r\n    issue_type in ('Story','Task') \r\n    and issue_created_at is not null\r\n    and $__timeFilter(issue_created_at)\r\n    and jbi.board_id = $board_id\r\n  group by 1\r\n)\r\n\r\n\r\nselect \r\n  to_timestamp(time,'$interval') as time,\r\n  1.0 * delivered_count/total_count as requirement_delivery_rate\r\nfrom _requirement\r\norder by 1",
           "refId": "A",
           "select": [
             [
@@ -1146,7 +1223,7 @@
       ],
       "timeFrom": null,
       "timeShift": null,
-      "title": "3.3 Requirement Delivery Rate (Breakdown by Time)",
+      "title": "Requirement Delivery Rate (Breakdown by Time)",
       "type": "timeseries"
     },
     {
@@ -1156,14 +1233,14 @@
       "dashLength": 10,
       "dashes": false,
       "datasource": "Postgres",
-      "description": "",
+      "description": "The average delivery rate of requirements under different Jira Epics.",
       "fill": 1,
       "fillGradient": 0,
       "gridPos": {
-        "h": 8,
-        "w": 21,
-        "x": 3,
-        "y": 36
+        "h": 6,
+        "w": 24,
+        "x": 0,
+        "y": 49
       },
       "hiddenSeries": false,
       "id": 24,
@@ -1199,7 +1276,7 @@
           "metricColumn": "none",
           "queryType": "randomWalk",
           "rawQuery": true,
-          "rawSql": "with _requirement as(\r\n  select\r\n    ji.epic_key as metric,\r\n    count(distinct ji.id) as total_count,\r\n    count(case when ji.issue_resolved_at is not null then 1 else null end) as delivered_count\r\n  from jira_issues ji\r\n    join jira_board_issues jbi on ji.id = jbi.issue_id\r\n  where \r\n    issue_type in ('Story','Task') \r\n    and issue_created_at is not null\r\n    and epic_key is not null\r\n    and $__timeFilter(issue_created_at)\r\n    and jbi.board_id in ($board)\r\n  group by 1\r\n)\r\n\r\n\r\nselect \r\n  now() as time,\r\n  metric,\r\n  1.0 * delivered_count/total_count as requirement_delivery_rate\r\nfrom _requirement\r\norder by 2 desc\r\nlimit 10",
+          "rawSql": "with _requirement as(\r\n  select\r\n    ji.epic_key as metric,\r\n    count(distinct ji.id) as total_count,\r\n    count(case when ji.issue_resolved_at is not null then 1 else null end) as delivered_count\r\n  from jira_issues ji\r\n    join jira_board_issues jbi on ji.id = jbi.issue_id\r\n  where \r\n    issue_type in ('Story','Task') \r\n    and issue_created_at is not null\r\n    and epic_key is not null\r\n    and $__timeFilter(issue_created_at)\r\n    and jbi.board_id = $board_id\r\n  group by 1\r\n)\r\n\r\n\r\nselect \r\n  now() as time,\r\n  metric,\r\n  1.0 * delivered_count/total_count as requirement_delivery_rate\r\nfrom _requirement\r\norder by 2 desc\r\nlimit 10",
           "refId": "A",
           "select": [
             [
@@ -1225,7 +1302,7 @@
       "timeFrom": null,
       "timeRegions": [],
       "timeShift": null,
-      "title": "3.5 Requirement Delivery Rate (Breakdown by Epic)",
+      "title": "Requirement Delivery Rate (Breakdown by Epic)",
       "tooltip": {
         "shared": false,
         "sort": 0,
@@ -1269,14 +1346,14 @@
     {
       "datasource": null,
       "gridPos": {
-        "h": 35,
-        "w": 3,
+        "h": 4,
+        "w": 24,
         "x": 0,
-        "y": 44
+        "y": 55
       },
       "id": 71,
       "options": {
-        "content": "<div style=\"text-align:center;\">\n  <img border=\"0\" src=\"/public/img/lake/3.png\" alt=\"No.3\" width=\"120\"><br>\n  <img border=\"0\" src=\"/public/img/lake/practice_development.png\" alt=\"requirement\" width=\"120\">\n  <p style=\"text-align:center;font-size:20px;margin:10px;text-decoration-color:rgb(255, 255, 255);color:#828487\"><b>Development<b></p>\n</div>",
+        "content": "<div style=\"display: block;text-align: center;margin-top: 56px;\">\n  <div style=\"display: inline-flex;\">\n    <img src=\"/public/img/lake/2.png\" alt=\"No.2\" width=\"56\">\n    <p style=\"font-size:24px; margin:10px; color:#BFC1C8;\"><b>Development<b></b></b></p><b><b>\n  </div>\n</div>",
         "mode": "html"
       },
       "pluginVersion": "8.0.6",
@@ -1291,7 +1368,7 @@
     },
     {
       "datasource": "Postgres",
-      "description": "Filtered by **MR_create_time**",
+      "description": "1. Average PR/MR review time.\n2. PR/MR review time refers to the time between the assigned reviewers‘ first comment and Pull/Merge Request being merged.\n3. The PR/MR being calculated are filtered by \"PR/MR creation time\" (time filter at the upper-right corner) and \"Gitlab repo\"(\"Choose Repo\" filter at the upper-left corner)",
       "fieldConfig": {
         "defaults": {
           "decimals": 1,
@@ -1305,7 +1382,7 @@
               },
               {
                 "color": "red",
-                "value": 80
+                "value": 3
               }
             ]
           }
@@ -1313,10 +1390,10 @@
         "overrides": []
       },
       "gridPos": {
-        "h": 5,
+        "h": 6,
         "w": 6,
-        "x": 3,
-        "y": 44
+        "x": 0,
+        "y": 59
       },
       "id": 80,
       "options": {
@@ -1341,7 +1418,7 @@
           "group": [],
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "select \n  now() as time,\n  avg(EXTRACT(epoch from age(merged_at, first_comment_time)) / 86400) as value\nfrom gitlab_merge_requests\nWHERE\n  first_comment_time is not null\n  and merged_at is not null\n  and $__timeFilter(gitlab_created_at)\n  and project_id in ($repo)",
+          "rawSql": "select \n  now() as time,\n  avg(EXTRACT(epoch from age(merged_at, first_comment_time)) / 86400) as value\nfrom gitlab_merge_requests\nWHERE\n  first_comment_time is not null\n  and merged_at is not null\n  and $__timeFilter(gitlab_created_at)\n  and project_id = $repo_id",
           "refId": "A",
           "select": [
             [
@@ -1367,12 +1444,93 @@
       ],
       "timeFrom": null,
       "timeShift": null,
-      "title": "13.1 Avg Merge Request Review Time (day)",
+      "title": "Avg Pull Request Review Time (day)",
       "type": "stat"
     },
     {
       "datasource": "Postgres",
-      "description": "Filtered by **MR_create_time**",
+      "description": "1. The 80th percentile PR/MR review time.\n2. The PR/MR being calculated are filtered by \"PR/MR creation time\" (time filter at the upper-right corner) and \"Gitlab repo\"(\"Choose Repo\" filter at the upper-left corner)",
+      "fieldConfig": {
+        "defaults": {
+          "decimals": 1,
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 7
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 6,
+        "w": 6,
+        "x": 6,
+        "y": 59
+      },
+      "id": 83,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "mean"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "text": {},
+        "textMode": "auto"
+      },
+      "pluginVersion": "8.0.6",
+      "targets": [
+        {
+          "format": "time_series",
+          "group": [],
+          "metricColumn": "none",
+          "rawQuery": true,
+          "rawSql": "select \n  now() as time,\n  percentile_disc(0.8) within group \n    (order by (EXTRACT(epoch from age(merged_at, first_comment_time)) / 86400) asc) \n    as percentile_80_review_time\nfrom gitlab_merge_requests\nWHERE\n  first_comment_time is not null\n  and merged_at is not null\n  and $__timeFilter(gitlab_created_at)\n  and project_id = $repo_id",
+          "refId": "A",
+          "select": [
+            [
+              {
+                "params": [
+                  "progress"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "table": "ca_analysis",
+          "timeColumn": "create_time",
+          "timeColumnType": "timestamp",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        }
+      ],
+      "timeFrom": null,
+      "timeShift": null,
+      "title": "80% Pull Request Review Time <= (day)",
+      "type": "stat"
+    },
+    {
+      "datasource": "Postgres",
+      "description": "1. The average and 80th percentile PR/MR review time over time.\n2. The time granularity can be switched to week or month by \"Time Interval\" above. \n3. When Time Interval is set to \"month\", the average review time of \"2021-06-01\" refers to the review time of PR/MR whose creation time falls under [2020-06-01, 2020-07-01)",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -1422,10 +1580,10 @@
         "overrides": []
       },
       "gridPos": {
-        "h": 10,
-        "w": 15,
-        "x": 9,
-        "y": 44
+        "h": 6,
+        "w": 12,
+        "x": 12,
+        "y": 59
       },
       "id": 82,
       "options": {
@@ -1445,7 +1603,7 @@
           "group": [],
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "with reviewed_mr as(\nselect \n  gitlab_created_at,\n  EXTRACT(epoch from age(merged_at, first_comment_time)) / 86400 as review_time\nfrom gitlab_merge_requests\nWHERE\n  first_comment_time is not null\n  and merged_at is not null\n  and $__timeFilter(gitlab_created_at)\n  and project_id in ($repo)\n)\n\nselect \n  case \n    when '$interval' = 'week' then to_timestamp(to_char(gitlab_created_at,'YYYY-WW'),'YYYY-WW')\n    when '$interval' = 'month' then to_timestamp(to_char(gitlab_created_at,'YYYY-MM'),'YYYY-MM')\n    end as time,\n  avg(review_time) as average_review_time,\n  percentile_disc(0.8) within group (order by review_time asc) as percentile_80_review_time\nfrom reviewed_mr\ngroup by 1\norder by 1 asc",
+          "rawSql": "with reviewed_mr as(\n  select \n    to_char(gitlab_created_at, '$interval') as time,\n    EXTRACT(epoch from age(merged_at, first_comment_time)) / 86400 as review_time\n  from gitlab_merge_requests\n  WHERE\n    first_comment_time is not null\n    and merged_at is not null\n    and $__timeFilter(gitlab_created_at)\n    and project_id = $repo_id\n)\n\nselect \n  to_timestamp(time,'$interval') as time,\n  avg(review_time) as average_review_time,\n  percentile_disc(0.8) within group (order by review_time asc) as percentile_80_review_time\nfrom reviewed_mr\ngroup by 1\norder by 1 asc",
           "refId": "A",
           "select": [
             [
@@ -1471,12 +1629,12 @@
       ],
       "timeFrom": null,
       "timeShift": null,
-      "title": "13.2 Merge Request Review Time (Breakdown by Time)",
+      "title": "Pull Request Review Time (Breakdown by Time)",
       "type": "timeseries"
     },
     {
       "datasource": "Postgres",
-      "description": "Filtered by **MR_create_time**",
+      "description": "1. Total number of commits created.\n2. The commits being calculated are filtered by \"authored_date\" (time filter at the upper-right corner) and \"Gitlab repo\"(\"Choose Repo\" filter at the upper-left corner)",
       "fieldConfig": {
         "defaults": {
           "decimals": 1,
@@ -1493,95 +1651,16 @@
                 "value": 80
               }
             ]
-          }
+          },
+          "unit": "short"
         },
         "overrides": []
       },
       "gridPos": {
-        "h": 5,
+        "h": 6,
         "w": 6,
-        "x": 3,
-        "y": 49
-      },
-      "id": 83,
-      "options": {
-        "colorMode": "value",
-        "graphMode": "area",
-        "justifyMode": "auto",
-        "orientation": "auto",
-        "reduceOptions": {
-          "calcs": [
-            "mean"
-          ],
-          "fields": "",
-          "values": false
-        },
-        "text": {},
-        "textMode": "auto"
-      },
-      "pluginVersion": "8.0.6",
-      "targets": [
-        {
-          "format": "time_series",
-          "group": [],
-          "metricColumn": "none",
-          "rawQuery": true,
-          "rawSql": "select \n  now() as time,\n  percentile_disc(0.8) within group \n    (order by (EXTRACT(epoch from age(merged_at, first_comment_time)) / 86400) asc) \n    as percentile_80_review_time\nfrom gitlab_merge_requests\nWHERE\n  first_comment_time is not null\n  and merged_at is not null\n  and $__timeFilter(gitlab_created_at)\n  and project_id in ($repo)",
-          "refId": "A",
-          "select": [
-            [
-              {
-                "params": [
-                  "progress"
-                ],
-                "type": "column"
-              }
-            ]
-          ],
-          "table": "ca_analysis",
-          "timeColumn": "create_time",
-          "timeColumnType": "timestamp",
-          "where": [
-            {
-              "name": "$__timeFilter",
-              "params": [],
-              "type": "macro"
-            }
-          ]
-        }
-      ],
-      "timeFrom": null,
-      "timeShift": null,
-      "title": "13.1 80% MR Review Time <= (day)",
-      "type": "stat"
-    },
-    {
-      "datasource": "Postgres",
-      "description": "Filtered by **authored_time**",
-      "fieldConfig": {
-        "defaults": {
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": null
-              },
-              {
-                "color": "red",
-                "value": 80
-              }
-            ]
-          }
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 12,
-        "w": 4,
-        "x": 3,
-        "y": 54
+        "x": 0,
+        "y": 65
       },
       "id": 34,
       "options": {
@@ -1606,7 +1685,7 @@
           "group": [],
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "SELECT\n  now() AS \"time\",\n  count(*) as value\nFROM gitlab_commits\nWHERE\n  $__timeFilter(authored_date)\n  and project_id in ($repo)\ngroup by 1\nORDER BY 1",
+          "rawSql": "SELECT\n  now() AS \"time\",\n  count(*) as value\nFROM gitlab_commits\nWHERE\n  $__timeFilter(authored_date)\n  and project_id = $repo_id\ngroup by 1\nORDER BY 1",
           "refId": "A",
           "select": [
             [
@@ -1632,12 +1711,12 @@
       ],
       "timeFrom": null,
       "timeShift": null,
-      "title": "15.1 Commit Count (Total)",
+      "title": "Commit Count (Total)",
       "type": "stat"
     },
     {
       "datasource": "Postgres",
-      "description": "Filtered by **authored_time**",
+      "description": "1. Number of commits created over time.\n2. When Time Interval is set to \"month\", the commit_count\" of \"2021-06-01\" calculates the commits whose creation time falls under [2020-06-01, 2020-07-01)",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -1692,8 +1771,8 @@
       "gridPos": {
         "h": 6,
         "w": 12,
-        "x": 7,
-        "y": 54
+        "x": 6,
+        "y": 65
       },
       "id": 36,
       "options": {
@@ -1713,7 +1792,7 @@
           "group": [],
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "-- with _commits as(\n  SELECT\n    case \n        when '$interval' = 'week' then to_timestamp(to_char(authored_date,'YYYY-WW'),'YYYY-WW')\n        when '$interval' = 'month' then to_timestamp(to_char(authored_date,'YYYY-MM'),'YYYY-MM')\n        end as time,\n    count(*) as value\n  FROM gitlab_commits\n  WHERE\n    $__timeFilter(authored_date)\n    and project_id in ($repo)\n  group by 1\n  order by 1\n-- )",
+          "rawSql": "with _commits as(\n  SELECT\n    to_char(authored_date, '$interval') as time,\n    count(*) as commit_count\n  FROM gitlab_commits\n  WHERE\n    $__timeFilter(authored_date)\n    and project_id = $repo_id\n  group by 1\n)\n\nSELECT \n  to_timestamp(time,'$interval') as time,\n  commit_count\nFROM _commits\nORDER BY 1",
           "refId": "A",
           "select": [
             [
@@ -1739,7 +1818,7 @@
       ],
       "timeFrom": null,
       "timeShift": null,
-      "title": "15.2 Commit Count (Breakdown by Time)",
+      "title": "Commit Count (Breakdown by Time)",
       "type": "timeseries"
     },
     {
@@ -1748,14 +1827,14 @@
       "dashLength": 10,
       "dashes": false,
       "datasource": "Postgres",
-      "description": "Filtered by **authored_time**",
+      "description": "The number of commits from different repos.",
       "fill": 1,
       "fillGradient": 0,
       "gridPos": {
         "h": 6,
-        "w": 5,
-        "x": 19,
-        "y": 54
+        "w": 6,
+        "x": 18,
+        "y": 65
       },
       "hiddenSeries": false,
       "id": 37,
@@ -1789,7 +1868,7 @@
           "group": [],
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "SELECT\n  now() as time,\n  gp.name as repo_name,\n  count(*) as value\nFROM gitlab_commits gc \n  join gitlab_projects gp on gc.project_id = gp.id\nWHERE\n  $__timeFilter(authored_date)\n  and gc.project_id in ($repo)\ngroup by 1,2\norder by 1",
+          "rawSql": "SELECT\n  now() as time,\n  gp.name as repo_name,\n  count(*) as value\nFROM gitlab_commits gc \n  join gitlab_projects gp on gc.project_id = gp.id\nWHERE\n  $__timeFilter(authored_date)\n  and gc.project_id = $repo_id\ngroup by 1,2\norder by 1",
           "refId": "A",
           "select": [
             [
@@ -1817,7 +1896,7 @@
       "timeFrom": null,
       "timeRegions": [],
       "timeShift": null,
-      "title": "15.3 Commit Count (Breakdown by Repo)",
+      "title": "Commit Count (Breakdown by Repo)",
       "tooltip": {
         "shared": false,
         "sort": 0,
@@ -1864,14 +1943,14 @@
       "dashLength": 10,
       "dashes": false,
       "datasource": "Postgres",
-      "description": "Filtered by **authored_time**",
+      "description": "The number of commits from different commit authors.",
       "fill": 1,
       "fillGradient": 0,
       "gridPos": {
         "h": 6,
-        "w": 17,
-        "x": 7,
-        "y": 60
+        "w": 24,
+        "x": 0,
+        "y": 71
       },
       "hiddenSeries": false,
       "id": 38,
@@ -1905,7 +1984,7 @@
           "group": [],
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "SELECT\n  now() as time,\n  gc.author_name,\n  count(*) as value\nFROM gitlab_commits gc \n  join gitlab_projects gp on gc.project_id = gp.id\nWHERE\n  $__timeFilter(authored_date)\n  and gc.project_id in ($repo)\ngroup by 1,2\norder by 3 desc",
+          "rawSql": "SELECT\n  now() as time,\n  gc.author_name,\n  count(*) as value\nFROM gitlab_commits gc \n  join gitlab_projects gp on gc.project_id = gp.id\nWHERE\n  $__timeFilter(authored_date)\n  and gc.project_id = $repo_id\ngroup by 1,2\norder by 3 desc",
           "refId": "A",
           "select": [
             [
@@ -1933,7 +2012,7 @@
       "timeFrom": null,
       "timeRegions": [],
       "timeShift": null,
-      "title": "15.4 Commit Count (Breakdown by Author)",
+      "title": "Commit Count (Breakdown by Author)",
       "tooltip": {
         "shared": false,
         "sort": 0,
@@ -1976,7 +2055,7 @@
     },
     {
       "datasource": "Postgres",
-      "description": "Filtered by **authored_time**",
+      "description": "1. Sum of the number of added lines of code under all commits.\n2. The commits being calculated are filtered by \"authored_date\" (time filter at the upper-right corner) and \"Gitlab repo\"(\"Choose Repo\" filter at the upper-left corner)",
       "fieldConfig": {
         "defaults": {
           "mappings": [],
@@ -1999,9 +2078,9 @@
       },
       "gridPos": {
         "h": 6,
-        "w": 5,
-        "x": 3,
-        "y": 66
+        "w": 6,
+        "x": 0,
+        "y": 77
       },
       "id": 42,
       "options": {
@@ -2026,7 +2105,7 @@
           "group": [],
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "SELECT\n  now() AS \"time\",\n  sum(additions) as value\nFROM gitlab_commits gc\n  join gitlab_projects gp on gc.project_id = gp.id \nWHERE\n  message not like '%Merge branch%'\n  and $__timeFilter(authored_date)\n  and gp.id in ($repo)\ngroup by 1\nORDER BY 1",
+          "rawSql": "SELECT\n  now() AS \"time\",\n  sum(additions) as value\nFROM gitlab_commits gc\n  join gitlab_projects gp on gc.project_id = gp.id \nWHERE\n  message not like '%Merge branch%'\n  and $__timeFilter(authored_date)\n  and gp.id = $repo_id\ngroup by 1\nORDER BY 1",
           "refId": "A",
           "select": [
             [
@@ -2052,12 +2131,12 @@
       ],
       "timeFrom": null,
       "timeShift": null,
-      "title": "16.1 Added LOC (Total)",
+      "title": "Added LOC (Total)",
       "type": "stat"
     },
     {
       "datasource": "Postgres",
-      "description": "Filtered by **authored_time**",
+      "description": "1. Sum of the number of deleted lines of code under all commits.\n2. The commits being calculated are filtered by \"authored_date\" (time filter at the upper-right corner) and \"Gitlab repo\"(\"Choose Repo\" filter at the upper-left corner)",
       "fieldConfig": {
         "defaults": {
           "mappings": [],
@@ -2080,9 +2159,9 @@
       },
       "gridPos": {
         "h": 6,
-        "w": 5,
-        "x": 8,
-        "y": 66
+        "w": 6,
+        "x": 6,
+        "y": 77
       },
       "id": 43,
       "options": {
@@ -2107,7 +2186,7 @@
           "group": [],
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "SELECT\n  now() AS \"time\",\n  sum(deletions) as value\nFROM gitlab_commits gc\n  join gitlab_projects gp on gc.project_id = gp.id \nWHERE\n  message not like '%Merge branch%'\n  and $__timeFilter(authored_date)\n  and gp.id in ($repo)\ngroup by 1\nORDER BY 1",
+          "rawSql": "SELECT\n  now() AS \"time\",\n  sum(deletions) as value\nFROM gitlab_commits gc\n  join gitlab_projects gp on gc.project_id = gp.id \nWHERE\n  message not like '%Merge branch%'\n  and $__timeFilter(authored_date)\n  and gp.id = $repo_id\ngroup by 1\nORDER BY 1",
           "refId": "A",
           "select": [
             [
@@ -2133,12 +2212,12 @@
       ],
       "timeFrom": null,
       "timeShift": null,
-      "title": "17.1 Deleted LOC (Total)",
+      "title": "Deleted LOC (Total)",
       "type": "stat"
     },
     {
       "datasource": "Postgres",
-      "description": "Filtered by **authored_time**",
+      "description": "Added/deleted number of lines of code over time.",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -2192,9 +2271,9 @@
       },
       "gridPos": {
         "h": 6,
-        "w": 11,
-        "x": 13,
-        "y": 66
+        "w": 12,
+        "x": 12,
+        "y": 77
       },
       "id": 47,
       "options": {
@@ -2214,7 +2293,7 @@
           "group": [],
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "SELECT\n  case \n      when '$interval' = 'week' then to_timestamp(to_char(authored_date,'YYYY-WW'),'YYYY-WW')\n      when '$interval' = 'month' then to_timestamp(to_char(authored_date,'YYYY-MM'),'YYYY-MM')\n      end as time,\n  sum(additions) as Added_LOC,\n  sum(deletions) as Deleted_LOC\nFROM gitlab_commits\nWHERE\n  $__timeFilter(authored_date)\n  and project_id in ($repo)\ngroup by 1\norder by 1",
+          "rawSql": "with loc as(\n  SELECT\n    to_char(authored_date, '$interval') as time,\n    sum(additions) as added_LOC,\n    sum(deletions) as deleted_LOC\n  FROM gitlab_commits\n  WHERE\n    $__timeFilter(authored_date)\n    and project_id = $repo_id\n  group by 1\n)\n\nSELECT \n  to_timestamp(time,'$interval') as time,\n  added_LOC,\n  deleted_LOC\nFROM loc\nORDER BY 1",
           "refId": "A",
           "select": [
             [
@@ -2240,12 +2319,12 @@
       ],
       "timeFrom": null,
       "timeShift": null,
-      "title": "16.2 Added and Deleted LOC (Breakdown by Time)",
+      "title": "Added and Deleted LOC (Breakdown by Time)",
       "type": "timeseries"
     },
     {
       "datasource": "Postgres",
-      "description": "Filtered by **authored_time**",
+      "description": "The number of added/deleted LOC from different commit authors.",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -2283,10 +2362,10 @@
         "overrides": []
       },
       "gridPos": {
-        "h": 7,
-        "w": 21,
-        "x": 3,
-        "y": 72
+        "h": 6,
+        "w": 24,
+        "x": 0,
+        "y": 83
       },
       "id": 49,
       "options": {
@@ -2311,7 +2390,7 @@
           "group": [],
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "SELECT\n  now() as time,\n  gc.author_name,\n  sum(additions) as added_loc,\n  sum(deletions) as removed_loc\nFROM gitlab_commits gc \n  join gitlab_projects gp on gc.project_id = gp.id\nWHERE\n  author_name is not null\n  and $__timeFilter(authored_date)\n  and gc.project_id in ($repo)\ngroup by 1,2\norder by 3 desc",
+          "rawSql": "SELECT\n  now() as time,\n  gc.author_name,\n  sum(additions) as added_loc,\n  sum(deletions) as removed_loc\nFROM gitlab_commits gc \n  join gitlab_projects gp on gc.project_id = gp.id\nWHERE\n  author_name is not null\n  and $__timeFilter(authored_date)\n  and gc.project_id = $repo_id\ngroup by 1,2\norder by 3 desc",
           "refId": "A",
           "select": [
             [
@@ -2337,20 +2416,20 @@
       ],
       "timeFrom": null,
       "timeShift": null,
-      "title": "16.4 Added LOC (Breakdown by Author)",
+      "title": "Added and Deleted LOC (Breakdown by Author)",
       "type": "barchart"
     },
     {
       "datasource": null,
       "gridPos": {
-        "h": 20,
-        "w": 3,
+        "h": 4,
+        "w": 24,
         "x": 0,
-        "y": 79
+        "y": 89
       },
       "id": 77,
       "options": {
-        "content": "<div style=\"text-align:center;\">\n  <img border=\"0\" src=\"/public/img/lake/4.png\" alt=\"No.4\" width=\"120\"><br>\n  <img border=\"0\" src=\"/public/img/lake/practice_test.png\" alt=\"Test\" width=\"120\">\n  <p style=\"text-align:center;font-size:20px;margin:10px;text-decoration-color:rgb(255, 255, 255);color:#828487\"><b>Test<b></p>\n</div>",
+        "content": "<div style=\"display: block;text-align: center;margin-top: 56px;\">\n  <div style=\"display: inline-flex;\">\n    <img src=\"/public/img/lake/3.png\" alt=\"No.3\" width=\"56\">\n    <p style=\"font-size:24px; margin:10px; color:#BFC1C8;\"><b>Test<b></b></b></p><b><b>\n  </div>\n</div>",
         "mode": "html"
       },
       "pluginVersion": "8.0.6",
@@ -2365,7 +2444,7 @@
     },
     {
       "datasource": "Postgres",
-      "description": "Filtered by **issue resolution time**",
+      "description": "1. The average bug age.\n2. Bug age refers to the length of time from bug creation to resolution.\n3. The bugs being calculated are filtered by \"bug resolution time\" (time filter at the upper-right corner) and \"Jira board\"(\"Choose Board\" filter at the upper-left corner)",
       "fieldConfig": {
         "defaults": {
           "decimals": 1,
@@ -2379,7 +2458,7 @@
               },
               {
                 "color": "red",
-                "value": 80
+                "value": 7
               }
             ]
           }
@@ -2388,9 +2467,9 @@
       },
       "gridPos": {
         "h": 6,
-        "w": 5,
-        "x": 3,
-        "y": 79
+        "w": 6,
+        "x": 0,
+        "y": 93
       },
       "id": 53,
       "options": {
@@ -2415,7 +2494,7 @@
           "group": [],
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "select \r\n  now() as time,\r\n  avg(lead_time) as value\r\nfrom jira_issues ji\r\n  join jira_board_issues jbi on ji.id = jbi.issue_id\r\nwhere \r\n  issue_type in ('Bug') \r\n  and issue_created_at is not null\r\n  and lead_time is not null\r\n  and $__timeFilter(issue_created_at)\r\n  and jbi.board_id in ($board)\r\ngroup by 1;",
+          "rawSql": "select \r\n  now() as time,\r\n  avg(lead_time) as value\r\nfrom jira_issues ji\r\n  join jira_board_issues jbi on ji.id = jbi.issue_id\r\nwhere \r\n  issue_type in ('Bug') \r\n  and issue_resolved_at is not null\r\n  and lead_time is not null\r\n  and $__timeFilter(issue_resolved_at)\r\n  and jbi.board_id = $board_id\r\ngroup by 1;",
           "refId": "A",
           "select": [
             [
@@ -2441,12 +2520,12 @@
       ],
       "timeFrom": null,
       "timeShift": null,
-      "title": "5.1 Average Bug Age (day)",
+      "title": "Average Bug Age (day)",
       "type": "stat"
     },
     {
       "datasource": "Postgres",
-      "description": "Filtered by **issue resolution time**",
+      "description": "1. The bug age at which 80% bugs‘ age lies below it.\n2. The bugs being calculated are filtered by \"bug resolution time\" (time filter at the upper-right corner) and \"Jira board\" (\"Choose Board\" filter at the upper-left corner)",
       "fieldConfig": {
         "defaults": {
           "mappings": [],
@@ -2459,7 +2538,7 @@
               },
               {
                 "color": "red",
-                "value": 80
+                "value": 14
               }
             ]
           }
@@ -2468,9 +2547,9 @@
       },
       "gridPos": {
         "h": 6,
-        "w": 5,
-        "x": 8,
-        "y": 79
+        "w": 6,
+        "x": 6,
+        "y": 93
       },
       "id": 65,
       "options": {
@@ -2495,7 +2574,7 @@
           "group": [],
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "select \r\n  now() as time,\r\n  percentile_disc(0.8) within group (order by lead_time asc) as value\r\nfrom jira_issues ji\r\n  join jira_board_issues jbi on ji.id = jbi.issue_id\r\nwhere \r\n  issue_type in ('Bug') \r\n  and issue_resolved_at is not null\r\n  and lead_time is not null\r\n  and $__timeFilter(issue_resolved_at)\r\n  and jbi.board_id in ($board)\r\ngroup by 1;",
+          "rawSql": "select \r\n  now() as time,\r\n  percentile_disc(0.8) within group (order by lead_time asc) as value\r\nfrom jira_issues ji\r\n  join jira_board_issues jbi on ji.id = jbi.issue_id\r\nwhere \r\n  issue_type in ('Bug') \r\n  and issue_resolved_at is not null\r\n  and lead_time is not null\r\n  and $__timeFilter(issue_resolved_at)\r\n  and jbi.board_id = $board_id\r\ngroup by 1;",
           "refId": "A",
           "select": [
             [
@@ -2521,7 +2600,7 @@
       ],
       "timeFrom": null,
       "timeShift": null,
-      "title": "5.2 80% Bugs' Age is Less Than (day)",
+      "title": "80th Percentile Bug Age (day)",
       "type": "stat"
     },
     {
@@ -2530,7 +2609,7 @@
       "dashLength": 10,
       "dashes": false,
       "datasource": "Postgres",
-      "description": "Filtered by **issue resolution time**",
+      "description": "1. The cumulative distribution of bug age. \n2. Each point refers to the percent rank of a bug age.",
       "fieldConfig": {
         "defaults": {
           "unit": "none"
@@ -2540,10 +2619,10 @@
       "fill": 0,
       "fillGradient": 4,
       "gridPos": {
-        "h": 13,
-        "w": 11,
-        "x": 13,
-        "y": 79
+        "h": 12,
+        "w": 12,
+        "x": 12,
+        "y": 93
       },
       "hiddenSeries": false,
       "id": 61,
@@ -2579,7 +2658,7 @@
           "group": [],
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "select \r\n  now() as time,\r\n  format('%3sd', lead_time) as metric,\r\n  percent_rank() over(order by lead_time asc) as value\r\nfrom jira_issues ji\r\n  join jira_board_issues jbi on ji.id = jbi.issue_id\r\nwhere \r\n  issue_type in ('Bug') \r\n  and issue_resolved_at is not null\r\n  and lead_time is not null\r\n  and $__timeFilter(issue_resolved_at)\r\n  and jbi.board_id in ($board)\r\norder by lead_time asc",
+          "rawSql": "select \r\n  now() as time,\r\n  format('%3sd', lead_time) as metric,\r\n  percent_rank() over(order by lead_time asc) as value\r\nfrom jira_issues ji\r\n  join jira_board_issues jbi on ji.id = jbi.issue_id\r\nwhere \r\n  issue_type in ('Bug') \r\n  and issue_resolved_at is not null\r\n  and lead_time is not null\r\n  and $__timeFilter(issue_resolved_at)\r\n  and jbi.board_id = $board_id\r\norder by lead_time asc",
           "refId": "A",
           "select": [
             [
@@ -2616,7 +2695,7 @@
       "timeFrom": null,
       "timeRegions": [],
       "timeShift": null,
-      "title": "5.3 Bug Age Distribution (Percent Rank)",
+      "title": "Bug Age (Cumulative Distribution)",
       "tooltip": {
         "shared": false,
         "sort": 0,
@@ -2659,7 +2738,7 @@
     },
     {
       "datasource": "Postgres",
-      "description": "Filtered by **issue resolution time**",
+      "description": "1. The average and 80th percentile bug age over time.\n2. The time granularity can be switched to Week or Month by \"Time Interval\" above. \n3. When Time Interval is set to \"Month\", the average_bug_age of \"2021-06-01\" refers to the average age of bugs whose resolution time falls under [2020-06-01, 2020-07-01).",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -2712,10 +2791,10 @@
         "overrides": []
       },
       "gridPos": {
-        "h": 7,
-        "w": 10,
-        "x": 3,
-        "y": 85
+        "h": 6,
+        "w": 12,
+        "x": 0,
+        "y": 99
       },
       "id": 66,
       "interval": "",
@@ -2736,7 +2815,7 @@
           "group": [],
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "with _bugs as(\r\n  select \r\n    ji.id,\r\n    ji.issue_resolved_at,\r\n    lead_time\r\n  from jira_issues ji\r\n    join jira_board_issues jbi on ji.id = jbi.issue_id\r\n  where \r\n    issue_type in ('Bug') \r\n    and issue_resolved_at is not null\r\n    and lead_time is not null\r\n    and $__timeFilter(issue_resolved_at)\r\n    and jbi.board_id in ($board)\r\n)\r\n\r\nselect \r\n  case \r\n    when '$interval' = 'week' then to_timestamp(to_char(issue_resolved_at,'YYYY-WW'),'YYYY-WW')\r\n    when '$interval' = 'month' then to_timestamp(to_char(issue_resolved_at,'YYYY-MM'),'YYYY-MM')\r\n    end as time,\r\n  avg(lead_time) as average_bug_age,\r\n  percentile_disc(0.8) within group (order by lead_time asc) as percentile_80_bug_age\r\nfrom _bugs\r\ngroup by 1\r\norder by 1 asc",
+          "rawSql": "with _bugs as(\r\n  select \r\n    ji.id,\r\n    to_char(ji.issue_resolved_at, '$interval') as time,\r\n    lead_time\r\n  from jira_issues ji\r\n    join jira_board_issues jbi on ji.id = jbi.issue_id\r\n  where \r\n    issue_type in ('Bug') \r\n    and issue_resolved_at is not null\r\n    and lead_time is not null\r\n    and $__timeFilter(issue_resolved_at)\r\n    and jbi.board_id = $board_id\r\n)\r\n\r\nselect \r\n  to_timestamp(time,'$interval') as time,\r\n  avg(lead_time) as average_bug_age,\r\n  percentile_disc(0.8) within group (order by lead_time asc) as percentile_80_bug_age\r\nfrom _bugs\r\ngroup by 1\r\norder by 1 asc",
           "refId": "A",
           "select": [
             [
@@ -2762,7 +2841,7 @@
       ],
       "timeFrom": null,
       "timeShift": null,
-      "title": "5.4 Bug Age (Breakdown by Time)",
+      "title": "Bug Age (Breakdown by Time)",
       "type": "timeseries"
     },
     {
@@ -2771,14 +2850,14 @@
       "dashLength": 10,
       "dashes": false,
       "datasource": "Postgres",
-      "description": "",
+      "description": "The average age of bugs under different Jira Epics.",
       "fill": 1,
       "fillGradient": 0,
       "gridPos": {
-        "h": 7,
-        "w": 21,
-        "x": 3,
-        "y": 92
+        "h": 6,
+        "w": 24,
+        "x": 0,
+        "y": 105
       },
       "hiddenSeries": false,
       "id": 59,
@@ -2813,7 +2892,7 @@
           "metricColumn": "none",
           "queryType": "randomWalk",
           "rawQuery": true,
-          "rawSql": "with _bugs as(\r\n  select\r\n    ji.id,\r\n    ji.epic_key,\r\n    ji.lead_time\r\n  from\r\n    jira_issues ji\r\n    join jira_board_issues jbi on ji.id = jbi.issue_id\r\n    -- join jira_boards jb on jbi.board_id = jb.id\r\n  where \r\n    issue_type in ('Bug') \r\n    and issue_resolved_at is not null\r\n    and epic_key is not null\r\n    and $__timeFilter(issue_resolved_at)\r\n    and jbi.board_id in ($board)\r\n)\r\n\r\nselect \r\n  now() as time,\r\n  epic_key as metric,\r\n  avg(lead_time) as value\r\nfrom _bugs\r\ngroup by 1,2\r\norder by avg(lead_time) desc\r\nlimit 10",
+          "rawSql": "with _bugs as(\r\n  select\r\n    ji.id,\r\n    ji.epic_key,\r\n    ji.lead_time\r\n  from\r\n    jira_issues ji\r\n    join jira_board_issues jbi on ji.id = jbi.issue_id\r\n  where \r\n    issue_type in ('Bug') \r\n    and issue_resolved_at is not null\r\n    and epic_key is not null\r\n    and $__timeFilter(issue_resolved_at)\r\n    and jbi.board_id = $board_id\r\n)\r\n\r\nselect \r\n  now() as time,\r\n  epic_key as metric,\r\n  avg(lead_time) as value\r\nfrom _bugs\r\ngroup by 1,2\r\norder by avg(lead_time) desc\r\nlimit 10",
           "refId": "A",
           "select": [
             [
@@ -2839,7 +2918,7 @@
       "timeFrom": null,
       "timeRegions": [],
       "timeShift": null,
-      "title": "2.6 - Average Bug Age (Breakdown by Epic)",
+      "title": "Average Bug Age (Breakdown by Epic)",
       "tooltip": {
         "shared": false,
         "sort": 0,
@@ -2883,14 +2962,14 @@
     {
       "datasource": null,
       "gridPos": {
-        "h": 20,
-        "w": 3,
+        "h": 4,
+        "w": 24,
         "x": 0,
-        "y": 99
+        "y": 111
       },
       "id": 78,
       "options": {
-        "content": "<div style=\"text-align:center;\">\n  <img border=\"0\" src=\"/public/img/lake/5.png\" alt=\"No.5\" width=\"120\"><br>\n  <img border=\"0\" src=\"/public/img/lake/practice_operation.png\" alt=\"Operation\" width=\"120\">\n  <p style=\"text-align:center;font-size:20px;margin:10px;text-decoration-color:rgb(255, 255, 255);color:#828487\"><b>Operation<b></p>\n</div>",
+        "content": "<div style=\"display: block;text-align: center;margin-top: 56px;\">\n  <div style=\"display: inline-flex;\">\n    <img src=\"/public/img/lake/4.png\" alt=\"No.4\" width=\"56\">\n    <p style=\"font-size:24px; margin:10px; color:#BFC1C8;\"><b>Operation<b></b></b></p><b><b>\n  </div>\n</div>",
         "mode": "html"
       },
       "pluginVersion": "8.0.6",
@@ -2905,9 +2984,10 @@
     },
     {
       "datasource": "Postgres",
-      "description": "Filtered by **issue resolution time**",
+      "description": "1. The average incident age.\n2. Incident age refers to the length of time from incident creation to resolution.\n3. The incidents being calculated are filtered by \"incident resolution time\" (time filter at the upper-right corner) and \"Jira board\"(\"Choose Board\" filter at the upper-left corner)",
       "fieldConfig": {
         "defaults": {
+          "decimals": 1,
           "mappings": [],
           "thresholds": {
             "mode": "absolute",
@@ -2918,7 +2998,7 @@
               },
               {
                 "color": "red",
-                "value": 80
+                "value": 3
               }
             ]
           }
@@ -2927,9 +3007,9 @@
       },
       "gridPos": {
         "h": 6,
-        "w": 5,
-        "x": 3,
-        "y": 99
+        "w": 6,
+        "x": 0,
+        "y": 115
       },
       "id": 64,
       "options": {
@@ -2954,7 +3034,7 @@
           "group": [],
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "select \r\n  now() as time,\r\n  avg(lead_time) as value\r\nfrom jira_issues ji\r\n  join jira_board_issues jbi on ji.id = jbi.issue_id\r\nwhere \r\n  issue_type in ('Incident') \r\n  and issue_created_at is not null\r\n  and lead_time is not null\r\n  and $__timeFilter(issue_created_at)\r\n  and jbi.board_id in ($board)\r\ngroup by 1;",
+          "rawSql": "select \r\n  now() as time,\r\n  avg(lead_time) as value\r\nfrom jira_issues ji\r\n  join jira_board_issues jbi on ji.id = jbi.issue_id\r\nwhere \r\n  issue_type in ('Incident') \r\n  and issue_created_at is not null\r\n  and lead_time is not null\r\n  and $__timeFilter(issue_created_at)\r\n  and jbi.board_id = $board_id\r\ngroup by 1;",
           "refId": "A",
           "select": [
             [
@@ -2980,12 +3060,12 @@
       ],
       "timeFrom": null,
       "timeShift": null,
-      "title": "8.1 Incident Bug Age (day)",
+      "title": "Average Incident Age (day)",
       "type": "stat"
     },
     {
       "datasource": "Postgres",
-      "description": "Filtered by **issue resolution time**",
+      "description": "1. The incident age at which 80% incidents‘ age lies below it.\n2. The incidents being calculated are filtered by \"incident resolution time\" (time filter at the upper-right corner) and \"Jira board\" (\"Choose Board\" filter at the upper-left corner)",
       "fieldConfig": {
         "defaults": {
           "mappings": [],
@@ -2998,7 +3078,7 @@
               },
               {
                 "color": "red",
-                "value": 80
+                "value": 7
               }
             ]
           }
@@ -3007,9 +3087,9 @@
       },
       "gridPos": {
         "h": 6,
-        "w": 5,
-        "x": 8,
-        "y": 99
+        "w": 6,
+        "x": 6,
+        "y": 115
       },
       "id": 55,
       "options": {
@@ -3034,7 +3114,7 @@
           "group": [],
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "select \r\n  now() as time,\r\n  percentile_disc(0.8) within group (order by lead_time asc) as value\r\nfrom jira_issues ji\r\n  join jira_board_issues jbi on ji.id = jbi.issue_id\r\nwhere \r\n  issue_type in ('Incident') \r\n  and issue_resolved_at is not null\r\n  and lead_time is not null\r\n  and $__timeFilter(issue_resolved_at)\r\n  and jbi.board_id in ($board)\r\ngroup by 1;",
+          "rawSql": "select \r\n  now() as time,\r\n  percentile_disc(0.8) within group (order by lead_time asc) as value\r\nfrom jira_issues ji\r\n  join jira_board_issues jbi on ji.id = jbi.issue_id\r\nwhere \r\n  issue_type in ('Incident') \r\n  and issue_resolved_at is not null\r\n  and lead_time is not null\r\n  and $__timeFilter(issue_resolved_at)\r\n  and jbi.board_id = $board_id\r\ngroup by 1;",
           "refId": "A",
           "select": [
             [
@@ -3060,7 +3140,7 @@
       ],
       "timeFrom": null,
       "timeShift": null,
-      "title": "8.2 80% Incidents' Age is Less Than (day)",
+      "title": "80th Percentile Incident Age (day)",
       "type": "stat"
     },
     {
@@ -3069,7 +3149,7 @@
       "dashLength": 10,
       "dashes": false,
       "datasource": "Postgres",
-      "description": "Filtered by **issue resolution time**",
+      "description": "1. The cumulative distribution of incident age.\n2. Each point refers to the percent rank of a incident age.",
       "fieldConfig": {
         "defaults": {
           "unit": "none"
@@ -3080,9 +3160,9 @@
       "fillGradient": 4,
       "gridPos": {
         "h": 12,
-        "w": 11,
-        "x": 13,
-        "y": 99
+        "w": 12,
+        "x": 12,
+        "y": 115
       },
       "hiddenSeries": false,
       "id": 68,
@@ -3118,7 +3198,7 @@
           "group": [],
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "select \r\n  now() as time,\r\n  format('%3sd', lead_time) as metric,\r\n  percent_rank() over(order by lead_time asc) as value\r\nfrom jira_issues ji\r\n  join jira_board_issues jbi on ji.id = jbi.issue_id\r\nwhere \r\n  issue_type in ('Incident') \r\n  and issue_resolved_at is not null\r\n  and lead_time is not null\r\n  and $__timeFilter(issue_resolved_at)\r\n  and jbi.board_id in ($board)\r\norder by lead_time asc",
+          "rawSql": "select \r\n  now() as time,\r\n  format('%3sd', lead_time) as metric,\r\n  percent_rank() over(order by lead_time asc) as value\r\nfrom jira_issues ji\r\n  join jira_board_issues jbi on ji.id = jbi.issue_id\r\nwhere \r\n  issue_type in ('Incident') \r\n  and issue_resolved_at is not null\r\n  and lead_time is not null\r\n  and $__timeFilter(issue_resolved_at)\r\n  and jbi.board_id = $board_id\r\norder by lead_time asc",
           "refId": "A",
           "select": [
             [
@@ -3155,7 +3235,7 @@
       "timeFrom": null,
       "timeRegions": [],
       "timeShift": null,
-      "title": "8.3 Incident Age Distribution (Percent Rank)",
+      "title": "Incident Age (Cumulative Distribution)",
       "tooltip": {
         "shared": false,
         "sort": 0,
@@ -3198,7 +3278,7 @@
     },
     {
       "datasource": "Postgres",
-      "description": "Filtered by **issue resolution time**",
+      "description": "1. The average and 80th percentile incident age over time.\n2. The time granularity can be switched to Week or Month by \"Time Interval\" above. \n3. When Time Interval is set to \"Month\", the average_incident_age of \"2021-06-01\" refers to the average age of incidents whose resolution time falls under [2020-06-01, 2020-07-01).",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -3252,9 +3332,9 @@
       },
       "gridPos": {
         "h": 6,
-        "w": 10,
-        "x": 3,
-        "y": 105
+        "w": 12,
+        "x": 0,
+        "y": 121
       },
       "id": 57,
       "interval": "",
@@ -3275,7 +3355,7 @@
           "group": [],
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "with _incidents as(\r\n  select \r\n    ji.id,\r\n    ji.issue_resolved_at,\r\n    lead_time\r\n  from jira_issues ji\r\n    join jira_board_issues jbi on ji.id = jbi.issue_id\r\n  where \r\n    issue_type in ('Incident') \r\n    and issue_resolved_at is not null\r\n    and lead_time is not null\r\n    and $__timeFilter(issue_resolved_at)\r\n    and jbi.board_id in ($board)\r\n)\r\n\r\nselect \r\n  case \r\n    when '$interval' = 'week' then to_timestamp(to_char(issue_resolved_at,'YYYY-WW'),'YYYY-WW')\r\n    when '$interval' = 'month' then to_timestamp(to_char(issue_resolved_at,'YYYY-MM'),'YYYY-MM')\r\n    end as time,\r\n  avg(lead_time) as average_incident_age,\r\n  percentile_disc(0.8) within group (order by lead_time asc) as percentile_80_incident_age\r\nfrom _incidents\r\ngroup by 1\r\norder by 1 asc",
+          "rawSql": "with _incidents as(\r\n  select \r\n    ji.id,\r\n    to_char(ji.issue_resolved_at, '$interval') as time,\r\n    lead_time\r\n  from jira_issues ji\r\n    join jira_board_issues jbi on ji.id = jbi.issue_id\r\n  where \r\n    issue_type in ('Incident') \r\n    and issue_resolved_at is not null\r\n    and lead_time is not null\r\n    and $__timeFilter(issue_resolved_at)\r\n    and jbi.board_id = $board_id\r\n)\r\n\r\nselect \r\n  to_timestamp(time,'$interval') as time,\r\n  avg(lead_time) as average_incident_age,\r\n  percentile_disc(0.8) within group (order by lead_time asc) as percentile_80_incident_age\r\nfrom _incidents\r\ngroup by 1\r\norder by 1 asc",
           "refId": "A",
           "select": [
             [
@@ -3301,7 +3381,7 @@
       ],
       "timeFrom": null,
       "timeShift": null,
-      "title": "8.4 Incident Age (Breakdown by Time)",
+      "title": "Incident Age (Breakdown by Time)",
       "type": "timeseries"
     },
     {
@@ -3310,14 +3390,14 @@
       "dashLength": 10,
       "dashes": false,
       "datasource": "Postgres",
-      "description": "",
+      "description": "The average age of incidents under different Jira Epics.",
       "fill": 1,
       "fillGradient": 0,
       "gridPos": {
-        "h": 7,
-        "w": 21,
-        "x": 3,
-        "y": 111
+        "h": 6,
+        "w": 24,
+        "x": 0,
+        "y": 127
       },
       "hiddenSeries": false,
       "id": 67,
@@ -3352,7 +3432,7 @@
           "metricColumn": "none",
           "queryType": "randomWalk",
           "rawQuery": true,
-          "rawSql": "with _incidents as(\r\n  select\r\n    ji.id,\r\n    ji.epic_key,\r\n    ji.lead_time\r\n  from\r\n    jira_issues ji\r\n    join jira_board_issues jbi on ji.id = jbi.issue_id\r\n  where \r\n    issue_type in ('Incident') \r\n    and issue_resolved_at is not null\r\n    and epic_key is not null\r\n    and $__timeFilter(issue_resolved_at)\r\n    and jbi.board_id in ($board)\r\n)\r\n\r\nselect \r\n  now() as time,\r\n  epic_key as metric,\r\n  avg(lead_time) as value\r\nfrom _incidents\r\ngroup by 1,2\r\norder by avg(lead_time) desc\r\nlimit 20",
+          "rawSql": "with _incidents as(\r\n  select\r\n    ji.id,\r\n    ji.epic_key,\r\n    ji.lead_time\r\n  from\r\n    jira_issues ji\r\n    join jira_board_issues jbi on ji.id = jbi.issue_id\r\n  where \r\n    issue_type in ('Incident') \r\n    and issue_resolved_at is not null\r\n    and epic_key is not null\r\n    and $__timeFilter(issue_resolved_at)\r\n    and jbi.board_id = $board_id\r\n)\r\n\r\nselect \r\n  now() as time,\r\n  epic_key as metric,\r\n  avg(lead_time) as value\r\nfrom _incidents\r\ngroup by 1,2\r\norder by avg(lead_time) desc\r\nlimit 20",
           "refId": "A",
           "select": [
             [
@@ -3378,7 +3458,7 @@
       "timeFrom": null,
       "timeRegions": [],
       "timeShift": null,
-      "title": "8.6 - Average Incident Age (Breakdown by Epic)",
+      "title": "Average Incident Age (Breakdown by Epic)",
       "tooltip": {
         "shared": false,
         "sort": 0,
@@ -3433,6 +3513,37 @@
         "allValue": null,
         "current": {
           "selected": true,
+          "text": "Month",
+          "value": "YYYY-MM"
+        },
+        "description": null,
+        "error": null,
+        "hide": 0,
+        "includeAll": false,
+        "label": "Time Interval",
+        "multi": false,
+        "name": "interval",
+        "options": [
+          {
+            "selected": false,
+            "text": "Week",
+            "value": "YYYY-WW"
+          },
+          {
+            "selected": true,
+            "text": "Month",
+            "value": "YYYY-MM"
+          }
+        ],
+        "query": "Week : YYYY-WW, Month : YYYY-MM",
+        "queryValue": "",
+        "skipUrlSync": false,
+        "type": "custom"
+      },
+      {
+        "allValue": null,
+        "current": {
+          "selected": true,
           "text": [
             "All"
           ],
@@ -3446,9 +3557,9 @@
         "error": null,
         "hide": 0,
         "includeAll": true,
-        "label": "Choose Jira Board",
+        "label": "Choose Board",
         "multi": true,
-        "name": "board",
+        "name": "board_id",
         "options": [],
         "query": "select distinct format('%s: %s', name, id) from jira_boards",
         "refresh": 1,
@@ -3461,39 +3572,12 @@
         "allValue": null,
         "current": {
           "selected": true,
-          "text": "month",
-          "value": "month"
-        },
-        "description": null,
-        "error": null,
-        "hide": 0,
-        "includeAll": false,
-        "label": "Time Interval",
-        "multi": false,
-        "name": "interval",
-        "options": [
-          {
-            "selected": false,
-            "text": "week",
-            "value": "week"
-          },
-          {
-            "selected": true,
-            "text": "month",
-            "value": "month"
-          }
-        ],
-        "query": "week,month",
-        "queryValue": "",
-        "skipUrlSync": false,
-        "type": "custom"
-      },
-      {
-        "allValue": null,
-        "current": {
-          "selected": false,
-          "text": "All",
-          "value": "$__all"
+          "text": [
+            "All"
+          ],
+          "value": [
+            "$__all"
+          ]
         },
         "datasource": "Postgres",
         "definition": "select distinct format('%s: %s', name, id) from gitlab_projects",
@@ -3502,8 +3586,8 @@
         "hide": 0,
         "includeAll": true,
         "label": "Choose Repo",
-        "multi": false,
-        "name": "repo",
+        "multi": true,
+        "name": "repo_id",
         "options": [],
         "query": "select distinct format('%s: %s', name, id) from gitlab_projects",
         "refresh": 1,
@@ -3521,6 +3605,6 @@
   "timepicker": {},
   "timezone": "",
   "title": "Delivery Efficiency",
-  "uid": "0vrodFM7z",
-  "version": 6
+  "uid": "ZfaFQeM7k",
+  "version": 75
 }

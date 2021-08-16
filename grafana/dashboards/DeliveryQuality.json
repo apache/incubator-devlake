@@ -15,8 +15,8 @@
   "editable": true,
   "gnetId": null,
   "graphTooltip": 0,
-  "id": 17,
-  "iteration": 1628690915556,
+  "id": 5,
+  "iteration": 1629095965842,
   "links": [
     {
       "asDropdown": false,
@@ -25,7 +25,7 @@
       "keepTime": false,
       "tags": [],
       "targetBlank": false,
-      "title": "homepage",
+      "title": "Homepage",
       "tooltip": "",
       "type": "link",
       "url": "/d/RXJZNpMnz/homepage?orgId=1"
@@ -47,71 +47,20 @@
   ],
   "panels": [
     {
+      "cacheTimeout": null,
       "datasource": null,
       "gridPos": {
-        "h": 15,
-        "w": 3,
+        "h": 6,
+        "w": 24,
         "x": 0,
         "y": 0
       },
-      "id": 32,
+      "id": 46,
+      "interval": null,
+      "links": [],
       "options": {
-        "content": "<div style=\"text-align:center;\">\n    <img border=\"0\" src=\"/public/img/lake/1.png\" alt=\"No.1\" width=\"120\"><br>\n    <img border=\"0\" src=\"/public/img/lake/practice_development.png\" alt=\"Development\" width=\"120\"> \n    <p style=\"text-align:center;font-size:18px;margin:10px;text-decoration-color:rgb(255, 255, 255);color:#828487\"><b>Development<b></p>\n</div>",
+        "content": "<div style=\"text-align:center;\">\n    <div style=\"display:inline-block;text-align:center;padding-top:10px;\">\n        <img border=\"0\" src=\"/public/img/lake/practice_process_delivery_quality.png\" alt=\"R&D Process\" width=\"60%\">\n    </div>\n</div>",
         "mode": "html"
-      },
-      "pluginVersion": "8.0.6",
-      "targets": [
-        {
-          "queryType": "randomWalk",
-          "refId": "A"
-        }
-      ],
-      "transparent": true,
-      "type": "text"
-    },
-    {
-      "datasource": "Postgres",
-      "description": "合并请求次数\nFiltered by **MR create time**",
-      "fieldConfig": {
-        "defaults": {
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": null
-              },
-              {
-                "color": "red",
-                "value": 80
-              }
-            ]
-          }
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 7,
-        "w": 7,
-        "x": 3,
-        "y": 0
-      },
-      "id": 4,
-      "options": {
-        "colorMode": "value",
-        "graphMode": "area",
-        "justifyMode": "auto",
-        "orientation": "auto",
-        "reduceOptions": {
-          "calcs": [
-            "mean"
-          ],
-          "fields": "",
-          "values": false
-        },
-        "text": {},
-        "textMode": "auto"
       },
       "pluginVersion": "8.0.6",
       "targets": [
@@ -119,8 +68,8 @@
           "format": "time_series",
           "group": [],
           "metricColumn": "none",
-          "rawQuery": true,
-          "rawSql": "SELECT\n  now() AS \"time\",\n  count(*) as value\nFROM gitlab_merge_requests gmr\nLEFT JOIN jira_board_gitlab_projects jbgp ON (jbgp.project_id = gmr.project_id)\nWHERE\n  jbgp.board_id = $board_id\n  and jbgp.project_id = $repo_id\n  and $__timeFilter(gitlab_created_at)\ngroup by 1\nORDER BY 1",
+          "rawQuery": false,
+          "rawSql": "SELECT\n  create_time AS \"time\",\n  progress\nFROM ca_analysis\nWHERE\n  $__timeFilter(create_time)\nORDER BY 1",
           "refId": "A",
           "select": [
             [
@@ -146,12 +95,112 @@
       ],
       "timeFrom": null,
       "timeShift": null,
-      "title": "10.1 Number of Merge Request",
+      "title": "Charts are organized by the Research & Development stages below",
+      "transparent": true,
+      "type": "text"
+    },
+    {
+      "datasource": null,
+      "gridPos": {
+        "h": 4,
+        "w": 24,
+        "x": 0,
+        "y": 6
+      },
+      "id": 48,
+      "options": {
+        "content": "<div style=\"display: block;text-align: center;margin-top: 56px;\">\n  <div style=\"display: inline-flex;\">\n    <img src=\"/public/img/lake/1.png\" alt=\"No.1\" width=\"56\">\n    <p style=\"font-size:24px; margin:10px; color:#BFC1C8;\"><b>Development<b></b></b></p><b><b>\n  </div>\n</div>",
+        "mode": "html"
+      },
+      "pluginVersion": "8.0.6",
+      "targets": [
+        {
+          "queryType": "randomWalk",
+          "refId": "A"
+        }
+      ],
+      "transparent": true,
+      "type": "text"
+    },
+    {
+      "datasource": "Postgres",
+      "description": "1. Total number of Pull/Merge request created.\n2. The PR/MR being calculated are filtered by \"PR/MR creation time\" (time filter at the upper-right corner)",
+      "fieldConfig": {
+        "defaults": {
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 6,
+        "w": 8,
+        "x": 0,
+        "y": 10
+      },
+      "id": 4,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "mean"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "text": {},
+        "textMode": "auto"
+      },
+      "pluginVersion": "8.0.6",
+      "targets": [
+        {
+          "format": "time_series",
+          "group": [],
+          "metricColumn": "none",
+          "rawQuery": true,
+          "rawSql": "SELECT\n  now() AS \"time\",\n  count(*) as value\nFROM \n  gitlab_merge_requests gmr\n  LEFT JOIN jira_board_gitlab_projects jbgp ON jbgp.project_id = gmr.project_id\nWHERE\n  jbgp.board_id = $board_id\n  and $__timeFilter(gitlab_created_at)\ngroup by 1\nORDER BY 1",
+          "refId": "A",
+          "select": [
+            [
+              {
+                "params": [
+                  "progress"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "table": "ca_analysis",
+          "timeColumn": "create_time",
+          "timeColumnType": "timestamp",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        }
+      ],
+      "timeFrom": null,
+      "timeShift": null,
+      "title": "Pull Request Count",
       "type": "stat"
     },
     {
       "datasource": "Postgres",
-      "description": "Filtered by **MR create time**",
+      "description": "1. Total number of Pull/Merge request merged.\n2. The PR/MR being calculated are filtered by \"PR/MR creation time\" (time filter at the upper-right corner)",
       "fieldConfig": {
         "defaults": {
           "mappings": [],
@@ -163,10 +212,6 @@
               {
                 "color": "green",
                 "value": null
-              },
-              {
-                "color": "red",
-                "value": 80
               }
             ]
           },
@@ -175,10 +220,10 @@
         "overrides": []
       },
       "gridPos": {
-        "h": 7,
-        "w": 7,
-        "x": 10,
-        "y": 0
+        "h": 6,
+        "w": 8,
+        "x": 8,
+        "y": 10
       },
       "id": 6,
       "options": {
@@ -204,7 +249,7 @@
           "metricColumn": "none",
           "queryType": "randomWalk",
           "rawQuery": true,
-          "rawSql": "SELECT\n  now() as time,\n  count(merged_by_username) as value\nFROM\n  gitlab_merge_requests gmr\nLEFT JOIN jira_board_gitlab_projects jbgp ON (jbgp.project_id = gmr.project_id)\nWHERE\n  jbgp.board_id = $board_id\n  and jbgp.project_id = $repo_id\n  and $__timeFilter(gitlab_created_at)\n",
+          "rawSql": "SELECT\n  now() as time,\n  count(merged_by_username) as value\nFROM\n  gitlab_merge_requests gmr\n  LEFT JOIN jira_board_gitlab_projects jbgp ON jbgp.project_id = gmr.project_id\nWHERE\n  jbgp.board_id = $board_id\n  and $__timeFilter(gitlab_created_at)\n",
           "refId": "A",
           "select": [
             [
@@ -228,12 +273,12 @@
       ],
       "timeFrom": null,
       "timeShift": null,
-      "title": "11.1 Merge Request Pass Count",
+      "title": "Pull Request Pass Count",
       "type": "stat"
     },
     {
       "datasource": "Postgres",
-      "description": "Filtered by **MR create time**",
+      "description": "Pull Request Pass Count/Pull Request Count",
       "fieldConfig": {
         "defaults": {
           "mappings": [],
@@ -243,12 +288,12 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
+                "color": "red",
                 "value": null
               },
               {
-                "color": "red",
-                "value": 80
+                "color": "green",
+                "value": 0.8
               }
             ]
           },
@@ -257,10 +302,10 @@
         "overrides": []
       },
       "gridPos": {
-        "h": 7,
-        "w": 7,
-        "x": 17,
-        "y": 0
+        "h": 6,
+        "w": 8,
+        "x": 16,
+        "y": 10
       },
       "id": 37,
       "options": {
@@ -286,7 +331,7 @@
           "metricColumn": "none",
           "queryType": "randomWalk",
           "rawQuery": true,
-          "rawSql": "SELECT\n  now() as time,\n  count(merged_by_username)::decimal / count(*)::decimal as value\nFROM\n  gitlab_merge_requests gmr\nLEFT JOIN jira_board_gitlab_projects jbgp ON (jbgp.project_id = gmr.project_id)\nWHERE\n  jbgp.board_id = $board_id\n  and jbgp.project_id = $repo_id\n  and $__timeFilter(gitlab_created_at)\n",
+          "rawSql": "SELECT\n  now() as time,\n  count(merged_by_username)::decimal / count(*)::decimal as value\nFROM\n  gitlab_merge_requests gmr\n  LEFT JOIN jira_board_gitlab_projects jbgp ON jbgp.project_id = gmr.project_id\nWHERE\n  jbgp.board_id = $board_id\n  and $__timeFilter(gitlab_created_at)\n",
           "refId": "A",
           "select": [
             [
@@ -310,12 +355,12 @@
       ],
       "timeFrom": null,
       "timeShift": null,
-      "title": "11.2 Merge Request Pass Rate (%)",
+      "title": "Pull Request Pass Rate (%)",
       "type": "stat"
     },
     {
       "datasource": "Postgres",
-      "description": "Filtered by **MR create time**",
+      "description": "1. Pull Request Pass Rate over time.\n2. The time granularity can be switched to week or month by \"Time Interval\" above. \n3. When Time Interval is set to \"month\", value \"pull_request_pass_rate\" of \"2021-06-01\" calculates the PR/MR whose creation time falls under [2020-06-01, 2020-07-01)",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -370,10 +415,10 @@
         "overrides": []
       },
       "gridPos": {
-        "h": 8,
-        "w": 21,
-        "x": 3,
-        "y": 7
+        "h": 6,
+        "w": 24,
+        "x": 0,
+        "y": 16
       },
       "id": 8,
       "options": {
@@ -394,7 +439,7 @@
           "metricColumn": "none",
           "queryType": "randomWalk",
           "rawQuery": true,
-          "rawSql": "with t as (\nSELECT\n  to_char(gitlab_created_at, '$interval') as time,\n  count(merged_by_username)::decimal / count(*)::decimal * 100 as value\nFROM\n  gitlab_merge_requests gmr\nLEFT JOIN jira_board_gitlab_projects jbgp ON (jbgp.project_id = gmr.project_id)\nWHERE\n  jbgp.board_id = $board_id\n  and jbgp.project_id = $repo_id\n  and $__timeFilter(gitlab_created_at)\ngroup by to_char(gitlab_created_at, '$interval')\norder by 1\n) \n\nselect to_timestamp(time,  '$interval') as time, value \nfrom t",
+          "rawSql": "with _mr_request_rate as(\n  SELECT\n    to_char(gitlab_created_at, '$interval') as time,\n    count(merged_by_username)::decimal / count(*)::decimal * 100 as mr_pass_rate\n  FROM\n    gitlab_merge_requests gmr\n    LEFT JOIN jira_board_gitlab_projects jbgp ON jbgp.project_id = gmr.project_id\n  WHERE\n    jbgp.board_id = $board_id\n    and $__timeFilter(gitlab_created_at)\n  group by to_char(gitlab_created_at, '$interval')\n  order by 1\n)\n\nSELECT \n  to_timestamp(time,'$interval') as time,\n  mr_pass_rate\nFROM _mr_request_rate\n",
           "refId": "A",
           "select": [
             [
@@ -418,20 +463,20 @@
       ],
       "timeFrom": null,
       "timeShift": null,
-      "title": "11.4 Merge Request Pass Rate (%)",
+      "title": "Pull Request Pass Rate (Breakdown by Time)",
       "type": "timeseries"
     },
     {
       "datasource": null,
       "gridPos": {
-        "h": 14,
-        "w": 3,
+        "h": 4,
+        "w": 24,
         "x": 0,
-        "y": 15
+        "y": 22
       },
-      "id": 34,
+      "id": 50,
       "options": {
-        "content": "<div style=\"text-align:center;\">\n  <img border=\"0\" src=\"/public/img/lake/2.png\" alt=\"No.2\" width=\"120\"><br>\n  <img border=\"0\" src=\"/public/img/lake/practice_test.png\" alt=\"Test\" width=\"120\">\n  <p style=\"text-align:center;font-size:20px;margin:10px;text-decoration-color:rgb(255, 255, 255);color:#828487\"><b>Test<b></p>\n</div>",
+        "content": "<div style=\"display: block;text-align: center;margin-top: 56px;\">\n  <div style=\"display: inline-flex;\">\n    <img src=\"/public/img/lake/2.png\" alt=\"No.2\" width=\"56\">\n    <p style=\"font-size:24px; margin:10px; color:#BFC1C8;\"><b>Test<b></b></b></p><b><b>\n  </div>\n</div>",
         "mode": "html"
       },
       "pluginVersion": "8.0.6",
@@ -446,6 +491,7 @@
     },
     {
       "datasource": "Postgres",
+      "description": "1. Total number of bugs created.\n2. The bugs being calculated are filtered by \"bug creation time\" (time filter at the upper-right corner)",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -458,10 +504,6 @@
               {
                 "color": "green",
                 "value": null
-              },
-              {
-                "color": "red",
-                "value": 80
               }
             ]
           }
@@ -469,10 +511,10 @@
         "overrides": []
       },
       "gridPos": {
-        "h": 7,
-        "w": 7,
-        "x": 3,
-        "y": 15
+        "h": 6,
+        "w": 8,
+        "x": 0,
+        "y": 26
       },
       "id": 16,
       "options": {
@@ -498,7 +540,7 @@
           "metricColumn": "none",
           "queryType": "randomWalk",
           "rawQuery": true,
-          "rawSql": "SELECT\n  now() as time,\n  count(*) as value\nFROM\n  jira_issues ji\n  join jira_board_issues jbi on ji.id = jbi.issue_id\nWHERE\n  issue_type in ('Bug')\n  and jbi.board_id in ($board_id)\n  and $__timeFilter(issue_created_at)\n",
+          "rawSql": "SELECT\n  now() as time,\n  count(*) as value\nFROM\n  jira_issues ji\n  join jira_board_issues jbi on ji.id = jbi.issue_id\nWHERE\n  issue_type in ('Bug')\n  and jbi.board_id = $board_id\n  and $__timeFilter(issue_created_at)\n",
           "refId": "A",
           "select": [
             [
@@ -520,12 +562,12 @@
           ]
         }
       ],
-      "title": "4.1 Total Number of Bugs found in Testing",
+      "title": "Number of Bugs found in Testing (Total )",
       "type": "stat"
     },
     {
       "datasource": "Postgres",
-      "description": "",
+      "description": "1. Number of bugs created over time.\n2. The time granularity can be switched to week or month by \"Time Interval\" above. \n3. When Time Interval is set to \"month\", bug_count of \"2021-06-01\" calculates the bugs whose creation time falls under [2020-06-01, 2020-07-01)",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -574,10 +616,10 @@
         "overrides": []
       },
       "gridPos": {
-        "h": 7,
-        "w": 14,
-        "x": 10,
-        "y": 15
+        "h": 6,
+        "w": 16,
+        "x": 8,
+        "y": 26
       },
       "id": 18,
       "options": {
@@ -598,7 +640,7 @@
           "metricColumn": "none",
           "queryType": "randomWalk",
           "rawQuery": true,
-          "rawSql": "with _bugs as (\nSELECT\n  to_char(issue_created_at, '$interval') as time,\n  count(*)::decimal as bug_count\nFROM\n  jira_issues ji\n  LEFT JOIN jira_board_issues jbi ON jbi.issue_id = ji.id\nWHERE\n  issue_type = 'Bug'\n  and jbi.board_id in ($board_id)\n  and $__timeFilter(issue_created_at)\ngroup by to_char(issue_created_at, '$interval')\norder by 1\n) \n\nselect \n  to_timestamp(time,  '$interval') as time, \n  bug_count \nfrom _bugs",
+          "rawSql": "with _bugs as (\n  SELECT\n    to_char(issue_created_at, '$interval') as time,\n    count(*)::decimal as bug_count\n  FROM\n    jira_issues ji\n    LEFT JOIN jira_board_issues jbi ON jbi.issue_id = ji.id\n  WHERE\n    issue_type = 'Bug'\n    and jbi.board_id = $board_id\n    and $__timeFilter(issue_created_at)\n  group by to_char(issue_created_at, '$interval')\n  order by 1\n) \n\nselect \n  to_timestamp(time,'$interval') as time, \n  bug_count \nfrom _bugs",
           "refId": "A",
           "select": [
             [
@@ -622,16 +664,18 @@
       ],
       "timeFrom": null,
       "timeShift": null,
-      "title": "4.2 Number of bugs found in Testing (Breakdown by Time)",
+      "title": "Number of bugs found in Testing (Breakdown by Time)",
       "type": "timeseries"
     },
     {
       "datasource": "Postgres",
+      "description": "1. Total number of bugs found per 1,000 lines of code, including both added and deleted llines of code.\n2. The bugs being calculated are filtered by \"bug creation time\". The lines of code being calculated are filtered by \"commit creation time\" (both are affected by the time filter at the upper-right corner)",
       "fieldConfig": {
         "defaults": {
           "color": {
             "mode": "thresholds"
           },
+          "decimals": 2,
           "mappings": [],
           "thresholds": {
             "mode": "absolute",
@@ -641,8 +685,12 @@
                 "value": null
               },
               {
+                "color": "yellow",
+                "value": 0.32
+              },
+              {
                 "color": "red",
-                "value": 80
+                "value": 2.39
               }
             ]
           }
@@ -650,10 +698,10 @@
         "overrides": []
       },
       "gridPos": {
-        "h": 7,
-        "w": 7,
-        "x": 3,
-        "y": 22
+        "h": 6,
+        "w": 8,
+        "x": 0,
+        "y": 32
       },
       "id": 24,
       "options": {
@@ -679,7 +727,7 @@
           "metricColumn": "none",
           "queryType": "randomWalk",
           "rawQuery": true,
-          "rawSql": "with \n\tnoi as (\n\t\tselect count(*) as noi\n\t\tfrom jira_issues ji \n\t\tleft join jira_board_issues jbi on (jbi.issue_id = ji.id)\n\t\twhere \n\t\t  jbi.board_id = $board_id \n\t\t  and ji.issue_type = 'Bug'\n\t\t  and $__timeFilter(ji.issue_created_at)\n\t),\n\tloc as (\n\t\tselect sum(additions + deletions) as loc\n\t\tfrom gitlab_commits gc \n\t\tleft join jira_board_gitlab_projects jbgp on (jbgp.project_id = gc.project_id)\n\t\twhere\n\t\t  jbgp.board_id = $board_id\n\t\t  and jbgp.project_id = $repo_id\n\t\t  and gc.title not like 'Merge branch %'\n\t\t  and $__timeFilter(authored_date)\n\t)\nselect now() as time, noi::decimal / loc.loc::decimal * 1000 as value\nfrom loc, noi\n",
+          "rawSql": "with bc as (\n\tselect \n\t  count(*) as bug_count\n\tfrom \n\t  jira_issues ji \n\t  left join jira_board_issues jbi on (jbi.issue_id = ji.id)\n\twhere \n\t  jbi.board_id = $board_id\n\t  and ji.issue_type = 'Bug'\n\t  and $__timeFilter(ji.issue_created_at)\n),\n\nloc as (\n\tselect \n\t  sum(additions + deletions) as line_count\n\tfrom \n\t  gitlab_commits gc \n\t  left join jira_board_gitlab_projects jbgp on jbgp.project_id = gc.project_id\n\twhere\n\t  jbgp.board_id = $board_id\n\t  and gc.title not like 'Merge branch %'\n\t  and $__timeFilter(authored_date)\n)\n\nselect \n  now() as time, \n  bc.bug_count::decimal / loc.line_count::decimal * 1000 as value\nfrom loc,bc\n",
           "refId": "A",
           "select": [
             [
@@ -701,11 +749,12 @@
           ]
         }
       ],
-      "title": "6.1 - Bugs Count per 1k lines of code (Total)",
+      "title": "Bug Count per 1k lines of code (Total)",
       "type": "stat"
     },
     {
       "datasource": "Postgres",
+      "description": "1. Bug Count per 1k lines of code over time.\n2. When Time Interval is set to \"month\", bug_count_per_1k_LOC of \"2021-06-01\" calculates the bugs whose creation time falls under [2020-06-01, 2020-07-01) and lines of code whose commit creation time falls under [2020-06-01, 2020-07-01) ",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -757,10 +806,10 @@
         "overrides": []
       },
       "gridPos": {
-        "h": 7,
-        "w": 14,
-        "x": 10,
-        "y": 22
+        "h": 6,
+        "w": 16,
+        "x": 8,
+        "y": 32
       },
       "id": 22,
       "options": {
@@ -780,7 +829,7 @@
           "metricColumn": "none",
           "queryType": "randomWalk",
           "rawQuery": true,
-          "rawSql": "with t as (\nwith \n\tnoi as (\n\t\tselect to_char(issue_created_at, '$interval') as month, count(*) as noi\n\t\tfrom jira_issues ji \n\t\tleft join jira_board_issues jbi on (jbi.issue_id = ji.id)\n\t\twhere \n\t\t  jbi.board_id = $board_id \n\t\t  and ji.issue_type = 'Bug'\n\t\t  and $__timeFilter(ji.issue_created_at)\n\t\tgroup by to_char(issue_created_at, '$interval')\n\t),\n\tloc as (\n\t\tselect to_char(authored_date, '$interval') as month, sum(additions + deletions) as loc\n\t\tfrom gitlab_commits gc \n\t\tleft join jira_board_gitlab_projects jbgp on (jbgp.project_id = gc.project_id)\n\t\twhere \n\t\t  jbgp.board_id = $board_id \n\t\t  and jbgp.project_id = $repo_id\n\t\t  and gc.title not like 'Merge branch %'\n\t\t  and $__timeFilter(authored_date)\n\t\tgroup by to_char(authored_date, '$interval')\n\t)\n\nselect loc.month as time, noi::decimal / loc.loc::decimal * 1000 as bug_count_per_1k_loc\nfrom loc\nleft join noi on (noi.month = loc.month)\nwhere noi.noi is not null and loc.loc is not null\norder by time\n) \n\nselect \n  to_timestamp(time,  '$interval') as time, \n  bug_count_per_1k_loc \nfrom t;\n",
+          "rawSql": "with bc as (\n\tselect \n\t  to_char(issue_created_at, '$interval') as time,\n\t  count(*) as bug_count\n\tfrom \n\t  jira_issues ji \n\t  left join jira_board_issues jbi on jbi.issue_id = ji.id\n\twhere \n\t  jbi.board_id = $board_id\n\t  and ji.issue_type = 'Bug'\n\t  and $__timeFilter(ji.issue_created_at)\n\tgroup by 1\n),\nloc as (\n\tselect \n\t  to_char(authored_date,'$interval') as time,\n\t  sum(additions + deletions) as line_count\n\tfrom \n\t  gitlab_commits gc \n\t  left join jira_board_gitlab_projects jbgp on jbgp.project_id = gc.project_id\n\twhere \n\t  jbgp.board_id = $board_id\n\t  and gc.title not like 'Merge branch %'\n\t  and $__timeFilter(authored_date)\n\tgroup by 1\n),\nbug_count_per_1k_loc as(\n  select \n    bc.time as time,\n    bc.bug_count::decimal / loc.line_count::decimal * 1000 as bug_count_per_1k_loc\n  from \n    loc\n    left join bc on bc.time = loc.time\n  where\n    bc.bug_count is not null \n    and loc.line_count is not null\n  order by time\n)\n\nselect \n  to_timestamp(time,'$interval') as time, \n  bug_count_per_1k_loc \nfrom bug_count_per_1k_loc;\n",
           "refId": "A",
           "select": [
             [
@@ -802,20 +851,20 @@
           ]
         }
       ],
-      "title": "6.2 - Bug Count per 1k lines of code (Breakdown by Time)",
+      "title": "Bug Count per 1k lines of code (Breakdown by Time)",
       "type": "timeseries"
     },
     {
       "datasource": null,
       "gridPos": {
-        "h": 16,
-        "w": 3,
+        "h": 4,
+        "w": 24,
         "x": 0,
-        "y": 29
+        "y": 38
       },
-      "id": 36,
+      "id": 52,
       "options": {
-        "content": "<div style=\"text-align:center;\">\n  <img border=\"0\" src=\"/public/img/lake/3.png\" alt=\"No.3\" width=\"120\"><br>\n  <img border=\"0\" src=\"/public/img/lake/practice_operation.png\" alt=\"Operation\"\" width=\"120\">\n  <p style=\"text-align:center;font-size:20px;margin:10px;text-decoration-color:rgb(255, 255, 255);color:#828487\"><b>Operation<b></p>\n</div>",
+        "content": "<div style=\"display: block;text-align: center;margin-top: 56px;\">\n  <div style=\"display: inline-flex;\">\n    <img src=\"/public/img/lake/3.png\" alt=\"No.3\" width=\"56\">\n    <p style=\"font-size:24px; margin:10px; color:#BFC1C8;\"><b>Operation<b></b></b></p><b><b>\n  </div>\n</div>",
         "mode": "html"
       },
       "pluginVersion": "8.0.6",
@@ -830,6 +879,7 @@
     },
     {
       "datasource": "Postgres",
+      "description": "1. Total number of incidents created.\n2. The incidents being calculated are filtered by \"incident creation time\" (time filter at the upper-right corner)",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -842,10 +892,6 @@
               {
                 "color": "green",
                 "value": null
-              },
-              {
-                "color": "red",
-                "value": 80
               }
             ]
           }
@@ -853,10 +899,10 @@
         "overrides": []
       },
       "gridPos": {
-        "h": 7,
-        "w": 7,
-        "x": 3,
-        "y": 29
+        "h": 6,
+        "w": 8,
+        "x": 0,
+        "y": 42
       },
       "id": 38,
       "options": {
@@ -882,7 +928,7 @@
           "metricColumn": "none",
           "queryType": "randomWalk",
           "rawQuery": true,
-          "rawSql": "SELECT\n  now() as time,\n  count(*) as value\nFROM\n  jira_issues ji\n  join jira_board_issues jbi on ji.id = jbi.issue_id\nWHERE\n  issue_type in ('Incident')\n  and jbi.board_id in ($board_id)\n  and $__timeFilter(issue_created_at)\n",
+          "rawSql": "SELECT\n  now() as time,\n  count(*) as value\nFROM\n  jira_issues ji\n  join jira_board_issues jbi on ji.id = jbi.issue_id\nWHERE\n  issue_type in ('Incident')\n  and jbi.board_id = $board_id\n  and $__timeFilter(issue_created_at)\n",
           "refId": "A",
           "select": [
             [
@@ -904,12 +950,12 @@
           ]
         }
       ],
-      "title": "7.1 Total Number of Incidents found after shipping",
+      "title": "Number of Incidents found after shipping ( Total)",
       "type": "stat"
     },
     {
       "datasource": "Postgres",
-      "description": "",
+      "description": "1. Number of incidents created over time.\n2. The time granularity can be switched to week or month by \"Time Interval\" above. \n3. When Time Interval is set to \"month\", incident_count of \"2021-06-01\" calculates the incidents whose creation time falls under [2020-06-01, 2020-07-01)",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -958,10 +1004,10 @@
         "overrides": []
       },
       "gridPos": {
-        "h": 7,
-        "w": 14,
-        "x": 10,
-        "y": 29
+        "h": 6,
+        "w": 16,
+        "x": 8,
+        "y": 42
       },
       "id": 39,
       "options": {
@@ -982,7 +1028,7 @@
           "metricColumn": "none",
           "queryType": "randomWalk",
           "rawQuery": true,
-          "rawSql": "with _incidents as (\nSELECT\n  to_char(issue_created_at, '$interval') as time,\n  count(*)::decimal as incident_count\nFROM\n  jira_issues ji\n  LEFT JOIN jira_board_issues jbi ON jbi.issue_id = ji.id\nWHERE\n  issue_type = 'Incident'\n  and jbi.board_id in ($board_id)\n  and $__timeFilter(issue_created_at)\ngroup by to_char(issue_created_at, '$interval')\norder by 1\n) \nselect \n  to_timestamp(time,  '$interval') as time, \n  incident_count \nfrom _incidents",
+          "rawSql": "with _incidents as (\n  SELECT\n    to_char(issue_created_at, '$interval') as time,\n    count(*)::decimal as incident_count\n  FROM\n    jira_issues ji\n    LEFT JOIN jira_board_issues jbi ON jbi.issue_id = ji.id\n  WHERE\n    issue_type = 'Incident'\n    and jbi.board_id = $board_id\n    and $__timeFilter(issue_created_at)\n  group by to_char(issue_created_at, '$interval')\n  order by 1\n) \nselect \n  to_timestamp(time,'$interval') as time, \n  incident_count \nfrom _incidents",
           "refId": "A",
           "select": [
             [
@@ -1006,16 +1052,18 @@
       ],
       "timeFrom": null,
       "timeShift": null,
-      "title": "7.2 Number of Incidents found after shipping (Breakdown by Time)",
+      "title": "Number of Incidents found after shipping (Breakdown by Time)",
       "type": "timeseries"
     },
     {
       "datasource": "Postgres",
+      "description": "1. Total number of incidents found per 1,000 lines of code, including both added and deleted llines of code.\n2. The incidents being calculated are filtered by \"incident creation time\". The lines of code being calculated are filtered by \"commit creation time\" (both are affected by the time filter at the upper-right corner)",
       "fieldConfig": {
         "defaults": {
           "color": {
             "mode": "thresholds"
           },
+          "decimals": 2,
           "mappings": [],
           "thresholds": {
             "mode": "absolute",
@@ -1025,8 +1073,12 @@
                 "value": null
               },
               {
+                "color": "#EAB839",
+                "value": 0.32
+              },
+              {
                 "color": "red",
-                "value": 80
+                "value": 2.39
               }
             ]
           }
@@ -1034,10 +1086,10 @@
         "overrides": []
       },
       "gridPos": {
-        "h": 7,
-        "w": 7,
-        "x": 3,
-        "y": 36
+        "h": 6,
+        "w": 8,
+        "x": 0,
+        "y": 48
       },
       "id": 28,
       "options": {
@@ -1063,7 +1115,7 @@
           "metricColumn": "none",
           "queryType": "randomWalk",
           "rawQuery": true,
-          "rawSql": "with \n\tnoi as (\n\t\tselect count(*) as noi\n\t\tfrom jira_issues ji \n\t\tleft join jira_board_issues jbi on (jbi.issue_id = ji.id)\n\t\twhere jbi.board_id = $board_id and ji.issue_type = 'Incident'\n\t\t  and $__timeFilter(ji.issue_created_at)\n\t),\n\tloc as (\n\t\tselect sum(additions + deletions) as loc\n\t\tfrom gitlab_commits gc \n\t\tleft join jira_board_gitlab_projects jbgp on (jbgp.project_id = gc.project_id)\n\t\twhere jbgp.board_id = $board_id and gc.title not like 'Merge branch %'\n\t\t  and $__timeFilter(authored_date)\n\t)\nselect now() as time, noi::decimal / loc.loc::decimal * 1000 as value\nfrom loc, noi\n",
+          "rawSql": "with ic as (\n\tselect \n\t  count(*) as incident_count\n\tfrom \n\t  jira_issues ji \n\t  left join jira_board_issues jbi on (jbi.issue_id = ji.id)\n\twhere \n\t  jbi.board_id = $board_id\n\t  and ji.issue_type = 'Incident'\n\t  and $__timeFilter(ji.issue_created_at)\n),\n\nloc as (\n\tselect \n\t  sum(additions + deletions) as line_count\n\tfrom \n\t  gitlab_commits gc \n\t  left join jira_board_gitlab_projects jbgp on jbgp.project_id = gc.project_id\n\twhere\n\t  jbgp.board_id = $board_id\n\t  and gc.title not like 'Merge branch %'\n\t  and $__timeFilter(authored_date)\n)\n\nselect \n  now() as time, \n  ic.incident_count::decimal / loc.line_count::decimal * 1000 as value\nfrom loc,ic",
           "refId": "A",
           "select": [
             [
@@ -1085,11 +1137,12 @@
           ]
         }
       ],
-      "title": "9.1 - Incidents Count per 1k lines of code (Total)",
+      "title": "Incidents Count per 1k lines of code (Total)",
       "type": "stat"
     },
     {
       "datasource": "Postgres",
+      "description": "1. Incident Count per 1k lines of code over time.\n2. When Time Interval is set to \"month\", incident_count_per_1k_LOC of \"2021-06-01\" calculates the incidents whose creation time falls under [2020-06-01, 2020-07-01) and lines of code whose commit creation time falls under [2020-06-01, 2020-07-01) ",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -1142,10 +1195,10 @@
         "overrides": []
       },
       "gridPos": {
-        "h": 7,
-        "w": 14,
-        "x": 10,
-        "y": 36
+        "h": 6,
+        "w": 16,
+        "x": 8,
+        "y": 48
       },
       "id": 30,
       "options": {
@@ -1165,7 +1218,7 @@
           "metricColumn": "none",
           "queryType": "randomWalk",
           "rawQuery": true,
-          "rawSql": "with t as (\nwith \n\tnoi as (\n\t\tselect to_char(issue_created_at, '$interval') as month, count(*) as noi\n\t\tfrom jira_issues ji \n\t\tleft join jira_board_issues jbi on (jbi.issue_id = ji.id)\n\t\twhere jbi.board_id = $board_id and ji.issue_type = 'Incident'\n\t\t  and $__timeFilter(ji.issue_created_at)\n\t\tgroup by to_char(issue_created_at, '$interval')\n\t),\n\tloc as (\n\t\tselect to_char(authored_date, '$interval') as month, sum(additions + deletions) as loc\n\t\tfrom gitlab_commits gc \n\t\tleft join jira_board_gitlab_projects jbgp on (jbgp.project_id = gc.project_id)\n\t\twhere jbgp.board_id = $board_id and gc.title not like 'Merge branch %'\n\t\t  and $__timeFilter(authored_date)\n\t\tgroup by to_char(authored_date, '$interval')\n\t)\nselect loc.month as time, noi::decimal / loc.loc::decimal * 1000 as incident_count_per_1k_loc\nfrom loc\nleft join noi on (noi.month = loc.month)\nwhere noi.noi is not null and loc.loc is not null\norder by time\n) \n\nselect \n  to_timestamp(time,  '$interval') as time, \n  incident_count_per_1k_loc \nfrom t;\n",
+          "rawSql": "with ic as (\n\tselect \n\t  to_char(issue_created_at, '$interval') as time,\n\t  count(*) as incident_count\n\tfrom \n\t  jira_issues ji \n\t  left join jira_board_issues jbi on jbi.issue_id = ji.id\n\twhere \n\t  jbi.board_id = $board_id\n\t  and ji.issue_type = 'Incident'\n\t  and $__timeFilter(ji.issue_created_at)\n\tgroup by 1\n),\nloc as (\n\tselect \n\t  to_char(authored_date,'$interval') as time,\n\t  sum(additions + deletions) as line_count\n\tfrom \n\t  gitlab_commits gc \n\t  left join jira_board_gitlab_projects jbgp on jbgp.project_id = gc.project_id\n\twhere \n\t  jbgp.board_id = $board_id\n\t  and gc.title not like 'Merge branch %'\n\t  and $__timeFilter(authored_date)\n\tgroup by 1\n),\nincident_count_per_1k_loc as(\n  select \n    ic.time as time,\n    ic.incident_count::decimal / loc.line_count::decimal * 1000 as incident_count_per_1k_loc\n  from \n    loc\n    left join ic on ic.time = loc.time\n  where\n    ic.incident_count is not null \n    and loc.line_count is not null\n  order by time\n)\n\nselect \n  to_timestamp(time,'$interval') as time, \n  incident_count_per_1k_loc \nfrom incident_count_per_1k_loc;",
           "refId": "A",
           "select": [
             [
@@ -1187,7 +1240,7 @@
           ]
         }
       ],
-      "title": "9.2 - Incident Count per 1k lines of code (Breakdown by Time)",
+      "title": "Incident Count per 1k lines of code (Breakdown by Time)",
       "type": "timeseries"
     }
   ],
@@ -1200,6 +1253,37 @@
   ],
   "templating": {
     "list": [
+      {
+        "allValue": null,
+        "current": {
+          "selected": false,
+          "text": "Month",
+          "value": "YYYY-MM"
+        },
+        "description": null,
+        "error": null,
+        "hide": 0,
+        "includeAll": false,
+        "label": "Time Interval",
+        "multi": false,
+        "name": "interval",
+        "options": [
+          {
+            "selected": false,
+            "text": "Week",
+            "value": "YYYY-WW"
+          },
+          {
+            "selected": true,
+            "text": "Month",
+            "value": "YYYY-MM"
+          }
+        ],
+        "query": "Week : YYYY-WW, Month : YYYY-MM",
+        "queryValue": "",
+        "skipUrlSync": false,
+        "type": "custom"
+      },
       {
         "allValue": null,
         "current": {
@@ -1223,61 +1307,6 @@
         "skipUrlSync": false,
         "sort": 0,
         "type": "query"
-      },
-      {
-        "allValue": null,
-        "current": {
-          "selected": false,
-          "text": "week",
-          "value": "YYYY-WW"
-        },
-        "description": null,
-        "error": null,
-        "hide": 0,
-        "includeAll": false,
-        "label": "Interval",
-        "multi": false,
-        "name": "interval",
-        "options": [
-          {
-            "selected": true,
-            "text": "week",
-            "value": "YYYY-WW"
-          },
-          {
-            "selected": false,
-            "text": "month",
-            "value": "YYYY-MM"
-          }
-        ],
-        "query": "week : YYYY-WW, month : YYYY-MM",
-        "queryValue": "",
-        "skipUrlSync": false,
-        "type": "custom"
-      },
-      {
-        "allValue": null,
-        "current": {
-          "selected": false,
-          "text": "All",
-          "value": "$__all"
-        },
-        "datasource": "Postgres",
-        "definition": "select distinct format('%s: %s', name, id) from gitlab_projects",
-        "description": null,
-        "error": null,
-        "hide": 0,
-        "includeAll": true,
-        "label": "Choose Repo",
-        "multi": false,
-        "name": "repo_id",
-        "options": [],
-        "query": "select distinct format('%s: %s', name, id) from gitlab_projects",
-        "refresh": 1,
-        "regex": "/^(?<text>[^:]+): (?<value>\\d+)$/",
-        "skipUrlSync": false,
-        "sort": 0,
-        "type": "query"
       }
     ]
   },
@@ -1289,5 +1318,5 @@
   "timezone": "",
   "title": "Delivery Quality",
   "uid": "nUC-7tGnk",
-  "version": 4
+  "version": 137
 }
