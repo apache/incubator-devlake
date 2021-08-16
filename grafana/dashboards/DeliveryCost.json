@@ -15,8 +15,8 @@
   "editable": true,
   "gnetId": null,
   "graphTooltip": 0,
-  "id": 15,
-  "iteration": 1628690934378,
+  "id": 6,
+  "iteration": 1629095829826,
   "links": [
     {
       "asDropdown": false,
@@ -49,14 +49,14 @@
     {
       "datasource": null,
       "gridPos": {
-        "h": 12,
-        "w": 3,
+        "h": 4,
+        "w": 24,
         "x": 0,
         "y": 0
       },
-      "id": 15,
+      "id": 18,
       "options": {
-        "content": "<div style=\"text-align:center;\">\n    <img border=\"0\" src=\"/public/img/lake/1.png\" alt=\"No.1\" width=\"120\"><br>\n    <img border=\"0\" src=\"/public/img/lake/practice_cross_domain.png\" alt=\"Cross-practice Domain\" width=\"120\"> \n    <p style=\"text-align:center;font-size:18px;margin:10px;text-decoration-color:rgb(255, 255, 255);color:#828487\"><b>Cross-Practice Domain<b></p>\n</div>",
+        "content": "<div style=\"display: block;text-align: center;margin-top: 56px;\">\n  <div style=\"display: inline-flex;\">\n    <img src=\"/public/img/lake/1.png\" alt=\"No.1\" width=\"56\">\n    <p style=\"font-size:24px; margin:10px; color:#BFC1C8;\"><b>Development<b></b></b></p><b><b>\n  </div>\n</div>",
         "mode": "html"
       },
       "pluginVersion": "8.0.6",
@@ -71,159 +71,7 @@
     },
     {
       "datasource": "Postgres",
-      "description": "Filtered by **authored_time**",
-      "fieldConfig": {
-        "defaults": {
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": null
-              }
-            ]
-          }
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 9,
-        "w": 7,
-        "x": 3,
-        "y": 0
-      },
-      "id": 13,
-      "options": {
-        "colorMode": "value",
-        "graphMode": "area",
-        "justifyMode": "auto",
-        "orientation": "auto",
-        "reduceOptions": {
-          "calcs": [
-            "mean"
-          ],
-          "fields": "",
-          "values": false
-        },
-        "text": {},
-        "textMode": "auto"
-      },
-      "pluginVersion": "8.0.6",
-      "targets": [
-        {
-          "format": "time_series",
-          "group": [],
-          "metricColumn": "none",
-          "rawQuery": true,
-          "rawSql": "SELECT\n  now() AS \"time\",\n  count(distinct author_name) as value\nFROM gitlab_commits\nWHERE\n  $__timeFilter(authored_date)\n  and project_id in ($repo)\ngroup by 1\nORDER BY 1",
-          "refId": "A",
-          "select": [
-            [
-              {
-                "params": [
-                  "progress"
-                ],
-                "type": "column"
-              }
-            ]
-          ],
-          "table": "ca_analysis",
-          "timeColumn": "create_time",
-          "timeColumnType": "timestamp",
-          "where": [
-            {
-              "name": "$__timeFilter",
-              "params": [],
-              "type": "macro"
-            }
-          ]
-        }
-      ],
-      "timeFrom": null,
-      "timeShift": null,
-      "title": "14.1 Commit Author Count (Total)",
-      "type": "stat"
-    },
-    {
-      "datasource": "Postgres",
-      "description": "Filtered by **MR_create_time**",
-      "fieldConfig": {
-        "defaults": {
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": null
-              }
-            ]
-          }
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 9,
-        "w": 7,
-        "x": 10,
-        "y": 0
-      },
-      "id": 8,
-      "options": {
-        "colorMode": "value",
-        "graphMode": "area",
-        "justifyMode": "auto",
-        "orientation": "auto",
-        "reduceOptions": {
-          "calcs": [
-            "mean"
-          ],
-          "fields": "",
-          "values": false
-        },
-        "text": {},
-        "textMode": "auto"
-      },
-      "pluginVersion": "8.0.6",
-      "targets": [
-        {
-          "format": "time_series",
-          "group": [],
-          "metricColumn": "none",
-          "rawQuery": true,
-          "rawSql": "with reviewer_names as(\n  select \n    distinct unnest(reviewers) as reviewer_name\n  from gitlab_merge_requests\n  WHERE\n    $__timeFilter(created_at)\n    and project_id in ($repo)\n)\n\nselect \n  now() as time,\n  count(reviewer_name)\nfrom\n  reviewer_names",
-          "refId": "A",
-          "select": [
-            [
-              {
-                "params": [
-                  "progress"
-                ],
-                "type": "column"
-              }
-            ]
-          ],
-          "table": "ca_analysis",
-          "timeColumn": "create_time",
-          "timeColumnType": "timestamp",
-          "where": [
-            {
-              "name": "$__timeFilter",
-              "params": [],
-              "type": "macro"
-            }
-          ]
-        }
-      ],
-      "timeFrom": null,
-      "timeShift": null,
-      "title": "12.1 Merge Reviewer Count",
-      "type": "stat"
-    },
-    {
-      "datasource": "Postgres",
-      "description": "Filtered by **MR_create_time**",
+      "description": "1. Number of people who have created or reviewed a Pull/Merge Request.\n2. The PR/MR being calculated are filtered by \"PR/MR creation time\" (time filter at the upper-right corner).",
       "fieldConfig": {
         "defaults": {
           "mappings": [],
@@ -240,15 +88,15 @@
               }
             ]
           },
-          "unit": "percentunit"
+          "unit": "short"
         },
         "overrides": []
       },
       "gridPos": {
-        "h": 9,
-        "w": 7,
-        "x": 17,
-        "y": 0
+        "h": 6,
+        "w": 24,
+        "x": 0,
+        "y": 4
       },
       "id": 9,
       "options": {
@@ -273,7 +121,7 @@
           "group": [],
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "with all_user_names as(\n  select distinct unnest(reviewers) as user_name from gitlab_merge_requests\n  WHERE\n    $__timeFilter(created_at)\n    and project_id in ($repo)\n  union\n  select distinct author_username as user_name from gitlab_merge_requests\n  WHERE\n    $__timeFilter(created_at)\n    and project_id in ($repo)\n),\n\nreviewer as (\n  select distinct unnest(reviewers) as reviewer_name from gitlab_merge_requests\n  WHERE\n    $__timeFilter(created_at)\n    and project_id in ($repo)\n)\n\nSELECT\n  now() AS \"time\",\n  1.0*count(distinct reviewer_name)/count(distinct user_name) as value\nFROM reviewer, all_user_names",
+          "rawSql": "with all_developers as(\n  select \n    distinct unnest(reviewers) as user_name \n  from gitlab_merge_requests\n  WHERE\n    $__timeFilter(created_at)\n    and project_id = $repo_id\n  union\n  select \n    distinct author_username as user_name \n  from gitlab_merge_requests\n  WHERE\n    $__timeFilter(created_at)\n    and project_id = $repo_id\n  union\n  select \n    distinct author_name as user_name \n  from gitlab_commits\n  WHERE\n    $__timeFilter(created_at)\n    and project_id = $repo_id\n)\n\n\nSELECT\n  now() AS \"time\",\n  count(distinct user_name) as developer_count\nFROM all_developers",
           "refId": "A",
           "select": [
             [
@@ -299,7 +147,240 @@
       ],
       "timeFrom": null,
       "timeShift": null,
-      "title": "12.2 Merge Reviewer Rate",
+      "title": "Total Developer Count",
+      "type": "stat"
+    },
+    {
+      "datasource": "Postgres",
+      "description": "1. Total number of Commit Authors.\n2. The commits being calculated are filtered by \"authored_date\" (time filter at the upper-right corner).",
+      "fieldConfig": {
+        "defaults": {
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 6,
+        "w": 8,
+        "x": 0,
+        "y": 10
+      },
+      "id": 13,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "mean"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "text": {},
+        "textMode": "auto"
+      },
+      "pluginVersion": "8.0.6",
+      "targets": [
+        {
+          "format": "time_series",
+          "group": [],
+          "metricColumn": "none",
+          "rawQuery": true,
+          "rawSql": "SELECT\n  now() AS \"time\",\n  count(distinct author_name) as value\nFROM gitlab_commits\nWHERE\n  $__timeFilter(authored_date)\n  and project_id = $repo_id\ngroup by 1\nORDER BY 1",
+          "refId": "A",
+          "select": [
+            [
+              {
+                "params": [
+                  "progress"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "table": "ca_analysis",
+          "timeColumn": "create_time",
+          "timeColumnType": "timestamp",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        }
+      ],
+      "timeFrom": null,
+      "timeShift": null,
+      "title": "Commit Author Count",
+      "type": "stat"
+    },
+    {
+      "datasource": "Postgres",
+      "description": "1. Number of Pull/Merge Request Reviewers.\n2. The PR/MR being calculated are filtered by \"PR/MR creation time\" (time filter at the upper-right corner).",
+      "fieldConfig": {
+        "defaults": {
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 6,
+        "w": 8,
+        "x": 8,
+        "y": 10
+      },
+      "id": 8,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "mean"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "text": {},
+        "textMode": "auto"
+      },
+      "pluginVersion": "8.0.6",
+      "targets": [
+        {
+          "format": "time_series",
+          "group": [],
+          "metricColumn": "none",
+          "rawQuery": true,
+          "rawSql": "with reviewer_names as(\n  select \n    distinct unnest(reviewers) as reviewer_name\n  from gitlab_merge_requests\n  WHERE\n    $__timeFilter(created_at)\n    and project_id = $repo_id\n)\n\nselect \n  now() as time,\n  count(reviewer_name)\nfrom\n  reviewer_names",
+          "refId": "A",
+          "select": [
+            [
+              {
+                "params": [
+                  "progress"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "table": "ca_analysis",
+          "timeColumn": "create_time",
+          "timeColumnType": "timestamp",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        }
+      ],
+      "timeFrom": null,
+      "timeShift": null,
+      "title": "Pull Request Reviewer Count",
+      "type": "stat"
+    },
+    {
+      "datasource": "Postgres",
+      "description": "Pull Request Reviewer Count/Total Developer Count",
+      "fieldConfig": {
+        "defaults": {
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "green",
+                "value": 0.2
+              }
+            ]
+          },
+          "unit": "percentunit"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 6,
+        "w": 8,
+        "x": 16,
+        "y": 10
+      },
+      "id": 16,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "mean"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "text": {},
+        "textMode": "auto"
+      },
+      "pluginVersion": "8.0.6",
+      "targets": [
+        {
+          "format": "time_series",
+          "group": [],
+          "metricColumn": "none",
+          "rawQuery": true,
+          "rawSql": "with all_user_names as(\n  select \n    distinct unnest(reviewers) as user_name \n  from gitlab_merge_requests\n  WHERE\n    $__timeFilter(created_at)\n    and project_id = $repo_id\n  union\n  select \n    distinct author_username as user_name \n  from gitlab_merge_requests\n  WHERE\n    $__timeFilter(created_at)\n    and project_id = $repo_id\n  union\n  select \n    distinct author_name as user_name \n  from gitlab_commits\n  WHERE\n    $__timeFilter(created_at)\n    and project_id = $repo_id\n),\n\nreviewer as (\n  select distinct unnest(reviewers) as reviewer_name from gitlab_merge_requests\n  WHERE\n    $__timeFilter(created_at)\n    and project_id = $repo_id\n)\n\nSELECT\n  now() AS \"time\",\n  1.0*count(distinct reviewer_name)/count(distinct user_name) as value\nFROM reviewer, all_user_names",
+          "refId": "A",
+          "select": [
+            [
+              {
+                "params": [
+                  "progress"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "table": "ca_analysis",
+          "timeColumn": "create_time",
+          "timeColumnType": "timestamp",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        }
+      ],
+      "timeFrom": null,
+      "timeShift": null,
+      "title": "Pull Request Reviewer Rate (%)",
       "type": "stat"
     }
   ],
@@ -327,7 +408,7 @@
         "includeAll": true,
         "label": "Choose Repo",
         "multi": false,
-        "name": "repo",
+        "name": "repo_id",
         "options": [],
         "query": "select distinct format('%s: %s', name, id) from gitlab_projects",
         "refresh": 1,
@@ -346,5 +427,5 @@
   "timezone": "",
   "title": "Delivery Cost",
   "uid": "TV-BnpM7k",
-  "version": 2
+  "version": 42
 }
