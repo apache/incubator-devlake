@@ -15,8 +15,8 @@
   "editable": true,
   "gnetId": null,
   "graphTooltip": 0,
-  "id": 5,
-  "iteration": 1629131335185,
+  "id": 17,
+  "iteration": 1629136196682,
   "links": [
     {
       "asDropdown": false,
@@ -124,7 +124,7 @@
     },
     {
       "datasource": "Postgres",
-      "description": "1. The average lead time of requirements.\n2. Lead time refers to the length of time from requirement creation to delivery.\n3. The requirements being calculated are filtered by \"requirement resolution time\" (time filter at the upper-right corner) and \"Jira board\" (\"Choose Board\" filter at the upper-left corner)",
+      "description": "1. The average lead time of requirements.\n2. Lead time refers to the length of time from requirement creation to delivery.\n3. The requirements being calculated are filtered by \"requirement resolution time\" (time filter at the upper-right corner) and \"Jira board\"(\"Choose Board\" filter at the upper-left corner)",
       "fieldConfig": {
         "defaults": {
           "decimals": 1,
@@ -174,7 +174,7 @@
           "group": [],
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "select \r\n  now() as time,\r\n  avg(lead_time) as value\r\nfrom jira_issues ji\r\n  join jira_board_issues jbi on ji.id = jbi.issue_id\r\nwhere \r\n  issue_type in ('Story','Task') \r\n  and issue_resolved_at is not null\r\n  and lead_time is not null\r\n  and $__timeFilter(issue_resolved_at)\r\n  and jbi.board_id = $board_id\r\ngroup by 1;",
+          "rawSql": "select \r\n  now() as time,\r\n  avg(lead_time) as value\r\nfrom jira_issues ji\r\n  join jira_board_issues jbi on ji.id = jbi.issue_id\r\nwhere \r\n  issue_type = 'Requirement' \r\n  and issue_resolved_at is not null\r\n  and lead_time is not null\r\n  and $__timeFilter(issue_resolved_at)\r\n  and jbi.board_id = $board_id\r\ngroup by 1;",
           "refId": "A",
           "select": [
             [
@@ -254,7 +254,7 @@
           "group": [],
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "select \r\n  now() as time,\r\n  '<=' as value,\r\n  percentile_disc(0.8) within group (order by lead_time asc)\r\nfrom jira_issues ji\r\n  join jira_board_issues jbi on ji.id = jbi.issue_id\r\nwhere \r\n  issue_type in ('Story','Task') \r\n  and issue_resolved_at is not null\r\n  -- and issue_status = '已完成'\r\n  and lead_time is not null\r\n  and $__timeFilter(issue_resolved_at)\r\n  and jbi.board_id = $board_id\r\ngroup by 1;",
+          "rawSql": "select \r\n  now() as time,\r\n  '<=' as value,\r\n  percentile_disc(0.8) within group (order by lead_time asc)\r\nfrom jira_issues ji\r\n  join jira_board_issues jbi on ji.id = jbi.issue_id\r\nwhere \r\n  issue_type = 'Requirement'\r\n  and issue_resolved_at is not null\r\n  -- and issue_status = '已完成'\r\n  and lead_time is not null\r\n  and $__timeFilter(issue_resolved_at)\r\n  and jbi.board_id = $board_id\r\ngroup by 1;",
           "refId": "A",
           "select": [
             [
@@ -338,7 +338,7 @@
           "group": [],
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "select \r\n  now() as time,\r\n  format('%3sd', lead_time) as metric,\r\n  percent_rank() over(order by lead_time asc) as value\r\nfrom jira_issues ji\r\n  join jira_board_issues jbi on ji.id = jbi.issue_id\r\nwhere \r\n  issue_type in ('Story','Task') \r\n  and issue_resolved_at is not null\r\n  and lead_time is not null\r\n  and $__timeFilter(issue_resolved_at)\r\n  and jbi.board_id = $board_id\r\norder by lead_time asc",
+          "rawSql": "select \r\n  now() as time,\r\n  format('%3sd', lead_time) as metric,\r\n  percent_rank() over(order by lead_time asc) as value\r\nfrom jira_issues ji\r\n  join jira_board_issues jbi on ji.id = jbi.issue_id\r\nwhere \r\n  issue_type = 'Requirement'\r\n  and issue_resolved_at is not null\r\n  and lead_time is not null\r\n  and $__timeFilter(issue_resolved_at)\r\n  and jbi.board_id = $board_id\r\norder by lead_time asc",
           "refId": "A",
           "select": [
             [
@@ -364,6 +364,7 @@
       ],
       "thresholds": [
         {
+          "$$hashKey": "object:469",
           "colorMode": "ok",
           "fill": true,
           "line": true,
@@ -495,7 +496,7 @@
           "group": [],
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "with _requirement as(\r\n  select \r\n    ji.id,\r\n    to_char(ji.issue_resolved_at, '$interval') as time,\r\n    lead_time\r\n  from jira_issues ji\r\n    join jira_board_issues jbi on ji.id = jbi.issue_id\r\n  where \r\n    issue_type in ('Story','Task') \r\n    and issue_resolved_at is not null\r\n    and lead_time is not null\r\n    and $__timeFilter(issue_resolved_at)\r\n    and jbi.board_id = $board_id\r\n)\r\n\r\nselect \r\n  to_timestamp(time,'$interval') as time,\r\n  avg(lead_time) as average_lead_time,\r\n  percentile_disc(0.8) within group (order by lead_time asc) as percentile_80_lead_time\r\nfrom _requirement\r\ngroup by 1\r\norder by 1 asc",
+          "rawSql": "with _requirement as(\r\n  select \r\n    ji.id,\r\n    to_char(ji.issue_resolved_at, '$interval') as time,\r\n    lead_time\r\n  from jira_issues ji\r\n    join jira_board_issues jbi on ji.id = jbi.issue_id\r\n  where \r\n    issue_type = 'Requirement'\r\n    and issue_resolved_at is not null\r\n    and lead_time is not null\r\n    and $__timeFilter(issue_resolved_at)\r\n    and jbi.board_id = $board_id\r\n)\r\n\r\nselect \r\n  to_timestamp(time,'$interval') as time,\r\n  avg(lead_time) as average_lead_time,\r\n  percentile_disc(0.8) within group (order by lead_time asc) as percentile_80_lead_time\r\nfrom _requirement\r\ngroup by 1\r\norder by 1 asc",
           "refId": "A",
           "select": [
             [
@@ -572,7 +573,7 @@
           "metricColumn": "none",
           "queryType": "randomWalk",
           "rawQuery": true,
-          "rawSql": "with _requirement as(\r\n  select\r\n    ji.id,\r\n    ji.epic_key,\r\n    ji.lead_time\r\n  from\r\n    jira_issues ji\r\n    join jira_board_issues jbi on ji.id = jbi.issue_id\r\n    -- join jira_boards jb on jbi.board_id = jb.id\r\n  where \r\n    issue_type in ('Story','Task') \r\n    and issue_resolved_at is not null\r\n    and epic_key is not null\r\n    and $__timeFilter(issue_resolved_at)\r\n    and jbi.board_id = $board_id\r\n)\r\n\r\nselect \r\n  now() as time,\r\n  epic_key as metric,\r\n  avg(lead_time) as value\r\nfrom _requirement\r\ngroup by 1,2\r\norder by avg(lead_time) desc\r\nlimit 10",
+          "rawSql": "with _requirement as(\r\n  select\r\n    ji.id,\r\n    ji.epic_key,\r\n    ji.lead_time\r\n  from\r\n    jira_issues ji\r\n    join jira_board_issues jbi on ji.id = jbi.issue_id\r\n    -- join jira_boards jb on jbi.board_id = jb.id\r\n  where \r\n    issue_type = 'Requirement'\r\n    and issue_resolved_at is not null\r\n    and epic_key is not null\r\n    and $__timeFilter(issue_resolved_at)\r\n    and jbi.board_id = $board_id\r\n)\r\n\r\nselect \r\n  now() as time,\r\n  epic_key as metric,\r\n  avg(lead_time) as value\r\nfrom _requirement\r\ngroup by 1,2\r\norder by avg(lead_time) desc\r\nlimit 10",
           "refId": "A",
           "select": [
             [
@@ -713,7 +714,7 @@
           "metricColumn": "none",
           "queryType": "randomWalk",
           "rawQuery": true,
-          "rawSql": "select \r\n  now() as time,\r\n  count(*) as value\r\nfrom jira_issues ji\r\n  join jira_board_issues jbi on ji.id = jbi.issue_id\r\nwhere \r\n  issue_type in ('Story','Task') \r\n  and issue_created_at is not null \r\n  and $__timeFilter(issue_created_at)\r\n  and jbi.board_id = $board_id\r\ngroup by 1;",
+          "rawSql": "select \r\n  now() as time,\r\n  count(*) as value\r\nfrom jira_issues ji\r\n  join jira_board_issues jbi on ji.id = jbi.issue_id\r\nwhere \r\n  issue_type = 'Requirement'\r\n  and issue_created_at is not null \r\n  and $__timeFilter(issue_created_at)\r\n  and jbi.board_id = $board_id\r\ngroup by 1;",
           "refId": "A",
           "select": [
             [
@@ -818,7 +819,7 @@
           "metricColumn": "none",
           "queryType": "randomWalk",
           "rawQuery": true,
-          "rawSql": "with _requirement as(\r\n  select\r\n    ji.id,\r\n    to_char(ji.issue_created_at, '$interval') as time\r\n  from\r\n    jira_issues ji\r\n    join jira_board_issues jbi on ji.id = jbi.issue_id\r\n  where \r\n    issue_type in ('Story','Task') \r\n    and issue_created_at is not null \r\n    and $__timeFilter(issue_created_at)\r\n    and jbi.board_id = $board_id\r\n)\r\n\r\nselect\r\n  to_timestamp(time,'$interval') as time,\r\n  count(distinct id) as requirement_count\r\nfrom _requirement\r\ngroup by 1\r\norder by 1 asc",
+          "rawSql": "with _requirement as(\r\n  select\r\n    ji.id,\r\n    to_char(ji.issue_created_at, '$interval') as time\r\n  from\r\n    jira_issues ji\r\n    join jira_board_issues jbi on ji.id = jbi.issue_id\r\n  where \r\n    issue_type = 'Requirement'\r\n    and issue_created_at is not null \r\n    and $__timeFilter(issue_created_at)\r\n    and jbi.board_id = $board_id\r\n)\r\n\r\nselect\r\n  to_timestamp(time,'$interval') as time,\r\n  count(distinct id) as requirement_count\r\nfrom _requirement\r\ngroup by 1\r\norder by 1 asc",
           "refId": "A",
           "select": [
             [
@@ -893,7 +894,7 @@
           "metricColumn": "none",
           "queryType": "randomWalk",
           "rawQuery": true,
-          "rawSql": "with _requirement as(\r\n  select\r\n    ji.id,\r\n    ji.epic_key\r\n  from\r\n    jira_issues ji\r\n    join jira_board_issues jbi on ji.id = jbi.issue_id\r\n  where \r\n    issue_type in ('Story','Task') \r\n    and issue_created_at is not null\r\n    and epic_key is not null\r\n    and $__timeFilter(issue_created_at)\r\n    and jbi.board_id = $board_id\r\n)\r\n\r\nselect \r\n  now() as time,\r\n  epic_key as metric,\r\n  count(*) as value\r\nfrom _requirement\r\ngroup by 1,2\r\norder by 3 desc\r\nlimit 20",
+          "rawSql": "with _requirement as(\r\n  select\r\n    ji.id,\r\n    ji.epic_key\r\n  from\r\n    jira_issues ji\r\n    join jira_board_issues jbi on ji.id = jbi.issue_id\r\n  where \r\n    issue_type = 'Requirement'\r\n    and issue_created_at is not null\r\n    and epic_key is not null\r\n    and $__timeFilter(issue_created_at)\r\n    and jbi.board_id = $board_id\r\n)\r\n\r\nselect \r\n  now() as time,\r\n  epic_key as metric,\r\n  count(*) as value\r\nfrom _requirement\r\ngroup by 1,2\r\norder by 3 desc\r\nlimit 20",
           "refId": "A",
           "select": [
             [
@@ -962,7 +963,7 @@
     },
     {
       "datasource": "Postgres",
-      "description": "1. Number of requirements that have been delivered.\n2. A requirement is delivered when its status is equal to 'delivered'.\n3. The requirements being calculated are filtered by \"requirement creation time\" (time filter at the upper-right corner) and \"Jira board\" (\"Choose Board\" filter at the upper-left corner)",
+      "description": "1. Number of requirements that have been delivered.\n2. A requirement is delivered when its status equals 'delivered'.\n3. The requirements being calculated are filtered by \"requirement creation time\" (time filter at the upper-right corner) and \"Jira board\" (\"Choose Board\" filter at the upper-left corner)",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -1012,7 +1013,7 @@
           "metricColumn": "none",
           "queryType": "randomWalk",
           "rawQuery": true,
-          "rawSql": "select\r\n  now() as time,\r\n  count(*) as delivered_count\r\nfrom jira_issues ji\r\n  join jira_board_issues jbi on ji.id = jbi.issue_id\r\nwhere \r\n  issue_type in ('Story','Task')\r\n  and ji.issue_resolved_at is not null\r\n  and issue_created_at is not null\r\n  and $__timeFilter(issue_created_at)\r\n  and jbi.board_id = $board_id",
+          "rawSql": "select\r\n  now() as time,\r\n  count(*) as delivered_count\r\nfrom jira_issues ji\r\n  join jira_board_issues jbi on ji.id = jbi.issue_id\r\nwhere \r\n  issue_type = 'Requirement'\r\n  and ji.issue_resolved_at is not null\r\n  and issue_created_at is not null\r\n  and $__timeFilter(issue_created_at)\r\n  and jbi.board_id = $board_id",
           "refId": "A",
           "select": [
             [
@@ -1093,7 +1094,7 @@
           "metricColumn": "none",
           "queryType": "randomWalk",
           "rawQuery": true,
-          "rawSql": "with _requirement as(\r\n  select\r\n    count(distinct ji.id) as total_count,\r\n    count(case when ji.issue_resolved_at is not null then 1 else null end) as delivered_count\r\n  from jira_issues ji\r\n    join jira_board_issues jbi on ji.id = jbi.issue_id\r\n  where \r\n    issue_type in ('Story','Task') \r\n    and issue_created_at is not null\r\n    and $__timeFilter(issue_created_at)\r\n    and jbi.board_id = $board_id\r\n)\r\n\r\n\r\nselect \r\n  now() as time,\r\n  1.0 * delivered_count/total_count as requirement_delivery_rate\r\nfrom _requirement",
+          "rawSql": "with _requirement as(\r\n  select\r\n    count(distinct ji.id) as total_count,\r\n    count(case when ji.issue_resolved_at is not null then 1 else null end) as delivered_count\r\n  from jira_issues ji\r\n    join jira_board_issues jbi on ji.id = jbi.issue_id\r\n  where \r\n    issue_type = 'Requirement'\r\n    and issue_created_at is not null\r\n    and $__timeFilter(issue_created_at)\r\n    and jbi.board_id = $board_id\r\n)\r\n\r\n\r\nselect \r\n  now() as time,\r\n  1.0 * delivered_count/total_count as requirement_delivery_rate\r\nfrom _requirement",
           "refId": "A",
           "select": [
             [
@@ -1199,7 +1200,7 @@
           "metricColumn": "none",
           "queryType": "randomWalk",
           "rawQuery": true,
-          "rawSql": "with _requirement as(\r\n  select\r\n    to_char(issue_created_at, '$interval') as time,\r\n    count(distinct ji.id) as total_count,\r\n    count(case when ji.issue_resolved_at is not null then 1 else null end) as delivered_count\r\n  from jira_issues ji\r\n    join jira_board_issues jbi on ji.id = jbi.issue_id\r\n  where \r\n    issue_type in ('Story','Task') \r\n    and issue_created_at is not null\r\n    and $__timeFilter(issue_created_at)\r\n    and jbi.board_id = $board_id\r\n  group by 1\r\n)\r\n\r\n\r\nselect \r\n  to_timestamp(time,'$interval') as time,\r\n  1.0 * delivered_count/total_count as requirement_delivery_rate\r\nfrom _requirement\r\norder by 1",
+          "rawSql": "with _requirement as(\r\n  select\r\n    to_char(issue_created_at, '$interval') as time,\r\n    count(distinct ji.id) as total_count,\r\n    count(case when ji.issue_resolved_at is not null then 1 else null end) as delivered_count\r\n  from jira_issues ji\r\n    join jira_board_issues jbi on ji.id = jbi.issue_id\r\n  where \r\n    issue_type = 'Requirement'\r\n    and issue_created_at is not null\r\n    and $__timeFilter(issue_created_at)\r\n    and jbi.board_id = $board_id\r\n  group by 1\r\n)\r\n\r\n\r\nselect \r\n  to_timestamp(time,'$interval') as time,\r\n  1.0 * delivered_count/total_count as requirement_delivery_rate\r\nfrom _requirement\r\norder by 1",
           "refId": "A",
           "select": [
             [
@@ -1276,7 +1277,7 @@
           "metricColumn": "none",
           "queryType": "randomWalk",
           "rawQuery": true,
-          "rawSql": "with _requirement as(\r\n  select\r\n    ji.epic_key as metric,\r\n    count(distinct ji.id) as total_count,\r\n    count(case when ji.issue_resolved_at is not null then 1 else null end) as delivered_count\r\n  from jira_issues ji\r\n    join jira_board_issues jbi on ji.id = jbi.issue_id\r\n  where \r\n    issue_type in ('Story','Task') \r\n    and issue_created_at is not null\r\n    and epic_key is not null\r\n    and $__timeFilter(issue_created_at)\r\n    and jbi.board_id = $board_id\r\n  group by 1\r\n)\r\n\r\n\r\nselect \r\n  now() as time,\r\n  metric,\r\n  1.0 * delivered_count/total_count as requirement_delivery_rate\r\nfrom _requirement\r\norder by 2 desc\r\nlimit 10",
+          "rawSql": "with _requirement as(\r\n  select\r\n    ji.epic_key as metric,\r\n    count(distinct ji.id) as total_count,\r\n    count(case when ji.issue_resolved_at is not null then 1 else null end) as delivered_count\r\n  from jira_issues ji\r\n    join jira_board_issues jbi on ji.id = jbi.issue_id\r\n  where \r\n    issue_type = 'Requirement'\r\n    and issue_created_at is not null\r\n    and epic_key is not null\r\n    and $__timeFilter(issue_created_at)\r\n    and jbi.board_id = $board_id\r\n  group by 1\r\n)\r\n\r\n\r\nselect \r\n  now() as time,\r\n  metric,\r\n  1.0 * delivered_count/total_count as requirement_delivery_rate\r\nfrom _requirement\r\norder by 3 desc\r\nlimit 10",
           "refId": "A",
           "select": [
             [
@@ -2494,7 +2495,7 @@
           "group": [],
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "select \r\n  now() as time,\r\n  avg(lead_time) as value\r\nfrom jira_issues ji\r\n  join jira_board_issues jbi on ji.id = jbi.issue_id\r\nwhere \r\n  issue_type in ('Bug') \r\n  and issue_resolved_at is not null\r\n  and lead_time is not null\r\n  and $__timeFilter(issue_resolved_at)\r\n  and jbi.board_id = $board_id\r\ngroup by 1;",
+          "rawSql": "select \r\n  now() as time,\r\n  avg(lead_time) as value\r\nfrom jira_issues ji\r\n  join jira_board_issues jbi on ji.id = jbi.issue_id\r\nwhere \r\n  issue_type = 'Bug'\r\n  and issue_resolved_at is not null\r\n  and lead_time is not null\r\n  and $__timeFilter(issue_resolved_at)\r\n  and jbi.board_id = $board_id\r\ngroup by 1;",
           "refId": "A",
           "select": [
             [
@@ -2574,7 +2575,7 @@
           "group": [],
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "select \r\n  now() as time,\r\n  percentile_disc(0.8) within group (order by lead_time asc) as value\r\nfrom jira_issues ji\r\n  join jira_board_issues jbi on ji.id = jbi.issue_id\r\nwhere \r\n  issue_type in ('Bug') \r\n  and issue_resolved_at is not null\r\n  and lead_time is not null\r\n  and $__timeFilter(issue_resolved_at)\r\n  and jbi.board_id = $board_id\r\ngroup by 1;",
+          "rawSql": "select \r\n  now() as time,\r\n  percentile_disc(0.8) within group (order by lead_time asc) as value\r\nfrom jira_issues ji\r\n  join jira_board_issues jbi on ji.id = jbi.issue_id\r\nwhere \r\n  issue_type = 'Bug'\r\n  and issue_resolved_at is not null\r\n  and lead_time is not null\r\n  and $__timeFilter(issue_resolved_at)\r\n  and jbi.board_id = $board_id\r\ngroup by 1;",
           "refId": "A",
           "select": [
             [
@@ -2658,7 +2659,7 @@
           "group": [],
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "select \r\n  now() as time,\r\n  format('%3sd', lead_time) as metric,\r\n  percent_rank() over(order by lead_time asc) as value\r\nfrom jira_issues ji\r\n  join jira_board_issues jbi on ji.id = jbi.issue_id\r\nwhere \r\n  issue_type in ('Bug') \r\n  and issue_resolved_at is not null\r\n  and lead_time is not null\r\n  and $__timeFilter(issue_resolved_at)\r\n  and jbi.board_id = $board_id\r\norder by lead_time asc",
+          "rawSql": "select \r\n  now() as time,\r\n  format('%3sd', lead_time) as metric,\r\n  percent_rank() over(order by lead_time asc) as value\r\nfrom jira_issues ji\r\n  join jira_board_issues jbi on ji.id = jbi.issue_id\r\nwhere \r\n  issue_type = 'Bug' \r\n  and issue_resolved_at is not null\r\n  and lead_time is not null\r\n  and $__timeFilter(issue_resolved_at)\r\n  and jbi.board_id = $board_id\r\norder by lead_time asc",
           "refId": "A",
           "select": [
             [
@@ -2684,6 +2685,7 @@
       ],
       "thresholds": [
         {
+          "$$hashKey": "object:912",
           "colorMode": "ok",
           "fill": true,
           "line": true,
@@ -2815,7 +2817,7 @@
           "group": [],
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "with _bugs as(\r\n  select \r\n    ji.id,\r\n    to_char(ji.issue_resolved_at, '$interval') as time,\r\n    lead_time\r\n  from jira_issues ji\r\n    join jira_board_issues jbi on ji.id = jbi.issue_id\r\n  where \r\n    issue_type in ('Bug') \r\n    and issue_resolved_at is not null\r\n    and lead_time is not null\r\n    and $__timeFilter(issue_resolved_at)\r\n    and jbi.board_id = $board_id\r\n)\r\n\r\nselect \r\n  to_timestamp(time,'$interval') as time,\r\n  avg(lead_time) as average_bug_age,\r\n  percentile_disc(0.8) within group (order by lead_time asc) as percentile_80_bug_age\r\nfrom _bugs\r\ngroup by 1\r\norder by 1 asc",
+          "rawSql": "with _bugs as(\r\n  select \r\n    ji.id,\r\n    to_char(ji.issue_resolved_at, '$interval') as time,\r\n    lead_time\r\n  from jira_issues ji\r\n    join jira_board_issues jbi on ji.id = jbi.issue_id\r\n  where \r\n    issue_type = 'Bug'\r\n    and issue_resolved_at is not null\r\n    and lead_time is not null\r\n    and $__timeFilter(issue_resolved_at)\r\n    and jbi.board_id = $board_id\r\n)\r\n\r\nselect \r\n  to_timestamp(time,'$interval') as time,\r\n  avg(lead_time) as average_bug_age,\r\n  percentile_disc(0.8) within group (order by lead_time asc) as percentile_80_bug_age\r\nfrom _bugs\r\ngroup by 1\r\norder by 1 asc",
           "refId": "A",
           "select": [
             [
@@ -2892,7 +2894,7 @@
           "metricColumn": "none",
           "queryType": "randomWalk",
           "rawQuery": true,
-          "rawSql": "with _bugs as(\r\n  select\r\n    ji.id,\r\n    ji.epic_key,\r\n    ji.lead_time\r\n  from\r\n    jira_issues ji\r\n    join jira_board_issues jbi on ji.id = jbi.issue_id\r\n  where \r\n    issue_type in ('Bug') \r\n    and issue_resolved_at is not null\r\n    and epic_key is not null\r\n    and $__timeFilter(issue_resolved_at)\r\n    and jbi.board_id = $board_id\r\n)\r\n\r\nselect \r\n  now() as time,\r\n  epic_key as metric,\r\n  avg(lead_time) as value\r\nfrom _bugs\r\ngroup by 1,2\r\norder by avg(lead_time) desc\r\nlimit 10",
+          "rawSql": "with _bugs as(\r\n  select\r\n    ji.id,\r\n    ji.epic_key,\r\n    ji.lead_time\r\n  from\r\n    jira_issues ji\r\n    join jira_board_issues jbi on ji.id = jbi.issue_id\r\n  where \r\n    issue_type = 'Bug'\r\n    and issue_resolved_at is not null\r\n    and epic_key is not null\r\n    and $__timeFilter(issue_resolved_at)\r\n    and jbi.board_id = $board_id\r\n)\r\n\r\nselect \r\n  now() as time,\r\n  epic_key as metric,\r\n  avg(lead_time) as value\r\nfrom _bugs\r\ngroup by 1,2\r\norder by avg(lead_time) desc\r\nlimit 10",
           "refId": "A",
           "select": [
             [
@@ -3034,7 +3036,7 @@
           "group": [],
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "select \r\n  now() as time,\r\n  avg(lead_time) as value\r\nfrom jira_issues ji\r\n  join jira_board_issues jbi on ji.id = jbi.issue_id\r\nwhere \r\n  issue_type in ('Incident') \r\n  and issue_created_at is not null\r\n  and lead_time is not null\r\n  and $__timeFilter(issue_created_at)\r\n  and jbi.board_id = $board_id\r\ngroup by 1;",
+          "rawSql": "select \r\n  now() as time,\r\n  avg(lead_time) as value\r\nfrom jira_issues ji\r\n  join jira_board_issues jbi on ji.id = jbi.issue_id\r\nwhere \r\n  issue_type = 'Incident'\r\n  and issue_created_at is not null\r\n  and lead_time is not null\r\n  and $__timeFilter(issue_created_at)\r\n  and jbi.board_id = $board_id\r\ngroup by 1;",
           "refId": "A",
           "select": [
             [
@@ -3114,7 +3116,7 @@
           "group": [],
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "select \r\n  now() as time,\r\n  percentile_disc(0.8) within group (order by lead_time asc) as value\r\nfrom jira_issues ji\r\n  join jira_board_issues jbi on ji.id = jbi.issue_id\r\nwhere \r\n  issue_type in ('Incident') \r\n  and issue_resolved_at is not null\r\n  and lead_time is not null\r\n  and $__timeFilter(issue_resolved_at)\r\n  and jbi.board_id = $board_id\r\ngroup by 1;",
+          "rawSql": "select \r\n  now() as time,\r\n  percentile_disc(0.8) within group (order by lead_time asc) as value\r\nfrom jira_issues ji\r\n  join jira_board_issues jbi on ji.id = jbi.issue_id\r\nwhere \r\n  issue_type = 'Incident'\r\n  and issue_resolved_at is not null\r\n  and lead_time is not null\r\n  and $__timeFilter(issue_resolved_at)\r\n  and jbi.board_id = $board_id\r\ngroup by 1;",
           "refId": "A",
           "select": [
             [
@@ -3198,7 +3200,7 @@
           "group": [],
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "select \r\n  now() as time,\r\n  format('%3sd', lead_time) as metric,\r\n  percent_rank() over(order by lead_time asc) as value\r\nfrom jira_issues ji\r\n  join jira_board_issues jbi on ji.id = jbi.issue_id\r\nwhere \r\n  issue_type in ('Incident') \r\n  and issue_resolved_at is not null\r\n  and lead_time is not null\r\n  and $__timeFilter(issue_resolved_at)\r\n  and jbi.board_id = $board_id\r\norder by lead_time asc",
+          "rawSql": "select \r\n  now() as time,\r\n  format('%3sd', lead_time) as metric,\r\n  percent_rank() over(order by lead_time asc) as value\r\nfrom jira_issues ji\r\n  join jira_board_issues jbi on ji.id = jbi.issue_id\r\nwhere \r\n  issue_type = 'Incident'\r\n  and issue_resolved_at is not null\r\n  and lead_time is not null\r\n  and $__timeFilter(issue_resolved_at)\r\n  and jbi.board_id = $board_id\r\norder by lead_time asc",
           "refId": "A",
           "select": [
             [
@@ -3224,6 +3226,7 @@
       ],
       "thresholds": [
         {
+          "$$hashKey": "object:1070",
           "colorMode": "ok",
           "fill": true,
           "line": true,
@@ -3355,7 +3358,7 @@
           "group": [],
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "with _incidents as(\r\n  select \r\n    ji.id,\r\n    to_char(ji.issue_resolved_at, '$interval') as time,\r\n    lead_time\r\n  from jira_issues ji\r\n    join jira_board_issues jbi on ji.id = jbi.issue_id\r\n  where \r\n    issue_type in ('Incident') \r\n    and issue_resolved_at is not null\r\n    and lead_time is not null\r\n    and $__timeFilter(issue_resolved_at)\r\n    and jbi.board_id = $board_id\r\n)\r\n\r\nselect \r\n  to_timestamp(time,'$interval') as time,\r\n  avg(lead_time) as average_incident_age,\r\n  percentile_disc(0.8) within group (order by lead_time asc) as percentile_80_incident_age\r\nfrom _incidents\r\ngroup by 1\r\norder by 1 asc",
+          "rawSql": "with _incidents as(\r\n  select \r\n    ji.id,\r\n    to_char(ji.issue_resolved_at, '$interval') as time,\r\n    lead_time\r\n  from jira_issues ji\r\n    join jira_board_issues jbi on ji.id = jbi.issue_id\r\n  where \r\n    issue_type = 'Incident'\r\n    and issue_resolved_at is not null\r\n    and lead_time is not null\r\n    and $__timeFilter(issue_resolved_at)\r\n    and jbi.board_id = $board_id\r\n)\r\n\r\nselect \r\n  to_timestamp(time,'$interval') as time,\r\n  avg(lead_time) as average_incident_age,\r\n  percentile_disc(0.8) within group (order by lead_time asc) as percentile_80_incident_age\r\nfrom _incidents\r\ngroup by 1\r\norder by 1 asc",
           "refId": "A",
           "select": [
             [
@@ -3432,7 +3435,7 @@
           "metricColumn": "none",
           "queryType": "randomWalk",
           "rawQuery": true,
-          "rawSql": "with _incidents as(\r\n  select\r\n    ji.id,\r\n    ji.epic_key,\r\n    ji.lead_time\r\n  from\r\n    jira_issues ji\r\n    join jira_board_issues jbi on ji.id = jbi.issue_id\r\n  where \r\n    issue_type in ('Incident') \r\n    and issue_resolved_at is not null\r\n    and epic_key is not null\r\n    and $__timeFilter(issue_resolved_at)\r\n    and jbi.board_id = $board_id\r\n)\r\n\r\nselect \r\n  now() as time,\r\n  epic_key as metric,\r\n  avg(lead_time) as value\r\nfrom _incidents\r\ngroup by 1,2\r\norder by avg(lead_time) desc\r\nlimit 20",
+          "rawSql": "with _incidents as(\r\n  select\r\n    ji.id,\r\n    ji.epic_key,\r\n    ji.lead_time\r\n  from\r\n    jira_issues ji\r\n    join jira_board_issues jbi on ji.id = jbi.issue_id\r\n  where \r\n    issue_type = 'Incident'\r\n    and issue_resolved_at is not null\r\n    and epic_key is not null\r\n    and $__timeFilter(issue_resolved_at)\r\n    and jbi.board_id = $board_id\r\n)\r\n\r\nselect \r\n  now() as time,\r\n  epic_key as metric,\r\n  avg(lead_time) as value\r\nfrom _incidents\r\ngroup by 1,2\r\norder by avg(lead_time) desc\r\nlimit 20",
           "refId": "A",
           "select": [
             [
@@ -3606,5 +3609,5 @@
   "timezone": "",
   "title": "Delivery Efficiency",
   "uid": "ZfaFQeM7k",
-  "version": 8
+  "version": 81
 }
