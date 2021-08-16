@@ -2,14 +2,14 @@
 const issuesCollecotr = require('../collector/issues')
 const dayjs = require('dayjs')
 const duration = require('dayjs/plugin/duration')
-const { merge, isEmpty, isArray } = require('lodash')
+const { merge } = require('lodash')
 dayjs.extend(duration)
 
 const configuration = {
   verified: false,
   typeMappings: [
     {
-      originTypes: ['Bug'],
+      originTypes: ['sdfsdfsdf'],
       standardType: 'Bug',
       statusMappings: [
         { originStatuses: ['Rejected', 'Abandoned', 'Cancelled', 'ByDesign', 'Irreproducible'], standardStatus: 'Rejected' },
@@ -40,11 +40,18 @@ function configure (config) {
   merge(configuration, config)
   configuration.verified = false
 
-  const { epicKeyField } = configuration
+  const { epicKeyField, mapping: { type } } = configuration
   if (!epicKeyField || !epicKeyField.startsWith('customfield')) {
     throw new Error('jira enrichment configuration error: issue.epicKeyField is invalid')
   }
 
+  const isValidArray = (a) => isArray(a) && !isEmpty(a)
+  if (!isValidArray(type.Bug)) {
+    throw new Error('jira configuration error: issue.mapping.type.Bug is invalid')
+  }
+  if (!isValidArray(type.Incident)) {
+    throw new Error('jira configuration error: issue.mapping.type.Incident is invalid')
+  }
   configuration.verified = true
 }
 
