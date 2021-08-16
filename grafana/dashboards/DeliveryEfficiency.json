@@ -15,8 +15,8 @@
   "editable": true,
   "gnetId": null,
   "graphTooltip": 0,
-  "id": 17,
-  "iteration": 1629095914252,
+  "id": 5,
+  "iteration": 1629131335185,
   "links": [
     {
       "asDropdown": false,
@@ -124,7 +124,7 @@
     },
     {
       "datasource": "Postgres",
-      "description": "1. The average lead time of requirements.\n2. Lead time refers to the length of time from requirement creation to delivery.\n3. The requirements being calculated are filtered by \"requirement resolution time\" (time filter at the upper-right corner) and \"Jira board\"(\"Choose Board\" filter at the upper-left corner)",
+      "description": "1. The average lead time of requirements.\n2. Lead time refers to the length of time from requirement creation to delivery.\n3. The requirements being calculated are filtered by \"requirement resolution time\" (time filter at the upper-right corner) and \"Jira board\" (\"Choose Board\" filter at the upper-left corner)",
       "fieldConfig": {
         "defaults": {
           "decimals": 1,
@@ -962,7 +962,7 @@
     },
     {
       "datasource": "Postgres",
-      "description": "1. Number of requirements that have been delivered.\n2. A requirement is delivered when its status equals to 'delivered'.\n3. The requirements being calculated are filtered by \"requirement creation time\" (time filter at the upper-right corner) and \"Jira board\" (\"Choose Board\" filter at the upper-left corner)",
+      "description": "1. Number of requirements that have been delivered.\n2. A requirement is delivered when its status is equal to 'delivered'.\n3. The requirements being calculated are filtered by \"requirement creation time\" (time filter at the upper-right corner) and \"Jira board\" (\"Choose Board\" filter at the upper-left corner)",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -3606,5 +3606,5 @@
   "timezone": "",
   "title": "Delivery Efficiency",
   "uid": "ZfaFQeM7k",
-  "version": 75
+  "version": 8
 }
