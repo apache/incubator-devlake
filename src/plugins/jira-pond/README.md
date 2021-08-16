@@ -81,11 +81,7 @@ jira: {
 
 ![image](https://user-images.githubusercontent.com/27032263/129363611-af5077c9-7a27-474a-a685-4ad52366608b.png)
 
-3. Copy and save the API token somewhere
-4. In a terminal run the following command, with **user email** and **API token** string
-
-    `echo -n user@example.com:api_token_string | base64`
-5. Copy the encoded API token string into the `lake` plugin config file `config/plugins.js`
+3. Copy and save the API token string into the `lake` plugin config file `config/plugins.js`
 
 ## Jira Specific String Configuration
 
