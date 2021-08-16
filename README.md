@@ -65,7 +65,7 @@ All the details on provisioning, and customizing a dashboard can be found in the
 ### Required Packages to Install<a id="requirements"></a>
 
 - <a href="https://docs.docker.com/get-docker" target="_blank">Docker</a>
-- <a href="https://nodejs.org/en/download" target="_blank">Node.js</a> (Developer setup only)
+- <a href="https://nodejs.org/en/download" target="_blank">Node.js</a>
 
 **NOTE:** After installing docker, you may need to run the docker application and restart your terminal
 
@@ -78,16 +78,18 @@ All the details on provisioning, and customizing a dashboard can be found in the
    cd lake
    ```
 
-2. Run the command `npm run config` to setup your configuration files
+2. Install npm packages with `npm install`
+
+3. Run the command `npm run config` to setup your configuration files
 
     > For more info on how to configure plugins, please refer to the [data source plugins](#data-source-plugins) section
 
-3. Start the service by running the command `npm start`
+4. Start the service by running the command `npm start`
     > you can stop all docker containers with `npm run stop`
 
-4. Run `docker-compose logs -f lake` to check the logs and see when lake stops collecting your data. This can take up to 20 minutes for large projects. (gitlab 10k+ commits or jira 5k+ issues)
+5. Run `docker-compose logs -f lake` to check the logs and see when lake stops collecting your data. This can take up to 20 minutes for large projects. (gitlab 10k+ commits or jira 5k+ issues)
 
-5. Navigate to Grafana Dashboard `https://localhost:3002` (Username: `admin`, password: `admin`)
+6. Navigate to Grafana Dashboard `https://localhost:3002` (Username: `admin`, password: `admin`)
 
 ## Developer Setup<a id="developer-setup"></a>
 
