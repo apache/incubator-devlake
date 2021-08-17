@@ -2,7 +2,7 @@ import { Column, Entity } from 'typeorm';
 import { BaseModel, UniqueID } from './base';
 
 @Entity()
-export class SourceTask extends BaseModel {
+export default class SourceTask extends BaseModel {
   @Column('char', {
     length: 36,
   })
