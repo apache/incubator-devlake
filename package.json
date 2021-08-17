@@ -89,7 +89,14 @@
       "**/*.(t|j)s"
     ],
     "coverageDirectory": "./coverage",
-    "testEnvironment": "node"
+    "testEnvironment": "node",
+    "modulePathIgnorePatterns": [
+      "apps/rest/test",
+      "apps/queue/test",
+      ".eslintrc.js",
+      "config",
+      "commitlint.config.js"
+    ]
   },
   "config": {
     "commitizen": {
