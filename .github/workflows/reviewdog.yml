@@ -1,0 +1,13 @@
+name: lint
+on: [pull_request]
+jobs:
+  eslint:
+    name: runner / eslint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: reviewdog/action-eslint@v1
+        with:
+          level: error
+          reporter: github-pr-check # github-pr-check | github-check | github-pr-review
+          eslint_flags: "--quiet" # report errors only
