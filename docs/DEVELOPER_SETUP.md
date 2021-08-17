@@ -16,6 +16,10 @@
 
     > For more info on how to configure plugins, please refer to the [data source plugins](../README.md#data-source-plugins) section
 
+    > To map a custom status for a plugin refer to `/config/plugins.js`<br>
+    > Ex: In Jira, if you're using **Rejected** as a **Bug** type, refer to the `statusMappings` sections for issues mapped to **"Bug"**<br>
+    > All `statusMappings` contain 2 objects. an open status (_first object_), and a closed status (_second object_)
+
 
 4. Start all third-party services and lake's own services with
 
