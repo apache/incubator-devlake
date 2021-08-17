@@ -1,9 +1,12 @@
-import { Module } from '@nestjs/common';
+import { Module, ValidationPipe } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { AppService } from './services/app';
 import CustomTypeOrmModule from './providers/typeorm.module';
 import entities from './models';
 import { AppController } from './controllers/app';
+import { APP_FILTER, APP_PIPE } from '@nestjs/core';
+import { NotFoundFilter } from './providers/exception';
+import { SourceController } from './controllers/source';
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -16,7 +19,11 @@ import { AppController } from './controllers/app';
       synchronize: true,
     }),
   ],
-  controllers: [AppController],
-  providers: [AppService],
+  controllers: [AppController, SourceController],
+  providers: [
+    { provide: APP_FILTER, useClass: NotFoundFilter },
+    { provide: APP_PIPE, useClass: ValidationPipe },
+    AppService,
+  ],
 })
 export class AppModule {}
