@@ -84,6 +84,10 @@ All the details on provisioning, and customizing a dashboard can be found in the
 
     > For more info on how to configure plugins, please refer to the [data source plugins](#data-source-plugins) section
 
+    > To map a custom status for a plugin refer to `/config/plugins.js`<br>
+    > Ex: In Jira, if you're using **Rejected** as a **Bug** type, refer to the `statusMappings` sections for issues mapped to **"Bug"**<br>
+    > All `statusMappings` contain 2 objects. an open status (_first object_), and a closed status (_second object_)
+
 4. Start the service by running the command `npm start`
     > you can stop all docker containers with `npm run stop`
 
