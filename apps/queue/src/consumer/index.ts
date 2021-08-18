@@ -2,6 +2,7 @@ import { DynamicModule } from '@nestjs/common';
 import { BullQueueModule } from '../bull/queue.module';
 import PluginModule from 'plugins/core/src/plugins.module';
 import { ConsumerService } from './service';
+import Jira from 'plugins/jira/src';
 
 export class ConsumerModule {
   static forRoot(queue = 'default'): DynamicModule {
@@ -9,7 +10,7 @@ export class ConsumerModule {
       module: ConsumerModule,
       imports: [
         BullQueueModule.forRoot(queue),
-        PluginModule.forRootAsync(),
+        PluginModule.forRootAsync([Jira]),
         ConsumerService,
       ],
       providers: [],

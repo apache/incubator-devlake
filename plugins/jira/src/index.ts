@@ -11,10 +11,6 @@ export type JiraOptions = {
 
 @Injectable()
 class Jira implements Plugin {
-  name(): string {
-    return 'Jira';
-  }
-
   async execute(options: JiraOptions): Promise<void> {
     //TODO: Add jira collector and enrichment
     console.info('Excute Jira', options);
