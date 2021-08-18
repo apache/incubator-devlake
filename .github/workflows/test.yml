@@ -7,6 +7,9 @@ jobs:
     strategy:
       matrix:
         node-version: [12.x, 15.x]
+    env:
+      DB_URL: mysql://root:root@localhost:3306/lake_db
+      REDIS_URL: redis://localhost:6379/1
     steps:
       - uses: actions/checkout@v2
       - name: Use Node.js ${{ matrix.node-version }}
