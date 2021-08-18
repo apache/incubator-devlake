@@ -9,6 +9,9 @@ on:
 jobs:
   coverage:
     runs-on: ubuntu-latest
+    env:
+      DB_URL: mysql://root:root@localhost:3306/lake_db
+      REDIS_URL: redis://localhost:6379/1
     steps:
       - uses: actions/checkout@v2
       - uses: actions/setup-node@v2
