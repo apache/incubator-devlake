@@ -1,8 +1,8 @@
-name: lint
+name: Lint Commit Messages
 on: [pull_request]
 
 jobs:
-  commit-msg:
+  commitlint:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
