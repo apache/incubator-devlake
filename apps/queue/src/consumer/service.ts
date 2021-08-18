@@ -3,6 +3,7 @@ import { Injectable } from '@nestjs/common';
 import { ModuleRef } from '@nestjs/core';
 import Bull, { Queue } from 'bull';
 import IExecutable from 'plugins/core/src/executable.interface';
+import { DAG } from 'plugins/core/src/dependency.resolver';
 
 @Injectable()
 export class ConsumerService {
@@ -16,11 +17,14 @@ export class ConsumerService {
 
   async process(job: Bull.Job): Promise<void> {
     const { name, data } = job;
-    const executor = this.moduleRef.get<IExecutable>(name, {
+    const executor = this.moduleRef.get<IExecutable<any>>(name, {
       strict: false,
     });
     if (executor) {
-      executor.execute(data);
+      const result = await executor.execute(data);
+      if (result instanceof DAG) {
+        //TODO: ADD DAG IN TASK SERVICE
+      }
     }
   }
 
