@@ -7,7 +7,6 @@ export type JiraOptions = {
     username: string;
     token: string;
   };
-  exports: [];
 };
 
 @Injectable()
