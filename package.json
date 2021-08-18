@@ -92,7 +92,7 @@
       "^.+\\.(t|j)s$": "ts-jest"
     },
     "collectCoverageFrom": [
-      "**/*.(t|j)s"
+      "./(apps|plugins)/**/*.(t|j)s"
     ],
     "coveragePathIgnorePatterns": [
       ".*\\.e2e-spec\\.ts$"
