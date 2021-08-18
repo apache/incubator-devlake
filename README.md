@@ -21,7 +21,7 @@
 ### Docker
 
 1. Clone this repository
-2. From the newly cloned repo directory, run `docker-compose -f ./devops/docker-compose.yml --project-directory ./ up `
+2. From the newly cloned repo directory, run `npm run compose`
 3. Run `docker-compose ps` to see containers runnning.
 4. Install dependencies with `npm i`
 5. Create config file `cp .env.sample .env`. change `DB_URL` and `REDIS_URL` to your docker container db
