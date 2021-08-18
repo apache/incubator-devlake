@@ -22,7 +22,12 @@ import { SourceController } from './controllers/source';
   controllers: [AppController, SourceController],
   providers: [
     { provide: APP_FILTER, useClass: NotFoundFilter },
-    { provide: APP_PIPE, useClass: ValidationPipe },
+    {
+      provide: APP_PIPE,
+      useFactory: () => {
+        return new ValidationPipe({ transform: true });
+      },
+    },
     AppService,
   ],
 })
