@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Inject, Module, OnModuleDestroy } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import Redis from 'ioredis';
 import { EventsService } from './events.service';
@@ -44,4 +44,13 @@ import { URL } from 'url';
   ],
   exports: [EventsService],
 })
-export class EventsModule {}
+export class EventsModule implements OnModuleDestroy {
+  constructor(
+    @Inject('REDIS_PUB_CLIENT') private pub: Redis.Redis,
+    @Inject('REDIS_SUB_CLIENT') private sub: Redis.Redis,
+  ) {}
+  async onModuleDestroy(): Promise<void> {
+    await this.pub.disconnect();
+    await this.sub.disconnect();
+  }
+}
