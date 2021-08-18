@@ -35,6 +35,8 @@
     "@nestjs/platform-express": "^8.0.0",
     "@nestjs/typeorm": "^8.0.2",
     "bull": "^3.27.0",
+    "class-transformer": "^0.4.0",
+    "class-validator": "^0.13.1",
     "mysql2": "^2.3.0",
     "reflect-metadata": "^0.1.13",
     "rimraf": "^3.0.2",
@@ -87,7 +89,14 @@
       "**/*.(t|j)s"
     ],
     "coverageDirectory": "./coverage",
-    "testEnvironment": "node"
+    "testEnvironment": "node",
+    "modulePathIgnorePatterns": [
+      "apps/rest/test",
+      "apps/queue/test",
+      ".eslintrc.js",
+      "config",
+      "commitlint.config.js"
+    ]
   },
   "config": {
     "commitizen": {
