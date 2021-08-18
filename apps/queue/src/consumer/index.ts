@@ -1,6 +1,6 @@
 import { DynamicModule } from '@nestjs/common';
 import { BullQueueModule } from '../bull/queue.module';
-import { PluginModule } from './plugins';
+import PluginModule from 'plugins/core/src/plugins.module';
 import { ConsumerService } from './service';
 
 export class ConsumerModule {

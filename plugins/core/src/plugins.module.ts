@@ -8,7 +8,7 @@ const JiraProvider: ClassProvider<Jira> = {
 
 export const providers = [JiraProvider];
 
-export class PluginModule {
+export default class PluginModule {
   static async forRootAsync(): Promise<DynamicModule> {
     return {
       module: PluginModule,
