@@ -1,4 +1,5 @@
 import { ClassProvider, DynamicModule, Type } from '@nestjs/common';
+import DependencyResolver from './dependency.resolver';
 import PluginInterface from './plugin.interface';
 
 export default class PluginModule {
@@ -11,6 +12,7 @@ export default class PluginModule {
     }));
     return {
       module: PluginModule,
+      imports: [DependencyResolver],
       providers,
       exports: [...providers],
     };
