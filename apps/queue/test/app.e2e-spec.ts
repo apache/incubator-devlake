@@ -4,12 +4,6 @@ import { QueueModule } from './../src/queue.module';
 import { ConsumerService } from '../src/consumer/service';
 import { ProducerService } from '../src/producer/service';
 
-jest.mock('ioredis', () => {
-  return {
-    default: require('ioredis-mock/jest'),
-  };
-});
-
 describe('QueueController (e2e)', () => {
   let app: INestMicroservice;
 
