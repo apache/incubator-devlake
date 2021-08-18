@@ -3,12 +3,6 @@ import { INestMicroservice } from '@nestjs/common';
 import { EventsModule } from '../events/events.module';
 import { EventsService } from '../events/events.service';
 
-jest.mock('ioredis', () => {
-  return {
-    default: require('ioredis-mock/jest'),
-  };
-});
-
 describe('EventsModule (e2e)', () => {
   let app: INestMicroservice;
 
@@ -19,12 +13,6 @@ describe('EventsModule (e2e)', () => {
 
     app = moduleFixture.createNestMicroservice(moduleFixture);
     await app.init();
-    const sub = app.get('REDIS_SUB_CLIENT');
-    const subSyncClient = sub.createConnectedClient();
-    const pub = app.get('REDIS_PUB_CLIENT');
-    jest.spyOn(pub, 'publish').mockImplementation((env, message) => {
-      return subSyncClient.publish(env, message);
-    });
   });
 
   afterEach(async () => {
