@@ -1,14 +1,19 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { INestApplication, INestMicroservice } from '@nestjs/common';
-import * as request from 'supertest';
+import { INestMicroservice } from '@nestjs/common';
 import { QueueModule } from './../src/queue.module';
 import { ConsumerService } from '../src/consumer/service';
 import { ProducerService } from '../src/producer/service';
 
+jest.mock('ioredis', () => {
+  return {
+    default: require('ioredis-mock/jest'),
+  };
+});
+
 describe('QueueController (e2e)', () => {
   let app: INestMicroservice;
 
-  beforeEach(async () => {
+  beforeAll(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
       imports: [QueueModule],
     }).compile();
@@ -17,7 +22,7 @@ describe('QueueController (e2e)', () => {
     await app.init();
   });
 
-  afterEach(async () => {
+  afterAll(async () => {
     await app.close();
   });
 
