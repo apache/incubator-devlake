@@ -3,7 +3,6 @@ import { DAG } from '../src/dependency.resolver';
 import Plugin from '../src/plugin.interface';
 import PluginModule from '../src/plugins.module';
 
-
 class TestPlugin implements Plugin {
   async execute(...args: any[]): Promise<DAG> {
     return {};

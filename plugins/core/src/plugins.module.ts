@@ -12,9 +12,9 @@ export default class PluginModule {
     }));
     return {
       module: PluginModule,
-      imports: [DependencyResolver],
-      providers,
-      exports: [...providers],
+      imports: [],
+      providers: [...providers, DependencyResolver],
+      exports: [...providers, DependencyResolver],
     };
   }
 }
