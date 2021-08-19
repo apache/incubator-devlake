@@ -7,6 +7,7 @@ import { AppController } from './controllers/app';
 import { APP_FILTER, APP_PIPE } from '@nestjs/core';
 import { NotFoundFilter } from './providers/exception';
 import { SourceController } from './controllers/source';
+import { SourceService } from './services/source';
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -29,6 +30,7 @@ import { SourceController } from './controllers/source';
       },
     },
     AppService,
+    SourceService,
   ],
 })
 export class AppModule {}
