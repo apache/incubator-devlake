@@ -2,7 +2,8 @@ import { DynamicModule } from '@nestjs/common';
 import { BullQueueModule } from '../bull/queue.module';
 import PluginModule from 'plugins/core/src/plugins.module';
 import { ConsumerService } from './service';
-import { plugins } from '../../../../plugins';
+import { entities, migrations, plugins } from 'plugins';
+import CustomTypeOrmModule from '../../../rest/src/providers/typeorm.module';
 
 export class ConsumerModule {
   static forRoot(queue = 'default'): DynamicModule {
@@ -11,9 +12,13 @@ export class ConsumerModule {
       imports: [
         BullQueueModule.forRoot(queue),
         PluginModule.forRootAsync(plugins),
-        ConsumerService,
+        CustomTypeOrmModule.forRootAsync({
+          entities,
+          migrations,
+          migrationsRun: true,
+        }),
       ],
-      providers: [],
+      providers: [ConsumerService],
       exports: [ConsumerService],
     };
   }

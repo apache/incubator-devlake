@@ -10,16 +10,18 @@ import { SourceController } from './controllers/source';
 import { SourceTaskController } from './controllers/sourceTask';
 import { SourceService } from './services/source';
 import { SourceTaskService } from './services/sourceTask';
+import { migrations } from './migrations';
+
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
       envFilePath: process.env.NODE_ENV === 'test' ? '.env.test' : '.env',
     }),
-    CustomTypeOrmModule.forRootAsync(null, {
+    CustomTypeOrmModule.forRootAsync({
       entities,
-      // FIXME: using db migration instead of synchronize
-      synchronize: true,
+      migrations,
+      migrationsRun: true,
     }),
   ],
   controllers: [AppController, SourceController, SourceTaskController],
