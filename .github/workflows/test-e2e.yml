@@ -13,6 +13,7 @@ jobs:
       DB_PASSWORD: root
       DB_TYPE: mysql
       DB_URL: mysql://root:root@localhost:3306/lake_db
+      REDIS_URL: redis://localhost:6379/1
     steps:
       - uses: actions/checkout@v2
       - name: Use Node.js ${{ matrix.node-version }}
@@ -20,10 +21,14 @@ jobs:
         with:
           node-version: ${{ matrix.node-version }}
       - run: 'npm install'
-      - name: set up mysql
+      - name: setup mysql
         run: |
           sudo /etc/init.d/mysql start
           mysql -e 'CREATE DATABASE ${{ env.DB_DATABASE }};' -u${{ env.DB_USER }} -p${{ env.DB_PASSWORD }}
+      - name: setup redis
+        uses: shogo82148/actions-setup-redis@v1
+        with:
+          redis-version: '6.x'
       - run: 'npm run test:e2e'
   # e2e-postgres:
   #   runs-on: ubuntu-latest
@@ -33,7 +38,7 @@ jobs:
   #   services:
   #     postgres:
   #       image: postgres
-  #       env: 
+  #       env:
   #         POSTGRES_PASSWORD: postgres
   #       ports:
   #         - 5432:5432
