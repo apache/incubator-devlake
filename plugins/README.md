@@ -1,5 +1,24 @@
 # How plugin work?
 
+## 推荐的文件目录是什么样的
+## recommended file directory
+可以以如下的格式来创建一个插件，以下结构core会自动注册一个名为「example」，入口代码定义在`index.ts`的一个插件。
+
+You can create a plug-in in the following format. <br>
+The core of the following structure will automatically register a plugin named "example" whose entry code is defined in `index.ts`.
+```text
+plugins/
+    example/
+        src/
+            index.ts
+            migrations/
+            entities/
+            ……
+        test/
+            ……
+```
+    
+
 ## plugin state and callback flow
 ```mermaid
 graph TD;

@@ -1,12 +1,13 @@
 import { ClassProvider, DynamicModule } from '@nestjs/common';
-import Jira from 'plugins/jira/src';
+import { plugins } from 'plugins';
 
-const JiraProvider: ClassProvider<Jira> = {
-  provide: 'Jira',
-  useClass: Jira,
-};
-
-export const providers = [JiraProvider];
+export const providers = plugins.map(
+  (plugin) =>
+    <ClassProvider<Plugin>>{
+      provide: plugin.name,
+      useClass: plugin,
+    },
+);
 
 export class PluginModule {
   static async forRootAsync(): Promise<DynamicModule> {
