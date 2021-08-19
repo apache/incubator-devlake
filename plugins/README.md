@@ -47,12 +47,23 @@ class SampleEnricher implements Task {
 
 - Dependency Resolver would get the Task DAG for task exexution managment.
 
-# How to manage the Entities in Plugin
+## 推荐的文件目录是什么样的
+## recommended file directory
+可以以如下的格式来创建一个插件，以下结构core会自动注册一个名为「example」，入口代码定义在`index.ts`的一个插件。
 
-- One Task With The Exports Entities
-   - task.ts
-   - task.entity.ts
-   - task.spec.ts
+You can create a plug-in in the following format. <br>
+The core of the following structure will automatically register a plugin named "example" whose entry code is defined in `index.ts`.
+```text
+plugins/
+    example/
+        src/
+            index.ts
+            migrations/
+            entities/
+            ……
+        test/
+            ……
+```
 
-- All migrates should put at /plugins/YourPlugin/src/migrates, generator your migrate file with typeorm
-```typeorm migrate:create -d /plugins/YourPlugin/src/migrates -n mymigrate````
+- All migrates should put at /plugins/YourPlugin/src/migrations, generator your migrate file with typeorm
+```typeorm migrate:create -d /plugins/YourPlugin/src/migrations -n mymigrate````
