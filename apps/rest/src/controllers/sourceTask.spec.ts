@@ -57,27 +57,29 @@ describe('SourceTaskController', () => {
     });
   });
 
-  // describe('list', () => {
-  //   it('should list sourceTasks', async () => {
-  //     const reqListSourceTask = {
-  //       page: 1,
-  //       pagesize: 10,
-  //       type: 'jira',
-  //     };
+  describe('list', () => {
+    it('should list sourceTasks', async () => {
+      const reqListSourceTask = {
+        page: 1,
+        pagesize: 10,
+        source_id: '123'
+      };
 
-  //     const fn = jest
-  //       .spyOn(sourceTaskService, 'list')
-  //       .mockImplementation(async () => {
-  //         return {
-  //           total: 1,
-  //           offset: 0,
-  //           data: [],
-  //         };
-  //       });
+      const fn = jest
+        .spyOn(sourceTaskService, 'list')
+        .mockImplementation(async () => {
+          return {
+            total: 1,
+            offset: 0,
+            page: 1,
+            pagesize: 1,
+            data: [],
+          };
+        });
 
-  //     await sourceTaskController.list(reqListSourceTask);
-  //   });
-  // });
+      await sourceTaskController.list(reqListSourceTask);
+    });
+  });
 
   // describe('get', () => {
   //   it('should return target sourceTask', async () => {

@@ -27,6 +27,8 @@ export class SourceService {
     return {
       offset,
       total,
+      page: filter.page,
+      pagesize: filter.pagesize,
       data: sources,
     };
   }

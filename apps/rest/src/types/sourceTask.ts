@@ -1,4 +1,5 @@
-import { IsArray, IsNotEmpty } from 'class-validator';
+import { IsArray, IsNotEmpty, IsOptional } from 'class-validator';
+import { PaginationRequest } from './pagination';
 
 export class CreateSourceTask {
   @IsArray()
@@ -9,4 +10,9 @@ export class CreateSourceTask {
 
   @IsNotEmpty()
   options: Record<string, unknown>;
+}
+
+export class ListSourceTask extends PaginationRequest {
+  @IsOptional()
+  source_id?: string;
 }

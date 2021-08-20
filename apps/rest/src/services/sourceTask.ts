@@ -1,34 +1,37 @@
 import { Injectable } from '@nestjs/common';
 import { UniqueID } from '../models/base';
 import SourceTask from '../models/sourceTask';
-import { CreateSourceTask } from '../types/sourceTask';
+import { CreateSourceTask, ListSourceTask } from '../types/sourceTask';
 import { InjectEntityManager } from '@nestjs/typeorm';
 import { EntityManager, FindConditions, FindManyOptions } from 'typeorm';
+import { PaginationResponse } from '../types/pagination';
 
 @Injectable()
 export class SourceTaskService {
   constructor(@InjectEntityManager() private em: EntityManager) {}
 
-  // async list(filter: ListSource): Promise<PaginationResponse<Source>> {
-  //   const offset = filter.pagesize * (filter.page - 1);
-  //   const where: FindConditions<Source> = {};
-  //   const options: FindManyOptions<Source> = {
-  //     skip: offset,
-  //     take: filter.pagesize,
-  //   };
-  //   if (filter.type) {
-  //     where.type = filter.type;
-  //   }
-  //   options.where = where;
+  async list(filter: ListSourceTask): Promise<PaginationResponse<SourceTask>> {
+    const offset = filter.pagesize * (filter.page - 1);
+    const where: FindConditions<SourceTask> = {};
+    const options: FindManyOptions<SourceTask> = {
+      skip: offset,
+      take: filter.pagesize,
+    };
+    if (filter.source_id) {
+      where.source_id = filter.source_id;
+    }
+    options.where = where;
 
-  //   const total = await this.em.getRepository(Source).count(where);
-  //   const sources = await this.em.getRepository(Source).find(options);
-  //   return {
-  //     offset,
-  //     total,
-  //     data: sources,
-  //   };
-  // }
+    const total = await this.em.getRepository(SourceTask).count(where);
+    const sources = await this.em.getRepository(SourceTask).find(options);
+    return {
+      offset,
+      total,
+      page: filter.page,
+      pagesize: filter.pagesize,
+      data: sources,
+    };
+  }
 
   async create(
     sourceId: UniqueID,
