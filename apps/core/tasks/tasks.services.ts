@@ -9,7 +9,7 @@ import Task from './task.model';
 export type JobEvent = {
   jobId: string;
   taskId: string;
-  results?: any;
+  result?: any;
   error?: Error;
 };
 
@@ -29,7 +29,11 @@ export class TasksService {
     task.init(taskDag);
     const startJobs = await task.next();
     for (const job of startJobs) {
-      await this.producer.addJob(job.name, job.data, { jobId: job.id });
+      await this.producer.addJob(
+        job.name,
+        { ...job.data, taskId: sessionId },
+        { jobId: job.id },
+      );
     }
     await task.save();
     return sessionId;
