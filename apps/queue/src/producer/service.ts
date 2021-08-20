@@ -1,13 +1,17 @@
 import { InjectQueue } from '@nestjs/bull';
 import { Injectable } from '@nestjs/common';
-import { Queue } from 'bull';
+import { JobOptions, Queue } from 'bull';
 
 @Injectable()
 export class ProducerService {
   constructor(@InjectQueue('default') private queue: Queue) {}
 
-  async addJob<T>(name: string, options: T): Promise<string> {
-    const job = await this.queue.add(name, options);
+  async addJob<T>(
+    name: string,
+    options: T,
+    jobOption?: JobOptions,
+  ): Promise<string> {
+    const job = await this.queue.add(name, options, jobOption);
     return `${job.id}`;
   }
 }

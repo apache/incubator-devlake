@@ -6,6 +6,11 @@ import Task from './task.interface';
 
 export class DAG {
   private _tasks = [];
+
+  get length(): number {
+    return this._tasks.length;
+  }
+
   async appendTask(task: Type<Task>): Promise<void> {
     this._tasks.splice(0, 0, { name: task.name });
   }
@@ -16,6 +21,32 @@ export class DAG {
 
   toPipline(): any[] {
     return this._tasks;
+  }
+
+  get(index: number): any {
+    return this._tasks[index];
+  }
+
+  find(query: any): any {
+    return this._tasks.find((task) => {
+      for (const key of Object.keys(query)) {
+        if (query[key] !== task[key]) {
+          return false;
+        }
+      }
+      return true;
+    });
+  }
+
+  findIndex(query: any): number {
+    return this._tasks.findIndex((task) => {
+      for (const key of Object.keys(query)) {
+        if (query[key] !== task[key]) {
+          return false;
+        }
+      }
+      return true;
+    });
   }
 }
 
