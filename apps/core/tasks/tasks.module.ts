@@ -4,9 +4,10 @@ import Redis from 'ioredis';
 import { TasksService } from './tasks.services';
 import { URL } from 'url';
 import { ProducerModule } from 'apps/queue/src/producer';
+import { EventsModule } from '../events/events.module';
 
 @Module({
-  imports: [ConfigModule.forRoot(), ProducerModule],
+  imports: [ConfigModule.forRoot(), ProducerModule.forRoot(), EventsModule],
   providers: [
     {
       provide: 'REDIS_TASK_CLIENT',
@@ -31,12 +32,9 @@ import { ProducerModule } from 'apps/queue/src/producer';
   exports: [TasksService],
 })
 export class TasksModule implements OnModuleDestroy {
-  constructor(
-    @Inject('REDIS_PUB_CLIENT') private pub: Redis.Redis,
-    @Inject('REDIS_SUB_CLIENT') private sub: Redis.Redis,
-  ) {}
+  constructor(@Inject('REDIS_TASK_CLIENT') private redis: Redis.Redis) {}
+
   async onModuleDestroy(): Promise<void> {
-    await this.pub.disconnect();
-    await this.sub.disconnect();
+    await this.redis.disconnect();
   }
 }

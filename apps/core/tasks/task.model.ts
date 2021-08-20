@@ -1,6 +1,6 @@
-import { randomUUID } from 'crypto';
 import { Redis } from 'ioredis';
 import { DAG } from 'plugins/core/src/dependency.resolver';
+import { v4 } from 'uuid';
 
 export type Job = {
   id: string;
@@ -28,7 +28,7 @@ export default class Task {
       return null;
     }
     if (!job.id) {
-      const jobId = randomUUID();
+      const jobId = v4();
       job.id = jobId;
     }
     return job;
@@ -47,7 +47,9 @@ export default class Task {
       }
     } else {
       const job = await this._getJobAtIndex(0);
-      return [job];
+      if (job) {
+        return [job];
+      }
     }
     return [];
   }

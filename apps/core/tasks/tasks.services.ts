@@ -1,8 +1,8 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { ProducerService } from 'apps/queue/src/producer/service';
-import { randomUUID } from 'crypto';
 import { Redis } from 'ioredis';
 import { DAG } from 'plugins/core/src/dependency.resolver';
+import { v4 } from 'uuid';
 import { EventsService } from '../events/events.service';
 import Task from './task.model';
 
@@ -24,7 +24,7 @@ export class TasksService {
   }
 
   async startTask(taskDag: DAG): Promise<string> {
-    const sessionId = randomUUID();
+    const sessionId = v4();
     const task = new Task(sessionId, this.redis);
     task.init(taskDag);
     const startJobs = await task.next();

@@ -6,8 +6,8 @@ export class ProducerModule {
   static forRoot(queue = 'default'): DynamicModule {
     return {
       module: ProducerModule,
-      imports: [BullQueueModule.forRoot(queue), ProducerService],
-      providers: [],
+      imports: [BullQueueModule.forRoot(queue)],
+      providers: [{ provide: ProducerService, useClass: ProducerService }],
       exports: [ProducerService],
     };
   }
