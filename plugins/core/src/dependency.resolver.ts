@@ -7,6 +7,10 @@ import Task from './task.interface';
 export class DAG {
   private _tasks = [];
 
+  constructor(task: any[]) {
+    this._tasks = task;
+  }
+
   get length(): number {
     return this._tasks.length;
   }
@@ -47,6 +51,10 @@ export class DAG {
       }
       return true;
     });
+  }
+
+  getPipline() {
+    return this._tasks;
   }
 }
 

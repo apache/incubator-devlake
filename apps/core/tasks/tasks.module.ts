@@ -3,9 +3,10 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import Redis from 'ioredis';
 import { TasksService } from './tasks.services';
 import { URL } from 'url';
+import { ProducerModule } from 'apps/queue/src/producer';
 
 @Module({
-  imports: [ConfigModule.forRoot()],
+  imports: [ConfigModule.forRoot(), ProducerModule],
   providers: [
     {
       provide: 'REDIS_TASK_CLIENT',

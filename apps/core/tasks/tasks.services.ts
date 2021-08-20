@@ -25,18 +25,23 @@ export class TasksService {
 
   async startTask(taskDag: DAG): Promise<string> {
     const sessionId = randomUUID();
-    await this.redis.set(sessionId, JSON.stringify(taskDag));
+    const task = new Task(sessionId, this.redis);
+    task.init(taskDag);
+    const startJobs = await task.next();
+    for (const job of startJobs) {
+      await this.producer.addJob(job.name, job.data, { jobId: job.id });
+    }
+    await task.save();
     return sessionId;
   }
 
   async handleJobFinishd(job: JobEvent): Promise<void> {
     const { taskId, jobId } = job;
-    const dag = JSON.parse(await this.redis.get(taskId));
-    const task = new Task(dag);
+    const task = new Task(taskId, this.redis);
     const jobs = await task.next(jobId);
     for (const job of jobs) {
       await this.producer.addJob(job.name, job.data, { jobId: job.id });
     }
-    await this.redis.set(taskId, task.stringify())
+    await task.save();
   }
 }

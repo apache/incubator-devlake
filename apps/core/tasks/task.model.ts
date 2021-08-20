@@ -1,4 +1,5 @@
 import { randomUUID } from "crypto";
+import { Redis } from "ioredis";
 import { DAG } from "plugins/core/src/dependency.resolver";
 
 export type Job = {
@@ -8,9 +9,20 @@ export type Job = {
 }
 
 export default class Task {
-  constructor(private dag: DAG) {}
+  private dag: DAG;
 
-  private _getJobAtIndex(index: number): Job {
+  constructor(private taskId: string, private redis: Redis) {}
+
+  private async _initiDag(): Promise<void> {
+    const serilizedPip = await this.redis.get(this.taskId);
+    const pipline = JSON.parse(serilizedPip);
+    this.dag = new DAG(pipline);
+  }
+
+  private async _getJobAtIndex(index: number): Promise<Job> {
+    if (!this.dag) {
+      await this._initiDag();
+    }
     const job = this.dag.get(index);
     if (!job) {
       return null;
@@ -22,19 +34,29 @@ export default class Task {
     return job;
   }
 
+  async init(dag: DAG): Promise<void> {
+    this.dag = dag;
+  }
+
   async next(jobId?: string): Promise<Job[]> {
     if (jobId) {
       const currentIndex = this.dag.findIndex({ id: jobId });
       if (currentIndex < this.dag.length - 1) {
-        return [this._getJobAtIndex(currentIndex + 1)];
+        const job = await this._getJobAtIndex(currentIndex + 1);
+        return [job];
       }
     } else {
-      return [this._getJobAtIndex(0)];
+      const job = await this._getJobAtIndex(0);
+      return [job];
     }
     return [];
   }
 
-  stringify(): string {
-    return JSON.stringify(this.dag);
+  async save(): Promise<void> {
+    if (!this.dag) {
+      return;
+    }
+    const piplines = this.dag.getPipline();
+    await this.redis.set(this.taskId, JSON.stringify(piplines));
   }
 }
