@@ -35,7 +35,7 @@ export class ConsumerService {
       if (result instanceof DAG) {
         await this.tasksService.startTask(result);
       } else {
-        this.eventsService.emit('job:completed', {
+        this.eventsService.emit('job:finished', {
           jobId: job.id,
           taskId: job.data.taskId,
           result,
@@ -45,10 +45,10 @@ export class ConsumerService {
   }
 
   async jobFailed(job: Bull.Job, error: Error): Promise<void> {
-    console.error(`${job.name}-${job.id}`, error);
+    console.error(`[BULL:failed]-[${job.name}]-[${job.id}]`, error);
   }
 
   async jobCompleted(job: Bull.Job): Promise<void> {
-    console.info(`${job.name}-${job.id}`);
+    console.info(`[BULL:completed]-[${job.name}]-[${job.id}]`);
   }
 }

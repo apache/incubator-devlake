@@ -8,7 +8,7 @@ describe('EventsModule (e2e)', () => {
 
   beforeAll(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
-      imports: [EventsModule],
+      imports: [EventsModule.forRoot()],
     }).compile();
 
     app = moduleFixture.createNestMicroservice(moduleFixture);

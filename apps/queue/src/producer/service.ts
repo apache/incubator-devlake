@@ -6,6 +6,7 @@ import { JobOptions, Queue } from 'bull';
 export class ProducerService {
   constructor(@InjectQueue('default') private queue: Queue) {
     this.addJob('Jira', {});
+    console.info('Add Jira Task');
   }
 
   async addJob<T>(

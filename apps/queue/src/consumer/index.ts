@@ -13,7 +13,7 @@ export class ConsumerModule {
       imports: [
         BullQueueModule.forRoot(queue),
         PluginModule.forRootAsync([Jira]),
-        EventsModule,
+        EventsModule.forRoot(),
         TasksModule,
       ],
       providers: [{ provide: ConsumerService, useClass: ConsumerService }],

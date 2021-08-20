@@ -39,6 +39,9 @@ export default class Task {
   }
 
   async next(jobId?: string): Promise<Job[]> {
+    if (!this.dag) {
+      await this._initiDag();
+    }
     if (jobId) {
       const currentIndex = this.dag.findIndex({ id: jobId });
       if (currentIndex < this.dag.length - 1) {

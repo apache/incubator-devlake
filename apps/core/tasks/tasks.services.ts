@@ -41,6 +41,9 @@ export class TasksService {
 
   async handleJobFinishd(job: JobEvent): Promise<void> {
     const { taskId, jobId } = job;
+    if (!taskId) {
+      return;
+    }
     const task = new Task(taskId, this.redis);
     const jobs = await task.next(jobId);
     for (const job of jobs) {

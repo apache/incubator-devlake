@@ -15,9 +15,8 @@ export type JiraSource = {
 @Imports([IssueEntity])
 @Exports(IssueLeadTimeEntity)
 export default class LeadTimeEnricher implements Task {
-  @Inject(IssueEntity) private IssueRepository: Repository<IssueEntity>;
-  @Inject(IssueLeadTimeEntity)
-  private IssueLeadTimeRepository: Repository<IssueLeadTimeEntity>;
+  // @Inject(IssueEntity) private IssueRepository: Repository<IssueEntity>;
+  // @Inject(IssueLeadTimeEntity) private IssueLeadTimeRepository: Repository<IssueLeadTimeEntity>;
 
   name(): string {
     return 'JiraIssueLeadTime';

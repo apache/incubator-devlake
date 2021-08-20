@@ -7,7 +7,11 @@ import { ProducerModule } from 'apps/queue/src/producer';
 import { EventsModule } from '../events/events.module';
 
 @Module({
-  imports: [ConfigModule.forRoot(), ProducerModule.forRoot(), EventsModule],
+  imports: [
+    ConfigModule.forRoot(),
+    ProducerModule.forRoot(),
+    EventsModule.forRoot(),
+  ],
   providers: [
     {
       provide: 'REDIS_TASK_CLIENT',

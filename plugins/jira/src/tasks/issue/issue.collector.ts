@@ -12,7 +12,7 @@ export type JiraSource = {
 
 @Exports(IssueEntity)
 export default class IssueCollector implements Task {
-  @Inject(IssueEntity) private IssueRepository: Repository<IssueEntity>;
+  // @Inject(IssueEntity) private IssueRepository: Repository<IssueEntity>;
 
   name(): string {
     return 'JiraIssue';
