@@ -64,7 +64,7 @@ export default class DependencyResolver {
 
   async resolve(entity: Type<BaseEntity>): Promise<DAG> {
     //TODO: fetch TASK DAG from target Entity
-    const dag = new DAG();
+    const dag = new DAG([]);
     await this.resolveEntity(entity, dag);
     return dag;
   }
