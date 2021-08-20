@@ -10,7 +10,7 @@
 
 Dev Lake is the one-stop solution that _**integrates, analyzes, and visualizes**_ software development data throughout the _**software development life cycle (SDLC)**_ for engineering teams.
 
-<img src="https://user-images.githubusercontent.com/3789273/129271522-4b3b6451-2292-40c7-82d6-86df4ac13cd7.png" width="100%" alt="Dev Lake Grafana Dashboard" />
+<img src="https://user-images.githubusercontent.com/2908155/130271622-827c4ffa-d812-4843-b09d-ea1338b7e6e5.png" width="100%" alt="Dev Lake Grafana Dashboard" />
 
 ### Why choose Dev Lake?
 
@@ -48,8 +48,6 @@ Jira | Metrics, Generating API Token, Find Project/Board ID | [Link](src/plugins
 Gitlab | Metrics, Generating API Token | [Link](src/plugins/gitlab-pond/README.md)
 
 ## Grafana
-
-<img src="https://user-images.githubusercontent.com/3789273/128533901-3107e9bf-c3e3-4320-ba47-879fe2b0ea4d.png" width="450px" />
 
 We use <a href="https://grafana.com/" target="_blank">Grafana</a> as a visualization tool to build charts for the data stored in our database. Using SQL queries we can add panels to build, save, and edit customized dashboards.
 
