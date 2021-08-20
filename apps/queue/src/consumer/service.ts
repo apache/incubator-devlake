@@ -20,6 +20,7 @@ export class ConsumerService {
     this.queue.on('completed', this.jobCompleted.bind(this));
   }
 
+
   async process(job: Bull.Job): Promise<void> {
     const { name, data } = job;
     const executor = this.moduleRef.get<IExecutable<any>>(name, {

@@ -6,7 +6,7 @@ export type Job = {
   id: string;
   name: string;
   data?: any;
-}
+};
 
 export default class Task {
   private dag: DAG;
