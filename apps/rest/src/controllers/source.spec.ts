@@ -31,7 +31,7 @@ describe('SourceController', () => {
   describe('create', () => {
     it('should return source info', async () => {
       const reqCreateSource = {
-        type: 'jira' as const,
+        type: 'jira',
         options: {
           host: 'https://www.atlassian.com/',
           email: 'xx@example.com',
@@ -63,7 +63,7 @@ describe('SourceController', () => {
       const reqListSource = {
         page: 1,
         pagesize: 10,
-        type: 'jira' as const,
+        type: 'jira',
       };
 
       const fn = jest
@@ -95,7 +95,7 @@ describe('SourceController', () => {
   describe('update', () => {
     it('should update source', async () => {
       const reqUpdateSource = {
-        type: 'jira' as const,
+        type: 'jira',
         options: {
           host: 'https://www.atlassian.com/',
           email: 'xx@example.com',
