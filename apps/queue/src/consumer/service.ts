@@ -1,6 +1,6 @@
 import { InjectQueue } from '@nestjs/bull';
 import { Injectable } from '@nestjs/common';
-import { ModuleRef } from '@nestjs/core';
+import { ContextIdFactory, ModuleRef } from '@nestjs/core';
 import Bull, { Queue } from 'bull';
 import IExecutable from 'plugins/core/src/executable.interface';
 import { DAG } from 'plugins/core/src/dependency.resolver';
@@ -23,9 +23,13 @@ export class ConsumerService {
 
   async process(job: Bull.Job): Promise<void> {
     const { name, data } = job;
-    const executor = this.moduleRef.get<IExecutable<any>>(name, {
-      strict: false,
-    });
+    const executor = await this.moduleRef.resolve<IExecutable<any>>(
+      name,
+      ContextIdFactory.create(),
+      {
+        strict: false,
+      },
+    );
     if (executor) {
       const result = await executor.execute(data);
       if (result instanceof DAG) {

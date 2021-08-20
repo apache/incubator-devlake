@@ -1,7 +1,10 @@
-import { Inject, Injectable, Scope } from '@nestjs/common';
+import { Inject, Injectable, Scope, Type } from '@nestjs/common';
+import BaseEntity from 'plugins/core/src/base.entity';
 import DependencyResolver, { DAG } from 'plugins/core/src/dependency.resolver';
 import Plugin from 'plugins/core/src/plugin.interface';
 import IssueLeadTimeEntity from './tasks/leadtime/leadtime.entity';
+
+export * from './tasks';
 
 export type JiraOptions = {
   source: {
@@ -17,9 +20,13 @@ class Jira implements Plugin {
 
   async execute(options: JiraOptions): Promise<DAG> {
     //TODO: Add jira collector and enrichment
-    console.info('Excute Jira', options);
-    const dag = await this.resolver.resolve(IssueLeadTimeEntity);
+    console.info('Execute Jira', options, this.exports()[0]);
+    const dag = await this.resolver.resolve(this.exports()[0]);
     return dag;
+  }
+
+  exports(): Type<BaseEntity>[] {
+    return [IssueLeadTimeEntity];
   }
 }
 
