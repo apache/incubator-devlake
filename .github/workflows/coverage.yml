@@ -10,7 +10,7 @@ jobs:
   coverage:
     runs-on: ubuntu-latest
     env:
-      DB_URL: mysql://root:root@localhost:3306/lake_db
+      DB_URL: mysql://merico:merico@localhost:3306/lake_db
       REDIS_URL: redis://localhost:6379/1
     steps:
       - uses: actions/checkout@v2

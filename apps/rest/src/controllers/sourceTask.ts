@@ -25,6 +25,7 @@ export class SourceTaskController {
     @Param('id') sourceId: string,
     @Body() task: CreateSourceTask,
   ): Promise<SourceTask> {
+    // TODO: SEND request to redis pub so that it can be received by the plugin execute method wiht the options sent
     return await this.sourceTaskService.create(sourceId, task);
   }
 

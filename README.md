@@ -19,6 +19,10 @@
 5. Start services `npm run all`
 6. You can now see the REST application running on localhost:3000
 
+**NOTE: To run the tests:**
+1. Create config file `cp .env.sample .env.test`
+2. `npm run test:e2e`
+
 ### Docker
 
 1. Clone this repository
