@@ -13,7 +13,7 @@ export type JiraOptions = {
 
 @Injectable({ scope: Scope.TRANSIENT })
 class Jira implements Plugin {
-  constructor( private resolver: DependencyResolver) {}
+  constructor(private resolver: DependencyResolver) {}
 
   async execute(options: JiraOptions): Promise<DAG> {
     //TODO: Add jira collector and enrichment

@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { ModuleRef } from '@nestjs/core';
 import BaseEntity from './base.entity';
 
-export class DAG {}//TEMP TYPE
+export class DAG {} //TEMP TYPE
 
 @Injectable()
 export default class DependencyResolver {
