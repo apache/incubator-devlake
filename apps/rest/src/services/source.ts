@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectEntityManager } from '@nestjs/typeorm';
-import { EntityManager, FindManyOptions } from 'typeorm';
+import { EntityManager, FindConditions, FindManyOptions } from 'typeorm';
 import { UniqueID } from '../models/base';
 import Source from '../models/source';
 import { PaginationResponse } from '../types/pagination';
@@ -12,19 +12,21 @@ export class SourceService {
 
   async list(filter: ListSource): Promise<PaginationResponse<Source>> {
     const offset = filter.pagesize * (filter.page - 1);
+    const where: FindConditions<Source> = {};
     const options: FindManyOptions<Source> = {
       skip: offset,
       take: filter.pagesize,
     };
     if (filter.type) {
-      options.where = {
-        type: filter.type,
-      };
+      where.type = filter.type;
     }
+    options.where = where;
+
+    const total = await this.em.getRepository(Source).count(where);
     const sources = await this.em.getRepository(Source).find(options);
     return {
       offset,
-      page: filter.page,
+      total,
       data: sources,
     };
   }

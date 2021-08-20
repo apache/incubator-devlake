@@ -107,7 +107,8 @@
       "apps/queue/test",
       ".eslintrc.js",
       "config",
-      "commitlint.config.js"
+      "commitlint.config.js",
+      "plugins/.+/.+/migrates"
     ]
   },
   "config": {
