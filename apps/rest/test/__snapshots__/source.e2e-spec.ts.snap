@@ -2,6 +2,7 @@
 
 exports[`SourceController (e2e) /source (CRUD) mock a CRUD progress 1`] = `
 Object {
+  "name": "cloud",
   "options": Object {
     "host": "https://www.atlassian.com/",
     "token": "guess what?",
@@ -13,6 +14,7 @@ Object {
 
 exports[`SourceController (e2e) /source (CRUD) mock a CRUD progress 2`] = `
 Object {
+  "name": null,
   "options": Object {
     "host": "https://www.gitlab.com",
     "token": "gitlab token",
@@ -32,6 +34,7 @@ Object {
 exports[`SourceController (e2e) /source (CRUD) mock a CRUD progress 4`] = `
 Array [
   Object {
+    "name": "cloud",
     "options": Object {
       "host": "https://www.atlassian.com/",
       "token": "guess what?",
@@ -40,6 +43,7 @@ Array [
     "type": "jira",
   },
   Object {
+    "name": null,
     "options": Object {
       "host": "https://www.gitlab.com",
       "token": "gitlab token",
@@ -60,6 +64,7 @@ Object {
 exports[`SourceController (e2e) /source (CRUD) mock a CRUD progress 6`] = `
 Array [
   Object {
+    "name": "cloud",
     "options": Object {
       "host": "https://www.atlassian.com/",
       "token": "guess what?",
@@ -72,6 +77,7 @@ Array [
 
 exports[`SourceController (e2e) /source (CRUD) mock a CRUD progress 7`] = `
 Object {
+  "name": null,
   "options": Object {
     "host": "https://www.gitlab.com",
     "token": "gitlab token",
@@ -83,6 +89,7 @@ Object {
 
 exports[`SourceController (e2e) /source (POST) should return source type 1`] = `
 Object {
+  "name": "cloud",
   "options": Object {
     "auth": "base64EncodedAuthToken",
     "email": "xx@example.com",
@@ -96,17 +103,7 @@ exports[`SourceController (e2e) /source (POST) should return validate error 1`] 
 Object {
   "error": "Bad Request",
   "message": Array [
-    "type must be one of the following values: jira, gitlab",
-  ],
-  "statusCode": 400,
-}
-`;
-
-exports[`SourceController (e2e) /source (POST) should return validate error 2 1`] = `
-Object {
-  "error": "Bad Request",
-  "message": Array [
-    "type must be one of the following values: jira, gitlab",
+    "type should not be empty",
   ],
   "statusCode": 400,
 }

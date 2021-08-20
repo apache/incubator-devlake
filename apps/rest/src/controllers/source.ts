@@ -20,6 +20,9 @@ export class SourceController {
 
   @Post()
   async create(@Body() source: CreateSource): Promise<Source> {
+    // TODO: validator source type
+    // should write registered plugins into database
+    // then reject create request if target source type not exist
     return await this.sourceService.create(source);
   }
 

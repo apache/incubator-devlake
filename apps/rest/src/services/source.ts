@@ -33,6 +33,7 @@ export class SourceService {
     const source = new Source();
     source.type = data.type;
     source.options = data.options;
+    source.name = data.name;
     await this.em.save(source);
     return source;
   }
@@ -51,6 +52,7 @@ export class SourceService {
     const target = await this.get(id);
     target.type = data.type;
     target.options = data.options;
+    target.name = data.name;
     await this.em.save(target);
     return target;
   }

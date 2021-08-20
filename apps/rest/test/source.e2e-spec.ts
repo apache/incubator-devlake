@@ -31,6 +31,7 @@ describe('SourceController (e2e)', () => {
   describe('/source (POST)', () => {
     it('should return source type', () => {
       const newSource = {
+        name: 'cloud',
         type: 'jira',
         options: {
           host: 'https://www.atlassian.com/',
@@ -50,20 +51,6 @@ describe('SourceController (e2e)', () => {
 
     it('should return validate error', () => {
       const sourceWithoutType = {
-        options: {},
-      };
-      return request(app.getHttpServer())
-        .post('/source')
-        .send(sourceWithoutType)
-        .expect(400)
-        .expect((res) => {
-          expect(res.body).toMatchSnapshot();
-        });
-    });
-
-    it('should return validate error 2', () => {
-      const sourceWithoutType = {
-        type: 'github',
         options: {},
       };
       return request(app.getHttpServer())
@@ -105,6 +92,7 @@ describe('SourceController (e2e)', () => {
       const server = request(app.getHttpServer());
       // create a jira source
       const jiraSource = {
+        name: 'cloud',
         type: 'jira',
         options: {
           host: 'https://www.atlassian.com/',

@@ -1,10 +1,12 @@
-import { IsIn, IsNotEmpty, IsOptional } from 'class-validator';
-import { SourceType, SupportedSourceType } from '../models/source';
+import { IsNotEmpty, IsOptional } from 'class-validator';
 import { PaginationRequest } from './pagination';
 
 export class CreateSource {
-  @IsIn(SupportedSourceType)
-  type: SourceType;
+  @IsNotEmpty()
+  type: string;
+
+  @IsOptional()
+  name?: string;
 
   @IsNotEmpty()
   options: Record<string, unknown>;
@@ -13,7 +15,6 @@ export class CreateSource {
 export class UpdateSource extends CreateSource {}
 
 export class ListSource extends PaginationRequest {
-  @IsIn(SupportedSourceType)
   @IsOptional()
-  type?: SourceType;
+  type?: string;
 }
