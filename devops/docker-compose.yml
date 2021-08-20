@@ -1,17 +1,29 @@
 
 version: "3"
 services:
-  postgresdb:
-    hostname: postgresdb
-    environment:
-      POSTGRES_DB: lake
-      POSTGRES_PASSWORD: postgres
-      POSTGRES_USER: postgres
-    image: postgres:13
-    ports:
-      - 5432:5432
+  # postgresdb:
+  #   hostname: postgresdb
+  #   environment:
+  #     POSTGRES_DB: lake
+  #     POSTGRES_PASSWORD: postgres
+  #     POSTGRES_USER: postgres
+  #   image: postgres:13
+  #   ports:
+  #     - 5432:5432
+  #   volumes:
+  #     - ./postgres-data:/var/lib/postgresql/data
+  mysql:
+    image: mysql:latest
     volumes:
-      - ./postgres-data:/var/lib/postgresql/data
+      - ./mysql-data:/var/lib/mysql
+    restart: always
+    ports:
+      - 3306:3306
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: lake_db
+      MYSQL_USER: merico
+      MYSQL_PASSWORD: merico
   redis:
     image: redis:6
     ports:
