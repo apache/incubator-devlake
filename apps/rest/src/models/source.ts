@@ -1,15 +1,25 @@
 import { Column, Entity } from 'typeorm';
 import { BaseModel } from './base';
 
-export const SupportedSourceType = ['jira', 'gitlab'] as const;
-
-export type SourceType = typeof SupportedSourceType[number];
-
 @Entity()
 export default class Source extends BaseModel {
+  /**
+   * type correspond with plugin
+   */
   @Column('varchar')
-  type: SourceType;
+  type: string;
 
+  /**
+   * name source name
+   */
+  @Column('varchar', {
+    nullable: true,
+  })
+  name?: string;
+
+  /**
+   * options plugin options
+   */
   @Column('json')
   options: Record<string, unknown>;
 }

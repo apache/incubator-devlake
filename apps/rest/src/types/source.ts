@@ -1,11 +1,24 @@
-import { IsIn, IsNotEmpty, IsOptional } from 'class-validator';
-import { SourceType, SupportedSourceType } from '../models/source';
+import { IsNotEmpty, IsOptional } from 'class-validator';
 import { PaginationRequest } from './pagination';
 
 export class CreateSource {
-  @IsIn(SupportedSourceType)
-  type: SourceType;
+  /**
+   * source type is defined when you register plugin
+   * now it is equal to plugin's class name, eg: Jira
+   */
+  @IsNotEmpty()
+  type: string;
 
+  /**
+   * name is used to distinct different source with a same plugin
+   * although there is a global uuid, but a proper name is human friendly.
+   */
+  @IsOptional()
+  name?: string;
+
+  /**
+   * options will be delivered as parameters to plugin when plugin running
+   */
   @IsNotEmpty()
   options: Record<string, unknown>;
 }
@@ -13,7 +26,9 @@ export class CreateSource {
 export class UpdateSource extends CreateSource {}
 
 export class ListSource extends PaginationRequest {
-  @IsIn(SupportedSourceType)
+  /**
+   * filter source list by type
+   */
   @IsOptional()
-  type?: SourceType;
+  type?: string;
 }

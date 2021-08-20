@@ -1,20 +1,109 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
+exports[`SourceController (e2e) /source (CRUD) mock a CRUD progress 1`] = `
+Object {
+  "name": "cloud",
+  "options": Object {
+    "host": "https://www.atlassian.com/",
+    "token": "guess what?",
+    "username": "lake@merico.com",
+  },
+  "type": "jira",
+}
+`;
+
+exports[`SourceController (e2e) /source (CRUD) mock a CRUD progress 2`] = `
+Object {
+  "name": null,
+  "options": Object {
+    "host": "https://www.gitlab.com",
+    "token": "gitlab token",
+    "username": "lake@merico.com",
+  },
+  "type": "gitlab",
+}
+`;
+
+exports[`SourceController (e2e) /source (CRUD) mock a CRUD progress 3`] = `
+Object {
+  "offset": 0,
+  "total": 2,
+}
+`;
+
+exports[`SourceController (e2e) /source (CRUD) mock a CRUD progress 4`] = `
+Array [
+  Object {
+    "name": "cloud",
+    "options": Object {
+      "host": "https://www.atlassian.com/",
+      "token": "guess what?",
+      "username": "lake@merico.com",
+    },
+    "type": "jira",
+  },
+  Object {
+    "name": null,
+    "options": Object {
+      "host": "https://www.gitlab.com",
+      "token": "gitlab token",
+      "username": "lake@merico.com",
+    },
+    "type": "gitlab",
+  },
+]
+`;
+
+exports[`SourceController (e2e) /source (CRUD) mock a CRUD progress 5`] = `
+Object {
+  "offset": 0,
+  "total": 1,
+}
+`;
+
+exports[`SourceController (e2e) /source (CRUD) mock a CRUD progress 6`] = `
+Array [
+  Object {
+    "name": "cloud",
+    "options": Object {
+      "host": "https://www.atlassian.com/",
+      "token": "guess what?",
+      "username": "lake@merico.com",
+    },
+    "type": "jira",
+  },
+]
+`;
+
+exports[`SourceController (e2e) /source (CRUD) mock a CRUD progress 7`] = `
+Object {
+  "name": null,
+  "options": Object {
+    "host": "https://www.gitlab.com",
+    "token": "gitlab token",
+    "username": "lake@merico.com",
+  },
+  "type": "gitlab",
+}
+`;
+
+exports[`SourceController (e2e) /source (POST) should return source type 1`] = `
+Object {
+  "name": "cloud",
+  "options": Object {
+    "auth": "base64EncodedAuthToken",
+    "email": "xx@example.com",
+    "host": "https://www.atlassian.com/",
+  },
+  "type": "jira",
+}
+`;
+
 exports[`SourceController (e2e) /source (POST) should return validate error 1`] = `
 Object {
   "error": "Bad Request",
   "message": Array [
-    "type must be one of the following values: jira, gitlab",
-  ],
-  "statusCode": 400,
-}
-`;
-
-exports[`SourceController (e2e) /source (POST) should return validate error 2 1`] = `
-Object {
-  "error": "Bad Request",
-  "message": Array [
-    "type must be one of the following values: jira, gitlab",
+    "type should not be empty",
   ],
   "statusCode": 400,
 }
@@ -27,5 +116,11 @@ Object {
     "options should not be empty",
   ],
   "statusCode": 400,
+}
+`;
+
+exports[`SourceController (e2e) /source/:id (GET) should return not found if record not exists 1`] = `
+Object {
+  "message": "Could not find any entity of type \\"Source\\" matching: \\"id-not-exist\\"",
 }
 `;

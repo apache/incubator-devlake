@@ -12,7 +12,7 @@ export class PaginationRequest {
 }
 
 export class PaginationResponse<T> {
-  page: number;
+  total: number;
   offset: number;
   data: T[];
 }
