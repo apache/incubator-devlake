@@ -13,7 +13,7 @@ describe('EventModule', () => {
 
   beforeAll(async () => {
     app = await Test.createTestingModule({
-      imports: [EventsModule],
+      imports: [EventsModule.forRoot()],
     }).compile();
   });
 
