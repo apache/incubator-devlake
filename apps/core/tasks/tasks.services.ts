@@ -1,7 +1,7 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { ProducerService } from 'apps/queue/src/producer/service';
 import { randomUUID } from 'crypto';
-import redis from 'ioredis';
+import { Redis } from 'ioredis';
 import { DAG } from 'plugins/core/src/dependency.resolver';
 import { EventsService } from '../events/events.service';
 import Task from './task.model';
@@ -16,7 +16,7 @@ export type JobEvent = {
 @Injectable()
 export class TasksService {
   constructor(
-    @Inject('REDIS_TASK_CLIENT') private redis: redis.Redis,
+    @Inject('REDIS_TASK_CLIENT') private redis: Redis,
     private events: EventsService,
     private producer: ProducerService,
   ) {

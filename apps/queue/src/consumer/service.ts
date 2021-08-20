@@ -28,7 +28,6 @@ export class ConsumerService {
     if (executor) {
       const result = await executor.execute(data);
       if (result instanceof DAG) {
-        //TODO: ADD DAG IN TASK SERVICE
         await this.tasksService.startTask(result);
       } else {
         this.eventsService.emit('job:completed', {

@@ -1,6 +1,6 @@
-import { randomUUID } from "crypto";
-import { Redis } from "ioredis";
-import { DAG } from "plugins/core/src/dependency.resolver";
+import { randomUUID } from 'crypto';
+import { Redis } from 'ioredis';
+import { DAG } from 'plugins/core/src/dependency.resolver';
 
 export type Job = {
   id: string;
