@@ -61,6 +61,20 @@ export class DAG {
 
 @Injectable()
 export default class DependencyResolver {
+  static resolveEntity(entity: Type<BaseEntity>): Type<Task>[] {
+    let tasks = [];
+    const ProducerType = Reflect.getMetadata(PRODUCER_META_KEY, entity);
+    tasks.push(ProducerType);
+    const importEntities = Reflect.getMetadata(IMPORTS_META_KEY, ProducerType);
+    if (importEntities) {
+      for (const entityClass of importEntities) {
+        const subtasks = DependencyResolver.resolveEntity(entityClass);
+        tasks = tasks.concat(subtasks);
+      }
+    }
+    return tasks;
+  }
+
   async resolve(entity: Type<BaseEntity>): Promise<DAG> {
     //TODO: fetch TASK DAG from target Entity
     const dag = new DAG([]);
