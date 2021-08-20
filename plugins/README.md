@@ -1,34 +1,58 @@
 # How plugin work?
 
-## plugin state and callback flow
-```mermaid
-graph TD;
-    A[write your plugin]--copy files to plugins-->B[start]
-    B --run app--> C[unmigrated]
-    C --"triforce call migrateUp() when added or updated"--> D[ready]
-    D --"call migrateDown() when removed"--> C
-    D --"call execute() when start cal data"--> V0[started]
+- 1. Plugin Worker is triggered by Apps. Use queue producer to push a plugin task into queue with plugin name and data
+```
+producer.add('Jira', {host:'', username: '', password: ''});
 ```
 
-## collector and enricher flow
-```mermaid
-graph TD;
-    A[plugin unregistered]--"call plugin.execute() to add collectors and enrichers"-->B[plugin started]
-    B --"call each collector/enrichers.name() to register"--> C[collector and enricher register]
-    C --"when start collector, run `collector.dependencies(pks)`"--> D[got collector dependencies map]
-    D --"run `collector.isDataPrepared(pks) && collector.collectData(pks)` one by one"--> E[collect success]
-    E --"when start enricher, run `enricher.dependencies(pks)`"--> F[got enricher dependencies map]
-    F --"when start enricher, run `enricher.dependencies(pks)`"--> G{collectors ready?}
-    G --"ready"--> I{"enricher has no dependency && enricher.couldLazyLoad(pks)"}
-    G --"not ready"--> H[fail]
-    I --"no"--> J[start cal data]
-    I --"yes"--> K[finish]
-    J --"run `enricher.isDataPrepared(pks) && collector.collectData(pks)`"--> K[enricher data ready]
-    K --"collector.queryData()"--> M[finish]
+- 2. Plugin is Loaded in Queue Consumer. the nestjs IOC framework would help to get a instance of Plugin
+```
+moduleRef.resolve('Jira', contextId, {strict: false});
 ```
 
-## picture generate by mermaid
+- 3. Plugin resolve self with a Task DAG.
 
-view on github: `https://github.com/BackMarket/github-mermaid-extension`
+- 4. A Task Service will read the Task DAG and start a Session to manage tasks execution
 
-or view online: `https://mermaid-js.github.io/mermaid-live-editor`
+- 5. Task Service push task into queue service with task name and task data
+```
+producer.add('JiraIssueCollector', {host:'', username: '', password: ''});
+```
+
+- 6. Task Service recived the task completed events and check if has next task. the do step 5. if no task anymore finished the pipline
+```
+on('job:finished', (jobId, datas) => {  producer.add('JiraLeadtimeEnricher', datas); });
+```
+
+# How plugin dependency described
+
+- Plugin is the organizer, Described what Entities would exports.
+
+- Entities may have one Task to exports. a task is one of collector or enricher.
+
+- The task would required some Entities, that should Import in Task
+
+```
+@Imports([RequiredEntity, AnotherReuqired.Entity])
+@Exports(SampleEntity)
+class SampleEnricher implements Task {
+    async execute(): Promise<any> {
+        //do enrich here
+        return {};
+    }
+}
+```
+
+- Only one Entity should be Exports in Task
+
+- Dependency Resolver would get the Task DAG for task exexution managment.
+
+# How to manage the Entities in Plugin
+
+- One Task With The Exports Entities
+   - task.ts
+   - task.entity.ts
+   - task.spec.ts
+
+- All migrates should put at /plugins/YourPlugin/src/migrates, generator your migrate file with typeorm
+```typeorm migrate:create -d /plugins/YourPlugin/src/migrates -n mymigrate````

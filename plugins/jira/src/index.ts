@@ -1,41 +1,25 @@
-import { Injectable } from '@nestjs/common';
-import Plugin from 'plugins/core/src/plugin';
-
-export type JiraCollector =
-  | 'ISSUE'
-  | 'CHANGELOG'
-  | 'COMMENTS'
-  | 'REMOTELINK'
-  | 'BOARD';
+import { Inject, Injectable, Scope } from '@nestjs/common';
+import DependencyResolver, { DAG } from 'plugins/core/src/dependency.resolver';
+import Plugin from 'plugins/core/src/plugin.interface';
+import IssueLeadTimeEntity from './tasks/leadtime/leadtime.entity';
 
 export type JiraOptions = {
-  collectors: JiraCollector[];
+  source: {
+    host: string;
+    username: string;
+    token: string;
+  };
 };
 
-@Injectable()
+@Injectable({ scope: Scope.TRANSIENT })
 class Jira implements Plugin {
-  name(): string {
-    return 'jira';
-  }
+  constructor( private resolver: DependencyResolver) {}
 
-  version(): number {
-    return 1;
-  }
-
-  async migrateDown(currentVersion: string): Promise<void> {
-    console.info(currentVersion);
-    return;
-  }
-
-  async migrateUp(pluginPrev: string, oldVersion: string): Promise<string> {
-    console.info(pluginPrev, oldVersion);
-    return 'hx8f23r1';
-  }
-
-  async execute(options: JiraOptions): Promise<void> {
+  async execute(options: JiraOptions): Promise<DAG> {
     //TODO: Add jira collector and enrichment
     console.info('Excute Jira', options);
-    return;
+    const dag = await this.resolver.resolve(IssueLeadTimeEntity);
+    return dag;
   }
 }
 
