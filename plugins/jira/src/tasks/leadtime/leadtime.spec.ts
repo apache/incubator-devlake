@@ -3,7 +3,6 @@ import LeadTimeEnricher from './leadtime.enricher';
 import IssueEntity from '../issue/issue.entity';
 import IssueLeadTimeEntity from './leadtime.entity';
 
-
 describe('Jira/Issue', () => {
   let app: TestingModule;
 

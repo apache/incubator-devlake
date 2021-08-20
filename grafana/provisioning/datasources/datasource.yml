@@ -2,17 +2,10 @@
 apiVersion: 1
 
 datasources:
-  - name: Postgres
-    type: postgres
-    url: postgresdb:5432
-    database: lake
-    user: postgres
+  - name: mysql
+    type: mysql
+    url: mysql:3006
+    database: lake_db
+    user: merico
     secureJsonData:
-      password: "postgres"
-    jsonData:
-      sslmode: "disable"
-      maxOpenConns: 0
-      maxIdleConns: 2
-      connMaxLifetime: 14400
-      postgresVersion: 903
-      timescaledb: false
+      password: "merico"

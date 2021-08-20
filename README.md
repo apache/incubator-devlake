@@ -17,6 +17,11 @@
 3. Install `postgres` and `redis` and startup
 4. Create config file `cp .env.sample .env`. change `DB_URL` and `REDIS_URL` to your local db
 5. Start services `npm run all`
+6. You can now see the REST application running on localhost:3000
+
+**NOTE: To run the tests:**
+1. Create config file `cp .env.sample .env.test`
+2. `npm run test:e2e`
 
 ### Docker
 
@@ -26,6 +31,7 @@
 4. Install dependencies with `npm i`
 5. Create config file `cp .env.sample .env`. change `DB_URL` and `REDIS_URL` to your docker container db
 6. Start services `npm run all`
+6. You can now see the REST application running on localhost:3000
 
 ## Configuration
 
@@ -51,13 +57,14 @@ Additionally to use the postgres database as data source inside grafana, ensure 
 ### Add Data Source
 
 ```
-POST  /sources
+POST localhost:3000/source
 {
-    type: 'Jira',
-    options: {
-        host: '',
-        username: '',
-        password: 'password or api token'
+    "type": "Jira",
+    "name": "Jira Collector",
+    "options": {
+        "host": "https://www.atlassian.com/",
+        "email": "xx@example.com",
+        "auth": "base64EncodedAuthToken"
     }
 }
 
@@ -68,7 +75,7 @@ response:
 ### Add Data Source Task
 
 ```
-POST  /sources/${source id}
+POST  localhost:3000/sources/${source id}
 {
     collector: ['Issue'],
     enricher: ['LeadTime'],
@@ -85,7 +92,7 @@ response:
 ### Waiting Task Finished
 
 ```
-GET  /tasks/${task id}
+GET  localhost:3000/tasks/${task id}
 
 response:
 {

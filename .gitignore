@@ -118,6 +118,7 @@ dist
 .pnp.*
 
 postgres-data/
+mysql-data/
 data/
 .docker/
 

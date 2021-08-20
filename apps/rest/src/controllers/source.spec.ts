@@ -72,6 +72,8 @@ describe('SourceController', () => {
           return {
             total: 1,
             offset: 0,
+            page: 1,
+            pagesize: 10,
             data: [],
           };
         });

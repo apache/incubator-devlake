@@ -27,6 +27,8 @@ Object {
 exports[`SourceController (e2e) /source (CRUD) mock a CRUD progress 3`] = `
 Object {
   "offset": 0,
+  "page": 1,
+  "pagesize": 10,
   "total": 2,
 }
 `;
@@ -57,6 +59,8 @@ Array [
 exports[`SourceController (e2e) /source (CRUD) mock a CRUD progress 5`] = `
 Object {
   "offset": 0,
+  "page": 1,
+  "pagesize": 10,
   "total": 1,
 }
 `;
