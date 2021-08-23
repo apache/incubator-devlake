@@ -32,6 +32,10 @@ export class DAG {
     return this._tasks[index];
   }
 
+  set(index: number, task: any) {
+    this._tasks[index] = task;
+  }
+
   find(query: any): any {
     return this._tasks.find((task) => {
       for (const key of Object.keys(query)) {
@@ -45,6 +49,19 @@ export class DAG {
 
   findIndex(query: any): number {
     return this._tasks.findIndex((task) => {
+      if (Array.isArray(task)) {
+        const subindex = task.findIndex((t) => {
+          for (const key of Object.keys(query)) {
+            if (query[key] !== t[key]) {
+              return false;
+            }
+          }
+          return true;
+        });
+        if (subindex >= 0) {
+          return true;
+        }
+      }
       for (const key of Object.keys(query)) {
         if (query[key] !== task[key]) {
           return false;

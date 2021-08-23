@@ -38,21 +38,45 @@ export default class Task {
     this.dag = dag;
   }
 
-  async next(jobId?: string): Promise<Job[]> {
+  async next(jobId?: string, datas?: any): Promise<Job[]> {
     if (!this.dag) {
       await this._initiDag();
     }
+    let jobindx = 0;
     if (jobId) {
-      const currentIndex = this.dag.findIndex({ id: jobId });
-      if (currentIndex < this.dag.length - 1) {
-        const job = await this._getJobAtIndex(currentIndex + 1);
-        return [job];
+      jobindx = this.dag.findIndex({ id: jobId });
+      if (jobindx >= this.dag.length) {
+        return [];
       }
-    } else {
-      const job = await this._getJobAtIndex(0);
-      if (job) {
-        return [job];
+      const current = this.dag.get(jobindx);
+      if (Array.isArray(current)) {
+        const sub = current.find((c) => c.id === jobId);
+        if (sub) {
+          sub.finished = true;
+        }
+        if (current.find((c) => !c.finished)) {
+          return [];
+        }
       }
+      jobindx += 1;
+    }
+    const job = await this._getJobAtIndex(jobindx);
+    if (job) {
+      const jobs = [];
+      if (datas && Array.isArray(datas)) {
+        for (const r of datas) {
+          jobs.push({
+            ...job,
+            id: v4(),
+            data: { ...job.data, ...r },
+          });
+        }
+        this.dag.set(jobindx, jobs);
+      } else {
+        jobs.push(job);
+      }
+      await this.save();
+      return jobs;
     }
     return [];
   }
