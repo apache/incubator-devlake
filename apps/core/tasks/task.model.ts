@@ -44,52 +44,37 @@ export default class Task {
     }
     let jobindx = 0;
     if (jobId) {
-      jobindx = this.dag.findIndex({ id: jobId });
+      const id = jobId.split(':')[0];
+      jobindx = this.dag.findIndex({ id });
       if (jobindx >= this.dag.length) {
         return [];
       }
       const current = this.dag.get(jobindx);
-      if (Array.isArray(current)) {
-        const sub = current.find((c) => c.id === jobId);
-        let w = await this.redis.setnx(
-          `${this.taskId}:${sub.name}`,
-          'CHECKING',
-        );
-        while (w != 1) {
-          await new Promise((resolve) => setTimeout(() => resolve(true), 10));
-          w = await this.redis.setnx(`${this.taskId}:${sub.name}`, 'CHECKING');
-        }
-        await this.redis.set(`${this.taskId}:${sub.name}:${sub.id}`, 1);
-        const allkeys = await this.redis.keys(`${this.taskId}:${sub.name}:*`);
-        for (const key of allkeys) {
-          const v = await this.redis.get(key);
-          if (parseInt(v) === 0) {
-            await this.redis.del(`${this.taskId}:${sub.name}`);
-            return [];
-          }
-        }
-        await this.redis.del(`${this.taskId}:${sub.name}`);
+      const jobkey = `${this.taskId}:${current.name}`;
+      const n = await this.redis.decr(jobkey);
+      if (n > 0) {
+        return [];
       }
       jobindx += 1;
     }
     const job = await this._getJobAtIndex(jobindx);
     if (job) {
+      const nextKey = `${this.taskId}:${job.name}`;
       const jobs = [];
       if (datas && Array.isArray(datas)) {
-        for (const r of datas) {
+        for (const i in datas) {
+          const r = datas[i];
           const n = {
             ...job,
-            id: v4(),
+            id: `${job.id}:${i}`,
             data: { ...job.data, ...r },
           };
           jobs.push(n);
-          await this.redis.set(`${this.taskId}:${job.name}:${n.id}`, 0);
         }
-        this.dag.set(jobindx, jobs);
       } else {
-        await this.redis.set(`${this.taskId}:${job.name}:${job.id}`, 0);
         jobs.push(job);
       }
+      await this.redis.set(nextKey, jobs.length);
       await this.save();
       return jobs;
     }

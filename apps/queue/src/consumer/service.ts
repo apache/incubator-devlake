@@ -20,8 +20,7 @@ export class ConsumerService {
     this.queue.on('completed', this.jobCompleted.bind(this));
   }
 
-
-  async process(job: Bull.Job): Promise<void> {
+  async process(job: Bull.Job): Promise<any> {
     const { name, data } = job;
     const executor = await this.moduleRef.resolve<IExecutable<any>>(
       name,
@@ -41,7 +40,9 @@ export class ConsumerService {
           result,
         });
       }
+      return Promise.resolve(result);
     }
+    return Promise.resolve(true);
   }
 
   async jobFailed(job: Bull.Job, error: Error): Promise<void> {
