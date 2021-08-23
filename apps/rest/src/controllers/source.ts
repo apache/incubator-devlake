@@ -3,6 +3,7 @@ import {
   Controller,
   Delete,
   Get,
+  Logger,
   Param,
   Post,
   Put,
@@ -16,6 +17,8 @@ import { CreateSource, ListSource, UpdateSource } from '../types/source';
 
 @Controller('source')
 export class SourceController {
+  private readonly logger = new Logger(SourceController.name);
+
   constructor(private readonly sourceService: SourceService) {}
 
   @Post()

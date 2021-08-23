@@ -4,11 +4,11 @@ import { Max, Min } from 'class-validator';
 export class PaginationRequest {
   @Min(1)
   @Type(() => Number)
-  page: number;
+  page = 1;
 
   @Max(100)
   @Type(() => Number)
-  pagesize: number;
+  pagesize = 20;
 }
 
 export class PaginationResponse<T> {

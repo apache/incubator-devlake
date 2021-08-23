@@ -5,7 +5,7 @@ import CustomTypeOrmModule from './providers/typeorm.module';
 import entities from './models';
 import { AppController } from './controllers/app';
 import { APP_FILTER, APP_PIPE } from '@nestjs/core';
-import { NotFoundFilter } from './providers/exception';
+import { GlobalExceptions } from './providers/exception';
 import { SourceController } from './controllers/source';
 import { SourceTaskController } from './controllers/sourceTask';
 import { SourceService } from './services/source';
@@ -24,7 +24,7 @@ import { SourceTaskService } from './services/sourceTask';
   ],
   controllers: [AppController, SourceController, SourceTaskController],
   providers: [
-    { provide: APP_FILTER, useClass: NotFoundFilter },
+    { provide: APP_FILTER, useClass: GlobalExceptions },
     {
       provide: APP_PIPE,
       useFactory: () => {

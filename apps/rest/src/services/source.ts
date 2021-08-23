@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { InjectEntityManager } from '@nestjs/typeorm';
 import { EntityManager, FindConditions, FindManyOptions } from 'typeorm';
 import { UniqueID } from '../models/base';
@@ -8,6 +8,8 @@ import { CreateSource, ListSource, UpdateSource } from '../types/source';
 
 @Injectable()
 export class SourceService {
+  private logger = new Logger(SourceService.name);
+
   constructor(@InjectEntityManager() private em: EntityManager) {}
 
   async list(filter: ListSource): Promise<PaginationResponse<Source>> {
@@ -49,6 +51,7 @@ export class SourceService {
   async delete(id: UniqueID): Promise<Source> {
     const target = await this.get(id);
     await this.em.remove(target);
+    this.logger.log('source deleted', { id });
     return target;
   }
 
