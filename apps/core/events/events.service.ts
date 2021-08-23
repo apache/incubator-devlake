@@ -20,8 +20,10 @@ export class EventsService {
     this.sub.on('message', async (channel) => {
       if (channel === event) {
         const message = await this.pub.rpop(event);
-        const args = JSON.parse(message);
-        handler(args);
+        if (message) {
+          const args = JSON.parse(message);
+          handler(args);
+        }
       }
     });
   }
