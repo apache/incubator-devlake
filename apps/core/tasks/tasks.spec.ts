@@ -1,6 +1,7 @@
 import { getQueueToken } from '@nestjs/bull';
 import { Test, TestingModule } from '@nestjs/testing';
 import { DAG } from 'plugins/core/src/dependency.resolver';
+import Task from './task.model';
 import { TasksModule } from './tasks.module';
 import { TasksService } from './tasks.services';
 
@@ -52,6 +53,32 @@ describe('TasksModule', () => {
       const tasksService = app.get<TasksService>(TasksService);
       await tasksService.startTask(new DAG([{ name: 'Test' }]));
       expect(mockedQueue.add).toBeCalled();
+    });
+  });
+
+  describe('TaskModel', () => {
+    it('constructor', async () => {
+      const client = app.get('REDIS_TASK_CLIENT');
+      const task = new Task('test', client);
+      expect(task).toBeDefined();
+    });
+
+    it('init empty', async () => {
+      const client = app.get('REDIS_TASK_CLIENT');
+      const task = new Task('test', client);
+      task.init(new DAG([]));
+      const jobs = await task.next();
+      expect(jobs).toHaveLength(0);
+    });
+
+    it('init with job', async () => {
+      const client = app.get('REDIS_TASK_CLIENT');
+      const task = new Task('test', client);
+      task.init(new DAG([{ name: 'UT' }]));
+      const jobs = await task.next();
+      expect(jobs).toHaveLength(1);
+      expect(jobs[0]).toHaveProperty('name', 'UT');
+      expect(jobs[0]).toHaveProperty('id');
     });
   });
 });
