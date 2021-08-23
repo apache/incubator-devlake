@@ -20,7 +20,7 @@ class Jira implements Plugin {
 
   async execute(options: JiraOptions): Promise<DAG> {
     //TODO: Add jira collector and enrichment
-    console.info('Execute Jira', options);
+    console.info('Jira Plugin Executed', options);
     const dag = await this.resolver.resolve(this.exports()[0]);
     return dag;
   }

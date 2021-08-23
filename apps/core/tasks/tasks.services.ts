@@ -46,6 +46,7 @@ export class TasksService {
     }
     const task = new Task(taskId, this.redis);
     const jobs = await task.next(jobId, result);
+    console.info(jobs)
     for (const job of jobs) {
       await this.producer.addJob(job.name, job.data, { jobId: job.id });
     }

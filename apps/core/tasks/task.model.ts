@@ -35,7 +35,18 @@ export default class Task {
   }
 
   async init(dag: DAG): Promise<void> {
-    this.dag = dag;
+    this.dag = new DAG(
+      dag.getPipline().map((t) => {
+        t.data = { ...t.data, taskId: this.taskId };
+        return t;
+      }),
+    );
+    console.info(
+      `Initial Task [${this.taskId}] with pipline [${this.dag
+        .getPipline()
+        .map((p) => p.name)
+        .join(' --> ')}]`,
+    );
   }
 
   async next(jobId?: string, datas?: any): Promise<Job[]> {
@@ -46,7 +57,8 @@ export default class Task {
     if (jobId) {
       const id = jobId.split(':')[0];
       jobindx = this.dag.findIndex({ id });
-      if (jobindx >= this.dag.length) {
+      if (jobindx >= this.dag.length - 1) {
+        console.info(`Task Pipline Finished [${this.taskId}]`);
         return [];
       }
       const current = this.dag.get(jobindx);
