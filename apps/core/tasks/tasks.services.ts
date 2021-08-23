@@ -40,14 +40,28 @@ export class TasksService {
   }
 
   async handleJobFinishd(job: JobEvent): Promise<void> {
-    const { taskId, jobId } = job;
+    const { taskId, jobId, result } = job;
     if (!taskId) {
       return;
     }
     const task = new Task(taskId, this.redis);
     const jobs = await task.next(jobId);
     for (const job of jobs) {
-      await this.producer.addJob(job.name, job.data, { jobId: job.id });
+      if (Array.isArray(result)) {
+        for (const r of result) {
+          await this.producer.addJob(
+            job.name,
+            { ...job.data, ...r },
+            { jobId: job.id },
+          );
+        }
+      } else {
+        await this.producer.addJob(
+          job.name,
+          { ...job.data, ...result },
+          { jobId: job.id },
+        );
+      }
     }
     await task.save();
   }

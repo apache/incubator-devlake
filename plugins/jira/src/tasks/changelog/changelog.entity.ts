@@ -7,8 +7,8 @@ export default class ChangelogEntity extends BaseEntity {
   key: string;
 
   @Column()
-  fromString: string;
+  from: string;
 
   @Column()
-  toString: string;
+  to: string;
 }
