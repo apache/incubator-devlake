@@ -51,12 +51,24 @@ export default class Task {
       const current = this.dag.get(jobindx);
       if (Array.isArray(current)) {
         const sub = current.find((c) => c.id === jobId);
-        if (sub) {
-          sub.finished = true;
+        let w = await this.redis.setnx(
+          `${this.taskId}:${sub.name}`,
+          'CHECKING',
+        );
+        while (w != 1) {
+          await new Promise((resolve) => setTimeout(() => resolve(true), 10));
+          w = await this.redis.setnx(`${this.taskId}:${sub.name}`, 'CHECKING');
         }
-        if (current.find((c) => !c.finished)) {
-          return [];
+        await this.redis.set(`${this.taskId}:${sub.name}:${sub.id}`, 1);
+        const allkeys = await this.redis.keys(`${this.taskId}:${sub.name}:*`);
+        for (const key of allkeys) {
+          const v = await this.redis.get(key);
+          if (parseInt(v) === 0) {
+            await this.redis.del(`${this.taskId}:${sub.name}`);
+            return [];
+          }
         }
+        await this.redis.del(`${this.taskId}:${sub.name}`);
       }
       jobindx += 1;
     }
@@ -65,14 +77,17 @@ export default class Task {
       const jobs = [];
       if (datas && Array.isArray(datas)) {
         for (const r of datas) {
-          jobs.push({
+          const n = {
             ...job,
             id: v4(),
             data: { ...job.data, ...r },
-          });
+          };
+          jobs.push(n);
+          await this.redis.set(`${this.taskId}:${job.name}:${n.id}`, 0);
         }
         this.dag.set(jobindx, jobs);
       } else {
+        await this.redis.set(`${this.taskId}:${job.name}:${job.id}`, 0);
         jobs.push(job);
       }
       await this.save();
