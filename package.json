@@ -17,6 +17,7 @@
     "all:dev": "concurrently \"nest start reset --watch\" \"nest start queue --watch\"",
     "queue": "nest start queue",
     "rest": "nest start rest",
+    "producer": "nest start producer",
     "queue:dev": "nest start queue --watch",
     "rest:dev": "nest start rest --watch",
     "lint": "eslint \"{apps,plugins}/**/*.ts\" --fix",
