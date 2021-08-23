@@ -25,6 +25,7 @@ export default class LeadTimeEnricher implements Task {
   async execute(source: JiraSource): Promise<void> {
     //TODO: do enrichment
     console.info('Excute Jira Lead Time Enricher', source);
+    await new Promise((resolve) => setTimeout(() => resolve(true), 100));
     return;
   }
 }

@@ -24,6 +24,7 @@ export default class ChangelogCollector implements Task {
   async execute(source: JiraSource): Promise<void> {
     //TODO: do collector
     console.info('Excute Issue Changelog Collector', source);
+    await new Promise((resolve) => setTimeout(() => resolve(true), 100));
     return;
   }
 }

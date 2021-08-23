@@ -15,7 +15,7 @@ export class ConsumerService {
     private eventsService: EventsService,
     private tasksService: TasksService,
   ) {
-    this.queue.process('*', this.process.bind(this));
+    this.queue.process('*', 2, this.process.bind(this));
     this.queue.on('failed', this.jobFailed.bind(this));
     this.queue.on('completed', this.jobCompleted.bind(this));
   }
