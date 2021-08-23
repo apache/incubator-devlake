@@ -2,7 +2,7 @@ coverage:
   status:
     project:
       default:
-        target: auto
+        target: 65
         threshold: 1%
 comment:
   require_changes: true
