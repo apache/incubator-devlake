@@ -1,7 +1,8 @@
 {
   "moduleFileExtensions": ["js", "json", "ts"],
   "moduleNameMapper": {
-    "^plugins/(.*)$": "<rootDir>/plugins/$1"
+    "^plugins/(.*)$": "<rootDir>/plugins/$1",
+    "^apps/(.*)$": "<rootDir>/apps/$1"
   },
   "rootDir": ".",
   "testEnvironment": "node",

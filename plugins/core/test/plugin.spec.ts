@@ -5,7 +5,11 @@ import PluginModule from '../src/plugins.module';
 
 class TestPlugin implements Plugin {
   async execute(...args: any[]): Promise<DAG> {
-    return {};
+    return new DAG([]);
+  }
+
+  exports() {
+    return [];
   }
 }
 

@@ -1,3 +1,5 @@
+import { Type } from '@nestjs/common';
+import BaseEntity from './base.entity';
 import { DAG } from './dependency.resolver';
 import IExecutable from './executable.interface';
 
@@ -11,6 +13,8 @@ interface Plugin extends IExecutable<DAG> {
    * It should include collector init/enricher init/or more by args
    */
   execute(...args: any[]): Promise<DAG>;
+
+  exports(): Type<BaseEntity>[];
 }
 
 export default Plugin;

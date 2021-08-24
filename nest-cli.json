@@ -1,6 +1,6 @@
 {
   "collection": "@nestjs/schematics",
-  "sourceRoot": "apps/rest/src",
+  "sourceRoot": "./",
   "monorepo": true,
   "root": "apps/rest",
   "compilerOptions": {
@@ -24,6 +24,14 @@
       "sourceRoot": "apps/queue/src",
       "compilerOptions": {
         "tsConfigPath": "apps/queue/tsconfig.app.json"
+      }
+    },
+    "producer": {
+      "type": "application",
+      "root": "scripts",
+      "entryFile": "producer",
+      "compilerOptions": {
+        "tsConfigPath": "scripts/tsconfig.script.json"
       }
     }
   }

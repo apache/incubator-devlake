@@ -8,7 +8,7 @@ describe('EventsModule (e2e)', () => {
 
   beforeAll(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
-      imports: [EventsModule],
+      imports: [EventsModule.forRoot()],
     }).compile();
 
     app = moduleFixture.createNestMicroservice(moduleFixture);
@@ -24,15 +24,15 @@ describe('EventsModule (e2e)', () => {
     expect(service).toBeDefined();
   });
 
-  // it('Event', (done) => {
-  //   const service = app.get(EventsService);
-  //   const linstenFuc = (value) => {
-  //     expect(value).toEqual({ ut: 'test' });
-  //     //use done to make sure function be called
-  //     done();
-  //     return;
-  //   };
-  //   service.on('Custom', linstenFuc);
-  //   service.emit('Custom', { ut: 'test' });
-  // }, 10000);
+  it('Event', (done) => {
+    const service = app.get(EventsService);
+    const linstenFuc = (value) => {
+      expect(value).toEqual({ ut: 'test' });
+      //use done to make sure function be called
+      done();
+      return;
+    };
+    service.on('Custom', linstenFuc);
+    service.emit('Custom', { ut: 'test' });
+  }, 10000);
 });

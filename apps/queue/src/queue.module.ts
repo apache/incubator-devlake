@@ -6,8 +6,8 @@ import { ProducerModule } from './producer';
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
-    ConsumerModule.forRoot(),
     ProducerModule.forRoot(),
+    ConsumerModule.forRoot(),
   ],
   providers: [],
 })

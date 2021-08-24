@@ -1,15 +1,112 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Type } from '@nestjs/common';
 import { ModuleRef } from '@nestjs/core';
 import BaseEntity from './base.entity';
+import { EXPORTS_META_KEY, PRODUCER_META_KEY } from './exports.decorator';
+import { IMPORTS_META_KEY } from './imports.decorator';
+import Task from './task.interface';
 
-export class DAG {} //TEMP TYPE
+export class DAG {
+  private _tasks = [];
+
+  constructor(task: any[]) {
+    this._tasks = task;
+  }
+
+  get length(): number {
+    return this._tasks.length;
+  }
+
+  async appendTask(task: Type<Task>): Promise<void> {
+    this._tasks.splice(0, 0, { name: task.name });
+  }
+
+  async pushTask(task: Type<Task>): Promise<void> {
+    this._tasks.push({ name: task.name });
+  }
+
+  toPipline(): any[] {
+    return this._tasks;
+  }
+
+  get(index: number): any {
+    return this._tasks[index];
+  }
+
+  set(index: number, task: any) {
+    this._tasks[index] = task;
+  }
+
+  find(query: any): any {
+    return this._tasks.find((task) => {
+      for (const key of Object.keys(query)) {
+        if (query[key] !== task[key]) {
+          return false;
+        }
+      }
+      return true;
+    });
+  }
+
+  findIndex(query: any): number {
+    return this._tasks.findIndex((task) => {
+      if (Array.isArray(task)) {
+        const subindex = task.findIndex((t) => {
+          for (const key of Object.keys(query)) {
+            if (query[key] !== t[key]) {
+              return false;
+            }
+          }
+          return true;
+        });
+        if (subindex >= 0) {
+          return true;
+        }
+      }
+      for (const key of Object.keys(query)) {
+        if (query[key] !== task[key]) {
+          return false;
+        }
+      }
+      return true;
+    });
+  }
+
+  getPipline() {
+    return this._tasks;
+  }
+}
 
 @Injectable()
 export default class DependencyResolver {
-  constructor(private moduleRef: ModuleRef) {}
+  static resolveEntity(entity: Type<BaseEntity>): Type<Task>[] {
+    let tasks = [];
+    const ProducerType = Reflect.getMetadata(PRODUCER_META_KEY, entity);
+    tasks.push(ProducerType);
+    const importEntities = Reflect.getMetadata(IMPORTS_META_KEY, ProducerType);
+    if (importEntities) {
+      for (const entityClass of importEntities) {
+        const subtasks = DependencyResolver.resolveEntity(entityClass);
+        tasks = tasks.concat(subtasks);
+      }
+    }
+    return tasks;
+  }
 
-  async resolve(entity: typeof BaseEntity): Promise<DAG> {
+  async resolve(entity: Type<BaseEntity>): Promise<DAG> {
     //TODO: fetch TASK DAG from target Entity
-    return {};
+    const dag = new DAG([]);
+    await this.resolveEntity(entity, dag);
+    return dag;
+  }
+
+  async resolveEntity(entity: Type<BaseEntity>, dag: DAG): Promise<void> {
+    const ProducerType = Reflect.getMetadata(PRODUCER_META_KEY, entity);
+    dag.appendTask(ProducerType);
+    const importEntities = Reflect.getMetadata(IMPORTS_META_KEY, ProducerType);
+    if (importEntities) {
+      for (const entityClass of importEntities) {
+        this.resolveEntity(entityClass, dag);
+      }
+    }
   }
 }
