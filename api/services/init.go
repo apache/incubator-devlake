@@ -1,8 +1,8 @@
 package services
 
 import (
+	"github.com/merico-dev/lake/api/models"
 	"github.com/merico-dev/lake/config"
-	"github.com/merico-dev/lake/models"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 )
@@ -21,4 +21,5 @@ func init() {
 
 func migrateDB() {
 	db.AutoMigrate(&models.Source{})
+	// TODO: create customer migration here
 }
