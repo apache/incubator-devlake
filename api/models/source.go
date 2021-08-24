@@ -6,6 +6,7 @@ import (
 
 type Source struct {
 	Model
-	Type    string
+	Plugin  string
+	Name    string
 	Options datatypes.JSON
 }

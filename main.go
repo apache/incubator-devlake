@@ -1,8 +1,8 @@
 package main
 
-import "github.com/merico-dev/lake/services"
+import "github.com/merico-dev/lake/api"
 
 func main() {
-	services.NewSource()
 	println("Hello, lake")
+	api.CreateApiService()
 }
