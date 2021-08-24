@@ -10,9 +10,9 @@ services:
       - 3306:3306
     platform: linux/x86_64
     environment:
-      MYSQL_ROOT_PASSWORD: root
-      MYSQL_DATABASE: lake_db
-      MYSQL_USER: mysql
+      MYSQL_ROOT_PASSWORD: admin
+      MYSQL_DATABASE: lake
+      MYSQL_USER: root
       MYSQL_PASSWORD: root
   redis:
     image: redis:6
