@@ -1,0 +1,35 @@
+
+version: "3"
+services:
+  mysql:
+    image: mysql:latest
+    volumes:
+      - ./mysql-data:/var/lib/mysql
+    restart: always
+    ports:
+      - 3306:3306
+    platform: linux/x86_64
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: lake_db
+      MYSQL_USER: mysql
+      MYSQL_PASSWORD: root
+  redis:
+    image: redis:6
+    ports:
+      - 6379:6379
+  grafana:
+    hostname: grafana
+    image: grafana/grafana:8.0.6
+    ports:
+      - 3002:3000
+    volumes:
+      - grafana-storage:/var/lib/grafana
+      - ./grafana/provisioning:/etc/grafana/provisioning
+      - ./grafana/dashboards:/etc/grafana/dashboards
+      - ./grafana/img/grafana_icon.svg:/usr/share/grafana/public/img/grafana_icon.svg:rw
+    env_file:
+      - ./grafana/grafana.config
+    restart: always
+volumes:
+  grafana-storage: {}

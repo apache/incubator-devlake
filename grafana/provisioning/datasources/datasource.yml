@@ -1,0 +1,11 @@
+# config file version
+apiVersion: 1
+
+datasources:
+  - name: mysql
+    type: mysql
+    url: mysql:3006
+    database: lake_db
+    user: merico
+    secureJsonData:
+      password: "merico"
