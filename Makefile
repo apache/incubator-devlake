@@ -5,7 +5,7 @@ hello:
 	echo "Hello"
 
 build:
-	go build -o bin/main main.go
+	go build
 
 run:
 	go run main.go
@@ -18,3 +18,6 @@ compose-down:
 
 commit: 
 	git cz
+
+install:
+	go get
