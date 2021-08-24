@@ -11,6 +11,5 @@ func init() {
 	if err != nil {
 		panic(err)
 	}
-
-	V.SetDefault("pagesize", 20)
+	V.SetDefault("PORT", ":8080")
 }
