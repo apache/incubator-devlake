@@ -28,3 +28,6 @@ install:
 
 test:
 	go test -v ./...
+
+docs:
+  swag init --parseDependency --parseInternal -o ./api/docs

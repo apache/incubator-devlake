@@ -1,0 +1,108 @@
+basePath: /
+definitions:
+  models.Source:
+    properties:
+      createdAt:
+        type: string
+      deletedAt:
+        type: string
+      id:
+        type: integer
+      name:
+        type: string
+      options:
+        items:
+          type: integer
+        type: array
+      plugin:
+        type: string
+      status:
+        type: integer
+      updatedAt:
+        type: string
+    type: object
+  models.Task:
+    properties:
+      createdAt:
+        type: string
+      deletedAt:
+        type: string
+      id:
+        type: integer
+      options:
+        items:
+          type: integer
+        type: array
+      plugin:
+        type: string
+      sourceID:
+        type: integer
+      status:
+        type: integer
+      updatedAt:
+        type: string
+    type: object
+  types.CreateTask:
+    properties:
+      options:
+        additionalProperties: true
+        description: Options for the plugin task to be triggered
+        type: object
+      plugin:
+        default: Jira
+        description: Plugin name
+        type: string
+    required:
+    - options
+    - plugin
+    type: object
+host: localhost:8080
+info:
+  contact: {}
+  title: Dev Lake API
+  version: "1.0"
+paths:
+  /source:
+    post:
+      consumes:
+      - application/json
+      description: create a source for plugin
+      operationId: create-post
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          headers:
+            Token:
+              description: qwerty
+              type: string
+          schema:
+            $ref: '#/definitions/models.Source'
+      summary: create a source
+  /task:
+    post:
+      consumes:
+      - application/json
+      description: create and trigger a plugin task
+      operationId: create-task
+      parameters:
+      - description: task info
+        in: body
+        name: param
+        required: true
+        schema:
+          $ref: '#/definitions/types.CreateTask'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          headers:
+            Token:
+              description: qwerty
+              type: string
+          schema:
+            $ref: '#/definitions/models.Task'
+      summary: create a plugin task
+swagger: "2.0"
