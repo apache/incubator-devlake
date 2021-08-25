@@ -138,3 +138,6 @@ Thumbs.db
 yarn.lock
 
 lake
+*.exe
+
+*.so
