@@ -25,7 +25,7 @@ func TestPluginsLoading(t *testing.T) {
 	}
 	progress := make(chan float32)
 	fmt.Printf("start runing plugin %v\n", name)
-	go RunPlugin(name, options, progress)
+	go RunPlugin(name, options, progress) //nolint:golint,errcheck
 	for p := range progress {
 		fmt.Printf("running plugin %v, progress: %v\n", name, p*100)
 	}

@@ -40,10 +40,13 @@ func LoadPlugins(pluginsDir string) error {
 			if err != nil {
 				return err
 			}
-			symPluginEntry, err := plug.Lookup("PluginEntry")
+			symPluginEntry, pluginEntryError := plug.Lookup("PluginEntry")
+			if pluginEntryError != nil {
+				panic(pluginEntryError)
+			}
 			plugEntry, ok := symPluginEntry.(Plugin)
 			if !ok {
-				return errors.New(fmt.Sprintf("%v PluginEntry must implement Plugin interface", file.Name()))
+				return fmt.Errorf("%v PluginEntry must implement Plugin interface", file.Name())
 			}
 			Plugins[subDir.Name()] = plugEntry
 			break
@@ -58,7 +61,7 @@ func RunPlugin(name string, options map[string]interface{}, progress chan<- floa
 	}
 	plugin, ok := Plugins[name]
 	if !ok {
-		return errors.New(fmt.Sprintf("Unable to find plugin with name %v", name))
+		return fmt.Errorf("Unable to find plugin with name %v", name)
 	}
 	plugin.Execute(options, progress)
 	return nil
