@@ -13,7 +13,7 @@ func init() {
 	V.AutomaticEnv()
 	err := V.ReadInConfig()
 	if err != nil {
-		logger.Error(err)
+		logger.Error("failed to read in config", err)
 	}
 	V.SetDefault("PORT", ":8080")
 }
