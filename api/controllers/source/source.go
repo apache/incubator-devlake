@@ -17,7 +17,7 @@ func Post(ctx *gin.Context) {
 		ctx.AbortWithError(http.StatusBadRequest, err)
 		return
 	}
-	logger.Debug("CreateSource", data)
+	logger.Debug(data)
 	err = services.NewSource(data)
 	if err != nil {
 		ctx.AbortWithError(http.StatusInternalServerError, err)
