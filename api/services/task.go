@@ -15,14 +15,14 @@ func NewTask(data types.CreateTask) (*models.Task, error) {
 	if err != nil {
 		return nil, err
 	}
-	task := &models.Task{
+	task := models.Task{
 		Plugin:  data.Plugin,
 		Options: b,
 	}
-	err = db.Save(task).Error
+	err = db.Save(&task).Error
 	if err != nil {
-		logger.Error(err.Error(), err)
+		logger.Error(err)
 		return nil, errors.NewHttpError(http.StatusInternalServerError, err.Error())
 	}
-	return task, nil
+	return &task, nil
 }

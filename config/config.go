@@ -16,4 +16,5 @@ func init() {
 		logger.Error("failed to read in config", err)
 	}
 	V.SetDefault("PORT", ":8080")
+	V.SetDefault("MODE", "debug")
 }

@@ -27,12 +27,12 @@ func Post(ctx *gin.Context) {
 		_ = ctx.AbortWithError(http.StatusBadRequest, err)
 		return
 	}
-	logger.Debug("CreateTask", data)
+	logger.Debug(data)
 	task, err := services.NewTask(data)
 	if err != nil {
 		_ = ctx.AbortWithError(http.StatusInternalServerError, err)
 		return
 	}
-	ctx.JSON(http.StatusOK, task)
+	ctx.JSON(http.StatusCreated, task)
 	// TODO: trigger plugin task
 }
