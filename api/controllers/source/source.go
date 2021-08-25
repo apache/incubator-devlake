@@ -14,16 +14,14 @@ func Post(ctx *gin.Context) {
 	var data types.CreateSource
 	err := ctx.MustBindWith(&data, binding.JSON)
 	if err != nil {
-		ctx.AbortWithError(http.StatusBadRequest, err)
+		_ = ctx.AbortWithError(http.StatusBadRequest, err)
 		return
 	}
-	logger.Debug("Created Source", data)
-	logger.Info("Created Source", data)
-	logger.Error("Created Source", data)
-	logger.Warn("Created Source", data)
-	err = services.NewSource(data)
+	logger.Debug(data)
+	source, err := services.NewSource(data)
 	if err != nil {
-		ctx.AbortWithError(http.StatusInternalServerError, err)
+		_ = ctx.AbortWithError(http.StatusInternalServerError, err)
 		return
 	}
+	ctx.JSON(http.StatusCreated, source)
 }

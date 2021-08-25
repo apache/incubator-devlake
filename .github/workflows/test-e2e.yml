@@ -1,0 +1,33 @@
+# This action run e2e test for pull requests
+name: test
+on: [pull_request]
+jobs:
+  e2e-mysql:
+    strategy:
+      matrix:
+        go-version: [1.15.x]
+        os: [ubuntu-latest]
+    runs-on: ${{ matrix.os }}
+    env:
+      DB_DATABASE: lake
+      DB_USER: root
+      DB_PASSWORD: root
+      DB_URL: root:root@tcp(localhost:3306)/lake?charset=utf8mb4&loc=Asia%2fShanghai&parseTime=True
+      REDIS_URL: redis://localhost:6379/1
+    steps:
+    - name: Install Go
+      uses: actions/setup-go@v2
+      with:
+        go-version: ${{ matrix.go-version }}
+    - name: Checkout code
+      uses: actions/checkout@v2
+    - name: setup mysql
+      run: |
+        sudo /etc/init.d/mysql start
+        mysql -e 'CREATE DATABASE ${{ env.DB_DATABASE }};' -u${{ env.DB_USER }} -p${{ env.DB_PASSWORD }}
+    - name: setup redis
+      uses: shogo82148/actions-setup-redis@v1
+      with:
+        redis-version: '6.x'
+    - name: Test
+      run: go test -v ./test/...
