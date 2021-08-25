@@ -8,6 +8,9 @@ hello:
 build:
 	go build
 
+dev:
+	go build; ./lake
+
 run:
 	go run main.go
 
