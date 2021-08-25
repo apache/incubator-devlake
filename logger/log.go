@@ -1,6 +1,11 @@
 package logger
 
-import "github.com/sirupsen/logrus"
+import (
+	"fmt"
+	"runtime"
+
+	"github.com/sirupsen/logrus"
+)
 
 var log *logrus.Logger
 
@@ -11,18 +16,34 @@ func init() {
 	log.SetLevel(logrus.DebugLevel)
 }
 
-func Debug(message string, ctx interface{}) {
-	log.Debug(message, ctx)
+func Debug(data interface{}) {
+	_, file, line, ok := runtime.Caller(1)
+	if !ok {
+		file = "unknown"
+	}
+	log.Debug(fmt.Sprintf("[%s:%d]", file, line), data)
 }
 
-func Info(message string, ctx interface{}) {
-	log.Info(message, ctx)
+func Info(data interface{}) {
+	_, file, line, ok := runtime.Caller(1)
+	if !ok {
+		file = "unknown"
+	}
+	log.Info(fmt.Sprintf("[%s:%d]", file, line), data)
 }
 
-func Error(message string, err error) {
-	log.Error(message, err)
+func Error(data interface{}) {
+	_, file, line, ok := runtime.Caller(1)
+	if !ok {
+		file = "unknown"
+	}
+	log.Error(fmt.Sprintf("[%s:%d]", file, line), data)
 }
 
-func Warn(message string, ctx interface{}) {
-	log.Warn(message, ctx)
+func Warn(data interface{}) {
+	_, file, line, ok := runtime.Caller(1)
+	if !ok {
+		file = "unknown"
+	}
+	log.Warn(fmt.Sprintf("[%s:%d]", file, line), data)
 }
