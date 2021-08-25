@@ -24,7 +24,14 @@ commit:
 	git cz
 
 install:
+	go clean --modcache
 	go get
 
-test:
-	go test -v ./...
+test: test-jira unit-test
+
+unit-test: 
+	go test -v $(go list ./... | grep -v /test/)
+
+test-jira:
+	go build -buildmode=plugin -o plugins/jira/jira.so plugins/jira/jira.go
+	go test ./plugins -v

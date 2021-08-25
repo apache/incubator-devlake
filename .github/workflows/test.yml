@@ -20,4 +20,4 @@ jobs:
             NAME=$(basename $PLUG)
             go build -buildmode=plugin -o $PLUG/$NAME.so $PLUG/$NAME.go
         done
-        go test -v $(go list ./... | grep -v /test/)
+        make test
