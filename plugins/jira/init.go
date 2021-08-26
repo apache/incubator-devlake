@@ -22,5 +22,5 @@ func (jira Jira) Init() {
 		panic(err)
 	}
 
-	db.AutoMigrate(models.Issue{}, models.Board{})
+	db.AutoMigrate(&models.Issue{}, &models.Board{})
 }
