@@ -29,8 +29,11 @@ install:
 
 test: test-jira unit-test
 
+ci-test:
+	go test -v `go list ./... | grep -v /test/`
+
 unit-test: 
-	go test -v $(go list ./... | grep -v /test/)
+	go test -v `go list ./... | grep -v /test/ | grep -v /plugins/`
 
 test-jira:
 	go build -buildmode=plugin -o plugins/jira/jira.so plugins/jira/jira.go
