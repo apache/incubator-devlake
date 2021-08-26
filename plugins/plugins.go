@@ -9,6 +9,7 @@ import (
 	"plugin"
 	"strings"
 
+	"github.com/merico-dev/lake/logger"
 	. "github.com/merico-dev/lake/plugins/core"
 )
 
@@ -49,6 +50,7 @@ func LoadPlugins(pluginsDir string) error {
 				return fmt.Errorf("%v PluginEntry must implement Plugin interface", file.Name())
 			}
 			Plugins[subDir.Name()] = plugEntry
+			logger.Info("plugin loaded", subDir.Name())
 			break
 		}
 	}
