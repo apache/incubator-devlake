@@ -25,4 +25,4 @@ func (jira Jira) Execute(options map[string]interface{}, progress chan<- float32
 }
 
 // Export a variable named PluginEntry for Framework to search and load
-// var PluginEntry Jira
+var PluginEntry Jira //nolint

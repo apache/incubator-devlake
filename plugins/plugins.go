@@ -42,7 +42,7 @@ func LoadPlugins(pluginsDir string) error {
 			}
 			symPluginEntry, pluginEntryError := plug.Lookup("PluginEntry")
 			if pluginEntryError != nil {
-				panic(pluginEntryError)
+				return pluginEntryError
 			}
 			plugEntry, ok := symPluginEntry.(Plugin)
 			if !ok {
@@ -57,11 +57,11 @@ func LoadPlugins(pluginsDir string) error {
 
 func RunPlugin(name string, options map[string]interface{}, progress chan<- float32) error {
 	if Plugins == nil {
-		return errors.New("Plugins have to be loaded first, please call LoadPlugins beforehand.")
+		return errors.New("plugins have to be loaded first, please call LoadPlugins beforehand")
 	}
 	plugin, ok := Plugins[name]
 	if !ok {
-		return fmt.Errorf("Unable to find plugin with name %v", name)
+		return fmt.Errorf("unable to find plugin with name %v", name)
 	}
 	plugin.Execute(options, progress)
 	return nil
