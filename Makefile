@@ -34,3 +34,7 @@ unit-test:
 
 e2e-test: 
 	@sh ./scripts/e2e-test.sh
+
+lint: 
+	golangci-lint run
+

@@ -36,7 +36,7 @@ func Color(colorString string) func(...interface{}) string {
 }
 
 func Log(context string, data interface{}, color func(...interface{}) string, level string, logFunction func(args ...interface{})) {
-	_, file, line, ok := runtime.Caller(1)
+	_, file, line, ok := runtime.Caller(2)
 	if !ok {
 		file = "unknown"
 	}

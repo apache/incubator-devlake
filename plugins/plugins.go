@@ -10,6 +10,7 @@ import (
 	"plugin"
 	"strings"
 
+	"github.com/merico-dev/lake/logger"
 	. "github.com/merico-dev/lake/plugins/core"
 )
 
@@ -54,7 +55,8 @@ func LoadPlugins(pluginsDir string) error {
 			plugEntry.Init()
 			logger.Info(`[plugin-core] init a plugin success`, file.Name())
 			Plugins[subDir.Name()] = plugEntry
-			logger.Info(`[plugin-core] finish load a plugin`, file.Name())
+
+			logger.Info("plugin loaded", subDir.Name())
 			break
 		}
 	}
