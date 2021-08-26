@@ -2,6 +2,8 @@ package main // must be main for plugin entry point
 
 import (
 	"fmt"
+	"github.com/merico-dev/lake/api/services"
+	"github.com/merico-dev/lake/plugins/jira/models"
 	"time"
 )
 
@@ -10,6 +12,10 @@ type Jira string
 
 func (plugin Jira) Description() string {
 	return "To collect and enrich data from JIRA"
+}
+
+func (plugin Jira) Init() {
+	services.Db.AutoMigrate(models.Issue{}, models.Board{})
 }
 
 func (plugin Jira) Execute(options map[string]interface{}, progress chan<- float32) {

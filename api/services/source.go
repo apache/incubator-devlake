@@ -22,7 +22,7 @@ func NewSource(data types.CreateSource) (*models.Source, error) {
 		Name:    data.Name,
 		Options: b,
 	}
-	err = db.Save(&source).Error
+	err = Db.Save(&source).Error
 	if err != nil {
 		logger.Error("failed to save source", err)
 		return nil, errors.NewHttpError(http.StatusInternalServerError, err.Error())

@@ -11,6 +11,8 @@ import (
 	"strings"
 
 	"github.com/merico-dev/lake/logger"
+
+	"github.com/merico-dev/lake/logger"
 	. "github.com/merico-dev/lake/plugins/core"
 )
 
