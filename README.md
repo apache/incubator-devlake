@@ -54,7 +54,17 @@ We use <a href="https://grafana.com/" target="_blank">Grafana</a> as a visualiza
 
 All the details on provisioning, and customizing a dashboard can be found in the [Grafana Doc](docs/GRAFANA.md)
 
----
+Directory strucutre
+```sh
+plugins/
+├── core/
+│   └── plugin.go           # plugin interface
+├── jira/                   # plugin directory
+│   ├── models/             # entity path (or others name you like)
+│   ├── jira.go             # plugin entry point source file which implemented plugin interface
+│   └── jira.so             # compiled shared library
+├── plugins.go              # plugins management
+└── plugins_test.go         # unit testing
 
 ## Requirements<a id="requirements"></a>
 
