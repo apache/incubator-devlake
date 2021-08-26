@@ -28,14 +28,12 @@ func Post(ctx *gin.Context) {
 
 	// trigger plugins
 	data.Options["ID"] = task.ID
-
 	go func() {
 		progress := make(chan float32)
-		_ = plugins.RunPlugin(task.Plugin, data.Options, progress)
+		go plugins.RunPlugin(task.Plugin, data.Options, progress)
 		for p := range progress {
 			fmt.Printf("running plugin %v, progress: %v\n", task.Plugin, p*100)
 		}
 	}()
-
 	ctx.JSON(http.StatusCreated, task)
 }
