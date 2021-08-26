@@ -3,6 +3,8 @@ package services
 import (
 	"github.com/merico-dev/lake/api/models"
 	"github.com/merico-dev/lake/config"
+	"github.com/merico-dev/lake/logger"
+	"github.com/spf13/viper"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 )
@@ -10,7 +12,9 @@ import (
 var db *gorm.DB
 
 func init() {
-	var connectionString = config.V.GetString("DB_URL")
+	config.ReadConfig()
+	var connectionString = viper.GetString("DB_URL")
+	logger.Info("connectionString", connectionString)
 	var err error
 	db, err = gorm.Open(mysql.Open(connectionString), &gorm.Config{})
 	if err != nil {

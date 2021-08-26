@@ -3,14 +3,14 @@ package main
 import (
 	"github.com/gin-gonic/gin"
 	"github.com/merico-dev/lake/api"
-	"github.com/merico-dev/lake/config"
+	"github.com/spf13/viper"
 )
 
 func CreateApiService() {
-	gin.SetMode(config.V.GetString("MODE"))
+	gin.SetMode(viper.GetString("MODE"))
 	r := gin.Default()
 	api.RegisterRouter(r)
-	err := r.Run(config.V.GetString("PORT"))
+	err := r.Run(viper.GetString("PORT"))
 	if err != nil {
 		panic(err)
 	}
