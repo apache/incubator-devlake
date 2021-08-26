@@ -10,7 +10,7 @@ services:
       - 3306:3306
     platform: linux/x86_64
     environment:
-      MYSQL_ROOT_PASSWORD: 6533fb8811825d34b
+      MYSQL_ROOT_PASSWORD: admin
       MYSQL_DATABASE: lake
       MYSQL_USER: merico
       MYSQL_PASSWORD: merico
