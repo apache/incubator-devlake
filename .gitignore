@@ -140,3 +140,5 @@ yarn.lock
 lake
 *.exe
 *.so
+
+config.yaml

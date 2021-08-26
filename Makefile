@@ -9,7 +9,8 @@ build:
 	go build
 
 dev: 
-	@sh ./scripts/dev.sh
+	go build -o lake
+	./lake
 
 run:
 	go run main.go

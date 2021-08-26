@@ -1,13 +1,18 @@
 package config
 
 import (
+	"github.com/merico-dev/lake/logger"
 	"github.com/spf13/viper"
 )
 
-var V *viper.Viper
-
-func init() {
-	V = viper.New()
-	V.AutomaticEnv()
-	V.SetDefault("PORT", ":8080")
+func ReadConfig() {
+	logger.Info("loading config", true)
+	viper.SetConfigName("config")
+	viper.SetConfigType("yaml")
+	viper.AddConfigPath("/Users/jonathanodonnell/go/src/github.com/merico-dev/lake/")
+	err := viper.ReadInConfig()
+	if err != nil {
+		logger.Error("failed to read in config", err)
+	}
+	viper.SetDefault("PORT", ":8080")
 }
