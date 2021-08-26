@@ -24,7 +24,16 @@ commit:
 	git cz
 
 install:
+	go clean --modcache
 	go get
 
-test:
-	go test -v ./...
+test: unit-test e2e-test
+
+compile-plugins:
+	$(shell ./scripts/compile-plugins.sh)
+
+unit-test: compile-plugins
+	go test -v `go list ./... | grep -v /test/`
+
+e2e-test: compile-plugins
+	go test -v ./test/...
