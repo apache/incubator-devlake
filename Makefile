@@ -8,8 +8,8 @@ hello:
 build:
 	go build
 
-dev:
-	go build; ./lake
+dev: 
+	@sh ./scripts/dev.sh
 
 run:
 	go run main.go
@@ -29,11 +29,8 @@ install:
 
 test: unit-test e2e-test
 
-compile-plugins:
-	$(shell ./scripts/compile-plugins.sh)
+unit-test: 
+	@sh ./scripts/unit-test.sh
 
-unit-test: compile-plugins
-	go test -v `go list ./... | grep -v /test/`
-
-e2e-test: compile-plugins
-	go test -v ./test/...
+e2e-test: 
+	@sh ./scripts/e2e-test.sh
