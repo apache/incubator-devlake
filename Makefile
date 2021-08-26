@@ -29,7 +29,7 @@ install:
 
 test: unit-test e2e-test
 
-unit-test: 
+unit-test:
 	@sh ./scripts/unit-test.sh
 
 e2e-test: 

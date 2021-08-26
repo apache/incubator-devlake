@@ -12,8 +12,8 @@ services:
     environment:
       MYSQL_ROOT_PASSWORD: admin
       MYSQL_DATABASE: lake
-      MYSQL_USER: root
-      MYSQL_PASSWORD: root
+      MYSQL_USER: merico
+      MYSQL_PASSWORD: merico
   redis:
     image: redis:6
     ports:

@@ -8,11 +8,11 @@ import (
 // A pseudo type for Plugin Interface implementation
 type Jira string
 
-func (jira Jira) Description() string {
+func (plugin Jira) Description() string {
 	return "To collect and enrich data from JIRA"
 }
 
-func (jira Jira) Execute(options map[string]interface{}, progress chan<- float32) {
+func (plugin Jira) Execute(options map[string]interface{}, progress chan<- float32) {
 	fmt.Println("start jira plugin execution")
 	time.Sleep(1 * time.Second)
 	progress <- 0.1

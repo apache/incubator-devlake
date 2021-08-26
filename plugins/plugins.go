@@ -3,6 +3,7 @@ package plugins
 import (
 	"errors"
 	"fmt"
+	"github.com/merico-dev/lake/logger"
 	"io/ioutil"
 	"path"
 	"path/filepath"
@@ -36,8 +37,10 @@ func LoadPlugins(pluginsDir string) error {
 			if file.IsDir() || !strings.HasSuffix(file.Name(), ".so") {
 				continue
 			}
+			logger.Info(`[plugin-core] find a plugin`, file.Name())
 			so := filepath.Join(subDirPath, file.Name())
 			plug, err := plugin.Open(so)
+			logger.Info(`[plugin-core] open a plugin success`, file.Name())
 			if err != nil {
 				return err
 			}
@@ -49,7 +52,10 @@ func LoadPlugins(pluginsDir string) error {
 			if !ok {
 				return fmt.Errorf("%v PluginEntry must implement Plugin interface", file.Name())
 			}
+			plugEntry.Init()
+			logger.Info(`[plugin-core] init a plugin success`, file.Name())
 			Plugins[subDir.Name()] = plugEntry
+
 			logger.Info("plugin loaded", subDir.Name())
 			break
 		}
