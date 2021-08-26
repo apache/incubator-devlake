@@ -2,6 +2,7 @@ package main
 
 import (
 	"github.com/merico-dev/lake/config"
+	"github.com/spf13/viper"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 	"gorm.io/gorm/schema"
@@ -10,7 +11,8 @@ import (
 var db *gorm.DB
 
 func (plugin Gitlab) Init() {
-	var connectionString = config.V.GetString("DB_URL")
+	config.ReadConfig()
+	var connectionString = viper.GetString("DB_URL")
 	var err error
 	db, err = gorm.Open(mysql.Open(connectionString), &gorm.Config{
 		NamingStrategy: schema.NamingStrategy{

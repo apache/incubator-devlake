@@ -8,12 +8,14 @@ hello:
 build:
 	go build
 
-dev: 
-	go build -o lake
+run: 
 	./lake
 
-run:
-	go run main.go
+start: 
+	@sh ./scripts/start.sh
+
+compile-plugins:
+	@sh source ./scripts/compile-plugins.sh
 
 compose: 
 	docker-compose -f ./devops/docker-compose.yml --project-directory ./ up

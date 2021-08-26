@@ -4,6 +4,7 @@ import (
 	"github.com/merico-dev/lake/config"
 	"github.com/merico-dev/lake/logger"
 	"github.com/merico-dev/lake/plugins/jira/models"
+	"github.com/spf13/viper"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 	"gorm.io/gorm/schema"
@@ -12,7 +13,8 @@ import (
 var db *gorm.DB
 
 func (plugin Jira) Init() {
-	var connectionString = config.V.GetString("DB_URL")
+	config.ReadConfig()
+	var connectionString = viper.GetString("DB_URL")
 	logger.Info("connectionString", connectionString)
 	var err error
 	db, err = gorm.Open(mysql.Open(connectionString), &gorm.Config{

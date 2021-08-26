@@ -1,3 +1,4 @@
 #!/bin/sh
 source ./scripts/compile-plugins.sh
-go test -v ./test/...
+go build
+./lake
