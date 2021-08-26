@@ -2,6 +2,7 @@ package plugins
 
 import (
 	"fmt"
+	"github.com/merico-dev/lake/plugins"
 	"path"
 	"runtime"
 	"testing"
@@ -9,12 +10,12 @@ import (
 
 func TestPluginsLoading(t *testing.T) {
 	_, filename, _, _ := runtime.Caller(0)
-	pluginsDir := path.Dir(filename)
-	err := LoadPlugins(pluginsDir)
+	pluginsDir := path.Join(filename, `../../../plugins`)
+	err := plugins.LoadPlugins(pluginsDir)
 	if err != nil {
 		t.Errorf("Failed to LoadPlugins %v", err)
 	}
-	if len(Plugins) == 0 {
+	if len(plugins.Plugins) == 0 {
 		t.Errorf("No plugin found")
 		return
 	}
@@ -26,7 +27,7 @@ func TestPluginsLoading(t *testing.T) {
 	progress := make(chan float32)
 	fmt.Printf("start runing plugin %v\n", name)
 	go func() {
-		_ = RunPlugin(name, options, progress)
+		_ = plugins.RunPlugin(name, options, progress)
 	}()
 	for p := range progress {
 		fmt.Printf("running plugin %v, progress: %v\n", name, p*100)
