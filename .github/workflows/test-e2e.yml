@@ -30,4 +30,4 @@ jobs:
       with:
         redis-version: '6.x'
     - name: Test
-      run: go test -v ./test/...
+      run: make e2e-test
