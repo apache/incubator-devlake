@@ -21,7 +21,7 @@ func NewTask(data types.CreateTask) (*models.Task, error) {
 	}
 	err = db.Save(&task).Error
 	if err != nil {
-		logger.Error(err)
+		logger.Error("Database error", err)
 		return nil, errors.NewHttpError(http.StatusInternalServerError, err.Error())
 	}
 	return &task, nil

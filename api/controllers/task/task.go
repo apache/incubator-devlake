@@ -27,7 +27,7 @@ func Post(ctx *gin.Context) {
 		_ = ctx.AbortWithError(http.StatusBadRequest, err)
 		return
 	}
-	logger.Debug(data)
+	logger.Debug("Create Task", data)
 	task, err := services.NewTask(data)
 	if err != nil {
 		_ = ctx.AbortWithError(http.StatusInternalServerError, err)
