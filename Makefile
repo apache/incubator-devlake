@@ -38,3 +38,5 @@ e2e-test:
 lint: 
 	golangci-lint run
 
+docs:
+	swag init --parseDependency --parseInternal -o ./api/docs

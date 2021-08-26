@@ -1,0 +1,69 @@
+basePath: /
+definitions:
+  models.Source:
+    properties:
+      createdAt:
+        type: string
+      deletedAt:
+        type: string
+      id:
+        type: integer
+      name:
+        type: string
+      options:
+        items:
+          type: integer
+        type: array
+      plugin:
+        type: string
+      status:
+        type: integer
+      updatedAt:
+        type: string
+    type: object
+  types.CreateSource:
+    properties:
+      name:
+        type: string
+      options:
+        additionalProperties: true
+        type: object
+      plugin:
+        default: Jira
+        type: string
+    required:
+    - options
+    - plugin
+    type: object
+host: localhost:8080
+info:
+  contact: {}
+  title: Dev Lake API
+  version: "1.0"
+paths:
+  /source:
+    post:
+      consumes:
+      - application/json
+      description: create a source for plugin
+      operationId: create-post
+      parameters:
+      - description: task info
+        in: body
+        name: param
+        required: true
+        schema:
+          $ref: '#/definitions/types.CreateSource'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          headers:
+            Token:
+              description: qwerty
+              type: string
+          schema:
+            $ref: '#/definitions/models.Source'
+      summary: create a source
+swagger: "2.0"

@@ -1,0 +1,104 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "title": "Dev Lake API",
+        "contact": {},
+        "version": "1.0"
+    },
+    "host": "localhost:8080",
+    "basePath": "/",
+    "paths": {
+        "/source": {
+            "post": {
+                "description": "create a source for plugin",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "create a source",
+                "operationId": "create-post",
+                "parameters": [
+                    {
+                        "description": "task info",
+                        "name": "param",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/types.CreateSource"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.Source"
+                        },
+                        "headers": {
+                            "Token": {
+                                "type": "string",
+                                "description": "qwerty"
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "models.Source": {
+            "type": "object",
+            "properties": {
+                "createdAt": {
+                    "type": "string"
+                },
+                "deletedAt": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "options": {
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
+                },
+                "plugin": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "integer"
+                },
+                "updatedAt": {
+                    "type": "string"
+                }
+            }
+        },
+        "types.CreateSource": {
+            "type": "object",
+            "required": [
+                "options",
+                "plugin"
+            ],
+            "properties": {
+                "name": {
+                    "type": "string"
+                },
+                "options": {
+                    "type": "object",
+                    "additionalProperties": true
+                },
+                "plugin": {
+                    "type": "string",
+                    "default": "Jira"
+                }
+            }
+        }
+    }
+}
