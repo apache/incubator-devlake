@@ -27,14 +27,13 @@ install:
 	go clean --modcache
 	go get
 
-test: test-jira unit-test
+test: unit-test e2e-test
 
-ci-test:
+compile-plugins:
+	$(shell ./scripts/compile-plugins.sh)
+
+unit-test: compile-plugins
 	go test -v `go list ./... | grep -v /test/`
 
-unit-test: 
-	go test -v `go list ./... | grep -v /test/ | grep -v /plugins/`
-
-test-jira:
-	go build -buildmode=plugin -o plugins/jira/jira.so plugins/jira/jira.go
-	go test ./plugins -v
+e2e-test: compile-plugins
+	go test -v ./test/...
