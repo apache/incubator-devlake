@@ -7,7 +7,3 @@ type Board struct {
 	JiraId string
 	Name    string
 }
-
-func (m Board) TableName() string {
-	return `jira_plugin_board`
-}

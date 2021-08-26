@@ -5,6 +5,7 @@ import (
 	"github.com/merico-dev/lake/plugins/jira/models"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
+	"gorm.io/gorm/schema"
 )
 
 var db *gorm.DB
@@ -12,7 +13,11 @@ var db *gorm.DB
 func (jira Jira) Init() {
 	var connectionString = config.V.GetString("DB_URL")
 	var err error
-	db, err = gorm.Open(mysql.Open(connectionString), &gorm.Config{})
+	db, err = gorm.Open(mysql.Open(connectionString), &gorm.Config{
+		NamingStrategy: schema.NamingStrategy{
+			TablePrefix: "jira_plugin_",
+		},
+	})
 	if err != nil {
 		panic(err)
 	}

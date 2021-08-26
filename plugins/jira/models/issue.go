@@ -7,7 +7,3 @@ type Issue struct {
 	JiraId string
 	Key    string
 }
-
-func (i Issue) TableName() string {
-	return `jira_plugin_issue`
-}
