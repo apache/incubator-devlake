@@ -20,6 +20,9 @@ func init() {
 }
 
 func migrateDB() {
-	db.AutoMigrate(&models.Source{})
+	err := db.AutoMigrate(&models.Source{})
+	if err != nil {
+		panic(err)
+	}
 	// TODO: create customer migration here
 }
