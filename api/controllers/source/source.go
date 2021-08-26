@@ -21,7 +21,7 @@ func Post(ctx *gin.Context) {
 	logger.Info("Created Source", data)
 	logger.Error("Created Source", data)
 	logger.Warn("Created Source", data)
-	err = services.NewSource(data)
+	source, err := services.NewSource(data)
 	if err != nil {
 		_ = ctx.AbortWithError(http.StatusInternalServerError, err)
 		return

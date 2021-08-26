@@ -14,7 +14,7 @@ import (
 func NewSource(data types.CreateSource) (*models.Source, error) {
 	b, err := json.Marshal(data.Options)
 	if err != nil {
-		logger.Error(err)
+		logger.Error("Json marshal failed", err)
 		return nil, errors.NewHttpError(http.StatusBadRequest, err.Error())
 	}
 	source := models.Source{
@@ -24,7 +24,7 @@ func NewSource(data types.CreateSource) (*models.Source, error) {
 	}
 	err = db.Save(&source).Error
 	if err != nil {
-		logger.Error(err)
+		logger.Error("Database error", err)
 		return nil, errors.NewHttpError(http.StatusInternalServerError, err.Error())
 	}
 	return &source, err
