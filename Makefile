@@ -7,11 +7,15 @@ hello:
 
 build:
 	go build
-
-dev: 
-	go build -o lake
 	./lake
 
+dev: compile-plugins build
+
+compile-plugins: 
+	@sh ./scripts/compile-plugins.sh
+
+plugin: build-plugins unit-test
+	
 run:
 	go run main.go
 

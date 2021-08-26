@@ -3,12 +3,13 @@ package plugins
 import (
 	"errors"
 	"fmt"
-	"github.com/merico-dev/lake/logger"
 	"io/ioutil"
 	"path"
 	"path/filepath"
 	"plugin"
 	"strings"
+
+	"github.com/merico-dev/lake/logger"
 
 	. "github.com/merico-dev/lake/plugins/core"
 )
@@ -47,6 +48,7 @@ func LoadPlugins(pluginsDir string) error {
 			if pluginEntryError != nil {
 				return pluginEntryError
 			}
+			logger.Info("symPluginEntry", symPluginEntry)
 			plugEntry, ok := symPluginEntry.(Plugin)
 			if !ok {
 				return fmt.Errorf("%v PluginEntry must implement Plugin interface", file.Name())
@@ -63,10 +65,12 @@ func LoadPlugins(pluginsDir string) error {
 
 func RunPlugin(name string, options map[string]interface{}, progress chan<- float32) error {
 	if Plugins == nil {
+		logger.Info("No plugins", true)
 		return errors.New("plugins have to be loaded first, please call LoadPlugins beforehand")
 	}
 	plugin, ok := Plugins[name]
 	if !ok {
+		logger.Info("Not ok", true)
 		return fmt.Errorf("unable to find plugin with name %v", name)
 	}
 	plugin.Execute(options, progress)

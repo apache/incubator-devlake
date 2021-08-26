@@ -93,7 +93,7 @@ plugins/
 3. Copy sample config files to new local file
 
     ```sh
-    cp .env.example .env
+    cp config.example.yaml config.yaml
     ```
 
 4. Build the project

@@ -9,6 +9,7 @@ func ReadConfig() {
 	logger.Info("loading config", true)
 	viper.SetConfigName("config")
 	viper.SetConfigType("yaml")
+	// TODO: dirname path
 	viper.AddConfigPath("/Users/jonathanodonnell/go/src/github.com/merico-dev/lake/")
 	err := viper.ReadInConfig()
 	if err != nil {
