@@ -7,7 +7,7 @@ services:
       - ./mysql-data:/var/lib/mysql
     restart: always
     ports:
-      - 3306:3306
+      - 127.0.0.1:3306:3306
     platform: linux/x86_64
     environment:
       MYSQL_ROOT_PASSWORD: admin
@@ -17,12 +17,12 @@ services:
   redis:
     image: redis:6
     ports:
-      - 6379:6379
+      - 127.0.0.1:6379:6379
   grafana:
     hostname: grafana
     image: grafana/grafana:8.0.6
     ports:
-      - 3002:3000
+      - 127.0.0.1:3002:3000
     volumes:
       - grafana-storage:/var/lib/grafana
       - ./grafana/provisioning:/etc/grafana/provisioning
