@@ -1,12 +1,15 @@
 package main
 
-import "github.com/merico-dev/lake/plugins"
+import (
+	"github.com/merico-dev/lake/api"
+	"github.com/merico-dev/lake/plugins"
+)
 
 func main() {
 	err := plugins.LoadPlugins("./plugins")
 	if err != nil {
 		panic(err)
 	}
-	CreateApiService()
+	api.CreateApiService()
 	println("Hello, lake")
 }
