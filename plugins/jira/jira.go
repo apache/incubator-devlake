@@ -31,6 +31,11 @@ func (plugin Jira) Execute(options map[string]interface{}, progress chan<- float
 		logger.Error("Error: ", err)
 		return
 	}
+	err = tasks.CollectIssues(boardIdInt)
+	if err != nil {
+		logger.Error("Error: ", err)
+		return
+	}
 	time.Sleep(1 * time.Second)
 	progress <- 0.1
 	time.Sleep(1 * time.Second)
