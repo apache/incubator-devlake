@@ -4,7 +4,7 @@ services:
   mysql:
     image: mysql:latest
     volumes:
-      - ./mysql-data:/var/lib/mysql
+      - mysql-storage:/var/lib/mysql
     restart: always
     ports:
       - 127.0.0.1:3306:3306
@@ -32,4 +32,5 @@ services:
       - ./grafana/grafana.config
     restart: always
 volumes:
+  mysql-storage: {}
   grafana-storage: {}
