@@ -1,28 +1,12 @@
 package main
 
 import (
-	"github.com/merico-dev/lake/config"
+	lakeModels "github.com/merico-dev/lake/models"
 	"github.com/merico-dev/lake/plugins/jira/models"
-	"gorm.io/driver/mysql"
-	"gorm.io/gorm"
-	"gorm.io/gorm/schema"
 )
 
-var db *gorm.DB
-
 func (plugin Jira) Init() {
-	var connectionString = config.V.GetString("DB_URL")
-	var err error
-	db, err = gorm.Open(mysql.Open(connectionString), &gorm.Config{
-		NamingStrategy: schema.NamingStrategy{
-			TablePrefix: "jira_plugin_",
-		},
-	})
-	if err != nil {
-		panic(err)
-	}
-
-	err = db.AutoMigrate(&models.Issue{}, &models.Board{})
+	err := lakeModels.Db.AutoMigrate(&models.JiraIssue{}, &models.JiraBoard{})
 	if err != nil {
 		panic(err)
 	}
