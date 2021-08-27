@@ -43,3 +43,8 @@ require (
 	gopkg.in/ini.v1 v1.62.0 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 )
+
+require (
+	github.com/faabiosr/cachego v0.15.0 // indirect
+	github.com/fastwego/feishu v1.0.0-beta.4 // indirect
+)
