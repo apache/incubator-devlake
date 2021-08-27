@@ -43,6 +43,10 @@ func Log(context string, data interface{}, color func(...interface{}) string, le
 	logFunction(color("[", level, " >>> ", context, " - ", file, ":", line), data)
 }
 
+func Print(context string) {
+	Log(context, nil, Magenta, "DEBUG", log.Info)
+}
+
 func Debug(context string, data interface{}) {
 	Log(context, data, Green, "DEBUG", log.Debug)
 }
