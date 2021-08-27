@@ -150,3 +150,22 @@ To run the tests: `make test`
 ## Need help?
 
 Message us on <a href="https://discord.com/invite/83rDG6ydVZ" target="_blank">Discord</a>
+
+
+
+# Architecture Layers
+
+## Stack (from low to high)
+
+1. config
+2. logger
+3. models
+4. plugins
+5. services
+6. api / cli
+
+## Rules
+
+1. Higher layer calls lower layer, not the other way around
+2. Whenever lower layer neeeds sth from higher layer, a interface should be introduced for decoupling
+3. Components should be initialized in a low to high order during bootstraping

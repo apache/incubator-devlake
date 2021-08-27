@@ -1,18 +1,17 @@
-package services
+package models
 
 import (
-	"github.com/merico-dev/lake/api/models"
 	"github.com/merico-dev/lake/config"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 )
 
-var db *gorm.DB
+var Db *gorm.DB
 
 func init() {
 	var connectionString = config.V.GetString("DB_URL")
 	var err error
-	db, err = gorm.Open(mysql.Open(connectionString), &gorm.Config{})
+	Db, err = gorm.Open(mysql.Open(connectionString), &gorm.Config{})
 	if err != nil {
 		panic(err)
 	}
@@ -20,7 +19,7 @@ func init() {
 }
 
 func migrateDB() {
-	err := db.AutoMigrate(&models.Source{}, &models.Task{})
+	err := Db.AutoMigrate(&Task{})
 	if err != nil {
 		panic(err)
 	}
