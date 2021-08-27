@@ -4,9 +4,10 @@ import (
 	"gorm.io/datatypes"
 )
 
-type Source struct {
+type Task struct {
 	Model
 	Plugin  string
-	Name    string
 	Options datatypes.JSON
+	Status  string
+	Message string
 }
