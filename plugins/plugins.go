@@ -3,7 +3,6 @@ package plugins
 import (
 	"errors"
 	"fmt"
-	"github.com/merico-dev/lake/logger"
 	"io/ioutil"
 	"path"
 	"path/filepath"
@@ -11,6 +10,7 @@ import (
 	"strings"
 
 	"github.com/merico-dev/lake/logger"
+
 	. "github.com/merico-dev/lake/plugins/core"
 )
 
