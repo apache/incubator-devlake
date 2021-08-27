@@ -86,13 +86,7 @@ All the details on provisioning, and customizing a dashboard can be found in the
     cp .env.example .env
     ```
 
-4. Build the project
-
-    ```sh
-    make build
-    ```
-
-5. Start the docker container
+4. Start the docker containers
 
     > Make sure the docker application is running before this step
 
@@ -100,12 +94,25 @@ All the details on provisioning, and customizing a dashboard can be found in the
     make compose
     ```
 
-6. While docker is running, in a new terminal (from project folder) run:
+5. Run the project
 
     ```sh
-    cd lake
-    ./lake
+    make dev
     ```
+
+6. You can now post to /task to create a jira task. This will collect data from Jira
+
+    ```
+    curl --location --request POST 'localhost:8080/task' \
+    --header 'Content-Type: application/json' \
+    --data-raw '{
+        "Plugin": "jira",
+        "Options": {
+            "boardId": 8
+        }
+    }'
+    ```
+
 7. Collect & enrich data from selected sources and plugins
 
     _These plugins can be selected from the above list ([View List](#data-source-plugins)), and options for them will be outlined in their specific document._
@@ -150,8 +157,6 @@ To run the tests: `make test`
 ## Need help?
 
 Message us on <a href="https://discord.com/invite/83rDG6ydVZ" target="_blank">Discord</a>
-
-
 
 # Architecture Layers
 
