@@ -4,6 +4,6 @@ import "github.com/merico-dev/lake/models"
 
 type JiraBoard struct {
 	models.Model
-	JiraId string
+	JiraId int
 	Name   string
 }
