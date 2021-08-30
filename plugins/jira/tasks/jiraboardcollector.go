@@ -12,7 +12,7 @@ import (
 )
 
 type JiraApiLocation struct {
-	ProjectId      int    `json:"projectId"`
+	ProjectId      uint   `json:"projectId"`
 	DisplayName    string `json:"displayName"`
 	ProjectName    string `json:"projectName"`
 	ProjectKey     string `json:"projectKey"`
@@ -22,7 +22,7 @@ type JiraApiLocation struct {
 }
 
 type JiraApiBoard struct {
-	Id       int    `json:"id"`
+	Id       uint   `json:"id"`
 	Self     string `json:"self"`
 	Name     string `json:"name"`
 	Type     string `json:"type"`
@@ -52,8 +52,11 @@ func CollectBoard(boardId int) error {
 	}
 	logger.Info("jiraboard ", jiraApiBoard)
 	jiraBoard := &models.JiraBoard{
-		JiraId: jiraApiBoard.Id,
-		Name:   jiraApiBoard.Name,
+		Model:     lakeModels.Model{ID: jiraApiBoard.Id},
+		ProjectId: jiraApiBoard.Location.ProjectId,
+		Name:      jiraApiBoard.Name,
+		WebURL:    jiraApiBoard.Self,
+		Type:      jiraApiBoard.Type,
 	}
 	err = lakeModels.Db.Save(jiraBoard).Error
 	if err != nil {
