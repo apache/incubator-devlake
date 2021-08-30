@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/merico-dev/lake/config"
+	"github.com/merico-dev/lake/logger"
 	lakeModels "github.com/merico-dev/lake/models"
 	"github.com/merico-dev/lake/plugins/core"
 	"github.com/merico-dev/lake/plugins/jira/models"
@@ -46,17 +47,17 @@ func CollectBoard(boardId int) error {
 	jiraApiBoard := &JiraApiBoard{}
 	err = core.UnmarshalResponse(res, jiraApiBoard)
 	if err != nil {
-		fmt.Printf("Error: %v\n", err)
+		logger.Error("Error: ", err)
 		return nil
 	}
-	fmt.Printf("jiraboard %v", jiraApiBoard)
+	logger.Info("jiraboard ", jiraApiBoard)
 	jiraBoard := &models.JiraBoard{
 		JiraId: jiraApiBoard.Id,
 		Name:   jiraApiBoard.Name,
 	}
 	err = lakeModels.Db.Save(jiraBoard).Error
 	if err != nil {
-		fmt.Println("Error: %w", err)
+		logger.Error("Error: ", err)
 	}
 	return nil
 }
