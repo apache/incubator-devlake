@@ -12,23 +12,27 @@ func (plugin Gitlab) Description() string {
 }
 
 func (plugin Gitlab) Execute(options map[string]interface{}, progress chan<- float32) {
-	progress <- 1
+
 	projectId, ok := options["projectId"]
 	if !ok {
 		logger.Print("boardId is required for jira execution")
 		return
 	}
-	projectIdInt := int(projectId.(float64))
+
+	projectIdInt := projectId.(int)
 	if projectIdInt < 0 {
 		logger.Print("boardId is invalid")
 		return
 	}
+
 	logger.Print("start jira plugin execution")
 	err := tasks.CollectCommits(projectIdInt)
 	if err != nil {
 		logger.Error("Error: ", err)
 		return
 	}
+	progress <- 1
+
 	close(progress)
 }
 
