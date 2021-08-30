@@ -1,9 +1,13 @@
 package models
 
-import "github.com/merico-dev/lake/models"
+import (
+	"github.com/merico-dev/lake/models"
+)
 
 type JiraBoard struct {
 	models.Model
-	JiraId int
-	Name   string
+	ProjectId uint
+	Name      string
+	Self      string
+	Type      string
 }
