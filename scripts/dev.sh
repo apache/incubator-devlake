@@ -1,4 +1,5 @@
 #!/bin/sh
-go build -o lake
+source ./scripts/compile-plugins.sh
 source ./scripts/export-env.sh
+go build -o lake
 ./lake
