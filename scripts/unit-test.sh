@@ -1,5 +1,5 @@
 #!/bin/sh
 set -e
-./scripts/compile-plugins.sh
-./scripts/export-env.sh
+source ./scripts/export-env.sh
+source ./scripts/compile-plugins.sh
 go test -v $(go list ./... | grep -v /test/)
