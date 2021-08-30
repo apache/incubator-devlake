@@ -45,15 +45,15 @@ func CollectCommits(projectId int) error {
 		logger.Error("Error: ", err)
 		return nil
 	}
-	fmt.Println("JON")
-	fmt.Println(gitlabApiResponse)
 
-	// TODO: save more than one
-	gitlabCommit := &models.GitlabCommit{
-		Title: gitlabApiResponse[0].Title,
-		// Message: gitlabApiResponse.Message,
+	for _, value := range *gitlabApiResponse {
+		fmt.Println(value.Title)
+		gitlabCommit := &models.GitlabCommit{
+			Title: value.Title,
+		}
+		err = lakeModels.Db.Save(gitlabCommit).Error
 	}
-	err = lakeModels.Db.Save(gitlabCommit).Error
+
 	if err != nil {
 		logger.Error("Error: ", err)
 	}
