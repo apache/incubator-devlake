@@ -32,7 +32,6 @@ func CollectIssues(boardId int) error {
 		return err
 	}
 
-	// TODO: this should not be set to 999
 	jiraApiResponse := &JiraApiResponse{}
 
 	logger.Info("res", res.Body)
