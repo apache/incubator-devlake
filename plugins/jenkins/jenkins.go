@@ -46,4 +46,4 @@ func (j Jenkins) Execute(options map[string]interface{}, progress chan<- float32
 	worker.SyncJobs()
 }
 
-var PluginEntry Jenkins
+var PluginEntry Jenkins //nolint
