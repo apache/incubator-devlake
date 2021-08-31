@@ -81,7 +81,7 @@ func CollectCommits(projectId int) error {
 			Total:          value.Stats.Total,
 		}
 
-		err := lakeModels.Db.Debug().Clauses(clause.OnConflict{
+		err = lakeModels.Db.Clauses(clause.OnConflict{
 			UpdateAll: true,
 		}).Create(&gitlabCommit).Error
 
@@ -90,8 +90,5 @@ func CollectCommits(projectId int) error {
 		}
 	}
 
-	if err != nil {
-		logger.Error("Error: ", err)
-	}
 	return nil
 }
