@@ -66,5 +66,8 @@ func (worker *JenkinsWorker) syncJob(ctx context.Context, job *gojenkins.Job) {
 		logger.Info("job has no build exists in past half year", job.Raw.Name)
 		return
 	}
-	worker.storage.SaveBuilds(filteredData, jobCtx)
+	_, err = worker.storage.SaveBuilds(filteredData, jobCtx)
+	if err != nil {
+		logger.Error("failed to save builds", err)
+	}
 }
