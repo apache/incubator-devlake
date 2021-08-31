@@ -2,6 +2,8 @@ package tasks
 
 import (
 	"fmt"
+	"net/url"
+	"strconv"
 	"time"
 
 	"github.com/merico-dev/lake/config"
@@ -11,46 +13,130 @@ import (
 	"github.com/merico-dev/lake/plugins/jira/models"
 )
 
-type JiraApiResponse struct {
-	Issues []struct {
-		Key string `json:"key"`
-	} `json:"issues"`
+var epicFieldName string
+
+type JiraPagination struct {
+	StartAt    int `json:"startAt"`
+	MaxResults int `json:"maxResults"`
+	Total      int `json:"total"`
 }
 
-func CollectIssues(boardId int) error {
-	jiraApiClient := core.NewApiClient(
-		config.V.GetString("JIRA_ENDPOINT"),
-		map[string]string{
-			"Authorization": fmt.Sprintf("Basic %v", config.V.GetString("JIRA_BASIC_AUTH_ENCODED")),
-		},
-		10*time.Second,
-		3,
-	)
+type JiraApiIssue struct {
+	Id     string                 `json:"id"`
+	Self   string                 `json:"self"`
+	Key    string                 `json:"key"`
+	Fields map[string]interface{} `json:"fields"`
+}
 
-	res, err := jiraApiClient.Get(fmt.Sprintf("/agile/1.0/board/%v/issue", boardId), nil, nil)
-	if err != nil {
-		return err
-	}
+type JiraApiResponse struct {
+	JiraPagination
+	Issues []JiraApiIssue `json:"issues"`
+}
 
-	jiraApiResponse := &JiraApiResponse{}
+func init() {
+	epicFieldName = config.V.GetString("JIRA_ISSUE_EPIC_KEY_FIELD")
+}
 
-	logger.Info("res", res.Body)
+func CollectIssues(boardId uint64) error {
+	jiraApiClient := GetJiraApiClient()
 
-	err = core.UnmarshalResponse(res, jiraApiResponse)
+	loaded, total, query := 0, 1, &url.Values{}
+	for loaded < total {
+		// fetch page
+		query.Set("maxResults", "100")
+		query.Set("startAt", strconv.Itoa(loaded))
+		res, err := jiraApiClient.Get(fmt.Sprintf("/agile/1.0/board/%v/issue", boardId), query, nil)
+		if err != nil {
+			return err
+		}
 
-	if err != nil {
-		logger.Error("Error: ", err)
-		return nil
-	}
-	logger.Info("jiraIssues ", jiraApiResponse)
+		// parse response
+		jiraApiResponse := &JiraApiResponse{}
+		err = core.UnmarshalResponse(res, jiraApiResponse)
+		if err != nil {
+			logger.Error("Error: ", err)
+			return nil
+		}
 
-	// TODO: save more than one
-	jiraIssue := &models.JiraIssue{
-		Key: jiraApiResponse.Issues[0].Key,
-	}
-	err = lakeModels.Db.Save(jiraIssue).Error
-	if err != nil {
-		logger.Error("Error: ", err)
+		// save issues
+		SaveIssues(boardId, jiraApiResponse.Issues)
+
+		// next page
+		loaded += len(jiraApiResponse.Issues)
+		total = jiraApiResponse.Total
+		logger.Info("jira board issues collection", map[string]interface{}{
+			"boardId": boardId,
+			"loaded":  loaded,
+			"total":   total,
+		})
 	}
 	return nil
+}
+
+func SaveIssues(boardId uint64, issues []JiraApiIssue) {
+	const TIME_FORMAT = "2006-01-02T15:04:05-0700"
+
+	// convert and save
+	for _, jiraApiIssue := range issues {
+
+		// issue
+		id, err := strconv.ParseUint(jiraApiIssue.Id, 10, 64)
+		if err != nil {
+			logger.Error("Error: ", err)
+			break
+		}
+		created, err := time.Parse(TIME_FORMAT, jiraApiIssue.Fields["created"].(string))
+		if err != nil {
+			logger.Error("Error: ", err)
+			break
+		}
+		updated, err := time.Parse(TIME_FORMAT, jiraApiIssue.Fields["updated"].(string))
+		if err != nil {
+			logger.Error("Error: ", err)
+			break
+		}
+		projectId, err := strconv.ParseUint(
+			jiraApiIssue.Fields["project"].(map[string]interface{})["id"].(string), 10, 64,
+		)
+		if err != nil {
+			logger.Error("Error: ", err)
+			break
+		}
+		status := jiraApiIssue.Fields["status"].(map[string]interface{})
+		statusName := status["name"].(string)
+		statusKey := status["statusCategory"].(map[string]interface{})["key"].(string)
+		epicKey := ""
+		if epicFieldName != "" {
+			epicKey, _ = jiraApiIssue.Fields[epicFieldName].(string)
+		}
+		jiraIssue := &models.JiraIssue{
+			Model:      lakeModels.Model{ID: id},
+			ProjectId:  projectId,
+			Self:       jiraApiIssue.Self,
+			Key:        jiraApiIssue.Key,
+			Summary:    jiraApiIssue.Fields["summary"].(string),
+			Type:       jiraApiIssue.Fields["issuetype"].(map[string]interface{})["name"].(string),
+			StatusName: statusName,
+			StatusKey:  statusKey,
+			EpicKey:    epicKey,
+			Created:    created,
+			Updated:    updated,
+		}
+		err = lakeModels.Db.Save(jiraIssue).Error
+		if err != nil {
+			logger.Error("Error: ", err)
+			break
+		}
+
+		// board / issue relationship
+		jiraBoardIssue := &models.JiraBoardIssue{
+			BoardId: boardId,
+			IssueId: id,
+		}
+		err = lakeModels.Db.Save(jiraBoardIssue).Error
+		if err != nil {
+			logger.Error("Error: ", err)
+			break
+		}
+	}
 }
