@@ -8,7 +8,7 @@ import (
 
 func (plugin Gitlab) Init() {
 	logger.Info("INFO >>> init go plugin", true)
-	err := lakeModels.Db.AutoMigrate(&models.GitlabCommit{})
+	err := lakeModels.Db.AutoMigrate(&models.GitlabCommit{}, &models.GitlabProject{})
 	if err != nil {
 		logger.Error("Error migrating gitlab: ", err)
 		panic(err)
