@@ -12,6 +12,7 @@ func (plugin Gitlab) Description() string {
 }
 
 func (plugin Gitlab) Execute(options map[string]interface{}, progress chan<- float32) {
+	logger.Print("start gitlab plugin execution")
 
 	projectId, ok := options["projectId"]
 	if !ok {
@@ -25,12 +26,18 @@ func (plugin Gitlab) Execute(options map[string]interface{}, progress chan<- flo
 		return
 	}
 
-	logger.Print("start gitlab plugin execution")
-	err := tasks.CollectCommits(projectIdInt)
+	err := tasks.CollectProjects(projectIdInt)
 	if err != nil {
-		logger.Error("Error: ", err)
+		logger.Error("Could not collect projects: ", err)
 		return
 	}
+
+	err = tasks.CollectCommits(projectIdInt)
+	if err != nil {
+		logger.Error("Could not collect commits: ", err)
+		return
+	}
+
 	progress <- 1
 
 	close(progress)
