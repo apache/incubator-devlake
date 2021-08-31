@@ -12,8 +12,22 @@ import (
 )
 
 type ApiCommitResponse []struct {
-	Title string `json:"title"`
-	// Message string `json:"message"`
+	Title          string
+	Message        string
+	ProjectId      int
+	ShortId        string `json:"short_id"`
+	AuthorName     string `json:"author_name"`
+	AuthorEmail    string `json:"author_email"`
+	AuthoredDate   string `json:"authored_date"`
+	CommitterName  string `json:"committer_name"`
+	CommitterEmail string `json:"committer_email"`
+	CommittedDate  string `json:"committed_date"`
+	WebUrl         string `json:"web_url"`
+	Stats          struct {
+		Additions int
+		Deletions int
+		Total     int
+	}
 }
 
 func createApiClient() *core.ApiClient {
@@ -47,11 +61,23 @@ func CollectCommits(projectId int) error {
 	}
 
 	for _, value := range *gitlabApiResponse {
-		fmt.Println(value.Title)
 		gitlabCommit := &models.GitlabCommit{
-			Title: value.Title,
+			Title:          value.Title,
+			Message:        value.Message,
+			ProjectId:      projectId,
+			ShortId:        value.ShortId,
+			AuthorName:     value.AuthorName,
+			AuthorEmail:    value.AuthorEmail,
+			AuthoredDate:   value.AuthoredDate,
+			CommitterName:  value.CommitterName,
+			CommitterEmail: value.CommitterEmail,
+			CommittedDate:  value.CommittedDate,
+			WebUrl:         value.WebUrl,
+			Additions:      value.Stats.Additions,
+			Deletions:      value.Stats.Deletions,
+			Total:          value.Stats.Total,
 		}
-		err = lakeModels.Db.Save(gitlabCommit).Error
+		err = lakeModels.Db.Create(&gitlabCommit).Error
 	}
 
 	if err != nil {
