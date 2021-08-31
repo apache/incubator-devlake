@@ -9,9 +9,11 @@ import (
 	lakeModels "github.com/merico-dev/lake/models"
 	"github.com/merico-dev/lake/plugins/core"
 	"github.com/merico-dev/lake/plugins/gitlab/models"
+	"gorm.io/gorm/clause"
 )
 
 type ApiCommitResponse []struct {
+	GitlabId       string `json:"id"`
 	Title          string
 	Message        string
 	ProjectId      int
@@ -62,6 +64,7 @@ func CollectCommits(projectId int) error {
 
 	for _, value := range *gitlabApiResponse {
 		gitlabCommit := &models.GitlabCommit{
+			GitlabId:       value.GitlabId,
 			Title:          value.Title,
 			Message:        value.Message,
 			ProjectId:      projectId,
@@ -77,7 +80,14 @@ func CollectCommits(projectId int) error {
 			Deletions:      value.Stats.Deletions,
 			Total:          value.Stats.Total,
 		}
-		err = lakeModels.Db.Create(&gitlabCommit).Error
+
+		err := lakeModels.Db.Debug().Clauses(clause.OnConflict{
+			UpdateAll: true,
+		}).Create(&gitlabCommit).Error
+
+		if err != nil {
+			logger.Error("Could not upsert: ", err)
+		}
 	}
 
 	if err != nil {

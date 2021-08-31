@@ -6,7 +6,7 @@ import (
 )
 
 func TestGitlabPlugin(t *testing.T) {
-	PluginEntry.Init()
+	// PluginEntry.Init()
 
 	projectId := 20103385
 

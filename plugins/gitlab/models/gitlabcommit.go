@@ -1,9 +1,11 @@
 package models
 
-import "github.com/merico-dev/lake/models"
+import (
+	"time"
+)
 
 type GitlabCommit struct {
-	models.Model
+	GitlabId       string `gorm:"primary_key"`
 	Title          string
 	Message        string
 	ProjectId      int
@@ -18,4 +20,8 @@ type GitlabCommit struct {
 	Additions      int
 	Deletions      int
 	Total          int
+	Status         int
+	CreatedAt      time.Time
+	UpdatedAt      time.Time
+	DeletedAt      *time.Time
 }
