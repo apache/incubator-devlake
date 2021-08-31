@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"encoding/json"
 	"io"
-	"io/ioutil"
 	"net/http"
 	"net/url"
 	"time"
@@ -127,11 +126,11 @@ func (apiClient *ApiClient) Get(
 	return apiClient.Do("GET", path, query, nil, headers)
 }
 
+// UnmarshalResponse - Uses the built in json decoder to
+// decode the response Body into the provided object
+// This saves us having to conver the io.Reader into
+// a []byte.
 func UnmarshalResponse(res *http.Response, v interface{}) error {
 	defer res.Body.Close()
-	resBody, err := ioutil.ReadAll(res.Body)
-	if err != nil {
-		return err
-	}
-	return json.Unmarshal(resBody, &v)
+	return json.NewDecoder(res.Body).Decode(v)
 }
