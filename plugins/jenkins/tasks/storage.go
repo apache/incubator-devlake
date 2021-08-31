@@ -1,74 +1,98 @@
 package tasks
 
 import (
-	"github.com/bndr/gojenkins"
+	"errors"
+
+	"github.com/merico-dev/lake/logger"
 	"github.com/merico-dev/lake/plugins/jenkins/models"
 	"gorm.io/gorm"
 )
-
-type JenkinsStorage interface {
-	SaveJob(job *gojenkins.Job) error
-	SaveJobs(jobs []*gojenkins.Job) error
-	SaveBuild(build *gojenkins.Build) error
-	SaveBuilds(build []*gojenkins.Build) error
-}
 
 type DefaultJenkinsStorage struct {
 	db *gorm.DB
 }
 
 func NewDeafultJenkinsStorage(db *gorm.DB) *DefaultJenkinsStorage {
+	sqlDB, err := db.DB()
+	if err != nil {
+		logger.Error("failed to get sql db", err)
+		return nil
+	}
+	sqlDB.SetMaxIdleConns(10)
+	sqlDB.SetMaxOpenConns(100)
 	return &DefaultJenkinsStorage{
 		db,
 	}
 }
 
-func (s *DefaultJenkinsStorage) SaveJob(job *gojenkins.Job) error {
+func (s *DefaultJenkinsStorage) SaveJob(job models.JenkinsJobProps) (context interface{}, err error) {
 	var jenkinsJob = models.JenkinsJob{
-		Name:  job.Raw.Name,
-		Class: job.Raw.Class,
-		Color: job.Raw.Color,
+		JenkinsJobProps: models.JenkinsJobProps{
+			Name:  job.Name,
+			Class: job.Class,
+			Color: job.Color,
+		},
 	}
-	return s.db.Save(&jenkinsJob).Error
+	var res = s.db.Save(&jenkinsJob)
+	return jenkinsJob, res.Error
 }
 
-func (s *DefaultJenkinsStorage) SaveJobs(jobs []*gojenkins.Job) error {
+func (s *DefaultJenkinsStorage) SaveJobs(jobs []models.JenkinsJobProps) (context interface{}, err error) {
 	var jenkinsJobs = make([]models.JenkinsJob, len(jobs))
-	for index, item := range jobs {
+	for index, job := range jobs {
 		var jenkinsJob = models.JenkinsJob{
-			Name:  item.Raw.Name,
-			Class: item.Raw.Class,
-			Color: item.Raw.Color,
+			JenkinsJobProps: models.JenkinsJobProps{
+				Name:  job.Name,
+				Class: job.Class,
+				Color: job.Color,
+			},
 		}
 		jenkinsJobs[index] = jenkinsJob
 	}
-	return s.db.Save(jenkinsJobs).Error
+	var res = s.db.Save(jenkinsJobs)
+	return jenkinsJobs, res.Error
 }
 
-func (s *DefaultJenkinsStorage) SaveBuild(build *gojenkins.Build) error {
-	var jenkinsBuild = models.JenkinsBuild{
-		Duration:          build.Raw.Duration,
-		DisplayName:       build.Raw.DisplayName,
-		EstimatedDuration: build.Raw.EstimatedDuration,
-		Number:            build.Raw.Number,
-		Result:            build.Raw.Result,
-		Timestamp:         build.Raw.Timestamp,
+func (s *DefaultJenkinsStorage) SaveBuild(build models.JenkinsBuildProps, ctx interface{}) (context interface{}, err error) {
+	var job, ok = ctx.(models.JenkinsJob)
+	if !ok {
+		return nil, errors.New("failed to get job id")
 	}
-	return s.db.Save(&jenkinsBuild).Error
+	var jenkinsBuild = models.JenkinsBuild{
+		JobID: job.ID,
+		JenkinsBuildProps: models.JenkinsBuildProps{
+			Duration:          build.Duration,
+			DisplayName:       build.DisplayName,
+			EstimatedDuration: build.EstimatedDuration,
+			Number:            build.Number,
+			Result:            build.Result,
+			Timestamp:         build.Timestamp,
+		},
+	}
+	var res = s.db.Save(&jenkinsBuild)
+	return jenkinsBuild, res.Error
 }
 
-func (s *DefaultJenkinsStorage) SaveBuilds(build []*gojenkins.Build) error {
-	var jenkinsBuilds = make([]models.JenkinsBuild, len(build))
-	for index, item := range build {
+func (s *DefaultJenkinsStorage) SaveBuilds(builds []models.JenkinsBuildProps, ctx interface{}) (context interface{}, err error) {
+	var job, ok = ctx.(models.JenkinsJob)
+	if !ok {
+		return nil, errors.New("failed to get job id")
+	}
+	var jenkinsBuilds = make([]models.JenkinsBuild, len(builds))
+	for index, build := range builds {
 		var jenkinsBuild = models.JenkinsBuild{
-			Duration:          item.Raw.Duration,
-			DisplayName:       item.Raw.DisplayName,
-			EstimatedDuration: item.Raw.EstimatedDuration,
-			Number:            item.Raw.Number,
-			Result:            item.Raw.Result,
-			Timestamp:         item.Raw.Timestamp,
+			JobID: job.ID,
+			JenkinsBuildProps: models.JenkinsBuildProps{
+				Duration:          build.Duration,
+				DisplayName:       build.DisplayName,
+				EstimatedDuration: build.EstimatedDuration,
+				Number:            build.Number,
+				Result:            build.Result,
+				Timestamp:         build.Timestamp,
+			},
 		}
 		jenkinsBuilds[index] = jenkinsBuild
 	}
-	return s.db.Save(jenkinsBuilds).Error
+	var res = s.db.Save(&jenkinsBuilds)
+	return jenkinsBuilds, res.Error
 }

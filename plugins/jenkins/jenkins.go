@@ -21,6 +21,14 @@ func (j Jenkins) Init() {
 	if err != nil {
 		logger.Error("Failed to auto migrate jenkins models", err)
 	}
+	err = lakeModels.Db.Exec("truncate table jenkins_jobs").Error
+	if err != nil {
+		logger.Error("Failed to truncate jenkins models", err)
+	}
+	err = lakeModels.Db.Exec("truncate table jenkins_builds").Error
+	if err != nil {
+		logger.Error("Failed to truncate jenkins models", err)
+	}
 }
 
 func (j Jenkins) Description() string {
