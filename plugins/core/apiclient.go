@@ -8,8 +8,6 @@ import (
 	"net/http"
 	"net/url"
 	"time"
-
-	"github.com/merico-dev/lake/logger"
 )
 
 type ApiClientBeforeRequest func(req *http.Request) error
@@ -73,7 +71,6 @@ func (apiClient *ApiClient) Do(
 	// process body
 	var reqBody io.Reader
 	if body != nil {
-		logger.Info("JON >>> body", body)
 		reqJson, err := json.Marshal(body)
 		if err != nil {
 			return nil, err
