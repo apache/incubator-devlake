@@ -6,7 +6,7 @@ import (
 )
 
 func (plugin Jira) Init() {
-	err := lakeModels.Db.AutoMigrate(&models.JiraIssue{}, &models.JiraBoard{})
+	err := lakeModels.Db.AutoMigrate(&models.JiraIssue{}, &models.JiraBoard{}, &models.JiraBoardIssue{})
 	if err != nil {
 		panic(err)
 	}
