@@ -22,7 +22,7 @@ func NewJenkinsWorker(client *http.Client, storage JenkinsStorage, base string, 
 	}
 }
 
-func (worker *JenkinsWorker) SyncJobs() {
+func (worker *JenkinsWorker) SyncJobs(progress chan<- float32) {
 	var ctx = context.Background()
 	// get all jobs
 	var jobs, err = worker.jenkins.GetAllJobs(ctx)
@@ -30,9 +30,11 @@ func (worker *JenkinsWorker) SyncJobs() {
 		logger.Error("Failed to get jobs from jenkins", err)
 		return
 	}
-	for _, job := range jobs {
+	for index, job := range jobs {
 		worker.syncJob(ctx, job)
+		progress <- float32((index + 1)) / float32(len(jobs))
 	}
+	close(progress)
 }
 
 func (worker *JenkinsWorker) syncJob(ctx context.Context, job *gojenkins.Job) {
