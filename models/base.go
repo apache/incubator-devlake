@@ -9,7 +9,6 @@ type Model struct {
 }
 
 type NoPKModel struct {
-	Status    int
 	CreatedAt time.Time
 	UpdatedAt time.Time
 	DeletedAt *time.Time

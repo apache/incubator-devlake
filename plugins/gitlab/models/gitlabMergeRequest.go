@@ -6,6 +6,7 @@ import (
 
 type GitlabMergeRequest struct {
 	GitlabId         int `gorm:"primary_key"`
+	Iid              int
 	ProjectId        int
 	State            string
 	Title            string
