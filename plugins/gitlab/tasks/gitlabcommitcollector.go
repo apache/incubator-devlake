@@ -2,9 +2,7 @@ package tasks
 
 import (
 	"fmt"
-	"time"
 
-	"github.com/merico-dev/lake/config"
 	"github.com/merico-dev/lake/logger"
 	lakeModels "github.com/merico-dev/lake/models"
 	"github.com/merico-dev/lake/plugins/core"
@@ -32,19 +30,8 @@ type ApiCommitResponse []struct {
 	}
 }
 
-func createApiClient() *core.ApiClient {
-	return core.NewApiClient(
-		config.V.GetString("GITLAB_ENDPOINT"),
-		map[string]string{
-			"Authorization": fmt.Sprintf("Bearer %v", config.V.GetString("GITLAB_AUTH")),
-		},
-		10*time.Second,
-		3,
-	)
-}
-
 func CollectCommits(projectId int) error {
-	gitlabApiClient := createApiClient()
+	gitlabApiClient := CreateApiClient()
 
 	res, err := gitlabApiClient.Get(fmt.Sprintf("projects/%v/repository/commits?with_stats=true", projectId), nil, nil)
 	if err != nil {
