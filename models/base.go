@@ -3,9 +3,7 @@ package models
 import "time"
 
 type Model struct {
-	ID        uint `gorm:"primary_key"`
-	Status    int
-	CreatedAt time.Time
-	UpdatedAt time.Time
-	DeletedAt *time.Time
+	ID        uint64    `gorm:"primary_key"`
+	CreatedAt time.Time `gorm:"<-:create"`
+	UpdatedAt time.Time `gorm:"<-:update"`
 }
