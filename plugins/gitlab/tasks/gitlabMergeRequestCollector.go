@@ -13,7 +13,7 @@ import (
 type ApiMergeRequestResponse []struct {
 	GitlabId        int `json:"id"`
 	Iid             int
-	ProjectId       int `json:"project_id"`
+	GitlabProjectId int `json:"project_id"`
 	State           string
 	Title           string
 	Description     string
@@ -55,10 +55,7 @@ func CollectMergeRequests(projectId int) error {
 	for _, mr := range *gitlabApiResponse {
 		gitlabMergeRequest := &models.GitlabMergeRequest{
 			GitlabId:         mr.GitlabId,
-<<<<<<< HEAD
 			Iid:              mr.Iid,
-=======
->>>>>>> 745abc6 (feat: merge request and reviewer collection)
 			ProjectId:        mr.ProjectId,
 			State:            mr.State,
 			Title:            mr.Title,

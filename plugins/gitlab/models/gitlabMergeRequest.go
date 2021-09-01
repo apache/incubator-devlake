@@ -8,6 +8,7 @@ type GitlabMergeRequest struct {
 	GitlabId         int `gorm:"primary_key"`
 	Iid              int
 	ProjectId        int
+	Project          GitlabProject `gorm:"foreignKey:ProjectId"`
 	State            string
 	Title            string
 	WebUrl           string
