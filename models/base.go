@@ -13,3 +13,10 @@ type NoPKModel struct {
 	UpdatedAt time.Time
 	DeletedAt *time.Time
 }
+
+type NoPKModel struct {
+	Status    int
+	CreatedAt time.Time
+	UpdatedAt time.Time
+	DeletedAt *time.Time
+}
