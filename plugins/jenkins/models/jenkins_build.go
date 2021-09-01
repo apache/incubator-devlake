@@ -16,5 +16,5 @@ type JenkinsBuildProps struct {
 type JenkinsBuild struct {
 	models.Model
 	JenkinsBuildProps
-	JobID uint
+	JobID uint64
 }
