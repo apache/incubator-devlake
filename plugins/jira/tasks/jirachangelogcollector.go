@@ -78,13 +78,13 @@ func CollectChangelogs(boardId uint64) error {
 func collectChangelogsByIssueId(issueId uint64) error {
 	jiraApiClient := GetJiraApiClient()
 	return jiraApiClient.FetchPages(fmt.Sprintf("/api/3/issue/%v/changelog", issueId), nil,
-		func(res *http.Response) (*JiraPagination, error) {
+		func(res *http.Response) error {
 			// parse response
 			jiraApiChangelogResponse := &JiraApiChangelogsResponse{}
 			err := core.UnmarshalResponse(res, jiraApiChangelogResponse)
 			if err != nil {
 				logger.Error("Error: ", err)
-				return nil, err
+				return err
 			}
 
 			// process changelogs
@@ -93,13 +93,13 @@ func collectChangelogsByIssueId(issueId uint64) error {
 				jiraChangelog, err := convertChangelog(&jiraApiChangelog)
 				if err != nil {
 					logger.Error("Error: ", err)
-					return nil, err
+					return err
 				}
 				// save changelog
 				err = lakeModels.Db.Save(jiraChangelog).Error
 				if err != nil {
 					logger.Error("Error: ", err)
-					return nil, err
+					return err
 				}
 
 				// process changelog items
@@ -108,19 +108,17 @@ func collectChangelogsByIssueId(issueId uint64) error {
 					jiraChangelogItem, err := convertChangelogItem(jiraChangelog.ID, &jiraApiChangelogItem)
 					if err != nil {
 						logger.Error("Error: ", err)
-						return nil, err
+						return err
 					}
 					// save changelog item
 					err = lakeModels.Db.Create(jiraChangelogItem).Error
 					if err != nil {
 						logger.Error("Error: ", err)
-						return nil, err
+						return err
 					}
 				}
 			}
-
-			// return pagination infomration
-			return &jiraApiChangelogResponse.JiraPagination, nil
+			return nil
 		})
 }
 
