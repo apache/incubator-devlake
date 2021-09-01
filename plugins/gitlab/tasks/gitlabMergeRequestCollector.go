@@ -55,7 +55,10 @@ func CollectMergeRequests(projectId int) error {
 	for _, mr := range *gitlabApiResponse {
 		gitlabMergeRequest := &models.GitlabMergeRequest{
 			GitlabId:         mr.GitlabId,
+<<<<<<< HEAD
 			Iid:              mr.Iid,
+=======
+>>>>>>> 745abc6 (feat: merge request and reviewer collection)
 			ProjectId:        mr.ProjectId,
 			State:            mr.State,
 			Title:            mr.Title,
@@ -80,12 +83,15 @@ func CollectMergeRequests(projectId int) error {
 		}
 
 		CreateReviewers(mr.GitlabId, mr.Reviewers)
+<<<<<<< HEAD
 
 		collectErr := CollectMergeRequestNotes(projectId, gitlabApiResponse)
 
 		if collectErr != nil {
 			logger.Error("Could not collect MR Notes", collectErr)
 		}
+=======
+>>>>>>> 745abc6 (feat: merge request and reviewer collection)
 	}
 
 	return nil
