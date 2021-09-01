@@ -21,7 +21,14 @@ func (j Jenkins) Init() {
 	if err != nil {
 		logger.Error("Failed to auto migrate jenkins models", err)
 	}
-	err = lakeModels.Db.Exec("truncate table jenkins_jobs").Error
+}
+
+func (j Jenkins) Description() string {
+	return "Jenkins plugin"
+}
+
+func (j Jenkins) CleanData() {
+	var err = lakeModels.Db.Exec("truncate table jenkins_jobs").Error
 	if err != nil {
 		logger.Error("Failed to truncate jenkins models", err)
 	}
@@ -31,10 +38,6 @@ func (j Jenkins) Init() {
 	}
 }
 
-func (j Jenkins) Description() string {
-	return "Jenkins plugin"
-}
-
 func (j Jenkins) Execute(options map[string]interface{}, progress chan<- float32) {
 	var op JenkinsOptions
 	var err = mapstructure.Decode(options, &op)
@@ -42,8 +45,9 @@ func (j Jenkins) Execute(options map[string]interface{}, progress chan<- float32
 		logger.Error("Failed to decode options", err)
 		return
 	}
+	j.CleanData()
 	var worker = tasks.NewJenkinsWorker(nil, tasks.NewDeafultJenkinsStorage(lakeModels.Db), op.Host, op.Username, op.Password)
-	worker.SyncJobs()
+	worker.SyncJobs(progress)
 }
 
 var PluginEntry Jenkins //nolint
