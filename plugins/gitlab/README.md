@@ -13,13 +13,32 @@ Commit Count | Number of Commits
 Added Lines | Accumulated Number of New Lines
 Deleted Lines | Accumulated Number of Removed Lines
 
-## ⚠️ (WIP) Configuration
+## Configuration
 
-- [ ] Add configuration info with new go setup
+In your .env file, you will need to set up
 
-## ⚠️ (WIP) Gathering Data with Gitlab
+    ```
+    # Gitlab
+    GITLAB_ENDPOINT=https://gitlab.com/api/v4/
+    GITLAB_AUTH=<your access token>
+    ```
 
-- [ ] Add data collection info with new go setup
+You can get your access token from `https://gitlab.com/-/profile/personal_access_tokens`
+
+## Gathering Data with Gitlab
+
+To collect data, you can make a POST request to `/task`
+
+    ```
+    curl --location --request POST 'localhost:8080/task' \
+    --header 'Content-Type: application/json' \
+    --data-raw '{
+        "Plugin": "gitlab",
+        "Options": {
+            "projectId": <Your gitlab project id>
+        }
+    }'
+    ```
 
 ## Finding Project Id
 
