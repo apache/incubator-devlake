@@ -2,9 +2,7 @@ package tasks
 
 import (
 	"fmt"
-	"time"
 
-	"github.com/merico-dev/lake/config"
 	"github.com/merico-dev/lake/logger"
 	lakeModels "github.com/merico-dev/lake/models"
 	"github.com/merico-dev/lake/plugins/core"
@@ -12,7 +10,7 @@ import (
 )
 
 type JiraApiLocation struct {
-	ProjectId      int    `json:"projectId"`
+	ProjectId      uint   `json:"projectId"`
 	DisplayName    string `json:"displayName"`
 	ProjectName    string `json:"projectName"`
 	ProjectKey     string `json:"projectKey"`
@@ -22,22 +20,15 @@ type JiraApiLocation struct {
 }
 
 type JiraApiBoard struct {
-	Id       int    `json:"id"`
+	Id       uint64 `json:"id"`
 	Self     string `json:"self"`
 	Name     string `json:"name"`
 	Type     string `json:"type"`
 	Location *JiraApiLocation
 }
 
-func CollectBoard(boardId int) error {
-	jiraApiClient := core.NewApiClient(
-		config.V.GetString("JIRA_ENDPOINT"),
-		map[string]string{
-			"Authorization": fmt.Sprintf("Basic %v", config.V.GetString("JIRA_BASIC_AUTH_ENCODED")),
-		},
-		10*time.Second,
-		3,
-	)
+func CollectBoard(boardId uint64) error {
+	jiraApiClient := GetJiraApiClient()
 
 	res, err := jiraApiClient.Get(fmt.Sprintf("/agile/1.0/board/%v", boardId), nil, nil)
 	if err != nil {
@@ -52,8 +43,11 @@ func CollectBoard(boardId int) error {
 	}
 	logger.Info("jiraboard ", jiraApiBoard)
 	jiraBoard := &models.JiraBoard{
-		JiraId: jiraApiBoard.Id,
-		Name:   jiraApiBoard.Name,
+		Model:     lakeModels.Model{ID: jiraApiBoard.Id},
+		ProjectId: jiraApiBoard.Location.ProjectId,
+		Name:      jiraApiBoard.Name,
+		Self:      jiraApiBoard.Self,
+		Type:      jiraApiBoard.Type,
 	}
 	err = lakeModels.Db.Save(jiraBoard).Error
 	if err != nil {

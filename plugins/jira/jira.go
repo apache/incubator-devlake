@@ -20,8 +20,8 @@ func (plugin Jira) Execute(options map[string]interface{}, progress chan<- float
 		logger.Print("boardId is required for jira execution")
 		return
 	}
-	boardIdInt := int(boardId.(float64))
-	if boardIdInt < 0 {
+	boardIdInt := uint64(boardId.(float64))
+	if boardIdInt == 0 {
 		logger.Print("boardId is invalid")
 		return
 	}
@@ -31,15 +31,13 @@ func (plugin Jira) Execute(options map[string]interface{}, progress chan<- float
 		logger.Error("Error: ", err)
 		return
 	}
+	progress <- 0.01
 	err = tasks.CollectIssues(boardIdInt)
 	if err != nil {
 		logger.Error("Error: ", err)
 		return
 	}
-	time.Sleep(1 * time.Second)
-	progress <- 0.1
-	time.Sleep(1 * time.Second)
-	progress <- 0.5
+	progress <- 0.8
 	time.Sleep(1 * time.Second)
 	progress <- 1
 	logger.Print("end jira plugin execution")
