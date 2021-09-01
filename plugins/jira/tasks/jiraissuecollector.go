@@ -13,15 +13,7 @@ import (
 	"github.com/merico-dev/lake/plugins/jira/models"
 )
 
-const TIME_FORMAT = "2006-01-02T15:04:05-0700"
-
 var epicFieldName string
-
-type JiraPagination struct {
-	StartAt    int `json:"startAt"`
-	MaxResults int `json:"maxResults"`
-	Total      int `json:"total"`
-}
 
 type JiraApiIssue struct {
 	Id     string                 `json:"id"`
@@ -57,13 +49,13 @@ func CollectIssues(boardId uint64) error {
 				jiraIssue, err := convertIssue(&jiraApiIssue)
 				if err != nil {
 					logger.Error("Error: ", err)
-					break
+					return nil, err
 				}
 				// issue
 				err = lakeModels.Db.Save(jiraIssue).Error
 				if err != nil {
 					logger.Error("Error: ", err)
-					break
+					return nil, err
 				}
 
 				// board / issue relationship
@@ -74,7 +66,7 @@ func CollectIssues(boardId uint64) error {
 				err = lakeModels.Db.Save(jiraBoardIssue).Error
 				if err != nil {
 					logger.Error("Error: ", err)
-					break
+					return nil, err
 				}
 			}
 
@@ -89,11 +81,11 @@ func convertIssue(jiraApiIssue *JiraApiIssue) (*models.JiraIssue, error) {
 	if err != nil {
 		return nil, err
 	}
-	created, err := time.Parse(TIME_FORMAT, jiraApiIssue.Fields["created"].(string))
+	created, err := time.Parse(core.ISO_8601_FORMAT, jiraApiIssue.Fields["created"].(string))
 	if err != nil {
 		return nil, err
 	}
-	updated, err := time.Parse(TIME_FORMAT, jiraApiIssue.Fields["updated"].(string))
+	updated, err := time.Parse(core.ISO_8601_FORMAT, jiraApiIssue.Fields["updated"].(string))
 	if err != nil {
 		return nil, err
 	}
