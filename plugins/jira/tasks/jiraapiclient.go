@@ -32,6 +32,12 @@ func GetJiraApiClient() *JiraApiClient {
 	return jiraApiClient
 }
 
+type JiraPagination struct {
+	StartAt    int `json:"startAt"`
+	MaxResults int `json:"maxResults"`
+	Total      int `json:"total"`
+}
+
 type JiraPaginationHandler func(res *http.Response) (*JiraPagination, error)
 
 func (jiraApiClient *JiraApiClient) FetchPages(path string, query *url.Values, handler JiraPaginationHandler) error {
