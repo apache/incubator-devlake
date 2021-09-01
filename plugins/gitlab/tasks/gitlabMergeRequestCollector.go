@@ -12,6 +12,7 @@ import (
 
 type ApiMergeRequestResponse []struct {
 	GitlabId        int `json:"id"`
+	Iid             int
 	ProjectId       int `json:"project_id"`
 	State           string
 	Title           string
@@ -54,6 +55,7 @@ func CollectMergeRequests(projectId int) error {
 	for _, mr := range *gitlabApiResponse {
 		gitlabMergeRequest := &models.GitlabMergeRequest{
 			GitlabId:         mr.GitlabId,
+			Iid:              mr.Iid,
 			ProjectId:        mr.ProjectId,
 			State:            mr.State,
 			Title:            mr.Title,
@@ -78,6 +80,12 @@ func CollectMergeRequests(projectId int) error {
 		}
 
 		CreateReviewers(mr.GitlabId, mr.Reviewers)
+
+		collectErr := CollectMergeRequestNotes(projectId, gitlabApiResponse)
+
+		if collectErr != nil {
+			logger.Error("Could not collect MR Notes", collectErr)
+		}
 	}
 
 	return nil
