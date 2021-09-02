@@ -1,7 +1,7 @@
 package models
 
 import (
-	"time"
+	"github.com/merico-dev/lake/models"
 )
 
 type GitlabCommit struct {
@@ -20,8 +20,5 @@ type GitlabCommit struct {
 	Additions      int
 	Deletions      int
 	Total          int
-	Status         int
-	CreatedAt      time.Time
-	UpdatedAt      time.Time
-	DeletedAt      *time.Time
+	models.NoPKModel
 }
