@@ -1,6 +1,7 @@
 package tasks
 
 import (
+	"database/sql"
 	"fmt"
 	"net/http"
 	"strconv"
@@ -10,9 +11,10 @@ import (
 	lakeModels "github.com/merico-dev/lake/models"
 	"github.com/merico-dev/lake/plugins/core"
 	"github.com/merico-dev/lake/plugins/jira/models"
+	"gorm.io/gorm/clause"
 )
 
-var epicFieldName string
+var epicKeyField, workloadField string
 
 type JiraApiIssue struct {
 	Id     string                 `json:"id"`
@@ -27,7 +29,8 @@ type JiraApiIssuesResponse struct {
 }
 
 func init() {
-	epicFieldName = config.V.GetString("JIRA_ISSUE_EPIC_KEY_FIELD")
+	epicKeyField = config.V.GetString("JIRA_ISSUE_EPIC_KEY_FIELD")
+	workloadField = config.V.GetString("JIRA_ISSUE_WORKLOAD_FIELD")
 }
 
 func CollectIssues(boardId uint64) error {
@@ -49,20 +52,18 @@ func CollectIssues(boardId uint64) error {
 					return err
 				}
 				// issue
-				err = lakeModels.Db.Save(jiraIssue).Error
+				err = lakeModels.Db.Clauses(clause.OnConflict{
+					UpdateAll: true,
+				}).Create(&jiraIssue).Error
 				if err != nil {
 					return err
 				}
 
 				// board / issue relationship
-				jiraBoardIssue := &models.JiraBoardIssue{
+				lakeModels.Db.Create(&models.JiraBoardIssue{
 					BoardId: boardId,
 					IssueId: jiraIssue.ID,
-				}
-				err = lakeModels.Db.Save(jiraBoardIssue).Error
-				if err != nil {
-					return err
-				}
+				})
 			}
 			return nil
 		})
@@ -92,21 +93,33 @@ func convertIssue(jiraApiIssue *JiraApiIssue) (*models.JiraIssue, error) {
 	statusName := status["name"].(string)
 	statusKey := status["statusCategory"].(map[string]interface{})["key"].(string)
 	epicKey := ""
-	if epicFieldName != "" {
-		epicKey, _ = jiraApiIssue.Fields[epicFieldName].(string)
+	if epicKeyField != "" {
+		epicKey, _ = jiraApiIssue.Fields[epicKeyField].(string)
+	}
+	resolutionDate := sql.NullTime{}
+	if rd, ok := jiraApiIssue.Fields["resolutiondate"]; ok && rd != nil {
+		if resolutionDate.Time, err = time.Parse(core.ISO_8601_FORMAT, rd.(string)); err == nil {
+			resolutionDate.Valid = true
+		}
+	}
+	workload := 0.0
+	if workloadField != "" {
+		workload, _ = jiraApiIssue.Fields[workloadField].(float64)
 	}
 	jiraIssue := &models.JiraIssue{
-		Model:      lakeModels.Model{ID: id},
-		ProjectId:  projectId,
-		Self:       jiraApiIssue.Self,
-		Key:        jiraApiIssue.Key,
-		Summary:    jiraApiIssue.Fields["summary"].(string),
-		Type:       jiraApiIssue.Fields["issuetype"].(map[string]interface{})["name"].(string),
-		StatusName: statusName,
-		StatusKey:  statusKey,
-		EpicKey:    epicKey,
-		Created:    created,
-		Updated:    updated,
+		Model:          lakeModels.Model{ID: id},
+		ProjectId:      projectId,
+		Self:           jiraApiIssue.Self,
+		Key:            jiraApiIssue.Key,
+		Summary:        jiraApiIssue.Fields["summary"].(string),
+		Type:           jiraApiIssue.Fields["issuetype"].(map[string]interface{})["name"].(string),
+		StatusName:     statusName,
+		StatusKey:      statusKey,
+		EpicKey:        epicKey,
+		ResolutionDate: resolutionDate,
+		Workload:       workload,
+		Created:        created,
+		Updated:        updated,
 	}
 	return jiraIssue, nil
 }

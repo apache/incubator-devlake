@@ -5,7 +5,6 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/merico-dev/lake/config"
 	"github.com/merico-dev/lake/logger"
 	lakeModels "github.com/merico-dev/lake/models"
 	"github.com/merico-dev/lake/plugins/core"
@@ -41,10 +40,6 @@ type JiraApiChangeLog struct {
 type JiraApiChangelogsResponse struct {
 	JiraPagination
 	Values []JiraApiChangeLog `json:"values,omitempty"`
-}
-
-func init() {
-	epicFieldName = config.V.GetString("JIRA_ISSUE_EPIC_KEY_FIELD")
 }
 
 func CollectChangelogs(boardId uint64) error {
