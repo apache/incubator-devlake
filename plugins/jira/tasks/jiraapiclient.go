@@ -98,6 +98,9 @@ func (jiraApiClient *JiraApiClient) FetchPages(path string, query *url.Values, h
 			})
 			return nil
 		})
+		if err != nil {
+			return err
+		}
 		nextStart += pageSize
 	}
 	scheduler.WaitUntilFinish()
