@@ -22,6 +22,7 @@ require (
 	github.com/hashicorp/hcl v1.0.0 // indirect
 	github.com/jinzhu/inflection v1.0.0 // indirect
 	github.com/jinzhu/now v1.1.2 // indirect
+	github.com/joho/godotenv v1.3.0
 	github.com/json-iterator/go v1.1.11 // indirect
 	github.com/leodido/go-urn v1.2.1 // indirect
 	github.com/magiconair/properties v1.8.5
@@ -45,4 +46,8 @@ require (
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 )
 
-require golang.org/x/net v0.0.0-20210405180319-a5a99cb37ef4 // indirect
+require (
+	github.com/panjf2000/ants/v2 v2.4.6 // indirect
+	github.com/quasilyte/go-ruleguard/dsl v0.3.6 // indirect
+	golang.org/x/net v0.0.0-20210405180319-a5a99cb37ef4 // indirect
+)

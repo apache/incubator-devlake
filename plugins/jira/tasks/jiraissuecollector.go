@@ -7,7 +7,6 @@ import (
 	"time"
 
 	"github.com/merico-dev/lake/config"
-	"github.com/merico-dev/lake/logger"
 	lakeModels "github.com/merico-dev/lake/models"
 	"github.com/merico-dev/lake/plugins/core"
 	"github.com/merico-dev/lake/plugins/jira/models"
@@ -34,13 +33,12 @@ func init() {
 func CollectIssues(boardId uint64) error {
 	jiraApiClient := GetJiraApiClient()
 	return jiraApiClient.FetchPages(fmt.Sprintf("/agile/1.0/board/%v/issue", boardId), nil,
-		func(res *http.Response) (*JiraPagination, error) {
+		func(res *http.Response) error {
 			// parse response
 			jiraApiIssuesResponse := &JiraApiIssuesResponse{}
 			err := core.UnmarshalResponse(res, jiraApiIssuesResponse)
 			if err != nil {
-				logger.Error("Error: ", err)
-				return nil, err
+				return err
 			}
 
 			// process issues
@@ -48,14 +46,12 @@ func CollectIssues(boardId uint64) error {
 
 				jiraIssue, err := convertIssue(&jiraApiIssue)
 				if err != nil {
-					logger.Error("Error: ", err)
-					return nil, err
+					return err
 				}
 				// issue
 				err = lakeModels.Db.Save(jiraIssue).Error
 				if err != nil {
-					logger.Error("Error: ", err)
-					return nil, err
+					return err
 				}
 
 				// board / issue relationship
@@ -65,13 +61,10 @@ func CollectIssues(boardId uint64) error {
 				}
 				err = lakeModels.Db.Save(jiraBoardIssue).Error
 				if err != nil {
-					logger.Error("Error: ", err)
-					return nil, err
+					return err
 				}
 			}
-
-			// return pagination infomration
-			return &jiraApiIssuesResponse.JiraPagination, nil
+			return nil
 		})
 }
 

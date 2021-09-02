@@ -2,6 +2,8 @@ package tasks
 
 import (
 	"fmt"
+	"github.com/merico-dev/lake/logger"
+	"github.com/merico-dev/lake/utils"
 	"net/http"
 	"net/url"
 	"strconv"
@@ -38,31 +40,69 @@ type JiraPagination struct {
 	Total      int `json:"total"`
 }
 
-type JiraPaginationHandler func(res *http.Response) (*JiraPagination, error)
+type JiraPaginationHandler func(res *http.Response) error
 
 func (jiraApiClient *JiraApiClient) FetchPages(path string, query *url.Values, handler JiraPaginationHandler) error {
 	if query == nil {
 		query = &url.Values{}
 	}
-	nextStart, total, query := 0, 1, &url.Values{}
-	for nextStart < total {
-		// fetch page
-		query.Set("maxResults", "100")
-		query.Set("startAt", strconv.Itoa(nextStart))
-		res, err := jiraApiClient.Get(path, query, nil)
-		if err != nil {
-			return err
-		}
+	nextStart, total, pageSize := 0, 1, 100
 
-		// call page handler
-		pagination, err := handler(res)
-		if err != nil {
-			return err
-		}
-
-		// next page
-		nextStart = pagination.StartAt + pagination.MaxResults
-		total = pagination.Total
+	// 获取issue总数
+	// get issue count
+	pageQuery := &url.Values{}
+	*pageQuery = *query
+	pageQuery.Set("maxResults", "0")
+	res, err := jiraApiClient.Get(path, query, nil)
+	if err != nil {
+		return err
 	}
+	jiraApiResponse := &JiraPagination{}
+	err = core.UnmarshalResponse(res, jiraApiResponse)
+	if err != nil {
+		logger.Error("Error: ", err)
+		return nil
+	}
+	total = jiraApiResponse.Total
+
+	scheduler, err := utils.NewWorkerScheduler(10, 50)
+	if err != nil {
+		return err
+	}
+	defer scheduler.Release()
+
+	for nextStart < total {
+		nextStartTmp := nextStart
+		err = scheduler.Submit(func() error {
+			// fetch page
+			detailQuery := &url.Values{}
+			*detailQuery = *query
+			detailQuery.Set("maxResults", strconv.Itoa(pageSize))
+			detailQuery.Set("startAt", strconv.Itoa(nextStartTmp))
+			res, err := jiraApiClient.Get(path, query, nil)
+			if err != nil {
+				return err
+			}
+
+			// call page handler
+			err = handler(res)
+			if err != nil {
+				logger.Error("Error: ", err)
+				return err
+			}
+
+			logger.Info("jira api client page loaded", map[string]interface{}{
+				"path":      path,
+				"nextStart": nextStartTmp,
+				"total":     total,
+			})
+			return nil
+		})
+		if err != nil {
+			return err
+		}
+		nextStart += pageSize
+	}
+	scheduler.WaitUntilFinish()
 	return nil
 }
