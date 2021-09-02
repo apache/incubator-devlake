@@ -24,6 +24,7 @@ type JiraApiIssue struct {
 }
 
 type JiraApiIssuesResponse struct {
+	JiraPagination
 	Issues []JiraApiIssue `json:"issues"`
 }
 
@@ -34,7 +35,7 @@ func init() {
 
 func CollectIssues(boardId uint64) error {
 	jiraApiClient := GetJiraApiClient()
-	return jiraApiClient.FetchWithPagination(fmt.Sprintf("/agile/1.0/board/%v/issue", boardId), nil,
+	return jiraApiClient.FetchPages(fmt.Sprintf("/agile/1.0/board/%v/issue", boardId), nil,
 		func(res *http.Response) error {
 			// parse response
 			jiraApiIssuesResponse := &JiraApiIssuesResponse{}

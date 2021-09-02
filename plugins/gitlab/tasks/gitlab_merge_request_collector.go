@@ -2,6 +2,7 @@ package tasks
 
 import (
 	"fmt"
+	"net/http"
 
 	"github.com/merico-dev/lake/logger"
 	lakeModels "github.com/merico-dev/lake/models"
@@ -36,57 +37,54 @@ type ApiMergeRequestResponse []struct {
 func CollectMergeRequests(projectId int) error {
 	gitlabApiClient := CreateApiClient()
 
-	res, err := gitlabApiClient.Get(fmt.Sprintf("projects/%v/merge_requests", projectId), nil, nil)
-	if err != nil {
-		return err
-	}
+	return gitlabApiClient.FetchWithPagination(fmt.Sprintf("projects/%v/merge_requests", projectId), nil,
+		func(res *http.Response) error {
+			gitlabApiResponse := &ApiMergeRequestResponse{}
 
-	gitlabApiResponse := &ApiMergeRequestResponse{}
+			err := core.UnmarshalResponse(res, gitlabApiResponse)
 
-	logger.Info("res", res)
+			if err != nil {
+				logger.Error("Error: ", err)
+				return nil
+			}
 
-	err = core.UnmarshalResponse(res, gitlabApiResponse)
+			for _, mr := range *gitlabApiResponse {
+				gitlabMergeRequest := &models.GitlabMergeRequest{
+					GitlabId:         mr.GitlabId,
+					Iid:              mr.Iid,
+					ProjectId:        mr.ProjectId,
+					State:            mr.State,
+					Title:            mr.Title,
+					Description:      mr.Description,
+					WebUrl:           mr.WebUrl,
+					UserNotesCount:   mr.UserNotesCount,
+					WorkInProgress:   mr.WorkInProgress,
+					SourceBranch:     mr.SourceBranch,
+					MergedAt:         mr.MergedAt,
+					GitlabCreatedAt:  mr.GitlabCreatedAt,
+					ClosedAt:         mr.ClosedAt,
+					MergedByUsername: mr.MergedBy.Username,
+					AuthorUsername:   mr.Author.Username,
+				}
 
-	if err != nil {
-		logger.Error("Error: ", err)
-		return nil
-	}
+				result := lakeModels.Db.Clauses(clause.OnConflict{
+					UpdateAll: true,
+				}).Create(&gitlabMergeRequest)
 
-	for _, mr := range *gitlabApiResponse {
-		gitlabMergeRequest := &models.GitlabMergeRequest{
-			GitlabId:         mr.GitlabId,
-			Iid:              mr.Iid,
-			ProjectId:        mr.ProjectId,
-			State:            mr.State,
-			Title:            mr.Title,
-			Description:      mr.Description,
-			WebUrl:           mr.WebUrl,
-			UserNotesCount:   mr.UserNotesCount,
-			WorkInProgress:   mr.WorkInProgress,
-			SourceBranch:     mr.SourceBranch,
-			MergedAt:         mr.MergedAt,
-			GitlabCreatedAt:  mr.GitlabCreatedAt,
-			ClosedAt:         mr.ClosedAt,
-			MergedByUsername: mr.MergedBy.Username,
-			AuthorUsername:   mr.Author.Username,
-		}
+				if result.Error != nil {
+					logger.Error("Could not upsert: ", result.Error)
+				}
 
-		result := lakeModels.Db.Clauses(clause.OnConflict{
-			UpdateAll: true,
-		}).Create(&gitlabMergeRequest)
+				CreateReviewers(mr.GitlabId, mr.Reviewers)
 
-		if result.Error != nil {
-			logger.Error("Could not upsert: ", result.Error)
-		}
+				collectErr := CollectMergeRequestNotes(projectId, mr.Iid)
 
-		CreateReviewers(mr.GitlabId, mr.Reviewers)
+				if collectErr != nil {
+					logger.Error("Could not collect MR Notes", collectErr)
+				}
+			}
 
-		collectErr := CollectMergeRequestNotes(projectId, mr.Iid)
+			return nil
 
-		if collectErr != nil {
-			logger.Error("Could not collect MR Notes", collectErr)
-		}
-	}
-
-	return nil
+		})
 }
