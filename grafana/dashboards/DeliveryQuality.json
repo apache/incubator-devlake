@@ -1292,7 +1292,7 @@
           "value": "$__all"
         },
         "datasource": "mysql",
-        "definition": "select distinct format('%s: %s', name, id) from jira_boards",
+        "definition": "select distinct concat(name, ': ', id) from jira_boards",
         "description": null,
         "error": null,
         "hide": 0,
@@ -1301,7 +1301,7 @@
         "multi": false,
         "name": "board_id",
         "options": [],
-        "query": "select distinct format('%s: %s', name, id) from jira_boards",
+        "query": "select distinct concat(name, ': ', id) from jira_boards",
         "refresh": 1,
         "regex": "/^(?<text>[^:]+): (?<value>\\d+)$/",
         "skipUrlSync": false,
