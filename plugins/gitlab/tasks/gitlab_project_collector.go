@@ -2,6 +2,7 @@ package tasks
 
 import (
 	"fmt"
+	"net/http"
 
 	"github.com/merico-dev/lake/logger"
 	lakeModels "github.com/merico-dev/lake/models"
@@ -22,40 +23,33 @@ type ApiProjectResponse struct {
 
 func CollectProjects(projectId int) error {
 	gitlabApiClient := CreateApiClient()
+	return gitlabApiClient.FetchWithPagination(fmt.Sprintf("projects/%v", projectId), nil,
+		func(res *http.Response) error {
+			gitlabApiResponse := &ApiProjectResponse{}
+			err := core.UnmarshalResponse(res, gitlabApiResponse)
+			if err != nil {
+				logger.Error("Error: ", err)
+				return nil
+			}
 
-	res, err := gitlabApiClient.Get(fmt.Sprintf("projects/%v", projectId), nil, nil)
-	if err != nil {
-		return err
-	}
+			gitlabProject := &models.GitlabProject{
+				Name:              gitlabApiResponse.Name,
+				GitlabId:          gitlabApiResponse.GitlabId,
+				PathWithNamespace: gitlabApiResponse.PathWithNamespace,
+				WebUrl:            gitlabApiResponse.WebUrl,
+				Visibility:        gitlabApiResponse.Visibility,
+				OpenIssuesCount:   gitlabApiResponse.OpenIssuesCount,
+				StarCount:         gitlabApiResponse.StarCount,
+			}
 
-	gitlabApiResponse := &ApiProjectResponse{}
+			err = lakeModels.Db.Clauses(clause.OnConflict{
+				UpdateAll: true,
+			}).Create(&gitlabProject).Error
 
-	logger.Info("res", res)
+			if err != nil {
+				logger.Error("Could not upsert: ", err)
+			}
 
-	err = core.UnmarshalResponse(res, gitlabApiResponse)
-
-	if err != nil {
-		logger.Error("Error: ", err)
-		return nil
-	}
-
-	gitlabProject := &models.GitlabProject{
-		Name:              gitlabApiResponse.Name,
-		GitlabId:          gitlabApiResponse.GitlabId,
-		PathWithNamespace: gitlabApiResponse.PathWithNamespace,
-		WebUrl:            gitlabApiResponse.WebUrl,
-		Visibility:        gitlabApiResponse.Visibility,
-		OpenIssuesCount:   gitlabApiResponse.OpenIssuesCount,
-		StarCount:         gitlabApiResponse.StarCount,
-	}
-
-	err = lakeModels.Db.Clauses(clause.OnConflict{
-		UpdateAll: true,
-	}).Create(&gitlabProject).Error
-
-	if err != nil {
-		logger.Error("Could not upsert: ", err)
-	}
-
-	return nil
+			return nil
+		})
 }
