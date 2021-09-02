@@ -13,7 +13,7 @@ import (
 type ApiMergeRequestNoteResponse []struct {
 	GitlabId        int    `json:"id"`
 	NoteableId      int    `json:"noteable_id"`
-	NoteableIid     int    `json:"noteable_iid"`
+	MergeRequestIid int    `json:"noteable_iid"`
 	NoteableType    string `json:"noteable_type"`
 	Body            string
 	GitlabCreatedAt string `json:"created_at"`
@@ -23,48 +23,43 @@ type ApiMergeRequestNoteResponse []struct {
 	}
 }
 
-func CollectMergeRequestNotes(projectId int, mrResponse *ApiMergeRequestResponse) error {
+func CollectMergeRequestNotes(projectId int, mrId int) error {
 	gitlabApiClient := CreateApiClient()
 
-	for _, mr := range *mrResponse {
-		getUrl := fmt.Sprintf("projects/%v/merge_requests/%v/notes?system=false", projectId, mr.Iid)
-		logger.Info("get URL: ", getUrl)
-		res, err := gitlabApiClient.Get(getUrl, nil, nil)
+	getUrl := fmt.Sprintf("projects/%v/merge_requests/%v/notes?system=false", projectId, mrId)
+	res, err := gitlabApiClient.Get(getUrl, nil, nil)
+	if err != nil {
+		return err
+	}
+
+	gitlabApiResponse := &ApiMergeRequestNoteResponse{}
+
+	err = core.UnmarshalResponse(res, gitlabApiResponse)
+
+	if err != nil {
+		logger.Error("Error: ", err)
+		return nil
+	}
+
+	for _, mrNote := range *gitlabApiResponse {
+		gitlabMergeRequestNote := &models.GitlabMergeRequestNote{
+			GitlabId:        mrNote.GitlabId,
+			NoteableId:      mrNote.NoteableId,
+			MergeRequestId:  mrNote.MergeRequestIid,
+			NoteableType:    mrNote.NoteableType,
+			AuthorUsername:  mrNote.Author.Username,
+			Body:            mrNote.Body,
+			GitlabCreatedAt: mrNote.GitlabCreatedAt,
+			Confidential:    mrNote.Confidential,
+		}
+
+		err = lakeModels.Db.Clauses(clause.OnConflict{
+			UpdateAll: true,
+		}).Create(&gitlabMergeRequestNote).Error
+
 		if err != nil {
+			logger.Error("Could not upsert: ", err)
 			return err
-		}
-
-		gitlabApiResponse := &ApiMergeRequestNoteResponse{}
-
-		logger.Info("res", res)
-
-		err = core.UnmarshalResponse(res, gitlabApiResponse)
-
-		if err != nil {
-			logger.Error("Error: ", err)
-			return nil
-		}
-
-		for _, mrNote := range *gitlabApiResponse {
-			gitlabMergeRequestNote := &models.GitlabMergeRequestNote{
-				GitlabId:        mrNote.GitlabId,
-				NoteableId:      mrNote.NoteableId,
-				NoteableIid:     mrNote.NoteableIid,
-				NoteableType:    mrNote.NoteableType,
-				AuthorUsername:  mrNote.Author.Username,
-				Body:            mrNote.Body,
-				GitlabCreatedAt: mrNote.GitlabCreatedAt,
-				Confidential:    mrNote.Confidential,
-			}
-
-			err = lakeModels.Db.Clauses(clause.OnConflict{
-				UpdateAll: true,
-			}).Create(&gitlabMergeRequestNote).Error
-
-			if err != nil {
-				logger.Error("Could not upsert: ", err)
-				return err
-			}
 		}
 	}
 	return nil
