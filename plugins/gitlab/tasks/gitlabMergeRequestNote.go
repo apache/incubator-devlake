@@ -27,15 +27,12 @@ func CollectMergeRequestNotes(projectId int, mrId int) error {
 	gitlabApiClient := CreateApiClient()
 
 	getUrl := fmt.Sprintf("projects/%v/merge_requests/%v/notes?system=false", projectId, mrId)
-	logger.Info("get URL: ", getUrl)
 	res, err := gitlabApiClient.Get(getUrl, nil, nil)
 	if err != nil {
 		return err
 	}
 
 	gitlabApiResponse := &ApiMergeRequestNoteResponse{}
-
-	logger.Info("res", res)
 
 	err = core.UnmarshalResponse(res, gitlabApiResponse)
 
@@ -56,7 +53,7 @@ func CollectMergeRequestNotes(projectId int, mrId int) error {
 			Confidential:    mrNote.Confidential,
 		}
 
-		err = lakeModels.Db.Debug().Clauses(clause.OnConflict{
+		err = lakeModels.Db.Clauses(clause.OnConflict{
 			UpdateAll: true,
 		}).Create(&gitlabMergeRequestNote).Error
 

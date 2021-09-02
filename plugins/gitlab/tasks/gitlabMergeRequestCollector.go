@@ -52,9 +52,6 @@ func CollectMergeRequests(projectId int) error {
 		return nil
 	}
 
-	go func() {
-
-	}()
 	for _, mr := range *gitlabApiResponse {
 		gitlabMergeRequest := &models.GitlabMergeRequest{
 			GitlabId:         mr.GitlabId,
@@ -74,7 +71,7 @@ func CollectMergeRequests(projectId int) error {
 			AuthorUsername:   mr.Author.Username,
 		}
 
-		result := lakeModels.Db.Debug().Clauses(clause.OnConflict{
+		result := lakeModels.Db.Clauses(clause.OnConflict{
 			UpdateAll: true,
 		}).Create(&gitlabMergeRequest)
 
@@ -82,17 +79,13 @@ func CollectMergeRequests(projectId int) error {
 			logger.Error("Could not upsert: ", result.Error)
 		}
 
-		logger.Info("Rows Affected: ", result.RowsAffected)
 		CreateReviewers(mr.GitlabId, mr.Reviewers)
-<<<<<<< HEAD
 
 		collectErr := CollectMergeRequestNotes(projectId, mr.Iid)
 
 		if collectErr != nil {
 			logger.Error("Could not collect MR Notes", collectErr)
 		}
-=======
->>>>>>> 745abc6 (feat: merge request and reviewer collection)
 	}
 
 	return nil
