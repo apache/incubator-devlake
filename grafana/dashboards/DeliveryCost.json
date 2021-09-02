@@ -401,7 +401,7 @@
           "value": "$__all"
         },
         "datasource": "mysql",
-        "definition": "select distinct format('%s: %s', name, id) from gitlab_projects",
+        "definition": "select distinct concat(name, ': ', gitlab_id) from gitlab_projects",
         "description": null,
         "error": null,
         "hide": 0,
@@ -410,7 +410,7 @@
         "multi": false,
         "name": "repo_id",
         "options": [],
-        "query": "select distinct format('%s: %s', name, id) from gitlab_projects",
+        "query": "select distinct concat(name, ': ', gitlab_id) from gitlab_projects",
         "refresh": 1,
         "regex": "/^(?<text>[^:]+): (?<value>\\d+)$/",
         "skipUrlSync": false,
