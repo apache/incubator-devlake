@@ -38,7 +38,12 @@ func (plugin Jira) Description() string {
 func (plugin Jira) Execute(options map[string]interface{}, progress chan<- float32) {
 	// process options
 	var op JiraOptions
-	mapstructure.Decode(options, &op)
+	var err error
+	err = mapstructure.Decode(options, &op)
+	if err != nil {
+		logger.Error("Error: ", err)
+		return
+	}
 	if op.BoardId == 0 {
 		logger.Print("boardId is invalid")
 		return
@@ -57,7 +62,6 @@ func (plugin Jira) Execute(options map[string]interface{}, progress chan<- float
 	}
 
 	// run tasks
-	var err error
 	logger.Print("start jira plugin execution")
 	if tasksToRun["collectBoard"] {
 		err := tasks.CollectBoard(boardId)
