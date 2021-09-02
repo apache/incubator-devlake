@@ -1,6 +1,7 @@
 version: "3"
 services:
   mysql:
+    hostname: mysqldb
     image: mysql:latest
     volumes:
       - mysql-storage:/var/lib/mysql
