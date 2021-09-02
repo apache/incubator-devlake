@@ -3,11 +3,14 @@ package core
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"io"
 	"io/ioutil"
 	"net/http"
 	"net/url"
 	"time"
+
+	"github.com/merico-dev/lake/logger"
 )
 
 type ApiClientBeforeRequest func(req *http.Request) error
@@ -28,14 +31,38 @@ func NewApiClient(
 	timeout time.Duration,
 	maxRetry int,
 ) *ApiClient {
-	return &ApiClient{
-		client:        &http.Client{Timeout: timeout},
-		endpoint:      endpoint,
-		headers:       headers,
-		maxRetry:      maxRetry,
-		beforeRequest: nil,
-		afterReponse:  nil,
-	}
+	apiClient := &ApiClient{}
+	apiClient.Setup(
+		endpoint,
+		headers,
+		timeout,
+		maxRetry,
+	)
+	return apiClient
+}
+
+func (apiClient *ApiClient) Setup(
+	endpoint string,
+	headers map[string]string,
+	timeout time.Duration,
+	maxRetry int,
+) {
+	apiClient.client = &http.Client{Timeout: timeout}
+	apiClient.SetEndpoint(endpoint)
+	apiClient.SetHeaders(headers)
+	apiClient.SetMaxRetry(maxRetry)
+}
+
+func (apiClient *ApiClient) SetEndpoint(endpoint string) {
+	apiClient.endpoint = endpoint
+}
+
+func (ApiClient *ApiClient) SetTimeout(timeout time.Duration) {
+	ApiClient.client.Timeout = timeout
+}
+
+func (ApiClient *ApiClient) SetMaxRetry(maxRetry int) {
+	ApiClient.maxRetry = maxRetry
 }
 
 func (apiClient *ApiClient) SetHeaders(headers map[string]string) {
@@ -103,6 +130,7 @@ func (apiClient *ApiClient) Do(
 		}
 	}
 
+	logger.Print(fmt.Sprintf("[api-client] %v %v", method, uri))
 	res, err := apiClient.client.Do(req)
 	if err != nil {
 		return nil, err

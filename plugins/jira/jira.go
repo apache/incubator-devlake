@@ -4,38 +4,87 @@ import (
 	"time"
 
 	"github.com/merico-dev/lake/logger"
+	lakeModels "github.com/merico-dev/lake/models"
+	"github.com/merico-dev/lake/plugins/jira/models"
 	"github.com/merico-dev/lake/plugins/jira/tasks"
+	"github.com/mitchellh/mapstructure"
 )
 
-// A pseudo type for Plugin Interface implementation
+type JiraOptions struct {
+	BoardId uint64   `json:"boardId"`
+	Tasks   []string `json:"tasks,omitempty"`
+}
+
+// plugin interface
 type Jira string
+
+func (plugin Jira) Init() {
+	err := lakeModels.Db.AutoMigrate(
+		&models.JiraIssue{},
+		&models.JiraBoard{},
+		&models.JiraBoardIssue{},
+		&models.JiraChangelog{},
+		&models.JiraChangelogItem{},
+	)
+	if err != nil {
+		panic(err)
+	}
+}
 
 func (plugin Jira) Description() string {
 	return "To collect and enrich data from JIRA"
 }
 
 func (plugin Jira) Execute(options map[string]interface{}, progress chan<- float32) {
-	boardId, ok := options["boardId"]
-	if !ok {
-		logger.Print("boardId is required for jira execution")
+	// process options
+	var op JiraOptions
+	var err error
+	err = mapstructure.Decode(options, &op)
+	if err != nil {
+		logger.Error("Error: ", err)
 		return
 	}
-	boardIdInt := uint64(boardId.(float64))
-	if boardIdInt == 0 {
+	if op.BoardId == 0 {
 		logger.Print("boardId is invalid")
 		return
 	}
+	boardId := op.BoardId
+	tasksToRun := make(map[string]bool, len(op.Tasks))
+	for _, task := range op.Tasks {
+		tasksToRun[task] = true
+	}
+	if len(tasksToRun) == 0 {
+		tasksToRun = map[string]bool{
+			"collectBoard":      true,
+			"collectIssues":     true,
+			"collectChangelogs": true,
+		}
+	}
+
+	// run tasks
 	logger.Print("start jira plugin execution")
-	err := tasks.CollectBoard(boardIdInt)
-	if err != nil {
-		logger.Error("Error: ", err)
-		return
+	if tasksToRun["collectBoard"] {
+		err := tasks.CollectBoard(boardId)
+		if err != nil {
+			logger.Error("Error: ", err)
+			return
+		}
 	}
 	progress <- 0.01
-	err = tasks.CollectIssues(boardIdInt)
-	if err != nil {
-		logger.Error("Error: ", err)
-		return
+	if tasksToRun["collectIssues"] {
+		err = tasks.CollectIssues(boardId)
+		if err != nil {
+			logger.Error("Error: ", err)
+			return
+		}
+	}
+	progress <- 0.05
+	if tasksToRun["collectChangelogs"] {
+		err = tasks.CollectChangelogs(boardId)
+		if err != nil {
+			logger.Error("Error: ", err)
+			return
+		}
 	}
 	progress <- 0.8
 	time.Sleep(1 * time.Second)
