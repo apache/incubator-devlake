@@ -20,7 +20,7 @@
   "links": [],
   "panels": [
     {
-      "datasource": "Postgres",
+      "datasource": "mysql",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -107,7 +107,7 @@
       "type": "barchart"
     },
     {
-      "datasource": "Postgres",
+      "datasource": "mysql",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -188,7 +188,7 @@
       "type": "stat"
     },
     {
-      "datasource": "Postgres",
+      "datasource": "mysql",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -267,7 +267,7 @@
       "type": "stat"
     },
     {
-      "datasource": "Postgres",
+      "datasource": "mysql",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -345,7 +345,7 @@
       "type": "stat"
     },
     {
-      "datasource": "Postgres",
+      "datasource": "mysql",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -420,7 +420,7 @@
       "type": "stat"
     },
     {
-      "datasource": "Postgres",
+      "datasource": "mysql",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -513,7 +513,7 @@
       "type": "row"
     },
     {
-      "datasource": "Postgres",
+      "datasource": "mysql",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -609,7 +609,7 @@
       "type": "barchart"
     },
     {
-      "datasource": "Postgres",
+      "datasource": "mysql",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -692,7 +692,7 @@
       "type": "piechart"
     },
     {
-      "datasource": "Postgres",
+      "datasource": "mysql",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -812,7 +812,7 @@
           "text": "20103385",
           "value": "20103385"
         },
-        "datasource": "Postgres",
+        "datasource": "mysql",
         "definition": "Select id from gitlab_projects",
         "description": null,
         "error": null,

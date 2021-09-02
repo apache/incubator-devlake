@@ -23,7 +23,7 @@
       "bars": true,
       "dashLength": 10,
       "dashes": false,
-      "datasource": "Postgres",
+      "datasource": "mysql",
       "fill": 1,
       "fillGradient": 0,
       "gridPos": {
@@ -139,7 +139,7 @@
       "bars": true,
       "dashLength": 10,
       "dashes": false,
-      "datasource": "Postgres",
+      "datasource": "mysql",
       "fill": 1,
       "fillGradient": 0,
       "gridPos": {
