@@ -40,6 +40,27 @@ func TestNewWorkerScheduler(t *testing.T) {
 	}
 }
 
+func TestNewWorkerSchedulerWithoutSecond(t *testing.T) {
+	testChannel := make(chan int, 100)
+	s, _ := NewWorkerScheduler(5, 0)
+	defer s.Release()
+	for i := 1; i <= 5; i++ {
+		t := i
+		_ = s.Submit(func() error {
+			testChannel <- t
+			return nil
+		})
+	}
+	time.Sleep(5 * time.Millisecond)
+	if len(testChannel) != 5 {
+		t.Fatal(`worker not finish`)
+	}
+	s.WaitUntilFinish()
+	if len(testChannel) != 5 {
+		t.Fatal(`worker not finish`)
+	}
+}
+
 func TestNewWorkerSchedulerWithPanic(t *testing.T) {
 	testChannel := make(chan int, 100)
 	s, _ := NewWorkerScheduler(1, 1)

@@ -56,7 +56,7 @@ func LoadPlugins(pluginsDir string) error {
 			logger.Info(`[plugin-core] init a plugin success`, file.Name())
 			Plugins[subDir.Name()] = plugEntry
 
-			logger.Info("plugin loaded", subDir.Name())
+			logger.Info("[plugin-core] plugin loaded", subDir.Name())
 			break
 		}
 	}
