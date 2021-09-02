@@ -2,6 +2,7 @@ package plugins
 
 import (
 	"testing"
+
 	lakeModels "github.com/merico-dev/lake/models"
 	"github.com/merico-dev/lake/plugins/jira/models"
 	"github.com/merico-dev/lake/plugins/jira/tasks"
