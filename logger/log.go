@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"runtime"
 
+	"github.com/merico-dev/lake/config"
 	"github.com/sirupsen/logrus"
 )
 
@@ -28,6 +29,9 @@ var (
 )
 
 func Color(colorString string) func(...interface{}) string {
+	if config.V.GetBool("NO_COLOR") {
+		return fmt.Sprint
+	}
 	sprint := func(args ...interface{}) string {
 		return fmt.Sprintf(colorString,
 			fmt.Sprint(args...))
