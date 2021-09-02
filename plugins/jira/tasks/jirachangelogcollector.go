@@ -38,6 +38,7 @@ type JiraApiChangeLog struct {
 }
 
 type JiraApiChangelogsResponse struct {
+	JiraPagination
 	Values []JiraApiChangeLog `json:"values,omitempty"`
 }
 
@@ -71,7 +72,7 @@ func CollectChangelogs(boardId uint64) error {
 
 func collectChangelogsByIssueId(issueId uint64) error {
 	jiraApiClient := GetJiraApiClient()
-	return jiraApiClient.FetchWithPagination(fmt.Sprintf("/api/3/issue/%v/changelog", issueId), nil,
+	return jiraApiClient.FetchPages(fmt.Sprintf("/api/3/issue/%v/changelog", issueId), nil,
 		func(res *http.Response) error {
 			// parse response
 			jiraApiChangelogResponse := &JiraApiChangelogsResponse{}

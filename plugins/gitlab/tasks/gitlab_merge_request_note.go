@@ -2,6 +2,7 @@ package tasks
 
 import (
 	"fmt"
+	"net/http"
 
 	"github.com/merico-dev/lake/logger"
 	lakeModels "github.com/merico-dev/lake/models"
@@ -27,40 +28,38 @@ func CollectMergeRequestNotes(projectId int, mrId int) error {
 	gitlabApiClient := CreateApiClient()
 
 	getUrl := fmt.Sprintf("projects/%v/merge_requests/%v/notes?system=false", projectId, mrId)
-	res, err := gitlabApiClient.Get(getUrl, nil, nil)
-	if err != nil {
-		return err
-	}
+	return gitlabApiClient.FetchWithPagination(getUrl, nil,
+		func(res *http.Response) error {
 
-	gitlabApiResponse := &ApiMergeRequestNoteResponse{}
+			gitlabApiResponse := &ApiMergeRequestNoteResponse{}
+			err := core.UnmarshalResponse(res, gitlabApiResponse)
 
-	err = core.UnmarshalResponse(res, gitlabApiResponse)
+			if err != nil {
+				logger.Error("Error: ", err)
+				return nil
+			}
 
-	if err != nil {
-		logger.Error("Error: ", err)
-		return nil
-	}
+			for _, mrNote := range *gitlabApiResponse {
+				gitlabMergeRequestNote := &models.GitlabMergeRequestNote{
+					GitlabId:        mrNote.GitlabId,
+					NoteableId:      mrNote.NoteableId,
+					MergeRequestId:  mrNote.MergeRequestIid,
+					NoteableType:    mrNote.NoteableType,
+					AuthorUsername:  mrNote.Author.Username,
+					Body:            mrNote.Body,
+					GitlabCreatedAt: mrNote.GitlabCreatedAt,
+					Confidential:    mrNote.Confidential,
+				}
 
-	for _, mrNote := range *gitlabApiResponse {
-		gitlabMergeRequestNote := &models.GitlabMergeRequestNote{
-			GitlabId:        mrNote.GitlabId,
-			NoteableId:      mrNote.NoteableId,
-			MergeRequestId:  mrNote.MergeRequestIid,
-			NoteableType:    mrNote.NoteableType,
-			AuthorUsername:  mrNote.Author.Username,
-			Body:            mrNote.Body,
-			GitlabCreatedAt: mrNote.GitlabCreatedAt,
-			Confidential:    mrNote.Confidential,
-		}
+				err = lakeModels.Db.Clauses(clause.OnConflict{
+					UpdateAll: true,
+				}).Create(&gitlabMergeRequestNote).Error
 
-		err = lakeModels.Db.Clauses(clause.OnConflict{
-			UpdateAll: true,
-		}).Create(&gitlabMergeRequestNote).Error
-
-		if err != nil {
-			logger.Error("Could not upsert: ", err)
-			return err
-		}
-	}
-	return nil
+				if err != nil {
+					logger.Error("Could not upsert: ", err)
+					return err
+				}
+			}
+			return nil
+		})
 }
