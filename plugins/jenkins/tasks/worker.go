@@ -3,7 +3,6 @@ package tasks
 import (
 	"context"
 	"net/http"
-	"time"
 
 	"github.com/bndr/gojenkins"
 	"github.com/merico-dev/lake/logger"
@@ -57,13 +56,14 @@ func (worker *JenkinsWorker) syncJob(ctx context.Context, job *gojenkins.Job) {
 	}
 	// jenkins api is not supported to filter data with timestampe
 	// so we need to filter it manually
-	timestampHalfYearAgo := time.Now().AddDate(0, -6, 0).Unix() * 1000
-	var filteredData = make([]models.JenkinsBuildProps, 0)
-	for _, item := range builds.Builds {
-		if item.Timestamp >= timestampHalfYearAgo {
-			filteredData = append(filteredData, item)
-		}
-	}
+	// timestampHalfYearAgo := time.Now().AddDate(0, -6, 0).Unix() * 1000
+	// var filteredData = make([]models.JenkinsBuildProps, 0)
+	// for _, item := range builds.Builds {
+	// 	if item.Timestamp >= timestampHalfYearAgo {
+	// 		filteredData = append(filteredData, item)
+	// 	}
+	// }
+	var filteredData = builds.Builds
 	if len(filteredData) == 0 {
 		logger.Info("job has no build exists in past half year", job.Raw.Name)
 		return

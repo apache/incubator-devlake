@@ -2,6 +2,7 @@ package tasks
 
 import (
 	"errors"
+	"time"
 
 	"github.com/merico-dev/lake/logger"
 	"github.com/merico-dev/lake/plugins/jenkins/models"
@@ -89,6 +90,7 @@ func (s *DefaultJenkinsStorage) SaveBuilds(builds []models.JenkinsBuildProps, ct
 				Number:            build.Number,
 				Result:            build.Result,
 				Timestamp:         build.Timestamp,
+				StartTime:         time.Unix(build.Timestamp/1000, 0),
 			},
 		}
 		jenkinsBuilds[index] = jenkinsBuild
