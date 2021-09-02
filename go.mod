@@ -46,6 +46,7 @@ require (
 )
 
 require (
+	github.com/joho/godotenv v1.3.0 // indirect
 	github.com/panjf2000/ants/v2 v2.4.6 // indirect
 	golang.org/x/net v0.0.0-20210405180319-a5a99cb37ef4 // indirect
 )
