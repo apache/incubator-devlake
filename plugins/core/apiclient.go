@@ -8,9 +8,11 @@ import (
 	"io/ioutil"
 	"net/http"
 	"net/url"
+	"strconv"
 	"time"
 
 	"github.com/merico-dev/lake/logger"
+	"github.com/merico-dev/lake/utils"
 )
 
 type ApiClientBeforeRequest func(req *http.Request) error
@@ -153,6 +155,77 @@ func (apiClient *ApiClient) Get(
 	headers *map[string]string,
 ) (*http.Response, error) {
 	return apiClient.Do("GET", path, query, nil, headers)
+}
+
+type Pagination struct {
+	StartAt    int `json:"startAt"`
+	MaxResults int `json:"maxResults"`
+	Total      int `json:"total"`
+}
+
+type PaginationHandler func(res *http.Response) error
+
+func (ApiClient *ApiClient) FetchWithPagination(path string, query *url.Values, handler PaginationHandler) error {
+	if query == nil {
+		query = &url.Values{}
+	}
+	nextStart, total, pageSize := 0, 1, 100
+
+	pageQuery := &url.Values{}
+	*pageQuery = *query
+	pageQuery.Set("maxResults", "0")
+	res, err := ApiClient.Get(path, query, nil)
+	if err != nil {
+		return err
+	}
+	apiResponse := &Pagination{}
+	err = UnmarshalResponse(res, apiResponse)
+	if err != nil {
+		logger.Error("Error: ", err)
+		return err
+	}
+	total = apiResponse.Total
+
+	scheduler, err := utils.NewWorkerScheduler(10, 50)
+	if err != nil {
+		return err
+	}
+	defer scheduler.Release()
+
+	for nextStart < total {
+		nextStartTmp := nextStart
+		err = scheduler.Submit(func() error {
+			// fetch page
+			detailQuery := &url.Values{}
+			*detailQuery = *query
+			detailQuery.Set("maxResults", strconv.Itoa(pageSize))
+			detailQuery.Set("startAt", strconv.Itoa(nextStartTmp))
+			res, err := ApiClient.Get(path, query, nil)
+			if err != nil {
+				return err
+			}
+
+			// call page handler
+			err = handler(res)
+			if err != nil {
+				logger.Error("Error: ", err)
+				return err
+			}
+
+			logger.Info("api client page loaded", map[string]interface{}{
+				"path":      path,
+				"nextStart": nextStartTmp,
+				"total":     total,
+			})
+			return nil
+		})
+		if err != nil {
+			return err
+		}
+		nextStart += pageSize
+	}
+	scheduler.WaitUntilFinish()
+	return nil
 }
 
 func UnmarshalResponse(res *http.Response, v interface{}) error {
