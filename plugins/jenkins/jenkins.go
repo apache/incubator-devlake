@@ -1,6 +1,7 @@
 package main
 
 import (
+	"github.com/merico-dev/lake/config"
 	"github.com/merico-dev/lake/logger"
 	lakeModels "github.com/merico-dev/lake/models"
 	"github.com/merico-dev/lake/plugins/jenkins/models"
@@ -39,7 +40,12 @@ func (j Jenkins) CleanData() {
 }
 
 func (j Jenkins) Execute(options map[string]interface{}, progress chan<- float32) {
-	var op JenkinsOptions
+	var op = JenkinsOptions{
+		Host:     config.V.GetString("JENKINS_ENDPOINT"),
+		Username: config.V.GetString("JENKINS_USERNAME"),
+		Password: config.V.GetString("JENKINS_PASSWORD"),
+	}
+	logger.Info("Jenkins config", op)
 	var err = mapstructure.Decode(options, &op)
 	if err != nil {
 		logger.Error("Failed to decode options", err)
