@@ -72,6 +72,9 @@ func CollectChangelogs(boardId uint64) error {
 			return err
 		}
 		id, err := strconv.ParseUint(jiraIssue.ID, 10, 64)
+		if err != nil {
+			return err
+		}
 		err = collectChangelogsByIssueId(scheduler, jiraApiClient, id)
 		if err != nil {
 			return err
