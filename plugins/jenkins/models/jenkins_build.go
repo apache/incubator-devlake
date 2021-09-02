@@ -1,6 +1,10 @@
 package models
 
-import "github.com/merico-dev/lake/models"
+import (
+	"time"
+
+	"github.com/merico-dev/lake/models"
+)
 
 // JenkinsBuildProps current used jenkins build props
 type JenkinsBuildProps struct {
@@ -9,7 +13,8 @@ type JenkinsBuildProps struct {
 	EstimatedDuration float64
 	Number            int64
 	Result            string
-	Timestamp         int64 // start time
+	Timestamp         int64     // start time
+	StartTime         time.Time // convered by timestamp
 }
 
 // JenkinsBuild db entity for jenkins build
