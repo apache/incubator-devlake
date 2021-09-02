@@ -1,6 +1,7 @@
 package models
 
 import (
+	"fmt"
 	"log"
 	"os"
 	"time"
@@ -31,6 +32,7 @@ func init() {
 		Logger: newLogger,
 	})
 	if err != nil {
+		fmt.Println("ERROR: >>> Mysql failed to connect")
 		panic(err)
 	}
 	migrateDB()
