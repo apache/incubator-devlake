@@ -1,6 +1,7 @@
 package models
 
 import (
+	"database/sql"
 	"time"
 
 	"github.com/merico-dev/lake/models"
@@ -9,15 +10,26 @@ import (
 type JiraIssue struct {
 	models.Model
 
-	// collected field
-	ProjectId  uint64
-	Self       string
-	Key        string
-	Summary    string
-	Type       string
-	EpicKey    string
-	StatusName string
-	StatusKey  string
-	Created    time.Time
-	Updated    time.Time
+	// collected fields
+	ProjectId      uint64
+	Self           string
+	Key            string
+	Summary        string
+	Type           string
+	EpicKey        string
+	StatusName     string
+	StatusKey      string
+	Workload       float64
+	ResolutionDate sql.NullTime
+	Created        time.Time
+	Updated        time.Time
+
+	// enriched fields
+	// RequirementAnalsyisLeadTime uint
+	// DesignLeadTime              uint
+	// DevelopmentLeadTime         uint
+	// TestLeadTime                uint
+	// DeliveryLeadTime            uint
+	LeadTime    uint
+	StdWorkload uint
 }

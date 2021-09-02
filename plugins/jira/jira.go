@@ -1,8 +1,6 @@
 package main // must be main for plugin entry point
 
 import (
-	"time"
-
 	"github.com/merico-dev/lake/logger"
 	lakeModels "github.com/merico-dev/lake/models"
 	"github.com/merico-dev/lake/plugins/jira/models"
@@ -58,6 +56,7 @@ func (plugin Jira) Execute(options map[string]interface{}, progress chan<- float
 			"collectBoard":      true,
 			"collectIssues":     true,
 			"collectChangelogs": true,
+			"enrichIssues":      true,
 		}
 	}
 
@@ -78,7 +77,7 @@ func (plugin Jira) Execute(options map[string]interface{}, progress chan<- float
 			return
 		}
 	}
-	progress <- 0.05
+	progress <- 0.5
 	if tasksToRun["collectChangelogs"] {
 		err = tasks.CollectChangelogs(boardId)
 		if err != nil {
@@ -87,7 +86,13 @@ func (plugin Jira) Execute(options map[string]interface{}, progress chan<- float
 		}
 	}
 	progress <- 0.8
-	time.Sleep(1 * time.Second)
+	if tasksToRun["enrichIssues"] {
+		err = tasks.EnrichIssues(boardId)
+		if err != nil {
+			logger.Error("Error: ", err)
+			return
+		}
+	}
 	progress <- 1
 	logger.Print("end jira plugin execution")
 	close(progress)
