@@ -17,16 +17,16 @@ func TestNewTask(t *testing.T) {
 	api.RegisterRouter(r)
 
 	w := httptest.NewRecorder()
-	params := strings.NewReader(`{ "plugin": "jira", "options": { "host": "www.jira.com" } }`)
+	params := strings.NewReader(`[{ "plugin": "jira", "options": { "host": "www.jira.com" } }]`)
 	req, _ := http.NewRequest("POST", "/task", params)
 	r.ServeHTTP(w, req)
 
 	assert.Equal(t, w.Code, http.StatusCreated)
 	resp := w.Body.String()
-	task, err := utils.JsonToMap(resp)
+	tasks, err := utils.JsonToMap(resp)
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	assert.Equal(t, task["Plugin"], "jira")
+	assert.Equal(t, tasks[1]["Plugin"], "jira")
 }
