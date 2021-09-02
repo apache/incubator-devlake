@@ -28,7 +28,7 @@ func CollectMergeRequestNotes(projectId int, mrId int) error {
 	gitlabApiClient := CreateApiClient()
 
 	getUrl := fmt.Sprintf("projects/%v/merge_requests/%v/notes?system=false", projectId, mrId)
-	return gitlabApiClient.FetchWithPagination(getUrl, nil,
+	return gitlabApiClient.FetchWithPagination(getUrl, "1", "100",
 		func(res *http.Response) error {
 
 			gitlabApiResponse := &ApiMergeRequestNoteResponse{}
