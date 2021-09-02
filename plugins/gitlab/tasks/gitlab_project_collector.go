@@ -23,7 +23,7 @@ type ApiProjectResponse struct {
 
 func CollectProjects(projectId int) error {
 	gitlabApiClient := CreateApiClient()
-	return gitlabApiClient.FetchWithPagination(fmt.Sprintf("projects/%v", projectId), nil,
+	return gitlabApiClient.FetchWithPagination(fmt.Sprintf("projects/%v", projectId), "1", "100",
 		func(res *http.Response) error {
 			gitlabApiResponse := &ApiProjectResponse{}
 			err := core.UnmarshalResponse(res, gitlabApiResponse)
