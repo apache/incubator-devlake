@@ -71,17 +71,17 @@ func CollectMergeRequests(projectId int) error {
 			AuthorUsername:   mr.Author.Username,
 		}
 
-		err = lakeModels.Db.Clauses(clause.OnConflict{
+		result := lakeModels.Db.Clauses(clause.OnConflict{
 			UpdateAll: true,
-		}).Create(&gitlabMergeRequest).Error
+		}).Create(&gitlabMergeRequest)
 
-		if err != nil {
-			logger.Error("Could not upsert: ", err)
+		if result.Error != nil {
+			logger.Error("Could not upsert: ", result.Error)
 		}
 
 		CreateReviewers(mr.GitlabId, mr.Reviewers)
 
-		collectErr := CollectMergeRequestNotes(projectId, gitlabApiResponse)
+		collectErr := CollectMergeRequestNotes(projectId, mr.Iid)
 
 		if collectErr != nil {
 			logger.Error("Could not collect MR Notes", collectErr)

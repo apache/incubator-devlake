@@ -9,9 +9,9 @@ import (
 func (plugin Gitlab) Init() {
 	logger.Info("INFO >>> init go plugin", true)
 	err := lakeModels.Db.AutoMigrate(
-		&models.GitlabCommit{},
 		&models.GitlabProject{},
 		&models.GitlabMergeRequest{},
+		&models.GitlabCommit{},
 		&models.GitlabReviewer{},
 		&models.GitlabMergeRequestNote{})
 	if err != nil {
