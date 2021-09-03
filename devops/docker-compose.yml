@@ -32,14 +32,14 @@ services:
     env_file:
       - ./grafana/grafana.config
     restart: always
-  lake:
-    # TODO: change it to lake official image when ready
-    image: narrowizard/lake 
-    ports:
-      - 127.0.0.1:8080:8080
-    env_file:
-      - ./.env
-    restart: always
+  # lake:
+  #   # TODO: change it to lake official image when ready
+  #   image: narrowizard/lake 
+  #   ports:
+  #     - 127.0.0.1:8080:8080
+  #   env_file:
+  #     - ./.env
+  #   restart: always
 volumes:
   mysql-storage: {}
   grafana-storage: {}
