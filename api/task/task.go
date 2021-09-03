@@ -20,7 +20,7 @@ func Post(ctx *gin.Context) {
 		return
 	}
 
-	tasks := make([]models.Task, len(data))
+	var tasks []models.Task
 
 	for _, value := range data {
 		task, err := services.CreateTask(value)
