@@ -8,7 +8,6 @@ import (
 	"time"
 
 	"github.com/merico-dev/lake/config"
-	"github.com/merico-dev/lake/logger"
 	"github.com/merico-dev/lake/plugins/core"
 	"github.com/merico-dev/lake/utils"
 )
@@ -61,8 +60,6 @@ func convertStringToInt(input string) (int, error) {
 // run all requests in an Ants worker pool
 func (gitlabApiClient *GitlabApiClient) FetchWithPaginationAnts(resourceUri string, pageSize string, handler GitlabPaginationHandler) error {
 
-	logger.Info("JON >>> called once", true)
-
 	pageSizeInt, _ := convertStringToInt(pageSize)
 
 	var resourceUriFormat string
@@ -71,9 +68,10 @@ func (gitlabApiClient *GitlabApiClient) FetchWithPaginationAnts(resourceUri stri
 	} else {
 		resourceUriFormat = resourceUri + "?per_page=%v&page=%v"
 	}
-
+	rateLimitPerSecond := 2000 / 60
+	workerNum := 50
 	// set up the worker pool
-	scheduler, err := utils.NewWorkerScheduler(10, 50)
+	scheduler, err := utils.NewWorkerScheduler(workerNum, rateLimitPerSecond)
 	if err != nil {
 		return err
 	}
@@ -83,15 +81,12 @@ func (gitlabApiClient *GitlabApiClient) FetchWithPaginationAnts(resourceUri stri
 	// We need to get the total pages first so we can loop through all requests concurrently
 	total, err := getTotal(resourceUriFormat)
 
-	logger.Info("JON >>> total", total)
-
 	// Loop until all pages are requested
-	for i := 0; (i * pageSizeInt) < total; i++ {
+	for i := 0; (i * pageSizeInt) <= (total + pageSizeInt); i++ {
 		// we need to save the value for the request so it is not overwritten
 		currentPage := i
 		err1 := scheduler.Submit(func() error {
 			url := fmt.Sprintf(resourceUriFormat, pageSizeInt, currentPage)
-			logger.Info("JON >>> url", url)
 
 			res, err := gitlabApiClient.Get(url, nil, nil)
 
@@ -128,14 +123,11 @@ func (gitlabApiClient *GitlabApiClient) FetchWithPagination(resourceUri string, 
 	// We need to get the total pages first so we can loop through all requests concurrently
 	total, _ := getTotal(resourceUriFormat)
 
-	logger.Info("JON >>> total", total)
-
 	// Loop until all pages are requested
 	for i := 0; (i * pageSizeInt) < total; i++ {
 		// we need to save the value for the request so it is not overwritten
 		currentPage := i
 		url := fmt.Sprintf(resourceUriFormat, pageSizeInt, currentPage)
-		logger.Info("JON >>> url", url)
 
 		res, err := gitlabApiClient.Get(url, nil, nil)
 

@@ -2,7 +2,6 @@ package tasks
 
 import (
 	"fmt"
-	"net/http"
 
 	"github.com/merico-dev/lake/logger"
 	lakeModels "github.com/merico-dev/lake/models"
@@ -21,35 +20,34 @@ type ApiProjectResponse struct {
 	StarCount         int    `json:"star_count"`
 }
 
-func CollectProjects(projectId int) error {
+func CollectProjects(projectId int, c chan bool) error {
 	gitlabApiClient := CreateApiClient()
-	return gitlabApiClient.FetchWithPagination(fmt.Sprintf("projects/%v", projectId), "100",
-		func(res *http.Response) error {
-			gitlabApiResponse := &ApiProjectResponse{}
-			err := core.UnmarshalResponse(res, gitlabApiResponse)
-			if err != nil {
-				logger.Error("Error: ", err)
-				return nil
-			}
-
-			gitlabProject := &models.GitlabProject{
-				Name:              gitlabApiResponse.Name,
-				GitlabId:          gitlabApiResponse.GitlabId,
-				PathWithNamespace: gitlabApiResponse.PathWithNamespace,
-				WebUrl:            gitlabApiResponse.WebUrl,
-				Visibility:        gitlabApiResponse.Visibility,
-				OpenIssuesCount:   gitlabApiResponse.OpenIssuesCount,
-				StarCount:         gitlabApiResponse.StarCount,
-			}
-
-			err = lakeModels.Db.Clauses(clause.OnConflict{
-				UpdateAll: true,
-			}).Create(&gitlabProject).Error
-
-			if err != nil {
-				logger.Error("Could not upsert: ", err)
-			}
-
-			return nil
-		})
+	res, err := gitlabApiClient.Get(fmt.Sprintf("projects/%v", projectId), nil, nil)
+	gitlabApiResponse := &ApiProjectResponse{}
+	err = core.UnmarshalResponse(res, gitlabApiResponse)
+	if err != nil {
+		logger.Error("Error: ", err)
+		return nil
+	}
+	fmt.Println("KEVIN >>> 1")
+	gitlabProject := &models.GitlabProject{
+		Name:              gitlabApiResponse.Name,
+		GitlabId:          gitlabApiResponse.GitlabId,
+		PathWithNamespace: gitlabApiResponse.PathWithNamespace,
+		WebUrl:            gitlabApiResponse.WebUrl,
+		Visibility:        gitlabApiResponse.Visibility,
+		OpenIssuesCount:   gitlabApiResponse.OpenIssuesCount,
+		StarCount:         gitlabApiResponse.StarCount,
+	}
+	fmt.Println("KEVIN >>> 2")
+	err = lakeModels.Db.Clauses(clause.OnConflict{
+		UpdateAll: true,
+	}).Create(&gitlabProject).Error
+	fmt.Println("KEVIN >>> 3")
+	if err != nil {
+		logger.Error("Could not upsert: ", err)
+	}
+	fmt.Println("KEVIN >>> we have arrived at the channel!")
+	c <- true
+	return nil
 }
