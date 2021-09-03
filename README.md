@@ -91,9 +91,11 @@ cp .env.example .env
 ```
 
 3. Fill the values in `Jira`, `Gitlab` and `Jenkins` sections with your deployments.
-```shell
-vi .env
-```
+> For more info on how to configure plugins, please refer to the [data source plugins](#data-source-plugins) section
+
+> TODO: ~~To map a custom status for a plugin refer to /config/plugins.js
+Ex: In Jira, if you're using Rejected as a Bug type, refer to the statusMappings sections for issues mapped to "Bug"
+All statusMappings contain 2 objects. an open status (first object), and a closed status (second object)~~
 
 4. Start the services and check services' status
 ```shell
@@ -101,6 +103,8 @@ vi .env
 docker-compose -f ./devops/docker-compose.yml --project-directory ./ up -d
 # check service status 
 docker-compose -f ./devops/docker-compose.yml --project-directory ./ ps
+# stop all services
+# docker-compose -f ./devops/docker-compose.yml --project-directory ./ down -d
 ```
 
 5. Create a http request to trigger data collect tasks, please replace your [gitlab projectId](plugins/gitlab/README.md#finding-project-id) and [jira boardId](plugins/jira/README.md#find-board-id) in the request body. This can take up to 20 minutes for large projects. (gitlab 10k+ commits or jira 5k+ issues)  
