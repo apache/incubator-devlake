@@ -1,12 +1,24 @@
 package models
 
 import (
+	"database/sql"
 	"encoding/json"
 	"time"
 
+	"github.com/merico-dev/lake/config"
 	"github.com/merico-dev/lake/models"
 	"github.com/merico-dev/lake/plugins/core"
 )
+
+var storyPointFieldId string
+
+func init() {
+	if config.V.GetString("JIRA_ISSUE_STORY_POINT_FIELD") != "" {
+		storyPointFieldId = config.V.GetString("JIRA_ISSUE_STORY_POINT_FIELD")
+	} else {
+		storyPointFieldId = "customfield_10024"
+	}
+}
 
 type JiraType struct {
 	Id   string `json:"id,omitempty"`
@@ -57,9 +69,10 @@ type JiraIssueFields struct {
 	Summary        string          `json:"summary,omitempty" `
 	Epic           JiraTypeWithKey `json:"epic,omitempty" gorm:"embedded;embeddedPrefix:epic_"`
 	Project        JiraTypeWithKey `json:"project,omitempty" gorm:"embedded;embeddedPrefix:project_"`
-	ResolutionDate time.Time       `json:"resolutiondate,omitempty" `
 	Created        time.Time       `json:"created,omitempty" `
 	Updated        time.Time       `json:"updated,omitempty" `
+	ResolutionDate sql.NullTime    `json:"resolutiondate,omitempty" `
+	StoryPoint     uint64
 }
 
 func (u *JiraIssueFields) MarshalJSON() ([]byte, error) {
@@ -73,6 +86,11 @@ func (u *JiraIssueFields) MarshalJSON() ([]byte, error) {
 }
 
 func (u *JiraIssueFields) UnmarshalJSON(data []byte) (err error) {
+	fieldsMapping := make(map[string]interface{})
+	err = json.Unmarshal(data, &fieldsMapping)
+	if err != nil {
+		return err
+	}
 	type Alias JiraIssueFields
 	fields := &struct {
 		Created core.Iso8601Time `json:"created"`
@@ -85,6 +103,10 @@ func (u *JiraIssueFields) UnmarshalJSON(data []byte) (err error) {
 	}
 	fields.Alias.Created = time.Time(fields.Created)
 	fields.Alias.Updated = time.Time(fields.Updated)
+	if fieldsMapping[storyPointFieldId] != nil {
+		points := fieldsMapping[storyPointFieldId].(float64)
+		fields.Alias.StoryPoint = uint64(points)
+	}
 	*u = JiraIssueFields(*fields.Alias)
 	return nil
 }
