@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/merico-dev/lake/config"
+	"github.com/merico-dev/lake/logger"
 	"github.com/merico-dev/lake/plugins/core"
 	"github.com/merico-dev/lake/utils"
 )
@@ -50,6 +51,7 @@ func getTotal(resourceUriFormat string) (int, error) {
 	if err != nil {
 		return 0, err
 	}
+	logger.Info("JON >>> totalInt", totalInt)
 	return totalInt, nil
 }
 
