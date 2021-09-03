@@ -34,8 +34,8 @@ func EnrichIssues(boardId uint64) error {
 		if err != nil {
 			return err
 		}
-		if jiraIssue.ResolutionDate.Valid {
-			jiraIssue.LeadTime = uint(jiraIssue.ResolutionDate.Time.Unix()-jiraIssue.Created.Unix()) / 60
+		if jiraIssue.Fields.ResolutionDate.Valid {
+			jiraIssue.LeadTime = uint(jiraIssue.Fields.ResolutionDate.Time.Unix()-jiraIssue.Fields.Created.Unix()) / 60
 		}
 		jiraIssue.StdWorkload = uint(jiraIssue.Workload * workloadCoefficient)
 		jiraIssue.StdType = getStdType(jiraIssue)
