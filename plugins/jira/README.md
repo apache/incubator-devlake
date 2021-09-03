@@ -58,3 +58,9 @@ Incident Count per 1k Lines of Code | Amount of incidents per 1000 lines of code
 Adjust what is considered "Bug", "Incident" or "Requirement".
 
 - [ ] Add in options for specific configuration in new go setup
+
+## How do I find the custom field ID in Jira?
+Using URL
+1. Navigate to Administration >> Issues >> Custom Fields .
+2. Click the cog and hover over Configure or Screens option.
+3. Observe the URL at the bottom left of the browser window. Example: The id for this custom field is 10006.

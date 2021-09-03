@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"fmt"
 	"net/http"
+	"net/url"
 	"strconv"
 	"time"
 
@@ -35,7 +36,20 @@ func init() {
 
 func CollectIssues(boardId uint64) error {
 	jiraApiClient := GetJiraApiClient()
-	return jiraApiClient.FetchPages(fmt.Sprintf("/agile/1.0/board/%v/issue", boardId), nil,
+	// diff sync
+	lastestUpdated := &models.JiraIssue{}
+	err := lakeModels.Db.Order("updated DESC").Select("id", "updated").Limit(1).Find(lastestUpdated).Error
+	if err != nil {
+		return err
+	}
+	jql := "ORDER BY updated ASC"
+	if lastestUpdated != nil && lastestUpdated.ID > 0 {
+		jql = fmt.Sprintf("update >= %v %v", lastestUpdated.Updated.Format("2006/01/02 15:04"), jql)
+	}
+	query := &url.Values{}
+	query.Set("jql", jql)
+
+	return jiraApiClient.FetchPages(fmt.Sprintf("/agile/1.0/board/%v/issue", boardId), query,
 		func(res *http.Response) error {
 			// parse response
 			jiraApiIssuesResponse := &JiraApiIssuesResponse{}
