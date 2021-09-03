@@ -65,7 +65,71 @@ All the details on provisioning, and customizing a dashboard can be found in the
   - Windows: [Download](http://gnuwin32.sourceforge.net/packages/make.htm)
   - Ubuntu: `sudo apt-get install build-essential`
 
-## Setup<a id="setup"></a>
+## User setup
+
+**NOTE: If you only plan to run the product, this is the only section you should need**
+**NOTE: Commands written `like this` are to be run in your terminal**
+
+### Required Packages to Install<a id="requirements"></a>
+
+- <a href="https://docs.docker.com/get-docker" target="_blank">Docker</a>
+
+**NOTE:** After installing docker, you may need to run the docker application and restart your terminal
+
+### Commands to run in your terminal
+
+1. Navigate to where you would like to install this project and clone the repository  
+```shell
+# TODO: should change default branch to go-main
+git clone https://github.com/merico-dev/lake.git
+cd lake
+```
+
+2. Copy an `.env` file from `.env.example`
+```shell
+cp .env.example .env
+```
+
+3. Fill the values in `Jira`, `Gitlab` and `Jenkins` sections with your deployments.
+```shell
+vi .env
+```
+
+4. Start the services and check services' status
+```shell
+# start all services
+docker-compose -f ./devops/docker-compose.yml --project-directory ./ up -d
+# check service status 
+docker-compose -f ./devops/docker-compose.yml --project-directory ./ ps
+```
+
+5. Create a http request to trigger data collect tasks, please replace your [gitlab projectId](plugins/gitlab/README.md#finding-project-id) and [jira boardId](plugins/jira/README.md#find-board-id) in the request body.
+```shell
+curl --location --request POST 'localhost:8080/task' \
+--header 'Content-Type: application/json' \
+--data-raw '[
+    {
+        "Plugin": "gitlab",
+        "Options": {
+            "projectId": 20103385
+        }
+    },
+    {
+        "Plugin": "jira",
+        "Options": {
+            "boardId": 8
+        }
+    },
+    {
+        "Plugin": "jenkins",
+        "Options": {}
+    }
+]'
+```
+
+6. Navigate to grafana dashboard `http://localhost:3002` (username: `admin`, password: `admin`).
+
+## Development Setup<a id="setup"></a>
 
 1. Navigate to where you would like to install this project and clone the repository
 
