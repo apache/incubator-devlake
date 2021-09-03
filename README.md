@@ -103,7 +103,7 @@ docker-compose -f ./devops/docker-compose.yml --project-directory ./ up -d
 docker-compose -f ./devops/docker-compose.yml --project-directory ./ ps
 ```
 
-5. Create a http request to trigger data collect tasks, please replace your [gitlab projectId](plugins/gitlab/README.md#finding-project-id) and [jira boardId](plugins/jira/README.md#find-board-id) in the request body.
+5. Create a http request to trigger data collect tasks, please replace your [gitlab projectId](plugins/gitlab/README.md#finding-project-id) and [jira boardId](plugins/jira/README.md#find-board-id) in the request body. This can take up to 20 minutes for large projects. (gitlab 10k+ commits or jira 5k+ issues)  
 ```shell
 curl --location --request POST 'localhost:8080/task' \
 --header 'Content-Type: application/json' \
