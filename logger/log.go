@@ -44,7 +44,7 @@ func Log(context string, data interface{}, color func(...interface{}) string, le
 	if !ok {
 		file = "unknown"
 	}
-	logFunction(color("[", level, " >>> ", context, " - ", file, ":", line), data)
+	logFunction(color("[", level, " >>> ", context, " - ", file, ":", line, " - "), data)
 }
 
 func Print(context string) {

@@ -53,6 +53,7 @@ func (jiraApiClient *JiraApiClient) FetchPages(path string, query *url.Values, h
 	pageQuery := &url.Values{}
 	*pageQuery = *query
 	pageQuery.Set("maxResults", "0")
+	// make a call to the api just to get the paging details
 	res, err := jiraApiClient.Get(path, query, nil)
 	if err != nil {
 		return err
