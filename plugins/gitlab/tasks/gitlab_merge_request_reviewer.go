@@ -17,12 +17,13 @@ type Reviewer struct {
 	WebUrl         string `json:"web_url"`
 }
 
-func CreateReviewers(mergeRequestId int, reviewers []Reviewer) {
+func CreateReviewers(projectId int, mergeRequestId int, reviewers []Reviewer) {
 	for _, reviewer := range reviewers {
 
 		gitlabReviewer := &models.GitlabReviewer{
 			GitlabId:       reviewer.GitlabId,
 			MergeRequestId: mergeRequestId,
+			ProjectId:      projectId,
 			Username:       reviewer.Username,
 			Name:           reviewer.Name,
 			State:          reviewer.State,

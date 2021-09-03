@@ -40,11 +40,11 @@ func (plugin Gitlab) Execute(options map[string]interface{}, progress chan<- flo
 		return
 	}
 
-	mergeRequestErr := tasks.CollectMergeRequests(projectIdInt)
-	if mergeRequestErr != nil {
-		logger.Error("Could not collect merge requests: ", mergeRequestErr)
-		return
-	}
+	// mergeRequestErr := tasks.CollectMergeRequests(projectIdInt)
+	// if mergeRequestErr != nil {
+	// 	logger.Error("Could not collect merge requests: ", mergeRequestErr)
+	// 	return
+	// }
 	progress <- 1
 
 	close(progress)

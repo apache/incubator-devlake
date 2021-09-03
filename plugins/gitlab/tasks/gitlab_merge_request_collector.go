@@ -75,7 +75,7 @@ func CollectMergeRequests(projectId int) error {
 					logger.Error("Could not upsert: ", result.Error)
 				}
 
-				CreateReviewers(mr.GitlabId, mr.Reviewers)
+				CreateReviewers(projectId, mr.GitlabId, mr.Reviewers)
 
 				collectErr := CollectMergeRequestNotes(projectId, gitlabMergeRequest)
 
