@@ -173,12 +173,12 @@ curl --location --request POST 'localhost:8080/task' \
     ```
     curl --location --request POST 'localhost:8080/task' \
     --header 'Content-Type: application/json' \
-    --data-raw '{
+    --data-raw '[{
         "Plugin": "jira",
         "Options": {
             "boardId": 8
         }
-    }'
+    }]'
     ```
 
 7. Collect & enrich data from selected sources and plugins
@@ -190,11 +190,11 @@ curl --location --request POST 'localhost:8080/task' \
     ```sh
     curl --location --request POST 'localhost:8080/source' \
     --header 'Content-Type: application/json' \
-    --data-raw '{
+    --data-raw '[{
         "Plugin": "Jira",
         "Options": {}
 
-    }'
+    }]'
     ```
 
 8. Visualize the data in the Grafana Dashboard
