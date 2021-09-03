@@ -8,7 +8,7 @@ services:
     restart: always
     ports:
       - 127.0.0.1:3306:3306
-    platform: linux/x86_64
+    # platform: linux/x86_64
     environment:
       MYSQL_ROOT_PASSWORD: admin
       MYSQL_DATABASE: lake
@@ -30,6 +30,13 @@ services:
       - ./grafana/img/grafana_icon.svg:/usr/share/grafana/public/img/grafana_icon.svg:rw
     env_file:
       - ./grafana/grafana.config
+    restart: always
+  lake:
+    image: go-lake
+    ports:
+      - 127.0.0.1:8080:8080
+    env_file:
+      - ./.env
     restart: always
 volumes:
   mysql-storage: {}
