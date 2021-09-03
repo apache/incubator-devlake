@@ -34,7 +34,7 @@ type ApiCommitResponse []struct {
 func CollectCommits(projectId int) error {
 	gitlabApiClient := CreateApiClient()
 
-	return gitlabApiClient.FetchWithPagination(fmt.Sprintf("projects/%v/repository/commits?with_stats=true", projectId), "1", "100",
+	return gitlabApiClient.FetchWithPaginationAnts(fmt.Sprintf("projects/%v/repository/commits?with_stats=true", projectId), "100",
 		func(res *http.Response) error {
 
 			gitlabApiResponse := &ApiCommitResponse{}
