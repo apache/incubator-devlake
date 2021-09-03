@@ -130,10 +130,20 @@ func (apiClient *ApiClient) Do(
 		}
 	}
 
-	logger.Print(fmt.Sprintf("[api-client] %v %v", method, uri))
-	res, err := apiClient.client.Do(req)
-	if err != nil {
-		return nil, err
+	var res *http.Response
+	retry := 0
+	for {
+		logger.Print(fmt.Sprintf("[api-client][retry %v] %v %v", retry, method, uri))
+		res, err = apiClient.client.Do(req)
+		if err != nil {
+			if retry < apiClient.maxRetry-1 {
+				retry += 1
+				continue
+			}
+			return nil, err
+		} else {
+			break
+		}
 	}
 
 	// after recieve

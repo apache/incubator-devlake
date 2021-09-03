@@ -32,4 +32,6 @@ type JiraIssue struct {
 	// DeliveryLeadTime            uint
 	LeadTime    uint
 	StdWorkload uint
+	StdType     string
+	StdStatus   string
 }
