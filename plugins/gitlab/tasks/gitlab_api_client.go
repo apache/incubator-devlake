@@ -94,7 +94,10 @@ func (gitlabApiClient *GitlabApiClient) FetchWithPaginationAnts(resourceUri stri
 				return err
 			}
 
-			handler(res)
+			handlerErr := handler(res)
+			if handlerErr != nil {
+				return handlerErr
+			}
 			return nil
 		})
 
@@ -135,7 +138,10 @@ func (gitlabApiClient *GitlabApiClient) FetchWithPagination(resourceUri string, 
 			return err
 		}
 
-		handler(res)
+		handlerErr := handler(res)
+		if handlerErr != nil {
+			return handlerErr
+		}
 	}
 
 	return nil

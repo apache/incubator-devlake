@@ -23,13 +23,16 @@ type ApiProjectResponse struct {
 func CollectProjects(projectId int, c chan bool) error {
 	gitlabApiClient := CreateApiClient()
 	res, err := gitlabApiClient.Get(fmt.Sprintf("projects/%v", projectId), nil, nil)
+	if err != nil {
+		logger.Error("Error: ", err)
+		return err
+	}
 	gitlabApiResponse := &ApiProjectResponse{}
 	err = core.UnmarshalResponse(res, gitlabApiResponse)
 	if err != nil {
 		logger.Error("Error: ", err)
-		return nil
+		return err
 	}
-	fmt.Println("KEVIN >>> 1")
 	gitlabProject := &models.GitlabProject{
 		Name:              gitlabApiResponse.Name,
 		GitlabId:          gitlabApiResponse.GitlabId,
@@ -39,15 +42,12 @@ func CollectProjects(projectId int, c chan bool) error {
 		OpenIssuesCount:   gitlabApiResponse.OpenIssuesCount,
 		StarCount:         gitlabApiResponse.StarCount,
 	}
-	fmt.Println("KEVIN >>> 2")
 	err = lakeModels.Db.Clauses(clause.OnConflict{
 		UpdateAll: true,
 	}).Create(&gitlabProject).Error
-	fmt.Println("KEVIN >>> 3")
 	if err != nil {
 		logger.Error("Could not upsert: ", err)
 	}
-	fmt.Println("KEVIN >>> we have arrived at the channel!")
 	c <- true
 	return nil
 }
