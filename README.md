@@ -65,18 +65,18 @@ All the details on provisioning, and customizing a dashboard can be found in the
   - Windows: [Download](http://gnuwin32.sourceforge.net/packages/make.htm)
   - Ubuntu: `sudo apt-get install build-essential`
 
-## User setup
+## User setup<a id="user-setup"></a>
 
 **NOTE: If you only plan to run the product, this is the only section you should need**
 **NOTE: Commands written `like this` are to be run in your terminal**
 
-### Required Packages to Install<a id="requirements"></a>
+### Required Packages to Install<a id="user-setup-requirements"></a>
 
 - <a href="https://docs.docker.com/get-docker" target="_blank">Docker</a>
 
 **NOTE:** After installing docker, you may need to run the docker application and restart your terminal
 
-### Commands to run in your terminal
+### Commands to run in your terminal<a id="user-setup-commands"></a>
 
 1. Navigate to where you would like to install this project and clone the repository  
 ```shell
@@ -133,7 +133,7 @@ curl --location --request POST 'localhost:8080/task' \
 
 6. Navigate to grafana dashboard `http://localhost:3002` (username: `admin`, password: `admin`).
 
-## Development Setup<a id="setup"></a>
+## Development Setup<a id="development-setup"></a>
 
 1. Navigate to where you would like to install this project and clone the repository
 
@@ -218,7 +218,7 @@ Sample tests can be found in `/test/example`
 
 To run the tests: `make test`
 
-  ## Contributing
+## Contributing
 
 [CONTRIBUTING.md](CONTRIBUTING.md)
 
