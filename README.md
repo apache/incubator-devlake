@@ -65,7 +65,75 @@ All the details on provisioning, and customizing a dashboard can be found in the
   - Windows: [Download](http://gnuwin32.sourceforge.net/packages/make.htm)
   - Ubuntu: `sudo apt-get install build-essential`
 
-## Setup<a id="setup"></a>
+## User setup<a id="user-setup"></a>
+
+**NOTE: If you only plan to run the product, this is the only section you should need**
+**NOTE: Commands written `like this` are to be run in your terminal**
+
+### Required Packages to Install<a id="user-setup-requirements"></a>
+
+- <a href="https://docs.docker.com/get-docker" target="_blank">Docker</a>
+
+**NOTE:** After installing docker, you may need to run the docker application and restart your terminal
+
+### Commands to run in your terminal<a id="user-setup-commands"></a>
+
+1. Navigate to where you would like to install this project and clone the repository  
+```shell
+# TODO: should change default branch to go-main
+git clone https://github.com/merico-dev/lake.git
+cd lake
+```
+
+2. Copy an `.env` file from `.env.example`
+```shell
+cp .env.example .env
+```
+
+3. Fill the values in `Jira`, `Gitlab` and `Jenkins` sections with your deployments.
+> For more info on how to configure plugins, please refer to the [data source plugins](#data-source-plugins) section
+
+> TODO: ~~To map a custom status for a plugin refer to /config/plugins.js
+Ex: In Jira, if you're using Rejected as a Bug type, refer to the statusMappings sections for issues mapped to "Bug"
+All statusMappings contain 2 objects. an open status (first object), and a closed status (second object)~~
+
+4. Start the services and check services' status
+```shell
+# start all services
+docker-compose -f ./devops/docker-compose.yml --project-directory ./ up -d
+# check service status 
+docker-compose -f ./devops/docker-compose.yml --project-directory ./ ps
+# stop all services
+# docker-compose -f ./devops/docker-compose.yml --project-directory ./ down -d
+```
+
+5. Create a http request to trigger data collect tasks, please replace your [gitlab projectId](plugins/gitlab/README.md#finding-project-id) and [jira boardId](plugins/jira/README.md#find-board-id) in the request body. This can take up to 20 minutes for large projects. (gitlab 10k+ commits or jira 5k+ issues)  
+```shell
+curl --location --request POST 'localhost:8080/task' \
+--header 'Content-Type: application/json' \
+--data-raw '[
+    {
+        "Plugin": "gitlab",
+        "Options": {
+            "projectId": 20103385
+        }
+    },
+    {
+        "Plugin": "jira",
+        "Options": {
+            "boardId": 8
+        }
+    },
+    {
+        "Plugin": "jenkins",
+        "Options": {}
+    }
+]'
+```
+
+6. Navigate to grafana dashboard `http://localhost:3002` (username: `admin`, password: `admin`).
+
+## Development Setup<a id="development-setup"></a>
 
 1. Navigate to where you would like to install this project and clone the repository
 
@@ -150,7 +218,7 @@ Sample tests can be found in `/test/example`
 
 To run the tests: `make test`
 
-  ## Contributing
+## Contributing
 
 [CONTRIBUTING.md](CONTRIBUTING.md)
 
