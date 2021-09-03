@@ -1,6 +1,7 @@
 version: "3"
 services:
   mysql:
+    hostname: mysqldb
     image: mysql:latest
     volumes:
       - mysql-storage:/var/lib/mysql
@@ -27,6 +28,7 @@ services:
       - ./grafana/provisioning:/etc/grafana/provisioning
       - ./grafana/dashboards:/etc/grafana/dashboards
       - ./grafana/img/grafana_icon.svg:/usr/share/grafana/public/img/grafana_icon.svg:rw
+      - ./grafana/img:/usr/share/grafana/public/img/lake:ro
     env_file:
       - ./grafana/grafana.config
     restart: always
