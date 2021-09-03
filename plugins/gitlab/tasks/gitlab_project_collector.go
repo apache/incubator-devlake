@@ -20,25 +20,19 @@ type ApiProjectResponse struct {
 	StarCount         int    `json:"star_count"`
 }
 
-func CollectProjects(projectId int) error {
+func CollectProjects(projectId int, c chan bool) error {
 	gitlabApiClient := CreateApiClient()
-
 	res, err := gitlabApiClient.Get(fmt.Sprintf("projects/%v", projectId), nil, nil)
 	if err != nil {
+		logger.Error("Error: ", err)
 		return err
 	}
-
 	gitlabApiResponse := &ApiProjectResponse{}
-
-	logger.Info("res", res)
-
 	err = core.UnmarshalResponse(res, gitlabApiResponse)
-
 	if err != nil {
 		logger.Error("Error: ", err)
-		return nil
+		return err
 	}
-
 	gitlabProject := &models.GitlabProject{
 		Name:              gitlabApiResponse.Name,
 		GitlabId:          gitlabApiResponse.GitlabId,
@@ -48,14 +42,12 @@ func CollectProjects(projectId int) error {
 		OpenIssuesCount:   gitlabApiResponse.OpenIssuesCount,
 		StarCount:         gitlabApiResponse.StarCount,
 	}
-
 	err = lakeModels.Db.Clauses(clause.OnConflict{
 		UpdateAll: true,
 	}).Create(&gitlabProject).Error
-
 	if err != nil {
 		logger.Error("Could not upsert: ", err)
 	}
-
+	c <- true
 	return nil
 }
