@@ -1,7 +1,6 @@
 package models
 
 import (
-	"database/sql"
 	"encoding/json"
 	"time"
 
@@ -71,17 +70,18 @@ type JiraIssueFields struct {
 	Project        JiraTypeWithKey `json:"project,omitempty" gorm:"embedded;embeddedPrefix:project_"`
 	Created        time.Time       `json:"created,omitempty" `
 	Updated        time.Time       `json:"updated,omitempty" `
-	ResolutionDate sql.NullTime    `json:"resolutiondate,omitempty" `
+	ResolutionDate time.Time       `json:"resolutiondate,omitempty" `
 	StoryPoint     uint64
 }
 
 func (u *JiraIssueFields) MarshalJSON() ([]byte, error) {
 	type Alias JiraIssueFields
 	fields := &struct {
-		Created core.Iso8601Time `json:"created"`
-		Updated core.Iso8601Time `json:"updated"`
+		Created        core.Iso8601Time `json:"created"`
+		Updated        core.Iso8601Time `json:"updated"`
+		ResolutionDate core.Iso8601Time `json:"resolutiondate"`
 		*Alias
-	}{core.Iso8601Time(u.Created), core.Iso8601Time(u.Updated), (*Alias)(u)}
+	}{core.Iso8601Time(u.Created), core.Iso8601Time(u.Updated), core.Iso8601Time(u.ResolutionDate), (*Alias)(u)}
 	return json.Marshal(fields)
 }
 
@@ -93,16 +93,18 @@ func (u *JiraIssueFields) UnmarshalJSON(data []byte) (err error) {
 	}
 	type Alias JiraIssueFields
 	fields := &struct {
-		Created core.Iso8601Time `json:"created"`
-		Updated core.Iso8601Time `json:"updated"`
+		Created        core.Iso8601Time `json:"created"`
+		Updated        core.Iso8601Time `json:"updated"`
+		ResolutionDate core.Iso8601Time `json:"resolutiondate"`
 		*Alias
-	}{core.Iso8601Time(u.Created), core.Iso8601Time(u.Updated), (*Alias)(u)}
+	}{core.Iso8601Time(u.Created), core.Iso8601Time(u.Updated), core.Iso8601Time(u.ResolutionDate), (*Alias)(u)}
 	err = json.Unmarshal(data, fields)
 	if err != nil {
 		return err
 	}
 	fields.Alias.Created = time.Time(fields.Created)
 	fields.Alias.Updated = time.Time(fields.Updated)
+	fields.Alias.ResolutionDate = time.Time(fields.ResolutionDate)
 	if fieldsMapping[storyPointFieldId] != nil {
 		points := fieldsMapping[storyPointFieldId].(float64)
 		fields.Alias.StoryPoint = uint64(points)
