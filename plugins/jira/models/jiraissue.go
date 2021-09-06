@@ -12,11 +12,7 @@ import (
 var storyPointFieldId string
 
 func init() {
-	if config.V.GetString("JIRA_ISSUE_STORY_POINT_FIELD") != "" {
-		storyPointFieldId = config.V.GetString("JIRA_ISSUE_STORY_POINT_FIELD")
-	} else {
-		storyPointFieldId = "customfield_10024"
-	}
+	storyPointFieldId = config.V.GetString("JIRA_ISSUE_STORY_POINT_FIELD")
 }
 
 type JiraType struct {
@@ -105,7 +101,7 @@ func (u *JiraIssueFields) UnmarshalJSON(data []byte) (err error) {
 	fields.Alias.Created = time.Time(fields.Created)
 	fields.Alias.Updated = time.Time(fields.Updated)
 	fields.Alias.ResolutionDate = time.Time(fields.ResolutionDate)
-	if fieldsMapping[storyPointFieldId] != nil {
+	if len(storyPointFieldId) > 0 && fieldsMapping[storyPointFieldId] != nil {
 		points := fieldsMapping[storyPointFieldId].(float64)
 		fields.Alias.StoryPoint = uint64(points)
 	}
