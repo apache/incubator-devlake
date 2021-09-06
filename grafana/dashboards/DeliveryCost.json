@@ -15,8 +15,8 @@
   "editable": true,
   "gnetId": null,
   "graphTooltip": 0,
-  "id": 6,
-  "iteration": 1629095829826,
+  "id": 36,
+  "iteration": 1630691735488,
   "links": [
     {
       "asDropdown": false,
@@ -121,7 +121,7 @@
           "group": [],
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "with all_developers as(\n  select \n    distinct unnest(reviewers) as user_name \n  from gitlab_merge_requests\n  WHERE\n    $__timeFilter(created_at)\n    and project_id = $repo_id\n  union\n  select \n    distinct author_username as user_name \n  from gitlab_merge_requests\n  WHERE\n    $__timeFilter(created_at)\n    and project_id = $repo_id\n  union\n  select \n    distinct author_name as user_name \n  from gitlab_commits\n  WHERE\n    $__timeFilter(created_at)\n    and project_id = $repo_id\n)\n\n\nSELECT\n  now() AS \"time\",\n  count(distinct user_name) as developer_count\nFROM all_developers",
+          "rawSql": "with all_developers as(\n  select \n    gitlab_reviewers.name as user_name\n  from gitlab_merge_requests\n  join gitlab_reviewers on gitlab_reviewers.merge_request_id = gitlab_merge_requests.gitlab_id\n\n  WHERE\n    $__timeFilter(gitlab_merge_requests.gitlab_created_at)\n    and gitlab_merge_requests.project_id = $repo_id\n  union\n  select \n    distinct author_username as user_name \n  from gitlab_merge_requests\n  WHERE\n    $__timeFilter(gitlab_merge_requests.gitlab_created_at)\n    and gitlab_merge_requests.project_id = $repo_id\n  union\n  select \n    distinct author_name as user_name \n  from gitlab_commits\n  WHERE\n    $__timeFilter(authored_date)\n    and gitlab_commits.project_id = $repo_id\n)\n\n\nSELECT\n  now() AS \"time\",\n  count(distinct user_name) as developer_count\nFROM all_developers",
           "refId": "A",
           "select": [
             [
@@ -273,7 +273,7 @@
           "group": [],
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "with reviewer_names as(\n  select \n    distinct unnest(reviewers) as reviewer_name\n  from gitlab_merge_requests\n  WHERE\n    $__timeFilter(created_at)\n    and project_id = $repo_id\n)\n\nselect \n  now() as time,\n  count(reviewer_name)\nfrom\n  reviewer_names",
+          "rawSql": "select \n  now() as time,\n  count(name)\nfrom\n  gitlab_reviewers",
           "refId": "A",
           "select": [
             [
@@ -354,7 +354,7 @@
           "group": [],
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "with all_user_names as(\n  select \n    distinct unnest(reviewers) as user_name \n  from gitlab_merge_requests\n  WHERE\n    $__timeFilter(created_at)\n    and project_id = $repo_id\n  union\n  select \n    distinct author_username as user_name \n  from gitlab_merge_requests\n  WHERE\n    $__timeFilter(created_at)\n    and project_id = $repo_id\n  union\n  select \n    distinct author_name as user_name \n  from gitlab_commits\n  WHERE\n    $__timeFilter(created_at)\n    and project_id = $repo_id\n),\n\nreviewer as (\n  select distinct unnest(reviewers) as reviewer_name from gitlab_merge_requests\n  WHERE\n    $__timeFilter(created_at)\n    and project_id = $repo_id\n)\n\nSELECT\n  now() AS \"time\",\n  1.0*count(distinct reviewer_name)/count(distinct user_name) as value\nFROM reviewer, all_user_names",
+          "rawSql": "with all_user_names as(\n  select \n    distinct gitlab_reviewers.name as user_name\n  from gitlab_reviewers\n  join gitlab_merge_requests on gitlab_reviewers.merge_request_id = gitlab_merge_requests.gitlab_id\n  WHERE\n    $__timeFilter(gitlab_merge_requests.gitlab_created_at)\n    and gitlab_reviewers.project_id = $repo_id\n  union\n  select \n    distinct author_username as user_name \n  from gitlab_merge_requests\n  WHERE\n    $__timeFilter(gitlab_created_at)\n    and project_id = $repo_id\n  union\n  select \n    distinct author_name as user_name \n  from gitlab_commits\n  WHERE\n   $__timeFilter(authored_date)\n    and project_id = $repo_id\n),\n\nreviewer as (\n  select distinct gitlab_reviewers.name from gitlab_reviewers\n  join gitlab_merge_requests on gitlab_reviewers.merge_request_id = gitlab_merge_requests.gitlab_id\nWHERE\n    $__timeFilter(gitlab_merge_requests.gitlab_created_at)\n    and gitlab_reviewers.project_id = $repo_id\n)\n\nSELECT\n  now() AS \"time\",\n  1.0*count(distinct reviewer.name)/count(distinct user_name) as value\nFROM reviewer, all_user_names",
           "refId": "A",
           "select": [
             [
@@ -396,9 +396,9 @@
       {
         "allValue": null,
         "current": {
-          "selected": false,
-          "text": "All",
-          "value": "$__all"
+          "selected": true,
+          "text": "vdev.co",
+          "value": "8967944"
         },
         "datasource": "mysql",
         "definition": "select distinct concat(name, ': ', gitlab_id) from gitlab_projects",
@@ -420,12 +420,12 @@
     ]
   },
   "time": {
-    "from": "now-6M",
+    "from": "now-5y",
     "to": "now"
   },
   "timepicker": {},
   "timezone": "",
   "title": "Delivery Cost",
   "uid": "TV-BnpM7k",
-  "version": 42
+  "version": 5
 }
