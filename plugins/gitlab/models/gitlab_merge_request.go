@@ -21,6 +21,7 @@ type GitlabMergeRequest struct {
 	MergedByUsername string
 	Description      string
 	AuthorUsername   string
+	FirstCommentTime string
 
 	models.NoPKModel
 }

@@ -14,6 +14,8 @@ type GitlabMergeRequestNote struct {
 	Body            string
 	GitlabCreatedAt string
 	Confidential    bool
+	Resolvable      bool // Resolvable means a comment is a code review comment
+	System          bool // System means the comment is generated automatically
 
 	models.NoPKModel
 }
