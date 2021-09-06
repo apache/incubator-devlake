@@ -20,6 +20,7 @@ type MergeRequestNote struct {
 	Body            string
 	GitlabCreatedAt string `json:"created_at"`
 	Confidential    bool
+	Resolvable      bool `json:"resolvable"`
 	Author          struct {
 		Username string `json:"username"`
 	}
@@ -31,6 +32,9 @@ func FindEarliestNote(notes *ApiMergeRequestNoteResponse) (*MergeRequestNote, er
 
 	earliestTime := time.Now()
 	for _, note := range *notes {
+		if !note.Resolvable {
+			continue
+		}
 		noteTime, parseErr := time.Parse(time.RFC3339, note.GitlabCreatedAt)
 		if parseErr != nil {
 			return nil, parseErr
@@ -88,6 +92,7 @@ func CollectMergeRequestNotes(projectId int, mr *models.GitlabMergeRequest) erro
 					Body:            mrNote.Body,
 					GitlabCreatedAt: mrNote.GitlabCreatedAt,
 					Confidential:    mrNote.Confidential,
+					Resolvable:      mrNote.Resolvable,
 				}
 
 				err = lakeModels.Db.Clauses(clause.OnConflict{
