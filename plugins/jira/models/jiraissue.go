@@ -34,4 +34,7 @@ type JiraIssue struct {
 	StdStoryPoint uint
 	StdType       string
 	StdStatus     string
+
+	// internal status tracking
+	ChangelogUpdated sql.NullTime
 }
