@@ -9,10 +9,10 @@ import (
 	"github.com/merico-dev/lake/plugins/jira/models"
 )
 
-var workloadCoefficient float64
+var storyPointCoefficient float64
 
 func init() {
-	workloadCoefficient = config.V.GetFloat64("JIRA_WORKLOAD_COEFFICIENT")
+	storyPointCoefficient = config.V.GetFloat64("JIRA_ISSUE_STORYPOINT_COEFFICIENT")
 }
 
 func EnrichIssues(boardId uint64) error {
@@ -37,7 +37,7 @@ func EnrichIssues(boardId uint64) error {
 		if jiraIssue.ResolutionDate.Valid {
 			jiraIssue.LeadTime = uint(jiraIssue.ResolutionDate.Time.Unix()-jiraIssue.Created.Unix()) / 60
 		}
-		jiraIssue.StdWorkload = uint(jiraIssue.Workload * workloadCoefficient)
+		jiraIssue.StdStoryPoint = uint(jiraIssue.StoryPoint * storyPointCoefficient)
 		jiraIssue.StdType = getStdType(jiraIssue)
 		jiraIssue.StdStatus = getStdStatus(jiraIssue)
 		err = lakeModels.Db.Save(jiraIssue).Error

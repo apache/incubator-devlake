@@ -3,11 +3,12 @@ package tasks
 import (
 	"database/sql"
 	"fmt"
-	"github.com/merico-dev/lake/utils"
 	"net/http"
 	"net/url"
 	"strconv"
 	"time"
+
+	"github.com/merico-dev/lake/utils"
 
 	"github.com/merico-dev/lake/config"
 	lakeModels "github.com/merico-dev/lake/models"
@@ -16,7 +17,7 @@ import (
 	"gorm.io/gorm/clause"
 )
 
-var epicKeyField, workloadField string
+var epicKeyField, storyPointField string
 
 type JiraApiIssue struct {
 	Id     string                 `json:"id"`
@@ -32,7 +33,7 @@ type JiraApiIssuesResponse struct {
 
 func init() {
 	epicKeyField = config.V.GetString("JIRA_ISSUE_EPIC_KEY_FIELD")
-	workloadField = config.V.GetString("JIRA_ISSUE_WORKLOAD_FIELD")
+	storyPointField = config.V.GetString("JIRA_ISSUE_STORYPOINT_FIELD")
 }
 
 func CollectIssues(boardId uint64) error {
@@ -45,7 +46,7 @@ func CollectIssues(boardId uint64) error {
 	}
 	jql := "ORDER BY updated ASC"
 	if lastestUpdated != nil && lastestUpdated.ID > 0 {
-		jql = fmt.Sprintf("update >= %v %v", lastestUpdated.Updated.Format("2006/01/02 15:04"), jql)
+		jql = fmt.Sprintf("updated >= '%v' %v", lastestUpdated.Updated.Format("2006/01/02 15:04"), jql)
 	}
 	query := &url.Values{}
 	query.Set("jql", jql)
@@ -129,8 +130,8 @@ func convertIssue(jiraApiIssue *JiraApiIssue) (*models.JiraIssue, error) {
 		}
 	}
 	workload := 0.0
-	if workloadField != "" {
-		workload, _ = jiraApiIssue.Fields[workloadField].(float64)
+	if storyPointField != "" {
+		workload, _ = jiraApiIssue.Fields[storyPointField].(float64)
 	}
 	jiraIssue := &models.JiraIssue{
 		Model:          lakeModels.Model{ID: id},
@@ -143,7 +144,7 @@ func convertIssue(jiraApiIssue *JiraApiIssue) (*models.JiraIssue, error) {
 		StatusKey:      statusKey,
 		EpicKey:        epicKey,
 		ResolutionDate: resolutionDate,
-		Workload:       workload,
+		StoryPoint:     workload,
 		Created:        created,
 		Updated:        updated,
 	}
