@@ -2,6 +2,7 @@ package tasks
 
 import (
 	"fmt"
+	"github.com/merico-dev/lake/utils"
 	"net/http"
 	"strconv"
 
@@ -46,6 +47,7 @@ func CollectChangelogs(boardId uint64) error {
 	jiraIssue := &models.JiraIssue{}
 
 	// select all issues belongs to the board
+	// TODO filter issues by update_at
 	cursor, err := lakeModels.Db.Model(jiraIssue).
 		Select("jira_issues.id").
 		Joins("left join jira_board_issues on jira_board_issues.issue_id = jira_issues.id").
@@ -55,24 +57,31 @@ func CollectChangelogs(boardId uint64) error {
 		return err
 	}
 
+	scheduler, err := utils.NewWorkerScheduler(10, 50)
+	if err != nil {
+		return err
+	}
+	defer scheduler.Release()
+	jiraApiClient := GetJiraApiClient()
+
 	// iterate all rows
 	for cursor.Next() {
 		err = lakeModels.Db.ScanRows(cursor, jiraIssue)
 		if err != nil {
 			return err
 		}
-		err = collectChangelogsByIssueId(jiraIssue.ID)
+		err = collectChangelogsByIssueId(scheduler, jiraApiClient, jiraIssue.ID)
 		if err != nil {
 			return err
 		}
 	}
+	scheduler.WaitUntilFinish()
 
 	return nil
 }
 
-func collectChangelogsByIssueId(issueId uint64) error {
-	jiraApiClient := GetJiraApiClient()
-	return jiraApiClient.FetchPages(fmt.Sprintf("/api/3/issue/%v/changelog", issueId), nil,
+func collectChangelogsByIssueId(scheduler *utils.WorkerScheduler, jiraApiClient *JiraApiClient, issueId uint64) error {
+	return jiraApiClient.FetchPages(scheduler, fmt.Sprintf("/api/3/issue/%v/changelog", issueId), nil,
 		func(res *http.Response) error {
 			// parse response
 			jiraApiChangelogResponse := &JiraApiChangelogsResponse{}

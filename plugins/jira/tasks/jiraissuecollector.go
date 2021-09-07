@@ -3,6 +3,7 @@ package tasks
 import (
 	"database/sql"
 	"fmt"
+	"github.com/merico-dev/lake/utils"
 	"net/http"
 	"net/url"
 	"strconv"
@@ -49,7 +50,13 @@ func CollectIssues(boardId uint64) error {
 	query := &url.Values{}
 	query.Set("jql", jql)
 
-	return jiraApiClient.FetchPages(fmt.Sprintf("/agile/1.0/board/%v/issue", boardId), query,
+	scheduler, err := utils.NewWorkerScheduler(10, 50)
+	if err != nil {
+		return err
+	}
+	defer scheduler.Release()
+
+	err = jiraApiClient.FetchPages(scheduler, fmt.Sprintf("/agile/1.0/board/%v/issue", boardId), query,
 		func(res *http.Response) error {
 			// parse response
 			jiraApiIssuesResponse := &JiraApiIssuesResponse{}
@@ -81,6 +88,11 @@ func CollectIssues(boardId uint64) error {
 			}
 			return nil
 		})
+	if err != nil {
+		return err
+	}
+	scheduler.WaitUntilFinish()
+	return nil
 }
 
 func convertIssue(jiraApiIssue *JiraApiIssue) (*models.JiraIssue, error) {
