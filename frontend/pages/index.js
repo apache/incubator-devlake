@@ -1,8 +1,13 @@
 import Head from 'next/head'
 import Image from 'next/image'
+import { useEffect } from 'react'
 import styles from '../styles/Home.module.css'
+import path from 'path'
+const dotenv = require('dotenv')
 
-export default function Home() {
+export default function Home(props) {
+  const { fileData } = props;
+
   return (
     <div className={styles.container}>
       <Head>
@@ -21,35 +26,9 @@ export default function Home() {
           <code className={styles.code}>pages/index.js</code>
         </p>
 
-        <div className={styles.grid}>
-          <a href="https://nextjs.org/docs" className={styles.card}>
-            <h2>Documentation &rarr;</h2>
-            <p>Find in-depth information about Next.js features and API.</p>
-          </a>
-
-          <a href="https://nextjs.org/learn" className={styles.card}>
-            <h2>Learn &rarr;</h2>
-            <p>Learn about Next.js in an interactive course with quizzes!</p>
-          </a>
-
-          <a
-            href="https://github.com/vercel/next.js/tree/master/examples"
-            className={styles.card}
-          >
-            <h2>Examples &rarr;</h2>
-            <p>Discover and deploy boilerplate example Next.js projects.</p>
-          </a>
-
-          <a
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
-            className={styles.card}
-          >
-            <h2>Deploy &rarr;</h2>
-            <p>
-              Instantly deploy your Next.js site to a public URL with Vercel.
-            </p>
-          </a>
-        </div>
+        <p>change env NEW_VALUE</p>
+        <input type="text" />
+        <button>save</button>
       </main>
 
       <footer className={styles.footer}>
@@ -66,4 +45,21 @@ export default function Home() {
       </footer>
     </div>
   )
+}
+
+export async function getStaticProps(context) {
+  const fs = require('fs').promises
+
+  const filePath = path.join(process.cwd(), 'data', '../../frontend/.env')
+  const fileData = await fs.readFile(filePath)
+
+  //TODO: take read value and overwrite env
+
+  console.log(dotenv.parse(fileData))
+
+  return {
+    props: {
+      fileData: JSON.stringify(fileData)
+    },
+  };
 }
