@@ -2,27 +2,20 @@ package tasks
 
 import (
 	"fmt"
-	"github.com/merico-dev/lake/utils"
 	"net/http"
 	"net/url"
 
-	"github.com/merico-dev/lake/config"
+	"github.com/merico-dev/lake/utils"
+
 	lakeModels "github.com/merico-dev/lake/models"
 	"github.com/merico-dev/lake/plugins/core"
 	"github.com/merico-dev/lake/plugins/jira/models"
 	"gorm.io/gorm/clause"
 )
 
-var epicKeyField, workloadField string
-
 type JiraApiIssuesResponse struct {
 	JiraPagination
 	Issues []models.JiraIssue `json:"issues"`
-}
-
-func init() {
-	epicKeyField = config.V.GetString("JIRA_ISSUE_EPIC_KEY_FIELD")
-	workloadField = config.V.GetString("JIRA_ISSUE_WORKLOAD_FIELD")
 }
 
 func CollectIssues(boardId uint64) error {
