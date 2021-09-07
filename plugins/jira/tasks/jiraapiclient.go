@@ -42,7 +42,7 @@ type JiraPagination struct {
 
 type JiraPaginationHandler func(res *http.Response) error
 
-func (jiraApiClient *JiraApiClient) FetchPages(path string, query *url.Values, handler JiraPaginationHandler) error {
+func (jiraApiClient *JiraApiClient) FetchPages(scheduler *utils.WorkerScheduler, path string, query *url.Values, handler JiraPaginationHandler) error {
 	if query == nil {
 		query = &url.Values{}
 	}
@@ -65,12 +65,6 @@ func (jiraApiClient *JiraApiClient) FetchPages(path string, query *url.Values, h
 		return nil
 	}
 	total = jiraApiResponse.Total
-
-	scheduler, err := utils.NewWorkerScheduler(10, 50)
-	if err != nil {
-		return err
-	}
-	defer scheduler.Release()
 
 	for nextStart < total {
 		nextStartTmp := nextStart
@@ -104,6 +98,5 @@ func (jiraApiClient *JiraApiClient) FetchPages(path string, query *url.Values, h
 		}
 		nextStart += pageSize
 	}
-	scheduler.WaitUntilFinish()
 	return nil
 }
