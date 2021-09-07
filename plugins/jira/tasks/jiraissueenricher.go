@@ -34,10 +34,10 @@ func EnrichIssues(boardId uint64) error {
 		if err != nil {
 			return err
 		}
-		if jiraIssue.ResolutionDate.Valid {
-			jiraIssue.LeadTime = uint(jiraIssue.ResolutionDate.Time.Unix()-jiraIssue.Created.Unix()) / 60
+		if jiraIssue.Fields.ResolutionDate.IsZero() {
+			jiraIssue.LeadTime = uint(jiraIssue.Fields.ResolutionDate.Unix()-jiraIssue.Fields.Created.Unix()) / 60
 		}
-		jiraIssue.StdWorkload = uint(jiraIssue.Workload * workloadCoefficient)
+		jiraIssue.StdWorkload = uint(float64(jiraIssue.Fields.StoryPoint) * workloadCoefficient)
 		jiraIssue.StdType = getStdType(jiraIssue)
 		jiraIssue.StdStatus = getStdStatus(jiraIssue)
 		err = lakeModels.Db.Save(jiraIssue).Error
@@ -54,10 +54,10 @@ func getStdType(jiraIssue *models.JiraIssue) string {
 	if typeMapping == nil {
 		typeMapping = getStringMapFromConfig("JIRA_ISSUE_TYPE_MAPPING")
 	}
-	if stdType, ok := typeMapping[jiraIssue.Type]; ok {
+	if stdType, ok := typeMapping[jiraIssue.Fields.Issuetype.Name]; ok {
 		return stdType
 	}
-	return jiraIssue.Type
+	return jiraIssue.Fields.Issuetype.Name
 }
 
 var statusMappings map[string]map[string]string
@@ -66,16 +66,16 @@ func getStdStatus(jiraIssue *models.JiraIssue) string {
 	if statusMappings == nil {
 		statusMappings = make(map[string]map[string]string)
 	}
-	if _, ok := statusMappings[jiraIssue.Type]; !ok {
-		statusMappings[jiraIssue.Type] = getStringMapFromConfig(
-			fmt.Sprintf("JIRA_ISSUE_%v_STATUS_MAPPING", jiraIssue.Type),
+	if _, ok := statusMappings[jiraIssue.Fields.Issuetype.Name]; !ok {
+		statusMappings[jiraIssue.Fields.Issuetype.Name] = getStringMapFromConfig(
+			fmt.Sprintf("JIRA_ISSUE_%v_STATUS_MAPPING", jiraIssue.Fields.Issuetype.Name),
 		)
 	}
-	statusMapping := statusMappings[jiraIssue.Type]
-	if stdStatus, ok := statusMapping[jiraIssue.StatusName]; ok {
+	statusMapping := statusMappings[jiraIssue.Fields.Issuetype.Name]
+	if stdStatus, ok := statusMapping[jiraIssue.Fields.Status.Name]; ok {
 		return stdStatus
 	}
-	return jiraIssue.StatusName
+	return jiraIssue.Fields.Status.Name
 }
 
 func getStringMapFromConfig(key string) map[string]string {
