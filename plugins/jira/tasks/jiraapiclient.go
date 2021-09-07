@@ -2,13 +2,12 @@ package tasks
 
 import (
 	"fmt"
+	"github.com/merico-dev/lake/logger"
+	"github.com/merico-dev/lake/utils"
 	"net/http"
 	"net/url"
 	"strconv"
 	"time"
-
-	"github.com/merico-dev/lake/logger"
-	"github.com/merico-dev/lake/utils"
 
 	"github.com/merico-dev/lake/config"
 	"github.com/merico-dev/lake/plugins/core"
