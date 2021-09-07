@@ -8,7 +8,6 @@ services:
     restart: always
     ports:
       - 127.0.0.1:3306:3306
-    # platform: linux/x86_64
     environment:
       MYSQL_ROOT_PASSWORD: admin
       MYSQL_DATABASE: lake
