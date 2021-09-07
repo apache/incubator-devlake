@@ -2,9 +2,11 @@ package tasks
 
 import (
 	"fmt"
-	"github.com/merico-dev/lake/utils"
 	"net/http"
 	"strconv"
+
+	"github.com/merico-dev/lake/utils"
+	"gorm.io/gorm/clause"
 
 	"github.com/merico-dev/lake/logger"
 	lakeModels "github.com/merico-dev/lake/models"
@@ -49,15 +51,17 @@ func CollectChangelogs(boardId uint64) error {
 	// select all issues belongs to the board
 	// TODO filter issues by update_at
 	cursor, err := lakeModels.Db.Model(jiraIssue).
-		Select("jira_issues.id").
+		Select("jira_issues.id", "jira_issues.updated").
 		Joins("left join jira_board_issues on jira_board_issues.issue_id = jira_issues.id").
-		Where("jira_board_issues.board_id = ?", boardId).
+		Where(`jira_board_issues.board_id = ?
+                AND (jira_issues.changelog_updated is null OR jira_issues.changelog_updated < jira_issues.updated)`,
+			boardId).
 		Rows()
 	if err != nil {
 		return err
 	}
 
-	scheduler, err := utils.NewWorkerScheduler(10, 50)
+	scheduler, err := utils.NewWorkerScheduler(20, 50)
 	if err != nil {
 		return err
 	}
@@ -71,6 +75,10 @@ func CollectChangelogs(boardId uint64) error {
 			return err
 		}
 		err = collectChangelogsByIssueId(scheduler, jiraApiClient, jiraIssue.ID)
+		if err != nil {
+			return err
+		}
+		err = lakeModels.Db.Model(jiraIssue).Update("changelog_updated", jiraIssue.Updated).Error
 		if err != nil {
 			return err
 		}
@@ -99,8 +107,11 @@ func collectChangelogsByIssueId(scheduler *utils.WorkerScheduler, jiraApiClient 
 					logger.Error("Error: ", err)
 					return err
 				}
+				jiraChangelog.IssueId = issueId
 				// save changelog
-				err = lakeModels.Db.Save(jiraChangelog).Error
+				err = lakeModels.Db.Clauses(clause.OnConflict{
+					UpdateAll: true,
+				}).Create(jiraChangelog).Error
 				if err != nil {
 					logger.Error("Error: ", err)
 					return err
