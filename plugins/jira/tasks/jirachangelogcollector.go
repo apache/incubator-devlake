@@ -2,10 +2,9 @@ package tasks
 
 import (
 	"fmt"
+	"github.com/merico-dev/lake/utils"
 	"net/http"
 	"strconv"
-
-	"github.com/merico-dev/lake/utils"
 
 	"github.com/merico-dev/lake/logger"
 	lakeModels "github.com/merico-dev/lake/models"
@@ -71,11 +70,7 @@ func CollectChangelogs(boardId uint64) error {
 		if err != nil {
 			return err
 		}
-		id, err := strconv.ParseUint(jiraIssue.ID, 10, 64)
-		if err != nil {
-			return err
-		}
-		err = collectChangelogsByIssueId(scheduler, jiraApiClient, id)
+		err = collectChangelogsByIssueId(scheduler, jiraApiClient, jiraIssue.ID)
 		if err != nil {
 			return err
 		}
