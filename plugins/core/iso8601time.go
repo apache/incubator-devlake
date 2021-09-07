@@ -35,6 +35,9 @@ func (jt Iso8601Time) MarshalJSON() ([]byte, error) {
 
 func (jt *Iso8601Time) UnmarshalJSON(b []byte) error {
 	timeString := strings.Trim(string(b), `"`)
+	if strings.ToLower(timeString) == "null" {
+		return nil
+	}
 	t, err := time.Parse(ISO_8601_FORMAT, timeString)
 	if err == nil {
 		*jt = Iso8601Time(t)
