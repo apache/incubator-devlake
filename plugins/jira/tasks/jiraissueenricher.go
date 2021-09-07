@@ -37,7 +37,7 @@ func EnrichIssues(boardId uint64) error {
 		if jiraIssue.Fields.ResolutionDate.IsZero() {
 			jiraIssue.LeadTime = uint(jiraIssue.Fields.ResolutionDate.Unix()-jiraIssue.Fields.Created.Unix()) / 60
 		}
-		jiraIssue.StdWorkload = uint(jiraIssue.Workload * workloadCoefficient)
+		jiraIssue.StdWorkload = uint(float64(jiraIssue.Fields.StoryPoint) * workloadCoefficient)
 		jiraIssue.StdType = getStdType(jiraIssue)
 		jiraIssue.StdStatus = getStdStatus(jiraIssue)
 		err = lakeModels.Db.Save(jiraIssue).Error

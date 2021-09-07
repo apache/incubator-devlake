@@ -118,7 +118,6 @@ type JiraIssue struct {
 	Fields JiraIssueFields `json:"fields" gorm:"embedded"`
 
 	// enriched fields
-	Workload    float64
 	LeadTime    uint
 	StdWorkload uint
 	StdType     string
