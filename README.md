@@ -100,11 +100,11 @@ All statusMappings contain 2 objects. an open status (first object), and a close
 4. Start the services and check services' status
 ```shell
 # start all services
-docker-compose -f ./devops/docker-compose.yml --project-directory ./ up -d
-# check service status 
-docker-compose -f ./devops/docker-compose.yml --project-directory ./ ps
+docker-compose up -d
+# check service status
+docker-compose ps
 # stop all services
-# docker-compose -f ./devops/docker-compose.yml --project-directory ./ down -d
+# docker-compose down
 ```
 
 5. Create a http request to trigger data collect tasks, please replace your [gitlab projectId](plugins/gitlab/README.md#finding-project-id) and [jira boardId](plugins/jira/README.md#find-board-id) in the request body. This can take up to 20 minutes for large projects. (gitlab 10k+ commits or jira 5k+ issues)  

@@ -8,19 +8,19 @@ hello:
 build:
 	go build
 
-dev: 
+dev:
 	@sh ./scripts/dev.sh
 
 run:
 	go run main.go
 
-compose: 
-	docker-compose -f ./devops/docker-compose.yml --project-directory ./ up
+compose:
+	docker-compose up
 
-compose-down: 
-	docker-compose -f ./devops/docker-compose.yml --project-directory ./ down
+compose-down:
+	docker-compose down
 
-commit: 
+commit:
 	git cz
 
 install:
@@ -32,9 +32,9 @@ test: unit-test e2e-test
 unit-test:
 	@sh ./scripts/unit-test.sh
 
-e2e-test: 
+e2e-test:
 	@sh ./scripts/e2e-test.sh
 
-lint: 
+lint:
 	golangci-lint run
 
