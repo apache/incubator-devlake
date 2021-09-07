@@ -77,10 +77,15 @@ func CollectMergeRequests(projectId int) error {
 
 				CreateReviewers(projectId, mr.GitlabId, mr.Reviewers)
 
-				collectErr := CollectMergeRequestNotes(projectId, gitlabMergeRequest)
+				notesErr := CollectMergeRequestNotes(projectId, gitlabMergeRequest)
 
-				if collectErr != nil {
-					logger.Error("Could not collect MR Notes", collectErr)
+				if notesErr != nil {
+					logger.Error("Could not collect MR Notes", notesErr)
+				}
+
+				commitsErr := CollectMergeRequestCommits(projectId, gitlabMergeRequest)
+				if commitsErr != nil {
+					logger.Error("Could not collect MR Commits", commitsErr)
 				}
 			}
 
