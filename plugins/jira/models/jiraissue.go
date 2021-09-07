@@ -19,7 +19,7 @@ type JiraIssue struct {
 	EpicKey        string
 	StatusName     string
 	StatusKey      string
-	Workload       float64
+	StoryPoint     float64
 	ResolutionDate sql.NullTime
 	Created        time.Time
 	Updated        time.Time
@@ -30,8 +30,8 @@ type JiraIssue struct {
 	// DevelopmentLeadTime         uint
 	// TestLeadTime                uint
 	// DeliveryLeadTime            uint
-	LeadTime    uint
-	StdWorkload uint
-	StdType     string
-	StdStatus   string
+	LeadTime      uint
+	StdStoryPoint uint
+	StdType       string
+	StdStatus     string
 }
