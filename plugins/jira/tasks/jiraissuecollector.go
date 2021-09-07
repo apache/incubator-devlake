@@ -46,7 +46,7 @@ func CollectIssues(boardId uint64) error {
 	}
 	jql := "ORDER BY updated ASC"
 	if lastestUpdated != nil && lastestUpdated.ID > 0 {
-		jql = fmt.Sprintf("update >= %v %v", lastestUpdated.Updated.Format("2006/01/02 15:04"), jql)
+		jql = fmt.Sprintf("updated >= '%v' %v", lastestUpdated.Updated.Format("2006/01/02 15:04"), jql)
 	}
 	query := &url.Values{}
 	query.Set("jql", jql)
