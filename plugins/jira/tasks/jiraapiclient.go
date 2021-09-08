@@ -51,10 +51,12 @@ func (jiraApiClient *JiraApiClient) FetchPages(scheduler *utils.WorkerScheduler,
 	// 获取issue总数
 	// get issue count
 	pageQuery := &url.Values{}
-	*pageQuery = *query
+	for key, value := range *query {
+		(*pageQuery)[key] = value
+	}
 	pageQuery.Set("maxResults", "0")
 	// make a call to the api just to get the paging details
-	res, err := jiraApiClient.Get(path, query, nil)
+	res, err := jiraApiClient.Get(path, pageQuery, nil)
 	if err != nil {
 		return err
 	}
@@ -71,10 +73,12 @@ func (jiraApiClient *JiraApiClient) FetchPages(scheduler *utils.WorkerScheduler,
 		err = scheduler.Submit(func() error {
 			// fetch page
 			detailQuery := &url.Values{}
-			*detailQuery = *query
+			for key, value := range *query {
+				(*detailQuery)[key] = value
+			}
 			detailQuery.Set("maxResults", strconv.Itoa(pageSize))
 			detailQuery.Set("startAt", strconv.Itoa(nextStartTmp))
-			res, err := jiraApiClient.Get(path, query, nil)
+			res, err := jiraApiClient.Get(path, detailQuery, nil)
 			if err != nil {
 				return err
 			}
