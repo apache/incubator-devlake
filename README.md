@@ -83,10 +83,10 @@ All the details on provisioning, and customizing a dashboard can be found in the
 1. Create a directory and download files
 
    ```sh
-   mkdir devlake
+   git clone https://github.com/merico-dev/lake.git devlake
    cd devlake
-   curl -sLo docker-compose.yml https://github.com/merico-dev/lake/raw/go-main/docker-compose.yml
-   curl -sLo .env https://github.com/merico-dev/lake/raw/go-main/.env.example
+   git checkout go-main
+   cp .env.example .env
    ```
 
 2. Open `.env` file with your editor, fill the values in `Jira`, `Gitlab` and `Jenkins` sections with your deployments.
