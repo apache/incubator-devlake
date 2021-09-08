@@ -76,7 +76,7 @@ func CollectIssues(boardId uint64) error {
 				// issue
 				err = lakeModels.Db.Clauses(clause.OnConflict{
 					UpdateAll: true,
-				}).Create(&jiraIssue).Error
+				}).Create(jiraIssue).Error
 				if err != nil {
 					return err
 				}
