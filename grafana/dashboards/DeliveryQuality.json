@@ -15,14 +15,14 @@
   "editable": true,
   "gnetId": null,
   "graphTooltip": 0,
-  "id": 4,
-  "iteration": 1631021496164,
+  "id": 38,
+  "iteration": 1631061053878,
   "links": [
     {
       "asDropdown": false,
       "icon": "bolt",
       "includeVars": false,
-      "keepTime": true,
+      "keepTime": false,
       "tags": [],
       "targetBlank": false,
       "title": "Homepage",
@@ -50,16 +50,16 @@
       "cacheTimeout": null,
       "datasource": null,
       "gridPos": {
-        "h": 5,
+        "h": 6,
         "w": 24,
         "x": 0,
         "y": 0
       },
-      "id": 89,
+      "id": 46,
       "interval": null,
       "links": [],
       "options": {
-        "content": "<div style=\"text-align:center;\">\n    <div style=\"display:inline-block;text-align:center;padding-top:10px;\">\n        <img border=\"0\" src=\"/public/img/lake/practice_process_delivery_efficiency.png\" alt=\"R&D Process\" width=\"60%\">\n    </div>\n</div>",
+        "content": "<div style=\"text-align:center;\">\n    <div style=\"display:inline-block;text-align:center;padding-top:10px;\">\n        <img border=\"0\" src=\"/public/img/lake/practice_process_delivery_quality.png\" alt=\"R&D Process\" width=\"60%\">\n    </div>\n</div>",
         "mode": "html"
       },
       "pluginVersion": "8.0.6",
@@ -105,11 +105,11 @@
         "h": 4,
         "w": 24,
         "x": 0,
-        "y": 5
+        "y": 6
       },
-      "id": 76,
+      "id": 48,
       "options": {
-        "content": "<div style=\"display: block;text-align: center;margin-top: 56px;\">\n  <div style=\"display: inline-flex;\">\n    <img src=\"/public/img/lake/practice_cross_domain.png\" alt=\"Cross-stage\" width=\"56\">\n    <p style=\"font-size:24px; margin:10px;color:#CCCCDC;\"><b>Cross-stage Metrics<b></b></b></p><b><b>\n  </div>\n</div>",
+        "content": "<div style=\"display: block;text-align: center;margin-top: 56px;\">\n  <div style=\"display: inline-flex;\">\n    <img src=\"/public/img/lake/1.png\" alt=\"No.1\" width=\"56\">\n    <p style=\"font-size:24px; margin:10px; color:#BFC1C8;\"><b>Development<b></b></b></p><b><b>\n  </div>\n</div>",
         "mode": "html"
       },
       "pluginVersion": "8.0.6",
@@ -124,10 +124,9 @@
     },
     {
       "datasource": "mysql",
-      "description": "1. The average lead time of requirements.\n2. Lead time refers to the length of time from requirement creation to delivery.\n3. The requirements being calculated are filtered by \"requirement resolution time\" (time filter at the upper-right corner) and \"Jira board\"(\"Choose Board\" filter at the upper-left corner)",
+      "description": "1. Total number of Pull/Merge request created.\n2. The PR/MR being calculated are filtered by \"PR/MR creation time\" (time filter at the upper-right corner)",
       "fieldConfig": {
         "defaults": {
-          "decimals": 1,
           "mappings": [],
           "thresholds": {
             "mode": "absolute",
@@ -135,10 +134,6 @@
               {
                 "color": "green",
                 "value": null
-              },
-              {
-                "color": "red",
-                "value": 14
               }
             ]
           }
@@ -147,11 +142,11 @@
       },
       "gridPos": {
         "h": 6,
-        "w": 6,
+        "w": 8,
         "x": 0,
-        "y": 9
+        "y": 10
       },
-      "id": 12,
+      "id": 4,
       "options": {
         "colorMode": "value",
         "graphMode": "area",
@@ -161,7 +156,7 @@
           "calcs": [
             "mean"
           ],
-          "fields": "/^value$/",
+          "fields": "",
           "values": false
         },
         "text": {},
@@ -174,7 +169,7 @@
           "group": [],
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "select \r\n  now() as time,\r\n  avg(lead_time/1440) as value\r\nfrom jira_issues ji\r\n  join jira_board_issues jbi on ji.id = jbi.issue_id\r\nwhere \r\n  std_type = 'Requirement' \r\n  and resolution_date is not null\r\n  and lead_time is not null\r\n  and std_status = 'Resolved'\r\n  and $__timeFilter(resolution_date)\r\n  and jbi.board_id = $board_id\r\ngroup by 1;",
+          "rawSql": "SELECT\n  now() AS \"time\",\n  count(*) as value\nFROM \n  gitlab_merge_requests gmr\n  LEFT JOIN jira_board_gitlab_projects jbgp ON jbgp.gitlab_project_id = gmr.project_id\nWHERE\n  jbgp.jira_board_id = $board_id\n  and $__timeFilter(gitlab_created_at)\ngroup by 1\nORDER BY 1",
           "refId": "A",
           "select": [
             [
@@ -200,38 +195,37 @@
       ],
       "timeFrom": null,
       "timeShift": null,
-      "title": "Avg Requirement Lead Time (day)",
+      "title": "Pull Request Count",
       "type": "stat"
     },
     {
       "datasource": "mysql",
-      "description": "1. The lead time at which 80% requirements‘ lead time lies below it.\n2. The requirements being calculated are filtered by \"requirement resolution time\" (time filter at the upper-right corner) and \"Jira board\" (\"Choose Board\" filter at the upper-left corner)",
+      "description": "1. Total number of Pull/Merge request merged.\n2. The PR/MR being calculated are filtered by \"PR/MR creation time\" (time filter at the upper-right corner)",
       "fieldConfig": {
         "defaults": {
           "mappings": [],
+          "max": 100,
+          "min": 0,
           "thresholds": {
             "mode": "absolute",
             "steps": [
               {
                 "color": "green",
                 "value": null
-              },
-              {
-                "color": "red",
-                "value": 21
               }
             ]
-          }
+          },
+          "unit": "none"
         },
         "overrides": []
       },
       "gridPos": {
         "h": 6,
-        "w": 6,
-        "x": 6,
-        "y": 9
+        "w": 8,
+        "x": 8,
+        "y": 10
       },
-      "id": 13,
+      "id": 6,
       "options": {
         "colorMode": "value",
         "graphMode": "area",
@@ -253,341 +247,9 @@
           "format": "time_series",
           "group": [],
           "metricColumn": "none",
-          "rawQuery": true,
-          "rawSql": "with _ranks as(\r\n  select \r\n    ji.lead_time,\r\n    percent_rank() over (order by lead_time asc) as ranks\r\n  from jira_issues ji\r\n    join jira_board_issues jbi on ji.id = jbi.issue_id\r\n  where \r\n    std_type = 'Requirement'\r\n    and resolution_date is not null\r\n    and lead_time is not null\r\n    and std_status = 'Resolved'\r\n    and $__timeFilter(resolution_date)\r\n    and jbi.board_id = $board_id\r\n)\r\n\r\nselect\r\n  now() as time,\r\n  max(lead_time/1440) as value\r\nfrom _ranks\r\nwhere \r\n  ranks <= 0.8\r\ngroup by 1",
-          "refId": "A",
-          "select": [
-            [
-              {
-                "params": [
-                  "progress"
-                ],
-                "type": "column"
-              }
-            ]
-          ],
-          "table": "ca_analysis",
-          "timeColumn": "create_time",
-          "timeColumnType": "timestamp",
-          "where": [
-            {
-              "name": "$__timeFilter",
-              "params": [],
-              "type": "macro"
-            }
-          ]
-        }
-      ],
-      "timeFrom": null,
-      "timeShift": null,
-      "title": "80th Percentile Requirement Lead Time (day)",
-      "type": "stat"
-    },
-    {
-      "aliasColors": {},
-      "bars": false,
-      "dashLength": 10,
-      "dashes": false,
-      "datasource": "mysql",
-      "description": "1. The average and 80th percentile requirement lead time over time.\n2. The time granularity can be switched to Week or Month by \"Time Interval\" above. \n3. When Time Interval is set to \"Month\", the average_lead_time of \"2021-06-01\" refers to the average lead time of requirements whose resolution time falls under [2020-06-01, 2020-07-01).",
-      "fieldConfig": {
-        "defaults": {
-          "unit": "short"
-        },
-        "overrides": []
-      },
-      "fill": 1,
-      "fillGradient": 0,
-      "gridPos": {
-        "h": 6,
-        "w": 12,
-        "x": 12,
-        "y": 9
-      },
-      "hiddenSeries": false,
-      "id": 17,
-      "interval": "",
-      "legend": {
-        "avg": false,
-        "current": false,
-        "max": false,
-        "min": false,
-        "show": true,
-        "total": false,
-        "values": false
-      },
-      "lines": true,
-      "linewidth": 1,
-      "nullPointMode": "null",
-      "options": {
-        "alertThreshold": true
-      },
-      "percentage": false,
-      "pluginVersion": "8.0.6",
-      "pointradius": 2,
-      "points": false,
-      "renderer": "flot",
-      "seriesOverrides": [],
-      "spaceLength": 10,
-      "stack": false,
-      "steppedLine": false,
-      "targets": [
-        {
-          "format": "time_series",
-          "group": [],
-          "metricColumn": "none",
-          "rawQuery": true,
-          "rawSql": "with _requirement as(\r\n  select \r\n    ji.id,\r\n    DATE_ADD(date(resolution_date), INTERVAL -$interval(date(resolution_date))+1 DAY) as time,\r\n    lead_time,\r\n    round(lead_time/1440) as lead_time_day\r\n  from jira_issues ji\r\n    join jira_board_issues jbi on ji.id = jbi.issue_id\r\n  where \r\n    std_type = 'Requirement'\r\n    and resolution_date is not null\r\n    and lead_time is not null\r\n    and std_status = 'Resolved'\r\n    and $__timeFilter(resolution_date)\r\n    and jbi.board_id = $board_id\r\n)\r\n\r\nselect \r\n  timestamp(time) as time,\r\n  avg(lead_time/1440) as average_lead_time\r\n  -- percent_rank() over (order by lead_time_day asc) as percentile_80_lead_time\r\nfrom _requirement\r\ngroup by 1\r\norder by 1 asc",
-          "refId": "A",
-          "select": [
-            [
-              {
-                "params": [
-                  "progress"
-                ],
-                "type": "column"
-              }
-            ]
-          ],
-          "table": "ca_analysis",
-          "timeColumn": "create_time",
-          "timeColumnType": "timestamp",
-          "where": [
-            {
-              "name": "$__timeFilter",
-              "params": [],
-              "type": "macro"
-            }
-          ]
-        }
-      ],
-      "thresholds": [],
-      "timeFrom": null,
-      "timeRegions": [],
-      "timeShift": null,
-      "title": "Requirement Lead Time over Time",
-      "tooltip": {
-        "shared": true,
-        "sort": 0,
-        "value_type": "individual"
-      },
-      "type": "graph",
-      "xaxis": {
-        "buckets": null,
-        "mode": "time",
-        "name": null,
-        "show": true,
-        "values": []
-      },
-      "yaxes": [
-        {
-          "$$hashKey": "object:242",
-          "format": "short",
-          "label": "Lead Time(day)",
-          "logBase": 1,
-          "max": null,
-          "min": null,
-          "show": true
-        },
-        {
-          "$$hashKey": "object:243",
-          "format": "short",
-          "label": "",
-          "logBase": 1,
-          "max": null,
-          "min": null,
-          "show": true
-        }
-      ],
-      "yaxis": {
-        "align": false,
-        "alignLevel": null
-      }
-    },
-    {
-      "aliasColors": {},
-      "bars": false,
-      "dashLength": 10,
-      "dashes": false,
-      "datasource": "mysql",
-      "description": "1. The cumulative distribution of requirement lead time. \n2. Each point refers to the percent rank of a lead time.",
-      "fieldConfig": {
-        "defaults": {
-          "unit": "none"
-        },
-        "overrides": []
-      },
-      "fill": 0,
-      "fillGradient": 4,
-      "gridPos": {
-        "h": 6,
-        "w": 24,
-        "x": 0,
-        "y": 15
-      },
-      "hiddenSeries": false,
-      "id": 15,
-      "legend": {
-        "alignAsTable": false,
-        "avg": false,
-        "current": false,
-        "max": false,
-        "min": false,
-        "rightSide": false,
-        "show": false,
-        "total": false,
-        "values": false
-      },
-      "lines": true,
-      "linewidth": 8,
-      "nullPointMode": "null",
-      "options": {
-        "alertThreshold": false
-      },
-      "percentage": false,
-      "pluginVersion": "8.0.6",
-      "pointradius": 0.5,
-      "points": false,
-      "renderer": "flot",
-      "seriesOverrides": [],
-      "spaceLength": 10,
-      "stack": false,
-      "steppedLine": false,
-      "targets": [
-        {
-          "format": "time_series",
-          "group": [],
-          "metricColumn": "none",
-          "rawQuery": true,
-          "rawSql": "with _ranks as(\r\n  select \r\n    round(ji.lead_time/1440) as lead_time_day\r\n  from jira_issues ji\r\n    join jira_board_issues jbi on ji.id = jbi.issue_id\r\n  where \r\n    std_type = 'Requirement'\r\n    and resolution_date is not null\r\n    and lead_time is not null\r\n    and std_status = 'Resolved'\r\n    and $__timeFilter(resolution_date)\r\n    and jbi.board_id = $board_id\r\n  order by lead_time_day asc\r\n)\r\n\r\nselect \r\n  now() as time,\r\n  lpad(concat(lead_time_day,'d'), 4, ' ') as metric,\r\n  percent_rank() over (order by lead_time_day asc) as value\r\nfrom _ranks\r\norder by lead_time_day asc",
-          "refId": "A",
-          "select": [
-            [
-              {
-                "params": [
-                  "progress"
-                ],
-                "type": "column"
-              }
-            ]
-          ],
-          "table": "ca_analysis",
-          "timeColumn": "create_time",
-          "timeColumnType": "timestamp",
-          "where": [
-            {
-              "name": "$__timeFilter",
-              "params": [],
-              "type": "macro"
-            }
-          ]
-        }
-      ],
-      "thresholds": [
-        {
-          "$$hashKey": "object:469",
-          "colorMode": "ok",
-          "fill": true,
-          "line": true,
-          "op": "lt",
-          "value": 0.8,
-          "yaxis": "right"
-        }
-      ],
-      "timeFrom": null,
-      "timeRegions": [],
-      "timeShift": null,
-      "title": "Requirement Lead Time (Cumulative Distribution)",
-      "tooltip": {
-        "shared": false,
-        "sort": 0,
-        "value_type": "individual"
-      },
-      "transformations": [],
-      "type": "graph",
-      "xaxis": {
-        "buckets": null,
-        "mode": "series",
-        "name": null,
-        "show": true,
-        "values": [
-          "current"
-        ]
-      },
-      "yaxes": [
-        {
-          "$$hashKey": "object:76",
-          "format": "none",
-          "label": "Percent Rank (%)",
-          "logBase": 1,
-          "max": null,
-          "min": null,
-          "show": true
-        },
-        {
-          "$$hashKey": "object:77",
-          "format": "short",
-          "label": null,
-          "logBase": 1,
-          "max": null,
-          "min": null,
-          "show": false
-        }
-      ],
-      "yaxis": {
-        "align": false,
-        "alignLevel": null
-      }
-    },
-    {
-      "aliasColors": {},
-      "bars": true,
-      "dashLength": 10,
-      "dashes": false,
-      "datasource": "mysql",
-      "description": "The average lead time of requirements under different Jira Epics.",
-      "fill": 1,
-      "fillGradient": 0,
-      "gridPos": {
-        "h": 6,
-        "w": 24,
-        "x": 0,
-        "y": 21
-      },
-      "hiddenSeries": false,
-      "id": 18,
-      "legend": {
-        "avg": false,
-        "current": false,
-        "max": false,
-        "min": false,
-        "show": false,
-        "total": false,
-        "values": false
-      },
-      "lines": false,
-      "linewidth": 1,
-      "nullPointMode": "null",
-      "options": {
-        "alertThreshold": true
-      },
-      "percentage": false,
-      "pluginVersion": "8.0.6",
-      "pointradius": 2,
-      "points": false,
-      "renderer": "flot",
-      "seriesOverrides": [],
-      "spaceLength": 10,
-      "stack": false,
-      "steppedLine": false,
-      "targets": [
-        {
-          "format": "time_series",
-          "group": [],
-          "metricColumn": "none",
           "queryType": "randomWalk",
           "rawQuery": true,
-          "rawSql": "with _requirement as(\r\n  select\r\n    ji.id,\r\n    ji.epic_key,\r\n    ji.lead_time\r\n  from\r\n    jira_issues ji\r\n    join jira_board_issues jbi on ji.id = jbi.issue_id\r\n  where \r\n    std_type = 'Requirement'\r\n    and resolution_date is not null\r\n    and std_status = 'Resolved'\r\n    and epic_key is not null\r\n    and $__timeFilter(resolution_date)\r\n    and jbi.board_id = $board_id\r\n)\r\n\r\nselect \r\n  now() as time,\r\n  epic_key as metric,\r\n  avg(lead_time) as value\r\nfrom _requirement\r\ngroup by 1,2\r\norder by avg(lead_time) desc\r\nlimit 10",
+          "rawSql": "SELECT\n  now() as time,\n  count(merged_by_username) as value\nFROM\n  gitlab_merge_requests gmr\n  LEFT JOIN jira_board_gitlab_projects jbgp ON jbgp.gitlab_project_id = gmr.project_id\nWHERE\n  jbgp.jira_board_id = $board_id\n  and $__timeFilter(gitlab_created_at)\n",
           "refId": "A",
           "select": [
             [
@@ -609,50 +271,200 @@
           ]
         }
       ],
-      "thresholds": [],
       "timeFrom": null,
-      "timeRegions": [],
       "timeShift": null,
-      "title": "Average Requirement Lead Time (Breakdown by Epic)",
-      "tooltip": {
-        "shared": false,
-        "sort": 0,
-        "value_type": "individual"
-      },
-      "type": "graph",
-      "xaxis": {
-        "buckets": null,
-        "mode": "series",
-        "name": null,
-        "show": true,
-        "values": [
-          "total"
-        ]
-      },
-      "yaxes": [
-        {
-          "$$hashKey": "object:508",
-          "format": "short",
-          "label": null,
-          "logBase": 1,
-          "max": null,
-          "min": null,
-          "show": true
+      "title": "Pull Request Pass Count",
+      "type": "stat"
+    },
+    {
+      "datasource": "mysql",
+      "description": "Pull Request Pass Count/Pull Request Count",
+      "fieldConfig": {
+        "defaults": {
+          "mappings": [],
+          "max": 100,
+          "min": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "green",
+                "value": 0.8
+              }
+            ]
+          },
+          "unit": "percentunit"
         },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 6,
+        "w": 8,
+        "x": 16,
+        "y": 10
+      },
+      "id": 37,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "text": {},
+        "textMode": "auto"
+      },
+      "pluginVersion": "8.0.6",
+      "targets": [
         {
-          "$$hashKey": "object:509",
-          "format": "short",
-          "label": null,
-          "logBase": 1,
-          "max": null,
-          "min": null,
-          "show": true
+          "format": "time_series",
+          "group": [],
+          "metricColumn": "none",
+          "queryType": "randomWalk",
+          "rawQuery": true,
+          "rawSql": "SELECT\n  now() as time,\n  count(merged_by_username) / count(*) as value\nFROM\n  gitlab_merge_requests gmr\n  LEFT JOIN jira_board_gitlab_projects jbgp ON jbgp.gitlab_project_id = gmr.project_id\nWHERE\n  jbgp.jira_board_id = $board_id\n  and $__timeFilter(gitlab_created_at)\n",
+          "refId": "A",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "timeColumn": "time",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
         }
       ],
-      "yaxis": {
-        "align": false,
-        "alignLevel": null
-      }
+      "timeFrom": null,
+      "timeShift": null,
+      "title": "Pull Request Pass Rate (%)",
+      "type": "stat"
+    },
+    {
+      "datasource": "mysql",
+      "description": "1. Pull Request Pass Rate over time.\n2. The time granularity can be switched to week or month by \"Time Interval\" above. \n3. When Time Interval is set to \"month\", value \"pull_request_pass_rate\" of \"2021-06-01\" calculates the PR/MR whose creation time falls under [2020-06-01, 2020-07-01)",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisLabel": "MR Pass Rate(%)",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 0,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "max": 100,
+          "min": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "percent"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 6,
+        "w": 24,
+        "x": 0,
+        "y": 16
+      },
+      "id": 8,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "hidden",
+          "placement": "bottom"
+        },
+        "tooltip": {
+          "mode": "single"
+        }
+      },
+      "pluginVersion": "8.0.6",
+      "targets": [
+        {
+          "format": "time_series",
+          "group": [],
+          "metricColumn": "none",
+          "queryType": "randomWalk",
+          "rawQuery": true,
+          "rawSql": "with _mr_request_rate as(\n  SELECT\n    gitlab_created_at as time,\n    FORMAT((count(merged_by_username) / count(*) * 100),2) as mr_pass_rate\n  FROM\n    gitlab_merge_requests gmr\n    LEFT JOIN jira_board_gitlab_projects jbgp ON jbgp.gitlab_project_id = gmr.project_id\n  WHERE\n    jbgp.jira_board_id = $board_id\n    and $__timeFilter(gitlab_created_at)\n  group by gitlab_created_at\n  order by 1\n)\n\nSELECT \n  DATE_FORMAT(time, '$interval') as time,\n  mr_pass_rate\nFROM _mr_request_rate\n",
+          "refId": "A",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "timeColumn": "time",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        }
+      ],
+      "timeFrom": null,
+      "timeShift": null,
+      "title": "Pull Request Pass Rate (Breakdown by Time)",
+      "type": "timeseries"
     },
     {
       "datasource": null,
@@ -660,11 +472,11 @@
         "h": 4,
         "w": 24,
         "x": 0,
-        "y": 27
+        "y": 22
       },
-      "id": 92,
+      "id": 50,
       "options": {
-        "content": "<div style=\"display: block;text-align: center;margin-top: 56px;\">\n  <div style=\"display: inline-flex;\">\n    <img src=\"/public/img/lake/1.png\" alt=\"No.1\" width=\"56\">\n    <p style=\"font-size:24px; margin:10px; color:#BFC1C8;\"><b>Requirement<b></b></b></p><b><b>\n  </div>\n</div>",
+        "content": "<div style=\"display: block;text-align: center;margin-top: 56px;\">\n  <div style=\"display: inline-flex;\">\n    <img src=\"/public/img/lake/2.png\" alt=\"No.2\" width=\"56\">\n    <p style=\"font-size:24px; margin:10px; color:#BFC1C8;\"><b>Test<b></b></b></p><b><b>\n  </div>\n</div>",
         "mode": "html"
       },
       "pluginVersion": "8.0.6",
@@ -679,7 +491,7 @@
     },
     {
       "datasource": "mysql",
-      "description": "1. Total number of requirements created.\n2. The requirements being calculated are filtered by \"requirement creation time\" (time filter at the upper-right corner) and \"Jira board\" (\"Choose Board\" filter at the upper-left corner)",
+      "description": "1. Total number of bugs created.\n2. The bugs being calculated are filtered by \"bug creation time\" (time filter at the upper-right corner)",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -700,11 +512,11 @@
       },
       "gridPos": {
         "h": 6,
-        "w": 6,
+        "w": 8,
         "x": 0,
-        "y": 31
+        "y": 26
       },
-      "id": 2,
+      "id": 16,
       "options": {
         "colorMode": "value",
         "graphMode": "area",
@@ -728,7 +540,7 @@
           "metricColumn": "none",
           "queryType": "randomWalk",
           "rawQuery": true,
-          "rawSql": "select \r\n  now() as time,\r\n  count(*) as value\r\nfrom jira_issues ji\r\n  join jira_board_issues jbi on ji.id = jbi.issue_id\r\nwhere \r\n  std_type = 'Requirement'\r\n  and created is not null \r\n  and $__timeFilter(created)\r\n  and jbi.board_id = $board_id\r\ngroup by 1;",
+          "rawSql": "SELECT\n  now() as time,\n  count(*) as value\nFROM\n  jira_issues ji\n  join jira_board_issues jbi on ji.id = jbi.issue_id\nWHERE\n  issue_type in ('Bug')\n  and jbi.board_id = $board_id\n  and $__timeFilter(issue_created_at)\n",
           "refId": "A",
           "select": [
             [
@@ -750,19 +562,206 @@
           ]
         }
       ],
-      "title": "Requirement Count (Total)",
+      "title": "Number of Bugs found in Testing (Total )",
       "type": "stat"
     },
     {
       "datasource": "mysql",
-      "description": "1. The number of requirements created over time.\n2. The time granularity can be switched to week or month by \"Time Interval\" above. \n3. When Time Interval is set to \"month\", the requirement_count of \"2021-06-01\" refers to the number of requirements whose creation time falls under [2020-06-01, 2020-07-01)",
+      "description": "1. Number of bugs created over time.\n2. The time granularity can be switched to week or month by \"Time Interval\" above. \n3. When Time Interval is set to \"month\", bug_count of \"2021-06-01\" calculates the bugs whose creation time falls under [2020-06-01, 2020-07-01)",
       "fieldConfig": {
         "defaults": {
           "color": {
             "mode": "palette-classic"
           },
           "custom": {
-            "axisLabel": "",
+            "axisLabel": "Bug Count",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 0,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          },
+          "unit": "none"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 6,
+        "w": 16,
+        "x": 8,
+        "y": 26
+      },
+      "id": 18,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "hidden",
+          "placement": "bottom"
+        },
+        "tooltip": {
+          "mode": "single"
+        }
+      },
+      "pluginVersion": "8.0.6",
+      "targets": [
+        {
+          "format": "time_series",
+          "group": [],
+          "metricColumn": "none",
+          "queryType": "randomWalk",
+          "rawQuery": true,
+          "rawSql": "with _bugs as (\n  SELECT\n    to_char(issue_created_at, '$interval') as time,\n    count(*)::decimal as bug_count\n  FROM\n    jira_issues ji\n    LEFT JOIN jira_board_issues jbi ON jbi.issue_id = ji.id\n  WHERE\n    type = 'Bug'\n    and jbi.board_id = $board_id\n    and $__timeFilter(issue_created_at)\n  group by to_char(issue_created_at, '$interval')\n  order by 1\n) \n\nselect \n  to_timestamp(time,'$interval') as time, \n  bug_count \nfrom _bugs",
+          "refId": "A",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "timeColumn": "time",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        }
+      ],
+      "timeFrom": null,
+      "timeShift": null,
+      "title": "Number of bugs found in Testing (Breakdown by Time)",
+      "type": "timeseries"
+    },
+    {
+      "datasource": "mysql",
+      "description": "1. Total number of bugs found per 1,000 lines of code, including both added and deleted llines of code.\n2. The bugs being calculated are filtered by \"bug creation time\". The lines of code being calculated are filtered by \"commit creation time\" (both are affected by the time filter at the upper-right corner)",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "decimals": 2,
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "yellow",
+                "value": 0.32
+              },
+              {
+                "color": "red",
+                "value": 2.39
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 6,
+        "w": 8,
+        "x": 0,
+        "y": 32
+      },
+      "id": 24,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "text": {},
+        "textMode": "auto"
+      },
+      "pluginVersion": "8.0.6",
+      "targets": [
+        {
+          "format": "time_series",
+          "group": [],
+          "metricColumn": "none",
+          "queryType": "randomWalk",
+          "rawQuery": true,
+          "rawSql": "with bc as (\n\tselect \n\t  count(*) as bug_count\n\tfrom \n\t  jira_issues ji \n\t  left join jira_board_issues jbi on (jbi.issue_id = ji.id)\n\twhere \n\t  jbi.board_id = $board_id\n\t  and ji.type = 'Bug'\n\t  and $__timeFilter(ji.issue_created_at)\n),\n\nloc as (\n\tselect \n\t  sum(additions + deletions) as line_count\n\tfrom \n\t  gitlab_commits gc \n\t  left join jira_board_gitlab_projects jbgp on jbgp.gitlab_project_id = gc.project_id\n\twhere\n\t  jbgp.jira_board_id = $board_id\n\t  and gc.title not like 'Merge branch %'\n\t  and $__timeFilter(authored_date)\n)\n\nselect \n  now() as time, \n  bc.bug_count::decimal / loc.line_count::decimal * 1000 as value\nfrom loc,bc\n",
+          "refId": "A",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "timeColumn": "time",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        }
+      ],
+      "title": "Bug Count per 1k lines of code (Total)",
+      "type": "stat"
+    },
+    {
+      "datasource": "mysql",
+      "description": "1. Bug Count per 1k lines of code over time.\n2. When Time Interval is set to \"month\", bug_count_per_1k_LOC of \"2021-06-01\" calculates the bugs whose creation time falls under [2020-06-01, 2020-07-01) and lines of code whose commit creation time falls under [2020-06-01, 2020-07-01) ",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisLabel": "Bug Count",
             "axisPlacement": "auto",
             "barAlignment": 0,
             "drawStyle": "line",
@@ -802,411 +801,27 @@
                 "value": 80
               }
             ]
-          },
-          "unit": "short"
+          }
         },
         "overrides": []
       },
       "gridPos": {
         "h": 6,
-        "w": 18,
-        "x": 6,
-        "y": 31
-      },
-      "id": 6,
-      "interval": null,
-      "options": {
-        "legend": {
-          "calcs": [],
-          "displayMode": "list",
-          "placement": "bottom"
-        },
-        "tooltip": {
-          "mode": "single"
-        }
-      },
-      "pluginVersion": "8.0.6",
-      "targets": [
-        {
-          "format": "time_series",
-          "group": [],
-          "metricColumn": "none",
-          "queryType": "randomWalk",
-          "rawQuery": true,
-          "rawSql": "with _requirement as(\r\n  select\r\n    ji.id,\r\n    DATE_ADD(date(created), INTERVAL -$interval(date(created))+1 DAY) as time\r\n  from\r\n    jira_issues ji\r\n    join jira_board_issues jbi on ji.id = jbi.issue_id\r\n  where \r\n    std_type = 'Requirement'\r\n    and created is not null \r\n    and $__timeFilter(created)\r\n    and jbi.board_id = $board_id\r\n)\r\n\r\nselect\r\n  timestamp(time) as time,\r\n  count(distinct id) as requirement_count\r\nfrom _requirement\r\ngroup by 1\r\norder by 1 asc",
-          "refId": "A",
-          "select": [
-            [
-              {
-                "params": [
-                  "value"
-                ],
-                "type": "column"
-              }
-            ]
-          ],
-          "timeColumn": "time",
-          "where": [
-            {
-              "name": "$__timeFilter",
-              "params": [],
-              "type": "macro"
-            }
-          ]
-        }
-      ],
-      "timeFrom": null,
-      "timeShift": null,
-      "title": "Requirement Count (Breakdown by Time)",
-      "type": "timeseries"
-    },
-    {
-      "aliasColors": {},
-      "bars": true,
-      "dashLength": 10,
-      "dashes": false,
-      "datasource": "mysql",
-      "description": "1. The number of requirements under different Jira Epics.",
-      "fill": 1,
-      "fillGradient": 0,
-      "gridPos": {
-        "h": 6,
-        "w": 24,
-        "x": 0,
-        "y": 37
-      },
-      "hiddenSeries": false,
-      "id": 7,
-      "legend": {
-        "avg": false,
-        "current": false,
-        "max": false,
-        "min": false,
-        "show": false,
-        "total": false,
-        "values": false
-      },
-      "lines": false,
-      "linewidth": 1,
-      "nullPointMode": "null",
-      "options": {
-        "alertThreshold": true
-      },
-      "percentage": false,
-      "pluginVersion": "8.0.6",
-      "pointradius": 2,
-      "points": false,
-      "renderer": "flot",
-      "seriesOverrides": [],
-      "spaceLength": 10,
-      "stack": false,
-      "steppedLine": false,
-      "targets": [
-        {
-          "format": "time_series",
-          "group": [],
-          "metricColumn": "none",
-          "queryType": "randomWalk",
-          "rawQuery": true,
-          "rawSql": "with _requirement as(\r\n  select\r\n    ji.id,\r\n    ji.epic_key\r\n  from\r\n    jira_issues ji\r\n    join jira_board_issues jbi on ji.id = jbi.issue_id\r\n  where \r\n    std_type = 'Requirement'\r\n    and created is not null\r\n    and epic_key is not null\r\n    and std_status = 'Resolved'\r\n    and $__timeFilter(created)\r\n    and jbi.board_id = $board_id\r\n)\r\n\r\nselect \r\n  now() as time,\r\n  epic_key as metric,\r\n  count(*) as value\r\nfrom _requirement\r\ngroup by 1,2\r\norder by 3 desc\r\nlimit 20",
-          "refId": "A",
-          "select": [
-            [
-              {
-                "params": [
-                  "value"
-                ],
-                "type": "column"
-              }
-            ]
-          ],
-          "timeColumn": "time",
-          "where": [
-            {
-              "name": "$__timeFilter",
-              "params": [],
-              "type": "macro"
-            }
-          ]
-        }
-      ],
-      "thresholds": [],
-      "timeFrom": null,
-      "timeRegions": [],
-      "timeShift": null,
-      "title": "Requirement Count (Breakdown by Epic)",
-      "tooltip": {
-        "shared": false,
-        "sort": 0,
-        "value_type": "individual"
-      },
-      "type": "graph",
-      "xaxis": {
-        "buckets": null,
-        "mode": "series",
-        "name": null,
-        "show": true,
-        "values": [
-          "total"
-        ]
-      },
-      "yaxes": [
-        {
-          "$$hashKey": "object:94",
-          "format": "short",
-          "label": null,
-          "logBase": 1,
-          "max": null,
-          "min": null,
-          "show": true
-        },
-        {
-          "$$hashKey": "object:95",
-          "format": "short",
-          "label": null,
-          "logBase": 1,
-          "max": null,
-          "min": null,
-          "show": true
-        }
-      ],
-      "yaxis": {
-        "align": false,
-        "alignLevel": null
-      }
-    },
-    {
-      "datasource": "mysql",
-      "description": "1. Number of requirements that have been delivered.\n2. A requirement is delivered when its status equals 'delivered'.\n3. The requirements being calculated are filtered by \"requirement creation time\" (time filter at the upper-right corner) and \"Jira board\" (\"Choose Board\" filter at the upper-left corner)",
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "thresholds"
-          },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": null
-              }
-            ]
-          },
-          "unit": "none"
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 6,
-        "w": 6,
-        "x": 0,
-        "y": 43
-      },
-      "id": 25,
-      "options": {
-        "colorMode": "value",
-        "graphMode": "area",
-        "justifyMode": "auto",
-        "orientation": "auto",
-        "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
-          "fields": "",
-          "values": false
-        },
-        "text": {},
-        "textMode": "auto"
-      },
-      "pluginVersion": "8.0.6",
-      "targets": [
-        {
-          "format": "time_series",
-          "group": [],
-          "metricColumn": "none",
-          "queryType": "randomWalk",
-          "rawQuery": true,
-          "rawSql": "select\r\n  now() as time,\r\n  count(*) as delivered_count\r\nfrom jira_issues ji\r\n  join jira_board_issues jbi on ji.id = jbi.issue_id\r\nwhere \r\n  std_type = 'Requirement'\r\n  and ji.resolution_date is not null\r\n  and created is not null\r\n  and $__timeFilter(created)\r\n  and jbi.board_id = $board_id",
-          "refId": "A",
-          "select": [
-            [
-              {
-                "params": [
-                  "value"
-                ],
-                "type": "column"
-              }
-            ]
-          ],
-          "timeColumn": "time",
-          "where": [
-            {
-              "name": "$__timeFilter",
-              "params": [],
-              "type": "macro"
-            }
-          ]
-        }
-      ],
-      "title": "Delivered Requirement Count",
-      "type": "stat"
-    },
-    {
-      "datasource": "mysql",
-      "description": "Delivered Requirement Count/Requirement Count (Total)",
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "thresholds"
-          },
-          "mappings": [],
-          "thresholds": {
-            "mode": "percentage",
-            "steps": [
-              {
-                "color": "red",
-                "value": null
-              },
-              {
-                "color": "green",
-                "value": 50
-              }
-            ]
-          },
-          "unit": "percentunit"
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 6,
-        "w": 6,
-        "x": 6,
-        "y": 43
+        "w": 16,
+        "x": 8,
+        "y": 32
       },
       "id": 22,
       "options": {
-        "colorMode": "value",
-        "graphMode": "area",
-        "justifyMode": "auto",
-        "orientation": "auto",
-        "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
-          "fields": "",
-          "values": false
-        },
-        "text": {},
-        "textMode": "auto"
-      },
-      "pluginVersion": "8.0.6",
-      "targets": [
-        {
-          "format": "time_series",
-          "group": [],
-          "metricColumn": "none",
-          "queryType": "randomWalk",
-          "rawQuery": true,
-          "rawSql": "with _requirement as(\r\n  select\r\n    count(distinct ji.id) as total_count,\r\n    count(distinct case when ji.std_status = 'Resolved' then ji.id else null end) as delivered_count\r\n  from jira_issues ji\r\n    join jira_board_issues jbi on ji.id = jbi.issue_id\r\n  where \r\n    std_type = 'Requirement'\r\n    and created is not null\r\n    and $__timeFilter(created)\r\n    and jbi.board_id = $board_id\r\n)\r\n\r\n\r\nselect \r\n  now() as time,\r\n  1.0 * delivered_count/total_count as requirement_delivery_rate\r\nfrom _requirement",
-          "refId": "A",
-          "select": [
-            [
-              {
-                "params": [
-                  "value"
-                ],
-                "type": "column"
-              }
-            ]
-          ],
-          "timeColumn": "time",
-          "where": [
-            {
-              "name": "$__timeFilter",
-              "params": [],
-              "type": "macro"
-            }
-          ]
-        }
-      ],
-      "title": "Requirement Delivery Rate",
-      "type": "stat"
-    },
-    {
-      "cacheTimeout": null,
-      "datasource": "mysql",
-      "description": "1. The requirement delivery rate over time.\n2. When Time Interval is set to \"month\", value \"requirement_delivery_rate\" of \"2021-06-01\" calculates the requirements whose creation time falls under [2020-06-01, 2020-07-01)",
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "palette-classic"
-          },
-          "custom": {
-            "axisLabel": "Delivery Rate (%)",
-            "axisPlacement": "auto",
-            "barAlignment": 0,
-            "drawStyle": "line",
-            "fillOpacity": 0,
-            "gradientMode": "none",
-            "hideFrom": {
-              "legend": false,
-              "tooltip": false,
-              "viz": false
-            },
-            "lineInterpolation": "linear",
-            "lineWidth": 1,
-            "pointSize": 5,
-            "scaleDistribution": {
-              "type": "linear"
-            },
-            "showPoints": "auto",
-            "spanNulls": false,
-            "stacking": {
-              "group": "A",
-              "mode": "none"
-            },
-            "thresholdsStyle": {
-              "mode": "off"
-            }
-          },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": null
-              },
-              {
-                "color": "red",
-                "value": 80
-              }
-            ]
-          },
-          "unit": "percentunit"
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 6,
-        "w": 12,
-        "x": 12,
-        "y": 43
-      },
-      "id": 23,
-      "links": [],
-      "options": {
         "legend": {
           "calcs": [],
-          "displayMode": "list",
+          "displayMode": "hidden",
           "placement": "bottom"
         },
         "tooltip": {
           "mode": "single"
         }
       },
-      "pluginVersion": "8.0.6",
       "targets": [
         {
           "format": "time_series",
@@ -1214,7 +829,7 @@
           "metricColumn": "none",
           "queryType": "randomWalk",
           "rawQuery": true,
-          "rawSql": "with _requirement as(\r\n  select\r\n    DATE_ADD(date(created), INTERVAL -$interval(date(created))+1 DAY) as time,\r\n    count(distinct ji.id) as total_count,\r\n    count(distinct case when ji.std_status = 'Resolved' then ji.id else null end) as delivered_count\r\n  from jira_issues ji\r\n    join jira_board_issues jbi on ji.id = jbi.issue_id\r\n  where \r\n    std_type = 'Requirement'\r\n    and created is not null\r\n    and $__timeFilter(created)\r\n    and jbi.board_id = $board_id\r\n  group by 1\r\n)\r\n\r\n\r\nselect \r\n  timestamp(time) as time,\r\n  1.0 * delivered_count/total_count as requirement_delivery_rate\r\nfrom _requirement\r\norder by 1",
+          "rawSql": "with bc as (\n\tselect \n\t  to_char(issue_created_at, '$interval') as time,\n\t  count(*) as bug_count\n\tfrom \n\t  jira_issues ji \n\t  left join jira_board_issues jbi on jbi.issue_id = ji.id\n\twhere \n\t  jbi.board_id = $board_id\n\t  and ji.type = 'Bug'\n\t  and $__timeFilter(ji.issue_created_at)\n\tgroup by 1\n),\nloc as (\n\tselect \n\t  to_char(authored_date,'$interval') as time,\n\t  sum(additions + deletions) as line_count\n\tfrom \n\t  gitlab_commits gc \n\t  left join jira_board_gitlab_projects jbgp on jbgp.gitlab_project_id = gc.project_id\n\twhere \n\t  jbgp.jira_board_id = $board_id\n\t  and gc.title not like 'Merge branch %'\n\t  and $__timeFilter(authored_date)\n\tgroup by 1\n),\nbug_count_per_1k_loc as(\n  select \n    bc.time as time,\n    bc.bug_count::decimal / loc.line_count::decimal * 1000 as bug_count_per_1k_loc\n  from \n    loc\n    left join bc on bc.time = loc.time\n  where\n    bc.bug_count is not null \n    and loc.line_count is not null\n  order by time\n)\n\nselect \n  to_timestamp(time,'$interval') as time, \n  bug_count_per_1k_loc \nfrom bug_count_per_1k_loc;\n",
           "refId": "A",
           "select": [
             [
@@ -1236,530 +851,8 @@
           ]
         }
       ],
-      "timeFrom": null,
-      "timeShift": null,
-      "title": "Requirement Delivery Rate over Time",
+      "title": "Bug Count per 1k lines of code (Breakdown by Time)",
       "type": "timeseries"
-    },
-    {
-      "aliasColors": {},
-      "bars": true,
-      "cacheTimeout": null,
-      "dashLength": 10,
-      "dashes": false,
-      "datasource": "mysql",
-      "description": "The average delivery rate of requirements under different Jira Epics.",
-      "fill": 1,
-      "fillGradient": 0,
-      "gridPos": {
-        "h": 6,
-        "w": 24,
-        "x": 0,
-        "y": 49
-      },
-      "hiddenSeries": false,
-      "id": 24,
-      "legend": {
-        "avg": false,
-        "current": false,
-        "max": false,
-        "min": false,
-        "show": false,
-        "total": false,
-        "values": false
-      },
-      "lines": false,
-      "linewidth": 1,
-      "links": [],
-      "nullPointMode": "null",
-      "options": {
-        "alertThreshold": true
-      },
-      "percentage": false,
-      "pluginVersion": "8.0.6",
-      "pointradius": 2,
-      "points": false,
-      "renderer": "flot",
-      "seriesOverrides": [],
-      "spaceLength": 10,
-      "stack": false,
-      "steppedLine": false,
-      "targets": [
-        {
-          "format": "time_series",
-          "group": [],
-          "metricColumn": "none",
-          "queryType": "randomWalk",
-          "rawQuery": true,
-          "rawSql": "with _requirement as(\r\n  select\r\n    ji.epic_key as metric,\r\n    count(distinct ji.id) as total_count,\r\n    count(distinct case when ji.std_status = 'Resolved' then ji.id else null end) as delivered_count\r\n  from jira_issues ji\r\n    join jira_board_issues jbi on ji.id = jbi.issue_id\r\n  where \r\n    std_type = 'Requirement'\r\n    and created is not null\r\n    and epic_key is not null\r\n    and $__timeFilter(created)\r\n    and jbi.board_id = $board_id\r\n  group by 1\r\n)\r\n\r\n\r\nselect \r\n  now() as time,\r\n  metric,\r\n  1.0 * delivered_count/total_count as requirement_delivery_rate\r\nfrom _requirement\r\norder by 3 desc\r\nlimit 10",
-          "refId": "A",
-          "select": [
-            [
-              {
-                "params": [
-                  "value"
-                ],
-                "type": "column"
-              }
-            ]
-          ],
-          "timeColumn": "time",
-          "where": [
-            {
-              "name": "$__timeFilter",
-              "params": [],
-              "type": "macro"
-            }
-          ]
-        }
-      ],
-      "thresholds": [],
-      "timeFrom": null,
-      "timeRegions": [],
-      "timeShift": null,
-      "title": "Requirement Delivery Rate by Epic",
-      "tooltip": {
-        "shared": false,
-        "sort": 0,
-        "value_type": "individual"
-      },
-      "type": "graph",
-      "xaxis": {
-        "buckets": null,
-        "mode": "series",
-        "name": null,
-        "show": true,
-        "values": [
-          "total"
-        ]
-      },
-      "yaxes": [
-        {
-          "$$hashKey": "object:273",
-          "format": "percentunit",
-          "label": "Rate (%)",
-          "logBase": 1,
-          "max": null,
-          "min": null,
-          "show": true
-        },
-        {
-          "$$hashKey": "object:274",
-          "format": "percentunit",
-          "label": null,
-          "logBase": 1,
-          "max": null,
-          "min": null,
-          "show": false
-        }
-      ],
-      "yaxis": {
-        "align": false,
-        "alignLevel": null
-      }
-    },
-    {
-      "datasource": "mysql",
-      "description": "1. The average story point (workload) of requirements.\n2. The requirements being calculated are filtered by \"requirement creation time\" (time filter at the upper-right corner) and \"Jira board\" (\"Choose Board\" filter at the upper-left corner)",
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "thresholds"
-          },
-          "decimals": 1,
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": null
-              }
-            ]
-          }
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 6,
-        "w": 6,
-        "x": 0,
-        "y": 55
-      },
-      "id": 93,
-      "options": {
-        "colorMode": "value",
-        "graphMode": "area",
-        "justifyMode": "auto",
-        "orientation": "auto",
-        "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
-          "fields": "",
-          "values": false
-        },
-        "text": {},
-        "textMode": "auto"
-      },
-      "pluginVersion": "8.0.6",
-      "targets": [
-        {
-          "format": "time_series",
-          "group": [],
-          "metricColumn": "none",
-          "queryType": "randomWalk",
-          "rawQuery": true,
-          "rawSql": "select \r\n  now() as time,\r\n  avg(std_workload) as value\r\nfrom jira_issues ji\r\n  join jira_board_issues jbi on ji.id = jbi.issue_id\r\nwhere \r\n  std_type = 'Requirement'\r\n  and created is not null\r\n  and std_workload != 0\r\n  and $__timeFilter(created)\r\n  and jbi.board_id = $board_id\r\ngroup by 1;",
-          "refId": "A",
-          "select": [
-            [
-              {
-                "params": [
-                  "value"
-                ],
-                "type": "column"
-              }
-            ]
-          ],
-          "timeColumn": "time",
-          "where": [
-            {
-              "name": "$__timeFilter",
-              "params": [],
-              "type": "macro"
-            }
-          ]
-        }
-      ],
-      "title": "Avg Requirement Granunarity(StoryPoint)",
-      "type": "stat"
-    },
-    {
-      "datasource": "mysql",
-      "description": "1. The story point/estimated hours at which 80% requirements' story point/estimated hours lies below it.\n2. The requirements being calculated are filtered by \"requirement creation time\" (time filter at the upper-right corner) and \"Jira board\" (\"Choose Board\" filter at the upper-left corner)",
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "thresholds"
-          },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": null
-              }
-            ]
-          }
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 6,
-        "w": 6,
-        "x": 6,
-        "y": 55
-      },
-      "id": 94,
-      "options": {
-        "colorMode": "value",
-        "graphMode": "area",
-        "justifyMode": "auto",
-        "orientation": "auto",
-        "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
-          "fields": "",
-          "values": false
-        },
-        "text": {},
-        "textMode": "auto"
-      },
-      "pluginVersion": "8.0.6",
-      "targets": [
-        {
-          "format": "time_series",
-          "group": [],
-          "metricColumn": "none",
-          "queryType": "randomWalk",
-          "rawQuery": true,
-          "rawSql": "with _ranks as(\r\n  select \r\n    std_workload,\r\n    percent_rank() over (order by std_workload asc) as ranks\r\n  from jira_issues ji\r\n    join jira_board_issues jbi on ji.id = jbi.issue_id\r\n  where \r\n    std_type = 'Requirement'\r\n    and created is not null\r\n    and std_workload != 0\r\n    and $__timeFilter(created)\r\n    and jbi.board_id = $board_id\r\n)\r\n\r\nselect\r\n  now() as time,\r\n  max(std_workload) as value\r\nfrom _ranks\r\nwhere \r\n  ranks <= 0.8\r\ngroup by 1",
-          "refId": "A",
-          "select": [
-            [
-              {
-                "params": [
-                  "value"
-                ],
-                "type": "column"
-              }
-            ]
-          ],
-          "timeColumn": "time",
-          "where": [
-            {
-              "name": "$__timeFilter",
-              "params": [],
-              "type": "macro"
-            }
-          ]
-        }
-      ],
-      "title": "80th Percentile Requirement Granunarity(Story point)",
-      "type": "stat"
-    },
-    {
-      "aliasColors": {},
-      "bars": false,
-      "dashLength": 10,
-      "dashes": false,
-      "datasource": "mysql",
-      "description": "The average and 80th percentile requirement granularity over time.",
-      "fieldConfig": {
-        "defaults": {
-          "unit": "short"
-        },
-        "overrides": []
-      },
-      "fill": 1,
-      "fillGradient": 0,
-      "gridPos": {
-        "h": 6,
-        "w": 12,
-        "x": 12,
-        "y": 55
-      },
-      "hiddenSeries": false,
-      "id": 96,
-      "interval": "",
-      "legend": {
-        "avg": false,
-        "current": false,
-        "max": false,
-        "min": false,
-        "show": true,
-        "total": false,
-        "values": false
-      },
-      "lines": true,
-      "linewidth": 1,
-      "nullPointMode": "null",
-      "options": {
-        "alertThreshold": true
-      },
-      "percentage": false,
-      "pluginVersion": "8.0.6",
-      "pointradius": 2,
-      "points": false,
-      "renderer": "flot",
-      "seriesOverrides": [],
-      "spaceLength": 10,
-      "stack": false,
-      "steppedLine": false,
-      "targets": [
-        {
-          "format": "time_series",
-          "group": [],
-          "metricColumn": "none",
-          "rawQuery": true,
-          "rawSql": "with _requirement as(\r\n  select \r\n    ji.id,\r\n    DATE_ADD(date(resolution_date), INTERVAL -$interval(date(resolution_date))+1 DAY) as time,\r\n    std_workload\r\n  from jira_issues ji\r\n    join jira_board_issues jbi on ji.id = jbi.issue_id\r\n  where \r\n    std_type = 'Requirement'\r\n    and created is not null\r\n    and std_workload != 0\r\n    and $__timeFilter(created)\r\n    and jbi.board_id = $board_id\r\n)\r\n\r\nselect \r\n  timestamp(time) as time,\r\n  avg(std_workload) as average_story_point\r\n  -- percentile_disc(0.8) within group (order by lead_time asc) as percentile_80_lead_time\r\nfrom _requirement\r\ngroup by 1\r\norder by 1 asc",
-          "refId": "A",
-          "select": [
-            [
-              {
-                "params": [
-                  "progress"
-                ],
-                "type": "column"
-              }
-            ]
-          ],
-          "table": "ca_analysis",
-          "timeColumn": "create_time",
-          "timeColumnType": "timestamp",
-          "where": [
-            {
-              "name": "$__timeFilter",
-              "params": [],
-              "type": "macro"
-            }
-          ]
-        }
-      ],
-      "thresholds": [],
-      "timeFrom": null,
-      "timeRegions": [],
-      "timeShift": null,
-      "title": "Requirement Granularity over Time",
-      "tooltip": {
-        "shared": true,
-        "sort": 0,
-        "value_type": "individual"
-      },
-      "type": "graph",
-      "xaxis": {
-        "buckets": null,
-        "mode": "time",
-        "name": null,
-        "show": true,
-        "values": []
-      },
-      "yaxes": [
-        {
-          "$$hashKey": "object:242",
-          "format": "short",
-          "label": "Lead Time(day)",
-          "logBase": 1,
-          "max": null,
-          "min": null,
-          "show": true
-        },
-        {
-          "$$hashKey": "object:243",
-          "format": "short",
-          "label": "",
-          "logBase": 1,
-          "max": null,
-          "min": null,
-          "show": true
-        }
-      ],
-      "yaxis": {
-        "align": false,
-        "alignLevel": null
-      }
-    },
-    {
-      "aliasColors": {},
-      "bars": true,
-      "dashLength": 10,
-      "dashes": false,
-      "datasource": "mysql",
-      "description": "1. The cumulative distribution of requirement granularity.\n2. Each point refers to the percent rank of a value of granularity.",
-      "fill": 0,
-      "fillGradient": 4,
-      "gridPos": {
-        "h": 6,
-        "w": 24,
-        "x": 0,
-        "y": 61
-      },
-      "hiddenSeries": false,
-      "id": 95,
-      "legend": {
-        "alignAsTable": false,
-        "avg": false,
-        "current": false,
-        "max": false,
-        "min": false,
-        "rightSide": false,
-        "show": false,
-        "total": false,
-        "values": false
-      },
-      "lines": false,
-      "linewidth": 8,
-      "nullPointMode": "null",
-      "options": {
-        "alertThreshold": false
-      },
-      "percentage": false,
-      "pluginVersion": "8.0.6",
-      "pointradius": 0.5,
-      "points": false,
-      "renderer": "flot",
-      "seriesOverrides": [],
-      "spaceLength": 10,
-      "stack": false,
-      "steppedLine": false,
-      "targets": [
-        {
-          "format": "time_series",
-          "group": [],
-          "metricColumn": "none",
-          "rawQuery": true,
-          "rawSql": "with _ranks as(\r\n  select \r\n    round(std_workload) as std_workload\r\n  from jira_issues ji\r\n    join jira_board_issues jbi on ji.id = jbi.issue_id\r\n  where \r\n    std_type = 'Requirement'\r\n    and created is not null\r\n    and std_workload != 0\r\n    and $__timeFilter(created)\r\n    and jbi.board_id = $board_id\r\n  order by std_workload asc\r\n)\r\n\r\nselect \r\n  now() as time,\r\n  lpad(std_workload, 4, ' ') as metric,\r\n  percent_rank() over (order by std_workload asc) as value\r\nfrom _ranks\r\norder by std_workload asc",
-          "refId": "A",
-          "select": [
-            [
-              {
-                "params": [
-                  "progress"
-                ],
-                "type": "column"
-              }
-            ]
-          ],
-          "table": "ca_analysis",
-          "timeColumn": "create_time",
-          "timeColumnType": "timestamp",
-          "where": [
-            {
-              "name": "$__timeFilter",
-              "params": [],
-              "type": "macro"
-            }
-          ]
-        }
-      ],
-      "thresholds": [
-        {
-          "$$hashKey": "object:469",
-          "colorMode": "ok",
-          "fill": true,
-          "line": true,
-          "op": "lt",
-          "value": 0.8,
-          "yaxis": "right"
-        }
-      ],
-      "timeFrom": null,
-      "timeRegions": [],
-      "timeShift": null,
-      "title": "Requirement Granularity (Cumulative Distribution)",
-      "tooltip": {
-        "shared": false,
-        "sort": 0,
-        "value_type": "individual"
-      },
-      "transformations": [],
-      "type": "graph",
-      "xaxis": {
-        "buckets": null,
-        "mode": "series",
-        "name": null,
-        "show": true,
-        "values": [
-          "current"
-        ]
-      },
-      "yaxes": [
-        {
-          "$$hashKey": "object:76",
-          "format": "percentunit",
-          "label": "Percent Rank (%)",
-          "logBase": 1,
-          "max": "1.2",
-          "min": null,
-          "show": true
-        },
-        {
-          "$$hashKey": "object:77",
-          "format": "short",
-          "label": null,
-          "logBase": 1,
-          "max": null,
-          "min": null,
-          "show": false
-        }
-      ],
-      "yaxis": {
-        "align": false,
-        "alignLevel": null
-      }
     },
     {
       "datasource": null,
@@ -1767,11 +860,11 @@
         "h": 4,
         "w": 24,
         "x": 0,
-        "y": 67
+        "y": 38
       },
-      "id": 71,
+      "id": 52,
       "options": {
-        "content": "<div style=\"display: block;text-align: center;margin-top: 56px;\">\n  <div style=\"display: inline-flex;\">\n    <img src=\"/public/img/lake/2.png\" alt=\"No.2\" width=\"56\">\n    <p style=\"font-size:24px; margin:10px; color:#BFC1C8;\"><b>Development<b></b></b></p><b><b>\n  </div>\n</div>",
+        "content": "<div style=\"display: block;text-align: center;margin-top: 56px;\">\n  <div style=\"display: inline-flex;\">\n    <img src=\"/public/img/lake/3.png\" alt=\"No.3\" width=\"56\">\n    <p style=\"font-size:24px; margin:10px; color:#BFC1C8;\"><b>Operation<b></b></b></p><b><b>\n  </div>\n</div>",
         "mode": "html"
       },
       "pluginVersion": "8.0.6",
@@ -1786,10 +879,12 @@
     },
     {
       "datasource": "mysql",
-      "description": "1. Average PR/MR review time.\n2. PR/MR review time refers to the time between the assigned reviewers‘ first comment and Pull/Merge Request being merged.\n3. The PR/MR being calculated are filtered by \"PR/MR creation time\" (time filter at the upper-right corner) and \"Gitlab repo\"(\"Choose Repo\" filter at the upper-left corner)",
+      "description": "1. Total number of incidents created.\n2. The incidents being calculated are filtered by \"incident creation time\" (time filter at the upper-right corner)",
       "fieldConfig": {
         "defaults": {
-          "decimals": 1,
+          "color": {
+            "mode": "thresholds"
+          },
           "mappings": [],
           "thresholds": {
             "mode": "absolute",
@@ -1797,10 +892,6 @@
               {
                 "color": "green",
                 "value": null
-              },
-              {
-                "color": "red",
-                "value": 3
               }
             ]
           }
@@ -1809,1087 +900,11 @@
       },
       "gridPos": {
         "h": 6,
-        "w": 6,
+        "w": 8,
         "x": 0,
-        "y": 71
+        "y": 42
       },
-      "id": 80,
-      "options": {
-        "colorMode": "value",
-        "graphMode": "area",
-        "justifyMode": "auto",
-        "orientation": "auto",
-        "reduceOptions": {
-          "calcs": [
-            "mean"
-          ],
-          "fields": "",
-          "values": false
-        },
-        "text": {},
-        "textMode": "auto"
-      },
-      "pluginVersion": "8.0.6",
-      "targets": [
-        {
-          "format": "time_series",
-          "group": [],
-          "metricColumn": "none",
-          "rawQuery": true,
-          "rawSql": "select \n  now() as time,\n  avg(EXTRACT(epoch from age(merged_at, first_comment_time)) / 86400) as value\nfrom gitlab_merge_requests\nWHERE\n  first_comment_time is not null\n  and merged_at is not null\n  and $__timeFilter(gitlab_created_at)\n  and project_id = $repo_id",
-          "refId": "A",
-          "select": [
-            [
-              {
-                "params": [
-                  "progress"
-                ],
-                "type": "column"
-              }
-            ]
-          ],
-          "table": "ca_analysis",
-          "timeColumn": "create_time",
-          "timeColumnType": "timestamp",
-          "where": [
-            {
-              "name": "$__timeFilter",
-              "params": [],
-              "type": "macro"
-            }
-          ]
-        }
-      ],
-      "timeFrom": null,
-      "timeShift": null,
-      "title": "Avg Pull Request Review Time (day)",
-      "type": "stat"
-    },
-    {
-      "datasource": "mysql",
-      "description": "1. The 80th percentile PR/MR review time.\n2. The PR/MR being calculated are filtered by \"PR/MR creation time\" (time filter at the upper-right corner) and \"Gitlab repo\"(\"Choose Repo\" filter at the upper-left corner)",
-      "fieldConfig": {
-        "defaults": {
-          "decimals": 1,
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": null
-              },
-              {
-                "color": "red",
-                "value": 7
-              }
-            ]
-          }
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 6,
-        "w": 6,
-        "x": 6,
-        "y": 71
-      },
-      "id": 83,
-      "options": {
-        "colorMode": "value",
-        "graphMode": "area",
-        "justifyMode": "auto",
-        "orientation": "auto",
-        "reduceOptions": {
-          "calcs": [
-            "mean"
-          ],
-          "fields": "",
-          "values": false
-        },
-        "text": {},
-        "textMode": "auto"
-      },
-      "pluginVersion": "8.0.6",
-      "targets": [
-        {
-          "format": "time_series",
-          "group": [],
-          "metricColumn": "none",
-          "rawQuery": true,
-          "rawSql": "select \n  now() as time,\n  percentile_disc(0.8) within group \n    (order by (EXTRACT(epoch from age(merged_at, first_comment_time)) / 86400) asc) \n    as percentile_80_review_time\nfrom gitlab_merge_requests\nWHERE\n  first_comment_time is not null\n  and merged_at is not null\n  and $__timeFilter(gitlab_created_at)\n  and project_id = $repo_id",
-          "refId": "A",
-          "select": [
-            [
-              {
-                "params": [
-                  "progress"
-                ],
-                "type": "column"
-              }
-            ]
-          ],
-          "table": "ca_analysis",
-          "timeColumn": "create_time",
-          "timeColumnType": "timestamp",
-          "where": [
-            {
-              "name": "$__timeFilter",
-              "params": [],
-              "type": "macro"
-            }
-          ]
-        }
-      ],
-      "timeFrom": null,
-      "timeShift": null,
-      "title": "80% Pull Request Review Time <= (day)",
-      "type": "stat"
-    },
-    {
-      "datasource": "mysql",
-      "description": "1. The average and 80th percentile PR/MR review time over time.\n2. The time granularity can be switched to week or month by \"Time Interval\" above. \n3. When Time Interval is set to \"month\", the average review time of \"2021-06-01\" refers to the review time of PR/MR whose creation time falls under [2020-06-01, 2020-07-01)",
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "palette-classic"
-          },
-          "custom": {
-            "axisLabel": "Review Time (day)",
-            "axisPlacement": "auto",
-            "axisSoftMin": -3,
-            "barAlignment": 0,
-            "drawStyle": "line",
-            "fillOpacity": 0,
-            "gradientMode": "none",
-            "hideFrom": {
-              "legend": false,
-              "tooltip": false,
-              "viz": false
-            },
-            "lineInterpolation": "linear",
-            "lineWidth": 1,
-            "pointSize": 5,
-            "scaleDistribution": {
-              "type": "linear"
-            },
-            "showPoints": "auto",
-            "spanNulls": false,
-            "stacking": {
-              "group": "A",
-              "mode": "none"
-            },
-            "thresholdsStyle": {
-              "mode": "off"
-            }
-          },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": null
-              }
-            ]
-          },
-          "unit": "none"
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 6,
-        "w": 12,
-        "x": 12,
-        "y": 71
-      },
-      "id": 82,
-      "options": {
-        "legend": {
-          "calcs": [],
-          "displayMode": "list",
-          "placement": "bottom"
-        },
-        "tooltip": {
-          "mode": "single"
-        }
-      },
-      "pluginVersion": "8.0.6",
-      "targets": [
-        {
-          "format": "time_series",
-          "group": [],
-          "metricColumn": "none",
-          "rawQuery": true,
-          "rawSql": "with reviewed_mr as(\n  select \n    to_char(gitlab_created_at, '$interval') as time,\n    EXTRACT(epoch from age(merged_at, first_comment_time)) / 86400 as review_time\n  from gitlab_merge_requests\n  WHERE\n    first_comment_time is not null\n    and merged_at is not null\n    and $__timeFilter(gitlab_created_at)\n    and project_id = $repo_id\n)\n\nselect \n  to_timestamp(time,'$interval') as time,\n  avg(review_time) as average_review_time,\n  percentile_disc(0.8) within group (order by review_time asc) as percentile_80_review_time\nfrom reviewed_mr\ngroup by 1\norder by 1 asc",
-          "refId": "A",
-          "select": [
-            [
-              {
-                "params": [
-                  "progress"
-                ],
-                "type": "column"
-              }
-            ]
-          ],
-          "table": "ca_analysis",
-          "timeColumn": "create_time",
-          "timeColumnType": "timestamp",
-          "where": [
-            {
-              "name": "$__timeFilter",
-              "params": [],
-              "type": "macro"
-            }
-          ]
-        }
-      ],
-      "timeFrom": null,
-      "timeShift": null,
-      "title": "Pull Request Review Time (Breakdown by Time)",
-      "type": "timeseries"
-    },
-    {
-      "datasource": "mysql",
-      "description": "1. Total number of commits created.\n2. The commits being calculated are filtered by \"authored_date\" (time filter at the upper-right corner) and \"Gitlab repo\"(\"Choose Repo\" filter at the upper-left corner)",
-      "fieldConfig": {
-        "defaults": {
-          "decimals": 1,
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": null
-              },
-              {
-                "color": "red",
-                "value": 80
-              }
-            ]
-          },
-          "unit": "short"
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 6,
-        "w": 6,
-        "x": 0,
-        "y": 77
-      },
-      "id": 34,
-      "options": {
-        "colorMode": "value",
-        "graphMode": "area",
-        "justifyMode": "auto",
-        "orientation": "auto",
-        "reduceOptions": {
-          "calcs": [
-            "mean"
-          ],
-          "fields": "",
-          "values": false
-        },
-        "text": {},
-        "textMode": "auto"
-      },
-      "pluginVersion": "8.0.6",
-      "targets": [
-        {
-          "format": "time_series",
-          "group": [],
-          "metricColumn": "none",
-          "rawQuery": true,
-          "rawSql": "SELECT\n  now() AS \"time\",\n  count(*) as value\nFROM gitlab_commits\nWHERE\n  $__timeFilter(authored_date)\n  and project_id = $repo_id\ngroup by 1\nORDER BY 1",
-          "refId": "A",
-          "select": [
-            [
-              {
-                "params": [
-                  "progress"
-                ],
-                "type": "column"
-              }
-            ]
-          ],
-          "table": "ca_analysis",
-          "timeColumn": "create_time",
-          "timeColumnType": "timestamp",
-          "where": [
-            {
-              "name": "$__timeFilter",
-              "params": [],
-              "type": "macro"
-            }
-          ]
-        }
-      ],
-      "timeFrom": null,
-      "timeShift": null,
-      "title": "Commit Count (Total)",
-      "type": "stat"
-    },
-    {
-      "datasource": "mysql",
-      "description": "1. Number of commits created over time.\n2. When Time Interval is set to \"month\", the commit_count\" of \"2021-06-01\" calculates the commits whose creation time falls under [2020-06-01, 2020-07-01)",
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "palette-classic"
-          },
-          "custom": {
-            "axisLabel": "Commit Count",
-            "axisPlacement": "auto",
-            "barAlignment": 0,
-            "drawStyle": "line",
-            "fillOpacity": 0,
-            "gradientMode": "none",
-            "hideFrom": {
-              "legend": false,
-              "tooltip": false,
-              "viz": false
-            },
-            "lineInterpolation": "linear",
-            "lineWidth": 1,
-            "pointSize": 5,
-            "scaleDistribution": {
-              "type": "linear"
-            },
-            "showPoints": "auto",
-            "spanNulls": false,
-            "stacking": {
-              "group": "A",
-              "mode": "none"
-            },
-            "thresholdsStyle": {
-              "mode": "off"
-            }
-          },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": null
-              },
-              {
-                "color": "red",
-                "value": 80
-              }
-            ]
-          },
-          "unit": "none"
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 6,
-        "w": 12,
-        "x": 6,
-        "y": 77
-      },
-      "id": 36,
-      "options": {
-        "legend": {
-          "calcs": [],
-          "displayMode": "list",
-          "placement": "bottom"
-        },
-        "tooltip": {
-          "mode": "single"
-        }
-      },
-      "pluginVersion": "8.0.6",
-      "targets": [
-        {
-          "format": "time_series",
-          "group": [],
-          "metricColumn": "none",
-          "rawQuery": true,
-          "rawSql": "with _commits as(\n  SELECT\n    to_char(authored_date, '$interval') as time,\n    count(*) as commit_count\n  FROM gitlab_commits\n  WHERE\n    $__timeFilter(authored_date)\n    and project_id = $repo_id\n  group by 1\n)\n\nSELECT \n  to_timestamp(time,'$interval') as time,\n  commit_count\nFROM _commits\nORDER BY 1",
-          "refId": "A",
-          "select": [
-            [
-              {
-                "params": [
-                  "progress"
-                ],
-                "type": "column"
-              }
-            ]
-          ],
-          "table": "ca_analysis",
-          "timeColumn": "create_time",
-          "timeColumnType": "timestamp",
-          "where": [
-            {
-              "name": "$__timeFilter",
-              "params": [],
-              "type": "macro"
-            }
-          ]
-        }
-      ],
-      "timeFrom": null,
-      "timeShift": null,
-      "title": "Commit Count (Breakdown by Time)",
-      "type": "timeseries"
-    },
-    {
-      "aliasColors": {},
-      "bars": true,
-      "dashLength": 10,
-      "dashes": false,
-      "datasource": "mysql",
-      "description": "The number of commits from different repos.",
-      "fill": 1,
-      "fillGradient": 0,
-      "gridPos": {
-        "h": 6,
-        "w": 6,
-        "x": 18,
-        "y": 77
-      },
-      "hiddenSeries": false,
-      "id": 37,
-      "legend": {
-        "avg": false,
-        "current": false,
-        "max": false,
-        "min": false,
-        "show": false,
-        "total": false,
-        "values": false
-      },
-      "lines": false,
-      "linewidth": 1,
-      "nullPointMode": "null",
-      "options": {
-        "alertThreshold": true
-      },
-      "percentage": false,
-      "pluginVersion": "8.0.6",
-      "pointradius": 2,
-      "points": false,
-      "renderer": "flot",
-      "seriesOverrides": [],
-      "spaceLength": 10,
-      "stack": false,
-      "steppedLine": false,
-      "targets": [
-        {
-          "format": "time_series",
-          "group": [],
-          "metricColumn": "none",
-          "rawQuery": true,
-          "rawSql": "SELECT\n  now() as time,\n  gp.name as repo_name,\n  count(*) as value\nFROM gitlab_commits gc \n  join gitlab_projects gp on gc.project_id = gp.id\nWHERE\n  $__timeFilter(authored_date)\n  and gc.project_id = $repo_id\ngroup by 1,2\norder by 1",
-          "refId": "A",
-          "select": [
-            [
-              {
-                "params": [
-                  "progress"
-                ],
-                "type": "column"
-              }
-            ]
-          ],
-          "table": "ca_analysis",
-          "timeColumn": "create_time",
-          "timeColumnType": "timestamp",
-          "where": [
-            {
-              "name": "$__timeFilter",
-              "params": [],
-              "type": "macro"
-            }
-          ]
-        }
-      ],
-      "thresholds": [],
-      "timeFrom": null,
-      "timeRegions": [],
-      "timeShift": null,
-      "title": "Commit Count (Breakdown by Repo)",
-      "tooltip": {
-        "shared": false,
-        "sort": 0,
-        "value_type": "individual"
-      },
-      "type": "graph",
-      "xaxis": {
-        "buckets": null,
-        "mode": "series",
-        "name": null,
-        "show": true,
-        "values": [
-          "total"
-        ]
-      },
-      "yaxes": [
-        {
-          "$$hashKey": "object:89",
-          "format": "short",
-          "label": null,
-          "logBase": 1,
-          "max": null,
-          "min": null,
-          "show": true
-        },
-        {
-          "$$hashKey": "object:90",
-          "format": "short",
-          "label": null,
-          "logBase": 1,
-          "max": null,
-          "min": null,
-          "show": true
-        }
-      ],
-      "yaxis": {
-        "align": false,
-        "alignLevel": null
-      }
-    },
-    {
-      "aliasColors": {},
-      "bars": true,
-      "dashLength": 10,
-      "dashes": false,
-      "datasource": "mysql",
-      "description": "The number of commits from different commit authors.",
-      "fill": 1,
-      "fillGradient": 0,
-      "gridPos": {
-        "h": 6,
-        "w": 24,
-        "x": 0,
-        "y": 83
-      },
-      "hiddenSeries": false,
       "id": 38,
-      "legend": {
-        "avg": false,
-        "current": false,
-        "max": false,
-        "min": false,
-        "show": false,
-        "total": false,
-        "values": false
-      },
-      "lines": false,
-      "linewidth": 1,
-      "nullPointMode": "null",
-      "options": {
-        "alertThreshold": true
-      },
-      "percentage": false,
-      "pluginVersion": "8.0.6",
-      "pointradius": 2,
-      "points": false,
-      "renderer": "flot",
-      "seriesOverrides": [],
-      "spaceLength": 10,
-      "stack": false,
-      "steppedLine": false,
-      "targets": [
-        {
-          "format": "time_series",
-          "group": [],
-          "metricColumn": "none",
-          "rawQuery": true,
-          "rawSql": "SELECT\n  now() as time,\n  gc.author_name,\n  count(*) as value\nFROM gitlab_commits gc \n  join gitlab_projects gp on gc.project_id = gp.id\nWHERE\n  $__timeFilter(authored_date)\n  and gc.project_id = $repo_id\ngroup by 1,2\norder by 3 desc",
-          "refId": "A",
-          "select": [
-            [
-              {
-                "params": [
-                  "progress"
-                ],
-                "type": "column"
-              }
-            ]
-          ],
-          "table": "ca_analysis",
-          "timeColumn": "create_time",
-          "timeColumnType": "timestamp",
-          "where": [
-            {
-              "name": "$__timeFilter",
-              "params": [],
-              "type": "macro"
-            }
-          ]
-        }
-      ],
-      "thresholds": [],
-      "timeFrom": null,
-      "timeRegions": [],
-      "timeShift": null,
-      "title": "Commit Count (Breakdown by Author)",
-      "tooltip": {
-        "shared": false,
-        "sort": 0,
-        "value_type": "individual"
-      },
-      "type": "graph",
-      "xaxis": {
-        "buckets": null,
-        "mode": "series",
-        "name": null,
-        "show": true,
-        "values": [
-          "total"
-        ]
-      },
-      "yaxes": [
-        {
-          "$$hashKey": "object:89",
-          "format": "short",
-          "label": null,
-          "logBase": 1,
-          "max": null,
-          "min": null,
-          "show": true
-        },
-        {
-          "$$hashKey": "object:90",
-          "format": "short",
-          "label": "",
-          "logBase": 1,
-          "max": null,
-          "min": null,
-          "show": true
-        }
-      ],
-      "yaxis": {
-        "align": false,
-        "alignLevel": null
-      }
-    },
-    {
-      "datasource": "mysql",
-      "description": "1. Sum of the number of added lines of code under all commits.\n2. The commits being calculated are filtered by \"authored_date\" (time filter at the upper-right corner) and \"Gitlab repo\"(\"Choose Repo\" filter at the upper-left corner)",
-      "fieldConfig": {
-        "defaults": {
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": null
-              },
-              {
-                "color": "red",
-                "value": 80
-              }
-            ]
-          },
-          "unit": "short"
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 6,
-        "w": 6,
-        "x": 0,
-        "y": 89
-      },
-      "id": 42,
-      "options": {
-        "colorMode": "value",
-        "graphMode": "area",
-        "justifyMode": "center",
-        "orientation": "auto",
-        "reduceOptions": {
-          "calcs": [
-            "mean"
-          ],
-          "fields": "",
-          "values": false
-        },
-        "text": {},
-        "textMode": "auto"
-      },
-      "pluginVersion": "8.0.6",
-      "targets": [
-        {
-          "format": "time_series",
-          "group": [],
-          "metricColumn": "none",
-          "rawQuery": true,
-          "rawSql": "SELECT\n  now() AS \"time\",\n  sum(additions) as value\nFROM gitlab_commits gc\n  join gitlab_projects gp on gc.project_id = gp.id \nWHERE\n  message not like '%Merge branch%'\n  and $__timeFilter(authored_date)\n  and gp.id = $repo_id\ngroup by 1\nORDER BY 1",
-          "refId": "A",
-          "select": [
-            [
-              {
-                "params": [
-                  "progress"
-                ],
-                "type": "column"
-              }
-            ]
-          ],
-          "table": "ca_analysis",
-          "timeColumn": "create_time",
-          "timeColumnType": "timestamp",
-          "where": [
-            {
-              "name": "$__timeFilter",
-              "params": [],
-              "type": "macro"
-            }
-          ]
-        }
-      ],
-      "timeFrom": null,
-      "timeShift": null,
-      "title": "Added LOC (Total)",
-      "type": "stat"
-    },
-    {
-      "datasource": "mysql",
-      "description": "1. Sum of the number of deleted lines of code under all commits.\n2. The commits being calculated are filtered by \"authored_date\" (time filter at the upper-right corner) and \"Gitlab repo\"(\"Choose Repo\" filter at the upper-left corner)",
-      "fieldConfig": {
-        "defaults": {
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": null
-              },
-              {
-                "color": "red",
-                "value": 80
-              }
-            ]
-          },
-          "unit": "short"
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 6,
-        "w": 6,
-        "x": 6,
-        "y": 89
-      },
-      "id": 43,
-      "options": {
-        "colorMode": "value",
-        "graphMode": "area",
-        "justifyMode": "center",
-        "orientation": "auto",
-        "reduceOptions": {
-          "calcs": [
-            "mean"
-          ],
-          "fields": "",
-          "values": false
-        },
-        "text": {},
-        "textMode": "auto"
-      },
-      "pluginVersion": "8.0.6",
-      "targets": [
-        {
-          "format": "time_series",
-          "group": [],
-          "metricColumn": "none",
-          "rawQuery": true,
-          "rawSql": "SELECT\n  now() AS \"time\",\n  sum(deletions) as value\nFROM gitlab_commits gc\n  join gitlab_projects gp on gc.project_id = gp.id \nWHERE\n  message not like '%Merge branch%'\n  and $__timeFilter(authored_date)\n  and gp.id = $repo_id\ngroup by 1\nORDER BY 1",
-          "refId": "A",
-          "select": [
-            [
-              {
-                "params": [
-                  "progress"
-                ],
-                "type": "column"
-              }
-            ]
-          ],
-          "table": "ca_analysis",
-          "timeColumn": "create_time",
-          "timeColumnType": "timestamp",
-          "where": [
-            {
-              "name": "$__timeFilter",
-              "params": [],
-              "type": "macro"
-            }
-          ]
-        }
-      ],
-      "timeFrom": null,
-      "timeShift": null,
-      "title": "Deleted LOC (Total)",
-      "type": "stat"
-    },
-    {
-      "datasource": "mysql",
-      "description": "Added/deleted number of lines of code over time.",
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "palette-classic"
-          },
-          "custom": {
-            "axisLabel": "LOC",
-            "axisPlacement": "auto",
-            "barAlignment": 0,
-            "drawStyle": "line",
-            "fillOpacity": 0,
-            "gradientMode": "none",
-            "hideFrom": {
-              "legend": false,
-              "tooltip": false,
-              "viz": false
-            },
-            "lineInterpolation": "linear",
-            "lineWidth": 1,
-            "pointSize": 5,
-            "scaleDistribution": {
-              "type": "linear"
-            },
-            "showPoints": "auto",
-            "spanNulls": false,
-            "stacking": {
-              "group": "A",
-              "mode": "none"
-            },
-            "thresholdsStyle": {
-              "mode": "off"
-            }
-          },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": null
-              },
-              {
-                "color": "red",
-                "value": 80
-              }
-            ]
-          },
-          "unit": "short"
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 6,
-        "w": 12,
-        "x": 12,
-        "y": 89
-      },
-      "id": 47,
-      "options": {
-        "legend": {
-          "calcs": [],
-          "displayMode": "list",
-          "placement": "bottom"
-        },
-        "tooltip": {
-          "mode": "single"
-        }
-      },
-      "pluginVersion": "8.0.6",
-      "targets": [
-        {
-          "format": "time_series",
-          "group": [],
-          "metricColumn": "none",
-          "rawQuery": true,
-          "rawSql": "with loc as(\n  SELECT\n    to_char(authored_date, '$interval') as time,\n    sum(additions) as added_LOC,\n    sum(deletions) as deleted_LOC\n  FROM gitlab_commits\n  WHERE\n    $__timeFilter(authored_date)\n    and project_id = $repo_id\n  group by 1\n)\n\nSELECT \n  to_timestamp(time,'$interval') as time,\n  added_LOC,\n  deleted_LOC\nFROM loc\nORDER BY 1",
-          "refId": "A",
-          "select": [
-            [
-              {
-                "params": [
-                  "progress"
-                ],
-                "type": "column"
-              }
-            ]
-          ],
-          "table": "ca_analysis",
-          "timeColumn": "create_time",
-          "timeColumnType": "timestamp",
-          "where": [
-            {
-              "name": "$__timeFilter",
-              "params": [],
-              "type": "macro"
-            }
-          ]
-        }
-      ],
-      "timeFrom": null,
-      "timeShift": null,
-      "title": "Added and Deleted LOC (Breakdown by Time)",
-      "type": "timeseries"
-    },
-    {
-      "datasource": "mysql",
-      "description": "The number of added/deleted LOC from different commit authors.",
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "palette-classic"
-          },
-          "custom": {
-            "axisLabel": "LOC",
-            "axisPlacement": "auto",
-            "axisSoftMin": 0,
-            "fillOpacity": 80,
-            "gradientMode": "none",
-            "hideFrom": {
-              "legend": false,
-              "tooltip": false,
-              "viz": false
-            },
-            "lineWidth": 1
-          },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": null
-              },
-              {
-                "color": "red",
-                "value": 80
-              }
-            ]
-          },
-          "unit": "short"
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 6,
-        "w": 24,
-        "x": 0,
-        "y": 95
-      },
-      "id": 49,
-      "options": {
-        "barWidth": 0.97,
-        "groupWidth": 0.7,
-        "legend": {
-          "calcs": [],
-          "displayMode": "list",
-          "placement": "bottom"
-        },
-        "orientation": "auto",
-        "showValue": "auto",
-        "text": {},
-        "tooltip": {
-          "mode": "multi"
-        }
-      },
-      "pluginVersion": "8.0.6",
-      "targets": [
-        {
-          "format": "table",
-          "group": [],
-          "metricColumn": "none",
-          "rawQuery": true,
-          "rawSql": "SELECT\n  now() as time,\n  gc.author_name,\n  sum(additions) as added_loc,\n  sum(deletions) as removed_loc\nFROM gitlab_commits gc \n  join gitlab_projects gp on gc.project_id = gp.id\nWHERE\n  author_name is not null\n  and $__timeFilter(authored_date)\n  and gc.project_id = $repo_id\ngroup by 1,2\norder by 3 desc",
-          "refId": "A",
-          "select": [
-            [
-              {
-                "params": [
-                  "progress"
-                ],
-                "type": "column"
-              }
-            ]
-          ],
-          "table": "ca_analysis",
-          "timeColumn": "create_time",
-          "timeColumnType": "timestamp",
-          "where": [
-            {
-              "name": "$__timeFilter",
-              "params": [],
-              "type": "macro"
-            }
-          ]
-        }
-      ],
-      "timeFrom": null,
-      "timeShift": null,
-      "title": "Added and Deleted LOC (Breakdown by Author)",
-      "type": "barchart"
-    },
-    {
-      "datasource": null,
-      "gridPos": {
-        "h": 4,
-        "w": 24,
-        "x": 0,
-        "y": 101
-      },
-      "id": 77,
-      "options": {
-        "content": "<div style=\"display: block;text-align: center;margin-top: 56px;\">\n  <div style=\"display: inline-flex;\">\n    <img src=\"/public/img/lake/3.png\" alt=\"No.3\" width=\"56\">\n    <p style=\"font-size:24px; margin:10px; color:#BFC1C8;\"><b>Test<b></b></b></p><b><b>\n  </div>\n</div>",
-        "mode": "html"
-      },
-      "pluginVersion": "8.0.6",
-      "targets": [
-        {
-          "queryType": "randomWalk",
-          "refId": "A"
-        }
-      ],
-      "transparent": true,
-      "type": "text"
-    },
-    {
-      "datasource": "mysql",
-      "description": "1. The average bug age.\n2. Bug age refers to the length of time from bug creation to resolution.\n3. The bugs being calculated are filtered by \"bug resolution time\" (time filter at the upper-right corner) and \"Jira board\"(\"Choose Board\" filter at the upper-left corner)",
-      "fieldConfig": {
-        "defaults": {
-          "decimals": 1,
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": null
-              },
-              {
-                "color": "red",
-                "value": 7
-              }
-            ]
-          }
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 6,
-        "w": 6,
-        "x": 0,
-        "y": 105
-      },
-      "id": 53,
       "options": {
         "colorMode": "value",
         "graphMode": "area",
@@ -2897,88 +912,7 @@
         "orientation": "auto",
         "reduceOptions": {
           "calcs": [
-            "mean"
-          ],
-          "fields": "/^value$/",
-          "values": false
-        },
-        "text": {},
-        "textMode": "auto"
-      },
-      "pluginVersion": "8.0.6",
-      "targets": [
-        {
-          "format": "time_series",
-          "group": [],
-          "metricColumn": "none",
-          "rawQuery": true,
-          "rawSql": "select \r\n  now() as time,\r\n  avg(lead_time/1440) as value\r\nfrom jira_issues ji\r\n  join jira_board_issues jbi on ji.id = jbi.issue_id\r\nwhere \r\n  std_type = 'Bug'\r\n  and resolution_date is not null\r\n  and lead_time is not null\r\n  -- and std_status = 'Resolved'\r\n  and $__timeFilter(resolution_date)\r\n  and jbi.board_id = $board_id\r\ngroup by 1;",
-          "refId": "A",
-          "select": [
-            [
-              {
-                "params": [
-                  "progress"
-                ],
-                "type": "column"
-              }
-            ]
-          ],
-          "table": "ca_analysis",
-          "timeColumn": "create_time",
-          "timeColumnType": "timestamp",
-          "where": [
-            {
-              "name": "$__timeFilter",
-              "params": [],
-              "type": "macro"
-            }
-          ]
-        }
-      ],
-      "timeFrom": null,
-      "timeShift": null,
-      "title": "Average Bug Age (day)",
-      "type": "stat"
-    },
-    {
-      "datasource": "mysql",
-      "description": "1. The bug age at which 80% bugs‘ age lies below it.\n2. The bugs being calculated are filtered by \"bug resolution time\" (time filter at the upper-right corner) and \"Jira board\" (\"Choose Board\" filter at the upper-left corner)",
-      "fieldConfig": {
-        "defaults": {
-          "decimals": 1,
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": null
-              },
-              {
-                "color": "red",
-                "value": 14
-              }
-            ]
-          }
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 6,
-        "w": 6,
-        "x": 6,
-        "y": 105
-      },
-      "id": 65,
-      "options": {
-        "colorMode": "value",
-        "graphMode": "area",
-        "justifyMode": "auto",
-        "orientation": "auto",
-        "reduceOptions": {
-          "calcs": [
-            "mean"
+            "lastNotNull"
           ],
           "fields": "",
           "values": false
@@ -2992,327 +926,9 @@
           "format": "time_series",
           "group": [],
           "metricColumn": "none",
-          "rawQuery": true,
-          "rawSql": "with _ranks as(\r\n  select \r\n    ji.lead_time,\r\n    percent_rank() over (order by lead_time asc) as ranks\r\n  from jira_issues ji\r\n    join jira_board_issues jbi on ji.id = jbi.issue_id\r\n  where \r\n    std_type = 'Bug'\r\n    and resolution_date is not null\r\n    and lead_time is not null\r\n    -- and std_status = 'Resolved'\r\n    and $__timeFilter(resolution_date)\r\n    and jbi.board_id = $board_id\r\n)\r\n\r\nselect\r\n  now() as time,\r\n  max(lead_time/1440) as value\r\nfrom _ranks\r\nwhere \r\n  ranks <= 0.8\r\ngroup by 1",
-          "refId": "A",
-          "select": [
-            [
-              {
-                "params": [
-                  "progress"
-                ],
-                "type": "column"
-              }
-            ]
-          ],
-          "table": "ca_analysis",
-          "timeColumn": "create_time",
-          "timeColumnType": "timestamp",
-          "where": [
-            {
-              "name": "$__timeFilter",
-              "params": [],
-              "type": "macro"
-            }
-          ]
-        }
-      ],
-      "timeFrom": null,
-      "timeShift": null,
-      "title": "80th Percentile Bug Age (day)",
-      "type": "stat"
-    },
-    {
-      "datasource": "mysql",
-      "description": "1. The average and 80th percentile bug age over time.\n2. The time granularity can be switched to Week or Month by \"Time Interval\" above. \n3. When Time Interval is set to \"Month\", the average_bug_age of \"2021-06-01\" refers to the average age of bugs whose resolution time falls under [2020-06-01, 2020-07-01).",
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "palette-classic"
-          },
-          "custom": {
-            "axisLabel": "Bug Age (day)",
-            "axisPlacement": "auto",
-            "barAlignment": 0,
-            "drawStyle": "line",
-            "fillOpacity": 0,
-            "gradientMode": "none",
-            "hideFrom": {
-              "legend": false,
-              "tooltip": false,
-              "viz": false
-            },
-            "lineInterpolation": "linear",
-            "lineWidth": 1,
-            "pointSize": 5,
-            "scaleDistribution": {
-              "type": "linear"
-            },
-            "showPoints": "auto",
-            "spanNulls": false,
-            "stacking": {
-              "group": "A",
-              "mode": "none"
-            },
-            "thresholdsStyle": {
-              "mode": "off"
-            }
-          },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": null
-              },
-              {
-                "color": "red",
-                "value": 80
-              }
-            ]
-          },
-          "unit": "short"
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 6,
-        "w": 12,
-        "x": 12,
-        "y": 105
-      },
-      "id": 66,
-      "interval": "",
-      "options": {
-        "legend": {
-          "calcs": [],
-          "displayMode": "list",
-          "placement": "bottom"
-        },
-        "tooltip": {
-          "mode": "single"
-        }
-      },
-      "pluginVersion": "8.0.6",
-      "targets": [
-        {
-          "format": "time_series",
-          "group": [],
-          "metricColumn": "none",
-          "rawQuery": true,
-          "rawSql": "with _bugs as(\r\n  select \r\n    ji.id,\r\n    DATE_ADD(date(resolution_date), INTERVAL -$interval(date(resolution_date))+1 DAY) as time,\r\n    lead_time,\r\n    round(lead_time/1440) as lead_time_day\r\n  from jira_issues ji\r\n    join jira_board_issues jbi on ji.id = jbi.issue_id\r\n  where \r\n    std_type = 'Bug'\r\n    and resolution_date is not null\r\n    and lead_time is not null\r\n    -- and std_status = 'Resolved'\r\n    and $__timeFilter(resolution_date)\r\n    and jbi.board_id = $board_id\r\n)\r\n\r\nselect \r\n  timestamp(time) as time,\r\n  avg(lead_time/1440) as average_lead_time\r\n  -- percent_rank() over (order by lead_time_day asc) as percentile_80_lead_time\r\nfrom _bugs\r\ngroup by 1\r\norder by 1 asc",
-          "refId": "A",
-          "select": [
-            [
-              {
-                "params": [
-                  "progress"
-                ],
-                "type": "column"
-              }
-            ]
-          ],
-          "table": "ca_analysis",
-          "timeColumn": "create_time",
-          "timeColumnType": "timestamp",
-          "where": [
-            {
-              "name": "$__timeFilter",
-              "params": [],
-              "type": "macro"
-            }
-          ]
-        }
-      ],
-      "timeFrom": null,
-      "timeShift": null,
-      "title": "Average Bug Age over Time",
-      "type": "timeseries"
-    },
-    {
-      "aliasColors": {},
-      "bars": false,
-      "dashLength": 10,
-      "dashes": false,
-      "datasource": "mysql",
-      "description": "1. The cumulative distribution of bug age. \n2. Each point refers to the percent rank of a bug age.",
-      "fieldConfig": {
-        "defaults": {
-          "unit": "none"
-        },
-        "overrides": []
-      },
-      "fill": 0,
-      "fillGradient": 4,
-      "gridPos": {
-        "h": 6,
-        "w": 24,
-        "x": 0,
-        "y": 111
-      },
-      "hiddenSeries": false,
-      "id": 61,
-      "legend": {
-        "alignAsTable": false,
-        "avg": false,
-        "current": false,
-        "max": false,
-        "min": false,
-        "rightSide": false,
-        "show": false,
-        "total": false,
-        "values": false
-      },
-      "lines": true,
-      "linewidth": 8,
-      "nullPointMode": "null",
-      "options": {
-        "alertThreshold": false
-      },
-      "percentage": false,
-      "pluginVersion": "8.0.6",
-      "pointradius": 0.5,
-      "points": false,
-      "renderer": "flot",
-      "seriesOverrides": [],
-      "spaceLength": 10,
-      "stack": false,
-      "steppedLine": false,
-      "targets": [
-        {
-          "format": "time_series",
-          "group": [],
-          "metricColumn": "none",
-          "rawQuery": true,
-          "rawSql": "with _ranks as(\r\n  select \r\n    round(ji.lead_time/1440) as lead_time_day\r\n  from jira_issues ji\r\n    join jira_board_issues jbi on ji.id = jbi.issue_id\r\n  where \r\n    std_type = 'Bug'\r\n    and resolution_date is not null\r\n    and lead_time is not null\r\n    -- and std_status = 'Resolved'\r\n    and $__timeFilter(resolution_date)\r\n    and jbi.board_id = $board_id\r\n  order by lead_time_day asc\r\n)\r\n\r\nselect \r\n  now() as time,\r\n  lpad(concat(lead_time_day,'d'), 4, ' ') as metric,\r\n  percent_rank() over (order by lead_time_day asc) as value\r\nfrom _ranks\r\norder by lead_time_day asc",
-          "refId": "A",
-          "select": [
-            [
-              {
-                "params": [
-                  "progress"
-                ],
-                "type": "column"
-              }
-            ]
-          ],
-          "table": "ca_analysis",
-          "timeColumn": "create_time",
-          "timeColumnType": "timestamp",
-          "where": [
-            {
-              "name": "$__timeFilter",
-              "params": [],
-              "type": "macro"
-            }
-          ]
-        }
-      ],
-      "thresholds": [
-        {
-          "$$hashKey": "object:912",
-          "colorMode": "ok",
-          "fill": true,
-          "line": true,
-          "op": "lt",
-          "value": 0.8,
-          "yaxis": "right"
-        }
-      ],
-      "timeFrom": null,
-      "timeRegions": [],
-      "timeShift": null,
-      "title": "Bug Age (Cumulative Distribution)",
-      "tooltip": {
-        "shared": false,
-        "sort": 0,
-        "value_type": "individual"
-      },
-      "type": "graph",
-      "xaxis": {
-        "buckets": null,
-        "mode": "series",
-        "name": null,
-        "show": true,
-        "values": [
-          "total"
-        ]
-      },
-      "yaxes": [
-        {
-          "$$hashKey": "object:76",
-          "format": "none",
-          "label": "Percent Rank (%)",
-          "logBase": 1,
-          "max": "1.2",
-          "min": null,
-          "show": true
-        },
-        {
-          "$$hashKey": "object:77",
-          "format": "short",
-          "label": null,
-          "logBase": 1,
-          "max": null,
-          "min": null,
-          "show": false
-        }
-      ],
-      "yaxis": {
-        "align": false,
-        "alignLevel": null
-      }
-    },
-    {
-      "aliasColors": {},
-      "bars": true,
-      "dashLength": 10,
-      "dashes": false,
-      "datasource": "mysql",
-      "description": "The average age of bugs under different Jira Epics.",
-      "fill": 1,
-      "fillGradient": 0,
-      "gridPos": {
-        "h": 6,
-        "w": 24,
-        "x": 0,
-        "y": 117
-      },
-      "hiddenSeries": false,
-      "id": 59,
-      "legend": {
-        "avg": false,
-        "current": false,
-        "max": false,
-        "min": false,
-        "show": false,
-        "total": false,
-        "values": false
-      },
-      "lines": false,
-      "linewidth": 1,
-      "nullPointMode": "null",
-      "options": {
-        "alertThreshold": true
-      },
-      "percentage": false,
-      "pluginVersion": "8.0.6",
-      "pointradius": 2,
-      "points": false,
-      "renderer": "flot",
-      "seriesOverrides": [],
-      "spaceLength": 10,
-      "stack": false,
-      "steppedLine": false,
-      "targets": [
-        {
-          "format": "time_series",
-          "group": [],
-          "metricColumn": "none",
           "queryType": "randomWalk",
           "rawQuery": true,
-          "rawSql": "with _bugs as(\r\n  select\r\n    ji.id,\r\n    ji.epic_key,\r\n    ji.lead_time\r\n  from\r\n    jira_issues ji\r\n    join jira_board_issues jbi on ji.id = jbi.issue_id\r\n  where \r\n    std_type = 'Bug'\r\n    and resolution_date is not null\r\n    and epic_key is not null\r\n    and $__timeFilter(resolution_date)\r\n    and jbi.board_id = $board_id\r\n)\r\n\r\nselect \r\n  now() as time,\r\n  epic_key as metric,\r\n  avg(lead_time) as value\r\nfrom _bugs\r\ngroup by 1,2\r\norder by avg(lead_time) desc\r\nlimit 10",
+          "rawSql": "SELECT\n  now() as time,\n  count(*) as value\nFROM\n  jira_issues ji\n  join jira_board_issues jbi on ji.id = jbi.issue_id\nWHERE\n  issue_type in ('Incident')\n  and jbi.board_id = $board_id\n  and $__timeFilter(issue_created_at)\n",
           "refId": "A",
           "select": [
             [
@@ -3334,80 +950,45 @@
           ]
         }
       ],
-      "thresholds": [],
-      "timeFrom": null,
-      "timeRegions": [],
-      "timeShift": null,
-      "title": "Average Bug Age by Epic",
-      "tooltip": {
-        "shared": false,
-        "sort": 0,
-        "value_type": "individual"
-      },
-      "type": "graph",
-      "xaxis": {
-        "buckets": null,
-        "mode": "series",
-        "name": null,
-        "show": true,
-        "values": [
-          "total"
-        ]
-      },
-      "yaxes": [
-        {
-          "$$hashKey": "object:508",
-          "format": "short",
-          "label": "Bug Age (day)",
-          "logBase": 1,
-          "max": null,
-          "min": null,
-          "show": true
-        },
-        {
-          "$$hashKey": "object:509",
-          "format": "short",
-          "label": null,
-          "logBase": 1,
-          "max": null,
-          "min": null,
-          "show": true
-        }
-      ],
-      "yaxis": {
-        "align": false,
-        "alignLevel": null
-      }
-    },
-    {
-      "datasource": null,
-      "gridPos": {
-        "h": 4,
-        "w": 24,
-        "x": 0,
-        "y": 123
-      },
-      "id": 78,
-      "options": {
-        "content": "<div style=\"display: block;text-align: center;margin-top: 56px;\">\n  <div style=\"display: inline-flex;\">\n    <img src=\"/public/img/lake/4.png\" alt=\"No.4\" width=\"56\">\n    <p style=\"font-size:24px; margin:10px; color:#BFC1C8;\"><b>Operation<b></b></b></p><b><b>\n  </div>\n</div>",
-        "mode": "html"
-      },
-      "pluginVersion": "8.0.6",
-      "targets": [
-        {
-          "queryType": "randomWalk",
-          "refId": "A"
-        }
-      ],
-      "transparent": true,
-      "type": "text"
+      "title": "Number of Incidents found after shipping ( Total)",
+      "type": "stat"
     },
     {
       "datasource": "mysql",
-      "description": "1. The average incident age.\n2. Incident age refers to the length of time from incident creation to resolution.\n3. The incidents being calculated are filtered by \"incident resolution time\" (time filter at the upper-right corner) and \"Jira board\"(\"Choose Board\" filter at the upper-left corner)",
+      "description": "1. Number of incidents created over time.\n2. The time granularity can be switched to week or month by \"Time Interval\" above. \n3. When Time Interval is set to \"month\", incident_count of \"2021-06-01\" calculates the incidents whose creation time falls under [2020-06-01, 2020-07-01)",
       "fieldConfig": {
         "defaults": {
-          "decimals": 1,
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisLabel": "Incident Count",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 0,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
           "mappings": [],
           "thresholds": {
             "mode": "absolute",
@@ -3415,37 +996,29 @@
               {
                 "color": "green",
                 "value": null
-              },
-              {
-                "color": "red",
-                "value": 3
               }
             ]
-          }
+          },
+          "unit": "none"
         },
         "overrides": []
       },
       "gridPos": {
         "h": 6,
-        "w": 6,
-        "x": 0,
-        "y": 127
+        "w": 16,
+        "x": 8,
+        "y": 42
       },
-      "id": 64,
+      "id": 39,
       "options": {
-        "colorMode": "value",
-        "graphMode": "area",
-        "justifyMode": "auto",
-        "orientation": "auto",
-        "reduceOptions": {
-          "calcs": [
-            "mean"
-          ],
-          "fields": "/^value$/",
-          "values": false
+        "legend": {
+          "calcs": [],
+          "displayMode": "hidden",
+          "placement": "bottom"
         },
-        "text": {},
-        "textMode": "auto"
+        "tooltip": {
+          "mode": "single"
+        }
       },
       "pluginVersion": "8.0.6",
       "targets": [
@@ -3453,22 +1026,21 @@
           "format": "time_series",
           "group": [],
           "metricColumn": "none",
+          "queryType": "randomWalk",
           "rawQuery": true,
-          "rawSql": "select \r\n  now() as time,\r\n  avg(lead_time/1440) as value\r\nfrom jira_issues ji\r\n  join jira_board_issues jbi on ji.id = jbi.issue_id\r\nwhere \r\n  std_type = 'Incident'\r\n  and created is not null\r\n  and lead_time is not null\r\n  -- and std_status = 'Resolved'\r\n  and $__timeFilter(created)\r\n  and jbi.board_id = $board_id\r\ngroup by 1;",
+          "rawSql": "with _incidents as (\n  SELECT\n    to_char(issue_created_at, '$interval') as time,\n    count(*)::decimal as incident_count\n  FROM\n    jira_issues ji\n    LEFT JOIN jira_board_issues jbi ON jbi.issue_id = ji.id\n  WHERE\n    type = 'Incident'\n    and jbi.board_id = $board_id\n    and $__timeFilter(issue_created_at)\n  group by to_char(issue_created_at, '$interval')\n  order by 1\n) \nselect \n  to_timestamp(time,'$interval') as time, \n  incident_count \nfrom _incidents",
           "refId": "A",
           "select": [
             [
               {
                 "params": [
-                  "progress"
+                  "value"
                 ],
                 "type": "column"
               }
             ]
           ],
-          "table": "ca_analysis",
-          "timeColumn": "create_time",
-          "timeColumnType": "timestamp",
+          "timeColumn": "time",
           "where": [
             {
               "name": "$__timeFilter",
@@ -3480,14 +1052,18 @@
       ],
       "timeFrom": null,
       "timeShift": null,
-      "title": "Average Incident Age (day)",
-      "type": "stat"
+      "title": "Number of Incidents found after shipping (Breakdown by Time)",
+      "type": "timeseries"
     },
     {
       "datasource": "mysql",
-      "description": "1. The incident age at which 80% incidents‘ age lies below it.\n2. The incidents being calculated are filtered by \"incident resolution time\" (time filter at the upper-right corner) and \"Jira board\" (\"Choose Board\" filter at the upper-left corner)",
+      "description": "1. Total number of incidents found per 1,000 lines of code, including both added and deleted llines of code.\n2. The incidents being calculated are filtered by \"incident creation time\". The lines of code being calculated are filtered by \"commit creation time\" (both are affected by the time filter at the upper-right corner)",
       "fieldConfig": {
         "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "decimals": 2,
           "mappings": [],
           "thresholds": {
             "mode": "absolute",
@@ -3497,8 +1073,12 @@
                 "value": null
               },
               {
+                "color": "#EAB839",
+                "value": 0.32
+              },
+              {
                 "color": "red",
-                "value": 7
+                "value": 2.39
               }
             ]
           }
@@ -3507,11 +1087,11 @@
       },
       "gridPos": {
         "h": 6,
-        "w": 6,
-        "x": 6,
-        "y": 127
+        "w": 8,
+        "x": 0,
+        "y": 48
       },
-      "id": 55,
+      "id": 28,
       "options": {
         "colorMode": "value",
         "graphMode": "area",
@@ -3519,7 +1099,7 @@
         "orientation": "auto",
         "reduceOptions": {
           "calcs": [
-            "mean"
+            "lastNotNull"
           ],
           "fields": "",
           "values": false
@@ -3533,22 +1113,21 @@
           "format": "time_series",
           "group": [],
           "metricColumn": "none",
+          "queryType": "randomWalk",
           "rawQuery": true,
-          "rawSql": "with _ranks as(\r\n  select \r\n    ji.lead_time,\r\n    percent_rank() over (order by lead_time asc) as ranks\r\n  from jira_issues ji\r\n    join jira_board_issues jbi on ji.id = jbi.issue_id\r\n  where \r\n    std_type = 'Incident'\r\n    and resolution_date is not null\r\n    and lead_time is not null\r\n    -- and std_status = 'Resolved'\r\n    and $__timeFilter(resolution_date)\r\n    and jbi.board_id = $board_id\r\n)\r\n\r\nselect\r\n  now() as time,\r\n  max(lead_time/1440) as value\r\nfrom _ranks\r\nwhere \r\n  ranks <= 0.8\r\ngroup by 1",
+          "rawSql": "with ic as (\n\tselect \n\t  count(*) as incident_count\n\tfrom \n\t  jira_issues ji \n\t  left join jira_board_issues jbi on (jbi.issue_id = ji.id)\n\twhere \n\t  jbi.board_id = $board_id\n\t  and ji.type = 'Incident'\n\t  and $__timeFilter(ji.issue_created_at)\n),\n\nloc as (\n\tselect \n\t  sum(additions + deletions) as line_count\n\tfrom \n\t  gitlab_commits gc \n\t  left join jira_board_gitlab_projects jbgp on jbgp.gitlab_project_id = gc.project_id\n\twhere\n\t  jbgp.jira_board_id = $board_id\n\t  and gc.title not like 'Merge branch %'\n\t  and $__timeFilter(authored_date)\n)\n\nselect \n  now() as time, \n  ic.incident_count::decimal / loc.line_count::decimal * 1000 as value\nfrom loc,ic",
           "refId": "A",
           "select": [
             [
               {
                 "params": [
-                  "progress"
+                  "value"
                 ],
                 "type": "column"
               }
             ]
           ],
-          "table": "ca_analysis",
-          "timeColumn": "create_time",
-          "timeColumnType": "timestamp",
+          "timeColumn": "time",
           "where": [
             {
               "name": "$__timeFilter",
@@ -3558,21 +1137,19 @@
           ]
         }
       ],
-      "timeFrom": null,
-      "timeShift": null,
-      "title": "80th Percentile Incident Age (day)",
+      "title": "Incidents Count per 1k lines of code (Total)",
       "type": "stat"
     },
     {
       "datasource": "mysql",
-      "description": "1. The average and 80th percentile incident age over time.\n2. The time granularity can be switched to Week or Month by \"Time Interval\" above. \n3. When Time Interval is set to \"Month\", the average_incident_age of \"2021-06-01\" refers to the average age of incidents whose resolution time falls under [2020-06-01, 2020-07-01).",
+      "description": "1. Incident Count per 1k lines of code over time.\n2. When Time Interval is set to \"month\", incident_count_per_1k_LOC of \"2021-06-01\" calculates the incidents whose creation time falls under [2020-06-01, 2020-07-01) and lines of code whose commit creation time falls under [2020-06-01, 2020-07-01) ",
       "fieldConfig": {
         "defaults": {
           "color": {
             "mode": "palette-classic"
           },
           "custom": {
-            "axisLabel": "Incident Age (day)",
+            "axisLabel": "Incident Count",
             "axisPlacement": "auto",
             "barAlignment": 0,
             "drawStyle": "line",
@@ -3619,233 +1196,21 @@
       },
       "gridPos": {
         "h": 6,
-        "w": 12,
-        "x": 12,
-        "y": 127
+        "w": 16,
+        "x": 8,
+        "y": 48
       },
-      "id": 57,
-      "interval": "",
+      "id": 30,
       "options": {
         "legend": {
           "calcs": [],
-          "displayMode": "list",
+          "displayMode": "hidden",
           "placement": "bottom"
         },
         "tooltip": {
           "mode": "single"
         }
       },
-      "pluginVersion": "8.0.6",
-      "targets": [
-        {
-          "format": "time_series",
-          "group": [],
-          "metricColumn": "none",
-          "rawQuery": true,
-          "rawSql": "with _incidents as(\r\n  select \r\n    ji.id,\r\n    DATE_ADD(date(resolution_date), INTERVAL -$interval(date(resolution_date))+1 DAY) as time,\r\n    lead_time,\r\n    round(lead_time/1440) as lead_time_day\r\n  from jira_issues ji\r\n    join jira_board_issues jbi on ji.id = jbi.issue_id\r\n  where \r\n    std_type = 'Incident'\r\n    and resolution_date is not null\r\n    and lead_time is not null\r\n    -- and std_status = 'Resolved'\r\n    and $__timeFilter(resolution_date)\r\n    and jbi.board_id = $board_id\r\n)\r\n\r\nselect \r\n  timestamp(time) as time,\r\n  avg(lead_time/1440) as average_lead_time\r\n  -- percent_rank() over (order by lead_time_day asc) as percentile_80_lead_time\r\nfrom _incidents\r\ngroup by 1\r\norder by 1 asc",
-          "refId": "A",
-          "select": [
-            [
-              {
-                "params": [
-                  "progress"
-                ],
-                "type": "column"
-              }
-            ]
-          ],
-          "table": "ca_analysis",
-          "timeColumn": "create_time",
-          "timeColumnType": "timestamp",
-          "where": [
-            {
-              "name": "$__timeFilter",
-              "params": [],
-              "type": "macro"
-            }
-          ]
-        }
-      ],
-      "timeFrom": null,
-      "timeShift": null,
-      "title": "Average Incident Age over Time",
-      "type": "timeseries"
-    },
-    {
-      "aliasColors": {},
-      "bars": false,
-      "dashLength": 10,
-      "dashes": false,
-      "datasource": "mysql",
-      "description": "1. The cumulative distribution of incident age.\n2. Each point refers to the percent rank of a incident age.",
-      "fieldConfig": {
-        "defaults": {
-          "unit": "none"
-        },
-        "overrides": []
-      },
-      "fill": 0,
-      "fillGradient": 4,
-      "gridPos": {
-        "h": 6,
-        "w": 24,
-        "x": 0,
-        "y": 133
-      },
-      "hiddenSeries": false,
-      "id": 68,
-      "legend": {
-        "alignAsTable": false,
-        "avg": false,
-        "current": false,
-        "max": false,
-        "min": false,
-        "rightSide": false,
-        "show": false,
-        "total": false,
-        "values": false
-      },
-      "lines": true,
-      "linewidth": 8,
-      "nullPointMode": "null",
-      "options": {
-        "alertThreshold": false
-      },
-      "percentage": false,
-      "pluginVersion": "8.0.6",
-      "pointradius": 0.5,
-      "points": false,
-      "renderer": "flot",
-      "seriesOverrides": [],
-      "spaceLength": 10,
-      "stack": false,
-      "steppedLine": false,
-      "targets": [
-        {
-          "format": "time_series",
-          "group": [],
-          "metricColumn": "none",
-          "rawQuery": true,
-          "rawSql": "with _ranks as(\r\n  select \r\n    round(ji.lead_time/1440) as lead_time_day\r\n  from jira_issues ji\r\n    join jira_board_issues jbi on ji.id = jbi.issue_id\r\n  where \r\n    std_type = 'Incident'\r\n    and resolution_date is not null\r\n    and lead_time is not null\r\n    -- and std_status = 'Resolved'\r\n    and $__timeFilter(resolution_date)\r\n    and jbi.board_id = $board_id\r\n  order by lead_time_day asc\r\n)\r\n\r\nselect \r\n  now() as time,\r\n  lpad(concat(lead_time_day,'d'), 4, ' ') as metric,\r\n  percent_rank() over (order by lead_time_day asc) as value\r\nfrom _ranks\r\norder by lead_time_day asc",
-          "refId": "A",
-          "select": [
-            [
-              {
-                "params": [
-                  "progress"
-                ],
-                "type": "column"
-              }
-            ]
-          ],
-          "table": "ca_analysis",
-          "timeColumn": "create_time",
-          "timeColumnType": "timestamp",
-          "where": [
-            {
-              "name": "$__timeFilter",
-              "params": [],
-              "type": "macro"
-            }
-          ]
-        }
-      ],
-      "thresholds": [
-        {
-          "$$hashKey": "object:1070",
-          "colorMode": "ok",
-          "fill": true,
-          "line": true,
-          "op": "lt",
-          "value": 0.8,
-          "yaxis": "right"
-        }
-      ],
-      "timeFrom": null,
-      "timeRegions": [],
-      "timeShift": null,
-      "title": "Incident Age (Cumulative Distribution)",
-      "tooltip": {
-        "shared": false,
-        "sort": 0,
-        "value_type": "individual"
-      },
-      "type": "graph",
-      "xaxis": {
-        "buckets": null,
-        "mode": "series",
-        "name": null,
-        "show": true,
-        "values": [
-          "total"
-        ]
-      },
-      "yaxes": [
-        {
-          "$$hashKey": "object:76",
-          "format": "none",
-          "label": "Percent Rank (%)",
-          "logBase": 1,
-          "max": "1.2",
-          "min": null,
-          "show": true
-        },
-        {
-          "$$hashKey": "object:77",
-          "format": "short",
-          "label": null,
-          "logBase": 1,
-          "max": null,
-          "min": null,
-          "show": false
-        }
-      ],
-      "yaxis": {
-        "align": false,
-        "alignLevel": null
-      }
-    },
-    {
-      "aliasColors": {},
-      "bars": true,
-      "dashLength": 10,
-      "dashes": false,
-      "datasource": "mysql",
-      "description": "The average age of incidents under different Jira Epics.",
-      "fill": 1,
-      "fillGradient": 0,
-      "gridPos": {
-        "h": 6,
-        "w": 24,
-        "x": 0,
-        "y": 139
-      },
-      "hiddenSeries": false,
-      "id": 67,
-      "legend": {
-        "avg": false,
-        "current": false,
-        "max": false,
-        "min": false,
-        "show": false,
-        "total": false,
-        "values": false
-      },
-      "lines": false,
-      "linewidth": 1,
-      "nullPointMode": "null",
-      "options": {
-        "alertThreshold": true
-      },
-      "percentage": false,
-      "pluginVersion": "8.0.6",
-      "pointradius": 2,
-      "points": false,
-      "renderer": "flot",
-      "seriesOverrides": [],
-      "spaceLength": 10,
-      "stack": false,
-      "steppedLine": false,
       "targets": [
         {
           "format": "time_series",
@@ -3853,7 +1218,7 @@
           "metricColumn": "none",
           "queryType": "randomWalk",
           "rawQuery": true,
-          "rawSql": "with _incidents as(\r\n  select\r\n    ji.id,\r\n    ji.epic_key,\r\n    ji.lead_time\r\n  from\r\n    jira_issues ji\r\n    join jira_board_issues jbi on ji.id = jbi.issue_id\r\n  where \r\n    type = 'Incident'\r\n    and resolution_date is not null\r\n    and epic_key is not null\r\n    and $__timeFilter(resolution_date)\r\n    and jbi.board_id = $board_id\r\n)\r\n\r\nselect \r\n  now() as time,\r\n  epic_key as metric,\r\n  avg(lead_time) as value\r\nfrom _incidents\r\ngroup by 1,2\r\norder by avg(lead_time) desc\r\nlimit 20",
+          "rawSql": "with ic as (\n\tselect \n\t  to_char(issue_created_at, '$interval') as time,\n\t  count(*) as incident_count\n\tfrom \n\t  jira_issues ji \n\t  left join jira_board_issues jbi on jbi.issue_id = ji.id\n\twhere \n\t  jbi.board_id = $board_id\n\t  and ji.type = 'Incident'\n\t  and $__timeFilter(ji.issue_created_at)\n\tgroup by 1\n),\nloc as (\n\tselect \n\t  to_char(authored_date,'$interval') as time,\n\t  sum(additions + deletions) as line_count\n\tfrom \n\t  gitlab_commits gc \n\t  left join jira_board_gitlab_projects jbgp on jbgp.gitlab_project_id = gc.project_id\n\twhere \n\t  jbgp.jira_board_id = $board_id\n\t  and gc.title not like 'Merge branch %'\n\t  and $__timeFilter(authored_date)\n\tgroup by 1\n),\nincident_count_per_1k_loc as(\n  select \n    ic.time as time,\n    ic.incident_count::decimal / loc.line_count::decimal * 1000 as incident_count_per_1k_loc\n  from \n    loc\n    left join ic on ic.time = loc.time\n  where\n    ic.incident_count is not null \n    and loc.line_count is not null\n  order by time\n)\n\nselect \n  to_timestamp(time,'$interval') as time, \n  incident_count_per_1k_loc \nfrom incident_count_per_1k_loc;",
           "refId": "A",
           "select": [
             [
@@ -3875,50 +1240,8 @@
           ]
         }
       ],
-      "thresholds": [],
-      "timeFrom": null,
-      "timeRegions": [],
-      "timeShift": null,
-      "title": "Average Incident Age by Epic",
-      "tooltip": {
-        "shared": false,
-        "sort": 0,
-        "value_type": "individual"
-      },
-      "type": "graph",
-      "xaxis": {
-        "buckets": null,
-        "mode": "series",
-        "name": null,
-        "show": true,
-        "values": [
-          "total"
-        ]
-      },
-      "yaxes": [
-        {
-          "$$hashKey": "object:508",
-          "format": "short",
-          "label": "Incident Age (day)",
-          "logBase": 1,
-          "max": null,
-          "min": null,
-          "show": true
-        },
-        {
-          "$$hashKey": "object:509",
-          "format": "short",
-          "label": "",
-          "logBase": 1,
-          "max": null,
-          "min": null,
-          "show": true
-        }
-      ],
-      "yaxis": {
-        "align": false,
-        "alignLevel": null
-      }
+      "title": "Incident Count per 1k lines of code (Breakdown by Time)",
+      "type": "timeseries"
     }
   ],
   "refresh": "",
@@ -3926,7 +1249,7 @@
   "style": "dark",
   "tags": [
     "metrics",
-    "velocity"
+    "quality"
   ],
   "templating": {
     "list": [
@@ -3935,7 +1258,7 @@
         "current": {
           "selected": false,
           "text": "Month",
-          "value": "DAY"
+          "value": "YYYY-MM"
         },
         "description": null,
         "error": null,
@@ -3948,15 +1271,15 @@
           {
             "selected": false,
             "text": "Week",
-            "value": "DAYOFWEEK"
+            "value": "YYYY-WW"
           },
           {
             "selected": true,
             "text": "Month",
-            "value": "DAY"
+            "value": "YYYY-MM"
           }
         ],
-        "query": "Week : DAYOFWEEK, Month : DAY",
+        "query": "Week : YYYY-WW, Month : YYYY-MM",
         "queryValue": "",
         "skipUrlSync": false,
         "type": "custom"
@@ -3964,13 +1287,9 @@
       {
         "allValue": null,
         "current": {
-          "selected": true,
-          "text": [
-            "All"
-          ],
-          "value": [
-            "$__all"
-          ]
+          "selected": false,
+          "text": "All",
+          "value": "$__all"
         },
         "datasource": "mysql",
         "definition": "select distinct concat(name, ': ', id) from jira_boards",
@@ -3979,38 +1298,10 @@
         "hide": 0,
         "includeAll": true,
         "label": "Choose Board",
-        "multi": true,
+        "multi": false,
         "name": "board_id",
         "options": [],
         "query": "select distinct concat(name, ': ', id) from jira_boards",
-        "refresh": 1,
-        "regex": "/^(?<text>[^:]+): (?<value>\\d+)$/",
-        "skipUrlSync": false,
-        "sort": 0,
-        "type": "query"
-      },
-      {
-        "allValue": null,
-        "current": {
-          "selected": true,
-          "text": [
-            "All"
-          ],
-          "value": [
-            "$__all"
-          ]
-        },
-        "datasource": "mysql",
-        "definition": "select distinct concat(name, ': ', gitlab_id) from gitlab_projects",
-        "description": null,
-        "error": null,
-        "hide": 0,
-        "includeAll": true,
-        "label": "Choose Repo",
-        "multi": true,
-        "name": "repo_id",
-        "options": [],
-        "query": "select distinct concat(name, ': ', gitlab_id) from gitlab_projects",
         "refresh": 1,
         "regex": "/^(?<text>[^:]+): (?<value>\\d+)$/",
         "skipUrlSync": false,
@@ -4025,7 +1316,7 @@
   },
   "timepicker": {},
   "timezone": "",
-  "title": "Delivery Velocity",
-  "uid": "ZfaFQeM7k",
-  "version": 48
+  "title": "Delivery Quality",
+  "uid": "nUC-7tGnk",
+  "version": 6
 }
