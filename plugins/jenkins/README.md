@@ -13,7 +13,7 @@ In your `.env` file, you will need to set up
 
 ```
 # Jenkins configuration
-JENKINS_ENDPOINT=https://jenkins.merico.cn/ # your jenkins endpoint here
+JENKINS_ENDPOINT=https://jenkins.merico.cn/
 JENKINS_USERNAME=your user name here
 JENKINS_PASSWORD=your password or jenkins token here
 ```
