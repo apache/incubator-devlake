@@ -28,11 +28,11 @@ Section | Description | Documentation Link
 Data Sources | Links to specific plugin usage & details | [View Section](#data-source-plugins)
 Grafana | How to visualize the data | [View Section](#grafana)
 Requirements | Underlying software used | [View Section](#requirements)
-Setup | Steps to setup the project | [View Section](#setup)
+Setup | Steps to setup the project | [View Section](#user-setup) 
 Migrations | Commands for running migrations | [View Section](#migrations)
 Tests | Commands for running tests | [View Section](#tests)
-⚠️ (WIP) Build a Plugin | Details on how to make your own | [Link](src/plugins/README.md)
-⚠️ (WIP) Add Plugin Metrics | Guide to adding plugin metrics | [Link](src/plugins/HOW-TO-ADD-METRICS.md)
+⚠️ (WIP) Build a Plugin | Details on how to make your own | [Link](plugins/README.md) 
+⚠️ (WIP) Add Plugin Metrics | Guide to adding plugin metrics | [Link](plugins/HOW-TO-ADD-METRICS.md) 
 Contributing | How to contribute to this repo | [Link](CONTRIBUTING.md)
 
 
@@ -41,12 +41,13 @@ Contributing | How to contribute to this repo | [Link](CONTRIBUTING.md)
 
 Below is a list of _data source plugins_ used to collect & enrich data from specific sources. Each have a `README.md` file with basic setup, troubleshooting and metrics info.
 
-For more information on building a new _data source plugin_ see [Build a Plugin](src/plugins/README.md).
+For more information on building a new _data source plugin_ see [Build a Plugin](plugins/README.md).
 
 Section | Section Info | Docs
 ------------ | ------------- | -------------
-Jira | Metrics, Generating API Token, Find Project/Board ID | [Link](src/plugins/jira-pond/README.md)
-Gitlab | Metrics, Generating API Token | [Link](src/plugins/gitlab-pond/README.md)
+Jira | Metrics, Generating API Token, Find Project/Board ID | [Link](plugins/jira/README.md) 
+Gitlab | Metrics, Generating API Token | [Link](plugins/gitlab/README.md) 
+Jenkins | Metrics | [Link](plugins/jenkins/README.md) 
 
 ## Grafana<a id="grafana"></a>
 
@@ -56,7 +57,7 @@ All the details on provisioning, and customizing a dashboard can be found in the
 
 ---
 
-## Requirements<a id="requirements"></a>
+## Development Requirements<a id="requirements"></a>
 
 - <a href="https://docs.docker.com/get-docker" target="_blank">Docker</a>
 - <a href="https://golang.org/doc/install" target="_blank">Golang</a>
@@ -72,66 +73,58 @@ All the details on provisioning, and customizing a dashboard can be found in the
 
 ### Required Packages to Install<a id="user-setup-requirements"></a>
 
-- <a href="https://docs.docker.com/get-docker" target="_blank">Docker</a>
+- [Docker](https://docs.docker.com/get-docker)
+- [docker-compose](https://docs.docker.com/compose/install/)
 
 **NOTE:** After installing docker, you may need to run the docker application and restart your terminal
 
 ### Commands to run in your terminal<a id="user-setup-commands"></a>
 
-1. Navigate to where you would like to install this project and clone the repository  
-```shell
-# TODO: should change default branch to go-main
-git clone https://github.com/merico-dev/lake.git
-cd lake
-```
+1. Create a directory and download files
 
-2. Copy an `.env` file from `.env.example`
-```shell
-cp .env.example .env
-```
+   ```sh
+   mkdir devlake
+   cd devlake
+   curl -sLo docker-compose.yml https://github.com/merico-dev/lake/raw/go-main/docker-compose.yml
+   curl -sLo .env https://github.com/merico-dev/lake/raw/go-main/.env.example
+   ```
 
-3. Fill the values in `Jira`, `Gitlab` and `Jenkins` sections with your deployments.
+2. Open `.env` file with your editor, fill the values in `Jira`, `Gitlab` and `Jenkins` sections with your deployments.
+
 > For more info on how to configure plugins, please refer to the [data source plugins](#data-source-plugins) section
 
-> TODO: ~~To map a custom status for a plugin refer to /config/plugins.js
-Ex: In Jira, if you're using Rejected as a Bug type, refer to the statusMappings sections for issues mapped to "Bug"
-All statusMappings contain 2 objects. an open status (first object), and a closed status (second object)~~
+3. Launch `docker-compose`
 
-4. Start the services and check services' status
-```shell
-# start all services
-docker-compose up -d
-# check service status
-docker-compose ps
-# stop all services
-# docker-compose down
-```
+   ```shell
+   docker-compose up
+   ```
 
-5. Create a http request to trigger data collect tasks, please replace your [gitlab projectId](plugins/gitlab/README.md#finding-project-id) and [jira boardId](plugins/jira/README.md#find-board-id) in the request body. This can take up to 20 minutes for large projects. (gitlab 10k+ commits or jira 5k+ issues)  
-```shell
-curl --location --request POST 'localhost:8080/task' \
---header 'Content-Type: application/json' \
---data-raw '[
-    {
-        "Plugin": "gitlab",
-        "Options": {
-            "projectId": 20103385
-        }
-    },
-    {
-        "Plugin": "jira",
-        "Options": {
-            "boardId": 8
-        }
-    },
-    {
-        "Plugin": "jenkins",
-        "Options": {}
-    }
-]'
-```
+4. Create a http request to trigger data collect tasks, please replace your [gitlab projectId](plugins/gitlab/README.md#finding-project-id) and [jira boardId](plugins/jira/README.md#find-board-id) in the request body. This can take up to 20 minutes for large projects. (gitlab 10k+ commits or jira 5k+ issues)
 
-6. Navigate to grafana dashboard `http://localhost:3002` (username: `admin`, password: `admin`).
+   ```shell
+   curl -XPOST 'http://localhost:8080/task' \
+   -H 'Content-Type: application/json' \
+   -d '[
+       {
+           "plugin": "gitlab",
+           "options": {
+               "projectId": 8967944
+           }
+       },
+       {
+           "plugin": "jira",
+           "options": {
+               "boardId": 8
+           }
+       },
+       {
+           "plugin": "jenkins",
+           "options": {}
+       }
+   ]'
+   ```
+
+5. Navigate to grafana dashboard `http://localhost:3002` (username: `admin`, password: `admin`).
 
 ## Development Setup<a id="development-setup"></a>
 
@@ -171,11 +164,11 @@ curl --location --request POST 'localhost:8080/task' \
 6. You can now post to /task to create a jira task. This will collect data from Jira
 
     ```
-    curl --location --request POST 'localhost:8080/task' \
-    --header 'Content-Type: application/json' \
-    --data-raw '[{
-        "Plugin": "jira",
-        "Options": {
+    curl -XPOST 'localhost:8080/task' \
+    -H 'Content-Type: application/json' \
+    -d '[{
+        "plugin": "jira",
+        "options": {
             "boardId": 8
         }
     }]'
@@ -188,11 +181,11 @@ curl --location --request POST 'localhost:8080/task' \
     **Example:**
 
     ```sh
-    curl --location --request POST 'localhost:8080/source' \
-    --header 'Content-Type: application/json' \
-    --data-raw '[{
-        "Plugin": "Jira",
-        "Options": {}
+    curl -XPOST 'localhost:8080/source' \
+    -H 'Content-Type: application/json' \
+    -d '[{
+        "plugin": "Jira",
+        "options": {}
 
     }]'
     ```
