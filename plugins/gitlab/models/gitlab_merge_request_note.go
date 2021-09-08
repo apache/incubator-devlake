@@ -8,7 +8,7 @@ type GitlabMergeRequestNote struct {
 	GitlabId        int `gorm:"primary_key"`
 	NoteableId      int
 	MergeRequestId  int
-	MergeRequest    GitlabMergeRequest `gorm:"foreignKey:MergeRequestId;references:Iid"`
+	MergeRequest    int
 	NoteableType    string
 	AuthorUsername  string
 	Body            string
