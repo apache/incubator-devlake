@@ -7,6 +7,7 @@ import (
 	lakeModels "github.com/merico-dev/lake/models"
 	"github.com/merico-dev/lake/plugins/core"
 	"github.com/merico-dev/lake/plugins/jira/models"
+	"gorm.io/gorm/clause"
 )
 
 type JiraApiLocation struct {
@@ -49,7 +50,9 @@ func CollectBoard(boardId uint64) error {
 		Self:      jiraApiBoard.Self,
 		Type:      jiraApiBoard.Type,
 	}
-	err = lakeModels.Db.Save(jiraBoard).Error
+	err = lakeModels.Db.Clauses(clause.OnConflict{
+		UpdateAll: true,
+	}).Create(jiraBoard).Error
 	if err != nil {
 		logger.Error("Error: ", err)
 	}
