@@ -61,11 +61,16 @@ func CollectChangelogs(boardId uint64) error {
 		return err
 	}
 
-	scheduler, err := utils.NewWorkerScheduler(20, 50)
+	changelogScheduler, err := utils.NewWorkerScheduler(10, 50)
 	if err != nil {
 		return err
 	}
-	defer scheduler.Release()
+	issueScheduler, err := utils.NewWorkerScheduler(10, 50)
+	if err != nil {
+		return err
+	}
+	defer changelogScheduler.Release()
+	defer issueScheduler.Release()
 	jiraApiClient := GetJiraApiClient()
 
 	// iterate all rows
@@ -74,16 +79,27 @@ func CollectChangelogs(boardId uint64) error {
 		if err != nil {
 			return err
 		}
-		err = collectChangelogsByIssueId(scheduler, jiraApiClient, jiraIssue.ID)
-		if err != nil {
-			return err
-		}
-		err = lakeModels.Db.Model(jiraIssue).Update("changelog_updated", jiraIssue.Updated).Error
+		//fmt.Printf("submit task for changelog %v\n", jiraIssue.ID)
+		issueId := jiraIssue.ID
+		updated := jiraIssue.Updated
+		err = issueScheduler.Submit(func() error {
+			err = collectChangelogsByIssueId(changelogScheduler, jiraApiClient, issueId)
+			if err != nil {
+				return err
+			}
+			issue := &models.JiraIssue{Model: lakeModels.Model{ID: issueId}}
+			err = lakeModels.Db.Model(issue).Update("changelog_updated", updated).Error
+			if err != nil {
+				return err
+			}
+			return nil
+		})
 		if err != nil {
 			return err
 		}
 	}
-	scheduler.WaitUntilFinish()
+	issueScheduler.WaitUntilFinish()
+	changelogScheduler.WaitUntilFinish()
 
 	return nil
 }
