@@ -25,26 +25,32 @@ func (plugin Gitlab) Execute(options map[string]interface{}, progress chan<- flo
 		logger.Print("boardId is invalid")
 		return
 	}
-	c := make(chan bool)
-	go func() {
-		err := tasks.CollectProjects(projectIdInt, c)
-		if err != nil {
-			logger.Error("Could not collect projects: ", err)
-			return
-		}
-	}()
-	<-c
-	err := tasks.CollectCommits(projectIdInt)
-	if err != nil {
-		logger.Error("Could not collect commits: ", err)
-		return
-	}
 
-	mergeRequestErr := tasks.CollectMergeRequests(projectIdInt)
-	if mergeRequestErr != nil {
-		logger.Error("Could not collect merge requests: ", mergeRequestErr)
+	enrichErr := tasks.EnrichMergeRequests()
+	if enrichErr != nil {
+		logger.Error("Could not enrich merge requests", enrichErr)
 		return
 	}
+	// c := make(chan bool)
+	// go func() {
+	// 	err := tasks.CollectProjects(projectIdInt, c)
+	// 	if err != nil {
+	// 		logger.Error("Could not collect projects: ", err)
+	// 		return
+	// 	}
+	// }()
+	// <-c
+	// err := tasks.CollectCommits(projectIdInt)
+	// if err != nil {
+	// 	logger.Error("Could not collect commits: ", err)
+	// 	return
+	// }
+
+	// mergeRequestErr := tasks.CollectMergeRequests(projectIdInt)
+	// if mergeRequestErr != nil {
+	// 	logger.Error("Could not collect merge requests: ", mergeRequestErr)
+	// 	return
+	// }
 	progress <- 1
 
 	close(progress)
