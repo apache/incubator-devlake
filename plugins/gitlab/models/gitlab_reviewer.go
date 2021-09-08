@@ -8,7 +8,7 @@ type GitlabReviewer struct {
 	GitlabId       int `gorm:"primary_key"`
 	MergeRequestId int
 	ProjectId      int
-	MergeRequest   GitlabMergeRequest `gorm:"foreignKey:MergeRequestId"`
+	MergeRequest   int
 	Name           string
 	Username       string
 	State          string
