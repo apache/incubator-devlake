@@ -2,6 +2,7 @@ package tasks
 
 import (
 	"fmt"
+	"io/ioutil"
 	"net/http"
 	"strconv"
 	"strings"
@@ -36,23 +37,47 @@ func CreateApiClient() *GitlabApiClient {
 
 type GitlabPaginationHandler func(res *http.Response) error
 
-func getTotal(resourceUriFormat string) (int, error) {
+func getTotal(resourceUriFormat string) (int, int, error) {
 	// jsut get the first page of results. The response has a head that tells the total pages
 	page := 0
 	page_size := 1
 	res, err := gitlabApiClient.Get(fmt.Sprintf(resourceUriFormat, page_size, page), nil, nil)
 
 	if err != nil {
-		return 0, err
+		resBody, err := ioutil.ReadAll(res.Body)
+		if err != nil {
+			logger.Error("UnmarshalResponse failed: ", string(resBody))
+			return 0, 0, err
+		}
+		logger.Print(string(resBody) + "\n")
+		return 0, 0, err
 	}
 
+	totalInt := -1
 	total := res.Header.Get("X-Total")
-	totalInt, err := convertStringToInt(total)
-	if err != nil {
-		return 0, err
+	if total != "" {
+		totalInt, err = convertStringToInt(total)
+		if err != nil {
+			return 0, 0, err
+		}
 	}
 	logger.Info("JON >>> totalInt", totalInt)
-	return totalInt, nil
+
+	rateRemaining := res.Header.Get("ratelimit-remaining")
+	date, err := http.ParseTime(res.Header.Get("date"))
+	if err != nil {
+		return 0, 0, err
+	}
+	rateLimitResetTime, err := http.ParseTime(res.Header.Get("ratelimit-resettime"))
+	if err != nil {
+		return 0, 0, err
+	}
+	rateLimitInt, err := strconv.Atoi(rateRemaining)
+	if err != nil {
+		return 0, 0, err
+	}
+	rateLimitPerSecond := rateLimitInt / int(rateLimitResetTime.Unix()-date.Unix()) * 9 / 10
+	return totalInt, rateLimitPerSecond, nil
 }
 
 func convertStringToInt(input string) (int, error) {
@@ -70,8 +95,14 @@ func (gitlabApiClient *GitlabApiClient) FetchWithPaginationAnts(resourceUri stri
 	} else {
 		resourceUriFormat = resourceUri + "?per_page=%v&page=%v"
 	}
-	rateLimitPerSecond := 2000 / 60
+	// We need to get the total pages first so we can loop through all requests concurrently
+	total, rateLimitPerSecond, err := getTotal(resourceUriFormat)
+	if err != nil {
+		return err
+	}
+
 	workerNum := 50
+	logger.Info("rateLimitPerSecond: %v", rateLimitPerSecond)
 	// set up the worker pool
 	scheduler, err := utils.NewWorkerScheduler(workerNum, rateLimitPerSecond)
 	if err != nil {
@@ -80,31 +111,69 @@ func (gitlabApiClient *GitlabApiClient) FetchWithPaginationAnts(resourceUri stri
 
 	defer scheduler.Release()
 
-	// We need to get the total pages first so we can loop through all requests concurrently
-	total, err := getTotal(resourceUriFormat)
+	// not all api return x-total header, use step concurrency
+	if total == -1 {
+		conc := 10
+		step := 0
+		c := make(chan bool)
+		for {
+			for i := conc; i > 0; i-- {
+				page := step*conc + i
+				err := scheduler.Submit(func() error {
+					url := fmt.Sprintf(resourceUriFormat, pageSizeInt, page)
+					res, err := gitlabApiClient.Get(url, nil, nil)
+					if err != nil {
+						c <- false
+						return err
+					}
+					handlerErr := handler(res)
+					if handlerErr != nil {
+						c <- false
+						return handlerErr
+					}
+					_, err = strconv.ParseInt(res.Header.Get("X-Next-Page"), 10, 32)
+					if err != nil { // any page in current step has no next, stop
+						c <- false
+					} else if page%conc == 0 { // last page has next, go go go
+						fmt.Printf("page: %v send true\n", page)
+						c <- true
+					}
+					return nil
+				})
+				if err != nil {
+					return err
+				}
+			}
+			cont := <-c
+			if !cont {
+				break
+			}
+			step += 1
+		}
+	} else {
+		// Loop until all pages are requested
+		for i := 1; (i * pageSizeInt) <= (total + pageSizeInt); i++ {
+			// we need to save the value for the request so it is not overwritten
+			currentPage := i
+			err1 := scheduler.Submit(func() error {
+				url := fmt.Sprintf(resourceUriFormat, pageSizeInt, currentPage)
 
-	// Loop until all pages are requested
-	for i := 0; (i * pageSizeInt) <= (total + pageSizeInt); i++ {
-		// we need to save the value for the request so it is not overwritten
-		currentPage := i
-		err1 := scheduler.Submit(func() error {
-			url := fmt.Sprintf(resourceUriFormat, pageSizeInt, currentPage)
+				res, err := gitlabApiClient.Get(url, nil, nil)
 
-			res, err := gitlabApiClient.Get(url, nil, nil)
+				if err != nil {
+					return err
+				}
 
-			if err != nil {
+				handlerErr := handler(res)
+				if handlerErr != nil {
+					return handlerErr
+				}
+				return nil
+			})
+
+			if err1 != nil {
 				return err
 			}
-
-			handlerErr := handler(res)
-			if handlerErr != nil {
-				return handlerErr
-			}
-			return nil
-		})
-
-		if err1 != nil {
-			return err
 		}
 	}
 
@@ -126,7 +195,7 @@ func (gitlabApiClient *GitlabApiClient) FetchWithPagination(resourceUri string, 
 	}
 
 	// We need to get the total pages first so we can loop through all requests concurrently
-	total, _ := getTotal(resourceUriFormat)
+	total, _, _ := getTotal(resourceUriFormat)
 
 	// Loop until all pages are requested
 	for i := 0; (i * pageSizeInt) < total; i++ {
