@@ -16,7 +16,7 @@
   "gnetId": null,
   "graphTooltip": 0,
   "id": 3,
-  "iteration": 1631021524292,
+  "iteration": 1631109310804,
   "links": [
     {
       "asDropdown": false,
@@ -47,29 +47,6 @@
   ],
   "panels": [
     {
-      "datasource": null,
-      "gridPos": {
-        "h": 4,
-        "w": 24,
-        "x": 0,
-        "y": 0
-      },
-      "id": 18,
-      "options": {
-        "content": "<div style=\"display: block;text-align: center;margin-top: 56px;\">\n  <div style=\"display: inline-flex;\">\n    <img src=\"/public/img/lake/1.png\" alt=\"No.1\" width=\"56\">\n    <p style=\"font-size:24px; margin:10px; color:#BFC1C8;\"><b>Development<b></b></b></p><b><b>\n  </div>\n</div>",
-        "mode": "html"
-      },
-      "pluginVersion": "8.0.6",
-      "targets": [
-        {
-          "queryType": "randomWalk",
-          "refId": "A"
-        }
-      ],
-      "transparent": true,
-      "type": "text"
-    },
-    {
       "datasource": "mysql",
       "description": "1. Number of people who have created or reviewed a Pull/Merge Request.\n2. The PR/MR being calculated are filtered by \"PR/MR creation time\" (time filter at the upper-right corner).",
       "fieldConfig": {
@@ -96,7 +73,7 @@
         "h": 6,
         "w": 24,
         "x": 0,
-        "y": 4
+        "y": 0
       },
       "id": 9,
       "options": {
@@ -172,7 +149,7 @@
         "h": 6,
         "w": 8,
         "x": 0,
-        "y": 10
+        "y": 6
       },
       "id": 13,
       "options": {
@@ -197,7 +174,7 @@
           "group": [],
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "SELECT\n  now() AS \"time\",\n  count(distinct author_name) as value\nFROM gitlab_commits\nWHERE\n  $__timeFilter(authored_date)\n  and project_id = $repo_id\ngroup by 1\nORDER BY 1",
+          "rawSql": "SELECT\n  now() AS time,\n  count(distinct author_name) as value\nFROM gitlab_commits\nWHERE\n  $__timeFilter(authored_date)\n  and project_id = $repo_id\ngroup by 1\nORDER BY 1",
           "refId": "A",
           "select": [
             [
@@ -248,7 +225,7 @@
         "h": 6,
         "w": 8,
         "x": 8,
-        "y": 10
+        "y": 6
       },
       "id": 8,
       "options": {
@@ -329,7 +306,7 @@
         "h": 6,
         "w": 8,
         "x": 16,
-        "y": 10
+        "y": 6
       },
       "id": 16,
       "options": {
@@ -397,8 +374,8 @@
         "allValue": null,
         "current": {
           "selected": false,
-          "text": "vdev.co",
-          "value": "8967944"
+          "text": "All",
+          "value": "$__all"
         },
         "datasource": "mysql",
         "definition": "select distinct concat(name, ': ', gitlab_id) from gitlab_projects",
@@ -420,12 +397,12 @@
     ]
   },
   "time": {
-    "from": "now-5y",
+    "from": "now-6M",
     "to": "now"
   },
   "timepicker": {},
   "timezone": "",
   "title": "Delivery Cost",
   "uid": "TV-BnpM7k",
-  "version": 1
+  "version": 5
 }
