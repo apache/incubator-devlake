@@ -123,20 +123,22 @@ func (gitlabApiClient *GitlabApiClient) FetchWithPaginationAnts(resourceUri stri
 					url := fmt.Sprintf(resourceUriFormat, pageSizeInt, page)
 					res, err := gitlabApiClient.Get(url, nil, nil)
 					if err != nil {
-						c <- false
 						return err
 					}
 					handlerErr := handler(res)
 					if handlerErr != nil {
-						c <- false
 						return handlerErr
 					}
 					_, err = strconv.ParseInt(res.Header.Get("X-Next-Page"), 10, 32)
-					if err != nil { // any page in current step has no next, stop
-						c <- false
-					} else if page%conc == 0 { // last page has next, go go go
-						fmt.Printf("page: %v send true\n", page)
-						c <- true
+					// only send message to channel if I'm the last page
+					if page % conc == 0 {
+						if err != nil {
+							fmt.Println(page, "has no next page")
+							c <- false
+						} else {
+							fmt.Printf("page: %v send true\n", page)
+							c <- true
+						}
 					}
 					return nil
 				})
@@ -178,7 +180,6 @@ func (gitlabApiClient *GitlabApiClient) FetchWithPaginationAnts(resourceUri stri
 	}
 
 	scheduler.WaitUntilFinish()
-
 	return nil
 }
 
