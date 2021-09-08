@@ -129,14 +129,9 @@
         "y": 0
       },
       "id": 9,
-      "links": [
-        {
-          "title": "研发效能指标MARI指南",
-          "url": "https://merico.feishu.cn/docs/doccnDqL7k1grCcisSeBOVlU7oe"
-        }
-      ],
+      "links": [],
       "options": {
-        "content": "![Merico Logo](/public/img/lake/logo.png \"Merico\")\n***\n# **R&D Performance Metrics Analysis Guide(To Be Translated)**\n***\n### 事故关闭周期\n***\n- **度量**（Measure）\n（描述该指标的统计方法）\n    1. 统计说明：从项目或团队维度统计产品上线后运维周期内每个事故从发现到修复的时长，该时长来自于事故从提交到修复过程中各状态流转时长的累加。\n    2. 统计方法：对各事故从发现到修复的状态时长求平均，得到项目或团队维度平均事故关闭周期。\n\n\n- **分析**（Analysis）\n（描述如何分析该指标，基于分析范围，给出分析方法、可能的话，给出典型分析结论。）\n    1. 按项目或团队维度，横向分析、比较事故关闭总时长，即事故关闭周期，观察最大值、最小值及各数值间的差异，给出初步分析结论。\n    2. 进一步分析，事故从打开到关闭过程中各流转状态的时长，识别耗时最多的瓶颈状态，并提供量化分析结论。\n\n\n- **调研**（Review）\n（基于量化分析结果，对异常数据或分析结果进行根本原因挖掘、调研分析结果与实际情况是否一致，可能的话，给出根因分析方法。）\n对应项目/团队，基于指标分析结果，采用石川图（鱼骨图）或根因分析法（RCA），对事故关闭周期偏长、驻留时间最长的状态，进行根本原因的挖掘，并给出根因分析。例如：是否存在冗余等待、状态更新不及时等流程及行为原因造成的某一状态下驻留时间过长。\n\n\n- **改进**（Improve）\n（根据调研的根因分析，描述如何从流程、工具、行为等方面进行针对性改进，明确提升目标、改进措施、验证周期及责任人。）\n针对调研结果，对阻塞环节，从规范、流程、工具、行为等方面给出针对性改进措施，明确提升目标、改进措施、验证周期及责任人。针对改进效果做新一轮的MARI（度量、分析、调研、验证），量化提升效果。\n\n\n***\n### 代码评审人数\n***\n### 代码评审通过率    \n***    \n\nRead the full article: https://merico.feishu.cn/docs/doccnDqL7k1grCcisSeBOVlU7oe#4Tr7Rt",
+        "content": "![Merico Logo](/public/img/lake/logo.png \"Merico\")\n***\n# **MARI Introduction**\n***\nMARI is a methodology developed specifically to bring the process of data driven software  engineering to organizations of all sizes in a simple and organized way; empowering them to translate measurement into insight, and insight into results. MARI is a cycle of iterations, focused on mapping challenges to metrics, metrics to actions, and actions to improvements. \n<br><br>\n\n\n#### *M (Measure)*\n    \nGreat answers require great questions. To get started, identify specific and clearly definable pain points in your development processes or teams, set tightly constrained goals, and then with team consensus, prioritize those goals. From here, identify 'North Star' metrics and measurements that map to each goal. Once you have clearly defined and documented the pain-points, mapped them to metrics, and prioritized, it's time to standardize these metrics and methods across teams. \n\n##### *A (Analyze)*\n\nEffective measures are only as good as the analysis that gets applied to them. To understand productivity in an effective and quantitative way, look towards key attributes like trend, distribution, variability, dispersion, and periodicity. These analysis techniques can uncover problems and opportunities. \n\n##### *R (Review)*\n\nOnce you have equipped yourself with the results of the analysis, it's time to coherently review them and discover what hinders your team from reaching full potential. With key stakeholders in the conversation, assess your workflow, toolset, developer satisfaction and many other aspects with an eye towards identifying cause and effect. It is critical that this part of the process is focused on the real root causes, not blame. Review should involve those affected, and those with the responsibility. \n\n##### *I (Improve)*\n\nAfter review, it's time to prepare a defined and clear iteration. What actions can be taken to potentially address the areas of opportunity? These actions should be clear, defined, measurable, and focused enough that success or failure can be clearly identified and attributed. In larger organizations, consider A/B testing the action plan between a few teams, and be sure to test and assess action plans at smaller scale before implementing enterprise-wide. \n    \nAs you implement action plans for improvement, refresh your MARI cycle to coherently drive progress and evolution.\n\n",
         "mode": "markdown"
       },
       "pluginVersion": "8.0.6",
@@ -345,5 +340,5 @@
   "timezone": "",
   "title": "Homepage",
   "uid": "RXJZNpMnz",
-  "version": 5
+  "version": 13
 }
