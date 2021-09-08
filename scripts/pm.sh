@@ -78,4 +78,22 @@ gitlab() {
     JSON
 }
 
+jenkins() {
+    curl -v -XPOST $LAKE_TASK_URL --data @- <<'    JSON'
+    [
+            {
+                "plugin": "jenkins",
+                "options": {}
+            }
+    ]
+    JSON
+}
+
+truncate() {
+    SQL=$()
+    echo "SET FOREIGN_KEY_CHECKS=0;"
+    echo 'show tables' | mycli local-lake | tail -n +2 | xargs -I{} -n 1 echo "truncate table {};"
+    echo "SET FOREIGN_KEY_CHECKS=1;"
+}
+
 "$@"
