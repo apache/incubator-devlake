@@ -10,6 +10,11 @@ debug() {
     dlv debug
 }
 
+run() {
+    scripts/compile-plugins.sh
+    go run main.go
+}
+
 jira() {
     curl -v -XPOST $LAKE_TASK_URL --data @- <<'    JSON'
     [
@@ -33,6 +38,42 @@ jira_enrich_issues() {
                 "tasks": [ "enrichIssues" ]
             }
         }
+    ]
+    JSON
+}
+
+all() {
+    curl -v -XPOST $LAKE_TASK_URL --data @- <<'    JSON'
+    [
+            {
+                "plugin": "gitlab",
+                "options": {
+                    "projectId": 8967944
+                }
+            },
+            {
+                "plugin": "jira",
+                "options": {
+                    "boardId": 8
+                }
+            },
+            {
+                "plugin": "jenkins",
+                "options": {}
+            }
+    ]
+    JSON
+}
+
+gitlab() {
+    curl -v -XPOST $LAKE_TASK_URL --data @- <<'    JSON'
+    [
+            {
+                "plugin": "gitlab",
+                "options": {
+                    "projectId": 8967944
+                }
+            }
     ]
     JSON
 }
