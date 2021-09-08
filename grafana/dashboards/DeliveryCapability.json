@@ -16,7 +16,7 @@
   "gnetId": null,
   "graphTooltip": 0,
   "id": 7,
-  "iteration": 1631021530677,
+  "iteration": 1631109328117,
   "links": [
     {
       "asDropdown": false,
@@ -425,9 +425,9 @@
       {
         "allValue": null,
         "current": {
-          "selected": false,
-          "text": "Week",
-          "value": "DAYOFWEEK"
+          "selected": true,
+          "text": "Month",
+          "value": "DAY"
         },
         "description": null,
         "error": null,
@@ -438,12 +438,12 @@
         "name": "interval",
         "options": [
           {
-            "selected": true,
+            "selected": false,
             "text": "Week",
             "value": "DAYOFWEEK"
           },
           {
-            "selected": false,
+            "selected": true,
             "text": "Month",
             "value": "DAY"
           }
@@ -456,12 +456,12 @@
     ]
   },
   "time": {
-    "from": "now-5y",
+    "from": "now-6M",
     "to": "now"
   },
   "timepicker": {},
   "timezone": "",
   "title": "Delivery Capability",
   "uid": "3Lv1ImSnk",
-  "version": 27
+  "version": 30
 }
