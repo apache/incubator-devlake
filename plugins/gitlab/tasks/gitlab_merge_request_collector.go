@@ -11,7 +11,7 @@ import (
 	"gorm.io/gorm/clause"
 )
 
-type ApiMergeRequestResponse []struct {
+type MergeRequestRes struct {
 	GitlabId        int `json:"id"`
 	Iid             int
 	ProjectId       int `json:"project_id"`
@@ -31,13 +31,16 @@ type ApiMergeRequestResponse []struct {
 	Author struct {
 		Username string `json:"username"`
 	}
-	Reviewers []Reviewer
+	Reviewers        []Reviewer
+	FirstCommentTime string
 }
 
-func CollectMergeRequests(projectId int) error {
+type ApiMergeRequestResponse []MergeRequestRes
+
+func CollectMergeRequests(projectId int, c chan *ApiMergeRequestResponse) error {
 	gitlabApiClient := CreateApiClient()
 
-	return gitlabApiClient.FetchWithPaginationAnts(fmt.Sprintf("projects/%v/merge_requests", projectId), "100",
+	return gitlabApiClient.FetchWithPaginationAnts(fmt.Sprintf("projects/%v/merge_requests", projectId), 100,
 		func(res *http.Response) error {
 			gitlabApiResponse := &ApiMergeRequestResponse{}
 
@@ -77,17 +80,8 @@ func CollectMergeRequests(projectId int) error {
 
 				CreateReviewers(projectId, mr.GitlabId, mr.Reviewers)
 
-				notesErr := CollectMergeRequestNotes(projectId, gitlabMergeRequest)
-
-				if notesErr != nil {
-					logger.Error("Could not collect MR Notes", notesErr)
-				}
-
-				commitsErr := CollectMergeRequestCommits(projectId, gitlabMergeRequest)
-				if commitsErr != nil {
-					logger.Error("Could not collect MR Commits", commitsErr)
-				}
 			}
+			c <- gitlabApiResponse
 
 			return nil
 

@@ -17,17 +17,18 @@ type ApiMergeRequestCommitResponse []struct {
 	CommitId string `json:"id"`
 }
 
-func CollectMergeRequestCommits(projectId int, mr *models.GitlabMergeRequest) error {
+func CollectMergeRequestCommits(projectId int, mr *MergeRequestRes) error {
 	gitlabApiClient := CreateApiClient()
 
 	getUrl := fmt.Sprintf("projects/%v/merge_requests/%v/commits", projectId, mr.Iid)
-	return gitlabApiClient.FetchWithPaginationAnts(getUrl, "100",
+	return gitlabApiClient.FetchWithPagination(getUrl, 100,
 		func(res *http.Response) error {
 			gitlabApiResponse := &ApiMergeRequestCommitResponse{}
 			err := core.UnmarshalResponse(res, gitlabApiResponse)
 
 			if err != nil {
 				logger.Error("Error: ", err)
+				logger.Error("Error: ", res)
 				return nil
 			}
 			for _, commit := range *gitlabApiResponse {

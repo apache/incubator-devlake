@@ -61,7 +61,6 @@ func getTotal(resourceUriFormat string) (int, int, error) {
 			return 0, 0, err
 		}
 	}
-	logger.Info("JON >>> totalInt", totalInt)
 
 	rateRemaining := res.Header.Get("ratelimit-remaining")
 	date, err := http.ParseTime(res.Header.Get("date"))
@@ -85,9 +84,7 @@ func convertStringToInt(input string) (int, error) {
 }
 
 // run all requests in an Ants worker pool
-func (gitlabApiClient *GitlabApiClient) FetchWithPaginationAnts(resourceUri string, pageSize string, handler GitlabPaginationHandler) error {
-
-	pageSizeInt, _ := convertStringToInt(pageSize)
+func (gitlabApiClient *GitlabApiClient) FetchWithPaginationAnts(resourceUri string, pageSize int, handler GitlabPaginationHandler) error {
 
 	var resourceUriFormat string
 	if strings.ContainsAny(resourceUri, "?") {
@@ -102,7 +99,6 @@ func (gitlabApiClient *GitlabApiClient) FetchWithPaginationAnts(resourceUri stri
 	}
 
 	workerNum := 50
-	logger.Info("rateLimitPerSecond: %v", rateLimitPerSecond)
 	// set up the worker pool
 	scheduler, err := utils.NewWorkerScheduler(workerNum, rateLimitPerSecond)
 	if err != nil {
@@ -113,14 +109,16 @@ func (gitlabApiClient *GitlabApiClient) FetchWithPaginationAnts(resourceUri stri
 
 	// not all api return x-total header, use step concurrency
 	if total == -1 {
+		// TODO: How do we know how high we can set the conc? Is is rateLimit?
 		conc := 10
 		step := 0
 		c := make(chan bool)
 		for {
+			logger.Info("JON >>> step", step)
 			for i := conc; i > 0; i-- {
 				page := step*conc + i
 				err := scheduler.Submit(func() error {
-					url := fmt.Sprintf(resourceUriFormat, pageSizeInt, page)
+					url := fmt.Sprintf(resourceUriFormat, pageSize, page)
 					res, err := gitlabApiClient.Get(url, nil, nil)
 					if err != nil {
 						return err
@@ -131,7 +129,7 @@ func (gitlabApiClient *GitlabApiClient) FetchWithPaginationAnts(resourceUri stri
 					}
 					_, err = strconv.ParseInt(res.Header.Get("X-Next-Page"), 10, 32)
 					// only send message to channel if I'm the last page
-					if page % conc == 0 {
+					if page%conc == 0 {
 						if err != nil {
 							fmt.Println(page, "has no next page")
 							c <- false
@@ -154,11 +152,11 @@ func (gitlabApiClient *GitlabApiClient) FetchWithPaginationAnts(resourceUri stri
 		}
 	} else {
 		// Loop until all pages are requested
-		for i := 1; (i * pageSizeInt) <= (total + pageSizeInt); i++ {
+		for i := 1; (i * pageSize) <= (total + pageSize); i++ {
 			// we need to save the value for the request so it is not overwritten
 			currentPage := i
 			err1 := scheduler.Submit(func() error {
-				url := fmt.Sprintf(resourceUriFormat, pageSizeInt, currentPage)
+				url := fmt.Sprintf(resourceUriFormat, pageSize, currentPage)
 
 				res, err := gitlabApiClient.Get(url, nil, nil)
 
@@ -184,9 +182,7 @@ func (gitlabApiClient *GitlabApiClient) FetchWithPaginationAnts(resourceUri stri
 }
 
 // fetch paginated without ANTS worker pool
-func (gitlabApiClient *GitlabApiClient) FetchWithPagination(resourceUri string, pageSize string, handler GitlabPaginationHandler) error {
-
-	pageSizeInt, _ := convertStringToInt(pageSize)
+func (gitlabApiClient *GitlabApiClient) FetchWithPagination(resourceUri string, pageSize int, handler GitlabPaginationHandler) error {
 
 	var resourceUriFormat string
 	if strings.ContainsAny(resourceUri, "?") {
@@ -199,10 +195,10 @@ func (gitlabApiClient *GitlabApiClient) FetchWithPagination(resourceUri string, 
 	total, _, _ := getTotal(resourceUriFormat)
 
 	// Loop until all pages are requested
-	for i := 0; (i * pageSizeInt) < total; i++ {
+	for i := 0; (i * pageSize) < total; i++ {
 		// we need to save the value for the request so it is not overwritten
 		currentPage := i
-		url := fmt.Sprintf(resourceUriFormat, pageSizeInt, currentPage)
+		url := fmt.Sprintf(resourceUriFormat, pageSize, currentPage)
 
 		res, err := gitlabApiClient.Get(url, nil, nil)
 

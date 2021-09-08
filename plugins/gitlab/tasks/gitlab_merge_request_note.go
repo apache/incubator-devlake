@@ -49,7 +49,7 @@ func FindEarliestNote(notes *ApiMergeRequestNoteResponse) (*MergeRequestNote, er
 }
 
 // we need a metric that measures a merge request duration as the time from first comment to MR close
-func updateMergeRequestWithFirstCommentTime(notes *ApiMergeRequestNoteResponse, mr *models.GitlabMergeRequest) error {
+func updateMergeRequestWithFirstCommentTime(notes *ApiMergeRequestNoteResponse, mr *MergeRequestRes) error {
 	earliestNote, err := FindEarliestNote(notes)
 	if err != nil {
 		return err
@@ -68,11 +68,11 @@ func updateMergeRequestWithFirstCommentTime(notes *ApiMergeRequestNoteResponse, 
 	}
 	return nil
 }
-func CollectMergeRequestNotes(projectId int, mr *models.GitlabMergeRequest) error {
+func CollectMergeRequestNotes(projectId int, mr *MergeRequestRes) error {
 	gitlabApiClient := CreateApiClient()
 
 	getUrl := fmt.Sprintf("projects/%v/merge_requests/%v/notes?system=false", projectId, mr.Iid)
-	return gitlabApiClient.FetchWithPaginationAnts(getUrl, "100",
+	return gitlabApiClient.FetchWithPagination(getUrl, 100,
 		func(res *http.Response) error {
 
 			gitlabApiResponse := &ApiMergeRequestNoteResponse{}
@@ -106,6 +106,7 @@ func CollectMergeRequestNotes(projectId int, mr *models.GitlabMergeRequest) erro
 					return err
 				}
 			}
+
 			mergeRequestUpdateErr := updateMergeRequestWithFirstCommentTime(gitlabApiResponse, mr)
 			if mergeRequestUpdateErr != nil {
 				return err

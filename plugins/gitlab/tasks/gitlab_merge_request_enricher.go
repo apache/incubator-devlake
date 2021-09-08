@@ -24,6 +24,7 @@ func calculateReviewRounds(mr *gitlabModels.GitlabMergeRequest) error {
 	// }
 	return nil
 }
+
 func EnrichMergeRequests() error {
 	var mrs []gitlabModels.GitlabMergeRequest
 	tx := lakeModels.Db.Find(&mrs)
