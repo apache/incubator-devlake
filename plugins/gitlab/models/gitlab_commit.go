@@ -6,7 +6,7 @@ import (
 
 type GitlabCommit struct {
 	GitlabId       string `gorm:"primary_key"`
-	ProjectId      int
+	ProjectId      int    `gorm:"index"`
 	Title          string
 	Message        string
 	ShortId        string
