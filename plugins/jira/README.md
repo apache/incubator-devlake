@@ -1,8 +1,8 @@
-# Jira Pond
+# Jira
 
 ## Summary
 
-Jira pond is a plugin used by [lake](https://github.com/merico-dev/lake/blob/main/README.md). The main thing it does is make api requests for you to Jira to fetch data and enrich it into a postgres database. Once this is done, you can use [Grafana](https://grafana.com/), hosted by [Lake](https://github.com/merico-dev/lake/blob/main/README.md) with [docker-compose](https://docs.docker.com/compose/install/)
+Jira is a plugin used by [lake](https://github.com/merico-dev/lake/blob/main/README.md). The main thing it does is make api requests for you to Jira to fetch data and enrich it into a postgres database. Once this is done, you can use [Grafana](https://grafana.com/), hosted by [Lake](https://github.com/merico-dev/lake/blob/main/README.md) with [docker-compose](https://docs.docker.com/compose/install/)
 
 Currently, this is how data flows:
 
@@ -26,9 +26,28 @@ Incident Count | Number of issues with type "Incident"<br><i>incidents are found
 Incident Age | Lead time of issues with type "Incident"
 Incident Count per 1k Lines of Code | Amount of incidents per 1000 lines of code
 
-## ⚠️ (WIP) Configuration
+## Configuration
 
-- [ ] Add in specific configuration options and steps with new go setup here
+Set following Environment Variables before launching:
+
+```sh
+JIRA_ENDPOINT=https://merico.atlassian.net/rest
+# ex: echo -n <jira login email>:<jira token> | base64
+JIRA_BASIC_AUTH_ENCODED=emhl..........................................a0QzQUE=
+JIRA_ISSUE_EPIC_KEY_FIELD=customfield_10014
+JIRA_ISSUE_STORYPOINT_COEFFICIENT=1
+JIRA_ISSUE_STORYPOINT_FIELD=customfield_10024
+# Configure jira board / gitlab projects relationship in format BOARD_ID:PROJECT_ID1,PROJECT_ID2
+JIRA_BOARD_GITLAB_PROJECTS=8:8967944,8967945;9:8967946,8967947
+# JIRA_ISSUE_<ORIGIN_STATUS>_STATUS_MAPPING=<STANDARD_STATUS_1>:<ORIGIN_STATUS_1>,<ORIGIN_STATUS_2>;<STANDARD_STATUS_2>
+JIRA_ISSUE_BUG_STATUS_MAPPING=Resolved:Approved,Verified,Done,Closed;Reject:ByDesign,Irreproducible
+JIRA_ISSUE_INCIDENT_STATUS_MAPPING=Resolved:Done,Closed;Reject:ByDesign,Irreproducible
+JIRA_ISSUE_STORY_STATUS_MAPPING=Resolved:Verified,Done,Closed;Reject:Abandoned,Cancelled
+# STANDARD_TYPE_2:ORIGIN_TYPE_1,ORIGIN_TYPE_2;STANDARD_TYPE_2:....
+JIRA_ISSUE_TYPE_MAPPING=Requirement:Story
+```
+
+
 
 ## ⚠️ (WIP)Gathering Data with Jira
 
