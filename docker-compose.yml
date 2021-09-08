@@ -2,7 +2,7 @@ version: "3"
 services:
   mysql:
     hostname: mysqldb
-    image: mysql:latest
+    image: mysql:8.0.26
     volumes:
       - mysql-storage:/var/lib/mysql
     restart: always
@@ -13,15 +13,13 @@ services:
       MYSQL_DATABASE: lake
       MYSQL_USER: merico
       MYSQL_PASSWORD: merico
-  # redis:
-  #   image: redis:6
-  #   ports:
-  #     - 127.0.0.1:6379:6379
+    networks:
+      - lake
   grafana:
     hostname: grafana
     image: grafana/grafana:8.0.6
     ports:
-      - 127.0.0.1:3002:3000
+      - 3002:3000
     volumes:
       - grafana-storage:/var/lib/grafana
       - ./grafana/provisioning:/etc/grafana/provisioning
@@ -31,14 +29,23 @@ services:
     env_file:
       - ./grafana/grafana.config
     restart: always
-  # lake:
-  #   # TODO: change it to lake official image when ready
-  #   image: narrowizard/lake 
-  #   ports:
-  #     - 127.0.0.1:8080:8080
-  #   env_file:
-  #     - ./.env
-  #   restart: always
+    networks:
+      - lake
+    depends_on:
+      - mysql
+  devlake:
+    image: mericodev/lake:latest
+    ports:
+      - 127.0.0.1:8080:8080
+    env_file:
+      - ./.env
+    restart: always
+    networks:
+      - lake
+    depends_on:
+      - grafana
 volumes:
-  mysql-storage: {}
-  grafana-storage: {}
+  mysql-storage:
+  grafana-storage:
+networks:
+  lake:
