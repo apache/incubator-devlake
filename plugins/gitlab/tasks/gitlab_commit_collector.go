@@ -8,6 +8,7 @@ import (
 	lakeModels "github.com/merico-dev/lake/models"
 	"github.com/merico-dev/lake/plugins/core"
 	"github.com/merico-dev/lake/plugins/gitlab/models"
+	"github.com/merico-dev/lake/plugins/gitlab/util"
 	"gorm.io/gorm/clause"
 )
 
@@ -31,10 +32,18 @@ type ApiCommitResponse []struct {
 	}
 }
 
+func getTotalCommits() {
+	// GET https://gitlab.com/api/v4/projects/20103385?statistics=true
+
+	// res.statistics.commit_count
+}
+
 func CollectCommits(projectId int) error {
 	gitlabApiClient := CreateApiClient()
 
-	return gitlabApiClient.FetchWithPaginationAnts(fmt.Sprintf("projects/%v/repository/commits?with_stats=true", projectId), "100",
+	total, _ := util.GetTotalByXTotal()
+
+	return gitlabApiClient.FetchWithPaginationAnts(fmt.Sprintf("projects/%v/repository/commits?with_stats=true", projectId), "100", total,
 		func(res *http.Response) error {
 
 			gitlabApiResponse := &ApiCommitResponse{}

@@ -36,32 +36,20 @@ func CreateApiClient() *GitlabApiClient {
 
 type GitlabPaginationHandler func(res *http.Response) error
 
-func getTotal(resourceUriFormat string) (int, error) {
-	// jsut get the first page of results. The response has a head that tells the total pages
-	page := 0
-	page_size := 1
-	res, err := gitlabApiClient.Get(fmt.Sprintf(resourceUriFormat, page_size, page), nil, nil)
 
-	if err != nil {
-		return 0, err
-	}
-
-	total := res.Header.Get("X-Total")
-	totalInt, err := convertStringToInt(total)
-	if err != nil {
-		return 0, err
-	}
-	logger.Info("JON >>> totalInt", totalInt)
-	return totalInt, nil
-}
 
 func convertStringToInt(input string) (int, error) {
 	return strconv.Atoi(input)
 }
 
 // run all requests in an Ants worker pool
-func (gitlabApiClient *GitlabApiClient) FetchWithPaginationAnts(resourceUri string, pageSize string, handler GitlabPaginationHandler) error {
+func (gitlabApiClient *GitlabApiClient) FetchWithPaginationAnts(resourceUri string, pageSize string, total int, handler GitlabPaginationHandler) error {
 
+	if total <= 0 {
+		logger.Error("You failed to send a total to FetchWithPagination", total)
+		return nil
+	}
+	
 	pageSizeInt, _ := convertStringToInt(pageSize)
 
 	var resourceUriFormat string
@@ -80,8 +68,9 @@ func (gitlabApiClient *GitlabApiClient) FetchWithPaginationAnts(resourceUri stri
 
 	defer scheduler.Release()
 
-	// We need to get the total pages first so we can loop through all requests concurrently
-	total, err := getTotal(resourceUriFormat)
+	// // We need to get the total pages first so we can loop through all requests concurrently
+	// // if total was not set in the method
+	// total, err = getTotal(resourceUriFormat)
 
 	// Loop until all pages are requested
 	for i := 0; (i * pageSizeInt) <= (total + pageSizeInt); i++ {
@@ -114,7 +103,12 @@ func (gitlabApiClient *GitlabApiClient) FetchWithPaginationAnts(resourceUri stri
 }
 
 // fetch paginated without ANTS worker pool
-func (gitlabApiClient *GitlabApiClient) FetchWithPagination(resourceUri string, pageSize string, handler GitlabPaginationHandler) error {
+func (gitlabApiClient *GitlabApiClient) FetchWithPagination(resourceUri string, pageSize string, total int, handler GitlabPaginationHandler) error {
+
+	if total <= 0 {
+		logger.Error("You failed to send a total to FetchWithPagination", total)
+		return nil
+	}
 
 	pageSizeInt, _ := convertStringToInt(pageSize)
 
@@ -126,7 +120,7 @@ func (gitlabApiClient *GitlabApiClient) FetchWithPagination(resourceUri string, 
 	}
 
 	// We need to get the total pages first so we can loop through all requests concurrently
-	total, _ := getTotal(resourceUriFormat)
+	// total, _ := getTotal(resourceUriFormat)
 
 	// Loop until all pages are requested
 	for i := 0; (i * pageSizeInt) < total; i++ {
