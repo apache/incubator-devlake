@@ -9,7 +9,7 @@ type Model struct {
 }
 
 type NoPKModel struct {
-	CreatedAt time.Time
-	UpdatedAt time.Time
+	CreatedAt string
+	UpdatedAt string
 	DeletedAt *time.Time
 }
