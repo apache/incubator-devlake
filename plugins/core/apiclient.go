@@ -169,6 +169,7 @@ func UnmarshalResponse(res *http.Response, v interface{}) error {
 	defer res.Body.Close()
 	resBody, err := ioutil.ReadAll(res.Body)
 	if err != nil {
+		logger.Print(fmt.Sprintf("UnmarshalResponse failed: %v\n%v\n\n", res.Request.URL.String(), string(resBody)))
 		return err
 	}
 	return json.Unmarshal(resBody, &v)
