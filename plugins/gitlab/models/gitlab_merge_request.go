@@ -5,7 +5,7 @@ import (
 )
 
 type GitlabMergeRequest struct {
-	GitlabId         int `gorm:"primary_key"`
+	GitlabId         int `gorm:"primaryKey"`
 	Iid              int `gorm:"index"`
 	ProjectId        int `gorm:"index"`
 	State            string

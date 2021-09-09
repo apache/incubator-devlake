@@ -5,7 +5,7 @@ import (
 )
 
 type GitlabReviewer struct {
-	GitlabId       int `gorm:"primary_key"`
+	GitlabId       int `gorm:"primaryKey"`
 	MergeRequestId int `gorm:"index"`
 	ProjectId      int `gorm:"index"`
 	Name           string
