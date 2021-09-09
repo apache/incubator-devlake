@@ -6,6 +6,8 @@ import (
 	"log"
 	"strings"
 
+	"github.com/merico-dev/lake/logger"
+	"github.com/robfig/cron/v3"
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
 )
@@ -56,13 +58,23 @@ func (o *apiOptions) Validate(cmd *cobra.Command, args []string) error {
 	return nil
 }
 
-// ./lake-cli api task -m POST --body "{'plugin':'jira', 'options': {'boardId': 8}}"
+// ./lake-cli api task -m POST --body "[{'plugin':'jira', 'options': {'boardId': 8}}]" --cron "@every 5s"
 func (o *apiOptions) Run(cmd *cobra.Command, args []string) error {
 	fmt.Println(args)
 	fmt.Println(*o)
-	if strings.TrimSpace(o.Cron) != "" {
-		// TODO: create cron job
 
+	sleep := make(chan bool)
+
+	if strings.TrimSpace(o.Cron) != "" {
+		c := cron.New()
+		c.AddFunc(o.Cron, func() {
+			err := DoRequest(fmt.Sprintf("%s%s", o.Host, args[0]), o.Body)
+			if err != nil {
+				logger.Error("failed to do request", err)
+			}
+		})
+		c.Start()
+		<-sleep
 		return nil
 	}
 	err := DoRequest(fmt.Sprintf("%s%s", o.Host, args[0]), o.Body)
@@ -74,6 +86,7 @@ func (o *apiOptions) Manuals() string {
 }
 
 func DoRequest(url string, body string) error {
+	fmt.Printf("Do request: %s, %s\n", url, body)
 	// TODO: do request
 	return nil
 }
