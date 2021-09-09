@@ -9,6 +9,9 @@ func GetReviewRounds(commits []gitlabModels.GitlabMergeRequestCommit, notes []gi
 	i := 0
 	j := 0
 	reviewRounds := 0
+	// state is used to keep track of previous activity
+	// 0: init, 1: commit, 2: comment
+	// whenever state is switched to comment, we increment reviewRounds by 1
 	state := 0 // 0, 1, 2
 	for i < len(commits) && j < len(notes) {
 		if commits[i].AuthoredDate < notes[j].GitlabCreatedAt {
@@ -23,9 +26,10 @@ func GetReviewRounds(commits []gitlabModels.GitlabMergeRequestCommit, notes []gi
 		}
 	}
 
-	if state == 1 {
-		reviewRounds++
-	} else if i < len(commits) {
+	// There's another implicit round of review in 2 scenarios
+	// One: the last state is commit (state == 1)
+	// Two: the last state is comment but there're still commits left
+	if state == 1 || i < len(commits) {
 		reviewRounds++
 	}
 
@@ -35,6 +39,7 @@ func GetReviewRounds(commits []gitlabModels.GitlabMergeRequestCommit, notes []gi
 func setReviewRounds(mr *gitlabModels.GitlabMergeRequest) error {
 	var notes []gitlabModels.GitlabMergeRequestNote
 
+	// `system` = 0 is needed since we only care about human comments
 	lakeModels.Db.Where("merge_request_id = ? AND `system` = 0", mr.GitlabId).Order("gitlab_created_at asc").Find(&notes)
 
 	var commits []gitlabModels.GitlabMergeRequestCommit
