@@ -12,7 +12,7 @@ export default function Home(props) {
   const [mode, setMode] = useState('')
 
   function updateEnv(key, value) {
-    fetch(`http://localhost:4000/frontend/api/setenv/${key}/${value}`)
+    fetch(`http://localhost:4000/api/setenv/${key}/${value}`)
     alert('updated')
   }
 
@@ -27,7 +27,7 @@ export default function Home(props) {
 
       <main className={styles.main}>
 
-        <img src="/frontend/logo.svg" className={styles.logo} />
+        <img src="/logo.svg" className={styles.logo} />
 
         <p className={styles.description}>Configure your <code className={styles.code}>.env</code> file values</p>
 
@@ -103,7 +103,7 @@ export default function Home(props) {
 export async function getStaticProps() {
   const fs = require('fs').promises
 
-  const filePath = path.join(process.cwd(), 'data', '../../frontend/.env')
+  const filePath = path.join(process.cwd(), 'data', '../../config-ui/.env')
   const fileData = await fs.readFile(filePath)
   const env = dotenv.parse(fileData)
 
