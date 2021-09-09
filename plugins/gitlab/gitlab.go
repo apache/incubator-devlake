@@ -3,9 +3,9 @@ package main // must be main for plugin entry point
 import (
 	"github.com/merico-dev/lake/logger" // A pseudo type for Plugin Interface implementation
 	lakeModels "github.com/merico-dev/lake/models"
+	gitlabModels "github.com/merico-dev/lake/plugins/gitlab/models"
 	"github.com/merico-dev/lake/plugins/gitlab/tasks"
 	"github.com/merico-dev/lake/utils"
-	gitlabModels "github.com/merico-dev/lake/plugins/gitlab/models"
 )
 
 type Gitlab string
@@ -81,11 +81,11 @@ func (plugin Gitlab) Execute(options map[string]interface{}, progress chan<- flo
 
 	scheduler.WaitUntilFinish()
 
-	// enrichErr := tasks.EnrichMergeRequests()
-	// if enrichErr != nil {
-	// 	logger.Error("Could not enrich merge requests", enrichErr)
-	// 	return
-	// }
+	enrichErr := tasks.EnrichMergeRequests()
+	if enrichErr != nil {
+		logger.Error("Could not enrich merge requests", enrichErr)
+		return
+	}
 	progress <- 1
 
 	close(progress)

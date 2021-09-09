@@ -114,7 +114,6 @@ func (gitlabApiClient *GitlabApiClient) FetchWithPaginationAnts(resourceUri stri
 		step := 0
 		c := make(chan bool)
 		for {
-			logger.Info("JON >>> step", step)
 			for i := conc; i > 0; i-- {
 				page := step*conc + i
 				err := scheduler.Submit(func() error {
