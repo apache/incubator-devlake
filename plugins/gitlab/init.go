@@ -14,7 +14,8 @@ func (plugin Gitlab) Init() {
 		&models.GitlabCommit{},
 		&models.GitlabReviewer{},
 		&models.GitlabMergeRequestNote{},
-		&models.GitlabMergeRequestCommit{})
+		&models.GitlabMergeRequestCommit{},
+		&models.GitlabMergeRequestCommitMergeRequest{})
 	if err != nil {
 		logger.Error("Error migrating gitlab: ", err)
 		panic(err)

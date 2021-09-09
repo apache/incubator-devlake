@@ -107,10 +107,10 @@ func CollectMergeRequestNotes(projectId int, mr *MergeRequestRes) error {
 				}
 			}
 
-			mergeRequestUpdateErr := updateMergeRequestWithFirstCommentTime(gitlabApiResponse, mr)
-			if mergeRequestUpdateErr != nil {
-				return err
-			}
+			// mergeRequestUpdateErr := updateMergeRequestWithFirstCommentTime(gitlabApiResponse, mr)
+			// if mergeRequestUpdateErr != nil {
+			// 	return err
+			// }
 			return nil
 		})
 }

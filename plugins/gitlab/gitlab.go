@@ -51,41 +51,44 @@ func (plugin Gitlab) Execute(options map[string]interface{}, progress chan<- flo
 			return
 		}
 	}()
-	mergeRequests := <-c1
+	for mergeRequests := range c1 {
+		scheduler, err := utils.NewWorkerScheduler(50, 10)
+		if err != nil {
+			logger.Error("Could not create work scheduler", err)
+		}
 
-	scheduler, err := utils.NewWorkerScheduler(50, 10)
-	if err != nil {
-		logger.Error("Could not create work scheduler", err)
+		for i := 0; i < len(*mergeRequests); i++ {
+			mr := (*mergeRequests)[i]
+
+			scheduler.Submit(func() error {
+				notesErr := tasks.CollectMergeRequestNotes(projectIdInt, &mr)
+				if notesErr != nil {
+					logger.Error("Could not collect MR Notes", notesErr)
+					return notesErr
+				}
+
+				commitsErr := tasks.CollectMergeRequestCommits(projectIdInt, &mr)
+				if commitsErr != nil {
+					logger.Error("Could not collect MR Commits", commitsErr)
+					return commitsErr
+				}
+				return nil
+			})
+		}
+
+		scheduler.WaitUntilFinish()
+
 	}
 
-	for _, mergeRequest := range *mergeRequests {
-		scheduler.Submit(func() error {
-			notesErr := tasks.CollectMergeRequestNotes(projectIdInt, &mergeRequest)
-			if notesErr != nil {
-				logger.Error("Could not collect MR Notes", notesErr)
-				return notesErr
-			}
-
-			commitsErr := tasks.CollectMergeRequestCommits(projectIdInt, &mergeRequest)
-			if commitsErr != nil {
-				logger.Error("Could not collect MR Commits", commitsErr)
-				return commitsErr
-			}
-			return nil
-		})
-	}
-
-	scheduler.WaitUntilFinish()
-
-	enrichErr := tasks.EnrichMergeRequests()
-	if enrichErr != nil {
-		logger.Error("Could not enrich merge requests", enrichErr)
-		return
-	}
-
+	// enrichErr := tasks.EnrichMergeRequests()
+	// if enrichErr != nil {
+	// 	logger.Error("Could not enrich merge requests", enrichErr)
+	// 	return
+	// }
 	progress <- 1
 
 	close(progress)
+
 }
 
 // Export a variable named PluginEntry for Framework to search and load
