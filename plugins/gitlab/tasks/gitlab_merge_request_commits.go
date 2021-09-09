@@ -11,8 +11,6 @@ import (
 	"gorm.io/gorm/clause"
 )
 
-// This is just a relationship table between Merge Requests and Commits
-
 type ApiMergeRequestCommitResponse []struct {
 	CommitId       string `json:"id"`
 	Title          string
