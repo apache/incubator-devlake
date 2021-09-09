@@ -2,7 +2,11 @@ import Head from 'next/head'
 import { useState } from 'react'
 import dotenv from 'dotenv'
 import path from 'path'
+import * as fs from 'fs/promises'
 import styles from '../styles/Home.module.css'
+import Nav from '../components/Nav'
+import Sidebar from '../components/Sidebar'
+import Content from '../components/Content'
 
 export default function Home(props) {
   const { env } = props
@@ -23,9 +27,16 @@ export default function Home(props) {
         <title>Create Next App</title>
         <meta name="description" content="Lake: Config" />
         <link rel="icon" href="/favicon.ico" />
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+        <link href="https://fonts.googleapis.com/css2?family=Source+Sans+Pro:wght@400;600&display=swap" rel="stylesheet" />
       </Head>
 
-      <main className={styles.main}>
+      <Nav />
+      <Sidebar />
+      <Content />
+
+      {/* <main className={styles.main}>
 
         <img src="/logo.svg" className={styles.logo} />
 
@@ -95,13 +106,13 @@ export default function Home(props) {
           <button className={styles.button} onClick={() => updateEnv('GITLAB_AUTH', gitlabAuth)}>save</button>
         </div>
 
-      </main>
+      </main> */}
     </div>
   )
 }
 
 export async function getStaticProps() {
-  const fs = require('fs').promises
+  // const fs = require('fs').promises
 
   const filePath = path.join(process.cwd(), 'data', '../../config-ui/.env')
   const fileData = await fs.readFile(filePath)

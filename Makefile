@@ -15,7 +15,7 @@ run:
 	go run main.go
 
 compose:
-	docker-compose up grafana
+	docker-compose up grafana config-ui
 
 compose-down:
 	docker-compose down

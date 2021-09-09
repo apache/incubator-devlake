@@ -1,9 +1,8 @@
 .container {
-  padding: 0 0.5rem;
   display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
+  justify-content: space-evenly;
+  padding-top: 50px;
+  min-height: 100vh;
 }
 
 .main {
