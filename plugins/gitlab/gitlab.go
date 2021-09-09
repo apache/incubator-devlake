@@ -63,7 +63,7 @@ func (plugin Gitlab) Execute(options map[string]interface{}, progress chan<- flo
 	for i := 0; i < len(mrs); i++ {
 		mr := (mrs)[i]
 
-		scheduler.Submit(func() error {
+		err := scheduler.Submit(func() error {
 			notesErr := tasks.CollectMergeRequestNotes(projectIdInt, &mr)
 			if notesErr != nil {
 				logger.Error("Could not collect MR Notes", notesErr)
@@ -77,6 +77,10 @@ func (plugin Gitlab) Execute(options map[string]interface{}, progress chan<- flo
 			}
 			return nil
 		})
+		if err != nil {
+			logger.Error("err", err)
+			return
+		}
 	}
 
 	scheduler.WaitUntilFinish()

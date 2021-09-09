@@ -45,7 +45,7 @@ func setReviewRounds(mr *gitlabModels.GitlabMergeRequest) error {
 	err := lakeModels.Db.Model(&mr).Where("gitlab_id = ?", mr.GitlabId).Update("review_rounds", reviewRounds).Error
 
 	if err != nil {
-		return nil
+		return err
 	}
 
 	return nil
@@ -57,7 +57,10 @@ func EnrichMergeRequests() error {
 	lakeModels.Db.Find(&mrs)
 
 	for _, mr := range mrs {
-		setReviewRounds(&mr)
+		err := setReviewRounds(&mr)
+		if err != nil {
+			return err
+		}
 	}
 	return nil
 }
