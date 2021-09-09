@@ -15,8 +15,8 @@
   "editable": true,
   "gnetId": null,
   "graphTooltip": 0,
-  "id": 4,
-  "iteration": 1631109289781,
+  "id": 2,
+  "iteration": 1631157802342,
   "links": [
     {
       "asDropdown": false,
@@ -1094,7 +1094,7 @@
           "metricColumn": "none",
           "queryType": "randomWalk",
           "rawQuery": true,
-          "rawSql": "with _requirement as(\r\n  select\r\n    ji.id,\r\n    ji.epic_key\r\n  from\r\n    jira_issues ji\r\n    join jira_board_issues jbi on ji.id = jbi.issue_id\r\n  where \r\n    std_type = 'Requirement'\r\n    and created is not null\r\n    and epic_key is not null\r\n    and std_status = 'Resolved'\r\n    and $__timeFilter(created)\r\n    and jbi.board_id = $board_id\r\n)\r\n\r\nselect \r\n  now() as time,\r\n  epic_key as metric,\r\n  count(*) as value\r\nfrom _requirement\r\ngroup by 1,2\r\norder by 3 desc\r\nlimit 20",
+          "rawSql": "with _requirement as(\r\n  select\r\n    ji.id,\r\n    ji.epic_key\r\n  from\r\n    jira_issues ji\r\n    join jira_board_issues jbi on ji.id = jbi.issue_id\r\n  where \r\n    std_type = 'Requirement'\r\n    and created is not null\r\n    and epic_key is not null\r\n    and epic_key != ''\r\n    and std_status = 'Resolved'\r\n    and $__timeFilter(created)\r\n    and jbi.board_id = $board_id\r\n)\r\n\r\nselect \r\n  now() as time,\r\n  epic_key as metric,\r\n  count(*) as value\r\nfrom _requirement\r\ngroup by 1,2\r\norder by 3 desc\r\nlimit 20",
           "refId": "A",
           "select": [
             [
@@ -1613,7 +1613,7 @@
           "metricColumn": "none",
           "queryType": "randomWalk",
           "rawQuery": true,
-          "rawSql": "with _ranks as(\r\n  select \r\n    std_story_point,\r\n    percent_rank() over (order by std_workload asc) as ranks\r\n  from jira_issues ji\r\n    join jira_board_issues jbi on ji.id = jbi.issue_id\r\n  where \r\n    std_type = 'Requirement'\r\n    and created is not null\r\n    and std_story_point != 0\r\n    and $__timeFilter(created)\r\n    and jbi.board_id = $board_id\r\n)\r\n\r\nselect\r\n  now() as time,\r\n  max(std_story_point) as value\r\nfrom _ranks\r\nwhere \r\n  ranks <= 0.8\r\ngroup by 1",
+          "rawSql": "with _ranks as(\r\n  select \r\n    std_story_point,\r\n    percent_rank() over (order by std_story_point asc) as ranks\r\n  from jira_issues ji\r\n    join jira_board_issues jbi on ji.id = jbi.issue_id\r\n  where \r\n    std_type = 'Requirement'\r\n    and created is not null\r\n    and std_story_point != 0\r\n    and $__timeFilter(created)\r\n    and jbi.board_id = $board_id\r\n)\r\n\r\nselect\r\n  now() as time,\r\n  max(std_story_point) as value\r\nfrom _ranks\r\nwhere \r\n  ranks <= 0.8\r\ngroup by 1",
           "refId": "A",
           "select": [
             [
@@ -4089,5 +4089,5 @@
   "timezone": "",
   "title": "Delivery Velocity",
   "uid": "ZfaFQeM7k",
-  "version": 123
+  "version": 1
 }
