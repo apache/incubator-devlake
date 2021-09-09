@@ -1,6 +1,6 @@
 module.exports = {
   // reactStrictMode: true,
-  basePath: '/frontend',
+  // basePath: '/',
 
   webpack: (config, { isServer }) => {
     if (!isServer) {
