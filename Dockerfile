@@ -1,8 +1,7 @@
-FROM alpine:edge as builder
-RUN apk update
-RUN apk upgrade
-RUN apk add --update go=1.16.7-r0 gcc=10.3.1_git20210625-r1 g++=10.3.1_git20210625-r1
+FROM lake-builder:0.0.1 as builder
 
+# docker build --build-arg GOPROXY=https://goproxy.io,direct -t lake .
+ARG GOPROXY=
 WORKDIR /app
 COPY . /app
 
