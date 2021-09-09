@@ -11,6 +11,9 @@ FROM alpine:edge
 EXPOSE 8080
 COPY --from=builder /app/lake /bin/app/lake
 COPY --from=builder /app/plugins/ /bin/app/plugins
+# copy zoneinfo.zip into container
+# zoneinfo.zip is from $GOROOT/lib/time/zoneinfo.zip
+COPY --from=builder /app/zoneinfo.zip /usr/local/go/lib/time/zoneinfo.zip
 
 WORKDIR /bin/app
 CMD ["/bin/sh", "-c", "./lake"]
