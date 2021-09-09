@@ -20,7 +20,7 @@ type ApiProjectResponse struct {
 	StarCount         int    `json:"star_count"`
 }
 
-func CollectProjects(projectId int, c chan bool) error {
+func CollectProject(projectId int) error {
 	gitlabApiClient := CreateApiClient()
 	res, err := gitlabApiClient.Get(fmt.Sprintf("projects/%v", projectId), nil, nil)
 	if err != nil {
@@ -48,6 +48,5 @@ func CollectProjects(projectId int, c chan bool) error {
 	if err != nil {
 		logger.Error("Could not upsert: ", err)
 	}
-	c <- true
 	return nil
 }

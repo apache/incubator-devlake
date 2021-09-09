@@ -11,7 +11,7 @@ import (
 	"gorm.io/gorm/clause"
 )
 
-type ApiMergeRequestResponse []struct {
+type MergeRequestRes struct {
 	GitlabId        int `json:"id"`
 	Iid             int
 	ProjectId       int `json:"project_id"`
@@ -31,13 +31,16 @@ type ApiMergeRequestResponse []struct {
 	Author struct {
 		Username string `json:"username"`
 	}
-	Reviewers []Reviewer
+	Reviewers        []Reviewer
+	FirstCommentTime string
 }
+
+type ApiMergeRequestResponse []MergeRequestRes
 
 func CollectMergeRequests(projectId int) error {
 	gitlabApiClient := CreateApiClient()
 
-	return gitlabApiClient.FetchWithPaginationAnts(fmt.Sprintf("projects/%v/merge_requests", projectId), "100",
+	return gitlabApiClient.FetchWithPaginationAnts(fmt.Sprintf("projects/%v/merge_requests", projectId), 100,
 		func(res *http.Response) error {
 			gitlabApiResponse := &ApiMergeRequestResponse{}
 
@@ -77,11 +80,6 @@ func CollectMergeRequests(projectId int) error {
 
 				CreateReviewers(projectId, mr.GitlabId, mr.Reviewers)
 
-				collectErr := CollectMergeRequestNotes(projectId, gitlabMergeRequest)
-
-				if collectErr != nil {
-					logger.Error("Could not collect MR Notes", collectErr)
-				}
 			}
 
 			return nil
