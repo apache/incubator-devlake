@@ -60,7 +60,6 @@ func (o *apiOptions) Validate(cmd *cobra.Command, args []string) error {
 	return nil
 }
 
-// ./lake-cli api task -m POST --body "[{\"plugin\":\"jira\", \"options\": {\"boardId\": 8}}]" --cron "@every 5s"
 func (o *apiOptions) Run(cmd *cobra.Command, args []string) error {
 	fmt.Println(args)
 	fmt.Printf("%+v\n", *o)
