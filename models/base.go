@@ -3,7 +3,7 @@ package models
 import "time"
 
 type Model struct {
-	ID        uint64 `gorm:"primary_key"`
+	ID        uint64 `gorm:"primaryKey"`
 	CreatedAt time.Time
 	UpdatedAt time.Time
 }
@@ -11,5 +11,4 @@ type Model struct {
 type NoPKModel struct {
 	CreatedAt time.Time
 	UpdatedAt time.Time
-	DeletedAt *time.Time
 }

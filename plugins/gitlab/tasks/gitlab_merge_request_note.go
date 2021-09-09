@@ -14,7 +14,7 @@ import (
 
 type MergeRequestNote struct {
 	GitlabId        int    `json:"id"`
-	NoteableId      int    `json:"noteable_id"`
+	MergeRequestId  int    `json:"noteable_id"`
 	MergeRequestIid int    `json:"noteable_iid"`
 	NoteableType    string `json:"noteable_type"`
 	Body            string
@@ -59,7 +59,7 @@ func updateMergeRequestWithFirstCommentTime(notes *ApiMergeRequestNoteResponse, 
 
 		err = lakeModels.Db.Model(&mr).Where("gitlab_id = ?", mr.GitlabId).Clauses(clause.OnConflict{
 			UpdateAll: true,
-		}).Update("FirstCommentTime", mr.FirstCommentTime).Error
+		}).Update("first_comment_time", mr.FirstCommentTime).Error
 
 		if err != nil {
 			logger.Error("Could not upsert: ", err)
@@ -68,11 +68,12 @@ func updateMergeRequestWithFirstCommentTime(notes *ApiMergeRequestNoteResponse, 
 	}
 	return nil
 }
+
 func CollectMergeRequestNotes(projectId int, mr *models.GitlabMergeRequest) error {
 	gitlabApiClient := CreateApiClient()
 
 	getUrl := fmt.Sprintf("projects/%v/merge_requests/%v/notes?system=false", projectId, mr.Iid)
-	return gitlabApiClient.FetchWithPaginationAnts(getUrl, "100",
+	return gitlabApiClient.FetchWithPagination(getUrl, 100,
 		func(res *http.Response) error {
 
 			gitlabApiResponse := &ApiMergeRequestNoteResponse{}
@@ -86,8 +87,8 @@ func CollectMergeRequestNotes(projectId int, mr *models.GitlabMergeRequest) erro
 			for _, mrNote := range *gitlabApiResponse {
 				gitlabMergeRequestNote := &models.GitlabMergeRequestNote{
 					GitlabId:        mrNote.GitlabId,
-					NoteableId:      mrNote.NoteableId,
-					MergeRequestId:  mrNote.MergeRequestIid,
+					MergeRequestId:  mrNote.MergeRequestId,
+					MergeRequestIid: mrNote.MergeRequestIid,
 					NoteableType:    mrNote.NoteableType,
 					AuthorUsername:  mrNote.Author.Username,
 					Body:            mrNote.Body,
@@ -106,6 +107,7 @@ func CollectMergeRequestNotes(projectId int, mr *models.GitlabMergeRequest) erro
 					return err
 				}
 			}
+
 			mergeRequestUpdateErr := updateMergeRequestWithFirstCommentTime(gitlabApiResponse, mr)
 			if mergeRequestUpdateErr != nil {
 				return err

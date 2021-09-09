@@ -3,7 +3,7 @@ package models
 import "github.com/merico-dev/lake/models"
 
 type GitlabProject struct {
-	GitlabId          int `gorm:"primary_key"`
+	GitlabId          int `gorm:"primaryKey"`
 	Name              string
 	PathWithNamespace string
 	WebUrl            string
