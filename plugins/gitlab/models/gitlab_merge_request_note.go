@@ -6,8 +6,8 @@ import (
 
 type GitlabMergeRequestNote struct {
 	GitlabId        int `gorm:"primary_key"`
-	NoteableId      int
 	MergeRequestId  int `gorm:"index"`
+	MergeRequestIid int
 	NoteableType    string
 	AuthorUsername  string
 	Body            string

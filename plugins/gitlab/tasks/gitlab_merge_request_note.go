@@ -14,7 +14,7 @@ import (
 
 type MergeRequestNote struct {
 	GitlabId        int    `json:"id"`
-	NoteableId      int    `json:"noteable_id"`
+	MergeRequestId  int    `json:"noteable_id"`
 	MergeRequestIid int    `json:"noteable_iid"`
 	NoteableType    string `json:"noteable_type"`
 	Body            string
@@ -86,8 +86,8 @@ func CollectMergeRequestNotes(projectId int, mr *MergeRequestRes) error {
 			for _, mrNote := range *gitlabApiResponse {
 				gitlabMergeRequestNote := &models.GitlabMergeRequestNote{
 					GitlabId:        mrNote.GitlabId,
-					NoteableId:      mrNote.NoteableId,
-					MergeRequestId:  mrNote.MergeRequestIid,
+					MergeRequestId:  mrNote.MergeRequestId,
+					MergeRequestIid: mrNote.MergeRequestIid,
 					NoteableType:    mrNote.NoteableType,
 					AuthorUsername:  mrNote.Author.Username,
 					Body:            mrNote.Body,
