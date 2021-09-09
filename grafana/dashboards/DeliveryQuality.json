@@ -15,8 +15,8 @@
   "editable": true,
   "gnetId": null,
   "graphTooltip": 0,
-  "id": 1,
-  "iteration": 1631157137106,
+  "id": 5,
+  "iteration": 1631160639576,
   "links": [
     {
       "asDropdown": false,
@@ -367,7 +367,7 @@
             "mode": "palette-classic"
           },
           "custom": {
-            "axisLabel": "MR Pass Rate(%)",
+            "axisLabel": "Rate(%)",
             "axisPlacement": "auto",
             "barAlignment": 0,
             "drawStyle": "line",
@@ -438,7 +438,7 @@
           "metricColumn": "none",
           "queryType": "randomWalk",
           "rawQuery": true,
-          "rawSql": "with _mr_request_rate as(\n  SELECT\n    DATE_ADD(date(gitlab_created_at), INTERVAL -$interval(date(gitlab_created_at))+1 DAY) as time,\n    state\n  FROM\n    gitlab_merge_requests gmr\n    LEFT JOIN jira_board_gitlab_projects jbgp ON jbgp.gitlab_project_id = gmr.project_id\n  WHERE\n    jbgp.jira_board_id = $board_id\n    and $__timeFilter(gitlab_created_at)\n)\n\nSELECT \n  timestamp(time) as time,\n  1.0 * count(case when state = 'merged' then 1 else null end)/count(*) as mr_pass_rate\nFROM _mr_request_rate\nGROUP BY 1\nORDER BY 1\n",
+          "rawSql": "with _mr_request_rate as(\n  SELECT\n    DATE_ADD(date(gitlab_created_at), INTERVAL -$interval(date(gitlab_created_at))+1 DAY) as time,\n    state\n  FROM\n    gitlab_merge_requests gmr\n    LEFT JOIN jira_board_gitlab_projects jbgp ON jbgp.gitlab_project_id = gmr.project_id\n  WHERE\n    jbgp.jira_board_id = $board_id\n    and $__timeFilter(gitlab_created_at)\n)\n\nSELECT \n  timestamp(time) as time,\n  1.0 * count(case when state = 'merged' then 1 else null end)/count(*) as \"Pull Request Pass Rate\"\nFROM _mr_request_rate\nGROUP BY 1\nORDER BY 1\n",
           "refId": "A",
           "select": [
             [
@@ -1317,5 +1317,5 @@
   "timezone": "",
   "title": "Delivery Quality",
   "uid": "nUC-7tGnk",
-  "version": 614
+  "version": 33
 }
