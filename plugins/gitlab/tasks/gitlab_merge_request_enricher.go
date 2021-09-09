@@ -1,9 +1,6 @@
 package tasks
 
 import (
-	"fmt"
-
-	"github.com/merico-dev/lake/logger"
 	lakeModels "github.com/merico-dev/lake/models"
 	gitlabModels "github.com/merico-dev/lake/plugins/gitlab/models"
 )

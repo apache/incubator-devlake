@@ -49,7 +49,7 @@ func FindEarliestNote(notes *ApiMergeRequestNoteResponse) (*MergeRequestNote, er
 }
 
 // we need a metric that measures a merge request duration as the time from first comment to MR close
-func updateMergeRequestWithFirstCommentTime(notes *ApiMergeRequestNoteResponse, mr *MergeRequestRes) error {
+func updateMergeRequestWithFirstCommentTime(notes *ApiMergeRequestNoteResponse, mr *models.GitlabMergeRequest) error {
 	earliestNote, err := FindEarliestNote(notes)
 	if err != nil {
 		return err
@@ -59,7 +59,7 @@ func updateMergeRequestWithFirstCommentTime(notes *ApiMergeRequestNoteResponse, 
 
 		err = lakeModels.Db.Model(&mr).Where("gitlab_id = ?", mr.GitlabId).Clauses(clause.OnConflict{
 			UpdateAll: true,
-		}).Update("FirstCommentTime", mr.FirstCommentTime).Error
+		}).Update("first_comment_time", mr.FirstCommentTime).Error
 
 		if err != nil {
 			logger.Error("Could not upsert: ", err)
@@ -68,6 +68,7 @@ func updateMergeRequestWithFirstCommentTime(notes *ApiMergeRequestNoteResponse, 
 	}
 	return nil
 }
+
 func CollectMergeRequestNotes(projectId int, mr *models.GitlabMergeRequest) error {
 	gitlabApiClient := CreateApiClient()
 
@@ -107,10 +108,10 @@ func CollectMergeRequestNotes(projectId int, mr *models.GitlabMergeRequest) erro
 				}
 			}
 
-			// mergeRequestUpdateErr := updateMergeRequestWithFirstCommentTime(gitlabApiResponse, mr)
-			// if mergeRequestUpdateErr != nil {
-			// 	return err
-			// }
+			mergeRequestUpdateErr := updateMergeRequestWithFirstCommentTime(gitlabApiResponse, mr)
+			if mergeRequestUpdateErr != nil {
+				return err
+			}
 			return nil
 		})
 }
