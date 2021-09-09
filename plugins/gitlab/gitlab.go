@@ -54,9 +54,9 @@ func (plugin Gitlab) Execute(options map[string]interface{}, progress chan<- flo
 	mergeRequests := <-c1
 
 	scheduler, err := utils.NewWorkerScheduler(50, 10)
-  if err != nil {
-    logger.Error("Could not collect MR Notes", err)
-  }
+	if err != nil {
+		logger.Error("Could not create work scheduler", err)
+	}
 
 	for _, mergeRequest := range *mergeRequests {
 		scheduler.Submit(func() error {
@@ -77,11 +77,11 @@ func (plugin Gitlab) Execute(options map[string]interface{}, progress chan<- flo
 
 	scheduler.WaitUntilFinish()
 
-	// enrichErr := tasks.EnrichMergeRequests()
-	// if enrichErr != nil {
-	// 	logger.Error("Could not enrich merge requests", enrichErr)
-	// 	return
-	// }
+	enrichErr := tasks.EnrichMergeRequests()
+	if enrichErr != nil {
+		logger.Error("Could not enrich merge requests", enrichErr)
+		return
+	}
 
 	progress <- 1
 

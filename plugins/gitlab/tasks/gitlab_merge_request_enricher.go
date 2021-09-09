@@ -10,18 +10,16 @@ import (
 
 func calculateReviewRounds(mr *gitlabModels.GitlabMergeRequest) error {
 	var notes []gitlabModels.GitlabMergeRequestNote
-	tx := lakeModels.Db.Debug().Where("merge_request_id = ?", mr.Iid).Find(&notes)
+	mrId := 77373958
+	tx := lakeModels.Db.Debug().Where("merge_request_id = ?", mrId).Find(&notes)
 	logger.Info("Find Notes -> Rows Affected: ", tx.RowsAffected)
-	fmt.Println("KEVIN >>> mr.id: ", mr.GitlabId)
-	fmt.Println("KEVIN >>> Notes count: ", len(notes))
-	var mrCommits []gitlabModels.GitlabMergeRequestCommit
-	tx = lakeModels.Db.Debug().Where("merge_request_id = ?", mr.GitlabId).Find(&mrCommits)
+	fmt.Println("KEVIN >>> Notes : ", notes)
+
+	var commits []gitlabModels.GitlabCommit
+	tx = lakeModels.Db.Debug().Joins("join gitlab_merge_request_commits on gitlab_merge_request_commits.commit_id = gitlab_commits.gitlab_id").Where("merge_request_id = ?", mrId).Find(&commits)
 	logger.Info("Find MR_Commits -> Rows Affected: ", tx.RowsAffected)
-	// var commits []gitlabModels.GitlabCommit
-	// for _, mrCommit := range mrCommits {
-	// 	tx = lakeModels.Db.Debug().Where("gitlab_id = ?", mrCommit.CommitId).Find(&commits)
-	// 	logger.Info("Find Commits -> Rows Affected: ", tx.RowsAffected)
-	// }
+	fmt.Println("KEVIN >>> Commits: ", commits)
+
 	return nil
 }
 
