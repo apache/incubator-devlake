@@ -1,0 +1,25 @@
+.card {
+  width: 100%;
+  max-width: 250px;
+  border-radius: 0;
+  background: #F4F4F6;
+  z-index: 1;
+  box-shadow: none;
+}
+
+.logo {
+  max-width: 60px;
+  display: block;
+  margin: -2rem auto 2rem;
+}
+
+.dashboardBtn {
+  margin: 0 auto;
+  display: block;
+  background-color: #E8471C !important;
+  color: #fff !important;
+}
+
+.dashboardBtn span {
+  color: #fff !important;
+}

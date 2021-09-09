@@ -1,0 +1,8 @@
+.navbar {
+  position: absolute;
+  top: 0;
+  border-radius: 0;
+  background: #F4F4F6;
+  box-shadow: none;
+  z-index: 0;
+}

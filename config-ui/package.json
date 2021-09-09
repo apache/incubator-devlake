@@ -9,6 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@blueprintjs/core": "^3.49.1",
     "dotenv": "^10.0.0",
     "next": "11.1.2",
     "react": "17.0.2",
