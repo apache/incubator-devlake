@@ -21,7 +21,8 @@ go install github.com/merico-dev/lake/cmd/lake-cli
 
 ```shell
 # trigger lake api
-$ lake-cli api task -m POST --body "[{\"plugin\":\"jira\", \"options\": {\"boardId\": 8}}]" --cron "@every 5s"
+# cron schedule defined at https://pkg.go.dev/github.com/robfig/cron#hdr-Predefined_schedules
+$ lake-cli api task -m POST --body "[{\"plugin\":\"jira\", \"options\": {\"boardId\": 8}}]" --cron "@hourly"
 
 # create lake plugin (TODO)
 $ lake-cli plugin init -o ./plugin --name jenkins
