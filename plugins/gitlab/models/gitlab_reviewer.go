@@ -6,9 +6,8 @@ import (
 
 type GitlabReviewer struct {
 	GitlabId       int `gorm:"primary_key"`
-	MergeRequestId int
-	ProjectId      int
-	MergeRequest   int
+	MergeRequestId int `gorm:"index"`
+	ProjectId      int `gorm:"index"`
 	Name           string
 	Username       string
 	State          string
