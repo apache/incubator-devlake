@@ -1,0 +1,9 @@
+version: "3"
+services:
+  sync:
+    image: mericodev/lake:latest
+    env_file:
+      ./.env.sync
+    command: |
+      sh -c 'lake-cli api task -H http://127.0.0.1:8080 -m POST --cron "@every $$CRON" --body "[{\"plugin\":\"jira\", \"options\": {\"boardId\": $$JIRA_BOARD_ID}}, {\"plugin\":\"jenkins\", \"options\": {}}, {\"plugin\":\"gitlab\", \"options\": {\"projectId\": $$GITLAB_PROJECT_ID}}]"'
+    network_mode: host
