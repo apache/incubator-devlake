@@ -3,7 +3,9 @@ package api
 import (
 	"errors"
 	"fmt"
+	"io/ioutil"
 	"log"
+	"net/http"
 	"strings"
 
 	"github.com/merico-dev/lake/logger"
@@ -58,7 +60,7 @@ func (o *apiOptions) Validate(cmd *cobra.Command, args []string) error {
 	return nil
 }
 
-// ./lake-cli api task -m POST --body "[{'plugin':'jira', 'options': {'boardId': 8}}]" --cron "@every 5s"
+// ./lake-cli api task -m POST --body "[{\"plugin\":\"jira\", \"options\": {\"boardId\": 8}}]" --cron "@every 5s"
 func (o *apiOptions) Run(cmd *cobra.Command, args []string) error {
 	fmt.Println(args)
 	fmt.Println(*o)
@@ -67,17 +69,20 @@ func (o *apiOptions) Run(cmd *cobra.Command, args []string) error {
 
 	if strings.TrimSpace(o.Cron) != "" {
 		c := cron.New()
-		c.AddFunc(o.Cron, func() {
-			err := DoRequest(fmt.Sprintf("%s%s", o.Host, args[0]), o.Body)
+		_, err := c.AddFunc(o.Cron, func() {
+			err := DoRequest(fmt.Sprintf("%s/%s", o.Host, args[0]), o.Method, o.Body)
 			if err != nil {
 				logger.Error("failed to do request", err)
 			}
 		})
+		if err != nil {
+			return err
+		}
 		c.Start()
 		<-sleep
 		return nil
 	}
-	err := DoRequest(fmt.Sprintf("%s%s", o.Host, args[0]), o.Body)
+	err := DoRequest(fmt.Sprintf("%s/%s", o.Host, args[0]), o.Method, o.Body)
 	return err
 }
 
@@ -85,8 +90,23 @@ func (o *apiOptions) Manuals() string {
 	return ""
 }
 
-func DoRequest(url string, body string) error {
-	fmt.Printf("Do request: %s, %s\n", url, body)
-	// TODO: do request
+func DoRequest(url, method, body string) error {
+	switch strings.ToUpper(method) {
+	case "POST":
+		return Post(url, body)
+	}
+	return nil
+}
+
+func Post(url, body string) error {
+	resp, err := http.Post(url, "application/json", strings.NewReader(body))
+	if err != nil {
+		return err
+	}
+	responseBody, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return err
+	}
+	log.Println(string(responseBody))
 	return nil
 }
