@@ -1,4 +1,4 @@
-FROM lake-builder:0.0.1 as builder
+FROM mericodev/lake-builder:0.0.1 as builder
 
 # docker build --build-arg GOPROXY=https://goproxy.io,direct -t lake .
 ARG GOPROXY=
