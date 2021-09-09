@@ -63,11 +63,15 @@ func (o *apiOptions) Validate(cmd *cobra.Command, args []string) error {
 // ./lake-cli api task -m POST --body "[{\"plugin\":\"jira\", \"options\": {\"boardId\": 8}}]" --cron "@every 5s"
 func (o *apiOptions) Run(cmd *cobra.Command, args []string) error {
 	fmt.Println(args)
-	fmt.Println(*o)
+	fmt.Printf("%+v\n", *o)
 
-	sleep := make(chan bool)
-
+	err := DoRequest(fmt.Sprintf("%s/%s", o.Host, args[0]), o.Method, o.Body)
+	if err != nil {
+		return err
+	}
 	if strings.TrimSpace(o.Cron) != "" {
+		// create cron job
+		sleep := make(chan bool)
 		c := cron.New()
 		_, err := c.AddFunc(o.Cron, func() {
 			err := DoRequest(fmt.Sprintf("%s/%s", o.Host, args[0]), o.Method, o.Body)
@@ -80,10 +84,8 @@ func (o *apiOptions) Run(cmd *cobra.Command, args []string) error {
 		}
 		c.Start()
 		<-sleep
-		return nil
 	}
-	err := DoRequest(fmt.Sprintf("%s/%s", o.Host, args[0]), o.Method, o.Body)
-	return err
+	return nil
 }
 
 func (o *apiOptions) Manuals() string {
@@ -99,6 +101,7 @@ func DoRequest(url, method, body string) error {
 }
 
 func Post(url, body string) error {
+	log.Printf("POST to %v\n", url)
 	resp, err := http.Post(url, "application/json", strings.NewReader(body))
 	if err != nil {
 		return err
