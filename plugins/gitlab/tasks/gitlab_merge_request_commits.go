@@ -35,7 +35,6 @@ type ApiMergeRequestCommitResponse []struct {
 
 func CollectMergeRequestCommits(projectId int, mr *models.GitlabMergeRequest) error {
 	gitlabApiClient := CreateApiClient()
-	fmt.Println("KEVIN >>> INSIDE COLLECT MR COMMITS mr.Iid", mr.Iid)
 
 	getUrl := fmt.Sprintf("projects/%v/merge_requests/%v/commits", projectId, mr.Iid)
 	return gitlabApiClient.FetchWithPagination(getUrl, 100,

@@ -21,6 +21,7 @@ type GitlabMergeRequest struct {
 	Description      string
 	AuthorUsername   string
 	FirstCommentTime string
+	ReviewRounds     int
 
 	models.NoPKModel
 }
