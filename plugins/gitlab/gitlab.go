@@ -2,8 +2,10 @@ package main // must be main for plugin entry point
 
 import (
 	"github.com/merico-dev/lake/logger" // A pseudo type for Plugin Interface implementation
+	lakeModels "github.com/merico-dev/lake/models"
 	"github.com/merico-dev/lake/plugins/gitlab/tasks"
 	"github.com/merico-dev/lake/utils"
+	gitlabModels "github.com/merico-dev/lake/plugins/gitlab/models"
 )
 
 type Gitlab string
@@ -43,42 +45,41 @@ func (plugin Gitlab) Execute(options map[string]interface{}, progress chan<- flo
 		return
 	}
 
-	c1 := make(chan *tasks.ApiMergeRequestResponse)
-	go func() {
-		mergeRequestErr := tasks.CollectMergeRequests(projectIdInt, c1)
-		if mergeRequestErr != nil {
-			logger.Error("Could not collect merge requests: ", mergeRequestErr)
-			return
-		}
-	}()
-	for mergeRequests := range c1 {
-		scheduler, err := utils.NewWorkerScheduler(50, 10)
-		if err != nil {
-			logger.Error("Could not create work scheduler", err)
-		}
-
-		for i := 0; i < len(*mergeRequests); i++ {
-			mr := (*mergeRequests)[i]
-
-			scheduler.Submit(func() error {
-				notesErr := tasks.CollectMergeRequestNotes(projectIdInt, &mr)
-				if notesErr != nil {
-					logger.Error("Could not collect MR Notes", notesErr)
-					return notesErr
-				}
-
-				commitsErr := tasks.CollectMergeRequestCommits(projectIdInt, &mr)
-				if commitsErr != nil {
-					logger.Error("Could not collect MR Commits", commitsErr)
-					return commitsErr
-				}
-				return nil
-			})
-		}
-
-		scheduler.WaitUntilFinish()
-
+	mergeRequestErr := tasks.CollectMergeRequests(projectIdInt)
+	if mergeRequestErr != nil {
+		logger.Error("Could not collect merge requests: ", mergeRequestErr)
+		return
 	}
+
+	// find all mrs from db
+	var mrs []gitlabModels.GitlabMergeRequest
+	lakeModels.Db.Find(&mrs)
+
+	scheduler, err := utils.NewWorkerScheduler(50, 10)
+	if err != nil {
+		logger.Error("Could not create work scheduler", err)
+	}
+
+	for i := 0; i < len(mrs); i++ {
+		mr := (mrs)[i]
+
+		scheduler.Submit(func() error {
+			notesErr := tasks.CollectMergeRequestNotes(projectIdInt, &mr)
+			if notesErr != nil {
+				logger.Error("Could not collect MR Notes", notesErr)
+				return notesErr
+			}
+
+			commitsErr := tasks.CollectMergeRequestCommits(projectIdInt, &mr)
+			if commitsErr != nil {
+				logger.Error("Could not collect MR Commits", commitsErr)
+				return commitsErr
+			}
+			return nil
+		})
+	}
+
+	scheduler.WaitUntilFinish()
 
 	// enrichErr := tasks.EnrichMergeRequests()
 	// if enrichErr != nil {
