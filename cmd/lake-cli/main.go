@@ -3,7 +3,7 @@ package main
 import (
 	"log"
 
-	"github.com/merico-dev/lake/cmd/api"
+	"github.com/merico-dev/lake/cmd/lake-cli/api"
 	"github.com/spf13/cobra"
 )
 
