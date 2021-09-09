@@ -68,7 +68,7 @@ func updateMergeRequestWithFirstCommentTime(notes *ApiMergeRequestNoteResponse, 
 	}
 	return nil
 }
-func CollectMergeRequestNotes(projectId int, mr *MergeRequestRes) error {
+func CollectMergeRequestNotes(projectId int, mr *models.GitlabMergeRequest) error {
 	gitlabApiClient := CreateApiClient()
 
 	getUrl := fmt.Sprintf("projects/%v/merge_requests/%v/notes?system=false", projectId, mr.Iid)

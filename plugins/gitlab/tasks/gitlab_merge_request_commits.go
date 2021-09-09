@@ -33,7 +33,7 @@ type ApiMergeRequestCommitResponse []struct {
 	}
 }
 
-func CollectMergeRequestCommits(projectId int, mr *MergeRequestRes) error {
+func CollectMergeRequestCommits(projectId int, mr *models.GitlabMergeRequest) error {
 	gitlabApiClient := CreateApiClient()
 	fmt.Println("KEVIN >>> INSIDE COLLECT MR COMMITS mr.Iid", mr.Iid)
 

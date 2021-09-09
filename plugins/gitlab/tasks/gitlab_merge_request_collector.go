@@ -37,7 +37,7 @@ type MergeRequestRes struct {
 
 type ApiMergeRequestResponse []MergeRequestRes
 
-func CollectMergeRequests(projectId int, c chan *ApiMergeRequestResponse) error {
+func CollectMergeRequests(projectId int) error {
 	gitlabApiClient := CreateApiClient()
 
 	return gitlabApiClient.FetchWithPaginationAnts(fmt.Sprintf("projects/%v/merge_requests", projectId), 100,
@@ -81,7 +81,6 @@ func CollectMergeRequests(projectId int, c chan *ApiMergeRequestResponse) error 
 				CreateReviewers(projectId, mr.GitlabId, mr.Reviewers)
 
 			}
-			c <- gitlabApiResponse
 
 			return nil
 
