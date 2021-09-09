@@ -13,8 +13,6 @@ services:
       MYSQL_DATABASE: lake
       MYSQL_USER: merico
       MYSQL_PASSWORD: merico
-    networks:
-      - lake
   grafana:
     hostname: grafana
     image: grafana/grafana:8.0.6
@@ -29,10 +27,19 @@ services:
     env_file:
       - ./grafana/grafana.config
     restart: always
-    networks:
-      - lake
     depends_on:
       - mysql
+  config-ui:
+    build:
+      context: .
+      dockerfile: ./config-ui/ui.Dockerfile
+    ports:
+      - "4000:4000"
+    volumes:
+      - ./config-ui:/usr/src/app/config-ui
+      - /usr/src/app/config-ui/node_modules
+      - /usr/src/app/config-ui/.next
+      - ./.env:/usr/src/app/config-ui/.env
   devlake:
     image: mericodev/lake:latest
     ports:
@@ -40,12 +47,8 @@ services:
     env_file:
       - ./.env
     restart: always
-    networks:
-      - lake
     depends_on:
       - grafana
 volumes:
   mysql-storage:
   grafana-storage:
-networks:
-  lake:
