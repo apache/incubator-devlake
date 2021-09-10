@@ -7,11 +7,12 @@ Metric Name | Description
 Pull Request Count | Number of Pull/Merge Requests
 Pull Request Pass Rate | Ratio of Pull/Merge Review requests to merged
 Pull Request Reviewer Count | Number of Pull/Merge Reviewers
-Pull Request Review Time | Time from the first Pull/Merge Review comment until merged
+Pull Request Review Time | Time from Pull/Merge created time until merged
 Commit Author Count | Number of Contributors
 Commit Count | Number of Commits
 Added Lines | Accumulated Number of New Lines
 Deleted Lines | Accumulated Number of Removed Lines
+Pull Request Review Rounds | Number of cycles of commits followed by comments/final merge
 
 ## Configuration
 
