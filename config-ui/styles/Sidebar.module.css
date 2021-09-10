@@ -1,10 +1,12 @@
 .card {
-  width: 100%;
-  max-width: 250px;
+  width: 250px;
   border-radius: 0;
   background: #F4F4F6;
   z-index: 1;
   box-shadow: none;
+  position: fixed;
+  height: 100vh;
+  left: 0;
 }
 
 .logo {
@@ -20,6 +22,14 @@
   color: #fff !important;
 }
 
-.dashboardBtn span {
-  color: #fff !important;
+.dashboardBtn:hover {
+  opacity: 0.9;
+}
+
+.dashboardBtnLink:hover {
+  text-decoration: none;
+}
+
+.dashboardBtn span svg {
+  fill: #ff7b56 !important;
 }
