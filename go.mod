@@ -30,6 +30,7 @@ require (
 	github.com/mitchellh/mapstructure v1.4.1
 	github.com/modern-go/concurrent v0.0.0-20180306012644-bacd9c7ef1dd // indirect
 	github.com/modern-go/reflect2 v1.0.1 // indirect
+	github.com/panjf2000/ants/v2 v2.4.6
 	github.com/pelletier/go-toml v1.9.3 // indirect
 	github.com/sirupsen/logrus v1.8.1
 	github.com/spf13/afero v1.6.0 // indirect
@@ -46,8 +47,4 @@ require (
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 )
 
-require (
-	github.com/panjf2000/ants/v2 v2.4.6 // indirect
-	github.com/quasilyte/go-ruleguard/dsl v0.3.6 // indirect
-	golang.org/x/net v0.0.0-20210405180319-a5a99cb37ef4 // indirect
-)
+require golang.org/x/net v0.0.0-20210405180319-a5a99cb37ef4 // indirect
