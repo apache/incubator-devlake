@@ -1,0 +1,8 @@
+version: "3"
+services:
+  sync:
+    image: mericodev/lake:latest
+    volumes:
+      - ./req.json:/bin/app/req.json
+    command: lake-cli api task -m POST --cron "@every 60m" --body ./req.json 
+    network_mode: host
