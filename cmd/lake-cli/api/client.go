@@ -3,9 +3,11 @@ package api
 import (
 	"errors"
 	"fmt"
+	"io"
 	"io/ioutil"
 	"log"
 	"net/http"
+	"os"
 	"strings"
 
 	"github.com/merico-dev/lake/logger"
@@ -62,8 +64,10 @@ func (o *apiOptions) Validate(cmd *cobra.Command, args []string) error {
 
 func (o *apiOptions) Run(cmd *cobra.Command, args []string) error {
 	fmt.Println(args)
-	fmt.Printf("%+v\n", *o)
-
+	if strings.TrimSpace(o.Body) != "" {
+		o.Body = readBodyFromFile(o.Body)
+	}
+	fmt.Printf("%+v\n", o)
 	err := DoRequest(fmt.Sprintf("%s/%s", o.Host, args[0]), o.Method, o.Body)
 	if err != nil {
 		return err
@@ -111,4 +115,33 @@ func Post(url, body string) error {
 	}
 	log.Println(string(responseBody))
 	return nil
+}
+
+func readBodyFromFile(input string) string {
+	// TODO: check if input is path like
+
+	// read file if exist, otherwise return input string
+	if _, err := os.Stat(input); err != nil {
+		log.Println(err)
+		return input
+	}
+	f, err := os.Open(input)
+	defer close(f)
+	if err != nil {
+		log.Fatalln(err)
+		return input
+	}
+	content, err := ioutil.ReadAll(f)
+	if err != nil {
+		log.Fatalln(err)
+		return input
+	}
+	return string(content)
+}
+
+func close(c io.Closer) {
+	err := c.Close()
+	if err != nil {
+		log.Fatal(err)
+	}
 }
