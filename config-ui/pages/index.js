@@ -23,10 +23,10 @@ export default function Home(props) {
 
   function updateEnv(key, value) {
     fetch(`http://localhost:4000/api/setenv/${key}/${encodeURIComponent(value)}`)
-    // alert('updated')
   }
 
-  function saveAll() {
+  function saveAll(e) {
+    e.preventDefault()
     updateEnv('DB_URL', dbUrl)
     updateEnv('PORT', port)
     updateEnv('MODE', mode)
@@ -61,178 +61,181 @@ export default function Home(props) {
             <p className={styles.description}>Configure your <code className={styles.code}>.env</code> file values</p>
           </div>
 
-          <div className={styles.headlineContainer}>
-            <h2 className={styles.headline}>Main Database Connection</h2>
-            <p className={styles.description}>Settings for the mySQL database</p>
-          </div>
-          <div className={styles.formContainer}>
-            <FormGroup
-                label="DB_URL"
-                inline={true}
-                labelFor="db-url"
-                helperText="The URL Connection string to the database"
-                className={styles.formGroup}
-                contentClassName={styles.formGroup}
-            >
-                <InputGroup
-                  id="db-url"
-                  placeholder="Enter DB Connection String"
-                  defaultValue={env.DB_URL}
-                  onChange={(e) => setDbUrl(e.target.value)}
-                  className={styles.input}
-                />
-            </FormGroup>
-          </div>
+          <form className={styles.form}>
+            <div className={styles.headlineContainer}>
+              <h2 className={styles.headline}>Main Database Connection</h2>
+              <p className={styles.description}>Settings for the mySQL database</p>
+            </div>
 
-          <div className={styles.headlineContainer}>
-            <h2 className={styles.headline}>REST Configuration</h2>
-            <p className={styles.description}>Configure main REST Settings</p>
-          </div>
+            <div className={styles.formContainer}>
+              <FormGroup
+                  label="DB_URL"
+                  inline={true}
+                  labelFor="db-url"
+                  helperText="The URL Connection string to the database"
+                  className={styles.formGroup}
+                  contentClassName={styles.formGroup}
+              >
+                  <InputGroup
+                    id="db-url"
+                    placeholder="Enter DB Connection String"
+                    defaultValue={env.DB_URL}
+                    onChange={(e) => setDbUrl(e.target.value)}
+                    className={styles.input}
+                  />
+              </FormGroup>
+            </div>
 
-          <div className={styles.formContainer}>
-            <FormGroup
-                label="PORT"
-                inline={true}
-                labelFor="port"
-                helperText="The main port for the REST server"
-                className={styles.formGroup}
-                contentClassName={styles.formGroup}
-            >
-                <InputGroup
-                  id="port"
-                  placeholder="Enter Port eg. :8080"
-                  defaultValue={env.PORT}
-                  onChange={(e) => setPort(e.target.value)}
-                  className={styles.input}
-                />
-            </FormGroup>
-          </div>
+            <div className={styles.headlineContainer}>
+              <h2 className={styles.headline}>REST Configuration</h2>
+              <p className={styles.description}>Configure main REST Settings</p>
+            </div>
 
-          <div className={styles.formContainer}>
-            <FormGroup
-                label="MODE"
-                inline={true}
-                labelFor="mode"
-                helperText="The development mode for the server"
-                className={styles.formGroup}
-                contentClassName={styles.formGroup}
-            >
-                <InputGroup
-                  id="mode"
-                  placeholder="Enter Mode eg. debug"
-                  defaultValue={env.MODE}
-                  onChange={(e) => setMode(e.target.value)}
-                  className={styles.input}
-                />
-            </FormGroup>
-          </div>
+            <div className={styles.formContainer}>
+              <FormGroup
+                  label="PORT"
+                  inline={true}
+                  labelFor="port"
+                  helperText="The main port for the REST server"
+                  className={styles.formGroup}
+                  contentClassName={styles.formGroup}
+              >
+                  <InputGroup
+                    id="port"
+                    placeholder="Enter Port eg. :8080"
+                    defaultValue={env.PORT}
+                    onChange={(e) => setPort(e.target.value)}
+                    className={styles.input}
+                  />
+              </FormGroup>
+            </div>
 
-          <div className={styles.headlineContainer}>
-            <h2 className={styles.headline}>Jira Configuration</h2>
-            <p className={styles.description}>Jira Account and config settings</p>
-          </div>
+            <div className={styles.formContainer}>
+              <FormGroup
+                  label="MODE"
+                  inline={true}
+                  labelFor="mode"
+                  helperText="The development mode for the server"
+                  className={styles.formGroup}
+                  contentClassName={styles.formGroup}
+              >
+                  <InputGroup
+                    id="mode"
+                    placeholder="Enter Mode eg. debug"
+                    defaultValue={env.MODE}
+                    onChange={(e) => setMode(e.target.value)}
+                    className={styles.input}
+                  />
+              </FormGroup>
+            </div>
 
-          <div className={styles.formContainer}>
-            <FormGroup
-                label="JIRA_ENDPOINT"
-                inline={true}
-                labelFor="jira-endpoint"
-                helperText="Your custom url endpoint for Jira"
-                className={styles.formGroup}
-                contentClassName={styles.formGroup}
-            >
-                <InputGroup
-                  id="jira-endpoint"
-                  placeholder="Enter Jira endpoint eg. https://merico.atlassian.net"
-                  defaultValue={env.JIRA_ENDPOINT}
-                  onChange={(e) => setJiraEndpoint(e.target.value)}
-                  className={styles.input}
-                />
-            </FormGroup>
-          </div>
+            <div className={styles.headlineContainer}>
+              <h2 className={styles.headline}>Jira Configuration</h2>
+              <p className={styles.description}>Jira Account and config settings</p>
+            </div>
 
-          <div className={styles.formContainer}>
-            <FormGroup
-                label="JIRA_BASIC_AUTH_ENCODED"
-                inline={true}
-                labelFor="jira-basic-auth"
-                helperText="Your encoded Jira auth token"
-                className={styles.formGroup}
-                contentClassName={styles.formGroup}
-            >
-                <InputGroup
-                  id="jira-basic-auth"
-                  placeholder="Enter Jira Auth eg. EJrLG8DNeXADQcGOaaaX4B47"
-                  defaultValue={env.JIRA_BASIC_AUTH_ENCODED}
-                  onChange={(e) => setJiraBasicAuthEncoded(e.target.value)}
-                  className={styles.input}
-                />
-            </FormGroup>
-          </div>
+            <div className={styles.formContainer}>
+              <FormGroup
+                  label="JIRA_ENDPOINT"
+                  inline={true}
+                  labelFor="jira-endpoint"
+                  helperText="Your custom url endpoint for Jira"
+                  className={styles.formGroup}
+                  contentClassName={styles.formGroup}
+              >
+                  <InputGroup
+                    id="jira-endpoint"
+                    placeholder="Enter Jira endpoint eg. https://merico.atlassian.net"
+                    defaultValue={env.JIRA_ENDPOINT}
+                    onChange={(e) => setJiraEndpoint(e.target.value)}
+                    className={styles.input}
+                  />
+              </FormGroup>
+            </div>
 
-          <div className={styles.formContainer}>
-            <FormGroup
-                label="JIRA_ISSUE_EPIC_KEY_FIELD"
-                inline={true}
-                labelFor="jira-epic-key"
-                helperText="Your custom epic key field (optional)"
-                className={styles.formGroup}
-                contentClassName={styles.formGroup}
-            >
-                <InputGroup
-                  id="jira-epic-key"
-                  placeholder="Enter Jira epic key field"
-                  defaultValue={env.JIRA_ISSUE_EPIC_KEY_FIELD}
-                  onChange={(e) => setJiraIssueEpicKeyField(e.target.value)}
-                  className={styles.input}
-                />
-            </FormGroup>
-          </div>
+            <div className={styles.formContainer}>
+              <FormGroup
+                  label="JIRA_BASIC_AUTH_ENCODED"
+                  inline={true}
+                  labelFor="jira-basic-auth"
+                  helperText="Your encoded Jira auth token"
+                  className={styles.formGroup}
+                  contentClassName={styles.formGroup}
+              >
+                  <InputGroup
+                    id="jira-basic-auth"
+                    placeholder="Enter Jira Auth eg. EJrLG8DNeXADQcGOaaaX4B47"
+                    defaultValue={env.JIRA_BASIC_AUTH_ENCODED}
+                    onChange={(e) => setJiraBasicAuthEncoded(e.target.value)}
+                    className={styles.input}
+                  />
+              </FormGroup>
+            </div>
 
-          <div className={styles.headlineContainer}>
-            <h2 className={styles.headline}>Gitlab Configuration</h2>
-            <p className={styles.description}>Gitlab account and config settings</p>
-          </div>
+            <div className={styles.formContainer}>
+              <FormGroup
+                  label="JIRA_ISSUE_EPIC_KEY_FIELD"
+                  inline={true}
+                  labelFor="jira-epic-key"
+                  helperText="Your custom epic key field (optional)"
+                  className={styles.formGroup}
+                  contentClassName={styles.formGroup}
+              >
+                  <InputGroup
+                    id="jira-epic-key"
+                    placeholder="Enter Jira epic key field"
+                    defaultValue={env.JIRA_ISSUE_EPIC_KEY_FIELD}
+                    onChange={(e) => setJiraIssueEpicKeyField(e.target.value)}
+                    className={styles.input}
+                  />
+              </FormGroup>
+            </div>
 
-          <div className={styles.formContainer}>
-            <FormGroup
-                label="GITLAB_ENDPOINT"
-                inline={true}
-                labelFor="gitlab-endpoint"
-                helperText="Gitlab API Endpoint"
-                className={styles.formGroup}
-                contentClassName={styles.formGroup}
-            >
-                <InputGroup
-                  id="gitlab-endpoint"
-                  placeholder="Enter Gitlab API endpoint"
-                  defaultValue={env.GITLAB_ENDPOINT}
-                  onChange={(e) => setGitlabEndpoint(e.target.value)}
-                  className={styles.input}
-                />
-            </FormGroup>
-          </div>
+            <div className={styles.headlineContainer}>
+              <h2 className={styles.headline}>Gitlab Configuration</h2>
+              <p className={styles.description}>Gitlab account and config settings</p>
+            </div>
 
-          <div className={styles.formContainer}>
-            <FormGroup
-                label="GITLAB_AUTH"
-                inline={true}
-                labelFor="gitlab-auth"
-                helperText="Gitlab Auth Token"
-                className={styles.formGroup}
-                contentClassName={styles.formGroup}
-            >
-                <InputGroup
-                  id="gitlab-auth"
-                  placeholder="Enter Gitlab Auth Token eg. uJVEDxabogHbfFyu2riz"
-                  defaultValue={env.GITLAB_AUTH}
-                  onChange={(e) => setGitlabAuth(e.target.value)}
-                  className={styles.input}
-                />
-            </FormGroup>
-          </div>
+            <div className={styles.formContainer}>
+              <FormGroup
+                  label="GITLAB_ENDPOINT"
+                  inline={true}
+                  labelFor="gitlab-endpoint"
+                  helperText="Gitlab API Endpoint"
+                  className={styles.formGroup}
+                  contentClassName={styles.formGroup}
+              >
+                  <InputGroup
+                    id="gitlab-endpoint"
+                    placeholder="Enter Gitlab API endpoint"
+                    defaultValue={env.GITLAB_ENDPOINT}
+                    onChange={(e) => setGitlabEndpoint(e.target.value)}
+                    className={styles.input}
+                  />
+              </FormGroup>
+            </div>
 
-          <Button outlined={true} large={true} className={styles.saveBtn} onClick={() => saveAll()}>Save Config</Button>
+            <div className={styles.formContainer}>
+              <FormGroup
+                  label="GITLAB_AUTH"
+                  inline={true}
+                  labelFor="gitlab-auth"
+                  helperText="Gitlab Auth Token"
+                  className={styles.formGroup}
+                  contentClassName={styles.formGroup}
+              >
+                  <InputGroup
+                    id="gitlab-auth"
+                    placeholder="Enter Gitlab Auth Token eg. uJVEDxabogHbfFyu2riz"
+                    defaultValue={env.GITLAB_AUTH}
+                    onChange={(e) => setGitlabAuth(e.target.value)}
+                    className={styles.input}
+                  />
+              </FormGroup>
+            </div>
+
+            <Button type="submit" outlined={true} large={true} className={styles.saveBtn} onClick={(e) => saveAll(e)}>Save Config</Button>
+          </form>
         </main>
       </Content>
     </div>
