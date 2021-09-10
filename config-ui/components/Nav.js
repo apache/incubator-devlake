@@ -10,12 +10,12 @@ const Nav = () => {
 
   return <Navbar className={styles.navbar}>
     <Navbar.Group align={Alignment.RIGHT}>
-        <a href="https://github.com/merico-dev/lake" target="_blank">
-          <Icon icon="git-branch" size={14} />
+        <a href="https://github.com/merico-dev/lake" target="_blank" className={styles.navIconLink}>
+          <Icon icon="git-branch" size={16} />
         </a>
         <Navbar.Divider />
-        <a href="mailto:hello@merico.dev" target="_blank">
-        <Icon icon="envelope" size={14} />
+        <a href="mailto:hello@merico.dev" target="_blank" className={styles.navIconLink}>
+        <Icon icon="envelope" size={16} />
         </a>
     </Navbar.Group>
   </Navbar>

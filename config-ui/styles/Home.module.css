@@ -6,7 +6,7 @@
 }
 
 .main {
-  padding: 5rem 0;
+  padding: 4rem 4rem 4rem calc(250px + 4rem);
   flex: 1;
   display: flex;
   flex-direction: column;
@@ -15,7 +15,8 @@
 }
 
 .description {
-  margin-bottom: 2rem;
+  display: block;
+  margin-bottom: 1.6rem;
 }
 
 .logo {
@@ -32,7 +33,12 @@
 }
 
 .input {
-  flex: 1;
+  width: 100%;
+}
+
+.formGroup {
+  width: 100%;
+  max-width: 600px;
 }
 
 .button {
@@ -42,11 +48,30 @@
 .formContainer {
   display: flex;
   width: 100%;
-  min-width: 700px;
   align-items: center;
   margin-bottom: 0.5rem;
 }
 
+.headlineContainer {
+  width: 100%;
+}
+
+.headlineContainer h1 {
+  margin: 0 0 0.5rem;
+}
+
 .headline {
   margin-top: 1.5rem;
+  margin-bottom: 0.25rem;
+}
+
+.saveBtn {
+  margin: 2rem auto 0 0;
+  display: block;
+  background-color: #717484 !important;
+  color: #fff !important;
+}
+
+.saveBtn:hover {
+  opacity: 0.9;
 }

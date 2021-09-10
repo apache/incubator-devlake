@@ -17,3 +17,20 @@ a {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
+
+h1, h2 {
+  font-family: 'Rubik', sans-serif;
+  color: #4B4D58;
+}
+
+h1 {
+  font-weight: 600;
+}
+
+h2 {
+  font-weight: 500;
+}
+
+p {
+  color: #717484;
+}
