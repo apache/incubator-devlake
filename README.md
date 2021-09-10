@@ -126,6 +126,11 @@ All the details on provisioning, and customizing a dashboard can be found in the
 
 5. Navigate to grafana dashboard `http://localhost:3002` (username: `admin`, password: `admin`).
 
+### Setup cron job
+Commonly, we have requirement to synchorize data periodly. We providered a tool called `lake-cli` to meet that requirement. Check `lake-cli` usage at [here](./cmd/lake-cli/README.md).  
+
+Otherwise, if you just want to use the cron job, please check `docker-compose` version at [here](./devops/sync/README.md)
+
 ## Development Setup<a id="development-setup"></a>
 
 1. Navigate to where you would like to install this project and clone the repository
