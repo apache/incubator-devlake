@@ -6,7 +6,7 @@ import * as fs from 'fs/promises'
 import styles from '../styles/Home.module.css'
 import Nav from '../components/Nav'
 import Sidebar from '../components/Sidebar'
-import Content from '../components/Content'
+// import Content from '../components/Content'
 
 export default function Home(props) {
   const { env } = props
@@ -14,9 +14,14 @@ export default function Home(props) {
   const [dbUrl, setDbUrl] = useState('')
   const [port, setPort] = useState('')
   const [mode, setMode] = useState('')
+  const [jiraEndpoint, setJiraEndpoint] = useState('')
+  const [jiraBasicAuthEncoded, setJiraBasicAuthEncoded] = useState('')
+  const [jiraIssueEpicKeyField, setJiraIssueEpicKeyField] = useState('')
+  const [gitlabEndpoint, setGitlabEndpoint] = useState('')
+  const [gitlabAuth, setGitlabAuth] = useState('')
 
   function updateEnv(key, value) {
-    fetch(`http://localhost:4000/api/setenv/${key}/${value}`)
+    fetch(`http://localhost:4000/api/setenv/${key}/${encodeURIComponent(value)}`)
     alert('updated')
   }
 
@@ -28,15 +33,15 @@ export default function Home(props) {
         <meta name="description" content="Lake: Config" />
         <link rel="icon" href="/favicon.ico" />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin />
         <link href="https://fonts.googleapis.com/css2?family=Source+Sans+Pro:wght@400;600&display=swap" rel="stylesheet" />
       </Head>
 
       <Nav />
       <Sidebar />
-      <Content />
+      {/* <Content /> */}
 
-      {/* <main className={styles.main}>
+      <main className={styles.main}>
 
         <img src="/logo.svg" className={styles.logo} />
 
@@ -106,7 +111,7 @@ export default function Home(props) {
           <button className={styles.button} onClick={() => updateEnv('GITLAB_AUTH', gitlabAuth)}>save</button>
         </div>
 
-      </main> */}
+      </main>
     </div>
   )
 }
@@ -114,7 +119,7 @@ export default function Home(props) {
 export async function getStaticProps() {
   // const fs = require('fs').promises
 
-  const filePath = path.join(process.cwd(), 'data', '../../config-ui/.env')
+  const filePath = path.join(process.cwd(), 'data', '../../.env')
   const fileData = await fs.readFile(filePath)
   const env = dotenv.parse(fileData)
 
