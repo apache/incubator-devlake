@@ -27,17 +27,16 @@ Section | Description | Documentation Link
 :------------ | :------------- | :-------------
 Data Sources | Links to specific plugin usage & details | [View Section](#data-source-plugins)
 Grafana | How to visualize the data | [View Section](#grafana)
-Requirements | Underlying software used | [View Section](#requirements)
-Setup | Steps to setup the project | [View Section](#user-setup) 
-Migrations | Commands for running migrations | [View Section](#migrations)
+User Setup | Steps to run the project as a user | [View Section](#user-setup) 
+Development Requirements | How to develop code for this project | [View Section](#requirements)
 Tests | Commands for running tests | [View Section](#tests)
-⚠️ (WIP) Build a Plugin | Details on how to make your own | [Link](plugins/README.md) 
-⚠️ (WIP) Add Plugin Metrics | Guide to adding plugin metrics | [Link](plugins/HOW-TO-ADD-METRICS.md) 
+Build a Plugin | Details on how to make your own | [Link](plugins/README.md) 
+Add Plugin Metrics | Guide to adding plugin metrics | [Link](plugins/HOW-TO-ADD-METRICS.md) 
 Contributing | How to contribute to this repo | [Link](CONTRIBUTING.md)
 
 
 
-## ⚠️ (WIP) Data Sources We Currently Support<a id="data-source-plugins"></a>
+## Data Sources We Currently Support<a id="data-source-plugins"></a>
 
 Below is a list of _data source plugins_ used to collect & enrich data from specific sources. Each have a `README.md` file with basic setup, troubleshooting and metrics info.
 
@@ -47,7 +46,7 @@ Section | Section Info | Docs
 ------------ | ------------- | -------------
 Jira | Metrics, Generating API Token, Find Project/Board ID | [Link](plugins/jira/README.md) 
 Gitlab | Metrics, Generating API Token | [Link](plugins/gitlab/README.md) 
-Jenkins | Metrics | [Link](plugins/jenkins/README.md) 
+Jenkins | Metrics, Generating API Token | [Link](plugins/jenkins/README.md) 
 
 ## Grafana<a id="grafana"></a>
 
@@ -56,15 +55,6 @@ We use <a href="https://grafana.com/" target="_blank">Grafana</a> as a visualiza
 All the details on provisioning, and customizing a dashboard can be found in the [Grafana Doc](docs/GRAFANA.md)
 
 ---
-
-## Development Requirements<a id="requirements"></a>
-
-- <a href="https://docs.docker.com/get-docker" target="_blank">Docker</a>
-- <a href="https://golang.org/doc/install" target="_blank">Golang</a>
-- Make
-  - Mac (Already installed)
-  - Windows: [Download](http://gnuwin32.sourceforge.net/packages/make.htm)
-  - Ubuntu: `sudo apt-get install build-essential`
 
 ## User setup<a id="user-setup"></a>
 
@@ -96,7 +86,7 @@ All the details on provisioning, and customizing a dashboard can be found in the
 3. Launch `docker-compose`
 
    ```shell
-   docker-compose up
+   make compose
    ```
 
 4. Create a http request to trigger data collect tasks, please replace your [gitlab projectId](plugins/gitlab/README.md#finding-project-id) and [jira boardId](plugins/jira/README.md#find-board-id) in the request body. This can take up to 20 minutes for large projects. (gitlab 10k+ commits or jira 5k+ issues)
@@ -133,6 +123,16 @@ Otherwise, if you just want to use the cron job, please check `docker-compose` v
 
 ## Development Setup<a id="development-setup"></a>
 
+### Development Requirements<a id="requirements"></a>
+
+- <a href="https://docs.docker.com/get-docker" target="_blank">Docker</a>
+- <a href="https://golang.org/doc/install" target="_blank">Golang</a>
+- Make
+  - Mac (Already installed)
+  - Windows: [Download](http://gnuwin32.sourceforge.net/packages/make.htm)
+  - Ubuntu: `sudo apt-get install build-essential`
+
+### Development Step By Step Guide
 1. Navigate to where you would like to install this project and clone the repository
 
    ```sh
@@ -179,36 +179,13 @@ Otherwise, if you just want to use the cron job, please check `docker-compose` v
     }]'
     ```
 
-7. Collect & enrich data from selected sources and plugins
-
-    _These plugins can be selected from the above list ([View List](#data-source-plugins)), and options for them will be outlined in their specific document._
-
-    **Example:**
-
-    ```sh
-    curl -XPOST 'localhost:8080/source' \
-    -H 'Content-Type: application/json' \
-    -d '[{
-        "plugin": "Jira",
-        "options": {}
-
-    }]'
-    ```
-
-8. Visualize the data in the Grafana Dashboard
+7. Visualize the data in the Grafana Dashboard
 
     _From here you can see existing data visualized from collected & enriched data_
 
     - Navigate to http://localhost:3002 (username: `admin`, password: `admin`)
     - You can also create/modify existing/save dashboards to `lake`
     - For more info on working with Grafana in Dev Lake see [Grafana Doc](docs/GRAFANA.md)
-
-
-## ⚠️ (WIP) Migrations<a id="migrations"></a>
-
-- Make a migration: `<>`
-- Migrate your DB: `<>`
-- Undo a migration: `<>`
 
 ## Tests<a id="tests"></a>
 
@@ -224,19 +201,6 @@ To run the tests: `make test`
 
 Message us on <a href="https://discord.com/invite/83rDG6ydVZ" target="_blank">Discord</a>
 
-# Architecture Layers
 
-## Stack (from low to high)
 
-1. config
-2. logger
-3. models
-4. plugins
-5. services
-6. api / cli
 
-## Rules
-
-1. Higher layer calls lower layer, not the other way around
-2. Whenever lower layer neeeds sth from higher layer, a interface should be introduced for decoupling
-3. Components should be initialized in a low to high order during bootstraping
