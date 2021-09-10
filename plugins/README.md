@@ -97,3 +97,7 @@ Note the use of "upsert". This is useful for only saving modified records.
   - Add fields you don't currently have
   - Compute fields you might want for metrics
   - Eliminate fields you don't need
+
+## You're Done!
+
+Congratulations! You have created your first plugin! 🎖 
