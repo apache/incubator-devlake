@@ -20,14 +20,15 @@ a {
 
 h1, h2 {
   font-family: 'Rubik', sans-serif;
-  color: #4B4D58;
 }
 
 h1 {
+  color: #303033;
   font-weight: 600;
 }
 
 h2 {
+  color: #4B4D58;
   font-weight: 500;
 }
 

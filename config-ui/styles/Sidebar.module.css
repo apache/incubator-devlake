@@ -12,7 +12,7 @@
 .logo {
   max-width: 60px;
   display: block;
-  margin: -2rem auto 2rem;
+  margin: -2rem auto 2.5rem;
 }
 
 .dashboardBtn {
@@ -32,4 +32,40 @@
 
 .dashboardBtn span svg {
   fill: #ff7b56 !important;
+}
+
+.sidebarMenu {
+  margin-top: 2.5rem;
+  list-style-type: none;
+  padding-left: 0;
+  margin-left: -20px;
+  width: calc(100% + 40px);
+}
+
+.sidebarMenu a {
+  background: #FFDBC2;
+  display: block;
+  padding: 12px 20px;
+  color: #E8471C;
+  position: relative;
+  text-decoration: none;
+}
+
+.sidebarMenu a:hover {
+  background-color: #ffdac6;
+}
+
+.sidebarMenuDash {
+  height: 100%;
+  position: absolute;
+  background-color: #F8C3B5;
+  top: 0;
+  right: 0;
+  width: 3px;
+  border-top-left-radius: 2px;
+  border-bottom-left-radius: 2px;
+}
+
+.sidebarMenuListIcon {
+  margin-right: 0.75rem;
 }
