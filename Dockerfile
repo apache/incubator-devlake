@@ -5,15 +5,19 @@ ARG GOPROXY=
 WORKDIR /app
 COPY . /app
 
-RUN CGO_ENABLE=1 GOOS=linux go build -o lake && sh scripts/compile-plugins.sh
+ENV GOBIN=/app/bin
+
+RUN CGO_ENABLE=1 GOOS=linux go build -o bin/lake && sh scripts/compile-plugins.sh
 RUN go install ./cmd/lake-cli/
 
 FROM alpine:edge
-EXPOSE 8080
-COPY --from=builder /app/lake /bin/app/lake
-COPY --from=builder /app/plugins/ /bin/app/plugins
-COPY --from=builder /usr/share/zoneinfo /usr/share/zoneinfo
-COPY --from=builder /go/bin/lake-cli /bin/lake-cli
 
-WORKDIR /bin/app
-CMD ["/bin/sh", "-c", "./lake"]
+EXPOSE 8080
+WORKDIR /app
+
+COPY --from=builder /app/bin /app/bin
+COPY --from=builder /usr/share/zoneinfo /usr/share/zoneinfo
+
+ENV PATH="/app/bin:${PATH}"
+
+CMD ["lake"]
