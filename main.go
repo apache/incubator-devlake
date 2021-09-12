@@ -6,7 +6,7 @@ import (
 )
 
 func main() {
-	err := plugins.LoadPlugins("./plugins")
+	err := plugins.LoadPlugins(plugins.PluginDir())
 	if err != nil {
 		panic(err)
 	}

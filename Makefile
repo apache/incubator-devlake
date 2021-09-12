@@ -5,11 +5,14 @@
 hello:
 	echo "Hello"
 
-build:
-	go build
+build-plugin:
+	@sh scripts/compile-plugins.sh
 
-dev:
-	@sh ./scripts/dev.sh
+build: build-plugin
+	go build -o bin/lake
+
+dev: build
+	bin/lake
 
 run:
 	go run main.go
@@ -32,12 +35,14 @@ install:
 
 test: unit-test e2e-test
 
-unit-test:
-	@sh ./scripts/unit-test.sh
+unit-test: build
+	ENV_FILE=`pwd`/.env go test -v $$(go list ./... | grep -v /test/)
 
-e2e-test:
-	@sh ./scripts/e2e-test.sh
+e2e-test: build
+	ENV_FILE=`pwd`/.env go test -v ./test/...
 
 lint:
 	golangci-lint run
 
+clean:
+	@rm -rf bin
