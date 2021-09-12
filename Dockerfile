@@ -1,4 +1,4 @@
-FROM mericodev/lake-builder:0.0.1 as builder
+FROM mericodev/lake-builder:0.0.2 as builder
 
 # docker build --build-arg GOPROXY=https://goproxy.io,direct -t mericodev/lake .
 ARG GOPROXY=
@@ -12,9 +12,7 @@ FROM alpine:edge
 EXPOSE 8080
 COPY --from=builder /app/lake /bin/app/lake
 COPY --from=builder /app/plugins/ /bin/app/plugins
-# copy zoneinfo.zip into container
-# zoneinfo.zip is from $GOROOT/lib/time/zoneinfo.zip
-COPY --from=builder /app/zoneinfo.zip /usr/local/go/lib/time/zoneinfo.zip
+COPY --from=builder /usr/share/zoneinfo /usr/share/zoneinfo
 COPY --from=builder /go/bin/lake-cli /bin/lake-cli
 
 WORKDIR /bin/app
