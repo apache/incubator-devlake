@@ -31,5 +31,5 @@ jobs:
         redis-version: '6.x'
     - name: Test
       run: |
-        sh ./scripts/compile-plugins.sh
-        sh ./scripts/e2e-test.sh
+        cp .env.example .env
+        make e2e-test
