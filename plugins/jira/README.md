@@ -83,3 +83,33 @@ Using URL
 1. Navigate to Administration >> Issues >> Custom Fields .
 2. Click the cog and hover over Configure or Screens option.
 3. Observe the URL at the bottom left of the browser window. Example: The id for this custom field is 10006.
+
+## Issue status mapping
+Jira is highly customizable, different company may use different `status name` to represent whether a issue was
+resolved or not, one may named it "Done" and others might named it "Finished".
+In order to collect life-cycle information correctly, you'll have to map your specific status to Devlake's standard
+status, Devlake supports two standard status:
+
+ - `Resolved`: issue was ended successfully
+ - `Rejected`: issue was ended by termination or cancellation
+
+Say we were using `Done` and `Cancelled` to represent the final stage of `Story` issues, what we have to do is setting
+the following `Environment Variables` before running Devlake:
+```sh
+JIRA_ISSUE_STORY_STATUS_MAPPING=Resolved:Done;Reject:Cancelled
+```
+
+## Issue type mapping
+Same as status mapping, different company might use different issue type to represent their Bug/Incident/Requirement,
+type mapping is for Devlake to recognize your specific setup.
+Devlake supports three different standard types:
+
+ - `Bug`
+ - `Incident`
+ - `Requirement`
+
+Say we were using `Story` to represent our Requirement, what we have to do is setting the following
+`Environment Variables` before running Devlake:
+```sh
+JIRA_ISSUE_TYPE_MAPPING=Requirement:Story
+```
