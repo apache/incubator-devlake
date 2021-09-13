@@ -1,18 +1,16 @@
 package plugins
 
 import (
+	"github.com/magiconair/properties/assert"
+	"github.com/merico-dev/lake/config"
+	"github.com/merico-dev/lake/plugins"
 	"path"
-	"runtime"
 	"strings"
 	"testing"
-
-	"github.com/merico-dev/lake/plugins"
 )
 
 func TestPluginsLoading(t *testing.T) {
-	_, filename, _, _ := runtime.Caller(0)
-	pluginsDir := strings.Replace(path.Dir(filename), `test/`, ``, 1)
-	err := plugins.LoadPlugins(pluginsDir)
+	err := plugins.LoadPlugins(plugins.PluginDir())
 	if err != nil {
 		t.Errorf("Failed to LoadPlugins %v", err)
 	}
@@ -37,4 +35,10 @@ func TestPluginsLoading(t *testing.T) {
 	// 	t.Error(err)
 	// }
 
+}
+
+func TestPluginDir(t *testing.T) {
+	pluginDir := plugins.PluginDir()
+	assert.Equal(t, path.IsAbs(pluginDir), true)
+	assert.Equal(t, strings.HasSuffix(pluginDir, config.V.GetString("PLUGIN_DIR")), true)
 }

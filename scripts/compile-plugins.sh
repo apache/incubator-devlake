@@ -1,6 +1,12 @@
 #!/bin/sh
-for PLUG in $(find plugins/* -maxdepth 0 -type d -not -name core -not -empty); do
+
+SCRIPT_DIR="$( cd "$( dirname "$0" )" && pwd )"
+PLUGIN_SRC_DIR=$SCRIPT_DIR/../plugins
+PLUGIN_OUTPUT_DIR=$SCRIPT_DIR/../bin/plugins
+
+
+for PLUG in $(find $PLUGIN_SRC_DIR/* -maxdepth 0 -type d -not -name core -not -empty); do
   NAME=$(basename $PLUG)
-  echo $PLUG/$NAME
-  go build -buildmode=plugin "$@" -o $PLUG/$NAME.so $PLUG/*.go
+  echo "Building plugin $NAME to bin/plugins/$NAME/$NAME.so"
+  go build -buildmode=plugin "$@" -o $PLUGIN_OUTPUT_DIR/$NAME/$NAME.so $PLUG/*.go
 done

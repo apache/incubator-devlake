@@ -1,21 +1,23 @@
-FROM mericodev/lake-builder:0.0.1 as builder
+FROM mericodev/lake-builder:0.0.2 as builder
 
 # docker build --build-arg GOPROXY=https://goproxy.io,direct -t mericodev/lake .
 ARG GOPROXY=
 WORKDIR /app
 COPY . /app
 
-RUN CGO_ENABLE=1 GOOS=linux go build -o lake && sh scripts/compile-plugins.sh
+ENV GOBIN=/app/bin
+
+RUN CGO_ENABLE=1 GOOS=linux go build -o bin/lake && sh scripts/compile-plugins.sh
 RUN go install ./cmd/lake-cli/
 
 FROM alpine:edge
-EXPOSE 8080
-COPY --from=builder /app/lake /bin/app/lake
-COPY --from=builder /app/plugins/ /bin/app/plugins
-# copy zoneinfo.zip into container
-# zoneinfo.zip is from $GOROOT/lib/time/zoneinfo.zip
-COPY --from=builder /app/zoneinfo.zip /usr/local/go/lib/time/zoneinfo.zip
-COPY --from=builder /go/bin/lake-cli /bin/lake-cli
 
-WORKDIR /bin/app
-CMD ["/bin/sh", "-c", "./lake"]
+EXPOSE 8080
+WORKDIR /app
+
+COPY --from=builder /app/bin /app/bin
+COPY --from=builder /usr/share/zoneinfo /usr/share/zoneinfo
+
+ENV PATH="/app/bin:${PATH}"
+
+CMD ["lake"]
