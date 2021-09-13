@@ -14,6 +14,9 @@ dev:
 run:
 	go run main.go
 
+configure:
+	cd config-ui; yarn; npm run dev;
+
 compose:
 	docker-compose up grafana
 

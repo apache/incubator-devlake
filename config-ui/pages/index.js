@@ -2,7 +2,12 @@ import Head from 'next/head'
 import { useState } from 'react'
 import dotenv from 'dotenv'
 import path from 'path'
+import * as fs from 'fs/promises'
 import styles from '../styles/Home.module.css'
+import { FormGroup, InputGroup, Button } from "@blueprintjs/core"
+import Nav from '../components/Nav'
+import Sidebar from '../components/Sidebar'
+import Content from '../components/Content'
 
 export default function Home(props) {
   const { env } = props
@@ -10,10 +15,27 @@ export default function Home(props) {
   const [dbUrl, setDbUrl] = useState('')
   const [port, setPort] = useState('')
   const [mode, setMode] = useState('')
+  const [jiraEndpoint, setJiraEndpoint] = useState('')
+  const [jiraBasicAuthEncoded, setJiraBasicAuthEncoded] = useState('')
+  const [jiraIssueEpicKeyField, setJiraIssueEpicKeyField] = useState('')
+  const [gitlabEndpoint, setGitlabEndpoint] = useState('')
+  const [gitlabAuth, setGitlabAuth] = useState('')
 
   function updateEnv(key, value) {
-    fetch(`http://localhost:4000/api/setenv/${key}/${value}`)
-    alert('updated')
+    fetch(`http://localhost:4000/api/setenv/${key}/${encodeURIComponent(value)}`)
+  }
+
+  function saveAll(e) {
+    e.preventDefault()
+    updateEnv('DB_URL', dbUrl)
+    updateEnv('PORT', port)
+    updateEnv('MODE', mode)
+    updateEnv('JIRA_ENDPOINT', jiraEndpoint)
+    updateEnv('JIRA_BASIC_AUTH_ENCODED', jiraBasicAuthEncoded)
+    updateEnv('JIRA_ISSUE_EPIC_KEY_FIELD', jiraIssueEpicKeyField)
+    updateEnv('GITLAB_ENDPOINT', gitlabEndpoint)
+    updateEnv('GITLAB_AUTH', gitlabAuth)
+    alert('Updated config file')
   }
 
   return (
@@ -23,87 +45,207 @@ export default function Home(props) {
         <title>Create Next App</title>
         <meta name="description" content="Lake: Config" />
         <link rel="icon" href="/favicon.ico" />
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin />
+        <link href="https://fonts.googleapis.com/css2?family=Source+Sans+Pro:wght@400;600&display=swap" rel="stylesheet" />
+        <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@500;600&display=swap" rel="stylesheet" />
       </Head>
 
-      <main className={styles.main}>
+      <Nav />
+      <Sidebar />
+      <Content>
+        <main className={styles.main}>
 
-        <img src="/logo.svg" className={styles.logo} />
+          <div className={styles.headlineContainer}>
+            <h1>Configuration</h1>
+            <p className={styles.description}>Configure your <code className={styles.code}>.env</code> file values</p>
+          </div>
 
-        <p className={styles.description}>Configure your <code className={styles.code}>.env</code> file values</p>
+          <form className={styles.form}>
+            <div className={styles.headlineContainer}>
+              <h2 className={styles.headline}>Main Database Connection</h2>
+              <p className={styles.description}>Settings for the mySQL database</p>
+            </div>
 
-        <div className={styles.formContainer}>
-          <h3 className={styles.headline}>Main Database Connection</h3>
-        </div>
+            <div className={styles.formContainer}>
+              <FormGroup
+                  label="DB_URL"
+                  inline={true}
+                  labelFor="db-url"
+                  helperText="The URL Connection string to the database"
+                  className={styles.formGroup}
+                  contentClassName={styles.formGroup}
+              >
+                  <InputGroup
+                    id="db-url"
+                    placeholder="Enter DB Connection String"
+                    defaultValue={env.DB_URL}
+                    onChange={(e) => setDbUrl(e.target.value)}
+                    className={styles.input}
+                  />
+              </FormGroup>
+            </div>
 
-        <div className={styles.formContainer}>
-          <label className={styles.label}>DB_URL</label>
-          <input className={styles.input} type="text" onChange={(e) => setDbUrl(e.target.value)} defaultValue={env.DB_URL} />
-          <button className={styles.button} onClick={() => updateEnv('DB_URL', dbUrl)}>save</button>
-        </div>
+            <div className={styles.headlineContainer}>
+              <h2 className={styles.headline}>REST Configuration</h2>
+              <p className={styles.description}>Configure main REST Settings</p>
+            </div>
 
-        <div className={styles.formContainer}>
-          <h3 className={styles.headline}>REST Configuration</h3>
-        </div>
+            <div className={styles.formContainer}>
+              <FormGroup
+                  label="PORT"
+                  inline={true}
+                  labelFor="port"
+                  helperText="The main port for the REST server"
+                  className={styles.formGroup}
+                  contentClassName={styles.formGroup}
+              >
+                  <InputGroup
+                    id="port"
+                    placeholder="Enter Port eg. :8080"
+                    defaultValue={env.PORT}
+                    onChange={(e) => setPort(e.target.value)}
+                    className={styles.input}
+                  />
+              </FormGroup>
+            </div>
 
-        <div className={styles.formContainer}>
-          <label className={styles.label}>PORT</label>
-          <input className={styles.input} type="text" onChange={(e) => setPort(e.target.value)} defaultValue={env.PORT} />
-          <button className={styles.button} onClick={() => updateEnv('PORT', port)}>save</button>
-        </div>
+            <div className={styles.formContainer}>
+              <FormGroup
+                  label="MODE"
+                  inline={true}
+                  labelFor="mode"
+                  helperText="The development mode for the server"
+                  className={styles.formGroup}
+                  contentClassName={styles.formGroup}
+              >
+                  <InputGroup
+                    id="mode"
+                    placeholder="Enter Mode eg. debug"
+                    defaultValue={env.MODE}
+                    onChange={(e) => setMode(e.target.value)}
+                    className={styles.input}
+                  />
+              </FormGroup>
+            </div>
 
-        <div className={styles.formContainer}>
-          <label className={styles.label}>MODE</label>
-          <input className={styles.input} type="text" onChange={(e) => setMode(e.target.value)} defaultValue={env.MODE} />
-          <button className={styles.button} onClick={() => updateEnv('MODE', mode)}>save</button>
-        </div>
+            <div className={styles.headlineContainer}>
+              <h2 className={styles.headline}>Jira Configuration</h2>
+              <p className={styles.description}>Jira Account and config settings</p>
+            </div>
 
-        <div className={styles.formContainer}>
-          <h3 className={styles.headline}>Jira Configuration</h3>
-        </div>
+            <div className={styles.formContainer}>
+              <FormGroup
+                  label="JIRA_ENDPOINT"
+                  inline={true}
+                  labelFor="jira-endpoint"
+                  helperText="Your custom url endpoint for Jira"
+                  className={styles.formGroup}
+                  contentClassName={styles.formGroup}
+              >
+                  <InputGroup
+                    id="jira-endpoint"
+                    placeholder="Enter Jira endpoint eg. https://merico.atlassian.net"
+                    defaultValue={env.JIRA_ENDPOINT}
+                    onChange={(e) => setJiraEndpoint(e.target.value)}
+                    className={styles.input}
+                  />
+              </FormGroup>
+            </div>
 
-        <div className={styles.formContainer}>
-          <label className={styles.label}>JIRA_ENDPOINT</label>
-          <input className={styles.input} type="text" onChange={(e) => setJiraEndpoint(e.target.value)} defaultValue={env.JIRA_ENDPOINT} />
-          <button className={styles.button} onClick={() => updateEnv('JIRA_ENDPOINT', jiraEndpoint)}>save</button>
-        </div>
+            <div className={styles.formContainer}>
+              <FormGroup
+                  label="JIRA_BASIC_AUTH_ENCODED"
+                  inline={true}
+                  labelFor="jira-basic-auth"
+                  helperText="Your encoded Jira auth token"
+                  className={styles.formGroup}
+                  contentClassName={styles.formGroup}
+              >
+                  <InputGroup
+                    id="jira-basic-auth"
+                    placeholder="Enter Jira Auth eg. EJrLG8DNeXADQcGOaaaX4B47"
+                    defaultValue={env.JIRA_BASIC_AUTH_ENCODED}
+                    onChange={(e) => setJiraBasicAuthEncoded(e.target.value)}
+                    className={styles.input}
+                  />
+              </FormGroup>
+            </div>
 
-        <div className={styles.formContainer}>
-          <label className={styles.label}>JIRA_BASIC_AUTH_ENCODED</label>
-          <input className={styles.input} type="text" onChange={(e) => setJiraBasicAuthEncoded(e.target.value)} defaultValue={env.JIRA_BASIC_AUTH_ENCODED} />
-          <button className={styles.button} onClick={() => updateEnv('JIRA_BASIC_AUTH_ENCODED', jiraBasicAuthEncoded)}>save</button>
-        </div>
+            <div className={styles.formContainer}>
+              <FormGroup
+                  label="JIRA_ISSUE_EPIC_KEY_FIELD"
+                  inline={true}
+                  labelFor="jira-epic-key"
+                  helperText="Your custom epic key field (optional)"
+                  className={styles.formGroup}
+                  contentClassName={styles.formGroup}
+              >
+                  <InputGroup
+                    id="jira-epic-key"
+                    placeholder="Enter Jira epic key field"
+                    defaultValue={env.JIRA_ISSUE_EPIC_KEY_FIELD}
+                    onChange={(e) => setJiraIssueEpicKeyField(e.target.value)}
+                    className={styles.input}
+                  />
+              </FormGroup>
+            </div>
 
-        <div className={styles.formContainer}>
-          <label className={styles.label}>JIRA_ISSUE_EPIC_KEY_FIELD</label>
-          <input className={styles.input} type="text" onChange={(e) => setJiraIssueEpicKeyField(e.target.value)} defaultValue={env.JIRA_ISSUE_EPIC_KEY_FIELD} />
-          <button className={styles.button} onClick={() => updateEnv('JIRA_ISSUE_EPIC_KEY_FIELD', jiraIssueEpicKeyField)}>save</button>
-        </div>
+            <div className={styles.headlineContainer}>
+              <h2 className={styles.headline}>Gitlab Configuration</h2>
+              <p className={styles.description}>Gitlab account and config settings</p>
+            </div>
 
-        <div className={styles.formContainer}>
-          <h3 className={styles.headline}>Gitlab Configuration</h3>
-        </div>
+            <div className={styles.formContainer}>
+              <FormGroup
+                  label="GITLAB_ENDPOINT"
+                  inline={true}
+                  labelFor="gitlab-endpoint"
+                  helperText="Gitlab API Endpoint"
+                  className={styles.formGroup}
+                  contentClassName={styles.formGroup}
+              >
+                  <InputGroup
+                    id="gitlab-endpoint"
+                    placeholder="Enter Gitlab API endpoint"
+                    defaultValue={env.GITLAB_ENDPOINT}
+                    onChange={(e) => setGitlabEndpoint(e.target.value)}
+                    className={styles.input}
+                  />
+              </FormGroup>
+            </div>
 
-        <div className={styles.formContainer}>
-          <label className={styles.label}>GITLAB_ENDPOINT</label>
-          <input className={styles.input} type="text" onChange={(e) => setGitlabEndpoint(e.target.value)} defaultValue={env.GITLAB_ENDPOINT} />
-          <button className={styles.button} onClick={() => updateEnv('GITLAB_ENDPOINT', gitlabEndpoint)}>save</button>
-        </div>
+            <div className={styles.formContainer}>
+              <FormGroup
+                  label="GITLAB_AUTH"
+                  inline={true}
+                  labelFor="gitlab-auth"
+                  helperText="Gitlab Auth Token"
+                  className={styles.formGroup}
+                  contentClassName={styles.formGroup}
+              >
+                  <InputGroup
+                    id="gitlab-auth"
+                    placeholder="Enter Gitlab Auth Token eg. uJVEDxabogHbfFyu2riz"
+                    defaultValue={env.GITLAB_AUTH}
+                    onChange={(e) => setGitlabAuth(e.target.value)}
+                    className={styles.input}
+                  />
+              </FormGroup>
+            </div>
 
-        <div className={styles.formContainer}>
-          <label className={styles.label}>GITLAB_AUTH</label>
-          <input className={styles.input} type="text" onChange={(e) => setGitlabAuth(e.target.value)} defaultValue={env.GITLAB_AUTH} />
-          <button className={styles.button} onClick={() => updateEnv('GITLAB_AUTH', gitlabAuth)}>save</button>
-        </div>
-
-      </main>
+            <Button type="submit" outlined={true} large={true} className={styles.saveBtn} onClick={(e) => saveAll(e)}>Save Config</Button>
+          </form>
+        </main>
+      </Content>
     </div>
   )
 }
 
 export async function getStaticProps() {
-  const fs = require('fs').promises
+  // const fs = require('fs').promises
 
-  const filePath = path.join(process.cwd(), 'data', '../../config-ui/.env')
+  const filePath = path.join(process.cwd(), 'data', '../../.env')
   const fileData = await fs.readFile(filePath)
   const env = dotenv.parse(fileData)
 

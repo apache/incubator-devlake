@@ -29,17 +29,6 @@ services:
     restart: always
     depends_on:
       - mysql
-  config-ui:
-    build:
-      context: .
-      dockerfile: ./config-ui/ui.Dockerfile
-    ports:
-      - "4000:4000"
-    volumes:
-      - ./config-ui:/usr/src/app/config-ui
-      - /usr/src/app/config-ui/node_modules
-      - /usr/src/app/config-ui/.next
-      - ./.env:/usr/src/app/config-ui/.env
   devlake:
     image: mericodev/lake:latest
     ports:
