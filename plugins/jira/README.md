@@ -2,15 +2,9 @@
 
 ## Summary
 
-Jira is a plugin used by [lake](https://github.com/merico-dev/lake/blob/main/README.md). The main thing it does is make api requests for you to Jira to fetch data and enrich it into a postgres database. Once this is done, you can use [Grafana](https://grafana.com/), hosted by [Lake](https://github.com/merico-dev/lake/blob/main/README.md) with [docker-compose](https://docs.docker.com/compose/install/)
+This plugin collects Jira data through Jira Cloud REST API. It then computes and visualizes various engineering metrics from the Jira data.
 
-Currently, this is how data flows:
-
-<img width="830" alt="Screen Shot 2021-08-13 at 9 41 36 AM" src="https://user-images.githubusercontent.com/3011407/129358608-0f95beb3-7933-47d8-9775-65337d66fb1b.png">
-
-And this is what you can expect to see for graphs in Grafana
-
-<img width="1783" alt="Screen Shot 2021-08-13 at 9 42 41 AM" src="https://user-images.githubusercontent.com/3011407/129358727-503953a0-6a8d-43e3-b3d4-b379e40741cb.png">
+<img width="2035" alt="Screen Shot 2021-09-10 at 4 01 55 PM" src="https://user-images.githubusercontent.com/2908155/132926143-7a31d37f-22e1-487d-92a3-cf62e402e5a8.png">
 
 ## Project Metrics This Covers
 
@@ -19,6 +13,7 @@ Metric Name | Description
 Requirement Count	| Number of issues with type "Requirement"
 Requirement Lead Time	| Lead time of issues with type "Requirement"
 Requirement Delivery Rate |	Ratio of delivered requirements to all requirements
+Requirement Granularity | Number of story points associated with an issue
 Bug Count	| Number of issues with type "Bug"<br><i>bugs are found during testing</i>
 Bug Age	| Lead time of issues with type "Bug"<br><i>both new and deleted lines count</i>
 Bugs Count per 1k Lines of Code |	Amount of bugs per 1000 lines of code
@@ -31,27 +26,40 @@ Incident Count per 1k Lines of Code | Amount of incidents per 1000 lines of code
 Set following Environment Variables before launching:
 
 ```sh
+######################
+# Jira configuration #
+######################
+
+# Jira: basics #
+
 JIRA_ENDPOINT=https://merico.atlassian.net/rest
 # ex: echo -n <jira login email>:<jira token> | base64
 JIRA_BASIC_AUTH_ENCODED=emhl..........................................a0QzQUE=
-JIRA_ISSUE_EPIC_KEY_FIELD=customfield_10014
-JIRA_ISSUE_STORYPOINT_COEFFICIENT=1
-JIRA_ISSUE_STORYPOINT_FIELD=customfield_10024
-# Configure jira board / gitlab projects relationship in format BOARD_ID:PROJECT_ID1,PROJECT_ID2
-JIRA_BOARD_GITLAB_PROJECTS=8:8967944,8967945;9:8967946,8967947
-# JIRA_ISSUE_<ORIGIN_STATUS>_STATUS_MAPPING=<STANDARD_STATUS_1>:<ORIGIN_STATUS_1>,<ORIGIN_STATUS_2>;<STANDARD_STATUS_2>
+
+# Jira: issue type #
+
+# Format:
+#   STANDARD_TYPE_1:ORIGIN_TYPE_1,ORIGIN_TYPE_2;STANDARD_TYPE_2:....
+JIRA_ISSUE_TYPE_MAPPING=Requirement:Story
+
+
+# Jira: issue status #
+
+# Format:
+#   JIRA_ISSUE_<STANDARD_ISSUE_TYPE>_STATUS_MAPPING=<STANDARD_STATUS_1>:<ORIGIN_STATUS_1>,<ORIGIN_STATUS_2>;<STANDARD_STATUS_2>
 JIRA_ISSUE_BUG_STATUS_MAPPING=Resolved:Approved,Verified,Done,Closed;Reject:ByDesign,Irreproducible
 JIRA_ISSUE_INCIDENT_STATUS_MAPPING=Resolved:Done,Closed;Reject:ByDesign,Irreproducible
 JIRA_ISSUE_STORY_STATUS_MAPPING=Resolved:Verified,Done,Closed;Reject:Abandoned,Cancelled
-# STANDARD_TYPE_2:ORIGIN_TYPE_1,ORIGIN_TYPE_2;STANDARD_TYPE_2:....
-JIRA_ISSUE_TYPE_MAPPING=Requirement:Story
+
+# Jira: epic issue #
+
+JIRA_ISSUE_EPIC_KEY_FIELD=customfield_10014
+
+# Jira: story point #
+
+JIRA_ISSUE_STORYPOINT_COEFFICIENT=1
+JIRA_ISSUE_STORYPOINT_FIELD=customfield_10024
 ```
-
-
-
-## ⚠️ (WIP)Gathering Data with Jira
-
-- [ ] Add in specific steps to collect data from Jira with new go setup here
 
 ## Find Board Id
 1. Navigate to the Jira board in the browser
@@ -64,19 +72,11 @@ JIRA_ISSUE_TYPE_MAPPING=Requirement:Story
 
 > Use this board ID in your requests, to collect data from this board
 
-## ⚠️ (WIP) Generating API token
+## Generating API token
 1. Once logged into Jira, visit the url `https://id.atlassian.com/manage-profile/security/api-tokens`
 2. Click the **Create API Token** button, and give it any label name
 
 ![image](https://user-images.githubusercontent.com/27032263/129363611-af5077c9-7a27-474a-a685-4ad52366608b.png)
-
-- [ ] Copy and save the API token string into `lake` via new go setup
-
-## ⚠️ (WIP) Jira Specific String Configuration
-
-Adjust what is considered "Bug", "Incident" or "Requirement".
-
-- [ ] Add in options for specific configuration in new go setup
 
 ## How do I find the custom field ID in Jira?
 Using URL
