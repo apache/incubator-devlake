@@ -38,6 +38,14 @@ services:
     restart: always
     depends_on:
       - grafana
+  config-ui:
+    image: mericodev/config-ui:latest
+    ports:
+      - 127.0.0.1:4000:4000
+    environment:
+      - ENV_FILEPATH=/.env
+    volumes:
+      - ./.env:/.env:rw
 volumes:
   mysql-storage:
   grafana-storage:
