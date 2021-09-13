@@ -77,13 +77,13 @@ export default function Home(props) {
                 className={styles.formGroup}
                 contentClassName={styles.formGroup}
               >
-                  <InputGroup
-                    id="db-url"
-                    placeholder="Enter DB Connection String"
-                    defaultValue={dbUrl}
-                    onChange={(e) => setDbUrl(e.target.value)}
-                    className={styles.input}
-                  />
+                <InputGroup
+                  id="db-url"
+                  placeholder="Enter DB Connection String"
+                  defaultValue={dbUrl}
+                  onChange={(e) => setDbUrl(e.target.value)}
+                  className={styles.input}
+                />
               </FormGroup>
             </div>
 
@@ -101,13 +101,13 @@ export default function Home(props) {
                 className={styles.formGroup}
                 contentClassName={styles.formGroup}
               >
-                  <InputGroup
-                    id="port"
-                    placeholder="Enter Port eg. :8080"
-                    defaultValue={port}
-                    onChange={(e) => setPort(e.target.value)}
-                    className={styles.input}
-                  />
+                <InputGroup
+                  id="port"
+                  placeholder="Enter Port eg. :8080"
+                  defaultValue={port}
+                  onChange={(e) => setPort(e.target.value)}
+                  className={styles.input}
+                />
               </FormGroup>
             </div>
 
@@ -120,13 +120,13 @@ export default function Home(props) {
                 className={styles.formGroup}
                 contentClassName={styles.formGroup}
               >
-                  <InputGroup
-                    id="mode"
-                    placeholder="Enter Mode eg. debug"
-                    defaultValue={mode}
-                    onChange={(e) => setMode(e.target.value)}
-                    className={styles.input}
-                  />
+                <InputGroup
+                  id="mode"
+                  placeholder="Enter Mode eg. debug"
+                  defaultValue={mode}
+                  onChange={(e) => setMode(e.target.value)}
+                  className={styles.input}
+                />
               </FormGroup>
             </div>
 
@@ -144,13 +144,13 @@ export default function Home(props) {
                 className={styles.formGroup}
                 contentClassName={styles.formGroup}
               >
-                  <InputGroup
-                    id="jira-endpoint"
-                    placeholder="Enter Jira endpoint eg. https://merico.atlassian.net"
-                    defaultValue={jiraEndpoint}
-                    onChange={(e) => setJiraEndpoint(e.target.value)}
-                    className={styles.input}
-                  />
+                <InputGroup
+                  id="jira-endpoint"
+                  placeholder="Enter Jira endpoint eg. https://merico.atlassian.net"
+                  defaultValue={jiraEndpoint}
+                  onChange={(e) => setJiraEndpoint(e.target.value)}
+                  className={styles.input}
+                />
               </FormGroup>
             </div>
 
@@ -163,13 +163,13 @@ export default function Home(props) {
                 className={styles.formGroup}
                 contentClassName={styles.formGroup}
               >
-                  <InputGroup
-                    id="jira-basic-auth"
-                    placeholder="Enter Jira Auth eg. EJrLG8DNeXADQcGOaaaX4B47"
-                    defaultValue={jiraBasicAuthEncoded}
-                    onChange={(e) => setJiraBasicAuthEncoded(e.target.value)}
-                    className={styles.input}
-                  />
+                <InputGroup
+                  id="jira-basic-auth"
+                  placeholder="Enter Jira Auth eg. EJrLG8DNeXADQcGOaaaX4B47"
+                  defaultValue={jiraBasicAuthEncoded}
+                  onChange={(e) => setJiraBasicAuthEncoded(e.target.value)}
+                  className={styles.input}
+                />
               </FormGroup>
             </div>
 
@@ -182,13 +182,13 @@ export default function Home(props) {
                 className={styles.formGroup}
                 contentClassName={styles.formGroup}
               >
-                  <InputGroup
-                    id="jira-epic-key"
-                    placeholder="Enter Jira epic key field"
-                    defaultValue={jiraIssueEpicKeyField}
-                    onChange={(e) => setJiraIssueEpicKeyField(e.target.value)}
-                    className={styles.input}
-                  />
+                <InputGroup
+                  id="jira-epic-key"
+                  placeholder="Enter Jira epic key field"
+                  defaultValue={jiraIssueEpicKeyField}
+                  onChange={(e) => setJiraIssueEpicKeyField(e.target.value)}
+                  className={styles.input}
+                />
               </FormGroup>
             </div>
 
@@ -206,13 +206,13 @@ export default function Home(props) {
                 className={styles.formGroup}
                 contentClassName={styles.formGroup}
               >
-                  <InputGroup
-                    id="gitlab-endpoint"
-                    placeholder="Enter Gitlab API endpoint"
-                    defaultValue={gitlabEndpoint}
-                    onChange={(e) => setGitlabEndpoint(e.target.value)}
-                    className={styles.input}
-                  />
+                <InputGroup
+                  id="gitlab-endpoint"
+                  placeholder="Enter Gitlab API endpoint"
+                  defaultValue={gitlabEndpoint}
+                  onChange={(e) => setGitlabEndpoint(e.target.value)}
+                  className={styles.input}
+                />
               </FormGroup>
             </div>
 
@@ -225,13 +225,13 @@ export default function Home(props) {
                 className={styles.formGroup}
                 contentClassName={styles.formGroup}
               >
-                  <InputGroup
-                    id="gitlab-auth"
-                    placeholder="Enter Gitlab Auth Token eg. uJVEDxabogHbfFyu2riz"
-                    defaultValue={gitlabAuth}
-                    onChange={(e) => setGitlabAuth(e.target.value)}
-                    className={styles.input}
-                  />
+                <InputGroup
+                  id="gitlab-auth"
+                  placeholder="Enter Gitlab Auth Token eg. uJVEDxabogHbfFyu2riz"
+                  defaultValue={gitlabAuth}
+                  onChange={(e) => setGitlabAuth(e.target.value)}
+                  className={styles.input}
+                />
               </FormGroup>
             </div>
 
