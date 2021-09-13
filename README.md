@@ -183,8 +183,6 @@ Otherwise, if you just want to use the cron job, please check `docker-compose` v
 
 ## Tests<a id="tests"></a>
 
-Sample tests can be found in `/test/example`
-
 To run the tests: `make test`
 
 ## Grafana<a id="grafana"></a>
