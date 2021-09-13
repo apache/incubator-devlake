@@ -1,7 +1,10 @@
-import { Button, Card, Elevation, Icon } from "@blueprintjs/core"
+import { useRouter } from 'next/router'
+import { Button, Card, Elevation, Icon } from '@blueprintjs/core'
 import styles from '../styles/Sidebar.module.css'
 
 const Sidebar = () => {
+  const { asPath } = useRouter()
+
   return <Card interactive={false} elevation={Elevation.ZERO} className={styles.card}>
 
     <img src="/logo.svg" className={styles.logo} />
@@ -10,12 +13,19 @@ const Sidebar = () => {
     </a>
 
     <ul className={styles.sidebarMenu}>
-      <a href="/">
+      <a href="/" className={asPath === "/" ? styles.sidebarMenuActive : ''}>
         <li>
           <Icon icon="layout-grid" size={16} className={styles.sidebarMenuListIcon} />
           Configuration
         </li>
-          <div className={styles.sidebarMenuDash}></div>
+          {asPath === "/" && <div className={styles.sidebarMenuDash}></div>}
+      </a>
+      <a href="/triggers" className={asPath === "/triggers" ? styles.sidebarMenuActive: ''}>
+        <li>
+          <Icon icon="repeat" size={16} className={styles.sidebarMenuListIcon} />
+          Triggers
+        </li>
+          {asPath === "/triggers" && <div className={styles.sidebarMenuDash}></div>}
       </a>
     </ul>
   </Card>
