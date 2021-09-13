@@ -4,7 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/merico-dev/lake/config"
-	"io/ioutil"
+	"io/fs"
 	"path"
 	"path/filepath"
 	"plugin"
@@ -21,38 +21,34 @@ var Plugins map[string]Plugin
 // LoadPlugins load plugins from local directory
 func LoadPlugins(pluginsDir string) error {
 	Plugins = make(map[string]Plugin)
-	files, err := ioutil.ReadDir(pluginsDir)
-	if err != nil {
-		return err
-	}
-	for _, file := range files {
-		if file.IsDir() || !strings.HasSuffix(file.Name(), ".so") {
-			continue
-		}
-		fileName := file.Name()
-		pluginName := fileName[0:len(fileName)-3]
-		logger.Info(`[plugin-core] find a plugin`, pluginName)
-		so := filepath.Join(pluginsDir, fileName)
-		plug, err := plugin.Open(so)
-		logger.Info(`[plugin-core] open a plugin success`, pluginName)
+	walkErr := filepath.WalkDir(pluginsDir, func(path string, d fs.DirEntry, err error) error {
 		if err != nil {
 			return err
 		}
-		symPluginEntry, pluginEntryError := plug.Lookup("PluginEntry")
-		if pluginEntryError != nil {
-			return pluginEntryError
+		fileName := d.Name()
+		println(fileName, path)
+		if strings.HasSuffix(fileName, ".so") {
+			pluginName := fileName[0:len(d.Name())-3]
+			plug, loadErr := plugin.Open(path)
+			if loadErr != nil {
+				return loadErr
+			}
+			symPluginEntry, pluginEntryError := plug.Lookup("PluginEntry")
+			if pluginEntryError != nil {
+				return pluginEntryError
+			}
+			plugEntry, ok := symPluginEntry.(Plugin)
+			if !ok {
+				return fmt.Errorf("%v PluginEntry must implement Plugin interface", pluginName)
+			}
+			plugEntry.Init()
+			logger.Info(`[plugin-core] init a plugin success`, pluginName)
+			Plugins[pluginName] = plugEntry
+			logger.Info("[plugin-core] plugin loaded", pluginName)
 		}
-		plugEntry, ok := symPluginEntry.(Plugin)
-		if !ok {
-			return fmt.Errorf("%v PluginEntry must implement Plugin interface", pluginName)
-		}
-		plugEntry.Init()
-		logger.Info(`[plugin-core] init a plugin success`, pluginName)
-		Plugins[pluginName] = plugEntry
-
-		logger.Info("[plugin-core] plugin loaded", pluginName)
-	}
-	return nil
+		return nil
+	})
+	return walkErr
 }
 
 func RunPlugin(name string, options map[string]interface{}, progress chan<- float32) error {
