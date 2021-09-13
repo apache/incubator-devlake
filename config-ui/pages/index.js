@@ -3,6 +3,7 @@ import { useState } from 'react'
 import dotenv from 'dotenv'
 import path from 'path'
 import * as fs from 'fs/promises'
+import { existsSync } from 'fs';
 import styles from '../styles/Home.module.css'
 import { FormGroup, InputGroup, Button } from "@blueprintjs/core"
 import Nav from '../components/Nav'
@@ -69,20 +70,20 @@ export default function Home(props) {
 
             <div className={styles.formContainer}>
               <FormGroup
-                  label="DB_URL"
-                  inline={true}
-                  labelFor="db-url"
-                  helperText="The URL Connection string to the database"
-                  className={styles.formGroup}
-                  contentClassName={styles.formGroup}
+                label="DB_URL"
+                inline={true}
+                labelFor="db-url"
+                helperText="The URL Connection string to the database"
+                className={styles.formGroup}
+                contentClassName={styles.formGroup}
               >
-                  <InputGroup
-                    id="db-url"
-                    placeholder="Enter DB Connection String"
-                    defaultValue={env.DB_URL}
-                    onChange={(e) => setDbUrl(e.target.value)}
-                    className={styles.input}
-                  />
+                <InputGroup
+                  id="db-url"
+                  placeholder="Enter DB Connection String"
+                  defaultValue={env.DB_URL}
+                  onChange={(e) => setDbUrl(e.target.value)}
+                  className={styles.input}
+                />
               </FormGroup>
             </div>
 
@@ -93,39 +94,39 @@ export default function Home(props) {
 
             <div className={styles.formContainer}>
               <FormGroup
-                  label="PORT"
-                  inline={true}
-                  labelFor="port"
-                  helperText="The main port for the REST server"
-                  className={styles.formGroup}
-                  contentClassName={styles.formGroup}
+                label="PORT"
+                inline={true}
+                labelFor="port"
+                helperText="The main port for the REST server"
+                className={styles.formGroup}
+                contentClassName={styles.formGroup}
               >
-                  <InputGroup
-                    id="port"
-                    placeholder="Enter Port eg. :8080"
-                    defaultValue={env.PORT}
-                    onChange={(e) => setPort(e.target.value)}
-                    className={styles.input}
-                  />
+                <InputGroup
+                  id="port"
+                  placeholder="Enter Port eg. :8080"
+                  defaultValue={env.PORT}
+                  onChange={(e) => setPort(e.target.value)}
+                  className={styles.input}
+                />
               </FormGroup>
             </div>
 
             <div className={styles.formContainer}>
               <FormGroup
-                  label="MODE"
-                  inline={true}
-                  labelFor="mode"
-                  helperText="The development mode for the server"
-                  className={styles.formGroup}
-                  contentClassName={styles.formGroup}
+                label="MODE"
+                inline={true}
+                labelFor="mode"
+                helperText="The development mode for the server"
+                className={styles.formGroup}
+                contentClassName={styles.formGroup}
               >
-                  <InputGroup
-                    id="mode"
-                    placeholder="Enter Mode eg. debug"
-                    defaultValue={env.MODE}
-                    onChange={(e) => setMode(e.target.value)}
-                    className={styles.input}
-                  />
+                <InputGroup
+                  id="mode"
+                  placeholder="Enter Mode eg. debug"
+                  defaultValue={env.MODE}
+                  onChange={(e) => setMode(e.target.value)}
+                  className={styles.input}
+                />
               </FormGroup>
             </div>
 
@@ -136,58 +137,58 @@ export default function Home(props) {
 
             <div className={styles.formContainer}>
               <FormGroup
-                  label="JIRA_ENDPOINT"
-                  inline={true}
-                  labelFor="jira-endpoint"
-                  helperText="Your custom url endpoint for Jira"
-                  className={styles.formGroup}
-                  contentClassName={styles.formGroup}
+                label="JIRA_ENDPOINT"
+                inline={true}
+                labelFor="jira-endpoint"
+                helperText="Your custom url endpoint for Jira"
+                className={styles.formGroup}
+                contentClassName={styles.formGroup}
               >
-                  <InputGroup
-                    id="jira-endpoint"
-                    placeholder="Enter Jira endpoint eg. https://merico.atlassian.net"
-                    defaultValue={env.JIRA_ENDPOINT}
-                    onChange={(e) => setJiraEndpoint(e.target.value)}
-                    className={styles.input}
-                  />
+                <InputGroup
+                  id="jira-endpoint"
+                  placeholder="Enter Jira endpoint eg. https://merico.atlassian.net"
+                  defaultValue={env.JIRA_ENDPOINT}
+                  onChange={(e) => setJiraEndpoint(e.target.value)}
+                  className={styles.input}
+                />
               </FormGroup>
             </div>
 
             <div className={styles.formContainer}>
               <FormGroup
-                  label="JIRA_BASIC_AUTH_ENCODED"
-                  inline={true}
-                  labelFor="jira-basic-auth"
-                  helperText="Your encoded Jira auth token"
-                  className={styles.formGroup}
-                  contentClassName={styles.formGroup}
+                label="JIRA_BASIC_AUTH_ENCODED"
+                inline={true}
+                labelFor="jira-basic-auth"
+                helperText="Your encoded Jira auth token"
+                className={styles.formGroup}
+                contentClassName={styles.formGroup}
               >
-                  <InputGroup
-                    id="jira-basic-auth"
-                    placeholder="Enter Jira Auth eg. EJrLG8DNeXADQcGOaaaX4B47"
-                    defaultValue={env.JIRA_BASIC_AUTH_ENCODED}
-                    onChange={(e) => setJiraBasicAuthEncoded(e.target.value)}
-                    className={styles.input}
-                  />
+                <InputGroup
+                  id="jira-basic-auth"
+                  placeholder="Enter Jira Auth eg. EJrLG8DNeXADQcGOaaaX4B47"
+                  defaultValue={env.JIRA_BASIC_AUTH_ENCODED}
+                  onChange={(e) => setJiraBasicAuthEncoded(e.target.value)}
+                  className={styles.input}
+                />
               </FormGroup>
             </div>
 
             <div className={styles.formContainer}>
               <FormGroup
-                  label="JIRA_ISSUE_EPIC_KEY_FIELD"
-                  inline={true}
-                  labelFor="jira-epic-key"
-                  helperText="Your custom epic key field (optional)"
-                  className={styles.formGroup}
-                  contentClassName={styles.formGroup}
+                label="JIRA_ISSUE_EPIC_KEY_FIELD"
+                inline={true}
+                labelFor="jira-epic-key"
+                helperText="Your custom epic key field (optional)"
+                className={styles.formGroup}
+                contentClassName={styles.formGroup}
               >
-                  <InputGroup
-                    id="jira-epic-key"
-                    placeholder="Enter Jira epic key field"
-                    defaultValue={env.JIRA_ISSUE_EPIC_KEY_FIELD}
-                    onChange={(e) => setJiraIssueEpicKeyField(e.target.value)}
-                    className={styles.input}
-                  />
+                <InputGroup
+                  id="jira-epic-key"
+                  placeholder="Enter Jira epic key field"
+                  defaultValue={env.JIRA_ISSUE_EPIC_KEY_FIELD}
+                  onChange={(e) => setJiraIssueEpicKeyField(e.target.value)}
+                  className={styles.input}
+                />
               </FormGroup>
             </div>
 
@@ -198,39 +199,39 @@ export default function Home(props) {
 
             <div className={styles.formContainer}>
               <FormGroup
-                  label="GITLAB_ENDPOINT"
-                  inline={true}
-                  labelFor="gitlab-endpoint"
-                  helperText="Gitlab API Endpoint"
-                  className={styles.formGroup}
-                  contentClassName={styles.formGroup}
+                label="GITLAB_ENDPOINT"
+                inline={true}
+                labelFor="gitlab-endpoint"
+                helperText="Gitlab API Endpoint"
+                className={styles.formGroup}
+                contentClassName={styles.formGroup}
               >
-                  <InputGroup
-                    id="gitlab-endpoint"
-                    placeholder="Enter Gitlab API endpoint"
-                    defaultValue={env.GITLAB_ENDPOINT}
-                    onChange={(e) => setGitlabEndpoint(e.target.value)}
-                    className={styles.input}
-                  />
+                <InputGroup
+                  id="gitlab-endpoint"
+                  placeholder="Enter Gitlab API endpoint"
+                  defaultValue={env.GITLAB_ENDPOINT}
+                  onChange={(e) => setGitlabEndpoint(e.target.value)}
+                  className={styles.input}
+                />
               </FormGroup>
             </div>
 
             <div className={styles.formContainer}>
               <FormGroup
-                  label="GITLAB_AUTH"
-                  inline={true}
-                  labelFor="gitlab-auth"
-                  helperText="Gitlab Auth Token"
-                  className={styles.formGroup}
-                  contentClassName={styles.formGroup}
+                label="GITLAB_AUTH"
+                inline={true}
+                labelFor="gitlab-auth"
+                helperText="Gitlab Auth Token"
+                className={styles.formGroup}
+                contentClassName={styles.formGroup}
               >
-                  <InputGroup
-                    id="gitlab-auth"
-                    placeholder="Enter Gitlab Auth Token eg. uJVEDxabogHbfFyu2riz"
-                    defaultValue={env.GITLAB_AUTH}
-                    onChange={(e) => setGitlabAuth(e.target.value)}
-                    className={styles.input}
-                  />
+                <InputGroup
+                  id="gitlab-auth"
+                  placeholder="Enter Gitlab Auth Token eg. uJVEDxabogHbfFyu2riz"
+                  defaultValue={env.GITLAB_AUTH}
+                  onChange={(e) => setGitlabAuth(e.target.value)}
+                  className={styles.input}
+                />
               </FormGroup>
             </div>
 
@@ -245,7 +246,15 @@ export default function Home(props) {
 export async function getStaticProps() {
   // const fs = require('fs').promises
 
-  const filePath = path.join(process.cwd(), 'data', '../../.env')
+  const filePath = process.env.ENV_FILEPATH || path.join(process.cwd(), 'data', '../../.env')
+  const exist = existsSync(filePath);
+  if (!exist) {
+    return {
+      props: {
+        env: {},
+      }
+    }
+  }
   const fileData = await fs.readFile(filePath)
   const env = dotenv.parse(fileData)
 
