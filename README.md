@@ -28,7 +28,7 @@ Section | Description | Documentation Link
 Data Sources | Links to specific plugin usage & details | [View Section](#data-source-plugins)
 Grafana | How to visualize the data | [View Section](#grafana)
 User Setup | Steps to run the project as a user | [View Section](#user-setup) 
-Development Requirements | How to develop code for this project | [View Section](#requirements)
+Developer Setup | How to setup dev environment | [View Section](#dev-setup)
 Tests | Commands for running tests | [View Section](#tests)
 Build a Plugin | Details on how to make your own | [Link](plugins/README.md) 
 Add Plugin Metrics | Guide to adding plugin metrics | [Link](plugins/HOW-TO-ADD-METRICS.md) 
@@ -121,9 +121,9 @@ Commonly, we have requirement to synchorize data periodly. We providered a tool 
 
 Otherwise, if you just want to use the cron job, please check `docker-compose` version at [here](./devops/sync/README.md)
 
-## Development Setup<a id="development-setup"></a>
+## Developer Setup<a id="dev-setup"></a>
 
-### Development Requirements<a id="requirements"></a>
+### Requirements
 
 - <a href="https://docs.docker.com/get-docker" target="_blank">Docker</a>
 - <a href="https://golang.org/doc/install" target="_blank">Golang</a>
@@ -132,7 +132,7 @@ Otherwise, if you just want to use the cron job, please check `docker-compose` v
   - Windows: [Download](http://gnuwin32.sourceforge.net/packages/make.htm)
   - Ubuntu: `sudo apt-get install build-essential`
 
-### Development Step By Step Guide
+### How to setup dev environment
 1. Navigate to where you would like to install this project and clone the repository
 
    ```sh
