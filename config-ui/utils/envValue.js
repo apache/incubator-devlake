@@ -2,7 +2,7 @@ import path from 'path'
 import os from 'os'
 import fs from 'fs'
 
-const envFilePath = path.join(process.cwd(), 'data', '../../.env')
+const envFilePath = process.env.ENV_FILEPATH || path.join(process.cwd(), 'data', '../../.env')
 
 // read .env file
 const readEnvVars = () => fs.readFileSync(envFilePath, "utf-8").split(os.EOL)
