@@ -12,14 +12,14 @@ import Content from '../components/Content'
 export default function Home(props) {
   const { env } = props
 
-  const [dbUrl, setDbUrl] = useState('')
-  const [port, setPort] = useState('')
-  const [mode, setMode] = useState('')
-  const [jiraEndpoint, setJiraEndpoint] = useState('')
-  const [jiraBasicAuthEncoded, setJiraBasicAuthEncoded] = useState('')
-  const [jiraIssueEpicKeyField, setJiraIssueEpicKeyField] = useState('')
-  const [gitlabEndpoint, setGitlabEndpoint] = useState('')
-  const [gitlabAuth, setGitlabAuth] = useState('')
+  const [dbUrl, setDbUrl] = useState(env.DB_URL)
+  const [port, setPort] = useState(env.PORT)
+  const [mode, setMode] = useState(env.MODE)
+  const [jiraEndpoint, setJiraEndpoint] = useState(env.JIRA_ENDPOINT)
+  const [jiraBasicAuthEncoded, setJiraBasicAuthEncoded] = useState(env.JIRA_BASIC_AUTH_ENCODED)
+  const [jiraIssueEpicKeyField, setJiraIssueEpicKeyField] = useState(env.JIRA_ISSUE_EPIC_KEY_FIELD)
+  const [gitlabEndpoint, setGitlabEndpoint] = useState(env.GITLAB_ENDPOINT)
+  const [gitlabAuth, setGitlabAuth] = useState(env.GITLAB_AUTH)
 
   function updateEnv(key, value) {
     fetch(`http://localhost:4000/api/setenv/${key}/${encodeURIComponent(value)}`)
@@ -35,14 +35,14 @@ export default function Home(props) {
     updateEnv('JIRA_ISSUE_EPIC_KEY_FIELD', jiraIssueEpicKeyField)
     updateEnv('GITLAB_ENDPOINT', gitlabEndpoint)
     updateEnv('GITLAB_AUTH', gitlabAuth)
-    alert('Updated config file')
+    alert('Config file updated, please restart devlake to apply new configuration')
   }
 
   return (
     <div className={styles.container}>
 
       <Head>
-        <title>Create Next App</title>
+        <title>Devlake Config-UI</title>
         <meta name="description" content="Lake: Config" />
         <link rel="icon" href="/favicon.ico" />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -79,7 +79,7 @@ export default function Home(props) {
                   <InputGroup
                     id="db-url"
                     placeholder="Enter DB Connection String"
-                    defaultValue={env.DB_URL}
+                    defaultValue={dbUrl}
                     onChange={(e) => setDbUrl(e.target.value)}
                     className={styles.input}
                   />
@@ -103,7 +103,7 @@ export default function Home(props) {
                   <InputGroup
                     id="port"
                     placeholder="Enter Port eg. :8080"
-                    defaultValue={env.PORT}
+                    defaultValue={port}
                     onChange={(e) => setPort(e.target.value)}
                     className={styles.input}
                   />
@@ -122,7 +122,7 @@ export default function Home(props) {
                   <InputGroup
                     id="mode"
                     placeholder="Enter Mode eg. debug"
-                    defaultValue={env.MODE}
+                    defaultValue={mode}
                     onChange={(e) => setMode(e.target.value)}
                     className={styles.input}
                   />
@@ -146,7 +146,7 @@ export default function Home(props) {
                   <InputGroup
                     id="jira-endpoint"
                     placeholder="Enter Jira endpoint eg. https://merico.atlassian.net"
-                    defaultValue={env.JIRA_ENDPOINT}
+                    defaultValue={jiraEndpoint}
                     onChange={(e) => setJiraEndpoint(e.target.value)}
                     className={styles.input}
                   />
@@ -165,7 +165,7 @@ export default function Home(props) {
                   <InputGroup
                     id="jira-basic-auth"
                     placeholder="Enter Jira Auth eg. EJrLG8DNeXADQcGOaaaX4B47"
-                    defaultValue={env.JIRA_BASIC_AUTH_ENCODED}
+                    defaultValue={jiraBasicAuthEncoded}
                     onChange={(e) => setJiraBasicAuthEncoded(e.target.value)}
                     className={styles.input}
                   />
@@ -184,7 +184,7 @@ export default function Home(props) {
                   <InputGroup
                     id="jira-epic-key"
                     placeholder="Enter Jira epic key field"
-                    defaultValue={env.JIRA_ISSUE_EPIC_KEY_FIELD}
+                    defaultValue={jiraIssueEpicKeyField}
                     onChange={(e) => setJiraIssueEpicKeyField(e.target.value)}
                     className={styles.input}
                   />
@@ -208,7 +208,7 @@ export default function Home(props) {
                   <InputGroup
                     id="gitlab-endpoint"
                     placeholder="Enter Gitlab API endpoint"
-                    defaultValue={env.GITLAB_ENDPOINT}
+                    defaultValue={gitlabEndpoint}
                     onChange={(e) => setGitlabEndpoint(e.target.value)}
                     className={styles.input}
                   />
@@ -227,14 +227,14 @@ export default function Home(props) {
                   <InputGroup
                     id="gitlab-auth"
                     placeholder="Enter Gitlab Auth Token eg. uJVEDxabogHbfFyu2riz"
-                    defaultValue={env.GITLAB_AUTH}
+                    defaultValue={gitlabAuth}
                     onChange={(e) => setGitlabAuth(e.target.value)}
                     className={styles.input}
                   />
               </FormGroup>
             </div>
 
-            <Button type="submit" outlined={true} large={true} className={styles.saveBtn} onClick={(e) => saveAll(e)}>Save Config</Button>
+            <Button type="submit" outlined={true} large={true} className={styles.saveBtn} onClick={saveAll}>Save Config</Button>
           </form>
         </main>
       </Content>
