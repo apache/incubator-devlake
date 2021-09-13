@@ -31,7 +31,7 @@
       "interval": null,
       "links": [],
       "options": {
-        "content": "<a href=\"/d/ZfaFQeM7k/delivery-efficiency\">\n    <div style=\"vertical-align:center;text-align:center;margin:15px;padding-top:60px;\">\n        <img border=\"0\" src=\"/public/img/lake/delivery_efficiency.png\" alt=\"velocity\" width=\"120\">\n        <p style=\"text-align:center;font-size:20px;margin:20px; color:#BFC1C8\"><b>Delivery Velocity<b></p>\n    </div>\n</a>",
+        "content": "<a href=\"/d/ZfaFQeM7k/delivery-velocity\">\n    <div style=\"vertical-align:center;text-align:center;margin:15px;padding-top:60px;\">\n        <img border=\"0\" src=\"/public/img/lake/delivery_velocity.png\" alt=\"velocity\" width=\"120\">\n        <p style=\"text-align:center;font-size:20px;margin:20px; color:#BFC1C8\"><b>Delivery Velocity<b></p>\n    </div>\n</a>",
         "mode": "html"
       },
       "pluginVersion": "8.0.6",
@@ -340,5 +340,5 @@
   "timezone": "",
   "title": "Homepage",
   "uid": "RXJZNpMnz",
-  "version": 13
+  "version": 15
 }

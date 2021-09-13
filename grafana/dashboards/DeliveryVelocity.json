@@ -16,7 +16,7 @@
   "gnetId": null,
   "graphTooltip": 0,
   "id": 9,
-  "iteration": 1631160622388,
+  "iteration": 1631458080319,
   "links": [
     {
       "asDropdown": false,
@@ -59,7 +59,7 @@
       "interval": null,
       "links": [],
       "options": {
-        "content": "<div style=\"text-align:center;\">\n    <div style=\"display:inline-block;text-align:center;padding-top:10px;\">\n        <img border=\"0\" src=\"/public/img/lake/practice_process_delivery_efficiency.png\" alt=\"R&D Process\" width=\"60%\">\n    </div>\n</div>",
+        "content": "<div style=\"text-align:center;\">\n    <div style=\"display:inline-block;text-align:center;padding-top:10px;\">\n        <img border=\"0\" src=\"/public/img/lake/practice_process_delivery_velocity.png\" alt=\"R&D Process\" width=\"60%\">\n    </div>\n</div>",
         "mode": "html"
       },
       "pluginVersion": "8.0.6",
@@ -289,7 +289,7 @@
       "dashLength": 10,
       "dashes": false,
       "datasource": "mysql",
-      "description": "1. The average and 80th percentile requirement lead time over time.\n2. The time granularity can be switched to Week or Month by \"Time Interval\" above. \n3. When Time Interval is set to \"Month\", the average_lead_time of \"2021-06-01\" refers to the average lead time of requirements whose resolution time falls under [2020-06-01, 2020-07-01).",
+      "description": "1. The average requirement lead time over time.\n2. The time granularity can be switched to Week or Month by \"Time Interval\" above. \n3. When Time Interval is set to \"Month\", the average_lead_time of \"2021-06-01\" refers to the average lead time of requirements whose resolution time falls under [2020-06-01, 2020-07-01).",
       "fieldConfig": {
         "defaults": {
           "unit": "short"
@@ -337,7 +337,7 @@
           "group": [],
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "with _requirement as(\r\n  select \r\n    ji.id,\r\n    DATE_ADD(date(resolution_date), INTERVAL -$interval(date(resolution_date))+1 DAY) as time,\r\n    lead_time,\r\n    round(lead_time/1440) as lead_time_day\r\n  from jira_issues ji\r\n    join jira_board_issues jbi on ji.id = jbi.issue_id\r\n  where \r\n    std_type = 'Requirement'\r\n    and resolution_date is not null\r\n    and lead_time is not null\r\n    and std_status = 'Resolved'\r\n    and $__timeFilter(resolution_date)\r\n    and jbi.board_id = $board_id\r\n)\r\n\r\nselect \r\n  timestamp(time) as time,\r\n  avg(lead_time/1440) as average_lead_time\r\n  -- percent_rank() over (order by lead_time_day asc) as percentile_80_lead_time\r\nfrom _requirement\r\ngroup by 1\r\norder by 1 asc",
+          "rawSql": "with _requirement as(\r\n  select \r\n    DATE_ADD(date(resolution_date), INTERVAL -$interval(date(resolution_date))+1 DAY) as time,\r\n    lead_time\r\n  from jira_issues ji\r\n    join jira_board_issues jbi on ji.id = jbi.issue_id\r\n  where \r\n    std_type = 'Requirement'\r\n    and resolution_date is not null\r\n    and lead_time is not null\r\n    and std_status = 'Resolved'\r\n    and $__timeFilter(resolution_date)\r\n    and jbi.board_id = $board_id\r\n)\r\n\r\nselect \r\n  timestamp(time) as time,\r\n  avg(lead_time/1440) as average_lead_time\r\nfrom _requirement\r\ngroup by 1\r\norder by 1 asc",
           "refId": "A",
           "select": [
             [
@@ -793,7 +793,7 @@
           "metricColumn": "none",
           "queryType": "randomWalk",
           "rawQuery": true,
-          "rawSql": "with status_change_history as(\n\tSELECT\n\t\tjc.issue_id,\n\t\tjc.created as operation_time,\n\t\tjci.changelog_id,\n\t\tjci.from,\n\t\tjci.from_string,\n\t\tjci.to,\n\t\tjci.to_string,\n\t\tji.created as issue_creation_time,\n\t\tlag(jc.created) over(PARTITION BY jc.issue_id ORDER BY jc.created ASC) as last_operation_time,\n\t\tcase \n\t\t\twhen lag(jc.created) over(PARTITION BY jc.issue_id ORDER BY jc.created ASC) is not null then\n\t\t\tTIMESTAMPDIFF(MINUTE, lag(jc.created) over(PARTITION BY jc.issue_id ORDER BY jc.created ASC), jc.created)\n\t\t\telse TIMESTAMPDIFF(MINUTE, ji.created, jc.created) end as time_in_status\n\tFROM\n\t\tjira_changelogs jc\n\t\tJOIN jira_changelog_items jci ON jc.id = jci.changelog_id\n\t\tJOIN jira_issues ji ON jc.issue_id = ji.id\n\t\tjoin jira_board_issues jbi on ji.id = jbi.issue_id\n\tWHERE\n\t\tjci.field = 'status'\n\t\tand ji.std_type = 'Requirement'\n\t\tand resolution_date is not null\n\t\tand ji.std_status = 'Resolved'\n\t\tand $__timeFilter(ji.resolution_date)\n    and jbi.board_id = $board_id\n),\n\ntime_in_status as(\n\tSELECT \n\t\tDATE_ADD(date(issue_creation_time), INTERVAL -DAY(date(issue_creation_time))+1 DAY) as time,\n\t\tfrom_string,\n\t\tavg(time_in_status)/60 as time_in_status\n\tFROM status_change_history\n\tGROUP BY 1,2\n),\n\nlast_month as(\n\tselect \n\t\tDATE_ADD(date(CURDATE()), INTERVAL -DAY(date(CURDATE()))+1 DAY) as last_month\n),\n\nmonth_before_last_month as(\n\tSELECT \n\t\tDATE_ADD(DATE_ADD(date(CURDATE()), INTERVAL -DAY(date(CURDATE()))+1 DAY), INTERVAL -1 MONTH) as two_month_before\n),\n\n\nlast_month_record as(\n\tSELECT\n\t\tfrom_string as issue_status,\n\t\tcase when time in (SELECT last_month from last_month) then time_in_status else null end as last_month\n\tfrom time_in_status\n\tWHERE \n\t\ttime in (SELECT last_month from last_month)\n),\n\ntwo_month_before_record as(\n\tSELECT\n\t\tfrom_string as issue_status,\n\t\tcase when time in (SELECT two_month_before from month_before_last_month) then time_in_status else null end as two_month_before\n\tfrom time_in_status\n\tWHERE \n\t\ttime in (SELECT two_month_before from month_before_last_month)\n)\n\nSELECT\n\tnow() as time,\n\tmbr.two_month_before AS \"Two Month Before\",\n\tlmr.last_month AS \"Last Month\",\n\tlmr.issue_status\nFROM last_month_record lmr\nleft join two_month_before_record mbr on lmr.issue_status = mbr.issue_status ",
+          "rawSql": "with status_change_history as(\n\tSELECT\n\t\tjc.issue_id,\n\t\tjc.created as operation_time,\n\t\tjci.changelog_id,\n\t\tjci.from,\n\t\tjci.from_string,\n\t\tjci.to,\n\t\tjci.to_string,\n\t\tji.created as issue_creation_time,\n\t\tlag(jc.created) over(PARTITION BY jc.issue_id ORDER BY jc.created ASC) as last_operation_time,\n\t\tcase \n\t\t\twhen lag(jc.created) over(PARTITION BY jc.issue_id ORDER BY jc.created ASC) is not null then\n\t\t\tTIMESTAMPDIFF(MINUTE, lag(jc.created) over(PARTITION BY jc.issue_id ORDER BY jc.created ASC), jc.created)\n\t\t\telse TIMESTAMPDIFF(MINUTE, ji.created, jc.created) end as time_in_status\n\tFROM\n\t\tjira_changelogs jc\n\t\tJOIN jira_changelog_items jci ON jc.id = jci.changelog_id\n\t\tJOIN jira_issues ji ON jc.issue_id = ji.id\n\t\tjoin jira_board_issues jbi on ji.id = jbi.issue_id\n\tWHERE\n\t\tjci.field = 'status'\n\t\tand ji.std_type = 'Requirement'\n\t\tand resolution_date is not null\n\t\tand ji.std_status = 'Resolved'\n\t\tand $__timeFilter(ji.resolution_date)\n    and jbi.board_id = $board_id\n),\n\ntime_in_status as(\n\tSELECT \n\t\tDATE_ADD(date(issue_creation_time), INTERVAL -DAY(date(issue_creation_time))+1 DAY) as time,\n\t\tfrom_string,\n\t\tavg(time_in_status)/60 as time_in_status\n\tFROM status_change_history\n\tGROUP BY 1,2\n),\n\nlast_month as(\n\tselect \n\t\tDATE_ADD(date(CURDATE()), INTERVAL -DAY(date(CURDATE()))+1 DAY) as last_month\n),\n\nmonth_before_last_month as(\n\tSELECT \n\t\tDATE_ADD(DATE_ADD(date(CURDATE()), INTERVAL -DAY(date(CURDATE()))+1 DAY), INTERVAL -1 MONTH) as two_month_before\n),\n\n\nlast_month_record as(\n\tSELECT\n\t\tfrom_string as issue_status,\n\t\tcase when time in (SELECT last_month from last_month) then time_in_status else null end as last_month\n\tfrom time_in_status\n\tWHERE \n\t\ttime in (SELECT last_month from last_month)\n),\n\ntwo_month_before_record as(\n\tSELECT\n\t\tfrom_string as issue_status,\n\t\tcase when time in (SELECT two_month_before from month_before_last_month) then time_in_status else null end as two_month_before\n\tfrom time_in_status\n\tWHERE \n\t\ttime in (SELECT two_month_before from month_before_last_month)\n)\n\nSELECT\n\tnow() as time,\n\tmbr.two_month_before AS \"The Month Before Last\",\n\tlmr.last_month AS \"Last Month\",\n\tlmr.issue_status\nFROM last_month_record lmr\nleft join two_month_before_record mbr on lmr.issue_status = mbr.issue_status ",
           "refId": "A",
           "select": [
             [
@@ -916,7 +916,7 @@
           ]
         }
       ],
-      "title": "Requirement Count (Total)",
+      "title": "Requirement Count",
       "type": "stat"
     },
     {
@@ -1023,7 +1023,7 @@
       ],
       "timeFrom": null,
       "timeShift": null,
-      "title": "Requirement Count (Breakdown by Time)",
+      "title": "Requirement Count over Time",
       "type": "timeseries"
     },
     {
@@ -1559,7 +1559,7 @@
           ]
         }
       ],
-      "title": "Avg Requirement Granunarity(StoryPoint)",
+      "title": "Avg Requirement Granunarity(Story Point)",
       "type": "stat"
     },
     {
@@ -1692,7 +1692,7 @@
           "group": [],
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "with _requirement as(\r\n  select \r\n    ji.id,\r\n    DATE_ADD(date(resolution_date), INTERVAL -$interval(date(resolution_date))+1 DAY) as time,\r\n    std_story_point\r\n  from jira_issues ji\r\n    join jira_board_issues jbi on ji.id = jbi.issue_id\r\n  where \r\n    std_type = 'Requirement'\r\n    and created is not null\r\n    and std_story_point != 0\r\n    and $__timeFilter(created)\r\n    and jbi.board_id = $board_id\r\n)\r\n\r\nselect \r\n  timestamp(time) as time,\r\n  avg(std_story_point) as average_story_point\r\n  -- percentile_disc(0.8) within group (order by lead_time asc) as percentile_80_lead_time\r\nfrom _requirement\r\ngroup by 1\r\norder by 1 asc",
+          "rawSql": "with _requirement as(\r\n  select \r\n    ji.id,\r\n    DATE_ADD(date(resolution_date), INTERVAL -$interval(date(resolution_date))+1 DAY) as time,\r\n    std_story_point\r\n  from jira_issues ji\r\n    join jira_board_issues jbi on ji.id = jbi.issue_id\r\n  where \r\n    std_type = 'Requirement'\r\n    and created is not null\r\n    and std_story_point != 0\r\n    and $__timeFilter(created)\r\n    and jbi.board_id = $board_id\r\n)\r\n\r\nselect \r\n  timestamp(time) as time,\r\n  avg(std_story_point) as average_story_point\r\nfrom _requirement\r\ngroup by 1\r\norder by 1 asc",
           "refId": "A",
           "select": [
             [
@@ -1738,7 +1738,7 @@
         {
           "$$hashKey": "object:242",
           "format": "short",
-          "label": "Lead Time(day)",
+          "label": "Story Points",
           "logBase": 1,
           "max": null,
           "min": null,
@@ -1913,7 +1913,7 @@
     },
     {
       "datasource": "mysql",
-      "description": "1. Average PR/MR review time.\n2. PR/MR review time refers to the time between the assigned reviewers‘ first comment and Pull/Merge Request being merged.\n3. The PR/MR being calculated are filtered by \"PR/MR creation time\" (time filter at the upper-right corner) and \"Gitlab repo\"(\"Choose Repo\" filter at the upper-left corner)",
+      "description": "1. Average PR/MR review time.\n2. PR/MR review time refers to the time between the creation time and merged time of a PR/MR.\n3. The PR/MR being calculated are filtered by \"PR/MR creation time\" (time filter at the upper-right corner) and \"Gitlab repo\"(\"Choose Repo\" filter at the upper-left corner)",
       "fieldConfig": {
         "defaults": {
           "decimals": 1,
@@ -1963,7 +1963,7 @@
           "group": [],
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "select \n  now() as time,\n  avg(TIMESTAMPDIFF(MINUTE,first_comment_time,merged_at))/1440 as value\nfrom gitlab_merge_requests\nWHERE\n  first_comment_time is not null\n  and merged_at is not null\n  and merged_at >= first_comment_time\n  and $__timeFilter(gitlab_created_at)\n  and project_id = $repo_id",
+          "rawSql": "select \n  now() as time,\n  avg(TIMESTAMPDIFF(MINUTE,gitlab_created_at,merged_at))/1440 as value\nfrom gitlab_merge_requests\nWHERE\n  merged_at is not null\n  and $__timeFilter(gitlab_created_at)\n  and project_id = $repo_id",
           "refId": "A",
           "select": [
             [
@@ -2044,7 +2044,7 @@
           "group": [],
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "with _ranks as(\n  select \n    TIMESTAMPDIFF(SECOND,first_comment_time,merged_at)/86400 as metric,\n    percent_rank() over (order by TIMESTAMPDIFF(MINUTE,first_comment_time,merged_at) asc) as ranks\n  from gitlab_merge_requests\n  WHERE\n    first_comment_time is not null\n\t\tand first_comment_time != ''\n    and merged_at is not null\n\t\tand merged_at != ''\n\t\tand merged_at >= first_comment_time\n    and $__timeFilter(gitlab_created_at)\n    and project_id = $repo_id\n  )\n  \nselect\n  now() as time,\n  max(metric) as value\nfrom _ranks\nwhere \n  ranks <= 0.8\ngroup by 1",
+          "rawSql": "with _ranks as(\n  select \n    TIMESTAMPDIFF(SECOND,gitlab_created_at,merged_at)/86400 as metric,\n    percent_rank() over (order by TIMESTAMPDIFF(MINUTE,gitlab_created_at,merged_at) asc) as ranks\n  from gitlab_merge_requests\n  WHERE\n    merged_at is not null\n\t\tand merged_at != ''\n    and $__timeFilter(gitlab_created_at)\n    and project_id = $repo_id\n  )\n  \nselect\n  now() as time,\n  max(metric) as value\nfrom _ranks\nwhere \n  ranks <= 0.8\ngroup by 1",
           "refId": "A",
           "select": [
             [
@@ -2148,7 +2148,7 @@
           "group": [],
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "with reviewed_mr as(\n  select\n    DATE_ADD(date(gitlab_created_at), INTERVAL -$interval(date(gitlab_created_at))+1 DAY) as time,\n    TIMESTAMPDIFF(SECOND,first_comment_time,merged_at)/86400 as review_time\n  from gitlab_merge_requests\n  WHERE\n    first_comment_time is not null\n    and merged_at is not null\n\t\tand merged_at >= first_comment_time\n    and $__timeFilter(gitlab_created_at)\n    and project_id = $repo_id\n)\n\nselect \n  timestamp(time) as time,\n  avg(review_time) as average_review_time\n  -- percentile_disc(0.8) within group (order by review_time asc) as percentile_80_review_time\nfrom reviewed_mr\ngroup by 1\norder by 1 asc",
+          "rawSql": "with reviewed_mr as(\n  select\n    DATE_ADD(date(gitlab_created_at), INTERVAL -$interval(date(gitlab_created_at))+1 DAY) as time,\n    TIMESTAMPDIFF(SECOND,first_comment_time,merged_at)/86400 as review_time\n  from gitlab_merge_requests\n  WHERE\n    first_comment_time is not null\n    and merged_at is not null\n\t\tand merged_at >= first_comment_time\n    and $__timeFilter(gitlab_created_at)\n    and project_id = $repo_id\n)\n\nselect \n  timestamp(time) as time,\n  avg(review_time) as average_review_time\nfrom reviewed_mr\ngroup by 1\norder by 1 asc",
           "refId": "A",
           "select": [
             [
@@ -2441,7 +2441,7 @@
       "timeFrom": null,
       "timeRegions": [],
       "timeShift": null,
-      "title": "Commit Count (Breakdown by Repo)",
+      "title": "Commit Count by Repo",
       "tooltip": {
         "shared": false,
         "sort": 0,
@@ -2656,7 +2656,7 @@
       ],
       "timeFrom": null,
       "timeShift": null,
-      "title": "Added LOC (Total)",
+      "title": "Added LOC",
       "type": "stat"
     },
     {
@@ -2844,7 +2844,7 @@
       ],
       "timeFrom": null,
       "timeShift": null,
-      "title": "Added and Deleted LOC (Breakdown by Time)",
+      "title": "Added and Deleted LOC over Time",
       "type": "timeseries"
     },
     {
@@ -4089,5 +4089,5 @@
   "timezone": "",
   "title": "Delivery Velocity",
   "uid": "ZfaFQeM7k",
-  "version": 1
+  "version": 17
 }

@@ -16,7 +16,7 @@
   "gnetId": null,
   "graphTooltip": 0,
   "id": 5,
-  "iteration": 1631160639576,
+  "iteration": 1631457900468,
   "links": [
     {
       "asDropdown": false,
@@ -466,12 +466,390 @@
       "type": "timeseries"
     },
     {
+      "datasource": "mysql",
+      "description": "The average round of PR/MR review.",
+      "fieldConfig": {
+        "defaults": {
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 6,
+        "w": 8,
+        "x": 0,
+        "y": 22
+      },
+      "id": 53,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "mean"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "text": {},
+        "textMode": "auto"
+      },
+      "pluginVersion": "8.0.6",
+      "targets": [
+        {
+          "format": "time_series",
+          "group": [],
+          "metricColumn": "none",
+          "rawQuery": true,
+          "rawSql": "SELECT\n  now() AS \"time\",\n  avg(review_rounds) as value\nFROM \n  gitlab_merge_requests gmr\n  LEFT JOIN jira_board_gitlab_projects jbgp ON jbgp.gitlab_project_id = gmr.project_id\nWHERE\n  state = 'merged'\n  and review_rounds > 0\n  and jbgp.jira_board_id = $board_id\n  and $__timeFilter(gitlab_created_at)\ngroup by 1\nORDER BY 1",
+          "refId": "A",
+          "select": [
+            [
+              {
+                "params": [
+                  "progress"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "table": "ca_analysis",
+          "timeColumn": "create_time",
+          "timeColumnType": "timestamp",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        }
+      ],
+      "timeFrom": null,
+      "timeShift": null,
+      "title": "Average Pull Request Review Round",
+      "type": "stat"
+    },
+    {
+      "datasource": "mysql",
+      "description": "1. Avg PR/MR Review Round over time.\n2. The time granularity can be switched to week or month by \"Time Interval\" above. \n3. When Time Interval is set to \"month\", value \"Avg Pull Request Review Round\" of \"2021-06-01\" calculates the PR/MR whose creation time falls under [2020-06-01, 2020-07-01)",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisLabel": "Rate(%)",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 0,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "min": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "none"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 6,
+        "w": 16,
+        "x": 8,
+        "y": 22
+      },
+      "id": 55,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "hidden",
+          "placement": "bottom"
+        },
+        "tooltip": {
+          "mode": "single"
+        }
+      },
+      "pluginVersion": "8.0.6",
+      "targets": [
+        {
+          "format": "time_series",
+          "group": [],
+          "metricColumn": "none",
+          "queryType": "randomWalk",
+          "rawQuery": true,
+          "rawSql": "SELECT\n  timestamp(DATE_ADD(date(gitlab_created_at), INTERVAL -$interval(date(gitlab_created_at))+1 DAY)) as time,\n  avg(review_rounds) as \"Pull Request Reveiw Round\"\nFROM\n  gitlab_merge_requests gmr\n  LEFT JOIN jira_board_gitlab_projects jbgp ON jbgp.gitlab_project_id = gmr.project_id\nWHERE\n  state = 'merged'\n  and review_rounds > 0\n  and jbgp.jira_board_id = $board_id\n  and $__timeFilter(gitlab_created_at)\nGROUP BY 1\nORDER BY 1",
+          "refId": "A",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "timeColumn": "time",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        }
+      ],
+      "timeFrom": null,
+      "timeShift": null,
+      "title": "Average Pull Request Review Round over Time",
+      "type": "timeseries"
+    },
+    {
+      "datasource": "mysql",
+      "description": "The average round of PR/MR review of PR authors.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "axisSoftMin": 0,
+            "fillOpacity": 80,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineWidth": 1
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 6,
+        "w": 24,
+        "x": 0,
+        "y": 28
+      },
+      "id": 54,
+      "options": {
+        "barWidth": 0.52,
+        "groupWidth": 0.7,
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom"
+        },
+        "orientation": "auto",
+        "showValue": "auto",
+        "text": {},
+        "tooltip": {
+          "mode": "single"
+        }
+      },
+      "pluginVersion": "8.0.6",
+      "targets": [
+        {
+          "format": "table",
+          "group": [],
+          "metricColumn": "none",
+          "rawQuery": true,
+          "rawSql": "SELECT\n  now() AS \"time\",\n  author_username as Author,\n  avg(review_rounds) as value\nFROM \n  gitlab_merge_requests gmr\n  LEFT JOIN jira_board_gitlab_projects jbgp ON jbgp.gitlab_project_id = gmr.project_id\nWHERE\n  state = 'merged'\n  and review_rounds > 0\n  and jbgp.jira_board_id = $board_id\n  and $__timeFilter(gitlab_created_at)\nGROUP BY 1,2\nORDER BY 3 desc\nlimit 20",
+          "refId": "A",
+          "select": [
+            [
+              {
+                "params": [
+                  "progress"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "table": "ca_analysis",
+          "timeColumn": "create_time",
+          "timeColumnType": "timestamp",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        }
+      ],
+      "timeFrom": null,
+      "timeShift": null,
+      "title": "Average Pull Request Review Round by Author",
+      "type": "barchart"
+    },
+    {
+      "datasource": "mysql",
+      "description": "One-time pass rate for PR over time.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisLabel": "One-time Pass Rate(%)",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 0,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "min": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          },
+          "unit": "percentunit"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 6,
+        "w": 24,
+        "x": 0,
+        "y": 34
+      },
+      "id": 56,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "hidden",
+          "placement": "bottom"
+        },
+        "tooltip": {
+          "mode": "single"
+        }
+      },
+      "pluginVersion": "8.0.6",
+      "targets": [
+        {
+          "format": "time_series",
+          "group": [],
+          "metricColumn": "none",
+          "queryType": "randomWalk",
+          "rawQuery": true,
+          "rawSql": "with _review_rounds as(\n  SELECT\n    DATE_ADD(date(gitlab_created_at), INTERVAL -$interval(date(gitlab_created_at))+1 DAY) as time,\n    review_rounds\n  FROM\n    gitlab_merge_requests gmr\n    LEFT JOIN jira_board_gitlab_projects jbgp ON jbgp.gitlab_project_id = gmr.project_id\n  WHERE\n    state = 'merged'\n    and review_rounds > 0\n    and jbgp.jira_board_id = $board_id\n    and $__timeFilter(gitlab_created_at)\n)\n\nSELECT \n  timestamp(time) as time,\n  count(case when review_rounds = 1 then true else null end)/count(*) as one_time_pass_rate\nFROM \n  _review_rounds\nGROUP BY 1\nORDER BY 1",
+          "refId": "A",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "timeColumn": "time",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        }
+      ],
+      "timeFrom": null,
+      "timeShift": null,
+      "title": "One-time Pass Rate for Code Reviews over Time",
+      "type": "timeseries"
+    },
+    {
       "datasource": null,
       "gridPos": {
         "h": 4,
         "w": 24,
         "x": 0,
-        "y": 22
+        "y": 40
       },
       "id": 50,
       "options": {
@@ -513,7 +891,7 @@
         "h": 6,
         "w": 8,
         "x": 0,
-        "y": 26
+        "y": 44
       },
       "id": 16,
       "options": {
@@ -618,7 +996,7 @@
         "h": 6,
         "w": 16,
         "x": 8,
-        "y": 26
+        "y": 44
       },
       "id": 18,
       "options": {
@@ -663,7 +1041,7 @@
       ],
       "timeFrom": null,
       "timeShift": null,
-      "title": "Number of bugs found in Testing over Time",
+      "title": "Number of Bugs found in Testing over Time",
       "type": "timeseries"
     },
     {
@@ -700,7 +1078,7 @@
         "h": 6,
         "w": 8,
         "x": 0,
-        "y": 32
+        "y": 50
       },
       "id": 24,
       "options": {
@@ -808,7 +1186,7 @@
         "h": 6,
         "w": 16,
         "x": 8,
-        "y": 32
+        "y": 50
       },
       "id": 22,
       "options": {
@@ -859,7 +1237,7 @@
         "h": 4,
         "w": 24,
         "x": 0,
-        "y": 38
+        "y": 56
       },
       "id": 52,
       "options": {
@@ -901,7 +1279,7 @@
         "h": 6,
         "w": 8,
         "x": 0,
-        "y": 42
+        "y": 60
       },
       "id": 38,
       "options": {
@@ -1006,7 +1384,7 @@
         "h": 6,
         "w": 16,
         "x": 8,
-        "y": 42
+        "y": 60
       },
       "id": 39,
       "options": {
@@ -1088,7 +1466,7 @@
         "h": 6,
         "w": 8,
         "x": 0,
-        "y": 48
+        "y": 66
       },
       "id": 28,
       "options": {
@@ -1136,7 +1514,7 @@
           ]
         }
       ],
-      "title": "Incidents Count per 1k lines of code (Total)",
+      "title": "Incident Count per 1k lines of code (Total)",
       "type": "stat"
     },
     {
@@ -1197,7 +1575,7 @@
         "h": 6,
         "w": 16,
         "x": 8,
-        "y": 48
+        "y": 66
       },
       "id": 30,
       "options": {
@@ -1317,5 +1695,5 @@
   "timezone": "",
   "title": "Delivery Quality",
   "uid": "nUC-7tGnk",
-  "version": 33
+  "version": 53
 }
