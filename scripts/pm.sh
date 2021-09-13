@@ -2,17 +2,19 @@
 
 set -e
 
+SCRIPT_DIR="$( cd "$( dirname "$0" )" && pwd )"
+
 LAKE_ENDPOINT=${LAKE_ENDPOINT-'http://localhost:8080'}
 LAKE_TASK_URL=$LAKE_ENDPOINT/task
 
 debug() {
-    scripts/compile-plugins.sh -gcflags=all="-N -l"
+    $SCRIPT_DIR/compile-plugins.sh -gcflags=all="-N -l"
     dlv debug
 }
 
 run() {
-    scripts/compile-plugins.sh
-    go run main.go
+    $SCRIPT_DIR/compile-plugins.sh
+    go run $SCRIPT_DIR/../main.go
 }
 
 jira() {
