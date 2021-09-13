@@ -23,7 +23,9 @@ Incident Count per 1k Lines of Code | Amount of incidents per 1000 lines of code
 
 ## Configuration
 
-Set following Environment Variables before launching:
+Set the following environment variables in `.env` file before launching.
+For what's issue status mapping, see [Issue status mapping](#issue-status-mapping) section.
+For what's issue type mapping, see [Issue type mapping](#issue-type-mapping) section.
 
 ```sh
 ######################
@@ -61,6 +63,39 @@ JIRA_ISSUE_STORYPOINT_COEFFICIENT=1
 JIRA_ISSUE_STORYPOINT_FIELD=customfield_10024
 ```
 
+
+## Issue status mapping<a id="issue-status-mapping"></a>
+Jira is highly customizable, different company may use different `status name` to represent whether a issue was
+resolved or not, one may named it "Done" and others might named it "Finished".
+In order to collect life-cycle information correctly, you'll have to map your specific status to Devlake's standard
+status, Devlake supports two standard status:
+
+ - `Resolved`: issue was ended successfully
+ - `Rejected`: issue was ended by termination or cancellation
+
+Say we were using `Done` and `Cancelled` to represent the final stage of `Story` issues, what we have to do is setting
+the following `Environment Variables` before running Devlake:
+```sh
+JIRA_ISSUE_STORY_STATUS_MAPPING=Resolved:Done;Reject:Cancelled
+```
+
+
+## Issue type mapping<a id="issue-type-mapping"></a>
+Same as status mapping, different company might use different issue type to represent their Bug/Incident/Requirement,
+type mapping is for Devlake to recognize your specific setup.
+Devlake supports three different standard types:
+
+ - `Bug`
+ - `Incident`
+ - `Requirement`
+
+Say we were using `Story` to represent our Requirement, what we have to do is setting the following
+`Environment Variables` before running Devlake:
+```sh
+JIRA_ISSUE_TYPE_MAPPING=Requirement:Story
+```
+
+
 ## Find Board Id
 1. Navigate to the Jira board in the browser
 2. in the URL bar, get the board id from the parameter `?rapidView=`
@@ -83,3 +118,5 @@ Using URL
 1. Navigate to Administration >> Issues >> Custom Fields .
 2. Click the cog and hover over Configure or Screens option.
 3. Observe the URL at the bottom left of the browser window. Example: The id for this custom field is 10006.
+
+
