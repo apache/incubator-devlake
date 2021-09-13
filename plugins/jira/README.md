@@ -26,20 +26,39 @@ Incident Count per 1k Lines of Code | Amount of incidents per 1000 lines of code
 Set following Environment Variables before launching:
 
 ```sh
+######################
+# Jira configuration #
+######################
+
+# Jira: basics #
+
 JIRA_ENDPOINT=https://merico.atlassian.net/rest
 # ex: echo -n <jira login email>:<jira token> | base64
 JIRA_BASIC_AUTH_ENCODED=emhl..........................................a0QzQUE=
-JIRA_ISSUE_EPIC_KEY_FIELD=customfield_10014
-JIRA_ISSUE_STORYPOINT_COEFFICIENT=1
-JIRA_ISSUE_STORYPOINT_FIELD=customfield_10024
-# Configure jira board / gitlab projects relationship in format BOARD_ID:PROJECT_ID1,PROJECT_ID2
-JIRA_BOARD_GITLAB_PROJECTS=8:8967944,8967945;9:8967946,8967947
-# JIRA_ISSUE_<ORIGIN_STATUS>_STATUS_MAPPING=<STANDARD_STATUS_1>:<ORIGIN_STATUS_1>,<ORIGIN_STATUS_2>;<STANDARD_STATUS_2>
+
+# Jira: issue type #
+
+# Format:
+#   STANDARD_TYPE_1:ORIGIN_TYPE_1,ORIGIN_TYPE_2;STANDARD_TYPE_2:....
+JIRA_ISSUE_TYPE_MAPPING=Requirement:Story
+
+
+# Jira: issue status #
+
+# Format:
+#   JIRA_ISSUE_<STANDARD_ISSUE_TYPE>_STATUS_MAPPING=<STANDARD_STATUS_1>:<ORIGIN_STATUS_1>,<ORIGIN_STATUS_2>;<STANDARD_STATUS_2>
 JIRA_ISSUE_BUG_STATUS_MAPPING=Resolved:Approved,Verified,Done,Closed;Reject:ByDesign,Irreproducible
 JIRA_ISSUE_INCIDENT_STATUS_MAPPING=Resolved:Done,Closed;Reject:ByDesign,Irreproducible
 JIRA_ISSUE_STORY_STATUS_MAPPING=Resolved:Verified,Done,Closed;Reject:Abandoned,Cancelled
-# STANDARD_TYPE_2:ORIGIN_TYPE_1,ORIGIN_TYPE_2;STANDARD_TYPE_2:....
-JIRA_ISSUE_TYPE_MAPPING=Requirement:Story
+
+# Jira: epic issue #
+
+JIRA_ISSUE_EPIC_KEY_FIELD=customfield_10014
+
+# Jira: story point #
+
+JIRA_ISSUE_STORYPOINT_COEFFICIENT=1
+JIRA_ISSUE_STORYPOINT_FIELD=customfield_10024
 ```
 
 ## Find Board Id
