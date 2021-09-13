@@ -26,14 +26,13 @@ Dev Lake is the one-stop solution that _**integrates, analyzes, and visualizes**
 Section | Description | Documentation Link
 :------------ | :------------- | :-------------
 Data Sources | Links to specific plugin usage & details | [View Section](#data-source-plugins)
-Grafana | How to visualize the data | [View Section](#grafana)
 User Setup | Steps to run the project as a user | [View Section](#user-setup) 
 Developer Setup | How to setup dev environment | [View Section](#dev-setup)
 Tests | Commands for running tests | [View Section](#tests)
+Grafana | How to visualize the data | [View Section](#grafana)
 Build a Plugin | Details on how to make your own | [Link](plugins/README.md) 
 Add Plugin Metrics | Guide to adding plugin metrics | [Link](plugins/HOW-TO-ADD-METRICS.md) 
 Contributing | How to contribute to this repo | [Link](CONTRIBUTING.md)
-
 
 
 ## Data Sources We Currently Support<a id="data-source-plugins"></a>
@@ -48,13 +47,6 @@ Jira | Metrics, Generating API Token, Find Project/Board ID | [Link](plugins/jir
 Gitlab | Metrics, Generating API Token | [Link](plugins/gitlab/README.md) 
 Jenkins | Metrics, Generating API Token | [Link](plugins/jenkins/README.md) 
 
-## Grafana<a id="grafana"></a>
-
-We use <a href="https://grafana.com/" target="_blank">Grafana</a> as a visualization tool to build charts for the data stored in our database. Using SQL queries we can add panels to build, save, and edit customized dashboards.
-
-All the details on provisioning, and customizing a dashboard can be found in the [Grafana Doc](docs/GRAFANA.md)
-
----
 
 ## User setup<a id="user-setup"></a>
 
@@ -120,6 +112,7 @@ All the details on provisioning, and customizing a dashboard can be found in the
 Commonly, we have requirement to synchorize data periodly. We providered a tool called `lake-cli` to meet that requirement. Check `lake-cli` usage at [here](./cmd/lake-cli/README.md).  
 
 Otherwise, if you just want to use the cron job, please check `docker-compose` version at [here](./devops/sync/README.md)
+
 
 ## Developer Setup<a id="dev-setup"></a>
 
@@ -187,11 +180,18 @@ Otherwise, if you just want to use the cron job, please check `docker-compose` v
     - You can also create/modify existing/save dashboards to `lake`
     - For more info on working with Grafana in Dev Lake see [Grafana Doc](docs/GRAFANA.md)
 
+
 ## Tests<a id="tests"></a>
 
 Sample tests can be found in `/test/example`
 
 To run the tests: `make test`
+
+## Grafana<a id="grafana"></a>
+
+We use <a href="https://grafana.com/" target="_blank">Grafana</a> as a visualization tool to build charts for the data stored in our database. Using SQL queries we can add panels to build, save, and edit customized dashboards.
+
+All the details on provisioning, and customizing a dashboard can be found in the [Grafana Doc](docs/GRAFANA.md)
 
 ## Contributing
 
