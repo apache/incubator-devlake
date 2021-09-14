@@ -6,8 +6,9 @@ import (
 
 type Task struct {
 	Model
-	Plugin  string
-	Options datatypes.JSON
-	Status  string
-	Message string
+	Plugin   string         `json:"plugin"`
+	Options  datatypes.JSON `json:"options"`
+	Status   string         `json:"status"`
+	Message  string         `json:"message"`
+	Progress float32        `json:"progress"`
 }

@@ -28,5 +28,5 @@ func TestNewTask(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	assert.Equal(t, tasks[0]["Plugin"], "jira")
+	assert.Equal(t, tasks[0]["plugin"], "jira")
 }

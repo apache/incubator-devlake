@@ -19,8 +19,17 @@ export default function Home(props) {
   const [jiraEndpoint, setJiraEndpoint] = useState(env.JIRA_ENDPOINT)
   const [jiraBasicAuthEncoded, setJiraBasicAuthEncoded] = useState(env.JIRA_BASIC_AUTH_ENCODED)
   const [jiraIssueEpicKeyField, setJiraIssueEpicKeyField] = useState(env.JIRA_ISSUE_EPIC_KEY_FIELD)
+  const [jiraIssueTypeMapping, setJiraIssueTypeMapping] = useState(env.JIRA_ISSUE_TYPE_MAPPING)
+  const [jiraIssueBugStatusMapping, setJiraIssueBugStatusMapping] = useState(env.JIRA_ISSUE_BUG_STATUS_MAPPING)
+  const [jiraIssueIncidentStatusMapping, setJiraIssueIncidentStatusMapping] = useState(env.JIRA_ISSUE_INCIDENT_STATUS_MAPPING)
+  const [jiraIssueStoryStatusMapping, setJiraIssueStoryStatusMapping] = useState(env.JIRA_ISSUE_STORY_STATUS_MAPPING)
+  const [jiraIssueStoryCoefficient, setJiraIssueStoryCoefficient] = useState(env.JIRA_ISSUE_STORYPOINT_COEFFICIENT)
+  const [jiraIssueStoryPointField, setJiraIssueStoryPointField] = useState(env.JIRA_ISSUE_STORYPOINT_FIELD)
   const [gitlabEndpoint, setGitlabEndpoint] = useState(env.GITLAB_ENDPOINT)
   const [gitlabAuth, setGitlabAuth] = useState(env.GITLAB_AUTH)
+  const [jenkinsEndpoint, setJenkinsEndpoint] = useState(env.JENKINS_ENDPOINT)
+  const [jenkinsUsername, setJenkinsUsername] = useState(env.JENKINS_USERNAME)
+  const [jenkinsPassword, setJenkinsPassword] = useState(env.JENKINS_PASSWORD)
 
   function updateEnv(key, value) {
     fetch(`/api/setenv/${key}/${encodeURIComponent(value)}`)
@@ -34,8 +43,17 @@ export default function Home(props) {
     updateEnv('JIRA_ENDPOINT', jiraEndpoint)
     updateEnv('JIRA_BASIC_AUTH_ENCODED', jiraBasicAuthEncoded)
     updateEnv('JIRA_ISSUE_EPIC_KEY_FIELD', jiraIssueEpicKeyField)
+    updateEnv('JIRA_ISSUE_TYPE_MAPPING', jiraIssueTypeMapping)
+    updateEnv('JIRA_ISSUE_BUG_STATUS_MAPPING', jiraIssueBugStatusMapping)
+    updateEnv('JIRA_ISSUE_INCIDENT_STATUS_MAPPING', jiraIssueIncidentStatusMapping)
+    updateEnv('JIRA_ISSUE_STORY_STATUS_MAPPING', jiraIssueStoryStatusMapping)
+    updateEnv('JIRA_ISSUE_STORYPOINT_COEFFICIENT', jiraIssueStoryCoefficient)
+    updateEnv('JIRA_ISSUE_STORYPOINT_FIELD', jiraIssueStoryPointField)
     updateEnv('GITLAB_ENDPOINT', gitlabEndpoint)
     updateEnv('GITLAB_AUTH', gitlabAuth)
+    updateEnv('JENKINS_ENDPOINT', jenkinsEndpoint)
+    updateEnv('JENKINS_USERNAME', jenkinsUsername)
+    updateEnv('JENKINS_PASSWORD', jenkinsPassword)
     alert('Config file updated, please restart devlake to apply new configuration')
   }
 
@@ -192,6 +210,121 @@ export default function Home(props) {
               </FormGroup>
             </div>
 
+            <div className={styles.formContainer}>
+              <FormGroup
+                label="JIRA_ISSUE_TYPE_MAPPING"
+                inline={true}
+                labelFor="jira-issue-type-mapping"
+                helperText="Map your custom type to Devlake standard type"
+                className={styles.formGroup}
+                contentClassName={styles.formGroup}
+              >
+                <InputGroup
+                  id="jira-issue-type-mapping"
+                  placeholder="STANDARD_TYPE_1:ORIGIN_TYPE_1,ORIGIN_TYPE_2;STANDARD_TYPE_2:....
+"
+                  defaultValue={jiraIssueTypeMapping}
+                  onChange={(e) => setJiraIssueTypeMapping(e.target.value)}
+                  className={styles.input}
+                />
+              </FormGroup>
+            </div>
+
+            <div className={styles.formContainer}>
+              <FormGroup
+                label="JIRA_ISSUE_BUG_STATUS_MAPPING"
+                inline={true}
+                labelFor="jira-bug-status-mapping"
+                helperText="Map your custom bug status to Devlake standard status"
+                className={styles.formGroup}
+                contentClassName={styles.formGroup}
+              >
+                <InputGroup
+                  id="jira-bug-status-mapping"
+                  placeholder="<STANDARD_STATUS_1>:<ORIGIN_STATUS_1>,<ORIGIN_STATUS_2>;<STANDARD_STATUS_2>"
+                  defaultValue={jiraIssueBugStatusMapping}
+                  onChange={(e) => setJiraIssueBugStatusMapping(e.target.value)}
+                  className={styles.input}
+                />
+              </FormGroup>
+            </div>
+
+            <div className={styles.formContainer}>
+              <FormGroup
+                label="JIRA_ISSUE_INCIDENT_STATUS_MAPPING"
+                inline={true}
+                labelFor="jira-incident-status-mapping"
+                helperText="Map your custom incident status to Devlake standard status"
+                className={styles.formGroup}
+                contentClassName={styles.formGroup}
+              >
+                <InputGroup
+                  id="jira-incident-status-mapping"
+                  placeholder="<STANDARD_STATUS_1>:<ORIGIN_STATUS_1>,<ORIGIN_STATUS_2>;<STANDARD_STATUS_2>"
+                  defaultValue={jiraIssueIncidentStatusMapping}
+                  onChange={(e) => setJiraIssueIncidentStatusMapping(e.target.value)}
+                  className={styles.input}
+                />
+              </FormGroup>
+            </div>
+
+            <div className={styles.formContainer}>
+              <FormGroup
+                label="JIRA_ISSUE_STORY_STATUS_MAPPING"
+                inline={true}
+                labelFor="jira-story-status-mapping"
+                helperText="Map your custom story status to Devlake standard status"
+                className={styles.formGroup}
+                contentClassName={styles.formGroup}
+              >
+                <InputGroup
+                  id="jira-story-status-mapping"
+                  placeholder="<STANDARD_STATUS_1>:<ORIGIN_STATUS_1>,<ORIGIN_STATUS_2>;<STANDARD_STATUS_2>"
+                  defaultValue={jiraIssueStoryStatusMapping}
+                  onChange={(e) => setJiraIssueStoryStatusMapping(e.target.value)}
+                  className={styles.input}
+                />
+              </FormGroup>
+            </div>
+
+            <div className={styles.formContainer}>
+              <FormGroup
+                label="JIRA_ISSUE_STORYPOINT_COEFFICIENT"
+                inline={true}
+                labelFor="jira-storypoint-coef"
+                helperText="Your custom story point coefficent (optional)"
+                className={styles.formGroup}
+                contentClassName={styles.formGroup}
+              >
+                <InputGroup
+                  id="jira-storypoint-coef"
+                  placeholder="Enter Jira Story Point Coefficient"
+                  defaultValue={jiraIssueStoryCoefficient}
+                  onChange={(e) => setJiraIssueStoryCoefficient(e.target.value)}
+                  className={styles.input}
+                />
+              </FormGroup>
+            </div>
+
+            <div className={styles.formContainer}>
+              <FormGroup
+                label="JIRA_ISSUE_STORYPOINT_FIELD"
+                inline={true}
+                labelFor="jira-storypoint-field"
+                helperText="Your custom story point key field (optional)"
+                className={styles.formGroup}
+                contentClassName={styles.formGroup}
+              >
+                <InputGroup
+                  id="jira-storypoint-field"
+                  placeholder="Enter Jira Story Point Field"
+                  defaultValue={jiraIssueStoryPointField}
+                  onChange={(e) => setJiraIssueStoryPointField(e.target.value)}
+                  className={styles.input}
+                />
+              </FormGroup>
+            </div>
+
             <div className={styles.headlineContainer}>
               <h2 className={styles.headline}>Gitlab Configuration</h2>
               <p className={styles.description}>Gitlab account and config settings</p>
@@ -221,7 +354,7 @@ export default function Home(props) {
                 label="GITLAB_AUTH"
                 inline={true}
                 labelFor="gitlab-auth"
-                helperText="Gitlab Auth Token"
+                helperText="Should be encoded using command `echo -n <jira login email>:<jira token> | base64`"
                 className={styles.formGroup}
                 contentClassName={styles.formGroup}
               >
@@ -230,6 +363,68 @@ export default function Home(props) {
                   placeholder="Enter Gitlab Auth Token eg. uJVEDxabogHbfFyu2riz"
                   defaultValue={gitlabAuth}
                   onChange={(e) => setGitlabAuth(e.target.value)}
+                  className={styles.input}
+                />
+              </FormGroup>
+            </div>
+
+            <div className={styles.headlineContainer}>
+              <h2 className={styles.headline}>Jenkins Configuration</h2>
+              <p className={styles.description}>Jenkins account and config settings</p>
+            </div>
+
+            <div className={styles.formContainer}>
+              <FormGroup
+                label="JENKINS_ENDPOINT"
+                inline={true}
+                labelFor="jenkins-endpoint"
+                helperText="Jenkins API Endpoint"
+                className={styles.formGroup}
+                contentClassName={styles.formGroup}
+              >
+                <InputGroup
+                  id="jenkins-endpoint"
+                  placeholder="Enter Jenkins API endpoint"
+                  defaultValue={jenkinsEndpoint}
+                  onChange={(e) => setJenkinsEndpoint(e.target.value)}
+                  className={styles.input}
+                />
+              </FormGroup>
+            </div>
+
+            <div className={styles.formContainer}>
+              <FormGroup
+                label="JENKINS_USERNAME"
+                inline={true}
+                labelFor="jenkins-username"
+                helperText="Jenkins Username"
+                className={styles.formGroup}
+                contentClassName={styles.formGroup}
+              >
+                <InputGroup
+                  id="jenkins-username"
+                  placeholder="Enter Jenkins Username"
+                  defaultValue={jenkinsUsername}
+                  onChange={(e) => setJenkinsUsername(e.target.value)}
+                  className={styles.input}
+                />
+              </FormGroup>
+            </div>
+
+            <div className={styles.formContainer}>
+              <FormGroup
+                label="JENKINS_PASSWORD"
+                inline={true}
+                labelFor="jenkins-password"
+                helperText="Jenkins Password"
+                className={styles.formGroup}
+                contentClassName={styles.formGroup}
+              >
+                <InputGroup
+                  id="jenkins-password"
+                  placeholder="Enter Jenkins Password"
+                  defaultValue={jenkinsPassword}
+                  onChange={(e) => setJenkinsPassword(e.target.value)}
                   className={styles.input}
                 />
               </FormGroup>
