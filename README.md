@@ -69,7 +69,7 @@ Jenkins | Metrics, Generating API Token | [Link](plugins/jenkins/README.md)
    cd devlake
    cp .env.example .env
    ```
-2. Run `docker-compose up config-ui` to start up the configuration interface
+2. Start Docker on your machine and then you can run `docker-compose up config-ui` to start up the configuration interface
 
 > For more info on how to configure plugins, please refer to the <a href="https://github.com/merico-dev/lake#data-source-plugins" target="_blank">data source plugins</a>, section
 
