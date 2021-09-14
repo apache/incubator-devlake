@@ -33,3 +33,12 @@ func Post(ctx *gin.Context) {
 
 	ctx.JSON(http.StatusCreated, tasks)
 }
+
+func Get(ctx *gin.Context) {
+	tasks, err := services.GetTasks(ctx.Query("status"))
+	if err != nil {
+		_ = ctx.AbortWithError(http.StatusInternalServerError, err)
+		return
+	}
+	ctx.JSON(http.StatusOK, gin.H{"tasks": tasks})
+}

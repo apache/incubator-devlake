@@ -7,4 +7,5 @@ import (
 
 func RegisterRouter(r *gin.Engine) {
 	r.POST("/task", task.Post)
+	r.GET("/task", task.Get)
 }
