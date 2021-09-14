@@ -51,16 +51,21 @@ export default function Home(props) {
   useEffect(() => {
     let s = 0
     const interval = setInterval(async () => {
-      const res = await axios.get("/api/triggers/pendings")
-      if (res.data.tasks.length > 0) {
-        s = 1
-      } else if (s === 1) {
-        s = 2
+      try {
+        const res = await axios.get("/api/triggers/pendings")
+        if (res.data.tasks.length > 0) {
+          s = 1
+        } else if (s === 1) {
+          s = 2
+        }
+        setStage(s)
+        setPendingTasks(res.data.tasks)
+        setGrafanaUrl(`${location.protocol}//${location.hostname}:${res.data.grafanaPort}`)
       }
-      setStage(s)
-      setPendingTasks(res.data.tasks)
-      setGrafanaUrl(`${location.protocol}//${location.hostname}:${res.data.grafanaPort}`)
-    }, 1000);
+      catch (e) {
+        console.log(e)
+      }
+    }, 3000);
     return () => clearInterval(interval);
   }, [])
 
@@ -72,7 +77,7 @@ export default function Home(props) {
         <meta name="description" content="Lake: Config" />
         <link rel="icon" href="/favicon.ico" />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link href="https://fonts.googleapis.com/css2?family=Source+Sans+Pro:wght@400;600&display=swap" rel="stylesheet" />
         <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@500;600&display=swap" rel="stylesheet" />
       </Head>

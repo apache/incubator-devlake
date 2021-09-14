@@ -94,6 +94,11 @@ JIRA_ISSUE_STORY_STATUS_MAPPING=Resolved:Done;Rejected:Cancelled
 ```
 
 Status mapping is critical for metrics like **Lead Time** since the `leadtime` that we store in the database is calculated only for **Resolved** issues.
+## Generating API token
+1. Once logged into Jira, visit the url `https://id.atlassian.com/manage-profile/security/api-tokens`
+2. Click the **Create API Token** button, and give it any label name
+![image](https://user-images.githubusercontent.com/27032263/129363611-af5077c9-7a27-474a-a685-4ad52366608b.png)
+3. Encode with login email using command `echo -n <jira login email>:<jira token> | base64`
 
 NOTE: You can see your project's issue statuses here:
 
@@ -114,6 +119,21 @@ This is a value you can set to something other than the default of 1 if you want
 ## How to Trigger Data Collection for This Plugin
 
 ### Find Board Id
+## Issue status mapping<a id="issue-status-mapping"></a>
+Jira is highly customizable, different company may use different `status name` to represent whether a issue was
+resolved or not, one may named it "Done" and others might named it "Finished".
+In order to collect life-cycle information correctly, you'll have to map your specific status to Devlake's standard
+status, Devlake supports two standard status:
+
+ - `Resolved`: issue was ended successfully
+ - `Rejected`: issue was ended by termination or cancellation
+
+Say we were using `Done` and `Cancelled` to represent the final stage of `Story` issues, what we have to do is setting
+the following `Environment Variables` before running Devlake:
+```sh
+JIRA_ISSUE_STORY_STATUS_MAPPING=Resolved:Done;Reject:Cancelled
+```
+
 
 1. Navigate to the Jira board in the browser
 2. in the URL bar, get the board id from the parameter `?rapidView=`
@@ -125,6 +145,11 @@ This is a value you can set to something other than the default of 1 if you want
 ![Screen Shot 2021-08-13 at 10 07 19 AM](https://user-images.githubusercontent.com/27032263/129363083-df0afa18-e147-4612-baf9-d284a8bb7a59.png)
 
 Your board id is used in all REST requests to DevLake. You do not need to set this in your `.env` file. 
+## How do I find the custom field ID in Jira?
+Using URL
+1. Navigate to Administration >> Issues >> Custom Fields .
+2. Click the cog and hover over Configure or Screens option.
+3. Observe the URL at the bottom left of the browser window. Example: The id for this custom field is 10006.
 
 **Example:** 
 
