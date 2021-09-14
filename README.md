@@ -62,51 +62,26 @@ Jenkins | Metrics, Generating API Token | [Link](plugins/jenkins/README.md)
 
 ### Commands to run in your terminal<a id="user-setup-commands"></a>
 
-1. Create a directory and download files
+1. Clone repository
 
    ```sh
    git clone https://github.com/merico-dev/lake.git devlake
    cd devlake
-   git checkout go-main
    cp .env.example .env
    ```
-
-2. Open `.env` file with your editor, fill the values in `Jira`, `Gitlab` and `Jenkins` sections with your deployments.
+2. Run `docker-compose up config-ui` to start up the configuration interface
 
 > For more info on how to configure plugins, please refer to the [data source plugins](#data-source-plugins) section
 
-3. Launch `docker-compose`
+3. Visit `localhost:4000` to setup configuration files
 
-   ```shell
-   make compose
-   ```
+4. Run `docker-compose up -d` to start up the other services
 
-4. Create a http request to trigger data collect tasks, please replace your [gitlab projectId](plugins/gitlab/README.md#finding-project-id) and [jira boardId](plugins/jira/README.md#find-board-id) in the request body. This can take up to 20 minutes for large projects. (gitlab 10k+ commits or jira 5k+ issues)
+5. Visit `localhost:4000/triggers` to run collection triggers for plugins
 
-   ```shell
-   curl -XPOST 'http://localhost:8080/task' \
-   -H 'Content-Type: application/json' \
-   -d '[
-       {
-           "plugin": "gitlab",
-           "options": {
-               "projectId": 8967944
-           }
-       },
-       {
-           "plugin": "jira",
-           "options": {
-               "boardId": 8
-           }
-       },
-       {
-           "plugin": "jenkins",
-           "options": {}
-       }
-   ]'
-   ```
+> Please replace your [gitlab projectId](plugins/gitlab/README.md#finding-project-id) and [jira boardId](plugins/jira/README.md#find-board-id) in the request body. This can take up to 20 minutes for large projects. (gitlab 10k+ commits or jira 5k+ issues)
 
-5. Navigate to grafana dashboard `http://localhost:3002` (username: `admin`, password: `admin`).
+6. Navigate to grafana dashboard `http://localhost:3002` (username: `admin`, password: `admin`).
 
 ### Setup cron job
 Commonly, we have requirement to synchorize data periodly. We providered a tool called `lake-cli` to meet that requirement. Check `lake-cli` usage at [here](./cmd/lake-cli/README.md).  
