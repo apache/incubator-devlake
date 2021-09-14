@@ -49,14 +49,15 @@ export default function Home(props) {
   const [stage, setStage] = useState(0)
   const [grafanaUrl, setGrafanaUrl] = useState(3002)
   useEffect(() => {
+    let s = 0
     const interval = setInterval(async () => {
       const res = await axios.get("/api/triggers/pendings")
-      console.log(res)
       if (res.data.tasks.length > 0) {
-        setStage(1)
-      } else if (stage === 1) {
-        setStage(2)
+        s = 1
+      } else if (s === 1) {
+        s = 2
       }
+      setStage(s)
       setPendingTasks(res.data.tasks)
       setGrafanaUrl(`${location.protocol}//${location.hostname}:${res.data.grafanaPort}`)
     }, 1000);
