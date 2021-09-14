@@ -81,7 +81,7 @@ Jenkins | Metrics, Generating API Token | [Link](plugins/jenkins/README.md)
 
 > Please replace your [gitlab projectId](plugins/gitlab/README.md#finding-project-id) and [jira boardId](plugins/jira/README.md#find-board-id) in the request body. This can take up to 20 minutes for large projects. (gitlab 10k+ commits or jira 5k+ issues)
 
-6. Navigate to grafana dashboard `http://localhost:3002` (username: `admin`, password: `admin`).
+6. Click *Go to grafana* when done (username: `admin`, password: `admin`)
 
 ### Setup cron job
 Commonly, we have requirement to synchorize data periodly. We providered a tool called `lake-cli` to meet that requirement. Check `lake-cli` usage at [here](./cmd/lake-cli/README.md).  
