@@ -98,4 +98,8 @@ truncate() {
     echo "SET FOREIGN_KEY_CHECKS=1;"
 }
 
+tasks() {
+    curl -v $LAKE_TASK_URL?status=$1 | jq
+}
+
 "$@"

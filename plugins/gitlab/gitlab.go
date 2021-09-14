@@ -34,12 +34,14 @@ func (plugin Gitlab) Execute(options map[string]interface{}, progress chan<- flo
 		return
 	}
 
+	progress <- 0.1
+
 	if err := tasks.CollectCommits(projectIdInt); err != nil {
 		logger.Error("Could not collect commits: ", err)
 		return
 	}
 
-	progress <- 0.2
+	progress <- 0.3
 
 	mergeRequestErr := tasks.CollectMergeRequests(projectIdInt)
 	if mergeRequestErr != nil {
@@ -47,7 +49,7 @@ func (plugin Gitlab) Execute(options map[string]interface{}, progress chan<- flo
 		return
 	}
 
-	progress <- 0.5
+	progress <- 0.4
 
 	// find all mrs from db
 	var mrs []gitlabModels.GitlabMergeRequest
@@ -84,6 +86,7 @@ func (plugin Gitlab) Execute(options map[string]interface{}, progress chan<- flo
 	}
 
 	scheduler.WaitUntilFinish()
+	progress <- 0.8
 
 	enrichErr := tasks.EnrichMergeRequests()
 	if enrichErr != nil {

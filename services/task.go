@@ -23,6 +23,10 @@ type NewTask struct {
 	Options map[string]interface{} `json:"options" binding:"required"`
 }
 
+func init() {
+	models.Db.Model(&models.Task{}).Where("status != ?", TASK_COMPLETED).Update("status", TASK_FAILED)
+}
+
 func CreateTask(data NewTask) (*models.Task, error) {
 	b, err := json.Marshal(data.Options)
 	if err != nil {
@@ -60,6 +64,8 @@ func CreateTask(data NewTask) (*models.Task, error) {
 
 		for p := range progress {
 			fmt.Printf("running plugin %v, progress: %v\n", task.Plugin, p*100)
+			task.Progress = p
+			models.Db.Save(&task)
 		}
 		task.Status = TASK_COMPLETED
 		err := models.Db.Save(&task).Error
@@ -68,4 +74,17 @@ func CreateTask(data NewTask) (*models.Task, error) {
 		}
 	}()
 	return &task, nil
+}
+
+func GetTasks(status string) ([]models.Task, error) {
+	db := models.Db
+	if status != "" {
+		db = db.Where("status = ?", status)
+	}
+	tasks := make([]models.Task, 0)
+	err := db.Find(&tasks).Error
+	if err != nil {
+		return nil, err
+	}
+	return tasks, nil
 }
