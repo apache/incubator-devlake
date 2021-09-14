@@ -110,8 +110,8 @@ JIRA_ISSUE_TYPE_MAPPING=Requirement:Story
 ## Generating API token
 1. Once logged into Jira, visit the url `https://id.atlassian.com/manage-profile/security/api-tokens`
 2. Click the **Create API Token** button, and give it any label name
-
 ![image](https://user-images.githubusercontent.com/27032263/129363611-af5077c9-7a27-474a-a685-4ad52366608b.png)
+3. Encode with login email using command `echo -n <jira login email>:<jira token> | base64`
 
 ## How do I find the custom field ID in Jira?
 Using URL
