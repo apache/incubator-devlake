@@ -24,7 +24,7 @@ configure-dev:
 	cd config-ui; yarn; npm run dev;
 
 compose:
-	docker-compose up grafana devlake
+	docker-compose up grafana
 
 compose-down:
 	docker-compose down
