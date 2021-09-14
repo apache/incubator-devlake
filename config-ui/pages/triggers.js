@@ -97,7 +97,7 @@ export default function Home(props) {
                 <p className={styles.description}>Please wait...</p>
               </div>
               {pendingTasks.map(task =>
-                <div>{task.plugin}: {task.progress * 100}%</div>
+                <div key={task.ID}>{task.plugin}: {task.progress * 100}%</div>
               )}
             </div>
           }
