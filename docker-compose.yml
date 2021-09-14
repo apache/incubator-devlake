@@ -3,6 +3,7 @@ services:
   mysql:
     hostname: mysqldb
     image: mysql:8.0.26
+    platform: linux/x86_64
     volumes:
       - mysql-storage:/var/lib/mysql
     restart: always
@@ -31,6 +32,7 @@ services:
       - mysql
   devlake:
     image: mericodev/lake:latest
+    platform: linux/x86_64
     ports:
       - 127.0.0.1:8080:8080
     env_file:
