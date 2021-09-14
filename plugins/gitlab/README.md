@@ -34,8 +34,8 @@ To collect data, you can make a POST request to `/task`
     curl --location --request POST 'localhost:8080/task' \
     --header 'Content-Type: application/json' \
     --data-raw '[{
-        "Plugin": "gitlab",
-        "Options": {
+        "plugin": "gitlab",
+        "options": {
             "projectId": <Your gitlab project id>
         }
     }]'
