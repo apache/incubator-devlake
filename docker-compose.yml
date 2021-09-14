@@ -45,7 +45,7 @@ services:
     environment:
       - ENV_FILEPATH=/.env
       - DEVLAKE_ENDPOINT=http://devlake:8080
-      - GRAFANA_PORT=3002
+      - GRAFANA_PORT=3002/d/RXJZNpMnz/homepage?orgId=1
     volumes:
       - ./.env:/.env:rw
 volumes:
