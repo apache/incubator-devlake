@@ -28,7 +28,7 @@ To collect data, you can make a POST request to `/task`
 curl --location --request POST 'localhost:8080/task' \
   --header 'Content-Type: application/json' \
   --data-raw '[{
-      "Plugin": "jenkins",
-      "Options": {}
+      "plugin": "jenkins",
+      "options": {}
   }]'
 ```
