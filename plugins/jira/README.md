@@ -43,16 +43,19 @@ issues.
 
 
 ## Issue type mapping<a id="issue-type-mapping"></a>
-Same as status mapping, different company might use different issue type to represent their Bug/Incident/Requirement,
-type mapping is for Devlake to recognize your specific setup.
-Devlake supports three different standard types:
+Same as status mapping, different companies might use different issue types to represent their Bug/Incident/Requirement,
+type mappings allow Devlake to recognize your specific setup with respect to Jira statuses.
+Devlake supports three different standard status types:
 
  - `Bug`
  - `Incident`
  - `Requirement`
 
-Say we were using `Story` to represent our Requirement, what we have to do is setting the following
+For example, say we were using `Story` to represent our Requirement, what we have to do is setting the following
 `Environment Variables` before running Devlake:
+
+Example: 
+
 ```sh
 # JIRA_ISSUE_TYPE_MAPPING=<STANDARD_TYPE>:<YOUR_TYPE_1>,<YOUR_TYPE_2>;....
 JIRA_ISSUE_TYPE_MAPPING=Requirement:Story
