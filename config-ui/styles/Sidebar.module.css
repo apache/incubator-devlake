@@ -42,16 +42,25 @@
   width: calc(100% + 40px);
 }
 
-.sidebarMenu a {
-  background: #FFDBC2;
+.sidebarMenu a,
+.sidebarMenuActive {
   display: block;
   padding: 12px 20px;
-  color: #E8471C;
   position: relative;
   text-decoration: none;
 }
 
 .sidebarMenu a:hover {
+  color: #303033;
+}
+
+.sidebarMenuActive {
+  color: #E8471C !important;
+  background: #FFDBC2;
+}
+
+.sidebarMenuActive:hover {
+  color: #E8471C;
   background-color: #ffdac6;
 }
 

@@ -10,13 +10,14 @@
   flex: 1;
   display: flex;
   flex-direction: column;
-  justify-content: center;
+  justify-content: flex-start;
   align-items: center;
 }
 
 .description {
   display: block;
   margin-bottom: 1.6rem;
+  max-width: 600px;
 }
 
 .logo {
@@ -30,6 +31,14 @@
 
 .input, .form {
   width: 100%;
+}
+
+.codeArea {
+  width: 100%;
+  max-width: 600px !important;
+  height: 384px !important;
+  font-family: ui-monospace, monospace;
+  font-size: 13px;
 }
 
 .formGroup {

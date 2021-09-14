@@ -18,6 +18,9 @@ run:
 	go run main.go
 
 configure:
+	docker-compose up config-ui
+
+configure-dev:
 	cd config-ui; yarn; npm run dev;
 
 compose:

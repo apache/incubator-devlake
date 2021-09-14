@@ -23,7 +23,7 @@ export default function Home(props) {
   const [gitlabAuth, setGitlabAuth] = useState(env.GITLAB_AUTH)
 
   function updateEnv(key, value) {
-    fetch(`http://localhost:4000/api/setenv/${key}/${encodeURIComponent(value)}`)
+    fetch(`/api/setenv/${key}/${encodeURIComponent(value)}`)
   }
 
   function saveAll(e) {
