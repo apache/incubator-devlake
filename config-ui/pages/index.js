@@ -354,7 +354,7 @@ export default function Home(props) {
                 label="GITLAB_AUTH"
                 inline={true}
                 labelFor="gitlab-auth"
-                helperText="Gitlab Auth Token"
+                helperText="Should be encoded using command `echo -n <jira login email>:<jira token> | base64`"
                 className={styles.formGroup}
                 contentClassName={styles.formGroup}
               >
