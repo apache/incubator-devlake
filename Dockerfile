@@ -5,6 +5,8 @@ ARG GOPROXY=
 WORKDIR /app
 COPY . /app
 
+RUN rm -rf /app/bin
+
 ENV GOBIN=/app/bin
 
 RUN CGO_ENABLE=1 GOOS=linux go build -o bin/lake && sh scripts/compile-plugins.sh
