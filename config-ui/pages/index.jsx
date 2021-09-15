@@ -5,7 +5,7 @@ import path from 'path'
 import * as fs from 'fs/promises'
 import { existsSync } from 'fs';
 import styles from '../styles/Home.module.css'
-import { FormGroup, InputGroup, Button, Alert } from '@blueprintjs/core'
+import { FormGroup, InputGroup, Button, Alert, Tooltip, Position } from '@blueprintjs/core'
 import Nav from '../components/Nav'
 import Sidebar from '../components/Sidebar'
 import Content from '../components/Content'
@@ -56,21 +56,19 @@ export default function Home(props) {
 
           <form className={styles.form}>
             <div className={styles.headlineContainer}>
-              <h2 className={styles.headline}>Devlake</h2>
-              <p className={styles.description}>Settings for the Devlake framework</p>
+              <h2 className={styles.headline}>Main Database Connection</h2>
+              <p className={styles.description}>Settings for the mySQL database</p>
             </div>
 
-            <Card className={styles.formSection}>
-              <h3>Basic (DO NOT CHANGE THIS SECTION UNLESS YOUR ARE DEVELOPER)</h3>
-              <div className={styles.formContainer}>
-                <FormGroup
-                  label="*DB_URL"
-                  inline={true}
-                  labelFor="db-url"
-                  helperText="The URL Connection string to the database"
-                  className={styles.formGroup}
-                  contentClassName={styles.formGroup}
-                >
+            <div className={styles.formContainer}>
+              <FormGroup
+                label="DB_URL"
+                inline={true}
+                labelFor="db-url"
+                className={styles.formGroup}
+                contentClassName={styles.formGroup}
+              >
+                <Tooltip content="The URL Connection string to the database" position={Position.TOP}>
                   <InputGroup
                     id="db-url"
                     placeholder="Enter DB Connection String"
@@ -78,17 +76,24 @@ export default function Home(props) {
                     onChange={(e) => setDbUrl(e.target.value)}
                     className={styles.input}
                   />
-                </FormGroup>
-              </div>
-              <div className={styles.formContainer}>
-                <FormGroup
-                  label="*PORT"
-                  inline={true}
-                  labelFor="port"
-                  helperText="The main port for the REST server"
-                  className={styles.formGroup}
-                  contentClassName={styles.formGroup}
-                >
+                </Tooltip>
+              </FormGroup>
+            </div>
+
+            <div className={styles.headlineContainer}>
+              <h2 className={styles.headline}>REST Configuration</h2>
+              <p className={styles.description}>Configure main REST Settings</p>
+            </div>
+
+            <div className={styles.formContainer}>
+              <FormGroup
+                label="PORT"
+                inline={true}
+                labelFor="port"
+                className={styles.formGroup}
+                contentClassName={styles.formGroup}
+              >
+                <Tooltip content="The main port for the REST server" position={Position.TOP}>
                   <InputGroup
                     id="port"
                     placeholder="Enter Port eg. :8080"
@@ -96,18 +101,19 @@ export default function Home(props) {
                     onChange={(e) => setPort(e.target.value)}
                     className={styles.input}
                   />
-                </FormGroup>
-              </div>
+                </Tooltip>
+              </FormGroup>
+            </div>
 
-              <div className={styles.formContainer}>
-                <FormGroup
-                  label="MODE"
-                  inline={true}
-                  labelFor="mode"
-                  helperText="The development mode for the server"
-                  className={styles.formGroup}
-                  contentClassName={styles.formGroup}
-                >
+            <div className={styles.formContainer}>
+              <FormGroup
+                label="MODE"
+                inline={true}
+                labelFor="mode"
+                className={styles.formGroup}
+                contentClassName={styles.formGroup}
+              >
+                <Tooltip content="The development mode for the server" position={Position.TOP}>
                   <InputGroup
                     id="mode"
                     placeholder="Enter Mode eg. debug"
@@ -115,10 +121,9 @@ export default function Home(props) {
                     onChange={(e) => setMode(e.target.value)}
                     className={styles.input}
                   />
-                </FormGroup>
-              </div>
-            </Card>
-
+                </Tooltip>
+              </FormGroup>
+            </div>
 
             <Button type="submit" outlined={true} large={true} className={styles.saveBtn} onClick={saveAll}>Save Config</Button>
           </form>
