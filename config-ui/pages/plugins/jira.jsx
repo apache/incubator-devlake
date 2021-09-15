@@ -89,7 +89,7 @@ export default function Home(props) {
 
           <div className={styles.headlineContainer}>
             <h3 className={styles.headline}>API Token</h3>
-            <p className={styles.description}>Your Jira specific API auth token. Should be encoded using command: <br/><br/><code>{`echo -n `}<b>{`<gitlab login email>`}</b>:<b>{`<gitlab token>`}</b>{` | base64`}</code></p>
+            <p className={styles.description}>Your Jira specific API auth token. Should be encoded using command: <br/><br/><code>{`echo -n `}<b>{`<jira login email>`}</b>:<b>{`<jira token>`}</b>{` | base64`}</code></p>
           </div>
 
           <div className={styles.formContainer}>

@@ -1,6 +1,6 @@
 import 'normalize.css'
 import '@blueprintjs/core/lib/css/blueprint.css'
-import '../styles/vendor/blueprint.css'
+import '../styles/libraries/blueprint.css'
 import '../styles/globals.css'
 
 

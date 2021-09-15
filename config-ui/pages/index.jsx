@@ -5,7 +5,7 @@ import path from 'path'
 import * as fs from 'fs/promises'
 import { existsSync } from 'fs';
 import styles from '../styles/Home.module.css'
-import { FormGroup, InputGroup, Button, Card } from "@blueprintjs/core"
+import { FormGroup, InputGroup, Button, Alert } from '@blueprintjs/core'
 import Nav from '../components/Nav'
 import Sidebar from '../components/Sidebar'
 import Content from '../components/Content'
@@ -16,6 +16,7 @@ export default function Home(props) {
   const [dbUrl, setDbUrl] = useState(env.DB_URL)
   const [port, setPort] = useState(env.PORT)
   const [mode, setMode] = useState(env.MODE)
+  const [alertOpen, setAlertOpen] = useState(false)
 
   function updateEnv(key, value) {
     fetch(`/api/setenv/${key}/${encodeURIComponent(value)}`)
@@ -26,10 +27,11 @@ export default function Home(props) {
     updateEnv('DB_URL', dbUrl)
     updateEnv('PORT', port)
     updateEnv('MODE', mode)
-    alert('Config file updated, please restart devlake by running: \'docker-compose restart\' to apply new configuration')
+    setAlertOpen(true)
   }
 
   return (
+    <>
     <div className={styles.container}>
 
       <Head>
@@ -123,6 +125,17 @@ export default function Home(props) {
         </main>
       </Content>
     </div>
+
+    <Alert
+      canEscapeKeyCancel={true}
+      canOutsideClickCancel={true}
+      confirmButtonText="Ok"
+      isOpen={alertOpen}
+      onClose={() => setAlertOpen(false)}>
+      <h4>Config File Updated</h4>
+      <p>To apply new configuration, restart devlake by running: <br/><br/><code>docker-compose up -d</code></p>
+    </Alert>
+    </>
   )
 }
 
