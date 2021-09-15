@@ -79,8 +79,5 @@ Type mapping is critical for some metrics, like **Requirement Count**, make sure
 3. Encode with login email using command `echo -n <jira login email>:<jira token> | base64`
 
 ## How do I find the custom field ID in Jira?
-Using URL
-1. Navigate to Administration >> Issues >> Custom Fields .
-2. Click the cog and hover over Configure or Screens option.
-3. Observe the URL at the bottom left of the browser window. Example: The id for this custom field is 10006.
 
+Please follow this guide: [How to find Jira the custom field ID in Jira? · merico-dev/lake Wiki](https://github.com/merico-dev/lake/wiki/How-to-find-Jira-the-custom-field-ID-in-Jira%3F)
