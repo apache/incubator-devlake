@@ -41,6 +41,12 @@
   font-size: 13px;
 }
 
+.formSection {
+  margin-top: 10px;
+  width: 100%;
+  max-width: 600px;
+}
+
 .formGroup {
   width: 100%;
   max-width: 600px;
