@@ -71,9 +71,10 @@ export default function Home(props) {
 
           <div className={styles.formContainer}>
             <FormGroup
-              label="JIRA_ENDPOINT"
+              label="Endpoint&nbsp;URL"
               inline={true}
               labelFor="jira-endpoint"
+              helperText="JIRA_ENDPOINT"
               className={styles.formGroup}
               contentClassName={styles.formGroup}
             >
