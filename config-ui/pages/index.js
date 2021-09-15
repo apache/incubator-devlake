@@ -90,7 +90,7 @@ export default function Home(props) {
               <h3>Basic (DO NOT CHANGE THIS SECTION UNLESS YOUR ARE DEVELOPER)</h3>
               <div className={styles.formContainer}>
                 <FormGroup
-                  label="DB_URL"
+                  label="*DB_URL"
                   inline={true}
                   labelFor="db-url"
                   helperText="The URL Connection string to the database"
@@ -108,7 +108,7 @@ export default function Home(props) {
               </div>
               <div className={styles.formContainer}>
                 <FormGroup
-                  label="PORT"
+                  label="*PORT"
                   inline={true}
                   labelFor="port"
                   helperText="The main port for the REST server"
@@ -155,7 +155,7 @@ export default function Home(props) {
               <h3>Basic <a href="https://github.com/merico-dev/lake/tree/main/plugins/jira#generating-api-token">(Need Help?)</a></h3>
               <div className={styles.formContainer}>
                 <FormGroup
-                  label="JIRA_ENDPOINT"
+                  label="*JIRA_ENDPOINT"
                   inline={true}
                   labelFor="jira-endpoint"
                   helperText="Your custom url endpoint for Jira"
@@ -174,7 +174,7 @@ export default function Home(props) {
 
               <div className={styles.formContainer}>
                 <FormGroup
-                  label="JIRA_BASIC_AUTH_ENCODED"
+                  label="*JIRA_BASIC_AUTH_ENCODED"
                   inline={true}
                   labelFor="jira-basic-auth"
                   helperText='base64("$JIRA_EMAIL:$JIRA_TOKEN")'
@@ -196,16 +196,16 @@ export default function Home(props) {
               <h3>Field mapping <a href="https://github.com/merico-dev/lake/tree/main/plugins/jira#how-do-i-find-the-custom-field-id-in-jira">(Need Help?)</a></h3>
               <div className={styles.formContainer}>
                 <FormGroup
-                  label="JIRA_ISSUE_EPIC_KEY_FIELD"
+                  label="*JIRA_ISSUE_EPIC_KEY_FIELD"
                   inline={true}
                   labelFor="jira-epic-key"
-                  helperText="Your custom epic key field (optional)"
+                  helperText="Your custom epic key field"
                   className={styles.formGroup}
                   contentClassName={styles.formGroup}
                 >
                   <InputGroup
                     id="jira-epic-key"
-                    placeholder="Enter Jira epic key field"
+                    placeholder="Enter Jira epic key field eg. customfield_10014"
                     defaultValue={jiraIssueEpicKeyField}
                     onChange={(e) => setJiraIssueEpicKeyField(e.target.value)}
                     className={styles.input}
@@ -214,10 +214,28 @@ export default function Home(props) {
               </div>
               <div className={styles.formContainer}>
                 <FormGroup
-                  label="JIRA_ISSUE_STORYPOINT_COEFFICIENT"
+                  label="*JIRA_ISSUE_STORYPOINT_FIELD"
+                  inline={true}
+                  labelFor="jira-storypoint-field"
+                  helperText="Your custom story point key field"
+                  className={styles.formGroup}
+                  contentClassName={styles.formGroup}
+                >
+                  <InputGroup
+                    id="jira-storypoint-field"
+                    placeholder="Enter Jira Story Point Field, eg. customfield_10024"
+                    defaultValue={jiraIssueStoryPointField}
+                    onChange={(e) => setJiraIssueStoryPointField(e.target.value)}
+                    className={styles.input}
+                  />
+                </FormGroup>
+              </div>
+              <div className={styles.formContainer}>
+                <FormGroup
+                  label="*JIRA_ISSUE_STORYPOINT_COEFFICIENT"
                   inline={true}
                   labelFor="jira-storypoint-coef"
-                  helperText="Your custom story point coefficent (optional)"
+                  helperText="Standard story point = value of JIRA_ISSUE_STORYPOINT_FIELD * JIRA_ISSUE_STORYPOINT_COEFFICIENT "
                   className={styles.formGroup}
                   contentClassName={styles.formGroup}
                 >
@@ -226,25 +244,6 @@ export default function Home(props) {
                     placeholder="Enter Jira Story Point Coefficient"
                     defaultValue={jiraIssueStoryCoefficient}
                     onChange={(e) => setJiraIssueStoryCoefficient(e.target.value)}
-                    className={styles.input}
-                  />
-                </FormGroup>
-              </div>
-
-              <div className={styles.formContainer}>
-                <FormGroup
-                  label="JIRA_ISSUE_STORYPOINT_FIELD"
-                  inline={true}
-                  labelFor="jira-storypoint-field"
-                  helperText="Your custom story point key field (optional)"
-                  className={styles.formGroup}
-                  contentClassName={styles.formGroup}
-                >
-                  <InputGroup
-                    id="jira-storypoint-field"
-                    placeholder="Enter Jira Story Point Field"
-                    defaultValue={jiraIssueStoryPointField}
-                    onChange={(e) => setJiraIssueStoryPointField(e.target.value)}
                     className={styles.input}
                   />
                 </FormGroup>
@@ -264,7 +263,7 @@ export default function Home(props) {
                 >
                   <InputGroup
                     id="jira-bug-status-mapping"
-                    placeholder="<STANDARD_STATUS_1>:<YOUR_STATUS_1>,<YOUR_STATUS_2>;<STANDARD_STATUS_2>:..."
+                    placeholder="eg. Resolved:<YOUR_STATUS_1>,<YOUR_STATUS_2>;Rejected:..."
                     defaultValue={jiraIssueBugStatusMapping}
                     onChange={(e) => setJiraIssueBugStatusMapping(e.target.value)}
                     className={styles.input}
@@ -284,7 +283,7 @@ export default function Home(props) {
                 >
                   <InputGroup
                     id="jira-incident-status-mapping"
-                    placeholder="<STANDARD_STATUS_1>:<YOUR_STATUS_1>,<YOUR_STATUS_2>;<STANDARD_STATUS_2>"
+                    placeholder="eg. Resolved:<YOUR_STATUS_1>,<YOUR_STATUS_2>;Rejected:..."
                     defaultValue={jiraIssueIncidentStatusMapping}
                     onChange={(e) => setJiraIssueIncidentStatusMapping(e.target.value)}
                     className={styles.input}
@@ -303,7 +302,7 @@ export default function Home(props) {
                 >
                   <InputGroup
                     id="jira-story-status-mapping"
-                    placeholder="<STANDARD_STATUS_1>:<YOUR_STATUS_1>,<YOUR_STATUS_2>;<STANDARD_STATUS_2>"
+                    placeholder="eg. Resolved:<YOUR_STATUS_1>,<YOUR_STATUS_2>;Rejected:..."
                     defaultValue={jiraIssueStoryStatusMapping}
                     onChange={(e) => setJiraIssueStoryStatusMapping(e.target.value)}
                     className={styles.input}
@@ -325,7 +324,7 @@ export default function Home(props) {
                 >
                   <InputGroup
                     id="jira-issue-type-mapping"
-                    placeholder="STANDARD_TYPE_1:YOUR_TYPE_1,YOUR_TYPE_2;STANDARD_TYPE_2:...."
+                    placeholder="eg. Requirement: <YOUR_TYPE_1>,<YOUR_TYPE_2>;Bug:<YOUR_TYPE_3>;Incident:<YOUR_TYPE_4>"
                     defaultValue={jiraIssueTypeMapping}
                     onChange={(e) => setJiraIssueTypeMapping(e.target.value)}
                     className={styles.input}
@@ -340,15 +339,16 @@ export default function Home(props) {
             </div>
 
             <Card className={styles.formSection}>
-              <h3>Basic</h3>
+              <h3>Basic <a href="https://github.com/merico-dev/lake/tree/main/plugins/gitlab#gitlab-api-token">(Need Help?)</a></h3>
               <div className={styles.formContainer}>
                 <FormGroup
-                  label="GITLAB_ENDPOINT"
+                  label="*GITLAB_ENDPOINT"
                   inline={true}
                   labelFor="gitlab-endpoint"
                   helperText="Gitlab API Endpoint"
                   className={styles.formGroup}
                   contentClassName={styles.formGroup}
+                  requiredLabel={true}
                 >
                   <InputGroup
                     id="gitlab-endpoint"
@@ -362,12 +362,13 @@ export default function Home(props) {
 
               <div className={styles.formContainer}>
                 <FormGroup
-                  label="GITLAB_AUTH"
+                  label="*GITLAB_AUTH"
                   inline={true}
                   labelFor="gitlab-auth"
                   helperText="Gitlab Auth Token"
                   className={styles.formGroup}
                   contentClassName={styles.formGroup}
+                  requiredLabel={true}
                 >
                   <InputGroup
                     id="gitlab-auth"
@@ -386,10 +387,10 @@ export default function Home(props) {
             </div>
 
             <Card className={styles.formSection}>
-              <h3>Basic</h3>
+              <h3>Basic <a href="https://github.com/merico-dev/lake/tree/main/plugins/jenkins#configuration">(Need Help?)</a></h3>
               <div className={styles.formContainer}>
                 <FormGroup
-                  label="JENKINS_ENDPOINT"
+                  label="*JENKINS_ENDPOINT"
                   inline={true}
                   labelFor="jenkins-endpoint"
                   helperText="Jenkins API Endpoint"
@@ -398,7 +399,7 @@ export default function Home(props) {
                 >
                   <InputGroup
                     id="jenkins-endpoint"
-                    placeholder="Enter Jenkins API endpoint"
+                    placeholder="Enter Jenkins API endpoint eg. https://jenkins.merico.cn/"
                     defaultValue={jenkinsEndpoint}
                     onChange={(e) => setJenkinsEndpoint(e.target.value)}
                     className={styles.input}
@@ -408,16 +409,17 @@ export default function Home(props) {
 
               <div className={styles.formContainer}>
                 <FormGroup
-                  label="JENKINS_USERNAME"
+                  label="*JENKINS_USERNAME"
                   inline={true}
                   labelFor="jenkins-username"
                   helperText="Jenkins Username"
                   className={styles.formGroup}
                   contentClassName={styles.formGroup}
+                  requiredLabel={true}
                 >
                   <InputGroup
                     id="jenkins-username"
-                    placeholder="Enter Jenkins Username"
+                    placeholder="Enter Jenkins Username eg. Merico"
                     defaultValue={jenkinsUsername}
                     onChange={(e) => setJenkinsUsername(e.target.value)}
                     className={styles.input}
@@ -427,16 +429,17 @@ export default function Home(props) {
 
               <div className={styles.formContainer}>
                 <FormGroup
-                  label="JENKINS_PASSWORD"
+                  label="*JENKINS_PASSWORD"
                   inline={true}
                   labelFor="jenkins-password"
                   helperText="Jenkins Password"
                   className={styles.formGroup}
                   contentClassName={styles.formGroup}
+                  requiredLabel={true}
                 >
                   <InputGroup
                     id="jenkins-password"
-                    placeholder="Enter Jenkins Password"
+                    placeholder="Enter Jenkins Password eg.11a....68 "
                     defaultValue={jenkinsPassword}
                     onChange={(e) => setJenkinsPassword(e.target.value)}
                     className={styles.input}
