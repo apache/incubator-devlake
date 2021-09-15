@@ -21,48 +21,6 @@ Incident Count | Number of issues with type "Incident"<br><i>incidents are found
 Incident Age | Lead time of issues with type "Incident"
 Incident Count per 1k Lines of Code | Amount of incidents per 1000 lines of code
 
-## Configuration
-
-Set the following environment variables in `.env` file before launching.
-For what's issue status mapping, see [Issue status mapping](#issue-status-mapping) section.
-For what's issue type mapping, see [Issue type mapping](#issue-type-mapping) section.
-
-```sh
-######################
-# Jira configuration #
-######################
-
-# Jira: basics #
-
-JIRA_ENDPOINT=https://merico.atlassian.net/rest
-# ex: echo -n <jira login email>:<jira token> | base64
-JIRA_BASIC_AUTH_ENCODED=emhl..........................................a0QzQUE=
-
-# Jira: issue type #
-
-# Format:
-#   STANDARD_TYPE_1:ORIGIN_TYPE_1,ORIGIN_TYPE_2;STANDARD_TYPE_2:....
-JIRA_ISSUE_TYPE_MAPPING=Requirement:Story
-
-
-# Jira: issue status #
-
-# Format:
-#   JIRA_ISSUE_<STANDARD_ISSUE_TYPE>_STATUS_MAPPING=<STANDARD_STATUS_1>:<ORIGIN_STATUS_1>,<ORIGIN_STATUS_2>;<STANDARD_STATUS_2>
-JIRA_ISSUE_BUG_STATUS_MAPPING=Resolved:Approved,Verified,Done,Closed;Reject:ByDesign,Irreproducible
-JIRA_ISSUE_INCIDENT_STATUS_MAPPING=Resolved:Done,Closed;Reject:ByDesign,Irreproducible
-JIRA_ISSUE_STORY_STATUS_MAPPING=Resolved:Verified,Done,Closed;Reject:Abandoned,Cancelled
-
-# Jira: epic issue #
-
-JIRA_ISSUE_EPIC_KEY_FIELD=customfield_10014
-
-# Jira: story point #
-
-JIRA_ISSUE_STORYPOINT_COEFFICIENT=1
-JIRA_ISSUE_STORYPOINT_FIELD=customfield_10024
-```
-
 
 ## Issue status mapping<a id="issue-status-mapping"></a>
 Jira is highly customizable, different company may use different `status name` to represent whether a issue was
@@ -76,8 +34,12 @@ status, Devlake supports two standard status:
 Say we were using `Done` and `Cancelled` to represent the final stage of `Story` issues, what we have to do is setting
 the following `Environment Variables` before running Devlake:
 ```sh
-JIRA_ISSUE_STORY_STATUS_MAPPING=Resolved:Done;Reject:Cancelled
+#JIRA_ISSUE_<YOUR_TYPE>_STATUS_MAPPING=<STANDARD_STATUS>:<YOUR_STATUS>;...
+JIRA_ISSUE_STORY_STATUS_MAPPING=Resolved:Done;Rejected:Cancelled
 ```
+
+Status mapping is critical for metrics like **Lead Time**, the `leadtime`s are calculated only for those **Resolved**
+issues.
 
 
 ## Issue type mapping<a id="issue-type-mapping"></a>
@@ -92,8 +54,11 @@ Devlake supports three different standard types:
 Say we were using `Story` to represent our Requirement, what we have to do is setting the following
 `Environment Variables` before running Devlake:
 ```sh
+# JIRA_ISSUE_TYPE_MAPPING=<STANDARD_TYPE>:<YOUR_TYPE_1>,<YOUR_TYPE_2>;....
 JIRA_ISSUE_TYPE_MAPPING=Requirement:Story
 ```
+
+Type mapping is critical for some metrics, like **Requirement Count**, make sure to map your custom type correctly.
 
 
 ## Find Board Id
@@ -114,9 +79,5 @@ JIRA_ISSUE_TYPE_MAPPING=Requirement:Story
 3. Encode with login email using command `echo -n <jira login email>:<jira token> | base64`
 
 ## How do I find the custom field ID in Jira?
-Using URL
-1. Navigate to Administration >> Issues >> Custom Fields .
-2. Click the cog and hover over Configure or Screens option.
-3. Observe the URL at the bottom left of the browser window. Example: The id for this custom field is 10006.
 
-
+Please follow this guide: [How to find Jira the custom field ID in Jira? · merico-dev/lake Wiki](https://github.com/merico-dev/lake/wiki/How-to-find-Jira-the-custom-field-ID-in-Jira%3F)
