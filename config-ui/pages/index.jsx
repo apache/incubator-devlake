@@ -62,10 +62,11 @@ export default function Home(props) {
 
             <div className={styles.formContainer}>
               <FormGroup
-                label="DB_URL"
+                label="Database&nbsp;URL"
                 inline={true}
                 labelFor="db-url"
                 className={styles.formGroup}
+                helperText="DB_URL"
                 contentClassName={styles.formGroup}
               >
                 <Tooltip content="The URL Connection string to the database" position={Position.TOP}>
@@ -87,10 +88,11 @@ export default function Home(props) {
 
             <div className={styles.formContainer}>
               <FormGroup
-                label="PORT"
+                label="Port"
                 inline={true}
                 labelFor="port"
                 className={styles.formGroup}
+                helperText="PORT"
                 contentClassName={styles.formGroup}
               >
                 <Tooltip content="The main port for the REST server" position={Position.TOP}>
@@ -107,10 +109,11 @@ export default function Home(props) {
 
             <div className={styles.formContainer}>
               <FormGroup
-                label="MODE"
+                label="Mode"
                 inline={true}
                 labelFor="mode"
                 className={styles.formGroup}
+                helperText="MODE"
                 contentClassName={styles.formGroup}
               >
                 <Tooltip content="The development mode for the server" position={Position.TOP}>
