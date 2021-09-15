@@ -51,7 +51,7 @@ To get the project id for a specific Gitlab repository:
 
 > Use this project id in your requests, to collect data from this project
 
-## ⚠️ (WIP) Create a Gitlab API Token
+## ⚠️ (WIP) Create a Gitlab API Token <a id="gitlab-api-token"></a>
 
 1. When logged into Gitlab visit `https://gitlab.com/-/profile/personal_access_tokens`
 2. Give the token any name, no expiration date and all scopes (excluding write access)
