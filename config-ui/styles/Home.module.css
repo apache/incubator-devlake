@@ -94,3 +94,13 @@
 .saveBtn:hover {
   opacity: 0.9;
 }
+
+.pluginSpinner {
+  display: inline-block;
+  margin-right: 0.25rem;
+  margin-top: -0.25rem;
+}
+
+.pluginSpinnerWrap {
+  margin-top: 0.5rem;
+}
