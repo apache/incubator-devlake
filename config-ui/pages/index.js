@@ -27,6 +27,7 @@ export default function Home(props) {
   const [jiraIssueStoryPointField, setJiraIssueStoryPointField] = useState(env.JIRA_ISSUE_STORYPOINT_FIELD)
   const [gitlabEndpoint, setGitlabEndpoint] = useState(env.GITLAB_ENDPOINT)
   const [gitlabAuth, setGitlabAuth] = useState(env.GITLAB_AUTH)
+  const [jiraBoardGitlabeProjects, setJiraBoardGitlabeProjects] = useState(env.JIRA_BOARD_GITLAB_PROJECTS)
   const [jenkinsEndpoint, setJenkinsEndpoint] = useState(env.JENKINS_ENDPOINT)
   const [jenkinsUsername, setJenkinsUsername] = useState(env.JENKINS_USERNAME)
   const [jenkinsPassword, setJenkinsPassword] = useState(env.JENKINS_PASSWORD)
@@ -51,6 +52,7 @@ export default function Home(props) {
     updateEnv('JIRA_ISSUE_STORYPOINT_FIELD', jiraIssueStoryPointField)
     updateEnv('GITLAB_ENDPOINT', gitlabEndpoint)
     updateEnv('GITLAB_AUTH', gitlabAuth)
+    updateEnv('JIRA_BOARD_GITLAB_PROJECTS', jiraBoardGitlabeProjects)
     updateEnv('JENKINS_ENDPOINT', jenkinsEndpoint)
     updateEnv('JENKINS_USERNAME', jenkinsUsername)
     updateEnv('JENKINS_PASSWORD', jenkinsPassword)
@@ -375,6 +377,32 @@ export default function Home(props) {
                     placeholder="Enter Gitlab Auth Token eg. uJVEDxabogHbfFyu2riz"
                     defaultValue={gitlabAuth}
                     onChange={(e) => setGitlabAuth(e.target.value)}
+                    className={styles.input}
+                  />
+                </FormGroup>
+              </div>
+            </Card>
+
+            <div className={styles.headlineContainer}>
+              <h2 className={styles.headline}>Jira / Gitlab Connection</h2>
+              <p className={styles.description}>Connect jira board to gitlab projects</p>
+            </div>
+
+            <Card className={styles.formSection}>
+              <div className={styles.formContainer}>
+                <FormGroup
+                  label="*JIRA_BOARD_GITLAB_PROJECTS"
+                  inline={true}
+                  labelFor="board-projects"
+                  helperText="Jira board and Gitlab projects relationship"
+                  className={styles.formGroup}
+                  contentClassName={styles.formGroup}
+                >
+                  <InputGroup
+                    id="board-projects"
+                    placeholder="<JIRA_BOARD>:<GITLAB_PROJECT_ID>,...; eg. 8:8967944,8967945;9:8967946,8967947"
+                    defaultValue={jiraBoardGitlabeProjects}
+                    onChange={(e) => setJiraBoardGitlabeProjects(e.target.value)}
                     className={styles.input}
                   />
                 </FormGroup>
