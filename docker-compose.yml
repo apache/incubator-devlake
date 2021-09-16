@@ -25,8 +25,11 @@ services:
       - ./grafana/dashboards:/etc/grafana/dashboards
       - ./grafana/img/grafana_icon.svg:/usr/share/grafana/public/img/grafana_icon.svg:rw
       - ./grafana/img:/usr/share/grafana/public/img/lake:ro
-    env_file:
-      - ./grafana/grafana.config
+    environment:
+      - GF_USERS_ALLOW_SIGN_UP=false
+      - GF_DASHBOARDS_JSON_ENABLED=true
+      - GF_INSTALL_PLUGINS=grafana-piechart-panel
+      - GF_LIVE_ALLOWED_ORIGINS=*
     restart: always
     depends_on:
       - mysql
