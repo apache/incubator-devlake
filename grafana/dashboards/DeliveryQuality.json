@@ -15,8 +15,8 @@
   "editable": true,
   "gnetId": null,
   "graphTooltip": 0,
-  "id": 5,
-  "iteration": 1631457900468,
+  "id": 3,
+  "iteration": 1631781016313,
   "links": [
     {
       "asDropdown": false,
@@ -1695,5 +1695,5 @@
   "timezone": "",
   "title": "Delivery Quality",
   "uid": "nUC-7tGnk",
-  "version": 53
+  "version": 2
 }
