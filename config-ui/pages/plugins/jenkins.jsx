@@ -9,10 +9,12 @@ import { existsSync } from 'fs'
 import Nav from '../../components/Nav'
 import Sidebar from '../../components/Sidebar'
 import Content from '../../components/Content'
+import SaveAlert from '../../components/SaveAlert'
 
 export default function Home(props) {
   const { env } = props
 
+  const [alertOpen, setAlertOpen] = useState(false)
   const [jenkinsEndpoint, setJenkinsEndpoint] = useState(env.JENKINS_ENDPOINT)
   const [jenkinsUsername, setJenkinsUsername] = useState(env.JENKINS_USERNAME)
   const [jenkinsPassword, setJenkinsPassword] = useState(env.JENKINS_PASSWORD)
@@ -26,7 +28,7 @@ export default function Home(props) {
     updateEnv('JENKINS_ENDPOINT', jenkinsEndpoint)
     updateEnv('JENKINS_USERNAME', jenkinsUsername)
     updateEnv('JENKINS_PASSWORD', jenkinsPassword)
-    alert('Config file updated, please restart devlake by running: \'docker-compose restart\' to apply new configuration')
+    setAlertOpen(true)
   }
 
   return (
@@ -52,64 +54,70 @@ export default function Home(props) {
             <p className={styles.description}>Jenkins account and config settings</p>
           </div>
 
-          <div className={styles.formContainer}>
-            <FormGroup
-              label="API&nbsp;Endpoint"
-              inline={true}
-              labelFor="jenkins-endpoint"
-              helperText="JENKINS_ENDPOINT"
-              className={styles.formGroup}
-              contentClassName={styles.formGroup}
-            >
-              <InputGroup
-                id="jenkins-endpoint"
-                placeholder="Enter Jenkins API endpoint"
-                defaultValue={jenkinsEndpoint}
-                onChange={(e) => setJenkinsEndpoint(e.target.value)}
-                className={styles.input}
-              />
-            </FormGroup>
-          </div>
+          <form className={styles.form}>
 
-          <div className={styles.formContainer}>
-            <FormGroup
-              label="Username"
-              inline={true}
-              labelFor="jenkins-username"
-              helperText="JENKINS_USERNAME"
-              className={styles.formGroup}
-              contentClassName={styles.formGroup}
-            >
-              <InputGroup
-                id="jenkins-username"
-                placeholder="Enter Jenkins Username"
-                defaultValue={jenkinsUsername}
-                onChange={(e) => setJenkinsUsername(e.target.value)}
-                className={styles.input}
-              />
-            </FormGroup>
-          </div>
+            <div className={styles.formContainer}>
+              <FormGroup
+                label="API&nbsp;Endpoint"
+                inline={true}
+                labelFor="jenkins-endpoint"
+                helperText="JENKINS_ENDPOINT"
+                className={styles.formGroup}
+                contentClassName={styles.formGroup}
+              >
+                <InputGroup
+                  id="jenkins-endpoint"
+                  placeholder="Enter Jenkins API endpoint"
+                  defaultValue={jenkinsEndpoint}
+                  onChange={(e) => setJenkinsEndpoint(e.target.value)}
+                  className={styles.input}
+                />
+              </FormGroup>
+            </div>
 
-          <div className={styles.formContainer}>
-            <FormGroup
-              label="Password"
-              inline={true}
-              labelFor="jenkins-password"
-              helperText="JENKINS_PASSWORD"
-              className={styles.formGroup}
-              contentClassName={styles.formGroup}
-            >
-              <InputGroup
-                id="jenkins-password"
-                placeholder="Enter Jenkins Password"
-                defaultValue={jenkinsPassword}
-                onChange={(e) => setJenkinsPassword(e.target.value)}
-                className={styles.input}
-              />
-            </FormGroup>
-          </div>
+            <div className={styles.formContainer}>
+              <FormGroup
+                label="Username"
+                inline={true}
+                labelFor="jenkins-username"
+                helperText="JENKINS_USERNAME"
+                className={styles.formGroup}
+                contentClassName={styles.formGroup}
+              >
+                <InputGroup
+                  id="jenkins-username"
+                  placeholder="Enter Jenkins Username"
+                  defaultValue={jenkinsUsername}
+                  onChange={(e) => setJenkinsUsername(e.target.value)}
+                  className={styles.input}
+                />
+              </FormGroup>
+            </div>
 
-          <Button type="submit" outlined={true} large={true} className={styles.saveBtn} onClick={saveAll}>Save Config</Button>
+            <div className={styles.formContainer}>
+              <FormGroup
+                label="Password"
+                inline={true}
+                labelFor="jenkins-password"
+                helperText="JENKINS_PASSWORD"
+                className={styles.formGroup}
+                contentClassName={styles.formGroup}
+              >
+                <InputGroup
+                  id="jenkins-password"
+                  placeholder="Enter Jenkins Password"
+                  defaultValue={jenkinsPassword}
+                  onChange={(e) => setJenkinsPassword(e.target.value)}
+                  className={styles.input}
+                />
+              </FormGroup>
+            </div>
+
+            <Button type="submit" outlined={true} large={true} className={styles.saveBtn} onClick={saveAll}>Save Config</Button>
+
+          </form>
+
+          <SaveAlert alertOpen={alertOpen} onClose={() => setAlertOpen(false)} />
         </main>
       </Content>
     </div>
