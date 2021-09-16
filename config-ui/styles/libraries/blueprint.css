@@ -39,6 +39,7 @@
 }
 
 .bp3-form-helper-text {
-  font-size: 10px !important;
-  opacity: 0.65 !important;
+  font-size: 11px !important;
+  opacity: 0.8 !important;
+  text-align: right;
 }
