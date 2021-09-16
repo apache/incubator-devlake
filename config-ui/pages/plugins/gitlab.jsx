@@ -9,10 +9,12 @@ import { existsSync } from 'fs'
 import Nav from '../../components/Nav'
 import Sidebar from '../../components/Sidebar'
 import Content from '../../components/Content'
+import SaveAlert from '../../components/SaveAlert'
 
 export default function Home(props) {
   const { env } = props
 
+  const [alertOpen, setAlertOpen] = useState(false)
   const [gitlabEndpoint, setGitlabEndpoint] = useState(env.GITLAB_ENDPOINT)
   const [gitlabAuth, setGitlabAuth] = useState(env.GITLAB_AUTH)
 
@@ -24,7 +26,7 @@ export default function Home(props) {
     e.preventDefault()
     updateEnv('GITLAB_ENDPOINT', gitlabEndpoint)
     updateEnv('GITLAB_AUTH', gitlabAuth)
-    alert('Config file updated, please restart devlake by running: \'docker-compose restart\' to apply new configuration')
+    setAlertOpen(true)
   }
 
   return (
@@ -50,45 +52,51 @@ export default function Home(props) {
             <p className={styles.description}>Gitlab account and config settings</p>
           </div>
 
-          <div className={styles.formContainer}>
-            <FormGroup
-              label="API&nbsp;Endpoint"
-              inline={true}
-              labelFor="gitlab-endpoint"
-              helperText="GITLAB_ENDPOINT"
-              className={styles.formGroup}
-              contentClassName={styles.formGroup}
-            >
-              <InputGroup
-                id="gitlab-endpoint"
-                placeholder="Enter Gitlab API endpoint"
-                defaultValue={gitlabEndpoint}
-                onChange={(e) => setGitlabEndpoint(e.target.value)}
-                className={styles.input}
-              />
-            </FormGroup>
-          </div>
+          <form className={styles.form}>
 
-          <div className={styles.formContainer}>
-            <FormGroup
-              label="Auth&nbsp;Token"
-              inline={true}
-              labelFor="gitlab-auth"
-              helperText="GITLAB_AUTH"
-              className={styles.formGroup}
-              contentClassName={styles.formGroup}
-            >
-              <InputGroup
-                id="gitlab-auth"
-                placeholder="Enter Gitlab Auth Token eg. uJVEDxabogHbfFyu2riz"
-                defaultValue={gitlabAuth}
-                onChange={(e) => setGitlabAuth(e.target.value)}
-                className={styles.input}
-              />
-            </FormGroup>
-          </div>
+            <div className={styles.formContainer}>
+              <FormGroup
+                label="API&nbsp;Endpoint"
+                inline={true}
+                labelFor="gitlab-endpoint"
+                helperText="GITLAB_ENDPOINT"
+                className={styles.formGroup}
+                contentClassName={styles.formGroup}
+              >
+                <InputGroup
+                  id="gitlab-endpoint"
+                  placeholder="Enter Gitlab API endpoint"
+                  defaultValue={gitlabEndpoint}
+                  onChange={(e) => setGitlabEndpoint(e.target.value)}
+                  className={styles.input}
+                />
+              </FormGroup>
+            </div>
 
-          <Button type="submit" outlined={true} large={true} className={styles.saveBtn} onClick={saveAll}>Save Config</Button>
+            <div className={styles.formContainer}>
+              <FormGroup
+                label="Auth&nbsp;Token"
+                inline={true}
+                labelFor="gitlab-auth"
+                helperText="GITLAB_AUTH"
+                className={styles.formGroup}
+                contentClassName={styles.formGroup}
+              >
+                <InputGroup
+                  id="gitlab-auth"
+                  placeholder="Enter Gitlab Auth Token eg. uJVEDxabogHbfFyu2riz"
+                  defaultValue={gitlabAuth}
+                  onChange={(e) => setGitlabAuth(e.target.value)}
+                  className={styles.input}
+                />
+              </FormGroup>
+            </div>
+
+            <Button type="submit" outlined={true} large={true} className={styles.saveBtn} onClick={saveAll}>Save Config</Button>
+
+          </form>
+
+          <SaveAlert alertOpen={alertOpen} onClose={() => setAlertOpen(false)} />
         </main>
       </Content>
     </div>
