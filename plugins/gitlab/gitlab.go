@@ -29,6 +29,11 @@ func (plugin Gitlab) Execute(options map[string]interface{}, progress chan<- flo
 		return
 	}
 
+	if err := tasks.CollectPipelines(projectIdInt); err != nil {
+		logger.Error("Could not collect projects: ", err)
+		return
+	}
+
 	if err := tasks.CollectProject(projectIdInt); err != nil {
 		logger.Error("Could not collect projects: ", err)
 		return
