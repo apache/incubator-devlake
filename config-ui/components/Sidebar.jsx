@@ -1,9 +1,36 @@
+import { useEffect, useState } from 'react'
 import { useRouter } from 'next/router'
-import { Button, Card, Elevation, Icon } from '@blueprintjs/core'
+import { Button, Card, Elevation, Icon, Tree, Classes } from '@blueprintjs/core'
 import styles from '../styles/Sidebar.module.css'
 
 const Sidebar = () => {
   const { asPath } = useRouter()
+
+  const [isOpen, setIsOpen] = useState(true)
+  const [pluginData, setPluginData] = useState()
+
+  useEffect(() => {
+    setPluginData([
+      {
+        id: 5, label: "Collection Plugins",
+        isExpanded: isOpen,
+        childNodes: [
+          {
+            id: 0,
+            label: <a href="/plugins/jira" className={styles.pluginListItemLink}>Jira</a>,
+          },
+          {
+            id: 1,
+            label: <a href="/plugins/gitlab" className={styles.pluginListItemLink}>Gitlab</a>,
+          },
+          {
+            id: 2,
+            label: <a href="/plugins/jenkins" className={styles.pluginListItemLink}>Jenkins</a>,
+          }
+        ]
+      },
+    ])
+  }, [isOpen])
 
   return <Card interactive={false} elevation={Elevation.ZERO} className={styles.card}>
 
@@ -28,6 +55,14 @@ const Sidebar = () => {
           {asPath === "/triggers" && <div className={styles.sidebarMenuDash}></div>}
       </a>
     </ul>
+
+    <Tree
+      contents={pluginData}
+      className={styles.pluginMenu}
+      // onNodeClick={()=>alert('clicked item')}
+      onNodeExpand={()=>setIsOpen(true)}
+      onNodeCollapse={()=>setIsOpen(false)}
+    />
   </Card>
 }
 

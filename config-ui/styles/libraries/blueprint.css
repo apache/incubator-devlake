@@ -1,0 +1,44 @@
+/* BlueprintCSS overrides */
+
+/* Plugin Sidebar */
+.bp3-tree-node-content {
+  height: 40px;
+  padding-left: 13px;
+  padding-right: 0;
+}
+
+.bp3-tree-node-label {
+  height: 100%;
+}
+
+.bp3-tree-node-caret {
+  z-index: 1;
+}
+
+.bp3-tree-node-label {
+  display: flex;
+  align-items: center;
+  padding-left: 3.35rem;
+  margin-left: -3.015rem;
+}
+
+.bp3-tree {
+  padding-left: 0px;
+  margin-left: -20px;
+  width: calc(100% + 40px);
+}
+
+/* Forms and inputs */
+.bp3-tooltip .bp3-popover-arrow {
+  margin-top: -2px;
+}
+
+.bp3-popover-wrapper,
+.bp3-popover-target {
+  width: 100%;
+}
+
+.bp3-form-helper-text {
+  font-size: 10px !important;
+  opacity: 0.65 !important;
+}
