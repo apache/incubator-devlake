@@ -15,8 +15,8 @@
   "editable": true,
   "gnetId": null,
   "graphTooltip": 0,
-  "id": 3,
-  "iteration": 1631109310804,
+  "id": 2,
+  "iteration": 1631781109491,
   "links": [
     {
       "asDropdown": false,
@@ -250,7 +250,7 @@
           "group": [],
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "select \n  now() as time,\n  count(name)\nfrom\n  gitlab_reviewers",
+          "rawSql": "select \n  now() as time,\n  count(distinct name)\nfrom\n  gitlab_reviewers",
           "refId": "A",
           "select": [
             [
@@ -404,5 +404,5 @@
   "timezone": "",
   "title": "Delivery Cost",
   "uid": "TV-BnpM7k",
-  "version": 5
+  "version": 3
 }

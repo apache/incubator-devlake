@@ -15,8 +15,8 @@
   "editable": true,
   "gnetId": null,
   "graphTooltip": 0,
-  "id": 7,
-  "iteration": 1631506121739,
+  "id": 1,
+  "iteration": 1631781119501,
   "links": [
     {
       "asDropdown": false,
@@ -125,7 +125,7 @@
     {
       "cacheTimeout": null,
       "datasource": "mysql",
-      "description": "Number of successful builds and failed builds.",
+      "description": "The percentage of successful, failed, and aborted builds.",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -185,7 +185,7 @@
           "group": [],
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "SELECT\n  now() AS time,\n  -- result as metric,\n  result as metric,\n  count(*) as result\nFROM jenkins_builds\nWHERE\n  $__timeFilter(start_time)\nGROUP BY 1,2\nORDER BY 1",
+          "rawSql": "SELECT\n  now() AS time,\n  result as metric,\n  count(*) as value\nFROM jenkins_builds\nWHERE\n  $__timeFilter(start_time)\nGROUP BY 1,2\nORDER BY 1",
           "refId": "A",
           "select": [
             [
@@ -211,7 +211,7 @@
       ],
       "timeFrom": null,
       "timeShift": null,
-      "title": "Build Result Dsitribution",
+      "title": "Build Result Distribution",
       "type": "piechart"
     },
     {
@@ -466,5 +466,5 @@
   "timezone": "",
   "title": "Delivery Capability",
   "uid": "3Lv1ImSnk",
-  "version": 34
+  "version": 2
 }
