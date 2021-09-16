@@ -9,14 +9,15 @@ import { FormGroup, InputGroup, Button, Alert, Tooltip, Position } from '@bluepr
 import Nav from '../components/Nav'
 import Sidebar from '../components/Sidebar'
 import Content from '../components/Content'
+import SaveAlert from '../components/SaveAlert'
 
 export default function Home(props) {
   const { env } = props
 
+  const [alertOpen, setAlertOpen] = useState(false)
   const [dbUrl, setDbUrl] = useState(env.DB_URL)
   const [port, setPort] = useState(env.PORT)
   const [mode, setMode] = useState(env.MODE)
-  const [alertOpen, setAlertOpen] = useState(false)
 
   function updateEnv(key, value) {
     fetch(`/api/setenv/${key}/${encodeURIComponent(value)}`)
@@ -134,15 +135,7 @@ export default function Home(props) {
       </Content>
     </div>
 
-    <Alert
-      canEscapeKeyCancel={true}
-      canOutsideClickCancel={true}
-      confirmButtonText="Ok"
-      isOpen={alertOpen}
-      onClose={() => setAlertOpen(false)}>
-      <h4>Config File Updated</h4>
-      <p>To apply new configuration, restart devlake by running: <br/><br/><code>docker-compose up -d</code></p>
-    </Alert>
+    <SaveAlert alertOpen={alertOpen} onClose={() => setAlertOpen(false)} />
     </>
   )
 }
