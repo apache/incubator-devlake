@@ -24,13 +24,11 @@ func (plugin Compound) Init() {
 	if text == "" {
 		return
 	}
-	fmt.Printf("text: %v\n", text)
 	rows := make([]*models.JiraBoardGitlabProject, 0)
 	for _, comp := range strings.Split(text, ";") {
 		if comp == "" {
 			continue
 		}
-		fmt.Printf("comp: %v\n", comp)
 		tmp := strings.Split(comp, ":")
 		if len(tmp) != 2 {
 			panic(fmt.Errorf("[compound] invalid config %v", text))
@@ -47,7 +45,6 @@ func (plugin Compound) Init() {
 		}
 		for _, pid := range projectIds {
 			projectId, _ := strconv.ParseUint(pid, 10, 64)
-			fmt.Printf("boardId: %v, projectId: %v\n", boardId, projectId)
 			if projectId == 0 {
 				panic(fmt.Errorf("[compound] invalid projectId %v", pid))
 			}
@@ -59,7 +56,6 @@ func (plugin Compound) Init() {
 		panic(fmt.Errorf("[compound] failed to truncate jira_board_gitlab_projects"))
 	}
 	for _, row := range rows {
-		fmt.Printf("row: %v\n", row)
 		if row == nil {
 			continue
 		}
