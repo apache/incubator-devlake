@@ -9,3 +9,4 @@ datasources:
     user: merico
     secureJsonData:
       password: "merico"
+    editable: true
