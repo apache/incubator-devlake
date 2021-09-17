@@ -1,7 +1,7 @@
 import Head from 'next/head'
 import { useState, useEffect } from 'react'
 import styles from '../../styles/Home.module.css'
-import { Tooltip, Position, FormGroup, InputGroup, Button, TextArea, Intent } from '@blueprintjs/core'
+import { Tooltip, Position, FormGroup, InputGroup, Button } from '@blueprintjs/core'
 import dotenv from 'dotenv'
 import path from 'path'
 import * as fs from 'fs/promises'
@@ -159,8 +159,8 @@ export default function Home(props) {
                     id="jira-issue-type-mapping"
                     placeholder="STANDARD_TYPE_1:YOUR_TYPE_1,YOUR_TYPE_2;STANDARD_TYPE_2:....
     "
-                    defaultValue={jiraIssueTypeMapping}
-                    onChange={(e) => setJiraIssueTypeMapping(e.target.value)}
+                    defaultValue={jiraIssueBugStatusMapping}
+                    onChange={(e) => setJiraIssueBugStatusMapping(e.target.value)}
                     className={styles.input}
                   />
                 </Tooltip>
@@ -180,8 +180,8 @@ export default function Home(props) {
                 <InputGroup
                   id="jira-bug-status-mapping"
                   placeholder="<STANDARD_STATUS_1>:<YOUR_STATUS_1>,<YOUR_STATUS_2>;<STANDARD_STATUS_2>"
-                  defaultValue={jiraIssueBugStatusMapping}
-                  onChange={(e) => setJiraIssueBugStatusMapping(e.target.value)}
+                  defaultValue={jiraIssueIncidentStatusMapping}
+                  onChange={(e) => setJiraIssueIncidentStatusMapping(e.target.value)}
                   className={styles.input}
                 />
                 </Tooltip>
