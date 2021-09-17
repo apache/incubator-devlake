@@ -33,6 +33,11 @@ func (plugin Github) Execute(options map[string]interface{}, progress chan<- flo
 		return
 	}
 
+	if err := tasks.CollectCommits(ownerString, repositoryNameString); err != nil {
+		logger.Error("Could not collect repositories: ", err)
+		return
+	}
+
 	progress <- 1
 
 	close(progress)

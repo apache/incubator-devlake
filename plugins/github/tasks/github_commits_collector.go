@@ -11,10 +11,25 @@ import (
 	"gorm.io/gorm/clause"
 )
 
-type ApiCommitsResponse struct {
-	GithubId     string `json:"id"`
-	RepositoryId int    `json:"repository_id"`
-	Title        string
+type ApiCommitsResponse []CommitsResponse
+type CommitsResponse struct {
+	Sha    string `json:"sha"`
+	Commit Commit
+	Url    string
+}
+
+type Commit struct {
+	Author struct {
+		Name  string
+		Email string
+		Date  string
+	}
+	Committer struct {
+		Name  string
+		Email string
+		Date  string
+	}
+	Message string
 }
 
 func CollectCommits(owner string, repositoryName string) error {
@@ -28,18 +43,26 @@ func CollectCommits(owner string, repositoryName string) error {
 				logger.Error("Error: ", err)
 				return err
 			}
-			githubCommits := &models.GithubCommit{
-				GithubId:     githubApiResponse.GithubId,
-				RepositoryId: githubApiResponse.RepositoryId,
-				Title:        githubApiResponse.Title,
-			}
-			err = lakeModels.Db.Clauses(clause.OnConflict{
-				UpdateAll: true,
-			}).Create(&githubCommits).Error
-			if err != nil {
-				logger.Error("Could not upsert: ", err)
+			for _, commit := range *githubApiResponse {
+				githubCommit := &models.GithubCommit{
+					Sha:            commit.Sha,
+					Repository:     repositoryName,
+					Message:        commit.Commit.Message,
+					AuthorName:     commit.Commit.Author.Name,
+					AuthorEmail:    commit.Commit.Author.Email,
+					AuthoredDate:   commit.Commit.Author.Date,
+					CommitterName:  commit.Commit.Committer.Name,
+					CommitterEmail: commit.Commit.Committer.Email,
+					CommittedDate:  commit.Commit.Committer.Date,
+					Url:            commit.Url,
+				}
+				err = lakeModels.Db.Clauses(clause.OnConflict{
+					UpdateAll: true,
+				}).Create(&githubCommit).Error
+				if err != nil {
+					logger.Error("Could not upsert: ", err)
+				}
 			}
 			return nil
-
 		})
 }

@@ -11,6 +11,7 @@ import (
 	"github.com/merico-dev/lake/config"
 	"github.com/merico-dev/lake/logger"
 	"github.com/merico-dev/lake/plugins/core"
+	githubUtils "github.com/merico-dev/lake/plugins/github/utils"
 	"github.com/merico-dev/lake/utils"
 )
 
@@ -23,10 +24,11 @@ var githubApiClient *GithubApiClient
 func CreateApiClient() *GithubApiClient {
 	if githubApiClient == nil {
 		githubApiClient = &GithubApiClient{}
+		auth := fmt.Sprintf("Bearer %v", config.V.GetString("GITHUB_AUTH"))
 		githubApiClient.Setup(
 			config.V.GetString("GITHUB_ENDPOINT"),
 			map[string]string{
-				"Authorization": fmt.Sprintf("Bearer %v", config.V.GetString("GITHUB_AUTH")),
+				"Authorization": auth,
 			},
 			10*time.Second,
 			3,
@@ -37,11 +39,11 @@ func CreateApiClient() *GithubApiClient {
 
 type GithubPaginationHandler func(res *http.Response) error
 
-func getTotal(resourceUriFormat string) (int, int, error) {
-	// jsut get the first page of results. The response has a head that tells the total pages
+func getPaginationInfo(resourceUriFormat string) (int, int, error) {
+	// just get the first page of results. The response has a head that tells the total pages
 	page := 0
-	page_size := 1
-	res, err := githubApiClient.Get(fmt.Sprintf(resourceUriFormat, page_size, page), nil, nil)
+	page_size := 100
+	res, err := githubApiClient.Get(fmt.Sprintf(resourceUriFormat, page, page_size), nil, nil)
 
 	if err != nil {
 		resBody, err := ioutil.ReadAll(res.Body)
@@ -53,26 +55,38 @@ func getTotal(resourceUriFormat string) (int, int, error) {
 		return 0, 0, err
 	}
 
-	totalInt := -1
-	total := res.Header.Get("X-Total")
-	if total != "" {
-		totalInt, err = convertStringToInt(total)
+	totalInt := 1
+	linkHeader := res.Header.Get("Link")
+	var paginationInfo githubUtils.PagingInfo
+	paginationInfo, err = githubUtils.GetPagingFromLinkHeader(linkHeader)
+	if err != nil {
+		logger.Error("pagination info", err)
+	}
+
+	if paginationInfo.Last != "" {
+		totalInt, err = convertStringToInt(paginationInfo.Last)
 		if err != nil {
 			return 0, 0, err
 		}
 	}
-
-	rateRemaining := res.Header.Get("ratelimit-remaining")
-	date, err := http.ParseTime(res.Header.Get("date"))
+	rateRemaining := res.Header.Get("X-RateLimit-Remaining")
+	date, err := http.ParseTime(res.Header.Get("Date"))
 	if err != nil {
 		return 0, 0, err
 	}
-	rateLimitResetTime, err := http.ParseTime(res.Header.Get("ratelimit-resettime"))
+	i, err := strconv.ParseInt(res.Header.Get("X-RateLimit-Reset"), 10, 64)
 	if err != nil {
-		return 0, 0, err
+		panic(err)
 	}
+	rateLimitResetTime := time.Unix(i, 0)
+	// rateLimitResetTime, err := http.ParseTime()
+	// if err != nil {
+	// 	logger.Error("Parse error: ", err)
+	// 	return 0, 0, err
+	// }
 	rateLimitInt, err := strconv.Atoi(rateRemaining)
 	if err != nil {
+		logger.Error("Convert error: ", err)
 		return 0, 0, err
 	}
 	rateLimitPerSecond := rateLimitInt / int(rateLimitResetTime.Unix()-date.Unix()) * 9 / 10
@@ -93,7 +107,7 @@ func (githubApiClient *GithubApiClient) FetchWithPaginationAnts(resourceUri stri
 		resourceUriFormat = resourceUri + "?per_page=%v&page=%v"
 	}
 	// We need to get the total pages first so we can loop through all requests concurrently
-	total, rateLimitPerSecond, err := getTotal(resourceUriFormat)
+	total, rateLimitPerSecond, err := getPaginationInfo(resourceUriFormat)
 	if err != nil {
 		return err
 	}
@@ -185,22 +199,20 @@ func (githubApiClient *GithubApiClient) FetchWithPagination(resourceUri string, 
 
 	var resourceUriFormat string
 	if strings.ContainsAny(resourceUri, "?") {
-		resourceUriFormat = resourceUri + "&per_page=%v&page=%v"
+		resourceUriFormat = resourceUri + "&page=%v&per_page=%v"
 	} else {
-		resourceUriFormat = resourceUri + "?per_page=%v&page=%v"
+		resourceUriFormat = resourceUri + "?page=%v&per_page=%v"
 	}
 
 	// We need to get the total pages first so we can loop through all requests concurrently
-	total, _, _ := getTotal(resourceUriFormat)
-
+	total, _, _ := getPaginationInfo(resourceUriFormat)
 	// Loop until all pages are requested
+	fmt.Println("INFO >>> total pages", total)
 	for i := 0; (i * pageSize) < total; i++ {
 		// we need to save the value for the request so it is not overwritten
 		currentPage := i
-		url := fmt.Sprintf(resourceUriFormat, pageSize, currentPage)
-
+		url := fmt.Sprintf(resourceUriFormat, currentPage, pageSize)
 		res, err := githubApiClient.Get(url, nil, nil)
-
 		if err != nil {
 			return err
 		}
