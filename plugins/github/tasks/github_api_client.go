@@ -60,7 +60,7 @@ func getPaginationInfo(resourceUriFormat string) (int, int, error) {
 	var paginationInfo githubUtils.PagingInfo
 	paginationInfo, err = githubUtils.GetPagingFromLinkHeader(linkHeader)
 	if err != nil {
-		logger.Error("pagination info", err)
+		logger.Error("Pagination Info", err)
 	}
 
 	if paginationInfo.Last != "" {
@@ -79,11 +79,7 @@ func getPaginationInfo(resourceUriFormat string) (int, int, error) {
 		panic(err)
 	}
 	rateLimitResetTime := time.Unix(i, 0)
-	// rateLimitResetTime, err := http.ParseTime()
-	// if err != nil {
-	// 	logger.Error("Parse error: ", err)
-	// 	return 0, 0, err
-	// }
+
 	rateLimitInt, err := strconv.Atoi(rateRemaining)
 	if err != nil {
 		logger.Error("Convert error: ", err)
@@ -208,7 +204,7 @@ func (githubApiClient *GithubApiClient) FetchWithPagination(resourceUri string, 
 	total, _, _ := getPaginationInfo(resourceUriFormat)
 	// Loop until all pages are requested
 	fmt.Println("INFO >>> total pages", total)
-	for i := 0; (i * pageSize) < total; i++ {
+	for i := 0; i < total; i++ {
 		// we need to save the value for the request so it is not overwritten
 		currentPage := i
 		url := fmt.Sprintf(resourceUriFormat, currentPage, pageSize)
