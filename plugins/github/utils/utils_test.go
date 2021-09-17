@@ -13,9 +13,7 @@ import (
 // for a valid return value.
 func TestParseLinkHeader(t *testing.T) {
 	fmt.Println("INFO >>> Handles good link string")
-	var pagingExpected PagingInfo
-
-	pagingExpected = PagingInfo{
+	var pagingExpected = PagingInfo{
 		Next:  "15",
 		Last:  "34",
 		First: "1",
@@ -34,9 +32,7 @@ func TestParseLinkHeader(t *testing.T) {
 }
 func TestParseLinkHeaderEmptyString(t *testing.T) {
 	fmt.Println("INFO >>> Handles empty link string")
-	var pagingExpected PagingInfo
-
-	pagingExpected = PagingInfo{
+	var pagingExpected = PagingInfo{
 		Next:  "",
 		Last:  "",
 		First: "",
