@@ -16,14 +16,14 @@ func (plugin Github) Execute(options map[string]interface{}, progress chan<- flo
 
 	owner, ok := options["owner"]
 	if !ok {
-		logger.Print("owner is required for github execution")
+		logger.Print("owner is required for GitHub execution")
 		return
 	}
 	ownerString := owner.(string)
 
 	repositoryName, ok := options["repositoryName"]
 	if !ok {
-		logger.Print("repositoryName is required for github execution")
+		logger.Print("repositoryName is required for GitHub execution")
 		return
 	}
 	repositoryNameString := repositoryName.(string)

@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
-	"strconv"
 	"strings"
 	"time"
 
@@ -39,8 +38,15 @@ func CreateApiClient() *GithubApiClient {
 
 type GithubPaginationHandler func(res *http.Response) error
 
-func getPaginationInfo(resourceUriFormat string) (int, int, error) {
+func getPaginationInfoFromGitHub(resourceUriFormat string) (githubUtils.PagingInfo, int, error) {
 	// just get the first page of results. The response has a head that tells the total pages
+	paginationInfo := githubUtils.PagingInfo{
+		First: 0,
+		Last:  0,
+		Next:  0,
+		Prev:  0,
+	}
+
 	page := 0
 	page_size := 100 // This is the maximum
 	res, err := githubApiClient.Get(fmt.Sprintf(resourceUriFormat, page, page_size), nil, nil)
@@ -49,50 +55,31 @@ func getPaginationInfo(resourceUriFormat string) (int, int, error) {
 		resBody, err := ioutil.ReadAll(res.Body)
 		if err != nil {
 			logger.Error("UnmarshalResponse failed: ", string(resBody))
-			return 0, 0, err
+			return paginationInfo, 0, err
 		}
 		logger.Print(string(resBody) + "\n")
-		return 0, 0, err
+		return paginationInfo, 0, err
 	}
 
-	lastPage := 1 // Assumes that there is always at least 1 page
 	linkHeader := res.Header.Get("Link")
 
 	// PagingInfo object contains Next, First, Last, and Prev page number
-	var paginationInfo githubUtils.PagingInfo
+
 	paginationInfo, err = githubUtils.GetPagingFromLinkHeader(linkHeader)
 	if err != nil {
-		logger.Error("Pagination Info", err)
+		logger.Info("", err)
 	}
+	// These are all strings
+	date := res.Header.Get("Date")
+	reset := res.Header.Get("X-RateLimit-Reset")
+	remaining := res.Header.Get("X-RateLimit-Remaining")
+	rateLimitInfo, rateLimitInfoErr := githubUtils.ConvertRateLimitInfo(date, reset, remaining)
+	if rateLimitInfoErr != nil {
+		fmt.Println("ERROR >>> rateLimitInfoErr", rateLimitInfoErr)
+	}
+	rateLimitPerSecond := githubUtils.GetRateLimitPerSecond(rateLimitInfo)
 
-	if paginationInfo.Last != "" {
-		lastPage, err = convertStringToInt(paginationInfo.Last)
-		if err != nil {
-			return 0, 0, err
-		}
-	}
-	rateRemaining := res.Header.Get("X-RateLimit-Remaining")
-	date, err := http.ParseTime(res.Header.Get("Date"))
-	if err != nil {
-		return 0, 0, err
-	}
-	i, err := strconv.ParseInt(res.Header.Get("X-RateLimit-Reset"), 10, 64)
-	if err != nil {
-		panic(err)
-	}
-	rateLimitResetTime := time.Unix(i, 0)
-
-	rateLimitInt, err := strconv.Atoi(rateRemaining)
-	if err != nil {
-		logger.Error("Convert error: ", err)
-		return 0, 0, err
-	}
-	rateLimitPerSecond := rateLimitInt / int(rateLimitResetTime.Unix()-date.Unix()) * 9 / 10
-	return lastPage, rateLimitPerSecond, nil
-}
-
-func convertStringToInt(input string) (int, error) {
-	return strconv.Atoi(input)
+	return paginationInfo, rateLimitPerSecond, nil
 }
 
 // run all requests in an Ants worker pool
@@ -100,27 +87,28 @@ func (githubApiClient *GithubApiClient) FetchWithPaginationAnts(resourceUri stri
 
 	var resourceUriFormat string
 	if strings.ContainsAny(resourceUri, "?") {
-		resourceUriFormat = resourceUri + "&per_page=%v&page=%v"
+		resourceUriFormat = resourceUri + "&page=%v&per_page=%v"
 	} else {
-		resourceUriFormat = resourceUri + "?per_page=%v&page=%v"
+		resourceUriFormat = resourceUri + "?page=%v&per_page=%v"
 	}
 	// We need to get the total pages first so we can loop through all requests concurrently
-	total, rateLimitPerSecond, err := getPaginationInfo(resourceUriFormat)
+	paginationInfo, rateLimitPerSecond, err := getPaginationInfoFromGitHub(resourceUriFormat)
 	if err != nil {
 		return err
 	}
-
+	fmt.Println("KEVIN >>> rateLimitPerSecond", rateLimitPerSecond)
 	workerNum := 50
 	// set up the worker pool
-	scheduler, err := utils.NewWorkerScheduler(workerNum, rateLimitPerSecond)
+	scheduler, err := utils.NewWorkerScheduler(workerNum, 33)
 	if err != nil {
 		return err
 	}
 
 	defer scheduler.Release()
 
-	// not all api return x-total header, use step concurrency
-	if total == -1 {
+	// if we don't get a "last" result, try going step by step using the "next" property
+	if paginationInfo.Last == 0 {
+		fmt.Println("INFO >>> No last page. Using step concurrency...")
 		// TODO: How do we know how high we can set the conc? Is is rateLimit?
 		conc := 10
 		step := 0
@@ -129,19 +117,24 @@ func (githubApiClient *GithubApiClient) FetchWithPaginationAnts(resourceUri stri
 			for i := conc; i > 0; i-- {
 				page := step*conc + i
 				err := scheduler.Submit(func() error {
-					url := fmt.Sprintf(resourceUriFormat, pageSize, page)
+					url := fmt.Sprintf(resourceUriFormat, page, pageSize)
+
 					res, err := githubApiClient.Get(url, nil, nil)
 					if err != nil {
 						return err
+					}
+					linkHeader := res.Header.Get("Link")
+					paginationInfo2, getPagingErr := githubUtils.GetPagingFromLinkHeader(linkHeader)
+					if getPagingErr != nil {
+						logger.Info("GetPagingFromLinkHeader err: ", getPagingErr)
 					}
 					handlerErr := handler(res)
 					if handlerErr != nil {
 						return handlerErr
 					}
-					_, err = strconv.ParseInt(res.Header.Get("X-Next-Page"), 10, 32)
 					// only send message to channel if I'm the last page
 					if page%conc == 0 {
-						if err != nil {
+						if paginationInfo2.Next == 0 {
 							fmt.Println(page, "has no next page")
 							c <- false
 						} else {
@@ -162,13 +155,13 @@ func (githubApiClient *GithubApiClient) FetchWithPaginationAnts(resourceUri stri
 			step += 1
 		}
 	} else {
+		fmt.Println("INFO >>> Last page found. Looping through: ", paginationInfo.Last)
 		// Loop until all pages are requested
-		for i := 1; (i * pageSize) <= (total + pageSize); i++ {
+		for i := 1; i <= paginationInfo.Last; i++ {
 			// we need to save the value for the request so it is not overwritten
 			currentPage := i
 			err1 := scheduler.Submit(func() error {
-				url := fmt.Sprintf(resourceUriFormat, pageSize, currentPage)
-
+				url := fmt.Sprintf(resourceUriFormat, currentPage, pageSize)
 				res, err := githubApiClient.Get(url, nil, nil)
 
 				if err != nil {
@@ -203,11 +196,11 @@ func (githubApiClient *GithubApiClient) FetchWithPagination(resourceUri string, 
 	}
 
 	// We need to get the total pages first so we can loop through all requests concurrently
-	lastPage, _, _ := getPaginationInfo(resourceUriFormat)
+	paginationInfo, _, _ := getPaginationInfoFromGitHub(resourceUriFormat)
 	// Loop until all pages are requested
 	// PLEASE NOTE: Pages start at 1. Page 1 and page 0 are the same.
-	fmt.Println("INFO >>> last page: ", lastPage)
-	for i := 1; i <= lastPage; i++ {
+	logger.Info("INFO >>> Last Page: ", paginationInfo.Last)
+	for i := 1; i <= paginationInfo.Last; i++ {
 		// we need to save the value for the request so it is not overwritten
 		currentPage := i
 		url := fmt.Sprintf(resourceUriFormat, currentPage, pageSize)
