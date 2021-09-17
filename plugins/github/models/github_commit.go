@@ -6,7 +6,7 @@ import (
 
 type GithubCommit struct {
 	Sha            string `gorm:"primaryKey"`
-	Repository     string
+	RepositoryId   int    `gorm:"index"`
 	AuthorName     string
 	AuthorEmail    string
 	AuthoredDate   string
