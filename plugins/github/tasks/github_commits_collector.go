@@ -32,7 +32,7 @@ type Commit struct {
 	Message string
 }
 
-func CollectCommits(owner string, repositoryName string) error {
+func CollectCommits(owner string, repositoryName string, repositoryId int) error {
 	githubApiClient := CreateApiClient()
 	getUrl := fmt.Sprintf("repos/%v/%v/commits", owner, repositoryName)
 	return githubApiClient.FetchWithPagination(getUrl, 100,
@@ -46,7 +46,7 @@ func CollectCommits(owner string, repositoryName string) error {
 			for _, commit := range *githubApiResponse {
 				githubCommit := &models.GithubCommit{
 					Sha:            commit.Sha,
-					Repository:     repositoryName,
+					RepositoryId:   repositoryId,
 					Message:        commit.Commit.Message,
 					AuthorName:     commit.Commit.Author.Name,
 					AuthorEmail:    commit.Commit.Author.Email,

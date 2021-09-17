@@ -42,7 +42,7 @@ type GithubPaginationHandler func(res *http.Response) error
 func getPaginationInfo(resourceUriFormat string) (int, int, error) {
 	// just get the first page of results. The response has a head that tells the total pages
 	page := 0
-	page_size := 100
+	page_size := 100 // This is the maximum
 	res, err := githubApiClient.Get(fmt.Sprintf(resourceUriFormat, page, page_size), nil, nil)
 
 	if err != nil {
@@ -55,8 +55,10 @@ func getPaginationInfo(resourceUriFormat string) (int, int, error) {
 		return 0, 0, err
 	}
 
-	totalInt := 1
+	lastPage := 1 // Assumes that there is always at least 1 page
 	linkHeader := res.Header.Get("Link")
+
+	// PagingInfo object contains Next, First, Last, and Prev page number
 	var paginationInfo githubUtils.PagingInfo
 	paginationInfo, err = githubUtils.GetPagingFromLinkHeader(linkHeader)
 	if err != nil {
@@ -64,7 +66,7 @@ func getPaginationInfo(resourceUriFormat string) (int, int, error) {
 	}
 
 	if paginationInfo.Last != "" {
-		totalInt, err = convertStringToInt(paginationInfo.Last)
+		lastPage, err = convertStringToInt(paginationInfo.Last)
 		if err != nil {
 			return 0, 0, err
 		}
@@ -86,7 +88,7 @@ func getPaginationInfo(resourceUriFormat string) (int, int, error) {
 		return 0, 0, err
 	}
 	rateLimitPerSecond := rateLimitInt / int(rateLimitResetTime.Unix()-date.Unix()) * 9 / 10
-	return totalInt, rateLimitPerSecond, nil
+	return lastPage, rateLimitPerSecond, nil
 }
 
 func convertStringToInt(input string) (int, error) {
@@ -201,10 +203,11 @@ func (githubApiClient *GithubApiClient) FetchWithPagination(resourceUri string, 
 	}
 
 	// We need to get the total pages first so we can loop through all requests concurrently
-	total, _, _ := getPaginationInfo(resourceUriFormat)
+	lastPage, _, _ := getPaginationInfo(resourceUriFormat)
 	// Loop until all pages are requested
-	fmt.Println("INFO >>> total pages", total)
-	for i := 0; i < total; i++ {
+	// PLEASE NOTE: Pages start at 1. Page 1 and page 0 are the same.
+	fmt.Println("INFO >>> last page: ", lastPage)
+	for i := 1; i <= lastPage; i++ {
 		// we need to save the value for the request so it is not overwritten
 		currentPage := i
 		url := fmt.Sprintf(resourceUriFormat, currentPage, pageSize)

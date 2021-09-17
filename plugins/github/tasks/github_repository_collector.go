@@ -16,19 +16,19 @@ type ApiRepositoryResponse struct {
 	HTMLUrl  string `json:"html_url"`
 }
 
-func CollectRepository(owner string, repositoryName string) error {
+func CollectRepository(owner string, repositoryName string) (int, error) {
 	githubApiClient := CreateApiClient()
 	getUrl := fmt.Sprintf("repos/%v/%v", owner, repositoryName)
 	res, err := githubApiClient.Get(getUrl, nil, nil)
 	if err != nil {
 		logger.Error("Error: ", err)
-		return err
+		return 0, err
 	}
 	githubApiResponse := &ApiRepositoryResponse{}
 	err = core.UnmarshalResponse(res, githubApiResponse)
 	if err != nil {
 		logger.Error("Error: ", err)
-		return err
+		return 0, err
 	}
 	githubRepository := &models.GithubRepository{
 		Name:     githubApiResponse.Name,
@@ -41,5 +41,5 @@ func CollectRepository(owner string, repositoryName string) error {
 	if err != nil {
 		logger.Error("Could not upsert: ", err)
 	}
-	return nil
+	return githubRepository.GithubId, nil
 }
