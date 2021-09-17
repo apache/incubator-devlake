@@ -1,7 +1,7 @@
 import Head from 'next/head'
 import { useState, useEffect } from 'react'
 import styles from '../../styles/Home.module.css'
-import { FormGroup, InputGroup, Button, TextArea, Intent } from "@blueprintjs/core"
+import { FormGroup, InputGroup, Button, Label } from "@blueprintjs/core"
 import dotenv from 'dotenv'
 import path from 'path'
 import * as fs from 'fs/promises'
@@ -47,56 +47,58 @@ export default function Home(props) {
       <Content>
         <main className={styles.main}>
 
-          <div className={styles.headlineContainer}>
-            <h2 className={styles.headline}>Gitlab Configuration</h2>
-            <p className={styles.description}>Gitlab account and config settings</p>
-          </div>
-
           <form className={styles.form}>
+            <div className={styles.headlineContainer}>
+              <h2 className={styles.headline}>Gitlab Configuration</h2>
+              <p className={styles.description}>Gitlab account and config settings</p>
+            </div>
 
             <div className={styles.formContainer}>
               <FormGroup
-                label="API&nbsp;Endpoint"
                 inline={true}
                 labelFor="gitlab-endpoint"
                 helperText="GITLAB_ENDPOINT"
                 className={styles.formGroup}
                 contentClassName={styles.formGroup}
               >
-                <InputGroup
-                  id="gitlab-endpoint"
-                  placeholder="Enter Gitlab API endpoint"
-                  defaultValue={gitlabEndpoint}
-                  onChange={(e) => setGitlabEndpoint(e.target.value)}
-                  className={styles.input}
-                />
+                <Label>
+                  API&nbsp;Endpoint <span className={styles.requiredStar}>*</span>
+                  <InputGroup
+                    id="gitlab-endpoint"
+                    placeholder="Enter Gitlab API endpoint"
+                    defaultValue={gitlabEndpoint}
+                    onChange={(e) => setGitlabEndpoint(e.target.value)}
+                    className={styles.input}
+                  />
+                </Label>
               </FormGroup>
             </div>
 
             <div className={styles.formContainer}>
               <FormGroup
-                label="Auth&nbsp;Token"
                 inline={true}
                 labelFor="gitlab-auth"
                 helperText="GITLAB_AUTH"
                 className={styles.formGroup}
                 contentClassName={styles.formGroup}
               >
-                <InputGroup
-                  id="gitlab-auth"
-                  placeholder="Enter Gitlab Auth Token eg. uJVEDxabogHbfFyu2riz"
-                  defaultValue={gitlabAuth}
-                  onChange={(e) => setGitlabAuth(e.target.value)}
-                  className={styles.input}
-                />
+                <Label>
+                  Auth&nbsp;Token <span className={styles.requiredStar}>*</span>
+                  <InputGroup
+                    id="gitlab-auth"
+                    placeholder="Enter Gitlab Auth Token eg. uJVEDxabogHbfFyu2riz"
+                    defaultValue={gitlabAuth}
+                    onChange={(e) => setGitlabAuth(e.target.value)}
+                    className={styles.input}
+                  />
+                </Label>
               </FormGroup>
             </div>
 
             <Button type="submit" outlined={true} large={true} className={styles.saveBtn} onClick={saveAll}>Save Config</Button>
 
+            <SaveAlert alertOpen={alertOpen} onClose={() => setAlertOpen(false)} />
           </form>
-
-          <SaveAlert alertOpen={alertOpen} onClose={() => setAlertOpen(false)} />
         </main>
       </Content>
     </div>

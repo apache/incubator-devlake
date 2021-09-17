@@ -3,6 +3,7 @@
   justify-content: space-evenly;
   padding-top: 50px;
   min-height: 100vh;
+  overflow: hidden;
 }
 
 .main {
@@ -29,8 +30,30 @@
   margin-right: 0.2rem;
 }
 
-.input, .form {
+.input,
+.helperInput {
+  margin-left: 0.75rem;
+}
+
+.input input,
+.helperInput input {
+  margin-top: 0 !important;
+}
+
+.input, .helperInput, .form {
   width: 100%;
+}
+
+.helperInput {
+  margin-top: -10px;
+  width: calc(100% - 12px) !important;
+}
+
+.requiredStar {
+  color: #F83E3E;
+  font-weight: 600;
+  font-size: 1.2rem;
+  margin-left: 0.25rem;
 }
 
 .codeArea {
@@ -47,6 +70,12 @@
   max-width: 600px;
 }
 
+.helpIcon {
+  margin-left: 0.5rem;
+  position: relative;
+  top: -0.4rem;
+}
+
 .formGroup {
   width: 100%;
   max-width: 600px;
@@ -58,6 +87,9 @@
 
 .formGroup label {
   color: #4B4D58;
+  display: flex;
+  align-items: center;
+  margin-right: 0 !important;
 }
 
 .button {
