@@ -26,7 +26,7 @@ type Pull struct {
 func CollectPullRequests(owner string, repositoryName string, repositoryId int) error {
 	githubApiClient := CreateApiClient()
 	getUrl := fmt.Sprintf("repos/%v/%v/pulls?state=all", owner, repositoryName)
-	return githubApiClient.FetchWithPagination(getUrl, 100,
+	return githubApiClient.FetchWithPaginationAnts(getUrl, 100,
 		func(res *http.Response) error {
 			githubApiResponse := &ApiPullsResponse{}
 			err := core.UnmarshalResponse(res, githubApiResponse)

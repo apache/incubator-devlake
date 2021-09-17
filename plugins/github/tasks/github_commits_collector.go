@@ -35,7 +35,7 @@ type Commit struct {
 func CollectCommits(owner string, repositoryName string, repositoryId int) error {
 	githubApiClient := CreateApiClient()
 	getUrl := fmt.Sprintf("repos/%v/%v/commits", owner, repositoryName)
-	return githubApiClient.FetchWithPagination(getUrl, 100,
+	return githubApiClient.FetchWithPaginationAnts(getUrl, 100,
 		func(res *http.Response) error {
 			githubApiResponse := &ApiCommitsResponse{}
 			err := core.UnmarshalResponse(res, githubApiResponse)

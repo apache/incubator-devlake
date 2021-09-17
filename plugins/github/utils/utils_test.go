@@ -14,10 +14,10 @@ import (
 func TestParseLinkHeader(t *testing.T) {
 	fmt.Println("INFO >>> Handles good link string")
 	var pagingExpected = PagingInfo{
-		Next:  "15",
-		Last:  "34",
-		First: "1",
-		Prev:  "13",
+		Next:  15,
+		Last:  34,
+		First: 1,
+		Prev:  13,
 	}
 	linkHeaderFull := `<https://api.github.com/search/code?q=addClass+user%3Amozilla&page=15>; rel="next",
   <https://api.github.com/search/code?q=addClass+user%3Amozilla&page=34>; rel="last",
@@ -33,13 +33,28 @@ func TestParseLinkHeader(t *testing.T) {
 func TestParseLinkHeaderEmptyString(t *testing.T) {
 	fmt.Println("INFO >>> Handles empty link string")
 	var pagingExpected = PagingInfo{
-		Next:  "",
-		Last:  "",
-		First: "",
-		Prev:  "",
+		Next:  0,
+		Last:  0,
+		First: 0,
+		Prev:  0,
 	}
 	linkHeaderFull := ``
 	result, _ := GetPagingFromLinkHeader(linkHeaderFull)
 
 	assert.Equal(t, result, pagingExpected)
+}
+func TestGetRateLimitPerSecond(t *testing.T) {
+	fmt.Println("KEVIN >>> hello")
+	date := "Fri, 17 Sep 2021 16:40:23 GMT"
+	resetTime := "1631899671"
+	remaining := "4970"
+
+	rateLimitInfo, err := ConvertRateLimitInfo(date, resetTime, remaining)
+	if err != nil {
+		fmt.Println("KEVIN >>> err", err)
+	}
+	fmt.Println("KEVIN >>> rateLimitInfo", rateLimitInfo)
+	rateLimitPerSecond := GetRateLimitPerSecond(rateLimitInfo)
+
+	fmt.Println("KEVIN >>> rateLimitPerSecond", rateLimitPerSecond)
 }
