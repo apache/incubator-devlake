@@ -316,7 +316,7 @@ export default function Home(props) {
 
 export async function getStaticProps() {
 
-  const filePath = process.env.ENV_FILEPATH || path.join(process.cwd(), 'data', '../../../.env')
+  const filePath = process.env.ENV_FILEPATH || path.join(process.cwd(), 'data', '../../.env')
   const exist = existsSync(filePath);
   if (!exist) {
     return {
