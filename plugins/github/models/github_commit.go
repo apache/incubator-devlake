@@ -5,9 +5,16 @@ import (
 )
 
 type GithubCommit struct {
-	GithubId     string `gorm:"primaryKey"`
-	RepositoryId int    `gorm:"index"`
-	Title        string
+	Sha            string `gorm:"primaryKey"`
+	Repository     string
+	AuthorName     string
+	AuthorEmail    string
+	AuthoredDate   string
+	CommitterName  string
+	CommitterEmail string
+	CommittedDate  string
+	Message        string
+	Url            string
 
 	models.NoPKModel
 }
