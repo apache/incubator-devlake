@@ -74,7 +74,9 @@ func CollectAllPipelines(projectId int) error {
 		})
 }
 
-func CollectChildrenOnPipelines(projectIdInt int) error {
+func CollectChildrenOnPipelines(projectIdInt int) {
+	gitlabApiClient := CreateApiClient()
+
 	var pipelines []gitlabModels.GitlabPipeline
 	lakeModels.Db.Find(&pipelines)
 
@@ -82,18 +84,16 @@ func CollectChildrenOnPipelines(projectIdInt int) error {
 	// 15 tasks/s* ~2 requests/task * 60s/min = 1800 per min < 2000 per min
 	scheduler, err := utils.NewWorkerScheduler(50, 15)
 	if err != nil {
-		return err
+		logger.Error("err", err)
 	}
 
 	defer scheduler.Release()
 
-	// for i := 0; i < len(pipelines); i++ {
-	for i := 0; i < 10; i++ {
+	for i := 0; i < len(pipelines); i++ {
 		pipeline := (pipelines)[i]
-		logger.Info("JON >>> pipeline", pipeline)
 		schedulerErr := scheduler.Submit(func() error {
+
 			getUrl := fmt.Sprintf("projects/%v/pipelines/%v", projectIdInt, pipeline.GitlabId)
-			logger.Info("JON >>> getUrl", getUrl)
 			res, err := gitlabApiClient.Get(getUrl, nil, nil)
 
 			if err != nil {
@@ -109,7 +109,6 @@ func CollectChildrenOnPipelines(projectIdInt int) error {
 				return nil
 			}
 
-			logger.Info("JON >>> pipelineRes", pipelineRes)
 			gitlabPipeline := &gitlabModels.GitlabPipeline{
 				GitlabId:        pipelineRes.GitlabId,
 				ProjectId:       pipelineRes.ProjectId,
@@ -136,11 +135,8 @@ func CollectChildrenOnPipelines(projectIdInt int) error {
 
 		if schedulerErr != nil {
 			logger.Error("Error: ", schedulerErr)
-			return nil
 		}
 
 	}
-	logger.Info("JON >>> wait", true)
 	scheduler.WaitUntilFinish()
-	return nil
 }
