@@ -5,7 +5,7 @@ import path from 'path'
 import * as fs from 'fs/promises'
 import { existsSync } from 'fs';
 import styles from '../styles/Home.module.css'
-import { FormGroup, InputGroup, Button, Alert, Tooltip, Position } from '@blueprintjs/core'
+import { FormGroup, InputGroup, Button, Alert, Tooltip, Position, Label } from '@blueprintjs/core'
 import Nav from '../components/Nav'
 import Sidebar from '../components/Sidebar'
 import Content from '../components/Content'
@@ -63,7 +63,6 @@ export default function Home(props) {
 
             <div className={styles.formContainer}>
               <FormGroup
-                label="Database&nbsp;URL"
                 inline={true}
                 labelFor="db-url"
                 className={styles.formGroup}
@@ -71,13 +70,16 @@ export default function Home(props) {
                 contentClassName={styles.formGroup}
               >
                 <Tooltip content="The URL Connection string to the database" position={Position.TOP}>
-                  <InputGroup
-                    id="db-url"
-                    placeholder="Enter DB Connection String"
-                    defaultValue={dbUrl}
-                    onChange={(e) => setDbUrl(e.target.value)}
-                    className={styles.input}
-                  />
+                  <Label>
+                    Database&nbsp;URL <span className={styles.requiredStar}>*</span>
+                    <InputGroup
+                      id="db-url"
+                      placeholder="Enter DB Connection String"
+                      defaultValue={dbUrl}
+                      onChange={(e) => setDbUrl(e.target.value)}
+                      className={styles.input}
+                    />
+                  </Label>
                 </Tooltip>
               </FormGroup>
             </div>
@@ -89,7 +91,6 @@ export default function Home(props) {
 
             <div className={styles.formContainer}>
               <FormGroup
-                label="Port"
                 inline={true}
                 labelFor="port"
                 className={styles.formGroup}
@@ -97,20 +98,22 @@ export default function Home(props) {
                 contentClassName={styles.formGroup}
               >
                 <Tooltip content="The main port for the REST server" position={Position.TOP}>
-                  <InputGroup
-                    id="port"
-                    placeholder="Enter Port eg. :8080"
-                    defaultValue={port}
-                    onChange={(e) => setPort(e.target.value)}
-                    className={styles.input}
-                  />
+                  <Label>
+                    Port <span className={styles.requiredStar}>*</span>
+                    <InputGroup
+                      id="port"
+                      placeholder="Enter Port eg. :8080"
+                      defaultValue={port}
+                      onChange={(e) => setPort(e.target.value)}
+                      className={styles.input}
+                    />
+                  </Label>
                 </Tooltip>
               </FormGroup>
             </div>
 
             <div className={styles.formContainer}>
               <FormGroup
-                label="Mode"
                 inline={true}
                 labelFor="mode"
                 className={styles.formGroup}
@@ -118,13 +121,16 @@ export default function Home(props) {
                 contentClassName={styles.formGroup}
               >
                 <Tooltip content="The development mode for the server" position={Position.TOP}>
-                  <InputGroup
-                    id="mode"
-                    placeholder="Enter Mode eg. debug"
-                    defaultValue={mode}
-                    onChange={(e) => setMode(e.target.value)}
-                    className={styles.input}
-                  />
+                  <Label>
+                    Mode
+                    <InputGroup
+                      id="mode"
+                      placeholder="Enter Mode eg. debug"
+                      defaultValue={mode}
+                      onChange={(e) => setMode(e.target.value)}
+                      className={styles.input}
+                    />
+                  </Label>
                 </Tooltip>
               </FormGroup>
             </div>

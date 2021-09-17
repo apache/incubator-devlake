@@ -1,7 +1,7 @@
 import Head from 'next/head'
 import { useState, useEffect } from 'react'
 import styles from '../../styles/Home.module.css'
-import { Tooltip, Position, FormGroup, InputGroup, Button } from '@blueprintjs/core'
+import { Tooltip, Position, FormGroup, InputGroup, Button, Label, Icon } from '@blueprintjs/core'
 import dotenv from 'dotenv'
 import path from 'path'
 import * as fs from 'fs/promises'
@@ -63,91 +63,86 @@ export default function Home(props) {
       <Content>
         <main className={styles.main}>
 
-          <div className={styles.headlineContainer}>
-            <h2 className={styles.headline}>Jira Plugin</h2>
-            <p className={styles.description}>Jira Account and config settings</p>
-          </div>
-
           <form className={styles.form}>
 
             <div className={styles.headlineContainer}>
-              <h3 className={styles.headline}>URL Endpoint</h3>
-              <p className={styles.description}>The custom endpoint URL for your Jira project</p>
+              <h2 className={styles.headline}>Jira Plugin</h2>
+              <p className={styles.description}>Jira Account and config settings</p>
             </div>
 
             <div className={styles.formContainer}>
               <FormGroup
-                label="Endpoint&nbsp;URL"
+                label=""
                 inline={true}
                 labelFor="jira-endpoint"
                 helperText="JIRA_ENDPOINT"
                 className={styles.formGroup}
                 contentClassName={styles.formGroup}
               >
-                <InputGroup
-                  id="jira-endpoint"
-                  placeholder="Enter Jira endpoint eg. https://merico.atlassian.net"
-                  defaultValue={jiraEndpoint}
-                  onChange={(e) => setJiraEndpoint(e.target.value)}
-                  className={styles.input}
-                />
+                <Label>
+                  Endpoint&nbsp;URL <span className={styles.requiredStar}>*</span>
+                  <InputGroup
+                    id="jira-endpoint"
+                    placeholder="Enter Jira endpoint eg. https://merico.atlassian.net"
+                    defaultValue={jiraEndpoint}
+                    onChange={(e) => setJiraEndpoint(e.target.value)}
+                    className={styles.input}
+                  />
+                </Label>
               </FormGroup>
-            </div>
-
-            <div className={styles.headlineContainer}>
-              <h3 className={styles.headline}>API Token</h3>
-              <p className={styles.description}>Your Jira specific API auth token. Should be encoded using command: <br/><br/><code>{`echo -n `}<b>{`<jira login email>`}</b>:<b>{`<jira token>`}</b>{` | base64`}</code></p>
             </div>
 
             <div className={styles.formContainer}>
               <FormGroup
-                label="Basic&nbsp;Auth&nbsp;Token"
                 inline={true}
                 labelFor="jira-basic-auth"
                 helperText="JIRA_BASIC_AUTH_ENCODED"
                 className={styles.formGroup}
                 contentClassName={styles.formGroup}
               >
-                <InputGroup
-                  id="jira-basic-auth"
-                  placeholder="Enter Jira Auth eg. EJrLG8DNeXADQcGOaaaX4B47"
-                  defaultValue={jiraBasicAuthEncoded}
-                  onChange={(e) => setJiraBasicAuthEncoded(e.target.value)}
-                  className={styles.input}
-                />
+                <Label>
+                  Basic&nbsp;Auth&nbsp;Token <span className={styles.requiredStar}>*</span>
+                  <InputGroup
+                    id="jira-basic-auth"
+                    placeholder="Enter Jira Auth eg. EJrLG8DNeXADQcGOaaaX4B47"
+                    defaultValue={jiraBasicAuthEncoded}
+                    onChange={(e) => setJiraBasicAuthEncoded(e.target.value)}
+                    className={styles.input}
+                  />
+                </Label>
               </FormGroup>
             </div>
 
-            <div className={styles.headlineContainer}>
-              <h3 className={styles.headline}>Status Mappings</h3>
-              <p className={styles.description}>Map your custom Jira status to the correct values</p>
-            </div>
+              <div className={styles.headlineContainer}>
+                <h3 className={styles.headline}>Status Mappings</h3>
+                <p className={styles.description}>Map your custom Jira status to the correct values</p>
+              </div>
 
-            <div className={styles.formContainer}>
-                <FormGroup
-                  label="Issue&nbsp;Type"
-                  inline={true}
-                  labelFor="jira-issue-type-mapping"
-                  helperText="JIRA_ISSUE_TYPE_MAPPING"
-                  className={styles.formGroup}
-                  contentClassName={styles.formGroup}
-                >
-                  <Tooltip content="Map your custom type to Devlake standard type" position={Position.TOP}>
-                    <InputGroup
-                      id="jira-issue-type-mapping"
-                      placeholder="STANDARD_TYPE_1:ORIGIN_TYPE_1,ORIGIN_TYPE_2;STANDARD_TYPE_2:....
-      "
-                      defaultValue={jiraIssueTypeMapping}
-                      onChange={(e) => setJiraIssueTypeMapping(e.target.value)}
-                      className={styles.input}
-                    />
-                  </Tooltip>
-                </FormGroup>
-            </div>
+              <div className={styles.formContainer}>
+                  <FormGroup
+                    inline={true}
+                    labelFor="jira-issue-type-mapping"
+                    helperText="JIRA_ISSUE_TYPE_MAPPING"
+                    className={styles.formGroup}
+                    contentClassName={styles.formGroup}
+                  >
+                    <Tooltip content="Map your custom type to Devlake standard type" position={Position.TOP}>
+                      <Label>
+                      Issue&nbsp;Type
+                      <InputGroup
+                        id="jira-issue-type-mapping"
+                        placeholder="STANDARD_TYPE_1:ORIGIN_TYPE_1,ORIGIN_TYPE_2;STANDARD_TYPE_2:...."
+                        defaultValue={jiraIssueTypeMapping}
+                        onChange={(e) => setJiraIssueTypeMapping(e.target.value)}
+                        className={styles.input}
+                      />
+                      </Label>
+                    </Tooltip>
+                  </FormGroup>
+              </div>
 
             <div className={styles.formContainer}>
               <FormGroup
-                label="Issue&nbsp;Bug"
                 inline={true}
                 labelFor="jira-bug-status-mapping"
                 helperText="JIRA_ISSUE_BUG_STATUS_MAPPING"
@@ -155,21 +150,22 @@ export default function Home(props) {
                 contentClassName={styles.formGroup}
               >
                 <Tooltip content="Map your custom bug status to Devlake standard status" position={Position.TOP}>
-                  <InputGroup
-                    id="jira-issue-type-mapping"
-                    placeholder="STANDARD_TYPE_1:YOUR_TYPE_1,YOUR_TYPE_2;STANDARD_TYPE_2:....
-    "
-                    defaultValue={jiraIssueBugStatusMapping}
-                    onChange={(e) => setJiraIssueBugStatusMapping(e.target.value)}
-                    className={styles.input}
-                  />
+                  <Label>
+                    Issue&nbsp;Bug
+                    <InputGroup
+                      id="jira-bug-status-mapping"
+                      placeholder="<STANDARD_STATUS_1>:<ORIGIN_STATUS_1>,<ORIGIN_STATUS_2>;<STANDARD_STATUS_2>"
+                      defaultValue={jiraIssueBugStatusMapping}
+                      onChange={(e) => setJiraIssueBugStatusMapping(e.target.value)}
+                      className={styles.input}
+                    />
+                  </Label>
                 </Tooltip>
               </FormGroup>
             </div>
 
             <div className={styles.formContainer}>
               <FormGroup
-                label="Issue&nbsp;Incident"
                 inline={true}
                 labelFor="jira-incident-status-mapping"
                 helperText="JIRA_ISSUE_INCIDENT_STATUS_MAPPING"
@@ -177,20 +173,22 @@ export default function Home(props) {
                 contentClassName={styles.formGroup}
               >
                 <Tooltip content="Map your custom incident status to Devlake standard status" position={Position.TOP}>
-                <InputGroup
-                  id="jira-bug-status-mapping"
-                  placeholder="<STANDARD_STATUS_1>:<YOUR_STATUS_1>,<YOUR_STATUS_2>;<STANDARD_STATUS_2>"
-                  defaultValue={jiraIssueIncidentStatusMapping}
-                  onChange={(e) => setJiraIssueIncidentStatusMapping(e.target.value)}
-                  className={styles.input}
-                />
+                  <Label>
+                    Issue&nbsp;Incident
+                    <InputGroup
+                      id="jira-bug-status-mapping"
+                      placeholder="<STANDARD_STATUS_1>:<YOUR_STATUS_1>,<YOUR_STATUS_2>;<STANDARD_STATUS_2>"
+                      defaultValue={jiraIssueIncidentStatusMapping}
+                      onChange={(e) => setJiraIssueIncidentStatusMapping(e.target.value)}
+                      className={styles.input}
+                    />
+                  </Label>
                 </Tooltip>
               </FormGroup>
             </div>
 
           <div className={styles.formContainer}>
             <FormGroup
-              label="Issue&nbsp;Story"
               inline={true}
               labelFor="jira-story-status-mapping"
               helperText="JIRA_ISSUE_STORY_STATUS_MAPPING"
@@ -198,6 +196,8 @@ export default function Home(props) {
               contentClassName={styles.formGroup}
             >
               <Tooltip content="Map your custom story status to Devlake standard status" position={Position.TOP}>
+                <Label>
+                Issue&nbsp;Story
                 <InputGroup
                   id="jira-story-status-mapping"
                   placeholder="<STANDARD_STATUS_1>:<YOUR_STATUS_1>,<YOUR_STATUS_2>;<STANDARD_STATUS_2>"
@@ -205,6 +205,7 @@ export default function Home(props) {
                   onChange={(e) => setJiraIssueStoryStatusMapping(e.target.value)}
                   className={styles.input}
                 />
+                </Label>
               </Tooltip>
             </FormGroup>
           </div>
@@ -216,7 +217,6 @@ export default function Home(props) {
 
             <div className={styles.formContainer}>
             <FormGroup
-              label="Jira&nbsp;Board&nbsp;Gitlab&nbsp;Projects"
               inline={true}
               labelFor="jira-board-projects"
               helperText="JIRA_BOARD_GITLAB_PROJECTS"
@@ -224,13 +224,16 @@ export default function Home(props) {
               contentClassName={styles.formGroup}
             >
               <Tooltip content="Jira board and Gitlab projects relationship" position={Position.TOP}>
-                <InputGroup
-                  id="jira-storypoint-field"
-                  placeholder="<JIRA_BOARD>:<GITLAB_PROJECT_ID>,...; eg. 8:8967944,8967945;9:8967946,8967947"
-                  defaultValue={jiraBoardGitlabeProjects}
-                  onChange={(e) => setJiraBoardGitlabeProjects(e.target.value)}
-                  className={styles.input}
-                />
+                <Label>
+                  Jira&nbsp;Board&nbsp;Gitlab&nbsp;Projects
+                  <InputGroup
+                    id="jira-storypoint-field"
+                    placeholder="<JIRA_BOARD>:<GITLAB_PROJECT_ID>,...; eg. 8:8967944,8967945;9:8967946,8967947"
+                    defaultValue={jiraBoardGitlabeProjects}
+                    onChange={(e) => setJiraBoardGitlabeProjects(e.target.value)}
+                    className={styles.input}
+                  />
+                </Label>
               </Tooltip>
             </FormGroup>
           </div>
@@ -239,10 +242,65 @@ export default function Home(props) {
             <h3 className={styles.headline}>Additional Customization Settings</h3>
             <p className={styles.description}>Additional Jira settings</p>
           </div>
+            <div className={styles.formContainer}>
+              <FormGroup
+                inline={true}
+                labelFor="jira-story-status-mapping"
+                helperText="JIRA_ISSUE_STORY_STATUS_MAPPING"
+                className={styles.formGroup}
+                contentClassName={styles.formGroup}
+              >
+                <Tooltip content="Map your custom story status to Devlake standard status" position={Position.TOP}>
+                  <Label>
+                    Issue&nbsp;Story
+                    <InputGroup
+                      id="jira-story-status-mapping"
+                      placeholder="<STANDARD_STATUS_1>:<ORIGIN_STATUS_1>,<ORIGIN_STATUS_2>;<STANDARD_STATUS_2>"
+                      defaultValue={jiraIssueStoryStatusMapping}
+                      onChange={(e) => setJiraIssueStoryStatusMapping(e.target.value)}
+                      className={styles.input}
+                    />
+                  </Label>
+                </Tooltip>
+              </FormGroup>
+            </div>
 
             <div className={styles.formContainer}>
               <FormGroup
-                label="Issue&nbsp;Storypoint&nbsp;Coefficient"
+                inline={true}
+                labelFor="jira-epic-key"
+                helperText="JIRA_ISSUE_EPIC_KEY_FIELD"
+                className={styles.formGroup}
+                contentClassName={styles.formGroup}
+              >
+                  <Label>
+                    Issue&nbsp;Epic&nbsp;Key&nbsp;Field <span className={styles.requiredStar}>*</span>
+
+                    <div>
+                      <Tooltip content="Get help with Issue Epic Key Field" position={Position.TOP}>
+                        <a href="https://github.com/merico-dev/lake/tree/main/plugins/jira#how-do-i-find-the-custom-field-id-in-jira"
+                          target="_blank"
+                          className={styles.helpIcon}>
+                            <Icon icon="help" size={15} />
+                        </a>
+                      </Tooltip>
+                    </div>
+
+                    <Tooltip content="Your custom epic key field" position={Position.TOP}>
+                      <InputGroup
+                        id="jira-epic-key"
+                        placeholder="Enter Jira epic key field"
+                        defaultValue={jiraIssueEpicKeyField}
+                        onChange={(e) => setJiraIssueEpicKeyField(e.target.value)}
+                        className={styles.helperInput}
+                      />
+                    </Tooltip>
+                  </Label>
+              </FormGroup>
+            </div>
+
+            <div className={styles.formContainer}>
+              <FormGroup
                 inline={true}
                 labelFor="jira-storypoint-coef"
                 helperText="JIRA_ISSUE_STORYPOINT_COEFFICIENT"
@@ -250,43 +308,46 @@ export default function Home(props) {
                 contentClassName={styles.formGroup}
               >
                 <Tooltip content="Your custom story point coefficent (optional)" position={Position.TOP}>
-                  <InputGroup
-                    id="jira-storypoint-coef"
-                    placeholder="Enter Jira Story Point Coefficient"
-                    defaultValue={jiraIssueStoryCoefficient}
-                    onChange={(e) => setJiraIssueStoryCoefficient(e.target.value)}
-                    className={styles.input}
-                  />
+                  <Label>
+                    Issue&nbsp;Storypoint&nbsp;Coefficient <span className={styles.requiredStar}>*</span>
+                    <InputGroup
+                      id="jira-storypoint-coef"
+                      placeholder="Enter Jira Story Point Coefficient"
+                      defaultValue={jiraIssueStoryCoefficient}
+                      onChange={(e) => setJiraIssueStoryCoefficient(e.target.value)}
+                      className={styles.input}
+                    />
+                  </Label>
                 </Tooltip>
               </FormGroup>
             </div>
 
             <div className={styles.formContainer}>
               <FormGroup
-                label="Issue&nbsp;Storypoint&nbsp;Field"
                 inline={true}
                 labelFor="jira-storypoint-field"
                 helperText="JIRA_ISSUE_STORYPOINT_FIELD"
                 className={styles.formGroup}
                 contentClassName={styles.formGroup}
               >
-                <Tooltip content="Your custom story point key field (optional)" position={Position.TOP}>
-                  <InputGroup
-                    id="jira-storypoint-field"
-                    placeholder="Enter Jira Story Point Field"
-                    defaultValue={jiraIssueStoryPointField}
-                    onChange={(e) => setJiraIssueStoryPointField(e.target.value)}
-                    className={styles.input}
-                  />
+                <Tooltip content="Your custom story point key field" position={Position.TOP}>
+                  <Label>
+                    Issue&nbsp;Storypoint&nbsp;Field
+                    <InputGroup
+                      id="jira-storypoint-field"
+                      placeholder="Enter Jira Story Point Field"
+                      defaultValue={jiraIssueStoryPointField}
+                      onChange={(e) => setJiraIssueStoryPointField(e.target.value)}
+                      className={styles.input}
+                    />
+                  </Label>
                 </Tooltip>
               </FormGroup>
             </div>
 
+            <SaveAlert alertOpen={alertOpen} onClose={() => setAlertOpen(false)} />
             <Button type="submit" outlined={true} large={true} className={styles.saveBtn} onClick={saveAll}>Save Config</Button>
-
           </form>
-
-          <SaveAlert alertOpen={alertOpen} onClose={() => setAlertOpen(false)} />
         </main>
       </Content>
     </div>
