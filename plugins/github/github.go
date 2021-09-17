@@ -28,17 +28,23 @@ func (plugin Github) Execute(options map[string]interface{}, progress chan<- flo
 	}
 	repositoryNameString := repositoryName.(string)
 
-	repoId, err := tasks.CollectRepository(ownerString, repositoryNameString)
-	if err != nil {
-		logger.Error("Could not collect repositories: ", err)
+	repoId, collectRepoErr := tasks.CollectRepository(ownerString, repositoryNameString)
+	if collectRepoErr != nil {
+		logger.Error("Could not collect repositories: ", collectRepoErr)
 		return
 	}
 
-	if err := tasks.CollectCommits(ownerString, repositoryNameString, repoId); err != nil {
-		logger.Error("Could not collect repositories: ", err)
+	collectCommitsErr := tasks.CollectCommits(ownerString, repositoryNameString, repoId)
+	if collectCommitsErr != nil {
+		logger.Error("Could not collect commits: ", collectCommitsErr)
 		return
 	}
 
+	collectPRsErr := tasks.CollectPullRequests(ownerString, repositoryNameString, repoId)
+	if collectPRsErr != nil {
+		logger.Error("Could not collect pull requests: ", collectPRsErr)
+		return
+	}
 	progress <- 1
 
 	close(progress)

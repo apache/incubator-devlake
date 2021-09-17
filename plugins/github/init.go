@@ -11,6 +11,7 @@ func (plugin Github) Init() {
 	err := lakeModels.Db.AutoMigrate(
 		&models.GithubRepository{},
 		&models.GithubCommit{},
+		&models.GithubPullRequest{},
 	)
 	if err != nil {
 		logger.Error("Error migrating github: ", err)
