@@ -1,7 +1,7 @@
 import Head from 'next/head'
 import { useState, useEffect } from 'react'
 import styles from '../../styles/Home.module.css'
-import { Tooltip, Position, FormGroup, InputGroup, Button, TextArea, Intent } from '@blueprintjs/core'
+import { Tooltip, Position, FormGroup, InputGroup, Button } from '@blueprintjs/core'
 import dotenv from 'dotenv'
 import path from 'path'
 import * as fs from 'fs/promises'
@@ -24,6 +24,7 @@ export default function Home(props) {
   const [jiraIssueStoryStatusMapping, setJiraIssueStoryStatusMapping] = useState(env.JIRA_ISSUE_STORY_STATUS_MAPPING)
   const [jiraIssueStoryCoefficient, setJiraIssueStoryCoefficient] = useState(env.JIRA_ISSUE_STORYPOINT_COEFFICIENT)
   const [jiraIssueStoryPointField, setJiraIssueStoryPointField] = useState(env.JIRA_ISSUE_STORYPOINT_FIELD)
+  const [jiraBoardGitlabeProjects, setJiraBoardGitlabeProjects] = useState(env.JIRA_BOARD_GITLAB_PROJECTS)
 
   function updateEnv(key, value) {
     fetch(`/api/setenv/${key}/${encodeURIComponent(value)}`)
@@ -40,6 +41,7 @@ export default function Home(props) {
     updateEnv('JIRA_ISSUE_STORY_STATUS_MAPPING', jiraIssueStoryStatusMapping)
     updateEnv('JIRA_ISSUE_STORYPOINT_COEFFICIENT', jiraIssueStoryCoefficient)
     updateEnv('JIRA_ISSUE_STORYPOINT_FIELD', jiraIssueStoryPointField)
+    updateEnv('JIRA_BOARD_GITLAB_PROJECTS', jiraBoardGitlabeProjects)
     setAlertOpen(true)
   }
 
@@ -154,8 +156,9 @@ export default function Home(props) {
               >
                 <Tooltip content="Map your custom bug status to Devlake standard status" position={Position.TOP}>
                   <InputGroup
-                    id="jira-bug-status-mapping"
-                    placeholder="<STANDARD_STATUS_1>:<ORIGIN_STATUS_1>,<ORIGIN_STATUS_2>;<STANDARD_STATUS_2>"
+                    id="jira-issue-type-mapping"
+                    placeholder="STANDARD_TYPE_1:YOUR_TYPE_1,YOUR_TYPE_2;STANDARD_TYPE_2:....
+    "
                     defaultValue={jiraIssueBugStatusMapping}
                     onChange={(e) => setJiraIssueBugStatusMapping(e.target.value)}
                     className={styles.input}
@@ -175,8 +178,8 @@ export default function Home(props) {
               >
                 <Tooltip content="Map your custom incident status to Devlake standard status" position={Position.TOP}>
                 <InputGroup
-                  id="jira-incident-status-mapping"
-                  placeholder="<STANDARD_STATUS_1>:<ORIGIN_STATUS_1>,<ORIGIN_STATUS_2>;<STANDARD_STATUS_2>"
+                  id="jira-bug-status-mapping"
+                  placeholder="<STANDARD_STATUS_1>:<YOUR_STATUS_1>,<YOUR_STATUS_2>;<STANDARD_STATUS_2>"
                   defaultValue={jiraIssueIncidentStatusMapping}
                   onChange={(e) => setJiraIssueIncidentStatusMapping(e.target.value)}
                   className={styles.input}
@@ -185,52 +188,57 @@ export default function Home(props) {
               </FormGroup>
             </div>
 
-            <div className={styles.formContainer}>
-              <FormGroup
-                label="Issue&nbsp;Story"
-                inline={true}
-                labelFor="jira-story-status-mapping"
-                helperText="JIRA_ISSUE_STORY_STATUS_MAPPING"
-                className={styles.formGroup}
-                contentClassName={styles.formGroup}
-              >
-                <Tooltip content="Map your custom story status to Devlake standard status" position={Position.TOP}>
-                  <InputGroup
-                    id="jira-story-status-mapping"
-                    placeholder="<STANDARD_STATUS_1>:<ORIGIN_STATUS_1>,<ORIGIN_STATUS_2>;<STANDARD_STATUS_2>"
-                    defaultValue={jiraIssueStoryStatusMapping}
-                    onChange={(e) => setJiraIssueStoryStatusMapping(e.target.value)}
-                    className={styles.input}
-                  />
-                </Tooltip>
-              </FormGroup>
+          <div className={styles.formContainer}>
+            <FormGroup
+              label="Issue&nbsp;Story"
+              inline={true}
+              labelFor="jira-story-status-mapping"
+              helperText="JIRA_ISSUE_STORY_STATUS_MAPPING"
+              className={styles.formGroup}
+              contentClassName={styles.formGroup}
+            >
+              <Tooltip content="Map your custom story status to Devlake standard status" position={Position.TOP}>
+                <InputGroup
+                  id="jira-story-status-mapping"
+                  placeholder="<STANDARD_STATUS_1>:<YOUR_STATUS_1>,<YOUR_STATUS_2>;<STANDARD_STATUS_2>"
+                  defaultValue={jiraIssueStoryStatusMapping}
+                  onChange={(e) => setJiraIssueStoryStatusMapping(e.target.value)}
+                  className={styles.input}
+                />
+              </Tooltip>
+            </FormGroup>
+          </div>
+
+          <div className={styles.headlineContainer}>
+            <h3 className={styles.headline}>Jira / Gitlab Connection</h3>
+            <p className={styles.description}>Connect jira board to gitlab projects</p>
             </div>
 
-            <div className={styles.headlineContainer}>
-              <h3 className={styles.headline}>Additional Customization Settings</h3>
-              <p className={styles.description}>Additional Jira settings</p>
-            </div>
-
             <div className={styles.formContainer}>
-              <FormGroup
-                label="Issue&nbsp;Epic&nbsp;Key&nbsp;Field"
-                inline={true}
-                labelFor="jira-epic-key"
-                helperText="JIRA_ISSUE_EPIC_KEY_FIELD"
-                className={styles.formGroup}
-                contentClassName={styles.formGroup}
-              >
-                <Tooltip content="Your custom epic key field (optional)" position={Position.TOP}>
-                  <InputGroup
-                    id="jira-epic-key"
-                    placeholder="Enter Jira epic key field"
-                    defaultValue={jiraIssueEpicKeyField}
-                    onChange={(e) => setJiraIssueEpicKeyField(e.target.value)}
-                    className={styles.input}
-                  />
-                </Tooltip>
-              </FormGroup>
-            </div>
+            <FormGroup
+              label="Jira&nbsp;Board&nbsp;Gitlab&nbsp;Projects"
+              inline={true}
+              labelFor="jira-board-projects"
+              helperText="JIRA_BOARD_GITLAB_PROJECTS"
+              className={styles.formGroup}
+              contentClassName={styles.formGroup}
+            >
+              <Tooltip content="Jira board and Gitlab projects relationship" position={Position.TOP}>
+                <InputGroup
+                  id="jira-storypoint-field"
+                  placeholder="<JIRA_BOARD>:<GITLAB_PROJECT_ID>,...; eg. 8:8967944,8967945;9:8967946,8967947"
+                  defaultValue={jiraBoardGitlabeProjects}
+                  onChange={(e) => setJiraBoardGitlabeProjects(e.target.value)}
+                  className={styles.input}
+                />
+              </Tooltip>
+            </FormGroup>
+          </div>
+
+          <div className={styles.headlineContainer}>
+            <h3 className={styles.headline}>Additional Customization Settings</h3>
+            <p className={styles.description}>Additional Jira settings</p>
+          </div>
 
             <div className={styles.formContainer}>
               <FormGroup
@@ -287,7 +295,7 @@ export default function Home(props) {
 
 export async function getStaticProps() {
 
-  const filePath = process.env.ENV_FILEPATH || path.join(process.cwd(), 'data', '../../../.env')
+  const filePath = process.env.ENV_FILEPATH || path.join(process.cwd(), 'data', '../../.env')
   const exist = existsSync(filePath);
   if (!exist) {
     return {
