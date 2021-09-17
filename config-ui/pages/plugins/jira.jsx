@@ -190,27 +190,6 @@ export default function Home(props) {
 
           <div className={styles.formContainer}>
             <FormGroup
-              label="Issue&nbsp;Incident"
-              inline={true}
-              labelFor="jira-incident-status-mapping"
-              helperText="JIRA_ISSUE_INCIDENT_STATUS_MAPPING"
-              className={styles.formGroup}
-              contentClassName={styles.formGroup}
-            >
-              <Tooltip content="Map your custom incident status to Devlake standard status" position={Position.TOP}>
-              <InputGroup
-                id="jira-incident-status-mapping"
-                placeholder="<STANDARD_STATUS_1>:<YOUR_STATUS_1>,<YOUR_STATUS_2>;<STANDARD_STATUS_2>"
-                defaultValue={jiraIssueIncidentStatusMapping}
-                onChange={(e) => setJiraIssueIncidentStatusMapping(e.target.value)}
-                className={styles.input}
-              />
-              </Tooltip>
-            </FormGroup>
-          </div>
-
-          <div className={styles.formContainer}>
-            <FormGroup
               label="Issue&nbsp;Story"
               inline={true}
               labelFor="jira-story-status-mapping"
