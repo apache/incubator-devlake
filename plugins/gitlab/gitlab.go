@@ -31,50 +31,46 @@ func (plugin Gitlab) Execute(options map[string]interface{}, progress chan<- flo
 
 	progress <- 0.1
 
-	// if err := tasks.CollectAllPipelines(projectIdInt); err != nil {
-	// 	logger.Error("Could not collect projects: ", err)
-	// 	return
-	// }
+	if err := tasks.CollectAllPipelines(projectIdInt); err != nil {
+		logger.Error("Could not collect projects: ", err)
+		return
+	}
 
 	tasks.CollectChildrenOnPipelines(projectIdInt)
 
-	// // find all mrs from db
-	// var pipelines []gitlabModels.GitlabPipeline
-	// lakeModels.Db.Find(&pipelines)
+	progress <- 0.2
 
-	// progress <- 0.2
+	if err := tasks.CollectProject(projectIdInt); err != nil {
+		logger.Error("Could not collect projects: ", err)
+		return
+	}
 
-	// if err := tasks.CollectProject(projectIdInt); err != nil {
-	// 	logger.Error("Could not collect projects: ", err)
-	// 	return
-	// }
+	progress <- 0.25
 
-	// progress <- 0.25
+	if err := tasks.CollectCommits(projectIdInt); err != nil {
+		logger.Error("Could not collect commits: ", err)
+		return
+	}
 
-	// if err := tasks.CollectCommits(projectIdInt); err != nil {
-	// 	logger.Error("Could not collect commits: ", err)
-	// 	return
-	// }
+	progress <- 0.3
 
-	// progress <- 0.3
+	mergeRequestErr := tasks.CollectMergeRequests(projectIdInt)
+	if mergeRequestErr != nil {
+		logger.Error("Could not collect merge requests: ", mergeRequestErr)
+		return
+	}
 
-	// mergeRequestErr := tasks.CollectMergeRequests(projectIdInt)
-	// if mergeRequestErr != nil {
-	// 	logger.Error("Could not collect merge requests: ", mergeRequestErr)
-	// 	return
-	// }
+	progress <- 0.4
 
-	// progress <- 0.4
+	collectChildrenOnMergeRequests(projectIdInt)
 
-	// collectChildrenOnMergeRequests(projectIdInt)
+	progress <- 0.8
 
-	// progress <- 0.8
-
-	// enrichErr := tasks.EnrichMergeRequests()
-	// if enrichErr != nil {
-	// 	logger.Error("Could not enrich merge requests", enrichErr)
-	// 	return
-	// }
+	enrichErr := tasks.EnrichMergeRequests()
+	if enrichErr != nil {
+		logger.Error("Could not enrich merge requests", enrichErr)
+		return
+	}
 	progress <- 1
 
 	close(progress)
