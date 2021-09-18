@@ -83,7 +83,7 @@ export default function Home(props) {
                   Endpoint&nbsp;URL <span className={styles.requiredStar}>*</span>
                   <InputGroup
                     id="jira-endpoint"
-                    placeholder="Enter Jira endpoint eg. https://merico.atlassian.net"
+                    placeholder="Enter Jira endpoint eg. https://merico.atlassian.net/rest"
                     defaultValue={jiraEndpoint}
                     onChange={(e) => setJiraEndpoint(e.target.value)}
                     className={styles.input}
