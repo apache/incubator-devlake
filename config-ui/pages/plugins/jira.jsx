@@ -113,33 +113,10 @@ export default function Home(props) {
               </FormGroup>
             </div>
 
-              <div className={styles.headlineContainer}>
-                <h3 className={styles.headline}>Status Mappings</h3>
-                <p className={styles.description}>Map your custom Jira status to the correct values</p>
-              </div>
-
-              <div className={styles.formContainer}>
-                  <FormGroup
-                    inline={true}
-                    labelFor="jira-issue-type-mapping"
-                    helperText="JIRA_ISSUE_TYPE_MAPPING"
-                    className={styles.formGroup}
-                    contentClassName={styles.formGroup}
-                  >
-                    <Tooltip content="Map your custom type to Devlake standard type" position={Position.TOP}>
-                      <Label>
-                      Issue&nbsp;Type
-                      <InputGroup
-                        id="jira-issue-type-mapping"
-                        placeholder="STANDARD_TYPE_1:ORIGIN_TYPE_1,ORIGIN_TYPE_2;STANDARD_TYPE_2:...."
-                        defaultValue={jiraIssueTypeMapping}
-                        onChange={(e) => setJiraIssueTypeMapping(e.target.value)}
-                        className={styles.input}
-                      />
-                      </Label>
-                    </Tooltip>
-                  </FormGroup>
-              </div>
+            <div className={styles.headlineContainer}>
+              <h3 className={styles.headline}>Status Mappings</h3>
+              <p className={styles.description}>Map your custom Jira status to the correct values</p>
+            </div>
 
             <div className={styles.formContainer}>
               <FormGroup
@@ -211,6 +188,34 @@ export default function Home(props) {
           </div>
 
           <div className={styles.headlineContainer}>
+            <h3 className={styles.headline}>Type Mappings</h3>
+            <p className={styles.description}>Map your custom Jira issue type to the correct values</p>
+          </div>
+
+          <div className={styles.formContainer}>
+              <FormGroup
+                inline={true}
+                labelFor="jira-issue-type-mapping"
+                helperText="JIRA_ISSUE_TYPE_MAPPING"
+                className={styles.formGroup}
+                contentClassName={styles.formGroup}
+              >
+                <Tooltip content="Map your custom type to Devlake standard type" position={Position.TOP}>
+                  <Label>
+                  Issue&nbsp;Type
+                  <InputGroup
+                    id="jira-issue-type-mapping"
+                    placeholder="STANDARD_TYPE_1:ORIGIN_TYPE_1,ORIGIN_TYPE_2;STANDARD_TYPE_2:...."
+                    defaultValue={jiraIssueTypeMapping}
+                    onChange={(e) => setJiraIssueTypeMapping(e.target.value)}
+                    className={styles.input}
+                  />
+                  </Label>
+                </Tooltip>
+              </FormGroup>
+          </div>
+
+          <div className={styles.headlineContainer}>
             <h3 className={styles.headline}>Jira / Gitlab Connection</h3>
             <p className={styles.description}>Connect jira board to gitlab projects</p>
             </div>
@@ -242,28 +247,6 @@ export default function Home(props) {
             <h3 className={styles.headline}>Additional Customization Settings</h3>
             <p className={styles.description}>Additional Jira settings</p>
           </div>
-            <div className={styles.formContainer}>
-              <FormGroup
-                inline={true}
-                labelFor="jira-story-status-mapping"
-                helperText="JIRA_ISSUE_STORY_STATUS_MAPPING"
-                className={styles.formGroup}
-                contentClassName={styles.formGroup}
-              >
-                <Tooltip content="Map your custom story status to Devlake standard status" position={Position.TOP}>
-                  <Label>
-                    Issue&nbsp;Story
-                    <InputGroup
-                      id="jira-story-status-mapping"
-                      placeholder="<STANDARD_STATUS_1>:<ORIGIN_STATUS_1>,<ORIGIN_STATUS_2>;<STANDARD_STATUS_2>"
-                      defaultValue={jiraIssueStoryStatusMapping}
-                      onChange={(e) => setJiraIssueStoryStatusMapping(e.target.value)}
-                      className={styles.input}
-                    />
-                  </Label>
-                </Tooltip>
-              </FormGroup>
-            </div>
 
             <div className={styles.formContainer}>
               <FormGroup
@@ -274,11 +257,11 @@ export default function Home(props) {
                 contentClassName={styles.formGroup}
               >
                   <Label>
-                    Issue&nbsp;Epic&nbsp;Key&nbsp;Field <span className={styles.requiredStar}>*</span>
+                    Issue&nbsp;Epic&nbsp;Key&nbsp;Field
 
                     <div>
                       <Tooltip content="Get help with Issue Epic Key Field" position={Position.TOP}>
-                        <a href="https://github.com/merico-dev/lake/tree/main/plugins/jira#how-do-i-find-the-custom-field-id-in-jira"
+                        <a href="https://github.com/merico-dev/lake/tree/main/plugins/jira#set-jira-custom-fields"
                           target="_blank"
                           className={styles.helpIcon}>
                             <Icon icon="help" size={15} />
@@ -302,6 +285,39 @@ export default function Home(props) {
             <div className={styles.formContainer}>
               <FormGroup
                 inline={true}
+                labelFor="jira-storypoint-field"
+                helperText="JIRA_ISSUE_STORYPOINT_FIELD"
+                className={styles.formGroup}
+                contentClassName={styles.formGroup}
+              >
+                <Tooltip content="Your custom story point key field" position={Position.TOP}>
+                  <Label>
+                    Issue&nbsp;Storypoint&nbsp;Field
+
+                    <div>
+                      <Tooltip content="Get help with Issue Story Point Field" position={Position.TOP}>
+                        <a href="https://github.com/merico-dev/lake/tree/main/plugins/jira#set-jira-custom-fields"
+                          target="_blank"
+                          className={styles.helpIcon}>
+                            <Icon icon="help" size={15} />
+                        </a>
+                      </Tooltip>
+                    </div>
+                    <InputGroup
+                      id="jira-storypoint-field"
+                      placeholder="Enter Jira Story Point Field"
+                      defaultValue={jiraIssueStoryPointField}
+                      onChange={(e) => setJiraIssueStoryPointField(e.target.value)}
+                      className={styles.input}
+                    />
+                  </Label>
+                </Tooltip>
+              </FormGroup>
+            </div>
+
+            <div className={styles.formContainer}>
+              <FormGroup
+                inline={true}
                 labelFor="jira-storypoint-coef"
                 helperText="JIRA_ISSUE_STORYPOINT_COEFFICIENT"
                 className={styles.formGroup}
@@ -315,29 +331,6 @@ export default function Home(props) {
                       placeholder="Enter Jira Story Point Coefficient"
                       defaultValue={jiraIssueStoryCoefficient}
                       onChange={(e) => setJiraIssueStoryCoefficient(e.target.value)}
-                      className={styles.input}
-                    />
-                  </Label>
-                </Tooltip>
-              </FormGroup>
-            </div>
-
-            <div className={styles.formContainer}>
-              <FormGroup
-                inline={true}
-                labelFor="jira-storypoint-field"
-                helperText="JIRA_ISSUE_STORYPOINT_FIELD"
-                className={styles.formGroup}
-                contentClassName={styles.formGroup}
-              >
-                <Tooltip content="Your custom story point key field" position={Position.TOP}>
-                  <Label>
-                    Issue&nbsp;Storypoint&nbsp;Field
-                    <InputGroup
-                      id="jira-storypoint-field"
-                      placeholder="Enter Jira Story Point Field"
-                      defaultValue={jiraIssueStoryPointField}
-                      onChange={(e) => setJiraIssueStoryPointField(e.target.value)}
                       className={styles.input}
                     />
                   </Label>
