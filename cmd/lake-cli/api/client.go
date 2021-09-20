@@ -63,7 +63,6 @@ func (o *apiOptions) Validate(cmd *cobra.Command, args []string) error {
 }
 
 func (o *apiOptions) Run(cmd *cobra.Command, args []string) error {
-	fmt.Println(args)
 	if strings.TrimSpace(o.Body) != "" {
 		o.Body = readBodyFromFile(o.Body)
 	}
