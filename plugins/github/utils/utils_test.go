@@ -44,7 +44,6 @@ func TestParseLinkHeaderEmptyString(t *testing.T) {
 	assert.Equal(t, result, pagingExpected)
 }
 func TestGetRateLimitPerSecond(t *testing.T) {
-	fmt.Println("KEVIN >>> hello")
 	date := "Fri, 17 Sep 2021 16:40:23 GMT"
 	resetTime := "1631899671"
 	remaining := "4970"
