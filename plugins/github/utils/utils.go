@@ -42,12 +42,16 @@ func ConvertRateLimitInfo(date string, resetTime string, remaining string) (Rate
 	return RateLimitInfo{
 		Date:      convertedDate,
 		ResetTime: convertedResetTime,
-		Remaining: convertedRemaining,
+		Remaining: convertedRemaining,      
 	}, nil
 }
 
 func GetRateLimitPerSecond(info RateLimitInfo) int {
-	return info.Remaining / int(info.ResetTime.Unix()-info.Date.Unix()) * 9 / 10
+	unixResetTime := info.ResetTime.Unix()
+	unixNow := info.Date.Unix()
+	timeBetweenNowAndReset := unixResetTime - unixNow
+	multiplier := 9 / 10
+	return info.Remaining / int(timeBetweenNowAndReset) * multiplier
 }
 func ConvertStringToInt(input string) (int, error) {
 	return strconv.Atoi(input)
