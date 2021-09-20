@@ -1,0 +1,477 @@
+{
+  "annotations": {
+    "list": [
+      {
+        "builtIn": 1,
+        "datasource": "-- Grafana --",
+        "enable": true,
+        "hide": true,
+        "iconColor": "rgba(0, 211, 255, 1)",
+        "name": "Annotations & Alerts",
+        "type": "dashboard"
+      }
+    ]
+  },
+  "editable": true,
+  "gnetId": null,
+  "graphTooltip": 0,
+  "id": 47,
+  "links": [],
+  "panels": [
+    {
+      "datasource": "mysql",
+      "description": "1. Total number of requirements created.\n2. The requirements being calculated are filtered by \"requirement creation time\" (time filter at the upper-right corner) and \"Jira board\" (\"Choose Board\" filter at the upper-left corner)",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 7,
+        "w": 7,
+        "x": 0,
+        "y": 0
+      },
+      "id": 2,
+      "libraryPanel": {
+        "meta": {
+          "connectedDashboards": 1,
+          "created": "2021-09-20T12:19:25Z",
+          "createdBy": {
+            "avatarUrl": "/avatar/46d229b033af06a191ff2267bca9ae56",
+            "id": 1,
+            "name": "admin"
+          },
+          "folderName": "General",
+          "folderUid": "",
+          "updated": "2021-09-20T12:19:25Z",
+          "updatedBy": {
+            "avatarUrl": "/avatar/46d229b033af06a191ff2267bca9ae56",
+            "id": 1,
+            "name": "admin"
+          }
+        },
+        "name": "Requirement Count",
+        "uid": "S7p-dGN7z",
+        "version": 1
+      },
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "text": {},
+        "textMode": "auto"
+      },
+      "pluginVersion": "8.0.6",
+      "targets": [
+        {
+          "format": "time_series",
+          "group": [],
+          "metricColumn": "none",
+          "queryType": "randomWalk",
+          "rawQuery": true,
+          "rawSql": "select \r\n  now() as time,\r\n  count(*) as value\r\nfrom jira_issues ji\r\n  join jira_board_issues jbi on ji.id = jbi.issue_id\r\nwhere \r\n  std_type = 'Requirement'\r\n  and created is not null \r\n  and $__timeFilter(created)\r\n  and jbi.board_id = $board_id\r\ngroup by 1;",
+          "refId": "A",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "timeColumn": "time",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        }
+      ],
+      "title": "Requirement Count",
+      "type": "stat"
+    },
+    {
+      "datasource": "mysql",
+      "description": "1. The number of requirements created over time.\n2. The time granularity can be switched to week or month by \"Time Interval\" above. \n3. When Time Interval is set to \"month\", the requirement_count of \"2021-06-01\" refers to the number of requirements whose creation time falls under [2020-06-01, 2020-07-01)",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 0,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 7,
+        "w": 17,
+        "x": 7,
+        "y": 0
+      },
+      "id": 4,
+      "interval": null,
+      "libraryPanel": {
+        "meta": {
+          "connectedDashboards": 1,
+          "created": "2021-09-20T12:19:31Z",
+          "createdBy": {
+            "avatarUrl": "/avatar/46d229b033af06a191ff2267bca9ae56",
+            "id": 1,
+            "name": "admin"
+          },
+          "folderName": "General",
+          "folderUid": "",
+          "updated": "2021-09-20T12:19:31Z",
+          "updatedBy": {
+            "avatarUrl": "/avatar/46d229b033af06a191ff2267bca9ae56",
+            "id": 1,
+            "name": "admin"
+          }
+        },
+        "name": "Requirement Count over Time",
+        "uid": "vmx-OGHnz",
+        "version": 1
+      },
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom"
+        },
+        "tooltip": {
+          "mode": "single"
+        }
+      },
+      "pluginVersion": "8.0.6",
+      "targets": [
+        {
+          "format": "time_series",
+          "group": [],
+          "metricColumn": "none",
+          "queryType": "randomWalk",
+          "rawQuery": true,
+          "rawSql": "with _requirement as(\r\n  select\r\n    ji.id,\r\n    DATE_ADD(date(created), INTERVAL -$interval(date(created))+1 DAY) as time\r\n  from\r\n    jira_issues ji\r\n    join jira_board_issues jbi on ji.id = jbi.issue_id\r\n  where \r\n    std_type = 'Requirement'\r\n    and created is not null \r\n    and $__timeFilter(created)\r\n    and jbi.board_id = $board_id\r\n)\r\n\r\nselect\r\n  timestamp(time) as time,\r\n  count(distinct id) as requirement_count\r\nfrom _requirement\r\ngroup by 1\r\norder by 1 asc",
+          "refId": "A",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "timeColumn": "time",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        }
+      ],
+      "timeFrom": null,
+      "timeShift": null,
+      "title": "Requirement Count over Time",
+      "type": "timeseries"
+    },
+    {
+      "cacheTimeout": null,
+      "datasource": "mysql",
+      "description": "1. The requirement delivery rate over time.\n2. When Time Interval is set to \"month\", value \"requirement_delivery_rate\" of \"2021-06-01\" calculates the requirements whose creation time falls under [2020-06-01, 2020-07-01)",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisLabel": "Delivery Rate (%)",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 0,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "percentunit"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 7,
+        "w": 24,
+        "x": 0,
+        "y": 7
+      },
+      "id": 6,
+      "libraryPanel": {
+        "meta": {
+          "connectedDashboards": 1,
+          "created": "2021-09-20T12:19:47Z",
+          "createdBy": {
+            "avatarUrl": "/avatar/46d229b033af06a191ff2267bca9ae56",
+            "id": 1,
+            "name": "admin"
+          },
+          "folderName": "General",
+          "folderUid": "",
+          "updated": "2021-09-20T12:19:47Z",
+          "updatedBy": {
+            "avatarUrl": "/avatar/46d229b033af06a191ff2267bca9ae56",
+            "id": 1,
+            "name": "admin"
+          }
+        },
+        "name": "Requirement Delivery Rate over Time",
+        "uid": "_AmBOGNnz",
+        "version": 1
+      },
+      "links": [],
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom"
+        },
+        "tooltip": {
+          "mode": "single"
+        }
+      },
+      "pluginVersion": "8.0.6",
+      "targets": [
+        {
+          "format": "time_series",
+          "group": [],
+          "metricColumn": "none",
+          "queryType": "randomWalk",
+          "rawQuery": true,
+          "rawSql": "with _requirement as(\r\n  select\r\n    DATE_ADD(date(created), INTERVAL -$interval(date(created))+1 DAY) as time,\r\n    count(distinct ji.id) as total_count,\r\n    count(distinct case when ji.std_status = 'Resolved' then ji.id else null end) as delivered_count\r\n  from jira_issues ji\r\n    join jira_board_issues jbi on ji.id = jbi.issue_id\r\n  where \r\n    std_type = 'Requirement'\r\n    and $__timeFilter(created)\r\n    and jbi.board_id = $board_id\r\n  group by 1\r\n)\r\n\r\n\r\nselect \r\n  timestamp(time) as time,\r\n  1.0 * delivered_count/total_count as requirement_delivery_rate\r\nfrom _requirement\r\norder by 1",
+          "refId": "A",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "timeColumn": "time",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        }
+      ],
+      "timeFrom": null,
+      "timeShift": null,
+      "title": "Requirement Delivery Rate over Time",
+      "type": "timeseries"
+    }
+  ],
+  "schemaVersion": 30,
+  "style": "dark",
+  "tags": [],
+  "templating": {
+    "list": [
+      {
+        "allValue": null,
+        "current": {
+          "selected": false,
+          "text": "Week",
+          "value": "DAYOFWEEK"
+        },
+        "description": null,
+        "error": null,
+        "hide": 0,
+        "includeAll": false,
+        "label": "Time Interval",
+        "multi": false,
+        "name": "interval",
+        "options": [
+          {
+            "selected": true,
+            "text": "Week",
+            "value": "DAYOFWEEK"
+          },
+          {
+            "selected": false,
+            "text": "Month",
+            "value": "DAY"
+          }
+        ],
+        "query": "Week : DAYOFWEEK, Month : DAY",
+        "skipUrlSync": false,
+        "type": "custom"
+      },
+      {
+        "allValue": null,
+        "current": {
+          "selected": true,
+          "text": [
+            "迭代开发看板"
+          ],
+          "value": [
+            "8"
+          ]
+        },
+        "datasource": "mysql",
+        "definition": "select distinct concat(name, ': ', id) from jira_boards",
+        "description": null,
+        "error": null,
+        "hide": 0,
+        "includeAll": true,
+        "label": "Choose Board",
+        "multi": true,
+        "name": "board_id",
+        "options": [],
+        "query": "select distinct concat(name, ': ', id) from jira_boards",
+        "refresh": 1,
+        "regex": "/^(?<text>[^:]+): (?<value>\\d+)$/",
+        "skipUrlSync": false,
+        "sort": 0,
+        "type": "query"
+      },
+      {
+        "allValue": null,
+        "current": {
+          "selected": false,
+          "text": "All",
+          "value": "$__all"
+        },
+        "datasource": "mysql",
+        "definition": "select distinct concat(name, ': ', gitlab_id) from gitlab_projects",
+        "description": null,
+        "error": null,
+        "hide": 0,
+        "includeAll": true,
+        "label": "Choose Repo",
+        "multi": true,
+        "name": "repo_id",
+        "options": [],
+        "query": "select distinct concat(name, ': ', gitlab_id) from gitlab_projects",
+        "refresh": 1,
+        "regex": "/^(?<text>[^:]+): (?<value>\\d+)$/",
+        "skipUrlSync": false,
+        "sort": 0,
+        "type": "query"
+      }
+    ]
+  },
+  "time": {
+    "from": "now-5y",
+    "to": "now"
+  },
+  "timepicker": {},
+  "timezone": "",
+  "title": "Jira",
+  "uid": "5WAvcMH7z",
+  "version": 2
+}
