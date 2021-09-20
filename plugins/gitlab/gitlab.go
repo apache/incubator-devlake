@@ -29,12 +29,23 @@ func (plugin Gitlab) Execute(options map[string]interface{}, progress chan<- flo
 		return
 	}
 
+	progress <- 0.1
+
+	if err := tasks.CollectAllPipelines(projectIdInt); err != nil {
+		logger.Error("Could not collect projects: ", err)
+		return
+	}
+
+	tasks.CollectChildrenOnPipelines(projectIdInt)
+
+	progress <- 0.2
+
 	if err := tasks.CollectProject(projectIdInt); err != nil {
 		logger.Error("Could not collect projects: ", err)
 		return
 	}
 
-	progress <- 0.1
+	progress <- 0.25
 
 	if err := tasks.CollectCommits(projectIdInt); err != nil {
 		logger.Error("Could not collect commits: ", err)
@@ -51,6 +62,22 @@ func (plugin Gitlab) Execute(options map[string]interface{}, progress chan<- flo
 
 	progress <- 0.4
 
+	collectChildrenOnMergeRequests(projectIdInt)
+
+	progress <- 0.8
+
+	enrichErr := tasks.EnrichMergeRequests()
+	if enrichErr != nil {
+		logger.Error("Could not enrich merge requests", enrichErr)
+		return
+	}
+	progress <- 1
+
+	close(progress)
+
+}
+
+func collectChildrenOnMergeRequests(projectIdInt int) {
 	// find all mrs from db
 	var mrs []gitlabModels.GitlabMergeRequest
 	lakeModels.Db.Find(&mrs)
@@ -86,17 +113,6 @@ func (plugin Gitlab) Execute(options map[string]interface{}, progress chan<- flo
 	}
 
 	scheduler.WaitUntilFinish()
-	progress <- 0.8
-
-	enrichErr := tasks.EnrichMergeRequests()
-	if enrichErr != nil {
-		logger.Error("Could not enrich merge requests", enrichErr)
-		return
-	}
-	progress <- 1
-
-	close(progress)
-
 }
 
 // Export a variable named PluginEntry for Framework to search and load
