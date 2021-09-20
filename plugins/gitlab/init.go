@@ -12,6 +12,7 @@ func (plugin Gitlab) Init() {
 		&models.GitlabProject{},
 		&models.GitlabMergeRequest{},
 		&models.GitlabCommit{},
+		&models.GitlabPipeline{},
 		&models.GitlabReviewer{},
 		&models.GitlabMergeRequestNote{},
 		&models.GitlabMergeRequestCommit{},
