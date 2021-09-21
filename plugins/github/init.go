@@ -14,6 +14,7 @@ func (plugin Github) Init() {
 		&models.GithubPullRequest{},
 		&models.GithubReviewer{},
 		&models.GithubPullRequestComment{},
+		&models.GithubPullRequestLabel{},
 	)
 	if err != nil {
 		logger.Error("Error migrating github: ", err)
