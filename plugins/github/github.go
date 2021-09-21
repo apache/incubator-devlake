@@ -39,6 +39,7 @@ func (plugin Github) Execute(options map[string]interface{}, progress chan<- flo
 		logger.Error("Could not collect commits: ", collectCommitsErr)
 		return
 	}
+	tasks.CollectChildrenOnCommits(ownerString, repositoryNameString, repoId)
 
 	collectPRsErr := tasks.CollectPullRequests(ownerString, repositoryNameString, repoId)
 	if collectPRsErr != nil {

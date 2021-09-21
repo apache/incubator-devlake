@@ -25,17 +25,17 @@ func CollectChildrenOnPullRequests(owner string, repositoryName string, reposito
 				logger.Error("Could not collect PR reviews", reviewErr)
 				return reviewErr
 			}
-			// This call is to update the details of the individual pull request with additions / deletions / etc.
-			prErr := CollectPullRequest(owner, repositoryName, repositoryId, &pr)
-			if prErr != nil {
-				logger.Error("Could not collect PRs to update details", reviewErr)
-				return reviewErr
-			}
 			commentsErr := CollectPullRequestComments(&pr)
 			if commentsErr != nil {
 				logger.Error("Could not collect PR Comments", commentsErr)
 				return commentsErr
 			}
+			// This call is to update the details of the individual pull request with additions / deletions / etc.
+			// prErr := CollectPullRequest(owner, repositoryName, repositoryId, &pr)
+			// if prErr != nil {
+			// 	logger.Error("Could not collect PRs to update details", reviewErr)
+			// 	return reviewErr
+			// }
 
 			return nil
 		})

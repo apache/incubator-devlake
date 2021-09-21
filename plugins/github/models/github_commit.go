@@ -15,6 +15,8 @@ type GithubCommit struct {
 	CommittedDate  string
 	Message        string
 	Url            string
+	Additions      int
+	Deletions      int
 
 	models.NoPKModel
 }

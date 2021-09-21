@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"strings"
 
+	"github.com/merico-dev/lake/config"
 	"github.com/merico-dev/lake/logger"
 	lakeModels "github.com/merico-dev/lake/models"
 	"github.com/merico-dev/lake/plugins/core"
@@ -24,7 +25,7 @@ type Comment struct {
 
 func CollectPullRequestComments(pull *models.GithubPullRequest) error {
 	githubApiClient := CreateApiClient()
-	getUrl := strings.Replace(pull.CommentsUrl, "https://api.github.com/", "", 1)
+	getUrl := strings.Replace(pull.CommentsUrl, config.V.GetString("GITHUB_ENDPOINT"), "", 1)
 	return githubApiClient.FetchWithPaginationAnts(getUrl, 100,
 		func(res *http.Response) error {
 			githubApiResponse := &ApiPullRequestCommentResponse{}
@@ -35,7 +36,7 @@ func CollectPullRequestComments(pull *models.GithubPullRequest) error {
 					return err
 				}
 				for _, comment := range *githubApiResponse {
-					githubComment := &models.GithubComment{
+					githubComment := &models.GithubPullRequestComment{
 						GithubId:       comment.GithubId,
 						PullRequestId:  pull.GithubId,
 						Body:           comment.Body,
