@@ -30,6 +30,12 @@ func CollectChildrenOnPullRequests(owner string, repositoryName string, reposito
 				logger.Error("Could not collect PR Comments", commentsErr)
 				return commentsErr
 			}
+			commitsErr := CollectPullRequestCommits(&pr)
+			if commitsErr != nil {
+				logger.Error("Could not collect PR Comments", commitsErr)
+				return commitsErr
+			}
+			
 			// This call is to update the details of the individual pull request with additions / deletions / etc.
 			// prErr := CollectPullRequest(owner, repositoryName, repositoryId, &pr)
 			// if prErr != nil {

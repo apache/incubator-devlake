@@ -33,7 +33,7 @@ func CollectPullRequest(owner string, repositoryName string, repositoryId int, p
 		logger.Error("Error: ", unmarshalErr)
 		return unmarshalErr
 	}
-	dbErr := lakeModels.Db.Debug().Model(&pr).Updates(models.GithubPullRequest{
+	dbErr := lakeModels.Db.Model(&pr).Updates(models.GithubPullRequest{
 		Additions:      githubApiResponse.Additions,
 		Deletions:      githubApiResponse.Deletions,
 		Comments:       githubApiResponse.Comments,

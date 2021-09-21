@@ -31,7 +31,7 @@ func CollectCommit(owner string, repositoryName string, repositoryId int, commit
 		logger.Error("Error: ", unmarshalErr)
 		return unmarshalErr
 	}
-	dbErr := lakeModels.Db.Debug().Model(&commit).Updates(models.GithubCommit{
+	dbErr := lakeModels.Db.Model(&commit).Updates(models.GithubCommit{
 		Additions: githubApiResponse.Stats.Additions,
 		Deletions: githubApiResponse.Stats.Deletions,
 	}).Error
