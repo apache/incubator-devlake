@@ -18,6 +18,7 @@ type Pull struct {
 	State           string
 	Title           string
 	Number          int
+	CommentsUrl     string `json:"comments_url"`
 	HTMLUrl         string `json:"html_url"`
 	MergedAt        string `json:"merged_at"`
 	GithubCreatedAt string `json:"created_at"`
@@ -42,6 +43,7 @@ func CollectPullRequests(owner string, repositoryName string, repositoryId int) 
 					Number:          pull.Number,
 					State:           pull.State,
 					Title:           pull.Title,
+					CommentsUrl:     pull.CommentsUrl,
 					HTMLUrl:         pull.HTMLUrl,
 					MergedAt:        pull.MergedAt,
 					GithubCreatedAt: pull.GithubCreatedAt,

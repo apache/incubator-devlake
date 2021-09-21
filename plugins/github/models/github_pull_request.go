@@ -8,6 +8,8 @@ type GithubPullRequest struct {
 	Number          int `gorm:"index"` // This number is used in GET requests to the API associated to reviewers / comments / etc.
 	State           string
 	Title           string
+	CommentsUrl     string
+	CommitsUrl      string
 	HTMLUrl         string
 	MergedAt        string
 	GithubCreatedAt string

@@ -13,6 +13,7 @@ func (plugin Github) Init() {
 		&models.GithubCommit{},
 		&models.GithubPullRequest{},
 		&models.GithubReviewer{},
+		&models.GithubComment{},
 	)
 	if err != nil {
 		logger.Error("Error migrating github: ", err)
