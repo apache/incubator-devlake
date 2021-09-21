@@ -17,6 +17,7 @@ type Pull struct {
 	GithubId        int `json:"id"`
 	State           string
 	Title           string
+	Number          int
 	HTMLUrl         string `json:"html_url"`
 	MergedAt        string `json:"merged_at"`
 	GithubCreatedAt string `json:"created_at"`
@@ -38,6 +39,7 @@ func CollectPullRequests(owner string, repositoryName string, repositoryId int) 
 				githubPull := &models.GithubPullRequest{
 					GithubId:        pull.GithubId,
 					RepositoryId:    repositoryId,
+					Number:          pull.Number,
 					State:           pull.State,
 					Title:           pull.Title,
 					HTMLUrl:         pull.HTMLUrl,

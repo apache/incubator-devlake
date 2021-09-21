@@ -41,16 +41,16 @@ type GithubPaginationHandler func(res *http.Response) error
 func getPaginationInfoFromGitHub(resourceUriFormat string) (githubUtils.PagingInfo, int, error) {
 	// just get the first page of results. The response has a head that tells the total pages
 	paginationInfo := githubUtils.PagingInfo{
-		First: 0,
-		Last:  0,
-		Next:  0,
-		Prev:  0,
+		First: 1,
+		Last:  1,
+		Next:  1,
+		Prev:  1,
 	}
 
 	page := 0
 	page_size := 100 // This is the maximum
 	res, err := githubApiClient.Get(fmt.Sprintf(resourceUriFormat, page, page_size), nil, nil)
-
+	fmt.Println("INFO >>> res.Status get page info", res.Status)
 	if err != nil {
 		resBody, err := ioutil.ReadAll(res.Body)
 		if err != nil {
@@ -62,7 +62,6 @@ func getPaginationInfoFromGitHub(resourceUriFormat string) (githubUtils.PagingIn
 	}
 
 	linkHeader := res.Header.Get("Link")
-
 	// PagingInfo object contains Next, First, Last, and Prev page number
 
 	paginationInfo, err = githubUtils.GetPagingFromLinkHeader(linkHeader)
@@ -75,7 +74,7 @@ func getPaginationInfoFromGitHub(resourceUriFormat string) (githubUtils.PagingIn
 	remaining := res.Header.Get("X-RateLimit-Remaining")
 	rateLimitInfo, rateLimitInfoErr := githubUtils.ConvertRateLimitInfo(date, reset, remaining)
 	if rateLimitInfoErr != nil {
-		fmt.Println("ERROR >>> rateLimitInfoErr", rateLimitInfoErr)
+		fmt.Println("ERROR >>> Rate Limit Info Err: ", rateLimitInfoErr)
 	}
 	rateLimitPerSecond := githubUtils.GetRateLimitPerSecond(rateLimitInfo)
 
@@ -91,15 +90,15 @@ func (githubApiClient *GithubApiClient) FetchWithPaginationAnts(resourceUri stri
 	} else {
 		resourceUriFormat = resourceUri + "?page=%v&per_page=%v"
 	}
+
 	// We need to get the total pages first so we can loop through all requests concurrently
 	paginationInfo, rateLimitPerSecond, err := getPaginationInfoFromGitHub(resourceUriFormat)
 	if err != nil {
 		return err
 	}
-	fmt.Println("KEVIN >>> rateLimitPerSecond", rateLimitPerSecond)
 	workerNum := 50
 	// set up the worker pool
-	scheduler, err := utils.NewWorkerScheduler(workerNum, 33)
+	scheduler, err := utils.NewWorkerScheduler(workerNum, rateLimitPerSecond)
 	if err != nil {
 		return err
 	}
