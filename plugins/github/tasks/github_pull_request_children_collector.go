@@ -11,7 +11,7 @@ func CollectChildrenOnPullRequests(owner string, repositoryName string, reposito
 	var prs []models.GithubPullRequest
 	lakeModels.Db.Find(&prs)
 
-	maxWorkersPerSecond := 1 // Needs work - this is a temporary value
+	maxWorkersPerSecond := 5 // Needs work - this is a temporary value
 	scheduler, err := utils.NewWorkerScheduler(50, maxWorkersPerSecond)
 	if err != nil {
 		logger.Error("Could not create work scheduler for GitHub Pull Requests", err)
@@ -31,17 +31,12 @@ func CollectChildrenOnPullRequests(owner string, repositoryName string, reposito
 				logger.Error("Could not collect PRs to update details", reviewErr)
 				return reviewErr
 			}
-			// notesErr := tasks.CollectPullRequestNotes(projectIdInt, &pr)
-			// if notesErr != nil {
-			// 	logger.Error("Could not collect PR Notes", notesErr)
-			// 	return notesErr
-			// }
+			commentsErr := CollectPullRequestComments(&pr)
+			if commentsErr != nil {
+				logger.Error("Could not collect PR Comments", commentsErr)
+				return commentsErr
+			}
 
-			// commitsErr := tasks.CollectPullRequestCommits(projectIdInt, &pr)
-			// if commitsErr != nil {
-			// 	logger.Error("Could not collect PR Commits", commitsErr)
-			// 	return commitsErr
-			// }
 			return nil
 		})
 		if err != nil {
