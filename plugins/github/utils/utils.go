@@ -57,8 +57,10 @@ func GetRateLimitPerSecond(info RateLimitInfo) int {
 	unixResetTime := info.ResetTime.Unix()
 	unixNow := info.Date.Unix()
 	timeBetweenNowAndReset := unixResetTime - unixNow
-	// multiplier := 9 / 10
-	return info.Remaining / int(timeBetweenNowAndReset) //* multiplier
+	// Adjust the remaining to be less then actual to avoid hitting the limit exactly.
+	multiplier := 0.98
+	adjustedRemaining := float64(info.Remaining) * multiplier
+	return int(adjustedRemaining / float64(timeBetweenNowAndReset)) //* multiplier
 }
 func ConvertStringToInt(input string) (int, error) {
 	return strconv.Atoi(input)

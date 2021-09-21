@@ -48,13 +48,12 @@ func TestParseLinkHeaderEmptyString(t *testing.T) {
 func TestGetRateLimitPerSecond(t *testing.T) {
 	date := "Mon, 20 Sep 2021 18:08:38 GMT"
 	resetTime := "1632164442"
-	remaining := "3689"
+	remaining := "100000"
 
 	rateLimitInfo, err := ConvertRateLimitInfo(date, resetTime, remaining)
 	if err != nil {
 		fmt.Println("INFO >>> err", err)
 	}
 	rateLimitPerSecond := GetRateLimitPerSecond(rateLimitInfo)
-
-	fmt.Println("INFO >>> rateLimitPerSecond", rateLimitPerSecond)
+	assert.Equal(t, rateLimitPerSecond, 31)
 }
