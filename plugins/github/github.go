@@ -45,6 +45,8 @@ func (plugin Github) Execute(options map[string]interface{}, progress chan<- flo
 		logger.Error("Could not collect pull requests: ", collectPRsErr)
 		return
 	}
+	tasks.CollectChildrenOnPullRequests(ownerString, repositoryNameString, repoId)
+
 	progress <- 1
 
 	close(progress)
