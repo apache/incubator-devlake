@@ -33,10 +33,10 @@ func TestParseLinkHeader(t *testing.T) {
 func TestParseLinkHeaderEmptyString(t *testing.T) {
 	fmt.Println("INFO >>> Handles empty link string")
 	var pagingExpected = PagingInfo{
-		Next:  0,
-		Last:  0,
-		First: 0,
-		Prev:  0,
+		Next:  1,
+		Last:  1,
+		First: 1,
+		Prev:  1,
 	}
 	linkHeaderFull := ``
 	result, _ := GetPagingFromLinkHeader(linkHeaderFull)
