@@ -65,6 +65,17 @@ func CollectPullRequestCommits(pull *models.GithubPullRequest) error {
 					if err != nil {
 						logger.Error("Could not upsert: ", err)
 					}
+					GithubPullRequestCommitPullRequest := &models.GithubPullRequestCommitPullRequest{
+						PullRequestCommitSha: prCommit.Sha,
+						PullRequestId:        pull.GithubId,
+					}
+					result := lakeModels.Db.Clauses(clause.OnConflict{
+						UpdateAll: true,
+					}).Create(&GithubPullRequestCommitPullRequest)
+
+					if result.Error != nil {
+						logger.Error("Could not upsert: ", result.Error)
+					}
 				}
 			} else {
 				fmt.Println("INFO: PR PrCommit collection >>> res.Status: ", res.Status)
