@@ -33,28 +33,27 @@ func TestParseLinkHeader(t *testing.T) {
 func TestParseLinkHeaderEmptyString(t *testing.T) {
 	fmt.Println("INFO >>> Handles empty link string")
 	var pagingExpected = PagingInfo{
-		Next:  0,
-		Last:  0,
-		First: 0,
-		Prev:  0,
+		Next:  1,
+		Last:  1,
+		First: 1,
+		Prev:  1,
 	}
 	linkHeaderFull := ``
 	result, _ := GetPagingFromLinkHeader(linkHeaderFull)
 
 	assert.Equal(t, result, pagingExpected)
 }
+
+// This test is incomplete.
 func TestGetRateLimitPerSecond(t *testing.T) {
-	fmt.Println("KEVIN >>> hello")
-	date := "Fri, 17 Sep 2021 16:40:23 GMT"
-	resetTime := "1631899671"
-	remaining := "4970"
+	date := "Mon, 20 Sep 2021 18:08:38 GMT"
+	resetTime := "1632164442"
+	remaining := "100000"
 
 	rateLimitInfo, err := ConvertRateLimitInfo(date, resetTime, remaining)
 	if err != nil {
-		fmt.Println("KEVIN >>> err", err)
+		fmt.Println("INFO >>> err", err)
 	}
-	fmt.Println("KEVIN >>> rateLimitInfo", rateLimitInfo)
 	rateLimitPerSecond := GetRateLimitPerSecond(rateLimitInfo)
-
-	fmt.Println("KEVIN >>> rateLimitPerSecond", rateLimitPerSecond)
+	assert.Equal(t, rateLimitPerSecond, 31)
 }

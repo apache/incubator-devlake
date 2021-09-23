@@ -17,10 +17,21 @@ type Pull struct {
 	GithubId        int `json:"id"`
 	State           string
 	Title           string
+	Number          int
+	CommentsUrl     string `json:"comments_url"`
+	CommitsUrl      string `json:"commits_url"`
 	HTMLUrl         string `json:"html_url"`
 	MergedAt        string `json:"merged_at"`
 	GithubCreatedAt string `json:"created_at"`
 	ClosedAt        string `json:"closed_at"`
+	Labels          []Label
+}
+
+type Label struct {
+	Id          int
+	Name        string
+	Description string
+	Url         string
 }
 
 func CollectPullRequests(owner string, repositoryName string, repositoryId int) error {
@@ -38,8 +49,11 @@ func CollectPullRequests(owner string, repositoryName string, repositoryId int) 
 				githubPull := &models.GithubPullRequest{
 					GithubId:        pull.GithubId,
 					RepositoryId:    repositoryId,
+					Number:          pull.Number,
 					State:           pull.State,
 					Title:           pull.Title,
+					CommentsUrl:     pull.CommentsUrl,
+					CommitsUrl:      pull.CommitsUrl,
 					HTMLUrl:         pull.HTMLUrl,
 					MergedAt:        pull.MergedAt,
 					GithubCreatedAt: pull.GithubCreatedAt,
@@ -49,7 +63,22 @@ func CollectPullRequests(owner string, repositoryName string, repositoryId int) 
 					UpdateAll: true,
 				}).Create(&githubPull).Error
 				if err != nil {
-					logger.Error("Could not upsert: ", err)
+					logger.Error("Could not upsert pull request: ", err)
+				}
+				for _, label := range pull.Labels {
+					githubLabel := &models.GithubPullRequestLabel{
+						GithubId:      label.Id,
+						Name:          label.Name,
+						Description:   label.Description,
+						Url:           label.Url,
+						PullRequestId: pull.GithubId,
+					}
+					err = lakeModels.Db.Clauses(clause.OnConflict{
+						UpdateAll: true,
+					}).Create(&githubLabel).Error
+					if err != nil {
+						logger.Error("Could not upsert label: ", err)
+					}
 				}
 			}
 			return nil

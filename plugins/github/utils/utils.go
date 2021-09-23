@@ -2,14 +2,11 @@ package utils
 
 import (
 	"errors"
-	"fmt"
 	"net/http"
 	"regexp"
 	"strconv"
 	"strings"
 	"time"
-
-	"github.com/merico-dev/lake/logger"
 )
 
 type PagingInfo struct {
@@ -26,38 +23,54 @@ type RateLimitInfo struct {
 }
 
 func ConvertRateLimitInfo(date string, resetTime string, remaining string) (RateLimitInfo, error) {
-	convertedDate, err := http.ParseTime(date)
-	if err != nil {
-		fmt.Println("Convert error: ", err)
+	var rateLimitInfo RateLimitInfo
+	var err error
+	if date != "" {
+		rateLimitInfo.Date, err = http.ParseTime(date)
+		if err != nil {
+			return rateLimitInfo, err
+		}
+	} else {
+		return rateLimitInfo, errors.New("Rate limit date was an empty string")
 	}
-	resetInt, err := strconv.ParseInt(resetTime, 10, 64)
-	if err != nil {
-		fmt.Println("Convert error: ", err)
+	if resetTime != "" {
+		resetInt, err := strconv.ParseInt(resetTime, 10, 64)
+		if err != nil {
+			return rateLimitInfo, err
+		}
+		rateLimitInfo.ResetTime = time.Unix(resetInt, 0)
+	} else {
+		return rateLimitInfo, errors.New("Rate limit reset time was an empty string")
 	}
-	convertedResetTime := time.Unix(resetInt, 0)
-	convertedRemaining, err := strconv.Atoi(remaining)
-	if err != nil {
-		logger.Error("Convert error: ", err)
+	if remaining != "" {
+		rateLimitInfo.Remaining, err = strconv.Atoi(remaining)
+		if err != nil {
+			return rateLimitInfo, err
+		}
+	} else {
+		return rateLimitInfo, errors.New("Rate remaining was an empty string")
 	}
-	return RateLimitInfo{
-		Date:      convertedDate,
-		ResetTime: convertedResetTime,
-		Remaining: convertedRemaining,
-	}, nil
+	return rateLimitInfo, nil
 }
 
 func GetRateLimitPerSecond(info RateLimitInfo) int {
-	return info.Remaining / int(info.ResetTime.Unix()-info.Date.Unix()) * 9 / 10
+	unixResetTime := info.ResetTime.Unix()
+	unixNow := info.Date.Unix()
+	timeBetweenNowAndReset := unixResetTime - unixNow
+	// Adjust the remaining to be less then actual to avoid hitting the limit exactly.
+	multiplier := 0.98
+	adjustedRemaining := float64(info.Remaining) * multiplier
+	return int(adjustedRemaining / float64(timeBetweenNowAndReset)) //* multiplier
 }
 func ConvertStringToInt(input string) (int, error) {
 	return strconv.Atoi(input)
 }
 func GetPagingFromLinkHeader(link string) (PagingInfo, error) {
 	result := PagingInfo{
-		Next:  0,
-		Last:  0,
-		Prev:  0,
-		First: 0,
+		Next:  1,
+		Last:  1,
+		Prev:  1,
+		First: 1,
 	}
 	linksArray := strings.Split(link, ",")
 	pattern1 := regexp.MustCompile(`page=*[0-9]+`)
