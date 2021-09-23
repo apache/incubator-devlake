@@ -1,12 +1,10 @@
 package models
 
-import (
-	"github.com/merico-dev/lake/models"
-)
+import "github.com/merico-dev/lake/models"
 
-type GithubCommit struct {
+type GithubPullRequestCommit struct {
 	Sha            string `gorm:"primaryKey"`
-	RepositoryId   int    `gorm:"index"`
+	PullRequestId  int    `gorm:"index"` // This value links to pull request
 	AuthorName     string
 	AuthorEmail    string
 	AuthoredDate   string
@@ -15,8 +13,6 @@ type GithubCommit struct {
 	CommittedDate  string
 	Message        string
 	Url            string
-	Additions      int
-	Deletions      int
 
 	models.NoPKModel
 }
