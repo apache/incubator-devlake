@@ -48,6 +48,11 @@ func (plugin Github) Execute(options map[string]interface{}, progress chan<- flo
 	}
 	tasks.CollectChildrenOnPullRequests(ownerString, repositoryNameString, repoId)
 
+	collectIssuesErr := tasks.CollectIssues(ownerString, repositoryNameString, repoId)
+	if collectIssuesErr != nil {
+		logger.Error("Could not collect issues: ", collectIssuesErr)
+		return
+	}
 	progress <- 1
 
 	close(progress)
