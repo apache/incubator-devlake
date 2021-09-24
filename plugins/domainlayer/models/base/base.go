@@ -1,8 +1,8 @@
 package base
 
-import "gorm.io/gorm"
+import "github.com/merico-dev/lake/models"
 
 type DomainEntity struct {
-	gorm.Model
-	OriginKey string `json:"originKey" gorm:"type:varchar(255);uniqueIndex"` // format: <Plugin>:<Entity>:<PK0>:<PK1>
+	OriginKey string `json:"originKey" gorm:"primaryKey;type:varchar(255)"` // format: <Plugin>:<Entity>:<PK0>:<PK1>
+	models.NoPKModel
 }
