@@ -9,6 +9,11 @@ func GetReviewRounds(commits []gitlabModels.GitlabMergeRequestCommit, notes []gi
 	i := 0
 	j := 0
 	reviewRounds := 0
+
+	if len(commits) == 0 && len(notes) == 0 {
+		return 1
+	}
+
 	// state is used to keep track of previous activity
 	// 0: init, 1: commit, 2: comment
 	// whenever state is switched to comment, we increment reviewRounds by 1
