@@ -17,6 +17,16 @@ func (plugin Gitlab) Description() string {
 func (plugin Gitlab) Execute(options map[string]interface{}, progress chan<- float32) {
 	logger.Print("start gitlab plugin execution")
 
+	// Gilab's authenticated api rate limit is 2000 per min
+	// 30 tasks/min 60s/min = 1800 per min < 2000 per min
+	// You would think this would work but it hits the rate limit every time. I have to play with the number to see the right way to set it
+	scheduler, err := utils.NewWorkerScheduler(50, 15)
+	defer scheduler.Release()
+	if err != nil {
+		logger.Error("Could not create scheduler", true)
+		return
+	}
+
 	projectId, ok := options["projectId"]
 	if !ok {
 		logger.Print("projectId is required for gitlab execution")
@@ -31,12 +41,12 @@ func (plugin Gitlab) Execute(options map[string]interface{}, progress chan<- flo
 
 	progress <- 0.1
 
-	if err := tasks.CollectAllPipelines(projectIdInt); err != nil {
+	if err := tasks.CollectAllPipelines(projectIdInt, scheduler); err != nil {
 		logger.Error("Could not collect projects: ", err)
 		return
 	}
 
-	tasks.CollectChildrenOnPipelines(projectIdInt)
+	tasks.CollectChildrenOnPipelines(projectIdInt, scheduler)
 
 	progress <- 0.2
 
@@ -47,14 +57,14 @@ func (plugin Gitlab) Execute(options map[string]interface{}, progress chan<- flo
 
 	progress <- 0.25
 
-	if err := tasks.CollectCommits(projectIdInt); err != nil {
+	if err := tasks.CollectCommits(projectIdInt, scheduler); err != nil {
 		logger.Error("Could not collect commits: ", err)
 		return
 	}
 
 	progress <- 0.3
 
-	mergeRequestErr := tasks.CollectMergeRequests(projectIdInt)
+	mergeRequestErr := tasks.CollectMergeRequests(projectIdInt, scheduler)
 	if mergeRequestErr != nil {
 		logger.Error("Could not collect merge requests: ", mergeRequestErr)
 		return
@@ -62,7 +72,7 @@ func (plugin Gitlab) Execute(options map[string]interface{}, progress chan<- flo
 
 	progress <- 0.4
 
-	collectChildrenOnMergeRequests(projectIdInt)
+	collectChildrenOnMergeRequests(projectIdInt, scheduler)
 
 	progress <- 0.8
 
@@ -77,17 +87,10 @@ func (plugin Gitlab) Execute(options map[string]interface{}, progress chan<- flo
 
 }
 
-func collectChildrenOnMergeRequests(projectIdInt int) {
+func collectChildrenOnMergeRequests(projectIdInt int, scheduler *utils.WorkerScheduler) {
 	// find all mrs from db
 	var mrs []gitlabModels.GitlabMergeRequest
 	lakeModels.Db.Find(&mrs)
-
-	// Gilab's authenticated api rate limit is 2000 per min
-	// 15 tasks/s* ~2 requests/task * 60s/min = 1800 per min < 2000 per min
-	scheduler, err := utils.NewWorkerScheduler(50, 15)
-	if err != nil {
-		logger.Error("Could not create work scheduler", err)
-	}
 
 	for i := 0; i < len(mrs); i++ {
 		mr := (mrs)[i]
@@ -99,6 +102,20 @@ func collectChildrenOnMergeRequests(projectIdInt int) {
 				return notesErr
 			}
 
+			return nil
+		})
+		if err != nil {
+			logger.Error("err", err)
+			return
+		}
+	}
+
+	scheduler.WaitUntilFinish()
+
+	for i := 0; i < len(mrs); i++ {
+		mr := (mrs)[i]
+
+		err := scheduler.Submit(func() error {
 			commitsErr := tasks.CollectMergeRequestCommits(projectIdInt, &mr)
 			if commitsErr != nil {
 				logger.Error("Could not collect MR Commits", commitsErr)
@@ -113,6 +130,7 @@ func collectChildrenOnMergeRequests(projectIdInt int) {
 	}
 
 	scheduler.WaitUntilFinish()
+
 }
 
 // Export a variable named PluginEntry for Framework to search and load
