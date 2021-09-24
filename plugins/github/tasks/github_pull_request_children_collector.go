@@ -25,12 +25,12 @@ func CollectChildrenOnPullRequests(owner string, repositoryName string, reposito
 				logger.Error("Could not collect PR reviews", reviewErr)
 				return reviewErr
 			}
-			commentsErr := CollectPullRequestComments(&pr)
+			commentsErr := CollectPullRequestComments(owner, repositoryName, &pr)
 			if commentsErr != nil {
 				logger.Error("Could not collect PR Comments", commentsErr)
 				return commentsErr
 			}
-			commitsErr := CollectPullRequestCommits(&pr)
+			commitsErr := CollectPullRequestCommits(owner, repositoryName, &pr)
 			if commitsErr != nil {
 				logger.Error("Could not collect PR Comments", commitsErr)
 				return commitsErr
