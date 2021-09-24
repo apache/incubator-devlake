@@ -84,7 +84,7 @@ func convertStringToInt(input string) (int, error) {
 }
 
 // run all requests in an Ants worker pool
-func (gitlabApiClient *GitlabApiClient) FetchWithPaginationAnts(resourceUri string, pageSize int, handler GitlabPaginationHandler) error {
+func (gitlabApiClient *GitlabApiClient) FetchWithPaginationAnts(scheduler *utils.WorkerScheduler, resourceUri string, pageSize int, handler GitlabPaginationHandler) error {
 
 	var resourceUriFormat string
 	if strings.ContainsAny(resourceUri, "?") {
@@ -93,19 +93,10 @@ func (gitlabApiClient *GitlabApiClient) FetchWithPaginationAnts(resourceUri stri
 		resourceUriFormat = resourceUri + "?per_page=%v&page=%v"
 	}
 	// We need to get the total pages first so we can loop through all requests concurrently
-	total, rateLimitPerSecond, err := getTotal(resourceUriFormat)
+	total, _, err := getTotal(resourceUriFormat)
 	if err != nil {
 		return err
 	}
-
-	workerNum := 50
-	// set up the worker pool
-	scheduler, err := utils.NewWorkerScheduler(workerNum, rateLimitPerSecond)
-	if err != nil {
-		return err
-	}
-
-	defer scheduler.Release()
 
 	// not all api return x-total header, use step concurrency
 	if total == -1 {

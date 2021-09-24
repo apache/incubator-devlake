@@ -36,10 +36,10 @@ type ApiSinglePipelineResponse struct {
 	Status          string
 }
 
-func CollectAllPipelines(projectId int) error {
+func CollectAllPipelines(projectId int, scheduler *utils.WorkerScheduler) error {
 	gitlabApiClient := CreateApiClient()
 
-	return gitlabApiClient.FetchWithPaginationAnts(fmt.Sprintf("projects/%v/pipelines?order_by=updated_at&sort=desc", projectId), 100,
+	return gitlabApiClient.FetchWithPaginationAnts(scheduler, fmt.Sprintf("projects/%v/pipelines?order_by=updated_at&sort=desc", projectId), 100,
 		func(res *http.Response) error {
 
 			apiPipelineResponse := &ApiPipelineResponse{}
@@ -74,20 +74,11 @@ func CollectAllPipelines(projectId int) error {
 		})
 }
 
-func CollectChildrenOnPipelines(projectIdInt int) {
+func CollectChildrenOnPipelines(projectIdInt int, scheduler *utils.WorkerScheduler) {
 	gitlabApiClient := CreateApiClient()
 
 	var pipelines []gitlabModels.GitlabPipeline
 	lakeModels.Db.Find(&pipelines)
-
-	// Gilab's authenticated api rate limit is 2000 per min
-	// 15 tasks/s* ~2 requests/task * 60s/min = 1800 per min < 2000 per min
-	scheduler, err := utils.NewWorkerScheduler(50, 15)
-	if err != nil {
-		logger.Error("err", err)
-	}
-
-	defer scheduler.Release()
 
 	for i := 0; i < len(pipelines); i++ {
 		pipeline := (pipelines)[i]
