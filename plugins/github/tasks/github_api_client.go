@@ -47,7 +47,7 @@ func getPaginationInfoFromGitHub(resourceUriFormat string) (githubUtils.PagingIn
 		Prev:  1,
 	}
 
-	page := 0
+	page := 1
 	page_size := 100 // This is the maximum
 	res, err := githubApiClient.Get(fmt.Sprintf(resourceUriFormat, page, page_size), nil, nil)
 	fmt.Println("INFO >>> res.Status get page info", res.Status)
@@ -65,6 +65,7 @@ func getPaginationInfoFromGitHub(resourceUriFormat string) (githubUtils.PagingIn
 	// PagingInfo object contains Next, First, Last, and Prev page number
 
 	paginationInfo, err = githubUtils.GetPagingFromLinkHeader(linkHeader)
+	logger.Info("JON >>> paginationInfo", paginationInfo)
 	if err != nil {
 		logger.Info("", err)
 	}
@@ -124,6 +125,7 @@ func (githubApiClient *GithubApiClient) FetchWithPaginationAnts(resourceUri stri
 					}
 					linkHeader := res.Header.Get("Link")
 					paginationInfo2, getPagingErr := githubUtils.GetPagingFromLinkHeader(linkHeader)
+					logger.Info("JON >>> paginationInfo", paginationInfo)
 					if getPagingErr != nil {
 						logger.Info("GetPagingFromLinkHeader err: ", getPagingErr)
 					}

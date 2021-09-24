@@ -41,18 +41,14 @@ func (plugin Github) Execute(options map[string]interface{}, progress chan<- flo
 	}
 	tasks.CollectChildrenOnCommits(ownerString, repositoryNameString, repoId)
 
-	collectPRsErr := tasks.CollectPullRequests(ownerString, repositoryNameString, repoId)
-	if collectPRsErr != nil {
-		logger.Error("Could not collect pull requests: ", collectPRsErr)
-		return
-	}
-	tasks.CollectChildrenOnPullRequests(ownerString, repositoryNameString, repoId)
-
 	collectIssuesErr := tasks.CollectIssues(ownerString, repositoryNameString, repoId)
 	if collectIssuesErr != nil {
 		logger.Error("Could not collect issues: ", collectIssuesErr)
 		return
 	}
+
+	tasks.CollectChildrenOnPullRequests(ownerString, repositoryNameString, repoId)
+
 	progress <- 1
 
 	close(progress)

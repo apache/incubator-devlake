@@ -7,6 +7,7 @@ import (
 	"testing"
 
 	"github.com/magiconair/properties/assert"
+	"github.com/merico-dev/lake/logger"
 )
 
 // TestParseLinkHeader calls utils.TestParseLinkHeader with a Link header string, checking
@@ -24,6 +25,7 @@ func TestParseLinkHeader(t *testing.T) {
   <https://api.github.com/search/code?q=addClass+user%3Amozilla&page=1>; rel="first",
   <https://api.github.com/search/code?q=addClass+user%3Amozilla&page=13>; rel="prev"`
 	result, err := GetPagingFromLinkHeader(linkHeaderFull)
+	logger.Info("JON >>> paginationInfo", result)
 	if err != nil {
 		fmt.Println("ERROR: could not get paging from link header", err)
 
@@ -39,9 +41,10 @@ func TestParseLinkHeaderEmptyString(t *testing.T) {
 		Prev:  1,
 	}
 	linkHeaderFull := ``
-	result, _ := GetPagingFromLinkHeader(linkHeaderFull)
+	paginationInfo, _ := GetPagingFromLinkHeader(linkHeaderFull)
+	logger.Info("JON >>> paginationInfo", paginationInfo)
 
-	assert.Equal(t, result, pagingExpected)
+	assert.Equal(t, paginationInfo, pagingExpected)
 }
 
 // This test is incomplete.

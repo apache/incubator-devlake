@@ -3,9 +3,7 @@ package tasks
 import (
 	"fmt"
 	"net/http"
-	"strings"
 
-	"github.com/merico-dev/lake/config"
 	"github.com/merico-dev/lake/logger"
 	lakeModels "github.com/merico-dev/lake/models"
 	"github.com/merico-dev/lake/plugins/core"
@@ -34,9 +32,9 @@ type PrCommit struct {
 	Message string
 }
 
-func CollectPullRequestCommits(pull *models.GithubPullRequest) error {
+func CollectPullRequestCommits(owner string, repositoryName string, pull *models.GithubPullRequest) error {
 	githubApiClient := CreateApiClient()
-	getUrl := strings.Replace(pull.CommitsUrl, config.V.GetString("GITHUB_ENDPOINT"), "", 1)
+	getUrl := fmt.Sprintf("repos/%v/%v/pulls/%v/commits", owner, repositoryName, pull.Number)
 	return githubApiClient.FetchWithPaginationAnts(getUrl, 100,
 		func(res *http.Response) error {
 			githubApiResponse := &ApiPullRequestCommitResponse{}
