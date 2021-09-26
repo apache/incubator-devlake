@@ -74,5 +74,9 @@ func (plugin Compound) Execute(options map[string]interface{}, progress chan<- f
 	close(progress)
 }
 
+func (plugin Compound) RootPkgPath() string {
+	return "github.com/merico-dev/lake/plugins/compound"
+}
+
 // Export a variable named PluginEntry for Framework to search and load
 var PluginEntry Compound //nolint

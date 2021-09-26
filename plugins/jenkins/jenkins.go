@@ -56,4 +56,8 @@ func (j Jenkins) Execute(options map[string]interface{}, progress chan<- float32
 	worker.SyncJobs(progress)
 }
 
+func (plugin Jenkins) RootPkgPath() string {
+	return "github.com/merico-dev/lake/plugins/jenkins"
+}
+
 var PluginEntry Jenkins //nolint
