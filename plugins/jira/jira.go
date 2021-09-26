@@ -98,5 +98,9 @@ func (plugin Jira) Execute(options map[string]interface{}, progress chan<- float
 	close(progress)
 }
 
+func (plugin Jira) RootPkgPath() string {
+	return "github.com/merico-dev/lake/plugins/jira"
+}
+
 // Export a variable named PluginEntry for Framework to search and load
 var PluginEntry Jira //nolint

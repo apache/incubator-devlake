@@ -133,5 +133,9 @@ func collectChildrenOnMergeRequests(projectIdInt int, scheduler *utils.WorkerSch
 
 }
 
+func (plugin Gitlab) RootPkgPath() string {
+	return "github.com/merico-dev/lake/plugins/gitlab"
+}
+
 // Export a variable named PluginEntry for Framework to search and load
 var PluginEntry Gitlab //nolint

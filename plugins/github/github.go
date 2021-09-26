@@ -55,5 +55,9 @@ func (plugin Github) Execute(options map[string]interface{}, progress chan<- flo
 
 }
 
+func (plugin Github) RootPkgPath() string {
+	return "github.com/merico-dev/lake/plugins/github"
+}
+
 // Export a variable named PluginEntry for Framework to search and load
 var PluginEntry Github //nolint

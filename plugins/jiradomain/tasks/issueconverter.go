@@ -1,31 +1,17 @@
 package tasks
 
 import (
-	"fmt"
-
 	lakeModels "github.com/merico-dev/lake/models"
+	domainlayerBase "github.com/merico-dev/lake/plugins/domainlayer/models/base"
 	"github.com/merico-dev/lake/plugins/domainlayer/models/ticket"
+	"github.com/merico-dev/lake/plugins/domainlayer/okgen"
 	jiraModels "github.com/merico-dev/lake/plugins/jira/models"
+	"gorm.io/gorm/clause"
 )
 
 func ConvertIssues(boardId uint64) error {
-	jiraBoard := &jiraModels.JiraBoard{}
 
-	err := lakeModels.Db.First(jiraBoard, boardId).Error
-	if err != nil {
-		return err
-	}
-
-	board := &ticket.Board{
-		DomainEntity: DomainEntity{
-			OriginKey: fmt.Sprintf("jira:jira_board:%v", boardId),
-		},
-		Name: jiraBoard.Name,
-		Url:  jiraBoard.Self,
-	}
-
-	err = lakeModels.Db.Clauses(clauses.OnConflict{UpdateAll: true}).Create(board)
-
+	jiraIssue := &jiraModels.JiraIssue{}
 	// select all issues belongs to the board
 	cursor, err := lakeModels.Db.Model(jiraIssue).
 		Select("jira_issues.*").
@@ -36,20 +22,34 @@ func ConvertIssues(boardId uint64) error {
 		return err
 	}
 
+	boardOriginKey := okgen.NewOriginKeyGenerator(&jiraModels.JiraBoard{}).Generate(boardId)
+	issueOriginKeyGenerator := okgen.NewOriginKeyGenerator(&jiraModels.JiraIssue{})
+
 	// iterate all rows
 	for cursor.Next() {
 		err = lakeModels.Db.ScanRows(cursor, jiraIssue)
 		if err != nil {
 			return err
 		}
-		ticket.Board
-		if jiraIssue.ResolutionDate.Valid {
-			jiraIssue.LeadTime = uint(jiraIssue.ResolutionDate.Time.Unix()-jiraIssue.Created.Unix()) / 60
+		issue := &ticket.Issue{
+			DomainEntity: domainlayerBase.DomainEntity{
+				OriginKey: issueOriginKeyGenerator.Generate(jiraIssue.ID),
+			},
+			BoardOriginKey: boardOriginKey,
+			Url:            jiraIssue.Self,
+			Key:            jiraIssue.Key,
+			Summary:        jiraIssue.Summary,
+			EpicKey:        jiraIssue.EpicKey,
+			Type:           jiraIssue.StdType,
+			Status:         jiraIssue.StdStatus,
+			StoryPoint:     jiraIssue.StdStoryPoint,
+			ResolutionDate: jiraIssue.ResolutionDate,
+			CreatedDate:    jiraIssue.Created,
+			UpdatedDate:    jiraIssue.Updated,
+			LeadTime:       jiraIssue.LeadTime,
 		}
-		jiraIssue.StdStoryPoint = uint(jiraIssue.StoryPoint * storyPointCoefficient)
-		jiraIssue.StdType = getStdType(jiraIssue)
-		jiraIssue.StdStatus = getStdStatus(jiraIssue)
-		err = lakeModels.Db.Save(jiraIssue).Error
+
+		err = lakeModels.Db.Clauses(clause.OnConflict{UpdateAll: true}).Create(issue).Error
 		if err != nil {
 			return err
 		}
