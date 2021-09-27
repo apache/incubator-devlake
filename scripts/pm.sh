@@ -102,4 +102,17 @@ tasks() {
     curl -v $LAKE_TASK_URL?status=$1 | jq
 }
 
+jiradomain() {
+    curl -v -XPOST $LAKE_TASK_URL --data @- <<'    JSON'
+    [
+        {
+            "plugin": "jiradomain",
+            "options": {
+                "boardId": 8
+            }
+        }
+    ]
+    JSON
+}
+
 "$@"
