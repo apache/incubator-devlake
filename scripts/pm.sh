@@ -115,4 +115,15 @@ jiradomain() {
     JSON
 }
 
+jenkinsdomain() {
+    curl -v -XPOST $LAKE_TASK_URL --data @- <<'    JSON'
+    [
+        {
+            "plugin": "jenkinsdomain",
+            "options": {}
+        }
+    ]
+    JSON
+}
+
 "$@"

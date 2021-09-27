@@ -3,6 +3,7 @@ package main // must be main for plugin entry point
 import (
 	lakeModels "github.com/merico-dev/lake/models"
 	"github.com/merico-dev/lake/plugins/domainlayer/models/code"
+	"github.com/merico-dev/lake/plugins/domainlayer/models/devops"
 	"github.com/merico-dev/lake/plugins/domainlayer/models/ticket"
 )
 
@@ -18,6 +19,8 @@ func (plugin DomainLayer) Init() {
 		&ticket.Board{},
 		&ticket.Issue{},
 		&ticket.Changelog{},
+		&devops.Job{},
+		&devops.Build{},
 	)
 	if err != nil {
 		panic(err)
