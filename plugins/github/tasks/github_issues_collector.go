@@ -54,7 +54,6 @@ func CollectIssues(owner string, repositoryName string, repositoryId int) error 
 			}
 
 			for _, issue := range *githubApiResponse {
-				logger.Info("JON >>> issue.PullRequest.Url", issue.PullRequest.Url)
 				if issue.PullRequest.Url == "" {
 					// This is an issue from github
 					githubIssue := &models.GithubIssue{
