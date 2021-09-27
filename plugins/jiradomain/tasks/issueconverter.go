@@ -21,6 +21,7 @@ func ConvertIssues(boardId uint64) error {
 	if err != nil {
 		return err
 	}
+	defer cursor.Close()
 
 	boardOriginKey := okgen.NewOriginKeyGenerator(&jiraModels.JiraBoard{}).Generate(boardId)
 	issueOriginKeyGenerator := okgen.NewOriginKeyGenerator(&jiraModels.JiraIssue{})
