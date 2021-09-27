@@ -8,6 +8,7 @@ import (
 	lakeModels "github.com/merico-dev/lake/models"
 	"github.com/merico-dev/lake/plugins/core"
 	"github.com/merico-dev/lake/plugins/github/models"
+	"github.com/merico-dev/lake/utils"
 	"gorm.io/gorm/clause"
 )
 
@@ -21,10 +22,10 @@ type Comment struct {
 	}
 }
 
-func CollectPullRequestComments(owner string, repositoryName string, pull *models.GithubPullRequest) error {
+func CollectPullRequestComments(owner string, repositoryName string, pull *models.GithubPullRequest, scheduler *utils.WorkerScheduler) error {
 	githubApiClient := CreateApiClient()
 	getUrl := fmt.Sprintf("repos/%v/%v/issues/%v/comments", owner, repositoryName, pull.Number)
-	return githubApiClient.FetchWithPaginationAnts(getUrl, 100,
+	return githubApiClient.FetchWithPaginationAnts(getUrl, 100, 1, scheduler,
 		func(res *http.Response) error {
 			githubApiResponse := &ApiPullRequestCommentResponse{}
 			if res.StatusCode == 200 {
