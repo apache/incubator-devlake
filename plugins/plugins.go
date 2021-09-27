@@ -1,26 +1,22 @@
 package plugins
 
 import (
-	"errors"
 	"fmt"
-	"github.com/merico-dev/lake/config"
 	"io/fs"
 	"path"
 	"path/filepath"
 	"plugin"
 	"strings"
 
+	"github.com/merico-dev/lake/config"
+
 	"github.com/merico-dev/lake/logger"
 
 	. "github.com/merico-dev/lake/plugins/core"
 )
 
-// Plugins store all plugins
-var Plugins map[string]Plugin
-
 // LoadPlugins load plugins from local directory
 func LoadPlugins(pluginsDir string) error {
-	Plugins = make(map[string]Plugin)
 	walkErr := filepath.WalkDir(pluginsDir, func(path string, d fs.DirEntry, err error) error {
 		if err != nil {
 			return err
@@ -28,7 +24,7 @@ func LoadPlugins(pluginsDir string) error {
 		fileName := d.Name()
 		println(fileName, path)
 		if strings.HasSuffix(fileName, ".so") {
-			pluginName := fileName[0:len(d.Name())-3]
+			pluginName := fileName[0 : len(d.Name())-3]
 			plug, loadErr := plugin.Open(path)
 			if loadErr != nil {
 				return loadErr
@@ -42,9 +38,12 @@ func LoadPlugins(pluginsDir string) error {
 				return fmt.Errorf("%v PluginEntry must implement Plugin interface", pluginName)
 			}
 			plugEntry.Init()
-			logger.Info(`[plugin-core] init a plugin success`, pluginName)
-			Plugins[pluginName] = plugEntry
-			logger.Info("[plugin-core] plugin loaded", pluginName)
+			logger.Info(`[plugins] init a plugin success`, pluginName)
+			err = RegisterPlugin(pluginName, plugEntry)
+			if err != nil {
+				return nil
+			}
+			logger.Info("[plugins] plugin loaded", pluginName)
 		}
 		return nil
 	})
@@ -52,14 +51,11 @@ func LoadPlugins(pluginsDir string) error {
 }
 
 func RunPlugin(name string, options map[string]interface{}, progress chan<- float32) error {
-	if Plugins == nil {
-		return errors.New("plugins have to be loaded first, please call LoadPlugins beforehand")
+	plugin, err := GetPlugin(name)
+	if err != nil {
+		return err
 	}
-	p, ok := Plugins[name]
-	if !ok {
-		return fmt.Errorf("unable to find plugin with name %v", name)
-	}
-	p.Execute(options, progress)
+	plugin.Execute(options, progress)
 	return nil
 }
 

@@ -11,7 +11,7 @@ type Issue struct {
 	base.DomainEntity
 
 	// collected fields
-	BoardId        uint64
+	BoardOriginKey string `gorm:"index"`
 	Url            string
 	Key            string
 	Summary        string

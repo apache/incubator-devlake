@@ -1,12 +1,14 @@
 package plugins
 
 import (
-	"github.com/magiconair/properties/assert"
-	"github.com/merico-dev/lake/config"
-	"github.com/merico-dev/lake/plugins"
 	"path"
 	"strings"
 	"testing"
+
+	"github.com/magiconair/properties/assert"
+	"github.com/merico-dev/lake/config"
+	"github.com/merico-dev/lake/plugins"
+	"github.com/merico-dev/lake/plugins/core"
 )
 
 func TestPluginsLoading(t *testing.T) {
@@ -14,7 +16,7 @@ func TestPluginsLoading(t *testing.T) {
 	if err != nil {
 		t.Errorf("Failed to LoadPlugins %v", err)
 	}
-	if len(plugins.Plugins) == 0 {
+	if len(core.AllPlugins()) == 0 {
 		t.Errorf("No plugin found")
 	}
 
