@@ -1,5 +1,7 @@
 #!/bin/sh
 
+set -e
+
 SCRIPT_DIR="$( cd "$( dirname "$0" )" && pwd )"
 PLUGIN_SRC_DIR=$SCRIPT_DIR/../plugins
 PLUGIN_OUTPUT_DIR=$SCRIPT_DIR/../bin/plugins
