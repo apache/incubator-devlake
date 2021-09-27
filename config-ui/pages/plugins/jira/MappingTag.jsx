@@ -1,9 +1,9 @@
 import { Tooltip, Position, FormGroup, Label, Tag, TagInput } from '@blueprintjs/core'
 import styles from '../../../styles/Home.module.css'
 
-const MappingTag = ({labelIntent, labelName, onChange, rightElement, helperText, values}) => {
+const MappingTag = ({labelIntent, labelName, onChange, rightElement, helperText, typeOrStatus, values}) => {
   return <>
-    <p>Tags related to&nbsp;&nbsp;<Tag intent={labelIntent}>{labelName}</Tag></p>
+    <p>Issue {typeOrStatus === 'type' ? 'types' : 'statuses' } mapped to&nbsp;&nbsp;<Tag intent={labelIntent}>{labelName}</Tag></p>
 
     <div className={styles.formContainer}>
       <FormGroup

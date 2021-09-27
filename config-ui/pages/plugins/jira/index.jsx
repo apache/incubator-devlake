@@ -215,13 +215,14 @@ export default function Home(props) {
             </div>
 
             <div className={styles.headlineContainer}>
-              <h3 className={styles.headline}>Type Mappings</h3>
-              <p className={styles.description}>Connect custom label types to the default Jira types</p>
+              <h3 className={styles.headline}>Issue Type Mappings</h3>
+              <p className={styles.description}>Map your own issue types to Dev Lake's standard types</p>
             </div>
 
             <MappingTag
               labelName="Bug"
               labelIntent="danger"
+              typeOrStatus="type"
               values={typeMappingBug}
               helperText="JIRA_ISSUE_TYPE_MAPPING"
               rightElement={<ClearButton onClick={() => setTypeMappingBug([])} />}
@@ -231,6 +232,7 @@ export default function Home(props) {
             <MappingTag
               labelName="Incident"
               labelIntent="warning"
+              typeOrStatus="type"
               values={typeMappingIncident}
               helperText="JIRA_ISSUE_TYPE_MAPPING"
               rightElement={<ClearButton onClick={() => setTypeMappingIncident([])} />}
@@ -240,6 +242,7 @@ export default function Home(props) {
             <MappingTag
               labelName="Requirement"
               labelIntent="primary"
+              typeOrStatus="type"
               values={typeMappingRequirement}
               helperText="JIRA_ISSUE_TYPE_MAPPING"
               rightElement={<ClearButton onClick={() => setTypeMappingRequirement([])} />}
@@ -247,8 +250,8 @@ export default function Home(props) {
             />
 
             <div className={styles.headlineContainer}>
-              <h3 className={styles.headline}>Status Mappings</h3>
-              <p className={styles.description}>Add custom status mappings for bug, incident, story and anything else</p>
+              <h3 className={styles.headline}>Issue Status Mappings</h3>
+              <p className={styles.description}>Map your own issue statuses to Dev Lake's standard statuses for every issue type</p>
             </div>
 
             <div className={styles.formContainer}>
