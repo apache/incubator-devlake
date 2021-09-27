@@ -60,6 +60,7 @@ func CollectChangelogs(boardId uint64) error {
 	if err != nil {
 		return err
 	}
+	defer cursor.Close()
 
 	changelogScheduler, err := utils.NewWorkerScheduler(10, 50)
 	if err != nil {

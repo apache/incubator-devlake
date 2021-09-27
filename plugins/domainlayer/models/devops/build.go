@@ -1,18 +1,17 @@
 package devops
 
 import (
-	"database/sql"
 	"time"
 
 	"github.com/merico-dev/lake/plugins/domainlayer/models/base"
 )
 
-type Pipeline struct {
+type Build struct {
 	base.DomainEntity
-	RepoId       uint64
-	CommitId     uint64
+	JobOriginKey string `gorm:"index"`
+	Name         string
+	CommitSha    string
+	DurationSec  uint64
 	Status       string
-	Duration     int
 	StartedDate  time.Time
-	FinishedDate sql.NullTime
 }
