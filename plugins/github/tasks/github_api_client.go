@@ -47,7 +47,7 @@ func getPaginationInfoFromGitHub(resourceUriFormat string) (githubUtils.PagingIn
 		Prev:  1,
 	}
 
-	page := 0
+	page := 1
 	page_size := 100 // This is the maximum
 	res, err := githubApiClient.Get(fmt.Sprintf(resourceUriFormat, page, page_size), nil, nil)
 	fmt.Println("INFO >>> res.Status get page info", res.Status)

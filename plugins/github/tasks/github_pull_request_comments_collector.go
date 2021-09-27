@@ -3,9 +3,7 @@ package tasks
 import (
 	"fmt"
 	"net/http"
-	"strings"
 
-	"github.com/merico-dev/lake/config"
 	"github.com/merico-dev/lake/logger"
 	lakeModels "github.com/merico-dev/lake/models"
 	"github.com/merico-dev/lake/plugins/core"
@@ -23,9 +21,9 @@ type Comment struct {
 	}
 }
 
-func CollectPullRequestComments(pull *models.GithubPullRequest) error {
+func CollectPullRequestComments(owner string, repositoryName string, pull *models.GithubPullRequest) error {
 	githubApiClient := CreateApiClient()
-	getUrl := strings.Replace(pull.CommentsUrl, config.V.GetString("GITHUB_ENDPOINT"), "", 1)
+	getUrl := fmt.Sprintf("repos/%v/%v/issues/%v/comments", owner, repositoryName, pull.Number)
 	return githubApiClient.FetchWithPaginationAnts(getUrl, 100,
 		func(res *http.Response) error {
 			githubApiResponse := &ApiPullRequestCommentResponse{}
