@@ -4,7 +4,8 @@
 # Dev Lake
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat&logo=github&color=2370ff&labelColor=454545)](http://makeapullrequest.com)
 [![Discord](https://img.shields.io/discord/844603288082186240.svg?style=flat?label=&logo=discord&logoColor=ffffff&color=747df7&labelColor=454545)](https://discord.gg/83rDG6ydVZ)
-![badge](https://github.com/merico-dev/lake/actions/workflows/main.yml/badge.svg)
+![badge](https://github.com/merico-dev/lake/actions/workflows/test.yml/badge.svg)
+[![Go Report Card](https://goreportcard.com/badge/github.com/merico-dev/lake)](https://goreportcard.com/report/github.com/merico-dev/lake)
 
 ### What is Dev Lake?
 
