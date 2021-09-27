@@ -10,7 +10,7 @@ type Changelog struct {
 	base.DomainEntity
 
 	// collected fields
-	IssueOriginKey string
+	IssueOriginKey string `gorm:"index"`
 	AuthorId       string
 	AuthorName     string
 	FieldId        string
