@@ -27,6 +27,7 @@ func EnrichIssues(boardId uint64) error {
 	if err != nil {
 		return err
 	}
+	defer cursor.Close()
 
 	// iterate all rows
 	for cursor.Next() {
