@@ -39,9 +39,9 @@ func TestParseLinkHeaderEmptyString(t *testing.T) {
 		Prev:  1,
 	}
 	linkHeaderFull := ``
-	result, _ := GetPagingFromLinkHeader(linkHeaderFull)
+	paginationInfo, _ := GetPagingFromLinkHeader(linkHeaderFull)
 
-	assert.Equal(t, result, pagingExpected)
+	assert.Equal(t, paginationInfo, pagingExpected)
 }
 
 // This test is incomplete.
