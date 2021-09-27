@@ -31,7 +31,7 @@ func ConvertRateLimitInfo(date string, resetTime string, remaining string) (Rate
 			return rateLimitInfo, err
 		}
 	} else {
-		return rateLimitInfo, errors.New("Rate limit date was an empty string")
+		return rateLimitInfo, errors.New("rate limit date was an empty string")
 	}
 	if resetTime != "" {
 		resetInt, err := strconv.ParseInt(resetTime, 10, 64)
@@ -40,7 +40,7 @@ func ConvertRateLimitInfo(date string, resetTime string, remaining string) (Rate
 		}
 		rateLimitInfo.ResetTime = time.Unix(resetInt, 0)
 	} else {
-		return rateLimitInfo, errors.New("Rate limit reset time was an empty string")
+		return rateLimitInfo, errors.New("rate limit reset time was an empty string")
 	}
 	if remaining != "" {
 		rateLimitInfo.Remaining, err = strconv.Atoi(remaining)
@@ -48,7 +48,7 @@ func ConvertRateLimitInfo(date string, resetTime string, remaining string) (Rate
 			return rateLimitInfo, err
 		}
 	} else {
-		return rateLimitInfo, errors.New("Rate remaining was an empty string")
+		return rateLimitInfo, errors.New("rate remaining was an empty string")
 	}
 	return rateLimitInfo, nil
 }
@@ -105,11 +105,11 @@ func GetPagingFromLinkHeader(link string) (PagingInfo, error) {
 				}
 
 			} else {
-				return result, errors.New("Parsed string values aren't long enough.")
+				return result, errors.New("parsed string values aren't long enough")
 			}
 		}
 		return result, nil
 	} else {
-		return result, errors.New("The link string provided is invalid.")
+		return result, errors.New("the link string provided is invalid")
 	}
 }

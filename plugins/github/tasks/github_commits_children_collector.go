@@ -7,15 +7,9 @@ import (
 	"github.com/merico-dev/lake/utils"
 )
 
-func CollectChildrenOnCommits(owner string, repositoryName string, repositoryId int) {
+func CollectChildrenOnCommits(owner string, repositoryName string, repositoryId int, scheduler *utils.WorkerScheduler) {
 	var commits []models.GithubCommit
 	lakeModels.Db.Find(&commits)
-
-	maxWorkersPerSecond := 5 // Needs work - this is a temporary value
-	scheduler, err := utils.NewWorkerScheduler(50, maxWorkersPerSecond)
-	if err != nil {
-		logger.Error("Could not create work scheduler for GitHub Pull Requests", err)
-	}
 
 	for i := 0; i < len(commits); i++ {
 		commit := (commits)[i]
