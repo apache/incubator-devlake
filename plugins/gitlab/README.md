@@ -26,6 +26,8 @@ In your .env file, you will need to set up
 
 You can get your access token from `https://gitlab.com/-/profile/personal_access_tokens`
 
+For more information on the `GITLAB_ENDPOINT` see <a href="https://docs.gitlab.com/ee/api/" target="_blank">Gitlab docs</a>
+
 ## Gathering Data with Gitlab
 
 To collect data, you can make a POST request to `/task`
