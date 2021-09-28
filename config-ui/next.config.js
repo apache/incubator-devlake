@@ -1,5 +1,5 @@
 module.exports = {
-  pageExtensions: ["index.jsx"],
+  //pageExtensions: ["index.jsx"],
 
   webpack: (config, { isServer }) => {
     if (!isServer) {
