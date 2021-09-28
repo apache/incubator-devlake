@@ -17,7 +17,7 @@ const MappingTag = ({labelIntent, labelName, onChange, rightElement, helperText,
           <Label>
           <TagInput
             placeholder="Add Tags..."
-            values={values}
+            values={values || []}
             fill={true}
             onChange={onChange}
             addOnPaste={true}

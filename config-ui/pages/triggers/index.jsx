@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react'
 import axios from 'axios'
 import styles from '../../styles/Home.module.css'
 import { AnchorButton, Spinner, FormGroup, InputGroup, Button, TextArea, Intent } from "@blueprintjs/core"
-import Nav from '../components/Nav'
+import Nav from '../../components/Nav'
 import Sidebar from '../../components/Sidebar'
 import Content from '../../components/Content'
 
