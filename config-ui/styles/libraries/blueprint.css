@@ -43,3 +43,33 @@
   opacity: 0.8 !important;
   text-align: right;
 }
+
+.bp3-tag-input .bp3-button {
+  position: absolute !important;
+  right: 0;
+  top: 0;
+  bottom: 0;
+}
+
+/* Jira plugin tabs */
+.bp3-tab-indicator {
+  width: 8px;
+  top: -3px;
+  border-radius: 100%;
+  height: 8px !important;
+  left: -3px !important;
+}
+
+.bp3-tab {
+  border-radius: 3px;
+  border: 1px solid rgba(0,0,0,0.15);
+  padding: 0.1rem 0.5rem;
+  outline: 0;
+  display: inline-block;
+  margin-bottom: 0.75rem;
+}
+
+.bp3-tab-list {
+  display: inline-block;
+  max-width: 600px;
+}

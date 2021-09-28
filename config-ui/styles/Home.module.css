@@ -30,6 +30,11 @@
   margin-right: 0.2rem;
 }
 
+.tagInput {
+  position: relative;
+  padding-right: 2rem;
+}
+
 .input,
 .helperInput {
   margin-left: 0.75rem;
@@ -135,4 +140,33 @@
 
 .pluginSpinnerWrap {
   margin-top: 0.5rem;
+}
+
+.statusTabs {
+  width: 100%;
+}
+
+.addNewStatusBtn,
+.addNewStatusBtnDialog {
+  border-radius: 3px;
+  border: 1px solid rgba(0,0,0,0.15);
+  padding: 0.5rem 0.5rem;
+  outline: 0;
+  display: inline-block;
+  margin-bottom: 0.75rem;
+}
+
+.addNewStatusBtnDialog {
+  margin-top: 1rem;
+  text-align: center;
+  width: 100%;
+}
+
+.customStatusFormGroup {
+  margin-bottom: -0.5rem;
+  padding: 2rem 3rem;
+}
+
+.customStatusDialog {
+  background-color: #F4F4F6;
 }
