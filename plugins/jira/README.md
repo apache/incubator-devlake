@@ -33,12 +33,30 @@ This is the setting that is used as the base of all Jira API calls. You can see 
 
 If you see `https://mydomain.atlassian.net/secure/RapidBoard.jspa?rapidView=999&projectKey=XXX`, you will need to set `JIRA_ENDPOINT=https://mydomain.atlassian.net` in your `.env` file.
 
-### Set JIRA_BASIC_AUTH_ENCODED
-
+## Generating API token
 1. Once logged into Jira, visit the url `https://id.atlassian.com/manage-profile/security/api-tokens`
 2. Click the **Create API Token** button, and give it any label name
 ![image](https://user-images.githubusercontent.com/27032263/129363611-af5077c9-7a27-474a-a685-4ad52366608b.png)
 3. Encode with login email using command `echo -n <jira login email>:<jira token> | base64`
+
+NOTE: You can see your project's issue statuses here:
+
+<img width="2035" alt="Screen Shot 2021-09-10 at 4 01 56 PM" src="https://user-images.githubusercontent.com/2908155/133310611-2c5e1254-3456-4e15-9c3c-458fed03c6d3.png">
+
+Or you can make a cUrl request to see the statuses:
+
+```
+curl --location --request GET 'https://<YOUR_JIRA_ENDPOINT>/rest/api/2/project/<PROJECT_ID>/statuses' \
+--header 'Authorization: Basic <BASE64_ENCODED_TOKEN>' \
+--header 'Content-Type: application/json'
+```
+
+### Set JIRA_BASIC_AUTH_ENCODED
+
+1. Once logged into Jira, visit the url: <a href="https://id.atlassian.com/manage-profile/security/api-tokens" target="_blank">https://id.atlassian.com/manage-profile/security/api-tokens</a>
+2. Click the **Create API Token** button, and give it any label name
+![image](https://user-images.githubusercontent.com/27032263/129363611-af5077c9-7a27-474a-a685-4ad52366608b.png)
+3. Encode with login email using the command `echo -n <jira login email>:<jira token> | base64`
 
 ### Set Jira Custom Fields
 
@@ -48,13 +66,13 @@ Custom fields can be applied to Jira stories. We use this to set `JIRA_ISSUE_EPI
 
 **Example:** `JIRA_ISSUE_EPIC_KEY_FIELD=customfield_10024`
 
-Please follow this guide: [How to find Jira the custom field ID in Jira? · merico-dev/lake Wiki](https://github.com/merico-dev/lake/wiki/How-to-find-Jira-the-custom-field-ID-in-Jira)
+Please follow this guide: [How to find Jira the custom field ID in Jira? · merico-dev/lake Wiki](https://github.com/merico-dev/lake/wiki/How-to-find-the-custom-field-ID-in-Jira)
 
 ### Set Issue Type Mapping<a id="issue-type-mapping"></a>
 
 Same as status mapping, different companies might use different issue types to represent their Bug/Incident/Requirement,
 type mappings allow Devlake to recognize your specific setup with respect to Jira statuses.
-Devlake supports three different standard status types:
+Devlake supports three different standard issue types:
 
  - `Bug`
  - `Incident`
@@ -94,46 +112,12 @@ JIRA_ISSUE_STORY_STATUS_MAPPING=Resolved:Done;Rejected:Cancelled
 ```
 
 Status mapping is critical for metrics like **Lead Time** since the `leadtime` that we store in the database is calculated only for **Resolved** issues.
-## Generating API token
-1. Once logged into Jira, visit the url `https://id.atlassian.com/manage-profile/security/api-tokens`
-2. Click the **Create API Token** button, and give it any label name
-![image](https://user-images.githubusercontent.com/27032263/129363611-af5077c9-7a27-474a-a685-4ad52366608b.png)
-3. Encode with login email using command `echo -n <jira login email>:<jira token> | base64`
-
-NOTE: You can see your project's issue statuses here:
-
-<img width="2035" alt="Screen Shot 2021-09-10 at 4 01 56 PM" src="https://user-images.githubusercontent.com/2908155/133310611-2c5e1254-3456-4e15-9c3c-458fed03c6d3.png">
-
-Or you can make a cUrl request to see the statuses:
-
-```
-curl --location --request GET 'https://<YOUR_JIRA_ENDPOINT>/rest/api/2/project/<PROJECT_ID>/statuses' \
---header 'Authorization: Basic <BASE64_ENCODED_TOKEN>' \
---header 'Content-Type: application/json'
-```
 
 ### Set JIRA_ISSUE_STORYPOINT_COEFFICIENT
 
 This is a value you can set to something other than the default of 1 if you want to skew the results of story points.
 
-## How to Trigger Data Collection for This Plugin
-
 ### Find Board Id
-## Issue status mapping<a id="issue-status-mapping"></a>
-Jira is highly customizable, different company may use different `status name` to represent whether a issue was
-resolved or not, one may named it "Done" and others might named it "Finished".
-In order to collect life-cycle information correctly, you'll have to map your specific status to Devlake's standard
-status, Devlake supports two standard status:
-
- - `Resolved`: issue was ended successfully
- - `Rejected`: issue was ended by termination or cancellation
-
-Say we were using `Done` and `Cancelled` to represent the final stage of `Story` issues, what we have to do is setting
-the following `Environment Variables` before running Devlake:
-```sh
-JIRA_ISSUE_STORY_STATUS_MAPPING=Resolved:Done;Reject:Cancelled
-```
-
 
 1. Navigate to the Jira board in the browser
 2. in the URL bar, get the board id from the parameter `?rapidView=`
@@ -150,6 +134,8 @@ Using URL
 1. Navigate to Administration >> Issues >> Custom Fields .
 2. Click the cog and hover over Configure or Screens option.
 3. Observe the URL at the bottom left of the browser window. Example: The id for this custom field is 10006.
+
+## How to Trigger Data Collection for This Plugin
 
 **Example:** 
 
