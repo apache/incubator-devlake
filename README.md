@@ -7,6 +7,11 @@
 ![badge](https://github.com/merico-dev/lake/actions/workflows/test.yml/badge.svg)
 [![Go Report Card](https://goreportcard.com/badge/github.com/merico-dev/lake)](https://goreportcard.com/report/github.com/merico-dev/lake)
 
+| [English](README.md) | [中文](README-zh-CN.md) |
+| --- | --- |
+
+<br>
+
 ### What is Dev Lake?
 
 Dev Lake is the one-stop solution that _**integrates, analyzes, and visualizes**_ software development data throughout the _**software development life cycle (SDLC)**_ for engineering teams.
