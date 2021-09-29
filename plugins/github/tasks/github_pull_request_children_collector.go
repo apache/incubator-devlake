@@ -14,7 +14,7 @@ func CollectChildrenOnPullRequests(owner string, repositoryName string, reposito
 		pr := (prs)[i]
 		reviewErr := CollectPullRequestReviews(owner, repositoryName, repositoryId, &pr, scheduler)
 		if reviewErr != nil {
-			logger.Error("Could not collect PR reviews", reviewErr)
+			logger.Error("Could not collect PR Reviews", reviewErr)
 			return reviewErr
 		}
 		commentsErr := CollectPullRequestComments(owner, repositoryName, &pr, scheduler)
@@ -24,17 +24,15 @@ func CollectChildrenOnPullRequests(owner string, repositoryName string, reposito
 		}
 		commitsErr := CollectPullRequestCommits(owner, repositoryName, &pr, scheduler)
 		if commitsErr != nil {
-			logger.Error("Could not collect PR Comments", commitsErr)
+			logger.Error("Could not collect PR Commits", commitsErr)
 			return commitsErr
 		}
-
-		// This call is to update the details of the individual pull request with additions / deletions / etc.
-		// prErr := CollectPullRequest(owner, repositoryName, repositoryId, &pr)
-		// if prErr != nil {
-		// 	logger.Error("Could not collect PRs to update details", reviewErr)
-		// 	return reviewErr
-		// }
-
+		// Please Note: There is no difference between Issue Labels and Pull Request Labels - they are the same.
+		labelsErr := CollectIssueLabelsForSinglePullRequest(owner, repositoryName, &pr, scheduler)
+		if labelsErr != nil {
+			logger.Error("Could not collect PR Labels", labelsErr)
+			return labelsErr
+		}
 	}
 	return nil
 }
