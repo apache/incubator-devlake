@@ -22,6 +22,11 @@ func CollectChildrenOnIssues(owner string, repositoryName string, repositoryId i
 			logger.Error("Could not collect issue Comments", commentsErr)
 			return commentsErr
 		}
+		labelsErr := CollectIssueLabelsForSingleIssue(owner, repositoryName, &issue, scheduler)
+		if labelsErr != nil {
+			logger.Error("Could not collect issue labels", labelsErr)
+			return labelsErr
+		}
 	}
 	return nil
 }
