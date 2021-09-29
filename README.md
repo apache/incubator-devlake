@@ -44,9 +44,9 @@ For more information on building a new _data source plugin_ see [Build a Plugin]
 
 Section | Section Info | Docs
 ------------ | ------------- | -------------
-Jira | Metrics, Generating API Token, Find Project/Board ID | [Link](plugins/jira/README.md) 
-Gitlab | Metrics, Generating API Token | [Link](plugins/gitlab/README.md) 
-Jenkins | Metrics, Generating API Token | [Link](plugins/jenkins/README.md) 
+Jira | Metrics, Generating API Token, Find Project/Board ID | <a href="plugins/jira/README.md" target="_blank">Link</a>
+Gitlab | Metrics, Generating API Token | <a href="plugins/gitlab/README.md" target="_blank">Link</a> 
+Jenkins | Metrics, Generating API Token | <a href="plugins/jenkins/README.md" target="_blank">Link</a> 
 
 
 ## User setup<a id="user-setup"></a>
@@ -70,19 +70,22 @@ Jenkins | Metrics, Generating API Token | [Link](plugins/jenkins/README.md)
    cd devlake
    cp .env.example .env
    ```
-2. Start Docker on your machine and then you can run `docker-compose up config-ui` to start up the configuration interface
+2. Start Docker on your machine and then you can run `docker-compose up config-ui -d` to start up the configuration interface
 
 > For more info on how to configure plugins, please refer to the <a href="https://github.com/merico-dev/lake#data-source-plugins" target="_blank">data source plugins</a>, section
 
 3. Visit `localhost:4000` to setup configuration files
+  - Finish the configuration on the [main configuration page](http://localhost:4000) (`localhost:4000`)
+  - Navigate to desired plugins pages on the sidebar under "Plugins", e.g. Jira, Gitlab, Jenkins etc. Enter in required information for those plugins
+  - Submit the form to update the values by clicking on the **Save Config** button on each form page
 
 4. Run `docker-compose up -d` to start up the other services
 
-5. Visit `localhost:4000/triggers` to run collection triggers for plugins
+5. Visit `localhost:4000/triggers` to trigger data collection
 
-> Please replace your [gitlab projectId](plugins/gitlab/README.md#finding-project-id) and [jira boardId](plugins/jira/README.md#find-board-id) in the request body. This can take up to 20 minutes for large projects. (gitlab 10k+ commits or jira 5k+ issues)
+> Please replace your [gitlab projectId](plugins/gitlab/README.md#finding-project-id) and [jira boardId](plugins/jira/README.md#find-board-id) in the request body. Click the **Trigger Collection** button. This can take up to 20 minutes for large projects. (gitlab 10k+ commits or jira 5k+ issues)
 
-6. Click *Go to grafana* when done (username: `admin`, password: `admin`)
+6. Click *Go to grafana* when done (username: `admin`, password: `admin`). The button will be shown on the Trigger Collection page when done.
 
 ### Setup cron job
 Commonly, we have requirement to synchorize data periodly. We providered a tool called `lake-cli` to meet that requirement. Check `lake-cli` usage at [here](./cmd/lake-cli/README.md).  
