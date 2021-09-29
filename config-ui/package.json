@@ -4,9 +4,10 @@
   "private": true,
   "scripts": {
     "dev": "next dev -p 4000",
-    "build": "next build",
+    "build": "next build && next export",
     "start": "next start -p 4000",
-    "lint": "next lint"
+    "lint": "next lint",
+    "server": "node server.js"
   },
   "dependencies": {
     "@blueprintjs/core": "^3.49.1",
