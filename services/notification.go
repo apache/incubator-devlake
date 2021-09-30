@@ -24,7 +24,10 @@ type NotificationService struct {
 }
 
 func NewNotificationService(endpoint, secret string) *NotificationService {
-	return &NotificationService{}
+	return &NotificationService{
+		EndPoint: endpoint,
+		Secret:   secret,
+	}
 }
 
 type TaskSuccessNotification struct {
@@ -47,6 +50,7 @@ func (n *NotificationService) sendNotification(notificationType models.Notificat
 	var notification models.Notification
 	notification.Data = string(dataJson)
 	notification.Type = notificationType
+	notification.Endpoint = n.EndPoint
 	nonce := randSeq(16)
 	notification.Nonce = nonce
 
