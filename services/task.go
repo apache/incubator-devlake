@@ -3,7 +3,9 @@ package services
 import (
 	"encoding/json"
 	"fmt"
+	"strings"
 
+	"github.com/merico-dev/lake/config"
 	"github.com/merico-dev/lake/errors"
 	"github.com/merico-dev/lake/logger"
 	"github.com/merico-dev/lake/models"
@@ -16,6 +18,10 @@ const (
 	TASK_FAILED    = "TASK_FAILED"
 )
 
+// FIXME: don't use notification service here
+// move it to controller
+var notificationService *NotificationService
+
 type NewTask struct {
 	// Plugin name
 	Plugin string `json:"plugin" binding:"required"`
@@ -24,6 +30,12 @@ type NewTask struct {
 }
 
 func init() {
+	var notificationEndpoint = config.V.GetString("NOTIFICATION_ENDPOINT")
+	var notificationSecret = config.V.GetString("NOTIFICATION_SECRET")
+	if strings.TrimSpace(notificationEndpoint) != "" {
+		notificationService = NewNotificationService(notificationEndpoint, notificationSecret)
+	}
+	// FIXME: don't cancel tasks here
 	models.Db.Model(&models.Task{}).Where("status != ?", TASK_COMPLETED).Update("status", TASK_FAILED)
 }
 
@@ -71,6 +83,18 @@ func CreateTask(data NewTask) (*models.Task, error) {
 		err := models.Db.Save(&task).Error
 		if err != nil {
 			logger.Error("Database error", err)
+		}
+		// TODO: send notification
+		if notificationService != nil {
+			err = notificationService.TaskSuccess(TaskSuccessNotification{
+				TaskID:     task.ID,
+				PluginName: task.Plugin,
+				CreatedAt:  task.CreatedAt,
+				UpdatedAt:  task.UpdatedAt,
+			})
+			if err != nil {
+				logger.Error("Failed to send notification", err)
+			}
 		}
 	}()
 	return &task, nil
