@@ -6,6 +6,7 @@ import (
 	"github.com/merico-dev/lake/logger" // A pseudo type for Plugin Interface implementation
 	"github.com/merico-dev/lake/plugins/github/tasks"
 	"github.com/merico-dev/lake/utils"
+	"github.com/nats-io/nats.go"
 )
 
 type Github string
@@ -20,6 +21,16 @@ func (plugin Github) Execute(options map[string]interface{}, progress chan<- flo
 	if err != nil {
 		logger.Error("could not create scheduler", false)
 	}
+
+	// Simple Async Subscriber for cancelling collection
+	nc, _ := nats.Connect(nats.DefaultURL)
+	nc.Subscribe("github", func(m *nats.Msg) {
+		fmt.Printf("Received a message: %s\n", string(m.Data))
+		scheduler.Release()
+		progress <- 1
+		logger.Info("You cancelled the collector with nats", false)
+		close(progress)
+	})
 
 	defer scheduler.Release()
 

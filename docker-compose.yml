@@ -1,5 +1,10 @@
 version: "3"
 services:
+  nats:
+    image: 'nats'
+    ports:
+      - "4222:4222"
+    hostname: nats-server
   mysql:
     hostname: mysqldb
     image: mysql:8.0.26
