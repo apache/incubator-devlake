@@ -3,7 +3,7 @@ import MappingTag from './MappingTag'
 const MappingTagStatus = ({reqValue, resValue, envName, clearBtnReq, clearBtnRes, onChangeReq, onChangeRes}) => {
   return <>
     <MappingTag
-      labelName="Requirement"
+      labelName="Rejected"
       labelIntent="danger"
       values={reqValue}
       helperText={envName}
