@@ -4,7 +4,7 @@ import { Button, Card, Elevation, Icon, Tree, Classes } from '@blueprintjs/core'
 import styles from '../styles/Sidebar.module.css'
 
 const Sidebar = () => {
-  const { asPath } = useRouter()
+  const { asPath } = useRouter() || {asPath: { text: '' }}
 
   const [isOpen, setIsOpen] = useState(true)
   const [pluginData, setPluginData] = useState()
