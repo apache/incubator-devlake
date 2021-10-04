@@ -14,10 +14,13 @@ func (plugin Github) Init() {
 		&models.GithubPullRequest{},
 		&models.GithubReviewer{},
 		&models.GithubPullRequestComment{},
-		&models.GithubPullRequestLabel{},
 		&models.GithubPullRequestCommit{},
 		&models.GithubPullRequestCommitPullRequest{},
 		&models.GithubIssue{},
+		&models.GithubIssueComment{},
+		&models.GithubIssueEvent{},
+		&models.GithubIssueLabel{},
+		&models.GithubIssueLabelIssue{},
 	)
 	if err != nil {
 		logger.Error("Error migrating github: ", err)

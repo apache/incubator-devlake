@@ -12,9 +12,9 @@ import (
 	"gorm.io/gorm/clause"
 )
 
-type ApiPullRequestCommentResponse []PullRequestComment
+type ApiIssueCommentResponse []IssueComment
 
-type PullRequestComment struct {
+type IssueComment struct {
 	GithubId int `json:"id"`
 	Body     string
 	User     struct {
@@ -22,12 +22,12 @@ type PullRequestComment struct {
 	}
 }
 
-func CollectPullRequestComments(owner string, repositoryName string, pull *models.GithubPullRequest, scheduler *utils.WorkerScheduler) error {
+func CollectIssueComments(owner string, repositoryName string, issue *models.GithubIssue, scheduler *utils.WorkerScheduler) error {
 	githubApiClient := CreateApiClient()
-	getUrl := fmt.Sprintf("repos/%v/%v/issues/%v/comments", owner, repositoryName, pull.Number)
+	getUrl := fmt.Sprintf("repos/%v/%v/issues/%v/comments", owner, repositoryName, issue.Number)
 	return githubApiClient.FetchWithPaginationAnts(getUrl, 100, 1, scheduler,
 		func(res *http.Response) error {
-			githubApiResponse := &ApiPullRequestCommentResponse{}
+			githubApiResponse := &ApiIssueCommentResponse{}
 			if res.StatusCode == 200 {
 				err := core.UnmarshalResponse(res, githubApiResponse)
 				if err != nil {
@@ -35,9 +35,9 @@ func CollectPullRequestComments(owner string, repositoryName string, pull *model
 					return err
 				}
 				for _, comment := range *githubApiResponse {
-					githubComment := &models.GithubPullRequestComment{
+					githubComment := &models.GithubIssueComment{
 						GithubId:       comment.GithubId,
-						PullRequestId:  pull.GithubId,
+						IssueId:        issue.GithubId,
 						Body:           comment.Body,
 						AuthorUsername: comment.User.Login,
 					}
