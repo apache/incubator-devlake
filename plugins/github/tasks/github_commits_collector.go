@@ -8,6 +8,7 @@ import (
 	lakeModels "github.com/merico-dev/lake/models"
 	"github.com/merico-dev/lake/plugins/core"
 	"github.com/merico-dev/lake/plugins/github/models"
+	"github.com/merico-dev/lake/utils"
 	"gorm.io/gorm/clause"
 )
 
@@ -32,10 +33,10 @@ type Commit struct {
 	Message string
 }
 
-func CollectCommits(owner string, repositoryName string, repositoryId int) error {
+func CollectCommits(owner string, repositoryName string, repositoryId int, scheduler *utils.WorkerScheduler) error {
 	githubApiClient := CreateApiClient()
 	getUrl := fmt.Sprintf("repos/%v/%v/commits", owner, repositoryName)
-	return githubApiClient.FetchWithPaginationAnts(getUrl, 100,
+	return githubApiClient.FetchWithPaginationAnts(getUrl, 100, 20, scheduler,
 		func(res *http.Response) error {
 			githubApiResponse := &ApiCommitsResponse{}
 			err := core.UnmarshalResponse(res, githubApiResponse)
