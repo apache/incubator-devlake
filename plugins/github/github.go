@@ -24,13 +24,17 @@ func (plugin Github) Execute(options map[string]interface{}, progress chan<- flo
 
 	// Simple Async Subscriber for cancelling collection
 	nc, _ := nats.Connect(nats.DefaultURL)
-	nc.Subscribe("github", func(m *nats.Msg) {
+	_, errNc := nc.Subscribe("github", func(m *nats.Msg) {
 		fmt.Printf("Received a message: %s\n", string(m.Data))
 		scheduler.Release()
 		progress <- 1
 		logger.Info("You cancelled the collector with nats", false)
 		close(progress)
 	})
+
+	if errNc != nil {
+		logger.Error("errNc", errNc)
+	}
 
 	defer scheduler.Release()
 

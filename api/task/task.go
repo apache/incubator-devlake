@@ -21,7 +21,10 @@ func CancelTask(ctx *gin.Context) {
 	}
 
 	// Simple Publisher
-	nc.Publish(taskName, []byte("Hello World"))
+	err2 := nc.Publish(taskName, []byte("Hello World"))
+	if err2 != nil {
+		logger.Error("err2", err2)
+	}
 }
 
 func Post(ctx *gin.Context) {
@@ -55,4 +58,13 @@ func Get(ctx *gin.Context) {
 		return
 	}
 	ctx.JSON(http.StatusOK, gin.H{"tasks": tasks})
+}
+
+func GetOneById(ctx *gin.Context) {
+	// pull the task name from the query params
+	taskId := ctx.Param("id")
+
+	var task models.Task
+	models.Db.First(&task, taskId)
+	ctx.JSON(http.StatusCreated, task)
 }
