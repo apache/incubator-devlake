@@ -39,16 +39,16 @@ func init() {
 func CollectIssues(boardId uint64, since string) error {
 	jiraApiClient := GetJiraApiClient()
 	// diff sync
-	lastestUpdated := &models.JiraIssue{}
-	err := lakeModels.Db.Order("updated DESC").Select("id", "updated").Limit(1).Find(lastestUpdated).Error
+	var latestUpdated models.JiraIssue
+	err := lakeModels.Db.Order("updated DESC").Limit(1).Find(&latestUpdated).Error
 	if err != nil {
 		return err
 	}
 	jql := "ORDER BY updated ASC"
 
-	if lastestUpdated != nil && lastestUpdated.ID > 0 {
+	if latestUpdated.ID > 0 {
 		// This is not the first time we have fetched data for Jira.
-		jql = fmt.Sprintf("updated >= '%v' %v", lastestUpdated.Updated.Format("2006/01/02 15:04"), jql)
+		jql = fmt.Sprintf("updated >= '%v' %v", latestUpdated.Updated.Format("2006/01/02 15:04"), jql)
 	} else if since != "" {
 		// This is the first time we are fetching data from Jira and the user has sent an update time.
 		// We don't want all the data, we only want data since the update time.

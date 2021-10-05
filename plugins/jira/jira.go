@@ -1,8 +1,6 @@
 package main // must be main for plugin entry point
 
 import (
-	"fmt"
-
 	"github.com/merico-dev/lake/logger"
 	lakeModels "github.com/merico-dev/lake/models"
 	"github.com/merico-dev/lake/plugins/core"
@@ -52,7 +50,6 @@ func (plugin Jira) Execute(options map[string]interface{}, progress chan<- float
 	}
 	boardId := op.BoardId
 	since := op.Since
-	fmt.Println("KEVIN >>> op", op)
 	tasksToRun := make(map[string]bool, len(op.Tasks))
 	for _, task := range op.Tasks {
 		tasksToRun[task] = true
