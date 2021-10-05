@@ -1,6 +1,8 @@
 package main // must be main for plugin entry point
 
 import (
+	"fmt"
+
 	"github.com/merico-dev/lake/logger"
 	lakeModels "github.com/merico-dev/lake/models"
 	"github.com/merico-dev/lake/plugins/core"
@@ -12,6 +14,7 @@ import (
 type JiraOptions struct {
 	BoardId uint64   `json:"boardId"`
 	Tasks   []string `json:"tasks,omitempty"`
+	Since   string
 }
 
 // plugin interface
@@ -48,6 +51,8 @@ func (plugin Jira) Execute(options map[string]interface{}, progress chan<- float
 		return
 	}
 	boardId := op.BoardId
+	since := op.Since
+	fmt.Println("KEVIN >>> op", op)
 	tasksToRun := make(map[string]bool, len(op.Tasks))
 	for _, task := range op.Tasks {
 		tasksToRun[task] = true
@@ -72,7 +77,7 @@ func (plugin Jira) Execute(options map[string]interface{}, progress chan<- float
 	}
 	progress <- 0.01
 	if tasksToRun["collectIssues"] {
-		err = tasks.CollectIssues(boardId)
+		err = tasks.CollectIssues(boardId, since)
 		if err != nil {
 			logger.Error("Error: ", err)
 			return

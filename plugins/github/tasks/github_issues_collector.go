@@ -8,8 +8,7 @@ import (
 	lakeModels "github.com/merico-dev/lake/models"
 	"github.com/merico-dev/lake/plugins/core"
 	"github.com/merico-dev/lake/plugins/github/models"
-	"github.com/merico-dev/lake/plugins/github/utils"
-	lakeUtils "github.com/merico-dev/lake/utils"
+	"github.com/merico-dev/lake/utils"
 	"gorm.io/gorm/clause"
 )
 
@@ -42,7 +41,7 @@ type Pull struct {
 	ClosedAt        string `json:"closed_at"`
 }
 
-func CollectIssues(owner string, repositoryName string, repositoryId int, scheduler *lakeUtils.WorkerScheduler) error {
+func CollectIssues(owner string, repositoryName string, repositoryId int, scheduler *utils.WorkerScheduler) error {
 	githubApiClient := CreateApiClient()
 	getUrl := fmt.Sprintf("repos/%v/%v/issues?state=all", owner, repositoryName)
 	return githubApiClient.FetchWithPaginationAnts(getUrl, 100, 20, scheduler,
