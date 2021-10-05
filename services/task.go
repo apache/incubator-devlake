@@ -39,7 +39,7 @@ func init() {
 	models.Db.Model(&models.Task{}).Where("status != ?", TASK_COMPLETED).Update("status", TASK_FAILED)
 }
 
-func CreateTask(data NewTask) (*models.Task, error) {
+func CreateTask(data NewTask, taskComplete chan bool) (*models.Task, error) {
 	b, err := json.Marshal(data.Options)
 	if err != nil {
 		return nil, err
@@ -60,7 +60,6 @@ func CreateTask(data NewTask) (*models.Task, error) {
 	data.Options["ID"] = task.ID
 	go func() {
 		progress := make(chan float32)
-
 		go func() {
 			err = plugins.RunPlugin(task.Plugin, data.Options, progress)
 			if err != nil {
@@ -96,6 +95,7 @@ func CreateTask(data NewTask) (*models.Task, error) {
 				logger.Error("Failed to send notification", err)
 			}
 		}
+		taskComplete <- true
 	}()
 	return &task, nil
 }
