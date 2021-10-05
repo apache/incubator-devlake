@@ -11,7 +11,9 @@ import (
 )
 
 func Post(ctx *gin.Context) {
-	var data []services.NewTask
+	// We use a 2D array because the request body must be an array of a set of tasks
+	// to be executed concurrently, while each set is to be executed sequentially.
+	var data [][]services.NewTask
 
 	err := ctx.MustBindWith(&data, binding.JSON)
 	if err != nil {
@@ -22,13 +24,25 @@ func Post(ctx *gin.Context) {
 
 	var tasks []models.Task
 
-	for _, value := range data {
-		task, err := services.CreateTask(value)
-		if err != nil {
-			_ = ctx.AbortWithError(http.StatusInternalServerError, err)
-			return
+	// This double for loop executes each set of tasks sequentially while
+	// executing the set of tasks concurrently.
+	for _, array := range data {
+		taskComplete := make(chan bool)
+		count := 0
+		for _, element := range array {
+			task, err := services.CreateTask(element, taskComplete)
+			if err != nil {
+				_ = ctx.AbortWithError(http.StatusInternalServerError, err)
+				return
+			}
+			tasks = append(tasks, *task)
 		}
-		tasks = append(tasks, *task)
+		for range taskComplete {
+			count++
+			if count == len(array) {
+				close(taskComplete)
+			}
+		}
 	}
 
 	ctx.JSON(http.StatusCreated, tasks)
