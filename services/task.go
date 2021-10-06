@@ -40,6 +40,7 @@ func init() {
 }
 
 func CreateTask(data NewTask, taskComplete chan bool) (*models.Task, error) {
+	logger.Info("JON >>> did we call create task??", false)
 	b, err := json.Marshal(data.Options)
 	if err != nil {
 		return nil, err
