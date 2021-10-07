@@ -146,12 +146,12 @@ Jenkins | 指标，生成 API Token | [Link](plugins/jenkins/README-zh-CN.md)
     ```
     curl -XPOST 'localhost:8080/task' \
     -H 'Content-Type: application/json' \
-    -d '[{
+    -d '[[{
         "plugin": "jira",
         "options": {
             "boardId": 8
         }
-    }]'
+    }]]'
     ```
 
 7. 在Grafana仪表板中实现数据的可视化
