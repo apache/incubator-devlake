@@ -10,6 +10,42 @@ import (
 	"github.com/merico-dev/lake/services"
 )
 
+func CreateTasksInDBFromJSON(data [][]services.NewTask) []models.Task {
+	// create all the tasks in the db without running the tasks
+	var tasks []models.Task
+
+	for i := 0; i < len(data); i++ {
+		for j := 0; j < len(data[i]); j++ {
+			task, _ := services.CreateTaskInDB(data[i][j])
+			tasks = append(tasks, *task)
+		}
+	}
+
+	return tasks
+}
+
+func RunAllTasks(data [][]services.NewTask, ctx *gin.Context) {
+	// This double for loop executes each set of tasks sequentially while
+	// executing the set of tasks concurrently.
+	for _, array := range data {
+		taskComplete := make(chan bool)
+		count := 0
+		for _, taskFromRequest := range array {
+			_, err := services.RunTask(taskFromRequest, taskComplete)
+			if err != nil {
+				_ = ctx.AbortWithError(http.StatusInternalServerError, err)
+				return
+			}
+		}
+		for range taskComplete {
+			count++
+			if count == len(array) {
+				close(taskComplete)
+			}
+		}
+	}
+}
+
 func Post(ctx *gin.Context) {
 	// We use a 2D array because the request body must be an array of a set of tasks
 	// to be executed concurrently, while each set is to be executed sequentially.
@@ -22,30 +58,18 @@ func Post(ctx *gin.Context) {
 		return
 	}
 
-	var tasks []models.Task
-
-	// This double for loop executes each set of tasks sequentially while
-	// executing the set of tasks concurrently.
-	for _, array := range data {
-		taskComplete := make(chan bool)
-		count := 0
-		for _, element := range array {
-			task, err := services.CreateTask(element, taskComplete)
-			if err != nil {
-				_ = ctx.AbortWithError(http.StatusInternalServerError, err)
-				return
-			}
-			tasks = append(tasks, *task)
-		}
-		for range taskComplete {
-			count++
-			if count == len(array) {
-				close(taskComplete)
-			}
-		}
-	}
-
+	logger.Info("JON >>> PRE1: done saving tasks", true)
+	tasks := CreateTasksInDBFromJSON(data)
+	logger.Info("JON >>> done saving tasks", true)
+	// Return all created tasks to the User
 	ctx.JSON(http.StatusCreated, tasks)
+
+	go func() {
+		logger.Info("JON >>> run all plugins async", true)
+		RunAllTasks(data, ctx)
+	}()
+
+	logger.Info("JON >>> done", true)
 }
 
 func Get(ctx *gin.Context) {

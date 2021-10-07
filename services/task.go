@@ -39,8 +39,7 @@ func init() {
 	models.Db.Model(&models.Task{}).Where("status != ?", TASK_COMPLETED).Update("status", TASK_FAILED)
 }
 
-func CreateTask(data NewTask, taskComplete chan bool) (*models.Task, error) {
-	logger.Info("JON >>> did we call create task??", false)
+func CreateTaskInDB(data NewTask) (*models.Task, error) {
 	b, err := json.Marshal(data.Options)
 	if err != nil {
 		return nil, err
@@ -51,24 +50,30 @@ func CreateTask(data NewTask, taskComplete chan bool) (*models.Task, error) {
 		Status:  TASK_CREATED,
 		Message: "",
 	}
+	logger.Info("JON >>> PRE: saved task in DB", task)
 	err = models.Db.Save(&task).Error
 	if err != nil {
 		logger.Error("Database error", err)
 		return nil, errors.InternalError
 	}
+	logger.Info("JON >>> saved task in DB", true)
+	return &task, nil
+}
 
+func RunTask(data NewTask, taskComplete chan bool) (*models.Task, error) {
+	task, _ := CreateTaskInDB(data)
 	// trigger plugins
 	data.Options["ID"] = task.ID
 	go func() {
 		progress := make(chan float32)
 		go func() {
-			err = plugins.RunPlugin(task.Plugin, data.Options, progress)
+			err := plugins.RunPlugin(task.Plugin, data.Options, progress)
 			if err != nil {
 				logger.Error("Task error", err)
 				task.Status = TASK_FAILED
 				task.Message = err.Error()
 			}
-			err := models.Db.Save(&task).Error
+			err = models.Db.Save(&task).Error
 			if err != nil {
 				logger.Error("Database error", err)
 			}
@@ -98,7 +103,7 @@ func CreateTask(data NewTask, taskComplete chan bool) (*models.Task, error) {
 		}
 		taskComplete <- true
 	}()
-	return &task, nil
+	return task, nil
 }
 
 func GetTasks(status string) ([]models.Task, error) {
