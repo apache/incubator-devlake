@@ -58,18 +58,13 @@ func Post(ctx *gin.Context) {
 		return
 	}
 
-	logger.Info("JON >>> PRE1: done saving tasks", true)
 	tasks := CreateTasksInDBFromJSON(data)
-	logger.Info("JON >>> done saving tasks", true)
 	// Return all created tasks to the User
 	ctx.JSON(http.StatusCreated, tasks)
 
 	go func() {
-		logger.Info("JON >>> run all plugins async", true)
 		RunAllTasks(data, ctx)
 	}()
-
-	logger.Info("JON >>> done", true)
 }
 
 func Get(ctx *gin.Context) {
