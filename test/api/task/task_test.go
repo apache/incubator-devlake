@@ -9,6 +9,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/magiconair/properties/assert"
 	"github.com/merico-dev/lake/api"
+	"github.com/merico-dev/lake/logger"
 	"github.com/merico-dev/lake/utils"
 	"github.com/stretchr/testify/mock"
 )
@@ -31,6 +32,7 @@ func TestNewTask(t *testing.T) {
 	r.ServeHTTP(w, req)
 
 	assert.Equal(t, w.Code, http.StatusCreated)
+	logger.Info("JON >>> assert1", true)
 	resp := w.Body.String()
 	tasks, err := utils.JsonToMap(resp)
 	if err != nil {
@@ -38,4 +40,5 @@ func TestNewTask(t *testing.T) {
 	}
 
 	assert.Equal(t, tasks[0]["plugin"], "jira")
+	logger.Info("JON >>> assert2", true)
 }
