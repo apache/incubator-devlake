@@ -45,63 +45,83 @@ type JiraApiChangelogsResponse struct {
 	Values []JiraApiChangeLog `json:"values,omitempty"`
 }
 
-func CollectChangelogs(boardId uint64) error {
+func CollectChangelogs(boardId uint64, since string) error {
 	jiraIssue := &models.JiraIssue{}
 
-	// select all issues belongs to the board
-	// TODO filter issues by update_at
-	cursor, err := lakeModels.Db.Model(jiraIssue).
-		Select("jira_issues.id", "jira_issues.updated").
-		Joins("left join jira_board_issues on jira_board_issues.issue_id = jira_issues.id").
-		Where(`jira_board_issues.board_id = ?
-                AND (jira_issues.changelog_updated is null OR jira_issues.changelog_updated < jira_issues.updated)`,
-			boardId).
-		Rows()
+	// Get "Latest Issue" from the DB
+	var latestUpdatedIssue models.JiraIssue
+	err := lakeModels.Db.Debug().Order("changelog_updated DESC").Limit(1).Find(&latestUpdatedIssue).Error
 	if err != nil {
 		return err
 	}
-	defer cursor.Close()
 
-	changelogScheduler, err := utils.NewWorkerScheduler(10, 50)
-	if err != nil {
-		return err
-	}
-	issueScheduler, err := utils.NewWorkerScheduler(10, 50)
-	if err != nil {
-		return err
-	}
-	defer changelogScheduler.Release()
-	defer issueScheduler.Release()
-	jiraApiClient := GetJiraApiClient()
+	if latestUpdatedIssue.ID == 0 {
+		// Do nothing.
+		fmt.Println("INFO >>> No DB records for Issues. Please run collectIssues.")
+	} else {
+		sinceValue := "jira_issues.changelog_updated"
+		if since != "" {
+			fmt.Println("INFO >>> Since time provided by User: ", since)
+			sinceValue = fmt.Sprintf(`'%v'`, since)
+		}
+		whereClause := fmt.Sprintf(`jira_board_issues.board_id = ?
+		AND (jira_issues.changelog_updated is null OR %v < jira_issues.changelog_updated)`, sinceValue)
+		// Get all Issues from 'changelog_updated' time on latest Issue.
+		// Then get Changelogs for those issues.
 
-	// iterate all rows
-	for cursor.Next() {
-		err = lakeModels.Db.ScanRows(cursor, jiraIssue)
+		cursor, err := lakeModels.Db.Debug().Model(jiraIssue).
+			Select("jira_issues.id", "jira_issues.updated").
+			Joins("left join jira_board_issues on jira_board_issues.issue_id = jira_issues.id").
+			Where(whereClause,
+				boardId).
+			Rows()
 		if err != nil {
 			return err
 		}
-		//fmt.Printf("submit task for changelog %v\n", jiraIssue.ID)
-		issueId := jiraIssue.ID
-		updated := jiraIssue.Updated
-		err = issueScheduler.Submit(func() error {
-			err = collectChangelogsByIssueId(changelogScheduler, jiraApiClient, issueId)
-			if err != nil {
-				return err
-			}
-			issue := &models.JiraIssue{Model: lakeModels.Model{ID: issueId}}
-			err = lakeModels.Db.Model(issue).Update("changelog_updated", updated).Error
-			if err != nil {
-				return err
-			}
-			return nil
-		})
+		defer cursor.Close()
+
+		changelogScheduler, err := utils.NewWorkerScheduler(10, 50)
 		if err != nil {
 			return err
 		}
-	}
-	issueScheduler.WaitUntilFinish()
-	changelogScheduler.WaitUntilFinish()
+		issueScheduler, err := utils.NewWorkerScheduler(10, 50)
+		if err != nil {
+			return err
+		}
+		defer changelogScheduler.Release()
+		defer issueScheduler.Release()
+		jiraApiClient := GetJiraApiClient()
 
+		// iterate all rows
+		for cursor.Next() {
+			err = lakeModels.Db.ScanRows(cursor, jiraIssue)
+			if err != nil {
+				return err
+			}
+			//fmt.Printf("submit task for changelog %v\n", jiraIssue.ID)
+			issueId := jiraIssue.ID
+			updated := jiraIssue.Updated
+			err = issueScheduler.Submit(func() error {
+				err = collectChangelogsByIssueId(changelogScheduler, jiraApiClient, issueId)
+				if err != nil {
+					return err
+				}
+				issue := &models.JiraIssue{Model: lakeModels.Model{ID: issueId}}
+				err = lakeModels.Db.Model(issue).Update("changelog_updated", updated).Error
+				if err != nil {
+					return err
+				}
+				return nil
+			})
+			if err != nil {
+				return err
+			}
+		}
+		issueScheduler.WaitUntilFinish()
+		changelogScheduler.WaitUntilFinish()
+
+		return nil
+	}
 	return nil
 }
 
