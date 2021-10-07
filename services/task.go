@@ -50,13 +50,11 @@ func CreateTaskInDB(data NewTask) (*models.Task, error) {
 		Status:  TASK_CREATED,
 		Message: "",
 	}
-	logger.Info("JON >>> PRE: saved task in DB", task)
 	err = models.Db.Save(&task).Error
 	if err != nil {
 		logger.Error("Database error", err)
 		return nil, errors.InternalError
 	}
-	logger.Info("JON >>> saved task in DB", true)
 	return &task, nil
 }
 
