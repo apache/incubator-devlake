@@ -9,9 +9,9 @@ This plugin converts Jenkins data to [Domain Layer](../domainlayer/README.md) da
 ```
 curl -XPOST 'localhost:8080/task' \
 -H 'Content-Type: application/json' \
--d '[{
+-d '[[{
     "plugin": "jenkinsdomain",
     "options": {
     }
-}]'
+}]]'
 ```
