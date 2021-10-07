@@ -36,7 +36,7 @@ func init() {
 	storyPointField = config.V.GetString("JIRA_ISSUE_STORYPOINT_FIELD")
 }
 
-func CollectIssues(boardId uint64) error {
+func CollectIssues(scheduler *utils.WorkerScheduler, boardId uint64) error {
 	jiraApiClient := GetJiraApiClient()
 	// diff sync
 	lastestUpdated := &models.JiraIssue{}
@@ -50,12 +50,6 @@ func CollectIssues(boardId uint64) error {
 	}
 	query := &url.Values{}
 	query.Set("jql", jql)
-
-	scheduler, err := utils.NewWorkerScheduler(10, 50)
-	if err != nil {
-		return err
-	}
-	defer scheduler.Release()
 
 	err = jiraApiClient.FetchPages(scheduler, fmt.Sprintf("/agile/1.0/board/%v/issue", boardId), query,
 		func(res *http.Response) error {

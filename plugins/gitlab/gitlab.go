@@ -22,6 +22,9 @@ func (plugin Gitlab) Execute(options map[string]interface{}, progress chan<- flo
 	// You would think this would work but it hits the rate limit every time. I have to play with the number to see the right way to set it
 	scheduler, err := utils.NewWorkerScheduler(50, 15)
 	defer scheduler.Release()
+
+	utils.ListenForCancelEvent("gitlab", scheduler, progress)
+
 	if err != nil {
 		logger.Error("Could not create scheduler", true)
 		return

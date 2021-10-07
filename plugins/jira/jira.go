@@ -5,6 +5,7 @@ import (
 	lakeModels "github.com/merico-dev/lake/models"
 	"github.com/merico-dev/lake/plugins/jira/models"
 	"github.com/merico-dev/lake/plugins/jira/tasks"
+	"github.com/merico-dev/lake/utils"
 	"github.com/mitchellh/mapstructure"
 )
 
@@ -60,6 +61,15 @@ func (plugin Jira) Execute(options map[string]interface{}, progress chan<- float
 		}
 	}
 
+	scheduler, err := utils.NewWorkerScheduler(10, 50)
+
+	if err != nil {
+		logger.Error("err: ", err)
+	}
+	defer scheduler.Release()
+
+	utils.ListenForCancelEvent("jira", scheduler, progress)
+
 	// run tasks
 	logger.Print("start jira plugin execution")
 	if tasksToRun["collectBoard"] {
@@ -71,7 +81,7 @@ func (plugin Jira) Execute(options map[string]interface{}, progress chan<- float
 	}
 	progress <- 0.01
 	if tasksToRun["collectIssues"] {
-		err = tasks.CollectIssues(boardId)
+		err = tasks.CollectIssues(scheduler, boardId)
 		if err != nil {
 			logger.Error("Error: ", err)
 			return
@@ -79,7 +89,7 @@ func (plugin Jira) Execute(options map[string]interface{}, progress chan<- float
 	}
 	progress <- 0.5
 	if tasksToRun["collectChangelogs"] {
-		err = tasks.CollectChangelogs(boardId)
+		err = tasks.CollectChangelogs(boardId, progress)
 		if err != nil {
 			logger.Error("Error: ", err)
 			return

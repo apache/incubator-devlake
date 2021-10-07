@@ -2,6 +2,7 @@ package task
 
 import (
 	"net/http"
+	"strings"
 
 	"github.com/gin-gonic/gin"
 	"github.com/gin-gonic/gin/binding"
@@ -20,8 +21,8 @@ func CancelTask(ctx *gin.Context) {
 		logger.Error("err connecting to nats server", err)
 	}
 
-	// Simple Publisher
-	err2 := nc.Publish(taskName, []byte("Hello World"))
+	// Simple Publisher. We don't need any data sent. Just the task name.
+	err2 := nc.Publish(strings.ToLower(taskName), []byte(""))
 	if err2 != nil {
 		logger.Error("err2", err2)
 	}

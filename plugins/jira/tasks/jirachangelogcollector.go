@@ -45,7 +45,7 @@ type JiraApiChangelogsResponse struct {
 	Values []JiraApiChangeLog `json:"values,omitempty"`
 }
 
-func CollectChangelogs(boardId uint64) error {
+func CollectChangelogs(boardId uint64, progress chan<- float32) error {
 	jiraIssue := &models.JiraIssue{}
 
 	// select all issues belongs to the board
@@ -72,6 +72,9 @@ func CollectChangelogs(boardId uint64) error {
 	}
 	defer changelogScheduler.Release()
 	defer issueScheduler.Release()
+	utils.ListenForCancelEvent("jira", changelogScheduler, progress)
+	utils.ListenForCancelEvent("jira", issueScheduler, progress)
+
 	jiraApiClient := GetJiraApiClient()
 
 	// iterate all rows
