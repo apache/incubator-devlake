@@ -2,7 +2,6 @@ package task
 
 import (
 	"net/http"
-	"strings"
 
 	"github.com/gin-gonic/gin"
 	"github.com/gin-gonic/gin/binding"
@@ -14,7 +13,7 @@ import (
 
 func CancelTask(ctx *gin.Context) {
 	// pull the task name from the query params
-	taskName := ctx.Query("taskName")
+	taskId := ctx.Param("id")
 
 	nc, err := nats.Connect(nats.DefaultURL)
 	if err != nil {
@@ -22,7 +21,7 @@ func CancelTask(ctx *gin.Context) {
 	}
 
 	// Simple Publisher. We don't need any data sent. Just the task name.
-	err2 := nc.Publish(strings.ToLower(taskName), []byte(""))
+	err2 := nc.Publish("cancelTask", []byte(taskId))
 	if err2 != nil {
 		logger.Error("err2", err2)
 	}

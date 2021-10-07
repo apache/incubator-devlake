@@ -17,7 +17,7 @@ func (f *FooPlugin) Description() string {
 func (f *FooPlugin) Init() {
 }
 
-func (f *FooPlugin) Execute(options map[string]interface{}, progress chan<- float32) {
+func (f *FooPlugin) Execute(options map[string]interface{}, taskId uint64, progress chan<- float32) {
 	close(progress)
 }
 

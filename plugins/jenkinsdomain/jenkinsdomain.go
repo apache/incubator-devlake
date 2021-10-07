@@ -20,7 +20,7 @@ func (plugin JenkinsDomain) Description() string {
 	return "Convert Jenkins Entities to Domain Layer Entities"
 }
 
-func (plugin JenkinsDomain) Execute(options map[string]interface{}, progress chan<- float32) {
+func (plugin JenkinsDomain) Execute(options map[string]interface{}, taskId uint64, progress chan<- float32) {
 	// process options
 	var op JenkinsDomainOptions
 	var err error

@@ -70,7 +70,7 @@ func (plugin Compound) Description() string {
 	return "To relate jira board and gitlab projects"
 }
 
-func (plugin Compound) Execute(options map[string]interface{}, progress chan<- float32) {
+func (plugin Compound) Execute(options map[string]interface{}, taskId uint64, progress chan<- float32) {
 	close(progress)
 }
 

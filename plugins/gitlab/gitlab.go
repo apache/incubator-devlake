@@ -14,7 +14,7 @@ func (plugin Gitlab) Description() string {
 	return "To collect and enrich data from Gitlab"
 }
 
-func (plugin Gitlab) Execute(options map[string]interface{}, progress chan<- float32) {
+func (plugin Gitlab) Execute(options map[string]interface{}, taskId uint64, progress chan<- float32) {
 	logger.Print("start gitlab plugin execution")
 
 	// Gilab's authenticated api rate limit is 2000 per min
@@ -23,7 +23,7 @@ func (plugin Gitlab) Execute(options map[string]interface{}, progress chan<- flo
 	scheduler, err := utils.NewWorkerScheduler(50, 15)
 	defer scheduler.Release()
 
-	utils.ListenForCancelEvent("gitlab", scheduler, progress)
+	utils.ListenForCancelEvent(scheduler, progress, taskId)
 
 	if err != nil {
 		logger.Error("Could not create scheduler", true)

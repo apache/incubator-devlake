@@ -34,7 +34,7 @@ func (plugin Jira) Description() string {
 	return "To collect and enrich data from JIRA"
 }
 
-func (plugin Jira) Execute(options map[string]interface{}, progress chan<- float32) {
+func (plugin Jira) Execute(options map[string]interface{}, taskId uint64, progress chan<- float32) {
 	// process options
 	var op JiraOptions
 	var err error
@@ -68,7 +68,7 @@ func (plugin Jira) Execute(options map[string]interface{}, progress chan<- float
 	}
 	defer scheduler.Release()
 
-	utils.ListenForCancelEvent("jira", scheduler, progress)
+	utils.ListenForCancelEvent(scheduler, progress, taskId)
 
 	// run tasks
 	logger.Print("start jira plugin execution")
@@ -89,7 +89,7 @@ func (plugin Jira) Execute(options map[string]interface{}, progress chan<- float
 	}
 	progress <- 0.5
 	if tasksToRun["collectChangelogs"] {
-		err = tasks.CollectChangelogs(boardId, progress)
+		err = tasks.CollectChangelogs(boardId, progress, taskId)
 		if err != nil {
 			logger.Error("Error: ", err)
 			return

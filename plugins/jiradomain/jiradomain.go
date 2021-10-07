@@ -21,7 +21,7 @@ func (plugin JiraDomain) Description() string {
 	return "Convert Jira Entities to Domain Layer Entities"
 }
 
-func (plugin JiraDomain) Execute(options map[string]interface{}, progress chan<- float32) {
+func (plugin JiraDomain) Execute(options map[string]interface{}, taskId uint64, progress chan<- float32) {
 	// process options
 	var op JiraDomainOptions
 	var err error

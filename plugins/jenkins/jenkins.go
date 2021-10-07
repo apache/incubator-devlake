@@ -39,7 +39,7 @@ func (j Jenkins) CleanData() {
 	}
 }
 
-func (j Jenkins) Execute(options map[string]interface{}, progress chan<- float32) {
+func (j Jenkins) Execute(options map[string]interface{}, taskId uint64, progress chan<- float32) {
 	var op = JenkinsOptions{
 		Host:     config.V.GetString("JENKINS_ENDPOINT"),
 		Username: config.V.GetString("JENKINS_USERNAME"),

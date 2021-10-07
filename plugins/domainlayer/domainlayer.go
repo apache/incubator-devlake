@@ -31,7 +31,7 @@ func (plugin DomainLayer) Description() string {
 	return "Domain Layer"
 }
 
-func (plugin DomainLayer) Execute(options map[string]interface{}, progress chan<- float32) {
+func (plugin DomainLayer) Execute(options map[string]interface{}, taskId uint64, progress chan<- float32) {
 	progress <- 1
 }
 

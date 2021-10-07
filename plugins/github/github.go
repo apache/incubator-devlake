@@ -14,14 +14,14 @@ func (plugin Github) Description() string {
 	return "To collect and enrich data from GitHub"
 }
 
-func (plugin Github) Execute(options map[string]interface{}, progress chan<- float32) {
+func (plugin Github) Execute(options map[string]interface{}, taskId uint64, progress chan<- float32) {
 	// We need this rate limit set to 1 since there are only 5000 requests per hour allowed for the github api
 	scheduler, err := utils.NewWorkerScheduler(50, 1)
 	if err != nil {
 		logger.Error("could not create scheduler", false)
 	}
 
-	utils.ListenForCancelEvent("github", scheduler, progress)
+	utils.ListenForCancelEvent(scheduler, progress, taskId)
 
 	defer scheduler.Release()
 

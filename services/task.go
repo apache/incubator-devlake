@@ -62,7 +62,7 @@ func CreateTask(data NewTask) (*models.Task, error) {
 		progress := make(chan float32)
 
 		go func() {
-			err = plugins.RunPlugin(task.Plugin, data.Options, progress)
+			err = plugins.RunPlugin(task.ID, task.Plugin, data.Options, progress)
 			if err != nil {
 				logger.Error("Task error", err)
 				task.Status = TASK_FAILED

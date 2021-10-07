@@ -12,7 +12,7 @@ func (plugin YourPlugin) Description() string {
 	return "To collect and enrich data from YourPlugin"
 }
 
-func (plugin YourPlugin) Execute(options map[string]interface{}, progress chan<- float32) {
+func (plugin YourPlugin) Execute(options map[string]interface{}, taskId uint64, progress chan<- float32) {
 	logger.Print("Starting YourPlugin execution...")
 
   // Check fields that are needed in options.
