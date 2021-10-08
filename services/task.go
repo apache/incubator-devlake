@@ -40,6 +40,7 @@ func init() {
 }
 
 func CreateTaskInDB(data NewTask) (*models.Task, error) {
+	logger.Info("JON >>> createing task in db", 999)
 	b, err := json.Marshal(data.Options)
 	if err != nil {
 		return nil, err
@@ -58,8 +59,7 @@ func CreateTaskInDB(data NewTask) (*models.Task, error) {
 	return &task, nil
 }
 
-func RunTask(data NewTask, taskComplete chan bool) (*models.Task, error) {
-	task, _ := CreateTaskInDB(data)
+func RunTask(task models.Task, data NewTask, taskComplete chan bool) (models.Task, error) {
 	// trigger plugins
 	data.Options["ID"] = task.ID
 	go func() {
@@ -115,4 +115,57 @@ func GetTasks(status string) ([]models.Task, error) {
 		return nil, err
 	}
 	return tasks, nil
+}
+
+func CreateTasksInDBFromJSON(data [][]NewTask) [][]models.Task {
+	// create all the tasks in the db without running the tasks
+	var tasks [][]models.Task
+
+	// DELETE COMMENTS
+	// for i := 0; i < len(data); i++ {
+	// 	logger.Info("JON >>> 1", 1)
+	// 	logger.Info("JON >>> len(data)", len(data))
+	// 	for j := 0; j < len(data[i]); j++ {
+	// 		logger.Info("JON >>> 2", 2)
+	// 		logger.Info("JON >>> len(data[i])", len(data[i]))
+	// 		task, _ := CreateTaskInDB(data[i][j])
+	// 		tasks = append(tasks[i], *task)
+	// 	}
+	// }
+
+	for i := 0; i < len(data); i++ {
+		var tasksToAppend []models.Task
+		for j := 0; j < len(data[i]); j++ {
+			task, _ := CreateTaskInDB(data[i][j])
+			tasksToAppend = append(tasksToAppend, *task)
+		}
+		tasks = append(tasks, tasksToAppend)
+	}
+
+	return tasks
+}
+
+func RunAllTasks(data [][]NewTask, tasks [][]models.Task) (err error) {
+	// This double for loop executes each set of tasks sequentially while
+	// executing the set of tasks concurrently.
+	// for _, array := range data {
+	for i := 0; i < len(data); i++ {
+
+		taskComplete := make(chan bool)
+		count := 0
+		// for _, taskFromRequest := range array {
+		for j := 0; j < len(data[i]); j++ {
+			_, err := RunTask(tasks[i][j], data[i][j], taskComplete)
+			if err != nil {
+				return err
+			}
+		}
+		for range taskComplete {
+			count++
+			if count == len(data[i]) {
+				close(taskComplete)
+			}
+		}
+	}
+	return nil
 }
