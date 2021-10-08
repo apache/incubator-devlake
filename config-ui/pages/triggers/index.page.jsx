@@ -8,7 +8,7 @@ import Sidebar from '../../components/Sidebar'
 import Content from '../../components/Content'
 
 const defaultValue = [
-  {
+  [{
     "plugin": "gitlab",
     "options": {
       "projectId": 8967944
@@ -23,7 +23,7 @@ const defaultValue = [
   {
     "plugin": "jenkins",
     "options": {}
-  }
+  }]
 ]
 
 export default function Home(props) {
