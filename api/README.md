@@ -19,5 +19,4 @@ curl --location --request POST 'localhost:8080/task' \
 
 ### Cancel a task
 
-curl --location --request POST 'localhost:8080/task/cancel?taskName=jira' \
---header 'Content-Type: application/json'
+POST 'localhost:8080/task/9/cancel'

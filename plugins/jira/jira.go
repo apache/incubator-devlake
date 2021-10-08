@@ -89,7 +89,7 @@ func (plugin Jira) Execute(options map[string]interface{}, taskId uint64, progre
 	}
 	progress <- 0.5
 	if tasksToRun["collectChangelogs"] {
-		err = tasks.CollectChangelogs(boardId, progress, taskId)
+		err = tasks.CollectChangelogs(scheduler, boardId, progress, taskId)
 		if err != nil {
 			logger.Error("Error: ", err)
 			return
