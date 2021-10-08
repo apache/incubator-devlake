@@ -65,7 +65,7 @@ func CollectChangelogs(boardId uint64, since string) error {
 			sinceValue = fmt.Sprintf(`'%v'`, since)
 		}
 		whereClause := fmt.Sprintf(`jira_board_issues.board_id = ?
-		AND (jira_issues.changelog_updated is null OR %v < jira_issues.changelog_updated)`, sinceValue)
+		AND (jira_issues.changelog_updated is null OR %v < jira_issues.updated)`, sinceValue)
 		// Get all Issues from 'changelog_updated' time on latest Issue.
 		// Then get Changelogs for those issues.
 
