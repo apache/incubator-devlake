@@ -3,6 +3,7 @@ package main // must be main for plugin entry point
 import (
 	"github.com/merico-dev/lake/logger"
 	lakeModels "github.com/merico-dev/lake/models"
+	"github.com/merico-dev/lake/plugins/core"
 	"github.com/merico-dev/lake/plugins/jira/models"
 	"github.com/merico-dev/lake/plugins/jira/tasks"
 	"github.com/mitchellh/mapstructure"
@@ -100,6 +101,16 @@ func (plugin Jira) Execute(options map[string]interface{}, progress chan<- float
 
 func (plugin Jira) RootPkgPath() string {
 	return "github.com/merico-dev/lake/plugins/jira"
+}
+
+func (plugin Jira) ApiResources() map[string]map[string]core.ApiResourceHandler {
+	return map[string]map[string]core.ApiResourceHandler{
+		"echo": {
+			"POST": func(input *core.ApiResourceInput) (*core.ApiResourceOutput, error) {
+				return &core.ApiResourceOutput{Body: input.Body}, nil
+			},
+		},
+	}
 }
 
 // Export a variable named PluginEntry for Framework to search and load
