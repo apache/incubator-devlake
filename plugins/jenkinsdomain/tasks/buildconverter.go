@@ -21,14 +21,12 @@ func ConvertBuilds() error {
 	jobOriginkeyGenerator := okgen.NewOriginKeyGenerator(&jenkinsModels.JenkinsJob{})
 	buildOriginkeyGenerator := okgen.NewOriginKeyGenerator(jenkinsBuild)
 
-	println("convert builds")
 	// iterate all rows
 	for cursor.Next() {
 		err = lakeModels.Db.ScanRows(cursor, jenkinsBuild)
 		if err != nil {
 			return err
 		}
-		println("jenkins build", jenkinsBuild)
 		build := &devops.Build{
 			DomainEntity: domainlayerBase.DomainEntity{
 				OriginKey: buildOriginkeyGenerator.Generate(jenkinsBuild.ID),
