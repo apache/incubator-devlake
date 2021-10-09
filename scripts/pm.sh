@@ -30,6 +30,31 @@ jira() {
     JSON
 }
 
+tasks_2d() {
+    curl -v -XPOST $LAKE_TASK_URL --data @- <<'    JSON' | jq
+    [
+        [
+            {
+                "plugin": "jira",
+                "options": {
+                    "boardId": 8
+                }
+            },
+            {
+                "plugin": "jenkins",
+                "options": {}
+            }
+        ],
+        [
+            {
+                "plugin": "jenkinsdomain",
+                "options": {}
+            }
+        ]
+    ]
+    JSON
+}
+
 jira_enrich_issues() {
     curl -v -XPOST $LAKE_TASK_URL --data @- <<'    JSON'
     [
