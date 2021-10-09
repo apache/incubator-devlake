@@ -20,12 +20,12 @@ run() {
 jira() {
     curl -v -XPOST $LAKE_TASK_URL --data @- <<'    JSON'
     [
-        {
+        [{
             "plugin": "jira",
             "options": {
                 "boardId": 8
             }
-        }
+        }]
     ]
     JSON
 }
@@ -33,13 +33,13 @@ jira() {
 jira_enrich_issues() {
     curl -v -XPOST $LAKE_TASK_URL --data @- <<'    JSON'
     [
-        {
+        [{
             "plugin": "jira",
             "options": {
                 "boardId": 8,
                 "tasks": [ "enrichIssues" ]
             }
-        }
+        }]
     ]
     JSON
 }
@@ -47,7 +47,7 @@ jira_enrich_issues() {
 all() {
     curl -v -XPOST $LAKE_TASK_URL --data @- <<'    JSON'
     [
-            {
+            [{
                 "plugin": "gitlab",
                 "options": {
                     "projectId": 8967944
@@ -62,7 +62,7 @@ all() {
             {
                 "plugin": "jenkins",
                 "options": {}
-            }
+            }]
     ]
     JSON
 }
@@ -70,12 +70,12 @@ all() {
 gitlab() {
     curl -v -XPOST $LAKE_TASK_URL --data @- <<'    JSON'
     [
-            {
+            [{
                 "plugin": "gitlab",
                 "options": {
                     "projectId": 8967944
                 }
-            }
+            }]
     ]
     JSON
 }
@@ -83,10 +83,10 @@ gitlab() {
 jenkins() {
     curl -v -XPOST $LAKE_TASK_URL --data @- <<'    JSON'
     [
-            {
+            [{
                 "plugin": "jenkins",
                 "options": {}
-            }
+            }]
     ]
     JSON
 }
@@ -105,12 +105,12 @@ tasks() {
 jiradomain() {
     curl -v -XPOST $LAKE_TASK_URL --data @- <<'    JSON'
     [
-        {
+        [{
             "plugin": "jiradomain",
             "options": {
                 "boardId": 8
             }
-        }
+        }]
     ]
     JSON
 }

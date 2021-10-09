@@ -142,10 +142,10 @@ Using URL
 ```
 curl -XPOST 'localhost:8080/task' \
 -H 'Content-Type: application/json' \
--d '[{
+-d '[[{
     "plugin": "jira",
     "options": {
         "boardId": 8
     }
-}]'
+}]]'
 ```

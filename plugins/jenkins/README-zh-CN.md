@@ -32,8 +32,8 @@ JENKINS_PASSWORD=your password or jenkins token here
 ```
 curl --location --request POST 'localhost:8080/task' \
   --header 'Content-Type: application/json' \
-  --data-raw '[{
+  --data-raw '[[{
       "plugin": "jenkins",
       "options": {}
-  }]'
+  }]]'
 ```

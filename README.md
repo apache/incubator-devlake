@@ -148,12 +148,12 @@ Otherwise, if you just want to use the cron job, please check `docker-compose` v
     ```
     curl -XPOST 'localhost:8080/task' \
     -H 'Content-Type: application/json' \
-    -d '[{
+    -d '[[{
         "plugin": "jira",
         "options": {
             "boardId": 8
         }
-    }]'
+    }]]'
     ```
 
 7. Visualize the data in the Grafana Dashboard

@@ -22,7 +22,6 @@ func LoadPlugins(pluginsDir string) error {
 			return err
 		}
 		fileName := d.Name()
-		println(fileName, path)
 		if strings.HasSuffix(fileName, ".so") {
 			pluginName := fileName[0 : len(d.Name())-3]
 			plug, loadErr := plugin.Open(path)
