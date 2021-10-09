@@ -14,7 +14,6 @@ import (
 func ConvertChangelogs(boardId uint64) error {
 
 	jiraChangelog := &jiraModels.JiraChangelog{}
-	//jiraChangelogItem := &jiraModels.JiraChangelogItem{}
 
 	var c1, c2 *sql.Rows
 	var err error
@@ -52,8 +51,6 @@ func ConvertChangelogs(boardId uint64) error {
 			return err
 		}
 		for _, jiraChangelogItem := range items {
-			//err = lakeModels.Db.ScanRows(c2, jiraChangelogItem)
-			println("converting item", jiraChangelogItem.ID)
 			if err != nil {
 				return err
 			}
@@ -62,13 +59,11 @@ func ConvertChangelogs(boardId uint64) error {
 					OriginKey: changelogOriginKeyGenerator.Generate(jiraChangelog.ID),
 				},
 				IssueOriginKey: issueOriginKeyGenerator.Generate(jiraChangelog.IssueId),
-				//AuthorId:       jiraChangelog.AuthorAccountId,
-				//FieldId:        jiraChangelogItem.FieldId,
-				AuthorName:  jiraChangelog.AuthorDisplayName,
-				FieldName:   jiraChangelogItem.Field,
-				From:        jiraChangelogItem.FromString,
-				To:          jiraChangelogItem.ToString,
-				CreatedDate: jiraChangelog.Created,
+				AuthorName:     jiraChangelog.AuthorDisplayName,
+				FieldName:      jiraChangelogItem.Field,
+				From:           jiraChangelogItem.FromString,
+				To:             jiraChangelogItem.ToString,
+				CreatedDate:    jiraChangelog.Created,
 			}
 
 			err = lakeModels.Db.Clauses(clause.OnConflict{UpdateAll: true}).Create(changelog).Error
@@ -77,7 +72,6 @@ func ConvertChangelogs(boardId uint64) error {
 				return err
 			}
 		}
-		//c2.Close()
 	}
 	return nil
 }

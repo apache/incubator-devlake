@@ -2,7 +2,6 @@ package services
 
 import (
 	"encoding/json"
-	"fmt"
 	"strings"
 
 	"github.com/merico-dev/lake/config"
@@ -63,6 +62,7 @@ func RunTask(task models.Task, data NewTask, taskComplete chan bool) (models.Tas
 	// trigger plugins
 	data.Options["ID"] = task.ID
 	go func() {
+		logger.Info("run task ", task)
 		progress := make(chan float32)
 		go func() {
 			err := plugins.RunPlugin(task.Plugin, data.Options, progress)
@@ -78,9 +78,9 @@ func RunTask(task models.Task, data NewTask, taskComplete chan bool) (models.Tas
 		}()
 
 		for p := range progress {
-			fmt.Printf("running plugin %v, progress: %v\n", task.Plugin, p*100)
 			task.Progress = p
 			models.Db.Save(&task)
+			logger.Info("running plugin progress", task)
 		}
 		task.Status = TASK_COMPLETED
 		err := models.Db.Save(&task).Error
