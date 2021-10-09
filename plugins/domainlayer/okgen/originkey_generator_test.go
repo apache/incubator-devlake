@@ -25,6 +25,10 @@ func (f *FooPlugin) RootPkgPath() string {
 	return "github.com/merico-dev/lake/plugins/domainlayer"
 }
 
+func (f *FooPlugin) ApiResources() map[string]map[string]core.ApiResourceHandler {
+	return make(map[string]map[string]core.ApiResourceHandler)
+}
+
 type FooModel struct {
 	gorm.Model
 }

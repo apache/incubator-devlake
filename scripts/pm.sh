@@ -69,6 +69,17 @@ jira_enrich_issues() {
     JSON
 }
 
+jira_echo() {
+    curl -v -XPOST "$LAKE_ENDPOINT/plugins/jira/echo" --data @- <<'    JSON' | jq
+    {
+        "plugin": "jira",
+        "options": {
+            "boardId": 8
+        }
+    }
+    JSON
+}
+
 all() {
     curl -v -XPOST $LAKE_TASK_URL --data @- <<'    JSON'
     [
@@ -149,6 +160,10 @@ jenkinsdomain() {
         }
     ]
     JSON
+}
+
+lint() {
+    golangci-lint run -v
 }
 
 "$@"

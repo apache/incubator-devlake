@@ -4,6 +4,7 @@ import (
 	"github.com/merico-dev/lake/config"
 	"github.com/merico-dev/lake/logger"
 	lakeModels "github.com/merico-dev/lake/models"
+	"github.com/merico-dev/lake/plugins/core"
 	"github.com/merico-dev/lake/plugins/jenkins/models"
 	"github.com/merico-dev/lake/plugins/jenkins/tasks"
 	"github.com/mitchellh/mapstructure"
@@ -58,6 +59,10 @@ func (j Jenkins) Execute(options map[string]interface{}, progress chan<- float32
 
 func (plugin Jenkins) RootPkgPath() string {
 	return "github.com/merico-dev/lake/plugins/jenkins"
+}
+
+func (plugin Jenkins) ApiResources() map[string]map[string]core.ApiResourceHandler {
+	return make(map[string]map[string]core.ApiResourceHandler)
 }
 
 var PluginEntry Jenkins //nolint

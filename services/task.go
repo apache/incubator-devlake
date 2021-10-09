@@ -79,8 +79,11 @@ func RunTask(task models.Task, data NewTask, taskComplete chan bool) (models.Tas
 
 		for p := range progress {
 			task.Progress = p
-			models.Db.Save(&task)
 			logger.Info("running plugin progress", task)
+			err := models.Db.Save(&task).Error
+			if err != nil {
+				logger.Error("Database error", err)
+			}
 		}
 		task.Status = TASK_COMPLETED
 		err := models.Db.Save(&task).Error
