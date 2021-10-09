@@ -52,12 +52,12 @@
     ```
     curl --location --request POST 'localhost:8080/task' \
     --header 'Content-Type: application/json' \
-    --data-raw '[{
+    --data-raw '[[{
         "plugin": "gitlab",
         "options": {
             "projectId": <Your gitlab project id>
         }
-    }]'
+    }]]'
     ```
 
 ## 如何获取 Gitlab Project ID

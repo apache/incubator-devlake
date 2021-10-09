@@ -6,12 +6,13 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/gin-gonic/gin/binding"
 	"github.com/merico-dev/lake/logger"
-	"github.com/merico-dev/lake/models"
 	"github.com/merico-dev/lake/services"
 )
 
 func Post(ctx *gin.Context) {
-	var data []services.NewTask
+	// We use a 2D array because the request body must be an array of a set of tasks
+	// to be executed concurrently, while each set is to be executed sequentially.
+	var data [][]services.NewTask
 
 	err := ctx.MustBindWith(&data, binding.JSON)
 	if err != nil {
@@ -20,18 +21,16 @@ func Post(ctx *gin.Context) {
 		return
 	}
 
-	var tasks []models.Task
+	tasks := services.CreateTasksInDBFromJSON(data)
+	// Return all created tasks to the User
+	ctx.JSON(http.StatusCreated, tasks)
 
-	for _, value := range data {
-		task, err := services.CreateTask(value)
+	go func() {
+		err := services.RunAllTasks(data, tasks)
 		if err != nil {
 			_ = ctx.AbortWithError(http.StatusInternalServerError, err)
-			return
 		}
-		tasks = append(tasks, *task)
-	}
-
-	ctx.JSON(http.StatusCreated, tasks)
+	}()
 }
 
 func Get(ctx *gin.Context) {

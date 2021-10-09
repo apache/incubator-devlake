@@ -9,9 +9,9 @@ This plugin converts Jira data to [Domain Layer](../domainlayer/README.md) data
 ```
 curl -XPOST 'localhost:8080/task' \
 -H 'Content-Type: application/json' \
--d '[{
+-d '[[{
     "plugin": "jiradomain",
     "options": {
     }
-}]'
+}]]'
 ```

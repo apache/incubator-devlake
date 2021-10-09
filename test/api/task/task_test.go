@@ -10,14 +10,23 @@ import (
 	"github.com/magiconair/properties/assert"
 	"github.com/merico-dev/lake/api"
 	"github.com/merico-dev/lake/utils"
+	"github.com/stretchr/testify/mock"
 )
 
 func TestNewTask(t *testing.T) {
 	r := gin.Default()
 	api.RegisterRouter(r)
 
+	type services struct {
+		mock.Mock
+	}
+
+	// fakeTask := models.Task{}
+	testObj := new(services)
+	testObj.On("CreateTask").Return(true, nil)
+
 	w := httptest.NewRecorder()
-	params := strings.NewReader(`[{ "plugin": "jira", "options": { "host": "www.jira.com" } }]`)
+	params := strings.NewReader(`[[{ "plugin": "jira", "options": { "host": "www.jira.com" } }]]`)
 	req, _ := http.NewRequest("POST", "/task", params)
 	r.ServeHTTP(w, req)
 
@@ -28,5 +37,5 @@ func TestNewTask(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	assert.Equal(t, tasks[0]["plugin"], "jira")
+	assert.Equal(t, tasks[0][0]["plugin"], "jira")
 }

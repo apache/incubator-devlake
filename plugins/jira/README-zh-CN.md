@@ -114,12 +114,12 @@ JIRA_ISSUE_STORYPOINT_FIELD=customfield_10026
 ```
 curl -XPOST 'localhost:8080/task' \
 -H 'Content-Type: application/json' \
--d '[{
+-d '[[{
     "plugin": "jira",
     "options": {
         "boardId": 8
     }
-}]'
+}]]'
 ```
 
 
