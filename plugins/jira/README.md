@@ -149,3 +149,128 @@ curl -XPOST 'localhost:8080/task' \
     }
 }]]'
 ```
+
+## API
+
+### Data Sources Management
+
+#### Data Sources
+
+- Get all data source
+```
+GET /plugins/jira/sources
+
+
+[
+  {
+    "ID": 14,
+    "CreatedAt": "2021-10-11T11:49:19.029Z",
+    "UpdatedAt": "2021-10-11T11:49:19.029Z",
+    "name": "test-jira-source",
+    "endpoint": "https://merico.atlassian.net/rest",
+    "basicAuthEncoded": "basicAuth",
+    "epicKeyField": "epicKeyField",
+    "storyPointField": "storyPointField",
+    "StoryPointCoefficient": 0.5
+  }
+]
+```
+- Create a new data source
+```
+POST /plugins/jira/sources
+{
+    "name": "test-jira-source",
+    "endpoint": "https://merico.atlassian.net/rest",
+    "basicAuthEncoded": "basicAuth",
+    "epicKeyField": "epicKeyField",
+    "storyPointField": "storyPointField",
+    "storyPointCoefficient": 0.5
+}
+```
+- Update data source
+```
+PUT /plugins/jira/sources/:sourceId
+{
+    "name": "test-jira-source-updated",
+    "endpoint": "https://merico.atlassian.net/rest",
+    "basicAuthEncoded": "basicAuth",
+    "epicKeyField": "epicKeyField",
+    "storyPointField": "storyPointField",
+    "storyPointCoefficient": 0.8
+}
+```
+- Delete data source
+```
+DELETE /plugins/jira/sources/:sourceId
+```
+
+#### Type mappings
+
+- Get all type mappings
+```
+GET /plugins/jira/sources/:sourceId/type-mappings
+
+
+[
+  {
+    "jiraSourceId": 16,
+    "userType": "userType",
+    "standardType": "standardType"
+  }
+]
+```
+- Create a new type mapping
+```
+POST /plugins/jira/sources/:sourceId/type-mappings
+{
+    "userType": "userType",
+    "standardType": "standardType"
+}
+```
+- Update type mapping
+```
+PUT /plugins/jira/sources/:sourceId/type-mapping/:userType
+{
+    "standardType": "standardTypeUpdated"
+}
+```
+- Delete type mapping
+```
+DELETE /plugins/jira/sources/:sourceId/type-mapping/:userType
+```
+
+#### Status mappings
+
+- Get all status mappings
+```
+GET /plugins/jira/sources/:sourceId/type-mappings/:userType/status-mappings
+
+
+[
+  {
+    "jiraSourceId": 16,
+    "userType": "userType",
+    "userStatus": "userStatus",
+    "standardStatus": "standardStatus"
+  }
+]
+```
+- Create a new status mapping
+```
+POST /plugins/jira/sources/:sourceId/type-mappings/:userType/status-mappings
+{
+    "userStatus": "userStatus",
+    "standardStatus": "standardStatus"
+}
+```
+- Update status mapping
+```
+PUT /plugins/jira/sources/:sourceId/type-mapping/:userType/status-mappings/:userStatus
+{
+    "standardStatus": "standardStatusUpdated"
+}
+```
+- Delete status mapping
+```
+DELETE /plugins/jira/sources/:sourceId/type-mapping/:userType/status-mappings/:userStatus
+```

@@ -7,6 +7,7 @@ import (
 	"github.com/merico-dev/lake/logger"
 	lakeModels "github.com/merico-dev/lake/models"
 	"github.com/merico-dev/lake/plugins/core"
+	"github.com/merico-dev/lake/plugins/jira/api"
 	"github.com/merico-dev/lake/plugins/jira/models"
 	"github.com/merico-dev/lake/plugins/jira/tasks"
 	"github.com/merico-dev/lake/utils"
@@ -29,6 +30,9 @@ func (plugin Jira) Init() {
 		&models.JiraBoardIssue{},
 		&models.JiraChangelog{},
 		&models.JiraChangelogItem{},
+		&models.JiraSource{},
+		&models.JiraIssueTypeMapping{},
+		&models.JiraIssueStatusMapping{},
 	)
 	if err != nil {
 		panic(err)
@@ -119,6 +123,30 @@ func (plugin Jira) ApiResources() map[string]map[string]core.ApiResourceHandler 
 			"POST": func(input *core.ApiResourceInput) (*core.ApiResourceOutput, error) {
 				return &core.ApiResourceOutput{Body: input.Body}, nil
 			},
+		},
+		"sources": {
+			"POST": api.PostSources,
+			"GET":  api.ListSources,
+		},
+		"sources/:sourceId": {
+			"PUT":    api.PutSource,
+			"DELETE": api.DeleteSource,
+		},
+		"sources/:sourceId/type-mappings": {
+			"POST": api.PostIssueTypeMappings,
+			"GET":  api.ListIssueTypeMappings,
+		},
+		"sources/:sourceId/type-mappings/:userType": {
+			"PUT":    api.PutIssueTypeMapping,
+			"DELETE": api.DeleteIssueTypeMapping,
+		},
+		"sources/:sourceId/type-mappings/:userType/status-mappings": {
+			"POST": api.PostIssueStatusMappings,
+			"GET":  api.ListIssueStatusMappings,
+		},
+		"sources/:sourceId/type-mappings/:userType/status-mappings/:userStatus": {
+			"PUT":    api.PutIssueStatusMapping,
+			"DELETE": api.DeleteIssueStatusMapping,
 		},
 	}
 }
