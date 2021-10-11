@@ -17,6 +17,94 @@ run() {
     go run $SCRIPT_DIR/../main.go
 }
 
+jira_source_post() {
+    curl -v -XPOST "$LAKE_ENDPOINT/plugins/jira/sources" --data @- <<'    JSON' | jq
+    {
+        "name": "test-jira-source",
+        "endpoint": "https://merico.atlassian.net/rest",
+        "basicAuthEncoded": "basicAuth",
+        "epicKeyField": "epicKeyField",
+        "storyPointField": "storyPointField",
+        "storyPointCoefficient": 0.5
+    }
+    JSON
+}
+
+jira_source_put() {
+    curl -v -XPUT "$LAKE_ENDPOINT/plugins/jira/sources/$1" --data @- <<'    JSON' | jq
+    {
+        "name": "test-jira-source-updated",
+        "endpoint": "https://merico.atlassian.net/rest",
+        "basicAuthEncoded": "basicAuth",
+        "epicKeyField": "epicKeyField",
+        "storyPointField": "storyPointField",
+        "storyPointCoefficient": 0.8
+    }
+    JSON
+}
+
+jira_source_list() {
+    curl -v "$LAKE_ENDPOINT/plugins/jira/sources" | jq
+}
+
+jira_source_get() {
+    curl -v "$LAKE_ENDPOINT/plugins/jira/sources/$1" | jq
+}
+
+jira_source_delete() {
+    curl -v -XDELETE "$LAKE_ENDPOINT/plugins/jira/sources/$1"
+}
+
+jira_typemapping_post() {
+    curl -v -XPOST "$LAKE_ENDPOINT/plugins/jira/sources/$1/type-mappings" --data @- <<'    JSON' | jq
+    {
+        "userType": "userType",
+        "standardType": "standardType"
+    }
+    JSON
+}
+
+jira_typemapping_put() {
+    curl -v -XPUT "$LAKE_ENDPOINT/plugins/jira/sources/$1/type-mappings/$2" --data @- <<'    JSON' | jq
+    {
+        "standardType": "standardTypeUpdated"
+    }
+    JSON
+}
+
+jira_typemapping_delete() {
+    curl -v -XDELETE "$LAKE_ENDPOINT/plugins/jira/sources/$1/type-mappings/$2"
+}
+
+jira_typemapping_list() {
+    curl -v "$LAKE_ENDPOINT/plugins/jira/sources/$1/type-mappings" | jq
+}
+
+jira_statusmapping_post() {
+    curl -v -XPOST "$LAKE_ENDPOINT/plugins/jira/sources/$1/type-mappings/$2/status-mappings" --data @- <<'    JSON' | jq
+    {
+        "userStatus": "userStatus",
+        "standardStatus": "standardStatus"
+    }
+    JSON
+}
+
+jira_statusmapping_put() {
+    curl -v -XPUT "$LAKE_ENDPOINT/plugins/jira/sources/$1/type-mappings/$2/status-mappings/$3" --data @- <<'    JSON' | jq
+    {
+        "standardStatus": "standardStatusUpdated"
+    }
+    JSON
+}
+
+jira_statusmapping_delete() {
+    curl -v -XDELETE "$LAKE_ENDPOINT/plugins/jira/sources/$1/type-mappings/$2/status-mappings/$3"
+}
+
+jira_statusmapping_list() {
+    curl -v "$LAKE_ENDPOINT/plugins/jira/sources/$1/type-mappings/$2/status-mappings" | jq
+}
+
 jira() {
     curl -v -XPOST $LAKE_TASK_URL --data @- <<'    JSON'
     [
