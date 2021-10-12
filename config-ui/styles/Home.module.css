@@ -81,16 +81,19 @@
   top: -0.4rem;
 }
 
-.formGroup {
+.formGroup,
+.statusMappingsFilterFormGroup {
   width: 100%;
   max-width: 600px;
 }
 
-.formGroup div {
+.formGroup div,
+.statusMappingsFilterFormGroup div {
   color: #717484 !important;
 }
 
-.formGroup label {
+.formGroup label,
+.statusMappingsFilterFormGroup label {
   color: #4B4D58;
   display: flex;
   align-items: center;
@@ -101,11 +104,31 @@
   margin-left: 1rem;
 }
 
-.formContainer {
+.formContainer,
+.jiraFormContainer {
   display: flex;
   width: 100%;
   align-items: center;
   margin-bottom: 0.5rem;
+}
+
+.jiraFormContainer {
+  height: auto;
+  flex-wrap: wrap;
+  flex-direction: column;
+  align-content: flex-start;
+}
+
+.jiraFormContainerItem {
+  width: 100%;
+}
+
+.statusMappingsFilterFormGroup {
+  align-self: flex-start;
+}
+
+.mappingTagStatus {
+  box-sizing: border-box;
 }
 
 .headlineContainer {
@@ -146,6 +169,10 @@
   width: 100%;
 }
 
+.addNewStatusBtn {
+  align-self: flex-start;
+}
+
 .addNewStatusBtn,
 .addNewStatusBtnDialog {
   border-radius: 3px;
@@ -169,4 +196,7 @@
 
 .customStatusDialog {
   background-color: #F4F4F6;
+  width: 100%;
+  max-width: 664px;
+  height: auto;
 }

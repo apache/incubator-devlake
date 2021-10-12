@@ -98,6 +98,20 @@ export default function Home(props) {
     e.preventDefault()
   }
 
+  const [statusMappingFilter, setStatusMappingFilter] = useState(statusMappings)
+  function filterStatusMappings(e) {
+    const query = e.target.value.toUpperCase()
+    const filtered = statusMappings.filter(item => {
+      if (query === item.key.slice(11, -15)) {
+        return true
+      } else if (query === '') {
+        return true
+      }
+    })
+
+    setStatusMappingFilter(filtered)
+  }
+
 
   function updateEnv(key, value) {
     fetch(`/api/setenv/${key}/${encodeURIComponent(value)}`)
@@ -238,57 +252,76 @@ export default function Home(props) {
               <p className={styles.description}>Map your own issue statuses to Dev Lake's standard statuses for every issue type</p>
             </div>
 
-            <div className={styles.formContainer} style={{height: 'auto', flexWrap: 'wrap'}}>
-                {statusMappings.length > 0 && statusMappings.map((statusMapping, i) =>
-                  <div
-                  key={statusMapping.key} style={{width: "100%"}}>
-                    <p>Mapping {statusMapping.type} </p>
-                    <div style={{marginLeft: "2em"}}>
-                      <MappingTagStatus
-                        reqValue={statusMapping.mapping.Rejected || []}
-                        resValue={statusMapping.mapping.Resolved || []}
-                        envName={statusMapping.key}
-                        clearBtnReq={<ClearButton onClick={() => setStatusMapping(statusMapping.key, [], 'Rejected')} />}
-                        clearBtnRes={<ClearButton onClick={() => setStatusMapping(statusMapping.key, [], 'Resolved')} />}
-                        onChangeReq={values => setStatusMapping(statusMapping.key, values, 'Rejected')}
-                        onChangeRes={values => setStatusMapping(statusMapping.key, values, 'Resolved')}
-                        style={{paddingLeft: '2em', boxSizing: 'border-box'}}
-                      />
-                    </div>
-                  </div>
-                )}
-                <Button icon="add" onClick={() => setCustomStatusOverlay(true)} className={styles.addNewStatusBtn}>Add New</Button>
+            <div className={styles.jiraFormContainer}>
 
-                <Dialog
-                  style={{ width: '100%', maxWidth: "664px", height: "auto" }}
-                  icon="diagram-tree"
-                  onClose={() => setCustomStatusOverlay(false)}
-                  title="Add a New Status Mapping"
-                  isOpen={customStatusOverlay}
-                  onOpened={() => setCustomStatusName('')}
-                  autoFocus={false}
-                  className={styles.customStatusDialog}
+              <FormGroup
+                  label=""
+                  inline={true}
+                  labelFor="filter-status-mappings"
+                  className={styles.statusMappingsFilterFormGroup}
+                  contentClassName={styles.formGroup}
                 >
-                  <div className={Classes.DIALOG_BODY}>
-                  <form onSubmit={addStatusMapping}>
-                    <FormGroup
-                      className={styles.formGroup}
-                      className={styles.customStatusFormGroup}
-                    >
-                      <InputGroup
-                        id="custom-status"
-                        placeholder="Enter custom status name"
-                        onChange={(e) => setCustomStatusName(e.target.value)}
-                        className={styles.customStatusInput}
-                        autoFocus={true}
-                      />
-                      <Button icon="add" onClick={addStatusMapping}
-                        className={styles.addNewStatusBtnDialog}
-                        onSubmit={(e) => e.preventDefault()}>Add New</Button>
-                    </FormGroup>
-                  </form>
+                <Label>
+                  <b>Filter&nbsp;status&nbsp;mappings</b><br/><br/>
+                  <InputGroup
+                    id="filter-status-mappings"
+                    leftIcon="search"
+                    placeholder="Search by name"
+                    onChange={(e) => filterStatusMappings(e)}
+                    className={styles.input}
+                  />
+                </Label>
+              </FormGroup>
+
+              {statusMappings.length > 0 && statusMappingFilter.map((statusMapping, i) =>
+                <div
+                key={statusMapping.key} className={styles.jiraFormContainerItem}>
+                  <p>Mapping {statusMapping.type} </p>
+                  <div>
+                    <MappingTagStatus
+                      reqValue={statusMapping.mapping.Rejected || []}
+                      resValue={statusMapping.mapping.Resolved || []}
+                      envName={statusMapping.key}
+                      clearBtnReq={<ClearButton onClick={() => setStatusMapping(statusMapping.key, [], 'Rejected')} />}
+                      clearBtnRes={<ClearButton onClick={() => setStatusMapping(statusMapping.key, [], 'Resolved')} />}
+                      onChangeReq={values => setStatusMapping(statusMapping.key, values, 'Rejected')}
+                      onChangeRes={values => setStatusMapping(statusMapping.key, values, 'Resolved')}
+                      className={styles.mappingTagStatus}
+                    />
                   </div>
-                </Dialog>
+                </div>
+              )}
+              <Button icon="add" onClick={() => setCustomStatusOverlay(true)} className={styles.addNewStatusBtn}>Add New</Button>
+
+              <Dialog
+                icon="diagram-tree"
+                onClose={() => setCustomStatusOverlay(false)}
+                title="Add a New Status Mapping"
+                isOpen={customStatusOverlay}
+                onOpened={() => setCustomStatusName('')}
+                autoFocus={false}
+                className={styles.customStatusDialog}
+              >
+                <div className={Classes.DIALOG_BODY}>
+                <form onSubmit={addStatusMapping}>
+                  <FormGroup
+                    className={styles.formGroup}
+                    className={styles.customStatusFormGroup}
+                  >
+                    <InputGroup
+                      id="custom-status"
+                      placeholder="Enter custom status name"
+                      onChange={(e) => setCustomStatusName(e.target.value)}
+                      className={styles.customStatusInput}
+                      autoFocus={true}
+                    />
+                    <Button icon="add" onClick={addStatusMapping}
+                      className={styles.addNewStatusBtnDialog}
+                      onSubmit={(e) => e.preventDefault()}>Add New</Button>
+                  </FormGroup>
+                </form>
+                </div>
+              </Dialog>
 
             </div>
 
