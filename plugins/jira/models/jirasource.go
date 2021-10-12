@@ -26,3 +26,8 @@ type JiraIssueStatusMapping struct {
 	UserStatus     string `gorm:"type:varchar(50);primaryKey" json:"userStatus" validate:"required"`
 	StandardStatus string `gorm:"type:varchar(50)" json:"standardStatus" validate:"required"`
 }
+
+type JiraSourceDetail struct {
+	JiraSource
+	TypeMappings map[string]map[string]interface{}
+}

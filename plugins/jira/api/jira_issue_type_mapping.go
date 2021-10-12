@@ -8,6 +8,7 @@ import (
 	"github.com/merico-dev/lake/plugins/core"
 	"github.com/merico-dev/lake/plugins/jira/models"
 	"github.com/mitchellh/mapstructure"
+	"gorm.io/gorm"
 )
 
 func findIssueTypeMappingByInputParam(input *core.ApiResourceInput) (*models.JiraIssueTypeMapping, error) {
@@ -30,18 +31,20 @@ func findIssueTypeMappingByInputParam(input *core.ApiResourceInput) (*models.Jir
 	return jiraIssueTypeMapping, nil
 }
 
-func syncIssueTypeMappingFromInput(
+func mergeFieldsToJiraTypeMapping(
 	jiraIssueTypeMapping *models.JiraIssueTypeMapping,
-	input *core.ApiResourceInput,
+	sources ...map[string]interface{},
 ) error {
-	// decode
-	err := mapstructure.Decode(input.Body, jiraIssueTypeMapping)
-	if err != nil {
-		return err
+	// merge fields from sources to jiraIssueTypeMapping
+	for _, source := range sources {
+		err := mapstructure.Decode(source, jiraIssueTypeMapping)
+		if err != nil {
+			return err
+		}
 	}
 	// validate
 	vld := validator.New()
-	err = vld.Struct(jiraIssueTypeMapping)
+	err := vld.Struct(jiraIssueTypeMapping)
 	if err != nil {
 		return err
 	}
@@ -53,6 +56,53 @@ func wrapIssueTypeDuplicateErr(err error) error {
 		return fmt.Errorf("jira issue type mapping already exists")
 	}
 	return err
+}
+
+func saveTypeMappings(tx *gorm.DB, jiraSourceId uint64, typeMappings interface{}) error {
+	typeMappingsMap, ok := typeMappings.(map[string]interface{})
+	if !ok {
+		return fmt.Errorf("typeMappings is not a JSON object: %v", typeMappings)
+	}
+	err := tx.Where("jira_source_id = ?", jiraSourceId).Delete(&models.JiraIssueTypeMapping{}).Error
+	if err != nil {
+		return err
+	}
+	for userType, typeMapping := range typeMappingsMap {
+		typeMappingMap, ok := typeMapping.(map[string]interface{})
+		if !ok {
+			return fmt.Errorf("typeMapping is not a JSON object: %v", typeMapping)
+		}
+		jiraIssueTypeMapping := &models.JiraIssueTypeMapping{}
+		err = mergeFieldsToJiraTypeMapping(jiraIssueTypeMapping, typeMappingMap, map[string]interface{}{
+			"JiraSourceID": jiraSourceId,
+			"UserType":     userType,
+		})
+		if err != nil {
+			return err
+		}
+		err = wrapIssueTypeDuplicateErr(tx.Create(jiraIssueTypeMapping).Error)
+		if err != nil {
+			return err
+		}
+
+		statusMappings := typeMappingMap["statusMappings"]
+		if statusMappings != nil {
+			err = saveStatusMappings(tx, jiraSourceId, userType, statusMappings)
+			if err != nil {
+				return err
+			}
+		}
+	}
+	return nil
+}
+
+func findIssueTypeMappingBySourceId(jiraSourceId uint64) ([]*models.JiraIssueTypeMapping, error) {
+	jiraIssueTypeMappings := make([]*models.JiraIssueTypeMapping, 0)
+	err := lakeModels.Db.Where("jira_source_id = ?", jiraSourceId).Find(&jiraIssueTypeMappings).Error
+	if err != nil {
+		return nil, err
+	}
+	return jiraIssueTypeMappings, nil
 }
 
 /*
@@ -68,8 +118,10 @@ func PostIssueTypeMappings(input *core.ApiResourceInput) (*core.ApiResourceOutpu
 	if err != nil {
 		return nil, err
 	}
-	jiraIssueTypeMapping := &models.JiraIssueTypeMapping{JiraSourceID: jiraSource.ID}
-	err = syncIssueTypeMappingFromInput(jiraIssueTypeMapping, input)
+	jiraIssueTypeMapping := &models.JiraIssueTypeMapping{}
+	err = mergeFieldsToJiraTypeMapping(jiraIssueTypeMapping, input.Body, map[string]interface{}{
+		"JiraSourceID": jiraSource.ID,
+	})
 	if err != nil {
 		return nil, err
 	}
@@ -94,7 +146,7 @@ func PutIssueTypeMapping(input *core.ApiResourceInput) (*core.ApiResourceOutput,
 		return nil, err
 	}
 	// update with request body
-	err = syncIssueTypeMappingFromInput(jiraIssueTypeMapping, input)
+	err = mergeFieldsToJiraTypeMapping(jiraIssueTypeMapping, input.Body)
 	if err != nil {
 		return nil, err
 	}
@@ -134,10 +186,6 @@ func ListIssueTypeMappings(input *core.ApiResourceInput) (*core.ApiResourceOutpu
 	if err != nil {
 		return nil, err
 	}
-	jiraIssueTypeMappings := make([]models.JiraIssueTypeMapping, 0)
-	err = lakeModels.Db.Where("jira_source_id = ?", jiraSource.ID).Find(&jiraIssueTypeMappings).Error
-	if err != nil {
-		return nil, err
-	}
-	return &core.ApiResourceOutput{Body: jiraIssueTypeMappings}, nil
+	jiraIssueTypeMappings, err := findIssueTypeMappingBySourceId(jiraSource.ID)
+	return &core.ApiResourceOutput{Body: jiraIssueTypeMappings}, err
 }
