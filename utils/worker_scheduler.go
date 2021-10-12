@@ -1,9 +1,13 @@
 package utils
 
 import (
-	"github.com/panjf2000/ants/v2"
+	"context"
+	"fmt"
 	"sync"
 	"time"
+
+	"github.com/merico-dev/lake/logger"
+	"github.com/panjf2000/ants/v2"
 )
 
 type WorkerScheduler struct {
@@ -11,13 +15,14 @@ type WorkerScheduler struct {
 	pool         *ants.Pool
 	ticker       *time.Ticker
 	workerErrors *[]error
+	ctx          context.Context
 }
 
 // NewWorkerScheduler 创建一个并行执行的调度器，控制最大运行数和每秒最大运行数量
 // NewWorkerScheduler Create a parallel scheduler to control the maximum number of runs and the maximum number of runs per second
 // 注意: task执行是无序的
 // Warning: task execution is out of order
-func NewWorkerScheduler(workerNum int, maxWorkEverySeconds int) (*WorkerScheduler, error) {
+func NewWorkerScheduler(workerNum int, maxWorkEverySeconds int, ctx context.Context) (*WorkerScheduler, error) {
 	var waitGroup sync.WaitGroup
 	workerErrors := make([]error, 0)
 	pWorkerErrors := &workerErrors
@@ -38,22 +43,33 @@ func NewWorkerScheduler(workerNum int, maxWorkEverySeconds int) (*WorkerSchedule
 		pool:         pool,
 		ticker:       ticker,
 		workerErrors: pWorkerErrors,
+		ctx:          ctx,
 	}
 	return scheduler, nil
 }
 
 func (s WorkerScheduler) Submit(task func() error) error {
-	s.waitGroup.Add(1)
-	return s.pool.Submit(func() {
-		if s.ticker != nil {
-			<-s.ticker.C
-		}
-		err := task()
-		if err != nil {
-			panic(err)
-		}
-		s.waitGroup.Done()
-	})
+	select {
+	case <-s.ctx.Done():
+		return fmt.Errorf("task got canceled")
+	default:
+		s.waitGroup.Add(1)
+		return s.pool.Submit(func() {
+			defer s.waitGroup.Done()
+			select {
+			case <-s.ctx.Done():
+				logger.Error("task got canceled", nil)
+			default:
+				if s.ticker != nil {
+					<-s.ticker.C
+				}
+				err := task()
+				if err != nil {
+					panic(err)
+				}
+			}
+		})
+	}
 }
 
 func (s WorkerScheduler) WaitUntilFinish() {

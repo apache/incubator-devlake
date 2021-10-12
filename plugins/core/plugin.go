@@ -1,6 +1,9 @@
 package core
 
-import "net/url"
+import (
+	"context"
+	"net/url"
+)
 
 type ApiResourceInput struct {
 	Params map[string]string      // path variables
@@ -17,7 +20,7 @@ type ApiResourceHandler func(input *ApiResourceInput) (*ApiResourceOutput, error
 type Plugin interface {
 	Description() string
 	Init()
-	Execute(options map[string]interface{}, progress chan<- float32)
+	Execute(options map[string]interface{}, progress chan<- float32, ctx context.Context)
 	// PkgPath information lost when compiled as plugin(.so)
 	RootPkgPath() string
 	ApiResources() map[string]map[string]ApiResourceHandler

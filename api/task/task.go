@@ -2,6 +2,7 @@ package task
 
 import (
 	"net/http"
+	"strconv"
 
 	"github.com/gin-gonic/gin"
 	"github.com/gin-gonic/gin/binding"
@@ -40,4 +41,18 @@ func Get(ctx *gin.Context) {
 		return
 	}
 	ctx.JSON(http.StatusOK, gin.H{"tasks": tasks})
+}
+
+func Delete(ctx *gin.Context) {
+	taskId := ctx.Param("taskId")
+	id, err := strconv.ParseUint(taskId, 10, 64)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, "invalid task id")
+		return
+	}
+	err = services.CancelTask(id)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, err.Error())
+		return
+	}
 }
