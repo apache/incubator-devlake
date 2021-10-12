@@ -8,6 +8,7 @@ import (
 	"github.com/merico-dev/lake/plugins/core"
 	"github.com/merico-dev/lake/plugins/jira/models"
 	"github.com/mitchellh/mapstructure"
+	"gorm.io/gorm"
 )
 
 func findIssueStatusMappingFromInput(input *core.ApiResourceInput) (*models.JiraIssueStatusMapping, error) {
@@ -35,15 +36,20 @@ func findIssueStatusMappingFromInput(input *core.ApiResourceInput) (*models.Jira
 	return jiraIssueStatusMapping, nil
 }
 
-func syncIssueStatusMappingFromInput(jiraIssueStatusMapping *models.JiraIssueStatusMapping, input *core.ApiResourceInput) error {
-	// decode
-	err := mapstructure.Decode(input.Body, jiraIssueStatusMapping)
-	if err != nil {
-		return err
+func mergeFieldsToJiraStatusMapping(
+	jiraIssueStatusMapping *models.JiraIssueStatusMapping,
+	sources ...map[string]interface{},
+) error {
+	// merge fields from sources to jiraIssueStatusMapping
+	for _, source := range sources {
+		err := mapstructure.Decode(source, jiraIssueStatusMapping)
+		if err != nil {
+			return err
+		}
 	}
 	// validate
 	vld := validator.New()
-	err = vld.Struct(jiraIssueStatusMapping)
+	err := vld.Struct(jiraIssueStatusMapping)
 	if err != nil {
 		return err
 	}
@@ -55,6 +61,53 @@ func wrapIssueStatusDuplicateErr(err error) error {
 		return fmt.Errorf("jira issue status mapping already exists")
 	}
 	return err
+}
+
+func saveStatusMappings(tx *gorm.DB, jiraSourceId uint64, userType string, statusMappings interface{}) error {
+	statusMappingsMap, ok := statusMappings.(map[string]interface{})
+	if !ok {
+		return fmt.Errorf("statusMappings is not a JSON object: %v", statusMappings)
+	}
+	err := tx.Where(
+		"jira_source_id = ? AND userType = ?",
+		jiraSourceId,
+		userType).Delete(&models.JiraIssueStatusMapping{}).Error
+	if err != nil {
+		return err
+	}
+	for userStatus, statusMapping := range statusMappingsMap {
+		statusMappingMap, ok := statusMapping.(map[string]interface{})
+		if !ok {
+			return fmt.Errorf("statusMapping is not a JSON object: %v", statusMappings)
+		}
+		jiraIssueStatusMapping := &models.JiraIssueStatusMapping{}
+		err = mergeFieldsToJiraStatusMapping(jiraIssueStatusMapping, statusMappingMap, map[string]interface{}{
+			"JiraSourceID": jiraSourceId,
+			"UserType":     userType,
+			"UserStatus":   userStatus,
+		})
+		if err != nil {
+			return err
+		}
+		err = tx.Create(jiraIssueStatusMapping).Error
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func findIssueStatusMappingBySourceIdAndUserType(
+	jiraSourceId uint64,
+	userType string,
+) ([]*models.JiraIssueStatusMapping, error) {
+	jiraIssueStatusMappings := make([]*models.JiraIssueStatusMapping, 0)
+	err := lakeModels.Db.Where(
+		"jira_source_id = ? AND user_type = ?",
+		jiraSourceId,
+		userType,
+	).Find(&jiraIssueStatusMappings).Error
+	return jiraIssueStatusMappings, err
 }
 
 /*
@@ -69,11 +122,11 @@ func PostIssueStatusMappings(input *core.ApiResourceInput) (*core.ApiResourceOut
 	if err != nil {
 		return nil, err
 	}
-	jiraIssueStatusMapping := &models.JiraIssueStatusMapping{
-		JiraSourceID: jiraIssueTypeMapping.JiraSourceID,
-		UserType:     jiraIssueTypeMapping.UserType,
-	}
-	err = syncIssueStatusMappingFromInput(jiraIssueStatusMapping, input)
+	jiraIssueStatusMapping := &models.JiraIssueStatusMapping{}
+	err = mergeFieldsToJiraStatusMapping(jiraIssueStatusMapping, input.Body, map[string]interface{}{
+		"JiraSourceID": jiraIssueTypeMapping.JiraSourceID,
+		"UserType":     jiraIssueTypeMapping.UserType,
+	})
 	if err != nil {
 		return nil, err
 	}
@@ -98,7 +151,7 @@ func PutIssueStatusMapping(input *core.ApiResourceInput) (*core.ApiResourceOutpu
 		return nil, err
 	}
 	// update with request body
-	err = syncIssueStatusMappingFromInput(jiraIssueStatusMapping, input)
+	err = mergeFieldsToJiraStatusMapping(jiraIssueStatusMapping, input.Body)
 	if err != nil {
 		return nil, err
 	}
@@ -133,12 +186,10 @@ func ListIssueStatusMappings(input *core.ApiResourceInput) (*core.ApiResourceOut
 	if err != nil {
 		return nil, err
 	}
-	jiraIssueStatusMappings := make([]models.JiraIssueStatusMapping, 0)
-	err = lakeModels.Db.Where(
-		"jira_source_id = ? AND user_type = ?",
+	jiraIssueStatusMappings, err := findIssueStatusMappingBySourceIdAndUserType(
 		jiraIssueTypeMapping.JiraSourceID,
 		jiraIssueTypeMapping.UserType,
-	).Find(&jiraIssueStatusMappings).Error
+	)
 	if err != nil {
 		return nil, err
 	}

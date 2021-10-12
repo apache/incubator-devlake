@@ -30,6 +30,43 @@ jira_source_post() {
     JSON
 }
 
+jira_source_post_full() {
+    curl -v -XPOST "$LAKE_ENDPOINT/plugins/jira/sources" --data @- <<'    JSON' | jq
+    {
+        "name": "test-jira-source-full",
+        "endpoint": "https://merico.atlassian.net/rest",
+        "basicAuthEncoded": "basicAuth",
+        "epicKeyField": "epicKeyField",
+        "storyPointField": "storyPointField",
+        "storyPointCoefficient": 0.5,
+        "typeMappings": {
+            "userTypeFull": {
+                "standardType": "standardTypeFull",
+                "statusMapping": {
+                    "userStatusFull": {
+                        "standardStatus": "standardStatusFull"
+                    }
+                }
+            }
+        }
+    }
+    JSON
+}
+
+jira_source_post_fail() {
+    curl -v -XPOST "$LAKE_ENDPOINT/plugins/jira/sources" --data @- <<'    JSON' | jq
+    {
+        "name": "test-jira-source-fail",
+        "endpoint": "https://merico.atlassian.net/rest",
+        "basicAuthEncoded": "basicAuth",
+        "epicKeyField": "epicKeyField",
+        "storyPointField": "storyPointField",
+        "storyPointCoefficient": 0.5,
+        "typeMappings": "ehhlow"
+    }
+    JSON
+}
+
 jira_source_put() {
     curl -v -XPUT "$LAKE_ENDPOINT/plugins/jira/sources/$1" --data @- <<'    JSON' | jq
     {
@@ -39,6 +76,29 @@ jira_source_put() {
         "epicKeyField": "epicKeyField",
         "storyPointField": "storyPointField",
         "storyPointCoefficient": 0.8
+    }
+    JSON
+}
+
+jira_source_put_full() {
+    curl -v -XPUT "$LAKE_ENDPOINT/plugins/jira/sources/$1" --data @- <<'    JSON' | jq
+    {
+        "name": "test-jira-source-updated",
+        "endpoint": "https://merico.atlassian.net/rest",
+        "basicAuthEncoded": "basicAuth",
+        "epicKeyField": "epicKeyField",
+        "storyPointField": "storyPointField",
+        "storyPointCoefficient": 0.8,
+        "typeMappings": {
+            "userTypeFullUpdated": {
+                "standardType": "standardTypeFullUpdated",
+                "statusMapping": {
+                    "userStatusFullUpdated": {
+                        "standardStatus": "standardStatusFullUpdated"
+                    }
+                }
+            }
+        }
     }
     JSON
 }

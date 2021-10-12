@@ -131,6 +131,7 @@ func (plugin Jira) ApiResources() map[string]map[string]core.ApiResourceHandler 
 		"sources/:sourceId": {
 			"PUT":    api.PutSource,
 			"DELETE": api.DeleteSource,
+			"GET":    api.GetSource,
 		},
 		"sources/:sourceId/type-mappings": {
 			"POST": api.PostIssueTypeMappings,
