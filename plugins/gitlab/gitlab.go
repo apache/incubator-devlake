@@ -3,6 +3,7 @@ package main // must be main for plugin entry point
 import (
 	"github.com/merico-dev/lake/logger" // A pseudo type for Plugin Interface implementation
 	lakeModels "github.com/merico-dev/lake/models"
+	"github.com/merico-dev/lake/plugins/core"
 	gitlabModels "github.com/merico-dev/lake/plugins/gitlab/models"
 	"github.com/merico-dev/lake/plugins/gitlab/tasks"
 	"github.com/merico-dev/lake/utils"
@@ -135,6 +136,10 @@ func collectChildrenOnMergeRequests(projectIdInt int, scheduler *utils.WorkerSch
 
 func (plugin Gitlab) RootPkgPath() string {
 	return "github.com/merico-dev/lake/plugins/gitlab"
+}
+
+func (plugin Gitlab) ApiResources() map[string]map[string]core.ApiResourceHandler {
+	return make(map[string]map[string]core.ApiResourceHandler)
 }
 
 // Export a variable named PluginEntry for Framework to search and load

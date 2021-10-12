@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/merico-dev/lake/logger" // A pseudo type for Plugin Interface implementation
+	"github.com/merico-dev/lake/plugins/core"
 	"github.com/merico-dev/lake/plugins/github/tasks"
 	"github.com/merico-dev/lake/utils"
 )
@@ -86,6 +87,10 @@ func (plugin Github) Execute(options map[string]interface{}, progress chan<- flo
 
 func (plugin Github) RootPkgPath() string {
 	return "github.com/merico-dev/lake/plugins/github"
+}
+
+func (plugin Github) ApiResources() map[string]map[string]core.ApiResourceHandler {
+	return make(map[string]map[string]core.ApiResourceHandler)
 }
 
 // Export a variable named PluginEntry for Framework to search and load
