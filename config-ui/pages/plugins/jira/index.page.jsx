@@ -1,5 +1,5 @@
 import Head from 'next/head'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import styles from '../../../styles/Home.module.css'
 import {
   Tooltip, Position, FormGroup, InputGroup, Button, Label, Icon, Classes, Dialog
@@ -68,6 +68,7 @@ export default function Home(props) {
     })
   }
   const [statusMappings, setStatusMappings] = useState(defaultStatusMappings)
+  const filterStatusMappingInput = useRef(null)
   function setStatusMapping(key, values, status) {
     setStatusMappings(statusMappings.map(mapping => {
       if (mapping.key === key) {
@@ -76,14 +77,17 @@ export default function Home(props) {
       return mapping
     }))
   }
+
+  const statusMappingsInput = useRef()
   const [customStatusOverlay, setCustomStatusOverlay] = useState(false)
   const [customStatusName, setCustomStatusName] = useState('')
+  const [filteredStatusMappings, setFilteredStatusMappings] = useState(statusMappings)
   function addStatusMapping(e) {
     const type = customStatusName.trim().toUpperCase()
     if (statusMappings.find(e => e.type === type)) {
       return
     }
-    setStatusMappings([
+    const result = [
       ...statusMappings,
       {
         type,
@@ -93,25 +97,27 @@ export default function Home(props) {
           Rejected: [],
         }
       }
-    ])
+    ]
+    statusMappingsInput.current = ''
+    setStatusMappings(result)
+    setFilteredStatusMappings(result)
     setCustomStatusOverlay(false)
     e.preventDefault()
   }
 
-  const [statusMappingFilter, setStatusMappingFilter] = useState(statusMappings)
   function filterStatusMappings(e) {
     const query = e.target.value.toUpperCase()
-    const filtered = statusMappings.filter(item => {
-      if (query === item.key.slice(11, -15)) {
-        return true
-      } else if (query === '') {
-        return true
-      }
-    })
-
-    setStatusMappingFilter(filtered)
+    if (statusMappings) {
+      const filtered = statusMappings.filter(item => {
+        if (query === item.key.slice(11, -15)) {
+          return true
+        } else if (query === '') {
+          return true
+        }
+      })
+      setFilteredStatusMappings(filtered)
+    }
   }
-
 
   function updateEnv(key, value) {
     fetch(`/api/setenv/${key}/${encodeURIComponent(value)}`)
@@ -267,13 +273,14 @@ export default function Home(props) {
                     id="filter-status-mappings"
                     leftIcon="search"
                     placeholder="Search by name"
+                    ref={statusMappingsInput}
                     onChange={(e) => filterStatusMappings(e)}
                     className={styles.input}
                   />
                 </Label>
               </FormGroup>
 
-              {statusMappings.length > 0 && statusMappingFilter.map((statusMapping, i) =>
+              {(statusMappings && statusMappings.length > 0) && filteredStatusMappings.map((statusMapping, i) =>
                 <div
                 key={statusMapping.key} className={styles.jiraFormContainerItem}>
                   <p>Mapping {statusMapping.type} </p>
