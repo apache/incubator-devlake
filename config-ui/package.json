@@ -7,7 +7,7 @@
     "build": "next build && next export",
     "start": "next start -p 4000",
     "lint": "next lint",
-    "server": "node server.js,
+    "server": "node server.js",
     "test": "jest",
     "test:watch": "jest --watch",
     "test:ci": "jest --ci"
