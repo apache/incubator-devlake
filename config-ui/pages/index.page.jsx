@@ -57,8 +57,8 @@ export default function Home(props) {
 
           <form className={styles.form}>
             <div className={styles.headlineContainer}>
-              <h2 className={styles.headline}>Main Database Connection</h2>
-              <p className={styles.description}>Settings for the mySQL database</p>
+              <h2 className={styles.headline}>Dev Lake Database Connection</h2>
+              <p className={styles.description}>Settings for the MySQL database</p>
             </div>
 
             <div className={styles.formContainer}>
@@ -85,7 +85,7 @@ export default function Home(props) {
             </div>
 
             <div className={styles.headlineContainer}>
-              <h2 className={styles.headline}>REST Configuration</h2>
+              <h2 className={styles.headline}>Dev Lake API Server</h2>
               <p className={styles.description}>Configure main REST Settings</p>
             </div>
 

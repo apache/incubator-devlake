@@ -1,7 +1,7 @@
 import Head from 'next/head'
 import { useState, useEffect } from 'react'
 import styles from '../../../styles/Home.module.css'
-import { FormGroup, InputGroup, Button, Label } from "@blueprintjs/core"
+import { FormGroup, InputGroup, Button, Label, Tooltip, Position } from "@blueprintjs/core"
 import dotenv from 'dotenv'
 import path from 'path'
 import * as fs from 'fs/promises'
@@ -17,6 +17,7 @@ export default function Home(props) {
   const [alertOpen, setAlertOpen] = useState(false)
   const [gitlabEndpoint, setGitlabEndpoint] = useState(env.GITLAB_ENDPOINT)
   const [gitlabAuth, setGitlabAuth] = useState(env.GITLAB_AUTH)
+  const [jiraBoardGitlabeProjects, setJiraBoardGitlabeProjects] = useState(env.JIRA_BOARD_GITLAB_PROJECTS)
 
   function updateEnv(key, value) {
     fetch(`/api/setenv/${key}/${encodeURIComponent(value)}`)
@@ -26,6 +27,7 @@ export default function Home(props) {
     e.preventDefault()
     updateEnv('GITLAB_ENDPOINT', gitlabEndpoint)
     updateEnv('GITLAB_AUTH', gitlabAuth)
+    updateEnv('JIRA_BOARD_GITLAB_PROJECTS', jiraBoardGitlabeProjects)
     setAlertOpen(true)
   }
 
@@ -94,6 +96,34 @@ export default function Home(props) {
                 </Label>
               </FormGroup>
             </div>
+
+            <div className={styles.headlineContainer}>
+            <h3 className={styles.headline}>Jira / Gitlab Connection</h3>
+            <p className={styles.description}>Connect jira board to gitlab projects</p>
+            </div>
+
+            <div className={styles.formContainer}>
+            <FormGroup
+              inline={true}
+              labelFor="jira-board-projects"
+              helperText="JIRA_BOARD_GITLAB_PROJECTS"
+              className={styles.formGroup}
+              contentClassName={styles.formGroup}
+            >
+              <Tooltip content="Jira board and Gitlab projects relationship" position={Position.TOP}>
+                <Label>
+                  Jira&nbsp;Board&nbsp;Gitlab&nbsp;Projects
+                  <InputGroup
+                    id="jira-storypoint-field"
+                    placeholder="<JIRA_BOARD>:<GITLAB_PROJECT_ID>,...; eg. 8:8967944,8967945;9:8967946,8967947"
+                    defaultValue={jiraBoardGitlabeProjects}
+                    onChange={(e) => setJiraBoardGitlabeProjects(e.target.value)}
+                    className={styles.input}
+                  />
+                </Label>
+              </Tooltip>
+            </FormGroup>
+          </div>
 
             <Button type="submit" outlined={true} large={true} className={styles.saveBtn} onClick={saveAll}>Save Config</Button>
 

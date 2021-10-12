@@ -44,7 +44,6 @@ export default function Home(props) {
   const [jiraIssueEpicKeyField, setJiraIssueEpicKeyField] = useState(env.JIRA_ISSUE_EPIC_KEY_FIELD)
   const [jiraIssueStoryCoefficient, setJiraIssueStoryCoefficient] = useState(env.JIRA_ISSUE_STORYPOINT_COEFFICIENT)
   const [jiraIssueStoryPointField, setJiraIssueStoryPointField] = useState(env.JIRA_ISSUE_STORYPOINT_FIELD)
-  const [jiraBoardGitlabeProjects, setJiraBoardGitlabeProjects] = useState(env.JIRA_BOARD_GITLAB_PROJECTS)
 
   // Type mappings state
   const defaultTypeMapping = parseMapping(env.JIRA_ISSUE_TYPE_MAPPING)
@@ -131,7 +130,6 @@ export default function Home(props) {
     updateEnv('JIRA_ISSUE_TYPE_MAPPING', typeMappingAll)
     updateEnv('JIRA_ISSUE_STORYPOINT_COEFFICIENT', jiraIssueStoryCoefficient)
     updateEnv('JIRA_ISSUE_STORYPOINT_FIELD', jiraIssueStoryPointField)
-    updateEnv('JIRA_BOARD_GITLAB_PROJECTS', jiraBoardGitlabeProjects)
 
     // Save all custom status data
     statusMappings.map(mapping => {
@@ -331,34 +329,6 @@ export default function Home(props) {
               </Dialog>
 
             </div>
-
-          <div className={styles.headlineContainer}>
-            <h3 className={styles.headline}>Jira / Gitlab Connection</h3>
-            <p className={styles.description}>Connect jira board to gitlab projects</p>
-            </div>
-
-            <div className={styles.formContainer}>
-            <FormGroup
-              inline={true}
-              labelFor="jira-board-projects"
-              helperText="JIRA_BOARD_GITLAB_PROJECTS"
-              className={styles.formGroup}
-              contentClassName={styles.formGroup}
-            >
-              <Tooltip content="Jira board and Gitlab projects relationship" position={Position.TOP}>
-                <Label>
-                  Jira&nbsp;Board&nbsp;Gitlab&nbsp;Projects
-                  <InputGroup
-                    id="jira-storypoint-field"
-                    placeholder="<JIRA_BOARD>:<GITLAB_PROJECT_ID>,...; eg. 8:8967944,8967945;9:8967946,8967947"
-                    defaultValue={jiraBoardGitlabeProjects}
-                    onChange={(e) => setJiraBoardGitlabeProjects(e.target.value)}
-                    className={styles.input}
-                  />
-                </Label>
-              </Tooltip>
-            </FormGroup>
-          </div>
 
           <div className={styles.headlineContainer}>
             <h3 className={styles.headline}>Additional Customization Settings</h3>
