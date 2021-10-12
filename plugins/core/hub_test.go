@@ -23,6 +23,10 @@ func (f *Foo) RootPkgPath() string {
 	return "path/to/foo"
 }
 
+func (f *Foo) ApiResources() map[string]map[string]ApiResourceHandler {
+	return make(map[string]map[string]ApiResourceHandler)
+}
+
 type Bar string
 
 func (b *Bar) Description() string {
@@ -38,6 +42,10 @@ func (b *Bar) Execute(options map[string]interface{}, progress chan<- float32) {
 
 func (b *Bar) RootPkgPath() string {
 	return "path/to/bar"
+}
+
+func (b *Bar) ApiResources() map[string]map[string]ApiResourceHandler {
+	return make(map[string]map[string]ApiResourceHandler)
 }
 
 func TestHub(t *testing.T) {

@@ -2,6 +2,7 @@ package main // must be main for plugin entry point
 
 import (
 	"github.com/merico-dev/lake/logger"
+	"github.com/merico-dev/lake/plugins/core"
 	"github.com/merico-dev/lake/plugins/jenkinsdomain/tasks"
 	"github.com/mitchellh/mapstructure"
 )
@@ -64,6 +65,10 @@ func (plugin JenkinsDomain) Execute(options map[string]interface{}, progress cha
 
 func (plugin JenkinsDomain) RootPkgPath() string {
 	return "github.com/merico-dev/lake/plugins/jenkinsdomain"
+}
+
+func (plugin JenkinsDomain) ApiResources() map[string]map[string]core.ApiResourceHandler {
+	return make(map[string]map[string]core.ApiResourceHandler)
 }
 
 // Export a variable named PluginEntry for Framework to search and load

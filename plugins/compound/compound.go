@@ -8,6 +8,7 @@ import (
 	"github.com/merico-dev/lake/config"
 	lakeModels "github.com/merico-dev/lake/models"
 	"github.com/merico-dev/lake/plugins/compound/models"
+	"github.com/merico-dev/lake/plugins/core"
 )
 
 // plugin interface
@@ -76,6 +77,10 @@ func (plugin Compound) Execute(options map[string]interface{}, progress chan<- f
 
 func (plugin Compound) RootPkgPath() string {
 	return "github.com/merico-dev/lake/plugins/compound"
+}
+
+func (plugin Compound) ApiResources() map[string]map[string]core.ApiResourceHandler {
+	return make(map[string]map[string]core.ApiResourceHandler)
 }
 
 // Export a variable named PluginEntry for Framework to search and load
