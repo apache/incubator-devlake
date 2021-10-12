@@ -1,6 +1,7 @@
 package plugins
 
 import (
+	"context"
 	"fmt"
 	"io/fs"
 	"path"
@@ -49,12 +50,12 @@ func LoadPlugins(pluginsDir string) error {
 	return walkErr
 }
 
-func RunPlugin(name string, options map[string]interface{}, progress chan<- float32) error {
+func RunPlugin(name string, options map[string]interface{}, progress chan<- float32, ctx context.Context) error {
 	plugin, err := GetPlugin(name)
 	if err != nil {
 		return err
 	}
-	plugin.Execute(options, progress)
+	plugin.Execute(options, progress, ctx)
 	return nil
 }
 

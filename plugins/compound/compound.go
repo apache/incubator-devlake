@@ -1,6 +1,7 @@
 package main // must be main for plugin entry point
 
 import (
+	"context"
 	"fmt"
 	"strconv"
 	"strings"
@@ -71,7 +72,7 @@ func (plugin Compound) Description() string {
 	return "To relate jira board and gitlab projects"
 }
 
-func (plugin Compound) Execute(options map[string]interface{}, progress chan<- float32) {
+func (plugin Compound) Execute(options map[string]interface{}, progress chan<- float32, ctx context.Context) {
 	close(progress)
 }
 

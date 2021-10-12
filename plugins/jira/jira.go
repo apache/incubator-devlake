@@ -1,6 +1,7 @@
 package main // must be main for plugin entry point
 
 import (
+	"context"
 	"fmt"
 
 	"github.com/merico-dev/lake/logger"
@@ -38,7 +39,7 @@ func (plugin Jira) Description() string {
 	return "To collect and enrich data from JIRA"
 }
 
-func (plugin Jira) Execute(options map[string]interface{}, progress chan<- float32) {
+func (plugin Jira) Execute(options map[string]interface{}, progress chan<- float32, ctx context.Context) {
 	// process options
 	var op JiraOptions
 	var err error
@@ -81,7 +82,7 @@ func (plugin Jira) Execute(options map[string]interface{}, progress chan<- float
 	}
 	progress <- 0.01
 	if tasksToRun["collectIssues"] {
-		err = tasks.CollectIssues(boardId, convertedSince)
+		err = tasks.CollectIssues(boardId, convertedSince, ctx)
 		if err != nil {
 			logger.Error("Error: ", err)
 			return
@@ -89,7 +90,7 @@ func (plugin Jira) Execute(options map[string]interface{}, progress chan<- float
 	}
 	progress <- 0.5
 	if tasksToRun["collectChangelogs"] {
-		err = tasks.CollectChangelogs(boardId, convertedSince)
+		err = tasks.CollectChangelogs(boardId, convertedSince, ctx)
 		if err != nil {
 			logger.Error("Error: ", err)
 			return

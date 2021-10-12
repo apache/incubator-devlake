@@ -1,6 +1,8 @@
 package main // must be main for plugin entry point
 
 import (
+	"context"
+
 	"github.com/merico-dev/lake/logger"
 	"github.com/merico-dev/lake/plugins/core"
 	"github.com/merico-dev/lake/plugins/jiradomain/tasks"
@@ -22,7 +24,7 @@ func (plugin JiraDomain) Description() string {
 	return "Convert Jira Entities to Domain Layer Entities"
 }
 
-func (plugin JiraDomain) Execute(options map[string]interface{}, progress chan<- float32) {
+func (plugin JiraDomain) Execute(options map[string]interface{}, progress chan<- float32, ctx context.Context) {
 	// process options
 	var op JiraDomainOptions
 	var err error
