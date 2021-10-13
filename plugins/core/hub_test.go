@@ -1,6 +1,7 @@
 package core
 
 import (
+	"context"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -15,7 +16,7 @@ func (f *Foo) Description() string {
 func (f *Foo) Init() {
 }
 
-func (f *Foo) Execute(options map[string]interface{}, progress chan<- float32) {
+func (f *Foo) Execute(options map[string]interface{}, progress chan<- float32, ctx context.Context) {
 	close(progress)
 }
 
@@ -36,7 +37,7 @@ func (b *Bar) Description() string {
 func (b *Bar) Init() {
 }
 
-func (b *Bar) Execute(options map[string]interface{}, progress chan<- float32) {
+func (b *Bar) Execute(options map[string]interface{}, progress chan<- float32, ctx context.Context) {
 	close(progress)
 }
 

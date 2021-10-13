@@ -1,6 +1,7 @@
 package main // must be main for plugin entry point
 
 import (
+	"context"
 	"fmt"
 
 	"github.com/merico-dev/lake/logger" // A pseudo type for Plugin Interface implementation
@@ -15,9 +16,9 @@ func (plugin Github) Description() string {
 	return "To collect and enrich data from GitHub"
 }
 
-func (plugin Github) Execute(options map[string]interface{}, progress chan<- float32) {
+func (plugin Github) Execute(options map[string]interface{}, progress chan<- float32, ctx context.Context) {
 	// We need this rate limit set to 1 since there are only 5000 requests per hour allowed for the github api
-	scheduler, err := utils.NewWorkerScheduler(50, 1)
+	scheduler, err := utils.NewWorkerScheduler(50, 1, ctx)
 	if err != nil {
 		logger.Error("could not create scheduler", false)
 	}

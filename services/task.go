@@ -1,7 +1,9 @@
 package services
 
 import (
+	"context"
 	"encoding/json"
+	"fmt"
 	"strings"
 
 	"github.com/merico-dev/lake/config"
@@ -20,6 +22,7 @@ const (
 // FIXME: don't use notification service here
 // move it to controller
 var notificationService *NotificationService
+var runningTasks map[uint64]context.CancelFunc
 
 type NewTask struct {
 	// Plugin name
@@ -36,10 +39,10 @@ func init() {
 	}
 	// FIXME: don't cancel tasks here
 	models.Db.Model(&models.Task{}).Where("status != ?", TASK_COMPLETED).Update("status", TASK_FAILED)
+	runningTasks = make(map[uint64]context.CancelFunc)
 }
 
 func CreateTaskInDB(data NewTask) (*models.Task, error) {
-	logger.Info("JON >>> createing task in db", 999)
 	b, err := json.Marshal(data.Options)
 	if err != nil {
 		return nil, err
@@ -61,11 +64,13 @@ func CreateTaskInDB(data NewTask) (*models.Task, error) {
 func RunTask(task models.Task, data NewTask, taskComplete chan bool) (models.Task, error) {
 	// trigger plugins
 	data.Options["ID"] = task.ID
+	ctx, cancel := context.WithCancel(context.Background())
+	runningTasks[task.ID] = cancel
 	go func() {
 		logger.Info("run task ", task)
 		progress := make(chan float32)
 		go func() {
-			err := plugins.RunPlugin(task.Plugin, data.Options, progress)
+			err := plugins.RunPlugin(task.Plugin, data.Options, progress, ctx)
 			if err != nil {
 				logger.Error("Task error", err)
 				task.Status = TASK_FAILED
@@ -90,6 +95,7 @@ func RunTask(task models.Task, data NewTask, taskComplete chan bool) (models.Tas
 		if err != nil {
 			logger.Error("Database error", err)
 		}
+		delete(runningTasks, task.ID)
 		// TODO: send notification
 		if notificationService != nil {
 			err = notificationService.TaskSuccess(TaskSuccessNotification{
@@ -105,6 +111,18 @@ func RunTask(task models.Task, data NewTask, taskComplete chan bool) (models.Tas
 		taskComplete <- true
 	}()
 	return task, nil
+}
+
+func CancelTask(taskId uint64) error {
+	fmt.Printf("running task: %v task id : %v", runningTasks, taskId)
+	if cancel, ok := runningTasks[taskId]; ok {
+		logger.Info("cancel task ", taskId)
+		cancel()
+		delete(runningTasks, taskId)
+	} else {
+		return fmt.Errorf("unable to cancel task %v", taskId)
+	}
+	return nil
 }
 
 func GetTasks(status string) ([]models.Task, error) {
@@ -123,18 +141,6 @@ func GetTasks(status string) ([]models.Task, error) {
 func CreateTasksInDBFromJSON(data [][]NewTask) [][]models.Task {
 	// create all the tasks in the db without running the tasks
 	var tasks [][]models.Task
-
-	// DELETE COMMENTS
-	// for i := 0; i < len(data); i++ {
-	// 	logger.Info("JON >>> 1", 1)
-	// 	logger.Info("JON >>> len(data)", len(data))
-	// 	for j := 0; j < len(data[i]); j++ {
-	// 		logger.Info("JON >>> 2", 2)
-	// 		logger.Info("JON >>> len(data[i])", len(data[i]))
-	// 		task, _ := CreateTaskInDB(data[i][j])
-	// 		tasks = append(tasks[i], *task)
-	// 	}
-	// }
 
 	for i := 0; i < len(data); i++ {
 		var tasksToAppend []models.Task

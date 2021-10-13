@@ -1,6 +1,7 @@
 package utils
 
 import (
+	"context"
 	"errors"
 	"testing"
 	"time"
@@ -8,7 +9,8 @@ import (
 
 func TestNewWorkerScheduler(t *testing.T) {
 	testChannel := make(chan int, 100)
-	s, _ := NewWorkerScheduler(5, 2)
+	ctx, cancel := context.WithCancel(context.Background())
+	s, _ := NewWorkerScheduler(5, 2, ctx)
 	defer s.Release()
 	for i := 1; i <= 5; i++ {
 		t := i
@@ -38,11 +40,13 @@ func TestNewWorkerScheduler(t *testing.T) {
 	if len(testChannel) != 5 {
 		t.Fatal(`worker not wait until finish`)
 	}
+	cancel()
 }
 
 func TestNewWorkerSchedulerWithoutSecond(t *testing.T) {
 	testChannel := make(chan int, 100)
-	s, _ := NewWorkerScheduler(5, 0)
+	ctx, cancel := context.WithCancel(context.Background())
+	s, _ := NewWorkerScheduler(5, 0, ctx)
 	defer s.Release()
 	for i := 1; i <= 5; i++ {
 		t := i
@@ -59,11 +63,13 @@ func TestNewWorkerSchedulerWithoutSecond(t *testing.T) {
 	if len(testChannel) != 5 {
 		t.Fatal(`worker not finish`)
 	}
+	cancel()
 }
 
 func TestNewWorkerSchedulerWithPanic(t *testing.T) {
 	testChannel := make(chan int, 100)
-	s, _ := NewWorkerScheduler(1, 1)
+	ctx, cancel := context.WithCancel(context.Background())
+	s, _ := NewWorkerScheduler(1, 1, ctx)
 	defer s.Release()
 	_ = s.Submit(func() error {
 		testChannel <- 1
@@ -73,4 +79,5 @@ func TestNewWorkerSchedulerWithPanic(t *testing.T) {
 	if len(*s.workerErrors) != 1 {
 		t.Fatal(`worker not got panic`)
 	}
+	cancel()
 }

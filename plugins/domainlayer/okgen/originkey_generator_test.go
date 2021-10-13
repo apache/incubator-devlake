@@ -1,6 +1,7 @@
 package okgen
 
 import (
+	"context"
 	"testing"
 
 	"github.com/merico-dev/lake/plugins/core"
@@ -17,7 +18,7 @@ func (f *FooPlugin) Description() string {
 func (f *FooPlugin) Init() {
 }
 
-func (f *FooPlugin) Execute(options map[string]interface{}, progress chan<- float32) {
+func (f *FooPlugin) Execute(options map[string]interface{}, progress chan<- float32, ctx context.Context) {
 	close(progress)
 }
 

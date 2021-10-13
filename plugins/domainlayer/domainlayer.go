@@ -1,6 +1,8 @@
 package main // must be main for plugin entry point
 
 import (
+	"context"
+
 	lakeModels "github.com/merico-dev/lake/models"
 	"github.com/merico-dev/lake/plugins/core"
 	"github.com/merico-dev/lake/plugins/domainlayer/models/code"
@@ -32,7 +34,7 @@ func (plugin DomainLayer) Description() string {
 	return "Domain Layer"
 }
 
-func (plugin DomainLayer) Execute(options map[string]interface{}, progress chan<- float32) {
+func (plugin DomainLayer) Execute(options map[string]interface{}, progress chan<- float32, ctx context.Context) {
 	progress <- 1
 }
 

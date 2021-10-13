@@ -1,6 +1,8 @@
 package main
 
 import (
+	"context"
+
 	"github.com/merico-dev/lake/config"
 	"github.com/merico-dev/lake/logger"
 	lakeModels "github.com/merico-dev/lake/models"
@@ -40,7 +42,7 @@ func (j Jenkins) CleanData() {
 	}
 }
 
-func (j Jenkins) Execute(options map[string]interface{}, progress chan<- float32) {
+func (j Jenkins) Execute(options map[string]interface{}, progress chan<- float32, ctx context.Context) {
 	var op = JenkinsOptions{
 		Host:     config.V.GetString("JENKINS_ENDPOINT"),
 		Username: config.V.GetString("JENKINS_USERNAME"),

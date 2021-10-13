@@ -1,6 +1,7 @@
 package tasks
 
 import (
+	"context"
 	"database/sql"
 	"fmt"
 	"net/http"
@@ -36,7 +37,7 @@ func init() {
 	storyPointField = config.V.GetString("JIRA_ISSUE_STORYPOINT_FIELD")
 }
 
-func CollectIssues(boardId uint64, since time.Time) error {
+func CollectIssues(boardId uint64, since time.Time, ctx context.Context) error {
 	jiraApiClient := GetJiraApiClient()
 	// diff sync
 	var latestUpdated models.JiraIssue
@@ -59,7 +60,7 @@ func CollectIssues(boardId uint64, since time.Time) error {
 	query := &url.Values{}
 	query.Set("jql", jql)
 
-	scheduler, err := utils.NewWorkerScheduler(10, 50)
+	scheduler, err := utils.NewWorkerScheduler(10, 50, ctx)
 	if err != nil {
 		return err
 	}
