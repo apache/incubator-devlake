@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/http"
 	"strconv"
+	"time"
 
 	"github.com/merico-dev/lake/utils"
 	"gorm.io/gorm/clause"
@@ -45,7 +46,7 @@ type JiraApiChangelogsResponse struct {
 	Values []JiraApiChangeLog `json:"values,omitempty"`
 }
 
-func GetWhereClauseConditionally(latestUpdatedIssue models.JiraIssue, since string) string {
+func GetWhereClauseConditionally(latestUpdatedIssue models.JiraIssue, since time.Time) string {
 	var whereClause string
 
 	if latestUpdatedIssue.ID > 0 {
@@ -53,7 +54,7 @@ func GetWhereClauseConditionally(latestUpdatedIssue models.JiraIssue, since stri
 		// Therefore only get data since the last time we fetched data
 		whereClause = fmt.Sprintf(`jira_board_issues.board_id = ?
 		AND (jira_issues.changelog_updated is null OR '%v' < jira_issues.updated)`, latestUpdatedIssue.Updated)
-	} else if since != "" {
+	} else if !since.IsZero() {
 		// This is the first time we have fetched data
 		// "Since" was provided in the POST request so we start there
 		whereClause = fmt.Sprintf(`jira_board_issues.board_id = ?
@@ -74,7 +75,7 @@ func GetLatestIssueFromDB() models.JiraIssue {
 	return latestUpdatedIssue
 }
 
-func CollectChangelogs(boardId uint64, since string) error {
+func CollectChangelogs(boardId uint64, since time.Time) error {
 	jiraIssue := &models.JiraIssue{}
 
 	// Get "Latest Issue" from the DB
