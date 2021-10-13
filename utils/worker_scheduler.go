@@ -29,7 +29,6 @@ func NewWorkerScheduler(workerNum int, maxWorkEverySeconds int, ctx context.Cont
 	pool, err := ants.NewPool(workerNum, ants.WithPanicHandler(func(i interface{}) {
 		workerErrors = append(*pWorkerErrors, i.(error))
 		pWorkerErrors = &workerErrors
-		waitGroup.Done()
 	}))
 	if err != nil {
 		return nil, err
