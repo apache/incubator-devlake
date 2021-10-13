@@ -8,7 +8,6 @@ import (
 	lakeModels "github.com/merico-dev/lake/models"
 	"github.com/merico-dev/lake/plugins/core"
 	"github.com/merico-dev/lake/plugins/github/models"
-	githubUtils "github.com/merico-dev/lake/plugins/github/utils"
 	"github.com/merico-dev/lake/utils"
 	"gorm.io/gorm/clause"
 )
@@ -42,7 +41,7 @@ func CollectIssueEvents(owner string, repositoryName string, issue *models.Githu
 						IssueId:         issue.GithubId,
 						Type:            event.Event,
 						AuthorUsername:  event.Actor.Login,
-						GithubCreatedAt: githubUtils.ConvertStringToTime(event.CreatedAt),
+						GithubCreatedAt: utils.ConvertStringToTime(event.CreatedAt),
 					}
 					err = lakeModels.Db.Clauses(clause.OnConflict{
 						UpdateAll: true,

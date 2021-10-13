@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/http"
 	"strconv"
+	"time"
 
 	"github.com/merico-dev/lake/utils"
 	"gorm.io/gorm/clause"
@@ -45,18 +46,53 @@ type JiraApiChangelogsResponse struct {
 	Values []JiraApiChangeLog `json:"values,omitempty"`
 }
 
-func CollectChangelogs(boardId uint64) error {
+func GetWhereClauseConditionally(latestUpdatedIssue models.JiraIssue, since time.Time) string {
+	var whereClause string
+
+	if latestUpdatedIssue.ID > 0 {
+		// This is not the first time we have fetched data for Jira.
+		// Therefore only get data since the last time we fetched data
+		whereClause = fmt.Sprintf(`jira_board_issues.board_id = ?
+		AND (jira_issues.changelog_updated is null OR '%v' < jira_issues.updated)`, latestUpdatedIssue.Updated)
+	} else if !since.IsZero() {
+		// This is the first time we have fetched data
+		// "Since" was provided in the POST request so we start there
+		whereClause = fmt.Sprintf(`jira_board_issues.board_id = ?
+		AND (jira_issues.changelog_updated is null OR '%v' < jira_issues.updated)`, since)
+	} else {
+		// This is the first time we fetch the data and since was not provided
+		whereClause = "jira_board_issues.board_id = ?"
+	}
+	return whereClause
+}
+
+func GetLatestIssueFromDB() models.JiraIssue {
+	var latestUpdatedIssue models.JiraIssue
+	err := lakeModels.Db.Debug().Order("changelog_updated DESC").Limit(1).Find(&latestUpdatedIssue).Error
+	if err != nil {
+		logger.Error("err", err)
+	}
+	return latestUpdatedIssue
+}
+
+func CollectChangelogs(boardId uint64, since time.Time) error {
 	jiraIssue := &models.JiraIssue{}
 
-	// select all issues belongs to the board
-	// TODO filter issues by update_at
-	cursor, err := lakeModels.Db.Model(jiraIssue).
+	// Get "Latest Issue" from the DB
+	latestUpdatedIssue := GetLatestIssueFromDB()
+
+	whereClause := GetWhereClauseConditionally(latestUpdatedIssue, since)
+
+	// Get all Issues from 'changelog_updated' time on latest Issue.
+	// Then get Changelogs for those issues.
+
+	cursor, err := lakeModels.Db.Debug().Model(jiraIssue).
 		Select("jira_issues.id", "jira_issues.updated").
 		Joins("left join jira_board_issues on jira_board_issues.issue_id = jira_issues.id").
-		Where(`jira_board_issues.board_id = ?
-                AND (jira_issues.changelog_updated is null OR jira_issues.changelog_updated < jira_issues.updated)`,
+		Where(whereClause,
 			boardId).
 		Rows()
+
 	if err != nil {
 		return err
 	}
@@ -80,7 +116,6 @@ func CollectChangelogs(boardId uint64) error {
 		if err != nil {
 			return err
 		}
-		//fmt.Printf("submit task for changelog %v\n", jiraIssue.ID)
 		issueId := jiraIssue.ID
 		updated := jiraIssue.Updated
 		err = issueScheduler.Submit(func() error {
