@@ -36,7 +36,7 @@ func init() {
 	storyPointField = config.V.GetString("JIRA_ISSUE_STORYPOINT_FIELD")
 }
 
-func CollectIssues(boardId uint64, since string) error {
+func CollectIssues(boardId uint64, since time.Time) error {
 	jiraApiClient := GetJiraApiClient()
 	// diff sync
 	var latestUpdated models.JiraIssue
@@ -49,10 +49,11 @@ func CollectIssues(boardId uint64, since string) error {
 	if latestUpdated.ID > 0 {
 		// This is not the first time we have fetched data for Jira.
 		jql = fmt.Sprintf("updated >= '%v' %v", latestUpdated.Updated.Format("2006/01/02 15:04"), jql)
-	} else if since != "" {
+	} else if !since.IsZero() {
+		fmt.Println("KEVIN >>> time is not zero");
 		// This is the first time we are fetching data from Jira and the user has sent an update time.
 		// We don't want all the data, we only want data since the update time.
-		jql = fmt.Sprintf("updated >= '%v' %v", utils.ConvertStringToTime(since).Format("2006/01/02 15:04"), jql)
+		jql = fmt.Sprintf("updated >= '%v' %v", since.Format("2006/01/02 15:04"), jql)
 	}
 	// Otherwise, we fetch all the data from all time
 	query := &url.Values{}
