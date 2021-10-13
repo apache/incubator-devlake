@@ -7,6 +7,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/gin-gonic/gin/binding"
 	"github.com/merico-dev/lake/logger"
+	"github.com/merico-dev/lake/models"
 	"github.com/merico-dev/lake/services"
 )
 
@@ -54,5 +55,10 @@ func Delete(ctx *gin.Context) {
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, err.Error())
 		return
+	} else {
+		err = models.Db.Model(&models.Task{}).Where("id = ?", id).Update("status", "CANCELLED").Error
+		if err != nil {
+			logger.Error("Could not upsert: ", err)
+		}
 	}
 }

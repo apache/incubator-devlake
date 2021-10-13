@@ -43,7 +43,6 @@ func init() {
 }
 
 func CreateTaskInDB(data NewTask) (*models.Task, error) {
-	logger.Info("JON >>> createing task in db", 999)
 	b, err := json.Marshal(data.Options)
 	if err != nil {
 		return nil, err
@@ -142,18 +141,6 @@ func GetTasks(status string) ([]models.Task, error) {
 func CreateTasksInDBFromJSON(data [][]NewTask) [][]models.Task {
 	// create all the tasks in the db without running the tasks
 	var tasks [][]models.Task
-
-	// DELETE COMMENTS
-	// for i := 0; i < len(data); i++ {
-	// 	logger.Info("JON >>> 1", 1)
-	// 	logger.Info("JON >>> len(data)", len(data))
-	// 	for j := 0; j < len(data[i]); j++ {
-	// 		logger.Info("JON >>> 2", 2)
-	// 		logger.Info("JON >>> len(data[i])", len(data[i]))
-	// 		task, _ := CreateTaskInDB(data[i][j])
-	// 		tasks = append(tasks[i], *task)
-	// 	}
-	// }
 
 	for i := 0; i < len(data); i++ {
 		var tasksToAppend []models.Task
