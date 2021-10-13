@@ -13,6 +13,7 @@ import (
 func RegisterRouter(r *gin.Engine) {
 	r.POST("/task", task.Post)
 	r.GET("/task", task.Get)
+	r.DELETE("/task/:taskId", task.Delete)
 
 	// mount all api resources for all plugins
 	pluginsApiResources, err := services.GetPluginsApiResources()

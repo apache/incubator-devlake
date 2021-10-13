@@ -1,6 +1,8 @@
 package main // must be main for plugin entry point
 
 import (
+	"context"
+
 	"github.com/merico-dev/lake/logger"
 	"github.com/merico-dev/lake/plugins/core"
 	"github.com/merico-dev/lake/plugins/jenkinsdomain/tasks"
@@ -21,7 +23,7 @@ func (plugin JenkinsDomain) Description() string {
 	return "Convert Jenkins Entities to Domain Layer Entities"
 }
 
-func (plugin JenkinsDomain) Execute(options map[string]interface{}, progress chan<- float32) {
+func (plugin JenkinsDomain) Execute(options map[string]interface{}, progress chan<- float32, ctx context.Context) {
 	// process options
 	var op JenkinsDomainOptions
 	var err error

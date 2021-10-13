@@ -1,6 +1,8 @@
 package main // must be main for plugin entry point
 
 import (
+	"context"
+
 	"github.com/merico-dev/lake/logger" // A pseudo type for Plugin Interface implementation
 	lakeModels "github.com/merico-dev/lake/models"
 	"github.com/merico-dev/lake/plugins/core"
@@ -15,13 +17,13 @@ func (plugin Gitlab) Description() string {
 	return "To collect and enrich data from Gitlab"
 }
 
-func (plugin Gitlab) Execute(options map[string]interface{}, progress chan<- float32) {
+func (plugin Gitlab) Execute(options map[string]interface{}, progress chan<- float32, ctx context.Context) {
 	logger.Print("start gitlab plugin execution")
 
 	// Gilab's authenticated api rate limit is 2000 per min
 	// 30 tasks/min 60s/min = 1800 per min < 2000 per min
 	// You would think this would work but it hits the rate limit every time. I have to play with the number to see the right way to set it
-	scheduler, err := utils.NewWorkerScheduler(50, 15)
+	scheduler, err := utils.NewWorkerScheduler(50, 15, ctx)
 	defer scheduler.Release()
 	if err != nil {
 		logger.Error("Could not create scheduler", true)
