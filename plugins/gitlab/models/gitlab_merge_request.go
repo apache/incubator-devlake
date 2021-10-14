@@ -1,6 +1,8 @@
 package models
 
 import (
+	"time"
+
 	"github.com/merico-dev/lake/models"
 )
 
@@ -14,13 +16,13 @@ type GitlabMergeRequest struct {
 	UserNotesCount   int
 	WorkInProgress   bool
 	SourceBranch     string
-	MergedAt         string
-	GitlabCreatedAt  string
-	ClosedAt         string
+	MergedAt         time.Time
+	GitlabCreatedAt  time.Time
+	ClosedAt         time.Time
 	MergedByUsername string
 	Description      string
 	AuthorUsername   string
-	FirstCommentTime string
+	FirstCommentTime time.Time
 	ReviewRounds     int
 
 	models.NoPKModel

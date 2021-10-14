@@ -8,6 +8,7 @@ import (
 	lakeModels "github.com/merico-dev/lake/models"
 	"github.com/merico-dev/lake/plugins/core"
 	"github.com/merico-dev/lake/plugins/gitlab/models"
+	"github.com/merico-dev/lake/utils"
 	"gorm.io/gorm/clause"
 )
 
@@ -52,10 +53,10 @@ func CollectMergeRequestCommits(projectId int, mr *models.GitlabMergeRequest) er
 					ShortId:        commit.ShortId,
 					AuthorName:     commit.AuthorName,
 					AuthorEmail:    commit.AuthorEmail,
-					AuthoredDate:   commit.AuthoredDate,
+					AuthoredDate:   utils.ConvertStringToTime(commit.AuthoredDate),
 					CommitterName:  commit.CommitterName,
 					CommitterEmail: commit.CommitterEmail,
-					CommittedDate:  commit.CommittedDate,
+					CommittedDate:  utils.ConvertStringToTime(commit.CommittedDate),
 					WebUrl:         commit.WebUrl,
 					Additions:      commit.Stats.Additions,
 					Deletions:      commit.Stats.Deletions,
