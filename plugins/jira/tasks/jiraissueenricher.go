@@ -52,7 +52,7 @@ func EnrichIssues(source *models.JiraSource, boardId uint64) (err error) {
 	// select all issues belongs to the board
 	cursor, err := lakeModels.Db.Model(jiraIssue).
 		Select("jira_issues.*").
-		Joins("left join jira_board_issues on jira_board_issues.issue_id = jira_issues.id").
+		Joins("left join jira_board_issues on jira_board_issues.issue_id = jira_issues.issue_id").
 		Where("jira_board_issues.board_id = ?", boardId).
 		Rows()
 	if err != nil {

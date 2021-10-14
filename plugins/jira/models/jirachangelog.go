@@ -7,9 +7,11 @@ import (
 )
 
 type JiraChangelog struct {
-	models.Model
+	models.NoPKModel
 
 	// collected fields
+	SourceId          uint64 `gorm:"primaryKey"`
+	ChangelogId       uint64 `gorm:"primarykey"`
 	IssueId           uint64 `gorm:"index"`
 	AuthorAccountId   string
 	AuthorDisplayName string
@@ -18,10 +20,12 @@ type JiraChangelog struct {
 }
 
 type JiraChangelogItem struct {
-	models.Model
+	models.NoPKModel
 
-	ChangelogId uint64 `gorm:"index"`
-	Field       string
+	// collected fields
+	SourceId    uint64 `gorm:"primaryKey"`
+	ChangelogId uint64 `gorm:"primaryKey"`
+	Field       string `gorm:"primaryKey"`
 	FieldType   string
 	FieldId     string
 	From        string

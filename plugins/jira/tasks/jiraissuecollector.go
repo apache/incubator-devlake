@@ -38,7 +38,7 @@ func CollectIssues(jiraApiClient *JiraApiClient, source *models.JiraSource, boar
 	}
 	jql := "ORDER BY updated ASC"
 
-	if latestUpdated.ID > 0 {
+	if latestUpdated.IssueId > 0 {
 		// This is not the first time we have fetched data for Jira.
 		jql = fmt.Sprintf("updated >= '%v' %v", latestUpdated.Updated.Format("2006/01/02 15:04"), jql)
 	} else if !since.IsZero() {
@@ -85,7 +85,7 @@ func CollectIssues(jiraApiClient *JiraApiClient, source *models.JiraSource, boar
 				lakeModels.Db.Create(&models.JiraBoardIssue{
 					SourceId: source.ID,
 					BoardId:  boardId,
-					IssueId:  jiraIssue.ID,
+					IssueId:  jiraIssue.IssueId,
 				})
 			}
 			return nil
@@ -134,7 +134,8 @@ func convertIssue(source *models.JiraSource, jiraApiIssue *JiraApiIssue) (*model
 		workload, _ = jiraApiIssue.Fields[source.StoryPointField].(float64)
 	}
 	jiraIssue := &models.JiraIssue{
-		Model:          lakeModels.Model{ID: id},
+		SourceId:       source.ID,
+		IssueId:        id,
 		ProjectId:      projectId,
 		Self:           jiraApiIssue.Self,
 		Key:            jiraApiIssue.Key,
