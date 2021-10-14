@@ -225,6 +225,7 @@ export default function Home(props) {
               labelName="Bug"
               labelIntent="danger"
               typeOrStatus="type"
+              placeholderText="Add Issue Types..."
               values={typeMappingBug}
               helperText="JIRA_ISSUE_TYPE_MAPPING"
               rightElement={<ClearButton onClick={() => setTypeMappingBug([])} />}
@@ -235,6 +236,7 @@ export default function Home(props) {
               labelName="Incident"
               labelIntent="warning"
               typeOrStatus="type"
+              placeholderText="Add Issue Types..."
               values={typeMappingIncident}
               helperText="JIRA_ISSUE_TYPE_MAPPING"
               rightElement={<ClearButton onClick={() => setTypeMappingIncident([])} />}
@@ -245,6 +247,7 @@ export default function Home(props) {
               labelName="Requirement"
               labelIntent="primary"
               typeOrStatus="type"
+              placeholderText="Add Issue Types..."
               values={typeMappingRequirement}
               helperText="JIRA_ISSUE_TYPE_MAPPING"
               rightElement={<ClearButton onClick={() => setTypeMappingRequirement([])} />}

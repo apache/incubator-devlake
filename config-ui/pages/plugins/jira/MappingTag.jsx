@@ -1,7 +1,7 @@
 import { Tooltip, Position, FormGroup, Label, Tag, TagInput } from '@blueprintjs/core'
 import styles from '../../../styles/Home.module.css'
 
-const MappingTag = ({labelIntent, labelName, onChange, rightElement, helperText, typeOrStatus, values}) => {
+const MappingTag = ({labelIntent, labelName, onChange, rightElement, helperText, typeOrStatus, values, placeholderText}) => {
   return <>
     <p>Issue {typeOrStatus === 'type' ? 'types' : 'statuses' } mapped to&nbsp;&nbsp;<Tag intent={labelIntent}>{labelName}</Tag></p>
 
@@ -16,7 +16,7 @@ const MappingTag = ({labelIntent, labelName, onChange, rightElement, helperText,
         <Tooltip content={`Map custom Jira types to main ${labelName} status`} position={Position.TOP}>
           <Label>
           <TagInput
-            placeholder="Add Tags..."
+            placeholder={placeholderText}
             values={values || []}
             fill={true}
             onChange={value => setTimeout(() => onChange([...new Set(value)]), 0)}
