@@ -15,9 +15,10 @@ import (
 )
 
 type JiraOptions struct {
-	BoardId uint64   `json:"boardId"`
-	Tasks   []string `json:"tasks,omitempty"`
-	Since   string
+	SourceId uint64   `json:"sourceId"`
+	BoardId  uint64   `json:"boardId"`
+	Tasks    []string `json:"tasks,omitempty"`
+	Since    string
 }
 
 // plugin interface
@@ -47,13 +48,35 @@ func (plugin Jira) Execute(options map[string]interface{}, progress chan<- float
 	// process options
 	var op JiraOptions
 	var err error
+	var boardIds []uint64
 	err = mapstructure.Decode(options, &op)
 	if err != nil {
 		logger.Error("Error: ", err)
 		return
 	}
+	if op.SourceId == 0 {
+		// sourceId is required
+		logger.Print("sourceId is invalid")
+		return
+	}
+	source := &models.JiraSource{}
+	err = lakeModels.Db.Find(source, op.SourceId).Error
+	if err != nil {
+		logger.Print("jira source not found")
+		return
+	}
 	if op.BoardId == 0 {
-		logger.Print("boardId is invalid")
+		// boardId omitted: to collect all boards of the data source
+		err = lakeModels.Db.Model(&models.JiraBoard{}).Where("source_id = ?", op.SourceId).Pluck("id", &boardIds).Error
+		if err != nil {
+			logger.Error("Error: ", err)
+			return
+		}
+	} else {
+		boardIds = []uint64{op.BoardId}
+	}
+	if len(boardIds) == 0 {
+		logger.Error("no board to collect", op)
 		return
 	}
 	convertedSince := utils.ConvertStringToTime(op.Since)
@@ -61,7 +84,6 @@ func (plugin Jira) Execute(options map[string]interface{}, progress chan<- float
 		fmt.Println("ERROR >>> Since value is in the wrong format")
 		return
 	}
-	boardId := op.BoardId
 	tasksToRun := make(map[string]bool, len(op.Tasks))
 	for _, task := range op.Tasks {
 		tasksToRun[task] = true
@@ -75,40 +97,53 @@ func (plugin Jira) Execute(options map[string]interface{}, progress chan<- float
 		}
 	}
 
+	setBoardProgress := func(boardIndex int, boardProgress float32) {
+		boardPart := 1.0 / float32(len(boardIds))
+		progress <- boardPart*float32(boardIndex) + boardPart*boardProgress
+	}
+
 	// run tasks
 	logger.Print("start jira plugin execution")
-	if tasksToRun["collectBoard"] {
-		err := tasks.CollectBoard(boardId)
-		if err != nil {
-			logger.Error("Error: ", err)
-			return
-		}
+
+	jiraApiClient, err := tasks.NewJiraApiClientBySourceId(op.SourceId)
+	if err != nil {
+		logger.Error("failed to create jira api client", err)
+		return
 	}
-	progress <- 0.01
-	if tasksToRun["collectIssues"] {
-		err = tasks.CollectIssues(boardId, convertedSince, ctx)
-		if err != nil {
-			logger.Error("Error: ", err)
-			return
+	for i, boardId := range boardIds {
+		if tasksToRun["collectBoard"] {
+			err := tasks.CollectBoard(jiraApiClient, source, boardId)
+			if err != nil {
+				logger.Error("Error: ", err)
+				return
+			}
 		}
-	}
-	progress <- 0.5
-	if tasksToRun["collectChangelogs"] {
-		err = tasks.CollectChangelogs(boardId, convertedSince, ctx)
-		if err != nil {
-			logger.Error("Error: ", err)
-			return
+		setBoardProgress(i, 0.01)
+		if tasksToRun["collectIssues"] {
+			err = tasks.CollectIssues(jiraApiClient, source, boardId, convertedSince, ctx)
+			if err != nil {
+				logger.Error("Error: ", err)
+				return
+			}
 		}
-	}
-	progress <- 0.8
-	if tasksToRun["enrichIssues"] {
-		err = tasks.EnrichIssues(boardId)
-		if err != nil {
-			logger.Error("Error: ", err)
-			return
+		setBoardProgress(i, 0.5)
+		if tasksToRun["collectChangelogs"] {
+			err = tasks.CollectChangelogs(jiraApiClient, boardId, convertedSince, ctx)
+			if err != nil {
+				logger.Error("Error: ", err)
+				return
+			}
 		}
+		setBoardProgress(i, 0.8)
+		if tasksToRun["enrichIssues"] {
+			err = tasks.EnrichIssues(source, boardId)
+			if err != nil {
+				logger.Error("Error: ", err)
+				return
+			}
+		}
+		setBoardProgress(i, 1.0)
 	}
-	progress <- 1
 	logger.Print("end jira plugin execution")
 	close(progress)
 }

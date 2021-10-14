@@ -2,36 +2,43 @@ package tasks
 
 import (
 	"fmt"
-	"github.com/merico-dev/lake/logger"
-	"github.com/merico-dev/lake/utils"
 	"net/http"
 	"net/url"
 	"strconv"
 	"time"
 
-	"github.com/merico-dev/lake/config"
+	"github.com/merico-dev/lake/logger"
+	lakeModels "github.com/merico-dev/lake/models"
+	"github.com/merico-dev/lake/utils"
+
 	"github.com/merico-dev/lake/plugins/core"
+	"github.com/merico-dev/lake/plugins/jira/models"
 )
 
 type JiraApiClient struct {
 	core.ApiClient
 }
 
-var jiraApiClient *JiraApiClient
-
-func GetJiraApiClient() *JiraApiClient {
-	if jiraApiClient == nil {
-		jiraApiClient = &JiraApiClient{}
-		jiraApiClient.Setup(
-			config.V.GetString("JIRA_ENDPOINT"),
-			map[string]string{
-				"Authorization": fmt.Sprintf("Basic %v", config.V.GetString("JIRA_BASIC_AUTH_ENCODED")),
-			},
-			10*time.Second,
-			3,
-		)
-	}
+func NewJiraApiClient(endpoint string, auth string) *JiraApiClient {
+	jiraApiClient := &JiraApiClient{}
+	jiraApiClient.Setup(
+		endpoint,
+		map[string]string{
+			"Authorization": fmt.Sprintf("Basic %v", auth),
+		},
+		10*time.Second,
+		3,
+	)
 	return jiraApiClient
+}
+
+func NewJiraApiClientBySourceId(sourceId uint64) (*JiraApiClient, error) {
+	jiraSource := &models.JiraSource{}
+	err := lakeModels.Db.First(jiraSource, sourceId).Error
+	if err != nil {
+		return nil, err
+	}
+	return NewJiraApiClient(jiraSource.Endpoint, jiraSource.BasicAuthEncoded), nil
 }
 
 type JiraPagination struct {

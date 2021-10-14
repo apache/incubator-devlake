@@ -145,6 +145,7 @@ curl -XPOST 'localhost:8080/task' \
 -d '[[{
     "plugin": "jira",
     "options": {
+        "sourceId": 1,
         "boardId": 8
     }
 }]]'

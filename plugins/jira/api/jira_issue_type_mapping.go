@@ -63,7 +63,7 @@ func saveTypeMappings(tx *gorm.DB, jiraSourceId uint64, typeMappings interface{}
 	if !ok {
 		return fmt.Errorf("typeMappings is not a JSON object: %v", typeMappings)
 	}
-	err := tx.Where("jira_source_id = ?", jiraSourceId).Delete(&models.JiraIssueTypeMapping{}).Error
+	err := tx.Where("source_id = ?", jiraSourceId).Delete(&models.JiraIssueTypeMapping{}).Error
 	if err != nil {
 		return err
 	}
@@ -74,8 +74,8 @@ func saveTypeMappings(tx *gorm.DB, jiraSourceId uint64, typeMappings interface{}
 		}
 		jiraIssueTypeMapping := &models.JiraIssueTypeMapping{}
 		err = mergeFieldsToJiraTypeMapping(jiraIssueTypeMapping, typeMappingMap, map[string]interface{}{
-			"JiraSourceID": jiraSourceId,
-			"UserType":     userType,
+			"SourceID": jiraSourceId,
+			"UserType": userType,
 		})
 		if err != nil {
 			return err
@@ -98,7 +98,7 @@ func saveTypeMappings(tx *gorm.DB, jiraSourceId uint64, typeMappings interface{}
 
 func findIssueTypeMappingBySourceId(jiraSourceId uint64) ([]*models.JiraIssueTypeMapping, error) {
 	jiraIssueTypeMappings := make([]*models.JiraIssueTypeMapping, 0)
-	err := lakeModels.Db.Where("jira_source_id = ?", jiraSourceId).Find(&jiraIssueTypeMappings).Error
+	err := lakeModels.Db.Where("source_id = ?", jiraSourceId).Find(&jiraIssueTypeMappings).Error
 	if err != nil {
 		return nil, err
 	}
@@ -120,7 +120,7 @@ func PostIssueTypeMappings(input *core.ApiResourceInput) (*core.ApiResourceOutpu
 	}
 	jiraIssueTypeMapping := &models.JiraIssueTypeMapping{}
 	err = mergeFieldsToJiraTypeMapping(jiraIssueTypeMapping, input.Body, map[string]interface{}{
-		"JiraSourceID": jiraSource.ID,
+		"SourceID": jiraSource.ID,
 	})
 	if err != nil {
 		return nil, err
@@ -171,7 +171,11 @@ func DeleteIssueTypeMapping(input *core.ApiResourceInput) (*core.ApiResourceOutp
 	if err != nil {
 		return nil, err
 	}
-	err = lakeModels.Db.Where("jira_source_id = ? AND user_type = ?", jiraIssueTypeMapping.JiraSourceID, jiraIssueTypeMapping.UserType).Delete(&models.JiraIssueStatusMapping{}).Error
+	err = lakeModels.Db.Where(
+		"source_id = ? AND user_type = ?",
+		jiraIssueTypeMapping.SourceID,
+		jiraIssueTypeMapping.UserType,
+	).Delete(&models.JiraIssueStatusMapping{}).Error
 	if err != nil {
 		return nil, err
 	}
