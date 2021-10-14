@@ -19,7 +19,7 @@ const MappingTag = ({labelIntent, labelName, onChange, rightElement, helperText,
             placeholder="Add Tags..."
             values={values || []}
             fill={true}
-            onChange={value => onChange([...new Set(value)])}
+            onChange={value => setTimeout(() => onChange([...new Set(value)]), 0)}
             addOnPaste={true}
             rightElement={rightElement}
             onKeyDown={e => e.key === 'Enter' && e.preventDefault()}
