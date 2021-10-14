@@ -324,16 +324,16 @@ tasks() {
 }
 
 jiradomain() {
-    curl -v -XPOST $LAKE_TASK_URL --data @- <<'    JSON'
+    curl -v -XPOST $LAKE_TASK_URL --data '
     [
         [{
             "plugin": "jiradomain",
             "options": {
+                "sourceId": '$1',
                 "boardId": 8
             }
         }]
-    ]
-    JSON
+    ]' | jq
 }
 
 jenkinsdomain() {

@@ -9,21 +9,21 @@ import (
 	"gorm.io/gorm/clause"
 )
 
-func ConvertIssues(boardId uint64) error {
+func ConvertIssues(sourceId uint64, boardId uint64) error {
 
 	jiraIssue := &jiraModels.JiraIssue{}
 	// select all issues belongs to the board
 	cursor, err := lakeModels.Db.Model(jiraIssue).
 		Select("jira_issues.*").
-		Joins("left join jira_board_issues on jira_board_issues.issue_id = jira_issues.id").
-		Where("jira_board_issues.board_id = ?", boardId).
+		Joins("left join jira_board_issues on jira_board_issues.issue_id = jira_issues.issue_id").
+		Where("jira_board_issues.source_id = ? AND jira_board_issues.board_id = ?", sourceId, boardId).
 		Rows()
 	if err != nil {
 		return err
 	}
 	defer cursor.Close()
 
-	boardOriginKey := okgen.NewOriginKeyGenerator(&jiraModels.JiraBoard{}).Generate(boardId)
+	boardOriginKey := okgen.NewOriginKeyGenerator(&jiraModels.JiraBoard{}).Generate(sourceId, boardId)
 	issueOriginKeyGenerator := okgen.NewOriginKeyGenerator(&jiraModels.JiraIssue{})
 
 	// iterate all rows
@@ -34,7 +34,7 @@ func ConvertIssues(boardId uint64) error {
 		}
 		issue := &ticket.Issue{
 			DomainEntity: domainlayerBase.DomainEntity{
-				OriginKey: issueOriginKeyGenerator.Generate(jiraIssue.ID),
+				OriginKey: issueOriginKeyGenerator.Generate(jiraIssue.SourceId, jiraIssue.IssueId),
 			},
 			BoardOriginKey: boardOriginKey,
 			Url:            jiraIssue.Self,

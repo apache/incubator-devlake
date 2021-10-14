@@ -9,17 +9,17 @@ import (
 	"gorm.io/gorm/clause"
 )
 
-func ConvertBoard(boardId uint64) error {
+func ConvertBoard(sourceId uint64, boardId uint64) error {
 	jiraBoard := &jiraModels.JiraBoard{}
 
-	err := lakeModels.Db.First(jiraBoard, boardId).Error
+	err := lakeModels.Db.First(jiraBoard, "source_id = ? AND board_id = ?", sourceId, boardId).Error
 	if err != nil {
 		return err
 	}
 
 	board := &ticket.Board{
 		DomainEntity: base.DomainEntity{
-			OriginKey: okgen.NewOriginKeyGenerator(jiraBoard).Generate(boardId),
+			OriginKey: okgen.NewOriginKeyGenerator(jiraBoard).Generate(jiraBoard.SourceId, boardId),
 		},
 		Name: jiraBoard.Name,
 		Url:  jiraBoard.Self,
