@@ -18,39 +18,57 @@ run() {
 }
 
 jira_source_post() {
-    curl -v -XPOST "$LAKE_ENDPOINT/plugins/jira/sources" --data @- <<'    JSON' | jq
+    curl -v -XPOST "$LAKE_ENDPOINT/plugins/jira/sources" --data '
     {
         "name": "test-jira-source",
-        "endpoint": "https://merico.atlassian.net/rest",
-        "basicAuthEncoded": "basicAuth",
-        "epicKeyField": "epicKeyField",
-        "storyPointField": "storyPointField",
-        "storyPointCoefficient": 0.5
+        "endpoint": "'"$JIRA_ENDPOINT"'",
+        "basicAuthEncoded": "'"$JIRA_BASIC_AUTH_ENCODED"'",
+        "epicKeyField": "'"$JIRA_ENDPOINT"'",
+        "storyPointField": "'"$JIRA_ISSUE_STORYPOINT_FIELD"'",
+        "storyPointCoefficient": '$JIRA_ISSUE_STORYPOINT_COEFFICIENT'
     }
-    JSON
+    ' | jq
 }
 
 jira_source_post_full() {
-    curl -v -XPOST "$LAKE_ENDPOINT/plugins/jira/sources" --data @- <<'    JSON' | jq
+    curl -v -XPOST "$LAKE_ENDPOINT/plugins/jira/sources" --data '
     {
-        "name": "test-jira-source-full",
-        "endpoint": "https://merico.atlassian.net/rest",
-        "basicAuthEncoded": "basicAuth",
-        "epicKeyField": "epicKeyField",
-        "storyPointField": "storyPointField",
-        "storyPointCoefficient": 0.5,
+        "name": "test-jira-source",
+        "endpoint": "'"$JIRA_ENDPOINT"'",
+        "basicAuthEncoded": "'"$JIRA_BASIC_AUTH_ENCODED"'",
+        "epicKeyField": "'"$JIRA_ENDPOINT"'",
+        "storyPointField": "'"$JIRA_ISSUE_STORYPOINT_FIELD"'",
+        "storyPointCoefficient": '$JIRA_ISSUE_STORYPOINT_COEFFICIENT',
         "typeMappings": {
-            "userTypeFull": {
-                "standardType": "standardTypeFull",
-                "statusMapping": {
-                    "userStatusFull": {
-                        "standardStatus": "standardStatusFull"
+            "Story": {
+                "standardType": "Requirement",
+                "statusMappings": {
+                    "已完成": {
+                        "standardStatus": "Resolved"
+                    },
+                    "已解决": {
+                        "standardStatus": "Resolved"
+                    }
+                }
+            },
+            "Incident": {
+                "standardType": "Incident",
+                "statusMappings": {
+                    "已完成": {
+                        "standardStatus": "Resolved"
+                    }
+                }
+            },
+            "Bug": {
+                "standardType": "Bug",
+                "statusMappings": {
+                    "已完成": {
+                        "standardStatus": "Resolved"
                     }
                 }
             }
         }
-    }
-    JSON
+    }' | jq
 }
 
 jira_source_post_fail() {
@@ -81,26 +99,44 @@ jira_source_put() {
 }
 
 jira_source_put_full() {
-    curl -v -XPUT "$LAKE_ENDPOINT/plugins/jira/sources/$1" --data @- <<'    JSON' | jq
+    curl -v -XPUT "$LAKE_ENDPOINT/plugins/jira/sources/$1" --data '
     {
         "name": "test-jira-source-updated",
-        "endpoint": "https://merico.atlassian.net/rest",
-        "basicAuthEncoded": "basicAuth",
-        "epicKeyField": "epicKeyField",
-        "storyPointField": "storyPointField",
-        "storyPointCoefficient": 0.8,
+        "endpoint": "'"$JIRA_ENDPOINT"'",
+        "basicAuthEncoded": "'"$JIRA_BASIC_AUTH_ENCODED"'",
+        "epicKeyField": "'"$JIRA_ENDPOINT"'",
+        "storyPointField": "'"$JIRA_ISSUE_STORYPOINT_FIELD"'",
+        "storyPointCoefficient": '$JIRA_ISSUE_STORYPOINT_COEFFICIENT',
         "typeMappings": {
-            "userTypeFullUpdated": {
-                "standardType": "standardTypeFullUpdated",
-                "statusMapping": {
-                    "userStatusFullUpdated": {
-                        "standardStatus": "standardStatusFullUpdated"
+            "Story": {
+                "standardType": "Requirement",
+                "statusMappings": {
+                    "已完成": {
+                        "standardStatus": "Resolved"
+                    },
+                    "已解决": {
+                        "standardStatus": "Resolved"
+                    }
+                }
+            },
+            "Incident": {
+                "standardType": "Incident",
+                "statusMappings": {
+                    "已完成": {
+                        "standardStatus": "Resolved"
+                    }
+                }
+            },
+            "Bug": {
+                "standardType": "Bug",
+                "statusMappings": {
+                    "已完成": {
+                        "standardStatus": "Resolved"
                     }
                 }
             }
         }
-    }
-    JSON
+    }' | jq
 }
 
 jira_source_list() {
@@ -166,16 +202,17 @@ jira_statusmapping_list() {
 }
 
 jira() {
-    curl -v -XPOST $LAKE_TASK_URL --data @- <<'    JSON'
+    curl -v -XPOST $LAKE_TASK_URL --data '
     [
         [{
             "plugin": "jira",
             "options": {
-                "boardId": 8
+                "sourceId": '$1',
+                "boardId": '$2'
             }
         }]
     ]
-    JSON
+    ' | jq
 }
 
 tasks_2d() {

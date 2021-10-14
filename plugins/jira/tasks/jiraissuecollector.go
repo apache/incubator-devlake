@@ -11,14 +11,11 @@ import (
 
 	"github.com/merico-dev/lake/utils"
 
-	"github.com/merico-dev/lake/config"
 	lakeModels "github.com/merico-dev/lake/models"
 	"github.com/merico-dev/lake/plugins/core"
 	"github.com/merico-dev/lake/plugins/jira/models"
 	"gorm.io/gorm/clause"
 )
-
-var epicKeyField, storyPointField string
 
 type JiraApiIssue struct {
 	Id     string                 `json:"id"`
@@ -32,13 +29,7 @@ type JiraApiIssuesResponse struct {
 	Issues []JiraApiIssue `json:"issues"`
 }
 
-func init() {
-	epicKeyField = config.V.GetString("JIRA_ISSUE_EPIC_KEY_FIELD")
-	storyPointField = config.V.GetString("JIRA_ISSUE_STORYPOINT_FIELD")
-}
-
-func CollectIssues(boardId uint64, since time.Time, ctx context.Context) error {
-	jiraApiClient := GetJiraApiClient()
+func CollectIssues(jiraApiClient *JiraApiClient, source *models.JiraSource, boardId uint64, since time.Time, ctx context.Context) error {
 	// diff sync
 	var latestUpdated models.JiraIssue
 	err := lakeModels.Db.Order("updated DESC").Limit(1).Find(&latestUpdated).Error
@@ -51,7 +42,7 @@ func CollectIssues(boardId uint64, since time.Time, ctx context.Context) error {
 		// This is not the first time we have fetched data for Jira.
 		jql = fmt.Sprintf("updated >= '%v' %v", latestUpdated.Updated.Format("2006/01/02 15:04"), jql)
 	} else if !since.IsZero() {
-		fmt.Println("KEVIN >>> time is not zero");
+		fmt.Println("KEVIN >>> time is not zero")
 		// This is the first time we are fetching data from Jira and the user has sent an update time.
 		// We don't want all the data, we only want data since the update time.
 		jql = fmt.Sprintf("updated >= '%v' %v", since.Format("2006/01/02 15:04"), jql)
@@ -78,7 +69,7 @@ func CollectIssues(boardId uint64, since time.Time, ctx context.Context) error {
 			// process issues
 			for _, jiraApiIssue := range jiraApiIssuesResponse.Issues {
 
-				jiraIssue, err := convertIssue(&jiraApiIssue)
+				jiraIssue, err := convertIssue(source, &jiraApiIssue)
 				if err != nil {
 					return err
 				}
@@ -92,8 +83,9 @@ func CollectIssues(boardId uint64, since time.Time, ctx context.Context) error {
 
 				// board / issue relationship
 				lakeModels.Db.Create(&models.JiraBoardIssue{
-					BoardId: boardId,
-					IssueId: jiraIssue.ID,
+					SourceId: source.ID,
+					BoardId:  boardId,
+					IssueId:  jiraIssue.ID,
 				})
 			}
 			return nil
@@ -105,8 +97,7 @@ func CollectIssues(boardId uint64, since time.Time, ctx context.Context) error {
 	return nil
 }
 
-func convertIssue(jiraApiIssue *JiraApiIssue) (*models.JiraIssue, error) {
-
+func convertIssue(source *models.JiraSource, jiraApiIssue *JiraApiIssue) (*models.JiraIssue, error) {
 	id, err := strconv.ParseUint(jiraApiIssue.Id, 10, 64)
 	if err != nil {
 		return nil, err
@@ -129,8 +120,8 @@ func convertIssue(jiraApiIssue *JiraApiIssue) (*models.JiraIssue, error) {
 	statusName := status["name"].(string)
 	statusKey := status["statusCategory"].(map[string]interface{})["key"].(string)
 	epicKey := ""
-	if epicKeyField != "" {
-		epicKey, _ = jiraApiIssue.Fields[epicKeyField].(string)
+	if source.EpicKeyField != "" {
+		epicKey, _ = jiraApiIssue.Fields[source.EpicKeyField].(string)
 	}
 	resolutionDate := sql.NullTime{}
 	if rd, ok := jiraApiIssue.Fields["resolutiondate"]; ok && rd != nil {
@@ -139,8 +130,8 @@ func convertIssue(jiraApiIssue *JiraApiIssue) (*models.JiraIssue, error) {
 		}
 	}
 	workload := 0.0
-	if storyPointField != "" {
-		workload, _ = jiraApiIssue.Fields[storyPointField].(float64)
+	if source.StoryPointField != "" {
+		workload, _ = jiraApiIssue.Fields[source.StoryPointField].(float64)
 	}
 	jiraIssue := &models.JiraIssue{
 		Model:          lakeModels.Model{ID: id},

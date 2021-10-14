@@ -170,11 +170,11 @@ func DeleteSource(input *core.ApiResourceInput) (*core.ApiResourceOutput, error)
 		return nil, err
 	}
 	// cascading delete
-	err = lakeModels.Db.Where("jira_source_id = ?", jiraSource.ID).Delete(&models.JiraIssueTypeMapping{}).Error
+	err = lakeModels.Db.Where("source_id = ?", jiraSource.ID).Delete(&models.JiraIssueTypeMapping{}).Error
 	if err != nil {
 		return nil, err
 	}
-	err = lakeModels.Db.Where("jira_source_id = ?", jiraSource.ID).Delete(&models.JiraIssueStatusMapping{}).Error
+	err = lakeModels.Db.Where("source_id = ?", jiraSource.ID).Delete(&models.JiraIssueStatusMapping{}).Error
 	if err != nil {
 		return nil, err
 	}

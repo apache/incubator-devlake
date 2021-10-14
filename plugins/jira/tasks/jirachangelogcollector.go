@@ -76,7 +76,7 @@ func GetLatestIssueFromDB() models.JiraIssue {
 	return latestUpdatedIssue
 }
 
-func CollectChangelogs(boardId uint64, since time.Time, ctx context.Context) error {
+func CollectChangelogs(jiraApiClient *JiraApiClient, boardId uint64, since time.Time, ctx context.Context) error {
 	jiraIssue := &models.JiraIssue{}
 
 	// Get "Latest Issue" from the DB
@@ -109,7 +109,6 @@ func CollectChangelogs(boardId uint64, since time.Time, ctx context.Context) err
 	}
 	defer changelogScheduler.Release()
 	defer issueScheduler.Release()
-	jiraApiClient := GetJiraApiClient()
 
 	// iterate all rows
 	for cursor.Next() {

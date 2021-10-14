@@ -25,7 +25,7 @@ func findIssueStatusMappingFromInput(input *core.ApiResourceInput) (*models.Jira
 	jiraIssueStatusMapping := &models.JiraIssueStatusMapping{}
 	err = lakeModels.Db.First(
 		jiraIssueStatusMapping,
-		jiraIssueTypeMapping.JiraSourceID,
+		jiraIssueTypeMapping.SourceID,
 		jiraIssueTypeMapping.UserType,
 		userStatus,
 	).Error
@@ -69,7 +69,7 @@ func saveStatusMappings(tx *gorm.DB, jiraSourceId uint64, userType string, statu
 		return fmt.Errorf("statusMappings is not a JSON object: %v", statusMappings)
 	}
 	err := tx.Where(
-		"jira_source_id = ? AND userType = ?",
+		"source_id = ? AND user_type = ?",
 		jiraSourceId,
 		userType).Delete(&models.JiraIssueStatusMapping{}).Error
 	if err != nil {
@@ -82,9 +82,9 @@ func saveStatusMappings(tx *gorm.DB, jiraSourceId uint64, userType string, statu
 		}
 		jiraIssueStatusMapping := &models.JiraIssueStatusMapping{}
 		err = mergeFieldsToJiraStatusMapping(jiraIssueStatusMapping, statusMappingMap, map[string]interface{}{
-			"JiraSourceID": jiraSourceId,
-			"UserType":     userType,
-			"UserStatus":   userStatus,
+			"SourceID":   jiraSourceId,
+			"UserType":   userType,
+			"UserStatus": userStatus,
 		})
 		if err != nil {
 			return err
@@ -103,7 +103,7 @@ func findIssueStatusMappingBySourceIdAndUserType(
 ) ([]*models.JiraIssueStatusMapping, error) {
 	jiraIssueStatusMappings := make([]*models.JiraIssueStatusMapping, 0)
 	err := lakeModels.Db.Where(
-		"jira_source_id = ? AND user_type = ?",
+		"source_id = ? AND user_type = ?",
 		jiraSourceId,
 		userType,
 	).Find(&jiraIssueStatusMappings).Error
@@ -124,8 +124,8 @@ func PostIssueStatusMappings(input *core.ApiResourceInput) (*core.ApiResourceOut
 	}
 	jiraIssueStatusMapping := &models.JiraIssueStatusMapping{}
 	err = mergeFieldsToJiraStatusMapping(jiraIssueStatusMapping, input.Body, map[string]interface{}{
-		"JiraSourceID": jiraIssueTypeMapping.JiraSourceID,
-		"UserType":     jiraIssueTypeMapping.UserType,
+		"SourceID": jiraIssueTypeMapping.SourceID,
+		"UserType": jiraIssueTypeMapping.UserType,
 	})
 	if err != nil {
 		return nil, err
@@ -187,7 +187,7 @@ func ListIssueStatusMappings(input *core.ApiResourceInput) (*core.ApiResourceOut
 		return nil, err
 	}
 	jiraIssueStatusMappings, err := findIssueStatusMappingBySourceIdAndUserType(
-		jiraIssueTypeMapping.JiraSourceID,
+		jiraIssueTypeMapping.SourceID,
 		jiraIssueTypeMapping.UserType,
 	)
 	if err != nil {
