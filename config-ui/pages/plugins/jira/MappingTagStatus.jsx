@@ -5,7 +5,7 @@ const MappingTagStatus = ({reqValue, resValue, envName, clearBtnReq, clearBtnRes
     <MappingTag
       labelName="Rejected"
       labelIntent="danger"
-      placeholderText="Add Issue Status..."
+      placeholderText="Add Issue Status Types..."
       values={reqValue}
       helperText={envName}
       rightElement={clearBtnReq}
@@ -14,7 +14,7 @@ const MappingTagStatus = ({reqValue, resValue, envName, clearBtnReq, clearBtnRes
     <MappingTag
       labelName="Resolved"
       labelIntent="success"
-      placeholderText="Add Issue Status..."
+      placeholderText="Add Issue Status Types..."
       values={resValue}
       helperText={envName}
       rightElement={clearBtnRes}
