@@ -9,6 +9,7 @@ import (
 	lakeModels "github.com/merico-dev/lake/models"
 	"github.com/merico-dev/lake/plugins/core"
 	"github.com/merico-dev/lake/plugins/gitlab/models"
+	"github.com/merico-dev/lake/utils"
 	"gorm.io/gorm/clause"
 )
 
@@ -92,7 +93,7 @@ func CollectMergeRequestNotes(projectId int, mr *models.GitlabMergeRequest) erro
 					NoteableType:    mrNote.NoteableType,
 					AuthorUsername:  mrNote.Author.Username,
 					Body:            mrNote.Body,
-					GitlabCreatedAt: mrNote.GitlabCreatedAt,
+					GitlabCreatedAt: utils.ConvertStringToTime(mrNote.GitlabCreatedAt),
 					Confidential:    mrNote.Confidential,
 					Resolvable:      mrNote.Resolvable,
 					System:          mrNote.System,

@@ -1,6 +1,8 @@
 package models
 
 import (
+	"time"
+
 	"github.com/merico-dev/lake/models"
 )
 
@@ -12,10 +14,10 @@ type GitlabCommit struct {
 	ShortId        string
 	AuthorName     string
 	AuthorEmail    string
-	AuthoredDate   string
+	AuthoredDate   time.Time
 	CommitterName  string
 	CommitterEmail string
-	CommittedDate  string
+	CommittedDate  time.Time
 	WebUrl         string
 	Additions      int
 	Deletions      int
