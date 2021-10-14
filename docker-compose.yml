@@ -34,7 +34,7 @@ services:
     depends_on:
       - mysql
   devlake:
-    image: mericodev/lake:0.2.0
+    image: mericodev/lake:0.3.0
     platform: linux/x86_64
     ports:
       - 127.0.0.1:8080:8080
@@ -44,7 +44,7 @@ services:
     depends_on:
       - grafana
   config-ui:
-    image: mericodev/config-ui:0.2.1
+    image: mericodev/config-ui:0.3.0
     ports:
       - 127.0.0.1:4000:4000
     environment:
