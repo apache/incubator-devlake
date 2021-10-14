@@ -11,7 +11,7 @@ import (
 	"gorm.io/gorm/clause"
 )
 
-func ConvertChangelogs(boardId uint64) error {
+func ConvertChangelogs(sourceId uint64, boardId uint64) error {
 
 	jiraChangelog := &jiraModels.JiraChangelog{}
 
@@ -29,14 +29,14 @@ func ConvertChangelogs(boardId uint64) error {
 	c1, err = lakeModels.Db.Model(jiraChangelog).
 		Select("jira_changelogs.*").
 		Joins(`left join jira_board_issues on (jira_board_issues.issue_id = jira_changelogs.issue_id)`).
-		Where(`jira_board_issues.board_id = ?`, boardId).
+		Where("jira_board_issues.source_id = ? AND jira_board_issues.board_id = ?", sourceId, boardId).
 		Rows()
 	if err != nil {
 		return err
 	}
 
 	issueOriginKeyGenerator := okgen.NewOriginKeyGenerator(&jiraModels.JiraIssue{})
-	changelogOriginKeyGenerator := okgen.NewOriginKeyGenerator(&jiraModels.JiraChangelog{})
+	changelogOriginKeyGenerator := okgen.NewOriginKeyGenerator(&jiraModels.JiraChangelogItem{})
 
 	// iterate all rows
 	for c1.Next() {
@@ -46,7 +46,7 @@ func ConvertChangelogs(boardId uint64) error {
 		}
 
 		var items []jiraModels.JiraChangelogItem
-		err = lakeModels.Db.Where("changelog_id = ?", jiraChangelog.ID).Find(&items).Error
+		err = lakeModels.Db.Where("changelog_id = ?", jiraChangelog.ChangelogId).Find(&items).Error
 		if err != nil {
 			return err
 		}
@@ -56,9 +56,13 @@ func ConvertChangelogs(boardId uint64) error {
 			}
 			changelog := &ticket.Changelog{
 				DomainEntity: domainlayerBase.DomainEntity{
-					OriginKey: changelogOriginKeyGenerator.Generate(jiraChangelog.ID),
+					OriginKey: changelogOriginKeyGenerator.Generate(
+						jiraChangelogItem.SourceId,
+						jiraChangelogItem.ChangelogId,
+						jiraChangelogItem.Field,
+					),
 				},
-				IssueOriginKey: issueOriginKeyGenerator.Generate(jiraChangelog.IssueId),
+				IssueOriginKey: issueOriginKeyGenerator.Generate(jiraChangelog.SourceId, jiraChangelog.IssueId),
 				AuthorName:     jiraChangelog.AuthorDisplayName,
 				FieldName:      jiraChangelogItem.Field,
 				From:           jiraChangelogItem.FromString,
