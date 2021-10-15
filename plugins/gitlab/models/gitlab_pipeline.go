@@ -1,6 +1,7 @@
 package models
 
 import (
+	"database/sql"
 	"time"
 
 	"github.com/merico-dev/lake/models"
@@ -15,8 +16,8 @@ type GitlabPipeline struct {
 	Sha             string
 	WebUrl          string
 	Duration        int
-	StartedAt       time.Time
-	FinishedAt      time.Time
+	StartedAt       sql.NullTime
+	FinishedAt      sql.NullTime
 	Coverage        string
 	models.NoPKModel
 }

@@ -1,6 +1,7 @@
 package models
 
 import (
+	"database/sql"
 	"time"
 
 	"github.com/merico-dev/lake/models"
@@ -22,7 +23,7 @@ type GitlabMergeRequest struct {
 	MergedByUsername string
 	Description      string
 	AuthorUsername   string
-	FirstCommentTime time.Time
+	FirstCommentTime sql.NullTime
 	ReviewRounds     int
 
 	models.NoPKModel

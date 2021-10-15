@@ -56,7 +56,7 @@ func updateMergeRequestWithFirstCommentTime(notes *ApiMergeRequestNoteResponse, 
 		return err
 	}
 	if earliestNote != nil {
-		mr.FirstCommentTime = earliestNote.GitlabCreatedAt
+		mr.FirstCommentTime = utils.ConvertStringToSqlNullTime(earliestNote.GitlabCreatedAt)
 
 		err = lakeModels.Db.Model(&mr).Where("gitlab_id = ?", mr.GitlabId).Clauses(clause.OnConflict{
 			UpdateAll: true,
