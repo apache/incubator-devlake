@@ -28,9 +28,7 @@ type JiraApiBoard struct {
 	Location *JiraApiLocation
 }
 
-func CollectBoard(boardId uint64) error {
-	jiraApiClient := GetJiraApiClient()
-
+func CollectBoard(jiraApiClient *JiraApiClient, source *models.JiraSource, boardId uint64) error {
 	res, err := jiraApiClient.Get(fmt.Sprintf("/agile/1.0/board/%v", boardId), nil, nil)
 	if err != nil {
 		return err
@@ -44,7 +42,8 @@ func CollectBoard(boardId uint64) error {
 	}
 	logger.Info("jiraboard ", jiraApiBoard)
 	jiraBoard := &models.JiraBoard{
-		Model:     lakeModels.Model{ID: jiraApiBoard.Id},
+		SourceId:  source.ID,
+		BoardId:   jiraApiBoard.Id,
 		ProjectId: jiraApiBoard.Location.ProjectId,
 		Name:      jiraApiBoard.Name,
 		Self:      jiraApiBoard.Self,

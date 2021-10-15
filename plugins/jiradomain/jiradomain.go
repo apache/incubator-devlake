@@ -10,8 +10,9 @@ import (
 )
 
 type JiraDomainOptions struct {
-	BoardId uint64   `json:"boardId"`
-	Tasks   []string `json:"tasks,omitempty"`
+	SourceId uint64   `json:"sourceId"`
+	BoardId  uint64   `json:"boardId"`
+	Tasks    []string `json:"tasks,omitempty"`
 }
 
 // plugin interface
@@ -33,6 +34,11 @@ func (plugin JiraDomain) Execute(options map[string]interface{}, progress chan<-
 		logger.Error("Error: ", err)
 		return
 	}
+	if op.SourceId == 0 {
+		logger.Print("sourceId is invalid")
+		return
+	}
+	sourceId := op.SourceId
 	if op.BoardId == 0 {
 		logger.Print("boardId is invalid")
 		return
@@ -53,7 +59,7 @@ func (plugin JiraDomain) Execute(options map[string]interface{}, progress chan<-
 	// run tasks
 	logger.Print("start JiraDomain plugin execution")
 	if tasksToRun["convertBoard"] {
-		err := tasks.ConvertBoard(boardId)
+		err := tasks.ConvertBoard(sourceId, boardId)
 		if err != nil {
 			logger.Error("Error: ", err)
 			return
@@ -61,7 +67,7 @@ func (plugin JiraDomain) Execute(options map[string]interface{}, progress chan<-
 	}
 	progress <- 0.01
 	if tasksToRun["convertIssues"] {
-		err = tasks.ConvertIssues(boardId)
+		err = tasks.ConvertIssues(sourceId, boardId)
 		if err != nil {
 			logger.Error("Error: ", err)
 			return
@@ -69,7 +75,7 @@ func (plugin JiraDomain) Execute(options map[string]interface{}, progress chan<-
 	}
 	progress <- 0.7
 	if tasksToRun["convertChangelogs"] {
-		err = tasks.ConvertChangelogs(boardId)
+		err = tasks.ConvertChangelogs(sourceId, boardId)
 		if err != nil {
 			logger.Error("Error: ", err)
 			return

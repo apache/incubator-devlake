@@ -22,19 +22,23 @@ func RegisterRouter(r *gin.Engine) {
 	}
 	for pluginName, apiResources := range pluginsApiResources {
 		for resourcePath, resourceHandlers := range apiResources {
-			for method, handler := range resourceHandlers {
+			for method, h := range resourceHandlers {
+				handler := h // block scoping
 				r.Handle(
 					method,
 					fmt.Sprintf("/plugins/%s/%s", pluginName, resourcePath),
 					func(c *gin.Context) {
 						// connect http request to plugin interface
 						input := &core.ApiResourceInput{}
-						for _, param := range c.Params {
-							input.Params[param.Key] = param.Value
+						if len(c.Params) > 0 {
+							input.Params = make(map[string]string)
+							for _, param := range c.Params {
+								input.Params[param.Key] = param.Value
+							}
 						}
 						if c.Request.Body != nil {
 							err := c.BindJSON(&input.Body)
-							if err != nil {
+							if err != nil && err.Error() != "EOF" {
 								c.JSON(http.StatusBadRequest, err.Error())
 								return
 							}
