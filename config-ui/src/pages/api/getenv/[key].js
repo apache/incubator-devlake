@@ -1,4 +1,4 @@
-import { getEnvValue } from '../../../utils/envValue'
+import { getEnvValue } from '../../../../utils/envValue'
 
 export default function handler(req, res) {
   const { key } = req.query
