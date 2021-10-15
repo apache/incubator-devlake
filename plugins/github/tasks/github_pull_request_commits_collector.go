@@ -52,10 +52,10 @@ func CollectPullRequestCommits(owner string, repositoryName string, pull *models
 						Message:        prCommit.Commit.Message,
 						AuthorName:     prCommit.Commit.Author.Name,
 						AuthorEmail:    prCommit.Commit.Author.Email,
-						AuthoredDate:   prCommit.Commit.Author.Date,
+						AuthoredDate:   utils.ConvertStringToSqlNullTime(prCommit.Commit.Author.Date),
 						CommitterName:  prCommit.Commit.Committer.Name,
 						CommitterEmail: prCommit.Commit.Committer.Email,
-						CommittedDate:  prCommit.Commit.Committer.Date,
+						CommittedDate:  utils.ConvertStringToSqlNullTime(prCommit.Commit.Committer.Date),
 						Url:            prCommit.Url,
 					}
 					err = lakeModels.Db.Clauses(clause.OnConflict{

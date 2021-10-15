@@ -1,7 +1,7 @@
 package models
 
 import (
-	"time"
+	"database/sql"
 
 	"github.com/merico-dev/lake/models"
 )
@@ -12,9 +12,9 @@ type GithubIssue struct {
 	State           string
 	Title           string
 	Body            string
-	ClosedAt        time.Time
-	GithubCreatedAt time.Time
-	GithubUpdatedAt time.Time
+	ClosedAt        sql.NullTime
+	GithubCreatedAt sql.NullTime
+	GithubUpdatedAt sql.NullTime
 
 	models.NoPKModel
 }

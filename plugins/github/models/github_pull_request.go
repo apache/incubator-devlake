@@ -1,6 +1,10 @@
 package models
 
-import "github.com/merico-dev/lake/models"
+import (
+	"database/sql"
+
+	"github.com/merico-dev/lake/models"
+)
 
 type GithubPullRequest struct {
 	GithubId        int `gorm:"primaryKey"`
@@ -8,18 +12,16 @@ type GithubPullRequest struct {
 	Number          int `gorm:"index"` // This number is used in GET requests to the API associated to reviewers / comments / etc.
 	State           string
 	Title           string
-	CommentsUrl     string
-	CommitsUrl      string
-	HTMLUrl         string
-	MergedAt        string
-	GithubCreatedAt string
-	ClosedAt        string
-	Additions       int
-	Deletions       int
-	Comments        int
-	Commits         int
-	ReviewComments  int
-	Merged          bool
+	GithubCreatedAt sql.NullTime
+	ClosedAt        sql.NullTime
+	// In order to get the following fields, we need to collect PRs individually from GitHub
+	Additions      int
+	Deletions      int
+	Comments       int
+	Commits        int
+	ReviewComments int
+	Merged         bool
+	MergedAt       sql.NullTime
 
 	models.NoPKModel
 }

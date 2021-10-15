@@ -7,6 +7,7 @@ import (
 	lakeModels "github.com/merico-dev/lake/models"
 	"github.com/merico-dev/lake/plugins/core"
 	"github.com/merico-dev/lake/plugins/github/models"
+	"github.com/merico-dev/lake/utils"
 )
 
 type ApiSinglePullResponse struct {
@@ -16,6 +17,7 @@ type ApiSinglePullResponse struct {
 	Commits        int
 	ReviewComments int `json:"review_comments"`
 	Merged         bool
+	MergedAt       string `json:"merged_at"`
 }
 
 func CollectPullRequest(owner string, repositoryName string, repositoryId int, pr *models.GithubPullRequest) error {
@@ -40,6 +42,7 @@ func CollectPullRequest(owner string, repositoryName string, repositoryId int, p
 		Commits:        githubApiResponse.Commits,
 		ReviewComments: githubApiResponse.ReviewComments,
 		Merged:         githubApiResponse.Merged,
+		MergedAt:       utils.ConvertStringToSqlNullTime(githubApiResponse.MergedAt),
 	}).Error
 	if dbErr != nil {
 		logger.Error("Could not update: ", dbErr)
