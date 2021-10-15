@@ -2,26 +2,57 @@ package tasks
 
 import (
 	"fmt"
-	"strings"
 
-	"github.com/merico-dev/lake/config"
 	lakeModels "github.com/merico-dev/lake/models"
 	"github.com/merico-dev/lake/plugins/jira/models"
 )
 
-var storyPointCoefficient float64
-
-func init() {
-	storyPointCoefficient = config.V.GetFloat64("JIRA_ISSUE_STORYPOINT_COEFFICIENT")
-}
-
-func EnrichIssues(boardId uint64) error {
+func EnrichIssues(source *models.JiraSource, boardId uint64) (err error) {
 	jiraIssue := &models.JiraIssue{}
+
+	// prepare getStdType function
+	var typeMappingRows []*models.JiraIssueTypeMapping
+	err = lakeModels.Db.Find(&typeMappingRows, "source_id = ?", source.ID).Error
+	if err != nil {
+		return err
+	}
+	typeMappings := make(map[string]string)
+	for _, typeMappingRow := range typeMappingRows {
+		typeMappings[typeMappingRow.UserType] = typeMappingRow.StandardType
+	}
+	getStdType := func(userType string) string {
+		stdType := typeMappings[userType]
+		if stdType == "" {
+			return userType
+		}
+		return stdType
+	}
+	// prepare getStdStatus function
+	var statusMappingRows []*models.JiraIssueStatusMapping
+	err = lakeModels.Db.Find(&statusMappingRows, "source_id = ?", source.ID).Error
+	if err != nil {
+		return err
+	}
+	statusMappings := make(map[string]string)
+	makeStatusMappingKey := func(userType string, userStatus string) string {
+		return fmt.Sprintf("%v:%v", userType, userStatus)
+	}
+	for _, statusMappingRow := range statusMappingRows {
+		k := makeStatusMappingKey(statusMappingRow.UserType, statusMappingRow.UserStatus)
+		statusMappings[k] = statusMappingRow.StandardStatus
+	}
+	getStdStatus := func(userType string, userStatus string) string {
+		stdStatus := statusMappings[makeStatusMappingKey(userType, userStatus)]
+		if stdStatus == "" {
+			return userStatus
+		}
+		return stdStatus
+	}
 
 	// select all issues belongs to the board
 	cursor, err := lakeModels.Db.Model(jiraIssue).
 		Select("jira_issues.*").
-		Joins("left join jira_board_issues on jira_board_issues.issue_id = jira_issues.id").
+		Joins("left join jira_board_issues on jira_board_issues.issue_id = jira_issues.issue_id").
 		Where("jira_board_issues.board_id = ?", boardId).
 		Rows()
 	if err != nil {
@@ -38,74 +69,13 @@ func EnrichIssues(boardId uint64) error {
 		if jiraIssue.ResolutionDate.Valid {
 			jiraIssue.LeadTime = uint(jiraIssue.ResolutionDate.Time.Unix()-jiraIssue.Created.Unix()) / 60
 		}
-		jiraIssue.StdStoryPoint = uint(jiraIssue.StoryPoint * storyPointCoefficient)
-		jiraIssue.StdType = getStdType(jiraIssue)
-		jiraIssue.StdStatus = getStdStatus(jiraIssue)
+		jiraIssue.StdStoryPoint = uint(jiraIssue.StoryPoint * source.StoryPointCoefficient)
+		jiraIssue.StdType = getStdType(jiraIssue.Type)
+		jiraIssue.StdStatus = getStdStatus(jiraIssue.Type, jiraIssue.StatusName)
 		err = lakeModels.Db.Save(jiraIssue).Error
 		if err != nil {
 			return err
 		}
 	}
 	return nil
-}
-
-var typeMapping map[string]string
-
-func getStdType(jiraIssue *models.JiraIssue) string {
-	if typeMapping == nil {
-		typeMapping = getStringMapFromConfig("JIRA_ISSUE_TYPE_MAPPING")
-	}
-	if stdType, ok := typeMapping[jiraIssue.Type]; ok {
-		return stdType
-	}
-	return jiraIssue.Type
-}
-
-var statusMappings map[string]map[string]string
-
-func getStdStatus(jiraIssue *models.JiraIssue) string {
-	if statusMappings == nil {
-		statusMappings = make(map[string]map[string]string)
-	}
-	if _, ok := statusMappings[jiraIssue.Type]; !ok {
-		statusMappings[jiraIssue.Type] = getStringMapFromConfig(
-			fmt.Sprintf("JIRA_ISSUE_%v_STATUS_MAPPING", jiraIssue.Type),
-		)
-	}
-	statusMapping := statusMappings[jiraIssue.Type]
-	if stdStatus, ok := statusMapping[jiraIssue.StatusName]; ok {
-		return stdStatus
-	}
-	return jiraIssue.StatusName
-}
-
-func getStringMapFromConfig(key string) map[string]string {
-	mapping := make(map[string]string)
-	mappingCfg := strings.TrimSpace(config.V.GetString(key))
-	if mappingCfg == "" {
-		return mapping
-	}
-	for _, comp := range strings.Split(mappingCfg, ";") {
-		comp := strings.TrimSpace(comp)
-		if comp == "" {
-			continue
-		}
-		tmp := strings.Split(comp, ":")
-		if len(tmp) != 2 {
-			panic(fmt.Errorf("invalid config %v: %v", key, comp))
-		}
-		std := strings.TrimSpace(tmp[0])
-		if std == "" {
-			panic(fmt.Errorf("invalid config %v: %v", key, comp))
-		}
-		orgs := tmp[1]
-		for _, org := range strings.Split(orgs, ",") {
-			org := strings.TrimSpace(org)
-			if org == "" {
-				continue
-			}
-			mapping[org] = std
-		}
-	}
-	return mapping
 }

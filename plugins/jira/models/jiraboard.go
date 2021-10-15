@@ -5,7 +5,9 @@ import (
 )
 
 type JiraBoard struct {
-	models.Model
+	models.NoPKModel
+	SourceId  uint64 `gorm:"primaryKey"`
+	BoardId   uint64 `gorm:"primaryKey"`
 	ProjectId uint
 	Name      string
 	Self      string

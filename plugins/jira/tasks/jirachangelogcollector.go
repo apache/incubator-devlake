@@ -50,7 +50,7 @@ type JiraApiChangelogsResponse struct {
 func GetWhereClauseConditionally(latestUpdatedIssue models.JiraIssue, since time.Time) string {
 	var whereClause string
 
-	if latestUpdatedIssue.ID > 0 {
+	if latestUpdatedIssue.IssueId > 0 {
 		// This is not the first time we have fetched data for Jira.
 		// Therefore only get data since the last time we fetched data
 		whereClause = fmt.Sprintf(`jira_board_issues.board_id = ?
@@ -76,7 +76,13 @@ func GetLatestIssueFromDB() models.JiraIssue {
 	return latestUpdatedIssue
 }
 
-func CollectChangelogs(boardId uint64, since time.Time, ctx context.Context) error {
+func CollectChangelogs(
+	jiraApiClient *JiraApiClient,
+	source *models.JiraSource,
+	boardId uint64,
+	since time.Time,
+	ctx context.Context,
+) error {
 	jiraIssue := &models.JiraIssue{}
 
 	// Get "Latest Issue" from the DB
@@ -88,8 +94,8 @@ func CollectChangelogs(boardId uint64, since time.Time, ctx context.Context) err
 	// Then get Changelogs for those issues.
 
 	cursor, err := lakeModels.Db.Debug().Model(jiraIssue).
-		Select("jira_issues.id", "jira_issues.updated").
-		Joins("left join jira_board_issues on jira_board_issues.issue_id = jira_issues.id").
+		Select("jira_issues.issue_id", "jira_issues.updated").
+		Joins("left join jira_board_issues on jira_board_issues.issue_id = jira_issues.issue_id").
 		Where(whereClause,
 			boardId).
 		Rows()
@@ -109,7 +115,6 @@ func CollectChangelogs(boardId uint64, since time.Time, ctx context.Context) err
 	}
 	defer changelogScheduler.Release()
 	defer issueScheduler.Release()
-	jiraApiClient := GetJiraApiClient()
 
 	// iterate all rows
 	for cursor.Next() {
@@ -117,14 +122,14 @@ func CollectChangelogs(boardId uint64, since time.Time, ctx context.Context) err
 		if err != nil {
 			return err
 		}
-		issueId := jiraIssue.ID
+		issueId := jiraIssue.IssueId
 		updated := jiraIssue.Updated
 		err = issueScheduler.Submit(func() error {
-			err = collectChangelogsByIssueId(changelogScheduler, jiraApiClient, issueId)
+			err = collectChangelogsByIssueId(changelogScheduler, source, jiraApiClient, issueId)
 			if err != nil {
 				return err
 			}
-			issue := &models.JiraIssue{Model: lakeModels.Model{ID: issueId}}
+			issue := &models.JiraIssue{SourceId: source.ID, IssueId: issueId}
 			err = lakeModels.Db.Model(issue).Update("changelog_updated", updated).Error
 			if err != nil {
 				return err
@@ -141,21 +146,25 @@ func CollectChangelogs(boardId uint64, since time.Time, ctx context.Context) err
 	return nil
 }
 
-func collectChangelogsByIssueId(scheduler *utils.WorkerScheduler, jiraApiClient *JiraApiClient, issueId uint64) error {
+func collectChangelogsByIssueId(
+	scheduler *utils.WorkerScheduler,
+	source *models.JiraSource,
+	jiraApiClient *JiraApiClient,
+	issueId uint64,
+) error {
 	return jiraApiClient.FetchPages(scheduler, fmt.Sprintf("/api/3/issue/%v/changelog", issueId), nil,
 		func(res *http.Response) error {
 			// parse response
 			jiraApiChangelogResponse := &JiraApiChangelogsResponse{}
 			err := core.UnmarshalResponse(res, jiraApiChangelogResponse)
 			if err != nil {
-				logger.Error("Error: ", err)
 				return err
 			}
 
 			// process changelogs
 			for _, jiraApiChangelog := range jiraApiChangelogResponse.Values {
 
-				jiraChangelog, err := convertChangelog(&jiraApiChangelog)
+				jiraChangelog, err := convertChangelog(&jiraApiChangelog, source)
 				if err != nil {
 					logger.Error("Error: ", err)
 					return err
@@ -166,22 +175,23 @@ func collectChangelogsByIssueId(scheduler *utils.WorkerScheduler, jiraApiClient 
 					UpdateAll: true,
 				}).Create(jiraChangelog).Error
 				if err != nil {
-					logger.Error("Error: ", err)
 					return err
 				}
 
 				// process changelog items
-				lakeModels.Db.Delete(models.JiraChangelogItem{}, "changelog_id = ?", jiraChangelog.ID)
 				for _, jiraApiChangelogItem := range jiraApiChangelog.Items {
-					jiraChangelogItem, err := convertChangelogItem(jiraChangelog.ID, &jiraApiChangelogItem)
+					jiraChangelogItem, err := convertChangelogItem(
+						source,
+						jiraChangelog.ChangelogId,
+						&jiraApiChangelogItem,
+					)
 					if err != nil {
-						logger.Error("Error: ", err)
 						return err
 					}
-					// save changelog item
-					err = lakeModels.Db.Create(jiraChangelogItem).Error
+					err = lakeModels.Db.Clauses(clause.OnConflict{
+						UpdateAll: true,
+					}).Create(jiraChangelogItem).Error
 					if err != nil {
-						logger.Error("Error: ", err)
 						return err
 					}
 				}
@@ -190,13 +200,14 @@ func collectChangelogsByIssueId(scheduler *utils.WorkerScheduler, jiraApiClient 
 		})
 }
 
-func convertChangelog(jiraApiChangelog *JiraApiChangeLog) (*models.JiraChangelog, error) {
+func convertChangelog(jiraApiChangelog *JiraApiChangeLog, source *models.JiraSource) (*models.JiraChangelog, error) {
 	id, err := strconv.ParseUint(jiraApiChangelog.Id, 10, 64)
 	if err != nil {
 		return nil, err
 	}
 	return &models.JiraChangelog{
-		Model:             lakeModels.Model{ID: id},
+		SourceId:          source.ID,
+		ChangelogId:       id,
 		AuthorAccountId:   jiraApiChangelog.Author.AccountId,
 		AuthorDisplayName: jiraApiChangelog.Author.DisplayName,
 		AuthorActive:      jiraApiChangelog.Author.Active,
@@ -204,8 +215,13 @@ func convertChangelog(jiraApiChangelog *JiraApiChangeLog) (*models.JiraChangelog
 	}, nil
 }
 
-func convertChangelogItem(changelogId uint64, jiraApiChangeItem *JiraApiChangelogItem) (*models.JiraChangelogItem, error) {
+func convertChangelogItem(
+	source *models.JiraSource,
+	changelogId uint64,
+	jiraApiChangeItem *JiraApiChangelogItem,
+) (*models.JiraChangelogItem, error) {
 	return &models.JiraChangelogItem{
+		SourceId:    source.ID,
 		ChangelogId: changelogId,
 		Field:       jiraApiChangeItem.Field,
 		FieldType:   jiraApiChangeItem.FieldType,
