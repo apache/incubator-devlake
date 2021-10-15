@@ -93,7 +93,7 @@ func CollectMergeRequestNotes(projectId int, mr *models.GitlabMergeRequest) erro
 					NoteableType:    mrNote.NoteableType,
 					AuthorUsername:  mrNote.Author.Username,
 					Body:            mrNote.Body,
-					GitlabCreatedAt: utils.ConvertStringToTime(mrNote.GitlabCreatedAt),
+					GitlabCreatedAt: utils.ConvertStringToSqlNullTime(mrNote.GitlabCreatedAt),
 					Confidential:    mrNote.Confidential,
 					Resolvable:      mrNote.Resolvable,
 					System:          mrNote.System,

@@ -83,11 +83,7 @@ func (plugin Gitlab) Execute(options map[string]interface{}, progress chan<- flo
 	return nil
 }
 
-func collectChildrenOnMergeRequests(projectIdInt int, scheduler *utils.WorkerScheduler) {
-	// find all mrs from db
-	var mrs []gitlabModels.GitlabMergeRequest
-	lakeModels.Db.Find(&mrs)
-
+func collectNotesWithScheduler(projectIdInt int, scheduler *utils.WorkerScheduler, mrs []gitlabModels.GitlabMergeRequest) {
 	for i := 0; i < len(mrs); i++ {
 		mr := (mrs)[i]
 
@@ -107,7 +103,8 @@ func collectChildrenOnMergeRequests(projectIdInt int, scheduler *utils.WorkerSch
 	}
 
 	scheduler.WaitUntilFinish()
-
+}
+func collectCommitsWithScheduler(projectIdInt int, scheduler *utils.WorkerScheduler, mrs []gitlabModels.GitlabMergeRequest) {
 	for i := 0; i < len(mrs); i++ {
 		mr := (mrs)[i]
 
@@ -126,7 +123,15 @@ func collectChildrenOnMergeRequests(projectIdInt int, scheduler *utils.WorkerSch
 	}
 
 	scheduler.WaitUntilFinish()
+}
 
+func collectChildrenOnMergeRequests(projectIdInt int, scheduler *utils.WorkerScheduler) {
+	// find all mrs from db
+	var mrs []gitlabModels.GitlabMergeRequest
+	lakeModels.Db.Find(&mrs)
+
+	collectNotesWithScheduler(projectIdInt, scheduler, mrs)
+	collectCommitsWithScheduler(projectIdInt, scheduler, mrs)
 }
 
 func (plugin Gitlab) RootPkgPath() string {
