@@ -1,6 +1,8 @@
 package models
 
 import (
+	"database/sql"
+
 	"github.com/merico-dev/lake/models"
 )
 
@@ -9,10 +11,10 @@ type GithubCommit struct {
 	RepositoryId   int    `gorm:"index"`
 	AuthorName     string
 	AuthorEmail    string
-	AuthoredDate   string
+	AuthoredDate   sql.NullTime
 	CommitterName  string
 	CommitterEmail string
-	CommittedDate  string
+	CommittedDate  sql.NullTime
 	Message        string
 	Url            string
 	Additions      int

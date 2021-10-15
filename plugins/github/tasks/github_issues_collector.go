@@ -28,19 +28,6 @@ type IssuesResponse struct {
 	GithubUpdatedAt string `json:"updated_at"`
 }
 
-type Pull struct {
-	GithubId        int `json:"id"`
-	State           string
-	Title           string
-	Number          int
-	CommentsUrl     string `json:"comments_url"`
-	CommitsUrl      string `json:"commits_url"`
-	HTMLUrl         string `json:"html_url"`
-	MergedAt        string `json:"merged_at"`
-	GithubCreatedAt string `json:"created_at"`
-	ClosedAt        string `json:"closed_at"`
-}
-
 func CollectIssues(owner string, repositoryName string, repositoryId int, scheduler *utils.WorkerScheduler) error {
 	githubApiClient := CreateApiClient()
 	getUrl := fmt.Sprintf("repos/%v/%v/issues?state=all", owner, repositoryName)
@@ -62,9 +49,9 @@ func CollectIssues(owner string, repositoryName string, repositoryId int, schedu
 						State:           issue.State,
 						Title:           issue.Title,
 						Body:            issue.Body,
-						ClosedAt:        utils.ConvertStringToTime(issue.ClosedAt),
-						GithubCreatedAt: utils.ConvertStringToTime(issue.GithubCreatedAt),
-						GithubUpdatedAt: utils.ConvertStringToTime(issue.GithubUpdatedAt),
+						ClosedAt:        utils.ConvertStringToSqlNullTime(issue.ClosedAt),
+						GithubCreatedAt: utils.ConvertStringToSqlNullTime(issue.GithubCreatedAt),
+						GithubUpdatedAt: utils.ConvertStringToSqlNullTime(issue.GithubUpdatedAt),
 					}
 
 					err = lakeModels.Db.Clauses(clause.OnConflict{
@@ -81,10 +68,10 @@ func CollectIssues(owner string, repositoryName string, repositoryId int, schedu
 						Number:          issue.Number,
 						State:           issue.State,
 						Title:           issue.Title,
-						GithubCreatedAt: issue.GithubCreatedAt,
-						ClosedAt:        issue.ClosedAt,
+						GithubCreatedAt: utils.ConvertStringToSqlNullTime(issue.GithubCreatedAt),
+						ClosedAt:        utils.ConvertStringToSqlNullTime(issue.ClosedAt),
 					}
-					err = lakeModels.Db.Debug().Clauses(clause.OnConflict{
+					err = lakeModels.Db.Clauses(clause.OnConflict{
 						UpdateAll: true,
 					}).Create(&githubPull).Error
 					if err != nil {

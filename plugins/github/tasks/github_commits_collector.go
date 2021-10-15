@@ -51,10 +51,10 @@ func CollectCommits(owner string, repositoryName string, repositoryId int, sched
 					Message:        commit.Commit.Message,
 					AuthorName:     commit.Commit.Author.Name,
 					AuthorEmail:    commit.Commit.Author.Email,
-					AuthoredDate:   commit.Commit.Author.Date,
+					AuthoredDate:   utils.ConvertStringToSqlNullTime(commit.Commit.Author.Date),
 					CommitterName:  commit.Commit.Committer.Name,
 					CommitterEmail: commit.Commit.Committer.Email,
-					CommittedDate:  commit.Commit.Committer.Date,
+					CommittedDate:  utils.ConvertStringToSqlNullTime(commit.Commit.Committer.Date),
 					Url:            commit.Url,
 				}
 				err = lakeModels.Db.Clauses(clause.OnConflict{

@@ -20,6 +20,7 @@ type IssueComment struct {
 	User     struct {
 		Login string
 	}
+	GithubCreatedAt string `json:"created_at"`
 }
 
 func CollectIssueComments(owner string, repositoryName string, issue *models.GithubIssue, scheduler *utils.WorkerScheduler) error {
@@ -36,10 +37,11 @@ func CollectIssueComments(owner string, repositoryName string, issue *models.Git
 				}
 				for _, comment := range *githubApiResponse {
 					githubComment := &models.GithubIssueComment{
-						GithubId:       comment.GithubId,
-						IssueId:        issue.GithubId,
-						Body:           comment.Body,
-						AuthorUsername: comment.User.Login,
+						GithubId:        comment.GithubId,
+						IssueId:         issue.GithubId,
+						Body:            comment.Body,
+						AuthorUsername:  comment.User.Login,
+						GithubCreatedAt: utils.ConvertStringToSqlNullTime(comment.GithubCreatedAt),
 					}
 					err = lakeModels.Db.Clauses(clause.OnConflict{
 						UpdateAll: true,

@@ -17,13 +17,20 @@ func TestConvertStringToTime(t *testing.T) {
 	assert.Equal(t, convertedTime.Day(), 30)
 }
 
-func TestConvertStringToTime_Alternate(t *testing.T) {
+func TestConvertStringToTime_Alternate1(t *testing.T) {
 	timeString := "2021-07-07T17:07:24.121Z"
 
 	convertedTime := ConvertStringToTime(timeString)
 	assert.Equal(t, convertedTime.Year(), 2021)
 	assert.Equal(t, convertedTime.Month(), time.Month(7))
 	assert.Equal(t, convertedTime.Day(), 7)
+}
+func TestConvertStringToTime_Alternate2(t *testing.T) {
+	timeString := "2021-07-21T16:49:47Z"
+	convertedTime := ConvertStringToTime(timeString)
+	assert.Equal(t, convertedTime.Year(), 2021)
+	assert.Equal(t, convertedTime.Month(), time.Month(7))
+	assert.Equal(t, convertedTime.Day(), 21)
 }
 func TestConvertStringToTime_EmptyString(t *testing.T) {
 	logger.Color("Handles empty string")
