@@ -108,8 +108,8 @@ func CollectChildrenOnPipelines(projectIdInt int, scheduler *utils.WorkerSchedul
 				Sha:             pipelineRes.Sha,
 				WebUrl:          pipelineRes.WebUrl,
 				Duration:        pipelineRes.Duration,
-				StartedAt:       utils.ConvertStringToTime(pipelineRes.StartedAt),
-				FinishedAt:      utils.ConvertStringToTime(pipelineRes.FinishedAt),
+				StartedAt:       utils.ConvertStringToSqlNullTime(pipelineRes.StartedAt),
+				FinishedAt:      utils.ConvertStringToSqlNullTime(pipelineRes.FinishedAt),
 				Coverage:        pipelineRes.Coverage,
 				Status:          pipelineRes.Status,
 			}
