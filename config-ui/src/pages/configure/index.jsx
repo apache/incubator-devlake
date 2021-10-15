@@ -1,5 +1,4 @@
-import Head from 'next/head'
-import { useState } from 'react'
+import React, { useState } from 'react'
 import dotenv from 'dotenv'
 import path from 'path'
 import * as fs from 'fs/promises'
@@ -34,16 +33,6 @@ export default function Home(props) {
   return (
     <>
     <div className={styles.container}>
-
-      <Head>
-        <title>Devlake Config-UI</title>
-        <meta name="description" content="Lake: Config" />
-        <link rel="icon" href="/favicon.ico" />
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        <link href="https://fonts.googleapis.com/css2?family=Source+Sans+Pro:wght@400;600&display=swap" rel="stylesheet" />
-        <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@500;600&display=swap" rel="stylesheet" />
-      </Head>
 
       <Nav />
       <Sidebar />

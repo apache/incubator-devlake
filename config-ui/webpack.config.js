@@ -3,7 +3,6 @@ const path = require('path')
 const webpack = require('webpack')
 const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin
 const HtmlWebpackPlugin = require('html-webpack-plugin')
-const ReactRefreshWebpackPlugin = require('@pmmmwh/react-refresh-webpack-plugin')
 const CopyPlugin = require('copy-webpack-plugin')
 const { CleanWebpackPlugin } = require('clean-webpack-plugin')
 const ESLintPlugin = require('eslint-webpack-plugin')
@@ -25,11 +24,6 @@ module.exports = (env = {}) => {
           test: /\.js$/,
           loader: 'babel-loader',
           exclude: /node_modules/,
-          options: {
-            plugins: [
-              require.resolve('react-refresh/babel'),
-            ],
-          }
         },
         {
           test: /\.js$/,
@@ -87,21 +81,15 @@ module.exports = (env = {}) => {
     plugins: [
       new CleanWebpackPlugin(),
       new webpack.HotModuleReplacementPlugin(),
-      new ReactRefreshWebpackPlugin(),
       new HtmlWebpackPlugin({
         template: path.resolve(__dirname, './src/index.html'),
         filename: 'index.html',
-        favicon: path.resolve(__dirname, './src/favicon.png'),
-      }),
-      new HtmlWebpackPlugin({
-        template: path.resolve(__dirname, './src/index.ejs'),
-        filename: 'index.ejs',
-        favicon: path.resolve(__dirname, './src/favicon.png'),
+        favicon: path.resolve(__dirname, './src/images/favicon.ico'),
       }),
       new webpack.EnvironmentPlugin({ ...process.env }),
       new CopyPlugin({
         patterns: [
-          { from: 'src/images/logo-beta.svg', to: 'logo-beta.svg' },
+          { from: 'src/images/logo.svg', to: 'logo.svg' },
         ],
       }),
       new ESLintPlugin({
