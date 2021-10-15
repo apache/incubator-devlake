@@ -1,7 +1,7 @@
 package models
 
 import (
-	"time"
+	"database/sql"
 
 	"github.com/merico-dev/lake/models"
 )
@@ -13,7 +13,7 @@ type GitlabMergeRequestNote struct {
 	NoteableType    string
 	AuthorUsername  string
 	Body            string
-	GitlabCreatedAt time.Time
+	GitlabCreatedAt sql.NullTime
 	Confidential    bool
 	Resolvable      bool // Resolvable means a comment is a code review comment
 	System          bool // System means the comment is generated automatically
