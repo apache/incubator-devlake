@@ -1,7 +1,7 @@
 import React from 'react'
-import { Button, Card, Elevation, PopoverPosition } from "@blueprintjs/core"
+import '../styles/common.scss'
 
-const Content = ({children}) => {
+const Content = ({ children }) => {
   return <>{children}</>
 }
 
