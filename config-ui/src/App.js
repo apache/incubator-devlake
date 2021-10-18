@@ -11,6 +11,7 @@ import {
 } from 'react-router-dom'
 import Configure from './pages/configure/index'
 import Triggers from './pages/triggers/index'
+import Jira from './pages/plugins/jira/index'
 
 function App () {
   return (
@@ -21,8 +22,8 @@ function App () {
       <Route exact path='/triggers'>
         <Triggers />
       </Route>
-      <Route path='/plugins/jira'>
-        <p>jira</p>
+      <Route exact path='/plugins/jira'>
+        <Jira />
       </Route>
     </Router>
   )
