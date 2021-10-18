@@ -1,20 +1,21 @@
 import React from 'react'
-// import 'normalize.css'
-// import '@blueprintjs/core/lib/css/blueprint.css'
-// import '../styles/libraries/blueprint.css'
-// import '../styles/globals.css'
+import 'normalize.css'
+import '@blueprintjs/core/lib/css/blueprint.css'
+import './styles/libraries/blueprint.scss'
+import './styles/globals.scss'
+import './styles/common.scss'
+
 import {
   BrowserRouter as Router,
   Route,
 } from 'react-router-dom'
-// import Configure from './pages/configure/index'
+import Configure from './pages/configure/index'
 
 function App () {
   return (
     <Router>
       <Route exact path='/'>
-        {/* <Configure /> */}
-        <p>configure</p>
+        <Configure />
       </Route>
       <Route path='/plugins/jira'>
         <p>jira</p>

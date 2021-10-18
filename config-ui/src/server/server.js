@@ -1,10 +1,17 @@
 const express = require('express')
 const fs = require('fs')
 const os = require('os')
+const cors = require('cors')
 const path = require('path')
+const dotenv = require('dotenv')
 const app = express()
 
+const CLIENT_ROOT = 'http://localhost:4000'
+
 app.use(express.static(__dirname))
+app.use(cors({
+  origin: CLIENT_ROOT
+}))
 
 // Main pages
 
@@ -32,8 +39,21 @@ app.get('/plugins/jenkins', (req, res) => {
 
 // Api
 
-app.get('/api/setenv/:key/:value', (req, res) => {
+app.get('/api/getenv', async (req, res) => {
+  const filePath = process.env.ENV_FILEPATH || path.join(process.cwd(), 'data', '../../../../.env')
 
+  try {
+    const fileData = fs.readFileSync(filePath)
+    const env = dotenv.parse(fileData)
+
+    return res.status(200).json(env)
+  } catch (e) {
+    console.error('Could not read env file', e)
+    return res.status(500).send(e)
+  }
+})
+
+app.get('/api/setenv/:key/:value', (req, res) => {
   const key = req.params.key
   const value = req.params.value
 
@@ -55,4 +75,4 @@ app.get('/api/setenv/:key/:value', (req, res) => {
   res.status(200).json({ key: value, status: 'updated' })
 })
 
-app.listen(4000, () => console.log(`Live on port 4000`))
+app.listen(5000, () => console.log(`Live on port 5000`))
