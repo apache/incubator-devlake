@@ -21,12 +21,12 @@ module.exports = (env = {}) => {
     module: {
       rules: [
         {
-          test: /\.js$/,
+          test: /\.js/,
           loader: 'babel-loader',
           exclude: /node_modules/,
         },
         {
-          test: /\.js$/,
+          test: /\.js/,
           use: ['babel-loader'],
           exclude: [/node_modules/, /packages/, /cypress/, /config/],
         },
