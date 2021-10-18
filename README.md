@@ -1,7 +1,15 @@
+<div align="center">
 <br />
 <img src="https://user-images.githubusercontent.com/3789273/128085813-92845abd-7c26-4fa2-9f98-928ce2246616.png" width="120px">
 
 # Dev Lake
+<p>
+    <b>
+     <!Software development workflow analysis for free> 
+    </b>
+  </p>
+  <p>
+
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat&logo=github&color=2370ff&labelColor=454545)](http://makeapullrequest.com)
 [![Discord](https://img.shields.io/discord/844603288082186240.svg?style=flat?label=&logo=discord&logoColor=ffffff&color=747df7&labelColor=454545)](https://discord.gg/83rDG6ydVZ)
 ![badge](https://github.com/merico-dev/lake/actions/workflows/test.yml/badge.svg)
@@ -10,15 +18,27 @@
 | [English](README.md) | [中文](README-zh-CN.md) |
 | --- | --- |
 
+
+<div align="left">
+
 <br>
 
 ### What is Dev Lake?
-
 Dev Lake is the one-stop solution that _**integrates, analyzes, and visualizes**_ software development data throughout the _**software development life cycle (SDLC)**_ for engineering teams.
 
-<img src="https://user-images.githubusercontent.com/2908155/130271622-827c4ffa-d812-4843-b09d-ea1338b7e6e5.png" width="100%" alt="Dev Lake Grafana Dashboard" />
 
-### Why choose Dev Lake?
+
+<img src= "https://user-images.githubusercontent.com/11300983/137789874-d18c0285-4a59-4ced-b5bd-73dce3c42fe3.png" width="100%" alt="Dev Lake Grafana Dashboard" />
+
+
+## Features
+1. Unifies data from multiple sources ( Jira, Github, Jenkins etc ) in one place 
+2. Gives more data to debug the software engineering workflow . 
+3. Can compute metrics from different data sources together 
+4. Highly customisable ; User can make their own graphs and metrics
+5. Free, open source & self hosted.
+
+## Why choose Dev Lake?
 
 1.  Supports various data sources (<a href="https://gitlab.com/" target="_blank">Gitlab</a>, <a href="https://www.atlassian.com/software/jira" target="_blank">Jira</a>) and more are being added all the time
 2.  Relevant, customizable data metrics ready to view as visual charts
@@ -178,6 +198,12 @@ All the details on provisioning, and customizing a dashboard can be found in the
 ## Contributing
 
 [CONTRIBUTING.md](CONTRIBUTING.md)
+
+
+## License
+
+This project is licensed under Apache License 2.0 - see the [`LICENSE`](LICENSE) file for details
+
 
 ## Need help?
 
