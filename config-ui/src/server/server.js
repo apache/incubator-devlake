@@ -4,9 +4,10 @@ const os = require('os')
 const cors = require('cors')
 const path = require('path')
 const dotenv = require('dotenv')
+const axios = require('axios')
 const app = express()
-
-const CLIENT_ROOT = 'http://localhost:4000'
+const DEVLAKE_ENDPOINT = require('./config').DEVLAKE_ENDPOINT
+const CLIENT_ROOT = require('./config').CLIENT_ROOT
 
 app.use(express.static(__dirname))
 app.use(cors({
@@ -38,6 +39,11 @@ app.get('/plugins/jenkins', (req, res) => {
 })
 
 // Api
+
+app.get('/api/triggers/task', async (req, res) => {
+  const r = await axios.post(`${DEVLAKE_ENDPOINT}/task`, req.body)
+  res.json(r.data)
+})
 
 app.get('/api/getenv', async (req, res) => {
   const filePath = process.env.ENV_FILEPATH || path.join(process.cwd(), 'data', '../../../../.env')

@@ -4,14 +4,13 @@ import Nav from '../../components/Nav'
 import Sidebar from '../../components/Sidebar'
 import Content from '../../components/Content'
 import SaveAlert from '../../components/SaveAlert'
+import { SERVER_HOST } from '../../utils/config'
 
 export default function Configure (props) {
-  const [env, setEnv] = useState()
   const [alertOpen, setAlertOpen] = useState(false)
   const [dbUrl, setDbUrl] = useState()
   const [port, setPort] = useState()
   const [mode, setMode] = useState()
-  const SERVER_HOST = 'http://localhost:5000'
 
   function updateEnv (key, value) {
     fetch(`/api/setenv/${key}/${encodeURIComponent(value)}`)
@@ -32,7 +31,6 @@ export default function Configure (props) {
         setDbUrl(env.DB_URL)
         setPort(env.PORT)
         setMode(env.MODE)
-        setEnv(env)
       })
   }, [])
 
