@@ -5,7 +5,7 @@ import Sidebar from '../../components/Sidebar'
 import Content from '../../components/Content'
 import SaveAlert from '../../components/SaveAlert'
 
-export default function Home (props) {
+export default function Configure (props) {
   const [env, setEnv] = useState()
   const [alertOpen, setAlertOpen] = useState(false)
   const [dbUrl, setDbUrl] = useState()

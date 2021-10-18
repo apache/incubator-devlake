@@ -1,16 +1,16 @@
 import React, { useEffect, useState } from 'react'
-import { Button, Card, Elevation, Icon, Tree, Classes } from '@blueprintjs/core'
-// import styles from '../styles/Sidebar.module.css'
+import { Button, Card, Elevation, Icon, Tree } from '@blueprintjs/core'
+import '../styles/sidebar.scss'
 
 const Sidebar = () => {
-
   const [isOpen, setIsOpen] = useState(true)
   const [pluginData, setPluginData] = useState()
 
   useEffect(() => {
     setPluginData([
       {
-        id: 5, label: 'Collection Plugins',
+        id: 5,
+        label: 'Collection Plugins',
         isExpanded: isOpen,
         childNodes: [
           {
@@ -33,7 +33,7 @@ const Sidebar = () => {
   return (
     <Card interactive={false} elevation={Elevation.ZERO} className='card'>
       <img src='/logo.svg' className='logo' />
-      <a href='http://localhost:3002' target='_blank' className='dashboardBtnLink'>
+      <a href='http://localhost:3002' rel='noreferrer' target='_blank' className='dashboardBtnLink'>
         <Button icon='grouped-bar-chart' outlined={true} large={true} className='dashboardBtn'>View Dashboards</Button>
       </a>
 
@@ -43,14 +43,14 @@ const Sidebar = () => {
             <Icon icon='layout-grid' size={16} className='sidebarMenuListIcon' />
             Configuration
           </li>
-            {/* {pagePath === '/' && <div className='sidebarMenuDash'></div>} */}
+          {/* {pagePath === '/' && <div className='sidebarMenuDash'></div>} */}
         </a>
         <a href='/triggers'>
           <li>
             <Icon icon='repeat' size={16} className='sidebarMenuListIcon' />
             Triggers
           </li>
-            {/* {pagePath === '/triggers' && <div className='sidebarMenuDash'></div>} */}
+          {/* {pagePath === '/triggers' && <div className='sidebarMenuDash'></div>} */}
         </a>
       </ul>
 
@@ -58,8 +58,8 @@ const Sidebar = () => {
         contents={pluginData}
         className='pluginMenu'
         // onNodeClick={()=>alert('clicked item')}
-        onNodeExpand={()=>setIsOpen(true)}
-        onNodeCollapse={()=>setIsOpen(false)}
+        onNodeExpand={() => setIsOpen(true)}
+        onNodeCollapse={() => setIsOpen(false)}
       />
     </Card>
   )
