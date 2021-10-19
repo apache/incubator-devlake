@@ -2,7 +2,7 @@ package main // must be main for plugin entry point
 
 import (
 	"context"
-	"fmt"
+	"time"
 
 	"github.com/merico-dev/lake/logger"
 	lakeModels "github.com/merico-dev/lake/models"
@@ -10,7 +10,6 @@ import (
 	"github.com/merico-dev/lake/plugins/jira/api"
 	"github.com/merico-dev/lake/plugins/jira/models"
 	"github.com/merico-dev/lake/plugins/jira/tasks"
-	"github.com/merico-dev/lake/utils"
 	"github.com/mitchellh/mapstructure"
 )
 
@@ -79,10 +78,13 @@ func (plugin Jira) Execute(options map[string]interface{}, progress chan<- float
 		logger.Error("no board to collect", op)
 		return
 	}
-	convertedSince := utils.ConvertStringToTime(op.Since)
-	if convertedSince.IsZero() {
-		fmt.Println("ERROR >>> Since value is in the wrong format")
-		return
+
+	var since time.Time
+	if op.Since != "" {
+		since, err = time.Parse("2006-01-02T15:04:05Z", op.Since)
+		if err != nil {
+			return
+		}
 	}
 	tasksToRun := make(map[string]bool, len(op.Tasks))
 	for _, task := range op.Tasks {
@@ -120,7 +122,7 @@ func (plugin Jira) Execute(options map[string]interface{}, progress chan<- float
 		}
 		setBoardProgress(i, 0.01)
 		if tasksToRun["collectIssues"] {
-			err = tasks.CollectIssues(jiraApiClient, source, boardId, convertedSince, ctx)
+			err = tasks.CollectIssues(jiraApiClient, source, boardId, since, ctx)
 			if err != nil {
 				logger.Error("Error: ", err)
 				return
@@ -128,7 +130,7 @@ func (plugin Jira) Execute(options map[string]interface{}, progress chan<- float
 		}
 		setBoardProgress(i, 0.5)
 		if tasksToRun["collectChangelogs"] {
-			err = tasks.CollectChangelogs(jiraApiClient, source, boardId, convertedSince, ctx)
+			err = tasks.CollectChangelogs(jiraApiClient, source, boardId, since, ctx)
 			if err != nil {
 				logger.Error("Error: ", err)
 				return
