@@ -43,5 +43,5 @@ func FormatTimeString(timeString string) string {
 	return timeString
 }
 func IsValidTime(t *time.Time) bool {
-	return t.Year() <= YEAR_BOUNDARY
+	return t.Year() > YEAR_BOUNDARY
 }
