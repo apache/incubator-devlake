@@ -130,7 +130,7 @@ func (plugin Jira) Execute(options map[string]interface{}, progress chan<- float
 		}
 		setBoardProgress(i, 0.5)
 		if tasksToRun["collectChangelogs"] {
-			err = tasks.CollectChangelogs(jiraApiClient, source, boardId, since, ctx)
+			err = tasks.CollectChangelogs(jiraApiClient, source, boardId, ctx)
 			if err != nil {
 				logger.Error("Error: ", err)
 				return
