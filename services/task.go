@@ -114,7 +114,6 @@ func RunTask(task models.Task, data NewTask, taskComplete chan bool) (models.Tas
 }
 
 func CancelTask(taskId uint64) error {
-	fmt.Printf("running task: %v task id : %v", runningTasks, taskId)
 	if cancel, ok := runningTasks[taskId]; ok {
 		logger.Info("cancel task ", taskId)
 		cancel()
