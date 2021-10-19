@@ -50,8 +50,8 @@ func CollectIssues(owner string, repositoryName string, repositoryId int, schedu
 						Title:           issue.Title,
 						Body:            issue.Body,
 						ClosedAt:        utils.ConvertStringToSqlNullTime(issue.ClosedAt),
-						GithubCreatedAt: utils.ConvertStringToSqlNullTime(issue.GithubCreatedAt),
-						GithubUpdatedAt: utils.ConvertStringToSqlNullTime(issue.GithubUpdatedAt),
+						GithubCreatedAt: utils.ConvertStringToTime(issue.GithubCreatedAt),
+						GithubUpdatedAt: utils.ConvertStringToTime(issue.GithubUpdatedAt),
 					}
 
 					err = lakeModels.Db.Clauses(clause.OnConflict{
@@ -68,7 +68,7 @@ func CollectIssues(owner string, repositoryName string, repositoryId int, schedu
 						Number:          issue.Number,
 						State:           issue.State,
 						Title:           issue.Title,
-						GithubCreatedAt: utils.ConvertStringToSqlNullTime(issue.GithubCreatedAt),
+						GithubCreatedAt: utils.ConvertStringToTime(issue.GithubCreatedAt),
 						ClosedAt:        utils.ConvertStringToSqlNullTime(issue.ClosedAt),
 					}
 					err = lakeModels.Db.Clauses(clause.OnConflict{

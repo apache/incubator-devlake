@@ -41,7 +41,7 @@ func CollectPullRequestComments(owner string, repositoryName string, pull *model
 						PullRequestId:   pull.GithubId,
 						Body:            comment.Body,
 						AuthorUsername:  comment.User.Login,
-						GithubCreatedAt: utils.ConvertStringToSqlNullTime(comment.GithubCreatedAt),
+						GithubCreatedAt: utils.ConvertStringToTime(comment.GithubCreatedAt),
 					}
 					err = lakeModels.Db.Clauses(clause.OnConflict{
 						UpdateAll: true,

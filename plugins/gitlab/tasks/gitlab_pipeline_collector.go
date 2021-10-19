@@ -54,7 +54,7 @@ func CollectAllPipelines(projectId int, scheduler *utils.WorkerScheduler) error 
 				gitlabPipeline := &gitlabModels.GitlabPipeline{
 					GitlabId:        value.GitlabId,
 					ProjectId:       value.ProjectId,
-					GitlabCreatedAt: utils.ConvertStringToSqlNullTime(value.GitlabCreatedAt),
+					GitlabCreatedAt: utils.ConvertStringToTime(value.GitlabCreatedAt),
 					Ref:             value.Ref,
 					Sha:             value.Sha,
 					WebUrl:          value.WebUrl,
@@ -103,7 +103,7 @@ func CollectChildrenOnPipelines(projectIdInt int, scheduler *utils.WorkerSchedul
 			gitlabPipeline := &gitlabModels.GitlabPipeline{
 				GitlabId:        pipelineRes.GitlabId,
 				ProjectId:       pipelineRes.ProjectId,
-				GitlabCreatedAt: utils.ConvertStringToSqlNullTime(pipelineRes.GitlabCreatedAt),
+				GitlabCreatedAt: utils.ConvertStringToTime(pipelineRes.GitlabCreatedAt),
 				Ref:             pipelineRes.Ref,
 				Sha:             pipelineRes.Sha,
 				WebUrl:          pipelineRes.WebUrl,
