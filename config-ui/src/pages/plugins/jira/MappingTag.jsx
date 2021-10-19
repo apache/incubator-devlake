@@ -4,7 +4,7 @@ import { Tooltip, Position, FormGroup, Label, Tag, TagInput } from '@blueprintjs
 const MappingTag = ({ labelIntent, labelName, onChange, rightElement, helperText, typeOrStatus, values, placeholderText }) => {
   return (
     <>
-      <p>Issue {typeOrStatus === 'type' ? 'types' : 'statuses' } mapped to&nbsp;&nbsp;<Tag intent={labelIntent}>{labelName}</Tag></p>
+      <p>Issue {typeOrStatus === 'type' ? 'types' : 'statuses'} mapped to&nbsp;&nbsp;<Tag intent={labelIntent}>{labelName}</Tag></p>
 
       <div className='formContainer'>
         <FormGroup

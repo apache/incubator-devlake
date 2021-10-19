@@ -1,31 +1,13 @@
 import React, { useState, useEffect } from 'react'
 import axios from 'axios'
 import { AnchorButton, Spinner, Button, TextArea, Intent } from '@blueprintjs/core'
+import { defaultTriggerValue } from '../../data/defaultTriggerValue'
 import Nav from '../../components/Nav'
 import Sidebar from '../../components/Sidebar'
 import Content from '../../components/Content'
 
-const defaultValue = [
-  [{
-    plugin: 'gitlab',
-    options: {
-      projectId: 8967944
-    }
-  },
-  {
-    plugin: 'jira',
-    options: {
-      boardId: 8
-    }
-  },
-  {
-    plugin: 'jenkins',
-    options: {}
-  }]
-]
-
-export default function Triggers (props) {
-  const [textAreaBody, setTextAreaBody] = useState(JSON.stringify(defaultValue, null, 2))
+export default function Triggers () {
+  const [textAreaBody, setTextAreaBody] = useState(JSON.stringify(defaultTriggerValue, null, 2))
 
   const sendTrigger = async (e) => {
     e.preventDefault()
@@ -49,6 +31,7 @@ export default function Triggers (props) {
     const interval = setInterval(async () => {
       try {
         const res = await axios.get('/api/triggers/pendings')
+        console.log(await res.data)
         if (res.data.tasks.length > 0) {
           s = 1
         } else if (s === 1) {
@@ -127,7 +110,7 @@ export default function Triggers (props) {
                 />
               </div>
 
-              <Button outlined={true} large={true} className='saveBtn' onClick={sendTrigger}>Trigger Collection</Button>
+              <Button outlined={true} large={true} className='saveBtn' onClick={() => sendTrigger}>Trigger Collection</Button>
             </form>
             </>
           }
