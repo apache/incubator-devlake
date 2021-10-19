@@ -6,7 +6,7 @@ import Content from '../../components/Content'
 import SaveAlert from '../../components/SaveAlert'
 import { SERVER_HOST } from '../../utils/config'
 
-export default function Configure (props) {
+export default function Configure () {
   const [alertOpen, setAlertOpen] = useState(false)
   const [dbUrl, setDbUrl] = useState()
   const [port, setPort] = useState()

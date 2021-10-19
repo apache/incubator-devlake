@@ -12,7 +12,7 @@ import ClearButton from './ClearButton'
 import { findStrBetween } from '../../../utils/findStrBetween'
 import { SERVER_HOST } from '../../../utils/config'
 
-export default function Jira (props) {
+export default function Jira () {
   const [alertOpen, setAlertOpen] = useState(false)
   const [jiraEndpoint, setJiraEndpoint] = useState()
   const [jiraBasicAuthEncoded, setJiraBasicAuthEncoded] = useState()

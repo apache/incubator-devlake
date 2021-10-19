@@ -64,16 +64,15 @@ app.get('/api/setenv/:key/:value', (req, res) => {
   const value = req.params.value
 
   const envFilePath = process.env.ENV_FILEPATH || path.join(process.cwd(), 'data', '../../.env')
-  const readEnvVars = () => fs.readFileSync(envFilePath, "utf-8").split(os.EOL)
+  const readEnvVars = () => fs.readFileSync(envFilePath, 'utf-8').split(os.EOL)
 
   const envVars = readEnvVars()
-  const targetLine = envVars.find((line) => line.split("=")[0] === key)
+  const targetLine = envVars.find((line) => line.split('=')[0] === key)
 
   if (targetLine !== undefined) {
     const targetLineIndex = envVars.indexOf(targetLine)
     envVars.splice(targetLineIndex, 1, `${key}=${value}`)
-  }
-  else {
+  } else {
     envVars.push(`${key}=${value}`)
   }
 
@@ -81,4 +80,4 @@ app.get('/api/setenv/:key/:value', (req, res) => {
   res.status(200).json({ key: value, status: 'updated' })
 })
 
-app.listen(5000, () => console.log(`Live on port 5000`))
+app.listen(5000, () => console.log('Live on port 5000'))
