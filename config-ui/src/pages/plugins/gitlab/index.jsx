@@ -13,7 +13,7 @@ export default function Gitlab () {
   const [jiraBoardGitlabeProjects, setJiraBoardGitlabeProjects] = useState()
 
   function updateEnv (key, value) {
-    fetch(`/api/setenv/${key}/${encodeURIComponent(value)}`)
+    fetch(`${SERVER_HOST}/api/setenv/${key}/${encodeURIComponent(value)}`)
   }
 
   function saveAll (e) {
@@ -123,7 +123,7 @@ export default function Gitlab () {
               outlined={true}
               large={true}
               className='saveBtn'
-              onClick={() => saveAll}
+              onClick={(e) => saveAll(e)}
             >
               Save Config
             </Button>

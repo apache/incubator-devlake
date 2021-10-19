@@ -63,7 +63,10 @@ app.get('/api/setenv/:key/:value', (req, res) => {
   const key = req.params.key
   const value = req.params.value
 
-  const envFilePath = process.env.ENV_FILEPATH || path.join(process.cwd(), 'data', '../../.env')
+  const envFilePath = process.env.ENV_FILEPATH || path.join(process.cwd(), 'data', '../../../../.env')
+
+  console.log(key, value, envFilePath)
+
   const readEnvVars = () => fs.readFileSync(envFilePath, 'utf-8').split(os.EOL)
 
   const envVars = readEnvVars()

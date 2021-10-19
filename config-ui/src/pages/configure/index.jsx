@@ -13,7 +13,7 @@ export default function Configure () {
   const [mode, setMode] = useState()
 
   function updateEnv (key, value) {
-    fetch(`/api/setenv/${key}/${encodeURIComponent(value)}`)
+    fetch(`${SERVER_HOST}/api/setenv/${key}/${encodeURIComponent(value)}`)
   }
 
   function saveAll (e) {
@@ -128,7 +128,15 @@ export default function Configure () {
                 </FormGroup>
               </div>
 
-              <Button type='submit' outlined large className='saveBtn' onClick={() => saveAll}>Save Config</Button>
+              <Button
+                type='submit'
+                outlined
+                large
+                className='saveBtn'
+                onClick={(e) => saveAll(e)}
+              >
+                Save Config
+              </Button>
             </form>
           </main>
         </Content>
