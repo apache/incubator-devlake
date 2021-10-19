@@ -70,7 +70,7 @@ Please follow this guide: [How to find Jira the custom field ID in Jira? · meri
 
 ### Set Issue Type Mapping<a id="issue-type-mapping"></a>
 
-Same as status mapping, different companies might use different issue types to represent their Bug/Incident/Requirement,
+Different companies might use different issue types to represent their Bug/Incident/Requirement,
 type mappings allow Devlake to recognize your specific setup with respect to Jira statuses.
 Devlake supports three different standard issue types:
 
@@ -89,29 +89,6 @@ JIRA_ISSUE_TYPE_MAPPING=Requirement:Story;Incident:CustomerComplaint;Bug:QABug;
 ```
 
 Type mapping is critical for some metrics, like **Requirement Count**, make sure to map your custom type correctly.
-
-### Set Issue status mapping<a id="issue-status-mapping"></a>
-
-Jira is highly customizable, different companies may use different `status` names to represent whether an issue was
-resolved or not. One company may name it "Done" and others might name it "Finished".
-
-In order to collect life-cycle information correctly, you'll have to map your specific status to Devlake's standard
-status, Devlake supports two standard status:
-
- - `Resolved`: issue was ended successfully
- - `Rejected`: issue was ended by termination or cancellation
-
-For example, say we were using `Done` and `Cancelled` to represent the final stages of `Story` issues. We will have to set
-the following `Environment Variables` in the `.env` file at the root of this project before running Devlake:
-
-```sh
-#JIRA_ISSUE_<YOUR_TYPE>_STATUS_MAPPING=<STANDARD_STATUS>:<YOUR_STATUS>;...
-JIRA_ISSUE_BUG_STATUS_MAPPING=Resolved:Done;Rejected:Cancelled
-JIRA_ISSUE_INCIDENT_STATUS_MAPPING=Resolved:Done;Rejected:Cancelled
-JIRA_ISSUE_STORY_STATUS_MAPPING=Resolved:Done;Rejected:Cancelled
-```
-
-Status mapping is critical for metrics like **Lead Time** since the `leadtime` that we store in the database is calculated only for **Resolved** issues.
 
 ### Set JIRA_ISSUE_STORYPOINT_COEFFICIENT
 
@@ -188,12 +165,7 @@ POST /plugins/jira/sources
 	"storyPointCoefficient": 1,   // help converting user storypoint to stand storypoint
 	"typeMappings": { // optional, send empty object to delete all typeMappings of the data source
 		"userType": {
-			"standardType": "devlake standard type",
-			"statusMappings": {  // optional, send empt object to delete all status mapping for the user type
-				"userStatus": {
-					"standardStatus": "devlake standard status"
-				}
-			}
+			"standardType": "devlake standard type"
 		}
 	}
 }
@@ -211,11 +183,6 @@ PUT /plugins/jira/sources/:sourceId
 	"typeMappings": { // optional, send empty object to delete all typeMappings of the data source
 		"userType": {
 			"standardType": "devlake standard type",
-			"statusMappings": {  // optional, send empt object to delete all status mapping for the user type
-				"userStatus": {
-					"standardStatus": "devlake standard status"
-				}
-			}
 		}
 	}
 }
@@ -235,11 +202,6 @@ GET /plugins/jira/sources/:sourceId
 	"typeMappings": { // optional, send empty object to delete all typeMappings of the data source
 		"userType": {
 			"standardType": "devlake standard type",
-			"statusMappings": {  // optional, send empt object to delete all status mapping for the user type
-				"userStatus": {
-					"standardStatus": "devlake standard status"
-				}
-			}
 		}
 	}
 }
@@ -282,40 +244,4 @@ PUT /plugins/jira/sources/:sourceId/type-mapping/:userType
 - Delete type mapping
 ```
 DELETE /plugins/jira/sources/:sourceId/type-mapping/:userType
-```
-
-#### Status mappings
-
-- Get all status mappings
-```
-GET /plugins/jira/sources/:sourceId/type-mappings/:userType/status-mappings
-
-
-[
-  {
-    "jiraSourceId": 16,
-    "userType": "userType",
-    "userStatus": "userStatus",
-    "standardStatus": "standardStatus"
-  }
-]
-```
-- Create a new status mapping
-```
-POST /plugins/jira/sources/:sourceId/type-mappings/:userType/status-mappings
-{
-    "userStatus": "userStatus",
-    "standardStatus": "standardStatus"
-}
-```
-- Update status mapping
-```
-PUT /plugins/jira/sources/:sourceId/type-mapping/:userType/status-mappings/:userStatus
-{
-    "standardStatus": "standardStatusUpdated"
-}
-```
-- Delete status mapping
-```
-DELETE /plugins/jira/sources/:sourceId/type-mapping/:userType/status-mappings/:userStatus
 ```
