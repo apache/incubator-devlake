@@ -2,6 +2,7 @@ package models
 
 import (
 	"database/sql"
+	"time"
 
 	"github.com/merico-dev/lake/models"
 )
@@ -9,7 +10,7 @@ import (
 type GitlabPipeline struct {
 	GitlabId        int `gorm:"primaryKey"`
 	ProjectId       int `gorm:"index"`
-	GitlabCreatedAt sql.NullTime
+	GitlabCreatedAt time.Time
 	Status          string
 	Ref             string
 	Sha             string

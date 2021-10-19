@@ -65,7 +65,7 @@ func CollectMergeRequests(projectId int, scheduler *utils.WorkerScheduler) error
 					WorkInProgress:   mr.WorkInProgress,
 					SourceBranch:     mr.SourceBranch,
 					MergedAt:         utils.ConvertStringToSqlNullTime(mr.MergedAt),
-					GitlabCreatedAt:  utils.ConvertStringToSqlNullTime(mr.GitlabCreatedAt),
+					GitlabCreatedAt:  utils.ConvertStringToTime(mr.GitlabCreatedAt),
 					ClosedAt:         utils.ConvertStringToSqlNullTime(mr.ClosedAt),
 					MergedByUsername: mr.MergedBy.Username,
 					AuthorUsername:   mr.Author.Username,

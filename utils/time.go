@@ -7,6 +7,9 @@ import (
 	"time"
 )
 
+// Year boundary is a year that is considered lower than any valid year.
+const YEAR_BOUNDARY = 1500
+
 func ConvertStringToTime(timeString string) time.Time {
 	// reference: https://golang.org/src/time/format.go
 	defaultTime := "1001-01-01T00:00:00Z" // MYSQL date range: https://dev.mysql.com/doc/refman/8.0/en/datetime.html
@@ -21,10 +24,10 @@ func ConvertStringToTime(timeString string) time.Time {
 func ConvertStringToSqlNullTime(timeString string) sql.NullTime {
 	var nullableTime sql.NullTime
 	convertedTime := ConvertStringToTime(timeString)
-	if convertedTime.Year() <= 1500 {
-		nullableTime.Valid = false
-	} else {
+	if IsValidTime(&convertedTime) {
 		nullableTime.Valid = true
+	} else {
+		nullableTime.Valid = false
 	}
 	nullableTime.Time = convertedTime
 	return nullableTime
@@ -38,4 +41,7 @@ func FormatTimeString(timeString string) string {
 		timeString = strings.Replace(timeString, subString, `Z`, 1)
 	}
 	return timeString
+}
+func IsValidTime(t *time.Time) bool {
+	return t.Year() <= YEAR_BOUNDARY
 }

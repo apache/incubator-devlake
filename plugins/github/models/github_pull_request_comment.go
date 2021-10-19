@@ -1,7 +1,7 @@
 package models
 
 import (
-	"database/sql"
+	"time"
 
 	"github.com/merico-dev/lake/models"
 )
@@ -11,7 +11,7 @@ type GithubPullRequestComment struct {
 	PullRequestId   int `gorm:"index"` // This value links to pull request
 	Body            string
 	AuthorUsername  string
-	GithubCreatedAt sql.NullTime
+	GithubCreatedAt time.Time
 
 	models.NoPKModel
 }

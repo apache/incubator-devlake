@@ -19,7 +19,7 @@ func GetReviewRounds(commits []gitlabModels.GitlabMergeRequestCommit, notes []gi
 	// whenever state is switched to comment, we increment reviewRounds by 1
 	state := 0 // 0, 1, 2
 	for i < len(commits) && j < len(notes) {
-		if commits[i].AuthoredDate.Time.Before(notes[j].GitlabCreatedAt.Time) {
+		if commits[i].AuthoredDate.Before(notes[j].GitlabCreatedAt) {
 			i++
 			state = 1
 		} else {

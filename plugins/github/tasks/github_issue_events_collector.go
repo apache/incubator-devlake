@@ -41,7 +41,7 @@ func CollectIssueEvents(owner string, repositoryName string, issue *models.Githu
 						IssueId:         issue.GithubId,
 						Type:            event.Event,
 						AuthorUsername:  event.Actor.Login,
-						GithubCreatedAt: utils.ConvertStringToSqlNullTime(event.CreatedAt),
+						GithubCreatedAt: utils.ConvertStringToTime(event.CreatedAt),
 					}
 					err = lakeModels.Db.Clauses(clause.OnConflict{
 						UpdateAll: true,
