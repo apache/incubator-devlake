@@ -123,6 +123,7 @@ func convertIssue(source *models.JiraSource, jiraApiIssue *JiraApiIssue) (*model
 	status := jiraApiIssue.Fields["status"].(map[string]interface{})
 	statusName := status["name"].(string)
 	statusKey := status["statusCategory"].(map[string]interface{})["key"].(string)
+	statusCategory := status["statusCategory"].(map[string]interface{})["name"].(string)
 	epicKey := ""
 	if source.EpicKeyField != "" {
 		epicKey, _ = jiraApiIssue.Fields[source.EpicKeyField].(string)
@@ -147,6 +148,7 @@ func convertIssue(source *models.JiraSource, jiraApiIssue *JiraApiIssue) (*model
 		Type:           jiraApiIssue.Fields["issuetype"].(map[string]interface{})["name"].(string),
 		StatusName:     statusName,
 		StatusKey:      statusKey,
+		StatusCategory: statusCategory,
 		EpicKey:        epicKey,
 		ResolutionDate: resolutionDate,
 		StoryPoint:     workload,

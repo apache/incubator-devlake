@@ -41,12 +41,12 @@ func EnrichIssues(source *models.JiraSource, boardId uint64) (err error) {
 		k := makeStatusMappingKey(statusMappingRow.UserType, statusMappingRow.UserStatus)
 		statusMappings[k] = statusMappingRow.StandardStatus
 	}
-	getStdStatus := func(userType string, userStatus string) string {
-		stdStatus := statusMappings[makeStatusMappingKey(userType, userStatus)]
-		if stdStatus == "" {
-			return userStatus
+	getStdStatus := func(statusCategory string) string {
+		if statusCategory == "Done" {
+			return "Resolved"
+		} else {
+			return ""
 		}
-		return stdStatus
 	}
 
 	// select all issues belongs to the board
@@ -71,7 +71,7 @@ func EnrichIssues(source *models.JiraSource, boardId uint64) (err error) {
 		}
 		jiraIssue.StdStoryPoint = uint(jiraIssue.StoryPoint * source.StoryPointCoefficient)
 		jiraIssue.StdType = getStdType(jiraIssue.Type)
-		jiraIssue.StdStatus = getStdStatus(jiraIssue.Type, jiraIssue.StatusName)
+		jiraIssue.StdStatus = getStdStatus(jiraIssue.StatusCategory)
 		err = lakeModels.Db.Save(jiraIssue).Error
 		if err != nil {
 			return err
