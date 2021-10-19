@@ -13,7 +13,7 @@ export default function Jenkins () {
   const [jenkinsPassword, setJenkinsPassword] = useState()
 
   function updateEnv (key, value) {
-    fetch(`/api/setenv/${key}/${encodeURIComponent(value)}`)
+    fetch(`${SERVER_HOST}/api/setenv/${key}/${encodeURIComponent(value)}`)
   }
 
   function saveAll (e) {
@@ -112,7 +112,15 @@ export default function Jenkins () {
             </div>
 
             <SaveAlert alertOpen={alertOpen} onClose={() => setAlertOpen(false)} />
-            <Button type='submit' outlined={true} large={true} className='saveBtn' onClick={() => saveAll}>Save Config</Button>
+            <Button
+              type='submit'
+              outlined={true}
+              large={true}
+              className='saveBtn'
+              onClick={(e) => saveAll(e)}
+            >
+              Save Config
+            </Button>
           </form>
         </main>
       </Content>
