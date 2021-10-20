@@ -46,7 +46,7 @@
     "eslint-plugin-node": "^11.1.0",
     "eslint-plugin-okay": "0.0.2",
     "eslint-plugin-promise": "^4.3.1",
-    "eslint-plugin-react": "^7.22.0",
+    "eslint-plugin-react": "^7.26.1",
     "eslint-plugin-react-hooks": "^4.2.0",
     "eslint-plugin-unicorn": "^20.1.0",
     "eslint-webpack-plugin": "^2.5.2",
