@@ -46,17 +46,9 @@ func CollectPullRequestCommits(owner string, repositoryName string, pull *models
 					return err
 				}
 				for _, prCommit := range *githubApiResponse {
-					githubCommit := &models.GithubPullRequestCommit{
-						Sha:            prCommit.Sha,
-						PullRequestId:  pull.GithubId,
-						Message:        prCommit.Commit.Message,
-						AuthorName:     prCommit.Commit.Author.Name,
-						AuthorEmail:    prCommit.Commit.Author.Email,
-						AuthoredDate:   utils.ConvertStringToTime(prCommit.Commit.Author.Date),
-						CommitterName:  prCommit.Commit.Committer.Name,
-						CommitterEmail: prCommit.Commit.Committer.Email,
-						CommittedDate:  utils.ConvertStringToTime(prCommit.Commit.Committer.Date),
-						Url:            prCommit.Url,
+					githubCommit, err := convertPullRequestCommit(&prCommit, pull.GithubId)
+					if err != nil {
+						return err
 					}
 					err = lakeModels.Db.Clauses(clause.OnConflict{
 						UpdateAll: true,
@@ -81,4 +73,27 @@ func CollectPullRequestCommits(owner string, repositoryName string, pull *models
 			}
 			return nil
 		})
+}
+func convertPullRequestCommit(prCommit *PrCommitsResponse, pullId int) (*models.GithubPullRequestCommit, error) {
+	convertedAuthoredDate, err := utils.ConvertStringToTime(prCommit.Commit.Author.Date)
+	if err != nil {
+		return nil, err
+	}
+	convertedCommittedDate, err := utils.ConvertStringToTime(prCommit.Commit.Committer.Date)
+	if err != nil {
+		return nil, err
+	}
+	githubCommit := &models.GithubPullRequestCommit{
+		Sha:            prCommit.Sha,
+		PullRequestId:  pullId,
+		Message:        prCommit.Commit.Message,
+		AuthorName:     prCommit.Commit.Author.Name,
+		AuthorEmail:    prCommit.Commit.Author.Email,
+		AuthoredDate:   *convertedAuthoredDate,
+		CommitterName:  prCommit.Commit.Committer.Name,
+		CommitterEmail: prCommit.Commit.Committer.Email,
+		CommittedDate:  *convertedCommittedDate,
+		Url:            prCommit.Url,
+	}
+	return githubCommit, nil
 }

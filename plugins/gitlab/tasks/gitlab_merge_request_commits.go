@@ -12,7 +12,9 @@ import (
 	"gorm.io/gorm/clause"
 )
 
-type ApiMergeRequestCommitResponse []struct {
+type ApiMergeRequestCommitResponse []GitlabMergeRequestCommit
+
+type GitlabMergeRequestCommit struct {
 	CommitId       string `json:"id"`
 	Title          string
 	Message        string
@@ -46,21 +48,9 @@ func CollectMergeRequestCommits(projectId int, mr *models.GitlabMergeRequest) er
 				return nil
 			}
 			for _, commit := range *gitlabApiResponse {
-				gitlabMergeRequestCommit := &models.GitlabMergeRequestCommit{
-					CommitId:       commit.CommitId,
-					Title:          commit.Title,
-					Message:        commit.Message,
-					ShortId:        commit.ShortId,
-					AuthorName:     commit.AuthorName,
-					AuthorEmail:    commit.AuthorEmail,
-					AuthoredDate:   utils.ConvertStringToTime(commit.AuthoredDate),
-					CommitterName:  commit.CommitterName,
-					CommitterEmail: commit.CommitterEmail,
-					CommittedDate:  utils.ConvertStringToTime(commit.CommittedDate),
-					WebUrl:         commit.WebUrl,
-					Additions:      commit.Stats.Additions,
-					Deletions:      commit.Stats.Deletions,
-					Total:          commit.Stats.Total,
+				gitlabMergeRequestCommit, err := convertMergeRequestCommit(&commit)
+				if err != nil {
+					return err
 				}
 				result := lakeModels.Db.Clauses(clause.OnConflict{
 					UpdateAll: true,
@@ -84,4 +74,32 @@ func CollectMergeRequestCommits(projectId int, mr *models.GitlabMergeRequest) er
 
 			return nil
 		})
+}
+
+func convertMergeRequestCommit(commit *GitlabMergeRequestCommit) (*models.GitlabMergeRequestCommit, error) {
+	convertedAuthoredDate, err := utils.ConvertStringToTime(commit.AuthoredDate)
+	if err != nil {
+		return nil, err
+	}
+	convertedCommittedDate, err := utils.ConvertStringToTime(commit.CommittedDate)
+	if err != nil {
+		return nil, err
+	}
+	gitlabMergeRequestCommit := &models.GitlabMergeRequestCommit{
+		CommitId:       commit.CommitId,
+		Title:          commit.Title,
+		Message:        commit.Message,
+		ShortId:        commit.ShortId,
+		AuthorName:     commit.AuthorName,
+		AuthorEmail:    commit.AuthorEmail,
+		AuthoredDate:   *convertedAuthoredDate,
+		CommitterName:  commit.CommitterName,
+		CommitterEmail: commit.CommitterEmail,
+		CommittedDate:  *convertedCommittedDate,
+		WebUrl:         commit.WebUrl,
+		Additions:      commit.Stats.Additions,
+		Deletions:      commit.Stats.Deletions,
+		Total:          commit.Stats.Total,
+	}
+	return gitlabMergeRequestCommit, nil
 }

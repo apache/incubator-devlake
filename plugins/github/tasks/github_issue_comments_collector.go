@@ -36,12 +36,9 @@ func CollectIssueComments(owner string, repositoryName string, issue *models.Git
 					return err
 				}
 				for _, comment := range *githubApiResponse {
-					githubComment := &models.GithubIssueComment{
-						GithubId:        comment.GithubId,
-						IssueId:         issue.GithubId,
-						Body:            comment.Body,
-						AuthorUsername:  comment.User.Login,
-						GithubCreatedAt: utils.ConvertStringToTime(comment.GithubCreatedAt),
+					githubComment, err := convertGithubComment(&comment, issue.GithubId)
+					if err != nil {
+						return err
 					}
 					err = lakeModels.Db.Clauses(clause.OnConflict{
 						UpdateAll: true,
@@ -55,4 +52,19 @@ func CollectIssueComments(owner string, repositoryName string, issue *models.Git
 			}
 			return nil
 		})
+}
+
+func convertGithubComment(comment *IssueComment, issueId int) (*models.GithubIssueComment, error) {
+	convertedCreatedAt, err := utils.ConvertStringToTime(comment.GithubCreatedAt)
+	if err != nil {
+		return nil, err
+	}
+	githubComment := &models.GithubIssueComment{
+		GithubId:        comment.GithubId,
+		IssueId:         issueId,
+		Body:            comment.Body,
+		AuthorUsername:  comment.User.Login,
+		GithubCreatedAt: *convertedCreatedAt,
+	}
+	return githubComment, nil
 }

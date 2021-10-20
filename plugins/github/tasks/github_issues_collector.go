@@ -43,17 +43,10 @@ func CollectIssues(owner string, repositoryName string, repositoryId int, schedu
 			for _, issue := range *githubApiResponse {
 				if issue.PullRequest.Url == "" {
 					// This is an issue from github
-					githubIssue := &models.GithubIssue{
-						GithubId:        issue.GithubId,
-						Number:          issue.Number,
-						State:           issue.State,
-						Title:           issue.Title,
-						Body:            issue.Body,
-						ClosedAt:        utils.ConvertStringToSqlNullTime(issue.ClosedAt),
-						GithubCreatedAt: utils.ConvertStringToTime(issue.GithubCreatedAt),
-						GithubUpdatedAt: utils.ConvertStringToTime(issue.GithubUpdatedAt),
+					githubIssue, err := convertGithubIssue(&issue)
+					if err != nil {
+						return err
 					}
-
 					err = lakeModels.Db.Clauses(clause.OnConflict{
 						UpdateAll: true,
 					}).Create(&githubIssue).Error
@@ -62,14 +55,9 @@ func CollectIssues(owner string, repositoryName string, repositoryId int, schedu
 					}
 				} else {
 					// This is a pull request from github
-					githubPull := &models.GithubPullRequest{
-						GithubId:        issue.GithubId,
-						RepositoryId:    repositoryId,
-						Number:          issue.Number,
-						State:           issue.State,
-						Title:           issue.Title,
-						GithubCreatedAt: utils.ConvertStringToTime(issue.GithubCreatedAt),
-						ClosedAt:        utils.ConvertStringToSqlNullTime(issue.ClosedAt),
+					githubPull, err := convertGithubPullRequest(&issue, repositoryId)
+					if err != nil {
+						return err
 					}
 					err = lakeModels.Db.Clauses(clause.OnConflict{
 						UpdateAll: true,
@@ -81,4 +69,40 @@ func CollectIssues(owner string, repositoryName string, repositoryId int, schedu
 			}
 			return nil
 		})
+}
+func convertGithubIssue(issue *IssuesResponse) (*models.GithubIssue, error) {
+	convertedClosedAt := utils.ConvertStringToSqlNullTime(issue.ClosedAt)
+	convertedCreatedAt, err := utils.ConvertStringToTime(issue.GithubCreatedAt)
+	convertedUpdatedAt, err := utils.ConvertStringToTime(issue.GithubCreatedAt)
+	if err != nil {
+		return nil, err
+	}
+	githubIssue := &models.GithubIssue{
+		GithubId:        issue.GithubId,
+		Number:          issue.Number,
+		State:           issue.State,
+		Title:           issue.Title,
+		Body:            issue.Body,
+		ClosedAt:        *convertedClosedAt,
+		GithubCreatedAt: *convertedCreatedAt,
+		GithubUpdatedAt: *convertedUpdatedAt,
+	}
+	return githubIssue, nil
+}
+func convertGithubPullRequest(issue *IssuesResponse, repoId int) (*models.GithubPullRequest, error) {
+	convertedCreatedAt, err := utils.ConvertStringToTime(issue.GithubCreatedAt)
+	convertedClosedAt := utils.ConvertStringToSqlNullTime(issue.ClosedAt)
+	if err != nil {
+		return nil, err
+	}
+	githubPull := &models.GithubPullRequest{
+		GithubId:        issue.GithubId,
+		RepositoryId:    repoId,
+		Number:          issue.Number,
+		State:           issue.State,
+		Title:           issue.Title,
+		GithubCreatedAt: *convertedCreatedAt,
+		ClosedAt:        *convertedClosedAt,
+	}
+	return githubPull, nil
 }

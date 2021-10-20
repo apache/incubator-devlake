@@ -35,17 +35,26 @@ func CollectPullRequest(owner string, repositoryName string, repositoryId int, p
 		logger.Error("Error: ", unmarshalErr)
 		return unmarshalErr
 	}
-	dbErr := lakeModels.Db.Model(&pr).Updates(models.GithubPullRequest{
-		Additions:      githubApiResponse.Additions,
-		Deletions:      githubApiResponse.Deletions,
-		Comments:       githubApiResponse.Comments,
-		Commits:        githubApiResponse.Commits,
-		ReviewComments: githubApiResponse.ReviewComments,
-		Merged:         githubApiResponse.Merged,
-		MergedAt:       utils.ConvertStringToSqlNullTime(githubApiResponse.MergedAt),
-	}).Error
+	githubPullRequest, err := convertSingleGithubPullRequest(githubApiResponse)
+	if err != nil {
+		return nil
+	}
+	dbErr := lakeModels.Db.Model(&pr).Updates(githubPullRequest).Error
 	if dbErr != nil {
 		logger.Error("Could not update: ", dbErr)
 	}
 	return nil
+}
+func convertSingleGithubPullRequest(singlePull *ApiSinglePullResponse) (*models.GithubPullRequest, error) {
+	convertedMergedAt := utils.ConvertStringToSqlNullTime(singlePull.MergedAt)
+	pr := &models.GithubPullRequest{
+		Additions:      singlePull.Additions,
+		Deletions:      singlePull.Deletions,
+		Comments:       singlePull.Comments,
+		Commits:        singlePull.Commits,
+		ReviewComments: singlePull.ReviewComments,
+		Merged:         singlePull.Merged,
+		MergedAt:       *convertedMergedAt,
+	}
+	return pr, nil
 }

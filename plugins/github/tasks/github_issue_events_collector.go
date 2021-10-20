@@ -36,12 +36,9 @@ func CollectIssueEvents(owner string, repositoryName string, issue *models.Githu
 					return err
 				}
 				for _, event := range *githubApiResponse {
-					githubEvent := &models.GithubIssueEvent{
-						GithubId:        event.GithubId,
-						IssueId:         issue.GithubId,
-						Type:            event.Event,
-						AuthorUsername:  event.Actor.Login,
-						GithubCreatedAt: utils.ConvertStringToTime(event.CreatedAt),
+					githubEvent, err := convertGithubEvent(&event, issue.GithubId)
+					if err != nil {
+						return err
 					}
 					err = lakeModels.Db.Clauses(clause.OnConflict{
 						UpdateAll: true,
@@ -55,4 +52,18 @@ func CollectIssueEvents(owner string, repositoryName string, issue *models.Githu
 			}
 			return nil
 		})
+}
+func convertGithubEvent(event *IssueEvent, issueId int) (*models.GithubIssueEvent, error) {
+	convertedCreatedAt, err := utils.ConvertStringToTime(event.CreatedAt)
+	if err != nil {
+		return nil, err
+	}
+	githubEvent := &models.GithubIssueEvent{
+		GithubId:        event.GithubId,
+		IssueId:         issueId,
+		Type:            event.Event,
+		AuthorUsername:  event.Actor.Login,
+		GithubCreatedAt: *convertedCreatedAt,
+	}
+	return githubEvent, nil
 }
