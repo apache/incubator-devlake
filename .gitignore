@@ -119,7 +119,6 @@ dist
 
 postgres-data/
 mysql-data/
-data/
 .docker/
 
 # config files
