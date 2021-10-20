@@ -29,25 +29,29 @@ type JiraApiIssuesResponse struct {
 	Issues []JiraApiIssue `json:"issues"`
 }
 
-func CollectIssues(jiraApiClient *JiraApiClient, source *models.JiraSource, boardId uint64, since time.Time, ctx context.Context) error {
-	// diff sync
-	var latestUpdated models.JiraIssue
-	err := lakeModels.Db.Order("updated DESC").Limit(1).Find(&latestUpdated).Error
-	if err != nil {
-		return err
+func CollectIssues(
+	jiraApiClient *JiraApiClient,
+	source *models.JiraSource,
+	boardId uint64,
+	since time.Time,
+	ctx context.Context,
+) error {
+	// user didn't specify a time range to sync, try load from database
+	if since.IsZero() {
+		var latestUpdated models.JiraIssue
+		err := lakeModels.Db.Order("updated DESC").Limit(1).Find(&latestUpdated).Error
+		if err != nil {
+			return err
+		}
+		since = latestUpdated.Updated
 	}
+	// build jql
 	jql := "ORDER BY updated ASC"
-
-	if latestUpdated.IssueId > 0 {
-		// This is not the first time we have fetched data for Jira.
-		jql = fmt.Sprintf("updated >= '%v' %v", latestUpdated.Updated.Format("2006/01/02 15:04"), jql)
-	} else if !since.IsZero() {
-		fmt.Println("KEVIN >>> time is not zero")
-		// This is the first time we are fetching data from Jira and the user has sent an update time.
-		// We don't want all the data, we only want data since the update time.
+	if !since.IsZero() {
+		// prepend a time range criteria if `since` was specified, either by user or from database
 		jql = fmt.Sprintf("updated >= '%v' %v", since.Format("2006/01/02 15:04"), jql)
 	}
-	// Otherwise, we fetch all the data from all time
+
 	query := &url.Values{}
 	query.Set("jql", jql)
 
@@ -82,7 +86,7 @@ func CollectIssues(jiraApiClient *JiraApiClient, source *models.JiraSource, boar
 				}
 
 				// board / issue relationship
-				lakeModels.Db.Create(&models.JiraBoardIssue{
+				lakeModels.Db.FirstOrCreate(&models.JiraBoardIssue{
 					SourceId: source.ID,
 					BoardId:  boardId,
 					IssueId:  jiraIssue.IssueId,

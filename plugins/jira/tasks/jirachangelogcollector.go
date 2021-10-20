@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"net/http"
 	"strconv"
-	"time"
 
 	"github.com/merico-dev/lake/utils"
 	"gorm.io/gorm/clause"
@@ -47,57 +46,34 @@ type JiraApiChangelogsResponse struct {
 	Values []JiraApiChangeLog `json:"values,omitempty"`
 }
 
-func GetWhereClauseConditionally(latestUpdatedIssue models.JiraIssue, since time.Time) string {
-	var whereClause string
-
-	if latestUpdatedIssue.IssueId > 0 {
-		// This is not the first time we have fetched data for Jira.
-		// Therefore only get data since the last time we fetched data
-		whereClause = fmt.Sprintf(`jira_board_issues.board_id = ?
-		AND (jira_issues.changelog_updated is null OR '%v' < jira_issues.updated)`, latestUpdatedIssue.Updated)
-	} else if !since.IsZero() {
-		// This is the first time we have fetched data
-		// "Since" was provided in the POST request so we start there
-		whereClause = fmt.Sprintf(`jira_board_issues.board_id = ?
-		AND (jira_issues.changelog_updated is null OR '%v' < jira_issues.updated)`, since)
-	} else {
-		// This is the first time we fetch the data and since was not provided
-		whereClause = "jira_board_issues.board_id = ?"
-	}
-	return whereClause
-}
-
-func GetLatestIssueFromDB() models.JiraIssue {
-	var latestUpdatedIssue models.JiraIssue
-	err := lakeModels.Db.Debug().Order("changelog_updated DESC").Limit(1).Find(&latestUpdatedIssue).Error
-	if err != nil {
-		logger.Error("err", err)
-	}
-	return latestUpdatedIssue
-}
-
 func CollectChangelogs(
 	jiraApiClient *JiraApiClient,
 	source *models.JiraSource,
 	boardId uint64,
-	since time.Time,
 	ctx context.Context,
 ) error {
 	jiraIssue := &models.JiraIssue{}
 
-	// Get "Latest Issue" from the DB
-	latestUpdatedIssue := GetLatestIssueFromDB()
-
-	whereClause := GetWhereClauseConditionally(latestUpdatedIssue, since)
-
-	// Get all Issues from 'changelog_updated' time on latest Issue.
-	// Then get Changelogs for those issues.
-
-	cursor, err := lakeModels.Db.Debug().Model(jiraIssue).
+	/*
+		`CollectIssues` will take into account of `since` option and set the `updated` field for issues that have
+		updates, So when it comes to collecting changelogs, we only need to compare an issue's `updated` field with its
+		`changelog_updated` field. If `changelog_updated` is older, then we'll collect changelogs for this issue and
+		set its `changelog_updated` to `updated` at the end.
+	*/
+	cursor, err := lakeModels.Db.Model(jiraIssue).
 		Select("jira_issues.issue_id", "jira_issues.updated").
-		Joins("left join jira_board_issues on jira_board_issues.issue_id = jira_issues.issue_id").
-		Where(whereClause,
-			boardId).
+		Joins(`LEFT JOIN jira_board_issues ON (
+			jira_board_issues.source_id = jira_issues.source_id AND
+			jira_board_issues.issue_id = jira_issues.issue_id
+		)`).
+		Where(`
+			jira_board_issues.source_id = ? AND
+			jira_board_issues.board_id = ? AND
+			(jira_issues.changelog_updated IS NULL OR jira_issues.changelog_updated < jira_issues.updated)
+			`,
+			source.ID,
+			boardId,
+		).
 		Rows()
 
 	if err != nil {
