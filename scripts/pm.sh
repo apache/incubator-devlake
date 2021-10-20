@@ -208,7 +208,8 @@ jira() {
             "plugin": "jira",
             "options": {
                 "sourceId": '$1',
-                "boardId": '$2'
+                "boardId": '$2',
+                "tasks": ['"$3"']
             }
         }]
     ]
