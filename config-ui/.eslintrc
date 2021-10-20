@@ -1,0 +1,54 @@
+{
+  "root": true,
+  "parser": "babel-eslint",
+  "extends": [
+    "standard",
+    "standard-jsx",
+    "standard-react",
+    "plugin:react-hooks/recommended"
+  ],
+  "ignorePatterns": [
+    "dist/*",
+    "/packages/*",
+    "/cypress/",
+    "/config/",
+    "/node_modules/"
+  ],
+  "env": {
+    "browser": true,
+    "jest": true
+  },
+  "plugins": [
+    "unicorn",
+    "babel"
+  ],
+  "settings": {
+    "import/resolver": {
+      "alias": {
+        "extensions": [".js"],
+        "map": [
+          [
+            "@", "./src/"
+          ],
+          [
+            "@config", "./config/"
+          ]
+        ]
+      },
+      "babel-module": {
+        "extensions": [
+          ".js",
+          ".ts"
+        ]
+      }
+    }
+  },
+  "rules": {
+    "camelcase": "off",
+    "max-len": [1, 140, 2],
+    "import/no-named-as-default": "off",
+    "comma-dangle": "off",
+    "react/prop-types": "off",
+    "react/jsx-boolean-value": 0
+  }
+}
