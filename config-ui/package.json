@@ -6,16 +6,13 @@
   "scripts": {
     "build-production": "webpack --config webpack.production.config.js",
     "start": "webpack serve --progress",
-    "lint": "eslint ./src",
-    "server": "node server.js",
-    "test": "jest",
-    "test:watch": "jest --watch",
-    "test:ci": "jest --ci"
+    "lint": "eslint ./src"
   },
   "dependencies": {
     "@blueprintjs/core": "^3.49.1",
     "@blueprintjs/popover2": "^0.11.4",
     "axios": "^0.21.4",
+    "babel-plugin-module-resolver": "^4.1.0",
     "dotenv": "^10.0.0",
     "react": "17.0.2",
     "react-dom": "17.0.2",
