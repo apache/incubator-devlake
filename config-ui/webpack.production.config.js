@@ -1,4 +1,4 @@
-// DEVELOPMENT ONLY WEBPACK CONFIG
+/* eslint-disable import/no-extraneous-dependencies */
 const path = require('path')
 const webpack = require('webpack')
 const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin
@@ -10,20 +10,28 @@ const ESLintPlugin = require('eslint-webpack-plugin')
 module.exports = (env = {}) => {
   const optionalPlugins = []
 
-  // Only appends bundle analyzer when forced via env
   if (env.ANALYZE_BUILD === 1) {
     optionalPlugins.push(new BundleAnalyzerPlugin())
   }
 
   return {
-    entry: path.resolve(__dirname, './src/index.js'),
-    mode: 'development',
+    entry: path.resolve(__dirname, 'src/index.js'),
+    mode: 'production',
+    devtool: 'source-map',
     module: {
       rules: [
         {
-          test: /\.js/,
-          use: ['babel-loader'],
+          test: /\.jsx?$/,
           exclude: [/node_modules/, /packages/, /cypress/, /^config$/],
+          use: {
+            loader: 'babel-loader',
+            options: {
+              babelrc: false,
+              cacheDirectory: false,
+              presets: ['@babel/preset-env', '@babel/preset-react', '@babel/preset-flow'],
+              plugins: ['@babel/plugin-transform-runtime']
+            }
+          },
         },
         {
           test: /\.css$/,
@@ -70,7 +78,7 @@ module.exports = (env = {}) => {
     },
     output: {
       path: path.resolve(__dirname, './dist'),
-      filename: 'bundle.js',
+      filename: '[name].[hash].js',
       publicPath: '/'
     },
     plugins: [
@@ -92,13 +100,6 @@ module.exports = (env = {}) => {
         exclude: ['dist', 'packages', 'cypress', 'config', 'node_modules']
       }),
       ...optionalPlugins
-    ],
-    devServer: {
-      hot: true,
-      port: 4000,
-      host: '0.0.0.0',
-      historyApiFallback: true
-    },
-    devtool: 'source-map'
+    ]
   }
 }
