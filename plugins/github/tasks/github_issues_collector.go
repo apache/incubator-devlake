@@ -73,6 +73,9 @@ func CollectIssues(owner string, repositoryName string, repositoryId int, schedu
 func convertGithubIssue(issue *IssuesResponse) (*models.GithubIssue, error) {
 	convertedClosedAt := utils.ConvertStringToSqlNullTime(issue.ClosedAt)
 	convertedCreatedAt, err := utils.ConvertStringToTime(issue.GithubCreatedAt)
+	if err != nil {
+		return nil, err
+	}
 	convertedUpdatedAt, err := utils.ConvertStringToTime(issue.GithubCreatedAt)
 	if err != nil {
 		return nil, err
