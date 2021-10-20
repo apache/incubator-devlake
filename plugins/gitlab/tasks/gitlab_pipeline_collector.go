@@ -7,12 +7,15 @@ import (
 	"github.com/merico-dev/lake/logger"
 	lakeModels "github.com/merico-dev/lake/models"
 	"github.com/merico-dev/lake/plugins/core"
+	"github.com/merico-dev/lake/plugins/gitlab/models"
 	gitlabModels "github.com/merico-dev/lake/plugins/gitlab/models"
 	"github.com/merico-dev/lake/utils"
 	"gorm.io/gorm/clause"
 )
 
-type ApiPipelineResponse []struct {
+type ApiPipelineResponse []ApiPipeline
+
+type ApiPipeline struct {
 	GitlabId        int    `json:"id"`
 	ProjectId       int    `json:"project_id"`
 	GitlabCreatedAt string `json:"created_at"`
@@ -50,17 +53,12 @@ func CollectAllPipelines(projectId int, scheduler *utils.WorkerScheduler) error 
 				return nil
 			}
 
-			for _, value := range *apiPipelineResponse {
-				gitlabPipeline := &gitlabModels.GitlabPipeline{
-					GitlabId:        value.GitlabId,
-					ProjectId:       value.ProjectId,
-					GitlabCreatedAt: utils.ConvertStringToTime(value.GitlabCreatedAt),
-					Ref:             value.Ref,
-					Sha:             value.Sha,
-					WebUrl:          value.WebUrl,
-					Status:          value.Status,
-				}
+			for _, pipeline := range *apiPipelineResponse {
 
+				gitlabPipeline, err := convertPipeline(&pipeline)
+				if err != nil {
+					return err
+				}
 				err = lakeModels.Db.Clauses(clause.OnConflict{
 					UpdateAll: true,
 				}).Create(&gitlabPipeline).Error
@@ -100,18 +98,9 @@ func CollectChildrenOnPipelines(projectIdInt int, scheduler *utils.WorkerSchedul
 				return nil
 			}
 
-			gitlabPipeline := &gitlabModels.GitlabPipeline{
-				GitlabId:        pipelineRes.GitlabId,
-				ProjectId:       pipelineRes.ProjectId,
-				GitlabCreatedAt: utils.ConvertStringToTime(pipelineRes.GitlabCreatedAt),
-				Ref:             pipelineRes.Ref,
-				Sha:             pipelineRes.Sha,
-				WebUrl:          pipelineRes.WebUrl,
-				Duration:        pipelineRes.Duration,
-				StartedAt:       utils.ConvertStringToSqlNullTime(pipelineRes.StartedAt),
-				FinishedAt:      utils.ConvertStringToSqlNullTime(pipelineRes.FinishedAt),
-				Coverage:        pipelineRes.Coverage,
-				Status:          pipelineRes.Status,
+			gitlabPipeline, err := convertSinglePipeline(pipelineRes)
+			if err != nil {
+				return err
 			}
 
 			err = lakeModels.Db.Clauses(clause.OnConflict{
@@ -130,4 +119,45 @@ func CollectChildrenOnPipelines(projectIdInt int, scheduler *utils.WorkerSchedul
 
 	}
 	scheduler.WaitUntilFinish()
+}
+
+func convertSinglePipeline(pipeline *ApiSinglePipelineResponse) (*models.GitlabPipeline, error) {
+	convertedCreatedAt, err := utils.ConvertStringToTime(pipeline.GitlabCreatedAt)
+	if err != nil {
+		return nil, err
+	}
+	convertedStartedAt := utils.ConvertStringToSqlNullTime(pipeline.StartedAt)
+	convertedFinishedAt := utils.ConvertStringToSqlNullTime(pipeline.FinishedAt)
+
+	gitlabPipeline := &gitlabModels.GitlabPipeline{
+		GitlabId:        pipeline.GitlabId,
+		ProjectId:       pipeline.ProjectId,
+		GitlabCreatedAt: *convertedCreatedAt,
+		Ref:             pipeline.Ref,
+		Sha:             pipeline.Sha,
+		WebUrl:          pipeline.WebUrl,
+		Duration:        pipeline.Duration,
+		StartedAt:       *convertedStartedAt,
+		FinishedAt:      *convertedFinishedAt,
+		Coverage:        pipeline.Coverage,
+		Status:          pipeline.Status,
+	}
+	return gitlabPipeline, nil
+}
+
+func convertPipeline(pipeline *ApiPipeline) (*models.GitlabPipeline, error) {
+	convertedCreatedAt, err := utils.ConvertStringToTime(pipeline.GitlabCreatedAt)
+	if err != nil {
+		return nil, err
+	}
+	gitlabPipeline := &gitlabModels.GitlabPipeline{
+		GitlabId:        pipeline.GitlabId,
+		ProjectId:       pipeline.ProjectId,
+		GitlabCreatedAt: *convertedCreatedAt,
+		Ref:             pipeline.Ref,
+		Sha:             pipeline.Sha,
+		WebUrl:          pipeline.WebUrl,
+		Status:          pipeline.Status,
+	}
+	return gitlabPipeline, nil
 }

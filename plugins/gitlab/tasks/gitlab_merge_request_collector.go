@@ -44,46 +44,52 @@ func CollectMergeRequests(projectId int, scheduler *utils.WorkerScheduler) error
 	return gitlabApiClient.FetchWithPaginationAnts(scheduler, fmt.Sprintf("projects/%v/merge_requests", projectId), 100,
 		func(res *http.Response) error {
 			gitlabApiResponse := &ApiMergeRequestResponse{}
-
 			err := core.UnmarshalResponse(res, gitlabApiResponse)
-
 			if err != nil {
 				logger.Error("Error: ", err)
 				return nil
 			}
-
 			for _, mr := range *gitlabApiResponse {
-				gitlabMergeRequest := &models.GitlabMergeRequest{
-					GitlabId:         mr.GitlabId,
-					Iid:              mr.Iid,
-					ProjectId:        mr.ProjectId,
-					State:            mr.State,
-					Title:            mr.Title,
-					Description:      mr.Description,
-					WebUrl:           mr.WebUrl,
-					UserNotesCount:   mr.UserNotesCount,
-					WorkInProgress:   mr.WorkInProgress,
-					SourceBranch:     mr.SourceBranch,
-					MergedAt:         utils.ConvertStringToSqlNullTime(mr.MergedAt),
-					GitlabCreatedAt:  utils.ConvertStringToTime(mr.GitlabCreatedAt),
-					ClosedAt:         utils.ConvertStringToSqlNullTime(mr.ClosedAt),
-					MergedByUsername: mr.MergedBy.Username,
-					AuthorUsername:   mr.Author.Username,
+				gitlabMergeRequest, err := convertMergeRequest(&mr, projectId)
+				if err != nil {
+					return err
 				}
-
 				result := lakeModels.Db.Clauses(clause.OnConflict{
 					UpdateAll: true,
 				}).Create(&gitlabMergeRequest)
-
 				if result.Error != nil {
 					logger.Error("Could not upsert: ", result.Error)
 				}
-
 				CreateReviewers(projectId, mr.GitlabId, mr.Reviewers)
-
 			}
-
 			return nil
-
 		})
+}
+func convertMergeRequest(mr *MergeRequestRes, projectId int) (*models.GitlabMergeRequest, error) {
+	convertedMergedAt := utils.ConvertStringToSqlNullTime(mr.MergedAt)
+	convertedGitlabCreatedAt, err := utils.ConvertStringToTime(mr.GitlabCreatedAt)
+	if err != nil {
+		return nil, err
+	}
+	convertedClosedAt := utils.ConvertStringToSqlNullTime(mr.ClosedAt)
+
+	gitlabMergeRequest := &models.GitlabMergeRequest{
+		GitlabId:         mr.GitlabId,
+		Iid:              mr.Iid,
+		ProjectId:        mr.ProjectId,
+		State:            mr.State,
+		Title:            mr.Title,
+		Description:      mr.Description,
+		WebUrl:           mr.WebUrl,
+		UserNotesCount:   mr.UserNotesCount,
+		WorkInProgress:   mr.WorkInProgress,
+		SourceBranch:     mr.SourceBranch,
+		MergedAt:         *convertedMergedAt,
+		GitlabCreatedAt:  *convertedGitlabCreatedAt,
+		ClosedAt:         *convertedClosedAt,
+		MergedByUsername: mr.MergedBy.Username,
+		AuthorUsername:   mr.Author.Username,
+	}
+
+	return gitlabMergeRequest, nil
 }

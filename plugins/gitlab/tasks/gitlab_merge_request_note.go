@@ -56,7 +56,7 @@ func updateMergeRequestWithFirstCommentTime(notes *ApiMergeRequestNoteResponse, 
 		return err
 	}
 	if earliestNote != nil {
-		mr.FirstCommentTime = utils.ConvertStringToSqlNullTime(earliestNote.GitlabCreatedAt)
+		mr.FirstCommentTime = *utils.ConvertStringToSqlNullTime(earliestNote.GitlabCreatedAt)
 
 		err = lakeModels.Db.Model(&mr).Where("gitlab_id = ?", mr.GitlabId).Clauses(clause.OnConflict{
 			UpdateAll: true,
@@ -86,19 +86,10 @@ func CollectMergeRequestNotes(projectId int, mr *models.GitlabMergeRequest) erro
 			}
 
 			for _, mrNote := range *gitlabApiResponse {
-				gitlabMergeRequestNote := &models.GitlabMergeRequestNote{
-					GitlabId:        mrNote.GitlabId,
-					MergeRequestId:  mrNote.MergeRequestId,
-					MergeRequestIid: mrNote.MergeRequestIid,
-					NoteableType:    mrNote.NoteableType,
-					AuthorUsername:  mrNote.Author.Username,
-					Body:            mrNote.Body,
-					GitlabCreatedAt: utils.ConvertStringToTime(mrNote.GitlabCreatedAt),
-					Confidential:    mrNote.Confidential,
-					Resolvable:      mrNote.Resolvable,
-					System:          mrNote.System,
+				gitlabMergeRequestNote, err := convertMergeRequestNote(&mrNote)
+				if err != nil {
+					return err
 				}
-
 				err = lakeModels.Db.Clauses(clause.OnConflict{
 					UpdateAll: true,
 				}).Create(&gitlabMergeRequestNote).Error
@@ -115,4 +106,23 @@ func CollectMergeRequestNotes(projectId int, mr *models.GitlabMergeRequest) erro
 			}
 			return nil
 		})
+}
+func convertMergeRequestNote(mrNote *MergeRequestNote) (*models.GitlabMergeRequestNote, error) {
+	convertedGitlabCreatedAt, err := utils.ConvertStringToTime(mrNote.GitlabCreatedAt)
+	if err != nil {
+		return nil, err
+	}
+	gitlabMergeRequestNote := &models.GitlabMergeRequestNote{
+		GitlabId:        mrNote.GitlabId,
+		MergeRequestId:  mrNote.MergeRequestId,
+		MergeRequestIid: mrNote.MergeRequestIid,
+		NoteableType:    mrNote.NoteableType,
+		AuthorUsername:  mrNote.Author.Username,
+		Body:            mrNote.Body,
+		GitlabCreatedAt: *convertedGitlabCreatedAt,
+		Confidential:    mrNote.Confidential,
+		Resolvable:      mrNote.Resolvable,
+		System:          mrNote.System,
+	}
+	return gitlabMergeRequestNote, nil
 }

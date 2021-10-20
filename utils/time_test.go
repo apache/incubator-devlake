@@ -12,7 +12,8 @@ import (
 func TestConvertStringToTime(t *testing.T) {
 	timeString := "2021-07-30T19:14:33Z"
 
-	convertedTime := ConvertStringToTime(timeString)
+	convertedTime, err := ConvertStringToTime(timeString)
+	assert.Equal(t, err, nil)
 	assert.Equal(t, convertedTime.Year(), 2021)
 	assert.Equal(t, convertedTime.Month(), time.Month(7))
 	assert.Equal(t, convertedTime.Day(), 30)
@@ -21,14 +22,16 @@ func TestConvertStringToTime(t *testing.T) {
 func TestConvertStringToTime_Alternate1(t *testing.T) {
 	timeString := "2021-07-07T17:07:24.121Z"
 
-	convertedTime := ConvertStringToTime(timeString)
+	convertedTime, err := ConvertStringToTime(timeString)
+	assert.Equal(t, err, nil)
 	assert.Equal(t, convertedTime.Year(), 2021)
 	assert.Equal(t, convertedTime.Month(), time.Month(7))
 	assert.Equal(t, convertedTime.Day(), 7)
 }
 func TestConvertStringToTime_Alternate2(t *testing.T) {
 	timeString := "2021-07-21T16:49:47Z"
-	convertedTime := ConvertStringToTime(timeString)
+	convertedTime, err := ConvertStringToTime(timeString)
+	assert.Equal(t, err, nil)
 	assert.Equal(t, convertedTime.Year(), 2021)
 	assert.Equal(t, convertedTime.Month(), time.Month(7))
 	assert.Equal(t, convertedTime.Day(), 21)
@@ -37,7 +40,8 @@ func TestConvertStringToTime_Alternate3(t *testing.T) {
 	fmt.Println("INFO >>> Handles alternate format 3")
 	timeString := "2021-07-07T17:07:15.000+00:00"
 
-	convertedTime := ConvertStringToTime(timeString)
+	convertedTime, err := ConvertStringToTime(timeString)
+	assert.Equal(t, err, nil)
 	assert.Equal(t, convertedTime.Year(), 2021)
 	assert.Equal(t, convertedTime.Month(), time.Month(7))
 	assert.Equal(t, convertedTime.Day(), 7)
@@ -45,10 +49,16 @@ func TestConvertStringToTime_Alternate3(t *testing.T) {
 func TestConvertStringToTime_EmptyString(t *testing.T) {
 	logger.Color("Handles empty string")
 	timeString := ""
-	convertedTime := ConvertStringToTime(timeString)
-	assert.Equal(t, convertedTime.Year(), 1001)
-	assert.Equal(t, convertedTime.Month(), time.Month(1))
-	assert.Equal(t, convertedTime.Day(), 1)
+	convertedTime, err := ConvertStringToTime(timeString)
+	assert.Equal(t, err != nil, true)
+	assert.Equal(t, convertedTime.IsZero(), true)
+}
+func TestConvertStringToTime_BadString(t *testing.T) {
+	logger.Color("Handles bad string")
+	timeString := "sdflkajsdfoij"
+	convertedTime, err := ConvertStringToTime(timeString)
+	assert.Equal(t, err != nil, true)
+	assert.Equal(t, convertedTime.IsZero(), true)
 }
 func TestConvertStringToSqlNullTime(t *testing.T) {
 	timeString := "2021-07-07T17:07:24.121Z"
@@ -65,22 +75,36 @@ func TestConvertStringToSqlNullTime_Alternate(t *testing.T) {
 func TestConvertStringToSqlNullTime_EmptyString(t *testing.T) {
 	timeString := ""
 	nullTime := ConvertStringToSqlNullTime(timeString)
+	assert.Equal(t, nullTime.Time.IsZero(), true)
 	assert.Equal(t, nullTime.Valid, false)
 }
-func TestFormatTimeString(t *testing.T) {
+func TestConvertStringToSqlNullTime_BadString(t *testing.T) {
+	timeString := "aodviij8we32bkj"
+	nullTime := ConvertStringToSqlNullTime(timeString)
+	assert.Equal(t, nullTime.Time.IsZero(), true)
+	assert.Equal(t, nullTime.Valid, false)
+}
+
+func TestFormatTimeString_Plus(t *testing.T) {
 	fmt.Println("INFO >>> Handles +00:00 (for example)")
 	timeString := "2021-07-07T17:07:15.000+00:00"
-	formattedString := FormatTimeString(timeString)
+	formattedString := FormatTimeStringForParsing(timeString)
 	assert.Equal(t, formattedString, "2021-07-07T17:07:15.000Z")
 }
-func TestFormatTimeString_NormalString(t *testing.T) {
+func TestFormatTimeString_Minus(t *testing.T) {
+	fmt.Println("INFO >>> Handles -00:00 (for example)")
+	timeString := "2021-07-07T17:07:15.000-00:00"
+	formattedString := FormatTimeStringForParsing(timeString)
+	assert.Equal(t, formattedString, "2021-07-07T17:07:15.000Z")
+}
+func TestFormatTimeStringForParsing_NormalString(t *testing.T) {
 	fmt.Println("INFO >>> Handles normal string (does nothing)")
 	timeString := "2021-07-07T17:07:15.000Z"
-	formattedString := FormatTimeString(timeString)
+	formattedString := FormatTimeStringForParsing(timeString)
 	assert.Equal(t, formattedString, "2021-07-07T17:07:15.000Z")
 }
-func TestFormatTimeString_EmptyString(t *testing.T) {
+func TestFormatTimeStringForParsing_EmptyString(t *testing.T) {
 	timeString := ""
-	formattedString := FormatTimeString(timeString)
+	formattedString := FormatTimeStringForParsing(timeString)
 	assert.Equal(t, formattedString, "")
 }

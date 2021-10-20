@@ -45,17 +45,9 @@ func CollectCommits(owner string, repositoryName string, repositoryId int, sched
 				return err
 			}
 			for _, commit := range *githubApiResponse {
-				githubCommit := &models.GithubCommit{
-					Sha:            commit.Sha,
-					RepositoryId:   repositoryId,
-					Message:        commit.Commit.Message,
-					AuthorName:     commit.Commit.Author.Name,
-					AuthorEmail:    commit.Commit.Author.Email,
-					AuthoredDate:   utils.ConvertStringToTime(commit.Commit.Author.Date),
-					CommitterName:  commit.Commit.Committer.Name,
-					CommitterEmail: commit.Commit.Committer.Email,
-					CommittedDate:  utils.ConvertStringToTime(commit.Commit.Committer.Date),
-					Url:            commit.Url,
+				githubCommit, err := convertGithubCommit(&commit, repositoryId)
+				if err != nil {
+					return err
 				}
 				err = lakeModels.Db.Clauses(clause.OnConflict{
 					UpdateAll: true,
@@ -66,4 +58,27 @@ func CollectCommits(owner string, repositoryName string, repositoryId int, sched
 			}
 			return nil
 		})
+}
+func convertGithubCommit(commit *CommitsResponse, repoId int) (*models.GithubCommit, error) {
+	convertedAuthoredDate, err := utils.ConvertStringToTime(commit.Commit.Author.Date)
+	if err != nil {
+		return nil, err
+	}
+	convertedCommittedDate, err := utils.ConvertStringToTime(commit.Commit.Committer.Date)
+	if err != nil {
+		return nil, err
+	}
+	githubCommit := &models.GithubCommit{
+		Sha:            commit.Sha,
+		RepositoryId:   repoId,
+		Message:        commit.Commit.Message,
+		AuthorName:     commit.Commit.Author.Name,
+		AuthorEmail:    commit.Commit.Author.Email,
+		AuthoredDate:   *convertedAuthoredDate,
+		CommitterName:  commit.Commit.Committer.Name,
+		CommitterEmail: commit.Commit.Committer.Email,
+		CommittedDate:  *convertedCommittedDate,
+		Url:            commit.Url,
+	}
+	return githubCommit, nil
 }

@@ -2,38 +2,48 @@ package utils
 
 import (
 	"database/sql"
+	"errors"
+	"fmt"
 	"regexp"
 	"strings"
 	"time"
+
+	"github.com/merico-dev/lake/logger"
 )
 
-// Year boundary is a year that is considered lower than any valid year.
-const YEAR_BOUNDARY = 1500
-
-func ConvertStringToTime(timeString string) time.Time {
+func ConvertStringToTime(timeString string) (*time.Time, error) {
 	// reference: https://golang.org/src/time/format.go
-	defaultTime := "1001-01-01T00:00:00Z" // MYSQL date range: https://dev.mysql.com/doc/refman/8.0/en/datetime.html
+	var result time.Time
 	if timeString == "" {
-		timeString = defaultTime
+		return &result, errors.New("Time string is zero")
 	}
-	formattedTime := FormatTimeString(timeString)
+	formattedTime := FormatTimeStringForParsing(timeString)
 	layout := "2006-01-02T15:04:05Z" // This layout string matches the api strings from GitHub
-	result, _ := time.Parse(layout, formattedTime)
-	return result
-}
-func ConvertStringToSqlNullTime(timeString string) sql.NullTime {
-	var nullableTime sql.NullTime
-	convertedTime := ConvertStringToTime(timeString)
-	if IsValidTime(&convertedTime) {
-		nullableTime.Valid = true
-	} else {
-		nullableTime.Valid = false
+	result, err := time.Parse(layout, formattedTime)
+	if err != nil {
+		return &result, err
 	}
-	nullableTime.Time = convertedTime
-	return nullableTime
+	return &result, nil
 }
-func FormatTimeString(timeString string) string {
-	pattern := regexp.MustCompile("[+](.*)")
+func ConvertStringToSqlNullTime(timeString string) *sql.NullTime {
+	var nullableTime sql.NullTime
+	convertedTime, err := ConvertStringToTime(timeString)
+	if err != nil {
+		logger.Info(fmt.Sprintf("Time convert error on timeString: %v", timeString), err)
+	}
+	if convertedTime.IsZero() {
+		nullableTime.Valid = false
+	} else {
+		nullableTime.Valid = true
+	}
+	nullableTime.Time = *convertedTime
+	return &nullableTime
+}
+
+// Essentially this function it replaces "+09:00" type formats that are common from the
+// end of some otherwise valid time strings so they can be used in Golang's time.Parse function.
+func FormatTimeStringForParsing(timeString string) string {
+	pattern := regexp.MustCompile("[+|-][0-9][0-9]:[0-9][0-9]")
 	content := []byte(timeString)
 	index := pattern.FindIndex(content)
 	if len(index) > 0 {
@@ -41,7 +51,4 @@ func FormatTimeString(timeString string) string {
 		timeString = strings.Replace(timeString, subString, `Z`, 1)
 	}
 	return timeString
-}
-func IsValidTime(t *time.Time) bool {
-	return t.Year() > YEAR_BOUNDARY
 }
