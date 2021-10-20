@@ -54,7 +54,12 @@ func CollectChangelogs(
 ) error {
 	jiraIssue := &models.JiraIssue{}
 
-	// `since` option would be handled by issue collecotr, we just need to check `changelog_updated` field
+	/*
+		`CollectIssues` will take into account of `since` option and set the `updated` field for issues that have
+		updates, So when it comes to collecting changelogs, we only need to compare an issue's `updated` field with its
+		`changelog_updated` field. If `changelog_updated` is older, then we'll collect changelogs for this issue and
+		set its `changelog_updated` to `updated` at the end.
+	*/
 	cursor, err := lakeModels.Db.Model(jiraIssue).
 		Select("jira_issues.issue_id", "jira_issues.updated").
 		Joins(`LEFT JOIN jira_board_issues ON (
