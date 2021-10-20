@@ -37,7 +37,9 @@ func CollectPullRequestComments(owner string, repositoryName string, pull *model
 				}
 				for _, comment := range *githubApiResponse {
 					githubComment, err := convertGithubPullRequestComment(&comment, pull.GithubId)
-
+					if err != nil {
+						return err
+					}
 					err = lakeModels.Db.Clauses(clause.OnConflict{
 						UpdateAll: true,
 					}).Create(&githubComment).Error
