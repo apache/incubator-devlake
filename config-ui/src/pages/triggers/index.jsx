@@ -1,22 +1,23 @@
 import React, { useState, useEffect } from 'react'
 import axios from 'axios'
 import { AnchorButton, Spinner, Button, TextArea, Intent } from '@blueprintjs/core'
-import { defaultTriggerValue } from '../../data/defaultTriggerValue'
+import defaultTriggerValue from '../../data/defaultTriggerValue.js'
 import Nav from '../../components/Nav'
 import Sidebar from '../../components/Sidebar'
 import Content from '../../components/Content'
+import Config from '../../../config'
 
 export default function Triggers () {
   const [textAreaBody, setTextAreaBody] = useState(JSON.stringify(defaultTriggerValue, null, 2))
 
   const sendTrigger = async (e) => {
     e.preventDefault()
-
+    console.log('JON >>> Config.DEVLAKE_ENDPOINT', Config.DEVLAKE_ENDPOINT);
     try {
       await axios.post(
-        '/api/triggers/task',
+        `${Config.DEVLAKE_ENDPOINT}/task`,
         textAreaBody,
-        { headers: { 'Content-Type': 'application/json' } },
+        { headers: { 'Content-Type': 'application/json'} },
       )
     } catch (e) {
       console.error(e)
@@ -71,13 +72,13 @@ export default function Triggers () {
               <h1>Collecting Data</h1>
               <p className='description'>Please wait... </p>
 
-              {pendingTasks.map(task => <div className='pluginSpinnerWrap' key={task}>
+            {pendingTasks.map(task => <div className='pluginSpinnerWrap' key={`key-${task.ID}`}>
                 <Spinner
                   size={12}
                   value={task.progress ? task.progress : null}
                   className='pluginSpinner'
                 />
-                <div key={task.ID}>
+              <div key={`progress-${task.ID}`}>
                   {task.plugin}: <strong>{task.progress * 100}%</strong>
                 </div>
               </div>
@@ -110,7 +111,7 @@ export default function Triggers () {
                 />
               </div>
 
-              <Button outlined={true} large={true} className='saveBtn' onClick={() => sendTrigger}>Trigger Collection</Button>
+              <Button outlined={true} large={true} className='saveBtn' onClick={(e) => sendTrigger(e)}>Trigger Collection</Button>
             </form>
             </>
           }

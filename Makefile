@@ -49,3 +49,6 @@ lint:
 
 clean:
 	@rm -rf bin
+
+restart:
+	docker-compose down; docker-compose up -d
