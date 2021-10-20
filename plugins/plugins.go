@@ -55,8 +55,7 @@ func RunPlugin(name string, options map[string]interface{}, progress chan<- floa
 	if err != nil {
 		return err
 	}
-	plugin.Execute(options, progress, ctx)
-	return nil
+	return plugin.Execute(options, progress, ctx)
 }
 
 func PluginDir() string {
