@@ -23,14 +23,17 @@ func (plugin JenkinsDomain) Description() string {
 	return "Convert Jenkins Entities to Domain Layer Entities"
 }
 
-func (plugin JenkinsDomain) Execute(options map[string]interface{}, progress chan<- float32, ctx context.Context) {
+func (plugin JenkinsDomain) Execute(
+	options map[string]interface{},
+	progress chan<- float32,
+	ctx context.Context,
+) error {
 	// process options
 	var op JenkinsDomainOptions
 	var err error
 	err = mapstructure.Decode(options, &op)
 	if err != nil {
-		logger.Error("Error: ", err)
-		return
+		return err
 	}
 	tasksToRun := make(map[string]bool, len(op.Tasks))
 	for _, task := range op.Tasks {
@@ -48,21 +51,20 @@ func (plugin JenkinsDomain) Execute(options map[string]interface{}, progress cha
 	if tasksToRun["convertJobs"] {
 		err := tasks.ConvertJobs()
 		if err != nil {
-			logger.Error("Error: ", err)
-			return
+			return err
 		}
 	}
 	progress <- 0.2
 	if tasksToRun["convertBuilds"] {
 		err = tasks.ConvertBuilds()
 		if err != nil {
-			logger.Error("Error: ", err)
-			return
+			return err
 		}
 	}
 	progress <- 1
 	logger.Print("end JenkinsDomain plugin execution")
 	close(progress)
+	return nil
 }
 
 func (plugin JenkinsDomain) RootPkgPath() string {

@@ -34,8 +34,9 @@ func (plugin DomainLayer) Description() string {
 	return "Domain Layer"
 }
 
-func (plugin DomainLayer) Execute(options map[string]interface{}, progress chan<- float32, ctx context.Context) {
-	progress <- 1
+func (plugin DomainLayer) Execute(options map[string]interface{}, progress chan<- float32, ctx context.Context) error {
+	close(progress)
+	return nil
 }
 
 func (plugin DomainLayer) RootPkgPath() string {
