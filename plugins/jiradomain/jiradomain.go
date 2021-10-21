@@ -35,7 +35,7 @@ func (plugin JiraDomain) Execute(options map[string]interface{}, progress chan<-
 		return err
 	}
 	if op.SourceId == 0 {
-		return err
+		return fmt.Errorf("sourceId is invalid")
 	}
 	sourceId := op.SourceId
 	if op.BoardId == 0 {

@@ -54,8 +54,7 @@ func (plugin Jira) Execute(options map[string]interface{}, progress chan<- float
 		return err
 	}
 	if op.SourceId == 0 {
-		// sourceId is required
-		return err
+		return fmt.Errorf("sourceId is invalid")
 	}
 	source := &models.JiraSource{}
 	err = lakeModels.Db.Find(source, op.SourceId).Error
