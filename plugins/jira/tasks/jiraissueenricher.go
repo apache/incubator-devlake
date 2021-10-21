@@ -45,7 +45,7 @@ func EnrichIssues(source *models.JiraSource, boardId uint64) (err error) {
 		if statusCategory == "Done" {
 			return "Resolved"
 		} else {
-			return ""
+			return statusCategory
 		}
 	}
 
