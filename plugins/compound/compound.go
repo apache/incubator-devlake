@@ -72,8 +72,9 @@ func (plugin Compound) Description() string {
 	return "To relate jira board and gitlab projects"
 }
 
-func (plugin Compound) Execute(options map[string]interface{}, progress chan<- float32, ctx context.Context) {
+func (plugin Compound) Execute(options map[string]interface{}, progress chan<- float32, ctx context.Context) error {
 	close(progress)
+	return nil
 }
 
 func (plugin Compound) RootPkgPath() string {

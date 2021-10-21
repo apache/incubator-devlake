@@ -2,6 +2,7 @@ package main // must be main for plugin entry point
 
 import (
 	"context"
+	"fmt"
 	"time"
 
 	"github.com/merico-dev/lake/logger"
@@ -43,47 +44,41 @@ func (plugin Jira) Description() string {
 	return "To collect and enrich data from JIRA"
 }
 
-func (plugin Jira) Execute(options map[string]interface{}, progress chan<- float32, ctx context.Context) {
+func (plugin Jira) Execute(options map[string]interface{}, progress chan<- float32, ctx context.Context) error {
 	// process options
 	var op JiraOptions
 	var err error
 	var boardIds []uint64
 	err = mapstructure.Decode(options, &op)
 	if err != nil {
-		logger.Error("Error: ", err)
-		return
+		return err
 	}
 	if op.SourceId == 0 {
-		// sourceId is required
-		logger.Print("sourceId is invalid")
-		return
+		return fmt.Errorf("sourceId is invalid")
 	}
 	source := &models.JiraSource{}
 	err = lakeModels.Db.Find(source, op.SourceId).Error
 	if err != nil {
-		logger.Print("jira source not found")
-		return
+		return err
 	}
 	if op.BoardId == 0 {
 		// boardId omitted: to collect all boards of the data source
 		err = lakeModels.Db.Model(&models.JiraBoard{}).Where("source_id = ?", op.SourceId).Pluck("id", &boardIds).Error
 		if err != nil {
-			logger.Error("Error: ", err)
-			return
+			return err
 		}
 	} else {
 		boardIds = []uint64{op.BoardId}
 	}
 	if len(boardIds) == 0 {
-		logger.Error("no board to collect", op)
-		return
+		return fmt.Errorf("no board to collect")
 	}
 
 	var since time.Time
 	if op.Since != "" {
 		since, err = time.Parse("2006-01-02T15:04:05Z", op.Since)
 		if err != nil {
-			return
+			return err
 		}
 	}
 	tasksToRun := make(map[string]bool, len(op.Tasks))
@@ -109,45 +104,41 @@ func (plugin Jira) Execute(options map[string]interface{}, progress chan<- float
 
 	jiraApiClient, err := tasks.NewJiraApiClientBySourceId(op.SourceId)
 	if err != nil {
-		logger.Error("failed to create jira api client", err)
-		return
+		return fmt.Errorf("failed to create jira api client: %v", err)
 	}
 	for i, boardId := range boardIds {
 		if tasksToRun["collectBoard"] {
 			err := tasks.CollectBoard(jiraApiClient, source, boardId)
 			if err != nil {
-				logger.Error("Error: ", err)
-				return
+				return err
 			}
 		}
 		setBoardProgress(i, 0.01)
 		if tasksToRun["collectIssues"] {
 			err = tasks.CollectIssues(jiraApiClient, source, boardId, since, ctx)
 			if err != nil {
-				logger.Error("Error: ", err)
-				return
+				return err
 			}
 		}
 		setBoardProgress(i, 0.5)
 		if tasksToRun["collectChangelogs"] {
 			err = tasks.CollectChangelogs(jiraApiClient, source, boardId, ctx)
 			if err != nil {
-				logger.Error("Error: ", err)
-				return
+				return err
 			}
 		}
 		setBoardProgress(i, 0.8)
 		if tasksToRun["enrichIssues"] {
 			err = tasks.EnrichIssues(source, boardId)
 			if err != nil {
-				logger.Error("Error: ", err)
-				return
+				return err
 			}
 		}
 		setBoardProgress(i, 1.0)
 	}
 	logger.Print("end jira plugin execution")
 	close(progress)
+	return nil
 }
 
 func (plugin Jira) RootPkgPath() string {
