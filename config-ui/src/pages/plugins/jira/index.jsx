@@ -10,7 +10,7 @@ import MappingTag from './MappingTag'
 import MappingTagStatus from './MappingTagStatus'
 import ClearButton from './ClearButton'
 import { findStrBetween } from '../../../utils/findStrBetween'
-import { SERVER_HOST } from '../../../utils/config'
+import { DEVLAKE_ENDPOINT } from '../../../utils/config'
 
 export default function Jira () {
   const [alertOpen, setAlertOpen] = useState(false)
@@ -62,7 +62,7 @@ export default function Jira () {
   }
 
   function updateEnv (key, value) {
-    fetch(`${SERVER_HOST}/api/setenv/${key}/${encodeURIComponent(value)}`)
+    fetch(`${DEVLAKE_ENDPOINT}/api/setenv/${key}/${encodeURIComponent(value)}`)
   }
 
   function saveAll (e) {
@@ -95,7 +95,7 @@ export default function Jira () {
   }, [typeMappingBug, typeMappingIncident, typeMappingRequirement])
 
   useEffect(() => {
-    fetch(`${SERVER_HOST}/api/getenv`)
+    fetch(`${DEVLAKE_ENDPOINT}/api/getenv`)
       .then(response => response.json())
       .then(env => {
         setJiraEndpoint(env.JIRA_ENDPOINT)
