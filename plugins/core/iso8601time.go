@@ -2,6 +2,7 @@ package core
 
 import (
 	"fmt"
+	"regexp"
 	"strings"
 	"time"
 )
@@ -20,13 +21,39 @@ err := json.Unmarshal("{\"created\": \"2021-02-19T01:53:35.340+0800\"}", foo)
 var time time.Time
 time = foo.Created.ToTime()
 */
-type Iso8601Time time.Time
 
-const ISO_8601_FORMAT = "2006-01-02T15:04:05-0700"
+type DateTimeFormatItem struct {
+	Matcher *regexp.Regexp
+	Format  string
+}
+
+var DateTimeFormats []DateTimeFormatItem
+
+func init() {
+	DateTimeFormats = []DateTimeFormatItem{
+		{
+			Matcher: regexp.MustCompile(`[+-][\d]{4}$`),
+			Format:  "2006-01-02T15:04:05-0700",
+		},
+		{
+			Matcher: regexp.MustCompile(`[+-][\d]{2}:[\d]{2}$`),
+			Format:  "2006-01-02T15:04:05.000-07:00",
+		},
+	}
+}
+
+//type Iso8601Time time.Time
+type Iso8601Time struct {
+	time   time.Time
+	format string
+}
 
 func (jt *Iso8601Time) String() string {
-	t := time.Time(*jt)
-	return t.Format(ISO_8601_FORMAT)
+	format := jt.format
+	if format == "" {
+		format = DateTimeFormats[0].Format
+	}
+	return jt.time.Format(format)
 }
 
 func (jt Iso8601Time) MarshalJSON() ([]byte, error) {
@@ -34,15 +61,30 @@ func (jt Iso8601Time) MarshalJSON() ([]byte, error) {
 }
 
 func (jt *Iso8601Time) UnmarshalJSON(b []byte) error {
-	timeString := strings.Trim(string(b), `"`)
-	t, err := time.Parse(ISO_8601_FORMAT, timeString)
-	if err == nil {
-		*jt = Iso8601Time(t)
+	timeString := string(b)
+	if timeString == "null" {
 		return nil
 	}
-	return fmt.Errorf("invalid date format: %s", timeString)
+	timeString = strings.Trim(timeString, `"`)
+	t, err := ConvertStringToTime(timeString)
+	if err != nil {
+		return err
+	}
+	jt.time = t
+	return nil
 }
 
 func (jt *Iso8601Time) ToTime() time.Time {
-	return time.Time(*jt)
+	return jt.time
+}
+
+func ConvertStringToTime(timeString string) (t time.Time, err error) {
+	for _, formatItem := range DateTimeFormats {
+		if formatItem.Matcher.MatchString(timeString) {
+			t, err = time.Parse(formatItem.Format, timeString)
+			return
+		}
+	}
+	t, err = time.Parse(time.RFC3339, timeString)
+	return
 }
