@@ -8,7 +8,6 @@ import (
 	lakeModels "github.com/merico-dev/lake/models"
 	"github.com/merico-dev/lake/plugins/core"
 	"github.com/merico-dev/lake/plugins/gitlab/models"
-	"github.com/merico-dev/lake/utils"
 	"gorm.io/gorm/clause"
 )
 
@@ -19,14 +18,14 @@ type GitlabMergeRequestCommit struct {
 	Title          string
 	Message        string
 	ProjectId      int
-	ShortId        string `json:"short_id"`
-	AuthorName     string `json:"author_name"`
-	AuthorEmail    string `json:"author_email"`
-	AuthoredDate   string `json:"authored_date"`
-	CommitterName  string `json:"committer_name"`
-	CommitterEmail string `json:"committer_email"`
-	CommittedDate  string `json:"committed_date"`
-	WebUrl         string `json:"web_url"`
+	ShortId        string           `json:"short_id"`
+	AuthorName     string           `json:"author_name"`
+	AuthorEmail    string           `json:"author_email"`
+	AuthoredDate   core.Iso8601Time `json:"authored_date"`
+	CommitterName  string           `json:"committer_name"`
+	CommitterEmail string           `json:"committer_email"`
+	CommittedDate  core.Iso8601Time `json:"committed_date"`
+	WebUrl         string           `json:"web_url"`
 	Stats          struct {
 		Additions int
 		Deletions int
@@ -77,14 +76,6 @@ func CollectMergeRequestCommits(projectId int, mr *models.GitlabMergeRequest) er
 }
 
 func convertMergeRequestCommit(commit *GitlabMergeRequestCommit) (*models.GitlabMergeRequestCommit, error) {
-	convertedAuthoredDate, err := utils.ConvertStringToTime(commit.AuthoredDate)
-	if err != nil {
-		return nil, err
-	}
-	convertedCommittedDate, err := utils.ConvertStringToTime(commit.CommittedDate)
-	if err != nil {
-		return nil, err
-	}
 	gitlabMergeRequestCommit := &models.GitlabMergeRequestCommit{
 		CommitId:       commit.CommitId,
 		Title:          commit.Title,
@@ -92,10 +83,10 @@ func convertMergeRequestCommit(commit *GitlabMergeRequestCommit) (*models.Gitlab
 		ShortId:        commit.ShortId,
 		AuthorName:     commit.AuthorName,
 		AuthorEmail:    commit.AuthorEmail,
-		AuthoredDate:   *convertedAuthoredDate,
+		AuthoredDate:   commit.AuthoredDate.ToTime(),
 		CommitterName:  commit.CommitterName,
 		CommitterEmail: commit.CommitterEmail,
-		CommittedDate:  *convertedCommittedDate,
+		CommittedDate:  commit.CommittedDate.ToTime(),
 		WebUrl:         commit.WebUrl,
 		Additions:      commit.Stats.Additions,
 		Deletions:      commit.Stats.Deletions,
