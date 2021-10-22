@@ -19,14 +19,14 @@ type GitlabApiCommit struct {
 	Title          string
 	Message        string
 	ProjectId      int
-	ShortId        string `json:"short_id"`
-	AuthorName     string `json:"author_name"`
-	AuthorEmail    string `json:"author_email"`
-	AuthoredDate   string `json:"authored_date"`
-	CommitterName  string `json:"committer_name"`
-	CommitterEmail string `json:"committer_email"`
-	CommittedDate  string `json:"committed_date"`
-	WebUrl         string `json:"web_url"`
+	ShortId        string           `json:"short_id"`
+	AuthorName     string           `json:"author_name"`
+	AuthorEmail    string           `json:"author_email"`
+	AuthoredDate   core.Iso8601Time `json:"authored_date"`
+	CommitterName  string           `json:"committer_name"`
+	CommitterEmail string           `json:"committer_email"`
+	CommittedDate  core.Iso8601Time `json:"committed_date"`
+	WebUrl         string           `json:"web_url"`
 	Stats          struct {
 		Additions int
 		Deletions int
@@ -68,16 +68,6 @@ func CollectCommits(projectId int, scheduler *utils.WorkerScheduler) error {
 
 // Convert the API response to our DB model instance
 func convertCommit(commit *GitlabApiCommit, projectId int) (*models.GitlabCommit, error) {
-	convertedAuthoredDate, err := utils.ConvertStringToTime(commit.AuthoredDate)
-	if err != nil {
-		logger.Error("Error >>> authored date must be valid: ", err)
-		return nil, err
-	}
-	convertedCommittedDate, err := utils.ConvertStringToTime(commit.CommittedDate)
-	if err != nil {
-		logger.Error("Error >>> committed date must be valid: ", err)
-		return nil, err
-	}
 	gitlabCommit := &models.GitlabCommit{
 		GitlabId:       commit.GitlabId,
 		Title:          commit.Title,
@@ -86,10 +76,10 @@ func convertCommit(commit *GitlabApiCommit, projectId int) (*models.GitlabCommit
 		ShortId:        commit.ShortId,
 		AuthorName:     commit.AuthorName,
 		AuthorEmail:    commit.AuthorEmail,
-		AuthoredDate:   *convertedAuthoredDate,
+		AuthoredDate:   commit.AuthoredDate.ToTime(),
 		CommitterName:  commit.CommitterName,
 		CommitterEmail: commit.CommitterEmail,
-		CommittedDate:  *convertedCommittedDate,
+		CommittedDate:  commit.CommittedDate.ToTime(),
 		WebUrl:         commit.WebUrl,
 		Additions:      commit.Stats.Additions,
 		Deletions:      commit.Stats.Deletions,

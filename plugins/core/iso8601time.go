@@ -1,6 +1,7 @@
 package core
 
 import (
+	"database/sql"
 	"fmt"
 	"regexp"
 	"strings"
@@ -76,6 +77,13 @@ func (jt *Iso8601Time) UnmarshalJSON(b []byte) error {
 
 func (jt *Iso8601Time) ToTime() time.Time {
 	return jt.time
+}
+
+func (jt *Iso8601Time) ToSqlNullTime() sql.NullTime {
+	var nullTime sql.NullTime
+	nullTime.Time = jt.time
+	nullTime.Valid = !jt.time.IsZero()
+	return nullTime
 }
 
 func ConvertStringToTime(timeString string) (t time.Time, err error) {

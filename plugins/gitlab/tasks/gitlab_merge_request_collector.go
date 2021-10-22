@@ -19,13 +19,13 @@ type MergeRequestRes struct {
 	State           string
 	Title           string
 	Description     string
-	WebUrl          string `json:"web_url"`
-	UserNotesCount  int    `json:"user_notes_count"`
-	WorkInProgress  bool   `json:"work_in_progress"`
-	SourceBranch    string `json:"source_branch"`
-	MergedAt        string `json:"merged_at"`
-	GitlabCreatedAt string `json:"created_at"`
-	ClosedAt        string `json:"closed_at"`
+	WebUrl          string           `json:"web_url"`
+	UserNotesCount  int              `json:"user_notes_count"`
+	WorkInProgress  bool             `json:"work_in_progress"`
+	SourceBranch    string           `json:"source_branch"`
+	GitlabCreatedAt core.Iso8601Time `json:"created_at"`
+	MergedAt        core.Iso8601Time `json:"merged_at"`
+	ClosedAt        core.Iso8601Time `json:"closed_at"`
 	MergedBy        struct {
 		Username string `json:"username"`
 	} `json:"merged_by"`
@@ -33,7 +33,7 @@ type MergeRequestRes struct {
 		Username string `json:"username"`
 	}
 	Reviewers        []Reviewer
-	FirstCommentTime string
+	FirstCommentTime core.Iso8601Time
 }
 
 type ApiMergeRequestResponse []MergeRequestRes
@@ -66,13 +66,6 @@ func CollectMergeRequests(projectId int, scheduler *utils.WorkerScheduler) error
 		})
 }
 func convertMergeRequest(mr *MergeRequestRes, projectId int) (*models.GitlabMergeRequest, error) {
-	convertedMergedAt := utils.ConvertStringToSqlNullTime(mr.MergedAt)
-	convertedGitlabCreatedAt, err := utils.ConvertStringToTime(mr.GitlabCreatedAt)
-	if err != nil {
-		return nil, err
-	}
-	convertedClosedAt := utils.ConvertStringToSqlNullTime(mr.ClosedAt)
-
 	gitlabMergeRequest := &models.GitlabMergeRequest{
 		GitlabId:         mr.GitlabId,
 		Iid:              mr.Iid,
@@ -84,9 +77,9 @@ func convertMergeRequest(mr *MergeRequestRes, projectId int) (*models.GitlabMerg
 		UserNotesCount:   mr.UserNotesCount,
 		WorkInProgress:   mr.WorkInProgress,
 		SourceBranch:     mr.SourceBranch,
-		MergedAt:         *convertedMergedAt,
-		GitlabCreatedAt:  *convertedGitlabCreatedAt,
-		ClosedAt:         *convertedClosedAt,
+		MergedAt:         mr.MergedAt.ToSqlNullTime(),
+		GitlabCreatedAt:  mr.GitlabCreatedAt.ToTime(),
+		ClosedAt:         mr.ClosedAt.ToSqlNullTime(),
 		MergedByUsername: mr.MergedBy.Username,
 		AuthorUsername:   mr.Author.Username,
 	}

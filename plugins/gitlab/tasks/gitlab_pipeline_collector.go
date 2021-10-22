@@ -16,9 +16,9 @@ import (
 type ApiPipelineResponse []ApiPipeline
 
 type ApiPipeline struct {
-	GitlabId        int    `json:"id"`
-	ProjectId       int    `json:"project_id"`
-	GitlabCreatedAt string `json:"created_at"`
+	GitlabId        int              `json:"id"`
+	ProjectId       int              `json:"project_id"`
+	GitlabCreatedAt core.Iso8601Time `json:"created_at"`
 	Ref             string
 	Sha             string
 	WebUrl          string `json:"web_url"`
@@ -26,15 +26,15 @@ type ApiPipeline struct {
 }
 
 type ApiSinglePipelineResponse struct {
-	GitlabId        int    `json:"id"`
-	ProjectId       int    `json:"project_id"`
-	GitlabCreatedAt string `json:"created_at"`
+	GitlabId        int              `json:"id"`
+	ProjectId       int              `json:"project_id"`
+	GitlabCreatedAt core.Iso8601Time `json:"created_at"`
 	Ref             string
 	Sha             string
 	WebUrl          string `json:"web_url"`
 	Duration        int
-	StartedAt       string `json:"started_at"`
-	FinishedAt      string `json:"finished_at"`
+	StartedAt       core.Iso8601Time `json:"started_at"`
+	FinishedAt      core.Iso8601Time `json:"finished_at"`
 	Coverage        string
 	Status          string
 }
@@ -122,23 +122,17 @@ func CollectChildrenOnPipelines(projectIdInt int, scheduler *utils.WorkerSchedul
 }
 
 func convertSinglePipeline(pipeline *ApiSinglePipelineResponse) (*models.GitlabPipeline, error) {
-	convertedCreatedAt, err := utils.ConvertStringToTime(pipeline.GitlabCreatedAt)
-	if err != nil {
-		return nil, err
-	}
-	convertedStartedAt := utils.ConvertStringToSqlNullTime(pipeline.StartedAt)
-	convertedFinishedAt := utils.ConvertStringToSqlNullTime(pipeline.FinishedAt)
 
 	gitlabPipeline := &gitlabModels.GitlabPipeline{
 		GitlabId:        pipeline.GitlabId,
 		ProjectId:       pipeline.ProjectId,
-		GitlabCreatedAt: *convertedCreatedAt,
+		GitlabCreatedAt: pipeline.GitlabCreatedAt.ToTime(),
 		Ref:             pipeline.Ref,
 		Sha:             pipeline.Sha,
 		WebUrl:          pipeline.WebUrl,
 		Duration:        pipeline.Duration,
-		StartedAt:       *convertedStartedAt,
-		FinishedAt:      *convertedFinishedAt,
+		StartedAt:       pipeline.StartedAt.ToSqlNullTime(),
+		FinishedAt:      pipeline.FinishedAt.ToSqlNullTime(),
 		Coverage:        pipeline.Coverage,
 		Status:          pipeline.Status,
 	}
@@ -146,14 +140,10 @@ func convertSinglePipeline(pipeline *ApiSinglePipelineResponse) (*models.GitlabP
 }
 
 func convertPipeline(pipeline *ApiPipeline) (*models.GitlabPipeline, error) {
-	convertedCreatedAt, err := utils.ConvertStringToTime(pipeline.GitlabCreatedAt)
-	if err != nil {
-		return nil, err
-	}
 	gitlabPipeline := &gitlabModels.GitlabPipeline{
 		GitlabId:        pipeline.GitlabId,
 		ProjectId:       pipeline.ProjectId,
-		GitlabCreatedAt: *convertedCreatedAt,
+		GitlabCreatedAt: pipeline.GitlabCreatedAt.ToTime(),
 		Ref:             pipeline.Ref,
 		Sha:             pipeline.Sha,
 		WebUrl:          pipeline.WebUrl,
