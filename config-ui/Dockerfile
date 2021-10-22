@@ -1,11 +1,8 @@
-FROM node:14-alpine
-
-COPY package.json /src/package.json
-WORKDIR /src
-RUN npm i
-
-COPY . /src
-
-CMD ["npm", "run", "dev"]
-
-EXPOSE 4000
+FROM nginx:latest
+RUN rm /etc/nginx/conf.d/default.conf
+COPY ./nginx.conf /etc/nginx/conf.d/default.conf
+WORKDIR /usr/share/nginx/html
+RUN rm -rf ./*
+COPY ./dist/* ./
+EXPOSE 80 443
+ENTRYPOINT ["nginx", "-g", "daemon off;"]
