@@ -106,11 +106,11 @@ func convertIssue(source *models.JiraSource, jiraApiIssue *JiraApiIssue) (*model
 	if err != nil {
 		return nil, err
 	}
-	created, err := time.Parse(core.ISO_8601_FORMAT, jiraApiIssue.Fields["created"].(string))
+	created, err := core.ConvertStringToTime(jiraApiIssue.Fields["created"].(string))
 	if err != nil {
 		return nil, err
 	}
-	updated, err := time.Parse(core.ISO_8601_FORMAT, jiraApiIssue.Fields["updated"].(string))
+	updated, err := core.ConvertStringToTime(jiraApiIssue.Fields["updated"].(string))
 	if err != nil {
 		return nil, err
 	}
@@ -130,7 +130,7 @@ func convertIssue(source *models.JiraSource, jiraApiIssue *JiraApiIssue) (*model
 	}
 	resolutionDate := sql.NullTime{}
 	if rd, ok := jiraApiIssue.Fields["resolutiondate"]; ok && rd != nil {
-		if resolutionDate.Time, err = time.Parse(core.ISO_8601_FORMAT, rd.(string)); err == nil {
+		if resolutionDate.Time, err = core.ConvertStringToTime(rd.(string)); err == nil {
 			resolutionDate.Valid = true
 		}
 	}
