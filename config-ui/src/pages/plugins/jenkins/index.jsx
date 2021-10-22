@@ -4,7 +4,7 @@ import Nav from '../../../components/Nav'
 import Sidebar from '../../../components/Sidebar'
 import Content from '../../../components/Content'
 import SaveAlert from '../../../components/SaveAlert'
-import { SERVER_HOST } from '../../../utils/config'
+import { DEVLAKE_ENDPOINT } from '../../../utils/config'
 
 export default function Jenkins () {
   const [alertOpen, setAlertOpen] = useState(false)
@@ -13,7 +13,7 @@ export default function Jenkins () {
   const [jenkinsPassword, setJenkinsPassword] = useState()
 
   function updateEnv (key, value) {
-    fetch(`${SERVER_HOST}/api/setenv/${key}/${encodeURIComponent(value)}`)
+    fetch(`${DEVLAKE_ENDPOINT}/api/setenv/${key}/${encodeURIComponent(value)}`)
   }
 
   function saveAll (e) {
@@ -25,7 +25,7 @@ export default function Jenkins () {
   }
 
   useEffect(() => {
-    fetch(`${SERVER_HOST}/api/getenv`)
+    fetch(`${DEVLAKE_ENDPOINT}/api/getenv`)
       .then(response => response.json())
       .then(env => {
         setJenkinsEndpoint(env.JENKINS_ENDPOINT)

@@ -1,37 +1,37 @@
 import React, { useEffect, useState } from 'react'
-import { FormGroup, InputGroup, Button, Tooltip, Position, Label } from '@blueprintjs/core'
+import { FormGroup, InputGroup, Button, Tooltip, Position, Label, Utils } from '@blueprintjs/core'
 import Nav from '../../components/Nav'
 import Sidebar from '../../components/Sidebar'
 import Content from '../../components/Content'
 import SaveAlert from '../../components/SaveAlert'
-import { SERVER_HOST } from '../../utils/config'
+import { DEVLAKE_ENDPOINT } from '../../utils/config'
+import request from '../../utils/request'
 
 export default function Configure () {
   const [alertOpen, setAlertOpen] = useState(false)
   const [dbUrl, setDbUrl] = useState()
   const [port, setPort] = useState()
   const [mode, setMode] = useState()
+  const [config, setConfig] = useState()
 
-  function updateEnv (key, value) {
-    fetch(`${SERVER_HOST}/api/setenv/${key}/${encodeURIComponent(value)}`)
-  }
-
-  function saveAll (e) {
+  async function saveAll (e) {
     e.preventDefault()
-    updateEnv('DB_URL', dbUrl)
-    updateEnv('PORT', port)
-    updateEnv('MODE', mode)
+
+    config.DB_URL = dbUrl
+    config.PORT = port
+    config.MODE = mode
+
+    await request.post(`${DEVLAKE_ENDPOINT}/env`, config)
+
     setAlertOpen(true)
   }
 
-  useEffect(() => {
-    fetch(`${SERVER_HOST}/api/getenv`)
-      .then(response => response.json())
-      .then(env => {
-        setDbUrl(env.DB_URL)
-        setPort(env.PORT)
-        setMode(env.MODE)
-      })
+  useEffect(async () => {
+    let env = await request.get(`${DEVLAKE_ENDPOINT}/env`)
+    setConfig(env.data)
+    setDbUrl(env.data.DB_URL)
+    setPort(env.data.PORT)
+    setMode(env.data.MODE)
   }, [])
 
   return (

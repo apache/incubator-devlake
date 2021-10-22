@@ -6,18 +6,17 @@ import Nav from '../../components/Nav'
 import Sidebar from '../../components/Sidebar'
 import Content from '../../components/Content'
 import Config from '../../../config'
+import request from '../../utils/request'
 
 export default function Triggers () {
   const [textAreaBody, setTextAreaBody] = useState(JSON.stringify(defaultTriggerValue, null, 2))
 
   const sendTrigger = async (e) => {
     e.preventDefault()
-    console.log('JON >>> Config.DEVLAKE_ENDPOINT', Config.DEVLAKE_ENDPOINT);
     try {
-      await axios.post(
+      await request.post(
         `${Config.DEVLAKE_ENDPOINT}/task`,
-        textAreaBody,
-        { headers: { 'Content-Type': 'application/json'} },
+        textAreaBody
       )
     } catch (e) {
       console.error(e)
@@ -31,7 +30,7 @@ export default function Triggers () {
     let s = 0
     const interval = setInterval(async () => {
       try {
-        const res = await axios.get('/api/triggers/pendings')
+        const res = await request.get('/api/triggers/pendings')
         console.log(await res.data)
         if (res.data.tasks.length > 0) {
           s = 1
