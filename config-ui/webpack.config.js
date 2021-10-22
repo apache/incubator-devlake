@@ -93,6 +93,7 @@ module.exports = (env = {}) => {
         ],
       }),
       new ESLintPlugin({
+        fix: true,
         context: path.resolve(__dirname, './'),
         exclude: ['dist', 'packages', 'cypress', 'config', 'node_modules']
       }),
