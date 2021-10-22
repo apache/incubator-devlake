@@ -13,7 +13,6 @@ export default function Triggers () {
 
   const sendTrigger = async (e) => {
     e.preventDefault()
-    console.log('JON >>> Config.DEVLAKE_ENDPOINT', Config.DEVLAKE_ENDPOINT);
     try {
       await request.post(
         `${Config.DEVLAKE_ENDPOINT}/task`,

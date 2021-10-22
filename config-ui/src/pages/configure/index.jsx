@@ -27,9 +27,7 @@ export default function Configure () {
   }
 
   useEffect(async () => {
-    console.log('JON >>> here', 1);
     let env = await request.get(`${DEVLAKE_ENDPOINT}/env`)
-    console.log('JON >>> env', env);
     setConfig(env.data)
     setDbUrl(env.data.DB_URL)
     setPort(env.data.PORT)

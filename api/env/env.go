@@ -41,8 +41,11 @@ func Get(ctx *gin.Context) {
 	V := config.LoadConfigFile()
 
 	var configJson Config
-	V.Unmarshal(&configJson)
-	logger.Info("JON >>> config", configJson)
+	err := V.Unmarshal(&configJson)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, "Your json is malformed")
+		return
+	}
 	ctx.JSON(http.StatusOK, configJson)
 }
 
@@ -79,7 +82,11 @@ func Set(ctx *gin.Context) {
 	V.Set("JENKINS_USERNAME", data.JENKINS_USERNAME)
 	V.Set("JENKINS_PASSWORD", data.JENKINS_PASSWORD)
 
-	V.WriteConfig()
+	err = V.WriteConfig()
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, "Could not write config file")
+		return
+	}
 
 	ctx.JSON(http.StatusOK, data)
 }
