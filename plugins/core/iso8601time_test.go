@@ -40,7 +40,8 @@ func TestToSqlNullTime(t *testing.T) {
 func TestToSqlNullTime_EmptyString(t *testing.T) {
 	input := `{ "Created": "" }`
 	var record Iso8601TimeRecord
-	json.Unmarshal([]byte(input), &record)
+	err := json.Unmarshal([]byte(input), &record)
+	assert.NotNil(t, err) // This error is expected
 	var expected sql.NullTime
 	expectedTime, _ := ConvertStringToTime("")
 	expected.Time = expectedTime

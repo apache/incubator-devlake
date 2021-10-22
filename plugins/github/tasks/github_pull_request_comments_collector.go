@@ -20,7 +20,7 @@ type PullRequestComment struct {
 	User     struct {
 		Login string
 	}
-	GithubCreatedAt string `json:"created_at"`
+	GithubCreatedAt core.Iso8601Time `json:"created_at"`
 }
 
 func CollectPullRequestComments(owner string, repositoryName string, pull *models.GithubPullRequest, scheduler *utils.WorkerScheduler) error {
@@ -54,16 +54,12 @@ func CollectPullRequestComments(owner string, repositoryName string, pull *model
 		})
 }
 func convertGithubPullRequestComment(comment *PullRequestComment, pullId int) (*models.GithubPullRequestComment, error) {
-	convertedCreatedAt, err := utils.ConvertStringToTime(comment.GithubCreatedAt)
-	if err != nil {
-		return nil, err
-	}
 	githubComment := &models.GithubPullRequestComment{
 		GithubId:        comment.GithubId,
 		PullRequestId:   pullId,
 		Body:            comment.Body,
 		AuthorUsername:  comment.User.Login,
-		GithubCreatedAt: *convertedCreatedAt,
+		GithubCreatedAt: comment.GithubCreatedAt.ToTime(),
 	}
 	return githubComment, nil
 }

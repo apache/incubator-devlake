@@ -7,7 +7,6 @@ import (
 	lakeModels "github.com/merico-dev/lake/models"
 	"github.com/merico-dev/lake/plugins/core"
 	"github.com/merico-dev/lake/plugins/github/models"
-	"github.com/merico-dev/lake/utils"
 )
 
 type ApiSinglePullResponse struct {
@@ -17,7 +16,7 @@ type ApiSinglePullResponse struct {
 	Commits        int
 	ReviewComments int `json:"review_comments"`
 	Merged         bool
-	MergedAt       string `json:"merged_at"`
+	MergedAt       core.Iso8601Time `json:"merged_at"`
 }
 
 func CollectPullRequest(owner string, repositoryName string, repositoryId int, pr *models.GithubPullRequest) error {
@@ -46,7 +45,6 @@ func CollectPullRequest(owner string, repositoryName string, repositoryId int, p
 	return nil
 }
 func convertSingleGithubPullRequest(singlePull *ApiSinglePullResponse) (*models.GithubPullRequest, error) {
-	convertedMergedAt := utils.ConvertStringToSqlNullTime(singlePull.MergedAt)
 	pr := &models.GithubPullRequest{
 		Additions:      singlePull.Additions,
 		Deletions:      singlePull.Deletions,
@@ -54,7 +52,7 @@ func convertSingleGithubPullRequest(singlePull *ApiSinglePullResponse) (*models.
 		Commits:        singlePull.Commits,
 		ReviewComments: singlePull.ReviewComments,
 		Merged:         singlePull.Merged,
-		MergedAt:       *convertedMergedAt,
+		MergedAt:       singlePull.MergedAt.ToSqlNullTime(),
 	}
 	return pr, nil
 }

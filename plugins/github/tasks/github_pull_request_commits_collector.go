@@ -23,12 +23,12 @@ type PrCommit struct {
 	Author struct {
 		Name  string
 		Email string
-		Date  string
+		Date  core.Iso8601Time
 	}
 	Committer struct {
 		Name  string
 		Email string
-		Date  string
+		Date  core.Iso8601Time
 	}
 	Message string
 }
@@ -75,24 +75,16 @@ func CollectPullRequestCommits(owner string, repositoryName string, pull *models
 		})
 }
 func convertPullRequestCommit(prCommit *PrCommitsResponse, pullId int) (*models.GithubPullRequestCommit, error) {
-	convertedAuthoredDate, err := utils.ConvertStringToTime(prCommit.Commit.Author.Date)
-	if err != nil {
-		return nil, err
-	}
-	convertedCommittedDate, err := utils.ConvertStringToTime(prCommit.Commit.Committer.Date)
-	if err != nil {
-		return nil, err
-	}
 	githubCommit := &models.GithubPullRequestCommit{
 		Sha:            prCommit.Sha,
 		PullRequestId:  pullId,
 		Message:        prCommit.Commit.Message,
 		AuthorName:     prCommit.Commit.Author.Name,
 		AuthorEmail:    prCommit.Commit.Author.Email,
-		AuthoredDate:   *convertedAuthoredDate,
+		AuthoredDate:   prCommit.Commit.Author.Date.ToTime(),
 		CommitterName:  prCommit.Commit.Committer.Name,
 		CommitterEmail: prCommit.Commit.Committer.Email,
-		CommittedDate:  *convertedCommittedDate,
+		CommittedDate:  prCommit.Commit.Committer.Date.ToTime(),
 		Url:            prCommit.Url,
 	}
 	return githubCommit, nil

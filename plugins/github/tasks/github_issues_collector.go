@@ -23,9 +23,9 @@ type IssuesResponse struct {
 		Url     string `json:"url"`
 		HtmlUrl string `json:"html_url"`
 	} `json:"pull_request"`
-	ClosedAt        string `json:"closed_at"`
-	GithubCreatedAt string `json:"created_at"`
-	GithubUpdatedAt string `json:"updated_at"`
+	ClosedAt        core.Iso8601Time `json:"closed_at"`
+	GithubCreatedAt core.Iso8601Time `json:"created_at"`
+	GithubUpdatedAt core.Iso8601Time `json:"updated_at"`
 }
 
 func CollectIssues(owner string, repositoryName string, repositoryId int, scheduler *utils.WorkerScheduler) error {
@@ -71,41 +71,27 @@ func CollectIssues(owner string, repositoryName string, repositoryId int, schedu
 		})
 }
 func convertGithubIssue(issue *IssuesResponse) (*models.GithubIssue, error) {
-	convertedClosedAt := utils.ConvertStringToSqlNullTime(issue.ClosedAt)
-	convertedCreatedAt, err := utils.ConvertStringToTime(issue.GithubCreatedAt)
-	if err != nil {
-		return nil, err
-	}
-	convertedUpdatedAt, err := utils.ConvertStringToTime(issue.GithubCreatedAt)
-	if err != nil {
-		return nil, err
-	}
 	githubIssue := &models.GithubIssue{
 		GithubId:        issue.GithubId,
 		Number:          issue.Number,
 		State:           issue.State,
 		Title:           issue.Title,
 		Body:            issue.Body,
-		ClosedAt:        *convertedClosedAt,
-		GithubCreatedAt: *convertedCreatedAt,
-		GithubUpdatedAt: *convertedUpdatedAt,
+		ClosedAt:        issue.ClosedAt.ToSqlNullTime(),
+		GithubCreatedAt: issue.GithubCreatedAt.ToTime(),
+		GithubUpdatedAt: issue.GithubUpdatedAt.ToTime(),
 	}
 	return githubIssue, nil
 }
 func convertGithubPullRequest(issue *IssuesResponse, repoId int) (*models.GithubPullRequest, error) {
-	convertedCreatedAt, err := utils.ConvertStringToTime(issue.GithubCreatedAt)
-	convertedClosedAt := utils.ConvertStringToSqlNullTime(issue.ClosedAt)
-	if err != nil {
-		return nil, err
-	}
 	githubPull := &models.GithubPullRequest{
 		GithubId:        issue.GithubId,
 		RepositoryId:    repoId,
 		Number:          issue.Number,
 		State:           issue.State,
 		Title:           issue.Title,
-		GithubCreatedAt: *convertedCreatedAt,
-		ClosedAt:        *convertedClosedAt,
+		GithubCreatedAt: issue.GithubCreatedAt.ToTime(),
+		ClosedAt:        issue.ClosedAt.ToSqlNullTime(),
 	}
 	return githubPull, nil
 }
