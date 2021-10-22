@@ -20,7 +20,7 @@ type IssueComment struct {
 	User     struct {
 		Login string
 	}
-	GithubCreatedAt string `json:"created_at"`
+	GithubCreatedAt core.Iso8601Time `json:"created_at"`
 }
 
 func CollectIssueComments(owner string, repositoryName string, issue *models.GithubIssue, scheduler *utils.WorkerScheduler) error {
@@ -55,16 +55,12 @@ func CollectIssueComments(owner string, repositoryName string, issue *models.Git
 }
 
 func convertGithubComment(comment *IssueComment, issueId int) (*models.GithubIssueComment, error) {
-	convertedCreatedAt, err := utils.ConvertStringToTime(comment.GithubCreatedAt)
-	if err != nil {
-		return nil, err
-	}
 	githubComment := &models.GithubIssueComment{
 		GithubId:        comment.GithubId,
 		IssueId:         issueId,
 		Body:            comment.Body,
 		AuthorUsername:  comment.User.Login,
-		GithubCreatedAt: *convertedCreatedAt,
+		GithubCreatedAt: comment.GithubCreatedAt.ToTime(),
 	}
 	return githubComment, nil
 }

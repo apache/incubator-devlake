@@ -23,12 +23,12 @@ type Commit struct {
 	Author struct {
 		Name  string
 		Email string
-		Date  string
+		Date  core.Iso8601Time
 	}
 	Committer struct {
 		Name  string
 		Email string
-		Date  string
+		Date  core.Iso8601Time
 	}
 	Message string
 }
@@ -60,24 +60,16 @@ func CollectCommits(owner string, repositoryName string, repositoryId int, sched
 		})
 }
 func convertGithubCommit(commit *CommitsResponse, repoId int) (*models.GithubCommit, error) {
-	convertedAuthoredDate, err := utils.ConvertStringToTime(commit.Commit.Author.Date)
-	if err != nil {
-		return nil, err
-	}
-	convertedCommittedDate, err := utils.ConvertStringToTime(commit.Commit.Committer.Date)
-	if err != nil {
-		return nil, err
-	}
 	githubCommit := &models.GithubCommit{
 		Sha:            commit.Sha,
 		RepositoryId:   repoId,
 		Message:        commit.Commit.Message,
 		AuthorName:     commit.Commit.Author.Name,
 		AuthorEmail:    commit.Commit.Author.Email,
-		AuthoredDate:   *convertedAuthoredDate,
+		AuthoredDate:   commit.Commit.Author.Date.ToTime(),
 		CommitterName:  commit.Commit.Committer.Name,
 		CommitterEmail: commit.Commit.Committer.Email,
-		CommittedDate:  *convertedCommittedDate,
+		CommittedDate:  commit.Commit.Committer.Date.ToTime(),
 		Url:            commit.Url,
 	}
 	return githubCommit, nil

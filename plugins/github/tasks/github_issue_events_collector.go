@@ -20,7 +20,7 @@ type IssueEvent struct {
 	Actor    struct {
 		Login string
 	}
-	CreatedAt string `json:"created_at"`
+	GithubCreatedAt core.Iso8601Time `json:"created_at"`
 }
 
 func CollectIssueEvents(owner string, repositoryName string, issue *models.GithubIssue, scheduler *utils.WorkerScheduler) error {
@@ -54,16 +54,12 @@ func CollectIssueEvents(owner string, repositoryName string, issue *models.Githu
 		})
 }
 func convertGithubEvent(event *IssueEvent, issueId int) (*models.GithubIssueEvent, error) {
-	convertedCreatedAt, err := utils.ConvertStringToTime(event.CreatedAt)
-	if err != nil {
-		return nil, err
-	}
 	githubEvent := &models.GithubIssueEvent{
 		GithubId:        event.GithubId,
 		IssueId:         issueId,
 		Type:            event.Event,
 		AuthorUsername:  event.Actor.Login,
-		GithubCreatedAt: *convertedCreatedAt,
+		GithubCreatedAt: event.GithubCreatedAt.ToTime(),
 	}
 	return githubEvent, nil
 }

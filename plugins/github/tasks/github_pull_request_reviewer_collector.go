@@ -22,7 +22,7 @@ type PullRequestReview struct {
 	}
 	Body        string
 	State       string
-	SubmittedAt string `json:"submitted_at"`
+	SubmittedAt core.Iso8601Time `json:"submitted_at"`
 }
 
 func CollectPullRequestReviews(owner string, repositoryName string, repositoryId int, pull *models.GithubPullRequest, scheduler *utils.WorkerScheduler) error {
