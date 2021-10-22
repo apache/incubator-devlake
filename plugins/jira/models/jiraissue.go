@@ -21,6 +21,7 @@ type JiraIssue struct {
 	EpicKey        string
 	StatusName     string
 	StatusKey      string
+	StatusCategory string
 	StoryPoint     float64
 	ResolutionDate sql.NullTime
 	Created        time.Time
