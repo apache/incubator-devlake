@@ -16,6 +16,7 @@ type ApiSinglePullResponse struct {
 	Commits        int
 	ReviewComments int `json:"review_comments"`
 	Merged         bool
+	MergedAt       core.Iso8601Time `json:"merged_at"`
 }
 
 func CollectPullRequest(owner string, repositoryName string, repositoryId int, pr *models.GithubPullRequest) error {
@@ -33,16 +34,25 @@ func CollectPullRequest(owner string, repositoryName string, repositoryId int, p
 		logger.Error("Error: ", unmarshalErr)
 		return unmarshalErr
 	}
-	dbErr := lakeModels.Db.Model(&pr).Updates(models.GithubPullRequest{
-		Additions:      githubApiResponse.Additions,
-		Deletions:      githubApiResponse.Deletions,
-		Comments:       githubApiResponse.Comments,
-		Commits:        githubApiResponse.Commits,
-		ReviewComments: githubApiResponse.ReviewComments,
-		Merged:         githubApiResponse.Merged,
-	}).Error
+	githubPullRequest, err := convertSingleGithubPullRequest(githubApiResponse)
+	if err != nil {
+		return nil
+	}
+	dbErr := lakeModels.Db.Model(&pr).Updates(githubPullRequest).Error
 	if dbErr != nil {
 		logger.Error("Could not update: ", dbErr)
 	}
 	return nil
+}
+func convertSingleGithubPullRequest(singlePull *ApiSinglePullResponse) (*models.GithubPullRequest, error) {
+	pr := &models.GithubPullRequest{
+		Additions:      singlePull.Additions,
+		Deletions:      singlePull.Deletions,
+		Comments:       singlePull.Comments,
+		Commits:        singlePull.Commits,
+		ReviewComments: singlePull.ReviewComments,
+		Merged:         singlePull.Merged,
+		MergedAt:       singlePull.MergedAt.ToSqlNullTime(),
+	}
+	return pr, nil
 }

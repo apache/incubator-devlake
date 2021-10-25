@@ -18,7 +18,7 @@ type MergeRequestNote struct {
 	MergeRequestIid int    `json:"noteable_iid"`
 	NoteableType    string `json:"noteable_type"`
 	Body            string
-	GitlabCreatedAt string `json:"created_at"`
+	GitlabCreatedAt core.Iso8601Time `json:"created_at"`
 	Confidential    bool
 	Resolvable      bool `json:"resolvable"`
 	System          bool `json:"system"`
@@ -36,10 +36,7 @@ func FindEarliestNote(notes *ApiMergeRequestNoteResponse) (*MergeRequestNote, er
 		if note.System || !note.Resolvable {
 			continue
 		}
-		noteTime, parseErr := time.Parse(time.RFC3339, note.GitlabCreatedAt)
-		if parseErr != nil {
-			return nil, parseErr
-		}
+		noteTime := note.GitlabCreatedAt.ToTime()
 		if noteTime.Before(earliestTime) {
 			earliestTime = noteTime
 			earliestNote = &note
@@ -55,7 +52,7 @@ func updateMergeRequestWithFirstCommentTime(notes *ApiMergeRequestNoteResponse, 
 		return err
 	}
 	if earliestNote != nil {
-		mr.FirstCommentTime = earliestNote.GitlabCreatedAt
+		mr.FirstCommentTime = earliestNote.GitlabCreatedAt.ToSqlNullTime()
 
 		err = lakeModels.Db.Model(&mr).Where("gitlab_id = ?", mr.GitlabId).Clauses(clause.OnConflict{
 			UpdateAll: true,
@@ -85,19 +82,10 @@ func CollectMergeRequestNotes(projectId int, mr *models.GitlabMergeRequest) erro
 			}
 
 			for _, mrNote := range *gitlabApiResponse {
-				gitlabMergeRequestNote := &models.GitlabMergeRequestNote{
-					GitlabId:        mrNote.GitlabId,
-					MergeRequestId:  mrNote.MergeRequestId,
-					MergeRequestIid: mrNote.MergeRequestIid,
-					NoteableType:    mrNote.NoteableType,
-					AuthorUsername:  mrNote.Author.Username,
-					Body:            mrNote.Body,
-					GitlabCreatedAt: mrNote.GitlabCreatedAt,
-					Confidential:    mrNote.Confidential,
-					Resolvable:      mrNote.Resolvable,
-					System:          mrNote.System,
+				gitlabMergeRequestNote, err := convertMergeRequestNote(&mrNote)
+				if err != nil {
+					return err
 				}
-
 				err = lakeModels.Db.Clauses(clause.OnConflict{
 					UpdateAll: true,
 				}).Create(&gitlabMergeRequestNote).Error
@@ -114,4 +102,19 @@ func CollectMergeRequestNotes(projectId int, mr *models.GitlabMergeRequest) erro
 			}
 			return nil
 		})
+}
+func convertMergeRequestNote(mrNote *MergeRequestNote) (*models.GitlabMergeRequestNote, error) {
+	gitlabMergeRequestNote := &models.GitlabMergeRequestNote{
+		GitlabId:        mrNote.GitlabId,
+		MergeRequestId:  mrNote.MergeRequestId,
+		MergeRequestIid: mrNote.MergeRequestIid,
+		NoteableType:    mrNote.NoteableType,
+		AuthorUsername:  mrNote.Author.Username,
+		Body:            mrNote.Body,
+		GitlabCreatedAt: mrNote.GitlabCreatedAt.ToTime(),
+		Confidential:    mrNote.Confidential,
+		Resolvable:      mrNote.Resolvable,
+		System:          mrNote.System,
+	}
+	return gitlabMergeRequestNote, nil
 }

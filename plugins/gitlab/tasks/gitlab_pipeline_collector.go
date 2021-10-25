@@ -7,15 +7,18 @@ import (
 	"github.com/merico-dev/lake/logger"
 	lakeModels "github.com/merico-dev/lake/models"
 	"github.com/merico-dev/lake/plugins/core"
+	"github.com/merico-dev/lake/plugins/gitlab/models"
 	gitlabModels "github.com/merico-dev/lake/plugins/gitlab/models"
 	"github.com/merico-dev/lake/utils"
 	"gorm.io/gorm/clause"
 )
 
-type ApiPipelineResponse []struct {
-	GitlabId        int    `json:"id"`
-	ProjectId       int    `json:"project_id"`
-	GitlabCreatedAt string `json:"created_at"`
+type ApiPipelineResponse []ApiPipeline
+
+type ApiPipeline struct {
+	GitlabId        int              `json:"id"`
+	ProjectId       int              `json:"project_id"`
+	GitlabCreatedAt core.Iso8601Time `json:"created_at"`
 	Ref             string
 	Sha             string
 	WebUrl          string `json:"web_url"`
@@ -23,15 +26,15 @@ type ApiPipelineResponse []struct {
 }
 
 type ApiSinglePipelineResponse struct {
-	GitlabId        int    `json:"id"`
-	ProjectId       int    `json:"project_id"`
-	GitlabCreatedAt string `json:"created_at"`
+	GitlabId        int              `json:"id"`
+	ProjectId       int              `json:"project_id"`
+	GitlabCreatedAt core.Iso8601Time `json:"created_at"`
 	Ref             string
 	Sha             string
 	WebUrl          string `json:"web_url"`
 	Duration        int
-	StartedAt       string `json:"started_at"`
-	FinishedAt      string `json:"finished_at"`
+	StartedAt       core.Iso8601Time `json:"started_at"`
+	FinishedAt      core.Iso8601Time `json:"finished_at"`
 	Coverage        string
 	Status          string
 }
@@ -50,17 +53,12 @@ func CollectAllPipelines(projectId int, scheduler *utils.WorkerScheduler) error 
 				return nil
 			}
 
-			for _, value := range *apiPipelineResponse {
-				gitlabPipeline := &gitlabModels.GitlabPipeline{
-					GitlabId:        value.GitlabId,
-					ProjectId:       value.ProjectId,
-					GitlabCreatedAt: value.GitlabCreatedAt,
-					Ref:             value.Ref,
-					Sha:             value.Sha,
-					WebUrl:          value.WebUrl,
-					Status:          value.Status,
-				}
+			for _, pipeline := range *apiPipelineResponse {
 
+				gitlabPipeline, err := convertPipeline(&pipeline)
+				if err != nil {
+					return err
+				}
 				err = lakeModels.Db.Clauses(clause.OnConflict{
 					UpdateAll: true,
 				}).Create(&gitlabPipeline).Error
@@ -100,18 +98,9 @@ func CollectChildrenOnPipelines(projectIdInt int, scheduler *utils.WorkerSchedul
 				return nil
 			}
 
-			gitlabPipeline := &gitlabModels.GitlabPipeline{
-				GitlabId:        pipelineRes.GitlabId,
-				ProjectId:       pipelineRes.ProjectId,
-				GitlabCreatedAt: pipelineRes.GitlabCreatedAt,
-				Ref:             pipelineRes.Ref,
-				Sha:             pipelineRes.Sha,
-				WebUrl:          pipelineRes.WebUrl,
-				Duration:        pipelineRes.Duration,
-				StartedAt:       pipelineRes.StartedAt,
-				FinishedAt:      pipelineRes.FinishedAt,
-				Coverage:        pipelineRes.Coverage,
-				Status:          pipelineRes.Status,
+			gitlabPipeline, err := convertSinglePipeline(pipelineRes)
+			if err != nil {
+				return err
 			}
 
 			err = lakeModels.Db.Clauses(clause.OnConflict{
@@ -130,4 +119,35 @@ func CollectChildrenOnPipelines(projectIdInt int, scheduler *utils.WorkerSchedul
 
 	}
 	scheduler.WaitUntilFinish()
+}
+
+func convertSinglePipeline(pipeline *ApiSinglePipelineResponse) (*models.GitlabPipeline, error) {
+
+	gitlabPipeline := &gitlabModels.GitlabPipeline{
+		GitlabId:        pipeline.GitlabId,
+		ProjectId:       pipeline.ProjectId,
+		GitlabCreatedAt: pipeline.GitlabCreatedAt.ToTime(),
+		Ref:             pipeline.Ref,
+		Sha:             pipeline.Sha,
+		WebUrl:          pipeline.WebUrl,
+		Duration:        pipeline.Duration,
+		StartedAt:       pipeline.StartedAt.ToSqlNullTime(),
+		FinishedAt:      pipeline.FinishedAt.ToSqlNullTime(),
+		Coverage:        pipeline.Coverage,
+		Status:          pipeline.Status,
+	}
+	return gitlabPipeline, nil
+}
+
+func convertPipeline(pipeline *ApiPipeline) (*models.GitlabPipeline, error) {
+	gitlabPipeline := &gitlabModels.GitlabPipeline{
+		GitlabId:        pipeline.GitlabId,
+		ProjectId:       pipeline.ProjectId,
+		GitlabCreatedAt: pipeline.GitlabCreatedAt.ToTime(),
+		Ref:             pipeline.Ref,
+		Sha:             pipeline.Sha,
+		WebUrl:          pipeline.WebUrl,
+		Status:          pipeline.Status,
+	}
+	return gitlabPipeline, nil
 }

@@ -11,19 +11,21 @@ import (
 	"gorm.io/gorm/clause"
 )
 
-type ApiMergeRequestCommitResponse []struct {
+type ApiMergeRequestCommitResponse []GitlabMergeRequestCommit
+
+type GitlabMergeRequestCommit struct {
 	CommitId       string `json:"id"`
 	Title          string
 	Message        string
 	ProjectId      int
-	ShortId        string `json:"short_id"`
-	AuthorName     string `json:"author_name"`
-	AuthorEmail    string `json:"author_email"`
-	AuthoredDate   string `json:"authored_date"`
-	CommitterName  string `json:"committer_name"`
-	CommitterEmail string `json:"committer_email"`
-	CommittedDate  string `json:"committed_date"`
-	WebUrl         string `json:"web_url"`
+	ShortId        string           `json:"short_id"`
+	AuthorName     string           `json:"author_name"`
+	AuthorEmail    string           `json:"author_email"`
+	AuthoredDate   core.Iso8601Time `json:"authored_date"`
+	CommitterName  string           `json:"committer_name"`
+	CommitterEmail string           `json:"committer_email"`
+	CommittedDate  core.Iso8601Time `json:"committed_date"`
+	WebUrl         string           `json:"web_url"`
 	Stats          struct {
 		Additions int
 		Deletions int
@@ -45,21 +47,9 @@ func CollectMergeRequestCommits(projectId int, mr *models.GitlabMergeRequest) er
 				return nil
 			}
 			for _, commit := range *gitlabApiResponse {
-				gitlabMergeRequestCommit := &models.GitlabMergeRequestCommit{
-					CommitId:       commit.CommitId,
-					Title:          commit.Title,
-					Message:        commit.Message,
-					ShortId:        commit.ShortId,
-					AuthorName:     commit.AuthorName,
-					AuthorEmail:    commit.AuthorEmail,
-					AuthoredDate:   commit.AuthoredDate,
-					CommitterName:  commit.CommitterName,
-					CommitterEmail: commit.CommitterEmail,
-					CommittedDate:  commit.CommittedDate,
-					WebUrl:         commit.WebUrl,
-					Additions:      commit.Stats.Additions,
-					Deletions:      commit.Stats.Deletions,
-					Total:          commit.Stats.Total,
+				gitlabMergeRequestCommit, err := convertMergeRequestCommit(&commit)
+				if err != nil {
+					return err
 				}
 				result := lakeModels.Db.Clauses(clause.OnConflict{
 					UpdateAll: true,
@@ -83,4 +73,24 @@ func CollectMergeRequestCommits(projectId int, mr *models.GitlabMergeRequest) er
 
 			return nil
 		})
+}
+
+func convertMergeRequestCommit(commit *GitlabMergeRequestCommit) (*models.GitlabMergeRequestCommit, error) {
+	gitlabMergeRequestCommit := &models.GitlabMergeRequestCommit{
+		CommitId:       commit.CommitId,
+		Title:          commit.Title,
+		Message:        commit.Message,
+		ShortId:        commit.ShortId,
+		AuthorName:     commit.AuthorName,
+		AuthorEmail:    commit.AuthorEmail,
+		AuthoredDate:   commit.AuthoredDate.ToTime(),
+		CommitterName:  commit.CommitterName,
+		CommitterEmail: commit.CommitterEmail,
+		CommittedDate:  commit.CommittedDate.ToTime(),
+		WebUrl:         commit.WebUrl,
+		Additions:      commit.Stats.Additions,
+		Deletions:      commit.Stats.Deletions,
+		Total:          commit.Stats.Total,
+	}
+	return gitlabMergeRequestCommit, nil
 }
