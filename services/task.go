@@ -36,6 +36,7 @@ type TaskQuery struct {
 	Page     int    `form:"page"`
 	PageSize int    `form:"page_size"`
 	Plugin   string `form:"plugin"`
+	SourceId int64  `form:"source_id"`
 }
 
 func init() {
@@ -50,15 +51,24 @@ func init() {
 }
 
 func CreateTaskInDB(data NewTask) (*models.Task, error) {
+	var sourceId int64
+	if source, ok := data.Options["sourceId"].(float64); ok {
+		sourceId = int64(source)
+		if sourceId == 0 {
+			return nil, fmt.Errorf("invalid sourceId: %d", sourceId)
+		}
+	}
+
 	b, err := json.Marshal(data.Options)
 	if err != nil {
 		return nil, err
 	}
 	task := models.Task{
-		Plugin:  data.Plugin,
-		Options: b,
-		Status:  TASK_CREATED,
-		Message: "",
+		Plugin:   data.Plugin,
+		Options:  b,
+		Status:   TASK_CREATED,
+		Message:  "",
+		SourceId: sourceId,
 	}
 	err = models.Db.Save(&task).Error
 	if err != nil {
@@ -138,6 +148,9 @@ func GetTasks(query *TaskQuery) ([]models.Task, int64, error) {
 	}
 	if query.Plugin != "" {
 		db = db.Where("plugin = ?", query.Plugin)
+	}
+	if query.SourceId != 0 {
+		db = db.Where("source_id = ?", query.SourceId)
 	}
 	var count int64
 	err := db.Count(&count).Error
