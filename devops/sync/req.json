@@ -1,18 +1,20 @@
 [
-  {
-    "plugin": "jira",
-    "options": {
-      "boardId": 8
+  [
+    {
+      "plugin": "jira",
+      "options": {
+        "boardId": 53
+      }
+    },
+    {
+      "plugin": "jenkins",
+      "options": {}
+    },
+    {
+      "plugin": "gitlab",
+      "options": {
+        "projectId": 8967944
+      }
     }
-  },
-  {
-    "plugin": "jenkins",
-    "options": {}
-  },
-  {
-    "plugin": "gitlab",
-    "options": {
-      "projectId": 8967944
-    }
-  }
+  ]
 ]
