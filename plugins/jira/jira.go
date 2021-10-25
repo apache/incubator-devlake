@@ -3,6 +3,8 @@ package main // must be main for plugin entry point
 import (
 	"context"
 	"fmt"
+	"os"
+	"strconv"
 	"time"
 
 	"github.com/merico-dev/lake/logger"
@@ -182,3 +184,34 @@ func (plugin Jira) ApiResources() map[string]map[string]core.ApiResourceHandler 
 
 // Export a variable named PluginEntry for Framework to search and load
 var PluginEntry Jira //nolint
+
+// standalone mode for debugging
+func main() {
+	args := os.Args[1:]
+	if len(args) < 2 {
+		panic(fmt.Errorf("Usage: jira <source_id> <board_id>"))
+	}
+	sourceId, err := strconv.ParseUint(args[0], 10, 64)
+	if err != nil {
+		panic(fmt.Errorf("error paring source_id: %w", err))
+	}
+	boardId, err := strconv.ParseUint(args[1], 10, 64)
+	if err != nil {
+		panic(fmt.Errorf("error paring board_id: %w", err))
+	}
+
+	PluginEntry.Init()
+	progress := make(chan float32)
+	go PluginEntry.Execute(
+		map[string]interface{}{
+			"sourceId": sourceId,
+			"boardId":  boardId,
+			//"tasks":    []string{"enrichIssues"},
+		},
+		progress,
+		context.Background(),
+	)
+	for p := range progress {
+		fmt.Println(p)
+	}
+}
