@@ -118,6 +118,12 @@ func (plugin Jira) Execute(options map[string]interface{}, progress chan<- float
 				return err
 			}
 		}
+		if tasksToRun["collectUsers"] {
+			err := tasks.CollectUsers(jiraApiClient, source, boardId, ctx)
+			if err != nil {
+				return err
+			}
+		}
 		if tasksToRun["collectBoard"] {
 			err := tasks.CollectBoard(jiraApiClient, source, boardId)
 			if err != nil {
