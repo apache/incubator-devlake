@@ -1,0 +1,43 @@
+.addConnection {
+
+}
+
+
+.formContainer {
+
+}
+
+.bp3-form-group {
+ 
+  display: flex;
+  max-width: none;
+  .bp3-form-content {
+    width: 100%;
+    max-width: 50%;
+    min-width: 600px;
+    display: flex;
+    .bp3-label {
+
+    }
+  }
+  .bp3-input-group {
+    display: flex;
+
+    .input {
+      input.bp3-input {
+        width: 460px;
+        min-width: 460px;
+        max-width: 460px;
+      }
+    }
+  }
+  .bp3-form-helper-text {
+    margin-left: 10px;
+  }
+
+  label {
+    display: inline;
+    min-width: 150px;
+    text-align: right;
+  }
+}
