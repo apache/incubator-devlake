@@ -59,6 +59,7 @@ Grafana | How to visualize the data | [View Section](#grafana)
 Build a Plugin | Details on how to make your own | [Link](plugins/README.md) 
 Add Plugin Metrics | Guide to adding plugin metrics | [Link](plugins/HOW-TO-ADD-METRICS.md) 
 Contributing | How to contribute to this repo | [Link](CONTRIBUTING.md)
+FAQ | Frequently Asked Questions | [Link](#faq)
 
 
 ## Data Sources We Currently Support<a id="data-source-plugins"></a>
@@ -210,5 +211,10 @@ This project is licensed under Apache License 2.0 - see the [`LICENSE`](LICENSE)
 Message us on <a href="https://discord.com/invite/83rDG6ydVZ" target="_blank">Discord</a>
 
 
+## FAQ<a id="faq"></a>
 
+Q: When I run ``` docker-compose up -d ``` I get this error: "qemu: uncaught target signal 11 (Segmentation fault) - core dumped". How do I fix this?
+
+A: Mac M1 users need to download a specific version of docker on their machine. You can find it here:
+https://docs.docker.com/desktop/mac/apple-silicon/
 
