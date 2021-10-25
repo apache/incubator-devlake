@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { Button, Card, Elevation, Icon, Tree } from '@blueprintjs/core'
+import { Button, Card, Colors, Elevation, Icon, Tree } from '@blueprintjs/core'
 import '../styles/sidebar.scss'
 
 const Sidebar = () => {
@@ -38,6 +38,13 @@ const Sidebar = () => {
       </a>
 
       <ul className='sidebarMenu'>
+        <a href='/integrations'>
+          {/* IN DEVELOPMENT */}
+          <li style={{ color: Colors.RED4, fontWeight: 'bold' }}>
+            <Icon icon='data-connection' size={16} className='sidebarMenuListIcon' />
+            Data Integrations
+          </li>
+        </a>
         <a href='/'>
           <li>
             <Icon icon='layout-grid' size={16} className='sidebarMenuListIcon' />
