@@ -9,8 +9,8 @@ type JiraUser struct {
 
 	// collected fields
 	ProjectId string `gorm:"primaryKey"`
-	Nickname  string `gorm:"primarykey"`
+	Name      string `gorm:"primarykey"`
 	Email     string
-	Avatar    string
+	AvatarUrl string
 	Timezone  string
 }

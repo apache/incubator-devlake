@@ -1,6 +1,7 @@
 package tasks
 
 import (
+	"errors"
 	"fmt"
 	"net/http"
 	"net/url"
@@ -110,4 +111,49 @@ func (jiraApiClient *JiraApiClient) FetchPages(scheduler *utils.WorkerScheduler,
 		nextStart += pageSize
 	}
 	return nil
+}
+
+func (jiraApiClient *JiraApiClient) FetchWithoutPagination(
+	scheduler *utils.WorkerScheduler,
+	path string,
+	query *url.Values,
+	handler JiraPaginationHandler,
+) error {
+	if query == nil {
+		query = &url.Values{}
+	}
+	nextStart, pageSize := 1, 100
+
+	pageQuery := &url.Values{}
+	for key, value := range *query {
+		(*pageQuery)[key] = value
+	}
+	pageQuery.Set("maxResults", "50")
+	for {
+		nextStartTmp := nextStart
+		// fetch page
+		detailQuery := &url.Values{}
+		for key, value := range *query {
+			(*detailQuery)[key] = value
+		}
+		detailQuery.Set("maxResults", strconv.Itoa(pageSize))
+		detailQuery.Set("startAt", strconv.Itoa(nextStartTmp))
+		res, err := jiraApiClient.Get(path, detailQuery, nil)
+		if err != nil {
+			return err
+		}
+		if res.StatusCode != 200 {
+			fmt.Println("KEVIN >>> bad request")
+			return errors.New("Something bad happened")
+		}
+
+		// call page handler
+		err = handler(res)
+		if err != nil {
+			logger.Error("Error: ", err)
+			return err
+		}
+		nextStart += pageSize
+		return errors.New("Just stop")
+	}
 }
