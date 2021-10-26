@@ -8,7 +8,7 @@ type JiraProject struct {
 	models.NoPKModel
 
 	// collected fields
-	SourceId string `gorm:"primarykey"`
+	SourceId uint64 `gorm:"primarykey"`
 	Id       string `gorm:"primaryKey"`
 	Key      string
 	Name     string

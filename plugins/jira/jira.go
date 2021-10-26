@@ -113,13 +113,13 @@ func (plugin Jira) Execute(options map[string]interface{}, progress chan<- float
 	}
 	for i, boardId := range boardIds {
 		if tasksToRun["collectProjects"] {
-			err := tasks.CollectProjects(jiraApiClient, source, boardId)
+			err := tasks.CollectProjects(jiraApiClient, op.SourceId)
 			if err != nil {
 				return err
 			}
 		}
 		if tasksToRun["collectUsers"] {
-			err := tasks.CollectUsers(jiraApiClient, source, boardId, ctx)
+			err := tasks.CollectUsers(jiraApiClient, op.SourceId)
 			if err != nil {
 				return err
 			}

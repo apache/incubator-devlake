@@ -1,7 +1,6 @@
 package tasks
 
 import (
-	"errors"
 	"fmt"
 	"net/http"
 	"net/url"
@@ -49,6 +48,7 @@ type JiraPagination struct {
 }
 
 type JiraPaginationHandler func(res *http.Response) error
+type JiraSearchPaginationHandler func(res *http.Response) (bool, error)
 
 func (jiraApiClient *JiraApiClient) FetchPages(scheduler *utils.WorkerScheduler, path string, query *url.Values, handler JiraPaginationHandler) error {
 	if query == nil {
@@ -116,32 +116,40 @@ func (jiraApiClient *JiraApiClient) FetchPages(scheduler *utils.WorkerScheduler,
 func (jiraApiClient *JiraApiClient) FetchWithoutPagination(
 	path string,
 	query *url.Values,
-	handler JiraPaginationHandler,
+	handler JiraSearchPaginationHandler,
 ) error {
 	if query == nil {
 		query = &url.Values{}
 	}
 	// these are the names from the jira search api for pagination
 	// eg: https://merico.atlassian.net/rest/api/2/user/assignable/search?project=EE&maxResults=100&startAt=1
-	startAt, maxResults := 1, 5
+	startAt, maxResults := 1, 100
 
 	query.Set("maxResults", fmt.Sprintf("%v", maxResults))
-
-	for {
+	var next bool = true
+	for next {
 		nextStartTmp := startAt
 		// get page
 		query.Set("startAt", strconv.Itoa(nextStartTmp))
 		res, err := jiraApiClient.Get(path, query, nil)
-		if err != nil || res.StatusCode != 200 {
-			return errors.New("something bad happened with Jira api")
+		if res.StatusCode == 401 {
+			fmt.Println("User does not have access to project users")
+		}
+		if err != nil {
+			return err
 		}
 
 		// call page handler
-		err = handler(res)
+		next, err = handler(res)
+		if !next {
+			// Done user collection
+			return nil
+		}
 		if err != nil {
 			logger.Error("Error: ", err)
 			return err
 		}
 		startAt += maxResults
 	}
+	return nil
 }

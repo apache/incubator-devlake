@@ -9,8 +9,8 @@ import (
 
 // This has to be called JiraUserProjects since it is a different api call than JiraProjects.
 // This call retreives all projects that the user has access to
-type JiraUserProjectApiRes []JiraUserProjects
-type JiraUserProjects struct {
+type JiraUserProjectApiRes []JiraProject
+type JiraProject struct {
 	Id   string `json:"id"`
 	Key  string `json:"key"`
 	Name string `json:"name"`
@@ -18,10 +18,9 @@ type JiraUserProjects struct {
 
 func CollectProjects(
 	jiraApiClient *JiraApiClient,
-	source *models.JiraSource,
-	boardId uint64,
+	sourceId uint64,
 ) error {
-	res, err := jiraApiClient.Get("/rest/api/3/project", nil, nil)
+	res, err := jiraApiClient.Get("/api/3/project", nil, nil)
 	if err != nil {
 		return err
 	}
@@ -34,6 +33,7 @@ func CollectProjects(
 	}
 	// process issues
 	for _, project := range *jiraApiProjects {
+		project, _ := convertProject(&project, sourceId)
 		err = lakeModels.Db.Clauses(clause.OnConflict{
 			UpdateAll: true,
 		}).Create(project).Error
@@ -42,4 +42,14 @@ func CollectProjects(
 		}
 	}
 	return nil
+}
+
+func convertProject(user *JiraProject, sourceId uint64) (*models.JiraProject, error) {
+	jiraProject := &models.JiraProject{
+		SourceId: sourceId,
+		Id:       user.Id,
+		Key:      user.Key,
+		Name:     user.Name,
+	}
+	return jiraProject, nil
 }
