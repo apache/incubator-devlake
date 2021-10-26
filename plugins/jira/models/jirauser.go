@@ -8,9 +8,9 @@ type JiraUser struct {
 	models.NoPKModel
 
 	// collected fields
-	SourceId  string `gorm:"primarykey"`
+	SourceId  uint64 `gorm:"primarykey"`
 	ProjectId string `gorm:"primaryKey"`
-	Name      string
+	Name      string `gorm:"primaryKey"`
 	Email     string
 	AvatarUrl string
 	Timezone  string
