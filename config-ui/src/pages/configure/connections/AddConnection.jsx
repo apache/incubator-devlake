@@ -19,6 +19,8 @@ import { integrationsData } from '@/pages/configure/mock-data/integrations'
 import { connectionsData } from '@/pages/configure/mock-data/connections'
 import { SERVER_HOST, DEVLAKE_ENDPOINT } from '@/utils/config'
 
+import useConnectionManager from '@/hooks/useConnectionManager'
+
 import '@/styles/integration.scss'
 import '@/styles/connections.scss'
 import '@blueprintjs/popover2/lib/css/blueprint-popover2.css'
@@ -37,94 +39,41 @@ export default function AddConnection () {
   const [isTesting, setIsTesting] = useState(false)
   const [errors, setErrors] = useState([])
   const [showError, setShowError] = useState(false)
-
   const [testStatus, setTestStatus] = useState(0) //  0=Pending, 1=Success, 2=Failed
 
   const [integrations, setIntegrations] = useState(integrationsData)
-
   const [activeProvider, setActiveProvider] = useState(integrations[0])
 
-  const testConnection = () => {
-    setIsTesting(true)
-    // Get Testing Endpoint from BE
-    // Issue GET and/or POST to test endpoint
-    // POST payload to BE
-    const connectionTestPayload = {
-      name,
-      endpointUrl,
-      token,
-      username,
-      password
-    }
-    // const testResponse = await axios.post(`${DEVLAKE_ENDPOINT}/connection/test`, connectionTestPayload)
-    const testResponse = {
-      success: true,
-      connection: {
-        ...connectionTestPayload
-      },
-      errors: []
-    }
-    console.log(testResponse)
-    setTimeout(() => {
-      if (testResponse.success) {
-        setIsTesting(false)
-        setTestStatus(1)
-        ToastNotification.show({ message: 'Connection test OK.', intent: 'success', icon: 'small-tick' })
-      } else {
-        setIsTesting(false)
-        setTestStatus(2)
-        ToastNotification.show({ message: 'Connection test FAILED.', intent: 'danger', icon: 'error' })
-      }
-    }, 2000)
-  }
-
-  const saveConnection = async () => {
-    setIsSaving(true)
-    // POST payload to BE
-    const connectionPayload = {
-      name,
-      endpointUrl,
-      token,
-      username,
-      password
-    }
-    // const saveResponse = await axios.post(`${DEVLAKE_ENDPOINT}/connection`, connectionPayload)
-    // console.log(saveResponse)
-    const saveResponse = {
-      success: true,
-      connection: {
-        ...connectionPayload
-      },
-      errors: []
-    }
-    setErrors(saveResponse.errors)
-    setTimeout(() => {
-      if (saveResponse.success && errors.length === 0) {
-        ToastNotification.show({ message: 'Connection added successfully.', intent: 'success', icon: 'small-tick' })
-        setShowError(false)
-        setIsSaving(false)
-        resetForm()
-        // REDIRECT back to Active Provider Settings
-        history.push(`/integrations/${activeProvider.id}`)
-      } else {
-        ToastNotification.show({ message: 'Connection failed to add.', intent: 'danger', icon: 'error' })
-        setShowError(true)
-        setIsSaving(false)
-      }
-    }, 2000)
-  }
+  const { testConnection, saveConnection } = useConnectionManager({
+    activeProvider,
+    name,
+    endpointUrl,
+    token,
+    username,
+    password,
+    isTesting,
+    isSaving,
+    testStatus,
+    errors,
+    showError,
+    setIsTesting,
+    setIsSaving,
+    setTestStatus,
+    setShowError,
+    setErrors,
+  })
 
   const cancel = () => {
     history.push(`/integrations/${activeProvider.id}`)
   }
 
-  const resetForm = () => {
-    setName(null)
-    setEndpointUrl(null)
-    setToken(null)
-    setUsername(null)
-    setPassword(null)
-  }
+  // const resetForm = () => {
+  //   setName(null)
+  //   setEndpointUrl(null)
+  //   setToken(null)
+  //   setUsername(null)
+  //   setPassword(null)
+  // }
 
   useEffect(() => {
     // Selected Provider
@@ -156,7 +105,7 @@ export default function AddConnection () {
               </Link>
               <div style={{ display: 'flex' }}>
                 <div>
-                  <span style={{ marginRight: '10px' }}>{activeProvider.icon}</span> 
+                  <span style={{ marginRight: '10px' }}>{activeProvider.icon}</span>
                 </div>
                 <div>
                   <h1 style={{ margin: 0 }}>
@@ -178,6 +127,8 @@ export default function AddConnection () {
                   onNameChange={setName}
                   onEndpointChange={setEndpointUrl}
                   onTokenChange={setToken}
+                  onUsernameChange={setUsername}
+                  onPasswordChange={setPassword}
                   isSaving={isSaving}
                   isTesting={isTesting}
                   testStatus={testStatus}
