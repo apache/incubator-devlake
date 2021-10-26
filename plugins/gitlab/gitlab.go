@@ -161,15 +161,15 @@ func main() {
 	PluginEntry.Init()
 	progress := make(chan float32)
 	go func() {
-		PluginEntry.Execute(
+		err2 := PluginEntry.Execute(
 			map[string]interface{}{
 				"projectId": projectId,
 			},
 			progress,
 			context.Background(),
 		)
-		if err != nil {
-			panic(err)
+		if err2 != nil {
+			panic(err2)
 		}
 	}()
 	for p := range progress {
