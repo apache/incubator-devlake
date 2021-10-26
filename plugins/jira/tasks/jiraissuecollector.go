@@ -184,7 +184,7 @@ func convertIssue(source *models.JiraSource, jiraApiIssue *JiraApiIssue) (jiraIs
 	}
 	if timetrackingField, ok := jiraApiIssue.Fields["timetracking"]; ok {
 		timetracking := timetrackingField.(map[string]interface{})
-		if timetracking != nil && len(timetracking) > 0 {
+		if len(timetracking) > 0 {
 			if originalEstimateSeconds := timetracking["originalEstimateSeconds"]; originalEstimateSeconds != nil {
 				jiraIssue.OriginalEstimateMinutes = int64(originalEstimateSeconds.(float64) / 60)
 			}

@@ -202,15 +202,20 @@ func main() {
 
 	PluginEntry.Init()
 	progress := make(chan float32)
-	go PluginEntry.Execute(
-		map[string]interface{}{
-			"sourceId": sourceId,
-			"boardId":  boardId,
-			//"tasks":    []string{"enrichIssues"},
-		},
-		progress,
-		context.Background(),
-	)
+	go func() {
+		err := PluginEntry.Execute(
+			map[string]interface{}{
+				"sourceId": sourceId,
+				"boardId":  boardId,
+				//"tasks":    []string{"enrichIssues"},
+			},
+			progress,
+			context.Background(),
+		)
+		if err != nil {
+			panic(err)
+		}
+	}()
 	for p := range progress {
 		fmt.Println(p)
 	}
