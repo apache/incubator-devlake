@@ -1,35 +1,24 @@
 import React, { useEffect, useState } from 'react'
 import {
-  // BrowserRouter as Router,
-  // Switch,
-  // Route,
   useParams,
   Link,
   useHistory
 } from 'react-router-dom'
 import {
-  Button, mergeRefs, Card, Elevation, Colors,
-  Position,
-  Alignment,
+  Button, Card, Elevation, Colors,
   Spinner,
   Icon,
 } from '@blueprintjs/core'
-import { Popover2, Tooltip2 } from '@blueprintjs/popover2'
-// import { FormGroup, InputGroup, Button, Tooltip, Position, Label } from '@blueprintjs/core'
-// import { Column, Table } from '@blueprintjs/table'
 import Nav from '@/components/Nav'
 import Sidebar from '@/components/Sidebar'
 import Content from '@/components/Content'
 import { ToastNotification } from '@/components/Toast'
+import request from '@/utils/request'
 
-import { SERVER_HOST } from '@/utils/config'
-
-import { ReactComponent as GitlabProvider } from '@/images/integrations/gitlab.svg'
-import { ReactComponent as JenkinsProvider } from '@/images/integrations/jenkins.svg'
-import { ReactComponent as JiraProvider } from '@/images/integrations/jira.svg'
+import { SERVER_HOST, DEVLAKE_ENDPOINT } from '@/utils/config'
 
 import { integrationsData } from '@/pages/configure/mock-data/integrations'
-import { connectionsData } from '@/pages/configure/mock-data/connections'
+// import { connectionsData } from '@/pages/configure/mock-data/connections'
 
 import '@/styles/integration.scss'
 import '@blueprintjs/popover2/lib/css/blueprint-popover2.css'
@@ -41,21 +30,36 @@ export default function ManageIntegration () {
   const [port, setPort] = useState()
   const [mode, setMode] = useState()
 
-  const [isLoading, setIsLoading] = useState(true)
-
   const { providerId } = useParams()
 
+  const [isLoading, setIsLoading] = useState(true)
   const [errors, setErrors] = useState([])
-
   const [integrations, setIntegrations] = useState(integrationsData)
-
-  const [connections, setConnections] = useState(connectionsData)
-
+  const [connections, setConnections] = useState([])
   const [activeProvider, setActiveProvider] = useState(integrations[0])
 
-  const fetchConnections = () => {
-    // Fetch Connection List from BE
+  const fetchConnections = async () => {
     setIsLoading(true)
+    try {
+      const connectionsResponse = await request.get(`${DEVLAKE_ENDPOINT}/plugins/${activeProvider.id}/sources`)
+      let providerConnections = connectionsResponse.data.data || []
+      providerConnections = providerConnections.map((conn, idx) => {
+        return {
+          ...conn,
+          status: 0, // conn.status
+          id: idx,
+          name: conn.name,
+          endpoint: conn.endpoint,
+          errors: []
+        }
+      })
+      setConnections(providerConnections)
+      console.log('>> CONNECTIONS FETCHED', connectionsResponse)
+    } catch (e) {
+      console.log('>> FAILED TO FETCH CONNECTIONS', e)
+      setErrors([e])
+      console.log(e)
+    }
     setTimeout(() => {
       setIsLoading(false)
       ToastNotification.clear()
@@ -103,24 +107,8 @@ export default function ManageIntegration () {
       })
     console.log('>> ACTIVE PROVIDER = ', providerId)
     console.log(dbUrl, port, mode)
+    setIntegrations(integrations)
     setActiveProvider(integrations.find(p => p.id === providerId))
-
-    // Fetch Connections for Active Provider
-    const providerConnections = []
-
-    // Process Raw Connectin Data => Connection Objects
-    providerConnections.map((conn, idx) => {
-      return {
-        id: idx,
-        name: conn.name,
-        endpoint: conn.endpoint,
-        status: conn.status, // 0=Offline, 1=Online, 2=Error, 3=Collecting
-        errors: []
-      }
-    })
-
-    // Set Live Connection Objects List
-    // setConnections(providerConnections)
   }, [])
 
   return (
