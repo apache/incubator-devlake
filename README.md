@@ -164,15 +164,15 @@ Otherwise, if you just want to use the cron job, please check `docker-compose` v
     make dev
     ```
 
-6. You can now post to /task to create a jira task. This will collect data from Jira
+6. You can now post to `/task` to create a data collection task for Gitlab plugin. For demo purpose, we pick an open-source project on Gitlab called [ClearURLs](https://gitlab.com/KevinRoebert/ClearUrls). Its Gitlab project id is 6821549 (right under its project name).
 
     ```
     curl -XPOST 'localhost:8080/task' \
     -H 'Content-Type: application/json' \
     -d '[[{
-        "plugin": "jira",
+        "plugin": "gitlab",
         "options": {
-            "boardId": 8
+            "projectId": 6821549
         }
     }]]'
     ```
