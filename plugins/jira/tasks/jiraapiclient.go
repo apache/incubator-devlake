@@ -114,7 +114,6 @@ func (jiraApiClient *JiraApiClient) FetchPages(scheduler *utils.WorkerScheduler,
 }
 
 func (jiraApiClient *JiraApiClient) FetchWithoutPagination(
-	scheduler *utils.WorkerScheduler,
 	path string,
 	query *url.Values,
 	handler JiraPaginationHandler,
@@ -122,29 +121,19 @@ func (jiraApiClient *JiraApiClient) FetchWithoutPagination(
 	if query == nil {
 		query = &url.Values{}
 	}
-	nextStart, pageSize := 1, 100
+	// these are the names from the jira search api for pagination
+	// eg: https://merico.atlassian.net/rest/api/2/user/assignable/search?project=EE&maxResults=100&startAt=1
+	startAt, maxResults := 1, 5
 
-	pageQuery := &url.Values{}
-	for key, value := range *query {
-		(*pageQuery)[key] = value
-	}
-	pageQuery.Set("maxResults", "50")
+	query.Set("maxResults", fmt.Sprintf("%v", maxResults))
+
 	for {
-		nextStartTmp := nextStart
-		// fetch page
-		detailQuery := &url.Values{}
-		for key, value := range *query {
-			(*detailQuery)[key] = value
-		}
-		detailQuery.Set("maxResults", strconv.Itoa(pageSize))
-		detailQuery.Set("startAt", strconv.Itoa(nextStartTmp))
-		res, err := jiraApiClient.Get(path, detailQuery, nil)
-		if err != nil {
-			return err
-		}
-		if res.StatusCode != 200 {
-			fmt.Println("KEVIN >>> bad request")
-			return errors.New("Something bad happened")
+		nextStartTmp := startAt
+		// get page
+		query.Set("startAt", strconv.Itoa(nextStartTmp))
+		res, err := jiraApiClient.Get(path, query, nil)
+		if err != nil || res.StatusCode != 200 {
+			return errors.New("something bad happened with Jira api")
 		}
 
 		// call page handler
@@ -153,7 +142,6 @@ func (jiraApiClient *JiraApiClient) FetchWithoutPagination(
 			logger.Error("Error: ", err)
 			return err
 		}
-		nextStart += pageSize
-		return errors.New("Just stop")
+		startAt += maxResults
 	}
 }
