@@ -183,6 +183,8 @@ All the details on provisioning, and customizing a dashboard can be found in the
 
 Message us on <a href="https://discord.com/invite/83rDG6ydVZ" target="_blank">Discord</a>
 
-
-
-
+## Notes
+docker build -t devlake:local .
+make dev
+https://linuxize.com/post/how-to-install-go-on-centos-7/
+https://linuxize.com/post/how-to-edit-your-hosts-file/
