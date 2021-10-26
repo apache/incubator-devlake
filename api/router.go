@@ -40,7 +40,7 @@ func RegisterRouter(r *gin.Engine) {
 							}
 						}
 						if c.Request.Body != nil {
-							err := c.BindJSON(&input.Body)
+							err := c.ShouldBindJSON(&input.Body)
 							if err != nil && err.Error() != "EOF" {
 								c.JSON(http.StatusBadRequest, err.Error())
 								return
