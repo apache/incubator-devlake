@@ -1,0 +1,13 @@
+# Post Task
+POST http://localhost:8081/task
+
+[
+  [
+    {
+      "plugin": "jira",
+      "options": {
+        "boardId": 53
+      }
+    }
+  ]
+]

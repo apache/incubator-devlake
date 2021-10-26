@@ -13,4 +13,15 @@ SELECT
 FROM jira_issues i
 WHERE 
   i.type = 'Epic'
-ORDER BY i.updated_at DESC
+ORDER BY i.updated_at DESC;
+
+/* 迭代完成率 */
+SELECT 
+FROM jira_issues i
+GROUP BY i.;
+
+/* 开发环境 !!! 危险，删除今天的issue，重新测试拉取数据用。*/
+DELETE FROM jira_issues 
+WHERE 
+  updated >= date(now())
+  AND updated < DATE_ADD(date(now()),INTERVAL 1 DAY);
