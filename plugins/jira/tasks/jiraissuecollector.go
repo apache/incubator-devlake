@@ -10,7 +10,6 @@ import (
 	"time"
 
 	"github.com/merico-dev/lake/utils"
-	"github.com/merico-dev/lake/logger"
 	"github.com/merico-dev/lake/config"
 	lakeModels "github.com/merico-dev/lake/models"
 	"github.com/merico-dev/lake/plugins/core"
@@ -142,8 +141,6 @@ func convertIssue(jiraApiIssue *JiraApiIssue) (*models.JiraIssue, error) {
 	if storyPointField != "" {
 		workload, _ = jiraApiIssue.Fields[storyPointField].(float64)
 	}
-	sprintName := jiraApiIssue.Fields["sprint"].(map[string]interface{})["name"].(string)
-	logger.Debug("Got sprint name is %v",sprintName)
 	jiraIssue := &models.JiraIssue{
 		Model:          lakeModels.Model{ID: id},
 		ProjectId:      projectId,
@@ -158,7 +155,14 @@ func convertIssue(jiraApiIssue *JiraApiIssue) (*models.JiraIssue, error) {
 		StoryPoint:     workload,
 		Created:        created,
 		Updated:        updated,
-		SprintName:		sprintName,
+	}
+	// latest sprint
+	if sprintField, ok := jiraApiIssue.Fields["sprint"]; ok && sprintField != nil {
+		if sprint := sprintField.(map[string]interface{}); ok {
+			// set sprint to latest sprint id/name
+			// jiraIssue.SprintId = uint64(sprint["id"].(float64))
+			jiraIssue.SprintName = sprint["name"].(string)
+		}
 	}
 	return jiraIssue, nil
 }
