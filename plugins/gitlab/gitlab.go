@@ -3,6 +3,8 @@ package main // must be main for plugin entry point
 import (
 	"context"
 	"fmt"
+	"os"
+	"strconv"
 
 	"github.com/merico-dev/lake/logger" // A pseudo type for Plugin Interface implementation
 	lakeModels "github.com/merico-dev/lake/models"
@@ -27,7 +29,7 @@ func (plugin Gitlab) Execute(options map[string]interface{}, progress chan<- flo
 	scheduler, err := utils.NewWorkerScheduler(50, 15, ctx)
 	defer scheduler.Release()
 	if err != nil {
-		return fmt.Errorf("Could not create scheduler")
+		return fmt.Errorf("could not create scheduler")
 	}
 
 	projectId, ok := options["projectId"]
@@ -43,7 +45,7 @@ func (plugin Gitlab) Execute(options map[string]interface{}, progress chan<- flo
 	progress <- 0.1
 
 	if err := tasks.CollectAllPipelines(projectIdInt, scheduler); err != nil {
-		return fmt.Errorf("Could not collect projects: %v", err)
+		return fmt.Errorf("could not collect projects: %v", err)
 	}
 
 	tasks.CollectChildrenOnPipelines(projectIdInt, scheduler)
@@ -51,20 +53,20 @@ func (plugin Gitlab) Execute(options map[string]interface{}, progress chan<- flo
 	progress <- 0.2
 
 	if err := tasks.CollectProject(projectIdInt); err != nil {
-		return fmt.Errorf("Could not collect projects: %v", err)
+		return fmt.Errorf("could not collect projects: %v", err)
 	}
 
 	progress <- 0.25
 
 	if err := tasks.CollectCommits(projectIdInt, scheduler); err != nil {
-		return fmt.Errorf("Could not collect commits: %v", err)
+		return fmt.Errorf("could not collect commits: %v", err)
 	}
 
 	progress <- 0.3
 
 	mergeRequestErr := tasks.CollectMergeRequests(projectIdInt, scheduler)
 	if mergeRequestErr != nil {
-		return fmt.Errorf("Could not collect merge requests: %v", mergeRequestErr)
+		return fmt.Errorf("could not collect merge requests: %v", mergeRequestErr)
 	}
 
 	progress <- 0.4
@@ -75,7 +77,7 @@ func (plugin Gitlab) Execute(options map[string]interface{}, progress chan<- flo
 
 	enrichErr := tasks.EnrichMergeRequests()
 	if enrichErr != nil {
-		return fmt.Errorf("Could not enrich merge requests: %v", enrichErr)
+		return fmt.Errorf("could not enrich merge requests: %v", enrichErr)
 	}
 	progress <- 1
 
@@ -144,3 +146,33 @@ func (plugin Gitlab) ApiResources() map[string]map[string]core.ApiResourceHandle
 
 // Export a variable named PluginEntry for Framework to search and load
 var PluginEntry Gitlab //nolint
+
+// standalone mode for debugging
+func main() {
+	args := os.Args[1:]
+	if len(args) < 1 {
+		panic(fmt.Errorf("usage: go run ./plugins/gitlab <project_id>"))
+	}
+	projectId, err := strconv.ParseFloat(args[0], 64)
+	if err != nil {
+		panic(fmt.Errorf("error paring board_id: %w", err))
+	}
+
+	PluginEntry.Init()
+	progress := make(chan float32)
+	go func() {
+		err2 := PluginEntry.Execute(
+			map[string]interface{}{
+				"projectId": projectId,
+			},
+			progress,
+			context.Background(),
+		)
+		if err2 != nil {
+			panic(err2)
+		}
+	}()
+	for p := range progress {
+		fmt.Println(p)
+	}
+}

@@ -37,7 +37,7 @@ func CreateApiClient() *GitlabApiClient {
 
 type GitlabPaginationHandler func(res *http.Response) error
 
-func getTotal(resourceUriFormat string) (int, int, error) {
+func getTotal(resourceUriFormat string) (totalInt int, rateLimitPerSecond int, err error) {
 	// jsut get the first page of results. The response has a head that tells the total pages
 	page := 0
 	page_size := 1
@@ -53,7 +53,7 @@ func getTotal(resourceUriFormat string) (int, int, error) {
 		return 0, 0, err
 	}
 
-	totalInt := -1
+	totalInt = -1
 	total := res.Header.Get("X-Total")
 	if total != "" {
 		totalInt, err = convertStringToInt(total)
@@ -61,8 +61,11 @@ func getTotal(resourceUriFormat string) (int, int, error) {
 			return 0, 0, err
 		}
 	}
-
+	rateLimitPerSecond = 100
 	rateRemaining := res.Header.Get("ratelimit-remaining")
+	if rateRemaining == "" {
+		return
+	}
 	date, err := http.ParseTime(res.Header.Get("date"))
 	if err != nil {
 		return 0, 0, err
@@ -75,8 +78,8 @@ func getTotal(resourceUriFormat string) (int, int, error) {
 	if err != nil {
 		return 0, 0, err
 	}
-	rateLimitPerSecond := rateLimitInt / int(rateLimitResetTime.Unix()-date.Unix()) * 9 / 10
-	return totalInt, rateLimitPerSecond, nil
+	rateLimitPerSecond = rateLimitInt / int(rateLimitResetTime.Unix()-date.Unix()) * 9 / 10
+	return
 }
 
 func convertStringToInt(input string) (int, error) {
