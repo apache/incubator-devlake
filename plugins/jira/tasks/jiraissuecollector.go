@@ -41,7 +41,7 @@ func CollectIssues(
 	// user didn't specify a time range to sync, try load from database
 	if since.IsZero() {
 		var latestUpdated models.JiraIssue
-		err := lakeModels.Db.Order("updated DESC").Limit(1).Find(&latestUpdated).Error
+		err := lakeModels.Db.Where("source_id = ?", source.ID).Order("updated DESC").Limit(1).Find(&latestUpdated).Error
 		if err != nil {
 			return err
 		}
