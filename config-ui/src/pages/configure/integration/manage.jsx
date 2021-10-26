@@ -28,6 +28,9 @@ import { ReactComponent as GitlabProvider } from '@/images/integrations/gitlab.s
 import { ReactComponent as JenkinsProvider } from '@/images/integrations/jenkins.svg'
 import { ReactComponent as JiraProvider } from '@/images/integrations/jira.svg'
 
+import { integrationsData } from '@/pages/configure/mock-data/integrations'
+import { connectionsData } from '@/pages/configure/mock-data/connections'
+
 import '@/styles/integration.scss'
 import '@blueprintjs/popover2/lib/css/blueprint-popover2.css'
 
@@ -44,75 +47,9 @@ export default function ManageIntegration () {
 
   const [errors, setErrors] = useState([])
 
-  const [integrations, setIntegrations] = useState([
-    {
-      id: 'gitlab',
-      name: 'Gitlab',
-      icon: <GitlabProvider className='providerIconSvg' width='30' height='30' style={{ float: 'left', marginTop: '5px' }} />
-    },
-    {
-      id: 'jenkins',
-      name: 'Jenkins',
-      icon: <JenkinsProvider className='providerIconSvg' width='30' height='30' style={{ float: 'left', marginTop: '5px' }} />
-    },
-    {
-      id: 'jira',
-      name: 'JIRA',
-      icon: <JiraProvider className='providerIconSvg' width='30' height='30' style={{ float: 'left', marginTop: '5px' }} />
-    },
-  ])
+  const [integrations, setIntegrations] = useState(integrationsData)
 
-  const [connections, setConnections] = useState([
-    {
-      id: 0,
-      name: 'JIRA Development Server',
-      endpoint: 'https://jira-test-a345vf.merico.dev',
-      status: 1,
-      errors: []
-    },
-    {
-      id: 1,
-      name: 'JIRA Staging Server',
-      endpoint: 'https://jira-staging-93xt5a.merico.dev',
-      status: 2,
-      errors: []
-    },
-    {
-      id: 2,
-      name: 'JIRA Production Server',
-      endpoint: 'https://jira-prod-z51gox.merico.dev',
-      status: 0,
-      errors: []
-    },
-    {
-      id: 3,
-      name: 'JIRA Demo Instance 591',
-      endpoint: 'https://jira-demo-591.merico.dev',
-      status: 0,
-      errors: []
-    },
-    {
-      id: 4,
-      name: 'JIRA Demo Instance 142',
-      endpoint: 'https://jira-demo-142.merico.dev',
-      status: 0,
-      errors: []
-    },
-    {
-      id: 5,
-      name: 'JIRA Demo Instance 111',
-      endpoint: 'https://jira-demo-111.merico.dev',
-      status: 0,
-      errors: []
-    },
-    {
-      id: 6,
-      name: 'JIRA Demo Instance 784',
-      endpoint: 'https://jira-demo-784.merico.dev',
-      status: 3,
-      errors: []
-    },
-  ])
+  const [connections, setConnections] = useState(connectionsData)
 
   const [activeProvider, setActiveProvider] = useState(integrations[0])
 
@@ -197,8 +134,17 @@ export default function ManageIntegration () {
               <Link style={{ float: 'right', marginLeft: '10px', color: '#777777' }} to='/integrations'>
                 <Icon icon='fast-backward' size={16} /> &nbsp; Go Back
               </Link>
-              <h1><span style={{ marginRight: '10px' }}>{activeProvider.icon}</span> {activeProvider.name} Integration </h1>
-              <p className='description'>Manage integration and connections.</p>
+              <div style={{ display: 'flex' }}>
+                <div>
+                  <span style={{ marginRight: '10px' }}>{activeProvider.icon}</span> 
+                </div>
+                <div>
+                  <h1 style={{ margin: 0 }}>
+                    {activeProvider.name} Integration
+                  </h1>
+                  <p className='description'>Manage integration and connections.</p>
+                </div>
+              </div>
             </div>
             <div className='manageProvider'>
               {errors && errors.length > 0 && (

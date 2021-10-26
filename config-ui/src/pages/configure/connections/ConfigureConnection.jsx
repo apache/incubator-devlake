@@ -29,6 +29,9 @@ import JenkinsSettings from '@/pages/configure/settings/jenkins'
 
 import { ToastNotification } from '@/components/Toast'
 
+import { integrationsData } from '@/pages/configure/mock-data/integrations'
+import { connectionsData } from '@/pages/configure/mock-data/connections'
+
 import { SERVER_HOST, DEVLAKE_ENDPOINT } from '@/utils/config'
 
 import { ReactComponent as GitlabProvider } from '@/images/integrations/gitlab.svg'
@@ -37,6 +40,7 @@ import { ReactComponent as JiraProvider } from '@/images/integrations/jira.svg'
 
 import '@/styles/integration.scss'
 import '@/styles/connections.scss'
+import '@/styles/configure.scss'
 
 import '@blueprintjs/popover2/lib/css/blueprint-popover2.css'
 
@@ -48,78 +52,12 @@ export default function ConfigureConnection () {
   const [errors, setErrors] = useState([])
   const [showError, setShowError] = useState(false)
 
-  const [integrations, setIntegrations] = useState([
-    {
-      id: 'gitlab',
-      name: 'Gitlab',
-      icon: <GitlabProvider className='providerIconSvg' width='30' height='30' style={{ float: 'left', marginTop: '5px' }} />
-    },
-    {
-      id: 'jenkins',
-      name: 'Jenkins',
-      icon: <JenkinsProvider className='providerIconSvg' width='30' height='30' style={{ float: 'left', marginTop: '5px' }} />
-    },
-    {
-      id: 'jira',
-      name: 'JIRA',
-      icon: <JiraProvider className='providerIconSvg' width='30' height='30' style={{ float: 'left', marginTop: '5px' }} />
-    },
-  ])
+  const [integrations, setIntegrations] = useState(integrationsData)
 
   const [activeProvider, setActiveProvider] = useState(integrations[0])
   const [activeConnection, setActiveConnection] = useState()
 
-  const [connections, setConnections] = useState([
-    {
-      id: 0,
-      name: 'JIRA Development Server',
-      endpoint: 'https://jira-test-a345vf.merico.dev',
-      status: 1,
-      errors: []
-    },
-    {
-      id: 1,
-      name: 'JIRA Staging Server',
-      endpoint: 'https://jira-staging-93xt5a.merico.dev',
-      status: 2,
-      errors: []
-    },
-    {
-      id: 2,
-      name: 'JIRA Production Server',
-      endpoint: 'https://jira-prod-z51gox.merico.dev',
-      status: 0,
-      errors: []
-    },
-    {
-      id: 3,
-      name: 'JIRA Demo Instance 591',
-      endpoint: 'https://jira-demo-591.merico.dev',
-      status: 0,
-      errors: []
-    },
-    {
-      id: 4,
-      name: 'JIRA Demo Instance 142',
-      endpoint: 'https://jira-demo-142.merico.dev',
-      status: 0,
-      errors: []
-    },
-    {
-      id: 5,
-      name: 'JIRA Demo Instance 111',
-      endpoint: 'https://jira-demo-111.merico.dev',
-      status: 0,
-      errors: []
-    },
-    {
-      id: 6,
-      name: 'JIRA Demo Instance 784',
-      endpoint: 'https://jira-demo-784.merico.dev',
-      status: 3,
-      errors: []
-    },
-  ])
+  const [connections, setConnections] = useState(connectionsData)
 
   const cancel = () => {
     history.push(`/integrations/${activeProvider.id}`)
@@ -198,7 +136,7 @@ export default function ConfigureConnection () {
         <Sidebar />
         <Content>
           <main className='main'>
-            <div style={{ width: '100%' }}>
+            <div className='configureConnection' style={{ width: '100%' }}>
               <Link style={{ float: 'right', marginLeft: '10px', color: '#777777' }} to={`/integrations/${activeProvider.id}`}>
                 <Icon icon='fast-backward' size={16} /> &nbsp; Connection List
               </Link>
@@ -218,6 +156,10 @@ export default function ConfigureConnection () {
               </div>
               {activeProvider && activeConnection && (
                 <>
+                  {/* <Card interactive={false} elevation={Elevation.TWO} style={{ width: '50%', marginBottom: '20px' }}>
+                    <h5>Edit Connection</h5>
+                  </Card> */}
+
                   <div style={{ marginTop: '30px' }}>
                     {renderProviderSettings(providerId)}
                   </div>
