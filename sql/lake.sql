@@ -58,20 +58,21 @@ GROUP BY ic.sprint_name,ic.type;
 WITH 
   jira_issues_weeks_count AS (
     SELECT 
-      DATE_FORMAT(i.changelog_updated,'%Y,%u') AS weeks,
+      DATE_FORMAT(i.changelog_updated,'%Y,%u,1') AS weeks,
       COUNT(i.id) AS issue_count
     FROM jira_issues i
-    GROUP BY DATE_FORMAT(i.changelog_updated,'%Y,%u')
+    GROUP BY DATE_FORMAT(i.changelog_updated,'%Y,%u,1')
   ),
   jira_issues_weeks_done_count AS (
     SELECT 
-      DATE_FORMAT(i.changelog_updated,'%Y,%u') AS weeks,
+      DATE_FORMAT(i.changelog_updated,'%Y,%u,1') AS weeks,
       COUNT(i.id) AS done_count
     FROM jira_issues i
     WHERE i.status_name = '已完成'
-    GROUP BY DATE_FORMAT(i.changelog_updated,'%Y,%u')
+    GROUP BY DATE_FORMAT(i.changelog_updated,'%Y,%u,1')
   )
 SELECT 
+  STR_TO_DATE(t1.weeks,'%Y,%u,%w') AS `time`,
   t1.weeks,
   t2.done_count,
   t1.issue_count,
