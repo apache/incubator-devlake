@@ -53,3 +53,31 @@ FROM sprint_type_issue_count ic,
 WHERE ic.type = idc.type 
   AND ic.sprint_name=idc.sprint_name
 GROUP BY ic.sprint_name,ic.type;
+
+/* 周完成率 */
+WITH 
+  jira_issues_weeks_count AS (
+    SELECT 
+      DATE_FORMAT(i.changelog_updated,'%Y,%u') AS weeks,
+      COUNT(i.id) AS issue_count
+    FROM jira_issues i
+    GROUP BY DATE_FORMAT(i.changelog_updated,'%Y,%u')
+  ),
+  jira_issues_weeks_done_count AS (
+    SELECT 
+      DATE_FORMAT(i.changelog_updated,'%Y,%u') AS weeks,
+      COUNT(i.id) AS done_count
+    FROM jira_issues i
+    WHERE i.status_name = '已完成'
+    GROUP BY DATE_FORMAT(i.changelog_updated,'%Y,%u')
+  )
+SELECT 
+  t1.weeks,
+  t2.done_count,
+  t1.issue_count,
+  t2.done_count/t1.issue_count AS done_ratio
+FROM jira_issues_weeks_count t1,
+  jira_issues_weeks_done_count t2
+WHERE t1.weeks=t2.weeks
+GROUP BY t1.weeks
+ORDER BY t1.weeks;
