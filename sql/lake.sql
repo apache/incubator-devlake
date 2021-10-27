@@ -24,6 +24,32 @@ WHERE
 
 
 /* 迭代完成率 */
-SELECT i.sprint_name,COUNT(i.id) as issue_count
-FROM jira_issues i
-GROUP BY i.sprint_name;
+WITH
+  sprint_type_issue_count as (
+    SELECT 
+      i.sprint_name,
+      i.type,
+      COUNT(i.id) as issue_count
+    FROM jira_issues i
+    GROUP BY i.sprint_name,i.type
+  ),
+  sprint_type_issue_done_count as (
+    SELECT
+      i.sprint_name,
+      i.type,
+      COUNT(i.id) as done_count
+    FROM jira_issues i 
+    WHERE i.status_name='已完成'
+    GROUP BY i.sprint_name,i.type
+  )
+SELECT 
+    ic.sprint_name,
+    ic.type,
+    ic.issue_count,
+    idc.done_count,
+    idc.done_count/ic.issue_count as done_ratio
+FROM sprint_type_issue_count ic,
+  sprint_type_issue_done_count idc
+WHERE ic.type = idc.type 
+  AND ic.sprint_name=idc.sprint_name
+GROUP BY ic.sprint_name,ic.type;
