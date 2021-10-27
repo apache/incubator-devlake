@@ -16,8 +16,9 @@ import Content from '@/components/Content'
 import { ToastNotification } from '@/components/Toast'
 import ConnectionForm from '@/pages/configure/connections/ConnectionForm'
 import { integrationsData } from '@/pages/configure/mock-data/integrations'
-// import { connectionsData } from '@/pages/configure/mock-data/connections'
+import { connectionsData } from '@/pages/configure/mock-data/connections'
 import { SERVER_HOST, DEVLAKE_ENDPOINT } from '@/utils/config'
+import request from '@/utils/request'
 
 import useConnectionManager from '@/hooks/useConnectionManager'
 
@@ -25,9 +26,9 @@ import '@/styles/integration.scss'
 import '@/styles/connections.scss'
 import '@blueprintjs/popover2/lib/css/blueprint-popover2.css'
 
-export default function AddConnection () {
+export default function EditConnection () {
   const history = useHistory()
-  const { providerId } = useParams()
+  const { providerId, connectionId } = useParams()
 
   const [name, setName] = useState()
   const [endpointUrl, setEndpointUrl] = useState()
@@ -35,8 +36,23 @@ export default function AddConnection () {
   const [username, setUsername] = useState()
   const [password, setPassword] = useState()
 
+  // const [isSaving, setIsSaving] = useState(false)
+  // const [isTesting, setIsTesting] = useState(false)
+  // const [errors, setErrors] = useState([])
+  // const [showError, setShowError] = useState(false)
+  // const [testStatus, setTestStatus] = useState(0) //  0=Pending, 1=Success, 2=Failed
+
   const [integrations, setIntegrations] = useState(integrationsData)
   const [activeProvider, setActiveProvider] = useState(integrations[0])
+
+  const [activeConnection, setActiveConnection] = useState({
+    id: null,
+    name: null,
+    endpoint: null,
+    token: null,
+    username: null,
+    password: null,
+  })
 
   const {
     testConnection, saveConnection,
@@ -47,29 +63,49 @@ export default function AddConnection () {
     testStatus, // setTestStatus
   } = useConnectionManager({
     activeProvider,
+    activeConnection,
     name,
     endpointUrl,
     token,
     username,
     password,
-  })
+  }, true)
 
   const cancel = () => {
     history.push(`/integrations/${activeProvider.id}`)
   }
 
-  // const resetForm = () => {
-  //   setName(null)
-  //   setEndpointUrl(null)
-  //   setToken(null)
-  //   setUsername(null)
-  //   setPassword(null)
-  // }
-
   useEffect(() => {
     // Selected Provider
     console.log(activeProvider)
-  }, [activeProvider])
+
+    const fetchConnection = async () => {
+      try {
+        const connectionResponse = await request.get(`${DEVLAKE_ENDPOINT}/plugins/${activeProvider.id}/sources/${connectionId}`)
+        const connectionData = connectionResponse.data.data
+        setActiveConnection(connectionData)
+        console.log('>> FETCHED CONNECTION FOR MODIFY', connectionResponse)
+      } catch (e) {
+        console.log('>> FAILED TO FETCH CONNECTION', e)
+      }
+    }
+    fetchConnection()
+  }, [activeProvider, providerId, connectionId])
+
+  useEffect(() => {
+    setName(activeConnection.name)
+    setEndpointUrl(activeConnection.endpoint)
+    switch (activeProvider.id) {
+      case 'jenkins':
+        setUsername(activeConnection.username)
+        setPassword(activeConnection.password)
+        break
+      case 'gitlab':
+      case 'jira':
+        setToken(activeConnection.token)
+        break
+    }
+  }, [activeConnection, activeProvider.id])
 
   useEffect(() => {
     fetch(`${SERVER_HOST}/api/getenv`)
@@ -100,12 +136,12 @@ export default function AddConnection () {
                 </div>
                 <div>
                   <h1 style={{ margin: 0 }}>
-                    {activeProvider.name} Add Connection
+                    Edit {activeProvider.name} Connection
                   </h1>
                   <p className='description'>Create a new connection for this provider.</p>
                 </div>
               </div>
-              <div className='addConnection' style={{ display: 'flex' }}>
+              <div className='editConnection' style={{ display: 'flex' }}>
                 <ConnectionForm
                   name={name}
                   endpointUrl={endpointUrl}

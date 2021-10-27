@@ -13,6 +13,7 @@ import Configure from './pages/configure/index'
 import Integration from '@/pages/configure/integration/index'
 import ManageIntegration from '@/pages/configure/integration/manage'
 import AddConnection from '@/pages/configure/connections/AddConnection'
+import EditConnection from '@/pages/configure/connections/EditConnection'
 import ConfigureConnection from '@/pages/configure/connections/ConfigureConnection'
 import Triggers from '@/pages/triggers/index'
 import Jira from '@/pages/plugins/jira/index'
@@ -31,6 +32,9 @@ function App () {
       </Route>
       <Route path='/connections/add/:providerId'>
         <AddConnection />
+      </Route>
+      <Route path='/connections/edit/:providerId/:connectionId'>
+        <EditConnection />
       </Route>
       <Route path='/connections/configure/:providerId/:connectionId'>
         <ConfigureConnection />
