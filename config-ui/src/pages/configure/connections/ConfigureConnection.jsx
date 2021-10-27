@@ -11,6 +11,7 @@ import {
 // import { SERVER_HOST, DEVLAKE_ENDPOINT } from '@/utils/config'
 import Nav from '@/components/Nav'
 import Sidebar from '@/components/Sidebar'
+import AppCrumbs from '@/components/Breadcrumbs'
 import Content from '@/components/Content'
 
 import { ToastNotification } from '@/components/Toast'
@@ -118,6 +119,19 @@ export default function ConfigureConnection () {
         <Sidebar />
         <Content>
           <main className='main'>
+            <AppCrumbs
+              items={[
+                { href: '/', icon: false, text: 'Dashboard' },
+                { href: '/integrations', icon: false, text: 'Integrations' },
+                { href: `/integrations/${activeProvider.id}`, icon: false, text: `${activeProvider.name}` },
+                {
+                  href: `/connections/configure/${activeProvider.id}`,
+                  icon: false,
+                  text: `${activeConnection ? activeConnection.name : 'Configure'} Settings`,
+                  current: true
+                }
+              ]}
+            />
             <div className='configureConnection' style={{ width: '100%' }}>
               <Link style={{ float: 'right', marginLeft: '10px', color: '#777777' }} to={`/integrations/${activeProvider.id}`}>
                 <Icon icon='fast-backward' size={16} /> &nbsp; Connection List

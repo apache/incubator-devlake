@@ -14,6 +14,7 @@ import {
 // import { FormGroup, InputGroup, Button, Tooltip, Position, Label } from '@blueprintjs/core'
 import Nav from '@/components/Nav'
 import Sidebar from '@/components/Sidebar'
+import AppCrumbs from '@/components/Breadcrumbs'
 import Content from '@/components/Content'
 import SaveAlert from '@/components/SaveAlert'
 import { SERVER_HOST } from '@/utils/config'
@@ -98,6 +99,12 @@ export default function Integration () {
         <Sidebar />
         <Content>
           <main className='main'>
+            <AppCrumbs
+              items={[
+                { href: '/', icon: false, text: 'Dashboard' },
+                { href: '/integrations', icon: false, text: 'Integrations', current: true}
+              ]}
+            />
             <div className='headlineContainer'>
               <h1>Data Integrations</h1>
               <p className='description'>3 sources are available for data collection.</p>
