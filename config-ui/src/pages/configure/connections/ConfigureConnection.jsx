@@ -1,42 +1,26 @@
 import React, { useEffect, useState } from 'react'
-import axios from 'axios'
 import {
-  // BrowserRouter as Router,
-  // Switch,
-  // Route,
   useParams,
   Link,
   useHistory
 } from 'react-router-dom'
 import {
-  Button, mergeRefs, Card, Elevation, Colors,
-  FormGroup, InputGroup, Tooltip, Label,
-  Position,
-  Alignment,
+  Button,
   Icon,
-  Toaster,
-  ToasterPosition,
-  IToasterProps,
-  IToastProps
 } from '@blueprintjs/core'
-// import { Column, Table } from '@blueprintjs/table'
+// import { SERVER_HOST, DEVLAKE_ENDPOINT } from '@/utils/config'
 import Nav from '@/components/Nav'
 import Sidebar from '@/components/Sidebar'
 import Content from '@/components/Content'
+
+import { ToastNotification } from '@/components/Toast'
+
 import JiraSettings from '@/pages/configure/settings/jira'
 import GitlabSettings from '@/pages/configure/settings/gitlab'
 import JenkinsSettings from '@/pages/configure/settings/jenkins'
 
-import { ToastNotification } from '@/components/Toast'
-
 import { integrationsData } from '@/pages/configure/mock-data/integrations'
 import { connectionsData } from '@/pages/configure/mock-data/connections'
-
-import { SERVER_HOST, DEVLAKE_ENDPOINT } from '@/utils/config'
-
-import { ReactComponent as GitlabProvider } from '@/images/integrations/gitlab.svg'
-import { ReactComponent as JenkinsProvider } from '@/images/integrations/jenkins.svg'
-import { ReactComponent as JiraProvider } from '@/images/integrations/jira.svg'
 
 import '@/styles/integration.scss'
 import '@/styles/connections.scss'
@@ -53,10 +37,8 @@ export default function ConfigureConnection () {
   const [showError, setShowError] = useState(false)
 
   const [integrations, setIntegrations] = useState(integrationsData)
-
   const [activeProvider, setActiveProvider] = useState(integrations[0])
   const [activeConnection, setActiveConnection] = useState()
-
   const [connections, setConnections] = useState(connectionsData)
 
   const cancel = () => {

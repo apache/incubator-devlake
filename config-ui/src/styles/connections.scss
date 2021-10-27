@@ -1,4 +1,4 @@
-.addConnection, .configureConnection {
+.addConnection, .editConnection, .configureConnection {
   .formContainer {}
 
   .bp3-form-group {
@@ -16,7 +16,6 @@
 
     .bp3-input-group {
       display: flex;
-
       // width: 440px;
       // min-width: 440px;
       // max-width: 440px;    

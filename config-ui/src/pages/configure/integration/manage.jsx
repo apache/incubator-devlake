@@ -71,6 +71,13 @@ export default function ManageIntegration () {
     history.push(`/connections/add/${activeProvider.id}`)
   }
 
+  const editConnection = (connection, e) => {
+    console.log(e.target.classList)
+    if (e.target && (!e.target.classList.contains('actions-cell') || !e.target.classList.contains('actions-link'))) {
+      history.push(`/connections/edit/${activeProvider.id}/${connection.id}`)
+    }
+  }
+
   const configureConnection = (connection) => {
     const { id, endpoint } = connection
     history.push(`/connections/configure/${activeProvider.id}/${id}`)
@@ -84,6 +91,8 @@ export default function ManageIntegration () {
 
   const runCollection = (connection) => {
     const { id, endpoint } = connection
+    ToastNotification.clear()
+    ToastNotification.show({ message: `Triggered Collection Process on ${connection.name}`, icon: 'info-sign' })
     console.log('>> running connection: ', id, endpoint)
   }
 
@@ -124,7 +133,7 @@ export default function ManageIntegration () {
               </Link>
               <div style={{ display: 'flex' }}>
                 <div>
-                  <span style={{ marginRight: '10px' }}>{activeProvider.icon}</span> 
+                  <span style={{ marginRight: '10px' }}>{activeProvider.icon}</span>
                 </div>
                 <div>
                   <h1 style={{ margin: 0 }}>
@@ -216,9 +225,24 @@ export default function ManageIntegration () {
                       </thead>
                       <tbody>
                         {connections.map((connection, idx) => (
-                          <tr key={`connection-row-${idx}`} className={connection.status === 0 ? 'connection-offline' : ''}>
-                            <td>
+                          <tr
+                            key={`connection-row-${idx}`}
+                            className={connection.status === 0 ? 'connection-offline' : ''}
+                          >
+                            <td
+                              onClick={(e) => editConnection(connection, e)}
+                              style={{ cursor: 'pointer' }}
+                            >
                               <strong>{connection.name}</strong>
+                              <a
+                                href='#'
+                                data-provider={connection.id}
+                                className='table-action-link'
+                                onClick={(e) => editConnection(connection, e)}
+                                style={{ float: 'right', marginLeft: 0 }}
+                              >
+                                <Icon icon='wrench' color={Colors.BLUE2} size={12} />
+                              </a>
                             </td>
                             <td><a href='#' target='_blank' rel='noreferrer'>{connection.endpoint}</a></td>
                             <td>
@@ -237,11 +261,11 @@ export default function ManageIntegration () {
                                 </strong>
                               )}
                             </td>
-                            <td>
+                            <td className='actions-cell'>
                               <a
                                 href='#'
                                 data-provider={connection.id}
-                                className='table-action-link'
+                                className='table-action-link actions-link'
                                 onClick={() => configureConnection(connection)}
                               >
                                 <Icon icon='settings' size={12} />
@@ -250,7 +274,7 @@ export default function ManageIntegration () {
                               <a
                                 href='#'
                                 data-provider={connection.id}
-                                className='table-action-link'
+                                className='table-action-link actions-link'
                                 onClick={() => runCollection(connection)}
                               >
                                 <Icon icon='refresh' size={12} />
@@ -259,7 +283,7 @@ export default function ManageIntegration () {
                               <a
                                 href='#'
                                 data-provider={connection.id}
-                                className='table-action-link'
+                                className='table-action-link actions-link'
                                 onClick={() => testConnection(connection)}
                               >
                                 <Icon icon='data-connection' size={12} />

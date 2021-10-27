@@ -8,17 +8,27 @@ import request from '@/utils/request'
 
 function useConnectionManager ({
   activeProvider,
+  activeConnection,
   name, endpointUrl, token, username, password,
-  isTesting, setIsTesting,
-  isSaving, setIsSaving,
-  testStatus, setTestStatus,
-  errors, setErrors,
-  showError, setShowError
-}) {
+  // isTesting, setIsTesting,
+  // isSaving, setIsSaving,
+  // testStatus, setTestStatus,
+  // errors, setErrors,
+  // showError, setShowError
+}, updateMode = false) {
   const history = useHistory()
+
+  const [isSaving, setIsSaving] = useState(false)
+  const [isRunning, setIsRunning] = useState(false)
+  const [isTesting, setIsTesting] = useState(false)
+  const [errors, setErrors] = useState([])
+  const [showError, setShowError] = useState(false)
+  const [testStatus, setTestStatus] = useState(0) //  0=Pending, 1=Success, 2=Failed
 
   const testConnection = () => {
     setIsTesting(true)
+    setShowError(false)
+    ToastNotification.clear()
     const connectionTestPayload = {
       name,
       endpointUrl,
@@ -72,6 +82,8 @@ function useConnectionManager ({
 
     const saveConfiguration = async (configPayload) => {
       try {
+        setShowError(false)
+        ToastNotification.clear()
         const s = await request.post(`${DEVLAKE_ENDPOINT}/plugins/${activeProvider.id}/source`, configPayload)
         console.log('>> CONFIGURATION SAVED SUCCESSFULLY', configPayload, s)
         saveResponse = {
@@ -87,25 +99,68 @@ function useConnectionManager ({
       }
     }
 
-    saveConfiguration(connectionPayload)
+    const modifyConfiguration = async (configPayload) => {
+      try {
+        setShowError(false)
+        ToastNotification.clear()
+        const s = await request.put(`${DEVLAKE_ENDPOINT}/plugins/${activeProvider.id}/sources/${activeConnection.id}`, configPayload)
+        console.log('>> CONFIGURATION MODIFIED SUCCESSFULLY', configPayload, s)
+        saveResponse = {
+          ...saveResponse,
+          success: s.data.success,
+          connection: { ...s.data },
+          errors: s.isAxiosError ? [s.message] : []
+        }
+      } catch (e) {
+        saveResponse.errors.push(e.message)
+        setErrors(saveResponse.errors)
+        console.log('>> CONFIGURATION FAILED TO UPDATE', configPayload, e)
+      }
+    }
+
+    if (updateMode && activeConnection) {
+      modifyConfiguration(connectionPayload)
+    } else {
+      saveConfiguration(connectionPayload)
+    }
 
     setTimeout(() => {
       if (saveResponse.success && errors.length === 0) {
-        ToastNotification.show({ message: 'Connection added successfully.', intent: 'success', icon: 'small-tick' })
+        ToastNotification.show({ message: 'Connection saved successfully.', intent: 'success', icon: 'small-tick' })
         setShowError(false)
         setIsSaving(false)
-        history.push(`/integrations/${activeProvider.id}`)
+        if (!updateMode) {
+          history.push(`/integrations/${activeProvider.id}`)
+        }
       } else {
-        ToastNotification.show({ message: 'Connection failed to add, please try again.', intent: 'danger', icon: 'error' })
+        ToastNotification.show({ message: 'Connection failed to save, please try again.', intent: 'danger', icon: 'error' })
         setShowError(true)
         setIsSaving(false)
       }
     }, 2000)
   }
 
+  const runCollection = () => {
+    setIsRunning(true)
+    ToastNotification.show({ message: 'Triggered Collection Process', intent: 'info', icon: 'info' })
+    console.log('>> RUNNING COLLECTION PROCESS', isRunning)
+    // Run Collection Tasks...
+  }
+
   return {
     testConnection,
     saveConnection,
+    runCollection,
+    isSaving,
+    isTesting,
+    errors,
+    showError,
+    testStatus,
+    setIsSaving,
+    setIsTesting,
+    setErrors,
+    setShowError,
+    setTestStatus
   }
 }
 
