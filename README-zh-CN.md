@@ -18,15 +18,21 @@
 Dev Lake 是一个研发效能分析平台，它通过对软件开发生命周期（SDLC）中产生的数据进行 _**整合、分析和可视化**_ ，提升研发效能。
 
 <img src="https://user-images.githubusercontent.com/2908155/130271622-827c4ffa-d812-4843-b09d-ea1338b7e6e5.png" width="100%" alt="Dev Lake Grafana Dashboard" />
+<p align="center">数据面板截图</p><br>
+<img src="https://user-images.githubusercontent.com/14050754/139076905-48d13e40-51ab-49e4-b537-0fe56960a1c0.png" width="100%" alt="Dev Lake Grafana Dashboard" />
+<p align="center">用户使用流程</p><br>
 
 ### 为什么选择 Dev Lake？
+1. 将多个来源的数据（Jira、Gitlab、Jenkins等）统一到一个地方。
+2. 可以一起计算来自不同数据源的指标
+3. 提供一系列行业标准指标来识别工程问题 
+4. 高度可定制，用户可以制作自己的图表、指标和仪表盘
 
-1. 支持各种数据源(<a href="https://gitlab.com/" target="_blank">Gitlab</a>, <a href="https://www.atlassian.com/software/jira" target="_blank">Jira</a>)，而且还在不断增加
-2.  相关的、可定制的数据指标，可随时作为可视化图表查看
-3.  利用 <a href="https://grafana.com/" target="_blank">Grafana</a> 轻松构建和查看新的图表和仪表盘
-4.  易于通过 <a href="https://docs.docker.com/desktop/" target="_blank">Docker</a> 进行设置
-5.  可扩展的插件系统，可添加您自己的数据采集器
-6.  专为处理企业规模的数据而设计
+### Dev Lake 可以完成什么?
+1. 在一个个性化的、统一的视图中可视化和分析你的整个SDLC过程
+2. 调试过程和团队层面的问题，扩大成功的规模
+3. 统一和规范成功的衡量标准和基准
+<br>
 
 ## 内容
 
@@ -40,6 +46,7 @@ Grafana | 如何将数据进行可视化 | [查看本节](#grafana)
 添加一个插件 | 如何制作自己的插件的详细信息 | [链接](plugins/README-zh-CN.md) 
 添加新的指标 | 如何给插件添加指标 | [链接](plugins/HOW-TO-ADD-METRICS-zh-CN.md) 
 贡献 | 如何进行贡献 | [链接](CONTRIBUTING-zh-CN.md)
+FAQ | 常见问题 | [链接](#faq)
 
 
 ## 我们目前支持的数据源<a id="data-source-plugins"></a>
@@ -182,5 +189,10 @@ Jenkins | 指标，生成 API Token | [Link](plugins/jenkins/README-zh-CN.md)
 在 <a href="https://discord.com/invite/83rDG6ydVZ" target="_blank">Discord</a> 上给我们发消息
 
 
+## FAQ<a id="faq"></a>
 
+问：当我运行```docker-compose up -d ```时，得到这个错误: "qemu: uncaught target signal 11 (Segmentation fault) - core dumped"。如何解决这个问题？
+
+答：Mac M1用户需要在他们的机器上下载一个特定版本的docker。你可以在这里找到它。
+https://docs.docker.com/desktop/mac/apple-silicon/
 

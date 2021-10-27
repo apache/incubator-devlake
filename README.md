@@ -27,25 +27,23 @@
 Dev Lake is the one-stop solution that _**integrates, analyzes, and visualizes**_ software development data throughout the _**software development life cycle (SDLC)**_ for engineering teams.
 
 
+<img src="https://user-images.githubusercontent.com/2908155/130271622-827c4ffa-d812-4843-b09d-ea1338b7e6e5.png" width="100%" alt="Dev Lake Grafana Dashboard" />
+<p align="center">Dashboard Screenshot</p><br>
+<img src="https://user-images.githubusercontent.com/14050754/139076905-48d13e40-51ab-49e4-b537-0fe56960a1c0.png" width="100%" alt="Dev Lake Grafana Dashboard" />
+<p align="center">User Flow</p>
 
-<img src= "https://user-images.githubusercontent.com/11300983/137789874-d18c0285-4a59-4ced-b5bd-73dce3c42fe3.png" width="100%" alt="Dev Lake Grafana Dashboard" />
+### Why Dev Lake?
+1. Unifies data from multiple sources (<a href="https://www.atlassian.com/software/jira" target="_blank">Jira</a>, <a href="https://gitlab.com/" target="_blank">Gitlab</a>, <a href="https://www.jenkins.io/" target="_blank">Jenkins</a> etc) in one place.
+2. Can compute metrics from different data sources together.
+3. Provide a series of industry standard metrics to identify engineering problems. 
+4. Highly customisable, users can make their own graphs, metrics & dashboards.
+
+### What can be accomplished with Dev Lake?
+1. Visualize and analyze your entire SDLC process in one personalized, unified view. 
+2. Debug process- and team-level issues, scale successes. 
+3. Unify and standardize measures of success and benchmarks. 
 
 
-## Features
-1. Unifies data from multiple sources ( Jira, Github, Jenkins etc ) in one place 
-2. Gives more data to debug the software engineering workflow . 
-3. Can compute metrics from different data sources together 
-4. Highly customisable ; User can make their own graphs and metrics
-5. Free, open source & self hosted.
-
-## Why choose Dev Lake?
-
-1.  Supports various data sources (<a href="https://gitlab.com/" target="_blank">Gitlab</a>, <a href="https://www.atlassian.com/software/jira" target="_blank">Jira</a>) and more are being added all the time
-2.  Relevant, customizable data metrics ready to view as visual charts
-7.  Easily build and view new charts and dashboards with <a href="https://grafana.com/" target="_blank">Grafana</a>
-4.  Easy-to-setup via <a href="https://docs.docker.com/desktop/" target="_blank">Docker</a>
-5.  Extensible plugin system to add your own data collectors
-6.  Designed to process enterprise-scale data
 
 ## Contents
 
