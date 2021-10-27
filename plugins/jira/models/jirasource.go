@@ -11,7 +11,7 @@ type JiraSource struct {
 	BasicAuthEncoded      string  `json:"basicAuthEncoded" validate:"required"`
 	EpicKeyField          string  `gorm:"type:varchar(50);" json:"epicKeyField"`
 	StoryPointField       string  `gorm:"type:varchar(50);" json:"storyPointField"`
-	StoryPointCoefficient float64 `jons:"storyPointCoefficient"`
+	StoryPointCoefficient float64 `json:"storyPointCoefficient"`
 }
 
 type JiraIssueTypeMapping struct {

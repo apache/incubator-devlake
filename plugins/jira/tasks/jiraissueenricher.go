@@ -72,6 +72,8 @@ func EnrichIssues(source *models.JiraSource, boardId uint64) (err error) {
 		jiraIssue.StdStoryPoint = uint(jiraIssue.StoryPoint * source.StoryPointCoefficient)
 		jiraIssue.StdType = getStdType(jiraIssue.Type)
 		jiraIssue.StdStatus = getStdStatus(jiraIssue.StatusCategory)
+		// assuming remaining estimate could be negative; TODO: make sure of it
+		jiraIssue.SpentMinutes = jiraIssue.AggregateEstimateMinutes - jiraIssue.RemainingEstimateMinutes
 		err = lakeModels.Db.Save(jiraIssue).Error
 		if err != nil {
 			return err
