@@ -117,6 +117,5 @@ SELECT * FROM (
   FROM jira_issues_count t1
   LEFT JOIN jira_issues_count_done t2 
     ON t1.weeks_day=t2.weeks_day
-  ORDER BY t1.weeks_day
+  ORDER BY t1.weeks_day DESC
 ) X;
-  
