@@ -12,6 +12,7 @@ import {
 } from '@blueprintjs/core'
 import Nav from '@/components/Nav'
 import Sidebar from '@/components/Sidebar'
+import AppCrumbs from '@/components/Breadcrumbs'
 import Content from '@/components/Content'
 import { ToastNotification } from '@/components/Toast'
 import ConnectionForm from '@/pages/configure/connections/ConnectionForm'
@@ -90,6 +91,14 @@ export default function AddConnection () {
         <Sidebar />
         <Content>
           <main className='main'>
+            <AppCrumbs
+              items={[
+                { href: '/', icon: false, text: 'Dashboard' },
+                { href: '/integrations', icon: false, text: 'Integrations' },
+                { href: `/integrations/${activeProvider.id}`, icon: false, text: `${activeProvider.name}` },
+                { href: `/connections/add/${activeProvider.id}`, icon: false, text: 'Add Connection', current: true }
+              ]}
+            />
             <div style={{ width: '100%' }}>
               <Link style={{ float: 'right', marginLeft: '10px', color: '#777777' }} to={`/integrations/${activeProvider.id}`}>
                 <Icon icon='fast-backward' size={16} /> &nbsp; Go Back
@@ -102,7 +111,7 @@ export default function AddConnection () {
                   <h1 style={{ margin: 0 }}>
                     {activeProvider.name} Add Connection
                   </h1>
-                  <p className='description'>Create a new connection for this provider.</p>
+                  <p className='description'>Create a new connection source for this provider.</p>
                 </div>
               </div>
               <div className='addConnection' style={{ display: 'flex' }}>

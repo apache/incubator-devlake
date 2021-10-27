@@ -12,6 +12,7 @@ import {
 } from '@blueprintjs/core'
 import Nav from '@/components/Nav'
 import Sidebar from '@/components/Sidebar'
+import AppCrumbs from '@/components/Breadcrumbs'
 import Content from '@/components/Content'
 import { ToastNotification } from '@/components/Toast'
 import ConnectionForm from '@/pages/configure/connections/ConnectionForm'
@@ -126,6 +127,19 @@ export default function EditConnection () {
         <Sidebar />
         <Content>
           <main className='main'>
+            <AppCrumbs
+              items={[
+                { href: '/', icon: false, text: 'Dashboard' },
+                { href: '/integrations', icon: false, text: 'Integrations' },
+                { href: `/integrations/${activeProvider.id}`, icon: false, text: `${activeProvider.name}` },
+                {
+                  href: `/connections/edit/${activeProvider.id}/${activeConnection.id}`,
+                  icon: false,
+                  text: 'Edit Connection',
+                  current: true
+                }
+              ]}
+            />
             <div style={{ width: '100%' }}>
               <Link style={{ float: 'right', marginLeft: '10px', color: '#777777' }} to={`/integrations/${activeProvider.id}`}>
                 <Icon icon='fast-backward' size={16} /> &nbsp; Go Back
@@ -138,7 +152,7 @@ export default function EditConnection () {
                   <h1 style={{ margin: 0 }}>
                     Edit {activeProvider.name} Connection
                   </h1>
-                  <p className='description'>Create a new connection for this provider.</p>
+                  <p className='description'>Manage the connection source for this provider.</p>
                 </div>
               </div>
               <div className='editConnection' style={{ display: 'flex' }}>

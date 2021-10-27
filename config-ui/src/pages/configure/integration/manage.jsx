@@ -11,6 +11,7 @@ import {
 } from '@blueprintjs/core'
 import Nav from '@/components/Nav'
 import Sidebar from '@/components/Sidebar'
+import AppCrumbs from '@/components/Breadcrumbs'
 import Content from '@/components/Content'
 import { ToastNotification } from '@/components/Toast'
 import request from '@/utils/request'
@@ -127,6 +128,13 @@ export default function ManageIntegration () {
         <Sidebar />
         <Content>
           <main className='main'>
+            <AppCrumbs
+              items={[
+                { href: '/', icon: false, text: 'Dashboard' },
+                { href: '/integrations', icon: false, text: 'Integrations' },
+                { href: `/integrations/${activeProvider.id}`, icon: false, text: `${activeProvider.name}`, current: true },
+              ]}
+            />
             <div className='headlineContainer'>
               <Link style={{ float: 'right', marginLeft: '10px', color: '#777777' }} to='/integrations'>
                 <Icon icon='fast-backward' size={16} /> &nbsp; Go Back
