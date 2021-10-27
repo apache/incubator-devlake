@@ -82,3 +82,41 @@ FROM jira_issues_weeks_count t1,
 WHERE t1.weeks=t2.weeks
 GROUP BY t1.weeks
 ORDER BY t1.weeks;
+
+
+/* 周完成率 2 */
+WITH 
+  jira_issues_weeks AS (
+    SELECT 
+      *,
+      STR_TO_DATE(DATE_FORMAT(i.changelog_updated,'%Y,%u,1'),'%Y,%u,%w') AS weeks_day
+    FROM jira_issues i
+  )
+SELECT * FROM (
+  WITH
+    jira_issues_count AS (
+      SELECT 
+        t.weeks_day,
+        COUNT(t.id) AS count_week
+      FROM jira_issues_weeks t
+      GROUP BY t.weeks_day
+    ),
+    jira_issues_count_done AS (
+      SELECT 
+        t.weeks_day,
+        COUNT(t.id) AS count_done
+      FROM jira_issues_weeks t
+      WHERE t.status_name = '已完成'
+      GROUP BY t.weeks_day
+    )
+  SELECT 
+    t1.weeks_day,
+    IFNULL(t2.count_done, 0) AS count_done,
+    t1.count_week,
+    IFNULL(t2.count_done, 0)/t1.count_week AS done_ratio
+  FROM jira_issues_count t1
+  LEFT JOIN jira_issues_count_done t2 
+    ON t1.weeks_day=t2.weeks_day
+  ORDER BY t1.weeks_day
+) X;
+  
