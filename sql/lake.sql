@@ -68,7 +68,7 @@ WITH
       DATE_FORMAT(i.changelog_updated,'%Y,%u,1') AS weeks,
       COUNT(i.id) AS done_count
     FROM jira_issues i
-    WHERE i.status_name = '已完成'
+    WHERE i.status_name in ('已完成','已关闭')
     GROUP BY DATE_FORMAT(i.changelog_updated,'%Y,%u,1')
   )
 SELECT 
@@ -106,7 +106,7 @@ SELECT * FROM (
         t.weeks_day,
         COUNT(t.id) AS count_done
       FROM jira_issues_weeks t
-      WHERE t.status_name = '已完成'
+      WHERE t.status_name in ('已完成','已关闭')
       GROUP BY t.weeks_day
     )
   SELECT 
