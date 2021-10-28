@@ -6,7 +6,7 @@ import { ReactComponent as JiraProvider } from '@/images/integrations/jira.svg'
 const integrationsData = [
   {
     id: 'gitlab',
-    name: 'Gitlab',
+    name: 'GitLab',
     icon: <GitlabProvider className='providerIconSvg' width='30' height='30' style={{ float: 'left', marginTop: '5px' }} />
   },
   {
