@@ -1,0 +1,709 @@
+{
+  "annotations": {
+    "list": [
+      {
+        "builtIn": 1,
+        "datasource": "-- Grafana --",
+        "enable": true,
+        "hide": true,
+        "iconColor": "rgba(0, 211, 255, 1)",
+        "name": "Annotations & Alerts",
+        "type": "dashboard"
+      }
+    ]
+  },
+  "editable": true,
+  "gnetId": null,
+  "graphTooltip": 0,
+  "id": 16,
+  "iteration": 1635426327985,
+  "links": [
+    {
+      "asDropdown": false,
+      "icon": "bolt",
+      "includeVars": false,
+      "keepTime": true,
+      "tags": [],
+      "targetBlank": false,
+      "title": "Homepage",
+      "tooltip": "",
+      "type": "link",
+      "url": "/d/j160SnFnk/demo-homepage?orgId=1"
+    }
+  ],
+  "panels": [
+    {
+      "datasource": "mysql",
+      "description": "1. The average lead time of requirements.\n2. Lead time refers to the length of time from requirement creation to delivery.\n3. The requirements being calculated are filtered by \"requirement resolution time\" (time filter at the upper-right corner) and \"Jira board\"(\"Choose Board\" filter at the upper-left corner)",
+      "fieldConfig": {
+        "defaults": {
+          "decimals": 1,
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 14
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 6,
+        "w": 6,
+        "x": 0,
+        "y": 0
+      },
+      "id": 12,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "mean"
+          ],
+          "fields": "/^value$/",
+          "values": false
+        },
+        "text": {},
+        "textMode": "auto"
+      },
+      "pluginVersion": "8.0.6",
+      "targets": [
+        {
+          "format": "time_series",
+          "group": [],
+          "metricColumn": "none",
+          "rawQuery": true,
+          "rawSql": "select \r\n  now() as time,\r\n  avg(lead_time/1440) as value\r\nfrom jira_issues ji\r\n  join jira_board_issues jbi on ji.id = jbi.issue_id\r\nwhere \r\n  std_type = 'Requirement'\r\n  and std_status = 'Resolved'\r\n  and $__timeFilter(resolution_date)\r\n  and jbi.board_id = $board_id\r\ngroup by 1;",
+          "refId": "A",
+          "select": [
+            [
+              {
+                "params": [
+                  "progress"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "table": "ca_analysis",
+          "timeColumn": "create_time",
+          "timeColumnType": "timestamp",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        }
+      ],
+      "timeFrom": null,
+      "timeShift": null,
+      "title": "Avg Requirement Lead Time (day)",
+      "type": "stat"
+    },
+    {
+      "datasource": "mysql",
+      "description": "1. The lead time at which 80% requirements‘ lead time lies below it.\n2. The requirements being calculated are filtered by \"requirement resolution time\" (time filter at the upper-right corner) and \"Jira board\" (\"Choose Board\" filter at the upper-left corner)",
+      "fieldConfig": {
+        "defaults": {
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 21
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 6,
+        "w": 6,
+        "x": 6,
+        "y": 0
+      },
+      "id": 13,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "text": {},
+        "textMode": "auto"
+      },
+      "pluginVersion": "8.0.6",
+      "targets": [
+        {
+          "format": "time_series",
+          "group": [],
+          "metricColumn": "none",
+          "rawQuery": true,
+          "rawSql": "with _ranks as(\r\n  select \r\n    ji.lead_time,\r\n    percent_rank() over (order by lead_time asc) as ranks\r\n  from jira_issues ji\r\n    join jira_board_issues jbi on ji.id = jbi.issue_id\r\n  where \r\n    std_type = 'Requirement'\r\n    and std_status = 'Resolved'\r\n    and $__timeFilter(resolution_date)\r\n    and jbi.board_id = $board_id\r\n)\r\n\r\nselect\r\n  now() as time,\r\n  max(lead_time/1440) as value\r\nfrom _ranks\r\nwhere \r\n  ranks <= 0.8\r\ngroup by 1",
+          "refId": "A",
+          "select": [
+            [
+              {
+                "params": [
+                  "progress"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "table": "ca_analysis",
+          "timeColumn": "create_time",
+          "timeColumnType": "timestamp",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        }
+      ],
+      "timeFrom": null,
+      "timeShift": null,
+      "title": "80th Percentile Requirement Lead Time (day)",
+      "type": "stat"
+    },
+    {
+      "aliasColors": {},
+      "bars": false,
+      "dashLength": 10,
+      "dashes": false,
+      "datasource": "mysql",
+      "description": "1. The average requirement lead time over time.\n2. The time granularity can be switched to Week or Month by \"Time Interval\" above. \n3. When Time Interval is set to \"Month\", the average_lead_time of \"2021-06-01\" refers to the average lead time of requirements whose resolution time falls under [2020-06-01, 2020-07-01).",
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "fill": 1,
+      "fillGradient": 0,
+      "gridPos": {
+        "h": 6,
+        "w": 12,
+        "x": 12,
+        "y": 0
+      },
+      "hiddenSeries": false,
+      "id": 17,
+      "interval": "",
+      "legend": {
+        "avg": false,
+        "current": false,
+        "max": false,
+        "min": false,
+        "show": true,
+        "total": false,
+        "values": false
+      },
+      "lines": true,
+      "linewidth": 1,
+      "nullPointMode": "null",
+      "options": {
+        "alertThreshold": true
+      },
+      "percentage": false,
+      "pluginVersion": "8.0.6",
+      "pointradius": 2,
+      "points": false,
+      "renderer": "flot",
+      "seriesOverrides": [],
+      "spaceLength": 10,
+      "stack": false,
+      "steppedLine": false,
+      "targets": [
+        {
+          "format": "time_series",
+          "group": [],
+          "metricColumn": "none",
+          "rawQuery": true,
+          "rawSql": "with _requirement as(\r\n  select \r\n    DATE_ADD(date(resolution_date), INTERVAL -$interval(date(resolution_date))+1 DAY) as time,\r\n    lead_time\r\n  from jira_issues ji\r\n    join jira_board_issues jbi on ji.id = jbi.issue_id\r\n  where \r\n    std_type = 'Requirement'\r\n    and std_status = 'Resolved'\r\n    and $__timeFilter(resolution_date)\r\n    and jbi.board_id = $board_id\r\n)\r\n\r\nselect \r\n  timestamp(time) as time,\r\n  avg(lead_time/1440) as average_lead_time\r\nfrom _requirement\r\ngroup by 1\r\norder by 1 asc",
+          "refId": "A",
+          "select": [
+            [
+              {
+                "params": [
+                  "progress"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "table": "ca_analysis",
+          "timeColumn": "create_time",
+          "timeColumnType": "timestamp",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        }
+      ],
+      "thresholds": [],
+      "timeFrom": null,
+      "timeRegions": [],
+      "timeShift": null,
+      "title": "Requirement Lead Time over Time",
+      "tooltip": {
+        "shared": true,
+        "sort": 0,
+        "value_type": "individual"
+      },
+      "type": "graph",
+      "xaxis": {
+        "buckets": null,
+        "mode": "time",
+        "name": null,
+        "show": true,
+        "values": []
+      },
+      "yaxes": [
+        {
+          "$$hashKey": "object:242",
+          "format": "short",
+          "label": "Lead Time(day)",
+          "logBase": 1,
+          "max": null,
+          "min": null,
+          "show": true
+        },
+        {
+          "$$hashKey": "object:243",
+          "format": "short",
+          "label": "",
+          "logBase": 1,
+          "max": null,
+          "min": null,
+          "show": true
+        }
+      ],
+      "yaxis": {
+        "align": false,
+        "alignLevel": null
+      }
+    },
+    {
+      "datasource": "mysql",
+      "description": "The average lead time of requirements under different Jira Epics.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisLabel": "Lead Time (day)",
+            "axisPlacement": "auto",
+            "axisSoftMin": 0,
+            "fillOpacity": 80,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineWidth": 1
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 6,
+        "w": 24,
+        "x": 0,
+        "y": 6
+      },
+      "id": 18,
+      "options": {
+        "barWidth": 0.5,
+        "groupWidth": 0.7,
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom"
+        },
+        "orientation": "auto",
+        "showValue": "auto",
+        "text": {},
+        "tooltip": {
+          "mode": "single"
+        }
+      },
+      "pluginVersion": "8.0.6",
+      "targets": [
+        {
+          "format": "table",
+          "group": [],
+          "metricColumn": "none",
+          "queryType": "randomWalk",
+          "rawQuery": true,
+          "rawSql": "with _requirement as(\r\n  select\r\n    ji.id,\r\n    epic_key,\r\n    ji.lead_time\r\n  from\r\n    jira_issues ji\r\n    join jira_board_issues jbi on ji.id = jbi.issue_id\r\n  where \r\n    ji.std_type = 'Requirement'\r\n    and ji.std_status = 'Resolved'\r\n    and ji.epic_key is not null\r\n    and ji.epic_key != ''\r\n    and $__timeFilter(resolution_date)\r\n    and jbi.board_id = $board_id\r\n)\r\n\r\nselect \r\n  now() as time,\r\n  epic_key as \"Epic Key\",\r\n  avg(lead_time/1440) as value\r\nfrom _requirement\r\ngroup by 1,2\r\norder by 3 desc\r\nlimit 20",
+          "refId": "A",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "timeColumn": "time",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        }
+      ],
+      "timeFrom": null,
+      "timeShift": null,
+      "title": "Average Requirement Lead Time by Epic",
+      "type": "barchart"
+    },
+    {
+      "datasource": "mysql",
+      "description": "The average time spent in each state of a requirement, including all history states that have been used.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisLabel": "Lead Time(day)",
+            "axisPlacement": "auto",
+            "axisSoftMin": 0,
+            "fillOpacity": 74,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineWidth": 1
+          },
+          "decimals": 1,
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 6,
+        "w": 24,
+        "x": 0,
+        "y": 12
+      },
+      "id": 97,
+      "options": {
+        "barWidth": 0.5,
+        "groupWidth": 0.7,
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom"
+        },
+        "orientation": "auto",
+        "showValue": "auto",
+        "text": {},
+        "tooltip": {
+          "mode": "single"
+        }
+      },
+      "pluginVersion": "8.0.6",
+      "targets": [
+        {
+          "format": "table",
+          "group": [],
+          "metricColumn": "none",
+          "queryType": "randomWalk",
+          "rawQuery": true,
+          "rawSql": "with operation_history as(\n\tSELECT\n\t\tjc.issue_id,\n\t\tjc.created as operation_time,\n\t\tjci.changelog_id,\n\t\tjci.from,\n\t\tjci.from_string,\n\t\tjci.to,\n\t\tjci.to_string,\n\t\tji.created as issue_creation_time,\n\t\tcase \n\t\t\twhen lag(jc.created) over(PARTITION BY jc.issue_id ORDER BY jc.created ASC) is not null then\n\t\t\tTIMESTAMPDIFF(MINUTE, lag(jc.created) over(PARTITION BY jc.issue_id ORDER BY jc.created ASC), jc.created)\n\t\t\telse TIMESTAMPDIFF(MINUTE, ji.created, jc.created) end as time_in_status\n\tFROM\n\t\tjira_changelogs jc\n\t\tJOIN jira_changelog_items jci ON jc.id = jci.changelog_id\n\t\tJOIN jira_issues ji ON jc.issue_id = ji.id\n\t\tjoin jira_board_issues jbi on ji.id = jbi.issue_id\n\tWHERE\n\t\tjci.field = 'status'\n\t\tand ji.std_type = 'Requirement'\n\t\tand ji.std_status = 'Resolved'\n\t\tand $__timeFilter(ji.resolution_date)\n    and jbi.board_id = $board_id\n)\n\nSELECT\n  now() as time,\n\tfrom_string as \"Requirement Status\",\n\tavg(time_in_status)/1440 as \"Time in Status\"\nFROM operation_history\nGROUP BY 1,2\nORDER BY 3 desc",
+          "refId": "A",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "timeColumn": "time",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        }
+      ],
+      "timeFrom": null,
+      "timeShift": null,
+      "title": "Average Requirement Lead Time by Status",
+      "type": "barchart"
+    },
+    {
+      "datasource": "mysql",
+      "description": "1. Compare the average time spent in each state of a requirement in the last 2 months.\n2. The requirements being calculated are the requirements delivered in the last 2 months.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisLabel": "Lead Time(day)",
+            "axisPlacement": "auto",
+            "axisSoftMin": 0,
+            "fillOpacity": 74,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineWidth": 1
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 6,
+        "w": 24,
+        "x": 0,
+        "y": 18
+      },
+      "id": 98,
+      "options": {
+        "barWidth": 0.9,
+        "groupWidth": 0.6,
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom"
+        },
+        "orientation": "auto",
+        "showValue": "auto",
+        "text": {},
+        "tooltip": {
+          "mode": "single"
+        }
+      },
+      "pluginVersion": "8.0.6",
+      "targets": [
+        {
+          "format": "table",
+          "group": [],
+          "metricColumn": "none",
+          "queryType": "randomWalk",
+          "rawQuery": true,
+          "rawSql": "with status_change_history as(\n\tSELECT\n\t\tjc.issue_id,\n\t\tjc.created as operation_time,\n\t\tjci.changelog_id,\n\t\tjci.from,\n\t\tjci.from_string,\n\t\tjci.to,\n\t\tjci.to_string,\n\t\tji.created as issue_creation_time,\n\t\tlag(jc.created) over(PARTITION BY jc.issue_id ORDER BY jc.created ASC) as last_operation_time,\n\t\tcase \n\t\t\twhen lag(jc.created) over(PARTITION BY jc.issue_id ORDER BY jc.created ASC) is not null then\n\t\t\tTIMESTAMPDIFF(MINUTE, lag(jc.created) over(PARTITION BY jc.issue_id ORDER BY jc.created ASC), jc.created)\n\t\t\telse TIMESTAMPDIFF(MINUTE, ji.created, jc.created) end as time_in_status\n\tFROM\n\t\tjira_changelogs jc\n\t\tJOIN jira_changelog_items jci ON jc.id = jci.changelog_id\n\t\tJOIN jira_issues ji ON jc.issue_id = ji.id\n\t\tjoin jira_board_issues jbi on ji.id = jbi.issue_id\n\tWHERE\n\t\tjci.field = 'status'\n\t\tand ji.std_type = 'Requirement'\n\t\tand ji.std_status = 'Resolved'\n\t\tand $__timeFilter(ji.resolution_date)\n    and jbi.board_id = $board_id\n),\n\ntime_in_status as(\n\tSELECT \n\t\tDATE_ADD(date(issue_creation_time), INTERVAL -DAY(date(issue_creation_time))+1 DAY) as time,\n\t\tfrom_string,\n\t\tavg(time_in_status)/60 as time_in_status\n\tFROM status_change_history\n\tGROUP BY 1,2\n),\n\nlast_month as(\n\tselect \n\t\tDATE_ADD(date(CURDATE()), INTERVAL -DAY(date(CURDATE()))+1 DAY) as last_month\n),\n\nmonth_before_last_month as(\n\tSELECT \n\t\tDATE_ADD(DATE_ADD(date(CURDATE()), INTERVAL -DAY(date(CURDATE()))+1 DAY), INTERVAL -1 MONTH) as two_month_before\n),\n\n\nlast_month_record as(\n\tSELECT\n\t\tfrom_string as issue_status,\n\t\tcase when time in (SELECT last_month from last_month) then time_in_status else null end as last_month\n\tfrom time_in_status\n\tWHERE \n\t\ttime in (SELECT last_month from last_month)\n),\n\ntwo_month_before_record as(\n\tSELECT\n\t\tfrom_string as issue_status,\n\t\tcase when time in (SELECT two_month_before from month_before_last_month) then time_in_status else null end as two_month_before\n\tfrom time_in_status\n\tWHERE \n\t\ttime in (SELECT two_month_before from month_before_last_month)\n)\n\nSELECT\n\tnow() as time,\n\tmbr.two_month_before AS \"The Month Before Last\",\n\tlmr.last_month AS \"Last Month\",\n\tlmr.issue_status\nFROM last_month_record lmr\nleft join two_month_before_record mbr on lmr.issue_status = mbr.issue_status ",
+          "refId": "A",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "timeColumn": "time",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        }
+      ],
+      "timeFrom": null,
+      "timeShift": null,
+      "title": "Average Requirement Lead Time by Status in Last 2 Months",
+      "type": "barchart"
+    }
+  ],
+  "refresh": "",
+  "schemaVersion": 30,
+  "style": "dark",
+  "tags": [],
+  "templating": {
+    "list": [
+      {
+        "allValue": null,
+        "current": {
+          "selected": false,
+          "text": "Month",
+          "value": "DAY"
+        },
+        "description": null,
+        "error": null,
+        "hide": 0,
+        "includeAll": false,
+        "label": "Time Interval",
+        "multi": false,
+        "name": "interval",
+        "options": [
+          {
+            "selected": false,
+            "text": "Week",
+            "value": "DAYOFWEEK"
+          },
+          {
+            "selected": true,
+            "text": "Month",
+            "value": "DAY"
+          }
+        ],
+        "query": "Week : DAYOFWEEK, Month : DAY",
+        "queryValue": "",
+        "skipUrlSync": false,
+        "type": "custom"
+      },
+      {
+        "allValue": null,
+        "current": {
+          "selected": true,
+          "text": [
+            "All"
+          ],
+          "value": [
+            "$__all"
+          ]
+        },
+        "datasource": "mysql",
+        "definition": "select distinct concat(name, ': ', id) from jira_boards",
+        "description": null,
+        "error": null,
+        "hide": 0,
+        "includeAll": true,
+        "label": "Choose Board",
+        "multi": true,
+        "name": "board_id",
+        "options": [],
+        "query": "select distinct concat(name, ': ', id) from jira_boards",
+        "refresh": 1,
+        "regex": "/^(?<text>[^:]+): (?<value>\\d+)$/",
+        "skipUrlSync": false,
+        "sort": 0,
+        "type": "query"
+      },
+      {
+        "allValue": null,
+        "current": {
+          "selected": true,
+          "text": [
+            "All"
+          ],
+          "value": [
+            "$__all"
+          ]
+        },
+        "datasource": "mysql",
+        "definition": "select distinct concat(name, ': ', gitlab_id) from gitlab_projects",
+        "description": null,
+        "error": null,
+        "hide": 0,
+        "includeAll": true,
+        "label": "Choose Repo",
+        "multi": true,
+        "name": "repo_id",
+        "options": [],
+        "query": "select distinct concat(name, ': ', gitlab_id) from gitlab_projects",
+        "refresh": 1,
+        "regex": "/^(?<text>[^:]+): (?<value>\\d+)$/",
+        "skipUrlSync": false,
+        "sort": 0,
+        "type": "query"
+      }
+    ]
+  },
+  "time": {
+    "from": "now-6M",
+    "to": "now"
+  },
+  "timepicker": {},
+  "timezone": "",
+  "title": "How fast do we respond to customer requirements?",
+  "uid": "uWnAh7Fnz",
+  "version": 8
+}

@@ -1,0 +1,286 @@
+{
+  "annotations": {
+    "list": [
+      {
+        "builtIn": 1,
+        "datasource": "-- Grafana --",
+        "enable": true,
+        "hide": true,
+        "iconColor": "rgba(0, 211, 255, 1)",
+        "name": "Annotations & Alerts",
+        "type": "dashboard"
+      }
+    ]
+  },
+  "editable": true,
+  "gnetId": null,
+  "graphTooltip": 0,
+  "id": 20,
+  "iteration": 1635426349459,
+  "links": [
+    {
+      "asDropdown": false,
+      "icon": "bolt",
+      "includeVars": false,
+      "keepTime": false,
+      "tags": [],
+      "targetBlank": false,
+      "title": "Homepage",
+      "tooltip": "",
+      "type": "link",
+      "url": "/d/j160SnFnk/demo-homepage?orgId=1"
+    },
+    {
+      "asDropdown": false,
+      "icon": "external link",
+      "includeVars": false,
+      "keepTime": false,
+      "tags": [],
+      "targetBlank": false,
+      "title": "Back to previous page",
+      "tooltip": "",
+      "type": "link",
+      "url": "/d/CmCuh7K7z/was-our-quality-improved-or-not?orgId=1"
+    }
+  ],
+  "panels": [
+    {
+      "datasource": "mysql",
+      "description": "1. Incident Count per 1k lines of code over time.\n2. When Time Interval is set to \"month\", incident_count_per_1k_LOC of \"2021-06-01\" calculates the incidents whose creation time falls under [2020-06-01, 2020-07-01) and lines of code whose commit creation time falls under [2020-06-01, 2020-07-01) ",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "axisSoftMin": 0,
+            "fillOpacity": 80,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineWidth": 1
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 24,
+        "x": 0,
+        "y": 0
+      },
+      "id": 30,
+      "options": {
+        "barWidth": 0.5,
+        "groupWidth": 0.7,
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom"
+        },
+        "orientation": "auto",
+        "showValue": "auto",
+        "text": {},
+        "tooltip": {
+          "mode": "single"
+        }
+      },
+      "pluginVersion": "8.0.6",
+      "targets": [
+        {
+          "format": "table",
+          "group": [],
+          "metricColumn": "none",
+          "queryType": "randomWalk",
+          "rawQuery": true,
+          "rawSql": "with issue as(\n  select \n    DATE_ADD(date(ji.created), INTERVAL -$interval(date(ji.created))+1 DAY) as time, \n    case \n\t    when mod(id,14) in (0,1) then '1.highest'\n\t    when mod(id,14) in (2,3,4) then '2.high'\n\t    when mod(id,14) in (5,6,7,8,9) then '3.medium'\n\t    when mod(id,14) in (10,11,12,13) then '4.low'\n\t    else 'other' end as priority\n\tfrom \n\t  jira_issues ji \n\t  left join jira_board_issues jbi on jbi.issue_id = ji.id\n\twhere \n\t  jbi.board_id = $board_id\n\t -- we don't have incident so we use bug instead\n\t  and ji.type = 'Bug'\n\t  and $__timeFilter(ji.created)\n),\n\nic as (\n\tselect \n\t  time,\n\t  priority,\n\t  count(*) as incident_count\n\tfrom \n\t  issue\n\tgroup by 1,2\n),\n\n-- select * from ic\n\nloc as (\n\tselect \n\t  DATE_ADD(date(gc.authored_date), INTERVAL -$interval(date(gc.authored_date))+1 DAY) as time,\n\t  sum(additions + deletions) as line_count\n\tfrom \n\t  gitlab_commits gc \n\t  left join jira_board_gitlab_projects jbgp on jbgp.gitlab_project_id = gc.project_id\n\twhere \n\t  jbgp.jira_board_id = $board_id\n\t  and gc.title not like 'Merge branch %'\n\t  and $__timeFilter(authored_date)\n\tgroup by 1\n),\nincident_count_per_1k_loc as(\n  select \n    ic.time,\n    ic.priority,\n    1.0 * ic.incident_count / loc.line_count * 1000 as incident_count_per_1k_loc\n  from \n    loc\n    left join ic on ic.time = loc.time\n  where\n    ic.incident_count is not null\n    and loc.line_count is not null\n),\n\nthis_month as(\n  select \n\t\tDATE_ADD(date(CURDATE()), INTERVAL -DAY(date(CURDATE()))+1 DAY) as this_month\n),\n\nlast_month as(\n\tselect \n\t\tDATE_ADD(DATE_ADD(date(CURDATE()), INTERVAL -DAY(date(CURDATE()))+1 DAY), INTERVAL -1 MONTH) as last_month\n),\n\nthe_month_before_last as(\n\tSELECT \n\t\tDATE_ADD(DATE_ADD(date(CURDATE()), INTERVAL -DAY(date(CURDATE()))+1 DAY), INTERVAL -2 MONTH) as the_month_before_last\n),\n\nthis_month_record as(\n\tSELECT\n\t\tpriority,\n\t\tincident_count_per_1k_loc as this_month_count,\n\t\ttime as this_month\n\tfrom incident_count_per_1k_loc\n\tWHERE \n\t\ttime in (SELECT this_month from this_month)\n),\n\nlast_month_record as(\n\tSELECT\n\t\tpriority,\n\t\tincident_count_per_1k_loc as last_month_count,\n\t\ttime as last_month\n\tfrom incident_count_per_1k_loc\n\tWHERE \n\t\ttime in (SELECT last_month from last_month)\n),\nthe_month_before_last_record as(\n\tSELECT\n\t\tpriority,\n\t\tincident_count_per_1k_loc as the_month_before_last_count,\n\t\ttime as the_month_before_last\n\tfrom incident_count_per_1k_loc\n\tWHERE \n\t\ttime in (SELECT the_month_before_last from the_month_before_last)\n)\n\nSELECT\n-- \tnow() as time,\n\ttmblr.the_month_before_last_count AS \"The Month before Last\",\n\tlmr.last_month_count AS \"Last Month\",\n\ttmr.this_month_count AS \"This Month\",\n\tsubstring(tmr.priority,3) as Priority\nFROM this_month_record tmr \nleft join last_month_record lmr on tmr.priority = lmr.priority \nleft join the_month_before_last_record tmblr on lmr.priority = tmblr.priority\norder by tmr.priority",
+          "refId": "A",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "timeColumn": "time",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        }
+      ],
+      "title": "Incident Count per 1k lines of code over Time",
+      "type": "barchart"
+    },
+    {
+      "datasource": "mysql",
+      "description": "",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "custom": {
+            "align": "auto",
+            "displayMode": "auto"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 24,
+        "x": 0,
+        "y": 8
+      },
+      "id": 32,
+      "options": {
+        "showHeader": true
+      },
+      "pluginVersion": "8.0.6",
+      "targets": [
+        {
+          "format": "table",
+          "group": [],
+          "metricColumn": "none",
+          "queryType": "randomWalk",
+          "rawQuery": true,
+          "rawSql": "with issue as(\n  select \n    DATE_ADD(date(ji.created), INTERVAL -$interval(date(ji.created))+1 DAY) as time, \n    case \n\t    when mod(id,14) in (0,1) then '1.highest'\n\t    when mod(id,14) in (2,3,4) then '2.high'\n\t    when mod(id,14) in (5,6,7,8,9) then '3.medium'\n\t    when mod(id,14) in (10,11,12,13) then '4.low'\n\t    else 'other' end as priority\n\tfrom \n\t  jira_issues ji \n\t  left join jira_board_issues jbi on jbi.issue_id = ji.id\n\twhere \n\t  jbi.board_id = $board_id\n\t -- we don't have incident so we use bug instead\n\t  and ji.type = 'Bug'\n\t  and $__timeFilter(ji.created)\n),\n\nic as (\n\tselect \n\t  time,\n\t  priority,\n\t  count(*) as incident_count\n\tfrom \n\t  issue\n\tgroup by 1,2\n),\n\n-- select * from ic\n\nloc as (\n\tselect \n\t  DATE_ADD(date(gc.authored_date), INTERVAL -$interval(date(gc.authored_date))+1 DAY) as time,\n\t  sum(additions + deletions) as line_count\n\tfrom \n\t  gitlab_commits gc \n\t  left join jira_board_gitlab_projects jbgp on jbgp.gitlab_project_id = gc.project_id\n\twhere \n\t  jbgp.jira_board_id = $board_id\n\t  and gc.title not like 'Merge branch %'\n\t  and $__timeFilter(authored_date)\n\tgroup by 1\n),\nincident_count_per_1k_loc as(\n  select \n    ic.time,\n    ic.priority,\n    1.0 * ic.incident_count / loc.line_count * 1000 as incident_count_per_1k_loc\n  from \n    loc\n    left join ic on ic.time = loc.time\n  where\n    ic.incident_count is not null\n    and loc.line_count is not null\n),\n\nthis_month as(\n  select \n\t\tDATE_ADD(date(CURDATE()), INTERVAL -DAY(date(CURDATE()))+1 DAY) as this_month\n),\n\nlast_month as(\n\tselect \n\t\tDATE_ADD(DATE_ADD(date(CURDATE()), INTERVAL -DAY(date(CURDATE()))+1 DAY), INTERVAL -1 MONTH) as last_month\n),\n\nthe_month_before_last as(\n\tSELECT \n\t\tDATE_ADD(DATE_ADD(date(CURDATE()), INTERVAL -DAY(date(CURDATE()))+1 DAY), INTERVAL -2 MONTH) as the_month_before_last\n),\n\nthis_month_record as(\n\tSELECT\n\t\tpriority,\n\t\tincident_count_per_1k_loc as this_month_count,\n\t\ttime as this_month\n\tfrom incident_count_per_1k_loc\n\tWHERE \n\t\ttime in (SELECT this_month from this_month)\n),\n\nlast_month_record as(\n\tSELECT\n\t\tpriority,\n\t\tincident_count_per_1k_loc as last_month_count,\n\t\ttime as last_month\n\tfrom incident_count_per_1k_loc\n\tWHERE \n\t\ttime in (SELECT last_month from last_month)\n),\nthe_month_before_last_record as(\n\tSELECT\n\t\tpriority,\n\t\tincident_count_per_1k_loc as the_month_before_last_count,\n\t\ttime as the_month_before_last\n\tfrom incident_count_per_1k_loc\n\tWHERE \n\t\ttime in (SELECT the_month_before_last from the_month_before_last)\n)\n\nSELECT\n-- \tnow() as time,\n  substring(tmr.priority,3) as Priority,\n\ttmblr.the_month_before_last_count AS \"The Month before Last\",\n\tlmr.last_month_count AS \"Last Month\",\n\ttmr.this_month_count AS \"This Month\"\nFROM this_month_record tmr \nleft join last_month_record lmr on tmr.priority = lmr.priority \nleft join the_month_before_last_record tmblr on lmr.priority = tmblr.priority\norder by tmr.priority",
+          "refId": "A",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "timeColumn": "time",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        }
+      ],
+      "type": "table"
+    }
+  ],
+  "refresh": "",
+  "schemaVersion": 30,
+  "style": "dark",
+  "tags": [],
+  "templating": {
+    "list": [
+      {
+        "allValue": null,
+        "current": {
+          "selected": false,
+          "text": "Month",
+          "value": "DAY"
+        },
+        "description": null,
+        "error": null,
+        "hide": 0,
+        "includeAll": false,
+        "label": "Time Interval",
+        "multi": false,
+        "name": "interval",
+        "options": [
+          {
+            "selected": false,
+            "text": "Week",
+            "value": "DAYOFWEEK"
+          },
+          {
+            "selected": true,
+            "text": "Month",
+            "value": "DAY"
+          }
+        ],
+        "query": "Week : DAYOFWEEK, Month : DAY",
+        "queryValue": "",
+        "skipUrlSync": false,
+        "type": "custom"
+      },
+      {
+        "allValue": null,
+        "current": {
+          "selected": false,
+          "text": "All",
+          "value": "$__all"
+        },
+        "datasource": "mysql",
+        "definition": "select distinct concat(name, ': ', id) from jira_boards",
+        "description": null,
+        "error": null,
+        "hide": 0,
+        "includeAll": true,
+        "label": "Choose Board",
+        "multi": false,
+        "name": "board_id",
+        "options": [],
+        "query": "select distinct concat(name, ': ', id) from jira_boards",
+        "refresh": 1,
+        "regex": "/^(?<text>[^:]+): (?<value>\\d+)$/",
+        "skipUrlSync": false,
+        "sort": 0,
+        "type": "query"
+      }
+    ]
+  },
+  "time": {
+    "from": "now-6M",
+    "to": "now"
+  },
+  "timepicker": {},
+  "timezone": "",
+  "title": "Was our quality improved or not? by User",
+  "uid": "yrVul7Knk",
+  "version": 21
+}

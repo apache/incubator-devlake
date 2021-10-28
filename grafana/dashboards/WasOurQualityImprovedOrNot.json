@@ -1,0 +1,342 @@
+{
+  "annotations": {
+    "list": [
+      {
+        "builtIn": 1,
+        "datasource": "-- Grafana --",
+        "enable": true,
+        "hide": true,
+        "iconColor": "rgba(0, 211, 255, 1)",
+        "name": "Annotations & Alerts",
+        "type": "dashboard"
+      }
+    ]
+  },
+  "editable": true,
+  "gnetId": null,
+  "graphTooltip": 0,
+  "id": 17,
+  "iteration": 1635426338335,
+  "links": [
+    {
+      "asDropdown": false,
+      "icon": "bolt",
+      "includeVars": false,
+      "keepTime": false,
+      "tags": [],
+      "targetBlank": false,
+      "title": "Homepage",
+      "tooltip": "",
+      "type": "link",
+      "url": "/d/j160SnFnk/demo-homepage?orgId=1"
+    }
+  ],
+  "panels": [
+    {
+      "datasource": "mysql",
+      "description": "1. Incident Count per 1k lines of code over time.\n2. When Time Interval is set to \"month\", incident_count_per_1k_LOC of \"2021-06-01\" calculates the incidents whose creation time falls under [2020-06-01, 2020-07-01) and lines of code whose commit creation time falls under [2020-06-01, 2020-07-01) ",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "axisSoftMin": 0,
+            "fillOpacity": 80,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineWidth": 1
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 7,
+        "w": 12,
+        "x": 0,
+        "y": 0
+      },
+      "id": 35,
+      "links": [
+        {
+          "targetBlank": true,
+          "title": "Break down by User",
+          "url": "/d/yrVul7Knk/was-our-quality-improved-or-not-by-user?orgId=1"
+        }
+      ],
+      "options": {
+        "barWidth": 0.56,
+        "groupWidth": 0.7,
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom"
+        },
+        "orientation": "auto",
+        "showValue": "always",
+        "text": {},
+        "tooltip": {
+          "mode": "single"
+        }
+      },
+      "pluginVersion": "8.0.6",
+      "targets": [
+        {
+          "format": "table",
+          "group": [],
+          "metricColumn": "none",
+          "queryType": "randomWalk",
+          "rawQuery": true,
+          "rawSql": "with ic as (\n\tselect \n\t  DATE_ADD(date(ji.created), INTERVAL -$interval(date(ji.created))+1 DAY) as time,\n\t  count(*) as incident_count\n\tfrom \n\t  jira_issues ji \n\t  left join jira_board_issues jbi on jbi.issue_id = ji.id\n\twhere \n\t  jbi.board_id = $board_id\n\t  and ji.type = 'Incident'\n\t  and $__timeFilter(ji.created)\n\tgroup by 1\n),\nloc as (\n\tselect \n\t  DATE_ADD(date(gc.authored_date), INTERVAL -$interval(date(gc.authored_date))+1 DAY) as time,\n\t  sum(additions + deletions) as line_count\n\tfrom \n\t  gitlab_commits gc \n\t  left join jira_board_gitlab_projects jbgp on jbgp.gitlab_project_id = gc.project_id\n\twhere \n\t  jbgp.jira_board_id = $board_id\n\t  and gc.title not like 'Merge branch %'\n\t  and $__timeFilter(authored_date)\n\tgroup by 1\n),\nincident_count_per_1k_loc as(\n  select \n    ic.time,\n    1.0 * ic.incident_count / loc.line_count * 1000 as incident_count_per_1k_loc\n  from \n    loc\n    left join ic on ic.time = loc.time\n  where\n    ic.incident_count is not null \n    and loc.line_count is not null\n)\n\nselect \n  date_format(time,'%M %Y') as month,\n  incident_count_per_1k_loc\nfrom incident_count_per_1k_loc\norder by time;",
+          "refId": "A",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "timeColumn": "time",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        }
+      ],
+      "title": "Incident Count per 1k lines of code over Time",
+      "type": "barchart"
+    },
+    {
+      "datasource": "mysql",
+      "description": "1. Incident Count per 1k lines of code over time.\n2. When Time Interval is set to \"month\", incident_count_per_1k_LOC of \"2021-06-01\" calculates the incidents whose creation time falls under [2020-06-01, 2020-07-01) and lines of code whose commit creation time falls under [2020-06-01, 2020-07-01) ",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 0,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "none"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 7,
+        "w": 12,
+        "x": 12,
+        "y": 0
+      },
+      "id": 36,
+      "links": [
+        {
+          "targetBlank": true,
+          "title": "Break down by User",
+          "url": "/d/yrVul7Knk/was-our-quality-improved-or-not-by-user?orgId=1"
+        }
+      ],
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom"
+        },
+        "tooltip": {
+          "mode": "single"
+        }
+      },
+      "pluginVersion": "8.0.6",
+      "targets": [
+        {
+          "format": "table",
+          "group": [],
+          "metricColumn": "none",
+          "queryType": "randomWalk",
+          "rawQuery": true,
+          "rawSql": "with ic as (\n\tselect \n\t  DATE_ADD(date(ji.created), INTERVAL -$interval(date(ji.created))+1 DAY) as time,\n\t  count(*) as incident_count\n\tfrom \n\t  jira_issues ji \n\t  left join jira_board_issues jbi on jbi.issue_id = ji.id\n\twhere \n\t  jbi.board_id = $board_id\n\t  and ji.type = 'Incident'\n\t  and $__timeFilter(ji.created)\n\tgroup by 1\n),\nloc as (\n\tselect \n\t  DATE_ADD(date(gc.authored_date), INTERVAL -$interval(date(gc.authored_date))+1 DAY) as time,\n\t  sum(additions + deletions) as line_count\n\tfrom \n\t  gitlab_commits gc \n\t  left join jira_board_gitlab_projects jbgp on jbgp.gitlab_project_id = gc.project_id\n\twhere \n\t  jbgp.jira_board_id = $board_id\n\t  and gc.title not like 'Merge branch %'\n\t  and $__timeFilter(authored_date)\n\tgroup by 1\n),\nincident_count_per_1k_loc as(\n  select \n    ic.time,\n    1.0 * ic.incident_count / loc.line_count * 1000 as incident_count_per_1k_loc\n  from \n    loc\n    left join ic on ic.time = loc.time\n  where\n    ic.incident_count is not null \n    and loc.line_count is not null\n)\n\nselect \n  time,\n  incident_count_per_1k_loc\nfrom incident_count_per_1k_loc\norder by time;",
+          "refId": "A",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "timeColumn": "time",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        }
+      ],
+      "title": "Incident Count per 1k lines of code over Time",
+      "type": "timeseries"
+    },
+    {
+      "datasource": null,
+      "gridPos": {
+        "h": 10,
+        "w": 24,
+        "x": 0,
+        "y": 7
+      },
+      "id": 32,
+      "options": {
+        "content": "<div>\n  <img border=\"0\" src=\"/public/img/lake/logo.png\" style=\"padding-bottom:20px\" alt=\"Merico\" width=\"40\"></img>\n  <h2 style=\"display:inline-block;\">MARI Guide - Incident Count per 1k lines of code</h2>\n</div>\n\nSection | Description\n:----------------- | :-------------\nMetric Definition | The ratio of the number of defects found online to the corresponding amount of code or code changes after a software release, to characterize the density of online defects. For example, the online 1,000 lines of code defect rate, 1,000 code equivalent defect rate.\nMetric Value | The online defect rate, as a quality indicator after the online release, represents the density of defects that escape from the development phase to the delivery, and is one of the important indicators used to assess the quality of software products and testing quality. Usually, the cost of fixing detected defects is higher in the later stage of the software development life cycle, and this metric is valuable for analyzing and evaluating both online quality and defect fixing cost.\n\n***\n#### *M (Measure)*\n1. 1,000 code lines or 1,000 code equivalents defect rate by project.\n2. Trends in defect rates by thousand lines of code or thousand code equivalents over time.\n3. Measure historical data to establish year-over-year and historical baseline reference values for thousand-line code or thousand-code-equivalent defect rates.\n\n##### *A (Analyze)*\n1. Year-over-year analysis: The online defect rate of similar projects in the same period is compared and analyzed, and the improvement effect of product quality is observed through the rise and fall of the data after going online.\n2. Circumferential analysis: Analyze the online defect rate of projects in the recent year, analyze the change of online defect rate according to the time axis, and compare with the historical baseline at the same time to give a judgment analysis of the rise and fall of indicators.\n3. Trend analysis: analyze the trend of online defect rate change by the equivalent time (days, weeks, months) after the release of a single project, judge the trend rise, and evaluate whether the stable cycle of product quality after the release is reasonable by observing changes such as trend slowdown and smoothing.\n4. Horizontal analysis: Compare the online defect rate of multiple projects as a reference to evaluate the quality of software products on line.\n5. Classification analysis: Classify and analyze the types of online defects, severity levels, and modules they belong to, and identify the key issues that show aggregated distribution.\n6. Analyze the sources of quality defects including, but not limited to: user feedback, monitoring system (log information), third-party platforms (e-commerce).\n\n##### *R (Review)*\nFor the high severity level of online defects should be a complete review, according to the timeline, role dimensions, the sequence of events on the root cause of defects to dig, locate the key issues.\nAccording to the quantitative conclusions drawn from the analysis, further data drilling and root cause mining can be organized for online defects in several dimensions, including whether they are missed, the module they belong to, the cause, the occurrence cycle, and the resolution.\n1. defect escape rate: derived from [number of online defects / (number of online defects + number of test defects)], this indicator can be compared with historical data, if the data exceeds the acceptable range of history and testing department, then it is necessary to conduct leak analysis. If the data exceeds the acceptable interval of history and testing department, it is necessary to analyze the missed test and confirm whether the use case is missed or not covered, so as to strengthen the use case design and management.\n2. Defective module: The defective module can be located to the key module where the problem is concentrated, and targeted improvement measures are required for each link from requirements, design, development to testing, and typical problems are located for the defective module to establish targeted measures.\n3. defect generation causes: through the cause analysis of defects, similar defects defects can be put together, so that defects belonging to the same category and accounting for a high percentage of defects will be highlighted, so that it is easy to take out the defects with more concentrated causes and jointly discuss the next improvement measures to precisely reduce the number of similar defects.\n4. defect occurrence cycle: analyze the defect occurrence cycle, determine whether the users use the system frequently, whether the system has been updated or optimized, whether the system has been refactored, etc., which will cause a long and short defect occurrence cycle after the launch, through the analysis of the defect cycle length, to draw some valuable conclusions about the stability of the system.\n5. Defect resolution: statistics on the resolution of defects on line, which defects are not reproduced, which are temporarily handled, and which are in need of continuous improvement. For the temporary resolution of defects, analyze whether it will cause another defect elsewhere in the system, whether the user can receive the temporary resolution, what development and testing need to focus on similar defects, and whether similar defects need to be tested elsewhere for horizontal expansion. Those that require continuous improvement need to be further tracked by testing until the problem is resolved.\n\n##### *I (Improve)*\nThrough root cause mining, starting from the key defects, the key problems of each link to locate, in accordance with the principle that the later the defects are found, the higher the cost and complexity of the solution, in addition to the test design and implementation to start improving (refer to the improvement links of the number of defects on the line), more should start the construction of quality from the upstream of the software engineering stage, to achieve the forward movement of the defect discovery stage, such as\n1. optimizing static scan rules according to the type, number and severity level of static scan problems to reduce false positives and expose as many serious problems as possible (quality over quantity).\n2. Define the requirement of resolution ratio for different severity level problems to control the backlog of serious problems.\n3. Establish code review system, strategy, and encourage the promotion of code review implementation.\n4. Establish unit test coverage ratio or unit test coverage condition requirements, e.g. functions with circle complexity greater than 10 shall be covered by unit tests.\nImplement improvement measures and clarify the improvement target, improvement measures, verification cycle and responsible person. Do a new round of MARI (Measure, Analysis, Review, and Verification) for the improvement effect to quantify the improvement effect.",
+        "mode": "markdown"
+      },
+      "pluginVersion": "8.0.6",
+      "targets": [
+        {
+          "queryType": "randomWalk",
+          "refId": "A"
+        }
+      ],
+      "type": "text"
+    }
+  ],
+  "refresh": "",
+  "schemaVersion": 30,
+  "style": "dark",
+  "tags": [],
+  "templating": {
+    "list": [
+      {
+        "allValue": null,
+        "current": {
+          "selected": false,
+          "text": "Month",
+          "value": "DAY"
+        },
+        "description": null,
+        "error": null,
+        "hide": 0,
+        "includeAll": false,
+        "label": "Time Interval",
+        "multi": false,
+        "name": "interval",
+        "options": [
+          {
+            "selected": false,
+            "text": "Week",
+            "value": "DAYOFWEEK"
+          },
+          {
+            "selected": true,
+            "text": "Month",
+            "value": "DAY"
+          }
+        ],
+        "query": "Week : DAYOFWEEK, Month : DAY",
+        "queryValue": "",
+        "skipUrlSync": false,
+        "type": "custom"
+      },
+      {
+        "allValue": null,
+        "current": {
+          "selected": false,
+          "text": "All",
+          "value": "$__all"
+        },
+        "datasource": "mysql",
+        "definition": "select distinct concat(name, ': ', id) from jira_boards",
+        "description": null,
+        "error": null,
+        "hide": 0,
+        "includeAll": true,
+        "label": "Choose Board",
+        "multi": false,
+        "name": "board_id",
+        "options": [],
+        "query": "select distinct concat(name, ': ', id) from jira_boards",
+        "refresh": 1,
+        "regex": "/^(?<text>[^:]+): (?<value>\\d+)$/",
+        "skipUrlSync": false,
+        "sort": 0,
+        "type": "query"
+      }
+    ]
+  },
+  "time": {
+    "from": "now-6M",
+    "to": "now"
+  },
+  "timepicker": {},
+  "timezone": "",
+  "title": "Was our quality improved or not?",
+  "uid": "CmCuh7K7z",
+  "version": 34
+}
