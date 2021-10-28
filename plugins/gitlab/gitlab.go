@@ -12,8 +12,12 @@ import (
 	gitlabModels "github.com/merico-dev/lake/plugins/gitlab/models"
 	"github.com/merico-dev/lake/plugins/gitlab/tasks"
 	"github.com/merico-dev/lake/utils"
+	"github.com/mitchellh/mapstructure"
 )
 
+type GitlabOptions struct {
+	Tasks []string `json:"tasks,omitempty"`
+}
 type Gitlab string
 
 func (plugin Gitlab) Description() string {
@@ -42,45 +46,57 @@ func (plugin Gitlab) Execute(options map[string]interface{}, progress chan<- flo
 		return fmt.Errorf("projectId is invalid")
 	}
 
-	progress <- 0.1
-
-	if err := tasks.CollectAllPipelines(projectIdInt, scheduler); err != nil {
-		return fmt.Errorf("could not collect projects: %v", err)
+	var op GitlabOptions
+	err = mapstructure.Decode(options, &op)
+	if err != nil {
+		return err
 	}
-
-	tasks.CollectChildrenOnPipelines(projectIdInt, scheduler)
-
-	progress <- 0.2
-
+	tasksToRun := make(map[string]bool, len(op.Tasks))
+	for _, task := range op.Tasks {
+		tasksToRun[task] = true
+	}
+	if len(tasksToRun) == 0 {
+		tasksToRun = map[string]bool{
+			"collectPipelines": true,
+			"collectCommits":   true,
+			"collectMrs":       true,
+			"enrichMrs":        true,
+		}
+	}
+	progress <- 0.1
 	if err := tasks.CollectProject(projectIdInt); err != nil {
 		return fmt.Errorf("could not collect projects: %v", err)
 	}
-
-	progress <- 0.25
-
-	if err := tasks.CollectCommits(projectIdInt, scheduler); err != nil {
-		return fmt.Errorf("could not collect commits: %v", err)
+	if tasksToRun["collectPipelines"] {
+		progress <- 0.2
+		if err := tasks.CollectAllPipelines(projectIdInt, scheduler); err != nil {
+			return fmt.Errorf("could not collect projects: %v", err)
+		}
+		tasks.CollectChildrenOnPipelines(projectIdInt, scheduler)
 	}
-
-	progress <- 0.3
-
-	mergeRequestErr := tasks.CollectMergeRequests(projectIdInt, scheduler)
-	if mergeRequestErr != nil {
-		return fmt.Errorf("could not collect merge requests: %v", mergeRequestErr)
+	if tasksToRun["collectCommits"] {
+		progress <- 0.25
+		if err := tasks.CollectCommits(projectIdInt, scheduler); err != nil {
+			return fmt.Errorf("could not collect commits: %v", err)
+		}
 	}
-
-	progress <- 0.4
-
-	collectChildrenOnMergeRequests(projectIdInt, scheduler)
-
-	progress <- 0.8
-
-	enrichErr := tasks.EnrichMergeRequests()
-	if enrichErr != nil {
-		return fmt.Errorf("could not enrich merge requests: %v", enrichErr)
+	if tasksToRun["collectMrs"] {
+		progress <- 0.3
+		mergeRequestErr := tasks.CollectMergeRequests(projectIdInt, scheduler)
+		if mergeRequestErr != nil {
+			return fmt.Errorf("could not collect merge requests: %v", mergeRequestErr)
+		}
+		progress <- 0.4
+		collectChildrenOnMergeRequests(projectIdInt, scheduler)
+	}
+	if tasksToRun["enrichMrs"] {
+		progress <- 0.8
+		enrichErr := tasks.EnrichMergeRequests()
+		if enrichErr != nil {
+			return fmt.Errorf("could not enrich merge requests: %v", enrichErr)
+		}
 	}
 	progress <- 1
-
 	close(progress)
 	return nil
 }
@@ -88,14 +104,12 @@ func (plugin Gitlab) Execute(options map[string]interface{}, progress chan<- flo
 func collectNotesWithScheduler(projectIdInt int, scheduler *utils.WorkerScheduler, mrs []gitlabModels.GitlabMergeRequest) {
 	for i := 0; i < len(mrs); i++ {
 		mr := (mrs)[i]
-
 		err := scheduler.Submit(func() error {
 			notesErr := tasks.CollectMergeRequestNotes(projectIdInt, &mr)
 			if notesErr != nil {
 				logger.Error("Could not collect MR Notes", notesErr)
 				return notesErr
 			}
-
 			return nil
 		})
 		if err != nil {
@@ -109,7 +123,6 @@ func collectNotesWithScheduler(projectIdInt int, scheduler *utils.WorkerSchedule
 func collectCommitsWithScheduler(projectIdInt int, scheduler *utils.WorkerScheduler, mrs []gitlabModels.GitlabMergeRequest) {
 	for i := 0; i < len(mrs); i++ {
 		mr := (mrs)[i]
-
 		err := scheduler.Submit(func() error {
 			commitsErr := tasks.CollectMergeRequestCommits(projectIdInt, &mr)
 			if commitsErr != nil {
