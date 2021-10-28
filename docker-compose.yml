@@ -34,7 +34,7 @@ services:
     depends_on:
       - mysql
   devlake:
-    image: mericodev/lake:0.3.0
+    image: mericodev/lake:0.3.6
     platform: linux/x86_64
     ports:
       - 127.0.0.1:8080:8080
