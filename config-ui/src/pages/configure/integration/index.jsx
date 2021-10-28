@@ -20,7 +20,7 @@ export default function Integration () {
   const [integrations, setIntegrations] = useState([
     {
       id: 'gitlab',
-      name: 'Gitlab',
+      name: 'GitLab',
       icon: <GitlabProvider className='providerIconSvg' width='48' height='48' />
     },
     {
@@ -30,7 +30,7 @@ export default function Integration () {
     },
     {
       id: 'jira',
-      name: 'jira',
+      name: 'JIRA',
       icon: <JiraProvider className='providerIconSvg' width='48' height='48' />
     },
   ])

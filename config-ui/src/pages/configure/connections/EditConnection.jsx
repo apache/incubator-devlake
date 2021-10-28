@@ -133,7 +133,7 @@ export default function EditConnection () {
             />
             <div style={{ width: '100%' }}>
               <Link style={{ float: 'right', marginLeft: '10px', color: '#777777' }} to={`/integrations/${activeProvider.id}`}>
-                <Icon icon='fast-backward' size={16} /> &nbsp; Go Back
+                <Icon icon='fast-backward' size={16} /> Go Back
               </Link>
               <div style={{ display: 'flex' }}>
                 <div>
@@ -141,7 +141,7 @@ export default function EditConnection () {
                 </div>
                 <div>
                   <h1 style={{ margin: 0 }}>
-                    Edit {activeProvider.name} Connection
+                    Edit <strong style={{ fontWeight: 900 }}>{activeProvider.name}</strong> Connection
                   </h1>
                   <p className='description'>Manage the connection source for this provider.</p>
                 </div>

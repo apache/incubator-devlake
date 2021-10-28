@@ -37,12 +37,29 @@ module.exports = (env = {}) => {
           use: [
             'style-loader',
             'css-loader',
-            'sass-loader'
+            // 'sass-loader'
+            {
+              loader: 'sass-loader',
+              options: {
+                implementation: require('node-sass'),
+                sourceMap: true,
+                additionalData: '@import "@/styles/theme.scss";',
+              }
+            }
           ]
         },
         {
           test: /\.html$/,
           use: ['html-loader']
+        },
+        {
+          test: /\.(ttf|eot)$/,
+          use: {
+            loader: 'file-loader',
+            options: {
+              name: 'fonts/[hash].[ext]',
+            },
+          },
         },
         {
           test: /\.(?:png|jpe?g|gif|ttf|woff|woff2)$/,

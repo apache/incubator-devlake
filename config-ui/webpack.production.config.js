@@ -45,7 +45,15 @@ module.exports = (env = {}) => {
           use: [
             'style-loader',
             'css-loader',
-            'sass-loader'
+            // 'sass-loader',
+            {
+              loader: 'sass-loader',
+              options: {
+                implementation: require('node-sass'),
+                sourceMap: true,
+                additionalData: '@import "@/styles/theme.scss";',
+              }
+            }
           ]
         },
         {

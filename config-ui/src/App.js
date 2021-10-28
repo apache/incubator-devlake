@@ -1,6 +1,8 @@
 import React from 'react'
 import 'normalize.css'
-import '@blueprintjs/core/lib/css/blueprint.css'
+// import '@blueprintjs/core/lib/css/blueprint.css'
+// Theme variables (@styles/theme.scss) injected via Webpack w/ @sass-loader additionalData option!
+import '@blueprintjs/core/src/blueprint.scss'
 import '@/styles/libraries/blueprint.scss'
 import '@/styles/globals.scss'
 import '@/styles/common.scss'

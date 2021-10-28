@@ -236,7 +236,7 @@ export default function ConnectionForm (props) {
               loading={isSaving}
               disabled={isSaving || isTesting}
               onClick={onSave}
-              style={{ backgroundColor: '#E8471C', marginLeft: '10px' }}
+              style={{ marginLeft: '10px' }}
             />
           </div>
         </div>
