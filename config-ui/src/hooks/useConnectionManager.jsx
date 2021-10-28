@@ -9,7 +9,13 @@ import request from '@/utils/request'
 function useConnectionManager ({
   activeProvider,
   activeConnection,
-  name, endpointUrl, token, username, password,
+  connectionId,
+  setActiveConnection,
+  name = null,
+  endpointUrl = null,
+  token = null,
+  username = null,
+  password = null,
   // isTesting, setIsTesting,
   // isSaving, setIsSaving,
   // testStatus, setTestStatus,
@@ -19,8 +25,10 @@ function useConnectionManager ({
   const history = useHistory()
 
   const [isSaving, setIsSaving] = useState(false)
+  const [isFetching, setIsFetching] = useState(false)
   const [isRunning, setIsRunning] = useState(false)
   const [isTesting, setIsTesting] = useState(false)
+  const [isDeleting, setIsDeleting] = useState(false)
   const [errors, setErrors] = useState([])
   const [showError, setShowError] = useState(false)
   const [testStatus, setTestStatus] = useState(0) //  0=Pending, 1=Success, 2=Failed
@@ -140,24 +148,72 @@ function useConnectionManager ({
     }, 2000)
   }
 
-  const runCollection = () => {
+  const runCollection = (options = {}) => {
     setIsRunning(true)
     ToastNotification.show({ message: 'Triggered Collection Process', intent: 'info', icon: 'info' })
     console.log('>> RUNNING COLLECTION PROCESS', isRunning)
     // Run Collection Tasks...
   }
 
+  const fetchConnection = async () => {
+    try {
+      setIsFetching(true)
+      console.log('>> FETCHING CONNECTION SOURCE', isFetching)
+      const f = await request.get(`${DEVLAKE_ENDPOINT}/plugins/${activeProvider.id}/sources/${connectionId}`)
+      const connectionData = f.data.data
+      setActiveConnection(connectionData)
+      setIsFetching(false)
+    } catch (e) {
+      setIsFetching(false)
+      setActiveConnection({
+        id: null,
+        name: null,
+        endpoint: null,
+        token: null,
+        username: null,
+        password: null,
+      })
+      ToastNotification.show({ message: `${e}`, intent: 'danger', icon: 'error' })
+      console.log('>> FAILED TO FETCH CONNECTION', e)
+    }
+  }
+
+  const deleteConnection = () => {
+    // @todo Implement DELETE
+    try {
+      setIsDeleting(true)
+      console.log('>> TRYING TO DELETE CONNECTION...', isDeleting)
+      // const d = await request.delete(`${DEVLAKE_ENDPOINT}/plugins/${activeProvider.id}/sources/${connectionId}`)
+      // setIsDeleting(false)
+    } catch (e) {
+      setIsDeleting(false)
+      console.log('>> FAILED TO DELETE CONNECTION', e)
+    }
+  }
+
+  useEffect(() => {
+    if (activeConnection && activeConnection.id !== null) {
+      ToastNotification.clear()
+      ToastNotification.show({ message: `Fetched settings for ${activeConnection.name}.`, intent: 'success', icon: 'small-tick' })
+      console.log('>> FETCHED CONNECTION FOR MODIFY', activeConnection)
+    }
+  }, [activeConnection])
+
   return {
+    fetchConnection,
     testConnection,
     saveConnection,
+    deleteConnection,
     runCollection,
     isSaving,
     isTesting,
+    isFetching,
     errors,
     showError,
     testStatus,
     setIsSaving,
     setIsTesting,
+    setIsFetching,
     setErrors,
     setShowError,
     setTestStatus

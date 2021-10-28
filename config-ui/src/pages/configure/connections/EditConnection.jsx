@@ -1,25 +1,22 @@
 import React, { useEffect, useState } from 'react'
-import axios from 'axios'
 import {
   useParams,
   Link,
   useHistory
 } from 'react-router-dom'
 import {
-  Button, Card, Elevation, Colors,
-  FormGroup, InputGroup, Tooltip, Label,
   Icon,
 } from '@blueprintjs/core'
 import Nav from '@/components/Nav'
 import Sidebar from '@/components/Sidebar'
 import AppCrumbs from '@/components/Breadcrumbs'
 import Content from '@/components/Content'
-import { ToastNotification } from '@/components/Toast'
+// import { ToastNotification } from '@/components/Toast'
 import ConnectionForm from '@/pages/configure/connections/ConnectionForm'
 import { integrationsData } from '@/pages/configure/mock-data/integrations'
-import { connectionsData } from '@/pages/configure/mock-data/connections'
-import { SERVER_HOST, DEVLAKE_ENDPOINT } from '@/utils/config'
-import request from '@/utils/request'
+// import { connectionsData } from '@/pages/configure/mock-data/connections'
+// import { SERVER_HOST, DEVLAKE_ENDPOINT } from '@/utils/config'
+// import request from '@/utils/request'
 
 import useConnectionManager from '@/hooks/useConnectionManager'
 
@@ -37,12 +34,6 @@ export default function EditConnection () {
   const [username, setUsername] = useState()
   const [password, setPassword] = useState()
 
-  // const [isSaving, setIsSaving] = useState(false)
-  // const [isTesting, setIsTesting] = useState(false)
-  // const [errors, setErrors] = useState([])
-  // const [showError, setShowError] = useState(false)
-  // const [testStatus, setTestStatus] = useState(0) //  0=Pending, 1=Success, 2=Failed
-
   const [integrations, setIntegrations] = useState(integrationsData)
   const [activeProvider, setActiveProvider] = useState(integrations[0])
 
@@ -56,7 +47,9 @@ export default function EditConnection () {
   })
 
   const {
-    testConnection, saveConnection,
+    testConnection,
+    saveConnection,
+    fetchConnection,
     errors, // showErrors,
     isSaving, // setIsSaving,
     isTesting, // setIsTesting,
@@ -65,6 +58,8 @@ export default function EditConnection () {
   } = useConnectionManager({
     activeProvider,
     activeConnection,
+    connectionId,
+    setActiveConnection,
     name,
     endpointUrl,
     token,
@@ -80,17 +75,20 @@ export default function EditConnection () {
     // Selected Provider
     console.log(activeProvider)
 
-    const fetchConnection = async () => {
-      try {
-        const connectionResponse = await request.get(`${DEVLAKE_ENDPOINT}/plugins/${activeProvider.id}/sources/${connectionId}`)
-        const connectionData = connectionResponse.data.data
-        setActiveConnection(connectionData)
-        console.log('>> FETCHED CONNECTION FOR MODIFY', connectionResponse)
-      } catch (e) {
-        console.log('>> FAILED TO FETCH CONNECTION', e)
-      }
+    // ===> MIGRATED to Connection Manager Hook! (Pending Cleanup/removal)
+    // const fetchConnection = async () => {
+    //   try {
+    //     const connectionResponse = await request.get(`${DEVLAKE_ENDPOINT}/plugins/${activeProvider.id}/sources/${connectionId}`)
+    //     const connectionData = connectionResponse.data.data
+    //     setActiveConnection(connectionData)
+    //     console.log('>> FETCHED CONNECTION FOR MODIFY', connectionResponse)
+    //   } catch (e) {
+    //     console.log('>> FAILED TO FETCH CONNECTION', e)
+    //   }
+    // }
+    if (activeProvider && connectionId) {
+      fetchConnection()
     }
-    fetchConnection()
   }, [activeProvider, providerId, connectionId])
 
   useEffect(() => {
@@ -109,13 +107,6 @@ export default function EditConnection () {
   }, [activeConnection, activeProvider.id])
 
   useEffect(() => {
-    fetch(`${SERVER_HOST}/api/getenv`)
-      .then(response => response.json())
-      .then(env => {
-        // setDbUrl(env.DB_URL)
-        // setPort(env.PORT)
-        // setMode(env.MODE)
-      })
     console.log('>>>> DETECTED PROVIDER = ', providerId)
     setActiveProvider(integrations.find(p => p.id === providerId))
   }, [])

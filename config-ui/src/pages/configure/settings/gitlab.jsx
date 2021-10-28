@@ -1,37 +1,11 @@
 import React, { useEffect, useState } from 'react'
-import axios from 'axios'
 import {
-  // BrowserRouter as Router,
-  // Switch,
-  // Route,
   useParams,
-  Link,
   useHistory
 } from 'react-router-dom'
 import {
-  Button, mergeRefs, Card, Elevation, Colors,
-  FormGroup, InputGroup, Tooltip, Label,
-  Position,
-  Alignment,
-  Icon,
-  Toaster,
-  ToasterPosition,
-  IToasterProps,
-  IToastProps,
+  FormGroup, InputGroup, Label
 } from '@blueprintjs/core'
-// import { Column, Table } from '@blueprintjs/table'
-import Nav from '@/components/Nav'
-import Sidebar from '@/components/Sidebar'
-import Content from '@/components/Content'
-import { ToastNotification } from '@/components/Toast'
-import MappingTag from '@/pages/plugins/jira/MappingTag'
-import MappingTagStatus from '@/pages/plugins/jira//MappingTagStatus'
-import ClearButton from '@/pages/plugins/jira//ClearButton'
-import { SERVER_HOST, DEVLAKE_ENDPOINT } from '@/utils/config'
-
-import { ReactComponent as GitlabProvider } from '@/images/integrations/gitlab.svg'
-import { ReactComponent as JenkinsProvider } from '@/images/integrations/jenkins.svg'
-import { ReactComponent as JiraProvider } from '@/images/integrations/jira.svg'
 
 import '@/styles/integration.scss'
 import '@/styles/connections.scss'
@@ -39,14 +13,27 @@ import '@/styles/connections.scss'
 import '@blueprintjs/popover2/lib/css/blueprint-popover2.css'
 
 export default function GitlabSettings (props) {
-  const { connection, provider, isSaving } = props
+  const { connection, provider, isSaving, onSettingsChange } = props
   const history = useHistory()
   const { providerId, connectionId } = useParams()
   const [jiraBoardGitlabeProjects, setJiraBoardGitlabeProjects] = useState()
 
   useEffect(() => {
+    const settings = {
+      JIRA_BOARD_GITLAB_PROJECTS: jiraBoardGitlabeProjects
+    }
+    onSettingsChange(settings)
+    console.log('>> GITLAB INSTANCE SETTINGS FIELDS CHANGED!', settings)
+  }, [
+    jiraBoardGitlabeProjects,
+    onSettingsChange
+  ])
 
-  }, [])
+  useEffect(() => {
+    if (connection && connection.id) {
+      setJiraBoardGitlabeProjects(connection.JIRA_BOARD_GITLAB_PROJECTS)
+    }
+  }, [connection])
 
   return (
     <>

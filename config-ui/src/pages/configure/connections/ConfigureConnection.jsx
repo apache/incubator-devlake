@@ -13,15 +13,17 @@ import Nav from '@/components/Nav'
 import Sidebar from '@/components/Sidebar'
 import AppCrumbs from '@/components/Breadcrumbs'
 import Content from '@/components/Content'
+import useConnectionManager from '@/hooks/useConnectionManager'
+import useSettingsManager from '@/hooks/useSettingsManager'
 
-import { ToastNotification } from '@/components/Toast'
+// import { ToastNotification } from '@/components/Toast'
 
 import JiraSettings from '@/pages/configure/settings/jira'
 import GitlabSettings from '@/pages/configure/settings/gitlab'
 import JenkinsSettings from '@/pages/configure/settings/jenkins'
 
 import { integrationsData } from '@/pages/configure/mock-data/integrations'
-import { connectionsData } from '@/pages/configure/mock-data/connections'
+// import { connectionsData } from '@/pages/configure/mock-data/connections'
 
 import '@/styles/integration.scss'
 import '@/styles/connections.scss'
@@ -33,70 +35,101 @@ export default function ConfigureConnection () {
   const history = useHistory()
   const { providerId, connectionId } = useParams()
 
-  const [isSaving, setIsSaving] = useState(false)
-  const [errors, setErrors] = useState([])
-  const [showError, setShowError] = useState(false)
+  // const [isSaving, setIsSaving] = useState(false)
+  // const [errors, setErrors] = useState([])
+  // const [showError, setShowError] = useState(false)
 
   const [integrations, setIntegrations] = useState(integrationsData)
   const [activeProvider, setActiveProvider] = useState(integrations[0])
-  const [activeConnection, setActiveConnection] = useState()
-  const [connections, setConnections] = useState(connectionsData)
+  const [activeConnection, setActiveConnection] = useState({
+    id: null,
+    name: null,
+    endpoint: null,
+    token: null,
+    username: null,
+    password: null,
+  })
+  const [connections, setConnections] = useState([])
+
+  const [settings, setSettings] = useState({
+    JIRA_BASIC_AUTH_ENCODED: null,
+    JIRA_ISSUE_EPIC_KEY_FIELD: null,
+    JIRA_ISSUE_TYPE_MAPPING: null,
+    JIRA_ISSUE_STORYPOINT_COEFFICIENT: null,
+    JIRA_ISSUE_STORYPOINT_FIELD: null,
+    JIRA_BOARD_GITLAB_PROJECTS: null,
+  })
+
+  const {
+    fetchConnection,
+  } = useConnectionManager({
+    activeProvider,
+    activeConnection,
+    connectionId,
+    setActiveConnection,
+  })
+
+  const {
+    saveSettings,
+    // errors: settingsErrors,
+    isSaving,
+    isTesting,
+    showError,
+  } = useSettingsManager({
+    activeProvider,
+    activeConnection,
+    settings
+  })
 
   const cancel = () => {
     history.push(`/integrations/${activeProvider.id}`)
   }
 
-  const saveConfiguration = () => {
-    setIsSaving(true)
-    const saveResponse = {
-      success: true,
-      connection: {
-        ...activeConnection
-      },
-      errors: []
-    }
-    setErrors(saveResponse.errors)
-    setTimeout(() => {
-      if (saveResponse.success && errors.length === 0) {
-        ToastNotification.show({ message: 'Configuration saved successfully.', intent: 'success', icon: 'small-tick' })
-        setShowError(false)
-        setIsSaving(false)
-        // resetForm()
-        // history.push(`/integrations/${activeProvider.id}`)
-      } else {
-        ToastNotification.show({ message: 'Unable to save configuration.', intent: 'danger', icon: 'error' })
-        setShowError(true)
-        setIsSaving(false)
-      }
-    }, 2000)
-  }
-
   const renderProviderSettings = (providerId) => {
     let settingsComponent = null
     switch (providerId) {
-      case 'jira' : settingsComponent = <JiraSettings provider={activeProvider} connection={activeConnection} isSaving={isSaving} />
+      case 'jira' :
+        settingsComponent = (
+          <JiraSettings
+            provider={activeProvider}
+            connection={activeConnection}
+            isSaving={isSaving}
+            onSettingsChange={setSettings}
+          />
+        )
         break
-      case 'gitlab' : settingsComponent = <GitlabSettings provider={activeProvider} connection={activeConnection} isSaving={isSaving} />
+      case 'gitlab' :
+        settingsComponent = (
+          <GitlabSettings
+            provider={activeProvider}
+            connection={activeConnection}
+            isSaving={isSaving}
+            onSettingsChange={setSettings}
+          />
+        )
         break
-      case 'jenkins' : settingsComponent = <JenkinsSettings provider={activeProvider} connection={activeConnection} isSaving={isSaving} />
+      case 'jenkins' :
+        settingsComponent = (
+          <JenkinsSettings
+            provider={activeProvider}
+            connection={activeConnection}
+            isSaving={isSaving}
+            onSettingsChange={setSettings}
+          />
+        )
         break
     }
     return settingsComponent
   }
 
   useEffect(() => {
-    // fetch(`${SERVER_HOST}/api/getenv`)
-    //   .then(response => response.json())
-    //   .then(env => {
-    //     // setDbUrl(env.DB_URL)
-    //     // setPort(env.PORT)
-    //     // setMode(env.MODE)
-    //   })
     console.log('>>>> DETECTED PROVIDER ID = ', providerId)
     console.log('>>>> DETECTED CONNECTION ID = ', connectionId)
     if (connectionId && providerId) {
       setActiveProvider(integrations.find(p => p.id === providerId))
-      setActiveConnection(connections.find(c => c.id === 3))
+      // !WARNING! DO NOT ADD fetchConnection TO DEPENDENCIES ARRAY!
+      // @todo FIXME: Fix Hook Circular-loop Behavior inside effect when added to dependencies
+      fetchConnection()
     } else {
       console.log('NO PARAMS!')
     }
@@ -107,6 +140,10 @@ export default function ConfigureConnection () {
     // console.log('>> active connection', activeConnection)
     console.log('>> active connection', activeConnection)
   }, [activeConnection])
+
+  useEffect(() => {
+
+  }, [settings])
 
   useEffect(() => {
 
@@ -125,7 +162,7 @@ export default function ConfigureConnection () {
                 { href: '/integrations', icon: false, text: 'Integrations' },
                 { href: `/integrations/${activeProvider.id}`, icon: false, text: `${activeProvider.name}` },
                 {
-                  href: `/connections/configure/${activeProvider.id}`,
+                  href: `/connections/configure/${activeProvider.id}/${activeConnection && activeConnection.id}`,
                   icon: false,
                   text: `${activeConnection ? activeConnection.name : 'Configure'} Settings`,
                   current: true
@@ -175,7 +212,7 @@ export default function ConfigureConnection () {
                         icon='cloud-upload' intent='primary' text='Save Settings'
                         loading={isSaving}
                         disabled={isSaving || providerId === 'jenkins'}
-                        onClick={saveConfiguration}
+                        onClick={saveSettings}
                         style={{ backgroundColor: '#E8471C', marginLeft: '10px' }}
                       />
                     </div>

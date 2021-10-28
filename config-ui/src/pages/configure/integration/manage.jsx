@@ -104,17 +104,12 @@ export default function ManageIntegration () {
   useEffect(() => {
     // Selected Provider
     // console.log(activeProvider)
+    // !WARNING! DO NOT ADD fetchConnections TO DEPENDENCIES ARRAY!
+    // @todo FIXME: Circular-loop issue & Migrate fetching all connections to Connection Manager Hook
     fetchConnections()
   }, [activeProvider])
 
   useEffect(() => {
-    fetch(`${SERVER_HOST}/api/getenv`)
-      .then(response => response.json())
-      .then(env => {
-        setDbUrl(env.DB_URL)
-        setPort(env.PORT)
-        setMode(env.MODE)
-      })
     console.log('>> ACTIVE PROVIDER = ', providerId)
     console.log(dbUrl, port, mode)
     setIntegrations(integrations)
