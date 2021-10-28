@@ -16,8 +16,7 @@ type GithubDomainOptions struct {
 // plugin interface
 type GithubDomain string
 
-func (plugin GithubDomain) Init() {
-}
+func (plugin GithubDomain) Init() {}
 
 func (plugin GithubDomain) Description() string {
 	return "Convert Github Entities to Domain Layer Entities"
@@ -38,37 +37,51 @@ func (plugin GithubDomain) Execute(options map[string]interface{}, progress chan
 	}
 	if len(tasksToRun) == 0 {
 		tasksToRun = map[string]bool{
+			"convertRepos":   true,
 			"convertIssues":  true,
 			"convertPrs":     true,
 			"convertCommits": true,
+			"convertNotes":   true,
 		}
 	}
 
 	// run tasks
 	logger.Print("start GithubDomain plugin execution")
-
-	progress <- 0.01
+	if tasksToRun["convertRepos"] {
+		progress <- 0.01
+		err = tasks.ConvertRepos()
+		if err != nil {
+			return err
+		}
+	}
 	if tasksToRun["convertIssues"] {
+		progress <- 0.03
 		err = tasks.ConvertIssues()
 		if err != nil {
 			return err
 		}
 	}
-	progress <- 0.05
 	if tasksToRun["convertPrs"] {
+		progress <- 0.05
 		err = tasks.ConvertPullRequests()
 		if err != nil {
 			return err
 		}
 	}
-	progress <- 0.07
 	if tasksToRun["convertCommits"] {
+		progress <- 0.07
 		err = tasks.ConvertCommits()
 		if err != nil {
 			return err
 		}
 	}
-
+	if tasksToRun["convertNotes"] {
+		progress <- 0.09
+		err = tasks.ConvertNotes()
+		if err != nil {
+			return err
+		}
+	}
 	progress <- 1
 	logger.Print("end GithubDomain plugin execution")
 	close(progress)
