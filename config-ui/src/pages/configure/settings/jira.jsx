@@ -1,37 +1,13 @@
 import React, { useEffect, useState } from 'react'
-import axios from 'axios'
 import {
-  // BrowserRouter as Router,
-  // Switch,
-  // Route,
   useParams,
-  Link,
   useHistory
 } from 'react-router-dom'
-import {
-  Button, mergeRefs, Card, Elevation, Colors,
-  FormGroup, InputGroup, Tooltip, Label,
-  Position,
-  Alignment,
-  Icon,
-  Toaster,
-  ToasterPosition,
-  IToasterProps,
-  IToastProps,
-} from '@blueprintjs/core'
-// import { Column, Table } from '@blueprintjs/table'
-import Nav from '@/components/Nav'
-import Sidebar from '@/components/Sidebar'
-import Content from '@/components/Content'
-import { ToastNotification } from '@/components/Toast'
-import MappingTag from '@/pages/plugins/jira/MappingTag'
-import MappingTagStatus from '@/pages/plugins/jira//MappingTagStatus'
+import MappingTag from '@/pages/configure/settings/jira/MappingTag'
 import ClearButton from '@/pages/plugins/jira//ClearButton'
-import { SERVER_HOST, DEVLAKE_ENDPOINT } from '@/utils/config'
 
-import { ReactComponent as GitlabProvider } from '@/images/integrations/gitlab.svg'
-import { ReactComponent as JenkinsProvider } from '@/images/integrations/jenkins.svg'
-import { ReactComponent as JiraProvider } from '@/images/integrations/jira.svg'
+import { Button, MenuItem } from '@blueprintjs/core'
+import { Select } from '@blueprintjs/select'
 
 import '@/styles/integration.scss'
 import '@/styles/connections.scss'
@@ -39,53 +15,134 @@ import '@/styles/connections.scss'
 import '@blueprintjs/popover2/lib/css/blueprint-popover2.css'
 
 export default function JiraSettings (props) {
-  const { connection, provider, isSaving } = props
-  const history = useHistory()
+  const { connection, provider, isSaving, onSettingsChange } = props
   const { providerId, connectionId } = useParams()
+  const history = useHistory()
 
   const [typeMappingBug, setTypeMappingBug] = useState()
   const [typeMappingIncident, setTypeMappingIncident] = useState()
   const [typeMappingRequirement, setTypeMappingRequirement] = useState()
   const [typeMappingAll, setTypeMappingAll] = useState()
-
   const [statusMappings, setStatusMappings] = useState()
+  const [jiraIssueEpicKeyField, setJiraIssueEpicKeyField] = useState()
+  const [jiraIssueStoryCoefficient, setJiraIssueStoryCoefficient] = useState()
+  const [jiraIssueStoryPointField, setJiraIssueStoryPointField] = useState()
 
-  function setStatusMapping (key, values, status) {
-    setStatusMappings(statusMappings.map(mapping => {
-      if (mapping.key === key) {
-        mapping.mapping[status] = values
-      }
-      return mapping
-    }))
-  }
+  const [selectedEpicItem, setSelectedEpicItem] = useState()
+  const [epics, setEpics] = useState([
+    { id: 0, title: 'Custom Field 1000', value: 'customfield_1000' },
+    { id: 1, title: 'Custom Field 2000', value: 'customfield_2000' },
+    { id: 2, title: 'Custom Field 3000', value: 'customfield_3000' },
+    { id: 3, title: 'Custom Field 4000', value: 'customfield_4000' },
+    { id: 4, title: 'Custom Field 5000', value: 'customfield_5000' },
+  ])
 
-  const [customStatusOverlay, setCustomStatusOverlay] = useState(false)
-  const [customStatusName, setCustomStatusName] = useState('')
+  const [selectedGranularityItem, setSelectedGranularityItem] = useState()
+  const [granularities, setGranularities] = useState([
+    { id: 0, title: 'Story Points', value: 'customfield_6000' },
+    { id: 1, title: 'Original Estimate', value: 'customfield_7000' },
+  ])
 
-  function addStatusMapping (e) {
-    const type = customStatusName.trim().toUpperCase()
-    if (statusMappings.find(e => e.type === type)) {
-      return
-    }
-    const result = [
-      ...statusMappings,
-      {
-        type,
-        key: `JIRA_ISSUE_${type}_STATUS_MAPPING`,
-        mapping: {
-          Resolved: [],
-          Rejected: [],
-        }
-      }
-    ]
-    setStatusMappings(result)
-    setCustomStatusOverlay(false)
-    e.preventDefault()
-  }
+  const [selectedBoardItem, setSelectedBoardItem] = useState()
+  const [boards, setBoards] = useState([
+    { id: 1, title: 'Open', value: '1' },
+    { id: 2, title: 'Backlog', value: '2' },
+    { id: 3, title: 'QA / Testing', value: '3' },
+    { id: 4, title: 'Pre-release', value: '4' },
+    { id: 5, title: 'Production', value: '5' },
+    { id: 6, title: 'Closed', value: '6' },
+  ])
 
   useEffect(() => {
+    const settings = {
+      JIRA_ISSUE_EPIC_KEY_FIELD: jiraIssueEpicKeyField,
+      JIRA_ISSUE_TYPE_MAPPING: typeMappingAll,
+      JIRA_ISSUE_STORYPOINT_COEFFICIENT: jiraIssueStoryCoefficient,
+      JIRA_ISSUE_STORYPOINT_FIELD: jiraIssueStoryPointField,
+      // @todo SET BOARD ID
+      // JIRA_ISSUES_BOARD_ID: ??
+    }
+    onSettingsChange(settings)
+    console.log('>> JIRA INSTANCE SETTINGS FIELDS CHANGED!', settings)
+    console.log(
+      typeMappingBug,
+      typeMappingAll,
+      typeMappingIncident,
+      typeMappingRequirement,
+      statusMappings,
+      jiraIssueEpicKeyField,
+      jiraIssueStoryPointField,
+      jiraIssueStoryCoefficient,
+      onSettingsChange)
+  }, [
+    typeMappingBug,
+    typeMappingAll,
+    typeMappingIncident,
+    typeMappingRequirement,
+    statusMappings,
+    jiraIssueEpicKeyField,
+    jiraIssueStoryPointField,
+    jiraIssueStoryCoefficient,
+    onSettingsChange
+  ])
 
-  }, [])
+  useEffect(() => {
+    if (typeMappingBug && typeMappingIncident && typeMappingRequirement) {
+      const typeBug = 'Bug:' + typeMappingBug.toString() + ';'
+      const typeIncident = 'Incident:' + typeMappingIncident.toString() + ';'
+      const typeRequirement = 'Requirement:' + typeMappingRequirement.toString() + ';'
+      const all = typeBug + typeIncident + typeRequirement
+      setTypeMappingAll(all)
+    }
+  }, [typeMappingBug, typeMappingIncident, typeMappingRequirement])
+
+  useEffect(() => {
+    // @todo Fetch EPICS, GRANULARITES and BOARDS from API
+    console.log('>> CONN SETTINGS OBJECT ', connection)
+    // setEpics([])
+    // setBoards([])
+    // setGranularities([])
+
+    // @todo FETCH & SET INITIAL MAPPING TYPES
+    let mappings = {
+      Bug: [],
+      Incident: [],
+      Requirement: []
+    }
+    if (connection && connection.id) {
+      const types = connection.JIRA_ISSUE_TYPE_MAPPING.split(';').map(t => t.split(':')[0])
+      if (types.lastIndexOf('') !== -1) {
+        types.pop()
+      }
+      const tags = connection.JIRA_ISSUE_TYPE_MAPPING.split(';').map(t => t.split(':')[1])
+      types.forEach((type, idx) => {
+        if (type) {
+          mappings = {
+            ...mappings,
+            [type]: tags[idx] ? tags[idx].split(',') : []
+          }
+        }
+      })
+
+      console.log('>> RE-CREATED ISSUE TYPE MAPPINGS OBJ...', mappings)
+
+      setTypeMappingRequirement(mappings.Requirement)
+      setTypeMappingBug(mappings.Bug)
+      setTypeMappingIncident(mappings.Incident)
+      setStatusMappings([])
+
+      // @todo FETCH & SET EPIC KEY
+      const selectedEpic = epics.find(e => e.value === connection.JIRA_ISSUE_EPIC_KEY_FIELD)
+      console.log('>>> EPIC ITEM = ', selectedEpic)
+      setSelectedEpicItem(selectedEpic)
+
+      // @todo FETCH & SET BOARD ID
+      // setSelectedBoardItem(boards.find(b => b.value === connection.JIRA_ISSUES_BOARD_ID???))
+
+      // @todo FETCH & SET GRANULARITY KEY
+      setSelectedGranularityItem(granularities.find(g => g.value === connection.JIRA_ISSUE_STORYPOINT_FIELD))
+    }
+  }, [connection])
 
   return (
     <>
@@ -93,6 +150,18 @@ export default function JiraSettings (props) {
         <h3 className='headline'>Issue Type Mappings</h3>
         <p className='description'>Map your own issue types to Dev Lake's standard types</p>
       </div>
+
+      <MappingTag
+        labelName='Requirement'
+        labelIntent='primary'
+        typeOrStatus='type'
+        placeholderText='Add Issue Types...'
+        values={typeMappingRequirement}
+        helperText='JIRA_ISSUE_TYPE_MAPPING'
+        rightElement={<ClearButton onClick={() => setTypeMappingRequirement([])} />}
+        onChange={(values) => setTypeMappingRequirement(values)}
+        disabled={isSaving}
+      />
 
       <MappingTag
         labelName='Bug'
@@ -118,32 +187,112 @@ export default function JiraSettings (props) {
         disabled={isSaving}
       />
 
-      <MappingTag
-        labelName='Requirement'
-        labelIntent='primary'
-        typeOrStatus='type'
-        placeholderText='Add Issue Types...'
-        values={typeMappingRequirement}
-        helperText='JIRA_ISSUE_TYPE_MAPPING'
-        rightElement={<ClearButton onClick={() => setTypeMappingRequirement([])} />}
-        onChange={(values) => setTypeMappingRequirement(values)}
-        disabled={isSaving}
-      />
-
       <div className='headlineContainer'>
-        <h3 className='headline'>Epic Key</h3>
-        <p className='description'>Choose the Jira field you’re using to represent the key of an Epic to which an issue belongs to.</p>
+        <h3 className='headline'>Epic Key <span className='bp3-form-helper-text'>JIRA_ISSUE_EPIC_KEY_FIELD</span></h3>
+        <p className=''>Choose the Jira field you’re using to represent the key of an Epic to which an issue belongs to.</p>
+        <span style={{ display: 'inline-block' }}>
+          <Select
+            className='select-epic-key'
+            inline={true}
+            fill={false}
+            items={epics}
+            activeItem={selectedEpicItem}
+            itemPredicate={(query, item) => item.title.toLowerCase().indexOf(query.toLowerCase()) >= 0}
+            itemRenderer={(item, { handleClick, modifiers }) => (
+              <MenuItem
+                active={modifiers.active}
+                key={item.value}
+                label={item.value}
+                onClick={handleClick}
+                text={item.title}
+              />
+            )}
+            noResults={<MenuItem disabled={true} text='No epic results.' />}
+            onItemSelect={(item) => {
+              // @todo SET/VERIFY ENV FIELD FOR EPIC KEY
+              setJiraIssueEpicKeyField(item.value)
+              setSelectedEpicItem(item)
+            }}
+          >
+            <Button
+              style={{ maxWidth: '260px' }}
+              text={selectedEpicItem ? `${selectedEpicItem.title}` : epics[0].title}
+              rightIcon='double-caret-vertical'
+            />
+          </Select>
+        </span>
       </div>
 
       <div className='headlineContainer'>
-        <h3 className='headline'>Requirement Granularity</h3>
-        <p className='description'>Choose the Jira field you’re using to represent the granularity of a requirement-type issue.</p>
+        <h3 className='headline'>Requirement Granularity  <span className='bp3-form-helper-text'>JIRA_ISSUE_STORYPOINT_FIELD</span></h3>
+        <p className=''>Choose the Jira field you’re using to represent the granularity of a requirement-type issue.</p>
+        <span style={{ display: 'inline-block' }}>
+          <Select
+            className='select-granularity-key'
+            inline={true}
+            fill={false}
+            items={granularities}
+            activeItem={selectedGranularityItem}
+            itemPredicate={(query, item) => item.title.toLowerCase().indexOf(query.toLowerCase()) >= 0}
+            itemRenderer={(item, { handleClick, modifiers }) => (
+              <MenuItem
+                active={modifiers.active}
+                key={item.value}
+                label={item.value}
+                onClick={handleClick}
+                text={item.title}
+              />
+            )}
+            noResults={<MenuItem disabled={true} text='No granularity results.' />}
+            onItemSelect={(item) => {
+              // @todo SET/VERIFY ENV FIELD FOR GRANULARITY
+              setJiraIssueStoryCoefficient(item.value)
+              setSelectedGranularityItem(item)
+            }}
+          >
+            <Button
+              style={{ maxWidth: '260px' }}
+              text={selectedGranularityItem ? `${selectedGranularityItem.title}` : granularities[0].title}
+              rightIcon='double-caret-vertical'
+            />
+          </Select>
+        </span>
       </div>
 
-
       <div className='headlineContainer'>
-        <h3 className='headline'>Board ID (Optional)</h3>
-        <p className='description'>Choose the specific Jira board(s) to collect issues from.</p>
+        <h3 className='headline'>Board ID (Optional) <span className='bp3-form-helper-text'>JIRA_ISSUES_BOARD_ID?</span></h3>
+        <p className=''>Choose the specific Jira board(s) to collect issues from.</p>
+        <span style={{ display: 'inline-block' }}>
+          <Select
+            className='select-board-key'
+            inline={true}
+            fill={false}
+            items={boards}
+            activeItem={selectedBoardItem}
+            itemPredicate={(query, item) => item.title.toLowerCase().indexOf(query.toLowerCase()) >= 0}
+            itemRenderer={(item, { handleClick, modifiers }) => (
+              <MenuItem
+                active={modifiers.active}
+                key={item.value}
+                label={item.value}
+                onClick={handleClick}
+                text={item.title}
+              />
+            )}
+            noResults={<MenuItem disabled={true} text='No board results.' />}
+            onItemSelect={(item) => {
+              // @todo SET/VERIFY ENV FIELD FOR BOARD ID
+              setJiraIssueStoryPointField(item.value)
+              setSelectedBoardItem(item)
+            }}
+          >
+            <Button
+              style={{ maxWidth: '260px' }}
+              text={selectedBoardItem ? `${selectedBoardItem.title}` : boards[0].title}
+              rightIcon='double-caret-vertical'
+            />
+          </Select>
+        </span>
       </div>
 
     </>
