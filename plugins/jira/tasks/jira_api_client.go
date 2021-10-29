@@ -48,6 +48,7 @@ type JiraPagination struct {
 }
 
 type JiraPaginationHandler func(res *http.Response) error
+type JiraSearchPaginationHandler func(res *http.Response) (bool, error)
 
 func (jiraApiClient *JiraApiClient) FetchPages(scheduler *utils.WorkerScheduler, path string, query *url.Values, handler JiraPaginationHandler) error {
 	if query == nil {
@@ -108,6 +109,52 @@ func (jiraApiClient *JiraApiClient) FetchPages(scheduler *utils.WorkerScheduler,
 			return err
 		}
 		nextStart += pageSize
+	}
+	return nil
+}
+
+// FetchWithoutPaginationHeaders uses pagination in a different way than FetchPages.
+// We set the pagination params to what we want, and then we just keep making requests
+// until the response array is empty. This is why we need to check the "next" variable
+// on the handler, and the handler that is passed in needs to return a boolean to tell
+// us whether or not to continue making requests. This is why we created JiraSearchPaginationHandler.
+func (jiraApiClient *JiraApiClient) FetchWithoutPaginationHeaders(
+	path string,
+	query *url.Values,
+	handler JiraSearchPaginationHandler,
+) error {
+	if query == nil {
+		query = &url.Values{}
+	}
+	// these are the names from the jira search api for pagination
+	// eg: https://merico.atlassian.net/rest/api/2/user/assignable/search?project=EE&maxResults=100&startAt=1
+	startAt, maxResults := 1, 100
+
+	query.Set("maxResults", fmt.Sprintf("%v", maxResults))
+	var next bool = true
+	for next {
+		nextStartTmp := startAt
+		// get page
+		query.Set("startAt", strconv.Itoa(nextStartTmp))
+		res, err := jiraApiClient.Get(path, query, nil)
+		if res.StatusCode == 401 {
+			fmt.Println("User does not have access to project users")
+		}
+		if err != nil {
+			return err
+		}
+
+		// call page handler
+		next, err = handler(res)
+		if !next {
+			// Done user collection
+			return nil
+		}
+		if err != nil {
+			logger.Error("Error: ", err)
+			return err
+		}
+		startAt += maxResults
 	}
 	return nil
 }

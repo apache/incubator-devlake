@@ -28,6 +28,8 @@ type Jira string
 
 func (plugin Jira) Init() {
 	err := lakeModels.Db.AutoMigrate(
+		&models.JiraProject{},
+		&models.JiraUser{},
 		&models.JiraIssue{},
 		&models.JiraBoard{},
 		&models.JiraBoardIssue{},
@@ -90,6 +92,7 @@ func (plugin Jira) Execute(options map[string]interface{}, progress chan<- float
 	if len(tasksToRun) == 0 {
 		tasksToRun = map[string]bool{
 			"collectBoard":      true,
+			"collectProjects":   true,
 			"collectIssues":     true,
 			"collectChangelogs": true,
 			"enrichIssues":      true,
@@ -109,6 +112,18 @@ func (plugin Jira) Execute(options map[string]interface{}, progress chan<- float
 		return fmt.Errorf("failed to create jira api client: %v", err)
 	}
 	for i, boardId := range boardIds {
+		if tasksToRun["collectProjects"] {
+			err := tasks.CollectProjects(jiraApiClient, op.SourceId)
+			if err != nil {
+				return err
+			}
+		}
+		if tasksToRun["collectUsers"] {
+			err := tasks.CollectUsers(jiraApiClient, op.SourceId)
+			if err != nil {
+				return err
+			}
+		}
 		if tasksToRun["collectBoard"] {
 			err := tasks.CollectBoard(jiraApiClient, source, boardId)
 			if err != nil {
