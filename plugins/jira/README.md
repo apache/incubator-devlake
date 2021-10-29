@@ -29,7 +29,7 @@ In order to fully use this plugin, you will need to set various config variables
 
 This is the setting that is used as the base of all Jira API calls. You can see this in all of your Jira Urls as the start of the Url.
 
-**Example:** 
+**Example:**
 
 If you see `https://mydomain.atlassian.net/secure/RapidBoard.jspa?rapidView=999&projectKey=XXX`, you will need to set `JIRA_ENDPOINT=https://mydomain.atlassian.net` in your `.env` file.
 
@@ -38,6 +38,8 @@ If you see `https://mydomain.atlassian.net/secure/RapidBoard.jspa?rapidView=999&
 2. Click the **Create API Token** button, and give it any label name
 ![image](https://user-images.githubusercontent.com/27032263/129363611-af5077c9-7a27-474a-a685-4ad52366608b.png)
 3. Encode with login email using command `echo -n <jira login email>:<jira token> | base64`
+
+### Set Issue Status Mapping<a id="issue-type-mapping"></a>
 
 NOTE: You can see your project's issue statuses here:
 
@@ -50,23 +52,6 @@ curl --location --request GET 'https://<YOUR_JIRA_ENDPOINT>/rest/api/2/project/<
 --header 'Authorization: Basic <BASE64_ENCODED_TOKEN>' \
 --header 'Content-Type: application/json'
 ```
-
-### Set JIRA_BASIC_AUTH_ENCODED
-
-1. Once logged into Jira, visit the url: <a href="https://id.atlassian.com/manage-profile/security/api-tokens" target="_blank">https://id.atlassian.com/manage-profile/security/api-tokens</a>
-2. Click the **Create API Token** button, and give it any label name
-![image](https://user-images.githubusercontent.com/27032263/129363611-af5077c9-7a27-474a-a685-4ad52366608b.png)
-3. Encode with login email using the command `echo -n <jira login email>:<jira token> | base64`
-
-### Set Jira Custom Fields
-
-This applies to JIRA_ISSUE_STORYPOINT_FIELD and JIRA_ISSUE_EPIC_KEY_FIELD
-
-Custom fields can be applied to Jira stories. We use this to set `JIRA_ISSUE_EPIC_KEY_FIELD` in the `.env` file.
-
-**Example:** `JIRA_ISSUE_EPIC_KEY_FIELD=customfield_10024`
-
-Please follow this guide: [How to find Jira the custom field ID in Jira? · merico-dev/lake Wiki](https://github.com/merico-dev/lake/wiki/How-to-find-the-custom-field-ID-in-Jira)
 
 ### Set Issue Type Mapping<a id="issue-type-mapping"></a>
 
@@ -81,7 +66,7 @@ Devlake supports three different standard issue types:
 For example, say we were using `Story` to represent our Requirement, what we have to do is setting the following
 `Environment Variables` before running Devlake:
 
-**Example:** 
+**Example:**
 
 ```sh
 # JIRA_ISSUE_TYPE_MAPPING=<STANDARD_TYPE>:<YOUR_TYPE_1>,<YOUR_TYPE_2>;....
@@ -89,6 +74,16 @@ JIRA_ISSUE_TYPE_MAPPING=Requirement:Story;Incident:CustomerComplaint;Bug:QABug;
 ```
 
 Type mapping is critical for some metrics, like **Requirement Count**, make sure to map your custom type correctly.
+
+### Set Jira Custom Fields
+
+This applies to JIRA_ISSUE_STORYPOINT_FIELD and JIRA_ISSUE_EPIC_KEY_FIELD
+
+Custom fields can be applied to Jira stories. We use this to set `JIRA_ISSUE_EPIC_KEY_FIELD` in the `.env` file.
+
+**Example:** `JIRA_ISSUE_EPIC_KEY_FIELD=customfield_10024`
+
+Please follow this guide: [How to find Jira the custom field ID in Jira? · merico-dev/lake Wiki](https://github.com/merico-dev/lake/wiki/How-to-find-the-custom-field-ID-in-Jira)
 
 ### Set JIRA_ISSUE_STORYPOINT_COEFFICIENT
 
@@ -105,7 +100,7 @@ This is a value you can set to something other than the default of 1 if you want
 
 ![Screen Shot 2021-08-13 at 10 07 19 AM](https://user-images.githubusercontent.com/27032263/129363083-df0afa18-e147-4612-baf9-d284a8bb7a59.png)
 
-Your board id is used in all REST requests to DevLake. You do not need to set this in your `.env` file. 
+Your board id is used in all REST requests to DevLake. You do not need to set this in your `.env` file.
 ## How do I find the custom field ID in Jira?
 Using URL
 1. Navigate to Administration >> Issues >> Custom Fields .
@@ -114,7 +109,7 @@ Using URL
 
 ## How to Trigger Data Collection for This Plugin
 
-**Example:** 
+**Example:**
 
 ```
 curl -XPOST 'localhost:8080/task' \
