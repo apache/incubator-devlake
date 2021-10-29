@@ -1,0 +1,662 @@
+{
+  "annotations": {
+    "list": [
+      {
+        "builtIn": 1,
+        "datasource": "-- Grafana --",
+        "enable": true,
+        "hide": true,
+        "iconColor": "rgba(0, 211, 255, 1)",
+        "name": "Annotations & Alerts",
+        "type": "dashboard"
+      }
+    ]
+  },
+  "editable": true,
+  "gnetId": null,
+  "graphTooltip": 0,
+  "id": 21,
+  "iteration": 1635506178804,
+  "links": [
+    {
+      "asDropdown": false,
+      "icon": "bolt",
+      "includeVars": false,
+      "keepTime": true,
+      "tags": [],
+      "targetBlank": false,
+      "title": "Homepage",
+      "tooltip": "",
+      "type": "link",
+      "url": "/d/j160SnFnk/demo-homepage?orgId=1"
+    },
+    {
+      "asDropdown": false,
+      "icon": "external link",
+      "includeVars": false,
+      "keepTime": false,
+      "tags": [],
+      "targetBlank": false,
+      "title": "Back to previous page",
+      "tooltip": "",
+      "type": "link",
+      "url": "/d/uWnAh7Fnz/how-fast-do-we-respond-to-customer-requirements?orgId=1"
+    }
+  ],
+  "panels": [
+    {
+      "datasource": "mysql",
+      "description": "1. Compare the average time spent in each state of a requirement in the last 2 months.\n2. The requirements being calculated are the requirements delivered in the last 2 months.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "axisSoftMax": 8,
+            "axisSoftMin": 0,
+            "fillOpacity": 80,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineWidth": 1
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          },
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 5,
+        "x": 0,
+        "y": 0
+      },
+      "id": 98,
+      "options": {
+        "barWidth": 0.51,
+        "groupWidth": 0.68,
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom"
+        },
+        "orientation": "horizontal",
+        "showValue": "always",
+        "text": {
+          "valueSize": 18
+        },
+        "tooltip": {
+          "mode": "multi"
+        }
+      },
+      "pluginVersion": "8.0.6",
+      "targets": [
+        {
+          "format": "table",
+          "group": [],
+          "metricColumn": "none",
+          "queryType": "randomWalk",
+          "rawQuery": true,
+          "rawSql": "with status_change_history as(\n\tSELECT\n\t\tjc.issue_id,\n\t\tjc.created as operation_time,\n\t\tjci.changelog_id,\n\t\tjci.from,\n\t\tjci.from_string,\n\t\tjci.to,\n\t\tjci.to_string,\n\t\tji.created as issue_creation_time,\n\t\tlag(jc.created) over(PARTITION BY jc.issue_id ORDER BY jc.created ASC) as last_operation_time,\n\t\tcase \n\t\t\twhen lag(jc.created) over(PARTITION BY jc.issue_id ORDER BY jc.created ASC) is not null then\n\t\t\tTIMESTAMPDIFF(MINUTE, lag(jc.created) over(PARTITION BY jc.issue_id ORDER BY jc.created ASC), jc.created)\n\t\t\telse TIMESTAMPDIFF(MINUTE, ji.created, jc.created) end as time_in_status\n\tFROM\n\t\tjira_changelogs jc\n\t\tJOIN jira_changelog_items jci ON jc.id = jci.changelog_id\n\t\tJOIN jira_issues ji ON jc.issue_id = ji.id\n\t\tjoin jira_board_issues jbi on ji.id = jbi.issue_id\n\tWHERE\n\t\tjci.field = 'status'\n\t\tand ji.std_type = 'Requirement'\n\t\tand ji.std_status = 'Resolved'\n\t\tand $__timeFilter(ji.resolution_date)\n    and jbi.board_id = $board_id\n),\n\ntime_in_status as(\n\tSELECT \n\t\tDATE_ADD(date(issue_creation_time), INTERVAL -DAY(date(issue_creation_time))+1 DAY) as time,\n\t\tfrom_string,\n\t\tround(avg(time_in_status)/1440,1) as time_in_status\n\tFROM status_change_history\n\tGROUP BY 1,2\n),\n\nthis_month as(\n\tselect \n\t\tDATE_ADD(date(CURDATE()), INTERVAL -DAY(date(CURDATE()))+1 DAY) as this_month\n),\n\nlast_month as(\n\tSELECT \n\t\tDATE_ADD(DATE_ADD(date(CURDATE()), INTERVAL -DAY(date(CURDATE()))+1 DAY), INTERVAL -1 MONTH) as last_month\n),\n\n\nthis_month_record as(\n\tSELECT\n\t\tfrom_string as issue_status,\n\t\tcase when time in (SELECT this_month from this_month) then time_in_status else null end as this_month\n\tfrom time_in_status\n\tWHERE \n\t\ttime in (SELECT this_month from this_month)\n),\n\nlast_month_record as(\n\tSELECT\n\t\tfrom_string as issue_status,\n\t\tcase when time in (SELECT last_month from last_month) then time_in_status else null end as last_month\n\tfrom time_in_status\n\tWHERE \n\t\ttime in (SELECT last_month from last_month)\n),\n\nfull_data as (\n  SELECT\n  \tcase \n  \t  when lmr.issue_status in ('打开','重新打开','待开发','Open','open','todo','to-do') then 'Open'\n  \t  when lmr.issue_status in ('处理中','设计中','in-progress','InProgress') then 'In-progress'\n  \t  when lmr.issue_status in ('开发自测','代码评审','open') then 'Code Review'\n  \t  when lmr.issue_status in ('测试中','testing','open') then 'Testing'\n  \t  when lmr.issue_status in ('发布中') then 'Build and Deploy' \n  \t  else 'Other' end as issue_status,\n  \tlmr.last_month,\n\t\ttmr.this_month\n  FROM this_month_record tmr\n  left join last_month_record lmr on tmr.issue_status = lmr.issue_status \n)\n\nSELECT \n  '' as '',\n  last_month AS \"Last Month\",\n\tthis_month AS \"This Month\"\nFROM full_data\nWHERE issue_status = 'Open'",
+          "refId": "A",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "timeColumn": "time",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        }
+      ],
+      "timeFrom": null,
+      "timeShift": null,
+      "title": "Open",
+      "type": "barchart"
+    },
+    {
+      "datasource": "mysql",
+      "description": "1. Compare the average time spent in each state of a requirement in the last 2 months.\n2. The requirements being calculated are the requirements delivered in the last 2 months.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "axisSoftMax": 8,
+            "axisSoftMin": 0,
+            "fillOpacity": 80,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineWidth": 1
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          },
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 5,
+        "x": 5,
+        "y": 0
+      },
+      "id": 104,
+      "options": {
+        "barWidth": 0.51,
+        "groupWidth": 0.68,
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom"
+        },
+        "orientation": "horizontal",
+        "showValue": "always",
+        "text": {
+          "valueSize": 18
+        },
+        "tooltip": {
+          "mode": "multi"
+        }
+      },
+      "pluginVersion": "8.0.6",
+      "targets": [
+        {
+          "format": "table",
+          "group": [],
+          "metricColumn": "none",
+          "queryType": "randomWalk",
+          "rawQuery": true,
+          "rawSql": "with status_change_history as(\n\tSELECT\n\t\tjc.issue_id,\n\t\tjc.created as operation_time,\n\t\tjci.changelog_id,\n\t\tjci.from,\n\t\tjci.from_string,\n\t\tjci.to,\n\t\tjci.to_string,\n\t\tji.created as issue_creation_time,\n\t\tlag(jc.created) over(PARTITION BY jc.issue_id ORDER BY jc.created ASC) as last_operation_time,\n\t\tcase \n\t\t\twhen lag(jc.created) over(PARTITION BY jc.issue_id ORDER BY jc.created ASC) is not null then\n\t\t\tTIMESTAMPDIFF(MINUTE, lag(jc.created) over(PARTITION BY jc.issue_id ORDER BY jc.created ASC), jc.created)\n\t\t\telse TIMESTAMPDIFF(MINUTE, ji.created, jc.created) end as time_in_status\n\tFROM\n\t\tjira_changelogs jc\n\t\tJOIN jira_changelog_items jci ON jc.id = jci.changelog_id\n\t\tJOIN jira_issues ji ON jc.issue_id = ji.id\n\t\tjoin jira_board_issues jbi on ji.id = jbi.issue_id\n\tWHERE\n\t\tjci.field = 'status'\n\t\tand ji.std_type = 'Requirement'\n\t\tand ji.std_status = 'Resolved'\n\t\tand $__timeFilter(ji.resolution_date)\n    and jbi.board_id = $board_id\n),\n\ntime_in_status as(\n\tSELECT \n\t\tDATE_ADD(date(issue_creation_time), INTERVAL -DAY(date(issue_creation_time))+1 DAY) as time,\n\t\tfrom_string,\n\t\tround(avg(time_in_status)/1440,1) as time_in_status\n\tFROM status_change_history\n\tGROUP BY 1,2\n),\n\nthis_month as(\n\tselect \n\t\tDATE_ADD(date(CURDATE()), INTERVAL -DAY(date(CURDATE()))+1 DAY) as this_month\n),\n\nlast_month as(\n\tSELECT \n\t\tDATE_ADD(DATE_ADD(date(CURDATE()), INTERVAL -DAY(date(CURDATE()))+1 DAY), INTERVAL -1 MONTH) as last_month\n),\n\n\nthis_month_record as(\n\tSELECT\n\t\tfrom_string as issue_status,\n\t\tcase when time in (SELECT this_month from this_month) then time_in_status else null end as this_month\n\tfrom time_in_status\n\tWHERE \n\t\ttime in (SELECT this_month from this_month)\n),\n\nlast_month_record as(\n\tSELECT\n\t\tfrom_string as issue_status,\n\t\tcase when time in (SELECT last_month from last_month) then time_in_status else null end as last_month\n\tfrom time_in_status\n\tWHERE \n\t\ttime in (SELECT last_month from last_month)\n),\n\nfull_data as (\n  SELECT\n  \tcase \n  \t  when lmr.issue_status in ('打开','重新打开','待开发','Open','open','todo','to-do') then 'Open'\n  \t  when lmr.issue_status in ('处理中','设计中','in-progress','InProgress') then 'In-progress'\n  \t  when lmr.issue_status in ('开发自测','代码评审','open') then 'Code Review'\n  \t  when lmr.issue_status in ('测试中','testing','open') then 'Testing'\n  \t  when lmr.issue_status in ('发布中') then 'Build and Deploy' \n  \t  else 'Other' end as issue_status,\n  \tlmr.last_month,\n\t\ttmr.this_month\n  FROM this_month_record tmr\n  left join last_month_record lmr on tmr.issue_status = lmr.issue_status \n)\n\nSELECT \n  '' as '',\n  last_month AS \"Last Month\",\n\tthis_month AS \"This Month\"\nFROM full_data\nWHERE issue_status = 'In-progress'",
+          "refId": "A",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "timeColumn": "time",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        }
+      ],
+      "timeFrom": null,
+      "timeShift": null,
+      "title": "In-progress",
+      "type": "barchart"
+    },
+    {
+      "datasource": "mysql",
+      "description": "1. Compare the average time spent in each state of a requirement in the last 2 months.\n2. The requirements being calculated are the requirements delivered in the last 2 months.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "axisSoftMax": 8,
+            "axisSoftMin": 0,
+            "fillOpacity": 80,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineWidth": 1
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          },
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 5,
+        "x": 10,
+        "y": 0
+      },
+      "id": 101,
+      "options": {
+        "barWidth": 0.51,
+        "groupWidth": 0.68,
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom"
+        },
+        "orientation": "horizontal",
+        "showValue": "always",
+        "text": {
+          "valueSize": 18
+        },
+        "tooltip": {
+          "mode": "single"
+        }
+      },
+      "pluginVersion": "8.0.6",
+      "targets": [
+        {
+          "format": "table",
+          "group": [],
+          "metricColumn": "none",
+          "queryType": "randomWalk",
+          "rawQuery": true,
+          "rawSql": "with status_change_history as(\n\tSELECT\n\t\tjc.issue_id,\n\t\tjc.created as operation_time,\n\t\tjci.changelog_id,\n\t\tjci.from,\n\t\tjci.from_string,\n\t\tjci.to,\n\t\tjci.to_string,\n\t\tji.created as issue_creation_time,\n\t\tlag(jc.created) over(PARTITION BY jc.issue_id ORDER BY jc.created ASC) as last_operation_time,\n\t\tcase \n\t\t\twhen lag(jc.created) over(PARTITION BY jc.issue_id ORDER BY jc.created ASC) is not null then\n\t\t\tTIMESTAMPDIFF(MINUTE, lag(jc.created) over(PARTITION BY jc.issue_id ORDER BY jc.created ASC), jc.created)\n\t\t\telse TIMESTAMPDIFF(MINUTE, ji.created, jc.created) end as time_in_status\n\tFROM\n\t\tjira_changelogs jc\n\t\tJOIN jira_changelog_items jci ON jc.id = jci.changelog_id\n\t\tJOIN jira_issues ji ON jc.issue_id = ji.id\n\t\tjoin jira_board_issues jbi on ji.id = jbi.issue_id\n\tWHERE\n\t\tjci.field = 'status'\n\t\tand ji.std_type = 'Requirement'\n\t\tand ji.std_status = 'Resolved'\n\t\tand $__timeFilter(ji.resolution_date)\n    and jbi.board_id = $board_id\n),\n\ntime_in_status as(\n\tSELECT \n\t\tDATE_ADD(date(issue_creation_time), INTERVAL -DAY(date(issue_creation_time))+1 DAY) as time,\n\t\tfrom_string,\n\t\tround(avg(time_in_status)/1440,1) as time_in_status\n\tFROM status_change_history\n\tGROUP BY 1,2\n),\n\nthis_month as(\n\tselect \n\t\tDATE_ADD(date(CURDATE()), INTERVAL -DAY(date(CURDATE()))+1 DAY) as this_month\n),\n\nlast_month as(\n\tSELECT \n\t\tDATE_ADD(DATE_ADD(date(CURDATE()), INTERVAL -DAY(date(CURDATE()))+1 DAY), INTERVAL -1 MONTH) as last_month\n),\n\n\nthis_month_record as(\n\tSELECT\n\t\tfrom_string as issue_status,\n\t\tcase when time in (SELECT this_month from this_month) then time_in_status else null end as this_month\n\tfrom time_in_status\n\tWHERE \n\t\ttime in (SELECT this_month from this_month)\n),\n\nlast_month_record as(\n\tSELECT\n\t\tfrom_string as issue_status,\n\t\tcase when time in (SELECT last_month from last_month) then time_in_status else null end as last_month\n\tfrom time_in_status\n\tWHERE \n\t\ttime in (SELECT last_month from last_month)\n),\n\nfull_data as (\n  SELECT\n  \tcase \n  \t  when lmr.issue_status in ('打开','重新打开','待开发','Open','open','todo','to-do') then 'Open'\n  \t  when lmr.issue_status in ('处理中','设计中','in-progress','InProgress') then 'In-progress'\n  \t  when lmr.issue_status in ('开发自测','代码评审','open') then 'Code Review'\n  \t  when lmr.issue_status in ('测试中','testing','open') then 'Testing'\n  \t  when lmr.issue_status in ('发布中') then 'Build and Deploy' \n  \t  else 'Other' end as issue_status,\n  \tlmr.last_month,\n\t\ttmr.this_month\n  FROM this_month_record tmr\n  left join last_month_record lmr on tmr.issue_status = lmr.issue_status \n)\n\nSELECT \n  '' as '',\n  last_month AS \"Last Month\",\n\tthis_month AS \"This Month\"\nFROM full_data\nWHERE issue_status = 'Code Review'",
+          "refId": "A",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "timeColumn": "time",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        }
+      ],
+      "timeFrom": null,
+      "timeShift": null,
+      "title": "Code Review",
+      "type": "barchart"
+    },
+    {
+      "datasource": "mysql",
+      "description": "1. Compare the average time spent in each state of a requirement in the last 2 months.\n2. The requirements being calculated are the requirements delivered in the last 2 months.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "axisSoftMax": 8,
+            "axisSoftMin": 0,
+            "fillOpacity": 80,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineWidth": 1
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          },
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 5,
+        "x": 15,
+        "y": 0
+      },
+      "id": 102,
+      "options": {
+        "barWidth": 0.51,
+        "groupWidth": 0.68,
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom"
+        },
+        "orientation": "horizontal",
+        "showValue": "always",
+        "text": {
+          "valueSize": 18
+        },
+        "tooltip": {
+          "mode": "single"
+        }
+      },
+      "pluginVersion": "8.0.6",
+      "targets": [
+        {
+          "format": "table",
+          "group": [],
+          "metricColumn": "none",
+          "queryType": "randomWalk",
+          "rawQuery": true,
+          "rawSql": "with status_change_history as(\n\tSELECT\n\t\tjc.issue_id,\n\t\tjc.created as operation_time,\n\t\tjci.changelog_id,\n\t\tjci.from,\n\t\tjci.from_string,\n\t\tjci.to,\n\t\tjci.to_string,\n\t\tji.created as issue_creation_time,\n\t\tlag(jc.created) over(PARTITION BY jc.issue_id ORDER BY jc.created ASC) as last_operation_time,\n\t\tcase \n\t\t\twhen lag(jc.created) over(PARTITION BY jc.issue_id ORDER BY jc.created ASC) is not null then\n\t\t\tTIMESTAMPDIFF(MINUTE, lag(jc.created) over(PARTITION BY jc.issue_id ORDER BY jc.created ASC), jc.created)\n\t\t\telse TIMESTAMPDIFF(MINUTE, ji.created, jc.created) end as time_in_status\n\tFROM\n\t\tjira_changelogs jc\n\t\tJOIN jira_changelog_items jci ON jc.id = jci.changelog_id\n\t\tJOIN jira_issues ji ON jc.issue_id = ji.id\n\t\tjoin jira_board_issues jbi on ji.id = jbi.issue_id\n\tWHERE\n\t\tjci.field = 'status'\n\t\tand ji.std_type = 'Requirement'\n\t\tand ji.std_status = 'Resolved'\n\t\tand $__timeFilter(ji.resolution_date)\n    and jbi.board_id = $board_id\n),\n\ntime_in_status as(\n\tSELECT \n\t\tDATE_ADD(date(issue_creation_time), INTERVAL -DAY(date(issue_creation_time))+1 DAY) as time,\n\t\tfrom_string,\n\t\tround(avg(time_in_status)/1440,1) as time_in_status\n\tFROM status_change_history\n\tGROUP BY 1,2\n),\n\nthis_month as(\n\tselect \n\t\tDATE_ADD(date(CURDATE()), INTERVAL -DAY(date(CURDATE()))+1 DAY) as this_month\n),\n\nlast_month as(\n\tSELECT \n\t\tDATE_ADD(DATE_ADD(date(CURDATE()), INTERVAL -DAY(date(CURDATE()))+1 DAY), INTERVAL -1 MONTH) as last_month\n),\n\n\nthis_month_record as(\n\tSELECT\n\t\tfrom_string as issue_status,\n\t\tcase when time in (SELECT this_month from this_month) then time_in_status else null end as this_month\n\tfrom time_in_status\n\tWHERE \n\t\ttime in (SELECT this_month from this_month)\n),\n\nlast_month_record as(\n\tSELECT\n\t\tfrom_string as issue_status,\n\t\tcase when time in (SELECT last_month from last_month) then time_in_status else null end as last_month\n\tfrom time_in_status\n\tWHERE \n\t\ttime in (SELECT last_month from last_month)\n),\n\nfull_data as (\n  SELECT\n  \tcase \n  \t  when lmr.issue_status in ('打开','重新打开','待开发','Open','open','todo','to-do') then 'Open'\n  \t  when lmr.issue_status in ('处理中','设计中','in-progress','InProgress') then 'In-progress'\n  \t  when lmr.issue_status in ('开发自测','代码评审','open') then 'Code Review'\n  \t  when lmr.issue_status in ('测试中','testing','open') then 'Testing'\n  \t  when lmr.issue_status in ('发布中') then 'Build and Deploy' \n  \t  else 'Other' end as issue_status,\n  \tlmr.last_month,\n\t\ttmr.this_month\n  FROM this_month_record tmr\n  left join last_month_record lmr on tmr.issue_status = lmr.issue_status \n)\n\nSELECT \n  '' as '',\n  last_month AS \"Last Month\",\n\tthis_month AS \"This Month\"\nFROM full_data\nWHERE issue_status = 'Testing'",
+          "refId": "A",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "timeColumn": "time",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        }
+      ],
+      "timeFrom": null,
+      "timeShift": null,
+      "title": "Testing",
+      "type": "barchart"
+    },
+    {
+      "datasource": "mysql",
+      "description": "1. Compare the average time spent in each state of a requirement in the last 2 months.\n2. The requirements being calculated are the requirements delivered in the last 2 months.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "axisSoftMax": 6.4,
+            "axisSoftMin": 0,
+            "fillOpacity": 80,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineWidth": 1
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          },
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 20,
+        "y": 0
+      },
+      "id": 103,
+      "options": {
+        "barWidth": 0.51,
+        "groupWidth": 0.68,
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom"
+        },
+        "orientation": "horizontal",
+        "showValue": "always",
+        "text": {
+          "valueSize": 18
+        },
+        "tooltip": {
+          "mode": "single"
+        }
+      },
+      "pluginVersion": "8.0.6",
+      "targets": [
+        {
+          "format": "table",
+          "group": [],
+          "metricColumn": "none",
+          "queryType": "randomWalk",
+          "rawQuery": true,
+          "rawSql": "with status_change_history as(\n\tSELECT\n\t\tjc.issue_id,\n\t\tjc.created as operation_time,\n\t\tjci.changelog_id,\n\t\tjci.from,\n\t\tjci.from_string,\n\t\tjci.to,\n\t\tjci.to_string,\n\t\tji.created as issue_creation_time,\n\t\tlag(jc.created) over(PARTITION BY jc.issue_id ORDER BY jc.created ASC) as last_operation_time,\n\t\tcase \n\t\t\twhen lag(jc.created) over(PARTITION BY jc.issue_id ORDER BY jc.created ASC) is not null then\n\t\t\tTIMESTAMPDIFF(MINUTE, lag(jc.created) over(PARTITION BY jc.issue_id ORDER BY jc.created ASC), jc.created)\n\t\t\telse TIMESTAMPDIFF(MINUTE, ji.created, jc.created) end as time_in_status\n\tFROM\n\t\tjira_changelogs jc\n\t\tJOIN jira_changelog_items jci ON jc.id = jci.changelog_id\n\t\tJOIN jira_issues ji ON jc.issue_id = ji.id\n\t\tjoin jira_board_issues jbi on ji.id = jbi.issue_id\n\tWHERE\n\t\tjci.field = 'status'\n\t\tand ji.std_type = 'Requirement'\n\t\tand ji.std_status = 'Resolved'\n\t\tand $__timeFilter(ji.resolution_date)\n    and jbi.board_id = $board_id\n),\n\ntime_in_status as(\n\tSELECT \n\t\tDATE_ADD(date(issue_creation_time), INTERVAL -DAY(date(issue_creation_time))+1 DAY) as time,\n\t\tfrom_string,\n\t\tround(avg(time_in_status)/1440,1) as time_in_status\n\tFROM status_change_history\n\tGROUP BY 1,2\n),\n\nthis_month as(\n\tselect \n\t\tDATE_ADD(date(CURDATE()), INTERVAL -DAY(date(CURDATE()))+1 DAY) as this_month\n),\n\nlast_month as(\n\tSELECT \n\t\tDATE_ADD(DATE_ADD(date(CURDATE()), INTERVAL -DAY(date(CURDATE()))+1 DAY), INTERVAL -1 MONTH) as last_month\n),\n\n\nthis_month_record as(\n\tSELECT\n\t\tfrom_string as issue_status,\n\t\tcase when time in (SELECT this_month from this_month) then time_in_status else null end as this_month\n\tfrom time_in_status\n\tWHERE \n\t\ttime in (SELECT this_month from this_month)\n),\n\nlast_month_record as(\n\tSELECT\n\t\tfrom_string as issue_status,\n\t\tcase when time in (SELECT last_month from last_month) then time_in_status else null end as last_month\n\tfrom time_in_status\n\tWHERE \n\t\ttime in (SELECT last_month from last_month)\n),\n\nfull_data as (\n  SELECT\n  \tcase \n  \t  when lmr.issue_status in ('打开','重新打开','待开发','Open','open','todo','to-do') then 'Open'\n  \t  when lmr.issue_status in ('处理中','设计中','in-progress','InProgress') then 'In-progress'\n  \t  when lmr.issue_status in ('开发自测','代码评审','open') then 'Code Review'\n  \t  when lmr.issue_status in ('测试中','testing','open') then 'Testing'\n  \t  when lmr.issue_status in ('发布中') then 'Build and Deploy' \n  \t  else 'Other' end as issue_status,\n  \tlmr.last_month,\n\t\ttmr.this_month\n  FROM this_month_record tmr\n  left join last_month_record lmr on tmr.issue_status = lmr.issue_status \n)\n\nSELECT \n  '' as '',\n  last_month AS \"Last Month\",\n\tthis_month AS \"This Month\"\nFROM full_data\nWHERE issue_status = 'Build and Deploy'",
+          "refId": "A",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "timeColumn": "time",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        }
+      ],
+      "timeFrom": null,
+      "timeShift": null,
+      "title": "Build and Deploy",
+      "type": "barchart"
+    },
+    {
+      "datasource": "mysql",
+      "description": "1. Compare the average time spent in each state of a requirement in the last 2 months.\n2. The requirements being calculated are the requirements delivered in the last 2 months.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "axisSoftMax": 8,
+            "axisSoftMin": 0,
+            "fillOpacity": 80,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineWidth": 1
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          },
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 12,
+        "w": 24,
+        "x": 0,
+        "y": 4
+      },
+      "id": 100,
+      "options": {
+        "barWidth": 0.8,
+        "groupWidth": 0.49,
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom"
+        },
+        "orientation": "vertical",
+        "showValue": "always",
+        "text": {
+          "valueSize": 18
+        },
+        "tooltip": {
+          "mode": "single"
+        }
+      },
+      "pluginVersion": "8.0.6",
+      "targets": [
+        {
+          "format": "table",
+          "group": [],
+          "metricColumn": "none",
+          "queryType": "randomWalk",
+          "rawQuery": true,
+          "rawSql": "with status_change_history as(\n\tSELECT\n\t\tjc.issue_id,\n\t\tjc.created as operation_time,\n\t\tjci.changelog_id,\n\t\tjci.from,\n\t\tjci.from_string,\n\t\tjci.to,\n\t\tjci.to_string,\n\t\tji.created as issue_creation_time,\n\t\tlag(jc.created) over(PARTITION BY jc.issue_id ORDER BY jc.created ASC) as last_operation_time,\n\t\tcase \n\t\t\twhen lag(jc.created) over(PARTITION BY jc.issue_id ORDER BY jc.created ASC) is not null then\n\t\t\tTIMESTAMPDIFF(MINUTE, lag(jc.created) over(PARTITION BY jc.issue_id ORDER BY jc.created ASC), jc.created)\n\t\t\telse TIMESTAMPDIFF(MINUTE, ji.created, jc.created) end as time_in_status\n\tFROM\n\t\tjira_changelogs jc\n\t\tJOIN jira_changelog_items jci ON jc.id = jci.changelog_id\n\t\tJOIN jira_issues ji ON jc.issue_id = ji.id\n\t\tjoin jira_board_issues jbi on ji.id = jbi.issue_id\n\tWHERE\n\t\tjci.field = 'status'\n\t\tand ji.std_type = 'Requirement'\n\t\tand ji.std_status = 'Resolved'\n\t\tand $__timeFilter(ji.resolution_date)\n    and jbi.board_id = $board_id\n),\n\ntime_in_status as(\n\tSELECT \n\t\tDATE_ADD(date(issue_creation_time), INTERVAL -DAY(date(issue_creation_time))+1 DAY) as time,\n\t\tfrom_string,\n\t\tround(avg(time_in_status)/1440,1) as time_in_status\n\tFROM status_change_history\n\tGROUP BY 1,2\n),\n\nthis_month as(\n\tselect \n\t\tDATE_ADD(date(CURDATE()), INTERVAL -DAY(date(CURDATE()))+1 DAY) as this_month\n),\n\nlast_month as(\n\tSELECT \n\t\tDATE_ADD(DATE_ADD(date(CURDATE()), INTERVAL -DAY(date(CURDATE()))+1 DAY), INTERVAL -1 MONTH) as last_month\n),\n\n\nthis_month_record as(\n\tSELECT\n\t\tfrom_string as issue_status,\n\t\tcase when time in (SELECT this_month from this_month) then time_in_status else null end as this_month\n\tfrom time_in_status\n\tWHERE \n\t\ttime in (SELECT this_month from this_month)\n),\n\nlast_month_record as(\n\tSELECT\n\t\tfrom_string as issue_status,\n\t\tcase when time in (SELECT last_month from last_month) then time_in_status else null end as last_month\n\tfrom time_in_status\n\tWHERE \n\t\ttime in (SELECT last_month from last_month)\n),\n\nfull_data as (\n  SELECT\n  \tcase \n  \t  when lmr.issue_status in ('打开','重新打开','待开发','Open','open','todo','to-do') then 'Open'\n  \t  when lmr.issue_status in ('处理中','设计中','in-progress','InProgress') then 'In-progress'\n  \t  when lmr.issue_status in ('开发自测','代码评审','open') then 'Code Review'\n  \t  when lmr.issue_status in ('测试中','testing','open') then 'Testing'\n  \t  when lmr.issue_status in ('发布中') then 'Build and Deploy' \n  \t  else 'Other' end as issue_status,\n  \tlmr.last_month,\n\t\ttmr.this_month\n  FROM this_month_record tmr\n  left join last_month_record lmr on tmr.issue_status = lmr.issue_status \n)\n\nSELECT \n  issue_status,\n  last_month AS \"Last Month\",\n\tthis_month AS \"This Month\"\nFROM full_data",
+          "refId": "A",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "timeColumn": "time",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        }
+      ],
+      "timeFrom": null,
+      "timeShift": null,
+      "type": "barchart"
+    }
+  ],
+  "refresh": "",
+  "schemaVersion": 30,
+  "style": "dark",
+  "tags": [],
+  "templating": {
+    "list": [
+      {
+        "allValue": null,
+        "current": {
+          "selected": true,
+          "text": [
+            "All"
+          ],
+          "value": [
+            "$__all"
+          ]
+        },
+        "datasource": "mysql",
+        "definition": "select distinct concat(name, ': ', id) from jira_boards",
+        "description": null,
+        "error": null,
+        "hide": 0,
+        "includeAll": true,
+        "label": "Choose Board",
+        "multi": true,
+        "name": "board_id",
+        "options": [],
+        "query": "select distinct concat(name, ': ', id) from jira_boards",
+        "refresh": 1,
+        "regex": "/^(?<text>[^:]+): (?<value>\\d+)$/",
+        "skipUrlSync": false,
+        "sort": 0,
+        "type": "query"
+      }
+    ]
+  },
+  "time": {
+    "from": "now-6M",
+    "to": "now"
+  },
+  "timepicker": {},
+  "timezone": "",
+  "title": "Average Requirement Lead Time By Process",
+  "uid": "XOHtSNFnk",
+  "version": 39
+}
