@@ -23,7 +23,7 @@ func ConvertUsers(sourceId uint64) error {
 	for _, jiraUser := range jiraUserRows {
 		user := &user.User{
 			DomainEntity: domainlayerBase.DomainEntity{
-				OriginKey: userOriginKeyGenerator.Generate(jiraUser.SourceId, jiraUser.ProjectId, jiraUser.Name),
+				OriginKey: userOriginKeyGenerator.Generate(jiraUser.SourceId, jiraUser.AccountId),
 			},
 			Name:      jiraUser.Name,
 			Email:     jiraUser.Email,
