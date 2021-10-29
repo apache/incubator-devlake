@@ -16,8 +16,7 @@ type ApiSingleCommitResponse struct {
 	}
 }
 
-func CollectCommit(owner string, repositoryName string, repositoryId int, commit *models.GithubCommit) error {
-	githubApiClient := CreateApiClient()
+func CollectCommit(owner string, repositoryName string, repositoryId int, commit *models.GithubCommit, githubApiClient *GithubApiClient) error {
 	getUrl := fmt.Sprintf("repos/%v/%v/commits/%v", owner, repositoryName, commit.Sha)
 	res, getErr := githubApiClient.Get(getUrl, nil, nil)
 	if getErr != nil {

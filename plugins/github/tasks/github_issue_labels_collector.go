@@ -21,8 +21,7 @@ type IssueLabel struct {
 	Color       string
 }
 
-func CollectIssueLabelsForSinglePullRequest(owner string, repositoryName string, pr *models.GithubPullRequest, scheduler *utils.WorkerScheduler) error {
-	githubApiClient := CreateApiClient()
+func CollectIssueLabelsForSinglePullRequest(owner string, repositoryName string, pr *models.GithubPullRequest, scheduler *utils.WorkerScheduler, githubApiClient *GithubApiClient) error {
 	getUrl := fmt.Sprintf("repos/%v/%v/issues/%v/labels", owner, repositoryName, pr.Number)
 	return githubApiClient.FetchWithPaginationAnts(getUrl, 100, 1, scheduler,
 		func(res *http.Response) error {
@@ -51,8 +50,7 @@ func CollectIssueLabelsForSinglePullRequest(owner string, repositoryName string,
 			return nil
 		})
 }
-func CollectIssueLabelsForSingleIssue(owner string, repositoryName string, issue *models.GithubIssue, scheduler *utils.WorkerScheduler) error {
-	githubApiClient := CreateApiClient()
+func CollectIssueLabelsForSingleIssue(owner string, repositoryName string, issue *models.GithubIssue, scheduler *utils.WorkerScheduler, githubApiClient *GithubApiClient) error {
 	getUrl := fmt.Sprintf("repos/%v/%v/issues/%v/labels", owner, repositoryName, issue.Number)
 	return githubApiClient.FetchWithPaginationAnts(getUrl, 100, 1, scheduler,
 		func(res *http.Response) error {
@@ -81,8 +79,7 @@ func CollectIssueLabelsForSingleIssue(owner string, repositoryName string, issue
 			return nil
 		})
 }
-func CollectRepositoryIssueLabels(owner string, repositoryName string, scheduler *utils.WorkerScheduler) error {
-	githubApiClient := CreateApiClient()
+func CollectRepositoryIssueLabels(owner string, repositoryName string, scheduler *utils.WorkerScheduler, githubApiClient *GithubApiClient) error {
 	getUrl := fmt.Sprintf("repos/%v/%v/labels", owner, repositoryName)
 	return githubApiClient.FetchWithPaginationAnts(getUrl, 100, 1, scheduler,
 		func(res *http.Response) error {
