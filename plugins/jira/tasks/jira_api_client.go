@@ -113,7 +113,12 @@ func (jiraApiClient *JiraApiClient) FetchPages(scheduler *utils.WorkerScheduler,
 	return nil
 }
 
-func (jiraApiClient *JiraApiClient) FetchWithoutPagination(
+// FetchWithoutPaginationHeaders uses pagination in a different way than FetchPages.
+// We set the pagination params to what we want, and then we just keep making requests
+// until the response array is empty. This is why we need to check the "next" variable
+// on the handler, and the handler that is passed in needs to return a boolean to tell
+// us whether or not to continue making requests. This is why we created JiraSearchPaginationHandler.
+func (jiraApiClient *JiraApiClient) FetchWithoutPaginationHeaders(
 	path string,
 	query *url.Values,
 	handler JiraSearchPaginationHandler,

@@ -25,7 +25,10 @@ type JiraApiUser struct {
 func CollectUsers(jiraApiClient *JiraApiClient,
 	sourceId uint64,
 ) error {
-	err := jiraApiClient.FetchWithoutPagination("/api/3/users/search", nil,
+	// The reason we use FetchWithoutPaginationHeaders is because this API endpoint does not
+	// return pagination info in it's headers the same way that other endpoints do.
+	// This method still uses pagination, but in a different way.
+	err := jiraApiClient.FetchWithoutPaginationHeaders("/api/3/users/search", nil,
 		func(res *http.Response) (bool, error) {
 			jiraApiUsersResponse := &JiraUserApiRes{}
 			err := core.UnmarshalResponse(res, jiraApiUsersResponse)
