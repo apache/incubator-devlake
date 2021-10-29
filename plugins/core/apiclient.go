@@ -13,6 +13,9 @@ import (
 	"github.com/merico-dev/lake/logger"
 )
 
+// This is for multiple token functionality so we can loop through an array of tokens.
+var tokenIndex int = 0
+
 type ApiClientBeforeRequest func(req *http.Request) error
 type ApiClientAfterResponse func(res *http.Response) error
 
@@ -23,6 +26,7 @@ type ApiClient struct {
 	maxRetry      int
 	beforeRequest ApiClientBeforeRequest
 	afterReponse  ApiClientAfterResponse
+	tokens        []string
 }
 
 func NewApiClient(
@@ -30,6 +34,7 @@ func NewApiClient(
 	headers map[string]string,
 	timeout time.Duration,
 	maxRetry int,
+	tokens []string,
 ) *ApiClient {
 	apiClient := &ApiClient{}
 	apiClient.Setup(
@@ -37,6 +42,7 @@ func NewApiClient(
 		headers,
 		timeout,
 		maxRetry,
+		tokens,
 	)
 	return apiClient
 }
@@ -46,13 +52,23 @@ func (apiClient *ApiClient) Setup(
 	headers map[string]string,
 	timeout time.Duration,
 	maxRetry int,
+	tokens []string,
 ) {
 	apiClient.client = &http.Client{Timeout: timeout}
 	apiClient.SetEndpoint(endpoint)
 	apiClient.SetHeaders(headers)
 	apiClient.SetMaxRetry(maxRetry)
+	apiClient.SetTokens(tokens)
 }
 
+func (apiClient *ApiClient) SetTokens(tokens []string) {
+	apiClient.tokens = tokens
+}
+
+// Getting tokens allows the plugin to configure its worker scheduler according to how many tokens they have.
+func (apiClient *ApiClient) GetTokens() []string {
+	return apiClient.tokens
+}
 func (apiClient *ApiClient) SetEndpoint(endpoint string) {
 	apiClient.endpoint = endpoint
 }
@@ -121,7 +137,14 @@ func (apiClient *ApiClient) Do(
 			req.Header.Set(name, value)
 		}
 	}
-
+	// GitHub is currently the only plugin using the multitoken feature, so it's safe to
+	// assume setting the Authorization header using Bearer will work. However, this
+	// may not be the case for other APIs, and we will need to pass in "authType" or some
+	// other field to specify how authorization should be handled.
+	if len(apiClient.tokens) > 0 {
+		req.Header.Set("Authorization", fmt.Sprintf("Bearer %v", apiClient.tokens[tokenIndex]))
+		tokenIndex = (tokenIndex + 1) % len(apiClient.tokens)
+	}
 	// before send
 	if apiClient.beforeRequest != nil {
 		err = apiClient.beforeRequest(req)

@@ -28,6 +28,7 @@ func NewJiraApiClient(endpoint string, auth string) *JiraApiClient {
 		},
 		10*time.Second,
 		3,
+		nil,
 	)
 	return jiraApiClient
 }

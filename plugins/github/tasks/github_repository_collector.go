@@ -16,8 +16,7 @@ type ApiRepositoryResponse struct {
 	HTMLUrl  string `json:"html_url"`
 }
 
-func CollectRepository(owner string, repositoryName string) (int, error) {
-	githubApiClient := CreateApiClient()
+func CollectRepository(owner string, repositoryName string, githubApiClient *GithubApiClient) (int, error) {
 	getUrl := fmt.Sprintf("repos/%v/%v", owner, repositoryName)
 	res, err := githubApiClient.Get(getUrl, nil, nil)
 	if err != nil {

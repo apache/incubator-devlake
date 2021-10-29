@@ -23,8 +23,7 @@ type PullRequestComment struct {
 	GithubCreatedAt core.Iso8601Time `json:"created_at"`
 }
 
-func CollectPullRequestComments(owner string, repositoryName string, pull *models.GithubPullRequest, scheduler *utils.WorkerScheduler) error {
-	githubApiClient := CreateApiClient()
+func CollectPullRequestComments(owner string, repositoryName string, pull *models.GithubPullRequest, scheduler *utils.WorkerScheduler, githubApiClient *GithubApiClient) error {
 	getUrl := fmt.Sprintf("repos/%v/%v/issues/%v/comments", owner, repositoryName, pull.Number)
 	return githubApiClient.FetchWithPaginationAnts(getUrl, 100, 1, scheduler,
 		func(res *http.Response) error {

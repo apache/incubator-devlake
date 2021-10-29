@@ -23,6 +23,9 @@ func CreateApiClient() *GithubApiClient {
 	if githubApiClient == nil {
 		githubApiClient = &GithubApiClient{}
 		auth := fmt.Sprintf("Bearer %v", config.V.GetString("GITHUB_AUTH"))
+		tokensString := config.V.GetString("GITHUB_AUTH_TOKENS")
+		// convert comma seperated value to array of strings
+		tokensArray := strings.Split(tokensString, ",")
 		githubApiClient.Setup(
 			config.V.GetString("GITHUB_ENDPOINT"),
 			map[string]string{
@@ -30,6 +33,7 @@ func CreateApiClient() *GithubApiClient {
 			},
 			10*time.Second,
 			3,
+			tokensArray,
 		)
 	}
 	return githubApiClient
