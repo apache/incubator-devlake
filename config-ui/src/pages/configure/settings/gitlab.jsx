@@ -20,6 +20,10 @@ import {
 } from '@blueprintjs/core'
 import { Select } from '@blueprintjs/select'
 import { ToastNotification } from '@/components/Toast'
+
+import { boardsData } from '@/pages/configure/mock-data/boards'
+import { projectsData } from '@/pages/configure/mock-data/projects'
+
 import '@/styles/integration.scss'
 import '@/styles/connections.scss'
 
@@ -33,27 +37,10 @@ export default function GitlabSettings (props) {
   const [showBoardMappingDialog, setShowBoardMappingDialog] = useState(false)
 
   const [selectedBoard, setSelectedBoard] = useState({ id: 1, title: 'Open', value: 1 })
-  const [boards, setBoards] = useState([
-    { id: 1, title: 'Open', value: 1 },
-    { id: 2, title: 'Backlog', value: 2 },
-    { id: 3, title: 'QA / Testing', value: 3 },
-    { id: 4, title: 'Pre-release', value: 4 },
-    { id: 5, title: 'Production', value: 5 },
-    { id: 6, title: 'Closed', value: 6 }
-  ])
+  const [boards, setBoards] = useState(boardsData)
 
   const [selectedProject, setSelectedProject] = useState({ id: 0, title: 'GL PRJ 3E4', value: 938191 })
-  const [projects, setProjects] = useState([
-    { id: 0, title: 'GL PRJ 3E4', value: 938191 },
-    { id: 1, title: 'GL PRJ GG3', value: 23123 },
-    { id: 2, title: 'GL PRJ 1XX', value: 653241 },
-    { id: 3, title: 'GL PRJ 2X8', value: 1112 },
-    { id: 4, title: 'GL PRJ 3FG', value: 51251251 },
-    { id: 5, title: 'GL PRJ 789', value: 1211 },
-    { id: 6, title: 'GL PRJ 22E', value: 34168 },
-    { id: 7, title: 'GL PRJ 98Z', value: 9877673 },
-    { id: 8, title: 'GL PRJ RR5', value: 657493 },
-  ])
+  const [projects, setProjects] = useState(projectsData)
 
   const [boardMappings, setBoardMappings] = useState([
     {
@@ -171,8 +158,12 @@ export default function GitlabSettings (props) {
       <p className=''>Visually relate specific JIRA boards to GitLab Projects.</p>
 
       <Card interactive={false} elevation={Elevation.ONE} style={{ width: '100%', maxWidth: '640px', backgroundColor: Colors.LIGHT_GRAY5 }}>
-        <h3 style={{ margin: 0 }}>NO BOARD MAPPINGS</h3>
-        <p style={{ margin: '0 0 10px 0' }}>No active mappings have been created as yet.</p>
+        {boardMappings.length === 0 && (
+          <>
+            <h3 style={{ margin: 0 }}>NO BOARD MAPPINGS</h3>
+            <p style={{ margin: '0 0 10px 0' }}>No active mappings have been created as yet.</p>
+          </>
+        )}
         <div className='formContainer'>
           <Button
             className='btn-save'
