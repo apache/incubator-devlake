@@ -19,5 +19,14 @@ export default {
         headers
       }
     )
+  },
+  put: async (url, body) => {
+    return await axios.put(
+      url,
+      body,
+      {
+        headers
+      }
+    )
   }
 }

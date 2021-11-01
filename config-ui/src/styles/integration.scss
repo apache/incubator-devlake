@@ -1,0 +1,109 @@
+.integrationProviders {
+  border: 0;
+  display: flex;
+  width: 50%;
+  align-self: flex-start;
+  padding: 10px;
+
+  .iProvider {
+    margin: 0 30px 15px 0;
+    text-align: center;
+    width: 96px;
+    height: 96px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    border-radius: 4px;
+    transition: background-color 0.3s ease-out;
+    opacity: 0.85;
+
+    &:hover {
+      box-shadow: 0 2px 2px 0 rgba(0, 0, 0, .16), 0 0 2px 0 rgba(0, 0, 0, .12);
+      border: 2px solid #E8471C;
+      background-color: #eeeeee;
+      opacity: 1.0;
+
+      svg:first-of-type {
+        transform: scale(1.05);
+      }
+
+      .providerName {
+        color: #222222;
+        font-weight: bold;
+      }
+
+      svg:first-of-type {
+        transition: all 0.3s ease-out;
+      }
+
+    }
+
+    .providerName {
+      cursor: pointer;
+      transition: color 0.3s ease-out;
+      color: #777777;
+    }
+
+    .providerIcon {
+      cursor: pointer;
+    }
+  }
+}
+
+.manageProvider {
+  display: flex;
+  flex-direction: column;
+  align-self: flex-start;
+  width: 100%;
+}
+
+.table-action-link {
+  margin-left: 15px;
+  text-decoration: none;
+  line-height: 16px;
+  color: #666666;
+  transition: all 0.3s ease-in;
+
+  &:hover {
+    color: #111111;
+
+    >.bp3-icon {
+      opacity: 1.0;
+    }
+  }
+
+  >.bp3-icon {
+    margin-right: 5px;
+    margin-bottom: 2px;
+    opacity: 0.5;
+    transition: all 0.3s ease-in;
+  }
+}
+
+table.connections-table {
+
+  tbody {
+    tr {
+      cursor: pointer;
+
+      &.connection-offline {
+        background-color: rgba(191, 204, 214, 0.25);
+
+        td {
+          color: #888888;
+        }
+      }
+
+      &:hover {
+        background-color: rgba(191, 204, 214, 0.15);
+      }
+    }
+  }
+}
+
+.bp3-button.bp3-intent-primary {
+  // background-color: #E8471C;
+  &:hover {
+    // background-color: #ff6a42;
+  }
+}
