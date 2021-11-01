@@ -39,7 +39,7 @@ func CollectCommits(owner string, repositoryName string, repositoryId int, sched
 		func(res *http.Response) error {
 			githubApiResponse := &ApiCommitsResponse{}
 			err := core.UnmarshalResponse(res, githubApiResponse)
-			if err != nil {
+			if err != nil || res.StatusCode == 401 {
 				logger.Error("Error: ", err)
 				return err
 			}

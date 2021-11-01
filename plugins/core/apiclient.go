@@ -141,7 +141,8 @@ func (apiClient *ApiClient) Do(
 	// assume setting the Authorization header using Bearer will work. However, this
 	// may not be the case for other APIs, and we will need to pass in "authType" or some
 	// other field to specify how authorization should be handled.
-	if len(apiClient.tokens) > 0 {
+	if len(apiClient.tokens) > 0 && apiClient.tokens[0] != "" {
+		// override the current auth with a new auth
 		req.Header.Set("Authorization", fmt.Sprintf("Bearer %v", apiClient.tokens[tokenIndex]))
 		tokenIndex = (tokenIndex + 1) % len(apiClient.tokens)
 	}
