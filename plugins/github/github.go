@@ -74,7 +74,9 @@ func (plugin Github) Execute(options map[string]interface{}, progress chan<- flo
 	if err != nil {
 		return fmt.Errorf("Could not collect repo Issue Labels: %v", err)
 	}
+
 	progress <- 0.2
+
 	if tasksToRun["collectCommits"] {
 		fmt.Println("INFO >>> starting commits collection")
 		collectCommitsErr := tasks.CollectCommits(ownerString, repositoryNameString, repoId, scheduler, githubApiClient)
@@ -83,7 +85,9 @@ func (plugin Github) Execute(options map[string]interface{}, progress chan<- flo
 		}
 		tasks.CollectChildrenOnCommits(ownerString, repositoryNameString, repoId, scheduler, githubApiClient)
 	}
+
 	progress <- 0.4
+
 	if tasksToRun["collectIssues"] {
 		fmt.Println("INFO >>> starting issues / PRs collection")
 		collectIssuesErr := tasks.CollectIssues(ownerString, repositoryNameString, repoId, scheduler, githubApiClient)
@@ -91,18 +95,22 @@ func (plugin Github) Execute(options map[string]interface{}, progress chan<- flo
 			return fmt.Errorf("Could not collect issues: %v", collectIssuesErr)
 		}
 		progress <- 0.6
+
 		fmt.Println("INFO >>> starting children on issues collection")
 		collectIssueChildrenErr := tasks.CollectChildrenOnIssues(ownerString, repositoryNameString, repoId, scheduler, githubApiClient)
 		if collectIssueChildrenErr != nil {
 			return fmt.Errorf("Could not collect Issue children: %v", collectIssueChildrenErr)
 		}
+
 		progress <- 0.8
+
 		fmt.Println("INFO >>> collecting PR children collection")
 		collectPrChildrenErr := tasks.CollectChildrenOnPullRequests(ownerString, repositoryNameString, repoId, scheduler, githubApiClient)
 		if collectPrChildrenErr != nil {
 			return fmt.Errorf("Could not collect PR children: %v", collectPrChildrenErr)
 		}
 	}
+
 	progress <- 1
 
 	close(progress)
