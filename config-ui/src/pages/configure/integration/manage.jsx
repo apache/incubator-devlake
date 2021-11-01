@@ -43,12 +43,12 @@ export default function ManageIntegration () {
     setIsLoading(true)
     try {
       const connectionsResponse = await request.get(`${DEVLAKE_ENDPOINT}/plugins/${activeProvider.id}/sources`)
-      let providerConnections = connectionsResponse.data.data || []
+      let providerConnections = connectionsResponse.data || []
       providerConnections = providerConnections.map((conn, idx) => {
         return {
           ...conn,
-          status: 0, // conn.status
-          id: idx,
+          status: connectionsResponse.status === 200 || connectionsResponse.status === 201 ? 1 : 0, // conn.status
+          id: conn.ID,
           name: conn.name,
           endpoint: conn.endpoint,
           errors: []
