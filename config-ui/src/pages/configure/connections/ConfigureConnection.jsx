@@ -7,6 +7,7 @@ import {
 import {
   Button,
   Icon,
+  Intent,
 } from '@blueprintjs/core'
 // import { SERVER_HOST, DEVLAKE_ENDPOINT } from '@/utils/config'
 import Nav from '@/components/Nav'
@@ -209,11 +210,13 @@ export default function ConfigureConnection () {
                     <div>
                       <Button icon='remove' text='Cancel' onClick={cancel} disabled={isSaving} />
                       <Button
-                        icon='cloud-upload' intent='primary' text='Save Settings'
+                        icon='cloud-upload'
+                        intent={Intent.PRIMARY}
+                        text='Save Settings'
                         loading={isSaving}
                         disabled={isSaving || providerId === 'jenkins'}
                         onClick={saveSettings}
-                        style={{ backgroundColor: '#E8471C', marginLeft: '10px' }}
+                        style={{ marginLeft: '10px' }}
                       />
                     </div>
                   </div>
