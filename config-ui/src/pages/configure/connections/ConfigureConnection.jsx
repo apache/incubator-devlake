@@ -148,7 +148,7 @@ export default function ConfigureConnection () {
 
   useEffect(() => {
 
-  }, [])
+  }, [activeProvider])
 
   return (
     <>

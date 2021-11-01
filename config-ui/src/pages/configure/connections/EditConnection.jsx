@@ -101,7 +101,7 @@ export default function EditConnection () {
         break
       case 'gitlab':
       case 'jira':
-        setToken(activeConnection.token)
+        setToken(activeConnection.basicAuthEncoded)
         break
     }
   }, [activeConnection, activeProvider.id])

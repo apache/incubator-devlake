@@ -70,7 +70,7 @@ function useConnectionManager ({
     let connectionPayload
     switch (activeProvider.id) {
       case 'jira':
-        connectionPayload = { name: name, JIRA_ENDPOINT: endpointUrl, JIRA_BASIC_AUTH_ENCODED: token }
+        connectionPayload = { name: name, endpoint: endpointUrl, basicAuthEncoded: token }
         break
       case 'jenkins':
         connectionPayload = { name: name, JENKINS_ENDPOINT: endpointUrl, JENKINS_USERNAME: username, JENKINS_PASSWORD: password }
@@ -92,11 +92,11 @@ function useConnectionManager ({
       try {
         setShowError(false)
         ToastNotification.clear()
-        const s = await request.post(`${DEVLAKE_ENDPOINT}/plugins/${activeProvider.id}/source`, configPayload)
+        const s = await request.post(`${DEVLAKE_ENDPOINT}/plugins/${activeProvider.id}/sources`, configPayload)
         console.log('>> CONFIGURATION SAVED SUCCESSFULLY', configPayload, s)
         saveResponse = {
           ...saveResponse,
-          success: s.data.success,
+          success: s.status === 200 || s.status === 201 ? true : false,
           connection: { ...s.data },
           errors: s.isAxiosError ? [s.message] : []
         }
@@ -111,11 +111,11 @@ function useConnectionManager ({
       try {
         setShowError(false)
         ToastNotification.clear()
-        const s = await request.put(`${DEVLAKE_ENDPOINT}/plugins/${activeProvider.id}/sources/${activeConnection.id}`, configPayload)
+        const s = await request.put(`${DEVLAKE_ENDPOINT}/plugins/${activeProvider.id}/sources/${activeConnection.ID}`, configPayload)
         console.log('>> CONFIGURATION MODIFIED SUCCESSFULLY', configPayload, s)
         saveResponse = {
           ...saveResponse,
-          success: s.data.success,
+          success: s.status === 200 || s.status === 201 ? true : false,
           connection: { ...s.data },
           errors: s.isAxiosError ? [s.message] : []
         }
@@ -160,7 +160,7 @@ function useConnectionManager ({
       setIsFetching(true)
       console.log('>> FETCHING CONNECTION SOURCE', isFetching)
       const f = await request.get(`${DEVLAKE_ENDPOINT}/plugins/${activeProvider.id}/sources/${connectionId}`)
-      const connectionData = f.data.data
+      const connectionData = f.data
       setActiveConnection(connectionData)
       setIsFetching(false)
     } catch (e) {
