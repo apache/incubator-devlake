@@ -1,0 +1,38 @@
+$pt-intent-primary: #E8471C !default;
+$pt-intent-success: #2E5EAA !default;
+$pt-intent-warning: #5B4E77 !default;
+$pt-intent-danger: #1A1B41 !default;
+// $pt-app-background-color	Application background color
+// $pt-dark-app-background-color	Dark theme application background color
+// $pt-text-color	Default text color
+// $pt-text-color-muted	Muted text color
+// $pt-text-color-disabled	Disabled text color
+// $pt-heading-color	Text color for headers
+// $pt-link-color	Text color for links
+// $pt-dark-text-color	Dark theme default text color
+// $pt-dark-text-color-muted	Dark theme muted text color
+// $pt-dark-text-color-disabled	Dark theme disabled text color
+// $pt-dark-heading-color	Dark theme text color for headers
+// $pt-dark-link-color	Dark theme text color for links
+// $pt-text-selection-color	Text selection color
+// $pt-icon-color	Default icon color
+// $pt-icon-color-hover	Hovered icon color
+// $pt-icon-color-disabled	Disabled icon color
+// $pt-icon-color-selected	Selected icon color
+// $pt-dark-icon-color	Dark theme default icon color
+// $pt-dark-icon-color-hover	Dark theme hovered icon color
+// $pt-dark-icon-color-disabled	Dark theme disabled icon color
+// $pt-dark-icon-color-selected	Dark theme selected icon color
+// $pt-divider-black	Black divider color
+// $pt-dark-divider-black	Dark theme black divider color
+// $pt-dark-divider-white	Dark theme white divider color
+// $pt-code-text-color	Code text color
+// $pt-code-background-color	Code background color
+// $pt-dark-code-text-color	Dark theme code text color
+// $pt-dark-code-background-color	Dark theme code background color
+$button-intents: (
+  "primary": ($pt-intent-primary, lighten($pt-intent-primary, 5%), lighten($pt-intent-primary, 10%)),
+  "success": ($pt-intent-success, lighten($pt-intent-success, 5%), lighten($pt-intent-success, 10%)),
+  "warning": ($pt-intent-warning,  lighten($pt-intent-warning, 5%), lighten( $pt-intent-warning, 10%)),
+  "danger": ($pt-intent-danger,  lighten($pt-intent-danger, 5%), lighten( $pt-intent-danger, 10%))
+) !default;

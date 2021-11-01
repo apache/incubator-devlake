@@ -1,0 +1,101 @@
+.addConnection, .editConnection, .configureConnection {
+  .formContainer {}
+
+  .bp3-form-group {
+    display: flex;
+    max-width: none;
+
+    .bp3-form-content {
+      width: 100%;
+      max-width: 50%;
+      min-width: 600px;
+      display: flex;
+
+      .bp3-label {}
+    }
+
+    .bp3-input-group {
+      display: flex;
+      // width: 440px;
+      // min-width: 440px;
+      // max-width: 440px;    
+      .input {
+        input.bp3-input {}
+      }
+    }
+
+    .bp3-form-helper-text {
+      margin-right: 10px;
+      margin-left: 5px;
+    }
+
+    label {
+      display: inline;
+      min-width: 150px;
+      text-align: right;
+    }
+  }
+
+  .btn-test-connection, .btn-cancel, .btn-save {
+    margin-right: 5px;
+    margin-bottom: 5px;
+    white-space:nowrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
+  }
+
+}
+
+.configureConnection {
+  .bp3-form-group {
+    .bp3-form-content {
+      max-width: 60%;
+    }
+  }
+
+}
+
+.node-id-tag {
+  box-shadow: 0 0 0 1px rgba(16, 22, 26, 0.1), 0 0 0 rgba(16, 22, 26, 0), 0 1px 1px rgba(16, 22, 26, 0.2);
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin: 1px 3px;
+  font-size: 10px;
+
+  &.tag-from {
+    &:hover {
+      background-color: #eeeeee;
+      color: #444444;
+    }
+  }
+
+  &.tag-to {
+    &:hover {
+      background-color:(lighten($pt-intent-danger, 15%));
+    }
+  }
+
+
+}
+
+.connections-table {
+  tr {
+    td {
+      &.cell-name {
+        white-space: nowrap;
+        cursor: pointer;
+      }       
+      &.cell-endpoint {
+        white-space: nowrap;
+        overflow: hidden;
+        a { text-overflow: ellipsis; }
+      } 
+      &.cell-status {
+        white-space: nowrap;
+      }     
+      &.cell-actions {
+        white-space: nowrap;
+      }         
+    }
+  }
+}

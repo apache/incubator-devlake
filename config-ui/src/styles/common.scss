@@ -19,6 +19,7 @@
   display: block;
   margin-bottom: 1.6rem;
   max-width: 600px;
+  font-family: 'Montserrat', sans-serif;
 }
 
 .logo {
@@ -65,8 +66,12 @@
   width: 100%;
   max-width: 600px !important;
   height: 384px !important;
-  font-family: ui-monospace, monospace;
+  font-family: "JetBrains Mono", monospace;
   font-size: 13px;
+  border: 0;
+  outline: none !important;
+  box-shadow: none;
+  background-color: #f9f9f9;
 }
 
 .formSection {
