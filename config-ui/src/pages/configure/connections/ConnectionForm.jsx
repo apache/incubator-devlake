@@ -220,8 +220,9 @@ export default function ConnectionForm (props) {
           </>
         )}
         <div style={{ display: 'flex', marginTop: '30px', justifyContent: 'space-between', maxWidth: '50%' }}>
-          <div>
+          <div style={{ display: 'flex' }}>
             <Button
+              className='btn-test-connection'
               icon={getConnectionStatusIcon()}
               text='Test Connection'
               onClick={onTest}
@@ -229,14 +230,14 @@ export default function ConnectionForm (props) {
               disabled={isTesting || isSaving}
             />
           </div>
-          <div>
-            <Button icon='remove' text='Cancel' onClick={onCancel} disabled={isSaving || isTesting} />
+          <div style={{ display: 'flex' }}>
+            <Button className='btn-cancel' icon='remove' text='Cancel' onClick={onCancel} disabled={isSaving || isTesting} />
             <Button
+              className='btn-save'
               icon='cloud-upload' intent='primary' text='Save Connection'
               loading={isSaving}
               disabled={isSaving || isTesting}
               onClick={onSave}
-              style={{ marginLeft: '10px' }}
             />
           </div>
         </div>

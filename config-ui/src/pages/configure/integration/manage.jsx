@@ -74,7 +74,7 @@ export default function ManageIntegration () {
 
   const editConnection = (connection, e) => {
     console.log(e.target.classList)
-    if (e.target && (!e.target.classList.contains('actions-cell') || !e.target.classList.contains('actions-link'))) {
+    if (e.target && (!e.target.classList.contains('cell-actions') || !e.target.classList.contains('actions-link'))) {
       history.push(`/connections/edit/${activeProvider.id}/${connection.id}`)
     }
   }
@@ -235,20 +235,19 @@ export default function ManageIntegration () {
                             <td
                               onClick={(e) => editConnection(connection, e)}
                               style={{ cursor: 'pointer' }}
+                              className='cell-name'
                             >
+                              <Icon icon='power' color={Colors.GRAY4} size={10} style={{ float: 'right', marginLeft: '10px' }} />
                               <strong>{connection.name}</strong>
                               <a
                                 href='#'
                                 data-provider={connection.id}
                                 className='table-action-link'
                                 onClick={(e) => editConnection(connection, e)}
-                                style={{ float: 'right', marginLeft: 0 }}
-                              >
-                                <Icon icon='wrench' color={Colors.BLUE2} size={12} />
-                              </a>
+                              />
                             </td>
-                            <td><a href='#' target='_blank' rel='noreferrer'>{connection.endpoint}</a></td>
-                            <td>
+                            <td className='cell-endpoint'><a href='#' target='_blank' rel='noreferrer'>{connection.endpoint}</a></td>
+                            <td className='cell-status'>
                               {connection.status === 0 && (
                                 <strong style={{ color: Colors.GRAY4 }}>Offline</strong>
                               )}
@@ -264,7 +263,7 @@ export default function ManageIntegration () {
                                 </strong>
                               )}
                             </td>
-                            <td className='actions-cell'>
+                            <td className='cell-actions'>
                               <a
                                 href='#'
                                 data-provider={connection.id}
@@ -298,6 +297,14 @@ export default function ManageIntegration () {
                       </tbody>
                     </table>
                   </Card>
+                  <p style={{
+                    textAlign: 'right',
+                    margin: '12px 6px',
+                    fontSize: '10px',
+                    color: '#aaaaaa'
+                  }}
+                  >Fetched <strong>{connections.length}</strong> connections from Lake API for <strong>{activeProvider.name}</strong>
+                  </p>
                 </>
               )}
             </div>

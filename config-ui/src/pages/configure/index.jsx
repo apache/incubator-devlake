@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react'
 import { FormGroup, InputGroup, Button, Tooltip, Position, Label, Utils } from '@blueprintjs/core'
 import Nav from '../../components/Nav'
 import Sidebar from '../../components/Sidebar'
+import AppCrumbs from '@/components/Breadcrumbs'
 import Content from '../../components/Content'
 import SaveAlert from '../../components/SaveAlert'
 import { DEVLAKE_ENDPOINT } from '../../utils/config'
@@ -42,7 +43,13 @@ export default function Configure () {
         <Sidebar />
         <Content>
           <main className='main'>
-
+            <AppCrumbs
+              items={[
+                { href: '/', icon: false, text: 'Dashboard' },
+                { href: '/', icon: false, text: 'DEV LAKE' },
+                { href: '/lake/api/configuration', icon: false, text: 'Lake API Setup' },
+              ]}
+            />
             <div className='headlineContainer'>
               <h1>Configuration</h1>
               <p className='description'>Configure your <code className='code'>.env</code> file values</p>
@@ -130,12 +137,11 @@ export default function Configure () {
 
               <Button
                 type='submit'
-                outlined
-                large
-                className='saveBtn'
+                icon='cloud-upload'
+                intent='primary'
                 onClick={(e) => saveAll(e)}
               >
-                Save Config
+                Save Configuration
               </Button>
             </form>
           </main>

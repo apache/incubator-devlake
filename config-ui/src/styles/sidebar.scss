@@ -1,4 +1,4 @@
-.card {
+.card.sidebar-card {
   width: 250px;
   border-radius: 0;
   background: #ffffff;
@@ -7,12 +7,33 @@
   position: fixed;
   height: 100vh;
   left: 0;
+  top: 0;
+  padding-top: 50px;
+  display: flex;
+  flex-direction: column;
+
+  &:hover {
+    box-shadow: 0 0 0 1px rgba(16, 22, 26, 0.1), 0 1px 1px rgba(16, 22, 26, 0.2), 0 2px 6px rgba(16, 22, 26, 0.2)
+  }
 }
 
 .logo {
   max-width: 60px;
   display: block;
   margin: -2rem auto 2.5rem;
+}
+
+.copyright-tag {
+  display: inline-block;
+  margin-top: auto;
+  font-size: 11px;
+  margin-left: 14px;
+  align-self: flex-start;
+  color: rgba(124, 124, 124, 0.7);
+  text-align: left;
+  strong {
+    color: rgba(124, 124, 124, 0.9);
+  }
 }
 
 .dashboardBtn {
@@ -32,61 +53,4 @@
 
 .dashboardBtn span svg {
   fill: #ff7b56 !important;
-}
-
-.sidebarMenu {
-  margin-top: 2.5rem;
-  list-style-type: none;
-  padding-left: 0;
-  margin-left: -20px;
-  width: calc(100% + 40px);
-}
-
-.sidebarMenu a,
-.sidebarMenuActive {
-  display: block;
-  padding: 12px 20px;
-  position: relative;
-  text-decoration: none;
-}
-
-.sidebarMenu a:hover {
-  color: #303033;
-}
-
-.sidebarMenuActive {
-  color: #E8471C !important;
-  background: #FFDBC2;
-}
-
-.sidebarMenuActive:hover {
-  color: #E8471C;
-  background-color: #ffdac6;
-}
-
-.sidebarMenuDash {
-  height: 100%;
-  position: absolute;
-  background-color: #F8C3B5;
-  top: 0;
-  right: 0;
-  width: 3px;
-  border-top-left-radius: 2px;
-  border-bottom-left-radius: 2px;
-}
-
-.sidebarMenuListIcon {
-  margin-right: 0.75rem;
-}
-
-.pluginListItemLink {
-  width: 100%;
-  display: flex;
-  height: 100%;
-  align-items: center;
-}
-
-.pluginListItemLink:hover {
-  color: #303033;
-  text-decoration: none;
 }
