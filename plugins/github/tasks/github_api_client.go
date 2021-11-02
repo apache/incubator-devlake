@@ -14,26 +14,30 @@ import (
 )
 
 type GithubApiClient struct {
+	tokenIndex int
+	// This is for multiple token functionality so we can loop through an array of tokens.
+	tokens []string
 	core.ApiClient
 }
 
 var githubApiClient *GithubApiClient
 
-func CreateApiClient() *GithubApiClient {
+func CreateApiClient(tokens []string) *GithubApiClient {
 	if githubApiClient == nil {
 		githubApiClient = &GithubApiClient{}
-		auth := fmt.Sprintf("Bearer %v", config.V.GetString("GITHUB_AUTH"))
-		tokensString := config.V.GetString("GITHUB_AUTH_TOKENS")
-		// convert comma seperated value to array of strings
-		tokensArray := strings.Split(tokensString, ",")
+		githubApiClient.tokenIndex = 0
+		githubApiClient.tokens = tokens
+		githubApiClient.SetBeforeFunction(func(req *http.Request) error {
+			req.Header.Set("Authorization", fmt.Sprintf("Bearer %v", githubApiClient.tokens[githubApiClient.tokenIndex]))
+			// Set next token index
+			githubApiClient.tokenIndex = (githubApiClient.tokenIndex + 1) % len(githubApiClient.tokens)
+			return nil
+		})
 		githubApiClient.Setup(
 			config.V.GetString("GITHUB_ENDPOINT"),
-			map[string]string{
-				"Authorization": auth,
-			},
+			map[string]string{},
 			10*time.Second,
 			3,
-			tokensArray,
 		)
 	}
 	return githubApiClient

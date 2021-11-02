@@ -19,7 +19,24 @@ NOTE: You can get 15000 requests/hour/token if you pay for github enterprise.
 In your .env file, you will need to set up
 
 ```
-GITHUB_AUTH_TOKENS=XXX,YYY,ZZZ // where each token is a different user's token (optional)
+
 GITHUB_AUTH=XXX
+
+or...
+
+GITHUB_AUTH=XXX,YYY,ZZZ // where each token is a different user's token (optional)
 ```
 
+## Sample Request
+
+```
+curl --location --request POST 'localhost:8080/task' \
+--header 'Content-Type: application/json' \
+--data-raw '[[{
+    "Plugin": "github",
+    "Options": {
+        "repositoryName": "lake",
+        "owner": "merico-dev"
+    }
+}]]'
+```
