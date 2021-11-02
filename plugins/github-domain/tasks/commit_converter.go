@@ -32,6 +32,8 @@ func convertToCommitModel(commit *githubModels.GithubCommit) *code.Commit {
 		Sha:            commit.Sha,
 		RepoId:         uint64(commit.RepositoryId),
 		Message:        commit.Message,
+		Additions:      commit.Additions,
+		Deletions:      commit.Deletions,
 		AuthorName:     commit.AuthorName,
 		AuthorEmail:    commit.AuthorEmail,
 		AuthoredDate:   commit.AuthoredDate,
