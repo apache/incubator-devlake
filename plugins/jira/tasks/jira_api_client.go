@@ -137,11 +137,11 @@ func (jiraApiClient *JiraApiClient) FetchWithoutPaginationHeaders(
 		// get page
 		query.Set("startAt", strconv.Itoa(nextStartTmp))
 		res, err := jiraApiClient.Get(path, query, nil)
-		if res.StatusCode == 401 {
-			fmt.Println("User does not have access to project users")
-		}
 		if err != nil {
 			return err
+		}
+		if res.StatusCode == 401 {
+			fmt.Println("User does not have access to project users")
 		}
 
 		// call page handler

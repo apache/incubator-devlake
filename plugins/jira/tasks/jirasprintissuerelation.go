@@ -9,7 +9,6 @@ import (
 	lakeModels "github.com/merico-dev/lake/models"
 	"github.com/merico-dev/lake/plugins/core"
 	"github.com/merico-dev/lake/plugins/jira/models"
-	"github.com/merico-dev/lake/utils"
 	"gorm.io/gorm/clause"
 )
 
@@ -23,13 +22,13 @@ type JiraApiSprintIssueRelation struct {
 	} `json:"issues"`
 }
 
-func collectSprintIssueRelation(ctx context.Context, scheduler *utils.WorkerScheduler, jiraApiClient *JiraApiClient, source *models.JiraSource, boardId, sprintId uint64) error {
-	err := jiraApiClient.FetchPages(scheduler, fmt.Sprintf("/agile/1.0/board/%v/sprint/%d/issue", boardId, sprintId), nil, func(res *http.Response) error {
+func collectSprintIssueRelation(ctx context.Context, jiraApiClient *JiraApiClient, source *models.JiraSource, boardId, sprintId uint64) error {
+	err := jiraApiClient.FetchWithoutPaginationHeaders(fmt.Sprintf("/agile/1.0/board/%v/sprint/%d/issue", boardId, sprintId), nil, func(res *http.Response) (bool, error) {
 		rel := &JiraApiSprintIssueRelation{}
 		err := core.UnmarshalResponse(res, rel)
 		if err != nil {
 			logger.Error("Error: ", err)
-			return nil
+			return false, err
 		}
 		logger.Info("jira sprint issue relation ", rel)
 		for _, value := range rel.Issues {
@@ -43,14 +42,13 @@ func collectSprintIssueRelation(ctx context.Context, scheduler *utils.WorkerSche
 			}).Create(sprintIssueRel).Error
 			if err != nil {
 				logger.Error("Error: ", err)
-				return err
+				return false, err
 			}
 		}
-		return nil
+		return true, nil
 	})
 	if err != nil {
 		return err
 	}
-	scheduler.WaitUntilFinish()
 	return nil
 }

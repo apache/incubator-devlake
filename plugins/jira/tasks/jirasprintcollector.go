@@ -3,7 +3,6 @@ package tasks
 import (
 	"context"
 	"fmt"
-	"github.com/merico-dev/lake/utils"
 	"net/http"
 	"time"
 
@@ -33,17 +32,15 @@ type JiraApiSprint struct {
 }
 
 func CollectSprint(ctx context.Context, jiraApiClient *JiraApiClient, source *models.JiraSource, boardId uint64) error {
-	scheduler, err := utils.NewWorkerScheduler(10, 50, ctx)
-	if err != nil {
-		return err
-	}
-	defer scheduler.Release()
-	err = jiraApiClient.FetchPages(scheduler, fmt.Sprintf("/agile/1.0/board/%v/sprint", boardId), nil, func(res *http.Response) error {
+	err := jiraApiClient.FetchWithoutPaginationHeaders(fmt.Sprintf("/agile/1.0/board/%v/sprint", boardId), nil, func(res *http.Response) (bool, error) {
 	jiraApiSprint := &JiraApiSprint{}
-	err = core.UnmarshalResponse(res, jiraApiSprint)
+	err := core.UnmarshalResponse(res, jiraApiSprint)
 	if err != nil {
 		logger.Error("Error: ", err)
-		return nil
+		return false, err
+	}
+	if len(jiraApiSprint.Values) == 0{
+		return false, nil
 	}
 	logger.Info("jirasprint ", jiraApiSprint)
 	for _, value := range jiraApiSprint.Values {
@@ -63,7 +60,7 @@ func CollectSprint(ctx context.Context, jiraApiClient *JiraApiClient, source *mo
 		}).Create(jiraSprint).Error
 		if err != nil {
 			logger.Error("Error: ", err)
-			return err
+			return false, err
 		}
 		boardSprintRel := &models.JiraBoardSprint{
 			SourceId: source.ID,
@@ -75,19 +72,18 @@ func CollectSprint(ctx context.Context, jiraApiClient *JiraApiClient, source *mo
 		}).Create(boardSprintRel).Error
 		if err != nil {
 			logger.Error("Error: ", err)
-			return err
+			return false, err
 		}
-		err = collectSprintIssueRelation(ctx, scheduler, jiraApiClient, source, boardId, value.ID)
+		err = collectSprintIssueRelation(ctx, jiraApiClient, source, boardId, value.ID)
 		if err != nil {
 			logger.Error("Error: ", err)
-			return err
+			return false, err
 		}
 	}
-	return nil
+	return true, nil
 })
 	if err != nil {
 		return err
 	}
-	scheduler.WaitUntilFinish()
 	return nil
 }
