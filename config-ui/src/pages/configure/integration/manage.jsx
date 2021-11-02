@@ -16,6 +16,8 @@ import Content from '@/components/Content'
 import { ToastNotification } from '@/components/Toast'
 import request from '@/utils/request'
 
+import useConnectionManager from '@/hooks/useConnectionManager'
+
 import { SERVER_HOST, DEVLAKE_ENDPOINT } from '@/utils/config'
 
 import { integrationsData } from '@/pages/configure/mock-data/integrations'
@@ -38,6 +40,12 @@ export default function ManageIntegration () {
   const [integrations, setIntegrations] = useState(integrationsData)
   const [connections, setConnections] = useState([])
   const [activeProvider, setActiveProvider] = useState(integrations[0])
+
+  const {
+    sourceLimits,
+  } = useConnectionManager({
+    activeProvider
+  })
 
   const fetchConnections = async () => {
     setIsLoading(true)
@@ -101,6 +109,10 @@ export default function ManageIntegration () {
     fetchConnections()
   }
 
+  const maxConnectionsExceeded = (limit, totalConnections) => {
+    return totalConnections > 0 && totalConnections >= limit
+  }
+
   useEffect(() => {
     // Selected Provider
     // console.log(activeProvider)
@@ -115,6 +127,10 @@ export default function ManageIntegration () {
     setIntegrations(integrations)
     setActiveProvider(integrations.find(p => p.id === providerId))
   }, [])
+
+  useEffect(() => {
+    console.log('>> CONNECTION SOURCE LIMITS', sourceLimits)
+  }, [connections, sourceLimits])
 
   return (
     <>
@@ -208,6 +224,7 @@ export default function ManageIntegration () {
                 <>
                   <p>
                     <Button
+                      disabled={maxConnectionsExceeded(sourceLimits[activeProvider.id], connections.length)}
                       onClick={addConnection}
                       rightIcon='add'
                       intent='primary'
@@ -296,6 +313,12 @@ export default function ManageIntegration () {
                         ))}
                       </tbody>
                     </table>
+                    {maxConnectionsExceeded(sourceLimits[activeProvider.id], connections.length) && (
+                      <p style={{ margin: 0, padding: '10px', backgroundColor: '#f0f0f0', borderTop: '1px solid #cccccc' }}>
+                        <Icon icon='warning-sign' size='16' color={Colors.GRAY1} style={{ marginRight: '5px' }} />
+                        You have reached the maximum number of allowed connections for this provider.
+                      </p>
+                    )}
                   </Card>
                   <p style={{
                     textAlign: 'right',

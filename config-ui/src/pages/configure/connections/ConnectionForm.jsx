@@ -2,7 +2,11 @@ import React, { useEffect, useState } from 'react'
 import {
   Button, Colors,
   FormGroup, InputGroup, Label,
+  Card,
   Icon,
+  Tag,
+  Elevation,
+  Intent
 } from '@blueprintjs/core'
 
 import '@/styles/integration.scss'
@@ -11,6 +15,8 @@ import '@blueprintjs/popover2/lib/css/blueprint-popover2.css'
 
 export default function ConnectionForm (props) {
   const {
+    isLocked = false,
+    activeProvider,
     name,
     endpointUrl,
     token,
@@ -29,7 +35,8 @@ export default function ConnectionForm (props) {
     onTokenChange = () => {},
     onUsernameChange = () => {},
     onPasswordChange = () => {},
-    authType = 'token'
+    authType = 'token',
+    sourceLimits = { jenkins: 1, gitlab: 1 }
   } = props
 
   const [allowedAuthTypes, setAllowedAuthTypes] = useState(['token', 'plain'])
@@ -61,12 +68,28 @@ export default function ConnectionForm (props) {
     setAllowedAuthTypes(['token', 'plain'])
   }, [])
 
+  useEffect(() => {
+    if (activeProvider && activeProvider.id) {
+      console.log('>>> SOURCE LIMITS = ', sourceLimits[activeProvider.id])
+    }
+  }, [])
+
   return (
     <>
       <form className='form form-add-connection'>
         <div className='headlineContainer'>
-          <h2 className='headline'>Configure Instance</h2>
+          <h2 className='headline' style={{ textDecoration: isLocked ? 'line-through' : 'none' }}>Configure Instance</h2>
           <p className='description'>Account & Authentication settings</p>
+          {activeProvider && activeProvider.id && sourceLimits[activeProvider.id] && (
+            <Card interactive={false} elevation={Elevation.TWO} style={{ width: '50%', marginBottom: '20px', backgroundColor: '#f0f0f0' }}>
+              <p className='warning-message' intent={Intent.WARNING}>
+                <Icon icon='warning-sign' size='16' color={Colors.GRAY1} style={{ marginRight: '5px' }} />
+                <strong>CONNECTION SOURCES LIMITED</strong><br />
+                You may only add <Tag intent={Intent.PRIMARY}>{sourceLimits[activeProvider.id]}</Tag> instance(s) at this time,
+                multiple sources will be supported in a future release.
+              </p>
+            </Card>
+          )}
         </div>
 
         {showError && (
@@ -83,7 +106,7 @@ export default function ConnectionForm (props) {
 
         <div className='formContainer'>
           <FormGroup
-            disabled={isTesting || isSaving}
+            disabled={isTesting || isSaving || isLocked}
             label=''
             inline={true}
             labelFor='connection-name'
@@ -96,7 +119,7 @@ export default function ConnectionForm (props) {
             </Label>
             <InputGroup
               id='connection-name'
-              disabled={isTesting || isSaving}
+              disabled={isTesting || isSaving || isLocked}
               placeholder='Enter Instance Name eg. ISSUES-AWS-US-EAST'
               defaultValue={name}
               onChange={(e) => onNameChange(e.target.value)}
@@ -108,7 +131,7 @@ export default function ConnectionForm (props) {
 
         <div className='formContainer'>
           <FormGroup
-            disabled={isTesting || isSaving}
+            disabled={isTesting || isSaving || isLocked}
             label=''
             inline={true}
             labelFor='connection-endpoint'
@@ -121,7 +144,7 @@ export default function ConnectionForm (props) {
             </Label>
             <InputGroup
               id='connection-endpoint'
-              disabled={isTesting || isSaving}
+              disabled={isTesting || isSaving || isLocked}
               placeholder='Enter Endpoint URL eg. https://merico.atlassian.net/rest'
               defaultValue={endpointUrl}
               onChange={(e) => onEndpointChange(e.target.value)}
@@ -135,7 +158,7 @@ export default function ConnectionForm (props) {
         {authType === 'token' && (
           <div className='formContainer'>
             <FormGroup
-              disabled={isTesting || isSaving}
+              disabled={isTesting || isSaving || isLocked}
               label=''
               inline={true}
               labelFor='connection-token'
@@ -148,7 +171,7 @@ export default function ConnectionForm (props) {
               </Label>
               <InputGroup
                 id='connection-token'
-                disabled={isTesting || isSaving}
+                disabled={isTesting || isSaving || isLocked}
                 placeholder='Enter Auth Token eg. EJrLG8DNeXADQcGOaaaX4B47'
                 defaultValue={token}
                 onChange={(e) => onTokenChange(e.target.value)}
@@ -171,7 +194,7 @@ export default function ConnectionForm (props) {
             <div className='formContainer'>
               <FormGroup
                 label=''
-                disabled={isTesting || isSaving}
+                disabled={isTesting || isSaving || isLocked}
                 inline={true}
                 labelFor='connection-username'
                 helperText='USERNAME'
@@ -183,7 +206,7 @@ export default function ConnectionForm (props) {
                 </Label>
                 <InputGroup
                   id='connection-username'
-                  disabled={isTesting || isSaving}
+                  disabled={isTesting || isSaving || isLocked}
                   placeholder='Enter Username'
                   defaultValue={username}
                   onChange={(e) => onUsernameChange(e.target.value)}
@@ -194,7 +217,7 @@ export default function ConnectionForm (props) {
             </div>
             <div className='formContainer'>
               <FormGroup
-                disabled={isTesting || isSaving}
+                disabled={isTesting || isSaving || isLocked}
                 label=''
                 inline={true}
                 labelFor='connection-password'
@@ -208,7 +231,7 @@ export default function ConnectionForm (props) {
                 <InputGroup
                   id='connection-password'
                   type='password'
-                  disabled={isTesting || isSaving}
+                  disabled={isTesting || isSaving || isLocked}
                   placeholder='Enter Password'
                   defaultValue={password}
                   onChange={(e) => onPasswordChange(e.target.value)}
@@ -227,7 +250,7 @@ export default function ConnectionForm (props) {
               text='Test Connection'
               onClick={onTest}
               loading={isTesting}
-              disabled={isTesting || isSaving}
+              disabled={isTesting || isSaving || isLocked}
             />
           </div>
           <div style={{ display: 'flex' }}>
@@ -236,7 +259,7 @@ export default function ConnectionForm (props) {
               className='btn-save'
               icon='cloud-upload' intent='primary' text='Save Connection'
               loading={isSaving}
-              disabled={isSaving || isTesting}
+              disabled={isSaving || isTesting || isLocked}
               onClick={onSave}
             />
           </div>

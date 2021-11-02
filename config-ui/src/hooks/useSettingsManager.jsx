@@ -38,7 +38,7 @@ function useSettingsManager ({
       try {
         setShowError(false)
         ToastNotification.clear()
-        const s = await request.put(`${DEVLAKE_ENDPOINT}/plugins/${activeProvider.id}/sources/${activeConnection.id}`, settingsPayload)
+        const s = await request.put(`${DEVLAKE_ENDPOINT}/plugins/${activeProvider.id}/sources/${activeConnection.ID}`, settingsPayload)
         console.log('>> SETTINGS SAVED SUCCESSFULLY', settingsPayload, s)
         saveResponse = {
           ...saveResponse,

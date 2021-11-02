@@ -22,14 +22,15 @@ export default function Triggers () {
 
   const sendTrigger = async (e) => {
     e.preventDefault()
-    try {
-      await request.post(
-        `${Config.DEVLAKE_ENDPOINT}/task`,
-        textAreaBody
-      )
-    } catch (e) {
-      console.error(e)
-    }
+    // @todo RE_ACTIVATE Trigger Process!
+    // try {
+    //   await request.post(
+    //     `${Config.DEVLAKE_ENDPOINT}/task`,
+    //     textAreaBody
+    //   )
+    // } catch (e) {
+    //   console.error(e)
+    // }
   }
 
   const [pendingTasks, setPendingTasks] = useState([])
