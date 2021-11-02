@@ -179,16 +179,13 @@ func (plugin Jira) ApiResources() map[string]map[string]core.ApiResourceHandler 
 			"GET":    api.GetSource,
 		},
 		"sources/:sourceId/epics": {
-			"GET":    api.GetEpicsBySourceId,
-			"PUT":    api.PutEpicsBySourceId,
+			"GET": api.GetEpicsBySourceId,
 		},
 		"sources/:sourceId/granularities": {
-			"GET":    api.GetGranularitiesBySourceId,
-			"PUT":    api.PutGranularitiesBySourceId,
+			"GET": api.GetGranularitiesBySourceId,
 		},
 		"sources/:sourceId/boards": {
-			"GET":    api.GetBoardsBySourceId,
-			"PUT":    api.PutBoardsBySourceId,
+			"GET": api.GetBoardsBySourceId,
 		},
 		"sources/:sourceId/type-mappings": {
 			"POST": api.PostIssueTypeMappings,
