@@ -8,6 +8,7 @@ import (
 	"github.com/merico-dev/lake/logger"
 	lakeModels "github.com/merico-dev/lake/models"
 	"github.com/merico-dev/lake/plugins/core"
+	"github.com/merico-dev/lake/plugins/jenkins/api"
 	"github.com/merico-dev/lake/plugins/jenkins/models"
 	"github.com/merico-dev/lake/plugins/jenkins/tasks"
 	"github.com/mitchellh/mapstructure"
@@ -64,7 +65,15 @@ func (plugin Jenkins) RootPkgPath() string {
 }
 
 func (plugin Jenkins) ApiResources() map[string]map[string]core.ApiResourceHandler {
-	return make(map[string]map[string]core.ApiResourceHandler)
+	return map[string]map[string]core.ApiResourceHandler{
+		"sources": {
+			"GET": api.ListSources,
+		},
+		"sources/:sourceId": {
+			"GET": api.GetSource,
+			"PUT": api.PutSource,
+		},
+	}
 }
 
 var PluginEntry Jenkins //nolint
