@@ -13,10 +13,10 @@ type JiraSprint struct {
 	Self          string
 	State         string
 	Name          string
-	StartDate     time.Time
-	EndDate       time.Time
-	CompleteDate  time.Time
-	OriginBoardID int
+	StartDate     *time.Time
+	EndDate       *time.Time
+	CompleteDate  *time.Time
+	OriginBoardID uint64
 }
 
 type JiraBoardSprint struct {
