@@ -25,6 +25,8 @@ func ConvertIssues(sourceId uint64, boardId uint64) error {
 
 	boardOriginKey := okgen.NewOriginKeyGenerator(&jiraModels.JiraBoard{}).Generate(sourceId, boardId)
 	issueOriginKeyGenerator := okgen.NewOriginKeyGenerator(&jiraModels.JiraIssue{})
+	userOriginKeyGenerator := okgen.NewOriginKeyGenerator(&jiraModels.JiraUser{})
+	sprintOriginKeyGenerator := okgen.NewOriginKeyGenerator(&jiraModels.JiraSprint{})
 
 	// iterate all rows
 	for cursor.Next() {
@@ -36,18 +38,32 @@ func ConvertIssues(sourceId uint64, boardId uint64) error {
 			DomainEntity: domainlayerBase.DomainEntity{
 				OriginKey: issueOriginKeyGenerator.Generate(jiraIssue.SourceId, jiraIssue.IssueId),
 			},
-			BoardOriginKey: boardOriginKey,
-			Url:            jiraIssue.Self,
-			Key:            jiraIssue.Key,
-			Summary:        jiraIssue.Summary,
-			EpicKey:        jiraIssue.EpicKey,
-			Type:           jiraIssue.StdType,
-			Status:         jiraIssue.StdStatus,
-			StoryPoint:     jiraIssue.StdStoryPoint,
-			ResolutionDate: jiraIssue.ResolutionDate,
-			CreatedDate:    jiraIssue.Created,
-			UpdatedDate:    jiraIssue.Updated,
-			LeadTime:       jiraIssue.LeadTime,
+			BoardOriginKey:           boardOriginKey,
+			Url:                      jiraIssue.Self,
+			Key:                      jiraIssue.Key,
+			Summary:                  jiraIssue.Summary,
+			EpicKey:                  jiraIssue.EpicKey,
+			Type:                     jiraIssue.StdType,
+			Status:                   jiraIssue.StdStatus,
+			StoryPoint:               jiraIssue.StdStoryPoint,
+			OriginalEstimateMinutes:  jiraIssue.OriginalEstimateMinutes,
+			AggregateEstimateMinutes: jiraIssue.AggregateEstimateMinutes,
+			RemainingEstimateMinutes: jiraIssue.RemainingEstimateMinutes,
+			CreatorOriginKey:         userOriginKeyGenerator.Generate(sourceId, jiraIssue.CreatorAccountId),
+			ResolutionDate:           jiraIssue.ResolutionDate,
+			CreatedDate:              jiraIssue.Created,
+			UpdatedDate:              jiraIssue.Updated,
+			LeadTime:                 jiraIssue.LeadTime,
+			SpentMinutes:             jiraIssue.SpentMinutes,
+		}
+		if jiraIssue.AssigneeAccountId != "" {
+			issue.AssigneeOriginKey = userOriginKeyGenerator.Generate(sourceId, jiraIssue.AssigneeAccountId)
+		}
+		if jiraIssue.ParentId != 0 {
+			issue.ParentOriginKey = issueOriginKeyGenerator.Generate(sourceId, jiraIssue.ParentId)
+		}
+		if jiraIssue.SprintId != 0 {
+			issue.SprintOriginKey = sprintOriginKeyGenerator.Generate(sourceId, jiraIssue.SprintId)
 		}
 
 		err = lakeModels.Db.Clauses(clause.OnConflict{UpdateAll: true}).Create(issue).Error
