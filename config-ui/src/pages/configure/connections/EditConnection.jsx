@@ -14,9 +14,7 @@ import Content from '@/components/Content'
 // import { ToastNotification } from '@/components/Toast'
 import ConnectionForm from '@/pages/configure/connections/ConnectionForm'
 import { integrationsData } from '@/pages/configure/mock-data/integrations'
-// import { connectionsData } from '@/pages/configure/mock-data/connections'
-// import { SERVER_HOST, DEVLAKE_ENDPOINT } from '@/utils/config'
-// import request from '@/utils/request'
+import { NullConnection } from '@/data/NullConnection'
 
 import useConnectionManager from '@/hooks/useConnectionManager'
 
@@ -37,14 +35,7 @@ export default function EditConnection () {
   const [integrations, setIntegrations] = useState(integrationsData)
   const [activeProvider, setActiveProvider] = useState(integrations[0])
 
-  const [activeConnection, setActiveConnection] = useState({
-    id: null,
-    name: null,
-    endpoint: null,
-    token: null,
-    username: null,
-    password: null,
-  })
+  const [activeConnection, setActiveConnection] = useState(NullConnection)
 
   const {
     testConnection,
@@ -124,7 +115,7 @@ export default function EditConnection () {
                 { href: '/integrations', icon: false, text: 'Integrations' },
                 { href: `/integrations/${activeProvider.id}`, icon: false, text: `${activeProvider.name}` },
                 {
-                  href: `/connections/edit/${activeProvider.id}/${activeConnection.id}`,
+                  href: `/connections/edit/${activeProvider.id}/${activeConnection.ID}`,
                   icon: false,
                   text: 'Edit Connection',
                   current: true
@@ -148,6 +139,7 @@ export default function EditConnection () {
               </div>
               <div className='editConnection' style={{ display: 'flex' }}>
                 <ConnectionForm
+                  activeProvider={activeProvider}
                   name={name}
                   endpointUrl={endpointUrl}
                   token={token}
