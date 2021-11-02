@@ -3,7 +3,9 @@ package main // must be main for plugin entry point
 import (
 	"context"
 	"fmt"
+	"strings"
 
+	"github.com/merico-dev/lake/config"
 	"github.com/merico-dev/lake/logger" // A pseudo type for Plugin Interface implementation
 	"github.com/merico-dev/lake/plugins/core"
 	"github.com/merico-dev/lake/plugins/github/tasks"
@@ -21,10 +23,13 @@ func (plugin Github) Description() string {
 }
 
 func (plugin Github) Execute(options map[string]interface{}, progress chan<- float32, ctx context.Context) error {
-	githubApiClient := tasks.CreateApiClient()
+	configTokensString := config.V.GetString("GITHUB_AUTH")
+	tokens := strings.Split(configTokensString, ",")
+	githubApiClient := tasks.CreateApiClient(tokens)
+
 	// GitHub API has very low rate limits, so we cycle through multiple tokens to increase rate limits.
 	// Then we set the ants max worker per second according to the number of tokens we have to maximize speed.
-	tokenCount := len(githubApiClient.GetTokens())
+	tokenCount := len(tokens)
 	// We need this rate limit set to 1 by default since there are only 5000 requests per hour allowed for the github api
 	maxWorkerPerSecond := 1
 	if tokenCount > 0 {

@@ -30,7 +30,6 @@ func CreateApiClient() *GitlabApiClient {
 			},
 			10*time.Second,
 			3,
-			nil,
 		)
 	}
 	return gitlabApiClient
