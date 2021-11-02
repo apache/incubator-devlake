@@ -275,9 +275,6 @@ func GetEpicsBySourceId(input *core.ApiResourceInput) (*core.ApiResourceOutput, 
 		Value: jiraSource.EpicKeyField,
 	}}}, nil
 }
-func PutEpicsBySourceId(input *core.ApiResourceInput) (*core.ApiResourceOutput, error) {
-	return &core.ApiResourceOutput{Body: ""}, nil
-}
 
 // GET /plugins/jira/sources/:sourceId/granularities
 type GranularitiesResponse struct {
@@ -298,11 +295,6 @@ func GetGranularitiesBySourceId(input *core.ApiResourceInput) (*core.ApiResource
 			Value: jiraSource.StoryPointField,
 		},
 	}}, nil
-}
-
-func PutGranularitiesBySourceId(input *core.ApiResourceInput) (*core.ApiResourceOutput, error) {
-	return &core.ApiResourceOutput{Body: ""}, nil
-
 }
 
 type BoardResponse struct {
@@ -336,9 +328,4 @@ func GetBoardsBySourceId(input *core.ApiResourceInput) (*core.ApiResourceOutput,
 		})
 	}
 	return &core.ApiResourceOutput{Body: boardResponses}, nil
-}
-
-func PutBoardsBySourceId(input *core.ApiResourceInput) (*core.ApiResourceOutput, error) {
-	return &core.ApiResourceOutput{Body: ""}, nil
-
 }
