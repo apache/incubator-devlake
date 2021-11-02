@@ -256,3 +256,89 @@ func GetSource(input *core.ApiResourceInput) (*core.ApiResourceOutput, error) {
 
 	return &core.ApiResourceOutput{Body: detail}, nil
 }
+
+// GET /plugins/jira/sources/:sourceId/epics
+type EpicResponse struct {
+	Id    int
+	Title string
+	Value string
+}
+
+func GetEpicsBySourceId(input *core.ApiResourceInput) (*core.ApiResourceOutput, error) {
+	jiraSource, err := findSourceByInputParam(input)
+	if err != nil {
+		return nil, err
+	}
+	return &core.ApiResourceOutput{Body: [1]EpicResponse{{
+		Id:    1,
+		Title: jiraSource.EpicKeyField,
+		Value: jiraSource.EpicKeyField,
+	}}}, nil
+}
+func PutEpicsBySourceId(input *core.ApiResourceInput) (*core.ApiResourceOutput, error) {
+	return &core.ApiResourceOutput{Body: ""}, nil
+}
+
+// GET /plugins/jira/sources/:sourceId/granularities
+type GranularitiesResponse struct {
+	Id    int
+	Title string
+	Value string
+}
+
+func GetGranularitiesBySourceId(input *core.ApiResourceInput) (*core.ApiResourceOutput, error) {
+	jiraSource, err := findSourceByInputParam(input)
+	if err != nil {
+		return nil, err
+	}
+	return &core.ApiResourceOutput{Body: [1]GranularitiesResponse{
+		{
+			Id:    1,
+			Title: "Story Point Field",
+			Value: jiraSource.StoryPointField,
+		},
+	}}, nil
+}
+
+func PutGranularitiesBySourceId(input *core.ApiResourceInput) (*core.ApiResourceOutput, error) {
+	return &core.ApiResourceOutput{Body: ""}, nil
+
+}
+
+type BoardResponse struct {
+	Id    int
+	Title string
+	Value string
+}
+
+// GET /plugins/jira/sources/:sourceId/boards
+
+func GetBoardsBySourceId(input *core.ApiResourceInput) (*core.ApiResourceOutput, error) {
+	sourceId := input.Params["sourceId"]
+	if sourceId == "" {
+		return nil, fmt.Errorf("missing sourceid")
+	}
+	jiraSourceId, err := strconv.ParseUint(sourceId, 10, 64)
+	if err != nil {
+		return nil, fmt.Errorf("invalid sourceId")
+	}
+	var jiraBoards []models.JiraBoard
+	err = lakeModels.Db.Where("source_Id = ?", jiraSourceId).Find(&jiraBoards).Error
+	if err != nil {
+		return nil, err
+	}
+	var boardResponses []BoardResponse
+	for _, board := range jiraBoards {
+		boardResponses = append(boardResponses, BoardResponse{
+			Id:    int(board.BoardId),
+			Title: board.Name,
+			Value: fmt.Sprintf("%v", board.BoardId),
+		})
+	}
+	return &core.ApiResourceOutput{Body: boardResponses}, nil
+}
+
+func PutBoardsBySourceId(input *core.ApiResourceInput) (*core.ApiResourceOutput, error) {
+	return &core.ApiResourceOutput{Body: ""}, nil
+
+}
