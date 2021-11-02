@@ -157,7 +157,7 @@ func (plugin Jira) Execute(options map[string]interface{}, progress chan<- float
 		}
 		setBoardProgress(i, 0.8)
 		if tasksToRun["collectSprint"]{
-			err = tasks.CollectSprint(ctx, jiraApiClient, source, boardId)
+			err = tasks.CollectSprint(jiraApiClient, source, boardId)
 			if err != nil {
 				return err
 			}
