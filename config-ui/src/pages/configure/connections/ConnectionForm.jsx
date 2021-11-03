@@ -6,8 +6,12 @@ import {
   Icon,
   Tag,
   Elevation,
+  Popover,
+  Position,
   Intent
 } from '@blueprintjs/core'
+
+import GenerateTokenForm from '@/pages/configure/connections/GenerateTokenForm'
 
 import '@/styles/integration.scss'
 import '@/styles/connections.scss'
@@ -40,6 +44,7 @@ export default function ConnectionForm (props) {
   } = props
 
   const [allowedAuthTypes, setAllowedAuthTypes] = useState(['token', 'plain'])
+  const [showTokenCreator, setShowTokenCreator] = useState(false)
 
   const getConnectionStatusIcon = () => {
     let statusIcon = <Icon icon='full-circle' size='10' color={Colors.RED3} />
@@ -58,6 +63,10 @@ export default function ConnectionForm (props) {
     return statusIcon
   }
 
+  const handleTokenInteraction = (isOpen) => {
+    setShowTokenCreator(isOpen)
+  }
+
   useEffect(() => {
     if (!allowedAuthTypes.includes(authType)) {
       console.log('INVALID AUTH TYPE!')
@@ -66,12 +75,6 @@ export default function ConnectionForm (props) {
 
   useEffect(() => {
     setAllowedAuthTypes(['token', 'plain'])
-  }, [])
-
-  useEffect(() => {
-    if (activeProvider && activeProvider.id) {
-      console.log('>>> SOURCE LIMITS = ', sourceLimits[activeProvider.id])
-    }
   }, [])
 
   return (
@@ -121,7 +124,7 @@ export default function ConnectionForm (props) {
               id='connection-name'
               disabled={isTesting || isSaving || isLocked}
               placeholder='Enter Instance Name eg. ISSUES-AWS-US-EAST'
-              defaultValue={name}
+              value={name}
               onChange={(e) => onNameChange(e.target.value)}
               className='input'
               fill
@@ -146,7 +149,7 @@ export default function ConnectionForm (props) {
               id='connection-endpoint'
               disabled={isTesting || isSaving || isLocked}
               placeholder='Enter Endpoint URL eg. https://merico.atlassian.net/rest'
-              defaultValue={endpointUrl}
+              value={endpointUrl}
               onChange={(e) => onEndpointChange(e.target.value)}
               className='input'
               fill
@@ -173,12 +176,38 @@ export default function ConnectionForm (props) {
                 id='connection-token'
                 disabled={isTesting || isSaving || isLocked}
                 placeholder='Enter Auth Token eg. EJrLG8DNeXADQcGOaaaX4B47'
-                defaultValue={token}
+                value={token}
                 onChange={(e) => onTokenChange(e.target.value)}
                 className='input'
                 fill
                 required
               />
+              <Popover
+                className='popover-generate-token'
+                position={Position.RIGHT}
+                autoFocus={false}
+                enforceFocus={false}
+                isOpen={showTokenCreator}
+                onInteraction={handleTokenInteraction}
+                onClosed={() => setShowTokenCreator(false)}
+                usePortal={false}
+              >
+                <Button
+                  disabled={isTesting || isSaving || isLocked}
+                  type='button' icon='key' intent={Intent.PRIMARY} style={{ marginLeft: '5px' }}
+                />
+                <>
+                  <div style={{ padding: '15px 20px 15px 15px' }}>
+                    <GenerateTokenForm
+                      isTesting={isTesting}
+                      isSaving={isSaving}
+                      isLocked={isLocked}
+                      onTokenChange={onTokenChange}
+                      setShowTokenCreator={setShowTokenCreator}
+                    />
+                  </div>
+                </>
+              </Popover>
               {/* <a href='#' style={{ margin: '5px 0 5px 5px' }}><Icon icon='info-sign' size='16' /></a> */}
             </FormGroup>
           </div>
