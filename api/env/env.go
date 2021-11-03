@@ -28,7 +28,6 @@ type Config struct {
 	JIRA_ISSUE_TYPE_MAPPING            string `mapstructure:"JIRA_ISSUE_TYPE_MAPPING"`
 	GITLAB_ENDPOINT                    string `mapstructure:"GITLAB_ENDPOINT"`
 	GITLAB_AUTH                        string `mapstructure:"GITLAB_AUTH"`
-	GITHUB_AUTH_TOKENS                 string `mapstructure:"GITHUB_ENDPOINT"`
 	GITHUB_ENDPOINT                    string `mapstructure:"GITHUB_ENDPOINT"`
 	GITHUB_AUTH                        string `mapstructure:"GITHUB_AUTH"`
 	JENKINS_ENDPOINT                   string `mapstructure:"JENKINS_ENDPOINT"`
@@ -75,7 +74,6 @@ func Set(ctx *gin.Context) {
 	V.Set("JIRA_ISSUE_TYPE_MAPPING", data.JIRA_ISSUE_TYPE_MAPPING)
 	V.Set("GITLAB_ENDPOINT", data.GITLAB_ENDPOINT)
 	V.Set("GITLAB_AUTH", data.GITLAB_AUTH)
-	V.Set("GITHUB_AUTH_TOKENS", data.GITHUB_AUTH_TOKENS)
 	V.Set("GITHUB_ENDPOINT", data.GITHUB_ENDPOINT)
 	V.Set("GITHUB_AUTH", data.GITHUB_AUTH)
 	V.Set("JENKINS_ENDPOINT", data.JENKINS_ENDPOINT)
