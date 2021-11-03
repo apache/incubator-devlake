@@ -41,7 +41,7 @@ func CollectSprint(jiraApiClient *JiraApiClient, source *models.JiraSource, boar
 		if len(jiraApiSprint.Values) == 0 {
 			return false, nil
 		}
-		logger.Info("jirasprint ", jiraApiSprint)
+		logger.Info("got jira sprints ", len(jiraApiSprint.Values))
 		for _, value := range jiraApiSprint.Values {
 			jiraSprint := &models.JiraSprint{
 				SourceId:      source.ID,
