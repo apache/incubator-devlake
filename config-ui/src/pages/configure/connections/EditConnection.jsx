@@ -63,20 +63,6 @@ export default function EditConnection () {
   }
 
   useEffect(() => {
-    // Selected Provider
-    console.log(activeProvider)
-
-    // ===> MIGRATED to Connection Manager Hook! (Pending Cleanup/removal)
-    // const fetchConnection = async () => {
-    //   try {
-    //     const connectionResponse = await request.get(`${DEVLAKE_ENDPOINT}/plugins/${activeProvider.id}/sources/${connectionId}`)
-    //     const connectionData = connectionResponse.data.data
-    //     setActiveConnection(connectionData)
-    //     console.log('>> FETCHED CONNECTION FOR MODIFY', connectionResponse)
-    //   } catch (e) {
-    //     console.log('>> FAILED TO FETCH CONNECTION', e)
-    //   }
-    // }
     if (activeProvider && connectionId) {
       fetchConnection()
     }
@@ -92,7 +78,7 @@ export default function EditConnection () {
         break
       case 'gitlab':
       case 'jira':
-        setToken(activeConnection.basicAuthEncoded)
+        setToken(activeConnection.basicAuthEncoded || activeConnection.Auth)
         break
     }
   }, [activeConnection, activeProvider.id])

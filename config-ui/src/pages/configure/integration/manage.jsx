@@ -21,7 +21,6 @@ import useConnectionManager from '@/hooks/useConnectionManager'
 import { SERVER_HOST, DEVLAKE_ENDPOINT } from '@/utils/config'
 
 import { integrationsData } from '@/pages/configure/mock-data/integrations'
-// import { connectionsData } from '@/pages/configure/mock-data/connections'
 
 import '@/styles/integration.scss'
 import '@blueprintjs/popover2/lib/css/blueprint-popover2.css'
@@ -254,8 +253,8 @@ export default function ManageIntegration () {
                               style={{ cursor: 'pointer' }}
                               className='cell-name'
                             >
-                              <Icon icon='power' color={Colors.GRAY4} size={10} style={{ float: 'right', marginLeft: '10px' }} />
-                              <strong>{connection.name}</strong>
+                              {/* <Icon icon='power' color={Colors.GRAY4} size={10} style={{ float: 'right', marginLeft: '10px' }} /> */}
+                              <strong>{connection.name || connection.Name}</strong>
                               <a
                                 href='#'
                                 data-provider={connection.id}
@@ -263,7 +262,7 @@ export default function ManageIntegration () {
                                 onClick={(e) => editConnection(connection, e)}
                               />
                             </td>
-                            <td className='cell-endpoint'><a href='#' target='_blank' rel='noreferrer'>{connection.endpoint}</a></td>
+                            <td className='cell-endpoint'><a href='#' target='_blank' rel='noreferrer'>{connection.endpoint || connection.Endpoint}</a></td>
                             <td className='cell-status'>
                               {connection.status === 0 && (
                                 <strong style={{ color: Colors.GRAY4 }}>Offline</strong>
@@ -285,12 +284,13 @@ export default function ManageIntegration () {
                                 href='#'
                                 data-provider={connection.id}
                                 className='table-action-link actions-link'
-                                onClick={() => configureConnection(connection)}
+                                // onClick={() => configureConnection(connection)}
+                                onClick={(e) => editConnection(connection, e)}
                               >
                                 <Icon icon='settings' size={12} />
                                 Settings
                               </a>
-                              <a
+                              {/* <a
                                 href='#'
                                 data-provider={connection.id}
                                 className='table-action-link actions-link'
@@ -307,7 +307,7 @@ export default function ManageIntegration () {
                               >
                                 <Icon icon='data-connection' size={12} />
                                 Test
-                              </a>
+                              </a> */}
                             </td>
                           </tr>
                         ))}
