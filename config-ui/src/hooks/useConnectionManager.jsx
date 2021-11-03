@@ -170,7 +170,14 @@ function useConnectionManager ({
       console.log('>> FETCHING CONNECTION SOURCE', isFetching)
       const f = await request.get(`${DEVLAKE_ENDPOINT}/plugins/${activeProvider.id}/sources/${connectionId}`)
       const connectionData = f.data
-      setActiveConnection(connectionData)
+      setActiveConnection({
+        ...connectionData,
+        name: connectionData.name ? connectionData.name : `Connection #${connectionData.ID}`,
+        // TODO: This needs to be Capital case for all json responses from the golang APIs
+        endpoint: connectionData.endpoint || connectionData.Endpoint,
+        username: connectionData.username || connectionData.Username,
+        password: connectionData.password || connectionData.Password
+      })
       setIsFetching(false)
     } catch (e) {
       setIsFetching(false)
