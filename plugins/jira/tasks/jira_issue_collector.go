@@ -75,7 +75,7 @@ func CollectIssues(
 
 			// process issues
 			for _, jiraApiIssue := range jiraApiIssuesResponse.Issues {
-				jiraIssue, err := convertIssue(source, &jiraApiIssue)
+				jiraIssue, sprints, err := convertIssue(source, &jiraApiIssue)
 				if err != nil {
 					return err
 				}
@@ -93,6 +93,20 @@ func CollectIssues(
 					BoardId:  boardId,
 					IssueId:  jiraIssue.IssueId,
 				})
+
+				// spirnt / issue relationship
+				for _, sprintId := range sprints{
+					err = lakeModels.Db.FirstOrCreate(
+						&models.JiraSprintIssue{
+							SourceId: source.ID,
+							SprintId: sprintId,
+							IssueId:  jiraIssue.IssueId,
+						}).Error
+					if err != nil {
+						logger.Error("save sprint issue relationship error", err)
+						return err
+					}
+				}
 			}
 			return nil
 		})
@@ -103,7 +117,7 @@ func CollectIssues(
 	return nil
 }
 
-func convertIssue(source *models.JiraSource, jiraApiIssue *JiraApiIssue) (jiraIssue *models.JiraIssue, err error) {
+func convertIssue(source *models.JiraSource, jiraApiIssue *JiraApiIssue) (jiraIssue *models.JiraIssue, sprints []uint64, err error) {
 	defer func() {
 		// type assertion could cause panic, this is to capture this type of error and propagate
 		if r := recover(); r != nil {
@@ -112,21 +126,21 @@ func convertIssue(source *models.JiraSource, jiraApiIssue *JiraApiIssue) (jiraIs
 	}()
 	id, err := strconv.ParseUint(jiraApiIssue.Id, 10, 64)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 	created, err := core.ConvertStringToTime(jiraApiIssue.Fields["created"].(string))
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 	updated, err := core.ConvertStringToTime(jiraApiIssue.Fields["updated"].(string))
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 	projectId, err := strconv.ParseUint(
 		jiraApiIssue.Fields["project"].(map[string]interface{})["id"].(string), 10, 64,
 	)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 	status := jiraApiIssue.Fields["status"].(map[string]interface{})
 	statusName := status["name"].(string)
@@ -177,7 +191,7 @@ func convertIssue(source *models.JiraSource, jiraApiIssue *JiraApiIssue) (jiraIs
 		priority := priorityField.(map[string]interface{})
 		priorityId, err := strconv.ParseUint(priority["id"].(string), 10, 64)
 		if err != nil {
-			return nil, err
+			return nil, nil, err
 		}
 		jiraIssue.PriorityId = priorityId
 		jiraIssue.PriorityName = priority["name"].(string)
@@ -202,7 +216,7 @@ func convertIssue(source *models.JiraSource, jiraApiIssue *JiraApiIssue) (jiraIs
 		if parent != nil {
 			parentId, err := strconv.ParseUint(parent["id"].(string), 10, 64)
 			if err != nil {
-				return nil, err
+				return nil, nil, err
 			}
 			jiraIssue.ParentId = parentId
 			jiraIssue.ParentKey = parent["key"].(string)
@@ -214,7 +228,18 @@ func convertIssue(source *models.JiraSource, jiraApiIssue *JiraApiIssue) (jiraIs
 			// set sprint to latest sprint id/name
 			jiraIssue.SprintId = uint64(sprint["id"].(float64))
 			jiraIssue.SprintName = sprint["name"].(string)
+			sprints = append(sprints, jiraIssue.SprintId)
 		}
 	}
-	return jiraIssue, nil
+	// closed sprint
+	if closedSprintField, ok := jiraApiIssue.Fields["closedSprints"]; ok && closedSprintField != nil {
+		if clsedSprints := closedSprintField.([]interface{}); ok {
+			for _, sprint := range clsedSprints {
+				if s, yes := sprint.(map[string]interface{}); yes && s != nil{
+					sprints = append(sprints, uint64(s["id"].(float64)))
+				}
+			}
+		}
+	}
+	return jiraIssue, sprints, nil
 }

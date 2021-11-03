@@ -24,6 +24,7 @@ func (plugin DomainLayer) Init() {
 		&ticket.Board{},
 		&ticket.Issue{},
 		&ticket.Changelog{},
+		&ticket.Sprint{},
 		&devops.Job{},
 		&devops.Build{},
 	)
