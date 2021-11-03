@@ -38,6 +38,9 @@ func (plugin Jira) Init() {
 		&models.JiraSource{},
 		&models.JiraIssueTypeMapping{},
 		&models.JiraIssueStatusMapping{},
+		&models.JiraSprint{},
+		&models.JiraBoardSprint{},
+		&models.JiraSprintIssue{},
 	)
 	if err != nil {
 		panic(err)
@@ -96,6 +99,7 @@ func (plugin Jira) Execute(options map[string]interface{}, progress chan<- float
 			"collectIssues":     true,
 			"collectChangelogs": true,
 			"enrichIssues":      true,
+			"collectSprint":     true,
 		}
 	}
 
@@ -144,9 +148,16 @@ func (plugin Jira) Execute(options map[string]interface{}, progress chan<- float
 				return err
 			}
 		}
-		setBoardProgress(i, 0.8)
+		setBoardProgress(i, 0.7)
 		if tasksToRun["enrichIssues"] {
 			err = tasks.EnrichIssues(source, boardId)
+			if err != nil {
+				return err
+			}
+		}
+		setBoardProgress(i, 0.8)
+		if tasksToRun["collectSprint"]{
+			err = tasks.CollectSprint(jiraApiClient, source, boardId)
 			if err != nil {
 				return err
 			}

@@ -52,6 +52,7 @@ func (plugin JiraDomain) Execute(options map[string]interface{}, progress chan<-
 			"convertIssues":     true,
 			"convertChangelogs": true,
 			"convertUsers":      true,
+			"convertSprints":    true,
 		}
 	}
 
@@ -83,6 +84,15 @@ func (plugin JiraDomain) Execute(options map[string]interface{}, progress chan<-
 			return err
 		}
 	}
+	progress <- 0.8
+	if tasksToRun["convertSprints"] {
+		err = tasks.ConvertSprint(sourceId, boardId)
+		if err != nil {
+			logger.Error("convertSprints", err)
+			return err
+		}
+	}
+
 	progress <- 1
 	logger.Print("end JiraDomain plugin execution")
 	close(progress)
