@@ -28,7 +28,7 @@ function App () {
     <Router>
       {/* Admin */}
       <Route exact path='/'>
-        <Configure />
+        <Integration />
       </Route>
       <Route path='/integrations/:providerId'>
         <ManageIntegration />
