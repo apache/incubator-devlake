@@ -1,16 +1,19 @@
 .addConnection, .editConnection, .configureConnection {
-  .formContainer {}
+  .formContainer {
+    max-width: 90%;
+  }
 
   .bp3-form-group {
     display: flex;
     max-width: none;
+    margin-bottom: 10px;
 
     .bp3-form-content {
       width: 100%;
-      max-width: 50%;
-      min-width: 600px;
+      // @todo REVISE THESE RULES!
+      max-width: 100%;
+      // min-width: 600px;
       display: flex;
-
       .bp3-label {}
     }
 
@@ -19,14 +22,19 @@
       // width: 440px;
       // min-width: 440px;
       // max-width: 440px;    
-      .input {
-        input.bp3-input {}
+      // max-width: 600px;
+      .bp3-input {
+        
       }
     }
 
     .bp3-form-helper-text {
+      margin-top: 2px;
       margin-right: 10px;
       margin-left: 5px;
+      min-width: 80px;
+      display: flex;
+      justify-content: flex-start;
     }
 
     label {
@@ -49,7 +57,7 @@
 .configureConnection {
   .bp3-form-group {
     .bp3-form-content {
-      max-width: 60%;
+      max-width: 80%;
     }
   }
 
@@ -97,5 +105,11 @@
         white-space: nowrap;
       }         
     }
+  }
+}
+
+.bp3-popover-wrapper {
+  &.popover-generate-token {
+    width: auto;
   }
 }
