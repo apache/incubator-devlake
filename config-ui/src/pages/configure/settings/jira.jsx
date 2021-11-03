@@ -9,9 +9,12 @@ import ClearButton from '@/pages/plugins/jira//ClearButton'
 import { Button, MenuItem } from '@blueprintjs/core'
 import { Select } from '@blueprintjs/select'
 
+import { epicsData } from '@/pages/configure/mock-data/epics'
+import { boardsData } from '@/pages/configure/mock-data/boards'
+import { granularitiesData } from '@/pages/configure/mock-data/granularities'
+
 import '@/styles/integration.scss'
 import '@/styles/connections.scss'
-
 import '@blueprintjs/popover2/lib/css/blueprint-popover2.css'
 
 export default function JiraSettings (props) {
@@ -29,29 +32,13 @@ export default function JiraSettings (props) {
   const [jiraIssueStoryPointField, setJiraIssueStoryPointField] = useState()
 
   const [selectedEpicItem, setSelectedEpicItem] = useState()
-  const [epics, setEpics] = useState([
-    { id: 0, title: 'Custom Field 1000', value: 'customfield_1000' },
-    { id: 1, title: 'Custom Field 2000', value: 'customfield_2000' },
-    { id: 2, title: 'Custom Field 3000', value: 'customfield_3000' },
-    { id: 3, title: 'Custom Field 4000', value: 'customfield_4000' },
-    { id: 4, title: 'Custom Field 5000', value: 'customfield_5000' },
-  ])
+  const [epics, setEpics] = useState(epicsData)
 
   const [selectedGranularityItem, setSelectedGranularityItem] = useState()
-  const [granularities, setGranularities] = useState([
-    { id: 0, title: 'Story Points', value: 'customfield_6000' },
-    { id: 1, title: 'Original Estimate', value: 'customfield_7000' },
-  ])
+  const [granularities, setGranularities] = useState(granularitiesData)
 
   const [selectedBoardItem, setSelectedBoardItem] = useState()
-  const [boards, setBoards] = useState([
-    { id: 1, title: 'Open', value: '1' },
-    { id: 2, title: 'Backlog', value: '2' },
-    { id: 3, title: 'QA / Testing', value: '3' },
-    { id: 4, title: 'Pre-release', value: '4' },
-    { id: 5, title: 'Production', value: '5' },
-    { id: 6, title: 'Closed', value: '6' },
-  ])
+  const [boards, setBoards] = useState(boardsData)
 
   useEffect(() => {
     const settings = {
@@ -109,7 +96,7 @@ export default function JiraSettings (props) {
       Incident: [],
       Requirement: []
     }
-    if (connection && connection.id) {
+    if (connection && connection.ID) {
       const types = connection.JIRA_ISSUE_TYPE_MAPPING.split(';').map(t => t.split(':')[0])
       if (types.lastIndexOf('') !== -1) {
         types.pop()
@@ -142,7 +129,7 @@ export default function JiraSettings (props) {
       // @todo FETCH & SET GRANULARITY KEY
       setSelectedGranularityItem(granularities.find(g => g.value === connection.JIRA_ISSUE_STORYPOINT_FIELD))
     }
-  }, [connection])
+  }, [connection, epics, granularities, boards])
 
   return (
     <>
