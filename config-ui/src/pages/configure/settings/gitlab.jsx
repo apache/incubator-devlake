@@ -338,7 +338,7 @@ export default function GitlabSettings (props) {
           <div className={Classes.DIALOG_FOOTER_ACTIONS}>
             <Button
               icon='cross'
-              outline
+              // outlined
               text='Cancel'
               loading={isSaving}
               disabled={isSaving}
