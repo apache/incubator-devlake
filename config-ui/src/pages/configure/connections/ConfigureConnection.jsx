@@ -24,6 +24,7 @@ import GitlabSettings from '@/pages/configure/settings/gitlab'
 import JenkinsSettings from '@/pages/configure/settings/jenkins'
 
 import { integrationsData } from '@/pages/configure/mock-data/integrations'
+import { NullConnection } from '@/data/NullConnection'
 // import { connectionsData } from '@/pages/configure/mock-data/connections'
 
 import '@/styles/integration.scss'
@@ -41,15 +42,8 @@ export default function ConfigureConnection () {
   // const [showError, setShowError] = useState(false)
 
   const [integrations, setIntegrations] = useState(integrationsData)
-  const [activeProvider, setActiveProvider] = useState(integrations[0])
-  const [activeConnection, setActiveConnection] = useState({
-    id: null,
-    name: null,
-    endpoint: null,
-    token: null,
-    username: null,
-    password: null,
-  })
+  const [activeProvider, setActiveProvider] = useState(integrations.find(p => p.id === providerId))
+  const [activeConnection, setActiveConnection] = useState(NullConnection)
   const [connections, setConnections] = useState([])
 
   const [settings, setSettings] = useState({
@@ -163,7 +157,7 @@ export default function ConfigureConnection () {
                 { href: '/integrations', icon: false, text: 'Integrations' },
                 { href: `/integrations/${activeProvider.id}`, icon: false, text: `${activeProvider.name}` },
                 {
-                  href: `/connections/configure/${activeProvider.id}/${activeConnection && activeConnection.id}`,
+                  href: `/connections/configure/${activeProvider.id}/${activeConnection && activeConnection.ID}`,
                   icon: false,
                   text: `${activeConnection ? activeConnection.name : 'Configure'} Settings`,
                   current: true

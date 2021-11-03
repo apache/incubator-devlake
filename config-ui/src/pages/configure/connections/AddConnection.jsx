@@ -41,11 +41,13 @@ export default function AddConnection () {
 
   const {
     testConnection, saveConnection,
-    errors, // showErrors,
-    isSaving, // setIsSaving,
-    isTesting, // setIsTesting,
-    showError, // setShowError,
-    testStatus, // setTestStatus
+    errors,
+    isSaving,
+    isTesting,
+    showError,
+    testStatus,
+    fetchAllConnections,
+    connectionLimitReached,
   } = useConnectionManager({
     activeProvider,
     name,
@@ -70,6 +72,9 @@ export default function AddConnection () {
   useEffect(() => {
     // Selected Provider
     console.log(activeProvider)
+    if (activeProvider && activeProvider.id) {
+      fetchAllConnections()
+    }
   }, [activeProvider])
 
   useEffect(() => {
@@ -116,6 +121,8 @@ export default function AddConnection () {
               </div>
               <div className='addConnection' style={{ display: 'flex' }}>
                 <ConnectionForm
+                  isLocked={connectionLimitReached}
+                  activeProvider={activeProvider}
                   name={name}
                   endpointUrl={endpointUrl}
                   token={token}

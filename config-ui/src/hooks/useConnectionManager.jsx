@@ -5,6 +5,7 @@ import {
 import { ToastNotification } from '@/components/Toast'
 import { DEVLAKE_ENDPOINT } from '@/utils/config'
 import request from '@/utils/request'
+import { NullConnection } from '@/data/NullConnection'
 
 function useConnectionManager ({
   activeProvider,
@@ -32,6 +33,14 @@ function useConnectionManager ({
   const [errors, setErrors] = useState([])
   const [showError, setShowError] = useState(false)
   const [testStatus, setTestStatus] = useState(0) //  0=Pending, 1=Success, 2=Failed
+  const [sourceLimits, setSourceLimits] = useState({
+    gitlab: 1,
+    jenkins: 1
+  })
+
+  const [allConnections, setAllConnections] = useState([])
+  const [connectionCount, setConnectionCount] = useState(0)
+  const [connectionLimitReached, setConnectionLimitReached] = useState(false)
 
   const testConnection = () => {
     setIsTesting(true)
@@ -96,7 +105,7 @@ function useConnectionManager ({
         console.log('>> CONFIGURATION SAVED SUCCESSFULLY', configPayload, s)
         saveResponse = {
           ...saveResponse,
-          success: s.status === 200 || s.status === 201 ? true : false,
+          success: [200, 201].includes(s.status),
           connection: { ...s.data },
           errors: s.isAxiosError ? [s.message] : []
         }
@@ -115,7 +124,7 @@ function useConnectionManager ({
         console.log('>> CONFIGURATION MODIFIED SUCCESSFULLY', configPayload, s)
         saveResponse = {
           ...saveResponse,
-          success: s.status === 200 || s.status === 201 ? true : false,
+          success: [200, 201].includes(s.status),
           connection: { ...s.data },
           errors: s.isAxiosError ? [s.message] : []
         }
@@ -165,16 +174,26 @@ function useConnectionManager ({
       setIsFetching(false)
     } catch (e) {
       setIsFetching(false)
-      setActiveConnection({
-        id: null,
-        name: null,
-        endpoint: null,
-        token: null,
-        username: null,
-        password: null,
-      })
+      setActiveConnection(NullConnection)
       ToastNotification.show({ message: `${e}`, intent: 'danger', icon: 'error' })
       console.log('>> FAILED TO FETCH CONNECTION', e)
+    }
+  }
+
+  const fetchAllConnections = async () => {
+    try {
+      setIsFetching(true)
+      console.log('>> FETCHING ALL CONNECTION SOURCES', isFetching)
+      const f = await request.get(`${DEVLAKE_ENDPOINT}/plugins/${activeProvider.id}/sources`)
+      setAllConnections(f.data)
+      setConnectionCount(f.data.length)
+      setConnectionLimitReached(sourceLimits[activeProvider.id] && f.data.length >= sourceLimits[activeProvider.id])
+    } catch (e) {
+      console.log('>> FAILED TO FETCH ALL CONNECTIONS', e)
+      setIsFetching(false)
+      setAllConnections([])
+      setConnectionCount(0)
+      setConnectionLimitReached(false)
     }
   }
 
@@ -192,7 +211,7 @@ function useConnectionManager ({
   }
 
   useEffect(() => {
-    if (activeConnection && activeConnection.id !== null) {
+    if (activeConnection && activeConnection.ID !== null) {
       ToastNotification.clear()
       ToastNotification.show({ message: `Fetched settings for ${activeConnection.name}.`, intent: 'success', icon: 'small-tick' })
       console.log('>> FETCHED CONNECTION FOR MODIFY', activeConnection)
@@ -201,6 +220,7 @@ function useConnectionManager ({
 
   return {
     fetchConnection,
+    fetchAllConnections,
     testConnection,
     saveConnection,
     deleteConnection,
@@ -216,7 +236,12 @@ function useConnectionManager ({
     setIsFetching,
     setErrors,
     setShowError,
-    setTestStatus
+    setTestStatus,
+    setSourceLimits,
+    allConnections,
+    sourceLimits,
+    connectionCount,
+    connectionLimitReached
   }
 }
 
