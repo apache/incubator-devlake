@@ -16,6 +16,8 @@ type GitlabConfig struct {
 type GitlabSource struct {
 	Endpoint string
 	Auth     string
+	Name     string
+	ID       int
 }
 
 /*
@@ -49,10 +51,11 @@ GET /plugins/gitlab/sources
 func ListSources(input *core.ApiResourceInput) (*core.ApiResourceOutput, error) {
 	// RETURN ONLY 1 SOURCE (FROM ENV) until multi-source is developed.
 	gitlabSources, err := GetSourceFromEnv()
+	response := []GitlabSource{*gitlabSources}
 	if err != nil {
 		return nil, err
 	}
-	return &core.ApiResourceOutput{Body: gitlabSources}, nil
+	return &core.ApiResourceOutput{Body: response}, nil
 }
 
 /*
@@ -67,15 +70,17 @@ func GetSource(input *core.ApiResourceInput) (*core.ApiResourceOutput, error) {
 	return &core.ApiResourceOutput{Body: gitlabSources}, nil
 }
 
-func GetSourceFromEnv() (*[1]GitlabSource, error) {
+func GetSourceFromEnv() (*GitlabSource, error) {
 	V := config.LoadConfigFile()
 	var configJson GitlabConfig
 	err := V.Unmarshal(&configJson)
 	if err != nil {
 		return nil, err
 	}
-	return &[1]GitlabSource{{
+	return &GitlabSource{
 		Endpoint: configJson.GITLAB_ENDPOINT,
 		Auth:     configJson.GITLAB_AUTH,
-	}}, nil
+		Name:     "Gitlab",
+		ID:       1,
+	}, nil
 }
