@@ -70,7 +70,8 @@ const MenuConfiguration = (activeRoute) => {
       label: 'Documentation',
       icon: 'help',
       classNames: [],
-      route: '/documentation',
+      route: 'https://github.com/merico-dev/lake/wiki',
+      target: "_blank",
       external: true,
       active: activeRoute.url === '/documentation',
       children: [

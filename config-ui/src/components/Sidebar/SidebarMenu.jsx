@@ -30,6 +30,7 @@ const SidebarMenu = (props) => {
                 icon={m.icon}
                 text={m.label}
                 href={m.route}
+                target={m.target}
                 disabled={m.disabled}
               />
               )
