@@ -3,19 +3,9 @@ const MenuConfiguration = (activeRoute) => {
   return [
     {
       id: 0,
-      label: 'Dashboard',
-      icon: 'layout-grid',
-      route: '/',
-      active: activeRoute.url === '/',
-      classNames: [],
-      children: [
-      ]
-    },
-    {
-      id: 1,
       label: 'Data Integrations',
       route: '/integrations',
-      active: activeRoute.url.startsWith('/integrations'),
+      active: activeRoute.url.startsWith('/integrations') || activeRoute.url === '/',
       icon: 'data-connection',
       classNames: [],
       children: [
@@ -46,7 +36,7 @@ const MenuConfiguration = (activeRoute) => {
       ]
     },
     {
-      id: 2,
+      id: 1,
       label: 'Jobs & Tasks',
       icon: 'automatic-updates',
       route: '/tasks',
@@ -56,7 +46,7 @@ const MenuConfiguration = (activeRoute) => {
       ]
     },
     {
-      id: 3,
+      id: 2,
       label: 'Triggers',
       icon: 'asterisk',
       classNames: [],
@@ -66,7 +56,7 @@ const MenuConfiguration = (activeRoute) => {
       ]
     },
     {
-      id: 4,
+      id: 3,
       label: 'Documentation',
       icon: 'help',
       classNames: [],

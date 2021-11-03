@@ -78,7 +78,7 @@ export default function AddConnection () {
   }, [activeProvider])
 
   useEffect(() => {
-    fetch(`${SERVER_HOST}/api/getenv`)
+    fetch(`${DEVLAKE_ENDPOINT}/api/getenv`)
       .then(response => response.json())
       .then(env => {
         // setDbUrl(env.DB_URL)
