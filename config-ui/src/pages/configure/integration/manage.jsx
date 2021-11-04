@@ -262,7 +262,13 @@ export default function ManageIntegration () {
                                 onClick={(e) => editConnection(connection, e)}
                               />
                             </td>
-                            <td className='cell-endpoint'>{connection.endpoint || connection.Endpoint}</td>
+                            <td
+                              className='cell-endpoint'
+                              onClick={(e) => configureConnection(connection, e)}
+                              style={{ cursor: 'pointer' }}
+                            >
+                              {connection.endpoint || connection.Endpoint}
+                            </td>
                             <td className='cell-status'>
                               {connection.status === 0 && (
                                 <strong style={{ color: Colors.GRAY4 }}>Offline</strong>
