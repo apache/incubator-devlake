@@ -55,18 +55,18 @@ const MenuConfiguration = (activeRoute) => {
       children: [
       ]
     },
-    {
-      id: 3,
-      label: 'Documentation',
-      icon: 'help',
-      classNames: [],
-      route: 'https://github.com/merico-dev/lake/wiki',
-      target: "_blank",
-      external: true,
-      active: activeRoute.url === '/documentation',
-      children: [
-      ]
-    },
+    // {
+    //   id: 3,
+    //   label: 'Documentation',
+    //   icon: 'help',
+    //   classNames: [],
+    //   route: 'https://github.com/merico-dev/lake/wiki',
+    //   target: "_blank",
+    //   external: true,
+    //   active: activeRoute.url === '/documentation',
+    //   children: [
+    //   ]
+    // },
   ]
 }
 
