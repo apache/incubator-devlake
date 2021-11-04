@@ -40,6 +40,7 @@ func RegisterRouter(r *gin.Engine) {
 								input.Params[param.Key] = param.Value
 							}
 						}
+						input.Query = c.Request.URL.Query()
 						if c.Request.Body != nil {
 							err := c.ShouldBindJSON(&input.Body)
 							if err != nil && err.Error() != "EOF" {
