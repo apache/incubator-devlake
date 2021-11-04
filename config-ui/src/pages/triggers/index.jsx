@@ -36,26 +36,26 @@ export default function Triggers () {
   const [pendingTasks, setPendingTasks] = useState([])
   const [stage, setStage] = useState(0)
   const [grafanaUrl, setGrafanaUrl] = useState(3002)
-  useEffect(() => {
-    let s = 0
-    const interval = setInterval(async () => {
-      try {
-        const res = await request.get('/api/triggers/pendings')
-        console.log(await res.data)
-        if (res.data.tasks.length > 0) {
-          s = 1
-        } else if (s === 1) {
-          s = 2
-        }
-        setStage(s)
-        setPendingTasks(res.data.tasks)
-        setGrafanaUrl(`${location.protocol}//${location.hostname}:${res.data.grafanaPort}`)
-      } catch (e) {
-        console.log(e)
-      }
-    }, 3000)
-    return () => clearInterval(interval)
-  }, [])
+  // useEffect(() => {
+  //   let s = 0
+  //   const interval = setInterval(async () => {
+  //     try {
+  //       const res = await request.get('/api/triggers/pendings')
+  //       console.log(await res.data)
+  //       if (res.data.tasks.length > 0) {
+  //         s = 1
+  //       } else if (s === 1) {
+  //         s = 2
+  //       }
+  //       setStage(s)
+  //       setPendingTasks(res.data.tasks)
+  //       setGrafanaUrl(`${location.protocol}//${location.hostname}:${res.data.grafanaPort}`)
+  //     } catch (e) {
+  //       console.log(e)
+  //     }
+  //   }, 3000)
+  //   return () => clearInterval(interval)
+  // }, [])
 
   return (
     <div className='container'>
