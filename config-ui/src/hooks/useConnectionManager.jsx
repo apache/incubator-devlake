@@ -12,11 +12,11 @@ function useConnectionManager ({
   activeConnection,
   connectionId,
   setActiveConnection,
-  name = null,
-  endpointUrl = null,
-  token = null,
-  username = null,
-  password = null,
+  // name = null,
+  // endpointUrl = null,
+  // token = null,
+  // username = null,
+  // password = null,
   // isTesting, setIsTesting,
   // isSaving, setIsSaving,
   // testStatus, setTestStatus,
@@ -24,6 +24,12 @@ function useConnectionManager ({
   // showError, setShowError
 }, updateMode = false) {
   const history = useHistory()
+
+  const [name, setName] = useState()
+  const [endpointUrl, setEndpointUrl] = useState()
+  const [token, setToken] = useState()
+  const [username, setUsername] = useState()
+  const [password, setPassword] = useState()
 
   const [isSaving, setIsSaving] = useState(false)
   const [isFetching, setIsFetching] = useState(false)
@@ -41,6 +47,12 @@ function useConnectionManager ({
   const [allConnections, setAllConnections] = useState([])
   const [connectionCount, setConnectionCount] = useState(0)
   const [connectionLimitReached, setConnectionLimitReached] = useState(false)
+
+  const Providers = {
+    GITLAB: 'gitlab',
+    JENKINS: 'jenkins',
+    JIRA: 'jira'
+  }
 
   const testConnection = () => {
     setIsTesting(true)
@@ -219,6 +231,18 @@ function useConnectionManager ({
 
   useEffect(() => {
     if (activeConnection && activeConnection.ID !== null) {
+      setName(activeConnection.name)
+      setEndpointUrl(activeConnection.endpoint)
+      switch (activeProvider.id) {
+        case Providers.JENKINS:
+          setUsername(activeConnection.username)
+          setPassword(activeConnection.password)
+          break
+        case Providers.GITLAB:
+        case Providers.JIRA:
+          setToken(activeConnection.basicAuthEncoded || activeConnection.Auth)
+          break
+      }
       ToastNotification.clear()
       ToastNotification.show({ message: `Fetched settings for ${activeConnection.name}.`, intent: 'success', icon: 'small-tick' })
       console.log('>> FETCHED CONNECTION FOR MODIFY', activeConnection)
@@ -238,6 +262,16 @@ function useConnectionManager ({
     errors,
     showError,
     testStatus,
+    name,
+    endpointUrl,
+    username,
+    password,
+    token,
+    setName,
+    setEndpointUrl,
+    setToken,
+    setUsername,
+    setPassword,
     setIsSaving,
     setIsTesting,
     setIsFetching,
@@ -248,7 +282,8 @@ function useConnectionManager ({
     allConnections,
     sourceLimits,
     connectionCount,
-    connectionLimitReached
+    connectionLimitReached,
+    Providers
   }
 }
 

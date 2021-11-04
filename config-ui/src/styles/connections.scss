@@ -1,6 +1,6 @@
 .addConnection, .editConnection, .configureConnection {
   .formContainer {
-    max-width: 90%;
+    max-width: 100%;
   }
 
   .bp3-form-group {
@@ -24,7 +24,7 @@
       // max-width: 440px;    
       // max-width: 600px;
       .bp3-input {
-        
+        flex: 1;
       }
     }
 
@@ -35,6 +35,7 @@
       min-width: 80px;
       display: flex;
       justify-content: flex-start;
+      padding-right: 25px;
     }
 
     label {
@@ -57,7 +58,7 @@
 .configureConnection {
   .bp3-form-group {
     .bp3-form-content {
-      max-width: 80%;
+      // max-width: 80%;
     }
   }
 

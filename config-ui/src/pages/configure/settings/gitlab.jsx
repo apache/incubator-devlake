@@ -33,7 +33,7 @@ export default function GitlabSettings (props) {
   const { connection, provider, isSaving, onSettingsChange } = props
   const history = useHistory()
   const { providerId, connectionId } = useParams()
-  const [jiraBoardGitlabeProjects, setJiraBoardGitlabProjects] = useState()
+  const [jiraBoardGitlabProjects, setJiraBoardGitlabProjects] = useState('')
   const [showBoardMappingDialog, setShowBoardMappingDialog] = useState(false)
 
   const [selectedBoard, setSelectedBoard] = useState({ id: 1, title: 'Open', value: 1 })
@@ -70,12 +70,12 @@ export default function GitlabSettings (props) {
 
   useEffect(() => {
     const settings = {
-      JIRA_BOARD_GITLAB_PROJECTS: jiraBoardGitlabeProjects
+      JIRA_BOARD_GITLAB_PROJECTS: jiraBoardGitlabProjects
     }
     onSettingsChange(settings)
     console.log('>> GITLAB INSTANCE SETTINGS FIELDS CHANGED!', settings)
   }, [
-    jiraBoardGitlabeProjects,
+    jiraBoardGitlabProjects,
     onSettingsChange
   ])
 
@@ -123,8 +123,11 @@ export default function GitlabSettings (props) {
 
     // @todo FETCH PROJECTS FROM BE API
     // setProjects([])
-    if (connection && connection.id) {
+    if (connection && connection.ID) {
+      console.log('>> GITLAB CONNECTION OBJECT RECEIVED...', connection, connection.JIRA_BOARD_GITLAB_PROJECTS)
       setJiraBoardGitlabProjects(connection.JIRA_BOARD_GITLAB_PROJECTS)
+    } else {
+      console.log('>>>> WARNING!! NO CONNECTION OBJECT', connection)
     }
   }, [connection])
 
@@ -146,18 +149,19 @@ export default function GitlabSettings (props) {
           <InputGroup
             id='jira-storypoint-field'
             placeholder='<JIRA_BOARD>:<GITLAB_PROJECT_ID>,...; eg. 8:8967944,8967945;9:8967946,8967947'
-            defaultValue={jiraBoardGitlabeProjects}
+            defaultValue={jiraBoardGitlabProjects}
             onChange={(e) => setJiraBoardGitlabProjects(e.target.value)}
             disabled={isSaving}
             className='input'
           />
         </FormGroup>
       </div>
+      {/* ========== BOARD LINKING UX ======================== */}
+      {/* @todo continue/restore  board-linking ux after ITER3 */}
+      {/* <h3 className='headline'>JIRA Board Mappings <span className='bp3-form-helper-text'>JIRA_BOARD_GITLAB_PROJECTS</span></h3>
+      <p className=''>Visually relate specific JIRA boards to GitLab Projects.</p> */}
 
-      <h3 className='headline'>JIRA Board Mappings <span className='bp3-form-helper-text'>JIRA_BOARD_GITLAB_PROJECTS</span></h3>
-      <p className=''>Visually relate specific JIRA boards to GitLab Projects.</p>
-
-      <Card interactive={false} elevation={Elevation.ONE} style={{ width: '100%', maxWidth: '640px', backgroundColor: Colors.LIGHT_GRAY5 }}>
+      {/* <Card interactive={false} elevation={Elevation.ONE} style={{ width: '100%', maxWidth: '640px', backgroundColor: Colors.LIGHT_GRAY5 }}>
         {boardMappings.length === 0 && (
           <>
             <h3 style={{ margin: 0 }}>NO BOARD MAPPINGS</h3>
@@ -219,7 +223,6 @@ export default function GitlabSettings (props) {
                     >PRJ {projectId}
                     </Tag>
                   ))}
-                  {/* <Tag className='node-id-tag' intent='danger' round fill={false}>PRJ 8967944</Tag> */}
                 </div>
               </div>
               <div className='board-mapping-actions' style={{ marginLeft: 'auto', paddingLeft: '15px', whiteSpace: 'nowrap' }}>
@@ -237,9 +240,10 @@ export default function GitlabSettings (props) {
             </div>
           ))}
         </div>
-      </Card>
+      </Card> */}
 
-      <Dialog
+      {/* @todo continue/restore board-linking dialog ux after ITER3 */}
+      {/* <Dialog
         icon='flows'
         onClose={() => setShowBoardMappingDialog(false)}
         title='Map GitLab Project'
@@ -254,7 +258,6 @@ export default function GitlabSettings (props) {
             <p>Link a GitLab project to JIRA board(s)</p>
             <div style={{ display: 'flex', width: '100%' }}>
               <div style={{ width: '50%' }}>
-                {/* <span style={{ display: 'inline-block' }}> */}
                 <Select
                   popoverProps={{ usePortal: false }}
                   className='selector-board-id'
@@ -286,7 +289,6 @@ export default function GitlabSettings (props) {
                     fill
                   />
                 </Select>
-                {/* </span> */}
 
               </div>
               <div style={{ width: '16px', alignSelf: 'center' }}>
@@ -296,7 +298,6 @@ export default function GitlabSettings (props) {
                 />
               </div>
               <div style={{ width: '50%' }}>
-                {/* <span style={{ display: 'inline-block' }}> */}
                 <Select
                   className='selector-project-id'
                   multiple
@@ -328,7 +329,6 @@ export default function GitlabSettings (props) {
                     fill
                   />
                 </Select>
-                {/* </span> */}
               </div>
             </div>
           </div>
@@ -353,7 +353,7 @@ export default function GitlabSettings (props) {
           </div>
         </div>
 
-      </Dialog>
+      </Dialog> */}
     </>
   )
 }

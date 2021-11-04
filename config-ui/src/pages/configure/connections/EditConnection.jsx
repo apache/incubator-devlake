@@ -26,11 +26,11 @@ export default function EditConnection () {
   const history = useHistory()
   const { providerId, connectionId } = useParams()
 
-  const [name, setName] = useState()
-  const [endpointUrl, setEndpointUrl] = useState()
-  const [token, setToken] = useState()
-  const [username, setUsername] = useState()
-  const [password, setPassword] = useState()
+  // const [name, setName] = useState()
+  // const [endpointUrl, setEndpointUrl] = useState()
+  // const [token, setToken] = useState()
+  // const [username, setUsername] = useState()
+  // const [password, setPassword] = useState()
 
   const [integrations, setIntegrations] = useState(integrationsData)
   const [activeProvider, setActiveProvider] = useState(integrations[0])
@@ -41,21 +41,31 @@ export default function EditConnection () {
     testConnection,
     saveConnection,
     fetchConnection,
-    errors, // showErrors,
-    isSaving, // setIsSaving,
-    isTesting, // setIsTesting,
-    showError, // setShowError,
-    testStatus, // setTestStatus
+    name,
+    endpointUrl,
+    username,
+    password,
+    token,
+    errors,
+    isSaving,
+    isTesting,
+    showError,
+    testStatus,
+    setName,
+    setEndpointUrl,
+    setUsername,
+    setPassword,
+    setToken
   } = useConnectionManager({
     activeProvider,
     activeConnection,
     connectionId,
     setActiveConnection,
-    name,
-    endpointUrl,
-    token,
-    username,
-    password,
+    // name,
+    // endpointUrl,
+    // token,
+    // username,
+    // password,
   }, true)
 
   const cancel = () => {
