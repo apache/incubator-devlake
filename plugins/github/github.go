@@ -8,15 +8,19 @@ import (
 	"github.com/merico-dev/lake/plugins/core"
 	"github.com/merico-dev/lake/plugins/github/tasks"
 	"github.com/merico-dev/lake/utils"
+	"github.com/mitchellh/mapstructure"
 )
 
+type GithubOptions struct {
+	Tasks []string
+}
 type Github string
 
 func (plugin Github) Description() string {
 	return "To collect and enrich data from GitHub"
 }
 
-func (plugin Github) Execute(options map[string]interface{}, progress chan<- float32, ctx context.Context) {
+func (plugin Github) Execute(options map[string]interface{}, progress chan<- float32, ctx context.Context) error {
 	// We need this rate limit set to 1 since there are only 5000 requests per hour allowed for the github api
 	scheduler, err := utils.NewWorkerScheduler(50, 1, ctx)
 	if err != nil {
@@ -29,61 +33,73 @@ func (plugin Github) Execute(options map[string]interface{}, progress chan<- flo
 
 	owner, ok := options["owner"]
 	if !ok {
-		logger.Print("owner is required for GitHub execution")
-		return
+		return fmt.Errorf("owner is required for GitHub execution")
 	}
 	ownerString := owner.(string)
 
 	repositoryName, ok := options["repositoryName"]
 	if !ok {
-		logger.Print("repositoryName is required for GitHub execution")
-		return
+		return fmt.Errorf("repositoryName is required for GitHub execution")
 	}
 	repositoryNameString := repositoryName.(string)
 
+	var op GithubOptions
+	err = mapstructure.Decode(options, &op)
+	if err != nil {
+		return err
+	}
+	tasksToRun := make(map[string]bool, len(op.Tasks))
+	for _, task := range op.Tasks {
+		tasksToRun[task] = true
+	}
+	if len(tasksToRun) == 0 {
+		tasksToRun = map[string]bool{
+			"collectCommits": true,
+			"collectIssues":  true,
+		}
+	}
 	repoId, collectRepoErr := tasks.CollectRepository(ownerString, repositoryNameString)
 	if collectRepoErr != nil {
-		logger.Error("Could not collect repositories: ", collectRepoErr)
-		return
+		return fmt.Errorf("Could not collect repositories: %v", collectRepoErr)
 	}
 	err = tasks.CollectRepositoryIssueLabels(ownerString, repositoryNameString, scheduler)
 	if err != nil {
-		logger.Error("Could not collect repo Issue Labels: ", err)
-		return
+		return fmt.Errorf("Could not collect repo Issue Labels: %v", err)
 	}
 	progress <- 0.2
-	fmt.Println("INFO >>> starting commits collection")
-	collectCommitsErr := tasks.CollectCommits(ownerString, repositoryNameString, repoId, scheduler)
-	if collectCommitsErr != nil {
-		logger.Error("Could not collect commits: ", collectCommitsErr)
-		return
+	if tasksToRun["collectCommits"] {
+		fmt.Println("INFO >>> starting commits collection")
+		collectCommitsErr := tasks.CollectCommits(ownerString, repositoryNameString, repoId, scheduler)
+		if collectCommitsErr != nil {
+			return fmt.Errorf("Could not collect commits: %v", collectCommitsErr)
+		}
+		tasks.CollectChildrenOnCommits(ownerString, repositoryNameString, repoId, scheduler)
 	}
-	tasks.CollectChildrenOnCommits(ownerString, repositoryNameString, repoId, scheduler)
 	progress <- 0.4
-	fmt.Println("INFO >>> starting issues / PRs collection")
-	collectIssuesErr := tasks.CollectIssues(ownerString, repositoryNameString, repoId, scheduler)
-	if collectIssuesErr != nil {
-		logger.Error("Could not collect issues: ", collectIssuesErr)
-		return
-	}
-	progress <- 0.6
-	fmt.Println("INFO >>> starting children on issues collection")
-	collectIssueChildrenErr := tasks.CollectChildrenOnIssues(ownerString, repositoryNameString, repoId, scheduler)
-	if collectIssueChildrenErr != nil {
-		logger.Error("Could not collect Issue children: ", collectIssueChildrenErr)
-		return
-	}
-	progress <- 0.8
-	fmt.Println("INFO >>> collecting PR children collection")
-	collectPrChildrenErr := tasks.CollectChildrenOnPullRequests(ownerString, repositoryNameString, repoId, scheduler)
-	if collectPrChildrenErr != nil {
-		logger.Error("Could not collect PR children: ", collectPrChildrenErr)
-		return
+	if tasksToRun["collectIssues"] {
+		fmt.Println("INFO >>> starting issues / PRs collection")
+		collectIssuesErr := tasks.CollectIssues(ownerString, repositoryNameString, repoId, scheduler)
+		if collectIssuesErr != nil {
+			return fmt.Errorf("Could not collect issues: %v", collectIssuesErr)
+		}
+		progress <- 0.6
+		fmt.Println("INFO >>> starting children on issues collection")
+		collectIssueChildrenErr := tasks.CollectChildrenOnIssues(ownerString, repositoryNameString, repoId, scheduler)
+		if collectIssueChildrenErr != nil {
+			return fmt.Errorf("Could not collect Issue children: %v", collectIssueChildrenErr)
+		}
+		progress <- 0.8
+		fmt.Println("INFO >>> collecting PR children collection")
+		collectPrChildrenErr := tasks.CollectChildrenOnPullRequests(ownerString, repositoryNameString, repoId, scheduler)
+		if collectPrChildrenErr != nil {
+			return fmt.Errorf("Could not collect PR children: %v", collectPrChildrenErr)
+		}
 	}
 	progress <- 1
 
 	close(progress)
 
+	return nil
 }
 
 func (plugin Github) RootPkgPath() string {

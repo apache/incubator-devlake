@@ -31,6 +31,14 @@ type NewTask struct {
 	Options map[string]interface{} `json:"options" binding:"required"`
 }
 
+type TaskQuery struct {
+	Status   string `form:"status"`
+	Page     int    `form:"page"`
+	PageSize int    `form:"page_size"`
+	Plugin   string `form:"plugin"`
+	SourceId int64  `form:"source_id"`
+}
+
 func init() {
 	var notificationEndpoint = config.V.GetString("NOTIFICATION_ENDPOINT")
 	var notificationSecret = config.V.GetString("NOTIFICATION_SECRET")
@@ -43,15 +51,24 @@ func init() {
 }
 
 func CreateTaskInDB(data NewTask) (*models.Task, error) {
+	var sourceId int64
+	if source, ok := data.Options["sourceId"].(float64); ok {
+		sourceId = int64(source)
+		if sourceId == 0 {
+			return nil, fmt.Errorf("invalid sourceId: %d", sourceId)
+		}
+	}
+
 	b, err := json.Marshal(data.Options)
 	if err != nil {
 		return nil, err
 	}
 	task := models.Task{
-		Plugin:  data.Plugin,
-		Options: b,
-		Status:  TASK_CREATED,
-		Message: "",
+		Plugin:   data.Plugin,
+		Options:  b,
+		Status:   TASK_CREATED,
+		Message:  "",
+		SourceId: sourceId,
 	}
 	err = models.Db.Save(&task).Error
 	if err != nil {
@@ -114,7 +131,6 @@ func RunTask(task models.Task, data NewTask, taskComplete chan bool) (models.Tas
 }
 
 func CancelTask(taskId uint64) error {
-	fmt.Printf("running task: %v task id : %v", runningTasks, taskId)
 	if cancel, ok := runningTasks[taskId]; ok {
 		logger.Info("cancel task ", taskId)
 		cancel()
@@ -125,17 +141,32 @@ func CancelTask(taskId uint64) error {
 	return nil
 }
 
-func GetTasks(status string) ([]models.Task, error) {
-	db := models.Db
-	if status != "" {
-		db = db.Where("status = ?", status)
+func GetTasks(query *TaskQuery) ([]models.Task, int64, error) {
+	db := models.Db.Model(&models.Task{}).Order("id DESC")
+	if query.Status != "" {
+		db = db.Where("status = ?", query.Status)
+	}
+	if query.Plugin != "" {
+		db = db.Where("plugin = ?", query.Plugin)
+	}
+	if query.SourceId != 0 {
+		db = db.Where("source_id = ?", query.SourceId)
+	}
+	var count int64
+	err := db.Count(&count).Error
+	if err != nil {
+		return nil, 0, err
+	}
+	if query.Page > 0 && query.PageSize > 0 {
+		offset := query.PageSize * (query.Page - 1)
+		db = db.Limit(query.PageSize).Offset(offset)
 	}
 	tasks := make([]models.Task, 0)
-	err := db.Find(&tasks).Error
+	err = db.Find(&tasks).Error
 	if err != nil {
-		return nil, err
+		return nil, count, err
 	}
-	return tasks, nil
+	return tasks, count, nil
 }
 
 func CreateTasksInDBFromJSON(data [][]NewTask) [][]models.Task {

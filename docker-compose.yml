@@ -1,7 +1,6 @@
 version: "3"
 services:
   mysql:
-    hostname: mysqldb
     image: mysql:8.0.26
     platform: linux/x86_64
     volumes:
@@ -15,7 +14,6 @@ services:
       MYSQL_USER: merico
       MYSQL_PASSWORD: merico
   grafana:
-    hostname: grafana
     image: grafana/grafana:8.0.6
     ports:
       - 3002:3000
@@ -34,8 +32,7 @@ services:
     depends_on:
       - mysql
   devlake:
-    image: devlake:local
-    platform: linux/x86_64
+    image: mericodev/lake:0.3.0
     ports:
       - 127.0.0.1:8080:8080
     env_file:

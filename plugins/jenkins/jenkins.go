@@ -2,11 +2,13 @@ package main
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/merico-dev/lake/config"
 	"github.com/merico-dev/lake/logger"
 	lakeModels "github.com/merico-dev/lake/models"
 	"github.com/merico-dev/lake/plugins/core"
+	"github.com/merico-dev/lake/plugins/jenkins/api"
 	"github.com/merico-dev/lake/plugins/jenkins/models"
 	"github.com/merico-dev/lake/plugins/jenkins/tasks"
 	"github.com/mitchellh/mapstructure"
@@ -42,7 +44,7 @@ func (j Jenkins) CleanData() {
 	}
 }
 
-func (j Jenkins) Execute(options map[string]interface{}, progress chan<- float32, ctx context.Context) {
+func (j Jenkins) Execute(options map[string]interface{}, progress chan<- float32, ctx context.Context) error {
 	var op = JenkinsOptions{
 		Host:     config.V.GetString("JENKINS_ENDPOINT"),
 		Username: config.V.GetString("JENKINS_USERNAME"),
@@ -51,12 +53,11 @@ func (j Jenkins) Execute(options map[string]interface{}, progress chan<- float32
 	logger.Info("Jenkins config", op)
 	var err = mapstructure.Decode(options, &op)
 	if err != nil {
-		logger.Error("Failed to decode options", err)
-		return
+		return fmt.Errorf("Failed to decode options: %v", err)
 	}
 	j.CleanData()
 	var worker = tasks.NewJenkinsWorker(nil, tasks.NewDeafultJenkinsStorage(lakeModels.Db), op.Host, op.Username, op.Password)
-	worker.SyncJobs(progress)
+	return worker.SyncJobs(progress)
 }
 
 func (plugin Jenkins) RootPkgPath() string {
@@ -64,7 +65,16 @@ func (plugin Jenkins) RootPkgPath() string {
 }
 
 func (plugin Jenkins) ApiResources() map[string]map[string]core.ApiResourceHandler {
-	return make(map[string]map[string]core.ApiResourceHandler)
+	return map[string]map[string]core.ApiResourceHandler{
+		"sources": {
+			"GET":  api.ListSources,
+			"POST": api.PostSource,
+		},
+		"sources/:sourceId": {
+			"GET": api.GetSource,
+			"PUT": api.PutSource,
+		},
+	}
 }
 
 var PluginEntry Jenkins //nolint

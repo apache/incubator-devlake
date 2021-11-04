@@ -8,6 +8,7 @@ import (
 	"github.com/merico-dev/lake/plugins/domainlayer/models/code"
 	"github.com/merico-dev/lake/plugins/domainlayer/models/devops"
 	"github.com/merico-dev/lake/plugins/domainlayer/models/ticket"
+	"github.com/merico-dev/lake/plugins/domainlayer/models/user"
 )
 
 // plugin interface
@@ -15,6 +16,7 @@ type DomainLayer string
 
 func (plugin DomainLayer) Init() {
 	err := lakeModels.Db.AutoMigrate(
+		&user.User{},
 		&code.Repo{},
 		&code.Commit{},
 		&code.Pr{},
@@ -22,6 +24,7 @@ func (plugin DomainLayer) Init() {
 		&ticket.Board{},
 		&ticket.Issue{},
 		&ticket.Changelog{},
+		&ticket.Sprint{},
 		&devops.Job{},
 		&devops.Build{},
 	)
@@ -34,8 +37,9 @@ func (plugin DomainLayer) Description() string {
 	return "Domain Layer"
 }
 
-func (plugin DomainLayer) Execute(options map[string]interface{}, progress chan<- float32, ctx context.Context) {
-	progress <- 1
+func (plugin DomainLayer) Execute(options map[string]interface{}, progress chan<- float32, ctx context.Context) error {
+	close(progress)
+	return nil
 }
 
 func (plugin DomainLayer) RootPkgPath() string {

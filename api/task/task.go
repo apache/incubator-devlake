@@ -36,12 +36,18 @@ func Post(ctx *gin.Context) {
 }
 
 func Get(ctx *gin.Context) {
-	tasks, err := services.GetTasks(ctx.Query("status"))
+	var query services.TaskQuery
+	err := ctx.BindQuery(&query)
 	if err != nil {
 		_ = ctx.AbortWithError(http.StatusInternalServerError, err)
 		return
 	}
-	ctx.JSON(http.StatusOK, gin.H{"tasks": tasks})
+	tasks, count, err := services.GetTasks(&query)
+	if err != nil {
+		_ = ctx.AbortWithError(http.StatusInternalServerError, err)
+		return
+	}
+	ctx.JSON(http.StatusOK, gin.H{"tasks": tasks, "count":count})
 }
 
 func Delete(ctx *gin.Context) {

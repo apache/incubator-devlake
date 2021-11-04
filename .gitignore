@@ -71,8 +71,8 @@ web_modules/
 
 # dotenv environment variables file
 .env
-.env.test
-.env.production
+.env.*
+!.env.example
 
 # parcel-bundler cache (https://parceljs.org/)
 .cache
@@ -119,7 +119,6 @@ dist
 
 postgres-data/
 mysql-data/
-data/
 .docker/
 
 # config files

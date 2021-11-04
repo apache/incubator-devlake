@@ -9,7 +9,7 @@ import (
 
 var V *viper.Viper
 
-func init() {
+func LoadConfigFile() *viper.Viper {
 	V = viper.New()
 	configFile := os.Getenv("ENV_FILE")
 	if configFile != "" {
@@ -40,5 +40,10 @@ func init() {
 
 	_ = V.ReadInConfig()
 	V.AutomaticEnv()
+	return V
+}
+
+func init() {
+	V := LoadConfigFile()
 	V.SetDefault("PORT", ":8080")
 }

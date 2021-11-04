@@ -1,7 +1,15 @@
+<div align="center">
 <br />
 <img src="https://user-images.githubusercontent.com/3789273/128085813-92845abd-7c26-4fa2-9f98-928ce2246616.png" width="120px">
 
 # Dev Lake
+<p>
+    <b>
+     <!Software development workflow analysis for free> 
+    </b>
+  </p>
+  <p>
+
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat&logo=github&color=2370ff&labelColor=454545)](http://makeapullrequest.com)
 [![Discord](https://img.shields.io/discord/844603288082186240.svg?style=flat?label=&logo=discord&logoColor=ffffff&color=747df7&labelColor=454545)](https://discord.gg/83rDG6ydVZ)
 ![badge](https://github.com/merico-dev/lake/actions/workflows/test.yml/badge.svg)
@@ -10,22 +18,32 @@
 | [English](README.md) | [中文](README-zh-CN.md) |
 | --- | --- |
 
+
+<div align="left">
+
 <br>
 
 ### What is Dev Lake?
-
 Dev Lake is the one-stop solution that _**integrates, analyzes, and visualizes**_ software development data throughout the _**software development life cycle (SDLC)**_ for engineering teams.
 
+
 <img src="https://user-images.githubusercontent.com/2908155/130271622-827c4ffa-d812-4843-b09d-ea1338b7e6e5.png" width="100%" alt="Dev Lake Grafana Dashboard" />
+<p align="center">Dashboard Screenshot</p><br>
+<img src="https://user-images.githubusercontent.com/14050754/139076905-48d13e40-51ab-49e4-b537-0fe56960a1c0.png" width="100%" alt="Dev Lake Grafana Dashboard" />
+<p align="center">User Flow</p>
 
-### Why choose Dev Lake?
+### Why Dev Lake?
+1. Unifies data from multiple sources (<a href="https://www.atlassian.com/software/jira" target="_blank">Jira</a>, <a href="https://gitlab.com/" target="_blank">Gitlab</a>, <a href="https://www.jenkins.io/" target="_blank">Jenkins</a> etc) in one place.
+2. Can compute metrics from different data sources together.
+3. Provide a series of industry standard metrics to identify engineering problems. 
+4. Highly customisable, users can make their own graphs, metrics & dashboards.
 
-1.  Supports various data sources (<a href="https://gitlab.com/" target="_blank">Gitlab</a>, <a href="https://www.atlassian.com/software/jira" target="_blank">Jira</a>) and more are being added all the time
-2.  Relevant, customizable data metrics ready to view as visual charts
-7.  Easily build and view new charts and dashboards with <a href="https://grafana.com/" target="_blank">Grafana</a>
-4.  Easy-to-setup via <a href="https://docs.docker.com/desktop/" target="_blank">Docker</a>
-5.  Extensible plugin system to add your own data collectors
-6.  Designed to process enterprise-scale data
+### What can be accomplished with Dev Lake?
+1. Visualize and analyze your entire SDLC process in one personalized, unified view. 
+2. Debug process- and team-level issues, scale successes. 
+3. Unify and standardize measures of success and benchmarks. 
+
+
 
 ## Contents
 
@@ -39,6 +57,7 @@ Grafana | How to visualize the data | [View Section](#grafana)
 Build a Plugin | Details on how to make your own | [Link](plugins/README.md) 
 Add Plugin Metrics | Guide to adding plugin metrics | [Link](plugins/HOW-TO-ADD-METRICS.md) 
 Contributing | How to contribute to this repo | [Link](CONTRIBUTING.md)
+FAQ | Frequently Asked Questions | [Link](#faq)
 
 
 ## Data Sources We Currently Support<a id="data-source-plugins"></a>
@@ -143,15 +162,15 @@ Otherwise, if you just want to use the cron job, please check `docker-compose` v
     make dev
     ```
 
-6. You can now post to /task to create a jira task. This will collect data from Jira
+6. You can now post to `/task` to create a data collection task for Gitlab plugin. For demo purpose, we pick an open-source project on Gitlab called [ClearURLs](https://gitlab.com/KevinRoebert/ClearUrls). Its Gitlab project id is 6821549 (right under its project name).
 
     ```
     curl -XPOST 'localhost:8080/task' \
     -H 'Content-Type: application/json' \
     -d '[[{
-        "plugin": "jira",
+        "plugin": "gitlab",
         "options": {
-            "boardId": 8
+            "projectId": 6821549
         }
     }]]'
     ```
@@ -179,9 +198,24 @@ All the details on provisioning, and customizing a dashboard can be found in the
 
 [CONTRIBUTING.md](CONTRIBUTING.md)
 
+
+## License
+
+This project is licensed under Apache License 2.0 - see the [`LICENSE`](LICENSE) file for details
+
+
 ## Need help?
 
 Message us on <a href="https://discord.com/invite/83rDG6ydVZ" target="_blank">Discord</a>
+
+
+## FAQ<a id="faq"></a>
+
+Q: When I run ``` docker-compose up -d ``` I get this error: "qemu: uncaught target signal 11 (Segmentation fault) - core dumped". How do I fix this?
+
+A: Mac M1 users need to download a specific version of docker on their machine. You can find it here:
+https://docs.docker.com/desktop/mac/apple-silicon/
+
 
 ## Notes
 docker build -t devlake:local .

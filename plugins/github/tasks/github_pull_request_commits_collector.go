@@ -23,12 +23,12 @@ type PrCommit struct {
 	Author struct {
 		Name  string
 		Email string
-		Date  string
+		Date  core.Iso8601Time
 	}
 	Committer struct {
 		Name  string
 		Email string
-		Date  string
+		Date  core.Iso8601Time
 	}
 	Message string
 }
@@ -46,17 +46,9 @@ func CollectPullRequestCommits(owner string, repositoryName string, pull *models
 					return err
 				}
 				for _, prCommit := range *githubApiResponse {
-					githubCommit := &models.GithubPullRequestCommit{
-						Sha:            prCommit.Sha,
-						PullRequestId:  pull.GithubId,
-						Message:        prCommit.Commit.Message,
-						AuthorName:     prCommit.Commit.Author.Name,
-						AuthorEmail:    prCommit.Commit.Author.Email,
-						AuthoredDate:   prCommit.Commit.Author.Date,
-						CommitterName:  prCommit.Commit.Committer.Name,
-						CommitterEmail: prCommit.Commit.Committer.Email,
-						CommittedDate:  prCommit.Commit.Committer.Date,
-						Url:            prCommit.Url,
+					githubCommit, err := convertPullRequestCommit(&prCommit, pull.GithubId)
+					if err != nil {
+						return err
 					}
 					err = lakeModels.Db.Clauses(clause.OnConflict{
 						UpdateAll: true,
@@ -81,4 +73,19 @@ func CollectPullRequestCommits(owner string, repositoryName string, pull *models
 			}
 			return nil
 		})
+}
+func convertPullRequestCommit(prCommit *PrCommitsResponse, pullId int) (*models.GithubPullRequestCommit, error) {
+	githubCommit := &models.GithubPullRequestCommit{
+		Sha:            prCommit.Sha,
+		PullRequestId:  pullId,
+		Message:        prCommit.Commit.Message,
+		AuthorName:     prCommit.Commit.Author.Name,
+		AuthorEmail:    prCommit.Commit.Author.Email,
+		AuthoredDate:   prCommit.Commit.Author.Date.ToTime(),
+		CommitterName:  prCommit.Commit.Committer.Name,
+		CommitterEmail: prCommit.Commit.Committer.Email,
+		CommittedDate:  prCommit.Commit.Committer.Date.ToTime(),
+		Url:            prCommit.Url,
+	}
+	return githubCommit, nil
 }

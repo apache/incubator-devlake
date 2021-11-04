@@ -20,7 +20,7 @@ type ApiResourceHandler func(input *ApiResourceInput) (*ApiResourceOutput, error
 type Plugin interface {
 	Description() string
 	Init()
-	Execute(options map[string]interface{}, progress chan<- float32, ctx context.Context)
+	Execute(options map[string]interface{}, progress chan<- float32, ctx context.Context) error
 	// PkgPath information lost when compiled as plugin(.so)
 	RootPkgPath() string
 	ApiResources() map[string]map[string]ApiResourceHandler
