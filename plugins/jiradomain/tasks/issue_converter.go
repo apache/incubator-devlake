@@ -51,6 +51,7 @@ func ConvertIssues(sourceId uint64, boardId uint64) error {
 			RemainingEstimateMinutes: jiraIssue.RemainingEstimateMinutes,
 			CreatorOriginKey:         userOriginKeyGenerator.Generate(sourceId, jiraIssue.CreatorAccountId),
 			ResolutionDate:           jiraIssue.ResolutionDate,
+			Priority:                 jiraIssue.PriorityName,
 			CreatedDate:              jiraIssue.Created,
 			UpdatedDate:              jiraIssue.Updated,
 			LeadTime:                 jiraIssue.LeadTime,
