@@ -212,10 +212,8 @@ Message us on <a href="https://discord.com/invite/83rDG6ydVZ" target="_blank">Di
 ## FAQ<a id="faq"></a>
 
 Q: When I run ``` docker-compose up -d ``` I get this error: "qemu: uncaught target signal 11 (Segmentation fault) - core dumped". How do I fix this?
-
 A: Mac M1 users need to download a specific version of docker on their machine. You can find it here:
 https://docs.docker.com/desktop/mac/apple-silicon/
-
 
 ## Notes
 docker build -t devlake:local .
