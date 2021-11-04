@@ -18,7 +18,7 @@ import AddConnection from '@/pages/configure/connections/AddConnection'
 import EditConnection from '@/pages/configure/connections/EditConnection'
 import ConfigureConnection from '@/pages/configure/connections/ConfigureConnection'
 import Triggers from '@/pages/triggers/index'
-import Documentation from '@/pages/documentation/index'
+import Tasks from '@/pages/tasks'
 import Jira from '@/pages/plugins/jira/index'
 import Gitlab from '@/pages/plugins/gitlab/index'
 import Jenkins from '@/pages/plugins/jenkins/index'
@@ -45,15 +45,18 @@ function App () {
       <Route exact path='/integrations'>
         <Integration />
       </Route>
+      <Route exact path='/tasks'>
+        <Tasks />
+      </Route>
       <Route exact path='/triggers'>
         <Triggers />
       </Route>
       <Route exact path='/lake/api/configuration'>
         <Configure />
       </Route>
-      <Route exact path='/documentation'>
+      {/* <Route exact path='/documentation'>
         <Documentation />
-      </Route>
+      </Route> */}
       {/* Plugins */}
       <Route exact path='/plugins/jira'>
         <Jira />
