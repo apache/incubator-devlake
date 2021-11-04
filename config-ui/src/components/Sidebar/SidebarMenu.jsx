@@ -58,11 +58,12 @@ const SidebarMenu = (props) => {
               )
         ))}
         <Menu.Divider />
-        <Menu.Item text='API Configuration' icon='cog' href='/lake/api/configuration' active={top.location.href.endsWith('/lake/api/configuration')}/>
+        <Menu.Item text='API Configuration' icon='cog' href='/lake/api/configuration' active={top.location.href.endsWith('/lake/api/configuration')} />
+        <Menu.Item text='Documentation' icon='help' href='https://github.com/merico-dev/lake/wiki' target='_blank' />
         <Menu.Item text='Merico Network' icon='globe-network'>
-          <Menu.Item text='Merico GitHub' href="https://github.com/merico-dev" target="_blank"/>
-          <Menu.Item text='Triforce Project' href="https://github.com/merico-dev/lake"  target="_blank"/>
-          <Menu.Item text='Merico Enterprise' href="https://meri.co/" target="_blank"/>
+          <Menu.Item text='Merico GitHub' href='https://github.com/merico-dev' target='_blank' />
+          <Menu.Item text='Triforce Project' href='https://github.com/merico-dev/lake' target='_blank' />
+          <Menu.Item text='Merico Enterprise' href='https://meri.co/' target='_blank' />
         </Menu.Item>
       </Menu>
     </>
