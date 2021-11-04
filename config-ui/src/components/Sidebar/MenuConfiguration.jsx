@@ -40,6 +40,7 @@ const MenuConfiguration = (activeRoute) => {
       label: 'Tasks',
       icon: 'automatic-updates',
       route: '/tasks',
+      disabled: true,
       active: activeRoute.url === '/tasks',
       children: [
       ]

@@ -141,6 +141,16 @@ func CancelTask(taskId uint64) error {
 	return nil
 }
 
+func GetPendingTasks() ([]models.Task, error) {
+	tasks := make([]models.Task, 0)
+	whereClause := "progress < 1 AND status != 'TASK_FAILED'"
+	db := models.Db.Model(&models.Task{}).Where(whereClause).Order("id DESC")
+	err := db.Debug().Find(&tasks)
+	if err != nil {
+		return tasks, nil
+	}
+	return tasks, nil
+}
 func GetTasks(query *TaskQuery) ([]models.Task, int64, error) {
 	db := models.Db.Model(&models.Task{}).Order("id DESC")
 	if query.Status != "" {

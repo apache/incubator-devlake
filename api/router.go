@@ -14,6 +14,7 @@ import (
 func RegisterRouter(r *gin.Engine) {
 	r.POST("/task", task.Post)
 	r.GET("/task", task.Get)
+	r.GET("/task/pending", task.GetPending)
 	r.DELETE("/task/:taskId", task.Delete)
 	r.POST("/env", env.Set)
 	r.GET("/env", env.Get)
