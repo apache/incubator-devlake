@@ -172,7 +172,7 @@ function useConnectionManager ({
       const connectionData = f.data
       setActiveConnection({
         ...connectionData,
-        name: connectionData.name ? connectionData.name : `Connection #${connectionData.ID}`,
+        name: connectionData.name || connectionData.Name,
         // TODO: This needs to be Capital case for all json responses from the golang APIs
         endpoint: connectionData.endpoint || connectionData.Endpoint,
         username: connectionData.username || connectionData.Username,
