@@ -26,6 +26,20 @@
       .bp3-input {
         flex: 1;
       }
+
+      &.connection-name-input {
+        .bp3-input {
+          &:read-only {
+            background-color: #ffffee;
+            font-weight: bold;
+          }
+        }
+        svg[data-icon="lock"] {
+          width: 10px;
+          height: 10px;
+          margin-top: 2px;
+        }
+      }      
     }
 
     .bp3-form-helper-text {
