@@ -1,24 +1,19 @@
 import React, { useEffect, useState } from 'react'
-import axios from 'axios'
 import {
   useParams,
   Link,
   useHistory
 } from 'react-router-dom'
 import {
-  Button, Card, Elevation, Colors,
-  FormGroup, InputGroup, Tooltip, Label,
   Icon,
 } from '@blueprintjs/core'
 import Nav from '@/components/Nav'
 import Sidebar from '@/components/Sidebar'
 import AppCrumbs from '@/components/Breadcrumbs'
 import Content from '@/components/Content'
-import { ToastNotification } from '@/components/Toast'
 import ConnectionForm from '@/pages/configure/connections/ConnectionForm'
 import { integrationsData } from '@/pages/configure/mock-data/integrations'
-// import { connectionsData } from '@/pages/configure/mock-data/connections'
-import { SERVER_HOST, DEVLAKE_ENDPOINT } from '@/utils/config'
+import { DEVLAKE_ENDPOINT } from '@/utils/config'
 
 import useConnectionManager from '@/hooks/useConnectionManager'
 
@@ -30,11 +25,11 @@ export default function AddConnection () {
   const history = useHistory()
   const { providerId } = useParams()
 
-  const [name, setName] = useState()
-  const [endpointUrl, setEndpointUrl] = useState()
-  const [token, setToken] = useState()
-  const [username, setUsername] = useState()
-  const [password, setPassword] = useState()
+  // const [name, setName] = useState()
+  // const [endpointUrl, setEndpointUrl] = useState()
+  // const [token, setToken] = useState()
+  // const [username, setUsername] = useState()
+  // const [password, setPassword] = useState()
 
   const [integrations, setIntegrations] = useState(integrationsData)
   const [activeProvider, setActiveProvider] = useState(integrations[0])
@@ -46,15 +41,26 @@ export default function AddConnection () {
     isTesting,
     showError,
     testStatus,
-    fetchAllConnections,
-    connectionLimitReached,
-  } = useConnectionManager({
-    activeProvider,
     name,
     endpointUrl,
     token,
     username,
     password,
+    setName,
+    setEndpointUrl,
+    setUsername,
+    setPassword,
+    setToken,
+    fetchAllConnections,
+    connectionLimitReached,
+    Providers
+  } = useConnectionManager({
+    activeProvider,
+    // name,
+    // endpointUrl,
+    // token,
+    // username,
+    // password,
   })
 
   const cancel = () => {
@@ -74,6 +80,18 @@ export default function AddConnection () {
     console.log(activeProvider)
     if (activeProvider && activeProvider.id) {
       fetchAllConnections()
+      switch (activeProvider.id) {
+        case Providers.GITLAB:
+          setName('Gitlab')
+          break
+        case Providers.JENKINS:
+          setName('Jenkins')
+          break
+        case Providers.JIRA:
+        default:
+          setName('')
+          break
+      }
     }
   }, [activeProvider])
 
