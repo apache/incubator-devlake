@@ -14,8 +14,8 @@ import Nav from '../../components/Nav'
 import Sidebar from '../../components/Sidebar'
 import AppCrumbs from '@/components/Breadcrumbs'
 import Content from '../../components/Content'
-import Config from '../../../config'
 import request from '../../utils/request'
+import { DEVLAKE_ENDPOINT } from '../../utils/config.js'
 
 export default function Triggers () {
   const [textAreaBody, setTextAreaBody] = useState(JSON.stringify(defaultTriggerValue, null, 2))
@@ -23,39 +23,41 @@ export default function Triggers () {
   const sendTrigger = async (e) => {
     e.preventDefault()
     // @todo RE_ACTIVATE Trigger Process!
-    // try {
-    //   await request.post(
-    //     `${Config.DEVLAKE_ENDPOINT}/task`,
-    //     textAreaBody
-    //   )
-    // } catch (e) {
-    //   console.error(e)
-    // }
+    try {
+      await request.post(
+        `${DEVLAKE_ENDPOINT}/task`,
+        textAreaBody
+      )
+    } catch (e) {
+      console.error(e)
+    }
   }
 
   const [pendingTasks, setPendingTasks] = useState([])
   const [stage, setStage] = useState(0)
-  const [grafanaUrl, setGrafanaUrl] = useState(3002)
-  // useEffect(() => {
-  //   let s = 0
-  //   const interval = setInterval(async () => {
-  //     try {
-  //       const res = await request.get('/api/triggers/pendings')
-  //       console.log(await res.data)
-  //       if (res.data.tasks.length > 0) {
-  //         s = 1
-  //       } else if (s === 1) {
-  //         s = 2
-  //       }
-  //       setStage(s)
-  //       setPendingTasks(res.data.tasks)
-  //       setGrafanaUrl(`${location.protocol}//${location.hostname}:${res.data.grafanaPort}`)
-  //     } catch (e) {
-  //       console.log(e)
-  //     }
-  //   }, 3000)
-  //   return () => clearInterval(interval)
-  // }, [])
+  const [grafanaUrl, setGrafanaUrl] = useState(`http://localhost:3002`)
+  useEffect(() => {
+    let s = 0
+    const interval = setInterval(async () => {
+      try {
+        if (stage != 2){
+          const res = await request.get(`${DEVLAKE_ENDPOINT}/task/pending`)
+          console.log("res.data", res.data)
+          if (res.data.tasks.length > 0) {
+            s = 1
+          } else if (s === 1) {
+            s = 2
+          }
+          setStage(s)
+          setPendingTasks(res.data.tasks)
+          // setGrafanaUrl(`http://localhost:${res.data.grafanaPort}`)
+        }
+      } catch (e) {
+        console.log(e)
+      }
+    }, 3000)
+    return () => clearInterval(interval)
+  }, [])
 
   return (
     <div className='container'>
