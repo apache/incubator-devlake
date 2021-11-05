@@ -91,7 +91,7 @@ function useConnectionManager ({
     let connectionPayload
     switch (activeProvider.id) {
       case 'jira':
-        connectionPayload = { name: name, endpoint: endpointUrl, basicAuthEncoded: token }
+        connectionPayload = { name: name, JIRA_ENDPOINT: endpointUrl, JIRA_BASIC_AUTH_ENCODED: token }
         break
       case 'jenkins':
         connectionPayload = { name: name, JENKINS_ENDPOINT: endpointUrl, JENKINS_USERNAME: username, JENKINS_PASSWORD: password }
