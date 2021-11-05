@@ -10,14 +10,16 @@ import (
 var V *viper.Viper
 
 type GitlabConfig struct {
-	GITLAB_ENDPOINT string `mapstructure:"GITLAB_ENDPOINT"`
-	GITLAB_AUTH     string `mapstructure:"GITLAB_AUTH"`
+	GITLAB_ENDPOINT            string `mapstructure:"GITLAB_ENDPOINT"`
+	GITLAB_AUTH                string `mapstructure:"GITLAB_AUTH"`
+	JIRA_BOARD_GITLAB_PROJECTS string `mapstructure:"JIRA_BOARD_GITLAB_PROJECTS"`
 }
 type GitlabSource struct {
-	Endpoint string
-	Auth     string
-	Name     string
-	ID       int
+	Endpoint                string
+	Auth                    string
+	Name                    string
+	ID                      int
+	JIRA_BOARD_GITLAB_PROJECTS string
 }
 
 /*
@@ -37,6 +39,7 @@ func PutSource(input *core.ApiResourceInput) (*core.ApiResourceOutput, error) {
 	V := config.LoadConfigFile()
 	V.Set("GITLAB_ENDPOINT", gitlabSource.Endpoint)
 	V.Set("GITLAB_AUTH", gitlabSource.Auth)
+	V.Set("JIRA_BOARD_GITLAB_PROJECTS", gitlabSource.JIRA_BOARD_GITLAB_PROJECTS)
 	err = V.WriteConfig()
 	if err != nil {
 		return nil, err
@@ -78,9 +81,10 @@ func GetSourceFromEnv() (*GitlabSource, error) {
 		return nil, err
 	}
 	return &GitlabSource{
-		Endpoint: configJson.GITLAB_ENDPOINT,
-		Auth:     configJson.GITLAB_AUTH,
-		Name:     "Gitlab",
-		ID:       1,
+		Endpoint:                configJson.GITLAB_ENDPOINT,
+		Auth:                    configJson.GITLAB_AUTH,
+		Name:                    "Gitlab",
+		ID:                      1,
+		JIRA_BOARD_GITLAB_PROJECTS: configJson.JIRA_BOARD_GITLAB_PROJECTS,
 	}, nil
 }
