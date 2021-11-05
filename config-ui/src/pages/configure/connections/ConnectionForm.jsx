@@ -111,6 +111,7 @@ export default function ConnectionForm (props) {
         <div className='formContainer'>
           <FormGroup
             disabled={isTesting || isSaving || isLocked}
+            readOnly={['gitlab', 'jenkins'].includes(activeProvider.id)}
             label=''
             inline={true}
             labelFor='connection-name'
@@ -124,10 +125,12 @@ export default function ConnectionForm (props) {
             <InputGroup
               id='connection-name'
               disabled={isTesting || isSaving || isLocked}
+              readOnly={['gitlab', 'jenkins'].includes(activeProvider.id)}
               placeholder='Enter Instance Name eg. ISSUES-AWS-US-EAST'
               value={name}
               onChange={(e) => onNameChange(e.target.value)}
-              className='input'
+              className='input connection-name-input'
+              leftIcon={['gitlab', 'jenkins'].includes(activeProvider.id) ? 'lock' : null}
               fill
             />
           </FormGroup>
