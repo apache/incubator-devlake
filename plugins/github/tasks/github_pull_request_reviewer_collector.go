@@ -25,8 +25,7 @@ type PullRequestReview struct {
 	SubmittedAt core.Iso8601Time `json:"submitted_at"`
 }
 
-func CollectPullRequestReviews(owner string, repositoryName string, repositoryId int, pull *models.GithubPullRequest, scheduler *utils.WorkerScheduler) error {
-	githubApiClient := CreateApiClient()
+func CollectPullRequestReviews(owner string, repositoryName string, repositoryId int, pull *models.GithubPullRequest, scheduler *utils.WorkerScheduler, githubApiClient *GithubApiClient) error {
 	getUrl := fmt.Sprintf("repos/%v/%v/pulls/%v/reviews", owner, repositoryName, pull.Number)
 	return githubApiClient.FetchWithPaginationAnts(getUrl, 100, 1, scheduler,
 		func(res *http.Response) error {

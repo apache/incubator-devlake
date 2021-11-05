@@ -33,8 +33,7 @@ type PrCommit struct {
 	Message string
 }
 
-func CollectPullRequestCommits(owner string, repositoryName string, pull *models.GithubPullRequest, scheduler *utils.WorkerScheduler) error {
-	githubApiClient := CreateApiClient()
+func CollectPullRequestCommits(owner string, repositoryName string, pull *models.GithubPullRequest, scheduler *utils.WorkerScheduler, githubApiClient *GithubApiClient) error {
 	getUrl := fmt.Sprintf("repos/%v/%v/pulls/%v/commits", owner, repositoryName, pull.Number)
 	return githubApiClient.FetchWithPaginationAnts(getUrl, 100, 1, scheduler,
 		func(res *http.Response) error {

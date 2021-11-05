@@ -33,14 +33,13 @@ type Commit struct {
 	Message string
 }
 
-func CollectCommits(owner string, repositoryName string, repositoryId int, scheduler *utils.WorkerScheduler) error {
-	githubApiClient := CreateApiClient()
+func CollectCommits(owner string, repositoryName string, repositoryId int, scheduler *utils.WorkerScheduler, githubApiClient *GithubApiClient) error {
 	getUrl := fmt.Sprintf("repos/%v/%v/commits", owner, repositoryName)
 	return githubApiClient.FetchWithPaginationAnts(getUrl, 100, 20, scheduler,
 		func(res *http.Response) error {
 			githubApiResponse := &ApiCommitsResponse{}
 			err := core.UnmarshalResponse(res, githubApiResponse)
-			if err != nil {
+			if err != nil || res.StatusCode == 401 {
 				logger.Error("Error: ", err)
 				return err
 			}
