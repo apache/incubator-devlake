@@ -37,7 +37,7 @@ const MenuConfiguration = (activeRoute) => {
     },
     {
       id: 1,
-      label: 'Jobs & Tasks',
+      label: 'Tasks',
       icon: 'automatic-updates',
       route: '/tasks',
       disabled: true,
@@ -55,18 +55,18 @@ const MenuConfiguration = (activeRoute) => {
       children: [
       ]
     },
-    {
-      id: 3,
-      label: 'Documentation',
-      icon: 'help',
-      classNames: [],
-      route: 'https://github.com/merico-dev/lake/wiki',
-      target: "_blank",
-      external: true,
-      active: activeRoute.url === '/documentation',
-      children: [
-      ]
-    },
+    // {
+    //   id: 3,
+    //   label: 'Documentation',
+    //   icon: 'help',
+    //   classNames: [],
+    //   route: 'https://github.com/merico-dev/lake/wiki',
+    //   target: "_blank",
+    //   external: true,
+    //   active: activeRoute.url === '/documentation',
+    //   children: [
+    //   ]
+    // },
   ]
 }
 

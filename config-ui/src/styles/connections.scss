@@ -1,6 +1,6 @@
 .addConnection, .editConnection, .configureConnection {
   .formContainer {
-    max-width: 90%;
+    max-width: 100%;
   }
 
   .bp3-form-group {
@@ -24,8 +24,22 @@
       // max-width: 440px;    
       // max-width: 600px;
       .bp3-input {
-        
+        flex: 1;
       }
+
+      &.connection-name-input {
+        .bp3-input {
+          &:read-only {
+            background-color: #ffffee;
+            font-weight: bold;
+          }
+        }
+        svg[data-icon="lock"] {
+          width: 10px;
+          height: 10px;
+          margin-top: 2px;
+        }
+      }      
     }
 
     .bp3-form-helper-text {
@@ -35,6 +49,7 @@
       min-width: 80px;
       display: flex;
       justify-content: flex-start;
+      padding-right: 25px;
     }
 
     label {
@@ -57,7 +72,7 @@
 .configureConnection {
   .bp3-form-group {
     .bp3-form-content {
-      max-width: 80%;
+      // max-width: 80%;
     }
   }
 

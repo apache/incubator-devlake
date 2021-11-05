@@ -47,9 +47,22 @@ func Get(ctx *gin.Context) {
 		_ = ctx.AbortWithError(http.StatusInternalServerError, err)
 		return
 	}
-	ctx.JSON(http.StatusOK, gin.H{"tasks": tasks, "count":count})
+	ctx.JSON(http.StatusOK, gin.H{"tasks": tasks, "count": count})
 }
-
+func GetPending(ctx *gin.Context) {
+	var query services.TaskQuery
+	err := ctx.BindQuery(&query)
+	if err != nil {
+		_ = ctx.AbortWithError(http.StatusInternalServerError, err)
+		return
+	}
+	tasks, err := services.GetPendingTasks()
+	if err != nil {
+		_ = ctx.AbortWithError(http.StatusInternalServerError, err)
+		return
+	}
+	ctx.JSON(http.StatusOK, gin.H{"tasks": tasks})
+}
 func Delete(ctx *gin.Context) {
 	taskId := ctx.Param("taskId")
 	id, err := strconv.ParseUint(taskId, 10, 64)

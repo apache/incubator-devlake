@@ -3,7 +3,8 @@ const someJson = [
     {
       plugin: 'jira',
       Options: {
-        boardId: 8
+        boardId: 8,
+        sourceId: 1
       }
     },
     {

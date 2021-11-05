@@ -249,7 +249,7 @@ export default function ManageIntegration () {
                             className={connection.status === 0 ? 'connection-offline' : ''}
                           >
                             <td
-                              onClick={(e) => editConnection(connection, e)}
+                              onClick={(e) => configureConnection(connection, e)}
                               style={{ cursor: 'pointer' }}
                               className='cell-name'
                             >
@@ -262,7 +262,13 @@ export default function ManageIntegration () {
                                 onClick={(e) => editConnection(connection, e)}
                               />
                             </td>
-                            <td className='cell-endpoint'>{connection.endpoint || connection.Endpoint}</td>
+                            <td
+                              className='cell-endpoint'
+                              onClick={(e) => configureConnection(connection, e)}
+                              style={{ cursor: 'pointer' }}
+                            >
+                              {connection.endpoint || connection.Endpoint}
+                            </td>
                             <td className='cell-status'>
                               {connection.status === 0 && (
                                 <strong style={{ color: Colors.GRAY4 }}>Offline</strong>
@@ -284,8 +290,8 @@ export default function ManageIntegration () {
                                 href='#'
                                 data-provider={connection.id}
                                 className='table-action-link actions-link'
-                                // onClick={() => configureConnection(connection)}
-                                onClick={(e) => editConnection(connection, e)}
+                                // onClick={() => editConnection(connection)}
+                                onClick={(e) => configureConnection(connection, e)}
                               >
                                 <Icon icon='settings' size={12} />
                                 Settings
@@ -326,7 +332,7 @@ export default function ManageIntegration () {
                     fontSize: '10px',
                     color: '#aaaaaa'
                   }}
-                  >Fetched <strong>{connections.length}</strong> connections from Lake API for <strong>{activeProvider.name}</strong>
+                  >Fetched <strong>{connections.length}</strong> connection(s) from Lake API for <strong>{activeProvider.name}</strong>
                   </p>
                 </>
               )}

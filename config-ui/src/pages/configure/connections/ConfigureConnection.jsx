@@ -8,6 +8,8 @@ import {
   Button,
   Icon,
   Intent,
+  Card,
+  Elevation,
 } from '@blueprintjs/core'
 // import { SERVER_HOST, DEVLAKE_ENDPOINT } from '@/utils/config'
 import Nav from '@/components/Nav'
@@ -16,6 +18,7 @@ import AppCrumbs from '@/components/Breadcrumbs'
 import Content from '@/components/Content'
 import useConnectionManager from '@/hooks/useConnectionManager'
 import useSettingsManager from '@/hooks/useSettingsManager'
+import ConnectionForm from '@/pages/configure/connections/ConnectionForm'
 
 // import { ToastNotification } from '@/components/Toast'
 
@@ -45,6 +48,7 @@ export default function ConfigureConnection () {
   const [activeProvider, setActiveProvider] = useState(integrations.find(p => p.id === providerId))
   const [activeConnection, setActiveConnection] = useState(NullConnection)
   const [connections, setConnections] = useState([])
+  const [showConnectionSettings, setShowConnectionSettings] = useState(true)
 
   const [settings, setSettings] = useState({
     JIRA_BASIC_AUTH_ENCODED: null,
@@ -55,14 +59,39 @@ export default function ConfigureConnection () {
     JIRA_BOARD_GITLAB_PROJECTS: null,
   })
 
+  // const {
+  //   fetchConnection,
+  // } = useConnectionManager({
+  //   activeProvider,
+  //   activeConnection,
+  //   connectionId,
+  //   setActiveConnection,
+  // })
+
   const {
+    testConnection,
+    saveConnection,
     fetchConnection,
+    name,
+    endpointUrl,
+    username,
+    password,
+    token,
+    errors,
+    testStatus,
+    isSaving: isSavingConnection,
+    isTesting: isTestingConnection,
+    setName,
+    setEndpointUrl,
+    setUsername,
+    setPassword,
+    setToken
   } = useConnectionManager({
     activeProvider,
     activeConnection,
     connectionId,
     setActiveConnection,
-  })
+  }, true)
 
   const {
     saveSettings,
@@ -187,11 +216,57 @@ export default function ConfigureConnection () {
                   {/* <Card interactive={false} elevation={Elevation.TWO} style={{ width: '50%', marginBottom: '20px' }}>
                     <h5>Edit Connection</h5>
                   </Card> */}
-
+                  <Card interactive={false} elevation={Elevation.ZERO} style={{ backgroundColor: '#f8f8f8', width: '100%', marginBottom: '20px' }}>
+                    <Button
+                      type='button'
+                      icon={showConnectionSettings ? 'eye-on' : 'eye-off'}
+                      intent={showConnectionSettings ? Intent.PRIMARY : Intent.DISABLED}
+                      style={{ margin: '2px', float: 'right' }}
+                      onClick={() => setShowConnectionSettings(!showConnectionSettings)}
+                      minimal
+                      small
+                    />
+                    {showConnectionSettings
+                      ? (
+                        <div className='editConnection' style={{ display: 'flex' }}>
+                          <ConnectionForm
+                            activeProvider={activeProvider}
+                            name={name}
+                            endpointUrl={endpointUrl}
+                            token={token}
+                            username={username}
+                            password={password}
+                            onSave={saveConnection}
+                            onTest={testConnection}
+                            onCancel={cancel}
+                            onNameChange={setName}
+                            onEndpointChange={setEndpointUrl}
+                            onTokenChange={setToken}
+                            onUsernameChange={setUsername}
+                            onPasswordChange={setPassword}
+                            isSaving={isSavingConnection}
+                            isTesting={isTestingConnection}
+                            testStatus={testStatus}
+                            errors={errors}
+                            showError={showError}
+                            authType={activeProvider.id === 'jenkins' ? 'plain' : 'token'}
+                            showLimitWarning={false}
+                          />
+                        </div>
+                        )
+                      : (
+                        <>
+                          <h2 style={{ margin: 0 }}>Configure Connection</h2>
+                          <p className='description' style={{ margin: 0 }}>
+                            ( Click the <strong>Visibility</strong> icon to your right to edit connection )
+                          </p>
+                        </>
+                        )}
+                  </Card>
                   <div style={{ marginTop: '30px' }}>
                     {renderProviderSettings(providerId)}
                   </div>
-                  <div style={{ display: 'flex', marginTop: '60px', justifyContent: 'space-between', maxWidth: '50%' }}>
+                  <div className='form-actions-block' style={{ display: 'flex', marginTop: '60px', justifyContent: 'space-between' }}>
                     <div>
                       {/* <Button
                         icon={getConnectionStatusIcon()}

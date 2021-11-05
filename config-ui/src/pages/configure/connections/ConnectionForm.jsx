@@ -40,7 +40,8 @@ export default function ConnectionForm (props) {
     onUsernameChange = () => {},
     onPasswordChange = () => {},
     authType = 'token',
-    sourceLimits = { jenkins: 1, gitlab: 1 }
+    sourceLimits = { jenkins: 1, gitlab: 1 },
+    showLimitWarning = true
   } = props
 
   const [allowedAuthTypes, setAllowedAuthTypes] = useState(['token', 'plain'])
@@ -81,9 +82,9 @@ export default function ConnectionForm (props) {
     <>
       <form className='form form-add-connection'>
         <div className='headlineContainer'>
-          <h2 className='headline' style={{ textDecoration: isLocked ? 'line-through' : 'none' }}>Configure Instance</h2>
-          <p className='description'>Account & Authentication settings</p>
-          {activeProvider && activeProvider.id && sourceLimits[activeProvider.id] && (
+          <h2 className='headline' style={{ marginTop: 0, textDecoration: isLocked ? 'line-through' : 'none' }}>Configure Connection</h2>
+          <p className='description'>Instance Account & Authentication settings</p>
+          {activeProvider && activeProvider.id && sourceLimits[activeProvider.id] && showLimitWarning && (
             <Card interactive={false} elevation={Elevation.TWO} style={{ width: '50%', marginBottom: '20px', backgroundColor: '#f0f0f0' }}>
               <p className='warning-message' intent={Intent.WARNING}>
                 <Icon icon='warning-sign' size='16' color={Colors.GRAY1} style={{ marginRight: '5px' }} />
@@ -110,6 +111,7 @@ export default function ConnectionForm (props) {
         <div className='formContainer'>
           <FormGroup
             disabled={isTesting || isSaving || isLocked}
+            readOnly={['gitlab', 'jenkins'].includes(activeProvider.id)}
             label=''
             inline={true}
             labelFor='connection-name'
@@ -123,10 +125,12 @@ export default function ConnectionForm (props) {
             <InputGroup
               id='connection-name'
               disabled={isTesting || isSaving || isLocked}
+              readOnly={['gitlab', 'jenkins'].includes(activeProvider.id)}
               placeholder='Enter Instance Name eg. ISSUES-AWS-US-EAST'
               value={name}
               onChange={(e) => onNameChange(e.target.value)}
-              className='input'
+              className='input connection-name-input'
+              leftIcon={['gitlab', 'jenkins'].includes(activeProvider.id) ? 'lock' : null}
               fill
             />
           </FormGroup>
@@ -271,7 +275,10 @@ export default function ConnectionForm (props) {
             </div>
           </>
         )}
-        <div style={{ display: 'flex', marginTop: '30px', justifyContent: 'space-between', maxWidth: '50%' }}>
+        <div
+          className='form-actions-block'
+          style={{ display: 'flex', marginTop: '30px', justifyContent: 'space-between' }}
+        >
           <div style={{ display: 'flex' }}>
             {/* <Button
               className='btn-test-connection'

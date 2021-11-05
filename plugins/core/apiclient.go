@@ -69,6 +69,10 @@ func (apiClient *ApiClient) SetHeaders(headers map[string]string) {
 	apiClient.headers = headers
 }
 
+func (apiClient *ApiClient) SetBeforeFunction(callback ApiClientBeforeRequest) {
+	apiClient.beforeRequest = callback
+}
+
 func (apiClient *ApiClient) SetProxy(proxyUrl string) error {
 	pu, err := url.Parse(proxyUrl)
 	if err != nil {
