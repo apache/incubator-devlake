@@ -23,8 +23,7 @@ type IssueEvent struct {
 	GithubCreatedAt core.Iso8601Time `json:"created_at"`
 }
 
-func CollectIssueEvents(owner string, repositoryName string, issue *models.GithubIssue, scheduler *utils.WorkerScheduler) error {
-	githubApiClient := CreateApiClient()
+func CollectIssueEvents(owner string, repositoryName string, issue *models.GithubIssue, scheduler *utils.WorkerScheduler, githubApiClient *GithubApiClient) error {	
 	getUrl := fmt.Sprintf("repos/%v/%v/issues/%v/events", owner, repositoryName, issue.Number)
 	return githubApiClient.FetchWithPaginationAnts(getUrl, 100, 1, scheduler,
 		func(res *http.Response) error {

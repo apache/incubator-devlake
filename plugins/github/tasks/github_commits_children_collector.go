@@ -7,7 +7,7 @@ import (
 	"github.com/merico-dev/lake/utils"
 )
 
-func CollectChildrenOnCommits(owner string, repositoryName string, repositoryId int, scheduler *utils.WorkerScheduler) {
+func CollectChildrenOnCommits(owner string, repositoryName string, repositoryId int, scheduler *utils.WorkerScheduler, githubApiClient *GithubApiClient) {
 	var commits []models.GithubCommit
 	lakeModels.Db.Find(&commits)
 
@@ -16,7 +16,7 @@ func CollectChildrenOnCommits(owner string, repositoryName string, repositoryId 
 		err := scheduler.Submit(func() error {
 
 			// This call is to update the details of the individual pull request with additions / deletions / etc.
-			commitErr := CollectCommit(owner, repositoryName, repositoryId, &commit)
+			commitErr := CollectCommit(owner, repositoryName, repositoryId, &commit, githubApiClient)
 			if commitErr != nil {
 				logger.Error("Could not collect Commits to update details", commitErr)
 				return commitErr

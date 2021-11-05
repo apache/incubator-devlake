@@ -19,8 +19,7 @@ type ApiSinglePullResponse struct {
 	MergedAt       core.Iso8601Time `json:"merged_at"`
 }
 
-func CollectPullRequest(owner string, repositoryName string, repositoryId int, pr *models.GithubPullRequest) error {
-	githubApiClient := CreateApiClient()
+func CollectPullRequest(owner string, repositoryName string, repositoryId int, pr *models.GithubPullRequest, githubApiClient *GithubApiClient) error {
 	getUrl := fmt.Sprintf("repos/%v/%v/pulls/%v?state=all", owner, repositoryName, pr.Number)
 	res, getErr := githubApiClient.Get(getUrl, nil, nil)
 	if getErr != nil {

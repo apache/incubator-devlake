@@ -28,8 +28,7 @@ type IssuesResponse struct {
 	GithubUpdatedAt core.Iso8601Time `json:"updated_at"`
 }
 
-func CollectIssues(owner string, repositoryName string, repositoryId int, scheduler *utils.WorkerScheduler) error {
-	githubApiClient := CreateApiClient()
+func CollectIssues(owner string, repositoryName string, repositoryId int, scheduler *utils.WorkerScheduler, githubApiClient *GithubApiClient) error {
 	getUrl := fmt.Sprintf("repos/%v/%v/issues?state=all", owner, repositoryName)
 	return githubApiClient.FetchWithPaginationAnts(getUrl, 100, 20, scheduler,
 		func(res *http.Response) error {
