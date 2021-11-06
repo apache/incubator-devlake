@@ -29,7 +29,7 @@ WITH
     SELECT 
       i.sprint_name,
       i.type,
-      COUNT(i.id) as issue_count
+      COUNT(1) as issue_count
     FROM jira_issues i
     GROUP BY i.sprint_name,i.type
   ),
@@ -37,7 +37,7 @@ WITH
     SELECT
       i.sprint_name,
       i.type,
-      COUNT(i.id) as done_count
+      COUNT(1) as done_count
     FROM jira_issues i 
     WHERE i.status_name='已完成'
     GROUP BY i.sprint_name,i.type
@@ -59,14 +59,14 @@ WITH
   jira_issues_weeks_count AS (
     SELECT 
       DATE_FORMAT(i.changelog_updated,'%Y,%u,1') AS weeks,
-      COUNT(i.id) AS issue_count
+      COUNT(1) AS issue_count
     FROM jira_issues i
     GROUP BY DATE_FORMAT(i.changelog_updated,'%Y,%u,1')
   ),
   jira_issues_weeks_done_count AS (
     SELECT 
       DATE_FORMAT(i.changelog_updated,'%Y,%u,1') AS weeks,
-      COUNT(i.id) AS done_count
+      COUNT(1) AS done_count
     FROM jira_issues i
     WHERE i.status_name in ('已完成','已关闭')
     GROUP BY DATE_FORMAT(i.changelog_updated,'%Y,%u,1')
@@ -97,14 +97,14 @@ SELECT * FROM (
     jira_issues_count AS (
       SELECT 
         t.weeks_day,
-        COUNT(t.id) AS count_week
+        COUNT(1) AS count_week
       FROM jira_issues_weeks t
       GROUP BY t.weeks_day
     ),
     jira_issues_count_done AS (
       SELECT 
         t.weeks_day,
-        COUNT(t.id) AS count_done
+        COUNT(1) AS count_done
       FROM jira_issues_weeks t
       WHERE t.status_name in ('已完成','已关闭')
       GROUP BY t.weeks_day
@@ -118,4 +118,4 @@ SELECT * FROM (
   LEFT JOIN jira_issues_count_done t2 
     ON t1.weeks_day=t2.weeks_day
   ORDER BY t1.weeks_day DESC
-) X;
+);
