@@ -46,7 +46,7 @@ export default function ConnectionForm (props) {
 
   const [allowedAuthTypes, setAllowedAuthTypes] = useState(['token', 'plain'])
   const [showTokenCreator, setShowTokenCreator] = useState(false)
-
+  const [placeholderUrl, setPlaceholderUrl] = useState('www.example.com')
   const getConnectionStatusIcon = () => {
     let statusIcon = <Icon icon='full-circle' size='10' color={Colors.RED3} />
     switch (testStatus) {
@@ -76,6 +76,8 @@ export default function ConnectionForm (props) {
 
   useEffect(() => {
     setAllowedAuthTypes(['token', 'plain'])
+    let exampleUrl = activeProvider.id === 'jira' ? 'https://merico.atlassian.net/rest' : 'https://gitlab.com/api/v4/'
+    setPlaceholderUrl(exampleUrl)
   }, [])
 
   return (
@@ -133,7 +135,7 @@ export default function ConnectionForm (props) {
               id='connection-name'
               disabled={isTesting || isSaving || isLocked}
               readOnly={['gitlab', 'jenkins'].includes(activeProvider.id)}
-              placeholder='Enter Instance Name eg. ISSUES-AWS-US-EAST'
+              placeholder='Enter Instance Name'
               value={name}
               onChange={(e) => onNameChange(e.target.value)}
               className='input connection-name-input'
@@ -159,7 +161,7 @@ export default function ConnectionForm (props) {
             <InputGroup
               id='connection-endpoint'
               disabled={isTesting || isSaving || isLocked}
-              placeholder='Enter Endpoint URL eg. https://merico.atlassian.net/rest'
+              placeholder={`Enter Endpoint URL eg. ${placeholderUrl}`}
               value={endpointUrl}
               onChange={(e) => onEndpointChange(e.target.value)}
               className='input'
@@ -193,32 +195,35 @@ export default function ConnectionForm (props) {
                 fill
                 required
               />
-              <Popover
-                className='popover-generate-token'
-                position={Position.RIGHT}
-                autoFocus={false}
-                enforceFocus={false}
-                isOpen={showTokenCreator}
-                onInteraction={handleTokenInteraction}
-                onClosed={() => setShowTokenCreator(false)}
-                usePortal={false}
-              >
-                <Button
-                  disabled={isTesting || isSaving || isLocked}
-                  type='button' icon='key' intent={Intent.PRIMARY} style={{ marginLeft: '5px' }}
-                />
-                <>
-                  <div style={{ padding: '15px 20px 15px 15px' }}>
-                    <GenerateTokenForm
-                      isTesting={isTesting}
-                      isSaving={isSaving}
-                      isLocked={isLocked}
-                      onTokenChange={onTokenChange}
-                      setShowTokenCreator={setShowTokenCreator}
-                    />
-                  </div>
-                </>
-              </Popover>
+              {
+                activeProvider.id === 'jira' &&
+                <Popover
+                  className='popover-generate-token'
+                  position={Position.RIGHT}
+                  autoFocus={false}
+                  enforceFocus={false}
+                  isOpen={showTokenCreator}
+                  onInteraction={handleTokenInteraction}
+                  onClosed={() => setShowTokenCreator(false)}
+                  usePortal={false}
+                >
+                  <Button
+                    disabled={isTesting || isSaving || isLocked}
+                    type='button' icon='key' intent={Intent.PRIMARY} style={{ marginLeft: '5px' }}
+                  />
+                  <>
+                    <div style={{ padding: '15px 20px 15px 15px' }}>
+                      <GenerateTokenForm
+                        isTesting={isTesting}
+                        isSaving={isSaving}
+                        isLocked={isLocked}
+                        onTokenChange={onTokenChange}
+                        setShowTokenCreator={setShowTokenCreator}
+                      />
+                    </div>
+                  </>
+                </Popover>
+              }
               {/* <a href='#' style={{ margin: '5px 0 5px 5px' }}><Icon icon='info-sign' size='16' /></a> */}
             </FormGroup>
           </div>
