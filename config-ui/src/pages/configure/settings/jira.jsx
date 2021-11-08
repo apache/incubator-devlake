@@ -6,12 +6,15 @@ import {
 import MappingTag from '@/pages/configure/settings/jira/MappingTag'
 import ClearButton from '@/pages/plugins/jira//ClearButton'
 
-import { Button, MenuItem } from '@blueprintjs/core'
-import { Select } from '@blueprintjs/select'
+import {
+  FormGroup,
+  InputGroup
+} from '@blueprintjs/core'
+// import { Select, Button, MenuItem, Label } from '@blueprintjs/select'
 
-import { epicsData } from '@/pages/configure/mock-data/epics'
-import { boardsData } from '@/pages/configure/mock-data/boards'
-import { granularitiesData } from '@/pages/configure/mock-data/granularities'
+// import { epicsData } from '@/pages/configure/mock-data/epics'
+// import { boardsData } from '@/pages/configure/mock-data/boards'
+// import { granularitiesData } from '@/pages/configure/mock-data/granularities'
 
 import '@/styles/integration.scss'
 import '@/styles/connections.scss'
@@ -30,15 +33,20 @@ export default function JiraSettings (props) {
   const [jiraIssueEpicKeyField, setJiraIssueEpicKeyField] = useState()
   const [jiraIssueStoryCoefficient, setJiraIssueStoryCoefficient] = useState()
   const [jiraIssueStoryPointField, setJiraIssueStoryPointField] = useState()
+  // const [epicKey, setEpicKey] = useState()
+  // const [granularityKey, setGranularityKey] = useState()
+  // const [boardId, setBoardId] = useState()
 
-  const [selectedEpicItem, setSelectedEpicItem] = useState()
-  const [epics, setEpics] = useState(epicsData)
+  // @todo restore when re-enabling selector-based ux
+  // ---------------------------------------------------------
+  // const [selectedEpicItem, setSelectedEpicItem] = useState()
+  // const [epics, setEpics] = useState(epicsData)
 
-  const [selectedGranularityItem, setSelectedGranularityItem] = useState()
-  const [granularities, setGranularities] = useState(granularitiesData)
+  // const [selectedGranularityItem, setSelectedGranularityItem] = useState()
+  // const [granularities, setGranularities] = useState(granularitiesData)
 
-  const [selectedBoardItem, setSelectedBoardItem] = useState()
-  const [boards, setBoards] = useState(boardsData)
+  // const [selectedBoardItem, setSelectedBoardItem] = useState()
+  // const [boards, setBoards] = useState(boardsData)
 
   useEffect(() => {
     const settings = {
@@ -97,11 +105,11 @@ export default function JiraSettings (props) {
       Requirement: []
     }
     if (connection && connection.ID) {
-      const types = connection.JIRA_ISSUE_TYPE_MAPPING.split(';').map(t => t.split(':')[0])
+      const types = connection.JIRA_ISSUE_TYPE_MAPPING ? connection.JIRA_ISSUE_TYPE_MAPPING.split(';').map(t => t.split(':')[0]) : []
       if (types.lastIndexOf('') !== -1) {
         types.pop()
       }
-      const tags = connection.JIRA_ISSUE_TYPE_MAPPING.split(';').map(t => t.split(':')[1])
+      const tags = connection.JIRA_ISSUE_TYPE_MAPPING ? connection.JIRA_ISSUE_TYPE_MAPPING.split(';').map(t => t.split(':')[1]) : []
       types.forEach((type, idx) => {
         if (type) {
           mappings = {
@@ -117,19 +125,23 @@ export default function JiraSettings (props) {
       setTypeMappingBug(mappings.Bug)
       setTypeMappingIncident(mappings.Incident)
       setStatusMappings([])
+      setJiraIssueEpicKeyField(connection.JIRA_ISSUE_EPIC_KEY_FIELD)
+      setJiraIssueStoryCoefficient(connection.JIRA_ISSUE_STORYPOINT_COEFFICIENT)
+      setJiraIssueStoryPointField(connection.JIRA_ISSUE_STORYPOINT_FIELD)
 
+      // @todo RE-ENABLE SELECTORS!
       // @todo FETCH & SET EPIC KEY
-      const selectedEpic = epics.find(e => e.value === connection.JIRA_ISSUE_EPIC_KEY_FIELD)
-      console.log('>>> EPIC ITEM = ', selectedEpic)
-      setSelectedEpicItem(selectedEpic)
+      // const selectedEpic = epics.find(e => e.value === connection.JIRA_ISSUE_EPIC_KEY_FIELD)
+      // console.log('>>> EPIC ITEM = ', selectedEpic)
+      // setSelectedEpicItem(selectedEpic)
 
       // @todo FETCH & SET BOARD ID
       // setSelectedBoardItem(boards.find(b => b.value === connection.JIRA_ISSUES_BOARD_ID???))
 
       // @todo FETCH & SET GRANULARITY KEY
-      setSelectedGranularityItem(granularities.find(g => g.value === connection.JIRA_ISSUE_STORYPOINT_FIELD))
+      // setSelectedGranularityItem(granularities.find(g => g.value === connection.JIRA_ISSUE_STORYPOINT_FIELD))
     }
-  }, [connection, epics, granularities, boards])
+  }, [connection/*, epics, granularities, boards */])
 
   return (
     <>
@@ -175,9 +187,11 @@ export default function JiraSettings (props) {
       />
 
       <div className='headlineContainer'>
-        <h3 className='headline'>Epic Key <span className='bp3-form-helper-text'>JIRA_ISSUE_EPIC_KEY_FIELD</span></h3>
+        <h3 className='headline'>
+          Epic Key<span className='requiredStar'>*</span> <span className='bp3-form-helper-text'>JIRA_ISSUE_EPIC_KEY_FIELD</span>
+        </h3>
         <p className=''>Choose the Jira field you’re using to represent the key of an Epic to which an issue belongs to.</p>
-        <span style={{ display: 'inline-block' }}>
+        {/* <span style={{ display: 'inline-block' }}>
           <Select
             className='select-epic-key'
             inline={true}
@@ -207,13 +221,37 @@ export default function JiraSettings (props) {
               rightIcon='double-caret-vertical'
             />
           </Select>
-        </span>
+        </span> */}
+      </div>
+      <div className='formContainer' style={{ maxWidth: '250px' }}>
+        <FormGroup
+          disabled={isSaving}
+          // readOnly={['gitlab', 'jenkins'].includes(activeProvider.id)}
+          label=''
+          inline={true}
+          labelFor='epic-key-field'
+          // helperText='NAME'
+          className='formGroup'
+          contentClassName='formGroupContent'
+        >
+          <InputGroup
+            id='epic-key-field'
+            disabled={isSaving}
+            // readOnly={['gitlab', 'jenkins'].includes(activeProvider.id)}
+            placeholder='eg. 1000'
+            value={jiraIssueEpicKeyField}
+            onChange={(e) => setJiraIssueEpicKeyField(e.target.value)}
+            className='input epic-key-field'
+          />
+        </FormGroup>
       </div>
 
       <div className='headlineContainer'>
-        <h3 className='headline'>Requirement Granularity  <span className='bp3-form-helper-text'>JIRA_ISSUE_STORYPOINT_FIELD</span></h3>
+        <h3 className='headline'>Requirement Granularity
+          <span className='requiredStar'>*</span> <span className='bp3-form-helper-text'>JIRA_ISSUE_STORYPOINT_COEFFICIENT</span>
+        </h3>
         <p className=''>Choose the Jira field you’re using to represent the granularity of a requirement-type issue.</p>
-        <span style={{ display: 'inline-block' }}>
+        {/* <span style={{ display: 'inline-block' }}>
           <Select
             className='select-granularity-key'
             inline={true}
@@ -243,13 +281,34 @@ export default function JiraSettings (props) {
               rightIcon='double-caret-vertical'
             />
           </Select>
-        </span>
+        </span> */}
+      </div>
+      <div className='formContainer' style={{ maxWidth: '250px' }}>
+        <FormGroup
+          disabled={isSaving}
+          // readOnly={['gitlab', 'jenkins'].includes(activeProvider.id)}
+          label=''
+          inline={true}
+          labelFor='granularity-field'
+          className='formGroup'
+          contentClassName='formGroupContent'
+        >
+          <InputGroup
+            id='granularity-field'
+            disabled={isSaving}
+            // readOnly={['gitlab', 'jenkins'].includes(activeProvider.id)}
+            placeholder='eg. 2000'
+            value={jiraIssueStoryCoefficient}
+            onChange={(e) => setJiraIssueStoryCoefficient(e.target.value)}
+            className='input granularity-field'
+          />
+        </FormGroup>
       </div>
 
       <div className='headlineContainer'>
-        <h3 className='headline'>Board ID (Optional) <span className='bp3-form-helper-text'>JIRA_ISSUES_BOARD_ID?</span></h3>
+        <h3 className='headline'>Board ID (Optional) <span className='bp3-form-helper-text'>JIRA_ISSUE_STORYPOINT_FIELD</span></h3>
         <p className=''>Choose the specific Jira board(s) to collect issues from.</p>
-        <span style={{ display: 'inline-block' }}>
+        {/* <span style={{ display: 'inline-block' }}>
           <Select
             className='select-board-key'
             inline={true}
@@ -279,9 +338,27 @@ export default function JiraSettings (props) {
               rightIcon='double-caret-vertical'
             />
           </Select>
-        </span>
+        </span> */}
       </div>
-
+      <div className='formContainer' style={{ maxWidth: '250px' }}>
+        <FormGroup
+          disabled={isSaving}
+          label=''
+          inline={true}
+          labelFor='board-id-field'
+          className='formGroup'
+          contentClassName='formGroupContent'
+        >
+          <InputGroup
+            id='board-id'
+            disabled={isSaving}
+            placeholder='eg. 3000'
+            value={jiraIssueStoryPointField}
+            onChange={(e) => setJiraIssueStoryPointField(e.target.value)}
+            className='input board-id'
+          />
+        </FormGroup>
+      </div>
     </>
   )
 }
