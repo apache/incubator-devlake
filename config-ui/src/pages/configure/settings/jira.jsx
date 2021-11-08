@@ -82,10 +82,10 @@ export default function JiraSettings (props) {
 
   useEffect(() => {
     const settings = {
-      JIRA_ISSUE_EPIC_KEY_FIELD: jiraIssueEpicKeyField,
+      epicKeyField: jiraIssueEpicKeyField,
       typeMappings: typeMappingAll,
-      JIRA_ISSUE_STORYPOINT_COEFFICIENT: jiraIssueStoryCoefficient,
-      JIRA_ISSUE_STORYPOINT_FIELD: jiraIssueStoryPointField,
+      storyPointCoefficient: jiraIssueStoryCoefficient,
+      storyPointField: jiraIssueStoryPointField,
     }
     onSettingsChange(settings)
     console.log('>> JIRA INSTANCE SETTINGS FIELDS CHANGED!', settings)
@@ -170,11 +170,10 @@ export default function JiraSettings (props) {
       // setTypeMappingRequirement(mappings.Requirement)
       // setTypeMappingBug(mappings.Bug)
       // setTypeMappingIncident(mappings.Incident)
-
       setStatusMappings([])
-      setJiraIssueEpicKeyField(connection.JIRA_ISSUE_EPIC_KEY_FIELD)
-      setJiraIssueStoryCoefficient(connection.JIRA_ISSUE_STORYPOINT_COEFFICIENT)
-      setJiraIssueStoryPointField(connection.JIRA_ISSUE_STORYPOINT_FIELD)
+      setJiraIssueEpicKeyField(connection.epicKeyField)
+      setJiraIssueStoryCoefficient(connection.storyPointCoefficient)
+      setJiraIssueStoryPointField(connection.storyPointField)
 
       // @todo RE-ENABLE SELECTORS!
       // @todo FETCH & SET EPIC KEY
@@ -346,7 +345,14 @@ export default function JiraSettings (props) {
             // readOnly={['gitlab', 'jenkins'].includes(activeProvider.id)}
             placeholder='eg. 2000'
             value={jiraIssueStoryCoefficient}
-            onChange={(e) => setJiraIssueStoryCoefficient(e.target.value)}
+            onChange={(e) => {
+              if (e.target.value != ''){
+                let storyPointCoefficientFloat = parseFloat(e.target.value)
+                setJiraIssueStoryCoefficient(storyPointCoefficientFloat)
+              } else {
+                setJiraIssueStoryCoefficient('')
+              }
+            }}
             className='input granularity-field'
           />
         </FormGroup>
