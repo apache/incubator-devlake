@@ -239,6 +239,7 @@ function useConnectionManager ({
           setPassword(activeConnection.password)
           break
         case Providers.GITLAB:
+          setToken(activeConnection.basicAuthEncoded || activeConnection.Auth)
         case Providers.JIRA:
           setToken(activeConnection.basicAuthEncoded || activeConnection.Auth)
           break

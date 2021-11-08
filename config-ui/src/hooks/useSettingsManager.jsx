@@ -42,7 +42,7 @@ function useSettingsManager ({
         console.log('>> SETTINGS SAVED SUCCESSFULLY', settingsPayload, s)
         saveResponse = {
           ...saveResponse,
-          success: s.data.success,
+          success: [200, 201].includes(s.status),
           settings: { ...s.data },
           errors: s.isAxiosError ? [s.message] : []
         }
