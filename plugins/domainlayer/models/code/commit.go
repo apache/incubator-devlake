@@ -10,6 +10,8 @@ type Commit struct {
 	base.DomainEntity
 	RepoId         uint64 `gorm:"index"`
 	Sha            string
+	Additions      int
+	Deletions      int
 	Message        string
 	AuthorName     string
 	AuthorEmail    string
