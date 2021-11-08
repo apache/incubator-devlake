@@ -4,10 +4,7 @@ import (
 	"github.com/merico-dev/lake/config"
 	"github.com/merico-dev/lake/plugins/core"
 	"github.com/mitchellh/mapstructure"
-	"github.com/spf13/viper"
 )
-
-var V *viper.Viper
 
 type GitlabConfig struct {
 	GITLAB_ENDPOINT            string `mapstructure:"GITLAB_ENDPOINT"`
