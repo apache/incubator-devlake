@@ -7,6 +7,8 @@ import {
 import {
   Button, Card, Elevation, Colors,
   Spinner,
+  Tooltip,
+  Position,
   Icon,
 } from '@blueprintjs/core'
 import Nav from '@/components/Nav'
@@ -42,6 +44,7 @@ export default function ManageIntegration () {
 
   const {
     sourceLimits,
+    Providers
   } = useConnectionManager({
     activeProvider
   })
@@ -236,6 +239,7 @@ export default function ManageIntegration () {
                     <table className='bp3-html-table bp3-html-table-bordered connections-table' style={{ width: '100%' }}>
                       <thead>
                         <tr>
+                          {activeProvider.id === Providers.JIRA && (<th>ID</th>)}
                           <th>Connection Name</th>
                           <th>Endpoint</th>
                           <th>Status</th>
@@ -248,13 +252,27 @@ export default function ManageIntegration () {
                             key={`connection-row-${idx}`}
                             className={connection.status === 0 ? 'connection-offline' : ''}
                           >
+                            {activeProvider.id === Providers.JIRA && (
+                              <td
+                                style={{ cursor: 'pointer' }}
+                                className='cell-name'
+                              >
+                                <Tooltip content='Use this SourceID for Triggers' position={Position.TOP}>
+                                  <span style={{ color: Colors.BLUE3, fontWeight: 'bold' }}>
+                                    {connection.ID}
+                                  </span>
+                                </Tooltip>
+                              </td>
+                            )}
                             <td
                               onClick={(e) => configureConnection(connection, e)}
                               style={{ cursor: 'pointer' }}
                               className='cell-name'
                             >
                               {/* <Icon icon='power' color={Colors.GRAY4} size={10} style={{ float: 'right', marginLeft: '10px' }} /> */}
-                              <strong>{connection.name || connection.Name}</strong>
+                              <strong>
+                                {connection.name || connection.Name}
+                              </strong>
                               <a
                                 href='#'
                                 data-provider={connection.id}
