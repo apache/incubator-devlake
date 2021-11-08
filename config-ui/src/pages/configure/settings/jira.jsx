@@ -20,15 +20,21 @@ import '@/styles/integration.scss'
 import '@/styles/connections.scss'
 import '@blueprintjs/popover2/lib/css/blueprint-popover2.css'
 
+const MAPPING_TYPES = {
+  Requirement: 'Requirement',
+  Incident: 'Incident',
+  Bug: 'Bug'
+}
+
 export default function JiraSettings (props) {
   const { connection, provider, isSaving, onSettingsChange } = props
   const { providerId, connectionId } = useParams()
   const history = useHistory()
 
-  const [typeMappingBug, setTypeMappingBug] = useState()
-  const [typeMappingIncident, setTypeMappingIncident] = useState()
-  const [typeMappingRequirement, setTypeMappingRequirement] = useState()
-  const [typeMappingAll, setTypeMappingAll] = useState()
+  const [typeMappingBug, setTypeMappingBug] = useState([])
+  const [typeMappingIncident, setTypeMappingIncident] = useState([])
+  const [typeMappingRequirement, setTypeMappingRequirement] = useState([])
+  const [typeMappingAll, setTypeMappingAll] = useState({})
   const [statusMappings, setStatusMappings] = useState()
   const [jiraIssueEpicKeyField, setJiraIssueEpicKeyField] = useState()
   const [jiraIssueStoryCoefficient, setJiraIssueStoryCoefficient] = useState()
@@ -48,14 +54,38 @@ export default function JiraSettings (props) {
   // const [selectedBoardItem, setSelectedBoardItem] = useState()
   // const [boards, setBoards] = useState(boardsData)
 
+  const createTypeMapObject = (customType, standardType) => {
+    return customType && standardType
+      ? {
+          [customType]: {
+            standardType
+          }
+        }
+      : null
+  }
+
+  const parseTypeMappings = (mappings) => {
+    const GroupedMappings = {
+      [MAPPING_TYPES.Requirement]: [],
+      [MAPPING_TYPES.Incident]: [],
+      [MAPPING_TYPES.Bug]: [],
+    }
+    Object.entries(mappings).forEach(([tag, typeObj]) => {
+      GroupedMappings[typeObj.standardType].push(tag)
+    })
+    console.log('>>>> PARSED TYPE MAPPINGS ....', GroupedMappings)
+    setTypeMappingRequirement(GroupedMappings[MAPPING_TYPES.Requirement])
+    setTypeMappingBug(GroupedMappings[MAPPING_TYPES.Bug])
+    setTypeMappingIncident(GroupedMappings[MAPPING_TYPES.Incident])
+    return GroupedMappings
+  }
+
   useEffect(() => {
     const settings = {
       JIRA_ISSUE_EPIC_KEY_FIELD: jiraIssueEpicKeyField,
-      JIRA_ISSUE_TYPE_MAPPING: typeMappingAll,
+      typeMappings: typeMappingAll,
       JIRA_ISSUE_STORYPOINT_COEFFICIENT: jiraIssueStoryCoefficient,
       JIRA_ISSUE_STORYPOINT_FIELD: jiraIssueStoryPointField,
-      // @todo SET BOARD ID
-      // JIRA_ISSUES_BOARD_ID: ??
     }
     onSettingsChange(settings)
     console.log('>> JIRA INSTANCE SETTINGS FIELDS CHANGED!', settings)
@@ -83,11 +113,27 @@ export default function JiraSettings (props) {
 
   useEffect(() => {
     if (typeMappingBug && typeMappingIncident && typeMappingRequirement) {
-      const typeBug = 'Bug:' + typeMappingBug.toString() + ';'
-      const typeIncident = 'Incident:' + typeMappingIncident.toString() + ';'
-      const typeRequirement = 'Requirement:' + typeMappingRequirement.toString() + ';'
-      const all = typeBug + typeIncident + typeRequirement
-      setTypeMappingAll(all)
+      // LEGACY MAPPING FORMAT (DISABLED)
+      // const typeBug = 'Bug:' + typeMappingBug.toString() + ';'
+      // const typeIncident = 'Incident:' + typeMappingIncident.toString() + ';'
+      // const typeRequirement = 'Requirement:' + typeMappingIncident.toString() + ';'
+      // const all = typeBug + typeIncident + typeRequirement
+      // setTypeMappingAll(all)
+      const RequirementMappings = typeMappingRequirement !== ''
+        ? typeMappingRequirement.toString().split(',').map(r => createTypeMapObject(r, MAPPING_TYPES.Requirement))
+        : []
+      const IncidentMappings = typeMappingIncident !== ''
+        ? typeMappingIncident.toString().split(',').map(i => createTypeMapObject(i, MAPPING_TYPES.Incident))
+        : []
+      const BugMappings = typeMappingBug !== ''
+        ? typeMappingBug.toString().split(',').map(b => createTypeMapObject(b, MAPPING_TYPES.Bug))
+        : []
+      const CombinedMappings = [...RequirementMappings, ...IncidentMappings, ...BugMappings].filter(m => m !== null)
+      const MappingTypeObjects = CombinedMappings.reduce((pV, cV) => { return { ...cV, ...pV } }, {})
+      setTypeMappingAll(MappingTypeObjects)
+      console.log('>> INCIDENT TYPE MAPPING OBJECTS....', RequirementMappings, IncidentMappings, BugMappings)
+      console.log('>> ALL MAPPINGS COMBINED...', CombinedMappings)
+      console.log('>> FINAL MAPPING OBJECTS FOR API REQUEST...', MappingTypeObjects)
     }
   }, [typeMappingBug, typeMappingIncident, typeMappingRequirement])
 
@@ -97,33 +143,34 @@ export default function JiraSettings (props) {
     // setEpics([])
     // setBoards([])
     // setGranularities([])
-
-    // @todo FETCH & SET INITIAL MAPPING TYPES
-    let mappings = {
-      Bug: [],
-      Incident: [],
-      Requirement: []
-    }
+    // let mappings = {
+    //   Bug: [],
+    //   Incident: [],
+    //   Requirement: []
+    // }
     if (connection && connection.ID) {
-      const types = connection.JIRA_ISSUE_TYPE_MAPPING ? connection.JIRA_ISSUE_TYPE_MAPPING.split(';').map(t => t.split(':')[0]) : []
-      if (types.lastIndexOf('') !== -1) {
-        types.pop()
-      }
-      const tags = connection.JIRA_ISSUE_TYPE_MAPPING ? connection.JIRA_ISSUE_TYPE_MAPPING.split(';').map(t => t.split(':')[1]) : []
-      types.forEach((type, idx) => {
-        if (type) {
-          mappings = {
-            ...mappings,
-            [type]: tags[idx] ? tags[idx].split(',') : []
-          }
-        }
-      })
+      // Parse Type Mappings (V2)
+      parseTypeMappings(connection.TypeMappings)
 
-      console.log('>> RE-CREATED ISSUE TYPE MAPPINGS OBJ...', mappings)
+      // LEGACY TYPE MAPPINGS (Disabled)
+      // const types = connection.JIRA_ISSUE_TYPE_MAPPING ? connection.JIRA_ISSUE_TYPE_MAPPING.split(';').map(t => t.split(':')[0]) : []
+      // if (types.lastIndexOf('') !== -1) {
+      //   types.pop()
+      // }
+      // const tags = connection.JIRA_ISSUE_TYPE_MAPPING ? connection.JIRA_ISSUE_TYPE_MAPPING.split(';').map(t => t.split(':')[1]) : []
+      // types.forEach((type, idx) => {
+      //   if (type) {
+      //     mappings = {
+      //       ...mappings,
+      //       [type]: tags[idx] ? tags[idx].split(',') : []
+      //     }
+      //   }
+      // })
+      // console.log('>> RE-CREATED ISSUE TYPE MAPPINGS OBJ...', mappings)
+      // setTypeMappingRequirement(mappings.Requirement)
+      // setTypeMappingBug(mappings.Bug)
+      // setTypeMappingIncident(mappings.Incident)
 
-      setTypeMappingRequirement(mappings.Requirement)
-      setTypeMappingBug(mappings.Bug)
-      setTypeMappingIncident(mappings.Incident)
       setStatusMappings([])
       setJiraIssueEpicKeyField(connection.JIRA_ISSUE_EPIC_KEY_FIELD)
       setJiraIssueStoryCoefficient(connection.JIRA_ISSUE_STORYPOINT_COEFFICIENT)
