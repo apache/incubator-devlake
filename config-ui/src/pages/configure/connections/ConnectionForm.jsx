@@ -97,16 +97,23 @@ export default function ConnectionForm (props) {
         </div>
 
         {showError && (
-          <div className='bp3-callout bp3-intent-danger' style={{ margin: '20px 0', maxWidth: '50%' }}>
-            <h4 className='bp3-heading'>Operation Failed</h4>
-            Your connection could not be saved.
+          <Card
+            interactive={false}
+            elevation={Elevation.TWO}
+            style={{ maxWidth: '480px', marginBottom: '20px', backgroundColor: '#f0f0f0' }}
+          >
+            <p className='warning-message' intent={Intent.WARNING}>
+              <Icon icon='error' size='16' color={Colors.RED4} style={{ marginRight: '5px' }} />
+              <strong>UNABLE TO SAVE CONNECTION ({name ?? 'New Instance'})</strong><br />
+            </p>
             {errors.length > 0 && (
               <ul>
                 {errors.map((errorMessage, idx) => (
                   <li key={`save-error-message-${idx}`}>{errorMessage}</li>
                 ))}
               </ul>)}
-          </div>)}
+          </Card>
+        )}
 
         <div className='formContainer'>
           <FormGroup
