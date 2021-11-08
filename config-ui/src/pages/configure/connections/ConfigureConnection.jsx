@@ -85,7 +85,9 @@ export default function ConfigureConnection () {
     setEndpointUrl,
     setUsername,
     setPassword,
-    setToken
+    setToken,
+    saveComplete: saveConnectionComplete,
+    showError: showConnectionError
   } = useConnectionManager({
     activeProvider,
     activeConnection,
@@ -159,11 +161,11 @@ export default function ConfigureConnection () {
     }
   }, [connectionId, providerId, integrations, connections])
 
-  useEffect(() => {
-    // Selected Provider
-    // console.log('>> active connection', activeConnection)
-    console.log('>> active connection', activeConnection)
-  }, [activeConnection])
+  // useEffect(() => {
+  //   // Selected Provider
+  //   // console.log('>> active connection', activeConnection)
+  //   console.log('>> active connection', activeConnection)
+  // }, [activeConnection])
 
   useEffect(() => {
 
@@ -172,6 +174,10 @@ export default function ConfigureConnection () {
   useEffect(() => {
 
   }, [activeProvider])
+
+  // useEffect(() => {
+  //   // CONNECTION SAVED!
+  // }, [saveConnectionComplete])
 
   return (
     <>
@@ -248,7 +254,7 @@ export default function ConfigureConnection () {
                             isTesting={isTestingConnection}
                             testStatus={testStatus}
                             errors={errors}
-                            showError={showError}
+                            showError={showConnectionError}
                             authType={activeProvider.id === 'jenkins' ? 'plain' : 'token'}
                             showLimitWarning={false}
                           />
