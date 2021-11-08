@@ -1,9 +1,7 @@
 package api
 
 import (
-	"github.com/merico-dev/lake/api/env"
 	"github.com/merico-dev/lake/config"
-	"github.com/merico-dev/lake/logger"
 	"github.com/merico-dev/lake/plugins/core"
 	"github.com/mitchellh/mapstructure"
 	"github.com/spf13/viper"
@@ -91,13 +89,10 @@ func GetSource(input *core.ApiResourceInput) (*core.ApiResourceOutput, error) {
 }
 
 func GetSourceFromEnv() (*JenkinsSource, error) {
-	V := config.LoadConfigFile()
-	var configJson env.Config
-	err := V.Unmarshal(&configJson)
+	configJson, err := config.GetConfigJson()
 	if err != nil {
 		return nil, err
 	}
-	logger.Info("JON >>> configJson", configJson)
 	return &JenkinsSource{
 		Endpoint: configJson.JENKINS_ENDPOINT,
 		Username: configJson.JENKINS_USERNAME,
