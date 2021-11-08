@@ -76,7 +76,7 @@ export default function ConnectionForm (props) {
 
   useEffect(() => {
     setAllowedAuthTypes(['token', 'plain'])
-    let exampleUrl = activeProvider.id === 'jira' ? 'https://merico.atlassian.net/rest' : 'https://gitlab.com/api/v4/'
+    const exampleUrl = activeProvider.id === 'jira' ? 'https://merico.atlassian.net/rest' : 'https://gitlab.com/api/v4/'
     setPlaceholderUrl(exampleUrl)
   }, [])
 
@@ -100,9 +100,15 @@ export default function ConnectionForm (props) {
 
         {showError && (
           <Card
+            className='app-error-card'
             interactive={false}
-            elevation={Elevation.TWO}
-            style={{ maxWidth: '480px', marginBottom: '20px', backgroundColor: '#f0f0f0' }}
+            elevation={showLimitWarning ? Elevation.TWO : Elevation.ZERO}
+            style={{
+              maxWidth: '480px',
+              marginBottom: '20px',
+              backgroundColor: showLimitWarning ? '#f0f0f0' : 'transparent',
+              border: showLimitWarning ? 'inherit' : 0
+            }}
           >
             <p className='warning-message' intent={Intent.WARNING}>
               <Icon icon='error' size='16' color={Colors.RED4} style={{ marginRight: '5px' }} />
@@ -197,32 +203,32 @@ export default function ConnectionForm (props) {
               />
               {
                 activeProvider.id === 'jira' &&
-                <Popover
-                  className='popover-generate-token'
-                  position={Position.RIGHT}
-                  autoFocus={false}
-                  enforceFocus={false}
-                  isOpen={showTokenCreator}
-                  onInteraction={handleTokenInteraction}
-                  onClosed={() => setShowTokenCreator(false)}
-                  usePortal={false}
-                >
-                  <Button
-                    disabled={isTesting || isSaving || isLocked}
-                    type='button' icon='key' intent={Intent.PRIMARY} style={{ marginLeft: '5px' }}
-                  />
-                  <>
-                    <div style={{ padding: '15px 20px 15px 15px' }}>
-                      <GenerateTokenForm
-                        isTesting={isTesting}
-                        isSaving={isSaving}
-                        isLocked={isLocked}
-                        onTokenChange={onTokenChange}
-                        setShowTokenCreator={setShowTokenCreator}
-                      />
-                    </div>
-                  </>
-                </Popover>
+                  <Popover
+                    className='popover-generate-token'
+                    position={Position.RIGHT}
+                    autoFocus={false}
+                    enforceFocus={false}
+                    isOpen={showTokenCreator}
+                    onInteraction={handleTokenInteraction}
+                    onClosed={() => setShowTokenCreator(false)}
+                    usePortal={false}
+                  >
+                    <Button
+                      disabled={isTesting || isSaving || isLocked}
+                      type='button' icon='key' intent={Intent.PRIMARY} style={{ marginLeft: '5px' }}
+                    />
+                    <>
+                      <div style={{ padding: '15px 20px 15px 15px' }}>
+                        <GenerateTokenForm
+                          isTesting={isTesting}
+                          isSaving={isSaving}
+                          isLocked={isLocked}
+                          onTokenChange={onTokenChange}
+                          setShowTokenCreator={setShowTokenCreator}
+                        />
+                      </div>
+                    </>
+                  </Popover>
               }
               {/* <a href='#' style={{ margin: '5px 0 5px 5px' }}><Icon icon='info-sign' size='16' /></a> */}
             </FormGroup>
