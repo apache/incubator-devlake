@@ -1,6 +1,6 @@
 import React from 'react'
 
-import { Providers } from '@/data/Providers'
+import { Providers, ProviderLabels } from '@/data/Providers'
 
 import JiraSettings from '@/pages/configure/settings/jira'
 import GitlabSettings from '@/pages/configure/settings/gitlab'
@@ -16,7 +16,7 @@ const integrationsData = [
   {
     id: Providers.GITLAB,
     enabled: true,
-    name: 'GitLab',
+    name: ProviderLabels.GITLAB,
     icon: <GitlabProvider className='providerIconSvg' width='30' height='30' style={{ float: 'left', marginTop: '5px' }} />,
     iconDashboard: <GitlabProvider className='providerIconSvg' width='48' height='48' />,
     settings: ({ activeProvider, activeConnection, isSaving, setSettings }) => (
@@ -31,7 +31,7 @@ const integrationsData = [
   {
     id: Providers.JENKINS,
     enabled: true,
-    name: 'Jenkins',
+    name: ProviderLabels.JENKINS,
     icon: <JenkinsProvider className='providerIconSvg' width='30' height='30' style={{ float: 'left', marginTop: '5px' }} />,
     iconDashboard: <JenkinsProvider className='providerIconSvg' width='48' height='48' />,
     settings: ({ activeProvider, activeConnection, isSaving, setSettings }) => (
@@ -46,7 +46,7 @@ const integrationsData = [
   {
     id: Providers.JIRA,
     enabled: true,
-    name: 'JIRA',
+    name: ProviderLabels.JIRA,
     icon: <JiraProvider className='providerIconSvg' width='30' height='30' style={{ float: 'left', marginTop: '5px' }} />,
     iconDashboard: <JiraProvider className='providerIconSvg' width='48' height='48' />,
     settings: ({ activeProvider, activeConnection, isSaving, setSettings }) => (
@@ -61,7 +61,7 @@ const integrationsData = [
   {
     id: Providers.GITHUB,
     enabled: true,
-    name: 'GitHub',
+    name: ProviderLabels.GITHUB,
     icon: <GitHubProvider className='providerIconSvg' width='30' height='30' style={{ float: 'left', marginTop: '5px' }} />,
     iconDashboard: <GitHubProvider className='providerIconSvg' width='48' height='48' />,
     settings: ({ activeProvider, activeConnection, isSaving, setSettings }) => (

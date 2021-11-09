@@ -13,6 +13,7 @@ import AppCrumbs from '@/components/Breadcrumbs'
 import Content from '@/components/Content'
 import ConnectionForm from '@/pages/configure/connections/ConnectionForm'
 import { integrationsData } from '@/data/integrations'
+import { Providers, ProviderLabels } from '@/data/Providers'
 import { DEVLAKE_ENDPOINT } from '@/utils/config'
 
 import useConnectionManager from '@/hooks/useConnectionManager'
@@ -53,7 +54,7 @@ export default function AddConnection () {
     setToken,
     fetchAllConnections,
     connectionLimitReached,
-    Providers
+    // Providers
   } = useConnectionManager({
     activeProvider,
     // name,
@@ -82,10 +83,10 @@ export default function AddConnection () {
       fetchAllConnections()
       switch (activeProvider.id) {
         case Providers.GITLAB:
-          setName('Gitlab')
+          setName(ProviderLabels.GITLAB)
           break
         case Providers.JENKINS:
-          setName('Jenkins')
+          setName(ProviderLabels.JENKINS)
           break
         case Providers.JIRA:
         default:
