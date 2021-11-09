@@ -5,7 +5,7 @@
   "main": "src/index.js",
   "scripts": {
     "build-production": "webpack --config webpack.production.config.js",
-    "start": "webpack serve --port 4001 --progress",
+    "start": "webpack serve --progress",
     "start-production": "npm run build-production;node server.js",
     "lint": "eslint ./src"
   },
