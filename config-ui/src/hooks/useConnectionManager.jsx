@@ -7,6 +7,12 @@ import { DEVLAKE_ENDPOINT } from '@/utils/config'
 import request from '@/utils/request'
 import { NullConnection } from '@/data/NullConnection'
 
+const Providers = {
+  GITLAB: 'gitlab',
+  JENKINS: 'jenkins',
+  JIRA: 'jira'
+}
+
 function useConnectionManager ({
   activeProvider,
   activeConnection,
@@ -48,11 +54,7 @@ function useConnectionManager ({
   const [connectionCount, setConnectionCount] = useState(0)
   const [connectionLimitReached, setConnectionLimitReached] = useState(false)
 
-  const Providers = {
-    GITLAB: 'gitlab',
-    JENKINS: 'jenkins',
-    JIRA: 'jira'
-  }
+  const [saveComplete, setSaveComplete] = useState(false)
 
   const testConnection = () => {
     setIsTesting(true)
@@ -158,6 +160,7 @@ function useConnectionManager ({
         ToastNotification.show({ message: 'Connection saved successfully.', intent: 'success', icon: 'small-tick' })
         setShowError(false)
         setIsSaving(false)
+        setSaveComplete(saveResponse.connection)
         if (!updateMode) {
           history.push(`/integrations/${activeProvider.id}`)
         }
@@ -165,6 +168,7 @@ function useConnectionManager ({
         ToastNotification.show({ message: 'Connection failed to save, please try again.', intent: 'danger', icon: 'error' })
         setShowError(true)
         setIsSaving(false)
+        setSaveComplete(false)
       }
     }, 2000)
   }
@@ -240,6 +244,7 @@ function useConnectionManager ({
           break
         case Providers.GITLAB:
           setToken(activeConnection.basicAuthEncoded || activeConnection.Auth)
+          break
         case Providers.JIRA:
           setToken(activeConnection.basicAuthEncoded || activeConnection.Auth)
           break
@@ -248,7 +253,18 @@ function useConnectionManager ({
       ToastNotification.show({ message: `Fetched settings for ${activeConnection.name}.`, intent: 'success', icon: 'small-tick' })
       console.log('>> FETCHED CONNECTION FOR MODIFY', activeConnection)
     }
-  }, [activeConnection])
+  }, [activeConnection, activeProvider.id])
+
+  useEffect(() => {
+    if (saveComplete && saveComplete.ID) {
+      setActiveConnection((ac) => {
+        return {
+          ...ac,
+          ...saveComplete
+        }
+      })
+    }
+  }, [saveComplete, setActiveConnection])
 
   return {
     fetchConnection,
@@ -284,7 +300,8 @@ function useConnectionManager ({
     sourceLimits,
     connectionCount,
     connectionLimitReached,
-    Providers
+    Providers,
+    saveComplete
   }
 }
 
