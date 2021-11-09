@@ -4,7 +4,7 @@ apiVersion: 1
 datasources:
   - name: mysql
     type: mysql
-    url: mysqldb:3306
+    url: mysql:3306
     database: lake
     user: merico
     secureJsonData:
