@@ -236,7 +236,7 @@ export default function JiraSettings (props) {
         <p className=''>Choose the Jira field you’re using to represent the key of an Epic to which an issue belongs to.</p>
         {/* <span style={{ display: 'inline-block' }}>
           <Select
-            className='select-epic-key'F
+            className='select-epic-key'
             inline={true}
             fill={false}
             items={epics}
