@@ -21,6 +21,9 @@ func Proxy(input *core.ApiResourceInput) (*core.ApiResourceOutput, error) {
 		return nil, fmt.Errorf("missing sourceid")
 	}
 	jiraSourceId, err := strconv.ParseUint(sourceId, 10, 64)
+	if err != nil {
+		return nil, err
+	}
 	client, err := tasks.NewJiraApiClientBySourceId(jiraSourceId)
 	if err != nil {
 		return nil, err
