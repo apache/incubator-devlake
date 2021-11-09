@@ -23,13 +23,13 @@
 
 ## 配置
 
-插件运行前，你需要在 `.env` 文件中进行以下配置：
+插件运行前，需要在Dev Lake提供的config UI中设置以下变量：
 
 ### 设置 JIRA_ENDPOINT
 
 这是所有 Jira API 调用的基础设置。你可以在你所有的 Jira Urls 中看到它作为 Url 的开头。
 
-例如：如果你看到 `https://mydomain.atlassian.net/secure/RapidBoard.jspa?rapidView=999&projectKey=XXX`, 你需要在你的 `.env` 文件中设置 `JIRA_ENDPOINT=https://mydomain.atlassian.net`
+例如：如果你看到 `https://mydomain.atlassian.net/secure/RapidBoard.jspa?rapidView=999&projectKey=XXX`, 你需要在config UI中将 `JIRA_ENDPOINT`设置为`https://mydomain.atlassian.net/rest`
 
 ### 生成 API token
 
@@ -47,7 +47,7 @@
  - `故障（Bug）`
  - `事故（Incident）`
 
-例如，假设我们使用 `故事` 和 `任务` 来表示需求，用 `客户投诉` 表示事故，用 `QABug` 表示故障。我们要做的是在运行 Devlake 之前在 `.env` 文件下设置环境变量：
+例如，假设我们使用 `故事` 和 `任务` 来表示需求，用 `客户投诉` 表示事故，用 `QABug` 表示故障。我们要做的是在运行 Dev Lake 之前在config UI中设置环境变量：
 
 ```sh
 # JIRA_ISSUE_TYPE_MAPPING=<STANDARD_TYPE>:<YOUR_TYPE_1>,<YOUR_TYPE_2>;....
@@ -69,7 +69,7 @@ Jira 是高度可定制的，不同公司可能使用不同的状态来表示一
 - 对于 `Bug` 类型的事务：使用 `已修复` 表示 "Resolved"，用 `拒绝`和 `无法复现` 表示 "Rejected"；
 - 对于 `Incident` 类型的事务：使用 `已修复` 表示 "Resolved"，用 `拒绝` 表示 "Rejected"；
 - 对于 `Story` 类型的事务：使用 `已完成` 表示 "Resolved"，用 `推迟` 表示 "Rejected"；
-我们要做的是在运行 Devlake 之前在 `.env` 文件下设置环境变量：
+我们要做的是在运行 Devlake 之前在config UI中进行如下设置：
 
 ```sh
 #JIRA_ISSUE_<YOUR_TYPE>_STATUS_MAPPING=<STANDARD_STATUS>:<YOUR_STATUS>;...
@@ -109,7 +109,7 @@ JIRA_ISSUE_STORYPOINT_FIELD=customfield_10026
 ## 如何触发此插件进行数据收集
  
 你可以向 `/task` 发起一个POST请求来触发数据收集。由于我们通过 Jira 来决定收集的数据范畴，因此需要在请求里带上 Jira board id<br>
-注意：此请求会在收集全部数据时自动触发，你无需单独执行这一请求，也不需要在 `.env` 文件中设置这个。
+注意：此请求会在收集全部数据时自动触发，你无需单独执行这一请求，也不需要在数据源层面设置这个变量。
 
 ```
 curl -XPOST 'localhost:8080/task' \
