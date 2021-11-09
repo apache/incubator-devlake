@@ -12,7 +12,7 @@ import Sidebar from '@/components/Sidebar'
 import AppCrumbs from '@/components/Breadcrumbs'
 import Content from '@/components/Content'
 import ConnectionForm from '@/pages/configure/connections/ConnectionForm'
-import { integrationsData } from '@/pages/configure/mock-data/integrations'
+import { integrationsData } from '@/data/integrations'
 import { DEVLAKE_ENDPOINT } from '@/utils/config'
 
 import useConnectionManager from '@/hooks/useConnectionManager'

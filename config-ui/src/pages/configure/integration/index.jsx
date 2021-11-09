@@ -7,7 +7,7 @@ import Nav from '@/components/Nav'
 import Sidebar from '@/components/Sidebar'
 import AppCrumbs from '@/components/Breadcrumbs'
 import Content from '@/components/Content'
-
+import { integrationsData } from '@/data/integrations'
 import { ReactComponent as GitlabProvider } from '@/images/integrations/gitlab.svg'
 import { ReactComponent as JenkinsProvider } from '@/images/integrations/jenkins.svg'
 import { ReactComponent as JiraProvider } from '@/images/integrations/jira.svg'
@@ -17,23 +17,7 @@ import '@/styles/integration.scss'
 export default function Integration () {
   const history = useHistory()
 
-  const [integrations, setIntegrations] = useState([
-    {
-      id: 'gitlab',
-      name: 'GitLab',
-      icon: <GitlabProvider className='providerIconSvg' width='48' height='48' />
-    },
-    {
-      id: 'jenkins',
-      name: 'Jenkins',
-      icon: <JenkinsProvider className='providerIconSvg' width='48' height='48' />
-    },
-    {
-      id: 'jira',
-      name: 'JIRA',
-      icon: <JiraProvider className='providerIconSvg' width='48' height='48' />
-    },
-  ])
+  const [integrations, setIntegrations] = useState(integrationsData)
 
   const [activeProvider, setActiveProvider] = useState(integrations[0])
   const [invalidProvider, setInvalidProvider] = useState(false)
@@ -83,7 +67,7 @@ export default function Integration () {
                   onClick={() => handleProviderClick(provider.id)}
                 >
                   <div className='providerIcon'>
-                    {provider.icon}
+                    {provider.iconDashboard}
                   </div>
                   <div className='providerName'>
                     {provider.name}

@@ -22,17 +22,13 @@ import useConnectionManager from '@/hooks/useConnectionManager'
 
 import { SERVER_HOST, DEVLAKE_ENDPOINT } from '@/utils/config'
 
-import { integrationsData } from '@/pages/configure/mock-data/integrations'
+import { integrationsData } from '@/data/integrations'
 
 import '@/styles/integration.scss'
 import '@blueprintjs/popover2/lib/css/blueprint-popover2.css'
 
 export default function ManageIntegration () {
   const history = useHistory()
-
-  const [dbUrl, setDbUrl] = useState()
-  const [port, setPort] = useState()
-  const [mode, setMode] = useState()
 
   const { providerId } = useParams()
 
@@ -69,6 +65,7 @@ export default function ManageIntegration () {
     } catch (e) {
       console.log('>> FAILED TO FETCH CONNECTIONS', e)
       setErrors([e])
+      setConnections([])
       console.log(e)
     }
     setTimeout(() => {
@@ -125,7 +122,6 @@ export default function ManageIntegration () {
 
   useEffect(() => {
     console.log('>> ACTIVE PROVIDER = ', providerId)
-    console.log(dbUrl, port, mode)
     setIntegrations(integrations)
     setActiveProvider(integrations.find(p => p.id === providerId))
   }, [])

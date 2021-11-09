@@ -13,7 +13,8 @@ import AppCrumbs from '@/components/Breadcrumbs'
 import Content from '@/components/Content'
 // import { ToastNotification } from '@/components/Toast'
 import ConnectionForm from '@/pages/configure/connections/ConnectionForm'
-import { integrationsData } from '@/pages/configure/mock-data/integrations'
+import { integrationsData } from '@/data/integrations'
+import { Providers } from '@/data/Providers'
 import { NullConnection } from '@/data/NullConnection'
 
 import useConnectionManager from '@/hooks/useConnectionManager'
@@ -82,12 +83,12 @@ export default function EditConnection () {
     setName(activeConnection.name)
     setEndpointUrl(activeConnection.endpoint)
     switch (activeProvider.id) {
-      case 'jenkins':
+      case Providers.JENKINS:
         setUsername(activeConnection.username)
         setPassword(activeConnection.password)
         break
-      case 'gitlab':
-      case 'jira':
+      case Providers.GITLAB:
+      case Providers.JIRA:
         setToken(activeConnection.basicAuthEncoded || activeConnection.Auth)
         break
     }
