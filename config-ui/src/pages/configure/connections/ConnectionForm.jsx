@@ -130,7 +130,6 @@ export default function ConnectionForm (props) {
             label=''
             inline={true}
             labelFor='connection-name'
-            helperText='NAME'
             className='formGroup'
             contentClassName='formGroupContent'
           >
@@ -157,7 +156,6 @@ export default function ConnectionForm (props) {
             label=''
             inline={true}
             labelFor='connection-endpoint'
-            helperText='ENDPOINT_URL'
             className='formGroup'
             contentClassName='formGroupContent'
           >
@@ -184,7 +182,6 @@ export default function ConnectionForm (props) {
               label=''
               inline={true}
               labelFor='connection-token'
-              helperText='TOKEN'
               className='formGroup'
               contentClassName='formGroupContent'
             >
@@ -248,7 +245,6 @@ export default function ConnectionForm (props) {
                 disabled={isTesting || isSaving || isLocked}
                 inline={true}
                 labelFor='connection-username'
-                helperText='USERNAME'
                 className='formGroup'
                 contentClassName='formGroupContent'
               >
@@ -272,7 +268,6 @@ export default function ConnectionForm (props) {
                 label=''
                 inline={true}
                 labelFor='connection-password'
-                helperText='PASSWORD'
                 className='formGroup'
                 contentClassName='formGroupContent'
               >
