@@ -21,7 +21,7 @@ configure:
 	docker-compose up config-ui
 
 configure-dev:
-	cd config-ui; yarn; npm run dev;
+	cd config-ui; npm start;
 
 compose:
 	docker-compose up grafana
