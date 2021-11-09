@@ -15,6 +15,7 @@ import { ReactComponent as GitHubProvider } from '@/images/integrations/github.s
 const integrationsData = [
   {
     id: Providers.GITLAB,
+    enabled: true,
     name: 'GitLab',
     icon: <GitlabProvider className='providerIconSvg' width='30' height='30' style={{ float: 'left', marginTop: '5px' }} />,
     iconDashboard: <GitlabProvider className='providerIconSvg' width='48' height='48' />,
@@ -29,6 +30,7 @@ const integrationsData = [
   },
   {
     id: Providers.JENKINS,
+    enabled: true,
     name: 'Jenkins',
     icon: <JenkinsProvider className='providerIconSvg' width='30' height='30' style={{ float: 'left', marginTop: '5px' }} />,
     iconDashboard: <JenkinsProvider className='providerIconSvg' width='48' height='48' />,
@@ -43,6 +45,7 @@ const integrationsData = [
   },
   {
     id: Providers.JIRA,
+    enabled: true,
     name: 'JIRA',
     icon: <JiraProvider className='providerIconSvg' width='30' height='30' style={{ float: 'left', marginTop: '5px' }} />,
     iconDashboard: <JiraProvider className='providerIconSvg' width='48' height='48' />,
@@ -57,6 +60,7 @@ const integrationsData = [
   },
   {
     id: Providers.GITHUB,
+    enabled: true,
     name: 'GitHub',
     icon: <GitHubProvider className='providerIconSvg' width='30' height='30' style={{ float: 'left', marginTop: '5px' }} />,
     iconDashboard: <GitHubProvider className='providerIconSvg' width='48' height='48' />,
