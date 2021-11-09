@@ -6,6 +6,30 @@ const HtmlWebpackPlugin = require('html-webpack-plugin')
 const CopyPlugin = require('copy-webpack-plugin')
 const { CleanWebpackPlugin } = require('clean-webpack-plugin')
 const ESLintPlugin = require('eslint-webpack-plugin')
+const MiniCssExtractPlugin = require('mini-css-extract-plugin')
+const CssMinimizerPlugin = require('css-minimizer-webpack-plugin')
+
+const scssLoaders = [
+  {
+    loader: MiniCssExtractPlugin.loader,
+  },
+  {
+    loader: require.resolve('css-loader'),
+    options: {
+      importLoaders: 1,
+    },
+  },
+  {
+    loader: require.resolve('postcss-loader'),
+    options: {
+      postcssOptions: {
+        // options: { implementation: require("postcss") },
+        plugins: [require('autoprefixer'), require('cssnano')({ preset: 'default' })],
+      },
+    },
+  },
+  // require.resolve('sass-loader'),
+]
 
 module.exports = (env = {}) => {
   const optionalPlugins = []
@@ -36,16 +60,22 @@ module.exports = (env = {}) => {
         {
           test: /\.css$/,
           use: [
-            'style-loader',
-            'css-loader'
+            // 'style-loader',
+            MiniCssExtractPlugin.loader,
+            {
+              loader: 'css-loader',
+              options: {
+                importLoaders: 1,
+              }
+            }
           ]
         },
         {
           test: /\.scss$/,
           use: [
-            'style-loader',
-            'css-loader',
-            // 'sass-loader',
+            ...scssLoaders,
+            // MiniCssExtractPlugin.loader,
+            // 'css-loader',
             {
               loader: 'sass-loader',
               options: {
@@ -54,17 +84,26 @@ module.exports = (env = {}) => {
                 additionalData: '@import "@/styles/theme.scss";',
               }
             }
-          ]
+          ],
+          sideEffects: true
         },
         {
           test: /\.html$/,
           use: ['html-loader']
         },
+        // {
+        //   test: /\.(?:png|jpe?g|gif|ttf|woff|woff2)$/,
+        //   loader: 'url-loader',
+        //   options: {
+        //     limit: 10 * 1024,
+        //   },
+        // },
         {
-          test: /\.(?:png|jpe?g|gif|ttf|woff|woff2)$/,
-          loader: 'url-loader',
+          test: /\.(eot|ttf|woff|woff2|svg|png|gif|jpe?g)$/,
+          loader: require.resolve('file-loader'),
           options: {
-            limit: 10 * 1024,
+            name: '[name].[ext]?[hash]',
+            outputPath: 'assets/',
           },
         },
         {
@@ -82,18 +121,24 @@ module.exports = (env = {}) => {
         '@': path.resolve(__dirname, './src/'),
         '@config': path.resolve(__dirname, './config/'),
       },
-      extensions: ['*', '.js', '.jsx']
+      extensions: ['*', '.js', '.jsx', '.scss']
     },
     output: {
       path: path.resolve(__dirname, './dist'),
       filename: '[name].[hash].js',
       publicPath: '/'
     },
+    optimization: {
+      minimizer: [
+        new CssMinimizerPlugin(),
+      ],
+    },
     plugins: [
       new CleanWebpackPlugin(),
       new webpack.HotModuleReplacementPlugin(),
+      new MiniCssExtractPlugin({ filename: '[name].css' }),
       new HtmlWebpackPlugin({
-        template: path.resolve(__dirname, './src/index.html'),
+        template: path.resolve(__dirname, './src/index-production.html'),
         filename: 'index.html',
         favicon: path.resolve(__dirname, './src/images/favicon.ico'),
       }),
