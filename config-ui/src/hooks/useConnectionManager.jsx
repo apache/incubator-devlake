@@ -6,12 +6,14 @@ import { ToastNotification } from '@/components/Toast'
 import { DEVLAKE_ENDPOINT } from '@/utils/config'
 import request from '@/utils/request'
 import { NullConnection } from '@/data/NullConnection'
+import { Providers } from '@/data/Providers'
 
-const Providers = {
-  GITLAB: 'gitlab',
-  JENKINS: 'jenkins',
-  JIRA: 'jira'
-}
+// const Providers = {
+//   GITLAB: 'gitlab',
+//   JENKINS: 'jenkins',
+//   JIRA: 'jira',
+//   GITHUB: 'github'
+// }
 
 function useConnectionManager ({
   activeProvider,
@@ -92,13 +94,17 @@ function useConnectionManager ({
     setIsSaving(true)
     let connectionPayload
     switch (activeProvider.id) {
-      case 'jira':
+      case Providers.JIRA:
         connectionPayload = { name: name, Endpoint: endpointUrl, BasicAuthEncoded: token }
         break
-      case 'jenkins':
+        // @todo fix/set github payload
+      case Providers.GITHUB:
+        connectionPayload = { name: name, Endpoint: endpointUrl, BasicAuthEncoded: token }
+        break
+      case Providers.JENKINS:
         connectionPayload = { name: name, JENKINS_ENDPOINT: endpointUrl, JENKINS_USERNAME: username, JENKINS_PASSWORD: password }
         break
-      case 'gitlab':
+      case Providers.GITLAB:
         connectionPayload = { name: name, GITLAB_ENDPOINT: endpointUrl, GITLAB_AUTH: token }
         break
     }

@@ -11,7 +11,6 @@ import {
   Card,
   Elevation,
 } from '@blueprintjs/core'
-// import { SERVER_HOST, DEVLAKE_ENDPOINT } from '@/utils/config'
 import Nav from '@/components/Nav'
 import Sidebar from '@/components/Sidebar'
 import AppCrumbs from '@/components/Breadcrumbs'
@@ -20,15 +19,8 @@ import useConnectionManager from '@/hooks/useConnectionManager'
 import useSettingsManager from '@/hooks/useSettingsManager'
 import ConnectionForm from '@/pages/configure/connections/ConnectionForm'
 
-// import { ToastNotification } from '@/components/Toast'
-
-import JiraSettings from '@/pages/configure/settings/jira'
-import GitlabSettings from '@/pages/configure/settings/gitlab'
-import JenkinsSettings from '@/pages/configure/settings/jenkins'
-
-import { integrationsData } from '@/pages/configure/mock-data/integrations'
+import { integrationsData } from '@/data/integrations'
 import { NullConnection } from '@/data/NullConnection'
-// import { connectionsData } from '@/pages/configure/mock-data/connections'
 
 import '@/styles/integration.scss'
 import '@/styles/connections.scss'
@@ -39,10 +31,6 @@ import '@blueprintjs/popover2/lib/css/blueprint-popover2.css'
 export default function ConfigureConnection () {
   const history = useHistory()
   const { providerId, connectionId } = useParams()
-
-  // const [isSaving, setIsSaving] = useState(false)
-  // const [errors, setErrors] = useState([])
-  // const [showError, setShowError] = useState(false)
 
   const [integrations, setIntegrations] = useState(integrationsData)
   const [activeProvider, setActiveProvider] = useState(integrations.find(p => p.id === providerId))
@@ -111,39 +99,17 @@ export default function ConfigureConnection () {
     history.push(`/integrations/${activeProvider.id}`)
   }
 
-  const renderProviderSettings = (providerId) => {
+  const renderProviderSettings = (providerId, activeProvider) => {
     let settingsComponent = null
-    switch (providerId) {
-      case 'jira' :
-        settingsComponent = (
-          <JiraSettings
-            provider={activeProvider}
-            connection={activeConnection}
-            isSaving={isSaving}
-            onSettingsChange={setSettings}
-          />
-        )
-        break
-      case 'gitlab' :
-        settingsComponent = (
-          <GitlabSettings
-            provider={activeProvider}
-            connection={activeConnection}
-            isSaving={isSaving}
-            onSettingsChange={setSettings}
-          />
-        )
-        break
-      case 'jenkins' :
-        settingsComponent = (
-          <JenkinsSettings
-            provider={activeProvider}
-            connection={activeConnection}
-            isSaving={isSaving}
-            onSettingsChange={setSettings}
-          />
-        )
-        break
+    if (activeProvider && activeProvider.settings) {
+      settingsComponent = activeProvider.settings({
+        activeProvider,
+        activeConnection,
+        isSaving,
+        setSettings
+      })
+    } else {
+      // @todo create & display "fallback/empty settings" view
     }
     return settingsComponent
   }
@@ -160,12 +126,6 @@ export default function ConfigureConnection () {
       console.log('NO PARAMS!')
     }
   }, [connectionId, providerId, integrations, connections])
-
-  // useEffect(() => {
-  //   // Selected Provider
-  //   // console.log('>> active connection', activeConnection)
-  //   console.log('>> active connection', activeConnection)
-  // }, [activeConnection])
 
   useEffect(() => {
 
@@ -270,7 +230,7 @@ export default function ConfigureConnection () {
                         )}
                   </Card>
                   <div style={{ marginTop: '30px' }}>
-                    {renderProviderSettings(providerId)}
+                    {renderProviderSettings(providerId, activeProvider)}
                   </div>
                   <div className='form-actions-block' style={{ display: 'flex', marginTop: '60px', justifyContent: 'space-between' }}>
                     <div>

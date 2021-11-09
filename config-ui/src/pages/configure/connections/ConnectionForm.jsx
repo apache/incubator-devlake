@@ -10,7 +10,7 @@ import {
   Position,
   Intent
 } from '@blueprintjs/core'
-
+import { Providers } from '@/data/Providers'
 import GenerateTokenForm from '@/pages/configure/connections/GenerateTokenForm'
 
 import '@/styles/integration.scss'
@@ -126,7 +126,7 @@ export default function ConnectionForm (props) {
         <div className='formContainer'>
           <FormGroup
             disabled={isTesting || isSaving || isLocked}
-            readOnly={['gitlab', 'jenkins'].includes(activeProvider.id)}
+            readOnly={[Providers.GITLAB, Providers.JENKINS].includes(activeProvider.id)}
             label=''
             inline={true}
             labelFor='connection-name'
@@ -139,12 +139,12 @@ export default function ConnectionForm (props) {
             <InputGroup
               id='connection-name'
               disabled={isTesting || isSaving || isLocked}
-              readOnly={['gitlab', 'jenkins'].includes(activeProvider.id)}
+              readOnly={[Providers.GITLAB, Providers.JENKINS].includes(activeProvider.id)}
               placeholder='Enter Instance Name'
               value={name}
               onChange={(e) => onNameChange(e.target.value)}
               className='input connection-name-input'
-              leftIcon={['gitlab', 'jenkins'].includes(activeProvider.id) ? 'lock' : null}
+              leftIcon={[Providers.GITLAB, Providers.JENKINS].includes(activeProvider.id) ? 'lock' : null}
               fill
             />
           </FormGroup>

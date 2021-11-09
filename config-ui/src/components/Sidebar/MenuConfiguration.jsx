@@ -19,6 +19,14 @@ const MenuConfiguration = (activeRoute) => {
         },
         {
           id: 1,
+          label: 'GitHub',
+          route: '/integrations/github',
+          active: activeRoute.url.endsWith('/integrations/github'),
+          icon: 'layers',
+          classNames: [],
+        },
+        {
+          id: 1,
           label: 'GitLab',
           route: '/integrations/gitlab',
           active: activeRoute.url.endsWith('/integrations/gitlab'),
