@@ -202,7 +202,6 @@ export default function JiraSettings (props) {
         typeOrStatus='type'
         placeholderText='Add Issue Types...'
         values={typeMappingRequirement}
-        helperText='JIRA_ISSUE_TYPE_MAPPING'
         rightElement={<ClearButton onClick={() => setTypeMappingRequirement([])} />}
         onChange={(values) => setTypeMappingRequirement(values)}
         disabled={isSaving}
@@ -214,7 +213,6 @@ export default function JiraSettings (props) {
         typeOrStatus='type'
         placeholderText='Add Issue Types...'
         values={typeMappingBug}
-        helperText='JIRA_ISSUE_TYPE_MAPPING'
         rightElement={<ClearButton onClick={() => setTypeMappingBug([])} />}
         onChange={(values) => setTypeMappingBug(values)}
         disabled={isSaving}
@@ -226,7 +224,6 @@ export default function JiraSettings (props) {
         typeOrStatus='type'
         placeholderText='Add Issue Types...'
         values={typeMappingIncident}
-        helperText='JIRA_ISSUE_TYPE_MAPPING'
         rightElement={<ClearButton onClick={() => setTypeMappingIncident([])} />}
         onChange={(values) => setTypeMappingIncident(values)}
         disabled={isSaving}
@@ -234,12 +231,12 @@ export default function JiraSettings (props) {
 
       <div className='headlineContainer'>
         <h3 className='headline'>
-          Epic Key<span className='requiredStar'>*</span> <span className='bp3-form-helper-text'>JIRA_ISSUE_EPIC_KEY_FIELD</span>
+          Epic Key<span className='requiredStar'>*</span>
         </h3>
         <p className=''>Choose the Jira field you’re using to represent the key of an Epic to which an issue belongs to.</p>
         {/* <span style={{ display: 'inline-block' }}>
           <Select
-            className='select-epic-key'
+            className='select-epic-key'F
             inline={true}
             fill={false}
             items={epics}
@@ -293,10 +290,10 @@ export default function JiraSettings (props) {
       </div>
 
       <div className='headlineContainer'>
-        <h3 className='headline'>Requirement Granularity
-          <span className='requiredStar'>*</span> <span className='bp3-form-helper-text'>JIRA_ISSUE_STORYPOINT_COEFFICIENT</span>
+        <h3 className='headline'>Story Point Coefficient
+          <span className='requiredStar'>*</span>
         </h3>
-        <p className=''>Choose the Jira field you’re using to represent the granularity of a requirement-type issue.</p>
+        <p className=''>This is a number that can convert your jira story points to a new magnitude. IE: Convert days to hours with 8 since there are 8 working hours in a day.</p>
         {/* <span style={{ display: 'inline-block' }}>
           <Select
             className='select-granularity-key'
@@ -359,8 +356,8 @@ export default function JiraSettings (props) {
       </div>
 
       <div className='headlineContainer'>
-        <h3 className='headline'>Board ID (Optional) <span className='bp3-form-helper-text'>JIRA_ISSUE_STORYPOINT_FIELD</span></h3>
-        <p className=''>Choose the specific Jira board(s) to collect issues from.</p>
+        <h3 className='headline'>Story Point Field (Optional)</h3>
+        <p className=''>Choose the Jira field you’re using to represent the granularity of a requirement-type issue.</p>
         {/* <span style={{ display: 'inline-block' }}>
           <Select
             className='select-board-key'
