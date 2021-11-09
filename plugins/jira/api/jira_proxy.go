@@ -4,15 +4,11 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
-	"net/http"
-	"net/url"
 	"strconv"
 	"time"
 
-	"github.com/merico-dev/lake/logger"
-	lakeModels "github.com/merico-dev/lake/models"
 	"github.com/merico-dev/lake/plugins/core"
-	"github.com/merico-dev/lake/plugins/jira/models"
+	"github.com/merico-dev/lake/plugins/jira/tasks"
 )
 
 const (
@@ -25,29 +21,11 @@ func Proxy(input *core.ApiResourceInput) (*core.ApiResourceOutput, error) {
 		return nil, fmt.Errorf("missing sourceid")
 	}
 	jiraSourceId, err := strconv.ParseUint(sourceId, 10, 64)
-	if err != nil {
-		return nil, fmt.Errorf("invalid sourceId")
-	}
-	jiraSource := &models.JiraSource{}
-	err = lakeModels.Db.First(jiraSource, jiraSourceId).Error
+	client, err := tasks.NewJiraApiClientBySourceId(jiraSourceId)
 	if err != nil {
 		return nil, err
 	}
-	u, err := url.Parse(jiraSource.Endpoint)
-	if err != nil {
-		return nil, err
-	}
-	path := input.Params["path"]
-	u.Path = path
-	u.RawQuery = input.Query.Encode()
-	logger.Info("request to", u.String())
-	req, err := http.NewRequest("GET", u.String(), nil)
-	if err != nil {
-		return nil, err
-	}
-	req.Header.Set("Authorization", "Basic "+jiraSource.BasicAuthEncoded)
-	client := &http.Client{Timeout: TimeOut}
-	resp, err := client.Do(req)
+	resp, err := client.Get(input.Params["path"], &input.Query, nil)
 	if err != nil {
 		return nil, err
 	}

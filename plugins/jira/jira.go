@@ -214,7 +214,7 @@ func (plugin Jira) ApiResources() map[string]map[string]core.ApiResourceHandler 
 			"PUT":    api.PutIssueStatusMapping,
 			"DELETE": api.DeleteIssueStatusMapping,
 		},
-		"sources/:sourceId/proxy/*path": {
+		"sources/:sourceId/proxy/rest/*path": {
 			"GET": api.Proxy,
 		},
 	}
