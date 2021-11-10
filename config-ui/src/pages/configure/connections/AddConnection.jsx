@@ -70,6 +70,9 @@ export default function AddConnection () {
     if (activeProvider && activeProvider.id) {
       fetchAllConnections()
       switch (activeProvider.id) {
+        case Providers.GITHUB:
+          setName(ProviderLabels.GITHUB)
+          break
         case Providers.GITLAB:
           setName(ProviderLabels.GITLAB)
           break
