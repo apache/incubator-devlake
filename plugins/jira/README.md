@@ -242,3 +242,31 @@ PUT /plugins/jira/sources/:sourceId/type-mapping/:userType
 ```
 DELETE /plugins/jira/sources/:sourceId/type-mapping/:userType
 ```
+- API forwarding
+```
+GET /plugins/jira/sources/:sourceId/proxy/rest/*path
+
+For example:
+Requests to http://your_devlake_host/plugins/jira/sources/1/proxy/rest/agile/1.0/board/8/sprint
+would forward to
+https://your_jira_host/rest/agile/1.0/board/8/sprint
+
+{
+    "maxResults": 1,
+    "startAt": 0,
+    "isLast": false,
+    "values": [
+        {
+            "id": 7,
+            "self": "https://merico.atlassian.net/rest/agile/1.0/sprint/7",
+            "state": "closed",
+            "name": "EE Sprint 7",
+            "startDate": "2020-06-12T00:38:51.882Z",
+            "endDate": "2020-06-26T00:38:00.000Z",
+            "completeDate": "2020-06-22T05:59:58.980Z",
+            "originBoardId": 8,
+            "goal": ""
+        }
+    ]
+}
+```
