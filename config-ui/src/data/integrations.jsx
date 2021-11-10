@@ -11,6 +11,7 @@ import { ReactComponent as GitlabProvider } from '@/images/integrations/gitlab.s
 import { ReactComponent as JenkinsProvider } from '@/images/integrations/jenkins.svg'
 import { ReactComponent as JiraProvider } from '@/images/integrations/jira.svg'
 import { ReactComponent as GitHubProvider } from '@/images/integrations/github.svg'
+// import { ReactComponent as NullProvider } from '@/images/integrations/null.svg'
 
 const integrationsData = [
   {

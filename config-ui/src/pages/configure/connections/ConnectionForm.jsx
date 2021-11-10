@@ -187,7 +187,13 @@ export default function ConnectionForm (props) {
               contentClassName='formGroupContent'
             >
               <Label>
-                Basic&nbsp;Auth&nbsp;Token <span className='requiredStar'>*</span>
+                {activeProvider.id === Providers.GITHUB
+                  ? (
+                    <>Auth&nbsp;Token(s)</>
+                    )
+                  : (
+                    <>Basic&nbsp;Auth&nbsp;Token</>
+                    )} <span className='requiredStar'>*</span>
               </Label>
               <InputGroup
                 id='connection-token'
