@@ -22,8 +22,10 @@ func ConvertIssues() error {
 			return err
 		}
 	}
+
 	return nil
 }
+
 func convertToIssueModel(issue *githubModels.GithubIssue) *ticket.Issue {
 	domainIssue := &ticket.Issue{
 		DomainEntity: base.DomainEntity{
@@ -32,6 +34,7 @@ func convertToIssueModel(issue *githubModels.GithubIssue) *ticket.Issue {
 		Key:            issue.Title,
 		Summary:        issue.Body,
 		Status:         issue.State,
+		Priority:       issue.Priority,
 		CreatedDate:    issue.GithubCreatedAt,
 		UpdatedDate:    issue.GithubUpdatedAt,
 		ResolutionDate: issue.ClosedAt,
