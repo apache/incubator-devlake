@@ -13,6 +13,7 @@ type GithubIssue struct {
 	State           string
 	Title           string
 	Body            string
+	Priority        string
 	ClosedAt        sql.NullTime
 	GithubCreatedAt time.Time
 	GithubUpdatedAt time.Time
