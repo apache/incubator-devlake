@@ -6,13 +6,13 @@ import { ToastNotification } from '@/components/Toast'
 import { DEVLAKE_ENDPOINT } from '@/utils/config'
 import request from '@/utils/request'
 import { NullConnection } from '@/data/NullConnection'
-import { Providers } from '@/data/Providers'
+import { Providers, ProviderSourceLimits } from '@/data/Providers'
 
 function useConnectionManager ({
   activeProvider,
-  activeConnection,
   connectionId,
-  setActiveConnection,
+  // activeConnection,
+  // setActiveConnection,
   // name = null,
   // endpointUrl = null,
   // token = null,
@@ -40,13 +40,9 @@ function useConnectionManager ({
   const [errors, setErrors] = useState([])
   const [showError, setShowError] = useState(false)
   const [testStatus, setTestStatus] = useState(0) //  0=Pending, 1=Success, 2=Failed
-  // @todo make source limits dynamic from $integrationsData Object!
-  const [sourceLimits, setSourceLimits] = useState({
-    gitlab: 1,
-    jenkins: 1,
-    github: 1
-  })
+  const [sourceLimits, setSourceLimits] = useState(ProviderSourceLimits)
 
+  const [activeConnection, setActiveConnection] = useState(NullConnection)
   const [allConnections, setAllConnections] = useState([])
   const [connectionCount, setConnectionCount] = useState(0)
   const [connectionLimitReached, setConnectionLimitReached] = useState(false)
@@ -265,9 +261,17 @@ function useConnectionManager ({
         }
       })
     }
-  }, [saveComplete, setActiveConnection])
+  }, [saveComplete])
+
+  useEffect(() => {
+    console.log('>> CONNECTION MANAGER - RECEIVED ACTIVE PROVIDER...', activeProvider)
+    if (activeProvider && activeProvider.id) {
+      // console.log(activeProvider)
+    }
+  }, [activeProvider])
 
   return {
+    activeConnection,
     fetchConnection,
     fetchAllConnections,
     testConnection,

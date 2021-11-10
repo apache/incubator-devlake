@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, useCallback } from 'react'
 import {
   useParams,
   Link,
@@ -20,8 +20,9 @@ import useSettingsManager from '@/hooks/useSettingsManager'
 import ConnectionForm from '@/pages/configure/connections/ConnectionForm'
 
 import { integrationsData } from '@/data/integrations'
-import { NullConnection } from '@/data/NullConnection'
+// import { NullConnection } from '@/data/NullConnection'
 import { NullSettings } from '@/data/NullSettings'
+import { ProviderSourceLimits } from '@/data/Providers'
 
 import '@/styles/integration.scss'
 import '@/styles/connections.scss'
@@ -35,7 +36,7 @@ export default function ConfigureConnection () {
 
   const [integrations, setIntegrations] = useState(integrationsData)
   const [activeProvider, setActiveProvider] = useState(integrations.find(p => p.id === providerId))
-  const [activeConnection, setActiveConnection] = useState(NullConnection)
+  // const [activeConnection, setActiveConnection] = useState(NullConnection)
   const [connections, setConnections] = useState([])
   const [showConnectionSettings, setShowConnectionSettings] = useState(true)
 
@@ -45,6 +46,7 @@ export default function ConfigureConnection () {
     testConnection,
     saveConnection,
     fetchConnection,
+    activeConnection,
     name,
     endpointUrl,
     username,
@@ -63,9 +65,9 @@ export default function ConfigureConnection () {
     showError: showConnectionError
   } = useConnectionManager({
     activeProvider,
-    activeConnection,
+    // activeConnection,
     connectionId,
-    setActiveConnection,
+    // setActiveConnection,
   }, true)
 
   const {
@@ -85,6 +87,7 @@ export default function ConfigureConnection () {
   }
 
   const renderProviderSettings = (providerId, activeProvider) => {
+    console.log('>>> RENDERING PROVIDER SETTINGS...')
     let settingsComponent = null
     if (activeProvider && activeProvider.settings) {
       settingsComponent = activeProvider.settings({
@@ -95,6 +98,7 @@ export default function ConfigureConnection () {
       })
     } else {
       // @todo create & display "fallback/empty settings" view
+      console.log('>> WARNING: NO PROVIDER SETTINGS RENDERED, PROVIDER = ', activeProvider)
     }
     return settingsComponent
   }
@@ -106,7 +110,7 @@ export default function ConfigureConnection () {
       setActiveProvider(integrations.find(p => p.id === providerId))
       // !WARNING! DO NOT ADD fetchConnection TO DEPENDENCIES ARRAY!
       // @todo FIXME: Fix Hook Circular-loop Behavior inside effect when added to dependencies
-      fetchConnection()
+      // fetchConnection()
     } else {
       console.log('NO PARAMS!')
     }
@@ -117,12 +121,19 @@ export default function ConfigureConnection () {
   }, [settings])
 
   useEffect(() => {
-
+    console.log('>>>> CONFIGURING DATA PROVIDER ... ', activeProvider)
+    if (activeProvider?.id) {
+      fetchConnection()
+    }
   }, [activeProvider])
 
   useEffect(() => {
 
   }, [connections])
+
+  useEffect(() => {
+    console.log('>>>> MANAGING / CONFIGURING CONNECTION ... ', activeConnection)
+  }, [activeConnection])
 
   // useEffect(() => {
   //   // CONNECTION SAVED!
@@ -206,6 +217,7 @@ export default function ConfigureConnection () {
                             showError={showConnectionError}
                             authType={activeProvider.id === 'jenkins' ? 'plain' : 'token'}
                             showLimitWarning={false}
+                            sourceLimits={ProviderSourceLimits}
                           />
                         </div>
                         )
