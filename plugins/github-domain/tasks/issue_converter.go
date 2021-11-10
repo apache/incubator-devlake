@@ -35,6 +35,7 @@ func convertToIssueModel(issue *githubModels.GithubIssue) *ticket.Issue {
 		Summary:        issue.Body,
 		Status:         issue.State,
 		Priority:       issue.Priority,
+		Type:           issue.Type,
 		CreatedDate:    issue.GithubCreatedAt,
 		UpdatedDate:    issue.GithubUpdatedAt,
 		ResolutionDate: issue.ClosedAt,
