@@ -21,7 +21,7 @@ func CreateApiService() {
 		AllowCredentials: true,
 		MaxAge:           120 * time.Hour,
 	}))
-
+	router.Use(NewGuard().Auth)
 	RegisterRouter(router)
 	err := router.Run(config.V.GetString("PORT"))
 	if err != nil {
