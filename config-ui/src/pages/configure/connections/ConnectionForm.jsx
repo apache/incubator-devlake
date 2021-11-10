@@ -194,7 +194,7 @@ export default function ConnectionForm (props) {
               className='formGroup'
               contentClassName='formGroupContent'
             >
-              <Label>
+              <Label style={{ display: 'flex', justifyContent: 'flex-end' }}>
                 {labels
                   ? labels.token
                   : (
