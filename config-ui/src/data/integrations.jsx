@@ -16,6 +16,7 @@ const integrationsData = [
   {
     id: Providers.GITLAB,
     enabled: true,
+    multiSource: false,
     name: ProviderLabels.GITLAB,
     icon: <GitlabProvider className='providerIconSvg' width='30' height='30' style={{ float: 'left', marginTop: '5px' }} />,
     iconDashboard: <GitlabProvider className='providerIconSvg' width='48' height='48' />,
@@ -31,6 +32,7 @@ const integrationsData = [
   {
     id: Providers.JENKINS,
     enabled: true,
+    multiSource: false,
     name: ProviderLabels.JENKINS,
     icon: <JenkinsProvider className='providerIconSvg' width='30' height='30' style={{ float: 'left', marginTop: '5px' }} />,
     iconDashboard: <JenkinsProvider className='providerIconSvg' width='48' height='48' />,
@@ -46,6 +48,7 @@ const integrationsData = [
   {
     id: Providers.JIRA,
     enabled: true,
+    multiSource: true,
     name: ProviderLabels.JIRA,
     icon: <JiraProvider className='providerIconSvg' width='30' height='30' style={{ float: 'left', marginTop: '5px' }} />,
     iconDashboard: <JiraProvider className='providerIconSvg' width='48' height='48' />,
@@ -61,6 +64,7 @@ const integrationsData = [
   {
     id: Providers.GITHUB,
     enabled: true,
+    multiSource: false,
     name: ProviderLabels.GITHUB,
     icon: <GitHubProvider className='providerIconSvg' width='30' height='30' style={{ float: 'left', marginTop: '5px' }} />,
     iconDashboard: <GitHubProvider className='providerIconSvg' width='48' height='48' />,

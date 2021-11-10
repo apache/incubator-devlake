@@ -40,7 +40,8 @@ export default function ConnectionForm (props) {
     onUsernameChange = () => {},
     onPasswordChange = () => {},
     authType = 'token',
-    sourceLimits = { jenkins: 1, gitlab: 1 },
+    // @todo make source limits dynamic from $integrationsData Object!
+    sourceLimits = { jenkins: 1, gitlab: 1, github: 1 },
     showLimitWarning = true
   } = props
 
@@ -76,7 +77,7 @@ export default function ConnectionForm (props) {
 
   useEffect(() => {
     setAllowedAuthTypes(['token', 'plain'])
-    const exampleUrl = activeProvider.id === 'jira' ? 'https://merico.atlassian.net/rest' : 'https://gitlab.com/api/v4/'
+    const exampleUrl = activeProvider.id === Providers.JIRA ? 'https://merico.atlassian.net/rest' : 'https://gitlab.com/api/v4/'
     setPlaceholderUrl(exampleUrl)
   }, [])
 
@@ -126,7 +127,7 @@ export default function ConnectionForm (props) {
         <div className='formContainer'>
           <FormGroup
             disabled={isTesting || isSaving || isLocked}
-            readOnly={[Providers.GITLAB, Providers.JENKINS].includes(activeProvider.id)}
+            readOnly={[Providers.GITHUB, Providers.GITLAB, Providers.JENKINS].includes(activeProvider.id)}
             label=''
             inline={true}
             labelFor='connection-name'
@@ -139,12 +140,12 @@ export default function ConnectionForm (props) {
             <InputGroup
               id='connection-name'
               disabled={isTesting || isSaving || isLocked}
-              readOnly={[Providers.GITLAB, Providers.JENKINS].includes(activeProvider.id)}
+              readOnly={[Providers.GITHUB, Providers.GITLAB, Providers.JENKINS].includes(activeProvider.id)}
               placeholder='Enter Instance Name'
               value={name}
               onChange={(e) => onNameChange(e.target.value)}
               className='input connection-name-input'
-              leftIcon={[Providers.GITLAB, Providers.JENKINS].includes(activeProvider.id) ? 'lock' : null}
+              leftIcon={[Providers.GITHUB, Providers.GITLAB, Providers.JENKINS].includes(activeProvider.id) ? 'lock' : null}
               fill
             />
           </FormGroup>
@@ -199,7 +200,7 @@ export default function ConnectionForm (props) {
                 required
               />
               {
-                activeProvider.id === 'jira' &&
+                activeProvider.id === Providers.JIRA &&
                   <Popover
                     className='popover-generate-token'
                     position={Position.RIGHT}
