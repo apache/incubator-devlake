@@ -31,14 +31,15 @@ func convertToIssueModel(issue *githubModels.GithubIssue) *ticket.Issue {
 		DomainEntity: base.DomainEntity{
 			OriginKey: okgen.NewOriginKeyGenerator(issue).Generate(issue.GithubId),
 		},
-		Key:            issue.Title,
-		Summary:        issue.Body,
-		Status:         issue.State,
-		Priority:       issue.Priority,
-		Type:           issue.Type,
-		CreatedDate:    issue.GithubCreatedAt,
-		UpdatedDate:    issue.GithubUpdatedAt,
-		ResolutionDate: issue.ClosedAt,
+		Key:               issue.Title,
+		Summary:           issue.Body,
+		Status:            issue.State,
+		Priority:          issue.Priority,
+		Type:              issue.Type,
+		AssigneeOriginKey: issue.Assignee,
+		CreatedDate:       issue.GithubCreatedAt,
+		UpdatedDate:       issue.GithubUpdatedAt,
+		ResolutionDate:    issue.ClosedAt,
 	}
 	return domainIssue
 }
