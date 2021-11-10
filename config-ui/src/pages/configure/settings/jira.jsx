@@ -150,7 +150,7 @@ export default function JiraSettings (props) {
     // }
     if (connection && connection.ID) {
       // Parse Type Mappings (V2)
-      parseTypeMappings(connection.TypeMappings)
+      parseTypeMappings(connection.typeMappings)
 
       // LEGACY TYPE MAPPINGS (Disabled)
       // const types = connection.JIRA_ISSUE_TYPE_MAPPING ? connection.JIRA_ISSUE_TYPE_MAPPING.split(';').map(t => t.split(':')[0]) : []
