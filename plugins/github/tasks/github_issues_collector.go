@@ -13,6 +13,7 @@ import (
 )
 
 type ApiIssuesResponse []IssuesResponse
+
 type IssuesResponse struct {
 	GithubId    int `json:"id"`
 	Number      int
@@ -23,6 +24,10 @@ type IssuesResponse struct {
 		Url     string `json:"url"`
 		HtmlUrl string `json:"html_url"`
 	} `json:"pull_request"`
+	Assignee struct {
+		Login string
+		Id    int
+	}
 	ClosedAt        core.Iso8601Time `json:"closed_at"`
 	GithubCreatedAt core.Iso8601Time `json:"created_at"`
 	GithubUpdatedAt core.Iso8601Time `json:"updated_at"`
@@ -76,6 +81,7 @@ func convertGithubIssue(issue *IssuesResponse) (*models.GithubIssue, error) {
 		State:           issue.State,
 		Title:           issue.Title,
 		Body:            issue.Body,
+		Assignee:        issue.Assignee.Login,
 		ClosedAt:        issue.ClosedAt.ToSqlNullTime(),
 		GithubCreatedAt: issue.GithubCreatedAt.ToTime(),
 		GithubUpdatedAt: issue.GithubUpdatedAt.ToTime(),
