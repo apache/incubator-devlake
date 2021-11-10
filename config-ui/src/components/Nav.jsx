@@ -5,8 +5,8 @@ import {
   Icon,
 } from '@blueprintjs/core'
 import '../styles/nav.scss'
+import { ReactComponent as DiscordIcon } from '@/images/discord.svg'
 
-const DISCORD_IMG_URL = './src/images/icon_clyde_black_RGB.svg'
 const Nav = () => {
   return (
     <Navbar className='navbar'>
@@ -20,7 +20,7 @@ const Nav = () => {
         </a>
         <Navbar.Divider />
         <a href='https://discord.com/invite/83rDG6ydVZ' rel='noreferrer' target='_blank' className='navIconLink'>
-          <img className='discordIcon' src={DISCORD_IMG_URL}/>
+          <DiscordIcon className='discordIcon' width={16} height={16} />
         </a>
       </Navbar.Group>
     </Navbar>
