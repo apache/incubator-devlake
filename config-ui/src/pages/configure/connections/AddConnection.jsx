@@ -14,7 +14,6 @@ import Content from '@/components/Content'
 import ConnectionForm from '@/pages/configure/connections/ConnectionForm'
 import { integrationsData } from '@/data/integrations'
 import { Providers, ProviderLabels } from '@/data/Providers'
-import { DEVLAKE_ENDPOINT } from '@/utils/config'
 
 import useConnectionManager from '@/hooks/useConnectionManager'
 
@@ -25,12 +24,6 @@ import '@blueprintjs/popover2/lib/css/blueprint-popover2.css'
 export default function AddConnection () {
   const history = useHistory()
   const { providerId } = useParams()
-
-  // const [name, setName] = useState()
-  // const [endpointUrl, setEndpointUrl] = useState()
-  // const [token, setToken] = useState()
-  // const [username, setUsername] = useState()
-  // const [password, setPassword] = useState()
 
   const [integrations, setIntegrations] = useState(integrationsData)
   const [activeProvider, setActiveProvider] = useState(integrations[0])
@@ -57,11 +50,6 @@ export default function AddConnection () {
     // Providers
   } = useConnectionManager({
     activeProvider,
-    // name,
-    // endpointUrl,
-    // token,
-    // username,
-    // password,
   })
 
   const cancel = () => {
@@ -97,13 +85,6 @@ export default function AddConnection () {
   }, [activeProvider])
 
   useEffect(() => {
-    fetch(`${DEVLAKE_ENDPOINT}/api/getenv`)
-      .then(response => response.json())
-      .then(env => {
-        // setDbUrl(env.DB_URL)
-        // setPort(env.PORT)
-        // setMode(env.MODE)
-      })
     console.log('>>>> DETECTED PROVIDER = ', providerId)
     setActiveProvider(integrations.find(p => p.id === providerId))
   }, [])
