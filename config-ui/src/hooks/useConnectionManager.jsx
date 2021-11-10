@@ -99,7 +99,7 @@ function useConnectionManager ({
         break
         // @todo fix/set github payload
       case Providers.GITHUB:
-        connectionPayload = { name: name, Endpoint: endpointUrl, BasicAuthEncoded: token }
+        connectionPayload = { name: name, GITHUB_ENDPOINT: endpointUrl, GITHUB_AUTH: token }
         break
       case Providers.JENKINS:
         connectionPayload = { name: name, JENKINS_ENDPOINT: endpointUrl, JENKINS_USERNAME: username, JENKINS_PASSWORD: password }
