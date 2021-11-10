@@ -119,7 +119,7 @@ func (plugin Github) Execute(options map[string]interface{}, progress chan<- flo
 
 	if tasksToRun["enrichIssues"] {
 		fmt.Println("INFO >>> Enriching Issues")
-		enrichmentError := tasks.EnrichIssues(ownerString, repositoryNameString, repoId, scheduler, githubApiClient)
+		enrichmentError := tasks.EnrichIssues()
 		if enrichmentError != nil {
 			return fmt.Errorf("Could not enrich issues: %v", enrichmentError)
 		}

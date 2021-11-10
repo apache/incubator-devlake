@@ -6,7 +6,6 @@ import (
 
 	lakeModels "github.com/merico-dev/lake/models"
 	"github.com/merico-dev/lake/plugins/github/models"
-	"github.com/merico-dev/lake/utils"
 )
 
 func buildLabelQuery(matches []string) (*sql.Rows, error) {
@@ -73,14 +72,35 @@ func SetType(matches []string, value string) error {
 	return nil
 }
 
-func EnrichIssues(owner string, repositoryName string, repositoryId int, scheduler *utils.WorkerScheduler, githubApiClient *GithubApiClient) error {
-	SetPriority([]string{"highest"}, "Highest")
-	SetPriority([]string{"high"}, "High")
-	SetPriority([]string{"medium"}, "Medium")
-	SetPriority([]string{"low"}, "Low")
+func EnrichIssues() error {
+	err := SetPriority([]string{"highest"}, "Highest")
+	if err != nil {
+		return err
+	}
+	err = SetPriority([]string{"high"}, "High")
+	if err != nil {
+		return err
+	}
+	err = SetPriority([]string{"medium"}, "Medium")
+	if err != nil {
+		return err
+	}
+	err = SetPriority([]string{"low"}, "Low")
+	if err != nil {
+		return err
+	}
 
-	SetType([]string{"bug"}, "Bug")
-	SetType([]string{"feat", "feature", "proposal"}, "Requirement")
-	SetType([]string{"doc"}, "Documentation")
+	err = SetType([]string{"bug"}, "Bug")
+	if err != nil {
+		return err
+	}
+	err = SetType([]string{"feat", "feature", "proposal"}, "Requirement")
+	if err != nil {
+		return err
+	}
+	err = SetType([]string{"doc"}, "Documentation")
+	if err != nil {
+		return err
+	}
 	return nil
 }
