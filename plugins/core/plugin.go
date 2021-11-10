@@ -12,7 +12,8 @@ type ApiResourceInput struct {
 }
 
 type ApiResourceOutput struct {
-	Body interface{} // response body
+	Body   interface{} // response body
+	Status int
 }
 
 type ApiResourceHandler func(input *ApiResourceInput) (*ApiResourceOutput, error)
