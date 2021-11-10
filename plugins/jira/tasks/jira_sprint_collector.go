@@ -31,15 +31,15 @@ type JiraApiSprint struct {
 }
 
 func CollectSprint(jiraApiClient *JiraApiClient, source *models.JiraSource, boardId uint64) error {
-	err := jiraApiClient.FetchWithoutPaginationHeaders(fmt.Sprintf("/agile/1.0/board/%v/sprint", boardId), nil, func(res *http.Response) (bool, error) {
+	err := jiraApiClient.FetchWithoutPaginationHeaders(fmt.Sprintf("/agile/1.0/board/%v/sprint", boardId), nil, func(res *http.Response) (int, error) {
 		jiraApiSprint := &JiraApiSprint{}
 		err := core.UnmarshalResponse(res, jiraApiSprint)
 		if err != nil {
 			logger.Error("Error: ", err)
-			return false, err
+			return 0, err
 		}
 		if len(jiraApiSprint.Values) == 0 {
-			return false, nil
+			return 0, nil
 		}
 		logger.Info("got jira sprints ", len(jiraApiSprint.Values))
 		for _, value := range jiraApiSprint.Values {
@@ -59,7 +59,7 @@ func CollectSprint(jiraApiClient *JiraApiClient, source *models.JiraSource, boar
 			}).Create(jiraSprint).Error
 			if err != nil {
 				logger.Error("Error: ", err)
-				return false, err
+				return 0, err
 			}
 
 			err = lakeModels.Db.FirstOrCreate(&models.JiraBoardSprint{
@@ -69,10 +69,10 @@ func CollectSprint(jiraApiClient *JiraApiClient, source *models.JiraSource, boar
 			}).Error
 			if err != nil {
 				logger.Error("Error: ", err)
-				return false, err
+				return 0, err
 			}
 		}
-		return true, nil
+		return len(jiraApiSprint.Values), nil
 	})
 	if err != nil {
 		return err

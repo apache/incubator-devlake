@@ -29,23 +29,23 @@ func CollectUsers(jiraApiClient *JiraApiClient,
 	// return pagination info in it's headers the same way that other endpoints do.
 	// This method still uses pagination, but in a different way.
 	err := jiraApiClient.FetchWithoutPaginationHeaders("/api/3/users/search", nil,
-		func(res *http.Response) (bool, error) {
+		func(res *http.Response) (int, error) {
 			jiraApiUsersResponse := &JiraUserApiRes{}
 			err := core.UnmarshalResponse(res, jiraApiUsersResponse)
 			if err != nil {
-				return false, err
+				return 0, err
 			}
 
 			// there is no more data to fetch
 			if len(*jiraApiUsersResponse) == 0 {
-				return false, nil
+				return 0, nil
 			}
 
 			// process Users
 			for _, jiraApiUser := range *jiraApiUsersResponse {
 				jiraUser, err := convertUser(&jiraApiUser, sourceId)
 				if err != nil {
-					return false, err
+					return 0, err
 				}
 				// User
 				err = lakeModels.Db.Clauses(clause.OnConflict{
@@ -53,10 +53,10 @@ func CollectUsers(jiraApiClient *JiraApiClient,
 				}).Create(jiraUser).Error
 				if err != nil {
 					logger.Info("Error saving user", jiraUser)
-					return false, err
+					return 0, err
 				}
 			}
-			return true, nil
+			return len(*jiraApiUsersResponse), nil
 		})
 	if err != nil {
 		return err
