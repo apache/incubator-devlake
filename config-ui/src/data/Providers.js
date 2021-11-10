@@ -1,3 +1,6 @@
+import React from 'react'
+import { Tooltip } from '@blueprintjs/core'
+
 const Providers = {
   NULL: 'null',
   GITLAB: 'gitlab',
@@ -55,7 +58,14 @@ const ProviderFormLabels = {
   github: {
     name: 'Connection Name',
     endpoint: 'Endpoint URL',
-    token: 'Auth Token(s)',
+    // token: 'Auth Token(s)',
+    token: (
+      <Tooltip
+        content={(<span>Due to Github’s rate limit, input more <br /> tokens to accelerate data collection.</span>)}
+        intent='primary'
+      >
+        Auth Token(s)
+      </Tooltip>),
     username: 'Username',
     password: 'Password'
   },
@@ -65,35 +75,35 @@ const ProviderFormPlaceholders = {
   null: {
     name: 'Enter Instance Name',
     endpoint: 'Enter Endpoint URL eg. https://null-api.localhost',
-    token: 'Enter Auth Token eg. EJrLG8DNeXADQcGOaaaX4B47',
+    token: 'Enter Auth Token eg. 3f5cda2a23ff410792e0',
     username: 'Enter Username / E-mail',
     password: 'Enter Password'
   },
   gitlab: {
     name: 'Enter Instance Name',
     endpoint: 'Enter Endpoint URL eg. https://gitlab.com/api/v4',
-    token: 'Enter Auth Token eg. EJrLG8DNeXADQcGOaaaX4B47',
+    token: 'Enter Auth Token eg. ff9d1ad0e5c04f1f98fa',
     username: 'Enter Username / E-mail',
     password: 'Enter Password'
   },
   jenkins: {
     name: 'Enter Instance Name',
     endpoint: 'Enter Endpoint URL eg. https://api.jenkins.io',
-    token: 'Enter Auth Token eg. EJrLG8DNeXADQcGOaaaX4B47',
+    token: 'Enter Auth Token eg. 6b057ffe68464c93a057',
     username: 'Enter Username / E-mail',
     password: 'Enter Password'
   },
   jira: {
     name: 'Enter Instance Name',
     endpoint: 'Enter Endpoint URL eg. https://your-domain.atlassian.net/rest/api',
-    token: 'Enter Auth Token eg. EJrLG8DNeXADQcGOaaaX4B47',
+    token: 'Enter Auth Token eg. 8c06a7cc50b746bfab30',
     username: 'Enter Username / E-mail',
     password: 'Enter Password'
   },
   github: {
     name: 'Enter Instance Name',
     endpoint: 'Enter Endpoint URL eg. https://api.github.com',
-    token: 'Enter Auth Token eg. EJrLG8DNeXADQcGOaaaX4B47',
+    token: 'Enter Auth Token(s) eg. 4c5cbdb62c165e2b3d18, 40008ebccff9837bb8d2',
     username: 'Enter Username / E-mail',
     password: 'Enter Password'
   }

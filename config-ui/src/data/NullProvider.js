@@ -1,4 +1,4 @@
-import { React } from 'react'
+import React from 'react'
 import { Providers, ProviderLabels } from '@/data/Providers'
 import { ReactComponent as NullProviderIcon } from '@/images/integrations/null.svg'
 
