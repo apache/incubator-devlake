@@ -16,6 +16,7 @@ type GithubIssue struct {
 	Priority        string
 	Type            string
 	Assignee        string
+	LeadTime        uint
 	ClosedAt        sql.NullTime
 	GithubCreatedAt time.Time
 	GithubUpdatedAt time.Time
