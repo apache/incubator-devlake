@@ -13,7 +13,7 @@ import AppCrumbs from '@/components/Breadcrumbs'
 import Content from '@/components/Content'
 import ConnectionForm from '@/pages/configure/connections/ConnectionForm'
 import { integrationsData } from '@/data/integrations'
-import { Providers, ProviderSourceLimits } from '@/data/Providers'
+import { Providers, ProviderSourceLimits, ProviderFormLabels, ProviderFormPlaceholders } from '@/data/Providers'
 // import { NullConnection } from '@/data/NullConnection'
 
 import useConnectionManager from '@/hooks/useConnectionManager'
@@ -157,6 +157,8 @@ export default function EditConnection () {
                   showError={showError}
                   authType={activeProvider.id === 'jenkins' ? 'plain' : 'token'}
                   sourceLimits={ProviderSourceLimits}
+                  labels={ProviderFormLabels[activeProvider.id]}
+                  placeholders={ProviderFormPlaceholders[activeProvider.id]}
                 />
               </div>
             </div>
