@@ -40,14 +40,14 @@ export default function ConnectionForm (props) {
     onUsernameChange = () => {},
     onPasswordChange = () => {},
     authType = 'token',
-    // @todo make source limits dynamic from $integrationsData Object!
-    sourceLimits = { jenkins: 1, gitlab: 1, github: 1 },
-    showLimitWarning = true
+    sourceLimits = {},
+    showLimitWarning = true,
+    labels,
+    placeholders
   } = props
 
   const [allowedAuthTypes, setAllowedAuthTypes] = useState(['token', 'plain'])
   const [showTokenCreator, setShowTokenCreator] = useState(false)
-  const [placeholderUrl, setPlaceholderUrl] = useState('www.example.com')
   const getConnectionStatusIcon = () => {
     let statusIcon = <Icon icon='full-circle' size='10' color={Colors.RED3} />
     switch (testStatus) {
@@ -77,8 +77,6 @@ export default function ConnectionForm (props) {
 
   useEffect(() => {
     setAllowedAuthTypes(['token', 'plain'])
-    const exampleUrl = activeProvider.id === Providers.JIRA ? 'https://merico.atlassian.net/rest' : 'https://gitlab.com/api/v4/'
-    setPlaceholderUrl(exampleUrl)
   }, [])
 
   return (
@@ -135,13 +133,18 @@ export default function ConnectionForm (props) {
             contentClassName='formGroupContent'
           >
             <Label style={{ display: 'inline' }}>
-              Connection&nbsp;Name <span className='requiredStar'>*</span>
+              {labels
+                ? labels.name
+                : (
+                  <>Connection&nbsp;Name</>
+                  )}
+              <span className='requiredStar'>*</span>
             </Label>
             <InputGroup
               id='connection-name'
               disabled={isTesting || isSaving || isLocked}
               readOnly={[Providers.GITHUB, Providers.GITLAB, Providers.JENKINS].includes(activeProvider.id)}
-              placeholder='Enter Instance Name'
+              placeholder={placeholders ? placeholders.name : 'Enter Instance Name'}
               value={name}
               onChange={(e) => onNameChange(e.target.value)}
               className='input connection-name-input'
@@ -161,12 +164,17 @@ export default function ConnectionForm (props) {
             contentClassName='formGroupContent'
           >
             <Label>
-              Endpoint&nbsp;URL <span className='requiredStar'>*</span>
+              {labels
+                ? labels.endpoint
+                : (
+                  <>Endpoint&nbsp;URL</>
+                  )}
+              <span className='requiredStar'>*</span>
             </Label>
             <InputGroup
               id='connection-endpoint'
               disabled={isTesting || isSaving || isLocked}
-              placeholder={`Enter Endpoint URL eg. ${placeholderUrl}`}
+              placeholder={placeholders ? placeholders.endpoint : 'Enter Endpoint URL'}
               value={endpointUrl}
               onChange={(e) => onEndpointChange(e.target.value)}
               className='input'
@@ -187,18 +195,17 @@ export default function ConnectionForm (props) {
               contentClassName='formGroupContent'
             >
               <Label>
-                {activeProvider.id === Providers.GITHUB
-                  ? (
-                    <>Auth&nbsp;Token(s)</>
-                    )
+                {labels
+                  ? labels.token
                   : (
                     <>Basic&nbsp;Auth&nbsp;Token</>
-                    )} <span className='requiredStar'>*</span>
+                    )}
+                <span className='requiredStar'>*</span>
               </Label>
               <InputGroup
                 id='connection-token'
                 disabled={isTesting || isSaving || isLocked}
-                placeholder='Enter Auth Token eg. EJrLG8DNeXADQcGOaaaX4B47'
+                placeholder={placeholders ? placeholders.token : 'Enter Auth Token eg. EJrLG8DNeXADQcGOaaaX4B47'}
                 value={token}
                 onChange={(e) => onTokenChange(e.target.value)}
                 className='input'
@@ -256,7 +263,12 @@ export default function ConnectionForm (props) {
                 contentClassName='formGroupContent'
               >
                 <Label style={{ display: 'inline' }}>
-                  Username <span className='requiredStar'>*</span>
+                  {labels
+                    ? labels.username
+                    : (
+                      <>Username</>
+                      )}
+                  <span className='requiredStar'>*</span>
                 </Label>
                 <InputGroup
                   id='connection-username'
@@ -279,7 +291,12 @@ export default function ConnectionForm (props) {
                 contentClassName='formGroupContent'
               >
                 <Label style={{ display: 'inline' }}>
-                  Password <span className='requiredStar'>*</span>
+                  {labels
+                    ? labels.password
+                    : (
+                      <>Password</>
+                      )}
+                  <span className='requiredStar'>*</span>
                 </Label>
                 <InputGroup
                   id='connection-password'

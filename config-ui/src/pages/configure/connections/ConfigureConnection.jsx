@@ -22,7 +22,12 @@ import ConnectionForm from '@/pages/configure/connections/ConnectionForm'
 import { integrationsData } from '@/data/integrations'
 // import { NullConnection } from '@/data/NullConnection'
 import { NullSettings } from '@/data/NullSettings'
-import { ProviderSourceLimits } from '@/data/Providers'
+import {
+  Providers,
+  ProviderSourceLimits,
+  ProviderFormLabels,
+  ProviderFormPlaceholders
+} from '@/data/Providers'
 
 import '@/styles/integration.scss'
 import '@/styles/connections.scss'
@@ -179,10 +184,11 @@ export default function ConfigureConnection () {
               </div>
               {activeProvider && activeConnection && (
                 <>
-                  {/* <Card interactive={false} elevation={Elevation.TWO} style={{ width: '50%', marginBottom: '20px' }}>
-                    <h5>Edit Connection</h5>
-                  </Card> */}
-                  <Card interactive={false} elevation={Elevation.ZERO} style={{ backgroundColor: '#f8f8f8', width: '100%', marginBottom: '20px' }}>
+                  <Card
+                    interactive={false}
+                    elevation={Elevation.ZERO}
+                    style={{ backgroundColor: '#f8f8f8', width: '100%', marginBottom: '20px' }}
+                  >
                     <Button
                       type='button'
                       icon={showConnectionSettings ? 'eye-on' : 'eye-off'}
@@ -215,9 +221,11 @@ export default function ConfigureConnection () {
                             testStatus={testStatus}
                             errors={errors}
                             showError={showConnectionError}
-                            authType={activeProvider.id === 'jenkins' ? 'plain' : 'token'}
+                            authType={activeProvider.id === Providers.JENKINS ? 'plain' : 'token'}
                             showLimitWarning={false}
                             sourceLimits={ProviderSourceLimits}
+                            labels={ProviderFormLabels[activeProvider.id]}
+                            placeholders={ProviderFormPlaceholders[activeProvider.id]}
                           />
                         </div>
                         )
