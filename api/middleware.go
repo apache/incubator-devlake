@@ -11,7 +11,7 @@ import (
 
 const (
 	AuthHeaderKey       = "X-Lake-Token"
-	RefreshTimeInterval = 30 * time.Second
+	RefreshTimeInterval = 5 * time.Second
 )
 
 type Guard struct {
@@ -23,7 +23,7 @@ func NewGuard() *Guard {
 	go func() {
 		for {
 			tokens, err := models.GetAuthToken()
-			if err != nil && len(tokens) == 0 {
+			if err != nil || len(tokens) == 0 {
 				g.Map = nil
 				time.Sleep(RefreshTimeInterval)
 				continue
