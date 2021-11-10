@@ -48,7 +48,7 @@ type JiraPagination struct {
 }
 
 type JiraPaginationHandler func(res *http.Response) error
-type JiraSearchPaginationHandler func(res *http.Response) (bool, error)
+type JiraSearchPaginationHandler func(res *http.Response) (int, error)
 
 func (jiraApiClient *JiraApiClient) FetchPages(scheduler *utils.WorkerScheduler, path string, query *url.Values, handler JiraPaginationHandler) error {
 	if query == nil {
@@ -123,33 +123,36 @@ func (jiraApiClient *JiraApiClient) FetchWithoutPaginationHeaders(
 	query *url.Values,
 	handler JiraSearchPaginationHandler,
 ) error {
+	// this method is sequential, data would be collected page by page
+	// because all collectors using this method do not contains many records.
 	if query == nil {
 		query = &url.Values{}
 	}
 	// these are the names from the jira search api for pagination
 	// eg: https://merico.atlassian.net/rest/api/2/user/assignable/search?project=EE&maxResults=100&startAt=1
-	startAt, maxResults := 1, 100
+	startAt, maxResults := 0, 100
 
 	query.Set("maxResults", fmt.Sprintf("%v", maxResults))
-	var next bool = true
-	for next {
-		nextStartTmp := startAt
+	// some jira api like 'agile sprints' maxResults upper limit may less that 100.
+	// it's not safe to assume all api accept maxResults=100 as a valid parameter.
+	// should let handler return the actual received length and use it to increase `startAt`,
+	// and because the size of next page always smaller than current one, we could merge
+	// `maxResults` and `length` into one variable
+	for maxResults > 0 {
 		// get page
-		query.Set("startAt", strconv.Itoa(nextStartTmp))
+		query.Set("startAt", strconv.Itoa(startAt))
 		res, err := jiraApiClient.Get(path, query, nil)
 		if err != nil {
 			return err
 		}
 		if res.StatusCode == 401 {
-			fmt.Println("User does not have access to project users")
+			res.Body.Close()
+			return fmt.Errorf("User does not have access to project users")
 		}
 
 		// call page handler
-		next, err = handler(res)
-		if !next {
-			// Done user collection
-			return nil
-		}
+		maxResults, err = handler(res)
+		res.Body.Close()
 		if err != nil {
 			logger.Error("Error: ", err)
 			return err
