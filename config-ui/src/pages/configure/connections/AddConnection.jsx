@@ -150,7 +150,7 @@ export default function AddConnection () {
                   testStatus={testStatus}
                   errors={errors}
                   showError={showError}
-                  authType={activeProvider.id === 'jenkins' ? 'plain' : 'token'}
+                  authType={activeProvider.id === Providers.JENKINS ? 'plain' : 'token'}
                   sourceLimits={ProviderSourceLimits}
                   labels={ProviderFormLabels[activeProvider.id]}
                   placeholders={ProviderFormPlaceholders[activeProvider.id]}
