@@ -11,11 +11,10 @@ import Nav from '@/components/Nav'
 import Sidebar from '@/components/Sidebar'
 import AppCrumbs from '@/components/Breadcrumbs'
 import Content from '@/components/Content'
-// import { ToastNotification } from '@/components/Toast'
 import ConnectionForm from '@/pages/configure/connections/ConnectionForm'
 import { integrationsData } from '@/data/integrations'
-import { Providers } from '@/data/Providers'
-import { NullConnection } from '@/data/NullConnection'
+import { Providers, ProviderSourceLimits } from '@/data/Providers'
+// import { NullConnection } from '@/data/NullConnection'
 
 import useConnectionManager from '@/hooks/useConnectionManager'
 
@@ -36,12 +35,13 @@ export default function EditConnection () {
   const [integrations, setIntegrations] = useState(integrationsData)
   const [activeProvider, setActiveProvider] = useState(integrations[0])
 
-  const [activeConnection, setActiveConnection] = useState(NullConnection)
+  // const [activeConnection, setActiveConnection] = useState(NullConnection)
 
   const {
     testConnection,
     saveConnection,
     fetchConnection,
+    activeConnection,
     name,
     endpointUrl,
     username,
@@ -59,9 +59,9 @@ export default function EditConnection () {
     setToken
   } = useConnectionManager({
     activeProvider,
-    activeConnection,
+    // activeConnection,
     connectionId,
-    setActiveConnection,
+    // setActiveConnection,
     // name,
     // endpointUrl,
     // token,
@@ -156,6 +156,7 @@ export default function EditConnection () {
                   errors={errors}
                   showError={showError}
                   authType={activeProvider.id === 'jenkins' ? 'plain' : 'token'}
+                  sourceLimits={ProviderSourceLimits}
                 />
               </div>
             </div>

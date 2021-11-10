@@ -14,7 +14,15 @@ const ProviderLabels = {
   GITHUB: 'GitHub',
 }
 
+const ProviderSourceLimits = {
+  gitlab: 1,
+  jenkins: 1,
+  // jira: null, // (Multi-source, no-limit)
+  github: 1
+}
+
 export {
   Providers,
-  ProviderLabels
+  ProviderLabels,
+  ProviderSourceLimits
 }
