@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, useCallback } from 'react'
 import {
   useParams,
   Link,
@@ -11,7 +11,6 @@ import {
   Card,
   Elevation,
 } from '@blueprintjs/core'
-// import { SERVER_HOST, DEVLAKE_ENDPOINT } from '@/utils/config'
 import Nav from '@/components/Nav'
 import Sidebar from '@/components/Sidebar'
 import AppCrumbs from '@/components/Breadcrumbs'
@@ -20,15 +19,15 @@ import useConnectionManager from '@/hooks/useConnectionManager'
 import useSettingsManager from '@/hooks/useSettingsManager'
 import ConnectionForm from '@/pages/configure/connections/ConnectionForm'
 
-// import { ToastNotification } from '@/components/Toast'
-
-import JiraSettings from '@/pages/configure/settings/jira'
-import GitlabSettings from '@/pages/configure/settings/gitlab'
-import JenkinsSettings from '@/pages/configure/settings/jenkins'
-
-import { integrationsData } from '@/pages/configure/mock-data/integrations'
-import { NullConnection } from '@/data/NullConnection'
-// import { connectionsData } from '@/pages/configure/mock-data/connections'
+import { integrationsData } from '@/data/integrations'
+// import { NullConnection } from '@/data/NullConnection'
+import { NullSettings } from '@/data/NullSettings'
+import {
+  Providers,
+  ProviderSourceLimits,
+  ProviderFormLabels,
+  ProviderFormPlaceholders
+} from '@/data/Providers'
 
 import '@/styles/integration.scss'
 import '@/styles/connections.scss'
@@ -40,38 +39,19 @@ export default function ConfigureConnection () {
   const history = useHistory()
   const { providerId, connectionId } = useParams()
 
-  // const [isSaving, setIsSaving] = useState(false)
-  // const [errors, setErrors] = useState([])
-  // const [showError, setShowError] = useState(false)
-
   const [integrations, setIntegrations] = useState(integrationsData)
   const [activeProvider, setActiveProvider] = useState(integrations.find(p => p.id === providerId))
-  const [activeConnection, setActiveConnection] = useState(NullConnection)
+  // const [activeConnection, setActiveConnection] = useState(NullConnection)
   const [connections, setConnections] = useState([])
   const [showConnectionSettings, setShowConnectionSettings] = useState(true)
 
-  const [settings, setSettings] = useState({
-    JIRA_BASIC_AUTH_ENCODED: null,
-    JIRA_ISSUE_EPIC_KEY_FIELD: null,
-    JIRA_ISSUE_TYPE_MAPPING: null,
-    JIRA_ISSUE_STORYPOINT_COEFFICIENT: null,
-    JIRA_ISSUE_STORYPOINT_FIELD: null,
-    JIRA_BOARD_GITLAB_PROJECTS: null,
-  })
-
-  // const {
-  //   fetchConnection,
-  // } = useConnectionManager({
-  //   activeProvider,
-  //   activeConnection,
-  //   connectionId,
-  //   setActiveConnection,
-  // })
+  const [settings, setSettings] = useState(NullSettings)
 
   const {
     testConnection,
     saveConnection,
     fetchConnection,
+    activeConnection,
     name,
     endpointUrl,
     username,
@@ -90,9 +70,9 @@ export default function ConfigureConnection () {
     showError: showConnectionError
   } = useConnectionManager({
     activeProvider,
-    activeConnection,
+    // activeConnection,
     connectionId,
-    setActiveConnection,
+    // setActiveConnection,
   }, true)
 
   const {
@@ -111,39 +91,19 @@ export default function ConfigureConnection () {
     history.push(`/integrations/${activeProvider.id}`)
   }
 
-  const renderProviderSettings = (providerId) => {
+  const renderProviderSettings = (providerId, activeProvider) => {
+    console.log('>>> RENDERING PROVIDER SETTINGS...')
     let settingsComponent = null
-    switch (providerId) {
-      case 'jira' :
-        settingsComponent = (
-          <JiraSettings
-            provider={activeProvider}
-            connection={activeConnection}
-            isSaving={isSaving}
-            onSettingsChange={setSettings}
-          />
-        )
-        break
-      case 'gitlab' :
-        settingsComponent = (
-          <GitlabSettings
-            provider={activeProvider}
-            connection={activeConnection}
-            isSaving={isSaving}
-            onSettingsChange={setSettings}
-          />
-        )
-        break
-      case 'jenkins' :
-        settingsComponent = (
-          <JenkinsSettings
-            provider={activeProvider}
-            connection={activeConnection}
-            isSaving={isSaving}
-            onSettingsChange={setSettings}
-          />
-        )
-        break
+    if (activeProvider && activeProvider.settings) {
+      settingsComponent = activeProvider.settings({
+        activeProvider,
+        activeConnection,
+        isSaving,
+        setSettings
+      })
+    } else {
+      // @todo create & display "fallback/empty settings" view
+      console.log('>> WARNING: NO PROVIDER SETTINGS RENDERED, PROVIDER = ', activeProvider)
     }
     return settingsComponent
   }
@@ -153,19 +113,10 @@ export default function ConfigureConnection () {
     console.log('>>>> DETECTED CONNECTION ID = ', connectionId)
     if (connectionId && providerId) {
       setActiveProvider(integrations.find(p => p.id === providerId))
-      // !WARNING! DO NOT ADD fetchConnection TO DEPENDENCIES ARRAY!
-      // @todo FIXME: Fix Hook Circular-loop Behavior inside effect when added to dependencies
-      fetchConnection()
     } else {
       console.log('NO PARAMS!')
     }
-  }, [connectionId, providerId, integrations, connections])
-
-  // useEffect(() => {
-  //   // Selected Provider
-  //   // console.log('>> active connection', activeConnection)
-  //   console.log('>> active connection', activeConnection)
-  // }, [activeConnection])
+  }, [connectionId, providerId, integrations])
 
   useEffect(() => {
 
@@ -173,7 +124,7 @@ export default function ConfigureConnection () {
 
   useEffect(() => {
 
-  }, [activeProvider])
+  }, [connections])
 
   // useEffect(() => {
   //   // CONNECTION SAVED!
@@ -219,10 +170,11 @@ export default function ConfigureConnection () {
               </div>
               {activeProvider && activeConnection && (
                 <>
-                  {/* <Card interactive={false} elevation={Elevation.TWO} style={{ width: '50%', marginBottom: '20px' }}>
-                    <h5>Edit Connection</h5>
-                  </Card> */}
-                  <Card interactive={false} elevation={Elevation.ZERO} style={{ backgroundColor: '#f8f8f8', width: '100%', marginBottom: '20px' }}>
+                  <Card
+                    interactive={false}
+                    elevation={Elevation.ZERO}
+                    style={{ backgroundColor: '#f8f8f8', width: '100%', marginBottom: '20px' }}
+                  >
                     <Button
                       type='button'
                       icon={showConnectionSettings ? 'eye-on' : 'eye-off'}
@@ -255,8 +207,11 @@ export default function ConfigureConnection () {
                             testStatus={testStatus}
                             errors={errors}
                             showError={showConnectionError}
-                            authType={activeProvider.id === 'jenkins' ? 'plain' : 'token'}
+                            authType={activeProvider.id === Providers.JENKINS ? 'plain' : 'token'}
                             showLimitWarning={false}
+                            sourceLimits={ProviderSourceLimits}
+                            labels={ProviderFormLabels[activeProvider.id]}
+                            placeholders={ProviderFormPlaceholders[activeProvider.id]}
                           />
                         </div>
                         )
@@ -270,7 +225,7 @@ export default function ConfigureConnection () {
                         )}
                   </Card>
                   <div style={{ marginTop: '30px' }}>
-                    {renderProviderSettings(providerId)}
+                    {renderProviderSettings(providerId, activeProvider)}
                   </div>
                   <div className='form-actions-block' style={{ display: 'flex', marginTop: '60px', justifyContent: 'space-between' }}>
                     <div>

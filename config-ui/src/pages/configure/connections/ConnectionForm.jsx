@@ -10,7 +10,7 @@ import {
   Position,
   Intent
 } from '@blueprintjs/core'
-
+import { Providers } from '@/data/Providers'
 import GenerateTokenForm from '@/pages/configure/connections/GenerateTokenForm'
 
 import '@/styles/integration.scss'
@@ -40,13 +40,14 @@ export default function ConnectionForm (props) {
     onUsernameChange = () => {},
     onPasswordChange = () => {},
     authType = 'token',
-    sourceLimits = { jenkins: 1, gitlab: 1 },
-    showLimitWarning = true
+    sourceLimits = {},
+    showLimitWarning = true,
+    labels,
+    placeholders
   } = props
 
   const [allowedAuthTypes, setAllowedAuthTypes] = useState(['token', 'plain'])
   const [showTokenCreator, setShowTokenCreator] = useState(false)
-  const [placeholderUrl, setPlaceholderUrl] = useState('www.example.com')
   const getConnectionStatusIcon = () => {
     let statusIcon = <Icon icon='full-circle' size='10' color={Colors.RED3} />
     switch (testStatus) {
@@ -76,8 +77,6 @@ export default function ConnectionForm (props) {
 
   useEffect(() => {
     setAllowedAuthTypes(['token', 'plain'])
-    const exampleUrl = activeProvider.id === 'jira' ? 'https://merico.atlassian.net/rest' : 'https://gitlab.com/api/v4/'
-    setPlaceholderUrl(exampleUrl)
   }, [])
 
   return (
@@ -87,7 +86,14 @@ export default function ConnectionForm (props) {
           <h2 className='headline' style={{ marginTop: 0, textDecoration: isLocked ? 'line-through' : 'none' }}>Configure Connection</h2>
           <p className='description'>Instance Account & Authentication settings</p>
           {activeProvider && activeProvider.id && sourceLimits[activeProvider.id] && showLimitWarning && (
-            <Card interactive={false} elevation={Elevation.TWO} style={{ width: '50%', marginBottom: '20px', backgroundColor: '#f0f0f0' }}>
+            <Card
+              interactive={false} elevation={Elevation.TWO} style={{
+                width: '100%',
+                maxWidth: '480px',
+                marginBottom: '20px',
+                backgroundColor: '#f0f0f0'
+              }}
+            >
               <p className='warning-message' intent={Intent.WARNING}>
                 <Icon icon='warning-sign' size='16' color={Colors.GRAY1} style={{ marginRight: '5px' }} />
                 <strong>CONNECTION SOURCES LIMITED</strong><br />
@@ -112,7 +118,7 @@ export default function ConnectionForm (props) {
           >
             <p className='warning-message' intent={Intent.WARNING}>
               <Icon icon='error' size='16' color={Colors.RED4} style={{ marginRight: '5px' }} />
-              <strong>UNABLE TO SAVE CONNECTION ({name ?? 'New Instance'})</strong><br />
+              <strong>UNABLE TO SAVE CONNECTION ({name !== '' ? name : 'BLANK'})</strong><br />
             </p>
             {errors.length > 0 && (
               <ul>
@@ -126,7 +132,7 @@ export default function ConnectionForm (props) {
         <div className='formContainer'>
           <FormGroup
             disabled={isTesting || isSaving || isLocked}
-            readOnly={['gitlab', 'jenkins'].includes(activeProvider.id)}
+            readOnly={[Providers.GITHUB, Providers.GITLAB, Providers.JENKINS].includes(activeProvider.id)}
             label=''
             inline={true}
             labelFor='connection-name'
@@ -134,17 +140,22 @@ export default function ConnectionForm (props) {
             contentClassName='formGroupContent'
           >
             <Label style={{ display: 'inline' }}>
-              Connection&nbsp;Name <span className='requiredStar'>*</span>
+              {labels
+                ? labels.name
+                : (
+                  <>Connection&nbsp;Name</>
+                  )}
+              <span className='requiredStar'>*</span>
             </Label>
             <InputGroup
               id='connection-name'
               disabled={isTesting || isSaving || isLocked}
-              readOnly={['gitlab', 'jenkins'].includes(activeProvider.id)}
-              placeholder='Enter Instance Name'
+              readOnly={[Providers.GITHUB, Providers.GITLAB, Providers.JENKINS].includes(activeProvider.id)}
+              placeholder={placeholders ? placeholders.name : 'Enter Instance Name'}
               value={name}
               onChange={(e) => onNameChange(e.target.value)}
               className='input connection-name-input'
-              leftIcon={['gitlab', 'jenkins'].includes(activeProvider.id) ? 'lock' : null}
+              leftIcon={[Providers.GITHUB, Providers.GITLAB, Providers.JENKINS].includes(activeProvider.id) ? 'lock' : null}
               fill
             />
           </FormGroup>
@@ -160,12 +171,17 @@ export default function ConnectionForm (props) {
             contentClassName='formGroupContent'
           >
             <Label>
-              Endpoint&nbsp;URL <span className='requiredStar'>*</span>
+              {labels
+                ? labels.endpoint
+                : (
+                  <>Endpoint&nbsp;URL</>
+                  )}
+              <span className='requiredStar'>*</span>
             </Label>
             <InputGroup
               id='connection-endpoint'
               disabled={isTesting || isSaving || isLocked}
-              placeholder={`Enter Endpoint URL eg. ${placeholderUrl}`}
+              placeholder={placeholders ? placeholders.endpoint : 'Enter Endpoint URL'}
               value={endpointUrl}
               onChange={(e) => onEndpointChange(e.target.value)}
               className='input'
@@ -185,13 +201,18 @@ export default function ConnectionForm (props) {
               className='formGroup'
               contentClassName='formGroupContent'
             >
-              <Label>
-                Basic&nbsp;Auth&nbsp;Token <span className='requiredStar'>*</span>
+              <Label style={{ display: 'flex', justifyContent: 'flex-end' }}>
+                {labels
+                  ? labels.token
+                  : (
+                    <>Basic&nbsp;Auth&nbsp;Token</>
+                    )}
+                <span className='requiredStar'>*</span>
               </Label>
               <InputGroup
                 id='connection-token'
                 disabled={isTesting || isSaving || isLocked}
-                placeholder='Enter Auth Token eg. EJrLG8DNeXADQcGOaaaX4B47'
+                placeholder={placeholders ? placeholders.token : 'Enter Auth Token eg. EJrLG8DNeXADQcGOaaaX4B47'}
                 value={token}
                 onChange={(e) => onTokenChange(e.target.value)}
                 className='input'
@@ -199,7 +220,7 @@ export default function ConnectionForm (props) {
                 required
               />
               {
-                activeProvider.id === 'jira' &&
+                activeProvider.id === Providers.JIRA &&
                   <Popover
                     className='popover-generate-token'
                     position={Position.RIGHT}
@@ -249,7 +270,12 @@ export default function ConnectionForm (props) {
                 contentClassName='formGroupContent'
               >
                 <Label style={{ display: 'inline' }}>
-                  Username <span className='requiredStar'>*</span>
+                  {labels
+                    ? labels.username
+                    : (
+                      <>Username</>
+                      )}
+                  <span className='requiredStar'>*</span>
                 </Label>
                 <InputGroup
                   id='connection-username'
@@ -272,7 +298,12 @@ export default function ConnectionForm (props) {
                 contentClassName='formGroupContent'
               >
                 <Label style={{ display: 'inline' }}>
-                  Password <span className='requiredStar'>*</span>
+                  {labels
+                    ? labels.password
+                    : (
+                      <>Password</>
+                      )}
+                  <span className='requiredStar'>*</span>
                 </Label>
                 <InputGroup
                   id='connection-password'

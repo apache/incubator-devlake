@@ -343,8 +343,8 @@ export default function JiraSettings (props) {
             placeholder='eg. 2000'
             value={jiraIssueStoryCoefficient}
             onChange={(e) => {
-              if (e.target.value != ''){
-                let storyPointCoefficientFloat = parseFloat(e.target.value)
+              if (e.target.value !== '') {
+                const storyPointCoefficientFloat = parseFloat(e.target.value)
                 setJiraIssueStoryCoefficient(storyPointCoefficientFloat)
               } else {
                 setJiraIssueStoryCoefficient('')
