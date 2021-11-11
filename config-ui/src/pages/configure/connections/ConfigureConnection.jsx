@@ -113,9 +113,6 @@ export default function ConfigureConnection () {
     console.log('>>>> DETECTED CONNECTION ID = ', connectionId)
     if (connectionId && providerId) {
       setActiveProvider(integrations.find(p => p.id === providerId))
-      // !WARNING! DO NOT ADD fetchConnection TO DEPENDENCIES ARRAY!
-      // @todo FIXME: Fix Hook Circular-loop Behavior inside effect when added to dependencies
-      // fetchConnection()
     } else {
       console.log('NO PARAMS!')
     }
@@ -126,19 +123,8 @@ export default function ConfigureConnection () {
   }, [settings])
 
   useEffect(() => {
-    console.log('>>>> CONFIGURING DATA PROVIDER ... ', activeProvider)
-    if (activeProvider?.id) {
-      fetchConnection()
-    }
-  }, [activeProvider])
-
-  useEffect(() => {
 
   }, [connections])
-
-  useEffect(() => {
-    console.log('>>>> MANAGING / CONFIGURING CONNECTION ... ', activeConnection)
-  }, [activeConnection])
 
   // useEffect(() => {
   //   // CONNECTION SAVED!

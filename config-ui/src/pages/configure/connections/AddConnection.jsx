@@ -32,7 +32,7 @@ export default function AddConnection () {
   const { providerId } = useParams()
 
   const [integrations, setIntegrations] = useState(integrationsData)
-  const [activeProvider, setActiveProvider] = useState(integrations[0])
+  const [activeProvider, setActiveProvider] = useState(integrations.find(p => p.id === providerId))
 
   const {
     testConnection, saveConnection,
@@ -91,7 +91,7 @@ export default function AddConnection () {
           break
       }
     }
-  }, [activeProvider])
+  }, [activeProvider.id])
 
   useEffect(() => {
     console.log('>>>> DETECTED PROVIDER = ', providerId)
