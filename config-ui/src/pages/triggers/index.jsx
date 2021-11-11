@@ -130,6 +130,15 @@ export default function Triggers () {
                     <code>gitlab projectId</code> and <code>jira boardId</code> in the request body. This can take&nbsp;
                     up to 20 minutes for large projects. (gitlab 10k+ commits or jira 5k+ issues)
                   </p>
+                  <p className='description'>
+                    There are two types of plugins in our application. The regular plugins collect and enrich data while the domain layer plugins prepare the data for the graphs in config ui. You should only have to edit the normal plugins. Editing domain layer plugins is for advanced usage only.
+                  </p>
+                  <h2>
+
+                  <p className='description'>
+                    Full documentation here: <a href="https://github.com/merico-dev/lake/wiki/How-to-use-the-triggers-page" target="_blank">How to use the Triggers Page</a>
+                  </p>
+                  </h2>
                 </div>
 
                 <div className='formContainer'>
