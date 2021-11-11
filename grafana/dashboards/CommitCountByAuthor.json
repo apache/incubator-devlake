@@ -1,0 +1,265 @@
+{
+  "annotations": {
+    "list": [
+      {
+        "builtIn": 1,
+        "datasource": "-- Grafana --",
+        "enable": true,
+        "hide": true,
+        "iconColor": "rgba(0, 211, 255, 1)",
+        "name": "Annotations & Alerts",
+        "type": "dashboard"
+      }
+    ]
+  },
+  "editable": true,
+  "gnetId": null,
+  "graphTooltip": 0,
+  "id": 33,
+  "iteration": 1636652526816,
+  "links": [
+    {
+      "asDropdown": false,
+      "icon": "bolt",
+      "includeVars": false,
+      "keepTime": true,
+      "tags": [],
+      "targetBlank": false,
+      "title": "Homepage",
+      "tooltip": "",
+      "type": "link",
+      "url": "/d/0Rjxknc7z/demo-homepage?orgId=1"
+    },
+    {
+      "asDropdown": false,
+      "icon": "external link",
+      "includeVars": false,
+      "keepTime": false,
+      "tags": [],
+      "targetBlank": false,
+      "title": "Back to previous page",
+      "tooltip": "",
+      "type": "link",
+      "url": "/d/ddREk75nk/is-this-month-more-productive-than-last?orgId=1"
+    }
+  ],
+  "panels": [
+    {
+      "datasource": "mysql",
+      "description": "The number of commits from different commit authors.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "axisSoftMin": 0,
+            "fillOpacity": 80,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineWidth": 1
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 7,
+        "w": 24,
+        "x": 0,
+        "y": 0
+      },
+      "id": 50,
+      "options": {
+        "barWidth": 0.6,
+        "groupWidth": 0.5,
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom"
+        },
+        "orientation": "auto",
+        "showValue": "auto",
+        "text": {
+          "valueSize": 14
+        },
+        "tooltip": {
+          "mode": "single"
+        }
+      },
+      "pluginVersion": "8.0.6",
+      "targets": [
+        {
+          "format": "table",
+          "group": [],
+          "metricColumn": "none",
+          "rawQuery": true,
+          "rawSql": "with commit_data as(\n  SELECT\n    DATE_ADD(date(authored_date), INTERVAL -DAY(date(authored_date))+1 DAY)  as time,\n    c.author_name,\n    count(*) as commit_count\n  FROM commits c\n    -- join repos r on c.repo_id = r.substring_index(origin_key,':',-1)\n  WHERE\n    c.message not like '%Merge%'\n    and $__timeFilter(authored_date)\n    -- and c.repo_id = $repo_id\n  group by 2,1\n  order by 2,1\n),\n\nthis_month as(\n  select \n\t\tDATE_ADD(date(CURDATE()), INTERVAL -DAY(date(CURDATE()))+1 DAY) as this_month\n),\n\nlast_month as(\n\tselect \n\t\tDATE_ADD(DATE_ADD(date(CURDATE()), INTERVAL -DAY(date(CURDATE()))+1 DAY), INTERVAL -1 MONTH) as last_month\n),\n\nthe_month_before_last as(\n\tSELECT \n\t\tDATE_ADD(DATE_ADD(date(CURDATE()), INTERVAL -DAY(date(CURDATE()))+1 DAY), INTERVAL -2 MONTH) as the_month_before_last\n),\n\nthis_month_record as(\n\tSELECT\n\t\tauthor_name,\n\t\tcommit_count as this_month_count,\n\t\ttime as this_month\n\tfrom commit_data\n\tWHERE \n\t\ttime in (SELECT this_month from this_month)\n),\n\nlast_month_record as(\n\tSELECT\n\t\tauthor_name,\n\t\tcommit_count as last_month_count,\n\t\ttime as last_month\n\tfrom commit_data\n\tWHERE \n\t\ttime in (SELECT last_month from last_month)\n),\nthe_month_before_last_record as(\n\tSELECT\n\t\tauthor_name,\n\t\tcommit_count as the_month_before_last_count,\n\t\ttime as the_month_before_last\n\tfrom commit_data\n\tWHERE \n\t\ttime in (SELECT the_month_before_last from the_month_before_last)\n)\n\nSELECT\n\tCOALESCE(NULLIF(tmr.author_name,''), NULLIF(lmr.author_name,''), tmblr.author_name) AS 'Author Name',\n\tCOALESCE(tmblr.the_month_before_last_count,0) AS \"The Month before Last\",\n\tCOALESCE(lmr.last_month_count,0) AS \"Last Month\",\n\tCOALESCE(tmr.this_month_count,0) AS \"This Month\"\nFROM this_month_record tmr \nright join last_month_record lmr on tmr.author_name = lmr.author_name \nright join the_month_before_last_record tmblr on lmr.author_name = tmblr.author_name\norder by 2 desc\n",
+          "refId": "A",
+          "select": [
+            [
+              {
+                "params": [
+                  "progress"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "table": "ca_analysis",
+          "timeColumn": "create_time",
+          "timeColumnType": "timestamp",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        }
+      ],
+      "timeFrom": null,
+      "timeShift": null,
+      "title": "Commit Count by Author",
+      "type": "barchart"
+    },
+    {
+      "datasource": "mysql",
+      "description": "",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "custom": {
+            "align": "auto",
+            "displayMode": "auto"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 10,
+        "w": 24,
+        "x": 0,
+        "y": 7
+      },
+      "id": 38,
+      "options": {
+        "showHeader": true
+      },
+      "pluginVersion": "8.0.6",
+      "targets": [
+        {
+          "format": "table",
+          "group": [],
+          "metricColumn": "none",
+          "rawQuery": true,
+          "rawSql": "with commit_data as(\n  SELECT\n    DATE_ADD(date(authored_date), INTERVAL -DAY(date(authored_date))+1 DAY)  as time,\n    gc.author_name,\n    count(*) as commit_count\n  FROM github_commits gc\n    join github_repositories gr on gc.repository_id = gr.github_id\n  WHERE\n    message not like '%Merge pull request%'\n    and $__timeFilter(authored_date)\n    and gc.repository_id = $repo_id\n  group by 2,1\n  order by 2,1\n),\n\nthis_month as(\n  select \n\t\tDATE_ADD(date(CURDATE()), INTERVAL -DAY(date(CURDATE()))+1 DAY) as this_month\n),\n\nlast_month as(\n\tselect \n\t\tDATE_ADD(DATE_ADD(date(CURDATE()), INTERVAL -DAY(date(CURDATE()))+1 DAY), INTERVAL -1 MONTH) as last_month\n),\n\nthe_month_before_last as(\n\tSELECT \n\t\tDATE_ADD(DATE_ADD(date(CURDATE()), INTERVAL -DAY(date(CURDATE()))+1 DAY), INTERVAL -2 MONTH) as the_month_before_last\n),\n\nthis_month_record as(\n\tSELECT\n\t\tauthor_name,\n\t\tcommit_count as this_month_count,\n\t\ttime as this_month\n\tfrom commit_data\n\tWHERE \n\t\ttime in (SELECT this_month from this_month)\n),\n\nlast_month_record as(\n\tSELECT\n\t\tauthor_name,\n\t\tcommit_count as last_month_count,\n\t\ttime as last_month\n\tfrom commit_data\n\tWHERE \n\t\ttime in (SELECT last_month from last_month)\n),\nthe_month_before_last_record as(\n\tSELECT\n\t\tauthor_name,\n\t\tcommit_count as the_month_before_last_count,\n\t\ttime as the_month_before_last\n\tfrom commit_data\n\tWHERE \n\t\ttime in (SELECT the_month_before_last from the_month_before_last)\n)\n\nSELECT\n  COALESCE(NULLIF(tmr.author_name,''), NULLIF(lmr.author_name,''), tmblr.author_name) AS 'Author Name',\n\tCOALESCE(tmblr.the_month_before_last_count,0) AS \"The Month before Last\",\n\tCOALESCE(lmr.last_month_count,0) AS \"Last Month\",\n\tCOALESCE(tmr.this_month_count,0) AS \"This Month\",\n\tcase \n\t  when lmr.last_month_count is null or tmr.this_month_count is null then '-'\n\t  else concat(FORMAT(100 * (tmr.this_month_count - lmr.last_month_count)/lmr.last_month_count,1),'%') end as \"Changes in last 2 month\"\nFROM this_month_record tmr \nright join last_month_record lmr on tmr.author_name = lmr.author_name \nright join the_month_before_last_record tmblr on lmr.author_name = tmblr.author_name",
+          "refId": "A",
+          "select": [
+            [
+              {
+                "params": [
+                  "progress"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "table": "ca_analysis",
+          "timeColumn": "create_time",
+          "timeColumnType": "timestamp",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        }
+      ],
+      "timeFrom": null,
+      "timeShift": null,
+      "type": "table"
+    }
+  ],
+  "refresh": "",
+  "schemaVersion": 30,
+  "style": "dark",
+  "tags": [],
+  "templating": {
+    "list": [
+      {
+        "allValue": null,
+        "current": {
+          "selected": true,
+          "text": [
+            "All"
+          ],
+          "value": [
+            "$__all"
+          ]
+        },
+        "datasource": "mysql",
+        "definition": "select distinct concat(name, ': ', github_id) from github_repositories",
+        "description": null,
+        "error": null,
+        "hide": 0,
+        "includeAll": true,
+        "label": "Choose Repo",
+        "multi": true,
+        "name": "repo_id",
+        "options": [],
+        "query": "select distinct concat(name, ': ', github_id) from github_repositories",
+        "refresh": 1,
+        "regex": "/^(?<text>[^:]+): (?<value>\\d+)$/",
+        "skipUrlSync": false,
+        "sort": 0,
+        "type": "query"
+      }
+    ]
+  },
+  "time": {
+    "from": "now-6M",
+    "to": "now"
+  },
+  "timepicker": {},
+  "timezone": "",
+  "title": "Commit Count by Author",
+  "uid": "F0iYknc7z",
+  "version": 12
+}
