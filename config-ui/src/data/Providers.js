@@ -61,7 +61,7 @@ const ProviderFormLabels = {
     // token: 'Auth Token(s)',
     token: (
       <Tooltip
-        content={(<span>Due to Github’s rate limit, input more <br /> tokens to accelerate data collection.</span>)}
+        content={(<span>Due to Github’s rate limit, input more tokens, <br />comma separated, to accelerate data collection.</span>)}
         intent='primary'
       >
         Auth Token(s)
