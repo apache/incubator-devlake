@@ -114,6 +114,16 @@ func (plugin Github) Execute(options map[string]interface{}, progress chan<- flo
 		if collectPrChildrenErr != nil {
 			return fmt.Errorf("Could not collect PR children: %v", collectPrChildrenErr)
 		}
+
+	}
+
+	if tasksToRun["enrichIssues"] {
+		fmt.Println("INFO >>> Enriching Issues")
+		enrichmentError := tasks.EnrichIssues()
+		if enrichmentError != nil {
+			return fmt.Errorf("Could not enrich issues: %v", enrichmentError)
+		}
+
 	}
 
 	progress <- 1
