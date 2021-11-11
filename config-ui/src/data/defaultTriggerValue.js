@@ -16,7 +16,20 @@ const someJson = [
     {
       plugin: 'jenkins',
       Options: {}
+    },
+    {
+      Plugin: 'github',
+      Options: {
+        repositoryName: 'lake',
+        owner: 'merico-dev'
+      }
     }
+  ],
+  [
+    { plugin: 'jiradomain', options: {} },
+    { plugin: 'gitlab-domain', options: {} },
+    { plugin: 'jenkinsdomain', options: {} },
+    { plugin: 'github-domain', options: {} }
   ]
 ]
 
