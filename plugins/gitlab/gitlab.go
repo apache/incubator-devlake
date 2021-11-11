@@ -157,7 +157,8 @@ func (plugin Gitlab) RootPkgPath() string {
 func (plugin Gitlab) ApiResources() map[string]map[string]core.ApiResourceHandler {
 	return map[string]map[string]core.ApiResourceHandler{
 		"sources": {
-			"GET": api.ListSources,
+			"GET":  api.ListSources,
+			"POST": api.PutSource,
 		},
 		"sources/:sourceId": {
 			"GET": api.GetSource,
