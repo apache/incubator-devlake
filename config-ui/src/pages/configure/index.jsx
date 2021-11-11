@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from 'react'
 import { FormGroup, InputGroup, Button, Tooltip, Position, Label, Utils } from '@blueprintjs/core'
-import Nav from '../../components/Nav'
-import Sidebar from '../../components/Sidebar'
+import Nav from '@/components/Nav'
+import Sidebar from '@/components/Sidebar'
 import AppCrumbs from '@/components/Breadcrumbs'
-import Content from '../../components/Content'
-import SaveAlert from '../../components/SaveAlert'
-import { DEVLAKE_ENDPOINT } from '../../utils/config'
-import request from '../../utils/request'
+import Content from '@/components/Content'
+import SaveAlert from '@/components/SaveAlert'
+import { DEVLAKE_ENDPOINT } from '@/utils/config'
+import request from '@/utils/request'
 
 export default function Configure () {
   const [alertOpen, setAlertOpen] = useState(false)

@@ -1,16 +1,14 @@
 import React from 'react'
-import 'normalize.css'
-// import '@blueprintjs/core/lib/css/blueprint.css'
-// Theme variables (@styles/theme.scss) injected via Webpack w/ @sass-loader additionalData option!
-import '@blueprintjs/core/src/blueprint.scss'
-import '@/styles/libraries/blueprint.scss'
-import '@/styles/globals.scss'
-import '@/styles/common.scss'
-
 import {
   BrowserRouter as Router,
   Route,
 } from 'react-router-dom'
+
+import 'normalize.css'
+import '@/styles/app.scss'
+// Theme variables (@styles/theme.scss) injected via Webpack w/ @sass-loader additionalData option!
+// import '@/styles/theme.scss'
+
 import Configure from './pages/configure/index'
 import Integration from '@/pages/configure/integration/index'
 import ManageIntegration from '@/pages/configure/integration/manage'
@@ -19,9 +17,6 @@ import EditConnection from '@/pages/configure/connections/EditConnection'
 import ConfigureConnection from '@/pages/configure/connections/ConfigureConnection'
 import Triggers from '@/pages/triggers/index'
 import Tasks from '@/pages/tasks'
-import Jira from '@/pages/plugins/jira/index'
-import Gitlab from '@/pages/plugins/gitlab/index'
-import Jenkins from '@/pages/plugins/jenkins/index'
 
 function App () {
   return (
@@ -53,19 +48,6 @@ function App () {
       </Route>
       <Route exact path='/lake/api/configuration'>
         <Configure />
-      </Route>
-      {/* <Route exact path='/documentation'>
-        <Documentation />
-      </Route> */}
-      {/* Plugins */}
-      <Route exact path='/plugins/jira'>
-        <Jira />
-      </Route>
-      <Route exact path='/plugins/gitlab'>
-        <Gitlab />
-      </Route>
-      <Route exact path='/plugins/jenkins'>
-        <Jenkins />
       </Route>
     </Router>
   )

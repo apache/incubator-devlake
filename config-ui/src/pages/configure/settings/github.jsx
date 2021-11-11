@@ -7,7 +7,7 @@ import {
 import '@/styles/integration.scss'
 import '@/styles/connections.scss'
 
-import '@blueprintjs/popover2/lib/css/blueprint-popover2.css'
+// import '@blueprintjs/popover2/lib/css/blueprint-popover2.css'
 
 export default function GithubSettings (props) {
   const { connection, provider, isSaving, onSettingsChange } = props

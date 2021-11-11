@@ -14,7 +14,7 @@ import {
 import { Buffer } from 'buffer'
 import '@/styles/integration.scss'
 import '@/styles/connections.scss'
-import '@blueprintjs/popover2/lib/css/blueprint-popover2.css'
+// import '@blueprintjs/popover2/lib/css/blueprint-popover2.css'
 
 export default function GenerateTokenForm (props) {
   const {
