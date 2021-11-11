@@ -2,6 +2,7 @@ package api
 
 import (
 	"fmt"
+	"net/http"
 	"strconv"
 
 	"github.com/go-playground/validator/v10"
@@ -116,7 +117,7 @@ func PostSources(input *core.ApiResourceInput) (*core.ApiResourceOutput, error) 
 		return nil, err
 	}
 
-	return &core.ApiResourceOutput{Body: jiraSource}, nil
+	return &core.ApiResourceOutput{Body: jiraSource, Status: http.StatusOK}, nil
 }
 
 /*

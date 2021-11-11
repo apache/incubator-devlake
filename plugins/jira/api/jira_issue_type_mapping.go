@@ -2,6 +2,7 @@ package api
 
 import (
 	"fmt"
+	"net/http"
 
 	"github.com/go-playground/validator/v10"
 	lakeModels "github.com/merico-dev/lake/models"
@@ -130,7 +131,7 @@ func PostIssueTypeMappings(input *core.ApiResourceInput) (*core.ApiResourceOutpu
 	if err != nil {
 		return nil, err
 	}
-	return &core.ApiResourceOutput{Body: jiraIssueTypeMapping}, nil
+	return &core.ApiResourceOutput{Body: jiraIssueTypeMapping, Status: http.StatusOK}, nil
 }
 
 /*
