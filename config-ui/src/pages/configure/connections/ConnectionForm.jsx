@@ -118,7 +118,7 @@ export default function ConnectionForm (props) {
           >
             <p className='warning-message' intent={Intent.WARNING}>
               <Icon icon='error' size='16' color={Colors.RED4} style={{ marginRight: '5px' }} />
-              <strong>UNABLE TO SAVE CONNECTION ({name ?? 'New Instance'})</strong><br />
+              <strong>UNABLE TO SAVE CONNECTION ({name !== '' ? name : 'BLANK'})</strong><br />
             </p>
             {errors.length > 0 && (
               <ul>
