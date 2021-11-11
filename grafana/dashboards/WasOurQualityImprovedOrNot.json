@@ -1,0 +1,198 @@
+{
+  "annotations": {
+    "list": [
+      {
+        "builtIn": 1,
+        "datasource": "-- Grafana --",
+        "enable": true,
+        "hide": true,
+        "iconColor": "rgba(0, 211, 255, 1)",
+        "name": "Annotations & Alerts",
+        "type": "dashboard"
+      }
+    ]
+  },
+  "editable": true,
+  "gnetId": null,
+  "graphTooltip": 0,
+  "id": 37,
+  "links": [
+    {
+      "asDropdown": false,
+      "icon": "bolt",
+      "includeVars": false,
+      "keepTime": false,
+      "tags": [],
+      "targetBlank": false,
+      "title": "Homepage",
+      "tooltip": "",
+      "type": "link",
+      "url": "/d/0Rjxknc7z/demo-homepage?orgId=1"
+    }
+  ],
+  "panels": [
+    {
+      "datasource": "mysql",
+      "description": "",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "axisSoftMin": 0,
+            "fillOpacity": 80,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineWidth": 1
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 24,
+        "x": 0,
+        "y": 0
+      },
+      "id": 35,
+      "links": [
+        {
+          "targetBlank": false,
+          "title": "See Detailed Bug Info",
+          "url": "/d/s48Lzn5nz/detailed-bug-info?orgId=1"
+        }
+      ],
+      "options": {
+        "barWidth": 0.3,
+        "groupWidth": 0.7,
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom"
+        },
+        "orientation": "auto",
+        "showValue": "always",
+        "text": {
+          "valueSize": 14
+        },
+        "tooltip": {
+          "mode": "single"
+        }
+      },
+      "pluginVersion": "8.0.6",
+      "targets": [
+        {
+          "format": "table",
+          "group": [],
+          "metricColumn": "none",
+          "queryType": "randomWalk",
+          "rawQuery": true,
+          "rawSql": "with delivered_requirements as(\n  select \n    DATE_ADD(date(resolution_date), INTERVAL -DAY(date(resolution_date))+1 DAY) as time,\n    count(*) as requirement_count\n  from issues i\n  where \n    type = 'Requirement'\n    and status = 'Resolved'\n    and $__timeFilter(resolution_date)\n  group by time\n),\n\nbugs as(\n  select \n    DATE_ADD(date(created_date), INTERVAL -DAY(date(created_date))+1 DAY) as time,\n    count(*) as bug_count\n  from issues i\n  where \n    type = 'Bug'\n    and $__timeFilter(created_date)\n  group by time\n)\n\nselect\n  date_format(dr.time,'%M %Y') as month,\n  bug_count/requirement_count as 'Bug Count per delivered requirement'\nfrom delivered_requirements dr left join bugs b on dr.time = b.time\norder by dr.time asc",
+          "refId": "A",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "timeColumn": "time",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        }
+      ],
+      "title": "Bug count per delivered requirement",
+      "type": "barchart"
+    },
+    {
+      "datasource": null,
+      "gridPos": {
+        "h": 2,
+        "w": 4,
+        "x": 0,
+        "y": 8
+      },
+      "id": 37,
+      "options": {
+        "content": "<br>\n\n[See Detailed Bug Info](/d/s48Lzn5nz/detailed-bug-info?orgId=1)\n           ",
+        "mode": "markdown"
+      },
+      "pluginVersion": "8.0.6",
+      "targets": [
+        {
+          "queryType": "randomWalk",
+          "refId": "A"
+        }
+      ],
+      "type": "text"
+    },
+    {
+      "datasource": null,
+      "gridPos": {
+        "h": 10,
+        "w": 24,
+        "x": 0,
+        "y": 10
+      },
+      "id": 32,
+      "options": {
+        "content": "<div>\n  <img border=\"0\" src=\"/public/img/lake/logo.png\" style=\"padding-bottom:20px\" alt=\"Merico\" width=\"40\"></img>\n  <h2 style=\"display:inline-block;\">MARI Guide - Incident Count per 1k lines of code</h2>\n</div>\n\nSection | Description\n:----------------- | :-------------\nMetric Definition | The ratio of the number of defects found online to the corresponding amount of code or code changes after a software release, to characterize the density of online defects. For example, the online 1,000 lines of code defect rate, 1,000 code equivalent defect rate.\nMetric Value | The online defect rate, as a quality indicator after the online release, represents the density of defects that escape from the development phase to the delivery, and is one of the important indicators used to assess the quality of software products and testing quality. Usually, the cost of fixing detected defects is higher in the later stage of the software development life cycle, and this metric is valuable for analyzing and evaluating both online quality and defect fixing cost.\n\n***\n#### *M (Measure)*\n1. 1,000 code lines or 1,000 code equivalents defect rate by project.\n2. Trends in defect rates by thousand lines of code or thousand code equivalents over time.\n3. Measure historical data to establish year-over-year and historical baseline reference values for thousand-line code or thousand-code-equivalent defect rates.\n\n##### *A (Analyze)*\n1. Year-over-year analysis: The online defect rate of similar projects in the same period is compared and analyzed, and the improvement effect of product quality is observed through the rise and fall of the data after going online.\n2. Circumferential analysis: Analyze the online defect rate of projects in the recent year, analyze the change of online defect rate according to the time axis, and compare with the historical baseline at the same time to give a judgment analysis of the rise and fall of indicators.\n3. Trend analysis: analyze the trend of online defect rate change by the equivalent time (days, weeks, months) after the release of a single project, judge the trend rise, and evaluate whether the stable cycle of product quality after the release is reasonable by observing changes such as trend slowdown and smoothing.\n4. Horizontal analysis: Compare the online defect rate of multiple projects as a reference to evaluate the quality of software products on line.\n5. Classification analysis: Classify and analyze the types of online defects, severity levels, and modules they belong to, and identify the key issues that show aggregated distribution.\n6. Analyze the sources of quality defects including, but not limited to: user feedback, monitoring system (log information), third-party platforms (e-commerce).\n\n##### *R (Review)*\nFor the high severity level of online defects should be a complete review, according to the timeline, role dimensions, the sequence of events on the root cause of defects to dig, locate the key issues.\nAccording to the quantitative conclusions drawn from the analysis, further data drilling and root cause mining can be organized for online defects in several dimensions, including whether they are missed, the module they belong to, the cause, the occurrence cycle, and the resolution.\n1. defect escape rate: derived from [number of online defects / (number of online defects + number of test defects)], this indicator can be compared with historical data, if the data exceeds the acceptable range of history and testing department, then it is necessary to conduct leak analysis. If the data exceeds the acceptable interval of history and testing department, it is necessary to analyze the missed test and confirm whether the use case is missed or not covered, so as to strengthen the use case design and management.\n2. Defective module: The defective module can be located to the key module where the problem is concentrated, and targeted improvement measures are required for each link from requirements, design, development to testing, and typical problems are located for the defective module to establish targeted measures.\n3. defect generation causes: through the cause analysis of defects, similar defects defects can be put together, so that defects belonging to the same category and accounting for a high percentage of defects will be highlighted, so that it is easy to take out the defects with more concentrated causes and jointly discuss the next improvement measures to precisely reduce the number of similar defects.\n4. defect occurrence cycle: analyze the defect occurrence cycle, determine whether the users use the system frequently, whether the system has been updated or optimized, whether the system has been refactored, etc., which will cause a long and short defect occurrence cycle after the launch, through the analysis of the defect cycle length, to draw some valuable conclusions about the stability of the system.\n5. Defect resolution: statistics on the resolution of defects on line, which defects are not reproduced, which are temporarily handled, and which are in need of continuous improvement. For the temporary resolution of defects, analyze whether it will cause another defect elsewhere in the system, whether the user can receive the temporary resolution, what development and testing need to focus on similar defects, and whether similar defects need to be tested elsewhere for horizontal expansion. Those that require continuous improvement need to be further tracked by testing until the problem is resolved.\n\n##### *I (Improve)*\nThrough root cause mining, starting from the key defects, the key problems of each link to locate, in accordance with the principle that the later the defects are found, the higher the cost and complexity of the solution, in addition to the test design and implementation to start improving (refer to the improvement links of the number of defects on the line), more should start the construction of quality from the upstream of the software engineering stage, to achieve the forward movement of the defect discovery stage, such as\n1. optimizing static scan rules according to the type, number and severity level of static scan problems to reduce false positives and expose as many serious problems as possible (quality over quantity).\n2. Define the requirement of resolution ratio for different severity level problems to control the backlog of serious problems.\n3. Establish code review system, strategy, and encourage the promotion of code review implementation.\n4. Establish unit test coverage ratio or unit test coverage condition requirements, e.g. functions with circle complexity greater than 10 shall be covered by unit tests.\nImplement improvement measures and clarify the improvement target, improvement measures, verification cycle and responsible person. Do a new round of MARI (Measure, Analysis, Review, and Verification) for the improvement effect to quantify the improvement effect.",
+        "mode": "markdown"
+      },
+      "pluginVersion": "8.0.6",
+      "targets": [
+        {
+          "queryType": "randomWalk",
+          "refId": "A"
+        }
+      ],
+      "type": "text"
+    }
+  ],
+  "refresh": "",
+  "schemaVersion": 30,
+  "style": "dark",
+  "tags": [],
+  "templating": {
+    "list": []
+  },
+  "time": {
+    "from": "now-6M",
+    "to": "now"
+  },
+  "timepicker": {},
+  "timezone": "",
+  "title": "Was our quality improved or not?",
+  "uid": "G4DEk75nz",
+  "version": 20
+}
