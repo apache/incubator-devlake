@@ -29,5 +29,5 @@ type JiraIssueStatusMapping struct {
 
 type JiraSourceDetail struct {
 	JiraSource
-	TypeMappings map[string]map[string]interface{}
+	TypeMappings map[string]map[string]interface{} `json:"typeMappings"`
 }
