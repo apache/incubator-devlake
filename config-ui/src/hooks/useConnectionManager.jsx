@@ -275,6 +275,9 @@ function useConnectionManager ({
         case Providers.GITLAB:
           setToken(activeConnection.basicAuthEncoded || activeConnection.Auth)
           break
+        case Providers.GITHUB:
+          setToken(activeConnection.basicAuthEncoded || activeConnection.Auth)
+          break
         case Providers.JIRA:
           setToken(activeConnection.basicAuthEncoded || activeConnection.Auth)
           break
