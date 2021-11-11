@@ -86,7 +86,14 @@ export default function ConnectionForm (props) {
           <h2 className='headline' style={{ marginTop: 0, textDecoration: isLocked ? 'line-through' : 'none' }}>Configure Connection</h2>
           <p className='description'>Instance Account & Authentication settings</p>
           {activeProvider && activeProvider.id && sourceLimits[activeProvider.id] && showLimitWarning && (
-            <Card interactive={false} elevation={Elevation.TWO} style={{ width: '50%', marginBottom: '20px', backgroundColor: '#f0f0f0' }}>
+            <Card
+              interactive={false} elevation={Elevation.TWO} style={{
+                width: '100%',
+                maxWidth: '480px',
+                marginBottom: '20px',
+                backgroundColor: '#f0f0f0'
+              }}
+            >
               <p className='warning-message' intent={Intent.WARNING}>
                 <Icon icon='warning-sign' size='16' color={Colors.GRAY1} style={{ marginRight: '5px' }} />
                 <strong>CONNECTION SOURCES LIMITED</strong><br />
