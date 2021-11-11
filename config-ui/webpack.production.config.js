@@ -8,28 +8,7 @@ const { CleanWebpackPlugin } = require('clean-webpack-plugin')
 const ESLintPlugin = require('eslint-webpack-plugin')
 const MiniCssExtractPlugin = require('mini-css-extract-plugin')
 const CssMinimizerPlugin = require('css-minimizer-webpack-plugin')
-
-const scssLoaders = [
-  {
-    loader: MiniCssExtractPlugin.loader,
-  },
-  {
-    loader: require.resolve('css-loader'),
-    options: {
-      importLoaders: 1,
-    },
-  },
-  {
-    loader: require.resolve('postcss-loader'),
-    options: {
-      postcssOptions: {
-        // options: { implementation: require("postcss") },
-        plugins: [require('autoprefixer'), require('cssnano')({ preset: 'default' })],
-      },
-    },
-  },
-  // require.resolve('sass-loader'),
-]
+const TerserPlugin = require('terser-webpack-plugin')
 
 module.exports = (env = {}) => {
   const optionalPlugins = []
@@ -60,11 +39,13 @@ module.exports = (env = {}) => {
         {
           test: /\.css$/,
           use: [
+            // !WARNING! We only use style-loader for DEV MODE!
             // 'style-loader',
             MiniCssExtractPlugin.loader,
             {
               loader: 'css-loader',
               options: {
+                modules: true,
                 importLoaders: 1,
               }
             }
@@ -73,9 +54,23 @@ module.exports = (env = {}) => {
         {
           test: /\.scss$/,
           use: [
-            ...scssLoaders,
-            // MiniCssExtractPlugin.loader,
-            // 'css-loader',
+            {
+              loader: MiniCssExtractPlugin.loader,
+            },
+            {
+              loader: require.resolve('css-loader'),
+              options: {
+                importLoaders: 1,
+              },
+            },
+            {
+              loader: require.resolve('postcss-loader'),
+              options: {
+                postcssOptions: {
+                  plugins: [require('autoprefixer'), require('cssnano')({ preset: 'default' })],
+                },
+              },
+            },
             {
               loader: 'sass-loader',
               options: {
@@ -85,21 +80,14 @@ module.exports = (env = {}) => {
               }
             }
           ],
-          sideEffects: true
+          // sideEffects: true
         },
         {
           test: /\.html$/,
           use: ['html-loader']
         },
-        // {
-        //   test: /\.(?:png|jpe?g|gif|ttf|woff|woff2)$/,
-        //   loader: 'url-loader',
-        //   options: {
-        //     limit: 10 * 1024,
-        //   },
-        // },
         {
-          test: /\.(eot|ttf|woff|woff2|svg|png|gif|jpe?g)$/,
+          test: /\.(eot|ttf|woff|woff2|png|gif|jpe?g)$/,
           loader: require.resolve('file-loader'),
           options: {
             name: '[name].[ext]?[hash]',
@@ -121,6 +109,7 @@ module.exports = (env = {}) => {
         '@': path.resolve(__dirname, './src/'),
         '@config': path.resolve(__dirname, './config/'),
       },
+      // modules: ['node_modules'],
       extensions: ['*', '.js', '.jsx', '.scss']
     },
     output: {
@@ -129,8 +118,19 @@ module.exports = (env = {}) => {
       publicPath: '/'
     },
     optimization: {
+      minimize: true,
       minimizer: [
         new CssMinimizerPlugin(),
+        new TerserPlugin({
+          terserOptions: {
+            // cache: true,
+            parallel: true,
+            sourceMap: false,
+            compress: {
+              drop_console: true,
+            }
+          }
+        })
       ],
     },
     plugins: [

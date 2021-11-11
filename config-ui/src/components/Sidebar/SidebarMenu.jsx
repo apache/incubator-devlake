@@ -1,13 +1,5 @@
-import React, { useEffect, useState } from 'react'
-import {
-  BrowserRouter as Router,
-  // Switch,
-  // Route,
-  // Link,
-  useRouteMatch,
-  // useParams
-} from 'react-router-dom'
-import { Button, Card, Colors, Elevation, Icon, Menu } from '@blueprintjs/core'
+import React, { useEffect, Fragment } from 'react'
+import { Menu } from '@blueprintjs/core'
 import '@/styles/sidebar-menu.scss'
 
 const SidebarMenu = (props) => {
@@ -58,7 +50,11 @@ const SidebarMenu = (props) => {
               )
         ))}
         <Menu.Divider />
-        <Menu.Item text='API Configuration' icon='cog' href='/lake/api/configuration' active={top.location.href.endsWith('/lake/api/configuration')} />
+        <Menu.Item
+          text='API Configuration'
+          icon='cog' href='/lake/api/configuration'
+          active={top.location.href.endsWith('/lake/api/configuration')}
+        />
         <Menu.Item text='Documentation' icon='help' href='https://github.com/merico-dev/lake/wiki' target='_blank' />
         <Menu.Item text='Merico Network' icon='globe-network'>
           <Menu.Item text='Merico GitHub' href='https://github.com/merico-dev' target='_blank' />

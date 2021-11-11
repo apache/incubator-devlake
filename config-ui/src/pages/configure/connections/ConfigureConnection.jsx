@@ -33,7 +33,7 @@ import '@/styles/integration.scss'
 import '@/styles/connections.scss'
 import '@/styles/configure.scss'
 
-import '@blueprintjs/popover2/lib/css/blueprint-popover2.css'
+// import '@blueprintjs/popover2/lib/css/blueprint-popover2.css'
 
 export default function ConfigureConnection () {
   const history = useHistory()

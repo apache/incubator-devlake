@@ -1,13 +1,9 @@
 import React, { useEffect, useState } from 'react'
 import {
-  BrowserRouter as Router,
-  // Switch,
-  // Route,
-  // Link,
+  // BrowserRouter as Router,
   useRouteMatch,
-  // useParams
 } from 'react-router-dom'
-import { Button, Card, Colors, Elevation, Icon, Menu } from '@blueprintjs/core'
+import { Button, Card, Elevation } from '@blueprintjs/core'
 import SidebarMenu from '@/components/Sidebar/SidebarMenu'
 import MenuConfiguration from '@/components/Sidebar/MenuConfiguration'
 
