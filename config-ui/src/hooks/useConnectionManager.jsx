@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import {
   useHistory
 } from 'react-router-dom'
@@ -6,18 +6,13 @@ import { ToastNotification } from '@/components/Toast'
 import { DEVLAKE_ENDPOINT } from '@/utils/config'
 import request from '@/utils/request'
 import { NullConnection } from '@/data/NullConnection'
-
-const Providers = {
-  GITLAB: 'gitlab',
-  JENKINS: 'jenkins',
-  JIRA: 'jira'
-}
+import { Providers, ProviderSourceLimits } from '@/data/Providers'
 
 function useConnectionManager ({
   activeProvider,
-  activeConnection,
   connectionId,
-  setActiveConnection,
+  // activeConnection,
+  // setActiveConnection,
   // name = null,
   // endpointUrl = null,
   // token = null,
@@ -45,11 +40,9 @@ function useConnectionManager ({
   const [errors, setErrors] = useState([])
   const [showError, setShowError] = useState(false)
   const [testStatus, setTestStatus] = useState(0) //  0=Pending, 1=Success, 2=Failed
-  const [sourceLimits, setSourceLimits] = useState({
-    gitlab: 1,
-    jenkins: 1
-  })
+  const [sourceLimits, setSourceLimits] = useState(ProviderSourceLimits)
 
+  const [activeConnection, setActiveConnection] = useState(NullConnection)
   const [allConnections, setAllConnections] = useState([])
   const [connectionCount, setConnectionCount] = useState(0)
   const [connectionLimitReached, setConnectionLimitReached] = useState(false)
@@ -92,13 +85,17 @@ function useConnectionManager ({
     setIsSaving(true)
     let connectionPayload
     switch (activeProvider.id) {
-      case 'jira':
+      case Providers.JIRA:
         connectionPayload = { name: name, Endpoint: endpointUrl, BasicAuthEncoded: token }
         break
-      case 'jenkins':
+        // @todo fix/set github payload
+      case Providers.GITHUB:
+        connectionPayload = { name: name, GITHUB_ENDPOINT: endpointUrl, GITHUB_AUTH: token }
+        break
+      case Providers.JENKINS:
         connectionPayload = { name: name, JENKINS_ENDPOINT: endpointUrl, JENKINS_USERNAME: username, JENKINS_PASSWORD: password }
         break
-      case 'gitlab':
+      case Providers.GITLAB:
         connectionPayload = { name: name, GITLAB_ENDPOINT: endpointUrl, GITLAB_AUTH: token }
         break
     }
@@ -114,6 +111,7 @@ function useConnectionManager ({
     const saveConfiguration = async (configPayload) => {
       try {
         setShowError(false)
+        setErrors([])
         ToastNotification.clear()
         const s = await request.post(`${DEVLAKE_ENDPOINT}/plugins/${activeProvider.id}/sources`, configPayload)
         console.log('>> CONFIGURATION SAVED SUCCESSFULLY', configPayload, s)
@@ -133,6 +131,7 @@ function useConnectionManager ({
     const modifyConfiguration = async (configPayload) => {
       try {
         setShowError(false)
+        setErrors([])
         ToastNotification.clear()
         const s = await request.put(`${DEVLAKE_ENDPOINT}/plugins/${activeProvider.id}/sources/${activeConnection.ID}`, configPayload)
         console.log('>> CONFIGURATION MODIFIED SUCCESSFULLY', configPayload, s)
@@ -180,55 +179,86 @@ function useConnectionManager ({
     // Run Collection Tasks...
   }
 
-  const fetchConnection = async () => {
+  // const fetchConnection = async () => {
+  const fetchConnection = useCallback(() => {
+    console.log('>> FETCHING CONNECTION....')
     try {
       setIsFetching(true)
-      console.log('>> FETCHING CONNECTION SOURCE', isFetching)
-      const f = await request.get(`${DEVLAKE_ENDPOINT}/plugins/${activeProvider.id}/sources/${connectionId}`)
-      const connectionData = f.data
-      setActiveConnection({
-        ...connectionData,
-        name: connectionData.name || connectionData.Name,
-        // TODO: This needs to be Capital case for all json responses from the golang APIs
-        endpoint: connectionData.endpoint || connectionData.Endpoint,
-        username: connectionData.username || connectionData.Username,
-        password: connectionData.password || connectionData.Password
-      })
+      setErrors([])
+      ToastNotification.clear()
+      console.log('>> FETCHING CONNECTION SOURCE')
+      const fetch = async () => {
+        const f = await request.get(`${DEVLAKE_ENDPOINT}/plugins/${activeProvider.id}/sources/${connectionId}`)
+        const connectionData = f.data
+        console.log('>> RAW CONNECTION DATA FROM API...', connectionData)
+        setActiveConnection({
+          ...connectionData,
+          name: connectionData.name || connectionData.Name,
+          // TODO: This needs to be Capital case for all json responses from the golang APIs
+          endpoint: connectionData.endpoint || connectionData.Endpoint,
+          username: connectionData.username || connectionData.Username,
+          password: connectionData.password || connectionData.Password
+        })
+      }
+      fetch()
       setIsFetching(false)
     } catch (e) {
       setIsFetching(false)
       setActiveConnection(NullConnection)
+      setErrors([e.message])
       ToastNotification.show({ message: `${e}`, intent: 'danger', icon: 'error' })
       console.log('>> FAILED TO FETCH CONNECTION', e)
     }
-  }
+  }, [activeProvider.id, connectionId])
 
-  const fetchAllConnections = async () => {
+  const fetchAllConnections = useCallback(async (notify = false) => {
     try {
       setIsFetching(true)
-      console.log('>> FETCHING ALL CONNECTION SOURCES', isFetching)
+      setErrors([])
+      ToastNotification.clear()
+      console.log('>> FETCHING ALL CONNECTION SOURCES')
       const f = await request.get(`${DEVLAKE_ENDPOINT}/plugins/${activeProvider.id}/sources`)
-      setAllConnections(f.data)
-      setConnectionCount(f.data.length)
-      setConnectionLimitReached(sourceLimits[activeProvider.id] && f.data.length >= sourceLimits[activeProvider.id])
+      console.log('>> RAW ALL CONNECTIONS DATA FROM API...', f.data)
+      const providerConnections = f.data?.map((conn, idx) => {
+        return {
+          ...conn,
+          status: f.status === 200 || f.status === 201 ? 1 : 0, // conn.status
+          id: conn.ID,
+          name: conn.name,
+          endpoint: conn.endpoint,
+          errors: []
+        }
+      })
+      // setConnections(providerConnections)
+      if (notify) {
+        ToastNotification.show({ message: 'Loaded all connections.', intent: 'success', icon: 'small-tick' })
+      }
+      setAllConnections(providerConnections)
+      setConnectionCount(f.data?.length)
+      setConnectionLimitReached(sourceLimits[activeProvider.id] && f.data?.length >= sourceLimits[activeProvider.id])
+      setIsFetching(false)
     } catch (e) {
       console.log('>> FAILED TO FETCH ALL CONNECTIONS', e)
+      ToastNotification.show({ message: `Failed to Load Connections - ${e.message}`, intent: 'danger', icon: 'error' })
       setIsFetching(false)
       setAllConnections([])
       setConnectionCount(0)
       setConnectionLimitReached(false)
+      setErrors([e.message])
     }
-  }
+  }, [activeProvider.id, sourceLimits])
 
   const deleteConnection = () => {
     // @todo Implement DELETE
     try {
       setIsDeleting(true)
+      setErrors([])
       console.log('>> TRYING TO DELETE CONNECTION...', isDeleting)
       // const d = await request.delete(`${DEVLAKE_ENDPOINT}/plugins/${activeProvider.id}/sources/${connectionId}`)
       // setIsDeleting(false)
     } catch (e) {
       setIsDeleting(false)
+      setErrors([e.message])
       console.log('>> FAILED TO DELETE CONNECTION', e)
     }
   }
@@ -257,6 +287,7 @@ function useConnectionManager ({
 
   useEffect(() => {
     if (saveComplete && saveComplete.ID) {
+      console.log('>>> CONNECTION MANAGER - SAVE COMPLETE EFFECT RUNNING...')
       setActiveConnection((ac) => {
         return {
           ...ac,
@@ -264,9 +295,24 @@ function useConnectionManager ({
         }
       })
     }
-  }, [saveComplete, setActiveConnection])
+  }, [saveComplete])
+
+  useEffect(() => {
+    console.log('>> CONNECTION MANAGER - RECEIVED ACTIVE PROVIDER...', activeProvider)
+    if (activeProvider && activeProvider.id) {
+      // console.log(activeProvider)
+    }
+  }, [activeProvider])
+
+  useEffect(() => {
+    if (connectionId) {
+      console.log('>>>> CONFIGURING CONNECTION ID ... ', connectionId)
+      fetchConnection()
+    }
+  }, [connectionId, fetchConnection])
 
   return {
+    activeConnection,
     fetchConnection,
     fetchAllConnections,
     testConnection,

@@ -1,4 +1,6 @@
 
+import { ProviderLabels } from '@/data/Providers'
+
 const MenuConfiguration = (activeRoute) => {
   return [
     {
@@ -11,25 +13,33 @@ const MenuConfiguration = (activeRoute) => {
       children: [
         {
           id: 0,
-          label: 'JIRA',
+          label: ProviderLabels.JIRA,
           route: '/integrations/jira',
-          active: activeRoute.url.endsWith('/integrations/jira'),
+          active: activeRoute.url.endsWith('/integrations/jira') || activeRoute.url.endsWith('/jira'),
           icon: 'layers',
           classNames: [],
         },
         {
           id: 1,
-          label: 'GitLab',
-          route: '/integrations/gitlab',
-          active: activeRoute.url.endsWith('/integrations/gitlab'),
+          label: ProviderLabels.GITHUB,
+          route: '/integrations/github',
+          active: activeRoute.url.endsWith('/integrations/github') || activeRoute.url.endsWith('/github'),
           icon: 'layers',
           classNames: [],
         },
         {
           id: 2,
-          label: 'Jenkins',
+          label: ProviderLabels.GITLAB,
+          route: '/integrations/gitlab',
+          active: activeRoute.url.endsWith('/integrations/gitlab') || activeRoute.url.endsWith('/gitlab'),
+          icon: 'layers',
+          classNames: [],
+        },
+        {
+          id: 3,
+          label: ProviderLabels.JENKINS,
           route: '/integrations/jenkins',
-          active: activeRoute.url.endsWith('/integrations/jenkins'),
+          active: activeRoute.url.endsWith('/integrations/jenkins') || activeRoute.url.endsWith('/jenkins'),
           icon: 'layers',
           classNames: [],
         }

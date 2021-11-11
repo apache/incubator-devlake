@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, useCallback } from 'react'
 import {
   useParams,
   Link,
@@ -16,13 +16,9 @@ import Sidebar from '@/components/Sidebar'
 import AppCrumbs from '@/components/Breadcrumbs'
 import Content from '@/components/Content'
 import { ToastNotification } from '@/components/Toast'
-import request from '@/utils/request'
-
 import useConnectionManager from '@/hooks/useConnectionManager'
 
-import { SERVER_HOST, DEVLAKE_ENDPOINT } from '@/utils/config'
-
-import { integrationsData } from '@/pages/configure/mock-data/integrations'
+import { integrationsData } from '@/data/integrations'
 
 import '@/styles/integration.scss'
 import '@blueprintjs/popover2/lib/css/blueprint-popover2.css'
@@ -30,53 +26,60 @@ import '@blueprintjs/popover2/lib/css/blueprint-popover2.css'
 export default function ManageIntegration () {
   const history = useHistory()
 
-  const [dbUrl, setDbUrl] = useState()
-  const [port, setPort] = useState()
-  const [mode, setMode] = useState()
-
   const { providerId } = useParams()
 
-  const [isLoading, setIsLoading] = useState(true)
-  const [errors, setErrors] = useState([])
+  // const [errors, setErrors] = useState([])
   const [integrations, setIntegrations] = useState(integrationsData)
-  const [connections, setConnections] = useState([])
-  const [activeProvider, setActiveProvider] = useState(integrations[0])
+  const [activeProvider, setActiveProvider] = useState(integrations.find(p => p.id === providerId))
+  // const [connections, setConnections] = useState([])
+  // const [isLoading, setIsLoading] = useState(true)
 
   const {
     sourceLimits,
-    Providers
+    Providers,
+    allConnections: connections,
+    isFetching: isLoading,
+    fetchAllConnections,
+    errors
   } = useConnectionManager({
     activeProvider
   })
 
-  const fetchConnections = async () => {
-    setIsLoading(true)
-    try {
-      const connectionsResponse = await request.get(`${DEVLAKE_ENDPOINT}/plugins/${activeProvider.id}/sources`)
-      let providerConnections = connectionsResponse.data || []
-      providerConnections = providerConnections.map((conn, idx) => {
-        return {
-          ...conn,
-          status: connectionsResponse.status === 200 || connectionsResponse.status === 201 ? 1 : 0, // conn.status
-          id: conn.ID,
-          name: conn.name,
-          endpoint: conn.endpoint,
-          errors: []
-        }
-      })
-      setConnections(providerConnections)
-      console.log('>> CONNECTIONS FETCHED', connectionsResponse)
-    } catch (e) {
-      console.log('>> FAILED TO FETCH CONNECTIONS', e)
-      setErrors([e])
-      console.log(e)
-    }
-    setTimeout(() => {
-      setIsLoading(false)
-      ToastNotification.clear()
-      ToastNotification.show({ message: 'Loaded all connections.', intent: 'success', icon: 'small-tick' })
-    }, 1000)
-  }
+  useEffect(() => {
+
+  }, [activeProvider])
+
+  // !DISABLED! Using Connection Manager
+  // @todo cleanup, disabled in favor of connection-manager
+  // const fetchConnections = useCallback(async () => {
+  //   setIsLoading(true)
+  //   try {
+  //     const connectionsResponse = await request.get(`${DEVLAKE_ENDPOINT}/plugins/${activeProvider.id}/sources`)
+  //     let providerConnections = connectionsResponse.data || []
+  //     providerConnections = providerConnections.map((conn, idx) => {
+  //       return {
+  //         ...conn,
+  //         status: connectionsResponse.status === 200 || connectionsResponse.status === 201 ? 1 : 0, // conn.status
+  //         id: conn.ID,
+  //         name: conn.name,
+  //         endpoint: conn.endpoint,
+  //         errors: []
+  //       }
+  //     })
+  //     setConnections(providerConnections)
+  //     console.log('>> CONNECTIONS FETCHED', connectionsResponse)
+  //   } catch (e) {
+  //     console.log('>> FAILED TO FETCH CONNECTIONS', e)
+  //     setErrors([e])
+  //     setConnections([])
+  //     console.log(e)
+  //   }
+  //   setTimeout(() => {
+  //     setIsLoading(false)
+  //     ToastNotification.clear()
+  //     ToastNotification.show({ message: 'Loaded all connections.', intent: 'success', icon: 'small-tick' })
+  //   }, 1000)
+  // }, [activeProvider.id])
 
   const addConnection = () => {
     history.push(`/connections/add/${activeProvider.id}`)
@@ -108,7 +111,7 @@ export default function ManageIntegration () {
   }
 
   const refreshConnections = () => {
-    fetchConnections()
+    fetchAllConnections(true)
   }
 
   const maxConnectionsExceeded = (limit, totalConnections) => {
@@ -116,16 +119,12 @@ export default function ManageIntegration () {
   }
 
   useEffect(() => {
-    // Selected Provider
-    // console.log(activeProvider)
-    // !WARNING! DO NOT ADD fetchConnections TO DEPENDENCIES ARRAY!
-    // @todo FIXME: Circular-loop issue & Migrate fetching all connections to Connection Manager Hook
-    fetchConnections()
-  }, [activeProvider])
+    // Fetch Connections for Selected Provider...
+    fetchAllConnections(true)
+  }, [activeProvider, fetchAllConnections])
 
   useEffect(() => {
     console.log('>> ACTIVE PROVIDER = ', providerId)
-    console.log(dbUrl, port, mode)
     setIntegrations(integrations)
     setActiveProvider(integrations.find(p => p.id === providerId))
   }, [])
