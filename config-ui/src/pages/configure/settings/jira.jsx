@@ -1,8 +1,4 @@
 import React, { useEffect, useState, Fragment } from 'react'
-// import {
-//   useParams,
-//   useHistory
-// } from 'react-router-dom'
 import {
   FormGroup,
   InputGroup
@@ -11,7 +7,6 @@ import MappingTag from '@/pages/configure/settings/jira/MappingTag'
 import ClearButton from '@/components/ClearButton'
 import '@/styles/integration.scss'
 import '@/styles/connections.scss'
-// import '@blueprintjs/popover2/lib/css/blueprint-popover2.css'
 
 const MAPPING_TYPES = {
   Requirement: 'Requirement',

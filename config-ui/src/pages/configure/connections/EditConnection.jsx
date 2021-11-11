@@ -20,22 +20,13 @@ import useConnectionManager from '@/hooks/useConnectionManager'
 
 import '@/styles/integration.scss'
 import '@/styles/connections.scss'
-// import '@blueprintjs/popover2/lib/css/blueprint-popover2.css'
 
 export default function EditConnection () {
   const history = useHistory()
   const { providerId, connectionId } = useParams()
 
-  // const [name, setName] = useState()
-  // const [endpointUrl, setEndpointUrl] = useState()
-  // const [token, setToken] = useState()
-  // const [username, setUsername] = useState()
-  // const [password, setPassword] = useState()
-
   const [integrations, setIntegrations] = useState(integrationsData)
   const [activeProvider, setActiveProvider] = useState(integrations[0])
-
-  // const [activeConnection, setActiveConnection] = useState(NullConnection)
 
   const {
     testConnection,
@@ -59,14 +50,7 @@ export default function EditConnection () {
     setToken
   } = useConnectionManager({
     activeProvider,
-    // activeConnection,
     connectionId,
-    // setActiveConnection,
-    // name,
-    // endpointUrl,
-    // token,
-    // username,
-    // password,
   }, true)
 
   const cancel = () => {

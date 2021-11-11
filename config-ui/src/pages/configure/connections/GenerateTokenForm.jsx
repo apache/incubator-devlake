@@ -1,20 +1,13 @@
 import React, { useEffect, useState } from 'react'
 import {
-  Button, Colors,
+  Button,
   FormGroup, InputGroup, Label,
-  Card,
-  Icon,
   Tag,
-  Elevation,
-  Popover,
-  Position,
-  Switch,
   Intent
 } from '@blueprintjs/core'
 import { Buffer } from 'buffer'
 import '@/styles/integration.scss'
 import '@/styles/connections.scss'
-// import '@blueprintjs/popover2/lib/css/blueprint-popover2.css'
 
 export default function GenerateTokenForm (props) {
   const {
