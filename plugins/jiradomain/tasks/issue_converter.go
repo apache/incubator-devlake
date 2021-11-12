@@ -54,7 +54,7 @@ func ConvertIssues(sourceId uint64, boardId uint64) error {
 			Priority:                 jiraIssue.PriorityName,
 			CreatedDate:              jiraIssue.Created,
 			UpdatedDate:              jiraIssue.Updated,
-			LeadTime:                 jiraIssue.LeadTime,
+			LeadTimeMinutes:          jiraIssue.LeadTimeMinutes,
 			SpentMinutes:             jiraIssue.SpentMinutes,
 		}
 		if jiraIssue.AssigneeAccountId != "" {
