@@ -70,6 +70,7 @@ func (plugin Github) Execute(options map[string]interface{}, progress chan<- flo
 		tasksToRun = map[string]bool{
 			"collectCommits": true,
 			"collectIssues":  true,
+			"enrichIssues":   true,
 		}
 	}
 	repoId, collectRepoErr := tasks.CollectRepository(ownerString, repositoryNameString, githubApiClient)
