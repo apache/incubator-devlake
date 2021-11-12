@@ -143,7 +143,7 @@ func CancelTask(taskId uint64) error {
 
 func GetPendingTasks() ([]models.Task, error) {
 	tasks := make([]models.Task, 0)
-	whereClause := "progress < 1 AND status != 'TASK_FAILED'"
+	whereClause := "progress < 1 AND status != 'TASK_COMPLETED'"
 	db := models.Db.Model(&models.Task{}).Where(whereClause).Order("id DESC")
 	err := db.Debug().Find(&tasks)
 	if err != nil {

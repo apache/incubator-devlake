@@ -1,7 +1,6 @@
 const someJson = {
-  DEVLAKE_ENDPOINT: 'http://localhost:8080',
-  GRAFANA_PORT: '3002',
-  CLIENT_ROOT: 'http://localhost:4000'
+  DEVLAKE_ENDPOINT: '/api',
+  DEVLAKE_ENDPOINT: '/grafana/d/RXJZNpMnz/homepage?orgId=1'
 }
 
 export default someJson

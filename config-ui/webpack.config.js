@@ -115,7 +115,12 @@ module.exports = (env = {}) => {
       hot: true,
       port: 4000,
       host: '0.0.0.0',
-      historyApiFallback: true
+      historyApiFallback: true,
+      proxy: {
+        '/api/': { target: 'http://localhost:8080', pathRewrite: { '^/api': '' }, changeOrigin: true },
+        // this should be a redirection instead of proxy
+        '/grafana': { target: 'http://localhost:3002', pathRewrite: { '^/grafana': '' }, changeOrigin: true }
+      }
     },
     devtool: 'source-map'
   }
