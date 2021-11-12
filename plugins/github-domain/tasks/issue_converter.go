@@ -1,6 +1,8 @@
 package tasks
 
 import (
+	"fmt"
+
 	lakeModels "github.com/merico-dev/lake/models"
 	"github.com/merico-dev/lake/plugins/domainlayer/models/base"
 	"github.com/merico-dev/lake/plugins/domainlayer/models/ticket"
@@ -31,7 +33,8 @@ func convertToIssueModel(issue *githubModels.GithubIssue) *ticket.Issue {
 		DomainEntity: base.DomainEntity{
 			OriginKey: okgen.NewOriginKeyGenerator(issue).Generate(issue.GithubId),
 		},
-		Key:               issue.Title,
+		Key:               fmt.Sprint(issue.GithubId),
+		Title:             issue.Title,
 		Summary:           issue.Body,
 		Status:            issue.State,
 		Priority:          issue.Priority,
