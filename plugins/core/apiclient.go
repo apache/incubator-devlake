@@ -78,7 +78,9 @@ func (apiClient *ApiClient) SetProxy(proxyUrl string) error {
 	if err != nil {
 		return err
 	}
-	apiClient.client.Transport = &http.Transport{Proxy: http.ProxyURL(pu)}
+	if pu.Scheme == "http" || pu.Scheme == "socks5"{
+		apiClient.client.Transport = &http.Transport{Proxy: http.ProxyURL(pu)}
+	}
 	return nil
 }
 
