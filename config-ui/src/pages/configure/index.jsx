@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { FormGroup, InputGroup, Button, Tooltip, Position, Label, Utils } from '@blueprintjs/core'
+import { FormGroup, InputGroup, Button, Tooltip, Position, Label, Utils, Colors } from '@blueprintjs/core'
 import Nav from '@/components/Nav'
 import Sidebar from '@/components/Sidebar'
 import AppCrumbs from '@/components/Breadcrumbs'
@@ -13,26 +13,40 @@ export default function Configure () {
   const [dbUrl, setDbUrl] = useState()
   const [port, setPort] = useState()
   const [mode, setMode] = useState()
-  const [config, setConfig] = useState()
+  const [config, setConfig] = useState({
+    DB_URL: null,
+    PORT: null,
+    MODE: null
+  })
 
   async function saveAll (e) {
     e.preventDefault()
 
-    config.DB_URL = dbUrl
-    config.PORT = port
-    config.MODE = mode
+    // config.DB_URL = dbUrl
+    // config.PORT = port
+    // config.MODE = mode
 
-    await request.post(`${DEVLAKE_ENDPOINT}/env`, config)
-
+    await request.post(`${DEVLAKE_ENDPOINT}/env`, { ...config })
     setAlertOpen(true)
   }
 
-  useEffect(async () => {
-    let env = await request.get(`${DEVLAKE_ENDPOINT}/env`)
-    setConfig(env.data)
-    setDbUrl(env.data.DB_URL)
-    setPort(env.data.PORT)
-    setMode(env.data.MODE)
+  const isValidForm = (dbUrl, port) => {
+    return port && port.toString().length > 0 && dbUrl && dbUrl.toString().length >= 2
+  }
+
+  useEffect(() => {
+    const fetchEnv = async () => {
+      const env = await request.get(`${DEVLAKE_ENDPOINT}/env`)
+      setConfig(env.data)
+      setDbUrl(env.data.DB_URL)
+      setPort(env.data.PORT)
+      setMode(env.data.MODE)
+    }
+    try {
+      fetchEnv()
+    } catch (e) {
+      console.log('>> API CONFIGURATION / UNABLE TO FETCH ENV!', e)
+    }
   }, [])
 
   return (
@@ -51,7 +65,7 @@ export default function Configure () {
               ]}
             />
             <div className='headlineContainer'>
-              <h1>Configuration</h1>
+              <h1>Configuration {alertOpen && <span style={{ color: Colors.GRAY3 }}>(Please Restart)</span>}</h1>
               <p className='description'>Configure your <code className='code'>.env</code> file values</p>
             </div>
 
@@ -68,6 +82,7 @@ export default function Configure () {
                   className='formGroup'
                   helperText='DB_URL'
                   contentClassName='formGroup'
+                  readOnly={alertOpen}
                 >
                   <Tooltip content='The URL Connection string to the database' position={Position.TOP}>
                     <Label>
@@ -78,6 +93,7 @@ export default function Configure () {
                         defaultValue={dbUrl}
                         onChange={(e) => setDbUrl(e.target.value)}
                         className='input'
+                        readOnly={alertOpen}
                       />
                     </Label>
                   </Tooltip>
@@ -96,6 +112,7 @@ export default function Configure () {
                   className='formGroup'
                   helperText='PORT'
                   contentClassName='formGroup'
+                  readOnly={alertOpen}
                 >
                   <Tooltip content='The main port for the REST server' position={Position.TOP}>
                     <Label>
@@ -106,6 +123,7 @@ export default function Configure () {
                         defaultValue={port}
                         onChange={(e) => setPort(e.target.value)}
                         className='input'
+                        readOnly={alertOpen}
                       />
                     </Label>
                   </Tooltip>
@@ -119,6 +137,7 @@ export default function Configure () {
                   className='formGroup'
                   helperText='MODE'
                   contentClassName='formGroup'
+                  readOnly={alertOpen}
                 >
                   <Tooltip content='The development mode for the server' position={Position.TOP}>
                     <Label>
@@ -129,6 +148,7 @@ export default function Configure () {
                         defaultValue={mode}
                         onChange={(e) => setMode(e.target.value)}
                         className='input'
+                        readOnly={alertOpen}
                       />
                     </Label>
                   </Tooltip>
@@ -139,7 +159,9 @@ export default function Configure () {
                 type='submit'
                 icon='cloud-upload'
                 intent='primary'
+                loading={alertOpen}
                 onClick={(e) => saveAll(e)}
+                disabled={!isValidForm(dbUrl, port)}
               >
                 Save Configuration
               </Button>
