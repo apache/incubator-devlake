@@ -25,7 +25,7 @@ export default function JiraSettings (props) {
   const [typeMappingAll, setTypeMappingAll] = useState({})
   const [statusMappings, setStatusMappings] = useState()
   const [jiraIssueEpicKeyField, setJiraIssueEpicKeyField] = useState()
-  const [jiraIssueStoryCoefficient, setJiraIssueStoryCoefficient] = useState()
+  const [jiraIssueStoryCoefficient, setJiraIssueStoryCoefficient] = useState(1)
   const [jiraIssueStoryPointField, setJiraIssueStoryPointField] = useState()
   // const [epicKey, setEpicKey] = useState()
   // const [granularityKey, setGranularityKey] = useState()
@@ -160,7 +160,7 @@ export default function JiraSettings (props) {
       // setTypeMappingIncident(mappings.Incident)
       setStatusMappings([])
       setJiraIssueEpicKeyField(connection.epicKeyField)
-      setJiraIssueStoryCoefficient(connection.storyPointCoefficient)
+      setJiraIssueStoryCoefficient(connection.storyPointCoefficient === 0 ? 1 : connection.storyPointCoefficient)
       setJiraIssueStoryPointField(connection.storyPointField)
 
       // @todo RE-ENABLE SELECTORS!
@@ -276,11 +276,62 @@ export default function JiraSettings (props) {
           />
         </FormGroup>
       </div>
-
       <div className='headlineContainer'>
-        <h3 className='headline'>Story Point Coefficient
-          <span className='requiredStar'>*</span>
-        </h3>
+        <h3 className='headline'>Story Point Field (Optional)</h3>
+        <p className=''>Choose the Jira field you’re using to represent the granularity of a requirement-type issue.</p>
+        {/* <span style={{ display: 'inline-block' }}>
+          <Select
+            className='select-board-key'
+            inline={true}
+            fill={false}
+            items={boards}
+            activeItem={selectedBoardItem}
+            itemPredicate={(query, item) => item.title.toLowerCase().indexOf(query.toLowerCase()) >= 0}
+            itemRenderer={(item, { handleClick, modifiers }) => (
+              <MenuItem
+                active={modifiers.active}
+                key={item.value}
+                label={item.value}
+                onClick={handleClick}
+                text={item.title}
+              />
+            )}
+            noResults={<MenuItem disabled={true} text='No board results.' />}
+            onItemSelect={(item) => {
+              // @todo SET/VERIFY ENV FIELD FOR BOARD ID
+              setJiraIssueStoryPointField(item.value)
+              setSelectedBoardItem(item)
+            }}
+          >
+            <Button
+              style={{ maxWidth: '260px' }}
+              text={selectedBoardItem ? `${selectedBoardItem.title}` : boards[0].title}
+              rightIcon='double-caret-vertical'
+            />
+          </Select>
+        </span> */}
+      </div>
+      <div className='formContainer' style={{ maxWidth: '250px' }}>
+        <FormGroup
+          disabled={isSaving}
+          label=''
+          inline={true}
+          labelFor='board-id-field'
+          className='formGroup'
+          contentClassName='formGroupContent'
+        >
+          <InputGroup
+            id='board-id'
+            disabled={isSaving}
+            placeholder='eg. 3000'
+            value={jiraIssueStoryPointField}
+            onChange={(e) => setJiraIssueStoryPointField(e.target.value)}
+            className='input board-id'
+          />
+        </FormGroup>
+      </div>
+      <div className='headlineContainer'>
+        <h3 className='headline'>Story Point Coefficient (Optional)</h3>
         <p className=''>
           This is a number that can convert your jira story points to a new magnitude.&nbsp;
           IE: Convert days to hours with 8 since there are 8 working hours in a day.
@@ -342,61 +393,6 @@ export default function JiraSettings (props) {
               }
             }}
             className='input granularity-field'
-          />
-        </FormGroup>
-      </div>
-
-      <div className='headlineContainer'>
-        <h3 className='headline'>Story Point Field (Optional)</h3>
-        <p className=''>Choose the Jira field you’re using to represent the granularity of a requirement-type issue.</p>
-        {/* <span style={{ display: 'inline-block' }}>
-          <Select
-            className='select-board-key'
-            inline={true}
-            fill={false}
-            items={boards}
-            activeItem={selectedBoardItem}
-            itemPredicate={(query, item) => item.title.toLowerCase().indexOf(query.toLowerCase()) >= 0}
-            itemRenderer={(item, { handleClick, modifiers }) => (
-              <MenuItem
-                active={modifiers.active}
-                key={item.value}
-                label={item.value}
-                onClick={handleClick}
-                text={item.title}
-              />
-            )}
-            noResults={<MenuItem disabled={true} text='No board results.' />}
-            onItemSelect={(item) => {
-              // @todo SET/VERIFY ENV FIELD FOR BOARD ID
-              setJiraIssueStoryPointField(item.value)
-              setSelectedBoardItem(item)
-            }}
-          >
-            <Button
-              style={{ maxWidth: '260px' }}
-              text={selectedBoardItem ? `${selectedBoardItem.title}` : boards[0].title}
-              rightIcon='double-caret-vertical'
-            />
-          </Select>
-        </span> */}
-      </div>
-      <div className='formContainer' style={{ maxWidth: '250px' }}>
-        <FormGroup
-          disabled={isSaving}
-          label=''
-          inline={true}
-          labelFor='board-id-field'
-          className='formGroup'
-          contentClassName='formGroupContent'
-        >
-          <InputGroup
-            id='board-id'
-            disabled={isSaving}
-            placeholder='eg. 3000'
-            value={jiraIssueStoryPointField}
-            onChange={(e) => setJiraIssueStoryPointField(e.target.value)}
-            className='input board-id'
           />
         </FormGroup>
       </div>
