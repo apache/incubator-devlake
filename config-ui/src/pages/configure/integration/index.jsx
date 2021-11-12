@@ -8,9 +8,6 @@ import Sidebar from '@/components/Sidebar'
 import AppCrumbs from '@/components/Breadcrumbs'
 import Content from '@/components/Content'
 import { integrationsData } from '@/data/integrations'
-import { ReactComponent as GitlabProvider } from '@/images/integrations/gitlab.svg'
-import { ReactComponent as JenkinsProvider } from '@/images/integrations/jenkins.svg'
-import { ReactComponent as JiraProvider } from '@/images/integrations/jira.svg'
 
 import '@/styles/integration.scss'
 

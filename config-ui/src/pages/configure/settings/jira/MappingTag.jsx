@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { Fragment } from 'react'
 import { FormGroup, Label, Tag, TagInput } from '@blueprintjs/core'
 
 const MappingTag = ({ labelIntent, labelName, onChange, rightElement, helperText, typeOrStatus, values, placeholderText }) => {

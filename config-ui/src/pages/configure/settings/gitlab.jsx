@@ -7,18 +7,18 @@ import {
   FormGroup,
   InputGroup,
   Label,
-  Button,
-  Classes,
-  Dialog,
-  MenuItem,
-  Card,
-  Elevation,
-  Colors,
-  Icon,
-  Tag,
-  Intent
+  // Button,
+  // Classes,
+  // Dialog,
+  // MenuItem,
+  // Card,
+  // Elevation,
+  // Colors,
+  // Icon,
+  // Tag,
+  // Intent
 } from '@blueprintjs/core'
-import { Select } from '@blueprintjs/select'
+// import { Select } from '@blueprintjs/select'
 import { ToastNotification } from '@/components/Toast'
 
 import { boardsData } from '@/pages/configure/mock-data/boards'
@@ -27,7 +27,7 @@ import { projectsData } from '@/pages/configure/mock-data/projects'
 import '@/styles/integration.scss'
 import '@/styles/connections.scss'
 
-import '@blueprintjs/popover2/lib/css/blueprint-popover2.css'
+// import '@blueprintjs/popover2/lib/css/blueprint-popover2.css'
 
 export default function GitlabSettings (props) {
   const { connection, provider, isSaving, onSettingsChange } = props
