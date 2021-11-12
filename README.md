@@ -116,6 +116,12 @@ Commonly, we have requirement to synchorize data periodly. We providered a tool 
 
 Otherwise, if you just want to use the cron job, please check `docker-compose` version at [here](./devops/sync/README.md)
 
+## Deploy to TeamCode
+1. **IMPORTANT: MAKE SURE config-ui service is protected on TeamCode Control Panel before you set it up, or your TOKEN/PASSWORD might leak**
+2. The following Environment Variables are to be set for `config-ui` service:
+```
+GRAFANA_ENDPOINT=<URL_TO_GRAFANA>
+```
 
 ## Developer Setup<a id="dev-setup"></a>
 
