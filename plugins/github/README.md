@@ -27,6 +27,14 @@ or...
 GITHUB_AUTH=XXX,YYY,ZZZ // where each token is a different user's token (optional)
 ```
 
+The proxy server address could be set in the `.env` file with the key `GITHUB_PROXY`. 
+If the key is empty or any other invalid url, no proxy applied. Only `http` and `socks5` protocol supported for now.
+
+```
+GITHUB_PROXY=http://127.0.0.1:1080
+```
+
+
 ## Sample Request
 
 ```
