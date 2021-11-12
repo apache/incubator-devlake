@@ -25,7 +25,6 @@ import useConnectionManager from '@/hooks/useConnectionManager'
 
 import '@/styles/integration.scss'
 import '@/styles/connections.scss'
-import '@blueprintjs/popover2/lib/css/blueprint-popover2.css'
 
 export default function AddConnection () {
   const history = useHistory()

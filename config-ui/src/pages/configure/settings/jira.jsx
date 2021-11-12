@@ -1,24 +1,12 @@
-import React, { useEffect, useState } from 'react'
-import {
-  useParams,
-  useHistory
-} from 'react-router-dom'
-import MappingTag from '@/pages/configure/settings/jira/MappingTag'
-import ClearButton from '@/pages/plugins/jira//ClearButton'
-
+import React, { useEffect, useState, Fragment } from 'react'
 import {
   FormGroup,
   InputGroup
 } from '@blueprintjs/core'
-// import { Select, Button, MenuItem, Label } from '@blueprintjs/select'
-
-// import { epicsData } from '@/pages/configure/mock-data/epics'
-// import { boardsData } from '@/pages/configure/mock-data/boards'
-// import { granularitiesData } from '@/pages/configure/mock-data/granularities'
-
+import MappingTag from '@/pages/configure/settings/jira/MappingTag'
+import ClearButton from '@/components/ClearButton'
 import '@/styles/integration.scss'
 import '@/styles/connections.scss'
-import '@blueprintjs/popover2/lib/css/blueprint-popover2.css'
 
 const MAPPING_TYPES = {
   Requirement: 'Requirement',
@@ -28,8 +16,8 @@ const MAPPING_TYPES = {
 
 export default function JiraSettings (props) {
   const { connection, provider, isSaving, onSettingsChange } = props
-  const { providerId, connectionId } = useParams()
-  const history = useHistory()
+  // const { providerId, connectionId } = useParams()
+  // const history = useHistory()
 
   const [typeMappingBug, setTypeMappingBug] = useState([])
   const [typeMappingIncident, setTypeMappingIncident] = useState([])
@@ -293,7 +281,10 @@ export default function JiraSettings (props) {
         <h3 className='headline'>Story Point Coefficient
           <span className='requiredStar'>*</span>
         </h3>
-        <p className=''>This is a number that can convert your jira story points to a new magnitude. IE: Convert days to hours with 8 since there are 8 working hours in a day.</p>
+        <p className=''>
+          This is a number that can convert your jira story points to a new magnitude.&nbsp;
+          IE: Convert days to hours with 8 since there are 8 working hours in a day.
+        </p>
         {/* <span style={{ display: 'inline-block' }}>
           <Select
             className='select-granularity-key'

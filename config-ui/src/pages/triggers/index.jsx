@@ -1,21 +1,19 @@
 import React, { useState, useEffect } from 'react'
-// import axios from 'axios'
 import {
   AnchorButton,
   Spinner,
   Button,
   TextArea,
-  Intent,
   Card,
   Elevation
 } from '@blueprintjs/core'
-import defaultTriggerValue from '../../data/defaultTriggerValue.js'
-import Nav from '../../components/Nav'
-import Sidebar from '../../components/Sidebar'
+import defaultTriggerValue from '@/data/defaultTriggerValue.js'
+import Nav from '@/components/Nav'
+import Sidebar from '@/components/Sidebar'
 import AppCrumbs from '@/components/Breadcrumbs'
-import Content from '../../components/Content'
-import request from '../../utils/request'
-import { DEVLAKE_ENDPOINT } from '../../utils/config.js'
+import Content from '@/components/Content'
+import request from '@/utils/request'
+import { DEVLAKE_ENDPOINT } from '@/utils/config.js'
 
 export default function Triggers () {
   const [textAreaBody, setTextAreaBody] = useState(JSON.stringify(defaultTriggerValue, null, 2))
@@ -35,14 +33,14 @@ export default function Triggers () {
 
   const [pendingTasks, setPendingTasks] = useState([])
   const [stage, setStage] = useState(0)
-  const [grafanaUrl, setGrafanaUrl] = useState(`http://localhost:3002`)
+  const [grafanaUrl, setGrafanaUrl] = useState('http://localhost:3002')
   useEffect(() => {
     let s = 0
     const interval = setInterval(async () => {
       try {
-        if (stage != 2){
+        if (stage !== 2) {
           const res = await request.get(`${DEVLAKE_ENDPOINT}/task/pending`)
-          console.log("res.data", res.data)
+          console.log('res.data', res.data)
           if (res.data.tasks.length > 0) {
             s = 1
           } else if (s === 1) {
