@@ -48,11 +48,11 @@ type JiraIssue struct {
 	// DevelopmentLeadTime         uint
 	// TestLeadTime                uint
 	// DeliveryLeadTime            uint
-	SpentMinutes  int64
-	LeadTime      uint
-	StdStoryPoint uint
-	StdType       string
-	StdStatus     string
+	SpentMinutes    int64
+	LeadTimeMinutes uint
+	StdStoryPoint   uint
+	StdType         string
+	StdStatus       string
 
 	// internal status tracking
 	ChangelogUpdated sql.NullTime
