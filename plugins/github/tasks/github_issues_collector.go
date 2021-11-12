@@ -88,7 +88,7 @@ func convertGithubIssue(issue *IssuesResponse) (*models.GithubIssue, error) {
 	}
 
 	if issue.ClosedAt.ToSqlNullTime().Valid {
-		githubIssue.LeadTime = uint(issue.ClosedAt.ToTime().Sub(issue.GithubCreatedAt.ToTime()).Seconds())
+		githubIssue.LeadTimeMinutes = uint(issue.ClosedAt.ToTime().Sub(issue.GithubCreatedAt.ToTime()).Minutes())
 	}
 
 	return githubIssue, nil
