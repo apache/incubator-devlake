@@ -15,7 +15,7 @@
   "editable": true,
   "gnetId": null,
   "graphTooltip": 0,
-  "id": 37,
+  "id": 12,
   "links": [
     {
       "asDropdown": false,
@@ -194,5 +194,5 @@
   "timezone": "",
   "title": "Was our quality improved or not?",
   "uid": "G4DEk75nz",
-  "version": 20
+  "version": 1
 }

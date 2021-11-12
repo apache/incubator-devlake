@@ -15,8 +15,8 @@
   "editable": true,
   "gnetId": null,
   "graphTooltip": 0,
-  "id": 36,
-  "iteration": 1636652519256,
+  "id": 14,
+  "iteration": 1636742090003,
   "links": [
     {
       "asDropdown": false,
@@ -257,5 +257,5 @@
   "timezone": "",
   "title": "Is this month more productive than last?",
   "uid": "ddREk75nk",
-  "version": 15
+  "version": 1
 }
