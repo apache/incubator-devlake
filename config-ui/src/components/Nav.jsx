@@ -4,7 +4,7 @@ import {
   Navbar,
   Icon,
 } from '@blueprintjs/core'
-import '../styles/nav.scss'
+import '@/styles/nav.scss'
 import { ReactComponent as DiscordIcon } from '@/images/discord.svg'
 
 const Nav = () => {
