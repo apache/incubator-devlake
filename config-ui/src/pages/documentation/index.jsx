@@ -23,7 +23,6 @@ export default function Documentation () {
 
   const [pendingTasks, setPendingTasks] = useState([])
   const [stage, setStage] = useState(0)
-  const [grafanaUrl, setGrafanaUrl] = useState(3002)
   useEffect(() => {
     let s = 0
     const interval = setInterval(async () => {
@@ -37,7 +36,6 @@ export default function Documentation () {
         }
         setStage(s)
         setPendingTasks(res.data.tasks)
-        setGrafanaUrl(`${location.protocol}//${location.hostname}:${res.data.grafanaPort}`)
       } catch (e) {
         console.log(e)
       }
