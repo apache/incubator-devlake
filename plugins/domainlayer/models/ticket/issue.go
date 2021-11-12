@@ -31,5 +31,5 @@ type Issue struct {
 	CreatedDate              time.Time
 	UpdatedDate              time.Time
 	SpentMinutes             int64
-	LeadTime                 uint
+	LeadTimeMinutes          uint
 }
