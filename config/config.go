@@ -25,6 +25,7 @@ type Config struct {
 	GITLAB_AUTH                        string `mapstructure:"GITLAB_AUTH"`
 	GITHUB_ENDPOINT                    string `mapstructure:"GITHUB_ENDPOINT"`
 	GITHUB_AUTH                        string `mapstructure:"GITHUB_AUTH"`
+	GITHUB_PROXY                       string `mapstructure:"GITHUB_PROXY"`
 	JENKINS_ENDPOINT                   string `mapstructure:"JENKINS_ENDPOINT"`
 	JENKINS_USERNAME                   string `mapstructure:"JENKINS_USERNAME"`
 	JENKINS_PASSWORD                   string `mapstructure:"JENKINS_PASSWORD"`
