@@ -90,15 +90,15 @@ func EnrichIssues() error {
 		return err
 	}
 
-	err = SetType([]string{"bug"}, "Bug")
+	err = SetType([]string{"bug", "failure", "error"}, "Bug")
 	if err != nil {
 		return err
 	}
-	err = SetType([]string{"feat", "feature", "proposal"}, "Requirement")
+	err = SetType([]string{"feat", "feature", "proposal", "requirement"}, "Requirement")
 	if err != nil {
 		return err
 	}
-	err = SetType([]string{"doc"}, "Documentation")
+	err = SetType([]string{"doc", "documentation"}, "Documentation")
 	if err != nil {
 		return err
 	}
