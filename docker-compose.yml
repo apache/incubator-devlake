@@ -32,7 +32,7 @@ services:
     depends_on:
       - mysql
   devlake:
-    image: mericodev/lake:0.3.0
+    image: mericodev/lake
     ports:
       - 127.0.0.1:8080:8080
     env_file:
@@ -41,13 +41,13 @@ services:
     depends_on:
       - grafana
   config-ui:
-    image: mericodev/config-ui:0.3.0
+    image: mericodev/config-ui
     ports:
-      - 127.0.0.1:4000:4000
+      - 127.0.0.1:4000:80
+    env_file:
+      - ./.env
     environment:
       - ENV_FILEPATH=/.env
-      - DEVLAKE_ENDPOINT=http://devlake:8080
-      - GRAFANA_PORT=3002/d/RXJZNpMnz/homepage?orgId=1
     volumes:
       - ./.env:/.env:rw
 volumes:
