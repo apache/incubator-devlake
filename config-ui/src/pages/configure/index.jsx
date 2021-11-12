@@ -30,6 +30,10 @@ export default function Configure () {
     setAlertOpen(true)
   }
 
+  const isValidForm = (dbUrl, port) => {
+    return port && port.toString().length > 0 && dbUrl && dbUrl.toString().length >= 2
+  }
+
   useEffect(() => {
     const fetchEnv = async () => {
       const env = await request.get(`${DEVLAKE_ENDPOINT}/env`)
@@ -157,7 +161,7 @@ export default function Configure () {
                 intent='primary'
                 loading={alertOpen}
                 onClick={(e) => saveAll(e)}
-                disabled={!port || isNaN(port) || !dbUrl}
+                disabled={!isValidForm(dbUrl, port)}
               >
                 Save Configuration
               </Button>
