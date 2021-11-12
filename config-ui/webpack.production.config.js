@@ -72,6 +72,9 @@ module.exports = (env = {}) => {
               },
             },
             {
+              loader: 'resolve-url-loader'
+            },
+            {
               loader: 'sass-loader',
               options: {
                 implementation: require('node-sass'),
@@ -87,7 +90,7 @@ module.exports = (env = {}) => {
           use: ['html-loader']
         },
         {
-          test: /\.(eot|ttf|woff|woff2|png|gif|jpe?g)$/,
+          test: /\.(png|gif|jpe?g)$/,
           loader: require.resolve('file-loader'),
           options: {
             name: '[name].[ext]?[hash]',
@@ -95,7 +98,18 @@ module.exports = (env = {}) => {
           },
         },
         {
+          test: /\.(eot|ttf|woff|woff2|svg)$/,
+          loader: require.resolve('file-loader'),
+          include: path.resolve(__dirname, './src/fonts/'),
+          options: {
+            name: '[name].[ext]',
+            outputPath: 'fonts/',
+            esModule: false,
+          },
+        },
+        {
           test: /\.svg$/,
+          exclude: path.resolve(__dirname, './src/fonts'),
           use: ['@svgr/webpack', 'url-loader'],
         },
         {
