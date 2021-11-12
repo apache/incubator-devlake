@@ -52,7 +52,7 @@ export default function JiraSettings (props) {
       : null
   }
 
-  const parseTypeMappings = (mappings) => {
+  const parseTypeMappings = (mappings = []) => {
     const GroupedMappings = {
       [MAPPING_TYPES.Requirement]: [],
       [MAPPING_TYPES.Incident]: [],
