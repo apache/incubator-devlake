@@ -28,6 +28,14 @@ func ConvertIssues() error {
 	return nil
 }
 
+func convertStateToStatus(state string) string {
+	if state == "closed" {
+		return "Resolved"
+	} else {
+		return "Todo"
+	}
+}
+
 func convertToIssueModel(issue *githubModels.GithubIssue) *ticket.Issue {
 	domainIssue := &ticket.Issue{
 		DomainEntity: base.DomainEntity{
@@ -36,7 +44,7 @@ func convertToIssueModel(issue *githubModels.GithubIssue) *ticket.Issue {
 		Key:               fmt.Sprint(issue.GithubId),
 		Title:             issue.Title,
 		Summary:           issue.Body,
-		Status:            issue.State,
+		Status:            convertStateToStatus(issue.State),
 		Priority:          issue.Priority,
 		Type:              issue.Type,
 		AssigneeOriginKey: issue.Assignee,
