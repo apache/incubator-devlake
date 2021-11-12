@@ -14,6 +14,7 @@ type Issue struct {
 	BoardOriginKey           string `gorm:"index"`
 	Url                      string
 	Key                      string
+	Title                    string
 	Summary                  string
 	EpicKey                  string
 	Type                     string
