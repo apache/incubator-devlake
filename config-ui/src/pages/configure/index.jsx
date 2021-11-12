@@ -157,6 +157,7 @@ export default function Configure () {
                 intent='primary'
                 loading={alertOpen}
                 onClick={(e) => saveAll(e)}
+                disabled={!port || isNaN(port) || !dbUrl}
               >
                 Save Configuration
               </Button>
