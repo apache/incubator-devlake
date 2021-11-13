@@ -46,7 +46,6 @@ func init() {
 }
 
 func GetConfigJson() (*Config, error) {
-	V := LoadConfigFile()
 	var configJson Config
 	err := V.Unmarshal(&configJson)
 	if err != nil {
