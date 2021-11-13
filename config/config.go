@@ -41,6 +41,7 @@ func LoadConfigFile() *viper.Viper {
 func init() {
 	V := LoadConfigFile()
 	V.SetDefault("PORT", ":8080")
+	V.SetDefault("PLUGIN_DIR", "bin/plugins")
 	// This line is essential for reading and writing
 	V.WatchConfig()
 }
