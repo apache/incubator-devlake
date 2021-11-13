@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"io/fs"
-	"path"
 	"path/filepath"
 	"plugin"
 	"strings"
@@ -60,9 +59,5 @@ func RunPlugin(name string, options map[string]interface{}, progress chan<- floa
 
 func PluginDir() string {
 	pluginDir := config.V.GetString("PLUGIN_DIR")
-	if !path.IsAbs(pluginDir) {
-		wd := config.V.GetString("WORKING_DIRECTORY")
-		pluginDir = filepath.Join(wd, pluginDir)
-	}
 	return pluginDir
 }
