@@ -35,9 +35,9 @@ services:
     image: mericodev/lake
     ports:
       - 127.0.0.1:8080:8080
-    env_file:
-      - ./.env
     restart: always
+    volumes:
+      - ./.env:/app/.env
     depends_on:
       - grafana
   config-ui:
@@ -46,10 +46,6 @@ services:
       - 127.0.0.1:4000:80
     env_file:
       - ./.env
-    environment:
-      - ENV_FILEPATH=/.env
-    volumes:
-      - ./.env:/.env:rw
 volumes:
   mysql-storage:
   grafana-storage:
