@@ -9,12 +9,14 @@ import (
 type GithubConfig struct {
 	GITHUB_ENDPOINT string `mapstructure:"GITHUB_ENDPOINT"`
 	GITHUB_AUTH     string `mapstructure:"GITHUB_AUTH"`
+	GITHUB_PROXY    string `mapstructure:"GITHUB_PROXY"`
 }
 
 // This object conforms to what the frontend currently sends.
 type GithubSource struct {
 	GITHUB_ENDPOINT string
 	GITHUB_AUTH     string
+	GITHUB_PROXY    string
 }
 
 // This object conforms to what the frontend currently expects.
@@ -23,6 +25,7 @@ type GithubResponse struct {
 	Auth     string
 	Name     string
 	ID       int
+	Proxy    string `json:"proxy"`
 }
 
 /*
@@ -41,6 +44,7 @@ func PutSource(input *core.ApiResourceInput) (*core.ApiResourceOutput, error) {
 	if githubSource.GITHUB_AUTH != "" {
 		V.Set("GITHUB_AUTH", githubSource.GITHUB_AUTH)
 	}
+	V.Set("GITHUB_PROXY", githubSource.GITHUB_PROXY)
 	err = V.WriteConfig()
 	if err != nil {
 		return nil, err
@@ -86,5 +90,6 @@ func GetSourceFromEnv() (*GithubResponse, error) {
 		Auth:     configJson.GITHUB_AUTH,
 		Name:     "Github",
 		ID:       1,
+		Proxy:    configJson.GITHUB_PROXY,
 	}, nil
 }
