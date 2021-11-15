@@ -14,15 +14,11 @@ services:
       MYSQL_USER: merico
       MYSQL_PASSWORD: merico
   grafana:
-    image: grafana/grafana:8.0.6
+    image: mericodev/grafana:0.4.0
     ports:
       - 3002:3000
     volumes:
       - grafana-storage:/var/lib/grafana
-      - ./grafana/provisioning:/etc/grafana/provisioning
-      - ./grafana/dashboards:/etc/grafana/dashboards
-      - ./grafana/img/grafana_icon.svg:/usr/share/grafana/public/img/grafana_icon.svg:rw
-      - ./grafana/img:/usr/share/grafana/public/img/lake:ro
     environment:
       - GF_USERS_ALLOW_SIGN_UP=false
       - GF_DASHBOARDS_JSON_ENABLED=true
@@ -32,7 +28,7 @@ services:
     depends_on:
       - mysql
   devlake:
-    image: mericodev/lake
+    image: mericodev/lake:0.4.0
     ports:
       - 127.0.0.1:8080:8080
     restart: always
@@ -41,7 +37,7 @@ services:
     depends_on:
       - grafana
   config-ui:
-    image: mericodev/config-ui
+    image: mericodev/config-ui:0.4.0
     ports:
       - 127.0.0.1:4000:80
     env_file:
