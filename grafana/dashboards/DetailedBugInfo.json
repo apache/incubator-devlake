@@ -15,7 +15,7 @@
   "editable": true,
   "gnetId": null,
   "graphTooltip": 0,
-  "id": 35,
+  "id": 67,
   "links": [
     {
       "asDropdown": false,
@@ -114,7 +114,7 @@
           "metricColumn": "none",
           "queryType": "randomWalk",
           "rawQuery": true,
-          "rawSql": "with bugs as(\n  select \n    DATE_ADD(date(created_date), INTERVAL -DAY(date(created_date))+1 DAY) as time,\n    count(*) as bug_count\n  from issues i\n  where \n    type = 'Bug'\n    and $__timeFilter(created_date)\n  group by 1\n  order by 1 desc\n)\n\nselect\n  date_format(time,'%M %Y') as month,\n  bug_count as 'Bug Count by month'\nfrom bugs\norder by time asc",
+          "rawSql": "with bugs as(\n  select \n    DATE_ADD(date(created_date), INTERVAL -DAY(date(created_date))+1 DAY) as time,\n    count(*) as bug_count\n  from issues i\n  where \n    type = 'Bug'\n    and $__timeFilter(created_date)\n  group by 1\n  order by 1 desc\n)\n\nselect\n  date_format(time,'%M %Y') as month,\n  bug_count as 'Bug Count over Month'\nfrom bugs\norder by time asc",
           "refId": "A",
           "select": [
             [
@@ -136,7 +136,7 @@
           ]
         }
       ],
-      "title": "Bug count over month",
+      "title": "Bug count over Month",
       "type": "barchart"
     },
     {
@@ -167,7 +167,32 @@
           },
           "unit": "short"
         },
-        "overrides": []
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "title"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 405
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "summary"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 538
+              }
+            ]
+          }
+        ]
       },
       "gridPos": {
         "h": 8,
@@ -177,7 +202,8 @@
       },
       "id": 30,
       "options": {
-        "showHeader": true
+        "showHeader": true,
+        "sortBy": []
       },
       "pluginVersion": "8.0.6",
       "targets": [
@@ -187,7 +213,7 @@
           "metricColumn": "none",
           "queryType": "randomWalk",
           "rawQuery": true,
-          "rawSql": "select \n    -- title,\n    summary,\n    created_date,\n    assignee_origin_key as assignee,\n    status,\n    priority\n  from issues i\n  where \n    type = 'Bug'\n    and $__timeFilter(created_date)\n  order by created_date desc",
+          "rawSql": "select \n    title,\n    summary,\n    created_date,\n    assignee_origin_key as assignee,\n    status,\n    priority\n  from issues i\n  where \n    type = 'Bug'\n    and $__timeFilter(created_date)\n  order by created_date desc",
           "refId": "A",
           "select": [
             [
@@ -227,5 +253,5 @@
   "timezone": "",
   "title": "Detailed Bug Info",
   "uid": "s48Lzn5nz",
-  "version": 13
+  "version": 3
 }
