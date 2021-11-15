@@ -26,6 +26,7 @@ export default function Triggers () {
   const [triggerDisabled, setTriggerDisabled] = useState([])
 
   // component mounted, run once
+  // @todo FIXME: React exhaustive dep warning, this needs to be wrapped in a useCallback (or async function moved inside)
   useEffect(async () => {
     stage = STAGE_INIT
     targetTaskIds = []
@@ -87,8 +88,7 @@ export default function Triggers () {
                 target='_blank'
                 text='View Dashboards'
               />
-            </div>
-          }
+            </div>}
           {stage === STAGE_PENDING &&
             <div className='headlineContainer'>
               <h1>Collecting Data</h1>
@@ -97,7 +97,7 @@ export default function Triggers () {
               {pendingTasks.map(task => (
                 <div className='pluginSpinnerWrap' key={`key-${task.ID}`}>
                   <div key={`progress-${task.ID}`}>
-                    <span style={{display:'inline-block', width: '100px' }}>{task.plugin}</span>
+                    <span style={{ display: 'inline-block', width: '100px' }}>{task.plugin}</span>
                     {task.status === 'TASK_CREATED' &&
                       <>
                         <Spinner
@@ -105,14 +105,12 @@ export default function Triggers () {
                           className='pluginSpinner'
                         />
                         <strong>{task.progress * 100}%</strong>
-                      </>
-                    }
+                      </>}
                     {task.status === 'TASK_FAILED' &&
                       <>
-                        <span style={{color: 'red', fontWeight: 'bold'}}>{task.status} </span>
+                        <span style={{ color: 'red', fontWeight: 'bold' }}>{task.status} </span>
                         {task.message}
-                      </>
-                    }
+                      </>}
                   </div>
                 </div>
               ))}
@@ -126,19 +124,33 @@ export default function Triggers () {
 
               <form className='form'>
                 <div className='headlineContainer'>
-                  <p className='description'>Create a http request to trigger data collect tasks, please replace your&nbsp;
-                    <code>gitlab projectId</code> and <code>jira boardId</code> in the request body. This can take&nbsp;
-                    up to 20 minutes for large projects. (gitlab 10k+ commits or jira 5k+ issues)
+                  <p className='description'>Create a <strong>http</strong> request to trigger data collect tasks,&nbsp;
+                    {/* eslint-disable-next-line max-len */}
+                    please customize the following JSON by removing the plugins you don't need and replace with your own&nbsp;
+                    {/* eslint-disable-next-line max-len */}
+                    <strong>JIRA</strong> <code>boardId</code> / <strong>GitLab</strong> <code>projectId</code> / <strong>GitHub</strong> <code>repositoryName</code> and <code>owner</code> in the request body. &nbsp;
+                    {/* eslint-disable-next-line max-len */}
+                    For a project with 10k commits and 5k JIRA issues, this can take up to <em>20 minutes</em> for collecting JIRA, GitLab, and Jenkins data.&nbsp;
+                    {/* eslint-disable-next-line max-len */}
+                    The data collection will take longer for GitHub since they have a rate limit of 2k requests per hour. You can accelerate the process by configuring multiple personal access tokens.
                   </p>
                   <p className='description'>
-                    There are two types of plugins in our application. The regular plugins collect and enrich data while the domain layer plugins prepare the data for the graphs in config ui. You should only have to edit the normal plugins. Editing domain layer plugins is for advanced usage only.
+                    {/* eslint-disable-next-line max-len */}
+                    There are two types of plugins in our application, corresponding to the 2 lists in the following JSON.&nbsp;
+                    {/* eslint-disable-next-line max-len */}
+                    The regular plugins collect and enrich data (<em>the 1st list</em>) while the domain layer plugins (<em>the 2nd list</em>) prepare the data for the graphs in Grafana dashboards.&nbsp;
+                    {/* eslint-disable-next-line max-len */}
+                    You <strong>SHOULD ONLY</strong> have to edit the regular plugins. Editing domain layer plugins is for advanced usage only.&nbsp;
                   </p>
-                  <h2>
-
-                  <p className='description'>
-                    Full documentation here: <a href="https://github.com/merico-dev/lake/wiki/How-to-use-the-triggers-page" target="_blank">How to use the Triggers Page</a>
+                  <p className='description' style={{ fontSize: '13px' }}>
+                    <span style={{ fontWeight: 'bold' }}>Detailed configuration guide:</span>&nbsp;
+                    <a
+                      href='https://github.com/merico-dev/lake/wiki/How-to-use-the-triggers-page' target='_blank'
+                      rel='noreferrer' style={{ fontWeight: 'bold', color: '#E8471C', textDecoration: 'underline' }}
+                    >
+                      How to use the Triggers page
+                    </a>
                   </p>
-                  </h2>
                 </div>
 
                 <div className='formContainer'>
