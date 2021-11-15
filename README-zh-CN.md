@@ -133,7 +133,7 @@ Jenkins | 指标，生成 API Token | [Link](plugins/jenkins/README-zh-CN.md)
     ```sh
     cp .env.example .env
     ```
-
+   在`.env`文件中找到以`DB_URL`开头的那一行，把`mysql:3306`替换为`127.0.0.1:3306`
 4. 启动 Docker
 
     > 确保在此步骤之前 Docker 正在运行。
