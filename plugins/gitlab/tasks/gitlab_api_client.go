@@ -18,26 +18,22 @@ type GitlabApiClient struct {
 	core.ApiClient
 }
 
-var gitlabApiClient *GitlabApiClient
-
 func CreateApiClient() *GitlabApiClient {
-	if gitlabApiClient == nil {
-		gitlabApiClient = &GitlabApiClient{}
-		gitlabApiClient.Setup(
-			config.V.GetString("GITLAB_ENDPOINT"),
-			map[string]string{
-				"Authorization": fmt.Sprintf("Bearer %v", config.V.GetString("GITLAB_AUTH")),
-			},
-			10*time.Second,
-			3,
-		)
-	}
+	gitlabApiClient := &GitlabApiClient{}
+	gitlabApiClient.Setup(
+		config.V.GetString("GITLAB_ENDPOINT"),
+		map[string]string{
+			"Authorization": fmt.Sprintf("Bearer %v", config.V.GetString("GITLAB_AUTH")),
+		},
+		10*time.Second,
+		3,
+	)
 	return gitlabApiClient
 }
 
 type GitlabPaginationHandler func(res *http.Response) error
 
-func getTotal(resourceUriFormat string) (totalInt int, rateLimitPerSecond int, err error) {
+func (gitlabApiClient *GitlabApiClient) getTotal(resourceUriFormat string) (totalInt int, rateLimitPerSecond int, err error) {
 	// jsut get the first page of results. The response has a head that tells the total pages
 	page := 0
 	page_size := 1
@@ -96,7 +92,7 @@ func (gitlabApiClient *GitlabApiClient) FetchWithPaginationAnts(scheduler *utils
 		resourceUriFormat = resourceUri + "?per_page=%v&page=%v"
 	}
 	// We need to get the total pages first so we can loop through all requests concurrently
-	total, _, err := getTotal(resourceUriFormat)
+	total, _, err := gitlabApiClient.getTotal(resourceUriFormat)
 	if err != nil {
 		return err
 	}
@@ -185,7 +181,7 @@ func (gitlabApiClient *GitlabApiClient) FetchWithPagination(resourceUri string, 
 	}
 
 	// We need to get the total pages first so we can loop through all requests concurrently
-	total, _, _ := getTotal(resourceUriFormat)
+	total, _, _ := gitlabApiClient.getTotal(resourceUriFormat)
 
 	// Loop until all pages are requested
 	for i := 0; (i * pageSize) < total; i++ {
