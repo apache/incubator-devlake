@@ -24,9 +24,10 @@ func (plugin Github) Description() string {
 }
 
 func (plugin Github) Execute(options map[string]interface{}, progress chan<- float32, ctx context.Context) error {
+	endpoint := config.V.GetString("GITHUB_ENDPOINT")
 	configTokensString := config.V.GetString("GITHUB_AUTH")
 	tokens := strings.Split(configTokensString, ",")
-	githubApiClient := tasks.CreateApiClient(tokens)
+	githubApiClient := tasks.CreateApiClient(endpoint, tokens)
 	_ = githubApiClient.SetProxy(config.V.GetString("GITHUB_PROXY"))
 	// GitHub API has very low rate limits, so we cycle through multiple tokens to increase rate limits.
 	// Then we set the ants max worker per second according to the number of tokens we have to maximize speed.
