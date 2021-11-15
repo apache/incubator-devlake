@@ -15,6 +15,10 @@ Here are some examples of what we can use GitHub data to show:
 - Bug Count per 1k Lines of Code
 - Commit Count over Time
 
+## Screenshot
+
+![image](https://user-images.githubusercontent.com/27032263/141855099-f218f220-1707-45fa-aced-6742ab4c4286.png)
+
 ## Getting Personal Access Token
 
 Here is a link to a guide to get your personal access token from GitHub:
