@@ -97,31 +97,47 @@ Jenkins | Metrics, Generating API Token | <a href="plugins/jenkins/README.md" ta
    cp .env.example .env
    ```
 2. Start Docker on your machine, then run `docker-compose up -d` to start the services.
+3. Visit `localhost:4000` to setup devlake.
 
-   > For more info on how to configure plugins, please refer to the <a href="https://github.com/merico-dev/lake#data-source-plugins" target="_blank">data source plugins</a> section
-
-3. Visit `localhost:4000` to setup configuration files.
    >- Finish the configuration on the [main configuration page](http://localhost:4000) (`localhost:4000`)
    >- Navigate to desired plugins pages on the sidebar under "Plugins", e.g. <a href="plugins/jira/README.md" target="_blank">Jira</a>, <a href="plugins/gitlab/README.md" target="_blank">GitLab</a>, <a href="plugins/jenkins/README.md" target="_blank">Jenkins</a> etc. Enter in required information for those plugins
    >- Submit the form to update the values by clicking on the **Save Config** button on each form page
+   >- For more info on how to configure plugins, please refer to the <a href="https://github.com/merico-dev/lake#data-source-plugins" target="_blank">data source plugins</a> section
+   >- To collect this repo for a quick preview, you must put your github into `Auth Token(s)` **Data Integrations / Github** page.
+   >- `devlake` takes a while to fully boot up. if `config-ui` complaining about api being unreachable, please wait a few seconds and try refreshing the page. 
 
 4. Visit `localhost:4000/triggers` to trigger data collection.
 
-   > Please replace your [GitLab projectId](plugins/gitlab/README.md#finding-project-id) and [Jira boardId](plugins/jira/README.md#find-board-id) in the request body. Click the **Trigger Collection** button. Data collection can take up to 20 minutes for large projects. (GitLab 10k+ commits or Jira 5k+ issues)
 
-5. Click *View Dashboards* button when done (username: `admin`, password: `admin`). The button is shown in the top left.
+   > - Please replace your [GitLab projectId](plugins/gitlab/README.md#finding-project-id) and [Jira boardId](plugins/jira/README.md#find-board-id) in the request body. Click the **Trigger Collection** button. Data collection can take up to 20 minutes for large projects. (GitLab 10k+ commits or Jira 5k+ issues)
+   > - To collect this repo for a quick preview, you can  use the following JSON
+   >   ```json
+   >   [
+   >     [
+   >       {
+   >         "Plugin": "github",
+   >         "Options": {
+   >           "repositoryName": "lake",
+   >           "owner": "merico-dev"
+   >         }
+   >       }
+   >     ],
+   >     [
+   >       {
+   >         "plugin": "github-domain",
+   >         "options": {}
+   >       }
+   >     ]
+   >   ]
+   >   ```
+
+
+5. Click *View Dashboards* button when done (username: `admin`, password: `admin`). The button will be shown on the Trigger Collection page when data collection has finished.
 
 ### Setup cron job
 Commonly, we have the requirement to synchronize data periodically. We provided a tool called `lake-cli` to meet that requirement. Check `lake-cli` usage [here](./cmd/lake-cli/README.md).  
 
 Otherwise, if you just want to use the cron job, please check `docker-compose` version at [here](./devops/sync/README.md)
-
-## Deploy to TeamCode
-1. **IMPORTANT: MAKE SURE config-ui service is protected on TeamCode Control Panel before you set it up, or your TOKEN/PASSWORD might leak**
-2. The following Environment Variables are to be set for `config-ui` service:
-```
-GRAFANA_ENDPOINT=<URL_TO_GRAFANA>
-```
 
 ## Developer Setup<a id="dev-setup"></a>
 
