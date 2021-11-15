@@ -55,7 +55,7 @@ const SidebarMenu = (props) => {
           icon='cog' href='/lake/api/configuration'
           active={top.location.href.endsWith('/lake/api/configuration')}
         />
-        <Menu.Item text='Documentation' icon='help' href='https://github.com/merico-dev/lake/wiki' target='_blank' />
+        <Menu.Item text='Documentation' icon='help' href='https://github.com/merico-dev/lake/blob/main/README.md' target='_blank' />
         <Menu.Item text='Merico Network' icon='globe-network'>
           <Menu.Item text='Merico GitHub' href='https://github.com/merico-dev' target='_blank' />
           <Menu.Item text='Dev Lake Github' href='https://github.com/merico-dev/lake' target='_blank' />
