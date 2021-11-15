@@ -124,9 +124,15 @@ export default function Triggers () {
 
               <form className='form'>
                 <div className='headlineContainer'>
-                  <p className='description'>Create a <strong>http</strong> request to trigger data collect tasks, please replace your&nbsp;
-                    Gitlab <code>projectId</code> and JIRA <code>boardId</code> in the request body. This can take&nbsp;
-                    up to 20 minutes for large projects. (<strong>Gitlab</strong> 10k+ commits or <strong>JIRA</strong> 5k+ issues)
+                  <p className='description'>Create a <strong>http</strong> request to trigger data collect tasks,&nbsp;
+                    {/* eslint-disable-next-line max-len */}
+                    please customize the following JSON by removing the plugins you don't need and replace with your own&nbsp;
+                    {/* eslint-disable-next-line max-len */}
+                    <strong>JIRA</strong> <code>boardId</code> / <strong>GitLab</strong> <code>projectId</code> / <strong>GitHub</strong> <code>repositoryName</code> and <code>owner</code> in the request body. &nbsp;
+                    {/* eslint-disable-next-line max-len */}
+                    For a project with 10k commits and 5k JIRA issues, this can take up to <em>20 minutes</em> for collecting JIRA, GitLab, and Jenkins data.&nbsp;
+                    {/* eslint-disable-next-line max-len */}
+                    The data collection will take longer for GitHub since they have a rate limit of 2k requests per hour. You can accelerate the process by configuring multiple personal access tokens.
                   </p>
                   <p className='description'>
                     {/* eslint-disable-next-line max-len */}
