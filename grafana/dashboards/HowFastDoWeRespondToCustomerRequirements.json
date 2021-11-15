@@ -15,7 +15,7 @@
   "editable": true,
   "gnetId": null,
   "graphTooltip": 0,
-  "id": 11,
+  "id": 64,
   "links": [
     {
       "asDropdown": false,
@@ -33,7 +33,7 @@
   "panels": [
     {
       "datasource": "mysql",
-      "description": "1. The average requirement lead time over time.\n2. The time granularity can be switched to Week or Month by \"Time Interval\" above. \n3. When Time Interval is set to \"Month\", the average_lead_time of \"2021-06-01\" refers to the average lead time of requirements whose resolution time falls under [2020-06-01, 2020-07-01).",
+      "description": "",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -141,7 +141,7 @@
       "datasource": null,
       "gridPos": {
         "h": 2,
-        "w": 4,
+        "w": 5,
         "x": 0,
         "y": 9
       },
@@ -197,5 +197,5 @@
   "timezone": "",
   "title": "How fast do we respond to customer requirements?",
   "uid": "SupYz7c7z",
-  "version": 2
+  "version": 4
 }

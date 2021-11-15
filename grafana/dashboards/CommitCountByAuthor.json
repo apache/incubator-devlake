@@ -15,8 +15,8 @@
   "editable": true,
   "gnetId": null,
   "graphTooltip": 0,
-  "id": 33,
-  "iteration": 1636652526816,
+  "id": 65,
+  "iteration": 1636962969251,
   "links": [
     {
       "asDropdown": false,
@@ -113,7 +113,7 @@
           "group": [],
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "with commit_data as(\n  SELECT\n    DATE_ADD(date(authored_date), INTERVAL -DAY(date(authored_date))+1 DAY)  as time,\n    c.author_name,\n    count(*) as commit_count\n  FROM commits c\n    -- join repos r on c.repo_id = r.substring_index(origin_key,':',-1)\n  WHERE\n    c.message not like '%Merge%'\n    and $__timeFilter(authored_date)\n    -- and c.repo_id = $repo_id\n  group by 2,1\n  order by 2,1\n),\n\nthis_month as(\n  select \n\t\tDATE_ADD(date(CURDATE()), INTERVAL -DAY(date(CURDATE()))+1 DAY) as this_month\n),\n\nlast_month as(\n\tselect \n\t\tDATE_ADD(DATE_ADD(date(CURDATE()), INTERVAL -DAY(date(CURDATE()))+1 DAY), INTERVAL -1 MONTH) as last_month\n),\n\nthe_month_before_last as(\n\tSELECT \n\t\tDATE_ADD(DATE_ADD(date(CURDATE()), INTERVAL -DAY(date(CURDATE()))+1 DAY), INTERVAL -2 MONTH) as the_month_before_last\n),\n\nthis_month_record as(\n\tSELECT\n\t\tauthor_name,\n\t\tcommit_count as this_month_count,\n\t\ttime as this_month\n\tfrom commit_data\n\tWHERE \n\t\ttime in (SELECT this_month from this_month)\n),\n\nlast_month_record as(\n\tSELECT\n\t\tauthor_name,\n\t\tcommit_count as last_month_count,\n\t\ttime as last_month\n\tfrom commit_data\n\tWHERE \n\t\ttime in (SELECT last_month from last_month)\n),\nthe_month_before_last_record as(\n\tSELECT\n\t\tauthor_name,\n\t\tcommit_count as the_month_before_last_count,\n\t\ttime as the_month_before_last\n\tfrom commit_data\n\tWHERE \n\t\ttime in (SELECT the_month_before_last from the_month_before_last)\n)\n\nSELECT\n\tCOALESCE(NULLIF(tmr.author_name,''), NULLIF(lmr.author_name,''), tmblr.author_name) AS 'Author Name',\n\tCOALESCE(tmblr.the_month_before_last_count,0) AS \"The Month before Last\",\n\tCOALESCE(lmr.last_month_count,0) AS \"Last Month\",\n\tCOALESCE(tmr.this_month_count,0) AS \"This Month\"\nFROM this_month_record tmr \nright join last_month_record lmr on tmr.author_name = lmr.author_name \nright join the_month_before_last_record tmblr on lmr.author_name = tmblr.author_name\norder by 2 desc\n",
+          "rawSql": "with commit_data as(\n  SELECT\n    DATE_ADD(date(authored_date), INTERVAL -DAY(date(authored_date))+1 DAY)  as time,\n    c.author_name,\n    count(*) as commit_count\n  FROM commits c\n  WHERE\n    c.message not like '%Merge%'\n    and $__timeFilter(authored_date)\n  group by 2,1\n  order by 2,1\n),\n\nthis_month as(\n  select \n\t\tDATE_ADD(date(CURDATE()), INTERVAL -DAY(date(CURDATE()))+1 DAY) as this_month\n),\n\nlast_month as(\n\tselect \n\t\tDATE_ADD(DATE_ADD(date(CURDATE()), INTERVAL -DAY(date(CURDATE()))+1 DAY), INTERVAL -1 MONTH) as last_month\n),\n\nthe_month_before_last as(\n\tSELECT \n\t\tDATE_ADD(DATE_ADD(date(CURDATE()), INTERVAL -DAY(date(CURDATE()))+1 DAY), INTERVAL -2 MONTH) as the_month_before_last\n),\n\nthis_month_record as(\n\tSELECT\n\t\tauthor_name,\n\t\tcommit_count as this_month_count,\n\t\ttime as this_month\n\tfrom commit_data\n\tWHERE \n\t\ttime in (SELECT this_month from this_month)\n),\n\nlast_month_record as(\n\tSELECT\n\t\tauthor_name,\n\t\tcommit_count as last_month_count,\n\t\ttime as last_month\n\tfrom commit_data\n\tWHERE \n\t\ttime in (SELECT last_month from last_month)\n),\nthe_month_before_last_record as(\n\tSELECT\n\t\tauthor_name,\n\t\tcommit_count as the_month_before_last_count,\n\t\ttime as the_month_before_last\n\tfrom commit_data\n\tWHERE \n\t\ttime in (SELECT the_month_before_last from the_month_before_last)\n)\n\nSELECT\n\tCOALESCE(NULLIF(tmr.author_name,''), NULLIF(lmr.author_name,''), tmblr.author_name) AS 'Author Name',\n\tCOALESCE(tmblr.the_month_before_last_count,0) AS \"The Month before Last\",\n\tCOALESCE(lmr.last_month_count,0) AS \"Last Month\",\n\tCOALESCE(tmr.this_month_count,0) AS \"This Month\"\nFROM this_month_record tmr \nright join last_month_record lmr on tmr.author_name = lmr.author_name \nright join the_month_before_last_record tmblr on lmr.author_name = tmblr.author_name\norder by 2 desc\n",
           "refId": "A",
           "select": [
             [
@@ -261,5 +261,5 @@
   "timezone": "",
   "title": "Commit Count by Author",
   "uid": "F0iYknc7z",
-  "version": 12
+  "version": 2
 }

@@ -15,8 +15,8 @@
   "editable": true,
   "gnetId": null,
   "graphTooltip": 0,
-  "id": 14,
-  "iteration": 1636742090003,
+  "id": 62,
+  "iteration": 1636962948355,
   "links": [
     {
       "asDropdown": false,
@@ -139,7 +139,7 @@
           "group": [],
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "with _commits as(\n  SELECT\n    DATE_ADD(date(authored_date), INTERVAL -DAY(date(authored_date))+1 DAY) as time,\n    count(*) as commit_count\n  FROM commits\n  WHERE\n    message not like '%Merge branch%'\n    and $__timeFilter(authored_date)\n    and repo_id = $repo_id\n  group by 1\n)\n\nSELECT \n  date_format(time,'%M %Y') as month,\n  commit_count as \"Commit Count\"\nFROM _commits\nORDER BY time",
+          "rawSql": "with _commits as(\n  SELECT\n    DATE_ADD(date(authored_date), INTERVAL -DAY(date(authored_date))+1 DAY) as time,\n    count(*) as commit_count\n  FROM commits\n  WHERE\n    message not like '%Merge%'\n    and $__timeFilter(authored_date)\n    and repo_id = $repo_id\n  group by 1\n)\n\nSELECT \n  date_format(time,'%M %Y') as month,\n  commit_count as \"Commit Count\"\nFROM _commits\nORDER BY time",
           "refId": "A",
           "select": [
             [
@@ -257,5 +257,5 @@
   "timezone": "",
   "title": "Is this month more productive than last?",
   "uid": "ddREk75nk",
-  "version": 1
+  "version": 8
 }
