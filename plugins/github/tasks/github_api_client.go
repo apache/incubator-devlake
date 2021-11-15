@@ -6,7 +6,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/merico-dev/lake/config"
 	"github.com/merico-dev/lake/logger"
 	"github.com/merico-dev/lake/plugins/core"
 	githubUtils "github.com/merico-dev/lake/plugins/github/utils"
@@ -20,26 +19,22 @@ type GithubApiClient struct {
 	core.ApiClient
 }
 
-var githubApiClient *GithubApiClient
-
-func CreateApiClient(tokens []string) *GithubApiClient {
-	if githubApiClient == nil {
-		githubApiClient = &GithubApiClient{}
-		githubApiClient.tokenIndex = 0
-		githubApiClient.tokens = tokens
-		githubApiClient.SetBeforeFunction(func(req *http.Request) error {
-			req.Header.Set("Authorization", fmt.Sprintf("Bearer %v", githubApiClient.tokens[githubApiClient.tokenIndex]))
-			// Set next token index
-			githubApiClient.tokenIndex = (githubApiClient.tokenIndex + 1) % len(githubApiClient.tokens)
-			return nil
-		})
-		githubApiClient.Setup(
-			config.V.GetString("GITHUB_ENDPOINT"),
-			map[string]string{},
-			10*time.Second,
-			3,
-		)
-	}
+func CreateApiClient(endpoint string, tokens []string) *GithubApiClient {
+	githubApiClient := &GithubApiClient{}
+	githubApiClient.tokenIndex = 0
+	githubApiClient.tokens = tokens
+	githubApiClient.SetBeforeFunction(func(req *http.Request) error {
+		req.Header.Set("Authorization", fmt.Sprintf("Bearer %v", githubApiClient.tokens[githubApiClient.tokenIndex]))
+		// Set next token index
+		githubApiClient.tokenIndex = (githubApiClient.tokenIndex + 1) % len(githubApiClient.tokens)
+		return nil
+	})
+	githubApiClient.Setup(
+		endpoint,
+		map[string]string{},
+		10*time.Second,
+		3,
+	)
 	return githubApiClient
 }
 
@@ -49,7 +44,7 @@ type GithubPaginationHandler func(res *http.Response) error
 // conc - number of concurent requests you want to run
 func (githubApiClient *GithubApiClient) FetchWithPaginationAnts(resourceUri string, pageSize int, conc int, scheduler *utils.WorkerScheduler, handler GithubPaginationHandler) error {
 	url := AddPagingQueryToUrl(resourceUri)
-	err := RunConcurrently(url, pageSize, conc, scheduler, handler)
+	err := githubApiClient.RunConcurrently(url, pageSize, conc, scheduler, handler)
 	if err != nil {
 		logger.Error("runConcurrently() failed", true)
 	}
@@ -69,7 +64,7 @@ func AddPagingQueryToUrl(url string) string {
 // This method exists in the case where we do not know how many pages of data we have to fetch
 // This loops through the data in chunks of `conc` and if there is any request in there with no data returned, we assume we are at the end of the data required to fetch
 // This is needed since we do not want to make a request to get the paging details first since the rate limit for github is so low
-func RunConcurrently(resourceUriFormat string, pageSize int, conc int, scheduler *utils.WorkerScheduler, handler GithubPaginationHandler) error {
+func (githubApiClient *GithubApiClient) RunConcurrently(resourceUriFormat string, pageSize int, conc int, scheduler *utils.WorkerScheduler, handler GithubPaginationHandler) error {
 
 	if conc == 0 {
 		logger.Error("you must send a conc count to RunConcurrently()", true)

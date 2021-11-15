@@ -42,6 +42,8 @@ services:
       - 127.0.0.1:4000:80
     env_file:
       - ./.env
+    depends_on:
+      - devlake
 volumes:
   mysql-storage:
   grafana-storage:
