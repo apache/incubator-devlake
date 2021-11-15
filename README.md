@@ -155,6 +155,7 @@ GRAFANA_ENDPOINT=<URL_TO_GRAFANA>
     ```sh
     cp .env.example .env
     ```
+   Find the line start with `DB_URL` in the file `.env` and replace `mysql:3306` with `127.0.0.1:3306`
 
 4. Start the Docker containers:
 
