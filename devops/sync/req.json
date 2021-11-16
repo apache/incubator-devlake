@@ -3,17 +3,9 @@
     {
       "plugin": "jira",
       "options": {
-        "boardId": 53
-      }
-    },
-    {
-      "plugin": "jenkins",
-      "options": {}
-    },
-    {
-      "plugin": "gitlab",
-      "options": {
-        "projectId": 8967944
+        "sourceId": 1,
+        "boardId": 53,
+        "since": "2006-01-02T15:04:05Z"
       }
     }
   ]
