@@ -100,12 +100,21 @@ GitHub | Metrics, Generating API Token | <a href="plugins/github/README.md" targ
 2. Start Docker on your machine, then run `docker-compose up -d` to start the services.
 3. Visit `localhost:4000` to setup devlake.
 
-   >- Finish the configuration on the [main configuration page](http://localhost:4000) (`localhost:4000`)
-   >- Navigate to desired plugins pages on the sidebar under "Plugins", e.g. <a href="plugins/jira/README.md" target="_blank">Jira</a>, <a href="plugins/gitlab/README.md" target="_blank">GitLab</a>, <a href="plugins/jenkins/README.md" target="_blank">Jenkins</a> etc. Enter in required information for those plugins
-   >- Submit the form to update the values by clicking on the **Save Config** button on each form page
-   >- For more info on how to configure plugins, please refer to the <a href="https://github.com/merico-dev/lake#data-source-plugins" target="_blank">data source plugins</a> section
-   >- To collect this repo for a quick preview, you must put your github into `Auth Token(s)` **Data Integrations / Github** page.
+   > For more info on how to configure plugins, please refer to the <a href="https://github.com/merico-dev/lake#data-source-plugins" target="_blank">data source plugins</a> section
+
+3. Visit `localhost:4000` to setup configuration files.
+   >- Navigate to desired plugins pages on the Integrations page
+   >- You will need to enter the required information for the plugins you intend to use.
+   >- Please reference the following for more details on how to configure each one:
+   >-> <a href="plugins/jira/README.md" target="_blank">Jira</a>
+   >-> <a href="plugins/gitlab/README.md" target="_blank">GitLab</a>, 
+   >-> <a href="plugins/jenkins/README.md" target="_blank">Jenkins</a> 
+   >-> <a href="plugins/github/README.md" target="_blank">GitHub</a> 
+
+   >- Submit the form to update the values by clicking on the **Save Connection** button on each form page
+
    >- `devlake` takes a while to fully boot up. if `config-ui` complaining about api being unreachable, please wait a few seconds and try refreshing the page. 
+   >- To collect this repo for a quick preview, you must put your github into `Auth Token(s)` **Data Integrations / Github** page.
 
 4. Visit `localhost:4000/triggers` to trigger data collection.
 
@@ -186,27 +195,22 @@ Otherwise, if you just want to use the cron job, please check `docker-compose` v
     make dev
     ```
 
-6. You can now post to `/task` to create a data collection task for GitLab plugin. For demo purposes, we picked an open-source project on GitLab called [ClearURLs](https://gitlab.com/KevinRoebert/ClearUrls). Its GitLab project ID is 6821549 (right under its project name).
+6. Visit `localhost:4000` to setup configuration files.
+   >- Navigate to desired plugins pages on the Integrations page
+   >- You will need to enter the required information for the plugins you intend to use.
+   >- Please reference the following for more details on how to configure each one:
+   >-> <a href="plugins/jira/README.md" target="_blank">Jira</a>
+   >-> <a href="plugins/gitlab/README.md" target="_blank">GitLab</a>, 
+   >-> <a href="plugins/jenkins/README.md" target="_blank">Jenkins</a> 
+   >-> <a href="plugins/github/README.md" target="_blank">GitHub</a> 
 
-    ```
-    curl -XPOST 'localhost:8080/task' \
-    -H 'Content-Type: application/json' \
-    -d '[[{
-        "plugin": "gitlab",
-        "options": {
-            "projectId": 6821549
-        }
-    }]]'
-    ```
+   >- Submit the form to update the values by clicking on the **Save Connection** button on each form page
 
-7. Visualize the data in the Grafana Dashboard.
+7. Visit `localhost:4000/triggers` to trigger data collection.
 
-    _From here you can see existing data visualized from collected & enriched data_
+   > Please replace your [GitLab projectId](plugins/gitlab/README.md#finding-project-id) and [Jira boardId](plugins/jira/README.md#find-board-id) in the request body. Click the **Trigger Collection** button. Data collection can take up to 20 minutes for large projects. (GitLab 10k+ commits or Jira 5k+ issues)
 
-    - Navigate to http://localhost:3002 (username: `admin`, password: `admin`).
-    - You can also create/modify existing/save dashboards to `lake`.
-    - For more info on working with Grafana in Dev Lake see [Grafana Doc](docs/GRAFANA.md).
-
+8. Click *View Dashboards* button when done (username: `admin`, password: `admin`). The button is shown in the top left.
 
 ## Tests<a id="tests"></a>
 
