@@ -21,7 +21,7 @@ configure:
 	docker-compose up config-ui
 
 configure-dev:
-	cd config-ui; yarn; npm run dev;
+	cd config-ui; npm start;
 
 compose:
 	docker-compose up grafana
@@ -39,10 +39,10 @@ install:
 test: unit-test e2e-test
 
 unit-test: build
-	ENV_FILE=`pwd`/.env go test -v $$(go list ./... | grep -v /test/)
+	go test -v $$(go list ./... | grep -v /test/)
 
 e2e-test: build
-	ENV_FILE=`pwd`/.env go test -v ./test/...
+	PLUGIN_DIR=$(shell readlink -f bin/plugins) go test -v ./test/...
 
 lint:
 	golangci-lint run

@@ -99,7 +99,7 @@ func (plugin Jira) Execute(options map[string]interface{}, progress chan<- float
 			"collectIssues":     true,
 			"collectChangelogs": true,
 			"enrichIssues":      true,
-			"collectSprint":     true,
+			"collectSprints":    true,
 		}
 	}
 
@@ -156,7 +156,7 @@ func (plugin Jira) Execute(options map[string]interface{}, progress chan<- float
 			}
 		}
 		setBoardProgress(i, 0.8)
-		if tasksToRun["collectSprint"]{
+		if tasksToRun["collectSprints"] {
 			err = tasks.CollectSprint(jiraApiClient, source, boardId)
 			if err != nil {
 				return err
@@ -213,6 +213,9 @@ func (plugin Jira) ApiResources() map[string]map[string]core.ApiResourceHandler 
 		"sources/:sourceId/type-mappings/:userType/status-mappings/:userStatus": {
 			"PUT":    api.PutIssueStatusMapping,
 			"DELETE": api.DeleteIssueStatusMapping,
+		},
+		"sources/:sourceId/proxy/rest/*path": {
+			"GET": api.Proxy,
 		},
 	}
 }

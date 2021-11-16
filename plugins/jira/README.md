@@ -23,7 +23,7 @@ Incident Count per 1k Lines of Code | Amount of incidents per 1000 lines of code
 
 ## Configuration
 
-In order to fully use this plugin, you will need to set various config variables in the root of this project in the `.env` file.
+In order to fully use this plugin, you will need to set various configurations via Dev Lake's configuration UI.
 
 ### Set JIRA_ENDPOINT
 
@@ -31,7 +31,7 @@ This is the setting that is used as the base of all Jira API calls. You can see 
 
 **Example:**
 
-If you see `https://mydomain.atlassian.net/secure/RapidBoard.jspa?rapidView=999&projectKey=XXX`, you will need to set `JIRA_ENDPOINT=https://mydomain.atlassian.net` in your `.env` file.
+If you see `https://mydomain.atlassian.net/secure/RapidBoard.jspa?rapidView=999&projectKey=XXX`, you will need to set `JIRA_ENDPOINT` to `https://mydomain.atlassian.net/rest` in the config UI.
 
 ## Generating API token
 1. Once logged into Jira, visit the url `https://id.atlassian.com/manage-profile/security/api-tokens`
@@ -79,7 +79,7 @@ Type mapping is critical for some metrics, like **Requirement Count**, make sure
 
 This applies to JIRA_ISSUE_STORYPOINT_FIELD and JIRA_ISSUE_EPIC_KEY_FIELD
 
-Custom fields can be applied to Jira stories. We use this to set `JIRA_ISSUE_EPIC_KEY_FIELD` in the `.env` file.
+Custom fields can be applied to Jira stories. We use this to set `JIRA_ISSUE_EPIC_KEY_FIELD` in the config UI.
 
 **Example:** `JIRA_ISSUE_EPIC_KEY_FIELD=customfield_10024`
 
@@ -100,7 +100,8 @@ This is a value you can set to something other than the default of 1 if you want
 
 ![Screen Shot 2021-08-13 at 10 07 19 AM](https://user-images.githubusercontent.com/27032263/129363083-df0afa18-e147-4612-baf9-d284a8bb7a59.png)
 
-Your board id is used in all REST requests to DevLake. You do not need to set this in your `.env` file.
+Your board id is used in all REST requests to DevLake. You do not need to configure this at the data source level.
+
 ## How do I find the custom field ID in Jira?
 Using URL
 1. Navigate to Administration >> Issues >> Custom Fields .
@@ -240,4 +241,32 @@ PUT /plugins/jira/sources/:sourceId/type-mapping/:userType
 - Delete type mapping
 ```
 DELETE /plugins/jira/sources/:sourceId/type-mapping/:userType
+```
+- API forwarding
+```
+GET /plugins/jira/sources/:sourceId/proxy/rest/*path
+
+For example:
+Requests to http://your_devlake_host/plugins/jira/sources/1/proxy/rest/agile/1.0/board/8/sprint
+would forward to
+https://your_jira_host/rest/agile/1.0/board/8/sprint
+
+{
+    "maxResults": 1,
+    "startAt": 0,
+    "isLast": false,
+    "values": [
+        {
+            "id": 7,
+            "self": "https://merico.atlassian.net/rest/agile/1.0/sprint/7",
+            "state": "closed",
+            "name": "EE Sprint 7",
+            "startDate": "2020-06-12T00:38:51.882Z",
+            "endDate": "2020-06-26T00:38:00.000Z",
+            "completeDate": "2020-06-22T05:59:58.980Z",
+            "originBoardId": 8,
+            "goal": ""
+        }
+    ]
+}
 ```

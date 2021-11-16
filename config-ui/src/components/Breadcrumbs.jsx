@@ -6,7 +6,7 @@ import {
   Icon,
   Colors,
 } from '@blueprintjs/core'
-import '../styles/breadcrumbs.scss'
+import '@/styles/breadcrumbs.scss'
 
 const AppCrumbs = (props) => {
   const { items } = props

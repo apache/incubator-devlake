@@ -2,6 +2,7 @@ package api
 
 import (
 	"fmt"
+	"net/http"
 	"strconv"
 
 	"github.com/go-playground/validator/v10"
@@ -116,7 +117,7 @@ func PostSources(input *core.ApiResourceInput) (*core.ApiResourceOutput, error) 
 		return nil, err
 	}
 
-	return &core.ApiResourceOutput{Body: jiraSource}, nil
+	return &core.ApiResourceOutput{Body: jiraSource, Status: http.StatusOK}, nil
 }
 
 /*
@@ -233,9 +234,13 @@ func GetSource(input *core.ApiResourceInput) (*core.ApiResourceOutput, error) {
 		return nil, err
 	}
 	for _, jiraTypeMapping := range typeMappings {
-		detail.TypeMappings[jiraTypeMapping.UserType] = map[string]interface{}{
+		// type mapping
+		typeMappingDict := map[string]interface{}{
 			"standardType": jiraTypeMapping.StandardType,
 		}
+		detail.TypeMappings[jiraTypeMapping.UserType] = typeMappingDict
+
+		// status mapping
 		statusMappings, err := findIssueStatusMappingBySourceIdAndUserType(
 			jiraSource.ID,
 			jiraTypeMapping.UserType,
@@ -246,12 +251,13 @@ func GetSource(input *core.ApiResourceInput) (*core.ApiResourceOutput, error) {
 		if len(statusMappings) == 0 {
 			continue
 		}
-		detail.TypeMappings["statusMappings"] = make(map[string]interface{})
+		statusMappingsDict := make(map[string]interface{})
 		for _, jiraStatusMapping := range statusMappings {
-			detail.TypeMappings["statusMappings"][jiraStatusMapping.UserStatus] = map[string]interface{}{
+			statusMappingsDict[jiraStatusMapping.UserStatus] = map[string]interface{}{
 				"standardStatus": jiraStatusMapping.StandardStatus,
 			}
 		}
+		typeMappingDict["statusMappings"] = statusMappingsDict
 	}
 
 	return &core.ApiResourceOutput{Body: detail}, nil

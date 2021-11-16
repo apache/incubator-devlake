@@ -8,6 +8,7 @@ import (
 	"github.com/merico-dev/lake/config"
 	"github.com/merico-dev/lake/logger" // A pseudo type for Plugin Interface implementation
 	"github.com/merico-dev/lake/plugins/core"
+	"github.com/merico-dev/lake/plugins/github/api"
 	"github.com/merico-dev/lake/plugins/github/tasks"
 	"github.com/merico-dev/lake/utils"
 	"github.com/mitchellh/mapstructure"
@@ -23,10 +24,11 @@ func (plugin Github) Description() string {
 }
 
 func (plugin Github) Execute(options map[string]interface{}, progress chan<- float32, ctx context.Context) error {
+	endpoint := config.V.GetString("GITHUB_ENDPOINT")
 	configTokensString := config.V.GetString("GITHUB_AUTH")
 	tokens := strings.Split(configTokensString, ",")
-	githubApiClient := tasks.CreateApiClient(tokens)
-
+	githubApiClient := tasks.CreateApiClient(endpoint, tokens)
+	_ = githubApiClient.SetProxy(config.V.GetString("GITHUB_PROXY"))
 	// GitHub API has very low rate limits, so we cycle through multiple tokens to increase rate limits.
 	// Then we set the ants max worker per second according to the number of tokens we have to maximize speed.
 	tokenCount := len(tokens)
@@ -69,6 +71,7 @@ func (plugin Github) Execute(options map[string]interface{}, progress chan<- flo
 		tasksToRun = map[string]bool{
 			"collectCommits": true,
 			"collectIssues":  true,
+			"enrichIssues":   true,
 		}
 	}
 	repoId, collectRepoErr := tasks.CollectRepository(ownerString, repositoryNameString, githubApiClient)
@@ -114,6 +117,16 @@ func (plugin Github) Execute(options map[string]interface{}, progress chan<- flo
 		if collectPrChildrenErr != nil {
 			return fmt.Errorf("Could not collect PR children: %v", collectPrChildrenErr)
 		}
+
+	}
+
+	if tasksToRun["enrichIssues"] {
+		fmt.Println("INFO >>> Enriching Issues")
+		enrichmentError := tasks.EnrichIssues()
+		if enrichmentError != nil {
+			return fmt.Errorf("could not enrich issues: %v", enrichmentError)
+		}
+
 	}
 
 	progress <- 1
@@ -128,7 +141,16 @@ func (plugin Github) RootPkgPath() string {
 }
 
 func (plugin Github) ApiResources() map[string]map[string]core.ApiResourceHandler {
-	return make(map[string]map[string]core.ApiResourceHandler)
+	return map[string]map[string]core.ApiResourceHandler{
+		"sources": {
+			"GET":  api.ListSources,
+			"POST": api.PutSource,
+		},
+		"sources/:sourceId": {
+			"GET": api.GetSource,
+			"PUT": api.PutSource,
+		},
+	}
 }
 
 // Export a variable named PluginEntry for Framework to search and load

@@ -1,15 +1,12 @@
 import React, { useEffect, useState } from 'react'
 import {
-  BrowserRouter as Router,
-  // Switch,
-  // Route,
-  // Link,
+  // BrowserRouter as Router,
   useRouteMatch,
-  // useParams
 } from 'react-router-dom'
-import { Button, Card, Colors, Elevation, Icon, Menu } from '@blueprintjs/core'
+import { Button, Card, Elevation } from '@blueprintjs/core'
 import SidebarMenu from '@/components/Sidebar/SidebarMenu'
 import MenuConfiguration from '@/components/Sidebar/MenuConfiguration'
+import { GRAFANA_ENDPOINT } from '@/utils/config'
 
 import '@/styles/sidebar.scss'
 
@@ -25,7 +22,7 @@ const Sidebar = () => {
   return (
     <Card interactive={false} elevation={Elevation.ZERO} className='card sidebar-card'>
       <img src='/logo.svg' className='logo' />
-      <a href='http://localhost:3002' rel='noreferrer' target='_blank' className='dashboardBtnLink'>
+      <a href={GRAFANA_ENDPOINT} rel='noreferrer' target='_blank' className='dashboardBtnLink'>
         <Button icon='grouped-bar-chart' outlined={true} className='dashboardBtn'>View Dashboards</Button>
       </a>
 

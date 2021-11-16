@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/merico-dev/lake/logger"
 	lakeModels "github.com/merico-dev/lake/models"
 	"github.com/merico-dev/lake/plugins/core"
 	"github.com/merico-dev/lake/plugins/gitlab/models"
@@ -46,8 +45,7 @@ func CollectMergeRequests(projectId int, scheduler *utils.WorkerScheduler) error
 			gitlabApiResponse := &ApiMergeRequestResponse{}
 			err := core.UnmarshalResponse(res, gitlabApiResponse)
 			if err != nil {
-				logger.Error("Error: ", err)
-				return nil
+				return err
 			}
 			for _, mr := range *gitlabApiResponse {
 				gitlabMergeRequest, err := convertMergeRequest(&mr, projectId)
@@ -58,7 +56,7 @@ func CollectMergeRequests(projectId int, scheduler *utils.WorkerScheduler) error
 					UpdateAll: true,
 				}).Create(&gitlabMergeRequest)
 				if result.Error != nil {
-					logger.Error("Could not upsert: ", result.Error)
+					return result.Error
 				}
 				CreateReviewers(projectId, mr.GitlabId, mr.Reviewers)
 			}

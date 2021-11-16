@@ -33,10 +33,10 @@ Dev Lake is the one-stop solution that _**integrates, analyzes, and visualizes**
 <p align="center">User Flow</p>
 
 ### Why Dev Lake?
-1. Unifies data from multiple sources (<a href="https://www.atlassian.com/software/jira" target="_blank">Jira</a>, <a href="https://gitlab.com/" target="_blank">Gitlab</a>, <a href="https://www.jenkins.io/" target="_blank">Jenkins</a> etc) in one place.
-2. Can compute metrics from different data sources together.
-3. Provide a series of industry standard metrics to identify engineering problems. 
-4. Highly customisable, users can make their own graphs, metrics & dashboards.
+1. Unifies data from multiple sources (<a href="https://www.atlassian.com/software/jira" target="_blank">Jira</a>, <a href="https://gitlab.com/" target="_blank">GitLab</a>, <a href="https://www.jenkins.io/" target="_blank">Jenkins</a>, etc.) in one place.
+2. Computes metrics from different data sources together.
+3. Provides a series of industry-standard metrics to identify engineering problems. 
+4. Highly customizable, users can make their own graphs, metrics & dashboards.
 
 ### What can be accomplished with Dev Lake?
 1. Visualize and analyze your entire SDLC process in one personalized, unified view. 
@@ -62,21 +62,24 @@ FAQ | Frequently Asked Questions | [Link](#faq)
 
 ## Data Sources We Currently Support<a id="data-source-plugins"></a>
 
-Below is a list of _data source plugins_ used to collect & enrich data from specific sources. Each have a `README.md` file with basic setup, troubleshooting and metrics info.
+Below is a list of _data source plugins_ used to collect & enrich data from specific sources. Each has a `README.md` file with basic setup, troubleshooting, and metrics info.
 
-For more information on building a new _data source plugin_ see [Build a Plugin](plugins/README.md).
+For more information on building a new _data source plugin_, see [Build a Plugin](plugins/README.md).
 
 Section | Section Info | Docs
 ------------ | ------------- | -------------
 Jira | Metrics, Generating API Token, Find Board ID | <a href="plugins/jira/README.md" target="_blank">Link</a>
-Gitlab | Metrics, Generating API Token, Find Project ID | <a href="plugins/gitlab/README.md" target="_blank">Link</a> 
+GitLab | Metrics, Generating API Token, Find Project ID | <a href="plugins/gitlab/README.md" target="_blank">Link</a> 
 Jenkins | Metrics, Generating API Token | <a href="plugins/jenkins/README.md" target="_blank">Link</a>
+GitHub | Metrics, Generating API Token | <a href="plugins/github/README.md" target="_blank">Link</a>
 
 
 ## User setup<a id="user-setup"></a>
 
-**NOTE: If you only plan to run the product, this is the only section you should need**
-**NOTE: Commands written `like this` are to be run in your terminal**
+**NOTES:**
+
+- **If you only plan to run the product, this is the only section you should need.**
+- **Commands written `like this` are to be run in your terminal.**
 
 ### Required Packages to Install<a id="user-setup-requirements"></a>
 
@@ -87,35 +90,55 @@ Jenkins | Metrics, Generating API Token | <a href="plugins/jenkins/README.md" ta
 
 ### Commands to run in your terminal<a id="user-setup-commands"></a>
 
-1. Clone repository
+1. Clone repository:
 
    ```sh
    git clone https://github.com/merico-dev/lake.git devlake
    cd devlake
    cp .env.example .env
    ```
-2. Start Docker on your machine and then you can run `docker-compose up -d config-ui` to start up the configuration interface
+2. Start Docker on your machine, then run `docker-compose up -d` to start the services.
+3. Visit `localhost:4000` to setup devlake.
 
-   > For more info on how to configure plugins, please refer to the <a href="https://github.com/merico-dev/lake#data-source-plugins" target="_blank">data source plugins</a> section
-
-3. Visit `localhost:4000` to setup configuration files
    >- Finish the configuration on the [main configuration page](http://localhost:4000) (`localhost:4000`)
-   >- Navigate to desired plugins pages on the sidebar under "Plugins", e.g. <a href="plugins/jira/README.md" target="_blank">Jira</a>, <a href="plugins/gitlab/README.md" target="_blank">Gitlab</a>, <a href="plugins/jenkins/README.md" target="_blank">Jenkins</a> etc. Enter in required information for those plugins
+   >- Navigate to desired plugins pages on the sidebar under "Plugins", e.g. <a href="plugins/jira/README.md" target="_blank">Jira</a>, <a href="plugins/gitlab/README.md" target="_blank">GitLab</a>, <a href="plugins/jenkins/README.md" target="_blank">Jenkins</a> etc. Enter in required information for those plugins
    >- Submit the form to update the values by clicking on the **Save Config** button on each form page
+   >- For more info on how to configure plugins, please refer to the <a href="https://github.com/merico-dev/lake#data-source-plugins" target="_blank">data source plugins</a> section
+   >- To collect this repo for a quick preview, you must put your github into `Auth Token(s)` **Data Integrations / Github** page.
+   >- `devlake` takes a while to fully boot up. if `config-ui` complaining about api being unreachable, please wait a few seconds and try refreshing the page. 
 
-4. Run `docker-compose up -d` to start up the other services
+4. Visit `localhost:4000/triggers` to trigger data collection.
 
-5. Visit `localhost:4000/triggers` to trigger data collection
 
-   > Please replace your [gitlab projectId](plugins/gitlab/README.md#finding-project-id) and [jira boardId](plugins/jira/README.md#find-board-id) in the request body. Click the **Trigger Collection** button. This can take up to 20 minutes for large projects. (gitlab 10k+ commits or jira 5k+ issues)
+   > - Please replace your [GitLab projectId](plugins/gitlab/README.md#finding-project-id) and [Jira boardId](plugins/jira/README.md#find-board-id) in the request body. Click the **Trigger Collection** button. Data collection can take up to 20 minutes for large projects. (GitLab 10k+ commits or Jira 5k+ issues)
+   > - To collect this repo for a quick preview, you can  use the following JSON
+   >   ```json
+   >   [
+   >     [
+   >       {
+   >         "Plugin": "github",
+   >         "Options": {
+   >           "repositoryName": "lake",
+   >           "owner": "merico-dev"
+   >         }
+   >       }
+   >     ],
+   >     [
+   >       {
+   >         "plugin": "github-domain",
+   >         "options": {}
+   >       }
+   >     ]
+   >   ]
+   >   ```
 
-6. Click *Go to grafana* button when done (username: `admin`, password: `admin`). The button will be shown on the Trigger Collection page when data collection has finished.
+
+5. Click *View Dashboards* button when done (username: `admin`, password: `admin`). The button will be shown on the Trigger Collection page when data collection has finished.
 
 ### Setup cron job
-Commonly, we have requirement to synchorize data periodly. We providered a tool called `lake-cli` to meet that requirement. Check `lake-cli` usage at [here](./cmd/lake-cli/README.md).  
+Commonly, we have the requirement to synchronize data periodically. We provided a tool called `lake-cli` to meet that requirement. Check `lake-cli` usage [here](./cmd/lake-cli/README.md).  
 
 Otherwise, if you just want to use the cron job, please check `docker-compose` version at [here](./devops/sync/README.md)
-
 
 ## Developer Setup<a id="dev-setup"></a>
 
@@ -129,40 +152,41 @@ Otherwise, if you just want to use the cron job, please check `docker-compose` v
   - Ubuntu: `sudo apt-get install build-essential`
 
 ### How to setup dev environment
-1. Navigate to where you would like to install this project and clone the repository
+1. Navigate to where you would like to install this project and clone the repository:
 
    ```sh
    git clone https://github.com/merico-dev/lake.git
    cd lake
    ```
 
-2. Install go packages
+2. Install Go packages:
 
     ```sh
     make install
     ```
 
-3. Copy sample config files to new local file
+3. Copy the sample config file to new local file:
 
     ```sh
     cp .env.example .env
     ```
+   Find the line start with `DB_URL` in the file `.env` and replace `mysql:3306` with `127.0.0.1:3306`
 
-4. Start the docker containers
+4. Start the Docker containers:
 
-    > Make sure the docker application is running before this step
+    > Make sure the Docker daemon is running before this step.
 
     ```sh
     make compose
     ```
 
-5. Run the project
+5. Run the project:
 
     ```sh
     make dev
     ```
 
-6. You can now post to `/task` to create a data collection task for Gitlab plugin. For demo purpose, we pick an open-source project on Gitlab called [ClearURLs](https://gitlab.com/KevinRoebert/ClearUrls). Its Gitlab project id is 6821549 (right under its project name).
+6. You can now post to `/task` to create a data collection task for GitLab plugin. For demo purposes, we picked an open-source project on GitLab called [ClearURLs](https://gitlab.com/KevinRoebert/ClearUrls). Its GitLab project ID is 6821549 (right under its project name).
 
     ```
     curl -XPOST 'localhost:8080/task' \
@@ -175,24 +199,28 @@ Otherwise, if you just want to use the cron job, please check `docker-compose` v
     }]]'
     ```
 
-7. Visualize the data in the Grafana Dashboard
+7. Visualize the data in the Grafana Dashboard.
 
     _From here you can see existing data visualized from collected & enriched data_
 
-    - Navigate to http://localhost:3002 (username: `admin`, password: `admin`)
-    - You can also create/modify existing/save dashboards to `lake`
-    - For more info on working with Grafana in Dev Lake see [Grafana Doc](docs/GRAFANA.md)
+    - Navigate to http://localhost:3002 (username: `admin`, password: `admin`).
+    - You can also create/modify existing/save dashboards to `lake`.
+    - For more info on working with Grafana in Dev Lake see [Grafana Doc](docs/GRAFANA.md).
 
 
 ## Tests<a id="tests"></a>
 
-To run the tests: `make test`
+To run the tests:
+
+```sh
+make test
+```
 
 ## Grafana<a id="grafana"></a>
 
-We use <a href="https://grafana.com/" target="_blank">Grafana</a> as a visualization tool to build charts for the data stored in our database. Using SQL queries we can add panels to build, save, and edit customized dashboards.
+We use <a href="https://grafana.com/" target="_blank">Grafana</a> as a visualization tool to build charts for the data stored in our database. Using SQL queries, we can add panels to build, save, and edit customized dashboards.
 
-All the details on provisioning, and customizing a dashboard can be found in the [Grafana Doc](docs/GRAFANA.md)
+All the details on provisioning and customizing a dashboard can be found in the [Grafana Doc](docs/GRAFANA.md).
 
 ## Contributing
 
@@ -201,7 +229,7 @@ All the details on provisioning, and customizing a dashboard can be found in the
 
 ## License
 
-This project is licensed under Apache License 2.0 - see the [`LICENSE`](LICENSE) file for details
+This project is licensed under Apache License 2.0 - see the [`LICENSE`](LICENSE) file for details.
 
 
 ## Need help?
@@ -220,3 +248,5 @@ docker build -t devlake:local .
 make dev
 https://linuxize.com/post/how-to-install-go-on-centos-7/
 https://linuxize.com/post/how-to-edit-your-hosts-file/
+
+A: M1 Mac users need to download a specific version of docker on their machine. You can find it <a href="https://docs.docker.com/desktop/mac/apple-silicon/" target="_blank">here</a>.

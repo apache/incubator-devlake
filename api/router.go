@@ -40,6 +40,7 @@ func RegisterRouter(r *gin.Engine) {
 								input.Params[param.Key] = param.Value
 							}
 						}
+						input.Query = c.Request.URL.Query()
 						if c.Request.Body != nil {
 							err := c.ShouldBindJSON(&input.Body)
 							if err != nil && err.Error() != "EOF" {
@@ -51,7 +52,11 @@ func RegisterRouter(r *gin.Engine) {
 						if err != nil {
 							c.JSON(http.StatusBadRequest, err.Error())
 						} else {
-							c.JSON(http.StatusCreated, output.Body)
+							status := output.Status
+							if status < http.StatusContinue {
+								status = http.StatusOK
+							}
+							c.JSON(status, output.Body)
 						}
 					},
 				)

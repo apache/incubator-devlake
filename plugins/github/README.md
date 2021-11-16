@@ -1,8 +1,29 @@
 # Github Pond
 
+## Summary
+
+This plugin gathers data from GitHub to display information to the user in Grafana. We can help tech leaders answer such questions as:
+
+- Is this month more productive than last?
+- How fast do we respond to customer requirements?
+- Was our quality improved or not?
+
 ## Metrics
 
-Currently the data is only fetched and stored in the DB. Soon we will have charts in Grafana to support this data.
+Here are some examples of what we can use GitHub data to show:
+- Avg Requirement Lead Time By Assignee
+- Bug Count per 1k Lines of Code
+- Commit Count over Time
+
+## Screenshot
+
+![image](https://user-images.githubusercontent.com/27032263/141855099-f218f220-1707-45fa-aced-6742ab4c4286.png)
+
+## Getting Personal Access Token
+
+Here is a link to a guide to get your personal access token from GitHub:
+
+https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/creating-a-personal-access-token
 
 ## Github rate limits
 
@@ -26,6 +47,14 @@ or...
 
 GITHUB_AUTH=XXX,YYY,ZZZ // where each token is a different user's token (optional)
 ```
+
+The proxy server address could be set in the `.env` file with the key `GITHUB_PROXY`. 
+If the key is empty or any other invalid url, no proxy applied. Only `http` and `socks5` protocol supported for now.
+
+```
+GITHUB_PROXY=http://127.0.0.1:1080
+```
+
 
 ## Sample Request
 

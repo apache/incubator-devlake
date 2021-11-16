@@ -6,6 +6,9 @@ const HtmlWebpackPlugin = require('html-webpack-plugin')
 const CopyPlugin = require('copy-webpack-plugin')
 const { CleanWebpackPlugin } = require('clean-webpack-plugin')
 const ESLintPlugin = require('eslint-webpack-plugin')
+const MiniCssExtractPlugin = require('mini-css-extract-plugin')
+const CssMinimizerPlugin = require('css-minimizer-webpack-plugin')
+const TerserPlugin = require('terser-webpack-plugin')
 
 module.exports = (env = {}) => {
   const optionalPlugins = []
@@ -36,16 +39,41 @@ module.exports = (env = {}) => {
         {
           test: /\.css$/,
           use: [
-            'style-loader',
-            'css-loader'
+            // !WARNING! We only use style-loader for DEV MODE!
+            // 'style-loader',
+            MiniCssExtractPlugin.loader,
+            {
+              loader: 'css-loader',
+              options: {
+                modules: true,
+                importLoaders: 1,
+              }
+            }
           ]
         },
         {
           test: /\.scss$/,
           use: [
-            'style-loader',
-            'css-loader',
-            // 'sass-loader',
+            {
+              loader: MiniCssExtractPlugin.loader,
+            },
+            {
+              loader: require.resolve('css-loader'),
+              options: {
+                importLoaders: 1,
+              },
+            },
+            {
+              loader: require.resolve('postcss-loader'),
+              options: {
+                postcssOptions: {
+                  plugins: [require('autoprefixer'), require('cssnano')({ preset: 'default' })],
+                },
+              },
+            },
+            {
+              loader: 'resolve-url-loader'
+            },
             {
               loader: 'sass-loader',
               options: {
@@ -54,21 +82,34 @@ module.exports = (env = {}) => {
                 additionalData: '@import "@/styles/theme.scss";',
               }
             }
-          ]
+          ],
+          // sideEffects: true
         },
         {
           test: /\.html$/,
           use: ['html-loader']
         },
         {
-          test: /\.(?:png|jpe?g|gif|ttf|woff|woff2)$/,
-          loader: 'url-loader',
+          test: /\.(png|gif|jpe?g)$/,
+          loader: require.resolve('file-loader'),
           options: {
-            limit: 10 * 1024,
+            name: '[name].[ext]?[hash]',
+            outputPath: 'assets/',
+          },
+        },
+        {
+          test: /\.(eot|ttf|woff|woff2|svg)$/,
+          loader: require.resolve('file-loader'),
+          include: path.resolve(__dirname, './src/fonts/'),
+          options: {
+            name: '[name].[ext]',
+            outputPath: 'fonts/',
+            esModule: false,
           },
         },
         {
           test: /\.svg$/,
+          exclude: path.resolve(__dirname, './src/fonts'),
           use: ['@svgr/webpack', 'url-loader'],
         },
         {
@@ -82,18 +123,36 @@ module.exports = (env = {}) => {
         '@': path.resolve(__dirname, './src/'),
         '@config': path.resolve(__dirname, './config/'),
       },
-      extensions: ['*', '.js', '.jsx']
+      // modules: ['node_modules'],
+      extensions: ['*', '.js', '.jsx', '.scss']
     },
     output: {
       path: path.resolve(__dirname, './dist'),
       filename: '[name].[hash].js',
       publicPath: '/'
     },
+    optimization: {
+      minimize: true,
+      minimizer: [
+        new CssMinimizerPlugin(),
+        new TerserPlugin({
+          terserOptions: {
+            // cache: true,
+            parallel: true,
+            sourceMap: false,
+            compress: {
+              drop_console: true,
+            }
+          }
+        })
+      ],
+    },
     plugins: [
       new CleanWebpackPlugin(),
       new webpack.HotModuleReplacementPlugin(),
+      new MiniCssExtractPlugin({ filename: '[name].css' }),
       new HtmlWebpackPlugin({
-        template: path.resolve(__dirname, './src/index.html'),
+        template: path.resolve(__dirname, './src/index-production.html'),
         filename: 'index.html',
         favicon: path.resolve(__dirname, './src/images/favicon.ico'),
       }),

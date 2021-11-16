@@ -1,25 +1,27 @@
 import React, { useEffect, useState } from 'react'
-import Nav from '../../components/Nav'
-import Sidebar from '../../components/Sidebar'
-import Content from '../../components/Content'
-import { DEVLAKE_ENDPOINT } from '../../utils/config'
-import request from '../../utils/request'
+import Nav from '@/components/Nav'
+import Sidebar from '@/components/Sidebar'
+import Content from '@/components/Content'
+import { DEVLAKE_ENDPOINT } from '@/utils/config'
+import request from '@/utils/request'
 
 export default function Tasks () {
-
-  let [tasks, setTasks] = useState([])
-  useEffect(async () => {
-    if (tasks.length === 0) {
-      let res = await request.get(`${DEVLAKE_ENDPOINT}/task`)
+  const [tasks, setTasks] = useState([])
+  useEffect(() => {
+    const fetchTasks = async () => {
+      const res = await request.get(`${DEVLAKE_ENDPOINT}/task`)
       setTasks(res?.data?.tasks)
-    } 
-  }, [])
+    }
+    if (tasks.length === 0) {
+      fetchTasks()
+    }
+  }, [tasks.length])
 
   return (
     <>
       <div className='container'>
-      <Nav />
-      <Sidebar />
+        <Nav />
+        <Sidebar />
         <Content>
           <main className='main'>
             <>
@@ -37,17 +39,17 @@ export default function Tasks () {
                   </thead>
                   <tbody>
                     {
-                      tasks.length > 0 ?
-                      tasks.map((task, i) => 
-                        <tr key={i}>
-                          <td>{task.ID}</td>
-                          <td>{task.CreatedAt}</td>
-                          <td>{task.plugin}</td>
-                          <td>{task.progress}</td>
-                          <td>{task.status}</td>
-                        </tr>
+                      tasks.length > 0
+                        ? tasks.map((task, i) =>
+                          <tr key={i}>
+                            <td>{task.ID}</td>
+                            <td>{task.CreatedAt}</td>
+                            <td>{task.plugin}</td>
+                            <td>{task.progress}</td>
+                            <td>{task.status}</td>
+                          </tr>
                         )
-                      : null
+                        : null
                     }
                   </tbody>
                 </table>

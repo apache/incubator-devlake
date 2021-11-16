@@ -2,6 +2,7 @@ package tasks
 
 import (
 	"fmt"
+	"net/http"
 
 	"github.com/merico-dev/lake/logger"
 	lakeModels "github.com/merico-dev/lake/models"
@@ -11,7 +12,7 @@ import (
 )
 
 type ApiProjectResponse struct {
-	Name              string
+	Name              string `josn:"name"`
 	GitlabId          int    `json:"id"`
 	PathWithNamespace string `json:"path_with_namespace"`
 	WebUrl            string `json:"web_url"`
@@ -26,6 +27,9 @@ func CollectProject(projectId int) error {
 	if err != nil {
 		logger.Error("Error: ", err)
 		return err
+	}
+	if res.StatusCode != http.StatusOK {
+		return fmt.Errorf("unexpected status code %d", res.StatusCode)
 	}
 	gitlabApiResponse := &ApiProjectResponse{}
 	err = core.UnmarshalResponse(res, gitlabApiResponse)
@@ -47,6 +51,7 @@ func CollectProject(projectId int) error {
 	}).Create(&gitlabProject).Error
 	if err != nil {
 		logger.Error("Could not upsert: ", err)
+		return err
 	}
 	return nil
 }

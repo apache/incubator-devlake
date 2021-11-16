@@ -110,6 +110,6 @@ func GetPagingFromLinkHeader(link string) (PagingInfo, error) {
 		}
 		return result, nil
 	} else {
-		return result, errors.New("the link string provided is invalid")
+		return result, errors.New("the link string provided is invalid. There is likely no next page of data to fetch")
 	}
 }

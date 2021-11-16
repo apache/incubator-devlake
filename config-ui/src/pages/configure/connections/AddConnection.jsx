@@ -12,27 +12,26 @@ import Sidebar from '@/components/Sidebar'
 import AppCrumbs from '@/components/Breadcrumbs'
 import Content from '@/components/Content'
 import ConnectionForm from '@/pages/configure/connections/ConnectionForm'
-import { integrationsData } from '@/pages/configure/mock-data/integrations'
-import { DEVLAKE_ENDPOINT } from '@/utils/config'
+import { integrationsData } from '@/data/integrations'
+import {
+  Providers,
+  ProviderLabels,
+  ProviderSourceLimits,
+  ProviderFormLabels,
+  ProviderFormPlaceholders
+} from '@/data/Providers'
 
 import useConnectionManager from '@/hooks/useConnectionManager'
 
 import '@/styles/integration.scss'
 import '@/styles/connections.scss'
-import '@blueprintjs/popover2/lib/css/blueprint-popover2.css'
 
 export default function AddConnection () {
   const history = useHistory()
   const { providerId } = useParams()
 
-  // const [name, setName] = useState()
-  // const [endpointUrl, setEndpointUrl] = useState()
-  // const [token, setToken] = useState()
-  // const [username, setUsername] = useState()
-  // const [password, setPassword] = useState()
-
   const [integrations, setIntegrations] = useState(integrationsData)
-  const [activeProvider, setActiveProvider] = useState(integrations[0])
+  const [activeProvider, setActiveProvider] = useState(integrations.find(p => p.id === providerId))
 
   const {
     testConnection, saveConnection,
@@ -53,14 +52,9 @@ export default function AddConnection () {
     setToken,
     fetchAllConnections,
     connectionLimitReached,
-    Providers
+    // Providers
   } = useConnectionManager({
     activeProvider,
-    // name,
-    // endpointUrl,
-    // token,
-    // username,
-    // password,
   })
 
   const cancel = () => {
@@ -81,11 +75,14 @@ export default function AddConnection () {
     if (activeProvider && activeProvider.id) {
       fetchAllConnections()
       switch (activeProvider.id) {
+        case Providers.GITHUB:
+          setName(ProviderLabels.GITHUB)
+          break
         case Providers.GITLAB:
-          setName('Gitlab')
+          setName(ProviderLabels.GITLAB)
           break
         case Providers.JENKINS:
-          setName('Jenkins')
+          setName(ProviderLabels.JENKINS)
           break
         case Providers.JIRA:
         default:
@@ -93,16 +90,9 @@ export default function AddConnection () {
           break
       }
     }
-  }, [activeProvider])
+  }, [activeProvider.id])
 
   useEffect(() => {
-    fetch(`${DEVLAKE_ENDPOINT}/api/getenv`)
-      .then(response => response.json())
-      .then(env => {
-        // setDbUrl(env.DB_URL)
-        // setPort(env.PORT)
-        // setMode(env.MODE)
-      })
     console.log('>>>> DETECTED PROVIDER = ', providerId)
     setActiveProvider(integrations.find(p => p.id === providerId))
   }, [])
@@ -159,7 +149,10 @@ export default function AddConnection () {
                   testStatus={testStatus}
                   errors={errors}
                   showError={showError}
-                  authType={activeProvider.id === 'jenkins' ? 'plain' : 'token'}
+                  authType={activeProvider.id === Providers.JENKINS ? 'plain' : 'token'}
+                  sourceLimits={ProviderSourceLimits}
+                  labels={ProviderFormLabels[activeProvider.id]}
+                  placeholders={ProviderFormPlaceholders[activeProvider.id]}
                 />
               </div>
             </div>

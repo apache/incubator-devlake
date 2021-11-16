@@ -14,6 +14,7 @@ type Issue struct {
 	BoardOriginKey           string `gorm:"index"`
 	Url                      string
 	Key                      string
+	Title                    string
 	Summary                  string
 	EpicKey                  string
 	Type                     string
@@ -31,5 +32,5 @@ type Issue struct {
 	CreatedDate              time.Time
 	UpdatedDate              time.Time
 	SpentMinutes             int64
-	LeadTime                 uint
+	LeadTimeMinutes          uint
 }
