@@ -14,7 +14,7 @@
 代码提交次数 | 提交Commit的次数
 新增代码行数 | 累积新增的代码行数
 删除代码行数 | 累计删除的代码行数
-代码提交轮数 | PR/MR创建到被合并期间，经过了多少轮的评审
+代码评审轮数 | PR/MR创建到被合并期间，经过了多少轮的评审
 
 
 ## 配置
@@ -31,15 +31,6 @@
 我们使用的 `GITLAB_ENDPOINT`  是 `https://gitlab.com/api/v4/`，但不同用户的 Endpoint 会有所区别。关于这个问题的更多信息，请参考 <a href="https://docs.gitlab.com/ee/api/" target="_blank">Gitlab官方API文档</a>
 
 
-### 创建一个 Gitlab API Token <a id="gitlab-api-token"></a>
-
-1. 登录 Gitlab 后，访问 `https://gitlab.com/-/profile/personal_access_tokens`
-2. Token 可以设置任意名称，不要设置过期日期。在设置范围时，去掉“写入”权限
-
-    ![Screen Shot 2021-08-06 at 4 44 01 PM](https://user-images.githubusercontent.com/3789273/128569148-96f50d4e-5b3b-4110-af69-a68f8d64350a.png)
-
-3. 点击 `Create Personal Access Token` 按钮
-4. 通过新的 config-ui 或者 直接将 API Token 复制并保存到 `.env` 文件中
 
 
 
@@ -69,3 +60,13 @@
   ![Screen Shot 2021-08-06 at 4 32 53 PM](https://user-images.githubusercontent.com/3789273/128568416-a47b2763-51d8-4a6a-8a8b-396512bffb03.png)
 
 - 将此项目ID复制在上方的请求示例中，从这个项目收集数据
+
+### 创建一个 Gitlab API Token <a id="gitlab-api-token"></a>
+
+1. 登录 Gitlab 后，访问 `https://gitlab.com/-/profile/personal_access_tokens`
+2. Token 可以设置任意名称，不要设置过期日期。在设置范围时，去掉“写入”权限
+
+   ![Screen Shot 2021-08-06 at 4 44 01 PM](https://user-images.githubusercontent.com/3789273/128569148-96f50d4e-5b3b-4110-af69-a68f8d64350a.png)
+
+3. 点击 **Create Personal Access Token** 按钮
+4. 通过 config-ui 或者 直接将 API Token 复制并保存到 `.env` 文件中
