@@ -71,6 +71,7 @@ Section | Section Info | Docs
 Jira | Metrics, Generating API Token, Find Board ID | <a href="plugins/jira/README.md" target="_blank">Link</a>
 GitLab | Metrics, Generating API Token, Find Project ID | <a href="plugins/gitlab/README.md" target="_blank">Link</a> 
 Jenkins | Metrics, Generating API Token | <a href="plugins/jenkins/README.md" target="_blank">Link</a>
+GitHub | Metrics, Generating API Token | <a href="plugins/github/README.md" target="_blank">Link</a>
 
 
 ## User setup<a id="user-setup"></a>
