@@ -16,7 +16,7 @@
   "gnetId": null,
   "graphTooltip": 0,
   "id": 7,
-  "iteration": 1632732729252,
+  "iteration": 1637051348648,
   "links": [
     {
       "asDropdown": false,
@@ -36,7 +36,7 @@
       "includeVars": false,
       "keepTime": true,
       "tags": [
-        "Data Specific Dashboard"
+        "Data Source Specific Dashboard"
       ],
       "targetBlank": false,
       "title": "Metric dashboards",
@@ -2112,8 +2112,8 @@
   "schemaVersion": 30,
   "style": "dark",
   "tags": [
-    "Data Specific Dashboard",
-    "Gitlab"
+    "Gitlab",
+    "Data Source Specific Dashboard"
   ],
   "templating": {
     "list": [
@@ -2182,5 +2182,5 @@
   "timezone": "",
   "title": "Gitlab",
   "uid": "6YcsxLN7z",
-  "version": 35
+  "version": 5
 }
