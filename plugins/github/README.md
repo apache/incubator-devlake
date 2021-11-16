@@ -37,24 +37,30 @@ NOTE: You can get 15000 requests/hour/token if you pay for `GitHub` enterprise.
 
 ## Configuration
 
-In your .env file, you will need to set up
+### Provider (Datasource) Connection
+The connection aspect of the configuration screen requires the following key fields to connect to the **GitHub API**. As GitHub is a _single-source data provider_ at the moment, the connection name is read-only as there is only one instance to manage. As we continue our development roadmap we may enable _multi-source_ connections for GitHub in the future.
 
-```
+- **Connection Name** [`READONLY`]
+  - ⚠️ Defaults to "**Github**" and may not be changed.
+- **Endpoint URL** (REST URL, starts with `https://` or `http://`)
+  - This should be a valid REST API Endpoint eg. `https://api.github.com/`
+- **Auth Token(s)** (Personal Access Token)
+  - Provide at least one token for Authentication with the . This field accepts a comma-separated list of values for multiple tokens. The data collection will take longer for GitHub since they have a **rate limit of 2k requests per hour**. You can accelerate the process by configuring _multiple_ personal access tokens.
 
-GITHUB_AUTH=XXX
+For help on **Creating a personal access token**, please see official [GitHub Docs on Personal Tokens](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/creating-a-personal-access-token)
+    
+For an overview of the **GitHub REST API**, please see official [GitHub Docs on REST](https://docs.github.com/en/rest)
+    
+Click **Save Connection** to update connection settings.
+    
 
-or...
+### Provider (Datasource) Settings
+Manage additional settings and options for the GitHub Datasource Provider. Currently there is only one **optional** setting, *Proxy URL*. If you are behind a corporate firewall or VPN you may need to utilize a proxy server.
 
-GITHUB_AUTH=XXX,YYY,ZZZ // where each token is a different user's token (optional)
-```
+**GitHub Proxy URL [ `Optional`]**
+Enter a valid proxy server address on your Network, e.g. `http://your-proxy-server.com:1080`
 
-The proxy server address could be set in the `.env` file with the key `GITHUB_PROXY`. 
-If the key is empty or any other invalid url, no proxy applied. Only `http` and `socks5` protocol supported for now.
-
-```
-GITHUB_PROXY=http://127.0.0.1:1080
-```
-
+Click **Save Settings** to update additional settings.
 
 ## Sample Request
 
