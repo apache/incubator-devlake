@@ -81,7 +81,7 @@
         {
           "targetBlank": false,
           "title": "See Detailed Bug Info",
-          "url": "/d/s48Lzn5nz/detailed-bug-info?orgId=1"
+          "url": "/d/s48Lzn5nz/demo-detailed-bug-info?orgId=1"
         }
       ],
       "options": {
@@ -138,13 +138,13 @@
       "datasource": null,
       "gridPos": {
         "h": 2,
-        "w": 4,
+        "w": 5,
         "x": 0,
         "y": 8
       },
       "id": 37,
       "options": {
-        "content": "<br>\n\n[See Detailed Bug Info](/d/s48Lzn5nz/detailed-bug-info?orgId=1)\n           ",
+        "content": "<br>\n\n[See Detailed Bug Info](/d/s48Lzn5nz/demo-detailed-bug-info?orgId=1)\n           ",
         "mode": "markdown"
       },
       "pluginVersion": "8.0.6",
@@ -192,7 +192,7 @@
   },
   "timepicker": {},
   "timezone": "",
-  "title": "Was our quality improved or not?",
+  "title": "Demo-Was our quality improved or not?",
   "uid": "G4DEk75nz",
-  "version": 14
+  "version": 20
 }

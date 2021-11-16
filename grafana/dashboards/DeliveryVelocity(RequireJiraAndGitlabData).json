@@ -15,8 +15,8 @@
   "editable": true,
   "gnetId": null,
   "graphTooltip": 0,
-  "id": 8,
-  "iteration": 1636466382652,
+  "id": 3,
+  "iteration": 1637051247070,
   "links": [
     {
       "asDropdown": false,
@@ -28,7 +28,7 @@
       "title": "Homepage",
       "tooltip": "",
       "type": "link",
-      "url": "/d/RXJZNpMnz/homepage?orgId=1"
+      "url": "/d/RXJZNpMnz/user-value-specific-dashboards-homepage?orgId=1"
     },
     {
       "asDropdown": false,
@@ -36,7 +36,7 @@
       "includeVars": false,
       "keepTime": true,
       "tags": [
-        "metrics"
+        "user_value"
       ],
       "targetBlank": false,
       "title": "Metric dashboards",
@@ -3987,8 +3987,8 @@
   "schemaVersion": 30,
   "style": "dark",
   "tags": [
-    "metrics",
-    "velocity"
+    "velocity",
+    "user_value"
   ],
   "templating": {
     "list": [
@@ -4087,7 +4087,7 @@
   },
   "timepicker": {},
   "timezone": "",
-  "title": "Delivery Velocity",
+  "title": "Delivery Velocity (require Jira and Gitlab data)",
   "uid": "ZfaFQeM7k",
-  "version": 1
+  "version": 20
 }

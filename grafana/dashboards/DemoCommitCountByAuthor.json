@@ -16,7 +16,7 @@
   "gnetId": null,
   "graphTooltip": 0,
   "id": 65,
-  "iteration": 1636962969251,
+  "iteration": 1637051268125,
   "links": [
     {
       "asDropdown": false,
@@ -40,7 +40,7 @@
       "title": "Back to previous page",
       "tooltip": "",
       "type": "link",
-      "url": "/d/ddREk75nk/is-this-month-more-productive-than-last?orgId=1"
+      "url": "/d/ddREk75nk/demo-is-this-month-more-productive-than-last?orgId=1"
     }
   ],
   "panels": [
@@ -259,7 +259,7 @@
   },
   "timepicker": {},
   "timezone": "",
-  "title": "Commit Count by Author",
+  "title": "Demo-Commit Count by Author",
   "uid": "F0iYknc7z",
-  "version": 2
+  "version": 6
 }

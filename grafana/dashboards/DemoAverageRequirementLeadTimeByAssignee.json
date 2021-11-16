@@ -39,7 +39,7 @@
       "title": "Back to previous page",
       "tooltip": "",
       "type": "link",
-      "url": "/d/SupYz7c7z/how-fast-do-we-respond-to-customer-requirements?orgId=1"
+      "url": "/d/SupYz7c7z/demo-how-fast-do-we-respond-to-customer-requirements?orgId=1"
     }
   ],
   "panels": [
@@ -222,7 +222,7 @@
   },
   "timepicker": {},
   "timezone": "",
-  "title": "Average Requirement Lead Time By Assignee",
+  "title": "Demo-Average Requirement Lead Time By Assignee",
   "uid": "q27fk7cnk",
-  "version": 6
+  "version": 9
 }
