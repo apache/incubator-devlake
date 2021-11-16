@@ -16,7 +16,7 @@ Pull Request Review Rounds | Number of cycles of commits followed by comments/fi
 
 ## Configuration
 
-In your .env file, you will need to set up
+In your `.env` file, you will need to set up
 
     ```
     # Gitlab
@@ -45,7 +45,7 @@ To collect data, you can make a POST request to `/task`
 
 ## Finding Project Id
 
-To get the project id for a specific Gitlab repository:
+To get the project id for a specific `Gitlab` repository:
 - Visit the repository page on gitlab
 - Find the project id just below the title
 
@@ -55,10 +55,10 @@ To get the project id for a specific Gitlab repository:
 
 ## ⚠️ (WIP) Create a Gitlab API Token <a id="gitlab-api-token"></a>
 
-1. When logged into Gitlab visit `https://gitlab.com/-/profile/personal_access_tokens`
+1. When logged into `Gitlab` visit `https://gitlab.com/-/profile/personal_access_tokens`
 2. Give the token any name, no expiration date and all scopes (excluding write access)
 
     ![Screen Shot 2021-08-06 at 4 44 01 PM](https://user-images.githubusercontent.com/3789273/128569148-96f50d4e-5b3b-4110-af69-a68f8d64350a.png)
 
 3. Click the **Create Personal Access Token** button
-- [ ] Copy and save the API token string into `lake` via new go setup
+4. Save the API token into `.env` file via `cofnig-ui` or edit the file directly.

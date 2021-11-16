@@ -2,7 +2,7 @@
 
 ## Summary
 
-This plugin gathers data from GitHub to display information to the user in Grafana. We can help tech leaders answer such questions as:
+This plugin gathers data from `GitHub` to display information to the user in `Grafana`. We can help tech leaders answer such questions as:
 
 - Is this month more productive than last?
 - How fast do we respond to customer requirements?
@@ -10,7 +10,7 @@ This plugin gathers data from GitHub to display information to the user in Grafa
 
 ## Metrics
 
-Here are some examples of what we can use GitHub data to show:
+Here are some examples of what we can use `GitHub` data to show:
 - Avg Requirement Lead Time By Assignee
 - Bug Count per 1k Lines of Code
 - Commit Count over Time
@@ -21,19 +21,19 @@ Here are some examples of what we can use GitHub data to show:
 
 ## Getting Personal Access Token
 
-Here is a link to a guide to get your personal access token from GitHub:
+Here is a link to a guide to get your personal access token from `GitHub`:
 
 https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/creating-a-personal-access-token
 
 ## Github rate limits
 
-"For API requests using Basic Authentication or OAuth, you can make up to 5,000 requests per hour."
+"For API requests using `Basic Authentication` or `OAuth`, you can make up to 5,000 requests per hour."
 
 - https://docs.github.com/en/rest/overview/resources-in-the-rest-api
 
 If you have a need for more api rate limits, you can set many tokens in the config file and we will use all of your tokens.
 
-NOTE: You can get 15000 requests/hour/token if you pay for github enterprise.
+NOTE: You can get 15000 requests/hour/token if you pay for `GitHub` enterprise.
 
 ## Configuration
 
