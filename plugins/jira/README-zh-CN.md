@@ -23,107 +23,64 @@
 
 ## 配置
 
-插件运行前，需要在Dev Lake提供的config UI中设置以下变量：
+插件运行前，需要在Dev Lake提供的config UI中完成插件设置。在浏览器中打开 `config-ui`，默认的网址是 `http://localhost:4000`，然后打开 **Data Integrations / JIRA** 页面。JIRA 插件目前支持多数据源，在设置页面中您可以添加新的连接，以及修改现有连接的设定。
 
-### 设置 JIRA_ENDPOINT
+针对每个连接，你需要设定以下条目：
 
-这是所有 Jira API 调用的基础设置。你可以在你所有的 Jira Urls 中看到它作为 Url 的开头。
+- Connection Name: 连接的名称，用以区别不同的数据源。
+- Endpoint URL: JIRA 实例的 api 网址，如果您使用的是 JIRA 云服务，它的格式为 `https://<mydomain>.atlassian.net/rest`。devlake 主要支持托管在 atlassian.net 上的 JIRA 云服务 API，如果您使用的是 Server 版，可能会出现无法使用的情况。
+- Basic Auth Token: 首先，在 JIRA 的面板上为您的账号生成一个 **JIRA API TOKEN** (参见 [生成 API Token](#生成-api-token)), 然后，在 `config-ui` 中点击文本框右边的钥匙图标，输入相应的帐号和Token，点击 Generate 即可为您生成所需的 **Basic Auth Token** 
+- Issue Type Mapping:  JIRA 是高度可定制的，因此，每个 JIRA 实例 可以有一套完全不同于其它实例的 Issue Type。为了能正确地计算并展示各种指标，您必须将自定义的 Issue Type 映射到系统的标准类型。请参照 [事务类型映射](#事务类型映射) 进行设定。
+- Epic Key: 在 JIRA 中， issue 和 epic 的关联是通过 `customfield` 实现的，因此这个字段的名称在不同的实例上是不一样的。需要手动指定，请参照 [查找自定义字段的名称](#查找自定义字段名称) 进行设定。
+- Story Point Field: 同上，
+- Story Point Coefficient: 如果您想对故事点 Story Point 的值进行缩放，可以设定此值为非1值，否则将保持其值为 `1`。
 
-例如：如果你看到 `https://mydomain.atlassian.net/secure/RapidBoard.jspa?rapidView=999&projectKey=XXX`, 你需要在config UI中将 `JIRA_ENDPOINT`设置为`https://mydomain.atlassian.net/rest`
-
-### 生成 API token
+### 生成 API Token
 
 1. 登录Jira后，访问网址 `https://id.atlassian.com/manage-profile/security/api-tokens`
 2. 点击 **Create API Token** 按钮，随便取个标签名
 ![image](https://user-images.githubusercontent.com/27032263/129363611-af5077c9-7a27-474a-a685-4ad52366608b.png)
-3. 使用 `echo -n <jira login email>:<jira token> | base64` 命令对登录的电子邮件进行编码
-
-### 设置事务类型的映射<a id="issue-type-mapping"></a>
 
 
-不同公司可能使用不同的事务类型来表示他们的 需求/故障/事故，类型映射允许 Devlake 识别你在 Jira 类型方面的具体设置。Devlake 支持 3 种不同的标准状态类型：
+### 事务类型映射
+
+Devlake 支持三种标准类型，所有的指标将会基于标准类型进行计算：
  
- - `需求（Requirement）`
- - `故障（Bug）`
- - `事故（Incident）`
+ - `故障（Bug）`: 在 **测试阶段** 发现的缺陷，未被部署到生产环境中。
+ - `事故（Incident）`: 在 **生产环境** 中发现的缺陷。
+ - `需求（Requirement）`: 如果您采用了 SCRUM 开发过程，它一般是对应到 `Story` 类型。
 
-例如，假设我们使用 `故事` 和 `任务` 来表示需求，用 `客户投诉` 表示事故，用 `QABug` 表示故障。我们要做的是在运行 Dev Lake 之前在config UI中设置环境变量：
-
-```sh
-# JIRA_ISSUE_TYPE_MAPPING=<STANDARD_TYPE>:<YOUR_TYPE_1>,<YOUR_TYPE_2>;....
-JIRA_ISSUE_TYPE_MAPPING=Requirement:故事,任务;Incident:客户投诉;Bug:QABug;
-```
+您可以映射任意数量的 **自定义类型** 到某一特定的 **标准类型**，举例来说，一般我们会把 `Story` 映射到 `Requirement`, 但取于具体场景，您也可以选择同时把 `Story` 和 `Task` 都映射到 `Requirement`。对于未做指定的类型，转换器会采用原始的 **自定义类型** 来填充 **标准类型** 字段，因此，像 "将 Bug 映射 到 Bug" 这种操作是不需要的。 
 
 事务类型映射对于一些指标来说是至关重要的，比如**需求数**，请确保正确映射你的自定义类型。
 
-### 设置事务状态的映射<a id="issue-status-mapping"></a>
-
-Jira 是高度可定制的，不同公司可能使用不同的状态来表示一个事务是否被解决。一个公司可能将这个状态命名为 "Done"，而其他公司可能将其命名为 "Finished"。
-
-为了正确的收集事务的生命周期信息，你必须将自己使用的事务状态映射到 Devlake 的标准状态，Devlake 支持 2 种标准状态：
-
-- `Resolved`: 事务完成或解决
-- `Rejected`: 事务终止或取消
-
-例如，假设我们
-- 对于 `Bug` 类型的事务：使用 `已修复` 表示 "Resolved"，用 `拒绝`和 `无法复现` 表示 "Rejected"；
-- 对于 `Incident` 类型的事务：使用 `已修复` 表示 "Resolved"，用 `拒绝` 表示 "Rejected"；
-- 对于 `Story` 类型的事务：使用 `已完成` 表示 "Resolved"，用 `推迟` 表示 "Rejected"；
-我们要做的是在运行 Devlake 之前在config UI中进行如下设置：
-
-```sh
-#JIRA_ISSUE_<YOUR_TYPE>_STATUS_MAPPING=<STANDARD_STATUS>:<YOUR_STATUS>;...
-JIRA_ISSUE_BUG_STATUS_MAPPING=Resolved:已修复;Rejected:拒绝,无法复现
-JIRA_ISSUE_INCIDENT_STATUS_MAPPING=Resolved:已修复;Rejected:拒绝
-JIRA_ISSUE_STORY_STATUS_MAPPING=Resolved:已完成;Rejected:推迟
-```
-
-状态映射对于像 `需求前置时间` 和 `故障/事故修复时间` 这样的指标至关重要，因为我们需要通过需求/故障/事故的解决时间来计算。
-
-
-## 设置 Jira 的自定义字段
-此设置适用于配置 `JIRA_ISSUE_EPIC_KEY_FIELD` 和 `JIRA_ISSUE_STORYPOINT_FIELD`
-
-- `JIRA_ISSUE_EPIC_KEY_FIELD` 表示一个 Jira 事务所属的 `史诗` 的 Key，比如 EE-234
-- `JIRA_ISSUE_STORYPOINT_FIELD` 表示 Jira 事务的故事点。配置此字段是为了将你本地的
-
-一个完整的设置形如: 
-```sh
-JIRA_ISSUE_EPIC_KEY_FIELD=customfield_10024
-JIRA_ISSUE_STORYPOINT_FIELD=customfield_10026
-```
+## 查找自定义字段的名称
 
 请遵循此指南，[如何查找 Jira 的自定义字段的ID?](https://github.com/merico-dev/lake/wiki/How-to-find-the-custom-field-ID-in-Jira)
 
+## 数据收集及计算
 
+为了触发插件进行数据收集和计算，您需要构造一个 JSON， 通过 `config-ui` 中的 `Triggers` 功能，发送请求触发收集计算任务：
 
-### 设置 JIRA_ISSUE_STORYPOINT_COEFFICIENT
-
-如果你并未使用故事点，而是使用 `预计时间` 等字段来表示需求粒度，你可以将上方的`JIRA_ISSUE_STORYPOINT_FIELD`设置为 `预计时间` 对应的自定义字段，然后将 `JIRA_ISSUE_STORYPOINT_COEFFICIENT` 设置为默认值 1 以外的值。
-
-我们使用的标准故事点字段 `std_story_point` 的值 = 预计时间 * JIRA_ISSUE_STORYPOINT_COEFFICIENT
-
-一般情况下，1 个标准故事点为半天，也就是 4 小时，因此当你使用 `预计时间` 作为需求粒度的字段，并以小时为单位，那么可以将 `JIRA_ISSUE_STORYPOINT_COEFFICIENT` 设置为 `0.25`
-
-
-## 如何触发此插件进行数据收集
- 
-你可以向 `/task` 发起一个POST请求来触发数据收集。由于我们通过 Jira 来决定收集的数据范畴，因此需要在请求里带上 Jira board id<br>
-注意：此请求会在收集全部数据时自动触发，你无需单独执行这一请求，也不需要在数据源层面设置这个变量。
-
-```
-curl -XPOST 'localhost:8080/task' \
--H 'Content-Type: application/json' \
--d '[[{
-    "plugin": "jira",
-    "options": {
+```json
+[
+  [
+    {
+      "plugin": "jira",
+      "options": {
+        "sourceId": 1
         "boardId": 8,
         "since": "2006-01-02T15:04:05Z",
-        "sourceId": 1
+      }
     }
-}]]'
+  ]
+]'
 ```
+- `sourceId`: 数据源的 ID, 即 **JIRA Integration** 中 Connection 表中的ID列。
+- `boardId`: JIRA board id, 请参照 [Find如何获取 Jira Board IdBoard Id](#如何获取-jira-board-id)。
+- `since`: 可选, 仅同步指定日期后有变化的数据。
 
+Board Id 在具体触发时候指定即可，不需要在数据源连接级别进行配置。
 
 ### 如何获取 Jira Board Id
 1. 打开浏览器，进入待导入的 Jira 面板
@@ -134,3 +91,148 @@ curl -XPOST 'localhost:8080/task' \
 
 ![Screen Shot 2021-08-13 at 10 07 19 AM](https://user-images.githubusercontent.com/27032263/129363083-df0afa18-e147-4612-baf9-d284a8bb7a59.png)
 
+## API
+
+### 数据源(Connection) 管理
+
+#### 数据源
+
+- 获取所有数据源
+```
+GET /plugins/jira/sources
+
+
+[
+  {
+    "ID": 14,
+    "CreatedAt": "2021-10-11T11:49:19.029Z",
+    "UpdatedAt": "2021-10-11T11:49:19.029Z",
+    "name": "test-jira-source",
+    "endpoint": "https://merico.atlassian.net/rest",
+    "basicAuthEncoded": "basicAuth",
+    "epicKeyField": "epicKeyField",
+    "storyPointField": "storyPointField",
+    "StoryPointCoefficient": 0.5
+  }
+]
+```
+- 创建所有数据源
+```
+POST /plugins/jira/sources
+{
+	"name": "jira data source name",
+	"endpoint": "jira api endpoint, i.e. https://merico.atlassian.net/rest",
+	"basicAuthEncoded": "generated by `echo -n <jira login email>:<jira token> | base64`",
+	"epicKeyField": "name of customfield of epic key",
+	"storyPointField": "name of customfield of story point",
+	"storyPointCoefficient": 1,   // help converting user storypoint to stand storypoint
+	"typeMappings": { // optional, send empty object to delete all typeMappings of the data source
+		"userType": {
+			"standardType": "devlake standard type"
+		}
+	}
+}
+```
+- 更新数据源
+```
+PUT /plugins/jira/sources/:sourceId
+{
+	"name": "jira data source name",
+	"endpoint": "jira api endpoint, i.e. https://merico.atlassian.net/rest",
+	"basicAuthEncoded": "generated by `echo -n <jira login email>:<jira token> | base64`",
+	"epicKeyField": "name of customfield of epic key",
+	"storyPointField": "name of customfield of story point",
+	"storyPointCoefficient": 1,   // help converting user storypoint to stand storypoint
+	"typeMappings": { // optional, send empty object to delete all typeMappings of the data source
+		"userType": {
+			"standardType": "devlake standard type",
+		}
+	}
+}
+```
+- 获取指定数据源的详细信息
+```
+GET /plugins/jira/sources/:sourceId
+
+
+{
+	"name": "jira data source name",
+	"endpoint": "jira api endpoint, i.e. https://merico.atlassian.net/rest",
+	"basicAuthEncoded": "generated by `echo -n <jira login email>:<jira token> | base64`",
+	"epicKeyField": "name of customfield of epic key",
+	"storyPointField": "name of customfield of story point",
+	"storyPointCoefficient": 1,   // help converting user storypoint to stand storypoint
+	"typeMappings": { // optional, send empty object to delete all typeMappings of the data source
+		"userType": {
+			"standardType": "devlake standard type",
+		}
+	}
+}
+```
+- 删除数据源
+```
+DELETE /plugins/jira/sources/:sourceId
+```
+
+#### 事务类型映射
+
+- 获取数据源的所有类型映射
+```
+GET /plugins/jira/sources/:sourceId/type-mappings
+
+
+[
+  {
+    "jiraSourceId": 16,
+    "userType": "userType",
+    "standardType": "standardType"
+  }
+]
+```
+- 给数据源添加一个新的类型映射
+```
+POST /plugins/jira/sources/:sourceId/type-mappings
+{
+    "userType": "userType",
+    "standardType": "standardType"
+}
+```
+- 更新类型映射
+```
+PUT /plugins/jira/sources/:sourceId/type-mapping/:userType
+{
+    "standardType": "standardTypeUpdated"
+}
+```
+- 删除类型映射
+```
+DELETE /plugins/jira/sources/:sourceId/type-mapping/:userType
+```
+- JIRA API 代理
+```
+GET /plugins/jira/sources/:sourceId/proxy/rest/*path
+
+For example:
+Requests to http://your_devlake_host/plugins/jira/sources/1/proxy/rest/agile/1.0/board/8/sprint
+would forward to
+https://your_jira_host/rest/agile/1.0/board/8/sprint
+
+{
+    "maxResults": 1,
+    "startAt": 0,
+    "isLast": false,
+    "values": [
+        {
+            "id": 7,
+            "self": "https://merico.atlassian.net/rest/agile/1.0/sprint/7",
+            "state": "closed",
+            "name": "EE Sprint 7",
+            "startDate": "2020-06-12T00:38:51.882Z",
+            "endDate": "2020-06-26T00:38:00.000Z",
+            "completeDate": "2020-06-22T05:59:58.980Z",
+            "originBoardId": 8,
+            "goal": ""
+        }
+    ]
+}
+```

@@ -23,16 +23,16 @@ Incident Count per 1k Lines of Code | Amount of incidents per 1000 lines of code
 
 ## Configuration
 
-In order to fully use this plugin, you will need to set various configurations via Dev Lake's `config-ui` service. Open `config-ui` on browser, by default the URL is http://localhost:4000, then go to **Data Integrations / JIRA** page. Here you can **Add** new connection to your JIRA connection or **Update** the settings if needed.
+In order to fully use this plugin, you will need to set various configurations via Dev Lake's `config-ui` service. Open `config-ui` on browser, by default the URL is http://localhost:4000, then go to **Data Integrations / JIRA** page. JIRA plugin currently supports multiple data source, Here you can **Add** new connection to your JIRA connection or **Update** the settings if needed.
 
 For each connection, you will need to set up following items:
 
 - Connection Name: This allow you to distinguish different connections.
 - Endpoint URL: The JIRA instance api endpoint, for JIRA Cloud Service, it would be: `https://<mydomain>.atlassian.net/rest`. devlake officially supports JIRA Cloud Service on atlassian.net, may or may not work for JIRA Server Instance. 
 - Basic Auth Token: First, generate a **JIRA API TOKEN** for your JIRA account on JIRA console (see [Generating API token](#generating-api-token)), then, in `config-ui` click the KEY icon on the right side of the input to generate a full `HTTP BASIC AUTH` token for you.
-- Issue Type Mapping: JIRA is highly customizable, each JIRA instance may have a different set of issue types than others. In order to compute and visualize metrics for different instances, you need to map your issue types to standard ones. See [Issue Type Mapping](#issue-type-mapping) for detail 
-- Epic Key: unfortunately, epic relationship implementation in JIRA is based on `custom field`, which is vary from instance to instance. Please see [Find Out Custom Fields](#find-out-custom-fields) for the value
-- Story Point Field: same as Epic Key, lease see [Find Out Custom Field](#find-out-custom-field) for the value
+- Issue Type Mapping: JIRA is highly customizable, each JIRA instance may have a different set of issue types than others. In order to compute and visualize metrics for different instances, you need to map your issue types to standard ones. See [Issue Type Mapping](#issue-type-mapping) for detail.
+- Epic Key: unfortunately, epic relationship implementation in JIRA is based on `custom field`, which is vary from instance to instance. Please see [Find Out Custom Fields](#find-out-custom-fields).
+- Story Point Field: same as Epic Key, please see [Find Out Custom Field](#find-out-custom-field) for the value.
 - Story Point Coefficient: This is a value you can set to something other than the default of 1 if you want to skew the results of story points.
 
 ### Generating API token
@@ -50,6 +50,7 @@ Devlake supports 3 standard types, all metrics are computed based on these types
  - `Requirement`: Normally, it would be `Story` on your instance if you adopted SCRUM.
 
 You can may map arbitrary **YOUR OWN ISSUE TYPE** to a single **STANDARD ISSUE TYPE**, normally, one would map `Story` to `Requirement`, but you could map both `Story` and `Task` to `Requirement` if that was your case. Those unspecified type would be copied as standard type directly for your convenience, so you don't need to map your `Bug` to standard `Bug`.
+
 Type mapping is critical for some metrics, like **Requirement Count**, make sure to map your custom type correctly.
 
 ### Find Out Custom Field
