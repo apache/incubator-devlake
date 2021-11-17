@@ -118,10 +118,10 @@ Dev Lake 是一个研发效能分析平台，它通过对软件开发生命周�
 
 目录 | 内容 | 文档
 ------------ | ------------- | -------------
-Jira | 概述，数据和指标，配置，API | [Link](plugins/jira/README-zh-CN.md)
-Gitlab | 概述，数据和指标，配置，API | [Link](plugins/gitlab/README-zh-CN.md)
-Jenkins | 概述，数据和指标，配置，API | [Link](plugins/jenkins/README-zh-CN.md)
-GitHub | 概述，数据和指标，配置，API | [Link](plugins/github/README-zh-CN.md)
+Jira | 概述，数据和指标，配置，API | [Link](https://github.com/merico-dev/lake/blob/main/plugins/jira/README-zh-CN.md)
+Gitlab | 概述，数据和指标，配置，API | [Link](https://github.com/merico-dev/lake/blob/main/plugins/gitlab/README-zh-CN.md)
+Jenkins | 概述，数据和指标，配置，API | [Link](https://github.com/merico-dev/lake/blob/main/plugins/jenkins/README-zh-CN.md)
+GitHub | 概述，数据和指标，配置，API | [Link](https://github.com/merico-dev/lake/blob/main/plugins/github/README-zh-CN.md)
 
 <br>
 
