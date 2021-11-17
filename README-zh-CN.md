@@ -118,9 +118,9 @@ Dev Lake 是一个研发效能分析平台，它通过对软件开发生命周�
 
 目录 | 内容 | 文档
 ------------ | ------------- | -------------
-Jira | 概述，数据和指标，配置，API | [Link](plugins/jira/README-zh-CN.md) 
-Gitlab | 概述，数据和指标，配置，API | [Link](plugins/gitlab/README-zh-CN.md) 
-Jenkins | 概述，数据和指标，配置，API | [Link](plugins/jenkins/README-zh-CN.md) 
+Jira | 概述，数据和指标，配置，API | [Link](plugins/jira/README-zh-CN.md)
+Gitlab | 概述，数据和指标，配置，API | [Link](plugins/gitlab/README-zh-CN.md)
+Jenkins | 概述，数据和指标，配置，API | [Link](plugins/jenkins/README-zh-CN.md)
 GitHub | 概述，数据和指标，配置，API | [Link](plugins/github/README-zh-CN.md)
 
 <br>
@@ -156,10 +156,10 @@ GitHub | 概述，数据和指标，配置，API | [Link](plugins/github/README-
    >- 在 "Integration"页面上找到到所需的插件页面
    >- 你需要为你打算使用的插件输入必要的信息
    >- 请参考以下内容，以了解如何配置每个插件的更多细节
-   >-> <a href="plugins/jira/README-zh-CN.md" target="_blank">Jira</a>
-   >-> <a href="plugins/gitlab/README-zh-CN.md" target="_blank">GitLab</a>
-   >-> <a href="plugins/jenkins/README-zh-CN.md" target="_blank">Jenkins</a> 
-   >-> <a href="plugins/github/README-zh-CN.md" target="_blank">GitHub</a>
+   >-> <a href="https://github.com/merico-dev/lake/blob/main/plugins/jira/README-zh-CN.md" target="_blank">Jira</a>
+   >-> <a href="https://github.com/merico-dev/lake/blob/main/plugins/gitlab/README-zh-CN.md" target="_blank">GitLab</a>
+   >-> <a href="https://github.com/merico-dev/lake/blob/main/plugins/jenkins/README-zh-CN.md" target="_blank">Jenkins</a>
+   >-> <a href="https://github.com/merico-dev/lake/blob/main/plugins/github/README-zh-CN.md" target="_blank">GitHub</a>
 
 
 4. 访问 `localhost:4000/triggers`，触发数据收集
@@ -191,7 +191,7 @@ GitHub | 概述，数据和指标，配置，API | [Link](plugins/github/README-
 5. 完成后，点击 *Go to grafana* (用户名: `admin`, 密码: `admin`)。当数据收集完成后，该按钮将显示在触发收集页面。
 
 ### 设置 Cron job
-通常情况下，我们有定期同步数据的要求。我们提供了一个叫做 `lake-cli` 的工具来满足这个要求。请在 [这里](./cmd/lake-cli/README.md) 查看 `lake-cli` 的用法。 
+通常情况下，我们有定期同步数据的要求。我们提供了一个叫做 `lake-cli` 的工具来满足这个要求。请在 [这里](./cmd/lake-cli/README.md) 查看 `lake-cli` 的用法。
 
 除此之外，如果你只想使用 Cron job，请在 [这里](./devops/sync/README.md) 查看 `docker-compose` 版本。
 
@@ -246,10 +246,10 @@ GitHub | 概述，数据和指标，配置，API | [Link](plugins/github/README-
    >- 在 "Integration"页面上找到到所需的插件页面
    >- 你需要为你打算使用的插件输入必要的信息
    >- 请参考以下内容，以了解如何配置每个插件的更多细节
-   >-> <a href="plugins/jira/README-zh-CN.md" target="_blank">Jira</a>
-   >-> <a href="plugins/gitlab/README-zh-CN.md" target="_blank">GitLab</a>
-   >-> <a href="plugins/jenkins/README-zh-CN.md" target="_blank">Jenkins</a> 
-   >-> <a href="plugins/github/README-zh-CN.md" target="_blank">GitHub</a>
+   >-> <a href="https://github.com/merico-dev/lake/blob/main/plugins/jira/README-zh-CN.md" target="_blank">Jira</a>
+   >-> <a href="https://github.com/merico-dev/lake/blob/main/plugins/gitlab/README-zh-CN.md" target="_blank">GitLab</a>
+   >-> <a href="https://github.com/merico-dev/lake/blob/main/plugins/jenkins/README-zh-CN.md" target="_blank">Jenkins</a>
+   >-> <a href="https://github.com/merico-dev/lake/blob/main/plugins/github/README-zh-CN.md" target="_blank">GitHub</a>
 
 
 7. 访问 `localhost:4000/triggers`，触发数据收集
@@ -291,12 +291,12 @@ GitHub | 概述，数据和指标，配置，API | [Link](plugins/github/README-
 ### 云端安装<a id="cloud-setup"></a>
 如果你想在云端安装Dev Lake，你可以使用 Tin 来进行. [查看详细信息](https://github.com/merico-dev/lake/wiki/How-to-Set-Up-Dev-Lake-with-Tin-zh-CN)
 
-**声明:** 
+**声明:**
 > 对于使用 Tin 在云端托管 Dev Lake 的用户，设置密码来保护实例下配置信息的安全是至关重要的。Dev Lake作为一个自我托管的产品，部分是为了确保用户对数据有完全的保护和所有权，对于 Tin 托管来说也是如此，这个风险点需要由终端用户来消除。
 
 ## 测试<a id="tests"></a>
 
-运行测试: 
+运行测试:
 
 ```sh
 make test

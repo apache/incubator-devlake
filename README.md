@@ -5,7 +5,7 @@
 # Dev Lake
 <p>
     <b>
-     <!Software development workflow analysis for free> 
+     <!Software development workflow analysis for free>
     </b>
   </p>
   <p>
@@ -33,7 +33,7 @@ Dev Lake is the one-stop solution that _**integrates, analyzes, and visualizes**
 <p align="center">User Flow</p>
 
 ### Why Dev Lake?
-1. Visualize and analyze your entire SDLC process in one personalized, unified view. 
+1. Visualize and analyze your entire SDLC process in one personalized, unified view.
 2. Debug process- and team-level issues based on unified and standardized measures.
 
 
@@ -131,10 +131,10 @@ For more information on building a new _data source plugin_, see [Build a Plugin
 
 Section | Section Info | Docs
 ------------ | ------------- | -------------
-Jira | Summary, Data & Metrics, Configuration, Plugin API | <a href="plugins/jira/README.md" target="_blank">Link</a>
-GitLab | Summary, Data & Metrics, Configuration, Plugin API | <a href="plugins/gitlab/README.md" target="_blank">Link</a> 
-Jenkins | Summary, Data & Metrics, Configuration, Plugin API | <a href="plugins/jenkins/README.md" target="_blank">Link</a>
-GitHub | Summary, Data & Metrics, Configuration, Plugin API | <a href="plugins/github/README.md" target="_blank">Link</a>
+Jira | Summary, Data & Metrics, Configuration, Plugin API | <a href="https://github.com/merico-dev/lake/blob/main/plugins/jira/README.md" target="_blank">Link</a>
+GitLab | Summary, Data & Metrics, Configuration, Plugin API | <a href="https://github.com/merico-dev/lake/blob/main/plugins/gitlab/README.md" target="_blank">Link</a>
+Jenkins | Summary, Data & Metrics, Configuration, Plugin API | <a href="https://github.com/merico-dev/lake/blob/main/plugins/jenkins/README.md" target="_blank">Link</a>
+GitHub | Summary, Data & Metrics, Configuration, Plugin API | <a href="https://github.com/merico-dev/lake/blob/main/plugins/github/README.md" target="_blank">Link</a>
 
 
 ## Setup Guide
@@ -169,14 +169,14 @@ There're 3 ways to set up Dev Lake.
    >- Navigate to desired plugins pages on the Integrations page
    >- You will need to enter the required information for the plugins you intend to use.
    >- Please reference the following for more details on how to configure each one:
-   >-> <a href="plugins/jira/README.md" target="_blank">Jira</a>
-   >-> <a href="plugins/gitlab/README.md" target="_blank">GitLab</a>
-   >-> <a href="plugins/jenkins/README.md" target="_blank">Jenkins</a> 
-   >-> <a href="plugins/github/README.md" target="_blank">GitHub</a>
+   >-> <a href="https://github.com/merico-dev/lake/blob/main/plugins/jira/README.md" target="_blank">Jira</a>
+   >-> <a href="https://github.com/merico-dev/lake/blob/main/plugins/gitlab/README.md" target="_blank">GitLab</a>
+   >-> <a href="https://github.com/merico-dev/lake/blob/main/plugins/jenkins/README.md" target="_blank">Jenkins</a>
+   >-> <a href="https://github.com/merico-dev/lake/blob/main/plugins/github/README.md" target="_blank">GitHub</a>
 
    >- Submit the form to update the values by clicking on the **Save Connection** button on each form page
 
-   >- `devlake` takes a while to fully boot up. if `config-ui` complaining about api being unreachable, please wait a few seconds and try refreshing the page. 
+   >- `devlake` takes a while to fully boot up. if `config-ui` complaining about api being unreachable, please wait a few seconds and try refreshing the page.
    >- To collect this repo for a quick preview, you must put your github into `Auth Token(s)` **Data Integrations / Github** page.
 
 4. Visit `localhost:4000/triggers` to trigger data collection.
@@ -208,7 +208,7 @@ There're 3 ways to set up Dev Lake.
 5. Click *View Dashboards* button when done (username: `admin`, password: `admin`). The button will be shown on the Trigger Collection page when data collection has finished.
 
 #### Setup cron job
-Commonly, we have the requirement to synchronize data periodically. We provided a tool called `lake-cli` to meet that requirement. Check `lake-cli` usage [here](./cmd/lake-cli/README.md).  
+Commonly, we have the requirement to synchronize data periodically. We provided a tool called `lake-cli` to meet that requirement. Check `lake-cli` usage [here](./cmd/lake-cli/README.md).
 
 Otherwise, if you just want to use the cron job, please check `docker-compose` version at [here](./devops/sync/README.md)
 
@@ -262,10 +262,10 @@ Otherwise, if you just want to use the cron job, please check `docker-compose` v
    >- Navigate to desired plugins pages on the Integrations page
    >- You will need to enter the required information for the plugins you intend to use.
    >- Please reference the following for more details on how to configure each one:
-   >-> <a href="plugins/jira/README.md" target="_blank">Jira</a>
-   >-> <a href="plugins/gitlab/README.md" target="_blank">GitLab</a>, 
-   >-> <a href="plugins/jenkins/README.md" target="_blank">Jenkins</a> 
-   >-> <a href="plugins/github/README.md" target="_blank">GitHub</a> 
+   >-> <a href="https://github.com/merico-dev/lake/blob/main/plugins/jira/README.md" target="_blank">Jira</a>
+   >-> <a href="https://github.com/merico-dev/lake/blob/main/plugins/gitlab/README.md" target="_blank">GitLab</a>,
+   >-> <a href="https://github.com/merico-dev/lake/blob/main/plugins/jenkins/README.md" target="_blank">Jenkins</a>
+   >-> <a href="https://github.com/merico-dev/lake/blob/main/plugins/github/README.md" target="_blank">GitHub</a>
 
    >- Submit the form to update the values by clicking on the **Save Connection** button on each form page
 
@@ -279,7 +279,7 @@ Otherwise, if you just want to use the cron job, please check `docker-compose` v
 ### Cloud setup<a id="cloud-setup"></a>
 If you want to run Dev Lake in a clound environment, you can set up Dev Lake with Tin. [See detailed setup guide](https://github.com/merico-dev/lake/wiki/How-to-Set-Up-Dev-Lake-with-Tin)
 
-**Disclaimer:** 
+**Disclaimer:**
 > To protect your information, it is critical for users of the Tin hosting to set passwords to protect Dev Lake applications. We built Dev Lake as a self-hosted product, in part to ensure users have total protection and ownership of their data, while the same remains true for the Tin hosting, this risk point can only be eliminated by the end-user.
 
 <br>
