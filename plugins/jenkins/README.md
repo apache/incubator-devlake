@@ -15,24 +15,22 @@ Build Success Rate | The percentage of successful builds
 
 ## Configuration
 
-In order to fully use this plugin, you will need to set various configurations.
-Either by `.env` or via Dev Lake's configuration UI.
+In order to fully use this plugin, you will need to set various configurations via Dev Lake's `config-ui`.
 
 ### By `config-ui`
 
 The connection aspect of the configuration screen requires the following key fields to connect to the Jenkins API. As Jenkins is a single-source data provider at the moment, the connection name is read-only as there is only one instance to manage. As we continue our development roadmap we may enable multi-source connections for Jenkins in the future.
 
-Connection Name [READONLY]
-⚠️ Defaults to "Jenkins" and may not be changed.
-Endpoint URL (REST URL, starts with https:// or http://)
-This should be a valid REST API Endpoint eg. https://ci.jenkins.io/api
-Username (E-mail)
-Your User ID for the Jenkins Instance.
-Password (Secret Phrase)
-Secret password for common credentials.
-For help on Username and Password, please see official Jenkins Docs on Using Credentials
-
-For an overview of the Jenkins REST API, please see official Jenkins Docs on Remote Access API
+- Connection Name [READONLY]
+  - ⚠️ Defaults to "Jenkins" and may not be changed.
+- Endpoint URL (REST URL, starts with `https://` or `http://`i, ends with `/`)
+  - This should be a valid REST API Endpoint eg. `https://ci.jenkins.io/`
+- Username (E-mail)
+  - Your User ID for the Jenkins Instance.
+- Password (Secret Phrase or API Access Token)
+  - Secret password for common credentials.
+  - For help on Username and Password, please see official Jenkins Docs on Using Credentials
+  - Or you can use **API Access Token** for this field, which can be generated at `User` -> `Configure` -> `API Token` section on Jenkins.
 
 Click Save Connection to update connection settings.
 
@@ -49,5 +47,5 @@ In order to collect data from JIRA, you have to compose a JSON looks like follow
       "options": {}
     }
   ]
-]'
+]
 ```
