@@ -33,14 +33,14 @@ Dev Lake is the one-stop solution that _**integrates, analyzes, and visualizes**
 <p align="center">User Flow</p>
 
 ### Why Dev Lake?
-1. Unifies data from multiple sources (<a href="https://www.atlassian.com/software/jira" target="_blank">Jira</a>, <a href="https://gitlab.com/" target="_blank">GitLab</a>, Github, <a href="https://www.jenkins.io/" target="_blank">Jenkins</a>, etc.) in one place to break data isolation.
-2. Provides a series of industry-standard metrics to identify engineering problems. For example, long requirement lead time, high bug rate per 1k lines of code, etc.
-3. Highly customizable charts, metrics & dashboards for users to find insights based on their own needs.
+1. Visualize and analyze your entire SDLC process in one personalized, unified view. 
+2. Debug process- and team-level issues based on unified and standardized measures.
+
 
 ### What can be accomplished with Dev Lake?
-1. Visualize and analyze your entire SDLC process in one personalized, unified view. 
-2. Debug process- and team-level issues, scale successes. 
-3. Unify and standardize measures of success and benchmarks. 
+1. Unifies data from multiple sources (<a href="https://www.atlassian.com/software/jira" target="_blank">Jira</a>, <a href="https://gitlab.com/" target="_blank">GitLab</a>, Github, <a href="https://www.jenkins.io/" target="_blank">Jenkins</a>, etc.) in one place to break data isolation.
+2. See a series of industry-standard metrics to identify engineering problems. For example, long requirement lead time, high bug rate per 1k lines of code, etc.
+3. Highly customizable charts, metrics & dashboards for users to find insights based on their own needs.
 
 
 <br>
@@ -52,7 +52,7 @@ Dev Lake is the one-stop solution that _**integrates, analyzes, and visualizes**
         <td>Section</td>
         <td>Subsection</td>
         <td>Description</td>
-        <td>Documentation Linl</td>
+        <td>Documentation Link</td>
     </tr>
     <tr>
         <td>Data Sources</td>
@@ -121,6 +121,7 @@ Dev Lake is the one-stop solution that _**integrates, analyzes, and visualizes**
     </tr>
 </table>
 
+<br>
 
 ## Data Sources We Currently Support<a id="data-source-plugins"></a>
 
@@ -163,9 +164,6 @@ There're 3 ways to set up Dev Lake.
    cp .env.example .env
    ```
 2. Start Docker on your machine, then run `docker-compose up -d` to start the services.
-3. Visit `localhost:4000` to setup devlake.
-
-   > For more info on how to configure plugins, please refer to the <a href="https://github.com/merico-dev/lake#data-source-plugins" target="_blank">data source plugins</a> section
 
 3. Visit `localhost:4000` to setup configuration files.
    >- Navigate to desired plugins pages on the Integrations page
@@ -184,8 +182,8 @@ There're 3 ways to set up Dev Lake.
 4. Visit `localhost:4000/triggers` to trigger data collection.
 
 
-   > - Please replace your [GitLab projectId](plugins/gitlab/README.md#finding-project-id) and [Jira boardId](plugins/jira/README.md#find-board-id) in the request body. Click the **Trigger Collection** button. Data collection can take up to 20 minutes for large projects. (GitLab 10k+ commits or Jira 5k+ issues)
-   > - To collect this repo for a quick preview, you can  use the following JSON
+   > - Please refer to this wiki [How to trigger data collection](https://github.com/merico-dev/lake/wiki/How-to-use-the-triggers-page). Data collection can take up to 20 minutes for large projects. (GitLab 10k+ commits or Jira 5k+ issues)
+   > - To collect this repo for a quick preview, you can use the following JSON
    >   ```json
    >   [
    >     [
@@ -273,7 +271,7 @@ Otherwise, if you just want to use the cron job, please check `docker-compose` v
 
 7. Visit `localhost:4000/triggers` to trigger data collection.
 
-   > Please replace your [GitLab projectId](plugins/gitlab/README.md#finding-project-id) and [Jira boardId](plugins/jira/README.md#find-board-id) in the request body. Click the **Trigger Collection** button. Data collection can take up to 20 minutes for large projects. (GitLab 10k+ commits or Jira 5k+ issues)
+   > - Please refer to this wiki [How to trigger data collection](https://github.com/merico-dev/lake/wiki/How-to-use-the-triggers-page). Data collection can take up to 20 minutes for large projects. (GitLab 10k+ commits or Jira 5k+ issues)
 
 8. Click *View Dashboards* button when done (username: `admin`, password: `admin`). The button is shown in the top left.
 
