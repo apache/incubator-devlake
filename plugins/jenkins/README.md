@@ -18,22 +18,23 @@ Build Success Rate | The percentage of successful builds
 In order to fully use this plugin, you will need to set various configurations.
 Either by `.env` or via Dev Lake's configuration UI.
 
-### By `.env` file directly
-
-In your `.env` file, you will need to set up
-```
-# Jenkins configuration
-JENKINS_ENDPOINT=https://jenkins.merico.cn/
-JENKINS_USERNAME=your user name here
-JENKINS_PASSWORD=your password or jenkins token here
-```
-
 ### By `config-ui`
 
-Open config-ui page (default: http://localhost:4000), go to **Data Integrations** click on **Jenkins**, then **Settings**, enter your configuration and click **Save** button
+The connection aspect of the configuration screen requires the following key fields to connect to the Jenkins API. As Jenkins is a single-source data provider at the moment, the connection name is read-only as there is only one instance to manage. As we continue our development roadmap we may enable multi-source connections for Jenkins in the future.
 
-### How to generate token?
-You can generate your Jenkins access token at `User` -> `Configure` -> `API Token` section on Jenkins.
+Connection Name [READONLY]
+⚠️ Defaults to "Jenkins" and may not be changed.
+Endpoint URL (REST URL, starts with https:// or http://)
+This should be a valid REST API Endpoint eg. https://ci.jenkins.io/api
+Username (E-mail)
+Your User ID for the Jenkins Instance.
+Password (Secret Phrase)
+Secret password for common credentials.
+For help on Username and Password, please see official Jenkins Docs on Using Credentials
+
+For an overview of the Jenkins REST API, please see official Jenkins Docs on Remote Access API
+
+Click Save Connection to update connection settings.
 
 ## Collect Data From Jenkins
 
