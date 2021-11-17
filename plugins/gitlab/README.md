@@ -23,6 +23,7 @@ The connection aspect of the configuration screen requires the following key fie
   - ⚠️ Defaults to "**Gitlab**" and may not be changed.
 - **Endpoint URL** (REST URL, starts with `https://` or `http://`)
   - This should be a valid REST API Endpoint eg. `https://gitlab.example.com/api/v4/`
+  - ⚠️ URL should end with`/`
 - **Personal Access Token** (HTTP Basic Auth)
   - Login to your Gitlab Account and create a **Personal Access Token** to authenticate with the API using HTTP Basic Authentication.. The token must be 20 characters long. Save the personal access token somewhere safe. After you leave the page, you no longer have access to the token.
 

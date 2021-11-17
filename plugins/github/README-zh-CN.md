@@ -18,40 +18,36 @@
 
 ![image](https://user-images.githubusercontent.com/27032263/141855099-f218f220-1707-45fa-aced-6742ab4c4286.png)
 
-## 获取 Access Token
-
-下面的文档说明了如何获取`Github access token`：
-
-https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/creating-a-personal-access-token
-
-## Github 限流
-
-对于使用`Basic Authentication`或者`OAuth`的请求，限制为5000次/小时/token
-
-- https://docs.github.com/en/rest/overview/resources-in-the-rest-api
-
-通过在配置文件中设置多个token可以达到更高的请求速率
-
-注意: 如果使用付费的企业版`Github`可以达到15000次/小时/token。
 
 ## 配置
 
-在`.evn`文件中需要设置如下配置项
+### 数据源连接配置
+配置界面需要填入以下字段
+- **Connection Name** [`只读`]
+    - ⚠️ 默认值为 "**Github**" 请不要改动。
+- **Endpoint URL** (REST URL, 以 `https://`或`http://`开头)
+    - 应当填入可用的REST API Endpoint。例如 `https://api.github.com/`
+    - ⚠️url应当以`/`结尾
+- **Auth Token(s)** (Personal Access Token)
+    - 如何创建**personal access token**，请参考官方文档[GitHub Docs on Personal Tokens](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/creating-a-personal-access-token)
+    - 填入至少一个token，可以填入多个token并以英文逗号`,`间隔，填入多个token可以加快数据采集速度
 
-```
+对于使用`Basic Authentication`或者`OAuth`的请求，限制为5000次/小时/token
+- https://docs.github.com/en/rest/overview/resources-in-the-rest-api
+通过在配置文件中设置多个token可以达到更高的请求速率
 
-GITHUB_AUTH=XXX
+注意: 如果使用付费的企业版`Github`可以达到15000次/小时/token。
+关于**GitHub REST API**的更多信息请参考官方文档[GitHub Docs on REST](https://docs.github.com/en/rest)
 
-or...
+点击**Save Connection**保存配置。
 
-GITHUB_AUTH=XXX,YYY,ZZZ // 每个token属于不同的用户(可选)
-```
 
-如需使用代理需要设置`.env`文件中的`GITHUB_PROXY`配置项。如果此项没有配置或者配置错误，则不会使用代理。目前只支持`http`和`socks5`两种代理协议。
+### 数据源配置
+目前只有一个**可选**配置*Proxy URL*，如果你需要代理才能访问GitHub才需要配置此项
+- **GitHub Proxy URL [`可选`]**
+  - 输入可用的代理服务器地址，例如：`http://your-proxy-server.com:1080`
 
-```
-GITHUB_PROXY=http://127.0.0.1:1080
-```
+点击**Save Settings**保存配置。
 
 
 ## 示例
