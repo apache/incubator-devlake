@@ -28,9 +28,9 @@ type IssuesResponse struct {
 		Login string
 		Id    int
 	}
-	ClosedAt        core.Iso8601Time `json:"closed_at"`
-	GithubCreatedAt core.Iso8601Time `json:"created_at"`
-	GithubUpdatedAt core.Iso8601Time `json:"updated_at"`
+	ClosedAt        *core.Iso8601Time `json:"closed_at"`
+	GithubCreatedAt core.Iso8601Time  `json:"created_at"`
+	GithubUpdatedAt core.Iso8601Time  `json:"updated_at"`
 }
 
 func CollectIssues(owner string, repositoryName string, repositoryId int, scheduler *utils.WorkerScheduler, githubApiClient *GithubApiClient) error {
@@ -82,7 +82,7 @@ func convertGithubIssue(issue *IssuesResponse) (*models.GithubIssue, error) {
 		Title:           issue.Title,
 		Body:            issue.Body,
 		Assignee:        issue.Assignee.Login,
-		ClosedAt:        issue.ClosedAt.ToSqlNullTime(),
+		ClosedAt:        core.Iso8601TimeToTime(issue.ClosedAt),
 		GithubCreatedAt: issue.GithubCreatedAt.ToTime(),
 		GithubUpdatedAt: issue.GithubUpdatedAt.ToTime(),
 	}
