@@ -177,12 +177,12 @@ There're 3 ways to set up Dev Lake.
    >- Submit the form to update the values by clicking on the **Save Connection** button on each form page
 
    >- `devlake` takes a while to fully boot up. if `config-ui` complaining about api being unreachable, please wait a few seconds and try refreshing the page. 
-   >- To collect this repo for a quick preview, you must put your github into `Auth Token(s)` **Data Integrations / Github** page.
+   >- To collect this repo for a quick preview, please provide a Github personal token on **Data Integrations / Github** page.
 
 4. Visit `localhost:4000/triggers` to trigger data collection.
 
 
-   > - Please refer to this wiki [How to trigger data collection](https://github.com/merico-dev/lake/wiki/How-to-use-the-triggers-page). Data collection can take up to 20 minutes for large projects. (GitLab 10k+ commits or Jira 5k+ issues)
+   > - Please refer to this wiki [How to trigger data collection](https://github.com/merico-dev/lake/wiki/How-to-use-the-triggers-page). Data collection can take a while depending on the amount of data you'd like to collect. 
    > - To collect this repo for a quick preview, you can use the following JSON
    >   ```json
    >   [
@@ -208,9 +208,9 @@ There're 3 ways to set up Dev Lake.
 5. Click *View Dashboards* button when done (username: `admin`, password: `admin`). The button will be shown on the Trigger Collection page when data collection has finished.
 
 #### Setup cron job
-Commonly, we have the requirement to synchronize data periodically. We provided a tool called `lake-cli` to meet that requirement. Check `lake-cli` usage [here](./cmd/lake-cli/README.md).  
 
-Otherwise, if you just want to use the cron job, please check `docker-compose` version at [here](./devops/sync/README.md)
+To synchronize data periodically, we provide [`lake-cli`]((./cmd/lake-cli/README.md)) for easily sending data collection requests along with [a cron job](./devops/sync/README.md) to periodically trigger the cli tool. 
+
 
 ### Developer Setup<a id="dev-setup"></a>
 
@@ -244,21 +244,24 @@ Otherwise, if you just want to use the cron job, please check `docker-compose` v
     ```
    Find the line start with `DB_URL` in the file `.env` and replace `mysql:3306` with `127.0.0.1:3306`
 
-4. Start the Docker containers:
+4. Start the MySQL and Grafana containers:
 
     > Make sure the Docker daemon is running before this step.
 
     ```sh
-    make compose
+    docker-compose up mysql grafana
     ```
 
-5. Run the project:
+5. Run lake and config UI in dev mode in two seperate terminals:
 
     ```sh
+    # run lake
     make dev
+    # run config UI
+    make configure-dev
     ```
 
-6. Visit `localhost:4000` to setup configuration files.
+6. Visit config UI at `localhost:4000` to configure data sources.
    >- Navigate to desired plugins pages on the Integrations page
    >- You will need to enter the required information for the plugins you intend to use.
    >- Please reference the following for more details on how to configure each one:

@@ -1,18 +1,46 @@
 [
-  {
-    "plugin": "jira",
-    "options": {
-      "boardId": 8
+  [
+    {
+      "plugin": "jira",
+      "Options": {
+        "boardId": 8,
+        "sourceId": 1
+      }
+    },
+    {
+      "plugin": "gitlab",
+      "Options": {
+        "projectId": 8967944
+      }
+    },
+    {
+      "plugin": "jenkins",
+      "Options": {}
+    },
+    {
+      "Plugin": "github",
+      "Options": {
+        "repositoryName": "lake",
+        "owner": "merico-dev"
+      }
     }
-  },
-  {
-    "plugin": "jenkins",
-    "options": {}
-  },
-  {
-    "plugin": "gitlab",
-    "options": {
-      "projectId": 8967944
+  ],
+  [
+    {
+      "plugin": "jiradomain",
+      "options": {}
+    },
+    {
+      "plugin": "gitlabdomain",
+      "options": {}
+    },
+    {
+      "plugin": "jenkinsdomain",
+      "options": {}
+    },
+    {
+      "plugin": "githubdomain",
+      "options": {}
     }
-  }
+  ]
 ]
