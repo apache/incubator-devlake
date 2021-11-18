@@ -22,6 +22,7 @@ import useConnectionManager from '@/hooks/useConnectionManager'
 
 import { integrationsData } from '@/data/integrations'
 import DeleteAction from '@/components/actions/DeleteAction'
+import DeleteConfirmationMessage from '@/components/actions/DeleteConfirmationMessage'
 
 import '@/styles/integration.scss'
 
@@ -318,13 +319,7 @@ export default function ManageIntegration () {
                                   isDisabled={isRunningDelete || isDeletingConnection}
                                   isLoading={isRunningDelete || isDeletingConnection}
                                 >
-                                  <h3 style={{ color: 'rgb(219, 55, 55)' }}>DELETE CONFIRMATION</h3>
-                                  <p className='confirmation-text'>
-                                    <strong>
-                                      Are you sure you want to continue?
-                                    </strong>
-                                    &nbsp;This instance will be permanently deleted and cannot be restored.
-                                  </p>
+                                  <DeleteConfirmationMessage title={`DELETE "${connection.name}"`} />
                                 </DeleteAction>
                               )}
                               {/* <a
