@@ -28,5 +28,14 @@ export default {
         headers
       }
     )
+  },
+  delete: async (url, body) => {
+    return await axios.delete(
+      url,
+      body,
+      {
+        headers
+      }
+    )
   }
 }

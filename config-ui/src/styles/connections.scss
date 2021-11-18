@@ -124,11 +124,46 @@
 }
 
 .bp3-popover-wrapper {
-  &.popover-generate-token {
+  &.popover-generate-token, &.popover-delete-connection, &.trigger-delete-connection {
     width: auto;
+  }
+
+  .popover-delete-connection {
+    max-width: 280px;
+    white-space: normal;
+    overflow: hidden;
+
+    h3 {
+      margin: 0 0 8px 0;
+      max-width: 100%;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      color: rgba(219, 55, 55, 0.9);
+      font-size: 17px;
+    }
+
+    .bp3-popover-content {
+      white-space: normal;
+    }
+  }
+
+  &.trigger-delete-connection {
+    .bp3-popover-target {
+      width: auto;
+    }
   }
 }
 
 .app-error-card.bp3-elevation-0 {
   box-shadow: none;
+}
+
+.confirmation-text {
+
+  strong {
+    font-family: "Montserrat", sans-serif;
+    font-size: 14px;
+    font-weight: 800;
+    color: rgb(219, 55, 55);
+  }
 }
