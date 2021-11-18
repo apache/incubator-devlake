@@ -18,6 +18,8 @@ import Content from '@/components/Content'
 import useConnectionManager from '@/hooks/useConnectionManager'
 import useSettingsManager from '@/hooks/useSettingsManager'
 import ConnectionForm from '@/pages/configure/connections/ConnectionForm'
+import DeleteAction from '@/components/actions/DeleteAction'
+import DeleteConfirmationMessage from '@/components/actions/DeleteConfirmationMessage'
 
 import { integrationsData } from '@/data/integrations'
 // import { NullConnection } from '@/data/NullConnection'
@@ -42,6 +44,7 @@ export default function ConfigureConnection () {
   // const [activeConnection, setActiveConnection] = useState(NullConnection)
   const [connections, setConnections] = useState([])
   const [showConnectionSettings, setShowConnectionSettings] = useState(true)
+  const [deleteId, setDeleteId] = useState(false)
 
   const [settings, setSettings] = useState(NullSettings)
 
@@ -65,12 +68,13 @@ export default function ConfigureConnection () {
     setPassword,
     setToken,
     saveComplete: saveConnectionComplete,
-    showError: showConnectionError
+    showError: showConnectionError,
+    isDeleting: isDeletingConnection,
+    deleteConnection,
+    deleteComplete
   } = useConnectionManager({
     activeProvider,
-    // activeConnection,
     connectionId,
-    // setActiveConnection,
   }, true)
 
   const {
@@ -89,7 +93,7 @@ export default function ConfigureConnection () {
     history.push(`/integrations/${activeProvider.id}`)
   }
 
-  const renderProviderSettings = (providerId, activeProvider) => {
+  const renderProviderSettings = useCallback((providerId, activeProvider) => {
     console.log('>>> RENDERING PROVIDER SETTINGS...')
     let settingsComponent = null
     if (activeProvider && activeProvider.settings) {
@@ -104,7 +108,7 @@ export default function ConfigureConnection () {
       console.log('>> WARNING: NO PROVIDER SETTINGS RENDERED, PROVIDER = ', activeProvider)
     }
     return settingsComponent
-  }
+  }, [activeConnection, isSaving])
 
   useEffect(() => {
     console.log('>>>> DETECTED PROVIDER ID = ', providerId)
@@ -123,6 +127,13 @@ export default function ConfigureConnection () {
   useEffect(() => {
 
   }, [connections])
+
+  useEffect(() => {
+    if (deleteComplete) {
+      console.log('>>> DELETE COMPLETE!')
+      history.replace(`/integrations/${deleteComplete.provider?.id}`)
+    }
+  }, [deleteComplete, history])
 
   // useEffect(() => {
   //   // CONNECTION SAVED!
@@ -157,7 +168,27 @@ export default function ConfigureConnection () {
                   <span style={{ marginRight: '10px' }}>{activeProvider.icon}</span>
                 </div>
                 <div style={{ justifyContent: 'flex-start' }}>
-                  <h1 style={{ margin: 0 }}>Manage <strong style={{ fontWeight: 900 }}>{activeProvider.name}</strong> Settings </h1>
+                  <div style={{ display: 'flex' }}>
+                    <h1 style={{ margin: 0 }}>
+                      Manage <strong style={{ fontWeight: 900 }}>{activeProvider.name}</strong> Settings
+                    </h1>
+                    {activeProvider.multiSource && (
+                      <div style={{ paddingTop: '5px' }}>
+                        <DeleteAction
+                          id={deleteId}
+                          connection={activeConnection}
+                          text='Delete'
+                          showConfirmation={() => setDeleteId(activeConnection.ID)}
+                          onConfirm={deleteConnection}
+                          onCancel={(e) => setDeleteId(null)}
+                          isDisabled={isDeletingConnection}
+                          isLoading={isDeletingConnection}
+                        >
+                          <DeleteConfirmationMessage title={`DELETE "${activeConnection.name}"`} />
+                        </DeleteAction>
+                      </div>
+                    )}
+                  </div>
                   {activeConnection && (
                     <>
                       <h2 style={{ margin: 0 }}>{activeConnection.name}</h2>

@@ -49,7 +49,7 @@ export default function Integration () {
             <AppCrumbs
               items={[
                 { href: '/', icon: false, text: 'Dashboard' },
-                { href: '/integrations', icon: false, text: 'Integrations', current: true}
+                { href: '/integrations', icon: false, text: 'Integrations', current: true }
               ]}
             />
             <div className='headlineContainer'>

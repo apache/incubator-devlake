@@ -10,6 +10,8 @@ import {
   Tooltip,
   Position,
   Icon,
+  Intent,
+  Popover,
 } from '@blueprintjs/core'
 import Nav from '@/components/Nav'
 import Sidebar from '@/components/Sidebar'
@@ -19,28 +21,32 @@ import { ToastNotification } from '@/components/Toast'
 import useConnectionManager from '@/hooks/useConnectionManager'
 
 import { integrationsData } from '@/data/integrations'
+import DeleteAction from '@/components/actions/DeleteAction'
+import DeleteConfirmationMessage from '@/components/actions/DeleteConfirmationMessage'
 
 import '@/styles/integration.scss'
-// import '@blueprintjs/popover2/lib/css/blueprint-popover2.css'
 
 export default function ManageIntegration () {
   const history = useHistory()
 
   const { providerId } = useParams()
 
-  // const [errors, setErrors] = useState([])
   const [integrations, setIntegrations] = useState(integrationsData)
   const [activeProvider, setActiveProvider] = useState(integrations.find(p => p.id === providerId))
-  // const [connections, setConnections] = useState([])
-  // const [isLoading, setIsLoading] = useState(true)
+  const [isRunningDelete, setIsRunningDelete] = useState(false)
+
+  const [deleteId, setDeleteId] = useState()
 
   const {
     sourceLimits,
     Providers,
     allConnections: connections,
     isFetching: isLoading,
+    isDeleting: isDeletingConnection,
+    deleteConnection,
     fetchAllConnections,
-    errors
+    errors,
+    deleteComplete
   } = useConnectionManager({
     activeProvider
   })
@@ -48,38 +54,6 @@ export default function ManageIntegration () {
   useEffect(() => {
 
   }, [activeProvider])
-
-  // !DISABLED! Using Connection Manager
-  // @todo cleanup, disabled in favor of connection-manager
-  // const fetchConnections = useCallback(async () => {
-  //   setIsLoading(true)
-  //   try {
-  //     const connectionsResponse = await request.get(`${DEVLAKE_ENDPOINT}/plugins/${activeProvider.id}/sources`)
-  //     let providerConnections = connectionsResponse.data || []
-  //     providerConnections = providerConnections.map((conn, idx) => {
-  //       return {
-  //         ...conn,
-  //         status: connectionsResponse.status === 200 || connectionsResponse.status === 201 ? 1 : 0, // conn.status
-  //         id: conn.ID,
-  //         name: conn.name,
-  //         endpoint: conn.endpoint,
-  //         errors: []
-  //       }
-  //     })
-  //     setConnections(providerConnections)
-  //     console.log('>> CONNECTIONS FETCHED', connectionsResponse)
-  //   } catch (e) {
-  //     console.log('>> FAILED TO FETCH CONNECTIONS', e)
-  //     setErrors([e])
-  //     setConnections([])
-  //     console.log(e)
-  //   }
-  //   setTimeout(() => {
-  //     setIsLoading(false)
-  //     ToastNotification.clear()
-  //     ToastNotification.show({ message: 'Loaded all connections.', intent: 'success', icon: 'small-tick' })
-  //   }, 1000)
-  // }, [activeProvider.id])
 
   const addConnection = () => {
     history.push(`/connections/add/${activeProvider.id}`)
@@ -110,6 +84,15 @@ export default function ManageIntegration () {
     console.log('>> running connection: ', id, endpoint)
   }
 
+  const runDeletion = (connection) => {
+    setIsRunningDelete(true)
+    try {
+      deleteConnection(connection)
+    } catch (e) {
+      ToastNotification.show({ message: `Failed to remove instance ${connection.name}`, icon: 'warning-sign' })
+    }
+  }
+
   const refreshConnections = () => {
     fetchAllConnections(true)
   }
@@ -119,7 +102,6 @@ export default function ManageIntegration () {
   }
 
   useEffect(() => {
-    // Fetch Connections for Selected Provider...
     fetchAllConnections(true)
   }, [activeProvider, fetchAllConnections])
 
@@ -132,6 +114,19 @@ export default function ManageIntegration () {
   useEffect(() => {
     console.log('>> CONNECTION SOURCE LIMITS', sourceLimits)
   }, [connections, sourceLimits])
+
+  useEffect(() => {
+    let flushTimeout
+    if (deleteComplete && deleteComplete.connection) {
+      flushTimeout = setTimeout(() => {
+        setDeleteId(null)
+        setIsRunningDelete(false)
+        fetchAllConnections(false)
+      }, 500)
+    }
+
+    return () => clearTimeout(flushTimeout)
+  }, [deleteComplete, fetchAllConnections])
 
   return (
     <>
@@ -313,6 +308,20 @@ export default function ManageIntegration () {
                                 <Icon icon='settings' size={12} />
                                 Settings
                               </a>
+                              {activeProvider?.multiSource && (
+                                <DeleteAction
+                                  id={deleteId}
+                                  connection={connection}
+                                  text='Delete'
+                                  showConfirmation={() => setDeleteId(connection.ID)}
+                                  onConfirm={runDeletion}
+                                  onCancel={(e) => setDeleteId(false)}
+                                  isDisabled={isRunningDelete || isDeletingConnection}
+                                  isLoading={isRunningDelete || isDeletingConnection}
+                                >
+                                  <DeleteConfirmationMessage title={`DELETE "${connection.name}"`} />
+                                </DeleteAction>
+                              )}
                               {/* <a
                                 href='#'
                                 data-provider={connection.id}
