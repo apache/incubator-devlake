@@ -17,30 +17,46 @@
 
 | [English](README.md) | [中文](README-zh-CN.md) |
 | --- | --- |
-
-
+</div>
+<br>
 <div align="left">
+
+### What is Dev Lake?
+Dev Lake brings all your DevOps data into one practical, personalized, extensible view. Ingest, analyze, and visualize data from an ever-growing list of developer tools, with our free and open source product.
+
+Dev Lake is most exciting for leaders and managers looking to make better sense of their development data, though it's useful for any developer looking to bring a more data-driven approach to their own practices. With Dev Lake you can ask your process any question, just connect and query. 
+
+More Dev. Less Ops. With Dev Lake.
+
+
+### Get started with just a few clicks
+
+[Install locally](#user-setup) | [Install in the cloud](https://github.com/merico-dev/lake/wiki/How-to-Set-Up-Dev-Lake-with-Tin) |
+| --- | --- |
+
 
 <br>
 
-### What is Dev Lake?
-Dev Lake is the one-stop solution that _**integrates, analyzes, and visualizes**_ software development data throughout the _**software development life cycle (SDLC)**_ for engineering teams.
 
-
-<img src="https://user-images.githubusercontent.com/2908155/130271622-827c4ffa-d812-4843-b09d-ea1338b7e6e5.png" width="100%" alt="Dev Lake Grafana Dashboard" />
+<div align="left">
+<img src="https://user-images.githubusercontent.com/2908155/130271622-827c4ffa-d812-4843-b09d-ea1338b7e6e5.png" width="100%" alt="Dev Lake Grafana Dashboard" style="border-radius:15px;" />
 <p align="center">Dashboard Screenshot</p><br>
-<img src="https://user-images.githubusercontent.com/14050754/139076905-48d13e40-51ab-49e4-b537-0fe56960a1c0.png" width="100%" alt="Dev Lake Grafana Dashboard" />
+<img src="https://user-images.githubusercontent.com/14050754/142356580-40637a30-5578-48ed-8e4a-128cd0738e3e.png" width="100%" alt="What is Dev Lake" style="border-radius:15px;"/>
 <p align="center">User Flow</p>
 
 ### Why Dev Lake?
-1. Visualize and analyze your entire SDLC process in one personalized, unified view. 
-2. Debug process- and team-level issues based on unified and standardized measures.
+1. The most extensible solution available, connecting many data sources and tools.
+2. Built in analysis and ready to use metrics, a unified scheme for diverse data. 
+3. The most customizable solution, with personalizable dashboards and metrics.
+4. The most transparent solution, with clear SQL queries and open source architecture. 
 
 
 ### What can be accomplished with Dev Lake?
-1. Unifies data from multiple sources (<a href="https://www.atlassian.com/software/jira" target="_blank">Jira</a>, <a href="https://gitlab.com/" target="_blank">GitLab</a>, Github, <a href="https://www.jenkins.io/" target="_blank">Jenkins</a>, etc.) in one place to break data isolation.
-2. See a series of industry-standard metrics to identify engineering problems. For example, long requirement lead time, high bug rate per 1k lines of code, etc.
-3. Highly customizable charts, metrics & dashboards for users to find insights based on their own needs.
+1. Unify your data (<a href="https://www.atlassian.com/software/jira" target="_blank">Jira</a>, <a href="https://gitlab.com/" target="_blank">GitLab</a>, Github, <a href="https://www.jenkins.io/" target="_blank">Jenkins</a>, etc.) and get a comprehensive view of your processes.
+2. Enhance retrospectives with practical data. 
+3. Accelerate feedback loops.
+4. Automate reporting.
+5. Personalize dashboards and metrics according to your role, goals, and challenges.
 
 
 <br>
@@ -50,13 +66,13 @@ Dev Lake is the one-stop solution that _**integrates, analyzes, and visualizes**
 <table>
     <tr>
         <td>Section</td>
-        <td>Subsection</td>
+        <td>Sub-section</td>
         <td>Description</td>
         <td>Documentation Link</td>
     </tr>
     <tr>
         <td>Data Sources</td>
-        <td>Data Sources</td>
+        <td>Supported Data Sources</td>
         <td>Links to specific plugin usage & details</td>
         <td><a href="#data-source-plugins">View Section</a></td>
     </tr>
@@ -136,6 +152,7 @@ GitLab | Summary, Data & Metrics, Configuration, Plugin API | <a href="plugins/g
 Jenkins | Summary, Data & Metrics, Configuration, Plugin API | <a href="plugins/jenkins/README.md" target="_blank">Link</a>
 GitHub | Summary, Data & Metrics, Configuration, Plugin API | <a href="plugins/github/README.md" target="_blank">Link</a>
 
+<br>
 
 ## Setup Guide
 There're 3 ways to set up Dev Lake.
