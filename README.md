@@ -26,8 +26,6 @@ Dev Lake brings all your DevOps data into one practical, personalized, extensibl
 
 Dev Lake is most exciting for leaders and managers looking to make better sense of their development data, though it's useful for any developer looking to bring a more data-driven approach to their own practices. With Dev Lake you can ask your process any question, just connect and query. 
 
-More Dev. Less Ops. With Dev Lake.
-
 
 ### Get started with just a few clicks
 
