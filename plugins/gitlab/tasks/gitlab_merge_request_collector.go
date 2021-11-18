@@ -18,13 +18,13 @@ type MergeRequestRes struct {
 	State           string
 	Title           string
 	Description     string
-	WebUrl          string           `json:"web_url"`
-	UserNotesCount  int              `json:"user_notes_count"`
-	WorkInProgress  bool             `json:"work_in_progress"`
-	SourceBranch    string           `json:"source_branch"`
-	GitlabCreatedAt core.Iso8601Time `json:"created_at"`
-	MergedAt        core.Iso8601Time `json:"merged_at"`
-	ClosedAt        core.Iso8601Time `json:"closed_at"`
+	WebUrl          string            `json:"web_url"`
+	UserNotesCount  int               `json:"user_notes_count"`
+	WorkInProgress  bool              `json:"work_in_progress"`
+	SourceBranch    string            `json:"source_branch"`
+	GitlabCreatedAt core.Iso8601Time  `json:"created_at"`
+	MergedAt        *core.Iso8601Time `json:"merged_at"`
+	ClosedAt        *core.Iso8601Time `json:"closed_at"`
 	MergedBy        struct {
 		Username string `json:"username"`
 	} `json:"merged_by"`
@@ -75,9 +75,9 @@ func convertMergeRequest(mr *MergeRequestRes, projectId int) (*models.GitlabMerg
 		UserNotesCount:   mr.UserNotesCount,
 		WorkInProgress:   mr.WorkInProgress,
 		SourceBranch:     mr.SourceBranch,
-		MergedAt:         mr.MergedAt.ToSqlNullTime(),
+		MergedAt:         core.Iso8601TimeToTime(mr.MergedAt),
 		GitlabCreatedAt:  mr.GitlabCreatedAt.ToTime(),
-		ClosedAt:         mr.ClosedAt.ToSqlNullTime(),
+		ClosedAt:         core.Iso8601TimeToTime(mr.ClosedAt),
 		MergedByUsername: mr.MergedBy.Username,
 		AuthorUsername:   mr.Author.Username,
 	}

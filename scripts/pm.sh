@@ -295,7 +295,23 @@ gitlab() {
             [{
                 "plugin": "gitlab",
                 "options": {
-                    "projectId": 8967944
+                    "projectId": 8967944,
+                    "tasks": ["collectMrs"]
+                }
+            }]
+    ]
+    JSON
+}
+
+github() {
+    curl -v -XPOST $LAKE_TASK_URL --data @- <<'    JSON'
+    [
+            [{
+                "plugin": "github",
+                "options": {
+                    "repositoryName": "lake",
+                    "owner": "merico-dev",
+                    "tasks": ["collectIssues"]
                 }
             }]
     ]
