@@ -66,8 +66,8 @@ func EnrichIssues(source *models.JiraSource, boardId uint64) (err error) {
 		if err != nil {
 			return err
 		}
-		if jiraIssue.ResolutionDate.Valid {
-			jiraIssue.LeadTimeMinutes = uint(jiraIssue.ResolutionDate.Time.Unix()-jiraIssue.Created.Unix()) / 60
+		if jiraIssue.ResolutionDate != nil {
+			jiraIssue.LeadTimeMinutes = uint(jiraIssue.ResolutionDate.Unix()-jiraIssue.Created.Unix()) / 60
 		}
 		jiraIssue.StdStoryPoint = uint(jiraIssue.StoryPoint * source.StoryPointCoefficient)
 		jiraIssue.StdType = getStdType(jiraIssue.Type)

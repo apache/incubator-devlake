@@ -13,6 +13,14 @@ type Iso8601TimeRecord struct {
 	Created Iso8601Time
 }
 
+type Iso8601TimeRecordP struct {
+	Created *Iso8601Time
+}
+
+type TimeRecord struct {
+	Created time.Time
+}
+
 func TimeMustParse(text string) time.Time {
 	t, err := time.Parse(time.RFC3339, text)
 	if err != nil {
@@ -37,6 +45,7 @@ func TestToSqlNullTime(t *testing.T) {
 	assert.Equal(t, expected.Time.Day(), actual.Time.Day())
 	assert.Equal(t, expected.Valid, actual.Valid)
 }
+
 func TestToSqlNullTime_EmptyString(t *testing.T) {
 	input := `{ "Created": "" }`
 	var record Iso8601TimeRecord
@@ -52,6 +61,7 @@ func TestToSqlNullTime_EmptyString(t *testing.T) {
 	assert.Equal(t, expected.Time.Day(), actual.Time.Day())
 	assert.Equal(t, expected.Valid, record.Created.ToSqlNullTime().Valid)
 }
+
 func TestIso8601Time(t *testing.T) {
 	pairs := map[string]time.Time{
 		`{ "Created": "2021-07-30T19:14:33Z" }`:          TimeMustParse("2021-07-30T19:14:33Z"),
@@ -66,5 +76,24 @@ func TestIso8601Time(t *testing.T) {
 		err := json.Unmarshal([]byte(input), &record)
 		assert.Nil(t, err)
 		assert.Equal(t, expected, record.Created.ToTime().UTC())
+
+		var ms map[string]interface{}
+		err = json.Unmarshal([]byte(input), &ms)
+		assert.Nil(t, err)
+
+		var record2 Iso8601TimeRecord
+		err = DecodeMapStruct(ms, &record2)
+		assert.Nil(t, err)
+		assert.Equal(t, expected, record2.Created.ToTime().UTC())
+
+		var record3 Iso8601TimeRecordP
+		err = DecodeMapStruct(ms, &record3)
+		assert.Nil(t, err)
+		assert.Equal(t, expected, record3.Created.ToTime().UTC())
+
+		var record4 TimeRecord
+		err = DecodeMapStruct(ms, &record4)
+		assert.Nil(t, err)
+		assert.Equal(t, expected, record4.Created.UTC())
 	}
 }

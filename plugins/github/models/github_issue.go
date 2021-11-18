@@ -1,7 +1,6 @@
 package models
 
 import (
-	"database/sql"
 	"time"
 
 	"github.com/merico-dev/lake/models"
@@ -18,7 +17,7 @@ type GithubIssue struct {
 	Status          string
 	Assignee        string
 	LeadTimeMinutes uint
-	ClosedAt        sql.NullTime
+	ClosedAt        *time.Time
 	GithubCreatedAt time.Time
 	GithubUpdatedAt time.Time
 

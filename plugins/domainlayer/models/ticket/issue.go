@@ -1,7 +1,6 @@
 package ticket
 
 import (
-	"database/sql"
 	"time"
 
 	"github.com/merico-dev/lake/plugins/domainlayer/models/base"
@@ -25,7 +24,7 @@ type Issue struct {
 	RemainingEstimateMinutes int64 // could it be negative value?
 	CreatorOriginKey         string
 	AssigneeOriginKey        string
-	ResolutionDate           sql.NullTime
+	ResolutionDate           *time.Time
 	Priority                 string // not sure how to deal with it yet, copy the name for now
 	ParentOriginKey          string
 	SprintOriginKey          string

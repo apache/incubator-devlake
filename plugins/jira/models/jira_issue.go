@@ -38,7 +38,7 @@ type JiraIssue struct {
 	ParentKey                string
 	SprintId                 uint64 // latest sprint, issue might cross multiple sprints, would be addressed by #514
 	SprintName               string
-	ResolutionDate           sql.NullTime
+	ResolutionDate           *time.Time
 	Created                  time.Time
 	Updated                  time.Time
 
