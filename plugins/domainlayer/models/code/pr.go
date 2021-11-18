@@ -1,7 +1,6 @@
 package code
 
 import (
-	"database/sql"
 	"time"
 
 	"github.com/merico-dev/lake/plugins/domainlayer/models/base"
@@ -14,6 +13,6 @@ type Pr struct {
 	Title       string
 	Url         string
 	CreatedDate time.Time
-	MergedDate  sql.NullTime
-	ClosedAt    sql.NullTime
+	MergedDate  *time.Time
+	ClosedAt    *time.Time
 }

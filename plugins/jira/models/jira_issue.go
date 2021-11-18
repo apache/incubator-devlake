@@ -1,7 +1,6 @@
 package models
 
 import (
-	"database/sql"
 	"time"
 
 	"github.com/merico-dev/lake/models"
@@ -55,5 +54,5 @@ type JiraIssue struct {
 	StdStatus       string
 
 	// internal status tracking
-	ChangelogUpdated sql.NullTime
+	ChangelogUpdated *time.Time
 }

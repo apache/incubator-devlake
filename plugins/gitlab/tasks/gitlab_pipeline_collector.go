@@ -33,8 +33,8 @@ type ApiSinglePipelineResponse struct {
 	Sha             string
 	WebUrl          string `json:"web_url"`
 	Duration        int
-	StartedAt       core.Iso8601Time `json:"started_at"`
-	FinishedAt      core.Iso8601Time `json:"finished_at"`
+	StartedAt       *core.Iso8601Time `json:"started_at"`
+	FinishedAt      *core.Iso8601Time `json:"finished_at"`
 	Coverage        string
 	Status          string
 }
@@ -131,8 +131,8 @@ func convertSinglePipeline(pipeline *ApiSinglePipelineResponse) (*models.GitlabP
 		Sha:             pipeline.Sha,
 		WebUrl:          pipeline.WebUrl,
 		Duration:        pipeline.Duration,
-		StartedAt:       pipeline.StartedAt.ToSqlNullTime(),
-		FinishedAt:      pipeline.FinishedAt.ToSqlNullTime(),
+		StartedAt:       core.Iso8601TimeToTime(pipeline.StartedAt),
+		FinishedAt:      core.Iso8601TimeToTime(pipeline.FinishedAt),
 		Coverage:        pipeline.Coverage,
 		Status:          pipeline.Status,
 	}

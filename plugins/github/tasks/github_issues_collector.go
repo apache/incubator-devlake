@@ -87,7 +87,7 @@ func convertGithubIssue(issue *IssuesResponse) (*models.GithubIssue, error) {
 		GithubUpdatedAt: issue.GithubUpdatedAt.ToTime(),
 	}
 
-	if issue.ClosedAt.ToSqlNullTime().Valid {
+	if issue.ClosedAt != nil {
 		githubIssue.LeadTimeMinutes = uint(issue.ClosedAt.ToTime().Sub(issue.GithubCreatedAt.ToTime()).Minutes())
 	}
 
@@ -101,7 +101,7 @@ func convertGithubPullRequest(issue *IssuesResponse, repoId int) (*models.Github
 		State:           issue.State,
 		Title:           issue.Title,
 		GithubCreatedAt: issue.GithubCreatedAt.ToTime(),
-		ClosedAt:        issue.ClosedAt.ToSqlNullTime(),
+		ClosedAt:        core.Iso8601TimeToTime(issue.ClosedAt),
 	}
 	return githubPull, nil
 }
