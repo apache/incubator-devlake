@@ -14,7 +14,7 @@ type JiraUserApiRes []JiraApiUser
 type JiraApiUser struct {
 	AccountId   string `json:"accountId"`
 	AccountType string `json:"accountType"`
-	Name        string `json:"displayName"`
+	DisplayName string `json:"displayName"`
 	Email       string `json:"emailAddress"`
 	Timezone    string `json:"timeZone"`
 	AvatarUrls  struct {
@@ -70,7 +70,7 @@ func convertUser(user *JiraApiUser, sourceId uint64) (*models.JiraUser, error) {
 		SourceId:    sourceId,
 		AccountId:   user.AccountId,
 		AccountType: user.AccountType,
-		Name:        user.Name,
+		Name:        user.DisplayName,
 		Email:       user.Email,
 		Timezone:    user.Timezone,
 		AvatarUrl:   user.AvatarUrls.Url,

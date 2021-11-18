@@ -2,11 +2,9 @@ package tasks
 
 import (
 	"context"
-	"database/sql"
 	"fmt"
 	"net/http"
 	"net/url"
-	"runtime/debug"
 	"strconv"
 	"time"
 
@@ -19,6 +17,11 @@ import (
 	"gorm.io/gorm/clause"
 )
 
+type JiraApiIssuesResponse struct {
+	JiraPagination
+	Issues []JiraApiIssue `json:"issues"`
+}
+
 type JiraApiIssue struct {
 	Id     string                 `json:"id"`
 	Self   string                 `json:"self"`
@@ -26,9 +29,65 @@ type JiraApiIssue struct {
 	Fields map[string]interface{} `json:"fields"`
 }
 
-type JiraApiIssuesResponse struct {
-	JiraPagination
-	Issues []JiraApiIssue `json:"issues"`
+type JiraApiIssueFields struct {
+	Name                  string
+	Summary               string
+	IssueType             JiraApiIssueType
+	Project               JiraApiProject
+	Status                JiraApiStatus
+	Creator               JiraApiUser
+	Assignee              *JiraApiUser
+	Priority              *JiraApiIssuePriority
+	TimeTracking          JiraApiIssueTimeTracking
+	AggregateTimeEstimate int64
+	Parent                *JiraApiIssue
+	Sprint                *JiraApiSprint
+	ClosedSprints         []JiraApiSprint
+	Created               core.Iso8601Time
+	Updated               *core.Iso8601Time
+	ResolutionDate        *core.Iso8601Time
+}
+
+type JiraApiIssuePriority struct {
+	Self    string
+	IconUrl string
+	Name    string
+	Id      string
+}
+
+type JiraApiIssueTimeTracking struct {
+	OriginalEstimate        string
+	RemainingEstimate       string
+	OriginalEstimateSeconds int64
+	RemainingEstimatSeconds int64
+}
+
+type JiraApiStatusCategory struct {
+	Self      string
+	Id        int
+	Key       string
+	ColorName string
+	Name      string
+}
+
+type JiraApiStatus struct {
+	Self           string
+	Description    string
+	IconUrl        string
+	Name           string
+	Id             string
+	StatusCategory JiraApiStatusCategory
+}
+
+type JiraApiIssueType struct {
+	Self           string
+	Id             string
+	Description    string
+	IconUrl        string
+	Name           string
+	Subtask        bool
+	AvatarId       int
+	HierarchyLevel int
 }
 
 func CollectIssues(
@@ -43,6 +102,7 @@ func CollectIssues(
 		var latestUpdated models.JiraIssue
 		err := lakeModels.Db.Where("source_id = ?", source.ID).Order("updated DESC").Limit(1).Find(&latestUpdated).Error
 		if err != nil {
+			logger.Error("jira collect issues:  get last sync time failed", err)
 			return err
 		}
 		since = latestUpdated.Updated
@@ -59,6 +119,7 @@ func CollectIssues(
 
 	scheduler, err := utils.NewWorkerScheduler(10, 50, ctx)
 	if err != nil {
+		logger.Error("jira collect issues: scheduler failed", err)
 		return err
 	}
 	defer scheduler.Release()
@@ -69,7 +130,7 @@ func CollectIssues(
 			jiraApiIssuesResponse := &JiraApiIssuesResponse{}
 			err := core.UnmarshalResponse(res, jiraApiIssuesResponse)
 			if err != nil {
-				logger.Error("unmarshal issue response errro", err)
+				logger.Error("jira collect issues: unmarshal issue response failed", err)
 				return err
 			}
 
@@ -77,6 +138,7 @@ func CollectIssues(
 			for _, jiraApiIssue := range jiraApiIssuesResponse.Issues {
 				jiraIssue, sprints, err := convertIssue(source, &jiraApiIssue)
 				if err != nil {
+					logger.Error("jira collect issues: convert issue failed", err)
 					return err
 				}
 				// issue
@@ -84,6 +146,7 @@ func CollectIssues(
 					UpdateAll: true,
 				}).Create(jiraIssue).Error
 				if err != nil {
+					logger.Error("jira collect issues: save issue failed", err)
 					return err
 				}
 
@@ -95,7 +158,7 @@ func CollectIssues(
 				})
 
 				// spirnt / issue relationship
-				for _, sprintId := range sprints{
+				for _, sprintId := range sprints {
 					err = lakeModels.Db.FirstOrCreate(
 						&models.JiraSprintIssue{
 							SourceId: source.ID,
@@ -103,7 +166,7 @@ func CollectIssues(
 							IssueId:  jiraIssue.IssueId,
 						}).Error
 					if err != nil {
-						logger.Error("save sprint issue relationship error", err)
+						logger.Error("jira collect issues: save sprint issue relationship failed", err)
 						return err
 					}
 				}
@@ -111,6 +174,7 @@ func CollectIssues(
 			return nil
 		})
 	if err != nil {
+		logger.Error("jira collect issues: fetch page failed", err)
 		return err
 	}
 	scheduler.WaitUntilFinish()
@@ -118,127 +182,92 @@ func CollectIssues(
 }
 
 func convertIssue(source *models.JiraSource, jiraApiIssue *JiraApiIssue) (jiraIssue *models.JiraIssue, sprints []uint64, err error) {
-	defer func() {
-		// type assertion could cause panic, this is to capture this type of error and propagate
-		if r := recover(); r != nil {
-			err = fmt.Errorf("jira issue converter failed: %w\n%s", r, debug.Stack())
-		}
-	}()
 	id, err := strconv.ParseUint(jiraApiIssue.Id, 10, 64)
 	if err != nil {
+		logger.Error("jira convert issue: parse issue id failed", err)
 		return nil, nil, err
 	}
-	created, err := core.ConvertStringToTime(jiraApiIssue.Fields["created"].(string))
+	fields := &JiraApiIssueFields{}
+	// decode known fields to a strong type struct to avoid type assertion
+	err = core.DecodeMapStruct(jiraApiIssue.Fields, fields)
 	if err != nil {
+		logger.Error("jira convert issue: decode fields failed", err)
 		return nil, nil, err
 	}
-	updated, err := core.ConvertStringToTime(jiraApiIssue.Fields["updated"].(string))
+
+	projectId, err := strconv.ParseUint(fields.Project.Id, 10, 64)
 	if err != nil {
+		logger.Error("jira convert issue: parse project id failed", err)
 		return nil, nil, err
 	}
-	projectId, err := strconv.ParseUint(
-		jiraApiIssue.Fields["project"].(map[string]interface{})["id"].(string), 10, 64,
-	)
-	if err != nil {
-		return nil, nil, err
-	}
-	status := jiraApiIssue.Fields["status"].(map[string]interface{})
-	statusName := status["name"].(string)
-	statusKey := status["statusCategory"].(map[string]interface{})["key"].(string)
-	statusCategory := status["statusCategory"].(map[string]interface{})["name"].(string)
 	epicKey := ""
 	if source.EpicKeyField != "" {
 		epicKey, _ = jiraApiIssue.Fields[source.EpicKeyField].(string)
-	}
-	resolutionDate := sql.NullTime{}
-	if rd, ok := jiraApiIssue.Fields["resolutiondate"]; ok && rd != nil {
-		if resolutionDate.Time, err = core.ConvertStringToTime(rd.(string)); err == nil {
-			resolutionDate.Valid = true
-		}
 	}
 	workload := 0.0
 	if source.StoryPointField != "" {
 		workload, _ = jiraApiIssue.Fields[source.StoryPointField].(float64)
 	}
-	creator := jiraApiIssue.Fields["creator"].(map[string]interface{})
 	jiraIssue = &models.JiraIssue{
 		SourceId:           source.ID,
 		IssueId:            id,
 		ProjectId:          projectId,
 		Self:               jiraApiIssue.Self,
 		Key:                jiraApiIssue.Key,
-		Summary:            jiraApiIssue.Fields["summary"].(string),
-		Type:               jiraApiIssue.Fields["issuetype"].(map[string]interface{})["name"].(string),
-		StatusName:         statusName,
-		StatusKey:          statusKey,
-		StatusCategory:     statusCategory,
+		Summary:            fields.Summary,
+		Type:               fields.IssueType.Name,
+		StatusName:         fields.Status.Name,
+		StatusKey:          fields.Status.StatusCategory.Key,
+		StatusCategory:     fields.Status.StatusCategory.Name,
 		EpicKey:            epicKey,
-		ResolutionDate:     resolutionDate,
+		ResolutionDate:     core.Iso8601TimeToTime(fields.ResolutionDate),
 		StoryPoint:         workload,
-		CreatorAccountId:   creator["accountId"].(string),
-		CreatorAccountType: creator["accountType"].(string),
-		CreatorDisplayName: creator["displayName"].(string),
-		Created:            created,
-		Updated:            updated,
+		CreatorAccountId:   fields.Creator.AccountId,
+		CreatorAccountType: fields.Creator.AccountType,
+		CreatorDisplayName: fields.Creator.DisplayName,
+		Created:            fields.Created.ToTime(),
+		Updated:            fields.Updated.ToTime(),
 	}
-	if assigneeField, ok := jiraApiIssue.Fields["assignee"]; ok && assigneeField != nil {
-		assignee := assigneeField.(map[string]interface{})
-		jiraIssue.AssigneeAccountId = assignee["accountId"].(string)
-		jiraIssue.AssigneeAccountType = assignee["accountType"].(string)
-		jiraIssue.AssigneeDisplayName = assignee["displayName"].(string)
+	if fields.Assignee != nil {
+		jiraIssue.AssigneeAccountId = fields.Assignee.AccountId
+		jiraIssue.AssigneeAccountType = fields.Assignee.AccountType
+		jiraIssue.AssigneeDisplayName = fields.Assignee.DisplayName
 	}
-	if priorityField, ok := jiraApiIssue.Fields["priority"]; ok {
-		priority := priorityField.(map[string]interface{})
-		priorityId, err := strconv.ParseUint(priority["id"].(string), 10, 64)
+	if fields.Priority != nil {
+		priorityId, err := strconv.ParseUint(fields.Priority.Id, 10, 64)
 		if err != nil {
+			logger.Error("jira convert issue: parse priority id failed", err)
 			return nil, nil, err
 		}
 		jiraIssue.PriorityId = priorityId
-		jiraIssue.PriorityName = priority["name"].(string)
+		jiraIssue.PriorityName = fields.Priority.Name
 	}
-	if timetrackingField, ok := jiraApiIssue.Fields["timetracking"]; ok {
-		timetracking := timetrackingField.(map[string]interface{})
-		if len(timetracking) > 0 {
-			if originalEstimateSeconds := timetracking["originalEstimateSeconds"]; originalEstimateSeconds != nil {
-				jiraIssue.OriginalEstimateMinutes = int64(originalEstimateSeconds.(float64) / 60)
-			}
-			if atoe := jiraApiIssue.Fields["aggregatetimeoriginalestimate"]; atoe != nil {
-				jiraIssue.AggregateEstimateMinutes = int64(atoe.(float64) / 60)
-			}
-			if remainingEstimateSeconds := timetracking["remainingEstimateSeconds"]; remainingEstimateSeconds != nil {
-				jiraIssue.RemainingEstimateMinutes = int64(remainingEstimateSeconds.(float64) / 60)
-			}
-		}
+	if fields.TimeTracking.OriginalEstimateSeconds != 0 {
+		jiraIssue.OriginalEstimateMinutes = fields.TimeTracking.OriginalEstimateSeconds / 60
+		jiraIssue.AggregateEstimateMinutes = fields.AggregateTimeEstimate / 60
+		jiraIssue.RemainingEstimateMinutes = fields.TimeTracking.RemainingEstimatSeconds / 60
 	}
 	// this would never be true if we collect issues by board
-	if parentField, ok := jiraApiIssue.Fields["parent"]; ok {
-		parent := parentField.(map[string]interface{})
-		if parent != nil {
-			parentId, err := strconv.ParseUint(parent["id"].(string), 10, 64)
-			if err != nil {
-				return nil, nil, err
-			}
-			jiraIssue.ParentId = parentId
-			jiraIssue.ParentKey = parent["key"].(string)
+	if fields.Parent != nil {
+		parentId, err := strconv.ParseUint(fields.Parent.Id, 10, 64)
+		if err != nil {
+			logger.Error("jira convert issue: parse parent issue id failed", err)
+			return nil, nil, err
 		}
+		jiraIssue.ParentId = parentId
+		jiraIssue.ParentKey = fields.Parent.Key
 	}
 	// latest sprint
-	if sprintField, ok := jiraApiIssue.Fields["sprint"]; ok && sprintField != nil {
-		if sprint := sprintField.(map[string]interface{}); ok {
-			// set sprint to latest sprint id/name
-			jiraIssue.SprintId = uint64(sprint["id"].(float64))
-			jiraIssue.SprintName = sprint["name"].(string)
-			sprints = append(sprints, jiraIssue.SprintId)
-		}
+	if fields.Sprint != nil {
+		// set sprint to latest sprint id/name
+		jiraIssue.SprintId = fields.Sprint.Id
+		jiraIssue.SprintName = fields.Sprint.Name
+		sprints = append(sprints, jiraIssue.SprintId)
 	}
 	// closed sprint
-	if closedSprintField, ok := jiraApiIssue.Fields["closedSprints"]; ok && closedSprintField != nil {
-		if clsedSprints := closedSprintField.([]interface{}); ok {
-			for _, sprint := range clsedSprints {
-				if s, yes := sprint.(map[string]interface{}); yes && s != nil{
-					sprints = append(sprints, uint64(s["id"].(float64)))
-				}
-			}
+	if fields.ClosedSprints != nil {
+		for _, sprint := range fields.ClosedSprints {
+			sprints = append(sprints, sprint.Id)
 		}
 	}
 	return jiraIssue, sprints, nil
