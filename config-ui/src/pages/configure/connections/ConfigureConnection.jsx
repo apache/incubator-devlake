@@ -19,6 +19,7 @@ import useConnectionManager from '@/hooks/useConnectionManager'
 import useSettingsManager from '@/hooks/useSettingsManager'
 import ConnectionForm from '@/pages/configure/connections/ConnectionForm'
 import DeleteAction from '@/components/actions/DeleteAction'
+import DeleteConfirmationMessage from '@/components/actions/DeleteConfirmationMessage'
 
 import { integrationsData } from '@/data/integrations'
 // import { NullConnection } from '@/data/NullConnection'
@@ -171,18 +172,22 @@ export default function ConfigureConnection () {
                     <h1 style={{ margin: 0 }}>
                       Manage <strong style={{ fontWeight: 900 }}>{activeProvider.name}</strong> Settings
                     </h1>
-                    <div style={{ paddingTop: '5px' }}>
-                      <DeleteAction
-                        id={deleteId}
-                        connection={activeConnection}
-                        text='Delete'
-                        showConfirmation={() => setDeleteId(activeConnection.ID)}
-                        onConfirm={deleteConnection}
-                        onCancel={(e) => setDeleteId(null)}
-                        isDisabled={isDeletingConnection}
-                        isLoading={isDeletingConnection}
-                      />
-                    </div>
+                    {activeProvider.multiSource && (
+                      <div style={{ paddingTop: '5px' }}>
+                        <DeleteAction
+                          id={deleteId}
+                          connection={activeConnection}
+                          text='Delete'
+                          showConfirmation={() => setDeleteId(activeConnection.ID)}
+                          onConfirm={deleteConnection}
+                          onCancel={(e) => setDeleteId(null)}
+                          isDisabled={isDeletingConnection}
+                          isLoading={isDeletingConnection}
+                        >
+                          <DeleteConfirmationMessage title={`DELETE "${activeConnection.name}"`} />
+                        </DeleteAction>
+                      </div>
+                    )}
                   </div>
                   {activeConnection && (
                     <>
