@@ -1,35 +1,59 @@
+<div align="center">
 <br />
 <img src="https://user-images.githubusercontent.com/3789273/128085813-92845abd-7c26-4fa2-9f98-928ce2246616.png" width="120px">
 
 # Dev Lake
+<p>
+    <b>
+     <!Software development workflow analysis for free> 
+    </b>
+  </p>
+  <p>
+
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat&logo=github&color=2370ff&labelColor=454545)](http://makeapullrequest.com)
 [![Discord](https://img.shields.io/discord/844603288082186240.svg?style=flat?label=&logo=discord&logoColor=ffffff&color=747df7&labelColor=454545)](https://discord.gg/83rDG6ydVZ)
-![badge](https://github.com/merico-dev/lake/actions/workflows/main.yml/badge.svg)
-
+![badge](https://github.com/merico-dev/lake/actions/workflows/test.yml/badge.svg)
+[![Go Report Card](https://goreportcard.com/badge/github.com/merico-dev/lake)](https://goreportcard.com/report/github.com/merico-dev/lake)
 
 
 | [English](README.md) | [中文](README-zh-CN.md) |
 | --- | --- |
 
+</div>
 <br>
+<div align="left">
 
 ### 什么是 Dev Lake？
+Dev Lake 将你所有的 DevOps 数据以实用、个性化、可扩展的视图呈现。通过我们免费的开源产品，从不断增加的开发者工具列表中收集、分析和可视化数据。
 
-Dev Lake 是一个研发效能分析平台，它通过对软件开发生命周期（SDLC）中产生的数据进行 _**整合、分析和可视化**_ ，提升研发效能。
+Dev Lake 对于希望**更好地了解其开发数据的管理者**来说是最激动人心的，除此以外，它对于任何希望**通过数据驱动提升自身实践的开发者**来说都是有用的。有了Dev Lake，你可以向你的程序提出任何问题，只要连接和查询。
 
-<img src="https://user-images.githubusercontent.com/2908155/130271622-827c4ffa-d812-4843-b09d-ea1338b7e6e5.png" width="100%" alt="Dev Lake Grafana Dashboard" />
+
+### 一键体验 Dev Lake
+
+[本地安装](#user-setup) | [云端安装](https://github.com/merico-dev/lake/wiki/How-to-Set-Up-Dev-Lake-with-Tin) |
+| --- | --- |
+
+<br>
+
+<div align="left">
+<img src="https://user-images.githubusercontent.com/2908155/130271622-827c4ffa-d812-4843-b09d-ea1338b7e6e5.png" width="100%" alt="Dev Lake Grafana Dashboard" style="border-radius:15px;" />
 <p align="center">数据面板截图</p><br>
-<img src="https://user-images.githubusercontent.com/14050754/139076905-48d13e40-51ab-49e4-b537-0fe56960a1c0.png" width="100%" alt="Dev Lake Grafana Dashboard" />
+<img src="https://user-images.githubusercontent.com/14050754/142356580-40637a30-5578-48ed-8e4a-128cd0738e3e.png" width="100%" alt="User Flow" style="border-radius:15px;"/>
 <p align="center">用户使用流程</p><br>
 
 ### 为什么选择 Dev Lake？
-1. 在一个个性化的、统一的视图中可视化和分析你的整个SDLC过程。
-2. 提供统一的标准化的度量体系和分析方法，帮助你分析团队研发效能，提高交付速度和质量。
+1. 最具扩展性的解决方案，连接许多数据源和工具。
+2. 内置的分析和随时使用的指标，为不同的数据提供统一的方案。
+3. 最可定制的解决方案，具有个性化的仪表盘和指标。
+4. 最透明的解决方案，具有清晰的SQL查询和开源架构。
 
 ### Dev Lake 可以完成什么?
-1. 收集和关联不同来源的数据（Jira、Gitlab、Github、Jenkins等），打破数据孤岛。
-2. 提供行业标准指标来识别工程问题，比如交付周期过长、Bug太多等。
-3. 高度定制化的图表、指标和仪表盘，用户根据自己的需求分析数据，发现洞见。
+1. 统一你的数据（Jira、GitLab、Github、Jenkins等），全面了解你的流程。
+2. 用实际数据加强回顾性分析。
+3. 加速反馈循环。
+4. 自动化报告。
+5. 根据你的角色、目标和挑战，个性化仪表盘和指标。
 
 <br>
 
@@ -160,11 +184,15 @@ GitHub | 概述，数据和指标，配置，API | [Link](plugins/github/README-
    >-> <a href="plugins/gitlab/README-zh-CN.md" target="_blank">GitLab</a>
    >-> <a href="plugins/jenkins/README-zh-CN.md" target="_blank">Jenkins</a> 
    >-> <a href="plugins/github/README-zh-CN.md" target="_blank">GitHub</a>
+   
+   >- 提交表单，通过点击每个表单页面上的**Save Connection**按钮来更新数值。
 
+   >- `devlake`需要一段时间才能完全启动。如果`config-ui`提示 API 无法访问，请等待几秒钟并尝试刷新页面。
+   >- 如果想收集一个 Repo 进行快速预览，请在**数据集成/Github**页面提供一个 Github 的个人 Token。
 
 4. 访问 `localhost:4000/triggers`，触发数据收集
 
-> 请参考这篇Wiki [How to trigger data collection](https://github.com/merico-dev/lake/wiki/How-to-use-the-triggers-page)。对于大型项目，这可能需要20分钟。 (Gitlab 10k+ commits 或 Jira 5k+ 事务)
+> 请参考这篇Wiki [How to trigger data collection](https://github.com/merico-dev/lake/wiki/How-to-use-the-triggers-page)。数据收集可能需要一段时间，取决于你想收集的数据量。
 
 > - 如果要收集这个 repo 以进行，你可以使用以下 JSON
    >   ```json
@@ -190,11 +218,10 @@ GitHub | 概述，数据和指标，配置，API | [Link](plugins/github/README-
 
 5. 完成后，点击 *Go to grafana* (用户名: `admin`, 密码: `admin`)。当数据收集完成后，该按钮将显示在触发收集页面。
 
-### 设置 Cron job
-通常情况下，我们有定期同步数据的要求。我们提供了一个叫做 `lake-cli` 的工具来满足这个要求。请在 [这里](./cmd/lake-cli/README.md) 查看 `lake-cli` 的用法。 
+#### 设置 Cron job
+为了定期同步数据，我们提供了[`lake-cli`]((./cmd/lake-cli/README.md))以方便发送数据收集请求，我们同时提供了[cron job](./devops/sync/README.md)以定期触发 cli 工具。
 
-除此之外，如果你只想使用 Cron job，请在 [这里](./devops/sync/README.md) 查看 `docker-compose` 版本。
-
+<br>
 
 ### 开发者安装<a id="dev-setup"></a>
 
@@ -228,21 +255,24 @@ GitHub | 概述，数据和指标，配置，API | [Link](plugins/github/README-
     ```
    在`.env`文件中找到以`DB_URL`开头的那一行，把`mysql:3306`替换为`127.0.0.1:3306`
 
-4. 启动 Docker
+4. 启动 MySQL 和 Grafana
 
     > 确保在此步骤之前 Docker 正在运行。
 
     ```sh
-    make compose
+    docker-compose up mysql grafana
     ```
 
-5. 运行项目
+5. 在 2 个终端种分别以开发者模式运行 lake 和 config UI:
 
     ```sh
+    # run lake
     make dev
+    # run config UI
+    make configure-dev
     ```
 
-6. 访问 `localhost:4000` 来设置 Dev Lake 的配置文件
+6. 访问 config-ui `localhost:4000` 来配置 Dev Lake 数据源
    >- 在 "Integration"页面上找到到所需的插件页面
    >- 你需要为你打算使用的插件输入必要的信息
    >- 请参考以下内容，以了解如何配置每个插件的更多细节
@@ -293,6 +323,8 @@ GitHub | 概述，数据和指标，配置，API | [Link](plugins/github/README-
 
 **声明:** 
 > 对于使用 Tin 在云端托管 Dev Lake 的用户，设置密码来保护实例下配置信息的安全是至关重要的。Dev Lake作为一个自我托管的产品，部分是为了确保用户对数据有完全的保护和所有权，对于 Tin 托管来说也是如此，这个风险点需要由终端用户来消除。
+
+<br>
 
 ## 测试<a id="tests"></a>
 
