@@ -41,7 +41,7 @@ More Dev. Less Ops. With Dev Lake.
 <div align="left">
 <img src="https://user-images.githubusercontent.com/2908155/130271622-827c4ffa-d812-4843-b09d-ea1338b7e6e5.png" width="100%" alt="Dev Lake Grafana Dashboard" style="border-radius:15px;" />
 <p align="center">Dashboard Screenshot</p><br>
-<img src="https://user-images.githubusercontent.com/14050754/142356580-40637a30-5578-48ed-8e4a-128cd0738e3e.png" width="100%" alt="What is Dev Lake" style="border-radius:15px;"/>
+<img src="https://user-images.githubusercontent.com/14050754/142356580-40637a30-5578-48ed-8e4a-128cd0738e3e.png" width="100%" alt="User Flow" style="border-radius:15px;"/>
 <p align="center">User Flow</p>
 
 ### Why Dev Lake?
@@ -228,6 +228,7 @@ There're 3 ways to set up Dev Lake.
 
 To synchronize data periodically, we provide [`lake-cli`]((./cmd/lake-cli/README.md)) for easily sending data collection requests along with [a cron job](./devops/sync/README.md) to periodically trigger the cli tool. 
 
+<br>
 
 ### Developer Setup<a id="dev-setup"></a>
 
