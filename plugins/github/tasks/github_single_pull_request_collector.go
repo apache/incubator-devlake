@@ -16,7 +16,7 @@ type ApiSinglePullResponse struct {
 	Commits        int
 	ReviewComments int `json:"review_comments"`
 	Merged         bool
-	MergedAt       core.Iso8601Time `json:"merged_at"`
+	MergedAt       *core.Iso8601Time `json:"merged_at"`
 }
 
 func CollectPullRequest(owner string, repositoryName string, repositoryId int, pr *models.GithubPullRequest, githubApiClient *GithubApiClient) error {
@@ -51,7 +51,7 @@ func convertSingleGithubPullRequest(singlePull *ApiSinglePullResponse) (*models.
 		Commits:        singlePull.Commits,
 		ReviewComments: singlePull.ReviewComments,
 		Merged:         singlePull.Merged,
-		MergedAt:       singlePull.MergedAt.ToSqlNullTime(),
+		MergedAt:       core.Iso8601TimeToTime(singlePull.MergedAt),
 	}
 	return pr, nil
 }
