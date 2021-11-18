@@ -28,7 +28,7 @@ func (plugin Gitlab) Description() string {
 func (plugin Gitlab) Execute(options map[string]interface{}, progress chan<- float32, ctx context.Context) error {
 	logger.Print("start gitlab plugin execution")
 
-	// Gilab's authenticated api rate limit is 2000 per min
+	// GitLab's authenticated api rate limit is 2000 per min
 	// 30 tasks/min 60s/min = 1800 per min < 2000 per min
 	// You would think this would work but it hits the rate limit every time. I have to play with the number to see the right way to set it
 	scheduler, err := utils.NewWorkerScheduler(50, 15, ctx)
@@ -68,13 +68,6 @@ func (plugin Gitlab) Execute(options map[string]interface{}, progress chan<- flo
 	if err := tasks.CollectProject(projectIdInt); err != nil {
 		return fmt.Errorf("could not collect projects: %v", err)
 	}
-	if tasksToRun["collectPipelines"] {
-		progress <- 0.2
-		if err := tasks.CollectAllPipelines(projectIdInt, scheduler); err != nil {
-			return fmt.Errorf("could not collect projects: %v", err)
-		}
-		tasks.CollectChildrenOnPipelines(projectIdInt, scheduler)
-	}
 	if tasksToRun["collectCommits"] {
 		progress <- 0.25
 		if err := tasks.CollectCommits(projectIdInt, scheduler); err != nil {
@@ -96,6 +89,13 @@ func (plugin Gitlab) Execute(options map[string]interface{}, progress chan<- flo
 		if enrichErr != nil {
 			return fmt.Errorf("could not enrich merge requests: %v", enrichErr)
 		}
+	}
+	if tasksToRun["collectPipelines"] {
+		progress <- 0.9
+		if err := tasks.CollectAllPipelines(projectIdInt, scheduler); err != nil {
+			return fmt.Errorf("could not collect projects: %v", err)
+		}
+		tasks.CollectChildrenOnPipelines(projectIdInt, scheduler)
 	}
 	progress <- 1
 	close(progress)
