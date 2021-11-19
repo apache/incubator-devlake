@@ -35,7 +35,7 @@ type PrCommit struct {
 
 func CollectPullRequestCommits(owner string, repositoryName string, pull *models.GithubPullRequest, scheduler *utils.WorkerScheduler, githubApiClient *GithubApiClient) error {
 	getUrl := fmt.Sprintf("repos/%v/%v/pulls/%v/commits", owner, repositoryName, pull.Number)
-	return githubApiClient.FetchWithPaginationAnts(getUrl, 100, 1, scheduler,
+	return githubApiClient.FetchWithPaginationAnts(getUrl, nil, 100, 1, scheduler,
 		func(res *http.Response) error {
 			githubApiResponse := &ApiPullRequestCommitResponse{}
 			if res.StatusCode == 200 {

@@ -23,7 +23,7 @@ type IssueLabel struct {
 
 func CollectIssueLabelsForSinglePullRequest(owner string, repositoryName string, pr *models.GithubPullRequest, scheduler *utils.WorkerScheduler, githubApiClient *GithubApiClient) error {
 	getUrl := fmt.Sprintf("repos/%v/%v/issues/%v/labels", owner, repositoryName, pr.Number)
-	return githubApiClient.FetchWithPaginationAnts(getUrl, 100, 1, scheduler,
+	return githubApiClient.FetchWithPaginationAnts(getUrl, nil, 100, 1, scheduler,
 		func(res *http.Response) error {
 			githubApiResponse := &ApiIssueLabelResponse{}
 			if res.StatusCode == 200 {
@@ -52,7 +52,7 @@ func CollectIssueLabelsForSinglePullRequest(owner string, repositoryName string,
 }
 func CollectIssueLabelsForSingleIssue(owner string, repositoryName string, issue *models.GithubIssue, scheduler *utils.WorkerScheduler, githubApiClient *GithubApiClient) error {
 	getUrl := fmt.Sprintf("repos/%v/%v/issues/%v/labels", owner, repositoryName, issue.Number)
-	return githubApiClient.FetchWithPaginationAnts(getUrl, 100, 1, scheduler,
+	return githubApiClient.FetchWithPaginationAnts(getUrl, nil, 100, 1, scheduler,
 		func(res *http.Response) error {
 			githubApiResponse := &ApiIssueLabelResponse{}
 			if res.StatusCode == 200 {
@@ -81,7 +81,7 @@ func CollectIssueLabelsForSingleIssue(owner string, repositoryName string, issue
 }
 func CollectRepositoryIssueLabels(owner string, repositoryName string, scheduler *utils.WorkerScheduler, githubApiClient *GithubApiClient) error {
 	getUrl := fmt.Sprintf("repos/%v/%v/labels", owner, repositoryName)
-	return githubApiClient.FetchWithPaginationAnts(getUrl, 100, 1, scheduler,
+	return githubApiClient.FetchWithPaginationAnts(getUrl, nil, 100, 1, scheduler,
 		func(res *http.Response) error {
 			githubApiResponse := &ApiIssueLabelResponse{}
 			if res.StatusCode == 200 {
