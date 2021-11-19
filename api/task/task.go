@@ -27,12 +27,35 @@ func Post(ctx *gin.Context) {
 	// Return all created tasks to the User
 	ctx.JSON(http.StatusCreated, tasks)
 
+	// cancel all previous runing tasks of the same type
+	cancelAllDuplicateTasks(tasks)
+
 	go func() {
 		err := services.RunAllTasks(data, tasks)
 		if err != nil {
 			_ = ctx.AbortWithError(http.StatusInternalServerError, err)
 		}
 	}()
+}
+
+func cancelAllDuplicateTasks(tasks [][]models.Task) error {
+	for i := 0; i < len(tasks); i++ {
+		for j := 0; j < len(tasks[i]); j++ {
+			task := tasks[i][j]
+			// get task by id
+			var taskModel models.Task
+
+			db := models.Db.Model(&models.Task{}).Where("id = ?", task.ID)
+			_ = db.Debug().Find(&taskModel)
+
+			// Cancel all tasks with that plugin type
+			err := models.Db.Model(&models.Task{}).Where("plugin = ? AND status = ?", taskModel.Plugin, "TASK_CREATED").Update("status", "CANCELLED").Error
+			if err != nil {
+				logger.Error("Could not upsert: ", err)
+			}
+		}
+	}
+	return nil
 }
 
 func Get(ctx *gin.Context) {
@@ -49,6 +72,7 @@ func Get(ctx *gin.Context) {
 	}
 	ctx.JSON(http.StatusOK, gin.H{"tasks": tasks, "count": count})
 }
+
 func GetPending(ctx *gin.Context) {
 	var query services.TaskQuery
 	err := ctx.BindQuery(&query)
@@ -63,6 +87,7 @@ func GetPending(ctx *gin.Context) {
 	}
 	ctx.JSON(http.StatusOK, gin.H{"tasks": tasks})
 }
+
 func Delete(ctx *gin.Context) {
 	taskId := ctx.Param("taskId")
 	id, err := strconv.ParseUint(taskId, 10, 64)
