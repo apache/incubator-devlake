@@ -117,7 +117,7 @@ func PostSources(input *core.ApiResourceInput) (*core.ApiResourceOutput, error) 
 		return nil, err
 	}
 
-	return &core.ApiResourceOutput{Body: jiraSource, Status: http.StatusOK}, nil
+	return &core.ApiResourceOutput{Body: jiraSource, Status: http.StatusCreated}, nil
 }
 
 /*
