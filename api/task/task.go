@@ -38,7 +38,7 @@ func Post(ctx *gin.Context) {
 	}()
 }
 
-func cancelAllDuplicateTasks(tasks [][]models.Task) error {
+func cancelAllDuplicateTasks(tasks [][]models.Task) {
 	for i := 0; i < len(tasks); i++ {
 		for j := 0; j < len(tasks[i]); j++ {
 			task := tasks[i][j]
@@ -49,13 +49,12 @@ func cancelAllDuplicateTasks(tasks [][]models.Task) error {
 			_ = db.Debug().Find(&taskModel)
 
 			// Cancel all tasks with that plugin type
-			err := models.Db.Model(&models.Task{}).Where("plugin = ? AND status = ?", taskModel.Plugin, "TASK_CREATED").Update("status", "CANCELLED").Error
+			err := models.Db.Model(&models.Task{}).Where("plugin = ? AND status = ? AND source_id = ?", taskModel.Plugin, "TASK_CREATED", taskModel.SourceId).Update("status", "CANCELLED").Error
 			if err != nil {
 				logger.Error("Could not upsert: ", err)
 			}
 		}
 	}
-	return nil
 }
 
 func Get(ctx *gin.Context) {
