@@ -100,6 +100,7 @@ func (plugin Jira) Execute(options map[string]interface{}, progress chan<- float
 			"collectChangelogs": true,
 			"enrichIssues":      true,
 			"collectSprints":    true,
+			"collectUsers":      true,
 		}
 	}
 

@@ -124,7 +124,7 @@ func CollectIssues(
 	}
 	defer scheduler.Release()
 
-	err = jiraApiClient.FetchPages(scheduler, fmt.Sprintf("/agile/1.0/board/%v/issue", boardId), query,
+	err = jiraApiClient.FetchPages(scheduler, fmt.Sprintf("rest/agile/1.0/board/%v/issue", boardId), query,
 		func(res *http.Response) error {
 			// parse response
 			jiraApiIssuesResponse := &JiraApiIssuesResponse{}
