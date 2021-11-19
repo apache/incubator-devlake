@@ -131,7 +131,7 @@ func PostIssueTypeMappings(input *core.ApiResourceInput) (*core.ApiResourceOutpu
 	if err != nil {
 		return nil, err
 	}
-	return &core.ApiResourceOutput{Body: jiraIssueTypeMapping, Status: http.StatusOK}, nil
+	return &core.ApiResourceOutput{Body: jiraIssueTypeMapping, Status: http.StatusCreated}, nil
 }
 
 /*
