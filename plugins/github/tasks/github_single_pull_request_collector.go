@@ -2,6 +2,7 @@ package tasks
 
 import (
 	"fmt"
+	"net/url"
 
 	"github.com/merico-dev/lake/logger"
 	lakeModels "github.com/merico-dev/lake/models"
@@ -20,8 +21,10 @@ type ApiSinglePullResponse struct {
 }
 
 func CollectPullRequest(owner string, repositoryName string, repositoryId int, pr *models.GithubPullRequest, githubApiClient *GithubApiClient) error {
-	getUrl := fmt.Sprintf("repos/%v/%v/pulls/%v?state=all", owner, repositoryName, pr.Number)
-	res, getErr := githubApiClient.Get(getUrl, nil, nil)
+	getUrl := fmt.Sprintf("repos/%v/%v/pulls/%v", owner, repositoryName, pr.Number)
+	queryParams := &url.Values{}
+	queryParams.Set("state", "all")
+	res, getErr := githubApiClient.Get(getUrl, queryParams, nil)
 	if getErr != nil {
 		logger.Error("GET Error: ", getErr)
 		return getErr

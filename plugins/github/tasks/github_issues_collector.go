@@ -3,6 +3,7 @@ package tasks
 import (
 	"fmt"
 	"net/http"
+	"net/url"
 
 	"github.com/merico-dev/lake/logger"
 	lakeModels "github.com/merico-dev/lake/models"
@@ -34,8 +35,10 @@ type IssuesResponse struct {
 }
 
 func CollectIssues(owner string, repositoryName string, repositoryId int, scheduler *utils.WorkerScheduler, githubApiClient *GithubApiClient) error {
-	getUrl := fmt.Sprintf("repos/%v/%v/issues?state=all", owner, repositoryName)
-	return githubApiClient.FetchWithPaginationAnts(getUrl, 100, 20, scheduler,
+	getUrl := fmt.Sprintf("repos/%v/%v/issues", owner, repositoryName)
+	queryParams := &url.Values{}
+	queryParams.Set("state", "all")
+	return githubApiClient.FetchWithPaginationAnts(getUrl, queryParams, 100, 20, scheduler,
 		func(res *http.Response) error {
 			githubApiResponse := &ApiIssuesResponse{}
 			err := core.UnmarshalResponse(res, githubApiResponse)
