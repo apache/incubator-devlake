@@ -17,8 +17,8 @@ type GithubCommit struct {
 	CommittedDate  time.Time
 	Message        string
 	Url            string
-	Additions      int
-	Deletions      int
+	Additions      int `gorm:"comment:Added lines of code"`
+	Deletions      int `gorm:"comment:Deleted lines of code"`
 
 	models.NoPKModel
 }

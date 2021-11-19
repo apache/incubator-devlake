@@ -28,7 +28,7 @@ type JiraIssue struct {
 	CreatorAccountId         string
 	CreatorAccountType       string
 	CreatorDisplayName       string
-	AssigneeAccountId        string // latest assignee
+	AssigneeAccountId        string `gorm:"comment:latest assignee"`
 	AssigneeAccountType      string
 	AssigneeDisplayName      string
 	PriorityId               uint64

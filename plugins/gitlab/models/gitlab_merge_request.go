@@ -22,8 +22,8 @@ type GitlabMergeRequest struct {
 	MergedByUsername string
 	Description      string
 	AuthorUsername   string
-	FirstCommentTime *time.Time
-	ReviewRounds     int
+	FirstCommentTime *time.Time `gorm:"comment:Time when the first comment occurred"`
+	ReviewRounds     int        `gorm:"comment:How many rounds of review this MR went through"`
 
 	models.NoPKModel
 }

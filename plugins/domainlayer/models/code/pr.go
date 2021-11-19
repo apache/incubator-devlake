@@ -9,7 +9,7 @@ import (
 type Pr struct {
 	base.DomainEntity
 	RepoId      uint64 `gorm:"index"`
-	State       string
+	State       string `gorm:"comment:open/closed or other"`
 	Title       string
 	Url         string
 	CreatedDate time.Time
