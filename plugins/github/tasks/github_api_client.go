@@ -3,7 +3,8 @@ package tasks
 import (
 	"fmt"
 	"net/http"
-	"strings"
+	"net/url"
+	"strconv"
 	"time"
 
 	"github.com/merico-dev/lake/logger"
@@ -42,29 +43,21 @@ type GithubPaginationHandler func(res *http.Response) error
 
 // run all requests in an Ants worker pool
 // conc - number of concurent requests you want to run
-func (githubApiClient *GithubApiClient) FetchWithPaginationAnts(resourceUri string, pageSize int, conc int, scheduler *utils.WorkerScheduler, handler GithubPaginationHandler) error {
-	url := AddPagingQueryToUrl(resourceUri)
-	err := githubApiClient.RunConcurrently(url, pageSize, conc, scheduler, handler)
+func (githubApiClient *GithubApiClient) FetchWithPaginationAnts(path string, queryParams *url.Values, pageSize int, conc int, scheduler *utils.WorkerScheduler, handler GithubPaginationHandler) error {
+	if queryParams == nil {
+		queryParams = &url.Values{}
+	}
+	err := githubApiClient.RunConcurrently(path, queryParams, pageSize, conc, scheduler, handler)
 	if err != nil {
 		logger.Error("runConcurrently() failed", true)
 	}
 	return nil
 }
 
-func AddPagingQueryToUrl(url string) string {
-	var urlWithPagingQuery string
-	if strings.ContainsAny(url, "?") {
-		urlWithPagingQuery = url + "&page=%v&per_page=%v"
-	} else {
-		urlWithPagingQuery = url + "?page=%v&per_page=%v"
-	}
-	return urlWithPagingQuery
-}
-
 // This method exists in the case where we do not know how many pages of data we have to fetch
 // This loops through the data in chunks of `conc` and if there is any request in there with no data returned, we assume we are at the end of the data required to fetch
 // This is needed since we do not want to make a request to get the paging details first since the rate limit for github is so low
-func (githubApiClient *GithubApiClient) RunConcurrently(resourceUriFormat string, pageSize int, conc int, scheduler *utils.WorkerScheduler, handler GithubPaginationHandler) error {
+func (githubApiClient *GithubApiClient) RunConcurrently(path string, queryParams *url.Values, pageSize int, conc int, scheduler *utils.WorkerScheduler, handler GithubPaginationHandler) error {
 
 	if conc == 0 {
 		logger.Error("you must send a conc count to RunConcurrently()", true)
@@ -77,8 +70,9 @@ func (githubApiClient *GithubApiClient) RunConcurrently(resourceUriFormat string
 		for i := conc; i > 0; i-- {
 			page := step*conc + i
 			err := scheduler.Submit(func() error {
-				url := fmt.Sprintf(resourceUriFormat, page, pageSize)
-				res, err := githubApiClient.Get(url, nil, nil)
+				queryParams.Set("page", strconv.Itoa(page))
+				queryParams.Set("per_page", strconv.Itoa(pageSize))
+				res, err := githubApiClient.Get(path, queryParams, nil)
 				if err != nil {
 					return err
 				}
