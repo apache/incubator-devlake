@@ -9,6 +9,10 @@ import (
 	"gorm.io/gorm/clause"
 )
 
+const (
+	BatchSize = 100
+)
+
 func ConvertSprint(sourceId uint64, boardId uint64) error {
 
 	// select all sprints belongs to the board
@@ -24,7 +28,7 @@ func ConvertSprint(sourceId uint64, boardId uint64) error {
 
 	boardOriginKey := okgen.NewOriginKeyGenerator(&jiraModels.JiraBoard{}).Generate(sourceId, boardId)
 	sprintOriginKeyGenerator := okgen.NewOriginKeyGenerator(&jiraModels.JiraSprint{})
-
+	issueOriginKeyGenerator := okgen.NewOriginKeyGenerator(&jiraModels.JiraIssue{})
 	// iterate all rows
 	for cursor.Next() {
 		var jiraSprint jiraModels.JiraSprint
@@ -45,6 +49,23 @@ func ConvertSprint(sourceId uint64, boardId uint64) error {
 			CompleteDate:   jiraSprint.CompleteDate,
 		}
 		err = lakeModels.Db.Clauses(clause.OnConflict{UpdateAll: true}).Create(sprint).Error
+		if err != nil {
+			return err
+		}
+		var sprintIssues []jiraModels.JiraSprintIssue
+		err = lakeModels.Db.Find(&sprintIssues, "source_id = ? AND sprint_id = ?", sourceId, jiraSprint.SprintId).Error
+		if err != nil {
+			return err
+		}
+		domainSprintIssues := make([]ticket.SprintIssue, 0, len(sprintIssues))
+		for _, si := range sprintIssues{
+			dsi := ticket.SprintIssue{
+				SprintOriginKey: sprint.OriginKey,
+				IssueOriginKey:  issueOriginKeyGenerator.Generate(sourceId, si.IssueId),
+			}
+			domainSprintIssues = append(domainSprintIssues, dsi)
+		}
+		err = lakeModels.Db.Clauses(clause.OnConflict{UpdateAll: true}).CreateInBatches(&domainSprintIssues, BatchSize).Error
 		if err != nil {
 			return err
 		}
