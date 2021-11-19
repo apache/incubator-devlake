@@ -56,10 +56,10 @@ function useConnectionValidation ({
         }
         break
       case Providers.JENKINS:
-        if (!username) {
+        if (!username || username.length <= 2) {
           errs.push('Username is required')
         }
-        if (!password) {
+        if (!password || password.length <= 2) {
           errs.push('Password is required')
         }
         break
