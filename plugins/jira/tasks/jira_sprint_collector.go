@@ -31,7 +31,7 @@ type JiraApiSprintsResponse struct {
 }
 
 func CollectSprint(jiraApiClient *JiraApiClient, source *models.JiraSource, boardId uint64) error {
-	err := jiraApiClient.FetchWithoutPaginationHeaders(fmt.Sprintf("/agile/1.0/board/%v/sprint", boardId), nil, func(res *http.Response) (int, error) {
+	err := jiraApiClient.FetchWithoutPaginationHeaders(fmt.Sprintf("rest/agile/1.0/board/%v/sprint", boardId), nil, func(res *http.Response) (int, error) {
 		jiraApiSprints := &JiraApiSprintsResponse{}
 		err := core.UnmarshalResponse(res, jiraApiSprints)
 		if err != nil {
