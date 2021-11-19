@@ -19,3 +19,7 @@ type Sprint struct {
 	CompleteDate   *time.Time
 }
 
+type SprintIssue struct {
+	SprintOriginKey string `gorm:"primaryKey"`
+	IssueOriginKey  string `gorm:"primaryKey"`
+}
