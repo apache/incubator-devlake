@@ -8,11 +8,11 @@ import (
 
 type Note struct {
 	base.DomainEntity
-	PrId        uint64 `gorm:"index"`
-	Type        string
+	PrId        uint64 `gorm:"index;comment:References the pull request for this note"`
+	Type        string 
 	Author      string
 	Body        string
-	Resolvable  bool // Resolvable means a comment is a code review comment
-	System      bool // System means the comment is generated automatically
+	Resolvable  bool `gorm:"comment:Is or is not a review comment"`
+	System      bool `gorm:"comment:Is or is not auto-generated vs. human generated"`
 	CreatedDate time.Time
 }

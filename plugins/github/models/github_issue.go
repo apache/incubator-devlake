@@ -8,7 +8,7 @@ import (
 
 type GithubIssue struct {
 	GithubId        int `gorm:"primaryKey"`
-	Number          int `gorm:"index"`
+	Number          int `gorm:"index;comment:Used in API requests ex. api/repo/1/issue/<THIS_NUMBER>"`
 	State           string
 	Title           string
 	Body            string
