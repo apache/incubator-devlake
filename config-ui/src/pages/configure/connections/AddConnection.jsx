@@ -5,6 +5,7 @@ import {
   useHistory
 } from 'react-router-dom'
 import {
+  Colors,
   Icon,
 } from '@blueprintjs/core'
 import Nav from '@/components/Nav'
@@ -170,6 +171,14 @@ export default function AddConnection () {
                   placeholders={ProviderFormPlaceholders[activeProvider.id]}
                 />
               </div>
+              {validationErrors.length > 0 && (
+                <div className='validation-errors'>
+                  <p style={{ margin: '5px 0 5px 0', textAlign: 'right' }}>
+                    <Icon icon='warning-sign' size={13} color={Colors.ORANGE4} style={{ marginRight: '6px', marginBottom: '2px' }} />
+                    {validationErrors[0]}
+                  </p>
+                </div>
+              )}
             </div>
           </main>
         </Content>
