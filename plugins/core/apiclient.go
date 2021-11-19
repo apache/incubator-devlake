@@ -93,7 +93,7 @@ func (apiClient *ApiClient) Do(
 	headers *map[string]string,
 ) (*http.Response, error) {
 
-	uri, err := getURIStringPointer(apiClient.endpoint, path, query)
+	uri, err := GetURIStringPointer(apiClient.endpoint, path, query)
 	if err != nil {
 		return nil, err
 	}
@@ -177,7 +177,7 @@ func UnmarshalResponse(res *http.Response, v interface{}) error {
 	return json.Unmarshal(resBody, &v)
 }
 
-func getURIStringPointer(baseUrl string, relativePath string, queryParams *url.Values) (*string, error) {
+func GetURIStringPointer(baseUrl string, relativePath string, queryParams *url.Values) (*string, error) {
 	base, err := url.Parse(baseUrl)
 	if err != nil {
 		return nil, err
