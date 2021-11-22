@@ -22,15 +22,15 @@ const ContentLoader = (props) => {
       <div style={{}}>
         <div style={{ display: 'flex' }}>
           <Spinner intent={spinnerIntent} size={spinnerSize} />
-          <h4 className='bp3-heading' style={{ marginLeft: '10px' }}>
-            {title}
-          </h4>
+          <div style={{ marginLeft: '10px' }}>
+            <h4 className='bp3-heading' style={{ margin: '0 0 2px 0' }}>
+              {title}
+            </h4>
+            <p className='bp3-ui-text bp3-text-large' style={{ margin: 0 }}>
+              {message}
+            </p>
+          </div>
         </div>
-
-        <p className='bp3-ui-text bp3-text-large' style={{ margin: 0 }}>
-          {message}
-        </p>
-
       </div>
     </Card>
   )
