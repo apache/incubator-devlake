@@ -15,6 +15,7 @@ import Nav from '@/components/Nav'
 import Sidebar from '@/components/Sidebar'
 import AppCrumbs from '@/components/Breadcrumbs'
 import Content from '@/components/Content'
+import ContentLoader from '@/components/loaders/ContentLoader'
 import useConnectionManager from '@/hooks/useConnectionManager'
 import useSettingsManager from '@/hooks/useSettingsManager'
 import useConnectionValidation from '@/hooks/useConnectionValidation'
@@ -64,6 +65,7 @@ export default function ConfigureConnection () {
     testStatus,
     isSaving: isSavingConnection,
     isTesting: isTestingConnection,
+    isFetching: isLoadingConnection,
     setName,
     setEndpointUrl,
     setUsername,
@@ -182,37 +184,42 @@ export default function ConfigureConnection () {
                 <div>
                   <span style={{ marginRight: '10px' }}>{activeProvider.icon}</span>
                 </div>
-                <div style={{ justifyContent: 'flex-start' }}>
-                  <div style={{ display: 'flex' }}>
-                    <h1 style={{ margin: 0 }}>
-                      Manage <strong style={{ fontWeight: 900 }}>{activeProvider.name}</strong> Settings
-                    </h1>
-                    {activeProvider.multiSource && (
-                      <div style={{ paddingTop: '5px' }}>
-                        <DeleteAction
-                          id={deleteId}
-                          connection={activeConnection}
-                          text='Delete'
-                          showConfirmation={() => setDeleteId(activeConnection.ID)}
-                          onConfirm={deleteConnection}
-                          onCancel={(e) => setDeleteId(null)}
-                          isDisabled={isDeletingConnection}
-                          isLoading={isDeletingConnection}
-                        >
-                          <DeleteConfirmationMessage title={`DELETE "${activeConnection.name}"`} />
-                        </DeleteAction>
-                      </div>
+                {isLoadingConnection && (
+                  <ContentLoader title='Loading Connection ...' message='Please wait while connection settings are loaded.' />
+                )}
+                {!isLoadingConnection && (
+                  <div style={{ justifyContent: 'flex-start' }}>
+                    <div style={{ display: 'flex' }}>
+                      <h1 style={{ margin: 0 }}>
+                        Manage <strong style={{ fontWeight: 900 }}>{activeProvider.name}</strong> Settings
+                      </h1>
+                      {activeProvider.multiSource && (
+                        <div style={{ paddingTop: '5px' }}>
+                          <DeleteAction
+                            id={deleteId}
+                            connection={activeConnection}
+                            text='Delete'
+                            showConfirmation={() => setDeleteId(activeConnection.ID)}
+                            onConfirm={deleteConnection}
+                            onCancel={(e) => setDeleteId(null)}
+                            isDisabled={isDeletingConnection}
+                            isLoading={isDeletingConnection}
+                          >
+                            <DeleteConfirmationMessage title={`DELETE "${activeConnection.name}"`} />
+                          </DeleteAction>
+                        </div>
+                      )}
+                    </div>
+                    {activeConnection && (
+                      <>
+                        <h2 style={{ margin: 0 }}>{activeConnection.name}</h2>
+                        <p className='description'>Manage settings and options for this connection.</p>
+                      </>
                     )}
                   </div>
-                  {activeConnection && (
-                    <>
-                      <h2 style={{ margin: 0 }}>{activeConnection.name}</h2>
-                      <p className='description'>Manage settings and options for this connection.</p>
-                    </>
-                  )}
-                </div>
+                )}
               </div>
-              {activeProvider && activeConnection && (
+              {!isLoadingConnection && activeProvider && activeConnection && (
                 <>
                   <Card
                     interactive={false}

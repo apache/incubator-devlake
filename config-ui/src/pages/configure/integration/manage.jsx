@@ -173,7 +173,7 @@ export default function ManageIntegration () {
                 </Card>
               )}
               {isLoading && (
-                <ContentLoader message='Please wait while the connections are loaded.' title='Loading Connections ...' />
+                <ContentLoader title='Loading Connections ...' message='Please wait while the connections are loaded.' />
               )}
               {!isLoading && connections && connections.length === 0 && (
                 <Card interactive={false} elevation={Elevation.TWO} style={{ width: '100%', marginBottom: '20px' }}>
