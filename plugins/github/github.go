@@ -178,6 +178,9 @@ func (plugin Github) RootPkgPath() string {
 
 func (plugin Github) ApiResources() map[string]map[string]core.ApiResourceHandler {
 	return map[string]map[string]core.ApiResourceHandler{
+		"test": {
+			"GET": api.TestConnection,
+		},
 		"sources": {
 			"GET":  api.ListSources,
 			"POST": api.PutSource,
