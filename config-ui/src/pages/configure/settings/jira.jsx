@@ -181,7 +181,7 @@ export default function JiraSettings (props) {
     <>
       <div className='headlineContainer'>
         <h3 className='headline'>Issue Type Mappings</h3>
-        <p className='description'>Map your own issue types to Dev Lake's standard types</p>
+        <p className='description'>Map your own issue types to <strong>DevLake's</strong> standard types</p>
       </div>
 
       <MappingTag
@@ -221,7 +221,7 @@ export default function JiraSettings (props) {
         <h3 className='headline'>
           Epic Key<span className='requiredStar'>*</span>
         </h3>
-        <p className=''>Choose the Jira field you’re using to represent the key of an Epic to which an issue belongs to.</p>
+        <p className=''>Choose the JIRA field you’re using to represent the key of an Epic to which an issue belongs to.</p>
         {/* <span style={{ display: 'inline-block' }}>
           <Select
             className='select-epic-key'
@@ -278,7 +278,7 @@ export default function JiraSettings (props) {
       </div>
       <div className='headlineContainer'>
         <h3 className='headline'>Story Point Field (Optional)</h3>
-        <p className=''>Choose the Jira field you’re using to represent the granularity of a requirement-type issue.</p>
+        <p className=''>Choose the JIRA field you’re using to represent the granularity of a requirement-type issue.</p>
         {/* <span style={{ display: 'inline-block' }}>
           <Select
             className='select-board-key'
@@ -333,7 +333,7 @@ export default function JiraSettings (props) {
       <div className='headlineContainer'>
         <h3 className='headline'>Story Point Coefficient (Optional)</h3>
         <p className=''>
-          This is a number that can convert your jira story points to a new magnitude.&nbsp;
+          This is a number that can convert your JIRA story points to a new magnitude.&nbsp;
           IE: Convert days to hours with 8 since there are 8 working hours in a day.
         </p>
         {/* <span style={{ display: 'inline-block' }}>
