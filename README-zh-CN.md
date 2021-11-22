@@ -31,7 +31,7 @@ Dev Lake 对于希望**更好地了解其开发数据的管理者**来说是最�
 
 ### 一键体验 Dev Lake
 
-| [本地安装](#user-setup) | <a href="https://github.com/merico-dev/lake/wiki/How-to-Set-Up-Dev-Lake-with-Tin-zh-CN"><img src="https://user-images.githubusercontent.com/14050754/142792121-70646d0c-3b4d-497a-b1d5-6b49c24c8b87.png" width="120px" alt="Teamcode"/></a> |
+| [在本地运行](#user-setup) | <a href="https://github.com/merico-dev/lake/wiki/How-to-Set-Up-Dev-Lake-with-Tin-zh-CN"><img src="https://static01.teamcode.com/badge/teamcode-badge-run-in-cloud-cn.svg" width="120px" alt="Teamcode"/></a> |
 | --- | --- |
 
 <br>

@@ -29,7 +29,7 @@ Dev Lake is most exciting for leaders and managers looking to make better sense 
 
 ### Get started with just a few clicks
 
-| [Install locally](#user-setup) | <a href="https://github.com/merico-dev/lake/wiki/How-to-Set-Up-Dev-Lake-with-Tin"><img src="https://user-images.githubusercontent.com/14050754/142792121-70646d0c-3b4d-497a-b1d5-6b49c24c8b87.png" width="120px" alt="Teamcode"/></a> |
+| [Run locally](#user-setup) | <a href="https://github.com/merico-dev/lake/wiki/How-to-Set-Up-Dev-Lake-with-Tin"><img src="https://static01.teamcode.com/badge/teamcode-badge-run-in-cloud-en.svg" width="120px" alt="Teamcode"/></a> |
 | --- | --- |
 
 
