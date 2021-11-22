@@ -200,9 +200,12 @@ function useConnectionManager ({
           username: connectionData.username || connectionData.Username,
           password: connectionData.password || connectionData.Password
         })
+        setTimeout(() => {
+          setIsFetching(false)
+        }, 500)
       }
       fetch()
-      setIsFetching(false)
+      // setIsFetching(false)
     } catch (e) {
       setIsFetching(false)
       setActiveConnection(NullConnection)
