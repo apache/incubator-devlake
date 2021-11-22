@@ -7,7 +7,7 @@
     "build-production": "webpack --config webpack.production.config.js --mode production",
     "start": "webpack serve --progress",
     "start-production": "npm run build-production;node server.js",
-    "lint": "eslint ./src"
+    "lint": "eslint ./src --fix"
   },
   "dependencies": {
     "@blueprintjs/core": "^3.49.1",
