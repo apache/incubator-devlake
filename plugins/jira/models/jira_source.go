@@ -6,12 +6,11 @@ import (
 
 type JiraSource struct {
 	models.Model
-	Name                  string  `gorm:"type:varchar(100);uniqueIndex" json:"name" validate:"required"`
-	Endpoint              string  `json:"endpoint" validate:"required"`
-	BasicAuthEncoded      string  `json:"basicAuthEncoded" validate:"required"`
-	EpicKeyField          string  `gorm:"type:varchar(50);" json:"epicKeyField"`
-	StoryPointField       string  `gorm:"type:varchar(50);" json:"storyPointField"`
-	StoryPointCoefficient float64 `json:"storyPointCoefficient"`
+	Name             string `gorm:"type:varchar(100);uniqueIndex" json:"name" validate:"required"`
+	Endpoint         string `json:"endpoint" validate:"required"`
+	BasicAuthEncoded string `json:"basicAuthEncoded" validate:"required"`
+	EpicKeyField     string `gorm:"type:varchar(50);" json:"epicKeyField"`
+	StoryPointField  string `gorm:"type:varchar(50);" json:"storyPointField"`
 }
 
 type JiraIssueTypeMapping struct {
