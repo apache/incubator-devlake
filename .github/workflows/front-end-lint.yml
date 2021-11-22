@@ -1,13 +1,11 @@
-name: CI
+name: Frontend-Lint
 on: push
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
-    - name: cd config-ui
-      run: cd config-ui
     - name: Install modules
-      run: npm i
+      run: cd config-ui; npm i
     - name: Run ESLint
-      run: npm run lint
+      run: cd config-ui; npm run lint
