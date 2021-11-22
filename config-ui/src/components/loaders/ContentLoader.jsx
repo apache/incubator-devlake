@@ -10,7 +10,9 @@ const ContentLoader = (props) => {
     title = 'Loading ...',
     message = 'Please wait while data is loaded.',
     spinnerSize = 24,
-    spinnerIntent = Intent.PRIMARY
+    spinnerIntent = Intent.PRIMARY,
+    elevation = Elevation.TWO,
+    cardStyle = { width: '100%', marginBottom: '20px' }
   } = props
 
   useEffect(() => {
@@ -18,7 +20,7 @@ const ContentLoader = (props) => {
   }, [title, message, spinnerSize])
 
   return (
-    <Card interactive={false} elevation={Elevation.TWO} style={{ width: '100%', marginBottom: '20px' }}>
+    <Card interactive={false} elevation={elevation} style={cardStyle}>
       <div style={{}}>
         <div style={{ display: 'flex' }}>
           <Spinner intent={spinnerIntent} size={spinnerSize} />

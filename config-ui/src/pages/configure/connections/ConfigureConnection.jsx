@@ -177,9 +177,11 @@ export default function ConfigureConnection () {
               ]}
             />
             <div className='configureConnection' style={{ width: '100%' }}>
-              <Link style={{ float: 'right', marginLeft: '10px', color: '#777777' }} to={`/integrations/${activeProvider.id}`}>
-                <Icon icon='fast-backward' size={16} /> Connection List
-              </Link>
+              {!isLoadingConnection && (
+                <Link style={{ float: 'right', marginLeft: '10px', color: '#777777' }} to={`/integrations/${activeProvider.id}`}>
+                  <Icon icon='fast-backward' size={16} /> Connection List
+                </Link>
+              )}
               <div style={{ display: 'flex', justifyContent: 'flex-start' }}>
                 <div>
                   <span style={{ marginRight: '10px' }}>{activeProvider.icon}</span>
