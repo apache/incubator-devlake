@@ -25,7 +25,6 @@ jira_source_post() {
         "basicAuthEncoded": "'"$JIRA_BASIC_AUTH_ENCODED"'",
         "epicKeyField": "'"$JIRA_ENDPOINT"'",
         "storyPointField": "'"$JIRA_ISSUE_STORYPOINT_FIELD"'",
-        "storyPointCoefficient": '$JIRA_ISSUE_STORYPOINT_COEFFICIENT'
     }
     ' | jq
 }
@@ -38,7 +37,6 @@ jira_source_post_full() {
         "basicAuthEncoded": "'"$JIRA_BASIC_AUTH_ENCODED"'",
         "epicKeyField": "'"$JIRA_ENDPOINT"'",
         "storyPointField": "'"$JIRA_ISSUE_STORYPOINT_FIELD"'",
-        "storyPointCoefficient": '$JIRA_ISSUE_STORYPOINT_COEFFICIENT',
         "typeMappings": {
             "Story": {
                 "standardType": "Requirement",
@@ -79,7 +77,6 @@ jira_source_post_fail() {
         "basicAuthEncoded": "basicAuth",
         "epicKeyField": "epicKeyField",
         "storyPointField": "storyPointField",
-        "storyPointCoefficient": 0.5,
         "typeMappings": "ehhlow"
     }
     JSON
@@ -93,7 +90,6 @@ jira_source_put() {
         "basicAuthEncoded": "basicAuth",
         "epicKeyField": "epicKeyField",
         "storyPointField": "storyPointField",
-        "storyPointCoefficient": 0.8
     }
     JSON
 }
@@ -106,7 +102,6 @@ jira_source_put_full() {
         "basicAuthEncoded": "'"$JIRA_BASIC_AUTH_ENCODED"'",
         "epicKeyField": "'"$JIRA_ENDPOINT"'",
         "storyPointField": "'"$JIRA_ISSUE_STORYPOINT_FIELD"'",
-        "storyPointCoefficient": '$JIRA_ISSUE_STORYPOINT_COEFFICIENT',
         "typeMappings": {
             "Story": {
                 "standardType": "Requirement",

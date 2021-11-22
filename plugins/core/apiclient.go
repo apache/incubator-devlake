@@ -93,7 +93,9 @@ func (apiClient *ApiClient) Do(
 	body *map[string]interface{},
 	headers *map[string]string,
 ) (*http.Response, error) {
-
+	logger.Info("JON >>> apiClient.endpoint", apiClient.endpoint)
+	logger.Info("JON >>> apiClient.path", path)
+	logger.Info("JON >>> apiClient.query", query)
 	uri, err := GetURIStringPointer(apiClient.endpoint, path, query)
 	if err != nil {
 		return nil, err
