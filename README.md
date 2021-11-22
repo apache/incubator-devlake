@@ -29,7 +29,7 @@ Dev Lake is most exciting for leaders and managers looking to make better sense 
 
 ### Get started with just a few clicks
 
-[Install locally](#user-setup) | [Install in the cloud](https://github.com/merico-dev/lake/wiki/How-to-Set-Up-Dev-Lake-with-Tin) |
+| [Install locally](#user-setup) | <a href="https://github.com/merico-dev/lake/wiki/How-to-Set-Up-Dev-Lake-with-Tin"><img src="https://user-images.githubusercontent.com/14050754/142792121-70646d0c-3b4d-497a-b1d5-6b49c24c8b87.png" width="120px" alt="Teamcode"/></a> |
 | --- | --- |
 
 
@@ -43,18 +43,17 @@ Dev Lake is most exciting for leaders and managers looking to make better sense 
 <p align="center">User Flow</p>
 
 ### Why Dev Lake?
-1. The most extensible solution available, connecting many data sources and tools.
-2. Built in analysis and ready to use metrics, a unified scheme for diverse data. 
-3. The most customizable solution, with personalizable dashboards and metrics.
-4. The most transparent solution, with clear SQL queries and open source architecture. 
+1. Comprehensive understanding of software development lifecycle, digging workflow bottlenecks
+2. Timely review of team iteration performance, rapid feedback, agile adjustment
+3. Quickly build scenario-based data dashboards and drill down to analyze the root cause of problems
 
 
 ### What can be accomplished with Dev Lake?
-1. Unify your data (<a href="https://www.atlassian.com/software/jira" target="_blank">Jira</a>, <a href="https://gitlab.com/" target="_blank">GitLab</a>, Github, <a href="https://www.jenkins.io/" target="_blank">Jenkins</a>, etc.) and get a comprehensive view of your processes.
-2. Enhance retrospectives with practical data. 
-3. Accelerate feedback loops.
-4. Automate reporting.
-5. Personalize dashboards and metrics according to your role, goals, and challenges.
+1. Collect DevOps performance data for the whole process
+2. Share abstraction layer with similar tools to output standardized performance data
+3. Built-in 20+ performance metrics and drill-down analysis capability
+4. Support custom SQL analysis and drag and drop to build scenario-based data views
+5. Flexible architecture and plug-in design to support fast access to new data sources
 
 
 <br>
