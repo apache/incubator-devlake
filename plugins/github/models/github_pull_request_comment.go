@@ -8,7 +8,7 @@ import (
 
 type GithubPullRequestComment struct {
 	GithubId        int `gorm:"primaryKey"`
-	PullRequestId   int `gorm:"index"` // This value links to pull request
+	PullRequestId   int `gorm:"index"`
 	Body            string
 	AuthorUsername  string
 	GithubCreatedAt time.Time
