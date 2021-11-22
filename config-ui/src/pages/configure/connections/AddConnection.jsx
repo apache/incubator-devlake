@@ -5,7 +5,6 @@ import {
   useHistory
 } from 'react-router-dom'
 import {
-  Colors,
   Icon,
 } from '@blueprintjs/core'
 import Nav from '@/components/Nav'
@@ -13,6 +12,7 @@ import Sidebar from '@/components/Sidebar'
 import AppCrumbs from '@/components/Breadcrumbs'
 import Content from '@/components/Content'
 import ConnectionForm from '@/pages/configure/connections/ConnectionForm'
+import FormValidationErrors from '@/components/messages/FormValidationErrors'
 import { integrationsData } from '@/data/integrations'
 import {
   Providers,
@@ -172,12 +172,7 @@ export default function AddConnection () {
                 />
               </div>
               {validationErrors.length > 0 && (
-                <div className='validation-errors'>
-                  <p style={{ margin: '5px 0 5px 0', textAlign: 'right' }}>
-                    <Icon icon='warning-sign' size={13} color={Colors.ORANGE4} style={{ marginRight: '6px', marginBottom: '2px' }} />
-                    {validationErrors[0]}
-                  </p>
-                </div>
+                <FormValidationErrors errors={validationErrors} />
               )}
             </div>
           </main>

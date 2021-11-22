@@ -10,7 +10,6 @@ import {
   Intent,
   Card,
   Elevation,
-  Colors
 } from '@blueprintjs/core'
 import Nav from '@/components/Nav'
 import Sidebar from '@/components/Sidebar'
@@ -22,6 +21,7 @@ import useConnectionValidation from '@/hooks/useConnectionValidation'
 import ConnectionForm from '@/pages/configure/connections/ConnectionForm'
 import DeleteAction from '@/components/actions/DeleteAction'
 import DeleteConfirmationMessage from '@/components/actions/DeleteConfirmationMessage'
+import FormValidationErrors from '@/components/messages/FormValidationErrors'
 
 import { integrationsData } from '@/data/integrations'
 // import { NullConnection } from '@/data/NullConnection'
@@ -270,12 +270,7 @@ export default function ConfigureConnection () {
                         </>
                         )}
                     {validationErrors.length > 0 && (
-                      <div className='validation-errors'>
-                        <p style={{ margin: '5px 0 5px 0', textAlign: 'right' }}>
-                          <Icon icon='warning-sign' size={13} color={Colors.ORANGE4} style={{ marginRight: '6px', marginBottom: '2px' }} />
-                          {validationErrors[0]}
-                        </p>
-                      </div>
+                      <FormValidationErrors errors={validationErrors} />
                     )}
                   </Card>
                   <div style={{ marginTop: '30px' }}>
