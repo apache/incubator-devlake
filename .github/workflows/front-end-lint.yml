@@ -1,0 +1,13 @@
+name: CI
+on: push
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: cd config-ui
+      run: cd config-ui
+    - name: Install modules
+      run: npm i
+    - name: Run ESLint
+      run: npm run lint
