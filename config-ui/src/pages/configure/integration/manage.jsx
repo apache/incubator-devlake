@@ -280,6 +280,7 @@ export default function ManageIntegration () {
                               style={{ cursor: 'pointer' }}
                             >
                               {connection.endpoint || connection.Endpoint}
+                              {!connection.endpoint && !connection.Endpoint && (<span style={{ color: Colors.GRAY4 }}>( Empty )</span>)}
                             </td>
                             <td className='cell-status'>
                               {connection.status === 0 && (
