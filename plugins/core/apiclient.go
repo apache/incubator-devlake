@@ -8,6 +8,7 @@ import (
 	"io/ioutil"
 	"net/http"
 	"net/url"
+	"regexp"
 	"strings"
 	"time"
 
@@ -178,6 +179,7 @@ func UnmarshalResponse(res *http.Response, v interface{}) error {
 }
 
 func GetURIStringPointer(baseUrl string, relativePath string, queryParams *url.Values) (*string, error) {
+	AddMissingSlashToURL(&baseUrl)
 	base, err := url.Parse(baseUrl)
 	if err != nil {
 		return nil, err
@@ -195,4 +197,12 @@ func GetURIStringPointer(baseUrl string, relativePath string, queryParams *url.V
 	}
 	uri := base.ResolveReference(u).String()
 	return &uri, nil
+}
+
+func AddMissingSlashToURL(baseUrl *string) {
+	pattern := `\/$`
+	isMatch, _ := regexp.Match(pattern, []byte(*baseUrl))
+	if !isMatch {
+		*baseUrl += "/"
+	}
 }

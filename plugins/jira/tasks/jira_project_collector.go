@@ -20,7 +20,7 @@ func CollectProjects(
 	jiraApiClient *JiraApiClient,
 	sourceId uint64,
 ) error {
-	res, err := jiraApiClient.Get("rest/api/3/project", nil, nil)
+	res, err := jiraApiClient.Get("api/3/project", nil, nil)
 	if err != nil {
 		return err
 	}
