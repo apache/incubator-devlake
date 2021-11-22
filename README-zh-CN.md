@@ -31,7 +31,7 @@ Dev Lake 对于希望**更好地了解其开发数据的管理者**来说是最�
 
 ### 一键体验 Dev Lake
 
-[本地安装](#user-setup) | [云端安装](https://github.com/merico-dev/lake/wiki/How-to-Set-Up-Dev-Lake-with-Tin) |
+| [本地安装](#user-setup) | <a href="https://github.com/merico-dev/lake/wiki/How-to-Set-Up-Dev-Lake-with-Tin-zh-CN"><img src="https://user-images.githubusercontent.com/14050754/142792121-70646d0c-3b4d-497a-b1d5-6b49c24c8b87.png" width="120px" alt="Teamcode"/></a> |
 | --- | --- |
 
 <br>
@@ -43,17 +43,16 @@ Dev Lake 对于希望**更好地了解其开发数据的管理者**来说是最�
 <p align="center">用户使用流程</p><br>
 
 ### 为什么选择 Dev Lake？
-1. 最具扩展性的解决方案，连接许多数据源和工具。
-2. 内置的分析和随时使用的指标，为不同的数据提供统一的方案。
-3. 最可定制的解决方案，具有个性化的仪表盘和指标。
-4. 最透明的解决方案，具有清晰的SQL查询和开源架构。
+1. 全面了解软件研发生命周期，挖掘工作流瓶颈
+2. 及时回顾团队迭代表现，快速反馈，敏捷调整
+3. 快速搭建场景化数据仪表盘，下钻分析洞察问题根因
 
 ### Dev Lake 可以完成什么?
-1. 统一你的数据（Jira、GitLab、Github、Jenkins等），全面了解你的流程。
-2. 用实际数据加强回顾性分析。
-3. 加速反馈循环。
-4. 自动化报告。
-5. 根据你的角色、目标和挑战，个性化仪表盘和指标。
+1. 归集 DevOps 全流程效能数据
+2. 同类工具共用抽象层，输出标准化效能数据
+3. 内置20+效能指标与下钻分析能力
+4. 支持自定义 SQL 分析及拖拽搭建场景化数据视图
+5. 灵活架构与插件设计，支持快速接入新数据源
 
 <br>
 
