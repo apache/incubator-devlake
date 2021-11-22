@@ -8,10 +8,10 @@ import (
 
 type Commit struct {
 	base.DomainEntity
-	RepoId         uint64 `gorm:"index"`
-	Sha            string
-	Additions      int
-	Deletions      int
+	RepoId         uint64 `gorm:"index;comment:References the repo the commit belongs to."`
+	Sha            string `gorm:"comment:commit hash"`
+	Additions      int    `gorm:"comment:Added lines of code"`
+	Deletions      int    `gorm:"comment:Deleted lines of code"`
 	Message        string
 	AuthorName     string
 	AuthorEmail    string

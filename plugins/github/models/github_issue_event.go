@@ -7,9 +7,9 @@ import (
 )
 
 type GithubIssueEvent struct {
-	GithubId        int `gorm:"primaryKey"`
-	IssueId         int `gorm:"index"` // This value links to pull request
-	Type            string
+	GithubId        int    `gorm:"primaryKey"`
+	IssueId         int    `gorm:"index;comment:References the Pull Request"`
+	Type            string `gorm:"comment:Events that can occur to an issue, ex. assigned, closed, labeled, etc."`
 	AuthorUsername  string
 	GithubCreatedAt time.Time
 

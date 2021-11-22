@@ -9,14 +9,14 @@ import (
 type GitlabMergeRequestNote struct {
 	GitlabId        int `gorm:"primaryKey"`
 	MergeRequestId  int `gorm:"index"`
-	MergeRequestIid int
+	MergeRequestIid int `gorm:"comment:Used in API requests ex. /api/merge_requests/<THIS_IID>"`
 	NoteableType    string
 	AuthorUsername  string
 	Body            string
 	GitlabCreatedAt time.Time
 	Confidential    bool
-	Resolvable      bool // Resolvable means a comment is a code review comment
-	System          bool // System means the comment is generated automatically
+	Resolvable      bool `gorm:"comment:Is or is not review comment"`
+	System          bool `gorm:"comment:Is or is not auto-generated vs. human generated"`
 
 	models.NoPKModel
 }
