@@ -95,7 +95,7 @@ const ProviderFormPlaceholders = {
   },
   jira: {
     name: 'Enter Instance Name',
-    endpoint: 'Enter Endpoint URL eg. https://your-domain.atlassian.net/rest/api',
+    endpoint: 'Enter Endpoint URL eg. https://your-domain.atlassian.net/rest/',
     token: 'Enter Auth Token eg. 8c06a7cc50b746bfab30',
     username: 'Enter Username / E-mail',
     password: 'Enter Password'
