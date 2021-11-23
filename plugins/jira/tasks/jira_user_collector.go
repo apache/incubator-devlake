@@ -28,7 +28,7 @@ func CollectUsers(jiraApiClient *JiraApiClient,
 	// The reason we use FetchWithoutPaginationHeaders is because this API endpoint does not
 	// return pagination info in it's headers the same way that other endpoints do.
 	// This method still uses pagination, but in a different way.
-	err := jiraApiClient.FetchWithoutPaginationHeaders("rest/api/3/users/search", nil,
+	err := jiraApiClient.FetchWithoutPaginationHeaders("api/3/users/search", nil,
 		func(res *http.Response) (int, error) {
 			jiraApiUsersResponse := &JiraUserApiRes{}
 			err := core.UnmarshalResponse(res, jiraApiUsersResponse)
