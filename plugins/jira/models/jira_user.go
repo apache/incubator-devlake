@@ -10,7 +10,7 @@ type JiraUser struct {
 	// collected fields
 	SourceId    uint64 `gorm:"primarykey"`
 	AccountId   string `gorm:"primaryKey"`
-	AccountType string `gorm:"comment:This is the account type"`
+	AccountType string
 	Name        string
 	Email       string
 	AvatarUrl   string
