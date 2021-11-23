@@ -6,6 +6,7 @@ services:
     volumes:
       - mysql-storage:/var/lib/mysql
     restart: always
+    container_name: lakeMYSQL
     ports:
       - 127.0.0.1:3306:3306
     environment:
@@ -34,6 +35,8 @@ services:
     restart: always
     volumes:
       - ./.env:/app/.env
+    environment:
+      - DB_URL=merico:merico@tcp(lakeMYSQL:3306)/lake?charset=utf8mb4&parseTime=True
     depends_on:
       - grafana
   config-ui:
