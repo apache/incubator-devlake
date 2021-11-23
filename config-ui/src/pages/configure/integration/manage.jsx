@@ -6,7 +6,6 @@ import {
 } from 'react-router-dom'
 import {
   Button, Card, Elevation, Colors,
-  Spinner,
   Tooltip,
   Position,
   Icon,
@@ -23,6 +22,7 @@ import useConnectionManager from '@/hooks/useConnectionManager'
 import { integrationsData } from '@/data/integrations'
 import DeleteAction from '@/components/actions/DeleteAction'
 import DeleteConfirmationMessage from '@/components/actions/DeleteConfirmationMessage'
+import ContentLoader from '@/components/loaders/ContentLoader'
 
 import '@/styles/integration.scss'
 
@@ -173,21 +173,7 @@ export default function ManageIntegration () {
                 </Card>
               )}
               {isLoading && (
-                <Card interactive={false} elevation={Elevation.TWO} style={{ width: '100%', marginBottom: '20px' }}>
-                  <div style={{}}>
-                    <div style={{ display: 'flex' }}>
-                      <Spinner intent='primary' size={24} />
-                      <h4 className='bp3-heading' style={{ marginLeft: '10px' }}>
-                        Loading Connections ...
-                      </h4>
-                    </div>
-
-                    <p className='bp3-ui-text bp3-text-large' style={{ margin: 0 }}>
-                      Please wait while the connections are loaded.
-                    </p>
-
-                  </div>
-                </Card>
+                <ContentLoader title='Loading Connections ...' message='Please wait while the connections are loaded.' />
               )}
               {!isLoading && connections && connections.length === 0 && (
                 <Card interactive={false} elevation={Elevation.TWO} style={{ width: '100%', marginBottom: '20px' }}>
