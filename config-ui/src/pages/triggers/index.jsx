@@ -7,13 +7,14 @@ import {
   Card,
   Elevation
 } from '@blueprintjs/core'
-import defaultTriggerValue from '@/data/defaultTriggerValue.js'
 import Nav from '@/components/Nav'
 import Sidebar from '@/components/Sidebar'
 import AppCrumbs from '@/components/Breadcrumbs'
 import Content from '@/components/Content'
 import request from '@/utils/request'
 import { DEVLAKE_ENDPOINT, GRAFANA_ENDPOINT } from '@/utils/config.js'
+import TriggersUtil  from '@/utils/triggersUtil'
+import SourcesUtil from '@/utils/sourcesUtil'
 
 const STAGE_INIT = 0
 const STAGE_PENDING = 1
@@ -24,6 +25,7 @@ let targetTaskIds = []
 export default function Triggers () {
   const [pendingTasks, setPendingTasks] = useState([])
   const [triggerDisabled, setTriggerDisabled] = useState([])
+  const [triggerJson, setTriggerJson] = useState([[]])
 
   // component mounted, run once
   // @todo FIXME: React exhaustive dep warning, this needs to be wrapped in a useCallback (or async function moved inside)
@@ -46,6 +48,21 @@ export default function Triggers () {
     return () => clearInterval(interval)
   }, [])
 
+  useEffect(() => {
+    console.log('Setting JSON based on active plugins...');
+    const setTriggerJsonBasedOnActivePlugins = async () => {
+      let pluginsToSet = await SourcesUtil.getPluginSources()
+      let collectionJson = TriggersUtil.getCollectionJson(pluginsToSet)
+      setTriggerJson(collectionJson)
+    }
+    setTriggerJsonBasedOnActivePlugins()
+  }, [])
+
+  useEffect(() => {
+    console.log('Setting text area based on updated triggers JSON...');
+    setTextAreaBody(JSON.stringify(triggerJson, null, 2))
+  }, [triggerJson])
+
   // user clicked on trigger button
   const sendTrigger = async (e) => {
     e.preventDefault()
@@ -64,7 +81,7 @@ export default function Triggers () {
     }
   }
 
-  const [textAreaBody, setTextAreaBody] = useState(JSON.stringify(defaultTriggerValue, null, 2))
+  const [textAreaBody, setTextAreaBody] = useState(JSON.stringify(triggerJson, null, 2))
 
   return (
     <div className='container'>
@@ -166,7 +183,7 @@ export default function Triggers () {
                       growVertically={true}
                       fill={true}
                       className='codeArea'
-                      defaultValue={textAreaBody}
+                      value={textAreaBody}
                       onChange={(e) => setTextAreaBody(e.target.value)}
                     />
                   </Card>
