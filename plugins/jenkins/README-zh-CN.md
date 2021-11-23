@@ -1,5 +1,14 @@
 # Jenkins 插件
 
+<div align="center">
+
+| [English](README.md) | [中文](README-zh-CN.md) |
+| --- | --- |
+
+</div>
+
+<br>
+
 ## 简介
 
 本插件通过 [Remote Access API](https://www.jenkins.io/doc/book/using/remote-access-api/) 来收集 Jenkins 数据。然后根据收集到的原始数据，计算并展示相关的 devops 指标。

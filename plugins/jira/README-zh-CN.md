@@ -1,5 +1,14 @@
 # Jira 插件
 
+<div align="center">
+
+| [English](README.md) | [中文](README-zh-CN.md) |
+| --- | --- |
+
+</div>
+
+<br>
+
 ## 概述
 
 此插件通过 Jira Cloud REST API 收集 Jira 数据。然后，它从 Jira 数据中计算出各种工程指标并使之可视化。

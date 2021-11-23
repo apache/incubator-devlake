@@ -1,5 +1,14 @@
 # Gitlab 插件
 
+<div align="center">
+
+| [English](README.md) | [中文](README-zh-CN.md) |
+| --- | --- |
+
+</div>
+
+<br>
+
 ## 指标
 此插件通过收集 Gitlab 的数据来计算以下指标。
 
