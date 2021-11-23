@@ -93,7 +93,6 @@ func (apiClient *ApiClient) Do(
 	body *map[string]interface{},
 	headers *map[string]string,
 ) (*http.Response, error) {
-
 	uri, err := GetURIStringPointer(apiClient.endpoint, path, query)
 	if err != nil {
 		return nil, err
