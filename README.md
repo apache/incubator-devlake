@@ -57,6 +57,9 @@ Dev Lake is most exciting for leaders and managers looking to make better sense 
 <img src="https://user-images.githubusercontent.com/14050754/142356580-40637a30-5578-48ed-8e4a-128cd0738e3e.png" width="100%" alt="User Flow" style="border-radius:15px;"/>
 <p align="center">User Flow</p>
 
+![devlake-architecture](https://user-images.githubusercontent.com/61080/142993514-3fae55d4-9745-46ec-9c14-c69945edc30d.png)
+<p align="center">Architecture Diagram</p>
+
 ### Why Dev Lake?
 1. Comprehensive understanding of software development lifecycle, digging workflow bottlenecks
 2. Timely review of team iteration performance, rapid feedback, agile adjustment
