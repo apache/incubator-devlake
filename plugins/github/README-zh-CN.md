@@ -1,5 +1,14 @@
 # Github插件
 
+<div align="center">
+
+| [English](README.md) | [中文](README-zh-CN.md) |
+| --- | --- |
+
+</div>
+
+<br>
+
 ## 概述
 
 此插件从`Github`收集数据并通过`Grafana`展示。我们可以为技术领导者回答诸如以下问题：
