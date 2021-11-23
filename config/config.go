@@ -11,7 +11,6 @@ type Config struct {
 	JIRA_ENDPOINT                      string `mapstructure:"JIRA_ENDPOINT"`
 	JIRA_BASIC_AUTH_ENCODED            string `mapstructure:"JIRA_BASIC_AUTH_ENCODED"`
 	JIRA_ISSUE_EPIC_KEY_FIELD          string `mapstructure:"JIRA_ISSUE_EPIC_KEY_FIELD"`
-	JIRA_WORKLOAD_COEFFICIENT          string `mapstructure:"JIRA_WORKLOAD_COEFFICIENT"`
 	JIRA_ISSUE_WORKLOAD_FIELD          string `mapstructure:"JIRA_ISSUE_WORKLOAD_FIELD"`
 	JIRA_BOARD_GITLAB_PROJECTS         string `mapstructure:"JIRA_BOARD_GITLAB_PROJECTS"`
 	JIRA_ISSUE_BUG_STATUS_MAPPING      string `mapstructure:"JIRA_ISSUE_BUG_STATUS_MAPPING"`
