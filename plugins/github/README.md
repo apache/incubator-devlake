@@ -1,5 +1,14 @@
 # Github Pond
 
+<div align="center">
+
+| [English](README.md) | [中文](README-zh-CN.md) |
+| --- | --- |
+
+</div>
+
+<br>
+
 ## Summary
 
 This plugin gathers data from `GitHub` to display information to the user in `Grafana`. We can help tech leaders answer such questions as:
