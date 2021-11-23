@@ -73,6 +73,9 @@ Dev Lake is most exciting for leaders and managers looking to make better sense 
 4. Support custom SQL analysis and drag and drop to build scenario-based data views
 5. Flexible architecture and plug-in design to support fast access to new data sources
 
+### See Demo
+[Click here](https://app-259373083972538368-3002.ars.teamcode.com/d/0Rjxknc7z/demo-homepage?orgId=1) to see demo. The demo is based on data from this repo.<br>
+Username/Password: test/test
 
 <br>
 

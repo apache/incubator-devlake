@@ -72,6 +72,11 @@ Dev Lake 对于希望**更好地了解其开发数据的管理者**来说是最�
 4. 支持自定义 SQL 分析及拖拽搭建场景化数据视图
 5. 灵活架构与插件设计，支持快速接入新数据源
 
+### 查看 Demo
+[点击这里](https://app-259373083972538368-3002.ars.teamcode.com/d/0Rjxknc7z/demo-homepage?orgId=1) 查看 Demo. Demo里呈现的数据来自此仓库。<br>
+用户名/密码: test/test
+
+
 <br>
 
 ## 目录
