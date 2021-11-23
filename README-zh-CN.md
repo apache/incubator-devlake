@@ -57,6 +57,9 @@ Dev Lake 对于希望**更好地了解其开发数据的管理者**来说是最�
 <img src="https://user-images.githubusercontent.com/14050754/142356580-40637a30-5578-48ed-8e4a-128cd0738e3e.png" width="100%" alt="User Flow" style="border-radius:15px;"/>
 <p align="center">用户使用流程</p><br>
 
+![devlake-architecture](https://user-images.githubusercontent.com/61080/142993514-3fae55d4-9745-46ec-9c14-c69945edc30d.png)
+<p align="center">系统架构图</p>
+
 ### 为什么选择 Dev Lake？
 1. 全面了解软件研发生命周期，挖掘工作流瓶颈
 2. 及时回顾团队迭代表现，快速反馈，敏捷调整
