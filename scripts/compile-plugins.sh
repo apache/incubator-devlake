@@ -11,6 +11,8 @@ PLUGIN_OUTPUT_DIR=$SCRIPT_DIR/../bin/plugins
 for PLUG in $(find $PLUGIN_SRC_DIR/* -maxdepth 0 -type d -not -name core -not -empty); do
   NAME=$(basename $PLUG)
 
+  echo $NAME
+  echo $PLUGIN_TO_COMPILE
   if [ "$NAME" == "$PLUGIN_TO_COMPILE" ]; then
       echo "Building plugin $NAME to bin/plugins/$NAME/$NAME.so"
       go build -buildmode=plugin "$@" -o $PLUGIN_OUTPUT_DIR/$NAME/$NAME.so $PLUG/*.go
