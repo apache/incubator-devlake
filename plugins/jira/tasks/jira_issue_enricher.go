@@ -69,6 +69,7 @@ func EnrichIssues(source *models.JiraSource, boardId uint64) (err error) {
 		if jiraIssue.ResolutionDate != nil {
 			jiraIssue.LeadTimeMinutes = uint(jiraIssue.ResolutionDate.Unix()-jiraIssue.Created.Unix()) / 60
 		}
+		jiraIssue.StdStoryPoint = uint(jiraIssue.StoryPoint)
 		jiraIssue.StdType = getStdType(jiraIssue.Type)
 		jiraIssue.StdStatus = getStdStatus(jiraIssue.StatusCategory)
 		// assuming remaining estimate could be negative; TODO: make sure of it
