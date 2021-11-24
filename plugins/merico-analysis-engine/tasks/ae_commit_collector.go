@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"net/url"
 
+	"github.com/merico-dev/lake/config"
 	"github.com/merico-dev/lake/logger"
 	lakeModels "github.com/merico-dev/lake/models"
 	"github.com/merico-dev/lake/plugins/core"
@@ -24,9 +25,10 @@ type AEApiCommit struct {
 
 func CollectCommits(projectId int, scheduler *utils.WorkerScheduler) error {
 	aeApiClient := CreateApiClient()
-	relativePath := fmt.Sprintf("projects/%v/repository/commits", projectId)
+	relativePath := fmt.Sprintf("projects/%v/commits", projectId)
 	queryParams := &url.Values{}
-	queryParams.Set("with_stats", "true")
+	queryParams.Set("app_id", config.V.GetString("AE_APP_ID"))
+	queryParams.Set("sign", config.V.GetString("AE_SIGN"))
 	return aeApiClient.FetchWithPaginationAnts(scheduler, relativePath, queryParams, 100,
 		func(res *http.Response) error {
 
@@ -59,21 +61,11 @@ func CollectCommits(projectId int, scheduler *utils.WorkerScheduler) error {
 // Convert the API response to our DB model instance
 func convertCommit(commit *AEApiCommit, projectId int) (*models.AECommit, error) {
 	aeCommit := &models.AECommit{
-		AEId:           commit.AEId,
-		Title:          commit.Title,
-		Message:        commit.Message,
-		ProjectId:      projectId,
-		ShortId:        commit.ShortId,
-		AuthorName:     commit.AuthorName,
-		AuthorEmail:    commit.AuthorEmail,
-		AuthoredDate:   commit.AuthoredDate.ToTime(),
-		CommitterName:  commit.CommitterName,
-		CommitterEmail: commit.CommitterEmail,
-		CommittedDate:  commit.CommittedDate.ToTime(),
-		WebUrl:         commit.WebUrl,
-		Additions:      commit.Stats.Additions,
-		Deletions:      commit.Stats.Deletions,
-		Total:          commit.Stats.Total,
+		HexSha:      commit.HexSha,
+		AnalysisId:  commit.AnalysisId,
+		AuthorEmail: commit.AuthorEmail,
+		DevEq:       commit.DevEq,
+		AEProjectId: projectId,
 	}
 	return aeCommit, nil
 }

@@ -3,22 +3,21 @@ package tasks
 import (
 	"fmt"
 	"net/http"
+	"time"
 
 	"github.com/merico-dev/lake/logger"
 	lakeModels "github.com/merico-dev/lake/models"
-	"github.com/merico-dev/lake/plugins/ae/models"
 	"github.com/merico-dev/lake/plugins/core"
+	"github.com/merico-dev/lake/plugins/merico-analysis-engine/models"
 	"gorm.io/gorm/clause"
 )
 
 type ApiProjectResponse struct {
-	Name              string `josn:"name"`
-	AEId              int    `json:"id"`
-	PathWithNamespace string `json:"path_with_namespace"`
-	WebUrl            string `json:"web_url"`
-	Visibility        string `json:"visibility"`
-	OpenIssuesCount   int    `json:"open_issues_count"`
-	StarCount         int    `json:"star_count"`
+	Id           int        `json:"id"`
+	GitUrl       string     `json:"git_url"`
+	Priority     string     `json:"priority"`
+	AECreateTime *time.Time `json:"create_time"`
+	AEUpdateTime *time.Time `json:"update_time"`
 }
 
 func CollectProject(projectId int) error {
@@ -38,13 +37,11 @@ func CollectProject(projectId int) error {
 		return err
 	}
 	aeProject := &models.AEProject{
-		Name:              aeApiResponse.Name,
-		AEId:              aeApiResponse.AEId,
-		PathWithNamespace: aeApiResponse.PathWithNamespace,
-		WebUrl:            aeApiResponse.WebUrl,
-		Visibility:        aeApiResponse.Visibility,
-		OpenIssuesCount:   aeApiResponse.OpenIssuesCount,
-		StarCount:         aeApiResponse.StarCount,
+		Id:           aeApiResponse.Id,
+		GitUrl:       aeApiResponse.GitUrl,
+		Priority:     aeApiResponse.Priority,
+		AECreateTime: aeApiResponse.AECreateTime,
+		AEUpdateTime: aeApiResponse.AEUpdateTime,
 	}
 	err = lakeModels.Db.Clauses(clause.OnConflict{
 		UpdateAll: true,

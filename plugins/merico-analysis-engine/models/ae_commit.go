@@ -9,6 +9,7 @@ type AECommit struct {
 	AnalysisId  string
 	AuthorEmail string
 	DevEq       int
+	AEProjectId int
 
 	models.NoPKModel
 }
