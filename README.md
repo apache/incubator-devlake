@@ -348,7 +348,7 @@ make test
 This section list all the documents to help you contribute to the repo.
 
 ### Understand the Architecture of DevLake<a id="architecture"></a>
-![devlake-architecture](https://user-images.githubusercontent.com/61080/142993514-3fae55d4-9745-46ec-9c14-c69945edc30d.png)
+![devlake-architecture](https://user-images.githubusercontent.com/14050754/143292041-a4839bf1-ca46-462d-96da-2381c8aa0fed.png)
 <p align="center">Architecture Diagram</p>
 
 ### Add a Plugin<a id="plugin"></a>
