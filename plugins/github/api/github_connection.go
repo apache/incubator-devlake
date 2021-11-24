@@ -1,7 +1,6 @@
 package api
 
 import (
-	"errors"
 	"fmt"
 	"strings"
 
@@ -39,7 +38,7 @@ func TestConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, erro
 			return nil, err
 		}
 		if res.StatusCode != 200 {
-			return nil, errors.New(fmt.Sprintf("Invalid token: %v. Please ensure your tokens are correct.", tokens[i]))
+			return nil, fmt.Errorf("Invalid token: %v. Please ensure your tokens are correct.", tokens[i])
 		}
 		githubApiResponse := &ApiUserPublicEmailResponse{}
 		err = core.UnmarshalResponse(res, githubApiResponse)
