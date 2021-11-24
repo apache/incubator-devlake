@@ -1,6 +1,8 @@
 package api
 
 import (
+	"errors"
+	"fmt"
 	"strings"
 
 	"github.com/merico-dev/lake/config"
@@ -9,10 +11,15 @@ import (
 	"github.com/merico-dev/lake/plugins/github/tasks"
 )
 
-type ApiMeResponse struct {
-	Name     string `json:"name"`
-	GithubId int    `json:"id"`
-	HTMLUrl  string `json:"html_url"`
+type ApiUserPublicEmailResponse []PublicEmail
+
+// Using Public Email because it requires authentication, and it is public information anyway.
+// We're not using email information for anything here.
+type PublicEmail struct {
+	Email      string
+	Primary    bool
+	Verified   bool
+	Visibility string
 }
 
 /*
@@ -24,18 +31,22 @@ func TestConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, erro
 	tokens := strings.Split(configTokensString, ",")
 	githubApiClient := tasks.CreateApiClient(endpoint, tokens)
 
-	res, err := githubApiClient.Get("/users/me", nil, nil)
-	if err != nil {
-		logger.Error("Error: ", err)
-		return nil, err
+	// PLEASE NOTE: This works because GitHub API Client rotates tokens on each request
+	for i := 0; i < len(tokens); i++ {
+		res, err := githubApiClient.Get("/user/public_emails", nil, nil)
+		if err != nil {
+			logger.Error("Error: ", err)
+			return nil, err
+		}
+		if res.StatusCode != 200 {
+			return nil, errors.New(fmt.Sprintf("Invalid token: %v. Please ensure your tokens are correct.", tokens[i]))
+		}
+		githubApiResponse := &ApiUserPublicEmailResponse{}
+		err = core.UnmarshalResponse(res, githubApiResponse)
+		if err != nil {
+			logger.Error("Error: ", err)
+			return nil, err
+		}
 	}
-
-	githubApiResponse := &ApiMeResponse{}
-	err = core.UnmarshalResponse(res, githubApiResponse)
-	if err != nil {
-		logger.Error("Error: ", err)
-		return nil, err
-	}
-
-	return &core.ApiResourceOutput{Body: githubApiResponse}, nil
+	return &core.ApiResourceOutput{Body: "Tokens are valid!"}, nil
 }
