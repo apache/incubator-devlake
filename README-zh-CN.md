@@ -374,7 +374,7 @@ make test
 本节列出了所有的文件，以帮助你快速为 repo 做出贡献。
 
 ### 了解 DevLake 的架构<a id="architecture"></a>
-![devlake-architecture](https://user-images.githubusercontent.com/61080/142993514-3fae55d4-9745-46ec-9c14-c69945edc30d.png)
+![devlake-architecture](https://user-images.githubusercontent.com/14050754/143292041-a4839bf1-ca46-462d-96da-2381c8aa0fed.png)
 <p align="center">架构图</p>
 
 ### 添加一个插件<a id="plugin"></a>
