@@ -27,7 +27,7 @@ Dev Lake brings all your DevOps data into one practical, personalized, extensibl
 Dev Lake is most exciting for leaders and managers looking to make better sense of their development data, though it's useful for any developer looking to bring a more data-driven approach to their own practices. With Dev Lake you can ask your process any question, just connect and query. 
 
 
-### Get started with just a few clicks
+#### Get started with just a few clicks
 
 <table>
   <tr>
@@ -57,8 +57,7 @@ Dev Lake is most exciting for leaders and managers looking to make better sense 
 <img src="https://user-images.githubusercontent.com/14050754/142356580-40637a30-5578-48ed-8e4a-128cd0738e3e.png" width="100%" alt="User Flow" style="border-radius:15px;"/>
 <p align="center">User Flow</p>
 
-![devlake-architecture](https://user-images.githubusercontent.com/61080/142993514-3fae55d4-9745-46ec-9c14-c69945edc30d.png)
-<p align="center">Architecture Diagram</p>
+
 
 ### Why Dev Lake?
 1. Comprehensive understanding of software development lifecycle, digging workflow bottlenecks
@@ -83,10 +82,10 @@ Username/Password: test/test
 
 <table>
     <tr>
-        <td>Section</td>
-        <td>Sub-section</td>
-        <td>Description</td>
-        <td>Documentation Link</td>
+        <td><b>Section</b></td>
+        <td><b>Sub-section</b></td>
+        <td><b>Description</b></td>
+        <td><b>Documentation Link</b></td>
     </tr>
     <tr>
         <td>Data Sources</td>
@@ -117,7 +116,12 @@ Username/Password: test/test
         <td><a href="#tests">View Section</a></td>
     </tr>
     <tr>
-        <td rowspan="3">Make Contribution</td>
+        <td rowspan="4">Make Contribution</td>
+        <td>Understand the architecture of DevLake</td>
+        <td>See the architecture diagram</td>
+        <td><a href="#architecture">View Section</a></td>
+    </tr>
+    <tr>
         <td>Build a Plugin</td>
         <td>Details on how to make your own plugin</td>
         <td><a href="#plugin">View Section</a></td>
@@ -172,22 +176,22 @@ GitHub | Summary, Data & Metrics, Configuration, Plugin API | <a href="plugins/g
 
 <br>
 
+****
+
 ## Setup Guide
-There're 3 ways to set up Dev Lake.
+There're 3 ways to set up Dev Lake: user setup, developer setup and cloud setup.
 
 ### User setup<a id="user-setup"></a>
 
-**NOTES:**
-
-- **If you only plan to run the product locally, this is the only section you should need.**
-- **Commands written `like this` are to be run in your terminal.**
+- If you only plan to run the product locally, this is the **ONLY** section you should need.
+- Commands written `like this` are to be run in your terminal.
 
 #### Required Packages to Install<a id="user-setup-requirements"></a>
 
 - [Docker](https://docs.docker.com/get-docker)
 - [docker-compose](https://docs.docker.com/compose/install/)
 
-**NOTE:** After installing docker, you may need to run the docker application and restart your terminal
+NOTE: After installing docker, you may need to run the docker application and restart your terminal
 
 #### Commands to run in your terminal<a id="user-setup-commands"></a>
 
@@ -245,6 +249,10 @@ There're 3 ways to set up Dev Lake.
 #### Setup cron job
 
 To synchronize data periodically, we provide [`lake-cli`]((./cmd/lake-cli/README.md)) for easily sending data collection requests along with [a cron job](./devops/sync/README.md) to periodically trigger the cli tool. 
+
+<br>
+
+****
 
 <br>
 
@@ -313,7 +321,11 @@ To synchronize data periodically, we provide [`lake-cli`]((./cmd/lake-cli/README
    > - Please refer to this wiki [How to trigger data collection](https://github.com/merico-dev/lake/wiki/How-to-use-the-triggers-page). Data collection can take up to 20 minutes for large projects. (GitLab 10k+ commits or Jira 5k+ issues)
 
 8. Click *View Dashboards* button when done (username: `admin`, password: `admin`). The button is shown in the top left.
+<br>
 
+****
+
+<br>
 
 ### Cloud setup<a id="cloud-setup"></a>
 If you want to run Dev Lake in a clound environment, you can set up Dev Lake with Tin. [See detailed setup guide](https://github.com/merico-dev/lake/wiki/How-to-Set-Up-Dev-Lake-with-Tin)
@@ -334,6 +346,10 @@ make test
 
 ## Make Contribution
 This section list all the documents to help you contribute to the repo.
+
+### Understand the Architecture of DevLake<a id="architecture"></a>
+![devlake-architecture](https://user-images.githubusercontent.com/61080/142993514-3fae55d4-9745-46ec-9c14-c69945edc30d.png)
+<p align="center">Architecture Diagram</p>
 
 ### Add a Plugin<a id="plugin"></a>
 

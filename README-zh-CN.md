@@ -29,7 +29,7 @@ Dev Lake 将你所有的 DevOps 数据以实用、个性化、可扩展的视图
 Dev Lake 对于希望**更好地了解其开发数据的管理者**来说是最激动人心的，除此以外，它对于任何希望**通过数据驱动提升自身实践的开发者**来说都是有用的。有了Dev Lake，你可以向你的程序提出任何问题，只要连接和查询。
 
 
-### 一键体验 Dev Lake
+#### 一键体验 Dev Lake
 
 <table>
   <tr>
@@ -57,8 +57,7 @@ Dev Lake 对于希望**更好地了解其开发数据的管理者**来说是最�
 <img src="https://user-images.githubusercontent.com/14050754/142356580-40637a30-5578-48ed-8e4a-128cd0738e3e.png" width="100%" alt="User Flow" style="border-radius:15px;"/>
 <p align="center">用户使用流程</p><br>
 
-![devlake-architecture](https://user-images.githubusercontent.com/61080/142993514-3fae55d4-9745-46ec-9c14-c69945edc30d.png)
-<p align="center">系统架构图</p>
+
 
 ### 为什么选择 Dev Lake？
 1. 全面了解软件研发生命周期，挖掘工作流瓶颈
@@ -82,10 +81,10 @@ Dev Lake 对于希望**更好地了解其开发数据的管理者**来说是最�
 ## 目录
 <table>
     <tr>
-        <td>目录</td>
-        <td>子目录</td>
-        <td>描述</td>
-        <td>文档链接</td>
+        <td><b>目录</b></td>
+        <td><b>子目录</b></td>
+        <td><b>描述</b></td>
+        <td><b>文档链接</b></td>
     </tr>
     <tr>
         <td>数据源</td>
@@ -116,7 +115,12 @@ Dev Lake 对于希望**更好地了解其开发数据的管理者**来说是最�
         <td><a href="#tests">查看本节</a></td>
     </tr>
     <tr>
-        <td rowspan="3">贡献</td>
+        <td rowspan="4">贡献</td>
+        <td>了解 DevLake 的架构</td>
+        <td>查看系统架构图</td>
+        <td><a href="#architecture">查看本节</a></td>
+    </tr>
+    <tr>
         <td>添加一个插件</td>
         <td>如何制作自己的插件的详细信息</td>
         <td><a href="#plugin">查看本节</a></td>
@@ -172,20 +176,20 @@ GitHub | 概述，数据和指标，配置，API | [Link](plugins/github/README-
 <br>
 
 ## 安装手册
-一共有 3 种方式来安装 Dev Lake。
+一共有 3 种方式来安装 Dev Lake：用户安装，开发者安装和云端安装。
 
 
 ### 用户安装<a id="user-setup"></a>
 
-**注意：如果你只打算运行 Dev Lake，你只需要阅读这一小节**<br>
-**注意：写成 `这样` 的命令需要在你的终端中运行**
+- 如果你只打算运行 Dev Lake，你只需要阅读这一小节<br>
+- 写成 `这样` 的命令需要在你的终端中运行
 
 ### 需要安装的软件包<a id="user-setup-requirements"></a>
 
 - [Docker](https://docs.docker.com/get-docker)
 - [docker-compose](https://docs.docker.com/compose/install/)
 
-**NOTE:** 安装完 Docker 后，你可能需要运行 Docker 应用程序并重新启动你的终端
+注：安装完 Docker 后，你可能需要运行 Docker 应用程序并重新启动你的终端
 
 #### 在你的终端中运行以下命令<a id="user-setup-commands"></a>
 
@@ -242,6 +246,10 @@ GitHub | 概述，数据和指标，配置，API | [Link](plugins/github/README-
 
 #### 设置 Cron job
 为了定期同步数据，我们提供了[`lake-cli`]((./cmd/lake-cli/README.md))以方便发送数据收集请求，我们同时提供了[cron job](./devops/sync/README.md)以定期触发 cli 工具。
+
+<br>
+
+****
 
 <br>
 
@@ -340,6 +348,10 @@ GitHub | 概述，数据和指标，配置，API | [Link](plugins/github/README-
 
 <br>
 
+****
+
+<br>
+
 ### 云端安装<a id="cloud-setup"></a>
 如果你想在云端安装Dev Lake，你可以使用 Tin 来进行. [查看详细信息](https://github.com/merico-dev/lake/wiki/How-to-Set-Up-Dev-Lake-with-Tin-zh-CN)
 
@@ -360,6 +372,10 @@ make test
 
 ## 贡献
 本节列出了所有的文件，以帮助你快速为 repo 做出贡献。
+
+### 了解 DevLake 的架构<a id="architecture"></a>
+![devlake-architecture](https://user-images.githubusercontent.com/61080/142993514-3fae55d4-9745-46ec-9c14-c69945edc30d.png)
+<p align="center">架构图</p>
 
 ### 添加一个插件<a id="plugin"></a>
 
