@@ -11,6 +11,7 @@ import (
 	"regexp"
 	"strings"
 	"time"
+	"unicode/utf8"
 
 	"github.com/merico-dev/lake/logger"
 )
@@ -178,12 +179,15 @@ func UnmarshalResponse(res *http.Response, v interface{}) error {
 }
 
 func GetURIStringPointer(baseUrl string, relativePath string, queryParams *url.Values) (*string, error) {
+	// If the base URL doesn't end with a slash, and has a relative path attached
+	// the values will be removed by the Go package, therefore we need to add a missing slash.
 	AddMissingSlashToURL(&baseUrl)
 	base, err := url.Parse(baseUrl)
 	if err != nil {
 		return nil, err
 	}
-	// TODO: if relative path starts with slash, shave it off.
+	// If the relative path starts with a '/', we need to remove it or the values will be removed by the Go package.
+	relativePath = RemoveStartingSlashFromPath(relativePath)
 	u, err := url.Parse(relativePath)
 	if err != nil {
 		return nil, err
@@ -205,4 +209,16 @@ func AddMissingSlashToURL(baseUrl *string) {
 	if !isMatch {
 		*baseUrl += "/"
 	}
+}
+func RemoveStartingSlashFromPath(relativePath string) string {
+	pattern := `^\/`
+	byteArrayOfPath := []byte(relativePath)
+	isMatch, _ := regexp.Match(pattern, byteArrayOfPath)
+	if isMatch {
+		// Remove the slash.
+		// This is basically the trimFirstRune function found: https://stackoverflow.com/questions/48798588/how-do-you-remove-the-first-character-of-a-string/48798712
+		_, i := utf8.DecodeRuneInString(relativePath)
+		return relativePath[i:]
+	}
+	return relativePath
 }
