@@ -28,6 +28,7 @@ func (plugin DomainLayer) Init() {
 		&ticket.SprintIssue{},
 		&devops.Job{},
 		&devops.Build{},
+		&ticket.Worklog{},
 	)
 	if err != nil {
 		panic(err)

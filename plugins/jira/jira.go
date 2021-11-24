@@ -41,6 +41,7 @@ func (plugin Jira) Init() {
 		&models.JiraSprint{},
 		&models.JiraBoardSprint{},
 		&models.JiraSprintIssue{},
+		&models.JiraWorklog{},
 	)
 	if err != nil {
 		panic(err)
