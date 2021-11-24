@@ -5,9 +5,9 @@ import (
 	"fmt"
 
 	"github.com/merico-dev/lake/logger" // A pseudo type for Plugin Interface implementation
-	"github.com/merico-dev/lake/plugins/ae/api"
-	"github.com/merico-dev/lake/plugins/ae/tasks"
 	"github.com/merico-dev/lake/plugins/core"
+	"github.com/merico-dev/lake/plugins/merico-analysis-engine/api"
+	"github.com/merico-dev/lake/plugins/merico-analysis-engine/tasks"
 	"github.com/merico-dev/lake/utils"
 	"github.com/mitchellh/mapstructure"
 )
@@ -69,6 +69,9 @@ func (plugin AE) RootPkgPath() string {
 
 func (plugin AE) ApiResources() map[string]map[string]core.ApiResourceHandler {
 	return map[string]map[string]core.ApiResourceHandler{
+		"test": {
+			"GET": api.TestConnection,
+		},
 		"sources": {
 			"GET":  api.ListSources,
 			"POST": api.PutSource,

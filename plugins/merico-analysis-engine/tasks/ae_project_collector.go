@@ -15,7 +15,7 @@ import (
 type ApiProjectResponse struct {
 	Id           int        `json:"id"`
 	GitUrl       string     `json:"git_url"`
-	Priority     string     `json:"priority"`
+	Priority     int        `json:"priority"`
 	AECreateTime *time.Time `json:"create_time"`
 	AEUpdateTime *time.Time `json:"update_time"`
 }
