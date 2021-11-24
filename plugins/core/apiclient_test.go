@@ -48,6 +48,15 @@ func TestGetURIStringPointer_WithRelativePath2(t *testing.T) {
 	assert.Equal(t, err == nil, true)
 	assert.Equal(t, expected, *actual)
 }
+// TODO: this must pass
+func TestGetURIStringPointer_HandlesRelativePathStartingWithSlash(t *testing.T) {
+	baseUrl := "https://gitlab.com/api/v4/"
+	relativePath := "/user"
+	expected := "https://gitlab.com/api/v4/user"
+	actual, err := GetURIStringPointer(baseUrl, relativePath, nil)
+	assert.Equal(t, err == nil, true)
+	assert.Equal(t, expected, *actual)
+}
 func TestAddMissingSlashToURL_NoSlash(t *testing.T) {
 	baseUrl := "http://my-site.com/rest"
 	expected := "http://my-site.com/rest/"

@@ -20,6 +20,7 @@ type GitlabApiClient struct {
 
 func CreateApiClient() *GitlabApiClient {
 	gitlabApiClient := &GitlabApiClient{}
+	fmt.Println("KEVIN >>> endpoint", config.V.GetString("GITLAB_ENDPOINT"))
 	gitlabApiClient.Setup(
 		config.V.GetString("GITLAB_ENDPOINT"),
 		map[string]string{

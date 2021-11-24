@@ -183,6 +183,7 @@ func GetURIStringPointer(baseUrl string, relativePath string, queryParams *url.V
 	if err != nil {
 		return nil, err
 	}
+	// TODO: if relative path starts with slash, shave it off.
 	u, err := url.Parse(relativePath)
 	if err != nil {
 		return nil, err
