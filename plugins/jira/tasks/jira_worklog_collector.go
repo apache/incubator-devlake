@@ -73,8 +73,9 @@ func handleWorklogs(jiraApiClient *JiraApiClient, source *models.JiraSource, jir
 		return saveWorklogs(worklogs)
 	}
 	path := fmt.Sprintf("api/2/issue/%d/worklog", issueId)
+	var body []byte
 	err = jiraApiClient.FetchWithoutPaginationHeaders(path, nil, func(res *http.Response) (int, error) {
-		body, err := ioutil.ReadAll(res.Body)
+		body, err = ioutil.ReadAll(res.Body)
 		if err != nil {
 			return 0, err
 		}
