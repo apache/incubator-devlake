@@ -2,7 +2,6 @@ package api
 
 import (
 	"errors"
-	"fmt"
 
 	"github.com/merico-dev/lake/logger"
 	"github.com/merico-dev/lake/plugins/core"
@@ -29,13 +28,11 @@ func TestConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, erro
 	if res.StatusCode != 200 {
 		return nil, errors.New("Your token is invalid for this URL.")
 	}
-	fmt.Println("KEVIN >>> res.Status", res.Status)
 	gitlabApiResponse := &ApiUserResponse{}
 	err = core.UnmarshalResponse(res, gitlabApiResponse)
 	if err != nil {
 		logger.Error("Error: ", err)
 		return nil, err
 	}
-	fmt.Println("KEVIN >>> gitlabApiResponse.Name", gitlabApiResponse.Name)
 	return &core.ApiResourceOutput{Body: "Token is valid for the URL!"}, nil
 }
