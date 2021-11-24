@@ -34,6 +34,7 @@ type JiraApiIssueFields struct {
 	Summary               string
 	IssueType             JiraApiIssueType
 	Project               JiraApiProject
+	Worklog               JiraApiWorklog
 	Status                JiraApiStatus
 	Creator               JiraApiUser
 	Assignee              *JiraApiUser
@@ -169,6 +170,11 @@ func CollectIssues(
 						logger.Error("jira collect issues: save sprint issue relationship failed", err)
 						return err
 					}
+				}
+				err = handleWorklogs(jiraApiClient, source, &jiraApiIssue)
+				if err != nil {
+					logger.Error("jira collect issues: save worklogs failed", err)
+					return err
 				}
 			}
 			return nil
