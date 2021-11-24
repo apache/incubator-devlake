@@ -4,9 +4,7 @@
 
 # Dev Lake
 <p>
-    <b>
-     <!Software development workflow analysis for free> 
-    </b>
+    
   </p>
   <p>
 
@@ -14,7 +12,9 @@
 [![Discord](https://img.shields.io/discord/844603288082186240.svg?style=flat?label=&logo=discord&logoColor=ffffff&color=747df7&labelColor=454545)](https://discord.gg/83rDG6ydVZ)
 ![badge](https://github.com/merico-dev/lake/actions/workflows/test.yml/badge.svg)
 [![Go Report Card](https://goreportcard.com/badge/github.com/merico-dev/lake)](https://goreportcard.com/report/github.com/merico-dev/lake)
-
+      
+<a href="https://www.producthunt.com/posts/dev-lake?utm_source=badge-featured&utm_medium=badge&utm_souce=badge-dev-lake" target="_blank"><img src="https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=319830&theme=light" alt="Dev Lake - An open-source data-lake & dashboard for your dev tools | Product Hunt" style="width: 250px; height: 54px;" width="250" height="54" /></a> 
+<a href="https://www.producthunt.com/posts/dev-lake?utm_source=badge-top-post-badge&utm_medium=badge&utm_souce=badge-dev-lake" target="_blank"><img src="https://api.producthunt.com/widgets/embed-image/v1/top-post-badge.svg?post_id=319830&theme=light&period=daily" alt="Dev Lake - An open-source data-lake & dashboard for your dev tools | Product Hunt" style="width: 250px; height: 54px;" width="250" height="54" /></a>
 | [English](README.md) | [中文](README-zh-CN.md) |
 | --- | --- |
 </div>
