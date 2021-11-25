@@ -17,7 +17,6 @@ func (f *Foo) Init() {
 }
 
 func (f *Foo) Execute(options map[string]interface{}, progress chan<- float32, ctx context.Context) error {
-	close(progress)
 	return nil
 }
 
@@ -39,7 +38,6 @@ func (b *Bar) Init() {
 }
 
 func (b *Bar) Execute(options map[string]interface{}, progress chan<- float32, ctx context.Context) error {
-	close(progress)
 	return nil
 }
 

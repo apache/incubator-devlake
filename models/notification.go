@@ -3,7 +3,7 @@ package models
 type NotificationType string
 
 const (
-	NotificationTaskSuccess NotificationType = "TaskSuccess"
+	NotificationPipelineStatusChanged NotificationType = "PipelineStatusChanged"
 )
 
 // Notification records notifications sent by lake
