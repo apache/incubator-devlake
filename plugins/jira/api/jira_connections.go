@@ -20,6 +20,9 @@ func TestConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, erro
 	jiraApiClient := tasks.NewJiraApiClient(jiraSource.Endpoint, jiraSource.BasicAuthEncoded)
 
 	res, err := jiraApiClient.Get("api/3/myself", nil, nil)
+	if err != nil {
+		return nil, err
+	}
 	if res.StatusCode != 200 {
 		return nil, fmt.Errorf("Your connection configuration is invalid for this source: %v", jiraSource.Name)
 	}
