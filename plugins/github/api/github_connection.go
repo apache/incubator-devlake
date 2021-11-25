@@ -47,5 +47,5 @@ func TestConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, erro
 			return nil, err
 		}
 	}
-	return &core.ApiResourceOutput{Body: "Tokens are valid!"}, nil
+	return &core.ApiResourceOutput{Body: true}, nil
 }

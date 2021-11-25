@@ -34,5 +34,5 @@ func TestConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, erro
 		logger.Error("Error: ", err)
 		return nil, err
 	}
-	return &core.ApiResourceOutput{Body: "Token is valid for the URL!"}, nil
+	return &core.ApiResourceOutput{Body: true}, nil
 }
