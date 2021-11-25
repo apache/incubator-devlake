@@ -24,7 +24,10 @@ func findSourceByInputParam(input *core.ApiResourceInput) (*models.JiraSource, e
 	return getJiraSourceById(jiraSourceId)
 }
 func findSourceByInputQuery(input *core.ApiResourceInput) (*models.JiraSource, error) {
-	sourceId := input.Query["sourceId"][0]
+	var sourceId string
+	if len(input.Query) > 0 {
+		sourceId = input.Query["sourceId"][0]
+	}
 	if sourceId == "" {
 		return nil, fmt.Errorf("missing sourceid")
 	}
