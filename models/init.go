@@ -39,7 +39,7 @@ func init() {
 }
 
 func migrateDB() {
-	err := Db.AutoMigrate(&Task{}, &Notification{})
+	err := Db.AutoMigrate(&Task{}, &Notification{}, &Pipeline{})
 	if err != nil {
 		panic(err)
 	}

@@ -73,7 +73,6 @@ func (plugin Compound) Description() string {
 }
 
 func (plugin Compound) Execute(options map[string]interface{}, progress chan<- float32, ctx context.Context) error {
-	close(progress)
 	return nil
 }
 

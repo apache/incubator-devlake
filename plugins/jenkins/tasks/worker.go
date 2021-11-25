@@ -36,8 +36,6 @@ func (worker *JenkinsWorker) SyncJobs(progress chan<- float32) error {
 		}
 		progress <- float32((index + 1)) / float32(len(jobs))
 	}
-	close(progress)
-
 	return nil
 }
 
