@@ -12,6 +12,7 @@ import Sidebar from '@/components/Sidebar'
 import AppCrumbs from '@/components/Breadcrumbs'
 import Content from '@/components/Content'
 import ConnectionForm from '@/pages/configure/connections/ConnectionForm'
+import FormValidationErrors from '@/components/messages/FormValidationErrors'
 import { integrationsData } from '@/data/integrations'
 import {
   Providers,
@@ -22,6 +23,7 @@ import {
 } from '@/data/Providers'
 
 import useConnectionManager from '@/hooks/useConnectionManager'
+import useConnectionValidation from '@/hooks/useConnectionValidation'
 
 import '@/styles/integration.scss'
 import '@/styles/connections.scss'
@@ -57,6 +59,19 @@ export default function AddConnection () {
     activeProvider,
   })
 
+  const {
+    validate,
+    errors: validationErrors,
+    isValid: isValidForm
+  } = useConnectionValidation({
+    activeProvider,
+    name,
+    endpointUrl,
+    token,
+    username,
+    password
+  })
+
   const cancel = () => {
     history.push(`/integrations/${activeProvider.id}`)
   }
@@ -71,7 +86,6 @@ export default function AddConnection () {
 
   useEffect(() => {
     // Selected Provider
-    console.log(activeProvider)
     if (activeProvider && activeProvider.id) {
       fetchAllConnections()
       switch (activeProvider.id) {
@@ -130,6 +144,7 @@ export default function AddConnection () {
               <div className='addConnection' style={{ display: 'flex' }}>
                 <ConnectionForm
                   isLocked={connectionLimitReached}
+                  isValid={isValidForm}
                   activeProvider={activeProvider}
                   name={name}
                   endpointUrl={endpointUrl}
@@ -139,6 +154,7 @@ export default function AddConnection () {
                   onSave={saveConnection}
                   onTest={testConnection}
                   onCancel={cancel}
+                  onValidate={validate}
                   onNameChange={setName}
                   onEndpointChange={setEndpointUrl}
                   onTokenChange={setToken}
@@ -155,6 +171,9 @@ export default function AddConnection () {
                   placeholders={ProviderFormPlaceholders[activeProvider.id]}
                 />
               </div>
+              {validationErrors.length > 0 && (
+                <FormValidationErrors errors={validationErrors} />
+              )}
             </div>
           </main>
         </Content>

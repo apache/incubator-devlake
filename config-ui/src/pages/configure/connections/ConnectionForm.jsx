@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, useCallback } from 'react'
 import {
   Button, Colors,
   FormGroup, InputGroup, Label,
@@ -19,6 +19,7 @@ import '@/styles/connections.scss'
 export default function ConnectionForm (props) {
   const {
     isLocked = false,
+    isValid = true,
     activeProvider,
     name,
     endpointUrl,
@@ -38,6 +39,7 @@ export default function ConnectionForm (props) {
     onTokenChange = () => {},
     onUsernameChange = () => {},
     onPasswordChange = () => {},
+    onValidate = () => {},
     authType = 'token',
     sourceLimits = {},
     showLimitWarning = true,
@@ -45,6 +47,7 @@ export default function ConnectionForm (props) {
     placeholders
   } = props
 
+  // const [isValidForm, setIsValidForm] = useState(true)
   const [allowedAuthTypes, setAllowedAuthTypes] = useState(['token', 'plain'])
   const [showTokenCreator, setShowTokenCreator] = useState(false)
   const getConnectionStatusIcon = () => {
@@ -64,6 +67,16 @@ export default function ConnectionForm (props) {
     return statusIcon
   }
 
+  const validate = useCallback(() => {
+    onValidate({
+      name,
+      endpointUrl,
+      token,
+      username,
+      password
+    })
+  }, [name, endpointUrl, token, username, password, onValidate])
+
   const handleTokenInteraction = (isOpen) => {
     setShowTokenCreator(isOpen)
   }
@@ -77,6 +90,14 @@ export default function ConnectionForm (props) {
   useEffect(() => {
     setAllowedAuthTypes(['token', 'plain'])
   }, [])
+
+  useEffect(() => {
+    validate()
+  }, [name, endpointUrl, token, username, password, validate])
+
+  useEffect(() => {
+    console.log('>> CONNECTION FORM VALIDATION STATUS CHANGED...', isValid)
+  }, [isValid])
 
   return (
     <>
@@ -338,7 +359,7 @@ export default function ConnectionForm (props) {
               className='btn-save'
               icon='cloud-upload' intent='primary' text='Save Connection'
               loading={isSaving}
-              disabled={isSaving || isTesting || isLocked}
+              disabled={isSaving || isTesting || isLocked || !isValid}
               onClick={onSave}
             />
           </div>

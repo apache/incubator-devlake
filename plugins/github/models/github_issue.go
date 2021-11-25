@@ -1,7 +1,6 @@
 package models
 
 import (
-	"database/sql"
 	"time"
 
 	"github.com/merico-dev/lake/models"
@@ -9,7 +8,7 @@ import (
 
 type GithubIssue struct {
 	GithubId        int `gorm:"primaryKey"`
-	Number          int `gorm:"index"`
+	Number          int `gorm:"index;comment:Used in API requests ex. api/repo/1/issue/<THIS_NUMBER>"`
 	State           string
 	Title           string
 	Body            string
@@ -18,7 +17,7 @@ type GithubIssue struct {
 	Status          string
 	Assignee        string
 	LeadTimeMinutes uint
-	ClosedAt        sql.NullTime
+	ClosedAt        *time.Time
 	GithubCreatedAt time.Time
 	GithubUpdatedAt time.Time
 

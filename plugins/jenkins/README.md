@@ -1,4 +1,19 @@
-# Jenkins pond
+# Jenkins
+
+<div align="center">
+
+| [English](README.md) | [中文](README-zh-CN.md) |
+| --- | --- |
+
+</div>
+
+<br>
+
+## Summary
+
+This plugin collects Jenkins data through [Remote Access API](https://www.jenkins.io/doc/book/using/remote-access-api/). It then computes and visualizes various devops metrics from the Jenkins data.
+
+![image](https://user-images.githubusercontent.com/61080/141943122-dcb08c35-cb68-4967-9a7c-87b63c2d6988.png)
 
 ## Metrics
 
@@ -9,26 +24,37 @@ Build Success Rate | The percentage of successful builds
 
 ## Configuration
 
-In your `.env` file, you will need to set up
+In order to fully use this plugin, you will need to set various configurations via Dev Lake's `config-ui`.
 
-```
-# Jenkins configuration
-JENKINS_ENDPOINT=https://jenkins.merico.cn/
-JENKINS_USERNAME=your user name here
-JENKINS_PASSWORD=your password or jenkins token here
-```
+### By `config-ui`
 
-You can generate access token at `User` -> `Configure` -> `API Token` section.
+The connection aspect of the configuration screen requires the following key fields to connect to the Jenkins API. As Jenkins is a single-source data provider at the moment, the connection name is read-only as there is only one instance to manage. As we continue our development roadmap we may enable multi-source connections for Jenkins in the future.
 
-## Gathering data with jenkins
+- Connection Name [READONLY]
+  - ⚠️ Defaults to "Jenkins" and may not be changed.
+- Endpoint URL (REST URL, starts with `https://` or `http://`i, ends with `/`)
+  - This should be a valid REST API Endpoint eg. `https://ci.jenkins.io/`
+- Username (E-mail)
+  - Your User ID for the Jenkins Instance.
+- Password (Secret Phrase or API Access Token)
+  - Secret password for common credentials.
+  - For help on Username and Password, please see official Jenkins Docs on Using Credentials
+  - Or you can use **API Access Token** for this field, which can be generated at `User` -> `Configure` -> `API Token` section on Jenkins.
 
-To collect data, you can make a POST request to `/task`
+Click Save Connection to update connection settings.
 
-```
-curl --location --request POST 'localhost:8080/task' \
-  --header 'Content-Type: application/json' \
-  --data-raw '[[{
+## Collect Data From Jenkins
+
+In order to collect data from JIRA, you have to compose a JSON looks like following one, and send it via `Triggers` page on `config-ui`:
+
+
+```json
+[
+  [
+    {
       "plugin": "jenkins",
       "options": {}
-  }]]'
+    }
+  ]
+]
 ```

@@ -41,6 +41,7 @@ func (plugin Jira) Init() {
 		&models.JiraSprint{},
 		&models.JiraBoardSprint{},
 		&models.JiraSprintIssue{},
+		&models.JiraWorklog{},
 	)
 	if err != nil {
 		panic(err)
@@ -100,6 +101,7 @@ func (plugin Jira) Execute(options map[string]interface{}, progress chan<- float
 			"collectChangelogs": true,
 			"enrichIssues":      true,
 			"collectSprints":    true,
+			"collectUsers":      true,
 		}
 	}
 

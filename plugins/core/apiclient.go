@@ -8,6 +8,8 @@ import (
 	"io/ioutil"
 	"net/http"
 	"net/url"
+	"regexp"
+	"strings"
 	"time"
 
 	"github.com/merico-dev/lake/logger"
@@ -78,7 +80,7 @@ func (apiClient *ApiClient) SetProxy(proxyUrl string) error {
 	if err != nil {
 		return err
 	}
-	if pu.Scheme == "http" || pu.Scheme == "socks5"{
+	if pu.Scheme == "http" || pu.Scheme == "socks5" {
 		apiClient.client.Transport = &http.Transport{Proxy: http.ProxyURL(pu)}
 	}
 	return nil
@@ -91,16 +93,10 @@ func (apiClient *ApiClient) Do(
 	body *map[string]interface{},
 	headers *map[string]string,
 ) (*http.Response, error) {
-	uri := apiClient.endpoint + path
-
-	// append query
-	if query != nil {
-		queryString := query.Encode()
-		if queryString != "" {
-			uri += "?" + queryString
-		}
+	uri, err := GetURIStringPointer(apiClient.endpoint, path, query)
+	if err != nil {
+		return nil, err
 	}
-
 	// process body
 	var reqBody io.Reader
 	if body != nil {
@@ -110,7 +106,7 @@ func (apiClient *ApiClient) Do(
 		}
 		reqBody = bytes.NewBuffer(reqJson)
 	}
-	req, err := http.NewRequest(method, uri, reqBody)
+	req, err := http.NewRequest(method, *uri, reqBody)
 	if err != nil {
 		return nil, err
 	}
@@ -139,7 +135,7 @@ func (apiClient *ApiClient) Do(
 	var res *http.Response
 	retry := 0
 	for {
-		logger.Print(fmt.Sprintf("[api-client][retry %v] %v %v", retry, method, uri))
+		logger.Print(fmt.Sprintf("[api-client][retry %v] %v %v", retry, method, *uri))
 		res, err = apiClient.client.Do(req)
 		if err != nil {
 			if retry < apiClient.maxRetry-1 {
@@ -179,4 +175,33 @@ func UnmarshalResponse(res *http.Response, v interface{}) error {
 		return err
 	}
 	return json.Unmarshal(resBody, &v)
+}
+
+func GetURIStringPointer(baseUrl string, relativePath string, queryParams *url.Values) (*string, error) {
+	AddMissingSlashToURL(&baseUrl)
+	base, err := url.Parse(baseUrl)
+	if err != nil {
+		return nil, err
+	}
+	u, err := url.Parse(relativePath)
+	if err != nil {
+		return nil, err
+	}
+	if queryParams != nil {
+		queryString := u.Query()
+		for key, value := range *queryParams {
+			queryString.Set(key, strings.Join(value, ""))
+		}
+		u.RawQuery = queryString.Encode()
+	}
+	uri := base.ResolveReference(u).String()
+	return &uri, nil
+}
+
+func AddMissingSlashToURL(baseUrl *string) {
+	pattern := `\/$`
+	isMatch, _ := regexp.Match(pattern, []byte(*baseUrl))
+	if !isMatch {
+		*baseUrl += "/"
+	}
 }

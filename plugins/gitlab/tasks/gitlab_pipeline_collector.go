@@ -3,6 +3,7 @@ package tasks
 import (
 	"fmt"
 	"net/http"
+	"net/url"
 
 	"github.com/merico-dev/lake/logger"
 	lakeModels "github.com/merico-dev/lake/models"
@@ -33,16 +34,21 @@ type ApiSinglePipelineResponse struct {
 	Sha             string
 	WebUrl          string `json:"web_url"`
 	Duration        int
-	StartedAt       core.Iso8601Time `json:"started_at"`
-	FinishedAt      core.Iso8601Time `json:"finished_at"`
+	StartedAt       *core.Iso8601Time `json:"started_at"`
+	FinishedAt      *core.Iso8601Time `json:"finished_at"`
 	Coverage        string
 	Status          string
 }
 
 func CollectAllPipelines(projectId int, scheduler *utils.WorkerScheduler) error {
 	gitlabApiClient := CreateApiClient()
-
-	return gitlabApiClient.FetchWithPaginationAnts(scheduler, fmt.Sprintf("projects/%v/pipelines?order_by=updated_at&sort=desc", projectId), 100,
+	queryParams := &url.Values{}
+	queryParams.Set("order_by", "updated_at")
+	queryParams.Set("sort", "desc")
+	return gitlabApiClient.FetchWithPaginationAnts(scheduler,
+		fmt.Sprintf("projects/%v/pipelines", projectId),
+		queryParams,
+		100,
 		func(res *http.Response) error {
 
 			apiPipelineResponse := &ApiPipelineResponse{}
@@ -131,8 +137,8 @@ func convertSinglePipeline(pipeline *ApiSinglePipelineResponse) (*models.GitlabP
 		Sha:             pipeline.Sha,
 		WebUrl:          pipeline.WebUrl,
 		Duration:        pipeline.Duration,
-		StartedAt:       pipeline.StartedAt.ToSqlNullTime(),
-		FinishedAt:      pipeline.FinishedAt.ToSqlNullTime(),
+		StartedAt:       core.Iso8601TimeToTime(pipeline.StartedAt),
+		FinishedAt:      core.Iso8601TimeToTime(pipeline.FinishedAt),
 		Coverage:        pipeline.Coverage,
 		Status:          pipeline.Status,
 	}

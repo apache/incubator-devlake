@@ -52,7 +52,8 @@ func updateMergeRequestWithFirstCommentTime(notes *ApiMergeRequestNoteResponse, 
 		return err
 	}
 	if earliestNote != nil {
-		mr.FirstCommentTime = earliestNote.GitlabCreatedAt.ToSqlNullTime()
+		t := earliestNote.GitlabCreatedAt.ToTime()
+		mr.FirstCommentTime = &t
 
 		err = lakeModels.Db.Model(&mr).Where("gitlab_id = ?", mr.GitlabId).Clauses(clause.OnConflict{
 			UpdateAll: true,
@@ -70,7 +71,7 @@ func CollectMergeRequestNotes(projectId int, mr *models.GitlabMergeRequest) erro
 	gitlabApiClient := CreateApiClient()
 
 	getUrl := fmt.Sprintf("projects/%v/merge_requests/%v/notes?system=false", projectId, mr.Iid)
-	return gitlabApiClient.FetchWithPagination(getUrl, 100,
+	return gitlabApiClient.FetchWithPagination(getUrl, nil, 100,
 		func(res *http.Response) error {
 
 			gitlabApiResponse := &ApiMergeRequestNoteResponse{}

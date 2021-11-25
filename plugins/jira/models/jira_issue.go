@@ -1,7 +1,6 @@
 package models
 
 import (
-	"database/sql"
 	"time"
 
 	"github.com/merico-dev/lake/models"
@@ -29,7 +28,7 @@ type JiraIssue struct {
 	CreatorAccountId         string
 	CreatorAccountType       string
 	CreatorDisplayName       string
-	AssigneeAccountId        string // latest assignee
+	AssigneeAccountId        string `gorm:"comment:latest assignee"`
 	AssigneeAccountType      string
 	AssigneeDisplayName      string
 	PriorityId               uint64
@@ -38,7 +37,7 @@ type JiraIssue struct {
 	ParentKey                string
 	SprintId                 uint64 // latest sprint, issue might cross multiple sprints, would be addressed by #514
 	SprintName               string
-	ResolutionDate           sql.NullTime
+	ResolutionDate           *time.Time
 	Created                  time.Time
 	Updated                  time.Time
 
@@ -55,5 +54,5 @@ type JiraIssue struct {
 	StdStatus       string
 
 	// internal status tracking
-	ChangelogUpdated sql.NullTime
+	ChangelogUpdated *time.Time
 }

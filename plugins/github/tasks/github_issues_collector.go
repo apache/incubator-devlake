@@ -3,6 +3,7 @@ package tasks
 import (
 	"fmt"
 	"net/http"
+	"net/url"
 
 	"github.com/merico-dev/lake/logger"
 	lakeModels "github.com/merico-dev/lake/models"
@@ -28,14 +29,16 @@ type IssuesResponse struct {
 		Login string
 		Id    int
 	}
-	ClosedAt        core.Iso8601Time `json:"closed_at"`
-	GithubCreatedAt core.Iso8601Time `json:"created_at"`
-	GithubUpdatedAt core.Iso8601Time `json:"updated_at"`
+	ClosedAt        *core.Iso8601Time `json:"closed_at"`
+	GithubCreatedAt core.Iso8601Time  `json:"created_at"`
+	GithubUpdatedAt core.Iso8601Time  `json:"updated_at"`
 }
 
 func CollectIssues(owner string, repositoryName string, repositoryId int, scheduler *utils.WorkerScheduler, githubApiClient *GithubApiClient) error {
-	getUrl := fmt.Sprintf("repos/%v/%v/issues?state=all", owner, repositoryName)
-	return githubApiClient.FetchWithPaginationAnts(getUrl, 100, 20, scheduler,
+	getUrl := fmt.Sprintf("repos/%v/%v/issues", owner, repositoryName)
+	queryParams := &url.Values{}
+	queryParams.Set("state", "all")
+	return githubApiClient.FetchWithPaginationAnts(getUrl, queryParams, 100, 20, scheduler,
 		func(res *http.Response) error {
 			githubApiResponse := &ApiIssuesResponse{}
 			err := core.UnmarshalResponse(res, githubApiResponse)
@@ -82,12 +85,12 @@ func convertGithubIssue(issue *IssuesResponse) (*models.GithubIssue, error) {
 		Title:           issue.Title,
 		Body:            issue.Body,
 		Assignee:        issue.Assignee.Login,
-		ClosedAt:        issue.ClosedAt.ToSqlNullTime(),
+		ClosedAt:        core.Iso8601TimeToTime(issue.ClosedAt),
 		GithubCreatedAt: issue.GithubCreatedAt.ToTime(),
 		GithubUpdatedAt: issue.GithubUpdatedAt.ToTime(),
 	}
 
-	if issue.ClosedAt.ToSqlNullTime().Valid {
+	if issue.ClosedAt != nil {
 		githubIssue.LeadTimeMinutes = uint(issue.ClosedAt.ToTime().Sub(issue.GithubCreatedAt.ToTime()).Minutes())
 	}
 
@@ -101,7 +104,7 @@ func convertGithubPullRequest(issue *IssuesResponse, repoId int) (*models.Github
 		State:           issue.State,
 		Title:           issue.Title,
 		GithubCreatedAt: issue.GithubCreatedAt.ToTime(),
-		ClosedAt:        issue.ClosedAt.ToSqlNullTime(),
+		ClosedAt:        core.Iso8601TimeToTime(issue.ClosedAt),
 	}
 	return githubPull, nil
 }

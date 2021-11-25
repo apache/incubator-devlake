@@ -48,6 +48,7 @@ function useConnectionManager ({
   const [connectionLimitReached, setConnectionLimitReached] = useState(false)
 
   const [saveComplete, setSaveComplete] = useState(false)
+  const [deleteComplete, setDeleteComplete] = useState(false)
 
   const testConnection = () => {
     setIsTesting(true)
@@ -199,9 +200,12 @@ function useConnectionManager ({
           username: connectionData.username || connectionData.Username,
           password: connectionData.password || connectionData.Password
         })
+        setTimeout(() => {
+          setIsFetching(false)
+        }, 500)
       }
       fetch()
-      setIsFetching(false)
+      // setIsFetching(false)
     } catch (e) {
       setIsFetching(false)
       setActiveConnection(NullConnection)
@@ -248,20 +252,25 @@ function useConnectionManager ({
     }
   }, [activeProvider.id, sourceLimits])
 
-  const deleteConnection = () => {
-    // @todo Implement DELETE
+  const deleteConnection = useCallback(async (connection) => {
     try {
       setIsDeleting(true)
       setErrors([])
-      console.log('>> TRYING TO DELETE CONNECTION...', isDeleting)
-      // const d = await request.delete(`${DEVLAKE_ENDPOINT}/plugins/${activeProvider.id}/sources/${connectionId}`)
-      // setIsDeleting(false)
+      console.log('>> TRYING TO DELETE CONNECTION...', connection)
+      const d = await request.delete(`${DEVLAKE_ENDPOINT}/plugins/${activeProvider.id}/sources/${connection.ID}`)
+      console.log('>> CONNECTION DELETED...', d)
+      setIsDeleting(false)
+      setDeleteComplete({
+        provider: activeProvider,
+        connection: d.data
+      })
     } catch (e) {
       setIsDeleting(false)
+      setDeleteComplete(false)
       setErrors([e.message])
       console.log('>> FAILED TO DELETE CONNECTION', e)
     }
-  }
+  }, [activeProvider.id])
 
   useEffect(() => {
     if (activeConnection && activeConnection.ID !== null) {
@@ -350,7 +359,8 @@ function useConnectionManager ({
     connectionCount,
     connectionLimitReached,
     Providers,
-    saveComplete
+    saveComplete,
+    deleteComplete
   }
 }
 

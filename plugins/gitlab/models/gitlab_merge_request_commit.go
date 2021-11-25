@@ -24,8 +24,8 @@ type GitlabMergeRequestCommit struct {
 	CommitterEmail string
 	CommittedDate  time.Time
 	WebUrl         string
-	Additions      int
-	Deletions      int
-	Total          int
+	Additions      int `gorm:"comment:Added lines of code"`
+	Deletions      int `gorm:"comment:Deleted lines of code"`
+	Total          int `gorm:"comment:Sum of added/deleted lines of code"`
 	models.NoPKModel
 }

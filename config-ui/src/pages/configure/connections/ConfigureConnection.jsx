@@ -15,9 +15,14 @@ import Nav from '@/components/Nav'
 import Sidebar from '@/components/Sidebar'
 import AppCrumbs from '@/components/Breadcrumbs'
 import Content from '@/components/Content'
+import ContentLoader from '@/components/loaders/ContentLoader'
 import useConnectionManager from '@/hooks/useConnectionManager'
 import useSettingsManager from '@/hooks/useSettingsManager'
+import useConnectionValidation from '@/hooks/useConnectionValidation'
 import ConnectionForm from '@/pages/configure/connections/ConnectionForm'
+import DeleteAction from '@/components/actions/DeleteAction'
+import DeleteConfirmationMessage from '@/components/actions/DeleteConfirmationMessage'
+import FormValidationErrors from '@/components/messages/FormValidationErrors'
 
 import { integrationsData } from '@/data/integrations'
 // import { NullConnection } from '@/data/NullConnection'
@@ -42,6 +47,7 @@ export default function ConfigureConnection () {
   // const [activeConnection, setActiveConnection] = useState(NullConnection)
   const [connections, setConnections] = useState([])
   const [showConnectionSettings, setShowConnectionSettings] = useState(true)
+  const [deleteId, setDeleteId] = useState(false)
 
   const [settings, setSettings] = useState(NullSettings)
 
@@ -59,18 +65,20 @@ export default function ConfigureConnection () {
     testStatus,
     isSaving: isSavingConnection,
     isTesting: isTestingConnection,
+    isFetching: isLoadingConnection,
     setName,
     setEndpointUrl,
     setUsername,
     setPassword,
     setToken,
     saveComplete: saveConnectionComplete,
-    showError: showConnectionError
+    showError: showConnectionError,
+    isDeleting: isDeletingConnection,
+    deleteConnection,
+    deleteComplete
   } = useConnectionManager({
     activeProvider,
-    // activeConnection,
     connectionId,
-    // setActiveConnection,
   }, true)
 
   const {
@@ -85,11 +93,24 @@ export default function ConfigureConnection () {
     settings
   })
 
+  const {
+    validate,
+    errors: validationErrors,
+    isValid: isValidForm
+  } = useConnectionValidation({
+    activeProvider,
+    name,
+    endpointUrl,
+    token,
+    username,
+    password
+  })
+
   const cancel = () => {
     history.push(`/integrations/${activeProvider.id}`)
   }
 
-  const renderProviderSettings = (providerId, activeProvider) => {
+  const renderProviderSettings = useCallback((providerId, activeProvider) => {
     console.log('>>> RENDERING PROVIDER SETTINGS...')
     let settingsComponent = null
     if (activeProvider && activeProvider.settings) {
@@ -104,7 +125,7 @@ export default function ConfigureConnection () {
       console.log('>> WARNING: NO PROVIDER SETTINGS RENDERED, PROVIDER = ', activeProvider)
     }
     return settingsComponent
-  }
+  }, [activeConnection, isSaving])
 
   useEffect(() => {
     console.log('>>>> DETECTED PROVIDER ID = ', providerId)
@@ -123,6 +144,13 @@ export default function ConfigureConnection () {
   useEffect(() => {
 
   }, [connections])
+
+  useEffect(() => {
+    if (deleteComplete) {
+      console.log('>>> DELETE COMPLETE!')
+      history.replace(`/integrations/${deleteComplete.provider?.id}`)
+    }
+  }, [deleteComplete, history])
 
   // useEffect(() => {
   //   // CONNECTION SAVED!
@@ -149,24 +177,51 @@ export default function ConfigureConnection () {
               ]}
             />
             <div className='configureConnection' style={{ width: '100%' }}>
-              <Link style={{ float: 'right', marginLeft: '10px', color: '#777777' }} to={`/integrations/${activeProvider.id}`}>
-                <Icon icon='fast-backward' size={16} /> Connection List
-              </Link>
+              {!isLoadingConnection && (
+                <Link style={{ float: 'right', marginLeft: '10px', color: '#777777' }} to={`/integrations/${activeProvider.id}`}>
+                  <Icon icon='fast-backward' size={16} /> Connection List
+                </Link>
+              )}
               <div style={{ display: 'flex', justifyContent: 'flex-start' }}>
                 <div>
                   <span style={{ marginRight: '10px' }}>{activeProvider.icon}</span>
                 </div>
-                <div style={{ justifyContent: 'flex-start' }}>
-                  <h1 style={{ margin: 0 }}>Manage <strong style={{ fontWeight: 900 }}>{activeProvider.name}</strong> Settings </h1>
-                  {activeConnection && (
-                    <>
-                      <h2 style={{ margin: 0 }}>{activeConnection.name}</h2>
-                      <p className='description'>Manage settings and options for this connection.</p>
-                    </>
-                  )}
-                </div>
+                {isLoadingConnection && (
+                  <ContentLoader title='Loading Connection ...' message='Please wait while connection settings are loaded.' />
+                )}
+                {!isLoadingConnection && (
+                  <div style={{ justifyContent: 'flex-start' }}>
+                    <div style={{ display: 'flex' }}>
+                      <h1 style={{ margin: 0 }}>
+                        Manage <strong style={{ fontWeight: 900 }}>{activeProvider.name}</strong> Settings
+                      </h1>
+                      {activeProvider.multiSource && (
+                        <div style={{ paddingTop: '5px' }}>
+                          <DeleteAction
+                            id={deleteId}
+                            connection={activeConnection}
+                            text='Delete'
+                            showConfirmation={() => setDeleteId(activeConnection.ID)}
+                            onConfirm={deleteConnection}
+                            onCancel={(e) => setDeleteId(null)}
+                            isDisabled={isDeletingConnection}
+                            isLoading={isDeletingConnection}
+                          >
+                            <DeleteConfirmationMessage title={`DELETE "${activeConnection.name}"`} />
+                          </DeleteAction>
+                        </div>
+                      )}
+                    </div>
+                    {activeConnection && (
+                      <>
+                        <h2 style={{ margin: 0 }}>{activeConnection.name}</h2>
+                        <p className='description'>Manage settings and options for this connection.</p>
+                      </>
+                    )}
+                  </div>
+                )}
               </div>
-              {activeProvider && activeConnection && (
+              {!isLoadingConnection && activeProvider && activeConnection && (
                 <>
                   <Card
                     interactive={false}
@@ -186,6 +241,7 @@ export default function ConfigureConnection () {
                       ? (
                         <div className='editConnection' style={{ display: 'flex' }}>
                           <ConnectionForm
+                            isValid={isValidForm}
                             activeProvider={activeProvider}
                             name={name}
                             endpointUrl={endpointUrl}
@@ -195,6 +251,7 @@ export default function ConfigureConnection () {
                             onSave={saveConnection}
                             onTest={testConnection}
                             onCancel={cancel}
+                            onValidate={validate}
                             onNameChange={setName}
                             onEndpointChange={setEndpointUrl}
                             onTokenChange={setToken}
@@ -221,6 +278,9 @@ export default function ConfigureConnection () {
                           </p>
                         </>
                         )}
+                    {validationErrors.length > 0 && (
+                      <FormValidationErrors errors={validationErrors} />
+                    )}
                   </Card>
                   <div style={{ marginTop: '30px' }}>
                     {renderProviderSettings(providerId, activeProvider)}

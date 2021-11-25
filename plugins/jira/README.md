@@ -1,5 +1,14 @@
 # Jira
 
+<div align="center">
+
+| [English](README.md) | [中文](README-zh-CN.md) |
+| --- | --- |
+
+</div>
+
+<br>
+
 ## Summary
 
 This plugin collects Jira data through Jira Cloud REST API. It then computes and visualizes various engineering metrics from the Jira data.
@@ -23,71 +32,61 @@ Incident Count per 1k Lines of Code | Amount of incidents per 1000 lines of code
 
 ## Configuration
 
-In order to fully use this plugin, you will need to set various configurations via Dev Lake's configuration UI.
+In order to fully use this plugin, you will need to set various configurations via Dev Lake's `config-ui` service. Open `config-ui` on browser, by default the URL is http://localhost:4000, then go to **Data Integrations / JIRA** page. JIRA plugin currently supports multiple data sources, Here you can **add** new connection to your JIRA connection or **update** the settings if needed.
 
-### Set JIRA_ENDPOINT
+For each connection, you will need to set up following items:
 
-This is the setting that is used as the base of all Jira API calls. You can see this in all of your Jira Urls as the start of the Url.
+- Connection Name: This allow you to distinguish different connections.
+- Endpoint URL: The JIRA instance api endpoint, for JIRA Cloud Service, it would be: `https://<mydomain>.atlassian.net/rest`. devlake officially supports JIRA Cloud Service on atlassian.net, may or may not work for JIRA Server Instance.
+- Basic Auth Token: First, generate a **JIRA API TOKEN** for your JIRA account on JIRA console (see [Generating API token](#generating-api-token)), then, in `config-ui` click the KEY icon on the right side of the input to generate a full `HTTP BASIC AUTH` token for you.
+- Issue Type Mapping: JIRA is highly customizable, each JIRA instance may have a different set of issue types than others. In order to compute and visualize metrics for different instances, you need to map your issue types to standard ones. See [Issue Type Mapping](#issue-type-mapping) for detail.
+- Epic Key: unfortunately, epic relationship implementation in JIRA is based on `custom field`, which is vary from instance to instance. Please see [Find Out Custom Fields](#find-out-custom-fields).
+- Story Point Field: same as Epic Key.
 
-**Example:**
-
-If you see `https://mydomain.atlassian.net/secure/RapidBoard.jspa?rapidView=999&projectKey=XXX`, you will need to set `JIRA_ENDPOINT` to `https://mydomain.atlassian.net/rest` in the config UI.
-
-## Generating API token
+### Generating API token
 1. Once logged into Jira, visit the url `https://id.atlassian.com/manage-profile/security/api-tokens`
 2. Click the **Create API Token** button, and give it any label name
 ![image](https://user-images.githubusercontent.com/27032263/129363611-af5077c9-7a27-474a-a685-4ad52366608b.png)
-3. Encode with login email using command `echo -n <jira login email>:<jira token> | base64`
 
-### Set Issue Status Mapping<a id="issue-type-mapping"></a>
 
-NOTE: You can see your project's issue statuses here:
+### Issue Type Mapping
 
-<img width="2035" alt="Screen Shot 2021-09-10 at 4 01 56 PM" src="https://user-images.githubusercontent.com/2908155/133310611-2c5e1254-3456-4e15-9c3c-458fed03c6d3.png">
+Devlake supports 3 standard types, all metrics are computed based on these types:
 
-Or you can make a cUrl request to see the statuses:
+ - `Bug`: Problems found during `test` phase, before they can reach the production environment.
+ - `Incident`: Problems went through `test` phash, got deployed into production environment.
+ - `Requirement`: Normally, it would be `Story` on your instance if you adopted SCRUM.
 
-```
-curl --location --request GET 'https://<YOUR_JIRA_ENDPOINT>/rest/api/2/project/<PROJECT_ID>/statuses' \
---header 'Authorization: Basic <BASE64_ENCODED_TOKEN>' \
---header 'Content-Type: application/json'
-```
-
-### Set Issue Type Mapping<a id="issue-type-mapping"></a>
-
-Different companies might use different issue types to represent their Bug/Incident/Requirement,
-type mappings allow Devlake to recognize your specific setup with respect to Jira statuses.
-Devlake supports three different standard issue types:
-
- - `Bug`
- - `Incident`
- - `Requirement`
-
-For example, say we were using `Story` to represent our Requirement, what we have to do is setting the following
-`Environment Variables` before running Devlake:
-
-**Example:**
-
-```sh
-# JIRA_ISSUE_TYPE_MAPPING=<STANDARD_TYPE>:<YOUR_TYPE_1>,<YOUR_TYPE_2>;....
-JIRA_ISSUE_TYPE_MAPPING=Requirement:Story;Incident:CustomerComplaint;Bug:QABug;
-```
+You can may map arbitrary **YOUR OWN ISSUE TYPE** to a single **STANDARD ISSUE TYPE**, normally, one would map `Story` to `Requirement`, but you could map both `Story` and `Task` to `Requirement` if that was your case. Those unspecified type would be copied as standard type directly for your convenience, so you don't need to map your `Bug` to standard `Bug`.
 
 Type mapping is critical for some metrics, like **Requirement Count**, make sure to map your custom type correctly.
 
-### Set Jira Custom Fields
-
-This applies to JIRA_ISSUE_STORYPOINT_FIELD and JIRA_ISSUE_EPIC_KEY_FIELD
-
-Custom fields can be applied to Jira stories. We use this to set `JIRA_ISSUE_EPIC_KEY_FIELD` in the config UI.
-
-**Example:** `JIRA_ISSUE_EPIC_KEY_FIELD=customfield_10024`
+### Find Out Custom Field
 
 Please follow this guide: [How to find Jira the custom field ID in Jira? · merico-dev/lake Wiki](https://github.com/merico-dev/lake/wiki/How-to-find-the-custom-field-ID-in-Jira)
 
-### Set JIRA_ISSUE_STORYPOINT_COEFFICIENT
+## Collect Data From JIRA
 
-This is a value you can set to something other than the default of 1 if you want to skew the results of story points.
+In order to collect data from JIRA, you have to compose a JSON looks like following one, and send it via `Triggers` page on `config-ui`:
+
+```
+[
+  [
+    {
+      "plugin": "jira",
+      "options": {
+          "sourceId": 1,
+          "boardId": 8,
+          "since": "2006-01-02T15:04:05Z"
+      }
+    }
+  ]
+]
+```
+
+- `sourceId`: The `ID` field from **JIRA Integration** page.
+- `boardId`: JIRA board id, see [Find Board Id](#find-board-id) for detail.
+- `since`: optional, download data since specified date/time only.
 
 ### Find Board Id
 
@@ -102,28 +101,6 @@ This is a value you can set to something other than the default of 1 if you want
 
 Your board id is used in all REST requests to DevLake. You do not need to configure this at the data source level.
 
-## How do I find the custom field ID in Jira?
-Using URL
-1. Navigate to Administration >> Issues >> Custom Fields .
-2. Click the cog and hover over Configure or Screens option.
-3. Observe the URL at the bottom left of the browser window. Example: The id for this custom field is 10006.
-
-## How to Trigger Data Collection for This Plugin
-
-**Example:**
-
-```
-curl -XPOST 'localhost:8080/task' \
--H 'Content-Type: application/json' \
--d '[[{
-    "plugin": "jira",
-    "options": {
-        "sourceId": 1,
-        "boardId": 8,
-        "since": "2006-01-02T15:04:05Z"
-    }
-}]]'
-```
 
 ## API
 
@@ -146,7 +123,6 @@ GET /plugins/jira/sources
     "basicAuthEncoded": "basicAuth",
     "epicKeyField": "epicKeyField",
     "storyPointField": "storyPointField",
-    "StoryPointCoefficient": 0.5
   }
 ]
 ```
@@ -159,7 +135,6 @@ POST /plugins/jira/sources
 	"basicAuthEncoded": "generated by `echo -n <jira login email>:<jira token> | base64`",
 	"epicKeyField": "name of customfield of epic key",
 	"storyPointField": "name of customfield of story point",
-	"storyPointCoefficient": 1,   // help converting user storypoint to stand storypoint
 	"typeMappings": { // optional, send empty object to delete all typeMappings of the data source
 		"userType": {
 			"standardType": "devlake standard type"
@@ -176,7 +151,6 @@ PUT /plugins/jira/sources/:sourceId
 	"basicAuthEncoded": "generated by `echo -n <jira login email>:<jira token> | base64`",
 	"epicKeyField": "name of customfield of epic key",
 	"storyPointField": "name of customfield of story point",
-	"storyPointCoefficient": 1,   // help converting user storypoint to stand storypoint
 	"typeMappings": { // optional, send empty object to delete all typeMappings of the data source
 		"userType": {
 			"standardType": "devlake standard type",
@@ -195,7 +169,6 @@ GET /plugins/jira/sources/:sourceId
 	"basicAuthEncoded": "generated by `echo -n <jira login email>:<jira token> | base64`",
 	"epicKeyField": "name of customfield of epic key",
 	"storyPointField": "name of customfield of story point",
-	"storyPointCoefficient": 1,   // help converting user storypoint to stand storypoint
 	"typeMappings": { // optional, send empty object to delete all typeMappings of the data source
 		"userType": {
 			"standardType": "devlake standard type",

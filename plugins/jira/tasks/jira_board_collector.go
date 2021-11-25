@@ -29,7 +29,7 @@ type JiraApiBoard struct {
 }
 
 func CollectBoard(jiraApiClient *JiraApiClient, source *models.JiraSource, boardId uint64) error {
-	res, err := jiraApiClient.Get(fmt.Sprintf("/agile/1.0/board/%v", boardId), nil, nil)
+	res, err := jiraApiClient.Get(fmt.Sprintf("agile/1.0/board/%v", boardId), nil, nil)
 	if err != nil {
 		return err
 	}

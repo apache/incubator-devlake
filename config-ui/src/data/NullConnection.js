@@ -9,7 +9,6 @@ const NullConnection = {
   basicAuthEncoded: null, // NOTE: we probably want to exclude/null this when exposing this object
   JIRA_ISSUE_TYPE_MAPPING: null,
   JIRA_ISSUE_EPIC_KEY_FIELD: null,
-  JIRA_ISSUE_STORYPOINT_COEFFICIENT: null,
   JIRA_ISSUE_STORYPOINT_FIELD: null,
   JIRA_BOARD_GITLAB_PROJECTS: null,
   JIRA_ISSUE_INCIDENT_STATUS_MAPPING: null,

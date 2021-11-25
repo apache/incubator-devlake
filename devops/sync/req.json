@@ -3,10 +3,45 @@
     {
       "plugin": "jira",
       "options": {
+        "boardId": 8,
         "sourceId": 1,
-        "boardId": 53,
         "since": "2006-01-02T15:04:05Z"
       }
+    },
+    {
+      "plugin": "gitlab",
+      "Options": {
+        "projectId": 8967944
+      }
+    },
+    {
+      "plugin": "jenkins",
+      "Options": {}
+    },
+    {
+      "Plugin": "github",
+      "Options": {
+        "repositoryName": "lake",
+        "owner": "merico-dev"
+      }
+    }
+  ],
+  [
+    {
+      "plugin": "jiradomain",
+      "options": {}
+    },
+    {
+      "plugin": "gitlabdomain",
+      "options": {}
+    },
+    {
+      "plugin": "jenkinsdomain",
+      "options": {}
+    },
+    {
+      "plugin": "githubdomain",
+      "options": {}
     }
   ]
 ]

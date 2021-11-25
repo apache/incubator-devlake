@@ -1,7 +1,6 @@
 package models
 
 import (
-	"database/sql"
 	"time"
 
 	"github.com/merico-dev/lake/models"
@@ -14,7 +13,7 @@ type GithubPullRequest struct {
 	State           string
 	Title           string
 	GithubCreatedAt time.Time
-	ClosedAt        sql.NullTime
+	ClosedAt        *time.Time
 	// In order to get the following fields, we need to collect PRs individually from GitHub
 	Additions      int
 	Deletions      int
@@ -22,7 +21,7 @@ type GithubPullRequest struct {
 	Commits        int
 	ReviewComments int
 	Merged         bool
-	MergedAt       sql.NullTime
+	MergedAt       *time.Time
 
 	models.NoPKModel
 }

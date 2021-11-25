@@ -14,7 +14,7 @@ type JiraUserApiRes []JiraApiUser
 type JiraApiUser struct {
 	AccountId   string `json:"accountId"`
 	AccountType string `json:"accountType"`
-	Name        string `json:"displayName"`
+	DisplayName string `json:"displayName"`
 	Email       string `json:"emailAddress"`
 	Timezone    string `json:"timeZone"`
 	AvatarUrls  struct {
@@ -28,7 +28,7 @@ func CollectUsers(jiraApiClient *JiraApiClient,
 	// The reason we use FetchWithoutPaginationHeaders is because this API endpoint does not
 	// return pagination info in it's headers the same way that other endpoints do.
 	// This method still uses pagination, but in a different way.
-	err := jiraApiClient.FetchWithoutPaginationHeaders("/api/3/users/search", nil,
+	err := jiraApiClient.FetchWithoutPaginationHeaders("api/3/users/search", nil,
 		func(res *http.Response) (int, error) {
 			jiraApiUsersResponse := &JiraUserApiRes{}
 			err := core.UnmarshalResponse(res, jiraApiUsersResponse)
@@ -70,7 +70,7 @@ func convertUser(user *JiraApiUser, sourceId uint64) (*models.JiraUser, error) {
 		SourceId:    sourceId,
 		AccountId:   user.AccountId,
 		AccountType: user.AccountType,
-		Name:        user.Name,
+		Name:        user.DisplayName,
 		Email:       user.Email,
 		Timezone:    user.Timezone,
 		AvatarUrl:   user.AvatarUrls.Url,

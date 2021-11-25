@@ -1,11 +1,13 @@
 package core
 
 import (
-	"database/sql"
 	"fmt"
+	"reflect"
 	"regexp"
 	"strings"
 	"time"
+
+	"github.com/mitchellh/mapstructure"
 )
 
 /*
@@ -79,13 +81,6 @@ func (jt *Iso8601Time) ToTime() time.Time {
 	return jt.time
 }
 
-func (jt *Iso8601Time) ToSqlNullTime() sql.NullTime {
-	var nullTime sql.NullTime
-	nullTime.Time = jt.time
-	nullTime.Valid = !jt.time.IsZero()
-	return nullTime
-}
-
 func ConvertStringToTime(timeString string) (t time.Time, err error) {
 	for _, formatItem := range DateTimeFormats {
 		if formatItem.Matcher.MatchString(timeString) {
@@ -95,4 +90,55 @@ func ConvertStringToTime(timeString string) (t time.Time, err error) {
 	}
 	t, err = time.Parse(time.RFC3339, timeString)
 	return
+}
+
+func Iso8601TimeToTime(iso8601Time *Iso8601Time) *time.Time {
+	if iso8601Time == nil {
+		return nil
+	}
+	t := iso8601Time.ToTime()
+	return &t
+}
+
+// mapstructure.Decode with time.Time and Iso8601Time support
+func DecodeMapStruct(input map[string]interface{}, result interface{}) error {
+	decoder, err := mapstructure.NewDecoder(&mapstructure.DecoderConfig{
+		Metadata: nil,
+		DecodeHook: mapstructure.ComposeDecodeHookFunc(
+			func(f reflect.Type, t reflect.Type, data interface{}) (interface{}, error) {
+				if t != reflect.TypeOf(Iso8601Time{}) && t != reflect.TypeOf(time.Time{}) {
+					return data, nil
+				}
+
+				var tt time.Time
+				var err error
+
+				switch f.Kind() {
+				case reflect.String:
+					tt, err = ConvertStringToTime(data.(string))
+				case reflect.Float64:
+					tt = time.Unix(0, int64(data.(float64))*int64(time.Millisecond))
+				case reflect.Int64:
+					tt = time.Unix(0, data.(int64)*int64(time.Millisecond))
+				}
+				if err != nil {
+					return data, nil
+				}
+
+				if t == reflect.TypeOf(Iso8601Time{}) {
+					return Iso8601Time{time: tt}, nil
+				}
+				return tt, nil
+			},
+		),
+		Result: result,
+	})
+	if err != nil {
+		return err
+	}
+
+	if err := decoder.Decode(input); err != nil {
+		return err
+	}
+	return err
 }

@@ -72,7 +72,6 @@ export default function JiraSettings (props) {
     const settings = {
       epicKeyField: jiraIssueEpicKeyField,
       typeMappings: typeMappingAll,
-      storyPointCoefficient: jiraIssueStoryCoefficient,
       storyPointField: jiraIssueStoryPointField,
     }
     onSettingsChange(settings)
@@ -160,7 +159,6 @@ export default function JiraSettings (props) {
       // setTypeMappingIncident(mappings.Incident)
       setStatusMappings([])
       setJiraIssueEpicKeyField(connection.epicKeyField)
-      setJiraIssueStoryCoefficient(connection.storyPointCoefficient === 0 ? 1 : connection.storyPointCoefficient)
       setJiraIssueStoryPointField(connection.storyPointField)
 
       // @todo RE-ENABLE SELECTORS!
@@ -181,7 +179,7 @@ export default function JiraSettings (props) {
     <>
       <div className='headlineContainer'>
         <h3 className='headline'>Issue Type Mappings</h3>
-        <p className='description'>Map your own issue types to Dev Lake's standard types</p>
+        <p className='description'>Map your own issue types to <strong>DevLake's</strong> standard types</p>
       </div>
 
       <MappingTag
@@ -221,7 +219,7 @@ export default function JiraSettings (props) {
         <h3 className='headline'>
           Epic Key<span className='requiredStar'>*</span>
         </h3>
-        <p className=''>Choose the Jira field you’re using to represent the key of an Epic to which an issue belongs to.</p>
+        <p className=''>Choose the JIRA field you’re using to represent the key of an Epic to which an issue belongs to.</p>
         {/* <span style={{ display: 'inline-block' }}>
           <Select
             className='select-epic-key'
@@ -278,7 +276,7 @@ export default function JiraSettings (props) {
       </div>
       <div className='headlineContainer'>
         <h3 className='headline'>Story Point Field (Optional)</h3>
-        <p className=''>Choose the Jira field you’re using to represent the granularity of a requirement-type issue.</p>
+        <p className=''>Choose the JIRA field you’re using to represent the granularity of a requirement-type issue.</p>
         {/* <span style={{ display: 'inline-block' }}>
           <Select
             className='select-board-key'
@@ -327,72 +325,6 @@ export default function JiraSettings (props) {
             value={jiraIssueStoryPointField}
             onChange={(e) => setJiraIssueStoryPointField(e.target.value)}
             className='input board-id'
-          />
-        </FormGroup>
-      </div>
-      <div className='headlineContainer'>
-        <h3 className='headline'>Story Point Coefficient (Optional)</h3>
-        <p className=''>
-          This is a number that can convert your jira story points to a new magnitude.&nbsp;
-          IE: Convert days to hours with 8 since there are 8 working hours in a day.
-        </p>
-        {/* <span style={{ display: 'inline-block' }}>
-          <Select
-            className='select-granularity-key'
-            inline={true}
-            fill={false}
-            items={granularities}
-            activeItem={selectedGranularityItem}
-            itemPredicate={(query, item) => item.title.toLowerCase().indexOf(query.toLowerCase()) >= 0}
-            itemRenderer={(item, { handleClick, modifiers }) => (
-              <MenuItem
-                active={modifiers.active}
-                key={item.value}
-                label={item.value}
-                onClick={handleClick}
-                text={item.title}
-              />
-            )}
-            noResults={<MenuItem disabled={true} text='No granularity results.' />}
-            onItemSelect={(item) => {
-              // @todo SET/VERIFY ENV FIELD FOR GRANULARITY
-              setJiraIssueStoryCoefficient(item.value)
-              setSelectedGranularityItem(item)
-            }}
-          >
-            <Button
-              style={{ maxWidth: '260px' }}
-              text={selectedGranularityItem ? `${selectedGranularityItem.title}` : granularities[0].title}
-              rightIcon='double-caret-vertical'
-            />
-          </Select>
-        </span> */}
-      </div>
-      <div className='formContainer' style={{ maxWidth: '250px' }}>
-        <FormGroup
-          disabled={isSaving}
-          // readOnly={['gitlab', 'jenkins'].includes(activeProvider.id)}
-          label=''
-          inline={true}
-          labelFor='granularity-field'
-          className='formGroup'
-          contentClassName='formGroupContent'
-        >
-          <InputGroup
-            id='granularity-field'
-            disabled={isSaving}
-            // readOnly={['gitlab', 'jenkins'].includes(activeProvider.id)}
-            placeholder='eg. 2000'
-            value={jiraIssueStoryCoefficient}
-            onChange={(e) => {
-              if (e.target.value !== '') {
-                const storyPointCoefficientFloat = parseFloat(e.target.value)
-                setJiraIssueStoryCoefficient(storyPointCoefficientFloat)
-              } else {
-                setJiraIssueStoryCoefficient('')
-              }
-            }}
-            className='input granularity-field'
           />
         </FormGroup>
       </div>

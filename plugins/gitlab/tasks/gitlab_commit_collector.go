@@ -3,6 +3,7 @@ package tasks
 import (
 	"fmt"
 	"net/http"
+	"net/url"
 
 	"github.com/merico-dev/lake/logger"
 	lakeModels "github.com/merico-dev/lake/models"
@@ -36,8 +37,10 @@ type GitlabApiCommit struct {
 
 func CollectCommits(projectId int, scheduler *utils.WorkerScheduler) error {
 	gitlabApiClient := CreateApiClient()
-
-	return gitlabApiClient.FetchWithPaginationAnts(scheduler, fmt.Sprintf("projects/%v/repository/commits?with_stats=true", projectId), 100,
+	relativePath := fmt.Sprintf("projects/%v/repository/commits", projectId)
+	queryParams := &url.Values{}
+	queryParams.Set("with_stats", "true")
+	return gitlabApiClient.FetchWithPaginationAnts(scheduler, relativePath, queryParams, 100,
 		func(res *http.Response) error {
 
 			gitlabApiResponse := &ApiCommitResponse{}

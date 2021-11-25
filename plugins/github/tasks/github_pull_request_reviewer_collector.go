@@ -27,7 +27,7 @@ type PullRequestReview struct {
 
 func CollectPullRequestReviews(owner string, repositoryName string, repositoryId int, pull *models.GithubPullRequest, scheduler *utils.WorkerScheduler, githubApiClient *GithubApiClient) error {
 	getUrl := fmt.Sprintf("repos/%v/%v/pulls/%v/reviews", owner, repositoryName, pull.Number)
-	return githubApiClient.FetchWithPaginationAnts(getUrl, 100, 1, scheduler,
+	return githubApiClient.FetchWithPaginationAnts(getUrl, nil, 100, 1, scheduler,
 		func(res *http.Response) error {
 			githubApiResponse := &ApiPullRequestReviewResponse{}
 			if res.StatusCode == 200 {

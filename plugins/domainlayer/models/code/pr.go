@@ -1,7 +1,6 @@
 package code
 
 import (
-	"database/sql"
 	"time"
 
 	"github.com/merico-dev/lake/plugins/domainlayer/models/base"
@@ -10,10 +9,10 @@ import (
 type Pr struct {
 	base.DomainEntity
 	RepoId      uint64 `gorm:"index"`
-	State       string
+	State       string `gorm:"comment:open/closed or other"`
 	Title       string
 	Url         string
 	CreatedDate time.Time
-	MergedDate  sql.NullTime
-	ClosedAt    sql.NullTime
+	MergedDate  *time.Time
+	ClosedAt    *time.Time
 }
