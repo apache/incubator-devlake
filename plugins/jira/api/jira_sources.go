@@ -23,20 +23,6 @@ func findSourceByInputParam(input *core.ApiResourceInput) (*models.JiraSource, e
 	}
 	return getJiraSourceById(jiraSourceId)
 }
-func findSourceByInputQuery(input *core.ApiResourceInput) (*models.JiraSource, error) {
-	var sourceId string
-	if len(input.Query) > 0 {
-		sourceId = input.Query.Get("sourceId")
-	}
-	if sourceId == "" {
-		return nil, fmt.Errorf("missing sourceid")
-	}
-	jiraSourceId, err := strconv.ParseUint(sourceId, 10, 64)
-	if err != nil {
-		return nil, fmt.Errorf("invalid sourceId")
-	}
-	return getJiraSourceById(jiraSourceId)
-}
 
 func getJiraSourceById(id uint64) (*models.JiraSource, error) {
 	jiraSource := &models.JiraSource{}
