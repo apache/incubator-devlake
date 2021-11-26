@@ -36,14 +36,20 @@ services:
       - ./.env:/app/.env
     depends_on:
       - grafana
+    environment:
+      WAIT_HOSTS: mysql:3306, grafana:3000   
   config-ui:
-    image: mericodev/config-ui:0.4.0
+    #image: mericodev/config-ui:0.4.0
+    build: 
+      context: ./config-ui
     ports:
       - 127.0.0.1:4000:80
     env_file:
       - ./.env
     depends_on:
       - devlake
+    environment:
+      WAIT_HOSTS: mysql:3306, grafana:3000, devlake:8080
 volumes:
   mysql-storage:
   grafana-storage:
