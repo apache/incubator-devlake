@@ -247,7 +247,7 @@ NOTE: After installing docker, you may need to run the docker application and re
 
 #### Setup cron job
 
-To synchronize data periodically, we provide [`lake-cli`]((./cmd/lake-cli/README.md)) for easily sending data collection requests along with [a cron job](./devops/sync/README.md) to periodically trigger the cli tool. 
+To synchronize data periodically, we provide [`lake-cli`](./cmd/lake-cli/README.md) for easily sending data collection requests along with [a cron job](./devops/sync/README.md) to periodically trigger the cli tool. 
 
 <br>
 
