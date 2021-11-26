@@ -1,6 +1,8 @@
 package api
 
 import (
+	"fmt"
+
 	"github.com/merico-dev/lake/logger"
 	"github.com/merico-dev/lake/plugins/core"
 	"github.com/merico-dev/lake/plugins/gitlab/tasks"
@@ -17,11 +19,18 @@ GET /plugins/gitlab/test
 */
 func TestConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, error) {
 	gitlabApiClient := tasks.CreateApiClient()
-	headers := gitlabApiClient.GetHeaders()
-	endpoint := gitlabApiClient.GetEndpoint()
-	if headers["Authorization"] == "Bearer " || endpoint == "" {
-		return &core.ApiResourceOutput{Body: core.TestResult{Success: false, Message: core.UnsetConnectionError}}, nil
+
+	ValidationResult := core.ValidateParams(input, []string{"endpoint", "auth"})
+	if !ValidationResult.Success {
+		return &core.ApiResourceOutput{Body: ValidationResult}, nil
 	}
+	endpoint := input.Query.Get("endpoint")
+	headers := map[string]string{
+		"Authorization": fmt.Sprintf("Bearer %v", input.Query.Get("auth")),
+	}
+	gitlabApiClient.SetEndpoint(endpoint)
+	gitlabApiClient.SetHeaders(headers)
+
 	res, err := gitlabApiClient.Get("user", nil, nil)
 	if err != nil || res.StatusCode != 200 {
 		logger.Error("Error: ", err)

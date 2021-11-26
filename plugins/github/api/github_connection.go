@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/merico-dev/lake/config"
 	"github.com/merico-dev/lake/logger"
 	"github.com/merico-dev/lake/plugins/core"
 	"github.com/merico-dev/lake/plugins/github/tasks"
@@ -25,14 +24,14 @@ type PublicEmail struct {
 GET /plugins/github/test
 */
 func TestConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, error) {
-	endpoint := config.V.GetString("GITHUB_ENDPOINT")
-	configTokensString := config.V.GetString("GITHUB_AUTH")
-	tokens := strings.Split(configTokensString, ",")
-	githubApiClient := tasks.CreateApiClient(endpoint, tokens)
-
-	if endpoint == "" || configTokensString == "" {
-		return &core.ApiResourceOutput{Body: core.TestResult{Success: false, Message: core.UnsetConnectionError}}, nil
+	ValidationResult := core.ValidateParams(input, []string{"endpoint", "auth"})
+	if !ValidationResult.Success {
+		return &core.ApiResourceOutput{Body: ValidationResult}, nil
 	}
+	endpoint := input.Query.Get("endpoint")
+	auth := input.Query.Get("auth")
+	tokens := strings.Split(auth, ",")
+	githubApiClient := tasks.CreateApiClient(endpoint, tokens)
 
 	// PLEASE NOTE: This works because GitHub API Client rotates tokens on each request
 	for i := 0; i < len(tokens); i++ {
@@ -41,7 +40,7 @@ func TestConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, erro
 			logger.Error("Error: ", err)
 			return &core.ApiResourceOutput{Body: core.TestResult{
 				Success: false,
-				Message: fmt.Sprintf("There was a problem with your request. Check token: %v", tokens[i]),
+				Message: core.InvalidConnectionError + fmt.Sprintf("Check token: %v or endpoint %v", tokens[i], endpoint),
 			}}, nil
 		}
 		githubApiResponse := &ApiUserPublicEmailResponse{}

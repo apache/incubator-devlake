@@ -1,8 +1,6 @@
 package api
 
 import (
-	"fmt"
-
 	"github.com/merico-dev/lake/logger"
 	"github.com/merico-dev/lake/plugins/core"
 	"github.com/merico-dev/lake/plugins/jira/tasks"
@@ -14,19 +12,20 @@ type ApiMyselfResponse struct {
 }
 
 func TestConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, error) {
-	jiraSource, err := findSourceByInputQuery(input)
-	if err != nil {
-		logger.Error("Error: ", err)
-		return &core.ApiResourceOutput{Body: core.TestResult{Success: false, Message: core.SourceIdError}}, nil
+	ValidationResult := core.ValidateParams(input, []string{"endpoint", "auth"})
+	if !ValidationResult.Success {
+		return &core.ApiResourceOutput{Body: ValidationResult}, nil
 	}
-	jiraApiClient := tasks.NewJiraApiClient(jiraSource.Endpoint, jiraSource.BasicAuthEncoded)
+	endpoint := input.Query.Get("endpoint")
+	auth := input.Query.Get("auth")
+	jiraApiClient := tasks.NewJiraApiClient(endpoint, auth)
 
 	res, err := jiraApiClient.Get("api/3/myself", nil, nil)
 	if err != nil || res.StatusCode != 200 {
 		logger.Error("Error: ", err)
 		return &core.ApiResourceOutput{Body: core.TestResult{
-			Success: false, 
-			Message: fmt.Sprintf("Your connection configuration is invalid for this source: %v", jiraSource.Name)}}, nil
+			Success: false,
+			Message: core.InvalidConnectionError}}, nil
 	}
 
 	myselfFromApi := &ApiMyselfResponse{}
