@@ -30,22 +30,26 @@ func TestConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, erro
 	tokens := strings.Split(configTokensString, ",")
 	githubApiClient := tasks.CreateApiClient(endpoint, tokens)
 
+	if endpoint == "" || configTokensString == "" {
+		return &core.ApiResourceOutput{Body: core.TestResult{Success: false, Message: core.UnsetConnectionError}}, nil
+	}
+
 	// PLEASE NOTE: This works because GitHub API Client rotates tokens on each request
 	for i := 0; i < len(tokens); i++ {
-		res, err := githubApiClient.Get("/user/public_emails", nil, nil)
-		if err != nil {
+		res, err := githubApiClient.Get("user/public_emails", nil, nil)
+		if err != nil || res.StatusCode != 200 {
 			logger.Error("Error: ", err)
-			return nil, err
-		}
-		if res.StatusCode != 200 {
-			return nil, fmt.Errorf("Invalid token: %v. Please ensure your tokens are correct.", tokens[i])
+			return &core.ApiResourceOutput{Body: core.TestResult{
+				Success: false,
+				Message: fmt.Sprintf("There was a problem with your request. Check token: %v", tokens[i]),
+			}}, nil
 		}
 		githubApiResponse := &ApiUserPublicEmailResponse{}
 		err = core.UnmarshalResponse(res, githubApiResponse)
 		if err != nil {
 			logger.Error("Error: ", err)
-			return nil, err
+			return &core.ApiResourceOutput{Body: core.TestResult{Success: false, Message: core.UnmarshallingError}}, nil
 		}
 	}
-	return &core.ApiResourceOutput{Body: true}, nil
+	return &core.ApiResourceOutput{Body: core.TestResult{Success: true, Message: ""}}, nil
 }

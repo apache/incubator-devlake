@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/merico-dev/lake/logger"
 	"github.com/merico-dev/lake/plugins/core"
 	"github.com/merico-dev/lake/utils"
 )
@@ -11,7 +12,11 @@ import (
 func TestConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, error) {
 	jenkinsSource, err := GetSourceFromEnv()
 	if err != nil {
-		return nil, err
+		logger.Error("Error: ", err)
+		return &core.ApiResourceOutput{Body: core.TestResult{Success: false, Message: core.ReadError}}, nil
+	}
+	if jenkinsSource.Username == "" || jenkinsSource.Password == "" || jenkinsSource.Endpoint == "" {
+		return &core.ApiResourceOutput{Body: core.TestResult{Success: false, Message: core.UnsetConnectionError}}, nil
 	}
 	encodedToken := utils.GetEncodedToken(jenkinsSource.Username, jenkinsSource.Password)
 	apiClient := &core.ApiClient{}
@@ -24,11 +29,9 @@ func TestConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, erro
 		3,
 	)
 	res, err := apiClient.Get("", nil, nil)
-	if err != nil {
-		return nil, err
+	if err != nil || res.StatusCode != 200 {
+		logger.Error("Error: ", err)
+		return &core.ApiResourceOutput{Body: core.TestResult{Success: false, Message: core.InvalidConnectionError}}, nil
 	}
-	if res.StatusCode != 200 {
-		return nil, fmt.Errorf("Your connection configuration is invalid.")
-	}
-	return &core.ApiResourceOutput{Body: true}, nil
+	return &core.ApiResourceOutput{Body: core.TestResult{Success: true, Message: ""}}, nil
 }
