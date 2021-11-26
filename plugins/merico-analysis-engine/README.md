@@ -4,7 +4,7 @@ THIS PLUGIN IS ONLY FOR MERICO EMPLOYEES AT THIS TIME. SOON IT WILL BE MADE PUBL
 
 ## External Documentation
 
-1. Swagger API Docs - http://34.214.122.134:30012/docs#/default/list_projects_projects_get
+1. Swagger API Docs - {api host url}/docs#/default/list_projects_projects_get
 2. AE Api Server - https://merico.feishu.cn/docs/doccnsJJsZEOZKFI5u7dif2NKWf#
 3. Source Id and Source Type Architechture - https://merico.feishu.cn/docs/doccnLuIxqeE96L8SbbW1Tiqdmi#
 
@@ -16,7 +16,7 @@ The commit data stored in Trino. The files can be deleted by Mino expiration str
 
 ### How do I trigger analysis on my project?
 
-Just add DevLake to the Merico Enterprise Edition and triggered an analysis. You can find this item by searching "ae staging"? You can log in AE staging server(http://34.214.122.134:30004/) and restart an analysis of DevLake. (Login credentials for Merico employees are stored in one password)
+Just add DevLake to the Merico Enterprise Edition and triggered an analysis. You can find this item by searching "ae staging"? You can log in AE staging server and restart an analysis of DevLake. (Login credentials for Merico employees are stored in one password)
 
 ### Who controls the api for merico analysis engine?
 
