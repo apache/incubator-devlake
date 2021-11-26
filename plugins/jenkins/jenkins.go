@@ -50,7 +50,6 @@ func (j Jenkins) Execute(options map[string]interface{}, progress chan<- float32
 		Username: config.V.GetString("JENKINS_USERNAME"),
 		Password: config.V.GetString("JENKINS_PASSWORD"),
 	}
-	logger.Info("Jenkins config", op)
 	var err = mapstructure.Decode(options, &op)
 	if err != nil {
 		return fmt.Errorf("Failed to decode options: %v", err)

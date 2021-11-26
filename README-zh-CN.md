@@ -245,7 +245,7 @@ GitHub | 概述，数据和指标，配置，API | [Link](plugins/github/README-
 5. 完成后，点击 *Go to grafana* (用户名: `admin`, 密码: `admin`)。当数据收集完成后，该按钮将显示在触发收集页面。
 
 #### 设置 Cron job
-为了定期同步数据，我们提供了[`lake-cli`]((./cmd/lake-cli/README.md))以方便发送数据收集请求，我们同时提供了[cron job](./devops/sync/README.md)以定期触发 cli 工具。
+为了定期同步数据，我们提供了[`lake-cli`](./cmd/lake-cli/README.md)以方便发送数据收集请求，我们同时提供了[cron job](./devops/sync/README.md)以定期触发 cli 工具。
 
 <br>
 
