@@ -22,6 +22,23 @@ Just add DevLake to the Merico Enterprise Edition and triggered an analysis. You
 
 Jingyang Liang and the Merico AE team
 
+### How do I authenticate?
+
+1. You need to be given an app_id and a secret_key by Merico
+2. You need to send requests to the api in a special way. Each time you send a request, you need to encode a string called a sign.
+3. You can make a `sign` by md5 encoding your query params and some other things...
+
+
+- *nonce_str* Should be different between each request. It's ok to be a timestamp
+- *app_id* Obtained from AE
+- *secret_key* Obtained from AE
+
+```
+app_id={app_id}&key={secretKey}&nonce_str={timestamp}&page={page}&per_page={page_size}
+```
+
+!!!NOTE!!!: The keys have to be sorted in alphabetical order or it will not work!
+
 ## Data Gathered
 
 *Projects*

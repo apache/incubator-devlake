@@ -49,7 +49,7 @@ func (plugin AE) Execute(options map[string]interface{}, progress chan<- float32
 
 	progress <- 0.1
 	if err := tasks.CollectProject(projectIdInt); err != nil {
-		return fmt.Errorf("could not collect projects: %v", err)
+		return fmt.Errorf("could not collect project: %v", err)
 	}
 
 	progress <- 0.25
