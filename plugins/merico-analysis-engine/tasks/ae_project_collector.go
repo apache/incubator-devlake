@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
+	"strings"
 	"time"
 
 	"github.com/merico-dev/lake/config"
@@ -28,32 +29,37 @@ type ApiProjectResponse struct {
 // You need to fully encode all query parameters and other things in order to get a
 // correct sign value in the url
 // IE: app_id={app_id}&key={secretKey}&nonce_str={timestamp}&page={page}&per_page={page_size}
-func getSign(page int, pageSize int) string {
+func getSign(page int, pageSize int, nonce int64) string {
 	hasher := md5.New()
 
-	nonceStr := time.Now().Unix()
 	appId := config.V.GetString("AE_APP_ID")
 	secretKey := config.V.GetString("AE_SECRET_KEY")
 
-	unencodedSign := fmt.Sprintf("app_id={%v}&key={%v}&nonce_str={%v}&page={%v}&per_page={%v}", appId, secretKey, nonceStr, page, pageSize)
+	unencodedSign := fmt.Sprintf("app_id=%v&nonce_str=%v&page=%v&per_page=%v&key=%v", appId, nonce, page, pageSize, secretKey)
+
+	logger.Info("JON >>> unencodedSign", unencodedSign)
 	hasher.Write([]byte(unencodedSign))
 
-	md5EncodedSign := hex.EncodeToString(hasher.Sum(nil))
+	md5EncodedSign := strings.ToUpper(hex.EncodeToString(hasher.Sum(nil)))
 	return md5EncodedSign
 }
 
-func setQueryParams(page int, pageSize int) *url.Values {
+func setQueryParams(page int, pageSize int, nonceStr int64) *url.Values {
 	queryParams := &url.Values{}
 	queryParams.Set("app_id", config.V.GetString("AE_APP_ID"))
-	queryParams.Set("nonce_str", config.V.GetString("AE_NONCE_STR"))
-	queryParams.Set("sign", getSign(page, pageSize))
+	queryParams.Set("nonce_str", fmt.Sprintf("%v", nonceStr))
+	queryParams.Set("page", fmt.Sprintf("%v", page))
+	queryParams.Set("per_page", fmt.Sprintf("%v", pageSize))
+	queryParams.Set("sign", getSign(page, pageSize, nonceStr))
 	return queryParams
 }
 
 func CollectProject(projectId int) error {
 	aeApiClient := CreateApiClient()
 
-	res, err := aeApiClient.Get(fmt.Sprintf("/projects/%v", projectId), setQueryParams(1, 100), nil)
+	nonce := time.Now().Unix()
+
+	res, err := aeApiClient.Get(fmt.Sprintf("/projects/%v", projectId), setQueryParams(1, 100, nonce), nil)
 	if err != nil {
 		logger.Error("Error: ", err)
 		return err
