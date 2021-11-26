@@ -1,8 +1,6 @@
 package api
 
 import (
-	"errors"
-
 	"github.com/merico-dev/lake/logger"
 	"github.com/merico-dev/lake/plugins/core"
 	"github.com/merico-dev/lake/plugins/gitlab/tasks"
@@ -19,20 +17,23 @@ GET /plugins/gitlab/test
 */
 func TestConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, error) {
 	gitlabApiClient := tasks.CreateApiClient()
-
+	headers := gitlabApiClient.GetHeaders()
+	endpoint := gitlabApiClient.GetEndpoint()
+	if headers["Authorization"] == "Bearer " || endpoint == "" {
+		return &core.ApiResourceOutput{Body: core.TestResult{Success: false, Message: core.UnsetConnectionError}}, nil
+	}
 	res, err := gitlabApiClient.Get("user", nil, nil)
-	if err != nil {
+	if err != nil || res.StatusCode != 200 {
 		logger.Error("Error: ", err)
-		return nil, err
+		return &core.ApiResourceOutput{Body: core.TestResult{Success: false, Message: core.InvalidConnectionError}}, nil
 	}
-	if res.StatusCode != 200 {
-		return nil, errors.New("Your token is invalid for this URL.")
-	}
+
 	gitlabApiResponse := &ApiUserResponse{}
+
 	err = core.UnmarshalResponse(res, gitlabApiResponse)
 	if err != nil {
 		logger.Error("Error: ", err)
-		return nil, err
+		return &core.ApiResourceOutput{Body: core.TestResult{Success: false, Message: core.UnmarshallingError}}, nil
 	}
-	return &core.ApiResourceOutput{Body: true}, nil
+	return &core.ApiResourceOutput{Body: core.TestResult{Success: true, Message: ""}}, nil
 }

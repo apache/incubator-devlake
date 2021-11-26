@@ -59,6 +59,9 @@ func (apiClient *ApiClient) Setup(
 func (apiClient *ApiClient) SetEndpoint(endpoint string) {
 	apiClient.endpoint = endpoint
 }
+func (apiClient *ApiClient) GetEndpoint() string {
+	return apiClient.endpoint
+}
 
 func (ApiClient *ApiClient) SetTimeout(timeout time.Duration) {
 	ApiClient.client.Timeout = timeout
@@ -70,6 +73,9 @@ func (ApiClient *ApiClient) SetMaxRetry(maxRetry int) {
 
 func (apiClient *ApiClient) SetHeaders(headers map[string]string) {
 	apiClient.headers = headers
+}
+func (apiClient *ApiClient) GetHeaders() map[string]string {
+	return apiClient.headers
 }
 
 func (apiClient *ApiClient) SetBeforeFunction(callback ApiClientBeforeRequest) {
