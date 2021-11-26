@@ -63,18 +63,23 @@
 
 ## 收集数据
 
-你可以向 `/task` 发起一个POST请求来触发数据收集。
+你可以向 `/pipelines` 发起一个POST请求来触发数据收集。
 
-    ```
-    curl --location --request POST 'localhost:8080/task' \
-    --header 'Content-Type: application/json' \
-    --data-raw '[[{
-        "plugin": "gitlab",
+```
+curl --location --request POST 'localhost:8080/pipelines' \
+--header 'Content-Type: application/json' \
+--data-raw '
+{
+    "name": "gitlab 20211126",
+    "tasks": [[{
+        "plugin": "github",
         "options": {
             "projectId": <Your gitlab project id>
         }
-    }]]'
-    ```
+    }]]
+}
+'
+```
 
 ## 如何获取 Gitlab Project ID
 
