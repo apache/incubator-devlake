@@ -2,7 +2,9 @@
 # Change this if you only want to complile the plugin you are working on
 
 # If you want to use this, you neec to run `LOCAL=true make dev`
-PLUGIN_TO_COMPILE=merico-analysis-engine # this must be all or the name of the plugin
+# to compile all plugins `make dev`
+
+PLUGIN_TO_COMPILE=merico-analysis-engine # this must be the name of the plugin folder
 
 set -e
 
@@ -15,11 +17,6 @@ if [ "$LOCAL" == "true" ]; then
     NAME=$(basename $PLUG)
 
     if [ "$NAME" == "$PLUGIN_TO_COMPILE" ]; then
-        echo "Building plugin $NAME to bin/plugins/$NAME/$NAME.so"
-        go build -buildmode=plugin "$@" -o $PLUGIN_OUTPUT_DIR/$NAME/$NAME.so $PLUG/*.go
-    fi
-
-    if [ "$PLUGIN_TO_COMPILE" == "all" ]; then
         echo "Building plugin $NAME to bin/plugins/$NAME/$NAME.so"
         go build -buildmode=plugin "$@" -o $PLUGIN_OUTPUT_DIR/$NAME/$NAME.so $PLUG/*.go
     fi
