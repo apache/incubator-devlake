@@ -27,24 +27,33 @@ type ApiProjectResponse struct {
 // This function is required by AE to prevent Man-in-the-middle attacks
 // You need to fully encode all query parameters and other things in order to get a
 // correct sign value in the url
-func getMD5Hash(text string) string {
+// IE: app_id={app_id}&key={secretKey}&nonce_str={timestamp}&page={page}&per_page={page_size}
+func getSign(page int, pageSize int) string {
 	hasher := md5.New()
-	hasher.Write([]byte(text))
-	return hex.EncodeToString(hasher.Sum(nil))
+
+	nonceStr := time.Now().Unix()
+	appId := config.V.GetString("AE_APP_ID")
+	secretKey := config.V.GetString("AE_SECRET_KEY")
+
+	unencodedSign := fmt.Sprintf("app_id={%v}&key={%v}&nonce_str={%v}&page={%v}&per_page={%v}", appId, secretKey, nonceStr, page, pageSize)
+	hasher.Write([]byte(unencodedSign))
+
+	md5EncodedSign := hex.EncodeToString(hasher.Sum(nil))
+	return md5EncodedSign
 }
 
-func setQueryParams() *url.Values {
+func setQueryParams(page int, pageSize int) *url.Values {
 	queryParams := &url.Values{}
 	queryParams.Set("app_id", config.V.GetString("AE_APP_ID"))
 	queryParams.Set("nonce_str", config.V.GetString("AE_NONCE_STR"))
-	queryParams.Set("sign", getMD5Hash(config.V.GetString("AE_SECRET_KEY")))
+	queryParams.Set("sign", getSign(page, pageSize))
 	return queryParams
 }
 
 func CollectProject(projectId int) error {
 	aeApiClient := CreateApiClient()
 
-	res, err := aeApiClient.Get(fmt.Sprintf("/projects/%v", projectId), setQueryParams(), nil)
+	res, err := aeApiClient.Get(fmt.Sprintf("/projects/%v", projectId), setQueryParams(1, 100), nil)
 	if err != nil {
 		logger.Error("Error: ", err)
 		return err
