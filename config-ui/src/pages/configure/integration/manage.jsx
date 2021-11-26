@@ -315,7 +315,7 @@ export default function ManageIntegration () {
                                 <Icon icon='refresh' size={12} />
                                 Collect
                               </a> */}
-                              <a
+                              {/* <a
                                 href='#'
                                 data-provider={connection.id}
                                 className='table-action-link actions-link'
@@ -323,7 +323,7 @@ export default function ManageIntegration () {
                               >
                                 <Icon icon='data-connection' size={12} />
                                 Test
-                              </a>
+                              </a> */}
                             </td>
                           </tr>
                         ))}

@@ -10,18 +10,15 @@ import (
 )
 
 func TestConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, error) {
-	jenkinsSource, err := GetSourceFromEnv()
-	if err != nil {
-		logger.Error("Error: ", err)
-		return &core.ApiResourceOutput{Body: core.TestResult{Success: false, Message: core.ReadError}}, nil
+	ValidationResult := core.ValidateParams(input, []string{"username", "password", "endpoint"})
+	if !ValidationResult.Success {
+		return &core.ApiResourceOutput{Body: ValidationResult}, nil
 	}
-	if jenkinsSource.Username == "" || jenkinsSource.Password == "" || jenkinsSource.Endpoint == "" {
-		return &core.ApiResourceOutput{Body: core.TestResult{Success: false, Message: core.UnsetConnectionError}}, nil
-	}
-	encodedToken := utils.GetEncodedToken(jenkinsSource.Username, jenkinsSource.Password)
+
+	encodedToken := utils.GetEncodedToken(input.Query.Get("username"), input.Query.Get("password"))
 	apiClient := &core.ApiClient{}
 	apiClient.Setup(
-		jenkinsSource.Endpoint,
+		input.Query.Get("endpoint"),
 		map[string]string{
 			"Authorization": fmt.Sprintf("Basic %v", encodedToken),
 		},

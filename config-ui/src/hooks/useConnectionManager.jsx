@@ -50,43 +50,44 @@ function useConnectionManager ({
   const [saveComplete, setSaveComplete] = useState(false)
   const [deleteComplete, setDeleteComplete] = useState(false)
 
-  const testConnection = (connection) => {
+  const testConnection = () => {
     setIsTesting(true)
     setShowError(false)
     ToastNotification.clear()
-    const testResponse = {
-      success: false,
-      connection: activeProvider,
-      errors: []
-    }
+    // TODO: run Save first
     const runTest = async () => {
-      let queryParams = ''
-      if (activeProvider.multiSource && connection.id){
-        queryParams += `?sourceId=${connection.id}`
+      let queryParams = ``
+      switch (activeProvider.id) {
+        case Providers.JENKINS:
+          queryParams = `?username=${username}&password=${password}&endpoint=${endpointUrl}`
+          break
+        case Providers.GITLAB:
+          queryParams = `?auth=${token}&endpoint=${endpointUrl}`
+          break
+        case Providers.GITHUB:
+          queryParams = `?auth=${token}&endpoint=${endpointUrl}`
+          break
+        case Providers.JIRA:
+          queryParams = `?auth=${token}&endpoint=${endpointUrl}`
+          break
       }
       let testUrl = `${DEVLAKE_ENDPOINT}/plugins/${activeProvider.id}/test`
       let getUrl = testUrl + queryParams
       console.log('INFO >>> GET URL for testing: ', getUrl);
       let res = await request.get(getUrl)
-      if (res.data && res.status === 200) {
-        testResponse.success = true
-      } else {
-        testResponse.errors.push(new Error("Test failed. Please check provider configuration."))
-      }
-    }
-    runTest()
-    setTimeout(() => {
-      if (testResponse.success) {
+      console.log('res.data', res.data);
+      if (res?.data?.Success && res.status === 200) {
         setIsTesting(false)
         setTestStatus(1)
         ToastNotification.show({ message: 'Connection test OK.', intent: 'success', icon: 'small-tick' })
       } else {
         setIsTesting(false)
         setTestStatus(2)
-        ToastNotification.show({ message: 'Connection test FAILED.', intent: 'danger', icon: 'error' })
+        let errorMessage = 'Connection test FAILED. ' + res?.data?.Message
+        ToastNotification.show({ message: errorMessage, intent: 'danger', icon: 'error' })
       }
-      console.log('INFO >>> Test Response: ', testResponse)
-    }, 2000)
+    }
+    runTest()
   }
 
   const saveConnection = () => {
