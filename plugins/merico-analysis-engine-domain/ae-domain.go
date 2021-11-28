@@ -38,7 +38,7 @@ func (plugin AEDomain) Execute(
 
 	// run tasks
 	logger.Print("start AEDomain plugin execution")
-	err = tasks.ConvertCommits()
+	err = tasks.SetDevEqOnCommits()
 	if err != nil {
 		return err
 	}
