@@ -1,11 +1,14 @@
 package tasks
 
 import (
+	"crypto/md5"
+	"encoding/hex"
 	"fmt"
 	"io/ioutil"
 	"net/http"
 	"net/url"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/merico-dev/lake/config"
@@ -16,6 +19,37 @@ import (
 
 type AEApiClient struct {
 	core.ApiClient
+}
+
+// WARNING!! HERE BE DRAGONS!!!
+// Changing this code can easily break the ae authentication
+func GetSign(page int, pageSize int, nonce int64) string {
+	hasher := md5.New()
+
+	appId := config.V.GetString("AE_APP_ID")
+	secretKey := config.V.GetString("AE_SECRET_KEY")
+
+	unencodedSign := fmt.Sprintf("app_id=%v&nonce_str=%v&page=%v&per_page=%v&key=%v", appId, nonce, page, pageSize, secretKey)
+
+	logger.Info("JON >>> unencodedSign", unencodedSign)
+	hasher.Write([]byte(unencodedSign))
+
+	md5EncodedSign := strings.ToUpper(hex.EncodeToString(hasher.Sum(nil)))
+	return md5EncodedSign
+}
+
+// WARNING!! HERE BE DRAGONS!!!
+// Changing this code can easily break the ae authentication
+func SetQueryParams(page int, pageSize int) *url.Values {
+	nonce := time.Now().Unix()
+
+	queryParams := &url.Values{}
+	queryParams.Set("app_id", config.V.GetString("AE_APP_ID"))
+	queryParams.Set("nonce_str", fmt.Sprintf("%v", nonce))
+	queryParams.Set("page", fmt.Sprintf("%v", page))
+	queryParams.Set("per_page", fmt.Sprintf("%v", pageSize))
+	queryParams.Set("sign", GetSign(page, pageSize, nonce))
+	return queryParams
 }
 
 func CreateApiClient() *AEApiClient {
