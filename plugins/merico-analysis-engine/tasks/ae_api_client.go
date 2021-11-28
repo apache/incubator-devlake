@@ -138,9 +138,7 @@ func (aeApiClient *AEApiClient) FetchWithPaginationAnts(scheduler *utils.WorkerS
 			for i := conc; i > 0; i-- {
 				page := step*conc + i
 				err := scheduler.Submit(func() error {
-					queryParams.Set("per_page", strconv.Itoa(pageSize))
-					queryParams.Set("page", strconv.Itoa(page))
-					res, err := aeApiClient.Get(path, queryParams, nil)
+					res, err := aeApiClient.Get(path, SetQueryParams(page, pageSize), nil)
 					if err != nil {
 						return err
 					}
