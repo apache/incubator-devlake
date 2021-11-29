@@ -335,30 +335,6 @@ tasks() {
     curl -v $LAKE_TASK_URL?status=$1 | jq
 }
 
-jiradomain() {
-    curl -v -XPOST $LAKE_TASK_URL --data '
-    [
-        [{
-            "plugin": "jiradomain",
-            "options": {
-                "sourceId": '$1',
-                "boardId": 8
-            }
-        }]
-    ]' | jq
-}
-
-jenkinsdomain() {
-    curl -v -XPOST $LAKE_TASK_URL --data @- <<'    JSON'
-    [
-        {
-            "plugin": "jenkinsdomain",
-            "options": {}
-        }
-    ]
-    JSON
-}
-
 lint() {
     golangci-lint run -v
 }
