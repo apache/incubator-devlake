@@ -18,7 +18,7 @@ POST /pipelines
 	"name": "name-of-pipeline",
 	"tasks": [
 		[ {"plugin": "gitlab", ...}, {"plugin": "jira"} ],
-		[ {"plugin": "gitlabdomain", ...}, {"plugin": "jiradomain"} ],
+		[ {"plugin": "github", ...}],
 	]
 }
 */
