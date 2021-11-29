@@ -16,7 +16,7 @@ import '@/styles/offline.scss'
 
 const Offline = (props) => {
   const {
-    pollTimer = 5000,
+    pollTimer = 7000,
     retryLimit = 100,
     endpointUrl = null
   } = props
