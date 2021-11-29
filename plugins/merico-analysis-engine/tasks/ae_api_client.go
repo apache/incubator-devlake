@@ -31,7 +31,10 @@ func GetSign(page int, pageSize int, nonce int64) string {
 
 	unencodedSign := fmt.Sprintf("app_id=%v&nonce_str=%v&page=%v&per_page=%v&key=%v", appId, nonce, page, pageSize, secretKey)
 
-	hasher.Write([]byte(unencodedSign))
+	_, err := hasher.Write([]byte(unencodedSign))
+	if err != nil {
+		return ""
+	}
 
 	md5EncodedSign := strings.ToUpper(hex.EncodeToString(hasher.Sum(nil)))
 	return md5EncodedSign
