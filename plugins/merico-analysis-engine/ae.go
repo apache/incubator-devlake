@@ -58,8 +58,13 @@ func (plugin AE) Execute(options map[string]interface{}, progress chan<- float32
 		return fmt.Errorf("could not collect commits: %v", err)
 	}
 
+	progress <- 0.75
+
+	if err := tasks.SetDevEqOnCommits(); err != nil {
+		return fmt.Errorf("could not enhance commits with AE dev equivalent: %v", err)
+	}
+
 	progress <- 1
-	close(progress)
 	return nil
 }
 

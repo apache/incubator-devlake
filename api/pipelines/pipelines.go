@@ -22,6 +22,7 @@ POST /pipelines
 	]
 }
 */
+
 func Post(ctx *gin.Context) {
 	newPipeline := &models.NewPipeline{}
 

@@ -2,8 +2,6 @@ package models
 
 import (
 	"time"
-
-	"github.com/merico-dev/lake/models"
 )
 
 type AEProject struct {
@@ -12,6 +10,4 @@ type AEProject struct {
 	Priority     int
 	AECreateTime *time.Time
 	AEUpdateTime *time.Time
-
-	models.NoPKModel
 }
