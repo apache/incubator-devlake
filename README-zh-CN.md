@@ -231,12 +231,6 @@ GitHub | 概述，数据和指标，配置，API | [Link](plugins/github/README-
    >           "owner": "merico-dev"
    >         }
    >       }
-   >     ],
-   >     [
-   >       {
-   >         "plugin": "github-domain",
-   >         "options": {}
-   >       }
    >     ]
    >   ]
    >   ```
@@ -326,12 +320,6 @@ GitHub | 概述，数据和指标，配置，API | [Link](plugins/github/README-
    >           "repositoryName": "lake",
    >           "owner": "merico-dev"
    >         }
-   >       }
-   >     ],
-   >     [
-   >       {
-   >         "plugin": "github-domain",
-   >         "options": {}
    >       }
    >     ]
    >   ]
