@@ -181,14 +181,6 @@ export default function Triggers () {
                     {/* eslint-disable-next-line max-len */}
                     The data collection will take longer for GitHub since they have a rate limit of 2k requests per hour. You can accelerate the process by configuring multiple personal access tokens.
                   </p>
-                  <p className='description'>
-                    {/* eslint-disable-next-line max-len */}
-                    There are two types of plugins in our application, corresponding to the 2 lists in the following JSON.&nbsp;
-                    {/* eslint-disable-next-line max-len */}
-                    The regular plugins collect and enrich data (<em>the 1st list</em>) while the domain layer plugins (<em>the 2nd list</em>) prepare the data for the graphs in Grafana dashboards.&nbsp;
-                    {/* eslint-disable-next-line max-len */}
-                    You <strong>SHOULD ONLY</strong> have to edit the regular plugins. Editing domain layer plugins is for advanced usage only.&nbsp;
-                  </p>
                   <p className='description' style={{ fontSize: '13px' }}>
                     <span style={{ fontWeight: 'bold' }}>Detailed configuration guide:</span>&nbsp;
                     <a

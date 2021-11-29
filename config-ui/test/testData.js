@@ -5,10 +5,6 @@ const TEST_DATA = {
       projectId: 8967944,
     },
   },
-  gitlabDomainTriggersJson: {
-    Plugin: "gitlab-domain",
-    Options: {}
-  },
   completeTriggersJson: [
     [
       {
@@ -35,25 +31,7 @@ const TEST_DATA = {
           owner: "merico-dev",
         },
       },
-    ],
-    [
-      {
-        Options: {},
-        Plugin: "gitlab-domain",
-      },
-      {
-        Options: {},
-        Plugin: "jiradomain",
-      },
-      {
-        Options: {},
-        Plugin: "jenkinsdomain",
-      },
-      {
-        Options: {},
-        Plugin: "github-domain",
-      },
-    ],
+    ]
   ]
 }
 
