@@ -17,7 +17,7 @@ func ValidateParams(input *ApiResourceInput, requiredParams []string) *TestResul
 	missingParams := []string{}
 	if len(input.Query) == 0 {
 		for _, param := range requiredParams {
-			message += fmt.Sprintf("%v,", param)
+			message += fmt.Sprintf(" %v", param)
 		}
 		return &TestResult{Success: false, Message: message}
 	} else {
@@ -28,7 +28,7 @@ func ValidateParams(input *ApiResourceInput, requiredParams []string) *TestResul
 		}
 		if len(missingParams) > 0 {
 			for _, param := range missingParams {
-				message += fmt.Sprintf("%v,", param)
+				message += fmt.Sprintf(" %v", param)
 			}
 			return &TestResult{Success: false, Message: message}
 		} else {
