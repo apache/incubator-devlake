@@ -24,23 +24,5 @@
         "owner": "merico-dev"
       }
     }
-  ],
-  [
-    {
-      "plugin": "jiradomain",
-      "options": {}
-    },
-    {
-      "plugin": "gitlabdomain",
-      "options": {}
-    },
-    {
-      "plugin": "jenkinsdomain",
-      "options": {}
-    },
-    {
-      "plugin": "githubdomain",
-      "options": {}
-    }
   ]
 ]

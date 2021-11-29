@@ -232,12 +232,6 @@ NOTE: After installing docker, you may need to run the docker application and re
    >           "owner": "merico-dev"
    >         }
    >       }
-   >     ],
-   >     [
-   >       {
-   >         "plugin": "github-domain",
-   >         "options": {}
-   >       }
    >     ]
    >   ]
    >   ```
