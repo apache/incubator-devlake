@@ -5,7 +5,7 @@ set -e
 SCRIPT_DIR="$( cd "$( dirname "$0" )" && pwd )"
 
 LAKE_ENDPOINT=${LAKE_ENDPOINT-'http://localhost:8080'}
-LAKE_TASK_URL=$LAKE_ENDPOINT/task
+LAKE_PIPELINE_URL=$LAKE_ENDPOINT/pipelines
 
 debug() {
     $SCRIPT_DIR/compile-plugins.sh -gcflags=all="-N -l"
@@ -196,60 +196,6 @@ jira_statusmapping_list() {
     curl -v "$LAKE_ENDPOINT/plugins/jira/sources/$1/type-mappings/$2/status-mappings" | jq
 }
 
-jira() {
-    curl -v -XPOST $LAKE_TASK_URL --data '
-    [
-        [{
-            "plugin": "jira",
-            "options": {
-                "sourceId": '$1',
-                "boardId": '$2',
-                "tasks": ['"$3"']
-            }
-        }]
-    ]
-    ' | jq
-}
-
-tasks_2d() {
-    curl -v -XPOST $LAKE_TASK_URL --data @- <<'    JSON' | jq
-    [
-        [
-            {
-                "plugin": "jira",
-                "options": {
-                    "boardId": 8
-                }
-            },
-            {
-                "plugin": "jenkins",
-                "options": {}
-            }
-        ],
-        [
-            {
-                "plugin": "jenkinsdomain",
-                "options": {}
-            }
-        ]
-    ]
-    JSON
-}
-
-jira_enrich_issues() {
-    curl -v -XPOST $LAKE_TASK_URL --data @- <<'    JSON'
-    [
-        [{
-            "plugin": "jira",
-            "options": {
-                "boardId": 8,
-                "tasks": [ "enrichIssues" ]
-            }
-        }]
-    ]
-    JSON
-}
-
 jira_echo() {
     curl -v -XPOST "$LAKE_ENDPOINT/plugins/jira/echo" --data @- <<'    JSON' | jq
     {
@@ -261,66 +207,117 @@ jira_echo() {
     JSON
 }
 
-all() {
-    curl -v -XPOST $LAKE_TASK_URL --data @- <<'    JSON'
-    [
-            [{
-                "plugin": "gitlab",
-                "options": {
-                    "projectId": 8967944
+pipeline_new() {
+    curl -v -XPOST $LAKE_PIPELINE_URL --data @- <<'    JSON' | jq
+    {
+        "name": "test-all",
+        "tasks": [
+            [
+                {
+                    "plugin": "jira",
+                    "options": {
+                        "sourceId": 1,
+                        "boardId": 8
+                    }
+                },
+                {
+                    "plugin": "jenkins",
+                    "options": {}
                 }
-            },
-            {
-                "plugin": "jira",
-                "options": {
-                    "boardId": 8
-                }
-            },
-            {
-                "plugin": "jenkins",
-                "options": {}
-            }]
-    ]
+            ]
+        ]
+    }
     JSON
 }
 
-gitlab() {
-    curl -v -XPOST $LAKE_TASK_URL --data @- <<'    JSON'
-    [
-            [{
-                "plugin": "gitlab",
-                "options": {
-                    "projectId": 8967944,
-                    "tasks": ["collectMrs"]
+pipelines() {
+    curl -v $LAKE_PIPELINE_URL'?'$1 | jq
+}
+
+pipeline() {
+    curl -v $LAKE_PIPELINE_URL/$1 | jq
+}
+
+pipeline_cancel() {
+    curl -v -XDELETE $LAKE_PIPELINE_URL/$1
+}
+
+pipeline_tasks() {
+    curl -v $LAKE_PIPELINE_URL/$1/tasks'?'$2 | jq
+}
+
+jira() {
+    curl -v -XPOST $LAKE_PIPELINE_URL --data '
+    {
+        "name": "test-jira",
+        "tasks": [
+            [
+                {
+                    "plugin": "jira",
+                    "options": {
+                        "sourceId": '$1',
+                        "boardId": '$2',
+                        "tasks": ['"$3"']
+                    }
                 }
-            }]
-    ]
+            ]
+        ]
+    }
+    ' | jq
+}
+
+gitlab() {
+    curl -v -XPOST $LAKE_PIPELINE_URL --data @- <<'    JSON'
+    {
+        "name": "test-gitlab",
+        "tasks": [
+            [
+                {
+                    "plugin": "gitlab",
+                    "options": {
+                        "projectId": 8967944,
+                        "tasks": ["collectMrs"]
+                    }
+                }
+            ]
+        ]
+    }
     JSON
 }
 
 github() {
-    curl -v -XPOST $LAKE_TASK_URL --data @- <<'    JSON'
-    [
-            [{
-                "plugin": "github",
-                "options": {
-                    "repositoryName": "lake",
-                    "owner": "merico-dev",
-                    "tasks": ["collectIssues"]
+    curl -v -XPOST $LAKE_PIPELINE_URL --data @- <<'    JSON'
+    {
+        "name": "test-github",
+        "tasks": [
+            [
+                {
+                    "plugin": "github",
+                    "options": {
+                        "repositoryName": "lake",
+                        "owner": "merico-dev",
+                        "tasks": ["collectIssues"]
+                    }
                 }
-            }]
-    ]
+            ]
+        ]
+    }
     JSON
 }
 
 jenkins() {
-    curl -v -XPOST $LAKE_TASK_URL --data @- <<'    JSON'
-    [
-            [{
-                "plugin": "jenkins",
-                "options": {}
-            }]
-    ]
+    curl -v -XPOST $LAKE_PIPELINE_URL --data @- <<'    JSON'
+    {
+        "name": "test-jenkins",
+        "tasks": [
+            [
+                {
+                    "plugin": "jenkins",
+                    "options": {}
+                }
+            ]
+        ]
+    }
     JSON
 }
 
@@ -329,10 +326,6 @@ truncate() {
     echo "SET FOREIGN_KEY_CHECKS=0;"
     echo 'show tables' | mycli local-lake | tail -n +2 | xargs -I{} -n 1 echo "truncate table {};"
     echo "SET FOREIGN_KEY_CHECKS=1;"
-}
-
-tasks() {
-    curl -v $LAKE_TASK_URL?status=$1 | jq
 }
 
 lint() {

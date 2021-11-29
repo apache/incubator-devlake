@@ -54,7 +54,7 @@ func (o *apiOptions) Validate(cmd *cobra.Command, args []string) error {
 		return errors.New("endpoint required, using like this: lake-cli api {endpoint}")
 	}
 	var supportedEndpoints = make(map[string]bool)
-	supportedEndpoints["task"] = true
+	supportedEndpoints["pipeline"] = true
 	var endpoint = args[0]
 	if support, ok := supportedEndpoints[endpoint]; !support || !ok {
 		return fmt.Errorf("unsupported endpoint %s", endpoint)

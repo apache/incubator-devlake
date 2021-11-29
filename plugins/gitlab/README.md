@@ -62,18 +62,23 @@ Click **Save Settings** to update additional settings.
 
 ## Gathering Data with Gitlab
 
-To collect data, you can make a POST request to `/task`
+To collect data, you can make a POST request to `/pipelines`
 
-    ```
-    curl --location --request POST 'localhost:8080/task' \
-    --header 'Content-Type: application/json' \
-    --data-raw '[[{
-        "plugin": "gitlab",
+```
+curl --location --request POST 'localhost:8080/pipelines' \
+--header 'Content-Type: application/json' \
+--data-raw '
+{
+    "name": "gitlab 20211126",
+    "tasks": [[{
+        "plugin": "github",
         "options": {
             "projectId": <Your gitlab project id>
         }
-    }]]'
-    ```
+    }]]
+}
+'
+```
 
 ## Finding Project Id
 

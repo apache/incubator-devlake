@@ -130,7 +130,6 @@ func (plugin Gitlab) Execute(options map[string]interface{}, progress chan<- flo
 		}
 	}
 	progress <- 1
-	close(progress)
 	return nil
 }
 

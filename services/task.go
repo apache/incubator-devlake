@@ -4,153 +4,79 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"strings"
+	"sync"
+	"time"
 
-	"github.com/merico-dev/lake/config"
 	"github.com/merico-dev/lake/errors"
 	"github.com/merico-dev/lake/logger"
 	"github.com/merico-dev/lake/models"
 	"github.com/merico-dev/lake/plugins"
 )
 
-const (
-	TASK_CREATED   = "TASK_CREATED"
-	TASK_COMPLETED = "TASK_COMPLETED"
-	TASK_FAILED    = "TASK_FAILED"
-)
-
-// FIXME: don't use notification service here
-// move it to controller
-var notificationService *NotificationService
-var runningTasks map[uint64]context.CancelFunc
-
-type NewTask struct {
-	// Plugin name
-	Plugin string `json:"plugin" binding:"required"`
-	// Options for the plugin task to be triggered
-	Options map[string]interface{} `json:"options" binding:"required"`
+type RunningTask struct {
+	mu    sync.Mutex
+	tasks map[uint64]context.CancelFunc
 }
 
+func (rt *RunningTask) Add(taskId uint64, cancel context.CancelFunc) error {
+	rt.mu.Lock()
+	defer rt.mu.Unlock()
+	if _, ok := rt.tasks[taskId]; ok {
+		return fmt.Errorf("task with id %v already running", taskId)
+	}
+	rt.tasks[taskId] = cancel
+	return nil
+}
+
+func (rt *RunningTask) Remove(taskId uint64) (context.CancelFunc, error) {
+	rt.mu.Lock()
+	defer rt.mu.Unlock()
+	if cancel, ok := rt.tasks[taskId]; ok {
+		delete(rt.tasks, taskId)
+		return cancel, nil
+	}
+	return nil, fmt.Errorf("task with id %v not found", taskId)
+}
+
+var runningTasks RunningTask
+
 type TaskQuery struct {
-	Status   string `form:"status"`
-	Page     int    `form:"page"`
-	PageSize int    `form:"page_size"`
-	Plugin   string `form:"plugin"`
-	SourceId int64  `form:"source_id"`
+	Status     string `form:"status"`
+	Page       int    `form:"page"`
+	PageSize   int    `form:"page_size"`
+	Plugin     string `form:"plugin"`
+	PipelineId uint64 `form:"pipelineId" uri:"pipelineId"`
+	Pending    int    `form:"pending"`
 }
 
 func init() {
-	var notificationEndpoint = config.V.GetString("NOTIFICATION_ENDPOINT")
-	var notificationSecret = config.V.GetString("NOTIFICATION_SECRET")
-	if strings.TrimSpace(notificationEndpoint) != "" {
-		notificationService = NewNotificationService(notificationEndpoint, notificationSecret)
-	}
-	// FIXME: don't cancel tasks here
-	models.Db.Model(&models.Task{}).Where("status != ?", TASK_COMPLETED).Update("status", TASK_FAILED)
-	runningTasks = make(map[uint64]context.CancelFunc)
+	// set all previous unfinished tasks to status failed
+	models.Db.Model(&models.Task{}).Where("status = ?", models.TASK_RUNNING).Update("status", models.TASK_FAILED)
+	runningTasks.tasks = make(map[uint64]context.CancelFunc)
 }
 
-func CreateTaskInDB(data NewTask) (*models.Task, error) {
-	var sourceId int64
-	if source, ok := data.Options["sourceId"].(float64); ok {
-		sourceId = int64(source)
-		if sourceId == 0 {
-			return nil, fmt.Errorf("invalid sourceId: %d", sourceId)
-		}
-	}
-
-	b, err := json.Marshal(data.Options)
+func CreateTask(newTask *models.NewTask) (*models.Task, error) {
+	b, err := json.Marshal(newTask.Options)
 	if err != nil {
 		return nil, err
 	}
 	task := models.Task{
-		Plugin:   data.Plugin,
-		Options:  b,
-		Status:   TASK_CREATED,
-		Message:  "",
-		SourceId: sourceId,
+		Plugin:      newTask.Plugin,
+		Options:     b,
+		Status:      models.TASK_CREATED,
+		Message:     "",
+		PipelineId:  newTask.PipelineId,
+		PipelineRow: newTask.PipelineRow,
+		PipelineCol: newTask.PipelineCol,
 	}
 	err = models.Db.Save(&task).Error
 	if err != nil {
-		logger.Error("Database error", err)
+		logger.Error("save task failed", err)
 		return nil, errors.InternalError
 	}
 	return &task, nil
 }
 
-func RunTask(task models.Task, data NewTask, taskComplete chan bool) (models.Task, error) {
-	// trigger plugins
-	data.Options["ID"] = task.ID
-	ctx, cancel := context.WithCancel(context.Background())
-	runningTasks[task.ID] = cancel
-	go func() {
-		logger.Info("run task ", task)
-		progress := make(chan float32)
-		go func() {
-			err := plugins.RunPlugin(task.Plugin, data.Options, progress, ctx)
-			if err != nil {
-				logger.Error("Task error", err)
-				task.Status = TASK_FAILED
-				task.Message = err.Error()
-			}
-			err = models.Db.Save(&task).Error
-			if err != nil {
-				logger.Error("Database error", err)
-			}
-		}()
-
-		for p := range progress {
-			task.Progress = p
-			logger.Info("running plugin progress", task)
-			err := models.Db.Save(&task).Error
-			if err != nil {
-				logger.Error("Database error", err)
-			}
-		}
-		task.Status = TASK_COMPLETED
-		err := models.Db.Save(&task).Error
-		if err != nil {
-			logger.Error("Database error", err)
-		}
-		delete(runningTasks, task.ID)
-		// TODO: send notification
-		if notificationService != nil {
-			err = notificationService.TaskSuccess(TaskSuccessNotification{
-				TaskID:     task.ID,
-				PluginName: task.Plugin,
-				CreatedAt:  task.CreatedAt,
-				UpdatedAt:  task.UpdatedAt,
-			})
-			if err != nil {
-				logger.Error("Failed to send notification", err)
-			}
-		}
-		taskComplete <- true
-	}()
-	return task, nil
-}
-
-func CancelTask(taskId uint64) error {
-	if cancel, ok := runningTasks[taskId]; ok {
-		logger.Info("cancel task ", taskId)
-		cancel()
-		delete(runningTasks, taskId)
-	} else {
-		return fmt.Errorf("unable to cancel task %v", taskId)
-	}
-	return nil
-}
-
-func GetPendingTasks() ([]models.Task, error) {
-	tasks := make([]models.Task, 0)
-	whereClause := "progress < 1 AND status != 'TASK_COMPLETED'"
-	db := models.Db.Model(&models.Task{}).Where(whereClause).Order("id DESC")
-	err := db.Debug().Find(&tasks)
-	if err != nil {
-		return tasks, nil
-	}
-	return tasks, nil
-}
 func GetTasks(query *TaskQuery) ([]models.Task, int64, error) {
 	db := models.Db.Model(&models.Task{}).Order("id DESC")
 	if query.Status != "" {
@@ -159,8 +85,11 @@ func GetTasks(query *TaskQuery) ([]models.Task, int64, error) {
 	if query.Plugin != "" {
 		db = db.Where("plugin = ?", query.Plugin)
 	}
-	if query.SourceId != 0 {
-		db = db.Where("source_id = ?", query.SourceId)
+	if query.PipelineId > 0 {
+		db = db.Where("pipeline_id = ?", query.PipelineId)
+	}
+	if query.Pending > 0 {
+		db = db.Where("finished_at is null")
 	}
 	var count int64
 	err := db.Count(&count).Error
@@ -179,43 +108,104 @@ func GetTasks(query *TaskQuery) ([]models.Task, int64, error) {
 	return tasks, count, nil
 }
 
-func CreateTasksInDBFromJSON(data [][]NewTask) [][]models.Task {
-	// create all the tasks in the db without running the tasks
-	var tasks [][]models.Task
-
-	for i := 0; i < len(data); i++ {
-		var tasksToAppend []models.Task
-		for j := 0; j < len(data[i]); j++ {
-			task, _ := CreateTaskInDB(data[i][j])
-			tasksToAppend = append(tasksToAppend, *task)
-		}
-		tasks = append(tasks, tasksToAppend)
+func GetTask(taskId uint64) (*models.Task, error) {
+	task := &models.Task{}
+	err := models.Db.Find(task, taskId).Error
+	if err != nil {
+		return nil, err
 	}
-
-	return tasks
+	return task, nil
 }
 
-func RunAllTasks(data [][]NewTask, tasks [][]models.Task) (err error) {
-	// This double for loop executes each set of tasks sequentially while
-	// executing the set of tasks concurrently.
-	// for _, array := range data {
-	for i := 0; i < len(data); i++ {
+// RunTask guarantees database is update even if it panicked, and the error will be returned to caller
+func RunTask(taskId uint64) error {
+	task, err := GetTask(taskId)
+	if err != nil {
+		return err
+	}
+	if task.Status != models.TASK_CREATED {
+		return fmt.Errorf("invalid task status")
+	}
 
-		taskComplete := make(chan bool)
-		count := 0
-		// for _, taskFromRequest := range array {
-		for j := 0; j < len(data[i]); j++ {
-			_, err := RunTask(tasks[i][j], data[i][j], taskComplete)
+	// for task cancelling
+	ctx, cancel := context.WithCancel(context.Background())
+	err = runningTasks.Add(taskId, cancel)
+	if err != nil {
+		return err
+	}
+
+	progress := make(chan float32)
+	var options map[string]interface{}
+	err = json.Unmarshal(task.Options, &options)
+	if err != nil {
+		return err
+	}
+
+	// run in new thread so we can track progress asynchronously
+	go func() {
+		beganAt := time.Now()
+		// make sure task status always correct even if it panicked
+		defer func() {
+			_, _ = runningTasks.Remove(task.ID)
+			close(progress)
+			if r := recover(); r != nil {
+				var ok bool
+				if err, ok = r.(error); !ok {
+					err = fmt.Errorf("run task failed: %v", r)
+				}
+			}
+			finishedAt := time.Now()
+			spentSeconds := finishedAt.Unix() - beganAt.Unix()
 			if err != nil {
-				return err
+				err = models.Db.Model(task).Updates(map[string]interface{}{
+					"status":        models.TASK_FAILED,
+					"message":       err.Error(),
+					"finished_at":   finishedAt,
+					"spent_seconds": spentSeconds,
+				}).Error
+			} else {
+				err = models.Db.Model(task).Updates(map[string]interface{}{
+					"status":        models.TASK_COMPLETED,
+					"message":       "",
+					"finished_at":   finishedAt,
+					"spent_seconds": spentSeconds,
+				}).Error
 			}
+		}()
+		// start execution
+		logger.Info("start executing task ", task.ID)
+		err = models.Db.Model(task).Updates(map[string]interface{}{
+			"status":   models.TASK_RUNNING,
+			"message":  "",
+			"began_at": beganAt,
+		}).Error
+		if err != nil {
+			logger.Error("update task state failed", err)
+			return
 		}
-		for range taskComplete {
-			count++
-			if count == len(data[i]) {
-				close(taskComplete)
-			}
+		err = plugins.RunPlugin(task.Plugin, options, progress, ctx)
+	}()
+
+	// read progress from working thread and save into database
+	for p := range progress {
+		logger.Info("running plugin progress", fmt.Sprintf(" %d %s %f%%", task.ID, task.Plugin, p*100))
+		err = models.Db.Model(task).Updates(map[string]interface{}{
+			"progress": p,
+		}).Error
+		if err != nil {
+			logger.Error("save task progress failed", err)
+			return err
 		}
 	}
+
+	return err
+}
+
+func CancelTask(taskId uint64) error {
+	cancel, err := runningTasks.Remove(taskId)
+	if err != nil {
+		return err
+	}
+	cancel()
 	return nil
 }

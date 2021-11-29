@@ -19,7 +19,6 @@ func (f *FooPlugin) Init() {
 }
 
 func (f *FooPlugin) Execute(options map[string]interface{}, progress chan<- float32, ctx context.Context) error {
-	close(progress)
 	return nil
 }
 
