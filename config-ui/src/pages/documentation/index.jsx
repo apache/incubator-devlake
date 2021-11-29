@@ -10,7 +10,6 @@ import {
   Intent,
   Icon
 } from '@blueprintjs/core'
-import defaultTriggerValue from '../../data/defaultTriggerValue.js'
 import Nav from '../../components/Nav'
 import Sidebar from '../../components/Sidebar'
 import AppCrumbs from '@/components/Breadcrumbs'
@@ -19,7 +18,6 @@ import Config from '../../../config'
 import request from '../../utils/request'
 
 export default function Documentation () {
-  const [textAreaBody, setTextAreaBody] = useState(JSON.stringify(defaultTriggerValue, null, 2))
 
   const [pendingTasks, setPendingTasks] = useState([])
   const [stage, setStage] = useState(0)
