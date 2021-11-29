@@ -6,16 +6,18 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/merico-dev/lake/api/env"
+	"github.com/merico-dev/lake/api/pipelines"
 	"github.com/merico-dev/lake/api/task"
 	"github.com/merico-dev/lake/plugins/core"
 	"github.com/merico-dev/lake/services"
 )
 
 func RegisterRouter(r *gin.Engine) {
-	r.POST("/task", task.Post)
-	r.GET("/task", task.Get)
-	r.GET("/task/pending", task.GetPending)
-	r.DELETE("/task/:taskId", task.Delete)
+	r.GET("/pipelines", pipelines.Index)
+	r.GET("/pipelines/:pipelineId", pipelines.Get)
+	r.POST("/pipelines", pipelines.Post)
+	r.DELETE("/pipelines/:pipelineId", pipelines.Delete)
+	r.GET("/pipelines/:pipelineId/tasks", task.Index)
 	r.POST("/env", env.Set)
 	r.GET("/env", env.Get)
 

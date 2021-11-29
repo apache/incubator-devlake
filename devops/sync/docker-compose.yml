@@ -5,5 +5,5 @@ services:
     volumes:
       - ./req.json:/bin/app/req.json
     # This command will request task api every 60 mins 
-    command: lake-cli api task -m POST --cron "@every 60m" --body ./req.json 
+    command: lake-cli api pipeline -m POST --cron "@every 60m" --body ./req.json 
     network_mode: host

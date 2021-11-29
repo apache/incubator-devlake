@@ -30,15 +30,17 @@ func NewNotificationService(endpoint, secret string) *NotificationService {
 	}
 }
 
-type TaskSuccessNotification struct {
-	TaskID     uint64
-	PluginName string
+type PipelineNotification struct {
+	PipelineID uint64
 	CreatedAt  time.Time
 	UpdatedAt  time.Time
+	BeganAt    *time.Time
+	FinishedAt *time.Time
+	Status     string
 }
 
-func (n *NotificationService) TaskSuccess(params TaskSuccessNotification) error {
-	return n.sendNotification(models.NotificationTaskSuccess, params)
+func (n *NotificationService) PipelineStatusChanged(params PipelineNotification) error {
+	return n.sendNotification(models.NotificationPipelineStatusChanged, params)
 }
 
 func (n *NotificationService) sendNotification(notificationType models.NotificationType, data interface{}) error {

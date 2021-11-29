@@ -62,13 +62,18 @@
 ## 示例
 
 ```
-curl --location --request POST 'localhost:8080/task' \
+curl --location --request POST 'localhost:8080/pipelines' \
 --header 'Content-Type: application/json' \
---data-raw '[[{
-    "Plugin": "github",
-    "Options": {
-        "repositoryName": "lake",
-        "owner": "merico-dev"
-    }
-}]]'
+--data-raw '
+{
+    "name": "github 20211126",
+    "tasks": [[{
+        "plugin": "github",
+        "options": {
+            "repositoryName": "lake",
+            "owner": "merico-dev"
+        }
+    }]]
+}
+'
 ```

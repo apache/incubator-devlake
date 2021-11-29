@@ -217,7 +217,6 @@ func (plugin Jira) Execute(options map[string]interface{}, progress chan<- float
 
 	}
 	logger.Print("end jira plugin execution")
-	close(progress)
 	return nil
 }
 
