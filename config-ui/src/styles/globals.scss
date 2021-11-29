@@ -3,6 +3,8 @@ body {
   padding: 0;
   margin: 0;
   font-family: 'JetBrains Mono', monospace;
+  width: 100%;
+  height: 100%;
 }
 
 html {
@@ -11,6 +13,10 @@ html {
 
 body {
   font-size: 1.2em;
+}
+
+#app {
+  height: 100%;
 }
 
 a {

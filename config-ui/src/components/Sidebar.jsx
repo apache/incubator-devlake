@@ -32,7 +32,7 @@ const Sidebar = () => {
           marginTop: '30px',
           letterSpacing: '3px',
           marginBottom: 0,
-          fontFamily: 'Montserrat',
+          fontFamily: '"Montserrat", sans-serif',
           fontWeight: 900,
           color: '#444444',
           textAlign: 'center'
