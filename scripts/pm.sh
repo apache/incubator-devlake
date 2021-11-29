@@ -221,7 +221,7 @@ pipeline_new() {
                     }
                 },
                 {
-
+                    "plugin": "jenkins",
                     "options": {}
                 }
             ]
