@@ -228,7 +228,7 @@ const Offline = (props) => {
                       )
                     : (
                       <>
-                        <p style={{ fontSize: '18px', fontFamily: '"Montserrat", sans-serif', color: '#222222' }}>
+                        <p style={{ fontSize: '16px', fontFamily: '"JetBrains Mono", monospace', color: '#222222' }}>
                           Connectivity to the Lake API service was successful (PORT <strong>{testResponse.PORT}</strong>).
                         </p>
                         <Button
