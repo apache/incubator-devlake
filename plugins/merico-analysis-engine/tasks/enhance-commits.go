@@ -21,7 +21,7 @@ func SetDevEqOnCommits() error {
 
 		// see if there is a match between Commit and AECommit
 		var aeCommit aeModels.AECommit
-		results := lakeModels.Db.Debug().Where("hex_sha = ?", commit.Sha).First(&aeCommit)
+		results := lakeModels.Db.Where("hex_sha = ?", commit.Sha).First(&aeCommit)
 
 		// Check to see if a record was found
 		if results.RowsAffected > 0 {
