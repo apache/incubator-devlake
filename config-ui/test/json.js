@@ -1,7 +1,7 @@
 var assert = require("assert");
 const AVAILABLE_PLUGINS = require("../src/data/availablePlugins");
 const TEST_DATA = require('./testData')
-const { getCollectorJson, getCollectionJson, getDomainJson } = require("../src/utils/triggersUtil");
+const { getCollectorJson, getCollectionJson } = require("../src/utils/triggersUtil");
 
 describe("Json utils", () => {
   describe("getCollectionJson", function () {
@@ -15,13 +15,6 @@ describe("Json utils", () => {
     it("gets default JSON for a collector plugin based on the name", function () {
       const expected = TEST_DATA.gitlabTriggersJson
       let actual = getCollectorJson("gitlab");
-      assert.deepEqual(expected, actual);
-    });
-  });
-  describe("getDomainJson", function () {
-    it("gets default JSON for a domain conversion plugin based on the name", function () {
-      const expected = TEST_DATA.gitlabDomainTriggersJson
-      let actual = getDomainJson("gitlab");
       assert.deepEqual(expected, actual);
     });
   });
