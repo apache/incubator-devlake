@@ -25,12 +25,7 @@ const someJson = [
       }
     }
   ],
-  [
-    { plugin: 'jiradomain', options: {} },
-    { plugin: 'gitlab-domain', options: {} },
-    { plugin: 'jenkinsdomain', options: {} },
-    { plugin: 'github-domain', options: {} }
-  ]
+  [] // Stage 2 tasks...
 ]
 
 export default someJson
