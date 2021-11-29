@@ -24,6 +24,7 @@ func CreateApiClient(endpoint string, tokens []string) *GithubApiClient {
 	githubApiClient := &GithubApiClient{}
 	githubApiClient.tokenIndex = 0
 	githubApiClient.tokens = tokens
+	// Rotates token on each request.
 	githubApiClient.SetBeforeFunction(func(req *http.Request) error {
 		req.Header.Set("Authorization", fmt.Sprintf("Bearer %v", githubApiClient.tokens[githubApiClient.tokenIndex]))
 		// Set next token index

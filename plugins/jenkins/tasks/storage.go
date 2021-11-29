@@ -13,7 +13,7 @@ type DefaultJenkinsStorage struct {
 	db *gorm.DB
 }
 
-func NewDeafultJenkinsStorage(db *gorm.DB) *DefaultJenkinsStorage {
+func NewDefaultJenkinsStorage(db *gorm.DB) *DefaultJenkinsStorage {
 	sqlDB, err := db.DB()
 	if err != nil {
 		logger.Error("failed to get sql db", err)

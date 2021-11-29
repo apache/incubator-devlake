@@ -46,7 +46,8 @@ export default function ManageIntegration () {
     deleteConnection,
     fetchAllConnections,
     errors,
-    deleteComplete
+    deleteComplete,
+    testConnection
   } = useConnectionManager({
     activeProvider
   })
@@ -72,10 +73,6 @@ export default function ManageIntegration () {
     console.log('>> editing/modifying connection: ', id, endpoint)
   }
 
-  const testConnection = (connection) => {
-    const { id, endpoint } = connection
-    console.log('>> testing connection: ', id, endpoint)
-  }
 
   const runCollection = (connection) => {
     const { id, endpoint } = connection
@@ -317,8 +314,8 @@ export default function ManageIntegration () {
                               >
                                 <Icon icon='refresh' size={12} />
                                 Collect
-                              </a>
-                              <a
+                              </a> */}
+                              {/* <a
                                 href='#'
                                 data-provider={connection.id}
                                 className='table-action-link actions-link'

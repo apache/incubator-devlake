@@ -55,7 +55,7 @@ func (j Jenkins) Execute(options map[string]interface{}, progress chan<- float32
 		return fmt.Errorf("Failed to decode options: %v", err)
 	}
 	j.CleanData()
-	var worker = tasks.NewJenkinsWorker(nil, tasks.NewDeafultJenkinsStorage(lakeModels.Db), op.Host, op.Username, op.Password)
+	var worker = tasks.NewJenkinsWorker(nil, tasks.NewDefaultJenkinsStorage(lakeModels.Db), op.Host, op.Username, op.Password)
 	err = worker.SyncJobs(progress)
 	if err != nil{
 		logger.Error("Fail to sync jobs", err)
@@ -80,6 +80,9 @@ func (plugin Jenkins) RootPkgPath() string {
 
 func (plugin Jenkins) ApiResources() map[string]map[string]core.ApiResourceHandler {
 	return map[string]map[string]core.ApiResourceHandler{
+		"test": {
+			"GET": api.TestConnection,
+		},
 		"sources": {
 			"GET":  api.ListSources,
 			"POST": api.PostSource,
