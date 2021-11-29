@@ -39,9 +39,7 @@ services:
     environment:
       WAIT_HOSTS: mysql:3306, grafana:3000   
   config-ui:
-    #image: mericodev/config-ui:0.4.0
-    build: 
-      context: ./config-ui
+    image: mericodev/config-ui:0.4.0
     ports:
       - 127.0.0.1:4000:80
     env_file:
