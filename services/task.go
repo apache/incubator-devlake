@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"sync"
 	"time"
 
 	"github.com/merico-dev/lake/errors"
@@ -12,7 +13,32 @@ import (
 	"github.com/merico-dev/lake/plugins"
 )
 
-var runningTasks map[uint64]context.CancelFunc
+type RunningTask struct {
+	mu    sync.Mutex
+	tasks map[uint64]context.CancelFunc
+}
+
+func (rt *RunningTask) Add(taskId uint64, cancel context.CancelFunc) error {
+	rt.mu.Lock()
+	defer rt.mu.Unlock()
+	if _, ok := rt.tasks[taskId]; ok {
+		return fmt.Errorf("task with id %v already running", taskId)
+	}
+	rt.tasks[taskId] = cancel
+	return nil
+}
+
+func (rt *RunningTask) Remove(taskId uint64) (context.CancelFunc, error) {
+	rt.mu.Lock()
+	defer rt.mu.Unlock()
+	if cancel, ok := rt.tasks[taskId]; ok {
+		delete(rt.tasks, taskId)
+		return cancel, nil
+	}
+	return nil, fmt.Errorf("task with id %v not found", taskId)
+}
+
+var runningTasks RunningTask
 
 type TaskQuery struct {
 	Status     string `form:"status"`
@@ -26,7 +52,7 @@ type TaskQuery struct {
 func init() {
 	// set all previous unfinished tasks to status failed
 	models.Db.Model(&models.Task{}).Where("status = ?", models.TASK_RUNNING).Update("status", models.TASK_FAILED)
-	runningTasks = make(map[uint64]context.CancelFunc)
+	runningTasks.tasks = make(map[uint64]context.CancelFunc)
 }
 
 func CreateTask(newTask *models.NewTask) (*models.Task, error) {
@@ -97,14 +123,16 @@ func RunTask(taskId uint64) error {
 	if err != nil {
 		return err
 	}
-	fmt.Printf("task: %v", task)
 	if task.Status != models.TASK_CREATED {
 		return fmt.Errorf("invalid task status")
 	}
 
 	// for task cancelling
 	ctx, cancel := context.WithCancel(context.Background())
-	runningTasks[taskId] = cancel
+	err = runningTasks.Add(taskId, cancel)
+	if err != nil {
+		return err
+	}
 
 	progress := make(chan float32)
 	var options map[string]interface{}
@@ -118,7 +146,7 @@ func RunTask(taskId uint64) error {
 		beganAt := time.Now()
 		// make sure task status always correct even if it panicked
 		defer func() {
-			delete(runningTasks, task.ID)
+			_, _ = runningTasks.Remove(task.ID)
 			close(progress)
 			if r := recover(); r != nil {
 				var ok bool
@@ -174,12 +202,10 @@ func RunTask(taskId uint64) error {
 }
 
 func CancelTask(taskId uint64) error {
-	if cancel, ok := runningTasks[taskId]; ok {
-		logger.Info("cancel task ", taskId)
-		cancel()
-		delete(runningTasks, taskId)
-	} else {
-		return fmt.Errorf("unable to cancel task %v", taskId)
+	cancel, err := runningTasks.Remove(taskId)
+	if err != nil {
+		return err
 	}
+	cancel()
 	return nil
 }
