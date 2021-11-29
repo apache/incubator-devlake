@@ -7,9 +7,6 @@
   -ms-user-select: none;
   user-select: none;
 
-  // background: #FC354C;
-  // background: -webkit-linear-gradient(to left, #0ABFBC, #FC354C);
-  // background: linear-gradient(to left, #0ABFBC, #FC354C);
   &::before {
     width: 100%;
     height: 100%;
@@ -20,31 +17,15 @@
     background: #ECE9E6;
     background: -webkit-linear-gradient(to right, #FFFFFF, #ECE9E6);
     background: linear-gradient(to right, #FFFFFF, #ECE9E6);
-
-    // background: #DE6262;
-    // background: -webkit-linear-gradient(to right, #FFB88C, #DE6262);
-    // background: linear-gradient(to right, #FFB88C, #DE6262);
     transition: all 1.6s ease;
     display: block;
     content: '';
   }
 
   &.is-online::before {
-    // background: #5f2c82;  
-    // background: -webkit-linear-gradient(to right, #49a09d, #5f2c82);  
-    // background: linear-gradient(to right, #49a09d, #5f2c82); 
-    // background: #DE6262;
-    // background: -webkit-linear-gradient(to right, #FFB88C, #DE6262);
-    // background: linear-gradient(to right, #FFB88C, #DE6262);
-    // background: #5C258D;
-    // background: -webkit-linear-gradient(to right, #4389A2, #5C258D);
-    // background: linear-gradient(to right, #4389A2, #5C258D);
-    // background: #1488CC;
-    // background: -webkit-linear-gradient(to left, #2B32B2, #1488CC); 
-    // background: linear-gradient(to left, #2B32B2, #1488CC);
     background: #DE6262;
     background: -webkit-linear-gradient(to right, #FFB88C, #DE6262);
-    background: linear-gradient(to right, #FFB88C, #DE6262);    
+    background: linear-gradient(to right, #FFB88C, #DE6262);
   }
 
   .bp3-card {
@@ -66,25 +47,21 @@
 }
 
 .offline-card-enter {
-  // opacity: 0;
   transform: scale(0.4);
   transition: opacity 300ms, transform 300ms;
 }
 
 .offline-card-enter-active {
-  // opacity: 1;
   transform: scale(1);
   transition: opacity 300ms, transform 300ms;
 }
 
 .offline-card-exit {
-  // opacity: 1;
   transform: scale(0.3);
   transition: opacity 300ms, transform 300ms;
 }
 
 .offline-card-exit-active {
-  // opacity: 0;
   transform: scale(0.9);
   transition: opacity 300ms, transform 300ms;
 }
@@ -92,7 +69,6 @@
 .offline-card-os-enter {
   opacity: 0;
   display: inline-block;
-  //transform: scale(0.9);
   transform: scaleY(-0.75);
   transition: opacity 300ms, transform 300ms;
 }
