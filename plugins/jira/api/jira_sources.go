@@ -21,14 +21,17 @@ func findSourceByInputParam(input *core.ApiResourceInput) (*models.JiraSource, e
 	if err != nil {
 		return nil, fmt.Errorf("invalid sourceId")
 	}
+	return getJiraSourceById(jiraSourceId)
+}
+
+func getJiraSourceById(id uint64) (*models.JiraSource, error) {
 	jiraSource := &models.JiraSource{}
-	err = lakeModels.Db.First(jiraSource, jiraSourceId).Error
+	err := lakeModels.Db.First(jiraSource, id).Error
 	if err != nil {
 		return nil, err
 	}
 	return jiraSource, nil
 }
-
 func mergeFieldsToJiraSource(jiraSource *models.JiraSource, sources ...map[string]interface{}) error {
 	// decode
 	for _, source := range sources {
