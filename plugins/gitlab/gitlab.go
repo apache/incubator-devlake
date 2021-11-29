@@ -62,6 +62,10 @@ func (plugin Gitlab) Execute(options map[string]interface{}, progress chan<- flo
 			"collectCommits":   true,
 			"collectMrs":       true,
 			"enrichMrs":        true,
+			"convertRepos":     true,
+			"convertMrs":       true,
+			"convertCommits":   true,
+			"convertNotes":     true,
 		}
 	}
 	progress <- 0.1
@@ -84,18 +88,46 @@ func (plugin Gitlab) Execute(options map[string]interface{}, progress chan<- flo
 		collectChildrenOnMergeRequests(projectIdInt, scheduler)
 	}
 	if tasksToRun["enrichMrs"] {
-		progress <- 0.8
+		progress <- 0.5
 		enrichErr := tasks.EnrichMergeRequests()
 		if enrichErr != nil {
 			return fmt.Errorf("could not enrich merge requests: %v", enrichErr)
 		}
 	}
 	if tasksToRun["collectPipelines"] {
-		progress <- 0.9
+		progress <- 0.6
 		if err := tasks.CollectAllPipelines(projectIdInt, scheduler); err != nil {
 			return fmt.Errorf("could not collect projects: %v", err)
 		}
 		tasks.CollectChildrenOnPipelines(projectIdInt, scheduler)
+	}
+	if tasksToRun["convertRepos"] {
+		progress <- 0.7
+		err = tasks.ConvertRepos()
+		if err != nil {
+			return err
+		}
+	}
+	if tasksToRun["convertMrs"] {
+		progress <- 0.75
+		err = tasks.ConvertPrs()
+		if err != nil {
+			return err
+		}
+	}
+	if tasksToRun["convertCommits"] {
+		progress <- 0.8
+		err = tasks.ConvertCommits()
+		if err != nil {
+			return err
+		}
+	}
+	if tasksToRun["convertNotes"] {
+		progress <- 0.9
+		err = tasks.ConvertNotes()
+		if err != nil {
+			return err
+		}
 	}
 	progress <- 1
 	close(progress)

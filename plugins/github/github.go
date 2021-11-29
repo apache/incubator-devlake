@@ -72,6 +72,11 @@ func (plugin Github) Execute(options map[string]interface{}, progress chan<- flo
 			"collectCommits": true,
 			"collectIssues":  true,
 			"enrichIssues":   true,
+			"convertRepos":   true,
+			"convertIssues":  true,
+			"convertPrs":     true,
+			"convertCommits": true,
+			"convertNotes":   true,
 		}
 	}
 	repoId, collectRepoErr := tasks.CollectRepository(ownerString, repositoryNameString, githubApiClient)
@@ -83,7 +88,7 @@ func (plugin Github) Execute(options map[string]interface{}, progress chan<- flo
 		return fmt.Errorf("Could not collect repo Issue Labels: %v", err)
 	}
 
-	progress <- 0.2
+	progress <- 0.1
 
 	if tasksToRun["collectCommits"] {
 		fmt.Println("INFO >>> starting commits collection")
@@ -94,7 +99,7 @@ func (plugin Github) Execute(options map[string]interface{}, progress chan<- flo
 		tasks.CollectChildrenOnCommits(ownerString, repositoryNameString, repoId, scheduler, githubApiClient)
 	}
 
-	progress <- 0.4
+	progress <- 0.2
 
 	if tasksToRun["collectIssues"] {
 		fmt.Println("INFO >>> starting issues / PRs collection")
@@ -102,7 +107,7 @@ func (plugin Github) Execute(options map[string]interface{}, progress chan<- flo
 		if collectIssuesErr != nil {
 			return fmt.Errorf("Could not collect issues: %v", collectIssuesErr)
 		}
-		progress <- 0.6
+		progress <- 0.3
 
 		fmt.Println("INFO >>> starting children on issues collection")
 		collectIssueChildrenErr := tasks.CollectChildrenOnIssues(ownerString, repositoryNameString, repoId, scheduler, githubApiClient)
@@ -110,7 +115,7 @@ func (plugin Github) Execute(options map[string]interface{}, progress chan<- flo
 			return fmt.Errorf("Could not collect Issue children: %v", collectIssueChildrenErr)
 		}
 
-		progress <- 0.8
+		progress <- 0.4
 
 		fmt.Println("INFO >>> collecting PR children collection")
 		collectPrChildrenErr := tasks.CollectChildrenOnPullRequests(ownerString, repositoryNameString, repoId, scheduler, githubApiClient)
@@ -119,7 +124,41 @@ func (plugin Github) Execute(options map[string]interface{}, progress chan<- flo
 		}
 
 	}
-
+	if tasksToRun["convertRepos"] {
+		progress <- 0.5
+		err = tasks.ConvertRepos()
+		if err != nil {
+			return err
+		}
+	}
+	if tasksToRun["convertIssues"] {
+		progress <- 0.6
+		err = tasks.ConvertIssues()
+		if err != nil {
+			return err
+		}
+	}
+	if tasksToRun["convertPrs"] {
+		progress <- 0.7
+		err = tasks.ConvertPullRequests()
+		if err != nil {
+			return err
+		}
+	}
+	if tasksToRun["convertCommits"] {
+		progress <- 0.8
+		err = tasks.ConvertCommits()
+		if err != nil {
+			return err
+		}
+	}
+	if tasksToRun["convertNotes"] {
+		progress <- 0.9
+		err = tasks.ConvertNotes()
+		if err != nil {
+			return err
+		}
+	}
 	if tasksToRun["enrichIssues"] {
 		fmt.Println("INFO >>> Enriching Issues")
 		enrichmentError := tasks.EnrichIssues()
