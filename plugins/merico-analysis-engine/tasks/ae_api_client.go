@@ -66,11 +66,7 @@ func CreateApiClient() *AEApiClient {
 type AEPaginationHandler func(res *http.Response) error
 
 // fetch paginated without ANTS worker pool
-func (aeApiClient *AEApiClient) FetchWithPagination(path string, queryParams *url.Values, pageSize int, handler AEPaginationHandler) error {
-	if queryParams == nil {
-		queryParams = &url.Values{}
-	}
-
+func (aeApiClient *AEApiClient) FetchWithPagination(path string, pageSize int, handler AEPaginationHandler) error {
 	currentPage := 1
 
 	// Loop until all pages are requested

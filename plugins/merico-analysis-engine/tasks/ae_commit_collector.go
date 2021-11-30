@@ -24,7 +24,7 @@ func CollectCommits(projectId int) error {
 	aeApiClient := CreateApiClient()
 	relativePath := fmt.Sprintf("projects/%v/commits", projectId)
 	pageSize := 2000
-	return aeApiClient.FetchWithPagination(relativePath, SetQueryParams(1, pageSize), pageSize,
+	return aeApiClient.FetchWithPagination(relativePath, pageSize,
 		func(res *http.Response) error {
 
 			aeApiResponse := &ApiCommitResponse{}
