@@ -1,13 +1,12 @@
 package models
 
 import (
+	"github.com/merico-dev/lake/models/common"
 	"time"
-
-	"github.com/merico-dev/lake/models"
 )
 
 type JiraChangelog struct {
-	models.NoPKModel
+	common.NoPKModel
 
 	// collected fields
 	SourceId          uint64 `gorm:"primaryKey"`
@@ -20,7 +19,7 @@ type JiraChangelog struct {
 }
 
 type JiraChangelogItem struct {
-	models.NoPKModel
+	common.NoPKModel
 
 	// collected fields
 	SourceId    uint64 `gorm:"primaryKey"`

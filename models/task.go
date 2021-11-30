@@ -3,6 +3,7 @@ package models
 import (
 	"time"
 
+	"github.com/merico-dev/lake/models/common"
 	"gorm.io/datatypes"
 )
 
@@ -14,7 +15,7 @@ const (
 )
 
 type Task struct {
-	Model
+	common.Model
 	Plugin       string         `json:"plugin" gorm:"index"`
 	Options      datatypes.JSON `json:"options"`
 	Status       string         `json:"status"`

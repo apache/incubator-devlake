@@ -1,12 +1,13 @@
 package code
 
 import (
-	"github.com/merico-dev/lake/models/domainlayer/base"
 	"time"
+
+	"github.com/merico-dev/lake/models/domainlayer"
 )
 
 type Pr struct {
-	base.DomainEntity
+	domainlayer.DomainEntity
 	RepoId      uint64 `gorm:"index"`
 	State       string `gorm:"comment:open/closed or other"`
 	Title       string

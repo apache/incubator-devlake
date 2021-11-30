@@ -1,9 +1,8 @@
 package models
 
 import (
+	"github.com/merico-dev/lake/models/common"
 	"time"
-
-	"github.com/merico-dev/lake/models"
 )
 
 type GithubPullRequest struct {
@@ -23,5 +22,5 @@ type GithubPullRequest struct {
 	Merged         bool
 	MergedAt       *time.Time
 
-	models.NoPKModel
+	common.NoPKModel
 }

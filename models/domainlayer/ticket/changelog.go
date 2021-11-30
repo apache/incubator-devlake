@@ -1,12 +1,13 @@
 package ticket
 
 import (
-	"github.com/merico-dev/lake/models/domainlayer/base"
 	"time"
+
+	"github.com/merico-dev/lake/models/domainlayer"
 )
 
 type Changelog struct {
-	base.DomainEntity
+	domainlayer.DomainEntity
 
 	// collected fields
 	IssueOriginKey string `gorm:"index"`

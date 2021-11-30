@@ -1,11 +1,11 @@
 package models
 
 import (
-	"github.com/merico-dev/lake/models"
+	"github.com/merico-dev/lake/models/common"
 )
 
 type JiraSource struct {
-	models.Model
+	common.Model
 	Name             string `gorm:"type:varchar(100);uniqueIndex" json:"name" validate:"required"`
 	Endpoint         string `json:"endpoint" validate:"required"`
 	BasicAuthEncoded string `json:"basicAuthEncoded" validate:"required"`

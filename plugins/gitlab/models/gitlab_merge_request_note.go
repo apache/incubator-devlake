@@ -1,9 +1,8 @@
 package models
 
 import (
+	"github.com/merico-dev/lake/models/common"
 	"time"
-
-	"github.com/merico-dev/lake/models"
 )
 
 type GitlabMergeRequestNote struct {
@@ -18,5 +17,5 @@ type GitlabMergeRequestNote struct {
 	Resolvable      bool `gorm:"comment:Is or is not review comment"`
 	System          bool `gorm:"comment:Is or is not auto-generated vs. human generated"`
 
-	models.NoPKModel
+	common.NoPKModel
 }

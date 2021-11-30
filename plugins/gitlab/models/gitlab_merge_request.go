@@ -1,9 +1,8 @@
 package models
 
 import (
+	"github.com/merico-dev/lake/models/common"
 	"time"
-
-	"github.com/merico-dev/lake/models"
 )
 
 type GitlabMergeRequest struct {
@@ -25,5 +24,5 @@ type GitlabMergeRequest struct {
 	FirstCommentTime *time.Time `gorm:"comment:Time when the first comment occurred"`
 	ReviewRounds     int        `gorm:"comment:How many rounds of review this MR went through"`
 
-	models.NoPKModel
+	common.NoPKModel
 }

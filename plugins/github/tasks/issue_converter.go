@@ -3,7 +3,7 @@ package tasks
 import (
 	"fmt"
 	lakeModels "github.com/merico-dev/lake/models"
-	"github.com/merico-dev/lake/models/domainlayer/base"
+	"github.com/merico-dev/lake/models/domainlayer"
 	"github.com/merico-dev/lake/models/domainlayer/okgen"
 	"github.com/merico-dev/lake/models/domainlayer/ticket"
 	githubModels "github.com/merico-dev/lake/plugins/github/models"
@@ -37,7 +37,7 @@ func convertStateToStatus(state string) string {
 
 func convertToIssueModel(issue *githubModels.GithubIssue) *ticket.Issue {
 	domainIssue := &ticket.Issue{
-		DomainEntity: base.DomainEntity{
+		DomainEntity: domainlayer.DomainEntity{
 			OriginKey: okgen.NewOriginKeyGenerator(issue).Generate(issue.GithubId),
 		},
 		Key:               fmt.Sprint(issue.GithubId),

@@ -1,12 +1,13 @@
 package devops
 
 import (
-	"github.com/merico-dev/lake/models/domainlayer/base"
 	"time"
+
+	"github.com/merico-dev/lake/models/domainlayer"
 )
 
 type Build struct {
-	base.DomainEntity
+	domainlayer.DomainEntity
 	JobOriginKey string `gorm:"index"`
 	Name         string
 	CommitSha    string

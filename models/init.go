@@ -7,6 +7,10 @@ import (
 	"time"
 
 	"github.com/merico-dev/lake/config"
+	"github.com/merico-dev/lake/models/domainlayer/code"
+	"github.com/merico-dev/lake/models/domainlayer/devops"
+	"github.com/merico-dev/lake/models/domainlayer/ticket"
+	"github.com/merico-dev/lake/models/domainlayer/user"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
@@ -39,7 +43,24 @@ func init() {
 }
 
 func migrateDB() {
-	err := Db.AutoMigrate(&Task{}, &Notification{}, &Pipeline{})
+	err := Db.AutoMigrate(
+		&Task{},
+		&Notification{},
+		&Pipeline{},
+		&user.User{},
+		&code.Repo{},
+		&code.Commit{},
+		&code.Pr{},
+		&code.Note{},
+		&ticket.Board{},
+		&ticket.Issue{},
+		&ticket.Changelog{},
+		&ticket.Sprint{},
+		&ticket.SprintIssue{},
+		&devops.Job{},
+		&devops.Build{},
+		&ticket.Worklog{},
+	)
 	if err != nil {
 		panic(err)
 	}
