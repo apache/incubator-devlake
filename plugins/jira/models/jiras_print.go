@@ -1,13 +1,12 @@
 package models
 
 import (
+	"github.com/merico-dev/lake/models/common"
 	"time"
-
-	"github.com/merico-dev/lake/models"
 )
 
 type JiraSprint struct {
-	models.NoPKModel
+	common.NoPKModel
 	SourceId      uint64 `gorm:"primaryKey"`
 	SprintId      uint64 `gorm:"primaryKey"`
 	Self          string

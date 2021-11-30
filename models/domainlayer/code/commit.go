@@ -1,12 +1,13 @@
 package code
 
 import (
-	"github.com/merico-dev/lake/models/domainlayer/base"
 	"time"
+
+	"github.com/merico-dev/lake/models/domainlayer"
 )
 
 type Commit struct {
-	base.DomainEntity
+	domainlayer.DomainEntity
 	RepoId         uint64 `gorm:"index;comment:References the repo the commit belongs to."`
 	Sha            string `gorm:"comment:commit hash"`
 	Additions      int    `gorm:"comment:Added lines of code"`

@@ -1,6 +1,8 @@
 package models
 
-import "github.com/merico-dev/lake/models"
+import (
+	"github.com/merico-dev/lake/models/common"
+)
 
 // JenkinsJobProps current used jenkins job props
 type JenkinsJobProps struct {
@@ -11,6 +13,6 @@ type JenkinsJobProps struct {
 
 // JenkinsJob db entity for jenkins job
 type JenkinsJob struct {
-	models.Model
+	common.Model
 	JenkinsJobProps
 }

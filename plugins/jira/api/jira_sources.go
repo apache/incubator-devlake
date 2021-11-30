@@ -2,6 +2,7 @@ package api
 
 import (
 	"fmt"
+	"github.com/merico-dev/lake/models/common"
 	"net/http"
 	"strconv"
 
@@ -73,7 +74,7 @@ func refreshAndSaveJiraSource(jiraSource *models.JiraSource, data map[string]int
 		err = tx.Create(jiraSource).Error
 	}
 	if err != nil {
-		if lakeModels.IsDuplicateError(err) {
+		if common.IsDuplicateError(err) {
 			return fmt.Errorf("jira source with name %s already exists", jiraSource.Name)
 		}
 		return err

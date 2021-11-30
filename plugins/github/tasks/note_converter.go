@@ -2,7 +2,7 @@ package tasks
 
 import (
 	lakeModels "github.com/merico-dev/lake/models"
-	"github.com/merico-dev/lake/models/domainlayer/base"
+	"github.com/merico-dev/lake/models/domainlayer"
 	"github.com/merico-dev/lake/models/domainlayer/code"
 	"github.com/merico-dev/lake/models/domainlayer/okgen"
 	githubModels "github.com/merico-dev/lake/plugins/github/models"
@@ -26,7 +26,7 @@ func ConvertNotes() error {
 }
 func convertToNoteModel(note *githubModels.GithubPullRequestComment) *code.Note {
 	domainNote := &code.Note{
-		DomainEntity: base.DomainEntity{
+		DomainEntity: domainlayer.DomainEntity{
 			OriginKey: okgen.NewOriginKeyGenerator(note).Generate(note.GithubId),
 		},
 		PrId:        uint64(note.PullRequestId),

@@ -2,7 +2,7 @@ package tasks
 
 import (
 	lakeModels "github.com/merico-dev/lake/models"
-	"github.com/merico-dev/lake/models/domainlayer/base"
+	"github.com/merico-dev/lake/models/domainlayer"
 	"github.com/merico-dev/lake/models/domainlayer/code"
 	"github.com/merico-dev/lake/models/domainlayer/okgen"
 	githubModels "github.com/merico-dev/lake/plugins/github/models"
@@ -26,7 +26,7 @@ func ConvertPullRequests() error {
 }
 func convertToPullRequestModel(pr *githubModels.GithubPullRequest) *code.Pr {
 	domainPr := &code.Pr{
-		DomainEntity: base.DomainEntity{
+		DomainEntity: domainlayer.DomainEntity{
 			OriginKey: okgen.NewOriginKeyGenerator(pr).Generate(pr.GithubId),
 		},
 		RepoId:      uint64(pr.RepositoryId),

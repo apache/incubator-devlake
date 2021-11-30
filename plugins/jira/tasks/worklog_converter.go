@@ -3,7 +3,7 @@ package tasks
 import (
 	"github.com/merico-dev/lake/logger"
 	lakeModels "github.com/merico-dev/lake/models"
-	"github.com/merico-dev/lake/models/domainlayer/base"
+	"github.com/merico-dev/lake/models/domainlayer"
 	"github.com/merico-dev/lake/models/domainlayer/okgen"
 	"github.com/merico-dev/lake/models/domainlayer/ticket"
 	jiraModels "github.com/merico-dev/lake/plugins/jira/models"
@@ -35,7 +35,7 @@ func ConvertWorklog(sourceId uint64, boardId uint64) error {
 			return err
 		}
 		worklog := &ticket.Worklog{
-			DomainEntity: base.DomainEntity{
+			DomainEntity: domainlayer.DomainEntity{
 				OriginKey: worklogOriginKeyGenerator.Generate(jiraWorklog.SourceId, jiraWorklog.IssueId, jiraWorklog.WorklogId),
 			},
 			IssueOriginKey:   issueOriginKeyGenerator.Generate(jiraWorklog.SourceId, jiraWorklog.IssueId),

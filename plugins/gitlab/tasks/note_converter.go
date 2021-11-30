@@ -2,7 +2,7 @@ package tasks
 
 import (
 	lakeModels "github.com/merico-dev/lake/models"
-	"github.com/merico-dev/lake/models/domainlayer/base"
+	"github.com/merico-dev/lake/models/domainlayer"
 	"github.com/merico-dev/lake/models/domainlayer/code"
 	"github.com/merico-dev/lake/models/domainlayer/okgen"
 	gitlabModels "github.com/merico-dev/lake/plugins/gitlab/models"
@@ -26,7 +26,7 @@ func ConvertNotes() error {
 }
 func convertToNoteModel(note *gitlabModels.GitlabMergeRequestNote) *code.Note {
 	domainNote := &code.Note{
-		DomainEntity: base.DomainEntity{
+		DomainEntity: domainlayer.DomainEntity{
 			OriginKey: okgen.NewOriginKeyGenerator(note).Generate(note.GitlabId),
 		},
 		PrId:        uint64(note.MergeRequestId),

@@ -1,6 +1,8 @@
 package models
 
-import "github.com/merico-dev/lake/models"
+import (
+	"github.com/merico-dev/lake/models/common"
+)
 
 type GitlabProject struct {
 	GitlabId          int `gorm:"primaryKey"`
@@ -11,5 +13,5 @@ type GitlabProject struct {
 	OpenIssuesCount   int
 	StarCount         int
 
-	models.NoPKModel
+	common.NoPKModel
 }

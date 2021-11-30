@@ -1,7 +1,7 @@
 package models
 
 import (
-	"github.com/merico-dev/lake/models"
+	"github.com/merico-dev/lake/models/common"
 )
 
 // This Model is intended to be an association table between merge request commits and merge requests.
@@ -11,5 +11,5 @@ import (
 type GitlabMergeRequestCommitMergeRequest struct {
 	MergeRequestCommitId string `gorm:"index"`
 	MergeRequestId       int    `gorm:"index"`
-	models.NoPKModel
+	common.NoPKModel
 }

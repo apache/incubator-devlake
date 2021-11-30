@@ -2,7 +2,7 @@ package tasks
 
 import (
 	lakeModels "github.com/merico-dev/lake/models"
-	"github.com/merico-dev/lake/models/domainlayer/base"
+	"github.com/merico-dev/lake/models/domainlayer"
 	"github.com/merico-dev/lake/models/domainlayer/devops"
 	"github.com/merico-dev/lake/models/domainlayer/okgen"
 	jenkinsModels "github.com/merico-dev/lake/plugins/jenkins/models"
@@ -27,7 +27,7 @@ func ConvertJobs() error {
 			return err
 		}
 		job := &devops.Job{
-			DomainEntity: base.DomainEntity{
+			DomainEntity: domainlayer.DomainEntity{
 				OriginKey: jobOriginkeyGenerator.Generate(jenkinsJob.ID),
 			},
 			Name: jenkinsJob.Name,
