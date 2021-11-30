@@ -58,7 +58,7 @@ const SidebarMenu = (props) => {
         <Menu.Item text='Documentation' icon='help' href='https://github.com/merico-dev/lake/blob/main/README.md' target='_blank' />
         <Menu.Item text='Merico Network' icon='globe-network'>
           <Menu.Item text='Merico GitHub' href='https://github.com/merico-dev' target='_blank' />
-          <Menu.Item text='Dev Lake Github' href='https://github.com/merico-dev/lake' target='_blank' />
+          <Menu.Item text='DevLake Github' href='https://github.com/merico-dev/lake' target='_blank' />
           <Menu.Item text='Merico Enterprise' href='https://meri.co/' target='_blank' />
         </Menu.Item>
       </Menu>
