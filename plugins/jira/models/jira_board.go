@@ -1,11 +1,11 @@
 package models
 
 import (
-	"github.com/merico-dev/lake/models"
+	"github.com/merico-dev/lake/models/common"
 )
 
 type JiraBoard struct {
-	models.NoPKModel
+	common.NoPKModel
 	SourceId  uint64 `gorm:"primaryKey"`
 	BoardId   uint64 `gorm:"primaryKey"`
 	ProjectId uint

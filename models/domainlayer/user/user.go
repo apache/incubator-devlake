@@ -1,11 +1,11 @@
 package user
 
 import (
-	"github.com/merico-dev/lake/models/domainlayer/base"
+	"github.com/merico-dev/lake/models/domainlayer"
 )
 
 type User struct {
-	base.DomainEntity
+	domainlayer.DomainEntity
 	Name      string
 	Email     string
 	AvatarUrl string

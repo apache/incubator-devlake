@@ -1,9 +1,8 @@
 package models
 
 import (
+	"github.com/merico-dev/lake/models/common"
 	"time"
-
-	"github.com/merico-dev/lake/models"
 )
 
 // JenkinsBuildProps current used jenkins build props
@@ -19,7 +18,7 @@ type JenkinsBuildProps struct {
 
 // JenkinsBuild db entity for jenkins build
 type JenkinsBuild struct {
-	models.Model
+	common.Model
 	JenkinsBuildProps
 	JobID uint64
 }

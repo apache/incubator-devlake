@@ -1,14 +1,15 @@
 package code
 
 import (
-	"github.com/merico-dev/lake/models/domainlayer/base"
 	"time"
+
+	"github.com/merico-dev/lake/models/domainlayer"
 )
 
 type Note struct {
-	base.DomainEntity
+	domainlayer.DomainEntity
 	PrId        uint64 `gorm:"index;comment:References the pull request for this note"`
-	Type        string 
+	Type        string
 	Author      string
 	Body        string
 	Resolvable  bool `gorm:"comment:Is or is not a review comment"`

@@ -2,7 +2,7 @@ package tasks
 
 import (
 	lakeModels "github.com/merico-dev/lake/models"
-	"github.com/merico-dev/lake/models/domainlayer/base"
+	"github.com/merico-dev/lake/models/domainlayer"
 	"github.com/merico-dev/lake/models/domainlayer/code"
 	"github.com/merico-dev/lake/models/domainlayer/okgen"
 	gitlabModels "github.com/merico-dev/lake/plugins/gitlab/models"
@@ -26,7 +26,7 @@ func ConvertPrs() error {
 }
 func convertToPrModel(mr *gitlabModels.GitlabMergeRequest) *code.Pr {
 	domainPr := &code.Pr{
-		DomainEntity: base.DomainEntity{
+		DomainEntity: domainlayer.DomainEntity{
 			OriginKey: okgen.NewOriginKeyGenerator(mr).Generate(mr.GitlabId),
 		},
 		RepoId:      uint64(mr.ProjectId),

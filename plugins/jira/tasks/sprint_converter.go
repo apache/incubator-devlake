@@ -2,7 +2,7 @@ package tasks
 
 import (
 	lakeModels "github.com/merico-dev/lake/models"
-	"github.com/merico-dev/lake/models/domainlayer/base"
+	"github.com/merico-dev/lake/models/domainlayer"
 	"github.com/merico-dev/lake/models/domainlayer/okgen"
 	"github.com/merico-dev/lake/models/domainlayer/ticket"
 	jiraModels "github.com/merico-dev/lake/plugins/jira/models"
@@ -33,7 +33,7 @@ func ConvertSprint(sourceId uint64, boardId uint64) error {
 			return err
 		}
 		sprint := &ticket.Sprint{
-			DomainEntity: base.DomainEntity{
+			DomainEntity: domainlayer.DomainEntity{
 				OriginKey: sprintOriginKeyGenerator.Generate(jiraSprint.SourceId, jiraSprint.SprintId),
 			},
 			BoardOriginKey: boardOriginKey,

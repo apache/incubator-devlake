@@ -1,9 +1,8 @@
 package models
 
 import (
+	"github.com/merico-dev/lake/models/common"
 	"time"
-
-	"github.com/merico-dev/lake/models"
 )
 
 type GithubIssueEvent struct {
@@ -13,5 +12,5 @@ type GithubIssueEvent struct {
 	AuthorUsername  string
 	GithubCreatedAt time.Time
 
-	models.NoPKModel
+	common.NoPKModel
 }

@@ -2,6 +2,7 @@ package api
 
 import (
 	"fmt"
+	"github.com/merico-dev/lake/models/common"
 	"net/http"
 
 	"github.com/go-playground/validator/v10"
@@ -53,7 +54,7 @@ func mergeFieldsToJiraTypeMapping(
 }
 
 func wrapIssueTypeDuplicateErr(err error) error {
-	if lakeModels.IsDuplicateError(err) {
+	if common.IsDuplicateError(err) {
 		return fmt.Errorf("jira issue type mapping already exists")
 	}
 	return err
