@@ -1,5 +1,7 @@
 package models
 
+import "github.com/merico-dev/lake/models/common"
+
 type NotificationType string
 
 const (
@@ -8,7 +10,7 @@ const (
 
 // Notification records notifications sent by lake
 type Notification struct {
-	Model
+	common.Model
 	Type         NotificationType
 	Endpoint     string
 	Nonce        string

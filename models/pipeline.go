@@ -3,11 +3,12 @@ package models
 import (
 	"time"
 
+	"github.com/merico-dev/lake/models/common"
 	"gorm.io/datatypes"
 )
 
 type Pipeline struct {
-	Model
+	common.Model
 	Name          string         `json:"name" gorm:"index"`
 	Tasks         datatypes.JSON `json:"tasks"`
 	TotalTasks    int            `json:"totalTasks"`

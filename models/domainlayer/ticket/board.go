@@ -1,11 +1,11 @@
 package ticket
 
 import (
-	"github.com/merico-dev/lake/models/domainlayer/base"
+	"github.com/merico-dev/lake/models/domainlayer"
 )
 
 type Board struct {
-	base.DomainEntity
+	domainlayer.DomainEntity
 	Name string
 	Url  string
 }

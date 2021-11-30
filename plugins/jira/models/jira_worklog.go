@@ -1,13 +1,12 @@
 package models
 
 import (
+	"github.com/merico-dev/lake/models/common"
 	"time"
-
-	"github.com/merico-dev/lake/models"
 )
 
 type JiraWorklog struct {
-	models.NoPKModel
+	common.NoPKModel
 	SourceId         uint64 `gorm:"primaryKey"`
 	IssueId          uint64 `gorm:"primarykey"`
 	WorklogId        string `gorm:"primarykey"`

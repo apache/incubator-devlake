@@ -2,7 +2,7 @@ package tasks
 
 import (
 	lakeModels "github.com/merico-dev/lake/models"
-	"github.com/merico-dev/lake/models/domainlayer/base"
+	"github.com/merico-dev/lake/models/domainlayer"
 	"github.com/merico-dev/lake/models/domainlayer/okgen"
 	"github.com/merico-dev/lake/models/domainlayer/user"
 	jiraModels "github.com/merico-dev/lake/plugins/jira/models"
@@ -22,7 +22,7 @@ func ConvertUsers(sourceId uint64) error {
 
 	for _, jiraUser := range jiraUserRows {
 		user := &user.User{
-			DomainEntity: base.DomainEntity{
+			DomainEntity: domainlayer.DomainEntity{
 				OriginKey: userOriginKeyGenerator.Generate(jiraUser.SourceId, jiraUser.AccountId),
 			},
 			Name:      jiraUser.Name,

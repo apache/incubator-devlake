@@ -2,7 +2,7 @@ package tasks
 
 import (
 	lakeModels "github.com/merico-dev/lake/models"
-	"github.com/merico-dev/lake/models/domainlayer/base"
+	"github.com/merico-dev/lake/models/domainlayer"
 	"github.com/merico-dev/lake/models/domainlayer/okgen"
 	"github.com/merico-dev/lake/models/domainlayer/ticket"
 	jiraModels "github.com/merico-dev/lake/plugins/jira/models"
@@ -35,7 +35,7 @@ func ConvertIssues(sourceId uint64, boardId uint64) error {
 			return err
 		}
 		issue := &ticket.Issue{
-			DomainEntity: base.DomainEntity{
+			DomainEntity: domainlayer.DomainEntity{
 				OriginKey: issueOriginKeyGenerator.Generate(jiraIssue.SourceId, jiraIssue.IssueId),
 			},
 			BoardOriginKey:           boardOriginKey,

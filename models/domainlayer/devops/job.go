@@ -1,10 +1,10 @@
 package devops
 
 import (
-	"github.com/merico-dev/lake/models/domainlayer/base"
+	"github.com/merico-dev/lake/models/domainlayer"
 )
 
 type Job struct {
-	base.DomainEntity
+	domainlayer.DomainEntity
 	Name string
 }

@@ -1,9 +1,8 @@
 package models
 
 import (
+	"github.com/merico-dev/lake/models/common"
 	"time"
-
-	"github.com/merico-dev/lake/models"
 )
 
 type GitlabPipeline struct {
@@ -18,5 +17,5 @@ type GitlabPipeline struct {
 	StartedAt       *time.Time
 	FinishedAt      *time.Time
 	Coverage        string
-	models.NoPKModel
+	common.NoPKModel
 }

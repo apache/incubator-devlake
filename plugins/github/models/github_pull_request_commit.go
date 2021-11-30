@@ -1,9 +1,8 @@
 package models
 
 import (
+	"github.com/merico-dev/lake/models/common"
 	"time"
-
-	"github.com/merico-dev/lake/models"
 )
 
 type GithubPullRequestCommit struct {
@@ -18,5 +17,5 @@ type GithubPullRequestCommit struct {
 	Message        string
 	Url            string
 
-	models.NoPKModel
+	common.NoPKModel
 }

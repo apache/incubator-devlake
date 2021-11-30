@@ -1,13 +1,12 @@
 package models
 
 import (
+	"github.com/merico-dev/lake/models/common"
 	"time"
-
-	"github.com/merico-dev/lake/models"
 )
 
 type JiraIssue struct {
-	models.NoPKModel
+	common.NoPKModel
 
 	// collected fields
 	SourceId                 uint64 `gorm:"primaryKey"`

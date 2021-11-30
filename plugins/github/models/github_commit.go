@@ -1,9 +1,8 @@
 package models
 
 import (
+	"github.com/merico-dev/lake/models/common"
 	"time"
-
-	"github.com/merico-dev/lake/models"
 )
 
 type GithubCommit struct {
@@ -20,5 +19,5 @@ type GithubCommit struct {
 	Additions      int `gorm:"comment:Added lines of code"`
 	Deletions      int `gorm:"comment:Deleted lines of code"`
 
-	models.NoPKModel
+	common.NoPKModel
 }
