@@ -8,7 +8,6 @@ import (
 	lakeModels "github.com/merico-dev/lake/models"
 	"github.com/merico-dev/lake/plugins/core"
 	"github.com/merico-dev/lake/plugins/merico-analysis-engine/models"
-	"github.com/merico-dev/lake/utils"
 	"gorm.io/gorm/clause"
 )
 
@@ -21,10 +20,11 @@ type AEApiCommit struct {
 	DevEq       int    `json:"dev_eq"`
 }
 
-func CollectCommits(projectId int, scheduler *utils.WorkerScheduler) error {
+func CollectCommits(projectId int) error {
 	aeApiClient := CreateApiClient()
 	relativePath := fmt.Sprintf("projects/%v/commits", projectId)
-	return aeApiClient.FetchWithPaginationAnts(scheduler, relativePath, SetQueryParams(1, 100), 100,
+	pageSize := 2000
+	return aeApiClient.FetchWithPagination(relativePath, SetQueryParams(1, pageSize), pageSize,
 		func(res *http.Response) error {
 
 			aeApiResponse := &ApiCommitResponse{}

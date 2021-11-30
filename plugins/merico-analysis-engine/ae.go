@@ -8,7 +8,6 @@ import (
 	"github.com/merico-dev/lake/plugins/core"
 	"github.com/merico-dev/lake/plugins/merico-analysis-engine/api"
 	"github.com/merico-dev/lake/plugins/merico-analysis-engine/tasks"
-	"github.com/merico-dev/lake/utils"
 	"github.com/mitchellh/mapstructure"
 )
 
@@ -24,13 +23,6 @@ func (plugin AE) Description() string {
 func (plugin AE) Execute(options map[string]interface{}, progress chan<- float32, ctx context.Context) error {
 	logger.Print("start ae plugin execution")
 
-	// TODO: There is no rate limit from AE as far as I know. I will set these to high values for now
-	scheduler, err := utils.NewWorkerScheduler(500, 500, ctx)
-	defer scheduler.Release()
-	if err != nil {
-		return fmt.Errorf("could not create scheduler")
-	}
-
 	projectId, ok := options["projectId"]
 	if !ok {
 		return fmt.Errorf("projectId is required for ae execution")
@@ -42,7 +34,7 @@ func (plugin AE) Execute(options map[string]interface{}, progress chan<- float32
 	}
 
 	var op AEOptions
-	err = mapstructure.Decode(options, &op)
+	err := mapstructure.Decode(options, &op)
 	if err != nil {
 		return err
 	}
@@ -54,7 +46,7 @@ func (plugin AE) Execute(options map[string]interface{}, progress chan<- float32
 
 	progress <- 0.25
 
-	if err := tasks.CollectCommits(projectIdInt, scheduler); err != nil {
+	if err := tasks.CollectCommits(projectIdInt); err != nil {
 		return fmt.Errorf("could not collect commits: %v", err)
 	}
 
