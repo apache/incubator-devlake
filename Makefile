@@ -21,7 +21,7 @@ configure:
 	docker-compose up config-ui
 
 configure-dev:
-	cd config-ui; npm start;
+	cd config-ui; npm install; npm start;
 
 compose:
 	docker-compose up grafana
