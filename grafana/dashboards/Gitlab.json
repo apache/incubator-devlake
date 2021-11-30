@@ -15,8 +15,8 @@
   "editable": true,
   "gnetId": null,
   "graphTooltip": 0,
-  "id": 7,
-  "iteration": 1637051348648,
+  "id": 10,
+  "iteration": 1638297448523,
   "links": [
     {
       "asDropdown": false,
@@ -568,7 +568,7 @@
           "group": [],
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "with _ranks as(\n  select \n    TIMESTAMPDIFF(SECOND,gitlab_created_at,merged_at)/86400 as metric,\n    percent_rank() over (order by TIMESTAMPDIFF(MINUTE,gitlab_created_at,merged_at) asc) as ranks\n  from gitlab_merge_requests\n  WHERE\n    merged_at is not null\n\t\tand merged_at != ''\n    and $__timeFilter(gitlab_created_at)\n    and project_id = $repo_id\n  )\n  \nselect\n  now() as time,\n  max(metric) as value\nfrom _ranks\nwhere \n  ranks <= 0.8\ngroup by 1",
+          "rawSql": "with _ranks as(\n  select \n    TIMESTAMPDIFF(SECOND,gitlab_created_at,merged_at)/86400 as metric,\n    percent_rank() over (order by TIMESTAMPDIFF(MINUTE,gitlab_created_at,merged_at) asc) as ranks\n  from gitlab_merge_requests\n  WHERE\n    merged_at is not null\n    and $__timeFilter(gitlab_created_at)\n    and project_id = $repo_id\n  )\n  \nselect\n  now() as time,\n  max(metric) as value\nfrom _ranks\nwhere \n  ranks <= 0.8\ngroup by 1",
           "refId": "A",
           "select": [
             [
@@ -2182,5 +2182,5 @@
   "timezone": "",
   "title": "Gitlab",
   "uid": "6YcsxLN7z",
-  "version": 5
+  "version": 2
 }
