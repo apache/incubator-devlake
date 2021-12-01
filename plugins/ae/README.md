@@ -64,13 +64,14 @@ The most valuable data here is the dev_eq. This is a Merico owned measurement of
 
 ## Configuration
 
-You will need to have two tokens in order to run this plugin.
+You will need to set following settings in order to run this plugin.
 
 These can be set in your .env file as
 
 ```
-AE_SIGN=XXX
-AE_NONCE=XXX
+AE_APP_ID=xxx
+AE_SECRET_KEY=xxx
+AE_ENDPOINT=xxx
 ```
 
 TBD: How do non merico users get these keys?
