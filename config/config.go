@@ -25,6 +25,10 @@ type Config struct {
 	JENKINS_ENDPOINT                   string `mapstructure:"JENKINS_ENDPOINT"`
 	JENKINS_USERNAME                   string `mapstructure:"JENKINS_USERNAME"`
 	JENKINS_PASSWORD                   string `mapstructure:"JENKINS_PASSWORD"`
+	AE_APP_ID                          string `mapstructure:"AE_APP_ID"`
+	AE_NONCE_STR                       string `mapstructure:"AE_NONCE_STR"`
+	AE_SIGN                            string `mapstructure:"AE_SIGN"`
+	AE_ENDPOINT                        string `mapstructure:"AE_ENDPOINT"`
 }
 
 var V *viper.Viper
