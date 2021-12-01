@@ -3,7 +3,7 @@ package main
 import (
 	"github.com/merico-dev/lake/logger"
 	lakeModels "github.com/merico-dev/lake/models"
-	"github.com/merico-dev/lake/plugins/merico-analysis-engine/models"
+	"github.com/merico-dev/lake/plugins/ae/models"
 )
 
 func (plugin AE) Init() {
