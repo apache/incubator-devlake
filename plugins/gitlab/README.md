@@ -71,7 +71,7 @@ curl --location --request POST 'localhost:8080/pipelines' \
 {
     "name": "gitlab 20211126",
     "tasks": [[{
-        "plugin": "github",
+        "plugin": "gitlab",
         "options": {
             "projectId": <Your gitlab project id>
         }
