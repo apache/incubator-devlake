@@ -3,7 +3,7 @@ package tasks
 import (
 	lakeModels "github.com/merico-dev/lake/models"
 	"github.com/merico-dev/lake/models/domainlayer/code"
-	aeModels "github.com/merico-dev/lake/plugins/merico-analysis-engine/models"
+	aeModels "github.com/merico-dev/lake/plugins/ae/models"
 )
 
 // NOTE: This only works on Commits in the Domain layer. You need to run Github or Gitlab collection and Domain layer enrichemnt first.

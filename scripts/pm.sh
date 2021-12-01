@@ -321,6 +321,24 @@ jenkins() {
     JSON
 }
 
+ae() {
+    curl -v -XPOST $LAKE_PIPELINE_URL --data @- <<'    JSON'
+    {
+        "name": "test-ae",
+        "tasks": [
+            [
+                {
+                    "plugin": "ae",
+                    "options": {
+                        "projectId": 13
+                    }
+                }
+            ]
+        ]
+    }
+    JSON
+}
+
 truncate() {
     SQL=$()
     echo "SET FOREIGN_KEY_CHECKS=0;"
