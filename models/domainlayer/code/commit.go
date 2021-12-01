@@ -12,6 +12,7 @@ type Commit struct {
 	Sha            string `gorm:"comment:commit hash"`
 	Additions      int    `gorm:"comment:Added lines of code"`
 	Deletions      int    `gorm:"comment:Deleted lines of code"`
+	DevEq          int    `gorm:"comment:Merico developer equivalent from analysis engine"`
 	Message        string
 	AuthorName     string
 	AuthorEmail    string
