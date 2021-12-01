@@ -1,7 +1,6 @@
 package tasks
 
 import (
-	"database/sql"
 	"fmt"
 	"time"
 
@@ -30,15 +29,8 @@ type ChangelogItemResult struct {
 }
 
 func ConvertChangelogs(sourceId uint64, boardId uint64) error {
-	var cursor *sql.Rows
-	var err error
-	defer func() {
-		if cursor != nil {
-			cursor.Close()
-		}
-	}()
 	// select all changelogs belongs to the board
-	cursor, err = lakeModels.Db.Table("jira_changelog_items").
+	cursor, err := lakeModels.Db.Table("jira_changelog_items").
 		Joins(`left join jira_changelogs on (
 			jira_changelogs.source_id = jira_changelog_items.source_id
 			AND jira_changelogs.changelog_id = jira_changelog_items.changelog_id
@@ -53,6 +45,7 @@ func ConvertChangelogs(sourceId uint64, boardId uint64) error {
 	if err != nil {
 		return err
 	}
+	defer cursor.Close()
 
 	issueOriginKeyGenerator := okgen.NewOriginKeyGenerator(&jiraModels.JiraIssue{})
 	changelogOriginKeyGenerator := okgen.NewOriginKeyGenerator(&jiraModels.JiraChangelogItem{})
