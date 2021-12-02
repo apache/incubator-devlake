@@ -12,7 +12,7 @@ import (
 // an Issue Id can be considered a Pull Request Id also.
 
 type GithubIssueLabelIssue struct {
-	IssueLabelId int `gorm:"index"`
-	IssueId      int `gorm:"index"`
+	IssueLabelId int `gorm:"primaryKey;autoIncrement:false"`
+	IssueId      int `gorm:"primaryKey;autoIncrement:false"`
 	common.NoPKModel
 }
