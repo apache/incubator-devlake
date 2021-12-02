@@ -5,9 +5,9 @@ import (
 	"fmt"
 
 	"github.com/merico-dev/lake/logger" // A pseudo type for Plugin Interface implementation
+	"github.com/merico-dev/lake/plugins/ae/api"
+	"github.com/merico-dev/lake/plugins/ae/tasks"
 	"github.com/merico-dev/lake/plugins/core"
-	"github.com/merico-dev/lake/plugins/merico-analysis-engine/api"
-	"github.com/merico-dev/lake/plugins/merico-analysis-engine/tasks"
 	"github.com/mitchellh/mapstructure"
 )
 
