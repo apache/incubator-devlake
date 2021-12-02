@@ -1,0 +1,98 @@
+.offline-wrapper {
+  width: 100%;
+  height: 100%;
+  min-height: 400px;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+
+  &::before {
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    z-index: -1;
+    top: 0;
+    left: 0;
+    background: #ECE9E6;
+    background: -webkit-linear-gradient(to right, #FFFFFF, #ECE9E6);
+    background: linear-gradient(to right, #FFFFFF, #ECE9E6);
+    transition: all 1.6s ease;
+    display: block;
+    content: '';
+  }
+
+  &.is-online::before {
+    background: #DE6262;
+    background: -webkit-linear-gradient(to right, #FFB88C, #DE6262);
+    background: linear-gradient(to right, #FFB88C, #DE6262);
+  }
+
+  .bp3-card {
+    position: relative;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    background-color: #f4f4f4;
+    border: 2px solid #eeeeee;
+    border-radius: 8px;
+  }
+
+  &.is-offline {
+    .bp3-card {
+      background-color: #ffffff;
+    }
+  }
+}
+
+.offline-card-enter {
+  transform: scale(0.4);
+  transition: opacity 300ms, transform 300ms;
+}
+
+.offline-card-enter-active {
+  transform: scale(1);
+  transition: opacity 300ms, transform 300ms;
+}
+
+.offline-card-exit {
+  transform: scale(0.3);
+  transition: opacity 300ms, transform 300ms;
+}
+
+.offline-card-exit-active {
+  transform: scale(0.9);
+  transition: opacity 300ms, transform 300ms;
+}
+
+.offline-card-os-enter {
+  opacity: 0;
+  display: inline-block;
+  transform: scaleY(-0.75);
+  transition: opacity 300ms, transform 300ms;
+}
+
+.offline-card-os-enter-active {
+  opacity: 1;
+  transform: scaleY(0);
+  transition: opacity 300ms, transform 300ms;
+}
+
+.offline-card-os-exit {
+  opacity: 1;
+  transform: scaleY(0.25);
+  transition: opacity 300ms, transform 300ms;
+}
+
+.offline-card-os-exit-active {
+  opacity: 0;
+  transform: scaleY(-0.5);
+  transition: opacity 300ms, transform 300ms;
+}
+
+.bp3-popover-target {
+  &.offline-continue-tooltip-target {
+    width: auto;
+  }
+}

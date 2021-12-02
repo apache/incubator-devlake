@@ -17,6 +17,7 @@ import EditConnection from '@/pages/configure/connections/EditConnection'
 import ConfigureConnection from '@/pages/configure/connections/ConfigureConnection'
 import Triggers from '@/pages/triggers/index'
 import Tasks from '@/pages/tasks'
+import Offline from '@/pages/offline/index'
 
 function App () {
   return (
@@ -48,6 +49,9 @@ function App () {
       </Route>
       <Route exact path='/lake/api/configuration'>
         <Configure />
+      </Route>
+      <Route exact path='/offline'>
+        <Offline />
       </Route>
     </Router>
   )
