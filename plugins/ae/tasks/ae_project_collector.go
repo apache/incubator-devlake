@@ -7,8 +7,8 @@ import (
 
 	"github.com/merico-dev/lake/logger"
 	lakeModels "github.com/merico-dev/lake/models"
+	"github.com/merico-dev/lake/plugins/ae/models"
 	"github.com/merico-dev/lake/plugins/core"
-	"github.com/merico-dev/lake/plugins/merico-analysis-engine/models"
 	"gorm.io/gorm/clause"
 )
 
@@ -23,7 +23,7 @@ type ApiProjectResponse struct {
 func CollectProject(projectId int) error {
 	aeApiClient := CreateApiClient()
 
-	res, err := aeApiClient.Get(fmt.Sprintf("/projects/%v", projectId), SetQueryParams(1, 100), nil)
+	res, err := aeApiClient.Get(fmt.Sprintf("/projects/%v", projectId), nil, nil)
 	if err != nil {
 		logger.Error("Error: ", err)
 		return err

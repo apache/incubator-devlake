@@ -6,8 +6,8 @@ import (
 
 	"github.com/merico-dev/lake/logger"
 	lakeModels "github.com/merico-dev/lake/models"
+	"github.com/merico-dev/lake/plugins/ae/models"
 	"github.com/merico-dev/lake/plugins/core"
-	"github.com/merico-dev/lake/plugins/merico-analysis-engine/models"
 	"gorm.io/gorm/clause"
 )
 
