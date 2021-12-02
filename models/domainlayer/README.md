@@ -18,25 +18,21 @@ The following rules make sure Domain Layer Entities serve its purpose
 
 1. Every platform specific entity can be mapped (or split) to one (or more) Domain Layer Entity
 2. Every Domain Layer Entity contains enough information for metrics calculation
-3. Domain Layer Entity should contains some sort of pointer to its origin record, and all entities should use the same
-   pointer schema
+3. Domain Layer Entity should contains some sort of pointer to its origin record, and all entities should share a same
+   schema
 
 # What
 
 ## Domain Layer Entity
 
-- Each entity has a incremental primary key named `ID` which is platform independent
-- Each entity has a `OriginKey` describe its origin record in format `<Plugin>:<Entity>:<PK0>:<PK1>`
-- All fields needed for metric calculation
+- Each **Domain Entity** has a `OriginKey` describe its origin record in format `<Plugin>:<Entity>:<PK0>:<PK1>`
+- Each **Domain Entity** must contains enough fields needed for all metric calculations
 
-PS: `many-to-many` Entities are not considered as Domain Layer Entity, but part of the system, so they are freed from
-these rules.
+## Data Conversion
 
-
-## Conversion Plugin
-
-- Read data from platform specific table, convert and store record into one or multiple domain table(s)
-- Set `OriginKey`
+- Read data from platform specific table, convert and store record into one(or multiple) domain table(s)
+- Generate its own `OriginKey` accordingly
+- Generate foreign key accordlingly
 - Fields conversion
 
 Sample code:
@@ -44,13 +40,14 @@ Sample code:
 ```go
 
 type Issue struct {
-    ID              uint64
-    OriginKey       string
+    OriginKey       string  `gorm:"primaryKey"`
+    BoardOriginKey  string  `gorm:"index"`
     ...
 }
 
 issue := Issue {
-    OriginKey: "jira:jira_issues:10"
+    OriginKey: "jira:JiraIssues:1:10",
+    BoardOriginKey: "jira:JiraBoard:1:10"
     ...
 }
 
