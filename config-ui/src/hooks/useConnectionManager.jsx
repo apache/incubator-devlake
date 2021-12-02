@@ -8,6 +8,8 @@ import request from '@/utils/request'
 import { NullConnection } from '@/data/NullConnection'
 import { Providers, ProviderSourceLimits } from '@/data/Providers'
 
+import useNetworkOfflineMode from '@/hooks/useNetworkOfflineMode'
+
 function useConnectionManager ({
   activeProvider,
   connectionId,
@@ -25,6 +27,7 @@ function useConnectionManager ({
   // showError, setShowError
 }, updateMode = false) {
   const history = useHistory()
+  const { handleOfflineMode } = useNetworkOfflineMode()
 
   const [name, setName] = useState()
   const [endpointUrl, setEndpointUrl] = useState()
@@ -257,8 +260,9 @@ function useConnectionManager ({
       setConnectionCount(0)
       setConnectionLimitReached(false)
       setErrors([e.message])
+      handleOfflineMode(e.response.status, e.response)
     }
-  }, [activeProvider.id, sourceLimits])
+  }, [activeProvider.id, sourceLimits, handleOfflineMode])
 
   const deleteConnection = useCallback(async (connection) => {
     try {
