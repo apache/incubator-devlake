@@ -9,7 +9,7 @@ import (
 // (which are commits associated to a merge request) and merge requests.
 
 type GitlabMergeRequestCommitMergeRequest struct {
-	MergeRequestCommitId string `gorm:"index"`
-	MergeRequestId       int    `gorm:"index"`
+	MergeRequestCommitId string `gorm:"primaryKey"`
+	MergeRequestId       int    `gorm:"primaryKey;autoIncrement:false"`
 	common.NoPKModel
 }

@@ -9,7 +9,7 @@ import (
 // (which are commits associated to a pull request) and pull requests.
 
 type GithubPullRequestCommitPullRequest struct {
-	PullRequestCommitSha string `gorm:"index"`
-	PullRequestId       int    `gorm:"index"`
+	PullRequestCommitSha string `gorm:"primaryKey"`
+	PullRequestId        int    `gorm:"primaryKey;autoIncrement:false"`
 	common.NoPKModel
 }
