@@ -19,6 +19,9 @@ if [ ! -z "$PLUGIN" ]; then
     fi
   done
 else
+  # When rebuilding from all plugins, clean out old binaries first
+  rm -rf bin/plugins/*
+
   for PLUG in $(find $PLUGIN_SRC_DIR/* -maxdepth 0 -type d -not -name core -not -empty); do
     NAME=$(basename $PLUG)
 
