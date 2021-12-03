@@ -33,6 +33,8 @@ func convertToCommitModel(commit *gitlabModels.GitlabCommit) *code.Commit {
 		RepoId:         uint64(commit.ProjectId),
 		Message:        commit.Message,
 		AuthorName:     commit.AuthorName,
+		Additions:      commit.Additions,
+		Deletions:      commit.Deletions,
 		AuthorEmail:    commit.AuthorEmail,
 		AuthoredDate:   commit.AuthoredDate,
 		CommitterName:  commit.CommitterName,
