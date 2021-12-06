@@ -26,11 +26,6 @@ type GitlabMergeRequestCommit struct {
 	CommitterEmail string           `json:"committer_email"`
 	CommittedDate  core.Iso8601Time `json:"committed_date"`
 	WebUrl         string           `json:"web_url"`
-	Stats          struct {
-		Additions int
-		Deletions int
-		Total     int
-	}
 }
 
 func CollectMergeRequestCommits(projectId int, mr *models.GitlabMergeRequest) error {
@@ -88,9 +83,6 @@ func convertMergeRequestCommit(commit *GitlabMergeRequestCommit) (*models.Gitlab
 		CommitterEmail: commit.CommitterEmail,
 		CommittedDate:  commit.CommittedDate.ToTime(),
 		WebUrl:         commit.WebUrl,
-		Additions:      commit.Stats.Additions,
-		Deletions:      commit.Stats.Deletions,
-		Total:          commit.Stats.Total,
 	}
 	return gitlabMergeRequestCommit, nil
 }
