@@ -1,5 +1,5 @@
 import React from 'react'
-import { Alert, Intent, TextArea, FormGroup } from '@blueprintjs/core'
+import { Alert, Intent, TextArea } from '@blueprintjs/core'
 
 const SaveAlert = ({ alertOpen, onClose }) => {
   return (
