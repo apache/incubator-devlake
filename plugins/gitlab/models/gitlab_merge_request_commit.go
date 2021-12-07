@@ -1,8 +1,9 @@
 package models
 
 import (
-	"github.com/merico-dev/lake/models/common"
 	"time"
+
+	"github.com/merico-dev/lake/models/common"
 )
 
 // This Model is intended to save commits that are associated to a merge request
@@ -23,8 +24,5 @@ type GitlabMergeRequestCommit struct {
 	CommitterEmail string
 	CommittedDate  time.Time
 	WebUrl         string
-	Additions      int `gorm:"comment:Added lines of code"`
-	Deletions      int `gorm:"comment:Deleted lines of code"`
-	Total          int `gorm:"comment:Sum of added/deleted lines of code"`
 	common.NoPKModel
 }
