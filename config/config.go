@@ -33,16 +33,19 @@ type Config struct {
 
 var V *viper.Viper
 
-func LoadConfigFile() *viper.Viper {
+func LoadConfigFile(envPath string) *viper.Viper {
+	if envPath == "" {
+		envPath = ".env"
+	}
 	V = viper.New()
-	V.SetConfigFile(".env")
+	V.SetConfigFile(envPath)
 	_ = V.ReadInConfig()
 	V.AutomaticEnv()
 	return V
 }
 
 func init() {
-	V := LoadConfigFile()
+	V := LoadConfigFile("")
 	V.SetDefault("PORT", ":8080")
 	V.SetDefault("PLUGIN_DIR", "bin/plugins")
 	// This line is essential for reading and writing
