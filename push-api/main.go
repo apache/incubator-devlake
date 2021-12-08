@@ -8,10 +8,6 @@ import (
 	"github.com/merico-dev/lake/push-api/db"
 )
 
-// Next steps
-// Connect to DB [x]
-// Insert record (commit) into DB using SQL
-
 /*
 	POST /api/:tableName
 	[
