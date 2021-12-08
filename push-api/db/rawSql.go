@@ -14,7 +14,7 @@ func InsertThing(tableName string, thingToInsert map[string]interface{}) error {
 	if err != nil {
 		return err
 	}
-	rowsAffected, err := res.RowsAffected()
+	rowsAffected, _ := res.RowsAffected()
 	fmt.Println("INFO >>> rowsAffected", rowsAffected)
 	return nil
 }
