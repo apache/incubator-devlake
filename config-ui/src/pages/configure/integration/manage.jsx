@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback } from 'react'
+import React, { useEffect, useState } from 'react'
 import {
   useParams,
   Link,
@@ -9,8 +9,6 @@ import {
   Tooltip,
   Position,
   Icon,
-  Intent,
-  Popover,
 } from '@blueprintjs/core'
 import Nav from '@/components/Nav'
 import Sidebar from '@/components/Sidebar'
@@ -47,7 +45,7 @@ export default function ManageIntegration () {
     fetchAllConnections,
     errors,
     deleteComplete,
-    testConnection
+    // testConnection
   } = useConnectionManager({
     activeProvider
   })
@@ -73,13 +71,13 @@ export default function ManageIntegration () {
     console.log('>> editing/modifying connection: ', id, endpoint)
   }
 
-
-  const runCollection = (connection) => {
-    const { id, endpoint } = connection
-    ToastNotification.clear()
-    ToastNotification.show({ message: `Triggered Collection Process on ${connection.name}`, icon: 'info-sign' })
-    console.log('>> running connection: ', id, endpoint)
-  }
+  // @todo: Implement
+  // const runCollection = (connection) => {
+  //   const { id, endpoint } = connection
+  //   ToastNotification.clear()
+  //   ToastNotification.show({ message: `Triggered Collection Process on ${connection.name}`, icon: 'info-sign' })
+  //   console.log('>> running connection: ', id, endpoint)
+  // }
 
   const runDeletion = (connection) => {
     setIsRunningDelete(true)

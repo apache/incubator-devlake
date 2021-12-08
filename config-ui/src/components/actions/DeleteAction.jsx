@@ -1,13 +1,10 @@
 import React, { Fragment } from 'react'
 import {
-  Button, Card, Elevation, Colors,
-  Spinner,
-  Tooltip,
+  Button, Colors,
   Position,
   Icon,
   Intent,
   Popover,
-  Popover2,
   Classes
 } from '@blueprintjs/core'
 

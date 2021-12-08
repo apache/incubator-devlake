@@ -1,5 +1,4 @@
-import { Button, Position, Toast, Toaster } from '@blueprintjs/core'
-import React, { useEffect, useState } from 'react'
+import { Position, Toaster } from '@blueprintjs/core'
 
 export const ToastNotification = Toaster.create({
   className: 'recipe-toaster',

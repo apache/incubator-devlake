@@ -16,7 +16,6 @@ import AddConnection from '@/pages/configure/connections/AddConnection'
 import EditConnection from '@/pages/configure/connections/EditConnection'
 import ConfigureConnection from '@/pages/configure/connections/ConfigureConnection'
 import Triggers from '@/pages/triggers/index'
-import Tasks from '@/pages/tasks'
 import Offline from '@/pages/offline/index'
 
 function App () {
@@ -40,9 +39,6 @@ function App () {
       </Route>
       <Route exact path='/integrations'>
         <Integration />
-      </Route>
-      <Route exact path='/tasks'>
-        <Tasks />
       </Route>
       <Route exact path='/triggers'>
         <Triggers />
