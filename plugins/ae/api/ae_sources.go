@@ -32,7 +32,7 @@ func PutSource(input *core.ApiResourceInput) (*core.ApiResourceOutput, error) {
 	if err != nil {
 		return nil, err
 	}
-	V := config.LoadConfigFile()
+	V := config.LoadConfigFile("")
 
 	if aeSource.AE_APP_ID != "" {
 		V.Set("AE_SIGN", aeSource.AE_SIGN)
@@ -81,7 +81,7 @@ func GetSource(input *core.ApiResourceInput) (*core.ApiResourceOutput, error) {
 }
 
 func GetSourceFromEnv() (*AEResponse, error) {
-	V := config.LoadConfigFile()
+	V := config.LoadConfigFile("")
 	var configJson AEConfig
 	err := V.Unmarshal(&configJson)
 	if err != nil {
