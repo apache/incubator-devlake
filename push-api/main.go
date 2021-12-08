@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -26,7 +27,10 @@ func main() {
 	router := gin.Default()
 	router.POST("/api/:tableName", Post)
 
-	router.Run("localhost:9123")
+	err := router.Run("localhost:9123")
+	if err != nil {
+		fmt.Println("ERROR >>> a2kj4: ", err)
+	}
 }
 
 func Post(c *gin.Context) {
@@ -35,12 +39,12 @@ func Post(c *gin.Context) {
 	var unknownThings []map[string]interface{}
 	err = c.BindJSON(&unknownThings)
 	if err != nil {
-		c.AbortWithError(400, err)
+		_ = c.AbortWithError(http.StatusBadRequest, err)
 	}
 	for _, unknownThing := range unknownThings {
 		err := db.InsertThing(tableName, unknownThing)
 		if err != nil {
-			c.AbortWithError(500, err)
+			_ = c.AbortWithError(http.StatusInternalServerError, err)
 		}
 	}
 	c.IndentedJSON(http.StatusOK, []string{"thanks"})
