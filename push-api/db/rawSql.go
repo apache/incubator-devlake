@@ -4,19 +4,16 @@ import (
 	"fmt"
 )
 
-func InsertThing(tableName string, thingToInsert map[string]interface{}) error {
+func InsertThing(tableName string, thingToInsert map[string]interface{}) (int64, error) {
 	keys, values := GetKeysAndValues(thingToInsert)
 
 	rawSql := fmt.Sprintf("INSERT INTO %v (%v) VALUES(%v);", tableName, keys, values)
-	fmt.Println("INFO >>> rawSql", rawSql)
 
 	res, err := Db.Exec(rawSql)
 	if err != nil {
-		return err
+		return 0, err
 	}
-	rowsAffected, _ := res.RowsAffected()
-	fmt.Println("INFO >>> rowsAffected", rowsAffected)
-	return nil
+	return res.RowsAffected()
 }
 
 func GetKeysAndValues(thingToInsert map[string]interface{}) (keys string, values string) {
