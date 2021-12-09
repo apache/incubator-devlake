@@ -1,7 +1,9 @@
-package db
+package push
 
 import (
 	"fmt"
+
+	"github.com/merico-dev/lake/models"
 )
 
 func InsertThing(tableName string, thingToInsert map[string]interface{}) (int64, error) {
@@ -9,11 +11,11 @@ func InsertThing(tableName string, thingToInsert map[string]interface{}) (int64,
 
 	rawSql := fmt.Sprintf("INSERT INTO %v (%v) VALUES(%v);", tableName, keys, values)
 
-	res, err := Db.Exec(rawSql)
-	if err != nil {
-		return 0, err
+	tx := models.Db.Exec(rawSql)
+	if tx.Error != nil {
+		return 0, tx.Error
 	}
-	return res.RowsAffected()
+	return tx.RowsAffected, nil
 }
 
 func GetKeysAndValues(thingToInsert map[string]interface{}) (keys string, values string) {

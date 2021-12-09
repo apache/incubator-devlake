@@ -30,7 +30,7 @@ func Set(ctx *gin.Context) {
 		return
 	}
 
-	V := config.LoadConfigFile("")
+	V := config.LoadConfigFile()
 
 	V.Set("PORT", data.PORT)
 	V.Set("DB_URL", data.DB_URL)
