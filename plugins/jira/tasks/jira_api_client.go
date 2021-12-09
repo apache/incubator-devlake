@@ -29,6 +29,12 @@ func NewJiraApiClient(endpoint string, auth string) *JiraApiClient {
 		10*time.Second,
 		3,
 	)
+	jiraApiClient.SetAfterFunction(func(res *http.Response) error {
+		if res.StatusCode == http.StatusUnauthorized {
+			return fmt.Errorf("authentication failed, please check your Basic Auth Token")
+		}
+		return nil
+	})
 	return jiraApiClient
 }
 
