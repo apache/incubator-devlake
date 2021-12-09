@@ -23,7 +23,7 @@
 ### What is DevLake?
 DevLake brings all your DevOps data into one practical, personalized, extensible view. Ingest, analyze, and visualize data from an ever-growing list of developer tools, with our free and open source product.
 
-DevLake is most exciting for leaders and managers looking to make better sense of their development data, though it's useful for any developer looking to bring a more data-driven approach to their own practices. With DevLake you can ask your process any question, just connect and query. 
+DevLake is most exciting for developer teams looking to make better sense of their development process and to bring a more data-driven approach to their own practices. With DevLake you can ask your process any question, just connect and query. 
 
 
 #### Get started with just a few clicks
