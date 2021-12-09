@@ -82,6 +82,10 @@ func (apiClient *ApiClient) SetBeforeFunction(callback ApiClientBeforeRequest) {
 	apiClient.beforeRequest = callback
 }
 
+func (apiClient *ApiClient) SetAfterFunction(callback ApiClientAfterResponse) {
+	apiClient.afterReponse = callback
+}
+
 func (apiClient *ApiClient) SetProxy(proxyUrl string) error {
 	pu, err := url.Parse(proxyUrl)
 	if err != nil {
@@ -149,10 +153,13 @@ func (apiClient *ApiClient) Do(
 				retry += 1
 				continue
 			}
-			return nil, err
 		} else {
 			break
 		}
+	}
+
+	if err != nil {
+		return nil, err
 	}
 
 	// after recieve
@@ -163,7 +170,7 @@ func (apiClient *ApiClient) Do(
 		}
 	}
 
-	return res, nil
+	return res, err
 }
 
 func (apiClient *ApiClient) Get(
