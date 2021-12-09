@@ -20,13 +20,13 @@ func Post(c *gin.Context) {
 	var err error
 	var totalRowsAffected int64
 	tableName := c.Param("tableName")
-	var unknownThings []map[string]interface{}
-	err = c.BindJSON(&unknownThings)
+	var rowsToInsert []map[string]interface{}
+	err = c.BindJSON(&rowsToInsert)
 	if err != nil {
 		_ = c.AbortWithError(http.StatusBadRequest, err)
 	}
-	for _, unknownThing := range unknownThings {
-		rowsAffected, err := InsertThing(tableName, unknownThing)
+	for _, rowToInsert := range rowsToInsert {
+		rowsAffected, err := InsertRow(tableName, rowToInsert)
 		if err != nil {
 			_ = c.AbortWithError(http.StatusInternalServerError, err)
 		}
