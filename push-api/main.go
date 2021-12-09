@@ -31,6 +31,7 @@ func main() {
 
 func Post(c *gin.Context) {
 	var err error
+	var totalRowsAffected int64
 	tableName := c.Param("tableName")
 	var unknownThings []map[string]interface{}
 	err = c.BindJSON(&unknownThings)
@@ -38,10 +39,15 @@ func Post(c *gin.Context) {
 		_ = c.AbortWithError(http.StatusBadRequest, err)
 	}
 	for _, unknownThing := range unknownThings {
-		err := db.InsertThing(tableName, unknownThing)
+		rowsAffected, err := db.InsertThing(tableName, unknownThing)
 		if err != nil {
 			_ = c.AbortWithError(http.StatusInternalServerError, err)
 		}
+		totalRowsAffected += rowsAffected
 	}
-	c.IndentedJSON(http.StatusOK, []string{"thanks"})
+	if len(c.Errors) > 0 {
+		c.JSON(http.StatusOK, c.Errors)
+	} else {
+		c.JSON(http.StatusOK, gin.H{"Rows affected": totalRowsAffected})
+	}
 }
