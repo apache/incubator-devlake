@@ -6,7 +6,7 @@ import {
 import { Button, Card, Elevation } from '@blueprintjs/core'
 import SidebarMenu from '@/components/Sidebar/SidebarMenu'
 import MenuConfiguration from '@/components/Sidebar/MenuConfiguration'
-import { GRAFANA_ENDPOINT } from '@/utils/config'
+import { GRAFANA_ENDPOINT, GRAFANA_BASE_URL, LOCAL_BASE_URL } from '@/utils/config'
 
 import '@/styles/sidebar.scss'
 
@@ -22,7 +22,7 @@ const Sidebar = () => {
   return (
     <Card interactive={false} elevation={Elevation.ZERO} className='card sidebar-card'>
       <img src='/logo.svg' className='logo' />
-      <a href={GRAFANA_ENDPOINT} rel='noreferrer' target='_blank' className='dashboardBtnLink'>
+      <a href={process.env.LOCAL ? LOCAL_BASE_URL + GRAFANA_ENDPOINT: GRAFANA_BASE_URL + GRAFANA_ENDPOINT} rel='noreferrer' target='_blank' className='dashboardBtnLink'>
         <Button icon='grouped-bar-chart' outlined={true} className='dashboardBtn'>View Dashboards</Button>
       </a>
 

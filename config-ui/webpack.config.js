@@ -6,6 +6,7 @@ const HtmlWebpackPlugin = require('html-webpack-plugin')
 const CopyPlugin = require('copy-webpack-plugin')
 const { CleanWebpackPlugin } = require('clean-webpack-plugin')
 const ESLintPlugin = require('eslint-webpack-plugin')
+const Dotenv = require('dotenv-webpack');
 
 module.exports = (env = {}) => {
   const optionalPlugins = []
@@ -92,6 +93,12 @@ module.exports = (env = {}) => {
       publicPath: '/'
     },
     plugins: [
+      new webpack.DefinePlugin({
+        'process.env': {
+          LOCAL: true,
+        },
+      }),
+      new Dotenv(),
       new CleanWebpackPlugin(),
       new webpack.HotModuleReplacementPlugin(),
       new HtmlWebpackPlugin({
@@ -119,8 +126,6 @@ module.exports = (env = {}) => {
       historyApiFallback: true,
       proxy: {
         '/api': { target: 'http://[::1]:8080', pathRewrite: { '^/api': '' }, changeOrigin: true },
-        // this should be a redirection instead of proxy
-        '/grafana': { target: 'http://localhost:3002', pathRewrite: { '^/grafana': '' }, changeOrigin: true }
       }
     },
     devtool: 'source-map'

@@ -12,7 +12,7 @@ import Sidebar from '@/components/Sidebar'
 import AppCrumbs from '@/components/Breadcrumbs'
 import Content from '@/components/Content'
 import request from '@/utils/request'
-import { DEVLAKE_ENDPOINT, GRAFANA_ENDPOINT } from '@/utils/config.js'
+import { DEVLAKE_ENDPOINT, GRAFANA_ENDPOINT, GRAFANA_BASE_URL, LOCAL_BASE_URL } from '@/utils/config.js'
 import TriggersUtil  from '@/utils/triggersUtil'
 import SourcesUtil from '@/utils/sourcesUtil'
 
@@ -121,7 +121,7 @@ export default function Triggers () {
               <h1>Done</h1>
               <p className='description'>Navigate to Grafana to view updated metrics</p>
               <AnchorButton
-                href={GRAFANA_ENDPOINT}
+                href={process.env.LOCAL ? LOCAL_BASE_URL + GRAFANA_ENDPOINT : GRAFANA_BASE_URL + GRAFANA_ENDPOINT}
                 icon='grouped-bar-chart'
                 target='_blank'
                 text='View Dashboards'
