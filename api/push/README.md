@@ -2,21 +2,14 @@
 
 ## Summary
 
-This is an optional generic API service that gives our users the ability to inject data directly to their own database using a simple, all-purpose endpoint.
-
-## To Run
-
-```
-cd ./push-api
-make build-and-run
-```
+This is a generic API service that gives our users the ability to inject data directly to their own database using a simple, all-purpose endpoint.
 
 ## The Endpoint
 
-POST to ```localhost:9123/api/:tableName```
+POST to ```localhost:8080/push/:tableName```
 
 Where "tableName" is the name of the table you wish to insert into 
-For example, "commits" would be ```/api/commits```
+For example, "commits" would be ```/push/commits```
 
 ## The JSON body
 
@@ -33,12 +26,5 @@ Please Note: You must know the schema you are inserting into (column names, type
 	]
 ```
 
-## Docker Implementation - Coming Soon
-
-Steps To Do:
-
-- Fix Dockerfile
-- Test image
-- Add to docker-compose.yml
 
 
