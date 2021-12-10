@@ -215,6 +215,7 @@ func convertIssue(source *models.JiraSource, jiraApiIssue *JiraApiIssue) (jiraIs
 		workload, _ = jiraApiIssue.Fields[source.StoryPointField].(float64)
 	}
 	jiraIssue = &models.JiraIssue{
+		AllFields:          jiraApiIssue.Fields,
 		SourceId:           source.ID,
 		IssueId:            id,
 		ProjectId:          projectId,
