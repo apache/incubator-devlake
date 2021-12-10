@@ -1,6 +1,7 @@
 package tasks
 
 import (
+	"context"
 	"crypto/md5"
 	"encoding/hex"
 	"fmt"
@@ -17,6 +18,7 @@ import (
 
 type AEApiClient struct {
 	core.ApiClient
+	ctx context.Context
 }
 
 var letterRunes = []rune("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789")
@@ -60,7 +62,12 @@ func getSign(query url.Values, appId, secretKey, nonceStr, timestamp string) str
 	return strings.ToUpper(hex.EncodeToString(hasher.Sum(nil)))
 }
 
-func beforeRequest(req *http.Request) error {
+func (client *AEApiClient) beforeRequest(req *http.Request) error {
+	select {
+	case <-client.ctx.Done():
+		return core.TaskCanceled
+	default:
+	}
 	appId := config.V.GetString("AE_APP_ID")
 	if appId == "" {
 		return fmt.Errorf("invalid AE_APP_ID")
@@ -79,15 +86,25 @@ func beforeRequest(req *http.Request) error {
 	return nil
 }
 
-func CreateApiClient() *AEApiClient {
-	aeApiClient := &AEApiClient{}
+func (client *AEApiClient) afterReponse(res *http.Response) error {
+	select {
+	case <-client.ctx.Done():
+		return core.TaskCanceled
+	default:
+	}
+	return nil
+}
+
+func CreateApiClient(ctx context.Context) *AEApiClient {
+	aeApiClient := &AEApiClient{ctx: ctx}
 	aeApiClient.Setup(
 		config.V.GetString("AE_ENDPOINT"),
 		nil,
 		10*time.Second,
 		3,
 	)
-	aeApiClient.SetBeforeFunction(beforeRequest)
+	aeApiClient.SetBeforeFunction(aeApiClient.beforeRequest)
+	aeApiClient.SetAfterFunction(aeApiClient.afterReponse)
 	return aeApiClient
 }
 
