@@ -2,6 +2,7 @@ package models
 
 import (
 	"github.com/merico-dev/lake/models/common"
+	"gorm.io/datatypes"
 	"time"
 )
 
@@ -51,6 +52,7 @@ type JiraIssue struct {
 	StdStoryPoint   uint
 	StdType         string
 	StdStatus       string
+	AllFields       datatypes.JSONMap
 
 	// internal status tracking
 	ChangelogUpdated *time.Time
