@@ -1,6 +1,7 @@
 package tasks
 
 import (
+	"context"
 	"fmt"
 	"net/http"
 
@@ -20,8 +21,8 @@ type AEApiCommit struct {
 	DevEq       int    `json:"dev_eq"`
 }
 
-func CollectCommits(projectId int) error {
-	aeApiClient := CreateApiClient()
+func CollectCommits(projectId int, ctx context.Context) error {
+	aeApiClient := CreateApiClient(ctx)
 	relativePath := fmt.Sprintf("projects/%v/commits", projectId)
 	pageSize := 2000
 	return aeApiClient.FetchWithPagination(relativePath, pageSize,
