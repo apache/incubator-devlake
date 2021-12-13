@@ -2,9 +2,10 @@ package tasks
 
 import (
 	"fmt"
+
 	lakeModels "github.com/merico-dev/lake/models"
 	"github.com/merico-dev/lake/models/domainlayer"
-	"github.com/merico-dev/lake/models/domainlayer/okgen"
+	"github.com/merico-dev/lake/models/domainlayer/didgen"
 	"github.com/merico-dev/lake/models/domainlayer/ticket"
 	githubModels "github.com/merico-dev/lake/plugins/github/models"
 	"gorm.io/gorm/clause"
@@ -38,19 +39,19 @@ func convertStateToStatus(state string) string {
 func convertToIssueModel(issue *githubModels.GithubIssue) *ticket.Issue {
 	domainIssue := &ticket.Issue{
 		DomainEntity: domainlayer.DomainEntity{
-			OriginKey: okgen.NewOriginKeyGenerator(issue).Generate(issue.GithubId),
+			Id: didgen.NewDomainIdGenerator(issue).Generate(issue.GithubId),
 		},
-		Key:               fmt.Sprint(issue.GithubId),
-		Title:             issue.Title,
-		Summary:           issue.Body,
-		Status:            convertStateToStatus(issue.State),
-		Priority:          issue.Priority,
-		Type:              issue.Type,
-		AssigneeOriginKey: issue.Assignee,
-		LeadTimeMinutes:   issue.LeadTimeMinutes,
-		CreatedDate:       issue.GithubCreatedAt,
-		UpdatedDate:       issue.GithubUpdatedAt,
-		ResolutionDate:    issue.ClosedAt,
+		Key:             fmt.Sprint(issue.GithubId),
+		Title:           issue.Title,
+		Summary:         issue.Body,
+		Status:          convertStateToStatus(issue.State),
+		Priority:        issue.Priority,
+		Type:            issue.Type,
+		AssigneeId:      issue.Assignee,
+		LeadTimeMinutes: issue.LeadTimeMinutes,
+		CreatedDate:     issue.GithubCreatedAt,
+		UpdatedDate:     issue.GithubUpdatedAt,
+		ResolutionDate:  issue.ClosedAt,
 	}
 	return domainIssue
 }

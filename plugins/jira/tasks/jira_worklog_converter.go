@@ -4,7 +4,7 @@ import (
 	"github.com/merico-dev/lake/logger"
 	lakeModels "github.com/merico-dev/lake/models"
 	"github.com/merico-dev/lake/models/domainlayer"
-	"github.com/merico-dev/lake/models/domainlayer/okgen"
+	"github.com/merico-dev/lake/models/domainlayer/didgen"
 	"github.com/merico-dev/lake/models/domainlayer/ticket"
 	jiraModels "github.com/merico-dev/lake/plugins/jira/models"
 	"gorm.io/gorm/clause"
@@ -24,10 +24,10 @@ func ConvertWorklog(sourceId uint64, boardId uint64) error {
 	}
 	defer cursor.Close()
 
-	boardOriginKey := okgen.NewOriginKeyGenerator(&jiraModels.JiraBoard{}).Generate(sourceId, boardId)
-	worklogOriginKeyGenerator := okgen.NewOriginKeyGenerator(&jiraModels.JiraWorklog{})
-	userOriginKeyGenerator := okgen.NewOriginKeyGenerator(&jiraModels.JiraUser{})
-	issueOriginKeyGenerator := okgen.NewOriginKeyGenerator(&jiraModels.JiraIssue{})
+	boardIdGen := didgen.NewDomainIdGenerator(&jiraModels.JiraBoard{}).Generate(sourceId, boardId)
+	worklogIdGen := didgen.NewDomainIdGenerator(&jiraModels.JiraWorklog{})
+	userIdGen := didgen.NewDomainIdGenerator(&jiraModels.JiraUser{})
+	issueIdGen := didgen.NewDomainIdGenerator(&jiraModels.JiraIssue{})
 	// iterate all rows
 	for cursor.Next() {
 		err = lakeModels.Db.ScanRows(cursor, jiraWorklog)
@@ -36,20 +36,20 @@ func ConvertWorklog(sourceId uint64, boardId uint64) error {
 		}
 		worklog := &ticket.Worklog{
 			DomainEntity: domainlayer.DomainEntity{
-				OriginKey: worklogOriginKeyGenerator.Generate(jiraWorklog.SourceId, jiraWorklog.IssueId, jiraWorklog.WorklogId),
+				Id: worklogIdGen.Generate(jiraWorklog.SourceId, jiraWorklog.IssueId, jiraWorklog.WorklogId),
 			},
-			IssueOriginKey:   issueOriginKeyGenerator.Generate(jiraWorklog.SourceId, jiraWorklog.IssueId),
-			BoardOriginKey:   boardOriginKey,
+			IssueId:          issueIdGen.Generate(jiraWorklog.SourceId, jiraWorklog.IssueId),
+			BoardId:          boardIdGen,
 			TimeSpent:        jiraWorklog.TimeSpent,
 			TimeSpentSeconds: jiraWorklog.TimeSpentSeconds,
 			Updated:          jiraWorklog.Updated,
 			Started:          jiraWorklog.Started,
 		}
 		if jiraWorklog.AuthorId != "" {
-			worklog.AuthorId = userOriginKeyGenerator.Generate(sourceId, jiraWorklog.AuthorId)
+			worklog.AuthorId = userIdGen.Generate(sourceId, jiraWorklog.AuthorId)
 		}
 		if jiraWorklog.UpdateAuthorId != "" {
-			worklog.UpdateAuthorId = userOriginKeyGenerator.Generate(sourceId, jiraWorklog.UpdateAuthorId)
+			worklog.UpdateAuthorId = userIdGen.Generate(sourceId, jiraWorklog.UpdateAuthorId)
 		}
 
 		err = lakeModels.Db.Clauses(clause.OnConflict{UpdateAll: true}).Create(worklog).Error
