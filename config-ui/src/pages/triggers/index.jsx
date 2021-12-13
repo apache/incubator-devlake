@@ -12,7 +12,7 @@ import Sidebar from '@/components/Sidebar'
 import AppCrumbs from '@/components/Breadcrumbs'
 import Content from '@/components/Content'
 import request from '@/utils/request'
-import { GRAFANA_URL } from '@/utils/config.js'
+import { DEVLAKE_ENDPOINT, GRAFANA_URL } from '@/utils/config.js'
 import TriggersUtil  from '@/utils/triggersUtil'
 import SourcesUtil from '@/utils/sourcesUtil'
 
