@@ -4,7 +4,7 @@ import (
 	lakeModels "github.com/merico-dev/lake/models"
 	"github.com/merico-dev/lake/models/domainlayer"
 	"github.com/merico-dev/lake/models/domainlayer/code"
-	"github.com/merico-dev/lake/models/domainlayer/okgen"
+	"github.com/merico-dev/lake/models/domainlayer/didgen"
 	gitlabModels "github.com/merico-dev/lake/plugins/gitlab/models"
 	"gorm.io/gorm/clause"
 )
@@ -27,7 +27,7 @@ func ConvertNotes() error {
 func convertToNoteModel(note *gitlabModels.GitlabMergeRequestNote) *code.Note {
 	domainNote := &code.Note{
 		DomainEntity: domainlayer.DomainEntity{
-			OriginKey: okgen.NewOriginKeyGenerator(note).Generate(note.GitlabId),
+			Id: didgen.NewDomainIdGenerator(note).Generate(note.GitlabId),
 		},
 		PrId:        uint64(note.MergeRequestId),
 		Type:        note.NoteableType,

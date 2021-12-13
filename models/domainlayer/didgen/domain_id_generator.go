@@ -1,4 +1,4 @@
-package okgen
+package didgen
 
 import (
 	"fmt"
@@ -8,7 +8,7 @@ import (
 	"github.com/merico-dev/lake/plugins/core"
 )
 
-type OriginKeyGenerator struct {
+type DomainIdGenerator struct {
 	prefix  string
 	pkNames []string
 	pkTypes []reflect.Type
@@ -31,7 +31,7 @@ func walkFields(t reflect.Type, pkNames *[]string, pkTypes *[]reflect.Type) {
 	}
 }
 
-func NewOriginKeyGenerator(entityPtr interface{}) *OriginKeyGenerator {
+func NewDomainIdGenerator(entityPtr interface{}) *DomainIdGenerator {
 	v := reflect.ValueOf(entityPtr)
 	if v.Kind() != reflect.Ptr {
 		panic("entityPtr is not a pointer")
@@ -56,14 +56,14 @@ func NewOriginKeyGenerator(entityPtr interface{}) *OriginKeyGenerator {
 		panic(fmt.Errorf("no primary key found for %s:%s", pluginName, structName))
 	}
 
-	return &OriginKeyGenerator{
+	return &DomainIdGenerator{
 		prefix:  fmt.Sprintf("%s:%s", pluginName, structName),
 		pkNames: pkNames,
 		pkTypes: pkTypes,
 	}
 }
 
-func (g *OriginKeyGenerator) Generate(pkValues ...interface{}) string {
+func (g *DomainIdGenerator) Generate(pkValues ...interface{}) string {
 	originKey := g.prefix
 	for i, pkValue := range pkValues {
 		// type checking

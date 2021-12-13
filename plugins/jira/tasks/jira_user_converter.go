@@ -3,7 +3,7 @@ package tasks
 import (
 	lakeModels "github.com/merico-dev/lake/models"
 	"github.com/merico-dev/lake/models/domainlayer"
-	"github.com/merico-dev/lake/models/domainlayer/okgen"
+	"github.com/merico-dev/lake/models/domainlayer/didgen"
 	"github.com/merico-dev/lake/models/domainlayer/user"
 	jiraModels "github.com/merico-dev/lake/plugins/jira/models"
 	"gorm.io/gorm/clause"
@@ -18,12 +18,12 @@ func ConvertUsers(sourceId uint64) error {
 		return err
 	}
 
-	userOriginKeyGenerator := okgen.NewOriginKeyGenerator(&jiraModels.JiraUser{})
+	userIdGen := didgen.NewDomainIdGenerator(&jiraModels.JiraUser{})
 
 	for _, jiraUser := range jiraUserRows {
 		user := &user.User{
 			DomainEntity: domainlayer.DomainEntity{
-				OriginKey: userOriginKeyGenerator.Generate(jiraUser.SourceId, jiraUser.AccountId),
+				Id: userIdGen.Generate(jiraUser.SourceId, jiraUser.AccountId),
 			},
 			Name:      jiraUser.Name,
 			Email:     jiraUser.Email,

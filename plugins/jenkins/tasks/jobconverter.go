@@ -4,7 +4,7 @@ import (
 	lakeModels "github.com/merico-dev/lake/models"
 	"github.com/merico-dev/lake/models/domainlayer"
 	"github.com/merico-dev/lake/models/domainlayer/devops"
-	"github.com/merico-dev/lake/models/domainlayer/okgen"
+	"github.com/merico-dev/lake/models/domainlayer/didgen"
 	jenkinsModels "github.com/merico-dev/lake/plugins/jenkins/models"
 	"gorm.io/gorm/clause"
 )
@@ -18,7 +18,7 @@ func ConvertJobs() error {
 	}
 	defer cursor.Close()
 
-	jobOriginkeyGenerator := okgen.NewOriginKeyGenerator(jenkinsJob)
+	jobIdGen := didgen.NewDomainIdGenerator(jenkinsJob)
 
 	// iterate all rows
 	for cursor.Next() {
@@ -28,7 +28,7 @@ func ConvertJobs() error {
 		}
 		job := &devops.Job{
 			DomainEntity: domainlayer.DomainEntity{
-				OriginKey: jobOriginkeyGenerator.Generate(jenkinsJob.ID),
+				Id: jobIdGen.Generate(jenkinsJob.ID),
 			},
 			Name: jenkinsJob.Name,
 		}
