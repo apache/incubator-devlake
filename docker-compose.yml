@@ -13,6 +13,8 @@ services:
       MYSQL_DATABASE: lake
       MYSQL_USER: merico
       MYSQL_PASSWORD: merico
+    networks:
+      - base
   grafana:
     image: mericodev/grafana:0.5.0
     ports:
@@ -28,7 +30,7 @@ services:
     depends_on:
       - mysql
   devlake:
-    image: mericodev/lake:0.5.0
+    image: devlake:local
     ports:
       - 127.0.0.1:8080:8080
     restart: always
@@ -36,6 +38,8 @@ services:
       - ./.env:/app/.env
     depends_on:
       - mysql
+    networks:
+      - base
   config-ui:
     image: mericodev/config-ui:0.5.0
     ports:
@@ -49,3 +53,7 @@ services:
 volumes:
   mysql-storage:
   grafana-storage:
+networks:
+  base:
+    external:
+      name: base_base

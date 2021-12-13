@@ -23,7 +23,7 @@ jobs:
       uses: actions/checkout@v2
     - name: setup mysql
       run: |
-        sudo /etc/init.d/mysql start
+        sudo systemctl start mysql.service
         mysql -e 'CREATE DATABASE ${{ env.DB_DATABASE }};' -u${{ env.DB_USER }} -p${{ env.DB_PASSWORD }}
     - name: setup redis
       uses: shogo82148/actions-setup-redis@v1
