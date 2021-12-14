@@ -6,11 +6,12 @@ import (
 
 type JiraSource struct {
 	common.Model
-	Name             string `gorm:"type:varchar(100);uniqueIndex" json:"name" validate:"required"`
-	Endpoint         string `json:"endpoint" validate:"required"`
-	BasicAuthEncoded string `json:"basicAuthEncoded" validate:"required"`
-	EpicKeyField     string `gorm:"type:varchar(50);" json:"epicKeyField"`
-	StoryPointField  string `gorm:"type:varchar(50);" json:"storyPointField"`
+	Name                       string `gorm:"type:varchar(100);uniqueIndex" json:"name" validate:"required"`
+	Endpoint                   string `json:"endpoint" validate:"required"`
+	BasicAuthEncoded           string `json:"basicAuthEncoded" validate:"required"`
+	EpicKeyField               string `gorm:"type:varchar(50);" json:"epicKeyField"`
+	StoryPointField            string `gorm:"type:varchar(50);" json:"storyPointField"`
+	RemotelinkCommitShaPattern string `gorm:"type:varchar(255);comment='golang regexp, the first group will be recognized as commit sha, ref https://github.com/google/re2/wiki/Syntax'" json:"remotelinkCommitShaPattern"`
 }
 
 type JiraIssueTypeMapping struct {
