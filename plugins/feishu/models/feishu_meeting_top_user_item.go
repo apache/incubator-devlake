@@ -4,7 +4,7 @@ import (
 	"time"
 )
 
-type MeetingTopUserItem struct {
+type FeishuMeetingTopUserItem struct {
 	Model           `json:"-"`
 	StartTime       time.Time
 	MeetingCount    string `json:"meeting_count"`
