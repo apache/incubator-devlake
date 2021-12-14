@@ -64,7 +64,7 @@ func NewDomainIdGenerator(entityPtr interface{}) *DomainIdGenerator {
 }
 
 func (g *DomainIdGenerator) Generate(pkValues ...interface{}) string {
-	originKey := g.prefix
+	id := g.prefix
 	for i, pkValue := range pkValues {
 		// type checking
 		if reflect.ValueOf(pkValue).Type() != g.pkTypes[i] {
@@ -74,7 +74,7 @@ func (g *DomainIdGenerator) Generate(pkValues ...interface{}) string {
 			))
 		}
 		// append pk
-		originKey += ":" + fmt.Sprintf("%v", pkValue)
+		id += ":" + fmt.Sprintf("%v", pkValue)
 	}
-	return originKey
+	return id
 }
