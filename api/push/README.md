@@ -8,7 +8,7 @@ This is a generic API service that gives our users the ability to inject data di
 
 POST to ```localhost:8080/push/:tableName```
 
-Where "tableName" is the name of the table you wish to insert into 
+Where "tableName" is the name of the table you wish to insert into
 For example, "commits" would be ```/push/commits```
 
 ## The JSON body
@@ -16,14 +16,14 @@ For example, "commits" would be ```/push/commits```
 Include a JSON body that consists of an array of objects you wish to insert.
 Please Note: You must know the schema you are inserting into (column names, types, etc.)
 ```
-	[
-		{
-			"origin_key": "gitlab...etc",
-			"sha": "osidjfoawehfwh08",
-      "additions": 89,
-      ...
-		}
-	]
+[
+    {
+        "id": "gitlab...etc",
+        "sha": "osidjfoawehfwh08",
+        "additions": 89,
+        ...
+    }
+]
 ```
 
 
