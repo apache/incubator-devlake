@@ -4,7 +4,7 @@ import (
 	lakeModels "github.com/merico-dev/lake/models"
 	"github.com/merico-dev/lake/models/domainlayer"
 	"github.com/merico-dev/lake/models/domainlayer/devops"
-	"github.com/merico-dev/lake/models/domainlayer/okgen"
+	"github.com/merico-dev/lake/models/domainlayer/didgen"
 	jenkinsModels "github.com/merico-dev/lake/plugins/jenkins/models"
 	"gorm.io/gorm/clause"
 )
@@ -18,8 +18,8 @@ func ConvertBuilds() error {
 	}
 	defer cursor.Close()
 
-	jobOriginkeyGenerator := okgen.NewOriginKeyGenerator(&jenkinsModels.JenkinsJob{})
-	buildOriginkeyGenerator := okgen.NewOriginKeyGenerator(jenkinsBuild)
+	jobIdGen := didgen.NewDomainIdGenerator(&jenkinsModels.JenkinsJob{})
+	buildIdGen := didgen.NewDomainIdGenerator(jenkinsBuild)
 
 	// iterate all rows
 	for cursor.Next() {
@@ -29,13 +29,13 @@ func ConvertBuilds() error {
 		}
 		build := &devops.Build{
 			DomainEntity: domainlayer.DomainEntity{
-				OriginKey: buildOriginkeyGenerator.Generate(jenkinsBuild.ID),
+				Id: buildIdGen.Generate(jenkinsBuild.ID),
 			},
-			JobOriginKey: jobOriginkeyGenerator.Generate(jenkinsBuild.JobID),
-			Name:         jenkinsBuild.DisplayName,
-			DurationSec:  uint64(jenkinsBuild.Duration),
-			Status:       jenkinsBuild.Result,
-			StartedDate:  jenkinsBuild.StartTime,
+			JobId:       jobIdGen.Generate(jenkinsBuild.JobID),
+			Name:        jenkinsBuild.DisplayName,
+			DurationSec: uint64(jenkinsBuild.Duration),
+			Status:      jenkinsBuild.Result,
+			StartedDate: jenkinsBuild.StartTime,
 		}
 
 		err = lakeModels.Db.Clauses(clause.OnConflict{UpdateAll: true}).Create(build).Error

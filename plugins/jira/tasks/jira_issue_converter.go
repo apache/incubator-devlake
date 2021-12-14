@@ -3,7 +3,7 @@ package tasks
 import (
 	lakeModels "github.com/merico-dev/lake/models"
 	"github.com/merico-dev/lake/models/domainlayer"
-	"github.com/merico-dev/lake/models/domainlayer/okgen"
+	"github.com/merico-dev/lake/models/domainlayer/didgen"
 	"github.com/merico-dev/lake/models/domainlayer/ticket"
 	jiraModels "github.com/merico-dev/lake/plugins/jira/models"
 	"gorm.io/gorm/clause"
@@ -23,10 +23,10 @@ func ConvertIssues(sourceId uint64, boardId uint64) error {
 	}
 	defer cursor.Close()
 
-	boardOriginKey := okgen.NewOriginKeyGenerator(&jiraModels.JiraBoard{}).Generate(sourceId, boardId)
-	issueOriginKeyGenerator := okgen.NewOriginKeyGenerator(&jiraModels.JiraIssue{})
-	userOriginKeyGenerator := okgen.NewOriginKeyGenerator(&jiraModels.JiraUser{})
-	sprintOriginKeyGenerator := okgen.NewOriginKeyGenerator(&jiraModels.JiraSprint{})
+	boardIdGen := didgen.NewDomainIdGenerator(&jiraModels.JiraBoard{}).Generate(sourceId, boardId)
+	issueIdGen := didgen.NewDomainIdGenerator(&jiraModels.JiraIssue{})
+	userIdGen := didgen.NewDomainIdGenerator(&jiraModels.JiraUser{})
+	sprintIdGen := didgen.NewDomainIdGenerator(&jiraModels.JiraSprint{})
 
 	// iterate all rows
 	for cursor.Next() {
@@ -36,9 +36,9 @@ func ConvertIssues(sourceId uint64, boardId uint64) error {
 		}
 		issue := &ticket.Issue{
 			DomainEntity: domainlayer.DomainEntity{
-				OriginKey: issueOriginKeyGenerator.Generate(jiraIssue.SourceId, jiraIssue.IssueId),
+				Id: issueIdGen.Generate(jiraIssue.SourceId, jiraIssue.IssueId),
 			},
-			BoardOriginKey:           boardOriginKey,
+			BoardId:                  boardIdGen,
 			Url:                      jiraIssue.Self,
 			Key:                      jiraIssue.Key,
 			Summary:                  jiraIssue.Summary,
@@ -49,7 +49,7 @@ func ConvertIssues(sourceId uint64, boardId uint64) error {
 			OriginalEstimateMinutes:  jiraIssue.OriginalEstimateMinutes,
 			AggregateEstimateMinutes: jiraIssue.AggregateEstimateMinutes,
 			RemainingEstimateMinutes: jiraIssue.RemainingEstimateMinutes,
-			CreatorOriginKey:         userOriginKeyGenerator.Generate(sourceId, jiraIssue.CreatorAccountId),
+			CreatorId:                userIdGen.Generate(sourceId, jiraIssue.CreatorAccountId),
 			ResolutionDate:           jiraIssue.ResolutionDate,
 			Priority:                 jiraIssue.PriorityName,
 			CreatedDate:              jiraIssue.Created,
@@ -58,13 +58,13 @@ func ConvertIssues(sourceId uint64, boardId uint64) error {
 			SpentMinutes:             jiraIssue.SpentMinutes,
 		}
 		if jiraIssue.AssigneeAccountId != "" {
-			issue.AssigneeOriginKey = userOriginKeyGenerator.Generate(sourceId, jiraIssue.AssigneeAccountId)
+			issue.AssigneeId = userIdGen.Generate(sourceId, jiraIssue.AssigneeAccountId)
 		}
 		if jiraIssue.ParentId != 0 {
-			issue.ParentOriginKey = issueOriginKeyGenerator.Generate(sourceId, jiraIssue.ParentId)
+			issue.ParentId = issueIdGen.Generate(sourceId, jiraIssue.ParentId)
 		}
 		if jiraIssue.SprintId != 0 {
-			issue.SprintOriginKey = sprintOriginKeyGenerator.Generate(sourceId, jiraIssue.SprintId)
+			issue.SprintId = sprintIdGen.Generate(sourceId, jiraIssue.SprintId)
 		}
 
 		err = lakeModels.Db.Clauses(clause.OnConflict{UpdateAll: true}).Create(issue).Error

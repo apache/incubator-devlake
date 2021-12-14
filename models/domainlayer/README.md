@@ -25,13 +25,22 @@ The following rules make sure Domain Layer Entities serve its purpose
 
 ## Domain Layer Entity
 
-- Each **Domain Entity** has a `OriginKey` describe its origin record in format `<Plugin>:<Entity>:<PK0>:<PK1>`
+- Each **Domain Entity** has a `Id` with type `string` describe its origin record in format
+  `<Plugin>:<Entity>:<PK0>:<PK1>`, because:
+  1. Different platforms might choice different types as their Primary Key, i.e. `AutoIncremental Integer` or `uuid`
+  2. Platform might or might not use `composite primary keys`
+  3. Primary key might overlay between entities, and multiple entities most likely will be combined into one table
+  4. Different plugins might use same entity name, even they can not co-exists at the same time, so plugin name must be
+     included for distinction
+  5. This format is deterministic, each of every entity can be converted independently in parallel, and data could be
+     rebuilt arbitrary time with same output, which mean you can truncate any table at any time, and data integrity
+     will be restored on next run. (this is not possible for `AutoIncremental Integer` or `uuid`)
 - Each **Domain Entity** must contains enough fields needed for all metric calculations
 
 ## Data Conversion
 
 - Read data from platform specific table, convert and store record into one(or multiple) domain table(s)
-- Generate its own `OriginKey` accordingly
+- Generate its own `Id` accordingly
 - Generate foreign key accordlingly
 - Fields conversion
 
@@ -40,14 +49,14 @@ Sample code:
 ```go
 
 type Issue struct {
-    OriginKey       string  `gorm:"primaryKey"`
-    BoardOriginKey  string  `gorm:"index"`
+    Id       string  `gorm:"primaryKey"`
+    BoardId  string  `gorm:"index"`
     ...
 }
 
 issue := Issue {
-    OriginKey: "jira:JiraIssues:1:10",
-    BoardOriginKey: "jira:JiraBoard:1:10"
+    Id:         "jira:JiraIssues:1:10",
+    BoardId:    "jira:JiraBoard:1:10"
     ...
 }
 

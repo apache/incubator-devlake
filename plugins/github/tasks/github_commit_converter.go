@@ -4,7 +4,7 @@ import (
 	lakeModels "github.com/merico-dev/lake/models"
 	"github.com/merico-dev/lake/models/domainlayer"
 	"github.com/merico-dev/lake/models/domainlayer/code"
-	"github.com/merico-dev/lake/models/domainlayer/okgen"
+	"github.com/merico-dev/lake/models/domainlayer/didgen"
 	githubModels "github.com/merico-dev/lake/plugins/github/models"
 	"gorm.io/gorm/clause"
 )
@@ -27,7 +27,7 @@ func ConvertCommits() error {
 func convertToCommitModel(commit *githubModels.GithubCommit) *code.Commit {
 	domainCommit := &code.Commit{
 		DomainEntity: domainlayer.DomainEntity{
-			OriginKey: okgen.NewOriginKeyGenerator(commit).Generate(commit.Sha),
+			Id: didgen.NewDomainIdGenerator(commit).Generate(commit.Sha),
 		},
 		Sha:            commit.Sha,
 		RepoId:         uint64(commit.RepositoryId),

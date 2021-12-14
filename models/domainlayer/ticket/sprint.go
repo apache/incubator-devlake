@@ -10,16 +10,16 @@ type Sprint struct {
 	domainlayer.DomainEntity
 
 	// collected fields
-	BoardOriginKey string `gorm:"index"`
-	Url            string
-	State          string
-	Name           string
-	StartDate      *time.Time
-	EndDate        *time.Time
-	CompleteDate   *time.Time
+	BoardId      string `gorm:"index"`
+	Url          string
+	State        string
+	Name         string
+	StartDate    *time.Time
+	EndDate      *time.Time
+	CompleteDate *time.Time
 }
 
 type SprintIssue struct {
-	SprintOriginKey string `gorm:"primaryKey"`
-	IssueOriginKey  string `gorm:"primaryKey"`
+	SprintId string `gorm:"primaryKey"`
+	IssueId  string `gorm:"primaryKey"`
 }

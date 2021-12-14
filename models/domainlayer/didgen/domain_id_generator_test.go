@@ -1,4 +1,4 @@
-package okgen
+package didgen
 
 import (
 	"context"
@@ -38,14 +38,14 @@ func TestOriginKeyGenerator(t *testing.T) {
 	var foo FooPlugin
 	assert.Nil(t, core.RegisterPlugin("fooplugin", &foo))
 
-	g := NewOriginKeyGenerator(&FooModel{})
+	g := NewDomainIdGenerator(&FooModel{})
 	assert.Equal(t, g.prefix, "fooplugin:FooModel")
 
 	originKey := g.Generate(uint(2))
 	assert.Equal(t, "fooplugin:FooModel:2", originKey)
 
 	assert.Panics(t, func() {
-		NewOriginKeyGenerator(&foo)
+		NewDomainIdGenerator(&foo)
 	})
 
 	assert.Panics(t, func() {
