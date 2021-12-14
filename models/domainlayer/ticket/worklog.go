@@ -8,8 +8,8 @@ import (
 
 type Worklog struct {
 	domainlayer.DomainEntity
-	IssueOriginKey   string `gorm:"index"`
-	BoardOriginKey   string `gorm:"index"`
+	IssueId          string `gorm:"index"`
+	BoardId          string `gorm:"index"`
 	AuthorId         string
 	UpdateAuthorId   string
 	TimeSpent        string

@@ -4,7 +4,7 @@ import (
 	lakeModels "github.com/merico-dev/lake/models"
 	"github.com/merico-dev/lake/models/domainlayer"
 	"github.com/merico-dev/lake/models/domainlayer/code"
-	"github.com/merico-dev/lake/models/domainlayer/okgen"
+	"github.com/merico-dev/lake/models/domainlayer/didgen"
 	githubModels "github.com/merico-dev/lake/plugins/github/models"
 	"gorm.io/gorm/clause"
 )
@@ -27,7 +27,7 @@ func ConvertRepos() error {
 func convertToRepositoryModel(repository *githubModels.GithubRepository) *code.Repo {
 	domainRepository := &code.Repo{
 		DomainEntity: domainlayer.DomainEntity{
-			OriginKey: okgen.NewOriginKeyGenerator(repository).Generate(repository.GithubId),
+			Id: didgen.NewDomainIdGenerator(repository).Generate(repository.GithubId),
 		},
 		Name: repository.Name,
 		Url:  repository.HTMLUrl,

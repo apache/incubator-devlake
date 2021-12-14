@@ -3,7 +3,7 @@ package tasks
 import (
 	lakeModels "github.com/merico-dev/lake/models"
 	"github.com/merico-dev/lake/models/domainlayer"
-	"github.com/merico-dev/lake/models/domainlayer/okgen"
+	"github.com/merico-dev/lake/models/domainlayer/didgen"
 	"github.com/merico-dev/lake/models/domainlayer/ticket"
 	jiraModels "github.com/merico-dev/lake/plugins/jira/models"
 	"gorm.io/gorm/clause"
@@ -22,9 +22,9 @@ func ConvertSprint(sourceId uint64, boardId uint64) error {
 	}
 	defer cursor.Close()
 
-	boardOriginKey := okgen.NewOriginKeyGenerator(&jiraModels.JiraBoard{}).Generate(sourceId, boardId)
-	sprintOriginKeyGenerator := okgen.NewOriginKeyGenerator(&jiraModels.JiraSprint{})
-	issueOriginKeyGenerator := okgen.NewOriginKeyGenerator(&jiraModels.JiraIssue{})
+	boardIdGen := didgen.NewDomainIdGenerator(&jiraModels.JiraBoard{}).Generate(sourceId, boardId)
+	sprintIdGen := didgen.NewDomainIdGenerator(&jiraModels.JiraSprint{})
+	issueIdGen := didgen.NewDomainIdGenerator(&jiraModels.JiraIssue{})
 	// iterate all rows
 	for cursor.Next() {
 		var jiraSprint jiraModels.JiraSprint
@@ -34,15 +34,15 @@ func ConvertSprint(sourceId uint64, boardId uint64) error {
 		}
 		sprint := &ticket.Sprint{
 			DomainEntity: domainlayer.DomainEntity{
-				OriginKey: sprintOriginKeyGenerator.Generate(jiraSprint.SourceId, jiraSprint.SprintId),
+				Id: sprintIdGen.Generate(jiraSprint.SourceId, jiraSprint.SprintId),
 			},
-			BoardOriginKey: boardOriginKey,
-			Url:            jiraSprint.Self,
-			State:          jiraSprint.State,
-			Name:           jiraSprint.Name,
-			StartDate:      jiraSprint.StartDate,
-			EndDate:        jiraSprint.EndDate,
-			CompleteDate:   jiraSprint.CompleteDate,
+			BoardId:      boardIdGen,
+			Url:          jiraSprint.Self,
+			State:        jiraSprint.State,
+			Name:         jiraSprint.Name,
+			StartDate:    jiraSprint.StartDate,
+			EndDate:      jiraSprint.EndDate,
+			CompleteDate: jiraSprint.CompleteDate,
 		}
 		err = lakeModels.Db.Clauses(clause.OnConflict{UpdateAll: true}).Create(sprint).Error
 		if err != nil {
@@ -54,10 +54,10 @@ func ConvertSprint(sourceId uint64, boardId uint64) error {
 			return err
 		}
 		domainSprintIssues := make([]ticket.SprintIssue, 0, len(sprintIssues))
-		for _, si := range sprintIssues{
+		for _, si := range sprintIssues {
 			dsi := ticket.SprintIssue{
-				SprintOriginKey: sprint.OriginKey,
-				IssueOriginKey:  issueOriginKeyGenerator.Generate(sourceId, si.IssueId),
+				SprintId: sprint.Id,
+				IssueId:  issueIdGen.Generate(sourceId, si.IssueId),
 			}
 			domainSprintIssues = append(domainSprintIssues, dsi)
 		}

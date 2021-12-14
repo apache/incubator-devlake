@@ -6,7 +6,7 @@ import (
 
 	"github.com/merico-dev/lake/logger"
 	lakeModels "github.com/merico-dev/lake/models"
-	"github.com/merico-dev/lake/models/domainlayer/okgen"
+	"github.com/merico-dev/lake/models/domainlayer/didgen"
 	"github.com/merico-dev/lake/models/domainlayer/ticket"
 	jiraModels "github.com/merico-dev/lake/plugins/jira/models"
 	"gorm.io/gorm/clause"
@@ -47,8 +47,8 @@ func ConvertChangelogs(sourceId uint64, boardId uint64) error {
 	}
 	defer cursor.Close()
 
-	issueOriginKeyGenerator := okgen.NewOriginKeyGenerator(&jiraModels.JiraIssue{})
-	changelogOriginKeyGenerator := okgen.NewOriginKeyGenerator(&jiraModels.JiraChangelogItem{})
+	issueIdGenerator := didgen.NewDomainIdGenerator(&jiraModels.JiraIssue{})
+	changelogIdGenerator := didgen.NewDomainIdGenerator(&jiraModels.JiraChangelogItem{})
 
 	// save in batch
 	size := 1000
@@ -62,7 +62,7 @@ func ConvertChangelogs(sourceId uint64, boardId uint64) error {
 			println("err", err)
 			return err
 		}
-		logger.Info("convert changelog", fmt.Sprintf("%s .. %s", batch[0].OriginKey, batch[i-1].OriginKey))
+		logger.Info("convert changelog", fmt.Sprintf("%s .. %s", batch[0].Id, batch[i-1].Id))
 		return nil
 	}
 
@@ -81,12 +81,12 @@ func ConvertChangelogs(sourceId uint64, boardId uint64) error {
 			return err
 		}
 		changelog := &batch[i]
-		changelog.DomainEntity.OriginKey = changelogOriginKeyGenerator.Generate(
+		changelog.DomainEntity.Id = changelogIdGenerator.Generate(
 			row.SourceId,
 			row.ChangelogId,
 			row.Field,
 		)
-		changelog.IssueOriginKey = issueOriginKeyGenerator.Generate(row.SourceId, row.IssueId)
+		changelog.IssueId = issueIdGenerator.Generate(row.SourceId, row.IssueId)
 		changelog.AuthorName = row.AuthorDisplayName
 		changelog.FieldName = row.Field
 		changelog.From = row.FromString

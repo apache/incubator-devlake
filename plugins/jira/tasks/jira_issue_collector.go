@@ -253,7 +253,7 @@ func convertIssue(source *models.JiraSource, jiraApiIssue *JiraApiIssue) (jiraIs
 		jiraIssue.AggregateEstimateMinutes = fields.AggregateTimeEstimate / 60
 		jiraIssue.RemainingEstimateMinutes = fields.TimeTracking.RemainingEstimatSeconds / 60
 	}
-	// this would never be true if we collect issues by board
+	// depend on board settings, subtasks may or may not be collected.
 	if fields.Parent != nil {
 		parentId, err := strconv.ParseUint(fields.Parent.Id, 10, 64)
 		if err != nil {
