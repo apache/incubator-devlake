@@ -1,9 +1,10 @@
 package models
 
 import (
+	"time"
+
 	"github.com/merico-dev/lake/models/common"
 	"gorm.io/datatypes"
-	"time"
 )
 
 type JiraIssue struct {
@@ -55,5 +56,6 @@ type JiraIssue struct {
 	AllFields       datatypes.JSONMap
 
 	// internal status tracking
-	ChangelogUpdated *time.Time
+	ChangelogUpdated  *time.Time
+	RemotelinkUpdated *time.Time
 }
