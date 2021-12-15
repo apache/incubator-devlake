@@ -8,7 +8,7 @@ import (
 func CreateRepo() (*code.Repo, error) {
 	repo := &code.Repo{
 		DomainEntity: domainlayer.DomainEntity{
-			OriginKey: "something",
+			Id: "something",
 		},
 	}
 	return repo, nil

@@ -10,7 +10,7 @@ import (
 func CreatePr(repoId uint64) (*code.Pr, error) {
 	pr := &code.Pr{
 		DomainEntity: domainlayer.DomainEntity{
-			OriginKey: "something",
+			Id: "something",
 		},
 		RepoId:      repoId,
 		State:       "",
