@@ -10,7 +10,7 @@ import (
 func CreateCommit(repoId uint64) (*code.Commit, error) {
 	commit := &code.Commit{
 		DomainEntity: domainlayer.DomainEntity{
-			OriginKey: "something",
+			Id: "something",
 		},
 		RepoId:         repoId,
 		Sha:            "dosifj9302hf80h23f",
