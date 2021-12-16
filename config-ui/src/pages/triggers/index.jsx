@@ -5,7 +5,8 @@ import {
   Button,
   TextArea,
   Card,
-  Elevation
+  Elevation,
+  Icon
 } from '@blueprintjs/core'
 import Nav from '@/components/Nav'
 import Sidebar from '@/components/Sidebar'
@@ -13,7 +14,7 @@ import AppCrumbs from '@/components/Breadcrumbs'
 import Content from '@/components/Content'
 import request from '@/utils/request'
 import { DEVLAKE_ENDPOINT, GRAFANA_URL } from '@/utils/config.js'
-import TriggersUtil  from '@/utils/triggersUtil'
+import TriggersUtil from '@/utils/triggersUtil'
 import SourcesUtil from '@/utils/sourcesUtil'
 
 const STAGE_INIT = 0
@@ -28,12 +29,12 @@ export default function Triggers () {
   // update stage based on pipeline existence and its status
   const stage = useCallback(() => {
     if (!pipeline) {
-      return STAGE_INIT;
+      return STAGE_INIT
     }
     if (pipeline.status !== 'TASK_COMPLETED') {
-      return STAGE_PENDING;
+      return STAGE_PENDING
     }
-    return STAGE_FINISHED;
+    return STAGE_FINISHED
   }, [pipeline])()
 
   const triggerDisabled = useCallback(() => {
@@ -56,10 +57,10 @@ export default function Triggers () {
         // convert to 2d array
         const newTasks = []
         for (const newTask of tasksRes.data.tasks) {
-          if (!newTasks[newTask.pipelineRow-1]) {
-            newTasks[newTask.pipelineRow-1] = []
+          if (!newTasks[newTask.pipelineRow - 1]) {
+            newTasks[newTask.pipelineRow - 1] = []
           }
-          newTasks[newTask.pipelineRow-1][newTask.pipelineCol-1] = newTask
+          newTasks[newTask.pipelineRow - 1][newTask.pipelineCol - 1] = newTask
         }
         console.log(newTasks)
         setTasks(newTasks)
@@ -69,17 +70,17 @@ export default function Triggers () {
   }, [pipeline])
 
   useEffect(() => {
-    console.log('Setting JSON based on active plugins...');
+    console.log('Setting JSON based on active plugins...')
     const setTriggerJsonBasedOnActivePlugins = async () => {
-      let pluginsToSet = await SourcesUtil.getPluginSources()
-      let collectionJson = TriggersUtil.getCollectionJson(pluginsToSet)
+      const pluginsToSet = await SourcesUtil.getPluginSources()
+      const collectionJson = TriggersUtil.getCollectionJson(pluginsToSet)
       setTriggerJson(collectionJson)
     }
     setTriggerJsonBasedOnActivePlugins()
   }, [])
 
   useEffect(() => {
-    console.log('Setting text area based on updated triggers JSON...');
+    console.log('Setting text area based on updated triggers JSON...')
     setTextAreaBody(JSON.stringify(triggerJson, null, 2))
   }, [triggerJson])
 
@@ -121,7 +122,7 @@ export default function Triggers () {
               <h1>Done</h1>
               <p className='description'>Navigate to Grafana to view updated metrics</p>
               <AnchorButton
-                href={ GRAFANA_URL }
+                href={GRAFANA_URL}
                 icon='grouped-bar-chart'
                 target='_blank'
                 text='View Dashboards'
@@ -133,35 +134,34 @@ export default function Triggers () {
               <p className='description'>Please wait... </p>
               {tasks && tasks.map((step, index) =>
                 <div key={index}>
-                <h2> Step {index+1}</h2>
-                {step.map(task =>
-                  <div className='pluginSpinnerWrap' key={`key-${task.ID}`}>
-                    <div key={`progress-${task.ID}`}>
-                      <span style={{ display: 'inline-block', width: '200px' }}>{task.plugin}</span>
-                      {task.status === 'TASK_RUNNING' &&
-                        <>
-                          <Spinner
-                            size={12}
-                            className='pluginSpinner'
-                          />
-                          <strong>{task.progress * 100}%</strong>
-                        </>}
-                      {task.status === 'TASK_COMPLETED' &&
-                        <>
-                          <span style={{ display: 'inline-block', color: 'green', fontWeight: 'bold', width: '80px' }}>Succeeded</span>
-                        </>}
-                      {task.status === 'TASK_FAILED' &&
-                        <>
-                          <span style={{ display: 'inline-block', color: 'red', fontWeight: 'bold', width: '80px' }}>Failed</span>
-                          <span style={{ display: 'inline-block', color: 'red' }}>{task.message}</span>
-                        </>}
+                  <h2> Step {index + 1}</h2>
+                  {step.map(task =>
+                    <div className='pluginSpinnerWrap' key={`key-${task.ID}`}>
+                      <div key={`progress-${task.ID}`}>
+                        <span style={{ display: 'inline-block', width: '200px' }}>{task.plugin}</span>
+                        {task.status === 'TASK_RUNNING' &&
+                          <>
+                            <Spinner
+                              size={12}
+                              className='pluginSpinner'
+                            />
+                            <strong>{task.progress * 100}%</strong>
+                          </>}
+                        {task.status === 'TASK_COMPLETED' &&
+                          <>
+                            <span style={{ display: 'inline-block', color: 'green', fontWeight: 'bold', width: '80px' }}>Succeeded</span>
+                          </>}
+                        {task.status === 'TASK_FAILED' &&
+                          <>
+                            <span style={{ display: 'inline-block', color: 'red', fontWeight: 'bold', width: '80px' }}>Failed</span>
+                            <span style={{ display: 'inline-block', color: 'red' }}>{task.message}</span>
+                          </>}
+                      </div>
                     </div>
-                  </div>
-                )}
+                  )}
                 </div>
               )}
-            </div>
-          }
+            </div>}
           {stage === STAGE_INIT && (
             <>
               <div className='headlineContainer'>
@@ -190,6 +190,14 @@ export default function Triggers () {
                       How to use the Triggers page
                     </a>
                   </p>
+                  <div className='bp3-callout' style={{ maxWidth: '600px', margin: '5px 0', fontSize: '11px' }}>
+                    <h4 className='bp3-heading' style={{ fontSize: '15px' }}>
+                      <Icon icon='warning-sign' color='#ffcc00' size={16} style={{ marginRight: '5px', marginBottom: '3px' }} />
+                      Leacy Feature Notice
+                    </h4>
+                    This is a legacy service and will soon be deprecated in favor of <strong>Pipelines</strong> Feature.
+                    See <a href='/pipelines/create' style={{ textDecoration: 'underline' }}>Create a Pipeline</a> for more details.
+                  </div>
                 </div>
 
                 <div className='formContainer'>

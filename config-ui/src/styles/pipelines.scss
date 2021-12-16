@@ -217,7 +217,7 @@
     -webkit-user-select: none;
     -moz-user-select: none;
     -ms-user-select: none;
-    user-select: none;    
+    user-select: none;
   }
 }
 
@@ -250,4 +250,24 @@
       box-shadow: 0px 0px 6px rgba(0, 0, 0, 0.40);
     }
   }
+}
+
+.bp3-input-group {
+  .bp3-input {
+    transition: all 0.3s ease;
+  }
+  &.is-invalid {
+    .bp3-input {
+      background-color: lighten(#FFA8A8, 13%);
+      color: darken(#FF6D6D, 20%);
+      border: 1px solid darken(#FF6D6D, 10%);
+      &::placeholder {
+        color: lighten(#FF6D6D, 10%);
+      }
+    }
+  }  
+}
+
+.bp3-popover-wrapper, .bp3-popover-target {
+  width: auto;
 }
