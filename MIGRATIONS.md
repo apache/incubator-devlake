@@ -7,7 +7,11 @@ https://github.com/golang-migrate/migrate
 
 ## Install
 
-brew install golang-migrate
+`brew install golang-migrate`
+
+or...
+
+`https://github.com/golang-migrate/migrate/blob/5bf05dc3236ef077e5927c9ca9ca02857a87c582/cmd/migrate/README.md`
 
 ## Create a migration
 
