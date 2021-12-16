@@ -53,14 +53,8 @@ clean:
 restart:
 	docker-compose down; docker-compose up -d
 
-test-createdb:
-	docker exec -it lake_mysql_1 createdb --username=root --owner=root lake_test
-
-test-dropdb:
-	docker exec -it mysql dropdb simple_bank
-
 test-migrateup:
-	migrate -path db/migration -database "mysql://merico:merico@localhost:3306/lake_test" -verbose up
+	migrate -path db/migration -database "mysql://merico:merico@localhost:3306/lake" -verbose up
 
 test-migratedown:
-	migrate -path db/migration -database "mysql://merico:merico@localhost:3306/lake_test" -verbose down
+	migrate -path db/migration -database "mysql://merico:merico@localhost:3306/lake" -verbose down
