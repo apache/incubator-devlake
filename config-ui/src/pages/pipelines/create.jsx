@@ -6,8 +6,8 @@ import { useHistory, useParams } from 'react-router-dom'
 // import request from '@/utils/request'
 import {
   Classes,
-  H2, Button, Icon, Intent, Switch,
-  Card, Elevation, Tag,
+  Button, Icon, Intent, Switch,
+  // H2, Card, Elevation, Tag,
   FormGroup,
   ButtonGroup,
   InputGroup,
@@ -16,8 +16,8 @@ import {
   Position,
   Spinner,
   Colors,
-  Link,
-  Alignment
+  // Link,
+  // Alignment
 } from '@blueprintjs/core'
 import {
   Providers,
@@ -39,7 +39,7 @@ import '@/styles/pipelines.scss'
 
 const CreatePipeline = (props) => {
   const history = useHistory()
-  const { providerId } = useParams()
+  // const { providerId } = useParams()
   const [activeProvider, setActiveProvider] = useState(integrationsData[0])
   const [integrations, setIntegrations] = useState(integrationsData)
 
@@ -290,9 +290,9 @@ const CreatePipeline = (props) => {
     const PipelineTasks = enabledProviders.map(p => configureProvider(p))
     setRunTasks(PipelineTasks)
     console.log('>> CONFIGURED PIPELINE TASKS = ', PipelineTasks)
-    setValidationErrors(errors => enabledProviders.includes('gitlab') && !projectId ? ['GitLab: Specify Run Settings'] : errors.filter(e => !e.startsWith('GitLab:')))
-    setValidationErrors(errors => enabledProviders.includes('jira') && (!boardId || !sourceId) ? ['JIRA: Specify Run Settings'] : errors.filter(e => !e.startsWith('JIRA:')))
-    setValidationErrors(errors => enabledProviders.includes('github') && (!repositoryName || !owner) ? ['GitHub: Specify Run Settings'] : errors.filter(e => !e.startsWith('GitHub:')))
+    setValidationErrors(errors => enabledProviders.includes(Providers.GITLAB) && !projectId ? ['GitLab: Specify Run Settings'] : errors.filter(e => !e.startsWith('GitLab:')))
+    setValidationErrors(errors => enabledProviders.includes(Providers.JIRA) && (!boardId || !sourceId) ? ['JIRA: Specify Run Settings'] : errors.filter(e => !e.startsWith('JIRA:')))
+    setValidationErrors(errors => enabledProviders.includes(Providers.GITHUB) && (!repositoryName || !owner) ? ['GitHub: Specify Run Settings'] : errors.filter(e => !e.startsWith('GitHub:')))
     setValidationErrors(errors => enabledProviders.length === 0 ? ['Pipeline: Invalid/Empty Configuration'] : errors.filter(e => !e.startsWith('Pipeline:')))
   }, [enabledProviders, projectId, boardId, sourceId, owner, repositoryName, configureProvider])
 
