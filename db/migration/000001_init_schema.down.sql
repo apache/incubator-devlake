@@ -1,1 +1,5 @@
-DROP TABLE IF EXISTS accounts;
+BEGIN;
+
+SELECT now();
+
+COMMIT;

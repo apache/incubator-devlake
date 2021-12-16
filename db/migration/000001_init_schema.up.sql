@@ -1,7 +1,10 @@
-CREATE TABLE "accounts" (
-  "id" bigserial PRIMARY KEY,
-  "owner" varchar NOT NULL,
-  "balance" bigint NOT NULL,
-  "currency" varchar NOT NULL,
-  "created_at" timestamptz NOT NULL DEFAULT (now())
-);
+BEGIN;
+
+CREATE DATABASE IF NOT EXISTS lake_test;
+
+CREATE USER IF NOT EXISTS 'merico'@'localhost' IDENTIFIED BY 'merico';
+GRANT ALL PRIVILEGES ON *.* TO 'merico'@'%';
+
+SELECT now();
+
+COMMIT;
