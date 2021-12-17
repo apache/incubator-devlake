@@ -287,9 +287,9 @@
   }  
   &.is-valid {
     .bp3-input {
-      background-color: lighten(#b5ffe0, 12%);
+      background-color: lighten(#b5ffe0, 11%);
       color: darken(#00cf8a, 5%);
-      border: 1px solid darken(#6dffce, 13%);
+      border: 1px solid darken(#6dffce, 15%);
       // font-weight: 800;
       &::placeholder {
         color: lighten(#6dffce, 10%);
