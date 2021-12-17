@@ -19,15 +19,15 @@ migrate create -ext sql -dir db/migration -seq init_schema
 
 ## Run migrations
 
-migrate -path db/migration -database "postgresql://root:secret@localhost:5432/simple_bank" -verbose up
+`migrate -path db/migration -database "mysql://root:admin@tcp(localhost:3306)/lake" -verbose up`
 
 ## How to reset your DB. (https://github.com/golang-migrate/migrate/issues/282#issuecomment-530743258)
 
 NOTE: Use this when you get an error like this "error: Dirty database version 16. Fix and force version."
 
 1. Delete your DB
-2. `migrate -path db/migration -database "postgresql://root:secret@localhost:5432/simple_bank" -verbose force 1`
-3. `migrate -path db/migration -database "postgresql://root:secret@localhost:5432/simple_bank" -verbose down`
-4. `migrate -path db/migration -database "postgresql://root:secret@localhost:5432/simple_bank" -verbose up`
+2. `migrate -path db/migration -database "mysql://root:admin@tcp(localhost:3306)/lake" -verbose force 1`
+3. `migrate -path db/migration -database "mysql://root:admin@tcp(localhost:3306)/lake" -verbose down`
+4. `migrate -path db/migration -database "mysql://root:admin@tcp(localhost:3306)/lake" -verbose up`
 
 
