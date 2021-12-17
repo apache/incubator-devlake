@@ -18,10 +18,6 @@ import (
 
 var Db *gorm.DB
 
-fun InitDB(){
-	init()
-}
-
 func init() {
 	var connectionString = config.V.GetString("DB_URL")
 	var err error
