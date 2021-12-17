@@ -149,7 +149,7 @@ export default function ManageIntegration () {
                   <h1 style={{ margin: 0 }}>
                     {activeProvider.name} Integration
                   </h1>
-                  <p className='description'>Manage integration and connections.</p>
+                  <p className='page-description'>Manage integration and connections.</p>
                 </div>
               </div>
             </div>

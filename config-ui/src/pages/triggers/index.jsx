@@ -166,7 +166,7 @@ export default function Triggers () {
             <>
               <div className='headlineContainer'>
                 <h1>Triggers</h1>
-                <p className='description'>Trigger data collection on your plugins</p>
+                <p className='page-description'>Run data collection on your plugins</p>
               </div>
 
               <form className='form'>

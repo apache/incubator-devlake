@@ -138,7 +138,7 @@ export default function AddConnection () {
                   <h1 style={{ margin: 0 }}>
                     {activeProvider.name} Add Connection
                   </h1>
-                  <p className='description'>Create a new connection source for this provider.</p>
+                  <p className='page-description'>Create a new connection source for this provider.</p>
                 </div>
               </div>
               <div className='addConnection' style={{ display: 'flex' }}>
