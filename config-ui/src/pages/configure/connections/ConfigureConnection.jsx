@@ -215,7 +215,7 @@ export default function ConfigureConnection () {
                     {activeConnection && (
                       <>
                         <h2 style={{ margin: 0 }}>{activeConnection.name}</h2>
-                        <p className='description'>Manage settings and options for this connection.</p>
+                        <p className='page-description'>Manage settings and options for this connection.</p>
                       </>
                     )}
                   </div>

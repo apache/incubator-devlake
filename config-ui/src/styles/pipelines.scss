@@ -250,6 +250,25 @@
       box-shadow: 0px 0px 6px rgba(0, 0, 0, 0.40);
     }
   }
+
+  &.btn-retry-pipeline {
+    transition: all 0.4s ease;
+    // background-color: darken(#a8d8ff, 5%);
+    // border: 1px solid darken(#6dd6ff, 5%);
+    box-shadow: 0px 0px 3px rgba(0, 0, 0, 0.35);
+    border-radius: 6px;
+    font-family: 'Montserrat', sans-serif;
+    font-style: normal;
+    font-weight: 900;
+    font-size: 11px;
+    color: #ffffff;
+
+    &:hover {
+      // background-color: darken(#a8d8ff, 15%);
+      // border: 1px solid darken(#6dd6ff, 15%);
+      box-shadow: 0px 0px 6px rgba(0, 0, 0, 0.40);
+    }
+  }  
 }
 
 .bp3-input-group {
@@ -270,4 +289,28 @@
 
 .bp3-popover-wrapper, .bp3-popover-target {
   width: auto;
+}
+
+.bp3-spinner {
+  &.bp3-intent-success {
+    .bp3-spinner-head {
+      stroke: rgb(59, 212, 119);
+    }
+  }
+}
+
+.bp3-menu {
+ &.pipeline-presets-menu {
+    .bp3-menu-item {
+        &.bp3-active {
+        background-color: transparent;
+        color: #007cff;
+        font-weight: 800;
+        &:hover {
+          background-color: rgba(66, 66, 66, 0.08);
+          color: darken(#007cff, 5%);
+        }
+      }
+    }
+  }
 }

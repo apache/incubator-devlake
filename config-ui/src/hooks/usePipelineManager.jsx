@@ -30,9 +30,10 @@ function usePipelineManager (pipelineName = `COLLECTION ${Date.now()}`, initialT
       ToastNotification.clear()
       console.log('>> DISPATCHING PIPELINE REQUEST', settings)
       const run = async () => {
-        const p = await request.post(`${DEVLAKE_ENDPOINT}/pipelines`, JSON.stringify(settings))
+        const p = await request.post(`${DEVLAKE_ENDPOINT}/pipelines`, settings)
+        const t = await request.get(`${DEVLAKE_ENDPOINT}/pipelines/${p.data?.ID}/tasks`)
         console.log('>> RAW PIPELINE DATA FROM API...', p.data)
-        setPipelineRun(p.data)
+        setPipelineRun({ ...p.data, tasks: [...t.data.tasks] })
         setLastRunId(p.data?.ID)
         ToastNotification.show({ message: `Created New Pipeline - ${pipelineName}.`, intent: 'danger', icon: 'small-tick' })
         setTimeout(() => {
@@ -82,8 +83,11 @@ function usePipelineManager (pipelineName = `COLLECTION ${Date.now()}`, initialT
         const t = await request.get(`${DEVLAKE_ENDPOINT}/pipelines/${pipelineID}/tasks`)
         console.log('>> RAW PIPELINE RUN DATA FROM API...', p.data)
         console.log('>> RAW PIPELINE TASKS DATA FROM API...', t.data)
-        setActivePipeline(p.data)
-        setPipelineRun((pR) => refresh ? p.data : pR)
+        setActivePipeline({
+          ...p.data,
+          tasks: t.data
+        })
+        setPipelineRun((pR) => refresh ? { ...p.data, tasks: [...t.data.tasks] } : pR)
         // ToastNotification.show({ message: `Fetched Pipeline ID - ${p.data?.ID}.`, intent: 'danger', icon: 'small-tick' })
         setTimeout(() => {
           setIsFetching(false)

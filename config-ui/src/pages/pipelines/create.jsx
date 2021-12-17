@@ -1,6 +1,6 @@
 import React, { Fragment, useEffect, useCallback, useState, useRef } from 'react'
 import { CSSTransition } from 'react-transition-group'
-import { useHistory, useParams } from 'react-router-dom'
+import { useHistory, useParams, Link } from 'react-router-dom'
 import { GRAFANA_URL } from '@/utils/config'
 // import { ToastNotification } from '@/components/Toast'
 // import { DEVLAKE_ENDPOINT } from '@/utils/config'
@@ -18,7 +18,6 @@ import {
   Position,
   Spinner,
   Colors,
-  // Link,
   // Alignment
 } from '@blueprintjs/core'
 import {
@@ -36,6 +35,7 @@ import { ReactComponent as HelpIcon } from '@/images/help.svg'
 import { ReactComponent as PipelineRunningIcon } from '@/images/synchronize.svg'
 import { ReactComponent as PipelineFailedIcon } from '@/images/no-synchronize.svg'
 import { ReactComponent as PipelineCompleteIcon } from '@/images/check-circle.svg'
+import { ReactComponent as BackArrowIcon } from '@/images/undo.svg'
 
 import '@/styles/pipelines.scss'
 
@@ -106,7 +106,8 @@ const CreatePipeline = (props) => {
 
   const isValidPipeline = () => {
     return enabledProviders.length >= 1 &&
-      pipelineName.length >= 2 &&
+      pipelineName !== '' &&
+      pipelineName.length > 2 &&
       validationErrors.length === 0
   }
 
@@ -159,12 +160,33 @@ const CreatePipeline = (props) => {
           <>
             <FormGroup
               disabled={isRunning || !isProviderEnabled(providerId)}
+              label={<strong>Source ID<span className='requiredStar'>*</span></strong>}
+              labelInfo={<span style={{ display: 'block' }}>Enter Connection Instance ID</span>}
+              inline={false}
+              labelFor='source-id'
+              className=''
+              contentClassName=''
+              fill
+            >
+              <InputGroup
+                id='pipeline-name'
+                disabled={isRunning || !isProviderEnabled(providerId)}
+                placeholder='eg. 54'
+                value={sourceId}
+                onChange={(e) => setSourceId(e.target.value)}
+                className='input-source-id'
+                fill={false}
+              />
+            </FormGroup>          
+            <FormGroup
+              disabled={isRunning || !isProviderEnabled(providerId)}
               label={<strong>Board IDs <span className='requiredStar'>*</span></strong>}
               labelInfo={<span style={{ display: 'block' }}>Enter JIRA Board(s)</span>}
               inline={false}
               labelFor='board-ids'
               className=''
               contentClassName=''
+              style={{ marginLeft: '12px' }}
               fill
             >
               <InputGroup
@@ -177,27 +199,6 @@ const CreatePipeline = (props) => {
                 fill={false}
               />
             </FormGroup>
-            <FormGroup
-              disabled={isRunning || !isProviderEnabled(providerId)}
-              label={<strong>Source ID<span className='requiredStar'>*</span></strong>}
-              labelInfo={<span style={{ display: 'block' }}>Enter Connection Instance ID</span>}
-              inline={false}
-              labelFor='source-id'
-              className=''
-              contentClassName=''
-              style={{ marginLeft: '12px' }}
-              fill
-            >
-              <InputGroup
-                id='pipeline-name'
-                disabled={isRunning || !isProviderEnabled(providerId)}
-                placeholder='eg. 54'
-                value={sourceId}
-                onChange={(e) => setSourceId(e.target.value)}
-                className='input-source-id'
-                fill={false}
-              />
-            </FormGroup>
           </>
         )
         break
@@ -206,33 +207,12 @@ const CreatePipeline = (props) => {
           <>
             <FormGroup
               disabled={isRunning || !isProviderEnabled(providerId)}
-              label={<strong>Repository Name<span className='requiredStar'>*</span></strong>}
-              labelInfo={<span style={{ display: 'block' }}>Enter Git repository</span>}
-              inline={false}
-              labelFor='repository-name'
-              className=''
-              contentClassName=''
-              fill
-            >
-              <InputGroup
-                id='repository-name'
-                disabled={isRunning || !isProviderEnabled(providerId)}
-                placeholder='eg. lake'
-                value={repositoryName}
-                onChange={(e) => setRepositoryName(e.target.value)}
-                className='input-board-ids'
-                fill={false}
-              />
-            </FormGroup>
-            <FormGroup
-              disabled={isRunning || !isProviderEnabled(providerId)}
               label={<strong>Owner<span className='requiredStar'>*</span></strong>}
               labelInfo={<span style={{ display: 'block' }}>Enter Project Owner</span>}
               inline={false}
               labelFor='owner'
               className=''
               contentClassName=''
-              style={{ marginLeft: '12px' }}
               fill
             >
               <InputGroup
@@ -243,6 +223,27 @@ const CreatePipeline = (props) => {
                 onChange={(e) => setOwner(e.target.value)}
                 className='input-owner'
                 // fill={false}
+              />
+            </FormGroup>
+            <FormGroup
+              disabled={isRunning || !isProviderEnabled(providerId)}
+              label={<strong>Repository Name<span className='requiredStar'>*</span></strong>}
+              labelInfo={<span style={{ display: 'block' }}>Enter Git repository</span>}
+              inline={false}
+              labelFor='repository-name'
+              className=''
+              contentClassName=''
+              style={{ marginLeft: '12px' }}
+              fill
+            >
+              <InputGroup
+                id='repository-name'
+                disabled={isRunning || !isProviderEnabled(providerId)}
+                placeholder='eg. lake'
+                value={repositoryName}
+                onChange={(e) => setRepositoryName(e.target.value)}
+                className='input-board-ids'
+                fill={false}
               />
             </FormGroup>
           </>
@@ -266,7 +267,7 @@ const CreatePipeline = (props) => {
                 disabled={isRunning || !isProviderEnabled(providerId)}
                 placeholder='eg. 937810831'
                 value={projectId}
-                onChange={(e) => setProjectId(e.target.value)}
+                onChange={(e) => setProjectId(pId => e.target.value)}
                 className='input-project-ids'
                 // fill={false}
               />
@@ -282,7 +283,7 @@ const CreatePipeline = (props) => {
   }
 
   useEffect(() => {
-    setValidationErrors(errors => pipelineName.length <= 2 && !errors.some(e => e.startsWith('Name:'))
+    setValidationErrors(errors => (!pipelineName || pipelineName.length < 2) && !errors.some(e => e.startsWith('Name:'))
       ? [...errors, 'Name: Enter a valid Pipeline Name']
       : errors.filter(e => !e.startsWith('Name:')))
   }, [pipelineName])
@@ -336,10 +337,11 @@ const CreatePipeline = (props) => {
                 { href: '/pipelines/create', icon: false, text: 'RUN Pipeline', current: true },
               ]}
             />
+
             <div className='headlineContainer'>
-              {/* <Link style={{ float: 'right', marginLeft: '10px', color: '#777777' }} to='/integrations'>
-                <Icon icon='fast-backward' size={16} /> Go Back
-              </Link> */}
+              <Link style={{ display: 'flex', fontSize: '14px', float: 'right', marginLeft: '10px', color: '#777777' }} to='/'>
+                <Icon icon={<BackArrowIcon width={16} height={16} fill='rgba(0,0,0,0.25)' style={{ marginRight: '6px' }} />} size={16} /> Go Back
+              </Link>
               <div style={{ display: 'flex' }}>
                 <div>
                   <span style={{ marginRight: '10px' }}>
@@ -370,19 +372,19 @@ const CreatePipeline = (props) => {
                     </Popover>
                   </h1>
 
-                  <p className='page-description'>Trigger data collection for one or more Data Providers.</p>
+                  <p className='page-description mb-0'>Trigger data collection for one or more Data Providers.</p>
                   <p style={{ margin: 0, padding: 0 }}>In a future release you’ll be able to define Blueprints, and schedule recurring plans.</p>
                 </div>
               </div>
             </div>
 
-            <div className='' style={{ width: '100%', marginTop: '20px', alignSelf: 'flex-start', alignContent: 'flex-start' }}>
+            <div className='' style={{ width: '100%', marginTop: '10px', alignSelf: 'flex-start', alignContent: 'flex-start' }}>
               <h3 className='group-header'>
                 <Icon icon='git-pull' height={16} size={16} color='rgba(0,0,0,0.5)' /> Pipeline Name <span className='requiredStar'>*</span>
               </h3>
               <p className='group-caption'>Create a user-friendly name for this Run, or use the default auto-generated one.</p>
 
-              <div className='form-group' style={{ maxWidth: '420px', paddingLeft: '22px' }}>
+              <div className='form-group' style={{ maxWidth: '440px', paddingLeft: '22px' }}>
                 <FormGroup
                   disabled={isRunning}
                   label=''
@@ -570,7 +572,8 @@ const CreatePipeline = (props) => {
             display: 'flex',
             alignItems: 'center',
             alignContent: 'center',
-            justifyContent: 'center'
+            justifyContent: 'center',
+            cursor: 'pointer'
           }}
         >
           <div style={{
@@ -602,12 +605,35 @@ const CreatePipeline = (props) => {
 
                   }}
                 />
-                <Icon
+                {(() => {
+                  switch (pipelineRun.status){
+                  case 'TASK_COMPLETED':
+                    return <Icon
+                      icon={<PipelineCompleteIcon width={40} height={40} style={{ marginTop: '3px', display: 'flex', alignSelf: 'center' }} />}
+                      size={40}
+                    />                    
+                    break
+                  case 'TASK_FAILED':
+                    return <Icon
+                      icon={<PipelineFailedIcon width={40} height={40} style={{ marginTop: '3px', display: 'flex', alignSelf: 'center' }} />}
+                      size={40}
+                    />                       
+                    break
+                  case 'TASK_RUNNING':
+                  default:
+                    return <Icon
+                      icon={<PipelineRunningIcon width={40} height={40} style={{ marginTop: '3px', display: 'flex', alignSelf: 'center' }} />}
+                      size={40}
+                    />
+                    break
+                  }
+                })()}
+                {/* <Icon
                   icon={pipelineRun.status === 'TASK_COMPLETED'
                     ? <PipelineCompleteIcon width={40} height={40} style={{ marginTop: '3px', display: 'flex', alignSelf: 'center' }} />
                     : <PipelineRunningIcon width={40} height={40} style={{ marginTop: '3px', display: 'flex', alignSelf: 'center' }} />}
                   size={40}
-                />
+                /> */}
               </>
               <>
                 <div style={{ fontSize: '12px', padding: '12px', minWidth: '420px', maxWidth: '420px', overflow: 'hidden' }}>
@@ -620,9 +646,9 @@ const CreatePipeline = (props) => {
                       whiteSpace: 'nowrap'
                     }}
                   >
-                    <Icon icon='help' size={16} style={{ marginRight: '5px' }} /> {pipelineRun.name || 'Last Pipeline Run'}
+                    <Icon icon={pipelineRun.status === 'TASK_FAILED' ? 'warning-sign' : 'help'} size={16} style={{ marginRight: '5px' }} /> {pipelineRun.name || 'Last Pipeline Run'}
                   </h3>
-                  <p style={{ fontSize: '11px' }}>{pipelineRun.message}</p>
+                  <p style={{ fontSize: '11px', color: pipelineRun.status === 'TASK_FAILED' ? Colors.RED4 : Colors.DARK_GRAY4 }}>{pipelineRun.message}</p>
                   <div style={{ display: 'flex', width: '100%', justifyContent: 'space-between' }}>
                     <div>
                       <label><strong>Pipeline ID</strong></label>
@@ -652,6 +678,15 @@ const CreatePipeline = (props) => {
                           onClick={() => cancelPipeline(pipelineRun.ID)}
                         />
                       )}
+                      {pipelineRun.status === 'TASK_FAILED' && (
+                        <Button
+                          className={`btn-retry-pipeline ${Classes.POPOVER_DISMISS}`}
+                          intent='danger'
+                          icon='reset' text='RETRY'
+                          style={{ color: '#ffffff' }}
+                          small
+                        />
+                      )}                      
                       <Button
                         minimal
                         className={`btn-ok ${Classes.POPOVER_DISMISS}`}
@@ -659,6 +694,29 @@ const CreatePipeline = (props) => {
                         style={{ marginLeft: '3px' }}
                       />
                     </div>
+                  </div>
+                  <div style={{
+                   paddingTop: '7px',
+                   borderTop: '1px solid #f5f5f5',
+                   marginTop: '14px', 
+                  }}>
+                    {pipelineRun?.tasks?.map((t, tIdx) => (
+                      <div
+                        className='pipeline-task-'
+                        key={`pipeline-task-key-${tIdx}`}
+                        style={{ display: 'flex', padding: '4px 6px', justifyContent: 'space-between' 
+                      }}>
+                        <div style={{ paddingRight: '8px' }}><Spinner className='mini-task-spinner' size={14} intent={t.status === 'TASK_COMPLETED' ? 'success' : 'warning' } value={t.status === 'TASK_COMPLETED' ? 1 : t.progress} /></div>
+                        <div style={{ padding: '0 8px', width: '100%' }}>
+                          <strong style={{ overflow: 'hidden', textOverflow:'ellipsis', whiteSpace: 'nowrap' }}>{t.plugin}</strong>
+                          {t.status === 'TASK_COMPLETED' && (<Icon icon='small-tick' size={14} color={Colors.GREEN5} style={{marginLeft: '5px'}} />)}
+                          {t.status === 'TASK_FAILED' && (<Icon icon='warning-sign' size={11} color={Colors.RED5} style={{marginLeft: '5px', marginBottom: '3px'}} />)}
+                        </div>
+                        <div style={{ padding: '0', minWidth: '80px', textAlign: 'right' }}><strong>{Number(t.spentSeconds / 60).toFixed(2)}mins</strong></div>
+                        <div style={{ padding: '0 8px', minWidth: '100px', textAlign: 'right' }}><span color={Colors.GRAY5}>{Number(t.status === 'TASK_COMPLETED' ? 100 : (t.progress/1) * 100).toFixed(2)}%</span></div>
+                        <div></div>
+                      </div>
+                    ))}
                   </div>
                 </div>
               </>
