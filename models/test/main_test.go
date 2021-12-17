@@ -10,6 +10,11 @@ import (
 	_ "github.com/golang-migrate/migrate/v4/source/file"
 )
 
+// This file runs before ALL tests.
+// This gives us the opportunity to run setup() and shutdown() functions... 
+// ...before and after m.Run()
+// http://cs-guy.com/blog/2015/01/test-main/
+
 var ROOT_CONNECTION_STRING string = "mysql://root:admin@tcp(localhost:3306)/lake"
 var MIGRATIONS_PATH string = "file://../../db/migration"
 
