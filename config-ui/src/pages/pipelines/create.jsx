@@ -119,8 +119,8 @@ const CreatePipeline = (props) => {
         break
       case Providers.JIRA:
         options = {
-          boardId,
-          sourceId
+          boardId: parseInt(boardId, 10),
+          sourceId: parseInt(sourceId, 10)
         }
         break
       case Providers.GITHUB:
@@ -131,7 +131,7 @@ const CreatePipeline = (props) => {
         break
       case Providers.GITLAB:
         options = {
-          projectId
+          projectId: parseInt(projectId, 10)
         }
         break
       default:
@@ -169,7 +169,7 @@ const CreatePipeline = (props) => {
               fill
             >
               <InputGroup
-                id='pipeline-name'
+                id='source-id'
                 disabled={isRunning || !isProviderEnabled(providerId)}
                 placeholder='eg. 54'
                 value={sourceId}
@@ -183,19 +183,19 @@ const CreatePipeline = (props) => {
               label={<strong>Board IDs <span className='requiredStar'>*</span></strong>}
               labelInfo={<span style={{ display: 'block' }}>Enter JIRA Board(s)</span>}
               inline={false}
-              labelFor='board-ids'
+              labelFor='board-id'
               className=''
               contentClassName=''
               style={{ marginLeft: '12px' }}
               fill
             >
               <InputGroup
-                id='pipeline-name'
+                id='board-id'
                 disabled={isRunning || !isProviderEnabled(providerId)}
                 placeholder='eg. 8'
                 value={boardId}
                 onChange={(e) => setBoardId(e.target.value)}
-                className='input-board-ids'
+                className='input-board-id'
                 fill={false}
               />
             </FormGroup>
@@ -242,7 +242,7 @@ const CreatePipeline = (props) => {
                 placeholder='eg. lake'
                 value={repositoryName}
                 onChange={(e) => setRepositoryName(e.target.value)}
-                className='input-board-ids'
+                className='input-repository-name'
                 fill={false}
               />
             </FormGroup>
@@ -255,20 +255,20 @@ const CreatePipeline = (props) => {
             <FormGroup
               disabled={isRunning || !isProviderEnabled(providerId)}
               label={<strong>Project IDs <span className='requiredStar'>*</span></strong>}
-              labelInfo={<span style={{ display: 'block' }}>Enter the GitLab Projects to map</span>}
+              labelInfo={<span style={{ display: 'block' }}>Enter the GitLab Project ID No. to map</span>}
               inline={false}
-              labelFor='project-ids'
+              labelFor='project-id'
               className=''
               contentClassName=''
               // fill
             >
               <InputGroup
-                id='project-ids'
+                id='project-id'
                 disabled={isRunning || !isProviderEnabled(providerId)}
                 placeholder='eg. 937810831'
                 value={projectId}
                 onChange={(e) => setProjectId(pId => e.target.value)}
-                className='input-project-ids'
+                className='input-project-id'
                 // fill={false}
               />
             </FormGroup>

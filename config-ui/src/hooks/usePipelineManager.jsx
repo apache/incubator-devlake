@@ -72,7 +72,6 @@ function usePipelineManager (pipelineName = `COLLECTION ${Date.now()}`, initialT
   }, [])
 
   const fetchPipeline = useCallback((pipelineID, refresh = false) => {
-    // request.get(`${DEVLAKE_ENDPOINT}/pipelines/${pipeline.ID}`),
     try {
       setIsFetching(true)
       setErrors([])
@@ -88,6 +87,7 @@ function usePipelineManager (pipelineName = `COLLECTION ${Date.now()}`, initialT
           tasks: t.data
         })
         setPipelineRun((pR) => refresh ? { ...p.data, tasks: [...t.data.tasks] } : pR)
+        setLastRunId((lrId) => refresh ? p.data?.ID : lrId)
         // ToastNotification.show({ message: `Fetched Pipeline ID - ${p.data?.ID}.`, intent: 'danger', icon: 'small-tick' })
         setTimeout(() => {
           setIsFetching(false)
@@ -103,7 +103,6 @@ function usePipelineManager (pipelineName = `COLLECTION ${Date.now()}`, initialT
   }, [])
 
   const fetchPipelineTasks = useCallback(() => {
-    // request.get(`${DEVLAKE_ENDPOINT}/pipelines/${pipeline.ID}/tasks`),
     try {
       setIsFetching(true)
       setErrors([])
