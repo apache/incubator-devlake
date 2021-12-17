@@ -24,7 +24,7 @@ configure-dev:
 	cd config-ui; npm install; npm start;
 
 compose:
-	docker-compose up grafana
+	docker-compose up -d grafana
 
 compose-down:
 	docker-compose down
@@ -52,3 +52,9 @@ clean:
 
 restart:
 	docker-compose down; docker-compose up -d
+
+test-migrateup:
+	migrate -path db/migration -database "mysql://merico:merico@localhost:3306/lake" -verbose up
+
+test-migratedown:
+	migrate -path db/migration -database "mysql://merico:merico@localhost:3306/lake" -verbose down
