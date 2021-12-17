@@ -196,8 +196,8 @@ const CreatePipeline = (props) => {
             </FormGroup>          
             <FormGroup
               disabled={isRunning || !isProviderEnabled(providerId)}
-              label={<strong>Board IDs <span className='requiredStar'>*</span></strong>}
-              labelInfo={<span style={{ display: 'block' }}>Enter JIRA Board(s)</span>}
+              label={<strong>Board ID<span className='requiredStar'>*</span></strong>}
+              labelInfo={<span style={{ display: 'block' }}>Enter JIRA Board No.</span>}
               inline={false}
               labelFor='board-id'
               className=''
@@ -270,8 +270,8 @@ const CreatePipeline = (props) => {
           <>
             <FormGroup
               disabled={isRunning || !isProviderEnabled(providerId)}
-              label={<strong>Project IDs <span className='requiredStar'>*</span></strong>}
-              labelInfo={<span style={{ display: 'block' }}>Enter the GitLab Project ID No. to map</span>}
+              label={<strong>Project ID<span className='requiredStar'>*</span></strong>}
+              labelInfo={<span style={{ display: 'block' }}>Enter the GitLab Project ID No.</span>}
               inline={false}
               labelFor='project-id'
               className=''
@@ -485,7 +485,7 @@ const CreatePipeline = (props) => {
               </div>
 
               <h3 className='group-header'>
-                <Icon icon='database' height={16} size={16} color='rgba(0,0,0,0.5)' /> Data Providers <span className='requiredStar'>*</span>
+                <Icon icon='database' height={16} size={16} color='rgba(0,0,0,0.5)' /> Data Providers<span className='requiredStar'>*</span>
               </h3>
               <p className='group-caption'>Configure available plugins to enable for this <strong>Pipeline Run</strong>.<br />Turn the switch to the ON position to activate.</p>
 
@@ -530,7 +530,26 @@ const CreatePipeline = (props) => {
                           <Button className='pipeline-action-btn' minimal onClick={() => history.push(`/integrations/${provider.id}`)}>
                             <Icon icon='cog' color={Colors.GRAY4} size={16} />
                           </Button>
+                          <Popover
+                            key={`popover-help-key-provider-${provider.id}`}
+                            className='trigger-provider-help'
+                            popoverClassName='popover-provider-help'
+                            position={Position.RIGHT}
+                            autoFocus={false}
+                            enforceFocus={false}
+                            usePortal={false}
+                          >
                           <Button className='pipeline-action-btn' minimal><Icon icon='help' color={Colors.GRAY4} size={16} /></Button>
+                          <>
+                            <div style={{ textShadow: 'none', fontSize: '12px', padding: '12px', maxWidth: '300px' }}>
+                            <div style={{ marginBottom: '10px', fontWeight: 700, fontSize: '14px', fontFamily: '"Montserrat", sans-serif' }}>
+                              <Icon icon='help' size={16} /> {provider.name} Settings
+                            </div>
+                            <p>Need Help? &mdash; Please enter the required <strong>Run Settings</strong> for this data provider.</p>
+                            {/* specific provider field help notes */}
+                            </div>
+                          </>
+                          </Popover>
                         </ButtonGroup>
                       </div>
                     </div>
@@ -555,7 +574,7 @@ const CreatePipeline = (props) => {
               ><strong>Run</strong> Pipeline
               </Button>
               <Button className='btn-pipeline btn-view-jobs' icon='eye-open' minimal style={{ marginLeft: '5px' }}>View All Jobs</Button>
-              <div style={{ padding: '7px 5px 0 5px' }}>
+              {/* <div style={{ padding: '7px 5px 0 5px' }}>
                 <Tooltip content='Manage API Rate Limits' position={Position.TOP}>
                   <Switch
                     intent={Intent.DANGER}
@@ -564,7 +583,7 @@ const CreatePipeline = (props) => {
                     labelElement={<strong style={{ color: !enableThrottling ? Colors.GRAY3 : '' }}>Enable Throttling</strong>}
                   />
                 </Tooltip>
-              </div>
+              </div> */}
             </div>
             <p style={{ margin: '5px 3px', alignSelf: 'flex-start', fontSize: '10px' }}>
               Visit the <a href='#'><strong>All Jobs</strong></a> section to monitor complete pipeline activity.<br />
