@@ -25,6 +25,7 @@ import {
 } from '@/data/Providers'
 import { integrationsData } from '@/data/integrations'
 import usePipelineManager from '@/hooks/usePipelineManager'
+import usePipelineValidation from '@/hooks/usePipelineValidation'
 import FormValidationErrors from '@/components/messages/FormValidationErrors'
 import Nav from '@/components/Nav'
 import Sidebar from '@/components/Sidebar'
@@ -71,7 +72,7 @@ const CreatePipeline = (props) => {
   const [repositoryName, setRepositoryName] = useState('')
   const [owner, setOwner] = useState('')
 
-  const [validationErrors, setValidationErrors] = useState([])
+  // const [validationErrors, setValidationErrors] = useState([])
 
   const {
     runPipeline,
@@ -83,6 +84,21 @@ const CreatePipeline = (props) => {
     setSettings: setPipelineSettings,
     lastRunId
   } = usePipelineManager(pipelineName, runTasks)
+
+  const {
+    validate,
+    errors: validationErrors,
+    isValid: isValidPipelineForm
+  } = usePipelineValidation({
+    enabledProviders,
+    pipelineName,
+    projectId,
+    boardId,
+    owner,
+    repositoryName,
+    sourceId,
+    runTasks
+  })  
 
   // useEffect(() => {
   //   setActiveProvider(providerId ? integrationsData.find(p => p.id === providerId) : integrationsData[0])
@@ -283,9 +299,9 @@ const CreatePipeline = (props) => {
   }
 
   useEffect(() => {
-    setValidationErrors(errors => (!pipelineName || pipelineName.length < 2) && !errors.some(e => e.startsWith('Name:'))
-      ? [...errors, 'Name: Enter a valid Pipeline Name']
-      : errors.filter(e => !e.startsWith('Name:')))
+    // setValidationErrors(errors => (!pipelineName || pipelineName.length < 2) && !errors.some(e => e.startsWith('Name:'))
+    //   ? [...errors, 'Name: Enter a valid Pipeline Name']
+    //   : errors.filter(e => !e.startsWith('Name:')))
   }, [pipelineName])
 
   useEffect(() => {
@@ -296,6 +312,7 @@ const CreatePipeline = (props) => {
         [...runTasks]
       ]
     })
+    validate()
   }, [runTasks, pipelineName, setPipelineSettings])
 
   useEffect(() => {
@@ -303,15 +320,17 @@ const CreatePipeline = (props) => {
     const PipelineTasks = enabledProviders.map(p => configureProvider(p))
     setRunTasks(PipelineTasks)
     console.log('>> CONFIGURED PIPELINE TASKS = ', PipelineTasks)
-    setValidationErrors(errors => enabledProviders.includes(Providers.GITLAB) && !projectId ? ['GitLab: Specify Run Settings'] : errors.filter(e => !e.startsWith('GitLab:')))
-    setValidationErrors(errors => enabledProviders.includes(Providers.JIRA) && (!boardId || !sourceId) ? ['JIRA: Specify Run Settings'] : errors.filter(e => !e.startsWith('JIRA:')))
-    setValidationErrors(errors => enabledProviders.includes(Providers.GITHUB) && (!repositoryName || !owner) ? ['GitHub: Specify Run Settings'] : errors.filter(e => !e.startsWith('GitHub:')))
-    setValidationErrors(errors => enabledProviders.length === 0 ? ['Pipeline: Invalid/Empty Configuration'] : errors.filter(e => !e.startsWith('Pipeline:')))
+    validate()
+    // setValidationErrors(errors => enabledProviders.includes(Providers.GITLAB) && !projectId ? ['GitLab: Specify Run Settings'] : errors.filter(e => !e.startsWith('GitLab:')))
+    // setValidationErrors(errors => enabledProviders.includes(Providers.JIRA) && (!boardId || !sourceId) ? ['JIRA: Specify Run Settings'] : errors.filter(e => !e.startsWith('JIRA:')))
+    // setValidationErrors(errors => enabledProviders.includes(Providers.GITHUB) && (!repositoryName || !owner) ? ['GitHub: Specify Run Settings'] : errors.filter(e => !e.startsWith('GitHub:')))
+    // setValidationErrors(errors => enabledProviders.length === 0 ? ['Pipeline: Invalid/Empty Configuration'] : errors.filter(e => !e.startsWith('Pipeline:')))
+    
   }, [enabledProviders, projectId, boardId, sourceId, owner, repositoryName, configureProvider])
 
-  useEffect(() => {
-    console.log('>> PIPELINE VALIDATION ERRORS...', validationErrors)
-  }, [validationErrors])
+  // useEffect(() => {
+  //   console.log('>> PIPELINE VALIDATION ERRORS...', validationErrors)
+  // }, [validationErrors])
 
   useEffect(() => {
     console.log('>> PIPELINE LAST RUN OBJECT CHANGED!!...', pipelineRun)
@@ -384,7 +403,9 @@ const CreatePipeline = (props) => {
               </h3>
               <p className='group-caption'>Create a user-friendly name for this Run, or use the default auto-generated one.</p>
 
-              <div className='form-group' style={{ maxWidth: '440px', paddingLeft: '22px' }}>
+              <div className='form-group' style={{ maxWidth: '480px', paddingLeft: '22px' }}>
+                {isValidPipeline() && (<Icon icon='tick' color={Colors.GREEN5} size={12} style={{ float: 'right', marginTop: '7px', marginLeft: '5px' }} />)}
+                {!isValidPipeline() && (<Icon icon='exclude-row' color={Colors.RED5} size={12} style={{ float: 'right', marginTop: '7px', marginLeft: '5px' }} />)}
                 <FormGroup
                   disabled={isRunning}
                   label=''
@@ -395,13 +416,14 @@ const CreatePipeline = (props) => {
                   fill
                   required
                 >
+
                   <InputGroup
                     id='pipeline-name'
                     disabled={isRunning}
                     placeholder='eg. COLLECTION YYYYMMDDHHMMSS'
                     value={pipelineName}
                     onChange={(e) => setPipelineName(e.target.value)}
-                    className={validationErrors.some(e => e.startsWith('Name:')) ? 'input-pipeline-name is-invalid' : 'input-pipeline-name'}
+                    className={!isValidPipelineForm ? 'input-pipeline-name is-invalid' : 'input-pipeline-name is-valid'}
                     rightElement={
                       <>
                         <Button
@@ -432,7 +454,7 @@ const CreatePipeline = (props) => {
                                 <Menu.Item icon='key-option' text='COLLECT [UNIXTIME]' onClick={() => setNamePrefix('COLLECT') | setNameSuffix(pipelineSuffixes[0])} />
                                 <Menu.Item icon='key-option' text='COLLECT [YYYYMMDDHHMMSS]' onClick={() => setNamePrefix('COLLECT') | setNameSuffix(pipelineSuffixes[3])} />
                                 <Menu.Item icon='key-option' text='COLLECT [ISO]' onClick={() => setNamePrefix('COLLECT') | setNameSuffix(pipelineSuffixes[2])} />
-                                <Menu.Item icon='key-option' text='COLLECT [UTC]' onClick={() => setNamePrefix('COLLECT') | setNameSuffix(pipelineSuffixes[2])} />
+                                <Menu.Item icon='key-option' text='COLLECT [UTC]' onClick={() => setNamePrefix('COLLECT') | setNameSuffix(pipelineSuffixes[4])} />
                               </Menu.Item>
                               <Menu.Item text='SYNCHRONIZE ...' active={namePrefix === 'SYNC'}>
                                 <Menu.Item icon='key-option' text='SYNC [UNIXTIME]' onClick={() => setNamePrefix('SYNC') | setNameSuffix(pipelineSuffixes[0])} />
