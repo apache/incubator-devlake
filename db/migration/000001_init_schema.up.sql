@@ -1,0 +1,10 @@
+BEGIN;
+
+CREATE DATABASE IF NOT EXISTS lake_test;
+
+CREATE USER IF NOT EXISTS 'merico'@'localhost' IDENTIFIED BY 'merico';
+GRANT ALL PRIVILEGES ON *.* TO 'merico'@'%';
+
+SELECT now();
+
+COMMIT;
