@@ -705,12 +705,16 @@ const CreatePipeline = (props) => {
                     </div>
                     <div style={{ paddingLeft: '10px', justifyContent: 'flex-end', alignSelf: 'flex-end' }}>
                       {pipelineRun.status === 'TASK_COMPLETED' && (
-                        <Button
-                          intent='primary'
-                          icon='doughnut-chart' text='Graphs'
+                        <a
+                          className='bp3-button bp3-intent-primary bp3-small'
+                          href={ GRAFANA_URL }
+                          target='_blank'
+                          rel='noreferrer'
                           style={{ backgroundColor: '#3bd477', color: '#ffffff' }}
                           small
-                        />
+                        >
+                          <Icon icon='doughnut-chart' size={13} /> <span className='bp3-button-text'>Graphs</span>
+                        </a>
                       )}
                       {pipelineRun.status === 'TASK_RUNNING' && (
                         <Button
