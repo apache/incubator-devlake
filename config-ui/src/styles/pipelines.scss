@@ -285,6 +285,17 @@
       }
     }
   }  
+  &.is-valid {
+    .bp3-input {
+      background-color: lighten(#b5ffe0, 12%);
+      color: darken(#00cf8a, 5%);
+      border: 1px solid darken(#6dffce, 13%);
+      // font-weight: 800;
+      &::placeholder {
+        color: lighten(#6dffce, 10%);
+      }
+    }
+  }    
 }
 
 .bp3-popover-wrapper, .bp3-popover-target {
