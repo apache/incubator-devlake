@@ -201,7 +201,7 @@ NOTE: After installing docker, you may need to run the docker application and re
    cd devlake
    cp .env.example .env
    ```
-2. Start Docker on your machine, then run `docker-compose up -d` to start the services.
+2. Start Docker on your machine, then run `docker compose up -d` to start the services.
 
 3. Visit `localhost:4000` to setup configuration files.
    >- Navigate to desired plugins pages on the Integrations page
@@ -279,17 +279,20 @@ To synchronize data periodically, we provide [`lake-cli`](./cmd/lake-cli/README.
     ```sh
     cp .env.example .env
     ```
-   Find the line start with `DB_URL` in the file `.env` and replace `mysql:3306` with `127.0.0.1:3306`
 
-4. Start the MySQL and Grafana containers:
+4. Update the following variables in the file `.env`:
+    * `DB_URL`: Replace `mysql:3306` with `127.0.0.1:3306`
+    * `COMPOSE_PROFILES`: Change `user` to `dev`
+
+5. Start the MySQL and Grafana containers:
 
     > Make sure the Docker daemon is running before this step.
 
     ```sh
-    docker-compose up mysql grafana
+    docker compose up
     ```
 
-5. Run lake and config UI in dev mode in two seperate terminals:
+6. Run lake and config UI in dev mode in two seperate terminals:
 
     ```sh
     # run lake
@@ -298,7 +301,7 @@ To synchronize data periodically, we provide [`lake-cli`](./cmd/lake-cli/README.
     make configure-dev
     ```
 
-6. Visit config UI at `localhost:4000` to configure data sources.
+7. Visit config UI at `localhost:4000` to configure data sources.
    >- Navigate to desired plugins pages on the Integrations page
    >- You will need to enter the required information for the plugins you intend to use.
    >- Please reference the following for more details on how to configure each one:
@@ -309,11 +312,11 @@ To synchronize data periodically, we provide [`lake-cli`](./cmd/lake-cli/README.
 
    >- Submit the form to update the values by clicking on the **Save Connection** button on each form page
 
-7. Visit `localhost:4000/triggers` to trigger data collection.
+8. Visit `localhost:4000/triggers` to trigger data collection.
 
    > - Please refer to this wiki [How to trigger data collection](https://github.com/merico-dev/lake/wiki/How-to-use-the-triggers-page). Data collection can take up to 20 minutes for large projects. (GitLab 10k+ commits or Jira 5k+ issues)
 
-8. Click *View Dashboards* button when done (username: `admin`, password: `admin`). The button is shown in the top left.
+9. Click *View Dashboards* button when done (username: `admin`, password: `admin`). The button is shown in the top left.
 <br>
 
 ****
