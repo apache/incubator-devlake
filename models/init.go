@@ -19,7 +19,10 @@ import (
 var Db *gorm.DB
 
 func init() {
-	var connectionString = config.V.GetString("DB_URL")
+	connectionString := config.V.GetString("DB_URL")
+	if config.V.Get("TEST") == "true" {
+		connectionString = "merico:merico@tcp(localhost:3306)/lake_test"
+	}
 	var err error
 
 	newLogger := logger.New(
