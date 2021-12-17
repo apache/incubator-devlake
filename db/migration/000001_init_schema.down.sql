@@ -2,4 +2,7 @@ BEGIN;
 
 SELECT now();
 
+DROP SCHEMA IF EXISTS lake_test;
+DROP DATABASE IF EXISTS lake_test;
+
 COMMIT;

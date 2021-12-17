@@ -19,7 +19,7 @@ migrate create -ext sql -dir db/migration -seq init_schema
 
 ## Run migrations
 
-migrate -path db/migration -database "postgresql://root:secret@localhost:5432/simple_bank" -verbose up
+`migrate -path db/migration -database "postgresql://root:secret@localhost:5432/simple_bank" -verbose up`
 
 ## How to reset your DB. (https://github.com/golang-migrate/migrate/issues/282#issuecomment-530743258)
 
