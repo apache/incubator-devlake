@@ -10,7 +10,7 @@ func CreateTask(pipelineId uint64) (*models.Task, error) {
 		Options:    nil,
 		Status:     "MY_STATUS",
 		Message:    "my message",
-		PipelineId: pipelineId,
+		PipelineId: pipelineId, // ref to pipeline
 	}
 	return task, nil
 }
