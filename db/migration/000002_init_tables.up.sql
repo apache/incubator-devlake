@@ -3,7 +3,6 @@ BEGIN;
 -- This line is required
 USE lake_test;
 
-
 -- MySQL dump 10.13  Distrib 8.0.22, for macos10.15 (x86_64)
 --
 -- Host: localhost    Database: lake
@@ -63,12 +62,12 @@ DROP TABLE IF EXISTS `boards`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `boards` (
-  `origin_key` varchar(255) NOT NULL COMMENT 'This key is generated based on details from the original plugin',
+  `id` varchar(255) NOT NULL COMMENT 'This key is generated based on details from the original plugin',
   `created_at` datetime(3) DEFAULT NULL,
   `updated_at` datetime(3) DEFAULT NULL,
   `name` longtext,
   `url` longtext,
-  PRIMARY KEY (`origin_key`)
+  PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -80,17 +79,17 @@ DROP TABLE IF EXISTS `builds`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `builds` (
-  `origin_key` varchar(255) NOT NULL COMMENT 'This key is generated based on details from the original plugin',
+  `id` varchar(255) NOT NULL COMMENT 'This key is generated based on details from the original plugin',
   `created_at` datetime(3) DEFAULT NULL,
   `updated_at` datetime(3) DEFAULT NULL,
-  `job_origin_key` varchar(191) DEFAULT NULL,
+  `job_id` varchar(191) DEFAULT NULL,
   `name` longtext,
   `commit_sha` longtext,
   `duration_sec` bigint unsigned DEFAULT NULL,
   `status` longtext,
   `started_date` datetime(3) DEFAULT NULL,
-  PRIMARY KEY (`origin_key`),
-  KEY `idx_builds_job_origin_key` (`job_origin_key`)
+  PRIMARY KEY (`id`),
+  KEY `idx_builds_job_id` (`job_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -102,10 +101,10 @@ DROP TABLE IF EXISTS `changelogs`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `changelogs` (
-  `origin_key` varchar(255) NOT NULL COMMENT 'This key is generated based on details from the original plugin',
+  `id` varchar(255) NOT NULL COMMENT 'This key is generated based on details from the original plugin',
   `created_at` datetime(3) DEFAULT NULL,
   `updated_at` datetime(3) DEFAULT NULL,
-  `issue_origin_key` varchar(191) DEFAULT NULL,
+  `issue_id` varchar(191) DEFAULT NULL,
   `author_id` longtext,
   `author_name` longtext,
   `field_id` longtext,
@@ -113,8 +112,8 @@ CREATE TABLE `changelogs` (
   `from` longtext,
   `to` longtext,
   `created_date` datetime(3) DEFAULT NULL,
-  PRIMARY KEY (`origin_key`),
-  KEY `idx_changelogs_issue_origin_key` (`issue_origin_key`)
+  PRIMARY KEY (`id`),
+  KEY `idx_changelogs_issue_id` (`issue_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -126,7 +125,7 @@ DROP TABLE IF EXISTS `commits`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `commits` (
-  `origin_key` varchar(255) NOT NULL COMMENT 'This key is generated based on details from the original plugin',
+  `id` varchar(255) NOT NULL COMMENT 'This key is generated based on details from the original plugin',
   `created_at` datetime(3) DEFAULT NULL,
   `updated_at` datetime(3) DEFAULT NULL,
   `repo_id` bigint unsigned DEFAULT NULL COMMENT 'References the repo the commit belongs to.',
@@ -141,7 +140,7 @@ CREATE TABLE `commits` (
   `committer_name` longtext,
   `committer_email` longtext,
   `committed_date` datetime(3) DEFAULT NULL,
-  PRIMARY KEY (`origin_key`),
+  PRIMARY KEY (`id`),
   KEY `idx_commits_repo_id` (`repo_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -361,8 +360,8 @@ CREATE TABLE `github_pull_requests` (
   `created_at` datetime(3) DEFAULT NULL,
   `updated_at` datetime(3) DEFAULT NULL,
   PRIMARY KEY (`github_id`),
-  KEY `idx_github_pull_requests_number` (`number`),
-  KEY `idx_github_pull_requests_repository_id` (`repository_id`)
+  KEY `idx_github_pull_requests_repository_id` (`repository_id`),
+  KEY `idx_github_pull_requests_number` (`number`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -608,10 +607,10 @@ DROP TABLE IF EXISTS `issues`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `issues` (
-  `origin_key` varchar(255) NOT NULL COMMENT 'This key is generated based on details from the original plugin',
+  `id` varchar(255) NOT NULL COMMENT 'This key is generated based on details from the original plugin',
   `created_at` datetime(3) DEFAULT NULL,
   `updated_at` datetime(3) DEFAULT NULL,
-  `board_origin_key` varchar(191) DEFAULT NULL,
+  `board_id` varchar(191) DEFAULT NULL,
   `url` longtext,
   `key` longtext,
   `title` longtext,
@@ -623,18 +622,18 @@ CREATE TABLE `issues` (
   `original_estimate_minutes` bigint DEFAULT NULL,
   `aggregate_estimate_minutes` bigint DEFAULT NULL,
   `remaining_estimate_minutes` bigint DEFAULT NULL,
-  `creator_origin_key` longtext,
-  `assignee_origin_key` longtext,
+  `creator_id` longtext,
+  `assignee_id` longtext,
   `resolution_date` datetime(3) DEFAULT NULL,
   `priority` longtext,
-  `parent_origin_key` longtext,
-  `sprint_origin_key` longtext,
+  `parent_id` longtext,
+  `sprint_id` longtext,
   `created_date` datetime(3) DEFAULT NULL,
   `updated_date` datetime(3) DEFAULT NULL,
   `spent_minutes` bigint DEFAULT NULL,
   `lead_time_minutes` bigint unsigned DEFAULT NULL,
-  PRIMARY KEY (`origin_key`),
-  KEY `idx_issues_board_origin_key` (`board_origin_key`)
+  PRIMARY KEY (`id`),
+  KEY `idx_issues_board_id` (`board_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -864,6 +863,7 @@ CREATE TABLE `jira_issues` (
   `std_story_point` bigint unsigned DEFAULT NULL,
   `std_type` longtext,
   `std_status` longtext,
+  `all_fields` json DEFAULT NULL,
   `changelog_updated` datetime(3) DEFAULT NULL,
   PRIMARY KEY (`source_id`,`issue_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
@@ -998,11 +998,11 @@ DROP TABLE IF EXISTS `jobs`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `jobs` (
-  `origin_key` varchar(255) NOT NULL COMMENT 'This key is generated based on details from the original plugin',
+  `id` varchar(255) NOT NULL COMMENT 'This key is generated based on details from the original plugin',
   `created_at` datetime(3) DEFAULT NULL,
   `updated_at` datetime(3) DEFAULT NULL,
   `name` longtext,
-  PRIMARY KEY (`origin_key`)
+  PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -1014,7 +1014,7 @@ DROP TABLE IF EXISTS `notes`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `notes` (
-  `origin_key` varchar(255) NOT NULL COMMENT 'This key is generated based on details from the original plugin',
+  `id` varchar(255) NOT NULL COMMENT 'This key is generated based on details from the original plugin',
   `created_at` datetime(3) DEFAULT NULL,
   `updated_at` datetime(3) DEFAULT NULL,
   `pr_id` bigint unsigned DEFAULT NULL COMMENT 'References the pull request for this note',
@@ -1024,7 +1024,7 @@ CREATE TABLE `notes` (
   `resolvable` tinyint(1) DEFAULT NULL COMMENT 'Is or is not a review comment',
   `system` tinyint(1) DEFAULT NULL COMMENT 'Is or is not auto-generated vs. human generated',
   `created_date` datetime(3) DEFAULT NULL,
-  PRIMARY KEY (`origin_key`),
+  PRIMARY KEY (`id`),
   KEY `idx_notes_pr_id` (`pr_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -1071,8 +1071,8 @@ CREATE TABLE `pipelines` (
   `message` longtext,
   `spent_seconds` bigint DEFAULT NULL,
   PRIMARY KEY (`id`),
-  KEY `idx_pipelines_finished_at` (`finished_at`),
-  KEY `idx_pipelines_name` (`name`)
+  KEY `idx_pipelines_name` (`name`),
+  KEY `idx_pipelines_finished_at` (`finished_at`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -1084,7 +1084,7 @@ DROP TABLE IF EXISTS `prs`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `prs` (
-  `origin_key` varchar(255) NOT NULL COMMENT 'This key is generated based on details from the original plugin',
+  `id` varchar(255) NOT NULL COMMENT 'This key is generated based on details from the original plugin',
   `created_at` datetime(3) DEFAULT NULL,
   `updated_at` datetime(3) DEFAULT NULL,
   `repo_id` bigint unsigned DEFAULT NULL,
@@ -1094,7 +1094,7 @@ CREATE TABLE `prs` (
   `created_date` datetime(3) DEFAULT NULL,
   `merged_date` datetime(3) DEFAULT NULL,
   `closed_at` datetime(3) DEFAULT NULL,
-  PRIMARY KEY (`origin_key`),
+  PRIMARY KEY (`id`),
   KEY `idx_prs_repo_id` (`repo_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -1107,26 +1107,12 @@ DROP TABLE IF EXISTS `repos`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `repos` (
-  `origin_key` varchar(255) NOT NULL COMMENT 'This key is generated based on details from the original plugin',
+  `id` varchar(255) NOT NULL COMMENT 'This key is generated based on details from the original plugin',
   `created_at` datetime(3) DEFAULT NULL,
   `updated_at` datetime(3) DEFAULT NULL,
   `name` longtext,
   `url` longtext,
-  PRIMARY KEY (`origin_key`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Table structure for table `schema_migrations`
---
-
-DROP TABLE IF EXISTS `schema_migrations`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `schema_migrations` (
-  `version` bigint NOT NULL,
-  `dirty` tinyint(1) NOT NULL,
-  PRIMARY KEY (`version`)
+  PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -1138,9 +1124,9 @@ DROP TABLE IF EXISTS `sprint_issues`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `sprint_issues` (
-  `sprint_origin_key` varchar(191) NOT NULL,
-  `issue_origin_key` varchar(191) NOT NULL,
-  PRIMARY KEY (`sprint_origin_key`,`issue_origin_key`)
+  `sprint_id` varchar(191) NOT NULL,
+  `issue_id` varchar(191) NOT NULL,
+  PRIMARY KEY (`sprint_id`,`issue_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -1152,18 +1138,18 @@ DROP TABLE IF EXISTS `sprints`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `sprints` (
-  `origin_key` varchar(255) NOT NULL COMMENT 'This key is generated based on details from the original plugin',
+  `id` varchar(255) NOT NULL COMMENT 'This key is generated based on details from the original plugin',
   `created_at` datetime(3) DEFAULT NULL,
   `updated_at` datetime(3) DEFAULT NULL,
-  `board_origin_key` varchar(191) DEFAULT NULL,
+  `board_id` varchar(191) DEFAULT NULL,
   `url` longtext,
   `state` longtext,
   `name` longtext,
   `start_date` datetime(3) DEFAULT NULL,
   `end_date` datetime(3) DEFAULT NULL,
   `complete_date` datetime(3) DEFAULT NULL,
-  PRIMARY KEY (`origin_key`),
-  KEY `idx_sprints_board_origin_key` (`board_origin_key`)
+  PRIMARY KEY (`id`),
+  KEY `idx_sprints_board_id` (`board_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -1190,9 +1176,9 @@ CREATE TABLE `tasks` (
   `finished_at` datetime(3) DEFAULT NULL,
   `spent_seconds` bigint DEFAULT NULL,
   PRIMARY KEY (`id`),
-  KEY `idx_tasks_plugin` (`plugin`),
   KEY `idx_tasks_pipeline_id` (`pipeline_id`),
-  KEY `idx_tasks_finished_at` (`finished_at`)
+  KEY `idx_tasks_finished_at` (`finished_at`),
+  KEY `idx_tasks_plugin` (`plugin`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -1204,14 +1190,14 @@ DROP TABLE IF EXISTS `users`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `users` (
-  `origin_key` varchar(255) NOT NULL COMMENT 'This key is generated based on details from the original plugin',
+  `id` varchar(255) NOT NULL COMMENT 'This key is generated based on details from the original plugin',
   `created_at` datetime(3) DEFAULT NULL,
   `updated_at` datetime(3) DEFAULT NULL,
   `name` longtext,
   `email` longtext,
   `avatar_url` longtext,
   `timezone` longtext,
-  PRIMARY KEY (`origin_key`)
+  PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -1223,20 +1209,20 @@ DROP TABLE IF EXISTS `worklogs`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `worklogs` (
-  `origin_key` varchar(255) NOT NULL COMMENT 'This key is generated based on details from the original plugin',
+  `id` varchar(255) NOT NULL COMMENT 'This key is generated based on details from the original plugin',
   `created_at` datetime(3) DEFAULT NULL,
   `updated_at` datetime(3) DEFAULT NULL,
-  `issue_origin_key` varchar(191) DEFAULT NULL,
-  `board_origin_key` varchar(191) DEFAULT NULL,
+  `issue_id` varchar(191) DEFAULT NULL,
+  `board_id` varchar(191) DEFAULT NULL,
   `author_id` longtext,
   `update_author_id` longtext,
   `time_spent` longtext,
   `time_spent_seconds` bigint DEFAULT NULL,
   `updated` datetime(3) DEFAULT NULL,
   `started` datetime(3) DEFAULT NULL,
-  PRIMARY KEY (`origin_key`),
-  KEY `idx_worklogs_board_origin_key` (`board_origin_key`),
-  KEY `idx_worklogs_issue_origin_key` (`issue_origin_key`)
+  PRIMARY KEY (`id`),
+  KEY `idx_worklogs_issue_id` (`issue_id`),
+  KEY `idx_worklogs_board_id` (`board_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -1257,7 +1243,7 @@ CREATE TABLE `worklogs` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2021-12-15 22:19:28
+-- Dump completed on 2021-12-17 11:30:44
 
 
 SELECT now();
