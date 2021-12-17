@@ -27,9 +27,12 @@ func runMigrationsUp() {
 		ROOT_CONNECTION_STRING)
 
 	if err != nil {
+		fmt.Println("ERROR: Could not init migrate for UP: ", err)
+	}
+	err = m.Up()
+	if err != nil {
 		fmt.Println("ERROR: Could not run migrations UP: ", err)
 	}
-	m.Up()
 }
 
 func runMigrationsDown() {
@@ -38,9 +41,12 @@ func runMigrationsDown() {
 		ROOT_CONNECTION_STRING)
 
 	if err != nil {
+		fmt.Println("ERROR: Could not init migrate for DOWN: ", err)
+	}
+	err = m.Down()
+	if err != nil {
 		fmt.Println("ERROR: Could not run migrations DOWN: ", err)
 	}
-	m.Down()
 }
 
 func setup() {
