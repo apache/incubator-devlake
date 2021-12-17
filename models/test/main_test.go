@@ -28,14 +28,15 @@ func TestMain(m *testing.M) {
 }
 
 func setup() error {
-	// Commented out because it caused the following error...
+	// Comment out because it caused the following error...
 	// ERROR: Could not run migrations DOWN:  no change
+	// Scripts are not behaving as expected. Needs more troubleshooting.
 
-	// err := runMigrationsDown()
-	// if err != nil {
-	// 	return err
-	// }
-	err := runMigrationsUp()
+	err := runMigrationsDown()
+	if err != nil {
+		return err
+	}
+	err = runMigrationsUp()
 	if err != nil {
 		return err
 	}
