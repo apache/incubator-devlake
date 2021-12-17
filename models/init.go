@@ -18,10 +18,12 @@ import (
 
 var Db *gorm.DB
 
-func Init() {
-	// if connectionString == "" {
-	connectionString := config.V.GetString("DB_URL")
-	// }
+fun InitDB(){
+	init()
+}
+
+func init() {
+	var connectionString = config.V.GetString("DB_URL")
 	var err error
 
 	newLogger := logger.New(
