@@ -535,7 +535,7 @@ const CreatePipeline = (props) => {
           </main>
         </Content>
       </div>
-      <PipelineIndicator pipeline={pipelineRun} graphsUrl={GRAFANA_URL} onFetch={fetchPipeline} />
+      <PipelineIndicator pipeline={pipelineRun} graphsUrl={GRAFANA_URL} onFetch={fetchPipeline} onCancel={cancelPipeline} />
     </>
   )
 }

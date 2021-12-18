@@ -18,7 +18,8 @@ const PipelineIndicator = (props) => {
   const { 
     pipeline,
     graphsUrl = '#', 
-    onFetch = () => {} 
+    onFetch = () => {} ,
+    onCancel = () => {}
   } = props
 
   return (
@@ -150,7 +151,7 @@ const PipelineIndicator = (props) => {
                         <Button
                           className='btn-cancel-pipeline'
                           small icon='stop' text='CANCEL' intent='primary'
-                          onClick={() => cancelPipeline(pipeline.ID)}
+                          onClick={() => onCancel(pipeline.ID)}
                         />
                       )}
                       {pipeline.status === 'TASK_FAILED' && (
