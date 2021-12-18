@@ -39,7 +39,7 @@ import { ReactComponent as PipelineCompleteIcon } from '@/images/check-circle.sv
 import { ReactComponent as BackArrowIcon } from '@/images/undo.svg'
 
 import GitlabHelpNote from '@/images/help/gitlab-help.png'
-import JiraHelpNote from '@/images/help/gitlab-help.png'
+import JiraHelpNote from '@/images/help/jira-help.png'
 import GithubHelpNote from '@/images/help/github-help.png'
 
 import '@/styles/pipelines.scss'
