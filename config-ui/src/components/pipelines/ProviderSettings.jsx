@@ -3,20 +3,28 @@ import {
   Providers,
 } from '@/data/Providers'
 import {
+  Button,
+  ButtonGroup,
   FormGroup,
-  InputGroup
+  InputGroup,
+  MenuItem,
+  Intent
 } from '@blueprintjs/core'
+import { Select } from '@blueprintjs/select'
 
 const ProviderSettings = (props) => {
   const {
     providerId,
     projectId,
     sourceId,
+    selectedSource,
+    sources = [],
     boardId,
     owner,
     repositoryName,
     setProjectId = () => {},
     setSourceId = () => {},
+    setSelectedSource = () => {},
     setBoardId = () => {},
     setOwner = () => {},
     setRepositoryName = () => {},
@@ -36,14 +44,14 @@ const ProviderSettings = (props) => {
           <FormGroup
             disabled={isRunning || !isEnabled(providerId)}
             label={<strong>Source ID<span className='requiredStar'>*</span></strong>}
-            labelInfo={<span style={{ display: 'block' }}>Enter Connection Instance ID</span>}
+            labelInfo={<span style={{ display: 'block' }}>Choose Connection Instance ID</span>}
             inline={false}
             labelFor='source-id'
             className=''
             contentClassName=''
             fill
           >
-            <InputGroup
+            {/* <InputGroup
               id='source-id'
               disabled={isRunning || !isEnabled(providerId)}
               placeholder='eg. 54'
@@ -52,7 +60,47 @@ const ProviderSettings = (props) => {
               className='input-source-id'
               autoComplete='off'
               fill={false}
-            />
+            /> */}
+            <ButtonGroup>
+              <Select
+                disabled={isRunning || !isEnabled(providerId)}
+                className='selector-source-id'
+                multiple
+                inline={true}
+                fill={true}
+                items={sources}
+                activeItem={selectedSource}
+                itemPredicate={(query, item) => item?.title?.toLowerCase().indexOf(query.toLowerCase()) >= 0}
+                itemRenderer={(item, { handleClick, modifiers }) => (
+                  <MenuItem
+                    active={modifiers.active}
+                    key={item.value}
+                    label={item.value}
+                    onClick={handleClick}
+                    text={item.title}
+                  />
+                )}
+                noResults={<MenuItem disabled={true} text='No Connections.' />}
+                onItemSelect={(item) => {
+                  setSelectedSource(item)
+                }}
+              >
+                <Button
+                  // intent={Intent.DANGER}
+                  disabled={isRunning || !isEnabled(providerId)}
+                  style={{ justifyContent: 'space-between', minWidth: '206px', maxWidth: '290px', whiteSpace: 'nowrap' }}
+                  text={selectedSource ? `${selectedSource.title} [${selectedSource.value}]` : 'Select Instance'}
+                  rightIcon='double-caret-vertical'
+                  fill
+                />
+              </Select>
+              <Button
+                icon='eraser'
+                intent={Intent.WARNING}
+                disabled={isRunning || !isEnabled(providerId)}
+                onClick={() => setSelectedSource(null)}
+              />
+            </ButtonGroup>
           </FormGroup>
           <FormGroup
             disabled={isRunning || !isEnabled(providerId)}

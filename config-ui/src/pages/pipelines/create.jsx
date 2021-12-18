@@ -27,6 +27,7 @@ import {
 import { integrationsData } from '@/data/integrations'
 import usePipelineManager from '@/hooks/usePipelineManager'
 import usePipelineValidation from '@/hooks/usePipelineValidation'
+import useConnectionManager from '@/hooks/useConnectionManager'
 import FormValidationErrors from '@/components/messages/FormValidationErrors'
 import PipelineIndicator from '@/components/widgets/PipelineIndicator'
 import PipelinePresetsMenu from '@/components/menus/PipelinePresetsMenu'
@@ -50,6 +51,7 @@ const CreatePipeline = (props) => {
   // const { providerId } = useParams()
   // const [activeProvider, setActiveProvider] = useState(integrationsData[0])
   const [integrations, setIntegrations] = useState(integrationsData)
+  const [jiraIntegration, setJiraIntegration] = useState(integrationsData.find(p => p.id === Providers.JIRA))
 
   const [today, setToday] = useState(new Date())
   const pipelinePrefixes = ['COLLECT', 'SYNC']
@@ -75,6 +77,8 @@ const CreatePipeline = (props) => {
   const [projectId, setProjectId] = useState('')
   const [boardId, setBoardId] = useState('')
   const [sourceId, setSourceId] = useState('')
+  const [sources, setSources] = useState([])
+  const [selectedSource, setSelectedSource] = useState()
   const [repositoryName, setRepositoryName] = useState('')
   const [owner, setOwner] = useState('')
 
@@ -102,6 +106,13 @@ const CreatePipeline = (props) => {
     repositoryName,
     sourceId,
     runTasks
+  })
+
+  const {
+    allConnections,
+    fetchAllConnections
+  } = useConnectionManager({
+    activeProvider: jiraIntegration
   })
 
   useEffect(() => {
@@ -187,7 +198,13 @@ const CreatePipeline = (props) => {
     setRunTasks(PipelineTasks)
     console.log('>> CONFIGURED PIPELINE TASKS = ', PipelineTasks)
     validate()
-  }, [enabledProviders, projectId, boardId, sourceId, owner, repositoryName, configureProvider, validate])
+    if (enabledProviders.includes(Providers.JIRA)) {
+      fetchAllConnections(false)
+    } else {
+      setSources([])
+      setSelectedSource(null)
+    }
+  }, [enabledProviders, projectId, boardId, sourceId, owner, repositoryName, configureProvider, validate, fetchAllConnections])
 
   useEffect(() => {
     console.log('>> PIPELINE LAST RUN OBJECT CHANGED!!...', pipelineRun)
@@ -198,6 +215,21 @@ const CreatePipeline = (props) => {
     setPipelineName(`${namePrefix} ${nameSuffix}`)
     setToday(new Date())
   }, [namePrefix, nameSuffix])
+
+  useEffect(() => {
+    console.log('>> JIRA SOURCE ID SELECTED, CONNECTION INSTANCE = ', selectedSource)
+    setSourceId(sId => selectedSource ? selectedSource.value : null)
+    validate()
+  }, [selectedSource, validate])
+
+  useEffect(() => {
+    console.log('>> FETCHED ALL JIRA CONNECTIONS... ', allConnections)
+    setSources(allConnections.map(c => { return { id: c.ID, title: c.name || 'Instance', value: c.ID } }))
+  }, [allConnections])
+
+  useEffect(() => {
+    console.log('>> BUILT JIRA INSTANCE SELECT MENU... ', sources)
+  }, [sources])
 
   return (
     <>
@@ -384,6 +416,9 @@ const CreatePipeline = (props) => {
                           owner={owner}
                           repositoryName={repositoryName}
                           sourceId={sourceId}
+                          sources={sources}
+                          selectedSource={selectedSource}
+                          setSelectedSource={setSelectedSource}
                           boardId={boardId}
                           setProjectId={setProjectId}
                           setOwner={setOwner}
