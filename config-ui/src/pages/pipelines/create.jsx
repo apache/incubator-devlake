@@ -6,9 +6,6 @@ import {
   // useParams,
 } from 'react-router-dom'
 import { GRAFANA_URL } from '@/utils/config'
-// import { ToastNotification } from '@/components/Toast'
-// import { DEVLAKE_ENDPOINT } from '@/utils/config'
-// import request from '@/utils/request'
 import {
   // Classes,
   Button, Icon, Intent, Switch,
@@ -39,9 +36,6 @@ import AppCrumbs from '@/components/Breadcrumbs'
 import Content from '@/components/Content'
 import { ReactComponent as LayersIcon } from '@/images/layers.svg'
 import { ReactComponent as HelpIcon } from '@/images/help.svg'
-// import { ReactComponent as PipelineRunningIcon } from '@/images/synchronize.svg'
-// import { ReactComponent as PipelineFailedIcon } from '@/images/no-synchronize.svg'
-// import { ReactComponent as PipelineCompleteIcon } from '@/images/check-circle.svg'
 import { ReactComponent as BackArrowIcon } from '@/images/undo.svg'
 
 import GitlabHelpNote from '@/images/help/gitlab-help.png'
@@ -65,10 +59,11 @@ const CreatePipeline = (props) => {
     `${today.getFullYear()}${today.getMonth() + 1}${today.getDate()}${today.getMinutes()}${today.getSeconds()}`, // 202112154936
     today.toUTCString(), // Thu, 16 Dec 2021 04:49:52 GMT
   ]
-  // const [autoRun, setAutoRun] = useState(false)
-  // const [enableThrottling, setEnableThrottling] = useState(false)
+
   const [readyProviders, setReadyProviders] = useState([])
   // const [isRunning, setIsRunning] = useState(false)
+  // const [autoRun, setAutoRun] = useState(false)
+  // const [enableThrottling, setEnableThrottling] = useState(false)
 
   const [enabledProviders, setEnabledProviders] = useState([])
   const [runTasks, setRunTasks] = useState([])
@@ -81,8 +76,6 @@ const CreatePipeline = (props) => {
   const [sourceId, setSourceId] = useState('')
   const [repositoryName, setRepositoryName] = useState('')
   const [owner, setOwner] = useState('')
-
-  // const [validationErrors, setValidationErrors] = useState([])
 
   const {
     runPipeline,
@@ -110,10 +103,6 @@ const CreatePipeline = (props) => {
     runTasks
   })
 
-  // useEffect(() => {
-  //   setActiveProvider(providerId ? integrationsData.find(p => p.id === providerId) : integrationsData[0])
-  // }, [providerId])
-
   useEffect(() => {
     integrationsData.forEach((i, idx) => {
       setTimeout(() => {
@@ -121,10 +110,6 @@ const CreatePipeline = (props) => {
       }, idx * 50)
     })
   }, [])
-
-  // useEffect(() => {
-  //   console.log('>> READY LIST = ', readyProviders)
-  // }, [readyProviders])
 
   const isProviderEnabled = (providerId) => {
     return enabledProviders.includes(providerId)
@@ -251,7 +236,6 @@ const CreatePipeline = (props) => {
                 onChange={(e) => setOwner(e.target.value)}
                 className='input-owner'
                 autoComplete='off'
-                // fill={false}
               />
             </FormGroup>
             <FormGroup
@@ -290,7 +274,6 @@ const CreatePipeline = (props) => {
               labelFor='project-id'
               className=''
               contentClassName=''
-              // fill
             >
               <InputGroup
                 id='project-id'
@@ -300,7 +283,6 @@ const CreatePipeline = (props) => {
                 onChange={(e) => setProjectId(pId => e.target.value)}
                 className='input-project-id'
                 autoComplete='off'
-                // fill={false}
               />
             </FormGroup>
           </>
@@ -439,8 +421,6 @@ const CreatePipeline = (props) => {
                   labelFor='pipeline-name'
                   className=''
                   contentClassName=''
-                  // label={<strong>Name</strong>}
-                  // labelInfo={<span style={{ display: 'block' }}>{`RUN DATE = ${today.toLocaleString()}`}</span>}
                   helperText={`RUN DATE = ${today.toLocaleString()}`}
                   fill
                   required
