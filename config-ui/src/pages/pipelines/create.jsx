@@ -161,6 +161,11 @@ const CreatePipeline = (props) => {
     }
   }, [getProviderOptions])
 
+  const resetPipelineName = () => {
+    setToday(new Date())
+    setPipelineName(`${namePrefix} ${nameSuffix}`)
+  }
+
   useEffect(() => {
 
   }, [pipelineName])
@@ -304,7 +309,7 @@ const CreatePipeline = (props) => {
                         <Button
                           icon='reset' text='' small
                           minimal
-                          onClick={() => setPipelineName(`${namePrefix} ${nameSuffix}`)}
+                          onClick={() => resetPipelineName()}
                         />
                         <Popover
                           className='popover-pipeline-menu-trigger'
