@@ -27,15 +27,16 @@ import { integrationsData } from '@/data/integrations'
 import usePipelineManager from '@/hooks/usePipelineManager'
 import usePipelineValidation from '@/hooks/usePipelineValidation'
 import FormValidationErrors from '@/components/messages/FormValidationErrors'
+import PipelineIndicator from '@/components/widgets/PipelineIndicator'
 import Nav from '@/components/Nav'
 import Sidebar from '@/components/Sidebar'
 import AppCrumbs from '@/components/Breadcrumbs'
 import Content from '@/components/Content'
 import { ReactComponent as LayersIcon } from '@/images/layers.svg'
 import { ReactComponent as HelpIcon } from '@/images/help.svg'
-import { ReactComponent as PipelineRunningIcon } from '@/images/synchronize.svg'
-import { ReactComponent as PipelineFailedIcon } from '@/images/no-synchronize.svg'
-import { ReactComponent as PipelineCompleteIcon } from '@/images/check-circle.svg'
+// import { ReactComponent as PipelineRunningIcon } from '@/images/synchronize.svg'
+// import { ReactComponent as PipelineFailedIcon } from '@/images/no-synchronize.svg'
+// import { ReactComponent as PipelineCompleteIcon } from '@/images/check-circle.svg'
 import { ReactComponent as BackArrowIcon } from '@/images/undo.svg'
 
 import GitlabHelpNote from '@/images/help/gitlab-help.png'
@@ -102,7 +103,7 @@ const CreatePipeline = (props) => {
     repositoryName,
     sourceId,
     runTasks
-  })  
+  })
 
   // useEffect(() => {
   //   setActiveProvider(providerId ? integrationsData.find(p => p.id === providerId) : integrationsData[0])
@@ -198,7 +199,7 @@ const CreatePipeline = (props) => {
                 autoComplete='off'
                 fill={false}
               />
-            </FormGroup>          
+            </FormGroup>
             <FormGroup
               disabled={isRunning || !isProviderEnabled(providerId)}
               label={<strong>Board ID<span className='requiredStar'>*</span></strong>}
@@ -334,7 +335,6 @@ const CreatePipeline = (props) => {
     // setValidationErrors(errors => enabledProviders.includes(Providers.JIRA) && (!boardId || !sourceId) ? ['JIRA: Specify Run Settings'] : errors.filter(e => !e.startsWith('JIRA:')))
     // setValidationErrors(errors => enabledProviders.includes(Providers.GITHUB) && (!repositoryName || !owner) ? ['GitHub: Specify Run Settings'] : errors.filter(e => !e.startsWith('GitHub:')))
     // setValidationErrors(errors => enabledProviders.length === 0 ? ['Pipeline: Invalid/Empty Configuration'] : errors.filter(e => !e.startsWith('Pipeline:')))
-    
   }, [enabledProviders, projectId, boardId, sourceId, owner, repositoryName, configureProvider])
 
   // useEffect(() => {
@@ -550,31 +550,55 @@ const CreatePipeline = (props) => {
                             enforceFocus={false}
                             usePortal={false}
                           >
-                          <Button className='pipeline-action-btn' minimal><Icon icon='help' color={Colors.GRAY4} size={16} /></Button>
-                          <>
-                            <div style={{ textShadow: 'none', fontSize: '12px', padding: '12px', maxWidth: '300px' }}>
-                            <div style={{ marginBottom: '10px', fontWeight: 700, fontSize: '14px', fontFamily: '"Montserrat", sans-serif' }}>
-                              <Icon icon='help' size={16} /> {provider.name} Settings
-                            </div>
-                            <p>Need Help? &mdash; Please enter the required <strong>Run Settings</strong> for this data provider.</p>
-                            {/* specific provider field help notes */}
-                            {(() => {
-                              switch (provider.id){
-                              case Providers.GITLAB:
-                                return <img src={GitlabHelpNote} alt={provider.name} style={{ maxHeight: '64px', maxWidth: '100%' }} />
-                                break
-                              case Providers.JENKINS:
-                                return <strong>(Options not required)</strong>
-                                break
-                              case Providers.JIRA:
-                                return <img src={JiraHelpNote} alt={provider.name} style={{ maxHeight: '64px', maxWidth: '100%' }} />
-                                break
-                              case Providers.GITHUB:
-                                return <img src={GithubHelpNote} alt={provider.name} style={{ maxHeight: '64px', maxWidth: '100%' }} />
-                                break
-                            }})()}
-                            </div>
-                          </>
+                            <Button className='pipeline-action-btn' minimal><Icon icon='help' color={Colors.GRAY4} size={16} /></Button>
+                            <>
+                              <div style={{ textShadow: 'none', fontSize: '12px', padding: '12px', maxWidth: '300px' }}>
+                                <div style={{
+                                  marginBottom: '10px',
+                                  fontWeight: 700,
+                                  fontSize: '14px',
+                                  fontFamily: '"Montserrat", sans-serif'
+                                }}
+                                >
+                                  <Icon icon='help' size={16} /> {provider.name} Settings
+                                </div>
+                                <p>Need Help? &mdash; Please enter the required <strong>Run Settings</strong> for this data provider.</p>
+                                {/* specific provider field help notes */}
+                                {(() => {
+                                  let helpContext = null
+                                  switch (provider.id) {
+                                    case Providers.GITLAB:
+                                      helpContext = (
+                                        <img
+                                          src={GitlabHelpNote}
+                                          alt={provider.name} style={{ maxHeight: '64px', maxWidth: '100%' }}
+                                        />
+                                      )
+                                      break
+                                    case Providers.JENKINS:
+                                      helpContext = <strong>(Options not required)</strong>
+                                      break
+                                    case Providers.JIRA:
+                                      helpContext = (
+                                        <img
+                                          src={JiraHelpNote}
+                                          alt={provider.name} style={{ maxHeight: '64px', maxWidth: '100%' }}
+                                        />
+                                      )
+                                      break
+                                    case Providers.GITHUB:
+                                      helpContext = (
+                                        <img
+                                          src={GithubHelpNote}
+                                          alt={provider.name} style={{ maxHeight: '64px', maxWidth: '100%' }}
+                                        />
+                                      )
+                                      break
+                                  }
+                                  return helpContext
+                                })()}
+                              </div>
+                            </>
                           </Popover>
                         </ButtonGroup>
                       </div>
@@ -618,8 +642,8 @@ const CreatePipeline = (props) => {
           </main>
         </Content>
       </div>
-      {/* {pipelineRun && pipelineRun.ID !== null && ( */}
-      <CSSTransition
+      <PipelineIndicator pipeline={pipelineRun} graphsUrl={GRAFANA_URL} onFetch={fetchPipeline} />
+      {/* <CSSTransition
         in={pipelineRun && pipelineRun.ID !== null}
         timeout={300} classNames='lastrun-module'
         unmountOnExit
@@ -678,13 +702,13 @@ const CreatePipeline = (props) => {
                     return <Icon
                       icon={<PipelineCompleteIcon width={40} height={40} style={{ marginTop: '3px', display: 'flex', alignSelf: 'center' }} />}
                       size={40}
-                    />                    
+                    />
                     break
                   case 'TASK_FAILED':
                     return <Icon
                       icon={<PipelineFailedIcon width={40} height={40} style={{ marginTop: '3px', display: 'flex', alignSelf: 'center' }} />}
                       size={40}
-                    />                       
+                    />
                     break
                   case 'TASK_RUNNING':
                   default:
@@ -695,12 +719,6 @@ const CreatePipeline = (props) => {
                     break
                   }
                 })()}
-                {/* <Icon
-                  icon={pipelineRun.status === 'TASK_COMPLETED'
-                    ? <PipelineCompleteIcon width={40} height={40} style={{ marginTop: '3px', display: 'flex', alignSelf: 'center' }} />
-                    : <PipelineRunningIcon width={40} height={40} style={{ marginTop: '3px', display: 'flex', alignSelf: 'center' }} />}
-                  size={40}
-                /> */}
               </>
               <>
                 <div style={{ fontSize: '12px', padding: '12px', minWidth: '420px', maxWidth: '420px', overflow: 'hidden' }}>
@@ -756,7 +774,7 @@ const CreatePipeline = (props) => {
                           style={{ color: '#ffffff' }}
                           small
                         />
-                      )}                      
+                      )}
                       <Button
                         minimal
                         className={`btn-ok ${Classes.POPOVER_DISMISS}`}
@@ -768,13 +786,13 @@ const CreatePipeline = (props) => {
                   <div style={{
                    paddingTop: '7px',
                    borderTop: '1px solid #f5f5f5',
-                   marginTop: '14px', 
+                   marginTop: '14px',
                   }}>
                     {pipelineRun?.tasks?.map((t, tIdx) => (
                       <div
                         className='pipeline-task-'
                         key={`pipeline-task-key-${tIdx}`}
-                        style={{ display: 'flex', padding: '4px 6px', justifyContent: 'space-between' 
+                        style={{ display: 'flex', padding: '4px 6px', justifyContent: 'space-between'
                       }}>
                         <div style={{ paddingRight: '8px' }}><Spinner className='mini-task-spinner' size={14} intent={t.status === 'TASK_COMPLETED' ? 'success' : 'warning' } value={t.status === 'TASK_COMPLETED' ? 1 : t.progress} /></div>
                         <div style={{ padding: '0 8px', width: '100%' }}>
@@ -793,7 +811,7 @@ const CreatePipeline = (props) => {
             </Popover>
           </div>
         </div>
-      </CSSTransition>
+      </CSSTransition> */}
       {/* )} */}
     </>
   )
