@@ -13,7 +13,7 @@ import {
   // Classes,
   Button, Icon, Intent, Switch,
   // H2, Card, Elevation, Tag,
-  Menu,
+  // Menu,
   FormGroup,
   ButtonGroup,
   InputGroup,
@@ -32,6 +32,7 @@ import usePipelineManager from '@/hooks/usePipelineManager'
 import usePipelineValidation from '@/hooks/usePipelineValidation'
 import FormValidationErrors from '@/components/messages/FormValidationErrors'
 import PipelineIndicator from '@/components/widgets/PipelineIndicator'
+import PipelinePresetsMenu from '@/components/menus/PipelinePresetsMenu'
 import Nav from '@/components/Nav'
 import Sidebar from '@/components/Sidebar'
 import AppCrumbs from '@/components/Breadcrumbs'
@@ -52,7 +53,7 @@ import '@/styles/pipelines.scss'
 const CreatePipeline = (props) => {
   const history = useHistory()
   // const { providerId } = useParams()
-  const [activeProvider, setActiveProvider] = useState(integrationsData[0])
+  // const [activeProvider, setActiveProvider] = useState(integrationsData[0])
   const [integrations, setIntegrations] = useState(integrationsData)
 
   const [today, setToday] = useState(new Date())
@@ -325,7 +326,7 @@ const CreatePipeline = (props) => {
       ]
     })
     validate()
-  }, [runTasks, pipelineName, setPipelineSettings])
+  }, [runTasks, pipelineName, setPipelineSettings, validate])
 
   useEffect(() => {
     console.log('>> ENBALED PROVIDERS = ', enabledProviders)
@@ -333,7 +334,7 @@ const CreatePipeline = (props) => {
     setRunTasks(PipelineTasks)
     console.log('>> CONFIGURED PIPELINE TASKS = ', PipelineTasks)
     validate()
-  }, [enabledProviders, projectId, boardId, sourceId, owner, repositoryName, configureProvider])
+  }, [enabledProviders, projectId, boardId, sourceId, owner, repositoryName, configureProvider, validate])
 
   useEffect(() => {
     console.log('>> PIPELINE LAST RUN OBJECT CHANGED!!...', pipelineRun)
@@ -362,7 +363,17 @@ const CreatePipeline = (props) => {
 
             <div className='headlineContainer'>
               <Link style={{ display: 'flex', fontSize: '14px', float: 'right', marginLeft: '10px', color: '#777777' }} to='/'>
-                <Icon icon={<BackArrowIcon width={16} height={16} fill='rgba(0,0,0,0.25)' style={{ marginRight: '6px' }} />} size={16} /> Go Back
+                <Icon
+                  icon={
+                    <BackArrowIcon
+                      width={16} height={16}
+                      fill='rgba(0,0,0,0.25)'
+                      style={{
+                        marginRight: '6px'
+                      }}
+                    />
+                  } size={16}
+                /> Go Back
               </Link>
               <div style={{ display: 'flex' }}>
                 <div>
@@ -388,14 +399,18 @@ const CreatePipeline = (props) => {
                           <div style={{ marginBottom: '10px', fontWeight: 700, fontSize: '14px', fontFamily: '"Montserrat", sans-serif' }}>
                             <Icon icon='help' size={16} /> Run Pipeline
                           </div>
-                          <p>Need Help? &mdash; Configure the <strong>Data Providers</strong> you want and click <Icon icon='play' size={12} /> <strong>RUN</strong> to trigger a new Pipeline run.</p>
+                          <p>Need Help? &mdash; Configure the <strong>Data Providers</strong> you want and click
+                            <Icon icon='play' size={12} /> <strong>RUN</strong> to trigger a new Pipeline run.
+                          </p>
                         </div>
                       </>
                     </Popover>
                   </h1>
 
                   <p className='page-description mb-0'>Trigger data collection for one or more Data Providers.</p>
-                  <p style={{ margin: 0, padding: 0 }}>In a future release you’ll be able to define Blueprints, and schedule recurring plans.</p>
+                  <p style={{ margin: 0, padding: 0 }}>
+                    In a future release you’ll be able to define Blueprints, and schedule recurring plans.
+                  </p>
                 </div>
               </div>
             </div>
@@ -407,8 +422,17 @@ const CreatePipeline = (props) => {
               <p className='group-caption'>Create a user-friendly name for this Run, or select and use a default auto-generated one.</p>
 
               <div className='form-group' style={{ maxWidth: '480px', paddingLeft: '22px' }}>
-                {isValidPipeline() && (<Icon icon='tick' color={Colors.GREEN5} size={12} style={{ float: 'right', marginTop: '7px', marginLeft: '5px' }} />)}
-                {!isValidPipeline() && (<Icon icon='exclude-row' color={Colors.RED5} size={12} style={{ float: 'right', marginTop: '7px', marginLeft: '5px' }} />)}
+                {isValidPipeline() && (
+                  <Icon
+                    icon='tick' color={Colors.GREEN5} size={12}
+                    style={{ float: 'right', marginTop: '7px', marginLeft: '5px' }}
+                  />)}
+                {!isValidPipeline() && (
+                  <Icon
+                    icon='exclude-row' color={Colors.RED5}
+                    size={12}
+                    style={{ float: 'right', marginTop: '7px', marginLeft: '5px' }}
+                  />)}
                 <FormGroup
                   disabled={isRunning}
                   label=''
@@ -444,40 +468,12 @@ const CreatePipeline = (props) => {
                         >
                           <Button text={`${today.toLocaleTimeString()}`} />
                           <>
-                            <Menu className='pipeline-presets-menu'>
-                              <label style={{
-                                fontSize: '10px',
-                                fontWeight: 800,
-                                fontFamily: '"Montserrat", sans-serif',
-                                textTransform: 'uppercase',
-                                padding: '6px 8px',
-                                display: 'block'
-                              }}
-                              >Preset Naming Options
-                              </label>
-                              <Menu.Item text='COLLECTION ...' active={namePrefix === 'COLLECT'}>
-                                <Menu.Item icon='key-option' text='COLLECT [UNIXTIME]' onClick={() => setNamePrefix('COLLECT') | setNameSuffix(pipelineSuffixes[0])} />
-                                <Menu.Item icon='key-option' text='COLLECT [YYYYMMDDHHMMSS]' onClick={() => setNamePrefix('COLLECT') | setNameSuffix(pipelineSuffixes[3])} />
-                                <Menu.Item icon='key-option' text='COLLECT [ISO]' onClick={() => setNamePrefix('COLLECT') | setNameSuffix(pipelineSuffixes[2])} />
-                                <Menu.Item icon='key-option' text='COLLECT [UTC]' onClick={() => setNamePrefix('COLLECT') | setNameSuffix(pipelineSuffixes[4])} />
-                              </Menu.Item>
-                              <Menu.Item text='SYNCHRONIZE ...' active={namePrefix === 'SYNC'}>
-                                <Menu.Item icon='key-option' text='SYNC [UNIXTIME]' onClick={() => setNamePrefix('SYNC') | setNameSuffix(pipelineSuffixes[0])} />
-                                <Menu.Item icon='key-option' text='SYNC [YYYYMMDDHHMMSS]' onClick={() => setNamePrefix('SYNC') | setNameSuffix(pipelineSuffixes[3])} />
-                                <Menu.Item icon='key-option' text='SYNC [ISO]' onClick={() => setNamePrefix('SYNC') | setNameSuffix(pipelineSuffixes[2])} />
-                                <Menu.Item icon='key-option' text='SYNC [UTC]' onClick={() => setNamePrefix('SYNC') | setNameSuffix(pipelineSuffixes[4])} />
-                              </Menu.Item>
-                              <Menu.Item text='RUN ...' active={namePrefix === 'RUN'}>
-                                <Menu.Item icon='key-option' text='RUN [UNIXTIME]' onClick={() => setNamePrefix('RUN') | setNameSuffix(pipelineSuffixes[0])} />
-                                <Menu.Item icon='key-option' text='RUN [YYYYMMDDHHMMSS]' onClick={() => setNamePrefix('RUN') | setNameSuffix(pipelineSuffixes[3])} />
-                                <Menu.Item icon='key-option' text='RUN [ISO]' onClick={() => setNamePrefix('RUN') | setNameSuffix(pipelineSuffixes[2])} />
-                                <Menu.Item icon='key-option' text='RUN [UTC]' onClick={() => setNamePrefix('RUN') | setNameSuffix(pipelineSuffixes[4])} />
-                              </Menu.Item>
-                              <Menu.Divider />
-                              <Menu.Item text='Advanced Options' icon='cog'>
-                                <Menu.Item icon='new-object' text='Save Pipeline Blueprint' disabled />
-                              </Menu.Item>
-                            </Menu>
+                            <PipelinePresetsMenu
+                              namePrefix={namePrefix}
+                              pipelineSuffixes={pipelineSuffixes}
+                              setNamePrefix={setNamePrefix}
+                              setNameSuffix={setNameSuffix}
+                            />
                           </>
                         </Popover>
                       </>
