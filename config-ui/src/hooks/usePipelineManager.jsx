@@ -114,13 +114,13 @@ function usePipelineManager (pipelineName = `COLLECTION ${Date.now()}`, initialT
     }
   }, [])
 
-  const fetchAllRuns = () => {
+  // const fetchAllRuns = () => {
 
-  }
+  // }
 
-  const fetchRun = () => {
+  // const fetchRun = () => {
 
-  }
+  // }
 
   useEffect(() => {
     // setIntegrations(integrationsData)
