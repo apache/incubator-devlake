@@ -1,4 +1,8 @@
 
+.data-providers {
+  min-width: 514px;
+}
+
 .data-provider-row {
 
   display: flex;
@@ -127,10 +131,10 @@
 }
 
 .btn-pipeline {
-  font-family: 'Montserrat', sans-serif;
-  text-transform: uppercase;
-  letter-spacing: 2px;
-  font-weight: 900;
+  // font-family: 'Montserrat', sans-serif;
+  // text-transform: uppercase;
+  // letter-spacing: 2px;
+  font-weight: 800;
   transition: all 0.4s ease;
   white-space: nowrap;
 

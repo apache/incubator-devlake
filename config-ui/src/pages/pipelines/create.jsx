@@ -38,6 +38,10 @@ import { ReactComponent as PipelineFailedIcon } from '@/images/no-synchronize.sv
 import { ReactComponent as PipelineCompleteIcon } from '@/images/check-circle.svg'
 import { ReactComponent as BackArrowIcon } from '@/images/undo.svg'
 
+import GitlabHelpNote from '@/images/help/gitlab-help.png'
+import JiraHelpNote from '@/images/help/gitlab-help.png'
+import GithubHelpNote from '@/images/help/github-help.png'
+
 import '@/styles/pipelines.scss'
 
 const CreatePipeline = (props) => {
@@ -191,6 +195,7 @@ const CreatePipeline = (props) => {
                 value={sourceId}
                 onChange={(e) => setSourceId(e.target.value)}
                 className='input-source-id'
+                autoComplete='off'
                 fill={false}
               />
             </FormGroup>          
@@ -212,6 +217,7 @@ const CreatePipeline = (props) => {
                 value={boardId}
                 onChange={(e) => setBoardId(e.target.value)}
                 className='input-board-id'
+                autoComplete='off'
                 fill={false}
               />
             </FormGroup>
@@ -238,6 +244,7 @@ const CreatePipeline = (props) => {
                 value={owner}
                 onChange={(e) => setOwner(e.target.value)}
                 className='input-owner'
+                autoComplete='off'
                 // fill={false}
               />
             </FormGroup>
@@ -259,6 +266,7 @@ const CreatePipeline = (props) => {
                 value={repositoryName}
                 onChange={(e) => setRepositoryName(e.target.value)}
                 className='input-repository-name'
+                autoComplete='off'
                 fill={false}
               />
             </FormGroup>
@@ -285,6 +293,7 @@ const CreatePipeline = (props) => {
                 value={projectId}
                 onChange={(e) => setProjectId(pId => e.target.value)}
                 className='input-project-id'
+                autoComplete='off'
                 // fill={false}
               />
             </FormGroup>
@@ -398,10 +407,10 @@ const CreatePipeline = (props) => {
             </div>
 
             <div className='' style={{ width: '100%', marginTop: '10px', alignSelf: 'flex-start', alignContent: 'flex-start' }}>
-              <h3 className='group-header'>
-                <Icon icon='git-pull' height={16} size={16} color='rgba(0,0,0,0.5)' /> Pipeline Name <span className='requiredStar'>*</span>
-              </h3>
-              <p className='group-caption'>Create a user-friendly name for this Run, or use the default auto-generated one.</p>
+              <h2 className='headline'>
+                <Icon icon='git-pull' height={16} size={16} color='rgba(0,0,0,0.5)' /> Pipeline Name<span className='requiredStar'>*</span>
+              </h2>
+              <p className='group-caption'>Create a user-friendly name for this Run, or select and use a default auto-generated one.</p>
 
               <div className='form-group' style={{ maxWidth: '480px', paddingLeft: '22px' }}>
                 {isValidPipeline() && (<Icon icon='tick' color={Colors.GREEN5} size={12} style={{ float: 'right', marginTop: '7px', marginLeft: '5px' }} />)}
@@ -412,6 +421,8 @@ const CreatePipeline = (props) => {
                   labelFor='pipeline-name'
                   className=''
                   contentClassName=''
+                  // label={<strong>Name</strong>}
+                  // labelInfo={<span style={{ display: 'block' }}>{`RUN DATE = ${today.toLocaleString()}`}</span>}
                   helperText={`RUN DATE = ${today.toLocaleString()}`}
                   fill
                   required
@@ -484,12 +495,12 @@ const CreatePipeline = (props) => {
                 </FormGroup>
               </div>
 
-              <h3 className='group-header'>
+              <h2 className='headline'>
                 <Icon icon='database' height={16} size={16} color='rgba(0,0,0,0.5)' /> Data Providers<span className='requiredStar'>*</span>
-              </h3>
+              </h2>
               <p className='group-caption'>Configure available plugins to enable for this <strong>Pipeline Run</strong>.<br />Turn the switch to the ON position to activate.</p>
 
-              <div className='data-providers' style={{ marginTop: '24px', width: '100%' }}>
+              <div className='data-providers' style={{ marginTop: '8px', width: '100%' }}>
                 {integrations.map((provider) => (
                   <CSSTransition
                     key={`fx-key-provider-${provider.id}`}
@@ -547,6 +558,21 @@ const CreatePipeline = (props) => {
                             </div>
                             <p>Need Help? &mdash; Please enter the required <strong>Run Settings</strong> for this data provider.</p>
                             {/* specific provider field help notes */}
+                            {(() => {
+                              switch (provider.id){
+                              case Providers.GITLAB:
+                                return <img src={GitlabHelpNote} alt={provider.name} style={{ maxHeight: '64px', maxWidth: '100%' }} />
+                                break
+                              case Providers.JENKINS:
+                                return <strong>(Options not required)</strong>
+                                break
+                              case Providers.JIRA:
+                                return <img src={JiraHelpNote} alt={provider.name} style={{ maxHeight: '64px', maxWidth: '100%' }} />
+                                break
+                              case Providers.GITHUB:
+                                return <img src={GithubHelpNote} alt={provider.name} style={{ maxHeight: '64px', maxWidth: '100%' }} />
+                                break
+                            }})()}
                             </div>
                           </>
                           </Popover>
@@ -711,7 +737,6 @@ const CreatePipeline = (props) => {
                           target='_blank'
                           rel='noreferrer'
                           style={{ backgroundColor: '#3bd477', color: '#ffffff' }}
-                          small
                         >
                           <Icon icon='doughnut-chart' size={13} /> <span className='bp3-button-text'>Graphs</span>
                         </a>

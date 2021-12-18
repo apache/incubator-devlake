@@ -164,6 +164,10 @@
 .headline {
   margin-top: 1.5rem;
   margin-bottom: 0.25rem;
+  color: #3d3d3d;
+  .bp3-icon {
+    margin-bottom: 3px;
+  }
 }
 
 .saveBtn {
@@ -247,13 +251,12 @@ h3 {
 }
 
 .group-caption {
-  font-family: 'Montserrat', sans-serif;
+  // font-family: 'Montserrat', sans-serif;
+  // font-size: 13px;
   font-style: normal;
   font-weight: normal;
-  font-size: 12px;
-  line-height: 100%;
-  letter-spacing: 0.08em;
+  line-height: 102%;
   font-feature-settings: 'pnum' on, 'lnum' on;
   color: #717484;
-  padding-left: 21px;
+  padding-left: 26px;
 }
