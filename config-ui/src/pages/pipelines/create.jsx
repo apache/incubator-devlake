@@ -59,7 +59,8 @@ const CreatePipeline = (props) => {
     today.getTime(), // 1639630123107
     today.toString(), // Wed Dec 15 2021 23:48:43 GMT-0500 (EST)
     today.toISOString(), // 2021-12-16T04:48:43.107Z
-    `${today.getFullYear()}${today.getMonth() + 1}${today.getDate()}${today.getMinutes()}${today.getSeconds()}`, // 202112154936
+    // eslint-disable-next-line max-len
+    `${today.getFullYear()}${today.getMonth() + 1}${today.getDate()}${today.getHours()}${today.getMinutes()}${today.getSeconds()}`, // 202112154936
     today.toUTCString(), // Thu, 16 Dec 2021 04:49:52 GMT
   ]
 
