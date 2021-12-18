@@ -44,7 +44,8 @@ function usePipelineValidation ({
     }
 
     if (enabledProviders.includes(Providers.JIRA) && (!sourceId || isNaN(sourceId))) {
-      errs.push('JIRA: Enter a valid Connection Source ID (Numeric)')
+      // errs.push('JIRA: Enter a valid Connection Source ID (Numeric)')
+      errs.push('JIRA: Select a valid Connection Source ID (Numeric)')
     }
 
     if (enabledProviders.includes(Providers.JIRA) && (!boardId || isNaN(boardId))) {
