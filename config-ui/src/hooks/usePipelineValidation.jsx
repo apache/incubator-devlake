@@ -24,16 +24,16 @@ function usePipelineValidation ({
   const validate = useCallback(() => {
     const errs = []
     console.log('>> VALIDATING PIPELINE RUN ', pipelineName)
-    console.log('>> RUNNING FORM VALIDATIONS AGAINST FIELD VALUES...')
-    console.log(
-      'PIPELINE NAME', name,
-      'PROJECT ID', projectId,
-      'BOARD ID', boardId,
-      'SOURCE ID', sourceId,
-      'OWNER', owner,
-      'REPOSITORY NAME', repositoryName,
-      'TASKS', tasks
-    )
+    // console.log('>> RUNNING FORM VALIDATIONS AGAINST FIELD VALUES...')
+    // console.log(
+    //   'PIPELINE NAME', name,
+    //   'PROJECT ID', projectId,
+    //   'BOARD ID', boardId,
+    //   'SOURCE ID', sourceId,
+    //   'OWNER', owner,
+    //   'REPOSITORY NAME', repositoryName,
+    //   'TASKS', tasks
+    // )
 
     if (!pipelineName || pipelineName.length <= 2) {
       errs.push('Name: Enter a valid Pipeline Name')
