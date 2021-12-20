@@ -10,7 +10,7 @@ import (
 func CreateChangelog(issueId string) (*ticket.Changelog, error) {
 	changelog := &ticket.Changelog{
 		DomainEntity: domainlayer.DomainEntity{
-			Id: "1",
+			Id: RandIntString(),
 		},
 		IssueId:     issueId, // ref to issue
 		AuthorId:    "",

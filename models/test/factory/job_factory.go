@@ -8,7 +8,7 @@ import (
 func CreateJob() (*devops.Job, error) {
 	job := &devops.Job{
 		DomainEntity: domainlayer.DomainEntity{
-			Id: "1",
+			Id: RandIntString(),
 		},
 		Name: "",
 	}

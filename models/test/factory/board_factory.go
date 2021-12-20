@@ -8,7 +8,7 @@ import (
 func CreateBoard() (*ticket.Board, error) {
 	board := &ticket.Board{
 		DomainEntity: domainlayer.DomainEntity{
-			Id: "1",
+			Id: RandIntString(),
 		},
 		Name: "",
 		Url:  "",

@@ -8,7 +8,7 @@ import (
 func CreateUser() (*user.User, error) {
 	user := &user.User{
 		DomainEntity: domainlayer.DomainEntity{
-			Id: "1",
+			Id: RandIntString(),
 		},
 		Name:      "",
 		Email:     "",

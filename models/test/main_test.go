@@ -32,14 +32,18 @@ func setup() error {
 	// ERROR: Could not run migrations DOWN:  no change
 	// Scripts are not behaving as expected. Needs more troubleshooting.
 
-	err := runMigrationsDown()
-	if err != nil {
-		return err
-	}
-	err = runMigrationsUp()
-	if err != nil {
-		return err
-	}
+	// !!!
+	// TODO: Turn this back on once we get the automigrate removed from the init files
+	// !!!
+
+	// err := runMigrationsDown()
+	// if err != nil {
+	// 	return err
+	// }
+	// err = runMigrationsUp()
+	// if err != nil {
+	// 	return err
+	// }
 	return nil
 }
 
