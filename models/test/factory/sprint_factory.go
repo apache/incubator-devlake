@@ -8,7 +8,7 @@ import (
 func CreateSprint(boardId string) (*ticket.Sprint, error) {
 	sprint := &ticket.Sprint{
 		DomainEntity: domainlayer.DomainEntity{
-			Id: "1",
+			Id: RandIntString(),
 		},
 		BoardId:      boardId, // ref to board
 		Url:          "",

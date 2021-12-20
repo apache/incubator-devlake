@@ -10,14 +10,14 @@ import (
 func CreateWorklog(boardId string, issueId string) (*ticket.Worklog, error) {
 	worklog := &ticket.Worklog{
 		DomainEntity: domainlayer.DomainEntity{
-			Id: "1",
+			Id: RandIntString(),
 		},
 		IssueId:          issueId, // ref to issue
 		BoardId:          boardId, // ref to board
 		AuthorId:         "",
 		UpdateAuthorId:   "",
 		TimeSpent:        "",
-		TimeSpentSeconds: 1,
+		TimeSpentSeconds: RandInt(),
 		Updated:          time.Now(),
 		Started:          time.Now(),
 	}

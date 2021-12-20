@@ -10,7 +10,7 @@ import (
 func CreateIssue(boardId string) (*ticket.Issue, error) {
 	issue := &ticket.Issue{
 		DomainEntity: domainlayer.DomainEntity{
-			Id: "1",
+			Id: RandIntString(),
 		},
 		BoardId:                  boardId, // ref to board
 		Url:                      "",
