@@ -65,6 +65,33 @@ const MenuConfiguration = (activeRoute) => {
       children: [
       ]
     },
+    {
+      id: 3,
+      label: 'Pipelines',
+      icon: 'git-merge',
+      classNames: [],
+      route: '/pipelines/create',
+      active: activeRoute.url.startsWith('/pipelines'),
+      children: [
+        {
+          id: 0,
+          label: 'Create New Pipeline',
+          route: '/pipelines/create',
+          active: activeRoute.url.endsWith('/pipelines/create'),
+          icon: 'git-pull',
+          classNames: [],
+        },
+        {
+          id: 1,
+          label: 'All Pipeline Runs (Logs)',
+          route: '/pipelines',
+          active: activeRoute.url.endsWith('/pipelines'),
+          icon: 'cube-add',
+          classNames: [],
+          disabled: true
+        },
+      ]
+    },
     // {
     //   id: 3,
     //   label: 'Documentation',

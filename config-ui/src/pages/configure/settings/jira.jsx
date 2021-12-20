@@ -179,7 +179,7 @@ export default function JiraSettings (props) {
     <>
       <div className='headlineContainer'>
         <h3 className='headline'>Issue Type Mappings</h3>
-        <p className='description'>Map your own issue types to <strong>DevLake's</strong> standard types</p>
+        <p>Map your own issue types to <strong>DevLake's</strong> standard types</p>
       </div>
 
       <MappingTag

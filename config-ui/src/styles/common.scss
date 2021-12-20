@@ -22,6 +22,23 @@
   font-family: 'Montserrat', sans-serif;
 }
 
+.page-description {
+  margin: 0 0 1.6rem 0;
+  padding: 0;
+  font-family: 'Montserrat', sans-serif;
+  font-style: normal;
+  font-weight: normal;
+  font-size: 16px;
+  line-height: 100%;
+  letter-spacing: 0.08em;
+  font-feature-settings: 'pnum' on, 'lnum' on;
+  color: #606060;
+  
+  &.mb-0{
+    margin-bottom: 0;
+  }
+}
+
 .logo {
   max-width: 60px;
   margin-bottom: 0.5rem;
@@ -147,6 +164,10 @@
 .headline {
   margin-top: 1.5rem;
   margin-bottom: 0.25rem;
+  color: #3d3d3d;
+  .bp3-icon {
+    margin-bottom: 3px;
+  }
 }
 
 .saveBtn {
@@ -204,4 +225,38 @@
   width: 100%;
   max-width: 664px;
   height: auto;
+}
+
+h1 {
+  font-style: normal;
+  font-weight: 500;
+  font-size: 24px;
+  text-shadow: 0px 1px 1px rgba(0, 0, 0, 0.25);
+}
+
+h3 {
+  &.group-header {
+    margin: 2.5em 0 3px 0;
+    padding: 0;
+    font-family: 'Montserrat', sans-serif;
+    font-style: normal;
+    font-weight: 900;
+    font-size: 14px;
+    line-height: 100%;
+    letter-spacing: 0.19em;
+    font-feature-settings: 'pnum' on, 'lnum' on;
+    color: #333333;
+    text-transform: uppercase;
+  }
+}
+
+.group-caption {
+  // font-family: 'Montserrat', sans-serif;
+  // font-size: 13px;
+  font-style: normal;
+  font-weight: normal;
+  line-height: 102%;
+  font-feature-settings: 'pnum' on, 'lnum' on;
+  color: #717484;
+  padding-left: 26px;
 }
