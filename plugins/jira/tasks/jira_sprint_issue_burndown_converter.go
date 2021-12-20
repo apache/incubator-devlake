@@ -187,24 +187,7 @@ func (c *SprintIssueBurndownConverter) getJiraIssue(sourceId, issueId uint64) (*
 	return &issue, err
 }
 
-func (c *SprintIssueBurndownConverter) getJiraSprint(sourceId, sprintId uint64) (*models.JiraSprint, error) {
-	key := fmt.Sprintf("%d:%d", sourceId, sprintId)
-	sprint := new(models.JiraSprint)
-	var ok bool
-	sprint, ok = c.sprints[key]
-	if ok {
-		return sprint, nil
-	}
-	sprint.SourceId = sourceId
-	sprint.SprintId = sprintId
-	err := lakeModels.Db.Find(sprint).Error
-	if err != nil {
-		logger.Error("getJiraSprint error:", err)
-		return nil, err
-	}
-	c.sprints[key] = sprint
-	return sprint, nil
-}
+
 
 func (c *SprintIssueBurndownConverter) parseFromTo(from, to string) (map[uint64]struct{}, map[uint64]struct{}, error) {
 	fromInts := make(map[uint64]struct{})
@@ -246,16 +229,6 @@ func (c *SprintIssueBurndownConverter) parseFromTo(from, to string) (map[uint64]
 	return fromInts, toInts, nil
 }
 
-func (c *SprintIssueBurndownConverter) genDateHour(t time.Time) [24]int {
-	var result [24]int
-	t = t.UTC()
-	for i := 0; i < 24; i++ {
-		t = t.Add(time.Hour)
-		y, m, d := t.Date()
-		result[i] = y*1000000 + int(m)*10000 + d*100 + t.Hour()
-	}
-	return result
-}
 func (c *SprintIssueBurndownConverter) getDateHour(t time.Time) int {
 	t = t.UTC().Add(time.Hour)
 	y, m, d := t.Date()
