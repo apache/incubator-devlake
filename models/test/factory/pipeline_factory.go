@@ -7,10 +7,10 @@ import (
 func CreatePipeline() (*models.Pipeline, error) {
 	pipeline := &models.Pipeline{
 		Name:          "My Pipeline",
-		FinishedTasks: 0,
+		FinishedTasks: RandInt(),
 		Status:        "MY_STATUS",
 		Message:       "",
-		SpentSeconds:  0,
+		SpentSeconds:  RandInt(),
 	}
 	return pipeline, nil
 }

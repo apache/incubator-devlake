@@ -10,7 +10,7 @@ import (
 func CreateNote(prId uint64) (*code.Note, error) {
 	note := &code.Note{
 		DomainEntity: domainlayer.DomainEntity{
-			Id: "something",
+			Id: RandIntString(),
 		},
 		PrId:        prId,
 		Author:      "note.AuthorUsername",

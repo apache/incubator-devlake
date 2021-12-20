@@ -2,14 +2,15 @@ package factory
 
 import (
 	"github.com/merico-dev/lake/models/domainlayer"
-	"github.com/merico-dev/lake/models/domainlayer/code"
+	"github.com/merico-dev/lake/models/domainlayer/devops"
 )
 
-func CreateRepo() (*code.Repo, error) {
-	repo := &code.Repo{
+func CreateJob() (*devops.Job, error) {
+	job := &devops.Job{
 		DomainEntity: domainlayer.DomainEntity{
 			Id: RandIntString(),
 		},
+		Name: "",
 	}
-	return repo, nil
+	return job, nil
 }
