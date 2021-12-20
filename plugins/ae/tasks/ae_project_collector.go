@@ -1,6 +1,7 @@
 package tasks
 
 import (
+	"context"
 	"fmt"
 	"net/http"
 	"time"
@@ -20,8 +21,8 @@ type ApiProjectResponse struct {
 	AEUpdateTime *time.Time `json:"update_time"`
 }
 
-func CollectProject(projectId int) error {
-	aeApiClient := CreateApiClient()
+func CollectProject(projectId int, ctx context.Context) error {
+	aeApiClient := CreateApiClient(ctx)
 
 	res, err := aeApiClient.Get(fmt.Sprintf("/projects/%v", projectId), nil, nil)
 	if err != nil {

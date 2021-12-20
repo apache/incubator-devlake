@@ -2,6 +2,7 @@ package core
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -26,6 +27,7 @@ type ApiClient struct {
 	maxRetry      int
 	beforeRequest ApiClientBeforeRequest
 	afterReponse  ApiClientAfterResponse
+	ctx           context.Context
 }
 
 func NewApiClient(
@@ -86,6 +88,10 @@ func (apiClient *ApiClient) SetAfterFunction(callback ApiClientAfterResponse) {
 	apiClient.afterReponse = callback
 }
 
+func (apiClient *ApiClient) SetContext(ctx context.Context) {
+	apiClient.ctx = ctx
+}
+
 func (apiClient *ApiClient) SetProxy(proxyUrl string) error {
 	pu, err := url.Parse(proxyUrl)
 	if err != nil {
@@ -117,7 +123,12 @@ func (apiClient *ApiClient) Do(
 		}
 		reqBody = bytes.NewBuffer(reqJson)
 	}
-	req, err := http.NewRequest(method, *uri, reqBody)
+	var req *http.Request
+	if apiClient.ctx != nil {
+		req, err = http.NewRequestWithContext(apiClient.ctx, method, *uri, reqBody)
+	} else {
+		req, err = http.NewRequest(method, *uri, reqBody)
+	}
 	if err != nil {
 		return nil, err
 	}
@@ -135,6 +146,13 @@ func (apiClient *ApiClient) Do(
 		}
 	}
 
+	// canceling check
+	select {
+	case <-apiClient.ctx.Done():
+		return nil, TaskCanceled
+	default:
+	}
+
 	// before send
 	if apiClient.beforeRequest != nil {
 		err = apiClient.beforeRequest(req)
@@ -146,6 +164,12 @@ func (apiClient *ApiClient) Do(
 	var res *http.Response
 	retry := 0
 	for {
+		// canceling check
+		select {
+		case <-apiClient.ctx.Done():
+			return nil, TaskCanceled
+		default:
+		}
 		logger.Print(fmt.Sprintf("[api-client][retry %v] %v %v", retry, method, *uri))
 		res, err = apiClient.client.Do(req)
 		if err != nil {
@@ -162,12 +186,26 @@ func (apiClient *ApiClient) Do(
 		return nil, err
 	}
 
+	// canceling check
+	select {
+	case <-apiClient.ctx.Done():
+		return nil, TaskCanceled
+	default:
+	}
+
 	// after recieve
 	if apiClient.afterReponse != nil {
 		err = apiClient.afterReponse(res)
 		if err != nil {
 			return nil, err
 		}
+	}
+
+	// canceling check
+	select {
+	case <-apiClient.ctx.Done():
+		return nil, TaskCanceled
+	default:
 	}
 
 	return res, err

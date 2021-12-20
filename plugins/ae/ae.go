@@ -40,19 +40,19 @@ func (plugin AE) Execute(options map[string]interface{}, progress chan<- float32
 	}
 
 	progress <- 0.1
-	if err := tasks.CollectProject(projectIdInt); err != nil {
+	if err := tasks.CollectProject(projectIdInt, ctx); err != nil {
 		return fmt.Errorf("could not collect project: %v", err)
 	}
 
 	progress <- 0.25
 
-	if err := tasks.CollectCommits(projectIdInt); err != nil {
+	if err := tasks.CollectCommits(projectIdInt, ctx); err != nil {
 		return fmt.Errorf("could not collect commits: %v", err)
 	}
 
 	progress <- 0.75
 
-	if err := tasks.SetDevEqOnCommits(); err != nil {
+	if err := tasks.SetDevEqOnCommits(ctx); err != nil {
 		return fmt.Errorf("could not enhance commits with AE dev equivalent: %v", err)
 	}
 
