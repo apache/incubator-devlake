@@ -1,6 +1,7 @@
 package tasks
 
 import (
+	"context"
 	"crypto/md5"
 	"encoding/hex"
 	"fmt"
@@ -60,7 +61,7 @@ func getSign(query url.Values, appId, secretKey, nonceStr, timestamp string) str
 	return strings.ToUpper(hex.EncodeToString(hasher.Sum(nil)))
 }
 
-func beforeRequest(req *http.Request) error {
+func (client *AEApiClient) beforeRequest(req *http.Request) error {
 	appId := config.V.GetString("AE_APP_ID")
 	if appId == "" {
 		return fmt.Errorf("invalid AE_APP_ID")
@@ -79,7 +80,7 @@ func beforeRequest(req *http.Request) error {
 	return nil
 }
 
-func CreateApiClient() *AEApiClient {
+func CreateApiClient(ctx context.Context) *AEApiClient {
 	aeApiClient := &AEApiClient{}
 	aeApiClient.Setup(
 		config.V.GetString("AE_ENDPOINT"),
@@ -87,7 +88,8 @@ func CreateApiClient() *AEApiClient {
 		10*time.Second,
 		3,
 	)
-	aeApiClient.SetBeforeFunction(beforeRequest)
+	aeApiClient.SetBeforeFunction(aeApiClient.beforeRequest)
+	aeApiClient.SetContext(ctx)
 	return aeApiClient
 }
 
