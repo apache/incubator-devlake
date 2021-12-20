@@ -285,7 +285,7 @@ func (c *SprintIssueBurndownConverter) handleFrom(sourceId, sprintId uint64, cl 
 	sprint := c.sprintIdGen.Generate(sourceId, sprintId)
 	key := fmt.Sprintf("%d:%d:%d", sourceId, sprintId, cl.IssueId)
 	if item, ok := c.sprintIssue[key]; ok {
-		if item != nil && item.RemovedAt != nil && item.RemovedAt.Before(cl.Created) {
+		if item != nil && (item.RemovedAt == nil || item.RemovedAt != nil && item.RemovedAt.Before(cl.Created)) {
 			item.RemovedAt = &cl.Created
 		}
 	} else {
@@ -327,7 +327,7 @@ func (c *SprintIssueBurndownConverter) handleTo(sourceId, sprintId uint64, cl Ch
 	sprint := c.sprintIdGen.Generate(sourceId, sprintId)
 	key := fmt.Sprintf("%d:%d:%d", sourceId, sprintId, cl.IssueId)
 	if item, ok := c.sprintIssue[key]; ok {
-		if item != nil && item.AddedAt != nil && item.AddedAt.After(cl.Created) {
+		if item != nil && (item.AddedAt == nil || item.AddedAt != nil && item.AddedAt.After(cl.Created)) {
 			item.AddedAt = &cl.Created
 		}
 	} else {
