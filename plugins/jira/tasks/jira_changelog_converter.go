@@ -65,7 +65,7 @@ func ConvertChangelogs(sourceId uint64, boardId uint64) error {
 		logger.Info("convert changelog", fmt.Sprintf("%s .. %s", batch[0].Id, batch[i-1].Id))
 		return nil
 	}
-
+	burndownConverter := NewSprintIssueBurndownConverter()
 	row := &ChangelogItemResult{}
 	// iterate all rows
 	for cursor.Next() {
@@ -93,12 +93,21 @@ func ConvertChangelogs(sourceId uint64, boardId uint64) error {
 		changelog.To = row.ToString
 		changelog.CreatedDate = row.Created
 		i++
+		burndownConverter.FeedIn(sourceId, *row)
 	}
 	if i > 0 {
 		err = saveBatch()
 		if err != nil {
 			return err
 		}
+	}
+	err = burndownConverter.Save()
+	if err != nil {
+		logger.Error("save error:", err)
+	}
+	err = burndownConverter.UpdateSprintIssue()
+	if err != nil {
+		logger.Error("update sprint issue error:", err)
 	}
 	return nil
 }
