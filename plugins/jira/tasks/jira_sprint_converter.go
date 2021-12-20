@@ -61,7 +61,7 @@ func ConvertSprint(sourceId uint64, boardId uint64) error {
 			}
 			domainSprintIssues = append(domainSprintIssues, dsi)
 		}
-		err = lakeModels.Db.Clauses(clause.OnConflict{UpdateAll: true}).CreateInBatches(&domainSprintIssues, BatchSize).Error
+		err = lakeModels.Db.Clauses(clause.OnConflict{DoNothing: true}).CreateInBatches(&domainSprintIssues, BatchSize).Error
 		if err != nil {
 			return err
 		}
