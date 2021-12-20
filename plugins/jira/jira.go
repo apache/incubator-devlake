@@ -35,6 +35,8 @@ func (plugin Jira) Init() {
 		&models.JiraBoardIssue{},
 		&models.JiraChangelog{},
 		&models.JiraChangelogItem{},
+		&models.JiraRemotelink{},
+		&models.JiraIssueCommit{},
 		&models.JiraSource{},
 		&models.JiraIssueTypeMapping{},
 		&models.JiraIssueStatusMapping{},
@@ -95,19 +97,21 @@ func (plugin Jira) Execute(options map[string]interface{}, progress chan<- float
 	}
 	if len(tasksToRun) == 0 {
 		tasksToRun = map[string]bool{
-			"collectBoard":      true,
-			"collectProjects":   true,
-			"collectIssues":     true,
-			"collectChangelogs": true,
-			"enrichIssues":      true,
-			"collectSprints":    true,
-			"collectUsers":      true,
-			"convertBoard":      true,
-			"convertIssues":     true,
-			"convertWorklogs":   true,
-			"convertChangelogs": true,
-			"convertUsers":      true,
-			"convertSprints":    true,
+			"collectBoard":       true,
+			"collectProjects":    true,
+			"collectIssues":      true,
+			"collectChangelogs":  true,
+			"collectRemotelinks": true,
+			"enrichIssues":       true,
+			"enrichRemotelinks":  true,
+			"collectSprints":     true,
+			"collectUsers":       true,
+			"convertBoard":       true,
+			"convertIssues":      true,
+			"convertWorklogs":    true,
+			"convertChangelogs":  true,
+			"convertUsers":       true,
+			"convertSprints":     true,
 		}
 	}
 
@@ -156,9 +160,21 @@ func (plugin Jira) Execute(options map[string]interface{}, progress chan<- float
 				return err
 			}
 		}
+		if tasksToRun["collectRemotelinks"] {
+			err = tasks.CollectRemoteLinks(jiraApiClient, source, boardId, ctx)
+			if err != nil {
+				return err
+			}
+		}
 		setBoardProgress(i, 0.2)
 		if tasksToRun["enrichIssues"] {
 			err = tasks.EnrichIssues(source, boardId)
+			if err != nil {
+				return err
+			}
+		}
+		if tasksToRun["enrichRemotelinks"] {
+			err = tasks.EnrichRemotelinks(source, boardId)
 			if err != nil {
 				return err
 			}

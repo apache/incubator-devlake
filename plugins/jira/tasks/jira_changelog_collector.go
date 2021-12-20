@@ -85,11 +85,11 @@ func CollectChangelogs(
 	if err != nil {
 		return err
 	}
+	defer changelogScheduler.Release()
 	issueScheduler, err := utils.NewWorkerScheduler(10, 50, ctx)
 	if err != nil {
 		return err
 	}
-	defer changelogScheduler.Release()
 	defer issueScheduler.Release()
 
 	// iterate all rows
