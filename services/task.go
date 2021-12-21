@@ -4,6 +4,8 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"runtime"
+	"strings"
 	"sync"
 	"time"
 
@@ -147,22 +149,21 @@ func RunTask(taskId uint64) error {
 		// make sure task status always correct even if it panicked
 		defer func() {
 			_, _ = runningTasks.Remove(task.ID)
-			close(progress)
 			if r := recover(); r != nil {
-				var ok bool
-				if err, ok = r.(error); !ok {
-					err = fmt.Errorf("run task failed: %v", r)
-				}
+				err = fmt.Errorf("run task failed with panic (%s): %v", identifyPanic(), r)
 			}
 			finishedAt := time.Now()
 			spentSeconds := finishedAt.Unix() - beganAt.Unix()
 			if err != nil {
-				err = models.Db.Model(task).Updates(map[string]interface{}{
+				dbe := models.Db.Model(task).Updates(map[string]interface{}{
 					"status":        models.TASK_FAILED,
 					"message":       err.Error(),
 					"finished_at":   finishedAt,
 					"spent_seconds": spentSeconds,
 				}).Error
+				if dbe != nil {
+					logger.Error("eror is not nil", err)
+				}
 			} else {
 				err = models.Db.Model(task).Updates(map[string]interface{}{
 					"status":        models.TASK_COMPLETED,
@@ -171,6 +172,7 @@ func RunTask(taskId uint64) error {
 					"spent_seconds": spentSeconds,
 				}).Error
 			}
+			close(progress)
 		}()
 		// start execution
 		logger.Info("start executing task ", task.ID)
@@ -189,12 +191,12 @@ func RunTask(taskId uint64) error {
 	// read progress from working thread and save into database
 	for p := range progress {
 		logger.Info("running plugin progress", fmt.Sprintf(" %d %s %f%%", task.ID, task.Plugin, p*100))
-		err = models.Db.Model(task).Updates(map[string]interface{}{
+		dbe := models.Db.Model(task).Updates(map[string]interface{}{
 			"progress": p,
 		}).Error
-		if err != nil {
+		if dbe != nil {
 			logger.Error("save task progress failed", err)
-			return err
+			return dbe
 		}
 	}
 
@@ -208,4 +210,32 @@ func CancelTask(taskId uint64) error {
 	}
 	cancel()
 	return nil
+}
+
+func identifyPanic() string {
+	var name, file string
+	var line int
+	var pc [16]uintptr
+
+	n := runtime.Callers(3, pc[:])
+	for _, pc := range pc[:n] {
+		fn := runtime.FuncForPC(pc)
+		if fn == nil {
+			continue
+		}
+		file, line = fn.FileLine(pc)
+		name = fn.Name()
+		if !strings.HasPrefix(name, "runtime.") {
+			break
+		}
+	}
+
+	switch {
+	case name != "":
+		return fmt.Sprintf("%v:%v", name, line)
+	case file != "":
+		return fmt.Sprintf("%v:%v", file, line)
+	}
+
+	return fmt.Sprintf("pc:%x", pc)
 }
