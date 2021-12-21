@@ -12,6 +12,13 @@ import (
 var ROOT_CONNECTION_STRING string = "mysql://root:admin@tcp(localhost:3306)/%v"
 var MIGRATIONS_PATH string = "file://./db/migration"
 
+func MigrateDB(dbName string) {
+	err := RunMigrationsUp(dbName)
+	if err != nil {
+		fmt.Println("INFO: ", err)
+	}
+}
+
 func RunMigrationsUp(dbName string) error {
 	m, err := migrate.New(
 		MIGRATIONS_PATH,
