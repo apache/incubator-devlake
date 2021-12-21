@@ -8,6 +8,9 @@ hello:
 build-plugin:
 	@sh scripts/compile-plugins.sh
 
+build-plugin-debug:
+	@sh scripts/compile-plugins.sh -gcflags="all=-N -l"
+
 build: build-plugin
 	go build -o bin/lake
 
