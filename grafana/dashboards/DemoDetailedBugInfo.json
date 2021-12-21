@@ -213,7 +213,7 @@
           "metricColumn": "none",
           "queryType": "randomWalk",
           "rawQuery": true,
-          "rawSql": "select \n    title,\n    summary,\n    case when assignee_origin_key = '' then '-' else assignee_origin_key end as assignee,\n    status,\n    created_date\n  from issues i\n  where \n    type = 'Bug'\n    and $__timeFilter(created_date)\n  order by created_date desc",
+          "rawSql": "select \n    title,\n    summary,\n    case when assignee_id = '' then '-' else assignee_id end as assignee,\n    status,\n    created_date\n  from issues i\n  where \n    type = 'Bug'\n    and $__timeFilter(created_date)\n  order by created_date desc",
           "refId": "A",
           "select": [
             [

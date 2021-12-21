@@ -147,10 +147,12 @@ func (apiClient *ApiClient) Do(
 	}
 
 	// canceling check
-	select {
-	case <-apiClient.ctx.Done():
-		return nil, TaskCanceled
-	default:
+	if apiClient.ctx != nil {
+		select {
+		case <-apiClient.ctx.Done():
+			return nil, TaskCanceled
+		default:
+		}
 	}
 
 	// before send
@@ -165,10 +167,12 @@ func (apiClient *ApiClient) Do(
 	retry := 0
 	for {
 		// canceling check
-		select {
-		case <-apiClient.ctx.Done():
-			return nil, TaskCanceled
-		default:
+		if apiClient.ctx != nil {
+			select {
+			case <-apiClient.ctx.Done():
+				return nil, TaskCanceled
+			default:
+			}
 		}
 		logger.Print(fmt.Sprintf("[api-client][retry %v] %v %v", retry, method, *uri))
 		res, err = apiClient.client.Do(req)
@@ -187,10 +191,12 @@ func (apiClient *ApiClient) Do(
 	}
 
 	// canceling check
-	select {
-	case <-apiClient.ctx.Done():
-		return nil, TaskCanceled
-	default:
+	if apiClient.ctx != nil {
+		select {
+		case <-apiClient.ctx.Done():
+			return nil, TaskCanceled
+		default:
+		}
 	}
 
 	// after recieve
@@ -202,10 +208,12 @@ func (apiClient *ApiClient) Do(
 	}
 
 	// canceling check
-	select {
-	case <-apiClient.ctx.Done():
-		return nil, TaskCanceled
-	default:
+	if apiClient.ctx != nil {
+		select {
+		case <-apiClient.ctx.Done():
+			return nil, TaskCanceled
+		default:
+		}
 	}
 
 	return res, err
