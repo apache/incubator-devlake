@@ -7,9 +7,12 @@ import (
 	"github.com/faabiosr/cachego/file"
 	"github.com/fastwego/feishu"
 	"github.com/merico-dev/lake/config"
+	"github.com/merico-dev/lake/logger"
 	lakeModels "github.com/merico-dev/lake/models"
 	"github.com/merico-dev/lake/plugins/core"
+	"github.com/merico-dev/lake/plugins/feishu/apimodels"
 	"github.com/merico-dev/lake/plugins/feishu/models"
+	"github.com/merico-dev/lake/utils"
 	"net/http"
 	"net/url"
 	"os"
@@ -25,7 +28,10 @@ func (plugin Feishu) Description() string {
 }
 
 func (plugin Feishu) Execute(options map[string]interface{}, progress chan<- float32, ctx context.Context) error {
-	fmt.Println("start feishu plugin execution")
+	logger.Print("start feishu plugin execution")
+	// 需要收集多久的数据
+	// how long do you want to collect
+	collectDayNum := 120
 
 	// 内部应用 tenant_access_token 管理器
 	// tenant_access_token manager
@@ -42,6 +48,12 @@ func (plugin Feishu) Execute(options map[string]interface{}, progress chan<- flo
 		},
 	}
 
+	maxWorkerPerSecond := 10
+	scheduler, err := utils.NewWorkerScheduler(10, maxWorkerPerSecond, ctx)
+	if err != nil {
+		logger.Error("could not create scheduler", false)
+	}
+
 	// 创建 飞书 客户端
 	// create feishu client
 	FeishuClient := feishu.NewClient()
@@ -50,56 +62,57 @@ func (plugin Feishu) Execute(options map[string]interface{}, progress chan<- flo
 	// 调用 AccessToken api 接口
 	// request AccessToken api
 	tenantAccessToken, err := Atm.GetAccessToken()
-	fmt.Println(tenantAccessToken)
 	if err != nil {
 		return err
 	}
 	progress <- 0.1
 
-	lakeModels.Db.Delete(models.FeishuMeetingTopUserItem{}, "1=1")
+	err = lakeModels.Db.Delete(models.FeishuMeetingTopUserItem{}, "1=1").Error
+	if err != nil {
+		return err
+	}
 	progress <- 0.2
 
 	endDate := time.Now()
 	endDate = endDate.Truncate(24 * time.Hour)
 	startDate := endDate.AddDate(0, 0, -1)
 	progress <- 0.3
-	for i := 0; i < 120; i++ {
+	for i := 0; i < collectDayNum; i++ {
 		params := url.Values{}
 		params.Add(`start_time`, strconv.FormatInt(startDate.Unix(), 10))
 		params.Add(`end_time`, strconv.FormatInt(endDate.Unix(), 10))
 		params.Add(`limit`, `100`)
 		params.Add(`order_by`, `2`)
-		request, _ := http.NewRequest(http.MethodGet, feishu.ServerUrl+"/open-apis/vc/v1/reports/get_top_user?"+params.Encode(), nil)
-		resp, err := FeishuClient.Do(request, tenantAccessToken)
-		fmt.Println(resp)
-		if err != nil {
-			return err
-		}
-
-		var result struct {
-			Code int64 `json:"code"`
-			Data struct {
-				TopUserReport []models.FeishuMeetingTopUserItem `json:"top_user_report"`
-			} `json:"data"`
-			Msg string `json:"msg"`
-		}
-		err = json.Unmarshal(resp, &result)
-		if err != nil {
-			return err
-		}
-
-		for index := range result.Data.TopUserReport {
-			item := &result.Data.TopUserReport[index]
-			item.StartTime = startDate
-		}
-		lakeModels.Db.Save(result.Data.TopUserReport)
-
-		progress <- 0.3 + 0.01*float32(i)
 		endDate = startDate
 		startDate = endDate.AddDate(0, 0, -1)
 
-		time.Sleep(100 * time.Millisecond)
+		tempStartDate := startDate
+		err := scheduler.Submit(func() error {
+			request, _ := http.NewRequest(http.MethodGet, feishu.ServerUrl+"/open-apis/vc/v1/reports/get_top_user?"+params.Encode(), nil)
+			resp, err := FeishuClient.Do(request, tenantAccessToken)
+			if err != nil {
+				return err
+			}
+
+			var result apimodels.FeishuMeetingTopUserItemResult
+			err = json.Unmarshal(resp, &result)
+			if err != nil {
+				return err
+			}
+
+			for index := range result.Data.TopUserReport {
+				item := &result.Data.TopUserReport[index]
+				item.StartTime = tempStartDate
+			}
+			err = lakeModels.Db.Save(result.Data.TopUserReport).Error
+			return err
+		})
+		if err != nil {
+			return err
+		}
 	}
+	progress <- 0.4
+	scheduler.WaitUntilFinish()
 	progress <- 1
 	return nil
 }
@@ -109,8 +122,7 @@ func (plugin Feishu) RootPkgPath() string {
 }
 
 func (plugin Feishu) ApiResources() map[string]map[string]core.ApiResourceHandler {
-	return map[string]map[string]core.ApiResourceHandler{
-	}
+	return map[string]map[string]core.ApiResourceHandler{}
 }
 
 var PluginEntry Feishu
