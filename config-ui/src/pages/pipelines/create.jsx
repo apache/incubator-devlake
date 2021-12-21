@@ -234,7 +234,7 @@ const CreatePipeline = (props) => {
 
   return (
     <>
-      <div className='container'>
+      <div className='container container-create-pipeline'>
         <Nav />
         <Sidebar />
         <Content>
