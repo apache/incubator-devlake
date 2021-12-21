@@ -61,3 +61,15 @@ test-migrateup:
 
 test-migratedown:
 	migrate -path db/migration -database "mysql://merico:merico@localhost:3306/lake" -verbose down
+
+init-db:
+	mysql -u root --protocol=tcp -padmin -h localhost -e "CREATE DATABASE IF NOT EXISTS lake_test;"
+	mysql -u root --protocol=tcp -padmin -h localhost -e "CREATE DATABASE IF NOT EXISTS lake;"
+	mysql -u root --protocol=tcp -padmin -h localhost -e "CREATE USER IF NOT EXISTS 'merico'@'localhost' IDENTIFIED BY 'merico';"
+	mysql -u root --protocol=tcp -padmin -h localhost -e "GRANT ALL PRIVILEGES ON *.* TO 'merico'@'%';"
+	mysql -u root --protocol=tcp -padmin -h localhost -e "USE lake; CREATE TABLE IF NOT EXISTS schema_migrations (version bigint NOT NULL DEFAULT 1,dirty tinyint(1) NOT NULL DEFAULT 0, PRIMARY KEY (version)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;"
+	mysql -u root --protocol=tcp -padmin -h localhost -e "USE lake_test; CREATE TABLE IF NOT EXISTS schema_migrations (version bigint NOT NULL DEFAULT 1,dirty tinyint(1) NOT NULL DEFAULT 0, PRIMARY KEY (version)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;"
+
+migrate-db:
+	migrate -path db/migration -database "mysql://root:admin@tcp(localhost:3306)/$(db)" --verbose up
+
