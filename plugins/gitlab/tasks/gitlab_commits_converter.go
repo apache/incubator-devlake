@@ -30,7 +30,6 @@ func convertToCommitModel(commit *gitlabModels.GitlabCommit) *code.Commit {
 			Id: didgen.NewDomainIdGenerator(commit).Generate(commit.GitlabId),
 		},
 		Sha:            commit.GitlabId,
-		RepoId:         uint64(commit.ProjectId),
 		Message:        commit.Message,
 		AuthorName:     commit.AuthorName,
 		Additions:      commit.Additions,
