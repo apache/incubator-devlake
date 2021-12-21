@@ -30,7 +30,6 @@ func convertToCommitModel(commit *githubModels.GithubCommit) *code.Commit {
 			Id: didgen.NewDomainIdGenerator(commit).Generate(commit.Sha),
 		},
 		Sha:            commit.Sha,
-		RepoId:         uint64(commit.RepositoryId),
 		Message:        commit.Message,
 		Additions:      commit.Additions,
 		Deletions:      commit.Deletions,
