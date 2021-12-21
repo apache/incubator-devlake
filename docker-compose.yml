@@ -28,8 +28,6 @@ services:
       - GF_INSTALL_PLUGINS=grafana-piechart-panel
       - GF_LIVE_ALLOWED_ORIGINS=*
     restart: always
-    depends_on:
-      - mysql
 
   grafana-dev:
     image: grafana/grafana:8.0.6
