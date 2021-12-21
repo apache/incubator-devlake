@@ -66,9 +66,6 @@ func (worker *JenkinsWorker) syncJob(ctx context.Context, job *gojenkins.Job) er
 	// 	}
 	// }
 	var filteredData = builds.Builds
-	if len(filteredData) == 0 {
-		return fmt.Errorf("job has no build exists: %v", job.Raw.Name)
-	}
 	_, err = worker.storage.SaveBuilds(filteredData, jobCtx)
 	if err != nil {
 		return fmt.Errorf("failed to save builds: %v", err)
