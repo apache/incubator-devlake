@@ -3,16 +3,19 @@ package db
 import (
 	"fmt"
 
+	_ "github.com/golang-migrate/migrate/v4/database/mysql"
+	_ "github.com/golang-migrate/migrate/v4/source/file"
+
 	"github.com/golang-migrate/migrate/v4"
 )
 
-var ROOT_CONNECTION_STRING string = "mysql://root:admin@tcp(localhost:3306)/lake"
-var MIGRATIONS_PATH string = "file://../../db/migration"
+var ROOT_CONNECTION_STRING string = "mysql://root:admin@tcp(localhost:3306)/%v"
+var MIGRATIONS_PATH string = "file://./db/migration"
 
-func RunMigrationsUp() error {
+func RunMigrationsUp(dbName string) error {
 	m, err := migrate.New(
 		MIGRATIONS_PATH,
-		ROOT_CONNECTION_STRING)
+		fmt.Sprintf(ROOT_CONNECTION_STRING, dbName))
 
 	if err != nil {
 		fmt.Println("ERROR: Could not init migrate for UP: ", err)
@@ -26,10 +29,10 @@ func RunMigrationsUp() error {
 	return nil
 }
 
-func RunMigrationsDown() error {
+func RunMigrationsDown(dbName string) error {
 	m, err := migrate.New(
 		MIGRATIONS_PATH,
-		ROOT_CONNECTION_STRING)
+		fmt.Sprintf(ROOT_CONNECTION_STRING, dbName))
 
 	if err != nil {
 		fmt.Println("ERROR: Could not init migrate for DOWN: ", err)

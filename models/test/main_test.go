@@ -4,8 +4,6 @@ import (
 	"os"
 	"testing"
 
-	_ "github.com/golang-migrate/migrate/v4/database/mysql"
-	_ "github.com/golang-migrate/migrate/v4/source/file"
 	"github.com/merico-dev/lake/db"
 )
 
@@ -24,11 +22,11 @@ func TestMain(m *testing.M) {
 }
 
 func setup() error {
-	err := db.RunMigrationsDown()
+	err := db.RunMigrationsDown("lake_test")
 	if err != nil {
 		return err
 	}
-	err = db.RunMigrationsUp()
+	err = db.RunMigrationsUp("lake_test")
 	if err != nil {
 		return err
 	}
