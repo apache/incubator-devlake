@@ -5,6 +5,7 @@ services:
     platform: linux/x86_64
     volumes:
       - mysql-storage:/var/lib/mysql
+      - ./db/docker-compose-startup.sql:/docker-entrypoint-initdb.d/1.sql
     restart: always
     ports:
       - 127.0.0.1:3306:3306
@@ -14,7 +15,7 @@ services:
       MYSQL_USER: merico
       MYSQL_PASSWORD: merico
 
-      grafana:
+  grafana:
     image: mericodev/grafana:0.5.0
     profiles:
       - user
@@ -28,6 +29,8 @@ services:
       - GF_INSTALL_PLUGINS=grafana-piechart-panel
       - GF_LIVE_ALLOWED_ORIGINS=*
     restart: always
+    depends_on:
+      - mysql
 
   grafana-dev:
     image: grafana/grafana:8.0.6
