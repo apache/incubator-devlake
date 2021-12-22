@@ -1,0 +1,641 @@
+{
+	"attributes": [
+		{
+			"name": "holdable",
+			"url": "https://pokeapi.co/api/v2/item-attribute/5/"
+		}
+	],
+	"baby_trigger_for": "test",
+	"category": {
+		"name": "species-specific",
+		"url": "https://pokeapi.co/api/v2/item-category/18/"
+	},
+	"cost": 1000,
+	"effect_entries": [
+		{
+			"effect": "Held by Ditto: Doubles the holder's initial Speed.",
+			"language": {
+				"name": "en",
+				"url": "https://pokeapi.co/api/v2/language/9/"
+			},
+			"short_effect": "Doubles Ditto's Speed when held. The boost is lost after transforming."
+		}
+	],
+	"flavor_text_entries": [
+		{
+			"language": {
+				"name": "en",
+				"url": "https://pokeapi.co/api/v2/language/9/"
+			},
+			"text": "An item to be held by DITTO. Extremely fine yet hard, this odd powder boosts the Speed stat.",
+			"version_group": {
+				"name": "diamond-pearl",
+				"url": "https://pokeapi.co/api/v2/version-group/8/"
+			}
+		},
+		{
+			"language": {
+				"name": "en",
+				"url": "https://pokeapi.co/api/v2/language/9/"
+			},
+			"text": "An item to be held by DITTO. Extremely fine yet hard, this odd powder boosts the Speed stat.",
+			"version_group": {
+				"name": "platinum",
+				"url": "https://pokeapi.co/api/v2/version-group/9/"
+			}
+		},
+		{
+			"language": {
+				"name": "en",
+				"url": "https://pokeapi.co/api/v2/language/9/"
+			},
+			"text": "An item to be held by DITTO. Extremely fine yet hard, this odd powder boosts the Speed stat.",
+			"version_group": {
+				"name": "heartgold-soulsilver",
+				"url": "https://pokeapi.co/api/v2/version-group/10/"
+			}
+		},
+		{
+			"language": {
+				"name": "fr",
+				"url": "https://pokeapi.co/api/v2/language/5/"
+			},
+			"text": "Objet à faire tenir à Métamorph. Cette poudre étrange, très fine mais résistante, augmente sa Vitesse.",
+			"version_group": {
+				"name": "black-white",
+				"url": "https://pokeapi.co/api/v2/version-group/11/"
+			}
+		},
+		{
+			"language": {
+				"name": "en",
+				"url": "https://pokeapi.co/api/v2/language/9/"
+			},
+			"text": "An item to be held by Ditto. Extremely fine yet hard, this odd powder boosts the Speed stat.",
+			"version_group": {
+				"name": "black-white",
+				"url": "https://pokeapi.co/api/v2/version-group/11/"
+			}
+		},
+		{
+			"language": {
+				"name": "en",
+				"url": "https://pokeapi.co/api/v2/language/9/"
+			},
+			"text": "An item to be held by Ditto. Extremely fine yet hard, this odd powder boosts the Speed stat.",
+			"version_group": {
+				"name": "black-2-white-2",
+				"url": "https://pokeapi.co/api/v2/version-group/14/"
+			}
+		},
+		{
+			"language": {
+				"name": "ja-Hrkt",
+				"url": "https://pokeapi.co/api/v2/language/1/"
+			},
+			"text": "メタモンに　もたせると　すばやさが あがる　ふしぎなこな。 とても　こまかくて　かたい。",
+			"version_group": {
+				"name": "x-y",
+				"url": "https://pokeapi.co/api/v2/version-group/15/"
+			}
+		},
+		{
+			"language": {
+				"name": "ko",
+				"url": "https://pokeapi.co/api/v2/language/3/"
+			},
+			"text": "메타몽에게 지니게 하면 스피드가 올라가는 이상한 가루. 매우 곱고 단단하다.",
+			"version_group": {
+				"name": "x-y",
+				"url": "https://pokeapi.co/api/v2/version-group/15/"
+			}
+		},
+		{
+			"language": {
+				"name": "fr",
+				"url": "https://pokeapi.co/api/v2/language/5/"
+			},
+			"text": "Objet à faire tenir à Métamorph. Cette poudre étrange, très fine mais résistante, augmente sa Vitesse.",
+			"version_group": {
+				"name": "x-y",
+				"url": "https://pokeapi.co/api/v2/version-group/15/"
+			}
+		},
+		{
+			"language": {
+				"name": "de",
+				"url": "https://pokeapi.co/api/v2/language/6/"
+			},
+			"text": "Ein Item, das Ditto zum Tragen gegeben werden kann. Fein und doch hart, erhöht es den Initiative-Wert.",
+			"version_group": {
+				"name": "x-y",
+				"url": "https://pokeapi.co/api/v2/version-group/15/"
+			}
+		},
+		{
+			"language": {
+				"name": "es",
+				"url": "https://pokeapi.co/api/v2/language/7/"
+			},
+			"text": "Potencia el Ataque Especial de base, pero reduce la Velocidad en combate. Debe llevarla un Pokémon.",
+			"version_group": {
+				"name": "x-y",
+				"url": "https://pokeapi.co/api/v2/version-group/15/"
+			}
+		},
+		{
+			"language": {
+				"name": "it",
+				"url": "https://pokeapi.co/api/v2/language/8/"
+			},
+			"text": "Strumento da dare a Ditto. Questa strana polvere, fine e al contempo dura, aumenta la Velocità.",
+			"version_group": {
+				"name": "x-y",
+				"url": "https://pokeapi.co/api/v2/version-group/15/"
+			}
+		},
+		{
+			"language": {
+				"name": "en",
+				"url": "https://pokeapi.co/api/v2/language/9/"
+			},
+			"text": "An item to be held by Ditto. Extremely fine yet hard, this odd powder boosts the Speed stat.",
+			"version_group": {
+				"name": "x-y",
+				"url": "https://pokeapi.co/api/v2/version-group/15/"
+			}
+		},
+		{
+			"language": {
+				"name": "ja",
+				"url": "https://pokeapi.co/api/v2/language/11/"
+			},
+			"text": "メタモンに　持たせると　素早さが あがる　不思議な粉。 とても　こまかくて　硬い。",
+			"version_group": {
+				"name": "x-y",
+				"url": "https://pokeapi.co/api/v2/version-group/15/"
+			}
+		},
+		{
+			"language": {
+				"name": "ja-Hrkt",
+				"url": "https://pokeapi.co/api/v2/language/1/"
+			},
+			"text": "メタモンに　もたせると　すばやさが あがる　ふしぎなこな。 とても　こまかくて　かたい。",
+			"version_group": {
+				"name": "sun-moon",
+				"url": "https://pokeapi.co/api/v2/version-group/17/"
+			}
+		},
+		{
+			"language": {
+				"name": "ko",
+				"url": "https://pokeapi.co/api/v2/language/3/"
+			},
+			"text": "메타몽에게 지니게 하면 스피드가 올라가는 이상한 가루. 매우 잘고 단단하다.",
+			"version_group": {
+				"name": "sun-moon",
+				"url": "https://pokeapi.co/api/v2/version-group/17/"
+			}
+		},
+		{
+			"language": {
+				"name": "zh-Hant",
+				"url": "https://pokeapi.co/api/v2/language/4/"
+			},
+			"text": "讓百變怪攜帶後， 速度就會提高的神奇粉末。 非常細緻堅硬。",
+			"version_group": {
+				"name": "sun-moon",
+				"url": "https://pokeapi.co/api/v2/version-group/17/"
+			}
+		},
+		{
+			"language": {
+				"name": "fr",
+				"url": "https://pokeapi.co/api/v2/language/5/"
+			},
+			"text": "Objet à faire tenir à Métamorph. Cette poudre étrange, très fine mais résistante, augmente sa Vitesse.",
+			"version_group": {
+				"name": "sun-moon",
+				"url": "https://pokeapi.co/api/v2/version-group/17/"
+			}
+		},
+		{
+			"language": {
+				"name": "de",
+				"url": "https://pokeapi.co/api/v2/language/6/"
+			},
+			"text": "Ein Item, das Ditto zum Tragen gegeben werden kann. Fein und doch hart, erhöht es den Initiative-Wert.",
+			"version_group": {
+				"name": "sun-moon",
+				"url": "https://pokeapi.co/api/v2/version-group/17/"
+			}
+		},
+		{
+			"language": {
+				"name": "es",
+				"url": "https://pokeapi.co/api/v2/language/7/"
+			},
+			"text": "Debe llevarlo Ditto. Es un polvo muy fino, pero a la vez poderoso, que aumenta su Velocidad.",
+			"version_group": {
+				"name": "sun-moon",
+				"url": "https://pokeapi.co/api/v2/version-group/17/"
+			}
+		},
+		{
+			"language": {
+				"name": "it",
+				"url": "https://pokeapi.co/api/v2/language/8/"
+			},
+			"text": "Strumento da dare a Ditto. Questa strana polvere, fine e al contempo dura, aumenta la Velocità.",
+			"version_group": {
+				"name": "sun-moon",
+				"url": "https://pokeapi.co/api/v2/version-group/17/"
+			}
+		},
+		{
+			"language": {
+				"name": "en",
+				"url": "https://pokeapi.co/api/v2/language/9/"
+			},
+			"text": "An item to be held by Ditto. Extremely fine yet hard, this odd powder boosts the Speed stat.",
+			"version_group": {
+				"name": "sun-moon",
+				"url": "https://pokeapi.co/api/v2/version-group/17/"
+			}
+		},
+		{
+			"language": {
+				"name": "ja",
+				"url": "https://pokeapi.co/api/v2/language/11/"
+			},
+			"text": "メタモンに　持たせると　素早さが あがる　不思議な粉。 とても　こまかくて　硬い。",
+			"version_group": {
+				"name": "sun-moon",
+				"url": "https://pokeapi.co/api/v2/version-group/17/"
+			}
+		},
+		{
+			"language": {
+				"name": "zh-Hans",
+				"url": "https://pokeapi.co/api/v2/language/12/"
+			},
+			"text": "让百变怪携带后， 速度就会提高的神奇粉末。 非常细腻坚硬。",
+			"version_group": {
+				"name": "sun-moon",
+				"url": "https://pokeapi.co/api/v2/version-group/17/"
+			}
+		},
+		{
+			"language": {
+				"name": "ja-Hrkt",
+				"url": "https://pokeapi.co/api/v2/language/1/"
+			},
+			"text": "メタモンに　もたせると　すばやさが あがる　ふしぎなこな。 とても　こまかくて　かたい。",
+			"version_group": {
+				"name": "ultra-sun-ultra-moon",
+				"url": "https://pokeapi.co/api/v2/version-group/18/"
+			}
+		},
+		{
+			"language": {
+				"name": "ko",
+				"url": "https://pokeapi.co/api/v2/language/3/"
+			},
+			"text": "메타몽에게 지니게 하면 스피드가 올라가는 이상한 가루. 매우 잘고 단단하다.",
+			"version_group": {
+				"name": "ultra-sun-ultra-moon",
+				"url": "https://pokeapi.co/api/v2/version-group/18/"
+			}
+		},
+		{
+			"language": {
+				"name": "zh-Hant",
+				"url": "https://pokeapi.co/api/v2/language/4/"
+			},
+			"text": "讓百變怪攜帶後， 速度就會提高的神奇粉末。 非常細緻堅硬。",
+			"version_group": {
+				"name": "ultra-sun-ultra-moon",
+				"url": "https://pokeapi.co/api/v2/version-group/18/"
+			}
+		},
+		{
+			"language": {
+				"name": "fr",
+				"url": "https://pokeapi.co/api/v2/language/5/"
+			},
+			"text": "Objet à faire tenir à Métamorph. Cette poudre étrange, très fine mais résistante, augmente sa Vitesse.",
+			"version_group": {
+				"name": "ultra-sun-ultra-moon",
+				"url": "https://pokeapi.co/api/v2/version-group/18/"
+			}
+		},
+		{
+			"language": {
+				"name": "de",
+				"url": "https://pokeapi.co/api/v2/language/6/"
+			},
+			"text": "Ein Item, das Ditto zum Tragen gegeben werden kann. Fein und doch hart, erhöht es den Initiative-Wert.",
+			"version_group": {
+				"name": "ultra-sun-ultra-moon",
+				"url": "https://pokeapi.co/api/v2/version-group/18/"
+			}
+		},
+		{
+			"language": {
+				"name": "es",
+				"url": "https://pokeapi.co/api/v2/language/7/"
+			},
+			"text": "Debe llevarlo Ditto. Es un polvo muy fino, pero a la vez poderoso, que aumenta su Velocidad.",
+			"version_group": {
+				"name": "ultra-sun-ultra-moon",
+				"url": "https://pokeapi.co/api/v2/version-group/18/"
+			}
+		},
+		{
+			"language": {
+				"name": "it",
+				"url": "https://pokeapi.co/api/v2/language/8/"
+			},
+			"text": "Strumento da dare a Ditto. Questa strana polvere, fine e al contempo dura, aumenta la Velocità.",
+			"version_group": {
+				"name": "ultra-sun-ultra-moon",
+				"url": "https://pokeapi.co/api/v2/version-group/18/"
+			}
+		},
+		{
+			"language": {
+				"name": "en",
+				"url": "https://pokeapi.co/api/v2/language/9/"
+			},
+			"text": "An item to be held by Ditto. Extremely fine yet hard, this odd powder boosts the Speed stat.",
+			"version_group": {
+				"name": "ultra-sun-ultra-moon",
+				"url": "https://pokeapi.co/api/v2/version-group/18/"
+			}
+		},
+		{
+			"language": {
+				"name": "ja",
+				"url": "https://pokeapi.co/api/v2/language/11/"
+			},
+			"text": "メタモンに　持たせると　素早さが あがる　不思議な粉。 とても　こまかくて　硬い。",
+			"version_group": {
+				"name": "ultra-sun-ultra-moon",
+				"url": "https://pokeapi.co/api/v2/version-group/18/"
+			}
+		},
+		{
+			"language": {
+				"name": "zh-Hans",
+				"url": "https://pokeapi.co/api/v2/language/12/"
+			},
+			"text": "让百变怪携带后， 速度就会提高的神奇粉末。 非常细腻坚硬。",
+			"version_group": {
+				"name": "ultra-sun-ultra-moon",
+				"url": "https://pokeapi.co/api/v2/version-group/18/"
+			}
+		}
+	],
+	"fling_effect": null,
+	"fling_power": 10,
+	"game_indices": [
+		{
+			"game_index": 274,
+			"generation": {
+				"name": "generation-iv",
+				"url": "https://pokeapi.co/api/v2/generation/4/"
+			}
+		},
+		{
+			"game_index": 274,
+			"generation": {
+				"name": "generation-v",
+				"url": "https://pokeapi.co/api/v2/generation/5/"
+			}
+		},
+		{
+			"game_index": 274,
+			"generation": {
+				"name": "generation-vi",
+				"url": "https://pokeapi.co/api/v2/generation/6/"
+			}
+		},
+		{
+			"game_index": 274,
+			"generation": {
+				"name": "generation-vii",
+				"url": "https://pokeapi.co/api/v2/generation/7/"
+			}
+		}
+	],
+	"held_by_pokemon": [
+		{
+			"pokemon": {
+				"name": "ditto",
+				"url": "https://pokeapi.co/api/v2/pokemon/132/"
+			},
+			"version_details": [
+				{
+					"rarity": 50,
+					"version": {
+						"name": "diamond",
+						"url": "https://pokeapi.co/api/v2/version/12/"
+					}
+				},
+				{
+					"rarity": 50,
+					"version": {
+						"name": "pearl",
+						"url": "https://pokeapi.co/api/v2/version/13/"
+					}
+				},
+				{
+					"rarity": 50,
+					"version": {
+						"name": "platinum",
+						"url": "https://pokeapi.co/api/v2/version/14/"
+					}
+				},
+				{
+					"rarity": 50,
+					"version": {
+						"name": "heartgold",
+						"url": "https://pokeapi.co/api/v2/version/15/"
+					}
+				},
+				{
+					"rarity": 50,
+					"version": {
+						"name": "soulsilver",
+						"url": "https://pokeapi.co/api/v2/version/16/"
+					}
+				},
+				{
+					"rarity": 50,
+					"version": {
+						"name": "black",
+						"url": "https://pokeapi.co/api/v2/version/17/"
+					}
+				},
+				{
+					"rarity": 50,
+					"version": {
+						"name": "white",
+						"url": "https://pokeapi.co/api/v2/version/18/"
+					}
+				},
+				{
+					"rarity": 50,
+					"version": {
+						"name": "black-2",
+						"url": "https://pokeapi.co/api/v2/version/21/"
+					}
+				},
+				{
+					"rarity": 50,
+					"version": {
+						"name": "white-2",
+						"url": "https://pokeapi.co/api/v2/version/22/"
+					}
+				},
+				{
+					"rarity": 50,
+					"version": {
+						"name": "x",
+						"url": "https://pokeapi.co/api/v2/version/23/"
+					}
+				},
+				{
+					"rarity": 50,
+					"version": {
+						"name": "y",
+						"url": "https://pokeapi.co/api/v2/version/24/"
+					}
+				},
+				{
+					"rarity": 50,
+					"version": {
+						"name": "omega-ruby",
+						"url": "https://pokeapi.co/api/v2/version/25/"
+					}
+				},
+				{
+					"rarity": 50,
+					"version": {
+						"name": "alpha-sapphire",
+						"url": "https://pokeapi.co/api/v2/version/26/"
+					}
+				},
+				{
+					"rarity": 50,
+					"version": {
+						"name": "sun",
+						"url": "https://pokeapi.co/api/v2/version/27/"
+					}
+				},
+				{
+					"rarity": 50,
+					"version": {
+						"name": "moon",
+						"url": "https://pokeapi.co/api/v2/version/28/"
+					}
+				},
+				{
+					"rarity": 50,
+					"version": {
+						"name": "ultra-sun",
+						"url": "https://pokeapi.co/api/v2/version/29/"
+					}
+				},
+				{
+					"rarity": 50,
+					"version": {
+						"name": "ultra-moon",
+						"url": "https://pokeapi.co/api/v2/version/30/"
+					}
+				}
+			]
+		}
+	],
+	"id": 251,
+	"machines": [
+
+	],
+	"name": "quick-powder",
+	"names": [
+		{
+			"language": {
+				"name": "ja-Hrkt",
+				"url": "https://pokeapi.co/api/v2/language/1/"
+			},
+			"name": "スピードパウダー"
+		},
+		{
+			"language": {
+				"name": "ko",
+				"url": "https://pokeapi.co/api/v2/language/3/"
+			},
+			"name": "스피드파우더"
+		},
+		{
+			"language": {
+				"name": "zh-Hant",
+				"url": "https://pokeapi.co/api/v2/language/4/"
+			},
+			"name": "速度粉"
+		},
+		{
+			"language": {
+				"name": "fr",
+				"url": "https://pokeapi.co/api/v2/language/5/"
+			},
+			"name": "Poudre Vite"
+		},
+		{
+			"language": {
+				"name": "de",
+				"url": "https://pokeapi.co/api/v2/language/6/"
+			},
+			"name": "Flottstaub"
+		},
+		{
+			"language": {
+				"name": "es",
+				"url": "https://pokeapi.co/api/v2/language/7/"
+			},
+			"name": "Polvo Veloz"
+		},
+		{
+			"language": {
+				"name": "it",
+				"url": "https://pokeapi.co/api/v2/language/8/"
+			},
+			"name": "Velopolvere"
+		},
+		{
+			"language": {
+				"name": "en",
+				"url": "https://pokeapi.co/api/v2/language/9/"
+			},
+			"name": "Quick Powder"
+		},
+		{
+			"language": {
+				"name": "ja",
+				"url": "https://pokeapi.co/api/v2/language/11/"
+			},
+			"name": "スピードパウダー"
+		},
+		{
+			"language": {
+				"name": "zh-Hans",
+				"url": "https://pokeapi.co/api/v2/language/12/"
+			},
+			"name": "速度粉"
+		}
+	],
+	"sprites": {
+		"default": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/quick-powder.png"
+	}
+}
