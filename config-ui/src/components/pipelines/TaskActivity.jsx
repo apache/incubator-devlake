@@ -127,16 +127,6 @@ const TaskActivity = (props) => {
               className='pipeline-task-cell-message'
               style={{ display: 'flex', flexGrow: 1, width: '64%' }}
             >
-              {/* {t.plugin !== 'jenkins' && (
-                <>
-                  <span style={{ color: Colors.GRAY2 }}>
-                    <Icon icon='link' size={8} style={{ marginBottom: '3px' }} /> {t.options[Object.keys(t.options)[0]]}
-                  </span>
-                  {t.plugin === 'github' && (
-                    <span style={{ fontWeight: 60 }}>/{t.options[Object.keys(t.options)[1]]}</span>
-                  )}
-                </>
-              )} */}
               {t.message && (
                 <div style={{ width: '98%', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                   <span style={{ color: t.status === 'TASK_FAILED' ? Colors.RED4 : Colors.GRAY3, paddingLeft: '10px' }}>

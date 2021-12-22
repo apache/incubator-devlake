@@ -1,21 +1,12 @@
 import React from 'react'
 import { CSSTransition } from 'react-transition-group'
 import {
-  // Classes,
   Card,
-  Button, Icon, Intent, Switch,
-  // H2, Card, Elevation, Tag,
-  // Menu,
-  FormGroup,
+  Button, Icon,
   ButtonGroup,
   Elevation,
-  InputGroup,
-  Popover,
-  Tooltip,
-  Position,
-  // Spinner,
   Colors,
-  // Alignment
+  // Alignment, Classes, Spinner
 } from '@blueprintjs/core'
 import { ReactComponent as PipelineRunningIcon } from '@/images/synchronize.svg'
 import { ReactComponent as PipelineFailedIcon } from '@/images/no-synchronize.svg'
@@ -53,7 +44,13 @@ const StagePanel = (props) => {
                     case 'TASK_COMPLETED':
                       statusIcon = (
                         <Icon
-                          icon={<PipelineCompleteIcon width={24} height={24} style={{ margin: '0 0 0 10px', display: 'flex', alignSelf: 'center' }} />}
+                          icon={<PipelineCompleteIcon
+                            width={24} height={24} style={{
+                              margin: '0 0 0 10px',
+                              display: 'flex',
+                              alignSelf: 'center'
+                            }}
+                                />}
                           size={24}
                         />
                       )
@@ -61,7 +58,14 @@ const StagePanel = (props) => {
                     case 'TASK_FAILED':
                       statusIcon = (
                         <Icon
-                          icon={<PipelineFailedIcon width={24} height={24} style={{ margin: '0 0 0 10px', display: 'flex', alignSelf: 'center' }} />}
+                          icon={<PipelineFailedIcon
+                            width={24}
+                            height={24} style={{
+                              margin: '0 0 0 10px',
+                              display: 'flex',
+                              alignSelf: 'center'
+                            }}
+                                />}
                           size={24}
                         />
                       )
@@ -70,7 +74,14 @@ const StagePanel = (props) => {
                     default:
                       statusIcon = (
                         <Icon
-                          icon={<PipelineRunningIcon width={24} height={24} style={{ margin: '0 0 0 10px', display: 'flex', alignSelf: 'center' }} />}
+                          icon={<PipelineRunningIcon
+                            width={24}
+                            height={24} style={{
+                              margin: '0 0 0 10px',
+                              display: 'flex',
+                              alignSelf: 'center'
+                            }}
+                                />}
                           size={24}
                         />
                       )
@@ -80,6 +91,7 @@ const StagePanel = (props) => {
                 })()}
               </h3>
             </Button>
+            {/* @todo: re-active "stage" ux in a future release */}
             {/* <Button
               minimal style={{
                 backgroundColor: '#eeeeee',
