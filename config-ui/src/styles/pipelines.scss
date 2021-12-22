@@ -207,25 +207,33 @@
 }
 
 .activity-panel-enter {
-  transform: rotateX(-50deg);
-  opacity: 0.6;
-  transition: opacity 300ms, transform 300ms;
+  // transform: rotateX(-50deg);
+  transform: scale(1.01);
+  background-color: #f0f0f0;
+  opacity: 1;
+  transition: opacity 300ms, transform 300ms, background-color 800ms;
 }
 
 .activity-panel-enter-done {
-  transform: rotateX(0deg);
+  // transform: rotateX(0deg);
+  transform: scale(1);
+  background-color: #ffffff;
   opacity: 1;
-  transition: opacity 300ms, transform 300ms;
+  transition: opacity 300ms, transform 300ms, background-color 800ms;
 }
 
 .activity-panel-exit {
-  transform: rotateX(20deg);
-  transition: opacity 300ms, transform 300ms;
+  // transform: rotateX(20deg);
+  background-color: #f7f7f7;
+  opacity: 1;
+  transition: opacity 300ms, transform 300ms, background-color 800ms;
 }
 
 .activity-panel-exit-active {
-  transform: rotateX(40deg);
-  transition: opacity 300ms, transform 300ms;
+  // transform: rotateX(40deg);
+  background-color: #eeeeee;
+  opacity: 1;  
+  transition: opacity 300ms, transform 300ms, background-color 800ms;
 }
 
 .bp3-spinner {

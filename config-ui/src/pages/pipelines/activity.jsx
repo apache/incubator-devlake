@@ -29,13 +29,15 @@ import Sidebar from '@/components/Sidebar'
 import AppCrumbs from '@/components/Breadcrumbs'
 import Content from '@/components/Content'
 import ContentLoader from '@/components/loaders/ContentLoader'
+import StagePanel from '@/components/pipelines/StagePanel'
+import TaskActivity from '@/components/pipelines/TaskActivity'
 import { ReactComponent as GitlabProviderIcon } from '@/images/integrations/gitlab.svg'
 import { ReactComponent as JenkinsProviderIcon } from '@/images/integrations/jenkins.svg'
 import { ReactComponent as JiraProviderIcon } from '@/images/integrations/jira.svg'
 import { ReactComponent as GitHubProviderIcon } from '@/images/integrations/github.svg'
-import { ReactComponent as PipelineRunningIcon } from '@/images/synchronize.svg'
-import { ReactComponent as PipelineFailedIcon } from '@/images/no-synchronize.svg'
-import { ReactComponent as PipelineCompleteIcon } from '@/images/check-circle.svg'
+// import { ReactComponent as PipelineRunningIcon } from '@/images/synchronize.svg'
+// import { ReactComponent as PipelineFailedIcon } from '@/images/no-synchronize.svg'
+// import { ReactComponent as PipelineCompleteIcon } from '@/images/check-circle.svg'
 import { ReactComponent as HelpIcon } from '@/images/help.svg'
 
 const PipelineActivity = (props) => {
@@ -47,7 +49,7 @@ const PipelineActivity = (props) => {
   const [activeProvider, setActiveProvider] = useState(integrationsData[0])
   const [pipelineName, setPipelineName] = useState()
   const [pollTimer, setPollTimer] = useState(5000)
-  // const [autoRefresh, setAutoRefresh] = useState(true)
+  const [autoRefresh, setAutoRefresh] = useState(false)
 
   const [showInspector, setShowInspector] = useState(false)
   const [pipelineReady, setPipelineReady] = useState(false)
@@ -97,6 +99,7 @@ const PipelineActivity = (props) => {
     if (pipelineId) {
       fetchPipeline(pipelineId)
       // @todo: ENABLE ACTIVITY POLLING
+      setAutoRefresh(activePipeline.status === 'TASK_RUNNING')
       // pollInterval.current = setInterval(() => {
       //   fetchPipeline(pipelineId)
       // }, pollTimer)
@@ -105,7 +108,7 @@ const PipelineActivity = (props) => {
     return () => {
       clearInterval(pollInterval.current)
     }
-  }, [pipelineId, fetchPipeline])
+  }, [pipelineId, activePipeline.status, fetchPipeline])
 
   useEffect(() => {
     console.log('>>> TASKS KEY', activePipeline.tasks)
@@ -114,6 +117,18 @@ const PipelineActivity = (props) => {
   useEffect(() => {
     setPipelineReady(activePipeline.ID !== null && !isFetching)
   }, [activePipeline.ID, isFetching])
+
+  useEffect(() => {
+    if (autoRefresh) {
+      console.log('>> ACTIVITY POLLING ENABLED!')
+      pollInterval.current = setInterval(() => {
+        fetchPipeline(pipelineId)
+      }, pollTimer)
+    } else {
+      console.log('>> ACTIVITY POLLING DISABLED!')
+      clearInterval(pollInterval.current)
+    }
+  }, [autoRefresh, fetchPipeline, pipelineId, pollTimer])
 
   return (
     <>
@@ -179,28 +194,31 @@ const PipelineActivity = (props) => {
                 </div>
               </div>
             </div>
-            {isFetching && (
+            {!autoRefresh && isFetching && (
               <ContentLoader title='Loading Pipeline Run ...' message='Please wait while pipeline activity is loaded.' />
             )}
-            {!isFetching && activePipeline?.ID && (
+            {activePipeline?.ID && (
               <>
+                <StagePanel activePipeline={activePipeline} pipelineReady={pipelineReady} />
                 <div style={{ marginBottom: '24px', width: '100%' }}>
                   <CSSTransition
                     in={pipelineReady}
                     timeout={300}
                     classNames='activity-panel'
-                    unmountOnExit
+                    // unmountOnExit
                   >
                     <Card
                       className='pipeline-activity-card'
                       elevation={Elevation.TWO}
-                      style={{ width: '100%', display: 'flex', }}
+                      style={{ padding: 0, width: '100%', display: 'flex', flexDirection: 'column' }}
                     >
                       <div
                         className='pipeline-activity' style={{
                           display: 'flex',
                           width: '100%',
-                          justifyContent: 'space-between'
+                          justifyContent: 'space-between',
+                          borderBottom: '1.0px solid #f0f0f0',
+                          padding: '20px'
                         }}
                       >
 
@@ -229,9 +247,9 @@ const PipelineActivity = (props) => {
                         </div>
                         <div className='pipeline-status' style={{ paddingRight: '12px' }}>
                           <label style={{ color: Colors.GRAY3 }}>Status</label>
-                          <div style={{ fontSize: '14px', display: 'flex' }}>
+                          <div style={{ fontSize: '15px', display: 'flex' }}>
                             <span style={{ marginRight: '4px', color: activePipeline.status === 'TASK_RUNNING' ? '#0066FF' : '' }}>
-                              {activePipeline.status}
+                              {activePipeline.status.replace('TASK_', '')}
                             </span>
                             {activePipeline.status === 'TASK_FAILED' && (
                               <Icon
@@ -257,7 +275,7 @@ const PipelineActivity = (props) => {
                         </div>
                         <div className='pipeline-duration' style={{ paddingRight: '12px' }}>
                           <label style={{ color: Colors.GRAY3 }}>Duration</label>
-                          <div style={{ fontSize: '14px', whiteSpace: 'nowrap' }}>
+                          <div style={{ fontSize: '15px', whiteSpace: 'nowrap' }}>
                             {/* {activePipeline.spentSeconds >= 60 ? `${Number(activePipeline.spentSeconds / 60).toFixed(2)}mins` : `${activePipeline.spentSeconds}secs`} */}
                             {activePipeline.status === 'TASK_RUNNING' ? dayjs(activePipeline.CreatedAt).toNow(true) : dayjs(activePipeline.UpdatedAt).from(activePipeline.CreatedAt, true)}
                           </div>
@@ -282,7 +300,7 @@ const PipelineActivity = (props) => {
                               position={Position.BOTTOM}
                               autoFocus={false}
                               enforceFocus={false}
-                              usePortal={false}
+                              usePortal={true}
                               disabled={activePipeline.status !== 'TASK_RUNNING'}
                             >
                               <Button
@@ -326,27 +344,64 @@ const PipelineActivity = (props) => {
                         </div>
 
                       </div>
+                      <TaskActivity activePipeline={activePipeline} dayjs={dayjs} />
                     </Card>
                   </CSSTransition>
-                  <p style={{ padding: '5px 3px', fontSize: '10px' }}>
-                    {activePipeline.finishedTasks}/{activePipeline.totalTasks} Tasks Completed
-                    <span style={{ padding: '0 2px' }}><Icon icon='dot' size={10} color={Colors.GRAY4} /></span>
-                    <strong>Created </strong> {activePipeline.CreatedAt}
-                  </p>
+                  <div style={{ display: 'flex', padding: '5px 3px', fontSize: '10px', color: '#777777', justifyContent: 'space-between' }}>
+                    <div>
+                      <Popover
+                        className='trigger-pipeline-stage-help'
+                        popoverClassName='popover-help-stage-activity'
+                        position={Position.BOTTOM}
+                        autoFocus={false}
+                        enforceFocus={false}
+                        usePortal={false}
+                      >
+                        <a href='#' rel='noreferrer'><Icon icon='help' color={Colors.GRAY3} size={12} style={{ marginTop: '0', marginRight: '5px' }} /></a>
+                        <>
+                          <div style={{ textShadow: 'none', fontSize: '12px', padding: '12px', maxWidth: '315px' }}>
+                            <div style={{
+                              marginBottom: '10px',
+                              fontWeight: 700,
+                              fontSize: '14px',
+                              fontFamily: '"Montserrat", sans-serif'
+                            }}
+                            >
+                              <Icon icon='help' size={16} /> Stages and Tasks
+                            </div>
+                            <p>
+                              Monitor <strong>Duration</strong> and <strong>Progress</strong> completion for all tasks. <strong>Grafana</strong> access will be  enabled when the pipeline completes.
+
+                            </p>
+
+                          </div>
+                        </>
+                      </Popover>
+
+                      {activePipeline.finishedTasks}/{activePipeline.totalTasks} Tasks Completed
+                      <span style={{ padding: '0 2px' }}>
+                        <Icon icon='dot' size={10} color={Colors.GRAY3} style={{ marginBottom: '3px' }} />
+                      </span>
+                      <strong>Created </strong> {activePipeline.CreatedAt}
+                    </div>
+                    <div>
+                      {isFetching && (<span style={{ color: Colors.GREEN5 }}><Icon icon='updated' size={11} style={{ marginBottom: '2px' }} /> Refreshing Activity...</span>)}
+                    </div>
+                  </div>
                 </div>
 
                 <div className='stage-activity' style={{ alignSelf: 'flex-start', width: '100%' }}>
-                  <h2 className='headline'>
+                  {/* <h2 className='headline'>
                     <Icon icon='layers' height={16} size={16} color='rgba(0,0,0,0.5)' /> Stages and Tasks
                   </h2>
                   <p>Monitor <strong>Duration</strong> and <strong>Progress</strong> completion for all tasks. <strong>Grafana</strong> access will be  enabled when the pipeline completes.
                     Warning messages will also be displayed here when present.
-                  </p>
-                  <CSSTransition
+                  </p> */}
+                  {/* <CSSTransition
                     in={pipelineReady}
                     timeout={350}
                     classNames='activity-panel'
-                    unmountOnExit
+                    // unmountOnExit
                   >
                     <Card
                       elevation={Elevation.TWO}
@@ -437,8 +492,9 @@ const PipelineActivity = (props) => {
                         {Number((activePipeline.finishedTasks / activePipeline.totalTasks) * 100).toFixed(1)}%
                       </div>
                     </Card>
-                  </CSSTransition>
-                  <div style={{
+                  </CSSTransition> */}
+                  {/* <TaskActivity activePipeline={activePipeline} dayjs={dayjs} /> */}
+                  {/* <div style={{
                     paddingTop: '7px',
                     // borderTop: '1px solid #f5f5f5',
                     marginTop: '14px',
@@ -477,55 +533,6 @@ const PipelineActivity = (props) => {
                           >
                             {t.plugin}
                           </strong>
-                          {/* <div style={{
-                            width: '120px',
-                            // backgroundColor: '#f0f0f0',
-                            justifyContent: 'flex-end',
-                            display: 'flex',
-                            textAlign: 'right'
-                          }}
-                          >
-                            <span style={{ fontSize: '10px', color: Colors.GRAY3, alignSelf: 'center' }}>
-                              {t.plugin !== 'jenkins' && (
-                                <span>
-                                  {Object.keys(t.options)[0]}
-                                </span>
-                              )}
-                              {t.plugin === 'github' && (
-                                <span>
-                                  <br />{Object.keys(t.options)[1]}
-                                </span>
-                              )}
-                            </span>
-                          </div>
-                          <div style={{
-                            width: '120px',
-                            display: 'flex',
-                            alignContent: 'flex-start',
-                            // backgroundColor: '#f7f7f7',
-                            marginRight: 'auto',
-                            paddingLeft: '10px'
-                          }}
-                          >
-                            <span style={{ fontSize: '10px', color: Colors.GRAY3, alignSelf: 'center', fontWeight: 600 }}>
-                              {t.plugin !== 'jenkins' && (
-                                <span>
-                                  {t.options[Object.keys(t.options)[0]]}
-                                </span>
-                              )}
-                              {t.plugin === 'github' && (
-                                <span>
-                                  <br />{t.options[Object.keys(t.options)[1]]}
-                                </span>
-                              )}
-                            </span>
-                          </div> */}
-                          {/* {t.status === 'TASK_COMPLETED' && (
-                            <Icon icon='small-tick' size={14} color={Colors.GREEN5} style={{ marginLeft: '5px' }} />
-                          )}
-                          {t.status === 'TASK_FAILED' && (
-                            <Icon icon='warning-sign' size={11} color={Colors.RED5} style={{ marginLeft: '5px', marginBottom: '3px' }} />
-                          )} */}
                         </div>
                         <div
                           className='pipeline-task-cell-duration'
@@ -536,9 +543,7 @@ const PipelineActivity = (props) => {
                             textAlign: 'right'
                           }}
                         >
-                          {/* <span>{t.spentSeconds >= 60 ? `${Number(t.spentSeconds / 60).toFixed(2)}mins` : `${t.spentSeconds}secs`}</span> */}
                           <span style={{ whiteSpace: 'nowrap' }}>
-                            {/* {t.status === 'TASK_COMPLETED' ? dayjs(t.UpdatedAt).from(t.CreatedAt, true) : dayjs(t.CreatedAt).toNow(true)} */}
                             {(() => {
                               let statusRelativeTime = dayjs(t.CreatedAt).toNow(true)
                               switch (t.status) {
@@ -591,14 +596,21 @@ const PipelineActivity = (props) => {
                         </div>
                       </div>
                     ))}
-                  </div>
+                  </div> */}
                 </div>
 
                 <div className='run-settings' style={{ alignSelf: 'flex-start', width: '100%' }}>
-                  <h2 className='headline'>
-                    <Icon icon='cloud-upload' height={16} size={16} color='rgba(0,0,0,0.5)' /> Run Settings
-                  </h2>
-                  <p>Data Provider settings configured for this pipeline execution.</p>
+                  <div style={{ display: 'flex' }}>
+                    <div style={{ display: 'flex', alignItems: 'flex-start', padding: '2px 8px 0 0' }}>
+                      <Icon icon='cog' height={16} size={16} color='rgba(0,0,0,0.5)' />
+                    </div>
+                    <div>
+                      <h2 className='headline' style={{ marginTop: 0}}>
+                        Run Settings
+                      </h2>
+                      <p>Data Provider settings configured for this pipeline execution.</p>
+                    </div>
+                  </div>
 
                   <div style={{ padding: '0 10px', display: 'flex', marginTop: '24px', justifyContent: 'space-between', width: '100%' }}>
                     <div className='jenkins-settings' style={{ display: 'flex' }}>

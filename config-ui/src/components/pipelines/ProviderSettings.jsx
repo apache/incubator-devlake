@@ -143,7 +143,7 @@ const ProviderSettings = (props) => {
             <InputGroup
               id='owner'
               disabled={isRunning || !isEnabled(providerId)}
-              placeholder='eg. merio-dev'
+              placeholder='eg. merico-dev'
               value={owner}
               onChange={(e) => setOwner(e.target.value)}
               className='input-owner'
