@@ -4,6 +4,9 @@ import { useHistory, useParams } from 'react-router-dom'
 import { ToastNotification } from '@/components/Toast'
 import { GRAFANA_URL } from '@/utils/config'
 import request from '@/utils/request'
+import * as dayjs from 'dayjs'
+import * as relativeTime from 'dayjs/plugin/relativeTime'
+import * as updateLocale from 'dayjs/plugin/updateLocale'
 import {
   H2, Button, Icon, Intent,
   ButtonGroup, InputGroup, Input,
@@ -27,17 +30,20 @@ import { ReactComponent as GitlabProviderIcon } from '@/images/integrations/gitl
 import { ReactComponent as JenkinsProviderIcon } from '@/images/integrations/jenkins.svg'
 import { ReactComponent as JiraProviderIcon } from '@/images/integrations/jira.svg'
 import { ReactComponent as GitHubProviderIcon } from '@/images/integrations/github.svg'
-
-import '@/styles/offline.scss'
-import { TAB_LIST } from '@blueprintjs/core/lib/esm/common/classes'
+import { ReactComponent as PipelineRunningIcon } from '@/images/synchronize.svg'
+import { ReactComponent as PipelineFailedIcon } from '@/images/no-synchronize.svg'
+import { ReactComponent as PipelineCompleteIcon } from '@/images/check-circle.svg'
 
 const PipelineActivity = (props) => {
   const history = useHistory()
   const { pId } = useParams()
+  const pollInterval = useRef()
 
   const [pipelineId, setPipelineId] = useState() // @todo REMOVE TEST RUN ID!
   const [activeProvider, setActiveProvider] = useState(integrationsData[0])
   const [pipelineName, setPipelineName] = useState()
+  const [pollTimer, setPollTimer] = useState(5000)
+  // const [autoRefresh, setAutoRefresh] = useState(true)
 
   const {
     runPipeline,
@@ -58,18 +64,49 @@ const PipelineActivity = (props) => {
 
   useEffect(() => {
     setPipelineId(pId)
+    dayjs.extend(relativeTime)
+    dayjs.extend(updateLocale)
+    dayjs.updateLocale('en', {
+      relativeTime: {
+        future: 'in %s',
+        past: '%s ago',
+        s: '< 1min',
+        m: 'a minute',
+        mm: '%d minutes',
+        h: 'an hour',
+        hh: '%d hours',
+        d: 'a day',
+        dd: '%d days',
+        M: 'a month',
+        MM: '%d months',
+        y: 'a year',
+        yy: '%d years'
+      }
+    })
     console.log('>>> REQUESTED PIPELINE ID ===', pId)
   }, [pId])
 
   useEffect(() => {
     if (pipelineId) {
       fetchPipeline(pipelineId)
+      // @todo: ENABLE ACTIVITY POLLING
+      // pollInterval.current = setInterval(() => {
+      //   fetchPipeline(pipelineId)
+      // }, pollTimer)
+    }
+
+    return () => {
+      clearInterval(pollInterval.current)
     }
   }, [pipelineId, fetchPipeline])
 
   useEffect(() => {
     console.log('>>> TASKS KEY', activePipeline.tasks)
   }, [])
+
+  // useEffect(() => {
+
+  // }, [pipelineId, fetchPipeline])
 
   return (
     <>
@@ -187,8 +224,9 @@ const PipelineActivity = (props) => {
                       </div>
                       <div className='pipeline-duration' style={{ paddingRight: '12px' }}>
                         <label style={{ color: Colors.GRAY3 }}>Duration</label>
-                        <div style={{ fontSize: '14px' }}>
-                          {activePipeline.spentSeconds >= 60 ? `${Number(activePipeline.spentSeconds / 60).toFixed(2)}mins` : `${activePipeline.spentSeconds}secs`}
+                        <div style={{ fontSize: '14px', whiteSpace: 'nowrap' }}>
+                          {/* {activePipeline.spentSeconds >= 60 ? `${Number(activePipeline.spentSeconds / 60).toFixed(2)}mins` : `${activePipeline.spentSeconds}secs`} */}
+                          {activePipeline.status === 'TASK_RUNNING' ? dayjs(activePipeline.CreatedAt).toNow(true) : dayjs(activePipeline.UpdatedAt).from(activePipeline.CreatedAt, true)}
                         </div>
                       </div>
                       <div className='pipeline-actions' style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
@@ -267,8 +305,77 @@ const PipelineActivity = (props) => {
                   <h2 className='headline'>
                     <Icon icon='layers' height={16} size={16} color='rgba(0,0,0,0.5)' /> Stages and Tasks
                   </h2>
-                  <p>Monitor <strong>Duration</strong> and <strong>Progress</strong> for all tasks. <strong>Grafana</strong> access will be  enabled when the pipeline completes.</p>
-                  <h3 style={{ fontSize: '20px' }}>Stage 1</h3>
+                  <p>Monitor <strong>Duration</strong> and <strong>Progress</strong> completion for all tasks. <strong>Grafana</strong> access will be  enabled when the pipeline completes.
+                    Warning messages will also be displayed here when present.
+                  </p>
+                  <Card elevation={Elevation.TWO} style={{ display: 'flex', padding: 0 }}>
+
+                    <ButtonGroup style={{ backgroundColor: 'transparent' }}>
+                      <Button active>
+                        <h3 style={{ margin: 0, fontSize: '20px' }}>
+                          Stage 1
+                        </h3>
+                      </Button>
+                      <Button disabled><h3 style={{ margin: 0, fontSize: '20px' }}>Stage 2</h3></Button>
+                      <Button
+                        minimal
+                        style={{
+                          marginLeft: '1px',
+                          background: '#ffffff!!important',
+                          width: 0,
+                          height: 0,
+                          borderTop: '16px solid transparent',
+                          borderBottom: '16px solid transparent',
+                          borderLeft: '16px solid rgba(206, 217, 224, 0.5)'
+                        }}
+                      />
+                    </ButtonGroup>
+                    <h3 style={{
+                      textTransform: 'uppercase',
+                      lineHeight: '33px',
+                      margin: 0,
+                      fontFamily: 'Montserrat',
+                      fontWeight: 800,
+                      letterSpacing: '2px'
+                    }}
+                    >Finished Tasks &middot; <span style={{ color: Colors.GREEN5 }}>{activePipeline.finishedTasks}</span>
+                      <em style={{ color: '#dddddd', padding: '0 4px', textTransform: 'lowercase' }}>/</em>{activePipeline.totalTasks}
+                    </h3>
+                    <div style={{ display: 'flex', fontSize: '16px', fontWeight: 700, marginLeft: 'auto', lineHeight: '33px', padding: '0 10px' }}>
+                      {(() => {
+                        let statusIcon = null
+                        switch (activePipeline.status) {
+                          case 'TASK_COMPLETED':
+                            statusIcon = (
+                              <Icon
+                                icon={<PipelineCompleteIcon width={24} height={24} style={{ margin: '0 6px 0 10px', display: 'flex', alignSelf: 'center' }} />}
+                                size={24}
+                              />
+                            )
+                            break
+                          case 'TASK_FAILED':
+                            statusIcon = (
+                              <Icon
+                                icon={<PipelineFailedIcon width={24} height={24} style={{ margin: '0 6px 0 10px', display: 'flex', alignSelf: 'center' }} />}
+                                size={24}
+                              />
+                            )
+                            break
+                          case 'TASK_RUNNING':
+                          default:
+                            statusIcon = (
+                              <Icon
+                                icon={<PipelineRunningIcon width={24} height={24} style={{ margin: '0 6px 0 10px', display: 'flex', alignSelf: 'center' }} />}
+                                size={24}
+                              />
+                            )
+                            break
+                        }
+                        return statusIcon
+                      })()}
+                      {Number((activePipeline.finishedTasks / activePipeline.totalTasks) * 100).toFixed(1)}%
+                    </div>
+                  </Card>
                   <div style={{
                     paddingTop: '7px',
                     // borderTop: '1px solid #f5f5f5',
@@ -278,7 +385,7 @@ const PipelineActivity = (props) => {
                   >
                     {activePipeline?.ID && activePipeline.tasks && activePipeline.tasks.map((t, tIdx) => (
                       <div
-                        className='pipeline-task-'
+                        className='pipeline-task-row'
                         key={`pipeline-task-key-${tIdx}`}
                         style={{ display: 'flex', padding: '4px 6px', justifyContent: 'space-between', fontSize: '14px' }}
                       >
@@ -298,7 +405,10 @@ const PipelineActivity = (props) => {
                             />
                           )}
                         </div>
-                        <div style={{ padding: '0 8px', width: '30%', display: 'flex', justifyContent: 'space-between' }}>
+                        <div
+                          className='pipeline-task-cell-name'
+                          style={{ padding: '0 8px', width: '20%', display: 'flex', justifyContent: 'space-between' }}
+                        >
                           <strong
                             className='task-plugin-name'
                             style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}
@@ -355,24 +465,50 @@ const PipelineActivity = (props) => {
                             <Icon icon='warning-sign' size={11} color={Colors.RED5} style={{ marginLeft: '5px', marginBottom: '3px' }} />
                           )} */}
                         </div>
-                        <div style={{
-                          padding: '0',
-                          minWidth: '80px',
-                          textAlign: 'right'
-                        }}
-                        ><span>{t.spentSeconds >= 60 ? `${Number(t.spentSeconds / 60).toFixed(2)}mins` : `${t.spentSeconds}secs`}</span>
+                        <div
+                          className='pipeline-task-cell-duration'
+                          style={{
+                            padding: '0',
+                            minWidth: '80px',
+                            // whiteSpace: 'nowrap',
+                            textAlign: 'right'
+                          }}
+                        >
+                          {/* <span>{t.spentSeconds >= 60 ? `${Number(t.spentSeconds / 60).toFixed(2)}mins` : `${t.spentSeconds}secs`}</span> */}
+                          <span style={{ whiteSpace: 'nowrap' }}>
+                            {/* {t.status === 'TASK_COMPLETED' ? dayjs(t.UpdatedAt).from(t.CreatedAt, true) : dayjs(t.CreatedAt).toNow(true)} */}
+                            {(() => {
+                              let statusRelativeTime = dayjs(t.CreatedAt).toNow(true)
+                              switch (t.status) {
+                                case 'TASK_COMPLETED':
+                                case 'TASK_FAILED':
+                                  statusRelativeTime = dayjs(t.UpdatedAt).from(t.CreatedAt, true)
+                                  break
+                                case 'TASK_RUNNING':
+                                default:
+                                  statusRelativeTime = dayjs(t.CreatedAt).toNow(true)
+                                  break
+                              }
+                              return statusRelativeTime
+                            })()}
+                          </span>
                         </div>
-                        <div style={{
-                          padding: '0 8px',
-                          minWidth: '100px',
-                          textAlign: 'right'
-                        }}
+                        <div
+                          className='pipeline-task-cell-progress'
+                          style={{
+                            padding: '0 8px',
+                            minWidth: '100px',
+                            textAlign: 'right'
+                          }}
                         >
                           <span style={{ fontWeight: t.status === 'TASK_COMPLETED' ? 800 : 600 }}>
                             {Number(t.status === 'TASK_COMPLETED' ? 100 : (t.progress / 1) * 100).toFixed(2)}%
                           </span>
                         </div>
-                        <div style={{ width: '70%', paddingLeft: '10px', fontSize: '12px' }}>
+                        <div
+                          className='pipeline-task-cell-message'
+                          style={{ width: '70%', paddingLeft: '10px', fontSize: '12px' }}
+                        >
                           {t.plugin !== 'jenkins' && (
                             <>
                               <span style={{ color: Colors.GRAY2 }}>
@@ -383,7 +519,13 @@ const PipelineActivity = (props) => {
                               )}
                             </>
                           )}
-                          {t.message && (<><span style={{ color: t.status === 'TASK_FAILED' ? Colors.RED4 : Colors.GRAY3, paddingLeft: '10px' }}>{t.message}</span></>)}
+                          {t.message && (
+                            <>
+                              <span style={{ color: t.status === 'TASK_FAILED' ? Colors.RED4 : Colors.GRAY3, paddingLeft: '10px' }}>
+                                {t.message}
+                              </span>
+                            </>
+                          )}
                         </div>
                       </div>
                     ))}
@@ -402,7 +544,17 @@ const PipelineActivity = (props) => {
                         <JenkinsProviderIcon width={24} height={24} />
                       </div>
                       <div>
-                        <label>Auto</label><br />
+                        <label style={{
+                          lineHeight: '100%',
+                          display: 'block',
+                          fontSize: '14px',
+                          marginTop: '0',
+                          marginBottom: '10px'
+                        }}
+                        >
+                          <strong style={{ fontSize: '11px', fontFamily: 'Montserrat', fontWeight: 800 }}>Jenkins</strong>
+                          <br />Auto-configured
+                        </label>
                         <span style={{ color: Colors.GRAY3 }}>(No Settings)</span>
                       </div>
                     </div>
@@ -411,7 +563,15 @@ const PipelineActivity = (props) => {
                         <JiraProviderIcon width={24} height={24} />
                       </div>
                       <div>
-                        <label style={{ display: 'block', fontSize: '14px', marginTop: '3px', marginBottom: '10px' }}>Board IDs</label>
+                        <label style={{
+                          lineHeight: '100%',
+                          display: 'block',
+                          fontSize: '14px',
+                          marginTop: '0',
+                          marginBottom: '10px'
+                        }}
+                        ><strong style={{ fontSize: '11px', fontFamily: 'Montserrat', fontWeight: 800 }}>JIRA</strong><br />Board IDs
+                        </label>
                         {activePipeline.tasks.filter(t => t.plugin === 'jira').map((t, tIdx) => (
                           <div key={`board-id-key-${tIdx}`}>
                             <Icon icon='nest' size={12} color={Colors.GRAY4} style={{ marginRight: '6px' }} />
@@ -427,7 +587,15 @@ const PipelineActivity = (props) => {
                         <GitlabProviderIcon width={24} height={24} />
                       </div>
                       <div>
-                        <label style={{ display: 'block', fontSize: '14px', marginTop: '3px', marginBottom: '10px' }}>Project IDs</label>
+                        <label style={{
+                          lineHeight: '100%',
+                          display: 'block',
+                          fontSize: '14px',
+                          marginTop: '0',
+                          marginBottom: '10px'
+                        }}
+                        ><strong style={{ fontSize: '11px', fontFamily: 'Montserrat', fontWeight: 800 }}>GitLab</strong><br />Project IDs
+                        </label>
                         {activePipeline.tasks.filter(t => t.plugin === 'gitlab').map((t, tIdx) => (
                           <div key={`project-id-key-${tIdx}`}>
                             <Icon icon='nest' size={12} color={Colors.GRAY4} style={{ marginRight: '6px' }} />
@@ -443,7 +611,9 @@ const PipelineActivity = (props) => {
                         <GitHubProviderIcon width={24} height={24} />
                       </div>
                       <div>
-                        <label style={{ display: 'block', fontSize: '14px', marginTop: '3px', marginBottom: '10px' }}>Repositories</label>
+                        <label style={{ lineHeight: '100%', display: 'block', fontSize: '14px', marginTop: '0', marginBottom: '10px' }}>
+                          <strong style={{ fontSize: '11px', fontFamily: 'Montserrat', fontWeight: 800 }}>GitHub</strong><br />Repositories
+                        </label>
                         {activePipeline.tasks.filter(t => t.plugin === 'github').map((t, tIdx) => (
                           <div key={`repostitory-id-key-${tIdx}`}>
                             <Icon icon='nest' size={12} color={Colors.GRAY4} style={{ marginRight: '6px' }} />
@@ -463,7 +633,7 @@ const PipelineActivity = (props) => {
             {!pipelineId && (
               <Card elevation={Elevation.TWO} style={{ display: 'flex', alignSelf: 'flex-start' }}>
                 <div style={{ display: 'flex', alignSelf: 'flex-start', flexDirection: 'column' }}>
-                  <h2 style={{ margin: '0 0 12px 0'}}><Icon icon='warning-sign' color={Colors.RED4} size={16} style={{ marginBottom: '4px' }} /> Pipeline Run ID <strong>Missing</strong>...</h2>
+                  <h2 style={{ margin: '0 0 12px 0' }}><Icon icon='warning-sign' color={Colors.RED4} size={16} style={{ marginBottom: '4px' }} /> Pipeline Run ID <strong>Missing</strong>...</h2>
                   <p>Please provide a Pipeline ID to load Run activity and details.<br /> Check the Address URL in your Browser and try again.</p>
                 </div>
               </Card>
