@@ -89,15 +89,10 @@ func GetSource(input *core.ApiResourceInput) (*core.ApiResourceOutput, error) {
 }
 
 func GetSourceFromEnv() (*JenkinsSource, error) {
-	// or just read from env using V.Get
-	configJson, err := config.GetConfigJson()
-	if err != nil {
-		return nil, err
-	}
 	return &JenkinsSource{
-		Endpoint: configJson["JENKINS_ENDPOINT"],
-		Username: configJson["JENKINS_USERNAME"],
-		Password: configJson["JENKINS_PASSWORD"],
+		Endpoint: config.V.GetString("JENKINS_ENDPOINT"),
+		Username: config.V.GetString("JENKINS_USERNAME"),
+		Password: config.V.GetString("JENKINS_PASSWORD"),
 		// The UI relies on a source ID here but we will hardcode it until the sources work is done for Jenkins
 		ID:   1,
 		Name: "Jenkins",
