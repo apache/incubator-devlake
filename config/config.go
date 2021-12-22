@@ -10,6 +10,7 @@ type Config struct {
 	DB_PASS                            string `mapstructure:"DB_PASS"`
 	DB_HOST                            string `mapstructure:"DB_HOST"`
 	DB_PORT                            string `mapstructure:"DB_PORT"`
+	DB_DRIVER                          string `mapstructure:"DB_DRIVER"`
 	DB_NAME                            string `mapstructure:"DB_NAME"`
 	DB_PARAMS                          string `mapstructure:"DB_PARAMS"`
 	MODE                               string `mapstructure:"MODE"`
