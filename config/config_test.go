@@ -15,18 +15,18 @@ func TestReadAndWriteToConfig(t *testing.T) {
 	// Verify new value is not equal to current value
 	configJson, err := GetConfigJson()
 	assert.Equal(t, err == nil, true)
-	currentDbUrl := configJson.DB_URL
-	newDbUrl := "ThisIsATest"
-	assert.Equal(t, currentDbUrl != newDbUrl, true)
+	currentTestVar := configJson["test_var"]
+	newTestVar := "true"
+	assert.Equal(t, currentTestVar != newTestVar, true)
 	V := LoadConfigFile()
-	V.Set("DB_URL", newDbUrl)
+	V.Set("TEST_VAR", newTestVar)
 	err = V.WriteConfig()
 	assert.Equal(t, err == nil, true)
 	newConfigJson, err := GetConfigJson()
 	assert.Equal(t, err == nil, true)
-	assert.Equal(t, newConfigJson.DB_URL, newDbUrl)
+	assert.Equal(t, newConfigJson["test_var"], newTestVar)
 	// Reset back to current
-	V.Set("DB_URL", currentDbUrl)
+	V.Set("TEST_VAR", currentTestVar)
 	err = V.WriteConfig()
 	assert.Equal(t, err == nil, true)
 }
