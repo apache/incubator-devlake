@@ -31,7 +31,7 @@ func GolangMigrateDBString(pluginName string) string {
 }
 
 // Run the migration folder for all plugins that have a compiled .so file
-func RunPluginMigrations(dbName string, pluginsDir string) error {
+func RunPluginMigrations(dbName string, pluginsDir string) {
 	walkErr := filepath.WalkDir(pluginsDir, func(path string, d fs.DirEntry, err error) error {
 		if err != nil {
 			return err
@@ -43,11 +43,13 @@ func RunPluginMigrations(dbName string, pluginsDir string) error {
 		}
 		return nil
 	})
-	return walkErr
+	if walkErr != nil {
+		fmt.Println("ERROR >>> walkErr", walkErr)
+	}
 }
 
 // Run the plugins/<pluginName>/migration folder in order
-func RunPluginMigrationsUp(dbName string, pluginName string) error {
+func RunPluginMigrationsUp(dbName string, pluginName string) {
 	connectionString := GolangMigrateDBString(pluginName)
 	path := fmt.Sprintf("file://./plugins/%v/migration", pluginName)
 
@@ -55,14 +57,11 @@ func RunPluginMigrationsUp(dbName string, pluginName string) error {
 
 	if err != nil {
 		fmt.Println("INFO: Could not init migrate for UP: ", pluginName, err)
-		return err
 	}
 	err = m.Up()
 	if err != nil {
 		fmt.Println("INFO: Could not run migrations UP: ", pluginName, err)
-		return err
 	}
-	return nil
 }
 
 func RunDomainLayerMigrationsUp(dbName string) error {
@@ -82,7 +81,7 @@ func RunDomainLayerMigrationsUp(dbName string) error {
 	return nil
 }
 
-func RunMigrationsDown(dbName string) error {
+func RunDomainLayerMigrationsDown(dbName string) error {
 	m, err := migrate.New(
 		MIGRATIONS_PATH,
 		GetConnectionString("", true))

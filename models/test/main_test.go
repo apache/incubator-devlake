@@ -22,11 +22,11 @@ func TestMain(m *testing.M) {
 }
 
 func setup() error {
-	err := db.RunMigrationsDown("lake_test")
+	err := db.RunDomainLayerMigrationsDown("lake_test")
 	if err != nil {
 		return err
 	}
-	err = db.RunMigrationsUp("lake_test")
+	err = db.RunDomainLayerMigrationsUp("lake_test")
 	if err != nil {
 		return err
 	}
