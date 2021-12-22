@@ -8,10 +8,10 @@ import (
 
 func GetConnectionString(dbParams string, includeDriver bool) string {
 	user := config.V.GetString("DB_USER")
-	pass := config.V.GetString("DB_PASS")
+	pass := config.V.GetString("DB_PASSWORD")
 	host := config.V.GetString("DB_HOST")
 	port := config.V.GetString("DB_PORT")
-	name := config.V.GetString("DB_NAME")
+	name := config.V.GetString("DB_DATABASE")
 	driver := config.V.GetString("DB_DRIVER")
 
 	fmt.Println("JON >>> user", user)

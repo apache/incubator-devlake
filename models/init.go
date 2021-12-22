@@ -19,6 +19,7 @@ func init() {
 	config.LoadConfigFile()
 
 	connectionString := lakeDb.GetConnectionString("", false)
+
 	if config.V.Get("TEST") == "true" {
 		connectionString = "merico:merico@tcp(localhost:3306)/lake_test"
 	}

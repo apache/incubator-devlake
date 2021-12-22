@@ -35,10 +35,10 @@ func Set(ctx *gin.Context) {
 	// TODO: Lets find a way to make this not have to be changed so much
 	V.Set("PORT", data.PORT)
 	V.Set("DB_USER", data.DB_USER)
-	V.Set("DB_PASS", data.DB_PASS)
+	V.Set("DB_PASSWORD", data.DB_PASSWORD)
 	V.Set("DB_HOST", data.DB_HOST)
 	V.Set("DB_PORT", data.DB_PORT)
-	V.Set("DB_NAME", data.DB_NAME)
+	V.Set("DB_DATABASE", data.DB_DATABASE)
 	V.Set("DB_DRIVER", data.DB_DRIVER)
 	V.Set("DB_PARAMS", data.DB_PARAMS)
 	V.Set("MODE", data.MODE)
