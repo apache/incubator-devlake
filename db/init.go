@@ -56,11 +56,11 @@ func RunPluginMigrationsUp(dbName string, pluginName string) {
 	m, err := migrate.New(path, connectionString)
 
 	if err != nil {
-		fmt.Println("INFO: Could not init migrate for UP: ", pluginName, err)
+		fmt.Println("INFO: RunPluginMigrationsUp: Could not init migrate for UP: ", pluginName, err)
 	}
 	err = m.Up()
 	if err != nil {
-		fmt.Println("INFO: Could not run migrations UP: ", pluginName, err)
+		fmt.Println("INFO: RunPluginMigrationsUp: Could not run migrations UP: ", pluginName, err)
 	}
 }
 
@@ -70,12 +70,12 @@ func RunDomainLayerMigrationsUp(dbName string) error {
 		GetConnectionString("", true))
 
 	if err != nil {
-		fmt.Println("INFO: Could not init migrate for UP: ", err)
+		fmt.Println("INFO: RunDomainLayerMigrationsUp: Could not init migrate for UP: ", err)
 		return err
 	}
 	err = m.Up()
 	if err != nil {
-		fmt.Println("INFO: Could not run migrations UP: ", err)
+		fmt.Println("INFO: RunDomainLayerMigrationsUp: Could not run migrations UP: ", err)
 		return err
 	}
 	return nil
@@ -87,12 +87,12 @@ func RunDomainLayerMigrationsDown(dbName string) error {
 		GetConnectionString("", true))
 
 	if err != nil {
-		fmt.Println("INFO: Could not init migrate for DOWN: ", err)
+		fmt.Println("INFO: RunDomainLayerMigrationsDown: Could not init migrate for DOWN: ", err)
 		return err
 	}
 	err = m.Down()
 	if err != nil {
-		fmt.Println("INFO: Could not run migrations DOWN: ", err)
+		fmt.Println("INFO: RunDomainLayerMigrationsDown: Could not run migrations DOWN: ", err)
 		return err
 	}
 	return nil

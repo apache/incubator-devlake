@@ -36,6 +36,7 @@ func init() {
 	)
 
 	fmt.Println("JON >>> connectionString", connectionString)
+
 	Db, err = gorm.Open(mysql.Open(connectionString), &gorm.Config{
 		Logger: newLogger,
 	})
