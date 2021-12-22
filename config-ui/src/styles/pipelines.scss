@@ -206,6 +206,28 @@
   transition: opacity 300ms, transform 300ms;
 }
 
+.activity-panel-enter {
+  transform: rotateX(-50deg);
+  opacity: 0.6;
+  transition: opacity 300ms, transform 300ms;
+}
+
+.activity-panel-enter-done {
+  transform: rotateX(0deg);
+  opacity: 1;
+  transition: opacity 300ms, transform 300ms;
+}
+
+.activity-panel-exit {
+  transform: rotateX(20deg);
+  transition: opacity 300ms, transform 300ms;
+}
+
+.activity-panel-exit-active {
+  transform: rotateX(40deg);
+  transition: opacity 300ms, transform 300ms;
+}
+
 .bp3-spinner {
   &.lastrun-spinner {
     position: absolute;
@@ -242,16 +264,16 @@
     border: 1px solid darken(#FF6D6D, 5%);
     box-shadow: 0px 0px 3px rgba(0, 0, 0, 0.35);
     border-radius: 6px;
-    font-family: 'Montserrat', sans-serif;
+    // font-family: 'Montserrat', sans-serif;
     font-style: normal;
     font-weight: 900;
-    font-size: 11px;
+    // font-size: 11px;
     color: #ffffff;
 
-    &:hover {
-      background-color: darken(#FFA8A8, 10%);
-      border: 1px solid darken(#FF6D6D, 10%);
-      box-shadow: 0px 0px 6px rgba(0, 0, 0, 0.40);
+    &:hover,:active,&.bp3-active {
+      background-color: darken(#FFA8A8, 10%)!important;
+      border: 1px solid darken(#FF6D6D, 10%)!important;
+      box-shadow: 0px 0px 6px rgba(0, 0, 0, 0.40)!important;
     }
   }
 
@@ -261,13 +283,13 @@
     // border: 1px solid darken(#6dd6ff, 5%);
     box-shadow: 0px 0px 3px rgba(0, 0, 0, 0.35);
     border-radius: 6px;
-    font-family: 'Montserrat', sans-serif;
+    // font-family: 'Montserrat', sans-serif;
     font-style: normal;
     font-weight: 900;
-    font-size: 11px;
+    // font-size: 11px;
     color: #ffffff;
 
-    &:hover {
+    &:hover,:active,&.bp3-active {
       // background-color: darken(#a8d8ff, 15%);
       // border: 1px solid darken(#6dd6ff, 15%);
       box-shadow: 0px 0px 6px rgba(0, 0, 0, 0.40);

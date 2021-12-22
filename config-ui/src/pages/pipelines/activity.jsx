@@ -36,6 +36,7 @@ import { ReactComponent as GitHubProviderIcon } from '@/images/integrations/gith
 import { ReactComponent as PipelineRunningIcon } from '@/images/synchronize.svg'
 import { ReactComponent as PipelineFailedIcon } from '@/images/no-synchronize.svg'
 import { ReactComponent as PipelineCompleteIcon } from '@/images/check-circle.svg'
+import { ReactComponent as HelpIcon } from '@/images/help.svg'
 
 const PipelineActivity = (props) => {
   const history = useHistory()
@@ -49,6 +50,7 @@ const PipelineActivity = (props) => {
   // const [autoRefresh, setAutoRefresh] = useState(true)
 
   const [showInspector, setShowInspector] = useState(false)
+  const [pipelineReady, setPipelineReady] = useState(false)
 
   const {
     runPipeline,
@@ -109,9 +111,9 @@ const PipelineActivity = (props) => {
     console.log('>>> TASKS KEY', activePipeline.tasks)
   }, [])
 
-  // useEffect(() => {
-
-  // }, [pipelineId, fetchPipeline])
+  useEffect(() => {
+    setPipelineReady(activePipeline.ID !== null && !isFetching)
+  }, [activePipeline.ID, isFetching])
 
   return (
     <>
@@ -124,7 +126,7 @@ const PipelineActivity = (props) => {
               items={[
                 { href: '/', icon: false, text: 'Dashboard' },
                 { href: '/pipelines/create', icon: false, text: 'Pipelines', disabled: true },
-                { href: `/pipelines/activity/${pipelineId}`, icon: false, text: 'Pipeline Activity', current: true },
+                { href: `/pipelines/activity/${pipelineId}`, icon: false, text: 'Pipeline Activity & Details', current: true },
               ]}
             />
             <div className='headlineContainer'>
@@ -149,6 +151,26 @@ const PipelineActivity = (props) => {
                         </span>
                       </>
                     )}
+                    <Popover
+                      className='trigger-pipeline-activity-help'
+                      popoverClassName='popover-help-pipeline-activity'
+                      position={Position.RIGHT}
+                      autoFocus={false}
+                      enforceFocus={false}
+                      usePortal={false}
+                    >
+                      <a href='#' rel='noreferrer'><HelpIcon width={19} height={19} style={{ marginLeft: '10px' }} /></a>
+                      <>
+                        <div style={{ textShadow: 'none', fontSize: '12px', padding: '12px', maxWidth: '300px' }}>
+                          <div style={{ marginBottom: '10px', fontWeight: 700, fontSize: '14px', fontFamily: '"Montserrat", sans-serif' }}>
+                            <Icon icon='help' size={16} /> Pipeline RUN Activity
+                          </div>
+                          <p>Need Help? &mdash; For better accuracy, ensure that all of your Data Integrations
+                            successfully pass the <strong>Connection Test</strong>.
+                          </p>
+                        </div>
+                      </>
+                    </Popover>
                   </h1>
                   <p className='page-description mb-0'>View the collection stages for a Pipeline  Run.</p>
                   <p style={{ margin: '0 0 36px 0', padding: 0 }}>
@@ -163,142 +185,149 @@ const PipelineActivity = (props) => {
             {!isFetching && activePipeline?.ID && (
               <>
                 <div style={{ marginBottom: '24px', width: '100%' }}>
-                  <Card
-                    className='pipeline-activity-card'
-                    elevation={Elevation.TWO}
-                    style={{ width: '100%', display: 'flex', }}
+                  <CSSTransition
+                    in={pipelineReady}
+                    timeout={300}
+                    classNames='activity-panel'
+                    unmountOnExit
                   >
-                    <div
-                      className='pipeline-activity' style={{
-                        display: 'flex',
-                        width: '100%',
-                        justifyContent: 'space-between'
-                      }}
+                    <Card
+                      className='pipeline-activity-card'
+                      elevation={Elevation.TWO}
+                      style={{ width: '100%', display: 'flex', }}
                     >
+                      <div
+                        className='pipeline-activity' style={{
+                          display: 'flex',
+                          width: '100%',
+                          justifyContent: 'space-between'
+                        }}
+                      >
 
-                      <div className='pipeline-info' style={{ paddingRight: '12px' }}>
-                        <h2 className='headline' style={{ marginTop: '0' }}>
-                          <span
-                            className='pipeline-name'
-                            style={{
-                              textOverflow: 'ellipsis',
-                              overflow: 'hidden',
-                              whiteSpace: 'nowrap',
-                              display: 'block',
-                              maxWidth: '430px',
-                              color: activePipeline.status === 'TASK_FAILED' ? Colors.RED4 : ''
-                            }}
-                          >{activePipeline.name || 'Unamed Collection'}
-                          </span>
-                        </h2>
-                        <div className='pipeline-timestamp'>
-                          2021-12-08 08:00 AM (UTC)
+                        <div className='pipeline-info' style={{ paddingRight: '12px' }}>
+                          <h2 className='headline' style={{ marginTop: '0' }}>
+                            <span
+                              className='pipeline-name'
+                              style={{
+                                textOverflow: 'ellipsis',
+                                overflow: 'hidden',
+                                whiteSpace: 'nowrap',
+                                display: 'block',
+                                maxWidth: '430px',
+                                color: activePipeline.status === 'TASK_FAILED' ? Colors.RED4 : ''
+                              }}
+                            >{activePipeline.name || 'Unamed Collection'}
+                            </span>
+                          </h2>
+                          <div className='pipeline-timestamp'>
+                            2021-12-08 08:00 AM (UTC)
+                          </div>
+                          {/* <div>
+                    <label>Run Date (UTC)</label>
+                    <div>2021-12-08 08:00 AM</div>
+                  </div> */}
                         </div>
-                        {/* <div>
-                  <label>Run Date (UTC)</label>
-                  <div>2021-12-08 08:00 AM</div>
-                </div> */}
-                      </div>
-                      <div className='pipeline-status' style={{ paddingRight: '12px' }}>
-                        <label style={{ color: Colors.GRAY3 }}>Status</label>
-                        <div style={{ fontSize: '14px', display: 'flex' }}>
-                          <span style={{ marginRight: '4px', color: activePipeline.status === 'TASK_RUNNING' ? '#0066FF' : '' }}>
-                            {activePipeline.status}
-                          </span>
-                          {activePipeline.status === 'TASK_FAILED' && (
-                            <Icon
-                              icon='warning-sign' size={16}
-                              color={Colors.RED5} style={{ alignSelf: 'flex-start', marginLeft: '5px', marginBottom: '2px' }}
-                            />
-                          )}
+                        <div className='pipeline-status' style={{ paddingRight: '12px' }}>
+                          <label style={{ color: Colors.GRAY3 }}>Status</label>
+                          <div style={{ fontSize: '14px', display: 'flex' }}>
+                            <span style={{ marginRight: '4px', color: activePipeline.status === 'TASK_RUNNING' ? '#0066FF' : '' }}>
+                              {activePipeline.status}
+                            </span>
+                            {activePipeline.status === 'TASK_FAILED' && (
+                              <Icon
+                                icon='warning-sign' size={16}
+                                color={Colors.RED5} style={{ alignSelf: 'flex-start', marginLeft: '5px', marginBottom: '2px' }}
+                              />
+                            )}
+                            {activePipeline.status === 'TASK_COMPLETED' && (
+                              <Icon
+                                icon='tick' size={16}
+                                color={Colors.GREEN5} style={{ alignSelf: 'flex-start', marginLeft: '5px', marginBottom: '2px' }}
+                              />
+                            )}
+                            {activePipeline.status === 'TASK_RUNNING' && (
+                              <Spinner
+                                className='pipeline-status-spinner'
+                                size={14}
+                                intent={activePipeline.status === 'TASK_COMPLETED' ? 'success' : 'danger'}
+                                value={activePipeline.status === 'TASK_COMPLETED' ? 1 : null}
+                              />
+                            )}
+                          </div>
+                        </div>
+                        <div className='pipeline-duration' style={{ paddingRight: '12px' }}>
+                          <label style={{ color: Colors.GRAY3 }}>Duration</label>
+                          <div style={{ fontSize: '14px', whiteSpace: 'nowrap' }}>
+                            {/* {activePipeline.spentSeconds >= 60 ? `${Number(activePipeline.spentSeconds / 60).toFixed(2)}mins` : `${activePipeline.spentSeconds}secs`} */}
+                            {activePipeline.status === 'TASK_RUNNING' ? dayjs(activePipeline.CreatedAt).toNow(true) : dayjs(activePipeline.UpdatedAt).from(activePipeline.CreatedAt, true)}
+                          </div>
+                        </div>
+                        <div className='pipeline-actions' style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
                           {activePipeline.status === 'TASK_COMPLETED' && (
-                            <Icon
-                              icon='tick' size={16}
-                              color={Colors.GREEN5} style={{ alignSelf: 'flex-start', marginLeft: '5px', marginBottom: '2px' }}
-                            />
+                            <a
+                              className='bp3-button bp3-intent-primary'
+                              href={GRAFANA_URL}
+                              target='_blank'
+                              rel='noreferrer'
+                              style={{ backgroundColor: '#3bd477', color: '#ffffff' }}
+                            >
+                              <Icon icon='doughnut-chart' size={13} /> <span className='bp3-button-text'>Grafana</span>
+                            </a>
                           )}
                           {activePipeline.status === 'TASK_RUNNING' && (
-                            <Spinner
-                              className='pipeline-status-spinner'
-                              size={14}
-                              intent={activePipeline.status === 'TASK_COMPLETED' ? 'success' : 'danger'}
-                              value={activePipeline.status === 'TASK_COMPLETED' ? 1 : null}
+                            <Popover
+                              key='popover-help-key-cancel-run'
+                              className='trigger-pipeline-cancel'
+                              popoverClassName='popover-pipeline-cancel'
+                              position={Position.BOTTOM}
+                              autoFocus={false}
+                              enforceFocus={false}
+                              usePortal={false}
+                              disabled={activePipeline.status !== 'TASK_RUNNING'}
+                            >
+                              <Button
+                                className={`btn-cancel-pipeline${activePipeline.status !== 'TASK_RUNNING' ? '-disabled' : ''}`}
+                                icon='stop' text='CANCEL' intent={activePipeline.status !== 'TASK_RUNNING' ? '' : 'primary'}
+                                disabled={activePipeline.status !== 'TASK_RUNNING'}
+                              />
+                              <>
+                                <div style={{ fontSize: '12px', padding: '12px', maxWidth: '200px' }}>
+                                  <p>Are you Sure you want to cancel this <strong>Run</strong>?</p>
+                                  <div style={{ display: 'flex', width: '100%', justifyContent: 'flex-end' }}>
+                                    <Button
+                                      text='CANCEL' minimal
+                                      small className={Classes.POPOVER_DISMISS}
+                                      stlye={{ marginLeft: 'auto', marginRight: '3px' }}
+                                    />
+                                    <Button
+                                      text='YES' icon='small-tick' intent={Intent.DANGER} small
+                                      onClick={() => cancelPipeline(activePipeline.ID)}
+                                    />
+                                  </div>
+                                </div>
+                              </>
+                            </Popover>
+                          )}
+                          {activePipeline.status === 'TASK_FAILED' && (
+                            <Button
+                              className='btn-restart-pipeline'
+                              icon='reset'
+                              text='RESTART'
+                              intent='warning'
+                              disabled={activePipeline.status !== 'TASK_FAILED'}
                             />
                           )}
-                        </div>
-                      </div>
-                      <div className='pipeline-duration' style={{ paddingRight: '12px' }}>
-                        <label style={{ color: Colors.GRAY3 }}>Duration</label>
-                        <div style={{ fontSize: '14px', whiteSpace: 'nowrap' }}>
-                          {/* {activePipeline.spentSeconds >= 60 ? `${Number(activePipeline.spentSeconds / 60).toFixed(2)}mins` : `${activePipeline.spentSeconds}secs`} */}
-                          {activePipeline.status === 'TASK_RUNNING' ? dayjs(activePipeline.CreatedAt).toNow(true) : dayjs(activePipeline.UpdatedAt).from(activePipeline.CreatedAt, true)}
-                        </div>
-                      </div>
-                      <div className='pipeline-actions' style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-                        {activePipeline.status === 'TASK_COMPLETED' && (
-                          <a
-                            className='bp3-button bp3-intent-primary'
-                            href={GRAFANA_URL}
-                            target='_blank'
-                            rel='noreferrer'
-                            style={{ backgroundColor: '#3bd477', color: '#ffffff' }}
-                          >
-                            <Icon icon='doughnut-chart' size={13} /> <span className='bp3-button-text'>Grafana</span>
-                          </a>
-                        )}
-                        {activePipeline.status === 'TASK_RUNNING' && (
-                          <Popover
-                            key='popover-help-key-cancel-run'
-                            className='trigger-pipeline-cancel'
-                            popoverClassName='popover-pipeline-cancel'
-                            position={Position.BOTTOM}
-                            autoFocus={false}
-                            enforceFocus={false}
-                            usePortal={false}
-                            disabled={activePipeline.status !== 'TASK_RUNNING'}
-                          >
-                            <Button
-                              className={`btn-cancel-pipeline${activePipeline.status !== 'TASK_RUNNING' ? '-disabled' : ''}`}
-                              icon='stop' text='CANCEL' intent={activePipeline.status !== 'TASK_RUNNING' ? '' : 'primary'}
-                              disabled={activePipeline.status !== 'TASK_RUNNING'}
-                            />
-                            <>
-                              <div style={{ fontSize: '12px', padding: '12px', maxWidth: '200px' }}>
-                                <p>Are you Sure you want to cancel this <strong>Run</strong>?</p>
-                                <div style={{ display: 'flex', width: '100%', justifyContent: 'flex-end' }}>
-                                  <Button
-                                    text='CANCEL' minimal
-                                    small className={Classes.POPOVER_DISMISS}
-                                    stlye={{ marginLeft: 'auto', marginRight: '3px' }}
-                                  />
-                                  <Button
-                                    text='YES' icon='small-tick' intent={Intent.DANGER} small
-                                    onClick={() => cancelPipeline(activePipeline.ID)}
-                                  />
-                                </div>
-                              </div>
-                            </>
-                          </Popover>
-                        )}
-                        {activePipeline.status === 'TASK_FAILED' && (
                           <Button
-                            className='btn-restart-pipeline'
-                            icon='reset'
-                            text='RESTART'
-                            intent='warning'
-                            disabled={activePipeline.status !== 'TASK_FAILED'}
+                            icon='refresh'
+                            style={{ marginLeft: '5px' }}
+                            disabled={activePipeline.status === 'TASK_RUNNING' || activePipeline.status === 'TASK_FAILED'}
+                            minimal
                           />
-                        )}
-                        <Button
-                          icon='refresh'
-                          style={{ marginLeft: '5px' }}
-                          disabled={activePipeline.status === 'TASK_RUNNING' || activePipeline.status === 'TASK_FAILED'}
-                          minimal
-                        />
-                      </div>
+                        </div>
 
-                    </div>
-                  </Card>
+                      </div>
+                    </Card>
+                  </CSSTransition>
                   <p style={{ padding: '5px 3px', fontSize: '10px' }}>
                     {activePipeline.finishedTasks}/{activePipeline.totalTasks} Tasks Completed
                     <span style={{ padding: '0 2px' }}><Icon icon='dot' size={10} color={Colors.GRAY4} /></span>
@@ -313,74 +342,102 @@ const PipelineActivity = (props) => {
                   <p>Monitor <strong>Duration</strong> and <strong>Progress</strong> completion for all tasks. <strong>Grafana</strong> access will be  enabled when the pipeline completes.
                     Warning messages will also be displayed here when present.
                   </p>
-                  <Card elevation={Elevation.TWO} style={{ display: 'flex', padding: 0 }}>
+                  <CSSTransition
+                    in={pipelineReady}
+                    timeout={350}
+                    classNames='activity-panel'
+                    unmountOnExit
+                  >
+                    <Card
+                      elevation={Elevation.TWO}
+                      style={{ display: 'flex', padding: 0, backgroundColor: activePipeline.status === 'TASK_COMPLETED' ? 'rgba(245, 255, 250, 0.99)' : 'inherit' }}
+                    >
 
-                    <ButtonGroup style={{ backgroundColor: 'transparent' }}>
-                      <Button active>
-                        <h3 style={{ margin: 0, fontSize: '20px' }}>
-                          Stage 1
-                        </h3>
-                      </Button>
-                      <Button disabled><h3 style={{ margin: 0, fontSize: '20px' }}>Stage 2</h3></Button>
-                      <Button
-                        minimal
-                        style={{
-                          marginLeft: '1px',
-                          background: '#ffffff!!important',
-                          width: 0,
-                          height: 0,
-                          borderTop: '16px solid transparent',
-                          borderBottom: '16px solid transparent',
-                          borderLeft: '16px solid rgba(206, 217, 224, 0.5)'
-                        }}
-                      />
-                    </ButtonGroup>
-                    <h3 style={{
-                      textTransform: 'uppercase',
-                      lineHeight: '33px',
-                      margin: 0,
-                      fontFamily: 'Montserrat',
-                      fontWeight: 800,
-                      letterSpacing: '2px'
-                    }}
-                    >Finished Tasks &middot; <span style={{ color: Colors.GREEN5 }}>{activePipeline.finishedTasks}</span>
-                      <em style={{ color: '#dddddd', padding: '0 4px', textTransform: 'lowercase' }}>/</em>{activePipeline.totalTasks}
-                    </h3>
-                    <div style={{ display: 'flex', fontSize: '16px', fontWeight: 700, marginLeft: 'auto', lineHeight: '33px', padding: '0 10px' }}>
-                      {(() => {
-                        let statusIcon = null
-                        switch (activePipeline.status) {
-                          case 'TASK_COMPLETED':
-                            statusIcon = (
-                              <Icon
-                                icon={<PipelineCompleteIcon width={24} height={24} style={{ margin: '0 6px 0 10px', display: 'flex', alignSelf: 'center' }} />}
-                                size={24}
-                              />
-                            )
-                            break
-                          case 'TASK_FAILED':
-                            statusIcon = (
-                              <Icon
-                                icon={<PipelineFailedIcon width={24} height={24} style={{ margin: '0 6px 0 10px', display: 'flex', alignSelf: 'center' }} />}
-                                size={24}
-                              />
-                            )
-                            break
-                          case 'TASK_RUNNING':
-                          default:
-                            statusIcon = (
-                              <Icon
-                                icon={<PipelineRunningIcon width={24} height={24} style={{ margin: '0 6px 0 10px', display: 'flex', alignSelf: 'center' }} />}
-                                size={24}
-                              />
-                            )
-                            break
-                        }
-                        return statusIcon
-                      })()}
-                      {Number((activePipeline.finishedTasks / activePipeline.totalTasks) * 100).toFixed(1)}%
-                    </div>
-                  </Card>
+                      <ButtonGroup style={{ backgroundColor: 'transparent' }}>
+                        <Button minimal active style={{ backgroundColor: '#eeeeee' }}>
+                          <h3 style={{ margin: 0, fontSize: '20px' }}>
+                            Stage 1
+                          </h3>
+                        </Button>
+                        <Button
+                          minimal style={{
+                            backgroundColor: '#eeeeee',
+                            color: '#cccccc',
+                            fontSize: '35px',
+                            lineHeight: '20px',
+                            padding: 0,
+                            fontWeight: 100,
+                          }}
+                        >/
+                        </Button>
+                        <Button
+                          disabled style={{
+                            backgroundColor: '#eeeeee',
+                          }}
+                        ><h3 style={{ margin: 0, fontSize: '20px' }}>Stage 2</h3>
+                        </Button>
+                        <Button
+                          className='btn-stage-endcap'
+                          minimal
+                          style={{
+                            marginLeft: '1px',
+                            background: '#ffffff!!important',
+                            width: 0,
+                            height: 0,
+                            borderTop: '16px solid transparent',
+                            borderBottom: '16px solid transparent',
+                            borderLeft: '16px solid #eeeeee',
+                            pointerEvents: 'none'
+                          }}
+                        />
+                      </ButtonGroup>
+                      <h3 style={{
+                        textTransform: 'uppercase',
+                        lineHeight: '33px',
+                        margin: 0,
+                        fontFamily: 'Montserrat',
+                        fontWeight: 800,
+                        letterSpacing: '2px'
+                      }}
+                      >Finished Tasks &middot; <span style={{ color: Colors.GREEN5 }}>{activePipeline.finishedTasks}</span>
+                        <em style={{ color: '#dddddd', padding: '0 4px', textTransform: 'lowercase' }}>/</em>{activePipeline.totalTasks}
+                      </h3>
+                      <div style={{ display: 'flex', fontSize: '16px', fontWeight: 700, marginLeft: 'auto', lineHeight: '33px', padding: '0 10px' }}>
+                        {(() => {
+                          let statusIcon = null
+                          switch (activePipeline.status) {
+                            case 'TASK_COMPLETED':
+                              statusIcon = (
+                                <Icon
+                                  icon={<PipelineCompleteIcon width={24} height={24} style={{ margin: '0 6px 0 10px', display: 'flex', alignSelf: 'center' }} />}
+                                  size={24}
+                                />
+                              )
+                              break
+                            case 'TASK_FAILED':
+                              statusIcon = (
+                                <Icon
+                                  icon={<PipelineFailedIcon width={24} height={24} style={{ margin: '0 6px 0 10px', display: 'flex', alignSelf: 'center' }} />}
+                                  size={24}
+                                />
+                              )
+                              break
+                            case 'TASK_RUNNING':
+                            default:
+                              statusIcon = (
+                                <Icon
+                                  icon={<PipelineRunningIcon width={24} height={24} style={{ margin: '0 6px 0 10px', display: 'flex', alignSelf: 'center' }} />}
+                                  size={24}
+                                />
+                              )
+                              break
+                          }
+                          return statusIcon
+                        })()}
+                        {Number((activePipeline.finishedTasks / activePipeline.totalTasks) * 100).toFixed(1)}%
+                      </div>
+                    </Card>
+                  </CSSTransition>
                   <div style={{
                     paddingTop: '7px',
                     // borderTop: '1px solid #f5f5f5',
