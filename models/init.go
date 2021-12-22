@@ -36,6 +36,7 @@ func init() {
 	)
 
 	fmt.Println("JON >>> connectionString", connectionString)
+
 	Db, err = gorm.Open(mysql.Open(connectionString), &gorm.Config{
 		Logger: newLogger,
 	})
@@ -43,5 +44,6 @@ func init() {
 		fmt.Println("ERROR: >>> Mysql failed to connect")
 		panic(err)
 	}
+
 	lakeDb.MigrateDB("lake")
 }
