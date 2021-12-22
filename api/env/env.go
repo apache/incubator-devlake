@@ -39,6 +39,7 @@ func Set(ctx *gin.Context) {
 	V.Set("DB_HOST", data.DB_HOST)
 	V.Set("DB_PORT", data.DB_PORT)
 	V.Set("DB_NAME", data.DB_NAME)
+	V.Set("DB_DRIVER", data.DB_DRIVER)
 	V.Set("DB_PARAMS", data.DB_PARAMS)
 	V.Set("MODE", data.MODE)
 	V.Set("JIRA_ENDPOINT", data.JIRA_ENDPOINT)

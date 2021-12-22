@@ -6,7 +6,7 @@ import (
 	"github.com/merico-dev/lake/config"
 )
 
-func GetConnectionString(dbParams string) string {
+func GetConnectionString(dbParams string, includeDriver bool) string {
 	// For now, we only allow override of the params suffix
 
 	user := config.V.GetString("DB_USER")
@@ -14,6 +14,13 @@ func GetConnectionString(dbParams string) string {
 	host := config.V.GetString("DB_HOST")
 	port := config.V.GetString("DB_PORT")
 	name := config.V.GetString("DB_NAME")
+	driver := config.V.GetString("DB_DRIVER")
 	params := fmt.Sprintf("%v&%v", dbParams, config.V.GetString("DB_PARAMS"))
-	return fmt.Sprintf("%v:%v@tcp(%v:%v)/%v?%v", user, pass, host, port, name, params)
+	connectionString := fmt.Sprintf("%v:%v@tcp(%v:%v)/%v?%v", user, pass, host, port, name, params)
+
+	if includeDriver {
+		return fmt.Sprintf("%v://%v", driver, connectionString)
+	} else {
+		return connectionString
+	}
 }
