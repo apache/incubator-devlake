@@ -24,7 +24,7 @@ func GetFilePath() string {
 	}
 	exPath := filepath.Dir(ex)
 	fmt.Println("JON >>> exPath", exPath)
-	return fmt.Sprintf("file://%v/db/migration", exPath)
+	return fmt.Sprintf("file://%v/lake/db/migration", exPath)
 }
 
 func MigrateDB(dbName string) {
