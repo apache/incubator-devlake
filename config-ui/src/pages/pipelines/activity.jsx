@@ -1,16 +1,13 @@
-import React, { Fragment, useEffect, useCallback, useState, useRef } from 'react'
+import React, { Fragment, useEffect, useState, useRef } from 'react'
 import { CSSTransition } from 'react-transition-group'
 import { useHistory, useParams } from 'react-router-dom'
-import { ToastNotification } from '@/components/Toast'
 import { GRAFANA_URL } from '@/utils/config'
-import request from '@/utils/request'
 import * as dayjs from 'dayjs'
 import * as relativeTime from 'dayjs/plugin/relativeTime'
 import * as updateLocale from 'dayjs/plugin/updateLocale'
 import {
-  H2, Button, Icon, Intent,
-  ButtonGroup, InputGroup, Input,
-  Card, Elevation, Tag,
+  Button, Icon, Intent,
+  Card, Elevation,
   Popover,
   Tooltip,
   Position,
@@ -18,9 +15,8 @@ import {
   Colors,
   Drawer,
   DrawerSize,
-  TextArea,
-  Link,
-  Classes
+  Classes,
+  // ButtonGroup, InputGroup, Input, Tag,H2, TextArea,Link
 } from '@blueprintjs/core'
 import { integrationsData } from '@/data/integrations'
 import usePipelineManager from '@/hooks/usePipelineManager'
@@ -35,9 +31,7 @@ import { ReactComponent as GitlabProviderIcon } from '@/images/integrations/gitl
 import { ReactComponent as JenkinsProviderIcon } from '@/images/integrations/jenkins.svg'
 import { ReactComponent as JiraProviderIcon } from '@/images/integrations/jira.svg'
 import { ReactComponent as GitHubProviderIcon } from '@/images/integrations/github.svg'
-// import { ReactComponent as PipelineRunningIcon } from '@/images/synchronize.svg'
-// import { ReactComponent as PipelineFailedIcon } from '@/images/no-synchronize.svg'
-// import { ReactComponent as PipelineCompleteIcon } from '@/images/check-circle.svg'
+
 import { ReactComponent as HelpIcon } from '@/images/help.svg'
 
 const PipelineActivity = (props) => {
@@ -98,11 +92,7 @@ const PipelineActivity = (props) => {
   useEffect(() => {
     if (pipelineId) {
       fetchPipeline(pipelineId)
-      // @todo: ENABLE ACTIVITY POLLING
       setAutoRefresh(activePipeline.status === 'TASK_RUNNING')
-      // pollInterval.current = setInterval(() => {
-      //   fetchPipeline(pipelineId)
-      // }, pollTimer)
     }
 
     return () => {
@@ -240,10 +230,7 @@ const PipelineActivity = (props) => {
                           <div className='pipeline-timestamp'>
                             2021-12-08 08:00 AM (UTC)
                           </div>
-                          {/* <div>
-                    <label>Run Date (UTC)</label>
-                    <div>2021-12-08 08:00 AM</div>
-                  </div> */}
+
                         </div>
                         <div className='pipeline-status' style={{ paddingRight: '12px' }}>
                           <label style={{ color: Colors.GRAY3 }}>Status</label>
@@ -385,219 +372,17 @@ const PipelineActivity = (props) => {
                       <strong>Created </strong> {activePipeline.CreatedAt}
                     </div>
                     <div>
-                      {isFetching && (<span style={{ color: Colors.GREEN5 }}><Icon icon='updated' size={11} style={{ marginBottom: '2px' }} /> Refreshing Activity...</span>)}
+                      {isFetching && (
+                        <span style={{ color: Colors.GREEN5 }}>
+                          <Icon icon='updated' size={11} style={{ marginBottom: '2px' }} /> Refreshing Activity...
+                        </span>
+                      )}
                     </div>
                   </div>
                 </div>
 
-                <div className='stage-activity' style={{ alignSelf: 'flex-start', width: '100%' }}>
-                  {/* <h2 className='headline'>
-                    <Icon icon='layers' height={16} size={16} color='rgba(0,0,0,0.5)' /> Stages and Tasks
-                  </h2>
-                  <p>Monitor <strong>Duration</strong> and <strong>Progress</strong> completion for all tasks. <strong>Grafana</strong> access will be  enabled when the pipeline completes.
-                    Warning messages will also be displayed here when present.
-                  </p> */}
-                  {/* <CSSTransition
-                    in={pipelineReady}
-                    timeout={350}
-                    classNames='activity-panel'
-                    // unmountOnExit
-                  >
-                    <Card
-                      elevation={Elevation.TWO}
-                      style={{ display: 'flex', padding: 0, backgroundColor: activePipeline.status === 'TASK_COMPLETED' ? 'rgba(245, 255, 250, 0.99)' : 'inherit' }}
-                    >
-
-                      <ButtonGroup style={{ backgroundColor: 'transparent' }}>
-                        <Button minimal active style={{ backgroundColor: '#eeeeee' }}>
-                          <h3 style={{ margin: 0, fontSize: '20px' }}>
-                            Stage 1
-                          </h3>
-                        </Button>
-                        <Button
-                          minimal style={{
-                            backgroundColor: '#eeeeee',
-                            color: '#cccccc',
-                            fontSize: '35px',
-                            lineHeight: '20px',
-                            padding: 0,
-                            fontWeight: 100,
-                          }}
-                        >/
-                        </Button>
-                        <Button
-                          disabled style={{
-                            backgroundColor: '#eeeeee',
-                          }}
-                        ><h3 style={{ margin: 0, fontSize: '20px' }}>Stage 2</h3>
-                        </Button>
-                        <Button
-                          className='btn-stage-endcap'
-                          minimal
-                          style={{
-                            marginLeft: '1px',
-                            background: '#ffffff!!important',
-                            width: 0,
-                            height: 0,
-                            borderTop: '16px solid transparent',
-                            borderBottom: '16px solid transparent',
-                            borderLeft: '16px solid #eeeeee',
-                            pointerEvents: 'none'
-                          }}
-                        />
-                      </ButtonGroup>
-                      <h3 style={{
-                        textTransform: 'uppercase',
-                        lineHeight: '33px',
-                        margin: 0,
-                        fontFamily: 'Montserrat',
-                        fontWeight: 800,
-                        letterSpacing: '2px'
-                      }}
-                      >Finished Tasks &middot; <span style={{ color: Colors.GREEN5 }}>{activePipeline.finishedTasks}</span>
-                        <em style={{ color: '#dddddd', padding: '0 4px', textTransform: 'lowercase' }}>/</em>{activePipeline.totalTasks}
-                      </h3>
-                      <div style={{ display: 'flex', fontSize: '16px', fontWeight: 700, marginLeft: 'auto', lineHeight: '33px', padding: '0 10px' }}>
-                        {(() => {
-                          let statusIcon = null
-                          switch (activePipeline.status) {
-                            case 'TASK_COMPLETED':
-                              statusIcon = (
-                                <Icon
-                                  icon={<PipelineCompleteIcon width={24} height={24} style={{ margin: '0 6px 0 10px', display: 'flex', alignSelf: 'center' }} />}
-                                  size={24}
-                                />
-                              )
-                              break
-                            case 'TASK_FAILED':
-                              statusIcon = (
-                                <Icon
-                                  icon={<PipelineFailedIcon width={24} height={24} style={{ margin: '0 6px 0 10px', display: 'flex', alignSelf: 'center' }} />}
-                                  size={24}
-                                />
-                              )
-                              break
-                            case 'TASK_RUNNING':
-                            default:
-                              statusIcon = (
-                                <Icon
-                                  icon={<PipelineRunningIcon width={24} height={24} style={{ margin: '0 6px 0 10px', display: 'flex', alignSelf: 'center' }} />}
-                                  size={24}
-                                />
-                              )
-                              break
-                          }
-                          return statusIcon
-                        })()}
-                        {Number((activePipeline.finishedTasks / activePipeline.totalTasks) * 100).toFixed(1)}%
-                      </div>
-                    </Card>
-                  </CSSTransition> */}
-                  {/* <TaskActivity activePipeline={activePipeline} dayjs={dayjs} /> */}
-                  {/* <div style={{
-                    paddingTop: '7px',
-                    // borderTop: '1px solid #f5f5f5',
-                    marginTop: '14px',
-                    marginBottom: '36px'
-                  }}
-                  >
-                    {activePipeline?.ID && activePipeline.tasks && activePipeline.tasks.map((t, tIdx) => (
-                      <div
-                        className='pipeline-task-row'
-                        key={`pipeline-task-key-${tIdx}`}
-                        style={{ display: 'flex', padding: '4px 6px', justifyContent: 'space-between', fontSize: '14px' }}
-                      >
-                        <div style={{ display: 'flex', justifyContent: 'center', paddingRight: '8px', width: '32px', minWidth: '32px' }}>
-                          {t.status === 'TASK_COMPLETED' && (
-                            <Icon icon='small-tick' size={18} color={Colors.GREEN5} style={{ marginLeft: '0' }} />
-                          )}
-                          {t.status === 'TASK_FAILED' && (
-                            <Icon icon='warning-sign' size={14} color={Colors.RED5} style={{ marginLeft: '0', marginBottom: '3px' }} />
-                          )}
-                          {t.status === 'TASK_RUNNING' && (
-                            <Spinner
-                              className='task-spinner'
-                              size={14}
-                              intent={t.status === 'TASK_COMPLETED' ? 'success' : 'warning'}
-                              value={t.status === 'TASK_COMPLETED' ? 1 : t.progress}
-                            />
-                          )}
-                        </div>
-                        <div
-                          className='pipeline-task-cell-name'
-                          style={{ padding: '0 8px', width: '20%', display: 'flex', justifyContent: 'space-between' }}
-                        >
-                          <strong
-                            className='task-plugin-name'
-                            style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}
-                          >
-                            {t.plugin}
-                          </strong>
-                        </div>
-                        <div
-                          className='pipeline-task-cell-duration'
-                          style={{
-                            padding: '0',
-                            minWidth: '80px',
-                            // whiteSpace: 'nowrap',
-                            textAlign: 'right'
-                          }}
-                        >
-                          <span style={{ whiteSpace: 'nowrap' }}>
-                            {(() => {
-                              let statusRelativeTime = dayjs(t.CreatedAt).toNow(true)
-                              switch (t.status) {
-                                case 'TASK_COMPLETED':
-                                case 'TASK_FAILED':
-                                  statusRelativeTime = dayjs(t.UpdatedAt).from(t.CreatedAt, true)
-                                  break
-                                case 'TASK_RUNNING':
-                                default:
-                                  statusRelativeTime = dayjs(t.CreatedAt).toNow(true)
-                                  break
-                              }
-                              return statusRelativeTime
-                            })()}
-                          </span>
-                        </div>
-                        <div
-                          className='pipeline-task-cell-progress'
-                          style={{
-                            padding: '0 8px',
-                            minWidth: '100px',
-                            textAlign: 'right'
-                          }}
-                        >
-                          <span style={{ fontWeight: t.status === 'TASK_COMPLETED' ? 800 : 600 }}>
-                            {Number(t.status === 'TASK_COMPLETED' ? 100 : (t.progress / 1) * 100).toFixed(2)}%
-                          </span>
-                        </div>
-                        <div
-                          className='pipeline-task-cell-message'
-                          style={{ width: '70%', paddingLeft: '10px', fontSize: '12px' }}
-                        >
-                          {t.plugin !== 'jenkins' && (
-                            <>
-                              <span style={{ color: Colors.GRAY2 }}>
-                                <Icon icon='link' size={8} style={{ marginBottom: '3px' }} /> {t.options[Object.keys(t.options)[0]]}
-                              </span>
-                              {t.plugin === 'github' && (
-                                <span style={{ fontWeight: 60 }}>/{t.options[Object.keys(t.options)[1]]}</span>
-                              )}
-                            </>
-                          )}
-                          {t.message && (
-                            <>
-                              <span style={{ color: t.status === 'TASK_FAILED' ? Colors.RED4 : Colors.GRAY3, paddingLeft: '10px' }}>
-                                {t.message}
-                              </span>
-                            </>
-                          )}
-                        </div>
-                      </div>
-                    ))}
-                  </div> */}
-                </div>
+                {/* <div className='stage-activity' style={{ alignSelf: 'flex-start', width: '100%' }}>
+                </div> */}
 
                 <div className='run-settings' style={{ alignSelf: 'flex-start', width: '100%' }}>
                   <div style={{ display: 'flex' }}>
@@ -605,7 +390,7 @@ const PipelineActivity = (props) => {
                       <Icon icon='cog' height={16} size={16} color='rgba(0,0,0,0.5)' />
                     </div>
                     <div>
-                      <h2 className='headline' style={{ marginTop: 0}}>
+                      <h2 className='headline' style={{ marginTop: 0 }}>
                         Run Settings
                       </h2>
                       <p>Data Provider settings configured for this pipeline execution.</p>
@@ -692,7 +477,8 @@ const PipelineActivity = (props) => {
                           <div key={`repostitory-id-key-${tIdx}`}>
                             <Icon icon='nest' size={12} color={Colors.GRAY4} style={{ marginRight: '6px' }} />
                             <span>
-                              <strong>{t.options[Object.keys(t.options)[0]]}</strong><span style={{ color: Colors.GRAY5, padding: '0 1px' }}>/</span>
+                              <strong>{t.options[Object.keys(t.options)[0]]}</strong>
+                              <span style={{ color: Colors.GRAY5, padding: '0 1px' }}>/</span>
                               <strong>{t.options[Object.keys(t.options)[1]]}</strong>
                             </span>
                           </div>
@@ -707,8 +493,15 @@ const PipelineActivity = (props) => {
             {!pipelineId && (
               <Card elevation={Elevation.TWO} style={{ display: 'flex', alignSelf: 'flex-start' }}>
                 <div style={{ display: 'flex', alignSelf: 'flex-start', flexDirection: 'column' }}>
-                  <h2 style={{ margin: '0 0 12px 0' }}><Icon icon='warning-sign' color={Colors.RED4} size={16} style={{ marginBottom: '4px' }} /> Pipeline Run ID <strong>Missing</strong>...</h2>
-                  <p>Please provide a Pipeline ID to load Run activity and details.<br /> Check the Address URL in your Browser and try again.</p>
+                  <h2 style={{ margin: '0 0 12px 0' }}>
+                    <Icon
+                      icon='warning-sign'
+                      color={Colors.RED4} size={16} style={{ marginBottom: '4px' }}
+                    /> Pipeline Run ID <strong>Missing</strong>...
+                  </h2>
+                  <p>Please provide a Pipeline ID to load Run activity and details.
+                    <br /> Check the Address URL in your Browser and try again.
+                  </p>
                 </div>
               </Card>
             )}
@@ -763,7 +556,10 @@ const PipelineActivity = (props) => {
             <h3 style={{ margin: 0, padding: '8px 0' }}>
               <span style={{ float: 'right', fontSize: '9px', color: '#aaaaaa' }}>application/json</span> JSON RESPONSE
             </h3>
-            <p>If you are submitting a <strong>Bug-Report</strong> regarding a Pipeline Run, include the output below for better debugging.</p>
+            <p>
+              If you are submitting a
+              <strong>Bug-Report</strong> regarding a Pipeline Run, include the output below for better debugging.
+            </p>
             <div className='formContainer'>
               <Card
                 interactive={false}
