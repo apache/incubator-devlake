@@ -3,6 +3,7 @@ package db
 import (
 	"fmt"
 	"io/fs"
+	"os"
 	"path/filepath"
 	"strings"
 
@@ -13,7 +14,18 @@ import (
 	"github.com/golang-migrate/migrate/v4"
 )
 
-var MIGRATIONS_PATH string = "file://./db/migration"
+// var MIGRATIONS_PATH string = "file://./db/migration"
+var MIGRATIONS_PATH string = GetFilePath()
+
+func GetFilePath() string {
+	ex, err := os.Executable()
+	if err != nil {
+		panic(err)
+	}
+	exPath := filepath.Dir(ex)
+	fmt.Println("JON >>> exPath", exPath)
+	return fmt.Sprintf("file://%v/db/migration", exPath)
+}
 
 func MigrateDB(dbName string) {
 	err := RunDomainLayerMigrationsUp(dbName)
