@@ -16,6 +16,7 @@ import (
 var Db *gorm.DB
 
 func init() {
+	config.LoadConfigFile()
 
 	connectionString := lakeDb.GetConnectionString("", false)
 	if config.V.Get("TEST") == "true" {
@@ -33,6 +34,7 @@ func init() {
 		},
 	)
 
+	fmt.Println("JON >>> connectionString", connectionString)
 	Db, err = gorm.Open(mysql.Open(connectionString), &gorm.Config{
 		Logger: newLogger,
 	})
