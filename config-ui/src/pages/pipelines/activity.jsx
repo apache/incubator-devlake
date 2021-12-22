@@ -2,9 +2,10 @@ import React, { Fragment, useEffect, useState, useRef } from 'react'
 import { CSSTransition } from 'react-transition-group'
 import { useHistory, useParams } from 'react-router-dom'
 import { GRAFANA_URL } from '@/utils/config'
-import * as dayjs from 'dayjs'
-import * as relativeTime from 'dayjs/plugin/relativeTime'
-import * as updateLocale from 'dayjs/plugin/updateLocale'
+import dayjs from '@/utils/time'
+// import * as dayjs from 'dayjs'
+// import * as relativeTime from 'dayjs/plugin/relativeTime'
+// import * as updateLocale from 'dayjs/plugin/updateLocale'
 import {
   Button, Icon, Intent,
   Card, Elevation,
@@ -67,25 +68,25 @@ const PipelineActivity = (props) => {
 
   useEffect(() => {
     setPipelineId(pId)
-    dayjs.extend(relativeTime)
-    dayjs.extend(updateLocale)
-    dayjs.updateLocale('en', {
-      relativeTime: {
-        future: 'in %s',
-        past: '%s ago',
-        s: '< 1min',
-        m: 'a minute',
-        mm: '%d minutes',
-        h: 'an hour',
-        hh: '%d hours',
-        d: 'a day',
-        dd: '%d days',
-        M: 'a month',
-        MM: '%d months',
-        y: 'a year',
-        yy: '%d years'
-      }
-    })
+    // dayjs.extend(relativeTime)
+    // dayjs.extend(updateLocale)
+    // dayjs.updateLocale('en', {
+    //   relativeTime: {
+    //     future: 'in %s',
+    //     past: '%s ago',
+    //     s: '< 1min',
+    //     m: 'a minute',
+    //     mm: '%d minutes',
+    //     h: 'an hour',
+    //     hh: '%d hours',
+    //     d: 'a day',
+    //     dd: '%d days',
+    //     M: 'a month',
+    //     MM: '%d months',
+    //     y: 'a year',
+    //     yy: '%d years'
+    //   }
+    // })
     console.log('>>> REQUESTED PIPELINE ID ===', pId)
   }, [pId])
 
@@ -331,7 +332,7 @@ const PipelineActivity = (props) => {
                         </div>
 
                       </div>
-                      <TaskActivity activePipeline={activePipeline} dayjs={dayjs} />
+                      <TaskActivity activePipeline={activePipeline} />
                     </Card>
                   </CSSTransition>
                   <div style={{ display: 'flex', padding: '5px 3px', fontSize: '10px', color: '#777777', justifyContent: 'space-between' }}>

@@ -8,9 +8,10 @@ import {
   Colors,
   // Alignment
 } from '@blueprintjs/core'
+import dayjs from '@/utils/time'
 
 const TaskActivity = (props) => {
-  const { activePipeline, dayjs } = props
+  const { activePipeline } = props
 
   return (
     <>
