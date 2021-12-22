@@ -32,8 +32,14 @@ func Set(ctx *gin.Context) {
 
 	V := config.LoadConfigFile()
 
+	// TODO: Lets find a way to make this not have to be changed so much
 	V.Set("PORT", data.PORT)
-	V.Set("DB_URL", data.DB_URL)
+	V.Set("DB_USER", data.DB_USER)
+	V.Set("DB_PASS", data.DB_PASS)
+	V.Set("DB_HOST", data.DB_HOST)
+	V.Set("DB_PORT", data.DB_PORT)
+	V.Set("DB_NAME", data.DB_NAME)
+	V.Set("DB_PARAMS", data.DB_PARAMS)
 	V.Set("MODE", data.MODE)
 	V.Set("JIRA_ENDPOINT", data.JIRA_ENDPOINT)
 	V.Set("JIRA_BASIC_AUTH_ENCODED", data.JIRA_BASIC_AUTH_ENCODED)

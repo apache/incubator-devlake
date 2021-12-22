@@ -8,7 +8,6 @@ import (
 
 	_ "github.com/golang-migrate/migrate/v4/database/mysql"
 	_ "github.com/golang-migrate/migrate/v4/source/file"
-	"github.com/merico-dev/lake/config"
 
 	"github.com/golang-migrate/migrate/v4"
 )
@@ -24,14 +23,11 @@ func MigrateDB(dbName string) {
 	RunPluginMigrationsUp(dbName, "github")
 }
 
-func formatDBString(dbName string, pluginName string) string {
-	connectionString := config.V.GetString("DB_URL")
-
+func GolangMigrateDBString(pluginName string) string {
 	dbParams := fmt.Sprintf("x-migrations-table=schema_migrations_%v&x-migrations-table-quoted=1", pluginName)
-	dbConnectionWithParams := fmt.Sprintf("mysql://%v/%v?%v", connectionString, dbName, dbParams)
-
-	fmt.Println("JON >>> dbConnectionWithParams", dbConnectionWithParams)
-	return dbConnectionWithParams
+	connectionString := fmt.Sprintf("mysql://%v", GetConnectionString(dbParams))
+	fmt.Println("JON >>> connectionString", connectionString)
+	return connectionString
 }
 
 func MigrateAllPluginDBSchemas(pluginsDir string) error {
@@ -72,12 +68,12 @@ func MigrateAllPluginDBSchemas(pluginsDir string) error {
 
 func RunPluginMigrationsUp(dbName string, pluginName string) error {
 
-	dbConnectionWithParams := formatDBString(dbName, pluginName)
+	connectionString := GolangMigrateDBString(pluginName)
 	path := fmt.Sprintf("file://./plugins/%v/migration", pluginName)
 
 	fmt.Println("JON >>> path", path)
 
-	m, err := migrate.New(path, dbConnectionWithParams)
+	m, err := migrate.New(path, connectionString)
 
 	if err != nil {
 		fmt.Println("ERROR: Could not init migrate for UP: ", err)
@@ -92,10 +88,9 @@ func RunPluginMigrationsUp(dbName string, pluginName string) error {
 }
 
 func RunMigrationsUp(dbName string) error {
-	connectionString := config.V.GetString("DB_URL")
 	m, err := migrate.New(
 		MIGRATIONS_PATH,
-		fmt.Sprintf("mysql://%v/%v", connectionString, dbName))
+		GetConnectionString(""))
 
 	if err != nil {
 		fmt.Println("ERROR: Could not init migrate for UP: ", err)
@@ -110,11 +105,9 @@ func RunMigrationsUp(dbName string) error {
 }
 
 func RunMigrationsDown(dbName string) error {
-	connectionString := config.V.GetString("DB_URL")
-
 	m, err := migrate.New(
 		MIGRATIONS_PATH,
-		fmt.Sprintf("%v/%v", connectionString, dbName))
+		GetConnectionString(""))
 
 	if err != nil {
 		fmt.Println("ERROR: Could not init migrate for DOWN: ", err)
