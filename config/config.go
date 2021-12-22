@@ -7,11 +7,11 @@ import (
 type Config struct {
 	PORT                               string `mapstructure:"PORT"`
 	DB_USER                            string `mapstructure:"DB_USER"`
-	DB_PASS                            string `mapstructure:"DB_PASS"`
+	DB_PASSWORD                        string `mapstructure:"DB_PASSWORD"`
 	DB_HOST                            string `mapstructure:"DB_HOST"`
 	DB_PORT                            string `mapstructure:"DB_PORT"`
 	DB_DRIVER                          string `mapstructure:"DB_DRIVER"`
-	DB_NAME                            string `mapstructure:"DB_NAME"`
+	DB_DATABASE                        string `mapstructure:"DB_DATABASE"`
 	DB_PARAMS                          string `mapstructure:"DB_PARAMS"`
 	MODE                               string `mapstructure:"MODE"`
 	JIRA_ENDPOINT                      string `mapstructure:"JIRA_ENDPOINT"`

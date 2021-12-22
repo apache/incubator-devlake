@@ -12,6 +12,10 @@ jobs:
       DB_DATABASE: lake
       DB_USER: root
       DB_PASSWORD: root
+      DB_HOST: localhost
+      DB_PORT: 3306
+      DB_DRIVER: mysql
+      DB_PARAMS: charset=utf8mb4&loc=Asia%2fShanghai&parseTime=True
       DB_URL: root:root@tcp(localhost:3306)/lake?charset=utf8mb4&loc=Asia%2fShanghai&parseTime=True
       REDIS_URL: redis://localhost:6379/1
     steps:

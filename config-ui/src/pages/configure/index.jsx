@@ -15,10 +15,10 @@
 //   const [mode, setMode] = useState()
 //   const [config, setConfig] = useState({
 //     DB_USER: null,
-//     DB_PASS: null,
+//     DB_PASSWORD: null,
 //     DB_HOST: null,
 //     DB_PORT: null,
-//     DB_NAME: null,
+//     DB_DATABASE: null,
 //     DB_PARAMS: null,
 //     PORT: null,
 //     MODE: null
@@ -40,10 +40,10 @@
 //       const env = await request.get(`${DEVLAKE_ENDPOINT}/env`)
 //       setConfig(env.data)
 //       setDbUrl(env.data.DB_USER)
-//       setDbUrl(env.data.DB_PASS)
+//       setDbUrl(env.data.DB_PASSWORD)
 //       setDbUrl(env.data.DB_HOST)
 //       setDbUrl(env.data.DB_PORT)
-//       setDbUrl(env.data.DB_NAME)
+//       setDbUrl(env.data.DB_DATABASE)
 //       setDbUrl(env.data.DB_PARAMS)
 //       setPort(env.data.PORT)
 //       setMode(env.data.MODE)
