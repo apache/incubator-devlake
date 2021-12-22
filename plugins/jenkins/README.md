@@ -45,7 +45,7 @@ Click Save Connection to update connection settings.
 
 ## Collect Data From Jenkins
 
-In order to collect data from JIRA, you have to compose a JSON looks like following one, and send it via `Triggers` page on `config-ui`:
+In order to collect data from Jenkins, you have to compose a JSON looks like following one, and send it via `Triggers` page on `config-ui`:
 
 
 ```json
