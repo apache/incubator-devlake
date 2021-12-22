@@ -16,6 +16,9 @@ import {
   Position,
   Spinner,
   Colors,
+  Drawer,
+  DrawerSize,
+  TextArea,
   Link,
   Classes
 } from '@blueprintjs/core'
@@ -44,6 +47,8 @@ const PipelineActivity = (props) => {
   const [pipelineName, setPipelineName] = useState()
   const [pollTimer, setPollTimer] = useState(5000)
   // const [autoRefresh, setAutoRefresh] = useState(true)
+
+  const [showInspector, setShowInspector] = useState(false)
 
   const {
     runPipeline,
@@ -652,7 +657,7 @@ const PipelineActivity = (props) => {
                 <span>See <strong style={{ textDecoration: 'underline' }}>All Jobs</strong> to monitor all pipeline activity.</span>
                 <div>
                   <Button
-                    // onClick
+                    onClick={() => setShowInspector((iS) => !iS)}
                     icon='code' text='Inspect JSON' small minimal
                     style={{ marginRight: '3px', color: Colors.GRAY3 }}
                   />
@@ -669,6 +674,45 @@ const PipelineActivity = (props) => {
         </Content>
 
       </div>
+      <Drawer
+        className='drawer-json-inspector'
+        icon='code'
+        onClose={() => setShowInspector(false)}
+        title={`RUN No. ${activePipeline.ID} JSON Payload`}
+        position={Position.RIGHT}
+        size={DrawerSize.SMALL}
+        autoFocus
+        canEscapeKeyClose
+        canOutsideClickClose
+        enforceFocus
+        hasBackdrop
+        isOpen={showInspector}
+        usePortal
+      >
+        <div className={Classes.DRAWER_BODY}>
+          <div className={Classes.DIALOG_BODY}>
+            <h3 style={{ margin: 0, padding: '8px 0' }}>
+              <span style={{ float: 'right', fontSize: '9px', color: '#aaaaaa' }}>application/json</span> JSON RESPONSE
+            </h3>
+            <p>If you are submitting a <strong>Bug-Report</strong> regarding a Pipeline Run, include the output below for better debugging.</p>
+            <div className='formContainer'>
+              <Card
+                interactive={false}
+                elevation={Elevation.ZERO}
+                style={{ padding: '6px 12px', minWidth: '320px', width: '100%', maxWidth: '601px', marginBottom: '20px', overflow: 'auto' }}
+              >
+
+                <code>
+                  <pre style={{ fontSize: '10px' }}>
+                    {JSON.stringify(activePipeline, null, '  ')}
+                  </pre>
+                </code>
+              </Card>
+            </div>
+          </div>
+        </div>
+      </Drawer>
+
     </>
   )
 }
