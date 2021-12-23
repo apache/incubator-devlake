@@ -1,4 +1,4 @@
-import React, { Fragment, useEffect, useState, useRef } from 'react'
+import React, { Fragment, useEffect, useState, useRef, useCallback } from 'react'
 import { CSSTransition } from 'react-transition-group'
 import { useHistory, useParams, Link } from 'react-router-dom'
 import { GRAFANA_URL } from '@/utils/config'
@@ -49,6 +49,8 @@ const PipelineActivity = (props) => {
 
   const [showInspector, setShowInspector] = useState(false)
   const [pipelineReady, setPipelineReady] = useState(false)
+  const [stages, setStages] = useState()
+  const [activeStageId, setActiveStageId] = useState(1)
 
   const {
     runPipeline,
@@ -65,6 +67,23 @@ const PipelineActivity = (props) => {
 
   const pipelineHasProvider = (providerId) => {
     return activePipeline.tasks.some(t => t.plugin === providerId)
+  }
+
+  const buildPipelineStages = useCallback((tasks = []) => {
+    let stages = {}
+    tasks?.forEach(tS => {
+      stages = {
+        ...stages,
+        [tS.pipelineRow]: tasks?.filter(t => t.pipelineRow === tS.pipelineRow)
+      }
+    })
+    console.log('>>> BUILDING PIPELINE STAGES...', stages)
+    return stages
+  }, [])
+
+  const findActiveStageId = (tasks = []) => {
+    const activeTask = tasks.find(t => t.status === 'TASK_RUNNING')
+    return activeTask?.pipelineRow || 1
   }
 
   useEffect(() => {
@@ -98,6 +117,16 @@ const PipelineActivity = (props) => {
       clearInterval(pollInterval.current)
     }
   }, [autoRefresh, fetchPipeline, pipelineId, pollTimer])
+
+  useEffect(() => {
+    if (activePipeline.ID) {
+      setStages(buildPipelineStages(activePipeline.tasks))
+    }
+  }, [activePipeline, buildPipelineStages])
+
+  useEffect(() => {
+
+  }, [stages])
 
   return (
     <>
@@ -178,7 +207,11 @@ const PipelineActivity = (props) => {
             )}
             {activePipeline?.ID && (
               <>
-                <StagePanel activePipeline={activePipeline} pipelineReady={pipelineReady} />
+                <StagePanel
+                  activePipeline={activePipeline} pipelineReady={pipelineReady}
+                  stages={buildPipelineStages(activePipeline.tasks)}
+                  activeStageId={findActiveStageId(activePipeline.tasks)}
+                />
                 <div style={{ marginBottom: '24px', width: '100%' }}>
                   <CSSTransition
                     in={pipelineReady}
