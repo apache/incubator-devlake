@@ -23,17 +23,13 @@ const TaskActivity = (props) => {
           padding: '20px',
           overflow: 'hidden',
           textOverflow: 'ellipsis'
-          // paddingTop: '7px',
-          // borderTop: '1px solid #f5f5f5',
-          // marginTop: '14px',
-          // marginBottom: '36px'
         }}
       >
         {activePipeline?.ID && activePipeline.tasks && activePipeline.tasks.map((t, tIdx) => (
           <div
             className='pipeline-task-row'
             key={`pipeline-task-key-${tIdx}`}
-            style={{ display: 'flex', padding: '4px 6px', justifyContent: 'space-between', fontSize: '12px' }}
+            style={{ display: 'flex', padding: '4px 6px', justifyContent: 'space-between', fontSize: '12px', opacity: t.status === 'TASK_CREATED' ? 0.7 : 1 }}
           >
             <div style={{ display: 'flex', justifyContent: 'center', paddingRight: '8px', width: '32px', minWidth: '32px' }}>
               {t.status === 'TASK_COMPLETED' && (
@@ -54,7 +50,7 @@ const TaskActivity = (props) => {
               )}
               {t.status === 'TASK_CREATED' && (
                 <Tooltip content={`Task Created (Pending) [STAGE ${t.pipelineRow}]`} position={Position.TOP}>
-                  <Icon icon='pause' size={14} color={Colors.BLUE3} style={{ marginLeft: '0', marginBottom: '3px' }} />
+                  <Icon icon='pause' size={14} color={Colors.GRAY3} style={{ marginLeft: '0', marginBottom: '3px' }} />
                 </Tooltip>
               )}
             </div>
