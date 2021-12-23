@@ -142,6 +142,7 @@ function usePipelineManager (pipelineName = `COLLECTION ${Date.now()}`, initialT
     errors,
     isRunning,
     isFetching,
+    isCancelling,
     settings,
     setSettings,
     pipelineRun,

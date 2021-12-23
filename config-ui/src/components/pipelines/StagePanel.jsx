@@ -39,7 +39,7 @@ const StagePanel = (props) => {
 
           <ButtonGroup style={{ backgroundColor: 'transparent' }}>
             <Button minimal active style={{ backgroundColor: '#eeeeee' }}>
-              <h3 style={{ margin: 0, fontSize: '20px', display: 'flex' }}>
+              <h3 className='stage-panel-stage-name' style={{ margin: 0, fontSize: '18px', display: 'flex' }}>
                 {/* Stage 1 */}
                 {(() => {
                   let statusIcon = null
@@ -122,13 +122,14 @@ const StagePanel = (props) => {
                       sIdx !== (Object.keys(stages).length - 1)
                         ? (
                           <Button
+                            className='stage-panel-stage-separator'
                             minimal style={{
                               backgroundColor: '#eeeeee',
                               color: '#cccccc',
                               fontSize: '35px',
-                              lineHeight: '20px',
+                              lineHeight: '100%',
                               padding: 0,
-                              margin: 0,
+                              margin: 'auto 0 auto 0',
                               position: 'absolute',
                               right: 0,
                               fontWeight: 100,
@@ -139,14 +140,17 @@ const StagePanel = (props) => {
                         : null
                     }
                   >
-                    <h3 style={{ margin: 0, fontSize: '20px', color: activeStageId === (sIdx + 1) ? Colors.BLACK : Colors.GRAY3 }}>
+                    <h3
+                      className='stage-panel-stage-name'
+                      style={{ margin: 0, fontSize: '18px', color: activeStageId === (sIdx + 1) ? Colors.BLACK : Colors.GRAY3 }}
+                    >
                       Stage {sIdx + 1}
                     </h3>
                   </Button>
                 ))}
 
                 <Button
-                  className='btn-stage-endcap'
+                  className='stage-panel-stage-endcap'
                   minimal
                   style={{
                     marginLeft: '1px',
