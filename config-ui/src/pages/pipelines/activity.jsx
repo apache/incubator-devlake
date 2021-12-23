@@ -17,6 +17,10 @@ import {
   // ButtonGroup, InputGroup, Input, Tag,H2, TextArea,Link
 } from '@blueprintjs/core'
 import { integrationsData } from '@/data/integrations'
+import {
+  Providers,
+  ProviderLabels
+} from '@/data/Providers'
 import usePipelineManager from '@/hooks/usePipelineManager'
 import Nav from '@/components/Nav'
 import Sidebar from '@/components/Sidebar'
@@ -38,8 +42,7 @@ const PipelineActivity = (props) => {
   const { pId } = useParams()
   const pollInterval = useRef()
 
-  const [pipelineId, setPipelineId] = useState() // @todo REMOVE TEST RUN ID!
-  const [activeProvider, setActiveProvider] = useState(integrationsData[0])
+  const [pipelineId, setPipelineId] = useState()
   const [pipelineName, setPipelineName] = useState()
   const [pollTimer, setPollTimer] = useState(5000)
   const [autoRefresh, setAutoRefresh] = useState(false)
@@ -60,9 +63,9 @@ const PipelineActivity = (props) => {
     // lastRunId
   } = usePipelineManager(pipelineName)
 
-  // useEffect(() => {
-  //   setActiveProvider(providerId ? integrationsData.find(p => p.id === providerId) : integrationsData[0])
-  // }, [providerId])
+  const pipelineHasProvider = (providerId) => {
+    return activePipeline.tasks.some(t => t.plugin === providerId)
+  }
 
   useEffect(() => {
     setPipelineId(pId)
@@ -387,93 +390,107 @@ const PipelineActivity = (props) => {
                   </div>
 
                   <div style={{ padding: '0 10px', display: 'flex', marginTop: '24px', justifyContent: 'space-between', width: '100%' }}>
-                    <div className='jenkins-settings' style={{ display: 'flex' }}>
-                      <div style={{ display: 'flex', padding: '2px 6px' }}>
-                        <JenkinsProviderIcon width={24} height={24} />
+                    {pipelineHasProvider(Providers.JENKINS) && (
+                      <div className='jenkins-settings' style={{ display: 'flex' }}>
+                        <div style={{ display: 'flex', padding: '2px 6px' }}>
+                          <JenkinsProviderIcon width={24} height={24} />
+                        </div>
+                        <div>
+                          <label style={{
+                            lineHeight: '100%',
+                            display: 'block',
+                            fontSize: '14px',
+                            marginTop: '0',
+                            marginBottom: '10px'
+                          }}
+                          >
+                            <strong style={{ fontSize: '11px', fontFamily: 'Montserrat', fontWeight: 800 }}>
+                              {ProviderLabels.JENKINS}
+                            </strong>
+                            <br />Auto-configured
+                          </label>
+                          <span style={{ color: Colors.GRAY3 }}>(No Settings)</span>
+                        </div>
                       </div>
-                      <div>
-                        <label style={{
-                          lineHeight: '100%',
-                          display: 'block',
-                          fontSize: '14px',
-                          marginTop: '0',
-                          marginBottom: '10px'
-                        }}
-                        >
-                          <strong style={{ fontSize: '11px', fontFamily: 'Montserrat', fontWeight: 800 }}>Jenkins</strong>
-                          <br />Auto-configured
-                        </label>
-                        <span style={{ color: Colors.GRAY3 }}>(No Settings)</span>
+                    )}
+                    {pipelineHasProvider(Providers.JIRA) && (
+                      <div className='jira-settings' style={{ display: 'flex', paddingLeft: '20px' }}>
+                        <div style={{ display: 'flex', padding: '2px 6px' }}>
+                          <JiraProviderIcon width={24} height={24} />
+                        </div>
+                        <div>
+                          <label style={{
+                            lineHeight: '100%',
+                            display: 'block',
+                            fontSize: '14px',
+                            marginTop: '0',
+                            marginBottom: '10px'
+                          }}
+                          >
+                            <strong style={{ fontSize: '11px', fontFamily: 'Montserrat', fontWeight: 800 }}>
+                              {ProviderLabels.JIRA}
+                            </strong><br />Board IDs
+                          </label>
+                          {activePipeline.tasks.filter(t => t.plugin === Providers.JIRA).map((t, tIdx) => (
+                            <div key={`board-id-key-${tIdx}`}>
+                              <Icon icon='nest' size={12} color={Colors.GRAY4} style={{ marginRight: '6px' }} />
+                              <span>
+                                {t.options[Object.keys(t.options)[0]]} on Server #{t.options[Object.keys(t.options)[1]]}<br />
+                              </span>
+                            </div>
+                          ))}
+                        </div>
                       </div>
-                    </div>
-                    <div className='jira-settings' style={{ display: 'flex' }}>
-                      <div style={{ display: 'flex', padding: '2px 6px' }}>
-                        <JiraProviderIcon width={24} height={24} />
+                    )}
+                    {pipelineHasProvider(Providers.GITLAB) && (
+                      <div className='gitlab-settings' style={{ display: 'flex', paddingLeft: '20px' }}>
+                        <div style={{ display: 'flex', padding: '2px 6px' }}>
+                          <GitlabProviderIcon width={24} height={24} />
+                        </div>
+                        <div>
+                          <label style={{
+                            lineHeight: '100%',
+                            display: 'block',
+                            fontSize: '14px',
+                            marginTop: '0',
+                            marginBottom: '10px'
+                          }}
+                          ><strong style={{ fontSize: '11px', fontFamily: 'Montserrat', fontWeight: 800 }}>{ProviderLabels.GITLAB}</strong><br />Project IDs
+                          </label>
+                          {activePipeline.tasks.filter(t => t.plugin === 'gitlab').map((t, tIdx) => (
+                            <div key={`project-id-key-${tIdx}`}>
+                              <Icon icon='nest' size={12} color={Colors.GRAY4} style={{ marginRight: '6px' }} />
+                              <span>
+                                {t.options[Object.keys(t.options)[0]]}<br />
+                              </span>
+                            </div>
+                          ))}
+                        </div>
                       </div>
-                      <div>
-                        <label style={{
-                          lineHeight: '100%',
-                          display: 'block',
-                          fontSize: '14px',
-                          marginTop: '0',
-                          marginBottom: '10px'
-                        }}
-                        ><strong style={{ fontSize: '11px', fontFamily: 'Montserrat', fontWeight: 800 }}>JIRA</strong><br />Board IDs
-                        </label>
-                        {activePipeline.tasks.filter(t => t.plugin === 'jira').map((t, tIdx) => (
-                          <div key={`board-id-key-${tIdx}`}>
-                            <Icon icon='nest' size={12} color={Colors.GRAY4} style={{ marginRight: '6px' }} />
-                            <span>
-                              {t.options[Object.keys(t.options)[0]]} on Server #{t.options[Object.keys(t.options)[1]]}<br />
-                            </span>
-                          </div>
-                        ))}
+                    )}
+                    {pipelineHasProvider(Providers.GITHUB) && (
+                      <div className='github-settings' style={{ display: 'flex', paddingLeft: '20px', justifySelf: 'flex-start' }}>
+                        <div style={{ display: 'flex', padding: '2px 6px' }}>
+                          <GitHubProviderIcon width={24} height={24} />
+                        </div>
+                        <div>
+                          <label style={{ lineHeight: '100%', display: 'block', fontSize: '14px', marginTop: '0', marginBottom: '10px' }}>
+                            <strong style={{ fontSize: '11px', fontFamily: 'Montserrat', fontWeight: 800 }}>{ProviderLabels.GITHUB}</strong><br />Repositories
+                          </label>
+                          {activePipeline.tasks.filter(t => t.plugin === Providers.GITHUB).map((t, tIdx) => (
+                            <div key={`repostitory-id-key-${tIdx}`}>
+                              <Icon icon='nest' size={12} color={Colors.GRAY4} style={{ marginRight: '6px' }} />
+                              <span>
+                                <strong>{t.options[Object.keys(t.options)[0]]}</strong>
+                                <span style={{ color: Colors.GRAY5, padding: '0 1px' }}>/</span>
+                                <strong>{t.options[Object.keys(t.options)[1]]}</strong>
+                              </span>
+                            </div>
+                          ))}
+                        </div>
                       </div>
-                    </div>
-                    <div className='gitlab-settings' style={{ display: 'flex' }}>
-                      <div style={{ display: 'flex', padding: '2px 6px' }}>
-                        <GitlabProviderIcon width={24} height={24} />
-                      </div>
-                      <div>
-                        <label style={{
-                          lineHeight: '100%',
-                          display: 'block',
-                          fontSize: '14px',
-                          marginTop: '0',
-                          marginBottom: '10px'
-                        }}
-                        ><strong style={{ fontSize: '11px', fontFamily: 'Montserrat', fontWeight: 800 }}>GitLab</strong><br />Project IDs
-                        </label>
-                        {activePipeline.tasks.filter(t => t.plugin === 'gitlab').map((t, tIdx) => (
-                          <div key={`project-id-key-${tIdx}`}>
-                            <Icon icon='nest' size={12} color={Colors.GRAY4} style={{ marginRight: '6px' }} />
-                            <span>
-                              {t.options[Object.keys(t.options)[0]]}<br />
-                            </span>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                    <div className='github-settings' style={{ display: 'flex' }}>
-                      <div style={{ display: 'flex', padding: '2px 6px' }}>
-                        <GitHubProviderIcon width={24} height={24} />
-                      </div>
-                      <div>
-                        <label style={{ lineHeight: '100%', display: 'block', fontSize: '14px', marginTop: '0', marginBottom: '10px' }}>
-                          <strong style={{ fontSize: '11px', fontFamily: 'Montserrat', fontWeight: 800 }}>GitHub</strong><br />Repositories
-                        </label>
-                        {activePipeline.tasks.filter(t => t.plugin === 'github').map((t, tIdx) => (
-                          <div key={`repostitory-id-key-${tIdx}`}>
-                            <Icon icon='nest' size={12} color={Colors.GRAY4} style={{ marginRight: '6px' }} />
-                            <span>
-                              <strong>{t.options[Object.keys(t.options)[0]]}</strong>
-                              <span style={{ color: Colors.GRAY5, padding: '0 1px' }}>/</span>
-                              <strong>{t.options[Object.keys(t.options)[1]]}</strong>
-                            </span>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
+                    )}
+                    <div style={{ marginRight: 'auto' }} />
                   </div>
                 </div>
               </>
