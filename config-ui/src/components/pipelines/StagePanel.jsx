@@ -13,7 +13,7 @@ import { ReactComponent as PipelineFailedIcon } from '@/images/no-synchronize.sv
 import { ReactComponent as PipelineCompleteIcon } from '@/images/check-circle.svg'
 
 const StagePanel = (props) => {
-  const { activePipeline, pipelineReady = false } = props
+  const { activePipeline, pipelineReady = false, stages, activeStageId = 1 } = props
 
   return (
     <>
@@ -30,14 +30,17 @@ const StagePanel = (props) => {
             justifySelf: 'flex-start',
             marginBottom: '8px',
             padding: 0,
-            backgroundColor: activePipeline.status === 'TASK_COMPLETED' ? 'rgba(245, 255, 250, 0.99)' : 'inherit'
+            backgroundColor: activePipeline.status === 'TASK_COMPLETED' ? 'rgba(245, 255, 250, 0.99)' : 'inherit',
+            overflow: 'hidden',
+            whiteSpace: 'nowrap',
+            textOverflow: 'ellipsis'
           }}
         >
 
           <ButtonGroup style={{ backgroundColor: 'transparent' }}>
             <Button minimal active style={{ backgroundColor: '#eeeeee' }}>
               <h3 style={{ margin: 0, fontSize: '20px', display: 'flex' }}>
-                Stage 1
+                {/* Stage 1 */}
                 {(() => {
                   let statusIcon = null
                   switch (activePipeline.status) {
@@ -92,37 +95,72 @@ const StagePanel = (props) => {
               </h3>
             </Button>
             {/* @todo: re-active "stage" ux in a future release */}
-            {/* <Button
-              minimal style={{
-                backgroundColor: '#eeeeee',
-                color: '#cccccc',
-                fontSize: '35px',
-                lineHeight: '20px',
-                padding: 0,
-                fontWeight: 100,
-              }}
-            >/
-            </Button> */}
-            {/* <Button
-              disabled style={{
-                backgroundColor: '#eeeeee',
-              }}
-            ><h3 style={{ margin: 0, fontSize: '20px' }}>Stage 2</h3>
-            </Button> */}
-            <Button
-              className='btn-stage-endcap'
-              minimal
-              style={{
-                marginLeft: '1px',
-                background: '#ffffff!!important',
-                width: 0,
-                height: 0,
-                borderTop: '16px solid transparent',
-                borderBottom: '16px solid transparent',
-                borderLeft: '16px solid #eeeeee',
-                pointerEvents: 'none'
-              }}
-            />
+            {Object.keys(stages).length > 0 && (
+              <>
+                {Object.keys(stages).map((s, sIdx) => (
+                  // <Button
+                  //   minimal style={{
+                  //     backgroundColor: '#eeeeee',
+                  //     color: '#cccccc',
+                  //     fontSize: '35px',
+                  //     lineHeight: '20px',
+                  //     padding: 0,
+                  //     fontWeight: 100,
+                  //   }}
+                  // >/
+                  // </Button>
+                  <Button
+                    key={`stage-btn-key${sIdx}`}
+                    disabled={activeStageId !== (sIdx + 1)}
+                    minimal
+                    style={{
+                      position: 'relative',
+                      backgroundColor: '#eeeeee',
+                      paddingRight: '50px',
+                    }}
+                    rightIcon={
+                      sIdx !== (Object.keys(stages).length - 1)
+                        ? (
+                          <Button
+                            minimal style={{
+                              backgroundColor: '#eeeeee',
+                              color: '#cccccc',
+                              fontSize: '35px',
+                              lineHeight: '20px',
+                              padding: 0,
+                              margin: 0,
+                              position: 'absolute',
+                              right: 0,
+                              fontWeight: 100,
+                            }}
+                          >/
+                          </Button>
+                          )
+                        : null
+                    }
+                  >
+                    <h3 style={{ margin: 0, fontSize: '20px', color: activeStageId === (sIdx + 1) ? Colors.BLACK : Colors.GRAY3 }}>
+                      Stage {sIdx + 1}
+                    </h3>
+                  </Button>
+                ))}
+
+                <Button
+                  className='btn-stage-endcap'
+                  minimal
+                  style={{
+                    marginLeft: '1px',
+                    background: '#ffffff!!important',
+                    width: 0,
+                    height: 0,
+                    borderTop: '16px solid transparent',
+                    borderBottom: '16px solid transparent',
+                    borderLeft: '16px solid #eeeeee',
+                    pointerEvents: 'none'
+                  }}
+                />
+              </>
+            )}
           </ButtonGroup>
           <h3 style={{
             textTransform: 'uppercase',

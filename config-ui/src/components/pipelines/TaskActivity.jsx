@@ -6,6 +6,8 @@ import {
   Icon,
   Spinner,
   Colors,
+  Tooltip,
+  Position,
   // Alignment
 } from '@blueprintjs/core'
 import dayjs from '@/utils/time'
@@ -41,12 +43,19 @@ const TaskActivity = (props) => {
                 <Icon icon='warning-sign' size={14} color={Colors.RED5} style={{ marginLeft: '0', marginBottom: '3px' }} />
               )}
               {t.status === 'TASK_RUNNING' && (
-                <Spinner
-                  className='task-spinner'
-                  size={14}
-                  intent={t.status === 'TASK_COMPLETED' ? 'success' : 'warning'}
-                  value={t.status === 'TASK_COMPLETED' ? 1 : t.progress}
-                />
+                <Tooltip content={`Task Running [STAGE ${t.pipelineRow}]`} position={Position.TOP}>
+                  <Spinner
+                    className='task-spinner'
+                    size={14}
+                    intent={t.status === 'TASK_COMPLETED' ? 'success' : 'warning'}
+                    value={t.status === 'TASK_COMPLETED' ? 1 : t.progress}
+                  />
+                </Tooltip>
+              )}
+              {t.status === 'TASK_CREATED' && (
+                <Tooltip content={`Task Created (Pending) [STAGE ${t.pipelineRow}]`} position={Position.TOP}>
+                  <Icon icon='pause' size={14} color={Colors.BLUE3} style={{ marginLeft: '0', marginBottom: '3px' }} />
+                </Tooltip>
               )}
             </div>
             <div
