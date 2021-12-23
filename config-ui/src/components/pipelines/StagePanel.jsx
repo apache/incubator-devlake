@@ -6,6 +6,8 @@ import {
   ButtonGroup,
   Elevation,
   Colors,
+  Spinner,
+  Intent
   // Alignment, Classes, Spinner
 } from '@blueprintjs/core'
 import { ReactComponent as PipelineRunningIcon } from '@/images/synchronize.svg'
@@ -13,7 +15,7 @@ import { ReactComponent as PipelineFailedIcon } from '@/images/no-synchronize.sv
 import { ReactComponent as PipelineCompleteIcon } from '@/images/check-circle.svg'
 
 const StagePanel = (props) => {
-  const { activePipeline, pipelineReady = false, stages, activeStageId = 1 } = props
+  const { activePipeline, pipelineReady = false, stages, activeStageId = 1, isLoading = false } = props
 
   return (
     <>
@@ -38,9 +40,28 @@ const StagePanel = (props) => {
         >
 
           <ButtonGroup style={{ backgroundColor: 'transparent' }}>
-            <Button minimal active style={{ backgroundColor: '#eeeeee' }}>
-              <h3 className='stage-panel-stage-name' style={{ margin: 0, fontSize: '18px', display: 'flex' }}>
-                {/* Stage 1 */}
+            <Button minimal active style={{ width: '32px', backgroundColor: '#eeeeee', padding: 0 }}>
+              <div style={{
+                margin: 0,
+                display: 'flex',
+                position: 'relative',
+                justifyContent: 'center',
+                alignItems: 'center',
+                alignContent: 'center'
+              }}
+              >
+                {isLoading && (
+                  <span style={{
+                    position: 'absolute',
+                    width: '24px',
+                    height: '24px',
+                    marginLeft: '4px',
+                    display: 'flex',
+                    justifyContent: 'center'
+                  }}
+                  >
+                    <Spinner size={20} intent={Intent.PRIMARY} />
+                  </span>)}
                 {(() => {
                   let statusIcon = null
                   switch (activePipeline.status) {
@@ -49,7 +70,7 @@ const StagePanel = (props) => {
                         <Icon
                           icon={<PipelineCompleteIcon
                             width={24} height={24} style={{
-                              margin: '0 0 0 10px',
+                              margin: '0 0 0 0',
                               display: 'flex',
                               alignSelf: 'center'
                             }}
@@ -64,7 +85,7 @@ const StagePanel = (props) => {
                           icon={<PipelineFailedIcon
                             width={24}
                             height={24} style={{
-                              margin: '0 0 0 10px',
+                              margin: '0 0 0 0',
                               display: 'flex',
                               alignSelf: 'center'
                             }}
@@ -77,11 +98,13 @@ const StagePanel = (props) => {
                     default:
                       statusIcon = (
                         <Icon
+                          style={{ margin: 0, padding: 0, float: 'left' }}
                           icon={<PipelineRunningIcon
                             width={24}
                             height={24} style={{
-                              margin: '0 0 0 10px',
-                              display: 'flex',
+                              margin: '0 0 0 0',
+                              padding: 0,
+                              display: 'inline',
                               alignSelf: 'center'
                             }}
                                 />}
@@ -90,11 +113,11 @@ const StagePanel = (props) => {
                       )
                       break
                   }
-                  return statusIcon
+                  return !isLoading && (<span style={{ position: 'absolute', marginLeft: '3px', width: '24px', height: '24px' }}>{statusIcon}</span>)
                 })()}
-              </h3>
+              </div>
             </Button>
-            {/* @todo: re-active "stage" ux in a future release */}
+            {/* @todo: re-activate "stage" ux in a future release */}
             {Object.keys(stages).length > 0 && (
               <>
                 {Object.keys(stages).map((s, sIdx) => (
@@ -166,20 +189,24 @@ const StagePanel = (props) => {
               </>
             )}
           </ButtonGroup>
-          <h3 style={{
-            textTransform: 'uppercase',
-            lineHeight: '33px',
-            margin: 0,
-            fontFamily: 'Montserrat',
-            fontWeight: 800,
-            letterSpacing: '2px'
-          }}
-          >Finished Tasks &middot; <span style={{ color: Colors.GREEN5 }}>{activePipeline.finishedTasks}</span>
-            <em style={{ color: '#dddddd', padding: '0 4px', textTransform: 'lowercase' }}>/</em>{activePipeline.totalTasks}
-          </h3>
-          <div style={{ display: 'flex', fontSize: '16px', fontWeight: 700, marginLeft: 'auto', lineHeight: '33px', padding: '0 10px' }}>
-
-            {Number((activePipeline.finishedTasks / activePipeline.totalTasks) * 100).toFixed(1)}%
+          <div style={{ display: 'flex', marginLeft: 'auto', padding: '0 10px' }}>
+            <h3
+              className='h3-finished-tasks-indicator'
+              style={{
+                textTransform: 'uppercase',
+                lineHeight: '33px',
+                margin: 0,
+                fontFamily: 'Montserrat',
+                fontWeight: 800,
+                fontSize: '13px',
+                letterSpacing: '2px',
+                justifySelf: 'flex-end'
+              }}
+            >Finished Tasks &middot; <span style={{ color: Colors.GREEN5 }}>{activePipeline.finishedTasks}</span>
+              <em style={{ color: '#dddddd', padding: '0 4px', textTransform: 'lowercase' }}>/</em>{activePipeline.totalTasks}
+            </h3>
+            {/* <span style={{fontSize: '16px', fontWeight: 700, marginLeft: 'auto', lineHeight: '33px'}} /> */}
+            {/* {Number((activePipeline.finishedTasks / activePipeline.totalTasks) * 100).toFixed(1)}% */}
           </div>
         </Card>
       </CSSTransition>

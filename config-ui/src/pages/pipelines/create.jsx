@@ -83,6 +83,8 @@ const CreatePipeline = (props) => {
   const [repositoryName, setRepositoryName] = useState('')
   const [owner, setOwner] = useState('')
 
+  const [autoRedirect, setAutoRedirect] = useState(true)
+
   const {
     runPipeline,
     cancelPipeline,
@@ -209,7 +211,10 @@ const CreatePipeline = (props) => {
 
   useEffect(() => {
     console.log('>> PIPELINE LAST RUN OBJECT CHANGED!!...', pipelineRun)
-  }, [pipelineRun])
+    if (pipelineRun.ID && autoRedirect) {
+      history.push(`/pipelines/activity/${pipelineRun.ID}`)
+    }
+  }, [pipelineRun, autoRedirect, history])
 
   useEffect(() => {
     console.log(namePrefix, nameSuffix)
