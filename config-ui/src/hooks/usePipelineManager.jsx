@@ -127,10 +127,6 @@ function usePipelineManager (pipelineName = `COLLECTION ${Date.now()}`, initialT
   // }
 
   useEffect(() => {
-    // setIntegrations(integrationsData)
-  }, [])
-
-  useEffect(() => {
     console.log('>> PIPELINE MANAGER - RECEIVED RUN/TASK SETTINGS', settings)
   }, [settings])
 

@@ -2,6 +2,7 @@ import React, { Fragment, useEffect, useCallback, useState, useRef } from 'react
 import { CSSTransition } from 'react-transition-group'
 import {
   useHistory,
+  useLocation,
   Link,
   // useParams,
 } from 'react-router-dom'
@@ -48,6 +49,7 @@ import '@/styles/pipelines.scss'
 
 const CreatePipeline = (props) => {
   const history = useHistory()
+  const location = useLocation()
   // const { providerId } = useParams()
   // const [activeProvider, setActiveProvider] = useState(integrationsData[0])
   const [integrations, setIntegrations] = useState(integrationsData)
@@ -71,6 +73,7 @@ const CreatePipeline = (props) => {
 
   const [enabledProviders, setEnabledProviders] = useState([])
   const [runTasks, setRunTasks] = useState([])
+  const [existingTasks, setExistingTasks] = useState([])
 
   const [namePrefix, setNamePrefix] = useState(pipelinePrefixes[0])
   const [nameSuffix, setNameSuffix] = useState(pipelineSuffixes[0])
@@ -84,6 +87,7 @@ const CreatePipeline = (props) => {
   const [owner, setOwner] = useState('')
 
   const [autoRedirect, setAutoRedirect] = useState(true)
+  const [restartDetected, setRestartDetected] = useState(false)
 
   const {
     runPipeline,
@@ -180,6 +184,16 @@ const CreatePipeline = (props) => {
     setPipelineName(`${namePrefix} ${nameSuffix}`)
   }
 
+  const resetConfiguration = () => {
+    setExistingTasks([])
+    setEnabledProviders([])
+    setProjectId(null)
+    setBoardId(null)
+    setSelectedSource(null)
+    setRepositoryName(null)
+    setOwner(null)
+  }
+
   useEffect(() => {
 
   }, [pipelineName])
@@ -235,7 +249,59 @@ const CreatePipeline = (props) => {
 
   useEffect(() => {
     console.log('>> BUILT JIRA INSTANCE SELECT MENU... ', sources)
-  }, [sources])
+    if (sources.length > 0 && restartDetected) {
+      const JiraTask = existingTasks.find(t => t.plugin === Providers.JIRA)
+      if (JiraTask) {
+        console.log('>>>>>HERE!!!', sources.find(s => s.id === parseInt(JiraTask.options?.sourceId, 10)))
+        setSelectedSource(sources.find(s => s.id === parseInt(JiraTask.options?.sourceId, 10)))
+      }
+    }
+  }, [sources, existingTasks, restartDetected])
+
+  useEffect(() => {
+    if (location.state?.existingTasks) {
+      console.log('>> RESTART ATTEMPT: DETECTED EXISTING PIPELINE CONFIGURATION... ', location.state.existingTasks)
+      const tasks = location.state.existingTasks
+      setRestartDetected(true)
+      setExistingTasks(tasks)
+      window.history.replaceState(null, '')
+      // !WARNING! This logic will only handle ONE STAGE (Stage 1)
+      // @todo: refactor later for multi-stage
+      const GitLabTask = tasks.find(t => t.plugin === Providers.GITLAB)
+      const GitHubTask = tasks.find(t => t.plugin === Providers.GITHUB)
+      const JiraTask = tasks.find(t => t.plugin === Providers.JIRA)
+      const JenkinsTask = tasks.find(t => t.plugin === Providers.JENKINS)
+      if (GitLabTask) {
+        setEnabledProviders(eP => [...eP, Providers.GITLAB])
+        // console.log('>>>> GL TASK OBJECT = ', GitLabTask)
+        setProjectId(GitLabTask.options?.projectId)
+      }
+      if (GitHubTask) {
+        setEnabledProviders(eP => [...eP, Providers.GITHUB])
+        // console.log('>>>> GH TASK OBJECT = ', GitHubTask)
+        setRepositoryName(GitHubTask.options?.repositoryName)
+        setOwner(GitHubTask.options?.owner)
+      }
+      if (JiraTask) {
+        setEnabledProviders(eP => [...eP, Providers.JIRA])
+        // console.log('>>>> JIRA TASK OBJECT = ', JiraTask)
+        setBoardId(JiraTask.options?.boardId)
+        // setSourceId(JiraTask.options?.sourceId)
+        // setSelectedSource(sources.find(s => s.id === parseInt(JiraTask.options?.sourceId, 10)))
+      }
+      if (JenkinsTask) {
+        setEnabledProviders(eP => [...eP, Providers.JENKINS])
+      }
+    } else {
+      setRestartDetected(false)
+      setExistingTasks([])
+    }
+
+    return () => {
+      setRestartDetected(false)
+      setExistingTasks([])
+    }
+  }, [location])
 
   return (
     <>
@@ -523,6 +589,7 @@ const CreatePipeline = (props) => {
               ><strong>Run</strong> Pipeline
               </Button>
               <Button className='btn-pipeline btn-view-jobs' icon='eye-open' minimal style={{ marginLeft: '5px' }}>View All Jobs</Button>
+              <Button className='btn-pipeline btn-reset-pipeline' icon='eraser' minimal style={{ marginLeft: '5px' }} onClick={resetConfiguration}>Reset</Button>
               {/* <div style={{ padding: '7px 5px 0 5px' }}>
                 <Tooltip content='Manage API Rate Limits' position={Position.TOP}>
                   <Switch
