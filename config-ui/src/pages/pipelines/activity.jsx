@@ -1,11 +1,8 @@
 import React, { Fragment, useEffect, useState, useRef } from 'react'
 import { CSSTransition } from 'react-transition-group'
-import { useHistory, useParams } from 'react-router-dom'
+import { useHistory, useParams, Link } from 'react-router-dom'
 import { GRAFANA_URL } from '@/utils/config'
 import dayjs from '@/utils/time'
-// import * as dayjs from 'dayjs'
-// import * as relativeTime from 'dayjs/plugin/relativeTime'
-// import * as updateLocale from 'dayjs/plugin/updateLocale'
 import {
   Button, Icon, Intent,
   Card, Elevation,
@@ -32,7 +29,7 @@ import { ReactComponent as GitlabProviderIcon } from '@/images/integrations/gitl
 import { ReactComponent as JenkinsProviderIcon } from '@/images/integrations/jenkins.svg'
 import { ReactComponent as JiraProviderIcon } from '@/images/integrations/jira.svg'
 import { ReactComponent as GitHubProviderIcon } from '@/images/integrations/github.svg'
-
+import { ReactComponent as BackArrowIcon } from '@/images/undo.svg'
 import { ReactComponent as HelpIcon } from '@/images/help.svg'
 
 const PipelineActivity = (props) => {
@@ -55,11 +52,11 @@ const PipelineActivity = (props) => {
     fetchPipeline,
     activePipeline,
     // pipelineRun,
-    isRunning,
+    // isRunning,
     isFetching,
     errors: pipelineErrors,
     // setSettings: setPipelineSettings,
-    lastRunId
+    // lastRunId
   } = usePipelineManager(pipelineName)
 
   // useEffect(() => {
@@ -68,25 +65,6 @@ const PipelineActivity = (props) => {
 
   useEffect(() => {
     setPipelineId(pId)
-    // dayjs.extend(relativeTime)
-    // dayjs.extend(updateLocale)
-    // dayjs.updateLocale('en', {
-    //   relativeTime: {
-    //     future: 'in %s',
-    //     past: '%s ago',
-    //     s: '< 1min',
-    //     m: 'a minute',
-    //     mm: '%d minutes',
-    //     h: 'an hour',
-    //     hh: '%d hours',
-    //     d: 'a day',
-    //     dd: '%d days',
-    //     M: 'a month',
-    //     MM: '%d months',
-    //     y: 'a year',
-    //     yy: '%d years'
-    //   }
-    // })
     console.log('>>> REQUESTED PIPELINE ID ===', pId)
   }, [pId])
 
@@ -100,10 +78,6 @@ const PipelineActivity = (props) => {
       clearInterval(pollInterval.current)
     }
   }, [pipelineId, activePipeline.status, fetchPipeline])
-
-  useEffect(() => {
-    console.log('>>> TASKS KEY', activePipeline.tasks)
-  }, [])
 
   useEffect(() => {
     setPipelineReady(activePipeline.ID !== null && !isFetching)
@@ -136,9 +110,19 @@ const PipelineActivity = (props) => {
               ]}
             />
             <div className='headlineContainer'>
-              {/* <Link style={{ float: 'right', marginLeft: '10px', color: '#777777' }} to='/integrations'>
-                <Icon icon='fast-backward' size={16} /> Go Back
-              </Link> */}
+              <Link style={{ display: 'flex', fontSize: '14px', float: 'right', marginLeft: '10px', color: '#777777' }} to='/'>
+                <Icon
+                  icon={
+                    <BackArrowIcon
+                      width={16} height={16}
+                      fill='rgba(0,0,0,0.25)'
+                      style={{
+                        marginRight: '6px'
+                      }}
+                    />
+                  } size={16}
+                /> Go Back
+              </Link>
               <div style={{ display: 'flex' }}>
                 <div>
                   <span style={{ marginRight: '10px' }}>
@@ -264,8 +248,9 @@ const PipelineActivity = (props) => {
                         <div className='pipeline-duration' style={{ paddingRight: '12px' }}>
                           <label style={{ color: Colors.GRAY3 }}>Duration</label>
                           <div style={{ fontSize: '15px', whiteSpace: 'nowrap' }}>
-                            {/* {activePipeline.spentSeconds >= 60 ? `${Number(activePipeline.spentSeconds / 60).toFixed(2)}mins` : `${activePipeline.spentSeconds}secs`} */}
-                            {activePipeline.status === 'TASK_RUNNING' ? dayjs(activePipeline.CreatedAt).toNow(true) : dayjs(activePipeline.UpdatedAt).from(activePipeline.CreatedAt, true)}
+                            {activePipeline.status === 'TASK_RUNNING'
+                              ? dayjs(activePipeline.CreatedAt).toNow(true)
+                              : dayjs(activePipeline.UpdatedAt).from(activePipeline.CreatedAt, true)}
                           </div>
                         </div>
                         <div className='pipeline-actions' style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
@@ -345,7 +330,9 @@ const PipelineActivity = (props) => {
                         enforceFocus={false}
                         usePortal={false}
                       >
-                        <a href='#' rel='noreferrer'><Icon icon='help' color={Colors.GRAY3} size={12} style={{ marginTop: '0', marginRight: '5px' }} /></a>
+                        <a href='#' rel='noreferrer'>
+                          <Icon icon='help' color={Colors.GRAY3} size={12} style={{ marginTop: '0', marginRight: '5px' }} />
+                        </a>
                         <>
                           <div style={{ textShadow: 'none', fontSize: '12px', padding: '12px', maxWidth: '315px' }}>
                             <div style={{
@@ -358,8 +345,8 @@ const PipelineActivity = (props) => {
                               <Icon icon='help' size={16} /> Stages and Tasks
                             </div>
                             <p>
-                              Monitor <strong>Duration</strong> and <strong>Progress</strong> completion for all tasks. <strong>Grafana</strong> access will be  enabled when the pipeline completes.
-
+                              Monitor <strong>Duration</strong> and <strong>Progress</strong> completion for all tasks.
+                              <strong>Grafana</strong> access will be  enabled when the pipeline completes.
                             </p>
 
                           </div>
@@ -374,7 +361,7 @@ const PipelineActivity = (props) => {
                     </div>
                     <div>
                       {isFetching && (
-                        <span style={{ color: Colors.GREEN5 }}>
+                        <span style={{ color: Colors.GRAY3 }}>
                           <Icon icon='updated' size={11} style={{ marginBottom: '2px' }} /> Refreshing Activity...
                         </span>
                       )}
