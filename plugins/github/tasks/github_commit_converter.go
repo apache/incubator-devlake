@@ -2,9 +2,7 @@ package tasks
 
 import (
 	lakeModels "github.com/merico-dev/lake/models"
-	"github.com/merico-dev/lake/models/domainlayer"
 	"github.com/merico-dev/lake/models/domainlayer/code"
-	"github.com/merico-dev/lake/models/domainlayer/didgen"
 	githubModels "github.com/merico-dev/lake/plugins/github/models"
 	"gorm.io/gorm/clause"
 )
@@ -24,11 +22,9 @@ func ConvertCommits() error {
 	}
 	return nil
 }
+
 func convertToCommitModel(commit *githubModels.GithubCommit) *code.Commit {
 	domainCommit := &code.Commit{
-		DomainEntity: domainlayer.DomainEntity{
-			Id: didgen.NewDomainIdGenerator(commit).Generate(commit.Sha),
-		},
 		Sha:            commit.Sha,
 		Message:        commit.Message,
 		Additions:      commit.Additions,
