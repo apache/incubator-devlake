@@ -55,6 +55,7 @@ func migrateDB() {
 		&code.Commit{},
 		&code.Pr{},
 		&code.Note{},
+		&code.RepoCommit{},
 		&ticket.Board{},
 		&ticket.Issue{},
 		&ticket.Changelog{},
