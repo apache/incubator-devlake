@@ -8,6 +8,7 @@ import {
   Colors,
   Tooltip,
   Position,
+  Intent,
   // Alignment
 } from '@blueprintjs/core'
 import dayjs from '@/utils/time'
@@ -29,14 +30,24 @@ const TaskActivity = (props) => {
           <div
             className='pipeline-task-row'
             key={`pipeline-task-key-${tIdx}`}
-            style={{ display: 'flex', padding: '4px 6px', justifyContent: 'space-between', fontSize: '12px', opacity: t.status === 'TASK_CREATED' ? 0.7 : 1 }}
+            style={{
+              display: 'flex',
+              padding: '4px 6px',
+              justifyContent: 'space-between',
+              fontSize: '12px',
+              opacity: t.status === 'TASK_CREATED' ? 0.7 : 1
+            }}
           >
             <div style={{ display: 'flex', justifyContent: 'center', paddingRight: '8px', width: '32px', minWidth: '32px' }}>
               {t.status === 'TASK_COMPLETED' && (
-                <Icon icon='small-tick' size={18} color={Colors.GREEN5} style={{ marginLeft: '0' }} />
+                <Tooltip content={`Task Complete [STAGE ${t.pipelineRow}]`} position={Position.TOP} intent={Intent.SUCCESS}>
+                  <Icon icon='small-tick' size={18} color={Colors.GREEN5} style={{ marginLeft: '0' }} />
+                </Tooltip>
               )}
               {t.status === 'TASK_FAILED' && (
-                <Icon icon='warning-sign' size={14} color={Colors.RED5} style={{ marginLeft: '0', marginBottom: '3px' }} />
+                <Tooltip content={`Task Failed [STAGE ${t.pipelineRow}]`} position={Position.TOP} intent={Intent.PRIMARY}>
+                  <Icon icon='warning-sign' size={14} color={Colors.RED5} style={{ marginLeft: '0', marginBottom: '3px' }} />
+                </Tooltip>
               )}
               {t.status === 'TASK_RUNNING' && (
                 <Tooltip content={`Task Running [STAGE ${t.pipelineRow}]`} position={Position.TOP}>
