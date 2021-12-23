@@ -25,6 +25,7 @@ import Content from '@/components/Content'
 import ContentLoader from '@/components/loaders/ContentLoader'
 import StagePanel from '@/components/pipelines/StagePanel'
 import TaskActivity from '@/components/pipelines/TaskActivity'
+import CodeInspector from '@/components/pipelines/CodeInspector'
 import { ReactComponent as GitlabProviderIcon } from '@/images/integrations/gitlab.svg'
 import { ReactComponent as JenkinsProviderIcon } from '@/images/integrations/jenkins.svg'
 import { ReactComponent as JiraProviderIcon } from '@/images/integrations/jira.svg'
@@ -524,48 +525,7 @@ const PipelineActivity = (props) => {
         </Content>
 
       </div>
-      <Drawer
-        className='drawer-json-inspector'
-        icon='code'
-        onClose={() => setShowInspector(false)}
-        title={`RUN No. ${activePipeline.ID} JSON Payload`}
-        position={Position.RIGHT}
-        size={DrawerSize.SMALL}
-        autoFocus
-        canEscapeKeyClose
-        canOutsideClickClose
-        enforceFocus
-        hasBackdrop
-        isOpen={showInspector}
-        usePortal
-      >
-        <div className={Classes.DRAWER_BODY}>
-          <div className={Classes.DIALOG_BODY}>
-            <h3 style={{ margin: 0, padding: '8px 0' }}>
-              <span style={{ float: 'right', fontSize: '9px', color: '#aaaaaa' }}>application/json</span> JSON RESPONSE
-            </h3>
-            <p>
-              If you are submitting a
-              <strong>Bug-Report</strong> regarding a Pipeline Run, include the output below for better debugging.
-            </p>
-            <div className='formContainer'>
-              <Card
-                interactive={false}
-                elevation={Elevation.ZERO}
-                style={{ padding: '6px 12px', minWidth: '320px', width: '100%', maxWidth: '601px', marginBottom: '20px', overflow: 'auto' }}
-              >
-
-                <code>
-                  <pre style={{ fontSize: '10px' }}>
-                    {JSON.stringify(activePipeline, null, '  ')}
-                  </pre>
-                </code>
-              </Card>
-            </div>
-          </div>
-        </div>
-      </Drawer>
-
+      <CodeInspector isOpen={showInspector} activePipeline={activePipeline} onClose={setShowInspector} />
     </>
   )
 }
