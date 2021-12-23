@@ -32,7 +32,7 @@ const TaskActivity = (props) => {
             key={`pipeline-task-key-${tIdx}`}
             style={{
               display: 'flex',
-              padding: '4px 6px',
+              padding: '4px 0',
               justifyContent: 'space-between',
               fontSize: '12px',
               opacity: t.status === 'TASK_CREATED' ? 0.7 : 1

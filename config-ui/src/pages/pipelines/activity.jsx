@@ -202,15 +202,17 @@ const PipelineActivity = (props) => {
                 </div>
               </div>
             </div>
-            {!autoRefresh && isFetching && (
+            {/* (using native loader instead...) */}
+            {/* {!autoRefresh && isFetching && (
               <ContentLoader title='Loading Pipeline Run ...' message='Please wait while pipeline activity is loaded.' />
-            )}
+            )} */}
             {activePipeline?.ID && (
               <>
                 <StagePanel
                   activePipeline={activePipeline} pipelineReady={pipelineReady}
                   stages={buildPipelineStages(activePipeline.tasks)}
                   activeStageId={findActiveStageId(activePipeline.tasks)}
+                  isLoading={isFetching}
                 />
                 <div style={{ marginBottom: '24px', width: '100%' }}>
                   <CSSTransition
