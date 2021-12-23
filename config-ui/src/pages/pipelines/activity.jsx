@@ -61,8 +61,9 @@ const PipelineActivity = (props) => {
     // isRunning,
     isFetching,
     errors: pipelineErrors,
-    // setSettings: setPipelineSettings,
-    // lastRunId
+    setSettings: setPipelineSettings,
+    // setAutoStart: setPipelineAutoStart,
+    lastRunId,
   } = usePipelineManager(pipelineName)
 
   const pipelineHasProvider = (providerId) => {
@@ -86,9 +87,34 @@ const PipelineActivity = (props) => {
     return activeTask?.pipelineRow || 1
   }
 
+  const restartPipeline = useCallback((tasks = []) => {
+    const existingTasksConfiguration = tasks.map(t => {
+      return {
+        plugin: t.plugin,
+        options: t.options
+      }
+    })
+    console.log('>>> RESTARTING PIPELINE WITH EXISTING CONFIGURATION!!', existingTasksConfiguration)
+    // setPipelineAutoStart(true)
+    // setPipelineSettings({
+    //   autoStart: true,
+    //   name: `RETRY | ${activePipeline.name}`,
+    //   tasks: [
+    //     [...existingTasksConfiguration]
+    //   ]
+    // })
+    history.push({
+      pathname: '/pipelines/create',
+      state: {
+        existingTasks: existingTasksConfiguration
+      }
+    })
+  }, [activePipeline.name, setPipelineSettings])
+
   useEffect(() => {
     setPipelineId(pId)
     console.log('>>> REQUESTED PIPELINE ID ===', pId)
+    // return () => setPipelineAutoStart(false)
   }, [pId])
 
   useEffect(() => {
@@ -127,6 +153,10 @@ const PipelineActivity = (props) => {
   useEffect(() => {
 
   }, [stages])
+
+  useEffect(() => {
+    console.log('>>> GOT LAST RUN ID!', lastRunId)
+  }, [lastRunId])
 
   return (
     <>
@@ -344,15 +374,19 @@ const PipelineActivity = (props) => {
                               icon='reset'
                               text='RESTART'
                               intent='warning'
+                              onClick={() => restartPipeline(activePipeline.tasks)}
                               disabled={activePipeline.status !== 'TASK_FAILED'}
                             />
                           )}
-                          <Button
-                            icon='refresh'
-                            style={{ marginLeft: '5px' }}
-                            disabled={activePipeline.status === 'TASK_RUNNING' || activePipeline.status === 'TASK_FAILED'}
-                            minimal
-                          />
+                          {activePipeline.status !== 'TASK_FAILED' && (
+                            <Button
+                              icon='refresh'
+                              style={{ marginLeft: '5px' }}
+                              onClick={() => restartPipeline(activePipeline.tasks)}
+                              disabled={activePipeline.status === 'TASK_RUNNING' || activePipeline.status === 'TASK_FAILED'}
+                              minimal
+                            />
+                          )}
                         </div>
 
                       </div>
