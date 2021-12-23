@@ -199,7 +199,7 @@ NOTE: After installing docker, you may need to run the docker application and re
    ```sh
    git clone https://github.com/merico-dev/lake.git devlake
    cd devlake
-   cp .env.example .env
+   cp .env.example config.env
    ```
 2. Start Docker on your machine, then run `docker compose up -d` to start the services.
 
@@ -277,7 +277,7 @@ To synchronize data periodically, we provide [`lake-cli`](./cmd/lake-cli/README.
 3. Copy the sample config file to new local file:
 
     ```sh
-    cp .env.example .env
+    cp .env.example config.env
     ```
 
 4. Update the following variables in the file `.env`:

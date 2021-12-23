@@ -198,7 +198,7 @@ GitHub | 概述，数据和指标，配置，API | [Link](plugins/github/README-
    ```sh
    git clone https://github.com/merico-dev/lake.git devlake
    cd devlake
-   cp .env.example .env
+   cp .env.example config.env
    ```
 2. 启动 Docker，然后运行 `docker-compose up -d` 启动服务。
 
@@ -275,7 +275,7 @@ GitHub | 概述，数据和指标，配置，API | [Link](plugins/github/README-
 3. 将样本配置文件复制到新的本地文件
 
     ```sh
-    cp .env.example .env
+    cp .env.example config.env
     ```
    在`.env`文件中找到以`DB_URL`开头的那一行，把`mysql:3306`替换为`127.0.0.1:3306`
 

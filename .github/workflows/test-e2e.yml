@@ -35,5 +35,5 @@ jobs:
         redis-version: '6.x'
     - name: Test
       run: |
-        cp .env.example .env
+        cp .env.example config.env
         make e2e-test
