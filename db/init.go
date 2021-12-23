@@ -16,15 +16,28 @@ import (
 
 // var MIGRATIONS_PATH string = "file://./db/migration"
 var MIGRATIONS_PATH string = GetFilePath()
+var PLUGINS_PATH string = GetPluginsPath()
 
-func GetFilePath() string {
-	ex, err := os.Executable()
+func GetPluginsPath() string {
+	relPath := plugins.PluginDir()
+	exPath, err := os.Getwd()
 	if err != nil {
 		panic(err)
 	}
-	exPath := filepath.Dir(ex)
-	fmt.Println("JON >>> exPath", exPath)
-	return fmt.Sprintf("file://%v/lake/db/migration", exPath)
+	return fmt.Sprintf("%v/../../../%v", exPath, relPath)
+}
+func GetFilePath() string {
+	// ex, err := os.Executable()
+	// if err != nil {
+	// 	panic(err)
+	// }
+	exPath, err := os.Getwd()
+	if err != nil {
+		panic(err)
+	}
+	// exPath := filepath.Dir(ex)
+	// The reason for the "../"s is the working directory starts at lake/test/api/task (due to init() functions I assume)
+	return fmt.Sprintf("file://%v/../../../../lake/db/migration", exPath)
 }
 
 func MigrateDB(dbName string) {
@@ -32,7 +45,8 @@ func MigrateDB(dbName string) {
 	if err != nil {
 		fmt.Println("INFO: ", err)
 	}
-	RunPluginMigrations(dbName, plugins.PluginDir())
+
+	RunPluginMigrations(dbName)
 }
 
 // We need to maintain separate tables for migration tracking for each plugin.
@@ -43,9 +57,11 @@ func GolangMigrateDBString(pluginName string) string {
 }
 
 // Run the migration folder for all plugins that have a compiled .so file
-func RunPluginMigrations(dbName string, pluginsDir string) {
-	walkErr := filepath.WalkDir(pluginsDir, func(path string, d fs.DirEntry, err error) error {
+func RunPluginMigrations(dbName string) {
+	fmt.Println("KEVIN >>> PLUGINS_PATH", PLUGINS_PATH)
+	walkErr := filepath.WalkDir(PLUGINS_PATH, func(path string, d fs.DirEntry, err error) error {
 		if err != nil {
+			fmt.Println("KEVIN >>> err", err)
 			return err
 		}
 		fileName := d.Name()
@@ -60,19 +76,37 @@ func RunPluginMigrations(dbName string, pluginsDir string) {
 	}
 }
 
+// exists returns whether the given file or directory exists
+func exists(path string) (bool, error) {
+	_, err := os.Stat(path)
+	if err == nil {
+		return true, nil
+	}
+	if os.IsNotExist(err) {
+		return false, nil
+	}
+	return false, err
+}
+
 // Run the plugins/<pluginName>/migration folder in order
 func RunPluginMigrationsUp(dbName string, pluginName string) {
 	connectionString := GolangMigrateDBString(pluginName)
-	path := fmt.Sprintf("file://./plugins/%v/migration", pluginName)
-
-	m, err := migrate.New(path, connectionString)
-
+	path := fmt.Sprintf("file://./../../../plugins/%v/migration", pluginName)
+	// check if path exists
+	pathExists, err := exists(path)
 	if err != nil {
-		fmt.Println("INFO: RunPluginMigrationsUp: Could not init migrate for UP: ", pluginName, err)
+		panic(err)
 	}
-	err = m.Up()
-	if err != nil {
-		fmt.Println("INFO: RunPluginMigrationsUp: Could not run migrations UP: ", pluginName, err)
+	if pathExists {
+		m, err := migrate.New(path, connectionString)
+
+		if err != nil {
+			fmt.Println("INFO: RunPluginMigrationsUp: Could not init migrate for UP: ", pluginName, err)
+		}
+		err = m.Up()
+		if err != nil {
+			fmt.Println("INFO: RunPluginMigrationsUp: Could not run migrations UP: ", pluginName, err)
+		}
 	}
 }
 

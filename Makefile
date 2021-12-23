@@ -45,7 +45,7 @@ models-test:
 	TEST=true go test ./models/test -v
 
 e2e-test: build
-	PLUGIN_DIR=$(shell readlink -f bin/plugins) go test -v ./test/...
+	TEST=true PLUGIN_DIR=$(shell readlink -f bin/plugins) go test -v ./test/...
 
 lint:
 	golangci-lint run

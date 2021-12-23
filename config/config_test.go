@@ -3,7 +3,7 @@ package config
 import (
 	"testing"
 
-	"github.com/magiconair/properties/assert"
+	"github.com/stretchr/testify/assert"
 )
 
 func TestGetConfigJson(t *testing.T) {
@@ -18,7 +18,8 @@ func TestReadAndWriteToConfig(t *testing.T) {
 	currentDbName := configJson.DB_DATABASE
 	newDbName := "ThisIsATest"
 	assert.Equal(t, currentDbName != newDbName, true)
-	V := LoadConfigFile()
+	V, err := LoadConfigFile()
+	assert.Nil(t, err)
 	V.Set("DB_DATABASE", newDbName)
 	err = V.WriteConfig()
 	assert.Equal(t, err == nil, true)

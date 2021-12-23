@@ -1,6 +1,7 @@
 package test
 
 import (
+	"fmt"
 	"os"
 	"testing"
 
@@ -13,6 +14,7 @@ import (
 // http://cs-guy.com/blog/2015/01/test-main/
 
 func TestMain(m *testing.M) {
+	fmt.Println("KEVIN >>> Inside TestMain")
 	err := setup()
 	if err != nil {
 		os.Exit(1)

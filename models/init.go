@@ -6,7 +6,6 @@ import (
 	"os"
 	"time"
 
-	"github.com/merico-dev/lake/config"
 	lakeDb "github.com/merico-dev/lake/db"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
@@ -16,13 +15,11 @@ import (
 var Db *gorm.DB
 
 func init() {
-	config.LoadConfigFile()
-
 	connectionString := lakeDb.GetConnectionString("", false)
 
-	if config.V.Get("TEST") == "true" {
-		connectionString = "merico:merico@tcp(localhost:3306)/lake_test"
-	}
+	// if config.V.Get("TEST") == "true" {
+	// 	connectionString = "merico:merico@tcp(localhost:3306)/lake_test"
+	// }
 	var err error
 
 	newLogger := logger.New(
@@ -34,8 +31,6 @@ func init() {
 			Colorful:                  true,         // Disable color
 		},
 	)
-
-	fmt.Println("JON >>> connectionString", connectionString)
 
 	Db, err = gorm.Open(mysql.Open(connectionString), &gorm.Config{
 		Logger: newLogger,

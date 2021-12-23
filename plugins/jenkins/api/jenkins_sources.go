@@ -51,7 +51,10 @@ func PutSource(input *core.ApiResourceInput) (*core.ApiResourceOutput, error) {
 	if err != nil {
 		return nil, err
 	}
-	V := config.LoadConfigFile()
+	V, err := config.LoadConfigFile()
+	if err != nil {
+		return nil, err
+	}
 	V.Set("JENKINS_ENDPOINT", jenkinsSource.JENKINS_ENDPOINT)
 	V.Set("JENKINS_USERNAME", jenkinsSource.JENKINS_USERNAME)
 	V.Set("JENKINS_PASSWORD", jenkinsSource.JENKINS_PASSWORD)

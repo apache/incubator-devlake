@@ -37,7 +37,10 @@ func PutSource(input *core.ApiResourceInput) (*core.ApiResourceOutput, error) {
 	if err != nil {
 		return nil, err
 	}
-	V := config.LoadConfigFile()
+	V, err := config.LoadConfigFile()
+	if err != nil {
+		return nil, err
+	}
 	if gitlabSource.GITLAB_ENDPOINT != "" {
 		V.Set("GITLAB_ENDPOINT", gitlabSource.GITLAB_ENDPOINT)
 	}
@@ -81,9 +84,12 @@ func GetSource(input *core.ApiResourceInput) (*core.ApiResourceOutput, error) {
 }
 
 func GetSourceFromEnv() (*GitlabResponse, error) {
-	V := config.LoadConfigFile()
+	V, err := config.LoadConfigFile()
+	if err != nil {
+		return nil, err
+	}
 	var configJson GitlabConfig
-	err := V.Unmarshal(&configJson)
+	err = V.Unmarshal(&configJson)
 	if err != nil {
 		return nil, err
 	}

@@ -7,6 +7,7 @@ import (
 )
 
 func GetConnectionString(dbParams string, includeDriver bool) string {
+
 	user := config.V.GetString("DB_USER")
 	pass := config.V.GetString("DB_PASSWORD")
 	host := config.V.GetString("DB_HOST")
@@ -14,11 +15,8 @@ func GetConnectionString(dbParams string, includeDriver bool) string {
 	name := config.V.GetString("DB_DATABASE")
 	driver := config.V.GetString("DB_DRIVER")
 
-	fmt.Println("JON >>> user", user)
-
 	params := fmt.Sprintf("%v&%v", dbParams, config.V.GetString("DB_PARAMS"))
 	connectionString := fmt.Sprintf("%v:%v@tcp(%v:%v)/%v?%v", user, pass, host, port, name, params)
-
 	if includeDriver {
 		return fmt.Sprintf("%v://%v", driver, connectionString)
 	} else {

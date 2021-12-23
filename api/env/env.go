@@ -30,7 +30,12 @@ func Set(ctx *gin.Context) {
 		return
 	}
 
-	V := config.LoadConfigFile()
+	V, err := config.LoadConfigFile()
+	if err != nil {
+		logger.Error("", err)
+		ctx.JSON(http.StatusInternalServerError, "Could not load config file")
+		return
+	}
 
 	// TODO: Lets find a way to make this not have to be changed so much
 	V.Set("PORT", data.PORT)

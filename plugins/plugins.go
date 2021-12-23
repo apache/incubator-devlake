@@ -19,6 +19,7 @@ import (
 func LoadPlugins(pluginsDir string) error {
 	walkErr := filepath.WalkDir(pluginsDir, func(path string, d fs.DirEntry, err error) error {
 		if err != nil {
+			fmt.Println("KEVIN >>> err", err)
 			return err
 		}
 		fileName := d.Name()
