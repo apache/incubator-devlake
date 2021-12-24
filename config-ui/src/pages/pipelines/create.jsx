@@ -252,7 +252,6 @@ const CreatePipeline = (props) => {
     if (sources.length > 0 && restartDetected) {
       const JiraTask = existingTasks.find(t => t.plugin === Providers.JIRA)
       if (JiraTask) {
-        console.log('>>>>>HERE!!!', sources.find(s => s.id === parseInt(JiraTask.options?.sourceId, 10)))
         setSelectedSource(sources.find(s => s.id === parseInt(JiraTask.options?.sourceId, 10)))
       }
     }
@@ -273,21 +272,16 @@ const CreatePipeline = (props) => {
       const JenkinsTask = tasks.find(t => t.plugin === Providers.JENKINS)
       if (GitLabTask) {
         setEnabledProviders(eP => [...eP, Providers.GITLAB])
-        // console.log('>>>> GL TASK OBJECT = ', GitLabTask)
         setProjectId(GitLabTask.options?.projectId)
       }
       if (GitHubTask) {
         setEnabledProviders(eP => [...eP, Providers.GITHUB])
-        // console.log('>>>> GH TASK OBJECT = ', GitHubTask)
         setRepositoryName(GitHubTask.options?.repositoryName)
         setOwner(GitHubTask.options?.owner)
       }
       if (JiraTask) {
         setEnabledProviders(eP => [...eP, Providers.JIRA])
-        // console.log('>>>> JIRA TASK OBJECT = ', JiraTask)
         setBoardId(JiraTask.options?.boardId)
-        // setSourceId(JiraTask.options?.sourceId)
-        // setSelectedSource(sources.find(s => s.id === parseInt(JiraTask.options?.sourceId, 10)))
       }
       if (JenkinsTask) {
         setEnabledProviders(eP => [...eP, Providers.JENKINS])
