@@ -11,12 +11,12 @@ import {
   Position,
   Spinner,
   Colors,
+  Classes,
   // Drawer,
   // DrawerSize,
-  Classes,
   // ButtonGroup, InputGroup, Input, Tag,H2, TextArea,Link
 } from '@blueprintjs/core'
-import { integrationsData } from '@/data/integrations'
+// import { integrationsData } from '@/data/integrations'
 import {
   Providers,
   ProviderLabels
@@ -101,7 +101,7 @@ const PipelineActivity = (props) => {
         existingTasks: existingTasksConfiguration
       }
     })
-  }, [activePipeline.name, setPipelineSettings])
+  }, [history])
 
   useEffect(() => {
     setPipelineId(pId)
