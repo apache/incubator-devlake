@@ -1,4 +1,3 @@
-
 .data-providers {
   min-width: 514px;
 }
@@ -9,7 +8,7 @@
   width: 100%;
   padding: 24px 12px;
   transition: background-color 0.3s ease;
-  border-bottom: 1px solid rgba(0,0,0,0.08);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
   border-radius: 8px;
   -webkit-user-select: none;
   -moz-user-select: none;
@@ -29,13 +28,12 @@
     opacity: 0;
     visibility: hidden;
     content: '(Turn ON to Configure)';
-    color: rgba(100,100,100,0.25);
+    color: rgba(100, 100, 100, 0.25);
     transition: all 0.4s ease-in;
   }
 
   &:hover {
-    background-color: rgba(0,0,0,0.03);
-    // box-shadow: 0 0 0 0 rgba(232, 71, 28, 0), 0 0 0 0 rgba(232, 71, 28, 0), inset 0 0 0 1px rgba(16, 22, 26, 0.15), inset 0 1px 1px rgba(16, 22, 26, 0.2);
+    background-color: rgba(0, 0, 0, 0.03);
   }
 
   &.on {
@@ -48,27 +46,18 @@
     .provider-name {
       opacity: 0.7;
     }
+
     .provider-icon {
       opacity: 0.7;
       transform: scale(0.9);
     }
+
     &:hover {
       &:after {
         top: 5px;
         right: 5px;
         opacity: 1;
-        visibility: visible;        
-        // display: inline-block;
-        // width: 150px;
-        // height: 24px;
-        // line-height: 24px;
-        // font-size: 11px;
-        // position: absolute;
-        // top: 5px;
-        // right: 10px;
-        // content: '(Turn ON to Configure)';
-        // color: rgba(100,100,100,0.25);
-        // transition: all 0.4s ease-in;
+        visibility: visible;
       }
     }
   }
@@ -82,10 +71,12 @@
 
     .provider-icon {
       transition: all 0.3s ease;
-      > svg {
+
+      >svg {
         transition: all 0.3s ease;
       }
     }
+
     .provider-name {
       font-family: 'Montserrat', sans-serif;
       font-weight: 900;
@@ -93,10 +84,12 @@
       font-size: 14px;
       margin-bottom: 3px;
       transition: all 0.3s ease;
+
       &:hover {
         color: #007cff;
-      } 
+      }
     }
+
     .bp3-popover-wrapper {
       width: auto;
     }
@@ -107,7 +100,7 @@
     padding: 0 20px;
     align-items: flex-end;
     display: flex;
-    
+
     .bp3-form-group {
       margin-bottom: 0;
     }
@@ -131,9 +124,6 @@
 }
 
 .btn-pipeline {
-  // font-family: 'Montserrat', sans-serif;
-  // text-transform: uppercase;
-  // letter-spacing: 2px;
   font-weight: 800;
   transition: all 0.4s ease;
   white-space: nowrap;
@@ -146,18 +136,20 @@
 .bp3-switch {
   &.provider-toggle-switch {
     margin-bottom: 0;
+
     &:not(.bp3-align-right) {
       padding-left: 43px
     }
-    
+
   }
 }
 
 .pipeline-action-btn {
   transition: all 0.4s ease;
+
   &:hover {
     svg {
-      fill: #007cff!important
+      fill: #007cff !important
     }
   }
 }
@@ -207,7 +199,6 @@
 }
 
 .activity-panel-enter {
-  // transform: rotateX(-50deg);
   transform: scale(1.01);
   background-color: #f0f0f0;
   opacity: 1;
@@ -215,7 +206,6 @@
 }
 
 .activity-panel-enter-done {
-  // transform: rotateX(0deg);
   transform: scale(1);
   background-color: #ffffff;
   opacity: 1;
@@ -223,16 +213,14 @@
 }
 
 .activity-panel-exit {
-  // transform: rotateX(20deg);
   background-color: #f7f7f7;
   opacity: 1;
   transition: opacity 300ms, transform 300ms, background-color 800ms;
 }
 
 .activity-panel-exit-active {
-  // transform: rotateX(40deg);
   background-color: #eeeeee;
-  opacity: 1;  
+  opacity: 1;
   transition: opacity 300ms, transform 300ms, background-color 800ms;
 }
 
@@ -247,7 +235,6 @@
 
 .bp3-popover {
   &.popover-lastrun {
-    // margin-left: -8px;
     -webkit-user-select: none;
     -moz-user-select: none;
     -ms-user-select: none;
@@ -261,81 +248,80 @@
   }
 }
 
-.trigger-module-lastrun {
-
-}
+.trigger-module-lastrun {}
 
 .bp3-button {
-    &.btn-cancel-pipeline {
+  &.btn-cancel-pipeline {
     transition: all 0.4s ease;
     background-color: darken(#FFA8A8, 5%);
     border: 1px solid darken(#FF6D6D, 5%);
     box-shadow: 0px 0px 3px rgba(0, 0, 0, 0.35);
     border-radius: 6px;
-    // font-family: 'Montserrat', sans-serif;
     font-style: normal;
     font-weight: 900;
-    // font-size: 11px;
     color: #ffffff;
 
-    &:hover,:active,&.bp3-active {
-      background-color: darken(#FFA8A8, 10%)!important;
-      border: 1px solid darken(#FF6D6D, 10%)!important;
-      box-shadow: 0px 0px 6px rgba(0, 0, 0, 0.40)!important;
+    &:hover,
+    :active,
+    &.bp3-active {
+      background-color: darken(#FFA8A8, 10%) !important;
+      border: 1px solid darken(#FF6D6D, 10%) !important;
+      box-shadow: 0px 0px 6px rgba(0, 0, 0, 0.40) !important;
     }
   }
 
   &.btn-retry-pipeline {
     transition: all 0.4s ease;
-    // background-color: darken(#a8d8ff, 5%);
-    // border: 1px solid darken(#6dd6ff, 5%);
     box-shadow: 0px 0px 3px rgba(0, 0, 0, 0.35);
     border-radius: 6px;
-    // font-family: 'Montserrat', sans-serif;
     font-style: normal;
     font-weight: 900;
-    // font-size: 11px;
     color: #ffffff;
 
-    &:hover,:active,&.bp3-active {
-      // background-color: darken(#a8d8ff, 15%);
-      // border: 1px solid darken(#6dd6ff, 15%);
+    &:hover,
+    :active,
+    &.bp3-active {
       box-shadow: 0px 0px 6px rgba(0, 0, 0, 0.40);
     }
-  }  
+  }
 }
 
 .bp3-input-group {
   .bp3-input {
     transition: all 0.3s ease;
   }
+
   &.is-invalid {
     .bp3-input {
       background-color: lighten(#FFA8A8, 13%);
       color: darken(#FF6D6D, 20%);
       border: 1px solid darken(#FF6D6D, 10%);
+
       &::placeholder {
         color: lighten(#FF6D6D, 10%);
       }
     }
-  }  
+  }
+
   &.is-valid {
     .bp3-input {
       background-color: lighten(#b5ffe0, 11%);
       color: darken(#00cf8a, 5%);
       border: 1px solid darken(#6dffce, 15%);
-      // font-weight: 800;
+
       &::placeholder {
         color: lighten(#6dffce, 10%);
       }
+
       &:focus {
         box-shadow: 0 0 0 1px #1ce878, 0 0 0 3px rgba(28, 232, 188, 0.3), inset 0 1px 1px rgba(16, 26, 23, 0.2)
       }
     }
-  }    
+  }
 }
 
-.bp3-popover-wrapper, .bp3-popover-target {
+.bp3-popover-wrapper,
+.bp3-popover-target {
   width: auto;
 }
 
@@ -348,12 +334,13 @@
 }
 
 .bp3-menu {
- &.pipeline-presets-menu {
+  &.pipeline-presets-menu {
     .bp3-menu-item {
-        &.bp3-active {
+      &.bp3-active {
         background-color: transparent;
         color: #007cff;
         font-weight: 800;
+
         &:hover {
           background-color: rgba(66, 66, 66, 0.08);
           color: darken(#007cff, 5%);
