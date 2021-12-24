@@ -11,8 +11,8 @@ import {
   Position,
   Spinner,
   Colors,
-  Drawer,
-  DrawerSize,
+  // Drawer,
+  // DrawerSize,
   Classes,
   // ButtonGroup, InputGroup, Input, Tag,H2, TextArea,Link
 } from '@blueprintjs/core'
@@ -26,7 +26,7 @@ import Nav from '@/components/Nav'
 import Sidebar from '@/components/Sidebar'
 import AppCrumbs from '@/components/Breadcrumbs'
 import Content from '@/components/Content'
-import ContentLoader from '@/components/loaders/ContentLoader'
+// import ContentLoader from '@/components/loaders/ContentLoader'
 import StagePanel from '@/components/pipelines/StagePanel'
 import TaskActivity from '@/components/pipelines/TaskActivity'
 import CodeInspector from '@/components/pipelines/CodeInspector'
@@ -95,14 +95,6 @@ const PipelineActivity = (props) => {
       }
     })
     console.log('>>> RESTARTING PIPELINE WITH EXISTING CONFIGURATION!!', existingTasksConfiguration)
-    // setPipelineAutoStart(true)
-    // setPipelineSettings({
-    //   autoStart: true,
-    //   name: `RETRY | ${activePipeline.name}`,
-    //   tasks: [
-    //     [...existingTasksConfiguration]
-    //   ]
-    // })
     history.push({
       pathname: '/pipelines/create',
       state: {
@@ -114,7 +106,6 @@ const PipelineActivity = (props) => {
   useEffect(() => {
     setPipelineId(pId)
     console.log('>>> REQUESTED PIPELINE ID ===', pId)
-    // return () => setPipelineAutoStart(false)
   }, [pId])
 
   useEffect(() => {
