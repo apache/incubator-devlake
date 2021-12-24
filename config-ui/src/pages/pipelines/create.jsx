@@ -583,8 +583,19 @@ const CreatePipeline = (props) => {
                 loading={isRunning}
               ><strong>Run</strong> Pipeline
               </Button>
-              <Button className='btn-pipeline btn-view-jobs' icon='eye-open' minimal style={{ marginLeft: '5px' }}>View All Jobs</Button>
-              <Button className='btn-pipeline btn-reset-pipeline' icon='eraser' minimal style={{ marginLeft: '5px' }} onClick={resetConfiguration}>Reset</Button>
+              <Tooltip content='Manage Pipelines (Coming Soon)' position={Position.TOP}>
+                <Button
+                  className='btn-pipeline btn-view-jobs'
+                  icon='eye-open' minimal style={{ marginLeft: '5px' }}
+                >View All Pipelines
+                </Button>
+              </Tooltip>
+              <Button
+                className='btn-pipeline btn-reset-pipeline'
+                icon='eraser' minimal style={{ marginLeft: '5px' }}
+                onClick={resetConfiguration}
+              >Reset
+              </Button>
               {/* <div style={{ padding: '7px 5px 0 5px' }}>
                 <Tooltip content='Manage API Rate Limits' position={Position.TOP}>
                   <Switch
