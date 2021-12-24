@@ -144,9 +144,9 @@ const StagePanel = (props) => {
                     rightIcon={
                       sIdx !== (Object.keys(stages).length - 1)
                         ? (
-                          <Button
+                          <span
                             className='stage-panel-stage-separator'
-                            minimal style={{
+                            style={{
                               backgroundColor: '#eeeeee',
                               color: '#cccccc',
                               fontSize: '35px',
@@ -158,7 +158,7 @@ const StagePanel = (props) => {
                               fontWeight: 100,
                             }}
                           >/
-                          </Button>
+                          </span>
                           )
                         : null
                     }
