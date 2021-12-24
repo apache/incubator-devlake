@@ -60,6 +60,7 @@ func migrateDB() {
 		&ticket.Board{},
 		&ticket.Issue{},
 		&ticket.BoardIssue{},
+		&ticket.BoardSprint{},
 		&ticket.Changelog{},
 		&ticket.Sprint{},
 		&ticket.SprintIssue{},
