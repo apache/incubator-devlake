@@ -10,13 +10,13 @@ func CreateSprint(boardId string) (*ticket.Sprint, error) {
 		DomainEntity: domainlayer.DomainEntity{
 			Id: RandIntString(),
 		},
-		BoardId:      boardId, // ref to board
-		Url:          "",
-		State:        "",
-		Name:         "",
-		StartDate:    nil,
-		EndDate:      nil,
-		CompleteDate: nil,
+		BoardId:       boardId, // ref to board
+		Url:           "",
+		Status:        "",
+		Name:          "",
+		StartedDate:   nil,
+		EndedDate:     nil,
+		CompletedDate: nil,
 	}
 	return sprint, nil
 }
