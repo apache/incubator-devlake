@@ -185,13 +185,14 @@ const CreatePipeline = (props) => {
   }
 
   const resetConfiguration = () => {
+    window.history.replaceState(null, '')
     setExistingTasks([])
     setEnabledProviders([])
     setProjectId(null)
     setBoardId(null)
     setSelectedSource(null)
-    setRepositoryName(null)
-    setOwner(null)
+    setRepositoryName('')
+    setOwner('')
   }
 
   useEffect(() => {
@@ -249,13 +250,7 @@ const CreatePipeline = (props) => {
 
   useEffect(() => {
     console.log('>> BUILT JIRA INSTANCE SELECT MENU... ', sources)
-    if (sources.length > 0 && restartDetected) {
-      const JiraTask = existingTasks.find(t => t.plugin === Providers.JIRA)
-      if (JiraTask) {
-        setSelectedSource(sources.find(s => s.id === parseInt(JiraTask.options?.sourceId, 10)))
-      }
-    }
-  }, [sources, existingTasks, restartDetected])
+  }, [sources])
 
   useEffect(() => {
     if (location.state?.existingTasks) {
@@ -280,8 +275,14 @@ const CreatePipeline = (props) => {
         setOwner(GitHubTask.options?.owner)
       }
       if (JiraTask) {
+        // const selSource = sources.find(s => s.ID === parseInt(JiraTask.options?.sourceId, 10))
         setEnabledProviders(eP => [...eP, Providers.JIRA])
         setBoardId(JiraTask.options?.boardId)
+        setSelectedSource({
+          id: parseInt(JiraTask.options?.sourceId, 10),
+          title: '(Instance)',
+          value: parseInt(JiraTask.options?.sourceId, 10)
+        })
       }
       if (JenkinsTask) {
         setEnabledProviders(eP => [...eP, Providers.JENKINS])
