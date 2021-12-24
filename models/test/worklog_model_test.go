@@ -11,9 +11,9 @@ import (
 func TestInsertWorklog(t *testing.T) {
 	board, err := factory.CreateBoard()
 	assert.Nil(t, err)
-	issue, err := factory.CreateIssue(board.DomainEntity.Id)
+	issue, err := factory.CreateIssue()
 	assert.Nil(t, err)
-	worklog, err := factory.CreateWorklog(board.DomainEntity.Id, issue.DomainEntity.Id)
+	worklog, err := factory.CreateWorklog(board.Id, issue.Id)
 	assert.Nil(t, err)
 	tx := models.Db.Create(&worklog)
 	assert.Nil(t, tx.Error)

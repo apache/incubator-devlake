@@ -4,7 +4,6 @@ import (
 	"fmt"
 
 	lakeModels "github.com/merico-dev/lake/models"
-	"github.com/merico-dev/lake/models/domainlayer"
 	"github.com/merico-dev/lake/models/domainlayer/didgen"
 	"github.com/merico-dev/lake/models/domainlayer/ticket"
 	githubModels "github.com/merico-dev/lake/plugins/github/models"
@@ -38,9 +37,7 @@ func convertStateToStatus(state string) string {
 
 func convertToIssueModel(issue *githubModels.GithubIssue) *ticket.Issue {
 	domainIssue := &ticket.Issue{
-		DomainEntity: domainlayer.DomainEntity{
-			Id: didgen.NewDomainIdGenerator(issue).Generate(issue.GithubId),
-		},
+		Id:              didgen.NewDomainIdGenerator(issue).Generate(issue.GithubId),
 		Key:             fmt.Sprint(issue.GithubId),
 		Title:           issue.Title,
 		Summary:         issue.Body,

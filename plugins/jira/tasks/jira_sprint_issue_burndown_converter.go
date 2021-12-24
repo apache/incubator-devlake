@@ -86,15 +86,15 @@ func (c *SprintIssueBurndownConverter) UpdateSprintIssue() error {
 			return err
 		}
 
-		if old.AddedAt == nil && fresh.AddedAt != nil || old.RemovedAt == nil && fresh.RemovedAt != nil {
+		if old.AddedDate == nil && fresh.AddedDate != nil || old.RemovedDate == nil && fresh.RemovedDate != nil {
 			flag = true
 		}
-		if old.AddedAt != nil && fresh.AddedAt != nil && old.AddedAt.Before(*fresh.AddedAt) {
-			fresh.AddedAt = old.AddedAt
+		if old.AddedDate != nil && fresh.AddedDate != nil && old.AddedDate.Before(*fresh.AddedDate) {
+			fresh.AddedDate = old.AddedDate
 			flag = true
 		}
-		if old.RemovedAt != nil && fresh.RemovedAt != nil && old.RemovedAt.After(*fresh.RemovedAt) {
-			fresh.RemovedAt = old.RemovedAt
+		if old.RemovedDate != nil && fresh.RemovedDate != nil && old.RemovedDate.After(*fresh.RemovedDate) {
+			fresh.RemovedDate = old.RemovedDate
 			flag = true
 		}
 		if flag {
@@ -258,15 +258,15 @@ func (c *SprintIssueBurndownConverter) handleFrom(sourceId, sprintId uint64, cl 
 	sprint := c.sprintIdGen.Generate(sourceId, sprintId)
 	key := fmt.Sprintf("%d:%d:%d", sourceId, sprintId, cl.IssueId)
 	if item, ok := c.sprintIssue[key]; ok {
-		if item != nil && (item.RemovedAt == nil || item.RemovedAt != nil && item.RemovedAt.Before(cl.Created)) {
-			item.RemovedAt = &cl.Created
+		if item != nil && (item.RemovedDate == nil || item.RemovedDate != nil && item.RemovedDate.Before(cl.Created)) {
+			item.RemovedDate = &cl.Created
 		}
 	} else {
 		c.sprintIssue[key] = &ticket.SprintIssue{
-			SprintId:  sprint,
-			IssueId:   c.issueIdGen.Generate(sourceId, cl.IssueId),
-			AddedAt:   nil,
-			RemovedAt: &cl.Created,
+			SprintId:    sprint,
+			IssueId:     c.issueIdGen.Generate(sourceId, cl.IssueId),
+			AddedDate:   nil,
+			RemovedDate: &cl.Created,
 		}
 	}
 	dateHour := c.getDateHour(cl.Created)
@@ -300,15 +300,15 @@ func (c *SprintIssueBurndownConverter) handleTo(sourceId, sprintId uint64, cl Ch
 	sprint := c.sprintIdGen.Generate(sourceId, sprintId)
 	key := fmt.Sprintf("%d:%d:%d", sourceId, sprintId, cl.IssueId)
 	if item, ok := c.sprintIssue[key]; ok {
-		if item != nil && (item.AddedAt == nil || item.AddedAt != nil && item.AddedAt.After(cl.Created)) {
-			item.AddedAt = &cl.Created
+		if item != nil && (item.AddedDate == nil || item.AddedDate != nil && item.AddedDate.After(cl.Created)) {
+			item.AddedDate = &cl.Created
 		}
 	} else {
 		c.sprintIssue[key] = &ticket.SprintIssue{
-			SprintId:  sprint,
-			IssueId:   c.issueIdGen.Generate(sourceId, cl.IssueId),
-			AddedAt:   &cl.Created,
-			RemovedAt: nil,
+			SprintId:    sprint,
+			IssueId:     c.issueIdGen.Generate(sourceId, cl.IssueId),
+			AddedDate:   &cl.Created,
+			RemovedDate: nil,
 		}
 	}
 	dateHour := c.getDateHour(cl.Created)
@@ -341,9 +341,9 @@ func (c *SprintIssueBurndownConverter) handleTo(sourceId, sprintId uint64, cl Ch
 func (c *SprintIssueBurndownConverter) newSprintIssueBurndown(sprintId string, dateHour int) *ticket.SprintIssueBurndown {
 	startedAt, endedAt := c.dateHourEndPoints(dateHour)
 	return &ticket.SprintIssueBurndown{
-		SprintId:  sprintId,
-		StartedAt: startedAt,
-		EndedAt:   endedAt,
-		EndedHour: dateHour,
+		SprintId:    sprintId,
+		StartedDate: startedAt,
+		EndedDate:   endedAt,
+		EndedHour:   dateHour,
 	}
 }

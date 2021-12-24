@@ -2,7 +2,6 @@ package tasks
 
 import (
 	lakeModels "github.com/merico-dev/lake/models"
-	"github.com/merico-dev/lake/models/domainlayer"
 	"github.com/merico-dev/lake/models/domainlayer/didgen"
 	"github.com/merico-dev/lake/models/domainlayer/ticket"
 	jiraModels "github.com/merico-dev/lake/plugins/jira/models"
@@ -22,7 +21,7 @@ func ConvertSprint(sourceId uint64, boardId uint64) error {
 	}
 	defer cursor.Close()
 
-	boardIdGen := didgen.NewDomainIdGenerator(&jiraModels.JiraBoard{}).Generate(sourceId, boardId)
+	domainBoardId := didgen.NewDomainIdGenerator(&jiraModels.JiraBoard{}).Generate(sourceId, boardId)
 	sprintIdGen := didgen.NewDomainIdGenerator(&jiraModels.JiraSprint{})
 	issueIdGen := didgen.NewDomainIdGenerator(&jiraModels.JiraIssue{})
 	// iterate all rows
@@ -33,16 +32,13 @@ func ConvertSprint(sourceId uint64, boardId uint64) error {
 			return err
 		}
 		sprint := &ticket.Sprint{
-			DomainEntity: domainlayer.DomainEntity{
-				Id: sprintIdGen.Generate(jiraSprint.SourceId, jiraSprint.SprintId),
-			},
-			BoardId:      boardIdGen,
-			Url:          jiraSprint.Self,
-			State:        jiraSprint.State,
-			Name:         jiraSprint.Name,
-			StartDate:    jiraSprint.StartDate,
-			EndDate:      jiraSprint.EndDate,
-			CompleteDate: jiraSprint.CompleteDate,
+			Id:            sprintIdGen.Generate(jiraSprint.SourceId, jiraSprint.SprintId),
+			Url:           jiraSprint.Self,
+			Status:        jiraSprint.State,
+			Name:          jiraSprint.Name,
+			StartedDate:   jiraSprint.StartDate,
+			EndedDate:     jiraSprint.EndDate,
+			CompletedDate: jiraSprint.CompleteDate,
 		}
 		err = lakeModels.Db.Clauses(clause.OnConflict{UpdateAll: true}).Create(sprint).Error
 		if err != nil {
@@ -62,6 +58,14 @@ func ConvertSprint(sourceId uint64, boardId uint64) error {
 			domainSprintIssues = append(domainSprintIssues, dsi)
 		}
 		err = lakeModels.Db.Clauses(clause.OnConflict{DoNothing: true}).CreateInBatches(&domainSprintIssues, BatchSize).Error
+		if err != nil {
+			return err
+		}
+		boardSprint := &ticket.BoardSprint{
+			BoardId:  domainBoardId,
+			SprintId: sprint.Id,
+		}
+		err = lakeModels.Db.Clauses(clause.OnConflict{DoNothing: true}).Create(boardSprint).Error
 		if err != nil {
 			return err
 		}
