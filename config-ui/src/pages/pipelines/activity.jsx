@@ -256,8 +256,7 @@ const PipelineActivity = (props) => {
                           padding: '20px'
                         }}
                       >
-
-                        <div className='pipeline-info' style={{ paddingRight: '12px' }}>
+                        <div className='pipeline-info' style={{ paddingRight: '12px', maxWidth: '50%', textOverflow: 'ellipsis' }}>
                           <h2 className='headline' style={{ marginTop: '0' }}>
                             <span
                               className='pipeline-name'
@@ -266,7 +265,7 @@ const PipelineActivity = (props) => {
                                 overflow: 'hidden',
                                 whiteSpace: 'nowrap',
                                 display: 'block',
-                                maxWidth: '430px',
+                                // maxWidth: '430px',
                                 color: activePipeline.status === 'TASK_FAILED' ? Colors.RED4 : ''
                               }}
                             >{activePipeline.name || 'Unamed Collection'}
