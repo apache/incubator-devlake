@@ -351,6 +351,7 @@ const PipelineActivity = (props) => {
                                       stlye={{ marginLeft: 'auto', marginRight: '3px' }}
                                     />
                                     <Button
+                                      className={Classes.POPOVER_DISMISS}
                                       text='YES' icon='small-tick' intent={Intent.DANGER} small
                                       onClick={() => cancelPipeline(activePipeline.ID)}
                                     />
