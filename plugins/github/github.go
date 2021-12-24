@@ -244,7 +244,10 @@ func main() {
 		repo = args[1]
 	}
 
-	core.RegisterPlugin("github", PluginEntry)
+	err := core.RegisterPlugin("github", PluginEntry)
+	if err != nil {
+		panic(err)
+	}
 	PluginEntry.Init()
 	progress := make(chan float32)
 	go func() {
