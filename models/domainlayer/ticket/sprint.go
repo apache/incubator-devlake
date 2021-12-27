@@ -18,14 +18,14 @@ type Sprint struct {
 type SprintIssue struct {
 	SprintId    string `gorm:"primaryKey"`
 	IssueId     string `gorm:"primaryKey"`
-	Status      bool
+	IsRemoved   bool
 	AddedDate   *time.Time
 	RemovedDate *time.Time
 	AddedStage  string
 }
 
 type SprintIssueBurndown struct {
-	SprintId  string `gorm:"primaryKey"`
+	SprintId    string `gorm:"primaryKey"`
 	EndedHour   int    `gorm:"primaryKey"`
 	StartedDate time.Time
 	EndedDate   time.Time
@@ -33,32 +33,32 @@ type SprintIssueBurndown struct {
 	Added     int
 	Removed   int
 	Remaining int
-	Resolved int
+	Resolved  int
 
 	AddedRequirements     int
 	RemovedRequirements   int
 	RemainingRequirements int
-	ResolvedRequirements int
+	ResolvedRequirements  int
 
 	AddedBugs     int
 	RemovedBugs   int
 	RemainingBugs int
-	ResolvedBugs int
+	ResolvedBugs  int
 
 	AddedIncidents     int
 	RemovedIncidents   int
 	RemainingIncidents int
-	ResolvedIncidents int
+	ResolvedIncidents  int
 
 	AddedOtherIssues     int
 	RemovedOtherIssues   int
 	RemainingOtherIssues int
-	ResolvedOtherIssues int
+	ResolvedOtherIssues  int
 
 	AddedStoryPoints     int
 	RemovedStoryPoints   int
 	RemainingStoryPoints int
-	ResolvedStoryPoints int
+	ResolvedStoryPoints  int
 }
 
 func (SprintIssueBurndown) TableName() string {
