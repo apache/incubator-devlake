@@ -3,6 +3,7 @@ package tasks
 import (
 	lakeModels "github.com/merico-dev/lake/models"
 	"github.com/merico-dev/lake/models/domainlayer/code"
+	"github.com/merico-dev/lake/models/domainlayer/didgen"
 	githubModels "github.com/merico-dev/lake/plugins/github/models"
 	"gorm.io/gorm/clause"
 )
@@ -13,8 +14,11 @@ func ConvertCommits() error {
 	if err != nil {
 		return err
 	}
+	userDidGen := didgen.NewDomainIdGenerator(&githubModels.GithubUser{})
 	for _, commit := range githubCommits {
 		domainCommit := convertToCommitModel(&commit)
+		domainCommit.AuthorId = userDidGen.Generate(commit.AuthorId)
+		domainCommit.CommiterId = userDidGen.Generate(commit.CommitterId)
 		err := lakeModels.Db.Clauses(clause.OnConflict{UpdateAll: true}).Create(domainCommit).Error
 		if err != nil {
 			return err
