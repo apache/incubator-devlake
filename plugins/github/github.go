@@ -255,7 +255,7 @@ func main() {
 			map[string]interface{}{
 				"owner":          owner,
 				"repositoryName": repo,
-				"tasks":          []string{"collectRepo", "convertUsers", "convertRepos"},
+				"tasks":          []string{"collectCommits"},
 			},
 			progress,
 			context.Background(),
