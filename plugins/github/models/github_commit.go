@@ -1,16 +1,19 @@
 package models
 
 import (
-	"github.com/merico-dev/lake/models/common"
 	"time"
+
+	"github.com/merico-dev/lake/models/common"
 )
 
 type GithubCommit struct {
 	Sha            string `gorm:"primaryKey"`
 	RepositoryId   int    `gorm:"index"`
+	AuthorId       int
 	AuthorName     string
 	AuthorEmail    string
 	AuthoredDate   time.Time
+	CommitterId    int
 	CommitterName  string
 	CommitterEmail string
 	CommittedDate  time.Time
