@@ -15,11 +15,19 @@ func ConvertCommits() error {
 		return err
 	}
 	userDidGen := didgen.NewDomainIdGenerator(&githubModels.GithubUser{})
+	repoDidGen := didgen.NewDomainIdGenerator(&githubModels.GithubRepository{})
+	repoCommit := &code.RepoCommit{}
 	for _, commit := range githubCommits {
 		domainCommit := convertToCommitModel(&commit)
 		domainCommit.AuthorId = userDidGen.Generate(commit.AuthorId)
 		domainCommit.CommiterId = userDidGen.Generate(commit.CommitterId)
 		err := lakeModels.Db.Clauses(clause.OnConflict{UpdateAll: true}).Create(domainCommit).Error
+		if err != nil {
+			return err
+		}
+		repoCommit.RepoId = repoDidGen.Generate(commit.RepositoryId)
+		repoCommit.CommitSha = commit.Sha
+		err = lakeModels.Db.Clauses(clause.OnConflict{DoNothing: true}).Create(repoCommit).Error
 		if err != nil {
 			return err
 		}
