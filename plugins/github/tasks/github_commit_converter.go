@@ -60,19 +60,3 @@ func ConvertCommits(githubRepoId int) error {
 	}
 	return nil
 }
-
-func convertToCommitModel(commit *githubModels.GithubCommit) *code.Commit {
-	domainCommit := &code.Commit{
-		Sha:            commit.Sha,
-		Message:        commit.Message,
-		Additions:      commit.Additions,
-		Deletions:      commit.Deletions,
-		AuthorName:     commit.AuthorName,
-		AuthorEmail:    commit.AuthorEmail,
-		AuthoredDate:   commit.AuthoredDate,
-		CommitterName:  commit.CommitterName,
-		CommitterEmail: commit.CommitterEmail,
-		CommittedDate:  commit.CommittedDate,
-	}
-	return domainCommit
-}
