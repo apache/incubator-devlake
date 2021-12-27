@@ -45,14 +45,23 @@ func CollectCommits(owner string, repositoryName string, repositoryId int, sched
 				logger.Error("Error: ", err)
 				return err
 			}
+			repoCommit := &models.GithubRepoCommit{GithubRepoId: repositoryId}
 			for _, commit := range *githubApiResponse {
-				githubCommit, err := convertGithubCommit(&commit, repositoryId)
+				githubCommit, err := convertGithubCommit(&commit)
 				if err != nil {
 					return err
 				}
 				err = lakeModels.Db.Clauses(clause.OnConflict{
 					UpdateAll: true,
 				}).Create(&githubCommit).Error
+				if err != nil {
+					logger.Error("Could not upsert: ", err)
+				}
+				// save repo / commit relationship
+				repoCommit.CommitSha = commit.Sha
+				err = lakeModels.Db.Clauses(clause.OnConflict{
+					DoNothing: true,
+				}).Create(repoCommit).Error
 				if err != nil {
 					logger.Error("Could not upsert: ", err)
 				}
@@ -77,10 +86,9 @@ func CollectCommits(owner string, repositoryName string, repositoryId int, sched
 			return nil
 		})
 }
-func convertGithubCommit(commit *CommitsResponse, repoId int) (*models.GithubCommit, error) {
+func convertGithubCommit(commit *CommitsResponse) (*models.GithubCommit, error) {
 	githubCommit := &models.GithubCommit{
 		Sha:            commit.Sha,
-		RepositoryId:   repoId,
 		Message:        commit.Commit.Message,
 		AuthorId:       commit.Author.Id,
 		AuthorName:     commit.Commit.Author.Name,

@@ -27,6 +27,7 @@ func (plugin Github) Init() {
 	err := lakeModels.Db.AutoMigrate(
 		&models.GithubRepository{},
 		&models.GithubCommit{},
+		&models.GithubRepoCommit{},
 		&models.GithubPullRequest{},
 		&models.GithubReviewer{},
 		&models.GithubPullRequestComment{},
@@ -176,7 +177,7 @@ func (plugin Github) Execute(options map[string]interface{}, progress chan<- flo
 	}
 	if tasksToRun["convertCommits"] {
 		progress <- 0.8
-		err = tasks.ConvertCommits()
+		err = tasks.ConvertCommits(repoId)
 		if err != nil {
 			return err
 		}
@@ -255,7 +256,8 @@ func main() {
 			map[string]interface{}{
 				"owner":          owner,
 				"repositoryName": repo,
-				"tasks":          []string{"convertCommits"},
+				//"tasks":          []string{"collectCommits"},
+				"tasks": []string{"convertCommits"},
 			},
 			progress,
 			context.Background(),
