@@ -2,43 +2,61 @@ package tasks
 
 import (
 	lakeModels "github.com/merico-dev/lake/models"
-	"github.com/merico-dev/lake/models/domainlayer"
 	"github.com/merico-dev/lake/models/domainlayer/code"
 	"github.com/merico-dev/lake/models/domainlayer/didgen"
+	"github.com/merico-dev/lake/plugins/github/models"
 	githubModels "github.com/merico-dev/lake/plugins/github/models"
 	"gorm.io/gorm/clause"
 )
 
-func ConvertCommits() error {
-	var githubCommits []githubModels.GithubCommit
-	err := lakeModels.Db.Find(&githubCommits).Error
+func ConvertCommits(githubRepoId int) error {
+	// select all commits belongs to the repo
+	cursor, err := lakeModels.Db.Table("github_commits gc").
+		Joins(`left join github_repo_commits grc on (
+			grc.commit_sha = gc.sha
+		)`).
+		Select("gc.*").
+		Where("grc.github_repo_id = ?", githubRepoId).
+		Rows()
 	if err != nil {
 		return err
 	}
-	for _, commit := range githubCommits {
-		domainCommit := convertToCommitModel(&commit)
-		err := lakeModels.Db.Clauses(clause.OnConflict{UpdateAll: true}).Create(domainCommit).Error
+	defer cursor.Close()
+
+	userDidGen := didgen.NewDomainIdGenerator(&githubModels.GithubUser{})
+	repoCommit := &code.RepoCommit{
+		RepoId: didgen.NewDomainIdGenerator(&githubModels.GithubRepository{}).Generate(githubRepoId),
+	}
+	githubCommit := &models.GithubCommit{}
+	commit := &code.Commit{}
+	for cursor.Next() {
+		err = lakeModels.Db.ScanRows(cursor, githubCommit)
+		if err != nil {
+			return err
+		}
+		// convert commit
+		commit.Sha = githubCommit.Sha
+		commit.Message = githubCommit.Message
+		commit.Additions = githubCommit.Additions
+		commit.Deletions = githubCommit.Deletions
+		commit.AuthorId = userDidGen.Generate(githubCommit.AuthorId)
+		commit.AuthorName = githubCommit.AuthorName
+		commit.AuthorEmail = githubCommit.AuthorEmail
+		commit.AuthoredDate = githubCommit.AuthoredDate
+		commit.CommitterName = githubCommit.CommitterName
+		commit.CommitterEmail = githubCommit.CommitterEmail
+		commit.CommittedDate = githubCommit.CommittedDate
+		commit.CommiterId = userDidGen.Generate(githubCommit.CommitterId)
+		err := lakeModels.Db.Clauses(clause.OnConflict{UpdateAll: true}).Create(commit).Error
+		if err != nil {
+			return err
+		}
+		// convert repo / commits relationship
+		repoCommit.CommitSha = githubCommit.Sha
+		err = lakeModels.Db.Clauses(clause.OnConflict{DoNothing: true}).Create(repoCommit).Error
 		if err != nil {
 			return err
 		}
 	}
 	return nil
-}
-func convertToCommitModel(commit *githubModels.GithubCommit) *code.Commit {
-	domainCommit := &code.Commit{
-		DomainEntity: domainlayer.DomainEntity{
-			Id: didgen.NewDomainIdGenerator(commit).Generate(commit.Sha),
-		},
-		Sha:            commit.Sha,
-		Message:        commit.Message,
-		Additions:      commit.Additions,
-		Deletions:      commit.Deletions,
-		AuthorName:     commit.AuthorName,
-		AuthorEmail:    commit.AuthorEmail,
-		AuthoredDate:   commit.AuthoredDate,
-		CommitterName:  commit.CommitterName,
-		CommitterEmail: commit.CommitterEmail,
-		CommittedDate:  commit.CommittedDate,
-	}
-	return domainCommit
 }

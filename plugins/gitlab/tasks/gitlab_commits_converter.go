@@ -2,9 +2,7 @@ package tasks
 
 import (
 	lakeModels "github.com/merico-dev/lake/models"
-	"github.com/merico-dev/lake/models/domainlayer"
 	"github.com/merico-dev/lake/models/domainlayer/code"
-	"github.com/merico-dev/lake/models/domainlayer/didgen"
 	gitlabModels "github.com/merico-dev/lake/plugins/gitlab/models"
 	"gorm.io/gorm/clause"
 )
@@ -26,9 +24,6 @@ func ConvertCommits() error {
 }
 func convertToCommitModel(commit *gitlabModels.GitlabCommit) *code.Commit {
 	domainCommit := &code.Commit{
-		DomainEntity: domainlayer.DomainEntity{
-			Id: didgen.NewDomainIdGenerator(commit).Generate(commit.GitlabId),
-		},
 		Sha:            commit.GitlabId,
 		Message:        commit.Message,
 		AuthorName:     commit.AuthorName,

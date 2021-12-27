@@ -14,9 +14,11 @@ import (
 
 type ApiCommitsResponse []CommitsResponse
 type CommitsResponse struct {
-	Sha    string `json:"sha"`
-	Commit Commit
-	Url    string
+	Sha       string `json:"sha"`
+	Commit    Commit
+	Url       string
+	Author    *models.GithubUser
+	Committer *models.GithubUser
 }
 
 type Commit struct {
@@ -43,8 +45,9 @@ func CollectCommits(owner string, repositoryName string, repositoryId int, sched
 				logger.Error("Error: ", err)
 				return err
 			}
+			repoCommit := &models.GithubRepoCommit{GithubRepoId: repositoryId}
 			for _, commit := range *githubApiResponse {
-				githubCommit, err := convertGithubCommit(&commit, repositoryId)
+				githubCommit, err := convertGithubCommit(&commit)
 				if err != nil {
 					return err
 				}
@@ -54,18 +57,44 @@ func CollectCommits(owner string, repositoryName string, repositoryId int, sched
 				if err != nil {
 					logger.Error("Could not upsert: ", err)
 				}
+				// save repo / commit relationship
+				repoCommit.CommitSha = commit.Sha
+				err = lakeModels.Db.Clauses(clause.OnConflict{
+					DoNothing: true,
+				}).Create(repoCommit).Error
+				if err != nil {
+					logger.Error("Could not upsert: ", err)
+				}
+				// save author and committer
+				if commit.Author != nil {
+					err = lakeModels.Db.Clauses(clause.OnConflict{
+						UpdateAll: true,
+					}).Create(&commit.Author).Error
+					if err != nil {
+						logger.Error("Could not upsert: ", err)
+					}
+				}
+				if commit.Committer != nil {
+					err = lakeModels.Db.Clauses(clause.OnConflict{
+						UpdateAll: true,
+					}).Create(&commit.Committer).Error
+					if err != nil {
+						logger.Error("Could not upsert: ", err)
+					}
+				}
 			}
 			return nil
 		})
 }
-func convertGithubCommit(commit *CommitsResponse, repoId int) (*models.GithubCommit, error) {
+func convertGithubCommit(commit *CommitsResponse) (*models.GithubCommit, error) {
 	githubCommit := &models.GithubCommit{
 		Sha:            commit.Sha,
-		RepositoryId:   repoId,
 		Message:        commit.Commit.Message,
+		AuthorId:       commit.Author.Id,
 		AuthorName:     commit.Commit.Author.Name,
 		AuthorEmail:    commit.Commit.Author.Email,
 		AuthoredDate:   commit.Commit.Author.Date.ToTime(),
+		CommitterId:    commit.Committer.Id,
 		CommitterName:  commit.Commit.Committer.Name,
 		CommitterEmail: commit.Commit.Committer.Email,
 		CommittedDate:  commit.Commit.Committer.Date.ToTime(),

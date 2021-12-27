@@ -3,12 +3,15 @@ package main // must be main for plugin entry point
 import (
 	"context"
 	"fmt"
+	"os"
 	"strings"
 
 	"github.com/merico-dev/lake/config"
 	"github.com/merico-dev/lake/logger" // A pseudo type for Plugin Interface implementation
+	lakeModels "github.com/merico-dev/lake/models"
 	"github.com/merico-dev/lake/plugins/core"
 	"github.com/merico-dev/lake/plugins/github/api"
+	"github.com/merico-dev/lake/plugins/github/models"
 	"github.com/merico-dev/lake/plugins/github/tasks"
 	"github.com/merico-dev/lake/utils"
 	"github.com/mitchellh/mapstructure"
@@ -18,6 +21,30 @@ type GithubOptions struct {
 	Tasks []string
 }
 type Github string
+
+func (plugin Github) Init() {
+	logger.Info("INFO >>> init GitHub plugin", true)
+	err := lakeModels.Db.AutoMigrate(
+		&models.GithubRepository{},
+		&models.GithubCommit{},
+		&models.GithubRepoCommit{},
+		&models.GithubPullRequest{},
+		&models.GithubReviewer{},
+		&models.GithubPullRequestComment{},
+		&models.GithubPullRequestCommit{},
+		&models.GithubPullRequestCommitPullRequest{},
+		&models.GithubIssue{},
+		&models.GithubIssueComment{},
+		&models.GithubIssueEvent{},
+		&models.GithubIssueLabel{},
+		&models.GithubIssueLabelIssue{},
+		&models.GithubUser{},
+	)
+	if err != nil {
+		logger.Error("Error migrating github: ", err)
+		panic(err)
+	}
+}
 
 func (plugin Github) Description() string {
 	return "To collect and enrich data from GitHub"
@@ -69,6 +96,7 @@ func (plugin Github) Execute(options map[string]interface{}, progress chan<- flo
 	}
 	if len(tasksToRun) == 0 {
 		tasksToRun = map[string]bool{
+			"collectRepo":    true,
 			"collectCommits": true,
 			"collectIssues":  true,
 			"enrichIssues":   true,
@@ -77,8 +105,10 @@ func (plugin Github) Execute(options map[string]interface{}, progress chan<- flo
 			"convertPrs":     true,
 			"convertCommits": true,
 			"convertNotes":   true,
+			"convertUsers":   true,
 		}
 	}
+
 	repoId, collectRepoErr := tasks.CollectRepository(ownerString, repositoryNameString, githubApiClient)
 	if collectRepoErr != nil {
 		return fmt.Errorf("Could not collect repositories: %v", collectRepoErr)
@@ -147,7 +177,7 @@ func (plugin Github) Execute(options map[string]interface{}, progress chan<- flo
 	}
 	if tasksToRun["convertCommits"] {
 		progress <- 0.8
-		err = tasks.ConvertCommits()
+		err = tasks.ConvertCommits(repoId)
 		if err != nil {
 			return err
 		}
@@ -155,6 +185,14 @@ func (plugin Github) Execute(options map[string]interface{}, progress chan<- flo
 	if tasksToRun["convertNotes"] {
 		progress <- 0.9
 		err = tasks.ConvertNotes()
+		if err != nil {
+			return err
+		}
+	}
+	if tasksToRun["convertUsers"] {
+		progress <- 0.9
+		err = tasks.ConvertUsers()
+
 		if err != nil {
 			return err
 		}
@@ -194,3 +232,42 @@ func (plugin Github) ApiResources() map[string]map[string]core.ApiResourceHandle
 
 // Export a variable named PluginEntry for Framework to search and load
 var PluginEntry Github //nolint
+
+// standalone mode for debugging
+func main() {
+	args := os.Args[1:]
+	owner := "merico-dev"
+	repo := "lake"
+	if len(args) > 0 {
+		owner = args[0]
+	}
+	if len(args) > 1 {
+		repo = args[1]
+	}
+
+	err := core.RegisterPlugin("github", PluginEntry)
+	if err != nil {
+		panic(err)
+	}
+	PluginEntry.Init()
+	progress := make(chan float32)
+	go func() {
+		err := PluginEntry.Execute(
+			map[string]interface{}{
+				"owner":          owner,
+				"repositoryName": repo,
+				//"tasks":          []string{"collectCommits"},
+				"tasks": []string{"convertCommits"},
+			},
+			progress,
+			context.Background(),
+		)
+		if err != nil {
+			panic(err)
+		}
+		close(progress)
+	}()
+	for p := range progress {
+		fmt.Println(p)
+	}
+}

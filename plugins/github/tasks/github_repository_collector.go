@@ -10,11 +10,19 @@ import (
 	"gorm.io/gorm/clause"
 )
 
-type ApiRepositoryResponse struct {
-	Name     string `json:"name"`
-	GithubId int    `json:"id"`
-	HTMLUrl  string `json:"html_url"`
+type GithubApiRepo struct {
+	Name        string `json:"name"`
+	GithubId    int    `json:"id"`
+	HTMLUrl     string `json:"html_url"`
+	Language    string `json:"language"`
+	Description string `json:"description"`
+	Owner       models.GithubUser
+	Parent      *GithubApiRepo    `json:"parent"`
+	CreatedAt   core.Iso8601Time  `json:"created_at"`
+	UpdatedAt   *core.Iso8601Time `json:"updated_at"`
 }
+
+type ApiRepositoryResponse GithubApiRepo
 
 func CollectRepository(owner string, repositoryName string, githubApiClient *GithubApiClient) (int, error) {
 	getUrl := fmt.Sprintf("repos/%v/%v", owner, repositoryName)
@@ -30,13 +38,29 @@ func CollectRepository(owner string, repositoryName string, githubApiClient *Git
 		return 0, err
 	}
 	githubRepository := &models.GithubRepository{
-		Name:     githubApiResponse.Name,
-		GithubId: githubApiResponse.GithubId,
-		HTMLUrl:  githubApiResponse.HTMLUrl,
+		GithubId:    githubApiResponse.GithubId,
+		Name:        githubApiResponse.Name,
+		HTMLUrl:     githubApiResponse.HTMLUrl,
+		Description: githubApiResponse.Description,
+		OwnerId:     githubApiResponse.Owner.Id,
+		OwnerLogin:  githubApiResponse.Owner.Login,
+		Language:    githubApiResponse.Language,
+		CreatedDate: githubApiResponse.CreatedAt.ToTime(),
+		UpdatedDate: core.Iso8601TimeToTime(githubApiResponse.UpdatedAt),
+	}
+	if githubApiResponse.Parent != nil {
+		githubRepository.ParentGithubId = githubApiResponse.Parent.GithubId
+		githubRepository.ParentHTMLUrl = githubApiResponse.Parent.HTMLUrl
 	}
 	err = lakeModels.Db.Clauses(clause.OnConflict{
 		UpdateAll: true,
 	}).Create(&githubRepository).Error
+	if err != nil {
+		logger.Error("Could not upsert: ", err)
+	}
+	err = lakeModels.Db.Clauses(clause.OnConflict{
+		UpdateAll: true,
+	}).Create(&githubApiResponse.Owner).Error
 	if err != nil {
 		logger.Error("Could not upsert: ", err)
 	}
