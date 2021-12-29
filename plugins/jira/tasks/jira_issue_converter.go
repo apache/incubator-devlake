@@ -23,10 +23,18 @@ func ConvertIssues(sourceId uint64, boardId uint64) error {
 	}
 	defer cursor.Close()
 
-	boardIdGen := didgen.NewDomainIdGenerator(&jiraModels.JiraBoard{}).Generate(sourceId, boardId)
 	issueIdGen := didgen.NewDomainIdGenerator(&jiraModels.JiraIssue{})
 	userIdGen := didgen.NewDomainIdGenerator(&jiraModels.JiraUser{})
 	sprintIdGen := didgen.NewDomainIdGenerator(&jiraModels.JiraSprint{})
+
+	boardIssue := &ticket.BoardIssue{
+		BoardId: didgen.NewDomainIdGenerator(&jiraModels.JiraBoard{}).Generate(sourceId, boardId),
+	}
+	// clearn up board issue relationship altogether
+	err = lakeModels.Db.Exec("DELETE from board_issues where board_id = ?", boardIssue.BoardId).Error
+	if err != nil {
+		return err
+	}
 
 	// iterate all rows
 	for cursor.Next() {
@@ -38,7 +46,6 @@ func ConvertIssues(sourceId uint64, boardId uint64) error {
 			DomainEntity: domainlayer.DomainEntity{
 				Id: issueIdGen.Generate(jiraIssue.SourceId, jiraIssue.IssueId),
 			},
-			BoardId:                  boardIdGen,
 			Url:                      jiraIssue.Self,
 			Key:                      jiraIssue.Key,
 			Summary:                  jiraIssue.Summary,
@@ -68,6 +75,13 @@ func ConvertIssues(sourceId uint64, boardId uint64) error {
 		}
 
 		err = lakeModels.Db.Clauses(clause.OnConflict{UpdateAll: true}).Create(issue).Error
+		if err != nil {
+			return err
+		}
+
+		// convert board issue relationship
+		boardIssue.IssueId = issue.Id
+		err = lakeModels.Db.Clauses(clause.OnConflict{DoNothing: true}).Create(boardIssue).Error
 		if err != nil {
 			return err
 		}
