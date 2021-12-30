@@ -2,6 +2,7 @@ package tasks
 
 import (
 	lakeModels "github.com/merico-dev/lake/models"
+	"github.com/merico-dev/lake/models/domainlayer"
 	"github.com/merico-dev/lake/models/domainlayer/didgen"
 	"github.com/merico-dev/lake/models/domainlayer/ticket"
 	jiraModels "github.com/merico-dev/lake/plugins/jira/models"
@@ -17,7 +18,7 @@ func ConvertBoard(sourceId uint64, boardId uint64) error {
 	}
 
 	board := &ticket.Board{
-		Id:   didgen.NewDomainIdGenerator(jiraBoard).Generate(jiraBoard.SourceId, boardId),
+		DomainEntity:domainlayer.DomainEntity{Id: didgen.NewDomainIdGenerator(jiraBoard).Generate(jiraBoard.SourceId, boardId)},
 		Name: jiraBoard.Name,
 		Url:  jiraBoard.Self,
 	}

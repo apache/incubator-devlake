@@ -3,6 +3,7 @@ package tasks
 import (
 	"github.com/merico-dev/lake/logger"
 	lakeModels "github.com/merico-dev/lake/models"
+	"github.com/merico-dev/lake/models/domainlayer"
 	"github.com/merico-dev/lake/models/domainlayer/didgen"
 	"github.com/merico-dev/lake/models/domainlayer/ticket"
 	jiraModels "github.com/merico-dev/lake/plugins/jira/models"
@@ -33,7 +34,7 @@ func ConvertWorklog(sourceId uint64, boardId uint64) error {
 			return err
 		}
 		worklog := &ticket.Worklog{
-			Id:               worklogIdGen.Generate(jiraWorklog.SourceId, jiraWorklog.IssueId, jiraWorklog.WorklogId),
+			DomainEntity:domainlayer.DomainEntity{Id: worklogIdGen.Generate(jiraWorklog.SourceId, jiraWorklog.IssueId, jiraWorklog.WorklogId)},
 			IssueId:          issueIdGen.Generate(jiraWorklog.SourceId, jiraWorklog.IssueId),
 			TimeSpentMinutes: jiraWorklog.TimeSpentSeconds / 60,
 		}

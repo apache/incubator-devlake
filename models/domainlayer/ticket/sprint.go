@@ -2,10 +2,18 @@ package ticket
 
 import (
 	"time"
+
+	"github.com/merico-dev/lake/models/domainlayer"
+)
+
+const (
+	BeforeSprint = "BEFORE_SPRINT"
+	DuringSprint = "DURING_SPRINT"
+	AfterSprint  = "AFTER_SPRINT"
 )
 
 type Sprint struct {
-	Id            string `gorm:"primaryKey"`
+	domainlayer.DomainEntity
 	Name          string
 	Url           string
 	Status        string
@@ -16,12 +24,13 @@ type Sprint struct {
 }
 
 type SprintIssue struct {
-	SprintId    string `gorm:"primaryKey"`
-	IssueId     string `gorm:"primaryKey"`
-	IsRemoved   bool
-	AddedDate   *time.Time
-	RemovedDate *time.Time
-	AddedStage  string
+	SprintId      string `gorm:"primaryKey"`
+	IssueId       string `gorm:"primaryKey"`
+	IsRemoved     bool
+	AddedDate     *time.Time
+	RemovedDate   *time.Time
+	AddedStage    string
+	ResolvedStage string
 }
 
 type SprintIssueBurndown struct {
