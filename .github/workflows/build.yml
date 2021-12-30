@@ -1,0 +1,38 @@
+name: Build
+on:
+  push:
+    tags:
+    - '*'
+jobs:
+  build:
+    name: Build Server
+    runs-on: ubuntu-20.04
+    steps:
+    - uses: actions/checkout@v2
+    - uses: docker/login-action@f054a8b539a109f9f41c372932f1ae047eff08c9
+      with:
+        username: ${{ secrets.DOCKER_REGISTRY_USERNAME }}
+        password: ${{ secrets.DOCKER_REGISTRY_PASSWORD }}
+    - name: Build lake image
+      run: |
+        export IMAGE_LAKE=mericodev/lake
+        docker build -t $IMAGE_LAKE:latest --file ./Dockerfile .
+        docker tag $IMAGE_LAKE:latest $IMAGE_LAKE:$(echo ${GITHUB_REF:10})
+        docker push $IMAGE_LAKE:$(echo ${GITHUB_REF:10})
+        docker push $IMAGE_LAKE:latest
+    - name: Build config ui image
+      run: |
+        export IMAGE_CONFIG_UI=mericodev/config-ui
+        cd config-ui
+        docker build -t $IMAGE_CONFIG_UI:latest --file ./Dockerfile .
+        docker tag $IMAGE_CONFIG_UI:latest $IMAGE_CONFIG_UI:$(echo ${GITHUB_REF:10})
+        docker push $IMAGE_CONFIG_UI:$(echo ${GITHUB_REF:10})
+        docker push $IMAGE_CONFIG_UI:latest
+    - name: Build grafana
+      run: |
+        export IMAGE_GRAFANA=mericodev/grafana
+        cd grafana
+        docker build -t $IMAGE_GRAFANA:latest --file ./Dockerfile .
+        docker tag $IMAGE_GRAFANA:latest $IMAGE_GRAFANA:$(echo ${GITHUB_REF:10})
+        docker push $IMAGE_GRAFANA:$(echo ${GITHUB_REF:10})
+        docker push $IMAGE_GRAFANA:latest
