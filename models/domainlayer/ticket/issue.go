@@ -2,10 +2,12 @@ package ticket
 
 import (
 	"time"
+
+	"github.com/merico-dev/lake/models/domainlayer"
 )
 
 type Issue struct {
-	Id                      string `gorm:"primaryKey;type:varchar(255)"`
+	domainlayer.DomainEntity
 	Url                     string
 	Key                     string
 	Title                   string
@@ -15,8 +17,8 @@ type Issue struct {
 	Status                  string
 	StoryPoint              uint
 	ResolutionDate          *time.Time
-	CreatedDate             time.Time
-	UpdatedDate             time.Time
+	CreatedDate             *time.Time
+	UpdatedDate             *time.Time
 	LeadTimeMinutes         uint
 	ParentIssueId           string
 	Priority                string

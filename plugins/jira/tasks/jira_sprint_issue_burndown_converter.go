@@ -24,6 +24,11 @@ const (
 	Requirement = "Requirement"
 )
 
+// jira changelog to
+const (
+	Resolved = "5"
+)
+
 const (
 	BashSize = 100
 )
@@ -33,11 +38,12 @@ var (
 )
 
 type SprintIssueBurndownConverter struct {
-	cache       map[string]map[int]*ticket.SprintIssueBurndown
-	sprintIdGen *didgen.DomainIdGenerator
-	issueIdGen  *didgen.DomainIdGenerator
-	sprints     map[string]*models.JiraSprint
-	sprintIssue map[string]*ticket.SprintIssue
+	cache        map[string]map[int]*ticket.SprintIssueBurndown
+	sprintIdGen  *didgen.DomainIdGenerator
+	issueIdGen   *didgen.DomainIdGenerator
+	sprints      map[string]*models.JiraSprint
+	sprintIssue  map[string]*ticket.SprintIssue
+	resolvedDate map[string]*time.Time
 }
 
 func NewSprintIssueBurndownConverter() *SprintIssueBurndownConverter {
@@ -51,7 +57,10 @@ func NewSprintIssueBurndownConverter() *SprintIssueBurndownConverter {
 }
 
 func (c *SprintIssueBurndownConverter) FeedIn(sourceId uint64, cl ChangelogItemResult) {
-	if cl.Field != "Sprint" {
+	if cl.Field != "status" && cl.To != Resolved {
+		return
+	}
+	if cl.Field != "Sprint" && cl.Field != "status" {
 		return
 	}
 	from, to, err := c.parseFromTo(cl.From, cl.To)
@@ -138,7 +147,7 @@ func (c *SprintIssueBurndownConverter) fill(sprintId string, m map[int]*ticket.S
 		}
 	}
 	jiraSprint := c.sprints[sprintId]
-	if jiraSprint != nil && jiraSprint.CompleteDate!= nil{
+	if jiraSprint != nil && jiraSprint.CompleteDate != nil {
 		max = c.getDateHour(*jiraSprint.CompleteDate)
 	}
 	for dateHour := min; dateHour <= max; dateHour = c.nextDateHour(dateHour) {
@@ -281,7 +290,7 @@ func (c *SprintIssueBurndownConverter) handleFrom(sourceId, sprintId uint64, cl 
 	if _, ok := c.cache[domainSprintId]; !ok {
 		c.cache[domainSprintId] = make(map[int]*ticket.SprintIssueBurndown)
 		_, err := c.getSprint(sourceId, sprintId)
-		if err != nil{
+		if err != nil {
 			return err
 		}
 	}
@@ -314,6 +323,7 @@ func (c *SprintIssueBurndownConverter) handleTo(sourceId, sprintId uint64, cl Ch
 	if item, ok := c.sprintIssue[key]; ok {
 		if item != nil && (item.AddedDate == nil || item.AddedDate != nil && item.AddedDate.After(cl.Created)) {
 			item.AddedDate = &cl.Created
+			item.AddedStage, _ = c.getStage(cl.Created, sourceId, sprintId)
 		}
 	} else {
 		c.sprintIssue[key] = &ticket.SprintIssue{
@@ -322,12 +332,13 @@ func (c *SprintIssueBurndownConverter) handleTo(sourceId, sprintId uint64, cl Ch
 			AddedDate:   &cl.Created,
 			RemovedDate: nil,
 		}
+		c.sprintIssue[key].AddedStage, _ = c.getStage(cl.Created, sourceId, sprintId)
 	}
 	dateHour := c.getDateHour(cl.Created)
 	if _, ok := c.cache[domainSprintId]; !ok {
 		c.cache[domainSprintId] = make(map[int]*ticket.SprintIssueBurndown)
 		_, err := c.getSprint(sourceId, sprintId)
-		if err != nil{
+		if err != nil {
 			return err
 		}
 	}
@@ -366,13 +377,82 @@ func (c *SprintIssueBurndownConverter) newSprintIssueBurndown(sprintId string, d
 
 func (c *SprintIssueBurndownConverter) getSprint(sourceId, sprintId uint64) (*models.JiraSprint, error) {
 	id := c.sprintIdGen.Generate(sourceId, sprintId)
-	if value, ok := c.sprints[id]; ok{
+	if value, ok := c.sprints[id]; ok {
 		return value, nil
 	}
 	var sprint models.JiraSprint
 	err := lakeModels.Db.First(&sprint, "source_id = ? AND sprint_id = ?", sourceId, sprintId).Error
-	if err != nil{
+	if err != nil {
 		c.sprints[id] = &sprint
 	}
 	return &sprint, err
+}
+
+func (c *SprintIssueBurndownConverter) handleResolved(sourceId, sprintId uint64, cl ChangelogItemResult) error {
+	domainSprintId := c.sprintIdGen.Generate(sourceId, sprintId)
+	key := fmt.Sprintf("%d:%d:%d", sourceId, sprintId, cl.IssueId)
+	if item, ok := c.sprintIssue[key]; ok {
+		if created := c.resolvedDate[key]; created != nil && item != nil{
+			if created.Before(cl.Created){
+				item.ResolvedStage, _ = c.getStage(*created, sourceId, sprintId)
+				c.resolvedDate[key] = &cl.Created
+			}
+		}
+	} else {
+		c.sprintIssue[key] = &ticket.SprintIssue{
+			SprintId:    domainSprintId,
+			IssueId:     c.issueIdGen.Generate(sourceId, cl.IssueId),
+		}
+		c.sprintIssue[key].ResolvedStage, _ = c.getStage(cl.Created, sourceId, sprintId)
+		c.resolvedDate[key] = &cl.Created
+	}
+
+	dateHour := c.getDateHour(cl.Created)
+	if _, ok := c.cache[domainSprintId]; !ok {
+		c.cache[domainSprintId] = make(map[int]*ticket.SprintIssueBurndown)
+		_, err := c.getSprint(sourceId, sprintId)
+		if err != nil {
+			return err
+		}
+	}
+	if c.cache[domainSprintId][dateHour] == nil {
+		c.cache[domainSprintId][dateHour] = c.newSprintIssueBurndown(domainSprintId, dateHour)
+	}
+	c.cache[domainSprintId][dateHour].Resolved++
+	jiraIssue, err := c.getJiraIssue(sourceId, cl.IssueId)
+	if err != nil {
+		return err
+	}
+	switch jiraIssue.StdType {
+	case Bug:
+		c.cache[domainSprintId][dateHour].ResolvedBugs++
+	case Incident:
+		c.cache[domainSprintId][dateHour].ResolvedIncidents++
+	case Requirement:
+		c.cache[domainSprintId][dateHour].ResolvedRequirements++
+	case Story:
+		c.cache[domainSprintId][dateHour].ResolvedStoryPoints++
+	default:
+		c.cache[domainSprintId][dateHour].ResolvedOtherIssues++
+	}
+	return nil
+}
+
+func (c *SprintIssueBurndownConverter) getStage(t time.Time, sourceId, sprintId uint64) (string, error){
+	sprint, err := c.getSprint(sourceId, sprintId)
+	if err != nil{
+		return "", err
+	}
+	if sprint.StartDate != nil {
+		if sprint.StartDate.After(t){
+			return ticket.BeforeSprint, nil
+		}
+		if sprint.EndDate != nil && sprint.StartDate.Before(t) && sprint.CompleteDate.After(t){
+			return ticket.DuringSprint, nil
+		}
+	}
+	if sprint.EndDate != nil && sprint.EndDate.Before(t){
+		return ticket.AfterSprint, nil
+	}
+	return "", nil
 }

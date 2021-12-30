@@ -1,13 +1,17 @@
 package ticket
 
-import "time"
+import (
+	"time"
+
+	"github.com/merico-dev/lake/models/domainlayer"
+)
 
 type Worklog struct {
-	Id               string `gorm:"primaryKey"`
+	domainlayer.DomainEntity
 	AuthorId         string
 	Comment          string
 	TimeSpentMinutes int
-	LoggedDate       time.Time
-	StartedDate      time.Time
+	LoggedDate       *time.Time
+	StartedDate      *time.Time
 	IssueId          string `gorm:"index"`
 }
