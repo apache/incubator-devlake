@@ -2,6 +2,7 @@ package tasks
 
 import (
 	lakeModels "github.com/merico-dev/lake/models"
+	"github.com/merico-dev/lake/models/domainlayer"
 	"github.com/merico-dev/lake/models/domainlayer/didgen"
 	"github.com/merico-dev/lake/models/domainlayer/ticket"
 	jiraModels "github.com/merico-dev/lake/plugins/jira/models"
@@ -41,7 +42,9 @@ func ConvertIssues(sourceId uint64, boardId uint64) error {
 			return err
 		}
 		issue := &ticket.Issue{
-			Id:                      issueIdGen.Generate(jiraIssue.SourceId, jiraIssue.IssueId),
+			DomainEntity: domainlayer.DomainEntity{
+				Id: issueIdGen.Generate(jiraIssue.SourceId, jiraIssue.IssueId),
+			},
 			Url:                     jiraIssue.Self,
 			Key:                     jiraIssue.Key,
 			Summary:                 jiraIssue.Summary,
@@ -53,8 +56,8 @@ func ConvertIssues(sourceId uint64, boardId uint64) error {
 			CreatorId:               userIdGen.Generate(sourceId, jiraIssue.CreatorAccountId),
 			ResolutionDate:          jiraIssue.ResolutionDate,
 			Priority:                jiraIssue.PriorityName,
-			CreatedDate:             jiraIssue.Created,
-			UpdatedDate:             jiraIssue.Updated,
+			CreatedDate:             &jiraIssue.Created,
+			UpdatedDate:             &jiraIssue.Updated,
 			LeadTimeMinutes:         jiraIssue.LeadTimeMinutes,
 		}
 		if jiraIssue.AssigneeAccountId != "" {
