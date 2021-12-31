@@ -2,6 +2,7 @@ import React, { Fragment, useEffect, useCallback, useState, useRef } from 'react
 import { CSSTransition } from 'react-transition-group'
 import {
   useHistory,
+  useLocation,
   Link,
   // useParams,
 } from 'react-router-dom'
@@ -48,6 +49,7 @@ import '@/styles/pipelines.scss'
 
 const CreatePipeline = (props) => {
   const history = useHistory()
+  const location = useLocation()
   // const { providerId } = useParams()
   // const [activeProvider, setActiveProvider] = useState(integrationsData[0])
   const [integrations, setIntegrations] = useState(integrationsData)
@@ -71,6 +73,7 @@ const CreatePipeline = (props) => {
 
   const [enabledProviders, setEnabledProviders] = useState([])
   const [runTasks, setRunTasks] = useState([])
+  const [existingTasks, setExistingTasks] = useState([])
 
   const [namePrefix, setNamePrefix] = useState(pipelinePrefixes[0])
   const [nameSuffix, setNameSuffix] = useState(pipelineSuffixes[0])
@@ -82,6 +85,9 @@ const CreatePipeline = (props) => {
   const [selectedSource, setSelectedSource] = useState()
   const [repositoryName, setRepositoryName] = useState('')
   const [owner, setOwner] = useState('')
+
+  const [autoRedirect, setAutoRedirect] = useState(true)
+  const [restartDetected, setRestartDetected] = useState(false)
 
   const {
     runPipeline,
@@ -178,6 +184,17 @@ const CreatePipeline = (props) => {
     setPipelineName(`${namePrefix} ${nameSuffix}`)
   }
 
+  const resetConfiguration = () => {
+    window.history.replaceState(null, '')
+    setExistingTasks([])
+    setEnabledProviders([])
+    setProjectId(null)
+    setBoardId(null)
+    setSelectedSource(null)
+    setRepositoryName('')
+    setOwner('')
+  }
+
   useEffect(() => {
 
   }, [pipelineName])
@@ -209,7 +226,10 @@ const CreatePipeline = (props) => {
 
   useEffect(() => {
     console.log('>> PIPELINE LAST RUN OBJECT CHANGED!!...', pipelineRun)
-  }, [pipelineRun])
+    if (pipelineRun.ID && autoRedirect) {
+      history.push(`/pipelines/activity/${pipelineRun.ID}`)
+    }
+  }, [pipelineRun, autoRedirect, history])
 
   useEffect(() => {
     console.log(namePrefix, nameSuffix)
@@ -232,9 +252,55 @@ const CreatePipeline = (props) => {
     console.log('>> BUILT JIRA INSTANCE SELECT MENU... ', sources)
   }, [sources])
 
+  useEffect(() => {
+    if (location.state?.existingTasks) {
+      console.log('>> RESTART ATTEMPT: DETECTED EXISTING PIPELINE CONFIGURATION... ', location.state.existingTasks)
+      const tasks = location.state.existingTasks
+      setRestartDetected(true)
+      setExistingTasks(tasks)
+      window.history.replaceState(null, '')
+      // !WARNING! This logic will only handle ONE STAGE (Stage 1)
+      // @todo: refactor later for multi-stage
+      const GitLabTask = tasks.find(t => t.plugin === Providers.GITLAB)
+      const GitHubTask = tasks.find(t => t.plugin === Providers.GITHUB)
+      const JiraTask = tasks.find(t => t.plugin === Providers.JIRA)
+      const JenkinsTask = tasks.find(t => t.plugin === Providers.JENKINS)
+      if (GitLabTask) {
+        setEnabledProviders(eP => [...eP, Providers.GITLAB])
+        setProjectId(GitLabTask.options?.projectId)
+      }
+      if (GitHubTask) {
+        setEnabledProviders(eP => [...eP, Providers.GITHUB])
+        setRepositoryName(GitHubTask.options?.repositoryName)
+        setOwner(GitHubTask.options?.owner)
+      }
+      if (JiraTask) {
+        // const selSource = sources.find(s => s.ID === parseInt(JiraTask.options?.sourceId, 10))
+        setEnabledProviders(eP => [...eP, Providers.JIRA])
+        setBoardId(JiraTask.options?.boardId)
+        setSelectedSource({
+          id: parseInt(JiraTask.options?.sourceId, 10),
+          title: '(Instance)',
+          value: parseInt(JiraTask.options?.sourceId, 10)
+        })
+      }
+      if (JenkinsTask) {
+        setEnabledProviders(eP => [...eP, Providers.JENKINS])
+      }
+    } else {
+      setRestartDetected(false)
+      setExistingTasks([])
+    }
+
+    return () => {
+      setRestartDetected(false)
+      setExistingTasks([])
+    }
+  }, [location])
+
   return (
     <>
-      <div className='container'>
+      <div className='container container-create-pipeline'>
         <Nav />
         <Sidebar />
         <Content>
@@ -517,7 +583,19 @@ const CreatePipeline = (props) => {
                 loading={isRunning}
               ><strong>Run</strong> Pipeline
               </Button>
-              <Button className='btn-pipeline btn-view-jobs' icon='eye-open' minimal style={{ marginLeft: '5px' }}>View All Jobs</Button>
+              <Tooltip content='Manage Pipelines (Coming Soon)' position={Position.TOP}>
+                <Button
+                  className='btn-pipeline btn-view-jobs'
+                  icon='eye-open' minimal style={{ marginLeft: '5px' }}
+                >View All Pipelines
+                </Button>
+              </Tooltip>
+              <Button
+                className='btn-pipeline btn-reset-pipeline'
+                icon='eraser' minimal style={{ marginLeft: '5px' }}
+                onClick={resetConfiguration}
+              >Reset
+              </Button>
               {/* <div style={{ padding: '7px 5px 0 5px' }}>
                 <Tooltip content='Manage API Rate Limits' position={Position.TOP}>
                   <Switch

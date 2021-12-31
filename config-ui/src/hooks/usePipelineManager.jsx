@@ -18,7 +18,7 @@ function usePipelineManager (pipelineName = `COLLECTION ${Date.now()}`, initialT
     ]
   })
 
-  const [activePipeline, setActivePipeline] = useState()
+  const [activePipeline, setActivePipeline] = useState(NullPipelineRun)
   const [lastRunId, setLastRunId] = useState(null)
   const [pipelineRun, setPipelineRun] = useState(NullPipelineRun)
 
@@ -72,6 +72,10 @@ function usePipelineManager (pipelineName = `COLLECTION ${Date.now()}`, initialT
   }, [])
 
   const fetchPipeline = useCallback((pipelineID, refresh = false) => {
+    if (!pipelineID) {
+      console.log('>> !ABORT! Pipeline ID Missing! Aborting Fetch...')
+      // return ToastNotification.show({ message: 'Pipeline ID Missing! Aborting Fetch...', intent: 'danger', icon: 'warning-sign' })
+    }
     try {
       setIsFetching(true)
       setErrors([])
@@ -84,7 +88,7 @@ function usePipelineManager (pipelineName = `COLLECTION ${Date.now()}`, initialT
         console.log('>> RAW PIPELINE TASKS DATA FROM API...', t.data)
         setActivePipeline({
           ...p.data,
-          tasks: t.data
+          tasks: [...t.data.tasks]
         })
         setPipelineRun((pR) => refresh ? { ...p.data, tasks: [...t.data.tasks] } : pR)
         setLastRunId((lrId) => refresh ? p.data?.ID : lrId)
@@ -123,10 +127,6 @@ function usePipelineManager (pipelineName = `COLLECTION ${Date.now()}`, initialT
   // }
 
   useEffect(() => {
-    // setIntegrations(integrationsData)
-  }, [])
-
-  useEffect(() => {
     console.log('>> PIPELINE MANAGER - RECEIVED RUN/TASK SETTINGS', settings)
   }, [settings])
 
@@ -138,6 +138,7 @@ function usePipelineManager (pipelineName = `COLLECTION ${Date.now()}`, initialT
     errors,
     isRunning,
     isFetching,
+    isCancelling,
     settings,
     setSettings,
     pipelineRun,
