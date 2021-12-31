@@ -22,7 +22,7 @@ import Offline from '@/pages/offline/index'
 // #963 Create Pipelines
 import CreatePipeline from '@/pages/pipelines/create'
 // #965 Pipeline Activity
-// import PipelineActivity from '@/pages/pipelines/activity'
+import PipelineActivity from '@/pages/pipelines/activity'
 
 function App () {
   return (
@@ -55,9 +55,12 @@ function App () {
       {/* #964 <Route exact path='/pipelines'>
         <Pipelines />
       </Route> */}
-      {/* #965 <Route exact path='/pipelines/activity/:id'>
+      <Route exact path='/pipelines/activity'>
         <PipelineActivity />
-      </Route> */}
+      </Route>
+      <Route exact path='/pipelines/activity/:pId'>
+        <PipelineActivity />
+      </Route>
       <Route exact path='/lake/api/configuration'>
         <Configure />
       </Route>

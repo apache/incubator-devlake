@@ -92,7 +92,7 @@ export default function Triggers () {
       const res = await request.post(
         `${DEVLAKE_ENDPOINT}/pipelines`,
         JSON.stringify({
-          name: `config-ui trigger ${new Date()}`,
+          name: `(m)RUN ${new Date()}`,
           tasks: JSON.parse(textAreaBody)
         })
       )
