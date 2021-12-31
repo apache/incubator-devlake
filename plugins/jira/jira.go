@@ -97,21 +97,22 @@ func (plugin Jira) Execute(options map[string]interface{}, progress chan<- float
 	}
 	if len(tasksToRun) == 0 {
 		tasksToRun = map[string]bool{
-			"collectBoard":       true,
-			"collectProjects":    true,
-			"collectIssues":      true,
-			"collectChangelogs":  true,
-			"collectRemotelinks": true,
-			"enrichIssues":       true,
-			"enrichRemotelinks":  true,
-			"collectSprints":     true,
-			"collectUsers":       true,
-			"convertBoard":       true,
-			"convertIssues":      true,
-			"convertWorklogs":    true,
-			"convertChangelogs":  true,
-			"convertUsers":       true,
-			"convertSprints":     true,
+			"collectBoard":        true,
+			"collectProjects":     true,
+			"collectIssues":       true,
+			"collectChangelogs":   true,
+			"collectRemotelinks":  true,
+			"enrichIssues":        true,
+			"enrichRemotelinks":   true,
+			"collectSprints":      true,
+			"collectUsers":        true,
+			"convertBoard":        true,
+			"convertIssues":       true,
+			"convertWorklogs":     true,
+			"convertChangelogs":   true,
+			"convertUsers":        true,
+			"convertSprints":      true,
+			"convertIssueCommits": true,
 		}
 	}
 
@@ -229,6 +230,13 @@ func (plugin Jira) Execute(options map[string]interface{}, progress chan<- float
 				return err
 			}
 		}
+		if tasksToRun["convertIssueCommits"] {
+			err = tasks.ConvertIssueCommits(op.SourceId, boardId)
+			if err != nil {
+				logger.Error("convertIssueCommits", err)
+				return err
+			}
+		}
 		setBoardProgress(i, 1.0)
 
 	}
@@ -308,6 +316,10 @@ func main() {
 		panic(fmt.Errorf("error paring board_id: %w", err))
 	}
 
+	err = core.RegisterPlugin("jira", PluginEntry)
+	if err != nil {
+		panic(err)
+	}
 	PluginEntry.Init()
 	progress := make(chan float32)
 	go func() {
@@ -315,7 +327,7 @@ func main() {
 			map[string]interface{}{
 				"sourceId": sourceId,
 				"boardId":  boardId,
-				//"tasks":    []string{"enrichIssues"},
+				"tasks":    []string{"convertIssues"},
 			},
 			progress,
 			context.Background(),
@@ -323,6 +335,7 @@ func main() {
 		if err != nil {
 			panic(err)
 		}
+		close(progress)
 	}()
 	for p := range progress {
 		fmt.Println(p)

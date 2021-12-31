@@ -10,7 +10,6 @@ type Issue struct {
 	domainlayer.DomainEntity
 
 	// collected fields
-	BoardId                  string `gorm:"index"`
 	Url                      string
 	Key                      string
 	Title                    string

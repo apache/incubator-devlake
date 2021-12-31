@@ -8,6 +8,7 @@ import (
 
 	"github.com/merico-dev/lake/config"
 	"github.com/merico-dev/lake/models/domainlayer/code"
+	"github.com/merico-dev/lake/models/domainlayer/crossdomain"
 	"github.com/merico-dev/lake/models/domainlayer/devops"
 	"github.com/merico-dev/lake/models/domainlayer/ticket"
 	"github.com/merico-dev/lake/models/domainlayer/user"
@@ -58,6 +59,7 @@ func migrateDB() {
 		&code.RepoCommit{},
 		&ticket.Board{},
 		&ticket.Issue{},
+		&ticket.BoardIssue{},
 		&ticket.Changelog{},
 		&ticket.Sprint{},
 		&ticket.SprintIssue{},
@@ -65,6 +67,8 @@ func migrateDB() {
 		&devops.Job{},
 		&devops.Build{},
 		&ticket.Worklog{},
+		&crossdomain.BoardRepo{},
+		&crossdomain.IssueCommit{},
 	)
 	if err != nil {
 		panic(err)
