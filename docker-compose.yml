@@ -15,7 +15,7 @@ services:
       MYSQL_PASSWORD: merico
 
   grafana:
-    image: mericodev/grafana:0.5.0
+    image: mericodev/grafana:latest
     profiles:
       - user
     ports:
@@ -53,7 +53,7 @@ services:
       - mysql
 
   devlake:
-    image: mericodev/lake:0.5.0
+    image: mericodev/lake:latest
     profiles:
       - user
     build: "."
@@ -66,7 +66,7 @@ services:
       - mysql
 
   config-ui:
-    image: mericodev/config-ui:0.5.0
+    image: mericodev/config-ui:latest
     profiles:
       - user
     ports:
