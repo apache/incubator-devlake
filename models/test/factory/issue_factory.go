@@ -12,7 +12,6 @@ func CreateIssue(boardId string) (*ticket.Issue, error) {
 		DomainEntity: domainlayer.DomainEntity{
 			Id: RandIntString(),
 		},
-		BoardId:                  boardId, // ref to board
 		Url:                      "",
 		Key:                      "",
 		Title:                    "",
