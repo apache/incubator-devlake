@@ -31,24 +31,42 @@ func TestConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, erro
 	endpoint := input.Query.Get("endpoint")
 	auth := input.Query.Get("auth")
 	tokens := strings.Split(auth, ",")
-	githubApiClient := tasks.CreateApiClient(endpoint, tokens)
 
 	// PLEASE NOTE: This works because GitHub API Client rotates tokens on each request
+	results := make(chan error)
 	for i := 0; i < len(tokens); i++ {
-		res, err := githubApiClient.Get("user/public_emails", nil, nil)
-		if err != nil || res.StatusCode != 200 {
-			logger.Error("Error: ", err)
-			return &core.ApiResourceOutput{Body: core.TestResult{
-				Success: false,
-				Message: core.InvalidConnectionError + fmt.Sprintf("Check token: %v or endpoint %v", tokens[i], endpoint),
-			}}, nil
-		}
-		githubApiResponse := &ApiUserPublicEmailResponse{}
-		err = core.UnmarshalResponse(res, githubApiResponse)
+		token := tokens[i]
+		i := i
+		go func() {
+			githubApiClient := tasks.CreateApiClient(endpoint, []string{token})
+			res, err := githubApiClient.Get("user/public_emails", nil, nil)
+			if err != nil || res.StatusCode != 200 {
+				logger.Error("Error: ", err)
+				results <- fmt.Errorf("invalid token #%v %s", i, token)
+				return
+			}
+			githubApiResponse := &ApiUserPublicEmailResponse{}
+			err = core.UnmarshalResponse(res, githubApiResponse)
+			if err != nil {
+				logger.Error("Error: ", err)
+				results <- fmt.Errorf("invalid token #%v %s", i, token)
+			} else {
+				results <- nil
+			}
+		}()
+	}
+
+	println("length of tokens", len(tokens))
+	msgs := make([]string, 0)
+	i := 0
+	for err := range results {
 		if err != nil {
-			logger.Error("Error: ", err)
-			return &core.ApiResourceOutput{Body: core.TestResult{Success: false, Message: core.UnmarshallingError}}, nil
+			msgs = append(msgs, err.Error())
+		}
+		i++
+		if i == len(tokens) {
+			close(results)
 		}
 	}
-	return &core.ApiResourceOutput{Body: core.TestResult{Success: true, Message: ""}}, nil
+	return &core.ApiResourceOutput{Body: core.TestResult{Success: len(msgs) == 0, Message: strings.Join(msgs, "\n")}}, nil
 }
