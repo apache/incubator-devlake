@@ -14,8 +14,6 @@ func GetConnectionString(dbParams string, includeDriver bool) string {
 	name := config.V.GetString("DB_DATABASE")
 	driver := config.V.GetString("DB_DRIVER")
 
-	fmt.Println("JON >>> user", user)
-
 	params := fmt.Sprintf("%v&%v", dbParams, config.V.GetString("DB_PARAMS"))
 	connectionString := fmt.Sprintf("%v:%v@tcp(%v:%v)/%v?%v", user, pass, host, port, name, params)
 

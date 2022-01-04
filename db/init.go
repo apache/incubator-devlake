@@ -9,30 +9,46 @@ import (
 
 	_ "github.com/golang-migrate/migrate/v4/database/mysql"
 	_ "github.com/golang-migrate/migrate/v4/source/file"
-	"github.com/merico-dev/lake/plugins"
 
 	"github.com/golang-migrate/migrate/v4"
 )
 
 // var MIGRATIONS_PATH string = "file://./db/migration"
-var MIGRATIONS_PATH string = GetFilePath()
+var MIGRATIONS_PATH string = GetMigrationPath()
 
-func GetFilePath() string {
+func GetRootPath() string {
 	ex, err := os.Executable()
 	if err != nil {
 		panic(err)
 	}
 	exPath := filepath.Dir(ex)
-	fmt.Println("JON >>> exPath", exPath)
-	return fmt.Sprintf("file://%v/lake/db/migration", exPath)
+	rootPath := filepath.Dir(exPath)
+	return rootPath
 }
 
-func MigrateDB(dbName string) {
+func GetMigrationPath() string {
+	return fmt.Sprintf("file://%v/db/migration", GetRootPath())
+}
+
+func GetBinPath() string {
+	return fmt.Sprintf("%v/bin/plugins", GetRootPath())
+}
+
+func GetPluginsPath() string {
+	return fmt.Sprintf("%v/plugins", GetRootPath())
+}
+
+func MigrateDB(dbName string) error {
 	err := RunDomainLayerMigrationsUp(dbName)
 	if err != nil {
 		fmt.Println("INFO: ", err)
+		return err
 	}
-	RunPluginMigrations(dbName, plugins.PluginDir())
+	err = RunPluginMigrations(dbName, GetBinPath())
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 // We need to maintain separate tables for migration tracking for each plugin.
@@ -43,37 +59,45 @@ func GolangMigrateDBString(pluginName string) string {
 }
 
 // Run the migration folder for all plugins that have a compiled .so file
-func RunPluginMigrations(dbName string, pluginsDir string) {
-	walkErr := filepath.WalkDir(pluginsDir, func(path string, d fs.DirEntry, err error) error {
+func RunPluginMigrations(dbName string, binDir string) error {
+	walkErr := filepath.WalkDir(binDir, func(path string, d fs.DirEntry, err error) error {
 		if err != nil {
 			return err
 		}
 		fileName := d.Name()
 		if strings.HasSuffix(fileName, ".so") {
 			pluginName := fileName[0 : len(d.Name())-3]
-			RunPluginMigrationsUp(dbName, pluginName)
+			err = RunPluginMigrationsUp(dbName, pluginName)
+			if err != nil {
+				return err
+			}
 		}
 		return nil
 	})
 	if walkErr != nil {
 		fmt.Println("ERROR >>> walkErr", walkErr)
+		return walkErr
 	}
+	return nil
 }
 
 // Run the plugins/<pluginName>/migration folder in order
-func RunPluginMigrationsUp(dbName string, pluginName string) {
+func RunPluginMigrationsUp(dbName string, pluginName string) error {
 	connectionString := GolangMigrateDBString(pluginName)
 	path := fmt.Sprintf("file://./plugins/%v/migration", pluginName)
 
 	m, err := migrate.New(path, connectionString)
 
 	if err != nil {
-		fmt.Println("INFO: RunPluginMigrationsUp: Could not init migrate for UP: ", pluginName, err)
+		fmt.Println("INFO: RunPluginMigrationsUp: No migration scripts found for plugin: ", pluginName, err)
+		return nil
 	}
 	err = m.Up()
 	if err != nil {
-		fmt.Println("INFO: RunPluginMigrationsUp: Could not run migrations UP: ", pluginName, err)
+		fmt.Println("INFO: RunPluginMigrationsUp: Database already up to date: ", pluginName, err)
+		return nil
 	}
+	return nil
 }
 
 func RunDomainLayerMigrationsUp(dbName string) error {
@@ -82,13 +106,13 @@ func RunDomainLayerMigrationsUp(dbName string) error {
 		GetConnectionString("", true))
 
 	if err != nil {
-		fmt.Println("INFO: RunDomainLayerMigrationsUp: Could not init migrate for UP: ", err)
-		return err
+		fmt.Println("INFO: RunDomainLayerMigrationsUp: No migration scripts found: ", err)
+		return nil
 	}
 	err = m.Up()
 	if err != nil {
-		fmt.Println("INFO: RunDomainLayerMigrationsUp: Could not run migrations UP: ", err)
-		return err
+		fmt.Println("INFO: RunDomainLayerMigrationsUp: Database already up to date: ", err)
+		return nil
 	}
 	return nil
 }

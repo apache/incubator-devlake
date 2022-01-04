@@ -2,6 +2,7 @@ package main
 
 import (
 	"github.com/merico-dev/lake/api"
+	"github.com/merico-dev/lake/db"
 
 	"github.com/merico-dev/lake/plugins"
 )
@@ -11,7 +12,7 @@ func main() {
 }
 
 func startAPI() {
-	err := plugins.LoadPlugins(plugins.PluginDir())
+	err := plugins.LoadPlugins(db.GetPluginsPath())
 	if err != nil {
 		panic(err)
 	}

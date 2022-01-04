@@ -61,9 +61,9 @@ function App () {
       <Route exact path='/pipelines/activity/:pId'>
         <PipelineActivity />
       </Route>
-      <Route exact path='/lake/api/configuration'>
+      {/* <Route exact path='/lake/api/configuration'>
         <Configure />
-      </Route>
+      </Route> */}
       <Route exact path='/offline'>
         <Offline />
       </Route>

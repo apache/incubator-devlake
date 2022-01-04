@@ -35,8 +35,6 @@ func init() {
 		},
 	)
 
-	fmt.Println("JON >>> connectionString", connectionString)
-
 	Db, err = gorm.Open(mysql.Open(connectionString), &gorm.Config{
 		Logger: newLogger,
 	})
@@ -46,5 +44,8 @@ func init() {
 	}
 
 	// TODO: create customer migration here
-	lakeDb.MigrateDB("lake")
+	err = lakeDb.MigrateDB("lake")
+	if err != nil {
+		fmt.Println("INFO: >>> This is shown when a database is already up to date. Please check migrations if you find an error")
+	}
 }
