@@ -42,7 +42,7 @@ unit-test: build
 	go test -v $$(go list ./... | grep -v /test/ | grep -v /models/)
 
 models-test:
-	TEST=true go test ./models/test -v
+	DB_URL="merico:merico@tcp(localhost:3306)/lake_test" go test ./models/test -v
 
 e2e-test: build
 	PLUGIN_DIR=$(shell readlink -f bin/plugins) go test -v ./test/...

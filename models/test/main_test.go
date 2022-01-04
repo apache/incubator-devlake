@@ -18,7 +18,14 @@ func TestMain(m *testing.M) {
 		os.Exit(1)
 	}
 	code := m.Run()
+
+	teardown()
 	os.Exit(code)
+}
+
+func teardown() error {
+	// TODO: should clean DB here
+	return nil
 }
 
 func setup() error {

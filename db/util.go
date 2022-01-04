@@ -18,6 +18,7 @@ func GetConnectionString(dbParams map[string]string, includeDriver bool) string 
 		q.Set(k, v)
 	}
 	u.RawQuery = q.Encode()
+	fmt.Println("JON >>> Connection String", u)
 
 	if includeDriver {
 		return fmt.Sprintf("mysql://%v", u.String())
