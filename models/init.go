@@ -18,7 +18,7 @@ var Db *gorm.DB
 func init() {
 	config.LoadConfigFile()
 
-	connectionString := lakeDb.GetConnectionString("", false)
+	connectionString := lakeDb.GetConnectionString(map[string]string{}, false)
 
 	if config.V.Get("TEST") == "true" {
 		connectionString = "merico:merico@tcp(localhost:3306)/lake_test"

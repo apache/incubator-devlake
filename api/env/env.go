@@ -34,13 +34,7 @@ func Set(ctx *gin.Context) {
 
 	// TODO: Lets find a way to make this not have to be changed so much
 	V.Set("PORT", data.PORT)
-	V.Set("DB_USER", data.DB_USER)
-	V.Set("DB_PASSWORD", data.DB_PASSWORD)
-	V.Set("DB_HOST", data.DB_HOST)
-	V.Set("DB_PORT", data.DB_PORT)
-	V.Set("DB_DATABASE", data.DB_DATABASE)
-	V.Set("DB_DRIVER", data.DB_DRIVER)
-	V.Set("DB_PARAMS", data.DB_PARAMS)
+	V.Set("DB_URL", data.DB_URL)
 	V.Set("MODE", data.MODE)
 	V.Set("JIRA_ENDPOINT", data.JIRA_ENDPOINT)
 	V.Set("JIRA_BASIC_AUTH_ENCODED", data.JIRA_BASIC_AUTH_ENCODED)

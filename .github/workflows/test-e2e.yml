@@ -9,7 +9,7 @@ jobs:
         os: [ubuntu-20.04]
     runs-on: ${{ matrix.os }}
     env:
-      DB_DATABASE: lake
+      DB_URL: lake
       DB_USER: root
       DB_PASSWORD: root
       DB_HOST: localhost
@@ -28,7 +28,7 @@ jobs:
     - name: setup mysql
       run: |
         sudo systemctl start mysql.service
-        mysql -e 'CREATE DATABASE ${{ env.DB_DATABASE }};' -u${{ env.DB_USER }} -p${{ env.DB_PASSWORD }}
+        mysql -e 'CREATE DATABASE ${{ env.DB_URL }};' -u${{ env.DB_USER }} -p${{ env.DB_PASSWORD }}
     - name: setup redis
       uses: shogo82148/actions-setup-redis@v1
       with:

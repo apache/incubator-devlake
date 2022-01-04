@@ -53,8 +53,10 @@ func MigrateDB(dbName string) error {
 
 // We need to maintain separate tables for migration tracking for each plugin.
 func GolangMigrateDBString(pluginName string) string {
-	dbParams := fmt.Sprintf("x-migrations-table=schema_migrations_%v&x-migrations-table-quoted=1", pluginName)
-	connectionString := GetConnectionString(dbParams, true)
+	params := map[string]string{
+		"x-migrations-table": fmt.Sprintf("schema_migrations_%v", pluginName),
+	}
+	connectionString := GetConnectionString(params, true)
 	return connectionString
 }
 
@@ -103,7 +105,7 @@ func RunPluginMigrationsUp(dbName string, pluginName string) error {
 func RunDomainLayerMigrationsUp(dbName string) error {
 	m, err := migrate.New(
 		MIGRATIONS_PATH,
-		GetConnectionString("", true))
+		GetConnectionString(map[string]string{}, true))
 
 	if err != nil {
 		fmt.Println("INFO: RunDomainLayerMigrationsUp: No migration scripts found: ", err)
@@ -120,7 +122,7 @@ func RunDomainLayerMigrationsUp(dbName string) error {
 func RunDomainLayerMigrationsDown(dbName string) error {
 	m, err := migrate.New(
 		MIGRATIONS_PATH,
-		GetConnectionString("", true))
+		GetConnectionString(map[string]string{}, true))
 
 	if err != nil {
 		fmt.Println("INFO: RunDomainLayerMigrationsDown: Could not init migrate for DOWN: ", err)

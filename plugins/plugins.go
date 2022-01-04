@@ -17,7 +17,6 @@ import (
 
 // LoadPlugins load plugins from local directory
 func LoadPlugins(pluginsDir string) error {
-	fmt.Println("JON >>> pluginsDir", pluginsDir)
 	walkErr := filepath.WalkDir(pluginsDir, func(path string, d fs.DirEntry, err error) error {
 		if err != nil {
 			return err
