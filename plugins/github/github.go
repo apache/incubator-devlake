@@ -154,6 +154,14 @@ func (plugin Github) Execute(options map[string]interface{}, progress chan<- flo
 		}
 
 	}
+	if tasksToRun["enrichIssues"] {
+		fmt.Println("INFO >>> Enriching Issues")
+		enrichmentError := tasks.EnrichIssues()
+		if enrichmentError != nil {
+			return fmt.Errorf("could not enrich issues: %v", enrichmentError)
+		}
+
+	}
 	if tasksToRun["convertRepos"] {
 		progress <- 0.5
 		err = tasks.ConvertRepos()
@@ -196,14 +204,6 @@ func (plugin Github) Execute(options map[string]interface{}, progress chan<- flo
 		if err != nil {
 			return err
 		}
-	}
-	if tasksToRun["enrichIssues"] {
-		fmt.Println("INFO >>> Enriching Issues")
-		enrichmentError := tasks.EnrichIssues()
-		if enrichmentError != nil {
-			return fmt.Errorf("could not enrich issues: %v", enrichmentError)
-		}
-
 	}
 
 	progress <- 1
@@ -257,7 +257,10 @@ func main() {
 				"owner":          owner,
 				"repositoryName": repo,
 				//"tasks":          []string{"collectCommits"},
-				"tasks": []string{"convertCommits"},
+				//"tasks": []string{"convertCommits"},
+				//"tasks": []string{"collectIssues"},
+				//"tasks": []string{"enrichIssues"},
+				"tasks": []string{"convertIssues"},
 			},
 			progress,
 			context.Background(),
