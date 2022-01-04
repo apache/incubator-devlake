@@ -33,7 +33,7 @@ type SprintIssue struct {
 	ResolvedStage string
 }
 
-type SprintIssueBurndown struct {
+type SprintTrend struct {
 	SprintId    string `gorm:"primaryKey"`
 	EndedHour   int    `gorm:"primaryKey"`
 	StartedDate time.Time
@@ -68,8 +68,6 @@ type SprintIssueBurndown struct {
 	RemovedStoryPoints   int
 	RemainingStoryPoints int
 	ResolvedStoryPoints  int
-}
 
-func (SprintIssueBurndown) TableName() string {
-	return "sprint_issue_burndown"
+	AddedWorklogMinutes int
 }

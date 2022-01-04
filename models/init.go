@@ -64,7 +64,7 @@ func migrateDB() {
 		&ticket.Changelog{},
 		&ticket.Sprint{},
 		&ticket.SprintIssue{},
-		&ticket.SprintIssueBurndown{},
+		&ticket.SprintTrend{},
 		&devops.Job{},
 		&devops.Build{},
 		&ticket.Worklog{},
