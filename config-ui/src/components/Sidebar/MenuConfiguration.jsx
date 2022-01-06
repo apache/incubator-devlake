@@ -88,7 +88,7 @@ const MenuConfiguration = (activeRoute) => {
           active: activeRoute.url.endsWith('/pipelines'),
           icon: 'cube-add',
           classNames: [],
-          disabled: true
+          disabled: false
         },
       ]
     },

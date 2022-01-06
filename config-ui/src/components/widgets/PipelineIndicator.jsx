@@ -149,7 +149,7 @@ const PipelineIndicator = (props) => {
                       )}
                       {pipeline.status === 'TASK_RUNNING' && (
                         <Button
-                          className='btn-cancel-pipeline'
+                          className={`btn-cancel-pipeline ${Classes.POPOVER_DISMISS}`}
                           small icon='stop' text='CANCEL' intent='primary'
                           onClick={() => onCancel(pipeline.ID)}
                         />

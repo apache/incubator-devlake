@@ -1,6 +1,7 @@
 import * as dayjs from 'dayjs'
 import * as relativeTime from 'dayjs/plugin/relativeTime'
 import * as updateLocale from 'dayjs/plugin/updateLocale'
+import * as LocalizedFormat from 'dayjs/plugin/LocalizedFormat'
 
 const localeConfiguration = {
   relativeTime: {
@@ -22,6 +23,7 @@ const localeConfiguration = {
 
 dayjs.extend(relativeTime)
 dayjs.extend(updateLocale)
+dayjs.extend(LocalizedFormat)
 dayjs.updateLocale('en', localeConfiguration)
 
 export default dayjs
