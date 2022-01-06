@@ -45,26 +45,26 @@ const MenuConfiguration = (activeRoute) => {
         }
       ]
     },
-    {
-      id: 1,
-      label: 'Tasks',
-      icon: 'automatic-updates',
-      route: '/tasks',
-      disabled: true,
-      active: activeRoute.url === '/tasks',
-      children: [
-      ]
-    },
-    {
-      id: 2,
-      label: 'Triggers',
-      icon: 'asterisk',
-      classNames: [],
-      route: '/triggers',
-      active: activeRoute.url === '/triggers',
-      children: [
-      ]
-    },
+    // {
+    //   id: 1,
+    //   label: 'Tasks',
+    //   icon: 'automatic-updates',
+    //   route: '/tasks',
+    //   disabled: true,
+    //   active: activeRoute.url === '/tasks',
+    //   children: [
+    //   ]
+    // },
+    // {
+    //   id: 2,
+    //   label: 'Triggers',
+    //   icon: 'asterisk',
+    //   classNames: [],
+    //   route: '/triggers',
+    //   active: activeRoute.url === '/triggers',
+    //   children: [
+    //   ]
+    // },
     {
       id: 3,
       label: 'Pipelines',
