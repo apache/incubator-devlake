@@ -70,7 +70,7 @@ const MenuConfiguration = (activeRoute) => {
       label: 'Pipelines',
       icon: 'git-merge',
       classNames: [],
-      route: '/pipelines/create',
+      route: '/pipelines',
       active: activeRoute.url.startsWith('/pipelines'),
       children: [
         {
