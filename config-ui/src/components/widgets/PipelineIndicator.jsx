@@ -19,7 +19,8 @@ const PipelineIndicator = (props) => {
     pipeline,
     graphsUrl = '#', 
     onFetch = () => {} ,
-    onCancel = () => {}
+    onCancel = () => {},
+    onView = () => {}
   } = props
 
   return (
@@ -111,6 +112,7 @@ const PipelineIndicator = (props) => {
               <>
                 <div style={{ fontSize: '12px', padding: '12px', minWidth: '420px', maxWidth: '420px', overflow: 'hidden' }}>
                   <h3
+                    onClick={() => onView(pipeline.ID)}
                     className='group-header' style={{
                       marginTop: '0',
                       marginBottom: '6px',
