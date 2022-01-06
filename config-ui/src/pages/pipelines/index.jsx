@@ -526,7 +526,7 @@ const Pipelines = (props) => {
                               <ContentLoader
                                 elevation={Elevation.ZERO}
                                 cardStyle={{ border: '0 !important', boxShadow: 'none', backgroundColor: 'transparent' }}
-                                title='Loading Pipeline Runs ...' message='Please wait while the pipeline run logs are loaded.'
+                                title='Loading Pipeline Runs ...' message='Please wait while the data records are loaded.'
                               />
                             </td>
                           </tr>
