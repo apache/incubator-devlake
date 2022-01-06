@@ -69,6 +69,9 @@ const Pipelines = (props) => {
 
   const filterPipelines = useCallback((status) => {
     setFilteredPipelines(status === 'all' ? pipelines : pipelines.filter((p) => p.status === status))
+    setTimeout(() => {
+      setIsProcessing(false)
+    }, 300)
   }, [pipelines])
 
   const getPipelineCountByStatus = useCallback((status) => {
@@ -94,8 +97,9 @@ const Pipelines = (props) => {
 
   useEffect(() => {
     console.log('>> FILTER STATUS CHANGED ===> ', activeStatus)
+    setIsProcessing(true)
     filterPipelines(activeStatus)
-  }, [activeStatus])
+  }, [activeStatus, filterPipelines])
 
   useEffect(() => {
 
@@ -164,23 +168,43 @@ const Pipelines = (props) => {
 
             {(isFetchingAll || !isFetchingAll) && (
               <>
-                <div style={{ display: 'flex', marginTop: '30px', minHeight: '38px', width: '100%', justifyContent: 'space-between' }}>
+                <div style={{ display: 'flex', marginTop: '30px', minHeight: '36px', width: '100%', justifyContent: 'space-between' }}>
 
                   <ButtonGroup className='filter-status-group' round='true' style={{ fontSize: '12px', zIndex: 0 }}>
-                    <Button className='btn-pipeline-filter' intent={activeStatus === 'all' ? 'primary' : null} onClick={() => setActiveStatus('all')}>
+                    <Button
+                      className='btn-pipeline-filter'
+                      intent={activeStatus === 'all' ? 'primary' : null} onClick={() => setActiveStatus('all')}
+                    >
                       <span style={{ marginRight: '10x', letterSpacing: '0', fontWeight: 900 }}>All&nbsp;</span>
                       <Tag className='tag-data-count'>{getPipelineCountByStatus('all')}</Tag>
                     </Button>
-                    <Button className='btn-pipeline-filter' intent={activeStatus === 'TASK_RUNNING' ? 'primary' : null} onClick={() => setActiveStatus('TASK_RUNNING')}>
+                    <Button
+                      className='btn-pipeline-filter'
+                      intent={activeStatus === 'TASK_RUNNING' ? 'primary' : null} onClick={() => setActiveStatus('TASK_RUNNING')}
+                    >
                       <span style={{ marginRight: '10x', letterSpacing: '0', fontWeight: 700 }}>Running&nbsp;</span>
                       <Tag className='tag-data-count'>{getPipelineCountByStatus('TASK_RUNNING')}</Tag>
                     </Button>
-                    <Button className='btn-pipeline-filter' intent={activeStatus === 'TASK_COMPLETED' ? 'primary' : null} onClick={() => setActiveStatus('TASK_COMPLETED')}>
+                    <Button
+                      className='btn-pipeline-filter'
+                      intent={activeStatus === 'TASK_COMPLETED' ? 'primary' : null} onClick={() => setActiveStatus('TASK_COMPLETED')}
+                    >
                       <span style={{ marginRight: '10x', letterSpacing: '0', fontWeight: 700 }}>Complete&nbsp;</span>
                       <Tag className='tag-data-count'>{getPipelineCountByStatus('TASK_COMPLETED')}</Tag>
                     </Button>
-                    <Button className='btn-pipeline-filter' intent={activeStatus === 'TASK_FAILED' ? 'primary' : null} onClick={() => setActiveStatus('TASK_FAILED')}>
-                      <span style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', marginRight: '10x', letterSpacing: '0', fontWeight: 700 }}>
+                    <Button
+                      className='btn-pipeline-filter'
+                      intent={activeStatus === 'TASK_FAILED' ? 'primary' : null} onClick={() => setActiveStatus('TASK_FAILED')}
+                    >
+                      <span style={{
+                        display: 'flex',
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                        marginRight: '10x',
+                        letterSpacing: '0',
+                        fontWeight: 700
+                      }}
+                      >
                         <Icon icon='warning-sign' size={14} style={{ justifySelf: 'center', marginRight: '10px' }} />
                         Failed&nbsp;
                         <Tag className='tag-data-count'>{getPipelineCountByStatus('TASK_FAILED')}</Tag>
@@ -188,7 +212,11 @@ const Pipelines = (props) => {
                       </span>
                     </Button>
                   </ButtonGroup>
-
+                  {isProcessing && (
+                    <Button minimal style={{ marginRight: 'auto' }}>
+                      <Spinner size={18} />
+                    </Button>
+                  )}
                   <InputGroup
                     leftElement={<Icon icon='search' />}
                     placeholder='Search Pipelines'
@@ -234,31 +262,43 @@ const Pipelines = (props) => {
                             >
                               {/* <Icon icon='power' color={Colors.GRAY4} size={10} style={{ float: 'right', marginLeft: '10px' }} /> */}
 
-                              <span style={{ display: 'inline-block', float: 'right', color: '#999999', marginLeft: '15px' }}>{dayjs(pipeline.createdAt).format()}</span>
+                              <span style={{
+                                display: 'inline-block',
+                                float: 'right',
+                                color: '#999999',
+                                marginLeft: '15px'
+                              }}
+                              >{dayjs(pipeline.createdAt).format()}
+                              </span>
 
-                              <strong style={{ lineHeight: '100%', fontSize: '12px', fontWeight: 800, textOverflow: 'ellipsis', overflow: 'hidden', display: 'block', whiteSpace: 'nowrap', maxWidth: '100%' }}>
+                              <strong style={{
+                                lineHeight: '100%',
+                                fontSize: '12px',
+                                fontWeight: 800,
+                                textOverflow: 'ellipsis',
+                                overflow: 'hidden',
+                                display: 'block',
+                                whiteSpace: 'nowrap',
+                                maxWidth: '100%'
+                              }}
+                              >
 
                                 {pipeline.name}
-                                {pipeline.status === 'TASK_COMPLETED' && (<Icon icon='tick' size={10} color={Colors.GREEN5} style={{ margin: '0 10px', float: 'right', marginBottom: '2px' }} />)}
+                                {pipeline.status === 'TASK_COMPLETED' && (<Icon
+                                  icon='tick' size={10} color={Colors.GREEN5}
+                                  style={{ margin: '0 10px', float: 'right', marginBottom: '2px' }}
+                                                                          />)}
                               </strong>
 
                             </td>
                             <td
                               className='cell-duration'
-                          // onClick={(e) => configureConnection(connection, e)}
                               style={{ cursor: 'pointer', whiteSpace: 'nowrap' }}
                             >
 
                               {/* {dayjs(pipeline.CreatedAt).toNow(pipeline.CreatedAt)} */}
                               {dayjs(pipeline.UpdatedAt).from(pipeline.CreatedAt, true)}
                             </td>
-                            {/* <td
-                          className='cell-status'
-                          // onClick={(e) => configureConnection(connection, e)}
-                          style={{ cursor: 'pointer' }}
-                        >
-                          {pipeline.status}
-                        </td> */}
                             <td className='cell-status' style={{ textTransform: 'uppercase', whiteSpace: 'nowrap' }}>
                               <span style={{ display: 'inline-block', float: 'left', marginRight: '10px' }}>
                                 <Tooltip content={`Progress ${pipeline.finishedTasks}/${pipeline.totalTasks} Tasks`}>
@@ -375,13 +415,6 @@ const Pipelines = (props) => {
                                     </>
                                   </Popover>
 
-                                // <a
-                                //   href='#'
-                                //   data-provider={pipeline.id}
-                                //   className='bp3-button bp3-small bp3-minimal'
-                                // >
-                                //   <Icon icon='stop' size={16} style={{ color: Colors.RED5 }} />
-                                // </a>
                                 )}
                                 <a
                                   href='#'
@@ -410,8 +443,18 @@ const Pipelines = (props) => {
                         {!isFetchingAll && filteredPipelines.length === 0 && (
                           <tr>
                             <td className='no-data-message-cell' colSpan='5' style={{ backgroundColor: '#fffcf0' }}>
-                              <h3 style={{ fontWeight: 800, letterSpacing: '2px', textTransform: 'uppercase', margin: 0, fontFamily: '"Montserrat", sans-serif' }}>0 Pipeline Runs</h3>
-                              <p style={{ margin: 0 }}>There are no pipeline logs for the current status <strong>{activeStatus}</strong>.</p>
+                              <h3 style={{
+                                fontWeight: 800,
+                                letterSpacing: '2px',
+                                textTransform: 'uppercase',
+                                margin: 0,
+                                fontFamily: '"Montserrat", sans-serif'
+                              }}
+                              >0 Pipeline Runs
+                              </h3>
+                              <p style={{ margin: 0 }}>There are no pipeline logs for the current status
+                                {' '}<strong>{activeStatus}</strong>.
+                              </p>
                             </td>
                           </tr>
                         )}
@@ -456,8 +499,20 @@ const Pipelines = (props) => {
           </main>
         </Content>
       </div>
-      {!isFetchingAll && activePipeline && (<PipelineIndicator pipeline={activePipeline} graphsUrl={GRAFANA_URL} onFetch={fetchPipeline} onCancel={cancelPipeline} />)}
-      {!isFetchingAll && inspectPipeline && (<CodeInspector isOpen={showInspector} activePipeline={inspectPipeline} onClose={setShowInspector} />)}
+      {!isFetchingAll &&
+      activePipeline &&
+      (
+        <PipelineIndicator
+          pipeline={activePipeline}
+          graphsUrl={GRAFANA_URL} onFetch={fetchPipeline} onCancel={cancelPipeline}
+        />)}
+      {!isFetchingAll &&
+      inspectPipeline &&
+      (
+        <CodeInspector
+          isOpen={showInspector}
+          activePipeline={inspectPipeline} onClose={setShowInspector}
+        />)}
 
     </>
   )
