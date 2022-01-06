@@ -596,7 +596,10 @@ const Pipelines = (props) => {
       (
         <PipelineIndicator
           pipeline={activePipeline}
-          graphsUrl={GRAFANA_URL} onFetch={fetchPipeline} onCancel={cancelPipeline}
+          graphsUrl={GRAFANA_URL}
+          onFetch={fetchPipeline}
+          onCancel={cancelPipeline}
+          onView={() => history.push(`/pipelines/activity/${activePipeline.ID}`)}
         />)}
       {!isFetchingAll &&
       inspectPipeline &&

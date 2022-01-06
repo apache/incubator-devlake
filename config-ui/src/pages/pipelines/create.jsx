@@ -615,7 +615,13 @@ const CreatePipeline = (props) => {
           </main>
         </Content>
       </div>
-      <PipelineIndicator pipeline={pipelineRun} graphsUrl={GRAFANA_URL} onFetch={fetchPipeline} onCancel={cancelPipeline} />
+      <PipelineIndicator
+        pipeline={pipelineRun}
+        graphsUrl={GRAFANA_URL}
+        onFetch={fetchPipeline}
+        onCancel={cancelPipeline}
+        onView={() => history.push(`/pipelines/activity/${pipelineRun.ID}`)}
+      />
     </>
   )
 }
