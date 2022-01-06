@@ -237,7 +237,7 @@ const PipelineActivity = (props) => {
                   activeStageId={findActiveStageId(activePipeline.tasks)}
                   isLoading={isFetching}
                 />
-                <div style={{ marginBottom: '24px', width: '100%' }}>
+                <div style={{ marginBottom: '24px', width: '100%', minWidth: '630px' }}>
                   <CSSTransition
                     in={pipelineReady}
                     timeout={300}
@@ -265,7 +265,7 @@ const PipelineActivity = (props) => {
                               style={{
                                 textOverflow: 'ellipsis',
                                 overflow: 'hidden',
-                                whiteSpace: 'nowrap',
+                                // whiteSpace: 'nowrap',
                                 display: 'block',
                                 // maxWidth: '430px',
                                 color: activePipeline.status === 'TASK_FAILED' ? Colors.RED4 : ''
