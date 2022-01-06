@@ -121,6 +121,11 @@ const Pipelines = (props) => {
     return status === 'all' ? pipelines.length : pipelines.filter((p) => p.status === status).length
   }, [pipelines])
 
+  const handleInspectorClose = () => {
+    setShowInspector(false)
+    setInspectPipeline(null)
+  }
+
   useEffect(() => {
     fetchAllPipelines()
     return () => {
@@ -297,11 +302,13 @@ const Pipelines = (props) => {
                     <table className='bp3-html-table bp3-html-table-bordered connections-table' style={{ width: '100%' }}>
                       <thead>
                         <tr>
-                          <th><Icon icon='sort-desc' color='#aaa' size={10} style={{ marginRight: '3px', marginBottom: '3px' }} /> ID</th>
-                          <th>Pipeline Name</th>
-                          <th>Duration</th>
-                          <th>Status</th>
-                          <th />
+                          <th style={{ minWidth: '80px', maxWidth: '80px', whiteSpace: 'nowrap' }}>
+                            <Icon icon='sort-desc' color='#aaa' size={10} style={{ marginRight: '3px', marginBottom: '3px' }} /> ID
+                          </th>
+                          <th style={{ width: '100%' }}>Pipeline Name</th>
+                          <th style={{ minWidth: '94px', whiteSpace: 'nowrap' }}>Duration</th>
+                          <th style={{ minWidth: '104px', whiteSpace: 'nowrap' }}>Status</th>
+                          <th style={{ minWidth: '92px', whiteSpace: 'nowrap' }} />
                         </tr>
                       </thead>
                       <tbody>
@@ -316,10 +323,17 @@ const Pipelines = (props) => {
                               className='cell-id'
                             >
                               <Tooltip content={`Pipeline Run ID #${pipeline.ID}`} position={Position.TOP}>
-                                <a href='#' onClick={() => history.push(`/pipelines/activity/${pipeline.ID}`)}>
+                                <a
+                                  href='#'
+                                  style={{ fontWeight: inspectPipeline?.ID === pipeline.ID ? 800 : 'normal' }}
+                                  onClick={() => history.push(`/pipelines/activity/${pipeline.ID}`)}
+                                >
                                   {pipeline.ID}
                                 </a>
                               </Tooltip>
+                              {inspectPipeline?.ID === pipeline.ID && (
+                                <Icon icon='menu-open' color='#E8471C' size={12} style={{ margin: '0 5px 0 0', float: 'left' }} />
+                              )}
                             </td>
 
                             <td
@@ -359,14 +373,14 @@ const Pipelines = (props) => {
 
                             </td>
                             <td
-                              className='cell-duration'
+                              className='cell-duration no-user-select'
                               style={{ cursor: 'pointer', whiteSpace: 'nowrap' }}
                             >
 
                               {/* {dayjs(pipeline.CreatedAt).toNow(pipeline.CreatedAt)} */}
                               {dayjs(pipeline.UpdatedAt).from(pipeline.CreatedAt, true)}
                             </td>
-                            <td className='cell-status' style={{ textTransform: 'uppercase', whiteSpace: 'nowrap' }}>
+                            <td className='cell-status no-user-select' style={{ textTransform: 'uppercase', whiteSpace: 'nowrap' }}>
                               <span style={{ display: 'inline-block', float: 'left', marginRight: '10px' }}>
                                 <Tooltip content={`Progress ${pipeline.finishedTasks}/${pipeline.totalTasks} Tasks`}>
                                   {pipeline.status === 'TASK_RUNNING' &&
@@ -418,7 +432,7 @@ const Pipelines = (props) => {
                                 </strong>
                               )}
                             </td>
-                            <td className='cell-actions' style={{ padding: '0 10px', verticalAlign: 'middle' }}>
+                            <td className='cell-actions no-user-select' style={{ padding: '0 10px', verticalAlign: 'middle' }}>
                               <div style={{
                                 display: 'flex',
                                 justifySelf: 'center',
@@ -530,9 +544,18 @@ const Pipelines = (props) => {
                   </Card>
 
                 </div>
-                <div style={{ marginTop: '10px', display: 'flex', width: '100%', justifySelf: 'flex-start' }}>
+                <div
+                  className='operations panel no-user-select'
+                  style={{
+                    marginTop: '10px',
+                    display: 'flex',
+                    width: '100%',
+                    justifySelf: 'flex-start',
+                    whiteSpace: 'nowrap',
+                  }}
+                >
 
-                  <div style={{ display: 'flex', width: '50%', fontSize: '11px', color: '#555555' }}>
+                  <div className='no-user-elect' style={{ display: 'flex', width: '50%', fontSize: '11px', color: '#555555' }}>
                     <Icon icon='user' size={14} style={{ marginRight: '8px' }} />
                     <div>
                       <span>by {' '} <strong>Administrator</strong></span><br />
@@ -555,10 +578,12 @@ const Pipelines = (props) => {
                       small
                     />
                   </div>
-                  <div className='pagination-controls' style={{ display: 'flex' }}>
+                  <div className='pagination-controls' style={{ display: 'flex', whiteSpace: 'nowrap' }}>
                     <Popover placement='bottom'>
                       <Button
-                        icon='numbered-list' text={`Rows: ${perPage}`}
+                        style={{ whiteSpace: 'nowrap' }}
+                        icon='numbered-list'
+                        text={`Rows: ${perPage}`}
                         disabled={isFetchingAll}
                         outlined
                         minimal
@@ -570,12 +595,18 @@ const Pipelines = (props) => {
                     <Button
                       onClick={prevPage}
                       className='pagination-btn btn-prev-page'
-                      icon='step-backward' small text='PREV' style={{ marginLeft: '5px', marginRight: '5px' }}
+                      icon='step-backward' small text='PREV'
+                      style={{ marginLeft: '5px', marginRight: '5px', whiteSpace: 'nowrap' }}
                       disabled={currentPage.current === 1 || isFetchingAll}
                     />
                     <Button
+                      style={{ whiteSpace: 'nowrap' }}
                       disabled={currentPage.current === maxPage || isFetchingAll}
-                      onClick={nextPage} className='pagination-btn btn-next-page' rightIcon='step-forward' small text='NEXT'
+                      onClick={nextPage}
+                      className='pagination-btn btn-next-page'
+                      rightIcon='step-forward'
+                      text='NEXT'
+                      small
                     />
                   </div>
                 </div>
@@ -606,7 +637,9 @@ const Pipelines = (props) => {
       (
         <CodeInspector
           isOpen={showInspector}
-          activePipeline={inspectPipeline} onClose={setShowInspector}
+          activePipeline={inspectPipeline}
+          onClose={handleInspectorClose}
+          hasBackdrop={false}
         />)}
 
     </>
