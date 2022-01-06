@@ -164,7 +164,7 @@ const PipelineActivity = (props) => {
               ]}
             />
             <div className='headlineContainer'>
-              <Link style={{ display: 'flex', fontSize: '14px', float: 'right', marginLeft: '10px', color: '#777777' }} to='/'>
+              <Link style={{ display: 'flex', fontSize: '14px', float: 'right', marginLeft: '10px', color: '#777777' }} to='/pipelines'>
                 <Icon
                   icon={
                     <BackArrowIcon
