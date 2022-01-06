@@ -556,7 +556,11 @@ const Pipelines = (props) => {
                   </div>
                   <div className='pagination-controls' style={{ display: 'flex' }}>
                     <Popover placement='bottom'>
-                      <Button icon='numbered-list' text={`Rows: ${perPage}`} minimal />
+                      <Button
+                        icon='numbered-list' text={`Rows: ${perPage}`}
+                        disabled={isFetchingAll}
+                        minimal
+                      />
                       <>
                         {pagingOptionsMenu}
                       </>
@@ -565,10 +569,10 @@ const Pipelines = (props) => {
                       onClick={prevPage}
                       className='pagination-btn btn-prev-page'
                       icon='step-backward' small text='PREV' style={{ marginLeft: '5px', marginRight: '5px' }}
-                      disabled={currentPage.current === 1}
+                      disabled={currentPage.current === 1 || isFetchingAll}
                     />
                     <Button
-                      disabled={currentPage.current === maxPage}
+                      disabled={currentPage.current === maxPage || isFetchingAll}
                       onClick={nextPage} className='pagination-btn btn-next-page' rightIcon='step-forward' small text='NEXT'
                     />
                   </div>
