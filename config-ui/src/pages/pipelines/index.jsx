@@ -196,7 +196,7 @@ const Pipelines = (props) => {
                 </div>
                 <div>
                   <h1 style={{ margin: 0 }}>
-                    Pipeline Run Logs
+                    Pipeline Runs
                     <Popover
                       className='trigger-manage-pipelines-help'
                       popoverClassName='popover-help-manage-pipelines'
@@ -218,8 +218,8 @@ const Pipelines = (props) => {
                       </>
                     </Popover>
                   </h1>
-                  <p className='page-description mb-0'>Manage Job Activity for all your pipeline runs.</p>
-                  <p className=''>The most recent runs are show first, please select a time range.</p>
+                  <p className='page-description mb-0'>Manage Job Activity and see duration for all your pipeline runs.</p>
+                  <p className=''>The most recent runs are shown first, filter by key status types.</p>
                 </div>
                 <div style={{ marginLeft: 'auto' }}>
                   <Button icon='add' intent={Intent.PRIMARY} text='Create Run' onClick={() => history.push('/pipelines/create')} />
@@ -283,12 +283,13 @@ const Pipelines = (props) => {
                       <Spinner size={18} />
                     </Button>
                   )}
-                  <InputGroup
+                  {/* @todo: Reactivate search input & enable feature */}
+                  {/* <InputGroup
                     leftElement={<Icon icon='search' />}
                     placeholder='Search Pipelines'
                     rightElement={<Button text='GO' intent='primary' />}
                     round
-                  />
+                  /> */}
                 </div>
 
                 <div style={{ display: 'flex', width: '100%', justifySelf: 'flex-start', marginTop: '8px' }}>
@@ -314,7 +315,7 @@ const Pipelines = (props) => {
                               style={{ cursor: 'pointer' }}
                               className='cell-id'
                             >
-                              <Tooltip content='Pipeline Run ID' position={Position.TOP}>
+                              <Tooltip content={`Pipeline Run ID #${pipeline.ID}`} position={Position.TOP}>
                                 <a href='#' onClick={() => history.push(`/pipelines/activity/${pipeline.ID}`)}>
                                   {pipeline.ID}
                                 </a>
@@ -334,7 +335,7 @@ const Pipelines = (props) => {
                                 color: '#999999',
                                 marginLeft: '15px'
                               }}
-                              >{dayjs(pipeline.createdAt).format()}
+                              >{dayjs(pipeline.createdAt).format('L LTS')}
                               </span>
 
                               <strong style={{
@@ -538,7 +539,7 @@ const Pipelines = (props) => {
                       <span style={{ color: '#888888' }}>Displaying{' '}
                         {currentPage.current === 0 ? 0 : perPage * currentPage.current} - {' '}
                         {(perPage * currentPage.current) + perPage} of {filteredPipelines.length}
-                        {' '}pipeline runlogs from API.
+                        {' '}pipeline runs from API.
                       </span>
                     </div>
                   </div>
@@ -559,6 +560,7 @@ const Pipelines = (props) => {
                       <Button
                         icon='numbered-list' text={`Rows: ${perPage}`}
                         disabled={isFetchingAll}
+                        outlined
                         minimal
                       />
                       <>
