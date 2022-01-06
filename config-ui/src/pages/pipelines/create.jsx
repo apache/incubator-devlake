@@ -584,10 +584,11 @@ const CreatePipeline = (props) => {
                 loading={isRunning}
               ><strong>Run</strong> Pipeline
               </Button>
-              <Tooltip content='Manage Pipelines (Coming Soon)' position={Position.TOP}>
+              <Tooltip content='Manage Pipelines' position={Position.TOP}>
                 <Button
+                  onClick={() => history.push('/pipelines')}
                   className='btn-pipeline btn-view-jobs'
-                  icon='eye-open' minimal style={{ marginLeft: '5px' }}
+                  icon='pulse' minimal style={{ marginLeft: '5px' }}
                 >View All Pipelines
                 </Button>
               </Tooltip>
