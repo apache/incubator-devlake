@@ -126,6 +126,22 @@ const Pipelines = (props) => {
     setInspectPipeline(null)
   }
 
+  const restartPipeline = useCallback((tasks = []) => {
+    const existingTasksConfiguration = tasks.map(t => {
+      return {
+        plugin: t.plugin,
+        options: t.options
+      }
+    })
+    console.log('>>> RESTARTING PIPELINE WITH EXISTING CONFIGURATION!!', existingTasksConfiguration)
+    history.push({
+      pathname: '/pipelines/create',
+      state: {
+        existingTasks: existingTasksConfiguration
+      }
+    })
+  }, [history])
+
   useEffect(() => {
     fetchAllPipelines()
     return () => {
@@ -631,6 +647,7 @@ const Pipelines = (props) => {
           onFetch={fetchPipeline}
           onCancel={cancelPipeline}
           onView={() => history.push(`/pipelines/activity/${activePipeline.ID}`)}
+          onRetry={() => restartPipeline(activePipeline.tasks)}
         />)}
       {!isFetchingAll &&
       inspectPipeline &&
