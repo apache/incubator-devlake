@@ -20,7 +20,8 @@ const PipelineIndicator = (props) => {
     graphsUrl = '#', 
     onFetch = () => {} ,
     onCancel = () => {},
-    onView = () => {}
+    onView = () => {},
+    onRetry = () => {}
   } = props
 
   return (
@@ -162,6 +163,7 @@ const PipelineIndicator = (props) => {
                           intent='danger'
                           icon='reset' text='RETRY'
                           style={{ color: '#ffffff' }}
+                          onClick={() => onRetry(pipeline)}
                           small
                         />
                       )}                      
