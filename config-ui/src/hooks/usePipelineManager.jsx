@@ -130,11 +130,9 @@ function usePipelineManager (pipelineName = `COLLECTION ${Date.now()}`, initialT
       const fetchAll = async () => {
         const p = await request.get(`${DEVLAKE_ENDPOINT}/pipelines`)
         console.log('>> RAW PIPELINES RUN DATA FROM API...', p.data.pipelines)
-        // const pSlice = p.data.pipelines?.slice(0, 5000)
-        const pSlice = p.data.pipelines
-        setPipelines([...pSlice]) // @todo: REMOVE THE SLICE!!!!
+        setPipelines([...p.data.pipelines])
         setPipelineCount(p.data.count)
-        // ToastNotification.show({ message: `Fetched Pipeline ID - ${p.data?.ID}.`, intent: 'danger', icon: 'small-tick' })
+        // ToastNotification.show({ message: `Fetched All Pipelines`, intent: 'danger', icon: 'small-tick' })
         setTimeout(() => {
           setIsFetchingAll(false)
         }, 500)
@@ -145,17 +143,9 @@ function usePipelineManager (pipelineName = `COLLECTION ${Date.now()}`, initialT
       setErrors([e.message])
       setPipelines([])
       setPipelineCount(0)
-      console.log('>> FAILED TO FETCH PIPELINE RUN!!', e)
+      console.log('>> FAILED TO FETCH ALL PIPELINE RUNS!!', e)
     }
   }, [])
-
-  // const fetchAllRuns = () => {
-
-  // }
-
-  // const fetchRun = () => {
-
-  // }
 
   useEffect(() => {
     console.log('>> PIPELINE MANAGER - RECEIVED RUN/TASK SETTINGS', settings)
