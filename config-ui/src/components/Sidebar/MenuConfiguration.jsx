@@ -86,7 +86,7 @@ const MenuConfiguration = (activeRoute) => {
           label: 'All Pipeline Runs (Logs)',
           route: '/pipelines',
           active: activeRoute.url.endsWith('/pipelines'),
-          icon: 'cube-add',
+          icon: 'layers',
           classNames: [],
           disabled: false
         },
