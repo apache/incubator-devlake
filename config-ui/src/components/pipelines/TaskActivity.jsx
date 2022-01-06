@@ -154,6 +154,21 @@ const TaskActivity = (props) => {
             </div>
           </div>
         ))}
+        {(!activePipeline.tasks || activePipeline.tasks.length === 0) && (
+          <>
+            <div style={{ display: 'flex' }}>
+              <Icon
+                icon='warning-sign'
+                size={12}
+                color={Colors.ORANGE5} style={{ float: 'left', margin: '0 4px 0 0' }}
+              />
+              <p>
+                <strong>Missing Configuration</strong>, this pipeline has no tasks.
+                <br />Please create a new pipeline with a valid configuration.
+              </p>
+            </div>
+          </>
+        )}
       </div>
     </>
   )
