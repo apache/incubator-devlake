@@ -14,6 +14,8 @@ import {
   Classes,
   // Drawer,
   // DrawerSize,
+  Menu,
+  MenuItem,
   ButtonGroup, InputGroup, Input, Tag, H2, TextArea
 } from '@blueprintjs/core'
 import { integrationsData } from '@/data/integrations'
@@ -71,12 +73,22 @@ const Pipelines = (props) => {
     10,
     25,
     50,
+    75,
     100
   ])
   const currentPage = useRef(1)
   const [perPage, setPerPage] = useState(pageOptions[0])
   const [maxPage, setMaxPage] = useState(Math.floor(pipelines.length / perPage))
-
+  // @todo: generate dynamically from $pageOptions
+  const pagingOptionsMenu = (
+    <Menu>
+      <MenuItem active={perPage === 10} icon='key-option' text='10 Records' onClick={() => setPerPage(10)} />
+      <MenuItem active={perPage === 25} icon='key-option' text='25 Records' onClick={() => setPerPage(25)} />
+      <MenuItem active={perPage === 50} icon='key-option' text='50 Records' onClick={() => setPerPage(50)} />
+      <MenuItem active={perPage === 75} icon='key-option' text='75 Records' onClick={() => setPerPage(75)} />
+      <MenuItem active={perPage === 100} icon='key-option' text='100 Records' onClick={() => setPerPage(100)} />
+    </Menu>
+  )
   const nextPage = () => {
     // setCurrentPage(cP => Math.min(maxPage, cP++))
     currentPage.current = Math.min(maxPage, currentPage.current + 1)
@@ -219,7 +231,12 @@ const Pipelines = (props) => {
               <>
                 <div style={{ display: 'flex', marginTop: '30px', minHeight: '36px', width: '100%', justifyContent: 'space-between' }}>
 
-                  <ButtonGroup className='filter-status-group' round='true' style={{ fontSize: '12px', zIndex: 0 }}>
+                  <ButtonGroup
+                    disabled={isFetchingAll || isProcessing}
+                    className='filter-status-group'
+                    round='true'
+                    style={{ fontSize: '12px', zIndex: 0 }}
+                  >
                     <Button
                       className='btn-pipeline-filter'
                       intent={activeStatus === 'all' ? 'primary' : null} onClick={() => setActiveStatus('all')}
@@ -279,7 +296,7 @@ const Pipelines = (props) => {
                     <table className='bp3-html-table bp3-html-table-bordered connections-table' style={{ width: '100%' }}>
                       <thead>
                         <tr>
-                          <th>ID</th>
+                          <th><Icon icon='sort-desc' color='#aaa' size={10} style={{ marginRight: '3px', marginBottom: '3px' }} /> ID</th>
                           <th>Pipeline Name</th>
                           <th>Duration</th>
                           <th>Status</th>
@@ -519,23 +536,35 @@ const Pipelines = (props) => {
                     <div>
                       <span>by {' '} <strong>Administrator</strong></span><br />
                       <span style={{ color: '#888888' }}>Displaying{' '}
-                        {currentPage.current === 0 ? 0 : perPage * currentPage.current} - {(perPage * currentPage.current) + perPage} of {filteredPipelines.length}
-                        {' '}pipeline run log entries from API.
+                        {currentPage.current === 0 ? 0 : perPage * currentPage.current} - {' '}
+                        {(perPage * currentPage.current) + perPage} of {filteredPipelines.length}
+                        {' '}pipeline runlogs from API.
                       </span>
                     </div>
                   </div>
 
-                  <div style={{ display: 'flex', marginLeft: 'auto', marginRight: '20px' }}>
+                  <div style={{ display: 'flex', marginLeft: 'auto', marginRight: '30px' }}>
 
                     <Button small icon='add' style={{ marginRight: '5px' }} minimal onClick={() => history.push('/pipelines/create')} />
-                    <Button small icon='refresh' minimal text='Refresh' onClick={() => fetchAllPipelines()} />
+                    <Button
+                      icon='refresh'
+                      text='Refresh'
+                      onClick={() => fetchAllPipelines()}
+                      minimal
+                      small
+                    />
                   </div>
-                  <div className='pagingation-controls' style={{ display: 'flex' }}>
-
+                  <div className='pagination-controls' style={{ display: 'flex' }}>
+                    <Popover placement='bottom'>
+                      <Button icon='numbered-list' text={`Rows: ${perPage}`} minimal />
+                      <>
+                        {pagingOptionsMenu}
+                      </>
+                    </Popover>
                     <Button
                       onClick={prevPage}
                       className='pagination-btn btn-prev-page'
-                      icon='step-backward' small text='PREV' style={{ marginRight: '5px' }}
+                      icon='step-backward' small text='PREV' style={{ marginLeft: '5px', marginRight: '5px' }}
                       disabled={currentPage.current === 1}
                     />
                     <Button
