@@ -381,7 +381,7 @@ const Pipelines = (props) => {
                                  (
                                    <Tooltip
                                      intent={Intent.SUCCESS}
-                                     content={`Progress ${pipeline.finishedTasks}/${pipeline.totalTasks} Tasks`}
+                                     content={`Finished ${pipeline.finishedTasks}/${pipeline.totalTasks} Tasks`}
                                    >
                                      <Spinner
                                        style={{ margin: 0 }}
@@ -393,7 +393,7 @@ const Pipelines = (props) => {
                                  (
                                    <Tooltip
                                      intent={Intent.PRIMARY}
-                                     content={`Failed Progress ${pipeline.finishedTasks}/${pipeline.totalTasks} Tasks`}
+                                     content={`Failed ${pipeline.finishedTasks}/${pipeline.totalTasks} Tasks`}
                                    >
                                      <Spinner
                                        style={{ margin: 0 }} className='mini-task-spinner'
@@ -435,7 +435,7 @@ const Pipelines = (props) => {
                                 >
                                   <Icon icon='eye-open' size={16} />
                                 </a>
-                                {pipeline.status === 'TASK_FAILED' && (
+                                {['TASK_FAILED', 'TASK_COMPLETED'].includes(pipeline.status) && (
                                   <a
                                     href='#'
                                     data-provider={pipeline.id}
