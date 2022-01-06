@@ -1,6 +1,5 @@
 import React, { Fragment, useEffect, useState, useRef, useCallback } from 'react'
-import { CSSTransition } from 'react-transition-group'
-import { useHistory, useParams, Link } from 'react-router-dom'
+import { useHistory } from 'react-router-dom'
 import { GRAFANA_URL } from '@/utils/config'
 import dayjs from '@/utils/time'
 import {
@@ -12,17 +11,16 @@ import {
   Spinner,
   Colors,
   Classes,
-  // Drawer,
-  // DrawerSize,
   Menu,
   MenuItem,
-  ButtonGroup, InputGroup, Input, Tag, H2, TextArea
+  ButtonGroup,
+  Tag
 } from '@blueprintjs/core'
-import { integrationsData } from '@/data/integrations'
-import {
-  Providers,
-  ProviderLabels
-} from '@/data/Providers'
+// import { integrationsData } from '@/data/integrations'
+// import {
+//   Providers,
+//   ProviderLabels
+// } from '@/data/Providers'
 import usePipelineManager from '@/hooks/usePipelineManager'
 import Nav from '@/components/Nav'
 import Sidebar from '@/components/Sidebar'
@@ -41,8 +39,8 @@ import ManagePipelinesIcon from '@/images/synchronise.png'
 
 const Pipelines = (props) => {
   const history = useHistory()
-  const { providerId } = useParams()
-  const [activeProvider, setActiveProvider] = useState(integrationsData[0])
+  // const { providerId } = useParams()
+  // const [activeProvider, setActiveProvider] = useState(integrationsData[0])
 
   const [isProcessing, setIsProcessing] = useState(false)
   const [refresh, setRefresh] = useState(false)
@@ -90,14 +88,12 @@ const Pipelines = (props) => {
     </Menu>
   )
   const nextPage = () => {
-    // setCurrentPage(cP => Math.min(maxPage, cP++))
     currentPage.current = Math.min(maxPage, currentPage.current + 1)
     setRefresh(r => !r)
     console.log('>>>> NEXT PAGE', currentPage.current)
   }
 
   const prevPage = () => {
-    // setCurrentPage(cP => Math.min(0, cP--))
     currentPage.current = Math.max(1, currentPage.current - 1)
     setRefresh(r => !r)
     console.log('>>>> PREV PAGE', currentPage.current)
@@ -357,8 +353,6 @@ const Pipelines = (props) => {
                               style={{ cursor: 'pointer' }}
                               className='cell-name'
                             >
-                              {/* <Icon icon='power' color={Colors.GRAY4} size={10} style={{ float: 'right', marginLeft: '10px' }} /> */}
-
                               <span style={{
                                 display: 'inline-block',
                                 float: 'right',
