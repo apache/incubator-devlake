@@ -145,8 +145,8 @@ const TaskActivity = (props) => {
               style={{ display: 'flex', flexGrow: 1, width: '64%' }}
             >
               {t.message && (
-                <div style={{ width: '98%', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                  <span style={{ color: t.status === 'TASK_FAILED' ? Colors.RED4 : Colors.GRAY3, paddingLeft: '10px' }}>
+                <div style={{ width: '98%', whiteSpace: 'wrap', overflow: 'hidden', textOverflow: 'ellipsis', paddingLeft: '10px' }}>
+                  <span style={{ color: t.status === 'TASK_FAILED' ? Colors.RED4 : Colors.GRAY3 }}>
                     {t.message}
                   </span>
                 </div>

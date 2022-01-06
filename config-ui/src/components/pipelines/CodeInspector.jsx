@@ -10,7 +10,7 @@ import {
 } from '@blueprintjs/core'
 
 const CodeInspector = (props) => {
-  const { activePipeline, isOpen, onClose } = props
+  const { activePipeline, isOpen, onClose, hasBackdrop = true } = props
 
   return (
     <Drawer
@@ -24,7 +24,7 @@ const CodeInspector = (props) => {
       canEscapeKeyClose
       canOutsideClickClose
       enforceFocus
-      hasBackdrop
+      hasBackdrop={hasBackdrop}
       isOpen={isOpen}
       usePortal
     >
