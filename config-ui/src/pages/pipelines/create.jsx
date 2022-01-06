@@ -40,6 +40,7 @@ import Content from '@/components/Content'
 import { ReactComponent as LayersIcon } from '@/images/layers.svg'
 import { ReactComponent as HelpIcon } from '@/images/help.svg'
 import { ReactComponent as BackArrowIcon } from '@/images/undo.svg'
+import RunPipelineIcon from '@/images/duplicate.png'
 
 import GitlabHelpNote from '@/images/help/gitlab-help.png'
 import JiraHelpNote from '@/images/help/jira-help.png'
@@ -314,7 +315,7 @@ const CreatePipeline = (props) => {
             />
 
             <div className='headlineContainer'>
-              <Link style={{ display: 'flex', fontSize: '14px', float: 'right', marginLeft: '10px', color: '#777777' }} to='/'>
+              <Link style={{ display: 'flex', fontSize: '14px', float: 'right', marginLeft: '10px', color: '#777777' }} to='/pipelines'>
                 <Icon
                   icon={
                     <BackArrowIcon
@@ -330,7 +331,7 @@ const CreatePipeline = (props) => {
               <div style={{ display: 'flex' }}>
                 <div>
                   <span style={{ marginRight: '10px' }}>
-                    <Icon icon={<LayersIcon width={42} height={42} />} size={42} />
+                    <Icon icon={<img src={RunPipelineIcon} width='38' height='38' />} size={38} />
                   </span>
                 </div>
                 <div>

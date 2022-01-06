@@ -37,6 +37,8 @@ import { ReactComponent as GitHubProviderIcon } from '@/images/integrations/gith
 import { ReactComponent as BackArrowIcon } from '@/images/undo.svg'
 import { ReactComponent as HelpIcon } from '@/images/help.svg'
 
+import PipelineActivityIcon from '@/images/pulse-2.png'
+
 const PipelineActivity = (props) => {
   const history = useHistory()
   const { pId } = useParams()
@@ -180,7 +182,7 @@ const PipelineActivity = (props) => {
               <div style={{ display: 'flex' }}>
                 <div>
                   <span style={{ marginRight: '10px' }}>
-                    <Icon icon='pulse' size={32} color={Colors.RED5} />
+                    <Icon icon={<img src={PipelineActivityIcon} width='38' height='38' />} size={38} color={Colors.RED5} />
                   </span>
                 </div>
                 <div>

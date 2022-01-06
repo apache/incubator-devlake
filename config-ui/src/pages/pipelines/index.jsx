@@ -29,12 +29,13 @@ import Content from '@/components/Content'
 import ContentLoader from '@/components/loaders/ContentLoader'
 import PipelineIndicator from '@/components/widgets/PipelineIndicator'
 import CodeInspector from '@/components/pipelines/CodeInspector'
-import { ReactComponent as GitlabProviderIcon } from '@/images/integrations/gitlab.svg'
-import { ReactComponent as JenkinsProviderIcon } from '@/images/integrations/jenkins.svg'
-import { ReactComponent as JiraProviderIcon } from '@/images/integrations/jira.svg'
-import { ReactComponent as GitHubProviderIcon } from '@/images/integrations/github.svg'
-import { ReactComponent as BackArrowIcon } from '@/images/undo.svg'
+// import { ReactComponent as GitlabProviderIcon } from '@/images/integrations/gitlab.svg'
+// import { ReactComponent as JenkinsProviderIcon } from '@/images/integrations/jenkins.svg'
+// import { ReactComponent as JiraProviderIcon } from '@/images/integrations/jira.svg'
+// import { ReactComponent as GitHubProviderIcon } from '@/images/integrations/github.svg'
+// import { ReactComponent as BackArrowIcon } from '@/images/undo.svg'
 import { ReactComponent as HelpIcon } from '@/images/help.svg'
+import ManagePipelinesIcon from '@/images/synchronise.png'
 
 const Pipelines = (props) => {
   const history = useHistory()
@@ -63,251 +64,6 @@ const Pipelines = (props) => {
     setSettings: setPipelineSettings,
     lastRunId,
   } = usePipelineManager()
-
-  // const [pipelines, setPipelines] = useState([
-  //   {
-  //     ID: 18092,
-  //     CreatedAt: '2021-12-23T23:40:24.808Z',
-  //     UpdatedAt: '2021-12-24T00:38:35.165Z',
-  //     name: '#695 COLLECT 1640302757915',
-  //     tasks: [
-  //       [
-  //         {
-  //           plugin: 'github',
-  //           options: {
-  //             owner: 'e2corporation',
-  //             repositoryName: 'getmdl-select'
-  //           }
-  //         },
-  //         {
-  //           plugin: 'jenkins',
-  //           options: {}
-  //         }
-  //       ]
-  //     ],
-  //     totalTasks: 2,
-  //     finishedTasks: 2,
-  //     beganAt: '2021-12-23T23:40:24.86Z',
-  //     finishedAt: '2021-12-24T00:38:35.163Z',
-  //     status: 'TASK_FAILED',
-  //     message: "Error 1364: Field 'origin_key' doesn't have a default value",
-  //     spentSeconds: 3491
-  //   },
-  //   {
-  //     ID: 455,
-  //     CreatedAt: '2021-12-23T21:36:29.168Z',
-  //     UpdatedAt: '2021-12-23T21:42:52.971Z',
-  //     name: 'RETRY | config-ui trigger Thu Dec 23 2021 10:08:06 GMT-0500 (EST)',
-  //     tasks: [
-  //       [
-  //         {
-  //           plugin: 'gitlab',
-  //           options: {
-  //             projectId: 1967944
-  //           }
-  //         },
-  //         {
-  //           plugin: 'gitlab',
-  //           options: {
-  //             projectId: 4967944
-  //           }
-  //         },
-  //         {
-  //           plugin: 'gitlab',
-  //           options: {
-  //             projectId: 8967944
-  //           }
-  //         },
-  //         {
-  //           plugin: 'github',
-  //           options: {
-  //             owner: 'merico-dev',
-  //             repositoryName: 'lake'
-  //           }
-  //         },
-  //         {
-  //           plugin: 'jenkins',
-  //           options: {}
-  //         },
-  //         {
-  //           plugin: 'jira',
-  //           options: {
-  //             boardId: 8,
-  //             sourceId: 1
-  //           }
-  //         },
-  //         {
-  //           plugin: 'gitlab',
-  //           options: {
-  //             projectId: 8967944
-  //           }
-  //         }
-  //       ]
-  //     ],
-  //     totalTasks: 7,
-  //     finishedTasks: 4,
-  //     beganAt: '2021-12-23T21:36:29.269Z',
-  //     finishedAt: null,
-  //     status: 'TASK_FAILED',
-  //     message: '',
-  //     spentSeconds: 0
-  //   },
-  //   {
-  //     ID: 425,
-  //     CreatedAt: '2021-12-21T18:03:21.365Z',
-  //     UpdatedAt: '2021-12-21T18:03:21.729Z',
-  //     name: 'COLLECT 1640109798011',
-  //     tasks: [
-  //       [
-  //         {
-  //           plugin: 'jenkins',
-  //           options: {}
-  //         }
-  //       ]
-  //     ],
-  //     totalTasks: 1,
-  //     finishedTasks: 1,
-  //     beganAt: '2021-12-21T18:03:21.412Z',
-  //     finishedAt: '2021-12-21T18:03:21.726Z',
-  //     status: 'TASK_COMPLETED',
-  //     message: '',
-  //     spentSeconds: 0
-  //   },
-  //   {
-  //     ID: 440,
-  //     CreatedAt: '2021-12-23T15:08:06.025Z',
-  //     UpdatedAt: '2021-12-23T20:09:53.786Z',
-  //     name: 'config-ui trigger Thu Dec 23 2021 10:08:06 GMT-0500 (EST)',
-  //     tasks: [
-  //       [
-  //         {
-  //           plugin: 'gitlab',
-  //           options: {
-  //             projectId: 8967944
-  //           }
-  //         },
-  //         {
-  //           plugin: 'jira',
-  //           options: {
-  //             boardId: 8,
-  //             sourceId: 1
-  //           }
-  //         },
-  //         {
-  //           plugin: 'jenkins',
-  //           options: {}
-  //         },
-  //         {
-  //           plugin: 'github',
-  //           options: {
-  //             owner: 'merico-dev',
-  //             repositoryName: 'lake'
-  //           }
-  //         }
-  //       ],
-  //       [
-  //         {
-  //           plugin: 'gitlab',
-  //           options: {
-  //             projectId: 8967944
-  //           }
-  //         }
-  //       ],
-  //       [
-  //         {
-  //           plugin: 'gitlab',
-  //           options: {
-  //             projectId: 4967944
-  //           }
-  //         }
-  //       ],
-  //       [
-  //         {
-  //           plugin: 'gitlab',
-  //           options: {
-  //             projectId: 1967944
-  //           }
-  //         }
-  //       ]
-  //     ],
-  //     totalTasks: 7,
-  //     finishedTasks: 2,
-  //     beganAt: '2021-12-23T15:08:06.12Z',
-  //     finishedAt: null,
-  //     status: 'TASK_FAILED',
-  //     message: '',
-  //     spentSeconds: 0
-  //   },
-  //   {
-  //     ID: 18091,
-  //     CreatedAt: '2021-12-23T23:37:58.588Z',
-  //     UpdatedAt: '2021-12-23T23:38:59.083Z',
-  //     name: 'COLLECT 1640302665464',
-  //     tasks: [
-  //       [
-  //         {
-  //           plugin: 'jenkins',
-  //           options: {}
-  //         },
-  //         {
-  //           plugin: 'github',
-  //           options: {
-  //             owner: 'e2corporation',
-  //             repositoryName: 'getmdl-select'
-  //           }
-  //         }
-  //       ]
-  //     ],
-  //     totalTasks: 2,
-  //     finishedTasks: 2,
-  //     beganAt: '2021-12-23T23:37:58.647Z',
-  //     finishedAt: '2021-12-23T23:38:59.082Z',
-  //     status: 'TASK_FAILED',
-  //     message: "Error 1364: Field 'origin_key' doesn't have a default value",
-  //     spentSeconds: 61
-  //   },
-  //   {
-  //     ID: 18116,
-  //     CreatedAt: '2022-01-05T18:04:53.903Z',
-  //     UpdatedAt: '2022-01-05T18:04:54.648Z',
-  //     name: 'COLLECT 1641405891157',
-  //     tasks: [
-  //       [
-  //         {
-  //           plugin: 'gitlab',
-  //           options: {
-  //             projectId: 8967944
-  //           }
-  //         },
-  //         {
-  //           plugin: 'github',
-  //           options: {
-  //             owner: 'merico-dev',
-  //             repositoryName: 'lake'
-  //           }
-  //         },
-  //         {
-  //           plugin: 'jira',
-  //           options: {
-  //             boardId: 8,
-  //             sourceId: 1
-  //           }
-  //         },
-  //         {
-  //           plugin: 'jenkins',
-  //           options: {}
-  //         }
-  //       ]
-  //     ],
-  //     totalTasks: 4,
-  //     finishedTasks: 2,
-  //     beganAt: '2022-01-05T18:04:53.984Z',
-  //     finishedAt: null,
-  //     status: 'TASK_RUNNING',
-  //     message: '',
-  //     spentSeconds: 0
-  //   }
-  // ])
 
   const [filteredPipelines, setFilteredPipelines] = useState([])
 
@@ -370,7 +126,7 @@ const Pipelines = (props) => {
               <div style={{ display: 'flex' }}>
                 <div>
                   <span style={{ marginRight: '10px' }}>
-                    <Icon icon='git-merge' size={32} />
+                    <Icon icon={<img src={ManagePipelinesIcon} width='38' height='38' />} size={38} />
                   </span>
                 </div>
                 <div>
@@ -517,16 +273,28 @@ const Pipelines = (props) => {
                                 </Tooltip>
                                 {pipeline.status === 'TASK_COMPLETED' &&
                                  (
-                                   <Spinner
-                                     style={{ margin: 0 }}
-                                     className='mini-task-spinner' size={14} intent='success' value={1}
-                                   />)}
+                                   <Tooltip
+                                     intent={Intent.SUCCESS}
+                                     content={`Progress ${pipeline.finishedTasks}/${pipeline.totalTasks} Tasks`}
+                                   >
+                                     <Spinner
+                                       style={{ margin: 0 }}
+                                       className='mini-task-spinner' size={14} intent='success' value={1}
+                                     />
+                                   </Tooltip>
+                                 )}
                                 {pipeline.status === 'TASK_FAILED' &&
                                  (
-                                   <Spinner
-                                     style={{ margin: 0 }} className='mini-task-spinner'
-                                     size={14} intent='info' value={Number(pipeline.finishedTasks / pipeline.totalTasks).toFixed(1)}
-                                   />)}
+                                   <Tooltip
+                                     intent={Intent.PRIMARY}
+                                     content={`Failed Progress ${pipeline.finishedTasks}/${pipeline.totalTasks} Tasks`}
+                                   >
+                                     <Spinner
+                                       style={{ margin: 0 }} className='mini-task-spinner'
+                                       size={14} intent='info' value={Number(pipeline.finishedTasks / pipeline.totalTasks).toFixed(1)}
+                                     />
+                                   </Tooltip>
+                                 )}
                               </span>
                               {pipeline.status === 'TASK_FAILED' && (
                                 <strong style={{ color: Colors.RED5 }}>Failed</strong>
@@ -624,21 +392,6 @@ const Pipelines = (props) => {
                                   <Icon icon='code' size={16} />
                                 </a>
                               </div>
-                              {/* {activeProvider?.multiSource && (
-                            <DeleteAction
-                              id={deleteId}
-                              connection={connection}
-                              text='Delete'
-                              showConfirmation={() => setDeleteId(pipeline.ID)}
-                              onConfirm={runDeletion}
-                              onCancel={(e) => setDeleteId(false)}
-                              isDisabled={isRunningDelete || isDeletingConnection}
-                              isLoading={isRunningDelete || isDeletingConnection}
-                            >
-                              <DeleteConfirmationMessage title={`DELETE "${pipeline.name}"`} />
-                            </DeleteAction>
-                          )} */}
-
                             </td>
                           </tr>
                         ))}
@@ -664,12 +417,6 @@ const Pipelines = (props) => {
                         )}
                       </tbody>
                     </table>
-                    {/* {maxConnectionsExceeded(sourceLimits[activeProvider.id], connections.length) && (
-                  <p style={{ margin: 0, padding: '10px', backgroundColor: '#f0f0f0', borderTop: '1px solid #cccccc' }}>
-                    <Icon icon='warning-sign' size='16' color={Colors.GRAY1} style={{ marginRight: '5px' }} />
-                    You have reached the maximum number of allowed connections for this provider.
-                  </p>
-                )} */}
                   </Card>
 
                 </div>
