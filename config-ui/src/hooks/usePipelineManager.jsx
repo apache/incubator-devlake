@@ -130,7 +130,8 @@ function usePipelineManager (pipelineName = `COLLECTION ${Date.now()}`, initialT
       const fetchAll = async () => {
         const p = await request.get(`${DEVLAKE_ENDPOINT}/pipelines`)
         console.log('>> RAW PIPELINES RUN DATA FROM API...', p.data.pipelines)
-        const pSlice = p.data.pipelines?.slice(0, 25)
+        // const pSlice = p.data.pipelines?.slice(0, 5000)
+        const pSlice = p.data.pipelines
         setPipelines([...pSlice]) // @todo: REMOVE THE SLICE!!!!
         setPipelineCount(p.data.count)
         // ToastNotification.show({ message: `Fetched Pipeline ID - ${p.data?.ID}.`, intent: 'danger', icon: 'small-tick' })

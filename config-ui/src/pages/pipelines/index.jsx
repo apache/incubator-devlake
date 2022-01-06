@@ -66,13 +66,44 @@ const Pipelines = (props) => {
   } = usePipelineManager()
 
   const [filteredPipelines, setFilteredPipelines] = useState([])
+  const [pagedPipelines, setPagedPipelines] = useState([])
+  const [pageOptions, setPageOptions] = useState([
+    10,
+    25,
+    50,
+    100
+  ])
+  const currentPage = useRef(1)
+  const [perPage, setPerPage] = useState(pageOptions[0])
+  const [maxPage, setMaxPage] = useState(Math.floor(pipelines.length / perPage))
+
+  const nextPage = () => {
+    // setCurrentPage(cP => Math.min(maxPage, cP++))
+    currentPage.current = Math.min(maxPage, currentPage.current + 1)
+    setRefresh(r => !r)
+    console.log('>>>> NEXT PAGE', currentPage.current)
+  }
+
+  const prevPage = () => {
+    // setCurrentPage(cP => Math.min(0, cP--))
+    currentPage.current = Math.max(1, currentPage.current - 1)
+    setRefresh(r => !r)
+    console.log('>>>> PREV PAGE', currentPage.current)
+  }
+
+  const resetPage = () => {
+    currentPage.current = 1
+  }
 
   const filterPipelines = useCallback((status) => {
+    console.log('>>> GOT PIPELINE COUNT = ', pipelines.length, pipelines.length / perPage)
+    resetPage()
     setFilteredPipelines(status === 'all' ? pipelines : pipelines.filter((p) => p.status === status))
+    // setMaxPage(pipelines.length <= perPage ? 1 : Math.floor(pipelines.length / perPage))
     setTimeout(() => {
       setIsProcessing(false)
     }, 300)
-  }, [pipelines])
+  }, [pipelines, perPage])
 
   const getPipelineCountByStatus = useCallback((status) => {
     return status === 'all' ? pipelines.length : pipelines.filter((p) => p.status === status).length
@@ -80,16 +111,24 @@ const Pipelines = (props) => {
 
   useEffect(() => {
     fetchAllPipelines()
+    return () => {
+      currentPage.current = 1
+    }
   }, [fetchAllPipelines])
 
   useEffect(() => {
-    console.log('>>> Pipelines', pipelines)
-    setFilteredPipelines(pipelines)
+    console.log('>>> Pipelines', filteredPipelines)
+    console.log('>> CURRENT PAGE = ', currentPage.current)
+    console.log('>> MAX PAGE = ', maxPage)
+    // setFilteredPipelines(pipelines)
+    // setPagedPipelines(filteredPipelines.slice(currentPage.current === 1
+    //   ? 0
+    //   : currentPage.current * perPage, currentPage.current === 1 ? perPage : (currentPage.current * perPage) + perPage))
     if (pipelines.length > 0) {
       const latestPipelineRun = pipelines[0]
       fetchPipeline(latestPipelineRun.ID)
     }
-  }, [pipelines, fetchPipeline])
+  }, [pipelines, filteredPipelines, fetchPipeline, currentPage, maxPage, perPage])
 
   useEffect(() => {
 
@@ -102,12 +141,22 @@ const Pipelines = (props) => {
   }, [activeStatus, filterPipelines])
 
   useEffect(() => {
-
-  }, [refresh])
+    setPagedPipelines(filteredPipelines.slice(currentPage.current === 1
+      ? 0
+      : currentPage.current * perPage, currentPage.current === 1 ? perPage : (currentPage.current * perPage) + perPage))
+  }, [refresh, perPage, filteredPipelines])
 
   useEffect(() => {
     console.log('>>> LATEST PIPELINE!', latestPipeline)
   }, [latestPipeline])
+
+  useEffect(() => {
+    console.log('>>> FILTERED PIPELINES!', filteredPipelines)
+    setMaxPage(filteredPipelines.length <= perPage ? 1 : Math.floor(filteredPipelines.length / perPage))
+    setPagedPipelines(filteredPipelines.slice(currentPage.current === 1
+      ? 0
+      : currentPage.current * perPage, currentPage.current === 1 ? perPage : (currentPage.current * perPage) + perPage))
+  }, [filteredPipelines, perPage])
 
   return (
     <>
@@ -238,7 +287,7 @@ const Pipelines = (props) => {
                         </tr>
                       </thead>
                       <tbody>
-                        {!isFetchingAll && filteredPipelines.length > 0 && filteredPipelines.map((pipeline, pIdx) => (
+                        {!isFetchingAll && pagedPipelines.length > 0 && pagedPipelines.map((pipeline, pIdx) => (
                           <tr
                             key={`pipeline-row-${pIdx}`}
                             className={pipeline?.status === 'TASK_FAILED' ? 'pipeline-row pipeline-failed' : 'pipeline-row'}
@@ -347,7 +396,7 @@ const Pipelines = (props) => {
                               )}
                               {pipeline.status === 'TASK_CREATED' && (
                                 <strong style={{ color: Colors.GRAY3 }}>
-                                  <Icon icon='array' size={14} color={Colors.GRAY2} /> Pending...
+                                  <Icon icon='time' size={12} color={Colors.GRAY2} style={{ marginBottom: '3px' }} /> Pending...
                                 </strong>
                               )}
                             </td>
@@ -469,7 +518,10 @@ const Pipelines = (props) => {
                     <Icon icon='user' size={14} style={{ marginRight: '8px' }} />
                     <div>
                       <span>by {' '} <strong>Administrator</strong></span><br />
-                      <span style={{ color: '#888888' }}>Displaying 6 of {pipelineCount} pipeline run log entries from API.</span>
+                      <span style={{ color: '#888888' }}>Displaying{' '}
+                        {currentPage.current === 0 ? 0 : perPage * currentPage.current} - {(perPage * currentPage.current) + perPage} of {filteredPipelines.length}
+                        {' '}pipeline run log entries from API.
+                      </span>
                     </div>
                   </div>
 
@@ -481,10 +533,15 @@ const Pipelines = (props) => {
                   <div className='pagingation-controls' style={{ display: 'flex' }}>
 
                     <Button
+                      onClick={prevPage}
                       className='pagination-btn btn-prev-page'
-                      icon='step-backward' small text='PREV' style={{ marginRight: '5px' }} disabled
+                      icon='step-backward' small text='PREV' style={{ marginRight: '5px' }}
+                      disabled={currentPage.current === 1}
                     />
-                    <Button className='pagination-btn btn-next-page' rightIcon='step-forward' small text='NEXT' />
+                    <Button
+                      disabled={currentPage.current === maxPage}
+                      onClick={nextPage} className='pagination-btn btn-next-page' rightIcon='step-forward' small text='NEXT'
+                    />
                   </div>
                 </div>
                 <div style={{ height: '50px' }} />
