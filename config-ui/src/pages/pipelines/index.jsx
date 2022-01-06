@@ -469,6 +469,7 @@ const Pipelines = (props) => {
                                 {['TASK_FAILED', 'TASK_COMPLETED'].includes(pipeline.status) && (
                                   <a
                                     href='#'
+                                    onClick={() => restartPipeline(activePipeline.tasks)}
                                     data-provider={pipeline.id}
                                     className='bp3-button bp3-small bp3-minimal'
                                   >
