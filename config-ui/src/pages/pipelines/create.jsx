@@ -309,7 +309,7 @@ const CreatePipeline = (props) => {
             <AppCrumbs
               items={[
                 { href: '/', icon: false, text: 'Dashboard' },
-                { href: '/pipelines/create', icon: false, text: 'Pipelines', disabled: true },
+                { href: '/pipelines/create', icon: false, text: 'Pipelines' },
                 { href: '/pipelines/create', icon: false, text: 'RUN Pipeline', current: true },
               ]}
             />
