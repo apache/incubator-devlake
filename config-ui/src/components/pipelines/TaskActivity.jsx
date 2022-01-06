@@ -82,8 +82,8 @@ const TaskActivity = (props) => {
               style={{
                 padding: '0 8px',
                 display: 'flex',
-                width: '20%',
-                minWidth: '20%',
+                width: '25%',
+                minWidth: '25%',
                 // whiteSpace: 'nowrap',
                 justifyContent: 'flex-start',
                 // overflow: 'hidden',
@@ -142,7 +142,7 @@ const TaskActivity = (props) => {
             </div>
             <div
               className='pipeline-task-cell-message'
-              style={{ display: 'flex', flexGrow: 1, width: '64%' }}
+              style={{ display: 'flex', flexGrow: 1, width: '60%' }}
             >
               {t.message && (
                 <div style={{ width: '98%', whiteSpace: 'wrap', overflow: 'hidden', textOverflow: 'ellipsis', paddingLeft: '10px' }}>
