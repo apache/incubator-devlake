@@ -10,6 +10,7 @@ import (
 	lakeModels "github.com/merico-dev/lake/models"
 	"github.com/merico-dev/lake/plugins/core"
 	"github.com/merico-dev/lake/plugins/gitlab/api"
+	"github.com/merico-dev/lake/plugins/gitlab/models"
 	gitlabModels "github.com/merico-dev/lake/plugins/gitlab/models"
 	"github.com/merico-dev/lake/plugins/gitlab/tasks"
 	"github.com/merico-dev/lake/utils"
@@ -23,6 +24,26 @@ type Gitlab string
 
 func (plugin Gitlab) Description() string {
 	return "To collect and enrich data from Gitlab"
+}
+
+func (plugin Gitlab) Init() {
+	logger.Info("INFO >>> init go plugin", true)
+	err := lakeModels.Db.AutoMigrate(
+		&models.GitlabProject{},
+		&models.GitlabMergeRequest{},
+		&models.GitlabCommit{},
+		&models.GitlabProjectCommit{},
+		&models.GitlabPipeline{},
+		&models.GitlabReviewer{},
+		&models.GitlabMergeRequestNote{},
+		&models.GitlabMergeRequestCommit{},
+		&models.GitlabMergeRequestCommitMergeRequest{},
+		&models.GitlabUser{},
+	)
+	if err != nil {
+		logger.Error("Error migrating gitlab: ", err)
+		panic(err)
+	}
 }
 
 func (plugin Gitlab) Execute(options map[string]interface{}, progress chan<- float32, ctx context.Context) error {
@@ -62,7 +83,7 @@ func (plugin Gitlab) Execute(options map[string]interface{}, progress chan<- flo
 			"collectCommits":   true,
 			"collectMrs":       true,
 			"enrichMrs":        true,
-			"convertRepos":     true,
+			"convertProjects":  true,
 			"convertMrs":       true,
 			"convertCommits":   true,
 			"convertNotes":     true,
@@ -101,9 +122,9 @@ func (plugin Gitlab) Execute(options map[string]interface{}, progress chan<- flo
 		}
 		tasks.CollectChildrenOnPipelines(projectIdInt, scheduler)
 	}
-	if tasksToRun["convertRepos"] {
+	if tasksToRun["convertProjects"] {
 		progress <- 0.7
-		err = tasks.ConvertRepos()
+		err = tasks.ConvertProjects()
 		if err != nil {
 			return err
 		}
@@ -117,7 +138,7 @@ func (plugin Gitlab) Execute(options map[string]interface{}, progress chan<- flo
 	}
 	if tasksToRun["convertCommits"] {
 		progress <- 0.8
-		err = tasks.ConvertCommits()
+		err = tasks.ConvertCommits(projectIdInt)
 		if err != nil {
 			return err
 		}
@@ -215,12 +236,20 @@ func main() {
 		panic(fmt.Errorf("error paring board_id: %w", err))
 	}
 
+	err = core.RegisterPlugin("gitlab", PluginEntry)
+	if err != nil {
+		panic(err)
+	}
 	PluginEntry.Init()
 	progress := make(chan float32)
 	go func() {
 		err2 := PluginEntry.Execute(
 			map[string]interface{}{
 				"projectId": projectId,
+				//"tasks":     []string{"collectProject"},
+				//"tasks":     []string{"collectCommits"},
+				"tasks": []string{"convertProjects"},
+				//"tasks": []string{"convertCommits"},
 			},
 			progress,
 			context.Background(),
@@ -228,6 +257,7 @@ func main() {
 		if err2 != nil {
 			panic(err2)
 		}
+		close(progress)
 	}()
 	for p := range progress {
 		fmt.Println(p)

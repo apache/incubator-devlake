@@ -1,13 +1,13 @@
 package models
 
 import (
-	"github.com/merico-dev/lake/models/common"
 	"time"
+
+	"github.com/merico-dev/lake/models/common"
 )
 
 type GitlabCommit struct {
-	GitlabId       string `gorm:"primaryKey"`
-	ProjectId      int    `gorm:"index"`
+	Sha            string `gorm:"primaryKey;type:char(40)"`
 	Title          string
 	Message        string
 	ShortId        string
