@@ -9,7 +9,7 @@ import (
 	"gorm.io/gorm/clause"
 )
 
-func ConvertRepos() error {
+func ConvertProjects() error {
 	var gitlabProjects []gitlabModels.GitlabProject
 	err := lakeModels.Db.Find(&gitlabProjects).Error
 	if err != nil {
@@ -29,8 +29,12 @@ func convertToRepositoryModel(project *gitlabModels.GitlabProject) *code.Repo {
 		DomainEntity: domainlayer.DomainEntity{
 			Id: didgen.NewDomainIdGenerator(project).Generate(project.GitlabId),
 		},
-		Name: project.Name,
-		Url:  project.WebUrl,
+		Name:        project.Name,
+		Url:         project.WebUrl,
+		Description: project.Description,
+		ForkedFrom:  project.ForkedFromProjectWebUrl,
+		CreatedDate: project.CreatedDate,
+		UpdatedDate: project.UpdatedDate,
 	}
 	return domainRepository
 }

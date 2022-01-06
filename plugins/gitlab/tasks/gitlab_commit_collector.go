@@ -40,6 +40,7 @@ func CollectCommits(projectId int, scheduler *utils.WorkerScheduler) error {
 	relativePath := fmt.Sprintf("projects/%v/repository/commits", projectId)
 	queryParams := &url.Values{}
 	queryParams.Set("with_stats", "true")
+	gitlabUser := &models.GitlabUser{}
 	return gitlabApiClient.FetchWithPaginationAnts(scheduler, relativePath, queryParams, 100,
 		func(res *http.Response) error {
 
@@ -50,6 +51,7 @@ func CollectCommits(projectId int, scheduler *utils.WorkerScheduler) error {
 				logger.Error("Error: ", err)
 				return nil
 			}
+			gitlabProjectCommit := &models.GitlabProjectCommit{GitlabProjectId: projectId}
 			for _, gitlabApiCommit := range *gitlabApiResponse {
 				gitlabCommit, err := convertCommit(&gitlabApiCommit, projectId)
 				if err != nil {
@@ -62,6 +64,39 @@ func CollectCommits(projectId int, scheduler *utils.WorkerScheduler) error {
 
 				if err != nil {
 					logger.Error("Could not upsert: ", err)
+					return err
+				}
+
+				// create project/commits relationship
+				gitlabProjectCommit.CommitSha = gitlabCommit.Sha
+				err = lakeModels.Db.Clauses(clause.OnConflict{
+					DoNothing: true,
+				}).Create(&gitlabProjectCommit).Error
+				if err != nil {
+					logger.Error("Could not upsert: ", err)
+					return err
+				}
+
+				// create gitlab user
+				gitlabUser.Email = gitlabCommit.AuthorEmail
+				gitlabUser.Name = gitlabCommit.AuthorName
+				err = lakeModels.Db.Clauses(clause.OnConflict{
+					DoNothing: true,
+				}).Create(&gitlabUser).Error
+				if err != nil {
+					logger.Error("Could not upsert: ", err)
+					return err
+				}
+				if gitlabCommit.CommitterEmail != gitlabUser.Email {
+					gitlabUser.Email = gitlabCommit.CommitterEmail
+					gitlabUser.Name = gitlabCommit.CommitterName
+					err = lakeModels.Db.Clauses(clause.OnConflict{
+						DoNothing: true,
+					}).Create(&gitlabUser).Error
+					if err != nil {
+						logger.Error("Could not upsert: ", err)
+						return err
+					}
 				}
 			}
 
@@ -72,10 +107,9 @@ func CollectCommits(projectId int, scheduler *utils.WorkerScheduler) error {
 // Convert the API response to our DB model instance
 func convertCommit(commit *GitlabApiCommit, projectId int) (*models.GitlabCommit, error) {
 	gitlabCommit := &models.GitlabCommit{
-		GitlabId:       commit.GitlabId,
+		Sha:            commit.GitlabId,
 		Title:          commit.Title,
 		Message:        commit.Message,
-		ProjectId:      projectId,
 		ShortId:        commit.ShortId,
 		AuthorName:     commit.AuthorName,
 		AuthorEmail:    commit.AuthorEmail,
