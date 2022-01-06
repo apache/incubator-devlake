@@ -258,7 +258,14 @@ const PipelineActivity = (props) => {
                           padding: '20px'
                         }}
                       >
-                        <div className='pipeline-info' style={{ paddingRight: '12px', maxWidth: '50%', textOverflow: 'ellipsis' }}>
+                        <div
+                          className='pipeline-info' style={{
+                            paddingRight: '12px',
+                            maxWidth: '50%',
+                            textOverflow: 'ellipsis',
+                            flexGrow: 1
+                          }}
+                        >
                           <h2 className='headline' style={{ marginTop: '0' }}>
                             <span
                               className='pipeline-name'
@@ -278,108 +285,117 @@ const PipelineActivity = (props) => {
                           </div>
 
                         </div>
-                        <div className='pipeline-status' style={{ paddingRight: '12px' }}>
-                          <label style={{ color: Colors.GRAY3 }}>Status</label>
-                          <div style={{ fontSize: '15px', display: 'flex' }}>
-                            <span style={{ marginRight: '4px', color: activePipeline.status === 'TASK_RUNNING' ? '#0066FF' : '' }}>
-                              {activePipeline.status.replace('TASK_', '')}
-                            </span>
-                            {activePipeline.status === 'TASK_FAILED' && (
-                              <Icon
-                                icon='warning-sign' size={16}
-                                color={Colors.RED5} style={{ alignSelf: 'flex-start', marginLeft: '5px', marginBottom: '2px' }}
-                              />
-                            )}
+                        <div style={{
+                          display: 'flex',
+                          justifySelf: 'flex-start',
+                          justifyContent: 'space-between',
+                          alignItems: 'flex-start',
+                          flexGrow: 1
+                        }}
+                        >
+                          <div className='pipeline-status' style={{ paddingRight: '12px' }}>
+                            <label style={{ color: Colors.GRAY3 }}>Status</label>
+                            <div style={{ fontSize: '15px', display: 'flex' }}>
+                              <span style={{ marginRight: '4px', color: activePipeline.status === 'TASK_RUNNING' ? '#0066FF' : '' }}>
+                                {activePipeline.status.replace('TASK_', '')}
+                              </span>
+                              {activePipeline.status === 'TASK_FAILED' && (
+                                <Icon
+                                  icon='warning-sign' size={16}
+                                  color={Colors.RED5} style={{ alignSelf: 'flex-start', marginLeft: '5px', marginBottom: '2px' }}
+                                />
+                              )}
+                              {activePipeline.status === 'TASK_COMPLETED' && (
+                                <Icon
+                                  icon='tick' size={16}
+                                  color={Colors.GREEN5} style={{ alignSelf: 'flex-start', marginLeft: '5px', marginBottom: '2px' }}
+                                />
+                              )}
+                              {activePipeline.status === 'TASK_RUNNING' && (
+                                <Spinner
+                                  className='pipeline-status-spinner'
+                                  size={14}
+                                  intent={activePipeline.status === 'TASK_COMPLETED' ? 'success' : 'danger'}
+                                  value={activePipeline.status === 'TASK_COMPLETED' ? 1 : null}
+                                />
+                              )}
+                            </div>
+                          </div>
+                          <div className='pipeline-duration' style={{ paddingRight: '12px' }}>
+                            <label style={{ color: Colors.GRAY3 }}>Duration</label>
+                            <div style={{ fontSize: '15px', whiteSpace: 'nowrap' }}>
+                              {activePipeline.status === 'TASK_RUNNING'
+                                ? dayjs(activePipeline.CreatedAt).toNow(true)
+                                : dayjs(activePipeline.UpdatedAt).from(activePipeline.CreatedAt, true)}
+                            </div>
+                          </div>
+                          <div className='pipeline-actions' style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
                             {activePipeline.status === 'TASK_COMPLETED' && (
-                              <Icon
-                                icon='tick' size={16}
-                                color={Colors.GREEN5} style={{ alignSelf: 'flex-start', marginLeft: '5px', marginBottom: '2px' }}
-                              />
+                              <a
+                                className='bp3-button bp3-intent-primary'
+                                href={GRAFANA_URL}
+                                target='_blank'
+                                rel='noreferrer'
+                                style={{ backgroundColor: '#3bd477', color: '#ffffff' }}
+                              >
+                                <Icon icon='doughnut-chart' size={13} /> <span className='bp3-button-text'>Grafana</span>
+                              </a>
                             )}
                             {activePipeline.status === 'TASK_RUNNING' && (
-                              <Spinner
-                                className='pipeline-status-spinner'
-                                size={14}
-                                intent={activePipeline.status === 'TASK_COMPLETED' ? 'success' : 'danger'}
-                                value={activePipeline.status === 'TASK_COMPLETED' ? 1 : null}
+                              <Popover
+                                key='popover-help-key-cancel-run'
+                                className='trigger-pipeline-cancel'
+                                popoverClassName='popover-pipeline-cancel'
+                                position={Position.BOTTOM}
+                                autoFocus={false}
+                                enforceFocus={false}
+                                usePortal={true}
+                                disabled={activePipeline.status !== 'TASK_RUNNING'}
+                              >
+                                <Button
+                                  className={`btn-cancel-pipeline${activePipeline.status !== 'TASK_RUNNING' ? '-disabled' : ''}`}
+                                  icon='stop' text='CANCEL' intent={activePipeline.status !== 'TASK_RUNNING' ? '' : 'primary'}
+                                  disabled={activePipeline.status !== 'TASK_RUNNING'}
+                                />
+                                <>
+                                  <div style={{ fontSize: '12px', padding: '12px', maxWidth: '200px' }}>
+                                    <p>Are you Sure you want to cancel this <strong>Run</strong>?</p>
+                                    <div style={{ display: 'flex', width: '100%', justifyContent: 'flex-end' }}>
+                                      <Button
+                                        text='CANCEL' minimal
+                                        small className={Classes.POPOVER_DISMISS}
+                                        stlye={{ marginLeft: 'auto', marginRight: '3px' }}
+                                      />
+                                      <Button
+                                        className={Classes.POPOVER_DISMISS}
+                                        text='YES' icon='small-tick' intent={Intent.DANGER} small
+                                        onClick={() => cancelPipeline(activePipeline.ID)}
+                                      />
+                                    </div>
+                                  </div>
+                                </>
+                              </Popover>
+                            )}
+                            {activePipeline.status === 'TASK_FAILED' && (
+                              <Button
+                                className='btn-restart-pipeline'
+                                icon='reset'
+                                text='RESTART'
+                                intent='warning'
+                                onClick={() => restartPipeline(activePipeline.tasks)}
+                                disabled={activePipeline.status !== 'TASK_FAILED'}
+                              />
+                            )}
+                            {activePipeline.status !== 'TASK_FAILED' && (
+                              <Button
+                                icon='refresh'
+                                style={{ marginLeft: '5px' }}
+                                onClick={() => restartPipeline(activePipeline.tasks)}
+                                disabled={activePipeline.status === 'TASK_RUNNING' || activePipeline.status === 'TASK_FAILED'}
+                                minimal
                               />
                             )}
                           </div>
-                        </div>
-                        <div className='pipeline-duration' style={{ paddingRight: '12px' }}>
-                          <label style={{ color: Colors.GRAY3 }}>Duration</label>
-                          <div style={{ fontSize: '15px', whiteSpace: 'nowrap' }}>
-                            {activePipeline.status === 'TASK_RUNNING'
-                              ? dayjs(activePipeline.CreatedAt).toNow(true)
-                              : dayjs(activePipeline.UpdatedAt).from(activePipeline.CreatedAt, true)}
-                          </div>
-                        </div>
-                        <div className='pipeline-actions' style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-                          {activePipeline.status === 'TASK_COMPLETED' && (
-                            <a
-                              className='bp3-button bp3-intent-primary'
-                              href={GRAFANA_URL}
-                              target='_blank'
-                              rel='noreferrer'
-                              style={{ backgroundColor: '#3bd477', color: '#ffffff' }}
-                            >
-                              <Icon icon='doughnut-chart' size={13} /> <span className='bp3-button-text'>Grafana</span>
-                            </a>
-                          )}
-                          {activePipeline.status === 'TASK_RUNNING' && (
-                            <Popover
-                              key='popover-help-key-cancel-run'
-                              className='trigger-pipeline-cancel'
-                              popoverClassName='popover-pipeline-cancel'
-                              position={Position.BOTTOM}
-                              autoFocus={false}
-                              enforceFocus={false}
-                              usePortal={true}
-                              disabled={activePipeline.status !== 'TASK_RUNNING'}
-                            >
-                              <Button
-                                className={`btn-cancel-pipeline${activePipeline.status !== 'TASK_RUNNING' ? '-disabled' : ''}`}
-                                icon='stop' text='CANCEL' intent={activePipeline.status !== 'TASK_RUNNING' ? '' : 'primary'}
-                                disabled={activePipeline.status !== 'TASK_RUNNING'}
-                              />
-                              <>
-                                <div style={{ fontSize: '12px', padding: '12px', maxWidth: '200px' }}>
-                                  <p>Are you Sure you want to cancel this <strong>Run</strong>?</p>
-                                  <div style={{ display: 'flex', width: '100%', justifyContent: 'flex-end' }}>
-                                    <Button
-                                      text='CANCEL' minimal
-                                      small className={Classes.POPOVER_DISMISS}
-                                      stlye={{ marginLeft: 'auto', marginRight: '3px' }}
-                                    />
-                                    <Button
-                                      className={Classes.POPOVER_DISMISS}
-                                      text='YES' icon='small-tick' intent={Intent.DANGER} small
-                                      onClick={() => cancelPipeline(activePipeline.ID)}
-                                    />
-                                  </div>
-                                </div>
-                              </>
-                            </Popover>
-                          )}
-                          {activePipeline.status === 'TASK_FAILED' && (
-                            <Button
-                              className='btn-restart-pipeline'
-                              icon='reset'
-                              text='RESTART'
-                              intent='warning'
-                              onClick={() => restartPipeline(activePipeline.tasks)}
-                              disabled={activePipeline.status !== 'TASK_FAILED'}
-                            />
-                          )}
-                          {activePipeline.status !== 'TASK_FAILED' && (
-                            <Button
-                              icon='refresh'
-                              style={{ marginLeft: '5px' }}
-                              onClick={() => restartPipeline(activePipeline.tasks)}
-                              disabled={activePipeline.status === 'TASK_RUNNING' || activePipeline.status === 'TASK_FAILED'}
-                              minimal
-                            />
-                          )}
                         </div>
 
                       </div>
