@@ -7,6 +7,8 @@ import {
   Card,
   Elevation,
   Position,
+  Colors,
+  Icon
 } from '@blueprintjs/core'
 
 const CodeInspector = (props) => {
@@ -52,6 +54,13 @@ const CodeInspector = (props) => {
               </code>
             </Card>
           </div>
+          <p style={{ fontSize: '10px', lineHeight: '120%', opacity: 0.6 }}>
+            <Icon icon='info-sign' color={Colors.GRAY5} size={12} style={{ marginRight: '4px' }} />
+            <strong>Pipelines</strong> &mdash;
+            {' '}For a project with 10k commits and 5k Issues, this can take up to 20 minutes for collecting JIRA, GitLab, and Jenkins data.
+            {' '}Collection will take longer for GitHub due to rate limits.
+            {' '}You can accelerate the process by configuring multiple tokens.
+          </p>
         </div>
       </div>
     </Drawer>
