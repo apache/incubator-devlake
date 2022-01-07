@@ -571,8 +571,13 @@ const Pipelines = (props) => {
                     <div>
                       <span>by {' '} <strong>Administrator</strong></span><br />
                       <span style={{ color: '#888888' }}>Displaying{' '}
-                        {currentPage.current === 0 ? 0 : perPage * currentPage.current} - {' '}
-                        {(perPage * currentPage.current) + perPage} of {filteredPipelines.length}
+                        {filteredPipelines.length === 0 && (<>0</>)}
+                        {filteredPipelines.length > 0 && (
+                          <>
+                            {currentPage.current === 0 ? 0 : perPage * currentPage.current} - {' '}
+                            {(perPage * currentPage.current) + perPage} of {filteredPipelines.length}
+                          </>
+                        )}
                         {' '}pipeline runs from API.
                       </span>
                     </div>
