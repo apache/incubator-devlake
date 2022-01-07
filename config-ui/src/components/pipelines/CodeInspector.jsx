@@ -39,6 +39,7 @@ const CodeInspector = (props) => {
           </p>
           <div className='formContainer'>
             <Card
+              className='code-inspector-card'
               interactive={false}
               elevation={Elevation.ZERO}
               style={{ padding: '6px 12px', minWidth: '320px', width: '100%', maxWidth: '601px', marginBottom: '20px', overflow: 'auto' }}
