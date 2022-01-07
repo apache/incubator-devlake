@@ -581,6 +581,7 @@ const Pipelines = (props) => {
                     <Icon icon='user' size={14} style={{ marginRight: '8px' }} />
                     <div>
                       <span>by {' '} <strong>Administrator</strong></span><br />
+
                       <span style={{ color: '#888888' }}>Displaying{' '}
                         {filteredPipelines.length === 0 && (<>0</>)}
                         {filteredPipelines.length > 0 && (
@@ -598,11 +599,18 @@ const Pipelines = (props) => {
                                   : (Math.min(filteredPipelines.length, perPage * currentPage.current))}
                               </>
                             )}
-                            {' '} of {filteredPipelines.length}
+                            {' '} of {' '}
+                            <Tooltip
+                              content={`Page ${currentPage.current.toString()} of ${maxPage}`}
+                            >
+                              <strong>{filteredPipelines.length}</strong>
+                            </Tooltip>
+
                           </>
                         )}
                         {' '}pipeline runs from API.
                       </span>
+
                     </div>
                   </div>
 
