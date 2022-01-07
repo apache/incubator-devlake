@@ -40,6 +40,7 @@ import Content from '@/components/Content'
 import { ReactComponent as LayersIcon } from '@/images/layers.svg'
 import { ReactComponent as HelpIcon } from '@/images/help.svg'
 import { ReactComponent as BackArrowIcon } from '@/images/undo.svg'
+import RunPipelineIcon from '@/images/duplicate.png'
 
 import GitlabHelpNote from '@/images/help/gitlab-help.png'
 import JiraHelpNote from '@/images/help/jira-help.png'
@@ -308,13 +309,13 @@ const CreatePipeline = (props) => {
             <AppCrumbs
               items={[
                 { href: '/', icon: false, text: 'Dashboard' },
-                { href: '/pipelines/create', icon: false, text: 'Pipelines', disabled: true },
+                { href: '/pipelines', icon: false, text: 'Pipelines' },
                 { href: '/pipelines/create', icon: false, text: 'RUN Pipeline', current: true },
               ]}
             />
 
             <div className='headlineContainer'>
-              <Link style={{ display: 'flex', fontSize: '14px', float: 'right', marginLeft: '10px', color: '#777777' }} to='/'>
+              <Link style={{ display: 'flex', fontSize: '14px', float: 'right', marginLeft: '10px', color: '#777777' }} to='/pipelines'>
                 <Icon
                   icon={
                     <BackArrowIcon
@@ -330,7 +331,7 @@ const CreatePipeline = (props) => {
               <div style={{ display: 'flex' }}>
                 <div>
                   <span style={{ marginRight: '10px' }}>
-                    <Icon icon={<LayersIcon width={42} height={42} />} size={42} />
+                    <Icon icon={<img src={RunPipelineIcon} width='38' height='38' />} size={38} />
                   </span>
                 </div>
                 <div>
@@ -583,10 +584,11 @@ const CreatePipeline = (props) => {
                 loading={isRunning}
               ><strong>Run</strong> Pipeline
               </Button>
-              <Tooltip content='Manage Pipelines (Coming Soon)' position={Position.TOP}>
+              <Tooltip content='Manage Pipelines' position={Position.TOP}>
                 <Button
+                  onClick={() => history.push('/pipelines')}
                   className='btn-pipeline btn-view-jobs'
-                  icon='eye-open' minimal style={{ marginLeft: '5px' }}
+                  icon='pulse' minimal style={{ marginLeft: '5px' }}
                 >View All Pipelines
                 </Button>
               </Tooltip>
@@ -614,7 +616,13 @@ const CreatePipeline = (props) => {
           </main>
         </Content>
       </div>
-      <PipelineIndicator pipeline={pipelineRun} graphsUrl={GRAFANA_URL} onFetch={fetchPipeline} onCancel={cancelPipeline} />
+      <PipelineIndicator
+        pipeline={pipelineRun}
+        graphsUrl={GRAFANA_URL}
+        onFetch={fetchPipeline}
+        onCancel={cancelPipeline}
+        onView={() => history.push(`/pipelines/activity/${pipelineRun.ID}`)}
+      />
     </>
   )
 }

@@ -188,6 +188,41 @@ const StagePanel = (props) => {
                 />
               </>
             )}
+            {Object.keys(stages).length === 0 && (
+              <>
+                <Button
+                  disabled
+                  minimal
+                  style={{
+                    position: 'relative',
+                    backgroundColor: '#eeeeee',
+                    paddingRight: '50px',
+                  }}
+                >
+                  <h3
+                    className='stage-panel-stage-name'
+                    style={{ margin: 0, fontSize: '18px', color: Colors.GRAY3 }}
+                  >
+                    No Stages
+                  </h3>
+                </Button>
+                <Button
+                  className='stage-panel-stage-endcap'
+                  minimal
+                  style={{
+                    marginLeft: '1px',
+                    background: '#ffffff!!important',
+                    width: 0,
+                    height: 0,
+                    borderTop: '16px solid transparent',
+                    borderBottom: '16px solid transparent',
+                    borderLeft: '16px solid #eeeeee',
+                    pointerEvents: 'none'
+                  }}
+                />
+              </>
+
+            )}
           </ButtonGroup>
           <div style={{ display: 'flex', marginLeft: 'auto', padding: '0 10px' }}>
             <h3

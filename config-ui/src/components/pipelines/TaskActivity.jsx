@@ -82,8 +82,8 @@ const TaskActivity = (props) => {
               style={{
                 padding: '0 8px',
                 display: 'flex',
-                width: '20%',
-                minWidth: '20%',
+                width: '25%',
+                minWidth: '25%',
                 // whiteSpace: 'nowrap',
                 justifyContent: 'flex-start',
                 // overflow: 'hidden',
@@ -142,11 +142,11 @@ const TaskActivity = (props) => {
             </div>
             <div
               className='pipeline-task-cell-message'
-              style={{ display: 'flex', flexGrow: 1, width: '64%' }}
+              style={{ display: 'flex', flexGrow: 1, width: '60%' }}
             >
               {t.message && (
-                <div style={{ width: '98%', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                  <span style={{ color: t.status === 'TASK_FAILED' ? Colors.RED4 : Colors.GRAY3, paddingLeft: '10px' }}>
+                <div style={{ width: '98%', whiteSpace: 'wrap', overflow: 'hidden', textOverflow: 'ellipsis', paddingLeft: '10px' }}>
+                  <span style={{ color: t.status === 'TASK_FAILED' ? Colors.RED4 : Colors.GRAY3 }}>
                     {t.message}
                   </span>
                 </div>
@@ -154,6 +154,21 @@ const TaskActivity = (props) => {
             </div>
           </div>
         ))}
+        {(!activePipeline.tasks || activePipeline.tasks.length === 0) && (
+          <>
+            <div style={{ display: 'flex' }}>
+              <Icon
+                icon='warning-sign'
+                size={12}
+                color={Colors.ORANGE5} style={{ float: 'left', margin: '0 4px 0 0' }}
+              />
+              <p>
+                <strong>Missing Configuration</strong>, this pipeline has no tasks.
+                <br />Please create a new pipeline with a valid configuration.
+              </p>
+            </div>
+          </>
+        )}
       </div>
     </>
   )

@@ -18,7 +18,7 @@ import ConfigureConnection from '@/pages/configure/connections/ConfigureConnecti
 import Triggers from '@/pages/triggers/index'
 import Offline from '@/pages/offline/index'
 // #964 Manage Pipelines
-// import Pipelines from '@/pages/pipelines/index'
+import Pipelines from '@/pages/pipelines/index'
 // #963 Create Pipelines
 import CreatePipeline from '@/pages/pipelines/create'
 // #965 Pipeline Activity
@@ -52,9 +52,9 @@ function App () {
       <Route exact path='/pipelines/create'>
         <CreatePipeline />
       </Route>
-      {/* #964 <Route exact path='/pipelines'>
+      <Route exact path='/pipelines'>
         <Pipelines />
-      </Route> */}
+      </Route>
       <Route exact path='/pipelines/activity'>
         <PipelineActivity />
       </Route>
