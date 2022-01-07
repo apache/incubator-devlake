@@ -1,7 +1,7 @@
 import * as dayjs from 'dayjs'
 import * as relativeTime from 'dayjs/plugin/relativeTime'
 import * as updateLocale from 'dayjs/plugin/updateLocale'
-import * as LocalizedFormat from 'dayjs/plugin/LocalizedFormat'
+import * as LocalizedFormat from 'dayjs/plugin/localizedFormat'
 
 const localeConfiguration = {
   relativeTime: {
