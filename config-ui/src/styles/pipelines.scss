@@ -456,3 +456,26 @@
     }
   }
 }
+
+.bp3-drawer {
+  &.drawer-json-inspector {
+    .bp3-drawer-body {
+      background-color: #f3f3f3;
+
+      .bp3-card.code-inspector-card {
+        border-radius: 7px;
+        box-shadow: 1px 1px 3px 0px rgba(0,0,0,0.20) inset;
+        -webkit-box-shadow: 1px 1px 3px 0px rgba(104, 37, 37, 0.20) inset;
+        -moz-box-shadow: 1px 1px 3px 0px rgba(0,0,0,0.20) inset;
+        transition: all 0.3s linear;
+        border: 1px solid #cccccc;
+
+        &:hover {
+          border: 1px solid #0278ffab;
+        }
+      }
+    }
+
+
+  }
+}
