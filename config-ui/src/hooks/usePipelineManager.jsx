@@ -8,6 +8,7 @@ import { ToastNotification } from '@/components/Toast'
 function usePipelineManager (pipelineName = `COLLECTION ${Date.now()}`, initialTasks = []) {
   // const [integrations, setIntegrations] = useState(integrationsData)
   const [isFetching, setIsFetching] = useState(false)
+  const [isFetchingAll, setIsFetchingAll] = useState(false)
   const [isRunning, setIsRunning] = useState(false)
   const [isCancelling, setIsCancelling] = useState(false)
   const [errors, setErrors] = useState([])
@@ -18,6 +19,8 @@ function usePipelineManager (pipelineName = `COLLECTION ${Date.now()}`, initialT
     ]
   })
 
+  const [pipelines, setPipelines] = useState([])
+  const [pipelineCount, setPipelineCount] = useState(0)
   const [activePipeline, setActivePipeline] = useState(NullPipelineRun)
   const [lastRunId, setLastRunId] = useState(null)
   const [pipelineRun, setPipelineRun] = useState(NullPipelineRun)
@@ -118,13 +121,31 @@ function usePipelineManager (pipelineName = `COLLECTION ${Date.now()}`, initialT
     }
   }, [])
 
-  // const fetchAllRuns = () => {
-
-  // }
-
-  // const fetchRun = () => {
-
-  // }
+  const fetchAllPipelines = useCallback(() => {
+    try {
+      setIsFetchingAll(true)
+      setErrors([])
+      ToastNotification.clear()
+      console.log('>> FETCHING ALL PIPELINE RUNS...')
+      const fetchAll = async () => {
+        const p = await request.get(`${DEVLAKE_ENDPOINT}/pipelines`)
+        console.log('>> RAW PIPELINES RUN DATA FROM API...', p.data.pipelines)
+        setPipelines([...p.data.pipelines])
+        setPipelineCount(p.data.count)
+        // ToastNotification.show({ message: `Fetched All Pipelines`, intent: 'danger', icon: 'small-tick' })
+        setTimeout(() => {
+          setIsFetchingAll(false)
+        }, 500)
+      }
+      fetchAll()
+    } catch (e) {
+      setIsFetchingAll(false)
+      setErrors([e.message])
+      setPipelines([])
+      setPipelineCount(0)
+      console.log('>> FAILED TO FETCH ALL PIPELINE RUNS!!', e)
+    }
+  }, [])
 
   useEffect(() => {
     console.log('>> PIPELINE MANAGER - RECEIVED RUN/TASK SETTINGS', settings)
@@ -138,16 +159,20 @@ function usePipelineManager (pipelineName = `COLLECTION ${Date.now()}`, initialT
     errors,
     isRunning,
     isFetching,
+    isFetchingAll,
     isCancelling,
     settings,
     setSettings,
     pipelineRun,
     activePipeline,
+    pipelines,
+    pipelineCount,
     lastRunId,
     runPipeline,
     cancelPipeline,
     fetchPipeline,
-    fetchPipelineTasks
+    fetchPipelineTasks,
+    fetchAllPipelines
   }
 }
 

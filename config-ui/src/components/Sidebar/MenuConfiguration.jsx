@@ -45,32 +45,32 @@ const MenuConfiguration = (activeRoute) => {
         }
       ]
     },
-    {
-      id: 1,
-      label: 'Tasks',
-      icon: 'automatic-updates',
-      route: '/tasks',
-      disabled: true,
-      active: activeRoute.url === '/tasks',
-      children: [
-      ]
-    },
-    {
-      id: 2,
-      label: 'Triggers',
-      icon: 'asterisk',
-      classNames: [],
-      route: '/triggers',
-      active: activeRoute.url === '/triggers',
-      children: [
-      ]
-    },
+    // {
+    //   id: 1,
+    //   label: 'Tasks',
+    //   icon: 'automatic-updates',
+    //   route: '/tasks',
+    //   disabled: true,
+    //   active: activeRoute.url === '/tasks',
+    //   children: [
+    //   ]
+    // },
+    // {
+    //   id: 2,
+    //   label: 'Triggers',
+    //   icon: 'asterisk',
+    //   classNames: [],
+    //   route: '/triggers',
+    //   active: activeRoute.url === '/triggers',
+    //   children: [
+    //   ]
+    // },
     {
       id: 3,
       label: 'Pipelines',
       icon: 'git-merge',
       classNames: [],
-      route: '/pipelines/create',
+      route: '/pipelines',
       active: activeRoute.url.startsWith('/pipelines'),
       children: [
         {
@@ -83,12 +83,12 @@ const MenuConfiguration = (activeRoute) => {
         },
         {
           id: 1,
-          label: 'All Pipeline Runs (Logs)',
+          label: 'All Pipeline Runs',
           route: '/pipelines',
           active: activeRoute.url.endsWith('/pipelines'),
-          icon: 'cube-add',
+          icon: 'layers',
           classNames: [],
-          disabled: true
+          disabled: false
         },
       ]
     },

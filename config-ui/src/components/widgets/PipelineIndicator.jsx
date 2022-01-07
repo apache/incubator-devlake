@@ -18,14 +18,17 @@ const PipelineIndicator = (props) => {
   const { 
     pipeline,
     graphsUrl = '#', 
+    isVisible = true,
     onFetch = () => {} ,
-    onCancel = () => {}
+    onCancel = () => {},
+    onView = () => {},
+    onRetry = () => {}
   } = props
 
   return (
     <>
       <CSSTransition
-        in={pipeline && pipeline.ID !== null}
+        in={pipeline && pipeline.ID !== null && isVisible}
         timeout={300}
         classNames='lastrun-module'
         unmountOnExit
@@ -111,6 +114,7 @@ const PipelineIndicator = (props) => {
               <>
                 <div style={{ fontSize: '12px', padding: '12px', minWidth: '420px', maxWidth: '420px', overflow: 'hidden' }}>
                   <h3
+                    onClick={() => onView(pipeline.ID)}
                     className='group-header' style={{
                       marginTop: '0',
                       marginBottom: '6px',
@@ -149,7 +153,7 @@ const PipelineIndicator = (props) => {
                       )}
                       {pipeline.status === 'TASK_RUNNING' && (
                         <Button
-                          className='btn-cancel-pipeline'
+                          className={`btn-cancel-pipeline ${Classes.POPOVER_DISMISS}`}
                           small icon='stop' text='CANCEL' intent='primary'
                           onClick={() => onCancel(pipeline.ID)}
                         />
@@ -160,6 +164,7 @@ const PipelineIndicator = (props) => {
                           intent='danger'
                           icon='reset' text='RETRY'
                           style={{ color: '#ffffff' }}
+                          onClick={() => onRetry(pipeline)}
                           small
                         />
                       )}                      
