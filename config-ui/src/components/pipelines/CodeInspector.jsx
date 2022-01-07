@@ -30,10 +30,10 @@ const CodeInspector = (props) => {
     >
       <div className={Classes.DRAWER_BODY}>
         <div className={Classes.DIALOG_BODY}>
-          <h3 style={{ margin: 0, padding: '8px 0' }}>
+          <h3 className='no-user-select' style={{ margin: 0, padding: '8px 0' }}>
             <span style={{ float: 'right', fontSize: '9px', color: '#aaaaaa' }}>application/json</span> JSON RESPONSE
           </h3>
-          <p>
+          <p className='no-user-select'>
             If you are submitting a
             <strong> Bug-Report</strong> regarding a Pipeline Run, include the output below for better debugging.
           </p>
