@@ -637,6 +637,7 @@ const Pipelines = (props) => {
       activePipeline &&
       (
         <PipelineIndicator
+          isVisible={!showInspector}
           pipeline={activePipeline}
           graphsUrl={GRAFANA_URL}
           onFetch={fetchPipeline}
