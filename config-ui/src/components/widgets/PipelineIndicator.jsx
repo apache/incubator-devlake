@@ -18,6 +18,7 @@ const PipelineIndicator = (props) => {
   const { 
     pipeline,
     graphsUrl = '#', 
+    isVisible = true,
     onFetch = () => {} ,
     onCancel = () => {},
     onView = () => {},
@@ -27,7 +28,7 @@ const PipelineIndicator = (props) => {
   return (
     <>
       <CSSTransition
-        in={pipeline && pipeline.ID !== null}
+        in={pipeline && pipeline.ID !== null && isVisible}
         timeout={300}
         classNames='lastrun-module'
         unmountOnExit
