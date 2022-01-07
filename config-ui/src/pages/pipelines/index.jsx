@@ -181,7 +181,7 @@ const Pipelines = (props) => {
 
   useEffect(() => {
     console.log('>>> FILTERED PIPELINES!', filteredPipelines)
-    setMaxPage(filteredPipelines.length <= perPage ? 1 : Math.floor(filteredPipelines.length / perPage))
+    setMaxPage(filteredPipelines.length <= perPage ? 1 : Math.floor(filteredPipelines.length / perPage) - 1)
     setPagedPipelines(filteredPipelines.slice(currentPage.current === 1
       ? 0
       : currentPage.current * perPage, currentPage.current === 1 ? perPage : (currentPage.current * perPage) + perPage))
@@ -493,9 +493,9 @@ const Pipelines = (props) => {
                                         <p>Are you Sure you want to cancel this <strong>Run</strong>?</p>
                                         <div style={{ display: 'flex', width: '100%', justifyContent: 'flex-end' }}>
                                           <Button
-                                            text='CANCEL' minimal
+                                            text='NO' minimal
                                             small className={Classes.POPOVER_DISMISS}
-                                            stlye={{ marginLeft: 'auto', marginRight: '3px' }}
+                                            style={{ marginLeft: 'auto', marginRight: '3px' }}
                                           />
                                           <Button
                                             className={Classes.POPOVER_DISMISS}
@@ -574,8 +574,20 @@ const Pipelines = (props) => {
                         {filteredPipelines.length === 0 && (<>0</>)}
                         {filteredPipelines.length > 0 && (
                           <>
-                            {currentPage.current === 0 ? 0 : perPage * currentPage.current} - {' '}
-                            {(perPage * currentPage.current) + perPage} of {filteredPipelines.length}
+                            {currentPage.current === 1 && filteredPipelines.length <= perPage && (
+                              <>1 - {filteredPipelines.length}</>
+                            )}
+                            {currentPage.current === 1 && filteredPipelines.length > perPage && (
+                              <>1 - {perPage}</>
+                            )}
+                            {currentPage.current > 1 && filteredPipelines.length > perPage && (
+                              <>
+                                {(perPage * currentPage.current) - perPage} - {currentPage.current === 1
+                                  ? perPage
+                                  : (perPage * currentPage.current + perPage)}
+                              </>
+                            )}
+                            {' '} of {filteredPipelines.length}
                           </>
                         )}
                         {' '}pipeline runs from API.
