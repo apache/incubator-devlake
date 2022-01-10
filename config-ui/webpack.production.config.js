@@ -150,7 +150,7 @@ module.exports = (env = {}) => {
     plugins: [
       new CleanWebpackPlugin(),
       new webpack.HotModuleReplacementPlugin(),
-      new MiniCssExtractPlugin({ filename: '[name].css' }),
+      new MiniCssExtractPlugin({ filename: '[name].[hash].css' }),
       new HtmlWebpackPlugin({
         template: path.resolve(__dirname, './src/index-production.html'),
         filename: 'index.html',
