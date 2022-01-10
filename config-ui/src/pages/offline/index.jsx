@@ -24,7 +24,7 @@ const Offline = (props) => {
   const testInterval = useRef()
   const retryCount = useRef()
 
-  const [apiEndpointUrl, setApiEndpointUrl] = useState(`${DEVLAKE_ENDPOINT}/env`)
+  const [apiEndpointUrl, setApiEndpointUrl] = useState(`${DEVLAKE_ENDPOINT}/ping`)
   const [isOffline, setIsOffline] = useState(true)
   const [testResponse, setTestResponse] = useState({})
   const [testStatus, setTestStatus] = useState(504)
@@ -93,7 +93,7 @@ const Offline = (props) => {
     console.log('>> OFFLINE MODE (MOUNTED) - ENDPOINT URL ...', endpointUrl)
     retryCount.current = 1
     setAborted(false)
-    setApiEndpointUrl((url) => endpointUrl !== null && endpointUrl !== url ? endpointUrl : `${DEVLAKE_ENDPOINT}/env`)
+    setApiEndpointUrl((url) => endpointUrl !== null && endpointUrl !== url ? endpointUrl : `${DEVLAKE_ENDPOINT}/ping`)
   }, [endpointUrl])
 
   useEffect(() => {
@@ -209,7 +209,7 @@ const Offline = (props) => {
                     : (
                       <>
                         <p style={{ fontSize: '16px', fontFamily: '"JetBrains Mono", monospace', color: '#222222' }}>
-                          Connectivity to the Lake API service was successful (PORT <strong>{testResponse.PORT}</strong>).
+                          Connectivity to the Lake API service was successful.
                         </p>
                         <Button
                           icon='cog' intent={Intent.PRIMARY}
