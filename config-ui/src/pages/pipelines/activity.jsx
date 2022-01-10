@@ -362,9 +362,9 @@ const PipelineActivity = (props) => {
                                     <p>Are you Sure you want to cancel this <strong>Run</strong>?</p>
                                     <div style={{ display: 'flex', width: '100%', justifyContent: 'flex-end' }}>
                                       <Button
-                                        text='CANCEL' minimal
+                                        text='NO' minimal
                                         small className={Classes.POPOVER_DISMISS}
-                                        stlye={{ marginLeft: 'auto', marginRight: '3px' }}
+                                        style={{ marginLeft: 'auto', marginRight: '3px' }}
                                       />
                                       <Button
                                         className={Classes.POPOVER_DISMISS}

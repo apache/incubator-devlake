@@ -76,7 +76,7 @@ const Pipelines = (props) => {
   ])
   const currentPage = useRef(1)
   const [perPage, setPerPage] = useState(pageOptions[0])
-  const [maxPage, setMaxPage] = useState(Math.floor(pipelines.length / perPage))
+  const [maxPage, setMaxPage] = useState(Math.ceil(filteredPipelines.length / perPage))
   // @todo: generate dynamically from $pageOptions
   const pagingOptionsMenu = (
     <Menu>
@@ -112,6 +112,20 @@ const Pipelines = (props) => {
       setIsProcessing(false)
     }, 300)
   }, [pipelines, perPage])
+
+  const paginatePipelines = useCallback(() => {
+    const sliceOffset = currentPage.current >= 2 ? -1 : 0
+    const sliceBegin = currentPage.current === 1
+      ? 0
+      : (currentPage.current + sliceOffset) * perPage
+    const sliceEnd = currentPage.current === 1
+      ? perPage
+      : ((currentPage.current + sliceOffset) * perPage) + perPage
+    console.log('>> CURRENT PAGE = ', currentPage.current)
+    console.log('>> START RECORD INDEX ====', sliceBegin)
+    console.log('>> END RECORD INDEX ====', sliceEnd)
+    setPagedPipelines(filteredPipelines.slice(sliceBegin, sliceEnd))
+  }, [filteredPipelines, perPage])
 
   const getPipelineCountByStatus = useCallback((status) => {
     return status === 'all' ? pipelines.length : pipelines.filter((p) => p.status === status).length
@@ -149,10 +163,6 @@ const Pipelines = (props) => {
     console.log('>>> Pipelines', filteredPipelines)
     console.log('>> CURRENT PAGE = ', currentPage.current)
     console.log('>> MAX PAGE = ', maxPage)
-    // setFilteredPipelines(pipelines)
-    // setPagedPipelines(filteredPipelines.slice(currentPage.current === 1
-    //   ? 0
-    //   : currentPage.current * perPage, currentPage.current === 1 ? perPage : (currentPage.current * perPage) + perPage))
     if (pipelines.length > 0) {
       const latestPipelineRun = pipelines[0]
       fetchPipeline(latestPipelineRun.ID)
@@ -170,10 +180,9 @@ const Pipelines = (props) => {
   }, [activeStatus, filterPipelines])
 
   useEffect(() => {
-    setPagedPipelines(filteredPipelines.slice(currentPage.current === 1
-      ? 0
-      : currentPage.current * perPage, currentPage.current === 1 ? perPage : (currentPage.current * perPage) + perPage))
-  }, [refresh, perPage, filteredPipelines])
+    console.log('>> PAGINATING PIPELINES...')
+    paginatePipelines()
+  }, [refresh, perPage, filteredPipelines, paginatePipelines])
 
   useEffect(() => {
     console.log('>>> LATEST PIPELINE!', latestPipeline)
@@ -181,11 +190,13 @@ const Pipelines = (props) => {
 
   useEffect(() => {
     console.log('>>> FILTERED PIPELINES!', filteredPipelines)
-    setMaxPage(filteredPipelines.length <= perPage ? 1 : Math.floor(filteredPipelines.length / perPage))
-    setPagedPipelines(filteredPipelines.slice(currentPage.current === 1
-      ? 0
-      : currentPage.current * perPage, currentPage.current === 1 ? perPage : (currentPage.current * perPage) + perPage))
+    setMaxPage(filteredPipelines.length <= perPage ? 1 : Math.ceil(filteredPipelines.length / perPage))
+    // @todo: JC -- check if pagination call is needed here!
   }, [filteredPipelines, perPage])
+
+  useEffect(() => {
+    console.log('>>> PAGED PIPELINES...', pagedPipelines)
+  }, [pagedPipelines])
 
   return (
     <>
@@ -493,9 +504,9 @@ const Pipelines = (props) => {
                                         <p>Are you Sure you want to cancel this <strong>Run</strong>?</p>
                                         <div style={{ display: 'flex', width: '100%', justifyContent: 'flex-end' }}>
                                           <Button
-                                            text='CANCEL' minimal
+                                            text='NO' minimal
                                             small className={Classes.POPOVER_DISMISS}
-                                            stlye={{ marginLeft: 'auto', marginRight: '3px' }}
+                                            style={{ marginLeft: 'auto', marginRight: '3px' }}
                                           />
                                           <Button
                                             className={Classes.POPOVER_DISMISS}
@@ -570,11 +581,36 @@ const Pipelines = (props) => {
                     <Icon icon='user' size={14} style={{ marginRight: '8px' }} />
                     <div>
                       <span>by {' '} <strong>Administrator</strong></span><br />
+
                       <span style={{ color: '#888888' }}>Displaying{' '}
-                        {currentPage.current === 0 ? 0 : perPage * currentPage.current} - {' '}
-                        {(perPage * currentPage.current) + perPage} of {filteredPipelines.length}
+                        {filteredPipelines.length === 0 && (<>0</>)}
+                        {filteredPipelines.length > 0 && (
+                          <>
+                            {currentPage.current === 1 && filteredPipelines.length <= perPage && (
+                              <>1 - {filteredPipelines.length}</>
+                            )}
+                            {currentPage.current === 1 && filteredPipelines.length > perPage && (
+                              <>1 - {perPage}</>
+                            )}
+                            {currentPage.current > 1 && filteredPipelines.length > perPage && (
+                              <>
+                                {(perPage * currentPage.current) - perPage} - {currentPage.current === 1
+                                  ? perPage
+                                  : (Math.min(filteredPipelines.length, perPage * currentPage.current))}
+                              </>
+                            )}
+                            {' '} of {' '}
+                            <Tooltip
+                              content={`Page ${currentPage.current.toString()} of ${maxPage}`}
+                            >
+                              <strong>{filteredPipelines.length}</strong>
+                            </Tooltip>
+
+                          </>
+                        )}
                         {' '}pipeline runs from API.
                       </span>
+
                     </div>
                   </div>
 
