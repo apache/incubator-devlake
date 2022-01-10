@@ -184,7 +184,7 @@ export default function JiraSettings (props) {
 
       <MappingTag
         labelName='Requirement'
-        labelIntent='primary'
+        labelIntent='success'
         typeOrStatus='type'
         placeholderText='Add Issue Types...'
         values={typeMappingRequirement}
@@ -195,7 +195,7 @@ export default function JiraSettings (props) {
 
       <MappingTag
         labelName='Bug'
-        labelIntent='danger'
+        labelIntent='warning'
         typeOrStatus='type'
         placeholderText='Add Issue Types...'
         values={typeMappingBug}
@@ -206,7 +206,7 @@ export default function JiraSettings (props) {
 
       <MappingTag
         labelName='Incident'
-        labelIntent='warning'
+        labelIntent='danger'
         typeOrStatus='type'
         placeholderText='Add Issue Types...'
         values={typeMappingIncident}
