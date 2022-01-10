@@ -187,10 +187,11 @@ const CreatePipeline = (props) => {
 
   const resetConfiguration = () => {
     window.history.replaceState(null, '')
+    resetPipelineName()
     setExistingTasks([])
     setEnabledProviders([])
-    setProjectId(null)
-    setBoardId(null)
+    setProjectId('')
+    setBoardId('')
     setSelectedSource(null)
     setRepositoryName('')
     setOwner('')
