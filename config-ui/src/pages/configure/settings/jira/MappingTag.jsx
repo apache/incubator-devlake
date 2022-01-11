@@ -1,7 +1,7 @@
 import React, { Fragment } from 'react'
 import { FormGroup, Label, Tag, TagInput } from '@blueprintjs/core'
 
-const MappingTag = ({ labelIntent, labelName, onChange, rightElement, helperText, typeOrStatus, values, placeholderText }) => {
+const MappingTag = ({ classNames, labelIntent, labelName, onChange, rightElement, helperText, typeOrStatus, values, placeholderText }) => {
   return (
     <>
       <div className='formContainer'>
@@ -15,7 +15,7 @@ const MappingTag = ({ labelIntent, labelName, onChange, rightElement, helperText
           contentClassName='formGroupContent'
         >
           <Label style={{ display: 'inline' }}>
-            <span style={{ marginRight: '10px' }}><Tag intent={labelIntent}>{labelName}</Tag></span>
+            <span style={{ marginRight: '10px' }}><Tag className={classNames} intent={labelIntent}>{labelName}</Tag></span>
           </Label>
           <TagInput
             placeholder={placeholderText}
