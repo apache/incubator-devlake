@@ -5,7 +5,7 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	"github.com/merico-dev/lake/api/env"
+	"github.com/merico-dev/lake/api/ping"
 	"github.com/merico-dev/lake/api/pipelines"
 	"github.com/merico-dev/lake/api/push"
 	"github.com/merico-dev/lake/api/task"
@@ -19,8 +19,7 @@ func RegisterRouter(r *gin.Engine) {
 	r.POST("/pipelines", pipelines.Post)
 	r.DELETE("/pipelines/:pipelineId", pipelines.Delete)
 	r.GET("/pipelines/:pipelineId/tasks", task.Index)
-	r.POST("/env", env.Set)
-	r.GET("/env", env.Get)
+	r.GET("/ping", ping.Get)
 	r.POST("/push/:tableName", push.Post)
 
 	// mount all api resources for all plugins
