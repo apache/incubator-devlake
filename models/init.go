@@ -38,6 +38,7 @@ func init() {
 
 	Db, err = gorm.Open(mysql.Open(connectionString), &gorm.Config{
 		Logger: newLogger,
+		CreateBatchSize: 1000,
 	})
 	if err != nil {
 		fmt.Println("ERROR: >>> Mysql failed to connect")

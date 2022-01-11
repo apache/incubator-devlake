@@ -34,9 +34,14 @@ type Commit struct {
 	Message string
 }
 
+var commitSlice = []models.GithubCommit{}
+var repoCommitSlice = []models.GithubRepoCommit{}
+
+// var userSlice = []models.GithubUser{}
+
 func CollectCommits(owner string, repositoryName string, repositoryId int, scheduler *utils.WorkerScheduler, githubApiClient *GithubApiClient) error {
 	getUrl := fmt.Sprintf("repos/%v/%v/commits", owner, repositoryName)
-	return githubApiClient.FetchWithPaginationAnts(getUrl, nil, 100, 20, scheduler,
+	githubApiClient.FetchWithPaginationAnts(getUrl, nil, 100, 20, scheduler,
 		func(res *http.Response) error {
 			githubApiResponse := &ApiCommitsResponse{}
 			err := core.UnmarshalResponse(res, githubApiResponse)
@@ -44,7 +49,10 @@ func CollectCommits(owner string, repositoryName string, repositoryId int, sched
 				return err
 			}
 			repoCommit := &models.GithubRepoCommit{GithubRepoId: repositoryId}
-			for _, commit := range *githubApiResponse {
+			repoCommitSlice = append(repoCommitSlice, *repoCommit)
+			fmt.Println("KEVIN >>> len(githubApiResponse): ", len(*githubApiResponse))
+			for i, commit := range *githubApiResponse {
+				fmt.Println("KEVIN >>> i", i)
 				githubCommit, err := convertGithubCommit(&commit)
 				if err != nil {
 					return err
@@ -83,8 +91,17 @@ func CollectCommits(owner string, repositoryName string, repositoryId int, sched
 					return err
 				}
 			}
+
 			return nil
 		})
+	err := lakeModels.Db.Clauses(clause.OnConflict{
+		UpdateAll: true,
+	}).Create(&commitSlice).Error
+	if err != nil {
+		logger.Error("Could not upsert: ", err)
+	}
+	fmt.Println("KEVIN >>> Heyo", len(commitSlice))
+	return nil
 }
 func convertGithubCommit(commit *CommitsResponse) (*models.GithubCommit, error) {
 	githubCommit := &models.GithubCommit{

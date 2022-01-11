@@ -126,7 +126,7 @@ func (plugin Github) Execute(options map[string]interface{}, progress chan<- flo
 		if collectCommitsErr != nil {
 			return fmt.Errorf("Could not collect commits: %v", collectCommitsErr)
 		}
-		tasks.CollectChildrenOnCommits(ownerString, repositoryNameString, repoId, scheduler, githubApiClient)
+		// tasks.CollectChildrenOnCommits(ownerString, repositoryNameString, repoId, scheduler, githubApiClient)
 	}
 
 	progress <- 0.2
