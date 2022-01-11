@@ -374,7 +374,6 @@ const CreatePipeline = (props) => {
                 <Icon icon='git-pull' height={16} size={16} color='rgba(0,0,0,0.5)' /> Pipeline Name<span className='requiredStar'>*</span>
               </h2>
               <p className='group-caption'>Create a user-friendly name for this Run, or select and use a default auto-generated one.</p>
-
               <div className='form-group' style={{ maxWidth: '480px', paddingLeft: '22px' }}>
                 {isValidPipeline() && (
                   <Icon
@@ -382,11 +381,14 @@ const CreatePipeline = (props) => {
                     style={{ float: 'right', marginTop: '7px', marginLeft: '5px' }}
                   />)}
                 {!isValidPipeline() && (
-                  <Icon
-                    icon='exclude-row' color={Colors.RED5}
-                    size={12}
-                    style={{ float: 'right', marginTop: '7px', marginLeft: '5px' }}
-                  />)}
+                  <>
+                    <Icon
+                      icon='exclude-row' color={Colors.RED5}
+                      size={12}
+                      style={{ float: 'right', marginTop: '7px', marginLeft: '5px' }}
+                    />
+                  </>
+                )}
                 <FormGroup
                   disabled={isRunning}
                   label=''
@@ -428,6 +430,31 @@ const CreatePipeline = (props) => {
                             />
                           </>
                         </Popover>
+                        {validationErrors.length > 0 && (
+                          <>
+                            <div style={{ display: 'block', float: 'right' }}>
+                              <Popover
+                                key='popover-help-key-validation-errors'
+                                className='trigger-validation-errors'
+                                popoverClassName='popover-help-validation-errors'
+                                position={Position.RIGHT}
+                                autoFocus={false}
+                                enforceFocus={false}
+                                usePortal={false}
+                              >
+                                <Button
+                                  intent={Intent.PRIMARY}
+                                  icon={<Icon icon='warning-sign' size={14} color={Colors.ORANGE5} />}
+                                  small
+                                  style={{ margin: '3px 4px 0 0' }}
+                                />
+                                <div style={{ padding: '5px', minWidth: '300px', maxWidth: '300px', justifyContent: 'flex-start' }}>
+                                  <FormValidationErrors errors={validationErrors} textAlign='left' styles={{ display: 'flex' }} />
+                                </div>
+                              </Popover>
+                            </div>
+                          </>
+                        )}
                       </>
                     }
                     required
