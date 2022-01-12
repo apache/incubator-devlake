@@ -21,7 +21,7 @@ func ConvertUsers(sourceId uint64) error {
 	userIdGen := didgen.NewDomainIdGenerator(&jiraModels.JiraUser{})
 
 	for _, jiraUser := range jiraUserRows {
-		user := &user.User{
+		u := &user.User{
 			DomainEntity: domainlayer.DomainEntity{
 				Id: userIdGen.Generate(jiraUser.SourceId, jiraUser.AccountId),
 			},
@@ -31,7 +31,7 @@ func ConvertUsers(sourceId uint64) error {
 			Timezone:  jiraUser.Timezone,
 		}
 
-		err = lakeModels.Db.Clauses(clause.OnConflict{UpdateAll: true}).Create(user).Error
+		err = lakeModels.Db.Clauses(clause.OnConflict{UpdateAll: true}).Create(u).Error
 		if err != nil {
 			return err
 		}
