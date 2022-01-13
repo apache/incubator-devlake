@@ -18,9 +18,7 @@ func ConvertBoard(sourceId uint64, boardId uint64) error {
 	}
 
 	board := &ticket.Board{
-		DomainEntity: domainlayer.DomainEntity{
-			Id: didgen.NewDomainIdGenerator(jiraBoard).Generate(jiraBoard.SourceId, boardId),
-		},
+		DomainEntity:domainlayer.DomainEntity{Id: didgen.NewDomainIdGenerator(jiraBoard).Generate(jiraBoard.SourceId, boardId)},
 		Name: jiraBoard.Name,
 		Url:  jiraBoard.Self,
 	}

@@ -8,12 +8,10 @@ import (
 
 type Worklog struct {
 	domainlayer.DomainEntity
-	IssueId          string `gorm:"index"`
-	BoardId          string `gorm:"index"`
 	AuthorId         string
-	UpdateAuthorId   string
-	TimeSpent        string
-	TimeSpentSeconds int
-	Updated          time.Time
-	Started          time.Time
+	Comment          string
+	TimeSpentMinutes int
+	LoggedDate       *time.Time
+	StartedDate      *time.Time
+	IssueId          string `gorm:"index"`
 }
