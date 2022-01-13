@@ -12,11 +12,7 @@ import {
   Spinner,
   Colors,
   Classes,
-  // Drawer,
-  // DrawerSize,
-  // ButtonGroup, InputGroup, Input, Tag,H2, TextArea,Link
 } from '@blueprintjs/core'
-// import { integrationsData } from '@/data/integrations'
 import {
   Providers,
   ProviderLabels
@@ -26,7 +22,6 @@ import Nav from '@/components/Nav'
 import Sidebar from '@/components/Sidebar'
 import AppCrumbs from '@/components/Breadcrumbs'
 import Content from '@/components/Content'
-// import ContentLoader from '@/components/loaders/ContentLoader'
 import StagePanel from '@/components/pipelines/StagePanel'
 import TaskActivity from '@/components/pipelines/TaskActivity'
 import CodeInspector from '@/components/pipelines/CodeInspector'
@@ -55,7 +50,7 @@ const PipelineActivity = (props) => {
   const [activeStageId, setActiveStageId] = useState(1)
 
   const {
-    runPipeline,
+    // runPipeline,
     cancelPipeline,
     fetchPipeline,
     activePipeline,
