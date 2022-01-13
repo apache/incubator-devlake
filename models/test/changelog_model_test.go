@@ -9,11 +9,11 @@ import (
 )
 
 func TestInsertChangelog(t *testing.T) {
-	board, err := factory.CreateBoard()
+	_, err := factory.CreateBoard()
 	assert.Nil(t, err)
-	issue, err := factory.CreateIssue(board.DomainEntity.Id)
+	issue, err := factory.CreateIssue()
 	assert.Nil(t, err)
-	changelog, err := factory.CreateChangelog(issue.DomainEntity.Id)
+	changelog, err := factory.CreateChangelog(issue.Id)
 	assert.Nil(t, err)
 	tx := models.Db.Create(&changelog)
 	assert.Nil(t, tx.Error)

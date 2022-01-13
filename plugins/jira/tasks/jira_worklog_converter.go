@@ -24,7 +24,6 @@ func ConvertWorklog(sourceId uint64, boardId uint64) error {
 	}
 	defer cursor.Close()
 
-	boardIdGen := didgen.NewDomainIdGenerator(&jiraModels.JiraBoard{}).Generate(sourceId, boardId)
 	worklogIdGen := didgen.NewDomainIdGenerator(&jiraModels.JiraWorklog{})
 	userIdGen := didgen.NewDomainIdGenerator(&jiraModels.JiraUser{})
 	issueIdGen := didgen.NewDomainIdGenerator(&jiraModels.JiraIssue{})
@@ -35,21 +34,12 @@ func ConvertWorklog(sourceId uint64, boardId uint64) error {
 			return err
 		}
 		worklog := &ticket.Worklog{
-			DomainEntity: domainlayer.DomainEntity{
-				Id: worklogIdGen.Generate(jiraWorklog.SourceId, jiraWorklog.IssueId, jiraWorklog.WorklogId),
-			},
+			DomainEntity:domainlayer.DomainEntity{Id: worklogIdGen.Generate(jiraWorklog.SourceId, jiraWorklog.IssueId, jiraWorklog.WorklogId)},
 			IssueId:          issueIdGen.Generate(jiraWorklog.SourceId, jiraWorklog.IssueId),
-			BoardId:          boardIdGen,
-			TimeSpent:        jiraWorklog.TimeSpent,
-			TimeSpentSeconds: jiraWorklog.TimeSpentSeconds,
-			Updated:          jiraWorklog.Updated,
-			Started:          jiraWorklog.Started,
+			TimeSpentMinutes: jiraWorklog.TimeSpentSeconds / 60,
 		}
 		if jiraWorklog.AuthorId != "" {
 			worklog.AuthorId = userIdGen.Generate(sourceId, jiraWorklog.AuthorId)
-		}
-		if jiraWorklog.UpdateAuthorId != "" {
-			worklog.UpdateAuthorId = userIdGen.Generate(sourceId, jiraWorklog.UpdateAuthorId)
 		}
 
 		err = lakeModels.Db.Clauses(clause.OnConflict{UpdateAll: true}).Create(worklog).Error

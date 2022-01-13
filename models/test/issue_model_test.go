@@ -9,9 +9,7 @@ import (
 )
 
 func TestInsertIssue(t *testing.T) {
-	board, err := factory.CreateBoard()
-	assert.Nil(t, err)
-	issue, err := factory.CreateIssue(board.DomainEntity.Id)
+	issue, err := factory.CreateIssue()
 	assert.Nil(t, err)
 	tx := models.Db.Create(&issue)
 	assert.Nil(t, tx.Error)
