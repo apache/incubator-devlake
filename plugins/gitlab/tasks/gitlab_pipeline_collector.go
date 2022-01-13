@@ -40,6 +40,8 @@ type ApiSinglePipelineResponse struct {
 	Status          string
 }
 
+var pipelinesSlice = []models.GitlabPipeline{}
+
 func CollectAllPipelines(projectId int, scheduler *utils.WorkerScheduler) error {
 	gitlabApiClient := CreateApiClient()
 	queryParams := &url.Values{}
@@ -65,17 +67,25 @@ func CollectAllPipelines(projectId int, scheduler *utils.WorkerScheduler) error 
 				if err != nil {
 					return err
 				}
-				err = lakeModels.Db.Clauses(clause.OnConflict{
-					UpdateAll: true,
-				}).Create(&gitlabPipeline).Error
-
-				if err != nil {
-					logger.Error("Could not upsert: ", err)
-				}
+				pipelinesSlice = append(pipelinesSlice, *gitlabPipeline)
 			}
-
+			err = savePipelinesInBatches()
+			if err != nil {
+				logger.Error("Error: ", err)
+				return err
+			}
 			return nil
 		})
+}
+
+func savePipelinesInBatches() error {
+	err := lakeModels.Db.Clauses(clause.OnConflict{
+		UpdateAll: true,
+	}).Create(&pipelinesSlice).Error
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 func CollectChildrenOnPipelines(projectIdInt int, scheduler *utils.WorkerScheduler) {

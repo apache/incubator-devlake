@@ -139,19 +139,21 @@ func (plugin Github) Execute(options map[string]interface{}, progress chan<- flo
 		}
 		progress <- 0.3
 
-		fmt.Println("INFO >>> starting children on issues collection")
-		collectIssueChildrenErr := tasks.CollectChildrenOnIssues(ownerString, repositoryNameString, repoId, scheduler, githubApiClient)
-		if collectIssueChildrenErr != nil {
-			return fmt.Errorf("Could not collect Issue children: %v", collectIssueChildrenErr)
-		}
+		// DEPRECATED - Grafana no longer uses this metric. We may need to turn this back on as the graphs get updated
+		// fmt.Println("INFO >>> starting children on issues collection")
+		// collectIssueChildrenErr := tasks.CollectChildrenOnIssues(ownerString, repositoryNameString, repoId, scheduler, githubApiClient)
+		// if collectIssueChildrenErr != nil {
+		// 	return fmt.Errorf("Could not collect Issue children: %v", collectIssueChildrenErr)
+		// }
 
 		progress <- 0.4
 
-		fmt.Println("INFO >>> collecting PR children collection")
-		collectPrChildrenErr := tasks.CollectChildrenOnPullRequests(ownerString, repositoryNameString, repoId, scheduler, githubApiClient)
-		if collectPrChildrenErr != nil {
-			return fmt.Errorf("Could not collect PR children: %v", collectPrChildrenErr)
-		}
+		// DEPRECATED - Grafana no longer uses this metric. We may need to turn this back on as the graphs get updated
+		// fmt.Println("INFO >>> collecting PR children collection")
+		// collectPrChildrenErr := tasks.CollectChildrenOnPullRequests(ownerString, repositoryNameString, repoId, scheduler, githubApiClient)
+		// if collectPrChildrenErr != nil {
+		// 	return fmt.Errorf("Could not collect PR children: %v", collectPrChildrenErr)
+		// }
 
 	}
 	if tasksToRun["enrichIssues"] {
