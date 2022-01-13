@@ -23,6 +23,8 @@ type IssueComment struct {
 	GithubCreatedAt core.Iso8601Time `json:"created_at"`
 }
 
+var commentSlice = []models.GithubIssueComment{}
+
 func CollectIssueComments(owner string, repositoryName string, issue *models.GithubIssue, scheduler *utils.WorkerScheduler, githubApiClient *GithubApiClient) error {
 	getUrl := fmt.Sprintf("repos/%v/%v/issues/%v/comments", owner, repositoryName, issue.Number)
 	return githubApiClient.FetchWithPaginationAnts(getUrl, nil, 100, 1, scheduler,
@@ -39,18 +41,29 @@ func CollectIssueComments(owner string, repositoryName string, issue *models.Git
 					if err != nil {
 						return err
 					}
-					err = lakeModels.Db.Clauses(clause.OnConflict{
-						UpdateAll: true,
-					}).Create(&githubComment).Error
-					if err != nil {
-						logger.Error("Could not upsert: ", err)
-					}
+					commentSlice = append(commentSlice, *githubComment)
+
 				}
 			} else {
 				fmt.Println("INFO: PR Comment collection >>> res.Status: ", res.Status)
 			}
+			err := saveInBatches()
+			if err != nil {
+				logger.Error("Error: ", err)
+				return err
+			}
 			return nil
 		})
+}
+
+func saveInBatches() error {
+	err := lakeModels.Db.Clauses(clause.OnConflict{
+		UpdateAll: true,
+	}).Create(&commentSlice).Error
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 func convertGithubComment(comment *IssueComment, issueId int) (*models.GithubIssueComment, error) {

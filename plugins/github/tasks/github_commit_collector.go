@@ -34,10 +34,10 @@ type Commit struct {
 	Message string
 }
 
+// Store the data in slices so we can batch insert later
 var commitSlice = []models.GithubCommit{}
-var repoCommitSlice = []models.GithubRepoCommit{}
-
-// var userSlice = []models.GithubUser{}
+var repoCommitsSlice = []models.GithubRepoCommit{}
+var usersSlice = []models.GithubUser{}
 
 func CollectCommits(owner string, repositoryName string, repositoryId int, scheduler *utils.WorkerScheduler, githubApiClient *GithubApiClient) error {
 	getUrl := fmt.Sprintf("repos/%v/%v/commits", owner, repositoryName)
@@ -92,17 +92,50 @@ func CollectCommits(owner string, repositoryName string, repositoryId int, sched
 				}
 			}
 
+				repoCommit.CommitSha = commit.Sha
+				repoCommitsSlice = append(repoCommitsSlice, *repoCommit)
+
+				if commit.Author != nil {
+					usersSlice = append(usersSlice, *commit.Author)
+				}
+				if commit.Committer != nil {
+					usersSlice = append(usersSlice, *commit.Committer)
+				}
+			}
 			return nil
 		})
+
+	err := insertDataInBatches()
+	if err != nil {
+		logger.Error("Could not upsert: ", err)
+		return err
+	} else {
+		return nil
+	}
+}
+
+func insertDataInBatches() error {
 	err := lakeModels.Db.Clauses(clause.OnConflict{
 		UpdateAll: true,
 	}).Create(&commitSlice).Error
 	if err != nil {
-		logger.Error("Could not upsert: ", err)
+		return err
 	}
-	fmt.Println("KEVIN >>> Heyo", len(commitSlice))
+	err = lakeModels.Db.Clauses(clause.OnConflict{
+		UpdateAll: true,
+	}).Create(&repoCommitsSlice).Error
+	if err != nil {
+		return err
+	}
+	err = lakeModels.Db.Clauses(clause.OnConflict{
+		UpdateAll: true,
+	}).Create(&usersSlice).Error
+	if err != nil {
+		return err
+	}
 	return nil
 }
+
 func convertGithubCommit(commit *CommitsResponse) (*models.GithubCommit, error) {
 	githubCommit := &models.GithubCommit{
 		Sha:            commit.Sha,

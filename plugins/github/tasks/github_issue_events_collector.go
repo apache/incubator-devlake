@@ -23,6 +23,8 @@ type IssueEvent struct {
 	GithubCreatedAt core.Iso8601Time `json:"created_at"`
 }
 
+var eventsSlice []models.GithubIssueEvent
+
 func CollectIssueEvents(owner string, repositoryName string, issue *models.GithubIssue, scheduler *utils.WorkerScheduler, githubApiClient *GithubApiClient) error {
 	getUrl := fmt.Sprintf("repos/%v/%v/issues/%v/events", owner, repositoryName, issue.Number)
 	return githubApiClient.FetchWithPaginationAnts(getUrl, nil, 100, 1, scheduler,
@@ -39,19 +41,32 @@ func CollectIssueEvents(owner string, repositoryName string, issue *models.Githu
 					if err != nil {
 						return err
 					}
-					err = lakeModels.Db.Clauses(clause.OnConflict{
-						UpdateAll: true,
-					}).Create(&githubEvent).Error
-					if err != nil {
-						logger.Error("Could not upsert: ", err)
-					}
+					eventsSlice = append(eventsSlice, *githubEvent)
+
 				}
 			} else {
 				fmt.Println("INFO: PR Event collection >>> res.Status: ", res.Status)
 			}
+			err := saveEventsInBatches()
+			if err != nil {
+				return err
+			}
 			return nil
 		})
 }
+
+func saveEventsInBatches() error {
+	err := lakeModels.Db.Clauses(clause.OnConflict{
+		UpdateAll: true,
+	}).Create(&eventsSlice).Error
+	if err != nil {
+		logger.Error("Could not upsert: ", err)
+		return err
+	} else {
+		return nil
+	}
+}
+
 func convertGithubEvent(event *IssueEvent, issueId int) (*models.GithubIssueEvent, error) {
 	githubEvent := &models.GithubIssueEvent{
 		GithubId:        event.GithubId,

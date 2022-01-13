@@ -33,6 +33,9 @@ type PrCommit struct {
 	Message string
 }
 
+var pullRequestCommitSlice []models.GithubPullRequestCommit
+var pullRequestAssociationSlice []models.GithubPullRequestCommitPullRequest
+
 func CollectPullRequestCommits(owner string, repositoryName string, pull *models.GithubPullRequest, scheduler *utils.WorkerScheduler, githubApiClient *GithubApiClient) error {
 	getUrl := fmt.Sprintf("repos/%v/%v/pulls/%v/commits", owner, repositoryName, pull.Number)
 	return githubApiClient.FetchWithPaginationAnts(getUrl, nil, 100, 1, scheduler,
@@ -49,30 +52,45 @@ func CollectPullRequestCommits(owner string, repositoryName string, pull *models
 					if err != nil {
 						return err
 					}
-					err = lakeModels.Db.Clauses(clause.OnConflict{
-						UpdateAll: true,
-					}).Create(&githubCommit).Error
-					if err != nil {
-						logger.Error("Could not upsert: ", err)
-					}
+
+					pullRequestCommitSlice = append(pullRequestCommitSlice, *githubCommit)
+
 					GithubPullRequestCommitPullRequest := &models.GithubPullRequestCommitPullRequest{
 						PullRequestCommitSha: prCommit.Sha,
 						PullRequestId:        pull.GithubId,
 					}
-					result := lakeModels.Db.Clauses(clause.OnConflict{
-						UpdateAll: true,
-					}).Create(&GithubPullRequestCommitPullRequest)
 
-					if result.Error != nil {
-						logger.Error("Could not upsert: ", result.Error)
-					}
+					pullRequestAssociationSlice = append(pullRequestAssociationSlice, *GithubPullRequestCommitPullRequest)
 				}
 			} else {
 				fmt.Println("INFO: PR PrCommit collection >>> res.Status: ", res.Status)
 			}
+			err := savePullRequestCommitsInBatches()
+			if err != nil {
+				return err
+			}
 			return nil
 		})
 }
+
+func savePullRequestCommitsInBatches() error {
+	err := lakeModels.Db.Clauses(clause.OnConflict{
+		UpdateAll: true,
+	}).Create(&pullRequestCommitSlice).Error
+	if err != nil {
+		logger.Error("Could not upsert: ", err)
+		return err
+	}
+	err = lakeModels.Db.Clauses(clause.OnConflict{
+		UpdateAll: true,
+	}).Create(&pullRequestAssociationSlice).Error
+	if err != nil {
+		logger.Error("Could not upsert: ", err)
+		return err
+	}
+	return nil
+}
+
 func convertPullRequestCommit(prCommit *PrCommitsResponse, pullId int) (*models.GithubPullRequestCommit, error) {
 	githubCommit := &models.GithubPullRequestCommit{
 		Sha:            prCommit.Sha,

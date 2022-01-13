@@ -21,6 +21,8 @@ type IssueLabel struct {
 	Color       string
 }
 
+var issueLabelsSlice []models.GithubIssueLabelIssue
+
 func CollectIssueLabelsForSinglePullRequest(owner string, repositoryName string, pr *models.GithubPullRequest, scheduler *utils.WorkerScheduler, githubApiClient *GithubApiClient) error {
 	getUrl := fmt.Sprintf("repos/%v/%v/issues/%v/labels", owner, repositoryName, pr.Number)
 	return githubApiClient.FetchWithPaginationAnts(getUrl, nil, 100, 1, scheduler,
@@ -37,19 +39,31 @@ func CollectIssueLabelsForSinglePullRequest(owner string, repositoryName string,
 						IssueId:      pr.GithubId,
 						IssueLabelId: label.GithubId,
 					}
-					err = lakeModels.Db.Clauses(clause.OnConflict{
-						UpdateAll: true,
-					}).Create(&githubLabel).Error
-					if err != nil {
-						logger.Error("Could not upsert: ", err)
-					}
+					issueLabelsSlice = append(issueLabelsSlice, *githubLabel)
 				}
 			} else {
 				fmt.Println("INFO: PR Label collection >>> res.Status: ", res.Status)
 			}
+			err := saveLabelsInBatches()
+			if err != nil {
+				return err
+			}
 			return nil
 		})
 }
+
+func saveLabelsInBatches() error {
+	err := lakeModels.Db.Clauses(clause.OnConflict{
+		UpdateAll: true,
+	}).Create(&issueLabelsSlice).Error
+	if err != nil {
+		logger.Error("Could not upsert: ", err)
+		return err
+	} else {
+		return nil
+	}
+}
+
 func CollectIssueLabelsForSingleIssue(owner string, repositoryName string, issue *models.GithubIssue, scheduler *utils.WorkerScheduler, githubApiClient *GithubApiClient) error {
 	getUrl := fmt.Sprintf("repos/%v/%v/issues/%v/labels", owner, repositoryName, issue.Number)
 	return githubApiClient.FetchWithPaginationAnts(getUrl, nil, 100, 1, scheduler,
