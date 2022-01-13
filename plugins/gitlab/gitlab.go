@@ -106,7 +106,7 @@ func (plugin Gitlab) Execute(options map[string]interface{}, progress chan<- flo
 			return fmt.Errorf("could not collect merge requests: %v", mergeRequestErr)
 		}
 		progress <- 0.4
-		collectChildrenOnMergeRequests(projectIdInt, scheduler)
+		// collectChildrenOnMergeRequests(projectIdInt, scheduler)
 	}
 	if tasksToRun["enrichMrs"] {
 		progress <- 0.5
@@ -117,10 +117,10 @@ func (plugin Gitlab) Execute(options map[string]interface{}, progress chan<- flo
 	}
 	if tasksToRun["collectPipelines"] {
 		progress <- 0.6
-		if err := tasks.CollectAllPipelines(projectIdInt, scheduler); err != nil {
-			return fmt.Errorf("could not collect projects: %v", err)
-		}
-		tasks.CollectChildrenOnPipelines(projectIdInt, scheduler)
+		// if err := tasks.CollectAllPipelines(projectIdInt, scheduler); err != nil {
+		// 	return fmt.Errorf("could not collect projects: %v", err)
+		// }
+		// tasks.CollectChildrenOnPipelines(projectIdInt, scheduler)
 	}
 	if tasksToRun["convertProjects"] {
 		progress <- 0.7
@@ -143,13 +143,13 @@ func (plugin Gitlab) Execute(options map[string]interface{}, progress chan<- flo
 			return err
 		}
 	}
-	if tasksToRun["convertNotes"] {
-		progress <- 0.9
-		err = tasks.ConvertNotes()
-		if err != nil {
-			return err
-		}
-	}
+	// if tasksToRun["convertNotes"] {
+	// 	progress <- 0.9
+	// 	err = tasks.ConvertNotes()
+	// 	if err != nil {
+	// 		return err
+	// 	}
+	// }
 	progress <- 1
 	return nil
 }

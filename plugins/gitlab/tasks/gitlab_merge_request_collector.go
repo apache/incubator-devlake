@@ -56,7 +56,7 @@ func CollectMergeRequests(projectId int, scheduler *utils.WorkerScheduler) error
 					return err
 				}
 				mergeRequestsSlice = append(mergeRequestsSlice, *gitlabMergeRequest)
-				CreateReviewers(projectId, mr.GitlabId, mr.Reviewers)
+				// CreateReviewers(projectId, mr.GitlabId, mr.Reviewers)
 			}
 			err = saveMergeRequestsInBatches()
 			if err != nil {

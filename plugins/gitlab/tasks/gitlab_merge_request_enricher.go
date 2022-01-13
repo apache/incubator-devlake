@@ -50,13 +50,13 @@ func setReviewRounds(mr *gitlabModels.GitlabMergeRequest) error {
 	var commits []gitlabModels.GitlabMergeRequestCommit
 	lakeModels.Db.Joins("join gitlab_merge_request_commit_merge_requests gmrcmr on gmrcmr.merge_request_commit_id = gitlab_merge_request_commits.commit_id").Where("merge_request_id = ?", mr.GitlabId).Order("authored_date asc").Find(&commits)
 
-	reviewRounds := GetReviewRounds(commits, notes)
+	// reviewRounds := GetReviewRounds(commits, notes)
 
-	err := lakeModels.Db.Model(&mr).Where("gitlab_id = ?", mr.GitlabId).Update("review_rounds", reviewRounds).Error
+	// err := lakeModels.Db.Model(&mr).Where("gitlab_id = ?", mr.GitlabId).Update("review_rounds", reviewRounds).Error
 
-	if err != nil {
-		return err
-	}
+	// if err != nil {
+	// 	return err
+	// }
 
 	return nil
 }
