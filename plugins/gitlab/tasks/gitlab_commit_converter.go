@@ -8,6 +8,9 @@ import (
 	"gorm.io/gorm/clause"
 )
 
+var commitsDomainSlice []code.Commit
+var repoCommitsDomainSlice []code.RepoCommit
+
 func ConvertCommits(projectId int) error {
 	// select all commits belongs to the project
 	cursor, err := lakeModels.Db.Table("gitlab_commits gc").
@@ -47,16 +50,32 @@ func ConvertCommits(projectId int) error {
 		commit.CommitterEmail = gitlabCommit.CommitterEmail
 		commit.CommittedDate = gitlabCommit.CommittedDate
 		commit.CommiterId = userDidGen.Generate(gitlabCommit.AuthorEmail)
-		err := lakeModels.Db.Clauses(clause.OnConflict{UpdateAll: true}).Create(commit).Error
+		commitsDomainSlice = append(commitsDomainSlice, *commit)
 		if err != nil {
 			return err
 		}
 		// convert repo / commits relationship
 		repoCommit.CommitSha = gitlabCommit.Sha
-		err = lakeModels.Db.Clauses(clause.OnConflict{DoNothing: true}).Create(repoCommit).Error
+		repoCommitsDomainSlice = append(repoCommitsDomainSlice, *repoCommit)
 		if err != nil {
 			return err
 		}
+	}
+	return nil
+}
+
+func saveDomainCommitsInBatches() error {
+	err := lakeModels.Db.Clauses(clause.OnConflict{
+		UpdateAll: true,
+	}).Create(&commitsDomainSlice).Error
+	if err != nil {
+		return err
+	}
+	err = lakeModels.Db.Clauses(clause.OnConflict{
+		DoNothing: true,
+	}).Create(&repoCommitsDomainSlice).Error
+	if err != nil {
+		return err
 	}
 	return nil
 }

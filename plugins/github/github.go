@@ -139,12 +139,11 @@ func (plugin Github) Execute(options map[string]interface{}, progress chan<- flo
 		}
 		progress <- 0.3
 
-		// DEPRECATED - Grafana no longer uses this metric. We may need to turn this back on as the graphs get updated
-		// fmt.Println("INFO >>> starting children on issues collection")
-		// collectIssueChildrenErr := tasks.CollectChildrenOnIssues(ownerString, repositoryNameString, repoId, scheduler, githubApiClient)
-		// if collectIssueChildrenErr != nil {
-		// 	return fmt.Errorf("Could not collect Issue children: %v", collectIssueChildrenErr)
-		// }
+		fmt.Println("INFO >>> starting children on issues collection")
+		collectIssueChildrenErr := tasks.CollectChildrenOnIssues(ownerString, repositoryNameString, repoId, scheduler, githubApiClient)
+		if collectIssueChildrenErr != nil {
+			return fmt.Errorf("Could not collect Issue children: %v", collectIssueChildrenErr)
+		}
 
 		progress <- 0.4
 

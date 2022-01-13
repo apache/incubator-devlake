@@ -1,6 +1,7 @@
 package tasks
 
 import (
+	"github.com/merico-dev/lake/logger"
 	lakeModels "github.com/merico-dev/lake/models"
 	"github.com/merico-dev/lake/models/domainlayer"
 	"github.com/merico-dev/lake/models/domainlayer/code"
@@ -8,6 +9,8 @@ import (
 	gitlabModels "github.com/merico-dev/lake/plugins/gitlab/models"
 	"gorm.io/gorm/clause"
 )
+
+var prSlice []code.Pr
 
 func ConvertPrs() error {
 	var gitlabMrs []gitlabModels.GitlabMergeRequest
@@ -17,13 +20,29 @@ func ConvertPrs() error {
 	}
 	for _, mr := range gitlabMrs {
 		domainPr := convertToPrModel(&mr)
-		err := lakeModels.Db.Clauses(clause.OnConflict{UpdateAll: true}).Create(domainPr).Error
+		prSlice = append(prSlice, *domainPr)
 		if err != nil {
 			return err
 		}
 	}
+	err = savePrsInBatches()
+	if err != nil {
+		logger.Error("Error: ", err)
+		return err
+	}
 	return nil
 }
+
+func savePrsInBatches() error {
+	err := lakeModels.Db.Clauses(clause.OnConflict{
+		UpdateAll: true,
+	}).Create(&prSlice).Error
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
 func convertToPrModel(mr *gitlabModels.GitlabMergeRequest) *code.Pr {
 	domainPr := &code.Pr{
 		DomainEntity: domainlayer.DomainEntity{
