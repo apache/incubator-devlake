@@ -296,7 +296,7 @@ github() {
                     "options": {
                         "repositoryName": "lake",
                         "owner": "merico-dev",
-                        "tasks": ["collectIssues"]
+                        "tasks": ["collectCommits"]
                     }
                 }
             ]

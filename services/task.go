@@ -4,8 +4,6 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"runtime"
-	"strings"
 	"sync"
 	"time"
 
@@ -13,6 +11,7 @@ import (
 	"github.com/merico-dev/lake/logger"
 	"github.com/merico-dev/lake/models"
 	"github.com/merico-dev/lake/plugins"
+	"github.com/merico-dev/lake/utils"
 )
 
 type RunningTask struct {
@@ -150,7 +149,7 @@ func RunTask(taskId uint64) error {
 		defer func() {
 			_, _ = runningTasks.Remove(task.ID)
 			if r := recover(); r != nil {
-				err = fmt.Errorf("run task failed with panic (%s): %v", identifyPanic(), r)
+				err = fmt.Errorf("run task failed with panic (%s): %v", utils.GatherCallFrames(), r)
 			}
 			finishedAt := time.Now()
 			spentSeconds := finishedAt.Unix() - beganAt.Unix()
@@ -210,32 +209,4 @@ func CancelTask(taskId uint64) error {
 	}
 	cancel()
 	return nil
-}
-
-func identifyPanic() string {
-	var name, file string
-	var line int
-	var pc [16]uintptr
-
-	n := runtime.Callers(3, pc[:])
-	for _, pc := range pc[:n] {
-		fn := runtime.FuncForPC(pc)
-		if fn == nil {
-			continue
-		}
-		file, line = fn.FileLine(pc)
-		name = fn.Name()
-		if !strings.HasPrefix(name, "runtime.") {
-			break
-		}
-	}
-
-	switch {
-	case name != "":
-		return fmt.Sprintf("%v:%v", name, line)
-	case file != "":
-		return fmt.Sprintf("%v:%v", file, line)
-	}
-
-	return fmt.Sprintf("pc:%x", pc)
 }
