@@ -2,6 +2,7 @@ package utils
 
 import (
 	"context"
+	"fmt"
 	"sync"
 	"time"
 
@@ -55,6 +56,12 @@ func (s WorkerScheduler) Submit(task func() error) error {
 	}
 	s.waitGroup.Add(1)
 	return s.pool.Submit(func() {
+		defer func() {
+			r := recover()
+			if r != nil {
+				panic(fmt.Errorf("%s\n%s", r, GatherCallFrames()))
+			}
+		}()
 		defer s.waitGroup.Done()
 		select {
 		case <-s.ctx.Done():
@@ -66,13 +73,16 @@ func (s WorkerScheduler) Submit(task func() error) error {
 		}
 		err := task()
 		if err != nil {
-			panic(err)
+			panic(fmt.Errorf("%w\n%s", err, GatherCallFrames()))
 		}
 	})
 }
 
 func (s WorkerScheduler) WaitUntilFinish() {
 	s.waitGroup.Wait()
+	if s.workerErrors != nil && len(*s.workerErrors) > 0 {
+		panic(fmt.Errorf("%s", *s.workerErrors))
+	}
 }
 
 func (s WorkerScheduler) Release() {
