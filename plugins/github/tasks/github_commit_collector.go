@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/http"
 
+	"github.com/merico-dev/lake/logger"
 	lakeModels "github.com/merico-dev/lake/models"
 	"github.com/merico-dev/lake/plugins/core"
 	"github.com/merico-dev/lake/plugins/github/models"
@@ -49,7 +50,7 @@ func CollectCommits(owner string, repositoryName string, repositoryId int, sched
 				return err
 			}
 			repoCommit := &models.GithubRepoCommit{GithubRepoId: repositoryId}
-			repoCommitSlice = append(repoCommitSlice, *repoCommit)
+			repoCommitsSlice = append(repoCommitsSlice, *repoCommit)
 			fmt.Println("KEVIN >>> len(githubApiResponse): ", len(*githubApiResponse))
 			for i, commit := range *githubApiResponse {
 				fmt.Println("KEVIN >>> i", i)
@@ -57,40 +58,8 @@ func CollectCommits(owner string, repositoryName string, repositoryId int, sched
 				if err != nil {
 					return err
 				}
-				// save author and committer
-				if commit.Author != nil {
-					githubCommit.AuthorId = commit.Author.Id
-					err = lakeModels.Db.Clauses(clause.OnConflict{
-						UpdateAll: true,
-					}).Create(&commit.Author).Error
-					if err != nil {
-						return err
-					}
-				}
-				if commit.Committer != nil {
-					githubCommit.CommitterId = commit.Committer.Id
-					err = lakeModels.Db.Clauses(clause.OnConflict{
-						UpdateAll: true,
-					}).Create(&commit.Committer).Error
-					if err != nil {
-						return err
-					}
-				}
-				err = lakeModels.Db.Clauses(clause.OnConflict{
-					UpdateAll: true,
-				}).Create(&githubCommit).Error
-				if err != nil {
-					return err
-				}
-				// save repo / commit relationship
-				repoCommit.CommitSha = commit.Sha
-				err = lakeModels.Db.Clauses(clause.OnConflict{
-					DoNothing: true,
-				}).Create(repoCommit).Error
-				if err != nil {
-					return err
-				}
-			}
+
+				commitSlice = append(commitSlice, *githubCommit)
 
 				repoCommit.CommitSha = commit.Sha
 				repoCommitsSlice = append(repoCommitsSlice, *repoCommit)
