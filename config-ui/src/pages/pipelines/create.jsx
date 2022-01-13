@@ -1,26 +1,20 @@
-import React, { Fragment, useEffect, useCallback, useState, useRef } from 'react'
+import React, { Fragment, useEffect, useCallback, useState } from 'react'
 import { CSSTransition } from 'react-transition-group'
 import {
   useHistory,
   useLocation,
   Link,
-  // useParams,
 } from 'react-router-dom'
 import { GRAFANA_URL } from '@/utils/config'
 import {
-  // Classes,
   Button, Icon, Intent, Switch,
-  // H2, Card, Elevation, Tag,
-  // Menu,
   FormGroup,
   ButtonGroup,
   InputGroup,
   Popover,
   Tooltip,
   Position,
-  // Spinner,
   Colors,
-  // Alignment
 } from '@blueprintjs/core'
 import {
   Providers,
@@ -37,7 +31,6 @@ import Nav from '@/components/Nav'
 import Sidebar from '@/components/Sidebar'
 import AppCrumbs from '@/components/Breadcrumbs'
 import Content from '@/components/Content'
-import { ReactComponent as LayersIcon } from '@/images/layers.svg'
 import { ReactComponent as HelpIcon } from '@/images/help.svg'
 import { ReactComponent as BackArrowIcon } from '@/images/undo.svg'
 import RunPipelineIcon from '@/images/duplicate.png'
