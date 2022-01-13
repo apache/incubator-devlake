@@ -35,6 +35,10 @@ type GitlabApiCommit struct {
 	}
 }
 
+var commitsSlice = []models.GitlabCommit{}
+var projectCommitsSlice = []models.GitlabProjectCommit{}
+var usersSlice = []models.GitlabUser{}
+
 func CollectCommits(projectId int, scheduler *utils.WorkerScheduler) error {
 	gitlabApiClient := CreateApiClient()
 	relativePath := fmt.Sprintf("projects/%v/repository/commits", projectId)
@@ -58,50 +62,53 @@ func CollectCommits(projectId int, scheduler *utils.WorkerScheduler) error {
 					return err
 				}
 
-				err = lakeModels.Db.Clauses(clause.OnConflict{
-					UpdateAll: true,
-				}).Create(&gitlabCommit).Error
-
-				if err != nil {
-					logger.Error("Could not upsert: ", err)
-					return err
-				}
+				commitsSlice = append(commitsSlice, *gitlabCommit)
 
 				// create project/commits relationship
 				gitlabProjectCommit.CommitSha = gitlabCommit.Sha
-				err = lakeModels.Db.Clauses(clause.OnConflict{
-					DoNothing: true,
-				}).Create(&gitlabProjectCommit).Error
-				if err != nil {
-					logger.Error("Could not upsert: ", err)
-					return err
-				}
+				projectCommitsSlice = append(projectCommitsSlice, *gitlabProjectCommit)
 
 				// create gitlab user
 				gitlabUser.Email = gitlabCommit.AuthorEmail
 				gitlabUser.Name = gitlabCommit.AuthorName
-				err = lakeModels.Db.Clauses(clause.OnConflict{
-					DoNothing: true,
-				}).Create(&gitlabUser).Error
-				if err != nil {
-					logger.Error("Could not upsert: ", err)
-					return err
-				}
+
+				usersSlice = append(usersSlice, *gitlabUser)
+
 				if gitlabCommit.CommitterEmail != gitlabUser.Email {
 					gitlabUser.Email = gitlabCommit.CommitterEmail
 					gitlabUser.Name = gitlabCommit.CommitterName
-					err = lakeModels.Db.Clauses(clause.OnConflict{
-						DoNothing: true,
-					}).Create(&gitlabUser).Error
-					if err != nil {
-						logger.Error("Could not upsert: ", err)
-						return err
-					}
+					usersSlice = append(usersSlice, *gitlabUser)
 				}
 			}
-
+			err = saveCommitsInBatches()
+			if err != nil {
+				logger.Error("Error: ", err)
+				return err
+			}
 			return nil
 		})
+}
+
+func saveCommitsInBatches() error {
+	err := lakeModels.Db.Clauses(clause.OnConflict{
+		UpdateAll: true,
+	}).Create(&commitsSlice).Error
+	if err != nil {
+		return err
+	}
+	err = lakeModels.Db.Clauses(clause.OnConflict{
+		UpdateAll: true,
+	}).Create(&projectCommitsSlice).Error
+	if err != nil {
+		return err
+	}
+	err = lakeModels.Db.Clauses(clause.OnConflict{
+		UpdateAll: true,
+	}).Create(&usersSlice).Error
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 // Convert the API response to our DB model instance

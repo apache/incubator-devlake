@@ -28,6 +28,9 @@ type GitlabMergeRequestCommit struct {
 	WebUrl         string           `json:"web_url"`
 }
 
+var mergeRequestCommitSlice = []models.GitlabMergeRequestCommit{}
+var mergeRequestsAssociationSlice = []models.GitlabMergeRequestCommitMergeRequest{}
+
 func CollectMergeRequestCommits(projectId int, mr *models.GitlabMergeRequest) error {
 	gitlabApiClient := CreateApiClient()
 
@@ -46,28 +49,39 @@ func CollectMergeRequestCommits(projectId int, mr *models.GitlabMergeRequest) er
 				if err != nil {
 					return err
 				}
-				result := lakeModels.Db.Clauses(clause.OnConflict{
-					UpdateAll: true,
-				}).Create(&gitlabMergeRequestCommit)
 
-				if result.Error != nil {
-					logger.Error("Could not upsert: ", result.Error)
-				}
+				mergeRequestCommitSlice = append(mergeRequestCommitSlice, *gitlabMergeRequestCommit)
+
 				GitlabMergeRequestCommitMergeRequest := &models.GitlabMergeRequestCommitMergeRequest{
 					MergeRequestCommitId: commit.CommitId,
 					MergeRequestId:       mr.GitlabId,
 				}
-				result = lakeModels.Db.Clauses(clause.OnConflict{
-					UpdateAll: true,
-				}).Create(&GitlabMergeRequestCommitMergeRequest)
 
-				if result.Error != nil {
-					logger.Error("Could not upsert: ", result.Error)
-				}
+				mergeRequestsAssociationSlice = append(mergeRequestsAssociationSlice, *GitlabMergeRequestCommitMergeRequest)
 			}
-
+			err = saveMergeRequestsCommitsInBatches()
+			if err != nil {
+				logger.Error("Error: ", err)
+				return err
+			}
 			return nil
 		})
+}
+
+func saveMergeRequestsCommitsInBatches() error {
+	err := lakeModels.Db.Clauses(clause.OnConflict{
+		UpdateAll: true,
+	}).Create(&mergeRequestCommitSlice).Error
+	if err != nil {
+		return err
+	}
+	err = lakeModels.Db.Clauses(clause.OnConflict{
+		UpdateAll: true,
+	}).Create(&mergeRequestsAssociationSlice).Error
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 func convertMergeRequestCommit(commit *GitlabMergeRequestCommit) (*models.GitlabMergeRequestCommit, error) {

@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/http"
 
+	"github.com/merico-dev/lake/logger"
 	lakeModels "github.com/merico-dev/lake/models"
 	"github.com/merico-dev/lake/plugins/core"
 	"github.com/merico-dev/lake/plugins/gitlab/models"
@@ -37,6 +38,8 @@ type MergeRequestRes struct {
 
 type ApiMergeRequestResponse []MergeRequestRes
 
+var mergeRequestsSlice = []models.GitlabMergeRequest{}
+
 func CollectMergeRequests(projectId int, scheduler *utils.WorkerScheduler) error {
 	gitlabApiClient := CreateApiClient()
 
@@ -52,17 +55,28 @@ func CollectMergeRequests(projectId int, scheduler *utils.WorkerScheduler) error
 				if err != nil {
 					return err
 				}
-				result := lakeModels.Db.Clauses(clause.OnConflict{
-					UpdateAll: true,
-				}).Create(&gitlabMergeRequest)
-				if result.Error != nil {
-					return result.Error
-				}
+				mergeRequestsSlice = append(mergeRequestsSlice, *gitlabMergeRequest)
 				CreateReviewers(projectId, mr.GitlabId, mr.Reviewers)
+			}
+			err = saveMergeRequestsInBatches()
+			if err != nil {
+				logger.Error("Error: ", err)
+				return err
 			}
 			return nil
 		})
 }
+
+func saveMergeRequestsInBatches() error {
+	err := lakeModels.Db.Clauses(clause.OnConflict{
+		UpdateAll: true,
+	}).Create(&mergeRequestsSlice).Error
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
 func convertMergeRequest(mr *MergeRequestRes, projectId int) (*models.GitlabMergeRequest, error) {
 	gitlabMergeRequest := &models.GitlabMergeRequest{
 		GitlabId:         mr.GitlabId,

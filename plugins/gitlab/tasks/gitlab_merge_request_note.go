@@ -67,6 +67,8 @@ func updateMergeRequestWithFirstCommentTime(notes *ApiMergeRequestNoteResponse, 
 	return nil
 }
 
+var mergeRequestNotesSlice = []models.GitlabMergeRequestNote{}
+
 func CollectMergeRequestNotes(projectId int, mr *models.GitlabMergeRequest) error {
 	gitlabApiClient := CreateApiClient()
 
@@ -87,23 +89,32 @@ func CollectMergeRequestNotes(projectId int, mr *models.GitlabMergeRequest) erro
 				if err != nil {
 					return err
 				}
-				err = lakeModels.Db.Clauses(clause.OnConflict{
-					UpdateAll: true,
-				}).Create(&gitlabMergeRequestNote).Error
-
-				if err != nil {
-					logger.Error("Could not upsert: ", err)
-					return err
-				}
+				mergeRequestNotesSlice = append(mergeRequestNotesSlice, *gitlabMergeRequestNote)
 			}
 
 			mergeRequestUpdateErr := updateMergeRequestWithFirstCommentTime(gitlabApiResponse, mr)
 			if mergeRequestUpdateErr != nil {
 				return err
 			}
+			err = saveMergeRequestsNotesInBatches()
+			if err != nil {
+				logger.Error("Error: ", err)
+				return err
+			}
 			return nil
 		})
 }
+
+func saveMergeRequestsNotesInBatches() error {
+	err := lakeModels.Db.Clauses(clause.OnConflict{
+		UpdateAll: true,
+	}).Create(&mergeRequestNotesSlice).Error
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
 func convertMergeRequestNote(mrNote *MergeRequestNote) (*models.GitlabMergeRequestNote, error) {
 	gitlabMergeRequestNote := &models.GitlabMergeRequestNote{
 		GitlabId:        mrNote.GitlabId,
