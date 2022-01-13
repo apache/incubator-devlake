@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/merico-dev/lake/logger"
 	lakeModels "github.com/merico-dev/lake/models"
 	"github.com/merico-dev/lake/plugins/core"
 	"github.com/merico-dev/lake/plugins/github/models"
@@ -42,7 +41,6 @@ func CollectCommits(owner string, repositoryName string, repositoryId int, sched
 			githubApiResponse := &ApiCommitsResponse{}
 			err := core.UnmarshalResponse(res, githubApiResponse)
 			if err != nil || res.StatusCode == 401 {
-				logger.Error("Error: ", err)
 				return err
 			}
 			repoCommit := &models.GithubRepoCommit{GithubRepoId: repositoryId}
@@ -51,11 +49,30 @@ func CollectCommits(owner string, repositoryName string, repositoryId int, sched
 				if err != nil {
 					return err
 				}
+				// save author and committer
+				if commit.Author != nil {
+					githubCommit.AuthorId = commit.Author.Id
+					err = lakeModels.Db.Clauses(clause.OnConflict{
+						UpdateAll: true,
+					}).Create(&commit.Author).Error
+					if err != nil {
+						return err
+					}
+				}
+				if commit.Committer != nil {
+					githubCommit.CommitterId = commit.Committer.Id
+					err = lakeModels.Db.Clauses(clause.OnConflict{
+						UpdateAll: true,
+					}).Create(&commit.Committer).Error
+					if err != nil {
+						return err
+					}
+				}
 				err = lakeModels.Db.Clauses(clause.OnConflict{
 					UpdateAll: true,
 				}).Create(&githubCommit).Error
 				if err != nil {
-					logger.Error("Could not upsert: ", err)
+					return err
 				}
 				// save repo / commit relationship
 				repoCommit.CommitSha = commit.Sha
@@ -63,24 +80,7 @@ func CollectCommits(owner string, repositoryName string, repositoryId int, sched
 					DoNothing: true,
 				}).Create(repoCommit).Error
 				if err != nil {
-					logger.Error("Could not upsert: ", err)
-				}
-				// save author and committer
-				if commit.Author != nil {
-					err = lakeModels.Db.Clauses(clause.OnConflict{
-						UpdateAll: true,
-					}).Create(&commit.Author).Error
-					if err != nil {
-						logger.Error("Could not upsert: ", err)
-					}
-				}
-				if commit.Committer != nil {
-					err = lakeModels.Db.Clauses(clause.OnConflict{
-						UpdateAll: true,
-					}).Create(&commit.Committer).Error
-					if err != nil {
-						logger.Error("Could not upsert: ", err)
-					}
+					return err
 				}
 			}
 			return nil
@@ -90,11 +90,9 @@ func convertGithubCommit(commit *CommitsResponse) (*models.GithubCommit, error) 
 	githubCommit := &models.GithubCommit{
 		Sha:            commit.Sha,
 		Message:        commit.Commit.Message,
-		AuthorId:       commit.Author.Id,
 		AuthorName:     commit.Commit.Author.Name,
 		AuthorEmail:    commit.Commit.Author.Email,
 		AuthoredDate:   commit.Commit.Author.Date.ToTime(),
-		CommitterId:    commit.Committer.Id,
 		CommitterName:  commit.Commit.Committer.Name,
 		CommitterEmail: commit.Commit.Committer.Email,
 		CommittedDate:  commit.Commit.Committer.Date.ToTime(),
