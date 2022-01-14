@@ -126,7 +126,8 @@ func (plugin Github) Execute(options map[string]interface{}, progress chan<- flo
 		if collectCommitsErr != nil {
 			return fmt.Errorf("Could not collect commits: %v", collectCommitsErr)
 		}
-		// tasks.CollectChildrenOnCommits(ownerString, repositoryNameString, repoId, scheduler, githubApiClient)
+		// DEPRECATED - Grafana no longer uses this metric. We may need to turn this back on as the graphs get updated
+		tasks.CollectChildrenOnCommits(ownerString, repositoryNameString, repoId, scheduler, githubApiClient)
 	}
 
 	progress <- 0.2
@@ -148,11 +149,11 @@ func (plugin Github) Execute(options map[string]interface{}, progress chan<- flo
 		progress <- 0.4
 
 		// DEPRECATED - Grafana no longer uses this metric. We may need to turn this back on as the graphs get updated
-		// fmt.Println("INFO >>> collecting PR children collection")
-		// collectPrChildrenErr := tasks.CollectChildrenOnPullRequests(ownerString, repositoryNameString, repoId, scheduler, githubApiClient)
-		// if collectPrChildrenErr != nil {
-		// 	return fmt.Errorf("Could not collect PR children: %v", collectPrChildrenErr)
-		// }
+		fmt.Println("INFO >>> collecting PR children collection")
+		collectPrChildrenErr := tasks.CollectChildrenOnPullRequests(ownerString, repositoryNameString, repoId, scheduler, githubApiClient)
+		if collectPrChildrenErr != nil {
+			return fmt.Errorf("Could not collect PR children: %v", collectPrChildrenErr)
+		}
 
 	}
 	if tasksToRun["enrichIssues"] {
