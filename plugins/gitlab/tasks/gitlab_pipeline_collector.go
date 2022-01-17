@@ -47,7 +47,9 @@ func CollectAllPipelines(projectId int, scheduler *utils.WorkerScheduler) error 
 	queryParams := &url.Values{}
 	queryParams.Set("order_by", "updated_at")
 	queryParams.Set("sort", "desc")
-	return gitlabApiClient.FetchWithPaginationAnts(scheduler,
+	finish := make(chan bool)
+
+	return gitlabApiClient.FetchWithPaginationAnts(finish, scheduler,
 		fmt.Sprintf("projects/%v/pipelines", projectId),
 		queryParams,
 		100,

@@ -51,9 +51,7 @@ func CollectCommits(owner string, repositoryName string, repositoryId int, sched
 			}
 			repoCommit := &models.GithubRepoCommit{GithubRepoId: repositoryId}
 			repoCommitsSlice = append(repoCommitsSlice, *repoCommit)
-			fmt.Println("KEVIN >>> len(githubApiResponse): ", len(*githubApiResponse))
-			for i, commit := range *githubApiResponse {
-				fmt.Println("KEVIN >>> i", i)
+			for _, commit := range *githubApiResponse {
 				githubCommit, err := convertGithubCommit(&commit)
 				if err != nil {
 					return err

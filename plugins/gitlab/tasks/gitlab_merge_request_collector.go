@@ -42,8 +42,9 @@ var mergeRequestsSlice = []models.GitlabMergeRequest{}
 
 func CollectMergeRequests(projectId int, scheduler *utils.WorkerScheduler) error {
 	gitlabApiClient := CreateApiClient()
+	finish := make(chan bool)
 
-	return gitlabApiClient.FetchWithPaginationAnts(scheduler, fmt.Sprintf("projects/%v/merge_requests", projectId), nil, 100,
+	return gitlabApiClient.FetchWithPaginationAnts(finish,scheduler, fmt.Sprintf("projects/%v/merge_requests", projectId), nil, 100,
 		func(res *http.Response) error {
 			gitlabApiResponse := &ApiMergeRequestResponse{}
 			err := core.UnmarshalResponse(res, gitlabApiResponse)

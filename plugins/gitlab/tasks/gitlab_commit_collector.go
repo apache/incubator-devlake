@@ -35,18 +35,19 @@ type GitlabApiCommit struct {
 	}
 }
 
-var commitsSlice = []models.GitlabCommit{}
-var projectCommitsSlice = []models.GitlabProjectCommit{}
-var usersSlice = []models.GitlabUser{}
-
 func CollectCommits(projectId int, scheduler *utils.WorkerScheduler) error {
+	// Temporary storage before DB save
+	var commitsToSave = []models.GitlabCommit{}
+	var projectCommitsToSave = []models.GitlabProjectCommit{}
+	var usersToSave = []models.GitlabUser{}
+
 	gitlabApiClient := CreateApiClient()
 	relativePath := fmt.Sprintf("projects/%v/repository/commits", projectId)
 	queryParams := &url.Values{}
 	queryParams.Set("with_stats", "true")
-	gitlabUser := &models.GitlabUser{}
-	return gitlabApiClient.FetchWithPaginationAnts(scheduler, relativePath, queryParams, 100,
-		func(res *http.Response) error {
+	finish := make(chan bool) // This will tell us when there are no more pages to fetch
+	go gitlabApiClient.FetchWithPaginationAnts(finish, scheduler, relativePath, queryParams, 100,
+		func(res *http.Response) error { // handles the response (with 100 results) from API
 
 			gitlabApiResponse := &ApiCommitResponse{}
 			err := core.UnmarshalResponse(res, gitlabApiResponse)
@@ -62,53 +63,83 @@ func CollectCommits(projectId int, scheduler *utils.WorkerScheduler) error {
 					return err
 				}
 
-				commitsSlice = append(commitsSlice, *gitlabCommit)
+				commitsToSave = append(commitsToSave, *gitlabCommit)
 
 				// create project/commits relationship
 				gitlabProjectCommit.CommitSha = gitlabCommit.Sha
-				projectCommitsSlice = append(projectCommitsSlice, *gitlabProjectCommit)
+				projectCommitsToSave = append(projectCommitsToSave, *gitlabProjectCommit)
 
-				// create gitlab user
-				gitlabUser.Email = gitlabCommit.AuthorEmail
-				gitlabUser.Name = gitlabCommit.AuthorName
-
-				usersSlice = append(usersSlice, *gitlabUser)
-
-				if gitlabCommit.CommitterEmail != gitlabUser.Email {
-					gitlabUser.Email = gitlabCommit.CommitterEmail
-					gitlabUser.Name = gitlabCommit.CommitterName
-					usersSlice = append(usersSlice, *gitlabUser)
-				}
-			}
-			err = saveCommitsInBatches()
-			if err != nil {
-				logger.Error("Error: ", err)
-				return err
+				addUsersToSlice(*gitlabCommit, &usersToSave)
 			}
 			return nil
 		})
+	// listen for the last ants submission before saving the data
+	<-finish
+	// when we receive the message, we have to wait for the scheduler to finish its
+	// tasks before we save data
+	scheduler.WaitUntilFinish()
+	err := saveSlice("gitlab_commits", commitsToSave)
+	if err != nil {
+		logger.Error("Error: ", err)
+		return err
+	}
+	err = saveSlice("gitlab_project_commits", projectCommitsToSave)
+	if err != nil {
+		logger.Error("Error: ", err)
+		return err
+	}
+	err = saveSlice("gitlab_users", usersToSave)
+	if err != nil {
+		logger.Error("Error: ", err)
+		return err
+	}
+	return nil
 }
 
-func saveCommitsInBatches() error {
+func saveSlice(table string, data interface{}) error {
+	fmt.Println("KEVIN >>> saving data...", table)
 	err := lakeModels.Db.Clauses(clause.OnConflict{
 		UpdateAll: true,
-	}).Create(&commitsSlice).Error
-	if err != nil {
-		return err
-	}
-	err = lakeModels.Db.Clauses(clause.OnConflict{
-		UpdateAll: true,
-	}).Create(&projectCommitsSlice).Error
-	if err != nil {
-		return err
-	}
-	err = lakeModels.Db.Clauses(clause.OnConflict{
-		UpdateAll: true,
-	}).Create(&usersSlice).Error
+	}).Create(data).Error
 	if err != nil {
 		return err
 	}
 	return nil
+}
+
+func addUsersToSlice(commit models.GitlabCommit, usersToSave *[]models.GitlabUser) {
+	authorExists := false
+	committerExists := false
+	gitlabAuthor := &models.GitlabUser{
+		Email: commit.AuthorEmail,
+		Name:  commit.AuthorName,
+	}
+	gitlabCommitter := &models.GitlabUser{
+		Email: commit.CommitterEmail,
+		Name:  commit.CommitterName,
+	}
+	committerIsDifferent := false
+
+	if commit.AuthorEmail != commit.CommitterEmail {
+		committerIsDifferent = true
+	}
+	for _, user := range *usersToSave {
+		if user.Email == gitlabAuthor.Email {
+			authorExists = true
+		}
+		if committerIsDifferent {
+			if user.Email == gitlabCommitter.Email {
+				committerExists = true
+			}
+		}
+	}
+	if !authorExists {
+		*usersToSave = append(*usersToSave, *gitlabAuthor)
+	}
+
+	if committerIsDifferent && !committerExists {
+		*usersToSave = append(*usersToSave, *gitlabCommitter)
+	}
 }
 
 // Convert the API response to our DB model instance

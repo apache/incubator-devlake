@@ -84,7 +84,7 @@ func convertStringToInt(input string) (int, error) {
 }
 
 // run all requests in an Ants worker pool
-func (gitlabApiClient *GitlabApiClient) FetchWithPaginationAnts(scheduler *utils.WorkerScheduler, path string, queryParams *url.Values, pageSize int, handler GitlabPaginationHandler) error {
+func (gitlabApiClient *GitlabApiClient) FetchWithPaginationAnts(finish chan bool, scheduler *utils.WorkerScheduler, path string, queryParams *url.Values, pageSize int, handler GitlabPaginationHandler) error {
 	// We need to get the total pages first so we can loop through all requests concurrently
 	if queryParams == nil {
 		queryParams = &url.Values{}
@@ -100,20 +100,22 @@ func (gitlabApiClient *GitlabApiClient) FetchWithPaginationAnts(scheduler *utils
 		conc := 10
 		step := 0
 		c := make(chan bool)
-		for {
+		for { // infinite, until break
 			for i := conc; i > 0; i-- {
 				page := step*conc + i
 				err := scheduler.Submit(func() error {
-					queryParams.Set("per_page", strconv.Itoa(pageSize))
-					queryParams.Set("page", strconv.Itoa(page))
+					queryParams.Set("per_page", strconv.Itoa(pageSize)) // 100
+					queryParams.Set("page", strconv.Itoa(page))         // 1
 					res, err := gitlabApiClient.Get(path, queryParams, nil)
 					if err != nil {
 						return err
 					}
 					handlerErr := handler(res)
 					if handlerErr != nil {
+						fmt.Println("Error: ds23498 >>> handlerErr", handlerErr)
 						return handlerErr
 					}
+					// Determine if there's a next page (should we continue?)
 					_, err = strconv.ParseInt(res.Header.Get("X-Next-Page"), 10, 32)
 					// only send message to channel if I'm the last page
 					if page%conc == 0 {
@@ -133,6 +135,7 @@ func (gitlabApiClient *GitlabApiClient) FetchWithPaginationAnts(scheduler *utils
 			}
 			cont := <-c
 			if !cont {
+				finish <- true
 				break
 			}
 			step += 1
@@ -153,6 +156,7 @@ func (gitlabApiClient *GitlabApiClient) FetchWithPaginationAnts(scheduler *utils
 
 				handlerErr := handler(res)
 				if handlerErr != nil {
+					fmt.Println("Error: 32oi4j >>> handlerErr", handlerErr)
 					return handlerErr
 				}
 				return nil
@@ -190,6 +194,7 @@ func (gitlabApiClient *GitlabApiClient) FetchWithPagination(path string, queryPa
 
 		handlerErr := handler(res)
 		if handlerErr != nil {
+			fmt.Println("Error: dsoifj0 >>> handlerErr", handlerErr)
 			return handlerErr
 		}
 	}
