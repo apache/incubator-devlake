@@ -16,11 +16,6 @@ import {
   ButtonGroup,
   Tag
 } from '@blueprintjs/core'
-// import { integrationsData } from '@/data/integrations'
-// import {
-//   Providers,
-//   ProviderLabels
-// } from '@/data/Providers'
 import usePipelineManager from '@/hooks/usePipelineManager'
 import Nav from '@/components/Nav'
 import Sidebar from '@/components/Sidebar'
@@ -29,11 +24,6 @@ import Content from '@/components/Content'
 import ContentLoader from '@/components/loaders/ContentLoader'
 import PipelineIndicator from '@/components/widgets/PipelineIndicator'
 import CodeInspector from '@/components/pipelines/CodeInspector'
-// import { ReactComponent as GitlabProviderIcon } from '@/images/integrations/gitlab.svg'
-// import { ReactComponent as JenkinsProviderIcon } from '@/images/integrations/jenkins.svg'
-// import { ReactComponent as JiraProviderIcon } from '@/images/integrations/jira.svg'
-// import { ReactComponent as GitHubProviderIcon } from '@/images/integrations/github.svg'
-// import { ReactComponent as BackArrowIcon } from '@/images/undo.svg'
 import { ReactComponent as HelpIcon } from '@/images/help.svg'
 import ManagePipelinesIcon from '@/images/synchronise.png'
 
@@ -45,12 +35,12 @@ const Pipelines = (props) => {
   const [isProcessing, setIsProcessing] = useState(false)
   const [refresh, setRefresh] = useState(false)
   const [activeStatus, setActiveStatus] = useState('all')
-  const [latestPipeline, setLatestPipeline] = useState()
+  // const [latestPipeline, setLatestPipeline] = useState()
   const [showInspector, setShowInspector] = useState(false)
   const [inspectPipeline, setInspectPipeline] = useState(null)
 
   const {
-    runPipeline,
+    // runPipeline,
     cancelPipeline,
     fetchPipeline,
     pipelines,
@@ -184,9 +174,9 @@ const Pipelines = (props) => {
     paginatePipelines()
   }, [refresh, perPage, filteredPipelines, paginatePipelines])
 
-  useEffect(() => {
-    console.log('>>> LATEST PIPELINE!', latestPipeline)
-  }, [latestPipeline])
+  // useEffect(() => {
+  //   console.log('>>> LATEST PIPELINE!', latestPipeline)
+  // }, [latestPipeline])
 
   useEffect(() => {
     console.log('>>> FILTERED PIPELINES!', filteredPipelines)
@@ -660,12 +650,6 @@ const Pipelines = (props) => {
                 <div style={{ height: '50px' }} />
               </>
             )}
-            {/* <div style={{ marginTop: '100px', display: 'flex', width: '100%', justifyContent: 'flex-start' }}>
-              <Button intent='secondary' icon='eye-open' text='VIEW' style={{ backgroundColor: '#eeeeee', color: '#888888' }} />
-              <Button intent='primary' icon='doughnut-chart' text='View Graphs' style={{ backgroundColor: '#eeeeee', color: '#888888', marginLeft: '10px' }} />
-              <Button intent='primary' icon='add' text='Add Provider' style={{ backgroundColor: '#eeeeee', color: '#888888', marginLeft: '10px' }} />
-              <Button intent='success' icon='refresh' text='Running' style={{ backgroundColor: '#eeeeee', color: '#ffffff', marginLeft: '10px' }} />
-            </div> */}
           </main>
         </Content>
       </div>
