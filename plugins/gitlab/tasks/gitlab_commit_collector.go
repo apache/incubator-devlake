@@ -37,9 +37,10 @@ type GitlabApiCommit struct {
 
 func CollectCommits(projectId int, scheduler *utils.WorkerScheduler) error {
 	// Temporary storage before DB save
-	var commitsToSave = []models.GitlabCommit{}
-	var projectCommitsToSave = []models.GitlabProjectCommit{}
-	var usersToSave = []models.GitlabUser{}
+
+	var commitsToSave = ConcurrentCommits{}
+	var projectCommitsToSave = ConcurrentProjectCommits{}
+	var usersToSave = ConcurrentUsers{}
 
 	gitlabApiClient := CreateApiClient()
 	relativePath := fmt.Sprintf("projects/%v/repository/commits", projectId)
@@ -63,11 +64,10 @@ func CollectCommits(projectId int, scheduler *utils.WorkerScheduler) error {
 					return err
 				}
 
-				commitsToSave = append(commitsToSave, *gitlabCommit)
-
+				commitsToSave.Append(gitlabCommit)
 				// create project/commits relationship
 				gitlabProjectCommit.CommitSha = gitlabCommit.Sha
-				projectCommitsToSave = append(projectCommitsToSave, *gitlabProjectCommit)
+				projectCommitsToSave.Append(gitlabProjectCommit)
 
 				addUsersToSlice(*gitlabCommit, &usersToSave)
 			}
@@ -77,18 +77,22 @@ func CollectCommits(projectId int, scheduler *utils.WorkerScheduler) error {
 	<-finish
 	// when we receive the message, we have to wait for the scheduler to finish its
 	// tasks before we save data
+	fmt.Println("INFO >>> all done collecting!")
 	scheduler.WaitUntilFinish()
-	err := saveSlice("gitlab_commits", commitsToSave)
+	fmt.Println("INFO >>> saving gitlab_commits")
+	err := saveSlice(commitsToSave.commits)
 	if err != nil {
 		logger.Error("Error: ", err)
 		return err
 	}
-	err = saveSlice("gitlab_project_commits", projectCommitsToSave)
+	fmt.Println("INFO >>> saving gitlab_project_commits")
+	err = saveSlice(projectCommitsToSave.projectCommits)
 	if err != nil {
 		logger.Error("Error: ", err)
 		return err
 	}
-	err = saveSlice("gitlab_users", usersToSave)
+	fmt.Println("INFO >>> saving gitlab_users")
+	err = saveSlice(usersToSave.users)
 	if err != nil {
 		logger.Error("Error: ", err)
 		return err
@@ -96,8 +100,7 @@ func CollectCommits(projectId int, scheduler *utils.WorkerScheduler) error {
 	return nil
 }
 
-func saveSlice(table string, data interface{}) error {
-	fmt.Println("KEVIN >>> saving data...", table)
+func saveSlice(data interface{}) error {
 	err := lakeModels.Db.Clauses(clause.OnConflict{
 		UpdateAll: true,
 	}).Create(data).Error
@@ -107,7 +110,7 @@ func saveSlice(table string, data interface{}) error {
 	return nil
 }
 
-func addUsersToSlice(commit models.GitlabCommit, usersToSave *[]models.GitlabUser) {
+func addUsersToSlice(commit models.GitlabCommit, usersToSave *ConcurrentUsers) {
 	authorExists := false
 	committerExists := false
 	gitlabAuthor := &models.GitlabUser{
@@ -123,7 +126,7 @@ func addUsersToSlice(commit models.GitlabCommit, usersToSave *[]models.GitlabUse
 	if commit.AuthorEmail != commit.CommitterEmail {
 		committerIsDifferent = true
 	}
-	for _, user := range *usersToSave {
+	for _, user := range usersToSave.users {
 		if user.Email == gitlabAuthor.Email {
 			authorExists = true
 		}
@@ -134,11 +137,11 @@ func addUsersToSlice(commit models.GitlabCommit, usersToSave *[]models.GitlabUse
 		}
 	}
 	if !authorExists {
-		*usersToSave = append(*usersToSave, *gitlabAuthor)
+		usersToSave.Append(gitlabAuthor)
 	}
 
 	if committerIsDifferent && !committerExists {
-		*usersToSave = append(*usersToSave, *gitlabCommitter)
+		usersToSave.Append(gitlabCommitter)
 	}
 }
 
