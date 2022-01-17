@@ -14,9 +14,11 @@ const MappingTag = ({ classNames, labelIntent, labelName, onChange, rightElement
           className='formGroup'
           contentClassName='formGroupContent'
         >
-          <Label style={{ display: 'inline' }}>
-            <span style={{ marginRight: '10px' }}><Tag className={classNames} intent={labelIntent}>{labelName}</Tag></span>
-          </Label>
+          {labelName && (
+            <Label style={{ display: 'inline' }}>
+              <span style={{ marginRight: '10px' }}><Tag className={classNames} intent={labelIntent}>{labelName}</Tag></span>
+            </Label>
+          )}
           <TagInput
             placeholder={placeholderText}
             values={values || []}
