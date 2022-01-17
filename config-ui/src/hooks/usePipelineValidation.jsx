@@ -21,6 +21,10 @@ function usePipelineValidation ({
     setErrors([])
   }
 
+  const validateNumericSet = (set = []) => {
+    return set.every(i => !isNaN(i))
+  }
+
   const validate = useCallback(() => {
     const errs = []
     console.log('>> VALIDATING PIPELINE RUN ', pipelineName)
@@ -43,8 +47,11 @@ function usePipelineValidation ({
       errs.push('GitLab: Enter one or more valid Project IDs (Numeric)')
     }
 
+    if (enabledProviders.includes(Providers.GITLAB) && !validateNumericSet(projectId)) {
+      errs.push('GitLab: One of the entered Project IDs is NOT numeric!')
+    }
+
     if (enabledProviders.includes(Providers.JIRA) && (!sourceId || isNaN(sourceId))) {
-      // errs.push('JIRA: Enter a valid Connection Source ID (Numeric)')
       errs.push('JIRA: Select a valid Connection Source ID (Numeric)')
     }
 
