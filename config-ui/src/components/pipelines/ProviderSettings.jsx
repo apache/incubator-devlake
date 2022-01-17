@@ -8,7 +8,9 @@ import {
   FormGroup,
   InputGroup,
   MenuItem,
-  Intent
+  Intent,
+  TagInput,
+  Tooltip,
 } from '@blueprintjs/core'
 import { Select } from '@blueprintjs/select'
 
@@ -180,14 +182,35 @@ const ProviderSettings = (props) => {
         <>
           <FormGroup
             disabled={isRunning || !isEnabled(providerId)}
-            label={<strong>Project ID<span className='requiredStar'>*</span></strong>}
-            labelInfo={<span style={{ display: 'block' }}>Enter the GitLab Project ID No.</span>}
+            label={
+              <strong>Project IDs<span className='requiredStar'>*</span>
+                <span
+                  className='badge-count'
+                  style={{
+                    opacity: isEnabled(providerId) ? 0.5 : 0.1,
+                    // width: 18,
+                    // height: 18,
+                    // display: 'inline-block',
+                    // borderRadius: '50%',
+                    // backgroundColor: 'rgba(0,0,255,0.9)',
+                    // color: '#ffffff',
+                    // lineHeight: '18px',
+                    // textAlign: 'center',
+                    // marginLeft: '5px',
+                    // fontWeight: 300
+                  }}
+                >{projectId.length}
+                </span>
+              </strong>
+            }
+            labelInfo={<span style={{ display: 'block' }}>Enter one or more GitLab Project IDs.</span>}
             inline={false}
             labelFor='project-id'
             className=''
             contentClassName=''
           >
-            <InputGroup
+            {/* (DISABLED) Single Input */}
+            {/* <InputGroup
               id='project-id'
               disabled={isRunning || !isEnabled(providerId)}
               placeholder='eg. 937810831'
@@ -195,7 +218,28 @@ const ProviderSettings = (props) => {
               onChange={(e) => setProjectId(pId => e.target.value)}
               className='input-project-id'
               autoComplete='off'
-            />
+            /> */}
+            <div style={{ width: '100%' }}>
+              <TagInput
+                disabled={isRunning || !isEnabled(providerId)}
+                placeholder='eg. 937810831, 95781015'
+                values={projectId || []}
+                fill={true}
+                onChange={(values) => setProjectId([...new Set(values)])}
+                addOnPaste={true}
+                addOnBlur={true}
+                rightElement={
+                  <Button
+                    disabled={isRunning || !isEnabled(providerId)}
+                    icon='eraser'
+                    minimal
+                    onClick={() => setProjectId([])}
+                  />
+                  }
+                onKeyDown={e => e.key === 'Enter' && e.preventDefault()}
+                className='tagInput'
+              />
+            </div>
           </FormGroup>
         </>
       )

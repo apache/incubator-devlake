@@ -39,8 +39,8 @@ function usePipelineValidation ({
       errs.push('Name: Enter a valid Pipeline Name')
     }
 
-    if (enabledProviders.includes(Providers.GITLAB) && (!projectId || isNaN(projectId))) {
-      errs.push('GitLab: Enter a valid Project ID (Numeric)')
+    if (enabledProviders.includes(Providers.GITLAB) && (!projectId || projectId.length === 0 || projectId.toString() === '')) {
+      errs.push('GitLab: Enter one or more valid Project IDs (Numeric)')
     }
 
     if (enabledProviders.includes(Providers.JIRA) && (!sourceId || isNaN(sourceId))) {

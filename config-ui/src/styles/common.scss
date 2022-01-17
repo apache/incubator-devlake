@@ -260,3 +260,17 @@ h3 {
   color: #717484;
   padding-left: 26px;
 }
+
+.badge-count {
+  width: 18px;
+  height: 18px;
+  display: inline-block;
+  border-radius: 50%;
+  background-color: rgba(0,0,255,0.9);
+  color: #ffffff;
+  line-height: 18px;
+  text-align: center;
+  margin-left: 5px;
+  font-weight: 300;
+  opacity: 1.0;
+}
