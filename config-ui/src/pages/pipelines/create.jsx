@@ -229,6 +229,11 @@ const CreatePipeline = (props) => {
     setOwner('')
   }
 
+  const getConnectionName = useCallback((connectionId) => {
+    const source = sources.find(s => s.id === connectionId)
+    return source ? source.title : '(Instance)'
+  }, [sources])
+
   useEffect(() => {
 
   }, [pipelineName])
@@ -310,13 +315,15 @@ const CreatePipeline = (props) => {
       }
       if (JiraTask && JiraTask.length > 0) {
         // const selSource = sources.find(s => s.ID === parseInt(JiraTask.options?.sourceId, 10))
+        fetchAllConnections(false)
         setEnabledProviders(eP => [...eP, Providers.JIRA])
         // setBoardId(JiraTask.options?.boardId)
         setBoardId(Array.isArray(JiraTask) ? JiraTask.map(jT => jT.options?.boardId) : JiraTask.options?.boardId)
+        const connSrcId = JiraTask[0].options?.sourceId
         setSelectedSource({
-          id: parseInt(JiraTask[0].options?.sourceId, 10),
-          title: '(Instance)',
-          value: parseInt(JiraTask[0].options?.sourceId, 10)
+          id: parseInt(connSrcId, 10),
+          title: getConnectionName(connSrcId),
+          value: parseInt(connSrcId, 10)
         })
       }
       if (JenkinsTask) {
