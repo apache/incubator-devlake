@@ -88,7 +88,6 @@ const ProviderSettings = (props) => {
                 }}
               >
                 <Button
-                  // intent={Intent.DANGER}
                   disabled={isRunning || !isEnabled(providerId)}
                   style={{ justifyContent: 'space-between', minWidth: '206px', maxWidth: '290px', whiteSpace: 'nowrap' }}
                   text={selectedSource ? `${selectedSource.title} [${selectedSource.value}]` : 'Select Instance'}
@@ -187,17 +186,7 @@ const ProviderSettings = (props) => {
                 <span
                   className='badge-count'
                   style={{
-                    opacity: isEnabled(providerId) ? 0.5 : 0.1,
-                    // width: 18,
-                    // height: 18,
-                    // display: 'inline-block',
-                    // borderRadius: '50%',
-                    // backgroundColor: 'rgba(0,0,255,0.9)',
-                    // color: '#ffffff',
-                    // lineHeight: '18px',
-                    // textAlign: 'center',
-                    // marginLeft: '5px',
-                    // fontWeight: 300
+                    opacity: isEnabled(providerId) ? 0.5 : 0.1
                   }}
                 >{projectId.length}
                 </span>
