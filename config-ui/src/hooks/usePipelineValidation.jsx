@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react'
-import { ToastNotification } from '@/components/Toast'
+// import { ToastNotification } from '@/components/Toast'
 import {
   Providers,
 } from '@/data/Providers'
@@ -28,16 +28,6 @@ function usePipelineValidation ({
   const validate = useCallback(() => {
     const errs = []
     console.log('>> VALIDATING PIPELINE RUN ', pipelineName)
-    // console.log('>> RUNNING FORM VALIDATIONS AGAINST FIELD VALUES...')
-    // console.log(
-    //   'PIPELINE NAME', name,
-    //   'PROJECT ID', projectId,
-    //   'BOARD ID', boardId,
-    //   'SOURCE ID', sourceId,
-    //   'OWNER', owner,
-    //   'REPOSITORY NAME', repositoryName,
-    //   'TASKS', tasks
-    // )
 
     if (!pipelineName || pipelineName.length <= 2) {
       errs.push('Name: Enter a valid Pipeline Name')
@@ -102,7 +92,6 @@ function usePipelineValidation ({
     setIsValid(errors.length === 0)
     if (errors.length > 0) {
       // ToastNotification.clear()
-
     }
   }, [errors])
 
