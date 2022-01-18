@@ -22,7 +22,7 @@ function usePipelineValidation ({
   }
 
   const validateNumericSet = (set = []) => {
-    return set.every(i => !isNaN(i))
+    return Array.isArray(set) ? set.every(i => !isNaN(i)) : false
   }
 
   const validate = useCallback(() => {

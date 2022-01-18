@@ -297,9 +297,9 @@ const CreatePipeline = (props) => {
       // @todo: refactor later for multi-stage
       const GitLabTask = tasks.filter(t => t.plugin === Providers.GITLAB)
       const GitHubTask = tasks.find(t => t.plugin === Providers.GITHUB)
-      const JiraTask = tasks.find(t => t.plugin === Providers.JIRA)
+      const JiraTask = tasks.filter(t => t.plugin === Providers.JIRA)
       const JenkinsTask = tasks.find(t => t.plugin === Providers.JENKINS)
-      if (GitLabTask) {
+      if (GitLabTask && GitLabTask.length > 0) {
         setEnabledProviders(eP => [...eP, Providers.GITLAB])
         setProjectId(Array.isArray(GitLabTask) ? GitLabTask.map(gT => gT.options?.projectId) : GitLabTask.options?.projectId)
       }
@@ -308,14 +308,15 @@ const CreatePipeline = (props) => {
         setRepositoryName(GitHubTask.options?.repositoryName)
         setOwner(GitHubTask.options?.owner)
       }
-      if (JiraTask) {
+      if (JiraTask && JiraTask.length > 0) {
         // const selSource = sources.find(s => s.ID === parseInt(JiraTask.options?.sourceId, 10))
         setEnabledProviders(eP => [...eP, Providers.JIRA])
-        setBoardId(JiraTask.options?.boardId)
+        // setBoardId(JiraTask.options?.boardId)
+        setBoardId(Array.isArray(JiraTask) ? JiraTask.map(jT => jT.options?.boardId) : JiraTask.options?.boardId)
         setSelectedSource({
-          id: parseInt(JiraTask.options?.sourceId, 10),
+          id: parseInt(JiraTask[0].options?.sourceId, 10),
           title: '(Instance)',
-          value: parseInt(JiraTask.options?.sourceId, 10)
+          value: parseInt(JiraTask[0].options?.sourceId, 10)
         })
       }
       if (JenkinsTask) {
