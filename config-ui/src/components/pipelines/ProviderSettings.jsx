@@ -17,11 +17,11 @@ import { Select } from '@blueprintjs/select'
 const ProviderSettings = (props) => {
   const {
     providerId,
-    projectId,
+    projectId = [],
     sourceId,
     selectedSource,
     sources = [],
-    boardId,
+    boardId = [],
     owner,
     repositoryName,
     setProjectId = () => {},
@@ -105,8 +105,18 @@ const ProviderSettings = (props) => {
           </FormGroup>
           <FormGroup
             disabled={isRunning || !isEnabled(providerId)}
-            label={<strong>Board ID<span className='requiredStar'>*</span></strong>}
-            labelInfo={<span style={{ display: 'block' }}>Enter JIRA Board No.</span>}
+            label={
+              <strong>Board IDs<span className='requiredStar'>*</span>
+                <span
+                  className='badge-count'
+                  style={{
+                    opacity: isEnabled(providerId) ? 0.5 : 0.1
+                  }}
+                >{boardId.length}
+                </span>
+              </strong>
+            }
+            labelInfo={<span style={{ display: 'block' }}>Enter one or more JIRA Board IDs.</span>}
             inline={false}
             labelFor='board-id'
             className=''
@@ -114,7 +124,8 @@ const ProviderSettings = (props) => {
             style={{ marginLeft: '12px' }}
             fill
           >
-            <InputGroup
+            {/* (DISABLED) Single Input */}
+            {/* <InputGroup
               id='board-id'
               disabled={isRunning || !isEnabled(providerId)}
               placeholder='eg. 8'
@@ -123,7 +134,29 @@ const ProviderSettings = (props) => {
               className='input-board-id'
               autoComplete='off'
               fill={false}
-            />
+            /> */}
+            <div style={{ width: '100%' }}>
+              <TagInput
+                id='board-id'
+                disabled={isRunning || !isEnabled(providerId)}
+                placeholder='eg. 8, 100, 200'
+                values={boardId || []}
+                fill={true}
+                onChange={(values) => setBoardId([...new Set(values)])}
+                addOnPaste={true}
+                addOnBlur={true}
+                rightElement={
+                  <Button
+                    disabled={isRunning || !isEnabled(providerId)}
+                    icon='eraser'
+                    minimal
+                    onClick={() => setBoardId([])}
+                  />
+                  }
+                onKeyDown={e => e.key === 'Enter' && e.preventDefault()}
+                className='input-board-id tagInput'
+              />
+            </div>
           </FormGroup>
         </>
       )
@@ -210,6 +243,7 @@ const ProviderSettings = (props) => {
             /> */}
             <div style={{ width: '100%' }}>
               <TagInput
+                id='project-id'
                 disabled={isRunning || !isEnabled(providerId)}
                 placeholder='eg. 937810831, 95781015'
                 values={projectId || []}
@@ -226,7 +260,7 @@ const ProviderSettings = (props) => {
                   />
                   }
                 onKeyDown={e => e.key === 'Enter' && e.preventDefault()}
-                className='tagInput'
+                className='input-project-id tagInput'
               />
             </div>
           </FormGroup>
