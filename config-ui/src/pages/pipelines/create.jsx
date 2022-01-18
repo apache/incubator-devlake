@@ -73,7 +73,7 @@ const CreatePipeline = (props) => {
   const [nameSuffix, setNameSuffix] = useState(pipelineSuffixes[0])
   const [pipelineName, setPipelineName] = useState(`${namePrefix} ${nameSuffix}`)
   const [projectId, setProjectId] = useState([])
-  const [boardId, setBoardId] = useState('')
+  const [boardId, setBoardId] = useState([])
   const [sourceId, setSourceId] = useState('')
   const [sources, setSources] = useState([])
   const [selectedSource, setSelectedSource] = useState()
@@ -135,6 +135,18 @@ const CreatePipeline = (props) => {
       validationErrors.length === 0
   }
 
+  const getManyProviderOptions = useCallback((providerId, optionProperty, ids, options = {}) => {
+    return ids.map(id => {
+      return {
+        Plugin: providerId,
+        Options: {
+          [optionProperty]: parseInt(id, 10),
+          ...options
+        }
+      }
+    })
+  }, [])
+
   const getProviderOptions = useCallback((providerId) => {
     let options = {}
     switch (providerId) {
@@ -168,14 +180,25 @@ const CreatePipeline = (props) => {
     let providerConfig = {}
     switch (providerId) {
       case Providers.GITLAB:
-        providerConfig = projectId.map(pId => {
-          return {
-            Plugin: providerId,
-            Options: {
-              projectId: parseInt(pId, 10)
-            }
+        providerConfig = getManyProviderOptions(providerId, 'projectId', [...projectId])
+        // projectId.map(pId => {
+        //   return {
+        //     Plugin: providerId,
+        //     Options: {
+        //       projectId: parseInt(pId, 10)
+        //     }
+        //   }
+        // })
+        break
+      case Providers.JIRA:
+        providerConfig = getManyProviderOptions(
+          providerId,
+          'boardId',
+          [...boardId],
+          {
+            sourceId: parseInt(sourceId, 10)
           }
-        })
+        )
         break
       default:
         providerConfig = {
@@ -187,7 +210,7 @@ const CreatePipeline = (props) => {
         break
     }
     return providerConfig
-  }, [getProviderOptions, projectId])
+  }, [getProviderOptions, getManyProviderOptions, projectId, boardId, sourceId])
 
   const resetPipelineName = () => {
     setToday(new Date())
@@ -200,7 +223,7 @@ const CreatePipeline = (props) => {
     setExistingTasks([])
     setEnabledProviders([])
     setProjectId([])
-    setBoardId('')
+    setBoardId([])
     setSelectedSource(null)
     setRepositoryName('')
     setOwner('')

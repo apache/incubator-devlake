@@ -45,8 +45,12 @@ function usePipelineValidation ({
       errs.push('JIRA: Select a valid Connection Source ID (Numeric)')
     }
 
-    if (enabledProviders.includes(Providers.JIRA) && (!boardId || isNaN(boardId))) {
-      errs.push('JIRA: Enter a valid Board ID (Numeric)')
+    if (enabledProviders.includes(Providers.JIRA) && (!boardId || boardId.length === 0 || boardId.toString() === '')) {
+      errs.push('JIRA: Enter one or more valid Board IDs (Numeric)')
+    }
+
+    if (enabledProviders.includes(Providers.JIRA) && !validateNumericSet(boardId)) {
+      errs.push('JIRA: One of the entered Board IDs is NOT numeric!')
     }
 
     if (enabledProviders.includes(Providers.GITHUB) && (!owner || owner <= 2)) {
