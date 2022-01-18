@@ -181,14 +181,6 @@ const CreatePipeline = (props) => {
     switch (providerId) {
       case Providers.GITLAB:
         providerConfig = getManyProviderOptions(providerId, 'projectId', [...projectId])
-        // projectId.map(pId => {
-        //   return {
-        //     Plugin: providerId,
-        //     Options: {
-        //       projectId: parseInt(pId, 10)
-        //     }
-        //   }
-        // })
         break
       case Providers.JIRA:
         providerConfig = getManyProviderOptions(
@@ -314,10 +306,8 @@ const CreatePipeline = (props) => {
         setOwner(GitHubTask.options?.owner)
       }
       if (JiraTask && JiraTask.length > 0) {
-        // const selSource = sources.find(s => s.ID === parseInt(JiraTask.options?.sourceId, 10))
         fetchAllConnections(false)
         setEnabledProviders(eP => [...eP, Providers.JIRA])
-        // setBoardId(JiraTask.options?.boardId)
         setBoardId(Array.isArray(JiraTask) ? JiraTask.map(jT => jT.options?.boardId) : JiraTask.options?.boardId)
         const connSrcId = JiraTask[0].options?.sourceId
         setSelectedSource({
