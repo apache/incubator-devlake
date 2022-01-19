@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react'
-import { ToastNotification } from '@/components/Toast'
+// import { ToastNotification } from '@/components/Toast'
 import {
   Providers,
 } from '@/data/Providers'
@@ -21,35 +21,36 @@ function usePipelineValidation ({
     setErrors([])
   }
 
+  const validateNumericSet = (set = []) => {
+    return Array.isArray(set) ? set.every(i => !isNaN(i)) : false
+  }
+
   const validate = useCallback(() => {
     const errs = []
     console.log('>> VALIDATING PIPELINE RUN ', pipelineName)
-    // console.log('>> RUNNING FORM VALIDATIONS AGAINST FIELD VALUES...')
-    // console.log(
-    //   'PIPELINE NAME', name,
-    //   'PROJECT ID', projectId,
-    //   'BOARD ID', boardId,
-    //   'SOURCE ID', sourceId,
-    //   'OWNER', owner,
-    //   'REPOSITORY NAME', repositoryName,
-    //   'TASKS', tasks
-    // )
 
     if (!pipelineName || pipelineName.length <= 2) {
       errs.push('Name: Enter a valid Pipeline Name')
     }
 
-    if (enabledProviders.includes(Providers.GITLAB) && (!projectId || isNaN(projectId))) {
-      errs.push('GitLab: Enter a valid Project ID (Numeric)')
+    if (enabledProviders.includes(Providers.GITLAB) && (!projectId || projectId.length === 0 || projectId.toString() === '')) {
+      errs.push('GitLab: Enter one or more valid Project IDs (Numeric)')
+    }
+
+    if (enabledProviders.includes(Providers.GITLAB) && !validateNumericSet(projectId)) {
+      errs.push('GitLab: One of the entered Project IDs is NOT numeric!')
     }
 
     if (enabledProviders.includes(Providers.JIRA) && (!sourceId || isNaN(sourceId))) {
-      // errs.push('JIRA: Enter a valid Connection Source ID (Numeric)')
       errs.push('JIRA: Select a valid Connection Source ID (Numeric)')
     }
 
-    if (enabledProviders.includes(Providers.JIRA) && (!boardId || isNaN(boardId))) {
-      errs.push('JIRA: Enter a valid Board ID (Numeric)')
+    if (enabledProviders.includes(Providers.JIRA) && (!boardId || boardId.length === 0 || boardId.toString() === '')) {
+      errs.push('JIRA: Enter one or more valid Board IDs (Numeric)')
+    }
+
+    if (enabledProviders.includes(Providers.JIRA) && !validateNumericSet(boardId)) {
+      errs.push('JIRA: One of the entered Board IDs is NOT numeric!')
     }
 
     if (enabledProviders.includes(Providers.GITHUB) && (!owner || owner <= 2)) {
@@ -95,7 +96,6 @@ function usePipelineValidation ({
     setIsValid(errors.length === 0)
     if (errors.length > 0) {
       // ToastNotification.clear()
-
     }
   }, [errors])
 
