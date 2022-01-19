@@ -17,6 +17,8 @@ import (
 	"github.com/mitchellh/mapstructure"
 )
 
+var _ core.Plugin = (*Github)(nil)
+
 type GithubOptions struct {
 	Tasks []string
 }
