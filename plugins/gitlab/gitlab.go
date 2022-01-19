@@ -17,6 +17,8 @@ import (
 	"github.com/mitchellh/mapstructure"
 )
 
+var _ core.Plugin = (*Gitlab)(nil)
+
 type GitlabOptions struct {
 	Tasks []string `json:"tasks,omitempty"`
 }

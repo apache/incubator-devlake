@@ -21,6 +21,8 @@ import (
 	"time"
 )
 
+var _ core.Plugin = (*Feishu)(nil)
+
 type Feishu string
 
 func (plugin Feishu) Description() string {
