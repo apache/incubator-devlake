@@ -464,7 +464,7 @@ const Pipelines = (props) => {
                                 {['TASK_FAILED', 'TASK_COMPLETED'].includes(pipeline.status) && (
                                   <a
                                     href='#'
-                                    onClick={() => restartPipeline(activePipeline.tasks)}
+                                    onClick={() => restartPipeline(pipeline.tasks.flat())}
                                     data-provider={pipeline.id}
                                     className='bp3-button bp3-small bp3-minimal'
                                   >
@@ -501,7 +501,7 @@ const Pipelines = (props) => {
                                           <Button
                                             className={Classes.POPOVER_DISMISS}
                                             text='YES' icon='small-tick' intent={Intent.DANGER} small
-                                            onClick={() => cancelPipeline(activePipeline.ID)}
+                                            onClick={() => cancelPipeline(pipeline.ID)}
                                           />
                                         </div>
                                       </div>

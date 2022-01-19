@@ -72,8 +72,8 @@ const CreatePipeline = (props) => {
   const [namePrefix, setNamePrefix] = useState(pipelinePrefixes[0])
   const [nameSuffix, setNameSuffix] = useState(pipelineSuffixes[0])
   const [pipelineName, setPipelineName] = useState(`${namePrefix} ${nameSuffix}`)
-  const [projectId, setProjectId] = useState('')
-  const [boardId, setBoardId] = useState('')
+  const [projectId, setProjectId] = useState([])
+  const [boardId, setBoardId] = useState([])
   const [sourceId, setSourceId] = useState('')
   const [sources, setSources] = useState([])
   const [selectedSource, setSelectedSource] = useState()
@@ -135,6 +135,18 @@ const CreatePipeline = (props) => {
       validationErrors.length === 0
   }
 
+  const getManyProviderOptions = useCallback((providerId, optionProperty, ids, options = {}) => {
+    return ids.map(id => {
+      return {
+        Plugin: providerId,
+        Options: {
+          [optionProperty]: parseInt(id, 10),
+          ...options
+        }
+      }
+    })
+  }, [])
+
   const getProviderOptions = useCallback((providerId) => {
     let options = {}
     switch (providerId) {
@@ -165,13 +177,32 @@ const CreatePipeline = (props) => {
   }, [boardId, owner, projectId, repositoryName, sourceId])
 
   const configureProvider = useCallback((providerId) => {
-    return {
-      Plugin: providerId,
-      Options: {
-        ...getProviderOptions(providerId)
-      }
+    let providerConfig = {}
+    switch (providerId) {
+      case Providers.GITLAB:
+        providerConfig = getManyProviderOptions(providerId, 'projectId', [...projectId])
+        break
+      case Providers.JIRA:
+        providerConfig = getManyProviderOptions(
+          providerId,
+          'boardId',
+          [...boardId],
+          {
+            sourceId: parseInt(sourceId, 10)
+          }
+        )
+        break
+      default:
+        providerConfig = {
+          Plugin: providerId,
+          Options: {
+            ...getProviderOptions(providerId)
+          }
+        }
+        break
     }
-  }, [getProviderOptions])
+    return providerConfig
+  }, [getProviderOptions, getManyProviderOptions, projectId, boardId, sourceId])
 
   const resetPipelineName = () => {
     setToday(new Date())
@@ -183,12 +214,17 @@ const CreatePipeline = (props) => {
     resetPipelineName()
     setExistingTasks([])
     setEnabledProviders([])
-    setProjectId('')
-    setBoardId('')
+    setProjectId([])
+    setBoardId([])
     setSelectedSource(null)
     setRepositoryName('')
     setOwner('')
   }
+
+  const getConnectionName = useCallback((connectionId) => {
+    const source = sources.find(s => s.id === connectionId)
+    return source ? source.title : '(Instance)'
+  }, [sources])
 
   useEffect(() => {
 
@@ -208,7 +244,7 @@ const CreatePipeline = (props) => {
   useEffect(() => {
     console.log('>> ENBALED PROVIDERS = ', enabledProviders)
     const PipelineTasks = enabledProviders.map(p => configureProvider(p))
-    setRunTasks(PipelineTasks)
+    setRunTasks(PipelineTasks.flat())
     console.log('>> CONFIGURED PIPELINE TASKS = ', PipelineTasks)
     validate()
     if (enabledProviders.includes(Providers.JIRA)) {
@@ -256,27 +292,28 @@ const CreatePipeline = (props) => {
       window.history.replaceState(null, '')
       // !WARNING! This logic will only handle ONE STAGE (Stage 1)
       // @todo: refactor later for multi-stage
-      const GitLabTask = tasks.find(t => t.plugin === Providers.GITLAB)
+      const GitLabTask = tasks.filter(t => t.plugin === Providers.GITLAB)
       const GitHubTask = tasks.find(t => t.plugin === Providers.GITHUB)
-      const JiraTask = tasks.find(t => t.plugin === Providers.JIRA)
+      const JiraTask = tasks.filter(t => t.plugin === Providers.JIRA)
       const JenkinsTask = tasks.find(t => t.plugin === Providers.JENKINS)
-      if (GitLabTask) {
+      if (GitLabTask && GitLabTask.length > 0) {
         setEnabledProviders(eP => [...eP, Providers.GITLAB])
-        setProjectId(GitLabTask.options?.projectId)
+        setProjectId(Array.isArray(GitLabTask) ? GitLabTask.map(gT => gT.options?.projectId) : GitLabTask.options?.projectId)
       }
       if (GitHubTask) {
         setEnabledProviders(eP => [...eP, Providers.GITHUB])
         setRepositoryName(GitHubTask.options?.repositoryName)
         setOwner(GitHubTask.options?.owner)
       }
-      if (JiraTask) {
-        // const selSource = sources.find(s => s.ID === parseInt(JiraTask.options?.sourceId, 10))
+      if (JiraTask && JiraTask.length > 0) {
+        fetchAllConnections(false)
         setEnabledProviders(eP => [...eP, Providers.JIRA])
-        setBoardId(JiraTask.options?.boardId)
+        setBoardId(Array.isArray(JiraTask) ? JiraTask.map(jT => jT.options?.boardId) : JiraTask.options?.boardId)
+        const connSrcId = JiraTask[0].options?.sourceId
         setSelectedSource({
-          id: parseInt(JiraTask.options?.sourceId, 10),
-          title: '(Instance)',
-          value: parseInt(JiraTask.options?.sourceId, 10)
+          id: parseInt(connSrcId, 10),
+          title: getConnectionName(connSrcId),
+          value: parseInt(connSrcId, 10)
         })
       }
       if (JenkinsTask) {
@@ -290,6 +327,7 @@ const CreatePipeline = (props) => {
     return () => {
       setRestartDetected(false)
       setExistingTasks([])
+      // setProjectId([])
     }
   }, [location])
 
