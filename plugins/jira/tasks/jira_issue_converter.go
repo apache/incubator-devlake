@@ -59,6 +59,7 @@ func ConvertIssues(sourceId uint64, boardId uint64) error {
 			CreatedDate:             &jiraIssue.Created,
 			UpdatedDate:             &jiraIssue.Updated,
 			LeadTimeMinutes:         jiraIssue.LeadTimeMinutes,
+			TimeSpentMinutes:        jiraIssue.SpentMinutes,
 		}
 		if jiraIssue.AssigneeAccountId != "" {
 			issue.AssigneeId = userIdGen.Generate(sourceId, jiraIssue.AssigneeAccountId)
