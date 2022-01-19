@@ -25,6 +25,7 @@ const MappingTag = ({ classNames, labelIntent, labelName, onChange, rightElement
             fill={true}
             onChange={value => setTimeout(() => onChange([...new Set(value)]), 0)}
             addOnPaste={true}
+            addOnBlur={true}
             rightElement={rightElement}
             onKeyDown={e => e.key === 'Enter' && e.preventDefault()}
             className='tagInput'
