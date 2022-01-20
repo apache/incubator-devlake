@@ -16,7 +16,6 @@ This is a enrichment plugin based on Domain Layer data, no configuration needed
 
 ## How to use
 
-为了触发数据增强，您需要在 Pipeline 中加入一个新的任务
 In order to trigger the enrichment, you need to insert a new task into your pipeline
 
 ```
