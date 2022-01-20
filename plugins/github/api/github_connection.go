@@ -21,15 +21,15 @@ type PublicEmail struct {
 }
 
 /*
-GET /plugins/github/test
+POST /plugins/github/test
 */
 func TestConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, error) {
 	ValidationResult := core.ValidateParams(input, []string{"endpoint", "auth"})
 	if !ValidationResult.Success {
 		return &core.ApiResourceOutput{Body: ValidationResult}, nil
 	}
-	endpoint := input.Query.Get("endpoint")
-	auth := input.Query.Get("auth")
+	endpoint := input.Body["endpoint"].(string)
+	auth := input.Body["auth"].(string)
 	tokens := strings.Split(auth, ",")
 
 	// PLEASE NOTE: This works because GitHub API Client rotates tokens on each request
