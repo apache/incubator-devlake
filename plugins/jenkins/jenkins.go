@@ -57,17 +57,17 @@ func (j Jenkins) Execute(options map[string]interface{}, progress chan<- float32
 	j.CleanData()
 	var worker = tasks.NewJenkinsWorker(nil, tasks.NewDefaultJenkinsStorage(lakeModels.Db), op.Host, op.Username, op.Password)
 	err = worker.SyncJobs(progress)
-	if err != nil{
+	if err != nil {
 		logger.Error("Fail to sync jobs", err)
 		return err
 	}
 	err = tasks.ConvertJobs()
-	if err != nil{
+	if err != nil {
 		logger.Error("Fail to convert jobs", err)
 		return err
 	}
 	err = tasks.ConvertBuilds()
-	if err != nil{
+	if err != nil {
 		logger.Error("Fail to convert builds", err)
 		return err
 	}
@@ -81,7 +81,7 @@ func (plugin Jenkins) RootPkgPath() string {
 func (plugin Jenkins) ApiResources() map[string]map[string]core.ApiResourceHandler {
 	return map[string]map[string]core.ApiResourceHandler{
 		"test": {
-			"GET": api.TestConnection,
+			"POST": api.TestConnection,
 		},
 		"sources": {
 			"GET":  api.ListSources,

@@ -15,14 +15,14 @@ func (testResult *TestResult) Set(success bool, message string) {
 func ValidateParams(input *ApiResourceInput, requiredParams []string) *TestResult {
 	message := "Missing params: "
 	missingParams := []string{}
-	if len(input.Query) == 0 {
+	if len(input.Body) == 0 {
 		for _, param := range requiredParams {
 			message += fmt.Sprintf(" %v", param)
 		}
 		return &TestResult{Success: false, Message: message}
 	} else {
 		for _, param := range requiredParams {
-			if input.Query.Get(param) == "" {
+			if input.Body[param] == "" {
 				missingParams = append(missingParams, param)
 			}
 		}

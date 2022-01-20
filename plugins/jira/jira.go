@@ -251,7 +251,7 @@ func (plugin Jira) RootPkgPath() string {
 func (plugin Jira) ApiResources() map[string]map[string]core.ApiResourceHandler {
 	return map[string]map[string]core.ApiResourceHandler{
 		"test": {
-			"GET": api.TestConnection,
+			"POST": api.TestConnection,
 		},
 		"echo": {
 			"POST": func(input *core.ApiResourceInput) (*core.ApiResourceOutput, error) {
