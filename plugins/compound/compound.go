@@ -12,6 +12,8 @@ import (
 	"github.com/merico-dev/lake/plugins/core"
 )
 
+var _ core.Plugin = (*Compound)(nil)
+
 // plugin interface
 type Compound string
 

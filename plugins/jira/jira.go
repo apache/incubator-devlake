@@ -16,6 +16,8 @@ import (
 	"github.com/mitchellh/mapstructure"
 )
 
+var _ core.Plugin = (*Jira)(nil)
+
 type JiraOptions struct {
 	SourceId uint64   `json:"sourceId"`
 	BoardId  uint64   `json:"boardId"`
