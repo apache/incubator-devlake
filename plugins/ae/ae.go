@@ -11,6 +11,8 @@ import (
 	"github.com/mitchellh/mapstructure"
 )
 
+var _ core.Plugin = (*AE)(nil)
+
 type AEOptions struct {
 	Tasks []string `json:"tasks,omitempty"`
 }
