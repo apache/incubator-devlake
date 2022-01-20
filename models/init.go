@@ -59,7 +59,7 @@ func migrateDB() {
 		&code.Note{},
 		&code.RepoCommit{},
 		&code.Ref{},
-		&code.CommitsDiff{},
+		&code.RefsCommitsDiff{},
 		&ticket.Board{},
 		&ticket.Issue{},
 		&ticket.BoardIssue{},

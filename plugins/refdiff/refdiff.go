@@ -68,7 +68,7 @@ func (rd RefDiff) Execute(options map[string]interface{}, progress chan<- float3
 		}
 		return ref.CommitSha, nil
 	}
-	commitPairs := make([][2]string, 0, len(op.Pairs))
+	commitPairs := make([][4]string, 0, len(op.Pairs))
 	for i, refPair := range op.Pairs {
 		newCommit, err := ref2sha(refPair.NewRef)
 		if err != nil {
@@ -91,7 +91,7 @@ func (rd RefDiff) Execute(options map[string]interface{}, progress chan<- float3
 			)
 			continue
 		}
-		commitPairs = append(commitPairs, [2]string{newCommit, oldCommit})
+		commitPairs = append(commitPairs, [4]string{newCommit, oldCommit, refPair.NewRef, refPair.OldRef})
 	}
 
 	// create a in memory graph database
@@ -124,15 +124,29 @@ func (rd RefDiff) Execute(options map[string]interface{}, progress chan<- float3
 	}
 
 	// calculate diffs for commits pairs and store them into database
-	commitsDiff := &code.CommitsDiff{}
+	commitsDiff := &code.RefsCommitsDiff{}
 	ancestors := cayley.StartMorphism().Out(quad.String("childOf"))
 	for _, pair := range commitPairs {
+		// ref might advance, keep commit sha for debugging
 		commitsDiff.NewCommitSha = pair[0]
 		commitsDiff.OldCommitSha = pair[1]
+		commitsDiff.NewRefName = pair[2]
+		commitsDiff.OldRefName = pair[3]
+
 		newCommit := cayley.StartPath(store, quad.String(commitsDiff.NewCommitSha)).FollowRecursive(ancestors, -1, []string{})
 		oldCommit := cayley.StartPath(store, quad.String(commitsDiff.OldCommitSha)).FollowRecursive(ancestors, -1, []string{})
 
 		p := newCommit.Except(oldCommit)
+
+		// delete records before creation
+		err = models.Db.Exec(
+			"DELETE FROM refs_commits_diffs WHERE new_ref_name = ? AND old_ref_name = ?",
+			commitsDiff.NewRefName,
+			commitsDiff.OldRefName,
+		).Error
+		if err != nil {
+			return err
+		}
 
 		// cayley produces a result that contains old commit sha but not new one
 		// that is the opposite of what `git log oldcommit..newcommit would produces`
