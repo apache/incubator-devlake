@@ -623,6 +623,10 @@
         }
       }
 
+      .task-module-name {
+        border-right: 1px solid rgba(136, 136, 136, 0.95);
+      }
+
     }
 
     &.task-failed {
