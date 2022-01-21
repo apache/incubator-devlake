@@ -39,3 +39,17 @@ curl -v -XPOST http://localhost:8080/pipelines --data @- <<'JSON'
 }
 JSON
 ```
+
+## Install `libgit2` on Ubuntu
+
+```
+apt install cmake
+git clone https://github.com/libgit2/libgit2.git
+git checkout v1.3.0
+make build
+cd build
+cmake ..
+make
+make install
+ldconfig
+```

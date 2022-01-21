@@ -1,7 +1,10 @@
-FROM mericodev/lake-builder:0.0.2 as builder
+FROM mericodev/lake-builder:0.0.3 as builder
 
 # docker build --build-arg GOPROXY=https://goproxy.io,direct -t mericodev/lake .
 ARG GOPROXY=
+# docker build --build-arg HTTP_PROXY=http://localhost:4780 -t mericodev/lake .
+ARG HTTP_PROXY=
+ARG HTTPS_PROXY=
 WORKDIR /app
 COPY . /app
 
@@ -9,11 +12,12 @@ RUN rm -rf /app/bin
 
 ENV GOBIN=/app/bin
 
-RUN CGO_ENABLE=1 GOOS=linux go build -o bin/lake && sh scripts/compile-plugins.sh
+RUN go build -o bin/lake && sh scripts/compile-plugins.sh
 RUN go install ./cmd/lake-cli/
 
 FROM alpine:edge
 
+RUN apk add --no-cache libgit2-dev
 EXPOSE 8080
 WORKDIR /app
 
