@@ -276,7 +276,21 @@ const PipelineActivity = (props) => {
                             </span>
                           </h2>
                           <div className='pipeline-timestamp'>
-                            2021-12-08 08:00 AM (UTC)
+                            {dayjs(activePipeline.CreatedAt).utc().format()} (UTC)
+                          </div>
+                          <div className='pipeline-multistage-tag' style={{ padding: '5px 0 0 0'}}>
+                            <Icon icon='layers' color={Colors.GRAY4} size={14} style={{marginRight: '5px'}} />
+                            <span style={{
+                              fontFamily: 'Montserrat',
+                              fontStyle: 'normal',
+                              fontWeight: 900,
+                              letterSpacing: '1px',
+                              color: '#333',
+                              fontSize: '11px'
+                            }}
+                            >
+                              MULTI-STAGE
+                            </span>
                           </div>
 
                         </div>
@@ -394,7 +408,7 @@ const PipelineActivity = (props) => {
                         </div>
 
                       </div>
-                      <TaskActivity activePipeline={activePipeline} />
+                      <TaskActivity activePipeline={activePipeline} stages={buildPipelineStages(activePipeline.tasks)} />
                     </Card>
                   </CSSTransition>
                   <div style={{ display: 'flex', padding: '5px 3px', fontSize: '10px', color: '#777777', justifyContent: 'space-between' }}>

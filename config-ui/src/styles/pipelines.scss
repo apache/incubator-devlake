@@ -492,3 +492,200 @@
 
   }
 }
+
+.pipeline-task-activity {
+  border-bottom-left-radius: 3px;
+  border-bottom-right-radius: 3px;
+}
+
+.stage-lane {
+  min-width: 210px;
+  border-right: 1px solid rgb(233, 233, 233);
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+
+  &:first-of-type {
+    border-bottom-left-radius: 3px;
+  }
+
+  &:last-of-type {
+    border-bottom-right-radius: 3px;
+    border-right: 0;
+  }
+
+  &.stage-running {
+    background-color: rgba(255, 255, 255, 1);
+
+    .stage-title {
+      font-weight: 800;
+      text-shadow: 0px 1px 1px rgba(0, 0, 0, 0.12);
+    }
+  }
+
+  &.stage-completed {
+    background-color: rgba(61, 204, 145, 0.15);
+  }
+
+  &.stage-failed {
+    background-color: rgba(204, 61, 97, 0.06);
+  }
+
+  &.stage-created,
+  &.stage-pending {
+    background-color: rgba(238, 238, 238, 0.35);
+  }
+
+  .stage-title {
+    text-align: center;
+    padding: 5px;
+    display: flex;
+    align-self: center;
+    justify-self: flex-start;
+    font-size: 14px;
+    color: #222;
+  }
+
+  .bp3-card.pipeline-task-module {
+    display: flex;
+    padding: 0;
+    transition: all 0.3s ease-out;
+    width: 80%;
+    border-radius: 12px;
+    margin: 5px;
+    min-width: 100px;
+    max-width: 210px;
+    min-height: 32px;
+    height: auto;
+    border: 2px solid #ddd;
+    justify-content: flex-start;
+    align-items: center;
+    overflow: hidden;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    cursor: pointer;
+
+    &.task-completed {
+      border: 2px solid rgba(61, 204, 145, 0.95);
+      background-color: #fff;
+
+      &:hover {
+        border: 2px solid rgba(29, 167, 109, 0.95);
+        background-color: rgba(61, 204, 145, 0.75);
+        color: #ffffff;
+
+        .bp3-icon>svg {
+          fill: #fff;
+        }
+      }
+
+      .task-module-name {
+        border-right: 1px solid rgba(61, 204, 145, 0.95);
+        font-weight: 800;
+      }
+    }
+
+    &.task-running {
+      border: 2px solid rgba(136, 136, 136, 0.95);
+      background-color: #ffffff;
+
+      &:hover {
+        border: 2px solid rgba(0, 140, 255, 0.95);
+        background-color: rgba(194, 225, 255, 0.75);
+
+        // color: #ffffff;
+        .bp3-spinner.task-module-spinner {
+          .bp3-spinner-head {
+            stroke: rgb(0, 102, 255);
+          }
+        }
+
+        .task-module-name {
+          border-right: 1px solid rgba(0, 140, 255, 0.95);
+        }
+      }
+
+    }
+
+    &.task-failed {
+      border: 2px solid rgba(255, 115, 115, 0.9);
+
+      &:hover {
+        border: 2px solid rgba(233, 65, 65, 0.9);
+        background-color: rgba(255, 115, 115, 0.9);
+        color: #ffffff;
+
+        .bp3-spinner.task-module-spinner {
+          .bp3-spinner-head {
+            stroke: #fff;
+          }
+
+        }
+      }
+
+      .task-module-name {
+        border-right: 1px solid rgba(233, 65, 65, 0.9);
+      }
+    }
+
+    &.task-created {
+      opacity: 0.8;
+
+      .bp3-spinner.task-module-spinner {
+        .bp3-spinner-head {
+          stroke: transparent;
+        }
+      }
+
+      &:hover {
+        border: 2px solid rgba(136, 136, 136, 0.95);
+        background-color: rgba(223, 223, 223, 0.75);
+
+        .bp3-spinner.task-module-spinner {
+          .bp3-spinner-head {
+            stroke: rgb(87, 87, 87);
+          }
+        }
+
+        .task-module-name {
+          border-right: 1px solid rgba(136, 136, 136, 0.95);
+        }
+      }
+    }
+
+
+    .task-module-name {
+      // transition: all 0.2s linear;
+      border-right: 1px solid #ddd;
+    }
+
+    .task-module-progress {
+      display: flex;
+      width: 50px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      padding: 8px;
+      justify-content: flex-end;
+    }
+
+    .task-module-status {}
+  }
+
+  .bp3-progress-bar.stage-lane-progressbar {
+    border-radius: 0;
+    height: 3px;
+    margin: 0;
+    position: absolute;
+    bottom: -1px;
+
+    .bp3-progress-meter {
+      border-radius: 0;
+      margin: 0;
+      background-color: rgba(61, 204, 145, 0.95);
+    }
+  }
+}
