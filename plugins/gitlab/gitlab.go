@@ -51,10 +51,15 @@ func (plugin Gitlab) Init() {
 func (plugin Gitlab) Execute(options map[string]interface{}, progress chan<- float32, ctx context.Context) error {
 	logger.Print("start gitlab plugin execution")
 
+	rateLimitPerSecondInt, err := core.GetRateLimitPerSecond(options, 15)
+	if err != nil {
+		return err
+	}
+
 	// GitLab's authenticated api rate limit is 2000 per min
 	// 30 tasks/min 60s/min = 1800 per min < 2000 per min
 	// You would think this would work but it hits the rate limit every time. I have to play with the number to see the right way to set it
-	scheduler, err := utils.NewWorkerScheduler(50, 15, ctx)
+	scheduler, err := utils.NewWorkerScheduler(50, rateLimitPerSecondInt, ctx)
 	defer scheduler.Release()
 	if err != nil {
 		return fmt.Errorf("could not create scheduler")

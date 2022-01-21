@@ -47,3 +47,16 @@ const SchemaIsRequired = "Endpoint schema is required"
 const InvalidSchema = "Failed to find port for schema"
 const DNSResolveFailedError = "Failed to find ip address"
 const NetworkConnectError = "Failed to connect to endpoint"
+
+func GetRateLimitPerSecond(options map[string]interface{}, defaultValue int) (int, error) {
+	if options["rateLimitPerSecond"] == nil {
+		return defaultValue, nil
+	}
+
+	rateLimitPerSecond := options["rateLimitPerSecond"]
+	if value, ok := rateLimitPerSecond.(float64); ok {
+		return int(value), nil
+	} else {
+		return 0, fmt.Errorf("rateLimitPerSecond is invalid")
+	}
+}

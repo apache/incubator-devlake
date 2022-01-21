@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"fmt"
+	"github.com/merico-dev/lake/utils"
 
 	"github.com/merico-dev/lake/config"
 	"github.com/merico-dev/lake/logger"
@@ -52,27 +53,48 @@ func (j Jenkins) Execute(options map[string]interface{}, progress chan<- float32
 		Username: config.V.GetString("JENKINS_USERNAME"),
 		Password: config.V.GetString("JENKINS_PASSWORD"),
 	}
+
 	var err = mapstructure.Decode(options, &op)
 	if err != nil {
 		return fmt.Errorf("Failed to decode options: %v", err)
 	}
+
+	var rateLimitPerSecondInt int
+	rateLimitPerSecondInt, err = core.GetRateLimitPerSecond(options, 15)
+	if err != nil {
+		return err
+	}
+
+	// to keep the progress work properly, we set workerNum = 1, so it will work one by one
+
+	scheduler, err := utils.NewWorkerScheduler(10, rateLimitPerSecondInt, ctx)
+	defer scheduler.Release()
+	if err != nil {
+		return fmt.Errorf("could not create scheduler")
+	}
+
 	j.CleanData()
 	var worker = tasks.NewJenkinsWorker(nil, tasks.NewDefaultJenkinsStorage(lakeModels.Db), op.Host, op.Username, op.Password)
-	err = worker.SyncJobs(progress)
+
+	err = worker.SyncJobs(scheduler)
 	if err != nil {
 		logger.Error("Fail to sync jobs", err)
 		return err
 	}
+	progress <- float32(0.4)
 	err = tasks.ConvertJobs()
 	if err != nil {
 		logger.Error("Fail to convert jobs", err)
 		return err
 	}
+	progress <- float32(0.7)
 	err = tasks.ConvertBuilds()
 	if err != nil {
 		logger.Error("Fail to convert builds", err)
 		return err
 	}
+	progress <- float32(1.0)
+
 	return nil
 }
 
