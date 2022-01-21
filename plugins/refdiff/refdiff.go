@@ -78,19 +78,6 @@ func (rd RefDiff) Execute(options map[string]interface{}, progress chan<- float3
 		if err != nil {
 			return fmt.Errorf("failed to load commit sha for OleRef on pair #%d: %w", i, err)
 		}
-		if newCommit == oldCommit {
-			// different refs might point to a same commit, it is ok
-			logger.Info(
-				"refdiff",
-				fmt.Sprintf(
-					"skipping ref pair due to they are the same %s %s => %s",
-					refPair.NewRef,
-					refPair.OldRef,
-					newCommit,
-				),
-			)
-			continue
-		}
 		commitPairs = append(commitPairs, [4]string{newCommit, oldCommit, refPair.NewRef, refPair.OldRef})
 	}
 
@@ -146,6 +133,20 @@ func (rd RefDiff) Execute(options map[string]interface{}, progress chan<- float3
 		).Error
 		if err != nil {
 			return err
+		}
+
+		if commitsDiff.NewCommitSha == commitsDiff.OldCommitSha {
+			// different refs might point to a same commit, it is ok
+			logger.Info(
+				"refdiff",
+				fmt.Sprintf(
+					"skipping ref pair due to they are the same %s %s => %s",
+					commitsDiff.NewRefName,
+					commitsDiff.OldRefName,
+					commitsDiff.NewCommitSha,
+				),
+			)
+			continue
 		}
 
 		// cayley produces a result that contains old commit sha but not new one

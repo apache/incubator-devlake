@@ -5,7 +5,7 @@ package main
 import (
 	"fmt"
 
-	git2go "github.com/libgit2/git2go/v28"
+	git2go "github.com/libgit2/git2go/v33"
 	"github.com/merico-dev/lake/models"
 	"github.com/merico-dev/lake/models/domainlayer/code"
 	"gorm.io/gorm/clause"
