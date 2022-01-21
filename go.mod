@@ -12,7 +12,7 @@ require (
 	github.com/gin-gonic/gin v1.7.4
 	github.com/go-playground/validator/v10 v10.9.0
 	github.com/golang-migrate/migrate/v4 v4.15.1
-	github.com/libgit2/git2go/v28 v28.9.4
+	github.com/libgit2/git2go/v33 v33.0.6
 	github.com/magiconair/properties v1.8.5
 	github.com/mitchellh/mapstructure v1.4.1
 	github.com/panjf2000/ants/v2 v2.4.6
