@@ -9,24 +9,46 @@ import {
   Tooltip,
   Position,
   Intent,
+  Card,
+  Elevation,
+  H4,
   // Alignment
 } from '@blueprintjs/core'
 import dayjs from '@/utils/time'
+import StageLane from '@/components/pipelines/StageLane'
 
 const TaskActivity = (props) => {
-  const { activePipeline } = props
+  const { activePipeline, stages = [] } = props
 
   return (
     <>
 
       <div
         className='pipeline-task-activity' style={{
-          padding: '20px',
+          // padding: '20px',
+          padding: Object.keys(stages).length === 1 ? '10px' : 0,
           overflow: 'hidden',
           textOverflow: 'ellipsis'
         }}
       >
-        {activePipeline?.ID && activePipeline.tasks && activePipeline.tasks.map((t, tIdx) => (
+        {Object.keys(stages).length > 1 && (
+          <div
+            className='pipeline-multistage-activity'
+            style={{
+              display: 'flex',
+              justfiyContent: 'flex-start',
+              height: '40vh',
+              minHeight: '300px',
+              borderTop: '1px solid rgb(240, 240, 240)',
+              borderBottom: '1px solid rgb(240, 240, 240)'
+            }}
+          >
+            {Object.keys(stages).map((sK, sIdx) => (
+              <StageLane key={`stage-lane-key-${sIdx}`} stages={stages} sK={sK} sIdx={sIdx} />
+            ))}
+          </div>
+        )}
+        {Object.keys(stages).length === 1 && activePipeline?.ID && activePipeline.tasks && activePipeline.tasks.map((t, tIdx) => (
           <div
             className='pipeline-task-row'
             key={`pipeline-task-key-${tIdx}`}
