@@ -35,12 +35,12 @@ const TaskActivity = (props) => {
           <div
             className='pipeline-multistage-activity'
             style={{
-              display: 'flex',
-              justfiyContent: 'flex-start',
-              height: '40vh',
-              minHeight: '300px',
-              borderTop: '1px solid rgb(240, 240, 240)',
-              borderBottom: '1px solid rgb(240, 240, 240)'
+              // display: 'flex',
+              // justfiyContent: 'flex-start',
+              // height: '40vh',
+              // minHeight: '300px',
+              // borderTop: '1px solid rgb(240, 240, 240)',
+              // borderBottom: '1px solid rgb(240, 240, 240)'
             }}
           >
             {Object.keys(stages).map((sK, sIdx) => (

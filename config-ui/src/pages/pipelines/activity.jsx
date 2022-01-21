@@ -278,20 +278,22 @@ const PipelineActivity = (props) => {
                           <div className='pipeline-timestamp'>
                             {dayjs(activePipeline.CreatedAt).utc().format()} (UTC)
                           </div>
-                          <div className='pipeline-multistage-tag' style={{ padding: '5px 0 0 0'}}>
-                            <Icon icon='layers' color={Colors.GRAY4} size={14} style={{marginRight: '5px'}} />
-                            <span style={{
-                              fontFamily: 'Montserrat',
-                              fontStyle: 'normal',
-                              fontWeight: 900,
-                              letterSpacing: '1px',
-                              color: '#333',
-                              fontSize: '11px'
-                            }}
-                            >
-                              MULTI-STAGE
-                            </span>
-                          </div>
+                          {Object.keys(buildPipelineStages(activePipeline.tasks)).length > 1 && (
+                            <div className='pipeline-multistage-tag' style={{ padding: '5px 0 0 0' }}>
+                              <Icon icon='layers' color={Colors.GRAY4} size={14} style={{ marginRight: '5px' }} />
+                              <span style={{
+                                fontFamily: 'Montserrat',
+                                fontStyle: 'normal',
+                                fontWeight: 900,
+                                letterSpacing: '1px',
+                                color: '#333',
+                                fontSize: '11px'
+                              }}
+                              >
+                                MULTI-STAGE
+                              </span>
+                            </div>
+                          )}
 
                         </div>
                         <div style={{

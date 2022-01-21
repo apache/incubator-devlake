@@ -493,6 +493,16 @@
   }
 }
 
+.pipeline-multistage-activity {
+  display: flex;
+  justify-content: flex-start;
+  height: auto;
+  min-height: calc(8vh + 300px);
+  max-height: 50vh;
+  border-top: 1px solid rgb(240, 240, 240);
+  border-bottom: 1px solid rgb(240, 240, 240);
+}
+
 .pipeline-task-activity {
   border-bottom-left-radius: 3px;
   border-bottom-right-radius: 3px;
@@ -520,6 +530,7 @@
 
     .stage-title {
       font-weight: 800;
+      font-size: 15px;
       text-shadow: 0px 1px 1px rgba(0, 0, 0, 0.12);
     }
   }
@@ -535,6 +546,10 @@
   &.stage-created,
   &.stage-pending {
     background-color: rgba(238, 238, 238, 0.35);
+
+    .stage-title {
+      opacity: 0.7;
+    }
   }
 
   .stage-title {
@@ -651,14 +666,19 @@
         }
 
         .task-module-name {
-          border-right: 1px solid rgba(136, 136, 136, 0.95);
+          // border-right: 1px solid rgba(136, 136, 136, 0.95);
         }
+      }
+
+      .task-module-progress {
+        display: none;
       }
     }
 
 
     .task-module-name {
       // transition: all 0.2s linear;
+      flex: 1;
       border-right: 1px solid #ddd;
     }
 
@@ -677,7 +697,7 @@
 
   .bp3-progress-bar.stage-lane-progressbar {
     border-radius: 0;
-    height: 3px;
+    height: 4px;
     margin: 0;
     position: absolute;
     bottom: -1px;
