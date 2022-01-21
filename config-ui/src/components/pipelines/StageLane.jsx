@@ -84,7 +84,7 @@ const StageLane = (props) => {
     <>
       <div
         // key={`stage-lane-key-${sIdx}`}
-        className={`stage-lane ${generateStageCssClasses(sK)}`}
+        className={`stage-lane ${generateStageCssClasses(sK)} ${isStageActive(sK) ? 'bp3-elevation-2' : ''}`}
         style={{
           position: 'relative',
           display: 'flex',
@@ -93,7 +93,6 @@ const StageLane = (props) => {
           justifyContent: 'center',
           alignContent: 'flex-start',
           alignItems: 'center',
-          // borderRight: '1px solid rgb(240, 240, 240)',
           padding: '0'
         }}
       >
@@ -124,13 +123,7 @@ const StageLane = (props) => {
         <H4
           className='stage-title'
           style={{
-            // textAlign: 'center',
-            // padding: '5px',
-            // display: 'flex',
-            // alignSelf: 'center',
-            // justifySelf: 'flex-start',
-            // fontSize: '14px',
-            // color: '#222'
+
           }}
         >
           Stage {sIdx + 1}
@@ -139,57 +132,6 @@ const StageLane = (props) => {
         {stages[sK].map((t, tIdx) => (
           <StageTask task={t} key={`stage-task-key-${tIdx}`} />
         ))}
-        {/* <Card
-          elevation={Elevation.ONE}
-                // interactive={true}
-          className='pipeline-task-module'
-          style={{
-            display: 'flex',
-            padding: '0',
-            borderRadius: '12px',
-            border: '1px solid rgb(240, 240, 240)',
-            margin: '5px'
-          }}
-        >
-          <div style={{ display: 'flex', justifyContent: 'center', padding: '8px', width: '32px', minWidth: '32px' }}>
-            {stages[sK][0].status === 'TASK_COMPLETED' && (
-              <Tooltip content={`Task Complete [STAGE ${stages[sK][0].pipelineRow}]`} position={Position.TOP} intent={Intent.SUCCESS}>
-                <Icon icon='small-tick' size={18} color={Colors.GREEN5} style={{ marginLeft: '0' }} />
-              </Tooltip>
-            )}
-            {stages[sK][0].status === 'TASK_FAILED' && (
-              <Tooltip content={`Task Failed [STAGE ${stages[sK][0].pipelineRow}]`} position={Position.TOP} intent={Intent.PRIMARY}>
-                <Spinner
-                      // className='task-spinner'
-                  size={14}
-                  intent={Intent.WARNING}
-                  value={stages[sK][0].progress}
-                />
-              </Tooltip>
-            )}
-            {stages[sK][0].status === 'TASK_RUNNING' && (
-              <Tooltip content={`Task Running [STAGE ${stages[sK][0].pipelineRow}]`} position={Position.TOP}>
-                <Spinner
-                  className='task-spinner'
-                  size={14}
-                  intent={stages[sK][0].status === 'TASK_COMPLETED' ? 'success' : 'warning'}
-                  value={stages[sK][0].status === 'TASK_COMPLETED' ? 1 : stages[sK][0].progress}
-                />
-              </Tooltip>
-            )}
-            {stages[sK][0].status === 'TASK_CREATED' && (
-              <Tooltip content={`Task Created (Pending) [STAGE ${stages[sK][0].pipelineRow}]`} position={Position.TOP}>
-                <Icon icon='stopwatch' size={14} color={Colors.GRAY3} style={{ marginLeft: '0', marginBottom: '3px' }} />
-              </Tooltip>
-            )}
-          </div>
-          <div className='task-module-name' style={{ padding: '8px 8px 8px 0' }}>
-            {stages[sK][0].plugin}
-          </div>
-          <div className='task-module-progress' style={{ padding: '8px', borderLeft: '1px solid #dddddd' }}>
-            {Number(stages[sK][0].status === 'TASK_COMPLETED' ? 100 : (stages[sK][0].progress / 1) * 100).toFixed(2)}%
-          </div>
-        </Card> */}
         <div
           className='stage-footer' style={{
             padding: '5px 10px',

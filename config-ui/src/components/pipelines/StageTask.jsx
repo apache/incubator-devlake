@@ -17,7 +17,12 @@ import {
 import dayjs from '@/utils/time'
 
 const StageTask = (props) => {
-  const { stages = [], task, sK, sIdx } = props
+  const {
+    stages = [],
+    task,
+    sK,
+    sIdx
+  } = props
 
   return (
     <>
@@ -25,24 +30,19 @@ const StageTask = (props) => {
         elevation={task.status === 'TASK_RUNNING' ? Elevation.TWO : Elevation.ONE}
         className={`pipeline-task-module task-${task.status.split('_')[1].toLowerCase()}`}
         style={{
-          // display: 'flex',
-          // padding: '0',
-          // border: task.status === 'TASK_COMPLETED' ? '2px solid rgba(61, 204, 145, 0.95)' : task.status === 'TASK_FAILED' ? '2px solid rgba(255, 115, 115, 0.9)' : '2px solid #ddd',
-          // boxShadow: task.status === 'TASK_FAILED' ? '0 0 0 1px #e8471c, 0 0 0 3px rgba(232, 71, 28, 0.3), 0 1px 1px rgba(16, 22, 26, 0.2)' : 'initial',
-          // borderRadius: '12px',
-          // backgroundColor: task.status === 'TASK_COMPLETED' ? 'rgba(61, 204, 145, 0.15)' : '',
-          // margin: '5px',
-          // flex: 1,
-          // width: '80%',
-          // minWidth: '100px',
-          // maxWidth: '210px',
-          // minHeight: '32px',
-          // height: 'auto',
-          // justifyContent: 'flex-start',
-          // alignItems: 'center'
+
         }}
       >
-        <div className='task-module-status' style={{ display: 'flex', justifyContent: 'center', padding: '8px', width: '32px', minWidth: '32px' }}>
+        <div
+          className='task-module-status'
+          style={{
+            display: 'flex',
+            justifyContent: 'center',
+            padding: '8px',
+            width: '32px',
+            minWidth: '32px'
+          }}
+        >
           {task.status === 'TASK_COMPLETED' && (
             <Tooltip content={`Task Complete [STAGE ${task.pipelineRow}]`} position={Position.TOP} intent={Intent.SUCCESS}>
               <Icon icon='small-tick' size={18} color={Colors.GREEN5} style={{ marginLeft: '0' }} />
@@ -82,8 +82,7 @@ const StageTask = (props) => {
         <div
           className='task-module-name'
           style={{
-            flex: 1,
-            // borderRight: '1px solid #dddddd',
+            flex: 1
           }}
         >
           <div style={{ padding: '4px 2px 4px 0' }}>
@@ -99,20 +98,13 @@ const StageTask = (props) => {
             }}
             >
               {task.plugin !== 'github' && (<>ID {task.options.projectId || task.options.boardId}</>)}
-              {task.plugin === 'github' && (<>{task.options.owner}/{task.options.repositoryName}</>)}
+              {task.plugin === 'github' && (<>@{task.options.owner}/{task.options.repositoryName}</>)}
             </span>
           </div>
         </div>
         <div
           className='task-module-progress'
           style={{
-            // display: 'flex',
-            // width: '50px',
-            // overflow: 'hidden',
-            // textOverflow: 'ellisis',
-            // whiteSpace: 'nowrap',
-            // padding: '8px',
-            // justifyContent: 'flex-end',
             fontWeight: task.status === 'TASK_COMPLETED' ? 700 : 300
           }}
         >
