@@ -58,15 +58,18 @@ func (plugin Github) Execute(options map[string]interface{}, progress chan<- flo
 	tokens := strings.Split(configTokensString, ",")
 	githubApiClient := tasks.CreateApiClient(endpoint, tokens)
 	_ = githubApiClient.SetProxy(config.V.GetString("GITHUB_PROXY"))
-	// GitHub API has very low rate limits, so we cycle through multiple tokens to increase rate limits.
-	// Then we set the ants max worker per second according to the number of tokens we have to maximize speed.
+
 	tokenCount := len(tokens)
-	// We need this rate limit set to 1 by default since there are only 5000 requests per hour allowed for the github api
-	maxWorkerPerSecond := 1
-	if tokenCount > 0 {
-		maxWorkerPerSecond = tokenCount
+
+	if tokenCount == 0 {
+		return fmt.Errorf("owner is required for GitHub execution")
 	}
-	scheduler, err := utils.NewWorkerScheduler(50, maxWorkerPerSecond, ctx)
+
+	rateLimitPerSecondInt, err := core.GetRateLimitPerSecond(options, tokenCount)
+	if err != nil {
+		return err
+	}
+	scheduler, err := utils.NewWorkerScheduler(50, rateLimitPerSecondInt, ctx)
 	if err != nil {
 		logger.Error("could not create scheduler", false)
 	}
