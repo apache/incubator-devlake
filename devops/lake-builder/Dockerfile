@@ -1,4 +1,4 @@
-FROM golang:1.17-alpine as builder
+FROM golang:1.17-alpine3.15 as builder
 #RUN set -eux && sed -i 's/dl-cdn.alpinelinux.org/mirrors.ustc.edu.cn/g' /etc/apk/repositories
 RUN apk update
 RUN apk upgrade
