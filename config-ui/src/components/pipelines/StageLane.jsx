@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from 'react'
-// import { CSSTransition } from 'react-transition-group'
+import { CSSTransition } from 'react-transition-group'
 import {
   // Classes,
   Icon,
@@ -17,6 +17,7 @@ import {
 } from '@blueprintjs/core'
 import dayjs from '@/utils/time'
 import StageTask from '@/components/pipelines/StageTask'
+import StageLaneStatus from '@/components/pipelines/StageLaneStatus'
 
 const StageLane = (props) => {
   const { stages = [], sK = 1, sIdx } = props
@@ -130,9 +131,30 @@ const StageLane = (props) => {
         </H4>
         {/* {sIdx} */}
         {stages[sK].map((t, tIdx) => (
-          <StageTask task={t} key={`stage-task-key-${tIdx}`} />
+          <CSSTransition
+            key={`fx-key-stage-task-${tIdx}`}
+            in={true}
+            timeout={350}
+            classNames='provider-datarow'
+            unmountOnExit
+          >
+            <StageTask task={t} key={`stage-task-key-${tIdx}`} />
+          </CSSTransition>
         ))}
-        <div
+        <StageLaneStatus
+          sK={sK}
+          stage={activeStage}
+          stages={stages}
+          isStageCompleted={isStageCompleted}
+          isStagePending={isStagePending}
+          isStageActive={isStageActive}
+          isStageFailed={isStageFailed}
+          calculateStageLaneProgress={calculateStageLaneProgress}
+          getTotalTasksCount={getTotalTasksCount}
+          getCompletedTaskCount={getCompletedTaskCount}
+          getRunningTaskCount={getRunningTaskCount}
+        />
+        {/* <div
           className='stage-footer' style={{
             padding: '5px 10px',
             marginBottom: '4px',
@@ -154,7 +176,7 @@ const StageLane = (props) => {
               color: isStageCompleted(sK) ? Colors.GREEN5 : Colors.GRAY5
             }}
           >
-            {isStageActive(sK) && <span style={{ color: Colors.BLACK }}>ACTIVE</span>}
+            {isStageActive(sK) && <span style={{ color: Colors.BLACK }}> ACTIVE</span>}
             {isStageCompleted(sK) && <span style={{ color: Colors.GREEN5 }}>COMPLETED</span>}
             {isStageFailed(sK) && <span style={{ color: Colors.RED5 }}>FAILED</span>}
             {isStagePending(sK) && <>WAITING</>}
@@ -165,7 +187,7 @@ const StageLane = (props) => {
           </div>
           <div className='stage-caption'>
             {isStageActive(sK) && <>Stage Running</>}
-            {/* {isStageFailed(sK) && <>Stage Failed</>} */}
+            {/* {isStageFailed(sK) && <>Stage Failed</>} *\\/}
             {(isStageCompleted(sK) || isStageFailed(sK)) && <>{dayjs(stages[sK].UpdatedAt).from(stages[sK].CreatedAt, true)}</>}
             {isStagePending(sK) && <><Icon icon='more' color={Colors.GRAY5} size={12} /></>}
           </div>
@@ -176,7 +198,7 @@ const StageLane = (props) => {
             stripes={true}
             intent={Intent.SUCCESS} value={calculateStageLaneProgress(stages[sK])} style={{ borderRadius: 0 }}
           />
-        )}
+        )} */}
       </div>
     </>
   )
