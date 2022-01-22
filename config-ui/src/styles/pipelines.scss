@@ -582,6 +582,7 @@
     -ms-user-select: none;
     user-select: none;
     cursor: pointer;
+    background-image: linear-gradient(to bottom, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0));
 
     &.task-completed {
       border: 2px solid rgba(61, 204, 145, 0.95);
