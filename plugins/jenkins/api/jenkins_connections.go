@@ -15,10 +15,10 @@ func TestConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, erro
 		return &core.ApiResourceOutput{Body: ValidationResult}, nil
 	}
 
-	encodedToken := utils.GetEncodedToken(input.Query.Get("username"), input.Query.Get("password"))
+	encodedToken := utils.GetEncodedToken(input.Body["username"].(string), input.Body["password"].(string))
 	apiClient := &core.ApiClient{}
 	apiClient.Setup(
-		input.Query.Get("endpoint"),
+		input.Body["endpoint"].(string),
 		map[string]string{
 			"Authorization": fmt.Sprintf("Basic %v", encodedToken),
 		},

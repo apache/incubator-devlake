@@ -16,9 +16,10 @@ func TestConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, erro
 	if !ValidationResult.Success {
 		return &core.ApiResourceOutput{Body: ValidationResult}, nil
 	}
-	endpoint := input.Query.Get("endpoint")
-	auth := input.Query.Get("auth")
-	jiraApiClient := tasks.NewJiraApiClient(endpoint, auth)
+	endpoint := input.Body["endpoint"]
+	auth := input.Body["auth"]
+
+	jiraApiClient := tasks.NewJiraApiClient(endpoint.(string), auth.(string))
 
 	res, err := jiraApiClient.Get("api/3/myself", nil, nil)
 	if err != nil || res.StatusCode != 200 {

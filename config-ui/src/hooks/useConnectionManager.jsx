@@ -59,26 +59,26 @@ function useConnectionManager ({
     ToastNotification.clear()
     // TODO: run Save first
     const runTest = async () => {
-      let queryParams = ``
+      let connectionPayload
       switch (activeProvider.id) {
-        case Providers.JENKINS:
-          queryParams = `?username=${username}&password=${password}&endpoint=${endpointUrl}`
-          break
-        case Providers.GITLAB:
-          queryParams = `?auth=${token}&endpoint=${endpointUrl}`
+        case Providers.JIRA:
+          connectionPayload = { endpoint: endpointUrl, auth: token }
           break
         case Providers.GITHUB:
-          queryParams = `?auth=${token}&endpoint=${endpointUrl}`
+          connectionPayload = { endpoint: endpointUrl, auth: token }
           break
-        case Providers.JIRA:
-          queryParams = `?auth=${token}&endpoint=${endpointUrl}`
+        case Providers.JENKINS:
+          connectionPayload = { endpoint: endpointUrl, username: username, password: password }
+          break
+        case Providers.GITLAB:
+          connectionPayload = { endpoint: endpointUrl, auth: token }
           break
       }
-      let testUrl = `${DEVLAKE_ENDPOINT}/plugins/${activeProvider.id}/test`
-      let getUrl = testUrl + queryParams
-      console.log('INFO >>> GET URL for testing: ', getUrl);
-      let res = await request.get(getUrl)
-      console.log('res.data', res.data);
+
+      const testUrl = `${DEVLAKE_ENDPOINT}/plugins/${activeProvider.id}/test`
+      console.log('INFO >>> POST URL for testing: ', testUrl)
+      const res = await request.post(testUrl, connectionPayload)
+      console.log('res.data', res.data)
       if (res?.data?.Success && res.status === 200) {
         setIsTesting(false)
         setTestStatus(1)
@@ -86,7 +86,7 @@ function useConnectionManager ({
       } else {
         setIsTesting(false)
         setTestStatus(2)
-        let errorMessage = 'Connection test FAILED. ' + res?.data?.Message
+        const errorMessage = 'Connection test FAILED. ' + res?.data?.Message
         ToastNotification.show({ message: errorMessage, intent: 'danger', icon: 'error' })
       }
     }
