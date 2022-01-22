@@ -1,4 +1,4 @@
-package tasks
+package test
 
 import (
 	"net/http"
@@ -17,7 +17,14 @@ func GatherDataFromApi(url string, path string) (*http.Response, error) {
 	if err != nil {
 		return nil, err
 	}
-	defer r.Stop() // Make sure recorder is stopped once done with it
+
+	// Make sure recorder is stopped once done with it
+	defer func() {
+		err = r.Stop()
+		if err != nil {
+			panic(err)
+		}
+	}()
 
 	// Create an HTTP client and inject our transport
 	client := &http.Client{
