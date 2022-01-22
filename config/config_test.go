@@ -18,7 +18,7 @@ func TestReadAndWriteToConfig(t *testing.T) {
 	currentDbUrl := configJson.DB_URL
 	newDbUrl := "ThisIsATest"
 	assert.Equal(t, currentDbUrl != newDbUrl, true)
-	V := LoadConfigFile()
+	V := LoadConfigFile("")
 	V.Set("DB_URL", newDbUrl)
 	err = V.WriteConfig()
 	assert.Equal(t, err == nil, true)

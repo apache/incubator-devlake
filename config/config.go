@@ -1,6 +1,8 @@
 package config
 
 import (
+	"fmt"
+
 	"github.com/spf13/viper"
 )
 
@@ -35,19 +37,24 @@ type Config struct {
 
 var V *viper.Viper
 
-func LoadConfigFile() *viper.Viper {
+func LoadConfigFile(path string) *viper.Viper {
 	V = viper.New()
-	V.SetConfigFile(".env")
+	V.SetConfigFile("../../../.env")
+	V.SetConfigFile(path)
 	_ = V.ReadInConfig()
 	V.AutomaticEnv()
 	return V
 }
 
 func init() {
-	V := LoadConfigFile()
+	V := LoadConfigFile("")
 	V.SetDefault("PORT", ":8080")
 	V.SetDefault("PLUGIN_DIR", "bin/plugins")
 	// This line is essential for reading and writing
+
+	dbUrl := V.Get("DB_URL")
+	fmt.Println("JON >>> dbUrl", dbUrl)
+
 	V.WatchConfig()
 }
 

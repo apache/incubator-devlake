@@ -34,58 +34,63 @@ type Commit struct {
 	Message string
 }
 
-func CollectCommits(owner string, repositoryName string, repositoryId int, scheduler *utils.WorkerScheduler, githubApiClient *GithubApiClient) error {
-	getUrl := fmt.Sprintf("repos/%v/%v/commits", owner, repositoryName)
-	return githubApiClient.FetchWithPaginationAnts(getUrl, nil, 100, 20, scheduler,
-		func(res *http.Response) error {
-			githubApiResponse := &ApiCommitsResponse{}
-			err := core.UnmarshalResponse(res, githubApiResponse)
-			if err != nil || res.StatusCode == 401 {
+var RepositoryId int
+
+func HandleCommitsResponse(res *http.Response) error {
+	githubApiResponse := &ApiCommitsResponse{}
+	err := core.UnmarshalResponse(res, githubApiResponse)
+	if err != nil || res.StatusCode == 401 {
+		return err
+	}
+	repoCommit := &models.GithubRepoCommit{GithubRepoId: RepositoryId}
+	for _, commit := range *githubApiResponse {
+		githubCommit, err := convertGithubCommit(&commit)
+		if err != nil {
+			return err
+		}
+		// save author and committer
+		if commit.Author != nil {
+			githubCommit.AuthorId = commit.Author.Id
+			err = lakeModels.Db.Clauses(clause.OnConflict{
+				UpdateAll: true,
+			}).Create(&commit.Author).Error
+			if err != nil {
 				return err
 			}
-			repoCommit := &models.GithubRepoCommit{GithubRepoId: repositoryId}
-			for _, commit := range *githubApiResponse {
-				githubCommit, err := convertGithubCommit(&commit)
-				if err != nil {
-					return err
-				}
-				// save author and committer
-				if commit.Author != nil {
-					githubCommit.AuthorId = commit.Author.Id
-					err = lakeModels.Db.Clauses(clause.OnConflict{
-						UpdateAll: true,
-					}).Create(&commit.Author).Error
-					if err != nil {
-						return err
-					}
-				}
-				if commit.Committer != nil {
-					githubCommit.CommitterId = commit.Committer.Id
-					err = lakeModels.Db.Clauses(clause.OnConflict{
-						UpdateAll: true,
-					}).Create(&commit.Committer).Error
-					if err != nil {
-						return err
-					}
-				}
-				err = lakeModels.Db.Clauses(clause.OnConflict{
-					UpdateAll: true,
-				}).Create(&githubCommit).Error
-				if err != nil {
-					return err
-				}
-				// save repo / commit relationship
-				repoCommit.CommitSha = commit.Sha
-				err = lakeModels.Db.Clauses(clause.OnConflict{
-					DoNothing: true,
-				}).Create(repoCommit).Error
-				if err != nil {
-					return err
-				}
+		}
+		if commit.Committer != nil {
+			githubCommit.CommitterId = commit.Committer.Id
+			err = lakeModels.Db.Clauses(clause.OnConflict{
+				UpdateAll: true,
+			}).Create(&commit.Committer).Error
+			if err != nil {
+				return err
 			}
-			return nil
-		})
+		}
+		err = lakeModels.Db.Clauses(clause.OnConflict{
+			UpdateAll: true,
+		}).Create(&githubCommit).Error
+		if err != nil {
+			return err
+		}
+		// save repo / commit relationship
+		repoCommit.CommitSha = commit.Sha
+		err = lakeModels.Db.Clauses(clause.OnConflict{
+			DoNothing: true,
+		}).Create(repoCommit).Error
+		if err != nil {
+			return err
+		}
+	}
+	return nil
 }
+
+func CollectCommits(owner string, repositoryName string, repositoryId int, scheduler *utils.WorkerScheduler, githubApiClient *GithubApiClient) error {
+	getUrl := fmt.Sprintf("repos/%v/%v/commits", owner, repositoryName)
+	RepositoryId = repositoryId
+	return githubApiClient.FetchWithPaginationAnts(getUrl, nil, 100, 20, scheduler, HandleCommitsResponse)
+}
+
 func convertGithubCommit(commit *CommitsResponse) (*models.GithubCommit, error) {
 	githubCommit := &models.GithubCommit{
 		Sha:            commit.Sha,
