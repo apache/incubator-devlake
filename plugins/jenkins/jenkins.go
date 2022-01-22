@@ -83,7 +83,7 @@ func (plugin Jenkins) RootPkgPath() string {
 func (plugin Jenkins) ApiResources() map[string]map[string]core.ApiResourceHandler {
 	return map[string]map[string]core.ApiResourceHandler{
 		"test": {
-			"GET": api.TestConnection,
+			"POST": api.TestConnection,
 		},
 		"sources": {
 			"GET":  api.ListSources,

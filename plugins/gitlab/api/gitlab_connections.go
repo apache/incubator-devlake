@@ -15,7 +15,7 @@ type ApiUserResponse struct {
 }
 
 /*
-GET /plugins/gitlab/test
+POST /plugins/gitlab/test
 */
 func TestConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, error) {
 	gitlabApiClient := tasks.CreateApiClient()
@@ -24,9 +24,9 @@ func TestConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, erro
 	if !ValidationResult.Success {
 		return &core.ApiResourceOutput{Body: ValidationResult}, nil
 	}
-	endpoint := input.Query.Get("endpoint")
+	endpoint := input.Body["endpoint"].(string)
 	headers := map[string]string{
-		"Authorization": fmt.Sprintf("Bearer %v", input.Query.Get("auth")),
+		"Authorization": fmt.Sprintf("Bearer %v", input.Body["auth"].(string)),
 	}
 	gitlabApiClient.SetEndpoint(endpoint)
 	gitlabApiClient.SetHeaders(headers)
