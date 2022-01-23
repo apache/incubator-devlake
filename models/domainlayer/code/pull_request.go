@@ -6,7 +6,7 @@ import (
 	"github.com/merico-dev/lake/models/domainlayer"
 )
 
-type Pr struct {
+type PullRequest struct {
 	domainlayer.DomainEntity
 	RepoId      uint64 `gorm:"index"`
 	State       string `gorm:"comment:open/closed or other"`

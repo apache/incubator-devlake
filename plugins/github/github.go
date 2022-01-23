@@ -34,7 +34,6 @@ func (plugin Github) Init() {
 		&models.GithubReviewer{},
 		&models.GithubPullRequestComment{},
 		&models.GithubPullRequestCommit{},
-		&models.GithubPullRequestCommitPullRequest{},
 		&models.GithubIssue{},
 		&models.GithubIssueComment{},
 		&models.GithubIssueEvent{},
@@ -101,16 +100,18 @@ func (plugin Github) Execute(options map[string]interface{}, progress chan<- flo
 	}
 	if len(tasksToRun) == 0 {
 		tasksToRun = map[string]bool{
-			"collectRepo":    true,
-			"collectCommits": true,
-			"collectIssues":  true,
-			"enrichIssues":   true,
-			"convertRepos":   true,
-			"convertIssues":  true,
-			"convertPrs":     true,
-			"convertCommits": true,
-			"convertNotes":   true,
-			"convertUsers":   true,
+			"collectRepo":      true,
+			"collectCommits":   true,
+			"collectIssues":    true,
+			"collectPrCommits": true,
+			"enrichIssues":     true,
+			"convertRepos":     true,
+			"convertIssues":    true,
+			"convertPrs":       true,
+			"convertCommits":   true,
+			"convertPrCommits": true,
+			"convertNotes":     true,
+			"convertUsers":     true,
 		}
 	}
 
@@ -159,6 +160,14 @@ func (plugin Github) Execute(options map[string]interface{}, progress chan<- flo
 		}
 
 	}
+	if tasksToRun["collectPrCommits"] {
+		progress <- 0.4
+		fmt.Println("INFO >>> collecting PR commits")
+		collectPrCommitErr := tasks.CollectPullRequestCommits(ownerString, repositoryNameString, scheduler, githubApiClient)
+		if collectPrCommitErr != nil {
+			return fmt.Errorf("Could not collect PR commits: %v", collectPrCommitErr)
+		}
+	}
 	if tasksToRun["enrichIssues"] {
 		fmt.Println("INFO >>> Enriching Issues")
 		enrichmentError := tasks.EnrichIssues()
@@ -189,8 +198,15 @@ func (plugin Github) Execute(options map[string]interface{}, progress chan<- flo
 		}
 	}
 	if tasksToRun["convertCommits"] {
-		progress <- 0.8
+		progress <- 0.7
 		err = tasks.ConvertCommits(repoId)
+		if err != nil {
+			return err
+		}
+	}
+	if tasksToRun["convertPrCommits"] {
+		progress <- 0.8
+		err = tasks.PrCommitConvertor()
 		if err != nil {
 			return err
 		}
@@ -256,6 +272,15 @@ func main() {
 	}
 	PluginEntry.Init()
 	progress := make(chan float32)
+	endpoint := config.V.GetString("GITHUB_ENDPOINT")
+	configTokensString := config.V.GetString("GITHUB_AUTH")
+	tokens := strings.Split(configTokensString, ",")
+	githubApiClient := tasks.CreateApiClient(endpoint, tokens)
+	_ = githubApiClient.SetProxy(config.V.GetString("GITHUB_PROXY"))
+	_, collectRepoErr := tasks.CollectRepository(owner, repo, githubApiClient)
+	if collectRepoErr != nil {
+		fmt.Println(fmt.Errorf("Could not collect repositories: %v", collectRepoErr))
+	}
 	go func() {
 		err := PluginEntry.Execute(
 			map[string]interface{}{
@@ -265,7 +290,7 @@ func main() {
 				//"tasks": []string{"convertCommits"},
 				//"tasks": []string{"collectIssues"},
 				//"tasks": []string{"enrichIssues"},
-				"tasks": []string{"convertIssues"},
+				"tasks": []string{"collectPrCommits", "convertPrCommits"},
 			},
 			progress,
 			context.Background(),
