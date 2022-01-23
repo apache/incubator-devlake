@@ -24,8 +24,8 @@ func ConvertPullRequests() error {
 	}
 	return nil
 }
-func convertToPullRequestModel(pr *githubModels.GithubPullRequest) *code.Pr {
-	domainPr := &code.Pr{
+func convertToPullRequestModel(pr *githubModels.GithubPullRequest) *code.PullRequest {
+	domainPr := &code.PullRequest{
 		DomainEntity: domainlayer.DomainEntity{
 			Id: didgen.NewDomainIdGenerator(pr).Generate(pr.GithubId),
 		},
