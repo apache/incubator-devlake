@@ -25,7 +25,8 @@ type JiraBoardSprint struct {
 }
 
 type JiraSprintIssue struct {
-	SourceId uint64 `gorm:"primaryKey"`
-	SprintId uint64 `gorm:"primaryKey"`
-	IssueId  uint64 `gorm:"primaryKey"`
+	SourceId       uint64 `gorm:"primaryKey"`
+	SprintId       uint64 `gorm:"primaryKey"`
+	IssueId        uint64 `gorm:"primaryKey"`
+	ResolutionDate *time.Time
 }

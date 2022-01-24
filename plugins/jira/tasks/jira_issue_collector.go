@@ -160,11 +160,12 @@ func CollectIssues(
 
 				// spirnt / issue relationship
 				for _, sprintId := range sprints {
-					err = lakeModels.Db.FirstOrCreate(
+					err = lakeModels.Db.Clauses(clause.OnConflict{UpdateAll: true}).Create(
 						&models.JiraSprintIssue{
-							SourceId: source.ID,
-							SprintId: sprintId,
-							IssueId:  jiraIssue.IssueId,
+							SourceId:       source.ID,
+							SprintId:       sprintId,
+							IssueId:        jiraIssue.IssueId,
+							ResolutionDate: jiraIssue.ResolutionDate,
 						}).Error
 					if err != nil {
 						logger.Error("jira collect issues: save sprint issue relationship failed", err)

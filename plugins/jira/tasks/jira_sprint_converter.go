@@ -56,9 +56,12 @@ func ConvertSprint(sourceId uint64, boardId uint64) error {
 				SprintId: sprint.Id,
 				IssueId:  issueIdGen.Generate(sourceId, si.IssueId),
 			}
+			if si.ResolutionDate != nil {
+				dsi.ResolvedStage = getStage(*si.ResolutionDate, sprint.StartedDate, sprint.CompletedDate)
+			}
 			domainSprintIssues = append(domainSprintIssues, dsi)
 		}
-		err = lakeModels.Db.Clauses(clause.OnConflict{DoNothing: true}).CreateInBatches(&domainSprintIssues, BatchSize).Error
+		err = lakeModels.Db.Clauses(clause.OnConflict{UpdateAll: true}).Select("sprint_id", "issue_id", "resolved_stage").CreateInBatches(&domainSprintIssues, BatchSize).Error
 		if err != nil {
 			return err
 		}

@@ -19,7 +19,7 @@ type SprintIssuesConverter struct {
 	sprintIdGen    *didgen.DomainIdGenerator
 	issueIdGen     *didgen.DomainIdGenerator
 	userIdGen      *didgen.DomainIdGenerator
-	sprints        map[string]*models.JiraSprint
+	sprints        map[string]*ticket.Sprint
 	sprintIssue    map[string]*ticket.SprintIssue
 	status         map[string]*ticket.IssueStatusHistory
 	assignee       map[string]*ticket.IssueAssigneeHistory
@@ -31,7 +31,7 @@ func NewSprintIssueConverter() *SprintIssuesConverter {
 		sprintIdGen:    didgen.NewDomainIdGenerator(&models.JiraSprint{}),
 		issueIdGen:     didgen.NewDomainIdGenerator(&models.JiraIssue{}),
 		userIdGen:      didgen.NewDomainIdGenerator(&models.JiraUser{}),
-		sprints:        make(map[string]*models.JiraSprint),
+		sprints:        make(map[string]*ticket.Sprint),
 		sprintIssue:    make(map[string]*ticket.SprintIssue),
 		status:         make(map[string]*ticket.IssueStatusHistory),
 		assignee:       make(map[string]*ticket.IssueAssigneeHistory),
@@ -86,7 +86,18 @@ func (c *SprintIssuesConverter) UpdateSprintIssue() error {
 			logger.Error("UpdateSprintIssue error:", err)
 			return err
 		}
-
+		var issue ticket.Issue
+		err = lakeModels.Db.First(&issue, "id = ?", fresh.IssueId).Error
+		if err != nil && err != gorm.ErrRecordNotFound {
+			logger.Error("UpdateSprintIssue error:", err)
+			return err
+		}
+		if issue.ResolutionDate != nil {
+			fresh.ResolvedStage, _ = c.getStage(*issue.ResolutionDate, fresh.IssueId)
+			if fresh.ResolvedStage != old.ResolvedStage {
+				flag = true
+			}
+		}
 		if old.AddedDate == nil && fresh.AddedDate != nil || old.RemovedDate == nil && fresh.RemovedDate != nil {
 			flag = true
 		}
@@ -173,7 +184,9 @@ func (c *SprintIssuesConverter) handleFrom(sourceId, sprintId uint64, cl Changel
 	k := fmt.Sprintf("%d:%d", sprintId, cl.IssueId)
 	if item := c.sprintsHistory[k]; item != nil {
 		item.EndDate = &cl.Created
-		err := lakeModels.Db.Create(item).Error
+		err := lakeModels.Db.Clauses(clause.OnConflict{
+			UpdateAll: true,
+		}).Create(item).Error
 		if err != nil {
 			return err
 		}
@@ -184,13 +197,23 @@ func (c *SprintIssuesConverter) handleFrom(sourceId, sprintId uint64, cl Changel
 func (c *SprintIssuesConverter) handleTo(sourceId, sprintId uint64, cl ChangelogItemResult) error {
 	domainSprintId := c.sprintIdGen.Generate(sourceId, sprintId)
 	key := fmt.Sprintf("%d:%d:%d", sourceId, sprintId, cl.IssueId)
+	addedStage, err := c.getStage(cl.Created, domainSprintId)
+	if err == gorm.ErrRecordNotFound{
+		return nil
+	}
+	if err != nil{
+		return err
+	}
+	if addedStage == ""{
+		return nil
+	}
 	if item, ok := c.sprintIssue[key]; ok {
 		if item != nil && (item.AddedDate == nil || item.AddedDate != nil && item.AddedDate.After(cl.Created)) {
 			item.AddedDate = &cl.Created
-			item.AddedStage, _ = c.getStage(cl.Created, sourceId, sprintId)
+			item.AddedStage = addedStage
 		}
 	} else {
-		addedStage, _ := c.getStage(cl.Created, sourceId, sprintId)
+		addedStage, _ := c.getStage(cl.Created, domainSprintId)
 		c.sprintIssue[key] = &ticket.SprintIssue{
 			SprintId:    domainSprintId,
 			IssueId:     c.issueIdGen.Generate(sourceId, cl.IssueId),
@@ -198,7 +221,6 @@ func (c *SprintIssuesConverter) handleTo(sourceId, sprintId uint64, cl Changelog
 			AddedStage:  addedStage,
 			RemovedDate: nil,
 		}
-		c.sprintIssue[key].AddedStage, _ = c.getStage(cl.Created, sourceId, sprintId)
 	}
 	k := fmt.Sprintf("%d:%d", sprintId, cl.IssueId)
 	now := time.Now()
@@ -211,54 +233,46 @@ func (c *SprintIssuesConverter) handleTo(sourceId, sprintId uint64, cl Changelog
 	return nil
 }
 
-func (c *SprintIssuesConverter) getSprint(sourceId, sprintId uint64) (*models.JiraSprint, error) {
-	id := c.sprintIdGen.Generate(sourceId, sprintId)
+func (c *SprintIssuesConverter) getSprint(id string) (*ticket.Sprint, error) {
 	if value, ok := c.sprints[id]; ok {
 		return value, nil
 	}
-	var sprint models.JiraSprint
-	err := lakeModels.Db.First(&sprint, "source_id = ? AND sprint_id = ?", sourceId, sprintId).Error
+	var sprint ticket.Sprint
+	err := lakeModels.Db.First(&sprint, "id = ?", id).Error
 	if err != nil {
 		c.sprints[id] = &sprint
 	}
 	return &sprint, err
 }
 
-func (c *SprintIssuesConverter) getStage(t time.Time, sourceId, sprintId uint64) (string, error) {
-	sprint, err := c.getSprint(sourceId, sprintId)
+func (c *SprintIssuesConverter) getStage(t time.Time, sprintId string) (string, error) {
+	sprint, err := c.getSprint(sprintId)
 	if err != nil {
 		return "", err
 	}
-	if sprint.StartDate != nil {
-		if sprint.StartDate.After(t) {
-			return ticket.BeforeSprint, nil
-		}
-		if sprint.StartDate.Equal(t) || (sprint.CompleteDate != nil && sprint.CompleteDate.Equal(t)) {
-			return ticket.DuringSprint, nil
-		}
-		if sprint.CompleteDate != nil && sprint.StartDate.Before(t) && sprint.CompleteDate.After(t) {
-			return ticket.DuringSprint, nil
-		}
-	}
-	if sprint.CompleteDate != nil && sprint.CompleteDate.Before(t) {
-		return ticket.AfterSprint, nil
-	}
-	return "", nil
+	return getStage(t, sprint.StartedDate, sprint.CompletedDate), nil
 }
 
 func (c *SprintIssuesConverter) handleStatus(sourceId uint64, cl ChangelogItemResult) error {
+	var err error
 	issueId := c.issueIdGen.Generate(sourceId, cl.IssueId)
 	if statusHistory := c.status[issueId]; statusHistory != nil {
 		statusHistory.EndDate = &cl.Created
+		err = lakeModels.Db.Clauses(clause.OnConflict{
+			UpdateAll: true,
+		}).Create(c.status[issueId]).Error
+		if err != nil{
+			return err
+		}
 	}
 	now := time.Now()
 	c.status[issueId] = &ticket.IssueStatusHistory{
-		IssueId:   issueId,
-		Status:    cl.ToString,
-		StartDate: cl.Created,
-		EndDate:   &now,
+		IssueId:        issueId,
+		OriginalStatus: cl.ToString,
+		StartDate:      cl.Created,
+		EndDate:        &now,
 	}
-	err := lakeModels.Db.Clauses(clause.OnConflict{
+	err = lakeModels.Db.Clauses(clause.OnConflict{
 		UpdateAll: true,
 	}).Create(c.status[issueId]).Error
 	if err != nil {
@@ -272,12 +286,14 @@ func (c *SprintIssuesConverter) handleAssignee(sourceId uint64, cl ChangelogItem
 	if assigneeHistory := c.assignee[issueId]; assigneeHistory != nil {
 		assigneeHistory.EndDate = &cl.Created
 	}
-	now := time.Now()
+	var assignee string
+	if cl.To != "" {
+		assignee = c.userIdGen.Generate(sourceId, cl.To)
+	}
 	c.assignee[issueId] = &ticket.IssueAssigneeHistory{
 		IssueId:   issueId,
-		Assignee:  c.userIdGen.Generate(sourceId, cl.To),
+		Assignee:  assignee,
 		StartDate: cl.Created,
-		EndDate:   &now,
 	}
 	err := lakeModels.Db.Clauses(clause.OnConflict{
 		UpdateAll: true,
@@ -286,4 +302,22 @@ func (c *SprintIssuesConverter) handleAssignee(sourceId uint64, cl ChangelogItem
 		return err
 	}
 	return nil
+}
+
+func getStage(t time.Time, sprintStart, sprintComplete *time.Time) string {
+	if sprintStart != nil {
+		if sprintStart.After(t) {
+			return ticket.BeforeSprint
+		}
+		if sprintStart.Equal(t) || (sprintComplete != nil && sprintComplete.Equal(t)) {
+			return ticket.DuringSprint
+		}
+		if sprintComplete != nil && sprintStart.Before(t) && sprintComplete.After(t) {
+			return ticket.DuringSprint
+		}
+	}
+	if sprintComplete != nil && sprintComplete.Before(t) {
+		return ticket.AfterSprint
+	}
+	return ""
 }
