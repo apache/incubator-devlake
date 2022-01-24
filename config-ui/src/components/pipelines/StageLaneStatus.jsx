@@ -21,6 +21,7 @@ const StageLaneStatus = (props) => {
     stage,
     stages = [],
     sK = 1,
+    duration = '0 mins',
     isStageActive = () => {},
     isStagePending = () => {},
     isStageCompleted = () => {},
@@ -68,7 +69,7 @@ const StageLaneStatus = (props) => {
         <div className='stage-caption'>
           {isStageActive(sK) && <>Stage Running</>}
           {/* {isStageFailed(sK) && <>Stage Failed</>} */}
-          {(isStageCompleted(sK) || isStageFailed(sK)) && <>{dayjs(stage.UpdatedAt).from(stage.CreatedAt, true)}</>}
+          {(isStageCompleted(sK) || isStageFailed(sK)) && <>{duration}</>}
           {isStagePending(sK) && <><Icon icon='more' color={Colors.GRAY5} size={12} /></>}
         </div>
       </div>
