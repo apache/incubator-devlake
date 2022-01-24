@@ -1,5 +1,4 @@
-
-import React from 'react'
+import React, { useState, useEffect } from 'react'
 // import { CSSTransition } from 'react-transition-group'
 import {
   Providers,
@@ -21,25 +20,31 @@ import {
   // Alignment
 } from '@blueprintjs/core'
 import dayjs from '@/utils/time'
+import StageTaskName from '@/components/pipelines/StageTaskName'
+import StageTaskIndicator from '@/components/pipelines/StageTaskIndicator'
 
 const StageTask = (props) => {
   const {
     stages = [],
     task,
     sK,
-    sIdx
+    sIdx,
   } = props
+
+  const [taskModuleOpened, setTaskModuleOpened] = useState()
 
   return (
     <>
       <Card
         elevation={task.status === 'TASK_RUNNING' ? Elevation.TWO : Elevation.ONE}
-        className={`pipeline-task-module task-${task.status.split('_')[1].toLowerCase()}`}
+        className={`pipeline-task-module task-${task.status.split('_')[1].toLowerCase()} ${task.ID === taskModuleOpened?.ID ? 'active' : ''}`}
+        onClick={() => setTaskModuleOpened(task)}
         style={{
 
         }}
       >
-        <div
+        <StageTaskIndicator task={task} />
+        {/* <div
           className='task-module-status'
           style={{
             display: 'flex',
@@ -81,10 +86,10 @@ const StageTask = (props) => {
                 size={14}
                 value={0}
               />
-              {/* <Icon icon='stopwatch' size={14} color={Colors.GRAY3} style={{ marginLeft: '0', marginBottom: '3px' }} /> */}
+              {/* <Icon icon='stopwatch' size={14} color={Colors.GRAY3} style={{ marginLeft: '0', marginBottom: '3px' }} /> *\\/}
             </Tooltip>
           )}
-        </div>
+        </div> */}
         <div
           className='task-module-name'
           style={{
@@ -92,7 +97,8 @@ const StageTask = (props) => {
           }}
         >
           <div style={{ padding: '4px 2px 4px 0' }}>
-            <Popover
+            <StageTaskName task={task} showDetails={taskModuleOpened} onClose={() => setTaskModuleOpened(null)} />
+            {/* <Popover
               className='trigger-pipeline-activity-help'
               popoverClassName='popover-help-pipeline-activity'
               position={Position.RIGHT}
@@ -139,7 +145,7 @@ const StageTask = (props) => {
                             {JSON.stringify(task.options)}
                           </code>
                         </pre>
-                      </span> */}
+                      </span> *\\/}
                     </div>
                     {task.message !== '' && (
                       <div style={{ marginTop: '6px' }}>
@@ -160,7 +166,7 @@ const StageTask = (props) => {
                   </div>
                 </div>
               </>
-            </Popover>
+            </Popover> */}
 
             <span style={{
               opacity: 0.4,

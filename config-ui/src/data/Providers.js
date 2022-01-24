@@ -1,5 +1,9 @@
 import React from 'react'
 import { Tooltip } from '@blueprintjs/core'
+import { ReactComponent as GitlabProviderIcon } from '@/images/integrations/gitlab.svg'
+import { ReactComponent as JenkinsProviderIcon } from '@/images/integrations/jenkins.svg'
+import { ReactComponent as JiraProviderIcon } from '@/images/integrations/jira.svg'
+import { ReactComponent as GitHubProviderIcon } from '@/images/integrations/github.svg'
 
 const Providers = {
   NULL: 'null',
@@ -109,8 +113,16 @@ const ProviderFormPlaceholders = {
   }
 }
 
+const ProviderIcons = {
+  [Providers.GITLAB]: (w, h) => <GitlabProviderIcon width={w || 24} height={h || 24} />,
+  [Providers.JENKINS]: (w, h) => <JenkinsProviderIcon width={w || 24} height={h || 24} />,
+  [Providers.JIRA]: (w, h) => <JiraProviderIcon width={w || 24} height={h || 24} />,
+  [Providers.GITHUB]: (w, h) => <GitHubProviderIcon width={w || 24} height={h || 24} />,
+}
+
 export {
   Providers,
+  ProviderIcons,
   ProviderLabels,
   ProviderSourceLimits,
   ProviderFormLabels,
