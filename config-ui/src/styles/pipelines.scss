@@ -537,10 +537,12 @@
 
   &.stage-completed {
     background-color: rgba(61, 204, 145, 0.15);
+    border-right: 1px solid rgba(61, 204, 145, 0.35);
   }
 
   &.stage-failed {
     background-color: rgba(204, 61, 97, 0.06);
+    border-right: 1px solid rgba(204, 61, 97, 0.25);
   }
 
   &.stage-created,
@@ -588,7 +590,12 @@
       border: 2px solid rgba(61, 204, 145, 0.95);
       background-color: #fff;
 
-      &:hover, &.active {
+      &.active {
+        transform: scale(1.06);
+      }
+
+      &:hover,
+      &.active {
         border: 2px solid rgba(29, 167, 109, 0.95);
         background-color: rgba(61, 204, 145, 0.75);
         color: #ffffff;
@@ -608,7 +615,12 @@
       border: 2px solid rgba(136, 136, 136, 0.95);
       background-color: #ffffff;
 
-      &:hover {
+      &.active {
+        transform: scale(1.06);
+      }
+
+      &:hover,
+      &.active {
         border: 2px solid rgba(0, 140, 255, 0.95);
         background-color: rgba(194, 225, 255, 0.75);
 
@@ -633,7 +645,12 @@
     &.task-failed {
       border: 2px solid rgba(255, 115, 115, 0.9);
 
-      &:hover, &.active {
+      &.active {
+        transform: scale(1.06);
+      }
+
+      &:hover,
+      &.active {
         border: 2px solid rgba(233, 65, 65, 0.9);
         background-color: rgba(255, 115, 115, 0.9);
         color: #ffffff;
@@ -658,6 +675,10 @@
         .bp3-spinner-head {
           stroke: transparent;
         }
+      }
+
+      &.active {
+        transform: scale(1.06);
       }
 
       &:hover {
