@@ -30,7 +30,7 @@ const StageTask = (props) => {
   return (
     <>
       <Card
-        elevation={task.status === 'TASK_RUNNING' ? Elevation.TWO : Elevation.ONE}
+        elevation={task.status === 'TASK_RUNNING' ? Elevation.TWO : taskModuleOpened ? Elevation.THREE : Elevation.ONE}
         className={generateStageTaskCssClasses()}
         onClick={() => setTaskModuleOpened(task)}
         style={{

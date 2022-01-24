@@ -62,6 +62,16 @@ const StageLane = (props) => {
     return completed.length / remaining.length
   }
 
+  const calculateStageLaneDuration = (stageTasks, unit = 'minute') => {
+    let duration = 0
+    const diffDuration = (pV, cV) => pV + dayjs(cV.status === 'TASK_RUNNING'
+      ? cV.CreatedAt
+      : (cV.finishedAt || cV.UpdatedAt)).diff(dayjs(cV.beganAt), unit)
+    duration = stageTasks.reduce(diffDuration, 0)
+    console.log('>> CALCULATED DURATION =', stageTasks, duration)
+    return duration
+  }
+
   const getRunningTaskCount = (stageTasks) => {
     return stageTasks.filter(s => s.status === 'TASK_RUNNING').length
   }
@@ -143,6 +153,11 @@ const StageLane = (props) => {
           sK={sK}
           stage={activeStage}
           stages={stages}
+          duration={
+            calculateStageLaneDuration(activeStage) > 60
+              ? `${Number(calculateStageLaneDuration(activeStage) / 60).toFixed(2)} hours`
+              : `${calculateStageLaneDuration(activeStage)} mins`
+          }
           isStageCompleted={isStageCompleted}
           isStagePending={isStagePending}
           isStageActive={isStageActive}
