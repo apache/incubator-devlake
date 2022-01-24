@@ -43,7 +43,7 @@ const StageTaskName = (props) => {
       >
         <span className='task-plugin-text' ref={popoverTriggerRef}>{task.plugin}</span>
         <>
-          <div style={{ textShadow: 'none', fontSize: '12px', padding: '12px', maxWidth: '360px' }}>
+          <div style={{ textShadow: 'none', fontSize: '12px', padding: '12px', maxWidth: '400px' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between' }}>
               <div style={{
                 marginBottom: '10px',
@@ -51,12 +51,13 @@ const StageTaskName = (props) => {
                 fontWeight: 700,
                 fontSize: '14px',
                 fontFamily: '"Montserrat", sans-serif',
-                maxWidth: '80%'
+                maxWidth: '60%'
               }}
               >
                 <H3 style={{
                   margin: 0,
                   fontFamily: '"JetBrains Mono", monospace',
+                  fontSize: '18px',
                   color: Colors.BLACK,
                   textOverflow: 'ellipsis',
                   overflow: 'hidden',
@@ -67,7 +68,21 @@ const StageTaskName = (props) => {
                   {task.plugin !== 'github' && task.plugin !== 'jenkins' && (<>ID {task.options.projectId || task.options.boardId}</>)}
                   {task.plugin === 'github' && task.plugin !== 'jenkins' && (<>@{task.options.owner}/{task.options.repositoryName}</>)}
                 </H3>
-                {ProviderLabels[task.plugin.toUpperCase()] || 'System Task'}<br />
+                {task.plugin !== 'jenkins' && (<>{ProviderLabels[task.plugin.toUpperCase()] || 'System Task'}<br /></>)}
+              </div>
+              <div style={{
+                fontFamily: '"Montserrat", sans-serif',
+                fontWeight: 800,
+                displays: 'flex',
+                alignItems: 'center',
+                justifyContent: 'flex-start',
+                alignSelf: 'flex-start',
+                padding: '0 0 0 40px',
+                fontSize: '18px',
+                marginLeft: 'auto'
+              }}
+              >
+                {Number(task.status === 'TASK_COMPLETED' ? 100 : (task.progress / 1) * 100).toFixed(0)}%
               </div>
               <div style={{ padding: '0 0 10px 20px' }}>
                 {ProviderIcons[task.plugin.toLowerCase()](32, 32)}
