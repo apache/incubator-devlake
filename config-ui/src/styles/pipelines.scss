@@ -199,29 +199,29 @@
 }
 
 .activity-panel-enter {
-  transform: scale(1.01);
+  transform: scale(1);
   background-color: #f0f0f0;
   opacity: 1;
-  transition: opacity 300ms, transform 300ms, background-color 800ms;
+  transition: opacity 300ms, transform 300ms, background-color 800ms, background-image 800ms;
 }
 
 .activity-panel-enter-done {
   transform: scale(1);
   background-color: #ffffff;
   opacity: 1;
-  transition: opacity 300ms, transform 300ms, background-color 800ms;
+  transition: opacity 300ms, transform 300ms, background-color 800ms, background-image 800ms;
 }
 
 .activity-panel-exit {
   background-color: #f7f7f7;
   opacity: 1;
-  transition: opacity 300ms, transform 300ms, background-color 800ms;
+  transition: opacity 300ms, transform 300ms, background-color 800ms, background-image 800ms;
 }
 
 .activity-panel-exit-active {
   background-color: #eeeeee;
   opacity: 1;
-  transition: opacity 300ms, transform 300ms, background-color 800ms;
+  transition: opacity 300ms, transform 300ms, background-color 800ms, background-image 800ms;
 }
 
 .bp3-spinner {
@@ -734,4 +734,8 @@
       background-color: rgba(61, 204, 145, 0.95);
     }
   }
+}
+
+.pipeline-activity {
+  background-image: linear-gradient(to bottom, rgba(220, 220, 220, 0.2), rgba(255, 255, 255, 0));
 }

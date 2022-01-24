@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react'
+import { Providers } from '@/data/Providers'
 import {
   Icon,
   Spinner,
@@ -24,8 +25,8 @@ const StageTaskCaption = (props) => {
         textOverflow: 'ellipsis'
       }}
     >
-      {task.plugin !== 'github' && (<>ID {options.projectId || options.boardId}</>)}
-      {task.plugin === 'github' && (<>@{options.owner}/{options.repositoryName}</>)}
+      {task.plugin !== Providers.GITHUB && (<>ID {options.projectId || options.boardId}</>)}
+      {task.plugin === Providers.GITHUB && (<>@{options.owner}/{options.repositoryName}</>)}
     </span>
   )
 }

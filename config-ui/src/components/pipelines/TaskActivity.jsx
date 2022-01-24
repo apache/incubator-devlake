@@ -1,6 +1,7 @@
 
 import React from 'react'
 // import { CSSTransition } from 'react-transition-group'
+import { Providers } from '@/data/Providers'
 import {
   // Classes,
   Icon,
@@ -113,12 +114,12 @@ const TaskActivity = (props) => {
                 flexGrow: 1
               }}
             >
-              {t.plugin !== 'jenkins' && (
+              {t.plugin !== Providers.JENKINS && (
                 <div style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                   <span style={{ color: Colors.GRAY2 }}>
                     <Icon icon='link' size={8} style={{ marginBottom: '3px' }} /> {t.options[Object.keys(t.options)[0]]}
                   </span>
-                  {t.plugin === 'github' && (
+                  {t.plugin === Providers.GITHUB && (
                     <span style={{ fontWeight: 60 }}>/{t.options[Object.keys(t.options)[1]]}</span>
                   )}
                 </div>

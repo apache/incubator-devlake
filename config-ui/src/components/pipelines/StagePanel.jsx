@@ -25,8 +25,10 @@ const StagePanel = (props) => {
         classNames='activity-panel'
       >
         <Card
-          elevation={Elevation.TWO}
+          elevation={isLoading ? Elevation.THREE : Elevation.TWO}
+          className='stage-panel-card'
           style={{
+            transition: 'all 0.3s ease-out',
             display: 'flex',
             width: '100%',
             justifySelf: 'flex-start',
