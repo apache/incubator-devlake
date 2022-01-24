@@ -37,6 +37,7 @@ func ValidateParams(input *ApiResourceInput, requiredParams []string) *TestResul
 	}
 }
 
+const InvalidParams = "Failed to decode request params"
 const SourceIdError = "Missing or Invalid sourceId"
 const InvalidConnectionError = "Your connection configuration is invalid."
 const UnsetConnectionError = "Your connection configuration is not set."

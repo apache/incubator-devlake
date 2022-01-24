@@ -10,18 +10,27 @@ import (
 	"github.com/merico-dev/lake/plugins/jira/models"
 	"github.com/merico-dev/lake/plugins/jira/tasks"
 	"github.com/merico-dev/lake/utils"
+	"github.com/mitchellh/mapstructure"
 )
+
+type TestConnectionRequest struct {
+	Endpoint string `json:"endpoint"`
+	Auth     string `json:"auth"`
+}
 
 func TestConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, error) {
 	ValidationResult := core.ValidateParams(input, []string{"endpoint", "auth"})
 	if !ValidationResult.Success {
 		return &core.ApiResourceOutput{Body: ValidationResult}, nil
 	}
+	var params TestConnectionRequest
+	err := mapstructure.Decode(input.Body, &params)
+	if err != nil {
+		logger.Error("Error: ", err)
+		return &core.ApiResourceOutput{Body: core.TestResult{Success: false, Message: core.InvalidParams}}, nil
+	}
 
-	endpoint := input.Body["endpoint"].(string)
-	auth := input.Body["auth"].(string)
-
-	parsedUrl, err := url.Parse(endpoint)
+	parsedUrl, err := url.Parse(params.Endpoint)
 	if err != nil {
 		// parsed error
 		logger.Error("Error: ", err)
@@ -50,7 +59,7 @@ func TestConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, erro
 		return &core.ApiResourceOutput{Body: core.TestResult{Success: false, Message: core.NetworkConnectError}}, nil
 	}
 
-	jiraApiClient := tasks.NewJiraApiClient(endpoint, auth)
+	jiraApiClient := tasks.NewJiraApiClient(params.Endpoint, params.Auth)
 
 	serverInfo, statusCode, err := jiraApiClient.GetJiraServerInfo()
 	if statusCode == http.StatusNotFound {
