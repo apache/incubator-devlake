@@ -167,3 +167,35 @@ func (jiraApiClient *JiraApiClient) FetchWithoutPaginationHeaders(
 	}
 	return nil
 }
+
+func (jiraApiClient *JiraApiClient) GetJiraServerInfo() (*models.JiraServerInfo, int, error) {
+	res, err := jiraApiClient.Get("api/3/serverInfo", nil, nil)
+	if err != nil {
+		return nil, 0, err
+	}
+	if res.StatusCode >= 300 || res.StatusCode < 200 {
+		return nil, res.StatusCode, fmt.Errorf("request failed with status code: %d", res.StatusCode)
+	}
+	serverInfo := &models.JiraServerInfo{}
+	err = core.UnmarshalResponse(res, serverInfo)
+	if err != nil {
+		return nil, res.StatusCode, err
+	}
+	return serverInfo, res.StatusCode, nil
+}
+
+func (jiraApiClient *JiraApiClient) GetMyselfInfo() (*models.ApiMyselfResponse, error) {
+	res, err := jiraApiClient.Get("api/3/myself", nil, nil)
+	if err != nil {
+		return nil, err
+	}
+	if res.StatusCode >= 300 || res.StatusCode < 200 {
+		return nil, fmt.Errorf("request failed with status code: %d", res.StatusCode)
+	}
+	myselfFromApi := &models.ApiMyselfResponse{}
+	err = core.UnmarshalResponse(res, myselfFromApi)
+	if err != nil {
+		return nil, err
+	}
+	return myselfFromApi, nil
+}
