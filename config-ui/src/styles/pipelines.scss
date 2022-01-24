@@ -588,7 +588,7 @@
       border: 2px solid rgba(61, 204, 145, 0.95);
       background-color: #fff;
 
-      &:hover {
+      &:hover, &.active {
         border: 2px solid rgba(29, 167, 109, 0.95);
         background-color: rgba(61, 204, 145, 0.75);
         color: #ffffff;
@@ -633,7 +633,7 @@
     &.task-failed {
       border: 2px solid rgba(255, 115, 115, 0.9);
 
-      &:hover {
+      &:hover, &.active {
         border: 2px solid rgba(233, 65, 65, 0.9);
         background-color: rgba(255, 115, 115, 0.9);
         color: #ffffff;
