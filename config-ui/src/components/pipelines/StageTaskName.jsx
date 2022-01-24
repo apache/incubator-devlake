@@ -64,9 +64,9 @@ const StageTaskName = (props) => {
                   whiteSpace: 'nowrap',
                 }}
                 >
-                  {task.plugin === 'jenkins' && (<>{ProviderLabels.JENKINS}</>)}
-                  {task.plugin !== 'github' && task.plugin !== 'jenkins' && (<>ID {task.options.projectId || task.options.boardId}</>)}
-                  {task.plugin === 'github' && task.plugin !== 'jenkins' && (<>@{task.options.owner}/{task.options.repositoryName}</>)}
+                  {task.plugin === Providers.JENKINS && (<>{ProviderLabels.JENKINS}</>)}
+                  {(task.plugin === Providers.GITLAB || task.plugin === Providers.JIRA) && (<>ID {task.options.projectId || task.options.boardId}</>)}
+                  {task.plugin === Providers.GITHUB && task.plugin !== Providers.JENKINS && (<>@{task.options.owner}/{task.options.repositoryName}</>)}
                 </H3>
                 {task.plugin !== 'jenkins' && (<>{ProviderLabels[task.plugin.toUpperCase()] || 'System Task'}<br /></>)}
               </div>

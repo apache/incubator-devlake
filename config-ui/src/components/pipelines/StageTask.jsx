@@ -46,20 +46,7 @@ const StageTask = (props) => {
         >
           <div style={{ padding: '4px 2px 4px 0' }}>
             <StageTaskName task={task} showDetails={taskModuleOpened} onClose={() => setTaskModuleOpened(null)} />
-            <StageTaskCaption task={task} options={task.options} />
-            {/* <span style={{
-              opacity: 0.4,
-              display: 'block',
-              width: '90%',
-              fontSize: '9px',
-              overflow: 'hidden',
-              whiteSpace: 'nowrap',
-              textOverflow: 'ellipsis'
-            }}
-            >
-              {task.plugin !== 'github' && (<>ID {task.options.projectId || task.options.boardId}</>)}
-              {task.plugin === 'github' && (<>@{task.options.owner}/{task.options.repositoryName}</>)}
-            </span> */}
+            {task.plugin !== Providers.JENKINS && (<StageTaskCaption task={task} options={task.options} />)}
           </div>
         </div>
         <div
