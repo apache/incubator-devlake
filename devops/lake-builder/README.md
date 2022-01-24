@@ -1,5 +1,5 @@
 # lake-builder
-golang builder image for lake, including go1.17.0 gcc10.3.1 g++10.3.1, based on alpine linux 3.13.
+golang builder image for lake, including go1.17.0 gcc10.3.1 g++10.3.1, libgit2 based on alpine linux 3.13.
 
 https://hub.docker.com/r/mericodev/lake-builder
 
