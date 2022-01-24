@@ -37,7 +37,13 @@ func ValidateParams(input *ApiResourceInput, requiredParams []string) *TestResul
 	}
 }
 
+const InvalidParams = "Failed to decode request params"
 const SourceIdError = "Missing or Invalid sourceId"
 const InvalidConnectionError = "Your connection configuration is invalid."
 const UnsetConnectionError = "Your connection configuration is not set."
 const UnmarshallingError = "There was a problem unmarshalling the response"
+const InvalidEndpointError = "Failed to parse endpoint"
+const SchemaIsRequired = "Endpoint schema is required"
+const InvalidSchema = "Failed to find port for schema"
+const DNSResolveFailedError = "Failed to find ip address"
+const NetworkConnectError = "Failed to connect to endpoint"
