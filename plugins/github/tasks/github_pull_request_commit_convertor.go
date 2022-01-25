@@ -10,14 +10,24 @@ import (
 func PrCommitConvertor() (err error) {
 	githubPullRequestCommit := &models.GithubPullRequestCommit{}
 
-	cursor, err := lakeModels.Db.Model(&githubPullRequestCommit).Rows()
+	cursor, err := lakeModels.Db.Model(&githubPullRequestCommit).
+		Order("pull_request_id ASC").Rows()
 	if err != nil {
 		return err
 	}
 	defer cursor.Close()
+	var pullRequestId int
 	// iterate all rows
 	for cursor.Next() {
 		err = lakeModels.Db.ScanRows(cursor, githubPullRequestCommit)
+		if pullRequestId != githubPullRequestCommit.PullRequestId {
+			err := lakeModels.Db.Where("pull_request_id = ?",
+				githubPullRequestCommit.PullRequestId).Delete(&code.PullRequestCommit{}).Error
+			if err != nil {
+				return err
+			}
+			pullRequestId = githubPullRequestCommit.PullRequestId
+		}
 		if err != nil {
 			return err
 		}
