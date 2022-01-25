@@ -15,4 +15,6 @@ type PullRequest struct {
 	CreatedDate time.Time
 	MergedDate  *time.Time
 	ClosedAt    *time.Time
+	Type        string
+	Component   string
 }

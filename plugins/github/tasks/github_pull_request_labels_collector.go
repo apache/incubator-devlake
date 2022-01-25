@@ -30,6 +30,11 @@ func CollectPrLabels(owner string, repositoryName string, scheduler *utils.Worke
 			logger.Error("Could not collect Pr labels", labelsErr)
 			return labelsErr
 		}
+		//labelsErr := processPrLabelsCollection(owner, repositoryName, &prs[i], scheduler, githubApiClient)
+		//if labelsErr != nil {
+		//	logger.Error("Could not collect Pr labels", labelsErr)
+		//	return labelsErr
+		//}
 	}
 	return nil
 }
@@ -47,8 +52,8 @@ func processPrLabelsCollection(owner string, repositoryName string, pr *models.G
 				}
 				for _, label := range *githubApiResponse {
 					githubIssueLabel := &models.GithubIssueLabel{
-						IssueId:        pr.GithubId,
-						IssueLabelName: label.Name,
+						IssueId:   pr.GithubId,
+						LabelName: label.Name,
 					}
 					err = lakeModels.Db.Clauses(clause.OnConflict{
 						UpdateAll: true,

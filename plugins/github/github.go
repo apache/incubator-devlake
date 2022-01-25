@@ -99,24 +99,25 @@ func (plugin Github) Execute(options map[string]interface{}, progress chan<- flo
 	}
 	if len(tasksToRun) == 0 {
 		tasksToRun = map[string]bool{
-			"collectRepo":          true,
-			"collectCommits":       true,
-			"collectIssues":        true,
-			"collectIssueEvents":   true,
-			"collectIssueComments": true,
-			"collectIssueLabels":   true,
-			"collectPrReviews":     true,
-			"collectPrLabels":      true,
-			"collectPrCommits":     true,
-			"collectPrComments":    true,
-			"enrichIssues":         true,
-			"convertRepos":         true,
-			"convertIssues":        true,
-			"convertPrs":           true,
-			"convertCommits":       true,
-			"convertPrCommits":     true,
-			"convertNotes":         true,
-			"convertUsers":         true,
+			"collectRepo":                true,
+			"collectCommits":             true,
+			"collectIssues":              true,
+			"collectIssueEvents":         true,
+			"collectIssueComments":       true,
+			"collectIssueLabels":         true,
+			"collectPullRequestReviews":  true,
+			"collectPullRequestLabels":   true,
+			"collectPullRequestCommits":  true,
+			"collectPullRequestComments": true,
+			"enrichIssues":               true,
+			"enrichPullRequests":         true,
+			"convertRepos":               true,
+			"convertIssues":              true,
+			"convertPullRequests":        true,
+			"convertCommits":             true,
+			"convertPullRequestCommits":  true,
+			"convertNotes":               true,
+			"convertUsers":               true,
 		}
 	}
 
@@ -133,7 +134,6 @@ func (plugin Github) Execute(options map[string]interface{}, progress chan<- flo
 		}
 		tasks.CollectChildrenOnCommits(ownerString, repositoryNameString, repoId, scheduler, githubApiClient)
 	}
-
 	if tasksToRun["collectIssues"] {
 		progress <- 0.1
 		fmt.Println("INFO >>> starting issues / PRs collection")
@@ -168,37 +168,37 @@ func (plugin Github) Execute(options map[string]interface{}, progress chan<- flo
 			return fmt.Errorf("Could not collect Issue Labels: %v", collectIssueLabelsErr)
 		}
 	}
-	if tasksToRun["collectPrReviews"] {
+	if tasksToRun["collectPullRequestReviews"] {
 		progress <- 0.5
 		fmt.Println("INFO >>> collecting PR Reviews collection")
-		collectPrReviewsErr := tasks.CollectPullRequestReviews(ownerString, repositoryNameString, scheduler, githubApiClient)
-		if collectPrReviewsErr != nil {
-			return fmt.Errorf("Could not collect PR Reviews: %v", collectPrReviewsErr)
+		collectPullRequestReviewsErr := tasks.CollectPullRequestReviews(ownerString, repositoryNameString, scheduler, githubApiClient)
+		if collectPullRequestReviewsErr != nil {
+			return fmt.Errorf("Could not collect PR Reviews: %v", collectPullRequestReviewsErr)
 		}
 	}
-	if tasksToRun["collectPrLabels"] {
+	if tasksToRun["collectPullRequestLabels"] {
 		progress <- 0.6
 		fmt.Println("INFO >>> starting Pr Labels collection")
-		collectPrLabelsErr := tasks.CollectPrLabels(ownerString, repositoryNameString, scheduler, githubApiClient)
-		if collectPrLabelsErr != nil {
-			return fmt.Errorf("Could not collect PR Labels: %v", collectPrLabelsErr)
+		collectPullRequestLabelsErr := tasks.CollectPrLabels(ownerString, repositoryNameString, scheduler, githubApiClient)
+		if collectPullRequestLabelsErr != nil {
+			return fmt.Errorf("Could not collect PR Labels: %v", collectPullRequestLabelsErr)
 		}
 	}
 
-	if tasksToRun["collectPrCommits"] {
+	if tasksToRun["collectPullRequestCommits"] {
 		progress <- 0.7
 		fmt.Println("INFO >>> starting PR Commits collection")
-		collectPrCommitsErr := tasks.CollectPullRequestCommits(ownerString, repositoryNameString, scheduler, githubApiClient)
-		if collectPrCommitsErr != nil {
-			return fmt.Errorf("Could not collect PR Commits: %v", collectPrCommitsErr)
+		collectPullRequestCommitsErr := tasks.CollectPullRequestCommits(ownerString, repositoryNameString, scheduler, githubApiClient)
+		if collectPullRequestCommitsErr != nil {
+			return fmt.Errorf("Could not collect PR Commits: %v", collectPullRequestCommitsErr)
 		}
 	}
-	if tasksToRun["collectPrComments"] {
+	if tasksToRun["collectPullRequestComments"] {
 		progress <- 0.8
 		fmt.Println("INFO >>> starting PR Comments collection")
-		collectPrCommentsErr := tasks.CollectPullRequestComments(ownerString, repositoryNameString, scheduler, githubApiClient)
-		if collectPrCommentsErr != nil {
-			return fmt.Errorf("Could not collect PR Comments: %v", collectPrCommentsErr)
+		collectPullRequestCommentsErr := tasks.CollectPullRequestComments(ownerString, repositoryNameString, scheduler, githubApiClient)
+		if collectPullRequestCommentsErr != nil {
+			return fmt.Errorf("Could not collect PR Comments: %v", collectPullRequestCommentsErr)
 		}
 	}
 	if tasksToRun["enrichIssues"] {
@@ -209,6 +209,14 @@ func (plugin Github) Execute(options map[string]interface{}, progress chan<- flo
 			return fmt.Errorf("could not enrich issues: %v", enrichmentError)
 		}
 
+	}
+	if tasksToRun["enrichPullRequests"] {
+		progress <- 0.9
+		fmt.Println("INFO >>> Enriching PullRequests")
+		enrichPullRequestsError := tasks.EnrichGithubPullRequestWithLabel()
+		if enrichPullRequestsError != nil {
+			return fmt.Errorf("could not enrich PullRequests: %v", enrichPullRequestsError)
+		}
 	}
 	if tasksToRun["convertRepos"] {
 		progress <- 0.9
@@ -224,7 +232,7 @@ func (plugin Github) Execute(options map[string]interface{}, progress chan<- flo
 			return err
 		}
 	}
-	if tasksToRun["convertPrs"] {
+	if tasksToRun["convertPullRequests"] {
 		progress <- 0.9
 		err = tasks.ConvertPullRequests()
 		if err != nil {
@@ -238,7 +246,7 @@ func (plugin Github) Execute(options map[string]interface{}, progress chan<- flo
 			return err
 		}
 	}
-	if tasksToRun["convertPrCommits"] {
+	if tasksToRun["convertPullRequestCommits"] {
 		progress <- 0.9
 		err = tasks.PrCommitConvertor()
 		if err != nil {
