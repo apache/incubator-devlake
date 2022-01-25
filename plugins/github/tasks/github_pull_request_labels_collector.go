@@ -12,30 +12,30 @@ import (
 	"gorm.io/gorm/clause"
 )
 
-type ApiIssueLabelResponse []IssueLabel
+type ApiPrLabelResponse []IssueLabel
 
-type IssueLabel struct {
+type PrLabel struct {
 	GithubId    int `json:"id"`
 	Name        string
 	Description string
 	Color       string
 }
 
-func CollectIssueLabels(owner string, repositoryName string, scheduler *utils.WorkerScheduler, githubApiClient *GithubApiClient) error {
-	var issues []models.GithubIssue
-	lakeModels.Db.Find(&issues)
-	for i := 0; i < len(issues); i++ {
-		labelsErr := processIssueLabelsCollection(owner, repositoryName, &issues[i], scheduler, githubApiClient)
+func CollectPrLabels(owner string, repositoryName string, scheduler *utils.WorkerScheduler, githubApiClient *GithubApiClient) error {
+	var prs []models.GithubPullRequest
+	lakeModels.Db.Find(&prs)
+	for i := 0; i < len(prs); i++ {
+		labelsErr := processPrLabelsCollection(owner, repositoryName, &prs[i], scheduler, githubApiClient)
 		if labelsErr != nil {
-			logger.Error("Could not collect issue labels", labelsErr)
+			logger.Error("Could not collect Pr labels", labelsErr)
 			return labelsErr
 		}
 	}
 	return nil
 }
 
-func processIssueLabelsCollection(owner string, repositoryName string, issue *models.GithubIssue, scheduler *utils.WorkerScheduler, githubApiClient *GithubApiClient) error {
-	getUrl := fmt.Sprintf("repos/%v/%v/issues/%v/labels", owner, repositoryName, issue.Number)
+func processPrLabelsCollection(owner string, repositoryName string, pr *models.GithubPullRequest, scheduler *utils.WorkerScheduler, githubApiClient *GithubApiClient) error {
+	getUrl := fmt.Sprintf("repos/%v/%v/issues/%v/labels", owner, repositoryName, pr.Number)
 	return githubApiClient.FetchWithPaginationAnts(getUrl, nil, 100, 1, scheduler,
 		func(res *http.Response) error {
 			githubApiResponse := &ApiIssueLabelResponse{}
@@ -45,21 +45,14 @@ func processIssueLabelsCollection(owner string, repositoryName string, issue *mo
 					logger.Error("Error: ", err)
 					return err
 				}
-				//delete labels before insertion to keep the table having no outdated data
-				err = lakeModels.Db.Where("issue_id = ?",
-					issue.GithubId).Delete(&models.GithubIssueLabel{}).Error
-				if err != nil {
-					logger.Error("Could not delete: ", err)
-					return err
-				}
 				for _, label := range *githubApiResponse {
-					githubLabel := &models.GithubIssueLabel{
-						IssueId:        issue.GithubId,
+					githubIssueLabel := &models.GithubIssueLabel{
+						IssueId:        pr.GithubId,
 						IssueLabelName: label.Name,
 					}
 					err = lakeModels.Db.Clauses(clause.OnConflict{
 						UpdateAll: true,
-					}).Create(&githubLabel).Error
+					}).Create(&githubIssueLabel).Error
 					if err != nil {
 						logger.Error("Could not upsert: ", err)
 					}
