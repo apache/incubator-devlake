@@ -23,7 +23,21 @@ type IssueEvent struct {
 	GithubCreatedAt core.Iso8601Time `json:"created_at"`
 }
 
-func CollectIssueEvents(owner string, repositoryName string, issue *models.GithubIssue, scheduler *utils.WorkerScheduler, githubApiClient *GithubApiClient) error {
+func CollectIssueEvents(owner string, repositoryName string, scheduler *utils.WorkerScheduler, githubApiClient *GithubApiClient) error {
+	var issues []models.GithubIssue
+	lakeModels.Db.Find(&issues)
+	for i := 0; i < len(issues); i++ {
+		issue := (issues)[i]
+		eventsErr := processEventsCollection(owner, repositoryName, &issue, scheduler, githubApiClient)
+		if eventsErr != nil {
+			logger.Error("Could not collect issue events", eventsErr)
+			return eventsErr
+		}
+	}
+	return nil
+}
+
+func processEventsCollection(owner string, repositoryName string, issue *models.GithubIssue, scheduler *utils.WorkerScheduler, githubApiClient *GithubApiClient) error {
 	getUrl := fmt.Sprintf("repos/%v/%v/issues/%v/events", owner, repositoryName, issue.Number)
 	return githubApiClient.FetchWithPaginationAnts(getUrl, nil, 100, 1, scheduler,
 		func(res *http.Response) error {
