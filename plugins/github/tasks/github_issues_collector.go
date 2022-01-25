@@ -50,7 +50,7 @@ func CollectIssues(owner string, repositoryName string, repositoryId int, schedu
 			for _, issue := range *githubApiResponse {
 				if issue.PullRequest.Url == "" {
 					// This is an issue from github
-					githubIssue, err := convertGithubIssue(&issue)
+					githubIssue, err := convertGithubIssue(&issue, repositoryId)
 					if err != nil {
 						return err
 					}
@@ -77,9 +77,10 @@ func CollectIssues(owner string, repositoryName string, repositoryId int, schedu
 			return nil
 		})
 }
-func convertGithubIssue(issue *IssuesResponse) (*models.GithubIssue, error) {
+func convertGithubIssue(issue *IssuesResponse, repositoryId int) (*models.GithubIssue, error) {
 	githubIssue := &models.GithubIssue{
 		GithubId:        issue.GithubId,
+		RepositoryId:    repositoryId,
 		Number:          issue.Number,
 		State:           issue.State,
 		Title:           issue.Title,
