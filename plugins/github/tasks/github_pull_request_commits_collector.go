@@ -69,6 +69,12 @@ func ProcessCollection(owner string, repositoryName string, pr *models.GithubPul
 					logger.Error("Error: ", err)
 					return err
 				}
+				err = lakeModels.Db.Where("pull_request_id = ?",
+					pr.GithubId).Delete(&models.GithubPullRequestCommit{}).Error
+				if err != nil {
+					logger.Error("Could not delete: ", err)
+					return err
+				}
 				for _, pullRequestCommit := range *githubApiResponse {
 					githubCommit, err := convertPullRequestCommit(&pullRequestCommit)
 					if err != nil {
