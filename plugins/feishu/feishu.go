@@ -50,8 +50,12 @@ func (plugin Feishu) Execute(options map[string]interface{}, progress chan<- flo
 		},
 	}
 
-	maxWorkerPerSecond := 10
-	scheduler, err := utils.NewWorkerScheduler(10, maxWorkerPerSecond, ctx)
+	rateLimitPerSecondInt, err := core.GetRateLimitPerSecond(options, 15)
+	if err != nil {
+		return err
+	}
+
+	scheduler, err := utils.NewWorkerScheduler(10, rateLimitPerSecondInt, ctx)
 	if err != nil {
 		logger.Error("could not create scheduler", false)
 	}

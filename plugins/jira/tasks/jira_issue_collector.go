@@ -96,6 +96,7 @@ func CollectIssues(
 	source *models.JiraSource,
 	boardId uint64,
 	since time.Time,
+	rateLimitPerSecondInt int,
 	ctx context.Context,
 ) error {
 	// user didn't specify a time range to sync, try load from database
@@ -118,7 +119,7 @@ func CollectIssues(
 	query := &url.Values{}
 	query.Set("jql", jql)
 
-	scheduler, err := utils.NewWorkerScheduler(10, 50, ctx)
+	scheduler, err := utils.NewWorkerScheduler(10, rateLimitPerSecondInt, ctx)
 	if err != nil {
 		logger.Error("jira collect issues: scheduler failed", err)
 		return err
