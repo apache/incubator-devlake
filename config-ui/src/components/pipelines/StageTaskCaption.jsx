@@ -25,8 +25,9 @@ const StageTaskCaption = (props) => {
         textOverflow: 'ellipsis'
       }}
     >
-      {task.plugin !== Providers.GITHUB && (<>ID {options.projectId || options.boardId}</>)}
+      {task.plugin !== Providers.GITHUB && task.plugin !== Providers.JENKINS && (<>ID {options.projectId || options.boardId}</>)}
       {task.plugin === Providers.GITHUB && (<>@{options.owner}/{options.repositoryName}</>)}
+      {task.plugin === Providers.JENKINS && (<>Task #{task.ID}</>)}
     </span>
   )
 }
