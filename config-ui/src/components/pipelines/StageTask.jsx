@@ -21,16 +21,30 @@ const StageTask = (props) => {
     sIdx,
   } = props
 
-  const [taskModuleOpened, setTaskModuleOpened] = useState()
+  const [taskModuleOpened, setTaskModuleOpened] = useState(null)
 
   const generateStageTaskCssClasses = () => {
     return `pipeline-task-module task-${task.status.split('_')[1].toLowerCase()} ${task.ID === taskModuleOpened?.ID ? 'active' : ''}`
   }
 
+  const determineCardElevation = (status, isElevated = false) => {
+    let elevation = Elevation.ONE
+    if (status === 'TASK_RUNNING' && isElevated) {
+      elevation = Elevation.THREE
+    } else if (status === 'TASK_RUNNING' && !isElevated) {
+      elevation = Elevation.TWO
+    } else if (isElevated) {
+      elevation = Elevation.THREE
+    } else {
+      elevation = Elevation.ONE
+    }
+    return elevation
+  }
+
   return (
     <>
       <Card
-        elevation={task.status === 'TASK_RUNNING' ? Elevation.TWO : taskModuleOpened ? Elevation.THREE : Elevation.ONE}
+        elevation={determineCardElevation(task.status, taskModuleOpened !== null)}
         className={generateStageTaskCssClasses()}
         onClick={() => setTaskModuleOpened(task)}
         style={{

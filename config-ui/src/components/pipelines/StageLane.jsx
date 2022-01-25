@@ -21,6 +21,7 @@ const StageLane = (props) => {
   const { stages = [], sK = 1, sIdx } = props
 
   const [activeStage, setActiveStage] = useState(stages[sK])
+  const [readyStageModules, setReadyStageModules] = useState([])
 
   const isStageActive = (stageId) => {
     return stages[stageId].some(s => s.status === 'TASK_RUNNING')
@@ -89,6 +90,19 @@ const StageLane = (props) => {
     console.log('>> ACTIVE STAGE LANE', stages[sK])
   }, [stages, sK])
 
+  useEffect(() => {
+    if (activeStage.length > 0) {
+      activeStage.forEach((s, sIdx) => {
+        setTimeout(() => {
+          setReadyStageModules(rS => [...rS, sIdx])
+        }, sIdx * 150)
+      })
+    }
+    return () => {
+
+    }
+  }, [activeStage])
+
   return (
     <>
       <div
@@ -141,10 +155,10 @@ const StageLane = (props) => {
         {stages[sK].map((t, tIdx) => (
           <CSSTransition
             key={`fx-key-stage-task-${tIdx}`}
-            in={true}
+            in={readyStageModules.includes(tIdx)}
             timeout={350}
-            classNames='provider-datarow'
-            unmountOnExit
+            classNames='pipeline-task-fx'
+            // unmountOnExit
           >
             <StageTask task={t} key={`stage-task-key-${tIdx}`} />
           </CSSTransition>
