@@ -46,7 +46,7 @@ const StageTask = (props) => {
         >
           <div style={{ padding: '4px 2px 4px 0' }}>
             <StageTaskName task={task} showDetails={taskModuleOpened} onClose={() => setTaskModuleOpened(null)} />
-            {task.plugin !== Providers.JENKINS && (<StageTaskCaption task={task} options={task.options} />)}
+            <StageTaskCaption task={task} options={task.options} />
           </div>
         </div>
         <div
