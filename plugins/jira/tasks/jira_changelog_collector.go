@@ -50,6 +50,7 @@ func CollectChangelogs(
 	jiraApiClient *JiraApiClient,
 	source *models.JiraSource,
 	boardId uint64,
+	rateLimitPerSecondInt int,
 	ctx context.Context,
 ) error {
 	jiraIssue := &models.JiraIssue{}
@@ -81,12 +82,12 @@ func CollectChangelogs(
 	}
 	defer cursor.Close()
 
-	changelogScheduler, err := utils.NewWorkerScheduler(10, 50, ctx)
+	changelogScheduler, err := utils.NewWorkerScheduler(10, rateLimitPerSecondInt, ctx)
 	if err != nil {
 		return err
 	}
 	defer changelogScheduler.Release()
-	issueScheduler, err := utils.NewWorkerScheduler(10, 50, ctx)
+	issueScheduler, err := utils.NewWorkerScheduler(10, rateLimitPerSecondInt, ctx)
 	if err != nil {
 		return err
 	}

@@ -3,6 +3,7 @@ package tasks
 import (
 	"context"
 	"fmt"
+	"github.com/merico-dev/lake/utils"
 	"net/http"
 
 	"github.com/bndr/gojenkins"
@@ -22,20 +23,29 @@ func NewJenkinsWorker(client *http.Client, storage JenkinsStorage, base string, 
 	}
 }
 
-func (worker *JenkinsWorker) SyncJobs(progress chan<- float32) error {
+func (worker *JenkinsWorker) SyncJobs(scheduler *utils.WorkerScheduler) error {
 	var ctx = context.Background()
 	// get all jobs
 	var jobs, err = worker.jenkins.GetAllJobs(ctx)
 	if err != nil {
 		return fmt.Errorf("Failed to get jobs from jenkins: %v", err)
 	}
-	for index, job := range jobs {
-		err = worker.syncJob(ctx, job)
+
+	for _, job := range jobs {
+		err = scheduler.Submit(func() error {
+			logger.Debug("(worker *JenkinsWorker) Submit", job)
+			workerErr := worker.syncJob(ctx, job)
+			if workerErr != nil {
+				return workerErr
+			}
+
+			return nil
+		})
 		if err != nil {
 			return err
 		}
-		progress <- float32((index + 1)) / float32(len(jobs))
 	}
+	scheduler.WaitUntilFinish()
 	return nil
 }
 
@@ -53,6 +63,7 @@ func (worker *JenkinsWorker) syncJob(ctx context.Context, job *gojenkins.Job) er
 		Builds []models.JenkinsBuildProps `json:"allBuilds"`
 	}
 	_, err = job.Jenkins.Requester.GetJSON(ctx, job.Base, &builds, map[string]string{"tree": "allBuilds[number,timestamp,duration,estimatedDuration,displayName,result]"})
+
 	if err != nil {
 		return fmt.Errorf("failed to get jenkins job builds: %v", err)
 	}

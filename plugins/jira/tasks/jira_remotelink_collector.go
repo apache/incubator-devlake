@@ -34,6 +34,7 @@ func CollectRemoteLinks(
 	jiraApiClient *JiraApiClient,
 	source *models.JiraSource,
 	boardId uint64,
+	rateLimitPerSecondInt int,
 	ctx context.Context,
 ) error {
 	jiraIssue := &models.JiraIssue{}
@@ -64,7 +65,7 @@ func CollectRemoteLinks(
 	}
 	defer cursor.Close()
 
-	issueScheduler, err := utils.NewWorkerScheduler(10, 50, ctx)
+	issueScheduler, err := utils.NewWorkerScheduler(10, rateLimitPerSecondInt, ctx)
 	if err != nil {
 		return err
 	}

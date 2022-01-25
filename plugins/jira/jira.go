@@ -86,6 +86,12 @@ func (plugin Jira) Execute(options map[string]interface{}, progress chan<- float
 		return fmt.Errorf("no board to collect")
 	}
 
+	var rateLimitPerSecondInt int
+	rateLimitPerSecondInt, err = core.GetRateLimitPerSecond(options, 50)
+	if err != nil {
+		return err
+	}
+
 	var since time.Time
 	if op.Since != "" {
 		since, err = time.Parse("2006-01-02T15:04:05Z", op.Since)
@@ -151,20 +157,20 @@ func (plugin Jira) Execute(options map[string]interface{}, progress chan<- float
 		}
 		setBoardProgress(i, 0.01)
 		if tasksToRun["collectIssues"] {
-			err = tasks.CollectIssues(jiraApiClient, source, boardId, since, ctx)
+			err = tasks.CollectIssues(jiraApiClient, source, boardId, since, rateLimitPerSecondInt, ctx)
 			if err != nil {
 				return err
 			}
 		}
 		setBoardProgress(i, 0.1)
 		if tasksToRun["collectChangelogs"] {
-			err = tasks.CollectChangelogs(jiraApiClient, source, boardId, ctx)
+			err = tasks.CollectChangelogs(jiraApiClient, source, boardId, rateLimitPerSecondInt, ctx)
 			if err != nil {
 				return err
 			}
 		}
 		if tasksToRun["collectRemotelinks"] {
-			err = tasks.CollectRemoteLinks(jiraApiClient, source, boardId, ctx)
+			err = tasks.CollectRemoteLinks(jiraApiClient, source, boardId, rateLimitPerSecondInt, ctx)
 			if err != nil {
 				return err
 			}
