@@ -39,7 +39,11 @@ var V *viper.Viper
 
 func LoadConfigFile(path string) *viper.Viper {
 	V = viper.New()
+	V.SetConfigFile(".env")
+	V.SetConfigFile("../.env")
+	V.SetConfigFile("../../.env")
 	V.SetConfigFile("../../../.env")
+	V.SetConfigFile("../../../../.env")
 	V.SetConfigFile(path)
 	_ = V.ReadInConfig()
 	V.AutomaticEnv()
@@ -53,7 +57,7 @@ func init() {
 	// This line is essential for reading and writing
 
 	dbUrl := V.Get("DB_URL")
-	fmt.Println("JON >>> dbUrl", dbUrl)
+	fmt.Println("Info >>> dbUrl", dbUrl)
 
 	V.WatchConfig()
 }

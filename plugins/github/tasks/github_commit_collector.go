@@ -2,6 +2,7 @@ package tasks
 
 import (
 	"fmt"
+	"io/ioutil"
 	"net/http"
 
 	lakeModels "github.com/merico-dev/lake/models"
@@ -13,7 +14,7 @@ import (
 
 type ApiCommitsResponse []CommitsResponse
 type CommitsResponse struct {
-	Sha       string `json:"sha"`
+	Sha       string
 	Commit    Commit
 	Url       string
 	Author    *models.GithubUser
@@ -36,16 +37,24 @@ type Commit struct {
 
 var RepositoryId int
 
-func HandleCommitsResponse(res *http.Response) error {
+func HandleCommitsResponse(res *http.Response, done chan bool) error {
+
+	fmt.Println("JON >>> res", res)
+	body, err := ioutil.ReadAll(res.Body)
+	fmt.Println("JON >>> body in HandleCommitsResponse", string(body))
+
 	githubApiResponse := &ApiCommitsResponse{}
-	err := core.UnmarshalResponse(res, githubApiResponse)
+	err = core.UnmarshalResponse(res, githubApiResponse)
+
 	if err != nil || res.StatusCode == 401 {
+		fmt.Println("Error >>> err Unmarshalling", err)
 		return err
 	}
 	repoCommit := &models.GithubRepoCommit{GithubRepoId: RepositoryId}
 	for _, commit := range *githubApiResponse {
 		githubCommit, err := convertGithubCommit(&commit)
 		if err != nil {
+			fmt.Println("Error >>> err converting commits", err)
 			return err
 		}
 		// save author and committer
@@ -82,13 +91,17 @@ func HandleCommitsResponse(res *http.Response) error {
 			return err
 		}
 	}
+	done <- true
 	return nil
 }
 
 func CollectCommits(owner string, repositoryName string, repositoryId int, scheduler *utils.WorkerScheduler, githubApiClient *GithubApiClient) error {
 	getUrl := fmt.Sprintf("repos/%v/%v/commits", owner, repositoryName)
 	RepositoryId = repositoryId
-	return githubApiClient.FetchWithPaginationAnts(getUrl, nil, 100, 20, scheduler, HandleCommitsResponse)
+	done := make(chan bool)
+	return githubApiClient.FetchWithPaginationAnts(getUrl, nil, 100, 20, scheduler, func(res *http.Response) error {
+		return HandleCommitsResponse(res, done)
+	})
 }
 
 func convertGithubCommit(commit *CommitsResponse) (*models.GithubCommit, error) {

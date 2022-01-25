@@ -1,9 +1,10 @@
 package test
 
 import (
-	"io/ioutil"
-	"strings"
 	"testing"
+	"time"
+
+	"github.com/merico-dev/lake/plugins/github/tasks"
 )
 
 func TestHandleCommitsResponse(t *testing.T) {
@@ -16,15 +17,28 @@ func TestHandleCommitsResponse(t *testing.T) {
 		t.Fatalf("Failed to connect to api: %s", err)
 	}
 
-	body, err := ioutil.ReadAll(resp.Body)
+	// body, err := ioutil.ReadAll(resp.Body)
+	// if err != nil {
+	// 	t.Fatalf("Failed to read response body: %s", err)
+	// }
+
+	// wantHeading := "joncodo"
+	// bodyContent := string(body)
+
+	// if !strings.Contains(bodyContent, wantHeading) {
+	// 	t.Errorf("Heading %s not found in response", wantHeading)
+	// }
+
+	done := make(chan bool)
+	// fmt.Println("JON >>> body in test", string(body))
+	err = tasks.HandleCommitsResponse(resp, done)
 	if err != nil {
-		t.Fatalf("Failed to read response body: %s", err)
+		t.Error("Code failed to execute")
 	}
 
-	wantHeading := "joncodo"
-	bodyContent := string(body)
-
-	if !strings.Contains(bodyContent, wantHeading) {
-		t.Errorf("Heading %s not found in response", wantHeading)
+	select {
+	case <-done:
+	case <-time.After(10 * time.Second):
+		panic("timeout")
 	}
 }
