@@ -198,6 +198,30 @@
   transition: opacity 300ms, transform 300ms;
 }
 
+.pipeline-task-fx-enter {
+  transform: scale(0.6);
+  opacity: 0;
+  transition: opacity 300ms, transform 300ms;
+}
+
+.pipeline-task-fx-enter-done {
+  transform: scale(1);
+  opacity: 1;
+  transition: opacity 300ms, transform 300ms;
+}
+
+.pipeline-task-fx-exit {
+  transform: scale(0.8);
+  opacity: 0.8;
+  transition: opacity 300ms, transform 300ms;
+}
+
+.pipeline-task-fx-exit-active {
+  transform: scale(0.7);
+  opacity: 0;
+  transition: opacity 300ms, transform 300ms;
+}
+
 .activity-panel-enter {
   transform: scale(1);
   background-color: #f0f0f0;
@@ -681,7 +705,7 @@
         transform: scale(1.06);
       }
 
-      &:hover {
+      &:hover, &.active {
         border: 2px solid rgba(136, 136, 136, 0.95);
         background-color: rgba(223, 223, 223, 0.75);
 
