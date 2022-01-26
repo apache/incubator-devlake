@@ -81,7 +81,9 @@ const PipelineActivity = (props) => {
 
   const findActiveStageId = (tasks = []) => {
     const activeTask = tasks.find(t => t.status === 'TASK_RUNNING')
-    return activeTask?.pipelineRow || 1
+    const failedTask = tasks.find(t => t.status === 'TASK_FAILED')
+    const completedTask = tasks.find(t => t.status === 'TASK_COMPLETED')
+    return activeTask?.pipelineRow || completedTask?.pipelineRow || failedTask?.pipelineRow || 0
   }
 
   const restartPipeline = useCallback((tasks = []) => {

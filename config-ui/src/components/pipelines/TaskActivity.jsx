@@ -3,17 +3,12 @@ import React from 'react'
 // import { CSSTransition } from 'react-transition-group'
 import { Providers } from '@/data/Providers'
 import {
-  // Classes,
   Icon,
   Spinner,
   Colors,
   Tooltip,
   Position,
   Intent,
-  Card,
-  Elevation,
-  H4,
-  // Alignment
 } from '@blueprintjs/core'
 import dayjs from '@/utils/time'
 import StageLane from '@/components/pipelines/StageLane'
@@ -35,14 +30,6 @@ const TaskActivity = (props) => {
         {Object.keys(stages).length > 1 && (
           <div
             className='pipeline-multistage-activity'
-            style={{
-              // display: 'flex',
-              // justfiyContent: 'flex-start',
-              // height: '40vh',
-              // minHeight: '300px',
-              // borderTop: '1px solid rgb(240, 240, 240)',
-              // borderBottom: '1px solid rgb(240, 240, 240)'
-            }}
           >
             {Object.keys(stages).map((sK, sIdx) => (
               <StageLane key={`stage-lane-key-${sIdx}`} stages={stages} sK={sK} sIdx={sIdx} />
