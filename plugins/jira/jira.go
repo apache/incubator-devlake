@@ -335,7 +335,7 @@ func main() {
 			map[string]interface{}{
 				"sourceId": sourceId,
 				"boardId":  boardId,
-				"tasks":    []string{"convertIssues"},
+				"tasks":    []string{"collectRemotelinks", "enrichRemotelinks", "convertIssueCommits"},
 			},
 			progress,
 			context.Background(),
