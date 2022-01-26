@@ -17,6 +17,26 @@ import { ReactComponent as PipelineCompleteIcon } from '@/images/check-circle.sv
 const StagePanel = (props) => {
   const { activePipeline, pipelineReady = false, stages, activeStageId = 1, isLoading = false } = props
 
+  const getActiveStageDisplayColor = (status) => {
+    let color = 'rgb(0, 102, 255)'
+    switch (status) {
+      case 'TASK_COMPLETED':
+        color = Colors.GREEN4
+        break
+      case 'TASK_FAILED' :
+        color = Colors.RED4
+        break
+      case 'TASK_CREATED':
+        color = Colors.GRAY4
+        break
+      case 'TASK_RUNNING':
+      default:
+        color = 'rgb(0, 102, 255)'
+        break
+    }
+    return color
+  }
+
   return (
     <>
       {/* <CSSTransition
@@ -153,7 +173,7 @@ const StagePanel = (props) => {
           <h3
             className='active-stage-panel-display'
             style={{
-              color: activePipeline.status === 'TASK_FAILED' ? Colors.RED4 : 'rgb(0, 102, 255)',
+              color: getActiveStageDisplayColor(activePipeline.status),
               textTransform: 'uppercase',
               lineHeight: '33px',
               margin: 0,
