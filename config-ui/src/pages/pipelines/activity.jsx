@@ -35,6 +35,7 @@ import { ReactComponent as HelpIcon } from '@/images/help.svg'
 
 import PipelineActivityIcon from '@/images/pulse-2.png'
 import GitExtractorIcon from '@/images/git.png'
+import RefDiffIcon from '@/images/git-diff.png'
 
 const PipelineActivity = (props) => {
   const history = useHistory()
@@ -616,6 +617,42 @@ const PipelineActivity = (props) => {
                                   <strong>RepoId</strong>
                                   <span style={{ color: Colors.GRAY5, padding: '0 1px' }}>: </span>
                                   <span>{t.options.repoId}</span>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                    {pipelineHasProvider('refdiff') && (
+                      <div className='refdiff-settings' style={{ display: 'flex', paddingLeft: '20px', justifySelf: 'flex-start' }}>
+                        <div style={{ display: 'flex', padding: '2px 6px' }}>
+                          <img src={RefDiffIcon} width={24} height={24} />
+                        </div>
+                        <div>
+                          <label style={{ lineHeight: '100%', display: 'block', fontSize: '10px', marginTop: '2px', marginBottom: '0px' }}>
+                            <strong style={{ fontSize: '16px', fontFamily: 'Montserrat', fontWeight: 800 }}>RefDiff</strong><br />Release Tag Diffs
+                          </label>
+                          <div style={{ paddingTop: '15px' }}>
+                            {activePipeline.tasks.filter(t => t.plugin === 'refdiff').map((t, tIdx) => (
+                              <div key={`gitextractor-opts-key-${tIdx}`}>
+                                <div>
+                                  <Icon icon='nest' size={12} color={Colors.GRAY4} style={{ marginRight: '6px' }} />
+                                  <strong>RepoId</strong>
+                                  <span style={{ color: Colors.GRAY5, padding: '0 1px' }}>: </span>
+                                  <span>{t.options.repoId}</span>
+                                </div>
+                                <div>
+                                  {t.options.pairs && (
+                                    <div>
+                                      <Icon icon='nest' size={12} color={Colors.GRAY4} style={{ marginRight: '0' }} /> <Tag style={{ fontSize: '9px', marginLeft: '0', backgroundColor: '#eee', color: '#777' }}>TAG PAIRS</Tag>
+                                      <ul style={{ fontSize: '9px' }}>
+                                        {t.options.pairs.map((ref, refIdx) => (
+                                          <li key={`option-subtask-key${refIdx}`}><strong>old</strong> {ref.oldRef} &nbsp; <strong>new</strong> {ref.oldRef} </li>
+                                        ))}
+                                      </ul>
+                                    </div>
+                                  )}
                                 </div>
                               </div>
                             ))}
