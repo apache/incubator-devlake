@@ -51,6 +51,7 @@ const StagePanel = (props) => {
           transition: 'all 0.3s ease-out',
           display: 'flex',
           width: '100%',
+          minWidth: '630px',
           justifySelf: 'flex-start',
           marginBottom: '8px',
           padding: 0,
