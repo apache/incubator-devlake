@@ -332,7 +332,7 @@ func main() {
 				//"tasks": []string{"convertCommits"},
 				//"tasks": []string{"collectIssues"},
 				//"tasks": []string{"enrichIssues"},
-				"tasks": []string{"collectIssueLabels"},
+				"tasks": []string{"collectPullRequestLabels", "enrichPullRequests", "convertPullRequests"},
 			},
 			progress,
 			context.Background(),

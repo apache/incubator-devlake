@@ -30,11 +30,6 @@ func CollectPrLabels(owner string, repositoryName string, scheduler *utils.Worke
 			logger.Error("Could not collect Pr labels", labelsErr)
 			return labelsErr
 		}
-		//labelsErr := processPrLabelsCollection(owner, repositoryName, &prs[i], scheduler, githubApiClient)
-		//if labelsErr != nil {
-		//	logger.Error("Could not collect Pr labels", labelsErr)
-		//	return labelsErr
-		//}
 	}
 	return nil
 }
