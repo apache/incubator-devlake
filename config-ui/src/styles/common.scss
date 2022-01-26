@@ -7,7 +7,10 @@
 }
 
 .main {
-  padding: 4rem 4rem 4rem calc(250px + 4rem);
+  // padding: 4rem 4rem 4rem calc(250px + 4rem);
+  padding: 4rem;
+  margin-left: calc(250px);
+  max-width: calc(100vw + -250px);
   flex: 1;
   display: flex;
   flex-direction: column;

@@ -523,8 +523,11 @@
   height: auto;
   min-height: calc(8vh + 300px);
   max-height: 50vh;
+  max-width: 100%;
   border-top: 1px solid rgb(240, 240, 240);
   border-bottom: 1px solid rgb(240, 240, 240);
+  overflow: hidden;
+  overflow-x: auto;
 }
 
 .stage-panel-card {
