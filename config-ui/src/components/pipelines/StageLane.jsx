@@ -59,13 +59,17 @@ const StageLane = (props) => {
   const calculateStageLaneProgress = (stageTasks) => {
     const completed = stageTasks.filter(s => s.status === 'TASK_COMPLETED')
     const remaining = stageTasks.filter(s => s.status !== 'TASK_COMPLETED')
+    let progress = completed.length / (remaining.length + completed.length)
     console.log('>>> STAGE LANE PROGRESS  = ', completed, remaining, completed.length / remaining.length)
-    return completed.length / (remaining.length + completed.length)
+    if (stageTasks.length === 1) {
+      progress = Math.max(0.05, stageTasks[0].progress)
+    }
+    return progress
   }
 
   const calculateStageLaneDuration = (stageTasks, unit = 'minute') => {
     let duration = 0
-    let now = dayjs()
+    const now = dayjs()
     const diffDuration = (pV, cV) => pV + dayjs(cV.status === 'TASK_RUNNING'
       ? now
       : (cV.finishedAt || cV.UpdatedAt)).diff(dayjs(cV.beganAt), unit)
