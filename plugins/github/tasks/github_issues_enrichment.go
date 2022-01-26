@@ -20,9 +20,8 @@ func buildLabelQuery(matches []string) (*sql.Rows, error) {
 
 	cursor, err := lakeModels.Db.Model(&models.GithubIssue{}).
 		Select("github_issue_labels.*, github_issues.*").
-		Joins("join github_issue_label_issues On github_issue_label_issues.issue_id = github_issues.github_id").
-		Joins("join github_issue_labels On github_issue_labels.github_id = github_issue_label_issues.issue_label_id").
-		Where(fmt.Sprintf("github_issue_labels.name rlike '.*(%v).*'", where)).
+		Joins("join github_issue_labels On github_issue_labels.issue_id = github_issues.github_id").
+		Where(fmt.Sprintf("github_issue_labels.label_name rlike '.*(%v).*'", where)).
 		Rows()
 
 	if err != nil {

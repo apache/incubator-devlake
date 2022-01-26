@@ -8,7 +8,7 @@ import (
 // Pull Requests are considered Issues in GitHub.
 
 type GithubIssueLabel struct {
-	IssueId        int    `gorm:"primaryKey;autoIncrement:false"`
-	IssueLabelName string `gorm:"primaryKey"`
+	IssueId   int    `gorm:"primaryKey;autoIncrement:false"`
+	LabelName string `gorm:"primaryKey"`
 	common.NoPKModel
 }

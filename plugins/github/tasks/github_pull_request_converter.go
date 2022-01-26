@@ -35,6 +35,8 @@ func convertToPullRequestModel(pr *githubModels.GithubPullRequest) *code.PullReq
 		CreatedDate: pr.GithubCreatedAt,
 		MergedDate:  pr.MergedAt,
 		ClosedAt:    pr.ClosedAt,
+		Type:        pr.Type,
+		Component:   pr.Component,
 	}
 	return domainPr
 }

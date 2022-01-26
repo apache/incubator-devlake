@@ -54,8 +54,8 @@ func processIssueLabelsCollection(owner string, repositoryName string, issue *mo
 				}
 				for _, label := range *githubApiResponse {
 					githubLabel := &models.GithubIssueLabel{
-						IssueId:        issue.GithubId,
-						IssueLabelName: label.Name,
+						IssueId:   issue.GithubId,
+						LabelName: label.Name,
 					}
 					err = lakeModels.Db.Clauses(clause.OnConflict{
 						UpdateAll: true,
