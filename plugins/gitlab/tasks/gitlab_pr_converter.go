@@ -24,8 +24,8 @@ func ConvertPrs() error {
 	}
 	return nil
 }
-func convertToPrModel(mr *gitlabModels.GitlabMergeRequest) *code.Pr {
-	domainPr := &code.Pr{
+func convertToPrModel(mr *gitlabModels.GitlabMergeRequest) *code.PullRequest {
+	domainPr := &code.PullRequest{
 		DomainEntity: domainlayer.DomainEntity{
 			Id: didgen.NewDomainIdGenerator(mr).Generate(mr.GitlabId),
 		},

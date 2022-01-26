@@ -22,11 +22,6 @@ func CollectChildrenOnPullRequests(owner string, repositoryName string, reposito
 			logger.Error("Could not collect PR Comments", commentsErr)
 			return commentsErr
 		}
-		commitsErr := CollectPullRequestCommits(owner, repositoryName, &pr, scheduler, githubApiClient)
-		if commitsErr != nil {
-			logger.Error("Could not collect PR Commits", commitsErr)
-			return commitsErr
-		}
 		// Please Note: There is no difference between Issue Labels and Pull Request Labels - they are the same.
 		labelsErr := CollectIssueLabelsForSinglePullRequest(owner, repositoryName, &pr, scheduler, githubApiClient)
 		if labelsErr != nil {

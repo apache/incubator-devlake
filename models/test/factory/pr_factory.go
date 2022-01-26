@@ -7,8 +7,8 @@ import (
 	"github.com/merico-dev/lake/models/domainlayer/code"
 )
 
-func CreatePr(repoId uint64) (*code.Pr, error) {
-	pr := &code.Pr{
+func CreatePr(repoId uint64) (*code.PullRequest, error) {
+	pr := &code.PullRequest{
 		DomainEntity: domainlayer.DomainEntity{
 			Id: RandIntString(),
 		},
