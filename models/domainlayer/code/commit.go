@@ -22,3 +22,11 @@ type Commit struct {
 	CommittedDate  time.Time
 	CommiterId     string `gorm:"index;type:varchar(255)"`
 }
+
+type CommitFile struct {
+	common.NoPKModel
+	CommitSha string `gorm:"primaryKey"`
+	FilePath  string `gorm:"primaryKey"`
+	Additions int
+	Deletions int
+}

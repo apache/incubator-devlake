@@ -31,10 +31,12 @@ func collect(repoId string, repoPath string) error {
 			return err
 		}
 		ref.Id = fmt.Sprintf("%s:%s", repoId, name)
+		ref.RepoId = repoId
+		ref.Ref = name
+		ref.IsDefault, _ = b.IsHead()
 		if b.Target() != nil {
 			ref.CommitSha = b.Target().String()
 		}
-		ref.IsDefault, _ = b.IsHead()
 		fmt.Printf("branch %s : %s\n", name, ref.CommitSha)
 		return models.Db.Clauses(clause.OnConflict{UpdateAll: true}).Create(ref).Error
 	})
@@ -44,8 +46,9 @@ func collect(repoId string, repoPath string) error {
 	}
 
 	ref.RefType = "TAG"
-	repo.Tags.Foreach(func(name string, id *git2go.Oid) error {
-		ref.Id = fmt.Sprintf("%s:%s", repoId, name)
+	err = repo.Tags.Foreach(func(name string, id *git2go.Oid) error {
+		ref.RepoId = repoId
+		ref.Ref = name
 		ref.CommitSha = id.String()
 		if err != nil {
 			return err
@@ -53,7 +56,9 @@ func collect(repoId string, repoPath string) error {
 		fmt.Printf("tag: %s : %s\n", name, ref.CommitSha)
 		return models.Db.Clauses(clause.OnConflict{UpdateAll: true}).Create(ref).Error
 	})
-
+	if err != nil{
+		return err
+	}
 	odb, err := repo.Odb()
 	if err != nil {
 		return err
