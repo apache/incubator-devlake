@@ -40,7 +40,9 @@ curl -v -XPOST http://localhost:8080/pipelines --data @- <<'JSON'
 JSON
 ```
 
-## Install `libgit2` on Ubuntu
+## Install `libgit2`
+
+### Ubuntu
 
 ```
 apt install cmake
@@ -52,4 +54,16 @@ cmake ..
 make
 make install
 ldconfig
+```
+
+### MacOs
+
+```
+brew install cmake
+git clone git@github.com:libgit2/libgit2.git
+git checkout v1.3.0
+cd libgit2
+mkdir build && cd build
+cmake ..
+cmake --build .
 ```
