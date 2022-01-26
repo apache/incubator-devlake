@@ -19,6 +19,7 @@ type GithubIssue struct {
 	ClosedAt        *time.Time
 	GithubCreatedAt time.Time
 	GithubUpdatedAt time.Time
-
+	Severity        string
+	Component       string
 	common.NoPKModel
 }

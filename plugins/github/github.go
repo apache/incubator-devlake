@@ -204,16 +204,15 @@ func (plugin Github) Execute(options map[string]interface{}, progress chan<- flo
 	if tasksToRun["enrichIssues"] {
 		progress <- 0.9
 		fmt.Println("INFO >>> Enriching Issues")
-		enrichmentError := tasks.EnrichIssues()
+		enrichmentError := tasks.EnrichGithubIssues()
 		if enrichmentError != nil {
 			return fmt.Errorf("could not enrich issues: %v", enrichmentError)
 		}
-
 	}
 	if tasksToRun["enrichPullRequests"] {
 		progress <- 0.9
 		fmt.Println("INFO >>> Enriching PullRequests")
-		enrichPullRequestsError := tasks.EnrichGithubPullRequestWithLabel()
+		enrichPullRequestsError := tasks.EnrichGithubPullRequests()
 		if enrichPullRequestsError != nil {
 			return fmt.Errorf("could not enrich PullRequests: %v", enrichPullRequestsError)
 		}
@@ -332,7 +331,7 @@ func main() {
 				//"tasks": []string{"convertCommits"},
 				//"tasks": []string{"collectIssues"},
 				//"tasks": []string{"enrichIssues"},
-				"tasks": []string{"collectPullRequestLabels", "enrichPullRequests", "convertPullRequests"},
+				"tasks": []string{"enrichIssues", "convertIssues"},
 			},
 			progress,
 			context.Background(),
