@@ -116,6 +116,13 @@ func collectRemotelinksByIssueId(
 	}
 
 	apiRemotelink := &JiraApiRemotelink{}
+
+	// delete previous collected remotelink
+	err = lakeModels.Db.Where("source_id = ? AND issue_id = ?", source.ID, issueId).Delete(apiRemotelink).Error
+	if err != nil {
+		return err
+	}
+
 	for _, apiRemotelinkRaw := range *apiRemotelinks {
 		// unmarshal to fetch id for primary key
 		err = json.Unmarshal(apiRemotelinkRaw, apiRemotelink)
