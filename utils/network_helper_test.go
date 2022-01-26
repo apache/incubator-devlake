@@ -2,7 +2,6 @@ package utils
 
 import (
 	"testing"
-	"time"
 )
 
 func TestCheckDNS(t *testing.T) {
@@ -42,16 +41,5 @@ func TestResolvePort(t *testing.T) {
 	_, err = ResolvePort("", "")
 	if err == nil {
 		t.Errorf("Expected error %s, Got nil", "you should provide at least one of port or schema")
-	}
-}
-
-func TestCheckNetwork(t *testing.T) {
-	var err = CheckNetwork("google.com", "443", time.Duration(time.Second*2))
-	if err != nil {
-		t.Error(err)
-	}
-	err = CheckNetwork("baidu.com", "443", time.Duration(time.Second*2))
-	if err != nil {
-		t.Error(err)
 	}
 }

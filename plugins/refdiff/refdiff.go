@@ -61,10 +61,10 @@ func (rd RefDiff) Execute(options map[string]interface{}, progress chan<- float3
 		if refName == "" {
 			return "", fmt.Errorf("ref name is empty")
 		}
-		ref.Id = fmt.Sprintf("%s:%s", op.RepoId, refName)
+		ref.Id = fmt.Sprintf("%s:%s",op.RepoId, refName)
 		err = models.Db.First(ref).Error
 		if err != nil {
-			return "", fmt.Errorf("faild to load Ref info for %s", ref.Id)
+			return "", fmt.Errorf("faild to load Ref info for repoId:%s, refName:%s", op.RepoId, refName)
 		}
 		return ref.CommitSha, nil
 	}
@@ -159,7 +159,7 @@ func (rd RefDiff) Execute(options map[string]interface{}, progress chan<- float3
 			return err
 		}
 		index := 1
-		err = p.Iterate(nil).EachValue(nil, func(value quad.Value) {
+		err = p.Iterate(context.Background()).EachValue(nil, func(value quad.Value) {
 			commitsDiff.CommitSha = fmt.Sprintf("%s", quad.NativeOf(value))
 			// 2. ignoring old commit sha
 			if commitsDiff.CommitSha == commitsDiff.OldCommitSha {
