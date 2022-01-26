@@ -77,7 +77,7 @@ const TaskActivity = (props) => {
             </div>
             <div
               className='pipeline-task-cell-name'
-              style={{ padding: '0 8px', minWidth: '100px', display: 'flex', justifyContent: 'space-between' }}
+              style={{ padding: '0 8px', minWidth: '130px', display: 'flex', justifyContent: 'space-between' }}
             >
               <strong
                 className='task-plugin-name'
@@ -107,7 +107,7 @@ const TaskActivity = (props) => {
                     <Icon icon='link' size={8} style={{ marginBottom: '3px' }} /> {t.options[Object.keys(t.options)[0]]}
                   </span>
                   {t.plugin === Providers.GITHUB && (
-                    <span style={{ fontWeight: 60 }}>/{t.options[Object.keys(t.options)[1]]}</span>
+                    <span style={{ fontWeight: 60 }}>/{t.options.repositoryName}</span>
                   )}
                 </div>
               )}
