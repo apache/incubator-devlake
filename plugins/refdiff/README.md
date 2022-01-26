@@ -60,10 +60,12 @@ ldconfig
 
 ```
 brew install cmake
-git clone git@github.com:libgit2/libgit2.git
+git clone https://github.com/libgit2/libgit2.git
 git checkout v1.3.0
-cd libgit2
-mkdir build && cd build
+make build
+cd build
 cmake ..
-cmake --build .
+make
+make install
+ldconfig
 ```
