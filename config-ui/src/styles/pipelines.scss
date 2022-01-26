@@ -527,6 +527,11 @@
   border-bottom: 1px solid rgb(240, 240, 240);
 }
 
+.stage-panel-card {
+  background-image: linear-gradient(to bottom, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0));
+  z-index: -1;
+}
+
 .pipeline-task-activity {
   border-bottom-left-radius: 3px;
   border-bottom-right-radius: 3px;
