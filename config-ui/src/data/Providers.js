@@ -4,6 +4,8 @@ import { ReactComponent as GitlabProviderIcon } from '@/images/integrations/gitl
 import { ReactComponent as JenkinsProviderIcon } from '@/images/integrations/jenkins.svg'
 import { ReactComponent as JiraProviderIcon } from '@/images/integrations/jira.svg'
 import { ReactComponent as GitHubProviderIcon } from '@/images/integrations/github.svg'
+import GitExtractorIcon from '@/images/git.png'
+import RefDiffIcon from '@/images/git-diff.png'
 
 const Providers = {
   NULL: 'null',
@@ -11,6 +13,8 @@ const Providers = {
   JENKINS: 'jenkins',
   JIRA: 'jira',
   GITHUB: 'github',
+  REFDIFF: 'refdiff',
+  GITEXTRACTOR: 'gitextractor'
 }
 
 const ProviderLabels = {
@@ -19,6 +23,8 @@ const ProviderLabels = {
   JENKINS: 'Jenkins',
   JIRA: 'JIRA',
   GITHUB: 'GitHub',
+  REFDIFF: 'RefDiff',
+  GITEXTRACTOR: 'GitExtractor'
 }
 
 const ProviderSourceLimits = {
@@ -118,6 +124,8 @@ const ProviderIcons = {
   [Providers.JENKINS]: (w, h) => <JenkinsProviderIcon width={w || 24} height={h || 24} />,
   [Providers.JIRA]: (w, h) => <JiraProviderIcon width={w || 24} height={h || 24} />,
   [Providers.GITHUB]: (w, h) => <GitHubProviderIcon width={w || 24} height={h || 24} />,
+  [Providers.REFDIFF]: (w, h) => <img src={RefDiffIcon} width={w || 24} height={h || 24} />,
+  [Providers.GITEXTRACTOR]: (w, h) => <img src={GitExtractorIcon} width={w || 24} height={h || 24} />,
 }
 
 export {
