@@ -23,7 +23,21 @@ type IssueComment struct {
 	GithubCreatedAt core.Iso8601Time `json:"created_at"`
 }
 
-func CollectIssueComments(owner string, repositoryName string, issue *models.GithubIssue, scheduler *utils.WorkerScheduler, githubApiClient *GithubApiClient) error {
+func CollectIssueComments(owner string, repositoryName string, scheduler *utils.WorkerScheduler, githubApiClient *GithubApiClient) error {
+	var issues []models.GithubIssue
+	lakeModels.Db.Find(&issues)
+	for i := 0; i < len(issues); i++ {
+		issue := (issues)[i]
+
+		commentsErr := processCommentsCollection(owner, repositoryName, &issue, scheduler, githubApiClient)
+		if commentsErr != nil {
+			logger.Error("Could not collect issue Comments", commentsErr)
+			return commentsErr
+		}
+	}
+	return nil
+}
+func processCommentsCollection(owner string, repositoryName string, issue *models.GithubIssue, scheduler *utils.WorkerScheduler, githubApiClient *GithubApiClient) error {
 	getUrl := fmt.Sprintf("repos/%v/%v/issues/%v/comments", owner, repositoryName, issue.Number)
 	return githubApiClient.FetchWithPaginationAnts(getUrl, nil, 100, 1, scheduler,
 		func(res *http.Response) error {
