@@ -12,6 +12,7 @@ import {
   Spinner,
   Colors,
   Classes,
+  Tag
 } from '@blueprintjs/core'
 import {
   Providers,
@@ -572,10 +573,20 @@ const PipelineActivity = (props) => {
                             <div key={`repostitory-id-key-${tIdx}`}>
                               <Icon icon='nest' size={12} color={Colors.GRAY4} style={{ marginRight: '6px' }} />
                               <span>
-                                <strong>{t.options[Object.keys(t.options)[0]]}</strong>
+                                <strong>{t.options.owner}</strong>
                                 <span style={{ color: Colors.GRAY5, padding: '0 1px' }}>/</span>
-                                <strong>{t.options[Object.keys(t.options)[1]]}</strong>
+                                <strong>{t.options.repositoryName}</strong>
                               </span>
+                              {t.options.tasks && (
+                                <>
+                                  <Tag style={{ fontSize: '9px', marginLeft: '5px', backgroundColor: '#eee', color: '#777' }}>+TASKS</Tag>
+                                  <ul style={{ fontSize: '9px' }}>
+                                    {t.options.tasks.map((oT, otId) => (
+                                      <li key={`option-subtask-key${otId}`}>{oT}</li>
+                                    ))}
+                                  </ul>
+                                </>
+                              )}
                             </div>
                           ))}
                         </div>
