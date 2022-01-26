@@ -65,8 +65,9 @@ const StageLane = (props) => {
 
   const calculateStageLaneDuration = (stageTasks, unit = 'minute') => {
     let duration = 0
+    let now = dayjs()
     const diffDuration = (pV, cV) => pV + dayjs(cV.status === 'TASK_RUNNING'
-      ? cV.CreatedAt
+      ? now
       : (cV.finishedAt || cV.UpdatedAt)).diff(dayjs(cV.beganAt), unit)
     duration = stageTasks.reduce(diffDuration, 0)
     console.log('>> CALCULATED DURATION =', stageTasks, duration)
