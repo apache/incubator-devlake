@@ -1,13 +1,5 @@
-import React, { useState, useEffect } from 'react'
+import React from 'react'
 import { Providers } from '@/data/Providers'
-import {
-  Icon,
-  Spinner,
-  Colors,
-  Tooltip,
-  Position,
-  Intent,
-} from '@blueprintjs/core'
 
 const StageTaskCaption = (props) => {
   const { task, options } = props
@@ -25,9 +17,10 @@ const StageTaskCaption = (props) => {
         textOverflow: 'ellipsis'
       }}
     >
-      {task.plugin !== Providers.GITHUB && task.plugin !== Providers.JENKINS && (<>ID {options.projectId || options.boardId}</>)}
+      {(task.plugin === Providers.GITLAB || task.plugin === Providers.JIRA) && (<>ID {options.projectId || options.boardId}</>)}
       {task.plugin === Providers.GITHUB && (<>@{options.owner}/{options.repositoryName}</>)}
       {task.plugin === Providers.JENKINS && (<>Task #{task.ID}</>)}
+      {(task.plugin === Providers.GITEXTRACTOR || task.plugin === Providers.REFDIFF) && (<>{options.repoId || `ID ${task.ID}`}</>)}
     </span>
   )
 }
