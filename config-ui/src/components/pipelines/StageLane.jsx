@@ -60,7 +60,7 @@ const StageLane = (props) => {
     const completed = stageTasks.filter(s => s.status === 'TASK_COMPLETED')
     const remaining = stageTasks.filter(s => s.status !== 'TASK_COMPLETED')
     console.log('>>> STAGE LANE PROGRESS  = ', completed, remaining, completed.length / remaining.length)
-    return completed.length / remaining.length
+    return completed.length / (remaining.length + completed.length)
   }
 
   const calculateStageLaneDuration = (stageTasks, unit = 'minute') => {
