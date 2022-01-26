@@ -21,5 +21,7 @@ type GithubPullRequest struct {
 	ReviewComments int
 	Merged         bool
 	MergedAt       *time.Time
+	Type           string
+	Component      string
 	common.NoPKModel
 }
