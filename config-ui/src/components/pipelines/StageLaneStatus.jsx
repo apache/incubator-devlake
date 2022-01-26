@@ -67,9 +67,9 @@ const StageLaneStatus = (props) => {
           </span>
         </div>
         <div className='stage-caption'>
-          {isStageActive(sK) && <>Stage Running</>}
+          {isStageActive(sK) && <>Stage Running ~{duration}</>}
           {/* {isStageFailed(sK) && <>Stage Failed</>} */}
-          {(isStageCompleted(sK) || isStageFailed(sK)) && <>{duration}</>}
+          {(isStageCompleted(sK) || isStageFailed(sK)) && <>{duration.startsWith('0') ? '< 1min' : duration}</>}
           {isStagePending(sK) && <><Icon icon='more' color={Colors.GRAY5} size={12} /></>}
         </div>
       </div>

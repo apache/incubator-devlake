@@ -58,7 +58,7 @@ const StageTask = (props) => {
             flex: 1
           }}
         >
-          <div style={{ padding: '4px 2px 4px 0' }}>
+          <div style={{ padding: '4px 2px 4px 0', width: '100%' }}>
             <StageTaskName task={task} showDetails={taskModuleOpened} onClose={() => setTaskModuleOpened(null)} />
             <StageTaskCaption task={task} options={task.options} />
           </div>

@@ -733,8 +733,12 @@
 
     .task-module-name {
       // transition: all 0.2s linear;
+      display: flex;
       flex: 1;
       border-right: 1px solid #ddd;
+      max-width: calc(100% - 50px);
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
 
     .task-module-progress {
