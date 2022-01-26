@@ -6,6 +6,7 @@ require (
 	github.com/bndr/gojenkins v1.1.0
 	github.com/cayleygraph/cayley v0.7.7
 	github.com/cayleygraph/quad v1.2.4
+	github.com/docker/docker v20.10.9+incompatible
 	github.com/faabiosr/cachego v0.15.0
 	github.com/fastwego/feishu v1.0.0-beta.4
 	github.com/gin-contrib/cors v1.3.1
@@ -49,9 +50,11 @@ require (
 	github.com/json-iterator/go v1.1.11 // indirect
 	github.com/leodido/go-urn v1.2.1 // indirect
 	github.com/mattn/go-isatty v0.0.13 // indirect
+	github.com/moby/sys/symlink v0.1.0 // indirect
 	github.com/modern-go/concurrent v0.0.0-20180306012644-bacd9c7ef1dd // indirect
 	github.com/modern-go/reflect2 v1.0.1 // indirect
 	github.com/pelletier/go-toml v1.9.3 // indirect
+	github.com/pkg/errors v0.9.1 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	github.com/rogpeppe/go-internal v1.8.0 // indirect
 	github.com/spf13/afero v1.6.0 // indirect
