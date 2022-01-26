@@ -7,18 +7,21 @@ import (
 	"regexp"
 )
 
-var prType = config.V.GetString("GITHUB_PR_TYPE")
-var prComponent = config.V.GetString("GITHUB_PR_COMPONENT")
-
 var labelTypeRegex *regexp.Regexp
 var labelComponentRegex *regexp.Regexp
 
 func init() {
-	labelTypeRegex = regexp.MustCompile(prType)
-	labelComponentRegex = regexp.MustCompile(prComponent)
+	var prType = config.V.GetString("GITHUB_PR_TYPE")
+	var prComponent = config.V.GetString("GITHUB_PR_COMPONENT")
+	if len(prType) > 0 {
+		labelTypeRegex = regexp.MustCompile(prType)
+	}
+	if len(prComponent) > 0 {
+		labelComponentRegex = regexp.MustCompile(prComponent)
+	}
 }
 
-func EnrichGithubPullRequestWithLabel() (err error) {
+func EnrichGithubPullRequests() (err error) {
 	githubPullRequst := &githubModels.GithubPullRequest{}
 	cursor, err := lakeModels.Db.Model(&githubPullRequst).Rows()
 	if err != nil {
