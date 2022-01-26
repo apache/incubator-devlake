@@ -490,18 +490,14 @@ const PipelineActivity = (props) => {
                           <JenkinsProviderIcon width={24} height={24} />
                         </div>
                         <div>
-                          <label style={{
-                            lineHeight: '100%',
-                            display: 'block',
-                            fontSize: '14px',
-                            marginTop: '0',
-                            marginBottom: '10px'
-                          }}
-                          >
-                            <strong style={{ fontSize: '11px', fontFamily: 'Montserrat', fontWeight: 800 }}>
-                              {ProviderLabels.JENKINS}
-                            </strong>
-                            <br />Auto-configured
+                          <label style={{ lineHeight: '100%', display: 'block', fontSize: '10px', marginTop: '2px', marginBottom: '10px' }}>
+                            <strong style={{
+                              fontSize: '16px',
+                              fontFamily: 'Montserrat',
+                              fontWeight: 800
+                            }}
+                            >{ProviderLabels.JENKINS}
+                            </strong><br />Auto-configured
                           </label>
                           <span style={{ color: Colors.GRAY3 }}>(No Settings)</span>
                         </div>
@@ -513,16 +509,13 @@ const PipelineActivity = (props) => {
                           <JiraProviderIcon width={24} height={24} />
                         </div>
                         <div>
-                          <label style={{
-                            lineHeight: '100%',
-                            display: 'block',
-                            fontSize: '14px',
-                            marginTop: '0',
-                            marginBottom: '10px'
-                          }}
-                          >
-                            <strong style={{ fontSize: '11px', fontFamily: 'Montserrat', fontWeight: 800 }}>
-                              {ProviderLabels.JIRA}
+                          <label style={{ lineHeight: '100%', display: 'block', fontSize: '10px', marginTop: '2px', marginBottom: '10px' }}>
+                            <strong style={{
+                              fontSize: '16px',
+                              fontFamily: 'Montserrat',
+                              fontWeight: 800
+                            }}
+                            >{ProviderLabels.JIRA}
                             </strong><br />Board IDs
                           </label>
                           {activePipeline.tasks.filter(t => t.plugin === Providers.JIRA).map((t, tIdx) => (
@@ -542,14 +535,14 @@ const PipelineActivity = (props) => {
                           <GitlabProviderIcon width={24} height={24} />
                         </div>
                         <div>
-                          <label style={{
-                            lineHeight: '100%',
-                            display: 'block',
-                            fontSize: '14px',
-                            marginTop: '0',
-                            marginBottom: '10px'
-                          }}
-                          ><strong style={{ fontSize: '11px', fontFamily: 'Montserrat', fontWeight: 800 }}>{ProviderLabels.GITLAB}</strong><br />Project IDs
+                          <label style={{ lineHeight: '100%', display: 'block', fontSize: '10px', marginTop: '2px', marginBottom: '10px' }}>
+                            <strong style={{
+                              fontSize: '16px',
+                              fontFamily: 'Montserrat',
+                              fontWeight: 800
+                            }}
+                            >{ProviderLabels.GITLAB}
+                            </strong><br />Project IDs
                           </label>
                           {activePipeline.tasks.filter(t => t.plugin === 'gitlab').map((t, tIdx) => (
                             <div key={`project-id-key-${tIdx}`}>
@@ -568,8 +561,14 @@ const PipelineActivity = (props) => {
                           <GitHubProviderIcon width={24} height={24} />
                         </div>
                         <div>
-                          <label style={{ lineHeight: '100%', display: 'block', fontSize: '14px', marginTop: '0', marginBottom: '10px' }}>
-                            <strong style={{ fontSize: '11px', fontFamily: 'Montserrat', fontWeight: 800 }}>{ProviderLabels.GITHUB}</strong><br />Repositories
+                          <label style={{ lineHeight: '100%', display: 'block', fontSize: '10px', marginTop: '2px', marginBottom: '10px' }}>
+                            <strong style={{
+                              fontSize: '16px',
+                              fontFamily: 'Montserrat',
+                              fontWeight: 800
+                            }}
+                            >{ProviderLabels.GITHUB}
+                            </strong><br />Repositories
                           </label>
                           {activePipeline.tasks.filter(t => t.plugin === Providers.GITHUB).map((t, tIdx) => (
                             <div key={`repostitory-id-key-${tIdx}`}>
