@@ -15,13 +15,17 @@ func EnrichRemotelinks(source *models.JiraSource, boardId uint64) (err error) {
 	if source.RemotelinkCommitShaPattern != "" {
 		commitShaRegex = regexp.MustCompile(source.RemotelinkCommitShaPattern)
 	}
+
 	// clean up issue_commits relationship for board
-	lakeModels.Db.Exec(`
+	err = lakeModels.Db.Exec(`
 	DELETE ic
 	FROM jira_issue_commits ic
 	LEFT JOIN jira_board_issues bi ON (bi.source_id = ic.source_id AND bi.issue_id = ic.issue_id)
 	WHERE ic.source_id = ? AND bi.board_id = ?
-	`, source.ID, boardId)
+	`, source.ID, boardId).Error
+	if err != nil {
+		return err
+	}
 
 	var remotelink *models.JiraRemotelink
 	var issueCommit *models.JiraIssueCommit
