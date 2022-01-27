@@ -3,6 +3,7 @@ package tasks
 import (
 	lakeModels "github.com/merico-dev/lake/models"
 	"github.com/merico-dev/lake/models/domainlayer/code"
+	"github.com/merico-dev/lake/models/domainlayer/didgen"
 	"github.com/merico-dev/lake/plugins/github/models"
 	"gorm.io/gorm/clause"
 )
@@ -17,17 +18,25 @@ func PrCommitConvertor() (err error) {
 	}
 	defer cursor.Close()
 	var pullRequestId int
+	githubPullRequest := &models.GithubPullRequest{}
+	domainPullRequestId := ""
 	// iterate all rows
 	for cursor.Next() {
 		err = lakeModels.Db.ScanRows(cursor, githubPullRequestCommit)
+		err = lakeModels.Db.Find(githubPullRequest, "github_id = ?", githubPullRequestCommit.PullRequestId).Error
+		if err != nil {
+			return err
+		}
 		if pullRequestId != githubPullRequestCommit.PullRequestId {
+			domainPullRequestId = didgen.NewDomainIdGenerator(githubPullRequest).Generate(pullRequestId)
 			err := lakeModels.Db.Where("pull_request_id = ?",
-				githubPullRequestCommit.PullRequestId).Delete(&code.PullRequestCommit{}).Error
+				domainPullRequestId).Delete(&code.PullRequestCommit{}).Error
 			if err != nil {
 				return err
 			}
 			pullRequestId = githubPullRequestCommit.PullRequestId
 		}
+
 		if err != nil {
 			return err
 		}
@@ -35,7 +44,7 @@ func PrCommitConvertor() (err error) {
 			DoNothing: true,
 		}).Create(&code.PullRequestCommit{
 			CommitSha:     githubPullRequestCommit.CommitSha,
-			PullRequestId: githubPullRequestCommit.PullRequestId,
+			PullRequestId: domainPullRequestId,
 		}).Error
 		if err != nil {
 			return err
