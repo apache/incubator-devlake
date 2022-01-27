@@ -1,5 +1,5 @@
 import React from 'react'
-import { CSSTransition } from 'react-transition-group'
+// import { CSSTransition } from 'react-transition-group'
 import {
   Card,
   Button, Icon,
@@ -141,8 +141,6 @@ const StagePanel = (props) => {
             </div>
           </Button>
           <Button
-              // key={`stage-btn-key${sIdx}`}
-              // disabled={activeStageId !== (sIdx + 1)}
             minimal
             style={{
               position: 'relative',
@@ -187,77 +185,6 @@ const StagePanel = (props) => {
           >
             Stage {activeStageId}
           </h3>
-          {/* @todo: re-activate "stage steps" ux in a future release */}
-          {/* {Object.keys(stages).length > 0 && (
-              <>
-                {Object.keys(stages).map((s, sIdx) => (
-                  // <Button
-                  //   minimal style={{
-                  //     backgroundColor: '#eeeeee',
-                  //     color: '#cccccc',
-                  //     fontSize: '35px',
-                  //     lineHeight: '20px',
-                  //     padding: 0,
-                  //     fontWeight: 100,
-                  //   }}
-                  // >/
-                  // </Button>
-                  <Button
-                    key={`stage-btn-key${sIdx}`}
-                    disabled={activeStageId !== (sIdx + 1)}
-                    minimal
-                    style={{
-                      position: 'relative',
-                      backgroundColor: '#eeeeee',
-                      paddingRight: '50px',
-                    }}
-                    rightIcon={
-                      sIdx !== (Object.keys(stages).length - 1)
-                        ? (
-                          <span
-                            className='stage-panel-stage-separator'
-                            style={{
-                              backgroundColor: '#eeeeee',
-                              color: '#cccccc',
-                              fontSize: '35px',
-                              lineHeight: '100%',
-                              padding: 0,
-                              margin: 'auto 0 auto 0',
-                              position: 'absolute',
-                              right: 0,
-                              fontWeight: 100,
-                            }}
-                          >/
-                          </span>
-                          )
-                        : null
-                    }
-                  >
-                    <h3
-                      className='stage-panel-stage-name'
-                      style={{ margin: 0, fontSize: '18px', color: activeStageId === (sIdx + 1) ? Colors.BLACK : Colors.GRAY3 }}
-                    >
-                      Stage {sIdx + 1}
-                    </h3>
-                  </Button>
-                ))}
-
-                <Button
-                  className='stage-panel-stage-endcap'
-                  minimal
-                  style={{
-                    marginLeft: '1px',
-                    background: '#ffffff!!important',
-                    width: 0,
-                    height: 0,
-                    borderTop: '16px solid transparent',
-                    borderBottom: '16px solid transparent',
-                    borderLeft: '16px solid #eeeeee',
-                    pointerEvents: 'none'
-                  }}
-                />
-              </>
-            )} */}
           {Object.keys(stages).length === 0 && (
             <>
               <Button
