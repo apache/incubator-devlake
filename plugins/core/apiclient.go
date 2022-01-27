@@ -235,7 +235,7 @@ func UnmarshalResponse(res *http.Response, v interface{}) error {
 	}
 	err = json.Unmarshal(resBody, &v)
 	if err != nil {
-		return fmt.Errorf("%w %s %s", res.Request.URL.String(), string(resBody))
+		return fmt.Errorf("%w %s %s", err, res.Request.URL.String(), string(resBody))
 	}
 	return nil
 }
