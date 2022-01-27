@@ -713,7 +713,8 @@
         transform: scale(1.06);
       }
 
-      &:hover, &.active {
+      &:hover,
+      &.active {
         border: 2px solid rgba(136, 136, 136, 0.95);
         background-color: rgba(223, 223, 223, 0.75);
 
@@ -730,7 +731,8 @@
 
       .task-module-name {
         border-right: 0;
-      }  
+      }
+
       .task-module-progress {
         display: none;
       }
