@@ -61,7 +61,7 @@ func (rd RefDiff) Execute(options map[string]interface{}, progress chan<- float3
 		if refName == "" {
 			return "", fmt.Errorf("ref name is empty")
 		}
-		ref.Id = fmt.Sprintf("%s:%s",op.RepoId, refName)
+		ref.Id = fmt.Sprintf("%s:%s", op.RepoId, refName)
 		err = models.Db.First(ref).Error
 		if err != nil {
 			return "", fmt.Errorf("faild to load Ref info for repoId:%s, refName:%s", op.RepoId, refName)
@@ -117,8 +117,8 @@ func (rd RefDiff) Execute(options map[string]interface{}, progress chan<- float3
 		// ref might advance, keep commit sha for debugging
 		commitsDiff.NewCommitSha = pair[0]
 		commitsDiff.OldCommitSha = pair[1]
-		commitsDiff.NewRefName = pair[2]
-		commitsDiff.OldRefName = pair[3]
+		commitsDiff.NewRefName = fmt.Sprintf("%s:%s", op.RepoId, pair[2])
+		commitsDiff.OldRefName = fmt.Sprintf("%s:%s", op.RepoId, pair[3])
 
 		newCommit := cayley.StartPath(store, quad.String(commitsDiff.NewCommitSha)).FollowRecursive(ancestors, -1, []string{})
 		oldCommit := cayley.StartPath(store, quad.String(commitsDiff.OldCommitSha)).FollowRecursive(ancestors, -1, []string{})
