@@ -62,7 +62,7 @@ JSON
 apt install cmake
 git clone https://github.com/libgit2/libgit2.git
 git checkout v1.3.0
-make build
+mkdir build
 cd build
 cmake ..
 make
@@ -76,7 +76,7 @@ ldconfig
 brew install cmake
 git clone https://github.com/libgit2/libgit2.git
 git checkout v1.3.0
-make build
+mkdir build
 cd build
 cmake ..
 make
