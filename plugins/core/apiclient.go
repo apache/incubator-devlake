@@ -231,10 +231,13 @@ func UnmarshalResponse(res *http.Response, v interface{}) error {
 	defer res.Body.Close()
 	resBody, err := ioutil.ReadAll(res.Body)
 	if err != nil {
-		logger.Print(fmt.Sprintf("UnmarshalResponse failed: %v\n%v\n\n", res.Request.URL.String(), string(resBody)))
-		return err
+		return fmt.Errorf("%w %s", err, res.Request.URL.String())
 	}
-	return json.Unmarshal(resBody, &v)
+	err = json.Unmarshal(resBody, &v)
+	if err != nil {
+		return fmt.Errorf("%w %s %s", res.Request.URL.String(), string(resBody))
+	}
+	return nil
 }
 
 func GetURIStringPointer(baseUrl string, relativePath string, queryParams *url.Values) (*string, error) {
