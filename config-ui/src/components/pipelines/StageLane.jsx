@@ -59,10 +59,14 @@ const StageLane = (props) => {
   const calculateStageLaneProgress = (stageTasks) => {
     const completed = stageTasks.filter(s => s.status === 'TASK_COMPLETED')
     const remaining = stageTasks.filter(s => s.status !== 'TASK_COMPLETED')
+    const minProgressValue = 0.05
     let progress = completed.length / (remaining.length + completed.length)
     console.log('>>> STAGE LANE PROGRESS  = ', completed, remaining, completed.length / remaining.length)
     if (stageTasks.length === 1) {
-      progress = Math.max(0.05, stageTasks[0].progress)
+      progress = Math.max(minProgressValue, stageTasks[0].progress)
+    }
+    if (completed.length === 0 && remaining.length === stageTasks.length) {
+      progress = stageTasks.reduce((pV, cV) => pV + cV.progress, minProgressValue)
     }
     return progress
   }
