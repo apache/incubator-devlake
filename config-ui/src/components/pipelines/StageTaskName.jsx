@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react'
+import React, { useEffect, useRef } from 'react'
 import {
   Providers,
   ProviderLabels,
@@ -10,7 +10,9 @@ import {
   Position,
   Popover,
   TextArea,
-  H3
+  Button,
+  H3,
+  Classes
 } from '@blueprintjs/core'
 import dayjs from '@/utils/time'
 
@@ -122,7 +124,7 @@ const StageTaskName = (props) => {
                   <label style={{ color: Colors.GRAY2 }}>Status</label><br />
                   <strong>{task.status}</strong>{' '}
                   <strong
-                    className='bp3-tag bp3-intent-primary'
+                    className='bp3-tag'
                     style={{ minHeight: '16px', fontSize: '10px', padding: '2px 6px', borderRadius: '6px' }}
                   >PROGRESS {task.progress * 100}%
                   </strong>
@@ -163,6 +165,9 @@ const StageTaskName = (props) => {
                 </div>
               </div>
             )}
+            <div style={{ marginTop: '10px', display: 'flex', justifyContent: 'flex-end' }}>
+              <Button className={Classes.POPOVER_DISMISS} text='OK' intent='primary' small />
+            </div>
           </div>
         </>
       </Popover>
