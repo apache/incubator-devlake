@@ -16,8 +16,22 @@ This is a enrichment plugin based on Domain Layer data, no configuration needed
 
 ## How to use
 
-In order to trigger the enrichment, you need to insert a new task into your pipeline
+In order to trigger the enrichment, you need to insert a new task into your pipeline.
 
+1. Make sure `commits` and `refs` are collected into your database, `refs` table should contain records like following:
+```
+id                                                  ref_type
+github:GithubRepository:384111310:refs/tags/0.3.5   TAG
+github:GithubRepository:384111310:refs/tags/0.3.6   TAG
+github:GithubRepository:384111310:refs/tags/0.5.0   TAG
+github:GithubRepository:384111310:refs/tags/v0.0.1  TAG
+github:GithubRepository:384111310:refs/tags/v0.2.0  TAG
+github:GithubRepository:384111310:refs/tags/v0.3.0  TAG
+github:GithubRepository:384111310:refs/tags/v0.4.0  TAG
+github:GithubRepository:384111310:refs/tags/v0.6.0  TAG
+github:GithubRepository:384111310:refs/tags/v0.6.1  TAG
+```
+2. And then, trigger a pipeline like following:
 ```
 curl -v -XPOST http://localhost:8080/pipelines --data @- <<'JSON'
 {
@@ -29,8 +43,8 @@ curl -v -XPOST http://localhost:8080/pipelines --data @- <<'JSON'
                 "options": {
                     "repoId": "github:GithubRepository:384111310",
                     "pairs": [
-                       { "newRef": "v0.6.0", "oldRef": "0.5.0" },
-                       { "newRef": "0.5.0", "oldRef": "0.4.0" }
+                       { "newRef": "refs/tags/v0.6.0", "oldRef": "refs/tags/0.5.0" },
+                       { "newRef": "refs/tags/0.5.0", "oldRef": "refs/tags/0.4.0" }
                     ]
                 }
             }
