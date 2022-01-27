@@ -114,6 +114,7 @@ func (plugin Github) Execute(options map[string]interface{}, progress chan<- flo
 			"enrichPullRequests":         true,
 			"convertRepos":               true,
 			"convertIssues":              true,
+			"convertIssueLabels":         true,
 			"convertPullRequests":        true,
 			"convertCommits":             true,
 			"convertPullRequestCommits":  true,
@@ -228,6 +229,13 @@ func (plugin Github) Execute(options map[string]interface{}, progress chan<- flo
 	if tasksToRun["convertIssues"] {
 		progress <- 0.94
 		err = tasks.ConvertIssues()
+		if err != nil {
+			return err
+		}
+	}
+	if tasksToRun["convertIssueLabels"] {
+		progress <- 0.94
+		err = tasks.ConvertIssueLabels()
 		if err != nil {
 			return err
 		}
