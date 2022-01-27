@@ -15,4 +15,7 @@ WORKDIR /usr/share/nginx/html
 RUN rm -rf ./*
 COPY --from=builder /home/node/code/dist/. ./
 EXPOSE 80 443
-CMD envsubst '${DEVLAKE_ENDPOINT} ${GRAFANA_ENDPOINT}' < /etc/nginx/conf.d/default.conf.tpl > /etc/nginx/conf.d/default.conf && nginx -g 'daemon off;'
+RUN apt update && apt install -y apache2-utils
+COPY ./nginx.sh /usr/bin/nginx.sh
+RUN chmod +x /usr/bin/nginx.sh
+CMD nginx.sh
