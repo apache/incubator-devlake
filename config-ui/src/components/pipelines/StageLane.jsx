@@ -4,14 +4,7 @@ import { CSSTransition } from 'react-transition-group'
 import {
   Icon,
   Colors,
-  Tooltip,
-  Position,
-  Intent,
-  Card,
-  Elevation,
-  ProgressBar,
   H4,
-  // Alignment
 } from '@blueprintjs/core'
 import dayjs from '@/utils/time'
 import StageTask from '@/components/pipelines/StageTask'
@@ -71,14 +64,16 @@ const StageLane = (props) => {
     return progress
   }
 
-  const calculateStageLaneDuration = (stageTasks, unit = 'minute') => {
+  const calculateStageLaneDuration = (stageTasks, unit = 'minute', parallelMode = true) => {
     let duration = 0
     const now = dayjs()
     const diffDuration = (pV, cV) => pV + dayjs(cV.status === 'TASK_RUNNING'
       ? now
-      : (cV.finishedAt || cV.UpdatedAt)).diff(dayjs(cV.beganAt), unit)
-    duration = stageTasks.reduce(diffDuration, 0)
-    console.log('>> CALCULATED DURATION =', stageTasks, duration)
+      : (cV.status === 'TASK_FAILED' ? cV.UpdatedAt : cV.finishedAt || cV.UpdatedAt)).diff(dayjs(cV.beganAt), unit)
+    const filterParallel = (pV, cV) => !pV.some(t => t.CreatedAt.split('.')[0] === cV.CreatedAt.split('.')[0]) ? [...pV, cV] : [...pV]
+    const parallelTasks = stageTasks.reduce(filterParallel, [])
+    duration = parallelMode && !isStageFailed(sK) ? parallelTasks.reduce(diffDuration, 0) : stageTasks.reduce(diffDuration, 0)
+    // console.log('>> CALCULATED DURATION =', stageTasks, duration)
     return duration
   }
 
