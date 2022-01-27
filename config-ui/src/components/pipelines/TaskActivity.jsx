@@ -1,32 +1,42 @@
 
 import React from 'react'
 // import { CSSTransition } from 'react-transition-group'
+import { Providers } from '@/data/Providers'
 import {
-  // Classes,
   Icon,
   Spinner,
   Colors,
   Tooltip,
   Position,
   Intent,
-  // Alignment
 } from '@blueprintjs/core'
 import dayjs from '@/utils/time'
+import StageLane from '@/components/pipelines/StageLane'
 
 const TaskActivity = (props) => {
-  const { activePipeline } = props
+  const { activePipeline, stages = [] } = props
 
   return (
     <>
 
       <div
         className='pipeline-task-activity' style={{
-          padding: '20px',
+          // padding: '20px',
+          padding: Object.keys(stages).length === 1 ? '10px' : 0,
           overflow: 'hidden',
           textOverflow: 'ellipsis'
         }}
       >
-        {activePipeline?.ID && activePipeline.tasks && activePipeline.tasks.map((t, tIdx) => (
+        {Object.keys(stages).length > 1 && (
+          <div
+            className='pipeline-multistage-activity'
+          >
+            {Object.keys(stages).map((sK, sIdx) => (
+              <StageLane key={`stage-lane-key-${sIdx}`} stages={stages} sK={sK} sIdx={sIdx} />
+            ))}
+          </div>
+        )}
+        {Object.keys(stages).length === 1 && activePipeline?.ID && activePipeline.tasks && activePipeline.tasks.map((t, tIdx) => (
           <div
             className='pipeline-task-row'
             key={`pipeline-task-key-${tIdx}`}
@@ -67,7 +77,7 @@ const TaskActivity = (props) => {
             </div>
             <div
               className='pipeline-task-cell-name'
-              style={{ padding: '0 8px', minWidth: '100px', display: 'flex', justifyContent: 'space-between' }}
+              style={{ padding: '0 8px', minWidth: '130px', display: 'flex', justifyContent: 'space-between' }}
             >
               <strong
                 className='task-plugin-name'
@@ -91,13 +101,13 @@ const TaskActivity = (props) => {
                 flexGrow: 1
               }}
             >
-              {t.plugin !== 'jenkins' && (
+              {t.plugin !== Providers.JENKINS && t.plugin !== 'refdiff' && (
                 <div style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                   <span style={{ color: Colors.GRAY2 }}>
                     <Icon icon='link' size={8} style={{ marginBottom: '3px' }} /> {t.options[Object.keys(t.options)[0]]}
                   </span>
-                  {t.plugin === 'github' && (
-                    <span style={{ fontWeight: 60 }}>/{t.options[Object.keys(t.options)[1]]}</span>
+                  {t.plugin === Providers.GITHUB && (
+                    <span style={{ fontWeight: 60 }}>/{t.options.repositoryName}</span>
                   )}
                 </div>
               )}

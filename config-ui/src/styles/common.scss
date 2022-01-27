@@ -7,9 +7,12 @@
 }
 
 .main {
-  padding: 4rem 4rem 4rem calc(250px + 4rem);
+  // padding: 4rem 4rem 4rem calc(250px + 4rem);
+  padding: 4rem;
+  margin-left: calc(250px);
   flex: 1;
   display: flex;
+  max-width: calc(100vw + -250px);
   flex-direction: column;
   justify-content: flex-start;
   align-items: center;
@@ -31,10 +34,10 @@
   font-size: 16px;
   line-height: 100%;
   letter-spacing: 0.08em;
-  font-feature-settings: 'pnum' on, 'lnum' on;
+  font-feature-settings: 'pnum'on, 'lnum'on;
   color: #606060;
-  
-  &.mb-0{
+
+  &.mb-0 {
     margin-bottom: 0;
   }
 }
@@ -63,7 +66,9 @@
   margin-top: 0 !important;
 }
 
-.input, .helperInput, .form {
+.input,
+.helperInput,
+.form {
   width: 100%;
 }
 
@@ -165,6 +170,7 @@
   margin-top: 1.5rem;
   margin-bottom: 0.25rem;
   color: #3d3d3d;
+
   .bp3-icon {
     margin-bottom: 3px;
   }
@@ -202,7 +208,7 @@
 .addNewStatusBtn,
 .addNewStatusBtnDialog {
   border-radius: 3px;
-  border: 1px solid rgba(0,0,0,0.15);
+  border: 1px solid rgba(0, 0, 0, 0.15);
   padding: 0.5rem 0.5rem;
   outline: 0;
   display: inline-block;
@@ -244,7 +250,7 @@ h3 {
     font-size: 14px;
     line-height: 100%;
     letter-spacing: 0.19em;
-    font-feature-settings: 'pnum' on, 'lnum' on;
+    font-feature-settings: 'pnum'on, 'lnum'on;
     color: #333333;
     text-transform: uppercase;
   }
@@ -256,7 +262,7 @@ h3 {
   font-style: normal;
   font-weight: normal;
   line-height: 102%;
-  font-feature-settings: 'pnum' on, 'lnum' on;
+  font-feature-settings: 'pnum'on, 'lnum'on;
   color: #717484;
   padding-left: 26px;
 }
@@ -266,7 +272,7 @@ h3 {
   height: 18px;
   display: inline-block;
   border-radius: 50%;
-  background-color: rgba(0,0,255,0.9);
+  background-color: rgba(0, 0, 255, 0.9);
   color: #ffffff;
   line-height: 18px;
   text-align: center;
