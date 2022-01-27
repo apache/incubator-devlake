@@ -12,6 +12,7 @@ import {
   Spinner,
   Colors,
   Classes,
+  Tag
 } from '@blueprintjs/core'
 import {
   Providers,
@@ -33,6 +34,8 @@ import { ReactComponent as BackArrowIcon } from '@/images/undo.svg'
 import { ReactComponent as HelpIcon } from '@/images/help.svg'
 
 import PipelineActivityIcon from '@/images/pulse-2.png'
+import GitExtractorIcon from '@/images/git.png'
+import RefDiffIcon from '@/images/git-diff.png'
 
 const PipelineActivity = (props) => {
   const history = useHistory()
@@ -81,7 +84,9 @@ const PipelineActivity = (props) => {
 
   const findActiveStageId = (tasks = []) => {
     const activeTask = tasks.find(t => t.status === 'TASK_RUNNING')
-    return activeTask?.pipelineRow || 1
+    const failedTask = tasks.find(t => t.status === 'TASK_FAILED')
+    const completedTask = tasks.find(t => t.status === 'TASK_COMPLETED')
+    return activeTask?.pipelineRow || completedTask?.pipelineRow || failedTask?.pipelineRow || 0
   }
 
   const restartPipeline = useCallback((tasks = []) => {
@@ -276,8 +281,24 @@ const PipelineActivity = (props) => {
                             </span>
                           </h2>
                           <div className='pipeline-timestamp'>
-                            2021-12-08 08:00 AM (UTC)
+                            {dayjs(activePipeline.CreatedAt).utc().format()} (UTC)
                           </div>
+                          {Object.keys(buildPipelineStages(activePipeline.tasks)).length > 1 && (
+                            <div className='pipeline-multistage-tag' style={{ padding: '5px 0 0 0' }}>
+                              <Icon icon='layers' color={Colors.GRAY4} size={14} style={{ marginRight: '5px' }} />
+                              <span style={{
+                                fontFamily: 'Montserrat',
+                                fontStyle: 'normal',
+                                fontWeight: 900,
+                                letterSpacing: '1px',
+                                color: '#333',
+                                fontSize: '11px'
+                              }}
+                              >
+                                MULTI-STAGE
+                              </span>
+                            </div>
+                          )}
 
                         </div>
                         <div style={{
@@ -394,7 +415,7 @@ const PipelineActivity = (props) => {
                         </div>
 
                       </div>
-                      <TaskActivity activePipeline={activePipeline} />
+                      <TaskActivity activePipeline={activePipeline} stages={buildPipelineStages(activePipeline.tasks)} />
                     </Card>
                   </CSSTransition>
                   <div style={{ display: 'flex', padding: '5px 3px', fontSize: '10px', color: '#777777', justifyContent: 'space-between' }}>
@@ -469,18 +490,14 @@ const PipelineActivity = (props) => {
                           <JenkinsProviderIcon width={24} height={24} />
                         </div>
                         <div>
-                          <label style={{
-                            lineHeight: '100%',
-                            display: 'block',
-                            fontSize: '14px',
-                            marginTop: '0',
-                            marginBottom: '10px'
-                          }}
-                          >
-                            <strong style={{ fontSize: '11px', fontFamily: 'Montserrat', fontWeight: 800 }}>
-                              {ProviderLabels.JENKINS}
-                            </strong>
-                            <br />Auto-configured
+                          <label style={{ lineHeight: '100%', display: 'block', fontSize: '10px', marginTop: '2px', marginBottom: '10px' }}>
+                            <strong style={{
+                              fontSize: '16px',
+                              fontFamily: 'Montserrat',
+                              fontWeight: 800
+                            }}
+                            >{ProviderLabels.JENKINS}
+                            </strong><br />Auto-configured
                           </label>
                           <span style={{ color: Colors.GRAY3 }}>(No Settings)</span>
                         </div>
@@ -492,16 +509,13 @@ const PipelineActivity = (props) => {
                           <JiraProviderIcon width={24} height={24} />
                         </div>
                         <div>
-                          <label style={{
-                            lineHeight: '100%',
-                            display: 'block',
-                            fontSize: '14px',
-                            marginTop: '0',
-                            marginBottom: '10px'
-                          }}
-                          >
-                            <strong style={{ fontSize: '11px', fontFamily: 'Montserrat', fontWeight: 800 }}>
-                              {ProviderLabels.JIRA}
+                          <label style={{ lineHeight: '100%', display: 'block', fontSize: '10px', marginTop: '2px', marginBottom: '10px' }}>
+                            <strong style={{
+                              fontSize: '16px',
+                              fontFamily: 'Montserrat',
+                              fontWeight: 800
+                            }}
+                            >{ProviderLabels.JIRA}
                             </strong><br />Board IDs
                           </label>
                           {activePipeline.tasks.filter(t => t.plugin === Providers.JIRA).map((t, tIdx) => (
@@ -521,14 +535,14 @@ const PipelineActivity = (props) => {
                           <GitlabProviderIcon width={24} height={24} />
                         </div>
                         <div>
-                          <label style={{
-                            lineHeight: '100%',
-                            display: 'block',
-                            fontSize: '14px',
-                            marginTop: '0',
-                            marginBottom: '10px'
-                          }}
-                          ><strong style={{ fontSize: '11px', fontFamily: 'Montserrat', fontWeight: 800 }}>{ProviderLabels.GITLAB}</strong><br />Project IDs
+                          <label style={{ lineHeight: '100%', display: 'block', fontSize: '10px', marginTop: '2px', marginBottom: '10px' }}>
+                            <strong style={{
+                              fontSize: '16px',
+                              fontFamily: 'Montserrat',
+                              fontWeight: 800
+                            }}
+                            >{ProviderLabels.GITLAB}
+                            </strong><br />Project IDs
                           </label>
                           {activePipeline.tasks.filter(t => t.plugin === 'gitlab').map((t, tIdx) => (
                             <div key={`project-id-key-${tIdx}`}>
@@ -547,19 +561,101 @@ const PipelineActivity = (props) => {
                           <GitHubProviderIcon width={24} height={24} />
                         </div>
                         <div>
-                          <label style={{ lineHeight: '100%', display: 'block', fontSize: '14px', marginTop: '0', marginBottom: '10px' }}>
-                            <strong style={{ fontSize: '11px', fontFamily: 'Montserrat', fontWeight: 800 }}>{ProviderLabels.GITHUB}</strong><br />Repositories
+                          <label style={{ lineHeight: '100%', display: 'block', fontSize: '10px', marginTop: '2px', marginBottom: '10px' }}>
+                            <strong style={{
+                              fontSize: '16px',
+                              fontFamily: 'Montserrat',
+                              fontWeight: 800
+                            }}
+                            >{ProviderLabels.GITHUB}
+                            </strong><br />Repositories
                           </label>
                           {activePipeline.tasks.filter(t => t.plugin === Providers.GITHUB).map((t, tIdx) => (
                             <div key={`repostitory-id-key-${tIdx}`}>
                               <Icon icon='nest' size={12} color={Colors.GRAY4} style={{ marginRight: '6px' }} />
                               <span>
-                                <strong>{t.options[Object.keys(t.options)[0]]}</strong>
+                                <strong>{t.options.owner}</strong>
                                 <span style={{ color: Colors.GRAY5, padding: '0 1px' }}>/</span>
-                                <strong>{t.options[Object.keys(t.options)[1]]}</strong>
+                                <strong>{t.options.repositoryName}</strong>
                               </span>
+                              {t.options.tasks && (
+                                <>
+                                  <Tag style={{ fontSize: '9px', marginLeft: '5px', backgroundColor: '#eee', color: '#777' }}>+TASKS</Tag>
+                                  <ul style={{ fontSize: '9px' }}>
+                                    {t.options.tasks.map((oT, otId) => (
+                                      <li key={`option-subtask-key${otId}`}>{oT}</li>
+                                    ))}
+                                  </ul>
+                                </>
+                              )}
                             </div>
                           ))}
+                        </div>
+                      </div>
+                    )}
+                    {pipelineHasProvider('gitextractor') && (
+                      <div className='gitextractor-settings' style={{ display: 'flex', paddingLeft: '20px', justifySelf: 'flex-start' }}>
+                        <div style={{ display: 'flex', padding: '2px 6px' }}>
+                          <img src={GitExtractorIcon} width={24} height={24} />
+                        </div>
+                        <div>
+                          <label style={{ lineHeight: '100%', display: 'block', fontSize: '10px', marginTop: '2px', marginBottom: '0px' }}>
+                            <strong style={{ fontSize: '16px', fontFamily: 'Montserrat', fontWeight: 800 }}>GitExtractor</strong><br />Extract Commits &amp; Refs
+                          </label>
+                          <div style={{ paddingTop: '15px' }}>
+                            {activePipeline.tasks.filter(t => t.plugin === 'gitextractor').map((t, tIdx) => (
+                              <div key={`gitextractor-opts-key-${tIdx}`}>
+                                <div>
+                                  <Icon icon='nest' size={12} color={Colors.GRAY4} style={{ marginRight: '6px' }} />
+                                  <strong>URL</strong>
+                                  <span style={{ color: Colors.GRAY5, padding: '0 1px' }}>: </span>
+                                  <span>{t.options.url}</span>
+                                </div>
+                                <div>
+                                  <Icon icon='nest' size={12} color={Colors.GRAY4} style={{ marginRight: '6px' }} />
+                                  <strong>RepoId</strong>
+                                  <span style={{ color: Colors.GRAY5, padding: '0 1px' }}>: </span>
+                                  <span>{t.options.repoId}</span>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                    {pipelineHasProvider('refdiff') && (
+                      <div className='refdiff-settings' style={{ display: 'flex', paddingLeft: '20px', justifySelf: 'flex-start' }}>
+                        <div style={{ display: 'flex', padding: '2px 6px' }}>
+                          <img src={RefDiffIcon} width={24} height={24} />
+                        </div>
+                        <div>
+                          <label style={{ lineHeight: '100%', display: 'block', fontSize: '10px', marginTop: '2px', marginBottom: '0px' }}>
+                            <strong style={{ fontSize: '16px', fontFamily: 'Montserrat', fontWeight: 800 }}>RefDiff</strong><br />Release Tag Diffs
+                          </label>
+                          <div style={{ paddingTop: '15px' }}>
+                            {activePipeline.tasks.filter(t => t.plugin === 'refdiff').map((t, tIdx) => (
+                              <div key={`gitextractor-opts-key-${tIdx}`}>
+                                <div>
+                                  <Icon icon='nest' size={12} color={Colors.GRAY4} style={{ marginRight: '6px' }} />
+                                  <strong>RepoId</strong>
+                                  <span style={{ color: Colors.GRAY5, padding: '0 1px' }}>: </span>
+                                  <span>{t.options.repoId}</span>
+                                </div>
+                                <div>
+                                  {t.options.pairs && (
+                                    <div>
+                                      <Icon icon='nest' size={12} color={Colors.GRAY4} style={{ marginRight: '0' }} /> <Tag style={{ fontSize: '9px', marginLeft: '0', backgroundColor: '#eee', color: '#777' }}>TAG PAIRS</Tag>
+                                      <ul style={{ fontSize: '9px' }}>
+                                        {t.options.pairs.map((ref, refIdx) => (
+                                          <li key={`option-subtask-key${refIdx}`}><strong>old</strong> {ref.oldRef} &nbsp; <strong>new</strong> {ref.oldRef} </li>
+                                        ))}
+                                      </ul>
+                                    </div>
+                                  )}
+                                </div>
+                              </div>
+                            ))}
+                          </div>
                         </div>
                       </div>
                     )}
