@@ -48,11 +48,7 @@ func (githubApiClient *GithubApiClient) FetchWithPaginationAnts(path string, que
 	if queryParams == nil {
 		queryParams = &url.Values{}
 	}
-	err := githubApiClient.RunConcurrently(path, queryParams, pageSize, conc, scheduler, handler)
-	if err != nil {
-		logger.Error("runConcurrently() failed", true)
-	}
-	return nil
+	return githubApiClient.RunConcurrently(path, queryParams, pageSize, conc, scheduler, handler)
 }
 
 // This method exists in the case where we do not know how many pages of data we have to fetch
