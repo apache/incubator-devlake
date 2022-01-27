@@ -202,7 +202,7 @@ func (plugin Github) Execute(options map[string]interface{}, progress chan<- flo
 		}
 	}
 	if tasksToRun["enrichIssues"] {
-		progress <- 0.9
+		progress <- 0.91
 		fmt.Println("INFO >>> Enriching Issues")
 		enrichmentError := tasks.EnrichGithubIssues()
 		if enrichmentError != nil {
@@ -210,7 +210,7 @@ func (plugin Github) Execute(options map[string]interface{}, progress chan<- flo
 		}
 	}
 	if tasksToRun["enrichPullRequests"] {
-		progress <- 0.9
+		progress <- 0.92
 		fmt.Println("INFO >>> Enriching PullRequests")
 		enrichPullRequestsError := tasks.EnrichGithubPullRequests()
 		if enrichPullRequestsError != nil {
@@ -218,49 +218,49 @@ func (plugin Github) Execute(options map[string]interface{}, progress chan<- flo
 		}
 	}
 	if tasksToRun["convertRepos"] {
-		progress <- 0.9
+		progress <- 0.93
 		err = tasks.ConvertRepos()
 		if err != nil {
 			return err
 		}
 	}
 	if tasksToRun["convertIssues"] {
-		progress <- 0.9
+		progress <- 0.94
 		err = tasks.ConvertIssues()
 		if err != nil {
 			return err
 		}
 	}
 	if tasksToRun["convertPullRequests"] {
-		progress <- 0.9
+		progress <- 0.95
 		err = tasks.ConvertPullRequests()
 		if err != nil {
 			return err
 		}
 	}
 	if tasksToRun["convertCommits"] {
-		progress <- 0.9
+		progress <- 0.96
 		err = tasks.ConvertCommits(repoId)
 		if err != nil {
 			return err
 		}
 	}
 	if tasksToRun["convertPullRequestCommits"] {
-		progress <- 0.9
+		progress <- 0.97
 		err = tasks.PrCommitConvertor()
 		if err != nil {
 			return err
 		}
 	}
 	if tasksToRun["convertNotes"] {
-		progress <- 0.9
+		progress <- 0.98
 		err = tasks.ConvertNotes()
 		if err != nil {
 			return err
 		}
 	}
 	if tasksToRun["convertUsers"] {
-		progress <- 0.9
+		progress <- 0.99
 		err = tasks.ConvertUsers()
 
 		if err != nil {
