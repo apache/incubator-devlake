@@ -2,9 +2,8 @@ package tasks
 
 import (
 	"fmt"
-	"github.com/merico-dev/lake/models/domainlayer"
-
 	lakeModels "github.com/merico-dev/lake/models"
+	"github.com/merico-dev/lake/models/domainlayer"
 	"github.com/merico-dev/lake/models/domainlayer/didgen"
 	"github.com/merico-dev/lake/models/domainlayer/ticket"
 	githubModels "github.com/merico-dev/lake/plugins/github/models"
@@ -41,9 +40,11 @@ func ConvertIssues(repoId int) error {
 
 func convertStateToStatus(state string) string {
 	if state == "closed" {
-		return "DONE"
+		return ticket.DONE
+	} else if state == "todo" {
+		return ticket.TODO
 	} else {
-		return "TODO"
+		return ticket.IN_PROGRESS
 	}
 }
 
