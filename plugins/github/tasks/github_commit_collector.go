@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/http"
 
+	"github.com/merico-dev/lake/logger"
 	lakeModels "github.com/merico-dev/lake/models"
 	"github.com/merico-dev/lake/plugins/core"
 	"github.com/merico-dev/lake/plugins/github/models"
@@ -12,6 +13,7 @@ import (
 )
 
 type ApiCommitsResponse []CommitsResponse
+
 type CommitsResponse struct {
 	Sha       string `json:"sha"`
 	Commit    Commit
@@ -32,6 +34,13 @@ type Commit struct {
 		Date  core.Iso8601Time
 	}
 	Message string
+}
+
+type ApiSingleCommitResponse struct {
+	Stats struct {
+		Additions int
+		Deletions int
+	}
 }
 
 func CollectCommits(owner string, repositoryName string, repositoryId int, scheduler *utils.WorkerScheduler, githubApiClient *GithubApiClient) error {
@@ -86,6 +95,7 @@ func CollectCommits(owner string, repositoryName string, repositoryId int, sched
 			return nil
 		})
 }
+
 func convertGithubCommit(commit *CommitsResponse) (*models.GithubCommit, error) {
 	githubCommit := &models.GithubCommit{
 		Sha:            commit.Sha,
@@ -99,4 +109,72 @@ func convertGithubCommit(commit *CommitsResponse) (*models.GithubCommit, error) 
 		Url:            commit.Url,
 	}
 	return githubCommit, nil
+}
+
+func CollectCommitsStat(
+	owner string,
+	repositoryName string,
+	repositoryId int,
+	scheduler *utils.WorkerScheduler,
+	githubApiClient *GithubApiClient,
+) error {
+	cursor, err := lakeModels.Db.Table("github_commits gc").
+		Joins(`left join github_repo_commits grc on (
+			grc.commit_sha = gc.sha
+		)`).
+		Select("gc.*").
+		Where("grc.github_repo_id = ?", repositoryId).
+		Rows()
+	if err != nil {
+		return err
+	}
+	defer cursor.Close()
+
+	// TODO: this still loading all rows into memory, to be optimized
+	for cursor.Next() {
+		commit := &models.GithubCommit{}
+		err = lakeModels.Db.ScanRows(cursor, commit)
+		if err != nil {
+			return err
+		}
+		err = scheduler.Submit(func() error {
+			// This call is to update the details of the individual pull request with additions / deletions / etc.
+			err := CollectCommit(owner, repositoryName, repositoryId, commit, githubApiClient)
+			if err != nil {
+				return err
+			}
+			return nil
+		})
+		if err != nil {
+			return nil
+		}
+	}
+
+	scheduler.WaitUntilFinish()
+	return nil
+}
+
+// for addtions and deletions
+func CollectCommit(owner string, repositoryName string, repositoryId int, commit *models.GithubCommit, githubApiClient *GithubApiClient) error {
+	getUrl := fmt.Sprintf("repos/%v/%v/commits/%v", owner, repositoryName, commit.Sha)
+	res, getErr := githubApiClient.Get(getUrl, nil, nil)
+	if getErr != nil {
+		logger.Error("GET Error: ", getErr)
+		return getErr
+	}
+
+	githubApiResponse := &ApiSingleCommitResponse{}
+	unmarshalErr := core.UnmarshalResponse(res, githubApiResponse)
+	if unmarshalErr != nil {
+		logger.Error("Error: ", unmarshalErr)
+		return unmarshalErr
+	}
+	dbErr := lakeModels.Db.Model(&commit).Updates(models.GithubCommit{
+		Additions: githubApiResponse.Stats.Additions,
+		Deletions: githubApiResponse.Stats.Deletions,
+	}).Error
+	if dbErr != nil {
+		logger.Error("Could not update: ", dbErr)
+	}
+	return nil
 }
