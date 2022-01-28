@@ -104,9 +104,7 @@ func (plugin Github) Execute(options map[string]interface{}, progress chan<- flo
 			"collectIssues":              true,
 			"collectIssueEvents":         true,
 			"collectIssueComments":       true,
-			"collectIssueLabels":         true,
 			"collectPullRequestReviews":  true,
-			"collectPullRequestLabels":   true,
 			"collectPullRequestCommits":  true,
 			"collectPullRequestComments": true,
 			"enrichIssues":               true,
@@ -160,28 +158,12 @@ func (plugin Github) Execute(options map[string]interface{}, progress chan<- flo
 		}
 	}
 
-	if tasksToRun["collectIssueLabels"] {
-		progress <- 0.4
-		fmt.Println("INFO >>> starting Issue Labels collection")
-		collectIssueLabelsErr := tasks.CollectIssueLabels(ownerString, repositoryNameString, scheduler, githubApiClient)
-		if collectIssueLabelsErr != nil {
-			return fmt.Errorf("Could not collect Issue Labels: %v", collectIssueLabelsErr)
-		}
-	}
 	if tasksToRun["collectPullRequestReviews"] {
 		progress <- 0.5
 		fmt.Println("INFO >>> collecting PR Reviews collection")
 		collectPullRequestReviewsErr := tasks.CollectPullRequestReviews(ownerString, repositoryNameString, scheduler, githubApiClient)
 		if collectPullRequestReviewsErr != nil {
 			return fmt.Errorf("Could not collect PR Reviews: %v", collectPullRequestReviewsErr)
-		}
-	}
-	if tasksToRun["collectPullRequestLabels"] {
-		progress <- 0.6
-		fmt.Println("INFO >>> starting Pr Labels collection")
-		collectPullRequestLabelsErr := tasks.CollectPrLabels(ownerString, repositoryNameString, scheduler, githubApiClient)
-		if collectPullRequestLabelsErr != nil {
-			return fmt.Errorf("Could not collect PR Labels: %v", collectPullRequestLabelsErr)
 		}
 	}
 
