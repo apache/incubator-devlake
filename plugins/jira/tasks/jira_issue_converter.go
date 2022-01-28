@@ -63,6 +63,9 @@ func ConvertIssues(sourceId uint64, boardId uint64) error {
 		if jiraIssue.AssigneeAccountId != "" {
 			issue.AssigneeId = userIdGen.Generate(sourceId, jiraIssue.AssigneeAccountId)
 		}
+		if jiraIssue.AssigneeDisplayName != "" {
+			issue.AssigneeName = jiraIssue.AssigneeDisplayName
+		}
 		if jiraIssue.ParentId != 0 {
 			issue.ParentIssueId = issueIdGen.Generate(sourceId, jiraIssue.ParentId)
 		}

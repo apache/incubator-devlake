@@ -15,8 +15,9 @@ func ConvertReposToBoard() error {
 	if err != nil {
 		return err
 	}
+	domainIdGenerator := didgen.NewDomainIdGenerator(&githubModels.GithubRepository{})
 	for _, repository := range githubRepositorys {
-		domainBoard := convertToBoardModel(&repository)
+		domainBoard := convertToBoardModel(&repository, domainIdGenerator)
 		err := lakeModels.Db.Clauses(clause.OnConflict{UpdateAll: true}).Create(domainBoard).Error
 		if err != nil {
 			return err
@@ -24,10 +25,10 @@ func ConvertReposToBoard() error {
 	}
 	return nil
 }
-func convertToBoardModel(repository *githubModels.GithubRepository) *ticket.Board {
+func convertToBoardModel(repository *githubModels.GithubRepository, domainIdGenerator *didgen.DomainIdGenerator) *ticket.Board {
 	domainBoard := &ticket.Board{
 		DomainEntity: domainlayer.DomainEntity{
-			Id: didgen.NewDomainIdGenerator(repository).Generate(repository.GithubId),
+			Id: domainIdGenerator.Generate(repository.GithubId),
 		},
 		Name:        repository.Name,
 		Url:         repository.HTMLUrl,

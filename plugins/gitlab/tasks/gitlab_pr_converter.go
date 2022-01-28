@@ -15,8 +15,9 @@ func ConvertPrs() error {
 	if err != nil {
 		return err
 	}
+	domainGeneratorPrId := didgen.NewDomainIdGenerator(&gitlabModels.GitlabMergeRequest{})
 	for _, mr := range gitlabMrs {
-		domainPr := convertToPrModel(&mr)
+		domainPr := convertToPrModel(&mr, domainGeneratorPrId)
 		err := lakeModels.Db.Clauses(clause.OnConflict{UpdateAll: true}).Create(domainPr).Error
 		if err != nil {
 			return err
@@ -24,10 +25,10 @@ func ConvertPrs() error {
 	}
 	return nil
 }
-func convertToPrModel(mr *gitlabModels.GitlabMergeRequest) *code.PullRequest {
+func convertToPrModel(mr *gitlabModels.GitlabMergeRequest, domainGeneratorPrId *didgen.DomainIdGenerator) *code.PullRequest {
 	domainPr := &code.PullRequest{
 		DomainEntity: domainlayer.DomainEntity{
-			Id: didgen.NewDomainIdGenerator(mr).Generate(mr.GitlabId),
+			Id: domainGeneratorPrId.Generate(mr.GitlabId),
 		},
 		RepoId:      uint64(mr.ProjectId),
 		Status:      mr.State,

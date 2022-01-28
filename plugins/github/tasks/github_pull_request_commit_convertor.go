@@ -18,17 +18,16 @@ func PrCommitConvertor() (err error) {
 	}
 	defer cursor.Close()
 	var pullRequestId int
-	githubPullRequest := &models.GithubPullRequest{}
 	domainPullRequestId := ""
+	domainIdGenerator := didgen.NewDomainIdGenerator(&models.GithubPullRequest{})
 	// iterate all rows
 	for cursor.Next() {
 		err = lakeModels.Db.ScanRows(cursor, githubPullRequestCommit)
-		err = lakeModels.Db.Find(githubPullRequest, "github_id = ?", githubPullRequestCommit.PullRequestId).Error
 		if err != nil {
 			return err
 		}
 		if pullRequestId != githubPullRequestCommit.PullRequestId {
-			domainPullRequestId = didgen.NewDomainIdGenerator(githubPullRequest).Generate(pullRequestId)
+			domainPullRequestId = domainIdGenerator.Generate(pullRequestId)
 			err := lakeModels.Db.Where("pull_request_id = ?",
 				domainPullRequestId).Delete(&code.PullRequestCommit{}).Error
 			if err != nil {
