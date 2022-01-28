@@ -41,10 +41,8 @@ func ConvertIssues(repoId int) error {
 func convertStateToStatus(state string) string {
 	if state == "closed" {
 		return ticket.DONE
-	} else if state == "todo" {
-		return ticket.TODO
 	} else {
-		return ticket.IN_PROGRESS
+		return ticket.TODO
 	}
 }
 
