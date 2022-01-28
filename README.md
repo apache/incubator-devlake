@@ -4,7 +4,7 @@
 
 # DevLake
 <p>
-    
+
   </p>
   <p>
 
@@ -12,7 +12,7 @@
 [![Discord](https://img.shields.io/discord/844603288082186240.svg?style=flat?label=&logo=discord&logoColor=ffffff&color=747df7&labelColor=454545)](https://discord.gg/83rDG6ydVZ)
 ![badge](https://github.com/merico-dev/lake/actions/workflows/test.yml/badge.svg)
 [![Go Report Card](https://goreportcard.com/badge/github.com/merico-dev/lake)](https://goreportcard.com/report/github.com/merico-dev/lake)
-      
+
 
 | [English](README.md) | [中文](README-zh-CN.md) |
 | --- | --- |
@@ -23,7 +23,7 @@
 ### What is DevLake?
 DevLake brings all your DevOps data into one practical, personalized, extensible view. Ingest, analyze, and visualize data from an ever-growing list of developer tools, with our free and open source product.
 
-DevLake is most exciting for developer teams looking to make better sense of their development process and to bring a more data-driven approach to their own practices. With DevLake you can ask your process any question, just connect and query. 
+DevLake is most exciting for developer teams looking to make better sense of their development process and to bring a more data-driven approach to their own practices. With DevLake you can ask your process any question, just connect and query.
 
 
 #### Get started with just a few clicks
@@ -38,7 +38,7 @@ DevLake is most exciting for developer teams looking to make better sense of the
           width="140px"
           alt="Teamcode" valign="middle"
         />
-      </a> 
+      </a>
       <a valign="middle"
         href="https://github.com/merico-dev/lake/wiki/How-to-Set-Up-Dev-Lake-with-Tin"><span valign="middle">See the Guide</span>
       </a>
@@ -169,7 +169,7 @@ For more information on building a new _data source plugin_, see [Build a Plugin
 Section | Section Info | Docs
 ------------ | ------------- | -------------
 Jira | Summary, Data & Metrics, Configuration, Plugin API | <a href="plugins/jira/README.md" target="_blank">Link</a>
-GitLab | Summary, Data & Metrics, Configuration, Plugin API | <a href="plugins/gitlab/README.md" target="_blank">Link</a> 
+GitLab | Summary, Data & Metrics, Configuration, Plugin API | <a href="plugins/gitlab/README.md" target="_blank">Link</a>
 Jenkins | Summary, Data & Metrics, Configuration, Plugin API | <a href="plugins/jenkins/README.md" target="_blank">Link</a>
 GitHub | Summary, Data & Metrics, Configuration, Plugin API | <a href="plugins/github/README.md" target="_blank">Link</a>
 
@@ -209,18 +209,18 @@ NOTE: After installing docker, you may need to run the docker application and re
    >- Please reference the following for more details on how to configure each one:
    >-> <a href="plugins/jira/README.md" target="_blank">Jira</a>
    >-> <a href="plugins/gitlab/README.md" target="_blank">GitLab</a>
-   >-> <a href="plugins/jenkins/README.md" target="_blank">Jenkins</a> 
+   >-> <a href="plugins/jenkins/README.md" target="_blank">Jenkins</a>
    >-> <a href="plugins/github/README.md" target="_blank">GitHub</a>
 
    >- Submit the form to update the values by clicking on the **Save Connection** button on each form page
 
-   >- `devlake` takes a while to fully boot up. if `config-ui` complaining about api being unreachable, please wait a few seconds and try refreshing the page. 
+   >- `devlake` takes a while to fully boot up. if `config-ui` complaining about api being unreachable, please wait a few seconds and try refreshing the page.
    >- To collect this repo for a quick preview, please provide a Github personal token on **Data Integrations / Github** page.
 
 4. Visit `localhost:4000/triggers` to trigger data collection.
 
 
-   > - Please refer to this wiki [How to trigger data collection](https://github.com/merico-dev/lake/wiki/How-to-use-the-triggers-page). Data collection can take a while depending on the amount of data you'd like to collect. 
+   > - Please refer to this wiki [How to trigger data collection](https://github.com/merico-dev/lake/wiki/How-to-use-the-triggers-page). Data collection can take a while depending on the amount of data you'd like to collect.
    > - To collect this repo for a quick preview, you can use the following JSON
    >   ```json
    >   [
@@ -241,7 +241,7 @@ NOTE: After installing docker, you may need to run the docker application and re
 
 #### Setup cron job
 
-To synchronize data periodically, we provide [`lake-cli`](./cmd/lake-cli/README.md) for easily sending data collection requests along with [a cron job](./devops/sync/README.md) to periodically trigger the cli tool. 
+To synchronize data periodically, we provide [`lake-cli`](./cmd/lake-cli/README.md) for easily sending data collection requests along with [a cron job](./devops/sync/README.md) to periodically trigger the cli tool.
 
 <br>
 
@@ -253,6 +253,7 @@ To synchronize data periodically, we provide [`lake-cli`](./cmd/lake-cli/README.
 
 #### Requirements
 
+- <a href="https://github.com/libgit2/libgit2#quick-start" target="_blank">Libgit2</a>
 - <a href="https://docs.docker.com/get-docker" target="_blank">Docker</a>
 - <a href="https://golang.org/doc/install" target="_blank">Golang</a>
 - Make
@@ -306,9 +307,9 @@ To synchronize data periodically, we provide [`lake-cli`](./cmd/lake-cli/README.
    >- You will need to enter the required information for the plugins you intend to use.
    >- Please reference the following for more details on how to configure each one:
    >-> <a href="plugins/jira/README.md" target="_blank">Jira</a>
-   >-> <a href="plugins/gitlab/README.md" target="_blank">GitLab</a>, 
-   >-> <a href="plugins/jenkins/README.md" target="_blank">Jenkins</a> 
-   >-> <a href="plugins/github/README.md" target="_blank">GitHub</a> 
+   >-> <a href="plugins/gitlab/README.md" target="_blank">GitLab</a>,
+   >-> <a href="plugins/jenkins/README.md" target="_blank">Jenkins</a>
+   >-> <a href="plugins/github/README.md" target="_blank">GitHub</a>
 
    >- Submit the form to update the values by clicking on the **Save Connection** button on each form page
 
@@ -326,7 +327,7 @@ To synchronize data periodically, we provide [`lake-cli`](./cmd/lake-cli/README.
 ### Cloud setup<a id="cloud-setup"></a>
 If you want to run DevLake in a clound environment, you can set up DevLake with Tin. [See detailed setup guide](https://github.com/merico-dev/lake/wiki/How-to-Set-Up-Dev-Lake-with-Tin)
 
-**Disclaimer:** 
+**Disclaimer:**
 > To protect your information, it is critical for users of the Tin hosting to set passwords to protect DevLake applications. We built DevLake as a self-hosted product, in part to ensure users have total protection and ownership of their data, while the same remains true for the Tin hosting, this risk point can only be eliminated by the end-user.
 
 <br>
