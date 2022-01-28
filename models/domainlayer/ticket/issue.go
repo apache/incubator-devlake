@@ -27,7 +27,6 @@ type Issue struct {
 	CreatorId               string
 	AssigneeId              string
 	AssigneeName            string
-	OwnerId                 string
 	Severity                string
 	Component               string
 }
