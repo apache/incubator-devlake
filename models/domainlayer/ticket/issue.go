@@ -31,3 +31,13 @@ type Issue struct {
 	Severity                string
 	Component               string
 }
+
+const (
+	BUG         = "BUG"
+	REQUIREMENT = "REQUIREMENT"
+	INCIDENT    = "INCIDENT"
+
+	TODO        = "TODO"
+	DONE        = "DONE"
+	IN_PROGRESS = "IN_PROGRESS"
+)

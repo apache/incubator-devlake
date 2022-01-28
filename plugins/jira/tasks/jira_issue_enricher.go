@@ -2,47 +2,12 @@ package tasks
 
 import (
 	"fmt"
-	"github.com/merico-dev/lake/config"
-	"regexp"
+	"github.com/merico-dev/lake/models/domainlayer/ticket"
 	"strings"
 
 	lakeModels "github.com/merico-dev/lake/models"
 	"github.com/merico-dev/lake/plugins/jira/models"
 )
-
-var issueSeverityRegex *regexp.Regexp
-var issueComponentRegex *regexp.Regexp
-var issuePriorityRegex *regexp.Regexp
-var issueTypeBugRegex *regexp.Regexp
-var issueTypeRequirementRegex *regexp.Regexp
-var issueTypeIncidentRegex *regexp.Regexp
-
-func init() {
-	var issueSeverity = config.V.GetString("GITHUB_ISSUE_SEVERITY")
-	var issueComponent = config.V.GetString("GITHUB_ISSUE_COMPONENT")
-	var issuePriority = config.V.GetString("GITHUB_ISSUE_PRIORITY")
-	var issueTypeBug = config.V.GetString("GITHUB_ISSUE_TYPE_BUG")
-	var issueTypeRequirement = config.V.GetString("GITHUB_ISSUE_TYPE_REQUIREMENT")
-	var issueTypeIncident = config.V.GetString("GITHUB_ISSUE_TYPE_INCIDENT")
-	if len(issueSeverity) > 0 {
-		issueSeverityRegex = regexp.MustCompile(issueSeverity)
-	}
-	if len(issueComponent) > 0 {
-		issueComponentRegex = regexp.MustCompile(issueComponent)
-	}
-	if len(issuePriority) > 0 {
-		issuePriorityRegex = regexp.MustCompile(issuePriority)
-	}
-	if len(issueTypeBug) > 0 {
-		issueTypeBugRegex = regexp.MustCompile(issueTypeBug)
-	}
-	if len(issueTypeRequirement) > 0 {
-		issueTypeRequirementRegex = regexp.MustCompile(issueTypeRequirement)
-	}
-	if len(issueTypeIncident) > 0 {
-		issueTypeIncidentRegex = regexp.MustCompile(issueTypeIncident)
-	}
-}
 
 func EnrichIssues(source *models.JiraSource, boardId uint64) (err error) {
 	jiraIssue := &models.JiraIssue{}
@@ -78,13 +43,13 @@ func EnrichIssues(source *models.JiraSource, boardId uint64) (err error) {
 		k := makeStatusMappingKey(statusMappingRow.UserType, statusMappingRow.UserStatus)
 		statusMappings[k] = statusMappingRow.StandardStatus
 	}
-	getStdStatus := func(statusCategory string) string {
-		if statusCategory == "Done" || statusCategory == "Resolved" {
-			return "DONE"
-		} else if statusCategory == "Todo" {
-			return "TODO"
+	getStdStatus := func(statusKey string) string {
+		if statusKey == "done" {
+			return ticket.DONE
+		} else if statusKey == "todo" || statusKey == "new" {
+			return ticket.TODO
 		} else {
-			return strings.ToUpper(statusCategory)
+			return ticket.IN_PROGRESS
 		}
 	}
 
@@ -110,7 +75,7 @@ func EnrichIssues(source *models.JiraSource, boardId uint64) (err error) {
 		}
 		jiraIssue.StdStoryPoint = uint(jiraIssue.StoryPoint)
 		jiraIssue.StdType = getStdType(jiraIssue.Type)
-		jiraIssue.StdStatus = getStdStatus(jiraIssue.StatusCategory)
+		jiraIssue.StdStatus = getStdStatus(jiraIssue.StatusKey)
 		// assuming remaining estimate could be negative; TODO: make sure of it
 		jiraIssue.SpentMinutes = jiraIssue.AggregateEstimateMinutes - jiraIssue.RemainingEstimateMinutes
 		err = lakeModels.Db.Save(jiraIssue).Error

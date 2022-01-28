@@ -227,7 +227,6 @@ func convertIssue(source *models.JiraSource, jiraApiIssue *JiraApiIssue) (jiraIs
 		Type:               fields.IssueType.Name,
 		StatusName:         fields.Status.Name,
 		StatusKey:          fields.Status.StatusCategory.Key,
-		StatusCategory:     fields.Status.StatusCategory.Name,
 		EpicKey:            epicKey,
 		ResolutionDate:     core.Iso8601TimeToTime(fields.ResolutionDate),
 		StoryPoint:         workload,

@@ -3,9 +3,9 @@ package tasks
 import (
 	"github.com/merico-dev/lake/config"
 	lakeModels "github.com/merico-dev/lake/models"
+	"github.com/merico-dev/lake/models/domainlayer/ticket"
 	githubModels "github.com/merico-dev/lake/plugins/github/models"
 	"regexp"
-	"strings"
 )
 
 var issueSeverityRegex *regexp.Regexp
@@ -101,28 +101,28 @@ func setIssueLabel(label string, githubIssue *githubModels.GithubIssue) {
 	if issuePriorityRegex != nil {
 		groups := issuePriorityRegex.FindStringSubmatch(label)
 		if len(groups) > 0 {
-			githubIssue.Priority = strings.ToUpper(groups[1])
+			githubIssue.Priority = groups[1]
 			return
 		}
 	}
 
 	if issueTypeBugRegex != nil {
 		if ok := issueTypeBugRegex.MatchString(label); ok {
-			githubIssue.Type = "BUG"
+			githubIssue.Type = ticket.BUG
 			return
 		}
 	}
 
 	if issueTypeRequirementRegex != nil {
 		if ok := issueTypeRequirementRegex.MatchString(label); ok {
-			githubIssue.Type = "REQUIREMENT"
+			githubIssue.Type = ticket.REQUIREMENT
 			return
 		}
 	}
 
 	if issueTypeIncidentRegex != nil {
 		if ok := issueTypeIncidentRegex.MatchString(label); ok {
-			githubIssue.Type = "INCIDENT"
+			githubIssue.Type = ticket.INCIDENT
 			return
 		}
 	}
