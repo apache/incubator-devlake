@@ -21,7 +21,6 @@ type JiraIssue struct {
 	EpicKey                  string
 	StatusName               string
 	StatusKey                string
-	StatusCategory           string
 	StoryPoint               float64
 	OriginalEstimateMinutes  int64 // user input?
 	AggregateEstimateMinutes int64 // sum up of all subtasks?

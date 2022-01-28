@@ -57,7 +57,7 @@ const MenuConfiguration = (activeRoute) => {
     // },
      {
        id: 2,
-       label: 'triggers',
+       label: 'Triggers',
        icon: 'asterisk',
        classNames: [],
        route: '/triggers',
