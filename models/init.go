@@ -43,6 +43,13 @@ func init() {
 		fmt.Println("ERROR: >>> Mysql failed to connect")
 		panic(err)
 	}
+	sqlDB, err := Db.DB()
+	if err != nil{
+		panic(err)
+	}
+	sqlDB.SetMaxIdleConns(10)
+	sqlDB.SetMaxOpenConns(100)
+	sqlDB.SetConnMaxLifetime(time.Hour)
 	migrateDB()
 }
 
