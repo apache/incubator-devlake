@@ -83,23 +83,12 @@ func CollectIssues(owner string, repositoryName string, repositoryId int, schedu
 					if err != nil {
 						logger.Error("Could not upsert: ", err)
 					}
-				} else {
-					// This is a pull request from github
-					githubPull, err := convertGithubPullRequest(&issue, repositoryId)
-					if err != nil {
-						return err
-					}
-					err = lakeModels.Db.Clauses(clause.OnConflict{
-						UpdateAll: true,
-					}).Create(&githubPull).Error
-					if err != nil {
-						logger.Error("Could not upsert: ", err)
-					}
 				}
 			}
 			return nil
 		})
 }
+
 func convertGithubIssue(issue *IssuesResponse, repositoryId int) (*models.GithubIssue, error) {
 	githubIssue := &models.GithubIssue{
 		GithubId:        issue.GithubId,
@@ -119,16 +108,4 @@ func convertGithubIssue(issue *IssuesResponse, repositoryId int) (*models.Github
 	}
 
 	return githubIssue, nil
-}
-func convertGithubPullRequest(issue *IssuesResponse, repoId int) (*models.GithubPullRequest, error) {
-	githubPull := &models.GithubPullRequest{
-		GithubId:        issue.GithubId,
-		RepositoryId:    repoId,
-		Number:          issue.Number,
-		State:           issue.State,
-		Title:           issue.Title,
-		GithubCreatedAt: issue.GithubCreatedAt.ToTime(),
-		ClosedAt:        core.Iso8601TimeToTime(issue.ClosedAt),
-	}
-	return githubPull, nil
 }

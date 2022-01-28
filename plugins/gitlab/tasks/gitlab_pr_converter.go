@@ -30,7 +30,7 @@ func convertToPrModel(mr *gitlabModels.GitlabMergeRequest) *code.PullRequest {
 			Id: didgen.NewDomainIdGenerator(mr).Generate(mr.GitlabId),
 		},
 		RepoId:      uint64(mr.ProjectId),
-		State:       mr.State,
+		Status:      mr.State,
 		Title:       mr.Title,
 		Url:         mr.WebUrl,
 		CreatedDate: mr.GitlabCreatedAt,

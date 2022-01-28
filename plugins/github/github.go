@@ -34,6 +34,7 @@ func (plugin Github) Init() {
 		&models.GithubReviewer{},
 		&models.GithubPullRequestComment{},
 		&models.GithubPullRequestCommit{},
+		&models.GithubPullRequestLabel{},
 		&models.GithubIssue{},
 		&models.GithubIssueComment{},
 		&models.GithubIssueEvent{},
@@ -101,9 +102,11 @@ func (plugin Github) Execute(options map[string]interface{}, progress chan<- flo
 		tasksToRun = map[string]bool{
 			"collectRepo":                true,
 			"collectCommits":             true,
+			"collectCommitsStat":         true,
 			"collectIssues":              true,
 			"collectIssueEvents":         true,
 			"collectIssueComments":       true,
+			"collectPullRequest":         true,
 			"collectPullRequestReviews":  true,
 			"collectPullRequestCommits":  true,
 			"collectPullRequestComments": true,
@@ -130,11 +133,18 @@ func (plugin Github) Execute(options map[string]interface{}, progress chan<- flo
 		if collectCommitsErr != nil {
 			return fmt.Errorf("Could not collect commits: %v", collectCommitsErr)
 		}
-		tasks.CollectChildrenOnCommits(ownerString, repositoryNameString, repoId, scheduler, githubApiClient)
+	}
+	if tasksToRun["collectCommitsStat"] {
+		progress <- 0.11
+		fmt.Println("INFO >>> starting commits stat collection")
+		collectCommitsStatErr := tasks.CollectCommitsStat(ownerString, repositoryNameString, repoId, scheduler, githubApiClient)
+		if collectCommitsStatErr != nil {
+			return fmt.Errorf("Could not collect commits: %v", collectCommitsStatErr)
+		}
 	}
 	if tasksToRun["collectIssues"] {
-		progress <- 0.1
-		fmt.Println("INFO >>> starting issues / PRs collection")
+		progress <- 0.19
+		fmt.Println("INFO >>> starting issues collection")
 		collectIssuesErr := tasks.CollectIssues(ownerString, repositoryNameString, repoId, scheduler, githubApiClient)
 		if collectIssuesErr != nil {
 			return fmt.Errorf("Could not collect issues: %v", collectIssuesErr)
@@ -155,6 +165,15 @@ func (plugin Github) Execute(options map[string]interface{}, progress chan<- flo
 		collectIssueCommentsErr := tasks.CollectIssueComments(ownerString, repositoryNameString, scheduler, githubApiClient)
 		if collectIssueCommentsErr != nil {
 			return fmt.Errorf("Could not collect Issue Comments: %v", collectIssueCommentsErr)
+		}
+	}
+
+	if tasksToRun["collectPullRequests"] {
+		progress <- 0.4
+		fmt.Println("INFO >>> collecting PR collection")
+		collectPullRequestsErr := tasks.CollectPullRequests(ownerString, repositoryNameString, repoId, scheduler, githubApiClient)
+		if collectPullRequestsErr != nil {
+			return fmt.Errorf("Could not collect PR: %v", collectPullRequestsErr)
 		}
 	}
 
@@ -194,7 +213,7 @@ func (plugin Github) Execute(options map[string]interface{}, progress chan<- flo
 	if tasksToRun["enrichPullRequests"] {
 		progress <- 0.92
 		fmt.Println("INFO >>> Enriching PullRequests")
-		enrichPullRequestsError := tasks.EnrichGithubPullRequests()
+		enrichPullRequestsError := tasks.EnrichGithubPullRequests(repoId)
 		if enrichPullRequestsError != nil {
 			return fmt.Errorf("could not enrich PullRequests: %v", enrichPullRequestsError)
 		}
@@ -309,11 +328,27 @@ func main() {
 			map[string]interface{}{
 				"owner":          owner,
 				"repositoryName": repo,
-				//"tasks":          []string{"collectCommits"},
-				//"tasks": []string{"convertCommits"},
-				//"tasks": []string{"collectIssues"},
-				//"tasks": []string{"enrichIssues"},
-				"tasks": []string{"enrichIssues", "convertIssues"},
+				"tasks": []string{
+					"collectRepo",
+					//"collectCommits",
+					//"collectCommitsStat",
+					//"collectIssues",
+					//"collectPullRequests",
+					//"collectIssueEvents",
+					//"collectIssueComments",
+					//"collectPullRequestReviews",
+					//"collectPullRequestCommits",
+					//"collectPullRequestComments",
+					"enrichIssues",
+					"enrichPullRequests",
+					"convertRepos",
+					"convertIssues",
+					"convertPullRequests",
+					//"convertCommits",
+					//"convertPullRequestCommits",
+					//"convertNotes",
+					//"convertUsers",
+				},
 			},
 			progress,
 			context.Background(),
