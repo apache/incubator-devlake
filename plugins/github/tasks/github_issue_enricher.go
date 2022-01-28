@@ -108,21 +108,21 @@ func setIssueLabel(label string, githubIssue *githubModels.GithubIssue) {
 
 	if issueTypeBugRegex != nil {
 		if ok := issueTypeBugRegex.MatchString(label); ok {
-			githubIssue.Type = "Bug"
+			githubIssue.Type = "BUG"
 			return
 		}
 	}
 
 	if issueTypeRequirementRegex != nil {
 		if ok := issueTypeRequirementRegex.MatchString(label); ok {
-			githubIssue.Type = "Requirement"
+			githubIssue.Type = "REQUIREMENT"
 			return
 		}
 	}
 
 	if issueTypeIncidentRegex != nil {
 		if ok := issueTypeIncidentRegex.MatchString(label); ok {
-			githubIssue.Type = "Incident"
+			githubIssue.Type = "INCIDENT"
 			return
 		}
 	}
