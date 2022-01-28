@@ -70,7 +70,6 @@ cd build
 cmake ..
 make
 make install
-ldconfig
 ```
 
 ### MacOs
@@ -78,11 +77,25 @@ ldconfig
 ```
 brew install cmake
 git clone https://github.com/libgit2/libgit2.git
+cd libgit2
 git checkout v1.3.0
-make build
+mkdir build
 cd build
 cmake ..
 make
 make install
-ldconfig
 ```
+
+## Troubleshooting (MacOS)
+
+Q: I got an error saying: `pkg-config: exec: "pkg-config": executable file not found in $PATH`
+
+A: 
+
+1. Make sure you have pkg-config installed: 
+
+  `brew install pkg-config`
+
+2. Make sure your pkg config path covers the installation: 
+
+  `export PKG_CONFIG_PATH=$PKG_CONFIG_PATH:/usr/local/lib:/usr/local/lib/pkgconfig`
