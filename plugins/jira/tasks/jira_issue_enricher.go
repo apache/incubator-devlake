@@ -46,7 +46,7 @@ func EnrichIssues(source *models.JiraSource, boardId uint64) (err error) {
 	getStdStatus := func(statusKey string) string {
 		if statusKey == "done" {
 			return ticket.DONE
-		} else if statusKey == "todo" || statusKey == "new" {
+		} else if statusKey == "new" {
 			return ticket.TODO
 		} else {
 			return ticket.IN_PROGRESS
