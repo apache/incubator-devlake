@@ -61,7 +61,7 @@ func (rd RefDiff) Execute(options map[string]interface{}, progress chan<- float3
 		if refName == "" {
 			return "", fmt.Errorf("ref name is empty")
 		}
-		ref.Id = fmt.Sprintf("%s:%s",op.RepoId, refName)
+		ref.Id = fmt.Sprintf("%s:%s", op.RepoId, refName)
 		err = models.Db.First(ref).Error
 		if err != nil {
 			return "", fmt.Errorf("faild to load Ref info for repoId:%s, refName:%s", op.RepoId, refName)
@@ -115,13 +115,17 @@ func (rd RefDiff) Execute(options map[string]interface{}, progress chan<- float3
 	ancestors := cayley.StartMorphism().Out(quad.String("childOf"))
 	for _, pair := range commitPairs {
 		// ref might advance, keep commit sha for debugging
-		commitsDiff.NewCommitSha = pair[0]
-		commitsDiff.OldCommitSha = pair[1]
-		commitsDiff.NewRefName = pair[2]
-		commitsDiff.OldRefName = pair[3]
+		commitsDiff.NewRefCommitSha = pair[0]
+		commitsDiff.OldRefCommitSha = pair[1]
+		commitsDiff.NewRefName = fmt.Sprintf("%s:%s", op.RepoId, pair[2])
+		commitsDiff.OldRefName = fmt.Sprintf("%s:%s", op.RepoId, pair[3])
 
-		newCommit := cayley.StartPath(store, quad.String(commitsDiff.NewCommitSha)).FollowRecursive(ancestors, -1, []string{})
-		oldCommit := cayley.StartPath(store, quad.String(commitsDiff.OldCommitSha)).FollowRecursive(ancestors, -1, []string{})
+		newCommit := cayley.
+			StartPath(store, quad.String(commitsDiff.NewRefCommitSha)).
+			FollowRecursive(ancestors, -1, []string{})
+		oldCommit := cayley.
+			StartPath(store, quad.String(commitsDiff.OldRefCommitSha)).
+			FollowRecursive(ancestors, -1, []string{})
 
 		p := newCommit.Except(oldCommit)
 
@@ -135,7 +139,7 @@ func (rd RefDiff) Execute(options map[string]interface{}, progress chan<- float3
 			return err
 		}
 
-		if commitsDiff.NewCommitSha == commitsDiff.OldCommitSha {
+		if commitsDiff.NewRefCommitSha == commitsDiff.OldRefCommitSha {
 			// different refs might point to a same commit, it is ok
 			logger.Info(
 				"refdiff",
@@ -143,7 +147,7 @@ func (rd RefDiff) Execute(options map[string]interface{}, progress chan<- float3
 					"skipping ref pair due to they are the same %s %s => %s",
 					commitsDiff.NewRefName,
 					commitsDiff.OldRefName,
-					commitsDiff.NewCommitSha,
+					commitsDiff.NewRefCommitSha,
 				),
 			)
 			continue
@@ -153,7 +157,7 @@ func (rd RefDiff) Execute(options map[string]interface{}, progress chan<- float3
 		// that is the opposite of what `git log oldcommit..newcommit would produces`
 		// don't know  why exactly cayley does it this way, but we have to handle it anyway
 		// 1. adding new commit sha
-		commitsDiff.CommitSha = commitsDiff.NewCommitSha
+		commitsDiff.CommitSha = commitsDiff.NewRefCommitSha
 		err = models.Db.Clauses(clause.OnConflict{DoNothing: true}).Create(commitsDiff).Error
 		if err != nil {
 			return err
@@ -162,7 +166,7 @@ func (rd RefDiff) Execute(options map[string]interface{}, progress chan<- float3
 		err = p.Iterate(context.Background()).EachValue(nil, func(value quad.Value) {
 			commitsDiff.CommitSha = fmt.Sprintf("%s", quad.NativeOf(value))
 			// 2. ignoring old commit sha
-			if commitsDiff.CommitSha == commitsDiff.OldCommitSha {
+			if commitsDiff.CommitSha == commitsDiff.OldRefCommitSha {
 				return
 			}
 			commitsDiff.SortingIndex = index
@@ -175,7 +179,12 @@ func (rd RefDiff) Execute(options map[string]interface{}, progress chan<- float3
 		if err != nil {
 			return err
 		}
-		logger.Info("refdiff", fmt.Sprintf("total %d commits of difference found between %s and %s", index, commitsDiff.NewCommitSha, commitsDiff.OldCommitSha))
+		logger.Info("refdiff", fmt.Sprintf(
+			"total %d commits of difference found between %s and %s",
+			index,
+			commitsDiff.NewRefCommitSha,
+			commitsDiff.OldRefCommitSha,
+		))
 	}
 
 	return nil

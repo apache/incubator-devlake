@@ -2,6 +2,7 @@ package tasks
 
 import (
 	"fmt"
+
 	"github.com/merico-dev/lake/models/domainlayer"
 
 	lakeModels "github.com/merico-dev/lake/models"
@@ -38,7 +39,7 @@ func convertStateToStatus(state string) string {
 
 func convertToIssueModel(issue *githubModels.GithubIssue) *ticket.Issue {
 	domainIssue := &ticket.Issue{
-		DomainEntity:domainlayer.DomainEntity{Id: didgen.NewDomainIdGenerator(issue).Generate(issue.GithubId)},
+		DomainEntity:    domainlayer.DomainEntity{Id: didgen.NewDomainIdGenerator(issue).Generate(issue.GithubId)},
 		Key:             fmt.Sprint(issue.GithubId),
 		Title:           issue.Title,
 		Summary:         issue.Body,
@@ -50,6 +51,8 @@ func convertToIssueModel(issue *githubModels.GithubIssue) *ticket.Issue {
 		CreatedDate:     &issue.GithubCreatedAt,
 		UpdatedDate:     &issue.GithubUpdatedAt,
 		ResolutionDate:  issue.ClosedAt,
+		Severity:        issue.Severity,
+		Component:       issue.Component,
 	}
 	return domainIssue
 }
