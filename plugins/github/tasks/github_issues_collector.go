@@ -13,6 +13,8 @@ import (
 	"gorm.io/gorm/clause"
 )
 
+const BatchSize = 100
+
 type ApiIssuesResponse []IssuesResponse
 
 type IssuesResponse struct {
@@ -25,6 +27,9 @@ type IssuesResponse struct {
 		Url     string `json:"url"`
 		HtmlUrl string `json:"html_url"`
 	} `json:"pull_request"`
+	Labels []struct {
+		Name string `json:"name"`
+	} `json:"labels"`
 	Assignee struct {
 		Login string
 		Id    int
@@ -48,6 +53,24 @@ func CollectIssues(owner string, repositoryName string, repositoryId int, schedu
 			}
 
 			for _, issue := range *githubApiResponse {
+				if issue.GithubId > 0 {
+					err = lakeModels.Db.Where("issue_id = ?", issue.GithubId).Delete(&models.GithubIssueLabel{}).Error
+					if err != nil {
+						logger.Error("delete github_issue_label error:", err)
+						return err
+					}
+					var labels []*models.GithubIssueLabel
+					for _, lable := range issue.Labels {
+						labels = append(labels, &models.GithubIssueLabel{IssueId: issue.GithubId, LabelName: lable.Name})
+					}
+					err = lakeModels.Db.Clauses(clause.OnConflict{
+						UpdateAll: true,
+					}).CreateInBatches(labels, BatchSize).Error
+					if err != nil {
+						logger.Error("save github_issue_label error:", err)
+						return err
+					}
+				}
 				if issue.PullRequest.Url == "" {
 					// This is an issue from github
 					githubIssue, err := convertGithubIssue(&issue, repositoryId)
