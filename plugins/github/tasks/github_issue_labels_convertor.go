@@ -15,8 +15,9 @@ func ConvertIssueLabels() error {
 	if err != nil {
 		return err
 	}
+	domainIdGeneratorIssue := didgen.NewDomainIdGenerator(&githubModels.GithubIssue{})
 	for _, githubIssueLabel := range githubIssueLabels {
-		domainIl := convertToIssueLabelModel(&githubIssueLabel)
+		domainIl := convertToIssueLabelModel(&githubIssueLabel, domainIdGeneratorIssue)
 		err := lakeModels.Db.Clauses(clause.OnConflict{UpdateAll: true}).Create(domainIl).Error
 		if err != nil {
 			return err
@@ -24,9 +25,10 @@ func ConvertIssueLabels() error {
 	}
 	return nil
 }
-func convertToIssueLabelModel(il *githubModels.GithubIssueLabel) *ticket.IssueLabel {
+func convertToIssueLabelModel(il *githubModels.GithubIssueLabel,
+	domainIdGeneratorIssue *didgen.DomainIdGenerator) *ticket.IssueLabel {
 	domainIl := &ticket.IssueLabel{
-		IssueId:   didgen.NewDomainIdGenerator(&githubModels.GithubIssue{}).Generate(il.IssueId),
+		IssueId:   domainIdGeneratorIssue.Generate(il.IssueId),
 		LabelName: il.LabelName,
 	}
 	return domainIl

@@ -26,6 +26,7 @@ type Issue struct {
 	TimeRemainingMinutes    int64
 	CreatorId               string
 	AssigneeId              string
+	AssigneeName            string
 	OwnerId                 string
 	Severity                string
 	Component               string

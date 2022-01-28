@@ -2,7 +2,6 @@ package tasks
 
 import (
 	"fmt"
-
 	"github.com/merico-dev/lake/models/domainlayer"
 
 	lakeModels "github.com/merico-dev/lake/models"
@@ -12,23 +11,26 @@ import (
 	"gorm.io/gorm/clause"
 )
 
-func ConvertIssues() error {
+func ConvertIssues(repoId int) error {
 	var githubIssues []githubModels.GithubIssue
 	err := lakeModels.Db.Find(&githubIssues).Error
 	if err != nil {
 		return err
 	}
+	domainIdGeneratorIssue := didgen.NewDomainIdGenerator(&githubModels.GithubIssue{})
+	domainIdGeneratorGithubUser := didgen.NewDomainIdGenerator(&githubModels.GithubUser{})
+	boardIssue := &ticket.BoardIssue{
+		BoardId: didgen.NewDomainIdGenerator(&githubModels.GithubRepository{}).Generate(repoId),
+	}
 	for _, issue := range githubIssues {
-		domainIssue := convertToIssueModel(&issue)
+		domainIssue := convertToIssueModel(&issue, domainIdGeneratorIssue, domainIdGeneratorGithubUser)
 		err := lakeModels.Db.Clauses(clause.OnConflict{UpdateAll: true}).Create(domainIssue).Error
 		if err != nil {
 			return err
 		}
-		boardIssue := &ticket.BoardIssue{
-			BoardId: didgen.NewDomainIdGenerator(&githubModels.GithubRepository{}).Generate(issue.RepositoryId),
-			IssueId: domainIssue.Id,
-		}
-		err = lakeModels.Db.Clauses(clause.OnConflict{UpdateAll: true}).Create(boardIssue).Error
+		boardIssue.IssueId = domainIssue.Id
+
+		err = lakeModels.Db.Clauses(clause.OnConflict{DoNothing: true}).Create(boardIssue).Error
 		if err != nil {
 			return err
 		}
@@ -45,16 +47,18 @@ func convertStateToStatus(state string) string {
 	}
 }
 
-func convertToIssueModel(issue *githubModels.GithubIssue) *ticket.Issue {
+func convertToIssueModel(issue *githubModels.GithubIssue, domainIdGeneratorIssue *didgen.DomainIdGenerator,
+	domainIdGeneratorGithubUser *didgen.DomainIdGenerator) *ticket.Issue {
 	domainIssue := &ticket.Issue{
-		DomainEntity:    domainlayer.DomainEntity{Id: didgen.NewDomainIdGenerator(issue).Generate(issue.GithubId)},
+		DomainEntity:    domainlayer.DomainEntity{Id: domainIdGeneratorIssue.Generate(issue.GithubId)},
 		Key:             fmt.Sprint(issue.GithubId),
 		Title:           issue.Title,
 		Summary:         issue.Body,
 		Status:          convertStateToStatus(issue.State),
 		Priority:        issue.Priority,
 		Type:            issue.Type,
-		AssigneeId:      issue.Assignee,
+		AssigneeId:      domainIdGeneratorGithubUser.Generate(issue.AssigneeId),
+		AssigneeName:    issue.AssigneeName,
 		LeadTimeMinutes: issue.LeadTimeMinutes,
 		CreatedDate:     &issue.GithubCreatedAt,
 		UpdatedDate:     &issue.GithubUpdatedAt,

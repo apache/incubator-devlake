@@ -101,7 +101,7 @@ func setIssueLabel(label string, githubIssue *githubModels.GithubIssue) {
 	if issuePriorityRegex != nil {
 		groups := issuePriorityRegex.FindStringSubmatch(label)
 		if len(groups) > 0 {
-			githubIssue.Priority = strings.ToUpper(groups[1][0:1]) + groups[1][1:]
+			githubIssue.Priority = strings.ToUpper(groups[1])
 			return
 		}
 	}

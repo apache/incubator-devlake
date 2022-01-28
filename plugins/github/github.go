@@ -237,7 +237,7 @@ func (plugin Github) Execute(options map[string]interface{}, progress chan<- flo
 	}
 	if tasksToRun["convertIssues"] {
 		progress <- 0.94
-		err = tasks.ConvertIssues()
+		err = tasks.ConvertIssues(repoId)
 		if err != nil {
 			return err
 		}
@@ -362,9 +362,9 @@ func main() {
 					"convertIssues",
 					"convertPullRequests",
 					//"convertCommits",
-					//"convertPullRequestCommits",
+					"convertPullRequestCommits",
 					//"convertNotes",
-					//"convertUsers",
+					"convertUsers",
 				},
 			},
 			progress,
