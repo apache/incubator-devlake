@@ -39,7 +39,7 @@ func ConvertIssueCommits(sourceId uint64, boardId uint64) error {
 		}
 		return nil
 	}
-	var issueId uint64
+	var issueId string
 	row := &jiraModels.JiraIssueCommit{}
 	// iterate all rows
 	for cursor.Next() {
@@ -54,19 +54,19 @@ func ConvertIssueCommits(sourceId uint64, boardId uint64) error {
 		if err != nil {
 			return err
 		}
-		// clean up previous converted relationship for current issue once
-		if issueId != row.IssueId {
-			err = lakeModels.Db.Where("source_id = ? AND issue_id = ?", sourceId, row.IssueId).
-				Delete(&crossdomain.IssueCommit{}).Error
-			if err != nil {
-				return err
-			}
-			issueId = row.IssueId
-		}
 		issueCommit := &batch[i]
 		issueCommit.IssueId = issueIdGenerator.Generate(row.SourceId, row.IssueId)
 		issueCommit.CommitSha = row.CommitSha
 		i++
+		// clean up previous converted relationship for current issue once
+		if issueId != issueCommit.IssueId {
+			err = lakeModels.Db.Where("issue_id = ?", issueCommit.IssueId).
+				Delete(&crossdomain.IssueCommit{}).Error
+			if err != nil {
+				return err
+			}
+			issueId = issueCommit.IssueId
+		}
 	}
 	if i > 0 {
 		err = saveBatch()

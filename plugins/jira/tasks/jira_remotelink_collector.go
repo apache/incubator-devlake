@@ -116,9 +116,10 @@ func collectRemotelinksByIssueId(
 	}
 
 	apiRemotelink := &JiraApiRemotelink{}
+	remotelink := &models.JiraRemotelink{}
 
 	// delete previous collected remotelink
-	err = lakeModels.Db.Where("source_id = ? AND issue_id = ?", source.ID, issueId).Delete(apiRemotelink).Error
+	err = lakeModels.Db.Where("source_id = ? AND issue_id = ?", source.ID, issueId).Delete(remotelink).Error
 	if err != nil {
 		return err
 	}
@@ -130,12 +131,10 @@ func collectRemotelinksByIssueId(
 			return err
 		}
 		// create a empty record with pk only
-		remotelink := &models.JiraRemotelink{
-			SourceId:     source.ID,
-			IssueId:      issueId,
-			RemotelinkId: apiRemotelink.Id,
-			RawJson:      datatypes.JSON(apiRemotelinkRaw),
-		}
+		remotelink.SourceId = source.ID
+		remotelink.IssueId = issueId
+		remotelink.RemotelinkId = apiRemotelink.Id
+		remotelink.RawJson = datatypes.JSON(apiRemotelinkRaw)
 		// save raw response, delay feilds extraction to enrich stage
 		err = lakeModels.Db.Clauses(clause.OnConflict{
 			DoUpdates: clause.AssignmentColumns([]string{"raw_json"}),
