@@ -172,7 +172,8 @@ Jira | Summary, Data & Metrics, Configuration, Plugin API | <a href="plugins/jir
 GitLab | Summary, Data & Metrics, Configuration, Plugin API | <a href="plugins/gitlab/README.md" target="_blank">Link</a>
 Jenkins | Summary, Data & Metrics, Configuration, Plugin API | <a href="plugins/jenkins/README.md" target="_blank">Link</a>
 GitHub | Summary, Data & Metrics, Configuration, Plugin API | <a href="plugins/github/README.md" target="_blank">Link</a>
-
+GitExtractor | Summary, Data & Metrics, Configuration, Plugin API | <a href="plugins/gitextractor/README.md" target="_blank">Link</a>
+RefDiff | Summary, Data & Metrics, Configuration, Plugin API | <a href="plugins/refdiff/README.md" target="_blank">Link</a>
 <br>
 
 ****
@@ -217,25 +218,41 @@ NOTE: After installing docker, you may need to run the docker application and re
    >- `devlake` takes a while to fully boot up. if `config-ui` complaining about api being unreachable, please wait a few seconds and try refreshing the page.
    >- To collect this repo for a quick preview, please provide a Github personal token on **Data Integrations / Github** page.
 
-4. Visit `localhost:4000/triggers` to trigger data collection.
+4. Visit `localhost:4000/create-pipeline` to RUN a Pipeline and trigger data collection.
 
 
-   > - Please refer to this wiki [How to trigger data collection](https://github.com/merico-dev/lake/wiki/How-to-use-the-triggers-page). Data collection can take a while depending on the amount of data you'd like to collect.
-   > - To collect this repo for a quick preview, you can use the following JSON
-   >   ```json
-   >   [
-   >     [
-   >       {
-   >         "Plugin": "github",
-   >         "Options": {
-   >           "repo": "lake",
-   >           "owner": "merico-dev"
-   >         }
-   >       }
-   >     ]
-   >   ]
-   >   ```
+Pipelines Runs can be initiated by the new "Create Run" Interface. Simply enable the **Data Source Providers**
+you wish to run collection for, and specify the **Project ID** for Gitlab and **Repository Name** for GitHub.
 
+Once a valid pipeline configuration has been created, press **Create Run** to start/run the pipeline.
+After the pipeline starts, you will be automatically redirected to the **Pipeline Activity** screen
+to monitor collection activity.
+
+**Pipelines** is accessible from the **Main Menu** for easy access.
+
+- **Manage All Pipelines** `http://localhost:4000/pipelines`
+- **Create Pipeline RUN** `http://localhost:4000/create-pipeline`
+- **Pipeline Activity** `http://localhost:4000/pipelines/activity/[RUN_ID]`
+
+For advanced use cases and complex pipelines, please use the Raw JSON API to manually initiate
+a run using **cURL** or graphical API tool such as **Postman**. `POST` the following request
+to the DevLake API Endpoint.
+
+```json
+[
+    [
+        {
+            "Plugin": "github",
+            "Options": {
+            "repo": "lake",
+            "owner": "merico-dev"
+            }
+        }
+    ]
+]
+```
+
+Please refer to this wiki [How to trigger data collection](https://github.com/merico-dev/lake/wiki/How-to-use-the-triggers-page).
 
 5. Click *View Dashboards* button when done (username: `admin`, password: `admin`). The button will be shown on the Trigger Collection page when data collection has finished.
 
@@ -283,7 +300,6 @@ To synchronize data periodically, we provide [`lake-cli`](./cmd/lake-cli/README.
 
 4. Update the following variables in the file `.env`:
     * `DB_URL`: Replace `mysql:3306` with `127.0.0.1:3306`
-    * `COMPOSE_PROFILES`: Change `user` to `dev`
 
 5. Start the MySQL and Grafana containers:
 
