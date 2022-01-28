@@ -1,10 +1,11 @@
 package tasks
 
 import (
+	"regexp"
+
 	"github.com/merico-dev/lake/config"
 	lakeModels "github.com/merico-dev/lake/models"
 	githubModels "github.com/merico-dev/lake/plugins/github/models"
-	"regexp"
 )
 
 var labelTypeRegex *regexp.Regexp
@@ -21,9 +22,11 @@ func init() {
 	}
 }
 
-func EnrichGithubPullRequests() (err error) {
+func EnrichGithubPullRequests(repoId int) (err error) {
 	githubPullRequst := &githubModels.GithubPullRequest{}
-	cursor, err := lakeModels.Db.Model(&githubPullRequst).Rows()
+	cursor, err := lakeModels.Db.Model(&githubPullRequst).
+		Where("repository_id = ?", repoId).
+		Rows()
 	if err != nil {
 		return err
 	}
@@ -37,8 +40,8 @@ func EnrichGithubPullRequests() (err error) {
 		githubPullRequst.Type = ""
 		githubPullRequst.Component = ""
 		var pullRequestLabels []string
-		err = lakeModels.Db.Table("github_issue_labels").
-			Where("issue_id = ?", githubPullRequst.GithubId).
+		err = lakeModels.Db.Table("github_pull_request_labels").
+			Where("pull_id = ?", githubPullRequst.GithubId).
 			Pluck("`label_name`", &pullRequestLabels).Error
 		if err != nil {
 			return err
