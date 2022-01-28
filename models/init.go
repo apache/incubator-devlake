@@ -71,6 +71,7 @@ func migrateDB() {
 		&code.CommitFile{},
 		&ticket.Board{},
 		&ticket.Issue{},
+		&ticket.IssueLabel{},
 		&ticket.BoardIssue{},
 		&ticket.BoardSprint{},
 		&ticket.Changelog{},

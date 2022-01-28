@@ -2,6 +2,8 @@ package tasks
 
 import (
 	"fmt"
+	"github.com/merico-dev/lake/models/domainlayer/ticket"
+	"strings"
 
 	lakeModels "github.com/merico-dev/lake/models"
 	"github.com/merico-dev/lake/plugins/jira/models"
@@ -23,9 +25,9 @@ func EnrichIssues(source *models.JiraSource, boardId uint64) (err error) {
 	getStdType := func(userType string) string {
 		stdType := typeMappings[userType]
 		if stdType == "" {
-			return userType
+			return strings.ToUpper(userType)
 		}
-		return stdType
+		return strings.ToUpper(stdType)
 	}
 	// prepare getStdStatus function
 	var statusMappingRows []*models.JiraIssueStatusMapping
@@ -41,11 +43,13 @@ func EnrichIssues(source *models.JiraSource, boardId uint64) (err error) {
 		k := makeStatusMappingKey(statusMappingRow.UserType, statusMappingRow.UserStatus)
 		statusMappings[k] = statusMappingRow.StandardStatus
 	}
-	getStdStatus := func(statusCategory string) string {
-		if statusCategory == "Done" {
-			return "Resolved"
+	getStdStatus := func(statusKey string) string {
+		if statusKey == "done" {
+			return ticket.DONE
+		} else if statusKey == "new" {
+			return ticket.TODO
 		} else {
-			return statusCategory
+			return ticket.IN_PROGRESS
 		}
 	}
 
@@ -71,7 +75,7 @@ func EnrichIssues(source *models.JiraSource, boardId uint64) (err error) {
 		}
 		jiraIssue.StdStoryPoint = uint(jiraIssue.StoryPoint)
 		jiraIssue.StdType = getStdType(jiraIssue.Type)
-		jiraIssue.StdStatus = getStdStatus(jiraIssue.StatusCategory)
+		jiraIssue.StdStatus = getStdStatus(jiraIssue.StatusKey)
 		// assuming remaining estimate could be negative; TODO: make sure of it
 		jiraIssue.SpentMinutes = jiraIssue.AggregateEstimateMinutes - jiraIssue.RemainingEstimateMinutes
 		err = lakeModels.Db.Save(jiraIssue).Error

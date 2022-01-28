@@ -15,8 +15,9 @@ func ConvertNotes() error {
 	if err != nil {
 		return err
 	}
+	domainIdGeneratorNote := didgen.NewDomainIdGenerator(gitlabModels.GitlabMergeRequestNote{})
 	for _, note := range gitlabMergeRequestNotes {
-		domainNote := convertToNoteModel(&note)
+		domainNote := convertToNoteModel(&note, domainIdGeneratorNote)
 		err := lakeModels.Db.Clauses(clause.OnConflict{UpdateAll: true}).Create(domainNote).Error
 		if err != nil {
 			return err
@@ -24,10 +25,10 @@ func ConvertNotes() error {
 	}
 	return nil
 }
-func convertToNoteModel(note *gitlabModels.GitlabMergeRequestNote) *code.Note {
+func convertToNoteModel(note *gitlabModels.GitlabMergeRequestNote, domainIdGeneratorNote *didgen.DomainIdGenerator) *code.Note {
 	domainNote := &code.Note{
 		DomainEntity: domainlayer.DomainEntity{
-			Id: didgen.NewDomainIdGenerator(note).Generate(note.GitlabId),
+			Id: domainIdGeneratorNote.Generate(note.GitlabId),
 		},
 		PrId:        uint64(note.MergeRequestId),
 		Type:        note.NoteableType,

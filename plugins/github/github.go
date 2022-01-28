@@ -113,12 +113,15 @@ func (plugin Github) Execute(options map[string]interface{}, progress chan<- flo
 			"enrichIssues":               true,
 			"enrichPullRequests":         true,
 			"convertRepos":               true,
-			"convertIssues":              true,
-			"convertPullRequests":        true,
-			"convertCommits":             true,
-			"convertPullRequestCommits":  true,
-			"convertNotes":               true,
-			"convertUsers":               true,
+			"convertReposToBoard":        true,
+
+			"convertIssues":             true,
+			"convertIssueLabels":        true,
+			"convertPullRequests":       true,
+			"convertCommits":            true,
+			"convertPullRequestCommits": true,
+			"convertNotes":              true,
+			"convertUsers":              true,
 		}
 	}
 
@@ -225,9 +228,23 @@ func (plugin Github) Execute(options map[string]interface{}, progress chan<- flo
 			return err
 		}
 	}
+	if tasksToRun["convertReposToBoard"] {
+		progress <- 0.93
+		err = tasks.ConvertReposToBoard()
+		if err != nil {
+			return err
+		}
+	}
 	if tasksToRun["convertIssues"] {
 		progress <- 0.94
-		err = tasks.ConvertIssues()
+		err = tasks.ConvertIssues(repoId)
+		if err != nil {
+			return err
+		}
+	}
+	if tasksToRun["convertIssueLabels"] {
+		progress <- 0.94
+		err = tasks.ConvertIssueLabels()
 		if err != nil {
 			return err
 		}
@@ -345,9 +362,9 @@ func main() {
 					"convertIssues",
 					"convertPullRequests",
 					//"convertCommits",
-					//"convertPullRequestCommits",
+					"convertPullRequestCommits",
 					//"convertNotes",
-					//"convertUsers",
+					"convertUsers",
 				},
 			},
 			progress,
