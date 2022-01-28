@@ -13,7 +13,7 @@ func CreatePr(repoId uint64) (*code.PullRequest, error) {
 			Id: RandIntString(),
 		},
 		RepoId:      repoId,
-		State:       "",
+		Status:      "",
 		Title:       "",
 		Url:         "",
 		CreatedDate: time.Now(),
