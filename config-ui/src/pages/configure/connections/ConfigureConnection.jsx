@@ -302,7 +302,7 @@ export default function ConfigureConnection () {
                         intent={Intent.PRIMARY}
                         text='Save Settings'
                         loading={isSaving}
-                        disabled={isSaving || providerId === 'jenkins'}
+                        disabled={isSaving || providerId === Providers.JENKINS}
                         onClick={saveSettings}
                         style={{ marginLeft: '10px' }}
                       />

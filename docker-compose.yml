@@ -15,22 +15,22 @@ services:
       MYSQL_PASSWORD: merico
 
   grafana:
-    image: mericodev/grafana:0.6.0
+    image: mericodev/grafana:latest
     ports:
       - 3002:3000
     volumes:
       - grafana-storage:/var/lib/grafana
     environment:
-      - GF_USERS_ALLOW_SIGN_UP=false
-      - GF_DASHBOARDS_JSON_ENABLED=true
-      - GF_INSTALL_PLUGINS=grafana-piechart-panel
-      - GF_LIVE_ALLOWED_ORIGINS=*
+      GF_USERS_ALLOW_SIGN_UP: 'false'
+      GF_DASHBOARDS_JSON_ENABLED: 'true'
+      GF_INSTALL_PLUGINS: grafana-piechart-panel
+      GF_LIVE_ALLOWED_ORIGINS: '*'
     restart: always
     depends_on:
       - mysql
 
   devlake:
-    image: mericodev/lake:0.6.0
+    image: mericodev/lake:latest
     build: "."
     ports:
       - 127.0.0.1:8080:8080
@@ -41,15 +41,16 @@ services:
       - mysql
 
   config-ui:
-    image: mericodev/config-ui:0.6.0
+    image: mericodev/config-ui:latest
     ports:
       - 127.0.0.1:4000:80
     env_file:
       - ./.env
+    #environment:
+      #ADMIN_USER: devlake
+      #ADMIN_PASS: merico
     depends_on:
       - devlake
-    #environment:
-      #- WAIT_HOSTS: mysql:3306, grafana:3000, devlake:8080
 
 volumes:
   mysql-storage:
