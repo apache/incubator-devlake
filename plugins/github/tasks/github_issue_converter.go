@@ -24,6 +24,14 @@ func ConvertIssues() error {
 		if err != nil {
 			return err
 		}
+		boardIssue := &ticket.BoardIssue{
+			BoardId: didgen.NewDomainIdGenerator(&githubModels.GithubRepository{}).Generate(issue.RepositoryId),
+			IssueId: domainIssue.Id,
+		}
+		err = lakeModels.Db.Clauses(clause.OnConflict{UpdateAll: true}).Create(boardIssue).Error
+		if err != nil {
+			return err
+		}
 	}
 
 	return nil
