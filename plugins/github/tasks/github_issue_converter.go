@@ -39,9 +39,9 @@ func ConvertIssues() error {
 
 func convertStateToStatus(state string) string {
 	if state == "closed" {
-		return "Resolved"
+		return "DONE"
 	} else {
-		return "Todo"
+		return "TODO"
 	}
 }
 
