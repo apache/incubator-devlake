@@ -46,7 +46,7 @@ func ConvertCommits(githubRepoId int) error {
 		commit.CommitterName = githubCommit.CommitterName
 		commit.CommitterEmail = githubCommit.CommitterEmail
 		commit.CommittedDate = githubCommit.CommittedDate
-		commit.CommiterId = userDidGen.Generate(githubCommit.CommitterId)
+		commit.CommitterId = userDidGen.Generate(githubCommit.CommitterId)
 		err := lakeModels.Db.Clauses(clause.OnConflict{UpdateAll: true}).Create(commit).Error
 		if err != nil {
 			return err

@@ -46,7 +46,7 @@ func ConvertCommits(projectId int) error {
 		commit.CommitterName = gitlabCommit.CommitterName
 		commit.CommitterEmail = gitlabCommit.CommitterEmail
 		commit.CommittedDate = gitlabCommit.CommittedDate
-		commit.CommiterId = userDidGen.Generate(gitlabCommit.AuthorEmail)
+		commit.CommitterId = userDidGen.Generate(gitlabCommit.AuthorEmail)
 		err := lakeModels.Db.Clauses(clause.OnConflict{UpdateAll: true}).Create(commit).Error
 		if err != nil {
 			return err
