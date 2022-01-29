@@ -77,7 +77,7 @@ const CreatePipeline = (props) => {
   const [sourceId, setSourceId] = useState('')
   const [sources, setSources] = useState([])
   const [selectedSource, setSelectedSource] = useState()
-  const [repositoryName, setRepositoryName] = useState('')
+  const [repo, setRepo] = useState('')
   const [owner, setOwner] = useState('')
 
   const [autoRedirect, setAutoRedirect] = useState(true)
@@ -104,7 +104,7 @@ const CreatePipeline = (props) => {
     projectId,
     boardId,
     owner,
-    repositoryName,
+    repo,
     sourceId,
     runTasks
   })
@@ -161,7 +161,7 @@ const CreatePipeline = (props) => {
         break
       case Providers.GITHUB:
         options = {
-          repositoryName,
+          repo,
           owner
         }
         break
@@ -174,7 +174,7 @@ const CreatePipeline = (props) => {
         break
     }
     return options
-  }, [boardId, owner, projectId, repositoryName, sourceId])
+  }, [boardId, owner, projectId, repo, sourceId])
 
   const configureProvider = useCallback((providerId) => {
     let providerConfig = {}
@@ -253,7 +253,7 @@ const CreatePipeline = (props) => {
       setSources([])
       setSelectedSource(null)
     }
-  }, [enabledProviders, projectId, boardId, sourceId, owner, repositoryName, configureProvider, validate, fetchAllConnections])
+  }, [enabledProviders, projectId, boardId, sourceId, owner, repo, configureProvider, validate, fetchAllConnections])
 
   useEffect(() => {
     console.log('>> PIPELINE LAST RUN OBJECT CHANGED!!...', pipelineRun)
@@ -302,7 +302,7 @@ const CreatePipeline = (props) => {
       }
       if (GitHubTask) {
         setEnabledProviders(eP => [...eP, Providers.GITHUB])
-        setRepositoryName(GitHubTask.options?.repositoryName)
+        setRepositoryName(GitHubTask.options?.repo)
         setOwner(GitHubTask.options?.owner)
       }
       if (JiraTask && JiraTask.length > 0) {
@@ -541,7 +541,7 @@ const CreatePipeline = (props) => {
                           providerId={provider.id}
                           projectId={projectId}
                           owner={owner}
-                          repositoryName={repositoryName}
+                          repo={repo}
                           sourceId={sourceId}
                           sources={sources}
                           selectedSource={selectedSource}

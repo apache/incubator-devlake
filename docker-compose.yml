@@ -16,10 +16,13 @@ services:
 
   grafana:
     image: mericodev/grafana:latest
+    build:
+      context: grafana/
     ports:
       - 3002:3000
     volumes:
       - grafana-storage:/var/lib/grafana
+      - ./grafana/provisioning/datasources:/etc/grafana/provisioning/datasources
     environment:
       GF_USERS_ALLOW_SIGN_UP: 'false'
       GF_DASHBOARDS_JSON_ENABLED: 'true'
@@ -31,7 +34,11 @@ services:
 
   devlake:
     image: mericodev/lake:latest
-    build: "."
+    build:
+      context: "."
+      args:
+        HTTPS_PROXY: "${HTTPS_PROXY}"
+        GOPROXY: "${GOPROXY}"
     ports:
       - 127.0.0.1:8080:8080
     restart: always
@@ -42,6 +49,8 @@ services:
 
   config-ui:
     image: mericodev/config-ui:latest
+    build:
+      context: "config-ui"
     ports:
       - 127.0.0.1:4000:80
     env_file:
