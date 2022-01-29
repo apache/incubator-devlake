@@ -175,7 +175,7 @@ export default function Triggers () {
                     {/* eslint-disable-next-line max-len */}
                     please customize the following JSON by removing the plugins you don't need and replace with your own&nbsp;
                     {/* eslint-disable-next-line max-len */}
-                    <strong>JIRA</strong> <code>boardId</code> / <strong>GitLab</strong> <code>projectId</code> / <strong>GitHub</strong> <code>repositoryName</code> and <code>owner</code> in the request body. &nbsp;
+                    <strong>JIRA</strong> <code>boardId</code> / <strong>GitLab</strong> <code>projectId</code> / <strong>GitHub</strong> <code>repo</code> and <code>owner</code> in the request body. &nbsp;
                     {/* eslint-disable-next-line max-len */}
                     For a project with 10k commits and 5k JIRA issues, this can take up to <em>20 minutes</em> for collecting JIRA, GitLab, and Jenkins data.&nbsp;
                     {/* eslint-disable-next-line max-len */}

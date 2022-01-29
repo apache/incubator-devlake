@@ -27,7 +27,7 @@ const TEST_DATA = {
       {
         Plugin: "github",
         Options: {
-          repositoryName: "lake",
+          repo: "lake",
           owner: "merico-dev",
         },
       },

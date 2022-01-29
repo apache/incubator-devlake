@@ -227,7 +227,7 @@ GitHub | 概述，数据和指标，配置，API | [Link](plugins/github/README-
    >       {
    >         "Plugin": "github",
    >         "Options": {
-   >           "repositoryName": "lake",
+   >           "repo": "lake",
    >           "owner": "merico-dev"
    >         }
    >       }
@@ -317,7 +317,7 @@ GitHub | 概述，数据和指标，配置，API | [Link](plugins/github/README-
    >       {
    >         "Plugin": "github",
    >         "Options": {
-   >           "repositoryName": "lake",
+   >           "repo": "lake",
    >           "owner": "merico-dev"
    >         }
    >       }

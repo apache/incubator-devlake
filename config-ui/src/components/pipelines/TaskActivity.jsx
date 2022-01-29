@@ -107,7 +107,7 @@ const TaskActivity = (props) => {
                     <Icon icon='link' size={8} style={{ marginBottom: '3px' }} /> {t.options[Object.keys(t.options)[0]]}
                   </span>
                   {t.plugin === Providers.GITHUB && (
-                    <span style={{ fontWeight: 60 }}>/{t.options.repositoryName}</span>
+                    <span style={{ fontWeight: 60 }}>/{t.options.repo}</span>
                   )}
                 </div>
               )}
