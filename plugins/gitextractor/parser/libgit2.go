@@ -15,7 +15,7 @@ import (
 
 const (
 	BRANCH = "BRANCH"
-	TAG = "TAG"
+	TAG    = "TAG"
 )
 
 type LibGit2 struct {
@@ -67,18 +67,18 @@ func (l *LibGit2) run(ctx context.Context, repo *git.Repository, repoId string) 
 			break
 		}
 		ref := &code.Ref{
-			DomainEntity:domainlayer.DomainEntity{Id:fmt.Sprintf("%s:%s", repoId, name)},
-			RepoId:    repoId,
-			Ref:       name,
-			CommitSha: id.String(),
-			RefType: TAG,
+			DomainEntity: domainlayer.DomainEntity{Id: fmt.Sprintf("%s:%s", repoId, name)},
+			RepoId:       repoId,
+			Ref:          name,
+			CommitSha:    id.String(),
+			RefType:      TAG,
 		}
 		return l.store.Refs(ref)
 	})
-	if err != nil{
+	if err != nil {
 		return err
 	}
-	err =repoInter.ForEach(func(branch *git.Branch, branchType git.BranchType) error {
+	err = repoInter.ForEach(func(branch *git.Branch, branchType git.BranchType) error {
 		select {
 		case <-ctx.Done():
 			return ctx.Err()
@@ -95,18 +95,18 @@ func (l *LibGit2) run(ctx context.Context, repo *git.Repository, repoId string) 
 				sha = oid.String()
 			}
 			ref := &code.Ref{
-				DomainEntity:domainlayer.DomainEntity{Id:fmt.Sprintf("%s:%s", repoId, name)},
-				RepoId:    repoId,
-				Ref:       name,
-				CommitSha: sha,
-				RefType: BRANCH,
+				DomainEntity: domainlayer.DomainEntity{Id: fmt.Sprintf("%s:%s", repoId, name)},
+				RepoId:       repoId,
+				Ref:          name,
+				CommitSha:    sha,
+				RefType:      BRANCH,
 			}
 			ref.IsDefault, _ = branch.IsHead()
 			return l.store.Refs(ref)
 		}
 		return nil
 	})
-	if err != nil{
+	if err != nil {
 		return err
 	}
 	odb, err := repo.Odb()
@@ -150,7 +150,7 @@ func (l *LibGit2) run(ctx context.Context, repo *git.Repository, repoId string) 
 		if committer != nil {
 			c.CommitterName = committer.Name
 			c.CommitterEmail = committer.Email
-			c.CommiterId = committer.Email
+			c.CommitterId = committer.Email
 			c.CommittedDate = committer.When
 		}
 		var commitParents []*code.CommitParent
@@ -183,7 +183,7 @@ func (l *LibGit2) run(ctx context.Context, repo *git.Repository, repoId string) 
 				git.DiffForEachHunkCallback, error) {
 				if commitFile.CommitSha != "" {
 					err = l.store.CommitFiles(commitFile)
-					if err != nil{
+					if err != nil {
 						logger.Error("CommitFiles error:", err)
 					}
 				}
@@ -201,12 +201,12 @@ func (l *LibGit2) run(ctx context.Context, repo *git.Repository, repoId string) 
 					}, nil
 				}, nil
 			}, git.DiffDetailLines)
-			if err != nil{
+			if err != nil {
 				return err
 			}
 			if commitFile.CommitSha != "" {
 				err = l.store.CommitFiles(commitFile)
-				if err != nil{
+				if err != nil {
 					logger.Error("CommitFiles error:", err)
 				}
 			}

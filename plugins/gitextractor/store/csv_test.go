@@ -12,7 +12,7 @@ import (
 
 func Test_csvWriter_Write(t *testing.T) {
 	f, err := ioutil.TempFile("", "gitextractor")
-	if err != nil{
+	if err != nil {
 		t.Fatal(err)
 	}
 	defer f.Close()
@@ -26,33 +26,33 @@ func Test_csvWriter_Write(t *testing.T) {
 		wantErr bool
 	}{
 		{"test for Write",
-		args{item: &code.Commit{
-			Sha:            "ffwefef3f34f",
-			Additions:      3,
-			Deletions:      4,
-			DevEq:          7,
-			Message:        "",
-			AuthorName:     "",
-			AuthorEmail:    "",
-			AuthoredDate:   time.Now(),
-			AuthorId:       "",
-			CommitterName:  "",
-			CommitterEmail: "",
-			CommittedDate:  time.Now(),
-			CommiterId:     "",
-		}},
-		false,
+			args{item: &code.Commit{
+				Sha:            "ffwefef3f34f",
+				Additions:      3,
+				Deletions:      4,
+				DevEq:          7,
+				Message:        "",
+				AuthorName:     "",
+				AuthorEmail:    "",
+				AuthoredDate:   time.Now(),
+				AuthorId:       "",
+				CommitterName:  "",
+				CommitterEmail: "",
+				CommittedDate:  time.Now(),
+				CommitterId:    "",
+			}},
+			false,
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			dir, err := ioutil.TempDir("", "gitextractor")
-			if err != nil{
+			if err != nil {
 				t.Error(err)
 			}
 			defer os.RemoveAll(dir)
 			w, err := newCsvWriter(filepath.Join(dir, "commits.csv"), &code.Commit{})
-			if err != nil{
+			if err != nil {
 				t.Fatal(err)
 			}
 			defer w.Close()
