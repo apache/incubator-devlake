@@ -23,7 +23,7 @@ const ProviderSettings = (props) => {
     sources = [],
     boardId = [],
     owner,
-    repositoryName,
+    repo,
     setProjectId = () => {},
     setSourceId = () => {},
     setSelectedSource = () => {},
@@ -199,7 +199,7 @@ const ProviderSettings = (props) => {
               id='repository-name'
               disabled={isRunning || !isEnabled(providerId)}
               placeholder='eg. lake'
-              value={repositoryName}
+              value={repo}
               onChange={(e) => setRepositoryName(e.target.value)}
               className='input-repository-name'
               autoComplete='off'
