@@ -6,9 +6,9 @@ import (
 
 type Ref struct {
 	domainlayer.DomainEntity
-	RepoId    string
-	Ref       string
+	RepoId    string `gorm:"type:varchar(255)"`
+	Ref       string `gorm:"type:varchar(255)"`
 	CommitSha string `gorm:"type:char(40)"`
 	IsDefault bool
-	RefType   string `gorm:"type:varchar(20)"`
+	RefType   string `gorm:"type:varchar(255)"`
 }
