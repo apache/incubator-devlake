@@ -52,7 +52,7 @@ func CollectCommits(owner string, repo string, repoId int, scheduler *utils.Work
 			if err != nil || res.StatusCode == 401 {
 				return err
 			}
-			repoCommit := &models.GithubRepoCommit{GithubRepoId: repoId}
+			repoCommit := &models.GithubRepoCommit{RepoId: repoId}
 			for _, commit := range *githubApiResponse {
 				githubCommit, err := convertGithubCommit(&commit)
 				if err != nil {

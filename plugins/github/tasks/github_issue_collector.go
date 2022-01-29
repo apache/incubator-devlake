@@ -93,7 +93,7 @@ func CollectIssues(owner string, repo string, repoId int, scheduler *utils.Worke
 func convertGithubIssue(issue *IssuesResponse, repositoryId int) (*models.GithubIssue, error) {
 	githubIssue := &models.GithubIssue{
 		GithubId:        issue.GithubId,
-		RepositoryId:    repositoryId,
+		RepoId:          repositoryId,
 		Number:          issue.Number,
 		State:           issue.State,
 		Title:           issue.Title,

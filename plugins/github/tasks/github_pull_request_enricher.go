@@ -25,7 +25,7 @@ func init() {
 func EnrichGithubPullRequests(repoId int) (err error) {
 	githubPullRequst := &githubModels.GithubPullRequest{}
 	cursor, err := lakeModels.Db.Model(&githubPullRequst).
-		Where("repository_id = ?", repoId).
+		Where("repo_id = ?", repoId).
 		Rows()
 	if err != nil {
 		return err

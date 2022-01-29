@@ -8,7 +8,7 @@ import (
 
 type GithubPullRequest struct {
 	GithubId        int `gorm:"primaryKey"`
-	RepositoryId    int `gorm:"index"`
+	RepoId          int `gorm:"index"`
 	Number          int `gorm:"index"` // This number is used in GET requests to the API associated to reviewers / comments / etc.
 	State           string
 	Title           string

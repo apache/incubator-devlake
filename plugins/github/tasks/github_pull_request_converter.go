@@ -29,7 +29,7 @@ func convertToPullRequestModel(pr *githubModels.GithubPullRequest) *code.PullReq
 		DomainEntity: domainlayer.DomainEntity{
 			Id: didgen.NewDomainIdGenerator(pr).Generate(pr.GithubId),
 		},
-		RepoId:         uint64(pr.RepositoryId),
+		RepoId:         uint64(pr.RepoId),
 		Status:         pr.State,
 		Title:          pr.Title,
 		CreatedDate:    pr.GithubCreatedAt,
