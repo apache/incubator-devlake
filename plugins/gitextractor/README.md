@@ -1,12 +1,15 @@
 # Git Repo Extractor
 
-## 概述
-This plugin extract commits and references from a remote or local git repository. It then save the data into database or csv files.
+## Summary
+This plugin extract commits and references from a remote or local git repository. It then saves the data into the database or csv files.
 
+## Steps to make this plugin work
 
+1. Use the Git repo extractor to retrieve commit-and-branch-related data from your repo
+2. Use the GitHub plugin to retrieve Github-issue-and-pr-related data from your repo. NOTE: you can run only one the issue collection stage as described in the Github Plugin README.
+3. Use the RefDiff plugin to calculate version diff, which will be stored in refs_commits_diffs.
 
 ## Sample Request
-
 
 ```
 curl --location --request POST 'localhost:8080/pipelines' \
