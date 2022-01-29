@@ -20,6 +20,8 @@ import (
 var _ core.Plugin = (*Github)(nil)
 
 type GithubOptions struct {
+	Owner string
+	Repo  string
 	Tasks []string
 }
 type Github string
@@ -27,7 +29,7 @@ type Github string
 func (plugin Github) Init() {
 	logger.Info("INFO >>> init GitHub plugin", true)
 	err := lakeModels.Db.AutoMigrate(
-		&models.GithubRepository{},
+		&models.GithubRepo{},
 		&models.GithubCommit{},
 		&models.GithubRepoCommit{},
 		&models.GithubPullRequest{},
@@ -52,53 +54,22 @@ func (plugin Github) Description() string {
 }
 
 func (plugin Github) Execute(options map[string]interface{}, progress chan<- float32, ctx context.Context) error {
-	endpoint := config.V.GetString("GITHUB_ENDPOINT")
-	configTokensString := config.V.GetString("GITHUB_AUTH")
-	tokens := strings.Split(configTokensString, ",")
-	githubApiClient := tasks.CreateApiClient(endpoint, tokens)
-	_ = githubApiClient.SetProxy(config.V.GetString("GITHUB_PROXY"))
+	var err error
 
-	tokenCount := len(tokens)
-
-	if tokenCount == 0 {
-		return fmt.Errorf("owner is required for GitHub execution")
-	}
-
-	rateLimitPerSecondInt, err := core.GetRateLimitPerSecond(options, tokenCount)
-	if err != nil {
-		return err
-	}
-	scheduler, err := utils.NewWorkerScheduler(50, rateLimitPerSecondInt, ctx)
-	if err != nil {
-		logger.Error("could not create scheduler", false)
-	}
-
-	defer scheduler.Release()
-
-	logger.Print("start github plugin execution")
-
-	owner, ok := options["owner"]
-	if !ok {
-		return fmt.Errorf("owner is required for GitHub execution")
-	}
-	ownerString := owner.(string)
-
-	repositoryName, ok := options["repositoryName"]
-	if !ok {
-		return fmt.Errorf("repositoryName is required for GitHub execution")
-	}
-	repositoryNameString := repositoryName.(string)
-
+	// process option from request
 	var op GithubOptions
 	err = mapstructure.Decode(options, &op)
 	if err != nil {
 		return err
 	}
-	tasksToRun := make(map[string]bool, len(op.Tasks))
-	for _, task := range op.Tasks {
-		tasksToRun[task] = true
+	if op.Owner == "" {
+		return fmt.Errorf("owner is required for GitHub execution")
 	}
-	if len(tasksToRun) == 0 {
+	if op.Repo == "" {
+		return fmt.Errorf("repo is required for GitHub execution")
+	}
+	tasksToRun := make(map[string]bool, len(op.Tasks))
+	if len(op.Tasks) == 0 {
 		tasksToRun = map[string]bool{
 			"collectRepo":                true,
 			"collectCommits":             true,
@@ -123,102 +94,137 @@ func (plugin Github) Execute(options map[string]interface{}, progress chan<- flo
 			"convertNotes":              true,
 			"convertUsers":              true,
 		}
+	} else {
+		for _, task := range op.Tasks {
+			tasksToRun[task] = true
+		}
 	}
 
-	repoId, collectRepoErr := tasks.CollectRepository(ownerString, repositoryNameString, githubApiClient)
-	if collectRepoErr != nil {
-		return fmt.Errorf("Could not collect repositories: %v", collectRepoErr)
+	// process configuration
+	endpoint := config.V.GetString("GITHUB_ENDPOINT")
+	tokens := strings.Split(config.V.GetString("GITHUB_AUTH"), ",")
+	// TODO: add endpoind, auth validation
+	apiClient := tasks.CreateApiClient(endpoint, tokens)
+	err = apiClient.SetProxy(config.V.GetString("GITHUB_PROXY"))
+	if err != nil {
+		return err
+	}
+
+	// setup rate limit
+	tokenCount := len(tokens)
+	if tokenCount == 0 {
+		return fmt.Errorf("owner is required for GitHub execution")
+	}
+
+	rateLimitPerSecondInt, err := core.GetRateLimitPerSecond(options, tokenCount)
+	if err != nil {
+		return err
+	}
+	scheduler, err := utils.NewWorkerScheduler(50, rateLimitPerSecondInt, ctx)
+	if err != nil {
+		return err
+	}
+
+	defer scheduler.Release()
+
+	logger.Print("start github plugin execution")
+
+	repoId, err := tasks.CollectRepository(op.Owner, op.Repo, apiClient)
+	if err != nil {
+		return fmt.Errorf("Could not collect repositories: %v", err)
 	}
 	if tasksToRun["collectCommits"] {
 		progress <- 0.1
 		fmt.Println("INFO >>> starting commits collection")
-		collectCommitsErr := tasks.CollectCommits(ownerString, repositoryNameString, repoId, scheduler, githubApiClient)
-		if collectCommitsErr != nil {
-			return fmt.Errorf("Could not collect commits: %v", collectCommitsErr)
+		err = tasks.CollectCommits(op.Owner, op.Repo, repoId, scheduler, apiClient)
+		if err != nil {
+			return fmt.Errorf("Could not collect commits: %v", err)
 		}
 	}
 	if tasksToRun["collectCommitsStat"] {
 		progress <- 0.11
 		fmt.Println("INFO >>> starting commits stat collection")
-		collectCommitsStatErr := tasks.CollectCommitsStat(ownerString, repositoryNameString, repoId, scheduler, githubApiClient)
-		if collectCommitsStatErr != nil {
-			return fmt.Errorf("Could not collect commits: %v", collectCommitsStatErr)
+		err = tasks.CollectCommitsStat(op.Owner, op.Repo, repoId, scheduler, apiClient)
+		if err != nil {
+			return fmt.Errorf("Could not collect commits: %v", err)
 		}
 	}
 	if tasksToRun["collectIssues"] {
 		progress <- 0.19
 		fmt.Println("INFO >>> starting issues collection")
-		collectIssuesErr := tasks.CollectIssues(ownerString, repositoryNameString, repoId, scheduler, githubApiClient)
-		if collectIssuesErr != nil {
-			return fmt.Errorf("Could not collect issues: %v", collectIssuesErr)
+		err = tasks.CollectIssues(op.Owner, op.Repo, repoId, scheduler, apiClient)
+		if err != nil {
+			return fmt.Errorf("Could not collect issues: %v", err)
 		}
 	}
 	if tasksToRun["collectIssueEvents"] {
 		progress <- 0.2
 		fmt.Println("INFO >>> starting Issue Events collection")
-		collectIssueEventsErr := tasks.CollectIssueEvents(ownerString, repositoryNameString, scheduler, githubApiClient)
-		if collectIssueEventsErr != nil {
-			return fmt.Errorf("Could not collect Issue Events: %v", collectIssueEventsErr)
+		err = tasks.CollectIssueEvents(op.Owner, op.Repo, scheduler, apiClient)
+		if err != nil {
+			return fmt.Errorf("Could not collect Issue Events: %v", err)
 		}
 	}
 
 	if tasksToRun["collectIssueComments"] {
 		progress <- 0.3
 		fmt.Println("INFO >>> starting Issue Comments collection")
-		collectIssueCommentsErr := tasks.CollectIssueComments(ownerString, repositoryNameString, scheduler, githubApiClient)
-		if collectIssueCommentsErr != nil {
-			return fmt.Errorf("Could not collect Issue Comments: %v", collectIssueCommentsErr)
+		err = tasks.CollectIssueComments(op.Owner, op.Repo, scheduler, apiClient)
+		if err != nil {
+			return fmt.Errorf("Could not collect Issue Comments: %v", err)
 		}
 	}
 
 	if tasksToRun["collectPullRequests"] {
 		progress <- 0.4
 		fmt.Println("INFO >>> collecting PR collection")
-		collectPullRequestsErr := tasks.CollectPullRequests(ownerString, repositoryNameString, repoId, scheduler, githubApiClient)
-		if collectPullRequestsErr != nil {
-			return fmt.Errorf("Could not collect PR: %v", collectPullRequestsErr)
+		err = tasks.CollectPullRequests(op.Owner, op.Repo, repoId, scheduler, apiClient)
+		if err != nil {
+			return fmt.Errorf("Could not collect PR: %v", err)
 		}
 	}
 
 	if tasksToRun["collectPullRequestReviews"] {
 		progress <- 0.5
 		fmt.Println("INFO >>> collecting PR Reviews collection")
-		collectPullRequestReviewsErr := tasks.CollectPullRequestReviews(ownerString, repositoryNameString, scheduler, githubApiClient)
-		if collectPullRequestReviewsErr != nil {
-			return fmt.Errorf("Could not collect PR Reviews: %v", collectPullRequestReviewsErr)
+		err = tasks.CollectPullRequestReviews(op.Owner, op.Repo, scheduler, apiClient)
+		if err != nil {
+			return fmt.Errorf("Could not collect PR Reviews: %v", err)
 		}
 	}
 
 	if tasksToRun["collectPullRequestCommits"] {
 		progress <- 0.7
 		fmt.Println("INFO >>> starting PR Commits collection")
-		collectPullRequestCommitsErr := tasks.CollectPullRequestCommits(ownerString, repositoryNameString, scheduler, githubApiClient)
-		if collectPullRequestCommitsErr != nil {
-			return fmt.Errorf("Could not collect PR Commits: %v", collectPullRequestCommitsErr)
+		err = tasks.CollectPullRequestCommits(op.Owner, op.Repo, scheduler, apiClient)
+		if err != nil {
+			return fmt.Errorf("Could not collect PR Commits: %v", err)
 		}
 	}
+
 	if tasksToRun["collectPullRequestComments"] {
 		progress <- 0.8
 		fmt.Println("INFO >>> starting PR Comments collection")
-		collectPullRequestCommentsErr := tasks.CollectPullRequestComments(ownerString, repositoryNameString, scheduler, githubApiClient)
-		if collectPullRequestCommentsErr != nil {
-			return fmt.Errorf("Could not collect PR Comments: %v", collectPullRequestCommentsErr)
+		err = tasks.CollectPullRequestComments(op.Owner, op.Repo, scheduler, apiClient)
+		if err != nil {
+			return fmt.Errorf("Could not collect PR Comments: %v", err)
 		}
 	}
+
 	if tasksToRun["enrichIssues"] {
 		progress <- 0.91
 		fmt.Println("INFO >>> Enriching Issues")
-		enrichmentError := tasks.EnrichGithubIssues()
-		if enrichmentError != nil {
-			return fmt.Errorf("could not enrich issues: %v", enrichmentError)
+		err = tasks.EnrichGithubIssues()
+		if err != nil {
+			return fmt.Errorf("could not enrich issues: %v", err)
 		}
 	}
 	if tasksToRun["enrichPullRequests"] {
 		progress <- 0.92
 		fmt.Println("INFO >>> Enriching PullRequests")
-		enrichPullRequestsError := tasks.EnrichGithubPullRequests(repoId)
-		if enrichPullRequestsError != nil {
-			return fmt.Errorf("could not enrich PullRequests: %v", enrichPullRequestsError)
+		err = tasks.EnrichGithubPullRequests(repoId)
+		if err != nil {
+			return fmt.Errorf("could not enrich PullRequests: %v", err)
 		}
 	}
 	if tasksToRun["convertRepos"] {
@@ -343,10 +349,10 @@ func main() {
 	go func() {
 		err := PluginEntry.Execute(
 			map[string]interface{}{
-				"owner":          owner,
-				"repositoryName": repo,
+				"owner": owner,
+				"repo":  repo,
 				"tasks": []string{
-					"collectRepo",
+					//"collectRepo",
 					//"collectCommits",
 					//"collectCommitsStat",
 					//"collectIssues",
@@ -357,14 +363,14 @@ func main() {
 					//"collectPullRequestCommits",
 					//"collectPullRequestComments",
 					"enrichIssues",
-					"enrichPullRequests",
-					"convertRepos",
-					"convertIssues",
-					"convertPullRequests",
+					//"enrichPullRequests",
+					//"convertRepos",
+					//"convertIssues",
+					//"convertPullRequests",
 					//"convertCommits",
-					"convertPullRequestCommits",
+					//"convertPullRequestCommits",
 					//"convertNotes",
-					"convertUsers",
+					//"convertUsers",
 				},
 			},
 			progress,

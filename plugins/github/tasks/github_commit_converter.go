@@ -25,7 +25,7 @@ func ConvertCommits(githubRepoId int) error {
 
 	userDidGen := didgen.NewDomainIdGenerator(&githubModels.GithubUser{})
 	repoCommit := &code.RepoCommit{
-		RepoId: didgen.NewDomainIdGenerator(&githubModels.GithubRepository{}).Generate(githubRepoId),
+		RepoId: didgen.NewDomainIdGenerator(&githubModels.GithubRepo{}).Generate(githubRepoId),
 	}
 	githubCommit := &models.GithubCommit{}
 	commit := &code.Commit{}

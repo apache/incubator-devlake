@@ -40,11 +40,11 @@ type IssuesResponse struct {
 	GithubUpdatedAt core.Iso8601Time  `json:"updated_at"`
 }
 
-func CollectIssues(owner string, repositoryName string, repositoryId int, scheduler *utils.WorkerScheduler, githubApiClient *GithubApiClient) error {
-	getUrl := fmt.Sprintf("repos/%v/%v/issues", owner, repositoryName)
+func CollectIssues(owner string, repo string, repoId int, scheduler *utils.WorkerScheduler, apiClient *GithubApiClient) error {
+	getUrl := fmt.Sprintf("repos/%v/%v/issues", owner, repo)
 	queryParams := &url.Values{}
 	queryParams.Set("state", "all")
-	return githubApiClient.FetchWithPaginationAnts(getUrl, queryParams, 100, 20, scheduler,
+	return apiClient.FetchWithPaginationAnts(getUrl, queryParams, 100, 20, scheduler,
 		func(res *http.Response) error {
 			githubApiResponse := &ApiIssuesResponse{}
 			err := core.UnmarshalResponse(res, githubApiResponse)
@@ -74,7 +74,7 @@ func CollectIssues(owner string, repositoryName string, repositoryId int, schedu
 				}
 				if issue.PullRequest.Url == "" {
 					// This is an issue from github
-					githubIssue, err := convertGithubIssue(&issue, repositoryId)
+					githubIssue, err := convertGithubIssue(&issue, repoId)
 					if err != nil {
 						return err
 					}
