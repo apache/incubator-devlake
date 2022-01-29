@@ -27,7 +27,10 @@ func NewWorkerScheduler(workerNum int, maxWorkEverySeconds int, ctx context.Cont
 	var waitGroup sync.WaitGroup
 	workerErrors := make([]error, 0)
 	pWorkerErrors := &workerErrors
+	var mux sync.Mutex
 	pool, err := ants.NewPool(workerNum, ants.WithPanicHandler(func(i interface{}) {
+		mux.Lock()
+		defer mux.Unlock()
 		workerErrors = append(*pWorkerErrors, i.(error))
 		pWorkerErrors = &workerErrors
 	}))
@@ -48,7 +51,7 @@ func NewWorkerScheduler(workerNum int, maxWorkEverySeconds int, ctx context.Cont
 	return scheduler, nil
 }
 
-func (s WorkerScheduler) Submit(task func() error) error {
+func (s *WorkerScheduler) Submit(task func() error) error {
 	select {
 	case <-s.ctx.Done():
 		return core.TaskCanceled
@@ -56,13 +59,13 @@ func (s WorkerScheduler) Submit(task func() error) error {
 	}
 	s.waitGroup.Add(1)
 	return s.pool.Submit(func() {
+		defer s.waitGroup.Done()
 		defer func() {
 			r := recover()
 			if r != nil {
 				panic(fmt.Errorf("%s\n%s", r, GatherCallFrames()))
 			}
 		}()
-		defer s.waitGroup.Done()
 		select {
 		case <-s.ctx.Done():
 			logger.Error("task got canceled", core.TaskCanceled)
@@ -78,14 +81,14 @@ func (s WorkerScheduler) Submit(task func() error) error {
 	})
 }
 
-func (s WorkerScheduler) WaitUntilFinish() {
+func (s *WorkerScheduler) WaitUntilFinish() {
 	s.waitGroup.Wait()
 	if s.workerErrors != nil && len(*s.workerErrors) > 0 {
 		panic(fmt.Errorf("%s", *s.workerErrors))
 	}
 }
 
-func (s WorkerScheduler) Release() {
+func (s *WorkerScheduler) Release() {
 	s.pool.Release()
 	if s.ticker != nil {
 		s.ticker.Stop()

@@ -180,6 +180,8 @@ func (apiClient *ApiClient) Do(
 			if retry < apiClient.maxRetry-1 {
 				retry += 1
 				continue
+			} else {
+				return nil, err
 			}
 		} else {
 			break
