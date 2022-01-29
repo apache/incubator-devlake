@@ -2,13 +2,14 @@ package tasks
 
 import (
 	"fmt"
+	"net/http"
+
 	"github.com/merico-dev/lake/logger"
 	lakeModels "github.com/merico-dev/lake/models"
 	"github.com/merico-dev/lake/plugins/core"
 	"github.com/merico-dev/lake/plugins/github/models"
 	"github.com/merico-dev/lake/utils"
 	"gorm.io/gorm/clause"
-	"net/http"
 )
 
 type ApiPullRequestCommitResponse []PrCommitsResponse
@@ -32,11 +33,11 @@ type PullRequestCommit struct {
 	Message string
 }
 
-func CollectPullRequestCommits(owner string, repositoryName string, scheduler *utils.WorkerScheduler, githubApiClient *GithubApiClient) error {
+func CollectPullRequestCommits(owner string, repo string, scheduler *utils.WorkerScheduler, apiClient *GithubApiClient) error {
 	var prs []models.GithubPullRequest
 	lakeModels.Db.Find(&prs)
 	for i := 0; i < len(prs); i++ {
-		err := ProcessCollection(owner, repositoryName, &prs[i], scheduler, githubApiClient)
+		err := ProcessCollection(owner, repo, &prs[i], scheduler, apiClient)
 		if err != nil {
 			return err
 		}
@@ -58,9 +59,9 @@ func convertPullRequestCommit(prCommit *PrCommitsResponse) (*models.GithubCommit
 	return githubCommit, nil
 }
 
-func ProcessCollection(owner string, repositoryName string, pr *models.GithubPullRequest, scheduler *utils.WorkerScheduler, githubApiClient *GithubApiClient) error {
-	getUrl := fmt.Sprintf("repos/%v/%v/pulls/%v/commits", owner, repositoryName, pr.Number)
-	return githubApiClient.FetchWithPaginationAnts(getUrl, nil, 100, 1, scheduler,
+func ProcessCollection(owner string, repo string, pr *models.GithubPullRequest, scheduler *utils.WorkerScheduler, apiClient *GithubApiClient) error {
+	getUrl := fmt.Sprintf("repos/%v/%v/pulls/%v/commits", owner, repo, pr.Number)
+	return apiClient.FetchWithPaginationAnts(getUrl, nil, 100, 1, scheduler,
 		func(res *http.Response) error {
 			githubApiResponse := &ApiPullRequestCommitResponse{}
 			if res.StatusCode == 200 {

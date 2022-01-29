@@ -23,12 +23,12 @@ type IssueEvent struct {
 	GithubCreatedAt core.Iso8601Time `json:"created_at"`
 }
 
-func CollectIssueEvents(owner string, repositoryName string, scheduler *utils.WorkerScheduler, githubApiClient *GithubApiClient) error {
+func CollectIssueEvents(owner string, repo string, scheduler *utils.WorkerScheduler, apiClient *GithubApiClient) error {
 	var issues []models.GithubIssue
 	lakeModels.Db.Find(&issues)
 	for i := 0; i < len(issues); i++ {
 		issue := (issues)[i]
-		eventsErr := processEventsCollection(owner, repositoryName, &issue, scheduler, githubApiClient)
+		eventsErr := processEventsCollection(owner, repo, &issue, scheduler, apiClient)
 		if eventsErr != nil {
 			logger.Error("Could not collect issue events", eventsErr)
 			return eventsErr
@@ -37,9 +37,9 @@ func CollectIssueEvents(owner string, repositoryName string, scheduler *utils.Wo
 	return nil
 }
 
-func processEventsCollection(owner string, repositoryName string, issue *models.GithubIssue, scheduler *utils.WorkerScheduler, githubApiClient *GithubApiClient) error {
-	getUrl := fmt.Sprintf("repos/%v/%v/issues/%v/events", owner, repositoryName, issue.Number)
-	return githubApiClient.FetchWithPaginationAnts(getUrl, nil, 100, 1, scheduler,
+func processEventsCollection(owner string, repo string, issue *models.GithubIssue, scheduler *utils.WorkerScheduler, apiClient *GithubApiClient) error {
+	getUrl := fmt.Sprintf("repos/%v/%v/issues/%v/events", owner, repo, issue.Number)
+	return apiClient.FetchWithPaginationAnts(getUrl, nil, 100, 1, scheduler,
 		func(res *http.Response) error {
 			githubApiResponse := &ApiIssueEventResponse{}
 			if res.StatusCode == 200 {

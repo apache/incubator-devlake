@@ -43,16 +43,16 @@ type ApiSingleCommitResponse struct {
 	}
 }
 
-func CollectCommits(owner string, repositoryName string, repositoryId int, scheduler *utils.WorkerScheduler, githubApiClient *GithubApiClient) error {
-	getUrl := fmt.Sprintf("repos/%v/%v/commits", owner, repositoryName)
-	return githubApiClient.FetchWithPaginationAnts(getUrl, nil, 100, 20, scheduler,
+func CollectCommits(owner string, repo string, repoId int, scheduler *utils.WorkerScheduler, apiClient *GithubApiClient) error {
+	getUrl := fmt.Sprintf("repos/%v/%v/commits", owner, repo)
+	return apiClient.FetchWithPaginationAnts(getUrl, nil, 100, 20, scheduler,
 		func(res *http.Response) error {
 			githubApiResponse := &ApiCommitsResponse{}
 			err := core.UnmarshalResponse(res, githubApiResponse)
 			if err != nil || res.StatusCode == 401 {
 				return err
 			}
-			repoCommit := &models.GithubRepoCommit{GithubRepoId: repositoryId}
+			repoCommit := &models.GithubRepoCommit{GithubRepoId: repoId}
 			for _, commit := range *githubApiResponse {
 				githubCommit, err := convertGithubCommit(&commit)
 				if err != nil {
@@ -113,17 +113,17 @@ func convertGithubCommit(commit *CommitsResponse) (*models.GithubCommit, error) 
 
 func CollectCommitsStat(
 	owner string,
-	repositoryName string,
-	repositoryId int,
+	repo string,
+	repoId int,
 	scheduler *utils.WorkerScheduler,
-	githubApiClient *GithubApiClient,
+	apiClient *GithubApiClient,
 ) error {
 	cursor, err := lakeModels.Db.Table("github_commits gc").
 		Joins(`left join github_repo_commits grc on (
 			grc.commit_sha = gc.sha
 		)`).
 		Select("gc.*").
-		Where("grc.github_repo_id = ?", repositoryId).
+		Where("grc.github_repo_id = ?", repoId).
 		Rows()
 	if err != nil {
 		return err
@@ -139,7 +139,7 @@ func CollectCommitsStat(
 		}
 		err = scheduler.Submit(func() error {
 			// This call is to update the details of the individual pull request with additions / deletions / etc.
-			err := CollectCommit(owner, repositoryName, repositoryId, commit, githubApiClient)
+			err := CollectCommit(owner, repo, repoId, commit, apiClient)
 			if err != nil {
 				return err
 			}
@@ -155,9 +155,15 @@ func CollectCommitsStat(
 }
 
 // for addtions and deletions
-func CollectCommit(owner string, repositoryName string, repositoryId int, commit *models.GithubCommit, githubApiClient *GithubApiClient) error {
-	getUrl := fmt.Sprintf("repos/%v/%v/commits/%v", owner, repositoryName, commit.Sha)
-	res, getErr := githubApiClient.Get(getUrl, nil, nil)
+func CollectCommit(
+	owner string,
+	repo string,
+	repoId int,
+	commit *models.GithubCommit,
+	apiClient *GithubApiClient,
+) error {
+	getUrl := fmt.Sprintf("repos/%v/%v/commits/%v", owner, repo, commit.Sha)
+	res, getErr := apiClient.Get(getUrl, nil, nil)
 	if getErr != nil {
 		logger.Error("GET Error: ", getErr)
 		return getErr

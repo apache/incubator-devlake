@@ -10,7 +10,7 @@ import (
 )
 
 func ConvertRepos() error {
-	var githubRepositorys []githubModels.GithubRepository
+	var githubRepositorys []githubModels.GithubRepo
 	err := lakeModels.Db.Find(&githubRepositorys).Error
 	if err != nil {
 		return err
@@ -26,7 +26,7 @@ func ConvertRepos() error {
 	}
 	return nil
 }
-func convertToRepositoryModel(repository *githubModels.GithubRepository) *code.Repo {
+func convertToRepositoryModel(repository *githubModels.GithubRepo) *code.Repo {
 	domainRepository := &code.Repo{
 		DomainEntity: domainlayer.DomainEntity{
 			Id: didgen.NewDomainIdGenerator(repository).Generate(repository.GithubId),
