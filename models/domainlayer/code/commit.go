@@ -13,20 +13,20 @@ type Commit struct {
 	Deletions      int    `json:"deletions" gorm:"comment:Deleted lines of code"`
 	DevEq          int    `json:"deveq" gorm:"comment:Merico developer equivalent from analysis engine"`
 	Message        string
-	AuthorName     string
-	AuthorEmail    string
+	AuthorName     string `gorm:"type:varchar(255)"`
+	AuthorEmail    string `gorm:"type:varchar(255)"`
 	AuthoredDate   time.Time
-	AuthorId       string `gorm:"index;type:varchar(255)"`
-	CommitterName  string
-	CommitterEmail string
+	AuthorId       string `gorm:"type:varchar(255)"`
+	CommitterName  string `gorm:"type:varchar(255)"`
+	CommitterEmail string `gorm:"type:varchar(255)"`
 	CommittedDate  time.Time
-	CommiterId     string `gorm:"index;type:varchar(255)"`
+	CommitterId    string `gorm:"index;type:varchar(255)"`
 }
 
 type CommitFile struct {
 	common.NoPKModel
-	CommitSha string `gorm:"primaryKey"`
-	FilePath  string `gorm:"primaryKey"`
+	CommitSha string `gorm:"primaryKey;type:char(40)"`
+	FilePath  string `gorm:"primaryKey;type:varchar(255)"`
 	Additions int
 	Deletions int
 }
