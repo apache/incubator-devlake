@@ -189,7 +189,7 @@ func RunTask(taskId uint64) error {
 
 	// read progress from working thread and save into database
 	for p := range progress {
-		logger.Info("running plugin progress", fmt.Sprintf(" %d %s %f%%", task.ID, task.Plugin, p*100))
+		logger.Info("running plugin progress", fmt.Sprintf(" %d %s %.0f%%", task.ID, task.Plugin, p*100))
 		dbe := models.Db.Model(task).Updates(map[string]interface{}{
 			"progress": p,
 		}).Error
