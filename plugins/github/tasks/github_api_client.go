@@ -62,8 +62,8 @@ func (githubApiClient *GithubApiClient) RunConcurrently(path string, queryParams
 
 	// How many requests would you like to send at once in chunks
 	step := 0
-	c := make(chan bool)
-	for {
+	isContinue := true
+	for isContinue {
 		for i := conc; i > 0; i-- {
 			page := step*conc + i
 			err := scheduler.Submit(func() error {
@@ -71,6 +71,7 @@ func (githubApiClient *GithubApiClient) RunConcurrently(path string, queryParams
 				queryParams.Set("per_page", strconv.Itoa(pageSize))
 				res, err := githubApiClient.Get(path, queryParams, nil)
 				if err != nil {
+					isContinue = false
 					return err
 				}
 				linkHeader := res.Header.Get("Link")
@@ -80,6 +81,7 @@ func (githubApiClient *GithubApiClient) RunConcurrently(path string, queryParams
 				}
 				handlerErr := handler(res)
 				if handlerErr != nil {
+					isContinue = false
 					return handlerErr
 				}
 
@@ -87,10 +89,7 @@ func (githubApiClient *GithubApiClient) RunConcurrently(path string, queryParams
 				if page%conc == 0 {
 					if paginationInfo2.Next == 1 {
 						fmt.Println(page, "has no next page")
-						c <- false
-					} else {
-						fmt.Printf("page: %v send true\n", page)
-						c <- true
+						isContinue = false
 					}
 				}
 				return nil
@@ -98,10 +97,6 @@ func (githubApiClient *GithubApiClient) RunConcurrently(path string, queryParams
 			if err != nil {
 				return err
 			}
-		}
-		cont := <-c
-		if !cont {
-			break
 		}
 		step += 1
 	}
