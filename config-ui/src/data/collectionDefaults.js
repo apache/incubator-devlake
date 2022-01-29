@@ -1,7 +1,7 @@
 const collectionDefaults = {
   github: {
     options: {
-      repositoryName: 'lake',
+      repo: 'lake',
       owner: 'merico-dev'
     }
   },
