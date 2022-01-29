@@ -97,7 +97,7 @@ func CollectPullRequests(
 func convertGithubPullRequest(pull *GithubApiPullRequest, repoId int) (*models.GithubPullRequest, error) {
 	githubPull := &models.GithubPullRequest{
 		GithubId:        pull.GithubId,
-		RepositoryId:    repoId,
+		RepoId:          repoId,
 		Number:          pull.Number,
 		State:           pull.State,
 		Title:           pull.Title,
