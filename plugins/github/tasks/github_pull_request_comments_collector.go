@@ -23,12 +23,12 @@ type PullRequestComment struct {
 	GithubCreatedAt core.Iso8601Time `json:"created_at"`
 }
 
-func CollectPullRequestComments(owner string, repositoryName string, scheduler *utils.WorkerScheduler, githubApiClient *GithubApiClient) error {
+func CollectPullRequestComments(owner string, repo string, scheduler *utils.WorkerScheduler, apiClient *GithubApiClient) error {
 	var prs []models.GithubPullRequest
 	lakeModels.Db.Find(&prs)
 	for i := 0; i < len(prs); i++ {
 		pr := (prs)[i]
-		commentsErr := processPullRequestCommentsCollection(owner, repositoryName, &pr, scheduler, githubApiClient)
+		commentsErr := processPullRequestCommentsCollection(owner, repo, &pr, scheduler, apiClient)
 		if commentsErr != nil {
 			logger.Error("Could not collect PR Comments", commentsErr)
 			return commentsErr
@@ -37,9 +37,9 @@ func CollectPullRequestComments(owner string, repositoryName string, scheduler *
 	return nil
 }
 
-func processPullRequestCommentsCollection(owner string, repositoryName string, pull *models.GithubPullRequest, scheduler *utils.WorkerScheduler, githubApiClient *GithubApiClient) error {
-	getUrl := fmt.Sprintf("repos/%v/%v/issues/%v/comments", owner, repositoryName, pull.Number)
-	return githubApiClient.FetchWithPaginationAnts(getUrl, nil, 100, 1, scheduler,
+func processPullRequestCommentsCollection(owner string, repo string, pull *models.GithubPullRequest, scheduler *utils.WorkerScheduler, apiClient *GithubApiClient) error {
+	getUrl := fmt.Sprintf("repos/%v/%v/issues/%v/comments", owner, repo, pull.Number)
+	return apiClient.FetchWithPaginationAnts(getUrl, nil, 100, 1, scheduler,
 		func(res *http.Response) error {
 			githubApiResponse := &ApiPullRequestCommentResponse{}
 			if res.StatusCode == 200 {

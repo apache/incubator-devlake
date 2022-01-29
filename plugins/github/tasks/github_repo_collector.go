@@ -24,9 +24,9 @@ type GithubApiRepo struct {
 
 type ApiRepositoryResponse GithubApiRepo
 
-func CollectRepository(owner string, repositoryName string, githubApiClient *GithubApiClient) (int, error) {
-	getUrl := fmt.Sprintf("repos/%v/%v", owner, repositoryName)
-	res, err := githubApiClient.Get(getUrl, nil, nil)
+func CollectRepository(owner string, repo string, apiClient *GithubApiClient) (int, error) {
+	getUrl := fmt.Sprintf("repos/%v/%v", owner, repo)
+	res, err := apiClient.Get(getUrl, nil, nil)
 	if err != nil {
 		logger.Error("Error: ", err)
 		return 0, err
@@ -37,7 +37,7 @@ func CollectRepository(owner string, repositoryName string, githubApiClient *Git
 		logger.Error("Error: ", err)
 		return 0, err
 	}
-	githubRepository := &models.GithubRepository{
+	githubRepository := &models.GithubRepo{
 		GithubId:    githubApiResponse.GithubId,
 		Name:        githubApiResponse.Name,
 		HTMLUrl:     githubApiResponse.HTMLUrl,

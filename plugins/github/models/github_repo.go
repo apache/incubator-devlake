@@ -6,7 +6,7 @@ import (
 	"github.com/merico-dev/lake/models/common"
 )
 
-type GithubRepository struct {
+type GithubRepo struct {
 	GithubId       int `gorm:"primaryKey"`
 	Name           string
 	HTMLUrl        string

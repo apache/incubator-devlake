@@ -294,7 +294,7 @@ github() {
                 {
                     "plugin": "github",
                     "options": {
-                        "repositoryName": "lake",
+                        "repo": "lake",
                         "owner": "merico-dev",
                         "tasks": ["collectCommits"]
                     }

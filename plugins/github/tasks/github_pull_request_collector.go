@@ -37,15 +37,15 @@ type GithubApiPullRequest struct {
 
 func CollectPullRequests(
 	owner string,
-	repositoryName string,
-	repositoryId int,
+	repo string,
+	repoId int,
 	scheduler *utils.WorkerScheduler,
-	githubApiClient *GithubApiClient,
+	apiClient *GithubApiClient,
 ) error {
-	getUrl := fmt.Sprintf("repos/%v/%v/pulls", owner, repositoryName)
+	getUrl := fmt.Sprintf("repos/%v/%v/pulls", owner, repo)
 	queryParams := &url.Values{}
 	queryParams.Set("state", "all")
-	return githubApiClient.FetchWithPaginationAnts(getUrl, queryParams, 100, 20, scheduler,
+	return apiClient.FetchWithPaginationAnts(getUrl, queryParams, 100, 20, scheduler,
 		func(res *http.Response) error {
 			githubApiResponse := &ApiPullRequestResponse{}
 			err := core.UnmarshalResponse(res, githubApiResponse)
@@ -79,7 +79,7 @@ func CollectPullRequests(
 					return err
 				}
 				// save pull request detail
-				githubPull, err := convertGithubPullRequest(&pull, repositoryId)
+				githubPull, err := convertGithubPullRequest(&pull, repoId)
 				if err != nil {
 					return err
 				}
@@ -97,7 +97,7 @@ func CollectPullRequests(
 func convertGithubPullRequest(pull *GithubApiPullRequest, repoId int) (*models.GithubPullRequest, error) {
 	githubPull := &models.GithubPullRequest{
 		GithubId:        pull.GithubId,
-		RepositoryId:    repoId,
+		RepoId:          repoId,
 		Number:          pull.Number,
 		State:           pull.State,
 		Title:           pull.Title,

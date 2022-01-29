@@ -70,7 +70,7 @@ curl --location --request POST 'localhost:8080/pipelines' \
     "tasks": [[{
         "plugin": "github",
         "options": {
-            "repositoryName": "lake",
+            "repo": "lake",
             "owner": "merico-dev"
         }
     }]]

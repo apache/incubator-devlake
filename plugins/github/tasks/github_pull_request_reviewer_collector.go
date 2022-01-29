@@ -25,12 +25,12 @@ type PullRequestReview struct {
 	SubmittedAt core.Iso8601Time `json:"submitted_at"`
 }
 
-func CollectPullRequestReviews(owner string, repositoryName string, scheduler *utils.WorkerScheduler, githubApiClient *GithubApiClient) error {
+func CollectPullRequestReviews(owner string, repo string, scheduler *utils.WorkerScheduler, apiClient *GithubApiClient) error {
 	var prs []models.GithubPullRequest
 	lakeModels.Db.Find(&prs)
 	for i := 0; i < len(prs); i++ {
 		pr := (prs)[i]
-		reviewErr := processPullRequestReviewsCollection(owner, repositoryName, &pr, scheduler, githubApiClient)
+		reviewErr := processPullRequestReviewsCollection(owner, repo, &pr, scheduler, apiClient)
 		if reviewErr != nil {
 			logger.Error("Could not collect PR Reviews", reviewErr)
 			return reviewErr
@@ -38,9 +38,9 @@ func CollectPullRequestReviews(owner string, repositoryName string, scheduler *u
 	}
 	return nil
 }
-func processPullRequestReviewsCollection(owner string, repositoryName string, pull *models.GithubPullRequest, scheduler *utils.WorkerScheduler, githubApiClient *GithubApiClient) error {
-	getUrl := fmt.Sprintf("repos/%v/%v/pulls/%v/reviews", owner, repositoryName, pull.Number)
-	return githubApiClient.FetchWithPaginationAnts(getUrl, nil, 100, 1, scheduler,
+func processPullRequestReviewsCollection(owner string, repo string, pull *models.GithubPullRequest, scheduler *utils.WorkerScheduler, apiClient *GithubApiClient) error {
+	getUrl := fmt.Sprintf("repos/%v/%v/pulls/%v/reviews", owner, repo, pull.Number)
+	return apiClient.FetchWithPaginationAnts(getUrl, nil, 100, 1, scheduler,
 		func(res *http.Response) error {
 			githubApiResponse := &ApiPullRequestReviewResponse{}
 			if res.StatusCode == 200 {
