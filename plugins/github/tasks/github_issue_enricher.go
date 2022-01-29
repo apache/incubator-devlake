@@ -85,7 +85,7 @@ func setIssueLabel(label string, githubIssue *githubModels.GithubIssue) {
 	if issueSeverityRegex != nil {
 		groups := issueSeverityRegex.FindStringSubmatch(label)
 		if len(groups) > 0 {
-			githubIssue.Type = groups[1]
+			githubIssue.Severity = groups[1]
 			return
 		}
 	}
