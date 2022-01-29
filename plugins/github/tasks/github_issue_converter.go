@@ -1,7 +1,7 @@
 package tasks
 
 import (
-	"fmt"
+	"strconv"
 
 	lakeModels "github.com/merico-dev/lake/models"
 	"github.com/merico-dev/lake/models/domainlayer"
@@ -51,7 +51,7 @@ func convertToIssueModel(issue *githubModels.GithubIssue, domainIdGeneratorIssue
 	domainIdGeneratorGithubUser *didgen.DomainIdGenerator) *ticket.Issue {
 	domainIssue := &ticket.Issue{
 		DomainEntity:    domainlayer.DomainEntity{Id: domainIdGeneratorIssue.Generate(issue.GithubId)},
-		Key:             fmt.Sprint(issue.GithubId),
+		Key:             strconv.Itoa(issue.Number),
 		Title:           issue.Title,
 		Summary:         issue.Body,
 		Status:          convertStateToStatus(issue.State),
