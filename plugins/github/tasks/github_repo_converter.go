@@ -2,6 +2,7 @@ package tasks
 
 import (
 	"fmt"
+
 	lakeModels "github.com/merico-dev/lake/models"
 	"github.com/merico-dev/lake/models/domainlayer"
 	"github.com/merico-dev/lake/models/domainlayer/code"
@@ -36,12 +37,13 @@ func ConvertRepos() error {
 
 	return nil
 }
+
 func convertToRepositoryModel(repository *githubModels.GithubRepo) *code.Repo {
 	domainRepository := &code.Repo{
 		DomainEntity: domainlayer.DomainEntity{
 			Id: didgen.NewDomainIdGenerator(repository).Generate(repository.GithubId),
 		},
-		Name:        repository.Name,
+		Name:        fmt.Sprintf("%s/%s", repository.OwnerLogin, repository.Name),
 		Url:         repository.HTMLUrl,
 		Description: repository.Description,
 		ForkedFrom:  repository.ParentHTMLUrl,
@@ -51,6 +53,7 @@ func convertToRepositoryModel(repository *githubModels.GithubRepo) *code.Repo {
 	}
 	return domainRepository
 }
+
 func convertToBoardModel(repository *githubModels.GithubRepo, domainIdGenerator *didgen.DomainIdGenerator) *ticket.Board {
 	domainBoard := &ticket.Board{
 		DomainEntity: domainlayer.DomainEntity{
