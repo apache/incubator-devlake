@@ -1,6 +1,7 @@
 package tasks
 
 import (
+	"fmt"
 	lakeModels "github.com/merico-dev/lake/models"
 	"github.com/merico-dev/lake/models/domainlayer"
 	"github.com/merico-dev/lake/models/domainlayer/code"
@@ -55,8 +56,8 @@ func convertToBoardModel(repository *githubModels.GithubRepo, domainIdGenerator 
 		DomainEntity: domainlayer.DomainEntity{
 			Id: domainIdGenerator.Generate(repository.GithubId),
 		},
-		Name:        repository.Name,
-		Url:         repository.HTMLUrl,
+		Name:        fmt.Sprintf("%s/%s", repository.OwnerLogin, repository.Name),
+		Url:         fmt.Sprintf("%s/%s", repository.HTMLUrl, "issues"),
 		Description: repository.Description,
 
 		CreatedDate: &repository.CreatedDate,
