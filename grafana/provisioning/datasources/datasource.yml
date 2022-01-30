@@ -4,9 +4,9 @@ apiVersion: 1
 datasources:
   - name: mysql
     type: mysql
-    url: mysql:3306
-    database: lake
-    user: merico
+    url: $MYSQL_URL
+    database: $MYSQL_DATABASE
+    user: $MYSQL_USER
     secureJsonData:
-      password: "merico"
-    editable: true
+      password: $MYSQL_PASSWORD
+    editable: false
