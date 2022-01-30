@@ -16,8 +16,6 @@ services:
 
   grafana:
     image: mericodev/grafana:v0.7.0
-    build:
-      context: grafana/
     ports:
       - 3002:3000
     volumes:
@@ -37,11 +35,6 @@ services:
 
   devlake:
     image: mericodev/lake:v0.7.0
-    build:
-      context: "."
-      args:
-        HTTPS_PROXY: "${HTTPS_PROXY}"
-        GOPROXY: "${GOPROXY}"
     ports:
       - 127.0.0.1:8080:8080
     restart: always
@@ -52,8 +45,6 @@ services:
 
   config-ui:
     image: mericodev/config-ui:v0.7.0
-    build:
-      context: "config-ui"
     ports:
       - 127.0.0.1:4000:80
     env_file:
