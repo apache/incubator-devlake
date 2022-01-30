@@ -22,12 +22,15 @@ services:
       - 3002:3000
     volumes:
       - grafana-storage:/var/lib/grafana
-      - ./grafana/provisioning/datasources:/etc/grafana/provisioning/datasources
     environment:
       GF_USERS_ALLOW_SIGN_UP: 'false'
       GF_DASHBOARDS_JSON_ENABLED: 'true'
       GF_INSTALL_PLUGINS: grafana-piechart-panel
       GF_LIVE_ALLOWED_ORIGINS: '*'
+      MYSQL_URL: mysql:3306
+      MYSQL_DATABASE: lake
+      MYSQL_USER: merico
+      MYSQL_PASSWORD: merico
     restart: always
     depends_on:
       - mysql
