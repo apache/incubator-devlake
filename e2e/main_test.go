@@ -3,62 +3,89 @@ package e2e
 import (
 	"bytes"
 	"fmt"
-	"io/ioutil"
 	"net/http"
 	"os"
 	"testing"
+	"time"
+
+	"github.com/merico-dev/lake/plugins/core"
 )
 
-// Fire off a POST request to a live api server
-// Get labels from github only in JSON body
-// Poll until the "Pipelines.status == TASK_COMPLETED"
+type PipelinesAPIResponse struct {
+	Pipelines []struct {
+		ID     int
+		Status string
+	}
+}
 
 func TestMain(m *testing.M) {
 	fmt.Println("***BEFORE_ALL_TESTS***")
 	err := sendRequestsToLiveAPI()
 	if err != nil {
-		os.Exit(1)
+		panic(err)
 	}
-	pollForTaskCompletion()
+
+	loopDelay := 3
+	readyToTest := false
+
+	// Block all test from running until all tasks are done in the pipelines table
+	// Poll until there are no pipelines with pipeline.Status == "TASK_RUNNING" || pipeline.Status == "TASK_CREATED"
+	for !readyToTest {
+		readyToTest, err = checkForTaskCompletion()
+		if err != nil {
+			panic(err)
+		}
+		time.Sleep(time.Duration(loopDelay * int(time.Second)))
+	}
+
 	code := m.Run()
 	os.Exit(code)
 }
 
-func pollForTaskCompletion() {
-	// Its going to need a channel
-	// It should block all tests until we get the right response
+func checkForTaskCompletion() (bool, error) {
+	// get pipelines from the DB via api
+	pipelines, err := getPipelines()
+	if err != nil {
+		return false, err
+	}
+	fmt.Println("JON >>> pipelines", pipelines)
+	for _, pipeline := range pipelines.Pipelines {
+		fmt.Println("JON >>> pipeline", pipeline)
 
-	// get pielines from the DB via api
-	jsonStr := getPipelines()
-	jsonStr.match
+		// make sure all tasks are done
+		if pipeline.Status == "TASK_RUNNING" || pipeline.Status == "TASK_CREATED" {
+			return false, nil
+		}
+	}
+	return true, nil
 }
 
+// Send off all requests to the api to gather all data before we run our tests
 func sendRequestsToLiveAPI() error {
 	getGithub()
 	return nil
 }
 
-func makeAPIRequest(json []byte, url string, method string) string {
+func makeAPIRequest(json []byte, url string, method string, v interface{}) error {
 	req, err := http.NewRequest(method, url, bytes.NewBuffer(json))
 	req.Header.Set("Content-Type", "application/json")
 	if err != nil {
-		panic(err)
+		return err
 	}
 	client := &http.Client{}
 	resp, err := client.Do(req)
 	if err != nil {
-		panic(err)
+		return err
 	}
-	defer resp.Body.Close()
-
-	fmt.Println("response Status:", resp.Status)
-	fmt.Println("response Headers:", resp.Header)
-	body, _ := ioutil.ReadAll(resp.Body)
-	fmt.Println("response Body:", string(body))
-	return string(body)
+	err = core.UnmarshalResponse(resp, v)
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
-func getGithub() {
+// Gather all data from the github plugin
+func getGithub() error {
 	url := "http://localhost:8080/pipelines"
 	fmt.Println("URL:>", url)
 
@@ -78,14 +105,22 @@ func getGithub() {
         ]
     }`)
 
-	makeAPIRequest(jsonStr, url, "POST")
+	err := makeAPIRequest(jsonStr, url, "POST", nil)
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
-func getPipelines() string {
+// Get the list of all pipelines so we can see when collection is done
+func getPipelines() (*PipelinesAPIResponse, error) {
 	url := "http://localhost:8080/pipelines"
-	fmt.Println("URL:>", url)
 
 	var json []byte
-	jsonStr := makeAPIRequest(json, url, "GET")
-	return jsonStr
+	pipelinesAPIResponse := &PipelinesAPIResponse{}
+	err := makeAPIRequest(json, url, "GET", pipelinesAPIResponse)
+	if err != nil {
+		return nil, err
+	}
+	return pipelinesAPIResponse, nil
 }
