@@ -25,3 +25,4 @@ jobs:
         run: |
           cp .env.example .env
           make e2e-test
+          make real-e2e-test
