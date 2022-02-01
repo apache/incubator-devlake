@@ -2,6 +2,7 @@ package e2e
 
 import (
 	"bytes"
+	"database/sql"
 	"fmt"
 	"net/http"
 	"os"
@@ -17,6 +18,8 @@ type PipelinesAPIResponse struct {
 		Status string
 	}
 }
+
+var Db sql.DB
 
 func TestMain(m *testing.M) {
 	fmt.Println("***BEFORE_ALL_TESTS***")
@@ -37,7 +40,6 @@ func TestMain(m *testing.M) {
 		}
 		time.Sleep(time.Duration(loopDelay * int(time.Second)))
 	}
-
 	code := m.Run()
 	os.Exit(code)
 }
@@ -59,7 +61,8 @@ func checkForTaskCompletion() (bool, error) {
 
 // Send off all requests to the api to gather all data before we run our tests
 func sendRequestsToLiveAPI() error {
-	getGithub()
+	// getGithub()
+	getGitLab()
 	return nil
 }
 
@@ -81,7 +84,34 @@ func makeAPIRequest(json []byte, url string, method string, v interface{}) error
 	return nil
 }
 
+func getGitLab() error {
+	url := "http://localhost:8080/pipelines"
+
+	var jsonStr = []byte(`{
+        "name": "test-all",
+        "tasks": [
+            [
+                {
+                    "Plugin": "gitlab",
+                    "Options": {
+											"projectId": 28270340,
+											"tasks": ["collectMrs"]
+                    }
+                }
+            ]
+        ]
+    }`)
+
+	err := makeAPIRequest(jsonStr, url, "POST", nil)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
 // Gather all data from the github plugin
+
+// "collectRepo" is not valid. 
 func getGithub() error {
 	url := "http://localhost:8080/pipelines"
 
