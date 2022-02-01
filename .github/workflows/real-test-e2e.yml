@@ -1,5 +1,5 @@
 # This action run e2e test for pull requests
-name: test
+name: test-real-e2e
 on: [pull_request]
 jobs:
   e2e-mysql:
