@@ -24,4 +24,4 @@ jobs:
           DB_URL: root:root@tcp(db:3306)/lake?charset=utf8mb4&loc=Asia%2fShanghai&parseTime=True
         run: |
           cp .env.example .env
-          make e2e-test
+          make real-e2e-test
