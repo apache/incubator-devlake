@@ -25,7 +25,7 @@ func TestMain(m *testing.M) {
 		panic(err)
 	}
 
-	loopDelay := 3
+	loopDelay := 1
 	readyToTest := false
 
 	// Block all test from running until all tasks are done in the pipelines table
@@ -48,10 +48,7 @@ func checkForTaskCompletion() (bool, error) {
 	if err != nil {
 		return false, err
 	}
-	fmt.Println("JON >>> pipelines", pipelines)
 	for _, pipeline := range pipelines.Pipelines {
-		fmt.Println("JON >>> pipeline", pipeline)
-
 		// make sure all tasks are done
 		if pipeline.Status == "TASK_RUNNING" || pipeline.Status == "TASK_CREATED" {
 			return false, nil
@@ -87,7 +84,6 @@ func makeAPIRequest(json []byte, url string, method string, v interface{}) error
 // Gather all data from the github plugin
 func getGithub() error {
 	url := "http://localhost:8080/pipelines"
-	fmt.Println("URL:>", url)
 
 	var jsonStr = []byte(`{
         "name": "test-all",
