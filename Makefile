@@ -39,7 +39,7 @@ install:
 test: unit-test e2e-test models-test
 
 unit-test: build
-	go test -v $$(go list ./... | grep -v /test/ | grep -v /models/)
+	go test -v $$(go list ./... | grep -v /test/ | grep -v /models/ | grep -v /e2e/)
 
 models-test:
 	TEST=true go test ./models/test -v
