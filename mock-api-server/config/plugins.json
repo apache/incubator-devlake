@@ -1,0 +1,12 @@
+[
+  {
+    "name": "test-plugin",
+    "baseUrl": "https://jsonplaceholder.typicode.com/",
+    "collections": [
+      {
+        "name": "posts",
+        "relativeUrl": "posts"
+      }
+    ]
+  }
+]
