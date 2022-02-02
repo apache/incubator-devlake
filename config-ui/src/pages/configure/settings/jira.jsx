@@ -249,7 +249,7 @@ export default function JiraSettings (props) {
             }}
           />
         </div>
-        <div className='multiselect-clear-action' style={{ marginLeft: '2px' }}>
+        <div className='multiselect-clear-action' style={{ marginLeft: '5px' }}>
           <ClearButton
             disabled={requirementTags.length === 0}
             intent={Intent.PRIMARY} minimal={false} onClick={() => setRequirementTags([])}
@@ -304,7 +304,7 @@ export default function JiraSettings (props) {
             }}
           />
         </div>
-        <div className='multiselect-clear-action' style={{ marginLeft: '2px' }}>
+        <div className='multiselect-clear-action' style={{ marginLeft: '5px' }}>
           <ClearButton
             disabled={bugTags.length === 0}
             intent={Intent.PRIMARY} minimal={false} onClick={() => setBugTags([])}
@@ -359,7 +359,7 @@ export default function JiraSettings (props) {
             }}
           />
         </div>
-        <div className='multiselect-clear-action' style={{ marginLeft: '2px' }}>
+        <div className='multiselect-clear-action' style={{ marginLeft: '5px' }}>
           <ClearButton
             disabled={incidentTags.length === 0}
             intent={Intent.PRIMARY} minimal={false} onClick={() => setIncidentTags([])}
