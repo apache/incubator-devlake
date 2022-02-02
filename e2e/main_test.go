@@ -22,6 +22,9 @@ type PipelinesAPIResponse struct {
 var Db sql.DB
 
 func TestMain(m *testing.M) {
+	if os.Getenv("E2E") != "true" {
+		return
+	}
 	fmt.Println("***BEFORE_ALL_TESTS***")
 	err := sendRequestsToLiveAPI()
 	if err != nil {
@@ -111,7 +114,7 @@ func getGitLab() error {
 
 // Gather all data from the github plugin
 
-// "collectRepo" is not valid. 
+// "collectRepo" is not valid.
 func getGithub() error {
 	url := "http://localhost:8080/pipelines"
 
