@@ -9,6 +9,7 @@ import {
   Icon,
   Colors
 } from '@blueprintjs/core'
+import useJIRA from '@/hooks/useJIRA'
 import { MultiSelect } from '@blueprintjs/select'
 import MappingTag from '@/pages/configure/settings/jira/MappingTag'
 import ClearButton from '@/components/ClearButton'
@@ -29,6 +30,12 @@ export default function JiraSettings (props) {
   const API_PROXY_ENDPOINT = `/plugins/jira/sources/${connection?.ID}/proxy/rest`
   const ISSUE_TYPES_ENDPOINT = `${API_PROXY_ENDPOINT}/api/3/issuetype`
   const ISSUE_FIELDS_ENDPOINT = `${API_PROXY_ENDPOINT}/api/3/field`
+
+  const { fetchIssueTypes, fetchFields, issueTypes, fields } = useJIRA({
+    apiProxyPath: API_PROXY_ENDPOINT,
+    issuesEndpoint: ISSUE_TYPES_ENDPOINT,
+    fieldsEndpoint: ISSUE_FIELDS_ENDPOINT
+  })
 
   const [typeMappingBug, setTypeMappingBug] = useState([])
   const [typeMappingIncident, setTypeMappingIncident] = useState([])
@@ -58,6 +65,18 @@ export default function JiraSettings (props) {
     { id: 0, title: 'INCIDENT TAG 100', value: 'INCIDENT-100' },
     { id: 1, title: 'INCIDENT TAG 200', value: 'INCIDENT-200' },
     { id: 2, title: 'INCIDENT TAG 300', value: 'INCIDENT-300' }
+  ])
+
+  const [fieldsList, setFieldsList] = useState([
+    { id: 0, title: 'development', value: 'development', type: 'Dev Summary Custom Field' },
+    { id: 1, title: 'Epic Color', value: 'Epic Color', type: 'Color of Epic' },
+    { id: 2, title: 'Epic Link', value: 'Epic Link', type: 'Epic Link Relationship' },
+    { id: 3, title: 'Epic Status', value: 'Epic Status', type: 'Status of Epic' },
+    { id: 4, title: 'Flagged', value: 'Flagged', type: 'Checkboxes' },
+    { id: 5, title: 'Sprint', value: 'Sprint', type: 'Jira Sprint Field' },
+    { id: 6, title: 'Team', value: 'Team', type: 'Team' },
+    { id: 7, title: 'uuid', value: 'Flagged', type: 'UUID Field' },
+    { id: 8, title: 'Rank', value: 'Rank', type: 'Global Rank' },
   ])
 
   const createTypeMapObject = (customType, standardType) => {
@@ -147,53 +166,13 @@ export default function JiraSettings (props) {
   }, [typeMappingBug, typeMappingIncident, typeMappingRequirement])
 
   useEffect(() => {
-    // @todo Fetch EPICS, GRANULARITES and BOARDS from API
     console.log('>> CONN SETTINGS OBJECT ', connection)
-    // setEpics([])
-    // setBoards([])
-    // setGranularities([])
-    // let mappings = {
-    //   Bug: [],
-    //   Incident: [],
-    //   Requirement: []
-    // }
     if (connection && connection.ID) {
       // Parse Type Mappings (V2)
       parseTypeMappings(connection.typeMappings)
-
-      // LEGACY TYPE MAPPINGS (Disabled)
-      // const types = connection.JIRA_ISSUE_TYPE_MAPPING ? connection.JIRA_ISSUE_TYPE_MAPPING.split(';').map(t => t.split(':')[0]) : []
-      // if (types.lastIndexOf('') !== -1) {
-      //   types.pop()
-      // }
-      // const tags = connection.JIRA_ISSUE_TYPE_MAPPING ? connection.JIRA_ISSUE_TYPE_MAPPING.split(';').map(t => t.split(':')[1]) : []
-      // types.forEach((type, idx) => {
-      //   if (type) {
-      //     mappings = {
-      //       ...mappings,
-      //       [type]: tags[idx] ? tags[idx].split(',') : []
-      //     }
-      //   }
-      // })
-      // console.log('>> RE-CREATED ISSUE TYPE MAPPINGS OBJ...', mappings)
-      // setTypeMappingRequirement(mappings.Requirement)
-      // setTypeMappingBug(mappings.Bug)
-      // setTypeMappingIncident(mappings.Incident)
       setStatusMappings([])
       setJiraIssueEpicKeyField(connection.epicKeyField)
       setJiraIssueStoryPointField(connection.storyPointField)
-
-      // @todo RE-ENABLE SELECTORS!
-      // @todo FETCH & SET EPIC KEY
-      // const selectedEpic = epics.find(e => e.value === connection.JIRA_ISSUE_EPIC_KEY_FIELD)
-      // console.log('>>> EPIC ITEM = ', selectedEpic)
-      // setSelectedEpicItem(selectedEpic)
-
-      // @todo FETCH & SET BOARD ID
-      // setSelectedBoardItem(boards.find(b => b.value === connection.JIRA_ISSUES_BOARD_ID???))
-
-      // @todo FETCH & SET GRANULARITY KEY
-      // setSelectedGranularityItem(granularities.find(g => g.value === connection.JIRA_ISSUE_STORYPOINT_FIELD))
     }
   }, [connection/*, epics, granularities, boards */])
 
@@ -210,27 +189,11 @@ export default function JiraSettings (props) {
   }, [incidentTags])
 
   useEffect(() => {
-    const fetchIssueTypes = async () => {
-      const issues = await request.get(ISSUE_TYPES_ENDPOINT)
-      console.log('>>> JIRA API PROXY: Issues Response...', issues)
-
-      // @todo: set issue types lists from proxy api response data
-      // if (issues && issues.status === 200 && issues.data) {
-      //   setRequirementTagsList()
-      //   setBugTagsList()
-      //   setIncidentTagsList()
-      // }
-    }
-
-    const fetchIssueFields = async () => {
-      const fields = await request.get(ISSUE_FIELDS_ENDPOINT)
-      console.log('>>> JIRA API PROXY: Fields Response...', fields)
-      // @todo: set issue fields list from proxy api response data
-    }
-
+    // @todo: set issue types lists from proxy api response data
+    // @todo: set issue fields list from proxy api response data
     fetchIssueTypes()
-    fetchIssueFields()
-  }, [ISSUE_TYPES_ENDPOINT, ISSUE_FIELDS_ENDPOINT])
+    fetchFields()
+  }, [])
 
   return (
     <>
