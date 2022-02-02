@@ -22,6 +22,7 @@ jobs:
       - name: Test
         env:
           DB_URL: root:root@tcp(db:3306)/lake?charset=utf8mb4&loc=Asia%2fShanghai&parseTime=True
+          E2E: true
         run: |
           cp .env.example .env
           make dev &
