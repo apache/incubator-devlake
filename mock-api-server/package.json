@@ -1,0 +1,15 @@
+{
+  "name": "mock-api-server",
+  "version": "1.0.0",
+  "description": "serves GitHub mock api data",
+  "main": "index.js",
+  "scripts": {
+    "test": "test"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "axios": "^0.25.0",
+    "json-server": "^0.17.0"
+  }
+}
