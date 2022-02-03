@@ -421,8 +421,8 @@ export default function JiraSettings (props) {
                 key={item.value}
                 label={item.value}
                 onClick={handleClick}
-                text={<>{item.title} <Tag minimal intent={Intent.PRIMARY} style={{ fontSize: '9px' }}>{item.type}</Tag></>}
-                style={{ fontWeight: modifiers.active ? 800 : 'normal', backgroundColor: modifiers.active ? Colors.LIGHT_GRAY4 : 'none' }}
+                text={<><span>{item.title}</span> <Tag minimal intent={Intent.PRIMARY} style={{ fontSize: '9px' }}>{item.type}</Tag> {modifiers.active && (<Icon icon='small-tick' color={Colors.GREEN5} size={14} />)}</>}
+                style={{ fontSize: '11px', fontWeight: modifiers.active ? 800 : 'normal', backgroundColor: modifiers.active ? Colors.LIGHT_GRAY4 : 'none' }}
               />
             )}
             noResults={<MenuItem disabled={true} text='No epic results.' />}
@@ -484,8 +484,8 @@ export default function JiraSettings (props) {
                 key={item.value}
                 label={item.value}
                 onClick={handleClick}
-                text={<>{item.title} <Tag minimal intent={Intent.PRIMARY} style={{ fontSize: '9px' }}>{item.type}</Tag></>}
-                style={{ fontWeight: modifiers.active ? 800 : 'normal', backgroundColor: modifiers.active ? Colors.LIGHT_GRAY4 : 'none' }}
+                text={<>{item.title} <Tag minimal intent={Intent.PRIMARY} style={{ fontSize: '9px' }}>{item.type}</Tag> {modifiers.active && (<Icon icon='small-tick' color={Colors.GREEN5} size={14} />)}</>}
+                style={{ fontSize: '11px', fontWeight: modifiers.active ? 800 : 'normal', backgroundColor: modifiers.active ? Colors.LIGHT_GRAY4 : 'none' }}
               />
             )}
             noResults={<MenuItem disabled={true} text='No epic results.' />}
