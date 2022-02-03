@@ -4,6 +4,8 @@
   "description": "serves GitHub mock api data",
   "main": "index.js",
   "scripts": {
+    "start": "./node_modules/json-server/lib/cli/bin.js --routes routes.json --watch db.json",
+    "refresh-data": "node fetchApiData.js",
     "test": "test"
   },
   "author": "",
