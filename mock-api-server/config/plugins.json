@@ -8,5 +8,16 @@
         "relativeUrl": "posts"
       }
     ]
+  },
+  {
+    "name": "github",
+    "baseUrl": "https://api.github.com/",
+    "collections": [
+      {
+        "name": "repos",
+        "params": [{ "owner": "merico-dev" }, { "repo": "lake" }],
+        "relativeUrl": "repos/${params.owner}/lake/commits"
+      }
+    ]
   }
 ]
