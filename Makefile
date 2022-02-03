@@ -39,13 +39,16 @@ install:
 test: unit-test e2e-test models-test
 
 unit-test: build
-	go test -v $$(go list ./... | grep -v /test/ | grep -v /models/)
+	go test -v $$(go list ./... | grep -v /test/ | grep -v /models/ | grep -v /e2e/)
 
 models-test:
 	TEST=true go test ./models/test -v
 
 e2e-test: build
 	PLUGIN_DIR=$(shell readlink -f bin/plugins) go test -v ./test/...
+
+real-e2e-test:
+	PLUGIN_DIR=$(shell readlink -f bin/plugins) go test -v ./e2e/...
 
 lint:
 	golangci-lint run
