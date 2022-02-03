@@ -1,13 +1,14 @@
 const JsonHelper = {
-  getPathsFromPlugin(plugin){
+  getEndpointsFromPluginJson(plugin){
     // This is just sample code.
-    // TODO: We need to actually handle params in relative paths.
-    let paths = []
+    // TODO: We need to actually handle params in relative urls.
+    let endpoints = []
     let baseUrl = plugin.baseUrl
     plugin.collections.forEach(collection => {
-      paths.push(`${baseUrl}${collection.relativeUrl}`)
+      endpoints.push(`${baseUrl}${collection.relativeUrl}`)
     })
-    return paths
-  }
+    return endpoints
+  },
+  getEndpointWithParams(params)
 }
 module.exports = JsonHelper

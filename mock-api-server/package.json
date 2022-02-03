@@ -10,6 +10,7 @@
   "license": "ISC",
   "dependencies": {
     "axios": "^0.25.0",
-    "json-server": "^0.17.0"
+    "json-server": "^0.17.0",
+    "mocha": "^9.2.0"
   }
 }
