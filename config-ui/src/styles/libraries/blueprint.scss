@@ -97,3 +97,11 @@ button, .bp3-button {
 .bp3-toast-message {
   padding: 13px;
 }
+
+.bp3-popover-wrapper {
+  &.select-epic-key, &.select-story-key {
+    width: auto;
+    min-width: 260px;
+    max-width: 300px;
+  }
+}
