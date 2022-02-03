@@ -1,17 +1,18 @@
 import React, { useEffect, useState, Fragment } from 'react'
-import request from '@/utils/request'
+// import request from '@/utils/request'
 import {
-  FormGroup,
-  InputGroup,
+  // FormGroup,
+  // InputGroup,
   MenuItem,
   Button,
   Intent,
   Icon,
-  Colors
+  Colors,
+  Tag
 } from '@blueprintjs/core'
 import useJIRA from '@/hooks/useJIRA'
-import { MultiSelect } from '@blueprintjs/select'
-import MappingTag from '@/pages/configure/settings/jira/MappingTag'
+import { Select, MultiSelect } from '@blueprintjs/select'
+// import MappingTag from '@/pages/configure/settings/jira/MappingTag'
 import ClearButton from '@/components/ClearButton'
 import '@/styles/integration.scss'
 import '@/styles/connections.scss'
@@ -68,15 +69,15 @@ export default function JiraSettings (props) {
   ])
 
   const [fieldsList, setFieldsList] = useState([
-    { id: 0, title: 'development', value: 'development', type: 'Dev Summary Custom Field' },
-    { id: 1, title: 'Epic Color', value: 'Epic Color', type: 'Color of Epic' },
-    { id: 2, title: 'Epic Link', value: 'Epic Link', type: 'Epic Link Relationship' },
-    { id: 3, title: 'Epic Status', value: 'Epic Status', type: 'Status of Epic' },
-    { id: 4, title: 'Flagged', value: 'Flagged', type: 'Checkboxes' },
-    { id: 5, title: 'Sprint', value: 'Sprint', type: 'Jira Sprint Field' },
-    { id: 6, title: 'Team', value: 'Team', type: 'Team' },
-    { id: 7, title: 'uuid', value: 'Flagged', type: 'UUID Field' },
-    { id: 8, title: 'Rank', value: 'Rank', type: 'Global Rank' },
+    { id: 0, title: 'development', name: 'development', value: 'development', type: 'Dev Summary Custom Field' },
+    { id: 1, title: 'Epic Color', name: 'Epic Color', value: 'Epic Color', type: 'Color of Epic' },
+    { id: 2, title: 'Epic Link', name: 'Epic Link', value: 'Epic Link', type: 'Epic Link Relationship' },
+    { id: 3, title: 'Epic Status', name: 'Epic Status', value: 'Epic Status', type: 'Status of Epic' },
+    { id: 4, title: 'Flagged', name: 'Flagged', value: 'Flagged', type: 'Checkboxes' },
+    { id: 5, title: 'Sprint', name: 'Sprint', value: 'Sprint', type: 'Jira Sprint Field' },
+    { id: 6, title: 'Team', name: 'Team', value: 'Team', type: 'Team' },
+    { id: 7, title: 'UUID', name: 'UUID', value: 'uuid', type: 'UUID Field' },
+    { id: 8, title: 'Rank', name: 'Rank', value: 'Rank', type: 'Global Rank' },
   ])
 
   const createTypeMapObject = (customType, standardType) => {
@@ -111,9 +112,9 @@ export default function JiraSettings (props) {
 
   useEffect(() => {
     const settings = {
-      epicKeyField: jiraIssueEpicKeyField,
+      epicKeyField: jiraIssueEpicKeyField?.value,
       typeMappings: typeMappingAll,
-      storyPointField: jiraIssueStoryPointField,
+      storyPointField: jiraIssueStoryPointField?.value,
     }
     onSettingsChange(settings)
     console.log('>> JIRA INSTANCE SETTINGS FIELDS CHANGED!', settings)
@@ -171,8 +172,8 @@ export default function JiraSettings (props) {
       // Parse Type Mappings (V2)
       parseTypeMappings(connection.typeMappings)
       setStatusMappings([])
-      setJiraIssueEpicKeyField(connection.epicKeyField)
-      setJiraIssueStoryPointField(connection.storyPointField)
+      setJiraIssueEpicKeyField(fieldsList.find(f => f.value === connection.epicKeyField))
+      setJiraIssueStoryPointField(fieldsList.find(f => f.value === connection.storyPointField))
     }
   }, [connection/*, epics, granularities, boards */])
 
@@ -252,7 +253,7 @@ export default function JiraSettings (props) {
         <div className='multiselect-clear-action' style={{ marginLeft: '5px' }}>
           <ClearButton
             disabled={requirementTags.length === 0}
-            intent={Intent.PRIMARY} minimal={false} onClick={() => setRequirementTags([])}
+            intent={Intent.WARNING} minimal={false} onClick={() => setRequirementTags([])}
           />
         </div>
       </div>
@@ -307,7 +308,7 @@ export default function JiraSettings (props) {
         <div className='multiselect-clear-action' style={{ marginLeft: '5px' }}>
           <ClearButton
             disabled={bugTags.length === 0}
-            intent={Intent.PRIMARY} minimal={false} onClick={() => setBugTags([])}
+            intent={Intent.WARNING} minimal={false} onClick={() => setBugTags([])}
           />
         </div>
       </div>
@@ -362,7 +363,7 @@ export default function JiraSettings (props) {
         <div className='multiselect-clear-action' style={{ marginLeft: '5px' }}>
           <ClearButton
             disabled={incidentTags.length === 0}
-            intent={Intent.PRIMARY} minimal={false} onClick={() => setIncidentTags([])}
+            intent={Intent.WARNING} minimal={false} onClick={() => setIncidentTags([])}
           />
         </div>
       </div>
@@ -405,96 +406,110 @@ export default function JiraSettings (props) {
           Epic Key<span className='requiredStar'>*</span>
         </h3>
         <p className=''>Choose the JIRA field you’re using to represent the key of an Epic to which an issue belongs to.</p>
-        {/* <span style={{ display: 'inline-block' }}>
+        <div style={{ display: 'flex', minWidth: '260px' }}>
           <Select
             className='select-epic-key'
             inline={true}
-            fill={false}
-            items={epics}
-            activeItem={selectedEpicItem}
+            fill={true}
+            items={fieldsList}
+            activeItem={jiraIssueEpicKeyField}
             itemPredicate={(query, item) => item.title.toLowerCase().indexOf(query.toLowerCase()) >= 0}
             itemRenderer={(item, { handleClick, modifiers }) => (
               <MenuItem
-                active={modifiers.active}
+                active={false}
+                intent={modifiers.active ? Intent.NONE : Intent.NONE}
                 key={item.value}
                 label={item.value}
                 onClick={handleClick}
-                text={item.title}
+                text={<>{item.title} <Tag minimal intent={Intent.PRIMARY} style={{ fontSize: '9px' }}>{item.type}</Tag></>}
+                style={{ fontWeight: modifiers.active ? 800 : 'normal', backgroundColor: modifiers.active ? Colors.LIGHT_GRAY4 : 'none' }}
               />
             )}
             noResults={<MenuItem disabled={true} text='No epic results.' />}
             onItemSelect={(item) => {
-              // @todo SET/VERIFY ENV FIELD FOR EPIC KEY
-              setJiraIssueEpicKeyField(item.value)
-              setSelectedEpicItem(item)
+              setJiraIssueEpicKeyField(item)
+              // setSelectedEpicItem(item)
             }}
           >
             <Button
-              style={{ maxWidth: '260px' }}
-              text={selectedEpicItem ? `${selectedEpicItem.title}` : epics[0].title}
+              fill={true}
+              style={{ justifyContent: 'space-between', display: 'flex', maxWidth: '260px' }}
+              text={jiraIssueEpicKeyField ? `${jiraIssueEpicKeyField.title}` : '< None Specified >'}
               rightIcon='double-caret-vertical'
             />
           </Select>
-        </span> */}
+          <div style={{ marginLeft: '3px' }}>
+            <Button
+              disabled={!jiraIssueEpicKeyField}
+              icon='eraser'
+              intent={jiraIssueEpicKeyField ? Intent.WARNING : Intent.NONE} minimal={false} onClick={() => setJiraIssueEpicKeyField(null)}
+            />
+          </div>
+        </div>
       </div>
-      <div className='formContainer' style={{ maxWidth: '250px' }}>
+      {/* <div className='formContainer' style={{ maxWidth: '250px' }}>
         <FormGroup
           disabled={isSaving}
-          // readOnly={['gitlab', 'jenkins'].includes(activeProvider.id)}
           label=''
           inline={true}
           labelFor='epic-key-field'
-          // helperText='NAME'
           className='formGroup'
           contentClassName='formGroupContent'
         >
           <InputGroup
             id='epic-key-field'
             disabled={isSaving}
-            // readOnly={['gitlab', 'jenkins'].includes(activeProvider.id)}
             placeholder='eg. 1000'
             value={jiraIssueEpicKeyField}
             onChange={(e) => setJiraIssueEpicKeyField(e.target.value)}
             className='input epic-key-field'
           />
         </FormGroup>
-      </div>
+      </div> */}
       <div className='headlineContainer'>
         <h3 className='headline'>Story Point Field (Optional)</h3>
         <p className=''>Choose the JIRA field you’re using to represent the granularity of a requirement-type issue.</p>
-        {/* <span style={{ display: 'inline-block' }}>
+        <div style={{ display: 'flex', minWidth: '260px' }}>
           <Select
-            className='select-board-key'
+            className='select-story-key'
             inline={true}
-            fill={false}
-            items={boards}
-            activeItem={selectedBoardItem}
+            fill={true}
+            items={fieldsList}
+            activeItem={jiraIssueStoryPointField}
             itemPredicate={(query, item) => item.title.toLowerCase().indexOf(query.toLowerCase()) >= 0}
             itemRenderer={(item, { handleClick, modifiers }) => (
               <MenuItem
-                active={modifiers.active}
+                active={false}
+                intent={modifiers.active ? Intent.NONE : Intent.NONE}
                 key={item.value}
                 label={item.value}
                 onClick={handleClick}
-                text={item.title}
+                text={<>{item.title} <Tag minimal intent={Intent.PRIMARY} style={{ fontSize: '9px' }}>{item.type}</Tag></>}
+                style={{ fontWeight: modifiers.active ? 800 : 'normal', backgroundColor: modifiers.active ? Colors.LIGHT_GRAY4 : 'none' }}
               />
             )}
-            noResults={<MenuItem disabled={true} text='No board results.' />}
+            noResults={<MenuItem disabled={true} text='No epic results.' />}
             onItemSelect={(item) => {
-              // @todo SET/VERIFY ENV FIELD FOR BOARD ID
-              setJiraIssueStoryPointField(item.value)
-              setSelectedBoardItem(item)
+              setJiraIssueStoryPointField(item)
             }}
           >
             <Button
-              style={{ maxWidth: '260px' }}
-              text={selectedBoardItem ? `${selectedBoardItem.title}` : boards[0].title}
+              fill={true}
+              style={{ justifyContent: 'space-between', display: 'flex', maxWidth: '260px' }}
+              text={jiraIssueStoryPointField ? `${jiraIssueStoryPointField.title}` : '< None Specified >'}
               rightIcon='double-caret-vertical'
             />
           </Select>
-        </span> */}
+          <div style={{ marginLeft: '3px' }}>
+            <Button
+              disabled={!jiraIssueStoryPointField}
+              icon='eraser'
+              intent={jiraIssueStoryPointField ? Intent.WARNING : Intent.NONE} minimal={false} onClick={() => setJiraIssueStoryPointField(null)}
+            />
+          </div>
+        </div>
       </div>
-      <div className='formContainer' style={{ maxWidth: '250px' }}>
+      {/* <div className='formContainer' style={{ maxWidth: '250px' }}>
         <FormGroup
           disabled={isSaving}
           label=''
@@ -512,7 +527,7 @@ export default function JiraSettings (props) {
             className='input board-id'
           />
         </FormGroup>
-      </div>
+      </div> */}
     </>
   )
 }
