@@ -1,5 +1,4 @@
 import React, { useEffect, useState, Fragment } from 'react'
-// import request from '@/utils/request'
 import {
   // FormGroup,
   // InputGroup,
@@ -14,6 +13,9 @@ import {
 import useJIRA from '@/hooks/useJIRA'
 import { Select, MultiSelect } from '@blueprintjs/select'
 // import MappingTag from '@/pages/configure/settings/jira/MappingTag'
+import { fieldsData } from '@/pages/configure/mock-data/jira/fields'
+import { issueTypesData } from '@/pages/configure/mock-data/jira/issueTypes'
+
 import ClearButton from '@/components/ClearButton'
 import '@/styles/integration.scss'
 import '@/styles/connections.scss'
@@ -53,33 +55,11 @@ export default function JiraSettings (props) {
   const [incidentTags, setIncidentTags] = useState([])
 
   // @todo: remove tags list initial state mock data
-  const [requirementTagsList, setRequirementTagsList] = useState([
-    { id: 0, title: 'REQ TAG 100', value: 'REQ-100' },
-    { id: 1, title: 'REQ TAG 200', value: 'REQ-200' },
-    { id: 2, title: 'REQ TAG 300', value: 'REQ-300' }
-  ])
-  const [bugTagsList, setBugTagsList] = useState([
-    { id: 0, title: 'BUG-100', value: 'BUG-100' },
-    { id: 1, title: 'BUG-200', value: 'BUG-200' },
-    { id: 2, title: 'BUG-300', value: 'BUG-300' }
-  ])
-  const [incidentTagsList, setIncidentTagsList] = useState([
-    { id: 0, title: 'INCIDENT TAG 100', value: 'INCIDENT-100' },
-    { id: 1, title: 'INCIDENT TAG 200', value: 'INCIDENT-200' },
-    { id: 2, title: 'INCIDENT TAG 300', value: 'INCIDENT-300' }
-  ])
+  const [requirementTagsList, setRequirementTagsList] = useState(issueTypesData)
+  const [bugTagsList, setBugTagsList] = useState(issueTypesData)
+  const [incidentTagsList, setIncidentTagsList] = useState(issueTypesData)
 
-  const [fieldsList, setFieldsList] = useState([
-    { id: 0, title: 'development', name: 'development', value: 'development', type: 'Dev Summary Custom Field' },
-    { id: 1, title: 'Epic Color', name: 'Epic Color', value: 'Epic Color', type: 'Color of Epic' },
-    { id: 2, title: 'Epic Link', name: 'Epic Link', value: 'Epic Link', type: 'Epic Link Relationship' },
-    { id: 3, title: 'Epic Status', name: 'Epic Status', value: 'Epic Status', type: 'Status of Epic' },
-    { id: 4, title: 'Flagged', name: 'Flagged', value: 'Flagged', type: 'Checkboxes' },
-    { id: 5, title: 'Sprint', name: 'Sprint', value: 'Sprint', type: 'Jira Sprint Field' },
-    { id: 6, title: 'Team', name: 'Team', value: 'Team', type: 'Team' },
-    { id: 7, title: 'UUID', name: 'UUID', value: 'uuid', type: 'UUID Field' },
-    { id: 8, title: 'Rank', name: 'Rank', value: 'Rank', type: 'Global Rank' },
-  ])
+  const [fieldsList, setFieldsList] = useState(fieldsData)
 
   const createTypeMapObject = (customType, standardType) => {
     return customType && standardType
@@ -105,9 +85,9 @@ export default function JiraSettings (props) {
     setTypeMappingRequirement(GroupedMappings[MAPPING_TYPES.Requirement])
     setTypeMappingBug(GroupedMappings[MAPPING_TYPES.Bug])
     setTypeMappingIncident(GroupedMappings[MAPPING_TYPES.Incident])
-    setRequirementTags(requirementTagsList.filter(t => GroupedMappings[MAPPING_TYPES.Requirement].includes(t.value)))
-    setBugTags(bugTagsList.filter(t => GroupedMappings[MAPPING_TYPES.Bug].includes(t.value)))
-    setIncidentTags(incidentTagsList.filter(t => GroupedMappings[MAPPING_TYPES.Incident].includes(t.value)))
+    setRequirementTags(requirementTagsList?.filter(t => GroupedMappings[MAPPING_TYPES.Requirement].includes(t.value)))
+    setBugTags(bugTagsList?.filter(t => GroupedMappings[MAPPING_TYPES.Bug].includes(t.value)))
+    setIncidentTags(incidentTagsList?.filter(t => GroupedMappings[MAPPING_TYPES.Incident].includes(t.value)))
     return GroupedMappings
   }
 
@@ -229,10 +209,10 @@ export default function JiraSettings (props) {
                 active={modifiers.active || requirementTags.includes(item)}
                 disabled={requirementTags.includes(item)}
                 key={item.value}
-                label={item.value}
+                label={<span style={{ marginLeft: '20px' }}>{item.description || item.value}</span>}
                 onClick={handleClick}
-                text={requirementTags.includes(item) ? (<>{item.title} <Icon icon='small-tick' color={Colors.GREEN5} /></>) : item.title}
-                style={{ marginBottom: '2px', fontWeight: requirementTags.includes(item) ? 'normal' : '700' }}
+                text={requirementTags.includes(item) ? (<>{item.title} <Icon icon='small-tick' color={Colors.GREEN5} /></>) : <span style={{ fontWeight: 700 }}>{item.title}</span>}
+                style={{ marginBottom: '2px', fontWeight: requirementTags.includes(item) ? 700 : 'normal' }}
               />
             )}
             tagRenderer={(item) => item.title}
@@ -285,10 +265,10 @@ export default function JiraSettings (props) {
                 active={modifiers.active || bugTags.includes(item)}
                 disabled={bugTags.includes(item)}
                 key={item.value}
-                label={item.value}
+                label={<span style={{ marginLeft: '20px' }}>{item.description || item.value}</span>}
                 onClick={handleClick}
-                text={bugTags.includes(item) ? (<>{item.title} <Icon icon='small-tick' color={Colors.GREEN5} /></>) : item.title}
-                style={{ marginBottom: '2px', fontWeight: bugTags.includes(item) ? 'normal' : '700' }}
+                text={bugTags.includes(item) ? (<>{item.title} <Icon icon='small-tick' color={Colors.GREEN5} /></>) : <span style={{ fontWeight: 700 }}>{item.title}</span>}
+                style={{ marginBottom: '2px', fontWeight: bugTags.includes(item) ? 700 : 'normal' }}
               />
             )}
             tagRenderer={(item) => item.title}
@@ -341,10 +321,10 @@ export default function JiraSettings (props) {
                 active={modifiers.active || incidentTags.includes(item)}
                 disabled={incidentTags.includes(item)}
                 key={item.value}
-                label={item.value}
+                label={<span style={{ marginLeft: '20px' }}>{item.description || item.value}</span>}
                 onClick={handleClick}
-                text={incidentTags.includes(item) ? (<>{item.title} <Icon icon='small-tick' color={Colors.GREEN5} /></>) : item.title}
-                style={{ marginBottom: '2px', fontWeight: incidentTags.includes(item) ? 'normal' : '700' }}
+                text={incidentTags.includes(item) ? (<>{item.title} <Icon icon='small-tick' color={Colors.GREEN5} /></>) : <span style={{ fontWeight: 700 }}>{item.title}</span>}
+                style={{ marginBottom: '2px', fontWeight: incidentTags.includes(item) ? 700 : 'normal' }}
               />
             )}
             tagRenderer={(item) => item.title}
@@ -413,7 +393,7 @@ export default function JiraSettings (props) {
         <div style={{ display: 'flex', minWidth: '260px' }}>
           <ButtonGroup disabled={isSaving}>
             <Select
-              disabled={isSaving}
+              disabled={isSaving || fieldsList.length === 0}
               className='select-epic-key'
               inline={true}
               fill={true}
@@ -486,7 +466,7 @@ export default function JiraSettings (props) {
         <div style={{ display: 'flex', minWidth: '260px' }}>
           <ButtonGroup disabled={isSaving}>
             <Select
-              disabled={isSaving}
+              disabled={isSaving || fieldsList.length === 0}
               className='select-story-key'
               inline={true}
               fill={true}
