@@ -1,11 +1,12 @@
 package tasks
 
 import (
+	"regexp"
+
 	"github.com/merico-dev/lake/config"
 	lakeModels "github.com/merico-dev/lake/models"
 	"github.com/merico-dev/lake/models/domainlayer/ticket"
 	githubModels "github.com/merico-dev/lake/plugins/github/models"
-	"regexp"
 )
 
 var issueSeverityRegex *regexp.Regexp

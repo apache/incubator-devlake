@@ -38,7 +38,7 @@ func TestConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, erro
 		token := tokens[i]
 		i := i
 		go func() {
-			githubApiClient := tasks.CreateApiClient(endpoint, []string{token})
+			githubApiClient := tasks.CreateApiClient(endpoint, []string{token}, nil)
 			res, err := githubApiClient.Get("user/public_emails", nil, nil)
 			if err != nil || res.StatusCode != 200 {
 				logger.Error("Error: ", err)

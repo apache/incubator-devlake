@@ -16,7 +16,7 @@ func ConvertCommits(githubRepoId int) error {
 			grc.commit_sha = gc.sha
 		)`).
 		Select("gc.*").
-		Where("grc.github_repo_id = ?", githubRepoId).
+		Where("grc.repo_id = ?", githubRepoId).
 		Rows()
 	if err != nil {
 		return err
