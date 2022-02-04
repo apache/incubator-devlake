@@ -418,6 +418,7 @@ export default function JiraSettings (props) {
               itemPredicate={(query, item) => item.title.toLowerCase().indexOf(query.toLowerCase()) >= 0}
               itemRenderer={(item, { handleClick, modifiers }) => (
                 <MenuItem
+                  disabled={jiraIssueStoryPointField?.value === item.value}
                   active={false}
                   intent={modifiers.active ? Intent.NONE : Intent.NONE}
                   key={item.value}
@@ -488,6 +489,7 @@ export default function JiraSettings (props) {
               itemPredicate={(query, item) => item.title.toLowerCase().indexOf(query.toLowerCase()) >= 0}
               itemRenderer={(item, { handleClick, modifiers }) => (
                 <MenuItem
+                  disabled={jiraIssueEpicKeyField?.value === item.value}
                   active={false}
                   intent={modifiers.active ? Intent.NONE : Intent.NONE}
                   key={item.value}
