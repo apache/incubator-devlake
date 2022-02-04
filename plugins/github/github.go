@@ -212,7 +212,7 @@ func (plugin Github) Execute(options map[string]interface{}, progress chan<- flo
 	if tasksToRun["enrichIssues"] {
 		progress <- 0.91
 		fmt.Println("INFO >>> Enriching Issues")
-		err = tasks.EnrichGithubIssues()
+		err = tasks.EnrichGithubIssues(ctx)
 		if err != nil {
 			return fmt.Errorf("could not enrich issues: %v", err)
 		}
@@ -220,35 +220,35 @@ func (plugin Github) Execute(options map[string]interface{}, progress chan<- flo
 	if tasksToRun["enrichPullRequests"] {
 		progress <- 0.92
 		fmt.Println("INFO >>> Enriching PullRequests")
-		err = tasks.EnrichGithubPullRequests(repoId)
+		err = tasks.EnrichGithubPullRequests(repoId, ctx)
 		if err != nil {
 			return fmt.Errorf("could not enrich PullRequests: %v", err)
 		}
 	}
 	if tasksToRun["convertRepos"] {
 		progress <- 0.93
-		err = tasks.ConvertRepos()
+		err = tasks.ConvertRepos(ctx)
 		if err != nil {
 			return err
 		}
 	}
 	if tasksToRun["convertIssues"] {
 		progress <- 0.94
-		err = tasks.ConvertIssues(repoId)
+		err = tasks.ConvertIssues(repoId, ctx)
 		if err != nil {
 			return err
 		}
 	}
 	if tasksToRun["convertIssueLabels"] {
 		progress <- 0.94
-		err = tasks.ConvertIssueLabels()
+		err = tasks.ConvertIssueLabels(ctx)
 		if err != nil {
 			return err
 		}
 	}
 	if tasksToRun["convertPullRequests"] {
 		progress <- 0.95
-		err = tasks.ConvertPullRequests()
+		err = tasks.ConvertPullRequests(ctx)
 		if err != nil {
 			return err
 		}
@@ -262,28 +262,28 @@ func (plugin Github) Execute(options map[string]interface{}, progress chan<- flo
 	}
 	if tasksToRun["convertCommits"] {
 		progress <- 0.96
-		err = tasks.ConvertCommits(repoId)
+		err = tasks.ConvertCommits(repoId, ctx)
 		if err != nil {
 			return err
 		}
 	}
 	if tasksToRun["convertPullRequestCommits"] {
 		progress <- 0.97
-		err = tasks.PrCommitConvertor()
+		err = tasks.PrCommitConvertor(ctx)
 		if err != nil {
 			return err
 		}
 	}
 	if tasksToRun["convertNotes"] {
 		progress <- 0.98
-		err = tasks.ConvertNotes()
+		err = tasks.ConvertNotes(ctx)
 		if err != nil {
 			return err
 		}
 	}
 	if tasksToRun["convertUsers"] {
 		progress <- 0.99
-		err = tasks.ConvertUsers()
+		err = tasks.ConvertUsers(ctx)
 
 		if err != nil {
 			return err
