@@ -3,12 +3,13 @@ import React, { useEffect, useState, Fragment } from 'react'
 import {
   // FormGroup,
   // InputGroup,
+  ButtonGroup,
   MenuItem,
   Button,
   Intent,
   Icon,
   Colors,
-  Tag
+  Tag,
 } from '@blueprintjs/core'
 import useJIRA from '@/hooks/useJIRA'
 import { Select, MultiSelect } from '@blueprintjs/select'
@@ -407,43 +408,50 @@ export default function JiraSettings (props) {
         </h3>
         <p className=''>Choose the JIRA field you’re using to represent the key of an Epic to which an issue belongs to.</p>
         <div style={{ display: 'flex', minWidth: '260px' }}>
-          <Select
-            className='select-epic-key'
-            inline={true}
-            fill={true}
-            items={fieldsList}
-            activeItem={jiraIssueEpicKeyField}
-            itemPredicate={(query, item) => item.title.toLowerCase().indexOf(query.toLowerCase()) >= 0}
-            itemRenderer={(item, { handleClick, modifiers }) => (
-              <MenuItem
-                active={false}
-                intent={modifiers.active ? Intent.NONE : Intent.NONE}
-                key={item.value}
-                label={item.value}
-                onClick={handleClick}
-                text={<><span>{item.title}</span> <Tag minimal intent={Intent.PRIMARY} style={{ fontSize: '9px' }}>{item.type}</Tag> {modifiers.active && (<Icon icon='small-tick' color={Colors.GREEN5} size={14} />)}</>}
-                style={{ fontSize: '11px', fontWeight: modifiers.active ? 800 : 'normal', backgroundColor: modifiers.active ? Colors.LIGHT_GRAY4 : 'none' }}
-              />
-            )}
-            noResults={<MenuItem disabled={true} text='No epic results.' />}
-            onItemSelect={(item) => {
-              setJiraIssueEpicKeyField(item)
-              // setSelectedEpicItem(item)
-            }}
-          >
-            <Button
+          <ButtonGroup>
+            <Select
+              className='select-epic-key'
+              inline={true}
               fill={true}
-              style={{ justifyContent: 'space-between', display: 'flex', maxWidth: '260px' }}
-              text={jiraIssueEpicKeyField ? `${jiraIssueEpicKeyField.title}` : '< None Specified >'}
-              rightIcon='double-caret-vertical'
-            />
-          </Select>
-          <div style={{ marginLeft: '3px' }}>
+              items={fieldsList}
+              activeItem={jiraIssueEpicKeyField}
+              itemPredicate={(query, item) => item.title.toLowerCase().indexOf(query.toLowerCase()) >= 0}
+              itemRenderer={(item, { handleClick, modifiers }) => (
+                <MenuItem
+                  active={false}
+                  intent={modifiers.active ? Intent.NONE : Intent.NONE}
+                  key={item.value}
+                  label={item.value}
+                  onClick={handleClick}
+                  text={<><span>{item.title}</span> <Tag minimal intent={Intent.PRIMARY} style={{ fontSize: '9px' }}>{item.type}</Tag> {modifiers.active && (<Icon icon='small-tick' color={Colors.GREEN5} size={14} />)}</>}
+                  style={{ fontSize: '11px', fontWeight: modifiers.active ? 800 : 'normal', backgroundColor: modifiers.active ? Colors.LIGHT_GRAY4 : 'none' }}
+                />
+              )}
+              noResults={<MenuItem disabled={true} text='No epic results.' />}
+              onItemSelect={(item) => {
+                setJiraIssueEpicKeyField(item)
+              // setSelectedEpicItem(item)
+              }}
+            >
+              <Button
+                fill={true}
+                style={{ justifyContent: 'space-between', display: 'flex', minWidth: '260px', maxWidth: '300px' }}
+                text={jiraIssueEpicKeyField ? `${jiraIssueEpicKeyField.title}` : '< None Specified >'}
+                rightIcon='double-caret-vertical'
+              />
+            </Select>
             <Button
               disabled={!jiraIssueEpicKeyField}
               icon='eraser'
               intent={jiraIssueEpicKeyField ? Intent.WARNING : Intent.NONE} minimal={false} onClick={() => setJiraIssueEpicKeyField(null)}
             />
+          </ButtonGroup>
+          <div style={{ marginLeft: '3px' }}>
+            {/* <Button
+              disabled={!jiraIssueEpicKeyField}
+              icon='eraser'
+              intent={jiraIssueEpicKeyField ? Intent.WARNING : Intent.NONE} minimal={false} onClick={() => setJiraIssueEpicKeyField(null)}
+            /> */}
           </div>
         </div>
       </div>
@@ -470,42 +478,49 @@ export default function JiraSettings (props) {
         <h3 className='headline'>Story Point Field (Optional)</h3>
         <p className=''>Choose the JIRA field you’re using to represent the granularity of a requirement-type issue.</p>
         <div style={{ display: 'flex', minWidth: '260px' }}>
-          <Select
-            className='select-story-key'
-            inline={true}
-            fill={true}
-            items={fieldsList}
-            activeItem={jiraIssueStoryPointField}
-            itemPredicate={(query, item) => item.title.toLowerCase().indexOf(query.toLowerCase()) >= 0}
-            itemRenderer={(item, { handleClick, modifiers }) => (
-              <MenuItem
-                active={false}
-                intent={modifiers.active ? Intent.NONE : Intent.NONE}
-                key={item.value}
-                label={item.value}
-                onClick={handleClick}
-                text={<>{item.title} <Tag minimal intent={Intent.PRIMARY} style={{ fontSize: '9px' }}>{item.type}</Tag> {modifiers.active && (<Icon icon='small-tick' color={Colors.GREEN5} size={14} />)}</>}
-                style={{ fontSize: '11px', fontWeight: modifiers.active ? 800 : 'normal', backgroundColor: modifiers.active ? Colors.LIGHT_GRAY4 : 'none' }}
-              />
-            )}
-            noResults={<MenuItem disabled={true} text='No epic results.' />}
-            onItemSelect={(item) => {
-              setJiraIssueStoryPointField(item)
-            }}
-          >
-            <Button
+          <ButtonGroup>
+            <Select
+              className='select-story-key'
+              inline={true}
               fill={true}
-              style={{ justifyContent: 'space-between', display: 'flex', maxWidth: '260px' }}
-              text={jiraIssueStoryPointField ? `${jiraIssueStoryPointField.title}` : '< None Specified >'}
-              rightIcon='double-caret-vertical'
-            />
-          </Select>
-          <div style={{ marginLeft: '3px' }}>
+              items={fieldsList}
+              activeItem={jiraIssueStoryPointField}
+              itemPredicate={(query, item) => item.title.toLowerCase().indexOf(query.toLowerCase()) >= 0}
+              itemRenderer={(item, { handleClick, modifiers }) => (
+                <MenuItem
+                  active={false}
+                  intent={modifiers.active ? Intent.NONE : Intent.NONE}
+                  key={item.value}
+                  label={item.value}
+                  onClick={handleClick}
+                  text={<>{item.title} <Tag minimal intent={Intent.PRIMARY} style={{ fontSize: '9px' }}>{item.type}</Tag> {modifiers.active && (<Icon icon='small-tick' color={Colors.GREEN5} size={14} />)}</>}
+                  style={{ fontSize: '11px', fontWeight: modifiers.active ? 800 : 'normal', backgroundColor: modifiers.active ? Colors.LIGHT_GRAY4 : 'none' }}
+                />
+              )}
+              noResults={<MenuItem disabled={true} text='No epic results.' />}
+              onItemSelect={(item) => {
+                setJiraIssueStoryPointField(item)
+              }}
+            >
+              <Button
+                fill={true}
+                style={{ justifyContent: 'space-between', display: 'flex', minWidth: '260px', maxWidth: '300px' }}
+                text={jiraIssueStoryPointField ? `${jiraIssueStoryPointField.title}` : '< None Specified >'}
+                rightIcon='double-caret-vertical'
+              />
+            </Select>
             <Button
               disabled={!jiraIssueStoryPointField}
               icon='eraser'
               intent={jiraIssueStoryPointField ? Intent.WARNING : Intent.NONE} minimal={false} onClick={() => setJiraIssueStoryPointField(null)}
             />
+          </ButtonGroup>
+          <div style={{ marginLeft: '3px' }}>
+            {/* <Button
+              disabled={!jiraIssueStoryPointField}
+              icon='eraser'
+              intent={jiraIssueStoryPointField ? Intent.WARNING : Intent.NONE} minimal={false} onClick={() => setJiraIssueStoryPointField(null)}
+            /> */}
           </div>
         </div>
       </div>
