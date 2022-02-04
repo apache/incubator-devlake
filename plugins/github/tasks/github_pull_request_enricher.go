@@ -1,10 +1,12 @@
 package tasks
 
 import (
+	"context"
 	"regexp"
 
 	"github.com/merico-dev/lake/config"
 	lakeModels "github.com/merico-dev/lake/models"
+	"github.com/merico-dev/lake/plugins/core"
 	githubModels "github.com/merico-dev/lake/plugins/github/models"
 )
 
@@ -22,7 +24,7 @@ func init() {
 	}
 }
 
-func EnrichGithubPullRequests(repoId int) (err error) {
+func EnrichGithubPullRequests(repoId int, ctx context.Context) (err error) {
 	githubPullRequst := &githubModels.GithubPullRequest{}
 	cursor, err := lakeModels.Db.Model(&githubPullRequst).
 		Where("repo_id = ?", repoId).
@@ -33,6 +35,11 @@ func EnrichGithubPullRequests(repoId int) (err error) {
 	defer cursor.Close()
 	// iterate all rows
 	for cursor.Next() {
+		select {
+		case <-ctx.Done():
+			return core.TaskCanceled
+		default:
+		}
 		err = lakeModels.Db.ScanRows(cursor, githubPullRequst)
 		if err != nil {
 			return err
