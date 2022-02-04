@@ -214,6 +214,7 @@ export default function JiraSettings (props) {
         </div>
         <div className='issue-type-multiselect-selector' style={{ minWidth: '200px', width: '50%' }}>
           <MultiSelect
+            disabled={isSaving}
             placeholder='< Select one or more Requirement Tags >'
             popoverProps={{ usePortal: false, minimal: true, fill: true, style: { width: '100%' } }}
             className='multiselector-requirement-type'
@@ -253,7 +254,7 @@ export default function JiraSettings (props) {
         </div>
         <div className='multiselect-clear-action' style={{ marginLeft: '5px' }}>
           <ClearButton
-            disabled={requirementTags.length === 0}
+            disabled={requirementTags.length === 0 || isSaving}
             intent={Intent.WARNING} minimal={false} onClick={() => setRequirementTags([])}
           />
         </div>
@@ -269,6 +270,7 @@ export default function JiraSettings (props) {
         </div>
         <div className='issue-type-multiselect-selector' style={{ minWidth: '200px', width: '50%' }}>
           <MultiSelect
+            disabled={isSaving}
             placeholder='< Select one or more Bug Tags >'
             popoverProps={{ usePortal: false, minimal: true }}
             className='multiselector-bug-type'
@@ -308,7 +310,7 @@ export default function JiraSettings (props) {
         </div>
         <div className='multiselect-clear-action' style={{ marginLeft: '5px' }}>
           <ClearButton
-            disabled={bugTags.length === 0}
+            disabled={bugTags.length === 0 || isSaving}
             intent={Intent.WARNING} minimal={false} onClick={() => setBugTags([])}
           />
         </div>
@@ -324,6 +326,7 @@ export default function JiraSettings (props) {
         </div>
         <div className='issue-type-multiselect-selector' style={{ minWidth: '200px', width: '50%' }}>
           <MultiSelect
+            disabled={isSaving}
             placeholder='< Select one or more Incident Tags >'
             popoverProps={{ usePortal: false, minimal: true }}
             className='multiselector-incident-type'
@@ -363,7 +366,7 @@ export default function JiraSettings (props) {
         </div>
         <div className='multiselect-clear-action' style={{ marginLeft: '5px' }}>
           <ClearButton
-            disabled={incidentTags.length === 0}
+            disabled={incidentTags.length === 0 || isSaving}
             intent={Intent.WARNING} minimal={false} onClick={() => setIncidentTags([])}
           />
         </div>
@@ -408,8 +411,9 @@ export default function JiraSettings (props) {
         </h3>
         <p className=''>Choose the JIRA field you’re using to represent the key of an Epic to which an issue belongs to.</p>
         <div style={{ display: 'flex', minWidth: '260px' }}>
-          <ButtonGroup>
+          <ButtonGroup disabled={isSaving}>
             <Select
+              disabled={isSaving}
               className='select-epic-key'
               inline={true}
               fill={true}
@@ -435,6 +439,7 @@ export default function JiraSettings (props) {
               }}
             >
               <Button
+                disabled={isSaving}
                 fill={true}
                 style={{ justifyContent: 'space-between', display: 'flex', minWidth: '260px', maxWidth: '300px' }}
                 text={jiraIssueEpicKeyField ? `${jiraIssueEpicKeyField.title}` : '< None Specified >'}
@@ -442,7 +447,7 @@ export default function JiraSettings (props) {
               />
             </Select>
             <Button
-              disabled={!jiraIssueEpicKeyField}
+              disabled={!jiraIssueEpicKeyField || isSaving}
               icon='eraser'
               intent={jiraIssueEpicKeyField ? Intent.WARNING : Intent.NONE} minimal={false} onClick={() => setJiraIssueEpicKeyField(null)}
             />
@@ -479,8 +484,9 @@ export default function JiraSettings (props) {
         <h3 className='headline'>Story Point Field (Optional)</h3>
         <p className=''>Choose the JIRA field you’re using to represent the granularity of a requirement-type issue.</p>
         <div style={{ display: 'flex', minWidth: '260px' }}>
-          <ButtonGroup>
+          <ButtonGroup disabled={isSaving}>
             <Select
+              disabled={isSaving}
               className='select-story-key'
               inline={true}
               fill={true}
@@ -505,6 +511,7 @@ export default function JiraSettings (props) {
               }}
             >
               <Button
+                disabled={isSaving}
                 fill={true}
                 style={{ justifyContent: 'space-between', display: 'flex', minWidth: '260px', maxWidth: '300px' }}
                 text={jiraIssueStoryPointField ? `${jiraIssueStoryPointField.title}` : '< None Specified >'}
@@ -512,7 +519,7 @@ export default function JiraSettings (props) {
               />
             </Select>
             <Button
-              disabled={!jiraIssueStoryPointField}
+              disabled={!jiraIssueStoryPointField || isSaving}
               icon='eraser'
               intent={jiraIssueStoryPointField ? Intent.WARNING : Intent.NONE} minimal={false} onClick={() => setJiraIssueStoryPointField(null)}
             />
