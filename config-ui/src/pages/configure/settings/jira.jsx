@@ -4,6 +4,7 @@ import {
   // InputGroup,
   ButtonGroup,
   MenuItem,
+  Position,
   Button,
   Intent,
   Icon,
@@ -31,11 +32,11 @@ export default function JiraSettings (props) {
   // const { providerId, connectionId } = useParams()
   // const history = useHistory()
 
-  const API_PROXY_ENDPOINT = `/plugins/jira/sources/${connection?.ID}/proxy/rest`
+  const API_PROXY_ENDPOINT = `/api/plugins/jira/sources/${connection?.ID}/proxy/rest`
   const ISSUE_TYPES_ENDPOINT = `${API_PROXY_ENDPOINT}/api/3/issuetype`
   const ISSUE_FIELDS_ENDPOINT = `${API_PROXY_ENDPOINT}/api/3/field`
 
-  const { fetchIssueTypes, fetchFields, issueTypes, fields } = useJIRA({
+  const { fetchIssueTypes, fetchFields, issueTypes, fields, isFetching: isFetchingJIRA } = useJIRA({
     apiProxyPath: API_PROXY_ENDPOINT,
     issuesEndpoint: ISSUE_TYPES_ENDPOINT,
     fieldsEndpoint: ISSUE_FIELDS_ENDPOINT
@@ -54,12 +55,12 @@ export default function JiraSettings (props) {
   const [bugTags, setBugTags] = useState([])
   const [incidentTags, setIncidentTags] = useState([])
 
-  // @todo: remove tags list initial state mock data
-  const [requirementTagsList, setRequirementTagsList] = useState(issueTypesData)
-  const [bugTagsList, setBugTagsList] = useState(issueTypesData)
-  const [incidentTagsList, setIncidentTagsList] = useState(issueTypesData)
+  const [requirementTagsList, setRequirementTagsList] = useState([])
+  const [bugTagsList, setBugTagsList] = useState([])
+  const [incidentTagsList, setIncidentTagsList] = useState([])
 
-  const [fieldsList, setFieldsList] = useState(fieldsData)
+  const [fieldsList, setFieldsList] = useState(fields)
+  const [issueTypesList, setIssueTypesList] = useState(issueTypes)
 
   const createTypeMapObject = (customType, standardType) => {
     return customType && standardType
@@ -153,8 +154,8 @@ export default function JiraSettings (props) {
       // Parse Type Mappings (V2)
       parseTypeMappings(connection.typeMappings)
       setStatusMappings([])
-      setJiraIssueEpicKeyField(fieldsList.find(f => f.value === connection.epicKeyField))
-      setJiraIssueStoryPointField(fieldsList.find(f => f.value === connection.storyPointField))
+      // setJiraIssueEpicKeyField(fieldsList.find(f => f.value === connection.epicKeyField))
+      // setJiraIssueStoryPointField(fieldsList.find(f => f.value === connection.storyPointField))
     }
   }, [connection/*, epics, granularities, boards */])
 
@@ -171,11 +172,28 @@ export default function JiraSettings (props) {
   }, [incidentTags])
 
   useEffect(() => {
-    // @todo: set issue types lists from proxy api response data
-    // @todo: set issue fields list from proxy api response data
+    // Fetch Issue Types & Fields from JIRA API Proxy
     fetchIssueTypes()
     fetchFields()
   }, [])
+
+  useEffect(() => {
+    console.log('>>> JIRA SETTINGS :: FIELDS LIST DATA CHANGED!', fields)
+    setFieldsList(fields)
+  }, [fields])
+
+  useEffect(() => {
+    console.log('>>> JIRA SETTINGS :: ISSUE TYPES LIST DATA CHANGED!', issueTypes)
+    setIssueTypesList(issueTypes)
+    setRequirementTagsList(issueTypes)
+    setBugTagsList(issueTypes)
+    setIncidentTagsList(issueTypes)
+  }, [issueTypes])
+
+  useEffect(() => {
+    setJiraIssueEpicKeyField(fieldsList.find(f => f.value === connection.epicKeyField))
+    setJiraIssueStoryPointField(fieldsList.find(f => f.value === connection.storyPointField))
+  }, [fieldsList, connection.epicKeyField, connection.storyPointField])
 
   return (
     <>
@@ -211,7 +229,7 @@ export default function JiraSettings (props) {
                 key={item.value}
                 label={<span style={{ marginLeft: '20px' }}>{item.description || item.value}</span>}
                 onClick={handleClick}
-                text={requirementTags.includes(item) ? (<>{item.title} <Icon icon='small-tick' color={Colors.GREEN5} /></>) : <span style={{ fontWeight: 700 }}>{item.title}</span>}
+                text={requirementTags.includes(item) ? (<><img src={item.iconUrl} width={12} height={12} /> {item.title} <Icon icon='small-tick' color={Colors.GREEN5} /></>) : <span style={{ fontWeight: 700 }}><img src={item.iconUrl} width={12} height={12} /> {item.title}</span>}
                 style={{ marginBottom: '2px', fontWeight: requirementTags.includes(item) ? 700 : 'normal' }}
               />
             )}
@@ -267,7 +285,7 @@ export default function JiraSettings (props) {
                 key={item.value}
                 label={<span style={{ marginLeft: '20px' }}>{item.description || item.value}</span>}
                 onClick={handleClick}
-                text={bugTags.includes(item) ? (<>{item.title} <Icon icon='small-tick' color={Colors.GREEN5} /></>) : <span style={{ fontWeight: 700 }}>{item.title}</span>}
+                text={bugTags.includes(item) ? (<><img src={item.iconUrl} width={12} height={12} /> {item.title} <Icon icon='small-tick' color={Colors.GREEN5} /></>) : <span style={{ fontWeight: 700 }}><img src={item.iconUrl} width={12} height={12} /> {item.title}</span>}
                 style={{ marginBottom: '2px', fontWeight: bugTags.includes(item) ? 700 : 'normal' }}
               />
             )}
@@ -323,7 +341,7 @@ export default function JiraSettings (props) {
                 key={item.value}
                 label={<span style={{ marginLeft: '20px' }}>{item.description || item.value}</span>}
                 onClick={handleClick}
-                text={incidentTags.includes(item) ? (<>{item.title} <Icon icon='small-tick' color={Colors.GREEN5} /></>) : <span style={{ fontWeight: 700 }}>{item.title}</span>}
+                text={incidentTags.includes(item) ? (<><img src={item.iconUrl} width={12} height={12} /> {item.title} <Icon icon='small-tick' color={Colors.GREEN5} /></>) : <span style={{ fontWeight: 700 }}><img src={item.iconUrl} width={12} height={12} /> {item.title}</span>}
                 style={{ marginBottom: '2px', fontWeight: incidentTags.includes(item) ? 700 : 'normal' }}
               />
             )}
@@ -383,9 +401,12 @@ export default function JiraSettings (props) {
               onItemSelect={(item) => {
                 setJiraIssueEpicKeyField(item)
               }}
+              popoverProps={{
+                position: Position.TOP
+              }}
             >
               <Button
-                disabled={isSaving}
+                disabled={isSaving || fieldsList.length === 0}
                 fill={true}
                 style={{ justifyContent: 'space-between', display: 'flex', minWidth: '260px', maxWidth: '300px' }}
                 text={jiraIssueEpicKeyField ? `${jiraIssueEpicKeyField.title}` : '< None Specified >'}
@@ -455,9 +476,13 @@ export default function JiraSettings (props) {
               onItemSelect={(item) => {
                 setJiraIssueStoryPointField(item)
               }}
+              popoverProps={{
+                position: Position.TOP
+              }}
             >
               <Button
-                disabled={isSaving}
+                // loading={isFetchingJIRA}
+                disabled={isSaving || fieldsList.length === 0}
                 fill={true}
                 style={{ justifyContent: 'space-between', display: 'flex', minWidth: '260px', maxWidth: '300px' }}
                 text={jiraIssueStoryPointField ? `${jiraIssueStoryPointField.title}` : '< None Specified >'}
@@ -465,6 +490,7 @@ export default function JiraSettings (props) {
               />
             </Select>
             <Button
+              loading={isFetchingJIRA}
               disabled={!jiraIssueStoryPointField || isSaving}
               icon='eraser'
               intent={jiraIssueStoryPointField ? Intent.WARNING : Intent.NONE} minimal={false} onClick={() => setJiraIssueStoryPointField('')}

@@ -105,3 +105,24 @@ button, .bp3-button {
     max-width: 300px;
   }
 }
+
+.bp3-select-popover {
+  .bp3-menu {
+    max-height: calc(10 * 32px);
+    overflow: auto;
+  }
+}
+
+.bp3-multi-select-popover {
+  max-width: 600px;
+  overflow: auto;
+  text-overflow: ellipsis;
+  .bp3-menu-item {
+    .bp3-menu-item-label {
+      max-width: 70%;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+      overflow: hidden;
+    }
+  }
+}
