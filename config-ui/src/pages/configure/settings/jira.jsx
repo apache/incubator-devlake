@@ -458,12 +458,13 @@ export default function JiraSettings (props) {
               intent={jiraIssueEpicKeyField ? Intent.WARNING : Intent.NONE} minimal={false} onClick={() => setJiraIssueEpicKeyField('')}
             />
           </ButtonGroup>
-          <div style={{ marginLeft: '3px' }}>
-            {/* <Button
-              disabled={!jiraIssueEpicKeyField}
-              icon='eraser'
-              intent={jiraIssueEpicKeyField ? Intent.WARNING : Intent.NONE} minimal={false} onClick={() => setJiraIssueEpicKeyField(null)}
-            /> */}
+          <div style={{ marginLeft: '10px' }}>
+            {jiraProxyError && (
+              <p style={{ color: Colors.GRAY4 }}>
+                <Icon icon='warning-sign' color={Colors.RED5} size={12} style={{ marginBottom: '2px' }} />{' '}
+                {jiraProxyError.toString() || 'JIRA API not accessible.'}
+              </p>
+            )}
           </div>
         </div>
       </div>
@@ -535,12 +536,13 @@ export default function JiraSettings (props) {
               intent={jiraIssueStoryPointField ? Intent.WARNING : Intent.NONE} minimal={false} onClick={() => setJiraIssueStoryPointField('')}
             />
           </ButtonGroup>
-          <div style={{ marginLeft: '3px' }}>
-            {/* <Button
-              disabled={!jiraIssueStoryPointField}
-              icon='eraser'
-              intent={jiraIssueStoryPointField ? Intent.WARNING : Intent.NONE} minimal={false} onClick={() => setJiraIssueStoryPointField(null)}
-            /> */}
+          <div style={{ marginLeft: '10px' }}>
+            {jiraProxyError && (
+              <p style={{ color: Colors.GRAY4 }}>
+                <Icon icon='warning-sign' color={Colors.RED5} size={12} style={{ marginBottom: '2px' }} />{' '}
+                {jiraProxyError.toString() || 'JIRA API not accessible.'}
+              </p>
+            )}
           </div>
         </div>
       </div>

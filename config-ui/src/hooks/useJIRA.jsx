@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 import request from '@/utils/request'
 import { ToastNotification } from '@/components/Toast'
 
@@ -25,7 +25,7 @@ const useJIRA = ({ apiProxyPath, issuesEndpoint, fieldsEndpoint }) => {
         setTimeout(() => {
           setIsFetching(false)
         }, 1000)
-        setError(null)
+        // setError(null)
       }
       fetchIssueTypes()
     } catch (e) {
@@ -33,7 +33,7 @@ const useJIRA = ({ apiProxyPath, issuesEndpoint, fieldsEndpoint }) => {
       setError(e)
       ToastNotification.show({ message: e.message, intent: 'danger', icon: 'error' })
     }
-  }, [issuesEndpoint])
+  }, [issuesEndpoint, apiProxyPath])
 
   const fetchFields = useCallback(() => {
     try {
@@ -50,7 +50,7 @@ const useJIRA = ({ apiProxyPath, issuesEndpoint, fieldsEndpoint }) => {
         setTimeout(() => {
           setIsFetching(false)
         }, 1000)
-        setError(null)
+        // setError(null)
       }
       fetchIssueFields()
     } catch (e) {
@@ -58,7 +58,7 @@ const useJIRA = ({ apiProxyPath, issuesEndpoint, fieldsEndpoint }) => {
       setError(e)
       ToastNotification.show({ message: e.message, intent: 'danger', icon: 'error' })
     }
-  }, [fieldsEndpoint])
+  }, [fieldsEndpoint, apiProxyPath])
 
   const createListData = (data = [], titleProperty = 'name', valueProperty = 'name') => {
     return data.map((d, dIdx) => {
