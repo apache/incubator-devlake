@@ -1,4 +1,4 @@
-import React, { useEffect, useState, Fragment } from 'react'
+import React, { useEffect, useState, useCallback, Fragment } from 'react'
 import {
   // FormGroup,
   // InputGroup,
@@ -72,7 +72,7 @@ export default function JiraSettings (props) {
       : null
   }
 
-  const parseTypeMappings = (mappings = []) => {
+  const parseTypeMappings = useCallback((mappings = []) => {
     const GroupedMappings = {
       [MAPPING_TYPES.Requirement]: [],
       [MAPPING_TYPES.Incident]: [],
@@ -90,7 +90,7 @@ export default function JiraSettings (props) {
     setBugTags(bugTagsList?.filter(t => GroupedMappings[MAPPING_TYPES.Bug].includes(t.value)))
     setIncidentTags(incidentTagsList?.filter(t => GroupedMappings[MAPPING_TYPES.Incident].includes(t.value)))
     return GroupedMappings
-  }
+  }, [requirementTagsList, bugTagsList, incidentTagsList])
 
   useEffect(() => {
     const settings = {
@@ -194,6 +194,10 @@ export default function JiraSettings (props) {
     setJiraIssueEpicKeyField(fieldsList.find(f => f.value === connection.epicKeyField))
     setJiraIssueStoryPointField(fieldsList.find(f => f.value === connection.storyPointField))
   }, [fieldsList, connection.epicKeyField, connection.storyPointField])
+
+  useEffect(() => {
+    parseTypeMappings(connection.typeMappings)
+  }, [requirementTagsList, bugTagsList, incidentTagsList, connection.typeMappings, parseTypeMappings])
 
   return (
     <>
