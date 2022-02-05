@@ -352,39 +352,6 @@ export default function JiraSettings (props) {
         </div>
       </div>
 
-      {/* <MappingTag
-        labelName='Requirement'
-        classNames='tag-requirement'
-        typeOrStatus='type'
-        placeholderText='Add Issue Types...'
-        values={typeMappingRequirement}
-        rightElement={<ClearButton onClick={() => setTypeMappingRequirement([])} />}
-        onChange={(values) => setTypeMappingRequirement(values)}
-        disabled={isSaving}
-      /> */}
-
-      {/* <MappingTag
-        labelName='Bug'
-        classNames='tag-bug'
-        typeOrStatus='type'
-        placeholderText='Add Issue Types...'
-        values={typeMappingBug}
-        rightElement={<ClearButton onClick={() => setTypeMappingBug([])} />}
-        onChange={(values) => setTypeMappingBug(values)}
-        disabled={isSaving}
-      /> */}
-
-      {/* <MappingTag
-        labelName='Incident'
-        classNames='tag-incident'
-        typeOrStatus='type'
-        placeholderText='Add Issue Types...'
-        values={typeMappingIncident}
-        rightElement={<ClearButton onClick={() => setTypeMappingIncident([])} />}
-        onChange={(values) => setTypeMappingIncident(values)}
-        disabled={isSaving}
-      /> */}
-
       <div className='headlineContainer'>
         <h3 className='headline'>
           Epic Key<span className='requiredStar'>*</span>
@@ -415,7 +382,6 @@ export default function JiraSettings (props) {
               noResults={<MenuItem disabled={true} text='No epic results.' />}
               onItemSelect={(item) => {
                 setJiraIssueEpicKeyField(item)
-              // setSelectedEpicItem(item)
               }}
             >
               <Button

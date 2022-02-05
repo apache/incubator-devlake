@@ -1,13 +1,213 @@
 const fieldsData = [
-  { id: 0, title: 'development', name: 'development', value: 'development', type: 'Dev Summary Custom Field' },
-  { id: 1, title: 'Epic Color', name: 'Epic Color', value: 'Epic Color', type: 'Color of Epic' },
-  { id: 2, title: 'Epic Link', name: 'Epic Link', value: 'Epic Link', type: 'Epic Link Relationship' },
-  { id: 3, title: 'Epic Status', name: 'Epic Status', value: 'Epic Status', type: 'Status of Epic' },
-  { id: 4, title: 'Flagged', name: 'Flagged', value: 'Flagged', type: 'Checkboxes' },
-  { id: 5, title: 'Sprint', name: 'Sprint', value: 'Sprint', type: 'Jira Sprint Field' },
-  { id: 6, title: 'Team', name: 'Team', value: 'Team', type: 'Team' },
-  { id: 7, title: 'UUID', name: 'UUID', value: 'uuid', type: 'UUID Field' },
-  { id: 8, title: 'Rank', name: 'Rank', value: 'Rank', type: 'Global Rank' },
+  {
+    id: 0,
+    name: 'Description',
+    title: 'Description',
+    value: 'description',
+    description: null,
+    custom: false,
+    orderable: true,
+    navigable: true,
+    searchable: true,
+    type: 'string',
+    clauseNames: [
+      'description'
+    ],
+    schema: {
+      type: 'string',
+      system: 'description'
+    }
+  },
+  {
+    id: 1,
+    name: 'Development',
+    title: 'development',
+    value: 'development',
+    description: null,
+    custom: false,
+    orderable: true,
+    navigable: true,
+    searchable: true,
+    type: 'string',
+    clauseNames: [
+      'description'
+    ],
+    schema: {
+      type: 'string',
+      system: 'description'
+    }
+  },
+  {
+    id: 2,
+    name: 'Epic',
+    title: 'Epic',
+    value: 'Epic',
+    description: null,
+    custom: false,
+    orderable: true,
+    navigable: true,
+    searchable: true,
+    type: 'string',
+    clauseNames: [
+      'description'
+    ],
+    schema: {
+      type: 'string',
+      system: 'description'
+    }
+  },
+  {
+    id: 3,
+    name: 'Epic Color',
+    title: 'Epic Color',
+    value: 'epic color',
+    description: null,
+    custom: false,
+    orderable: true,
+    navigable: true,
+    searchable: true,
+    type: 'string',
+    clauseNames: [
+      'description'
+    ],
+    schema: {
+      type: 'string',
+      system: 'description'
+    }
+  },
+  {
+    id: 4,
+    name: 'Epic Link',
+    title: 'Epic Link',
+    value: 'epic link',
+    description: null,
+    custom: false,
+    orderable: true,
+    navigable: true,
+    searchable: true,
+    type: 'string',
+    clauseNames: [
+      'description'
+    ],
+    schema: {
+      type: 'string',
+      system: 'description'
+    }
+  },
+  {
+    id: 5,
+    name: 'Epic Status',
+    title: 'Epic Status',
+    value: 'epic status',
+    description: null,
+    custom: false,
+    orderable: true,
+    navigable: true,
+    searchable: true,
+    type: 'string',
+    clauseNames: [
+      'description'
+    ],
+    schema: {
+      type: 'string',
+      system: 'description'
+    }
+  },
+  {
+    id: 6,
+    name: 'Flagged',
+    title: 'Flagged',
+    value: 'flagged',
+    description: null,
+    custom: false,
+    orderable: true,
+    navigable: true,
+    searchable: true,
+    type: 'string',
+    clauseNames: [
+      'description'
+    ],
+    schema: {
+      type: 'string',
+      system: 'description'
+    }
+  },
+  {
+    id: 7,
+    name: 'Sprint',
+    title: 'Sprint',
+    value: 'sprint',
+    description: null,
+    custom: false,
+    orderable: true,
+    navigable: true,
+    searchable: true,
+    type: 'string',
+    clauseNames: [
+      'description'
+    ],
+    schema: {
+      type: 'string',
+      system: 'description'
+    }
+  },
+  {
+    id: 8,
+    name: 'Team',
+    title: 'Team',
+    value: 'team',
+    description: null,
+    custom: false,
+    orderable: true,
+    navigable: true,
+    searchable: true,
+    type: 'string',
+    clauseNames: [
+      'description'
+    ],
+    schema: {
+      type: 'string',
+      system: 'description'
+    }
+  },
+  {
+    id: 9,
+    name: 'Rank',
+    title: 'Rank',
+    value: 'rank',
+    description: null,
+    custom: false,
+    orderable: true,
+    navigable: true,
+    searchable: true,
+    type: 'number',
+    clauseNames: [
+      'description'
+    ],
+    schema: {
+      type: 'string',
+      system: 'description'
+    }
+  },
+  {
+    id: 10,
+    name: 'UUID',
+    title: 'UUID',
+    value: 'uuid',
+    description: null,
+    custom: false,
+    orderable: true,
+    navigable: true,
+    searchable: true,
+    type: 'string',
+    clauseNames: [
+      'description'
+    ],
+    schema: {
+      type: 'string',
+      system: 'description'
+    }
+  },
 ]
 
 export {

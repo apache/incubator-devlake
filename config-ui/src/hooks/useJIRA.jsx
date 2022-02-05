@@ -6,6 +6,8 @@ const useJIRA = ({ apiProxyPath, issuesEndpoint, fieldsEndpoint }) => {
   const [isFetching, setIsFetching] = useState(false)
   const [issueTypes, setIssueTypes] = useState([])
   const [fields, setFields] = useState([])
+  const [issueTypesResponse, setIssueTypesResponse] = useState([])
+  const [fieldsResponse, setFieldsResponse] = useState([])
   const [error, setError] = useState()
 
   const fetchIssueTypes = useCallback(() => {
@@ -13,7 +15,7 @@ const useJIRA = ({ apiProxyPath, issuesEndpoint, fieldsEndpoint }) => {
       const fetchIssueTypes = async () => {
         const issues = await request.get(issuesEndpoint)
         console.log('>>> JIRA API PROXY: Issues Response...', issues)
-        setIssueTypes(issues.data)
+        setIssueTypesResponse(issues.data)
         setIsFetching(false)
         setError(null)
       }
@@ -30,7 +32,7 @@ const useJIRA = ({ apiProxyPath, issuesEndpoint, fieldsEndpoint }) => {
       const fetchIssueFields = async () => {
         const fields = await request.get(fieldsEndpoint)
         console.log('>>> JIRA API PROXY: Fields Response...', fields)
-        setFields(fields.data)
+        setFieldsResponse(fields.data)
         setIsFetching(false)
         setError(null)
       }
@@ -42,10 +44,33 @@ const useJIRA = ({ apiProxyPath, issuesEndpoint, fieldsEndpoint }) => {
     }
   }, [fieldsEndpoint])
 
+  const createListData = (data = [], titleProperty = 'name', valueProperty = 'name') => {
+    return data.map((d, dIdx) => {
+      return {
+        ...d,
+        id: dIdx,
+        title: d[titleProperty],
+        value: d[valueProperty],
+        type: d.schema?.type || 'string'
+      }
+    })
+  }
+
+  useEffect(() => {
+    setIssueTypes(createListData(issueTypesResponse))
+  }, [issueTypesResponse])
+
+  useEffect(() => {
+    setFields(createListData(fieldsResponse))
+  }, [fieldsResponse])
+
   return {
     isFetching,
     fetchFields,
     fetchIssueTypes,
+    createListData,
+    issueTypesResponse,
+    fieldsResponse,
     issueTypes,
     fields,
     error
