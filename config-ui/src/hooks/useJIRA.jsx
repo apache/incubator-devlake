@@ -12,10 +12,16 @@ const useJIRA = ({ apiProxyPath, issuesEndpoint, fieldsEndpoint }) => {
 
   const fetchIssueTypes = useCallback(() => {
     try {
+      if (apiProxyPath.includes('null')) {
+        throw new Error('Connection Source ID is Null')
+      }
       const fetchIssueTypes = async () => {
-        const issues = await request.get(issuesEndpoint)
+        const issues = await
+        request
+          .get(issuesEndpoint)
+          .catch(e => setError(e))
         console.log('>>> JIRA API PROXY: Issues Response...', issues)
-        setIssueTypesResponse(issues.data)
+        setIssueTypesResponse(issues ? issues.data : [])
         setTimeout(() => {
           setIsFetching(false)
         }, 1000)
@@ -31,10 +37,16 @@ const useJIRA = ({ apiProxyPath, issuesEndpoint, fieldsEndpoint }) => {
 
   const fetchFields = useCallback(() => {
     try {
+      if (apiProxyPath.includes('null')) {
+        throw new Error('Connection Source ID is Null')
+      }
       const fetchIssueFields = async () => {
-        const fields = await request.get(fieldsEndpoint)
+        const fields = await
+        request
+          .get(fieldsEndpoint)
+          .catch(e => setError(e))
         console.log('>>> JIRA API PROXY: Fields Response...', fields)
-        setFieldsResponse(fields.data)
+        setFieldsResponse(fields ? fields.data : [])
         setTimeout(() => {
           setIsFetching(false)
         }, 1000)
@@ -72,6 +84,12 @@ const useJIRA = ({ apiProxyPath, issuesEndpoint, fieldsEndpoint }) => {
   useEffect(() => {
     console.log('>>> JIRA API PROXY: FIELD SELECTOR LIST DATA', fields)
   }, [fields])
+
+  useEffect(() => {
+    if (error) {
+      console.log('>>> JIRA PROXY API ERROR!', error)
+    }
+  }, [error])
 
   return {
     isFetching,

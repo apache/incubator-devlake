@@ -31,7 +31,7 @@ export default function JiraSettings (props) {
   const ISSUE_TYPES_ENDPOINT = `${API_PROXY_ENDPOINT}/api/3/issuetype`
   const ISSUE_FIELDS_ENDPOINT = `${API_PROXY_ENDPOINT}/api/3/field`
 
-  const { fetchIssueTypes, fetchFields, issueTypes, fields, isFetching: isFetchingJIRA } = useJIRA({
+  const { fetchIssueTypes, fetchFields, issueTypes, fields, isFetching: isFetchingJIRA, error: jiraProxyError } = useJIRA({
     apiProxyPath: API_PROXY_ENDPOINT,
     issuesEndpoint: ISSUE_TYPES_ENDPOINT,
     fieldsEndpoint: ISSUE_FIELDS_ENDPOINT
