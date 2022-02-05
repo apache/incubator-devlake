@@ -46,9 +46,9 @@ export default function JiraSettings (props) {
   const [typeMappingRequirement, setTypeMappingRequirement] = useState([])
   const [typeMappingAll, setTypeMappingAll] = useState({})
   const [statusMappings, setStatusMappings] = useState()
-  const [jiraIssueEpicKeyField, setJiraIssueEpicKeyField] = useState()
+  const [jiraIssueEpicKeyField, setJiraIssueEpicKeyField] = useState('')
   const [jiraIssueStoryCoefficient, setJiraIssueStoryCoefficient] = useState(1)
-  const [jiraIssueStoryPointField, setJiraIssueStoryPointField] = useState()
+  const [jiraIssueStoryPointField, setJiraIssueStoryPointField] = useState('')
 
   const [requirementTags, setRequirementTags] = useState([])
   const [bugTags, setBugTags] = useState([])
@@ -93,9 +93,9 @@ export default function JiraSettings (props) {
 
   useEffect(() => {
     const settings = {
-      epicKeyField: jiraIssueEpicKeyField?.value,
+      epicKeyField: jiraIssueEpicKeyField?.value || '',
       typeMappings: typeMappingAll,
-      storyPointField: jiraIssueStoryPointField?.value,
+      storyPointField: jiraIssueStoryPointField?.value || '',
     }
     onSettingsChange(settings)
     console.log('>> JIRA INSTANCE SETTINGS FIELDS CHANGED!', settings)
@@ -395,7 +395,7 @@ export default function JiraSettings (props) {
             <Button
               disabled={!jiraIssueEpicKeyField || isSaving}
               icon='eraser'
-              intent={jiraIssueEpicKeyField ? Intent.WARNING : Intent.NONE} minimal={false} onClick={() => setJiraIssueEpicKeyField(null)}
+              intent={jiraIssueEpicKeyField ? Intent.WARNING : Intent.NONE} minimal={false} onClick={() => setJiraIssueEpicKeyField('')}
             />
           </ButtonGroup>
           <div style={{ marginLeft: '3px' }}>
@@ -467,7 +467,7 @@ export default function JiraSettings (props) {
             <Button
               disabled={!jiraIssueStoryPointField || isSaving}
               icon='eraser'
-              intent={jiraIssueStoryPointField ? Intent.WARNING : Intent.NONE} minimal={false} onClick={() => setJiraIssueStoryPointField(null)}
+              intent={jiraIssueStoryPointField ? Intent.WARNING : Intent.NONE} minimal={false} onClick={() => setJiraIssueStoryPointField('')}
             />
           </ButtonGroup>
           <div style={{ marginLeft: '3px' }}>
