@@ -1,7 +1,5 @@
 import React, { useEffect, useState, useCallback, Fragment } from 'react'
 import {
-  // FormGroup,
-  // InputGroup,
   ButtonGroup,
   MenuItem,
   Position,
@@ -13,9 +11,6 @@ import {
 } from '@blueprintjs/core'
 import useJIRA from '@/hooks/useJIRA'
 import { Select, MultiSelect } from '@blueprintjs/select'
-// import MappingTag from '@/pages/configure/settings/jira/MappingTag'
-import { fieldsData } from '@/pages/configure/mock-data/jira/fields'
-import { issueTypesData } from '@/pages/configure/mock-data/jira/issueTypes'
 
 import ClearButton from '@/components/ClearButton'
 import '@/styles/integration.scss'
@@ -157,7 +152,7 @@ export default function JiraSettings (props) {
       // setJiraIssueEpicKeyField(fieldsList.find(f => f.value === connection.epicKeyField))
       // setJiraIssueStoryPointField(fieldsList.find(f => f.value === connection.storyPointField))
     }
-  }, [connection/*, epics, granularities, boards */])
+  }, [connection, parseTypeMappings])
 
   useEffect(() => {
     setTypeMappingRequirement(requirementTags)
@@ -233,7 +228,17 @@ export default function JiraSettings (props) {
                 key={item.value}
                 label={<span style={{ marginLeft: '20px' }}>{item.description || item.value}</span>}
                 onClick={handleClick}
-                text={requirementTags.includes(item) ? (<><img src={item.iconUrl} width={12} height={12} /> {item.title} <Icon icon='small-tick' color={Colors.GREEN5} /></>) : <span style={{ fontWeight: 700 }}><img src={item.iconUrl} width={12} height={12} /> {item.title}</span>}
+                text={requirementTags.includes(item)
+                  ? (
+                    <>
+                      <img src={item.iconUrl} width={12} height={12} /> {item.title} <Icon icon='small-tick' color={Colors.GREEN5} />
+                    </>
+                    )
+                  : (
+                    <span style={{ fontWeight: 700 }}>
+                      <img src={item.iconUrl} width={12} height={12} /> {item.title}
+                    </span>
+                    )}
                 style={{ marginBottom: '2px', fontWeight: requirementTags.includes(item) ? 700 : 'normal' }}
               />
             )}
@@ -289,7 +294,17 @@ export default function JiraSettings (props) {
                 key={item.value}
                 label={<span style={{ marginLeft: '20px' }}>{item.description || item.value}</span>}
                 onClick={handleClick}
-                text={bugTags.includes(item) ? (<><img src={item.iconUrl} width={12} height={12} /> {item.title} <Icon icon='small-tick' color={Colors.GREEN5} /></>) : <span style={{ fontWeight: 700 }}><img src={item.iconUrl} width={12} height={12} /> {item.title}</span>}
+                text={bugTags.includes(item)
+                  ? (
+                    <>
+                      <img src={item.iconUrl} width={12} height={12} /> {item.title} <Icon icon='small-tick' color={Colors.GREEN5} />
+                    </>
+                    )
+                  : (
+                    <span style={{ fontWeight: 700 }}>
+                      <img src={item.iconUrl} width={12} height={12} /> {item.title}
+                    </span>
+                    )}
                 style={{ marginBottom: '2px', fontWeight: bugTags.includes(item) ? 700 : 'normal' }}
               />
             )}
@@ -345,7 +360,17 @@ export default function JiraSettings (props) {
                 key={item.value}
                 label={<span style={{ marginLeft: '20px' }}>{item.description || item.value}</span>}
                 onClick={handleClick}
-                text={incidentTags.includes(item) ? (<><img src={item.iconUrl} width={12} height={12} /> {item.title} <Icon icon='small-tick' color={Colors.GREEN5} /></>) : <span style={{ fontWeight: 700 }}><img src={item.iconUrl} width={12} height={12} /> {item.title}</span>}
+                text={incidentTags.includes(item)
+                  ? (
+                    <>
+                      <img src={item.iconUrl} width={12} height={12} /> {item.title} <Icon icon='small-tick' color={Colors.GREEN5} />
+                    </>
+                    )
+                  : (
+                    <span style={{ fontWeight: 700 }}>
+                      <img src={item.iconUrl} width={12} height={12} /> {item.title}
+                    </span>
+                    )}
                 style={{ marginBottom: '2px', fontWeight: incidentTags.includes(item) ? 700 : 'normal' }}
               />
             )}
@@ -397,8 +422,18 @@ export default function JiraSettings (props) {
                   key={item.value}
                   label={item.value}
                   onClick={handleClick}
-                  text={<><span>{item.title}</span> <Tag minimal intent={Intent.PRIMARY} style={{ fontSize: '9px' }}>{item.type}</Tag> {modifiers.active && (<Icon icon='small-tick' color={Colors.GREEN5} size={14} />)}</>}
-                  style={{ fontSize: '11px', fontWeight: modifiers.active ? 800 : 'normal', backgroundColor: modifiers.active ? Colors.LIGHT_GRAY4 : 'none' }}
+                  text={
+                    <>
+                      <span>{item.title}</span>{' '}
+                      <Tag minimal intent={Intent.PRIMARY} style={{ fontSize: '9px' }}>{item.type}</Tag>{' '}
+                      {modifiers.active && (<Icon icon='small-tick' color={Colors.GREEN5} size={14} />)}
+                    </>
+                  }
+                  style={{
+                    fontSize: '11px',
+                    fontWeight: modifiers.active ? 800 : 'normal',
+                    backgroundColor: modifiers.active ? Colors.LIGHT_GRAY4 : 'none'
+                  }}
                 />
               )}
               noResults={<MenuItem disabled={true} text='No epic results.' />}
