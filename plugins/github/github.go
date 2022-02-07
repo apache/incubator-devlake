@@ -253,6 +253,13 @@ func (plugin Github) Execute(options map[string]interface{}, progress chan<- flo
 			return err
 		}
 	}
+	if tasksToRun["convertPullRequestLabels"] {
+		progress <- 0.96
+		err = tasks.ConvertPullRequestLabels()
+		if err != nil {
+			return err
+		}
+	}
 	if tasksToRun["convertCommits"] {
 		progress <- 0.96
 		err = tasks.ConvertCommits(repoId)
@@ -343,7 +350,7 @@ func main() {
 				"owner": owner,
 				"repo":  repo,
 				"tasks": []string{
-					//"collectRepo",
+					"collectRepo",
 					//"collectCommits",
 					//"collectCommitsStat",
 					//"collectIssues",
@@ -355,9 +362,11 @@ func main() {
 					//"collectPullRequestComments",
 					//"enrichIssues",
 					//"enrichPullRequests",
-					"convertRepos",
+					//"convertRepos",
 					//"convertIssues",
+					"convertIssueLabels",
 					//"convertPullRequests",
+					//"convertPullRequestLabels",
 					//"convertCommits",
 					//"convertPullRequestCommits",
 					//"convertNotes",
