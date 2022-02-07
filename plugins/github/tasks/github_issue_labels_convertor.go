@@ -9,27 +9,42 @@ import (
 )
 
 func ConvertIssueLabels() error {
-	var githubIssueLabels []githubModels.GithubIssueLabel
-
-	err := lakeModels.Db.Find(&githubIssueLabels).Error
+	githubIssueLabel := &githubModels.GithubIssueLabel{}
+	cursor, err := lakeModels.Db.Model(githubIssueLabel).
+		Select("github_issue_labels.*").
+		Order("issue_id ASC").
+		Rows()
 	if err != nil {
 		return err
 	}
+	defer cursor.Close()
 	domainIdGeneratorIssue := didgen.NewDomainIdGenerator(&githubModels.GithubIssue{})
-	for _, githubIssueLabel := range githubIssueLabels {
-		domainIl := convertToIssueLabelModel(&githubIssueLabel, domainIdGeneratorIssue)
-		err := lakeModels.Db.Clauses(clause.OnConflict{UpdateAll: true}).Create(domainIl).Error
+	lastIssueId := 0
+	// iterate all rows
+	for cursor.Next() {
+		err = lakeModels.Db.ScanRows(cursor, githubIssueLabel)
+		if err != nil {
+			return err
+		}
+		issueId := domainIdGeneratorIssue.Generate(githubIssueLabel.IssueId)
+		if lastIssueId != githubIssueLabel.IssueId {
+			// Clean up old data
+			err := lakeModels.Db.Where("issue_id = ?",
+				issueId).Delete(&ticket.IssueLabel{}).Error
+			if err != nil {
+				return err
+			}
+			lastIssueId = githubIssueLabel.IssueId
+		}
+
+		issueLabel := &ticket.IssueLabel{
+			IssueId:   issueId,
+			LabelName: githubIssueLabel.LabelName,
+		}
+		err = lakeModels.Db.Clauses(clause.OnConflict{DoNothing: true}).Create(issueLabel).Error
 		if err != nil {
 			return err
 		}
 	}
 	return nil
-}
-func convertToIssueLabelModel(il *githubModels.GithubIssueLabel,
-	domainIdGeneratorIssue *didgen.DomainIdGenerator) *ticket.IssueLabel {
-	domainIl := &ticket.IssueLabel{
-		IssueId:   domainIdGeneratorIssue.Generate(il.IssueId),
-		LabelName: il.LabelName,
-	}
-	return domainIl
 }

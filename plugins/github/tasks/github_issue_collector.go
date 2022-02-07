@@ -54,37 +54,46 @@ func CollectIssues(owner string, repo string, repoId int, scheduler *utils.Worke
 			}
 
 			for _, issue := range *githubApiResponse {
-				if issue.GithubId > 0 {
-					err = lakeModels.Db.Where("issue_id = ?", issue.GithubId).Delete(&models.GithubIssueLabel{}).Error
-					if err != nil {
-						logger.Error("delete github_issue_label error:", err)
-						return err
-					}
-					var labels []*models.GithubIssueLabel
-					for _, lable := range issue.Labels {
-						labels = append(labels, &models.GithubIssueLabel{IssueId: issue.GithubId, LabelName: lable.Name})
-					}
-					err = lakeModels.Db.Clauses(clause.OnConflict{
-						UpdateAll: true,
-					}).CreateInBatches(labels, BatchSize).Error
-					if err != nil {
-						logger.Error("save github_issue_label error:", err)
-						return err
-					}
+				if issue.GithubId == 0 {
+					return nil
 				}
-				if issue.PullRequest.Url == "" {
-					// This is an issue from github
-					githubIssue, err := convertGithubIssue(&issue, repoId)
-					if err != nil {
-						return err
-					}
-					err = lakeModels.Db.Clauses(clause.OnConflict{
-						UpdateAll: true,
-					}).Create(&githubIssue).Error
-					if err != nil {
-						logger.Error("Could not upsert: ", err)
-					}
+				//If this is a pr, ignore
+				if issue.PullRequest.Url != "" {
+					continue
 				}
+
+				err = lakeModels.Db.Where("issue_id = ?", issue.GithubId).Delete(&models.GithubIssueLabel{}).Error
+				if err != nil {
+					logger.Error("delete github_issue_label error:", err)
+					return err
+				}
+				var labels []*models.GithubIssueLabel
+				for _, lable := range issue.Labels {
+					labels = append(labels, &models.GithubIssueLabel{
+						IssueId:   issue.GithubId,
+						LabelName: lable.Name,
+					})
+				}
+				err = lakeModels.Db.Clauses(clause.OnConflict{
+					DoNothing: true,
+				}).CreateInBatches(labels, BatchSize).Error
+				if err != nil {
+					logger.Error("save github_issue_label error:", err)
+					return err
+				}
+
+				// This is an issue from github
+				githubIssue, err := convertGithubIssue(&issue, repoId)
+				if err != nil {
+					return err
+				}
+				err = lakeModels.Db.Clauses(clause.OnConflict{
+					UpdateAll: true,
+				}).Create(&githubIssue).Error
+				if err != nil {
+					logger.Error("Could not upsert: ", err)
+				}
+
 			}
 			return nil
 		})
