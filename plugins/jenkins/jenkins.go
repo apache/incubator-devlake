@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"fmt"
+	errors "github.com/merico-dev/lake/errors"
 	"github.com/merico-dev/lake/utils"
 
 	"github.com/merico-dev/lake/config"
@@ -65,8 +66,6 @@ func (j Jenkins) Execute(options map[string]interface{}, progress chan<- float32
 		return err
 	}
 
-	// to keep the progress work properly, we set workerNum = 1, so it will work one by one
-
 	scheduler, err := utils.NewWorkerScheduler(10, rateLimitPerSecondInt, ctx)
 	defer scheduler.Release()
 	if err != nil {
@@ -79,19 +78,28 @@ func (j Jenkins) Execute(options map[string]interface{}, progress chan<- float32
 	err = worker.SyncJobs(scheduler)
 	if err != nil {
 		logger.Error("Fail to sync jobs", err)
-		return err
+		return &errors.SubTaskError{
+			SubTaskName: "SyncJobs",
+			Message:     err.Error(),
+		}
 	}
 	progress <- float32(0.4)
 	err = tasks.ConvertJobs()
 	if err != nil {
 		logger.Error("Fail to convert jobs", err)
-		return err
+		return &errors.SubTaskError{
+			SubTaskName: "ConvertJobs",
+			Message:     err.Error(),
+		}
 	}
 	progress <- float32(0.7)
 	err = tasks.ConvertBuilds()
 	if err != nil {
 		logger.Error("Fail to convert builds", err)
-		return err
+		return &errors.SubTaskError{
+			SubTaskName: "ConvertBuilds",
+			Message:     err.Error(),
+		}
 	}
 	progress <- float32(1.0)
 
