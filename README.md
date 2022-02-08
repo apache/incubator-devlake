@@ -194,12 +194,11 @@ NOTE: After installing docker, you may need to run the docker application and re
 
 #### Commands to run in your terminal<a id="user-setup-commands"></a>
 
-1. Clone repository:
+1. Prepare the configuration file(.env & docker-compose.yml):
 
    ```sh
-   git clone https://github.com/merico-dev/lake.git devlake
-   cd devlake
-   cp .env.example .env
+   curl -o .env https://raw.githubusercontent.com/merico-dev/lake/main/.env.example
+   curl -o docker-compose.yml https://raw.githubusercontent.com/merico-dev/lake/main/docker-compose.yml
    ```
 2. Start Docker on your machine, then run `docker compose up -d` to start the services.
 
