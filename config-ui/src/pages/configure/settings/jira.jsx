@@ -170,7 +170,7 @@ export default function JiraSettings (props) {
     // Fetch Issue Types & Fields from JIRA API Proxy
     fetchIssueTypes()
     fetchFields()
-  }, [])
+  }, [connection.UpdatedAt])
 
   useEffect(() => {
     console.log('>>> JIRA SETTINGS :: FIELDS LIST DATA CHANGED!', fields)
