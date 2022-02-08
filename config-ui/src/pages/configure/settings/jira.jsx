@@ -170,7 +170,7 @@ export default function JiraSettings (props) {
     // Fetch Issue Types & Fields from JIRA API Proxy
     fetchIssueTypes()
     fetchFields()
-  }, [connection.UpdatedAt])
+  }, [connection.UpdatedAt, fetchIssueTypes, fetchFields])
 
   useEffect(() => {
     console.log('>>> JIRA SETTINGS :: FIELDS LIST DATA CHANGED!', fields)
@@ -468,25 +468,6 @@ export default function JiraSettings (props) {
           </div>
         </div>
       </div>
-      {/* <div className='formContainer' style={{ maxWidth: '250px' }}>
-        <FormGroup
-          disabled={isSaving}
-          label=''
-          inline={true}
-          labelFor='epic-key-field'
-          className='formGroup'
-          contentClassName='formGroupContent'
-        >
-          <InputGroup
-            id='epic-key-field'
-            disabled={isSaving}
-            placeholder='eg. 1000'
-            value={jiraIssueEpicKeyField}
-            onChange={(e) => setJiraIssueEpicKeyField(e.target.value)}
-            className='input epic-key-field'
-          />
-        </FormGroup>
-      </div> */}
       <div className='headlineContainer'>
         <h3 className='headline'>Story Point Field (Optional)</h3>
         <p className=''>Choose the JIRA field you’re using to represent the granularity of a requirement-type issue.</p>
@@ -508,8 +489,18 @@ export default function JiraSettings (props) {
                   key={item.value}
                   label={item.value}
                   onClick={handleClick}
-                  text={<>{item.title} <Tag minimal intent={Intent.PRIMARY} style={{ fontSize: '9px' }}>{item.type}</Tag> {modifiers.active && (<Icon icon='small-tick' color={Colors.GREEN5} size={14} />)}</>}
-                  style={{ fontSize: '11px', fontWeight: modifiers.active ? 800 : 'normal', backgroundColor: modifiers.active ? Colors.LIGHT_GRAY4 : 'none' }}
+                  text={
+                    <>
+                      {item.title}{' '}
+                      <Tag minimal intent={Intent.PRIMARY} style={{ fontSize: '9px' }}>{item.type}</Tag>{' '}
+                      {modifiers.active && (<Icon icon='small-tick' color={Colors.GREEN5} size={14} />)}
+                    </>
+                  }
+                  style={{
+                    fontSize: '11px',
+                    fontWeight: modifiers.active ? 800 : 'normal',
+                    backgroundColor: modifiers.active ? Colors.LIGHT_GRAY4 : 'none'
+                  }}
                 />
               )}
               noResults={<MenuItem disabled={true} text='No epic results.' />}
@@ -533,7 +524,9 @@ export default function JiraSettings (props) {
               loading={isFetchingJIRA}
               disabled={!jiraIssueStoryPointField || isSaving}
               icon='eraser'
-              intent={jiraIssueStoryPointField ? Intent.WARNING : Intent.NONE} minimal={false} onClick={() => setJiraIssueStoryPointField('')}
+              intent={jiraIssueStoryPointField
+                ? Intent.WARNING
+                : Intent.NONE} minimal={false} onClick={() => setJiraIssueStoryPointField('')}
             />
           </ButtonGroup>
           <div style={{ marginLeft: '10px' }}>
@@ -546,25 +539,6 @@ export default function JiraSettings (props) {
           </div>
         </div>
       </div>
-      {/* <div className='formContainer' style={{ maxWidth: '250px' }}>
-        <FormGroup
-          disabled={isSaving}
-          label=''
-          inline={true}
-          labelFor='board-id-field'
-          className='formGroup'
-          contentClassName='formGroupContent'
-        >
-          <InputGroup
-            id='board-id'
-            disabled={isSaving}
-            placeholder='eg. 3000'
-            value={jiraIssueStoryPointField}
-            onChange={(e) => setJiraIssueStoryPointField(e.target.value)}
-            className='input board-id'
-          />
-        </FormGroup>
-      </div> */}
     </>
   )
 }
