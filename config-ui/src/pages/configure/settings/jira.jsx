@@ -77,7 +77,6 @@ export default function JiraSettings (props) {
       GroupedMappings[typeObj.standardType].push(tag)
     })
     console.log('>>>> PARSED TYPE MAPPINGS ....', GroupedMappings)
-    // @todo: fix parsed type mappings w/ list filters
     setTypeMappingRequirement(GroupedMappings[MAPPING_TYPES.Requirement])
     setTypeMappingBug(GroupedMappings[MAPPING_TYPES.Bug])
     setTypeMappingIncident(GroupedMappings[MAPPING_TYPES.Incident])
@@ -119,12 +118,6 @@ export default function JiraSettings (props) {
 
   useEffect(() => {
     if (typeMappingBug && typeMappingIncident && typeMappingRequirement) {
-      // LEGACY MAPPING FORMAT (DISABLED)
-      // const typeBug = 'Bug:' + typeMappingBug.toString() + ';'
-      // const typeIncident = 'Incident:' + typeMappingIncident.toString() + ';'
-      // const typeRequirement = 'Requirement:' + typeMappingIncident.toString() + ';'
-      // const all = typeBug + typeIncident + typeRequirement
-      // setTypeMappingAll(all)
       const RequirementMappings = typeMappingRequirement !== ''
         ? typeMappingRequirement.map(r => createTypeMapObject(r.value, MAPPING_TYPES.Requirement))
         : []
