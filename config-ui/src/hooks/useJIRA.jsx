@@ -26,7 +26,6 @@ const useJIRA = ({ apiProxyPath, issuesEndpoint, fieldsEndpoint }) => {
         setTimeout(() => {
           setIsFetching(false)
         }, 1000)
-        // setError(null)
       }
       fetchIssueTypes()
     } catch (e) {
@@ -52,7 +51,6 @@ const useJIRA = ({ apiProxyPath, issuesEndpoint, fieldsEndpoint }) => {
         setTimeout(() => {
           setIsFetching(false)
         }, 1000)
-        // setError(null)
       }
       fetchIssueFields()
     } catch (e) {
