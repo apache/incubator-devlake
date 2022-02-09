@@ -1,11 +1,13 @@
 import React from 'react'
-import { Button } from '@blueprintjs/core'
+import { Button, Intent } from '@blueprintjs/core'
 
-const ClearButton = ({ onClick }) => {
+const ClearButton = ({ onClick, minimal = true, intent = Intent.NONE, disabled = false }) => {
   return (
     <Button
+      disabled={disabled}
+      intent={intent}
       icon='cross'
-      minimal={true}
+      minimal={minimal}
       onClick={onClick}
     />
   )
