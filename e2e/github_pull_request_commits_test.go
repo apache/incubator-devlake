@@ -21,7 +21,7 @@ func TestGithubPullRequestCommits(t *testing.T) {
 	if err != nil {
 		log.Fatal(err)
 	}
-	rows, err := db.Query("SELECT github_id FROM github_pull_request_commits")
+	rows, err := db.Query("SELECT github_id FROM github_pull_request_commits where authored_date < '2021-12-25 04:40:11.000'")
 	if err != nil {
 		fmt.Println("KEVIN >>> err", err)
 	}
@@ -34,5 +34,5 @@ func TestGithubPullRequestCommits(t *testing.T) {
 		}
 		PullRequestCommits = append(PullRequestCommits, PullRequestCommit)
 	}
-	assert.Equal(t, len(PullRequestCommits) == 0, true)
+	assert.Equal(t, len(PullRequestCommits), 1505)
 }

@@ -35,5 +35,5 @@ func TestGitLabMergeRequestNotes(t *testing.T) {
 		}
 		mergeRequestNotes = append(mergeRequestNotes, mergeRequestNote)
 	}
-	assert.Equal(t, len(mergeRequestNotes) > 0, true)
+	assert.Equal(t, len(mergeRequestNotes), 0)
 }

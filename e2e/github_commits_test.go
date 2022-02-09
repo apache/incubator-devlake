@@ -11,7 +11,7 @@ import (
 // This test should only run once main_test is complete and ready
 
 type GithubCommit struct {
-	Sha int `json:"sha"`
+	Sha string `json:"sha"`
 }
 
 func TestGitHubCommits(t *testing.T) {
@@ -21,7 +21,7 @@ func TestGitHubCommits(t *testing.T) {
 	if err != nil {
 		log.Fatal(err)
 	}
-	rows, err := db.Query("SELECT github_id FROM github_commits")
+	rows, err := db.Query("SELECT sha FROM github_commits where authored_date < '2021-11-24 19:22:29.000'")
 	if err != nil {
 		fmt.Println("KEVIN >>> err", err)
 	}
@@ -34,5 +34,5 @@ func TestGitHubCommits(t *testing.T) {
 		}
 		commits = append(commits, commit)
 	}
-	assert.Equal(t, len(commits) == 0, true)
+	assert.Equal(t, len(commits), 874)
 }

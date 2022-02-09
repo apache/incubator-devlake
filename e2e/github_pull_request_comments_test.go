@@ -21,7 +21,7 @@ func TestGithubPullRequestComments(t *testing.T) {
 	if err != nil {
 		log.Fatal(err)
 	}
-	rows, err := db.Query("SELECT github_id FROM github_pull_request_comments")
+	rows, err := db.Query("SELECT github_id FROM github_pull_request_comments where github_created_at < '2021-12-25 04:40:11.000'")
 	if err != nil {
 		fmt.Println("KEVIN >>> err", err)
 	}
@@ -34,5 +34,5 @@ func TestGithubPullRequestComments(t *testing.T) {
 		}
 		PullRequestComments = append(PullRequestComments, PullRequestComment)
 	}
-	assert.Equal(t, len(PullRequestComments) == 0, true)
+	assert.Equal(t, len(PullRequestComments), 401)
 }
