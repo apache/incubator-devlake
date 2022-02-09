@@ -9,7 +9,7 @@ import (
 )
 
 func ConvertUsers() error {
-	user := &user.User{}
+	domainUser := &user.User{}
 	githubUser := &githubModels.GithubUser{}
 
 	cursor, err := lakeModels.Db.Model(githubUser).Rows()
@@ -25,12 +25,12 @@ func ConvertUsers() error {
 		if err != nil {
 			return err
 		}
-		user.Id = userIdGenerator.Generate(githubUser.Id)
-		user.Name = githubUser.Login
-		user.AvatarUrl = githubUser.AvatarUrl
+		domainUser.Id = userIdGenerator.Generate(githubUser.Id)
+		domainUser.Name = githubUser.Login
+		domainUser.AvatarUrl = githubUser.AvatarUrl
 		err := lakeModels.Db.Clauses(clause.OnConflict{
 			UpdateAll: true,
-		}).Create(user).Error
+		}).Create(domainUser).Error
 		if err != nil {
 			return err
 		}

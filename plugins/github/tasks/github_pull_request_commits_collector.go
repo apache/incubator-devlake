@@ -34,14 +34,24 @@ type PullRequestCommit struct {
 }
 
 func CollectPullRequestCommits(owner string, repo string, scheduler *utils.WorkerScheduler, apiClient *GithubApiClient) error {
-	var prs []models.GithubPullRequest
-	lakeModels.Db.Find(&prs)
-	for i := 0; i < len(prs); i++ {
-		err := ProcessCollection(owner, repo, &prs[i], scheduler, apiClient)
+	cursor, err := lakeModels.Db.Model(&models.GithubPullRequest{}).Rows()
+	if err != nil {
+		return nil
+	}
+	defer cursor.Close()
+
+	githubPr := &models.GithubPullRequest{}
+	for cursor.Next() {
+		err = lakeModels.Db.ScanRows(cursor, githubPr)
+		if err != nil {
+			return err
+		}
+		err = ProcessCollection(owner, repo, githubPr, scheduler, apiClient)
 		if err != nil {
 			return err
 		}
 	}
+
 	return nil
 }
 func convertPullRequestCommit(prCommit *PrCommitsResponse) (*models.GithubCommit, error) {

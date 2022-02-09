@@ -24,12 +24,18 @@ type IssueComment struct {
 }
 
 func CollectIssueComments(owner string, repo string, scheduler *utils.WorkerScheduler, apiClient *GithubApiClient) error {
-	var issues []models.GithubIssue
-	lakeModels.Db.Find(&issues)
-	for i := 0; i < len(issues); i++ {
-		issue := (issues)[i]
-
-		commentsErr := processCommentsCollection(owner, repo, &issue, scheduler, apiClient)
+	githubIssue := &models.GithubIssue{}
+	cursor, err := lakeModels.Db.Model(githubIssue).Rows()
+	if err != nil {
+		return err
+	}
+	defer cursor.Close()
+	for cursor.Next() {
+		err = lakeModels.Db.ScanRows(cursor, githubIssue)
+		if err != nil {
+			return err
+		}
+		commentsErr := processCommentsCollection(owner, repo, githubIssue, scheduler, apiClient)
 		if commentsErr != nil {
 			logger.Error("Could not collect issue Comments", commentsErr)
 			return commentsErr
