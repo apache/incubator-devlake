@@ -123,7 +123,7 @@ func CollectCommitsStat(
 			grc.commit_sha = gc.sha
 		)`).
 		Select("gc.*").
-		Where("grc.github_repo_id = ?", repoId).
+		Where("grc.repo_id = ?", repoId).
 		Rows()
 	if err != nil {
 		return err

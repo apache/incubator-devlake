@@ -1,11 +1,14 @@
 package tasks
 
 import (
+	"context"
+	"regexp"
+
 	"github.com/merico-dev/lake/config"
 	lakeModels "github.com/merico-dev/lake/models"
 	"github.com/merico-dev/lake/models/domainlayer/ticket"
+	"github.com/merico-dev/lake/plugins/core"
 	githubModels "github.com/merico-dev/lake/plugins/github/models"
-	"regexp"
 )
 
 var issueSeverityRegex *regexp.Regexp
@@ -42,7 +45,7 @@ func init() {
 	}
 }
 
-func EnrichGithubIssues() (err error) {
+func EnrichGithubIssues(ctx context.Context) (err error) {
 	githubIssue := &githubModels.GithubIssue{}
 	cursor, err := lakeModels.Db.Model(&githubIssue).Rows()
 	if err != nil {
@@ -51,6 +54,11 @@ func EnrichGithubIssues() (err error) {
 	defer cursor.Close()
 	// iterate all rows
 	for cursor.Next() {
+		select {
+		case <-ctx.Done():
+			return core.TaskCanceled
+		default:
+		}
 		err = lakeModels.Db.ScanRows(cursor, githubIssue)
 		if err != nil {
 			return err

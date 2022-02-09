@@ -1,15 +1,18 @@
 package tasks
 
 import (
+	"context"
+
 	lakeModels "github.com/merico-dev/lake/models"
 	"github.com/merico-dev/lake/models/domainlayer"
 	"github.com/merico-dev/lake/models/domainlayer/code"
 	"github.com/merico-dev/lake/models/domainlayer/didgen"
+	"github.com/merico-dev/lake/plugins/core"
 	githubModels "github.com/merico-dev/lake/plugins/github/models"
 	"gorm.io/gorm/clause"
 )
 
-func ConvertNotes() error {
+func ConvertNotes(ctx context.Context) error {
 	githubPrComment := &githubModels.GithubPullRequestComment{}
 	cursor, err := lakeModels.Db.Model(githubPrComment).Rows()
 	if err != nil {
@@ -18,6 +21,11 @@ func ConvertNotes() error {
 	defer cursor.Close()
 	domainNoteIdGenerator := didgen.NewDomainIdGenerator(githubPrComment)
 	for cursor.Next() {
+		select {
+		case <-ctx.Done():
+			return core.TaskCanceled
+		default:
+		}
 		err = lakeModels.Db.ScanRows(cursor, githubPrComment)
 		if err != nil {
 			return err

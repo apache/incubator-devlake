@@ -1,14 +1,17 @@
 package tasks
 
 import (
+	"context"
+
 	lakeModels "github.com/merico-dev/lake/models"
 	"github.com/merico-dev/lake/models/domainlayer/didgen"
 	"github.com/merico-dev/lake/models/domainlayer/ticket"
+	"github.com/merico-dev/lake/plugins/core"
 	githubModels "github.com/merico-dev/lake/plugins/github/models"
 	"gorm.io/gorm/clause"
 )
 
-func ConvertIssueLabels() error {
+func ConvertIssueLabels(ctx context.Context) error {
 	githubIssueLabel := &githubModels.GithubIssueLabel{}
 	cursor, err := lakeModels.Db.Model(githubIssueLabel).
 		Select("github_issue_labels.*").
@@ -22,6 +25,11 @@ func ConvertIssueLabels() error {
 	lastIssueId := 0
 	// iterate all rows
 	for cursor.Next() {
+		select {
+		case <-ctx.Done():
+			return core.TaskCanceled
+		default:
+		}
 		err = lakeModels.Db.ScanRows(cursor, githubIssueLabel)
 		if err != nil {
 			return err
