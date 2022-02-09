@@ -21,7 +21,7 @@ func TestGitHubIssueComments(t *testing.T) {
 	if err != nil {
 		log.Fatal(err)
 	}
-	rows, err := db.Query("SELECT github_id FROM github_issue_comments")
+	rows, err := db.Query("SELECT github_id FROM github_issue_comments where github_created_at < '2021-12-25 04:40:11.000'")
 	if err != nil {
 		fmt.Println("KEVIN >>> err", err)
 	}
@@ -34,5 +34,5 @@ func TestGitHubIssueComments(t *testing.T) {
 		}
 		issueComments = append(issueComments, issueComment)
 	}
-	assert.Equal(t, len(issueComments) == 0, true)
+	assert.Equal(t, len(issueComments), 781)
 }

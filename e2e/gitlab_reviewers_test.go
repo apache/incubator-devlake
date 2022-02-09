@@ -35,5 +35,5 @@ func TestGitLabReviewers(t *testing.T) {
 		}
 		reviewers = append(reviewers, reviewer)
 	}
-	assert.Equal(t, len(reviewers) > 0, true)
+	assert.Equal(t, len(reviewers), 0)
 }

@@ -35,5 +35,5 @@ func TestGitLabMergeRequestCommits(t *testing.T) {
 		}
 		mergeRequestCommits = append(mergeRequestCommits, mergeRequestCommit)
 	}
-	assert.Equal(t, len(mergeRequestCommits) > 0, true)
+	assert.Equal(t, len(mergeRequestCommits), 0)
 }

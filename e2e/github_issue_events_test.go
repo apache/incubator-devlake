@@ -21,7 +21,7 @@ func TestGitHubIssueEvents(t *testing.T) {
 	if err != nil {
 		log.Fatal(err)
 	}
-	rows, err := db.Query("SELECT github_id FROM github_issue_events")
+	rows, err := db.Query("SELECT github_id FROM github_issue_events where github_created_at < '2021-12-25 04:40:11.000'")
 	if err != nil {
 		fmt.Println("KEVIN >>> err", err)
 	}
@@ -34,5 +34,5 @@ func TestGitHubIssueEvents(t *testing.T) {
 		}
 		issueEvents = append(issueEvents, issueEvent)
 	}
-	assert.Equal(t, len(issueEvents) == 0, true)
+	assert.Equal(t, len(issueEvents), 3899)
 }

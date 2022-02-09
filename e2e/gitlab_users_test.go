@@ -35,5 +35,5 @@ func TestGitLabUsers(t *testing.T) {
 		}
 		users = append(users, user)
 	}
-	assert.Equal(t, len(users) > 0, true)
+	assert.Equal(t, len(users), 0)
 }

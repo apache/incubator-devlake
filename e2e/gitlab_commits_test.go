@@ -21,7 +21,7 @@ func TestGitLabCommits(t *testing.T) {
 	if err != nil {
 		log.Fatal(err)
 	}
-	sqlCommand := "SELECT sha FROM gitlab_commits"
+	sqlCommand := "SELECT sha FROM gitlab_commits where authored_date < '2019-06-25 02:41:42.000'"
 	rows, err := db.Query(sqlCommand)
 	if err != nil {
 		fmt.Println("KEVIN >>> err", err)
@@ -35,5 +35,5 @@ func TestGitLabCommits(t *testing.T) {
 		}
 		commits = append(commits, commit)
 	}
-	assert.Equal(t, len(commits) > 0, true)
+	assert.Equal(t, len(commits), 2817)
 }

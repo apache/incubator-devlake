@@ -35,5 +35,5 @@ func TestGitLabMrs(t *testing.T) {
 		}
 		mrs = append(mrs, mr)
 	}
-	assert.Equal(t, len(mrs) > 0, true)
+	assert.Equal(t, len(mrs), 0)
 }
