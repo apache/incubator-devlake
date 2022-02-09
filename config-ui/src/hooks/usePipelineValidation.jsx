@@ -10,7 +10,7 @@ function usePipelineValidation ({
   projectId,
   boardId,
   owner,
-  repo,
+  repositoryName,
   sourceId,
   tasks
 }) {
@@ -61,11 +61,11 @@ function usePipelineValidation ({
       errs.push('GitHub: Owner invalid format')
     }
 
-    if (enabledProviders.includes(Providers.GITHUB) && !repo) {
+    if (enabledProviders.includes(Providers.GITHUB) && !repositoryName) {
       errs.push('GitHub: Repository Name is required')
     }
 
-    if (enabledProviders.includes(Providers.GITHUB) && repo.match(/^[a-zA-Z0-9._-]+$/g) === null) {
+    if (enabledProviders.includes(Providers.GITHUB) && repositoryName.match(/^[a-zA-Z0-9._-]+$/g) === null) {
       errs.push('GitHub: Repository name invalid format')
     }
 
@@ -86,7 +86,7 @@ function usePipelineValidation ({
     projectId,
     boardId,
     owner,
-    repo,
+    repositoryName,
     sourceId,
     tasks
   ])

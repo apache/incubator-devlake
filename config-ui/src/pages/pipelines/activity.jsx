@@ -576,7 +576,7 @@ const PipelineActivity = (props) => {
                               <span>
                                 <strong>{t.options.owner}</strong>
                                 <span style={{ color: Colors.GRAY5, padding: '0 1px' }}>/</span>
-                                <strong>{t.options.repo}</strong>
+                                <strong>{t.options.repositoryName || t.options.repo || '(Repository)'}</strong>
                               </span>
                               {t.options.tasks && (
                                 <>
