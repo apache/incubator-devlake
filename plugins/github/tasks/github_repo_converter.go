@@ -13,35 +13,40 @@ import (
 )
 
 func ConvertRepos() error {
-	var githubRepositorys []githubModels.GithubRepo
-	err := lakeModels.Db.Find(&githubRepositorys).Error
+	githubRepository := &githubModels.GithubRepo{}
+	cursor, err := lakeModels.Db.Model(githubRepository).Rows()
 	if err != nil {
 		return err
 	}
+	defer cursor.Close()
+	//Will be used when generating domainId, to avoid to compile every iteration
 	domainUserIdGenerator := didgen.NewDomainIdGenerator(&githubModels.GithubUser{})
 	domainRepoIdGenerator := didgen.NewDomainIdGenerator(&githubModels.GithubRepo{})
-
-	for _, repository := range githubRepositorys {
-		domainRepository := convertToRepositoryModel(&repository)
-		domainRepository.OwnerId = domainUserIdGenerator.Generate(repository.OwnerId)
+	// iterate all rows
+	for cursor.Next() {
+		err = lakeModels.Db.ScanRows(cursor, githubRepository)
+		if err != nil {
+			return err
+		}
+		domainRepository := convertToRepositoryModel(githubRepository, domainRepoIdGenerator)
+		domainRepository.OwnerId = domainUserIdGenerator.Generate(githubRepository.OwnerId)
 		err := lakeModels.Db.Clauses(clause.OnConflict{UpdateAll: true}).Create(domainRepository).Error
 		if err != nil {
 			return err
 		}
-		domainBoard := convertToBoardModel(&repository, domainRepoIdGenerator)
+		domainBoard := convertToBoardModel(githubRepository, domainRepoIdGenerator)
 		err = lakeModels.Db.Clauses(clause.OnConflict{UpdateAll: true}).Create(domainBoard).Error
 		if err != nil {
 			return err
 		}
 	}
-
 	return nil
 }
 
-func convertToRepositoryModel(repository *githubModels.GithubRepo) *code.Repo {
+func convertToRepositoryModel(repository *githubModels.GithubRepo, domainIdGenerator *didgen.DomainIdGenerator) *code.Repo {
 	domainRepository := &code.Repo{
 		DomainEntity: domainlayer.DomainEntity{
-			Id: didgen.NewDomainIdGenerator(repository).Generate(repository.GithubId),
+			Id: domainIdGenerator.Generate(repository.GithubId),
 		},
 		Name:        fmt.Sprintf("%s/%s", repository.OwnerLogin, repository.Name),
 		Url:         repository.HTMLUrl,

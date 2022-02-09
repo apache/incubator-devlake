@@ -24,15 +24,23 @@ type PullRequestComment struct {
 }
 
 func CollectPullRequestComments(owner string, repo string, scheduler *utils.WorkerScheduler, apiClient *GithubApiClient) error {
-	var prs []models.GithubPullRequest
-	lakeModels.Db.Find(&prs)
-	for i := 0; i < len(prs); i++ {
-		pr := (prs)[i]
-		commentsErr := processPullRequestCommentsCollection(owner, repo, &pr, scheduler, apiClient)
+	cursor, err := lakeModels.Db.Model(&models.GithubPullRequest{}).Rows()
+	if err != nil {
+		return err
+	}
+	defer cursor.Close()
+	githubPr := &models.GithubPullRequest{}
+	for cursor.Next() {
+		err = lakeModels.Db.ScanRows(cursor, githubPr)
+		if err != nil {
+			return err
+		}
+		commentsErr := processPullRequestCommentsCollection(owner, repo, githubPr, scheduler, apiClient)
 		if commentsErr != nil {
 			logger.Error("Could not collect PR Comments", commentsErr)
 			return commentsErr
 		}
+
 	}
 	return nil
 }

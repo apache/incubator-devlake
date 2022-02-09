@@ -24,11 +24,19 @@ type IssueEvent struct {
 }
 
 func CollectIssueEvents(owner string, repo string, scheduler *utils.WorkerScheduler, apiClient *GithubApiClient) error {
-	var issues []models.GithubIssue
-	lakeModels.Db.Find(&issues)
-	for i := 0; i < len(issues); i++ {
-		issue := (issues)[i]
-		eventsErr := processEventsCollection(owner, repo, &issue, scheduler, apiClient)
+	githubIssue := &models.GithubIssue{}
+	cursor, err := lakeModels.Db.Model(githubIssue).Rows()
+	if err != nil {
+		return err
+	}
+	defer cursor.Close()
+
+	for cursor.Next() {
+		err = lakeModels.Db.ScanRows(cursor, githubIssue)
+		if err != nil {
+			return err
+		}
+		eventsErr := processEventsCollection(owner, repo, githubIssue, scheduler, apiClient)
 		if eventsErr != nil {
 			logger.Error("Could not collect issue events", eventsErr)
 			return eventsErr
