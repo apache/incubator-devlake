@@ -21,30 +21,14 @@
 <div align="left">
 
 ### What is DevLake?
-DevLake brings your DevOps data into one practical, customized, extensible view. Ingest, analyze, and visualize data from an ever-growing list of developer tools, with our open source product.
+DevLake brings your DevOps data into one practical, customized, extensible view. Ingest, analyze, and visualize data from an ever-growing list of developer tools, with this open source product.
 
 DevLake is designed for developer teams looking to make better sense of their development process and to bring a more data-driven approach to their own practices. You can ask DevLake many questions regarding your development process. Just connect and query.
 
 
 #### Get started with just a few clicks
 
-<table>
-  <tr>
-    <td valign="middle"><a href="#user-setup">Run Locally</a></td>
-    <td valign="middle">
-      <a valign="middle" href="https://www.teamcode.com/tin/clone?applicationId=259777118600769536">
-        <img
-          src="https://static01.teamcode.com/badge/teamcode-badge-run-in-cloud-en.svg"
-          width="140px"
-          alt="Teamcode" valign="middle"
-        />
-      </a>
-      <a valign="middle"
-        href="https://github.com/merico-dev/lake/wiki/How-to-Set-Up-Dev-Lake-with-Tin"><span valign="middle">See the Guide</span>
-      </a>
-    </td>
-  </tr>
-</table>
+
 
 
 <br>
@@ -70,10 +54,6 @@ DevLake is designed for developer teams looking to make better sense of their de
 3. Built-in 20+ performance metrics and drill-down analysis capability
 4. Support custom SQL analysis and drag and drop to build scenario-based data views
 5. Flexible architecture and plug-in design to support fast access to new data sources
-
-### See Demo
-[Click here](https://app-259373083972538368-3002.ars.teamcode.com/d/0Rjxknc7z/demo-homepage?orgId=1) to see demo. The demo is based on data from this repo.<br>
-Username/Password: test/test
 
 <br>
 
