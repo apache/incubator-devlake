@@ -10,24 +10,31 @@ import (
 )
 
 func ConvertNotes() error {
-	var githubPullRequestComments []githubModels.GithubPullRequestComment
-	err := lakeModels.Db.Find(&githubPullRequestComments).Error
+	githubPrComment := &githubModels.GithubPullRequestComment{}
+	cursor, err := lakeModels.Db.Model(githubPrComment).Rows()
 	if err != nil {
 		return err
 	}
-	for _, note := range githubPullRequestComments {
-		domainNote := convertToNoteModel(&note)
-		err := lakeModels.Db.Clauses(clause.OnConflict{UpdateAll: true}).Create(domainNote).Error
+	defer cursor.Close()
+	domainNoteIdGenerator := didgen.NewDomainIdGenerator(githubPrComment)
+	for cursor.Next() {
+		err = lakeModels.Db.ScanRows(cursor, githubPrComment)
 		if err != nil {
 			return err
 		}
+		domainNote := convertToNoteModel(githubPrComment, domainNoteIdGenerator)
+		err = lakeModels.Db.Clauses(clause.OnConflict{UpdateAll: true}).Create(domainNote).Error
+		if err != nil {
+			return err
+		}
+
 	}
 	return nil
 }
-func convertToNoteModel(note *githubModels.GithubPullRequestComment) *code.Note {
+func convertToNoteModel(note *githubModels.GithubPullRequestComment, didGenerator *didgen.DomainIdGenerator) *code.Note {
 	domainNote := &code.Note{
 		DomainEntity: domainlayer.DomainEntity{
-			Id: didgen.NewDomainIdGenerator(note).Generate(note.GithubId),
+			Id: didGenerator.Generate(note.GithubId),
 		},
 		PrId:        uint64(note.PullRequestId),
 		Author:      note.AuthorUsername,

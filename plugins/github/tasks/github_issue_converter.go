@@ -12,18 +12,24 @@ import (
 )
 
 func ConvertIssues(repoId int) error {
-	var githubIssues []githubModels.GithubIssue
-	err := lakeModels.Db.Find(&githubIssues).Error
+	githubIssue := &githubModels.GithubIssue{}
+	cursor, err := lakeModels.Db.Model(githubIssue).Rows()
 	if err != nil {
 		return err
 	}
-	domainIdGeneratorIssue := didgen.NewDomainIdGenerator(&githubModels.GithubIssue{})
-	domainIdGeneratorGithubUser := didgen.NewDomainIdGenerator(&githubModels.GithubUser{})
+	defer cursor.Close()
+	domainIssueIdGenerator := didgen.NewDomainIdGenerator(githubIssue)
+	domainIdGithubUserGenerator := didgen.NewDomainIdGenerator(&githubModels.GithubUser{})
+
 	boardIssue := &ticket.BoardIssue{
 		BoardId: didgen.NewDomainIdGenerator(&githubModels.GithubRepo{}).Generate(repoId),
 	}
-	for _, issue := range githubIssues {
-		domainIssue := convertToIssueModel(&issue, domainIdGeneratorIssue, domainIdGeneratorGithubUser)
+	for cursor.Next() {
+		err = lakeModels.Db.ScanRows(cursor, githubIssue)
+		if err != nil {
+			return err
+		}
+		domainIssue := convertToIssueModel(githubIssue, domainIssueIdGenerator, domainIdGithubUserGenerator)
 		err := lakeModels.Db.Clauses(clause.OnConflict{UpdateAll: true}).Create(domainIssue).Error
 		if err != nil {
 			return err
@@ -35,7 +41,6 @@ func ConvertIssues(repoId int) error {
 			return err
 		}
 	}
-
 	return nil
 }
 
