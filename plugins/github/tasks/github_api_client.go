@@ -1,6 +1,7 @@
 package tasks
 
 import (
+	"context"
 	"fmt"
 	"net/http"
 	"net/url"
@@ -20,7 +21,7 @@ type GithubApiClient struct {
 	core.ApiClient
 }
 
-func CreateApiClient(endpoint string, tokens []string) *GithubApiClient {
+func CreateApiClient(endpoint string, tokens []string, ctx context.Context) *GithubApiClient {
 	githubApiClient := &GithubApiClient{}
 	githubApiClient.tokenIndex = 0
 	githubApiClient.tokens = tokens
@@ -37,6 +38,9 @@ func CreateApiClient(endpoint string, tokens []string) *GithubApiClient {
 		10*time.Second,
 		3,
 	)
+	if ctx != nil {
+		githubApiClient.SetContext(ctx)
+	}
 	return githubApiClient
 }
 

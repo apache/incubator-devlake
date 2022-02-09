@@ -1,14 +1,17 @@
 package tasks
 
 import (
+	"context"
+
 	lakeModels "github.com/merico-dev/lake/models"
 	"github.com/merico-dev/lake/models/domainlayer/code"
 	"github.com/merico-dev/lake/models/domainlayer/didgen"
+	"github.com/merico-dev/lake/plugins/core"
 	"github.com/merico-dev/lake/plugins/github/models"
 	"gorm.io/gorm/clause"
 )
 
-func PrCommitConvertor() (err error) {
+func PrCommitConvertor(ctx context.Context) (err error) {
 	githubPullRequestCommit := &models.GithubPullRequestCommit{}
 
 	cursor, err := lakeModels.Db.Model(&githubPullRequestCommit).
@@ -22,6 +25,11 @@ func PrCommitConvertor() (err error) {
 	domainIdGenerator := didgen.NewDomainIdGenerator(&models.GithubPullRequest{})
 	// iterate all rows
 	for cursor.Next() {
+		select {
+		case <-ctx.Done():
+			return core.TaskCanceled
+		default:
+		}
 		err = lakeModels.Db.ScanRows(cursor, githubPullRequestCommit)
 		if err != nil {
 			return err

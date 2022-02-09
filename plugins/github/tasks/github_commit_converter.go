@@ -1,22 +1,25 @@
 package tasks
 
 import (
+	"context"
+
 	lakeModels "github.com/merico-dev/lake/models"
 	"github.com/merico-dev/lake/models/domainlayer/code"
 	"github.com/merico-dev/lake/models/domainlayer/didgen"
+	"github.com/merico-dev/lake/plugins/core"
 	"github.com/merico-dev/lake/plugins/github/models"
 	githubModels "github.com/merico-dev/lake/plugins/github/models"
 	"gorm.io/gorm/clause"
 )
 
-func ConvertCommits(githubRepoId int) error {
+func ConvertCommits(githubRepoId int, ctx context.Context) error {
 	// select all commits belongs to the repo
 	cursor, err := lakeModels.Db.Table("github_commits gc").
 		Joins(`left join github_repo_commits grc on (
 			grc.commit_sha = gc.sha
 		)`).
 		Select("gc.*").
-		Where("grc.github_repo_id = ?", githubRepoId).
+		Where("grc.repo_id = ?", githubRepoId).
 		Rows()
 	if err != nil {
 		return err
@@ -30,6 +33,11 @@ func ConvertCommits(githubRepoId int) error {
 	githubCommit := &models.GithubCommit{}
 	commit := &code.Commit{}
 	for cursor.Next() {
+		select {
+		case <-ctx.Done():
+			return core.TaskCanceled
+		default:
+		}
 		err = lakeModels.Db.ScanRows(cursor, githubCommit)
 		if err != nil {
 			return err
