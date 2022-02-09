@@ -21,7 +21,7 @@ func TestGitLabMergeRequestCommits(t *testing.T) {
 	if err != nil {
 		log.Fatal(err)
 	}
-	sqlCommand := "SELECT commit_id FROM gitlab_merge_request_commits"
+	sqlCommand := "SELECT commit_id FROM gitlab_merge_request_commits where authored_date < '2019-06-25 02:41:42.000'"
 	rows, err := db.Query(sqlCommand)
 	if err != nil {
 		fmt.Println("KEVIN >>> err", err)
@@ -35,5 +35,5 @@ func TestGitLabMergeRequestCommits(t *testing.T) {
 		}
 		mergeRequestCommits = append(mergeRequestCommits, mergeRequestCommit)
 	}
-	assert.Equal(t, len(mergeRequestCommits), 0)
+	assert.Equal(t, len(mergeRequestCommits), 2496)
 }

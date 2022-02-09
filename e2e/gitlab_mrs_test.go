@@ -21,7 +21,7 @@ func TestGitLabMrs(t *testing.T) {
 	if err != nil {
 		log.Fatal(err)
 	}
-	sqlCommand := "SELECT iid FROM gitlab_merge_requests"
+	sqlCommand := "SELECT iid FROM gitlab_merge_requests where gitlab_created_at < '2019-06-25 02:41:42.000'"
 	rows, err := db.Query(sqlCommand)
 	if err != nil {
 		fmt.Println("KEVIN >>> err", err)
@@ -35,5 +35,5 @@ func TestGitLabMrs(t *testing.T) {
 		}
 		mrs = append(mrs, mr)
 	}
-	assert.Equal(t, len(mrs), 0)
+	assert.Equal(t, len(mrs), 589)
 }
