@@ -1,9 +1,17 @@
-import React, { useEffect, useState, Fragment } from 'react'
+import React, { useEffect, useState, useCallback, Fragment } from 'react'
 import {
-  FormGroup,
-  InputGroup
+  ButtonGroup,
+  MenuItem,
+  Position,
+  Button,
+  Intent,
+  Icon,
+  Colors,
+  Tag,
 } from '@blueprintjs/core'
-import MappingTag from '@/pages/configure/settings/jira/MappingTag'
+import useJIRA from '@/hooks/useJIRA'
+import { Select, MultiSelect } from '@blueprintjs/select'
+
 import ClearButton from '@/components/ClearButton'
 import '@/styles/integration.scss'
 import '@/styles/connections.scss'
@@ -19,28 +27,35 @@ export default function JiraSettings (props) {
   // const { providerId, connectionId } = useParams()
   // const history = useHistory()
 
+  const API_PROXY_ENDPOINT = `/api/plugins/jira/sources/${connection?.ID}/proxy/rest`
+  const ISSUE_TYPES_ENDPOINT = `${API_PROXY_ENDPOINT}/api/3/issuetype`
+  const ISSUE_FIELDS_ENDPOINT = `${API_PROXY_ENDPOINT}/api/3/field`
+
+  const { fetchIssueTypes, fetchFields, issueTypes, fields, isFetching: isFetchingJIRA, error: jiraProxyError } = useJIRA({
+    apiProxyPath: API_PROXY_ENDPOINT,
+    issuesEndpoint: ISSUE_TYPES_ENDPOINT,
+    fieldsEndpoint: ISSUE_FIELDS_ENDPOINT
+  })
+
   const [typeMappingBug, setTypeMappingBug] = useState([])
   const [typeMappingIncident, setTypeMappingIncident] = useState([])
   const [typeMappingRequirement, setTypeMappingRequirement] = useState([])
   const [typeMappingAll, setTypeMappingAll] = useState({})
   const [statusMappings, setStatusMappings] = useState()
-  const [jiraIssueEpicKeyField, setJiraIssueEpicKeyField] = useState()
+  const [jiraIssueEpicKeyField, setJiraIssueEpicKeyField] = useState('')
   const [jiraIssueStoryCoefficient, setJiraIssueStoryCoefficient] = useState(1)
-  const [jiraIssueStoryPointField, setJiraIssueStoryPointField] = useState()
-  // const [epicKey, setEpicKey] = useState()
-  // const [granularityKey, setGranularityKey] = useState()
-  // const [boardId, setBoardId] = useState()
+  const [jiraIssueStoryPointField, setJiraIssueStoryPointField] = useState('')
 
-  // @todo restore when re-enabling selector-based ux
-  // ---------------------------------------------------------
-  // const [selectedEpicItem, setSelectedEpicItem] = useState()
-  // const [epics, setEpics] = useState(epicsData)
+  const [requirementTags, setRequirementTags] = useState([])
+  const [bugTags, setBugTags] = useState([])
+  const [incidentTags, setIncidentTags] = useState([])
 
-  // const [selectedGranularityItem, setSelectedGranularityItem] = useState()
-  // const [granularities, setGranularities] = useState(granularitiesData)
+  const [requirementTagsList, setRequirementTagsList] = useState([])
+  const [bugTagsList, setBugTagsList] = useState([])
+  const [incidentTagsList, setIncidentTagsList] = useState([])
 
-  // const [selectedBoardItem, setSelectedBoardItem] = useState()
-  // const [boards, setBoards] = useState(boardsData)
+  const [fieldsList, setFieldsList] = useState(fields)
+  const [issueTypesList, setIssueTypesList] = useState(issueTypes)
 
   const createTypeMapObject = (customType, standardType) => {
     return customType && standardType
@@ -52,7 +67,7 @@ export default function JiraSettings (props) {
       : null
   }
 
-  const parseTypeMappings = (mappings = []) => {
+  const parseTypeMappings = useCallback((mappings = []) => {
     const GroupedMappings = {
       [MAPPING_TYPES.Requirement]: [],
       [MAPPING_TYPES.Incident]: [],
@@ -65,14 +80,17 @@ export default function JiraSettings (props) {
     setTypeMappingRequirement(GroupedMappings[MAPPING_TYPES.Requirement])
     setTypeMappingBug(GroupedMappings[MAPPING_TYPES.Bug])
     setTypeMappingIncident(GroupedMappings[MAPPING_TYPES.Incident])
+    setRequirementTags(requirementTagsList?.filter(t => GroupedMappings[MAPPING_TYPES.Requirement].includes(t.value)))
+    setBugTags(bugTagsList?.filter(t => GroupedMappings[MAPPING_TYPES.Bug].includes(t.value)))
+    setIncidentTags(incidentTagsList?.filter(t => GroupedMappings[MAPPING_TYPES.Incident].includes(t.value)))
     return GroupedMappings
-  }
+  }, [requirementTagsList, bugTagsList, incidentTagsList])
 
   useEffect(() => {
     const settings = {
-      epicKeyField: jiraIssueEpicKeyField,
+      epicKeyField: jiraIssueEpicKeyField?.value || '',
       typeMappings: typeMappingAll,
-      storyPointField: jiraIssueStoryPointField,
+      storyPointField: jiraIssueStoryPointField?.value || '',
     }
     onSettingsChange(settings)
     console.log('>> JIRA INSTANCE SETTINGS FIELDS CHANGED!', settings)
@@ -100,20 +118,14 @@ export default function JiraSettings (props) {
 
   useEffect(() => {
     if (typeMappingBug && typeMappingIncident && typeMappingRequirement) {
-      // LEGACY MAPPING FORMAT (DISABLED)
-      // const typeBug = 'Bug:' + typeMappingBug.toString() + ';'
-      // const typeIncident = 'Incident:' + typeMappingIncident.toString() + ';'
-      // const typeRequirement = 'Requirement:' + typeMappingIncident.toString() + ';'
-      // const all = typeBug + typeIncident + typeRequirement
-      // setTypeMappingAll(all)
       const RequirementMappings = typeMappingRequirement !== ''
-        ? typeMappingRequirement.toString().split(',').map(r => createTypeMapObject(r, MAPPING_TYPES.Requirement))
+        ? typeMappingRequirement.map(r => createTypeMapObject(r.value, MAPPING_TYPES.Requirement))
         : []
       const IncidentMappings = typeMappingIncident !== ''
-        ? typeMappingIncident.toString().split(',').map(i => createTypeMapObject(i, MAPPING_TYPES.Incident))
+        ? typeMappingIncident.map(i => createTypeMapObject(i.value, MAPPING_TYPES.Incident))
         : []
       const BugMappings = typeMappingBug !== ''
-        ? typeMappingBug.toString().split(',').map(b => createTypeMapObject(b, MAPPING_TYPES.Bug))
+        ? typeMappingBug.map(b => createTypeMapObject(b.value, MAPPING_TYPES.Bug))
         : []
       const CombinedMappings = [...RequirementMappings, ...IncidentMappings, ...BugMappings].filter(m => m !== null)
       const MappingTypeObjects = CombinedMappings.reduce((pV, cV) => { return { ...cV, ...pV } }, {})
@@ -125,55 +137,55 @@ export default function JiraSettings (props) {
   }, [typeMappingBug, typeMappingIncident, typeMappingRequirement])
 
   useEffect(() => {
-    // @todo Fetch EPICS, GRANULARITES and BOARDS from API
     console.log('>> CONN SETTINGS OBJECT ', connection)
-    // setEpics([])
-    // setBoards([])
-    // setGranularities([])
-    // let mappings = {
-    //   Bug: [],
-    //   Incident: [],
-    //   Requirement: []
-    // }
     if (connection && connection.ID) {
       // Parse Type Mappings (V2)
       parseTypeMappings(connection.typeMappings)
-
-      // LEGACY TYPE MAPPINGS (Disabled)
-      // const types = connection.JIRA_ISSUE_TYPE_MAPPING ? connection.JIRA_ISSUE_TYPE_MAPPING.split(';').map(t => t.split(':')[0]) : []
-      // if (types.lastIndexOf('') !== -1) {
-      //   types.pop()
-      // }
-      // const tags = connection.JIRA_ISSUE_TYPE_MAPPING ? connection.JIRA_ISSUE_TYPE_MAPPING.split(';').map(t => t.split(':')[1]) : []
-      // types.forEach((type, idx) => {
-      //   if (type) {
-      //     mappings = {
-      //       ...mappings,
-      //       [type]: tags[idx] ? tags[idx].split(',') : []
-      //     }
-      //   }
-      // })
-      // console.log('>> RE-CREATED ISSUE TYPE MAPPINGS OBJ...', mappings)
-      // setTypeMappingRequirement(mappings.Requirement)
-      // setTypeMappingBug(mappings.Bug)
-      // setTypeMappingIncident(mappings.Incident)
       setStatusMappings([])
-      setJiraIssueEpicKeyField(connection.epicKeyField)
-      setJiraIssueStoryPointField(connection.storyPointField)
-
-      // @todo RE-ENABLE SELECTORS!
-      // @todo FETCH & SET EPIC KEY
-      // const selectedEpic = epics.find(e => e.value === connection.JIRA_ISSUE_EPIC_KEY_FIELD)
-      // console.log('>>> EPIC ITEM = ', selectedEpic)
-      // setSelectedEpicItem(selectedEpic)
-
-      // @todo FETCH & SET BOARD ID
-      // setSelectedBoardItem(boards.find(b => b.value === connection.JIRA_ISSUES_BOARD_ID???))
-
-      // @todo FETCH & SET GRANULARITY KEY
-      // setSelectedGranularityItem(granularities.find(g => g.value === connection.JIRA_ISSUE_STORYPOINT_FIELD))
+      // setJiraIssueEpicKeyField(fieldsList.find(f => f.value === connection.epicKeyField))
+      // setJiraIssueStoryPointField(fieldsList.find(f => f.value === connection.storyPointField))
     }
-  }, [connection/*, epics, granularities, boards */])
+  }, [connection, parseTypeMappings])
+
+  useEffect(() => {
+    setTypeMappingRequirement(requirementTags)
+  }, [requirementTags])
+
+  useEffect(() => {
+    setTypeMappingBug(bugTags)
+  }, [bugTags])
+
+  useEffect(() => {
+    setTypeMappingIncident(incidentTags)
+  }, [incidentTags])
+
+  useEffect(() => {
+    // Fetch Issue Types & Fields from JIRA API Proxy
+    fetchIssueTypes()
+    fetchFields()
+  }, [connection.UpdatedAt, fetchIssueTypes, fetchFields])
+
+  useEffect(() => {
+    console.log('>>> JIRA SETTINGS :: FIELDS LIST DATA CHANGED!', fields)
+    setFieldsList(fields)
+  }, [fields])
+
+  useEffect(() => {
+    console.log('>>> JIRA SETTINGS :: ISSUE TYPES LIST DATA CHANGED!', issueTypes)
+    setIssueTypesList(issueTypes)
+    setRequirementTagsList(issueTypes)
+    setBugTagsList(issueTypes)
+    setIncidentTagsList(issueTypes)
+  }, [issueTypes])
+
+  useEffect(() => {
+    setJiraIssueEpicKeyField(fieldsList.find(f => f.value === connection.epicKeyField))
+    setJiraIssueStoryPointField(fieldsList.find(f => f.value === connection.storyPointField))
+  }, [fieldsList, connection.epicKeyField, connection.storyPointField])
+
+  useEffect(() => {
+    parseTypeMappings(connection.typeMappings)
+  }, [requirementTagsList, bugTagsList, incidentTagsList, connection.typeMappings, parseTypeMappings])
 
   return (
     <>
@@ -182,151 +194,343 @@ export default function JiraSettings (props) {
         <p>Map your own issue types to <strong>DevLake's</strong> standard types</p>
       </div>
 
-      <MappingTag
-        labelName='Requirement'
-        classNames='tag-requirement'
-        typeOrStatus='type'
-        placeholderText='Add Issue Types...'
-        values={typeMappingRequirement}
-        rightElement={<ClearButton onClick={() => setTypeMappingRequirement([])} />}
-        onChange={(values) => setTypeMappingRequirement(values)}
-        disabled={isSaving}
-      />
+      <div className='issue-type-multiselect' style={{ display: 'flex', marginBottom: '10px' }}>
+        <div className='issue-type-label' style={{ minWidth: '150px', paddingRight: '10px', paddingTop: '3px' }}>
+          <span
+            className='bp3-tag tag-requirement'
+            style={{ float: 'right' }}
+          ><span className='bp3-fill bp3-text-overflow-ellipsis'>Requirement</span>
+          </span>
+        </div>
+        <div className='issue-type-multiselect-selector' style={{ minWidth: '200px', width: '50%' }}>
+          <MultiSelect
+            disabled={isSaving}
+            placeholder='< Select one or more Requirement Tags >'
+            popoverProps={{ usePortal: false, minimal: true, fill: true, style: { width: '100%' } }}
+            className='multiselector-requirement-type'
+            inline={true}
+            fill={true}
+            items={requirementTagsList}
+            selectedItems={requirementTags}
+            activeItem={null}
+            itemPredicate={(query, item) => item.title.toLowerCase().indexOf(query.toLowerCase()) >= 0}
+            itemRenderer={(item, { handleClick, modifiers }) => (
+              <MenuItem
+                active={modifiers.active || requirementTags.includes(item)}
+                disabled={requirementTags.includes(item)}
+                key={item.value}
+                label={<span style={{ marginLeft: '20px' }}>{item.description || item.value}</span>}
+                onClick={handleClick}
+                text={requirementTags.includes(item)
+                  ? (
+                    <>
+                      <img src={item.iconUrl} width={12} height={12} /> {item.title} <Icon icon='small-tick' color={Colors.GREEN5} />
+                    </>
+                    )
+                  : (
+                    <span style={{ fontWeight: 700 }}>
+                      <img src={item.iconUrl} width={12} height={12} /> {item.title}
+                    </span>
+                    )}
+                style={{ marginBottom: '2px', fontWeight: requirementTags.includes(item) ? 700 : 'normal' }}
+              />
+            )}
+            tagRenderer={(item) => item.title}
+            tagInputProps={{
+              tagProps: {
+                intent: Intent.NONE,
+                color: Colors.RED3,
+                minimal: true
+              },
+            }}
+            noResults={<MenuItem disabled={true} text='No results.' />}
+            onRemove={(item) => {
+              setRequirementTags((rT) => rT.filter(t => t.id !== item.id))
+            }}
+            onItemSelect={(item) => {
+              setRequirementTags((rT) => !rT.includes(item) ? [...rT, item] : [...rT])
+            }}
+          />
+        </div>
+        <div className='multiselect-clear-action' style={{ marginLeft: '5px' }}>
+          <ClearButton
+            disabled={requirementTags.length === 0 || isSaving}
+            intent={Intent.WARNING} minimal={false} onClick={() => setRequirementTags([])}
+          />
+        </div>
+      </div>
 
-      <MappingTag
-        labelName='Bug'
-        classNames='tag-bug'
-        typeOrStatus='type'
-        placeholderText='Add Issue Types...'
-        values={typeMappingBug}
-        rightElement={<ClearButton onClick={() => setTypeMappingBug([])} />}
-        onChange={(values) => setTypeMappingBug(values)}
-        disabled={isSaving}
-      />
+      <div className='issue-type-multiselect' style={{ display: 'flex', marginBottom: '10px' }}>
+        <div className='issue-type-label' style={{ minWidth: '150px', paddingRight: '10px', paddingTop: '3px' }}>
+          <span
+            className='bp3-tag tag-bug'
+            style={{ float: 'right' }}
+          ><span className='bp3-fill bp3-text-overflow-ellipsis'>Bug</span>
+          </span>
+        </div>
+        <div className='issue-type-multiselect-selector' style={{ minWidth: '200px', width: '50%' }}>
+          <MultiSelect
+            disabled={isSaving}
+            placeholder='< Select one or more Bug Tags >'
+            popoverProps={{ usePortal: false, minimal: true }}
+            className='multiselector-bug-type'
+            inline={true}
+            fill={true}
+            items={bugTagsList}
+            selectedItems={bugTags}
+            activeItem={null}
+            itemPredicate={(query, item) => item.title.toLowerCase().indexOf(query.toLowerCase()) >= 0}
+            itemRenderer={(item, { handleClick, modifiers }) => (
+              <MenuItem
+                active={modifiers.active || bugTags.includes(item)}
+                disabled={bugTags.includes(item)}
+                key={item.value}
+                label={<span style={{ marginLeft: '20px' }}>{item.description || item.value}</span>}
+                onClick={handleClick}
+                text={bugTags.includes(item)
+                  ? (
+                    <>
+                      <img src={item.iconUrl} width={12} height={12} /> {item.title} <Icon icon='small-tick' color={Colors.GREEN5} />
+                    </>
+                    )
+                  : (
+                    <span style={{ fontWeight: 700 }}>
+                      <img src={item.iconUrl} width={12} height={12} /> {item.title}
+                    </span>
+                    )}
+                style={{ marginBottom: '2px', fontWeight: bugTags.includes(item) ? 700 : 'normal' }}
+              />
+            )}
+            tagRenderer={(item) => item.title}
+            tagInputProps={{
+              tagProps: {
+                intent: Intent.NONE,
+                color: Colors.RED3,
+                minimal: true
+              },
+            }}
+            noResults={<MenuItem disabled={true} text='No results.' />}
+            onRemove={(item) => {
+              setBugTags((rT) => rT.filter(t => t.id !== item.id))
+            }}
+            onItemSelect={(item) => {
+              setBugTags((rT) => !rT.includes(item) ? [...rT, item] : [...rT])
+            }}
+          />
+        </div>
+        <div className='multiselect-clear-action' style={{ marginLeft: '5px' }}>
+          <ClearButton
+            disabled={bugTags.length === 0 || isSaving}
+            intent={Intent.WARNING} minimal={false} onClick={() => setBugTags([])}
+          />
+        </div>
+      </div>
 
-      <MappingTag
-        labelName='Incident'
-        classNames='tag-incident'
-        typeOrStatus='type'
-        placeholderText='Add Issue Types...'
-        values={typeMappingIncident}
-        rightElement={<ClearButton onClick={() => setTypeMappingIncident([])} />}
-        onChange={(values) => setTypeMappingIncident(values)}
-        disabled={isSaving}
-      />
+      <div className='issue-type-multiselect' style={{ display: 'flex', marginBottom: '10px' }}>
+        <div className='issue-type-label' style={{ minWidth: '150px', paddingRight: '10px', paddingTop: '3px' }}>
+          <span
+            className='bp3-tag tag-incident'
+            style={{ float: 'right' }}
+          ><span className='bp3-fill bp3-text-overflow-ellipsis'>Incident</span>
+          </span>
+        </div>
+        <div className='issue-type-multiselect-selector' style={{ minWidth: '200px', width: '50%' }}>
+          <MultiSelect
+            disabled={isSaving}
+            placeholder='< Select one or more Incident Tags >'
+            popoverProps={{ usePortal: false, minimal: true }}
+            className='multiselector-incident-type'
+            inline={true}
+            fill={true}
+            items={incidentTagsList}
+            selectedItems={incidentTags}
+            activeItem={null}
+            itemPredicate={(query, item) => item.title.toLowerCase().indexOf(query.toLowerCase()) >= 0}
+            itemRenderer={(item, { handleClick, modifiers }) => (
+              <MenuItem
+                active={modifiers.active || incidentTags.includes(item)}
+                disabled={incidentTags.includes(item)}
+                key={item.value}
+                label={<span style={{ marginLeft: '20px' }}>{item.description || item.value}</span>}
+                onClick={handleClick}
+                text={incidentTags.includes(item)
+                  ? (
+                    <>
+                      <img src={item.iconUrl} width={12} height={12} /> {item.title} <Icon icon='small-tick' color={Colors.GREEN5} />
+                    </>
+                    )
+                  : (
+                    <span style={{ fontWeight: 700 }}>
+                      <img src={item.iconUrl} width={12} height={12} /> {item.title}
+                    </span>
+                    )}
+                style={{ marginBottom: '2px', fontWeight: incidentTags.includes(item) ? 700 : 'normal' }}
+              />
+            )}
+            tagRenderer={(item) => item.title}
+            tagInputProps={{
+              tagProps: {
+                intent: Intent.NONE,
+                color: Colors.RED3,
+                minimal: true
+              },
+            }}
+            noResults={<MenuItem disabled={true} text='No results.' />}
+            onRemove={(item) => {
+              setIncidentTags((rT) => rT.filter(t => t.id !== item.id))
+            }}
+            onItemSelect={(item) => {
+              setIncidentTags((rT) => !rT.includes(item) ? [...rT, item] : [...rT])
+            }}
+          />
+        </div>
+        <div className='multiselect-clear-action' style={{ marginLeft: '5px' }}>
+          <ClearButton
+            disabled={incidentTags.length === 0 || isSaving}
+            intent={Intent.WARNING} minimal={false} onClick={() => setIncidentTags([])}
+          />
+        </div>
+      </div>
 
       <div className='headlineContainer'>
         <h3 className='headline'>
           Epic Key<span className='requiredStar'>*</span>
         </h3>
         <p className=''>Choose the JIRA field you’re using to represent the key of an Epic to which an issue belongs to.</p>
-        {/* <span style={{ display: 'inline-block' }}>
-          <Select
-            className='select-epic-key'
-            inline={true}
-            fill={false}
-            items={epics}
-            activeItem={selectedEpicItem}
-            itemPredicate={(query, item) => item.title.toLowerCase().indexOf(query.toLowerCase()) >= 0}
-            itemRenderer={(item, { handleClick, modifiers }) => (
-              <MenuItem
-                active={modifiers.active}
-                key={item.value}
-                label={item.value}
-                onClick={handleClick}
-                text={item.title}
+        <div style={{ display: 'flex', minWidth: '260px' }}>
+          <ButtonGroup disabled={isSaving}>
+            <Select
+              disabled={isSaving || fieldsList.length === 0}
+              className='select-epic-key'
+              inline={true}
+              fill={true}
+              items={fieldsList}
+              activeItem={jiraIssueEpicKeyField}
+              itemPredicate={(query, item) => item.title.toLowerCase().indexOf(query.toLowerCase()) >= 0}
+              itemRenderer={(item, { handleClick, modifiers }) => (
+                <MenuItem
+                  disabled={jiraIssueStoryPointField?.value === item.value}
+                  active={false}
+                  intent={modifiers.active ? Intent.NONE : Intent.NONE}
+                  key={item.value}
+                  label={item.value}
+                  onClick={handleClick}
+                  text={
+                    <>
+                      <span>{item.title}</span>{' '}
+                      <Tag minimal intent={Intent.PRIMARY} style={{ fontSize: '9px' }}>{item.type}</Tag>{' '}
+                      {modifiers.active && (<Icon icon='small-tick' color={Colors.GREEN5} size={14} />)}
+                    </>
+                  }
+                  style={{
+                    fontSize: '11px',
+                    fontWeight: modifiers.active ? 800 : 'normal',
+                    backgroundColor: modifiers.active ? Colors.LIGHT_GRAY4 : 'none'
+                  }}
+                />
+              )}
+              noResults={<MenuItem disabled={true} text='No epic results.' />}
+              onItemSelect={(item) => {
+                setJiraIssueEpicKeyField(item)
+              }}
+              popoverProps={{
+                position: Position.TOP
+              }}
+            >
+              <Button
+                disabled={isSaving || fieldsList.length === 0}
+                fill={true}
+                style={{ justifyContent: 'space-between', display: 'flex', minWidth: '260px', maxWidth: '300px' }}
+                text={jiraIssueEpicKeyField ? `${jiraIssueEpicKeyField.title}` : '< None Specified >'}
+                rightIcon='double-caret-vertical'
               />
-            )}
-            noResults={<MenuItem disabled={true} text='No epic results.' />}
-            onItemSelect={(item) => {
-              // @todo SET/VERIFY ENV FIELD FOR EPIC KEY
-              setJiraIssueEpicKeyField(item.value)
-              setSelectedEpicItem(item)
-            }}
-          >
+            </Select>
             <Button
-              style={{ maxWidth: '260px' }}
-              text={selectedEpicItem ? `${selectedEpicItem.title}` : epics[0].title}
-              rightIcon='double-caret-vertical'
+              disabled={!jiraIssueEpicKeyField || isSaving}
+              icon='eraser'
+              intent={jiraIssueEpicKeyField ? Intent.WARNING : Intent.NONE} minimal={false} onClick={() => setJiraIssueEpicKeyField('')}
             />
-          </Select>
-        </span> */}
-      </div>
-      <div className='formContainer' style={{ maxWidth: '250px' }}>
-        <FormGroup
-          disabled={isSaving}
-          // readOnly={['gitlab', 'jenkins'].includes(activeProvider.id)}
-          label=''
-          inline={true}
-          labelFor='epic-key-field'
-          // helperText='NAME'
-          className='formGroup'
-          contentClassName='formGroupContent'
-        >
-          <InputGroup
-            id='epic-key-field'
-            disabled={isSaving}
-            // readOnly={['gitlab', 'jenkins'].includes(activeProvider.id)}
-            placeholder='eg. 1000'
-            value={jiraIssueEpicKeyField}
-            onChange={(e) => setJiraIssueEpicKeyField(e.target.value)}
-            className='input epic-key-field'
-          />
-        </FormGroup>
+          </ButtonGroup>
+          <div style={{ marginLeft: '10px' }}>
+            {jiraProxyError && (
+              <p style={{ color: Colors.GRAY4 }}>
+                <Icon icon='warning-sign' color={Colors.RED5} size={12} style={{ marginBottom: '2px' }} />{' '}
+                {jiraProxyError.toString() || 'JIRA API not accessible.'}
+              </p>
+            )}
+          </div>
+        </div>
       </div>
       <div className='headlineContainer'>
         <h3 className='headline'>Story Point Field (Optional)</h3>
         <p className=''>Choose the JIRA field you’re using to represent the granularity of a requirement-type issue.</p>
-        {/* <span style={{ display: 'inline-block' }}>
-          <Select
-            className='select-board-key'
-            inline={true}
-            fill={false}
-            items={boards}
-            activeItem={selectedBoardItem}
-            itemPredicate={(query, item) => item.title.toLowerCase().indexOf(query.toLowerCase()) >= 0}
-            itemRenderer={(item, { handleClick, modifiers }) => (
-              <MenuItem
-                active={modifiers.active}
-                key={item.value}
-                label={item.value}
-                onClick={handleClick}
-                text={item.title}
+        <div style={{ display: 'flex', minWidth: '260px' }}>
+          <ButtonGroup disabled={isSaving}>
+            <Select
+              disabled={isSaving || fieldsList.length === 0}
+              className='select-story-key'
+              inline={true}
+              fill={true}
+              items={fieldsList}
+              activeItem={jiraIssueStoryPointField}
+              itemPredicate={(query, item) => item.title.toLowerCase().indexOf(query.toLowerCase()) >= 0}
+              itemRenderer={(item, { handleClick, modifiers }) => (
+                <MenuItem
+                  disabled={jiraIssueEpicKeyField?.value === item.value}
+                  active={false}
+                  intent={modifiers.active ? Intent.NONE : Intent.NONE}
+                  key={item.value}
+                  label={item.value}
+                  onClick={handleClick}
+                  text={
+                    <>
+                      {item.title}{' '}
+                      <Tag minimal intent={Intent.PRIMARY} style={{ fontSize: '9px' }}>{item.type}</Tag>{' '}
+                      {modifiers.active && (<Icon icon='small-tick' color={Colors.GREEN5} size={14} />)}
+                    </>
+                  }
+                  style={{
+                    fontSize: '11px',
+                    fontWeight: modifiers.active ? 800 : 'normal',
+                    backgroundColor: modifiers.active ? Colors.LIGHT_GRAY4 : 'none'
+                  }}
+                />
+              )}
+              noResults={<MenuItem disabled={true} text='No epic results.' />}
+              onItemSelect={(item) => {
+                setJiraIssueStoryPointField(item)
+              }}
+              popoverProps={{
+                position: Position.TOP
+              }}
+            >
+              <Button
+                // loading={isFetchingJIRA}
+                disabled={isSaving || fieldsList.length === 0}
+                fill={true}
+                style={{ justifyContent: 'space-between', display: 'flex', minWidth: '260px', maxWidth: '300px' }}
+                text={jiraIssueStoryPointField ? `${jiraIssueStoryPointField.title}` : '< None Specified >'}
+                rightIcon='double-caret-vertical'
               />
-            )}
-            noResults={<MenuItem disabled={true} text='No board results.' />}
-            onItemSelect={(item) => {
-              // @todo SET/VERIFY ENV FIELD FOR BOARD ID
-              setJiraIssueStoryPointField(item.value)
-              setSelectedBoardItem(item)
-            }}
-          >
+            </Select>
             <Button
-              style={{ maxWidth: '260px' }}
-              text={selectedBoardItem ? `${selectedBoardItem.title}` : boards[0].title}
-              rightIcon='double-caret-vertical'
+              loading={isFetchingJIRA}
+              disabled={!jiraIssueStoryPointField || isSaving}
+              icon='eraser'
+              intent={jiraIssueStoryPointField
+                ? Intent.WARNING
+                : Intent.NONE} minimal={false} onClick={() => setJiraIssueStoryPointField('')}
             />
-          </Select>
-        </span> */}
-      </div>
-      <div className='formContainer' style={{ maxWidth: '250px' }}>
-        <FormGroup
-          disabled={isSaving}
-          label=''
-          inline={true}
-          labelFor='board-id-field'
-          className='formGroup'
-          contentClassName='formGroupContent'
-        >
-          <InputGroup
-            id='board-id'
-            disabled={isSaving}
-            placeholder='eg. 3000'
-            value={jiraIssueStoryPointField}
-            onChange={(e) => setJiraIssueStoryPointField(e.target.value)}
-            className='input board-id'
-          />
-        </FormGroup>
+          </ButtonGroup>
+          <div style={{ marginLeft: '10px' }}>
+            {jiraProxyError && (
+              <p style={{ color: Colors.GRAY4 }}>
+                <Icon icon='warning-sign' color={Colors.RED5} size={12} style={{ marginBottom: '2px' }} />{' '}
+                {jiraProxyError.toString() || 'JIRA API not accessible.'}
+              </p>
+            )}
+          </div>
+        </div>
       </div>
     </>
   )
