@@ -21,7 +21,7 @@ func TestGitLabPipelines(t *testing.T) {
 	if err != nil {
 		log.Fatal(err)
 	}
-	sqlCommand := "SELECT gitlab_id FROM gitlab_pipelines"
+	sqlCommand := "SELECT gitlab_id FROM gitlab_pipelines where gitlab_created_at < '2019-06-25 02:41:42.000'"
 	rows, err := db.Query(sqlCommand)
 	if err != nil {
 		fmt.Println("KEVIN >>> err", err)
@@ -35,5 +35,5 @@ func TestGitLabPipelines(t *testing.T) {
 		}
 		pipelines = append(pipelines, pipeline)
 	}
-	assert.Equal(t, len(pipelines), 0)
+	assert.Equal(t, len(pipelines), 1333)
 }

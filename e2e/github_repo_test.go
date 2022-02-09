@@ -11,7 +11,7 @@ import (
 // This test should only run once main_test is complete and ready
 
 type Repo struct {
-	ID string
+	GithubId string `json:"github_id"`
 }
 
 func TestGitHubRepos(t *testing.T) {
@@ -21,7 +21,7 @@ func TestGitHubRepos(t *testing.T) {
 	if err != nil {
 		log.Fatal(err)
 	}
-	rows, err := db.Query("SELECT * FROM github_repos")
+	rows, err := db.Query("SELECT github_id FROM github_repos")
 	if err != nil {
 		fmt.Println("KEVIN >>> err", err)
 	}
@@ -29,9 +29,7 @@ func TestGitHubRepos(t *testing.T) {
 	defer rows.Close()
 	for rows.Next() {
 		var repo Repo
-		// This fails because we need all the column names
-		// It only passes when there are no repos in the DB.
-		if err := rows.Scan(&repo.ID); err != nil {
+		if err := rows.Scan(&repo.GithubId); err != nil {
 			panic(err)
 		}
 		repos = append(repos, repo)
