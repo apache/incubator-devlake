@@ -10,24 +10,31 @@ import (
 )
 
 func ConvertPullRequests() error {
-	var githubPullRequests []githubModels.GithubPullRequest
-	err := lakeModels.Db.Find(&githubPullRequests).Error
+	githubPullRequest := &githubModels.GithubPullRequest{}
+	cursor, err := lakeModels.Db.Model(githubPullRequest).Rows()
 	if err != nil {
 		return err
 	}
-	for _, pullrequest := range githubPullRequests {
-		domainPr := convertToPullRequestModel(&pullrequest)
-		err := lakeModels.Db.Clauses(clause.OnConflict{UpdateAll: true}).Create(domainPr).Error
+	defer cursor.Close()
+	domainPrIdGenerator := didgen.NewDomainIdGenerator(githubPullRequest)
+
+	for cursor.Next() {
+		err = lakeModels.Db.ScanRows(cursor, githubPullRequest)
+		if err != nil {
+			return err
+		}
+		domainPr := convertToPullRequestModel(githubPullRequest, domainPrIdGenerator)
+		err = lakeModels.Db.Clauses(clause.OnConflict{UpdateAll: true}).Create(domainPr).Error
 		if err != nil {
 			return err
 		}
 	}
 	return nil
 }
-func convertToPullRequestModel(pr *githubModels.GithubPullRequest) *code.PullRequest {
+func convertToPullRequestModel(pr *githubModels.GithubPullRequest, domainGenerator *didgen.DomainIdGenerator) *code.PullRequest {
 	domainPr := &code.PullRequest{
 		DomainEntity: domainlayer.DomainEntity{
-			Id: didgen.NewDomainIdGenerator(pr).Generate(pr.GithubId),
+			Id: domainGenerator.Generate(pr.GithubId),
 		},
 		RepoId:         uint64(pr.RepoId),
 		Status:         pr.State,
