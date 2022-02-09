@@ -104,10 +104,11 @@ const TaskActivity = (props) => {
               {t.plugin !== Providers.JENKINS && t.plugin !== 'refdiff' && (
                 <div style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                   <span style={{ color: Colors.GRAY2 }}>
-                    <Icon icon='link' size={8} style={{ marginBottom: '3px' }} /> {t.options[Object.keys(t.options)[0]]}
+                    <Icon icon='link' size={8} style={{ marginBottom: '3px' }} />{' '}
+                    {t.options.projectId || t.options.boardId || t.options.owner}
                   </span>
                   {t.plugin === Providers.GITHUB && (
-                    <span style={{ fontWeight: 60 }}>/{t.options.repo}</span>
+                    <span style={{ fontWeight: 60 }}>/{t.options.repositoryName || t.options.repo || '(Repository)'}</span>
                   )}
                 </div>
               )}
