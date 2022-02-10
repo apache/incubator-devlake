@@ -219,6 +219,7 @@ spec:
       containers:
         - name: mysql
           image: mysql/mysql-server:latest
+          imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 3306
           env:
@@ -230,6 +231,13 @@ spec:
               value: merico
             - name: MYSQL_PASSWORD
               value: merico
+          volumeMounts:
+            - mountPath: /var/lib/mysql
+              name: data
+      volumes:
+        - name: data
+          hostPath:
+            path: /var/lib/mysql
 
 ---
 apiVersion: v1
@@ -369,6 +377,7 @@ spec:
           volumeMounts:
             - name: config
               mountPath: "/app/.env"
+              subPath: ".env"
       volumes:
         - name: config
           configMap:
