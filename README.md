@@ -195,16 +195,12 @@ NOTE: After installing docker, you may need to run the docker application and re
 
 #### Commands to run in your terminal<a id="user-setup-commands"></a>
 
-1. Clone repository:
+**IMPORTANT: DevLake doesn't support Database Schema Migration yet,  upgrading an existing instance is likely to break, we recommend that you deploy a new instance instead.**
 
-   ```sh
-   git clone https://github.com/merico-dev/lake.git devlake
-   cd devlake
-   cp .env.example .env
-   ```
-2. Start Docker on your machine, then run `docker compose up -d` to start the services.
-
-3. Visit `localhost:4000` to setup configuration files.
+1. Download `docker-compose.yml` and `env.example` from [latest release page](https://github.com/merico-dev/lake/releases/latest) into a folder
+2. Rename `env.example` to `.env`
+3. Start Docker on your machine, then run `docker-compose up -d` to start the services.
+4. Visit `localhost:4000` to setup configuration files.
    >- Navigate to desired plugins pages on the Integrations page
    >- You will need to enter the required information for the plugins you intend to use.
    >- Please reference the following for more details on how to configure each one:
@@ -218,7 +214,7 @@ NOTE: After installing docker, you may need to run the docker application and re
    >- `devlake` takes a while to fully boot up. if `config-ui` complaining about api being unreachable, please wait a few seconds and try refreshing the page.
    >- To collect this repo for a quick preview, please provide a Github personal token on **Data Integrations / Github** page.
 
-4. Visit `localhost:4000/create-pipeline` to RUN a Pipeline and trigger data collection.
+5. Visit `localhost:4000/create-pipeline` to RUN a Pipeline and trigger data collection.
 
 
 Pipelines Runs can be initiated by the new "Create Run" Interface. Simply enable the **Data Source Providers**
@@ -242,10 +238,10 @@ to the DevLake API Endpoint.
 [
     [
         {
-            "Plugin": "github",
-            "Options": {
-            "repo": "lake",
-            "owner": "merico-dev"
+            "plugin": "github",
+            "options": {
+                "repo": "lake",
+                "owner": "merico-dev"
             }
         }
     ]
@@ -254,7 +250,7 @@ to the DevLake API Endpoint.
 
 Please refer to this wiki [How to trigger data collection](https://github.com/merico-dev/lake/wiki/How-to-use-the-triggers-page).
 
-5. Click *View Dashboards* button when done (username: `admin`, password: `admin`). The button will be shown on the Trigger Collection page when data collection has finished.
+6. Click *View Dashboards* button when done (username: `admin`, password: `admin`). The button will be shown on the Trigger Collection page when data collection has finished.
 
 #### Setup cron job
 
@@ -306,10 +302,13 @@ To synchronize data periodically, we provide [`lake-cli`](./cmd/lake-cli/README.
     > Make sure the Docker daemon is running before this step.
 
     ```sh
-    docker compose up
+    docker-compose up
     ```
+6. Install required libraries
 
-6. Run lake and config UI in dev mode in two seperate terminals:
+   - <a href="plugins/refdiff#install-libgit2" target="_blank">Libgit2</a>
+
+7. Run lake and config UI in dev mode in two seperate terminals:
 
     ```sh
     # run lake
@@ -318,7 +317,7 @@ To synchronize data periodically, we provide [`lake-cli`](./cmd/lake-cli/README.
     make configure-dev
     ```
 
-7. Visit config UI at `localhost:4000` to configure data sources.
+8. Visit config UI at `localhost:4000` to configure data sources.
    >- Navigate to desired plugins pages on the Integrations page
    >- You will need to enter the required information for the plugins you intend to use.
    >- Please reference the following for more details on how to configure each one:
@@ -329,11 +328,11 @@ To synchronize data periodically, we provide [`lake-cli`](./cmd/lake-cli/README.
 
    >- Submit the form to update the values by clicking on the **Save Connection** button on each form page
 
-8. Visit `localhost:4000/triggers` to trigger data collection.
+9. Visit `localhost:4000/triggers` to trigger data collection.
 
    > - Please refer to this wiki [How to trigger data collection](https://github.com/merico-dev/lake/wiki/How-to-use-the-triggers-page). Data collection can take up to 20 minutes for large projects. (GitLab 10k+ commits or Jira 5k+ issues)
 
-9. Click *View Dashboards* button when done (username: `admin`, password: `admin`). The button is shown in the top left.
+10. Click *View Dashboards* button when done (username: `admin`, password: `admin`). The button is shown in the top left.
 <br>
 
 ****
