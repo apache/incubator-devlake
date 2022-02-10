@@ -10,29 +10,30 @@ import (
 
 // This test should only run once main_test is complete and ready
 
-type GithubRepo struct {
-	GithubId string `json:"github_id"`
+type GithubUser struct {
+	Id int
 }
 
-func TestGitHubGithubRepos(t *testing.T) {
-	var repos []GithubRepo
+func TestGithubUsers(t *testing.T) {
+	var users []GithubUser
 	db, err := InitializeDb()
 	assert.Nil(t, err)
 	if err != nil {
 		log.Fatal(err)
 	}
-	rows, err := db.Query("SELECT github_id FROM github_repos")
+	sqlCommand := "SELECT id FROM github_users"
+	rows, err := db.Query(sqlCommand)
 	if err != nil {
 		fmt.Println("KEVIN >>> err", err)
 	}
 	assert.Nil(t, err)
 	defer rows.Close()
 	for rows.Next() {
-		var repo GithubRepo
-		if err := rows.Scan(&repo.GithubId); err != nil {
+		var user GithubUser
+		if err := rows.Scan(&user.Id); err != nil {
 			panic(err)
 		}
-		repos = append(repos, repo)
+		users = append(users, user)
 	}
-	assert.Equal(t, len(repos), 1)
+	assert.Equal(t, len(users) > 0, true)
 }
