@@ -23,7 +23,7 @@ func TestGitHubRepos(t *testing.T) {
 	}
 	rows, err := db.Query("SELECT github_id FROM github_repos")
 	if err != nil {
-		fmt.Println("KEVIN >>> err", err)
+		fmt.Println("ERROR: ", err)
 	}
 	assert.Nil(t, err)
 	defer rows.Close()

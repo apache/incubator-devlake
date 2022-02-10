@@ -23,7 +23,7 @@ func TestDomainRepos(t *testing.T) {
 	}
 	rows, err := db.Query("SELECT id FROM repos")
 	if err != nil {
-		fmt.Println("KEVIN >>> err", err)
+		fmt.Println("ERROR: ", err)
 	}
 	assert.Nil(t, err)
 	defer rows.Close()

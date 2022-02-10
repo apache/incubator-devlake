@@ -24,7 +24,7 @@ func TestJenkinsBuilds(t *testing.T) {
 	sqlCommand := "SELECT id FROM jenkins_builds where start_time < '2021-01-27 08:34:34.000';"
 	rows, err := db.Query(sqlCommand)
 	if err != nil {
-		fmt.Println("KEVIN >>> err", err)
+		fmt.Println("ERROR: ", err)
 	}
 	assert.Nil(t, err)
 	defer rows.Close()

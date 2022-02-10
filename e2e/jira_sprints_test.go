@@ -24,7 +24,7 @@ func TestJiraSprints(t *testing.T) {
 	sqlCommand := "SELECT sprint_id FROM jira_sprints where start_date < '2020-12-09 01:15:11.205';"
 	rows, err := db.Query(sqlCommand)
 	if err != nil {
-		fmt.Println("KEVIN >>> err", err)
+		fmt.Println("ERROR: ", err)
 	}
 	assert.Nil(t, err)
 	defer rows.Close()

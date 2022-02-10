@@ -23,7 +23,7 @@ func TestGithubPullRequestCommits(t *testing.T) {
 	}
 	rows, err := db.Query("SELECT sha FROM github_pull_request_commits where authored_date < '2021-12-25 04:40:11.000'")
 	if err != nil {
-		fmt.Println("KEVIN >>> err", err)
+		fmt.Println("ERROR: ", err)
 	}
 	assert.Nil(t, err)
 	defer rows.Close()

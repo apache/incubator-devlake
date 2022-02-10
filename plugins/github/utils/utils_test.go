@@ -52,7 +52,7 @@ func TestGetRateLimitPerSecond(t *testing.T) {
 
 	rateLimitInfo, err := ConvertRateLimitInfo(date, resetTime, remaining)
 	if err != nil {
-		fmt.Println("INFO >>> err", err)
+		fmt.Println("ERROR: ", err)
 	}
 	rateLimitPerSecond := GetRateLimitPerSecond(rateLimitInfo)
 	assert.Equal(t, rateLimitPerSecond, 31)

@@ -24,7 +24,7 @@ func TestJiraBoards(t *testing.T) {
 	sqlCommand := "SELECT board_id FROM jira_boards;"
 	rows, err := db.Query(sqlCommand)
 	if err != nil {
-		fmt.Println("KEVIN >>> err", err)
+		fmt.Println("ERROR: ", err)
 	}
 	assert.Nil(t, err)
 	defer rows.Close()

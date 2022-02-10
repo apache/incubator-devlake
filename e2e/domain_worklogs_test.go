@@ -24,7 +24,7 @@ func TestDomainWorklogs(t *testing.T) {
 	sqlCommand := "SELECT author_id FROM lake.worklogs w JOIN lake.issues i ON w.issue_id = i.id where started_date < '2020-06-20 06:18:24.880';"
 	rows, err := db.Query(sqlCommand)
 	if err != nil {
-		fmt.Println("KEVIN >>> err", err)
+		fmt.Println("ERROR: ", err)
 	}
 	assert.Nil(t, err)
 	defer rows.Close()

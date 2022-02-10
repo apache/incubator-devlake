@@ -24,7 +24,7 @@ func TestDomainPullRequestCommits(t *testing.T) {
 	sqlCommand := "SELECT commit_sha FROM lake.repo_commits rc JOIN commits c ON c.sha = rc.commit_sha where authored_date < '2019-04-21 10:12:19.000';"
 	rows, err := db.Query(sqlCommand)
 	if err != nil {
-		fmt.Println("KEVIN >>> err", err)
+		fmt.Println("ERROR: ", err)
 	}
 	assert.Nil(t, err)
 	defer rows.Close()

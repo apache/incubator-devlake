@@ -23,7 +23,7 @@ func TestGithubIssueLabelIssues(t *testing.T) {
 	}
 	rows, err := db.Query("SELECT github_id FROM lake.github_issues gi JOIN lake.github_issue_label_issues gili ON gili.issue_id = gi.github_id where github_created_at < '2021-11-24 19:22:29.000';")
 	if err != nil {
-		fmt.Println("KEVIN >>> err", err)
+		fmt.Println("ERROR: ", err)
 	}
 	assert.Nil(t, err)
 	defer rows.Close()
