@@ -11,7 +11,7 @@ import (
 // This test should only run once main_test is complete and ready
 
 type JiraProject struct {
-	Id int 
+	Id int
 }
 
 func TestJiraProjects(t *testing.T) {
@@ -24,7 +24,7 @@ func TestJiraProjects(t *testing.T) {
 	sqlCommand := "SELECT id FROM jira_projects;"
 	rows, err := db.Query(sqlCommand)
 	if err != nil {
-		fmt.Println("KEVIN >>> err", err)
+		fmt.Println("ERROR: ", err)
 	}
 	assert.Nil(t, err)
 	defer rows.Close()

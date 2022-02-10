@@ -24,7 +24,7 @@ func TestDomainBuilds(t *testing.T) {
 	sqlCommand := "SELECT id FROM lake.builds where started_date < '2021-05-14 15:06:50.000';;"
 	rows, err := db.Query(sqlCommand)
 	if err != nil {
-		fmt.Println("KEVIN >>> err", err)
+		fmt.Println("ERROR: ", err)
 	}
 	assert.Nil(t, err)
 	defer rows.Close()

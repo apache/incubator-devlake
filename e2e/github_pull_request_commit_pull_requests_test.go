@@ -23,7 +23,7 @@ func TestGithubPRJoins(t *testing.T) {
 	}
 	rows, err := db.Query("SELECT github_id FROM lake.github_pull_requests pr JOIN github_pull_request_commit_pull_requests prj ON prj.pull_request_id = pr.github_id where github_created_at < '2021-12-25 04:40:11.000';")
 	if err != nil {
-		fmt.Println("KEVIN >>> err", err)
+		fmt.Println("ERROR: ", err)
 	}
 	assert.Nil(t, err)
 	defer rows.Close()

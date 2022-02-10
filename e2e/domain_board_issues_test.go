@@ -24,7 +24,7 @@ func TestDomainBoardIssues(t *testing.T) {
 	sqlCommand := "SELECT board_id FROM lake.issues i JOIN board_issues bi on i.id = bi.issue_id where resolution_date < '2021-10-25 17:00:58.000';"
 	rows, err := db.Query(sqlCommand)
 	if err != nil {
-		fmt.Println("KEVIN >>> err", err)
+		fmt.Println("ERROR: ", err)
 	}
 	assert.Nil(t, err)
 	defer rows.Close()

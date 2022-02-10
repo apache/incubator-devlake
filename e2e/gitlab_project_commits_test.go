@@ -24,7 +24,7 @@ func TestGitlabProjectCommits(t *testing.T) {
 	sqlCommand := "Select sha from gitlab_commits co JOIN gitlab_project_commits coj ON co.sha = coj.commit_sha where authored_date < '2019-04-25 04:40:11.000';"
 	rows, err := db.Query(sqlCommand)
 	if err != nil {
-		fmt.Println("KEVIN >>> err", err)
+		fmt.Println("ERROR: ", err)
 	}
 	assert.Nil(t, err)
 	defer rows.Close()

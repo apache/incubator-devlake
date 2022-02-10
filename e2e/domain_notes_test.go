@@ -24,7 +24,7 @@ func TestDomainNotes(t *testing.T) {
 	sqlCommand := "SELECT id FROM lake.notes where created_date < '2019-10-24 02:23:43.000';"
 	rows, err := db.Query(sqlCommand)
 	if err != nil {
-		fmt.Println("KEVIN >>> err", err)
+		fmt.Println("ERROR: ", err)
 	}
 	assert.Nil(t, err)
 	defer rows.Close()

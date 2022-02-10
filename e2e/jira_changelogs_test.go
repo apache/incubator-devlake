@@ -24,7 +24,7 @@ func TestJiraChangelogs(t *testing.T) {
 	sqlCommand := "SELECT changelog_id FROM jira_changelogs where created < '2020-07-05 00:17:32.778';"
 	rows, err := db.Query(sqlCommand)
 	if err != nil {
-		fmt.Println("KEVIN >>> err", err)
+		fmt.Println("ERROR: ", err)
 	}
 	assert.Nil(t, err)
 	defer rows.Close()

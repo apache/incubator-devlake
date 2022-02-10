@@ -23,7 +23,7 @@ func TestGitHubGithubRepoCommitss(t *testing.T) {
 	}
 	rows, err := db.Query("Select author_id from github_commits gc JOIN github_repo_commits grc ON grc.commit_sha = gc.sha where authored_date < '2021-12-25 04:40:11.000';")
 	if err != nil {
-		fmt.Println("KEVIN >>> err", err)
+		fmt.Println("ERROR: ", err)
 	}
 	assert.Nil(t, err)
 	defer rows.Close()

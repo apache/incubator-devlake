@@ -23,7 +23,7 @@ func TestGithubIssueLabelss(t *testing.T) {
 	}
 	rows, err := db.Query("SELECT github_id FROM lake.github_issue_labels")
 	if err != nil {
-		fmt.Println("KEVIN >>> err", err)
+		fmt.Println("ERROR: ", err)
 	}
 	assert.Nil(t, err)
 	defer rows.Close()

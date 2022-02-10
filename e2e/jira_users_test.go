@@ -24,7 +24,7 @@ func TestJiraUsers(t *testing.T) {
 	sqlCommand := "SELECT email FROM jira_users;"
 	rows, err := db.Query(sqlCommand)
 	if err != nil {
-		fmt.Println("KEVIN >>> err", err)
+		fmt.Println("ERROR: ", err)
 	}
 	assert.Nil(t, err)
 	defer rows.Close()

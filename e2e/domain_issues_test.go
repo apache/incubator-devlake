@@ -23,7 +23,7 @@ func TestDomainIssues(t *testing.T) {
 	}
 	rows, err := db.Query("SELECT id FROM lake.issues where resolution_date < '2021-10-25 17:00:58.000';")
 	if err != nil {
-		fmt.Println("KEVIN >>> err", err)
+		fmt.Println("ERROR: ", err)
 	}
 	assert.Nil(t, err)
 	defer rows.Close()

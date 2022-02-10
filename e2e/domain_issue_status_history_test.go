@@ -24,7 +24,7 @@ func TestDomainIssueSprintHistorys(t *testing.T) {
 	sqlCommand := "SELECT sprint_id FROM lake.issue_sprints_history where start_date < '2020-06-17 07:29:24.052';;"
 	rows, err := db.Query(sqlCommand)
 	if err != nil {
-		fmt.Println("KEVIN >>> err", err)
+		fmt.Println("ERROR: ", err)
 	}
 	assert.Nil(t, err)
 	defer rows.Close()
