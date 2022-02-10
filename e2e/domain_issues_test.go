@@ -10,29 +10,29 @@ import (
 
 // This test should only run once main_test is complete and ready
 
-type GithubRepo struct {
-	GithubId string `json:"github_id"`
+type DomainIssue struct {
+	Id string
 }
 
-func TestGitHubRepos(t *testing.T) {
-	var repos []GithubRepo
+func TestDomainIssues(t *testing.T) {
+	var issues []DomainIssue
 	db, err := InitializeDb()
 	assert.Nil(t, err)
 	if err != nil {
 		log.Fatal(err)
 	}
-	rows, err := db.Query("SELECT github_id FROM github_repos")
+	rows, err := db.Query("SELECT id FROM issues where created_at < '2021-12-25 04:40:11.000'")
 	if err != nil {
 		fmt.Println("KEVIN >>> err", err)
 	}
 	assert.Nil(t, err)
 	defer rows.Close()
 	for rows.Next() {
-		var repo GithubRepo
-		if err := rows.Scan(&repo.GithubId); err != nil {
+		var issue DomainIssue
+		if err := rows.Scan(&issue.Id); err != nil {
 			panic(err)
 		}
-		repos = append(repos, repo)
+		issues = append(issues, issue)
 	}
-	assert.Equal(t, len(repos), 1)
+	assert.Equal(t, len(issues), 490)
 }
