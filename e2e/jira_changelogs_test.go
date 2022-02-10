@@ -21,7 +21,7 @@ func TestJiraChangelogs(t *testing.T) {
 	if err != nil {
 		log.Fatal(err)
 	}
-	sqlCommand := "SELECT changelog_id FROM jira_changelogs;"
+	sqlCommand := "SELECT changelog_id FROM jira_changelogs where created < '2020-07-05 00:17:32.778';"
 	rows, err := db.Query(sqlCommand)
 	if err != nil {
 		fmt.Println("KEVIN >>> err", err)
@@ -35,5 +35,5 @@ func TestJiraChangelogs(t *testing.T) {
 		}
 		jiraChangelogs = append(jiraChangelogs, jiraChangelog)
 	}
-	assert.Equal(t, len(jiraChangelogs), 202583)
+	assert.Equal(t, len(jiraChangelogs), 3494)
 }

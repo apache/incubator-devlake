@@ -21,7 +21,7 @@ func TestJiraIssues(t *testing.T) {
 	if err != nil {
 		log.Fatal(err)
 	}
-	sqlCommand := "SELECT issue_id FROM jira_issues;"
+	sqlCommand := "SELECT issue_id FROM lake.jira_issues ji where resolution_date < '2020-06-23 10:21:23.562';"
 	rows, err := db.Query(sqlCommand)
 	if err != nil {
 		fmt.Println("KEVIN >>> err", err)
@@ -35,5 +35,5 @@ func TestJiraIssues(t *testing.T) {
 		}
 		jiraIssues = append(jiraIssues, jiraIssue)
 	}
-	assert.Equal(t, len(jiraIssues) > 0, true)
+	assert.Equal(t, len(jiraIssues), 130)
 }
