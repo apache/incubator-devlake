@@ -34,5 +34,5 @@ func TestGitHubIssueComments(t *testing.T) {
 		}
 		issueComments = append(issueComments, issueComment)
 	}
-	assert.Equal(t, len(issueComments), 781)
+	assert.Equal(t, 781, len(issueComments))
 }

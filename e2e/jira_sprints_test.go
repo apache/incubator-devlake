@@ -35,5 +35,5 @@ func TestJiraSprints(t *testing.T) {
 		}
 		jiraSprints = append(jiraSprints, jiraSprint)
 	}
-	assert.Equal(t, len(jiraSprints), 12)
+	assert.Equal(t, 12, len(jiraSprints))
 }

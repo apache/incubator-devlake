@@ -34,5 +34,5 @@ func TestGithubPullRequestComments(t *testing.T) {
 		}
 		PullRequestComments = append(PullRequestComments, PullRequestComment)
 	}
-	assert.Equal(t, len(PullRequestComments), 401)
+	assert.Equal(t, 401, len(PullRequestComments))
 }

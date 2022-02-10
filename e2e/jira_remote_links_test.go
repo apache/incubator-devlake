@@ -35,5 +35,5 @@ func TestJiraRemoteLinks(t *testing.T) {
 		}
 		jiraRemoteLinks = append(jiraRemoteLinks, jiraRemoteLink)
 	}
-	assert.Equal(t, len(jiraRemoteLinks), 43)
+	assert.Equal(t, 43, len(jiraRemoteLinks))
 }

@@ -34,5 +34,5 @@ func TestGithubIssueLabelss(t *testing.T) {
 		}
 		issues = append(issues, issue)
 	}
-	assert.Equal(t, len(issues) > 0, true)
+	assert.Equal(t, true, len(issues) > 0)
 }

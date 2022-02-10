@@ -35,5 +35,5 @@ func TestDomainBoardSprints(t *testing.T) {
 		}
 		domainBoardSprints = append(domainBoardSprints, domainBoardSprint)
 	}
-	assert.Equal(t, len(domainBoardSprints), 61)
+	assert.Equal(t, 61, len(domainBoardSprints))
 }

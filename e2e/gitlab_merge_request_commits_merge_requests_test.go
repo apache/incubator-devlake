@@ -35,5 +35,5 @@ func TestGitLabMergeRequestCommitsJoins(t *testing.T) {
 		}
 		mergeRequestCommitJoins = append(mergeRequestCommitJoins, mergeRequestCommitJoin)
 	}
-	assert.Equal(t, len(mergeRequestCommitJoins), 1957)
+	assert.Equal(t, 1957, len(mergeRequestCommitJoins))
 }

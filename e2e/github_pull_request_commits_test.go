@@ -34,5 +34,5 @@ func TestGithubPullRequestCommits(t *testing.T) {
 		}
 		PullRequestCommits = append(PullRequestCommits, PullRequestCommit)
 	}
-	assert.Equal(t, len(PullRequestCommits), 1505)
+	assert.Equal(t, 1505, len(PullRequestCommits))
 }

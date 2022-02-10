@@ -35,5 +35,5 @@ func TestDomainChangelogs(t *testing.T) {
 		}
 		domainChangelogs = append(domainChangelogs, domainChangelog)
 	}
-	assert.Equal(t, len(domainChangelogs), 1742)
+	assert.Equal(t, 1742, len(domainChangelogs))
 }

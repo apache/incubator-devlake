@@ -34,5 +34,5 @@ func TestGitHubIssueEvents(t *testing.T) {
 		}
 		issueEvents = append(issueEvents, issueEvent)
 	}
-	assert.Equal(t, len(issueEvents), 3899)
+	assert.Equal(t, 3899, len(issueEvents))
 }

@@ -35,5 +35,5 @@ func TestGitLabProjects(t *testing.T) {
 		}
 		projects = append(projects, project)
 	}
-	assert.Equal(t, len(projects), 1)
+	assert.Equal(t, 1, len(projects))
 }

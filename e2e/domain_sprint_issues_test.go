@@ -35,5 +35,5 @@ func TestDomainSprintIssues(t *testing.T) {
 		}
 		domainSprintIssues = append(domainSprintIssues, domainSprintIssue)
 	}
-	assert.Equal(t, len(domainSprintIssues), 999)
+	assert.Equal(t, 999, len(domainSprintIssues))
 }

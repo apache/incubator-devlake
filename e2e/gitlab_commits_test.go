@@ -35,5 +35,5 @@ func TestGitLabCommits(t *testing.T) {
 		}
 		commits = append(commits, commit)
 	}
-	assert.Equal(t, len(commits), 2817)
+	assert.Equal(t, 2817, len(commits))
 }

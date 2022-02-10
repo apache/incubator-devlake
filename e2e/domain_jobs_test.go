@@ -35,5 +35,5 @@ func TestDomainJobs(t *testing.T) {
 		}
 		domainJobs = append(domainJobs, domainJob)
 	}
-	assert.Equal(t, len(domainJobs) > 0, true)
+	assert.Equal(t, true, len(domainJobs) > 0)
 }

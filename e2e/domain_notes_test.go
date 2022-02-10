@@ -35,5 +35,5 @@ func TestDomainNotes(t *testing.T) {
 		}
 		domainNotes = append(domainNotes, domainNote)
 	}
-	assert.Equal(t, len(domainNotes), 4352)
+	assert.Equal(t, 4352, len(domainNotes))
 }

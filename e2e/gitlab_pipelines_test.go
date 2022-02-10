@@ -35,5 +35,5 @@ func TestGitLabPipelines(t *testing.T) {
 		}
 		pipelines = append(pipelines, pipeline)
 	}
-	assert.Equal(t, len(pipelines), 1333)
+	assert.Equal(t, 1333, len(pipelines))
 }
