@@ -35,5 +35,5 @@ func TestJenkinsJobs(t *testing.T) {
 		}
 		jenkinsJobs = append(jenkinsJobs, jenkinsJob)
 	}
-	assert.Equal(t, len(jenkinsJobs), 6)
+	assert.Equal(t, len(jenkinsJobs) > 0, true)
 }

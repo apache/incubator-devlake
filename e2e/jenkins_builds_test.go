@@ -21,7 +21,7 @@ func TestJenkinsBuilds(t *testing.T) {
 	if err != nil {
 		log.Fatal(err)
 	}
-	sqlCommand := "SELECT id FROM jenkins_builds;"
+	sqlCommand := "SELECT id FROM jenkins_builds where start_time < '2021-01-27 08:34:34.000';"
 	rows, err := db.Query(sqlCommand)
 	if err != nil {
 		fmt.Println("KEVIN >>> err", err)
@@ -35,5 +35,5 @@ func TestJenkinsBuilds(t *testing.T) {
 		}
 		jenkinsBuilds = append(jenkinsBuilds, jenkinsBuild)
 	}
-	assert.Equal(t, len(jenkinsBuilds), 2732)
+	assert.Equal(t, len(jenkinsBuilds), 972)
 }
