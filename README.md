@@ -217,38 +217,34 @@ NOTE: After installing docker, you may need to run the docker application and re
 5. Visit `localhost:4000/create-pipeline` to RUN a Pipeline and trigger data collection.
 
 
-Pipelines Runs can be initiated by the new "Create Run" Interface. Simply enable the **Data Source Providers**
-you wish to run collection for, and specify the **Project ID** for Gitlab and **Repository Name** for GitHub.
+   Pipelines Runs can be initiated by the new "Create Run" Interface. Simply enable the **Data Source Providers** you wish to run collection for, and specify the data you want to collect, for instance, **Project ID** for Gitlab and **Repository Name** for GitHub.
 
-Once a valid pipeline configuration has been created, press **Create Run** to start/run the pipeline.
-After the pipeline starts, you will be automatically redirected to the **Pipeline Activity** screen
-to monitor collection activity.
+   Once a valid pipeline configuration has been created, press **Create Run** to start/run the pipeline.
+   After the pipeline starts, you will be automatically redirected to the **Pipeline Activity** screen to monitor collection activity.
 
-**Pipelines** is accessible from the **Main Menu** for easy access.
+   **Pipelines** is accessible from the main menu of the config-ui for easy access.
 
-- **Manage All Pipelines** `http://localhost:4000/pipelines`
-- **Create Pipeline RUN** `http://localhost:4000/create-pipeline`
-- **Pipeline Activity** `http://localhost:4000/pipelines/activity/[RUN_ID]`
+   - **Manage All Pipelines** `http://localhost:4000/pipelines`
+   - **Create Pipeline RUN** `http://localhost:4000/create-pipeline`
+   - **Track Pipeline Activity** `http://localhost:4000/pipelines/activity/[RUN_ID]`
 
-For advanced use cases and complex pipelines, please use the Raw JSON API to manually initiate
-a run using **cURL** or graphical API tool such as **Postman**. `POST` the following request
-to the DevLake API Endpoint.
+   For advanced use cases and complex pipelines, please use the Raw JSON API to manually initiate a run using **cURL** or graphical API tool such as **Postman**. `POST` the following request to the DevLake API Endpoint.
 
-```json
-[
+    ```json
     [
-        {
-            "plugin": "github",
-            "options": {
-                "repo": "lake",
-                "owner": "merico-dev"
+        [
+            {
+                "plugin": "github",
+                "options": {
+                    "repo": "lake",
+                    "owner": "merico-dev"
+                }
             }
-        }
+        ]
     ]
-]
-```
+    ```
 
-Please refer to this wiki [How to trigger data collection](https://github.com/merico-dev/lake/wiki/How-to-use-the-triggers-page).
+   Please refer to this wiki [How to trigger data collection](https://github.com/merico-dev/lake/wiki/How-to-use-the-triggers-page).
 
 6. Click *View Dashboards* button when done (username: `admin`, password: `admin`). The button will be shown on the Trigger Collection page when data collection has finished.
 
@@ -328,9 +324,38 @@ To synchronize data periodically, we provide [`lake-cli`](./cmd/lake-cli/README.
 
    >- Submit the form to update the values by clicking on the **Save Connection** button on each form page
 
-9. Visit `localhost:4000/triggers` to trigger data collection.
+9. Visit `localhost:4000/create-pipeline` to RUN a Pipeline and trigger data collection.
 
-   > - Please refer to this wiki [How to trigger data collection](https://github.com/merico-dev/lake/wiki/How-to-use-the-triggers-page). Data collection can take up to 20 minutes for large projects. (GitLab 10k+ commits or Jira 5k+ issues)
+
+   Pipelines Runs can be initiated by the new "Create Run" Interface. Simply enable the **Data Source Providers** you wish to run collection for, and specify the data you want to collect, for instance, **Project ID** for Gitlab and **Repository Name** for GitHub.
+
+   Once a valid pipeline configuration has been created, press **Create Run** to start/run the pipeline.
+   After the pipeline starts, you will be automatically redirected to the **Pipeline Activity** screen to monitor collection activity.
+
+   **Pipelines** is accessible from the main menu of the config-ui for easy access.
+
+   - **Manage All Pipelines** `http://localhost:4000/pipelines`
+   - **Create Pipeline RUN** `http://localhost:4000/create-pipeline`
+   - **Track Pipeline Activity** `http://localhost:4000/pipelines/activity/[RUN_ID]`
+
+   For advanced use cases and complex pipelines, please use the Raw JSON API to manually initiate a run using **cURL** or graphical API tool such as **Postman**. `POST` the following request to the DevLake API Endpoint.
+
+    ```json
+    [
+        [
+            {
+                "plugin": "github",
+                "options": {
+                    "repo": "lake",
+                    "owner": "merico-dev"
+                }
+            }
+        ]
+    ]
+    ```
+
+   Please refer to this wiki [How to trigger data collection](https://github.com/merico-dev/lake/wiki/How-to-use-the-triggers-page).
+
 
 10. Click *View Dashboards* button when done (username: `admin`, password: `admin`). The button is shown in the top left.
 <br>
