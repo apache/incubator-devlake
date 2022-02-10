@@ -34,5 +34,5 @@ func TestDomainIssues(t *testing.T) {
 		}
 		issues = append(issues, issue)
 	}
-	assert.Equal(t, len(issues), 2847)
+	assert.Equal(t, 2847, len(issues))
 }

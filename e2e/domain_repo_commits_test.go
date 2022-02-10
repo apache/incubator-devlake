@@ -35,5 +35,5 @@ func TestDomainPullRequestCommits(t *testing.T) {
 		}
 		domainPullRequestCommits = append(domainPullRequestCommits, domainPullRequestCommit)
 	}
-	assert.Equal(t, len(domainPullRequestCommits), 1617)
+	assert.Equal(t, 1617, len(domainPullRequestCommits))
 }

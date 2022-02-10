@@ -35,5 +35,5 @@ func TestDomainIssueSprintHistorys(t *testing.T) {
 		}
 		domainBoardSprints = append(domainBoardSprints, domainBoardSprint)
 	}
-	assert.Equal(t, len(domainBoardSprints), 8)
+	assert.Equal(t, 8, len(domainBoardSprints))
 }

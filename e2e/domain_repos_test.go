@@ -34,5 +34,5 @@ func TestDomainRepos(t *testing.T) {
 		}
 		repos = append(repos, repo)
 	}
-	assert.Equal(t, len(repos) > 0, true)
+	assert.Equal(t, true, len(repos) > 0)
 }

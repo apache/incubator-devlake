@@ -34,5 +34,5 @@ func TestDomainCommits(t *testing.T) {
 		}
 		commits = append(commits, commit)
 	}
-	assert.Equal(t, len(commits), 19829)
+	assert.Equal(t, 19829, len(commits))
 }

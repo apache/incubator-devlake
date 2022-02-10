@@ -35,5 +35,5 @@ func TestDomainPullRequests(t *testing.T) {
 		}
 		domainPullRequests = append(domainPullRequests, domainPullRequest)
 	}
-	assert.Equal(t, len(domainPullRequests), 6)
+	assert.Equal(t, 6, len(domainPullRequests))
 }

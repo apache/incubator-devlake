@@ -35,5 +35,5 @@ func TestDomainWorklogs(t *testing.T) {
 		}
 		domainWorklogs = append(domainWorklogs, domainWorklog)
 	}
-	assert.Equal(t, len(domainWorklogs), 987)
+	assert.Equal(t, 987, len(domainWorklogs))
 }

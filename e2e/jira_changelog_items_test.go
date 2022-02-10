@@ -35,5 +35,5 @@ func TestJiraChangelogItems(t *testing.T) {
 		}
 		jiraChangelogItems = append(jiraChangelogItems, jiraChangelogItem)
 	}
-	assert.Equal(t, len(jiraChangelogItems), 4293)
+	assert.Equal(t, 4293, len(jiraChangelogItems))
 }

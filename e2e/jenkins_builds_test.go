@@ -35,5 +35,5 @@ func TestJenkinsBuilds(t *testing.T) {
 		}
 		jenkinsBuilds = append(jenkinsBuilds, jenkinsBuild)
 	}
-	assert.Equal(t, len(jenkinsBuilds), 972)
+	assert.Equal(t, 972, len(jenkinsBuilds))
 }

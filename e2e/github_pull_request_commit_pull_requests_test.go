@@ -34,5 +34,5 @@ func TestGithubPRJoins(t *testing.T) {
 		}
 		issues = append(issues, issue)
 	}
-	assert.Equal(t, len(issues), 1705)
+	assert.Equal(t, 1705, len(issues))
 }
