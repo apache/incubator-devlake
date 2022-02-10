@@ -193,17 +193,13 @@ GitHub | 概述，数据和指标，配置，API | [Link](plugins/github/README-
 
 #### 在你的终端中运行以下命令<a id="user-setup-commands"></a>
 
-1. 克隆仓库。
+**IMPORTANT（新用户可以忽略）: DevLake暂不支持向前兼容。当 DB Schema 发生变化时，直接更新已有实例可能出错，建议已经安装 DevLake 的用户在升级时，重新部署实例并导入数据。**
 
-   ```sh
-   git clone https://github.com/merico-dev/lake.git devlake
-   cd devlake
-   cp .env.example .env
-   ```
-2. 启动 Docker，然后运行 `docker-compose up -d` 启动服务。
-
-3. 访问 `localhost:4000` 来设置 Dev Lake 的配置文件
-   >- 在 "Integration"页面上找到到所需的插件页面
+1. 在[最新版本列表](https://github.com/merico-dev/lake/releases/latest) 下载 `docker-compose.yml` 和 `env.example`
+2. 将 `env.example` 重命名为 `.env`
+3. 启动 Docker，然后运行 `docker-compose up -d` 启动服务。
+4. 访问 `localhost:4000` 来设置 Dev Lake 的配置文件
+   >- 在 Integration 页面上找到到所需的插件页面
    >- 你需要为你打算使用的插件输入必要的信息
    >- 请参考以下内容，以了解如何配置每个插件的更多细节
    >-> <a href="plugins/jira/README-zh-CN.md" target="_blank">Jira</a>
@@ -216,11 +212,21 @@ GitHub | 概述，数据和指标，配置，API | [Link](plugins/github/README-
    >- `devlake`需要一段时间才能完全启动。如果`config-ui`提示 API 无法访问，请等待几秒钟并尝试刷新页面。
    >- 如果想收集一个 Repo 进行快速预览，请在**数据集成/Github**页面提供一个 Github 的个人 Token。
 
-4. 访问 `localhost:4000/triggers`，触发数据收集
+5. 访问 `localhost:4000/create-pipeline`，创建 1个Pipeline run，并触发数据收集
 
-> 请参考这篇Wiki [How to trigger data collection](https://github.com/merico-dev/lake/wiki/How-to-use-the-triggers-page)。数据收集可能需要一段时间，取决于你想收集的数据量。
+   Pipeline Runs 可以通过新的 "Create Run"界面启动。只需启用你希望运行的**数据源**，并指定数据收集的范围，比如Gitlab的项目ID和GitHub的仓库名称。
 
-> - 如果要收集这个 repo 以进行，你可以使用以下 JSON
+   一旦创建了有效的 Pipeline Run 配置，按**Create Run**来启动/运行该 Pipeline。
+   Pipeline Run 启动后，你会被自动转到**Pipeline Activity**界面，以监控采集活动。
+
+   **Pipelines**可从 config-ui 的主菜单进入。
+
+   - **管理所有Pipeline** `http://localhost:4000/pipelines`。
+   - **创建Pipeline Run** `http://localhost:4000/create-pipeline`。
+   - **查看Pipeline Activity** `http://localhost:4000/pipelines/activity/[RUN_ID]`。
+
+   对于复杂度较高的用例，请使用Raw JSON API进行任务配置。使用**cURL**或图形API工具（如**Postman**）手动启动运行。`POST`以下请求到DevLake API端点。
+
    >   ```json
    >   [
    >     [
@@ -234,9 +240,10 @@ GitHub | 概述，数据和指标，配置，API | [Link](plugins/github/README-
    >     ]
    >   ]
    >   ```
+   
+   请参考这篇 wiki [How to trigger data collection](https://github.com/merico-dev/lake/wiki/How-to-use-the-triggers-page).
 
-
-5. 完成后，点击 *Go to grafana* (用户名: `admin`, 密码: `admin`)。当数据收集完成后，该按钮将显示在触发收集页面。
+6. 完成后，点击 *Go to grafana* (用户名: `admin`, 密码: `admin`)。当数据收集完成后，该按钮将显示在触发收集页面。
 
 #### 设置 Cron job
 为了定期同步数据，我们提供了[`lake-cli`](./cmd/lake-cli/README.md)以方便发送数据收集请求，我们同时提供了[cron job](./devops/sync/README.md)以定期触发 cli 工具。
@@ -277,9 +284,10 @@ GitHub | 概述，数据和指标，配置，API | [Link](plugins/github/README-
     ```sh
     cp .env.example .env
     ```
-   在`.env`文件中找到以`DB_URL`开头的那一行，把`mysql:3306`替换为`127.0.0.1:3306`
 
-4. 启动 MySQL 和 Grafana
+4. 在`.env`文件中找到以`DB_URL`开头的那一行，把`mysql:3306`替换为`127.0.0.1:3306`
+
+5. 启动 MySQL 和 Grafana
 
     > 确保在此步骤之前 Docker 正在运行。
 
@@ -287,7 +295,11 @@ GitHub | 概述，数据和指标，配置，API | [Link](plugins/github/README-
     docker-compose up mysql grafana
     ```
 
-5. 在 2 个终端种分别以开发者模式运行 lake 和 config UI:
+6. 安装依赖
+   
+   - <a href="plugins/refdiff#install-libgit2" target="_blank">Libgit2</a>
+
+7. 在 2 个终端种分别以开发者模式运行 lake 和 config UI:
 
     ```sh
     # run lake
@@ -296,7 +308,7 @@ GitHub | 概述，数据和指标，配置，API | [Link](plugins/github/README-
     make configure-dev
     ```
 
-6. 访问 config-ui `localhost:4000` 来配置 Dev Lake 数据源
+8. 访问 config-ui `localhost:4000` 来配置 Dev Lake 数据源
    >- 在 "Integration"页面上找到到所需的插件页面
    >- 你需要为你打算使用的插件输入必要的信息
    >- 请参考以下内容，以了解如何配置每个插件的更多细节
@@ -306,11 +318,21 @@ GitHub | 概述，数据和指标，配置，API | [Link](plugins/github/README-
    >-> <a href="plugins/github/README-zh-CN.md" target="_blank">GitHub</a>
 
 
-7. 访问 `localhost:4000/triggers`，触发数据收集
+9. 访问 `localhost:4000/create-pipeline`，创建 1个Pipeline run，并触发数据收集
 
-    > 请参考这篇Wiki [How to trigger data collection](https://github.com/merico-dev/lake/wiki/How-to-use-the-triggers-page)。对于大型项目，这可能需要20分钟。 (Gitlab 10k+ commits 或 Jira 5k+ 事务)
+   Pipeline Runs 可以通过新的 "Create Run"界面启动。只需启用你希望运行的数据源，并指定数据收集的范围，比如Gitlab的项目ID和GitHub的仓库名称。
 
-    > - 如果要收集这个 repo 以进行，你可以使用以下 JSON
+   一旦创建了有效的 Pipeline Run 配置，按**Create Run**来启动/运行该 Pipeline。
+   Pipeline Run 启动后，你会被自动转到**Pipeline Activity**界面，以监控采集活动。
+
+   **Pipelines**可从 config-ui 的主菜单进入。
+
+   - **管理所有Pipeline** `http://localhost:4000/pipelines`。
+   - **创建Pipeline Run** `http://localhost:4000/create-pipeline`。
+   - **查看Pipeline Activity** `http://localhost:4000/pipelines/activity/[RUN_ID]`。
+
+   对于复杂度较高的用例，请使用Raw JSON API进行任务配置。使用**cURL**或图形API工具（如**Postman**）手动启动运行。`POST`以下请求到DevLake API端点。
+
    >   ```json
    >   [
    >     [
@@ -324,9 +346,11 @@ GitHub | 概述，数据和指标，配置，API | [Link](plugins/github/README-
    >     ]
    >   ]
    >   ```
+   
+   请参考这篇 wiki [How to trigger data collection](https://github.com/merico-dev/lake/wiki/How-to-use-the-triggers-page).
 
 
-8. 在Grafana仪表板中实现数据的可视化
+10. 在Grafana仪表板中实现数据的可视化
 
     _从这里你可以看到丰富的图表，这些图表来自于收集和处理后的数据_
 
