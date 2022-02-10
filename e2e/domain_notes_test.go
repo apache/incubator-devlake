@@ -21,7 +21,7 @@ func TestDomainNotes(t *testing.T) {
 	if err != nil {
 		log.Fatal(err)
 	}
-	sqlCommand := "SELECT id FROM notes;"
+	sqlCommand := "SELECT id FROM lake.notes where created_date < '2019-10-24 02:23:43.000';"
 	rows, err := db.Query(sqlCommand)
 	if err != nil {
 		fmt.Println("KEVIN >>> err", err)
@@ -35,5 +35,5 @@ func TestDomainNotes(t *testing.T) {
 		}
 		domainNotes = append(domainNotes, domainNote)
 	}
-	assert.Equal(t, len(domainNotes), 6)
+	assert.Equal(t, len(domainNotes), 4352)
 }

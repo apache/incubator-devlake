@@ -21,7 +21,7 @@ func TestDomainPullRequests(t *testing.T) {
 	if err != nil {
 		log.Fatal(err)
 	}
-	sqlCommand := "SELECT id FROM pull_requests;"
+	sqlCommand := "SELECT id FROM pull_requests where created_date < '2020-07-27 01:26:13.465';"
 	rows, err := db.Query(sqlCommand)
 	if err != nil {
 		fmt.Println("KEVIN >>> err", err)
