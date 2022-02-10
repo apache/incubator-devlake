@@ -154,11 +154,16 @@ func RunTask(taskId uint64) error {
 			finishedAt := time.Now()
 			spentSeconds := finishedAt.Unix() - beganAt.Unix()
 			if err != nil {
+				subTaskName := ""
+				if pluginErr, ok := err.(*errors.SubTaskError); ok {
+					subTaskName = pluginErr.GetSubTaskName()
+				}
 				dbe := models.Db.Model(task).Updates(map[string]interface{}{
-					"status":        models.TASK_FAILED,
-					"message":       err.Error(),
-					"finished_at":   finishedAt,
-					"spent_seconds": spentSeconds,
+					"status":          models.TASK_FAILED,
+					"message":         err.Error(),
+					"finished_at":     finishedAt,
+					"spent_seconds":   spentSeconds,
+					"failed_sub_task": subTaskName,
 				}).Error
 				if dbe != nil {
 					logger.Error("eror is not nil", err)

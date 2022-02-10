@@ -16,17 +16,18 @@ const (
 
 type Task struct {
 	common.Model
-	Plugin       string         `json:"plugin" gorm:"index"`
-	Options      datatypes.JSON `json:"options"`
-	Status       string         `json:"status"`
-	Message      string         `json:"message"`
-	Progress     float32        `json:"progress"`
-	PipelineId   uint64         `json:"pipelineId" gorm:"index"`
-	PipelineRow  int            `json:"pipelineRow"`
-	PipelineCol  int            `json:"pipelineCol"`
-	BeganAt      *time.Time     `json:"beganAt"`
-	FinishedAt   *time.Time     `json:"finishedAt" gorm:"index"`
-	SpentSeconds int            `json:"spentSeconds"`
+	Plugin        string         `json:"plugin" gorm:"index"`
+	Options       datatypes.JSON `json:"options"`
+	Status        string         `json:"status"`
+	Message       string         `json:"message"`
+	Progress      float32        `json:"progress"`
+	FailedSubTask string         `json:"failedSubTask"`
+	PipelineId    uint64         `json:"pipelineId" gorm:"index"`
+	PipelineRow   int            `json:"pipelineRow"`
+	PipelineCol   int            `json:"pipelineCol"`
+	BeganAt       *time.Time     `json:"beganAt"`
+	FinishedAt    *time.Time     `json:"finishedAt" gorm:"index"`
+	SpentSeconds  int            `json:"spentSeconds"`
 }
 
 type NewTask struct {
