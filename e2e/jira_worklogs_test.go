@@ -11,7 +11,7 @@ import (
 // This test should only run once main_test is complete and ready
 
 type JiraWorklog struct {
-	Email string
+	TimeSpent string `json:"time_spent"`
 }
 
 func TestJiraWorklogs(t *testing.T) {
@@ -21,7 +21,7 @@ func TestJiraWorklogs(t *testing.T) {
 	if err != nil {
 		log.Fatal(err)
 	}
-	sqlCommand := "SELECT email FROM jira_worklogs;"
+	sqlCommand := "SELECT time_spent FROM lake.jira_issues ji JOIN jira_worklogs jw ON ji.issue_id = jw.issue_id where resolution_date < '2020-06-19 06:31:18.495';"
 	rows, err := db.Query(sqlCommand)
 	if err != nil {
 		fmt.Println("KEVIN >>> err", err)
@@ -30,10 +30,10 @@ func TestJiraWorklogs(t *testing.T) {
 	defer rows.Close()
 	for rows.Next() {
 		var jiraWorklog JiraWorklog
-		if err := rows.Scan(&jiraWorklog.Email); err != nil {
+		if err := rows.Scan(&jiraWorklog.TimeSpent); err != nil {
 			panic(err)
 		}
 		jiraWorklogs = append(jiraWorklogs, jiraWorklog)
 	}
-	assert.Equal(t, len(jiraWorklogs) > 0, true)
+	assert.Equal(t, len(jiraWorklogs), 41)
 }

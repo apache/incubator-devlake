@@ -21,7 +21,7 @@ func TestJiraSprints(t *testing.T) {
 	if err != nil {
 		log.Fatal(err)
 	}
-	sqlCommand := "SELECT sprint_id FROM jira_sprints;"
+	sqlCommand := "SELECT sprint_id FROM jira_sprints where start_date < '2020-12-09 01:15:11.205';"
 	rows, err := db.Query(sqlCommand)
 	if err != nil {
 		fmt.Println("KEVIN >>> err", err)
@@ -35,5 +35,5 @@ func TestJiraSprints(t *testing.T) {
 		}
 		jiraSprints = append(jiraSprints, jiraSprint)
 	}
-	assert.Equal(t, len(jiraSprints) > 0, true)
+	assert.Equal(t, len(jiraSprints), 12)
 }
