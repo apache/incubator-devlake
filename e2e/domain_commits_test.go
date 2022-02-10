@@ -10,29 +10,29 @@ import (
 
 // This test should only run once main_test is complete and ready
 
-type GithubRepo struct {
-	GithubId string `json:"github_id"`
+type DomainCommit struct {
+	Sha string `json:"sha"`
 }
 
-func TestGitHubRepos(t *testing.T) {
-	var repos []GithubRepo
+func TestDomainCommits(t *testing.T) {
+	var commits []DomainCommit
 	db, err := InitializeDb()
 	assert.Nil(t, err)
 	if err != nil {
 		log.Fatal(err)
 	}
-	rows, err := db.Query("SELECT github_id FROM github_repos")
+	rows, err := db.Query("SELECT sha FROM commits where authored_date < '2021-11-24 19:22:29.000'")
 	if err != nil {
 		fmt.Println("KEVIN >>> err", err)
 	}
 	assert.Nil(t, err)
 	defer rows.Close()
 	for rows.Next() {
-		var repo GithubRepo
-		if err := rows.Scan(&repo.GithubId); err != nil {
+		var commit DomainCommit
+		if err := rows.Scan(&commit.Sha); err != nil {
 			panic(err)
 		}
-		repos = append(repos, repo)
+		commits = append(commits, commit)
 	}
-	assert.Equal(t, len(repos), 1)
+	assert.Equal(t, len(commits), 874)
 }
