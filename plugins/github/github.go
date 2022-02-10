@@ -3,6 +3,7 @@ package main // must be main for plugin entry point
 import (
 	"context"
 	"fmt"
+	"github.com/merico-dev/lake/errors"
 	"os"
 	"strings"
 
@@ -136,7 +137,10 @@ func (plugin Github) Execute(options map[string]interface{}, progress chan<- flo
 		fmt.Println("INFO >>> starting commits collection")
 		err = tasks.CollectCommits(op.Owner, op.Repo, repoId, scheduler, apiClient)
 		if err != nil {
-			return fmt.Errorf("Could not collect commits: %v", err)
+			return &errors.SubTaskError{
+				Message:     fmt.Errorf("Could not collect commits: %v", err).Error(),
+				SubTaskName: "collectCommits",
+			}
 		}
 	}
 	if tasksToRun["collectCommitsStat"] {
@@ -144,7 +148,10 @@ func (plugin Github) Execute(options map[string]interface{}, progress chan<- flo
 		fmt.Println("INFO >>> starting commits stat collection")
 		err = tasks.CollectCommitsStat(op.Owner, op.Repo, repoId, scheduler, apiClient)
 		if err != nil {
-			return fmt.Errorf("Could not collect commits: %v", err)
+			return &errors.SubTaskError{
+				Message:     fmt.Errorf("Could not collect commits: %v", err).Error(),
+				SubTaskName: "collectCommitsStat",
+			}
 		}
 	}
 	if tasksToRun["collectIssues"] {
@@ -152,7 +159,10 @@ func (plugin Github) Execute(options map[string]interface{}, progress chan<- flo
 		fmt.Println("INFO >>> starting issues collection")
 		err = tasks.CollectIssues(op.Owner, op.Repo, repoId, scheduler, apiClient)
 		if err != nil {
-			return fmt.Errorf("Could not collect issues: %v", err)
+			return &errors.SubTaskError{
+				Message:     fmt.Errorf("Could not collect issues: %v", err).Error(),
+				SubTaskName: "collectIssues",
+			}
 		}
 	}
 	if tasksToRun["collectIssueEvents"] {
@@ -160,7 +170,10 @@ func (plugin Github) Execute(options map[string]interface{}, progress chan<- flo
 		fmt.Println("INFO >>> starting Issue Events collection")
 		err = tasks.CollectIssueEvents(op.Owner, op.Repo, scheduler, apiClient)
 		if err != nil {
-			return fmt.Errorf("Could not collect Issue Events: %v", err)
+			return &errors.SubTaskError{
+				Message:     fmt.Errorf("Could not collect Issue Events: %v", err).Error(),
+				SubTaskName: "collectIssueEvents",
+			}
 		}
 	}
 
@@ -169,7 +182,10 @@ func (plugin Github) Execute(options map[string]interface{}, progress chan<- flo
 		fmt.Println("INFO >>> starting Issue Comments collection")
 		err = tasks.CollectIssueComments(op.Owner, op.Repo, scheduler, apiClient)
 		if err != nil {
-			return fmt.Errorf("Could not collect Issue Comments: %v", err)
+			return &errors.SubTaskError{
+				Message:     fmt.Errorf("Could not collect Issue Comments: %v", err).Error(),
+				SubTaskName: "collectIssueComments",
+			}
 		}
 	}
 
@@ -178,7 +194,10 @@ func (plugin Github) Execute(options map[string]interface{}, progress chan<- flo
 		fmt.Println("INFO >>> collecting PR collection")
 		err = tasks.CollectPullRequests(op.Owner, op.Repo, repoId, scheduler, apiClient)
 		if err != nil {
-			return fmt.Errorf("Could not collect PR: %v", err)
+			return &errors.SubTaskError{
+				Message:     fmt.Errorf("Could not collect PR: %v", err).Error(),
+				SubTaskName: "collectPullRequests",
+			}
 		}
 	}
 
@@ -187,7 +206,10 @@ func (plugin Github) Execute(options map[string]interface{}, progress chan<- flo
 		fmt.Println("INFO >>> collecting PR Reviews collection")
 		err = tasks.CollectPullRequestReviews(op.Owner, op.Repo, scheduler, apiClient)
 		if err != nil {
-			return fmt.Errorf("Could not collect PR Reviews: %v", err)
+			return &errors.SubTaskError{
+				Message:     fmt.Errorf("Could not collect PR Reviews: %v", err).Error(),
+				SubTaskName: "collectPullRequestReviews",
+			}
 		}
 	}
 
@@ -196,7 +218,10 @@ func (plugin Github) Execute(options map[string]interface{}, progress chan<- flo
 		fmt.Println("INFO >>> starting PR Commits collection")
 		err = tasks.CollectPullRequestCommits(op.Owner, op.Repo, scheduler, apiClient)
 		if err != nil {
-			return fmt.Errorf("Could not collect PR Commits: %v", err)
+			return &errors.SubTaskError{
+				Message:     fmt.Errorf("Could not collect PR Commits: %v", err).Error(),
+				SubTaskName: "collectPullRequestCommits",
+			}
 		}
 	}
 
@@ -205,7 +230,10 @@ func (plugin Github) Execute(options map[string]interface{}, progress chan<- flo
 		fmt.Println("INFO >>> starting PR Comments collection")
 		err = tasks.CollectPullRequestComments(op.Owner, op.Repo, scheduler, apiClient)
 		if err != nil {
-			return fmt.Errorf("Could not collect PR Comments: %v", err)
+			return &errors.SubTaskError{
+				Message:     fmt.Errorf("Could not collect PR Comments: %v", err).Error(),
+				SubTaskName: "collectPullRequestComments",
+			}
 		}
 	}
 
@@ -214,7 +242,10 @@ func (plugin Github) Execute(options map[string]interface{}, progress chan<- flo
 		fmt.Println("INFO >>> Enriching Issues")
 		err = tasks.EnrichGithubIssues(ctx)
 		if err != nil {
-			return fmt.Errorf("could not enrich issues: %v", err)
+			return &errors.SubTaskError{
+				Message:     fmt.Errorf("could not enrich issues: %v", err).Error(),
+				SubTaskName: "enrichIssues",
+			}
 		}
 	}
 	if tasksToRun["enrichPullRequests"] {
@@ -222,35 +253,50 @@ func (plugin Github) Execute(options map[string]interface{}, progress chan<- flo
 		fmt.Println("INFO >>> Enriching PullRequests")
 		err = tasks.EnrichGithubPullRequests(repoId, ctx)
 		if err != nil {
-			return fmt.Errorf("could not enrich PullRequests: %v", err)
+			return &errors.SubTaskError{
+				Message:     fmt.Errorf("could not enrich PullRequests: %v", err).Error(),
+				SubTaskName: "enrichPullRequests",
+			}
 		}
 	}
 	if tasksToRun["convertRepos"] {
 		progress <- 0.93
 		err = tasks.ConvertRepos(ctx)
 		if err != nil {
-			return err
+			return &errors.SubTaskError{
+				Message:     fmt.Errorf("could not convert Repos: %v", err).Error(),
+				SubTaskName: "convertRepos",
+			}
 		}
 	}
 	if tasksToRun["convertIssues"] {
 		progress <- 0.94
 		err = tasks.ConvertIssues(repoId, ctx)
 		if err != nil {
-			return err
+			return &errors.SubTaskError{
+				Message:     fmt.Errorf("could not convert Issues: %v", err).Error(),
+				SubTaskName: "convertIssues",
+			}
 		}
 	}
 	if tasksToRun["convertIssueLabels"] {
 		progress <- 0.94
 		err = tasks.ConvertIssueLabels(ctx)
 		if err != nil {
-			return err
+			return &errors.SubTaskError{
+				Message:     fmt.Errorf("could not convert IssueLabels: %v", err).Error(),
+				SubTaskName: "convertIssueLabels",
+			}
 		}
 	}
 	if tasksToRun["convertPullRequests"] {
 		progress <- 0.95
 		err = tasks.ConvertPullRequests(ctx)
 		if err != nil {
-			return err
+			return &errors.SubTaskError{
+				Message:     fmt.Errorf("could not convert PullRequests: %v", err).Error(),
+				SubTaskName: "convertPullRequests",
+			}
 		}
 	}
 	if tasksToRun["convertPullRequestLabels"] {
@@ -264,21 +310,30 @@ func (plugin Github) Execute(options map[string]interface{}, progress chan<- flo
 		progress <- 0.96
 		err = tasks.ConvertCommits(repoId, ctx)
 		if err != nil {
-			return err
+			return &errors.SubTaskError{
+				Message:     fmt.Errorf("could not convert Commits: %v", err).Error(),
+				SubTaskName: "convertCommits",
+			}
 		}
 	}
 	if tasksToRun["convertPullRequestCommits"] {
 		progress <- 0.97
 		err = tasks.PrCommitConvertor(ctx)
 		if err != nil {
-			return err
+			return &errors.SubTaskError{
+				Message:     fmt.Errorf("could not convert PullRequestCommits: %v", err).Error(),
+				SubTaskName: "convertPullRequestCommits",
+			}
 		}
 	}
 	if tasksToRun["convertNotes"] {
 		progress <- 0.98
 		err = tasks.ConvertNotes(ctx)
 		if err != nil {
-			return err
+			return &errors.SubTaskError{
+				Message:     fmt.Errorf("could not convert Notes: %v", err).Error(),
+				SubTaskName: "convertNotes",
+			}
 		}
 	}
 	if tasksToRun["convertUsers"] {
@@ -286,7 +341,10 @@ func (plugin Github) Execute(options map[string]interface{}, progress chan<- flo
 		err = tasks.ConvertUsers(ctx)
 
 		if err != nil {
-			return err
+			return &errors.SubTaskError{
+				Message:     fmt.Errorf("could not convert Users: %v", err).Error(),
+				SubTaskName: "convertUsers",
+			}
 		}
 	}
 

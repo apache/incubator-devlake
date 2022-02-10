@@ -3,6 +3,7 @@ package main // must be main for plugin entry point
 import (
 	"context"
 	"fmt"
+	errors "github.com/merico-dev/lake/errors"
 	"os"
 	"strconv"
 	"time"
@@ -140,94 +141,136 @@ func (plugin Jira) Execute(options map[string]interface{}, progress chan<- float
 		if tasksToRun["collectProjects"] {
 			err := tasks.CollectProjects(jiraApiClient, op.SourceId)
 			if err != nil {
-				return err
+				return &errors.SubTaskError{
+					SubTaskName: "collectProjects",
+					Message:     err.Error(),
+				}
 			}
 		}
 		if tasksToRun["collectUsers"] {
 			err := tasks.CollectUsers(jiraApiClient, op.SourceId)
 			if err != nil {
-				return err
+				return &errors.SubTaskError{
+					SubTaskName: "collectUsers",
+					Message:     err.Error(),
+				}
 			}
 		}
 		if tasksToRun["collectBoard"] {
 			err := tasks.CollectBoard(jiraApiClient, source, boardId)
 			if err != nil {
-				return err
+				return &errors.SubTaskError{
+					SubTaskName: "collectBoard",
+					Message:     err.Error(),
+				}
 			}
 		}
 		setBoardProgress(i, 0.01)
 		if tasksToRun["collectIssues"] {
 			err = tasks.CollectIssues(jiraApiClient, source, boardId, since, rateLimitPerSecondInt, ctx)
 			if err != nil {
-				return err
+				return &errors.SubTaskError{
+					SubTaskName: "collectIssues",
+					Message:     err.Error(),
+				}
 			}
 		}
 		setBoardProgress(i, 0.1)
 		if tasksToRun["collectChangelogs"] {
 			err = tasks.CollectChangelogs(jiraApiClient, source, boardId, rateLimitPerSecondInt, ctx)
 			if err != nil {
-				return err
+				return &errors.SubTaskError{
+					SubTaskName: "collectChangelogs",
+					Message:     err.Error(),
+				}
 			}
 		}
 		if tasksToRun["collectRemotelinks"] {
 			err = tasks.CollectRemoteLinks(jiraApiClient, source, boardId, rateLimitPerSecondInt, ctx)
 			if err != nil {
-				return err
+				return &errors.SubTaskError{
+					SubTaskName: "collectRemotelinks",
+					Message:     err.Error(),
+				}
 			}
 		}
 		setBoardProgress(i, 0.2)
 		if tasksToRun["enrichIssues"] {
 			err = tasks.EnrichIssues(source, boardId)
 			if err != nil {
-				return err
+				return &errors.SubTaskError{
+					SubTaskName: "enrichIssues",
+					Message:     err.Error(),
+				}
 			}
 		}
 		if tasksToRun["enrichRemotelinks"] {
 			err = tasks.EnrichRemotelinks(source, boardId)
 			if err != nil {
-				return err
+				return &errors.SubTaskError{
+					SubTaskName: "enrichRemotelinks",
+					Message:     err.Error(),
+				}
 			}
 		}
 		setBoardProgress(i, 0.3)
 		if tasksToRun["collectSprints"] {
 			err = tasks.CollectSprint(jiraApiClient, source, boardId)
 			if err != nil {
-				return err
+				return &errors.SubTaskError{
+					SubTaskName: "collectSprints",
+					Message:     err.Error(),
+				}
 			}
 		}
 		setBoardProgress(i, 0.4)
 		if tasksToRun["convertBoard"] {
 			err := tasks.ConvertBoard(op.SourceId, boardId)
 			if err != nil {
-				return err
+				return &errors.SubTaskError{
+					SubTaskName: "convertBoard",
+					Message:     err.Error(),
+				}
 			}
 		}
 		setBoardProgress(i, 0.5)
 		if tasksToRun["convertUsers"] {
 			err := tasks.ConvertUsers(op.SourceId)
 			if err != nil {
-				return err
+				return &errors.SubTaskError{
+					SubTaskName: "convertUsers",
+					Message:     err.Error(),
+				}
 			}
 		}
 		setBoardProgress(i, 0.6)
 		if tasksToRun["convertIssues"] {
 			err = tasks.ConvertIssues(op.SourceId, boardId)
 			if err != nil {
-				return err
+				return &errors.SubTaskError{
+					SubTaskName: "convertIssues",
+					Message:     err.Error(),
+				}
 			}
 		}
 		setBoardProgress(i, 0.7)
 		if tasksToRun["convertWorklogs"] {
 			err = tasks.ConvertWorklog(op.SourceId, boardId)
 			if err != nil {
-				return err
+				return &errors.SubTaskError{
+					SubTaskName: "convertWorklogs",
+					Message:     err.Error(),
+				}
 			}
 		}
 		setBoardProgress(i, 0.8)
 		if tasksToRun["convertChangelogs"] {
 			err = tasks.ConvertChangelogs(op.SourceId, boardId)
 			if err != nil {
-				return err
+				return &errors.SubTaskError{
+					SubTaskName: "convertChangelogs",
+					Message:     err.Error(),
+				}
 			}
 		}
 		setBoardProgress(i, 0.9)
@@ -235,14 +278,20 @@ func (plugin Jira) Execute(options map[string]interface{}, progress chan<- float
 			err = tasks.ConvertSprint(op.SourceId, boardId)
 			if err != nil {
 				logger.Error("convertSprints", err)
-				return err
+				return &errors.SubTaskError{
+					SubTaskName: "convertSprints",
+					Message:     err.Error(),
+				}
 			}
 		}
 		if tasksToRun["convertIssueCommits"] {
 			err = tasks.ConvertIssueCommits(op.SourceId, boardId)
 			if err != nil {
 				logger.Error("convertIssueCommits", err)
-				return err
+				return &errors.SubTaskError{
+					SubTaskName: "convertIssueCommits",
+					Message:     err.Error(),
+				}
 			}
 		}
 		setBoardProgress(i, 1.0)

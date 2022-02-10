@@ -5,7 +5,6 @@ import (
 	"net/http"
 	"net/url"
 
-	"github.com/merico-dev/lake/logger"
 	lakeModels "github.com/merico-dev/lake/models"
 	"github.com/merico-dev/lake/plugins/core"
 	"github.com/merico-dev/lake/plugins/gitlab/models"
@@ -55,8 +54,7 @@ func CollectAllPipelines(projectId int, scheduler *utils.WorkerScheduler) error 
 			err := core.UnmarshalResponse(res, apiPipelineResponse)
 
 			if err != nil {
-				logger.Error("Error: ", err)
-				return nil
+				return err
 			}
 
 			for _, pipeline := range *apiPipelineResponse {
@@ -70,7 +68,8 @@ func CollectAllPipelines(projectId int, scheduler *utils.WorkerScheduler) error 
 				}).Create(&gitlabPipeline).Error
 
 				if err != nil {
-					logger.Error("Could not upsert: ", err)
+					return err
+
 				}
 			}
 
@@ -78,7 +77,7 @@ func CollectAllPipelines(projectId int, scheduler *utils.WorkerScheduler) error 
 		})
 }
 
-func CollectChildrenOnPipelines(projectIdInt int, scheduler *utils.WorkerScheduler) {
+func CollectChildrenOnPipelines(projectIdInt int, scheduler *utils.WorkerScheduler) error {
 	gitlabApiClient := CreateApiClient()
 
 	var pipelines []gitlabModels.GitlabPipeline
@@ -92,16 +91,14 @@ func CollectChildrenOnPipelines(projectIdInt int, scheduler *utils.WorkerSchedul
 			res, err := gitlabApiClient.Get(getUrl, nil, nil)
 
 			if err != nil {
-				logger.Error("Error: ", err)
-				return nil
+				return err
 			}
 
 			pipelineRes := &ApiSinglePipelineResponse{}
-			err2 := core.UnmarshalResponse(res, pipelineRes)
+			err = core.UnmarshalResponse(res, pipelineRes)
 
-			if err2 != nil {
-				logger.Error("Error: ", err2)
-				return nil
+			if err != nil {
+				return err
 			}
 
 			gitlabPipeline, err := convertSinglePipeline(pipelineRes)
@@ -114,17 +111,18 @@ func CollectChildrenOnPipelines(projectIdInt int, scheduler *utils.WorkerSchedul
 			}).Create(&gitlabPipeline).Error
 
 			if err != nil {
-				logger.Error("Could not upsert: ", err)
+				return err
 			}
 			return nil
 		})
 
 		if schedulerErr != nil {
-			logger.Error("Error: ", schedulerErr)
+			return schedulerErr
 		}
 
 	}
 	scheduler.WaitUntilFinish()
+	return nil
 }
 
 func convertSinglePipeline(pipeline *ApiSinglePipelineResponse) (*models.GitlabPipeline, error) {
