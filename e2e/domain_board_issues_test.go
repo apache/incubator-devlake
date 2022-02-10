@@ -21,7 +21,7 @@ func TestDomainBoardIssues(t *testing.T) {
 	if err != nil {
 		log.Fatal(err)
 	}
-	sqlCommand := "SELECT board_id FROM board_issues;"
+	sqlCommand := "SELECT board_id FROM lake.issues i JOIN board_issues bi on i.id = bi.issue_id where resolution_date < '2021-10-25 17:00:58.000';"
 	rows, err := db.Query(sqlCommand)
 	if err != nil {
 		fmt.Println("KEVIN >>> err", err)
@@ -35,5 +35,5 @@ func TestDomainBoardIssues(t *testing.T) {
 		}
 		domainBoardIssues = append(domainBoardIssues, domainBoardIssue)
 	}
-	assert.Equal(t, len(domainBoardIssues), 5923)
+	assert.Equal(t, len(domainBoardIssues), 2687)
 }

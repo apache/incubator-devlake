@@ -21,7 +21,7 @@ func TestDomainIssues(t *testing.T) {
 	if err != nil {
 		log.Fatal(err)
 	}
-	rows, err := db.Query("SELECT id FROM issues where created_at < '2021-12-25 04:40:11.000'")
+	rows, err := db.Query("SELECT id FROM lake.issues where resolution_date < '2021-10-25 17:00:58.000';")
 	if err != nil {
 		fmt.Println("KEVIN >>> err", err)
 	}
@@ -34,5 +34,5 @@ func TestDomainIssues(t *testing.T) {
 		}
 		issues = append(issues, issue)
 	}
-	assert.Equal(t, len(issues), 490)
+	assert.Equal(t, len(issues), 2847)
 }

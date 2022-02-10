@@ -35,5 +35,5 @@ func TestDomainBoards(t *testing.T) {
 		}
 		domainBoards = append(domainBoards, domainBoard)
 	}
-	assert.Equal(t, len(domainBoards), 1)
+	assert.Equal(t, len(domainBoards) > 0, true)
 }
