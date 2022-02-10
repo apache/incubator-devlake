@@ -35,5 +35,5 @@ func TestJiraBoardIssues(t *testing.T) {
 		}
 		jiraBoardIssues = append(jiraBoardIssues, jiraBoardIssue)
 	}
-	assert.Equal(t, len(jiraBoardIssues), 5923)
+	assert.Equal(t, len(jiraBoardIssues), 894)
 }

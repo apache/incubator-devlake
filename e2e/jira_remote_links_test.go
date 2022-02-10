@@ -21,7 +21,7 @@ func TestJiraRemoteLinks(t *testing.T) {
 	if err != nil {
 		log.Fatal(err)
 	}
-	sqlCommand := "SELECT remotelink_id FROM jira_remotelinks;"
+	sqlCommand := "SELECT remotelink_id FROM lake.jira_remotelinks rl JOIN jira_issues ji ON ji.issue_id = rl.issue_id where resolution_date < '2020-06-19 06:31:18.495';"
 	rows, err := db.Query(sqlCommand)
 	if err != nil {
 		fmt.Println("KEVIN >>> err", err)
@@ -35,5 +35,5 @@ func TestJiraRemoteLinks(t *testing.T) {
 		}
 		jiraRemoteLinks = append(jiraRemoteLinks, jiraRemoteLink)
 	}
-	assert.Equal(t, len(jiraRemoteLinks) > 0, true)
+	assert.Equal(t, len(jiraRemoteLinks), 43)
 }
