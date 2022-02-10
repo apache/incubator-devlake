@@ -21,7 +21,7 @@ func TestJiraBoardSprints(t *testing.T) {
 	if err != nil {
 		log.Fatal(err)
 	}
-	sqlCommand := "SELECT board_id FROM jira_board_sprints;"
+	sqlCommand := "SELECT board_id FROM lake.jira_sprints js JOIN jira_board_sprints jbs ON jbs.sprint_id = js.sprint_id where start_date < '2020-12-27 01:22:00.000';;"
 	rows, err := db.Query(sqlCommand)
 	if err != nil {
 		fmt.Println("KEVIN >>> err", err)
@@ -35,5 +35,5 @@ func TestJiraBoardSprints(t *testing.T) {
 		}
 		jiraBoardSprints = append(jiraBoardSprints, jiraBoardSprint)
 	}
-	assert.Equal(t, len(jiraBoardSprints), 66)
+	assert.Equal(t, len(jiraBoardSprints), 13)
 }
