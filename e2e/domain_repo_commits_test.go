@@ -21,7 +21,7 @@ func TestDomainPullRequestCommits(t *testing.T) {
 	if err != nil {
 		log.Fatal(err)
 	}
-	sqlCommand := "SELECT commit_sha FROM pull_request_commits;"
+	sqlCommand := "SELECT commit_sha FROM lake.repo_commits rc JOIN commits c ON c.sha = rc.commit_sha where authored_date < '2019-04-21 10:12:19.000';"
 	rows, err := db.Query(sqlCommand)
 	if err != nil {
 		fmt.Println("KEVIN >>> err", err)
@@ -35,5 +35,5 @@ func TestDomainPullRequestCommits(t *testing.T) {
 		}
 		domainPullRequestCommits = append(domainPullRequestCommits, domainPullRequestCommit)
 	}
-	assert.Equal(t, len(domainPullRequestCommits), 6)
+	assert.Equal(t, len(domainPullRequestCommits), 1617)
 }

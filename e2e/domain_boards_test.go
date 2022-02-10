@@ -11,7 +11,7 @@ import (
 // This test should only run once main_test is complete and ready
 
 type DomainBoard struct {
-	Id int
+	Id string
 }
 
 func TestDomainBoards(t *testing.T) {
@@ -21,7 +21,7 @@ func TestDomainBoards(t *testing.T) {
 	if err != nil {
 		log.Fatal(err)
 	}
-	sqlCommand := "SELECT id FROM boards;"
+	sqlCommand := "SELECT id FROM lake.builds where started_date < '2021-04-09 09:49:07.000';"
 	rows, err := db.Query(sqlCommand)
 	if err != nil {
 		fmt.Println("KEVIN >>> err", err)
@@ -35,5 +35,5 @@ func TestDomainBoards(t *testing.T) {
 		}
 		domainBoards = append(domainBoards, domainBoard)
 	}
-	assert.Equal(t, len(domainBoards) > 0, true)
+	assert.Equal(t, len(domainBoards), 2904)
 }

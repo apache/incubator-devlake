@@ -11,7 +11,7 @@ import (
 // This test should only run once main_test is complete and ready
 
 type DomainWorklog struct {
-	TimeSpentMinutes string `json:"time_spent_minutes"`
+	AuthorId string `json:"author_id"`
 }
 
 func TestDomainWorklogs(t *testing.T) {
@@ -21,7 +21,7 @@ func TestDomainWorklogs(t *testing.T) {
 	if err != nil {
 		log.Fatal(err)
 	}
-	sqlCommand := "SELECT time_spent_minutes FROM lake.issues;"
+	sqlCommand := "SELECT author_id FROM lake.worklogs w JOIN lake.issues i ON w.issue_id = i.id where started_date < '2020-06-20 06:18:24.880';"
 	rows, err := db.Query(sqlCommand)
 	if err != nil {
 		fmt.Println("KEVIN >>> err", err)
@@ -30,10 +30,10 @@ func TestDomainWorklogs(t *testing.T) {
 	defer rows.Close()
 	for rows.Next() {
 		var domainWorklog DomainWorklog
-		if err := rows.Scan(&domainWorklog.TimeSpentMinutes); err != nil {
+		if err := rows.Scan(&domainWorklog.AuthorId); err != nil {
 			panic(err)
 		}
 		domainWorklogs = append(domainWorklogs, domainWorklog)
 	}
-	assert.Equal(t, len(domainWorklogs), 41)
+	assert.Equal(t, len(domainWorklogs), 987)
 }

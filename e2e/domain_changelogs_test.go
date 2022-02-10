@@ -11,7 +11,7 @@ import (
 // This test should only run once main_test is complete and ready
 
 type DomainChangelog struct {
-	Id int
+	Id string
 }
 
 func TestDomainChangelogs(t *testing.T) {
@@ -21,7 +21,7 @@ func TestDomainChangelogs(t *testing.T) {
 	if err != nil {
 		log.Fatal(err)
 	}
-	sqlCommand := "SELECT id FROM changelogs;"
+	sqlCommand := "SELECT id FROM lake.changelogs where created_date < '2020-06-20 06:18:24.880';"
 	rows, err := db.Query(sqlCommand)
 	if err != nil {
 		fmt.Println("KEVIN >>> err", err)
@@ -35,5 +35,5 @@ func TestDomainChangelogs(t *testing.T) {
 		}
 		domainChangelogs = append(domainChangelogs, domainChangelog)
 	}
-	assert.Equal(t, len(domainChangelogs), 1)
+	assert.Equal(t, len(domainChangelogs), 1742)
 }

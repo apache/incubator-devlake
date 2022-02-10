@@ -11,7 +11,7 @@ import (
 // This test should only run once main_test is complete and ready
 
 type DomainSprintIssue struct {
-	IssueId int `json:"issue_id"`
+	IssueId string `json:"issue_id"`
 }
 
 func TestDomainSprintIssues(t *testing.T) {
@@ -21,7 +21,7 @@ func TestDomainSprintIssues(t *testing.T) {
 	if err != nil {
 		log.Fatal(err)
 	}
-	sqlCommand := "SELECT issue_id FROM domain_sprint_issues;"
+	sqlCommand := "SELECT issue_id FROM lake.sprint_issues si JOIN lake.issues i ON si.issue_id = i.id where created_date < '2020-06-20 06:18:24.880';"
 	rows, err := db.Query(sqlCommand)
 	if err != nil {
 		fmt.Println("KEVIN >>> err", err)
@@ -35,5 +35,5 @@ func TestDomainSprintIssues(t *testing.T) {
 		}
 		domainSprintIssues = append(domainSprintIssues, domainSprintIssue)
 	}
-	assert.Equal(t, len(domainSprintIssues) > 0, true)
+	assert.Equal(t, len(domainSprintIssues), 999)
 }

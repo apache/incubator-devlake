@@ -11,7 +11,7 @@ import (
 // This test should only run once main_test is complete and ready
 
 type DomainBoardIssue struct {
-	BoardId int `json:"board_id"`
+	BoardId string `json:"board_id"`
 }
 
 func TestDomainBoardIssues(t *testing.T) {
