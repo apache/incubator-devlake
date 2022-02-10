@@ -31,7 +31,7 @@ of rows were collected and processed or not.
     "Plugin": "jira",
     "Options": {
         "sourceId": `<your_source_id>`,
-        "boardId": `<your_board_id>`
+        "boardId": 8
     }
   }]]
 }
@@ -43,7 +43,7 @@ of rows were collected and processed or not.
   "tasks": [[{
     "Plugin": "gitlab",
     "Options": {
-        "projectId": `<your_project_id>`
+        "projectId": 8967944
     }
   }]]
 }
@@ -55,8 +55,8 @@ of rows were collected and processed or not.
   "tasks": [[{
     "Plugin": "github",
     "Options": {
-        "repo": `<your_repo>`,
-        "owner":`<your_owner>`
+        "repo": "lake",
+        "owner": "merico-dev"
       }
   }]]
 }
