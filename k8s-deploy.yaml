@@ -218,7 +218,7 @@ spec:
     spec:
       containers:
         - name: mysql
-          image: mysql:8.0.26
+          image: mysql/mysql-server:latest
           ports:
             - containerPort: 3306
           env:
