@@ -284,6 +284,11 @@ function useConnectionManager ({
     }
   }, [activeProvider.id])
 
+  const getConnectionName = useCallback((connectionId, sources) => {
+    const source = sources.find(s => s.id === connectionId)
+    return source ? source.title : '(Instance)'
+  }, [])
+
   useEffect(() => {
     if (activeConnection && activeConnection.ID !== null) {
       setName(activeConnection.name)
@@ -372,7 +377,8 @@ function useConnectionManager ({
     connectionLimitReached,
     Providers,
     saveComplete,
-    deleteComplete
+    deleteComplete,
+    getConnectionName
   }
 }
 
