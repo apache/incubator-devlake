@@ -77,7 +77,7 @@ const CreatePipeline = (props) => {
   const [sourceId, setSourceId] = useState('')
   const [sources, setSources] = useState([])
   const [selectedSource, setSelectedSource] = useState()
-  const [repo, setRepo] = useState('')
+  const [repositoryName, setRepositoryName] = useState('')
   const [owner, setOwner] = useState('')
 
   const [autoRedirect, setAutoRedirect] = useState(true)
@@ -104,14 +104,16 @@ const CreatePipeline = (props) => {
     projectId,
     boardId,
     owner,
-    repo,
+    repositoryName,
     sourceId,
     runTasks
   })
 
   const {
     allConnections,
-    fetchAllConnections
+    isFetching: isFetchingConnections,
+    fetchAllConnections,
+    getConnectionName
   } = useConnectionManager({
     activeProvider: jiraIntegration
   })
@@ -161,7 +163,7 @@ const CreatePipeline = (props) => {
         break
       case Providers.GITHUB:
         options = {
-          repo,
+          repo: repositoryName,
           owner
         }
         break
@@ -174,7 +176,7 @@ const CreatePipeline = (props) => {
         break
     }
     return options
-  }, [boardId, owner, projectId, repo, sourceId])
+  }, [boardId, owner, projectId, repositoryName, sourceId])
 
   const configureProvider = useCallback((providerId) => {
     let providerConfig = {}
@@ -221,11 +223,6 @@ const CreatePipeline = (props) => {
     setOwner('')
   }
 
-  const getConnectionName = useCallback((connectionId) => {
-    const source = sources.find(s => s.id === connectionId)
-    return source ? source.title : '(Instance)'
-  }, [sources])
-
   useEffect(() => {
 
   }, [pipelineName])
@@ -253,7 +250,7 @@ const CreatePipeline = (props) => {
       setSources([])
       setSelectedSource(null)
     }
-  }, [enabledProviders, projectId, boardId, sourceId, owner, repo, configureProvider, validate, fetchAllConnections])
+  }, [enabledProviders, projectId, boardId, sourceId, owner, repositoryName, configureProvider, validate, fetchAllConnections])
 
   useEffect(() => {
     console.log('>> PIPELINE LAST RUN OBJECT CHANGED!!...', pipelineRun)
@@ -296,29 +293,31 @@ const CreatePipeline = (props) => {
       const GitHubTask = tasks.find(t => t.plugin === Providers.GITHUB)
       const JiraTask = tasks.filter(t => t.plugin === Providers.JIRA)
       const JenkinsTask = tasks.find(t => t.plugin === Providers.JENKINS)
+      const configuredProviders = []
       if (GitLabTask && GitLabTask.length > 0) {
-        setEnabledProviders(eP => [...eP, Providers.GITLAB])
+        configuredProviders.push(Providers.GITLAB)
         setProjectId(Array.isArray(GitLabTask) ? GitLabTask.map(gT => gT.options?.projectId) : GitLabTask.options?.projectId)
       }
       if (GitHubTask) {
-        setEnabledProviders(eP => [...eP, Providers.GITHUB])
-        setRepositoryName(GitHubTask.options?.repo)
+        configuredProviders.push(Providers.GITHUB)
+        setRepositoryName(GitHubTask.options?.repositoryName || GitHubTask.options?.repo)
         setOwner(GitHubTask.options?.owner)
       }
       if (JiraTask && JiraTask.length > 0) {
         fetchAllConnections(false)
-        setEnabledProviders(eP => [...eP, Providers.JIRA])
+        configuredProviders.push(Providers.JIRA)
         setBoardId(Array.isArray(JiraTask) ? JiraTask.map(jT => jT.options?.boardId) : JiraTask.options?.boardId)
         const connSrcId = JiraTask[0].options?.sourceId
         setSelectedSource({
           id: parseInt(connSrcId, 10),
-          title: getConnectionName(connSrcId),
+          title: '(Instance)',
           value: parseInt(connSrcId, 10)
         })
       }
       if (JenkinsTask) {
-        setEnabledProviders(eP => [...eP, Providers.JENKINS])
+        configuredProviders.push(Providers.JENKINS)
       }
+      setEnabledProviders(eP => [...eP, ...configuredProviders])
     } else {
       setRestartDetected(false)
       setExistingTasks([])
@@ -327,9 +326,8 @@ const CreatePipeline = (props) => {
     return () => {
       setRestartDetected(false)
       setExistingTasks([])
-      // setProjectId([])
     }
-  }, [location])
+  }, [location, fetchAllConnections])
 
   return (
     <>
@@ -541,7 +539,7 @@ const CreatePipeline = (props) => {
                           providerId={provider.id}
                           projectId={projectId}
                           owner={owner}
-                          repo={repo}
+                          repositoryName={repositoryName}
                           sourceId={sourceId}
                           sources={sources}
                           selectedSource={selectedSource}
