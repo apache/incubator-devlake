@@ -9,6 +9,7 @@ import {
   Tooltip,
   Position,
   Intent,
+  Popover
 } from '@blueprintjs/core'
 import dayjs from '@/utils/time'
 import StageLane from '@/components/pipelines/StageLane'
@@ -158,7 +159,32 @@ const TaskActivity = (props) => {
               {t.message && (
                 <div style={{ width: '98%', whiteSpace: 'wrap', overflow: 'hidden', textOverflow: 'ellipsis', paddingLeft: '10px' }}>
                   <span style={{ color: t.status === 'TASK_FAILED' ? Colors.RED4 : Colors.GRAY3 }}>
-                    {t.message}
+                    {t.message.length > 255
+                      ? (
+                        <Popover><>`${t.message.slice(0, 255)}...`</>
+                          <div style={{
+                            maxWidth:
+                            '300px',
+                            maxHeight: '300px',
+                            padding: '10px',
+                            overflow: 'auto',
+                            backgroundColor: '#f8f8f8'
+                          }}
+                          >
+                            <h3 style={{ margin: '5px 0', color: Colors.RED5 }}>
+                              <Icon
+                                icon='warning-sign'
+                                size={14}
+                                color={Colors.RED5} style={{ float: 'left', margin: '2px 4px 0 0' }}
+                              />
+                              ERROR MESSAGE <small style={{ color: Colors.GRAY3 }}> (Extended) </small>
+                            </h3>
+                            {t.message}
+                            <p style={{ margin: '10px 0', color: Colors.GRAY3 }}> &gt; Please check the console log for more details... </p>
+                          </div>
+                        </Popover>
+                        )
+                      : t.message}
                   </span>
                 </div>
               )}
