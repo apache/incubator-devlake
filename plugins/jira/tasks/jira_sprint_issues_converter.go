@@ -23,12 +23,14 @@ type SprintIssuesConverter struct {
 	status         map[string]*ticket.IssueStatusHistory
 	assignee       map[string]*ticket.IssueAssigneeHistory
 	sprintsHistory map[string]*ticket.IssueSprintsHistory
+	userIdGen      *didgen.DomainIdGenerator
 }
 
 func NewSprintIssueConverter() *SprintIssuesConverter {
 	return &SprintIssuesConverter{
 		sprintIdGen:    didgen.NewDomainIdGenerator(&models.JiraSprint{}),
 		issueIdGen:     didgen.NewDomainIdGenerator(&models.JiraIssue{}),
+		userIdGen:      didgen.NewDomainIdGenerator(&models.JiraUser{}),
 		sprints:        make(map[string]*models.JiraSprint),
 		sprintIssue:    make(map[string]*ticket.SprintIssue),
 		status:         make(map[string]*ticket.IssueStatusHistory),
@@ -169,7 +171,9 @@ func (c *SprintIssuesConverter) handleFrom(sourceId, sprintId uint64, cl Changel
 	k := fmt.Sprintf("%d:%d", sprintId, cl.IssueId)
 	if item := c.sprintsHistory[k]; item != nil {
 		item.EndDate = &cl.Created
-		err := lakeModels.Db.Create(item).Error
+		err := lakeModels.Db.Clauses(clause.OnConflict{
+			UpdateAll: true,
+		}).Create(item).Error
 		if err != nil {
 			return err
 		}
@@ -243,7 +247,9 @@ func (c *SprintIssuesConverter) handleStatus(sourceId uint64, cl ChangelogItemRe
 	issueId := c.issueIdGen.Generate(sourceId, cl.IssueId)
 	if statusHistory := c.status[issueId]; statusHistory != nil {
 		statusHistory.EndDate = &cl.Created
-		err := lakeModels.Db.Create(statusHistory).Error
+		err := lakeModels.Db.Clauses(clause.OnConflict{
+			UpdateAll: true,
+		}).Create(statusHistory).Error
 		if err != nil {
 			return err
 		}
@@ -261,14 +267,16 @@ func (c *SprintIssuesConverter) handleAssignee(sourceId uint64, cl ChangelogItem
 	issueId := c.issueIdGen.Generate(sourceId, cl.IssueId)
 	if assigneeHistory := c.assignee[issueId]; assigneeHistory != nil {
 		assigneeHistory.EndDate = &cl.Created
-		err := lakeModels.Db.Create(assigneeHistory).Error
+		err := lakeModels.Db.Clauses(clause.OnConflict{
+			UpdateAll: true,
+		}).Create(assigneeHistory).Error
 		if err != nil {
 			return err
 		}
 	}
 	c.assignee[issueId] = &ticket.IssueAssigneeHistory{
 		IssueId:   issueId,
-		Assignee:  cl.To,
+		Assignee:  c.userIdGen.Generate(sourceId, cl.To),
 		StartDate: cl.Created,
 		EndDate:   nil,
 	}
