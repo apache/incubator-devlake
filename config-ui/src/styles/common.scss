@@ -86,8 +86,9 @@
 
 .codeArea {
   width: 100%;
-  max-width: 600px !important;
-  height: 384px !important;
+  max-width: 600px;
+  height: 384px;
+  min-height: 384px;
   font-family: "JetBrains Mono", monospace;
   font-size: 13px;
   border: 0;
@@ -261,7 +262,7 @@ h3 {
   // font-size: 13px;
   font-style: normal;
   font-weight: normal;
-  line-height: 102%;
+  line-height: 110%;
   font-feature-settings: 'pnum'on, 'lnum'on;
   color: #717484;
   padding-left: 26px;

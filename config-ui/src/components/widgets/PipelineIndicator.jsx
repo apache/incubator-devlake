@@ -112,7 +112,7 @@ const PipelineIndicator = (props) => {
                 /> */}
               </>
               <>
-                <div style={{ fontSize: '12px', padding: '12px', minWidth: '420px', maxWidth: '420px', overflow: 'hidden' }}>
+                <div style={{ fontSize: '12px', padding: '12px', minWidth: '420px', maxWidth: '420px', maxHeight: '400px', overflow: 'hidden', overflowY: 'auto' }}>
                   <h3
                     onClick={() => onView(pipeline.ID)}
                     className='group-header' style={{
@@ -125,7 +125,9 @@ const PipelineIndicator = (props) => {
                   >
                     <Icon icon={pipeline.status === 'TASK_FAILED' ? 'warning-sign' : 'help'} size={16} style={{ marginRight: '5px' }} /> {pipeline.name || 'Last Pipeline Run'}
                   </h3>
-                  <p style={{ fontSize: '11px', color: pipeline.status === 'TASK_FAILED' ? Colors.RED4 : Colors.DARK_GRAY4 }}>{pipeline.message}</p>
+                  <p style={{ fontSize: '11px', color: pipeline.status === 'TASK_FAILED' ? Colors.RED4 : Colors.DARK_GRAY4 }}>
+                    {pipeline.message.length > 150 ? `${pipeline.message.slice(0, 150)}...` : pipeline.message}
+                  </p>
                   <div style={{ display: 'flex', width: '100%', justifyContent: 'space-between' }}>
                     <div>
                       <label><strong>Pipeline ID</strong></label>
