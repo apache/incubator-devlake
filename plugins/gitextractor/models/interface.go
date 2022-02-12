@@ -16,6 +16,7 @@ type Store interface {
 }
 
 type Parser interface {
-	RemoteRepo(ctx context.Context, url, repoId, proxy string) error
+	CloneOverHTTP(ctx context.Context, repoId, url, user, password, proxy string) error
+	CloneOverSSH(ctx context.Context, repoId, url, privateKey, passphrase string) error
 	LocalRepo(ctx context.Context, repoPath, repoId string) error
 }
