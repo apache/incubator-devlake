@@ -14,19 +14,24 @@ import (
 )
 
 type GitExtractorOptions struct {
-	RepoId string `json:"repoId"`
-	Url    string `json:"url"`
-	Proxy  string `json:"proxy"`
+	RepoId     string `json:"repoId"`
+	Url        string `json:"url"`
+	User       string `json:"user"`
+	Password   string `json:"password"`
+	PrivateKey string `json:"privateKey"`
+	Passphrase string `json:"passphrase"`
+	Proxy      string `json:"proxy"`
 }
 
 func (o GitExtractorOptions) Valid() error {
-	if o.RepoId == ""{
+	if o.RepoId == "" {
 		return errors.New("empty repoId")
 	}
 	if o.Url == "" {
 		return errors.New("empty url")
 	}
-	if !(strings.HasPrefix(o.Url, "http") || strings.HasPrefix(o.Url, "/")) {
+	url := strings.TrimPrefix(o.Url, "ssh://")
+	if !(strings.HasPrefix(o.Url, "http") || strings.HasPrefix(url, "git@") || strings.HasPrefix(o.Url, "/")) {
 		return errors.New("wrong url")
 	}
 	if o.Proxy != "" && strings.HasPrefix(o.Proxy, "http") {
@@ -53,7 +58,7 @@ func (plugin GitExtractor) Execute(options map[string]interface{}, progress chan
 		return err
 	}
 	err = op.Valid()
-	if err != nil{
+	if err != nil {
 		return err
 	}
 	storage := store.NewDatabase(lakeModels.Db)
@@ -61,10 +66,14 @@ func (plugin GitExtractor) Execute(options map[string]interface{}, progress chan
 	progress <- 0.1
 	p := parser.NewLibGit2(storage)
 	if strings.HasPrefix(op.Url, "http") {
-		return p.RemoteRepo(ctx, op.Url, op.RepoId, op.Proxy)
+		err = p.CloneOverHTTP(ctx, op.RepoId, op.Url, op.User, op.Password, op.Proxy)
+	} else if url := strings.TrimPrefix(op.Url, "ssh://"); strings.HasPrefix(url, "git@") {
+		err = p.CloneOverSSH(ctx, op.RepoId, url, op.PrivateKey, op.Passphrase)
+	}else if strings.HasPrefix(op.Url, "/") {
+		err = p.LocalRepo(ctx, op.Url, op.RepoId)
 	}
-	if strings.HasPrefix(op.Url, "/") {
-		return p.LocalRepo(ctx, op.Url, op.RepoId)
+	if err != nil{
+		return err
 	}
 	progress <- 1
 	return nil
