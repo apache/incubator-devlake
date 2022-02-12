@@ -3,12 +3,9 @@ package parser
 import (
 	"context"
 	"fmt"
-	"github.com/merico-dev/lake/models/domainlayer"
-	"io/ioutil"
-	"os"
-
 	git "github.com/libgit2/git2go/v33"
 	"github.com/merico-dev/lake/logger"
+	"github.com/merico-dev/lake/models/domainlayer"
 	"github.com/merico-dev/lake/models/domainlayer/code"
 	"github.com/merico-dev/lake/plugins/gitextractor/models"
 )
@@ -26,28 +23,9 @@ func NewLibGit2(store models.Store) *LibGit2 {
 	return &LibGit2{store: store}
 }
 
-func (l *LibGit2) RemoteRepo(ctx context.Context, url, repoId, proxy string) error {
-	cloneOptions := &git.CloneOptions{Bare: true}
-	if proxy != "" {
-		cloneOptions.FetchOptions.ProxyOptions.Type = git.ProxyTypeSpecified
-		cloneOptions.FetchOptions.ProxyOptions.Url = proxy
-	}
-	dir, err := ioutil.TempDir("", "gitextractor")
-	if err != nil {
-		return err
-	}
-	defer os.RemoveAll(dir)
-	repo, err := git.Clone(url, dir, cloneOptions)
-	if err != nil {
-		return err
-	}
-	return l.run(ctx, repo, repoId)
-}
-
 func (l *LibGit2) LocalRepo(ctx context.Context, repoPath, repoId string) error {
 	repo, err := git.OpenRepository(repoPath)
 	if err != nil {
-		fmt.Println(err)
 		return err
 	}
 	return l.run(ctx, repo, repoId)

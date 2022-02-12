@@ -16,6 +16,8 @@ func main() {
 	url := flag.String("url", "", "-url ")
 	proxy := flag.String("proxy", "", "-proxy")
 	id := flag.String("id", "", "-id")
+	user := flag.String("user", "", "-user")
+	password := flag.String("password", "", "-password")
 	output := flag.String("output", "", "-output")
 	db := flag.String("db", "", "-db")
 	flag.Parse()
@@ -38,7 +40,7 @@ func main() {
 	ctx := context.Background()
 	p := parser.NewLibGit2(storage)
 	if strings.HasPrefix(*url, "http") {
-		err = p.RemoteRepo(ctx, *url, *id, *proxy)
+		err = p.CloneOverHTTP(ctx, *url, *id, *user, *password, *proxy)
 		if err != nil {
 			panic(err)
 		}
