@@ -34,3 +34,7 @@ curl --location --request POST 'localhost:8080/pipelines' \
 - `url`: the location of the git repository. It should start with `http`/`https` for remote git repository or `/` for a local one.
 - `repoId`: column `id` of  `repos`.
 - `proxy`: optional, http proxy, e.g. `http://your-proxy-server.com:1080`.
+- `user`: optional, for cloning private repository using HTTP/HTTPS
+- `password`: optional, for cloning private repository using HTTP/HTTPS
+- `privateKey`: optional, for SSH cloning, base64 encoded `PEM` file
+- `passphrase`: optional, passphrase for the private key
