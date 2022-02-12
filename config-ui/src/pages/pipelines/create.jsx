@@ -8,9 +8,10 @@ import {
 import { GRAFANA_URL } from '@/utils/config'
 import {
   Button, Icon, Intent, Switch,
-  FormGroup,
-  ButtonGroup,
-  InputGroup,
+  FormGroup, ButtonGroup, InputGroup,
+  Elevation,
+  TextArea,
+  Card,
   Popover,
   Tooltip,
   Position,
@@ -61,13 +62,12 @@ const CreatePipeline = (props) => {
   ]
 
   const [readyProviders, setReadyProviders] = useState([])
-  // const [isRunning, setIsRunning] = useState(false)
-  // const [autoRun, setAutoRun] = useState(false)
-  // const [enableThrottling, setEnableThrottling] = useState(false)
+  const [advancedMode, setAdvancedMode] = useState(false)
 
   const [enabledProviders, setEnabledProviders] = useState([])
   const [runTasks, setRunTasks] = useState([])
   const [existingTasks, setExistingTasks] = useState([])
+  const [rawConfiguration, setRawConfiguration] = useState(JSON.stringify(runTasks, null, '  '))
 
   const [namePrefix, setNamePrefix] = useState(pipelinePrefixes[0])
   const [nameSuffix, setNameSuffix] = useState(pipelineSuffixes[0])
@@ -235,6 +235,7 @@ const CreatePipeline = (props) => {
         [...runTasks]
       ]
     })
+    setRawConfiguration(JSON.stringify(runTasks, null, '  '))
     validate()
   }, [runTasks, pipelineName, setPipelineSettings, validate])
 
@@ -400,7 +401,7 @@ const CreatePipeline = (props) => {
 
             <div className='' style={{ width: '100%', marginTop: '10px', alignSelf: 'flex-start', alignContent: 'flex-start' }}>
               <h2 className='headline'>
-                <Icon icon='git-pull' height={16} size={16} color='rgba(0,0,0,0.5)' /> Pipeline Name<span className='requiredStar'>*</span>
+                <Icon icon='git-pull' height={16} size={16} color='rgba(0,0,0,0.5)' /> Pipeline Name {advancedMode && <>(Advanced)</>}<span className='requiredStar'>*</span>
               </h2>
               <p className='group-caption'>Create a user-friendly name for this Run, or select and use a default auto-generated one.</p>
               <div className='form-group' style={{ maxWidth: '480px', paddingLeft: '22px' }}>
@@ -493,138 +494,186 @@ const CreatePipeline = (props) => {
                 </FormGroup>
               </div>
 
-              <h2 className='headline'>
-                <Icon icon='database' height={16} size={16} color='rgba(0,0,0,0.5)' /> Data Providers<span className='requiredStar'>*</span>
-              </h2>
-              <p className='group-caption'>
-                Configure available plugins to enable for this <strong>Pipeline Run</strong>.<br />
-                Turn the switch to the ON position to activate.
-              </p>
-              <div className='data-providers' style={{ marginTop: '8px', width: '100%' }}>
-                {integrations.map((provider) => (
-                  <CSSTransition
-                    key={`fx-key-provider-${provider.id}`}
-                    in={readyProviders.includes(provider.id)}
-                    timeout={350}
-                    classNames='provider-datarow'
-                    unmountOnExit
-                  >
-                    {/* <div key={`provider-${provider.id}`}> */}
-                    <div
-                      className={`data-provider-row ${enabledProviders.includes(provider.id) ? 'on' : 'off'}`}
-                    >
-                      <div className='provider-info'>
-                        <div className='provider-icon'>{provider.iconDashboard}</div>
-                        <span className='provider-name'>{provider.name}</span>
-                        <Tooltip
-                          intent={Intent.PRIMARY}
-                          content={`Enable ${provider.name}`} position={Position.RIGHT} popoverClassName='pipeline-tooltip'
-                        >
-                          <Switch
-                          // alignIndicator={Alignment.CENTER}
-                            disabled={isRunning}
-                            className='provider-toggle-switch'
-                            innerLabel={!enabledProviders.includes(provider.id) ? 'OFF' : null}
-                            innerLabelChecked='ON'
-                            checked={enabledProviders.includes(provider.id)}
-                            onChange={() => setEnabledProviders(p =>
-                              enabledProviders.includes(provider.id) ? p.filter(p => p !== provider.id) : [...p, provider.id]
-                            )}
-                          />
-                        </Tooltip>
-                      </div>
-                      <div className='provider-settings'>
-                        {/* showProviderSettings(provider.id) */}
-                        <ProviderSettings
-                          providerId={provider.id}
-                          projectId={projectId}
-                          owner={owner}
-                          repositoryName={repositoryName}
-                          sourceId={sourceId}
-                          sources={sources}
-                          selectedSource={selectedSource}
-                          setSelectedSource={setSelectedSource}
-                          boardId={boardId}
-                          setProjectId={setProjectId}
-                          setOwner={setOwner}
-                          setRepositoryName={setRepositoryName}
-                          setSourceId={setSourceId}
-                          setBoardId={setBoardId}
-                          isEnabled={isProviderEnabled}
-                          isRunning={isRunning}
+              {advancedMode && (
+                <>
+                  <h2 className='headline'>
+                    <Icon icon='code' height={16} size={16} color='rgba(0,0,0,0.5)' />{' '}
+                    <strong>JSON</strong> Configuration<span className='requiredStar'>*</span>
+                  </h2>
+                  <p className='group-caption'>Define Plugins and Options manually.</p>
+                  <div style={{ padding: '10px 0' }}>
+                    <div className='form-group' style={{ paddingLeft: '22px' }}>
+                      <Card
+                        interactive={false}
+                        elevation={Elevation.TWO}
+                        style={{ padding: '2px', minWidth: '320px', width: '100%', maxWidth: '640px', marginBottom: '20px' }}
+                      >
+                        <h3 style={{ borderBottom: '1px solid #eeeeee', margin: 0, padding: '8px 10px' }}>
+                          <span style={{ float: 'right', fontSize: '9px', color: '#aaaaaa' }}>application/json</span>TASKS EDITOR
+                        </h3>
+                        <TextArea
+                          growVertically={true}
+                          fill={true}
+                          className='codeArea'
+                          style={{ height: '440px !important', maxWidth: '640px' }}
+                          value={rawConfiguration}
+                          onChange={(e) => setRawConfiguration(e.target.value)}
                         />
-                      </div>
-                      <div className='provider-actions'>
-                        <ButtonGroup minimal rounded='true'>
-                          <Button className='pipeline-action-btn' minimal onClick={() => history.push(`/integrations/${provider.id}`)}>
-                            <Icon icon='cog' color={Colors.GRAY4} size={16} />
-                          </Button>
-                          <Popover
-                            key={`popover-help-key-provider-${provider.id}`}
-                            className='trigger-provider-help'
-                            popoverClassName='popover-provider-help'
-                            position={Position.RIGHT}
-                            autoFocus={false}
-                            enforceFocus={false}
-                            usePortal={false}
-                          >
-                            <Button className='pipeline-action-btn' minimal><Icon icon='help' color={Colors.GRAY4} size={16} /></Button>
-                            <>
-                              <div style={{ textShadow: 'none', fontSize: '12px', padding: '12px', maxWidth: '300px' }}>
-                                <div style={{
-                                  marginBottom: '10px',
-                                  fontWeight: 700,
-                                  fontSize: '14px',
-                                  fontFamily: '"Montserrat", sans-serif'
-                                }}
-                                >
-                                  <Icon icon='help' size={16} /> {provider.name} Settings
-                                </div>
-                                <p>Need Help? &mdash; Please enter the required <strong>Run Settings</strong> for this data provider.</p>
-                                {/* specific provider field help notes */}
-                                {(() => {
-                                  let helpContext = null
-                                  switch (provider.id) {
-                                    case Providers.GITLAB:
-                                      helpContext = (
-                                        <img
-                                          src={GitlabHelpNote}
-                                          alt={provider.name} style={{ maxHeight: '64px', maxWidth: '100%' }}
-                                        />
-                                      )
-                                      break
-                                    case Providers.JENKINS:
-                                      helpContext = <strong>(Options not required)</strong>
-                                      break
-                                    case Providers.JIRA:
-                                      helpContext = (
-                                        <img
-                                          src={JiraHelpNote}
-                                          alt={provider.name} style={{ maxHeight: '64px', maxWidth: '100%' }}
-                                        />
-                                      )
-                                      break
-                                    case Providers.GITHUB:
-                                      helpContext = (
-                                        <img
-                                          src={GithubHelpNote}
-                                          alt={provider.name} style={{ maxHeight: '64px', maxWidth: '100%' }}
-                                        />
-                                      )
-                                      break
-                                  }
-                                  return helpContext
-                                })()}
-                              </div>
-                            </>
-                          </Popover>
-                        </ButtonGroup>
-                      </div>
+                        <div style={{ display: 'flex', justifyContent: 'flex-end', padding: '5px', borderTop: '1px solid #eeeeee', fontSize: '11px' }}>
+                          <Button minimal small text='Format' icon='align-left' onClick={() => setRawConfiguration(config => JSON.stringify(JSON.parse(config), null, '  '))} />
+                          <Button minimal small text='Reset' icon='reset' onClick={() => setRawConfiguration(JSON.stringify(runTasks, null, '  '))} />
+                          <Button minimal small text='Clear' icon='eraser' onClick={() => setRawConfiguration('[]')} />
+                        </div>
+                      </Card>
                     </div>
-                    {/* </div> */}
-                  </CSSTransition>
-                ))}
-              </div>
+                    <p className='group-caption'>
+                      Trigger a manual Pipeline with <a href='#'><strong>JSON Configuration</strong></a>.
+                      Please review the documentation on creating complex Pipelines.
+                    </p>
+                  </div>
+                </>
+              )}
+
+              {!advancedMode && (
+                <>
+                  <h2 className='headline'>
+                    <Icon icon='database' height={16} size={16} color='rgba(0,0,0,0.5)' />{' '}
+                    Data Providers<span className='requiredStar'>*</span>
+                  </h2>
+                  <p className='group-caption'>
+                    Configure available plugins to enable for this <strong>Pipeline Run</strong>.<br />
+                    Turn the switch to the ON position to activate.
+                  </p>
+                  <div className='data-providers' style={{ marginTop: '8px', width: '100%' }}>
+                    {integrations.map((provider) => (
+                      <CSSTransition
+                        key={`fx-key-provider-${provider.id}`}
+                        in={readyProviders.includes(provider.id)}
+                        timeout={350}
+                        classNames='provider-datarow'
+                        unmountOnExit
+                      >
+                        {/* <div key={`provider-${provider.id}`}> */}
+                        <div
+                          className={`data-provider-row ${enabledProviders.includes(provider.id) ? 'on' : 'off'}`}
+                        >
+                          <div className='provider-info'>
+                            <div className='provider-icon'>{provider.iconDashboard}</div>
+                            <span className='provider-name'>{provider.name}</span>
+                            <Tooltip
+                              intent={Intent.PRIMARY}
+                              content={`Enable ${provider.name}`} position={Position.RIGHT} popoverClassName='pipeline-tooltip'
+                            >
+                              <Switch
+                          // alignIndicator={Alignment.CENTER}
+                                disabled={isRunning}
+                                className='provider-toggle-switch'
+                                innerLabel={!enabledProviders.includes(provider.id) ? 'OFF' : null}
+                                innerLabelChecked='ON'
+                                checked={enabledProviders.includes(provider.id)}
+                                onChange={() => setEnabledProviders(p =>
+                                  enabledProviders.includes(provider.id) ? p.filter(p => p !== provider.id) : [...p, provider.id]
+                                )}
+                              />
+                            </Tooltip>
+                          </div>
+                          <div className='provider-settings'>
+                            {/* showProviderSettings(provider.id) */}
+                            <ProviderSettings
+                              providerId={provider.id}
+                              projectId={projectId}
+                              owner={owner}
+                              repositoryName={repositoryName}
+                              sourceId={sourceId}
+                              sources={sources}
+                              selectedSource={selectedSource}
+                              setSelectedSource={setSelectedSource}
+                              boardId={boardId}
+                              setProjectId={setProjectId}
+                              setOwner={setOwner}
+                              setRepositoryName={setRepositoryName}
+                              setSourceId={setSourceId}
+                              setBoardId={setBoardId}
+                              isEnabled={isProviderEnabled}
+                              isRunning={isRunning}
+                            />
+                          </div>
+                          <div className='provider-actions'>
+                            <ButtonGroup minimal rounded='true'>
+                              <Button className='pipeline-action-btn' minimal onClick={() => history.push(`/integrations/${provider.id}`)}>
+                                <Icon icon='cog' color={Colors.GRAY4} size={16} />
+                              </Button>
+                              <Popover
+                                key={`popover-help-key-provider-${provider.id}`}
+                                className='trigger-provider-help'
+                                popoverClassName='popover-provider-help'
+                                position={Position.RIGHT}
+                                autoFocus={false}
+                                enforceFocus={false}
+                                usePortal={false}
+                              >
+                                <Button className='pipeline-action-btn' minimal><Icon icon='help' color={Colors.GRAY4} size={16} /></Button>
+                                <>
+                                  <div style={{ textShadow: 'none', fontSize: '12px', padding: '12px', maxWidth: '300px' }}>
+                                    <div style={{
+                                      marginBottom: '10px',
+                                      fontWeight: 700,
+                                      fontSize: '14px',
+                                      fontFamily: '"Montserrat", sans-serif'
+                                    }}
+                                    >
+                                      <Icon icon='help' size={16} /> {provider.name} Settings
+                                    </div>
+                                    <p>
+                                      Need Help? &mdash; Please enter the required{' '}
+                                      <strong>Run Settings</strong> for this data provider.
+                                    </p>
+                                    {/* specific provider field help notes */}
+                                    {(() => {
+                                      let helpContext = null
+                                      switch (provider.id) {
+                                        case Providers.GITLAB:
+                                          helpContext = (
+                                            <img
+                                              src={GitlabHelpNote}
+                                              alt={provider.name} style={{ maxHeight: '64px', maxWidth: '100%' }}
+                                            />
+                                          )
+                                          break
+                                        case Providers.JENKINS:
+                                          helpContext = <strong>(Options not required)</strong>
+                                          break
+                                        case Providers.JIRA:
+                                          helpContext = (
+                                            <img
+                                              src={JiraHelpNote}
+                                              alt={provider.name} style={{ maxHeight: '64px', maxWidth: '100%' }}
+                                            />
+                                          )
+                                          break
+                                        case Providers.GITHUB:
+                                          helpContext = (
+                                            <img
+                                              src={GithubHelpNote}
+                                              alt={provider.name} style={{ maxHeight: '64px', maxWidth: '100%' }}
+                                            />
+                                          )
+                                          break
+                                      }
+                                      return helpContext
+                                    })()}
+                                  </div>
+                                </>
+                              </Popover>
+                            </ButtonGroup>
+                          </div>
+                        </div>
+                        {/* </div> */}
+                      </CSSTransition>
+                    ))}
+                  </div>
+                </>
+              )}
 
             </div>
 
@@ -633,7 +682,7 @@ const CreatePipeline = (props) => {
                 <FormValidationErrors errors={validationErrors} />
               )}
             </div>
-            <div style={{ display: 'flex', width: '100%', justifyContent: 'flex-start' }}>
+            <div style={{ display: 'flex', width: '100%', justifyContent: 'flex-start', alignItems: 'flex-start' }}>
               <Button
                 className='btn-pipeline btn-run-pipeline' icon='play' intent='primary'
                 disabled={!isValidPipeline()}
@@ -655,16 +704,29 @@ const CreatePipeline = (props) => {
                 onClick={resetConfiguration}
               >Reset
               </Button>
-              {/* <div style={{ padding: '7px 5px 0 5px' }}>
-                <Tooltip content='Manage API Rate Limits' position={Position.TOP}>
+              <div style={{ padding: '7px 5px 0 50px' }}>
+                <Tooltip content='Advanced Pipeline Mode' position={Position.TOP}>
                   <Switch
                     intent={Intent.DANGER}
-                    checked={enableThrottling}
-                    onChange={() => setEnableThrottling(t => !t)}
-                    labelElement={<strong style={{ color: !enableThrottling ? Colors.GRAY3 : '' }}>Enable Throttling</strong>}
+                    checked={advancedMode}
+                    onChange={() => setAdvancedMode(t => !t)}
+                    labelElement={
+                      <>
+                        <span style={{
+                          fontSize: '14px',
+                          fontWeight: 800,
+                          fontFamily: '"Montserrat", sans-serif',
+                          display: 'inline-block',
+                          whiteSpace: 'nowrap'
+                        }}
+                        >Advanced Mode
+                        </span><br />
+                        <strong style={{ color: !advancedMode ? Colors.GRAY3 : '' }}>Raw JSON Trigger</strong>
+                      </>
+                    }
                   />
                 </Tooltip>
-              </div> */}
+              </div>
             </div>
             <p style={{ margin: '5px 3px', alignSelf: 'flex-start', fontSize: '10px' }}>
               Visit the <a href='#'><strong>All Jobs</strong></a> section to monitor complete pipeline activity.<br />
