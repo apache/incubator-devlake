@@ -3,16 +3,15 @@ package main
 import (
 	"context"
 	"fmt"
-	errors "github.com/merico-dev/lake/errors"
-	"github.com/merico-dev/lake/utils"
-
 	"github.com/merico-dev/lake/config"
+	errors "github.com/merico-dev/lake/errors"
 	"github.com/merico-dev/lake/logger"
 	lakeModels "github.com/merico-dev/lake/models"
 	"github.com/merico-dev/lake/plugins/core"
 	"github.com/merico-dev/lake/plugins/jenkins/api"
 	"github.com/merico-dev/lake/plugins/jenkins/models"
 	"github.com/merico-dev/lake/plugins/jenkins/tasks"
+	"github.com/merico-dev/lake/utils"
 	"github.com/mitchellh/mapstructure"
 )
 
@@ -39,10 +38,6 @@ func (j Jenkins) Description() string {
 
 func (j Jenkins) CleanData() {
 	var err = lakeModels.Db.Exec("truncate table jenkins_jobs").Error
-	if err != nil {
-		logger.Error("Failed to truncate jenkins models", err)
-	}
-	err = lakeModels.Db.Exec("truncate table jenkins_builds").Error
 	if err != nil {
 		logger.Error("Failed to truncate jenkins models", err)
 	}
@@ -73,17 +68,29 @@ func (j Jenkins) Execute(options map[string]interface{}, progress chan<- float32
 	}
 
 	j.CleanData()
-	var worker = tasks.NewJenkinsWorker(nil, tasks.NewDefaultJenkinsStorage(lakeModels.Db), op.Host, op.Username, op.Password)
+	var apiClient = tasks.CreateApiClient(nil, op.Host, op.Username, op.Password)
 
-	err = worker.SyncJobs(scheduler)
+	progress <- float32(0.1)
+	err = tasks.CollectJobs(apiClient, scheduler)
 	if err != nil {
 		logger.Error("Fail to sync jobs", err)
 		return &errors.SubTaskError{
-			SubTaskName: "SyncJobs",
+			SubTaskName: "CollectJobs",
 			Message:     err.Error(),
 		}
 	}
+
 	progress <- float32(0.4)
+	err = tasks.CollectBuilds(apiClient, scheduler)
+	if err != nil {
+		logger.Error("Fail to collect builds", err)
+		return &errors.SubTaskError{
+			SubTaskName: "CollectJobs",
+			Message:     err.Error(),
+		}
+	}
+
+	progress <- float32(0.7)
 	err = tasks.ConvertJobs()
 	if err != nil {
 		logger.Error("Fail to convert jobs", err)
@@ -92,7 +99,7 @@ func (j Jenkins) Execute(options map[string]interface{}, progress chan<- float32
 			Message:     err.Error(),
 		}
 	}
-	progress <- float32(0.7)
+	progress <- float32(0.8)
 	err = tasks.ConvertBuilds()
 	if err != nil {
 		logger.Error("Fail to convert builds", err)
@@ -127,3 +134,27 @@ func (plugin Jenkins) ApiResources() map[string]map[string]core.ApiResourceHandl
 }
 
 var PluginEntry Jenkins //nolint
+
+func main() {
+
+	err := core.RegisterPlugin("jenkins", PluginEntry)
+	if err != nil {
+		panic(err)
+	}
+	PluginEntry.Init()
+	progress := make(chan float32)
+	go func() {
+		err := PluginEntry.Execute(
+			map[string]interface{}{},
+			progress,
+			context.Background(),
+		)
+		if err != nil {
+			panic(err)
+		}
+		close(progress)
+	}()
+	for p := range progress {
+		fmt.Println(p)
+	}
+}

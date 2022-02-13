@@ -9,6 +9,7 @@ type JenkinsJobProps struct {
 	Name  string
 	Class string
 	Color string
+	Base  string
 }
 
 // JenkinsJob db entity for jenkins job
