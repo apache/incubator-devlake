@@ -2,9 +2,10 @@ package api
 
 import (
 	"fmt"
-	"github.com/merico-dev/lake/models/common"
 	"net/http"
 	"strconv"
+
+	"github.com/merico-dev/lake/models/common"
 
 	"github.com/go-playground/validator/v10"
 	lakeModels "github.com/merico-dev/lake/models"
@@ -31,6 +32,13 @@ func getJiraSourceById(id uint64) (*models.JiraSource, error) {
 	if err != nil {
 		return nil, err
 	}
+
+	// Decrypt the sensitive information after reading the data from the database
+	jiraSource.BasicAuthEncoded, err = core.Decode(jiraSource.BasicAuthEncoded)
+	if err != nil {
+		return nil, err
+	}
+
 	return jiraSource, nil
 }
 func mergeFieldsToJiraSource(jiraSource *models.JiraSource, sources ...map[string]interface{}) error {
@@ -59,6 +67,14 @@ func refreshAndSaveJiraSource(jiraSource *models.JiraSource, data map[string]int
 	if err != nil {
 		return err
 	}
+
+	// Sensitive information is encrypted before storing in the database, and the original value needs to be cached here
+	BasicAuthEncodedOriginal := jiraSource.BasicAuthEncoded
+	jiraSource.BasicAuthEncoded, err = core.Encode(jiraSource.BasicAuthEncoded)
+	if err != nil {
+		return err
+	}
+
 	// transaction for nested operations
 	tx := lakeModels.Db.Begin()
 	defer func() {
@@ -87,6 +103,10 @@ func refreshAndSaveJiraSource(jiraSource *models.JiraSource, data map[string]int
 			return err
 		}
 	}
+
+	// Since the sensitive information has been encrypted, considering that the front end needs the original data, the sensitive information is restored to the original data here.
+	jiraSource.BasicAuthEncoded = BasicAuthEncodedOriginal
+
 	return nil
 }
 
