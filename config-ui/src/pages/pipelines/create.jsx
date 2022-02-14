@@ -70,6 +70,8 @@ const CreatePipeline = (props) => {
   const [runTasks, setRunTasks] = useState([])
   const [existingTasks, setExistingTasks] = useState([])
   const [rawConfiguration, setRawConfiguration] = useState(JSON.stringify([runTasks], null, '  '))
+  const [isValidConfiguration, setIsValidConfiguration] = useState(false)
+  const [validationError, setValidationError] = useState()
 
   const [namePrefix, setNamePrefix] = useState(pipelinePrefixes[0])
   const [nameSuffix, setNameSuffix] = useState(pipelineSuffixes[0])
@@ -230,6 +232,7 @@ const CreatePipeline = (props) => {
       return JSON.parse(jsonString)
     } catch (e) {
       console.log('>> PARSE JSON ERROR!', e)
+      setValidationError(e.message)
       // ToastNotification.show({ message: e.message, intent: 'danger', icon: 'error' })
     }
   }
@@ -251,9 +254,12 @@ const CreatePipeline = (props) => {
     try {
       const parsedCode = parseJSON(rawConfiguration)
       isValid = parsedCode
+      // setValidationError(null)
     } catch (e) {
       console.log('>> FORMAT CODE: Invalid Code Format!', e)
+      setValidationError(e.message)
     }
+    setIsValidConfiguration(isValid)
     return isValid
   }, [rawConfiguration])
 
@@ -363,6 +369,14 @@ const CreatePipeline = (props) => {
       setExistingTasks([])
     }
   }, [location, fetchAllConnections])
+
+  useEffect(() => {
+    isValidCode()
+  }, [rawConfiguration, isValidCode])
+
+  // useEffect(() => {
+  //   console.log('>>>> CODE VALIDATION ERR...', validationError)
+  // }, [validationError])
 
   return (
     <>
@@ -601,12 +615,60 @@ const CreatePipeline = (props) => {
                             <Button small text='Format' icon='align-left' onClick={() => formatRawCode()} />
                             <Button small text='Revert' icon='reset' onClick={() => setRawConfiguration(JSON.stringify([runTasks], null, '  '))} />
                             <Button small text='Clear' icon='eraser' onClick={() => setRawConfiguration('[[]]')} />
-                            <Button
-                              intent={isValidCode() ? Intent.SUCCESS : Intent.PRIMARY}
-                              small
-                              text={isValidCode() ? 'Valid' : 'Invalid'}
-                              icon={isValidCode() ? 'confirm' : 'warning-sign'}
-                            />
+                            <Popover
+                              className='trigger-code-validation-help'
+                              popoverClassName='popover-code-validation-help'
+                              position={Position.RIGHT}
+                              autoFocus={false}
+                              enforceFocus={false}
+                              usePortal={false}
+                            >
+                              <Button
+                                intent={isValidConfiguration ? Intent.SUCCESS : Intent.PRIMARY}
+                                small
+                                text={isValidConfiguration ? 'Valid' : 'Invalid'}
+                                icon={isValidConfiguration ? 'confirm' : 'warning-sign'}
+                              />
+                              <>
+                                <div style={{
+                                  textShadow: 'none',
+                                  fontSize: '12px',
+                                  padding: '12px',
+                                  minWidth: '300px',
+                                  maxWidth: '300px',
+                                  maxHeight: '200px',
+                                  overflow: 'hidden',
+                                  overflowY: 'auto'
+                                }}
+                                >
+                                  {isValidConfiguration
+                                    ? (
+                                      <>
+                                        <Icon
+                                          icon='tick' color={Colors.GREEN5} size={16}
+                                          style={{ float: 'left', marginRight: '5px' }}
+                                        />
+                                        <div style={{ fontSize: '13px', fontWeight: 800, marginBottom: '5px' }}>
+                                          JSON Configuration Valid
+                                        </div>
+                                      </>
+                                      )
+                                    : (
+                                      <>
+                                        <Icon
+                                          icon='issue' color={Colors.RED5} size={16}
+                                          style={{ float: 'left', marginRight: '5px' }}
+                                        />
+                                        <div style={{ fontSize: '13px', fontWeight: 800, marginBottom: '5px' }}>
+                                          Invalid JSON Configuration
+                                        </div>
+                                        {validationError}
+                                      </>
+                                      )}
+                                </div>
+                              </>
+                            </Popover>
+
                           </ButtonGroup>
                         </div>
                       </Card>

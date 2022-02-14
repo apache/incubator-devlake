@@ -130,7 +130,9 @@ const Pipelines = (props) => {
     const existingTasksConfiguration = tasks.map(t => {
       return {
         plugin: t.plugin,
-        options: t.options
+        options: t.options,
+        pipelineRow: t.pipelineRow,
+        pipelineCol: t.pipelineCol
       }
     })
     console.log('>>> RESTARTING PIPELINE WITH EXISTING CONFIGURATION!!', existingTasksConfiguration)
