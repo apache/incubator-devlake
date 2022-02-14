@@ -195,7 +195,7 @@ func (rd RefDiff) Execute(options map[string]interface{}, progress chan<- float3
 
 // PkgPath information lost when compiled as plugin(.so)
 func (rd RefDiff) RootPkgPath() string {
-	return "github.com/merico-dev/lake/plugins/jira"
+	return "github.com/merico-dev/lake/plugins/refdiff"
 }
 
 func (rd RefDiff) ApiResources() map[string]map[string]core.ApiResourceHandler {
