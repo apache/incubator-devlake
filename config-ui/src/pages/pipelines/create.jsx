@@ -32,6 +32,8 @@ import Nav from '@/components/Nav'
 import Sidebar from '@/components/Sidebar'
 import AppCrumbs from '@/components/Breadcrumbs'
 import Content from '@/components/Content'
+import { ToastNotification } from '@/components/Toast'
+import CodeEditor from '@uiw/react-textarea-code-editor'
 import { ReactComponent as HelpIcon } from '@/images/help.svg'
 import { ReactComponent as BackArrowIcon } from '@/images/undo.svg'
 import RunPipelineIcon from '@/images/duplicate.png'
@@ -67,7 +69,7 @@ const CreatePipeline = (props) => {
   const [enabledProviders, setEnabledProviders] = useState([])
   const [runTasks, setRunTasks] = useState([])
   const [existingTasks, setExistingTasks] = useState([])
-  const [rawConfiguration, setRawConfiguration] = useState(JSON.stringify(runTasks, null, '  '))
+  const [rawConfiguration, setRawConfiguration] = useState(JSON.stringify([runTasks], null, '  '))
 
   const [namePrefix, setNamePrefix] = useState(pipelinePrefixes[0])
   const [nameSuffix, setNameSuffix] = useState(pipelineSuffixes[0])
@@ -223,6 +225,38 @@ const CreatePipeline = (props) => {
     setOwner('')
   }
 
+  const parseJSON = (jsonString = '') => {
+    try {
+      return JSON.parse(jsonString)
+    } catch (e) {
+      console.log('>> PARSE JSON ERROR!', e)
+      // ToastNotification.show({ message: e.message, intent: 'danger', icon: 'error' })
+    }
+  }
+
+  const formatRawCode = () => {
+    try {
+      setRawConfiguration(config => {
+        const parsedConfig = parseJSON(config)
+        const formattedConfig = JSON.stringify(parsedConfig, null, '  ')
+        return formattedConfig || config
+      })
+    } catch (e) {
+      console.log('>> FORMAT CODE: Invalid Code Format!')
+    }
+  }
+
+  const isValidCode = useCallback(() => {
+    let isValid = false
+    try {
+      const parsedCode = parseJSON(rawConfiguration)
+      isValid = parsedCode
+    } catch (e) {
+      console.log('>> FORMAT CODE: Invalid Code Format!', e)
+    }
+    return isValid
+  }, [rawConfiguration])
+
   useEffect(() => {
 
   }, [pipelineName])
@@ -235,7 +269,7 @@ const CreatePipeline = (props) => {
         [...runTasks]
       ]
     })
-    setRawConfiguration(JSON.stringify(runTasks, null, '  '))
+    setRawConfiguration(JSON.stringify([runTasks], null, '  '))
     validate()
   }, [runTasks, pipelineName, setPipelineSettings, validate])
 
@@ -401,7 +435,10 @@ const CreatePipeline = (props) => {
 
             <div className='' style={{ width: '100%', marginTop: '10px', alignSelf: 'flex-start', alignContent: 'flex-start' }}>
               <h2 className='headline'>
-                <Icon icon='git-pull' height={16} size={16} color='rgba(0,0,0,0.5)' /> Pipeline Name {advancedMode && <>(Advanced)</>}<span className='requiredStar'>*</span>
+                <Icon
+                  icon='git-pull'
+                  height={16} size={16} color='rgba(0,0,0,0.5)'
+                /> Pipeline Name {advancedMode && <>(Advanced)</>}<span className='requiredStar'>*</span>
               </h2>
               <p className='group-caption'>Create a user-friendly name for this Run, or select and use a default auto-generated one.</p>
               <div className='form-group' style={{ maxWidth: '480px', paddingLeft: '22px' }}>
@@ -498,12 +535,13 @@ const CreatePipeline = (props) => {
                 <>
                   <h2 className='headline'>
                     <Icon icon='code' height={16} size={16} color='rgba(0,0,0,0.5)' />{' '}
-                    <strong>JSON</strong> Configuration<span className='requiredStar'>*</span>
+                    <strong>JSON</strong> Provider Configuration<span className='requiredStar'>*</span>
                   </h2>
-                  <p className='group-caption'>Define Plugins and Options manually.</p>
+                  <p className='group-caption'>Define Plugins and Options manually. Only valid JSON code is allowed.</p>
                   <div style={{ padding: '10px 0' }}>
                     <div className='form-group' style={{ paddingLeft: '22px' }}>
                       <Card
+                        className='code-editor-card'
                         interactive={false}
                         elevation={Elevation.TWO}
                         style={{ padding: '2px', minWidth: '320px', width: '100%', maxWidth: '640px', marginBottom: '20px' }}
@@ -511,24 +549,91 @@ const CreatePipeline = (props) => {
                         <h3 style={{ borderBottom: '1px solid #eeeeee', margin: 0, padding: '8px 10px' }}>
                           <span style={{ float: 'right', fontSize: '9px', color: '#aaaaaa' }}>application/json</span>TASKS EDITOR
                         </h3>
-                        <TextArea
+                        {/* <TextArea
                           growVertically={true}
                           fill={true}
                           className='codeArea'
                           style={{ height: '440px !important', maxWidth: '640px' }}
                           value={rawConfiguration}
                           onChange={(e) => setRawConfiguration(e.target.value)}
-                        />
-                        <div style={{ display: 'flex', justifyContent: 'flex-end', padding: '5px', borderTop: '1px solid #eeeeee', fontSize: '11px' }}>
-                          <Button minimal small text='Format' icon='align-left' onClick={() => setRawConfiguration(config => JSON.stringify(JSON.parse(config), null, '  '))} />
-                          <Button minimal small text='Reset' icon='reset' onClick={() => setRawConfiguration(JSON.stringify(runTasks, null, '  '))} />
-                          <Button minimal small text='Clear' icon='eraser' onClick={() => setRawConfiguration('[]')} />
+                        /> */}
+                        <div
+                          className='code-editor-wrapper' style={{
+                            minHeight: '384px',
+                            height: '440px !important',
+                            maxWidth: '640px',
+                            maxHeight: '384px',
+                            overflow: 'hidden',
+                            overflowY: 'auto'
+                          }}
+                        >
+                          <CodeEditor
+                            value={rawConfiguration}
+                            language='json'
+                            placeholder='< Please enter JSON configuration with supported Plugins. >'
+                            onChange={(e) => setRawConfiguration(e.target.value)}
+                            padding={15}
+                            minHeight={384}
+                            style={{
+                              fontSize: 12,
+                              backgroundColor: '#f5f5f5',
+                              // eslint-disable-next-line max-len
+                              fontFamily: 'JetBrains Mono,Source Code Pro,ui-monospace,SFMono-Regular,SF Mono,Consolas,Liberation Mono,Menlo,monospace',
+                            }}
+                          />
+                        </div>
+                        <div
+                          className='code-editor-card-footer'
+                          style={{
+                            display: 'flex',
+                            justifyContent: 'flex-end',
+                            padding: '5px',
+                            borderTop: '1px solid #eeeeee',
+                            fontSize: '11px'
+                          }}
+                        >
+                          <ButtonGroup
+                            className='code-editor-controls' style={{
+                              borderRadius: '3px',
+                              boxShadow: '0px 0px 2px rgba(0, 0, 0, 0.30)'
+                            }}
+                          >
+                            <Button small text='Format' icon='align-left' onClick={() => formatRawCode()} />
+                            <Button small text='Revert' icon='reset' onClick={() => setRawConfiguration(JSON.stringify([runTasks], null, '  '))} />
+                            <Button small text='Clear' icon='eraser' onClick={() => setRawConfiguration('[[]]')} />
+                            <Button
+                              intent={isValidCode() ? Intent.SUCCESS : Intent.PRIMARY}
+                              small
+                              text={isValidCode() ? 'Valid' : 'Invalid'}
+                              icon={isValidCode() ? 'confirm' : 'warning-sign'}
+                            />
+                          </ButtonGroup>
                         </div>
                       </Card>
                     </div>
+                    <h4 style={{
+                      marginLeft: '22px',
+                      marginBottom: '8px',
+                      fontSize: '14px',
+                      fontFamily: '"Montserrat", sans-serif'
+                    }}
+                    ><Icon icon='issue' size={12} style={{ marginBottom: '2px' }} /> <strong>Expert Use Only</strong>
+                    </h4>
                     <p className='group-caption'>
-                      Trigger a manual Pipeline with <a href='#'><strong>JSON Configuration</strong></a>.
-                      Please review the documentation on creating complex Pipelines.
+                      Trigger a manual Pipeline with <a href='#'><strong>JSON Configuration</strong></a>.<br />
+                      Please review the{' '}
+                      <a
+                        href='https://github.com/merico-dev/lake/wiki/How-to-use-the-triggers-page' target='_blank'
+                        rel='noreferrer'
+                        style={{
+                          fontWeight:
+                          'bold',
+                          color: '#E8471C',
+                          textDecoration: 'underline'
+                        }}
+                      >
+                        Documentation
+                      </a> on creating complex Pipelines.
                     </p>
                   </div>
                 </>
