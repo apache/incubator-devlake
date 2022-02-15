@@ -68,6 +68,7 @@ const CreatePipeline = (props) => {
 
   const [enabledProviders, setEnabledProviders] = useState([])
   const [runTasks, setRunTasks] = useState([])
+  const [runTasksAdvanced, setRunTasksAdvanced] = useState([])
   const [existingTasks, setExistingTasks] = useState([])
   const [rawConfiguration, setRawConfiguration] = useState(JSON.stringify([runTasks], null, '  '))
   const [isValidConfiguration, setIsValidConfiguration] = useState(false)
@@ -92,6 +93,7 @@ const CreatePipeline = (props) => {
     cancelPipeline,
     fetchPipeline,
     pipelineRun,
+    buildPipelineStages,
     isRunning,
     errors: pipelineErrors,
     setSettings: setPipelineSettings,
@@ -271,13 +273,11 @@ const CreatePipeline = (props) => {
     console.log('>> PIPELINE RUN TASK SETTINGS FOR PIPELINE MANAGER ....', runTasks)
     setPipelineSettings({
       name: pipelineName,
-      tasks: [
-        [...runTasks]
-      ]
+      tasks: advancedMode ? runTasksAdvanced : [[...runTasks]]
     })
-    setRawConfiguration(JSON.stringify([runTasks], null, '  '))
+    // setRawConfiguration(JSON.stringify(buildPipelineStages(runTasks, true), null, '  '))
     validate()
-  }, [runTasks, pipelineName, setPipelineSettings, validate])
+  }, [advancedMode, runTasks, runTasksAdvanced, pipelineName, setPipelineSettings, validate])
 
   useEffect(() => {
     console.log('>> ENBALED PROVIDERS = ', enabledProviders)
@@ -291,7 +291,16 @@ const CreatePipeline = (props) => {
       setSources([])
       setSelectedSource(null)
     }
-  }, [enabledProviders, projectId, boardId, sourceId, owner, repositoryName, configureProvider, validate, fetchAllConnections])
+  }, [
+    enabledProviders,
+    projectId,
+    boardId, sourceId,
+    owner, repositoryName,
+    configureProvider,
+    validate,
+    fetchAllConnections,
+    buildPipelineStages
+  ])
 
   useEffect(() => {
     console.log('>> PIPELINE LAST RUN OBJECT CHANGED!!...', pipelineRun)
@@ -371,12 +380,26 @@ const CreatePipeline = (props) => {
   }, [location, fetchAllConnections])
 
   useEffect(() => {
-    isValidCode()
+    if (isValidCode()) {
+      setRunTasksAdvanced(JSON.parse(rawConfiguration))
+    }
   }, [rawConfiguration, isValidCode])
 
-  // useEffect(() => {
-  //   console.log('>>>> CODE VALIDATION ERR...', validationError)
-  // }, [validationError])
+  useEffect(() => {
+    const multiStageTasks = buildPipelineStages(existingTasks, true)
+    const PipelineTasks = multiStageTasks.map(s => {
+      return s.map(t => {
+        return {
+          Plugin: t.plugin,
+          Options: {
+            ...t.options
+          }
+        }
+      })
+    })
+    setRunTasksAdvanced(PipelineTasks)
+    setRawConfiguration(JSON.stringify(PipelineTasks, null, '  '))
+  }, [existingTasks, buildPipelineStages])
 
   return (
     <>
