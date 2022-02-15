@@ -16,6 +16,7 @@ import {
   Tooltip,
   Position,
   Colors,
+  Tag
 } from '@blueprintjs/core'
 import {
   Providers,
@@ -141,6 +142,10 @@ const CreatePipeline = (props) => {
       pipelineName !== '' &&
       pipelineName.length > 2 &&
       validationErrors.length === 0
+  }
+
+  const isMultiStagePipeline = (tasks = []) => {
+    return tasks.length > 1
   }
 
   const getManyProviderOptions = useCallback((providerId, optionProperty, ids, options = {}) => {
@@ -674,6 +679,32 @@ const CreatePipeline = (props) => {
                                         <div style={{ fontSize: '13px', fontWeight: 800, marginBottom: '5px' }}>
                                           JSON Configuration Valid
                                         </div>
+                                        {isMultiStagePipeline(runTasksAdvanced) && (
+                                          <>
+                                            <div
+                                              className='bp3-elevation-1' style={{
+                                                backgroundColor: '#f6f6f6',
+                                                padding: '4px 6px',
+                                                borderRadius: '3px',
+                                                marginBottom: '3px'
+                                              }}
+                                            >
+                                              <Icon icon='layers' color={Colors.GRAY4} size={14} style={{ marginRight: '5px' }} />
+                                              <span style={{
+                                                fontFamily: 'Montserrat',
+                                                fontStyle: 'normal',
+                                                fontWeight: 900,
+                                                letterSpacing: '1px',
+                                                color: '#333',
+                                                fontSize: '11px'
+                                              }}
+                                              >
+                                                MULTI-STAGE <Tag>{runTasksAdvanced.length}</Tag>
+                                              </span>
+                                            </div>
+                                            <span style={{ fontSize: '10px' }}>Multi-stage task configuration detected.</span>
+                                          </>
+                                        )}
                                       </>
                                       )
                                     : (
