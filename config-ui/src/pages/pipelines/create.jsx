@@ -659,7 +659,7 @@ const CreatePipeline = (props) => {
                               boxShadow: '0px 0px 2px rgba(0, 0, 0, 0.30)'
                             }}
                           >
-                            <Button small text='Format' icon='align-left' onClick={() => formatRawCode()} />
+                            <Button disabled={!isValidConfiguration} small text='Format' icon='align-left' onClick={() => formatRawCode()} />
                             <Button small text='Revert' icon='reset' onClick={() => setRawConfiguration(JSON.stringify([runTasks], null, '  '))} />
                             <Button small text='Clear' icon='eraser' onClick={() => setRawConfiguration('[[]]')} />
                             <Popover
