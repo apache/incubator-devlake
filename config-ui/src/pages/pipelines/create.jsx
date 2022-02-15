@@ -246,6 +246,8 @@ const CreatePipeline = (props) => {
     setSelectedSource(null)
     setRepositoryName('')
     setOwner('')
+    setAdvancedMode(false)
+    setRawConfiguration('[[]]')
   }
 
   const parseJSON = (jsonString = '') => {
