@@ -1,12 +1,10 @@
 package models
 
-import (
-	"github.com/merico-dev/lake/models/common"
-)
+import "github.com/merico-dev/lake/models/common"
 
 // JenkinsJobProps current used jenkins job props
 type JenkinsJobProps struct {
-	Name  string `gorm:"index"`
+	Name  string `gorm:"primaryKey;type:varchar(255)""`
 	Class string
 	Color string
 	Base  string
@@ -14,6 +12,6 @@ type JenkinsJobProps struct {
 
 // JenkinsJob db entity for jenkins job
 type JenkinsJob struct {
-	common.Model
 	JenkinsJobProps
+	common.NoPKModel
 }

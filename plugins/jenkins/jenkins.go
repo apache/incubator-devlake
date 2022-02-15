@@ -100,16 +100,6 @@ func (j Jenkins) Execute(options map[string]interface{}, progress chan<- float32
 		}
 	}
 
-	//progress <- float32(0.7)
-	//err = tasks.EnrichBuilds(apiClient, scheduler, ctx)
-	//if err != nil {
-	//	logger.Error("Fail to enrich builds", err)
-	//	return &errors.SubTaskError{
-	//		SubTaskName: "EnrichBuilds",
-	//		Message:     err.Error(),
-	//	}
-	//}
-
 	progress <- float32(0.8)
 	err = tasks.ConvertBuilds(ctx)
 	if err != nil {

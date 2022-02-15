@@ -11,7 +11,7 @@ import (
 )
 
 func ConvertBuilds(ctx context.Context) error {
-	err := lakeModels.Db.Delete(&devops.Build{}, "`job_name` not in (select `name` from jenkins_jobs)").Error
+	err := lakeModels.Db.Delete(&devops.Build{}, "`job_id` not in (select `id` from jobs)").Error
 	if err != nil {
 		return err
 	}
@@ -24,7 +24,8 @@ func ConvertBuilds(ctx context.Context) error {
 	}
 	defer cursor.Close()
 
-	buildIdGen := didgen.NewDomainIdGenerator(jenkinsBuild)
+	jobIdGen := didgen.NewDomainIdGenerator(&jenkinsModels.JenkinsJob{})
+	buildIdGen := didgen.NewDomainIdGenerator(&jenkinsModels.JenkinsBuild{})
 
 	// iterate all rows
 	for cursor.Next() {
@@ -34,9 +35,9 @@ func ConvertBuilds(ctx context.Context) error {
 		}
 		build := &devops.Build{
 			DomainEntity: domainlayer.DomainEntity{
-				Id: buildIdGen.Generate(jenkinsBuild.ID),
+				Id: buildIdGen.Generate(jenkinsBuild.JobName, jenkinsBuild.Number),
 			},
-			JobName:     jenkinsBuild.JobName,
+			JobId:       jobIdGen.Generate(jenkinsBuild.JobName),
 			Name:        jenkinsBuild.DisplayName,
 			DurationSec: uint64(jenkinsBuild.Duration),
 			Status:      jenkinsBuild.Result,
