@@ -52,37 +52,35 @@ func CollectBuilds(apiClient *JenkinsApiClient, scheduler *utils.WorkerScheduler
 			}
 
 			var filteredData = make([]models.JenkinsBuildProps, 0)
-			for _, item := range builds.Builds {
-				if item.Timestamp > lastJenkinsBuild.Timestamp {
-					build, err := job.GetBuild(ctx, item.Number)
+			for _, v := range builds.Builds {
+				if v.Timestamp > lastJenkinsBuild.Timestamp {
+					build, err := job.GetBuild(ctx, v.Number)
 					if err != nil {
-						return fmt.Errorf("failed to get jenkins build: %v, %s:%d", err, job.Raw.Name, item.Number)
+						return fmt.Errorf("failed to get jenkins build: %v, %s:%d", err, job.Raw.Name, v.Number)
 					}
 					logger.Debug("(collect build commit sha)", build.GetBuildNumber())
 
-					item.CommitSha = build.GetRevision()
-					filteredData = append(filteredData, item)
+					v.CommitSha = build.GetRevision()
+					filteredData = append(filteredData, v)
 				}
 			}
 
-			//var filteredData = builds.Builds
-
 			var jenkinsBuilds = make([]models.JenkinsBuild, len(filteredData))
-			for index, build := range filteredData {
+			for i, v := range filteredData {
 				var jenkinsBuild = models.JenkinsBuild{
 					JobName: jobCtx.Name,
 					JenkinsBuildProps: models.JenkinsBuildProps{
-						Duration:          build.Duration,
-						DisplayName:       build.DisplayName,
-						EstimatedDuration: build.EstimatedDuration,
-						Number:            build.Number,
-						Result:            build.Result,
-						Timestamp:         build.Timestamp,
-						StartTime:         time.Unix(build.Timestamp/1000, 0),
-						CommitSha:         build.CommitSha,
+						Duration:          v.Duration,
+						DisplayName:       v.DisplayName,
+						EstimatedDuration: v.EstimatedDuration,
+						Number:            v.Number,
+						Result:            v.Result,
+						Timestamp:         v.Timestamp,
+						StartTime:         time.Unix(v.Timestamp/1000, 0),
+						CommitSha:         v.CommitSha,
 					},
 				}
-				jenkinsBuilds[index] = jenkinsBuild
+				jenkinsBuilds[i] = jenkinsBuild
 			}
 			err = lakeModels.Db.Clauses(clause.OnConflict{
 				UpdateAll: true,

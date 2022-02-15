@@ -11,20 +11,20 @@ import (
 )
 
 func ConvertJobs(ctx context.Context) error {
-	err := lakeModels.Db.Delete(&devops.Job{}, "`name` not in (select `name` from jenkins_jobs)").Error
+	jenkinsJob := &jenkinsModels.JenkinsJob{}
+
+	jobIdGen := didgen.NewDomainIdGenerator(jenkinsJob)
+	err := lakeModels.Db.
+		Delete(&devops.Job{}, "`name` not in (select `name` from jenkins_jobs)").Error
 	if err != nil {
 		return err
 	}
-
-	jenkinsJob := &jenkinsModels.JenkinsJob{}
 
 	cursor, err := lakeModels.Db.Model(jenkinsJob).Rows()
 	if err != nil {
 		return err
 	}
 	defer cursor.Close()
-
-	jobIdGen := didgen.NewDomainIdGenerator(jenkinsJob)
 
 	// iterate all rows
 	for cursor.Next() {
@@ -34,7 +34,7 @@ func ConvertJobs(ctx context.Context) error {
 		}
 		job := &devops.Job{
 			DomainEntity: domainlayer.DomainEntity{
-				Id: jobIdGen.Generate(jenkinsJob.ID),
+				Id: jobIdGen.Generate(jenkinsJob.Name),
 			},
 			Name: jenkinsJob.Name,
 		}

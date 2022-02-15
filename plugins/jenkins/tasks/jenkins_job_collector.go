@@ -18,10 +18,9 @@ func CollectJobs(apiClient *JenkinsApiClient, scheduler *utils.WorkerScheduler, 
 		return fmt.Errorf("Failed to get jobs from jenkins: %v", err)
 	}
 
-	for i, _ := range jobs {
-		job := jobs[i]
-		logger.Debug("(collect job) Submit", job)
-		workerErr := syncJob(job)
+	for _, v := range jobs {
+		logger.Debug("(collect job) Submit", v)
+		workerErr := syncJob(v)
 		if workerErr != nil {
 			return workerErr
 		}

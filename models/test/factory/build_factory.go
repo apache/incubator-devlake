@@ -12,7 +12,7 @@ func CreateBuild(jobId string) (*devops.Build, error) {
 		DomainEntity: domainlayer.DomainEntity{
 			Id: RandIntString(),
 		},
-		JobName:     jobId, // ref to job
+		JobId:       jobId, // ref to job
 		Name:        "",
 		CommitSha:   "",
 		DurationSec: uint64(RandInt()),
