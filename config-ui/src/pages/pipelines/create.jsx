@@ -20,6 +20,7 @@ import {
 } from '@blueprintjs/core'
 import {
   Providers,
+  ProviderIcons
 } from '@/data/Providers'
 import { integrationsData } from '@/data/integrations'
 import usePipelineManager from '@/hooks/usePipelineManager'
@@ -105,7 +106,9 @@ const CreatePipeline = (props) => {
     validate,
     validateAdvanced,
     errors: validationErrors,
-    isValid: isValidPipelineForm
+    setErrors: setPipelineErrors,
+    isValid: isValidPipelineForm,
+    detectedProviders
   } = usePipelineValidation({
     enabledProviders,
     pipelineName,
@@ -251,6 +254,7 @@ const CreatePipeline = (props) => {
     } catch (e) {
       console.log('>> PARSE JSON ERROR!', e)
       setValidationError(e.message)
+      setPipelineErrors(errs => [...errs, e.message])
       // ToastNotification.show({ message: e.message, intent: 'danger', icon: 'error' })
     }
   }
@@ -745,31 +749,27 @@ const CreatePipeline = (props) => {
                           </ButtonGroup>
                         </div>
                       </Card>
+                      <div style={{ marginTop: '0', maxWidth: '640px' }}>
+                        <div style={{ display: 'flex', minHeight: '34px' }}>
+                          <div style={{
+                            marginRight: '5px',
+                            paddingLeft: '10px',
+                            fontWeight: 800,
+                            letterSpacing: '2px',
+                            color: Colors.GRAY2,
+                            fontFamily: '"Montserrat", sans-serif'
+                          }}
+                          ><span><Icon icon='nest' size={12} color={Colors.GRAY4} style={{ marginRight: '2px' }} /> DATA PROVIDERS</span>
+                          </div>
+                          {detectedProviders.map((provider, pIdx) => (
+                            <div className='detected-provider-icon' key={`provider-icon-key-${pIdx}`} style={{ margin: '5px 18px' }}>
+                              {ProviderIcons[provider] ? ProviderIcons[provider](20, 20) : <></>}
+                            </div>
+                          ))}
+                          {detectedProviders.length === 0 && (<span style={{ color: Colors.GRAY4 }}>&lt; None Configured &gt;</span>)}
+                        </div>
+                      </div>
                     </div>
-                    <h4 style={{
-                      marginLeft: '22px',
-                      marginBottom: '8px',
-                      fontSize: '14px',
-                      fontFamily: '"Montserrat", sans-serif'
-                    }}
-                    ><Icon icon='issue' size={12} style={{ marginBottom: '2px' }} /> <strong>Expert Use Only</strong>
-                    </h4>
-                    <p className='group-caption'>
-                      Trigger a manual Pipeline with <a href='#'><strong>JSON Configuration</strong></a>.<br />
-                      Please review the{' '}
-                      <a
-                        href='https://github.com/merico-dev/lake/wiki/How-to-use-the-triggers-page' target='_blank'
-                        rel='noreferrer'
-                        style={{
-                          fontWeight:
-                          'bold',
-                          color: '#E8471C',
-                          textDecoration: 'underline'
-                        }}
-                      >
-                        Documentation
-                      </a> on creating complex Pipelines.
-                    </p>
                   </div>
                 </>
               )}
@@ -972,6 +972,34 @@ const CreatePipeline = (props) => {
               Visit the <a href='#'><strong>All Jobs</strong></a> section to monitor complete pipeline activity.<br />
               Once you run this pipeline, you’ll be redirected to collection status.
             </p>
+            {advancedMode && (
+              <div style={{ alignSelf: 'flex-start' }}>
+                <h4 style={{
+                  marginBottom: '8px',
+                  fontSize: '12px',
+                  fontWeight: 700,
+                  fontFamily: '"Montserrat", sans-serif'
+                }}
+                ><Icon icon='issue' size={12} style={{ marginBottom: '2px' }} /> <span>Expert Use Only</span>
+                </h4>
+                <p style={{ fontSize: '10px' }}>
+                  Trigger a manual Pipeline with <a href='#'><strong>JSON Configuration</strong></a>.<br />
+                  Please review the{' '}
+                  <a
+                    href='https://github.com/merico-dev/lake/wiki/How-to-use-the-triggers-page' target='_blank'
+                    rel='noreferrer'
+                    style={{
+                      fontWeight:
+                          'bold',
+                      color: '#E8471C',
+                      textDecoration: 'underline'
+                    }}
+                  >
+                    Documentation
+                  </a> on creating complex Pipelines.
+                </p>
+              </div>
+            )}
           </main>
         </Content>
       </div>
