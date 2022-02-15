@@ -605,7 +605,7 @@ const CreatePipeline = (props) => {
                     <strong>JSON</strong> Provider Configuration<span className='requiredStar'>*</span>
                   </h2>
                   <p className='group-caption'>Define Plugins and Options manually. Only valid JSON code is allowed.</p>
-                  <div style={{ padding: '10px 0' }}>
+                  <div style={{ padding: '10px 0', borderBottom: '1px solid rgba(0, 0, 0, 0.08)' }}>
                     <div className='form-group' style={{ paddingLeft: '22px' }}>
                       <Card
                         className='code-editor-card'
@@ -711,7 +711,7 @@ const CreatePipeline = (props) => {
                                                 backgroundColor: '#f6f6f6',
                                                 padding: '4px 6px',
                                                 borderRadius: '3px',
-                                                marginBottom: '3px'
+                                                marginBottom: '10px'
                                               }}
                                             >
                                               <Icon icon='layers' color={Colors.GRAY4} size={14} style={{ marginRight: '5px' }} />
@@ -919,7 +919,7 @@ const CreatePipeline = (props) => {
 
             </div>
 
-            <div style={{ display: 'flex', marginTop: '50px', width: '100%', justifyContent: 'flex-start' }}>
+            <div style={{ display: 'flex', marginTop: '32px', width: '100%', justifyContent: 'flex-start' }}>
               {validationErrors.length > 0 && (
                 <FormValidationErrors errors={validationErrors} />
               )}
