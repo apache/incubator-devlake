@@ -18,6 +18,7 @@ function usePipelineValidation ({
 }) {
   const [errors, setErrors] = useState([])
   const [isValid, setIsValid] = useState(false)
+  const [detectedProviders, setDetectedProviders] = useState([])
   const [allowedProviders, setAllowedProviders] = useState([
     Providers.JIRA,
     Providers.GITLAB,
@@ -99,6 +100,10 @@ function usePipelineValidation ({
     if (advancedMode) {
       console.log('>> VALIDATING ADVANCED PIPELINE RUN ', tasksAdvanced, pipelineName)
 
+      if (Array.isArray(tasksAdvanced)) {
+        setDetectedProviders([...new Set(tasksAdvanced?.flat().filter(aT => allowedProviders.includes(aT.Plugin)).map(p => p.Plugin))])
+      }
+
       if (!pipelineName || pipelineName.length <= 2) {
         errs.push('Name: Enter a valid Pipeline Name')
       }
@@ -139,14 +144,20 @@ function usePipelineValidation ({
     }
   }, [errors])
 
+  useEffect(() => {
+    console.log('>>> DETECTED PLUGIN PROVIDERS...', detectedProviders)
+  }, [detectedProviders])
+
   return {
     errors,
+    setErrors,
     isValid,
     validate,
     validateAdvanced,
     clear,
     setAllowedProviders,
-    allowedProviders
+    allowedProviders,
+    detectedProviders
   }
 }
 
