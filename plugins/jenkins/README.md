@@ -58,3 +58,7 @@ In order to collect data from Jenkins, you have to compose a JSON looks like fol
   ]
 ]
 ```
+
+## Relationship between job and build
+
+Build is kind of a snapshot of job. Running job each time creates a build.

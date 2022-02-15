@@ -6,5 +6,5 @@ import (
 
 type Job struct {
 	domainlayer.DomainEntity
-	Name string
+	Name string `gorm:"index"`
 }

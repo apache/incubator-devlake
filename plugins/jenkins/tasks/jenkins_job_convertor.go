@@ -1,6 +1,7 @@
 package tasks
 
 import (
+	"context"
 	lakeModels "github.com/merico-dev/lake/models"
 	"github.com/merico-dev/lake/models/domainlayer"
 	"github.com/merico-dev/lake/models/domainlayer/devops"
@@ -9,7 +10,12 @@ import (
 	"gorm.io/gorm/clause"
 )
 
-func ConvertJobs() error {
+func ConvertJobs(ctx context.Context) error {
+	err := lakeModels.Db.Delete(&devops.Job{}, "`name` not in (select `name` from jenkins_jobs)").Error
+	if err != nil {
+		return err
+	}
+
 	jenkinsJob := &jenkinsModels.JenkinsJob{}
 
 	cursor, err := lakeModels.Db.Model(jenkinsJob).Rows()
