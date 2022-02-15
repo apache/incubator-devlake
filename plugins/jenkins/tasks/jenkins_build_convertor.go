@@ -1,6 +1,7 @@
 package tasks
 
 import (
+	"context"
 	lakeModels "github.com/merico-dev/lake/models"
 	"github.com/merico-dev/lake/models/domainlayer"
 	"github.com/merico-dev/lake/models/domainlayer/devops"
@@ -9,7 +10,12 @@ import (
 	"gorm.io/gorm/clause"
 )
 
-func ConvertBuilds() error {
+func ConvertBuilds(ctx context.Context) error {
+	err := lakeModels.Db.Delete(&devops.Build{}, "`job_name` not in (select `name` from jenkins_jobs)").Error
+	if err != nil {
+		return err
+	}
+
 	jenkinsBuild := &jenkinsModels.JenkinsBuild{}
 
 	cursor, err := lakeModels.Db.Model(jenkinsBuild).Rows()
@@ -18,7 +24,6 @@ func ConvertBuilds() error {
 	}
 	defer cursor.Close()
 
-	jobIdGen := didgen.NewDomainIdGenerator(&jenkinsModels.JenkinsJob{})
 	buildIdGen := didgen.NewDomainIdGenerator(jenkinsBuild)
 
 	// iterate all rows
@@ -31,11 +36,12 @@ func ConvertBuilds() error {
 			DomainEntity: domainlayer.DomainEntity{
 				Id: buildIdGen.Generate(jenkinsBuild.ID),
 			},
-			JobId:       jobIdGen.Generate(jenkinsBuild.JobID),
+			JobName:     jenkinsBuild.JobName,
 			Name:        jenkinsBuild.DisplayName,
 			DurationSec: uint64(jenkinsBuild.Duration),
 			Status:      jenkinsBuild.Result,
 			StartedDate: jenkinsBuild.StartTime,
+			CommitSha:   jenkinsBuild.CommitSha,
 		}
 
 		err = lakeModels.Db.Clauses(clause.OnConflict{UpdateAll: true}).Create(build).Error

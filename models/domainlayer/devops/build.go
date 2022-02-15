@@ -8,7 +8,7 @@ import (
 
 type Build struct {
 	domainlayer.DomainEntity
-	JobId       string `gorm:"index"`
+	JobName     string `gorm:"index"`
 	Name        string
 	CommitSha   string
 	DurationSec uint64

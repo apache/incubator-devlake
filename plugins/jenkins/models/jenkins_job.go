@@ -6,7 +6,7 @@ import (
 
 // JenkinsJobProps current used jenkins job props
 type JenkinsJobProps struct {
-	Name  string
+	Name  string `gorm:"index"`
 	Class string
 	Color string
 	Base  string

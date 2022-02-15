@@ -14,11 +14,12 @@ type JenkinsBuildProps struct {
 	Result            string
 	Timestamp         int64     // start time
 	StartTime         time.Time // convered by timestamp
+	CommitSha         string
 }
 
 // JenkinsBuild db entity for jenkins build
 type JenkinsBuild struct {
 	common.Model
 	JenkinsBuildProps
-	JobID uint64
+	JobName string `gorm:"index"`
 }

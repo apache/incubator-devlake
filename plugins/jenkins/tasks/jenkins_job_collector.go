@@ -11,10 +11,9 @@ import (
 	"gorm.io/gorm/clause"
 )
 
-func CollectJobs(worker *JenkinsApiClient, scheduler *utils.WorkerScheduler) error {
-	var ctx = context.Background()
+func CollectJobs(apiClient *JenkinsApiClient, scheduler *utils.WorkerScheduler, ctx context.Context) error {
 	// get all jobs
-	var jobs, err = worker.jenkins.GetAllJobs(ctx)
+	var jobs, err = apiClient.jenkins.GetAllJobs(ctx)
 	if err != nil {
 		return fmt.Errorf("Failed to get jobs from jenkins: %v", err)
 	}
