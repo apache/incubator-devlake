@@ -103,6 +103,7 @@ const CreatePipeline = (props) => {
 
   const {
     validate,
+    validateAdvanced,
     errors: validationErrors,
     isValid: isValidPipelineForm
   } = usePipelineValidation({
@@ -113,7 +114,9 @@ const CreatePipeline = (props) => {
     owner,
     repositoryName,
     sourceId,
-    runTasks
+    tasks: runTasks,
+    tasksAdvanced: runTasksAdvanced,
+    advancedMode
   })
 
   const {
@@ -138,10 +141,18 @@ const CreatePipeline = (props) => {
   }
 
   const isValidPipeline = () => {
+    if (advancedMode) { return isValidAdvancedPipeline() }
     return enabledProviders.length >= 1 &&
       pipelineName !== '' &&
       pipelineName.length > 2 &&
       validationErrors.length === 0
+  }
+
+  const isValidAdvancedPipeline = () => {
+    return pipelineName !== '' &&
+    pipelineName.length > 2 &&
+    validationErrors.length === 0 &&
+    isValidConfiguration
   }
 
   const isMultiStagePipeline = (tasks = []) => {
@@ -281,8 +292,12 @@ const CreatePipeline = (props) => {
       tasks: advancedMode ? runTasksAdvanced : [[...runTasks]]
     })
     // setRawConfiguration(JSON.stringify(buildPipelineStages(runTasks, true), null, '  '))
-    validate()
-  }, [advancedMode, runTasks, runTasksAdvanced, pipelineName, setPipelineSettings, validate])
+    if (advancedMode) {
+      validateAdvanced()
+    } else {
+      validate()
+    }
+  }, [advancedMode, runTasks, runTasksAdvanced, pipelineName, setPipelineSettings, validate, validateAdvanced])
 
   useEffect(() => {
     console.log('>> ENBALED PROVIDERS = ', enabledProviders)
@@ -405,6 +420,10 @@ const CreatePipeline = (props) => {
     setRunTasksAdvanced(PipelineTasks)
     setRawConfiguration(JSON.stringify(PipelineTasks, null, '  '))
   }, [existingTasks, buildPipelineStages])
+
+  useEffect(() => {
+    console.log('>>> ADVANCED MODE ENABLED?: ', advancedMode)
+  }, [advancedMode])
 
   return (
     <>
@@ -906,7 +925,7 @@ const CreatePipeline = (props) => {
             <div style={{ display: 'flex', width: '100%', justifyContent: 'flex-start', alignItems: 'flex-start' }}>
               <Button
                 className='btn-pipeline btn-run-pipeline' icon='play' intent='primary'
-                disabled={!isValidPipeline()}
+                disabled={advancedMode ? !isValidAdvancedPipeline() : !isValidPipeline()}
                 onClick={runPipeline}
                 loading={isRunning}
               ><strong>Run</strong> Pipeline
