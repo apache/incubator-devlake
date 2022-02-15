@@ -12,10 +12,20 @@ function usePipelineValidation ({
   owner,
   repositoryName,
   sourceId,
-  tasks
+  tasks,
+  tasksAdvanced,
+  advancedMode
 }) {
   const [errors, setErrors] = useState([])
   const [isValid, setIsValid] = useState(false)
+  const [allowedProviders, setAllowedProviders] = useState([
+    Providers.JIRA,
+    Providers.GITLAB,
+    Providers.JENKINS,
+    Providers.GITHUB,
+    Providers.REFDIFF,
+    Providers.GITEXTRACTOR
+  ])
 
   const clear = () => {
     setErrors([])
@@ -72,13 +82,6 @@ function usePipelineValidation ({
     if (enabledProviders.length === 0) {
       errs.push('Pipeline: Invalid/Empty Configuration')
     }
-
-    // try {
-    //   JSON.parse(tasks)
-    // } catch (e) {
-    //   errs.push(e.message)
-    // }
-
     setErrors(errs)
   }, [
     enabledProviders,
@@ -87,8 +90,45 @@ function usePipelineValidation ({
     boardId,
     owner,
     repositoryName,
-    sourceId,
-    tasks
+    sourceId
+  ])
+
+  const validateAdvanced = useCallback(() => {
+    const errs = []
+    let parsed = []
+    if (advancedMode) {
+      console.log('>> VALIDATING ADVANCED PIPELINE RUN ', tasksAdvanced, pipelineName)
+
+      if (!pipelineName || pipelineName.length <= 2) {
+        errs.push('Name: Enter a valid Pipeline Name')
+      }
+
+      try {
+        parsed = JSON.parse(JSON.stringify(tasksAdvanced))
+      } catch (e) {
+        errs.push('Advanced Pipeline: Invalid JSON Configuration')
+      }
+
+      if (Array.isArray(tasksAdvanced) && tasksAdvanced?.flat().length === 0) {
+        errs.push('Advanced Pipeline: Invalid/Empty Configuration')
+      }
+
+      if (!Array.isArray(tasksAdvanced) || !Array.isArray(tasksAdvanced[0])) {
+        errs.push('Advanced Pipeline: Invalid Tasks Array Structure!')
+      }
+
+      if (Array.isArray(tasksAdvanced) && !tasksAdvanced?.flat().every(aT => allowedProviders.includes(aT.Plugin))) {
+        errs.push('Advanced Pipeline: Unsupported Data Provider Plugin Detected!')
+      }
+
+      console.log('>>> Advanced Pipeline Validation Errors? ...', errs)
+    }
+    setErrors(errs)
+  }, [
+    advancedMode,
+    tasksAdvanced,
+    pipelineName,
+    allowedProviders
   ])
 
   useEffect(() => {
@@ -103,7 +143,10 @@ function usePipelineValidation ({
     errors,
     isValid,
     validate,
-    clear
+    validateAdvanced,
+    clear,
+    setAllowedProviders,
+    allowedProviders
   }
 }
 
