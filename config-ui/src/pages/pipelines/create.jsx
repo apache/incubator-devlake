@@ -10,7 +10,7 @@ import {
   Button, Icon, Intent, Switch,
   FormGroup, ButtonGroup, InputGroup,
   Elevation,
-  TextArea,
+  // TextArea,
   Card,
   Popover,
   Tooltip,
@@ -23,7 +23,6 @@ import {
   ProviderIcons
 } from '@/data/Providers'
 import { integrationsData } from '@/data/integrations'
-import { defaultConfig as samplePipelineConfig } from '@/data/pipeline-config-samples/default'
 import usePipelineManager from '@/hooks/usePipelineManager'
 import usePipelineValidation from '@/hooks/usePipelineValidation'
 import useConnectionManager from '@/hooks/useConnectionManager'
@@ -35,7 +34,6 @@ import Nav from '@/components/Nav'
 import Sidebar from '@/components/Sidebar'
 import AppCrumbs from '@/components/Breadcrumbs'
 import Content from '@/components/Content'
-import { ToastNotification } from '@/components/Toast'
 import CodeEditor from '@uiw/react-textarea-code-editor'
 import { ReactComponent as HelpIcon } from '@/images/help.svg'
 import { ReactComponent as BackArrowIcon } from '@/images/undo.svg'
@@ -432,11 +430,6 @@ const CreatePipeline = (props) => {
 
   useEffect(() => {
     console.log('>>> ADVANCED MODE ENABLED?: ', advancedMode)
-    // if (advancedMode && runTasks.length === 0) {
-    //   setRawConfiguration(JSON.stringify(samplePipelineConfig, null, '  '))
-    // } else {
-    //   setRawConfiguration(JSON.stringify(runTasks, null, '  '))
-    // }
   }, [advancedMode])
 
   return (
@@ -692,9 +685,19 @@ const CreatePipeline = (props) => {
                               boxShadow: '0px 0px 2px rgba(0, 0, 0, 0.30)'
                             }}
                           >
-                            <Button disabled={!isValidConfiguration} small text='Format' icon='align-left' onClick={() => formatRawCode()} />
-                            <Button small text='Revert' icon='reset' onClick={() => setRawConfiguration(JSON.stringify([runTasks], null, '  '))} />
-                            <Button small text='Clear' icon='eraser' onClick={() => setRawConfiguration('[[]]')} />
+                            <Button
+                              disabled={!isValidConfiguration}
+                              small text='Format' icon='align-left'
+                              onClick={() => formatRawCode()}
+                            />
+                            <Button
+                              small text='Revert' icon='reset'
+                              onClick={() => setRawConfiguration(JSON.stringify([runTasks], null, '  '))}
+                            />
+                            <Button
+                              small text='Clear' icon='eraser'
+                              onClick={() => setRawConfiguration('[[]]')}
+                            />
                             <Popover
                               className='trigger-code-validation-help'
                               popoverClassName='popover-code-validation-help'
