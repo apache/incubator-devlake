@@ -176,8 +176,13 @@ func AesDecrypt(crypted, key []byte) ([]byte, error) {
 	if err != nil {
 		return nil, err
 	}
-	// Decrypt and unalign data
+	// Get the block size and check whether the ciphertext length is legal
 	blockSize := block.BlockSize()
+	if len(crypted)%blockSize != 0 {
+		return nil, fmt.Errorf("The length of the data to be decrypted is [%d], so cannot match the required block size [%d]", len(crypted), blockSize)
+	}
+
+	// Decrypt and unalign data
 	blockMode := cipher.NewCBCDecrypter(block, key[:blockSize])
 	origData := make([]byte, len(crypted))
 	blockMode.CryptBlocks(origData, crypted)
