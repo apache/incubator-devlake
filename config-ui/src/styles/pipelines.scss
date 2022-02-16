@@ -133,6 +133,14 @@
   }
 }
 
+.advanced-mode {
+  .btn-pipeline {
+    &.btn-run-pipeline:not(:hover) {
+      background-color: #252525;
+    }
+  }
+}
+
 .bp3-switch {
   &.provider-toggle-switch {
     margin-bottom: 0;
