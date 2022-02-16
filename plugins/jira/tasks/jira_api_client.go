@@ -45,12 +45,6 @@ func NewJiraApiClientBySourceId(sourceId uint64) (*JiraApiClient, error) {
 		return nil, err
 	}
 
-	// Decrypt the sensitive information after reading the data from the database
-	jiraSource.BasicAuthEncoded, err = core.Decode(jiraSource.BasicAuthEncoded)
-	if err != nil {
-		return nil, err
-	}
-
 	return NewJiraApiClient(jiraSource.Endpoint, jiraSource.BasicAuthEncoded), nil
 }
 
