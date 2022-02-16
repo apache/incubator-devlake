@@ -3,8 +3,6 @@ package main
 import (
 	"context"
 	"fmt"
-	"os"
-
 	"github.com/cayleygraph/cayley"
 	"github.com/cayleygraph/quad"
 	"github.com/merico-dev/lake/logger"
@@ -13,6 +11,7 @@ import (
 	"github.com/merico-dev/lake/plugins/core"
 	"github.com/mitchellh/mapstructure"
 	"gorm.io/gorm/clause"
+	"os"
 )
 
 type RefPair struct {
@@ -43,7 +42,7 @@ func (rd RefDiff) Init() {
 func (rd RefDiff) Execute(options map[string]interface{}, progress chan<- float32, ctx context.Context) error {
 	var op RefDiffOptions
 	var err error
-	progress <- 0.01
+	progress <- 0.00
 	// decode options
 	err = mapstructure.Decode(options, &op)
 	if err != nil {
@@ -187,7 +186,7 @@ func (rd RefDiff) Execute(options map[string]interface{}, progress chan<- float3
 			commitsDiff.OldRefCommitSha,
 		))
 		// calculate progress after conversion
-		progress <- float32(i / lenCommitPairs)
+		progress <- float32((i + 1) / lenCommitPairs)
 	}
 
 	return nil
