@@ -614,7 +614,24 @@ const CreatePipeline = (props) => {
                         style={{ padding: '2px', minWidth: '320px', width: '100%', maxWidth: '640px', marginBottom: '20px' }}
                       >
                         <h3 style={{ borderBottom: '1px solid #eeeeee', margin: 0, padding: '8px 10px' }}>
-                          <span style={{ float: 'right', fontSize: '9px', color: '#aaaaaa' }}>application/json</span>TASKS EDITOR
+                          <span style={{ float: 'right', fontSize: '9px', color: '#aaaaaa' }}>application/json</span>
+                          TASKS EDITOR
+                          {isMultiStagePipeline(runTasksAdvanced) && (
+                            <>
+                              {' '} &rarr; {' '}
+                              <Icon icon='layers' color={Colors.GRAY4} size={14} style={{ marginRight: '5px' }} />
+                              <span style={{
+                                fontStyle: 'normal',
+                                fontWeight: 900,
+                                letterSpacing: '1px',
+                                color: '#333',
+                                fontSize: '11px'
+                              }}
+                              >
+                                MULTI-STAGE <Tag intent={Intent.PRIMARY} style={{ borderRadius: '20px' }}>{runTasksAdvanced.length}</Tag>
+                              </span>
+                            </>
+                          )}
                         </h3>
                         {/* <TextArea
                           growVertically={true}
