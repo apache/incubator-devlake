@@ -101,7 +101,7 @@ function usePipelineValidation ({
       console.log('>> VALIDATING ADVANCED PIPELINE RUN ', tasksAdvanced, pipelineName)
 
       if (Array.isArray(tasksAdvanced)) {
-        setDetectedProviders([...new Set(tasksAdvanced?.flat().filter(aT => allowedProviders.includes(aT.Plugin)).map(p => p.Plugin))])
+        setDetectedProviders([...new Set(tasksAdvanced?.flat().filter(aT => allowedProviders.includes(aT.Plugin || aT.plugin)).map(p => p.Plugin || p.plugin))])
       }
 
       if (!pipelineName || pipelineName.length <= 2) {
@@ -122,7 +122,7 @@ function usePipelineValidation ({
         errs.push('Advanced Pipeline: Invalid Tasks Array Structure!')
       }
 
-      if (Array.isArray(tasksAdvanced) && !tasksAdvanced?.flat().every(aT => allowedProviders.includes(aT.Plugin))) {
+      if (Array.isArray(tasksAdvanced) && !tasksAdvanced?.flat().every(aT => allowedProviders.includes(aT.Plugin || aT.plugin))) {
         errs.push('Advanced Pipeline: Unsupported Data Provider Plugin Detected!')
       }
 
