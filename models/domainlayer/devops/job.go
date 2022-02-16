@@ -5,6 +5,6 @@ import (
 )
 
 type Job struct {
-	domainlayer.DomainEntity
 	Name string
+	domainlayer.DomainEntity
 }
