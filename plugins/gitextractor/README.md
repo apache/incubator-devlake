@@ -23,7 +23,7 @@ curl --location --request POST 'localhost:8080/pipelines' \
                 "Plugin": "gitextractor",
                 "Options": {
                     "url": "https://github.com/merico-dev/lake.git",
-                    "repoId": "github:GithubRepos:384111310"
+                    "repoId": "github:GithubRepo:384111310"
                 }
             }
         ]
