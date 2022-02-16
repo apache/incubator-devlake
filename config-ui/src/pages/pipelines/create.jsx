@@ -23,6 +23,7 @@ import {
   ProviderIcons
 } from '@/data/Providers'
 import { integrationsData } from '@/data/integrations'
+import { defaultConfig as samplePipelineConfig } from '@/data/pipeline-config-samples/default'
 import usePipelineManager from '@/hooks/usePipelineManager'
 import usePipelineValidation from '@/hooks/usePipelineValidation'
 import useConnectionManager from '@/hooks/useConnectionManager'
@@ -159,7 +160,7 @@ const CreatePipeline = (props) => {
   }
 
   const isMultiStagePipeline = (tasks = []) => {
-    return tasks.length > 1
+    return tasks.length > 1 && Array.isArray(tasks[0])
   }
 
   const getManyProviderOptions = useCallback((providerId, optionProperty, ids, options = {}) => {
@@ -412,28 +413,35 @@ const CreatePipeline = (props) => {
   }, [rawConfiguration, isValidCode])
 
   useEffect(() => {
-    const multiStageTasks = buildPipelineStages(existingTasks, true)
-    const PipelineTasks = multiStageTasks.map(s => {
-      return s.map(t => {
-        return {
-          Plugin: t.plugin,
-          Options: {
-            ...t.options
+    if (existingTasks.length > 0) {
+      const multiStageTasks = buildPipelineStages(existingTasks, true)
+      const PipelineTasks = multiStageTasks.map(s => {
+        return s.map(t => {
+          return {
+            Plugin: t.plugin,
+            Options: {
+              ...t.options
+            }
           }
-        }
+        })
       })
-    })
-    setRunTasksAdvanced(PipelineTasks)
-    setRawConfiguration(JSON.stringify(PipelineTasks, null, '  '))
+      setRunTasksAdvanced(PipelineTasks)
+      setRawConfiguration(JSON.stringify(PipelineTasks, null, '  '))
+    }
   }, [existingTasks, buildPipelineStages])
 
   useEffect(() => {
     console.log('>>> ADVANCED MODE ENABLED?: ', advancedMode)
+    // if (advancedMode && runTasks.length === 0) {
+    //   setRawConfiguration(JSON.stringify(samplePipelineConfig, null, '  '))
+    // } else {
+    //   setRawConfiguration(JSON.stringify(runTasks, null, '  '))
+    // }
   }, [advancedMode])
 
   return (
     <>
-      <div className='container container-create-pipeline'>
+      <div className={`container container-create-pipeline ${advancedMode ? 'advanced-mode' : ''}`}>
         <Nav />
         <Sidebar />
         <Content>
