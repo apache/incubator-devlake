@@ -136,7 +136,7 @@ func RunPipeline(pipelineId uint64) error {
 	// convert to 2d array
 	taskIds := make([][]uint64, 0)
 	for _, task := range tasks {
-		if len(taskIds) < task.PipelineRow {
+		for len(taskIds) < task.PipelineRow {
 			taskIds = append(taskIds, make([]uint64, 0))
 		}
 		taskIds[task.PipelineRow-1] = append(taskIds[task.PipelineRow-1], task.ID)
