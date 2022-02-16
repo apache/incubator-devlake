@@ -569,6 +569,8 @@ const CreatePipeline = (props) => {
                               pipelineSuffixes={pipelineSuffixes}
                               setNamePrefix={setNamePrefix}
                               setNameSuffix={setNameSuffix}
+                              setRawConfiguration={setRawConfiguration}
+                              advancedMode={advancedMode}
                             />
                           </>
                         </Popover>
