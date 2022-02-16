@@ -133,6 +133,14 @@
   }
 }
 
+.advanced-mode {
+  .btn-pipeline {
+    &.btn-run-pipeline:not(:hover) {
+      background-color: #252525;
+    }
+  }
+}
+
 .bp3-switch {
   &.provider-toggle-switch {
     margin-bottom: 0;
@@ -779,4 +787,27 @@
 
 .pipeline-activity {
   background-image: linear-gradient(to bottom, rgba(220, 220, 220, 0.2), rgba(255, 255, 255, 0));
+}
+
+.code-editor-controls {
+  > .bp3-button, .bp3-popover-wrapper {
+    > .bp3-icon, > .bp3-popover-target .bp3-icon {
+      svg {
+        width: 12px;
+        height: 12px;
+      }
+    }
+  }
+
+  .bp3-intent-success {
+    background-color: #2eaa5f;
+  }
+
+}
+
+.w-tc-editor  {
+  height: 100%;
+  textarea {
+    min-height: 384px;
+  }
 }
