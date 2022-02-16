@@ -1,9 +1,8 @@
 package devops
 
 import (
-	"time"
-
 	"github.com/merico-dev/lake/models/domainlayer"
+	"time"
 )
 
 type Build struct {
