@@ -68,17 +68,15 @@ func CollectBuilds(apiClient *JenkinsApiClient, scheduler *utils.WorkerScheduler
 			var jenkinsBuilds = make([]models.JenkinsBuild, len(filteredData))
 			for i, v := range filteredData {
 				var jenkinsBuild = models.JenkinsBuild{
-					JobName: jobCtx.Name,
-					JenkinsBuildProps: models.JenkinsBuildProps{
-						Duration:          v.Duration,
-						DisplayName:       v.DisplayName,
-						EstimatedDuration: v.EstimatedDuration,
-						Number:            v.Number,
-						Result:            v.Result,
-						Timestamp:         v.Timestamp,
-						StartTime:         time.Unix(v.Timestamp/1000, 0),
-						CommitSha:         v.CommitSha,
-					},
+					JobName:           jobCtx.Name,
+					Duration:          v.Duration,
+					DisplayName:       v.DisplayName,
+					EstimatedDuration: v.EstimatedDuration,
+					Number:            v.Number,
+					Result:            v.Result,
+					Timestamp:         v.Timestamp,
+					StartTime:         time.Unix(v.Timestamp/1000, 0),
+					CommitSha:         v.CommitSha,
 				}
 				jenkinsBuilds[i] = jenkinsBuild
 			}
