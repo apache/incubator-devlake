@@ -7,7 +7,7 @@ This plugin extract commits and references from a remote or local git repository
 
 1. Use the Git repo extractor to retrieve commit-and-branch-related data from your repo
 2. Use the GitHub plugin to retrieve Github-issue-and-pr-related data from your repo. NOTE: you can run only one the issue collection stage as described in the Github Plugin README.
-3. Use the RefDiff plugin to calculate version diff, which will be stored in refs_commits_diffs.
+3. Use the [RefDiff](../refdiff) plugin to calculate version diff, which will be stored in `refs_commits_diffs` table.
 
 ## Sample Request
 
@@ -38,3 +38,9 @@ curl --location --request POST 'localhost:8080/pipelines' \
 - `password`: optional, for cloning private repository using HTTP/HTTPS
 - `privateKey`: optional, for SSH cloning, base64 encoded `PEM` file
 - `passphrase`: optional, passphrase for the private key
+
+
+## Development
+
+This plugin depends on `libgit2`, you need to install version 1.3.0 in order to run and debug this plugin on your local
+machine. [Click here](../refdiff#Development) for a brief guide.
