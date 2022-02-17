@@ -71,6 +71,12 @@ func convertPullRequestCommit(prCommit *PrCommitsResponse) (*models.GithubCommit
 
 func ProcessCollection(owner string, repo string, pr *models.GithubPullRequest, scheduler *utils.WorkerScheduler, apiClient *GithubApiClient) error {
 	getUrl := fmt.Sprintf("repos/%v/%v/pulls/%v/commits", owner, repo, pr.Number)
+	err := lakeModels.Db.Where("pull_request_id = ?",
+		pr.GithubId).Delete(&models.GithubPullRequestCommit{}).Error
+	if err != nil {
+		logger.Error("Could not delete: ", err)
+		return err
+	}
 	return apiClient.FetchWithPaginationAnts(getUrl, nil, 100, 1, scheduler,
 		func(res *http.Response) error {
 			githubApiResponse := &ApiPullRequestCommitResponse{}
@@ -78,12 +84,6 @@ func ProcessCollection(owner string, repo string, pr *models.GithubPullRequest, 
 				err := core.UnmarshalResponse(res, githubApiResponse)
 				if err != nil {
 					logger.Error("Error: ", err)
-					return err
-				}
-				err = lakeModels.Db.Where("pull_request_id = ?",
-					pr.GithubId).Delete(&models.GithubPullRequestCommit{}).Error
-				if err != nil {
-					logger.Error("Could not delete: ", err)
 					return err
 				}
 				for _, pullRequestCommit := range *githubApiResponse {
