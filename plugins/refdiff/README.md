@@ -57,7 +57,10 @@ curl -v -XPOST http://localhost:8080/pipelines --data @- <<'JSON'
 JSON
 ```
 
-## Install `libgit2`
+## Development
+
+This plugin depends on `libgit2`, you need to install version 1.3.0 in order to run and debug this plugin on your local
+machine.
 
 ### Ubuntu
 
@@ -86,13 +89,13 @@ make
 make install
 ```
 
-## Troubleshooting (MacOS)
+Troubleshooting (MacOS)
 
 Q: I got an error saying: `pkg-config: exec: "pkg-config": executable file not found in $PATH`
 
-A: 
+A:
 
-1. Make sure you have pkg-config installed: 
+1. Make sure you have pkg-config installed:
 
   `brew install pkg-config`
 

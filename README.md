@@ -262,9 +262,8 @@ To synchronize data periodically, we provide [`lake-cli`](./cmd/lake-cli/README.
 
 #### Requirements
 
-- <a href="https://github.com/libgit2/libgit2#quick-start" target="_blank">Libgit2</a>
 - <a href="https://docs.docker.com/get-docker" target="_blank">Docker</a>
-- <a href="https://golang.org/doc/install" target="_blank">Golang</a>
+- <a href="https://golang.org/doc/install" target="_blank">Golang v1.17+</a>
 - Make
   - Mac (Already installed)
   - Windows: [Download](http://gnuwin32.sourceforge.net/packages/make.htm)
@@ -278,19 +277,24 @@ To synchronize data periodically, we provide [`lake-cli`](./cmd/lake-cli/README.
    cd lake
    ```
 
-2. Install Go packages:
+2. Install dependencies for plugins:
+
+   - [RefDiff](plugins/refdiff#development)
+
+3. Install Go packages
 
     ```sh
-    make install
+	go get
     ```
 
-3. Copy the sample config file to new local file:
+4. Copy the sample config file to new local file:
 
     ```sh
     cp .env.example .env
     ```
 
-4. Update the following variables in the file `.env`:
+5. Update the following variables in the file `.env`:
+
     * `DB_URL`: Replace `mysql:3306` with `127.0.0.1:3306`
 
 5. Start the MySQL and Grafana containers:
@@ -298,13 +302,10 @@ To synchronize data periodically, we provide [`lake-cli`](./cmd/lake-cli/README.
     > Make sure the Docker daemon is running before this step.
 
     ```sh
-    docker-compose up
+    docker-compose up -d mysql grafana
     ```
-6. Install required libraries
 
-   - <a href="plugins/refdiff#install-libgit2" target="_blank">Libgit2</a>
-
-7. Run lake and config UI in dev mode in two seperate terminals:
+6. Run lake and config UI in dev mode in two seperate terminals:
 
     ```sh
     # run lake
@@ -313,7 +314,7 @@ To synchronize data periodically, we provide [`lake-cli`](./cmd/lake-cli/README.
     make configure-dev
     ```
 
-8. Visit config UI at `localhost:4000` to configure data sources.
+7. Visit config UI at `localhost:4000` to configure data sources.
    >- Navigate to desired plugins pages on the Integrations page
    >- You will need to enter the required information for the plugins you intend to use.
    >- Please reference the following for more details on how to configure each one:
@@ -324,7 +325,7 @@ To synchronize data periodically, we provide [`lake-cli`](./cmd/lake-cli/README.
 
    >- Submit the form to update the values by clicking on the **Save Connection** button on each form page
 
-9. Visit `localhost:4000/create-pipeline` to RUN a Pipeline and trigger data collection.
+8. Visit `localhost:4000/create-pipeline` to RUN a Pipeline and trigger data collection.
 
 
    Pipelines Runs can be initiated by the new "Create Run" Interface. Simply enable the **Data Source Providers** you wish to run collection for, and specify the data you want to collect, for instance, **Project ID** for Gitlab and **Repository Name** for GitHub.
@@ -357,7 +358,7 @@ To synchronize data periodically, we provide [`lake-cli`](./cmd/lake-cli/README.
    Please refer to this wiki [How to trigger data collection](https://github.com/merico-dev/lake/wiki/How-to-use-the-triggers-page).
 
 
-10. Click *View Dashboards* button when done (username: `admin`, password: `admin`). The button is shown in the top left.
+9. Click *View Dashboards* button when done (username: `admin`, password: `admin`). The button is shown in the top left.
 <br>
 
 ****
