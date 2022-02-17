@@ -273,10 +273,14 @@ GitHub | 概述，数据和指标，配置，API | [Link](plugins/github/README-
    cd lake
    ```
 
+2. 安装插件依赖
+
+   - [RefDiff](plugins/refdiff#development)
+
 2. 安装 go packages
 
     ```sh
-    make install
+	go get
     ```
 
 3. 将样本配置文件复制到新的本地文件
@@ -292,14 +296,11 @@ GitHub | 概述，数据和指标，配置，API | [Link](plugins/github/README-
     > 确保在此步骤之前 Docker 正在运行。
 
     ```sh
-    docker-compose up mysql grafana
+    docker-compose up -d mysql grafana
     ```
 
-6. 安装依赖
-   
-   - <a href="plugins/refdiff#install-libgit2" target="_blank">Libgit2</a>
 
-7. 在 2 个终端种分别以开发者模式运行 lake 和 config UI:
+6. 在 2 个终端种分别以开发者模式运行 lake 和 config UI:
 
     ```sh
     # run lake
@@ -308,17 +309,17 @@ GitHub | 概述，数据和指标，配置，API | [Link](plugins/github/README-
     make configure-dev
     ```
 
-8. 访问 config-ui `localhost:4000` 来配置 Dev Lake 数据源
+7. 访问 config-ui `localhost:4000` 来配置 Dev Lake 数据源
    >- 在 "Integration"页面上找到到所需的插件页面
    >- 你需要为你打算使用的插件输入必要的信息
    >- 请参考以下内容，以了解如何配置每个插件的更多细节
    >-> <a href="plugins/jira/README-zh-CN.md" target="_blank">Jira</a>
    >-> <a href="plugins/gitlab/README-zh-CN.md" target="_blank">GitLab</a>
-   >-> <a href="plugins/jenkins/README-zh-CN.md" target="_blank">Jenkins</a> 
+   >-> <a href="plugins/jenkins/README-zh-CN.md" target="_blank">Jenkins</a>
    >-> <a href="plugins/github/README-zh-CN.md" target="_blank">GitHub</a>
 
 
-9. 访问 `localhost:4000/create-pipeline`，创建 1个Pipeline run，并触发数据收集
+8. 访问 `localhost:4000/create-pipeline`，创建 1个Pipeline run，并触发数据收集
 
    Pipeline Runs 可以通过新的 "Create Run"界面启动。只需启用你希望运行的数据源，并指定数据收集的范围，比如Gitlab的项目ID和GitHub的仓库名称。
 
@@ -346,11 +347,11 @@ GitHub | 概述，数据和指标，配置，API | [Link](plugins/github/README-
    >     ]
    >   ]
    >   ```
-   
+
    请参考这篇 wiki [How to trigger data collection](https://github.com/merico-dev/lake/wiki/How-to-use-the-triggers-page).
 
 
-10. 在Grafana仪表板中实现数据的可视化
+9. 在Grafana仪表板中实现数据的可视化
 
     _从这里你可以看到丰富的图表，这些图表来自于收集和处理后的数据_
 
