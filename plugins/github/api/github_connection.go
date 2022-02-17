@@ -50,7 +50,7 @@ func TestConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, erro
 			githubApiResponse := &ApiUserPublicEmailResponse{}
 			err = core.UnmarshalResponse(res, githubApiResponse)
 			if err != nil {
-				results <- fmt.Errorf("invalid token #%v %s %w", i, token, err)
+				results <- fmt.Errorf("verify token failed for #%v %s %w", i, token, err)
 			} else {
 				results <- nil
 			}
