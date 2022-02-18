@@ -85,7 +85,7 @@ func CreateApiClient(ctx context.Context) *AEApiClient {
 	aeApiClient.Setup(
 		config.V.GetString("AE_ENDPOINT"),
 		nil,
-		10*time.Second,
+		30*time.Second,
 		3,
 	)
 	aeApiClient.SetBeforeFunction(aeApiClient.beforeRequest)
