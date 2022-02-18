@@ -155,14 +155,6 @@ func (apiClient *ApiClient) Do(
 		}
 	}
 
-	// before send
-	if apiClient.beforeRequest != nil {
-		err = apiClient.beforeRequest(req)
-		if err != nil {
-			return nil, err
-		}
-	}
-
 	var res *http.Response
 	retry := 0
 	for {
@@ -174,9 +166,17 @@ func (apiClient *ApiClient) Do(
 			default:
 			}
 		}
+		// before send
+		if apiClient.beforeRequest != nil {
+			err = apiClient.beforeRequest(req)
+			if err != nil {
+				return nil, err
+			}
+		}
 		logger.Print(fmt.Sprintf("[api-client][retry %v] %v %v", retry, method, *uri))
 		res, err = apiClient.client.Do(req)
 		if err != nil {
+			logger.Error("[api-client] error:%v", err)
 			if retry < apiClient.maxRetry-1 {
 				retry += 1
 				continue
