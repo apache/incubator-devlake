@@ -155,14 +155,6 @@ func (apiClient *ApiClient) Do(
 		}
 	}
 
-	// before send
-	if apiClient.beforeRequest != nil {
-		err = apiClient.beforeRequest(req)
-		if err != nil {
-			return nil, err
-		}
-	}
-
 	var res *http.Response
 	retry := 0
 	for {
@@ -172,6 +164,13 @@ func (apiClient *ApiClient) Do(
 			case <-apiClient.ctx.Done():
 				return nil, TaskCanceled
 			default:
+			}
+		}
+		// before send
+		if apiClient.beforeRequest != nil {
+			err = apiClient.beforeRequest(req)
+			if err != nil {
+				return nil, err
 			}
 		}
 		logger.Print(fmt.Sprintf("[api-client][retry %v] %v %v", retry, method, *uri))
