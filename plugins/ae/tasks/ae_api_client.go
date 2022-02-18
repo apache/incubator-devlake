@@ -20,16 +20,16 @@ type AEApiClient struct {
 	core.ApiClient
 }
 
-var letterRunes = []rune("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789")
+const letterBytes = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
 
 func init() {
 	rand.Seed(time.Now().UnixNano())
 }
 
-func RandStringRunes(n int) string {
-	b := make([]rune, n)
+func RandString(n int) string {
+	b := make([]byte, n)
 	for i := range b {
-		b[i] = letterRunes[rand.Intn(len(letterRunes))]
+		b[i] = letterBytes[rand.Intn(len(letterBytes))]
 	}
 	return string(b)
 }
@@ -70,7 +70,7 @@ func (client *AEApiClient) beforeRequest(req *http.Request) error {
 	if appId == "" {
 		return fmt.Errorf("invalid AE_SECRET_KEY")
 	}
-	nonceStr := RandStringRunes(8)
+	nonceStr := RandString(8)
 	timestamp := fmt.Sprintf("%v", time.Now().Unix())
 	sign := getSign(req.URL.Query(), appId, secretKey, nonceStr, timestamp)
 	req.Header.Set("x-ae-app-id", appId)
