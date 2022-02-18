@@ -112,7 +112,7 @@ func (rd RefDiff) Execute(options map[string]interface{}, progress chan<- float3
 	// calculate diffs for commits pairs and store them into database
 	commitsDiff := &code.RefsCommitsDiff{}
 	ancestors := cayley.StartMorphism().Out(quad.String("childOf"))
-	lenCommitPairs := len(commitPairs)
+	lenCommitPairs := float32(len(commitPairs))
 	for i, pair := range commitPairs {
 		// ref might advance, keep commit sha for debugging
 		commitsDiff.NewRefCommitSha = pair[0]
@@ -186,7 +186,7 @@ func (rd RefDiff) Execute(options map[string]interface{}, progress chan<- float3
 			commitsDiff.OldRefCommitSha,
 		))
 		// calculate progress after conversion
-		progress <- float32((i + 1) / lenCommitPairs)
+		progress <- float32(i+1) / lenCommitPairs
 	}
 
 	return nil
