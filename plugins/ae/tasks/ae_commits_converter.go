@@ -10,7 +10,7 @@ import (
 )
 
 // NOTE: This only works on Commits in the Domain layer. You need to run Github or Gitlab collection and Domain layer enrichemnt first.
-func SetDevEqOnCommits(ctx context.Context) error {
+func ConvertCommits(ctx context.Context) error {
 	commit := &code.Commit{}
 	aeCommit := &aeModels.AECommit{}
 
