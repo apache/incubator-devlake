@@ -81,7 +81,9 @@ func CollectChildrenOnPipelines(projectIdInt int, scheduler *utils.WorkerSchedul
 	gitlabApiClient := CreateApiClient()
 
 	var pipelines []gitlabModels.GitlabPipeline
-	lakeModels.Db.Find(&pipelines)
+
+	//Find all piplines associated with the current projectid
+	lakeModels.Db.Where("project_id=?", projectIdInt).Find(&pipelines)
 
 	for i := 0; i < len(pipelines); i++ {
 		pipeline := (pipelines)[i]
@@ -92,6 +94,11 @@ func CollectChildrenOnPipelines(projectIdInt int, scheduler *utils.WorkerSchedul
 
 			if err != nil {
 				return err
+			}
+
+			// Check the StatusCode of the HTTP response
+			if res.StatusCode != 200 {
+				return fmt.Errorf("got a bad response StatusCode [%d] when requesting [%s]", res.StatusCode, getUrl)
 			}
 
 			pipelineRes := &ApiSinglePipelineResponse{}
@@ -105,6 +112,9 @@ func CollectChildrenOnPipelines(projectIdInt int, scheduler *utils.WorkerSchedul
 			if err != nil {
 				return err
 			}
+
+			// use projectIdInt to set the value of ProjectId for it
+			gitlabPipeline.ProjectId = projectIdInt
 
 			err = lakeModels.Db.Clauses(clause.OnConflict{
 				UpdateAll: true,
