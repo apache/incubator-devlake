@@ -29,11 +29,27 @@ func (plugin Feishu) Description() string {
 	return "To collect and enrich data from Feishu"
 }
 
+func (plugin Feishu) Init() {
+	logger.Info("INFO >>> init Feishu plugin", true)
+	err := lakeModels.Db.AutoMigrate(
+		&models.FeishuMeetingTopUserItem{},
+	)
+	if err != nil {
+		logger.Error("Error migrating feishu: ", err)
+		panic(err)
+	}
+}
+
 func (plugin Feishu) Execute(options map[string]interface{}, progress chan<- float32, ctx context.Context) error {
 	logger.Print("start feishu plugin execution")
+
 	// 需要收集多久的数据
 	// how long do you want to collect
-	collectDayNum := 120
+	numOfDaysToCollect, ok := options["numOfDaysToCollect"]
+	if !ok {
+		return fmt.Errorf("numOfDaysToCollect is invalid")
+	}
+	numOfDaysToCollectInt := int(numOfDaysToCollect.(float64))
 
 	// 内部应用 tenant_access_token 管理器
 	// tenant_access_token manager
@@ -50,7 +66,7 @@ func (plugin Feishu) Execute(options map[string]interface{}, progress chan<- flo
 		},
 	}
 
-	rateLimitPerSecondInt, err := core.GetRateLimitPerSecond(options, 15)
+	rateLimitPerSecondInt, err := core.GetRateLimitPerSecond(options, 5)
 	if err != nil {
 		return err
 	}
@@ -83,7 +99,10 @@ func (plugin Feishu) Execute(options map[string]interface{}, progress chan<- flo
 	endDate = endDate.Truncate(24 * time.Hour)
 	startDate := endDate.AddDate(0, 0, -1)
 	progress <- 0.3
-	for i := 0; i < collectDayNum; i++ {
+	baseProgress := float32(0)
+	for i := 0; i < numOfDaysToCollectInt; i++ {
+		baseProgress = float32(i) / float32(numOfDaysToCollectInt)
+		progress <- baseProgress*0.7 + 0.3
 		params := url.Values{}
 		params.Add(`start_time`, strconv.FormatInt(startDate.Unix(), 10))
 		params.Add(`end_time`, strconv.FormatInt(endDate.Unix(), 10))
@@ -97,7 +116,7 @@ func (plugin Feishu) Execute(options map[string]interface{}, progress chan<- flo
 			request, _ := http.NewRequest(http.MethodGet, feishu.ServerUrl+"/open-apis/vc/v1/reports/get_top_user?"+params.Encode(), nil)
 			resp, err := FeishuClient.Do(request, tenantAccessToken)
 			if err != nil {
-				return err
+				return fmt.Errorf("Current api req is "+params.Get(`start_time`)+";", err)
 			}
 
 			var result apimodels.FeishuMeetingTopUserItemResult
@@ -117,7 +136,6 @@ func (plugin Feishu) Execute(options map[string]interface{}, progress chan<- flo
 			return err
 		}
 	}
-	progress <- 0.4
 	scheduler.WaitUntilFinish()
 	progress <- 1
 	return nil
@@ -139,7 +157,9 @@ func main() {
 	progress := make(chan float32)
 	go func() {
 		err := PluginEntry.Execute(
-			map[string]interface{}{},
+			map[string]interface{}{
+				"numOfDaysToCollect": 80,
+			},
 			progress,
 			context.Background(),
 		)
