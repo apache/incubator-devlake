@@ -13,7 +13,7 @@ import (
 )
 
 func main() {
-	url := flag.String("url", "", "-url ")
+	url := flag.String("url", "", "-url")
 	proxy := flag.String("proxy", "", "-proxy")
 	id := flag.String("id", "", "-id")
 	user := flag.String("user", "", "-user")
@@ -23,18 +23,25 @@ func main() {
 	flag.Parse()
 	var storage models.Store
 	var err error
+	if *url == "" {
+		panic("url is missing")
+	}
+	if *id == "" {
+		panic("id is missing")
+	}
 	if *output != "" {
 		storage, err = store.NewCsvStore(*output)
 		if err != nil {
 			panic(err)
 		}
-	}
-	if *db != "" {
+	} else if *db != "" {
 		database, err := gorm.Open(mysql.Open(*db))
 		if err != nil {
 			panic(err)
 		}
 		storage = store.NewDatabase(database)
+	} else {
+		panic("either specify `-output` or `-db` argument as destination")
 	}
 	defer storage.Close()
 	ctx := context.Background()

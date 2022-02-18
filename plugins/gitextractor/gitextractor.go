@@ -34,7 +34,7 @@ func (o GitExtractorOptions) Valid() error {
 	if !(strings.HasPrefix(o.Url, "http") || strings.HasPrefix(url, "git@") || strings.HasPrefix(o.Url, "/")) {
 		return errors.New("wrong url")
 	}
-	if o.Proxy != "" && strings.HasPrefix(o.Proxy, "http") {
+	if o.Proxy != "" && !strings.HasPrefix(o.Proxy, "http://") {
 		return errors.New("only support http proxy")
 	}
 	return nil
@@ -69,10 +69,10 @@ func (plugin GitExtractor) Execute(options map[string]interface{}, progress chan
 		err = p.CloneOverHTTP(ctx, op.RepoId, op.Url, op.User, op.Password, op.Proxy)
 	} else if url := strings.TrimPrefix(op.Url, "ssh://"); strings.HasPrefix(url, "git@") {
 		err = p.CloneOverSSH(ctx, op.RepoId, url, op.PrivateKey, op.Passphrase)
-	}else if strings.HasPrefix(op.Url, "/") {
+	} else if strings.HasPrefix(op.Url, "/") {
 		err = p.LocalRepo(ctx, op.Url, op.RepoId)
 	}
-	if err != nil{
+	if err != nil {
 		return err
 	}
 	progress <- 1
