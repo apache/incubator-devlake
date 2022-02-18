@@ -34,7 +34,7 @@ func (o GitExtractorOptions) Valid() error {
 	if !(strings.HasPrefix(o.Url, "http") || strings.HasPrefix(url, "git@") || strings.HasPrefix(o.Url, "/")) {
 		return errors.New("wrong url")
 	}
-	if o.Proxy != "" && strings.HasPrefix(o.Proxy, "http") {
+	if o.Proxy != "" && !strings.HasPrefix(o.Proxy, "http://") {
 		return errors.New("only support http proxy")
 	}
 	return nil
