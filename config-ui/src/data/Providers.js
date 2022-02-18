@@ -6,6 +6,7 @@ import { ReactComponent as JiraProviderIcon } from '@/images/integrations/jira.s
 import { ReactComponent as GitHubProviderIcon } from '@/images/integrations/github.svg'
 import GitExtractorIcon from '@/images/git.png'
 import RefDiffIcon from '@/images/git-diff.png'
+import FeishuIcon from '@/images/feishu.png'
 
 const Providers = {
   NULL: 'null',
@@ -14,7 +15,8 @@ const Providers = {
   JIRA: 'jira',
   GITHUB: 'github',
   REFDIFF: 'refdiff',
-  GITEXTRACTOR: 'gitextractor'
+  GITEXTRACTOR: 'gitextractor',
+  FEISHU: 'feishu'
 }
 
 const ProviderLabels = {
@@ -24,7 +26,8 @@ const ProviderLabels = {
   JIRA: 'JIRA',
   GITHUB: 'GitHub',
   REFDIFF: 'RefDiff',
-  GITEXTRACTOR: 'GitExtractor'
+  GITEXTRACTOR: 'GitExtractor',
+  FEISHU: 'Feishu'
 }
 
 const ProviderSourceLimits = {
@@ -126,6 +129,8 @@ const ProviderIcons = {
   [Providers.GITHUB]: (w, h) => <GitHubProviderIcon width={w || 24} height={h || 24} />,
   [Providers.REFDIFF]: (w, h) => <img src={RefDiffIcon} width={w || 24} height={h || 24} />,
   [Providers.GITEXTRACTOR]: (w, h) => <img src={GitExtractorIcon} width={w || 24} height={h || 24} />,
+  [Providers.FEISHU]: (w, h) => <img src={FeishuIcon} width={w || 24} height={h || 24} />,
+
 }
 
 export {
