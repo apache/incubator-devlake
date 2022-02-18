@@ -3,9 +3,10 @@ package main // must be main for plugin entry point
 import (
 	"context"
 	"fmt"
-	"github.com/merico-dev/lake/errors"
 	"os"
 	"strings"
+
+	"github.com/merico-dev/lake/errors"
 
 	"github.com/merico-dev/lake/config"
 	"github.com/merico-dev/lake/logger" // A pseudo type for Plugin Interface implementation
@@ -78,7 +79,7 @@ func (plugin Github) Execute(options map[string]interface{}, progress chan<- flo
 			"collectIssues":              true,
 			"collectIssueEvents":         true,
 			"collectIssueComments":       true,
-			"collectPullRequest":         true,
+			"collectPullRequests":        true,
 			"collectPullRequestReviews":  true,
 			"collectPullRequestCommits":  true,
 			"collectPullRequestComments": true,
@@ -408,15 +409,15 @@ func main() {
 				"owner": owner,
 				"repo":  repo,
 				"tasks": []string{
-					"collectRepo",
+					//"collectRepo",
 					//"collectCommits",
 					//"collectCommitsStat",
 					//"collectIssues",
-					//"collectPullRequests",
+					"collectPullRequests",
 					//"collectIssueEvents",
 					//"collectIssueComments",
 					//"collectPullRequestReviews",
-					"collectPullRequestCommits",
+					//"collectPullRequestCommits",
 					//"collectPullRequestComments",
 					//"enrichIssues",
 					//"enrichPullRequests",
