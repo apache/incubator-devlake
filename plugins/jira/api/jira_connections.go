@@ -16,6 +16,7 @@ import (
 type TestConnectionRequest struct {
 	Endpoint string `json:"endpoint"`
 	Auth     string `json:"auth"`
+	Proxy    string `json:"proxy"`
 }
 
 func TestConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, error) {
@@ -59,7 +60,8 @@ func TestConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, erro
 		return &core.ApiResourceOutput{Body: core.TestResult{Success: false, Message: core.NetworkConnectError}}, nil
 	}
 
-	jiraApiClient := tasks.NewJiraApiClient(params.Endpoint, params.Auth)
+	jiraApiClient := tasks.NewJiraApiClient(params.Endpoint, params.Auth, params.Proxy)
+	jiraApiClient.SetTimeout(2 * time.Second)
 
 	serverInfo, statusCode, err := jiraApiClient.GetJiraServerInfo()
 	if statusCode == http.StatusNotFound {

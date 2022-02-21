@@ -19,7 +19,7 @@ type JiraApiClient struct {
 	core.ApiClient
 }
 
-func NewJiraApiClient(endpoint string, auth string) *JiraApiClient {
+func NewJiraApiClient(endpoint string, auth string, proxy string) *JiraApiClient {
 	jiraApiClient := &JiraApiClient{}
 	jiraApiClient.Setup(
 		endpoint,
@@ -35,6 +35,7 @@ func NewJiraApiClient(endpoint string, auth string) *JiraApiClient {
 		}
 		return nil
 	})
+	jiraApiClient.SetProxy(proxy)
 	return jiraApiClient
 }
 
@@ -45,7 +46,7 @@ func NewJiraApiClientBySourceId(sourceId uint64) (*JiraApiClient, error) {
 		return nil, err
 	}
 
-	return NewJiraApiClient(jiraSource.Endpoint, jiraSource.BasicAuthEncoded), nil
+	return NewJiraApiClient(jiraSource.Endpoint, jiraSource.BasicAuthEncoded, jiraSource.Proxy), nil
 }
 
 type JiraPagination struct {
