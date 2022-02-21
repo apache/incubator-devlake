@@ -47,7 +47,7 @@ func ConvertIssues(sourceId uint64, boardId uint64) error {
 			},
 			Url:                     jiraIssue.Self,
 			Key:                     jiraIssue.Key,
-			Summary:                 jiraIssue.Summary,
+			Title:                   jiraIssue.Summary,
 			EpicKey:                 jiraIssue.EpicKey,
 			Type:                    jiraIssue.StdType,
 			Status:                  jiraIssue.StdStatus,
@@ -59,6 +59,7 @@ func ConvertIssues(sourceId uint64, boardId uint64) error {
 			CreatedDate:             &jiraIssue.Created,
 			UpdatedDate:             &jiraIssue.Updated,
 			LeadTimeMinutes:         jiraIssue.LeadTimeMinutes,
+			TimeSpentMinutes:        jiraIssue.SpentMinutes,
 		}
 		if jiraIssue.AssigneeAccountId != "" {
 			issue.AssigneeId = userIdGen.Generate(sourceId, jiraIssue.AssigneeAccountId)
