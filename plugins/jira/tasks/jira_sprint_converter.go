@@ -1,6 +1,8 @@
 package tasks
 
 import (
+	"strings"
+
 	lakeModels "github.com/merico-dev/lake/models"
 	"github.com/merico-dev/lake/models/domainlayer"
 	"github.com/merico-dev/lake/models/domainlayer/didgen"
@@ -33,9 +35,9 @@ func ConvertSprint(sourceId uint64, boardId uint64) error {
 			return err
 		}
 		sprint := &ticket.Sprint{
-			DomainEntity:domainlayer.DomainEntity{Id: sprintIdGen.Generate(jiraSprint.SourceId, jiraSprint.SprintId)},
+			DomainEntity:  domainlayer.DomainEntity{Id: sprintIdGen.Generate(jiraSprint.SourceId, jiraSprint.SprintId)},
 			Url:           jiraSprint.Self,
-			Status:        jiraSprint.State,
+			Status:        strings.ToUpper(jiraSprint.State),
 			Name:          jiraSprint.Name,
 			StartedDate:   jiraSprint.StartDate,
 			EndedDate:     jiraSprint.EndDate,
@@ -53,12 +55,19 @@ func ConvertSprint(sourceId uint64, boardId uint64) error {
 		domainSprintIssues := make([]ticket.SprintIssue, 0, len(sprintIssues))
 		for _, si := range sprintIssues {
 			dsi := ticket.SprintIssue{
-				SprintId: sprint.Id,
-				IssueId:  issueIdGen.Generate(sourceId, si.IssueId),
+				SprintId:  sprint.Id,
+				IssueId:   issueIdGen.Generate(sourceId, si.IssueId),
+				AddedDate: sprint.StartedDate,
+			}
+			if dsi.AddedDate != nil {
+				dsi.AddedStage = &ticket.DuringSprint
+			}
+			if si.ResolutionDate != nil {
+				dsi.ResolvedStage = getStage(*si.ResolutionDate, sprint.StartedDate, sprint.CompletedDate)
 			}
 			domainSprintIssues = append(domainSprintIssues, dsi)
 		}
-		err = lakeModels.Db.Clauses(clause.OnConflict{DoNothing: true}).CreateInBatches(&domainSprintIssues, BatchSize).Error
+		err = lakeModels.Db.Clauses(clause.OnConflict{DoUpdates: clause.AssignmentColumns([]string{"resolved_stage"})}).CreateInBatches(&domainSprintIssues, BatchSize).Error
 		if err != nil {
 			return err
 		}
