@@ -2,6 +2,7 @@ package api
 
 import (
 	"fmt"
+	"time"
 
 	"github.com/merico-dev/lake/logger"
 	"github.com/merico-dev/lake/plugins/core"
@@ -25,11 +26,14 @@ func TestConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, erro
 		return &core.ApiResourceOutput{Body: ValidationResult}, nil
 	}
 	endpoint := input.Body["endpoint"].(string)
+	proxy := input.Body["proxy"].(string)
 	headers := map[string]string{
 		"Authorization": fmt.Sprintf("Bearer %v", input.Body["auth"].(string)),
 	}
 	gitlabApiClient.SetEndpoint(endpoint)
 	gitlabApiClient.SetHeaders(headers)
+	gitlabApiClient.SetProxy(proxy)
+	gitlabApiClient.SetTimeout(3 * time.Second)
 
 	res, err := gitlabApiClient.Get("user", nil, nil)
 	if err != nil || res.StatusCode != 200 {
