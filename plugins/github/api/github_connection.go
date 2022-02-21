@@ -44,7 +44,11 @@ func TestConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, erro
 			githubApiClient := tasks.CreateApiClient(endpoint, []string{token}, nil)
 			githubApiClient.SetTimeout(3 * time.Second)
 			if proxy != "" {
-				githubApiClient.SetProxy(proxy)
+				err := githubApiClient.SetProxy(proxy)
+				if err != nil {
+					results <- fmt.Errorf("set proxy failed for #%v %s %w", i, token, err)
+					return
+				}
 			}
 			res, err := githubApiClient.Get("user/public_emails", nil, nil)
 			if err != nil {

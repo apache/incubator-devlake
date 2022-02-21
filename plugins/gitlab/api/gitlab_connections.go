@@ -32,7 +32,12 @@ func TestConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, erro
 	}
 	gitlabApiClient.SetEndpoint(endpoint)
 	gitlabApiClient.SetHeaders(headers)
-	gitlabApiClient.SetProxy(proxy)
+	if proxy != "" {
+		err := gitlabApiClient.SetProxy(proxy)
+		if err != nil {
+			return &core.ApiResourceOutput{Body: core.TestResult{Success: false, Message: err.Error()}}, nil
+		}
+	}
 	gitlabApiClient.SetTimeout(3 * time.Second)
 
 	res, err := gitlabApiClient.Get("user", nil, nil)
