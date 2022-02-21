@@ -44,7 +44,7 @@ func CollectIssues(owner string, repo string, repoId int, scheduler *utils.Worke
 	getUrl := fmt.Sprintf("repos/%v/%v/issues", owner, repo)
 	queryParams := &url.Values{}
 	queryParams.Set("state", "all")
-	return apiClient.FetchWithPaginationAnts(getUrl, queryParams, 100, 20, scheduler,
+	return apiClient.FetchPages(getUrl, queryParams, 100, scheduler,
 		func(res *http.Response) error {
 			githubApiResponse := &ApiIssuesResponse{}
 			err := core.UnmarshalResponse(res, githubApiResponse)

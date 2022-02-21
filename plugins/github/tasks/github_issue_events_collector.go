@@ -20,34 +20,25 @@ type IssueEvent struct {
 	Actor    struct {
 		Login string
 	}
+	Issue struct {
+		Number int
+	}
 	GithubCreatedAt core.Iso8601Time `json:"created_at"`
 }
 
 func CollectIssueEvents(owner string, repo string, scheduler *utils.WorkerScheduler, apiClient *GithubApiClient) error {
-	githubIssue := &models.GithubIssue{}
-	cursor, err := lakeModels.Db.Model(githubIssue).Rows()
-	if err != nil {
-		return err
-	}
-	defer cursor.Close()
 
-	for cursor.Next() {
-		err = lakeModels.Db.ScanRows(cursor, githubIssue)
-		if err != nil {
-			return err
-		}
-		eventsErr := processEventsCollection(owner, repo, githubIssue, scheduler, apiClient)
-		if eventsErr != nil {
-			logger.Error("Could not collect issue events", eventsErr)
-			return eventsErr
-		}
+	eventsErr := processEventsCollection(owner, repo, scheduler, apiClient)
+	if eventsErr != nil {
+		logger.Error("Could not collect issue events", eventsErr)
+		return eventsErr
 	}
 	return nil
 }
 
-func processEventsCollection(owner string, repo string, issue *models.GithubIssue, scheduler *utils.WorkerScheduler, apiClient *GithubApiClient) error {
-	getUrl := fmt.Sprintf("repos/%v/%v/issues/%v/events", owner, repo, issue.Number)
-	return apiClient.FetchWithPaginationAnts(getUrl, nil, 100, 1, scheduler,
+func processEventsCollection(owner string, repo string, scheduler *utils.WorkerScheduler, apiClient *GithubApiClient) error {
+	getUrl := fmt.Sprintf("repos/%v/%v/issues/events", owner, repo)
+	return apiClient.FetchPages(getUrl, nil, 100, scheduler,
 		func(res *http.Response) error {
 			githubApiResponse := &ApiIssueEventResponse{}
 			if res.StatusCode == 200 {
@@ -57,7 +48,7 @@ func processEventsCollection(owner string, repo string, issue *models.GithubIssu
 					return err
 				}
 				for _, event := range *githubApiResponse {
-					githubEvent, err := convertGithubEvent(&event, issue.GithubId)
+					githubEvent, err := convertGithubEvent(&event)
 					if err != nil {
 						return err
 					}
@@ -74,10 +65,10 @@ func processEventsCollection(owner string, repo string, issue *models.GithubIssu
 			return nil
 		})
 }
-func convertGithubEvent(event *IssueEvent, issueId int) (*models.GithubIssueEvent, error) {
+func convertGithubEvent(event *IssueEvent) (*models.GithubIssueEvent, error) {
 	githubEvent := &models.GithubIssueEvent{
 		GithubId:        event.GithubId,
-		IssueId:         issueId,
+		IssueId:         event.Issue.Number,
 		Type:            event.Event,
 		AuthorUsername:  event.Actor.Login,
 		GithubCreatedAt: event.GithubCreatedAt.ToTime(),

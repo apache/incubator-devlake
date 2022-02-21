@@ -29,25 +29,34 @@ func CollectPullRequestComments(owner string, repo string, scheduler *utils.Work
 		return err
 	}
 	defer cursor.Close()
-	githubPr := &models.GithubPullRequest{}
 	for cursor.Next() {
+		githubPr := &models.GithubPullRequest{}
 		err = lakeModels.Db.ScanRows(cursor, githubPr)
 		if err != nil {
 			return err
 		}
-		commentsErr := processPullRequestCommentsCollection(owner, repo, githubPr, scheduler, apiClient)
-		if commentsErr != nil {
-			logger.Error("Could not collect PR Comments", commentsErr)
-			return commentsErr
-		}
+		schedulerNew := scheduler
 
+		err = scheduler.Submit(func() error {
+			commentsErr := processPullRequestCommentsCollection(owner, repo, githubPr, schedulerNew, apiClient)
+			if commentsErr != nil {
+				logger.Error("Could not collect PR Comments", commentsErr)
+				return commentsErr
+			}
+			return nil
+		})
+		if err != nil {
+			return err
+		}
 	}
+	scheduler.WaitUntilFinish()
+
 	return nil
 }
 
 func processPullRequestCommentsCollection(owner string, repo string, pull *models.GithubPullRequest, scheduler *utils.WorkerScheduler, apiClient *GithubApiClient) error {
 	getUrl := fmt.Sprintf("repos/%v/%v/issues/%v/comments", owner, repo, pull.Number)
-	return apiClient.FetchWithPaginationAnts(getUrl, nil, 100, 1, scheduler,
+	return apiClient.FetchPages(getUrl, nil, 100, scheduler,
 		func(res *http.Response) error {
 			githubApiResponse := &ApiPullRequestCommentResponse{}
 			if res.StatusCode == 200 {
