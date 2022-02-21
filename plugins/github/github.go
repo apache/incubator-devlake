@@ -91,6 +91,7 @@ func (plugin Github) Execute(options map[string]interface{}, progress chan<- flo
 			"convertPullRequests":        true,
 			"convertCommits":             true,
 			"convertPullRequestCommits":  true,
+			"convertPullRequestLabels":   true,
 			"convertNotes":               true,
 			"convertUsers":               true,
 		}
