@@ -44,7 +44,7 @@ func init() {
 		panic(err)
 	}
 	sqlDB, err := Db.DB()
-	if err != nil{
+	if err != nil {
 		panic(err)
 	}
 	sqlDB.SetMaxIdleConns(10)
@@ -64,6 +64,7 @@ func migrateDB() {
 		&code.CommitParent{},
 		&code.PullRequest{},
 		&code.PullRequestCommit{},
+		&code.PullRequestLabel{},
 		&code.Note{},
 		&code.RepoCommit{},
 		&code.Ref{},

@@ -4,7 +4,7 @@ import "github.com/merico-dev/lake/models/common"
 
 // JenkinsJobProps current used jenkins job props
 type JenkinsJobProps struct {
-	Name  string `gorm:"primaryKey;type:varchar(255)""`
+	Name  string `gorm:"primaryKey;type:varchar(255)"`
 	Class string
 	Color string
 	Base  string

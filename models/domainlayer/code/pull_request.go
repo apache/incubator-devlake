@@ -8,7 +8,7 @@ import (
 
 type PullRequest struct {
 	domainlayer.DomainEntity
-	RepoId         uint64 `gorm:"index"`
+	RepoId         string `gorm:"index"`
 	Status         string `gorm:"comment:open/closed or other"`
 	Title          string
 	Url            string

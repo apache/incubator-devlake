@@ -13,13 +13,14 @@ import (
 )
 
 func ConvertPullRequests(ctx context.Context) error {
-	githubPullRequest := &githubModels.GithubPullRequest{}
-	cursor, err := lakeModels.Db.Model(githubPullRequest).Rows()
+	pr := &githubModels.GithubPullRequest{}
+	cursor, err := lakeModels.Db.Model(pr).Rows()
 	if err != nil {
 		return err
 	}
 	defer cursor.Close()
-	domainPrIdGenerator := didgen.NewDomainIdGenerator(githubPullRequest)
+	domainPrIdGenerator := didgen.NewDomainIdGenerator(pr)
+	domainRepoIdGenerator := didgen.NewDomainIdGenerator(&githubModels.GithubRepo{})
 
 	for cursor.Next() {
 		select {
@@ -27,32 +28,28 @@ func ConvertPullRequests(ctx context.Context) error {
 			return core.TaskCanceled
 		default:
 		}
-		err = lakeModels.Db.ScanRows(cursor, githubPullRequest)
+		err = lakeModels.Db.ScanRows(cursor, pr)
 		if err != nil {
 			return err
 		}
-		domainPr := convertToPullRequestModel(githubPullRequest, domainPrIdGenerator)
+		domainPr := &code.PullRequest{
+			DomainEntity: domainlayer.DomainEntity{
+				Id: domainPrIdGenerator.Generate(pr.GithubId),
+			},
+			RepoId:         domainRepoIdGenerator.Generate(pr.RepoId),
+			Status:         pr.State,
+			Title:          pr.Title,
+			CreatedDate:    pr.GithubCreatedAt,
+			MergedDate:     pr.MergedAt,
+			ClosedAt:       pr.ClosedAt,
+			Type:           pr.Type,
+			Component:      pr.Component,
+			MergeCommitSha: pr.MergeCommitSha,
+		}
 		err = lakeModels.Db.Clauses(clause.OnConflict{UpdateAll: true}).Create(domainPr).Error
 		if err != nil {
 			return err
 		}
 	}
 	return nil
-}
-func convertToPullRequestModel(pr *githubModels.GithubPullRequest, domainGenerator *didgen.DomainIdGenerator) *code.PullRequest {
-	domainPr := &code.PullRequest{
-		DomainEntity: domainlayer.DomainEntity{
-			Id: domainGenerator.Generate(pr.GithubId),
-		},
-		RepoId:         uint64(pr.RepoId),
-		Status:         pr.State,
-		Title:          pr.Title,
-		CreatedDate:    pr.GithubCreatedAt,
-		MergedDate:     pr.MergedAt,
-		ClosedAt:       pr.ClosedAt,
-		Type:           pr.Type,
-		Component:      pr.Component,
-		MergeCommitSha: pr.MergeCommitSha,
-	}
-	return domainPr
 }
