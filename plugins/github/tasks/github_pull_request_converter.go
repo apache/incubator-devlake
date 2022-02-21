@@ -20,6 +20,7 @@ func ConvertPullRequests(ctx context.Context) error {
 	}
 	defer cursor.Close()
 	domainPrIdGenerator := didgen.NewDomainIdGenerator(githubPullRequest)
+	domainRepoIdGenerator := didgen.NewDomainIdGenerator(&githubModels.GithubRepo{})
 
 	for cursor.Next() {
 		select {
@@ -31,28 +32,24 @@ func ConvertPullRequests(ctx context.Context) error {
 		if err != nil {
 			return err
 		}
-		domainPr := convertToPullRequestModel(githubPullRequest, domainPrIdGenerator)
+		domainPr := &code.PullRequest{
+			DomainEntity: domainlayer.DomainEntity{
+				Id: domainPrIdGenerator.Generate(githubPullRequest.GithubId),
+			},
+			RepoId:         domainRepoIdGenerator.Generate(pr.RepoId),
+			Status:         pr.State,
+			Title:          pr.Title,
+			CreatedDate:    pr.GithubCreatedAt,
+			MergedDate:     pr.MergedAt,
+			ClosedAt:       pr.ClosedAt,
+			Type:           pr.Type,
+			Component:      pr.Component,
+			MergeCommitSha: pr.MergeCommitSha,
+		}
 		err = lakeModels.Db.Clauses(clause.OnConflict{UpdateAll: true}).Create(domainPr).Error
 		if err != nil {
 			return err
 		}
 	}
 	return nil
-}
-func convertToPullRequestModel(pr *githubModels.GithubPullRequest, domainGenerator *didgen.DomainIdGenerator) *code.PullRequest {
-	domainPr := &code.PullRequest{
-		DomainEntity: domainlayer.DomainEntity{
-			Id: domainGenerator.Generate(pr.GithubId),
-		},
-		RepoId:         uint64(pr.RepoId),
-		Status:         pr.State,
-		Title:          pr.Title,
-		CreatedDate:    pr.GithubCreatedAt,
-		MergedDate:     pr.MergedAt,
-		ClosedAt:       pr.ClosedAt,
-		Type:           pr.Type,
-		Component:      pr.Component,
-		MergeCommitSha: pr.MergeCommitSha,
-	}
-	return domainPr
 }
