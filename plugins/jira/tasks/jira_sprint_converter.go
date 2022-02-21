@@ -57,10 +57,10 @@ func ConvertSprint(sourceId uint64, boardId uint64) error {
 			dsi := ticket.SprintIssue{
 				SprintId:  sprint.Id,
 				IssueId:   issueIdGen.Generate(sourceId, si.IssueId),
-				AddedDate: sprint.StartedDate,
+				AddedDate: si.IssueCreatedDate,
 			}
 			if dsi.AddedDate != nil {
-				dsi.AddedStage = &ticket.DuringSprint
+				dsi.AddedStage = getStage(*dsi.AddedDate, sprint.StartedDate, sprint.CompletedDate)
 			}
 			if si.ResolutionDate != nil {
 				dsi.ResolvedStage = getStage(*si.ResolutionDate, sprint.StartedDate, sprint.CompletedDate)
