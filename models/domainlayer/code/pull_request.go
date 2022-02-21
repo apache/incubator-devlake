@@ -18,4 +18,8 @@ type PullRequest struct {
 	Type           string
 	Component      string
 	MergeCommitSha string `gorm:"type:char(40)"`
+	HeadRef        string
+	BaseRef        string
+	BaseCommitSha  string
+	HeadCommitSha  string
 }

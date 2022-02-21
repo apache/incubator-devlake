@@ -53,6 +53,10 @@ func convertToPullRequestModel(pr *githubModels.GithubPullRequest, domainGenerat
 		Type:           pr.Type,
 		Component:      pr.Component,
 		MergeCommitSha: pr.MergeCommitSha,
+		BaseRef:        pr.BaseRef,
+		BaseCommitSha:  pr.BaseCommitSha,
+		HeadRef:        pr.HeadRef,
+		HeadCommitSha:  pr.HeadCommitSha,
 	}
 	return domainPr
 }
