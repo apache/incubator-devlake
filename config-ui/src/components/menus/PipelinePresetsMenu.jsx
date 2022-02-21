@@ -7,6 +7,7 @@ import { githubConfig as sampleGithubPipelineConfig } from '@/data/pipeline-conf
 import { gitlabConfig as sampleGitlabPipelineConfig } from '@/data/pipeline-config-samples/gitlab'
 import { jiraConfig as sampleJiraPipelineConfig } from '@/data/pipeline-config-samples/jira'
 import { jenkinsConfig as sampleJenkinsPipelineConfig } from '@/data/pipeline-config-samples/jenkins'
+import { feishuConfig as sampleFeishuPipelineConfig } from '@/data/pipeline-config-samples/feishu'
 
 const PipelinePresetsMenu = (props) => {
   const {
@@ -117,6 +118,10 @@ const PipelinePresetsMenu = (props) => {
             <Menu.Item
               icon='group-objects' text='Load Jenkins Configuration'
               onClick={() => setRawConfiguration(JSON.stringify(sampleJenkinsPipelineConfig, null, '  '))}
+            />
+            <Menu.Item
+              icon='group-objects' text='Load Feishu Configuration'
+              onClick={() => setRawConfiguration(JSON.stringify(sampleFeishuPipelineConfig, null, '  '))}
             />
           </>
         )}

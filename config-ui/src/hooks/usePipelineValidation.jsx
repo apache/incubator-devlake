@@ -25,7 +25,8 @@ function usePipelineValidation ({
     Providers.JENKINS,
     Providers.GITHUB,
     Providers.REFDIFF,
-    Providers.GITEXTRACTOR
+    Providers.GITEXTRACTOR,
+    Providers.FEISHU
   ])
 
   const clear = () => {
