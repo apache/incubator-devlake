@@ -105,7 +105,7 @@ func (plugin Github) Execute(options map[string]interface{}, progress chan<- flo
 	endpoint := config.V.GetString("GITHUB_ENDPOINT")
 	tokens := strings.Split(config.V.GetString("GITHUB_AUTH"), ",")
 	// TODO: add endpoind, auth validation
-	apiClient := tasks.CreateApiClient(endpoint, tokens, ctx)
+	apiClient := tasks.NewGithubApiClient(endpoint, tokens, ctx)
 	err = apiClient.SetProxy(config.V.GetString("GITHUB_PROXY"))
 	if err != nil {
 		return err
@@ -398,7 +398,7 @@ func main() {
 	endpoint := config.V.GetString("GITHUB_ENDPOINT")
 	configTokensString := config.V.GetString("GITHUB_AUTH")
 	tokens := strings.Split(configTokensString, ",")
-	githubApiClient := tasks.CreateApiClient(endpoint, tokens, nil)
+	githubApiClient := tasks.NewGithubApiClient(endpoint, tokens, nil)
 	_ = githubApiClient.SetProxy(config.V.GetString("GITHUB_PROXY"))
 	_, collectRepoErr := tasks.CollectRepository(owner, repo, githubApiClient)
 	if collectRepoErr != nil {
@@ -416,7 +416,7 @@ func main() {
 					"collectIssues",
 					"collectPullRequests",
 					//"collectIssueEvents",
-					//"collectIssueComments",
+					"collectIssueComments",
 					//"collectPullRequestReviews",
 					//"collectPullRequestCommits",
 					//"collectPullRequestComments",

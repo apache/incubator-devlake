@@ -45,7 +45,7 @@ func CollectPullRequests(
 	getUrl := fmt.Sprintf("repos/%v/%v/pulls", owner, repo)
 	queryParams := &url.Values{}
 	queryParams.Set("state", "all")
-	return apiClient.FetchWithPaginationAnts(getUrl, queryParams, 100, 20, scheduler,
+	return apiClient.FetchPages(getUrl, queryParams, 100, scheduler,
 		func(res *http.Response) error {
 			githubApiResponse := &ApiPullRequestResponse{}
 			err := core.UnmarshalResponse(res, githubApiResponse)
@@ -88,6 +88,7 @@ func CollectPullRequests(
 				}).Create(&githubPull).Error
 				if err != nil {
 					logger.Error("Could not upsert: ", err)
+					return err
 				}
 			}
 			return nil

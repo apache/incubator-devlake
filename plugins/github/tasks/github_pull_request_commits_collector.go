@@ -36,22 +36,27 @@ type PullRequestCommit struct {
 func CollectPullRequestCommits(owner string, repo string, scheduler *utils.WorkerScheduler, apiClient *GithubApiClient) error {
 	cursor, err := lakeModels.Db.Model(&models.GithubPullRequest{}).Rows()
 	if err != nil {
-		return nil
+		return err
 	}
 	defer cursor.Close()
-
-	githubPr := &models.GithubPullRequest{}
 	for cursor.Next() {
+		githubPr := &models.GithubPullRequest{}
 		err = lakeModels.Db.ScanRows(cursor, githubPr)
 		if err != nil {
 			return err
 		}
-		err = ProcessCollection(owner, repo, githubPr, scheduler, apiClient)
+		err = scheduler.Submit(func() error {
+			processErr := ProcessCollection(owner, repo, githubPr, scheduler, apiClient)
+			if processErr != nil {
+				logger.Error("Could not collect PR Commits", err)
+				return processErr
+			}
+			return nil
+		})
 		if err != nil {
 			return err
 		}
 	}
-
 	return nil
 }
 func convertPullRequestCommit(prCommit *PrCommitsResponse) (*models.GithubCommit, error) {
@@ -77,7 +82,7 @@ func ProcessCollection(owner string, repo string, pr *models.GithubPullRequest, 
 		logger.Error("Could not delete: ", err)
 		return err
 	}
-	return apiClient.FetchWithPaginationAnts(getUrl, nil, 100, 1, scheduler,
+	return apiClient.FetchPages(getUrl, nil, 100, scheduler,
 		func(res *http.Response) error {
 			githubApiResponse := &ApiPullRequestCommitResponse{}
 			if res.StatusCode == 200 {
@@ -101,16 +106,19 @@ func ProcessCollection(owner string, repo string, pr *models.GithubPullRequest, 
 						CommitSha:     pullRequestCommit.Sha,
 						PullRequestId: pr.GithubId,
 					}
-					result := lakeModels.Db.Clauses(clause.OnConflict{
+					err = lakeModels.Db.Clauses(clause.OnConflict{
 						UpdateAll: true,
-					}).Create(&githubPullRequestCommit)
+					}).Create(&githubPullRequestCommit).Error
 
-					if result.Error != nil {
-						logger.Error("Could not upsert: ", result.Error)
+					if err != nil {
+						logger.Error("Could not upsert: ", err)
 					}
 				}
 			} else {
 				fmt.Println("INFO: PR PrCommit collection >>> res.Status: ", res.Status)
+			}
+			if pr.Number == 1244 {
+				fmt.Println("Pr Commits finished")
 			}
 			return nil
 		})
