@@ -13,13 +13,13 @@ import (
 )
 
 func ConvertPullRequests(ctx context.Context) error {
-	githubPullRequest := &githubModels.GithubPullRequest{}
-	cursor, err := lakeModels.Db.Model(githubPullRequest).Rows()
+	pr := &githubModels.GithubPullRequest{}
+	cursor, err := lakeModels.Db.Model(pr).Rows()
 	if err != nil {
 		return err
 	}
 	defer cursor.Close()
-	domainPrIdGenerator := didgen.NewDomainIdGenerator(githubPullRequest)
+	domainPrIdGenerator := didgen.NewDomainIdGenerator(pr)
 	domainRepoIdGenerator := didgen.NewDomainIdGenerator(&githubModels.GithubRepo{})
 
 	for cursor.Next() {
@@ -28,13 +28,13 @@ func ConvertPullRequests(ctx context.Context) error {
 			return core.TaskCanceled
 		default:
 		}
-		err = lakeModels.Db.ScanRows(cursor, githubPullRequest)
+		err = lakeModels.Db.ScanRows(cursor, pr)
 		if err != nil {
 			return err
 		}
 		domainPr := &code.PullRequest{
 			DomainEntity: domainlayer.DomainEntity{
-				Id: domainPrIdGenerator.Generate(githubPullRequest.GithubId),
+				Id: domainPrIdGenerator.Generate(pr.GithubId),
 			},
 			RepoId:         domainRepoIdGenerator.Generate(pr.RepoId),
 			Status:         pr.State,
