@@ -83,7 +83,10 @@ func Encode(Input string) (string, error) {
 		// Randomly generate a bunch of encryption keys and set them to config
 		encodingKey = RandomCapsStr(128)
 		V.Set(EncodeKeyEnvStr, encodingKey)
-		V.WriteConfig()
+		err := V.WriteConfig()
+		if err != nil {
+			return "", err
+		}
 	}
 	// add suffix to the data part
 	inputBytes := append([]byte(Input), 123, 110, 100, 100, 116, 102, 125)

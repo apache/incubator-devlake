@@ -15,28 +15,25 @@ func ConvertPrs() error {
 	if err != nil {
 		return err
 	}
-	domainGeneratorPrId := didgen.NewDomainIdGenerator(&gitlabModels.GitlabMergeRequest{})
+	domainMrIdGenerator := didgen.NewDomainIdGenerator(&gitlabModels.GitlabMergeRequest{})
+	domainRepoIdGenerator := didgen.NewDomainIdGenerator(&gitlabModels.GitlabProject{})
 	for _, mr := range gitlabMrs {
-		domainPr := convertToPrModel(&mr, domainGeneratorPrId)
+		domainPr := &code.PullRequest{
+			DomainEntity: domainlayer.DomainEntity{
+				Id: domainMrIdGenerator.Generate(mr.GitlabId),
+			},
+			RepoId:      domainRepoIdGenerator.Generate(mr.ProjectId),
+			Status:      mr.State,
+			Title:       mr.Title,
+			Url:         mr.WebUrl,
+			CreatedDate: mr.GitlabCreatedAt,
+			MergedDate:  mr.MergedAt,
+			ClosedAt:    mr.ClosedAt,
+		}
 		err := lakeModels.Db.Clauses(clause.OnConflict{UpdateAll: true}).Create(domainPr).Error
 		if err != nil {
 			return err
 		}
 	}
 	return nil
-}
-func convertToPrModel(mr *gitlabModels.GitlabMergeRequest, domainGeneratorPrId *didgen.DomainIdGenerator) *code.PullRequest {
-	domainPr := &code.PullRequest{
-		DomainEntity: domainlayer.DomainEntity{
-			Id: domainGeneratorPrId.Generate(mr.GitlabId),
-		},
-		RepoId:      uint64(mr.ProjectId),
-		Status:      mr.State,
-		Title:       mr.Title,
-		Url:         mr.WebUrl,
-		CreatedDate: mr.GitlabCreatedAt,
-		MergedDate:  mr.MergedAt,
-		ClosedAt:    mr.ClosedAt,
-	}
-	return domainPr
 }

@@ -1,6 +1,7 @@
 package factory
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/merico-dev/lake/models/domainlayer"
@@ -12,7 +13,7 @@ func CreatePr(repoId uint64) (*code.PullRequest, error) {
 		DomainEntity: domainlayer.DomainEntity{
 			Id: RandIntString(),
 		},
-		RepoId:      repoId,
+		RepoId:      fmt.Sprintf("%v", repoId),
 		Status:      "",
 		Title:       "",
 		Url:         "",

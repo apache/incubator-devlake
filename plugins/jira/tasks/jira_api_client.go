@@ -35,7 +35,12 @@ func NewJiraApiClient(endpoint string, auth string, proxy string) *JiraApiClient
 		}
 		return nil
 	})
-	jiraApiClient.SetProxy(proxy)
+	if proxy != "" {
+		err := jiraApiClient.SetProxy(proxy)
+		if err != nil {
+			panic(err)
+		}
+	}
 	return jiraApiClient
 }
 
