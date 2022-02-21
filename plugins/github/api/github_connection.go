@@ -31,6 +31,7 @@ func TestConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, erro
 	}
 	endpoint := input.Body["endpoint"].(string)
 	auth := input.Body["auth"].(string)
+	proxy := input.Body["proxy"].(string)
 	tokens := strings.Split(auth, ",")
 
 	// verify multiple token in parallel
@@ -42,6 +43,9 @@ func TestConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, erro
 		go func() {
 			githubApiClient := tasks.CreateApiClient(endpoint, []string{token}, nil)
 			githubApiClient.SetTimeout(3 * time.Second)
+			if proxy != "" {
+				githubApiClient.SetProxy(proxy)
+			}
 			res, err := githubApiClient.Get("user/public_emails", nil, nil)
 			if err != nil {
 				results <- fmt.Errorf("verify token failed for #%v %s %w", i, token, err)
