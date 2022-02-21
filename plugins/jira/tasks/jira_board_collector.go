@@ -29,7 +29,8 @@ type JiraApiBoard struct {
 }
 
 func CollectBoard(jiraApiClient *JiraApiClient, source *models.JiraSource, boardId uint64) error {
-	res, err := jiraApiClient.Get(fmt.Sprintf("agile/1.0/board/%v", boardId), nil, nil)
+	getUrl := fmt.Sprintf("agile/1.0/board/%v", boardId)
+	res, err := jiraApiClient.Get(getUrl, nil, nil)
 	if err != nil {
 		return err
 	}
@@ -41,6 +42,11 @@ func CollectBoard(jiraApiClient *JiraApiClient, source *models.JiraSource, board
 		return nil
 	}
 	logger.Info("jiraboard ", jiraApiBoard)
+	// Check the StatusCode of the HTTP response
+	if res.StatusCode != 200 {
+		return fmt.Errorf("got a bad response StatusCode [%d] when requesting [%s]", res.StatusCode, getUrl)
+	}
+
 	jiraBoard := &models.JiraBoard{
 		SourceId:  source.ID,
 		BoardId:   jiraApiBoard.Id,
