@@ -16,6 +16,7 @@ import (
 type TestConnectionRequest struct {
 	Endpoint string `json:"endpoint"`
 	Auth     string `json:"auth"`
+	Proxy    string `json:"proxy"`
 }
 
 func TestConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, error) {

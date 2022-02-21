@@ -16,6 +16,7 @@ type JiraSource struct {
 	EpicKeyField               string `gorm:"type:varchar(50);" json:"epicKeyField"`
 	StoryPointField            string `gorm:"type:varchar(50);" json:"storyPointField"`
 	RemotelinkCommitShaPattern string `gorm:"type:varchar(255);comment='golang regexp, the first group will be recognized as commit sha, ref https://github.com/google/re2/wiki/Syntax'" json:"remotelinkCommitShaPattern"`
+	Proxy                      string
 }
 
 type JiraIssueTypeMapping struct {
