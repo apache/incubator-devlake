@@ -287,5 +287,5 @@ func getStage(t time.Time, sprintStart, sprintComplete *time.Time) *string {
 	if sprintComplete.Before(t) {
 		return &ticket.AfterSprint
 	}
-	return nil
+	return &ticket.DuringSprint
 }
