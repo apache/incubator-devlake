@@ -34,9 +34,11 @@ func ConvertWorklog(sourceId uint64, boardId uint64) error {
 			return err
 		}
 		worklog := &ticket.Worklog{
-			DomainEntity:domainlayer.DomainEntity{Id: worklogIdGen.Generate(jiraWorklog.SourceId, jiraWorklog.IssueId, jiraWorklog.WorklogId)},
+			DomainEntity:     domainlayer.DomainEntity{Id: worklogIdGen.Generate(jiraWorklog.SourceId, jiraWorklog.IssueId, jiraWorklog.WorklogId)},
 			IssueId:          issueIdGen.Generate(jiraWorklog.SourceId, jiraWorklog.IssueId),
 			TimeSpentMinutes: jiraWorklog.TimeSpentSeconds / 60,
+			StartedDate:      &jiraWorklog.Started,
+			LoggedDate:       &jiraWorklog.Updated,
 		}
 		if jiraWorklog.AuthorId != "" {
 			worklog.AuthorId = userIdGen.Generate(sourceId, jiraWorklog.AuthorId)
