@@ -29,6 +29,7 @@ import useConnectionManager from '@/hooks/useConnectionManager'
 import FormValidationErrors from '@/components/messages/FormValidationErrors'
 import PipelineIndicator from '@/components/widgets/PipelineIndicator'
 import PipelinePresetsMenu from '@/components/menus/PipelinePresetsMenu'
+import PipelineConfigsMenu from '@/components/menus/PipelineConfigsMenu'
 import ProviderSettings from '@/components/pipelines/ProviderSettings'
 import Nav from '@/components/Nav'
 import Sidebar from '@/components/Sidebar'
@@ -685,6 +686,23 @@ const CreatePipeline = (props) => {
                               boxShadow: '0px 0px 2px rgba(0, 0, 0, 0.30)'
                             }}
                           >
+                            <Popover
+                              className='popover-options-menu-trigger'
+                              popoverClassName='popover-options-menu'
+                              position={Position.TOP}
+                              usePortal={true}
+                            >
+                              <Button
+                                disabled={isRunning}
+                                icon='cog'
+                              />
+                              <>
+                                <PipelineConfigsMenu
+                                  setRawConfiguration={setRawConfiguration}
+                                  advancedMode={advancedMode}
+                                />
+                              </>
+                            </Popover>
                             <Button
                               disabled={!isValidConfiguration}
                               small text='Format' icon='align-left'
