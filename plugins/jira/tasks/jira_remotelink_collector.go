@@ -3,7 +3,9 @@ package tasks
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
+	"net/http"
 
 	"github.com/merico-dev/lake/utils"
 	"gorm.io/datatypes"
@@ -14,6 +16,7 @@ import (
 	"github.com/merico-dev/lake/plugins/jira/models"
 )
 
+var ErrNotFoundIssue = errors.New("not found the issue")
 type JiraApiRemotelink struct {
 	Id           uint64
 	Self         string
@@ -81,6 +84,9 @@ func CollectRemoteLinks(
 		updated := jiraIssue.Updated
 		err = issueScheduler.Submit(func() error {
 			err = collectRemotelinksByIssueId(source, jiraApiClient, issueId)
+			if err == ErrNotFoundIssue{
+				return nil
+			}
 			if err != nil {
 				return err
 			}
@@ -108,6 +114,9 @@ func collectRemotelinksByIssueId(
 	res, err := jiraApiClient.Get(fmt.Sprintf("api/3/issue/%v/remotelink", issueId), nil, nil)
 	if err != nil {
 		return err
+	}
+	if res.StatusCode == http.StatusNotFound{
+		return ErrNotFoundIssue
 	}
 	apiRemotelinks := &JiraApiRemotelinksResponse{}
 	err = core.UnmarshalResponse(res, apiRemotelinks)

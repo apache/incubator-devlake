@@ -23,6 +23,7 @@ type Issue struct {
 	ParentIssueId           string
 	Priority                string
 	OriginalEstimateMinutes int64
+	TimeSpentMinutes        int64
 	TimeRemainingMinutes    int64
 	CreatorId               string
 	AssigneeId              string

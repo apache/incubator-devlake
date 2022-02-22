@@ -6,7 +6,7 @@ import (
 	"github.com/merico-dev/lake/models/domainlayer"
 )
 
-const (
+var (
 	BeforeSprint = "BEFORE_SPRINT"
 	DuringSprint = "DURING_SPRINT"
 	AfterSprint  = "AFTER_SPRINT"
@@ -29,6 +29,6 @@ type SprintIssue struct {
 	IsRemoved     bool
 	AddedDate     *time.Time
 	RemovedDate   *time.Time
-	AddedStage    string
-	ResolvedStage string
+	AddedStage    *string `gorm:"type:varchar(255)"`
+	ResolvedStage *string `gorm:"type:varchar(255)"`
 }
