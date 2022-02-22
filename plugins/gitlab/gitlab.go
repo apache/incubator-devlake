@@ -35,6 +35,7 @@ func (plugin Gitlab) Init() {
 		&models.GitlabProject{},
 		&models.GitlabMergeRequest{},
 		&models.GitlabCommit{},
+		&models.GitlabTag{},
 		&models.GitlabProjectCommit{},
 		&models.GitlabPipeline{},
 		&models.GitlabReviewer{},
@@ -89,6 +90,7 @@ func (plugin Gitlab) Execute(options map[string]interface{}, progress chan<- flo
 		tasksToRun = map[string]bool{
 			"collectPipelines": true,
 			"collectCommits":   true,
+			"CollectTags":      true,
 			"collectMrs":       true,
 			"enrichMrs":        true,
 			"convertProjects":  true,
@@ -110,8 +112,17 @@ func (plugin Gitlab) Execute(options map[string]interface{}, progress chan<- flo
 			}
 		}
 	}
-	if tasksToRun["collectMrs"] {
+	if tasksToRun["collectTags"] {
 		progress <- 0.3
+		if err := tasks.CollectTags(projectIdInt, scheduler); err != nil {
+			return &errors.SubTaskError{
+				SubTaskName: "collectTags",
+				Message:     fmt.Errorf("could not collect tags: %v", err).Error(),
+			}
+		}
+	}
+	if tasksToRun["collectMrs"] {
+		progress <- 0.35
 		mergeRequestErr := tasks.CollectMergeRequests(projectIdInt, scheduler)
 		if mergeRequestErr != nil {
 			return &errors.SubTaskError{
