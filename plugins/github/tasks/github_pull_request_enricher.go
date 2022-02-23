@@ -2,11 +2,11 @@ package tasks
 
 import (
 	"context"
+	"github.com/merico-dev/lake/errors"
 	"regexp"
 
 	"github.com/merico-dev/lake/config"
 	lakeModels "github.com/merico-dev/lake/models"
-	"github.com/merico-dev/lake/plugins/core"
 	githubModels "github.com/merico-dev/lake/plugins/github/models"
 )
 
@@ -37,7 +37,7 @@ func EnrichGithubPullRequests(repoId int, ctx context.Context) (err error) {
 	for cursor.Next() {
 		select {
 		case <-ctx.Done():
-			return core.TaskCanceled
+			return errors.TaskCanceled
 		default:
 		}
 		err = lakeModels.Db.ScanRows(cursor, githubPullRequst)

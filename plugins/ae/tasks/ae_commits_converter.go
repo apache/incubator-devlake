@@ -2,11 +2,11 @@ package tasks
 
 import (
 	"context"
+	"github.com/merico-dev/lake/errors"
 
 	lakeModels "github.com/merico-dev/lake/models"
 	"github.com/merico-dev/lake/models/domainlayer/code"
 	aeModels "github.com/merico-dev/lake/plugins/ae/models"
-	"github.com/merico-dev/lake/plugins/core"
 )
 
 // NOTE: This only works on Commits in the Domain layer. You need to run Github or Gitlab collection and Domain layer enrichemnt first.
@@ -26,7 +26,7 @@ func ConvertCommits(ctx context.Context) error {
 		// we do a non-blocking checking, this should be applied to all converters from all plugins
 		select {
 		case <-ctx.Done():
-			return core.TaskCanceled
+			return errors.TaskCanceled
 		default:
 		}
 		// uncomment following line if you want to test out canceling feature for this task

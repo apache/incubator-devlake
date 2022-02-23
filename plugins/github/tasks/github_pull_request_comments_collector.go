@@ -35,10 +35,8 @@ func CollectPullRequestComments(owner string, repo string, scheduler *utils.Work
 		if err != nil {
 			return err
 		}
-		schedulerNew := scheduler
-
 		err = scheduler.Submit(func() error {
-			commentsErr := processPullRequestCommentsCollection(owner, repo, githubPr, schedulerNew, apiClient)
+			commentsErr := processPullRequestCommentsCollection(owner, repo, githubPr, apiClient)
 			if commentsErr != nil {
 				logger.Error("Could not collect PR Comments", commentsErr)
 				return commentsErr
@@ -54,9 +52,9 @@ func CollectPullRequestComments(owner string, repo string, scheduler *utils.Work
 	return nil
 }
 
-func processPullRequestCommentsCollection(owner string, repo string, pull *models.GithubPullRequest, scheduler *utils.WorkerScheduler, apiClient *GithubApiClient) error {
+func processPullRequestCommentsCollection(owner string, repo string, pull *models.GithubPullRequest, apiClient *GithubApiClient) error {
 	getUrl := fmt.Sprintf("repos/%v/%v/issues/%v/comments", owner, repo, pull.Number)
-	return apiClient.FetchPages(getUrl, nil, 100, scheduler,
+	return apiClient.FetchPages(getUrl, nil, 100,
 		func(res *http.Response) error {
 			githubApiResponse := &ApiPullRequestCommentResponse{}
 			if res.StatusCode == 200 {

@@ -9,7 +9,6 @@ import (
 	lakeModels "github.com/merico-dev/lake/models"
 	"github.com/merico-dev/lake/plugins/core"
 	"github.com/merico-dev/lake/plugins/gitlab/models"
-	"github.com/merico-dev/lake/utils"
 	"gorm.io/gorm/clause"
 )
 
@@ -35,13 +34,12 @@ type GitlabApiCommit struct {
 	}
 }
 
-func CollectCommits(projectId int, scheduler *utils.WorkerScheduler) error {
-	gitlabApiClient := CreateApiClient()
+func CollectCommits(projectId int, gitlabApiClient *GitlabApiClient) error {
 	relativePath := fmt.Sprintf("projects/%v/repository/commits", projectId)
 	queryParams := &url.Values{}
 	queryParams.Set("with_stats", "true")
 	gitlabUser := &models.GitlabUser{}
-	return gitlabApiClient.FetchWithPaginationAnts(scheduler, relativePath, queryParams, 100,
+	return gitlabApiClient.FetchWithPaginationAnts(relativePath, queryParams, 100,
 		func(res *http.Response) error {
 
 			gitlabApiResponse := &ApiCommitResponse{}

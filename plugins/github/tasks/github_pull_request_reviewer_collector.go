@@ -38,10 +38,8 @@ func CollectPullRequestReviews(owner string, repo string, scheduler *utils.Worke
 		if err != nil {
 			return nil
 		}
-		schedulerNew := scheduler
-
 		err = scheduler.Submit(func() error {
-			reviewErr := processPullRequestReviewsCollection(owner, repo, githubPr, schedulerNew, apiClient)
+			reviewErr := processPullRequestReviewsCollection(owner, repo, githubPr, apiClient)
 			if reviewErr != nil {
 				logger.Error("Could not collect PR Reviews", reviewErr)
 				return reviewErr
@@ -56,9 +54,9 @@ func CollectPullRequestReviews(owner string, repo string, scheduler *utils.Worke
 
 	return nil
 }
-func processPullRequestReviewsCollection(owner string, repo string, pull *models.GithubPullRequest, scheduler *utils.WorkerScheduler, apiClient *GithubApiClient) error {
+func processPullRequestReviewsCollection(owner string, repo string, pull *models.GithubPullRequest, apiClient *GithubApiClient) error {
 	getUrl := fmt.Sprintf("repos/%v/%v/pulls/%v/reviews", owner, repo, pull.Number)
-	return apiClient.FetchPages(getUrl, nil, 100, scheduler,
+	return apiClient.FetchPages(getUrl, nil, 100,
 		func(res *http.Response) error {
 			githubApiResponse := &ApiPullRequestReviewResponse{}
 			if res.StatusCode == 200 {

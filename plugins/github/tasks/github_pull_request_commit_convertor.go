@@ -2,11 +2,11 @@ package tasks
 
 import (
 	"context"
+	"github.com/merico-dev/lake/errors"
 
 	lakeModels "github.com/merico-dev/lake/models"
 	"github.com/merico-dev/lake/models/domainlayer/code"
 	"github.com/merico-dev/lake/models/domainlayer/didgen"
-	"github.com/merico-dev/lake/plugins/core"
 	"github.com/merico-dev/lake/plugins/github/models"
 	"gorm.io/gorm/clause"
 )
@@ -27,7 +27,7 @@ func PrCommitConvertor(ctx context.Context) (err error) {
 	for cursor.Next() {
 		select {
 		case <-ctx.Done():
-			return core.TaskCanceled
+			return errors.TaskCanceled
 		default:
 		}
 		err = lakeModels.Db.ScanRows(cursor, githubPullRequestCommit)

@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	errors "github.com/merico-dev/lake/errors"
+	"github.com/merico-dev/lake/utils"
 	"os"
 	"strconv"
 	"time"
@@ -87,12 +88,6 @@ func (plugin Jira) Execute(options map[string]interface{}, progress chan<- float
 		return fmt.Errorf("no board to collect")
 	}
 
-	var rateLimitPerSecondInt int
-	rateLimitPerSecondInt, err = core.GetRateLimitPerSecond(options, 50)
-	if err != nil {
-		return err
-	}
-
 	var since time.Time
 	if op.Since != "" {
 		since, err = time.Parse("2006-01-02T15:04:05Z", op.Since)
@@ -125,6 +120,17 @@ func (plugin Jira) Execute(options map[string]interface{}, progress chan<- float
 		}
 	}
 
+	var rateLimitPerSecondInt int
+	rateLimitPerSecondInt, err = core.GetRateLimitPerSecond(options, 50)
+	if err != nil {
+		return err
+	}
+	scheduler, err := utils.NewWorkerScheduler(10, rateLimitPerSecondInt, ctx)
+	if err != nil {
+		return err
+	}
+	defer scheduler.Release()
+
 	setBoardProgress := func(boardIndex int, boardProgress float32) {
 		boardPart := 1.0 / float32(len(boardIds))
 		progress <- boardPart*float32(boardIndex) + boardPart*boardProgress
@@ -133,7 +139,7 @@ func (plugin Jira) Execute(options map[string]interface{}, progress chan<- float
 	// run tasks
 	logger.Print("start jira plugin execution")
 
-	jiraApiClient, err := tasks.NewJiraApiClientBySourceId(op.SourceId)
+	jiraApiClient, err := tasks.NewJiraApiClientBySourceId(op.SourceId, scheduler)
 	if err != nil {
 		return fmt.Errorf("failed to create jira api client: %v", err)
 	}

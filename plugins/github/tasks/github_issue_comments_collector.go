@@ -7,7 +7,6 @@ import (
 	"github.com/merico-dev/lake/plugins/core"
 	"github.com/merico-dev/lake/plugins/github/models"
 	githubUtils "github.com/merico-dev/lake/plugins/github/utils"
-	"github.com/merico-dev/lake/utils"
 	"gorm.io/gorm/clause"
 	"net/http"
 )
@@ -24,8 +23,8 @@ type IssueComment struct {
 	GithubCreatedAt core.Iso8601Time `json:"created_at"`
 }
 
-func CollectIssueComments(owner string, repo string, scheduler *utils.WorkerScheduler, apiClient *GithubApiClient) error {
-	commentsErr := processCommentsCollection(owner, repo, scheduler, apiClient)
+func CollectIssueComments(owner string, repo string, apiClient *GithubApiClient) error {
+	commentsErr := processCommentsCollection(owner, repo, apiClient)
 	if commentsErr != nil {
 		logger.Error("Could not collect issue Comments", commentsErr)
 		return commentsErr
@@ -35,11 +34,10 @@ func CollectIssueComments(owner string, repo string, scheduler *utils.WorkerSche
 func processCommentsCollection(
 	owner string,
 	repo string,
-	scheduler *utils.WorkerScheduler,
 	apiClient *GithubApiClient,
 ) error {
 	getUrl := fmt.Sprintf("repos/%v/%v/issues/comments", owner, repo)
-	return apiClient.FetchPages(getUrl, nil, 100, scheduler,
+	return apiClient.FetchPages(getUrl, nil, 100,
 		func(res *http.Response) error {
 			githubApiResponse := &ApiIssueCommentResponse{}
 			if res.StatusCode == 200 {

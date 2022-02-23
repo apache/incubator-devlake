@@ -46,7 +46,7 @@ func CollectPullRequestCommits(owner string, repo string, scheduler *utils.Worke
 			return err
 		}
 		err = scheduler.Submit(func() error {
-			processErr := ProcessCollection(owner, repo, githubPr, scheduler, apiClient)
+			processErr := ProcessCollection(owner, repo, githubPr, apiClient)
 			if processErr != nil {
 				logger.Error("Could not collect PR Commits", err)
 				return processErr
@@ -74,7 +74,7 @@ func convertPullRequestCommit(prCommit *PrCommitsResponse) (*models.GithubCommit
 	return githubCommit, nil
 }
 
-func ProcessCollection(owner string, repo string, pr *models.GithubPullRequest, scheduler *utils.WorkerScheduler, apiClient *GithubApiClient) error {
+func ProcessCollection(owner string, repo string, pr *models.GithubPullRequest, apiClient *GithubApiClient) error {
 	getUrl := fmt.Sprintf("repos/%v/%v/pulls/%v/commits", owner, repo, pr.Number)
 	err := lakeModels.Db.Where("pull_request_id = ?",
 		pr.GithubId).Delete(&models.GithubPullRequestCommit{}).Error
@@ -82,7 +82,7 @@ func ProcessCollection(owner string, repo string, pr *models.GithubPullRequest, 
 		logger.Error("Could not delete: ", err)
 		return err
 	}
-	return apiClient.FetchPages(getUrl, nil, 100, scheduler,
+	return apiClient.FetchPages(getUrl, nil, 100,
 		func(res *http.Response) error {
 			githubApiResponse := &ApiPullRequestCommitResponse{}
 			if res.StatusCode == 200 {

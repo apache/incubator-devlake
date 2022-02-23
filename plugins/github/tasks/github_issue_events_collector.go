@@ -8,7 +8,6 @@ import (
 	lakeModels "github.com/merico-dev/lake/models"
 	"github.com/merico-dev/lake/plugins/core"
 	"github.com/merico-dev/lake/plugins/github/models"
-	"github.com/merico-dev/lake/utils"
 	"gorm.io/gorm/clause"
 )
 
@@ -26,9 +25,9 @@ type IssueEvent struct {
 	GithubCreatedAt core.Iso8601Time `json:"created_at"`
 }
 
-func CollectIssueEvents(owner string, repo string, scheduler *utils.WorkerScheduler, apiClient *GithubApiClient) error {
+func CollectIssueEvents(owner string, repo string, apiClient *GithubApiClient) error {
 
-	eventsErr := processEventsCollection(owner, repo, scheduler, apiClient)
+	eventsErr := processEventsCollection(owner, repo, apiClient)
 	if eventsErr != nil {
 		logger.Error("Could not collect issue events", eventsErr)
 		return eventsErr
@@ -36,9 +35,9 @@ func CollectIssueEvents(owner string, repo string, scheduler *utils.WorkerSchedu
 	return nil
 }
 
-func processEventsCollection(owner string, repo string, scheduler *utils.WorkerScheduler, apiClient *GithubApiClient) error {
+func processEventsCollection(owner string, repo string, apiClient *GithubApiClient) error {
 	getUrl := fmt.Sprintf("repos/%v/%v/issues/events", owner, repo)
-	return apiClient.FetchPages(getUrl, nil, 100, scheduler,
+	return apiClient.FetchPages(getUrl, nil, 100,
 		func(res *http.Response) error {
 			githubApiResponse := &ApiIssueEventResponse{}
 			if res.StatusCode == 200 {

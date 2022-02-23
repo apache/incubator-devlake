@@ -21,7 +21,7 @@ type GithubApiClient struct {
 	core.ApiClient
 }
 
-func NewGithubApiClient(endpoint string, tokens []string, ctx context.Context) *GithubApiClient {
+func NewGithubApiClient(endpoint string, tokens []string, ctx context.Context, scheduler *utils.WorkerScheduler) *GithubApiClient {
 	githubApiClient := &GithubApiClient{}
 	githubApiClient.tokenIndex = 0
 	githubApiClient.tokens = tokens
@@ -37,6 +37,7 @@ func NewGithubApiClient(endpoint string, tokens []string, ctx context.Context) *
 		map[string]string{},
 		10*time.Second,
 		3,
+		scheduler,
 	)
 	if ctx != nil {
 		githubApiClient.SetContext(ctx)
@@ -49,8 +50,7 @@ type GithubSearchPaginationHandler func(res *http.Response) (int, error)
 
 // run all requests in an Ants worker pool
 // conc - number of concurent requests you want to run
-func (githubApiClient *GithubApiClient) FetchPages(path string, queryParams *url.Values, pageSize int,
-	scheduler *utils.WorkerScheduler, handler GithubPaginationHandler) error {
+func (githubApiClient *GithubApiClient) FetchPages(path string, queryParams *url.Values, pageSize int, handler GithubPaginationHandler) error {
 	if queryParams == nil {
 		queryParams = &url.Values{}
 	}
@@ -77,7 +77,7 @@ func (githubApiClient *GithubApiClient) FetchPages(path string, queryParams *url
 
 	for i := 2; i <= pages; i++ {
 		page := i
-		err = scheduler.Submit(func() error {
+		err = githubApiClient.Scheduler.Submit(func() error {
 			queryParams.Set("page", strconv.Itoa(page))
 			queryParams.Set("per_page", strconv.Itoa(pageSize))
 			res, err := githubApiClient.Get(path, queryParams, nil)
@@ -95,6 +95,6 @@ func (githubApiClient *GithubApiClient) FetchPages(path string, queryParams *url
 		}
 	}
 
-	scheduler.WaitUntilFinish()
+	githubApiClient.Scheduler.WaitUntilFinish()
 	return nil
 }

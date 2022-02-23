@@ -9,7 +9,6 @@ import (
 	lakeModels "github.com/merico-dev/lake/models"
 	"github.com/merico-dev/lake/plugins/core"
 	"github.com/merico-dev/lake/plugins/github/models"
-	"github.com/merico-dev/lake/utils"
 	"gorm.io/gorm/clause"
 )
 
@@ -40,11 +39,11 @@ type IssuesResponse struct {
 	GithubUpdatedAt core.Iso8601Time  `json:"updated_at"`
 }
 
-func CollectIssues(owner string, repo string, repoId int, scheduler *utils.WorkerScheduler, apiClient *GithubApiClient) error {
+func CollectIssues(owner string, repo string, repoId int, apiClient *GithubApiClient) error {
 	getUrl := fmt.Sprintf("repos/%v/%v/issues", owner, repo)
 	queryParams := &url.Values{}
 	queryParams.Set("state", "all")
-	return apiClient.FetchPages(getUrl, queryParams, 100, scheduler,
+	return apiClient.FetchPages(getUrl, queryParams, 100,
 		func(res *http.Response) error {
 			githubApiResponse := &ApiIssuesResponse{}
 			err := core.UnmarshalResponse(res, githubApiResponse)

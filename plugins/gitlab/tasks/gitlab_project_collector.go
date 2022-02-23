@@ -29,8 +29,8 @@ type GitlabApiProject struct {
 
 type GitlabApiProjectResponse GitlabApiProject
 
-func CollectProject(projectId int) error {
-	gitlabApiClient := CreateApiClient()
+func CollectProject(projectId int, gitlabApiClient *GitlabApiClient) error {
+
 	res, err := gitlabApiClient.Get(fmt.Sprintf("projects/%v", projectId), nil, nil)
 	if err != nil {
 		logger.Error("Error: ", err)
