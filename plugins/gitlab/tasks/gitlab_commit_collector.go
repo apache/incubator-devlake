@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
+	"strings"
 
 	"github.com/merico-dev/lake/logger"
 	lakeModels "github.com/merico-dev/lake/models"
@@ -27,6 +28,7 @@ type GitlabApiCommit struct {
 	CommitterEmail string           `json:"committer_email"`
 	CommittedDate  core.Iso8601Time `json:"committed_date"`
 	WebUrl         string           `json:"web_url"`
+	ParentIds      []string         `json:"parent_ids"`
 	Stats          struct {
 		Additions int
 		Deletions int
@@ -116,6 +118,7 @@ func convertCommit(commit *GitlabApiCommit, projectId int) (*models.GitlabCommit
 		CommitterEmail: commit.CommitterEmail,
 		CommittedDate:  commit.CommittedDate.ToTime(),
 		WebUrl:         commit.WebUrl,
+		ParentIdsStr:   strings.Join(commit.ParentIds, ","),
 		Additions:      commit.Stats.Additions,
 		Deletions:      commit.Stats.Deletions,
 		Total:          commit.Stats.Total,

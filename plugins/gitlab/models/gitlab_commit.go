@@ -18,6 +18,7 @@ type GitlabCommit struct {
 	CommitterEmail string
 	CommittedDate  time.Time
 	WebUrl         string
+	ParentIdsStr   string
 	Additions      int `gorm:"comment:Added lines of code"`
 	Deletions      int `gorm:"comment:Deleted lines of code"`
 	Total          int `gorm:"comment:Sum of added/deleted lines of code"`
