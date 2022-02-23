@@ -19,7 +19,7 @@ type JiraApiClient struct {
 	core.ApiClient
 }
 
-func NewJiraApiClient(endpoint string, auth string, proxy string) *JiraApiClient {
+func NewJiraApiClient(endpoint string, auth string, proxy string, scheduler *utils.WorkerScheduler) *JiraApiClient {
 	jiraApiClient := &JiraApiClient{}
 	jiraApiClient.Setup(
 		endpoint,
@@ -28,6 +28,7 @@ func NewJiraApiClient(endpoint string, auth string, proxy string) *JiraApiClient
 		},
 		10*time.Second,
 		3,
+		scheduler,
 	)
 	jiraApiClient.SetAfterFunction(func(res *http.Response) error {
 		if res.StatusCode == http.StatusUnauthorized {
@@ -44,14 +45,14 @@ func NewJiraApiClient(endpoint string, auth string, proxy string) *JiraApiClient
 	return jiraApiClient
 }
 
-func NewJiraApiClientBySourceId(sourceId uint64) (*JiraApiClient, error) {
+func NewJiraApiClientBySourceId(sourceId uint64, scheduler *utils.WorkerScheduler) (*JiraApiClient, error) {
 	jiraSource := &models.JiraSource{}
 	err := lakeModels.Db.First(jiraSource, sourceId).Error
 	if err != nil {
 		return nil, err
 	}
 
-	return NewJiraApiClient(jiraSource.Endpoint, jiraSource.BasicAuthEncoded, jiraSource.Proxy), nil
+	return NewJiraApiClient(jiraSource.Endpoint, jiraSource.BasicAuthEncoded, jiraSource.Proxy, scheduler), nil
 }
 
 type JiraPagination struct {
@@ -63,7 +64,7 @@ type JiraPagination struct {
 type JiraPaginationHandler func(res *http.Response) error
 type JiraSearchPaginationHandler func(res *http.Response) (int, error)
 
-func (jiraApiClient *JiraApiClient) FetchPages(scheduler *utils.WorkerScheduler, path string, query *url.Values, handler JiraPaginationHandler) error {
+func (jiraApiClient *JiraApiClient) FetchPages(path string, query *url.Values, handler JiraPaginationHandler) error {
 	if query == nil {
 		query = &url.Values{}
 	}
@@ -91,7 +92,7 @@ func (jiraApiClient *JiraApiClient) FetchPages(scheduler *utils.WorkerScheduler,
 
 	for nextStart < total {
 		nextStartTmp := nextStart
-		err = scheduler.Submit(func() error {
+		err = jiraApiClient.Scheduler.Submit(func() error {
 			// fetch page
 			detailQuery := &url.Values{}
 			for key, value := range *query {
@@ -123,6 +124,7 @@ func (jiraApiClient *JiraApiClient) FetchPages(scheduler *utils.WorkerScheduler,
 		}
 		nextStart += pageSize
 	}
+	jiraApiClient.Scheduler.WaitUntilFinish()
 	return nil
 }
 

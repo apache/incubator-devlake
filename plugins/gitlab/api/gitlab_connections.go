@@ -19,7 +19,7 @@ type ApiUserResponse struct {
 POST /plugins/gitlab/test
 */
 func TestConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, error) {
-	gitlabApiClient := tasks.CreateApiClient()
+	gitlabApiClient := tasks.CreateApiClient(nil)
 
 	ValidationResult := core.ValidateParams(input, []string{"endpoint", "auth"})
 	if !ValidationResult.Success {

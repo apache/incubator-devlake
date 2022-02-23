@@ -3,13 +3,13 @@ package tasks
 import (
 	"context"
 	"fmt"
+	"github.com/merico-dev/lake/errors"
 
 	lakeModels "github.com/merico-dev/lake/models"
 	"github.com/merico-dev/lake/models/domainlayer"
 	"github.com/merico-dev/lake/models/domainlayer/code"
 	"github.com/merico-dev/lake/models/domainlayer/didgen"
 	"github.com/merico-dev/lake/models/domainlayer/ticket"
-	"github.com/merico-dev/lake/plugins/core"
 	githubModels "github.com/merico-dev/lake/plugins/github/models"
 	"gorm.io/gorm/clause"
 )
@@ -28,7 +28,7 @@ func ConvertRepos(ctx context.Context) error {
 	for cursor.Next() {
 		select {
 		case <-ctx.Done():
-			return core.TaskCanceled
+			return errors.TaskCanceled
 		default:
 		}
 		err = lakeModels.Db.ScanRows(cursor, githubRepository)

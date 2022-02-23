@@ -104,24 +104,28 @@ func (plugin Github) Execute(options map[string]interface{}, progress chan<- flo
 	// process configuration
 	endpoint := config.V.GetString("GITHUB_ENDPOINT")
 	tokens := strings.Split(config.V.GetString("GITHUB_AUTH"), ",")
-	// TODO: add endpoind, auth validation
-	apiClient := tasks.NewGithubApiClient(endpoint, tokens, ctx)
-	err = apiClient.SetProxy(config.V.GetString("GITHUB_PROXY"))
-	if err != nil {
-		return err
-	}
-
 	// setup rate limit
 	tokenCount := len(tokens)
 	if tokenCount == 0 {
 		return fmt.Errorf("owner is required for GitHub execution")
 	}
-
 	rateLimitPerSecondInt, err := core.GetRateLimitPerSecond(options, tokenCount)
 	if err != nil {
 		return err
 	}
-	scheduler, err := utils.NewWorkerScheduler(50, rateLimitPerSecondInt, ctx)
+	schedulerForApiClient, err := utils.NewWorkerScheduler(50, rateLimitPerSecondInt, ctx)
+	if err != nil {
+		return err
+	}
+	defer schedulerForApiClient.Release()
+	// TODO: add endpoind, auth validation
+	apiClient := tasks.NewGithubApiClient(endpoint, tokens, ctx, schedulerForApiClient)
+	err = apiClient.SetProxy(config.V.GetString("GITHUB_PROXY"))
+	if err != nil {
+		return err
+	}
+
+	scheduler, err := utils.NewWorkerScheduler(rateLimitPerSecondInt*2, rateLimitPerSecondInt, ctx)
 	if err != nil {
 		return err
 	}
@@ -137,7 +141,7 @@ func (plugin Github) Execute(options map[string]interface{}, progress chan<- flo
 	if tasksToRun["collectCommits"] {
 		progress <- 0.1
 		fmt.Println("INFO >>> starting commits collection")
-		err = tasks.CollectCommits(op.Owner, op.Repo, repoId, scheduler, apiClient)
+		err = tasks.CollectCommits(op.Owner, op.Repo, repoId, apiClient)
 		if err != nil {
 			return &errors.SubTaskError{
 				Message:     fmt.Errorf("Could not collect commits: %v", err).Error(),
@@ -159,7 +163,7 @@ func (plugin Github) Execute(options map[string]interface{}, progress chan<- flo
 	if tasksToRun["collectIssues"] {
 		progress <- 0.19
 		fmt.Println("INFO >>> starting issues collection")
-		err = tasks.CollectIssues(op.Owner, op.Repo, repoId, scheduler, apiClient)
+		err = tasks.CollectIssues(op.Owner, op.Repo, repoId, apiClient)
 		if err != nil {
 			return &errors.SubTaskError{
 				Message:     fmt.Errorf("Could not collect issues: %v", err).Error(),
@@ -170,7 +174,7 @@ func (plugin Github) Execute(options map[string]interface{}, progress chan<- flo
 	if tasksToRun["collectIssueEvents"] {
 		progress <- 0.2
 		fmt.Println("INFO >>> starting Issue Events collection")
-		err = tasks.CollectIssueEvents(op.Owner, op.Repo, scheduler, apiClient)
+		err = tasks.CollectIssueEvents(op.Owner, op.Repo, apiClient)
 		if err != nil {
 			return &errors.SubTaskError{
 				Message:     fmt.Errorf("Could not collect Issue Events: %v", err).Error(),
@@ -182,7 +186,7 @@ func (plugin Github) Execute(options map[string]interface{}, progress chan<- flo
 	if tasksToRun["collectIssueComments"] {
 		progress <- 0.3
 		fmt.Println("INFO >>> starting Issue Comments collection")
-		err = tasks.CollectIssueComments(op.Owner, op.Repo, scheduler, apiClient)
+		err = tasks.CollectIssueComments(op.Owner, op.Repo, apiClient)
 		if err != nil {
 			return &errors.SubTaskError{
 				Message:     fmt.Errorf("Could not collect Issue Comments: %v", err).Error(),
@@ -380,8 +384,8 @@ var PluginEntry Github //nolint
 // standalone mode for debugging
 func main() {
 	args := os.Args[1:]
-	owner := "merico-dev"
-	repo := "lake"
+	owner := "pingcap"
+	repo := "tidb"
 	if len(args) > 0 {
 		owner = args[0]
 	}
@@ -398,7 +402,7 @@ func main() {
 	endpoint := config.V.GetString("GITHUB_ENDPOINT")
 	configTokensString := config.V.GetString("GITHUB_AUTH")
 	tokens := strings.Split(configTokensString, ",")
-	githubApiClient := tasks.NewGithubApiClient(endpoint, tokens, nil)
+	githubApiClient := tasks.NewGithubApiClient(endpoint, tokens, nil, nil)
 	_ = githubApiClient.SetProxy(config.V.GetString("GITHUB_PROXY"))
 	_, collectRepoErr := tasks.CollectRepository(owner, repo, githubApiClient)
 	if collectRepoErr != nil {

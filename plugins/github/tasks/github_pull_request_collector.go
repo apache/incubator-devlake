@@ -45,7 +45,7 @@ func CollectPullRequests(
 	getUrl := fmt.Sprintf("repos/%v/%v/pulls", owner, repo)
 	queryParams := &url.Values{}
 	queryParams.Set("state", "all")
-	return apiClient.FetchPages(getUrl, queryParams, 100, scheduler,
+	return apiClient.FetchPages(getUrl, queryParams, 100,
 		func(res *http.Response) error {
 			githubApiResponse := &ApiPullRequestResponse{}
 			err := core.UnmarshalResponse(res, githubApiResponse)

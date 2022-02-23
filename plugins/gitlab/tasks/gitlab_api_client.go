@@ -18,7 +18,7 @@ type GitlabApiClient struct {
 	core.ApiClient
 }
 
-func CreateApiClient() *GitlabApiClient {
+func CreateApiClient(scheduler *utils.WorkerScheduler) *GitlabApiClient {
 	gitlabApiClient := &GitlabApiClient{}
 	gitlabApiClient.Setup(
 		config.V.GetString("GITLAB_ENDPOINT"),
@@ -27,6 +27,7 @@ func CreateApiClient() *GitlabApiClient {
 		},
 		10*time.Second,
 		3,
+		scheduler,
 	)
 	return gitlabApiClient
 }
@@ -84,7 +85,7 @@ func convertStringToInt(input string) (int, error) {
 }
 
 // run all requests in an Ants worker pool
-func (gitlabApiClient *GitlabApiClient) FetchWithPaginationAnts(scheduler *utils.WorkerScheduler, path string, queryParams *url.Values, pageSize int, handler GitlabPaginationHandler) error {
+func (gitlabApiClient *GitlabApiClient) FetchWithPaginationAnts(path string, queryParams *url.Values, pageSize int, handler GitlabPaginationHandler) error {
 	// We need to get the total pages first so we can loop through all requests concurrently
 	if queryParams == nil {
 		queryParams = &url.Values{}
@@ -103,7 +104,7 @@ func (gitlabApiClient *GitlabApiClient) FetchWithPaginationAnts(scheduler *utils
 		for {
 			for i := conc; i > 0; i-- {
 				page := step*conc + i
-				err := scheduler.Submit(func() error {
+				err := gitlabApiClient.Scheduler.Submit(func() error {
 					queryParams.Set("per_page", strconv.Itoa(pageSize))
 					queryParams.Set("page", strconv.Itoa(page))
 					res, err := gitlabApiClient.Get(path, queryParams, nil)
@@ -142,7 +143,7 @@ func (gitlabApiClient *GitlabApiClient) FetchWithPaginationAnts(scheduler *utils
 		for i := 1; (i * pageSize) <= (total + pageSize); i++ {
 			// we need to save the value for the request so it is not overwritten
 			currentPage := i
-			err1 := scheduler.Submit(func() error {
+			err1 := gitlabApiClient.Scheduler.Submit(func() error {
 				queryParams.Set("per_page", strconv.Itoa(pageSize))
 				queryParams.Set("page", strconv.Itoa(currentPage))
 				res, err := gitlabApiClient.Get(path, queryParams, nil)
@@ -164,7 +165,7 @@ func (gitlabApiClient *GitlabApiClient) FetchWithPaginationAnts(scheduler *utils
 		}
 	}
 
-	scheduler.WaitUntilFinish()
+	gitlabApiClient.Scheduler.WaitUntilFinish()
 	return nil
 }
 

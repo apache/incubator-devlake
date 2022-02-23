@@ -43,9 +43,9 @@ type ApiSingleCommitResponse struct {
 	}
 }
 
-func CollectCommits(owner string, repo string, repoId int, scheduler *utils.WorkerScheduler, apiClient *GithubApiClient) error {
+func CollectCommits(owner string, repo string, repoId int, apiClient *GithubApiClient) error {
 	getUrl := fmt.Sprintf("repos/%v/%v/commits", owner, repo)
-	return apiClient.FetchPages(getUrl, nil, 100, scheduler,
+	return apiClient.FetchPages(getUrl, nil, 100,
 		func(res *http.Response) error {
 			githubApiResponse := &ApiCommitsResponse{}
 			err := core.UnmarshalResponse(res, githubApiResponse)
