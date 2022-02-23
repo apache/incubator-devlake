@@ -5,10 +5,11 @@ import (
 )
 
 type GitlabTag struct {
-	Name               string `gorm:"primaryKey;type:char(60)"`
+	common.Model
+	Name               string `gorm:"type:varchar(255)"`
+	ProjectId          int `gorm:"index"`
 	Message            string
 	Target             string
 	Protected          bool
 	ReleaseDescription string
-	common.NoPKModel
 }
