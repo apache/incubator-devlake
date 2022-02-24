@@ -13,9 +13,9 @@ import (
 	"gorm.io/gorm/clause"
 )
 
-func ConvertIssues(repoId int, ctx context.Context) error {
+func ConvertIssues(ctx context.Context, repoId int) error {
 	githubIssue := &githubModels.GithubIssue{}
-	cursor, err := lakeModels.Db.Model(githubIssue).Rows()
+	cursor, err := lakeModels.Db.Model(githubIssue).Where("repo_id = ?", repoId).Rows()
 
 	if err != nil {
 		return err

@@ -26,5 +26,6 @@ type GithubPullRequest struct {
 	Type           string
 	Component      string
 	MergeCommitSha string `gorm:"type:char(40)"`
+	Body           string
 	common.NoPKModel
 }

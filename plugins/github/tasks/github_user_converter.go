@@ -11,7 +11,7 @@ import (
 	"gorm.io/gorm/clause"
 )
 
-func ConvertUsers(ctx context.Context) error {
+func ConvertUsers(ctx context.Context, repoId int) error {
 	domainUser := &user.User{}
 	githubUser := &githubModels.GithubUser{}
 

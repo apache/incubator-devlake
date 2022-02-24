@@ -12,9 +12,9 @@ import (
 	"gorm.io/gorm/clause"
 )
 
-func ConvertPullRequests(ctx context.Context) error {
+func ConvertPullRequests(ctx context.Context, repoId int) error {
 	pr := &githubModels.GithubPullRequest{}
-	cursor, err := lakeModels.Db.Model(pr).Rows()
+	cursor, err := lakeModels.Db.Model(pr).Where("repo_id = ?", repoId).Rows()
 	if err != nil {
 		return err
 	}

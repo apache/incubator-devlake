@@ -105,6 +105,7 @@ func convertGithubPullRequest(pull *GithubApiPullRequest, repoId int) (*models.G
 		ClosedAt:        core.Iso8601TimeToTime(pull.ClosedAt),
 		MergedAt:        core.Iso8601TimeToTime(pull.MergedAt),
 		MergeCommitSha:  pull.MergeCommitSha,
+		Body:            pull.Body,
 	}
 	return githubPull, nil
 }

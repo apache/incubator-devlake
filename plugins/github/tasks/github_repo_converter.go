@@ -14,7 +14,7 @@ import (
 	"gorm.io/gorm/clause"
 )
 
-func ConvertRepos(ctx context.Context) error {
+func ConvertRepos(ctx context.Context, repoId int) error {
 	githubRepository := &githubModels.GithubRepo{}
 	cursor, err := lakeModels.Db.Model(githubRepository).Rows()
 	if err != nil {

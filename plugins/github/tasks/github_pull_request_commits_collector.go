@@ -34,12 +34,12 @@ type PullRequestCommit struct {
 	Message string
 }
 
-func CollectPullRequestCommits(owner string, repo string, apiClient *GithubApiClient, rateLimitPerSecondInt int, ctx context.Context) error {
+func CollectPullRequestCommits(owner string, repo string, repoId int, rateLimitPerSecondInt int, apiClient *GithubApiClient, ctx context.Context) error {
 	scheduler, err := utils.NewWorkerScheduler(rateLimitPerSecondInt*2, rateLimitPerSecondInt, ctx)
 	if err != nil {
 		return err
 	}
-	cursor, err := lakeModels.Db.Model(&models.GithubPullRequest{}).Rows()
+	cursor, err := lakeModels.Db.Model(&models.GithubPullRequest{}).Where("repo_id = ?", repoId).Rows()
 	if err != nil {
 		return err
 	}
@@ -62,7 +62,7 @@ func CollectPullRequestCommits(owner string, repo string, apiClient *GithubApiCl
 			return err
 		}
 	}
-	scheduler.WaitUntilFinish()
+	//scheduler.WaitUntilFinish()
 
 	return nil
 }
