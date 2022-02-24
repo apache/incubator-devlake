@@ -345,16 +345,19 @@ export default function ConnectionForm (props) {
           <FormGroup
             disabled={isTesting || isSaving || isLocked}
             labelFor='connection-proxy'
-            helperText='PROXY'
             className='formGroup'
             contentClassName='formGroupContent'
           >
             <Label>
-              Proxy URL
+              {labels
+                ? labels.proxy
+                : (
+                  <>Proxy&nbsp;URL</>
+                  )}
             </Label>
             <InputGroup
               id='github-proxy'
-              placeholder='http://your-proxy-server.com:1080'
+              placeholder={placeholders.proxy ? placeholders.proxy : 'http://proxy.localhost:8080'}
               defaultValue={proxy}
               onChange={(e) => onProxyChange(e.target.value)}
               disabled={isTesting || isSaving || isLocked}
