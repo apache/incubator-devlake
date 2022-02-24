@@ -104,9 +104,14 @@ func (gitlabApiClient *GitlabApiClient) FetchWithPaginationAnts(path string, que
 		for {
 			for i := conc; i > 0; i-- {
 				page := step*conc + i
-				queryParams.Set("per_page", strconv.Itoa(pageSize))
-				queryParams.Set("page", strconv.Itoa(page))
-				err = gitlabApiClient.GetAsync(path, queryParams, handler)
+				queryCopy := url.Values{}
+				for k, v := range *queryParams {
+					queryCopy[k] = v
+				}
+				queryCopy.Set("page", strconv.Itoa(page))
+				queryCopy.Set("per_page", strconv.Itoa(pageSize))
+
+				err = gitlabApiClient.GetAsync(path, &queryCopy, handler)
 				if err != nil {
 					return err
 				}
@@ -124,9 +129,15 @@ func (gitlabApiClient *GitlabApiClient) FetchWithPaginationAnts(path string, que
 		for i := 1; (i * pageSize) <= (total + pageSize); i++ {
 			// we need to save the value for the request so it is not overwritten
 			currentPage := i
-			queryParams.Set("per_page", strconv.Itoa(pageSize))
-			queryParams.Set("page", strconv.Itoa(currentPage))
-			err = gitlabApiClient.GetAsync(path, queryParams, handler)
+			queryCopy := url.Values{}
+			for k, v := range *queryParams {
+				queryCopy[k] = v
+
+			}
+			queryCopy.Set("page", strconv.Itoa(currentPage))
+			queryCopy.Set("per_page", strconv.Itoa(pageSize))
+
+			err = gitlabApiClient.GetAsync(path, &queryCopy, handler)
 
 			if err != nil {
 				return err
