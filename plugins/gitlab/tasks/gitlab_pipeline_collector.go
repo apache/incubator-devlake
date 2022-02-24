@@ -85,22 +85,16 @@ func CollectChildrenOnPipelines(projectIdInt int, gitlabApiClient *GitlabApiClie
 
 	for i := 0; i < len(pipelines); i++ {
 		pipeline := (pipelines)[i]
-		schedulerErr := gitlabApiClient.Scheduler.Submit(func() error {
+		getUrl := fmt.Sprintf("projects/%v/pipelines/%v", projectIdInt, pipeline.GitlabId)
 
-			getUrl := fmt.Sprintf("projects/%v/pipelines/%v", projectIdInt, pipeline.GitlabId)
-			res, err := gitlabApiClient.Get(getUrl, nil, nil)
-
-			if err != nil {
-				return err
-			}
-
+		err := gitlabApiClient.GetAsync(getUrl, nil, func(res *http.Response) error {
 			// Check the StatusCode of the HTTP response
 			if res.StatusCode != 200 {
 				return fmt.Errorf("got a bad response StatusCode [%d] when requesting [%s]", res.StatusCode, getUrl)
 			}
 
 			pipelineRes := &ApiSinglePipelineResponse{}
-			err = core.UnmarshalResponse(res, pipelineRes)
+			err := core.UnmarshalResponse(res, pipelineRes)
 
 			if err != nil {
 				return err
@@ -124,12 +118,12 @@ func CollectChildrenOnPipelines(projectIdInt int, gitlabApiClient *GitlabApiClie
 			return nil
 		})
 
-		if schedulerErr != nil {
-			return schedulerErr
+		if err != nil {
+			return err
 		}
 
 	}
-	gitlabApiClient.Scheduler.WaitUntilFinish()
+	gitlabApiClient.WaitOtherGoroutines()
 	return nil
 }
 

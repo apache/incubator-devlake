@@ -29,7 +29,7 @@ type ApiClient struct {
 	beforeRequest ApiClientBeforeRequest
 	afterReponse  ApiClientAfterResponse
 	ctx           context.Context
-	Scheduler     *utils.WorkerScheduler
+	scheduler     *utils.WorkerScheduler
 }
 
 func NewApiClient(
@@ -62,7 +62,7 @@ func (apiClient *ApiClient) Setup(
 	apiClient.SetEndpoint(endpoint)
 	apiClient.SetHeaders(headers)
 	apiClient.SetMaxRetry(maxRetry)
-	apiClient.SetScheduler(scheduler)
+	apiClient.setScheduler(scheduler)
 }
 
 func (apiClient *ApiClient) SetEndpoint(endpoint string) {
@@ -99,8 +99,8 @@ func (apiClient *ApiClient) SetContext(ctx context.Context) {
 	apiClient.ctx = ctx
 }
 
-func (apiClient *ApiClient) SetScheduler(scheduler *utils.WorkerScheduler) {
-	apiClient.Scheduler = scheduler
+func (apiClient *ApiClient) setScheduler(scheduler *utils.WorkerScheduler) {
+	apiClient.scheduler = scheduler
 }
 
 func (apiClient *ApiClient) SetProxy(proxyUrl string) error {
@@ -296,4 +296,25 @@ func RemoveStartingSlashFromPath(relativePath string) string {
 		return relativePath[i:]
 	}
 	return relativePath
+}
+func (apiClient *ApiClient) GetAsync(path string, queryParams *url.Values, handler func(*http.Response) error) error {
+	err := apiClient.scheduler.Submit(func() error {
+		res, err := apiClient.Get(path, queryParams, nil)
+		if err != nil {
+			return err
+		}
+		handlerErr := handler(res)
+		if handlerErr != nil {
+			return handlerErr
+		}
+		return nil
+	})
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (apiClient *ApiClient) WaitOtherGoroutines() {
+	apiClient.scheduler.WaitUntilFinish()
 }
