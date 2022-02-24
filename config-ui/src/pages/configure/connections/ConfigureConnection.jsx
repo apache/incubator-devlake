@@ -103,6 +103,7 @@ export default function ConfigureConnection () {
     activeProvider,
     name,
     endpointUrl,
+    proxy,
     token,
     username,
     password

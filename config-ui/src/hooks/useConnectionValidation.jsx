@@ -1,5 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react'
-import { ToastNotification } from '@/components/Toast'
+import { useState, useEffect, useCallback } from 'react'
 import {
   Providers,
 } from '@/data/Providers'
@@ -8,12 +7,17 @@ function useConnectionValidation ({
   activeProvider,
   name,
   endpointUrl,
+  proxy,
   token,
   username,
   password
 }) {
   const [errors, setErrors] = useState([])
   const [isValid, setIsValid] = useState(false)
+  const [validURIs, setValidURIs] = useState([
+    'http://',
+    'https://'
+  ])
 
   const clear = () => {
     setErrors([])
@@ -26,6 +30,7 @@ function useConnectionValidation ({
     console.log(
       'NAME', name,
       'ENDPOINT URL', endpointUrl,
+      'PROXY URL', proxy,
       'TOKEN', token,
       'USERNAME', username,
       'PASSWORD', password
@@ -47,6 +52,10 @@ function useConnectionValidation ({
       errs.push('Endpoint URL must end in trailing slash (/)')
     }
 
+    if (proxy !== '' && !validURIs.some(uri => proxy?.startsWith(uri))) {
+      errs.push('Proxy URL must be valid HTTP/S protocol')
+    }
+
     switch (activeProvider.id) {
       case Providers.GITHUB:
       case Providers.JIRA:
@@ -66,7 +75,16 @@ function useConnectionValidation ({
     }
 
     setErrors(errs)
-  }, [name, endpointUrl, token, username, password, activeProvider])
+  }, [
+    name,
+    endpointUrl,
+    proxy,
+    token,
+    username,
+    password,
+    activeProvider,
+    validURIs
+  ])
 
   useEffect(() => {
     console.log('>>> CONNECTION FORM ERRORS...', errors)
@@ -81,7 +99,8 @@ function useConnectionValidation ({
     errors,
     isValid,
     validate,
-    clear
+    clear,
+    setValidURIs
   }
 }
 

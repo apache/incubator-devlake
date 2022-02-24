@@ -69,6 +69,7 @@ export default function AddConnection () {
     activeProvider,
     name,
     endpointUrl,
+    proxy,
     token,
     username,
     password
