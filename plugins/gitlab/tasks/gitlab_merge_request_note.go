@@ -67,8 +67,7 @@ func updateMergeRequestWithFirstCommentTime(notes *ApiMergeRequestNoteResponse, 
 	return nil
 }
 
-func CollectMergeRequestNotes(projectId int, mr *models.GitlabMergeRequest) error {
-	gitlabApiClient := CreateApiClient()
+func CollectMergeRequestNotes(projectId int, mr *models.GitlabMergeRequest, gitlabApiClient *GitlabApiClient) error {
 
 	getUrl := fmt.Sprintf("projects/%v/merge_requests/%v/notes?system=false", projectId, mr.Iid)
 	return gitlabApiClient.FetchWithPagination(getUrl, nil, 100,

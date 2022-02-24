@@ -99,13 +99,15 @@ func (plugin Gitlab) Execute(options map[string]interface{}, progress chan<- flo
 			"convertNotes":     true,
 		}
 	}
+
+	gitlabApiClient := tasks.CreateApiClient(scheduler)
 	progress <- 0.1
-	if err := tasks.CollectProject(projectIdInt); err != nil {
+	if err := tasks.CollectProject(projectIdInt, gitlabApiClient); err != nil {
 		return fmt.Errorf("could not collect projects: %v", err)
 	}
 	if tasksToRun["collectCommits"] {
 		progress <- 0.25
-		if err := tasks.CollectCommits(projectIdInt, scheduler); err != nil {
+		if err := tasks.CollectCommits(projectIdInt, gitlabApiClient); err != nil {
 			return &errors.SubTaskError{
 				SubTaskName: "collectCommits",
 				Message:     fmt.Errorf("could not collect commits: %v", err).Error(),
@@ -114,7 +116,7 @@ func (plugin Gitlab) Execute(options map[string]interface{}, progress chan<- flo
 	}
 	if tasksToRun["collectTags"] {
 		progress <- 0.3
-		if err := tasks.CollectTags(projectIdInt, scheduler); err != nil {
+		if err := tasks.CollectTags(projectIdInt, gitlabApiClient); err != nil {
 			return &errors.SubTaskError{
 				SubTaskName: "collectTags",
 				Message:     fmt.Errorf("could not collect tags: %v", err).Error(),
@@ -123,7 +125,7 @@ func (plugin Gitlab) Execute(options map[string]interface{}, progress chan<- flo
 	}
 	if tasksToRun["collectMrs"] {
 		progress <- 0.35
-		mergeRequestErr := tasks.CollectMergeRequests(projectIdInt, scheduler)
+		mergeRequestErr := tasks.CollectMergeRequests(projectIdInt, gitlabApiClient)
 		if mergeRequestErr != nil {
 			return &errors.SubTaskError{
 				SubTaskName: "collectMrs",
@@ -131,7 +133,10 @@ func (plugin Gitlab) Execute(options map[string]interface{}, progress chan<- flo
 			}
 		}
 		progress <- 0.4
-		collectChildrenOnMergeRequests(projectIdInt, scheduler)
+		err = collectChildrenOnMergeRequests(projectIdInt, gitlabApiClient, rateLimitPerSecondInt)
+		if err != nil {
+			return err
+		}
 	}
 	if tasksToRun["enrichMrs"] {
 		progress <- 0.5
@@ -145,13 +150,13 @@ func (plugin Gitlab) Execute(options map[string]interface{}, progress chan<- flo
 	}
 	if tasksToRun["collectPipelines"] {
 		progress <- 0.6
-		if err := tasks.CollectAllPipelines(projectIdInt, scheduler); err != nil {
+		if err := tasks.CollectAllPipelines(projectIdInt, gitlabApiClient); err != nil {
 			return &errors.SubTaskError{
 				SubTaskName: "collectPipelines",
 				Message:     fmt.Errorf("could not collect pipelines: %v", err).Error(),
 			}
 		}
-		if err := tasks.CollectChildrenOnPipelines(projectIdInt, scheduler); err != nil {
+		if err := tasks.CollectChildrenOnPipelines(projectIdInt, gitlabApiClient); err != nil {
 			return &errors.SubTaskError{
 				SubTaskName: "collectChildrenOnPipelines",
 				Message:     fmt.Errorf("could not collect children pipelines: %v", err).Error(),
@@ -202,11 +207,15 @@ func (plugin Gitlab) Execute(options map[string]interface{}, progress chan<- flo
 	return nil
 }
 
-func collectNotesWithScheduler(projectIdInt int, scheduler *utils.WorkerScheduler, mrs []gitlabModels.GitlabMergeRequest) {
+func collectNotes(projectIdInt int, gitlabApiClient *tasks.GitlabApiClient, mrs []gitlabModels.GitlabMergeRequest, rateLimitPerSecondInt int) error {
+	scheduler, err := utils.NewWorkerScheduler(rateLimitPerSecondInt*2, rateLimitPerSecondInt, context.Background())
+	if err != nil {
+		return err
+	}
 	for i := 0; i < len(mrs); i++ {
 		mr := (mrs)[i]
-		err := scheduler.Submit(func() error {
-			notesErr := tasks.CollectMergeRequestNotes(projectIdInt, &mr)
+		err = scheduler.Submit(func() error {
+			notesErr := tasks.CollectMergeRequestNotes(projectIdInt, &mr, gitlabApiClient)
 			if notesErr != nil {
 				logger.Error("Could not collect MR Notes", notesErr)
 				return notesErr
@@ -215,17 +224,22 @@ func collectNotesWithScheduler(projectIdInt int, scheduler *utils.WorkerSchedule
 		})
 		if err != nil {
 			logger.Error("err", err)
-			return
+			return err
 		}
 	}
 
 	scheduler.WaitUntilFinish()
+	return nil
 }
-func collectCommitsWithScheduler(projectIdInt int, scheduler *utils.WorkerScheduler, mrs []gitlabModels.GitlabMergeRequest) {
+func collectCommits(projectIdInt int, gitlabApiClient *tasks.GitlabApiClient, mrs []gitlabModels.GitlabMergeRequest, rateLimitPerSecondInt int) error {
+	scheduler, err := utils.NewWorkerScheduler(rateLimitPerSecondInt*2, rateLimitPerSecondInt, context.Background())
+	if err != nil {
+		return err
+	}
 	for i := 0; i < len(mrs); i++ {
 		mr := (mrs)[i]
-		err := scheduler.Submit(func() error {
-			commitsErr := tasks.CollectMergeRequestCommits(projectIdInt, &mr)
+		err = scheduler.Submit(func() error {
+			commitsErr := tasks.CollectMergeRequestCommits(projectIdInt, &mr, gitlabApiClient)
 			if commitsErr != nil {
 				logger.Error("Could not collect MR Commits", commitsErr)
 				return commitsErr
@@ -234,20 +248,30 @@ func collectCommitsWithScheduler(projectIdInt int, scheduler *utils.WorkerSchedu
 		})
 		if err != nil {
 			logger.Error("err", err)
-			return
+			return err
 		}
 	}
 
 	scheduler.WaitUntilFinish()
+	return nil
 }
 
-func collectChildrenOnMergeRequests(projectIdInt int, scheduler *utils.WorkerScheduler) {
+func collectChildrenOnMergeRequests(projectIdInt int, gitlabApiClient *tasks.GitlabApiClient, rateLimitPerSecondInt int) error {
 	// find all mrs from db
 	var mrs []gitlabModels.GitlabMergeRequest
-	lakeModels.Db.Find(&mrs)
-
-	collectNotesWithScheduler(projectIdInt, scheduler, mrs)
-	collectCommitsWithScheduler(projectIdInt, scheduler, mrs)
+	err := lakeModels.Db.Find(&mrs).Error
+	if err != nil {
+		return err
+	}
+	err = collectNotes(projectIdInt, gitlabApiClient, mrs, rateLimitPerSecondInt)
+	if err != nil {
+		return err
+	}
+	err = collectCommits(projectIdInt, gitlabApiClient, mrs, rateLimitPerSecondInt)
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 func (plugin Gitlab) RootPkgPath() string {

@@ -1,6 +1,9 @@
 package errors
 
-import "net/http"
+import (
+	"fmt"
+	"net/http"
+)
 
 type Error struct {
 	Status  int
@@ -23,3 +26,4 @@ func NewError(status int, message string) *Error {
 }
 
 var InternalError = NewError(http.StatusInternalServerError, "Server Internal Error")
+var TaskCanceled = fmt.Errorf("task got canceled")

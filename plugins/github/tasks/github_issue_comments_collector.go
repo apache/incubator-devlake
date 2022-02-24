@@ -2,14 +2,13 @@ package tasks
 
 import (
 	"fmt"
-	"net/http"
-
 	"github.com/merico-dev/lake/logger"
 	lakeModels "github.com/merico-dev/lake/models"
 	"github.com/merico-dev/lake/plugins/core"
 	"github.com/merico-dev/lake/plugins/github/models"
-	"github.com/merico-dev/lake/utils"
+	githubUtils "github.com/merico-dev/lake/plugins/github/utils"
 	"gorm.io/gorm/clause"
+	"net/http"
 )
 
 type ApiIssueCommentResponse []IssueComment
@@ -20,38 +19,25 @@ type IssueComment struct {
 	User     struct {
 		Login string
 	}
+	IssueUrl        string           `json:"issue_url"`
 	GithubCreatedAt core.Iso8601Time `json:"created_at"`
 }
 
-func CollectIssueComments(owner string, repo string, scheduler *utils.WorkerScheduler, apiClient *GithubApiClient) error {
-	githubIssue := &models.GithubIssue{}
-	cursor, err := lakeModels.Db.Model(githubIssue).Rows()
-	if err != nil {
-		return err
-	}
-	defer cursor.Close()
-	for cursor.Next() {
-		err = lakeModels.Db.ScanRows(cursor, githubIssue)
-		if err != nil {
-			return err
-		}
-		commentsErr := processCommentsCollection(owner, repo, githubIssue, scheduler, apiClient)
-		if commentsErr != nil {
-			logger.Error("Could not collect issue Comments", commentsErr)
-			return commentsErr
-		}
+func CollectIssueComments(owner string, repo string, apiClient *GithubApiClient) error {
+	commentsErr := processCommentsCollection(owner, repo, apiClient)
+	if commentsErr != nil {
+		logger.Error("Could not collect issue Comments", commentsErr)
+		return commentsErr
 	}
 	return nil
 }
 func processCommentsCollection(
 	owner string,
 	repo string,
-	issue *models.GithubIssue,
-	scheduler *utils.WorkerScheduler,
 	apiClient *GithubApiClient,
 ) error {
-	getUrl := fmt.Sprintf("repos/%v/%v/issues/%v/comments", owner, repo, issue.Number)
-	return apiClient.FetchWithPaginationAnts(getUrl, nil, 100, 1, scheduler,
+	getUrl := fmt.Sprintf("repos/%v/%v/issues/comments", owner, repo)
+	return apiClient.FetchPages(getUrl, nil, 100,
 		func(res *http.Response) error {
 			githubApiResponse := &ApiIssueCommentResponse{}
 			if res.StatusCode == 200 {
@@ -61,7 +47,7 @@ func processCommentsCollection(
 					return err
 				}
 				for _, comment := range *githubApiResponse {
-					githubComment, err := convertGithubComment(&comment, issue.GithubId)
+					githubComment, err := convertGithubComment(&comment)
 					if err != nil {
 						return err
 					}
@@ -79,7 +65,11 @@ func processCommentsCollection(
 		})
 }
 
-func convertGithubComment(comment *IssueComment, issueId int) (*models.GithubIssueComment, error) {
+func convertGithubComment(comment *IssueComment) (*models.GithubIssueComment, error) {
+	issueId, err := githubUtils.GetIssueIdByIssueUrl(comment.IssueUrl)
+	if err != nil {
+		return nil, err
+	}
 	githubComment := &models.GithubIssueComment{
 		GithubId:        comment.GithubId,
 		IssueId:         issueId,

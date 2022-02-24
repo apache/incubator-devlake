@@ -9,7 +9,6 @@ import (
 	lakeModels "github.com/merico-dev/lake/models"
 	"github.com/merico-dev/lake/plugins/core"
 	"github.com/merico-dev/lake/plugins/github/models"
-	"github.com/merico-dev/lake/utils"
 	"gorm.io/gorm/clause"
 )
 
@@ -39,13 +38,12 @@ func CollectPullRequests(
 	owner string,
 	repo string,
 	repoId int,
-	scheduler *utils.WorkerScheduler,
 	apiClient *GithubApiClient,
 ) error {
 	getUrl := fmt.Sprintf("repos/%v/%v/pulls", owner, repo)
 	queryParams := &url.Values{}
 	queryParams.Set("state", "all")
-	return apiClient.FetchWithPaginationAnts(getUrl, queryParams, 100, 20, scheduler,
+	return apiClient.FetchPages(getUrl, queryParams, 100,
 		func(res *http.Response) error {
 			githubApiResponse := &ApiPullRequestResponse{}
 			err := core.UnmarshalResponse(res, githubApiResponse)
@@ -88,6 +86,7 @@ func CollectPullRequests(
 				}).Create(&githubPull).Error
 				if err != nil {
 					logger.Error("Could not upsert: ", err)
+					return err
 				}
 			}
 			return nil

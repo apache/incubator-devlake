@@ -9,7 +9,6 @@ import (
 	"github.com/merico-dev/lake/plugins/core"
 	"github.com/merico-dev/lake/plugins/gitlab/models"
 	gitlabModels "github.com/merico-dev/lake/plugins/gitlab/models"
-	"github.com/merico-dev/lake/utils"
 	"gorm.io/gorm/clause"
 )
 
@@ -39,12 +38,12 @@ type ApiSinglePipelineResponse struct {
 	Status          string
 }
 
-func CollectAllPipelines(projectId int, scheduler *utils.WorkerScheduler) error {
-	gitlabApiClient := CreateApiClient()
+func CollectAllPipelines(projectId int, gitlabApiClient *GitlabApiClient) error {
+
 	queryParams := &url.Values{}
 	queryParams.Set("order_by", "updated_at")
 	queryParams.Set("sort", "desc")
-	return gitlabApiClient.FetchWithPaginationAnts(scheduler,
+	return gitlabApiClient.FetchWithPaginationAnts(
 		fmt.Sprintf("projects/%v/pipelines", projectId),
 		queryParams,
 		100,
@@ -77,8 +76,7 @@ func CollectAllPipelines(projectId int, scheduler *utils.WorkerScheduler) error 
 		})
 }
 
-func CollectChildrenOnPipelines(projectIdInt int, scheduler *utils.WorkerScheduler) error {
-	gitlabApiClient := CreateApiClient()
+func CollectChildrenOnPipelines(projectIdInt int, gitlabApiClient *GitlabApiClient) error {
 
 	var pipelines []gitlabModels.GitlabPipeline
 
@@ -87,22 +85,16 @@ func CollectChildrenOnPipelines(projectIdInt int, scheduler *utils.WorkerSchedul
 
 	for i := 0; i < len(pipelines); i++ {
 		pipeline := (pipelines)[i]
-		schedulerErr := scheduler.Submit(func() error {
+		getUrl := fmt.Sprintf("projects/%v/pipelines/%v", projectIdInt, pipeline.GitlabId)
 
-			getUrl := fmt.Sprintf("projects/%v/pipelines/%v", projectIdInt, pipeline.GitlabId)
-			res, err := gitlabApiClient.Get(getUrl, nil, nil)
-
-			if err != nil {
-				return err
-			}
-
+		err := gitlabApiClient.GetAsync(getUrl, nil, func(res *http.Response) error {
 			// Check the StatusCode of the HTTP response
 			if res.StatusCode != 200 {
 				return fmt.Errorf("got a bad response StatusCode [%d] when requesting [%s]", res.StatusCode, getUrl)
 			}
 
 			pipelineRes := &ApiSinglePipelineResponse{}
-			err = core.UnmarshalResponse(res, pipelineRes)
+			err := core.UnmarshalResponse(res, pipelineRes)
 
 			if err != nil {
 				return err
@@ -126,12 +118,12 @@ func CollectChildrenOnPipelines(projectIdInt int, scheduler *utils.WorkerSchedul
 			return nil
 		})
 
-		if schedulerErr != nil {
-			return schedulerErr
+		if err != nil {
+			return err
 		}
 
 	}
-	scheduler.WaitUntilFinish()
+	gitlabApiClient.WaitOtherGoroutines()
 	return nil
 }
 

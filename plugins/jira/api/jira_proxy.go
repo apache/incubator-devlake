@@ -24,7 +24,7 @@ func Proxy(input *core.ApiResourceInput) (*core.ApiResourceOutput, error) {
 	if err != nil {
 		return nil, err
 	}
-	client, err := tasks.NewJiraApiClientBySourceId(jiraSourceId)
+	client, err := tasks.NewJiraApiClientBySourceId(jiraSourceId, nil)
 	if err != nil {
 		return nil, err
 	}

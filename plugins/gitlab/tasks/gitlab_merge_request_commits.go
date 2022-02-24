@@ -28,8 +28,7 @@ type GitlabMergeRequestCommit struct {
 	WebUrl         string           `json:"web_url"`
 }
 
-func CollectMergeRequestCommits(projectId int, mr *models.GitlabMergeRequest) error {
-	gitlabApiClient := CreateApiClient()
+func CollectMergeRequestCommits(projectId int, mr *models.GitlabMergeRequest, gitlabApiClient *GitlabApiClient) error {
 
 	getUrl := fmt.Sprintf("projects/%v/merge_requests/%v/commits", projectId, mr.Iid)
 	return gitlabApiClient.FetchWithPagination(getUrl, nil, 100,
