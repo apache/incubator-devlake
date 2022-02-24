@@ -40,7 +40,7 @@ DevLake is designed for developer teams looking to make better sense of their de
         />
       </a>
       <a valign="middle"
-        href="https://github.com/merico-dev/lake/wiki/How-to-Set-Up-Dev-Lake-with-Tin"><span valign="middle">See the Guide</span>
+        href="https://github.com/merico-dev/lake/wiki/How-to-Set-Up-DevLake-with-Tin"><span valign="middle">See the Guide</span>
       </a>
     </td>
   </tr>
@@ -51,8 +51,8 @@ DevLake is designed for developer teams looking to make better sense of their de
 
 
 <div align="left">
-<img src="https://user-images.githubusercontent.com/2908155/130271622-827c4ffa-d812-4843-b09d-ea1338b7e6e5.png" width="100%" alt="Dev Lake Grafana Dashboard" style="border-radius:15px;" />
-<p align="center">Dashboard Screenshot</p><br>
+<!-- <img src="https://user-images.githubusercontent.com/2908155/130271622-827c4ffa-d812-4843-b09d-ea1338b7e6e5.png" width="100%" alt="Dev Lake Grafana Dashboard" style="border-radius:15px" /> -->
+<!-- <p align="center">Dashboard Screenshot</p><br> -->
 <img src="https://user-images.githubusercontent.com/14050754/145056261-ceaf7044-f5c5-420f-80ca-54e56eb8e2a7.png" width="100%" alt="User Flow" style="border-radius:15px;"/>
 <p align="center">User Flow</p>
 
@@ -66,10 +66,10 @@ DevLake is designed for developer teams looking to make better sense of their de
 
 ### What can be accomplished with DevLake?
 1. Collect DevOps performance data for the whole process
-2. Share abstraction layer with similar tools to output standardized performance data
-3. Built-in 20+ performance metrics and drill-down analysis capability
+2. Share <a href="https://github.com/merico-dev/lake/wiki/DataModel.Domain-layer-schema">abstraction layer</a> with similar tools to output standardized engineering data
+3. Built-in 20+ <a href="https://github.com/merico-dev/lake/wiki/Metric-Cheatsheet" target="_blank">engineering metrics</a> and drill-down analysis capability
 4. Support custom SQL analysis and drag and drop to build scenario-based data views
-5. Flexible architecture and plug-in design to support fast access to new data sources
+5. Flexible [architecture](ARCHITECTURE.md) and plug-in design to support fast access to new data sources
 
 ### See Demo
 [Click here](https://app-259373083972538368-3002.ars.teamcode.com/d/0Rjxknc7z/demo-homepage?orgId=1) to see demo. The demo is based on data from this repo.<br>
@@ -77,113 +77,13 @@ Username/Password: test/test
 
 <br>
 
-## Contents
-
-<table>
-    <tr>
-        <td><b>Section</b></td>
-        <td><b>Sub-section</b></td>
-        <td><b>Description</b></td>
-        <td><b>Documentation Link</b></td>
-    </tr>
-    <tr>
-        <td>Data Sources</td>
-        <td>Supported Data Sources</td>
-        <td>Links to specific plugin usage & details</td>
-        <td><a href="#data-source-plugins">View Section</a></td>
-    </tr>
-    <tr>
-        <td rowspan="3">Setup Guide</td>
-        <td>User Setup</td>
-        <td>Set up Dev Lake locally as a user</td>
-        <td><a href="#user-setup">View Section</a></td>
-    </tr>
-    <tr>
-        <td>Developer Setup</td>
-        <td>Set up development environment locally</td>
-        <td><a href="#dev-setup">View Section</a></td>
-    </tr>
-    <tr>
-        <td>Cloud Setup</td>
-        <td>Set up DevLake in the cloud with Tin</td>
-        <td><a href="#cloud-setup">View Section</a></td>
-    </tr>
-   <tr>
-        <td>Tests</td>
-        <td>Tests</td>
-        <td>Commands for running tests</td>
-        <td><a href="#tests">View Section</a></td>
-    </tr>
-    <tr>
-        <td rowspan="4">Make Contribution</td>
-        <td>Understand the architecture of DevLake</td>
-        <td>See the architecture diagram</td>
-        <td><a href="#architecture">View Section</a></td>
-    </tr>
-    <tr>
-        <td>Build a Plugin</td>
-        <td>Details on how to make your own plugin</td>
-        <td><a href="#plugin">View Section</a></td>
-    </tr>
-   <tr>
-        <td>Add Plugin Metrics</td>
-        <td>Guide to add metrics</td>
-        <td><a href="#metrics">View Section</a></td>
-    </tr>
-    <tr>
-        <td>Contribution specs</td>
-        <td>How to contribute to this repo</td>
-        <td><a href="#contributing">View Section</a></td>
-    </tr>
-    <tr>
-        <td rowspan="4">User Guide, Help, and more</td>
-        <td>Grafana</td>
-        <td>How to visualize the data</td>
-        <td><a href="#grafana">View Section</a></td>
-    </tr>
-    <tr>
-        <td>Need Help</td>
-        <td>Message us on Discord</td>
-        <td><a href="#help">View Section</a></td>
-    </tr>
-    <tr>
-        <td>FAQ</td>
-        <td>Frequently asked questions by users</td>
-        <td><a href="#faq">View Section</a></td>
-    </tr>
-    <tr>
-        <td>License</td>
-        <td>The project license</td>
-        <td><a href="#license">View Section</a></td>
-    </tr>
-</table>
-
-<br>
-
-## Data Sources We Currently Support<a id="data-source-plugins"></a>
-
-Below is a list of _data source plugins_ used to collect & enrich data from specific sources. Each has a `README.md` file with basic setup, troubleshooting, and metrics info.
-
-For more information on building a new _data source plugin_, see [Build a Plugin](plugins/README.md).
-
-Section | Section Info | Docs
------------- | ------------- | -------------
-Jira | Summary, Data & Metrics, Configuration, Plugin API | <a href="plugins/jira/README.md" target="_blank">Link</a>
-GitLab | Summary, Data & Metrics, Configuration, Plugin API | <a href="plugins/gitlab/README.md" target="_blank">Link</a>
-Jenkins | Summary, Data & Metrics, Configuration, Plugin API | <a href="plugins/jenkins/README.md" target="_blank">Link</a>
-GitHub | Summary, Data & Metrics, Configuration, Plugin API | <a href="plugins/github/README.md" target="_blank">Link</a>
-GitExtractor | Summary, Data & Metrics, Configuration, Plugin API | <a href="plugins/gitextractor/README.md" target="_blank">Link</a>
-RefDiff | Summary, Data & Metrics, Configuration, Plugin API | <a href="plugins/refdiff/README.md" target="_blank">Link</a>
-<br>
 
 ****
 
-## Setup Guide
-There're 3 ways to set up DevLake: user setup, developer setup and cloud setup.
-
-### User setup<a id="user-setup"></a>
+## User setup<a id="user-setup"></a>
 
 - If you only plan to run the product locally, this is the **ONLY** section you should need.
+- If you want to run in a cloud environment, click [here](https://github.com/merico-dev/lake/wiki/How-to-Set-Up-DevLake-with-Tin).
 - Commands written `like this` are to be run in your terminal.
 
 #### Required Packages to Install<a id="user-setup-requirements"></a>
@@ -248,9 +148,15 @@ NOTE: After installing docker, you may need to run the docker application and re
 
 6. Click *View Dashboards* button when done (username: `admin`, password: `admin`). The button will be shown on the Trigger Collection page when data collection has finished.
 
+We use <a href="https://grafana.com/" target="_blank">Grafana</a> as a visualization tool to build charts for the data stored in our database. Using SQL queries, we can add panels to build, save, and edit customized dashboards.
+
+All the details on provisioning and customizing a dashboard can be found in the [Grafana Doc](docs/GRAFANA.md).
+
 #### Setup cron job
 
 To synchronize data periodically, we provide [`lake-cli`](./cmd/lake-cli/README.md) for easily sending data collection requests along with [a cron job](./devops/sync/README.md) to periodically trigger the cli tool.
+
+
 
 <br>
 
@@ -258,7 +164,7 @@ To synchronize data periodically, we provide [`lake-cli`](./cmd/lake-cli/README.
 
 <br>
 
-### Developer Setup<a id="dev-setup"></a>
+## Developer Setup<a id="dev-setup"></a>
 
 #### Requirements
 
@@ -359,71 +265,54 @@ To synchronize data periodically, we provide [`lake-cli`](./cmd/lake-cli/README.
 
 
 9. Click *View Dashboards* button when done (username: `admin`, password: `admin`). The button is shown in the top left.
+
+
+10. (Optional) To run the tests:
+
+    ```sh
+    make test
+    ```
+
 <br>
+
 
 ****
 
-<br>
 
-### Cloud setup<a id="cloud-setup"></a>
-If you want to run DevLake in a clound environment, you can set up DevLake with Tin. [See detailed setup guide](https://github.com/merico-dev/lake/wiki/How-to-Set-Up-Dev-Lake-with-Tin)
-
-**Disclaimer:**
-> To protect your information, it is critical for users of the Tin hosting to set passwords to protect DevLake applications. We built DevLake as a self-hosted product, in part to ensure users have total protection and ownership of their data, while the same remains true for the Tin hosting, this risk point can only be eliminated by the end-user.
 
 <br>
 
-## Tests<a id="tests"></a>
 
-To run the tests:
+## Project Roadmap<a id="data-source-plugins"></a>
+- <a href="https://github.com/merico-dev/lake/wiki/Roadmap-2022" target="_blank">Roadmap 2022</a>: Detailed project roadmaps for 2022.
+- <a href="https://github.com/merico-dev/lake/tree/main/plugins" target="_blank">Supported data sources</a>: DevLake already supported following data sources:
+    - <a href="plugins/jira/README.md" target="_blank">Jira</a>
+    - <a href="plugins/github/README.md" target="_blank">GitHub</a>
+    - <a href="plugins/gitlab/README.md" target="_blank">GitLab</a>
+    - <a href="plugins/gitextractor/README.md" target="_blank">Git</a>
+    - <a href="plugins/refdiff/README.md" target="_blank">RefDiff</a>
+    - <a href="plugins/jenkins/README.md" target="_blank">Jenkins</a>
+- <a href="https://github.com/merico-dev/lake/wiki/Metric-Cheatsheet" target="_blank">Supported engineering metrics</a>: different perspectives to observe and analyze SDLC.
 
-```sh
-make test
-```
 <br>
 
 ## Make Contribution
-This section list all the documents to help you contribute to the repo.
+This section lists all the documents to help you contribute to the repo.
 
-### Understand the Architecture of DevLake<a id="architecture"></a>
-![devlake-architecture](https://user-images.githubusercontent.com/14050754/143292041-a4839bf1-ca46-462d-96da-2381c8aa0fed.png)
-<p align="center">Architecture Diagram</p>
-
-### Add a Plugin<a id="plugin"></a>
-
-[plugins/README.md](/plugins/README.md)
-
-### Add Plugin Metrics<a id="metrics"></a>
-
-[plugins/HOW-TO-ADD-METRICS.md](/plugins/HOW-TO-ADD-METRICS.md)
-
-### Contributing Spec<a id="contributing"></a>
-
-[CONTRIBUTING.md](CONTRIBUTING.md)
+- [Architecture](ARCHITECTURE.md): Architecture of DevLake
+- [Data Model](https://github.com/merico-dev/lake/wiki/DataModel.Domain-layer-schema): Domain Layer Schema
+- [Add a Plugin](/plugins/README.md): Guide to add a plugin
+- [Add metrics](/plugins/HOW-TO-ADD-METRICS.md): Guide to add metrics in a plugin
+- [Contribution guidelines](CONTRIBUTING.md): Start from here if you want to make contribution
 
 <br>
 
-## User Guide, Help and more
-### Grafana<a id="grafana"></a>
+## Community
 
-We use <a href="https://grafana.com/" target="_blank">Grafana</a> as a visualization tool to build charts for the data stored in our database. Using SQL queries, we can add panels to build, save, and edit customized dashboards.
-
-All the details on provisioning and customizing a dashboard can be found in the [Grafana Doc](docs/GRAFANA.md).
+- <a href="https://discord.com/invite/83rDG6ydVZ" target="_blank">Discord</a>: Message us on Discord
+- <a href="https://github.com/merico-dev/lake/wiki/FAQ" target="_blank">FAQ</a>: Frequently Asked Questions
 
 
-
-### Need help?<a id="help"></a>
-
-Message us on <a href="https://discord.com/invite/83rDG6ydVZ" target="_blank">Discord</a>
-
-
-### FAQ<a id="faq"></a>
-
-Q: When I run ``` docker-compose up -d ``` I get this error: "qemu: uncaught target signal 11 (Segmentation fault) - core dumped". How do I fix this?
-
-A: M1 Mac users need to download a specific version of docker on their machine. You can find it <a href="https://docs.docker.com/desktop/mac/apple-silicon/" target="_blank">here</a>.
-
-
-### License<a id="license"></a>
+## License<a id="license"></a>
 
 This project is licensed under Apache License 2.0 - see the [`LICENSE`](LICENSE) file for details.
