@@ -1,6 +1,7 @@
 package tasks
 
 import (
+	"context"
 	"fmt"
 	"net/http"
 
@@ -115,9 +116,14 @@ func CollectCommitsStat(
 	owner string,
 	repo string,
 	repoId int,
-	scheduler *utils.WorkerScheduler,
 	apiClient *GithubApiClient,
+	rateLimitPerSecondInt int,
+	ctx context.Context,
 ) error {
+	scheduler, err := utils.NewWorkerScheduler(rateLimitPerSecondInt*2, rateLimitPerSecondInt, ctx)
+	if err != nil {
+		return err
+	}
 	cursor, err := lakeModels.Db.Table("github_commits gc").
 		Joins(`left join github_repo_commits grc on (
 			grc.commit_sha = gc.sha
@@ -139,7 +145,7 @@ func CollectCommitsStat(
 		}
 		err = scheduler.Submit(func() error {
 			// This call is to update the details of the individual pull request with additions / deletions / etc.
-			err := CollectCommit(owner, repo, repoId, commit, apiClient)
+			err := CollectCommit(owner, repo, repoId, commit, apiClient, ctx)
 			if err != nil {
 				return err
 			}
@@ -161,6 +167,7 @@ func CollectCommit(
 	repoId int,
 	commit *models.GithubCommit,
 	apiClient *GithubApiClient,
+	ctx context.Context,
 ) error {
 	getUrl := fmt.Sprintf("repos/%v/%v/commits/%v", owner, repo, commit.Sha)
 	res, getErr := apiClient.Get(getUrl, nil, nil)

@@ -1,6 +1,7 @@
 package tasks
 
 import (
+	"context"
 	"fmt"
 	"net/http"
 
@@ -33,7 +34,11 @@ type PullRequestCommit struct {
 	Message string
 }
 
-func CollectPullRequestCommits(owner string, repo string, scheduler *utils.WorkerScheduler, apiClient *GithubApiClient) error {
+func CollectPullRequestCommits(owner string, repo string, apiClient *GithubApiClient, rateLimitPerSecondInt int, ctx context.Context) error {
+	scheduler, err := utils.NewWorkerScheduler(rateLimitPerSecondInt*2, rateLimitPerSecondInt, ctx)
+	if err != nil {
+		return err
+	}
 	cursor, err := lakeModels.Db.Model(&models.GithubPullRequest{}).Rows()
 	if err != nil {
 		return err
@@ -57,6 +62,8 @@ func CollectPullRequestCommits(owner string, repo string, scheduler *utils.Worke
 			return err
 		}
 	}
+	scheduler.WaitUntilFinish()
+
 	return nil
 }
 func convertPullRequestCommit(prCommit *PrCommitsResponse) (*models.GithubCommit, error) {
@@ -116,9 +123,6 @@ func ProcessCollection(owner string, repo string, pr *models.GithubPullRequest, 
 				}
 			} else {
 				fmt.Println("INFO: PR PrCommit collection >>> res.Status: ", res.Status)
-			}
-			if pr.Number == 1244 {
-				fmt.Println("Pr Commits finished")
 			}
 			return nil
 		})

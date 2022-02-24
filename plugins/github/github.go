@@ -113,24 +113,17 @@ func (plugin Github) Execute(options map[string]interface{}, progress chan<- flo
 	if err != nil {
 		return err
 	}
-	schedulerForApiClient, err := utils.NewWorkerScheduler(50, rateLimitPerSecondInt, ctx)
+	scheduler, err := utils.NewWorkerScheduler(50, rateLimitPerSecondInt, ctx)
 	if err != nil {
 		return err
 	}
-	defer schedulerForApiClient.Release()
+	defer scheduler.Release()
 	// TODO: add endpoind, auth validation
-	apiClient := tasks.NewGithubApiClient(endpoint, tokens, ctx, schedulerForApiClient)
+	apiClient := tasks.NewGithubApiClient(endpoint, tokens, ctx, scheduler)
 	err = apiClient.SetProxy(config.V.GetString("GITHUB_PROXY"))
 	if err != nil {
 		return err
 	}
-
-	scheduler, err := utils.NewWorkerScheduler(rateLimitPerSecondInt*2, rateLimitPerSecondInt, ctx)
-	if err != nil {
-		return err
-	}
-
-	defer scheduler.Release()
 
 	logger.Print("start github plugin execution")
 
@@ -152,7 +145,7 @@ func (plugin Github) Execute(options map[string]interface{}, progress chan<- flo
 	if tasksToRun["collectCommitsStat"] {
 		progress <- 0.11
 		fmt.Println("INFO >>> starting commits stat collection")
-		err = tasks.CollectCommitsStat(op.Owner, op.Repo, repoId, scheduler, apiClient)
+		err = tasks.CollectCommitsStat(op.Owner, op.Repo, repoId, apiClient, rateLimitPerSecondInt, ctx)
 		if err != nil {
 			return &errors.SubTaskError{
 				Message:     fmt.Errorf("Could not collect commits: %v", err).Error(),
@@ -198,7 +191,7 @@ func (plugin Github) Execute(options map[string]interface{}, progress chan<- flo
 	if tasksToRun["collectPullRequests"] {
 		progress <- 0.4
 		fmt.Println("INFO >>> collecting PR collection")
-		err = tasks.CollectPullRequests(op.Owner, op.Repo, repoId, scheduler, apiClient)
+		err = tasks.CollectPullRequests(op.Owner, op.Repo, repoId, apiClient)
 		if err != nil {
 			return &errors.SubTaskError{
 				Message:     fmt.Errorf("Could not collect PR: %v", err).Error(),
@@ -210,7 +203,7 @@ func (plugin Github) Execute(options map[string]interface{}, progress chan<- flo
 	if tasksToRun["collectPullRequestReviews"] {
 		progress <- 0.5
 		fmt.Println("INFO >>> collecting PR Reviews collection")
-		err = tasks.CollectPullRequestReviews(op.Owner, op.Repo, scheduler, apiClient)
+		err = tasks.CollectPullRequestReviews(op.Owner, op.Repo, apiClient, rateLimitPerSecondInt, ctx)
 		if err != nil {
 			return &errors.SubTaskError{
 				Message:     fmt.Errorf("Could not collect PR Reviews: %v", err).Error(),
@@ -222,7 +215,7 @@ func (plugin Github) Execute(options map[string]interface{}, progress chan<- flo
 	if tasksToRun["collectPullRequestCommits"] {
 		progress <- 0.7
 		fmt.Println("INFO >>> starting PR Commits collection")
-		err = tasks.CollectPullRequestCommits(op.Owner, op.Repo, scheduler, apiClient)
+		err = tasks.CollectPullRequestCommits(op.Owner, op.Repo, apiClient, rateLimitPerSecondInt, ctx)
 		if err != nil {
 			return &errors.SubTaskError{
 				Message:     fmt.Errorf("Could not collect PR Commits: %v", err).Error(),
@@ -234,7 +227,7 @@ func (plugin Github) Execute(options map[string]interface{}, progress chan<- flo
 	if tasksToRun["collectPullRequestComments"] {
 		progress <- 0.8
 		fmt.Println("INFO >>> starting PR Comments collection")
-		err = tasks.CollectPullRequestComments(op.Owner, op.Repo, scheduler, apiClient)
+		err = tasks.CollectPullRequestComments(op.Owner, op.Repo, apiClient, rateLimitPerSecondInt, ctx)
 		if err != nil {
 			return &errors.SubTaskError{
 				Message:     fmt.Errorf("Could not collect PR Comments: %v", err).Error(),

@@ -9,7 +9,6 @@ import (
 	lakeModels "github.com/merico-dev/lake/models"
 	"github.com/merico-dev/lake/plugins/core"
 	"github.com/merico-dev/lake/plugins/github/models"
-	"github.com/merico-dev/lake/utils"
 	"gorm.io/gorm/clause"
 )
 
@@ -39,7 +38,6 @@ func CollectPullRequests(
 	owner string,
 	repo string,
 	repoId int,
-	scheduler *utils.WorkerScheduler,
 	apiClient *GithubApiClient,
 ) error {
 	getUrl := fmt.Sprintf("repos/%v/%v/pulls", owner, repo)
