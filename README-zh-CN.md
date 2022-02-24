@@ -52,8 +52,8 @@ DevLake 适用于希望更好地通过数据了解其开发过程的开发团队
 <br>
 
 <div align="left">
-<img src="https://user-images.githubusercontent.com/2908155/130271622-827c4ffa-d812-4843-b09d-ea1338b7e6e5.png" width="100%" alt="Dev Lake Grafana Dashboard" style="border-radius:15px;" />
-<p align="center">数据面板截图</p><br>
+<!-- <img src="https://user-images.githubusercontent.com/2908155/130271622-827c4ffa-d812-4843-b09d-ea1338b7e6e5.png" width="100%" alt="Dev Lake Grafana Dashboard" style="border-radius:15px;"/>
+<p align="center">数据面板截图</p><br> -->
 <img src="https://user-images.githubusercontent.com/14050754/142356580-40637a30-5578-48ed-8e4a-128cd0738e3e.png" width="100%" alt="User Flow" style="border-radius:15px;"/>
 <p align="center">用户使用流程</p><br>
 
