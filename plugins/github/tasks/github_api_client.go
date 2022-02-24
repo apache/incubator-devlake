@@ -83,7 +83,6 @@ func (githubApiClient *GithubApiClient) FetchPages(path string, queryParams *url
 		}
 		queryCopy.Set("page", strconv.Itoa(page))
 		queryCopy.Set("per_page", strconv.Itoa(pageSize))
-
 		err = githubApiClient.GetAsync(path, &queryCopy, handler)
 		if err != nil {
 			return err
