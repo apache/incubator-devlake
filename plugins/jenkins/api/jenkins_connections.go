@@ -24,6 +24,7 @@ func TestConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, erro
 		},
 		10*time.Second,
 		3,
+		nil,
 	)
 	res, err := apiClient.Get("", nil, nil)
 	if err != nil || res.StatusCode != 200 {

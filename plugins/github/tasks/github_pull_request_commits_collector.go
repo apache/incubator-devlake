@@ -1,6 +1,7 @@
 package tasks
 
 import (
+	"context"
 	"fmt"
 	"net/http"
 
@@ -33,24 +34,35 @@ type PullRequestCommit struct {
 	Message string
 }
 
-func CollectPullRequestCommits(owner string, repo string, scheduler *utils.WorkerScheduler, apiClient *GithubApiClient) error {
+func CollectPullRequestCommits(owner string, repo string, apiClient *GithubApiClient, rateLimitPerSecondInt int, ctx context.Context) error {
+	scheduler, err := utils.NewWorkerScheduler(rateLimitPerSecondInt*2, rateLimitPerSecondInt, ctx)
+	if err != nil {
+		return err
+	}
 	cursor, err := lakeModels.Db.Model(&models.GithubPullRequest{}).Rows()
 	if err != nil {
-		return nil
+		return err
 	}
 	defer cursor.Close()
-
-	githubPr := &models.GithubPullRequest{}
 	for cursor.Next() {
+		githubPr := &models.GithubPullRequest{}
 		err = lakeModels.Db.ScanRows(cursor, githubPr)
 		if err != nil {
 			return err
 		}
-		err = ProcessCollection(owner, repo, githubPr, scheduler, apiClient)
+		err = scheduler.Submit(func() error {
+			processErr := ProcessCollection(owner, repo, githubPr, apiClient)
+			if processErr != nil {
+				logger.Error("Could not collect PR Commits", err)
+				return processErr
+			}
+			return nil
+		})
 		if err != nil {
 			return err
 		}
 	}
+	scheduler.WaitUntilFinish()
 
 	return nil
 }
@@ -69,7 +81,7 @@ func convertPullRequestCommit(prCommit *PrCommitsResponse) (*models.GithubCommit
 	return githubCommit, nil
 }
 
-func ProcessCollection(owner string, repo string, pr *models.GithubPullRequest, scheduler *utils.WorkerScheduler, apiClient *GithubApiClient) error {
+func ProcessCollection(owner string, repo string, pr *models.GithubPullRequest, apiClient *GithubApiClient) error {
 	getUrl := fmt.Sprintf("repos/%v/%v/pulls/%v/commits", owner, repo, pr.Number)
 	err := lakeModels.Db.Where("pull_request_id = ?",
 		pr.GithubId).Delete(&models.GithubPullRequestCommit{}).Error
@@ -77,7 +89,7 @@ func ProcessCollection(owner string, repo string, pr *models.GithubPullRequest, 
 		logger.Error("Could not delete: ", err)
 		return err
 	}
-	return apiClient.FetchWithPaginationAnts(getUrl, nil, 100, 1, scheduler,
+	return apiClient.FetchPages(getUrl, nil, 100,
 		func(res *http.Response) error {
 			githubApiResponse := &ApiPullRequestCommitResponse{}
 			if res.StatusCode == 200 {
@@ -101,12 +113,12 @@ func ProcessCollection(owner string, repo string, pr *models.GithubPullRequest, 
 						CommitSha:     pullRequestCommit.Sha,
 						PullRequestId: pr.GithubId,
 					}
-					result := lakeModels.Db.Clauses(clause.OnConflict{
+					err = lakeModels.Db.Clauses(clause.OnConflict{
 						UpdateAll: true,
-					}).Create(&githubPullRequestCommit)
+					}).Create(&githubPullRequestCommit).Error
 
-					if result.Error != nil {
-						logger.Error("Could not upsert: ", result.Error)
+					if err != nil {
+						logger.Error("Could not upsert: ", err)
 					}
 				}
 			} else {

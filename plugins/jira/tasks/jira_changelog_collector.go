@@ -129,7 +129,7 @@ func collectChangelogsByIssueId(
 	jiraApiClient *JiraApiClient,
 	issueId uint64,
 ) error {
-	return jiraApiClient.FetchPages(scheduler, fmt.Sprintf("api/3/issue/%v/changelog", issueId), nil,
+	return jiraApiClient.FetchPages(fmt.Sprintf("api/3/issue/%v/changelog", issueId), nil,
 		func(res *http.Response) error {
 			// parse response
 			jiraApiChangelogResponse := &JiraApiChangelogsResponse{}

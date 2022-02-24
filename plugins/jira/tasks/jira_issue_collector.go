@@ -9,8 +9,6 @@ import (
 	"time"
 
 	"github.com/merico-dev/lake/logger"
-	"github.com/merico-dev/lake/utils"
-
 	lakeModels "github.com/merico-dev/lake/models"
 	"github.com/merico-dev/lake/plugins/core"
 	"github.com/merico-dev/lake/plugins/jira/models"
@@ -119,14 +117,7 @@ func CollectIssues(
 	query := &url.Values{}
 	query.Set("jql", jql)
 
-	scheduler, err := utils.NewWorkerScheduler(10, rateLimitPerSecondInt, ctx)
-	if err != nil {
-		logger.Error("jira collect issues: scheduler failed", err)
-		return err
-	}
-	defer scheduler.Release()
-
-	err = jiraApiClient.FetchPages(scheduler, fmt.Sprintf("agile/1.0/board/%v/issue", boardId), query,
+	err := jiraApiClient.FetchPages(fmt.Sprintf("agile/1.0/board/%v/issue", boardId), query,
 		func(res *http.Response) error {
 			// parse response
 			jiraApiIssuesResponse := &JiraApiIssuesResponse{}
@@ -186,7 +177,6 @@ func CollectIssues(
 		logger.Error("jira collect issues: fetch page failed", err)
 		return err
 	}
-	scheduler.WaitUntilFinish()
 	return nil
 }
 

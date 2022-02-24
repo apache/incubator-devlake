@@ -21,7 +21,7 @@ type GithubApiClient struct {
 	core.ApiClient
 }
 
-func CreateApiClient(endpoint string, tokens []string, ctx context.Context) *GithubApiClient {
+func NewGithubApiClient(endpoint string, tokens []string, ctx context.Context, scheduler *utils.WorkerScheduler) *GithubApiClient {
 	githubApiClient := &GithubApiClient{}
 	githubApiClient.tokenIndex = 0
 	githubApiClient.tokens = tokens
@@ -37,6 +37,7 @@ func CreateApiClient(endpoint string, tokens []string, ctx context.Context) *Git
 		map[string]string{},
 		10*time.Second,
 		3,
+		scheduler,
 	)
 	if ctx != nil {
 		githubApiClient.SetContext(ctx)
@@ -45,66 +46,45 @@ func CreateApiClient(endpoint string, tokens []string, ctx context.Context) *Git
 }
 
 type GithubPaginationHandler func(res *http.Response) error
+type GithubSearchPaginationHandler func(res *http.Response) (int, error)
 
 // run all requests in an Ants worker pool
 // conc - number of concurent requests you want to run
-func (githubApiClient *GithubApiClient) FetchWithPaginationAnts(path string, queryParams *url.Values, pageSize int, conc int, scheduler *utils.WorkerScheduler, handler GithubPaginationHandler) error {
+func (githubApiClient *GithubApiClient) FetchPages(path string, queryParams *url.Values, pageSize int, handler GithubPaginationHandler) error {
 	if queryParams == nil {
 		queryParams = &url.Values{}
 	}
-	return githubApiClient.RunConcurrently(path, queryParams, pageSize, conc, scheduler, handler)
-}
 
-// This method exists in the case where we do not know how many pages of data we have to fetch
-// This loops through the data in chunks of `conc` and if there is any request in there with no data returned, we assume we are at the end of the data required to fetch
-// This is needed since we do not want to make a request to get the paging details first since the rate limit for github is so low
-func (githubApiClient *GithubApiClient) RunConcurrently(path string, queryParams *url.Values, pageSize int, conc int, scheduler *utils.WorkerScheduler, handler GithubPaginationHandler) error {
-
-	if conc == 0 {
-		logger.Error("you must send a conc count to RunConcurrently()", true)
+	queryParams.Set("page", strconv.Itoa(1))
+	queryParams.Set("per_page", strconv.Itoa(pageSize))
+	res, err := githubApiClient.Get(path, queryParams, nil)
+	if err != nil {
+		return err
 	}
+	handlerErr := handler(res)
+	if handlerErr != nil {
+		return handlerErr
+	}
+	linkHeader := res.Header.Get("Link")
+	if linkHeader == "" {
+		return nil
+	}
+	paginationInfo2, getPagingErr := githubUtils.GetPagingFromLinkHeader(linkHeader)
+	if getPagingErr != nil {
+		logger.Info("GetPagingFromLinkHeader err: ", getPagingErr)
+	}
+	pages := paginationInfo2.Last
 
-	// How many requests would you like to send at once in chunks
-	step := 0
-	isContinue := true
-	for isContinue {
-		for i := conc; i > 0; i-- {
-			page := step*conc + i
-			err := scheduler.Submit(func() error {
-				queryParams.Set("page", strconv.Itoa(page))
-				queryParams.Set("per_page", strconv.Itoa(pageSize))
-				res, err := githubApiClient.Get(path, queryParams, nil)
-				if err != nil {
-					isContinue = false
-					return err
-				}
-				linkHeader := res.Header.Get("Link")
-				paginationInfo2, getPagingErr := githubUtils.GetPagingFromLinkHeader(linkHeader)
-				if getPagingErr != nil {
-					logger.Info("GetPagingFromLinkHeader err: ", getPagingErr)
-				}
-				handlerErr := handler(res)
-				if handlerErr != nil {
-					isContinue = false
-					return handlerErr
-				}
-
-				// only send message to channel if I'm the last page
-				if page%conc == 0 {
-					if paginationInfo2.Next == 1 {
-						fmt.Println(page, "has no next page")
-						isContinue = false
-					}
-				}
-				return nil
-			})
-			if err != nil {
-				return err
-			}
+	for i := 2; i <= pages; i++ {
+		page := i
+		queryParams.Set("page", strconv.Itoa(page))
+		queryParams.Set("per_page", strconv.Itoa(pageSize))
+		err = githubApiClient.GetAsync(path, queryParams, handler)
+		if err != nil {
+			return err
 		}
-		step += 1
 	}
 
-	scheduler.WaitUntilFinish()
+	githubApiClient.WaitOtherGoroutines()
 	return nil
 }

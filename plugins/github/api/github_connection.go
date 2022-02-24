@@ -41,7 +41,7 @@ func TestConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, erro
 		token := tokens[i]
 		i := i
 		go func() {
-			githubApiClient := tasks.CreateApiClient(endpoint, []string{token}, nil)
+			githubApiClient := tasks.NewGithubApiClient(endpoint, []string{token}, nil, nil)
 			githubApiClient.SetTimeout(3 * time.Second)
 			if proxy != "" {
 				err := githubApiClient.SetProxy(proxy)

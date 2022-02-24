@@ -5,6 +5,9 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"github.com/merico-dev/lake/errors"
+	"github.com/merico-dev/lake/logger"
+	"github.com/merico-dev/lake/utils"
 	"io"
 	"io/ioutil"
 	"net/http"
@@ -13,8 +16,6 @@ import (
 	"strings"
 	"time"
 	"unicode/utf8"
-
-	"github.com/merico-dev/lake/logger"
 )
 
 type ApiClientBeforeRequest func(req *http.Request) error
@@ -28,6 +29,7 @@ type ApiClient struct {
 	beforeRequest ApiClientBeforeRequest
 	afterReponse  ApiClientAfterResponse
 	ctx           context.Context
+	scheduler     *utils.WorkerScheduler
 }
 
 func NewApiClient(
@@ -35,6 +37,7 @@ func NewApiClient(
 	headers map[string]string,
 	timeout time.Duration,
 	maxRetry int,
+	scheduler *utils.WorkerScheduler,
 ) *ApiClient {
 	apiClient := &ApiClient{}
 	apiClient.Setup(
@@ -42,6 +45,7 @@ func NewApiClient(
 		headers,
 		timeout,
 		maxRetry,
+		scheduler,
 	)
 	return apiClient
 }
@@ -51,11 +55,14 @@ func (apiClient *ApiClient) Setup(
 	headers map[string]string,
 	timeout time.Duration,
 	maxRetry int,
+	scheduler *utils.WorkerScheduler,
+
 ) {
 	apiClient.client = &http.Client{Timeout: timeout}
 	apiClient.SetEndpoint(endpoint)
 	apiClient.SetHeaders(headers)
 	apiClient.SetMaxRetry(maxRetry)
+	apiClient.setScheduler(scheduler)
 }
 
 func (apiClient *ApiClient) SetEndpoint(endpoint string) {
@@ -90,6 +97,10 @@ func (apiClient *ApiClient) SetAfterFunction(callback ApiClientAfterResponse) {
 
 func (apiClient *ApiClient) SetContext(ctx context.Context) {
 	apiClient.ctx = ctx
+}
+
+func (apiClient *ApiClient) setScheduler(scheduler *utils.WorkerScheduler) {
+	apiClient.scheduler = scheduler
 }
 
 func (apiClient *ApiClient) SetProxy(proxyUrl string) error {
@@ -150,7 +161,7 @@ func (apiClient *ApiClient) Do(
 	if apiClient.ctx != nil {
 		select {
 		case <-apiClient.ctx.Done():
-			return nil, TaskCanceled
+			return nil, errors.TaskCanceled
 		default:
 		}
 	}
@@ -162,7 +173,7 @@ func (apiClient *ApiClient) Do(
 		if apiClient.ctx != nil {
 			select {
 			case <-apiClient.ctx.Done():
-				return nil, TaskCanceled
+				return nil, errors.TaskCanceled
 			default:
 			}
 		}
@@ -196,7 +207,7 @@ func (apiClient *ApiClient) Do(
 	if apiClient.ctx != nil {
 		select {
 		case <-apiClient.ctx.Done():
-			return nil, TaskCanceled
+			return nil, errors.TaskCanceled
 		default:
 		}
 	}
@@ -213,7 +224,7 @@ func (apiClient *ApiClient) Do(
 	if apiClient.ctx != nil {
 		select {
 		case <-apiClient.ctx.Done():
-			return nil, TaskCanceled
+			return nil, errors.TaskCanceled
 		default:
 		}
 	}
@@ -285,4 +296,25 @@ func RemoveStartingSlashFromPath(relativePath string) string {
 		return relativePath[i:]
 	}
 	return relativePath
+}
+func (apiClient *ApiClient) GetAsync(path string, queryParams *url.Values, handler func(*http.Response) error) error {
+	err := apiClient.scheduler.Submit(func() error {
+		res, err := apiClient.Get(path, queryParams, nil)
+		if err != nil {
+			return err
+		}
+		handlerErr := handler(res)
+		if handlerErr != nil {
+			return handlerErr
+		}
+		return nil
+	})
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (apiClient *ApiClient) WaitOtherGoroutines() {
+	apiClient.scheduler.WaitUntilFinish()
 }
