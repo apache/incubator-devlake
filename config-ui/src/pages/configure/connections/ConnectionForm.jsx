@@ -26,6 +26,7 @@ export default function ConnectionForm (props) {
     token,
     username,
     password,
+    proxy = '',
     isSaving,
     isTesting,
     showError,
@@ -39,6 +40,7 @@ export default function ConnectionForm (props) {
     onTokenChange = () => {},
     onUsernameChange = () => {},
     onPasswordChange = () => {},
+    onProxyChange = () => {},
     onValidate = () => {},
     authType = 'token',
     sourceLimits = {},
@@ -339,6 +341,27 @@ export default function ConnectionForm (props) {
             </div>
           </>
         )}
+        <div className='formContainer'>
+          <FormGroup
+            disabled={isTesting || isSaving || isLocked}
+            labelFor='connection-proxy'
+            helperText='PROXY'
+            className='formGroup'
+            contentClassName='formGroupContent'
+          >
+            <Label>
+              Proxy URL
+            </Label>
+            <InputGroup
+              id='github-proxy'
+              placeholder='http://your-proxy-server.com:1080'
+              defaultValue={proxy}
+              onChange={(e) => onProxyChange(e.target.value)}
+              disabled={isTesting || isSaving || isLocked}
+              className='input'
+            />
+          </FormGroup>
+        </div>
         <div
           className='form-actions-block'
           style={{ display: 'flex', marginTop: '30px', justifyContent: 'space-between' }}
