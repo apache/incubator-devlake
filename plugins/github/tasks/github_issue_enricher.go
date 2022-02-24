@@ -19,12 +19,13 @@ var issueTypeRequirementRegex *regexp.Regexp
 var issueTypeIncidentRegex *regexp.Regexp
 
 func init() {
-	var issueSeverity = config.V.GetString("GITHUB_ISSUE_SEVERITY")
-	var issueComponent = config.V.GetString("GITHUB_ISSUE_COMPONENT")
-	var issuePriority = config.V.GetString("GITHUB_ISSUE_PRIORITY")
-	var issueTypeBug = config.V.GetString("GITHUB_ISSUE_TYPE_BUG")
-	var issueTypeRequirement = config.V.GetString("GITHUB_ISSUE_TYPE_REQUIREMENT")
-	var issueTypeIncident = config.V.GetString("GITHUB_ISSUE_TYPE_INCIDENT")
+	v := config.GetConfig()
+	var issueSeverity = v.GetString("GITHUB_ISSUE_SEVERITY")
+	var issueComponent = v.GetString("GITHUB_ISSUE_COMPONENT")
+	var issuePriority = v.GetString("GITHUB_ISSUE_PRIORITY")
+	var issueTypeBug = v.GetString("GITHUB_ISSUE_TYPE_BUG")
+	var issueTypeRequirement = v.GetString("GITHUB_ISSUE_TYPE_REQUIREMENT")
+	var issueTypeIncident = v.GetString("GITHUB_ISSUE_TYPE_INCIDENT")
 	if len(issueSeverity) > 0 {
 		issueSeverityRegex = regexp.MustCompile(issueSeverity)
 	}

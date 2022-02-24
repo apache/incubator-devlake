@@ -22,8 +22,9 @@ type PipelineQuery struct {
 }
 
 func init() {
-	var notificationEndpoint = config.V.GetString("NOTIFICATION_ENDPOINT")
-	var notificationSecret = config.V.GetString("NOTIFICATION_SECRET")
+	v := config.GetConfig()
+	var notificationEndpoint = v.GetString("NOTIFICATION_ENDPOINT")
+	var notificationSecret = v.GetString("NOTIFICATION_SECRET")
 	if strings.TrimSpace(notificationEndpoint) != "" {
 		notificationService = NewNotificationService(notificationEndpoint, notificationSecret)
 	}

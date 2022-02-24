@@ -10,8 +10,8 @@ import (
 )
 
 func InitializeDb() (*sql.DB, error) {
-	V := LoadConfigFile()
-	dbUrl := V.GetString("DB_URL")
+	v := LoadConfigFile()
+	dbUrl := v.GetString("DB_URL")
 	db, err := sql.Open("mysql", dbUrl)
 	if err != nil {
 		return nil, err
