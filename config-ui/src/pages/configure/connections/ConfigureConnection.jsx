@@ -58,6 +58,7 @@ export default function ConfigureConnection () {
     activeConnection,
     name,
     endpointUrl,
+    proxy,
     username,
     password,
     token,
@@ -68,6 +69,7 @@ export default function ConfigureConnection () {
     isFetching: isLoadingConnection,
     setName,
     setEndpointUrl,
+    setProxy,
     setUsername,
     setPassword,
     setToken,
@@ -245,6 +247,7 @@ export default function ConfigureConnection () {
                             activeProvider={activeProvider}
                             name={name}
                             endpointUrl={endpointUrl}
+                            proxy={proxy}
                             token={token}
                             username={username}
                             password={password}
@@ -254,6 +257,7 @@ export default function ConfigureConnection () {
                             onValidate={validate}
                             onNameChange={setName}
                             onEndpointChange={setEndpointUrl}
+                            onProxyChange={setProxy}
                             onTokenChange={setToken}
                             onUsernameChange={setUsername}
                             onPasswordChange={setPassword}

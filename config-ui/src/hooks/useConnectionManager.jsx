@@ -31,6 +31,7 @@ function useConnectionManager ({
 
   const [name, setName] = useState()
   const [endpointUrl, setEndpointUrl] = useState()
+  const [proxy, setProxy] = useState()
   const [token, setToken] = useState()
   const [username, setUsername] = useState()
   const [password, setPassword] = useState()
@@ -62,16 +63,16 @@ function useConnectionManager ({
       let connectionPayload
       switch (activeProvider.id) {
         case Providers.JIRA:
-          connectionPayload = { endpoint: endpointUrl, auth: token }
+          connectionPayload = { endpoint: endpointUrl, auth: token, proxy: proxy }
           break
         case Providers.GITHUB:
-          connectionPayload = { endpoint: endpointUrl, auth: token }
+          connectionPayload = { endpoint: endpointUrl, auth: token, proxy: proxy }
           break
         case Providers.JENKINS:
           connectionPayload = { endpoint: endpointUrl, username: username, password: password }
           break
         case Providers.GITLAB:
-          connectionPayload = { endpoint: endpointUrl, auth: token }
+          connectionPayload = { endpoint: endpointUrl, auth: token, proxy: proxy }
           break
       }
 
@@ -98,17 +99,17 @@ function useConnectionManager ({
     let connectionPayload
     switch (activeProvider.id) {
       case Providers.JIRA:
-        connectionPayload = { name: name, Endpoint: endpointUrl, BasicAuthEncoded: token }
+        connectionPayload = { name: name, Endpoint: endpointUrl, BasicAuthEncoded: token, JIRA_PROXY: proxy }
         break
         // @todo fix/set github payload
       case Providers.GITHUB:
-        connectionPayload = { name: name, GITHUB_ENDPOINT: endpointUrl, GITHUB_AUTH: token }
+        connectionPayload = { name: name, GITHUB_ENDPOINT: endpointUrl, GITHUB_AUTH: token, GITHUB_PROXY: proxy }
         break
       case Providers.JENKINS:
         connectionPayload = { name: name, JENKINS_ENDPOINT: endpointUrl, JENKINS_USERNAME: username, JENKINS_PASSWORD: password }
         break
       case Providers.GITLAB:
-        connectionPayload = { name: name, GITLAB_ENDPOINT: endpointUrl, GITLAB_AUTH: token }
+        connectionPayload = { name: name, GITLAB_ENDPOINT: endpointUrl, GITLAB_AUTH: token, GITLAB_PROXY: proxy }
         break
     }
 
@@ -300,12 +301,15 @@ function useConnectionManager ({
           break
         case Providers.GITLAB:
           setToken(activeConnection.basicAuthEncoded || activeConnection.Auth)
+          setProxy(activeConnection.proxy)
           break
         case Providers.GITHUB:
           setToken(activeConnection.basicAuthEncoded || activeConnection.Auth)
+          setProxy(activeConnection.proxy)
           break
         case Providers.JIRA:
           setToken(activeConnection.basicAuthEncoded || activeConnection.Auth)
+          setProxy(activeConnection.proxy)
           break
       }
       ToastNotification.clear()
@@ -356,11 +360,13 @@ function useConnectionManager ({
     testStatus,
     name,
     endpointUrl,
+    proxy,
     username,
     password,
     token,
     setName,
     setEndpointUrl,
+    setProxy,
     setToken,
     setUsername,
     setPassword,
