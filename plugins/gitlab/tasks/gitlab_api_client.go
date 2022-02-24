@@ -20,10 +20,11 @@ type GitlabApiClient struct {
 
 func CreateApiClient(scheduler *utils.WorkerScheduler) *GitlabApiClient {
 	gitlabApiClient := &GitlabApiClient{}
+	V := config.GetConfig()
 	gitlabApiClient.Setup(
-		config.V.GetString("GITLAB_ENDPOINT"),
+		V.GetString("GITLAB_ENDPOINT"),
 		map[string]string{
-			"Authorization": fmt.Sprintf("Bearer %v", config.V.GetString("GITLAB_AUTH")),
+			"Authorization": fmt.Sprintf("Bearer %v", V.GetString("GITLAB_AUTH")),
 		},
 		10*time.Second,
 		3,

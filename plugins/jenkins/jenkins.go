@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"fmt"
+
 	"github.com/merico-dev/lake/config"
 	errors "github.com/merico-dev/lake/errors"
 	"github.com/merico-dev/lake/logger"
@@ -44,10 +45,11 @@ func (j Jenkins) CleanData() {
 }
 
 func (j Jenkins) Execute(options map[string]interface{}, progress chan<- float32, ctx context.Context) error {
+	v := config.GetConfig()
 	var op = JenkinsOptions{
-		Host:     config.V.GetString("JENKINS_ENDPOINT"),
-		Username: config.V.GetString("JENKINS_USERNAME"),
-		Password: config.V.GetString("JENKINS_PASSWORD"),
+		Host:     v.GetString("JENKINS_ENDPOINT"),
+		Username: v.GetString("JENKINS_USERNAME"),
+		Password: v.GetString("JENKINS_PASSWORD"),
 	}
 
 	var err = mapstructure.Decode(options, &op)

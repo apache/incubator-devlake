@@ -76,14 +76,14 @@ func GetRateLimitPerSecond(options map[string]interface{}, defaultValue int) (in
 // AES + Base64 encryption using ENCODE_KEY in .env as key
 func Encode(Input string) (string, error) {
 	// Read encryption key from configuration
-	V := config.LoadConfigFile()
-	encodingKey := V.GetString(EncodeKeyEnvStr)
+	v := config.GetConfig()
+	encodingKey := v.GetString(EncodeKeyEnvStr)
 	// when encryption key is not set
 	if encodingKey == "" {
 		// Randomly generate a bunch of encryption keys and set them to config
 		encodingKey = RandomCapsStr(128)
-		V.Set(EncodeKeyEnvStr, encodingKey)
-		err := V.WriteConfig()
+		v.Set(EncodeKeyEnvStr, encodingKey)
+		err := v.WriteConfig()
 		if err != nil {
 			return "", err
 		}
@@ -102,8 +102,8 @@ func Encode(Input string) (string, error) {
 //  Base64 + AES decryption using ENCODE_KEY in .env as key
 func Decode(Input string) (string, error) {
 	// Read encryption key from configuration
-	V := config.LoadConfigFile()
-	encodingKey := V.GetString(EncodeKeyEnvStr)
+	v := config.GetConfig()
+	encodingKey := v.GetString(EncodeKeyEnvStr)
 	// when encryption key is not set
 	if encodingKey == "" {
 		// return error message

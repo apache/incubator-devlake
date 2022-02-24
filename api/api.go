@@ -9,7 +9,8 @@ import (
 )
 
 func CreateApiService() {
-	gin.SetMode(config.V.GetString("MODE"))
+	v := config.GetConfig()
+	gin.SetMode(v.GetString("MODE"))
 	router := gin.Default()
 
 	// CORS CONFIG
@@ -23,7 +24,7 @@ func CreateApiService() {
 	}))
 
 	RegisterRouter(router)
-	err := router.Run(config.V.GetString("PORT"))
+	err := router.Run(v.GetString("PORT"))
 	if err != nil {
 		panic(err)
 	}

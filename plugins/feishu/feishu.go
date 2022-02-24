@@ -4,6 +4,13 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"net/http"
+	"net/url"
+	"os"
+	"strconv"
+	"strings"
+	"time"
+
 	"github.com/faabiosr/cachego/file"
 	"github.com/fastwego/feishu"
 	"github.com/merico-dev/lake/config"
@@ -13,12 +20,6 @@ import (
 	"github.com/merico-dev/lake/plugins/feishu/apimodels"
 	"github.com/merico-dev/lake/plugins/feishu/models"
 	"github.com/merico-dev/lake/utils"
-	"net/http"
-	"net/url"
-	"os"
-	"strconv"
-	"strings"
-	"time"
 )
 
 var _ core.Plugin = (*Feishu)(nil)
@@ -43,7 +44,6 @@ func (plugin Feishu) Init() {
 func (plugin Feishu) Execute(options map[string]interface{}, progress chan<- float32, ctx context.Context) error {
 	logger.Print("start feishu plugin execution")
 
-	// 需要收集多久的数据
 	// how long do you want to collect
 	numOfDaysToCollect, ok := options["numOfDaysToCollect"]
 	if !ok {
@@ -51,15 +51,14 @@ func (plugin Feishu) Execute(options map[string]interface{}, progress chan<- flo
 	}
 	numOfDaysToCollectInt := int(numOfDaysToCollect.(float64))
 
-	// 内部应用 tenant_access_token 管理器
 	// tenant_access_token manager
-	Atm := &feishu.DefaultAccessTokenManager{
+	atm := &feishu.DefaultAccessTokenManager{
 		Id:    `cli_a074eb7697f8d00b`,
 		Cache: file.New(os.TempDir()),
 		GetRefreshRequestFunc: func() *http.Request {
 			payload := `{
-                "app_id":"` + config.V.GetString("FEISHU_APPID") + `",
-                "app_secret":"` + config.V.GetString("FEISHU_APPSCRECT") + `"
+                "app_id":"` + config.GetConfig().GetString("FEISHU_APPID") + `",
+                "app_secret":"` + config.GetConfig().GetString("FEISHU_APPSCRECT") + `"
             }`
 			req, _ := http.NewRequest(http.MethodPost, feishu.ServerUrl+"/open-apis/auth/v3/tenant_access_token/internal/", strings.NewReader(payload))
 			return req
@@ -76,14 +75,13 @@ func (plugin Feishu) Execute(options map[string]interface{}, progress chan<- flo
 		logger.Error("could not create scheduler", false)
 	}
 
-	// 创建 飞书 客户端
 	// create feishu client
 	FeishuClient := feishu.NewClient()
 
 	progress <- 0
-	// 调用 AccessToken api 接口
+
 	// request AccessToken api
-	tenantAccessToken, err := Atm.GetAccessToken()
+	tenantAccessToken, err := atm.GetAccessToken()
 	if err != nil {
 		return err
 	}
