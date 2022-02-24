@@ -1,6 +1,7 @@
 package tasks
 
 import (
+	"context"
 	"fmt"
 	"net/http"
 
@@ -23,7 +24,11 @@ type PullRequestComment struct {
 	GithubCreatedAt core.Iso8601Time `json:"created_at"`
 }
 
-func CollectPullRequestComments(owner string, repo string, scheduler *utils.WorkerScheduler, apiClient *GithubApiClient) error {
+func CollectPullRequestComments(owner string, repo string, apiClient *GithubApiClient, rateLimitPerSecondInt int, ctx context.Context) error {
+	scheduler, err := utils.NewWorkerScheduler(rateLimitPerSecondInt*2, rateLimitPerSecondInt, ctx)
+	if err != nil {
+		return err
+	}
 	cursor, err := lakeModels.Db.Model(&models.GithubPullRequest{}).Rows()
 	if err != nil {
 		return err
