@@ -92,39 +92,20 @@ func (jiraApiClient *JiraApiClient) FetchPages(path string, query *url.Values, h
 
 	for nextStart < total {
 		nextStartTmp := nextStart
-		err = jiraApiClient.Scheduler.Submit(func() error {
-			// fetch page
-			detailQuery := &url.Values{}
-			for key, value := range *query {
-				(*detailQuery)[key] = value
-			}
-			detailQuery.Set("maxResults", strconv.Itoa(pageSize))
-			detailQuery.Set("startAt", strconv.Itoa(nextStartTmp))
-			res, err := jiraApiClient.Get(path, detailQuery, nil)
-			if err != nil {
-				return err
-			}
-
-			// call page handler
-			err = handler(res)
-			if err != nil {
-				logger.Error("Error: ", err)
-				return err
-			}
-
-			logger.Info("jira api client page loaded", map[string]interface{}{
-				"path":      path,
-				"nextStart": nextStartTmp,
-				"total":     total,
-			})
-			return nil
-		})
+		detailQuery := &url.Values{}
+		for key, value := range *query {
+			(*detailQuery)[key] = value
+		}
+		detailQuery.Set("maxResults", strconv.Itoa(pageSize))
+		detailQuery.Set("startAt", strconv.Itoa(nextStartTmp))
+		err = jiraApiClient.GetAsync(path, detailQuery, handler)
 		if err != nil {
 			return err
 		}
+
 		nextStart += pageSize
 	}
-	jiraApiClient.Scheduler.WaitUntilFinish()
+	jiraApiClient.WaitOtherGoroutines()
 	return nil
 }
 
