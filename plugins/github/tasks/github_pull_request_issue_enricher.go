@@ -2,29 +2,39 @@ package tasks
 
 import (
 	"context"
-	"github.com/merico-dev/lake/errors"
-	"gorm.io/gorm/clause"
-	"strings"
-
-	re2 "github.com/dlclark/regexp2"
+	"fmt"
 	"github.com/merico-dev/lake/config"
+	"github.com/merico-dev/lake/errors"
 	lakeModels "github.com/merico-dev/lake/models"
 	githubModels "github.com/merico-dev/lake/plugins/github/models"
+	"gorm.io/gorm/clause"
+	"regexp"
+	"strconv"
+	"strings"
 )
 
-var prBodyCloseRegex *re2.Regexp
+var prBodyCloseRegex *regexp.Regexp
+var prBodyClose string
 
 func init() {
-	var prBodyClose = config.V.GetString("GITHUB_PR_BODY_CLOSE")
-	if len(prBodyClose) > 0 {
-		prBodyCloseRegex = re2.MustCompile(prBodyClose, 0)
-	} else {
-		prBodyCloseRegex = re2.MustCompile(`(?mi)(fix|close|resolve|fixes|closes|resolves|fixed|closed|resolved)[\s]*(pingcap\/tidb)?(issue)?( )?((#\d+[ ]?)+)`, 0)
-
-	}
+	prBodyClose = config.V.GetString("GITHUB_PR_BODY_CLOSE")
 }
 
-func EnrichGithubPullRequestIssue(ctx context.Context, repoId int) (err error) {
+func EnrichGithubPullRequestIssue(ctx context.Context, repoId int, owner string, repo string) (err error) {
+	//only use when we  want to debug ref_bug_stats
+	//f, err := os.OpenFile("log.txt", os.O_CREATE|os.O_APPEND|os.O_RDWR, 0x666)
+	//defer f.Close()
+	//if err != nil {
+	//	return nil
+	//}
+	if len(prBodyClose) > 0 {
+		prBodyCloseRegex = regexp.MustCompile(prBodyClose)
+	} else {
+		patternStr := fmt.Sprintf(
+			`(?mi)^.*(fix|close|resolve|fixes|closes|resolves|fixed|closed|resolved)[\s]*(%s\/%s|issue)?(\s)?(((and ){0,1}(#|https:\/\/github\.com\/%s\/%s\/issues\/)\d+[ ]?)+)`,
+			owner, repo, owner, repo)
+		prBodyCloseRegex = regexp.MustCompile(patternStr)
+	}
 	githubPullRequst := &githubModels.GithubPullRequest{}
 	cursor, err := lakeModels.Db.Model(&githubPullRequst).
 		Where("repo_id = ?", repoId).
@@ -32,6 +42,8 @@ func EnrichGithubPullRequestIssue(ctx context.Context, repoId int) (err error) {
 	if err != nil {
 		return err
 	}
+	resList := make([]string, 0)
+
 	defer cursor.Close()
 	// iterate all rows
 	for cursor.Next() {
@@ -44,18 +56,42 @@ func EnrichGithubPullRequestIssue(ctx context.Context, repoId int) (err error) {
 		if err != nil {
 			return err
 		}
+
 		issueNumberListStr := getCloseIssueId(githubPullRequst.Body)
+		//record all matching string, for debug
+		//if issueNumberListStr != "" {
+		//	_, err := f.WriteString(fmt.Sprintf("%s\n", issueNumberListStr))
+		//	if err != nil {
+		//		return err
+		//	}
+		//}
 
 		if issueNumberListStr == "" {
 			continue
 		}
+		//replace https:// to #, then we can deal with later
+		if strings.Contains(issueNumberListStr, "https") {
+			httpsPrefixPattern := regexp.MustCompile(`https:\/\/github\.com\/\w+\/\w+issues\/`)
+			issueNumberListStr = httpsPrefixPattern.ReplaceAllString(issueNumberListStr, "#")
 
-		issueNumberListStr = strings.TrimPrefix(issueNumberListStr, "#")
-		issueNumberList := strings.Split(issueNumberListStr, "#")
-		issue := &githubModels.GithubIssue{}
+		}
+		//split the string by '#'
+		firstFilterList := strings.Split(issueNumberListStr, "#")
+		issueNumberList := make([]string, len(firstFilterList))
 
-		for _, issueNumber := range issueNumberList {
-			issueNumber = strings.TrimSpace(issueNumber)
+		for _, v := range firstFilterList {
+			//split again by ' '
+			tmp := strings.Split(v, " ")
+			issueNumberList = append(issueNumberList, tmp...)
+		}
+		for _, issueNumberStr := range issueNumberList {
+			issue := &githubModels.GithubIssue{}
+
+			issueNumberStr = strings.TrimSpace(issueNumberStr)
+			issueNumber, numFormatErr := strconv.Atoi(issueNumberStr)
+			if numFormatErr != nil {
+				continue
+			}
 			err = lakeModels.Db.Where("number = ?", issueNumber).Limit(1).Find(issue).Error
 			if err != nil {
 				return err
@@ -66,6 +102,8 @@ func EnrichGithubPullRequestIssue(ctx context.Context, repoId int) (err error) {
 			githubPullRequstIssue := &githubModels.GithubPullRequestIssue{
 				PullRequestId: githubPullRequst.GithubId,
 				IssueId:       issue.GithubId,
+				PullNumber:    githubPullRequst.Number,
+				IssueNumber:   issue.Number,
 			}
 
 			err = lakeModels.Db.Clauses(
@@ -75,17 +113,21 @@ func EnrichGithubPullRequestIssue(ctx context.Context, repoId int) (err error) {
 			}
 		}
 	}
+	for _, v := range resList {
+		fmt.Println(v)
+	}
 
 	return nil
 }
 
 func getCloseIssueId(body string) string {
 	if prBodyCloseRegex != nil {
-		if m, _ := prBodyCloseRegex.FindStringMatch(body); m != nil {
-			if len(m.Groups()) > 2 {
-				return m.Groups()[len(m.Groups())-2].String()
-			}
+		matchString := prBodyCloseRegex.FindString(body)
+		//if contains not, it may be 'not close/fix/resolve'
+		if strings.Contains(matchString, "not") {
+			return ""
 		}
+		return matchString
 	}
 	return ""
 }

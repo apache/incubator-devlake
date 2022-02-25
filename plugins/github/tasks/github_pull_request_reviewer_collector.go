@@ -26,7 +26,7 @@ type PullRequestReview struct {
 	SubmittedAt core.Iso8601Time `json:"submitted_at"`
 }
 
-func CollectPullRequestReviews(owner string, repo string, repoId int, apiClient *GithubApiClient, rateLimitPerSecondInt int, ctx context.Context) error {
+func CollectPullRequestReviews(ctx context.Context, owner string, repo string, repoId int, apiClient *GithubApiClient, rateLimitPerSecondInt int) error {
 	scheduler, err := utils.NewWorkerScheduler(rateLimitPerSecondInt*2, rateLimitPerSecondInt, ctx)
 	if err != nil {
 		return err

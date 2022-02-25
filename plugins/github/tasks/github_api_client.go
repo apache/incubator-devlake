@@ -35,7 +35,7 @@ func NewGithubApiClient(endpoint string, tokens []string, ctx context.Context, s
 	githubApiClient.Setup(
 		endpoint,
 		map[string]string{},
-		50*time.Second,
+		10*time.Second,
 		3,
 		scheduler,
 	)
@@ -83,6 +83,7 @@ func (githubApiClient *GithubApiClient) FetchPages(path string, queryParams *url
 		}
 		queryCopy.Set("page", strconv.Itoa(page))
 		queryCopy.Set("per_page", strconv.Itoa(pageSize))
+
 		err = githubApiClient.GetAsync(path, &queryCopy, handler)
 		if err != nil {
 			return err

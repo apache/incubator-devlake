@@ -14,8 +14,8 @@ import (
 func ConvertIssueLabels(ctx context.Context, repoId int) error {
 	githubIssueLabel := &githubModels.GithubIssueLabel{}
 	cursor, err := lakeModels.Db.Model(githubIssueLabel).
-		Joins(`left join github_pull_requests on github_pull_requests.github_id = github_issue_label.pull_request_id`).
-		Where("github_pull_requests.repo_id = ?", repoId).
+		Joins(`left join github_issues on github_issues.github_id = github_issue_labels.issue_id`).
+		Where("github_issues.repo_id = ?", repoId).
 		Order("issue_id ASC").
 		Rows()
 	if err != nil {

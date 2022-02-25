@@ -34,7 +34,7 @@ type PullRequestCommit struct {
 	Message string
 }
 
-func CollectPullRequestCommits(owner string, repo string, repoId int, rateLimitPerSecondInt int, apiClient *GithubApiClient, ctx context.Context) error {
+func CollectPullRequestCommits(ctx context.Context, owner string, repo string, repoId int, rateLimitPerSecondInt int, apiClient *GithubApiClient) error {
 	scheduler, err := utils.NewWorkerScheduler(rateLimitPerSecondInt*2, rateLimitPerSecondInt, ctx)
 	if err != nil {
 		return err

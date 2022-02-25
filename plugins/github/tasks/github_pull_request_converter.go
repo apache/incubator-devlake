@@ -45,6 +45,10 @@ func ConvertPullRequests(ctx context.Context, repoId int) error {
 			Type:           pr.Type,
 			Component:      pr.Component,
 			MergeCommitSha: pr.MergeCommitSha,
+			BaseRef:        pr.BaseRef,
+			BaseCommitSha:  pr.BaseCommitSha,
+			HeadRef:        pr.HeadRef,
+			HeadCommitSha:  pr.HeadCommitSha,
 		}
 		err = lakeModels.Db.Clauses(clause.OnConflict{UpdateAll: true}).Create(domainPr).Error
 		if err != nil {

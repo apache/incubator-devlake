@@ -12,7 +12,7 @@ import (
 	"gorm.io/gorm/clause"
 )
 
-func ConvertCommits(ctx context.Context, githubRepoId int) error {
+func ConvertCommits(githubRepoId int, ctx context.Context) error {
 	// select all commits belongs to the repo
 	cursor, err := lakeModels.Db.Table("github_commits gc").
 		Joins(`left join github_repo_commits grc on (

@@ -23,8 +23,8 @@ type IssueComment struct {
 	GithubCreatedAt core.Iso8601Time `json:"created_at"`
 }
 
-func CollectIssueComments(owner string, repo string, repoId int, apiClient *GithubApiClient) error {
-	commentsErr := processCommentsCollection(owner, repo, repoId, apiClient)
+func CollectIssueComments(owner string, repo string, apiClient *GithubApiClient) error {
+	commentsErr := processCommentsCollection(owner, repo, apiClient)
 	if commentsErr != nil {
 		logger.Error("Could not collect issue Comments", commentsErr)
 		return commentsErr
@@ -34,7 +34,6 @@ func CollectIssueComments(owner string, repo string, repoId int, apiClient *Gith
 func processCommentsCollection(
 	owner string,
 	repo string,
-	repoId int,
 	apiClient *GithubApiClient,
 ) error {
 	getUrl := fmt.Sprintf("repos/%v/%v/issues/comments", owner, repo)
@@ -48,7 +47,7 @@ func processCommentsCollection(
 					return err
 				}
 				for _, comment := range *githubApiResponse {
-					githubComment, err := convertGithubComment(repoId, &comment)
+					githubComment, err := convertGithubComment(&comment)
 					if err != nil {
 						return err
 					}
@@ -66,7 +65,7 @@ func processCommentsCollection(
 		})
 }
 
-func convertGithubComment(repoId int, comment *IssueComment) (*models.GithubIssueComment, error) {
+func convertGithubComment(comment *IssueComment) (*models.GithubIssueComment, error) {
 	issueId, err := githubUtils.GetIssueIdByIssueUrl(comment.IssueUrl)
 	if err != nil {
 		return nil, err
@@ -74,7 +73,6 @@ func convertGithubComment(repoId int, comment *IssueComment) (*models.GithubIssu
 	githubComment := &models.GithubIssueComment{
 		GithubId:        comment.GithubId,
 		IssueNumber:     issueId,
-		RepoId:          repoId,
 		Body:            comment.Body,
 		AuthorUsername:  comment.User.Login,
 		GithubCreatedAt: comment.GithubCreatedAt.ToTime(),

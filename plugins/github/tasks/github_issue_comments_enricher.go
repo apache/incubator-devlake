@@ -7,7 +7,7 @@ import (
 	githubModels "github.com/merico-dev/lake/plugins/github/models"
 )
 
-func EnrichIssueComments(repoId int, ctx context.Context) error {
+func EnrichIssueComments(ctx context.Context, repoId int) error {
 	cursor, err := lakeModels.Db.Model(&githubModels.GithubIssueComment{}).Rows()
 	if err != nil {
 		return err

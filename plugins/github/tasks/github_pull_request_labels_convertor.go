@@ -12,7 +12,7 @@ import (
 func ConvertPullRequestLabels(ctx context.Context, repoId int) error {
 	githubPullRequestLabel := &githubModels.GithubPullRequestLabel{}
 	cursor, err := lakeModels.Db.Model(githubPullRequestLabel).
-		Joins(`left join github_pull_requests on github_pull_requests.github_id = github_pull_request_labels.pull_request_id`).
+		Joins(`left join github_pull_requests on github_pull_requests.github_id = github_pull_request_labels.pull_id`).
 		Where("github_pull_requests.repo_id = ?", repoId).
 		Order("pull_id ASC").
 		Rows()

@@ -9,7 +9,6 @@ type GithubIssueComment struct {
 	GithubId        int `gorm:"primaryKey"`
 	IssueId         int `gorm:"index;comment:References the Issue"`
 	IssueNumber     int `gorm:"index;comment:References the Issue Number"`
-	RepoId          int `gorm:"index;comment:References the RepoIdr"`
 	Body            string
 	AuthorUsername  string
 	GithubCreatedAt time.Time
