@@ -52,7 +52,7 @@ function useConnectionValidation ({
       errs.push('Endpoint URL must end in trailing slash (/)')
     }
 
-    if (proxy !== '' && !validURIs.some(uri => proxy?.startsWith(uri))) {
+    if (proxy && proxy !== '' && !validURIs.some(uri => proxy?.startsWith(uri))) {
       errs.push('Proxy URL must be valid HTTP/S protocol')
     }
 
