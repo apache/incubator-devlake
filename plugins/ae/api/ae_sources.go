@@ -32,22 +32,22 @@ func PutSource(input *core.ApiResourceInput) (*core.ApiResourceOutput, error) {
 	if err != nil {
 		return nil, err
 	}
-	V := config.LoadConfigFile()
+	v := config.GetConfig()
 
 	if aeSource.AE_APP_ID != "" {
-		V.Set("AE_SIGN", aeSource.AE_SIGN)
+		v.Set("AE_SIGN", aeSource.AE_SIGN)
 	}
 	if aeSource.AE_SIGN != "" {
-		V.Set("AE_SIGN", aeSource.AE_SIGN)
+		v.Set("AE_SIGN", aeSource.AE_SIGN)
 	}
 	if aeSource.AE_NONCE_STR != "" {
-		V.Set("AE_NONCE_STR", aeSource.AE_NONCE_STR)
+		v.Set("AE_NONCE_STR", aeSource.AE_NONCE_STR)
 	}
 	if aeSource.AE_ENDPOINT != "" {
-		V.Set("AE_ENDPOINT", aeSource.AE_ENDPOINT)
+		v.Set("AE_ENDPOINT", aeSource.AE_ENDPOINT)
 	}
 
-	err = V.WriteConfig()
+	err = v.WriteConfig()
 	if err != nil {
 		return nil, err
 	}
@@ -81,9 +81,9 @@ func GetSource(input *core.ApiResourceInput) (*core.ApiResourceOutput, error) {
 }
 
 func GetSourceFromEnv() (*AEResponse, error) {
-	V := config.LoadConfigFile()
+	v := config.GetConfig()
 	var configJson AEConfig
-	err := V.Unmarshal(&configJson)
+	err := v.Unmarshal(&configJson)
 	if err != nil {
 		return nil, err
 	}

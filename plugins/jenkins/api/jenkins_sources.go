@@ -51,11 +51,11 @@ func PutSource(input *core.ApiResourceInput) (*core.ApiResourceOutput, error) {
 	if err != nil {
 		return nil, err
 	}
-	V := config.LoadConfigFile()
-	V.Set("JENKINS_ENDPOINT", jenkinsSource.JENKINS_ENDPOINT)
-	V.Set("JENKINS_USERNAME", jenkinsSource.JENKINS_USERNAME)
-	V.Set("JENKINS_PASSWORD", jenkinsSource.JENKINS_PASSWORD)
-	err = V.WriteConfig()
+	v := config.GetConfig()
+	v.Set("JENKINS_ENDPOINT", jenkinsSource.JENKINS_ENDPOINT)
+	v.Set("JENKINS_USERNAME", jenkinsSource.JENKINS_USERNAME)
+	v.Set("JENKINS_PASSWORD", jenkinsSource.JENKINS_PASSWORD)
+	err = v.WriteConfig()
 	if err != nil {
 		return nil, err
 	}
@@ -89,14 +89,11 @@ func GetSource(input *core.ApiResourceInput) (*core.ApiResourceOutput, error) {
 }
 
 func GetSourceFromEnv() (*JenkinsSource, error) {
-	configJson, err := config.GetConfigJson()
-	if err != nil {
-		return nil, err
-	}
+	v := config.GetConfig()
 	return &JenkinsSource{
-		Endpoint: configJson.JENKINS_ENDPOINT,
-		Username: configJson.JENKINS_USERNAME,
-		Password: configJson.JENKINS_PASSWORD,
+		Endpoint: v.GetString("JENKINS_ENDPOINT"),
+		Username: v.GetString("JENKINS_USERNAME"),
+		Password: v.GetString("JENKINS_PASSWORD"),
 		// The UI relies on a source ID here but we will hardcode it until the sources work is done for Jenkins
 		ID:   1,
 		Name: "Jenkins",

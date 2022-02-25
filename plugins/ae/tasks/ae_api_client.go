@@ -62,11 +62,12 @@ func getSign(query url.Values, appId, secretKey, nonceStr, timestamp string) str
 }
 
 func (client *AEApiClient) beforeRequest(req *http.Request) error {
-	appId := config.V.GetString("AE_APP_ID")
+	V := config.GetConfig()
+	appId := V.GetString("AE_APP_ID")
 	if appId == "" {
 		return fmt.Errorf("invalid AE_APP_ID")
 	}
-	secretKey := config.V.GetString("AE_SECRET_KEY")
+	secretKey := V.GetString("AE_SECRET_KEY")
 	if appId == "" {
 		return fmt.Errorf("invalid AE_SECRET_KEY")
 	}
@@ -83,7 +84,7 @@ func (client *AEApiClient) beforeRequest(req *http.Request) error {
 func CreateApiClient(ctx context.Context) *AEApiClient {
 	aeApiClient := &AEApiClient{}
 	aeApiClient.Setup(
-		config.V.GetString("AE_ENDPOINT"),
+		config.GetConfig().GetString("AE_ENDPOINT"),
 		nil,
 		30*time.Second,
 		3,

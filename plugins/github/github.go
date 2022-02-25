@@ -101,9 +101,10 @@ func (plugin Github) Execute(options map[string]interface{}, progress chan<- flo
 		}
 	}
 
+	v := config.GetConfig()
 	// process configuration
-	endpoint := config.V.GetString("GITHUB_ENDPOINT")
-	tokens := strings.Split(config.V.GetString("GITHUB_AUTH"), ",")
+	endpoint := v.GetString("GITHUB_ENDPOINT")
+	tokens := strings.Split(v.GetString("GITHUB_AUTH"), ",")
 	// setup rate limit
 	tokenCount := len(tokens)
 	if tokenCount == 0 {
@@ -120,7 +121,7 @@ func (plugin Github) Execute(options map[string]interface{}, progress chan<- flo
 	defer scheduler.Release()
 	// TODO: add endpoind, auth validation
 	apiClient := tasks.NewGithubApiClient(endpoint, tokens, ctx, scheduler)
-	err = apiClient.SetProxy(config.V.GetString("GITHUB_PROXY"))
+	err = apiClient.SetProxy(v.GetString("GITHUB_PROXY"))
 	if err != nil {
 		return err
 	}
@@ -392,11 +393,12 @@ func main() {
 	}
 	PluginEntry.Init()
 	progress := make(chan float32)
-	endpoint := config.V.GetString("GITHUB_ENDPOINT")
-	configTokensString := config.V.GetString("GITHUB_AUTH")
+	v := config.GetConfig()
+	endpoint := v.GetString("GITHUB_ENDPOINT")
+	configTokensString := v.GetString("GITHUB_AUTH")
 	tokens := strings.Split(configTokensString, ",")
 	githubApiClient := tasks.NewGithubApiClient(endpoint, tokens, nil, nil)
-	_ = githubApiClient.SetProxy(config.V.GetString("GITHUB_PROXY"))
+	_ = githubApiClient.SetProxy(v.GetString("GITHUB_PROXY"))
 	_, collectRepoErr := tasks.CollectRepository(owner, repo, githubApiClient)
 	if collectRepoErr != nil {
 		fmt.Println(fmt.Errorf("Could not collect repositories: %v", collectRepoErr))
