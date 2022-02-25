@@ -2,7 +2,7 @@
 <br />
 <img src="https://user-images.githubusercontent.com/3789273/128085813-92845abd-7c26-4fa2-9f98-928ce2246616.png" width="120px">
 
-# Dev Lake
+# DevLake
 <p>
     <b>
      <!Software development workflow analysis for free> 
@@ -23,13 +23,13 @@
 <br>
 <div align="left">
 
-### 什么是 Dev Lake？
+### 什么是 DevLake？
 DevLake 将你所有的 DevOps 数据以实用、个性化、可扩展的视图呈现。通过 DevLake，从不断增加的开发者工具列表中收集、分析和可视化数据。
 
 DevLake 适用于希望更好地通过数据了解其开发过程的开发团队，以及希望以数据驱动提升自身实践的开发团队。有了 DevLake，你可以向你的开发过程提出任何问题，只要连接数据并查询。
 
 
-#### 一键体验 Dev Lake
+#### 一键体验 DevLake
 
 <table>
   <tr>
@@ -52,139 +52,38 @@ DevLake 适用于希望更好地通过数据了解其开发过程的开发团队
 <br>
 
 <div align="left">
-<!-- <img src="https://user-images.githubusercontent.com/2908155/130271622-827c4ffa-d812-4843-b09d-ea1338b7e6e5.png" width="100%" alt="Dev Lake Grafana Dashboard" style="border-radius:15px;"/>
-<p align="center">数据面板截图</p><br> -->
 <img src="https://user-images.githubusercontent.com/14050754/142356580-40637a30-5578-48ed-8e4a-128cd0738e3e.png" width="100%" alt="User Flow" style="border-radius:15px;"/>
 <p align="center">用户使用流程</p><br>
 
 
 
-### 为什么选择 Dev Lake？
+### 为什么选择 DevLake？
 1. 全面了解软件研发生命周期，挖掘工作流瓶颈
 2. 及时回顾团队迭代表现，快速反馈，敏捷调整
 3. 快速搭建场景化数据仪表盘，下钻分析洞察问题根因
 
-### Dev Lake 可以完成什么?
+### DevLake 可以完成什么?
 1. 归集 DevOps 全流程效能数据
-2. 同类工具共用抽象层，输出标准化效能数据
-3. 内置20+效能指标与下钻分析能力
+2. 同类工具共用一套标准的<a href="https://github.com/merico-dev/lake/wiki/DataModel.Domain-layer-schema" target="_blank">数据抽象层</a>，输出标准化效能数据
+3. 内置 20+ <a href="https://github.com/merico-dev/lake/wiki/Metric-Cheatsheet" target="_blank">效能指标</a>与下钻分析能力
 4. 支持自定义 SQL 分析及拖拽搭建场景化数据视图
-5. 灵活架构与插件设计，支持快速接入新数据源
+5. 灵活的[架构](ARCHITECTURE.md)与插件设计，支持快速接入新数据源
 
 ### 查看 Demo
-[点击这里](https://app-259373083972538368-3002.ars.teamcode.com/d/0Rjxknc7z/demo-homepage?orgId=1) 查看 Demo. Demo里呈现的数据来自此仓库。<br>
+[点击这里](https://app-259373083972538368-3002.ars.teamcode.com/d/0Rjxknc7z/demo-homepage?orgId=1) 查看 Demo, Demo里呈现的数据来自此仓库。<br>
 用户名/密码: test/test
 
 
 <br>
-
-## 目录
-<table>
-    <tr>
-        <td><b>目录</b></td>
-        <td><b>子目录</b></td>
-        <td><b>描述</b></td>
-        <td><b>文档链接</b></td>
-    </tr>
-    <tr>
-        <td>数据源</td>
-        <td>当前支持的数据源</td>
-        <td>链接到具体的插件使用和细节</td>
-        <td><a href="#data-source-plugins">查看本节</a></td>
-    </tr>
-    <tr>
-        <td rowspan="3">安装手册</td>
-        <td>用户安装</td>
-        <td>以用户身份运行项目的步骤</td>
-        <td><a href="#user-setup">查看本节</a></td>
-    </tr>
-    <tr>
-        <td>开发者安装</td>
-        <td>如何设置开发环境</td>
-        <td><a href="#dev-setup">查看本节</a></td>
-    </tr>
-    <tr>
-        <td>云端安装</td>
-        <td>使用 Tin 进行云端安装</td>
-        <td><a href="#cloud-setup">查看本节</a></td>
-    </tr>
-   <tr>
-        <td>测试</td>
-        <td>测试</td>
-        <td>运行测试的命令</td>
-        <td><a href="#tests">查看本节</a></td>
-    </tr>
-    <tr>
-        <td rowspan="4">贡献</td>
-        <td>了解 DevLake 的架构</td>
-        <td>查看系统架构图</td>
-        <td><a href="#architecture">查看本节</a></td>
-    </tr>
-    <tr>
-        <td>添加一个插件</td>
-        <td>如何制作自己的插件的详细信息</td>
-        <td><a href="#plugin">查看本节</a></td>
-    </tr>
-   <tr>
-        <td>添加新的指标</td>
-        <td>如何给插件添加指标</td>
-        <td><a href="#metrics">查看本节</a></td>
-    </tr>
-    <tr>
-        <td>代码规范</td>
-        <td>如何进行贡献</td>
-        <td><a href="#contributing">查看本节</a></td>
-    </tr>
-    <tr>
-        <td rowspan="4">用户使用手册，帮助文档等</td>
-        <td>Grafana</td>
-        <td>如何将数据进行可视化</td>
-        <td><a href="#grafana">查看本节</a></td>
-    </tr>
-    <tr>
-        <td>帮助</td>
-        <td>在 Discord 上联系我们</td>
-        <td><a href="#help">查看本节</a></td>
-    </tr>
-    <tr>
-        <td>FAQ</td>
-        <td>常见问题</td>
-        <td><a href="#faq">查看本节</a></td>
-    </tr>
-    <tr>
-        <td>许可证</td>
-        <td>Dev Lake 许可证</td>
-        <td><a href="#license">查看本节</a></td>
-    </tr>
-</table>
-
 <br>
 
-## 我们目前支持的数据源<a id="data-source-plugins"></a>
+## 用户安装<a id="user-setup"></a>
 
-下面是一个 _数据源插件（data source plugins）_ 的列表，用于收集和处理特定来源的数据。每个插件都有一个 `README.md` 文件，包含基本设置、故障排除和指标信息。
-
-关于建立一个新的 _data source plugins_ 的更多信息，请参见[添加一个插件](plugins/README-zh-CN.md)。
-
-目录 | 内容 | 文档
------------- | ------------- | -------------
-Jira | 概述，数据和指标，配置，API | [Link](plugins/jira/README-zh-CN.md) 
-Gitlab | 概述，数据和指标，配置，API | [Link](plugins/gitlab/README-zh-CN.md) 
-Jenkins | 概述，数据和指标，配置，API | [Link](plugins/jenkins/README-zh-CN.md) 
-GitHub | 概述，数据和指标，配置，API | [Link](plugins/github/README-zh-CN.md)
-
-<br>
-
-## 安装手册
-一共有 3 种方式来安装 Dev Lake：用户安装，开发者安装和云端安装。
-
-
-### 用户安装<a id="user-setup"></a>
-
-- 如果你只打算运行 Dev Lake，你只需要阅读这一小节<br>
+- 如果你只打算运行 DevLake，你只需要阅读这一小节<br>
+- 如果你想在云端安装 DevLake，你可以使用 [Tin](https://github.com/merico-dev/lake/wiki/How-to-Set-Up-Dev-Lake-with-Tin-zh-CN) 来进行
 - 写成 `这样` 的命令需要在你的终端中运行
 
-### 需要安装的软件包<a id="user-setup-requirements"></a>
+#### 需要安装的软件包<a id="user-setup-requirements"></a>
 
 - [Docker](https://docs.docker.com/get-docker)
 - [docker-compose](https://docs.docker.com/compose/install/)
@@ -198,7 +97,7 @@ GitHub | 概述，数据和指标，配置，API | [Link](plugins/github/README-
 1. 在[最新版本列表](https://github.com/merico-dev/lake/releases/latest) 下载 `docker-compose.yml` 和 `env.example`
 2. 将 `env.example` 重命名为 `.env`
 3. 启动 Docker，然后运行 `docker-compose up -d` 启动服务。
-4. 访问 `localhost:4000` 来设置 Dev Lake 的配置文件
+4. 访问 `localhost:4000` 来设置 DevLake 的配置文件
    >- 在 Integration 页面上找到到所需的插件页面
    >- 你需要为你打算使用的插件输入必要的信息
    >- 请参考以下内容，以了解如何配置每个插件的更多细节
@@ -243,14 +142,14 @@ GitHub | 概述，数据和指标，配置，API | [Link](plugins/github/README-
    
    请参考这篇 wiki [How to trigger data collection](https://github.com/merico-dev/lake/wiki/How-to-use-the-triggers-page).
 
-6. 完成后，点击 *Go to grafana* (用户名: `admin`, 密码: `admin`)。当数据收集完成后，该按钮将显示在触发收集页面。
+6. 数据收集完成后，点击配置页面左上角的 *View Dashboards* 按钮或者访问 `localhost:3002`，访问 Grafana (用户名: `admin`, 密码: `admin`)
+
+   我们使用 <a href="https://grafana.com/" target="_blank">Grafana</a> 作为可视化工具，为存储在<a href="https://github.com/merico-dev/lake/wiki/DataModel.Domain-layer-schema">我们数据库中的数据</a>建立图表。可以使用SQL查询，添加面板来构建、保存和编辑自定义仪表盘。
+
+   关于配置和定制仪表盘的所有细节可以在 [Grafana 文档](docs/GRAFANA.md) 中找到。
 
 #### 设置 Cron job
 为了定期同步数据，我们提供了[`lake-cli`](./cmd/lake-cli/README.md)以方便发送数据收集请求，我们同时提供了[cron job](./devops/sync/README.md)以定期触发 cli 工具。
-
-<br>
-
-****
 
 <br>
 
@@ -309,7 +208,7 @@ GitHub | 概述，数据和指标，配置，API | [Link](plugins/github/README-
     make configure-dev
     ```
 
-7. 访问 config-ui `localhost:4000` 来配置 Dev Lake 数据源
+7. 访问 config-ui `localhost:4000` 来配置 DevLake 数据源
    >- 在 "Integration"页面上找到到所需的插件页面
    >- 你需要为你打算使用的插件输入必要的信息
    >- 请参考以下内容，以了解如何配置每个插件的更多细节
@@ -351,80 +250,48 @@ GitHub | 概述，数据和指标，配置，API | [Link](plugins/github/README-
    请参考这篇 wiki [How to trigger data collection](https://github.com/merico-dev/lake/wiki/How-to-use-the-triggers-page).
 
 
-9. 在Grafana仪表板中实现数据的可视化
+9. 数据收集完成后，点击配置页面左上角的 *View Dashboards* 按钮或者访问 `localhost:3002`(用户名: `admin`, 密码: `admin`)
 
-    _从这里你可以看到丰富的图表，这些图表来自于收集和处理后的数据_
+   我们使用 <a href="https://grafana.com/" target="_blank">Grafana</a> 作为可视化工具，为存储在<a href="https://github.com/merico-dev/lake/wiki/DataModel.Domain-layer-schema">我们数据库中的数据</a>建立图表。可以使用SQL查询，添加面板来构建、保存和编辑自定义仪表盘。
 
-    - 导航到 http://localhost:3002 (用户名: `admin`, 密码: `admin`)
-    - 你也可以创建/修改现有的/保存到 `Dev lake` 中的仪表板
-    - 关于在Dev Lake中使用Grafana的更多信息，请看 [Grafana 文档](docs/GRAFANA.md)
+   关于配置和定制仪表盘的所有细节可以在 [Grafana 文档](docs/GRAFANA.md) 中找到。
 
-<br>
+10. （可选）运行测试: 
 
-****
-
-<br>
-
-### 云端安装<a id="cloud-setup"></a>
-如果你想在云端安装Dev Lake，你可以使用 Tin 来进行. [查看详细信息](https://github.com/merico-dev/lake/wiki/How-to-Set-Up-Dev-Lake-with-Tin-zh-CN)
-
-**声明:** 
-> 对于使用 Tin 在云端托管 Dev Lake 的用户，设置密码来保护实例下配置信息的安全是至关重要的。Dev Lake作为一个自我托管的产品，部分是为了确保用户对数据有完全的保护和所有权，对于 Tin 托管来说也是如此，这个风险点需要由终端用户来消除。
+    ```sh
+    make test
+    ```
 
 <br>
 
-## 测试<a id="tests"></a>
-
-运行测试: 
-
-```sh
-make test
-```
+## 项目路线图
+- <a href="https://github.com/merico-dev/lake/wiki/Roadmap-2022" target="_blank">2022年路线图</a>: 2022年的目标和路线图
+- DevLake 已经支持的数据源：
+    - <a href="plugins/jira/README.md" target="_blank">Jira(Cloud)</a>
+    - <a href="plugins/gitextractor/README.md" target="_blank">Git</a>
+    - <a href="plugins/github/README.md" target="_blank">GitHub</a>
+    - <a href="plugins/gitlab/README.md" target="_blank">GitLab(Cloud)</a>
+    - <a href="plugins/jenkins/README.md" target="_blank">Jenkins</a>
+- <a href="https://github.com/merico-dev/lake/wiki/Metric-Cheatsheet" target="_blank">已经支持的指标</a>: 为观测和分析提供不同的视角
 
 <br>
 
 ## 贡献
-本节列出了所有的文件，以帮助你快速为 repo 做出贡献。
+本节列出了所有与共建 DevLake 相关的文档
 
-### 了解 DevLake 的架构<a id="architecture"></a>
-![devlake-architecture](https://user-images.githubusercontent.com/14050754/143292041-a4839bf1-ca46-462d-96da-2381c8aa0fed.png)
-<p align="center">架构图</p>
-
-### 添加一个插件<a id="plugin"></a>
-
-[plugins/README.md](/plugins/README.md)
-
-### 添加新的指标<a id="metrics"></a>
-
-[plugins/HOW-TO-ADD-METRICS.md](/plugins/HOW-TO-ADD-METRICS.md)
-
-### 代码规范<a id="contributing"></a>
-
-[CONTRIBUTING.md](CONTRIBUTING.md)
+- [架构设计](ARCHITECTURE.md): DevLake的架构设计
+- [添加一个插件](/plugins/README.md): 如何添加一个新插件
+- [添加新的指标](/plugins/HOW-TO-ADD-METRICS.md): 如何在一个插件里添加新的指标
+- [贡献规范](CONTRIBUTING.md): 如果你想给 DevLake 贡献代码，请看下这个文档
 
 <br>
 
+## 社区
 
-## 用户使用手册，帮助文档及其他
-### Grafana<a id="grafana"></a>
+- <a href="https://discord.com/invite/83rDG6ydVZ" target="_blank">Discord</a>: 在 Discord 上给我们发消息
+- <a href="https://github.com/merico-dev/lake/wiki/FAQ" target="_blank">FAQ</a>: 常见问题汇总
 
-我们使用 <a href="https://grafana.com/" target="_blank">Grafana</a> 作为可视化工具，为存储在我们数据库中的数据建立图表。可以使用SQL查询，添加面板来构建、保存和编辑自定义仪表盘。
-
-关于配置和定制仪表盘的所有细节可以在 [Grafana 文档](docs/GRAFANA.md) 中找到。
-
-
-### 需要帮助?
-
-在 <a href="https://discord.com/invite/83rDG6ydVZ" target="_blank">Discord</a> 上给我们发消息
-
-
-### FAQ<a id="faq"></a>
-
-问：当我运行```docker-compose up -d ```时，得到这个错误: "qemu: uncaught target signal 11 (Segmentation fault) - core dumped"。如何解决这个问题？
-
-答：Mac M1用户需要在他们的机器上下载一个特定版本的docker。你可以在这里找到它。
-https://docs.docker.com/desktop/mac/apple-silicon/
-
+<br>
 
 ### License<a id="license"></a>
 
