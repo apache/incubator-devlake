@@ -24,7 +24,7 @@ func (plugin Compound) Init() {
 	if err != nil {
 		panic(err)
 	}
-	text := config.V.GetString("JIRA_BOARD_GITLAB_PROJECTS")
+	text := config.GetConfig().GetString("JIRA_BOARD_GITLAB_PROJECTS")
 	if text == "" {
 		return
 	}

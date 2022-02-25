@@ -14,8 +14,9 @@ var labelTypeRegex *regexp.Regexp
 var labelComponentRegex *regexp.Regexp
 
 func init() {
-	var prType = config.V.GetString("GITHUB_PR_TYPE")
-	var prComponent = config.V.GetString("GITHUB_PR_COMPONENT")
+	V := config.GetConfig()
+	var prType = V.GetString("GITHUB_PR_TYPE")
+	var prComponent = V.GetString("GITHUB_PR_COMPONENT")
 	if len(prType) > 0 {
 		labelTypeRegex = regexp.MustCompile(prType)
 	}

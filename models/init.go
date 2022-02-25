@@ -20,8 +20,9 @@ import (
 var Db *gorm.DB
 
 func init() {
-	connectionString := config.V.GetString("DB_URL")
-	if config.V.Get("TEST") == "true" {
+	V := config.GetConfig()
+	connectionString := V.GetString("DB_URL")
+	if V.Get("TEST") == "true" {
 		connectionString = "merico:merico@tcp(localhost:3306)/lake_test"
 	}
 	var err error

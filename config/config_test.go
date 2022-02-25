@@ -6,27 +6,18 @@ import (
 	"github.com/magiconair/properties/assert"
 )
 
-func TestGetConfigJson(t *testing.T) {
-	_, err := GetConfigJson()
-	assert.Equal(t, err == nil, true)
-}
-
 func TestReadAndWriteToConfig(t *testing.T) {
-	// Verify new value is not equal to current value
-	configJson, err := GetConfigJson()
-	assert.Equal(t, err == nil, true)
-	currentDbUrl := configJson.DB_URL
+	v := GetConfig()
+	currentDbUrl := v.GetString("DB_URL")
 	newDbUrl := "ThisIsATest"
 	assert.Equal(t, currentDbUrl != newDbUrl, true)
-	V := LoadConfigFile()
-	V.Set("DB_URL", newDbUrl)
-	err = V.WriteConfig()
+	v.Set("DB_URL", newDbUrl)
+	err := v.WriteConfig()
 	assert.Equal(t, err == nil, true)
-	newConfigJson, err := GetConfigJson()
-	assert.Equal(t, err == nil, true)
-	assert.Equal(t, newConfigJson.DB_URL, newDbUrl)
+	nowDbUrl := v.GetString("DB_URL")
+	assert.Equal(t, nowDbUrl == newDbUrl, true)
 	// Reset back to current
-	V.Set("DB_URL", currentDbUrl)
-	err = V.WriteConfig()
+	v.Set("DB_URL", currentDbUrl)
+	err = v.WriteConfig()
 	assert.Equal(t, err == nil, true)
 }

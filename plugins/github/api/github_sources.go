@@ -37,15 +37,15 @@ func PutSource(input *core.ApiResourceInput) (*core.ApiResourceOutput, error) {
 	if err != nil {
 		return nil, err
 	}
-	V := config.LoadConfigFile()
+	v := config.GetConfig()
 	if githubSource.GITHUB_ENDPOINT != "" {
-		V.Set("GITHUB_ENDPOINT", githubSource.GITHUB_ENDPOINT)
+		v.Set("GITHUB_ENDPOINT", githubSource.GITHUB_ENDPOINT)
 	}
 	if githubSource.GITHUB_AUTH != "" {
-		V.Set("GITHUB_AUTH", githubSource.GITHUB_AUTH)
+		v.Set("GITHUB_AUTH", githubSource.GITHUB_AUTH)
 	}
-	V.Set("GITHUB_PROXY", githubSource.GITHUB_PROXY)
-	err = V.WriteConfig()
+	v.Set("GITHUB_PROXY", githubSource.GITHUB_PROXY)
+	err = v.WriteConfig()
 	if err != nil {
 		return nil, err
 	}
@@ -79,9 +79,9 @@ func GetSource(input *core.ApiResourceInput) (*core.ApiResourceOutput, error) {
 }
 
 func GetSourceFromEnv() (*GithubResponse, error) {
-	V := config.LoadConfigFile()
+	v := config.GetConfig()
 	var configJson GithubConfig
-	err := V.Unmarshal(&configJson)
+	err := v.Unmarshal(&configJson)
 	if err != nil {
 		return nil, err
 	}

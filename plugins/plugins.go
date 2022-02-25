@@ -58,6 +58,6 @@ func RunPlugin(name string, options map[string]interface{}, progress chan<- floa
 }
 
 func PluginDir() string {
-	pluginDir := config.V.GetString("PLUGIN_DIR")
+	pluginDir := config.GetConfig().GetString("PLUGIN_DIR")
 	return pluginDir
 }

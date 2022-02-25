@@ -29,7 +29,7 @@ var (
 )
 
 func Color(colorString string) func(...interface{}) string {
-	if config.V.GetBool("NO_COLOR") {
+	if config.GetConfig().GetBool("NO_COLOR") {
 		return fmt.Sprint
 	}
 	sprint := func(args ...interface{}) string {
