@@ -170,7 +170,7 @@ func (plugin Github) Execute(options map[string]interface{}, progress chan<- flo
 	if tasksToRun["collectIssueEvents"] {
 		progress <- 0.2
 		fmt.Println("INFO >>> starting Issue Events collection")
-		err = tasks.CollectIssueEvents(op.Owner, op.Repo, apiClient)
+		err = tasks.CollectIssueEvents(op.Owner, op.Repo, repoId, apiClient)
 		if err != nil {
 			return &errors.SubTaskError{
 				Message:     fmt.Errorf("Could not collect Issue Events: %v", err).Error(),
@@ -182,7 +182,7 @@ func (plugin Github) Execute(options map[string]interface{}, progress chan<- flo
 	if tasksToRun["collectIssueComments"] {
 		progress <- 0.3
 		fmt.Println("INFO >>> starting Issue Comments collection")
-		err = tasks.CollectIssueComments(op.Owner, op.Repo, apiClient)
+		err = tasks.CollectIssueComments(op.Owner, op.Repo, repoId, apiClient)
 		if err != nil {
 			return &errors.SubTaskError{
 				Message:     fmt.Errorf("Could not collect Issue Comments: %v", err).Error(),
@@ -268,6 +268,17 @@ func (plugin Github) Execute(options map[string]interface{}, progress chan<- flo
 			return &errors.SubTaskError{
 				Message:     fmt.Errorf("could not enrich PullRequests: %v", err).Error(),
 				SubTaskName: "enrichPullRequests",
+			}
+		}
+	}
+	if tasksToRun["enrichIssueComments"] {
+		progress <- 0.92
+		fmt.Println("INFO >>> Enriching Issue Comments")
+		err = tasks.EnrichIssueComments(repoId, ctx)
+		if err != nil {
+			return &errors.SubTaskError{
+				Message:     fmt.Errorf("could not enrich PullRequests: %v", err).Error(),
+				SubTaskName: "enrichIssueComments",
 			}
 		}
 	}
@@ -452,7 +463,6 @@ func main() {
 					////"convertCommits",
 					"convertPullRequestCommits",
 					//"convertPullRequestIssues",
-
 					//"convertNotes",
 					//"convertUsers",
 				},
