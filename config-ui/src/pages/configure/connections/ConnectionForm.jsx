@@ -341,30 +341,32 @@ export default function ConnectionForm (props) {
             </div>
           </>
         )}
-        <div className='formContainer'>
-          <FormGroup
-            disabled={isTesting || isSaving || isLocked}
-            labelFor='connection-proxy'
-            className='formGroup'
-            contentClassName='formGroupContent'
-          >
-            <Label>
-              {labels
-                ? labels.proxy
-                : (
-                  <>Proxy&nbsp;URL</>
-                  )}
-            </Label>
-            <InputGroup
-              id='github-proxy'
-              placeholder={placeholders.proxy ? placeholders.proxy : 'http://proxy.localhost:8080'}
-              defaultValue={proxy}
-              onChange={(e) => onProxyChange(e.target.value)}
+        {[Providers.GITHUB, Providers.GITLAB, Providers.JIRA].includes(activeProvider.id) && (
+          <div className='formContainer'>
+            <FormGroup
               disabled={isTesting || isSaving || isLocked}
-              className='input'
-            />
-          </FormGroup>
-        </div>
+              labelFor='connection-proxy'
+              className='formGroup'
+              contentClassName='formGroupContent'
+            >
+              <Label>
+                {labels
+                  ? labels.proxy
+                  : (
+                    <>Proxy&nbsp;URL</>
+                    )}
+              </Label>
+              <InputGroup
+                id='github-proxy'
+                placeholder={placeholders.proxy ? placeholders.proxy : 'http://proxy.localhost:8080'}
+                defaultValue={proxy}
+                onChange={(e) => onProxyChange(e.target.value)}
+                disabled={isTesting || isSaving || isLocked}
+                className='input'
+              />
+            </FormGroup>
+          </div>
+        )}
         <div
           className='form-actions-block'
           style={{ display: 'flex', marginTop: '30px', justifyContent: 'space-between' }}
