@@ -270,6 +270,17 @@ func (plugin Github) Execute(options map[string]interface{}, progress chan<- flo
 			}
 		}
 	}
+	if tasksToRun["enrichIssueComments"] {
+		progress <- 0.92
+		fmt.Println("INFO >>> Enriching Issue Comments")
+		err = tasks.EnrichIssueComments(repoId, ctx)
+		if err != nil {
+			return &errors.SubTaskError{
+				Message:     fmt.Errorf("could not enrich PullRequests: %v", err).Error(),
+				SubTaskName: "enrichIssueComments",
+			}
+		}
+	}
 	if tasksToRun["convertRepos"] {
 		progress <- 0.93
 		err = tasks.ConvertRepos(ctx)
