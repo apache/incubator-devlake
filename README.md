@@ -51,8 +51,6 @@ DevLake is designed for developer teams looking to make better sense of their de
 
 
 <div align="left">
-<!-- <img src="https://user-images.githubusercontent.com/2908155/130271622-827c4ffa-d812-4843-b09d-ea1338b7e6e5.png" width="100%" alt="Dev Lake Grafana Dashboard" style="border-radius:15px" /> -->
-<!-- <p align="center">Dashboard Screenshot</p><br> -->
 <img src="https://user-images.githubusercontent.com/14050754/145056261-ceaf7044-f5c5-420f-80ca-54e56eb8e2a7.png" width="100%" alt="User Flow" style="border-radius:15px;"/>
 <p align="center">User Flow</p>
 
@@ -66,7 +64,7 @@ DevLake is designed for developer teams looking to make better sense of their de
 
 ### What can be accomplished with DevLake?
 1. Collect DevOps performance data for the whole process
-2. Share <a href="https://github.com/merico-dev/lake/wiki/DataModel.Domain-layer-schema">abstraction layer</a> with similar tools to output standardized engineering data
+2. Share <a href="https://github.com/merico-dev/lake/wiki/DataModel.Domain-layer-schema">domain layer</a> with similar tools to output standardized engineering data
 3. Built-in 20+ <a href="https://github.com/merico-dev/lake/wiki/Metric-Cheatsheet" target="_blank">engineering metrics</a> and drill-down analysis capability
 4. Support custom SQL analysis and drag and drop to build scenario-based data views
 5. Flexible [architecture](ARCHITECTURE.md) and plug-in design to support fast access to new data sources
@@ -76,9 +74,7 @@ DevLake is designed for developer teams looking to make better sense of their de
 Username/Password: test/test
 
 <br>
-
-
-****
+<br>
 
 ## User setup<a id="user-setup"></a>
 
@@ -146,21 +142,16 @@ NOTE: After installing docker, you may need to run the docker application and re
 
    Please refer to this wiki [How to trigger data collection](https://github.com/merico-dev/lake/wiki/How-to-use-the-triggers-page).
 
-6. Click *View Dashboards* button when done (username: `admin`, password: `admin`). The button will be shown on the Trigger Collection page when data collection has finished.
+6. Click *View Dashboards* button in the top left when done, or visit `localhost:3002` (username: `admin`, password: `admin`).
 
-We use <a href="https://grafana.com/" target="_blank">Grafana</a> as a visualization tool to build charts for the data stored in our database. Using SQL queries, we can add panels to build, save, and edit customized dashboards.
+   We use <a href="https://grafana.com/" target="_blank">Grafana</a> as a visualization tool to build charts for the <a href="https://github.com/merico-dev/lake/wiki/DataModel.Domain-layer-schema">data stored in our database</a>. Using SQL queries, we can add panels to build, save, and edit customized dashboards.
 
-All the details on provisioning and customizing a dashboard can be found in the [Grafana Doc](docs/GRAFANA.md).
+   All the details on provisioning and customizing a dashboard can be found in the [Grafana Doc](docs/GRAFANA.md).
 
 #### Setup cron job
 
 To synchronize data periodically, we provide [`lake-cli`](./cmd/lake-cli/README.md) for easily sending data collection requests along with [a cron job](./devops/sync/README.md) to periodically trigger the cli tool.
 
-
-
-<br>
-
-****
 
 <br>
 
@@ -264,7 +255,11 @@ To synchronize data periodically, we provide [`lake-cli`](./cmd/lake-cli/README.
    Please refer to this wiki [How to trigger data collection](https://github.com/merico-dev/lake/wiki/How-to-use-the-triggers-page).
 
 
-9. Click *View Dashboards* button when done (username: `admin`, password: `admin`). The button is shown in the top left.
+9. Click *View Dashboards* button in the top left when done, or visit `localhost:3002` (username: `admin`, password: `admin`).
+
+   We use <a href="https://grafana.com/" target="_blank">Grafana</a> as a visualization tool to build charts for the <a href="https://github.com/merico-dev/lake/wiki/DataModel.Domain-layer-schema">data stored in our database</a>. Using SQL queries, we can add panels to build, save, and edit customized dashboards.
+
+   All the details on provisioning and customizing a dashboard can be found in the [Grafana Doc](docs/GRAFANA.md).
 
 
 10. (Optional) To run the tests:
@@ -272,27 +267,18 @@ To synchronize data periodically, we provide [`lake-cli`](./cmd/lake-cli/README.
     ```sh
     make test
     ```
-
 <br>
 
 
-****
-
-
-
-<br>
-
-
-## Project Roadmap<a id="data-source-plugins"></a>
+## Project Roadmap
 - <a href="https://github.com/merico-dev/lake/wiki/Roadmap-2022" target="_blank">Roadmap 2022</a>: Detailed project roadmaps for 2022.
-- <a href="https://github.com/merico-dev/lake/tree/main/plugins" target="_blank">Supported data sources</a>: DevLake already supported following data sources:
-    - <a href="plugins/jira/README.md" target="_blank">Jira</a>
-    - <a href="plugins/github/README.md" target="_blank">GitHub</a>
-    - <a href="plugins/gitlab/README.md" target="_blank">GitLab</a>
+- DevLake already supported following data sources:
+    - <a href="plugins/jira/README.md" target="_blank">Jira(Cloud)</a>
     - <a href="plugins/gitextractor/README.md" target="_blank">Git</a>
-    - <a href="plugins/refdiff/README.md" target="_blank">RefDiff</a>
+    - <a href="plugins/github/README.md" target="_blank">GitHub</a>
+    - <a href="plugins/gitlab/README.md" target="_blank">GitLab(Cloud)</a>
     - <a href="plugins/jenkins/README.md" target="_blank">Jenkins</a>
-- <a href="https://github.com/merico-dev/lake/wiki/Metric-Cheatsheet" target="_blank">Supported engineering metrics</a>: different perspectives to observe and analyze SDLC.
+- <a href="https://github.com/merico-dev/lake/wiki/Metric-Cheatsheet" target="_blank">Supported engineering metrics</a>: provide rich perspectives to observe and analyze SDLC.
 
 <br>
 
@@ -312,6 +298,7 @@ This section lists all the documents to help you contribute to the repo.
 - <a href="https://discord.com/invite/83rDG6ydVZ" target="_blank">Discord</a>: Message us on Discord
 - <a href="https://github.com/merico-dev/lake/wiki/FAQ" target="_blank">FAQ</a>: Frequently Asked Questions
 
+<br>
 
 ## License<a id="license"></a>
 
