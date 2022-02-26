@@ -17,7 +17,6 @@ export default function GithubSettings (props) {
   const { connection, provider, isSaving, onSettingsChange } = props
   const history = useHistory()
   const { providerId, connectionId } = useParams()
-  // const [githubProxy, setGithubProxy] = useState(null)
   const [prType, setPrType] = useState('')
   const [prComponent, setPrComponent] = useState('')
   const [issueSeverity, setIssueSeverity] = useState('')
@@ -28,10 +27,6 @@ export default function GithubSettings (props) {
   const [issueTypeIncident, setIssueTypeIncident] = useState('')
 
   const [errors, setErrors] = useState([])
-
-  // const cancel = () => {
-  //   history.push(`/integrations/${provider.id}`)
-  // }
 
   useEffect(() => {
     setErrors(['This integration doesn’t require any configuration.'])
@@ -47,12 +42,10 @@ export default function GithubSettings (props) {
 
   useEffect(() => {
     // setGithubProxy(connection.proxy)
-
   }, [connection])
 
   useEffect(() => {
     const settings = {
-      // GITHUB_PROXY: githubProxy
       GITHUB_PR_TYPE: prType,
       GITHUB_PR_COMPONENT: prComponent,
       GITHUB_ISSUE_SEVERITY: issueSeverity,
@@ -65,7 +58,6 @@ export default function GithubSettings (props) {
     console.log('>> GITHUB INSTANCE SETTINGS FIELDS CHANGED!', settings)
     onSettingsChange(settings)
   }, [
-    // githubProxy,
     prType,
     prComponent,
     issueSeverity,
