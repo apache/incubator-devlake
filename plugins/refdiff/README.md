@@ -34,7 +34,7 @@ github:GithubRepo:384111310:refs/tags/v0.4.0  TAG
 github:GithubRepo:384111310:refs/tags/v0.6.0  TAG
 github:GithubRepo:384111310:refs/tags/v0.6.1  TAG
 ```
-2. And then, trigger a pipeline like following:
+2. And then, trigger a pipeline like following, you can also define sub tasks, calculateRefDiff will calculate commits between two ref, and creatRefBugStats will create a table to show bug list between two ref:
 ```
 curl -v -XPOST http://localhost:8080/pipelines --data @- <<'JSON'
 {
@@ -48,6 +48,10 @@ curl -v -XPOST http://localhost:8080/pipelines --data @- <<'JSON'
                     "pairs": [
                        { "newRef": "refs/tags/v0.6.0", "oldRef": "refs/tags/0.5.0" },
                        { "newRef": "refs/tags/0.5.0", "oldRef": "refs/tags/0.4.0" }
+                    ],
+                    "tasks": [
+                        "calculateRefDiff",
+                        "creatRefBugStats",
                     ]
                 }
             }
