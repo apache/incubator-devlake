@@ -12,9 +12,9 @@ import (
 	"gorm.io/gorm/clause"
 )
 
-func ConvertPullRequests(ctx context.Context) error {
+func ConvertPullRequests(ctx context.Context, repoId int) error {
 	pr := &githubModels.GithubPullRequest{}
-	cursor, err := lakeModels.Db.Model(pr).Rows()
+	cursor, err := lakeModels.Db.Model(pr).Where("repo_id = ?", repoId).Rows()
 	if err != nil {
 		return err
 	}
@@ -45,6 +45,10 @@ func ConvertPullRequests(ctx context.Context) error {
 			Type:           pr.Type,
 			Component:      pr.Component,
 			MergeCommitSha: pr.MergeCommitSha,
+			BaseRef:        pr.BaseRef,
+			BaseCommitSha:  pr.BaseCommitSha,
+			HeadRef:        pr.HeadRef,
+			HeadCommitSha:  pr.HeadCommitSha,
 		}
 		err = lakeModels.Db.Clauses(clause.OnConflict{UpdateAll: true}).Create(domainPr).Error
 		if err != nil {
