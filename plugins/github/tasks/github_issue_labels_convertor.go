@@ -11,10 +11,11 @@ import (
 	"gorm.io/gorm/clause"
 )
 
-func ConvertIssueLabels(ctx context.Context) error {
+func ConvertIssueLabels(ctx context.Context, repoId int) error {
 	githubIssueLabel := &githubModels.GithubIssueLabel{}
 	cursor, err := lakeModels.Db.Model(githubIssueLabel).
-		Select("github_issue_labels.*").
+		Joins(`left join github_issues on github_issues.github_id = github_issue_labels.issue_id`).
+		Where("github_issues.repo_id = ?", repoId).
 		Order("issue_id ASC").
 		Rows()
 	if err != nil {

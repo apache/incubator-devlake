@@ -1,6 +1,7 @@
 package tasks
 
 import (
+	"context"
 	lakeModels "github.com/merico-dev/lake/models"
 	"github.com/merico-dev/lake/models/domainlayer/code"
 	"github.com/merico-dev/lake/models/domainlayer/didgen"
@@ -8,10 +9,11 @@ import (
 	"gorm.io/gorm/clause"
 )
 
-func ConvertPullRequestLabels() error {
+func ConvertPullRequestLabels(ctx context.Context, repoId int) error {
 	githubPullRequestLabel := &githubModels.GithubPullRequestLabel{}
 	cursor, err := lakeModels.Db.Model(githubPullRequestLabel).
-		Select("github_pull_request_labels.*").
+		Joins(`left join github_pull_requests on github_pull_requests.github_id = github_pull_request_labels.pull_id`).
+		Where("github_pull_requests.repo_id = ?", repoId).
 		Order("pull_id ASC").
 		Rows()
 	if err != nil {
