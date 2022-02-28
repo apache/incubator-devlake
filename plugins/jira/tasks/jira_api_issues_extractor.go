@@ -14,7 +14,7 @@ func ExtractApiIssues(
 	since time.Time,
 ) error {
 	extractor, err := core.NewApiExtractor(core.ApiExtractorArgs{
-		Table: "jira_api_issues",
+		Table:       "jira_api_issues",
 		Params: JiraApiParams{
 			SourceId: source.ID,
 			BoardId:  boardId,

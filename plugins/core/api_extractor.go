@@ -4,6 +4,7 @@ type RawDataExtractor func(row interface{}, params interface{}) (interface{}, er
 
 type ApiExtractorArgs struct {
 	Table      string `comment:"Raw data table name"`
+	Url        string `comment:"Raw data table name"`
 	Params     interface{}
 	RowData    interface{}
 	Extractors []RawDataExtractor
