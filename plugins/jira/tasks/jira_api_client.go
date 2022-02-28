@@ -97,14 +97,14 @@ func (jiraApiClient *JiraApiClient) FetchPages(path string, query *url.Values, h
 		}
 		queryCopy.Set("maxResults", strconv.Itoa(pageSize))
 		queryCopy.Set("startAt", strconv.Itoa(nextStartTmp))
-		err = jiraApiClient.GetAsync(path, &queryCopy, handler)
+		err = jiraApiClient.GetAsync(path, &queryCopy, nil, handler)
 		if err != nil {
 			return err
 		}
 
 		nextStart += pageSize
 	}
-	jiraApiClient.WaitOtherGoroutines()
+	jiraApiClient.WaitAsync()
 	return nil
 }
 

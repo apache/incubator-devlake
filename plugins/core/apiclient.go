@@ -5,9 +5,6 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"github.com/merico-dev/lake/errors"
-	"github.com/merico-dev/lake/logger"
-	"github.com/merico-dev/lake/utils"
 	"io"
 	"io/ioutil"
 	"net/http"
@@ -16,6 +13,10 @@ import (
 	"strings"
 	"time"
 	"unicode/utf8"
+
+	"github.com/merico-dev/lake/errors"
+	"github.com/merico-dev/lake/logger"
+	"github.com/merico-dev/lake/utils"
 )
 
 type ApiClientBeforeRequest func(req *http.Request) error
@@ -119,7 +120,7 @@ func (apiClient *ApiClient) Do(
 	path string,
 	query *url.Values,
 	body *map[string]interface{},
-	headers *map[string]string,
+	headers *url.Values,
 ) (*http.Response, error) {
 	uri, err := GetURIStringPointer(apiClient.endpoint, path, query)
 	if err != nil {
@@ -152,8 +153,10 @@ func (apiClient *ApiClient) Do(
 		}
 	}
 	if headers != nil {
-		for name, value := range *headers {
-			req.Header.Set(name, value)
+		for name, values := range *headers {
+			for _, value := range values {
+				req.Header.Add(name, value)
+			}
 		}
 	}
 
@@ -235,7 +238,7 @@ func (apiClient *ApiClient) Do(
 func (apiClient *ApiClient) Get(
 	path string,
 	query *url.Values,
-	headers *map[string]string,
+	headers *url.Values,
 ) (*http.Response, error) {
 	return apiClient.Do("GET", path, query, nil, headers)
 }
@@ -297,10 +300,11 @@ func RemoveStartingSlashFromPath(relativePath string) string {
 	}
 	return relativePath
 }
-func (apiClient *ApiClient) GetAsync(path string, queryParams *url.Values, handler func(*http.Response) error) error {
+func (apiClient *ApiClient) GetAsync(path string, queryParams *url.Values, headerParams *url.Values, handler func(*http.Response) error) error {
 	err := apiClient.scheduler.Submit(func() error {
-		res, err := apiClient.Get(path, queryParams, nil)
+		res, err := apiClient.Get(path, queryParams, headerParams)
 		if err != nil {
+			println("hello")
 			return err
 		}
 		handlerErr := handler(res)
@@ -315,6 +319,13 @@ func (apiClient *ApiClient) GetAsync(path string, queryParams *url.Values, handl
 	return nil
 }
 
-func (apiClient *ApiClient) WaitOtherGoroutines() {
+func (apiClient *ApiClient) WaitAsync() {
 	apiClient.scheduler.WaitUntilFinish()
 }
+
+type AsyncApiClient interface {
+	GetAsync(path string, queryParams *url.Values, headerParams *url.Values, handler func(*http.Response) error) error
+	WaitAsync()
+}
+
+var _ AsyncApiClient = (*ApiClient)(nil)

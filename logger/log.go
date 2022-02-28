@@ -66,3 +66,7 @@ func Error(context string, data interface{}) {
 func Warn(context string, data interface{}) {
 	Log(context, data, Yellow, "WARN", log.Warn)
 }
+
+func GetLogger() *logrus.Logger {
+	return log
+}

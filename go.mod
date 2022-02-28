@@ -13,6 +13,7 @@ require (
 	github.com/go-git/go-git/v5 v5.4.2
 	github.com/go-playground/validator/v10 v10.9.0
 	github.com/golang-migrate/migrate/v4 v4.15.1
+	github.com/google/uuid v1.3.0
 	github.com/libgit2/git2go/v33 v33.0.6
 	github.com/magiconair/properties v1.8.5
 	github.com/mitchellh/mapstructure v1.4.1
