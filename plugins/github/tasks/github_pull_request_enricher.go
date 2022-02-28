@@ -25,7 +25,7 @@ func init() {
 	}
 }
 
-func EnrichGithubPullRequests(repoId int, ctx context.Context) (err error) {
+func EnrichPullRequests(ctx context.Context, repoId int) (err error) {
 	githubPullRequst := &githubModels.GithubPullRequest{}
 	cursor, err := lakeModels.Db.Model(&githubPullRequst).
 		Where("repo_id = ?", repoId).

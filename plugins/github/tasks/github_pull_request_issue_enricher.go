@@ -3,6 +3,7 @@ package tasks
 import (
 	"context"
 	"fmt"
+	"github.com/merico-dev/lake/config"
 	"github.com/merico-dev/lake/errors"
 	lakeModels "github.com/merico-dev/lake/models"
 	githubModels "github.com/merico-dev/lake/plugins/github/models"
@@ -13,28 +14,22 @@ import (
 )
 
 var prBodyCloseRegex *regexp.Regexp
-var prBodyClose string
+var prBodyClosePattern string
+var numberPrefix string
 
 func init() {
-	//can not assign config.V.GetString("GITHUB_PR_BODY_CLOSE")
-	prBodyClose = ""
+	prBodyClosePattern = config.GetConfig().GetString("GITHUB_PR_BODY_CLOSE_PATTERN")
+	numberPrefix = config.GetConfig().GetString("GITHUB_PR_BODY_NUMBER_PREFIX")
 }
 
-func EnrichGithubPullRequestIssue(ctx context.Context, repoId int, owner string, repo string) (err error) {
-	//only use when we  want to debug ref_bug_stats
-	//f, err := os.OpenFile("log.txt", os.O_CREATE|os.O_APPEND|os.O_RDWR, 0x666)
-	//defer f.Close()
-	//if err != nil {
-	//	return nil
-	//}
-	if len(prBodyClose) > 0 {
-		prBodyCloseRegex = regexp.MustCompile(prBodyClose)
-	} else {
-		patternStr := fmt.Sprintf(
-			`(?mi)^.*(fix|close|resolve|fixes|closes|resolves|fixed|closed|resolved)[\s]*(%s\/%s|issue)?(\s)?(((and ){0,1}(#|https:\/\/github\.com\/%s\/%s\/issues\/)\d+[ ]?)+)`,
-			owner, repo, owner, repo)
-		prBodyCloseRegex = regexp.MustCompile(patternStr)
+func EnrichPullRequestIssues(ctx context.Context, repoId int, owner string, repo string) (err error) {
+	numberPattern := fmt.Sprintf(numberPrefix+`\d+[ ]*)+)`, owner, repo)
+	if len(prBodyClosePattern) > 0 {
+		prPattern := prBodyClosePattern + numberPattern
+		prBodyCloseRegex = regexp.MustCompile(prPattern)
 	}
+
+	githubIssueUrlPattern := fmt.Sprintf(config.GetConfig().GetString("GITHUB_ISSUE_URL_PATTERN"), owner, repo)
 	githubPullRequst := &githubModels.GithubPullRequest{}
 	cursor, err := lakeModels.Db.Model(&githubPullRequst).
 		Where("repo_id = ?", repoId).
@@ -58,32 +53,23 @@ func EnrichGithubPullRequestIssue(ctx context.Context, repoId int, owner string,
 		}
 
 		issueNumberListStr := getCloseIssueId(githubPullRequst.Body)
-		//record all matching string, for debug
-		//if issueNumberListStr != "" {
-		//	_, err := f.WriteString(fmt.Sprintf("%s\n", issueNumberListStr))
-		//	if err != nil {
-		//		return err
-		//	}
-		//}
 
 		if issueNumberListStr == "" {
 			continue
 		}
 		//replace https:// to #, then we can deal with later
 		if strings.Contains(issueNumberListStr, "https") {
-			httpsPrefixPattern := regexp.MustCompile(`https:\/\/github\.com\/\w+\/\w+issues\/`)
-			issueNumberListStr = httpsPrefixPattern.ReplaceAllString(issueNumberListStr, "#")
-
+			if !strings.Contains(issueNumberListStr, githubIssueUrlPattern) {
+				continue
+			}
+			numberPrefixRegex := regexp.MustCompile(numberPrefix)
+			issueNumberListStr = numberPrefixRegex.ReplaceAllString(issueNumberListStr, "#")
 		}
+		charPattern := regexp.MustCompile(`[a-zA-Z\s,]+`)
+		issueNumberListStr = charPattern.ReplaceAllString(issueNumberListStr, "#")
 		//split the string by '#'
-		firstFilterList := strings.Split(issueNumberListStr, "#")
-		issueNumberList := make([]string, len(firstFilterList))
+		issueNumberList := strings.Split(issueNumberListStr, "#")
 
-		for _, v := range firstFilterList {
-			//split again by ' '
-			tmp := strings.Split(v, " ")
-			issueNumberList = append(issueNumberList, tmp...)
-		}
 		for _, issueNumberStr := range issueNumberList {
 			issue := &githubModels.GithubIssue{}
 
@@ -92,7 +78,7 @@ func EnrichGithubPullRequestIssue(ctx context.Context, repoId int, owner string,
 			if numFormatErr != nil {
 				continue
 			}
-			err = lakeModels.Db.Where("number = ?", issueNumber).Limit(1).Find(issue).Error
+			err = lakeModels.Db.Where("number = ? and repo_id = ?", issueNumber, repoId).Limit(1).Find(issue).Error
 			if err != nil {
 				return err
 			}
@@ -123,10 +109,6 @@ func EnrichGithubPullRequestIssue(ctx context.Context, repoId int, owner string,
 func getCloseIssueId(body string) string {
 	if prBodyCloseRegex != nil {
 		matchString := prBodyCloseRegex.FindString(body)
-		//if contains not, it may be 'not close/fix/resolve'
-		if strings.Contains(matchString, "not") {
-			return ""
-		}
 		return matchString
 	}
 	return ""

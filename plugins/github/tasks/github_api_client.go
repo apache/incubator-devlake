@@ -35,7 +35,7 @@ func NewGithubApiClient(endpoint string, tokens []string, ctx context.Context, s
 	githubApiClient.Setup(
 		endpoint,
 		map[string]string{},
-		10*time.Second,
+		50*time.Second,
 		3,
 		scheduler,
 	)

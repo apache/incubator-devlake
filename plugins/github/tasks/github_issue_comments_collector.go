@@ -23,6 +23,7 @@ type IssueComment struct {
 	GithubCreatedAt core.Iso8601Time `json:"created_at"`
 }
 
+//CollectIssueComments will collect both issue and pr comments
 func CollectIssueComments(owner string, repo string, apiClient *GithubApiClient) error {
 	commentsErr := processCommentsCollection(owner, repo, apiClient)
 	if commentsErr != nil {
