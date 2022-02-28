@@ -111,7 +111,8 @@ func (gitlabApiClient *GitlabApiClient) FetchWithPaginationAnts(path string, que
 				}
 				queryCopy.Set("page", strconv.Itoa(page))
 				queryCopy.Set("per_page", strconv.Itoa(pageSize))
-				err = gitlabApiClient.GetAsync(path, &queryCopy, handler)
+
+				err = gitlabApiClient.GetAsync(path, &queryCopy, nil, handler)
 				if err != nil {
 					return err
 				}
@@ -137,7 +138,7 @@ func (gitlabApiClient *GitlabApiClient) FetchWithPaginationAnts(path string, que
 			queryCopy.Set("page", strconv.Itoa(currentPage))
 			queryCopy.Set("per_page", strconv.Itoa(pageSize))
 
-			err = gitlabApiClient.GetAsync(path, &queryCopy, handler)
+			err = gitlabApiClient.GetAsync(path, &queryCopy, nil, handler)
 
 			if err != nil {
 				return err
@@ -145,7 +146,7 @@ func (gitlabApiClient *GitlabApiClient) FetchWithPaginationAnts(path string, que
 		}
 	}
 
-	gitlabApiClient.WaitOtherGoroutines()
+	gitlabApiClient.WaitAsync()
 	return nil
 }
 
