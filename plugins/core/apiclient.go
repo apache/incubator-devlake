@@ -299,7 +299,6 @@ func RemoveStartingSlashFromPath(relativePath string) string {
 }
 func (apiClient *ApiClient) GetAsync(path string, queryParams *url.Values, handler func(*http.Response) error) error {
 	err := apiClient.scheduler.Submit(func() error {
-		fmt.Println(queryParams.Get("page"))
 		res, err := apiClient.Get(path, queryParams, nil)
 		if err != nil {
 			return err

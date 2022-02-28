@@ -25,7 +25,7 @@ type IssueEvent struct {
 	GithubCreatedAt core.Iso8601Time `json:"created_at"`
 }
 
-func CollectIssueEvents(owner string, repo string, repoId int, apiClient *GithubApiClient) error {
+func CollectIssueEvents(owner string, repo string, apiClient *GithubApiClient) error {
 
 	eventsErr := processEventsCollection(owner, repo, apiClient)
 	if eventsErr != nil {

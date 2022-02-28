@@ -46,7 +46,7 @@ func init() {
 	}
 }
 
-func EnrichGithubIssues(ctx context.Context, repoId int) (err error) {
+func EnrichIssues(ctx context.Context, repoId int) (err error) {
 	githubIssue := &githubModels.GithubIssue{}
 	cursor, err := lakeModels.Db.Model(&githubIssue).Where("repo_id = ?", repoId).Rows()
 	if err != nil {
