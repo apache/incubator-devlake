@@ -26,3 +26,7 @@ type Plugin interface {
 	RootPkgPath() string
 	ApiResources() map[string]map[string]ApiResourceHandler
 }
+
+type SubTask interface {
+	Execute() error
+}
