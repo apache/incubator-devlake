@@ -1,13 +1,13 @@
 package tasks
 
 import (
+	"encoding/json"
 	"fmt"
 	"net/http"
 	"net/url"
+	"reflect"
 	"time"
 
-	"github.com/merico-dev/lake/logger"
-	lakeModels "github.com/merico-dev/lake/models"
 	"github.com/merico-dev/lake/plugins/core"
 	"github.com/merico-dev/lake/plugins/jira/models"
 )
@@ -18,7 +18,13 @@ type JiraApiParams struct {
 	BoardId  uint64
 }
 
+type JiraApiRawIssuesResponse struct {
+	JiraPagination
+	Issues []json.RawMessage `json:"issues"`
+}
+
 func CollectApiIssues(
+	taskCtx core.TaskContext,
 	apiClient *JiraApiClient,
 	source *models.JiraSource,
 	boardId uint64,
@@ -26,28 +32,29 @@ func CollectApiIssues(
 ) error {
 	// --------- skip this part begin --------
 	// user didn't specify a time range to sync, try load from database
-	if since.IsZero() {
-		var latestUpdated models.JiraIssue
-		err := lakeModels.Db.Where("source_id = ?", source.ID).Order("updated DESC").Limit(1).Find(&latestUpdated).Error
-		if err != nil {
-			logger.Error("jira collect issues:  get last sync time failed", err)
-			return err
+	/*
+		if since.IsZero() {
+			var latestUpdated models.JiraIssue
+			err := lakeModels.Db.Where("source_id = ?", source.ID).Order("updated DESC").Limit(1).Find(&latestUpdated).Error
+			if err != nil {
+				logger.Error("jira collect issues:  get last sync time failed", err)
+				return err
+			}
+			since = latestUpdated.Updated
 		}
-		since = latestUpdated.Updated
-	}
-	// build jql
-	jql := "ORDER BY updated ASC"
-	if !since.IsZero() {
-		// prepend a time range criteria if `since` was specified, either by user or from database
-		jql = fmt.Sprintf("updated >= '%v' %v", since.Format("2006/01/02 15:04"), jql)
-	}
-	query := &url.Values{}
-	query.Set("jql", jql)
+		// build jql
+		jql := "ORDER BY updated ASC"
+		if !since.IsZero() {
+			// prepend a time range criteria if `since` was specified, either by user or from database
+			jql = fmt.Sprintf("updated >= '%v' %v", since.Format("2006/01/02 15:04"), jql)
+		}
+	*/
 	// --------- skip this part end --------
 
 	const SIZE = 100
 
 	collector, err := core.NewApiCollector(core.ApiCollectorArgs{
+		Ctx:       taskCtx,
 		ApiClient: apiClient,
 		PageSize:  SIZE,
 		/*
@@ -59,11 +66,21 @@ func CollectApiIssues(
 			avoid duplicate logic for every tasks, and when we have a better idea like improving performance, we can
 			do it in one place
 		*/
-		UrlTemplate: "agile/1.0/board/{{ Params.BoardId }}/issue?startAt={{ Pager.StartAt }}&maxResults={{ Pager.Size }}",
+		UrlTemplate: "agile/1.0/board/{{ .Params.BoardId }}/issue",
+		/*
+			(Optional) Return query string for request, or you can plug them into UrlTemplate directly
+		*/
+		Query: func(pager *core.Pager) (*url.Values, error) {
+			query := &url.Values{}
+			//query.Set("jql", jql)
+			query.Set("startAt", fmt.Sprintf("%v", pager.Skip))
+			query.Set("maxResults", fmt.Sprintf("%v", pager.Size))
+			return query, nil
+		},
 		/*
 			Some api might do pagination by http headers
 		*/
-		//Header: func(collector *core.ApiCollector) http.Header {
+		//Header: func(pager *core.Pager) http.Header {
 		//},
 		/*
 			Sometimes, we need to collect data based on previous collected data, like jira changelog, it requires
@@ -82,18 +99,11 @@ func CollectApiIssues(
 			BoardId:  boardId,
 		},
 		/*
-			Reduce records come out from api
+			Accept response, return raw data either a single object or list
 		*/
-		Query: query,
-		/*
-			ApiCollector will try to `UnmarshalResponse` into this variable, and handle failure
-		*/
-		ResponseData: &JiraApiIssuesResponse{},
-		/*
-			Accept response and Unmarshalled body, return raw data either a single object or list
-		*/
+		BodyType: reflect.TypeOf(&JiraApiRawIssuesResponse{}),
 		OnData: func(res *http.Response, body interface{}) (interface{}, error) {
-			issuesBody := body.(*JiraApiIssuesResponse)
+			issuesBody := body.(*JiraApiRawIssuesResponse)
 			return issuesBody.Issues, nil
 		},
 		/*
@@ -101,7 +111,7 @@ func CollectApiIssues(
 			or other techniques are required if this information was missing.
 		*/
 		GetTotalPages: func(res *http.Response, body interface{}) (int, error) {
-			issuesBody := body.(*JiraApiIssuesResponse)
+			issuesBody := body.(*JiraApiRawIssuesResponse)
 			return issuesBody.Total / SIZE, nil
 		},
 		/*
