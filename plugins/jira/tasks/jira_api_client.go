@@ -67,7 +67,7 @@ func (jiraApiClient *JiraApiClient) FetchPages(path string, query *url.Values, h
 	if query == nil {
 		query = &url.Values{}
 	}
-	nextStart, total, pageSize := 0, 1, 100
+	nextStart, pageSize := 0, 100
 
 	// 获取issue总数
 	// get issue count
@@ -87,7 +87,7 @@ func (jiraApiClient *JiraApiClient) FetchPages(path string, query *url.Values, h
 		logger.Error("Error: ", err)
 		return nil
 	}
-	total = jiraApiResponse.Total
+	total := jiraApiResponse.Total
 
 	for nextStart < total {
 		nextStartTmp := nextStart

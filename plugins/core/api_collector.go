@@ -112,9 +112,12 @@ func (collector *ApiCollector) Execute() error {
 		return err
 	}
 	if collector.args.PageSize > 0 {
-		collector.fetchPagesAsync()
+		err = collector.fetchPagesAsync()
 	} else {
-		collector.fetchAsync(nil, collector.handleResponse)
+		err = collector.fetchAsync(nil, collector.handleResponse)
+	}
+	if err != nil {
+		return err
 	}
 	collector.args.ApiClient.WaitAsync()
 	return nil
@@ -170,7 +173,6 @@ func (collector *ApiCollector) fetchPagesAsync() error {
 		// use step currency technique? fetch like 10 pages at once, if all went well, fetch next 10 pages?
 		panic("not implmented")
 	}
-	return nil
 }
 
 func (collector *ApiCollector) handleResponse(res *http.Response, body interface{}) error {
