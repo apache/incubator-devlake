@@ -111,7 +111,6 @@ func (gitlabApiClient *GitlabApiClient) FetchWithPaginationAnts(path string, que
 				}
 				queryCopy.Set("page", strconv.Itoa(page))
 				queryCopy.Set("per_page", strconv.Itoa(pageSize))
-
 				err = gitlabApiClient.GetAsync(path, &queryCopy, handler)
 				if err != nil {
 					return err

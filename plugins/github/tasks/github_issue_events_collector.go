@@ -20,7 +20,7 @@ type IssueEvent struct {
 		Login string
 	}
 	Issue struct {
-		Number int
+		Id int
 	}
 	GithubCreatedAt core.Iso8601Time `json:"created_at"`
 }
@@ -67,7 +67,7 @@ func processEventsCollection(owner string, repo string, apiClient *GithubApiClie
 func convertGithubEvent(event *IssueEvent) (*models.GithubIssueEvent, error) {
 	githubEvent := &models.GithubIssueEvent{
 		GithubId:        event.GithubId,
-		IssueId:         event.Issue.Number,
+		IssueId:         event.Issue.Id,
 		Type:            event.Event,
 		AuthorUsername:  event.Actor.Login,
 		GithubCreatedAt: event.GithubCreatedAt.ToTime(),

@@ -12,9 +12,12 @@ import (
 	"gorm.io/gorm/clause"
 )
 
-func ConvertNotes(ctx context.Context) error {
+func ConvertNotes(ctx context.Context, repoId int) error {
 	githubPrComment := &githubModels.GithubPullRequestComment{}
-	cursor, err := lakeModels.Db.Model(githubPrComment).Rows()
+	cursor, err := lakeModels.Db.Model(githubPrComment).
+		Joins(`left join github_pull_requests on github_pull_requests.github_id = github_pull_request_comments.pull_request_id`).
+		Where("github_pull_requests.repo_id = ?", repoId).
+		Rows()
 	if err != nil {
 		return err
 	}

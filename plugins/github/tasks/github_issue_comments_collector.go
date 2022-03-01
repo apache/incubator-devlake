@@ -23,6 +23,7 @@ type IssueComment struct {
 	GithubCreatedAt core.Iso8601Time `json:"created_at"`
 }
 
+//CollectIssueComments will collect both issue and pr comments
 func CollectIssueComments(owner string, repo string, apiClient *GithubApiClient) error {
 	commentsErr := processCommentsCollection(owner, repo, apiClient)
 	if commentsErr != nil {
@@ -66,13 +67,13 @@ func processCommentsCollection(
 }
 
 func convertGithubComment(comment *IssueComment) (*models.GithubIssueComment, error) {
-	issueId, err := githubUtils.GetIssueIdByIssueUrl(comment.IssueUrl)
+	issueINumber, err := githubUtils.GetIssueIdByIssueUrl(comment.IssueUrl)
 	if err != nil {
 		return nil, err
 	}
 	githubComment := &models.GithubIssueComment{
 		GithubId:        comment.GithubId,
-		IssueId:         issueId,
+		IssueNumber:     issueINumber,
 		Body:            comment.Body,
 		AuthorUsername:  comment.User.Login,
 		GithubCreatedAt: comment.GithubCreatedAt.ToTime(),
