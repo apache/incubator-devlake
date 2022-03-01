@@ -101,7 +101,6 @@ function useConnectionManager ({
       case Providers.JIRA:
         connectionPayload = { name: name, Endpoint: endpointUrl, BasicAuthEncoded: token, JIRA_PROXY: proxy }
         break
-        // @todo fix/set github payload
       case Providers.GITHUB:
         connectionPayload = { name: name, GITHUB_ENDPOINT: endpointUrl, GITHUB_AUTH: token, GITHUB_PROXY: proxy }
         break
