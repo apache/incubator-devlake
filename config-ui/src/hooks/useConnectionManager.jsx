@@ -301,15 +301,15 @@ function useConnectionManager ({
           break
         case Providers.GITLAB:
           setToken(activeConnection.basicAuthEncoded || activeConnection.Auth)
-          setProxy(activeConnection.proxy)
+          setProxy(activeConnection.Proxy)
           break
         case Providers.GITHUB:
           setToken(activeConnection.basicAuthEncoded || activeConnection.Auth)
-          setProxy(activeConnection.proxy)
+          setProxy(activeConnection.Proxy)
           break
         case Providers.JIRA:
           setToken(activeConnection.basicAuthEncoded || activeConnection.Auth)
-          setProxy(activeConnection.proxy)
+          setProxy(activeConnection.Proxy)
           break
       }
       ToastNotification.clear()
