@@ -4,7 +4,7 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/merico-dev/lake/plugins/core"
+	"github.com/merico-dev/lake/plugins/helper"
 	"github.com/merico-dev/lake/plugins/jira/models"
 )
 
@@ -13,14 +13,14 @@ func ExtractApiIssues(
 	boardId uint64,
 	since time.Time,
 ) error {
-	extractor, err := core.NewApiExtractor(core.ApiExtractorArgs{
-		Table:       "jira_api_issues",
+	extractor, err := helper.NewApiExtractor(helper.ApiExtractorArgs{
+		Table: "jira_api_issues",
 		Params: JiraApiParams{
 			SourceId: source.ID,
 			BoardId:  boardId,
 		},
 		RowData: &JiraApiIssue{},
-		Extractors: []core.RawDataExtractor{
+		Extractors: []helper.RawDataExtractor{
 			func(row interface{}, params interface{}) (interface{}, error) {
 				p := params.(*JiraApiParams)
 				issue := row.(*JiraApiIssue)
