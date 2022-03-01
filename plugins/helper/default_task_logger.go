@@ -7,6 +7,8 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
+// bridge to current implementation at this point
+// TODO: implement another TaskLogger for distributed runner/worker
 type DefaultTaskLogger struct {
 	logger *logrus.Logger
 }
