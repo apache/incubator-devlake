@@ -10,7 +10,7 @@ import {
   Button, Icon, Intent, Switch,
   FormGroup, ButtonGroup, InputGroup,
   Elevation,
-  // TextArea,
+  TextArea,
   Card,
   Popover,
   Tooltip,
@@ -35,7 +35,7 @@ import Nav from '@/components/Nav'
 import Sidebar from '@/components/Sidebar'
 import AppCrumbs from '@/components/Breadcrumbs'
 import Content from '@/components/Content'
-import CodeEditor from '@uiw/react-textarea-code-editor'
+// import CodeEditor from '@uiw/react-textarea-code-editor'
 import { ReactComponent as HelpIcon } from '@/images/help.svg'
 import { ReactComponent as BackArrowIcon } from '@/images/undo.svg'
 import RunPipelineIcon from '@/images/duplicate.png'
@@ -637,15 +637,16 @@ const CreatePipeline = (props) => {
                             </>
                           )}
                         </h3>
-                        {/* <TextArea
-                          growVertically={true}
+                        <TextArea
+                          growVertically={false}
                           fill={true}
                           className='codeArea'
                           style={{ height: '440px !important', maxWidth: '640px' }}
                           value={rawConfiguration}
                           onChange={(e) => setRawConfiguration(e.target.value)}
-                        /> */}
-                        <div
+                        />
+                        {/* @todo: fix bug with @uiw/react-textarea-code-editor in a future release */}
+                        {/* <div
                           className='code-editor-wrapper' style={{
                             minHeight: '384px',
                             height: '440px !important',
@@ -669,7 +670,7 @@ const CreatePipeline = (props) => {
                               fontFamily: 'JetBrains Mono,Source Code Pro,ui-monospace,SFMono-Regular,SF Mono,Consolas,Liberation Mono,Menlo,monospace',
                             }}
                           />
-                        </div>
+                        </div> */}
                         <div
                           className='code-editor-card-footer'
                           style={{
