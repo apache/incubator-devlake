@@ -2,6 +2,8 @@ package api
 
 import (
 	"fmt"
+	"github.com/merico-dev/lake/logger"
+	"github.com/mitchellh/mapstructure"
 	"strings"
 	"time"
 
@@ -19,6 +21,11 @@ type PublicEmail struct {
 	Verified   bool
 	Visibility string
 }
+type TestConnectionRequest struct {
+	Endpoint string `json:"endpoint"`
+	Auth     string `json:"auth"`
+	Proxy    string `json:"proxy"`
+}
 
 /*
 POST /plugins/github/test
@@ -29,10 +36,13 @@ func TestConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, erro
 	if !ValidationResult.Success {
 		return &core.ApiResourceOutput{Body: ValidationResult}, nil
 	}
-	endpoint := input.Body["endpoint"].(string)
-	auth := input.Body["auth"].(string)
-	proxy := input.Body["proxy"].(string)
-	tokens := strings.Split(auth, ",")
+	var params TestConnectionRequest
+	err := mapstructure.Decode(input.Body, &params)
+	if err != nil {
+		logger.Error("Error: ", err)
+		return &core.ApiResourceOutput{Body: core.TestResult{Success: false, Message: core.InvalidParams}}, nil
+	}
+	tokens := strings.Split(params.Auth, ",")
 
 	// verify multiple token in parallel
 	// PLEASE NOTE: This works because GitHub API Client rotates tokens on each request
@@ -41,10 +51,10 @@ func TestConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, erro
 		token := tokens[i]
 		i := i
 		go func() {
-			githubApiClient := tasks.NewGithubApiClient(endpoint, []string{token}, nil, nil)
+			githubApiClient := tasks.NewGithubApiClient(params.Endpoint, []string{token}, nil, nil)
 			githubApiClient.SetTimeout(3 * time.Second)
-			if proxy != "" {
-				err := githubApiClient.SetProxy(proxy)
+			if params.Proxy != "" {
+				err := githubApiClient.SetProxy(params.Proxy)
 				if err != nil {
 					results <- fmt.Errorf("set proxy failed for #%v %s %w", i, token, err)
 					return
