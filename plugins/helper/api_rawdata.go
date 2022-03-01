@@ -8,6 +8,7 @@ import (
 	"gorm.io/datatypes"
 )
 
+// Table structure for raw data storage
 type RawData struct {
 	Uuid      uuid.UUID `gorm:"type:uuid;default:uuid_generate_v4();primaryKey"`
 	Params    string    `gorm:"type:varchar(255);index"`
