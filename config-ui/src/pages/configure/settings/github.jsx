@@ -41,15 +41,13 @@ export default function GithubSettings (props) {
   }, [errors, onSettingsChange, connectionId, providerId])
 
   useEffect(() => {
-    // setGithubProxy(connection.proxy)
-    // @todo: TEST/Validate Backend API Changes! (Depends on PR #1282)
-    // setPrType(connection.prType)
-    // setPrComponent(connection.prComponent)
-    // setIssueSeverity(connection.issueSeverity)
-    // setIssuePriority(connection.issuePrority)
-    // setIssueTypeBug(connection.issueTypeBug)
-    // setIssueTypeRequirement(connection.issueTypeRequirement)
-    // setIssueTypeIncident(connection.issueTypeIncident)
+    setPrType(connection.PrType)
+    setPrComponent(connection.PrComponent)
+    setIssueSeverity(connection.IssueSeverity)
+    setIssuePriority(connection.IssuePriority)
+    setIssueTypeBug(connection.IssueTypeBug)
+    setIssueTypeRequirement(connection.IssueRequirement)
+    setIssueTypeIncident(connection.IssueTypeIncident)
   }, [connection])
 
   useEffect(() => {
