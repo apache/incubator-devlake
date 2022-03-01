@@ -6,26 +6,28 @@ import (
 	"github.com/mitchellh/mapstructure"
 )
 
-type GithubConfig struct {
-	GITHUB_ENDPOINT string `mapstructure:"GITHUB_ENDPOINT"`
-	GITHUB_AUTH     string `mapstructure:"GITHUB_AUTH"`
-	GITHUB_PROXY    string `mapstructure:"GITHUB_PROXY"`
-}
-
 // This object conforms to what the frontend currently sends.
 type GithubSource struct {
-	GITHUB_ENDPOINT string
-	GITHUB_AUTH     string
-	GITHUB_PROXY    string
+	Endpoint string `mapstructure:"GITHUB_ENDPOINT"`
+	Auth     string `mapstructure:"GITHUB_AUTH"`
+	Proxy    string `mapstructure:"GITHUB_PROXY"`
+
+	PrType            string `mapstructure:"GITHUB_PR_TYPE"`
+	PrComponent       string `mapstructure:"GITHUB_PR_COMPONENT"`
+	IssueSeverity     string `mapstructure:"GITHUB_ISSUE_SEVERITY"`
+	IssuePriority     string `mapstructure:"GITHUB_ISSUE_PRIORITY"`
+	IssueRequirement  string `mapstructure:"GITHUB_ISSUE_REQUIREMENT"`
+	IssueCompoent     string `mapstructure:"GITHUB_ISSUE_COMPONENT"`
+	IssueTypeBug      string `mapstructure:"GITHUB_ISSUE_TYPE_BUG"`
+	IssueTypeIncident string `mapstructure:"GITHUB_ISSUE_TYPE_INCIDENT"`
 }
 
 // This object conforms to what the frontend currently expects.
 type GithubResponse struct {
-	Endpoint string
-	Auth     string
-	Name     string
-	ID       int
-	Proxy    string `json:"proxy"`
+	Name string
+	ID   int
+
+	GithubSource
 }
 
 /*
@@ -37,14 +39,9 @@ func PutSource(input *core.ApiResourceInput) (*core.ApiResourceOutput, error) {
 	if err != nil {
 		return nil, err
 	}
+	config.SetStruct(githubSource, true)
 	v := config.GetConfig()
-	if githubSource.GITHUB_ENDPOINT != "" {
-		v.Set("GITHUB_ENDPOINT", githubSource.GITHUB_ENDPOINT)
-	}
-	if githubSource.GITHUB_AUTH != "" {
-		v.Set("GITHUB_AUTH", githubSource.GITHUB_AUTH)
-	}
-	v.Set("GITHUB_PROXY", githubSource.GITHUB_PROXY)
+	v.Set("GITHUB_PROXY", githubSource.Proxy)
 	err = v.WriteConfig()
 	if err != nil {
 		return nil, err
@@ -80,16 +77,15 @@ func GetSource(input *core.ApiResourceInput) (*core.ApiResourceOutput, error) {
 
 func GetSourceFromEnv() (*GithubResponse, error) {
 	v := config.GetConfig()
-	var configJson GithubConfig
-	err := v.Unmarshal(&configJson)
+	var githubSource GithubSource
+	err := v.Unmarshal(&githubSource)
 	if err != nil {
 		return nil, err
 	}
+
 	return &GithubResponse{
-		Endpoint: configJson.GITHUB_ENDPOINT,
-		Auth:     configJson.GITHUB_AUTH,
-		Name:     "Github",
-		ID:       1,
-		Proxy:    configJson.GITHUB_PROXY,
+		Name:         "Github",
+		ID:           1,
+		GithubSource: githubSource,
 	}, nil
 }
