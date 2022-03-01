@@ -14,8 +14,7 @@ func ConvertJobs(ctx context.Context) error {
 	jenkinsJob := &jenkinsModels.JenkinsJob{}
 
 	jobIdGen := didgen.NewDomainIdGenerator(jenkinsJob)
-	err := lakeModels.Db.
-		Delete(&devops.Job{}, "`name` not in (select `name` from jenkins_jobs)").Error
+	err := lakeModels.Db.Where("id like 'jenkins:JenkinsJob:%'").Delete(&devops.Job{}).Error
 	if err != nil {
 		return err
 	}
