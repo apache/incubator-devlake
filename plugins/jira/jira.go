@@ -103,10 +103,10 @@ func (plugin Jira) Execute(options map[string]interface{}, progress chan<- float
 	}
 	if len(tasksToRun) == 0 {
 		tasksToRun = map[string]bool{
-			"collectBoard":    true,
-			"collectProjects": true,
-			//"collectIssues":       true,
-			"collectApiIssues":    true,
+			"collectBoard":        true,
+			"collectProjects":     true,
+			"collectIssues":       true,
+			"collectApiIssues":    false,
 			"collectChangelogs":   true,
 			"collectRemotelinks":  true,
 			"enrichIssues":        true,
@@ -162,7 +162,7 @@ func (plugin Jira) Execute(options map[string]interface{}, progress chan<- float
 	if collector == nil {
 		return fmt.Errorf("Jira server %s is not supported", info.Version)
 	}
-	taskCtx := core.NewDefaultTaskContext(ctx, nil)
+	//taskCtx := core.NewDefaultTaskContext(ctx, nil)
 	for i, boardId := range boardIds {
 		if tasksToRun["collectProjects"] {
 			err := collector.CollectProjects(jiraApiClient, op.SourceId)
@@ -201,16 +201,16 @@ func (plugin Jira) Execute(options map[string]interface{}, progress chan<- float
 				}
 			}
 		}
-		setBoardProgress(i, 0.02)
-		if tasksToRun["collectApiIssues"] {
-			err = tasks.CollectApiIssues(taskCtx, jiraApiClient, source, boardId, since)
-			if err != nil {
-				return &errors.SubTaskError{
-					SubTaskName: "collectApiIssues",
-					Message:     err.Error(),
-				}
-			}
-		}
+		//setBoardProgress(i, 0.02)
+		//if tasksToRun["collectApiIssues"] {
+		//err = tasks.CollectApiIssues(taskCtx, jiraApiClient, source, boardId, since)
+		//if err != nil {
+		//return &errors.SubTaskError{
+		//SubTaskName: "collectApiIssues",
+		//Message:     err.Error(),
+		//}
+		//}
+		//}
 		setBoardProgress(i, 0.1)
 		if tasksToRun["collectChangelogs"] {
 			err = collector.CollectChangelogs(jiraApiClient, source, boardId, rateLimitPerSecondInt, ctx)

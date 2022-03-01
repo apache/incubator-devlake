@@ -1,4 +1,4 @@
-package core
+package helper
 
 import (
 	"bytes"
@@ -10,6 +10,7 @@ import (
 	"text/template"
 
 	"github.com/google/uuid"
+	"github.com/merico-dev/lake/plugins/core"
 	"gorm.io/datatypes"
 )
 
@@ -32,14 +33,14 @@ type UrlData struct {
 type AsyncResponseHandler func(res *http.Response, body interface{}) error
 
 type ApiCollectorArgs struct {
-	Ctx           TaskContext
+	Ctx           core.TaskContext
 	Table         string                                  `comment:"Raw data table name"`
 	UrlTemplate   string                                  `comment:"GoTemplate for API url"`
 	Params        interface{}                             `comment:"To identify a set of records with same UrlTemplate, i.e. {SourceId, BoardId} for jira entities"`
 	Query         func(pager *Pager) (*url.Values, error) `comment:"Extra query string when requesting API, like 'Since' option for jira issues collection"`
 	Header        func(pager *Pager) (*url.Values, error)
 	PageSize      int
-	ApiClient     AsyncApiClient
+	ApiClient     core.AsyncApiClient
 	Input         func() Iterator
 	BodyType      reflect.Type
 	OnData        func(res *http.Response, body interface{}) (interface{}, error)
@@ -232,7 +233,7 @@ func (collector *ApiCollector) fetchAsync(pager *Pager, handler AsyncResponseHan
 	}
 	return collector.args.ApiClient.GetAsync(apiUrl, apiQuery, apiHeader, func(res *http.Response) error {
 		body := collector.newResponseBody()
-		err := UnmarshalResponse(res, body)
+		err := core.UnmarshalResponse(res, body)
 		if err != nil {
 			return err
 		}
@@ -240,4 +241,4 @@ func (collector *ApiCollector) fetchAsync(pager *Pager, handler AsyncResponseHan
 	})
 }
 
-var _ SubTask = (*ApiCollector)(nil)
+var _ core.SubTask = (*ApiCollector)(nil)
