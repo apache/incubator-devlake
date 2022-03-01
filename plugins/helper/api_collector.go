@@ -54,6 +54,9 @@ type ApiCollector struct {
 	params      string
 }
 
+// NewApiCollector allocates a new ApiCollector  with the given args.
+// ApiCollector can help you collecting data from some api with ease, pass in a AsyncApiClient and tell it which part
+// of response you want to save, ApiCollector will collect them from remote server and store them into database.
 func NewApiCollector(args ApiCollectorArgs) (*ApiCollector, error) {
 	// process args
 	if args.Ctx == nil {
@@ -98,6 +101,7 @@ func NewApiCollector(args ApiCollectorArgs) (*ApiCollector, error) {
 	}, nil
 }
 
+// Start collection
 func (collector *ApiCollector) Execute() error {
 	// make sure table is created
 	db := collector.args.Ctx.GetDb()
@@ -108,13 +112,16 @@ func (collector *ApiCollector) Execute() error {
 		}
 	}
 
+	// flush data, TODO: incremental data collection
 	err := db.Exec(GetRawTableDeletionSql(collector.table), collector.params).Error
 	if err != nil {
 		return err
 	}
 	if collector.args.PageSize > 0 {
+		// collect multiple pages
 		err = collector.fetchPagesAsync()
 	} else {
+		// collect detail of a record
 		err = collector.fetchAsync(nil, collector.handleResponse)
 	}
 	if err != nil {
@@ -177,6 +184,7 @@ func (collector *ApiCollector) fetchPagesAsync() error {
 }
 
 func (collector *ApiCollector) handleResponse(res *http.Response, body interface{}) error {
+	//
 	data, err := collector.args.OnData(res, body)
 	if err != nil {
 		return err

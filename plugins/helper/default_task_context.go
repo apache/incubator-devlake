@@ -10,6 +10,7 @@ import (
 )
 
 // bridge to current implementation at this point
+// TODO: implement another TaskContext for distributed runner/worker
 type DefaultTaskContext struct {
 	ctx    context.Context
 	data   interface{}
