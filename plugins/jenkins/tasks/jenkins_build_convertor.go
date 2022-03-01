@@ -11,7 +11,7 @@ import (
 )
 
 func ConvertBuilds(ctx context.Context) error {
-	err := lakeModels.Db.Delete(&devops.Build{}, "`job_id` not in (select `id` from jobs)").Error
+	err := lakeModels.Db.Where("id like 'jenkins:JenkinsBuild:%'").Delete(&devops.Build{}).Error
 	if err != nil {
 		return err
 	}
