@@ -23,8 +23,13 @@ type GithubPullRequest struct {
 	ReviewComments int
 	Merged         bool
 	MergedAt       *time.Time
+	Body           string
 	Type           string
 	Component      string
 	MergeCommitSha string `gorm:"type:char(40)"`
+	HeadRef        string
+	BaseRef        string
+	BaseCommitSha  string
+	HeadCommitSha  string
 	common.NoPKModel
 }
