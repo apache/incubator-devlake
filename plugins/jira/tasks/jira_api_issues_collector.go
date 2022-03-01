@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/merico-dev/lake/plugins/core"
+	"github.com/merico-dev/lake/plugins/helper"
 	"github.com/merico-dev/lake/plugins/jira/models"
 )
 
@@ -53,7 +54,7 @@ func CollectApiIssues(
 
 	const SIZE = 100
 
-	collector, err := core.NewApiCollector(core.ApiCollectorArgs{
+	collector, err := helper.NewApiCollector(helper.ApiCollectorArgs{
 		Ctx:       taskCtx,
 		ApiClient: apiClient,
 		PageSize:  SIZE,
@@ -70,7 +71,7 @@ func CollectApiIssues(
 		/*
 			(Optional) Return query string for request, or you can plug them into UrlTemplate directly
 		*/
-		Query: func(pager *core.Pager) (*url.Values, error) {
+		Query: func(pager *helper.Pager) (*url.Values, error) {
 			query := &url.Values{}
 			//query.Set("jql", jql)
 			query.Set("startAt", fmt.Sprintf("%v", pager.Skip))

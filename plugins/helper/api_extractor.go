@@ -1,4 +1,6 @@
-package core
+package helper
+
+import "github.com/merico-dev/lake/plugins/core"
 
 type RawDataExtractor func(row interface{}, params interface{}) (interface{}, error)
 
@@ -23,4 +25,4 @@ func (extractor *ApiExtractor) Execute() error {
 	return nil
 }
 
-var _ SubTask = (*ApiExtractor)(nil)
+var _ core.SubTask = (*ApiExtractor)(nil)
