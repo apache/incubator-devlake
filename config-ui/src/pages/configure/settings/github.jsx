@@ -45,6 +45,7 @@ export default function GithubSettings (props) {
     setPrComponent(connection.PrComponent)
     setIssueSeverity(connection.IssueSeverity)
     setIssuePriority(connection.IssuePriority)
+    setIssueComponent(connection.issueComponent)
     setIssueTypeBug(connection.IssueTypeBug)
     setIssueTypeRequirement(connection.IssueRequirement)
     setIssueTypeIncident(connection.IssueTypeIncident)
