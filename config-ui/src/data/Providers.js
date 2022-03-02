@@ -43,7 +43,7 @@ const ProviderFormLabels = {
   null: {
     name: 'Connection Name',
     endpoint: 'Endpoint URL',
-    proxy: 'Proxy',
+    proxy: 'Proxy URL',
     token: 'Basic Auth Token',
     username: 'Username',
     password: 'Password'
@@ -51,7 +51,7 @@ const ProviderFormLabels = {
   gitlab: {
     name: 'Connection Name',
     endpoint: 'Endpoint URL',
-    proxy: 'Proxy',
+    proxy: 'Proxy URL',
     token: 'Basic Auth Token',
     username: 'Username',
     password: 'Password'
@@ -59,7 +59,7 @@ const ProviderFormLabels = {
   jenkins: {
     name: 'Connection Name',
     endpoint: 'Endpoint URL',
-    proxy: 'Proxy',
+    proxy: 'Proxy URL',
     token: 'Basic Auth Token',
     username: 'Username',
     password: 'Password'
@@ -67,7 +67,7 @@ const ProviderFormLabels = {
   jira: {
     name: 'Connection Name',
     endpoint: 'Endpoint URL',
-    proxy: 'Proxy',
+    proxy: 'Proxy URL',
     token: 'Basic Auth Token',
     username: 'Username',
     password: 'Password'
@@ -75,7 +75,7 @@ const ProviderFormLabels = {
   github: {
     name: 'Connection Name',
     endpoint: 'Endpoint URL',
-    proxy: 'Proxy',
+    proxy: 'Proxy URL',
     // token: 'Auth Token(s)',
     token: (
       <Tooltip
