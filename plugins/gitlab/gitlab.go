@@ -3,6 +3,7 @@ package main // must be main for plugin entry point
 import (
 	"context"
 	"fmt"
+	"github.com/merico-dev/lake/config"
 	errors "github.com/merico-dev/lake/errors"
 	"os"
 	"strconv"
@@ -101,6 +102,10 @@ func (plugin Gitlab) Execute(options map[string]interface{}, progress chan<- flo
 	}
 
 	gitlabApiClient := tasks.CreateApiClient(scheduler)
+	err = gitlabApiClient.SetProxy(config.GetConfig().GetString("GITLAB_PROXY"))
+	if err != nil {
+		return err
+	}
 	progress <- 0.1
 	if err := tasks.CollectProject(projectIdInt, gitlabApiClient); err != nil {
 		return fmt.Errorf("could not collect projects: %v", err)
