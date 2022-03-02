@@ -5,8 +5,6 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
-	"reflect"
-	"time"
 
 	"github.com/merico-dev/lake/plugins/core"
 	"github.com/merico-dev/lake/plugins/helper"
@@ -24,40 +22,40 @@ type JiraApiRawIssuesResponse struct {
 	Issues []json.RawMessage `json:"issues"`
 }
 
-func CollectApiIssues(
-	taskCtx core.TaskContext,
-	apiClient *JiraApiClient,
-	source *models.JiraSource,
-	boardId uint64,
-	since time.Time,
-) error {
-	// --------- skip this part begin --------
+func CollectApiIssues(taskCtx core.TaskContext) error {
+	db := taskCtx.GetDb()
+	data := taskCtx.GetData().(*JiraTaskData)
+
+	since := data.Since
+	incremental := false
 	// user didn't specify a time range to sync, try load from database
-	/*
-		if since.IsZero() {
-			var latestUpdated models.JiraIssue
-			err := lakeModels.Db.Where("source_id = ?", source.ID).Order("updated DESC").Limit(1).Find(&latestUpdated).Error
-			if err != nil {
-				logger.Error("jira collect issues:  get last sync time failed", err)
-				return err
-			}
-			since = latestUpdated.Updated
+	if since == nil {
+		var latestUpdated models.JiraIssue
+		err := db.Where("source_id = ?", data.Source.ID).Order("updated DESC").Limit(1).Find(&latestUpdated).Error
+		if err != nil {
+			return fmt.Errorf("failed to get latest jira issue record: %w", err)
 		}
-		// build jql
-		jql := "ORDER BY updated ASC"
-		if !since.IsZero() {
-			// prepend a time range criteria if `since` was specified, either by user or from database
-			jql = fmt.Sprintf("updated >= '%v' %v", since.Format("2006/01/02 15:04"), jql)
+		if latestUpdated.IssueId > 0 {
+			*since = latestUpdated.Updated
+			incremental = true
 		}
-	*/
-	// --------- skip this part end --------
+	}
+	// build jql
+	// IMPORTANT: we have to keep paginated data in a consistence order to avoid data-missing, if we sort issues by
+	//  `updated`, issue will be jumping between pages if it got updated during the collection process
+	jql := "ORDER BY created ASC"
+	if since != nil {
+		// prepend a time range criteria if `since` was specified, either by user or from database
+		jql = fmt.Sprintf("updated >= '%v' %v", since.Format("2006/01/02 15:04"), jql)
+	}
 
 	const SIZE = 100
 
 	collector, err := helper.NewApiCollector(helper.ApiCollectorArgs{
-		Ctx:       taskCtx,
-		ApiClient: apiClient,
-		PageSize:  SIZE,
+		Ctx:         taskCtx,
+		ApiClient:   data.ApiClient,
+		PageSize:    SIZE,
+		Incremental: incremental,
 		/*
 			url may use arbitrary variables from different source in any order, we need GoTemplate to allow more
 			flexible for all kinds of possibility.
@@ -73,7 +71,7 @@ func CollectApiIssues(
 		*/
 		Query: func(pager *helper.Pager) (*url.Values, error) {
 			query := &url.Values{}
-			//query.Set("jql", jql)
+			query.Set("jql", jql)
 			query.Set("startAt", fmt.Sprintf("%v", pager.Skip))
 			query.Set("maxResults", fmt.Sprintf("%v", pager.Size))
 			return query, nil
@@ -96,24 +94,20 @@ func CollectApiIssues(
 			set of data to be process, for example, we process JiraIssues by Board
 		*/
 		Params: JiraApiParams{
-			SourceId: source.ID,
-			BoardId:  boardId,
-		},
-		/*
-			Accept response, return raw data either a single object or list
-		*/
-		BodyType: reflect.TypeOf(&JiraApiRawIssuesResponse{}),
-		OnData: func(res *http.Response, body interface{}) (interface{}, error) {
-			issuesBody := body.(*JiraApiRawIssuesResponse)
-			return issuesBody.Issues, nil
+			SourceId: data.Source.ID,
+			BoardId:  data.Options.BoardId,
 		},
 		/*
 			For api endpoint that returns number of total pages, ApiCollector can collect pages in parallel with ease,
 			or other techniques are required if this information was missing.
 		*/
-		GetTotalPages: func(res *http.Response, body interface{}) (int, error) {
-			issuesBody := body.(*JiraApiRawIssuesResponse)
-			return issuesBody.Total / SIZE, nil
+		GetTotalPages: func(res *http.Response) (int, error) {
+			body := &JiraPagination{}
+			err := core.UnmarshalResponse(res, body)
+			if err != nil {
+				return 0, err
+			}
+			return body.Total / SIZE, nil
 		},
 		/*
 			Table store raw data

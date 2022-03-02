@@ -7,7 +7,9 @@ import (
 	"strconv"
 	"time"
 
+	lakeModels "github.com/merico-dev/lake/models"
 	"github.com/merico-dev/lake/plugins/core"
+	"github.com/merico-dev/lake/plugins/jira/models"
 	"github.com/merico-dev/lake/plugins/jira/tasks"
 )
 
@@ -24,7 +26,12 @@ func Proxy(input *core.ApiResourceInput) (*core.ApiResourceOutput, error) {
 	if err != nil {
 		return nil, err
 	}
-	client, err := tasks.NewJiraApiClientBySourceId(jiraSourceId, nil)
+	jiraSource := &models.JiraSource{}
+	err = lakeModels.Db.First(jiraSource, jiraSourceId).Error
+	if err != nil {
+		return nil, err
+	}
+	client := tasks.NewJiraApiClient(jiraSource.Endpoint, jiraSource.BasicAuthEncoded, jiraSource.Proxy, nil, nil)
 	if err != nil {
 		return nil, err
 	}
