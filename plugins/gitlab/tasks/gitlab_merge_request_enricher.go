@@ -5,7 +5,7 @@ import (
 	gitlabModels "github.com/merico-dev/lake/plugins/gitlab/models"
 )
 
-func GetReviewRounds(commits []gitlabModels.GitlabMergeRequestCommit, notes []gitlabModels.GitlabMergeRequestNote) int {
+func GetReviewRounds(commits []gitlabModels.GitlabCommit, notes []gitlabModels.GitlabMergeRequestNote) int {
 	i := 0
 	j := 0
 	reviewRounds := 0
@@ -47,8 +47,8 @@ func setReviewRounds(mr *gitlabModels.GitlabMergeRequest) error {
 	// `system` = 0 is needed since we only care about human comments
 	lakeModels.Db.Where("merge_request_id = ? AND `system` = 0", mr.GitlabId).Order("gitlab_created_at asc").Find(&notes)
 
-	var commits []gitlabModels.GitlabMergeRequestCommit
-	lakeModels.Db.Joins("join gitlab_merge_request_commit_merge_requests gmrcmr on gmrcmr.merge_request_commit_id = gitlab_merge_request_commits.commit_id").Where("merge_request_id = ?", mr.GitlabId).Order("authored_date asc").Find(&commits)
+	var commits []gitlabModels.GitlabCommit
+	lakeModels.Db.Joins("join gitlab_merge_request_commits gmrc on gmrc.merge_request_commit_id = gitlab_commits.sha").Where("merge_request_id = ?", mr.GitlabId).Order("authored_date asc").Find(&commits)
 
 	reviewRounds := GetReviewRounds(commits, notes)
 

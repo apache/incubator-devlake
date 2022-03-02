@@ -42,7 +42,6 @@ func (plugin Gitlab) Init() {
 		&models.GitlabReviewer{},
 		&models.GitlabMergeRequestNote{},
 		&models.GitlabMergeRequestCommit{},
-		&models.GitlabMergeRequestCommitMergeRequest{},
 		&models.GitlabUser{},
 	)
 	if err != nil {
@@ -325,7 +324,7 @@ func main() {
 				"projectId": projectId,
 				//"tasks":     []string{"collectProject"},
 				//"tasks":     []string{"collectCommits"},
-				"tasks": []string{"convertProjects"},
+				"tasks": []string{"collectCommits", "collectMrs"},
 				//"tasks": []string{"convertCommits"},
 			},
 			progress,
