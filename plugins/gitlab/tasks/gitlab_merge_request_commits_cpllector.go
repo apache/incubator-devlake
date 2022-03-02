@@ -41,18 +41,18 @@ func CollectMergeRequestCommits(projectId int, mr *models.GitlabMergeRequest, gi
 				return nil
 			}
 			for _, commit := range *gitlabApiResponse {
-				gitlabMergeRequestCommit, err := convertMergeRequestCommit(&commit)
+				gitlabCommit, err := convertMergeCommitToCommit(&commit)
 				if err != nil {
 					return err
 				}
 				result := lakeModels.Db.Clauses(clause.OnConflict{
 					UpdateAll: true,
-				}).Create(&gitlabMergeRequestCommit)
+				}).Create(&gitlabCommit)
 
 				if result.Error != nil {
 					logger.Error("Could not upsert: ", result.Error)
 				}
-				GitlabMergeRequestCommitMergeRequest := &models.GitlabMergeRequestCommitMergeRequest{
+				GitlabMergeRequestCommitMergeRequest := &models.GitlabMergeRequestCommit{
 					MergeRequestCommitId: commit.CommitId,
 					MergeRequestId:       mr.GitlabId,
 				}
@@ -69,9 +69,9 @@ func CollectMergeRequestCommits(projectId int, mr *models.GitlabMergeRequest, gi
 		})
 }
 
-func convertMergeRequestCommit(commit *GitlabMergeRequestCommit) (*models.GitlabMergeRequestCommit, error) {
-	gitlabMergeRequestCommit := &models.GitlabMergeRequestCommit{
-		CommitId:       commit.CommitId,
+func convertMergeCommitToCommit(commit *GitlabMergeRequestCommit) (*models.GitlabCommit, error) {
+	gitlabCommit := &models.GitlabCommit{
+		Sha:            commit.CommitId,
 		Title:          commit.Title,
 		Message:        commit.Message,
 		ShortId:        commit.ShortId,
@@ -83,5 +83,5 @@ func convertMergeRequestCommit(commit *GitlabMergeRequestCommit) (*models.Gitlab
 		CommittedDate:  commit.CommittedDate.ToTime(),
 		WebUrl:         commit.WebUrl,
 	}
-	return gitlabMergeRequestCommit, nil
+	return gitlabCommit, nil
 }
