@@ -12,14 +12,14 @@ type GithubSource struct {
 	Auth     string `mapstructure:"GITHUB_AUTH"`
 	Proxy    string `mapstructure:"GITHUB_PROXY"`
 
-	PrType            string `mapstructure:"GITHUB_PR_TYPE"`
-	PrComponent       string `mapstructure:"GITHUB_PR_COMPONENT"`
-	IssueSeverity     string `mapstructure:"GITHUB_ISSUE_SEVERITY"`
-	IssuePriority     string `mapstructure:"GITHUB_ISSUE_PRIORITY"`
-	IssueRequirement  string `mapstructure:"GITHUB_ISSUE_REQUIREMENT"`
-	IssueCompoent     string `mapstructure:"GITHUB_ISSUE_COMPONENT"`
-	IssueTypeBug      string `mapstructure:"GITHUB_ISSUE_TYPE_BUG"`
-	IssueTypeIncident string `mapstructure:"GITHUB_ISSUE_TYPE_INCIDENT"`
+	PrType               string `mapstructure:"GITHUB_PR_TYPE"`
+	PrComponent          string `mapstructure:"GITHUB_PR_COMPONENT"`
+	IssueSeverity        string `mapstructure:"GITHUB_ISSUE_SEVERITY"`
+	IssuePriority        string `mapstructure:"GITHUB_ISSUE_PRIORITY"`
+	IssueComponent       string `mapstructure:"GITHUB_ISSUE_COMPONENT"`
+	IssueTypeBug         string `mapstructure:"GITHUB_ISSUE_TYPE_BUG"`
+	IssueTypeIncident    string `mapstructure:"GITHUB_ISSUE_TYPE_INCIDENT"`
+	IssueTypeRequirement string `mapstructure:"GITHUB_ISSUE_TYPE_REQUIREMENT"`
 }
 
 // This object conforms to what the frontend currently expects.
