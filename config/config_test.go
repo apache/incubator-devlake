@@ -40,7 +40,7 @@ func TestSetStruct(t *testing.T) {
 	}
 
 	v := GetConfig()
-	SetStruct(ts, false)
+	SetStruct(ts, "json", "mapstructure")
 	v1 := v.GetString("TEST_F1")
 	assert.Equal(t, v1, "123")
 	v2 := v.GetInt("TEST_F2")
@@ -50,8 +50,8 @@ func TestSetStruct(t *testing.T) {
 	v4 := v.GetString("TEST_F4")
 	assert.Equal(t, v4, "Test")
 
-	ts.F4 = ""
-	SetStruct(ts, true)
-	v1 = v.GetString("TEST_F4")
-	assert.Equal(t, v1, "Test")
+	ts.F1 = ""
+	SetStruct(ts, "json", "mapstructure")
+	v1 = v.GetString("TEST_F1")
+	assert.Equal(t, v1, "")
 }
