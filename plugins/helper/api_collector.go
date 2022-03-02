@@ -4,12 +4,11 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"io/ioutil"
 	"net/http"
 	"net/url"
-	"reflect"
 	"text/template"
 
-	"github.com/google/uuid"
 	"github.com/merico-dev/lake/plugins/core"
 	"gorm.io/datatypes"
 )
@@ -30,7 +29,7 @@ type UrlData struct {
 	Params interface{}
 }
 
-type AsyncResponseHandler func(res *http.Response, body interface{}) error
+type AsyncResponseHandler func(res *http.Response) error
 
 type ApiCollectorArgs struct {
 	Ctx           core.TaskContext
@@ -40,11 +39,10 @@ type ApiCollectorArgs struct {
 	Query         func(pager *Pager) (*url.Values, error) `comment:"Extra query string when requesting API, like 'Since' option for jira issues collection"`
 	Header        func(pager *Pager) (*url.Values, error)
 	PageSize      int
+	Incremental   bool `comment:"Indicate this is a incremental collection, so the existing data won't get flushed"`
 	ApiClient     core.AsyncApiClient
 	Input         func() Iterator
-	BodyType      reflect.Type
-	OnData        func(res *http.Response, body interface{}) (interface{}, error)
-	GetTotalPages func(res *http.Response, body interface{}) (int, error)
+	GetTotalPages func(res *http.Response) (int, error)
 }
 
 type ApiCollector struct {
@@ -87,12 +85,6 @@ func NewApiCollector(args ApiCollectorArgs) (*ApiCollector, error) {
 	if args.ApiClient == nil {
 		return nil, fmt.Errorf("ApiClient is required")
 	}
-	if args.BodyType == nil {
-		return nil, fmt.Errorf("BodyType is required")
-	}
-	if args.OnData == nil {
-		return nil, fmt.Errorf("OnData handler is required")
-	}
 	return &ApiCollector{
 		args:        &args,
 		urlTemplate: tpl,
@@ -105,17 +97,17 @@ func NewApiCollector(args ApiCollectorArgs) (*ApiCollector, error) {
 func (collector *ApiCollector) Execute() error {
 	// make sure table is created
 	db := collector.args.Ctx.GetDb()
-	for _, creationSql := range GetRawTableCreationSqls(collector.table) {
-		err := db.Exec(creationSql).Error
-		if err != nil {
-			return err
-		}
+	err := db.Table(collector.table).AutoMigrate(&RawData{})
+	if err != nil {
+		return err
 	}
 
 	// flush data, TODO: incremental data collection
-	err := db.Exec(GetRawTableDeletionSql(collector.table), collector.params).Error
-	if err != nil {
-		return err
+	if !collector.args.Incremental {
+		err = db.Table(collector.table).Delete(&RawData{}, "params = ?", collector.params).Error
+		if err != nil {
+			return err
+		}
 	}
 	if collector.args.PageSize > 0 {
 		// collect multiple pages
@@ -143,22 +135,25 @@ func (collector *ApiCollector) generateUrl(pager *Pager) (string, error) {
 	return buf.String(), nil
 }
 
-func (collector *ApiCollector) newResponseBody() interface{} {
-	return reflect.New(collector.args.BodyType.Elem()).Interface()
-}
-
 func (collector *ApiCollector) fetchPagesAsync() error {
 	if collector.args.GetTotalPages != nil {
 		/* when total pages is available from api*/
 		// fetch the very first page
-		return collector.fetchAsync(nil, func(res *http.Response, body interface{}) error {
+		return collector.fetchAsync(nil, func(res *http.Response) error {
 			// gather total pages
-			totalPages, err := collector.args.GetTotalPages(res, body)
+			body, err := ioutil.ReadAll(res.Body)
+			if err != nil {
+				return err
+			}
+			res.Body.Close()
+			res.Body = ioutil.NopCloser(bytes.NewBuffer(body))
+			totalPages, err := collector.args.GetTotalPages(res)
 			if err != nil {
 				return err
 			}
 			// handle response body of first page
-			err = collector.handleResponse(res, body) // THIS WONT WORK: because res.Body already got read in GetTotalPages
+			res.Body = ioutil.NopCloser(bytes.NewBuffer(body))
+			err = collector.handleResponse(res)
 			if err != nil {
 				return err
 			}
@@ -183,34 +178,18 @@ func (collector *ApiCollector) fetchPagesAsync() error {
 	}
 }
 
-func (collector *ApiCollector) handleResponse(res *http.Response, body interface{}) error {
-	//
-	data, err := collector.args.OnData(res, body)
+func (collector *ApiCollector) handleResponse(res *http.Response) error {
+	body, err := ioutil.ReadAll(res.Body)
 	if err != nil {
 		return err
 	}
+	res.Body.Close()
 	db := collector.args.Ctx.GetDb()
-	switch d := data.(type) {
-	case []json.RawMessage:
-		rows := make([]*RawData, len(d))
-		for i, item := range d {
-			rows[i] = &RawData{
-				Uuid:   uuid.New(),
-				Data:   datatypes.JSON(item),
-				Params: collector.params,
-			}
-		}
-		err = db.Table(collector.table).CreateInBatches(rows, len(rows)).Error
-	case json.RawMessage:
-		err = db.Table(collector.table).Create(&RawData{
-			Uuid:   uuid.New(),
-			Data:   datatypes.JSON(d),
-			Params: collector.params,
-		}).Error
-	default:
-		err = fmt.Errorf("unexpected type returned")
-	}
-	return err
+	return db.Table(collector.table).Create(&RawData{
+		Data:   datatypes.JSON(body),
+		Params: collector.params,
+		Url:    res.Request.URL.String(),
+	}).Error
 }
 
 func (collector *ApiCollector) fetchAsync(pager *Pager, handler AsyncResponseHandler) error {
@@ -239,14 +218,7 @@ func (collector *ApiCollector) fetchAsync(pager *Pager, handler AsyncResponseHan
 			return err
 		}
 	}
-	return collector.args.ApiClient.GetAsync(apiUrl, apiQuery, apiHeader, func(res *http.Response) error {
-		body := collector.newResponseBody()
-		err := core.UnmarshalResponse(res, body)
-		if err != nil {
-			return err
-		}
-		return handler(res, body)
-	})
+	return collector.args.ApiClient.GetAsync(apiUrl, apiQuery, apiHeader, handler)
 }
 
 var _ core.SubTask = (*ApiCollector)(nil)
