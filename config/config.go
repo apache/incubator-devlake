@@ -3,6 +3,7 @@ package config
 import (
 	"reflect"
 
+	"github.com/go-playground/validator/v10"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
 )
@@ -15,8 +16,14 @@ func GetConfig() *viper.Viper {
 }
 
 // Set a struct for viper
-// if IgnoreEmpty is set to true, empty string will be ignored
-func SetStruct(S interface{}, IgnoreEmpty bool) {
+// `Tags` represent the fields when setting config, and the fields in Tags shall prevail. `Tags` that appear first have higher priority.
+func SetStruct(S interface{}, Tags ...string) error {
+	err := validator.New().Struct(S)
+	if err != nil {
+		return err
+	}
+
+	v := GetConfig()
 	tf := reflect.TypeOf(S)
 	vf := reflect.ValueOf(S)
 
@@ -31,26 +38,20 @@ func SetStruct(S interface{}, IgnoreEmpty bool) {
 		}
 
 		// View their tags in order to filter out members who don't have a valid tag set
-		ft := tfield.Tag.Get("json")
-		if ft == "" {
-			ft = tfield.Tag.Get("mapstructure")
+		ft := ""
+		for _, Tag := range Tags {
+			ft = tfield.Tag.Get(Tag)
+			if ft != "" {
+				break
+			}
 		}
 		if ft == "" {
 			continue
 		}
 
-		if IgnoreEmpty {
-			switch tfield.Type.Kind() {
-			case reflect.String:
-				if vfield.String() == "" {
-					continue
-				}
-			}
-		}
-
 		v.Set(ft, vfield.Interface())
 	}
-	v.WriteConfig()
+	return v.WriteConfig()
 }
 
 // Set default value for no .env or .env not set it

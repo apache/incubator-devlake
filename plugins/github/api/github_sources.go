@@ -8,8 +8,8 @@ import (
 
 // This object conforms to what the frontend currently sends.
 type GithubSource struct {
-	Endpoint string `mapstructure:"GITHUB_ENDPOINT"`
-	Auth     string `mapstructure:"GITHUB_AUTH"`
+	Endpoint string `mapstructure:"GITHUB_ENDPOINT" validate:"required"`
+	Auth     string `mapstructure:"GITHUB_AUTH" validate:"required"`
 	Proxy    string `mapstructure:"GITHUB_PROXY"`
 
 	PrType               string `mapstructure:"GITHUB_PR_TYPE"`
@@ -39,10 +39,8 @@ func PutSource(input *core.ApiResourceInput) (*core.ApiResourceOutput, error) {
 	if err != nil {
 		return nil, err
 	}
-	config.SetStruct(githubSource, true)
-	v := config.GetConfig()
-	v.Set("GITHUB_PROXY", githubSource.Proxy)
-	err = v.WriteConfig()
+
+	err = config.SetStruct(githubSource, "mapstructure")
 	if err != nil {
 		return nil, err
 	}
