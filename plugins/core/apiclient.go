@@ -15,7 +15,6 @@ import (
 	"unicode/utf8"
 
 	"github.com/merico-dev/lake/errors"
-	"github.com/merico-dev/lake/logger"
 	"github.com/merico-dev/lake/utils"
 )
 
@@ -31,6 +30,7 @@ type ApiClient struct {
 	afterReponse  ApiClientAfterResponse
 	ctx           context.Context
 	scheduler     *utils.WorkerScheduler
+	logger        Logger
 }
 
 func NewApiClient(
@@ -115,6 +115,22 @@ func (apiClient *ApiClient) SetProxy(proxyUrl string) error {
 	return nil
 }
 
+func (apiClient *ApiClient) SetLogger(logger Logger) {
+	apiClient.logger = logger
+}
+
+func (apiClient *ApiClient) logDebug(format string, a ...interface{}) {
+	if apiClient.logger != nil {
+		apiClient.logger.Debug(format, a...)
+	}
+}
+
+func (apiClient *ApiClient) logError(format string, a ...interface{}) {
+	if apiClient.logger != nil {
+		apiClient.logger.Error(format, a...)
+	}
+}
+
 func (apiClient *ApiClient) Do(
 	method string,
 	path string,
@@ -187,10 +203,10 @@ func (apiClient *ApiClient) Do(
 				return nil, err
 			}
 		}
-		logger.Print(fmt.Sprintf("[api-client][retry %v] %v %v", retry, method, *uri))
+		apiClient.logDebug("[api-client] %d %v %v", retry, method, *uri)
 		res, err = apiClient.client.Do(req)
 		if err != nil {
-			logger.Error("[api-client] error:", err)
+			apiClient.logError("[api-client] error: %w", err)
 			if retry < apiClient.maxRetry-1 {
 				retry += 1
 				continue
@@ -304,12 +320,11 @@ func (apiClient *ApiClient) GetAsync(path string, queryParams *url.Values, heade
 	err := apiClient.scheduler.Submit(func() error {
 		res, err := apiClient.Get(path, queryParams, headerParams)
 		if err != nil {
-			println("hello")
 			return err
 		}
-		handlerErr := handler(res)
-		if handlerErr != nil {
-			return handlerErr
+		err = handler(res)
+		if err != nil {
+			return fmt.Errorf("handle response for %s failed: %w", res.Request.URL, err)
 		}
 		return nil
 	})

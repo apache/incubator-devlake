@@ -3,6 +3,7 @@ package helper
 import (
 	"fmt"
 
+	"github.com/merico-dev/lake/logger"
 	"github.com/merico-dev/lake/plugins/core"
 	"github.com/sirupsen/logrus"
 )
@@ -10,13 +11,21 @@ import (
 // bridge to current implementation at this point
 // TODO: implement another TaskLogger for distributed runner/worker
 type DefaultTaskLogger struct {
-	logger *logrus.Logger
+	log *logrus.Logger
+}
+
+func NewDefaultTaskLogger(log *logrus.Logger) *DefaultTaskLogger {
+	if log == nil {
+		log = logger.GetLogger()
+	}
+	return &DefaultTaskLogger{log: log}
+
 }
 
 func (l *DefaultTaskLogger) Log(level core.LogLevel, format string, a ...interface{}) {
 	lv := logrus.Level(level)
-	if l.logger.IsLevelEnabled(lv) {
-		l.logger.Log(lv, fmt.Sprintf(format, a...))
+	if l.log.IsLevelEnabled(lv) {
+		l.log.Log(lv, fmt.Sprintf(format, a...))
 	}
 }
 
