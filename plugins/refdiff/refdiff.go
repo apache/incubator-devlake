@@ -43,8 +43,8 @@ func (rd RefDiff) Execute(options map[string]interface{}, progress chan<- float3
 	tasksToRun := make(map[string]bool, len(op.Tasks))
 	if len(op.Tasks) == 0 {
 		tasksToRun = map[string]bool{
-			"calculateRefDiff": true,
-			"creatRefBugStats": true,
+			"calculateCommitsDiff": true,
+			"calculateIssuesDiff":  true,
 		}
 	} else {
 		for _, task := range op.Tasks {
@@ -55,25 +55,25 @@ func (rd RefDiff) Execute(options map[string]interface{}, progress chan<- float3
 	if op.RepoId == "" {
 		return fmt.Errorf("repoId is required")
 	}
-	if tasksToRun["calculateRefDiff"] {
+	if tasksToRun["calculateCommitsDiff"] {
 		progress <- 0.1
-		fmt.Println("INFO >>> starting CalculateRefDiff")
-		err = tasks.CalculateRefDiff(ctx, op.Pairs, op.RepoId, progress)
+		fmt.Println("INFO >>> starting calculateCommitsDiff")
+		err = tasks.CalculateCommitsDiff(ctx, op.Pairs, op.RepoId, progress)
 		if err != nil {
 			return &errors.SubTaskError{
-				Message:     fmt.Errorf("could not calculate refdiff: %v", err).Error(),
-				SubTaskName: "calculateRefDiff",
+				Message:     fmt.Errorf("could not process calculateCommitsDiff: %v", err).Error(),
+				SubTaskName: "calculateCommitsDiff",
 			}
 		}
 	}
-	if tasksToRun["creatRefBugStats"] {
+	if tasksToRun["calculateIssuesDiff"] {
 		progress <- 0.5
-		fmt.Println("INFO >>> starting CreatRefBugStats")
-		err = tasks.CreatRefBugStats(ctx, progress, op.RepoId)
+		fmt.Println("INFO >>> starting calculateIssuesDiff")
+		err = tasks.CalculateIssuesDiff(ctx, op.Pairs, progress, op.RepoId)
 		if err != nil {
 			return &errors.SubTaskError{
-				Message:     fmt.Errorf("could not creat ref bug stats: %v", err).Error(),
-				SubTaskName: "creatRefBugStats",
+				Message:     fmt.Errorf("could not process calculateIssuesDiff: %v", err).Error(),
+				SubTaskName: "calculateIssuesDiff",
 			}
 		}
 	}
@@ -117,8 +117,8 @@ func main() {
 					},
 				},
 				"tasks": []string{
-					//"calculateRefDiff",
-					"creatRefBugStats",
+					"calculateCommitsDiff",
+					"calculateIssuesDiff",
 				},
 			},
 			progress,
