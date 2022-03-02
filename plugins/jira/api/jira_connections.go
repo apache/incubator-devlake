@@ -77,13 +77,18 @@ func TestConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, erro
 		return &core.ApiResourceOutput{Body: core.TestResult{Success: false, Message: err.Error()}}, nil
 	}
 
-	if serverInfo.DeploymentType != models.DeploymentCloud {
+	if serverInfo.DeploymentType == models.DeploymentCloud {
 		// unsupported jira version
 		// FIXME: remove it when jira server is supported
-		return &core.ApiResourceOutput{Body: core.TestResult{Success: false, Message: InvalidJiraVersion}}, nil
+		return &core.ApiResourceOutput{Body: core.TestResult{Success: true, Message: ""}}, nil
 	}
-
-	return &core.ApiResourceOutput{Body: core.TestResult{Success: true, Message: ""}}, nil
+	if serverInfo.DeploymentType == models.DeploymentServer {
+		// only support 8.x.x or higher
+		if versions := serverInfo.VersionNumbers; len(versions) == 3 && versions[0] == 8 {
+			return &core.ApiResourceOutput{Body: core.TestResult{Success: true, Message: ""}}, nil
+		}
+	}
+	return &core.ApiResourceOutput{Body: core.TestResult{Success: false, Message: InvalidJiraVersion}}, nil
 }
 
 const InvaildJiraApi = "Failed to request jira version api"

@@ -17,6 +17,7 @@ import (
 )
 
 var ErrNotFoundIssue = errors.New("not found the issue")
+
 type JiraApiRemotelink struct {
 	Id           uint64
 	Self         string
@@ -32,6 +33,11 @@ type JiraApiRemotelink struct {
 
 // need to store a origin json body into RawJson, by this approach, we dont need to Marshal it back to bytes
 type JiraApiRemotelinksResponse []json.RawMessage
+type remoteLinkCollector func(
+	source *models.JiraSource,
+	jiraApiClient *JiraApiClient,
+	issueId uint64,
+) error
 
 func CollectRemoteLinks(
 	jiraApiClient *JiraApiClient,
@@ -39,6 +45,7 @@ func CollectRemoteLinks(
 	boardId uint64,
 	rateLimitPerSecondInt int,
 	ctx context.Context,
+	collector remoteLinkCollector,
 ) error {
 	jiraIssue := &models.JiraIssue{}
 
@@ -83,8 +90,8 @@ func CollectRemoteLinks(
 		issueId := jiraIssue.IssueId
 		updated := jiraIssue.Updated
 		err = issueScheduler.Submit(func() error {
-			err = collectRemotelinksByIssueId(source, jiraApiClient, issueId)
-			if err == ErrNotFoundIssue{
+			err = collector(source, jiraApiClient, issueId)
+			if err == ErrNotFoundIssue {
 				return nil
 			}
 			if err != nil {
@@ -115,7 +122,7 @@ func collectRemotelinksByIssueId(
 	if err != nil {
 		return err
 	}
-	if res.StatusCode == http.StatusNotFound{
+	if res.StatusCode == http.StatusNotFound {
 		return ErrNotFoundIssue
 	}
 	apiRemotelinks := &JiraApiRemotelinksResponse{}
