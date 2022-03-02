@@ -206,8 +206,8 @@ function useConnectionManager ({
         setActiveConnection({
           ...connectionData,
           name: connectionData.name || connectionData.Name,
-          // TODO: This needs to be Capital case for all json responses from the golang APIs
           endpoint: connectionData.endpoint || connectionData.Endpoint,
+          proxy: connectionData.proxy || connectionData.Proxy,
           username: connectionData.username || connectionData.Username,
           password: connectionData.password || connectionData.Password
         })

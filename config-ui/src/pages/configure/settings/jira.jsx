@@ -108,6 +108,7 @@ export default function JiraSettings (props) {
       jiraIssueEpicKeyField,
       jiraIssueStoryPointField,
       jiraIssueStoryCoefficient,
+      remoteLinkCommitSha,
       onSettingsChange)
   }, [
     typeMappingBug,
