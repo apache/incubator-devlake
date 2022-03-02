@@ -50,8 +50,8 @@ curl -v -XPOST http://localhost:8080/pipelines --data @- <<'JSON'
                        { "newRef": "refs/tags/0.5.0", "oldRef": "refs/tags/0.4.0" }
                     ],
                     "tasks": [
-                        "calculateRefDiff",
-                        "creatRefBugStats",
+                        "calculateCommitsDiff",
+                        "calculateIssuesDiff",
                     ]
                 }
             }

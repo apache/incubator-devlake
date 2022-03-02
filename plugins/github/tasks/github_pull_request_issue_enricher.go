@@ -29,7 +29,8 @@ func EnrichPullRequestIssues(ctx context.Context, repoId int, owner string, repo
 		prPattern := prBodyClosePattern + numberPattern
 		prBodyCloseRegex = regexp.MustCompile(prPattern)
 	}
-
+	numberPrefixRegex := regexp.MustCompile(numberPrefix)
+	charPattern := regexp.MustCompile(`[a-zA-Z\s,]+`)
 	githubPullRequst := &githubModels.GithubPullRequest{}
 	cursor, err := lakeModels.Db.Model(&githubPullRequst).
 		Where("repo_id = ?", repoId).
@@ -60,12 +61,8 @@ func EnrichPullRequestIssues(ctx context.Context, repoId int, owner string, repo
 		}
 		//replace https:// to #, then we can process it later
 		if strings.Contains(issueNumberListStr, "https") {
-
-			numberPrefixRegex := regexp.MustCompile(numberPrefix)
 			issueNumberListStr = numberPrefixRegex.ReplaceAllString(issueNumberListStr, "#")
 		}
-		//the following two rows replace alphabets, space and comma to #
-		charPattern := regexp.MustCompile(`[a-zA-Z\s,]+`)
 		issueNumberListStr = charPattern.ReplaceAllString(issueNumberListStr, "#")
 		//split the string by '#'
 		issueNumberList := strings.Split(issueNumberListStr, "#")

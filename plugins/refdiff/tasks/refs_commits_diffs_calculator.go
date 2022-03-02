@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/cayleygraph/cayley"
 	"github.com/cayleygraph/quad"
+	"github.com/merico-dev/lake/errors"
 	"github.com/merico-dev/lake/logger"
 	"github.com/merico-dev/lake/models"
 	"github.com/merico-dev/lake/models/domainlayer/code"
@@ -16,7 +17,7 @@ type RefPair struct {
 	OldRef string
 }
 
-func CalculateRefDiff(ctx context.Context, pairs []RefPair, repoId string, progress chan<- float32) error {
+func CalculateCommitsDiff(ctx context.Context, pairs []RefPair, repoId string, progress chan<- float32) error {
 	// convert ref pairs into commit pairs
 	ref2sha := func(refName string) (string, error) {
 		ref := &code.Ref{}
@@ -62,6 +63,11 @@ func CalculateRefDiff(ctx context.Context, pairs []RefPair, repoId string, progr
 	defer cursor.Close()
 
 	for cursor.Next() {
+		select {
+		case <-ctx.Done():
+			return errors.TaskCanceled
+		default:
+		}
 		err = models.Db.ScanRows(cursor, commitParent)
 		if err != nil {
 			return fmt.Errorf("failed to read commit from database: %v", err)
@@ -77,6 +83,11 @@ func CalculateRefDiff(ctx context.Context, pairs []RefPair, repoId string, progr
 	ancestors := cayley.StartMorphism().Out(quad.String("childOf"))
 	lenCommitPairs := float32(len(commitPairs))
 	for i, pair := range commitPairs {
+		select {
+		case <-ctx.Done():
+			return errors.TaskCanceled
+		default:
+		}
 		// ref might advance, keep commit sha for debugging
 		commitsDiff.NewRefCommitSha = pair[0]
 		commitsDiff.OldRefCommitSha = pair[1]

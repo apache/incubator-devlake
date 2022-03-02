@@ -2,30 +2,37 @@ package tasks
 
 import (
 	"context"
+	"fmt"
 	"github.com/merico-dev/lake/errors"
 	lakeModels "github.com/merico-dev/lake/models"
 	"github.com/merico-dev/lake/models/domainlayer/crossdomain"
 	"gorm.io/gorm/clause"
 )
 
-func CreatRefBugStats(ctx context.Context, progress chan<- float32, repoId string) error {
+func CalculateIssuesDiff(ctx context.Context, pairs []RefPair, progress chan<- float32, repoId string) error {
 	// use to calculate progress
 	var numOfPairs int64
 	index := int64(1)
+	pairList := make([][2]string, len(pairs))
+	for i, pair := range pairs {
+		pairList[i] = [2]string{fmt.Sprintf("%s:%s", repoId, pair.NewRef), fmt.Sprintf("%s:%s", repoId, pair.OldRef)}
+	}
 	db := lakeModels.Db.Table("refs_commits_diffs").
 		Joins("left join pull_requests on pull_requests.merge_commit_sha = refs_commits_diffs.commit_sha").
 		Joins("left join pull_request_issues on pull_request_issues.pull_request_id = pull_requests.id").
 		Joins("left join refs on refs.commit_sha = refs_commits_diffs.new_ref_commit_sha").
 		Order("refs_commits_diffs.new_ref_name ASC").
-		Where("refs.repo_id = ? and pull_request_issues.issue_number > 0", repoId).
+		Where("refs.repo_id = ? and pull_request_issues.issue_number > 0 and (refs_commits_diffs.new_ref_name, refs_commits_diffs.old_ref_name) in ?",
+			repoId, pairList).
 		Select("refs_commits_diffs.new_ref_commit_sha as new_ref_commit_sha, refs_commits_diffs.old_ref_commit_sha as old_ref_commit_sha, " +
-			"pull_request_issues.issue_id as issue_id, pull_request_issues.issue_number as issue_number")
+			"pull_request_issues.issue_id as issue_id, pull_request_issues.issue_number as issue_number, " +
+			"refs_commits_diffs.new_ref_name as new_ref_name, refs_commits_diffs.old_ref_name as old_ref_name")
 	err := db.Count(&numOfPairs).Error
 	if err != nil {
 		return err
 	}
 	// we iterate the whole refCommitsDiff table, and convert the commit sha to issue
-	refPairIssue := &crossdomain.RefPairIssue{}
+	refPairIssue := &crossdomain.RefsIssuesDiffs{}
 	cursor, err := db.Rows()
 	if err != nil {
 		return err
