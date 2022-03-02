@@ -17,11 +17,11 @@ type DefaultTaskContext struct {
 	logger core.TaskLogger
 }
 
-func NewDefaultTaskContext(ctx context.Context, data interface{}) core.TaskContext {
+func NewDefaultTaskContext(ctx context.Context, logger core.TaskLogger, data interface{}) core.TaskContext {
 	return &DefaultTaskContext{
 		ctx,
 		data,
-		&DefaultTaskLogger{},
+		logger,
 	}
 }
 
