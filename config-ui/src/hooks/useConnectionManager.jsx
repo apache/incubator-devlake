@@ -99,7 +99,7 @@ function useConnectionManager ({
     let connectionPayload
     switch (activeProvider.id) {
       case Providers.JIRA:
-        connectionPayload = { name: name, Endpoint: endpointUrl, BasicAuthEncoded: token, JIRA_PROXY: proxy }
+        connectionPayload = { name: name, Endpoint: endpointUrl, BasicAuthEncoded: token, Proxy: proxy }
         break
       case Providers.GITHUB:
         connectionPayload = { name: name, GITHUB_ENDPOINT: endpointUrl, GITHUB_AUTH: token, GITHUB_PROXY: proxy }
@@ -300,15 +300,15 @@ function useConnectionManager ({
           break
         case Providers.GITLAB:
           setToken(activeConnection.basicAuthEncoded || activeConnection.Auth)
-          setProxy(activeConnection.Proxy)
+          setProxy(activeConnection.Proxy || activeConnection.proxy)
           break
         case Providers.GITHUB:
           setToken(activeConnection.basicAuthEncoded || activeConnection.Auth)
-          setProxy(activeConnection.Proxy)
+          setProxy(activeConnection.Proxy || activeConnection.proxy)
           break
         case Providers.JIRA:
           setToken(activeConnection.basicAuthEncoded || activeConnection.Auth)
-          setProxy(activeConnection.Proxy)
+          setProxy(activeConnection.Proxy || activeConnection.proxy)
           break
       }
       ToastNotification.clear()
