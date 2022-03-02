@@ -3,6 +3,7 @@ const NullConnection = {
   ID: null,
   name: null,
   endpoint: null,
+  proxy: null,
   token: null,
   username: null,
   password: null,
