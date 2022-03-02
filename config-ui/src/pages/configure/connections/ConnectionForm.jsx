@@ -345,6 +345,7 @@ export default function ConnectionForm (props) {
           <div className='formContainer'>
             <FormGroup
               disabled={isTesting || isSaving || isLocked}
+              inline={true}
               labelFor='connection-proxy'
               className='formGroup'
               contentClassName='formGroupContent'
