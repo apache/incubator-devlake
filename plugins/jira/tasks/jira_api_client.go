@@ -7,8 +7,6 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/merico-dev/lake/logger"
-	lakeModels "github.com/merico-dev/lake/models"
 	"github.com/merico-dev/lake/plugins/core"
 	"github.com/merico-dev/lake/plugins/jira/models"
 	"github.com/merico-dev/lake/utils"
@@ -18,7 +16,13 @@ type JiraApiClient struct {
 	core.ApiClient
 }
 
-func NewJiraApiClient(endpoint string, auth string, proxy string, scheduler *utils.WorkerScheduler) *JiraApiClient {
+func NewJiraApiClient(
+	endpoint string,
+	auth string,
+	proxy string,
+	scheduler *utils.WorkerScheduler,
+	logger core.Logger,
+) *JiraApiClient {
 	jiraApiClient := &JiraApiClient{}
 	jiraApiClient.Setup(
 		endpoint,
@@ -41,17 +45,14 @@ func NewJiraApiClient(endpoint string, auth string, proxy string, scheduler *uti
 			panic(err)
 		}
 	}
-	return jiraApiClient
-}
-
-func NewJiraApiClientBySourceId(sourceId uint64, scheduler *utils.WorkerScheduler) (*JiraApiClient, error) {
-	jiraSource := &models.JiraSource{}
-	err := lakeModels.Db.First(jiraSource, sourceId).Error
-	if err != nil {
-		return nil, err
+	if proxy != "" {
+		err := jiraApiClient.SetProxy(proxy)
+		if err != nil {
+			panic(err)
+		}
 	}
-
-	return NewJiraApiClient(jiraSource.Endpoint, jiraSource.BasicAuthEncoded, jiraSource.Proxy, scheduler), nil
+	jiraApiClient.SetLogger(logger)
+	return jiraApiClient
 }
 
 type JiraPagination struct {
@@ -84,7 +85,6 @@ func (jiraApiClient *JiraApiClient) FetchPages(path string, query *url.Values, h
 	jiraApiResponse := &JiraPagination{}
 	err = core.UnmarshalResponse(res, jiraApiResponse)
 	if err != nil {
-		logger.Error("Error: ", err)
 		return nil
 	}
 	total := jiraApiResponse.Total
@@ -149,7 +149,6 @@ func (jiraApiClient *JiraApiClient) FetchWithoutPaginationHeaders(
 		maxResults, err = handler(res)
 		res.Body.Close()
 		if err != nil {
-			logger.Error("Error: ", err)
 			return err
 		}
 		startAt += maxResults
