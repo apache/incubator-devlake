@@ -205,6 +205,7 @@ export default function JiraSettings (props) {
         <div className='issue-type-multiselect-selector' style={{ minWidth: '200px', width: '50%' }}>
           <MultiSelect
             disabled={isSaving}
+            resetOnSelect={true}
             placeholder='< Select one or more Requirement Tags >'
             popoverProps={{ usePortal: false, minimal: true, fill: true, style: { width: '100%' } }}
             className='multiselector-requirement-type'
@@ -271,6 +272,7 @@ export default function JiraSettings (props) {
         <div className='issue-type-multiselect-selector' style={{ minWidth: '200px', width: '50%' }}>
           <MultiSelect
             disabled={isSaving}
+            resetOnSelect={true}
             placeholder='< Select one or more Bug Tags >'
             popoverProps={{ usePortal: false, minimal: true }}
             className='multiselector-bug-type'
@@ -337,6 +339,7 @@ export default function JiraSettings (props) {
         <div className='issue-type-multiselect-selector' style={{ minWidth: '200px', width: '50%' }}>
           <MultiSelect
             disabled={isSaving}
+            resetOnSelect={true}
             placeholder='< Select one or more Incident Tags >'
             popoverProps={{ usePortal: false, minimal: true }}
             className='multiselector-incident-type'
