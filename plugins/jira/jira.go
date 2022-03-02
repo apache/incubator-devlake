@@ -314,7 +314,6 @@ func (plugin Jira) Execute(options map[string]interface{}, progress chan<- float
 	if tasksToRun["convertSprints"] {
 		err = tasks.ConvertSprint(op.SourceId, boardId)
 		if err != nil {
-			logger.Error("convertSprints", err)
 			return &errors.SubTaskError{
 				SubTaskName: "convertSprints",
 				Message:     err.Error(),
@@ -325,7 +324,6 @@ func (plugin Jira) Execute(options map[string]interface{}, progress chan<- float
 	if tasksToRun["convertIssueCommits"] {
 		err = tasks.ConvertIssueCommits(op.SourceId, boardId)
 		if err != nil {
-			logger.Error("convertIssueCommits", err)
 			return &errors.SubTaskError{
 				SubTaskName: "convertIssueCommits",
 				Message:     err.Error(),
