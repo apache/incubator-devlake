@@ -44,6 +44,8 @@ func ConvertPullRequestIssues(ctx context.Context, repoId int) error {
 		pullRequestIssue := &crossdomain.PullRequestIssue{
 			PullRequestId: pullRequestId,
 			IssueId:       issueId,
+			IssueNumber:   githubPullRequestIssue.IssueNumber,
+			PullNumber:    githubPullRequestIssue.PullNumber,
 		}
 		err = lakeModels.Db.Clauses(clause.OnConflict{UpdateAll: true}).Create(pullRequestIssue).Error
 		if err != nil {
