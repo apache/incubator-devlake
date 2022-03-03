@@ -45,9 +45,9 @@ export default function GithubSettings (props) {
     setPrComponent(connection.PrComponent)
     setIssueSeverity(connection.IssueSeverity)
     setIssuePriority(connection.IssuePriority)
-    setIssueComponent(connection.issueComponent)
+    setIssueComponent(connection.IssueComponent)
     setIssueTypeBug(connection.IssueTypeBug)
-    setIssueTypeRequirement(connection.IssueRequirement)
+    setIssueTypeRequirement(connection.IssueTypeRequirement)
     setIssueTypeIncident(connection.IssueTypeIncident)
   }, [connection])
 
@@ -58,7 +58,7 @@ export default function GithubSettings (props) {
       GITHUB_ISSUE_SEVERITY: issueSeverity,
       GITHUB_ISSUE_COMPONENT: issueComponent,
       GITHUB_ISSUE_PRIORITY: issuePriority,
-      GITHUB_ISSUE_REQUIREMENT: issueTypeRequirement,
+      GITHUB_ISSUE_TYPE_REQUIREMENT: issueTypeRequirement,
       GITHUB_ISSUE_TYPE_BUG: issueTypeBug,
       GITHUB_ISSUE_TYPE_INCIDENT: issueTypeIncident,
     }
