@@ -42,6 +42,7 @@ func ConvertPullRequests(ctx context.Context, repoId int) error {
 			CreatedDate:    pr.GithubCreatedAt,
 			MergedDate:     pr.MergedAt,
 			ClosedAt:       pr.ClosedAt,
+			Key:            pr.Number,
 			Type:           pr.Type,
 			Component:      pr.Component,
 			MergeCommitSha: pr.MergeCommitSha,

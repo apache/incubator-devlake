@@ -23,13 +23,14 @@ func init() {
 }
 
 func EnrichPullRequestIssues(ctx context.Context, repoId int, owner string, repo string) (err error) {
+	//the pattern before the issue number, sometimes, the issue number is #1098, sometimes it is https://xxx/#1098
 	numberPattern := fmt.Sprintf(numberPrefix+`\d+[ ]*)+)`, owner, repo)
 	if len(prBodyClosePattern) > 0 {
 		prPattern := prBodyClosePattern + numberPattern
 		prBodyCloseRegex = regexp.MustCompile(prPattern)
 	}
-
-	githubIssueUrlPattern := fmt.Sprintf(config.GetConfig().GetString("GITHUB_ISSUE_URL_PATTERN"), owner, repo)
+	numberPrefixRegex := regexp.MustCompile(numberPrefix)
+	charPattern := regexp.MustCompile(`[a-zA-Z\s,]+`)
 	githubPullRequst := &githubModels.GithubPullRequest{}
 	cursor, err := lakeModels.Db.Model(&githubPullRequst).
 		Where("repo_id = ?", repoId).
@@ -52,28 +53,24 @@ func EnrichPullRequestIssues(ctx context.Context, repoId int, owner string, repo
 			return err
 		}
 
+		//find the matched string in body
 		issueNumberListStr := getCloseIssueId(githubPullRequst.Body)
 
 		if issueNumberListStr == "" {
 			continue
 		}
-		//replace https:// to #, then we can deal with later
+		//replace https:// to #, then we can process it later
 		if strings.Contains(issueNumberListStr, "https") {
-			if !strings.Contains(issueNumberListStr, githubIssueUrlPattern) {
-				continue
-			}
-			numberPrefixRegex := regexp.MustCompile(numberPrefix)
 			issueNumberListStr = numberPrefixRegex.ReplaceAllString(issueNumberListStr, "#")
 		}
-		charPattern := regexp.MustCompile(`[a-zA-Z\s,]+`)
 		issueNumberListStr = charPattern.ReplaceAllString(issueNumberListStr, "#")
 		//split the string by '#'
 		issueNumberList := strings.Split(issueNumberListStr, "#")
 
 		for _, issueNumberStr := range issueNumberList {
 			issue := &githubModels.GithubIssue{}
-
 			issueNumberStr = strings.TrimSpace(issueNumberStr)
+			//change the issueNumberStr to int, if cannot be changed, just continue
 			issueNumber, numFormatErr := strconv.Atoi(issueNumberStr)
 			if numFormatErr != nil {
 				continue
