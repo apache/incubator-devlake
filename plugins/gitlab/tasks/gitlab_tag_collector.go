@@ -1,6 +1,7 @@
 package tasks
 
 import (
+	"context"
 	"fmt"
 	"net/http"
 	"net/url"
@@ -25,7 +26,7 @@ type GitlabApiTag struct {
 	}
 }
 
-func CollectTags(projectId int, gitlabApiClient *GitlabApiClient) error {
+func CollectTags(ctx context.Context, projectId int, gitlabApiClient *GitlabApiClient) error {
 	relativePath := fmt.Sprintf("projects/%v/repository/tags", projectId)
 	queryParams := &url.Values{}
 	queryParams.Set("with_stats", "true")

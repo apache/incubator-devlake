@@ -29,11 +29,13 @@ func ConvertCommits(projectId int) error {
 	}
 	gitlabCommit := &models.GitlabCommit{}
 	commit := &code.Commit{}
+
 	for cursor.Next() {
 		err = lakeModels.Db.ScanRows(cursor, gitlabCommit)
 		if err != nil {
 			return err
 		}
+
 		// convert commit
 		commit.Sha = gitlabCommit.Sha
 		commit.Message = gitlabCommit.Message
@@ -47,7 +49,7 @@ func ConvertCommits(projectId int) error {
 		commit.CommitterEmail = gitlabCommit.CommitterEmail
 		commit.CommittedDate = gitlabCommit.CommittedDate
 		commit.CommitterId = userDidGen.Generate(gitlabCommit.AuthorEmail)
-		err := lakeModels.Db.Clauses(clause.OnConflict{UpdateAll: true}).Create(commit).Error
+		err = lakeModels.Db.Clauses(clause.OnConflict{UpdateAll: true}).Create(commit).Error
 		if err != nil {
 			return err
 		}
