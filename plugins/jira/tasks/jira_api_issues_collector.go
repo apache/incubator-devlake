@@ -11,6 +11,8 @@ import (
 	"github.com/merico-dev/lake/plugins/jira/models"
 )
 
+const RAW_ISSUE_TABLE = "jira_api_issues"
+
 // this struct should be moved to `jira_api_common.go`
 type JiraApiParams struct {
 	SourceId uint64
@@ -112,7 +114,7 @@ func CollectApiIssues(taskCtx core.TaskContext) error {
 		/*
 			Table store raw data
 		*/
-		Table: "jira_api_issues",
+		Table: RAW_ISSUE_TABLE,
 	})
 
 	if err != nil {
