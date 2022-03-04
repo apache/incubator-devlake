@@ -25,7 +25,7 @@ func NewJiraApiClient(endpoint string, auth string, proxy string, scheduler *uti
 		map[string]string{
 			"Authorization": fmt.Sprintf("Basic %v", auth),
 		},
-		10*time.Second,
+		20*time.Second,
 		3,
 		scheduler,
 	)

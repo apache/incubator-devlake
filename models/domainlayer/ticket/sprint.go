@@ -21,6 +21,7 @@ type Sprint struct {
 	StartedDate   *time.Time
 	EndedDate     *time.Time
 	CompletedDate *time.Time
+	OriginBoardID string
 }
 
 type SprintIssue struct {
