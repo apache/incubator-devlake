@@ -16,7 +16,7 @@ import (
 	"github.com/merico-dev/lake/plugins/jira/models"
 )
 
-var ErrNotFoundIssue = errors.New("not found the issue")
+var ErrNotFoundResource = errors.New("not found the resource")
 
 type JiraApiRemotelink struct {
 	Id           uint64
@@ -91,7 +91,7 @@ func CollectRemoteLinks(
 		updated := jiraIssue.Updated
 		err = issueScheduler.Submit(func() error {
 			err = collector(source, jiraApiClient, issueId)
-			if err == ErrNotFoundIssue {
+			if err == ErrNotFoundResource {
 				return nil
 			}
 			if err != nil {
@@ -123,7 +123,7 @@ func collectRemotelinksByIssueId(
 		return err
 	}
 	if res.StatusCode == http.StatusNotFound {
-		return ErrNotFoundIssue
+		return ErrNotFoundResource
 	}
 	apiRemotelinks := &JiraApiRemotelinksResponse{}
 	err = core.UnmarshalResponse(res, apiRemotelinks)

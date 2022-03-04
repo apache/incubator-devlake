@@ -5,6 +5,7 @@ type User struct {
 	Key          string `json:"key"`
 	Name         string `json:"name"`
 	EmailAddress string `json:"emailAddress"`
+	AccountId    string `json:"accountId"`
 	AvatarUrls   struct {
 		Four8X48  string `json:"48x48"`
 		Two4X24   string `json:"24x24"`
@@ -16,4 +17,14 @@ type User struct {
 	Deleted     bool   `json:"deleted"`
 	TimeZone    string `json:"timeZone"`
 	Locale      string `json:"locale"`
+}
+
+func (u *User) getAccountId() string {
+	if u == nil {
+		return ""
+	}
+	if u.AccountId != "" {
+		return u.AccountId
+	}
+	return u.EmailAddress
 }

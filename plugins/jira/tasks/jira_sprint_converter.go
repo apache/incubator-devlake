@@ -27,6 +27,7 @@ func ConvertSprint(sourceId uint64, boardId uint64) error {
 	domainBoardId := didgen.NewDomainIdGenerator(&jiraModels.JiraBoard{}).Generate(sourceId, boardId)
 	sprintIdGen := didgen.NewDomainIdGenerator(&jiraModels.JiraSprint{})
 	issueIdGen := didgen.NewDomainIdGenerator(&jiraModels.JiraIssue{})
+	boardIdGen := didgen.NewDomainIdGenerator(&jiraModels.JiraBoard{})
 	// iterate all rows
 	for cursor.Next() {
 		var jiraSprint jiraModels.JiraSprint
@@ -42,6 +43,7 @@ func ConvertSprint(sourceId uint64, boardId uint64) error {
 			StartedDate:   jiraSprint.StartDate,
 			EndedDate:     jiraSprint.EndDate,
 			CompletedDate: jiraSprint.CompleteDate,
+			OriginBoardID: boardIdGen.Generate(sourceId, jiraSprint.OriginBoardID),
 		}
 		err = lakeModels.Db.Clauses(clause.OnConflict{UpdateAll: true}).Create(sprint).Error
 		if err != nil {
