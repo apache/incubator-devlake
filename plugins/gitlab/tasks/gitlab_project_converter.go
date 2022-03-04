@@ -21,6 +21,7 @@ func ConvertProjects(ctx context.Context, projectId int) error {
 	defer cursor.Close()
 
 	for cursor.Next() {
+		err = lakeModels.Db.ScanRows(cursor, gitlabProject)
 		domainRepository := convertToRepositoryModel(gitlabProject)
 		err := lakeModels.Db.Clauses(clause.OnConflict{UpdateAll: true}).Create(domainRepository).Error
 		if err != nil {

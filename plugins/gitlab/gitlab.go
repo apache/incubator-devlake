@@ -108,12 +108,12 @@ func (plugin Gitlab) Execute(options map[string]interface{}, progress chan<- flo
 		return err
 	}
 	progress <- 0.1
-	if err := tasks.CollectProject(projectIdInt, gitlabApiClient); err != nil {
+	if err := tasks.CollectProject(ctx, projectIdInt, gitlabApiClient); err != nil {
 		return fmt.Errorf("could not collect projects: %v", err)
 	}
 	if tasksToRun["collectCommits"] {
 		progress <- 0.25
-		if err := tasks.CollectCommits(projectIdInt, gitlabApiClient); err != nil {
+		if err := tasks.CollectCommits(ctx, projectIdInt, gitlabApiClient); err != nil {
 			return &errors.SubTaskError{
 				SubTaskName: "collectCommits",
 				Message:     fmt.Errorf("could not collect commits: %v", err).Error(),
@@ -122,7 +122,7 @@ func (plugin Gitlab) Execute(options map[string]interface{}, progress chan<- flo
 	}
 	if tasksToRun["collectTags"] {
 		progress <- 0.3
-		if err := tasks.CollectTags(projectIdInt, gitlabApiClient); err != nil {
+		if err := tasks.CollectTags(ctx, projectIdInt, gitlabApiClient); err != nil {
 			return &errors.SubTaskError{
 				SubTaskName: "collectTags",
 				Message:     fmt.Errorf("could not collect tags: %v", err).Error(),
@@ -131,7 +131,7 @@ func (plugin Gitlab) Execute(options map[string]interface{}, progress chan<- flo
 	}
 	if tasksToRun["collectMrs"] {
 		progress <- 0.35
-		mergeRequestErr := tasks.CollectMergeRequests(projectIdInt, gitlabApiClient)
+		mergeRequestErr := tasks.CollectMergeRequests(ctx, projectIdInt, gitlabApiClient)
 		if mergeRequestErr != nil {
 			return &errors.SubTaskError{
 				SubTaskName: "collectMrs",
@@ -162,7 +162,7 @@ func (plugin Gitlab) Execute(options map[string]interface{}, progress chan<- flo
 	}
 	if tasksToRun["enrichMrs"] {
 		progress <- 0.5
-		enrichErr := tasks.EnrichMergeRequests(nil, projectIdInt)
+		enrichErr := tasks.EnrichMergeRequests(ctx, projectIdInt)
 		if enrichErr != nil {
 			return &errors.SubTaskError{
 				SubTaskName: "enrichMrs",
@@ -187,7 +187,7 @@ func (plugin Gitlab) Execute(options map[string]interface{}, progress chan<- flo
 	}
 	if tasksToRun["convertProjects"] {
 		progress <- 0.7
-		err = tasks.ConvertProjects(nil, 0)
+		err = tasks.ConvertProjects(ctx, projectIdInt)
 		if err != nil {
 			return &errors.SubTaskError{
 				SubTaskName: "convertProjects",
@@ -217,7 +217,7 @@ func (plugin Gitlab) Execute(options map[string]interface{}, progress chan<- flo
 	}
 	if tasksToRun["convertNotes"] {
 		progress <- 0.9
-		err = tasks.ConvertNotes()
+		err = tasks.ConvertNotes(ctx, projectIdInt)
 		if err != nil {
 			return &errors.SubTaskError{
 				SubTaskName: "convertNotes",
@@ -274,8 +274,8 @@ func main() {
 			map[string]interface{}{
 				"projectId": projectId,
 				"tasks": []string{
-					"collectMrCommits",
-					"enrichMrs",
+					//"collectMrCommits",
+					//"enrichMrs",
 					"convertProjects",
 					"convertMrs",
 					"convertCommits",

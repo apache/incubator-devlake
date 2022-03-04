@@ -50,13 +50,11 @@ func ConvertCommits(projectId int) error {
 		commit.CommittedDate = gitlabCommit.CommittedDate
 		commit.CommitterId = userDidGen.Generate(gitlabCommit.AuthorEmail)
 		err = lakeModels.Db.Clauses(clause.OnConflict{UpdateAll: true}).Create(commit).Error
-
 		if err != nil {
 			return err
 		}
 		// convert repo / commits relationship
 		repoCommit.CommitSha = gitlabCommit.Sha
-
 		err = lakeModels.Db.Clauses(clause.OnConflict{DoNothing: true}).Create(repoCommit).Error
 		if err != nil {
 			return err

@@ -1,6 +1,7 @@
 package tasks
 
 import (
+	"context"
 	"fmt"
 	"net/http"
 
@@ -29,7 +30,7 @@ type GitlabApiProject struct {
 
 type GitlabApiProjectResponse GitlabApiProject
 
-func CollectProject(projectId int, gitlabApiClient *GitlabApiClient) error {
+func CollectProject(ctx context.Context, projectId int, gitlabApiClient *GitlabApiClient) error {
 
 	res, err := gitlabApiClient.Get(fmt.Sprintf("projects/%v", projectId), nil, nil)
 	if err != nil {
