@@ -1,52 +1,53 @@
 package tasks
 
 import (
-	"strconv"
-	"time"
+	"encoding/json"
 
+	"github.com/merico-dev/lake/plugins/core"
 	"github.com/merico-dev/lake/plugins/helper"
 	"github.com/merico-dev/lake/plugins/jira/models"
 )
 
-func ExtractApiIssues(
-	source *models.JiraSource,
-	boardId uint64,
-	since time.Time,
-) error {
+func ExtractApiIssues(taskCtx core.TaskContext) error {
+	data := taskCtx.GetData().(*JiraTaskData)
+
 	extractor, err := helper.NewApiExtractor(helper.ApiExtractorArgs{
-		Table: "jira_api_issues",
+		Ctx:   taskCtx,
+		Table: RAW_ISSUE_TABLE,
 		Params: JiraApiParams{
-			SourceId: source.ID,
-			BoardId:  boardId,
+			SourceId: data.Source.ID,
+			BoardId:  data.Options.BoardId,
 		},
-		RowData: &JiraApiIssue{},
-		Extractors: []helper.RawDataExtractor{
-			func(row interface{}, params interface{}) (interface{}, error) {
-				p := params.(*JiraApiParams)
-				issue := row.(*JiraApiIssue)
-				issueId, err := strconv.ParseUint(issue.Id, 10, 64)
+		Extract: func(body json.RawMessage, params json.RawMessage) ([]interface{}, error) {
+			b := &JiraApiIssuesResponse{}
+			err := json.Unmarshal(body, b)
+			if err != nil {
+				return nil, err
+			}
+			p := &JiraApiParams{}
+			err = json.Unmarshal(params, p)
+			if err != nil {
+				return nil, err
+			}
+
+			// need to extract 3 kinds of entities here
+			result := make([]interface{}, 0, len(b.Issues)*3)
+			for _, apiIssue := range b.Issues {
+				jiraIssue, sprints, err := convertIssue(data.Source, &apiIssue)
 				if err != nil {
 					return nil, err
 				}
-				return &models.JiraIssue{
-					SourceId: p.SourceId,
-					IssueId:  issueId,
-					// other fields
-				}, nil
-			},
-			func(row interface{}, params interface{}) (interface{}, error) {
-				p := params.(*JiraApiParams)
-				issue := row.(*JiraApiIssue)
-				issueId, err := strconv.ParseUint(issue.Id, 10, 64)
-				if err != nil {
-					return nil, err
+				result = append(result, jiraIssue)
+				result = append(result, &models.JiraBoardIssue{
+					SourceId: data.Source.ID,
+					BoardId:  data.Options.BoardId,
+					IssueId:  jiraIssue.IssueId,
+				})
+				for _, sprint := range sprints {
+					result = append(result, sprint)
 				}
-				return &models.JiraBoardIssue{
-					SourceId: p.SourceId,
-					BoardId:  p.BoardId,
-					IssueId:  issueId,
-				}, nil
-			},
+			}
+			return result, nil
 		},
 	})
 
