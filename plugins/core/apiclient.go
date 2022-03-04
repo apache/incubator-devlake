@@ -187,7 +187,7 @@ func (apiClient *ApiClient) Do(
 		logger.Print(fmt.Sprintf("[api-client][retry %v] %v %v", retry, method, *uri))
 		res, err = apiClient.client.Do(req)
 		if err != nil {
-			logger.Error("[api-client] error:%v", err)
+			logger.Error("[api-client] error:", err)
 			if retry < apiClient.maxRetry-1 {
 				retry += 1
 				continue

@@ -2,6 +2,7 @@ package v8models
 
 import (
 	"encoding/json"
+	"gorm.io/datatypes"
 
 	"github.com/merico-dev/lake/plugins/jira/models"
 )
@@ -34,7 +35,7 @@ type RemoteLink struct {
 	} `json:"object"`
 }
 
-func (r RemoteLink) toToolLayer(sourceId, issueId uint64) *models.JiraRemotelink {
+func (r RemoteLink) toToolLayer(sourceId, issueId uint64, raw json.RawMessage) *models.JiraRemotelink {
 	return &models.JiraRemotelink{
 		SourceId:     sourceId,
 		RemotelinkId: r.ID,
@@ -42,18 +43,24 @@ func (r RemoteLink) toToolLayer(sourceId, issueId uint64) *models.JiraRemotelink
 		Self:         r.Self,
 		Title:        r.Object.Title,
 		Url:          r.Object.URL,
+		RawJson:      datatypes.JSON(raw),
 	}
 }
 
 func (RemoteLink) FromAPI(sourceId, issueId uint64, raw json.RawMessage) (interface{}, error) {
-	var vv []RemoteLink
-	err := json.Unmarshal(raw, &vv)
+	var msgs []json.RawMessage
+	err := json.Unmarshal(raw, &msgs)
 	if err != nil {
 		return nil, err
 	}
-	list := make([]*models.JiraRemotelink, len(vv))
-	for i, item := range vv {
-		list[i] = item.toToolLayer(sourceId, issueId)
+	var list []*models.JiraRemotelink
+	for _, msg := range msgs {
+		var remoteLink RemoteLink
+		err = json.Unmarshal(msg, &remoteLink)
+		if err != nil {
+			return nil, err
+		}
+		list = append(list, remoteLink.toToolLayer(sourceId, issueId, msg))
 	}
 	return list, nil
 }

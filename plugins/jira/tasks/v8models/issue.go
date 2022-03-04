@@ -72,28 +72,14 @@ type Issue struct {
 			Name    string `json:"name"`
 			ID      uint64 `json:"id,string"`
 		} `json:"priority"`
-		Labels                        []interface{} `json:"labels"`
-		Timeestimate                  interface{}   `json:"timeestimate"`
-		Aggregatetimeoriginalestimate interface{}   `json:"aggregatetimeoriginalestimate"`
-		Versions                      []interface{} `json:"versions"`
-		Issuelinks                    []interface{} `json:"issuelinks"`
-		Assignee                      *struct {
-			Self         string `json:"self"`
-			Name         string `json:"name"`
-			Key          string `json:"key"`
-			EmailAddress string `json:"emailAddress"`
-			AvatarUrls   struct {
-				Four8X48  string `json:"48x48"`
-				Two4X24   string `json:"24x24"`
-				One6X16   string `json:"16x16"`
-				Three2X32 string `json:"32x32"`
-			} `json:"avatarUrls"`
-			DisplayName string `json:"displayName"`
-			Active      bool   `json:"active"`
-			TimeZone    string `json:"timeZone"`
-		} `json:"assignee"`
-		Updated core.Iso8601Time `json:"updated"`
-		Status  struct {
+		Labels                        []interface{}    `json:"labels"`
+		Timeestimate                  interface{}      `json:"timeestimate"`
+		Aggregatetimeoriginalestimate interface{}      `json:"aggregatetimeoriginalestimate"`
+		Versions                      []interface{}    `json:"versions"`
+		Issuelinks                    []interface{}    `json:"issuelinks"`
+		Assignee                      *User            `json:"assignee"`
+		Updated                       core.Iso8601Time `json:"updated"`
+		Status                        struct {
 			Self           string `json:"self"`
 			Description    string `json:"description"`
 			IconURL        string `json:"iconUrl"`
@@ -115,26 +101,12 @@ type Issue struct {
 			RemainingEstimateSeconds int64  `json:"remainingEstimateSeconds"`
 			TimeSpentSeconds         int    `json:"timeSpentSeconds"`
 		} `json:"timetracking"`
-		Archiveddate          interface{} `json:"archiveddate"`
-		Aggregatetimeestimate *int64      `json:"aggregatetimeestimate"`
-		Summary               string      `json:"summary"`
-		Creator               struct {
-			Self         string `json:"self"`
-			Name         string `json:"name"`
-			Key          string `json:"key"`
-			EmailAddress string `json:"emailAddress"`
-			AvatarUrls   struct {
-				Four8X48  string `json:"48x48"`
-				Two4X24   string `json:"24x24"`
-				One6X16   string `json:"16x16"`
-				Three2X32 string `json:"32x32"`
-			} `json:"avatarUrls"`
-			DisplayName string `json:"displayName"`
-			Active      bool   `json:"active"`
-			TimeZone    string `json:"timeZone"`
-		} `json:"creator"`
-		Subtasks []interface{} `json:"subtasks"`
-		Reporter struct {
+		Archiveddate          interface{}   `json:"archiveddate"`
+		Aggregatetimeestimate *int64        `json:"aggregatetimeestimate"`
+		Summary               string        `json:"summary"`
+		Creator               User          `json:"creator"`
+		Subtasks              []interface{} `json:"subtasks"`
+		Reporter              struct {
 			Self         string `json:"self"`
 			Name         string `json:"name"`
 			Key          string `json:"key"`
@@ -191,7 +163,7 @@ func (i Issue) toToolLayer(sourceId uint64, storyPointField string) *models.Jira
 		StatusName:         i.Fields.Status.Name,
 		StatusKey:          i.Fields.Status.StatusCategory.Key,
 		ResolutionDate:     i.Fields.Resolutiondate.ToNullableTime(),
-		CreatorAccountId:   i.Fields.Creator.EmailAddress,
+		CreatorAccountId:   i.Fields.Creator.getAccountId(),
 		CreatorDisplayName: i.Fields.Creator.DisplayName,
 		Created:            i.Fields.Created.ToTime(),
 		Updated:            i.Fields.Updated.ToTime(),
@@ -200,7 +172,7 @@ func (i Issue) toToolLayer(sourceId uint64, storyPointField string) *models.Jira
 		result.EpicKey = i.Fields.Epic.Key
 	}
 	if i.Fields.Assignee != nil {
-		result.AssigneeAccountId = i.Fields.Assignee.EmailAddress
+		result.AssigneeAccountId = i.Fields.Assignee.getAccountId()
 		result.AssigneeDisplayName = i.Fields.Assignee.DisplayName
 	}
 	if i.Fields.Priority != nil {
