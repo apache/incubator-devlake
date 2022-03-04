@@ -1,6 +1,7 @@
 package tasks
 
 import (
+	"context"
 	"fmt"
 	"net/http"
 	"net/url"
@@ -34,7 +35,7 @@ type GitlabApiCommit struct {
 	}
 }
 
-func CollectCommits(projectId int, gitlabApiClient *GitlabApiClient) error {
+func CollectCommits(ctx context.Context, projectId int, gitlabApiClient *GitlabApiClient) error {
 	relativePath := fmt.Sprintf("projects/%v/repository/commits", projectId)
 	queryParams := &url.Values{}
 	queryParams.Set("with_stats", "true")
@@ -51,7 +52,7 @@ func CollectCommits(projectId int, gitlabApiClient *GitlabApiClient) error {
 			}
 			gitlabProjectCommit := &models.GitlabProjectCommit{GitlabProjectId: projectId}
 			for _, gitlabApiCommit := range *gitlabApiResponse {
-				gitlabCommit, err := convertCommit(&gitlabApiCommit, projectId)
+				gitlabCommit, err := ConvertCommit(&gitlabApiCommit)
 				if err != nil {
 					return err
 				}
@@ -103,7 +104,7 @@ func CollectCommits(projectId int, gitlabApiClient *GitlabApiClient) error {
 }
 
 // Convert the API response to our DB model instance
-func convertCommit(commit *GitlabApiCommit, projectId int) (*models.GitlabCommit, error) {
+func ConvertCommit(commit *GitlabApiCommit) (*models.GitlabCommit, error) {
 	gitlabCommit := &models.GitlabCommit{
 		Sha:            commit.GitlabId,
 		Title:          commit.Title,

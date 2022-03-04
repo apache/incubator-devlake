@@ -1,6 +1,7 @@
 package tasks
 
 import (
+	"context"
 	"fmt"
 	"net/http"
 
@@ -36,7 +37,7 @@ type MergeRequestRes struct {
 
 type ApiMergeRequestResponse []MergeRequestRes
 
-func CollectMergeRequests(projectId int, gitlabApiClient *GitlabApiClient) error {
+func CollectMergeRequests(ctx context.Context, projectId int, gitlabApiClient *GitlabApiClient) error {
 	return gitlabApiClient.FetchWithPaginationAnts(fmt.Sprintf("projects/%v/merge_requests", projectId), nil, 100,
 		func(res *http.Response) error {
 			gitlabApiResponse := &ApiMergeRequestResponse{}
@@ -44,6 +45,7 @@ func CollectMergeRequests(projectId int, gitlabApiClient *GitlabApiClient) error
 			if err != nil {
 				return err
 			}
+
 			for _, mr := range *gitlabApiResponse {
 				gitlabMergeRequest, err := convertMergeRequest(&mr, projectId)
 				if err != nil {
@@ -60,6 +62,7 @@ func CollectMergeRequests(projectId int, gitlabApiClient *GitlabApiClient) error
 			return nil
 		})
 }
+
 func convertMergeRequest(mr *MergeRequestRes, projectId int) (*models.GitlabMergeRequest, error) {
 	gitlabMergeRequest := &models.GitlabMergeRequest{
 		GitlabId:         mr.GitlabId,
@@ -78,6 +81,5 @@ func convertMergeRequest(mr *MergeRequestRes, projectId int) (*models.GitlabMerg
 		MergedByUsername: mr.MergedBy.Username,
 		AuthorUsername:   mr.Author.Username,
 	}
-
 	return gitlabMergeRequest, nil
 }
