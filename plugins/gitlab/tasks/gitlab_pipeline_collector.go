@@ -77,25 +77,29 @@ func CollectAllPipelines(projectId int, gitlabApiClient *GitlabApiClient) error 
 }
 
 func CollectChildrenOnPipelines(projectIdInt int, gitlabApiClient *GitlabApiClient) error {
-
-	var pipelines []gitlabModels.GitlabPipeline
-
+	pipeline := &gitlabModels.GitlabPipeline{}
 	//Find all piplines associated with the current projectid
-	lakeModels.Db.Where("project_id=?", projectIdInt).Find(&pipelines)
+	cursor, err := lakeModels.Db.Model(pipeline).Where("project_id=?", projectIdInt).Rows()
+	if err != nil {
+		return err
+	}
+	defer cursor.Close()
 
-	for i := 0; i < len(pipelines); i++ {
-		pipeline := (pipelines)[i]
+	for cursor.Next() {
+		err = lakeModels.Db.ScanRows(cursor, pipeline)
+		if err != nil {
+			return err
+		}
+
 		getUrl := fmt.Sprintf("projects/%v/pipelines/%v", projectIdInt, pipeline.GitlabId)
-
-		err := gitlabApiClient.GetAsync(getUrl, nil, func(res *http.Response) error {
+		err = gitlabApiClient.GetAsync(getUrl, nil, func(res *http.Response) error {
 			// Check the StatusCode of the HTTP response
 			if res.StatusCode != 200 {
 				return fmt.Errorf("got a bad response StatusCode [%d] when requesting [%s]", res.StatusCode, getUrl)
 			}
 
 			pipelineRes := &ApiSinglePipelineResponse{}
-			err := core.UnmarshalResponse(res, pipelineRes)
-
+			err = core.UnmarshalResponse(res, pipelineRes)
 			if err != nil {
 				return err
 			}
@@ -107,11 +111,9 @@ func CollectChildrenOnPipelines(projectIdInt int, gitlabApiClient *GitlabApiClie
 
 			// use projectIdInt to set the value of ProjectId for it
 			gitlabPipeline.ProjectId = projectIdInt
-
 			err = lakeModels.Db.Clauses(clause.OnConflict{
 				UpdateAll: true,
 			}).Create(&gitlabPipeline).Error
-
 			if err != nil {
 				return err
 			}
@@ -121,14 +123,12 @@ func CollectChildrenOnPipelines(projectIdInt int, gitlabApiClient *GitlabApiClie
 		if err != nil {
 			return err
 		}
-
 	}
 	gitlabApiClient.WaitOtherGoroutines()
 	return nil
 }
 
 func convertSinglePipeline(pipeline *ApiSinglePipelineResponse) (*models.GitlabPipeline, error) {
-
 	gitlabPipeline := &gitlabModels.GitlabPipeline{
 		GitlabId:        pipeline.GitlabId,
 		ProjectId:       pipeline.ProjectId,

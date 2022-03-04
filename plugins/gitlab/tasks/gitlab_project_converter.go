@@ -1,6 +1,7 @@
 package tasks
 
 import (
+	"context"
 	lakeModels "github.com/merico-dev/lake/models"
 	"github.com/merico-dev/lake/models/domainlayer"
 	"github.com/merico-dev/lake/models/domainlayer/code"
@@ -9,14 +10,18 @@ import (
 	"gorm.io/gorm/clause"
 )
 
-func ConvertProjects() error {
-	var gitlabProjects []gitlabModels.GitlabProject
-	err := lakeModels.Db.Find(&gitlabProjects).Error
+func ConvertProjects(ctx context.Context, projectId int) error {
+
+	gitlabProject := &gitlabModels.GitlabProject{}
+	//Find all piplines associated with the current projectid
+	cursor, err := lakeModels.Db.Model(gitlabProject).Where("gitlab_id=?", projectId).Rows()
 	if err != nil {
 		return err
 	}
-	for _, repository := range gitlabProjects {
-		domainRepository := convertToRepositoryModel(&repository)
+	defer cursor.Close()
+
+	for cursor.Next() {
+		domainRepository := convertToRepositoryModel(gitlabProject)
 		err := lakeModels.Db.Clauses(clause.OnConflict{UpdateAll: true}).Create(domainRepository).Error
 		if err != nil {
 			return err
@@ -24,6 +29,7 @@ func ConvertProjects() error {
 	}
 	return nil
 }
+
 func convertToRepositoryModel(project *gitlabModels.GitlabProject) *code.Repo {
 	domainRepository := &code.Repo{
 		DomainEntity: domainlayer.DomainEntity{

@@ -44,6 +44,7 @@ func CollectMergeRequests(projectId int, gitlabApiClient *GitlabApiClient) error
 			if err != nil {
 				return err
 			}
+
 			for _, mr := range *gitlabApiResponse {
 				gitlabMergeRequest, err := convertMergeRequest(&mr, projectId)
 				if err != nil {
@@ -60,6 +61,7 @@ func CollectMergeRequests(projectId int, gitlabApiClient *GitlabApiClient) error
 			return nil
 		})
 }
+
 func convertMergeRequest(mr *MergeRequestRes, projectId int) (*models.GitlabMergeRequest, error) {
 	gitlabMergeRequest := &models.GitlabMergeRequest{
 		GitlabId:         mr.GitlabId,
@@ -78,6 +80,5 @@ func convertMergeRequest(mr *MergeRequestRes, projectId int) (*models.GitlabMerg
 		MergedByUsername: mr.MergedBy.Username,
 		AuthorUsername:   mr.Author.Username,
 	}
-
 	return gitlabMergeRequest, nil
 }

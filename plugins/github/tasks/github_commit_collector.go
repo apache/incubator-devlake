@@ -59,7 +59,7 @@ func CollectCommits(owner string, repo string, repoId int, apiClient *GithubApiC
 				if err != nil {
 					return err
 				}
-				// save author and committer
+				// save author and committer to github_user
 				if commit.Author != nil {
 					githubCommit.AuthorId = commit.Author.Id
 					err = lakeModels.Db.Clauses(clause.OnConflict{
