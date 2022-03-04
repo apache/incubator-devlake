@@ -1,10 +1,13 @@
 import React, { useEffect, useState, useCallback, Fragment } from 'react'
 import {
   ButtonGroup,
+  FormGroup,
+  InputGroup,
   MenuItem,
   Position,
   Button,
   Intent,
+  Label,
   Icon,
   Colors,
   Tag,
@@ -45,6 +48,7 @@ export default function JiraSettings (props) {
   const [jiraIssueEpicKeyField, setJiraIssueEpicKeyField] = useState('')
   const [jiraIssueStoryCoefficient, setJiraIssueStoryCoefficient] = useState(1)
   const [jiraIssueStoryPointField, setJiraIssueStoryPointField] = useState('')
+  const [remoteLinkCommitSha, setRemoteLinkCommitSha] = useState('')
 
   const [requirementTags, setRequirementTags] = useState([])
   const [bugTags, setBugTags] = useState([])
@@ -91,6 +95,7 @@ export default function JiraSettings (props) {
       epicKeyField: jiraIssueEpicKeyField?.value || '',
       typeMappings: typeMappingAll,
       storyPointField: jiraIssueStoryPointField?.value || '',
+      remotelinkCommitShaPattern: remoteLinkCommitSha || ''
     }
     onSettingsChange(settings)
     console.log('>> JIRA INSTANCE SETTINGS FIELDS CHANGED!', settings)
@@ -103,6 +108,7 @@ export default function JiraSettings (props) {
       jiraIssueEpicKeyField,
       jiraIssueStoryPointField,
       jiraIssueStoryCoefficient,
+      remoteLinkCommitSha,
       onSettingsChange)
   }, [
     typeMappingBug,
@@ -113,6 +119,7 @@ export default function JiraSettings (props) {
     jiraIssueEpicKeyField,
     jiraIssueStoryPointField,
     jiraIssueStoryCoefficient,
+    remoteLinkCommitSha,
     onSettingsChange
   ])
 
@@ -142,6 +149,7 @@ export default function JiraSettings (props) {
       // Parse Type Mappings (V2)
       parseTypeMappings(connection.typeMappings)
       setStatusMappings([])
+      setRemoteLinkCommitSha(connection.remotelinkCommitShaPattern)
       // setJiraIssueEpicKeyField(fieldsList.find(f => f.value === connection.epicKeyField))
       // setJiraIssueStoryPointField(fieldsList.find(f => f.value === connection.storyPointField))
     }
@@ -465,7 +473,7 @@ export default function JiraSettings (props) {
         </div>
       </div>
       <div className='headlineContainer'>
-        <h3 className='headline'>Story Point Field (Optional)</h3>
+        <h3 className='headline'>Story Point Field</h3>
         <p className=''>Choose the JIRA field you’re using to represent the granularity of a requirement-type issue.</p>
         <div style={{ display: 'flex', minWidth: '260px' }}>
           <ButtonGroup disabled={isSaving}>
@@ -534,6 +542,32 @@ export default function JiraSettings (props) {
             )}
           </div>
         </div>
+      </div>
+      <div className='headlineContainer'>
+        <h3 className='headline'>Remotelink Commit SHA <Tag className='bp3-form-helper-text'>RegExp</Tag></h3>
+        <p>Issue Weblink <strong>Commit SHA Pattern</strong> (Add weblink to jira for gitlab.)</p>
+      </div>
+      <div className='formContainer' style={{ maxWidth: '550px' }}>
+        <FormGroup
+          fill={false}
+          disabled={isSaving}
+          labelFor='jira-remotelink-sha'
+          className='formGroup'
+          contentClassName='formGroupContent'
+        >
+          <Label>
+            Commit Pattern
+          </Label>
+          <InputGroup
+            id='jira-remotelink-sha'
+            fill={false}
+            placeholder='/commit/([0-9a-f]{40})$'
+            defaultValue={remoteLinkCommitSha}
+            onChange={(e) => setRemoteLinkCommitSha(e.target.value)}
+            disabled={isSaving}
+            className='input'
+          />
+        </FormGroup>
       </div>
     </>
   )

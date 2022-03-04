@@ -43,6 +43,7 @@ const ProviderFormLabels = {
   null: {
     name: 'Connection Name',
     endpoint: 'Endpoint URL',
+    proxy: 'Proxy URL',
     token: 'Basic Auth Token',
     username: 'Username',
     password: 'Password'
@@ -50,6 +51,7 @@ const ProviderFormLabels = {
   gitlab: {
     name: 'Connection Name',
     endpoint: 'Endpoint URL',
+    proxy: 'Proxy URL',
     token: 'Basic Auth Token',
     username: 'Username',
     password: 'Password'
@@ -57,6 +59,7 @@ const ProviderFormLabels = {
   jenkins: {
     name: 'Connection Name',
     endpoint: 'Endpoint URL',
+    proxy: 'Proxy URL',
     token: 'Basic Auth Token',
     username: 'Username',
     password: 'Password'
@@ -64,6 +67,7 @@ const ProviderFormLabels = {
   jira: {
     name: 'Connection Name',
     endpoint: 'Endpoint URL',
+    proxy: 'Proxy URL',
     token: 'Basic Auth Token',
     username: 'Username',
     password: 'Password'
@@ -71,6 +75,7 @@ const ProviderFormLabels = {
   github: {
     name: 'Connection Name',
     endpoint: 'Endpoint URL',
+    proxy: 'Proxy URL',
     // token: 'Auth Token(s)',
     token: (
       <Tooltip
@@ -88,6 +93,7 @@ const ProviderFormPlaceholders = {
   null: {
     name: 'Enter Instance Name',
     endpoint: 'Enter Endpoint URL eg. https://null-api.localhost',
+    proxy: 'Enter Proxy URL eg. http://proxy.localhost:8080',
     token: 'Enter Auth Token eg. 3f5cda2a23ff410792e0',
     username: 'Enter Username / E-mail',
     password: 'Enter Password'
@@ -95,6 +101,7 @@ const ProviderFormPlaceholders = {
   gitlab: {
     name: 'Enter Instance Name',
     endpoint: 'Enter Endpoint URL eg. https://gitlab.com/api/v4',
+    proxy: 'Enter Proxy URL eg. http://proxy.localhost:8080',
     token: 'Enter Auth Token eg. ff9d1ad0e5c04f1f98fa',
     username: 'Enter Username / E-mail',
     password: 'Enter Password'
@@ -102,6 +109,7 @@ const ProviderFormPlaceholders = {
   jenkins: {
     name: 'Enter Instance Name',
     endpoint: 'Enter Endpoint URL eg. https://api.jenkins.io',
+    proxy: 'Enter Proxy URL eg. http://proxy.localhost:8080',
     token: 'Enter Auth Token eg. 6b057ffe68464c93a057',
     username: 'Enter Username / E-mail',
     password: 'Enter Password'
@@ -109,6 +117,7 @@ const ProviderFormPlaceholders = {
   jira: {
     name: 'Enter Instance Name',
     endpoint: 'Enter Endpoint URL eg. https://your-domain.atlassian.net/rest/',
+    proxy: 'Enter Proxy URL eg. http://proxy.localhost:8080',
     token: 'Enter Auth Token eg. 8c06a7cc50b746bfab30',
     username: 'Enter Username / E-mail',
     password: 'Enter Password'
@@ -116,6 +125,7 @@ const ProviderFormPlaceholders = {
   github: {
     name: 'Enter Instance Name',
     endpoint: 'Enter Endpoint URL eg. https://api.github.com',
+    proxy: 'Enter Proxy URL eg. http://proxy.localhost:8080',
     token: 'Enter Auth Token(s) eg. 4c5cbdb62c165e2b3d18, 40008ebccff9837bb8d2',
     username: 'Enter Username / E-mail',
     password: 'Enter Password'

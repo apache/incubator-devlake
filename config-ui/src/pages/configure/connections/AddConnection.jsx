@@ -44,11 +44,13 @@ export default function AddConnection () {
     testStatus,
     name,
     endpointUrl,
+    proxy,
     token,
     username,
     password,
     setName,
     setEndpointUrl,
+    setProxy,
     setUsername,
     setPassword,
     setToken,
@@ -67,6 +69,7 @@ export default function AddConnection () {
     activeProvider,
     name,
     endpointUrl,
+    proxy,
     token,
     username,
     password
@@ -148,6 +151,7 @@ export default function AddConnection () {
                   activeProvider={activeProvider}
                   name={name}
                   endpointUrl={endpointUrl}
+                  proxy={proxy}
                   token={token}
                   username={username}
                   password={password}
@@ -157,6 +161,7 @@ export default function AddConnection () {
                   onValidate={validate}
                   onNameChange={setName}
                   onEndpointChange={setEndpointUrl}
+                  onProxyChange={setProxy}
                   onTokenChange={setToken}
                   onUsernameChange={setUsername}
                   onPasswordChange={setPassword}
