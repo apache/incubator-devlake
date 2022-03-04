@@ -7,6 +7,7 @@ import { ReactComponent as GitHubProviderIcon } from '@/images/integrations/gith
 import GitExtractorIcon from '@/images/git.png'
 import RefDiffIcon from '@/images/git-diff.png'
 import FeishuIcon from '@/images/feishu.png'
+import GitlabCIIcon from '@/images/integrations/gitlabci.png'
 
 const Providers = {
   NULL: 'null',
@@ -16,7 +17,8 @@ const Providers = {
   GITHUB: 'github',
   REFDIFF: 'refdiff',
   GITEXTRACTOR: 'gitextractor',
-  FEISHU: 'feishu'
+  FEISHU: 'feishu',
+  GITLABCI: 'gitlabci'
 }
 
 const ProviderLabels = {
@@ -27,14 +29,16 @@ const ProviderLabels = {
   GITHUB: 'GitHub',
   REFDIFF: 'RefDiff',
   GITEXTRACTOR: 'GitExtractor',
-  FEISHU: 'Feishu'
+  FEISHU: 'Feishu',
+  GITLABCI: 'GitLab CI'
 }
 
 const ProviderSourceLimits = {
   gitlab: 1,
   jenkins: 1,
   // jira: null, // (Multi-source, no-limit)
-  github: 1
+  github: 1,
+  gitlabci: 1
 }
 
 // NOTE: Not all fields may be referenced/displayed for a provider,
@@ -140,6 +144,7 @@ const ProviderIcons = {
   [Providers.REFDIFF]: (w, h) => <img src={RefDiffIcon} width={w || 24} height={h || 24} />,
   [Providers.GITEXTRACTOR]: (w, h) => <img src={GitExtractorIcon} width={w || 24} height={h || 24} />,
   [Providers.FEISHU]: (w, h) => <img src={FeishuIcon} width={w || 24} height={h || 24} />,
+  [Providers.GITLABCI]: (w, h) => <img src={GitlabCIIcon} width={w || 24} height={h || 24} />,
 
 }
 

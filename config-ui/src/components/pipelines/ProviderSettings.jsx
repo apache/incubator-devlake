@@ -40,6 +40,9 @@ const ProviderSettings = (props) => {
     case Providers.JENKINS:
       providerSettings = <p><strong style={{ fontWeight: 900 }}>AUTO-CONFIGURED</strong><br />No Additional Settings</p>
       break
+    case Providers.GITLABCI:
+      providerSettings = <p><strong style={{ fontWeight: 900 }}>AUTO-CONFIGURED</strong><br />No Additional Settings</p>
+      break
     case Providers.JIRA:
       providerSettings = (
         <>

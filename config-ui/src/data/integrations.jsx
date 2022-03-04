@@ -6,11 +6,14 @@ import JiraSettings from '@/pages/configure/settings/jira'
 import GitlabSettings from '@/pages/configure/settings/gitlab'
 import JenkinsSettings from '@/pages/configure/settings/jenkins'
 import GithubSettings from '@/pages/configure/settings/github'
+import GitlabCISettings from '@/pages/configure/settings/gitlabci'
 
 import { ReactComponent as GitlabProvider } from '@/images/integrations/gitlab.svg'
 import { ReactComponent as JenkinsProvider } from '@/images/integrations/jenkins.svg'
 import { ReactComponent as JiraProvider } from '@/images/integrations/jira.svg'
 import { ReactComponent as GitHubProvider } from '@/images/integrations/github.svg'
+import GitlabCIProvider from '@/images/integrations/gitlabci.png'
+
 // import { ReactComponent as NullProvider } from '@/images/integrations/null.svg'
 
 const integrationsData = [
@@ -71,6 +74,22 @@ const integrationsData = [
     iconDashboard: <GitHubProvider className='providerIconSvg' width='48' height='48' />,
     settings: ({ activeProvider, activeConnection, isSaving, setSettings }) => (
       <GithubSettings
+        provider={activeProvider}
+        connection={activeConnection}
+        isSaving={isSaving}
+        onSettingsChange={setSettings}
+      />
+    )
+  },
+  {
+    id: Providers.GITLABCI,
+    enabled: true,
+    multiSource: false,
+    name: ProviderLabels.GITLABCI,
+    icon: <img src={GitlabCIProvider} className='providerIconPng' width='28' height='28' style={{ float: 'left', marginTop: '5px' }} />,
+    iconDashboard: <img src={GitlabCIProvider} className='providerIconPng' width='46' height='46' />,
+    settings: ({ activeProvider, activeConnection, isSaving, setSettings }) => (
+      <GitlabCISettings
         provider={activeProvider}
         connection={activeConnection}
         isSaving={isSaving}
