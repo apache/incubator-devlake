@@ -1,6 +1,7 @@
 package tasks
 
 import (
+	"context"
 	"fmt"
 	"net/http"
 	"net/url"
@@ -34,7 +35,7 @@ type GitlabApiCommit struct {
 	}
 }
 
-func CollectCommits(projectId int, gitlabApiClient *GitlabApiClient) error {
+func CollectCommits(ctx context.Context, projectId int, gitlabApiClient *GitlabApiClient) error {
 	relativePath := fmt.Sprintf("projects/%v/repository/commits", projectId)
 	queryParams := &url.Values{}
 	queryParams.Set("with_stats", "true")

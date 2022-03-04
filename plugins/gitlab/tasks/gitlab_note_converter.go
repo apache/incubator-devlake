@@ -1,6 +1,7 @@
 package tasks
 
 import (
+	"context"
 	lakeModels "github.com/merico-dev/lake/models"
 	"github.com/merico-dev/lake/models/domainlayer"
 	"github.com/merico-dev/lake/models/domainlayer/code"
@@ -9,16 +10,23 @@ import (
 	"gorm.io/gorm/clause"
 )
 
-func ConvertNotes() error {
-	var gitlabMergeRequestNotes []gitlabModels.GitlabMergeRequestNote
-	err := lakeModels.Db.Find(&gitlabMergeRequestNotes).Error
+func ConvertNotes(ctx context.Context, projectId int) error {
+	gitlabMergeRequestNote := &gitlabModels.GitlabMergeRequestNote{}
+	cursor, err := lakeModels.Db.Model(gitlabMergeRequestNote).
+		Joins("left join gitlab_merge_requests on gitlab_merge_requests.gitlab_id = gitlab_merge_request_notes.merge_request_id").
+		Where("gitlab_merge_requests.project_id = ?", projectId).Rows()
 	if err != nil {
 		return err
 	}
+	defer cursor.Close()
 
 	domainIdGeneratorNote := didgen.NewDomainIdGenerator(&gitlabModels.GitlabMergeRequestNote{})
-	for _, note := range gitlabMergeRequestNotes {
-		domainNote := convertToNoteModel(&note, domainIdGeneratorNote)
+	for cursor.Next() {
+		err = lakeModels.Db.ScanRows(cursor, gitlabMergeRequestNote)
+		if err != nil {
+			return err
+		}
+		domainNote := convertToNoteModel(gitlabMergeRequestNote, domainIdGeneratorNote)
 		err := lakeModels.Db.Clauses(clause.OnConflict{UpdateAll: true}).Create(domainNote).Error
 		if err != nil {
 			return err

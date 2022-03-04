@@ -1,6 +1,7 @@
 package tasks
 
 import (
+	"context"
 	"fmt"
 	"net/http"
 
@@ -36,7 +37,7 @@ type MergeRequestRes struct {
 
 type ApiMergeRequestResponse []MergeRequestRes
 
-func CollectMergeRequests(projectId int, gitlabApiClient *GitlabApiClient) error {
+func CollectMergeRequests(ctx context.Context, projectId int, gitlabApiClient *GitlabApiClient) error {
 	return gitlabApiClient.FetchWithPaginationAnts(fmt.Sprintf("projects/%v/merge_requests", projectId), nil, 100,
 		func(res *http.Response) error {
 			gitlabApiResponse := &ApiMergeRequestResponse{}
