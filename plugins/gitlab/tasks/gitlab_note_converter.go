@@ -15,6 +15,7 @@ func ConvertNotes() error {
 	if err != nil {
 		return err
 	}
+
 	domainIdGeneratorNote := didgen.NewDomainIdGenerator(&gitlabModels.GitlabMergeRequestNote{})
 	for _, note := range gitlabMergeRequestNotes {
 		domainNote := convertToNoteModel(&note, domainIdGeneratorNote)
@@ -25,6 +26,7 @@ func ConvertNotes() error {
 	}
 	return nil
 }
+
 func convertToNoteModel(note *gitlabModels.GitlabMergeRequestNote, domainIdGeneratorNote *didgen.DomainIdGenerator) *code.Note {
 	domainNote := &code.Note{
 		DomainEntity: domainlayer.DomainEntity{

@@ -26,6 +26,7 @@ type MergeRequestNote struct {
 		Username string `json:"username"`
 	}
 }
+
 type ApiMergeRequestNoteResponse []MergeRequestNote
 
 func CollectMergeRequestNotes(ctx context.Context, projectId int, rateLimitPerSecondInt int, gitlabApiClient *GitlabApiClient) error {
@@ -34,6 +35,7 @@ func CollectMergeRequestNotes(ctx context.Context, projectId int, rateLimitPerSe
 		return nil
 	}
 	defer scheduler.Release()
+
 	gitlabMr := &models.GitlabMergeRequest{}
 	cursor, err := lakeModels.Db.Model(gitlabMr).Where("project_id = ?", projectId).Rows()
 	if err != nil {
@@ -83,6 +85,7 @@ func CollectMergeRequestNotes(ctx context.Context, projectId int, rateLimitPerSe
 	scheduler.WaitUntilFinish()
 	return nil
 }
+
 func convertMergeRequestNote(mrNote *MergeRequestNote) (*models.GitlabMergeRequestNote, error) {
 	gitlabMergeRequestNote := &models.GitlabMergeRequestNote{
 		GitlabId:        mrNote.GitlabId,

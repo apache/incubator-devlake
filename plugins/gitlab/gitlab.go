@@ -23,6 +23,7 @@ var _ core.Plugin = (*Gitlab)(nil)
 type GitlabOptions struct {
 	Tasks []string `json:"tasks,omitempty"`
 }
+
 type Gitlab string
 
 func (plugin Gitlab) Description() string {
@@ -52,7 +53,7 @@ func (plugin Gitlab) Init() {
 func (plugin Gitlab) Execute(options map[string]interface{}, progress chan<- float32, ctx context.Context) error {
 	logger.Print("start gitlab plugin execution")
 
-	rateLimitPerSecondInt, err := core.GetRateLimitPerSecond(options, 15)
+	rateLimitPerSecondInt, err := core.GetRateLimitPerSecond(options, 10)
 	if err != nil {
 		return err
 	}
@@ -186,7 +187,7 @@ func (plugin Gitlab) Execute(options map[string]interface{}, progress chan<- flo
 	}
 	if tasksToRun["convertProjects"] {
 		progress <- 0.7
-		err = tasks.ConvertProjects()
+		err = tasks.ConvertProjects(nil, 0)
 		if err != nil {
 			return &errors.SubTaskError{
 				SubTaskName: "convertProjects",
@@ -196,7 +197,7 @@ func (plugin Gitlab) Execute(options map[string]interface{}, progress chan<- flo
 	}
 	if tasksToRun["convertMrs"] {
 		progress <- 0.75
-		err = tasks.ConvertPrs()
+		err = tasks.ConvertMrs(ctx, projectIdInt)
 		if err != nil {
 			return &errors.SubTaskError{
 				SubTaskName: "convertMrs",
@@ -272,16 +273,14 @@ func main() {
 		err2 := PluginEntry.Execute(
 			map[string]interface{}{
 				"projectId": projectId,
-				//"tasks":     []string{"collectProject"},
-				//"tasks":     []string{"collectCommits"},
 				"tasks": []string{
-					//"collectCommits",
-					//"collectMrs",
-					//"collectMrNotes",
-					//"collectMrCommits",
+					"collectMrCommits",
 					"enrichMrs",
+					"convertProjects",
+					"convertMrs",
+					"convertCommits",
+					"convertNotes",
 				},
-				//"tasks": []string{"convertCommits"},
 			},
 			progress,
 			context.Background(),

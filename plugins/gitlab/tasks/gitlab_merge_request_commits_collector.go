@@ -21,14 +21,13 @@ func CollectMergeRequestCommits(ctx context.Context, projectId int, rateLimitPer
 		return nil
 	}
 	defer scheduler.Release()
+
 	cursor, err := lakeModels.Db.Model(&models.GitlabMergeRequest{}).Where("project_id = ?", projectId).Rows()
 	if err != nil {
 		return err
 	}
 	defer cursor.Close()
-
 	gitlabMr := &models.GitlabMergeRequest{}
-
 	for cursor.Next() {
 		err = lakeModels.Db.ScanRows(cursor, gitlabMr)
 		if err != nil {
@@ -45,18 +44,21 @@ func CollectMergeRequestCommits(ctx context.Context, projectId int, rateLimitPer
 						logger.Error("Error: ", err)
 						return err
 					}
+
 					for _, commit := range *gitlabApiResponse {
 						gitlabCommit, err := ConvertCommit(&commit)
 						if err != nil {
 							return err
 						}
-						result := lakeModels.Db.Clauses(clause.OnConflict{
-							UpdateAll: true,
-						}).Create(&gitlabCommit)
 
-						if result.Error != nil {
-							logger.Error("Could not upsert: ", result.Error)
+						err = lakeModels.Db.Clauses(clause.OnConflict{
+							UpdateAll: true,
+						}).Create(&gitlabCommit).Error
+						if err != nil {
+							logger.Error("Could not upsert: ", err)
+							return err
 						}
+
 						gitlabMrCommit := &models.GitlabMergeRequestCommit{
 							CommitSha:      commit.GitlabId,
 							MergeRequestId: gitlabMr.GitlabId,
@@ -66,11 +68,10 @@ func CollectMergeRequestCommits(ctx context.Context, projectId int, rateLimitPer
 						}).Create(&gitlabMrCommit).Error
 
 						if err != nil {
-							logger.Error("Could not upsert: ", result.Error)
+							logger.Error("Could not upsert: ", err)
 							return err
 						}
 					}
-
 					return nil
 				})
 		})
