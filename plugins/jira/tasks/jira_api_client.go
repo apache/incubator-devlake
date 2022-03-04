@@ -9,10 +9,9 @@ import (
 
 	"github.com/merico-dev/lake/logger"
 	lakeModels "github.com/merico-dev/lake/models"
-	"github.com/merico-dev/lake/utils"
-
 	"github.com/merico-dev/lake/plugins/core"
 	"github.com/merico-dev/lake/plugins/jira/models"
+	"github.com/merico-dev/lake/utils"
 )
 
 type JiraApiClient struct {
@@ -159,7 +158,7 @@ func (jiraApiClient *JiraApiClient) FetchWithoutPaginationHeaders(
 }
 
 func (jiraApiClient *JiraApiClient) GetJiraServerInfo() (*models.JiraServerInfo, int, error) {
-	res, err := jiraApiClient.Get("api/3/serverInfo", nil, nil)
+	res, err := jiraApiClient.Get("api/2/serverInfo", nil, nil)
 	if err != nil {
 		return nil, 0, err
 	}

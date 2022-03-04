@@ -46,12 +46,15 @@ type JiraApiChangelogsResponse struct {
 	Values []JiraApiChangeLog `json:"values,omitempty"`
 }
 
+type changelogCollector func(source *models.JiraSource, jiraApiClient *JiraApiClient, issueId uint64) error
+
 func CollectChangelogs(
 	jiraApiClient *JiraApiClient,
 	source *models.JiraSource,
 	boardId uint64,
 	rateLimitPerSecondInt int,
 	ctx context.Context,
+	collector changelogCollector,
 ) error {
 	jiraIssue := &models.JiraIssue{}
 
@@ -102,7 +105,7 @@ func CollectChangelogs(
 		issueId := jiraIssue.IssueId
 		updated := jiraIssue.Updated
 		err = issueScheduler.Submit(func() error {
-			err = collectChangelogsByIssueId(changelogScheduler, source, jiraApiClient, issueId)
+			err = collector(source, jiraApiClient, issueId)
 			if err != nil {
 				return err
 			}
@@ -124,7 +127,6 @@ func CollectChangelogs(
 }
 
 func collectChangelogsByIssueId(
-	scheduler *utils.WorkerScheduler,
 	source *models.JiraSource,
 	jiraApiClient *JiraApiClient,
 	issueId uint64,
