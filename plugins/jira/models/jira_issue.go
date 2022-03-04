@@ -4,6 +4,7 @@ import (
 	"time"
 
 	"github.com/merico-dev/lake/models/common"
+	"github.com/merico-dev/lake/plugins/helper"
 	"gorm.io/datatypes"
 )
 
@@ -57,4 +58,6 @@ type JiraIssue struct {
 	// internal status tracking
 	ChangelogUpdated  *time.Time
 	RemotelinkUpdated *time.Time
+
+	helper.ExtractedRawData
 }

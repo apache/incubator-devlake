@@ -1,16 +1,22 @@
 package helper
 
-import "github.com/merico-dev/lake/plugins/core"
+import (
+	"encoding/json"
 
-type RawDataExtractor func(row interface{}, params interface{}) (interface{}, error)
+	"github.com/merico-dev/lake/plugins/core"
+)
+
+// Accept raw json body and params, return list of entities that need to be stored
+type RawDataExtractor func(body json.RawMessage, params json.RawMessage) ([]interface{}, error)
 
 type ApiExtractorArgs struct {
-	Table      string `comment:"Raw data table name"`
-	Url        string `comment:"Raw data table name"`
-	Params     interface{}
-	RowData    interface{}
-	Extractors []RawDataExtractor
-	BatchSize  int
+	Ctx       core.TaskContext
+	Table     string `comment:"Raw data table name"`
+	Url       string `comment:"Raw data table name"`
+	Params    interface{}
+	RowData   interface{}
+	Extract   RawDataExtractor
+	BatchSize int
 }
 
 type ApiExtractor struct {
