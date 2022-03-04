@@ -11,5 +11,4 @@ func main() {
 		panic(err)
 	}
 	api.CreateApiService()
-	println("Hello, lake")
 }

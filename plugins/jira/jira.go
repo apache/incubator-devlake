@@ -3,18 +3,19 @@ package main // must be main for plugin entry point
 import (
 	"context"
 	"fmt"
-	errors "github.com/merico-dev/lake/errors"
-	"github.com/merico-dev/lake/utils"
+	"net/http"
 	"os"
 	"strconv"
 	"time"
 
+	errors "github.com/merico-dev/lake/errors"
 	"github.com/merico-dev/lake/logger"
 	lakeModels "github.com/merico-dev/lake/models"
 	"github.com/merico-dev/lake/plugins/core"
 	"github.com/merico-dev/lake/plugins/jira/api"
 	"github.com/merico-dev/lake/plugins/jira/models"
 	"github.com/merico-dev/lake/plugins/jira/tasks"
+	"github.com/merico-dev/lake/utils"
 	"github.com/mitchellh/mapstructure"
 )
 
@@ -143,9 +144,25 @@ func (plugin Jira) Execute(options map[string]interface{}, progress chan<- float
 	if err != nil {
 		return fmt.Errorf("failed to create jira api client: %v", err)
 	}
+	var collector tasks.Collector
+	info, code, err := jiraApiClient.GetJiraServerInfo()
+	if err != nil || code != http.StatusOK {
+		return fmt.Errorf("fail to get server info")
+	}
+	if info.DeploymentType == models.DeploymentCloud {
+		collector = tasks.NewCloud()
+	}
+	if info.DeploymentType == models.DeploymentServer {
+		if versions := info.VersionNumbers; len(versions) == 3 && versions[0] == 8 {
+			collector = tasks.NewServerVersion8(lakeModels.Db, jiraApiClient)
+		}
+	}
+	if collector == nil {
+		return fmt.Errorf("Jira server %s is not supported", info.Version)
+	}
 	for i, boardId := range boardIds {
 		if tasksToRun["collectProjects"] {
-			err := tasks.CollectProjects(jiraApiClient, op.SourceId)
+			err := collector.CollectProjects(jiraApiClient, op.SourceId)
 			if err != nil {
 				return &errors.SubTaskError{
 					SubTaskName: "collectProjects",
@@ -154,7 +171,7 @@ func (plugin Jira) Execute(options map[string]interface{}, progress chan<- float
 			}
 		}
 		if tasksToRun["collectUsers"] {
-			err := tasks.CollectUsers(jiraApiClient, op.SourceId)
+			err := collector.CollectUsers(jiraApiClient, op.SourceId)
 			if err != nil {
 				return &errors.SubTaskError{
 					SubTaskName: "collectUsers",
@@ -163,7 +180,7 @@ func (plugin Jira) Execute(options map[string]interface{}, progress chan<- float
 			}
 		}
 		if tasksToRun["collectBoard"] {
-			err := tasks.CollectBoard(jiraApiClient, source, boardId)
+			err := collector.CollectBoard(jiraApiClient, source, boardId)
 			if err != nil {
 				return &errors.SubTaskError{
 					SubTaskName: "collectBoard",
@@ -173,7 +190,7 @@ func (plugin Jira) Execute(options map[string]interface{}, progress chan<- float
 		}
 		setBoardProgress(i, 0.01)
 		if tasksToRun["collectIssues"] {
-			err = tasks.CollectIssues(jiraApiClient, source, boardId, since, rateLimitPerSecondInt, ctx)
+			err = collector.CollectIssues(jiraApiClient, source, boardId, since, rateLimitPerSecondInt, ctx)
 			if err != nil {
 				return &errors.SubTaskError{
 					SubTaskName: "collectIssues",
@@ -183,7 +200,7 @@ func (plugin Jira) Execute(options map[string]interface{}, progress chan<- float
 		}
 		setBoardProgress(i, 0.1)
 		if tasksToRun["collectChangelogs"] {
-			err = tasks.CollectChangelogs(jiraApiClient, source, boardId, rateLimitPerSecondInt, ctx)
+			err = collector.CollectChangelogs(jiraApiClient, source, boardId, rateLimitPerSecondInt, ctx)
 			if err != nil {
 				return &errors.SubTaskError{
 					SubTaskName: "collectChangelogs",
@@ -192,7 +209,7 @@ func (plugin Jira) Execute(options map[string]interface{}, progress chan<- float
 			}
 		}
 		if tasksToRun["collectRemotelinks"] {
-			err = tasks.CollectRemoteLinks(jiraApiClient, source, boardId, rateLimitPerSecondInt, ctx)
+			err = collector.CollectRemoteLinks(jiraApiClient, source, boardId, rateLimitPerSecondInt, ctx)
 			if err != nil {
 				return &errors.SubTaskError{
 					SubTaskName: "collectRemotelinks",
@@ -221,7 +238,7 @@ func (plugin Jira) Execute(options map[string]interface{}, progress chan<- float
 		}
 		setBoardProgress(i, 0.3)
 		if tasksToRun["collectSprints"] {
-			err = tasks.CollectSprint(jiraApiClient, source, boardId)
+			err = collector.CollectSprint(jiraApiClient, source, boardId)
 			if err != nil {
 				return &errors.SubTaskError{
 					SubTaskName: "collectSprints",
