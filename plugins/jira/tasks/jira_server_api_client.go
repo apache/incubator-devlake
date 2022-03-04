@@ -78,7 +78,7 @@ func (v8 *ServerVersion8) collectWorklog(sourceId, issueId uint64) error {
 func (v8 *ServerVersion8) collectRemotelinksByIssueId(source *models.JiraSource, jiraApiClient *JiraApiClient, issueId uint64) error {
 	var transformer v8models.RemoteLink
 	err := v8.Get(fmt.Sprintf("api/2/issue/%d/remotelink", issueId), v8.newHandlerWithIssueId(source.ID, issueId, transformer))
-	if err != nil {
+	if err != nil && err != ErrNotFoundResource {
 		logger.Error("collect remotelink", err)
 	}
 	return nil
@@ -112,7 +112,7 @@ func (v8 *ServerVersion8) CollectIssues(
 	query.Set("jql", jql)
 	query.Set("expand", "changelog")
 	handler := func(resp *http.Response) (int, error) {
-		return 0, v8.issueHandle(ctx, source, resp)
+		return 0, v8.issueHandle(ctx, boardId, source, resp)
 	}
 	err := v8.FetchPages(fmt.Sprintf("agile/1.0/board/%d/issue", boardId), &query, handler)
 	if err != nil {
@@ -121,7 +121,7 @@ func (v8 *ServerVersion8) CollectIssues(
 	return nil
 }
 
-func (v8 *ServerVersion8) issueHandle(ctx context.Context, source *models.JiraSource, resp *http.Response) error {
+func (v8 *ServerVersion8) issueHandle(ctx context.Context, boardId uint64, source *models.JiraSource, resp *http.Response) error {
 	blob, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
 		logger.Error("issueHandle read response body", err)
@@ -143,6 +143,7 @@ func (v8 *ServerVersion8) issueHandle(ctx context.Context, source *models.JiraSo
 		return nil
 	}
 	var jiraIssues []*models.JiraIssue
+	var boardIssues []*models.JiraBoardIssue
 	for _, apiIssue := range issues {
 		sprints, issue, needCollectWorklog, worklogs, changelogs, changelogItems := apiIssue.ExtractEntities(source.ID, source.StoryPointField)
 		for _, sprintId := range sprints {
@@ -160,6 +161,8 @@ func (v8 *ServerVersion8) issueHandle(ctx context.Context, source *models.JiraSo
 			}
 		}
 		jiraIssues = append(jiraIssues, issue)
+		boardIssue := &models.JiraBoardIssue{SourceId: source.ID, BoardId: boardId, IssueId: apiIssue.ID}
+		boardIssues = append(boardIssues, boardIssue)
 		if needCollectWorklog {
 			err = v8.collectWorklog(source.ID, issue.IssueId)
 		} else {
@@ -183,6 +186,11 @@ func (v8 *ServerVersion8) issueHandle(ctx context.Context, source *models.JiraSo
 	err = v8.db.Clauses(clause.OnConflict{UpdateAll: true}).CreateInBatches(jiraIssues, BatchSize).Error
 	if err != nil {
 		logger.Error("jira collect issues: save jiraIssues failed", err)
+		return err
+	}
+	err = v8.db.Clauses(clause.OnConflict{DoNothing: true}).CreateInBatches(boardIssues, BatchSize).Error
+	if err != nil {
+		logger.Error("jira collect issues: save board issues failed", err)
 		return err
 	}
 	return nil
@@ -265,6 +273,9 @@ func (v8 *ServerVersion8) CollectUsers(jiraApiClient *JiraApiClient, sourceId ui
 
 func (v8 *ServerVersion8) newHandler(sourceId uint64, transformer v8models.Transformer) func(resp *http.Response) (int, error) {
 	return func(resp *http.Response) (int, error) {
+		if resp.StatusCode == http.StatusNotFound {
+			return 0, ErrNotFoundResource
+		}
 		blob, err := ioutil.ReadAll(resp.Body)
 		if err != nil {
 			logger.Error("handler factory read response body", err)
@@ -297,6 +308,9 @@ func (v8 *ServerVersion8) newHandler(sourceId uint64, transformer v8models.Trans
 
 func (v8 *ServerVersion8) newHandlerWithIssueId(sourceId, issueId uint64, transformer v8models.TransformerWithIssueId) func(resp *http.Response) (int, error) {
 	return func(resp *http.Response) (int, error) {
+		if resp.StatusCode == http.StatusNotFound {
+			return 0, ErrNotFoundResource
+		}
 		blob, err := ioutil.ReadAll(resp.Body)
 		if err != nil {
 			logger.Error("handler factory read response body", err)
