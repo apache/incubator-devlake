@@ -22,7 +22,7 @@ const Sidebar = () => {
   return (
     <Card interactive={false} elevation={Elevation.ZERO} className='card sidebar-card'>
       <img src='/logo.svg' className='logo' />
-      <a href={ GRAFANA_URL } rel='noreferrer' target='_blank' className='dashboardBtnLink'>
+      <a href={GRAFANA_URL} rel='noreferrer' target='_blank' className='dashboardBtnLink'>
         <Button icon='grouped-bar-chart' outlined={true} className='dashboardBtn'>View Dashboards</Button>
       </a>
 
