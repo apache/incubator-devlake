@@ -205,6 +205,18 @@ func (apiClient *ApiClient) Do(
 		}
 		apiClient.logDebug("[api-client] %d %v %v", retry, method, *uri)
 		res, err = apiClient.client.Do(req)
+
+		// now, the problem is when caller reads res.Body, it could cause a timeout error
+		// we would like it to be retried as well, so we read it before returning,
+		// this is a temporary measure, until we find a better solution
+		if err == nil {
+			var body []byte
+			body, err = ioutil.ReadAll(res.Body)
+			if err == nil {
+				res.Body = io.NopCloser(bytes.NewBuffer(body))
+			}
+		}
+
 		if err != nil {
 			apiClient.logError("[api-client] error: %w", err)
 			if retry < apiClient.maxRetry-1 {
