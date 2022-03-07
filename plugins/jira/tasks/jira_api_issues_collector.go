@@ -24,7 +24,7 @@ type JiraApiRawIssuesResponse struct {
 	Issues []json.RawMessage `json:"issues"`
 }
 
-func CollectApiIssues(taskCtx core.TaskContext) error {
+func CollectApiIssues(taskCtx core.SubTaskContext) error {
 	db := taskCtx.GetDb()
 	data := taskCtx.GetData().(*JiraTaskData)
 
