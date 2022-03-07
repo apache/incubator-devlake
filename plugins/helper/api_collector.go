@@ -2,7 +2,6 @@ package helper
 
 import (
 	"bytes"
-	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"net/http"
@@ -32,10 +31,8 @@ type UrlData struct {
 type AsyncResponseHandler func(res *http.Response) error
 
 type ApiCollectorArgs struct {
-	Ctx           core.SubTaskContext
-	Table         string                                  `comment:"Raw data table name"`
+	RawDataSubTaskArgs
 	UrlTemplate   string                                  `comment:"GoTemplate for API url"`
-	Params        interface{}                             `comment:"To identify a set of records with same UrlTemplate, i.e. {SourceId, BoardId} for jira entities"`
 	Query         func(pager *Pager) (*url.Values, error) `comment:"Extra query string when requesting API, like 'Since' option for jira issues collection"`
 	Header        func(pager *Pager) (*url.Values, error)
 	PageSize      int
@@ -46,10 +43,9 @@ type ApiCollectorArgs struct {
 }
 
 type ApiCollector struct {
+	*RawDataSubTask
 	args        *ApiCollectorArgs
 	urlTemplate *template.Template
-	table       string
-	params      string
 }
 
 // NewApiCollector allocates a new ApiCollector  with the given args.
@@ -57,11 +53,9 @@ type ApiCollector struct {
 // of response you want to save, ApiCollector will collect them from remote server and store them into database.
 func NewApiCollector(args ApiCollectorArgs) (*ApiCollector, error) {
 	// process args
-	if args.Ctx == nil {
-		return nil, fmt.Errorf("Ctx is required")
-	}
-	if args.Table == "" {
-		return nil, fmt.Errorf("Table is required")
+	rawDataSubTask, err := newRawDataSubTask(args.RawDataSubTaskArgs)
+	if err != nil {
+		return nil, err
 	}
 	// TODO: check if args.Table is valid
 	if args.UrlTemplate == "" {
@@ -71,25 +65,13 @@ func NewApiCollector(args ApiCollectorArgs) (*ApiCollector, error) {
 	if err != nil {
 		return nil, fmt.Errorf("Failed to compile UrlTemplate: %w", err)
 	}
-	params := ""
-	if args.Params == nil {
-		args.Ctx.GetLogger().Warn("Missing `Params` for collecting %s to %s", args.UrlTemplate, args.Table)
-	} else {
-		// TODO: sort it to make it consisitence
-		paramsBytes, err := json.Marshal(args.Params)
-		if err != nil {
-			return nil, err
-		}
-		params = string(paramsBytes)
-	}
 	if args.ApiClient == nil {
 		return nil, fmt.Errorf("ApiClient is required")
 	}
 	return &ApiCollector{
-		args:        &args,
-		urlTemplate: tpl,
-		table:       fmt.Sprintf("_raw_%s", args.Table),
-		params:      params,
+		RawDataSubTask: rawDataSubTask,
+		args:           &args,
+		urlTemplate:    tpl,
 	}, nil
 }
 
@@ -103,7 +85,7 @@ func (collector *ApiCollector) Execute() error {
 	}
 
 	logger := collector.args.Ctx.GetLogger()
-	logger.Info("start api collection for %s", collector.args.Ctx.GetName())
+	logger.Info("start api collection")
 	// flush data if not incremental collection
 	if !collector.args.Incremental {
 		err = db.Table(collector.table).Delete(&RawData{}, "params = ?", collector.params).Error
@@ -122,7 +104,7 @@ func (collector *ApiCollector) Execute() error {
 		return err
 	}
 	collector.args.ApiClient.WaitAsync()
-	logger.Info("end api collection for %s", collector.args.Ctx.GetName())
+	logger.Info("end api collection")
 	return nil
 }
 

@@ -8,7 +8,7 @@ import (
 
 // prepare for temporal
 
-type SubTaskContext interface {
+type ExecContext interface {
 	GetName() string
 	GetConfig(name string) string
 	GetDb() *gorm.DB
@@ -19,8 +19,13 @@ type SubTaskContext interface {
 	IncProgress(quantity int)
 }
 
+type SubTaskContext interface {
+	ExecContext
+	TaskContext() TaskContext
+}
+
 // Transient resources needed for task execution
 type TaskContext interface {
-	SubTaskContext
+	ExecContext
 	SubTaskContext(subtask string) (SubTaskContext, error)
 }
