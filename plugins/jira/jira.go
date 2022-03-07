@@ -135,7 +135,7 @@ func (plugin Jira) Execute(options map[string]interface{}, progress chan<- float
 		Source:    source,
 		Since:     since,
 	}
-	taskCtx := helper.NewDefaultTaskContext(ctx, logger, taskData)
+	taskCtx := helper.NewDefaultTaskContext("jira", ctx, logger, taskData, tasksToRun)
 
 	// run tasks
 	logger.Info("start jira plugin execution")
@@ -193,8 +193,25 @@ func (plugin Jira) Execute(options map[string]interface{}, progress chan<- float
 			}
 		}
 	}
+	progress <- 0.02
+
+	collectApiIssuesCtx, err := taskCtx.SubTaskContext("collectApiIssues")
+	if err != nil {
+		return err
+	}
+	if collectApiIssuesCtx != nil {
+		err = tasks.CollectApiIssues(collectApiIssuesCtx)
+		if err != nil {
+			return &errors.SubTaskError{
+				SubTaskName: "collectChangelogs",
+				Message:     err.Error(),
+			}
+		}
+	}
+
+	progress <- 0.1
 	if tasksToRun["collectChangelogs"] {
-		err = collector.CollectChangelogs(jiraApiClient, source, boardId, source.RateLimit, ctx)
+		err = collector.CollectChangelogs(jiraApiClient, source, boardId, rateLimit, ctx)
 		if err != nil {
 			return &errors.SubTaskError{
 				SubTaskName: "collectChangelogs",
@@ -203,7 +220,7 @@ func (plugin Jira) Execute(options map[string]interface{}, progress chan<- float
 		}
 	}
 	if tasksToRun["collectRemotelinks"] {
-		err = collector.CollectRemoteLinks(jiraApiClient, source, boardId, source.RateLimit, ctx)
+		err = collector.CollectRemoteLinks(jiraApiClient, source, boardId, rateLimit, ctx)
 		if err != nil {
 			return &errors.SubTaskError{
 				SubTaskName: "collectRemotelinks",

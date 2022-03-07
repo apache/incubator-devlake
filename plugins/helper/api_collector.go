@@ -32,7 +32,7 @@ type UrlData struct {
 type AsyncResponseHandler func(res *http.Response) error
 
 type ApiCollectorArgs struct {
-	Ctx           core.TaskContext
+	Ctx           core.SubTaskContext
 	Table         string                                  `comment:"Raw data table name"`
 	UrlTemplate   string                                  `comment:"GoTemplate for API url"`
 	Params        interface{}                             `comment:"To identify a set of records with same UrlTemplate, i.e. {SourceId, BoardId} for jira entities"`
@@ -102,7 +102,9 @@ func (collector *ApiCollector) Execute() error {
 		return err
 	}
 
-	// flush data, TODO: incremental data collection
+	logger := collector.args.Ctx.GetLogger()
+	logger.Info("start api collection for %s", collector.args.Ctx.GetName())
+	// flush data if not incremental collection
 	if !collector.args.Incremental {
 		err = db.Table(collector.table).Delete(&RawData{}, "params = ?", collector.params).Error
 		if err != nil {
@@ -120,6 +122,7 @@ func (collector *ApiCollector) Execute() error {
 		return err
 	}
 	collector.args.ApiClient.WaitAsync()
+	logger.Info("end api collection for %s", collector.args.Ctx.GetName())
 	return nil
 }
 
@@ -157,13 +160,21 @@ func (collector *ApiCollector) fetchPagesAsync() error {
 			if err != nil {
 				return err
 			}
+			collector.args.Ctx.SetProgress(1, totalPages)
 			// fetch other pages in parallel
 			for page := 2; page <= totalPages; page++ {
 				err = collector.fetchAsync(&Pager{
 					Page: page,
 					Size: collector.args.PageSize,
 					Skip: collector.args.PageSize * (page - 1),
-				}, collector.handleResponse)
+				}, func(res *http.Response) error {
+					err := collector.handleResponse(res)
+					if err != nil {
+						return err
+					}
+					collector.args.Ctx.IncProgress(1)
+					return nil
+				})
 				if err != nil {
 					return err
 				}
