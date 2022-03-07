@@ -80,29 +80,34 @@ func (plugin Jira) Execute(options map[string]interface{}, progress chan<- float
 
 	boardId := op.BoardId
 
-	tasksToRun := make(map[string]bool, len(op.Tasks))
-	for _, task := range op.Tasks {
-		tasksToRun[task] = true
+	tasksToRun := map[string]bool{
+		"collectBoard":        true,
+		"collectProjects":     true,
+		"collectIssues":       true,
+		"collectApiIssues":    false,
+		"extractApiIssues":    false,
+		"collectChangelogs":   true,
+		"collectRemotelinks":  true,
+		"enrichIssues":        true,
+		"enrichRemotelinks":   true,
+		"collectSprints":      true,
+		"collectUsers":        true,
+		"convertBoard":        true,
+		"convertIssues":       true,
+		"convertWorklogs":     true,
+		"convertChangelogs":   true,
+		"convertUsers":        true,
+		"convertSprints":      true,
+		"convertIssueCommits": true,
 	}
-	if len(tasksToRun) == 0 {
-		tasksToRun = map[string]bool{
-			"collectBoard":        true,
-			"collectProjects":     true,
-			"collectIssues":       true,
-			"collectApiIssues":    false,
-			"collectChangelogs":   true,
-			"collectRemotelinks":  true,
-			"enrichIssues":        true,
-			"enrichRemotelinks":   true,
-			"collectSprints":      true,
-			"collectUsers":        true,
-			"convertBoard":        true,
-			"convertIssues":       true,
-			"convertWorklogs":     true,
-			"convertChangelogs":   true,
-			"convertUsers":        true,
-			"convertSprints":      true,
-			"convertIssueCommits": true,
+	if len(op.Tasks) > 0 {
+		// set all to false
+		for task := range tasksToRun {
+			tasksToRun[task] = false
+		}
+		// set those specified tasks to true
+		for _, task := range op.Tasks {
+			tasksToRun[task] = true
 		}
 	}
 
@@ -117,7 +122,7 @@ func (plugin Jira) Execute(options map[string]interface{}, progress chan<- float
 	defer scheduler.Release()
 
 	// prepare contextual variables
-	logger := helper.NewDefaultTaskLogger(nil)
+	logger := helper.NewDefaultTaskLogger(nil, "jira")
 	jiraApiClient := tasks.NewJiraApiClient(
 		source.Endpoint,
 		source.BasicAuthEncoded,
@@ -204,6 +209,20 @@ func (plugin Jira) Execute(options map[string]interface{}, progress chan<- float
 		if err != nil {
 			return &errors.SubTaskError{
 				SubTaskName: "collectChangelogs",
+				Message:     err.Error(),
+			}
+		}
+	}
+
+	extractApiIssuesCtx, err := taskCtx.SubTaskContext("extractApiIssues")
+	if err != nil {
+		return err
+	}
+	if extractApiIssuesCtx != nil {
+		err = tasks.ExtractApiIssues(extractApiIssuesCtx)
+		if err != nil {
+			return &errors.SubTaskError{
+				SubTaskName: "extractApiIssues",
 				Message:     err.Error(),
 			}
 		}
@@ -439,7 +458,8 @@ func main() {
 					//"collectBoard",
 					//"collectProjects",
 					//"collectIssues",
-					"collectApiIssues",
+					//"collectApiIssues",
+					"extractApiIssues",
 					//"collectChangelogs",
 					//"collectRemotelinks",
 					//"enrichIssues",

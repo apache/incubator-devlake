@@ -15,7 +15,7 @@ import (
 // TODO: implement another TaskContext for distributed runner/worker
 
 // shared by TasContext and SubTaskContext
-type defaultContextCommon struct {
+type defaultExecContext struct {
 	name    string
 	ctx     context.Context
 	data    interface{}
@@ -25,13 +25,13 @@ type defaultContextCommon struct {
 	mu      sync.Mutex
 }
 
-func newDefaultContextCommon(
+func newDefaultExecContext(
 	name string,
 	ctx context.Context,
 	data interface{},
 	logger core.Logger,
-) *defaultContextCommon {
-	return &defaultContextCommon{
+) *defaultExecContext {
+	return &defaultExecContext{
 		name:   name,
 		ctx:    ctx,
 		data:   data,
@@ -39,31 +39,31 @@ func newDefaultContextCommon(
 	}
 }
 
-func (c *defaultContextCommon) GetName() string {
+func (c *defaultExecContext) GetName() string {
 	return c.name
 }
 
-func (c *defaultContextCommon) GetConfig(name string) string {
+func (c *defaultExecContext) GetConfig(name string) string {
 	return config.GetConfig().GetString(name)
 }
 
-func (c *defaultContextCommon) GetDb() *gorm.DB {
+func (c *defaultExecContext) GetDb() *gorm.DB {
 	return models.Db
 }
 
-func (c *defaultContextCommon) GetContext() context.Context {
+func (c *defaultExecContext) GetContext() context.Context {
 	return c.ctx
 }
 
-func (c *defaultContextCommon) GetData() interface{} {
+func (c *defaultExecContext) GetData() interface{} {
 	return c.data
 }
 
-func (c *defaultContextCommon) GetLogger() core.Logger {
+func (c *defaultExecContext) GetLogger() core.Logger {
 	return c.logger
 }
 
-func (c *defaultContextCommon) SetProgress(current int, total int) {
+func (c *defaultExecContext) SetProgress(current int, total int) {
 	c.mu.Lock()
 	c.current = current
 	c.total = total
@@ -71,27 +71,27 @@ func (c *defaultContextCommon) SetProgress(current int, total int) {
 	c.logger.Info("set task %s progress: %d/%d", c.name, c.current, c.total)
 }
 
-func (c *defaultContextCommon) IncProgress(quantity int) {
+func (c *defaultExecContext) IncProgress(quantity int) {
 	c.mu.Lock()
 	c.current += quantity
 	c.mu.Unlock()
 	c.logger.Info("increased task %s progress %d/%d", c.name, c.current, c.total)
 }
 
-func (c *defaultContextCommon) fork(name string) *defaultContextCommon {
-	return newDefaultContextCommon(name, c.ctx, c.data, c.logger)
+func (c *defaultExecContext) fork(name string) *defaultExecContext {
+	return newDefaultExecContext(name, c.ctx, c.data, c.logger.Nested(name))
 }
 
 // TaskContext default implementation
 type DefaultTaskContext struct {
-	*defaultContextCommon
+	*defaultExecContext
 	subtasks    map[string]bool
 	subtaskCtxs map[string]*DefaultSubTaskContext
 }
 
 // SubTaskContext default implementation
 type DefaultSubTaskContext struct {
-	*defaultContextCommon
+	*defaultExecContext
 	taskCtx *DefaultTaskContext
 }
 
@@ -103,7 +103,7 @@ func NewDefaultTaskContext(
 	subtasks map[string]bool,
 ) core.TaskContext {
 	return &DefaultTaskContext{
-		newDefaultContextCommon(name, ctx, data, logger),
+		newDefaultExecContext(name, ctx, data, logger),
 		subtasks,
 		make(map[string]*DefaultSubTaskContext),
 	}
@@ -117,7 +117,7 @@ func (c *DefaultTaskContext) SubTaskContext(subtask string) (core.SubTaskContext
 			c.mu.Lock()
 			if c.subtaskCtxs[subtask] == nil {
 				c.subtaskCtxs[subtask] = &DefaultSubTaskContext{
-					c.defaultContextCommon.fork(subtask),
+					c.defaultExecContext.fork(subtask),
 					c,
 				}
 			}
@@ -132,4 +132,9 @@ func (c *DefaultTaskContext) SubTaskContext(subtask string) (core.SubTaskContext
 }
 
 var _ core.TaskContext = (*DefaultTaskContext)(nil)
+
+func (c *DefaultSubTaskContext) TaskContext() core.TaskContext {
+	return c.taskCtx
+}
+
 var _ core.SubTaskContext = (*DefaultSubTaskContext)(nil)

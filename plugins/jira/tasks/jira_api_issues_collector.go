@@ -54,7 +54,21 @@ func CollectApiIssues(taskCtx core.SubTaskContext) error {
 	const SIZE = 100
 
 	collector, err := helper.NewApiCollector(helper.ApiCollectorArgs{
-		Ctx:         taskCtx,
+		RawDataSubTaskArgs: helper.RawDataSubTaskArgs{
+			Ctx: taskCtx,
+			/*
+				This struct will be JSONEncoded and stored into database along with raw data itself, to identity minimal
+				set of data to be process, for example, we process JiraIssues by Board
+			*/
+			Params: JiraApiParams{
+				SourceId: data.Source.ID,
+				BoardId:  data.Options.BoardId,
+			},
+			/*
+				Table store raw data
+			*/
+			Table: RAW_ISSUE_TABLE,
+		},
 		ApiClient:   data.ApiClient,
 		PageSize:    SIZE,
 		Incremental: incremental,
@@ -92,14 +106,6 @@ func CollectApiIssues(taskCtx core.SubTaskContext) error {
 		*/
 		//Input: databaseIssuesIterator,
 		/*
-			This struct will be JSONEncoded and stored into database along with raw data itself, to identity minimal
-			set of data to be process, for example, we process JiraIssues by Board
-		*/
-		Params: JiraApiParams{
-			SourceId: data.Source.ID,
-			BoardId:  data.Options.BoardId,
-		},
-		/*
 			For api endpoint that returns number of total pages, ApiCollector can collect pages in parallel with ease,
 			or other techniques are required if this information was missing.
 		*/
@@ -111,10 +117,6 @@ func CollectApiIssues(taskCtx core.SubTaskContext) error {
 			}
 			return body.Total / SIZE, nil
 		},
-		/*
-			Table store raw data
-		*/
-		Table: RAW_ISSUE_TABLE,
 	})
 
 	if err != nil {

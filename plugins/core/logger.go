@@ -17,4 +17,6 @@ type Logger interface {
 	Info(format string, a ...interface{})
 	Warn(format string, a ...interface{})
 	Error(format string, a ...interface{})
+	// return a new logger which output nested log
+	Nested(name string) Logger
 }
