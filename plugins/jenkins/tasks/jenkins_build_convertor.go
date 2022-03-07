@@ -39,7 +39,7 @@ func ConvertBuilds(ctx context.Context) error {
 			},
 			JobId:       jobIdGen.Generate(jenkinsBuild.JobName),
 			Name:        jenkinsBuild.DisplayName,
-			DurationSec: uint64(jenkinsBuild.Duration),
+			DurationSec: uint64(jenkinsBuild.Duration / 1000),
 			Status:      jenkinsBuild.Result,
 			StartedDate: jenkinsBuild.StartTime,
 			CommitSha:   jenkinsBuild.CommitSha,
