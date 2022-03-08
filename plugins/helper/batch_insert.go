@@ -5,6 +5,7 @@ import (
 	"reflect"
 
 	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
 )
 
 // Insert data by batch can increase database performance drastically, this class aim to make batch-insertion easier,
@@ -53,7 +54,7 @@ func (c *BatchInsert) Add(slot interface{}) error {
 }
 
 func (c *BatchInsert) Flush() error {
-	err := c.db.CreateInBatches(c.slots.Slice(0, c.current).Interface(), c.current).Error
+	err := c.db.Clauses(clause.OnConflict{UpdateAll: true}).Create(c.slots.Slice(0, c.current).Interface()).Error
 	if err != nil {
 		return err
 	}

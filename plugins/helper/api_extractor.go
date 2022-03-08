@@ -109,9 +109,7 @@ func (extractor *ApiExtractor) Execute() error {
 	}
 
 	// save the last batches
-	divider.Close()
-
-	return nil
+	return divider.Close()
 }
 
 var _ core.SubTask = (*ApiExtractor)(nil)
