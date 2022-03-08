@@ -8,6 +8,8 @@ import (
 	"github.com/merico-dev/lake/plugins/jira/models"
 )
 
+var _ core.SubTaskEntryPoint = ExtractApiIssues
+
 func ExtractApiIssues(taskCtx core.SubTaskContext) error {
 	data := taskCtx.GetData().(*JiraTaskData)
 
