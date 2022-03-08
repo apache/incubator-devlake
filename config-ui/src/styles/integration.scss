@@ -2,6 +2,7 @@
   border: 0;
   display: flex;
   width: 80%;
+  min-width: 520px;
   align-self: flex-start;
   padding: 10px;
 
@@ -23,7 +24,7 @@
       background-color: #eeeeee;
       opacity: 1.0;
 
-      svg:first-of-type {
+      svg:first-of-type,img:first-of-type {
         transform: scale(1.05);
       }
 
@@ -32,7 +33,7 @@
         font-weight: bold;
       }
 
-      svg:first-of-type {
+      svg:first-of-type,img:first-of-type {
         transition: all 0.3s ease-out;
       }
 
@@ -46,6 +47,8 @@
 
     .providerIcon {
       cursor: pointer;
+      min-height: 48px;
+      min-width: 48px;
     }
   }
 }
