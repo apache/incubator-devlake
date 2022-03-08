@@ -381,6 +381,7 @@ const CreatePipeline = (props) => {
       const GitHubTask = tasks.find(t => t.plugin === Providers.GITHUB)
       const JiraTask = tasks.filter(t => t.plugin === Providers.JIRA)
       const JenkinsTask = tasks.find(t => t.plugin === Providers.JENKINS)
+      const GitExtractorTask = tasks.find(t => t.plugin === Providers.GITEXTRACTOR)
       const configuredProviders = []
       if (GitLabTask && GitLabTask.length > 0) {
         configuredProviders.push(Providers.GITLAB)
@@ -404,6 +405,11 @@ const CreatePipeline = (props) => {
       }
       if (JenkinsTask) {
         configuredProviders.push(Providers.JENKINS)
+      }
+      if (GitExtractorTask) {
+        setGitExtractorRepoId(GitExtractorTask.options?.repoId)
+        setGitExtractorUrl(GitExtractorTask.options?.url)
+        configuredProviders.push(Providers.GITEXTRACTOR)
       }
       setEnabledProviders(eP => [...eP, ...configuredProviders])
     } else {
