@@ -23,7 +23,7 @@ type JiraApiRawIssuesResponse struct {
 	Issues []json.RawMessage `json:"issues"`
 }
 
-var _ core.SubTaskEntryPoint = CollectApiChangelogs
+var _ core.SubTaskEntryPoint = CollectApiIssues
 
 func CollectApiIssues(taskCtx core.SubTaskContext) error {
 	db := taskCtx.GetDb()
