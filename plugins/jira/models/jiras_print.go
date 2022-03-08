@@ -1,8 +1,10 @@
 package models
 
 import (
-	"github.com/merico-dev/lake/models/common"
 	"time"
+
+	"github.com/merico-dev/lake/models/common"
+	"github.com/merico-dev/lake/plugins/helper"
 )
 
 type JiraSprint struct {
@@ -30,4 +32,5 @@ type JiraSprintIssue struct {
 	IssueId          uint64 `gorm:"primaryKey"`
 	ResolutionDate   *time.Time
 	IssueCreatedDate *time.Time
+	helper.RawDataOrigin
 }
