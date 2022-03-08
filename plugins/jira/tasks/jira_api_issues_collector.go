@@ -38,7 +38,7 @@ func CollectApiIssues(taskCtx core.SubTaskContext) error {
 			return fmt.Errorf("failed to get latest jira issue record: %w", err)
 		}
 		if latestUpdated.IssueId > 0 {
-			*since = latestUpdated.Updated
+			since = &latestUpdated.Updated
 			incremental = true
 		}
 	}
@@ -115,7 +115,11 @@ func CollectApiIssues(taskCtx core.SubTaskContext) error {
 			if err != nil {
 				return 0, err
 			}
-			return body.Total / SIZE, nil
+			pages := body.Total / SIZE
+			if body.Total%SIZE > 0 {
+				pages++
+			}
+			return pages, nil
 		},
 	})
 

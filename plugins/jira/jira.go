@@ -143,7 +143,6 @@ func (plugin Jira) Execute(options map[string]interface{}, progress chan<- float
 	taskCtx := helper.NewDefaultTaskContext("jira", ctx, logger, taskData, tasksToRun)
 
 	// run tasks
-	logger.Info("start jira plugin execution")
 	var collector tasks.Collector
 	info, code, err := jiraApiClient.GetJiraServerInfo()
 	if err != nil || code != http.StatusOK {
@@ -161,6 +160,7 @@ func (plugin Jira) Execute(options map[string]interface{}, progress chan<- float
 		return fmt.Errorf("Jira server %s is not supported", info.Version)
 	}
 
+	logger.Info("start plugin execution")
 	if tasksToRun["collectProjects"] {
 		err := collector.CollectProjects(jiraApiClient, op.SourceId)
 		if err != nil {
@@ -208,7 +208,7 @@ func (plugin Jira) Execute(options map[string]interface{}, progress chan<- float
 		err = tasks.CollectApiIssues(collectApiIssuesCtx)
 		if err != nil {
 			return &errors.SubTaskError{
-				SubTaskName: "collectChangelogs",
+				SubTaskName: "collectApiIssues",
 				Message:     err.Error(),
 			}
 		}
@@ -367,7 +367,7 @@ func (plugin Jira) Execute(options map[string]interface{}, progress chan<- float
 		}
 	}
 	progress <- 1.0
-	logger.Info("end jira plugin execution")
+	logger.Info("end plugin execution")
 	return nil
 }
 
