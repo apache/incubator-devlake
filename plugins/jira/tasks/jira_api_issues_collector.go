@@ -3,7 +3,6 @@ package tasks
 import (
 	"encoding/json"
 	"fmt"
-	"net/http"
 	"net/url"
 
 	"github.com/merico-dev/lake/plugins/core"
@@ -23,6 +22,8 @@ type JiraApiRawIssuesResponse struct {
 	JiraPagination
 	Issues []json.RawMessage `json:"issues"`
 }
+
+var _ core.SubTaskEntryPoint = CollectApiChangelogs
 
 func CollectApiIssues(taskCtx core.SubTaskContext) error {
 	db := taskCtx.GetDb()
@@ -51,8 +52,6 @@ func CollectApiIssues(taskCtx core.SubTaskContext) error {
 		jql = fmt.Sprintf("updated >= '%v' %v", since.Format("2006/01/02 15:04"), jql)
 	}
 
-	const SIZE = 100
-
 	collector, err := helper.NewApiCollector(helper.ApiCollectorArgs{
 		RawDataSubTaskArgs: helper.RawDataSubTaskArgs{
 			Ctx: taskCtx,
@@ -70,7 +69,7 @@ func CollectApiIssues(taskCtx core.SubTaskContext) error {
 			Table: RAW_ISSUE_TABLE,
 		},
 		ApiClient:   data.ApiClient,
-		PageSize:    SIZE,
+		PageSize:    100,
 		Incremental: incremental,
 		/*
 			url may use arbitrary variables from different source in any order, we need GoTemplate to allow more
@@ -109,18 +108,7 @@ func CollectApiIssues(taskCtx core.SubTaskContext) error {
 			For api endpoint that returns number of total pages, ApiCollector can collect pages in parallel with ease,
 			or other techniques are required if this information was missing.
 		*/
-		GetTotalPages: func(res *http.Response) (int, error) {
-			body := &JiraPagination{}
-			err := core.UnmarshalResponse(res, body)
-			if err != nil {
-				return 0, err
-			}
-			pages := body.Total / SIZE
-			if body.Total%SIZE > 0 {
-				pages++
-			}
-			return pages, nil
-		},
+		GetTotalPages: GetTotalPagesFromResponse,
 	})
 
 	if err != nil {
