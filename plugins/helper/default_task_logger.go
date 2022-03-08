@@ -26,7 +26,11 @@ func NewDefaultTaskLogger(log *logrus.Logger, prefix string) *DefaultLogger {
 func (l *DefaultLogger) Log(level core.LogLevel, format string, a ...interface{}) {
 	lv := logrus.Level(level)
 	if l.log.IsLevelEnabled(lv) {
-		l.log.Log(lv, l.prefix+fmt.Sprintf(format, a...))
+		msg := fmt.Sprintf(format, a...)
+		if l.prefix != "" {
+			msg = fmt.Sprintf("%s %s", l.prefix, msg)
+		}
+		l.log.Log(lv, msg)
 	}
 }
 
@@ -47,7 +51,7 @@ func (l *DefaultLogger) Error(format string, a ...interface{}) {
 }
 
 func (l *DefaultLogger) Nested(name string) core.Logger {
-	return NewDefaultTaskLogger(l.log, fmt.Sprintf("%s[%s]", l.prefix, name))
+	return NewDefaultTaskLogger(l.log, fmt.Sprintf("%s [%s]", l.prefix, name))
 }
 
 var _ core.Logger = (*DefaultLogger)(nil)

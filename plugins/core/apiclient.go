@@ -218,7 +218,7 @@ func (apiClient *ApiClient) Do(
 		}
 
 		if err != nil {
-			apiClient.logError("[api-client] error: %w", err)
+			apiClient.logError("[api-client] failed to request %s with error:\n%w", req.URL.String(), err)
 			if retry < apiClient.maxRetry-1 {
 				retry += 1
 				continue

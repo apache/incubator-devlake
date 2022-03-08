@@ -14,10 +14,10 @@ type BatchInsert struct {
 	slotType reflect.Type
 	// slots can not be []interface{}, because gorm wouldn't take it
 	// I'm guessing the reason is the type information lost when converted to interface{}
-	slots               reflect.Value
-	db                  *gorm.DB
-	current             int
-	size                int
+	slots   reflect.Value
+	db      *gorm.DB
+	current int
+	size    int
 }
 
 func NewBatchInsert(db *gorm.DB, slotType reflect.Type, size int) (*BatchInsert, error) {
@@ -54,10 +54,10 @@ func (c *BatchInsert) Add(slot interface{}) error {
 
 func (c *BatchInsert) Flush() error {
 	err := c.db.CreateInBatches(c.slots.Slice(0, c.current).Interface(), c.current).Error
-	c.current = 0
 	if err != nil {
 		return err
 	}
+	c.current = 0
 	return nil
 }
 

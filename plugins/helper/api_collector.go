@@ -136,7 +136,7 @@ func (collector *ApiCollector) fetchPagesAsync() error {
 			if err != nil {
 				return err
 			}
-			// handle response body of first page
+			// save response body of first page
 			res.Body = ioutil.NopCloser(bytes.NewBuffer(body))
 			err = collector.handleResponse(res)
 			if err != nil {
