@@ -24,12 +24,16 @@ const ProviderSettings = (props) => {
     boardId = [],
     owner,
     repositoryName,
+    gitExtractorUrl,
+    gitExtractorRepoId,
     setProjectId = () => {},
     setSourceId = () => {},
     setSelectedSource = () => {},
     setBoardId = () => {},
     setOwner = () => {},
     setRepositoryName = () => {},
+    setGitExtractorUrl = () => {},
+    setGitExtractorRepoId = () => {},
     isEnabled = () => {},
     isRunning = false,
   } = props
@@ -263,6 +267,54 @@ const ProviderSettings = (props) => {
                 className='input-project-id tagInput'
               />
             </div>
+          </FormGroup>
+        </>
+      )
+      break
+    case Providers.GITEXTRACTOR:
+      providerSettings = (
+        <>
+          <FormGroup
+            disabled={isRunning || !isEnabled(providerId)}
+            label={<strong>Git URL<span className='requiredStar'>*</span></strong>}
+            labelInfo={<span style={{ display: 'block' }}>Enter Repository URL</span>}
+            inline={false}
+            labelFor='git-url'
+            className=''
+            contentClassName=''
+            fill
+          >
+            <InputGroup
+              id='gitextractor-url'
+              disabled={isRunning || !isEnabled(providerId)}
+              placeholder='eg. https://github.com/merico-dev/lake.git'
+              value={gitExtractorUrl}
+              onChange={(e) => setGitExtractorUrl(e.target.value)}
+              className='input-gitextractor-url'
+              autoComplete='off'
+            />
+          </FormGroup>
+          <FormGroup
+            disabled={isRunning || !isEnabled(providerId)}
+            label={<strong>Repository ID<span className='requiredStar'>*</span></strong>}
+            labelInfo={<span style={{ display: 'block' }}>Enter Repo Column ID</span>}
+            inline={false}
+            labelFor='gitextractor-repo-id'
+            className=''
+            contentClassName=''
+            style={{ marginLeft: '12px' }}
+            fill
+          >
+            <InputGroup
+              id='gitextractor-repo-id'
+              disabled={isRunning || !isEnabled(providerId)}
+              placeholder='eg. github:GithubRepo:384111310'
+              value={gitExtractorRepoId}
+              onChange={(e) => setGitExtractorRepoId(e.target.value)}
+              className='input-gitextractor-repo-id'
+              autoComplete='off'
+              fill={false}
+            />
           </FormGroup>
         </>
       )
