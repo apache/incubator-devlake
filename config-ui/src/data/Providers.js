@@ -19,6 +19,12 @@ const Providers = {
   FEISHU: 'feishu'
 }
 
+const ProviderTypes = {
+  PLUGIN: 'plugin',
+  INTEGRATION: 'integration',
+  PIPELINE: 'pipeline'
+}
+
 const ProviderLabels = {
   NULL: 'NullProvider',
   GITLAB: 'GitLab',
@@ -145,6 +151,7 @@ const ProviderIcons = {
 
 export {
   Providers,
+  ProviderTypes,
   ProviderIcons,
   ProviderLabels,
   ProviderSourceLimits,
