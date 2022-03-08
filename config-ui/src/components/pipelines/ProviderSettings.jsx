@@ -283,6 +283,7 @@ const ProviderSettings = (props) => {
             className=''
             contentClassName=''
             fill
+            style={{ minWidth: '372px' }}
           >
             <InputGroup
               id='gitextractor-url'
@@ -302,7 +303,7 @@ const ProviderSettings = (props) => {
             labelFor='gitextractor-repo-id'
             className=''
             contentClassName=''
-            style={{ marginLeft: '12px' }}
+            style={{ marginLeft: '12px', minWidth: '215px' }}
             fill
           >
             <InputGroup
