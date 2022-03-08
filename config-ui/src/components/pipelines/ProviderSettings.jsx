@@ -303,7 +303,7 @@ const ProviderSettings = (props) => {
             labelFor='gitextractor-repo-id'
             className=''
             contentClassName=''
-            style={{ marginLeft: '12px', minWidth: '215px' }}
+            style={{ marginLeft: '12px', minWidth: '280px' }}
             fill
           >
             <InputGroup
