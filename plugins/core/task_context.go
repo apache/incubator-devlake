@@ -29,3 +29,5 @@ type TaskContext interface {
 	ExecContext
 	SubTaskContext(subtask string) (SubTaskContext, error)
 }
+
+type SubTaskEntryPoint func(c SubTaskContext) error

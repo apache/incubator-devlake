@@ -81,24 +81,26 @@ func (plugin Jira) Execute(options map[string]interface{}, progress chan<- float
 	boardId := op.BoardId
 
 	tasksToRun := map[string]bool{
-		"collectBoard":        true,
-		"collectProjects":     true,
-		"collectIssues":       true,
-		"collectApiIssues":    false,
-		"extractApiIssues":    false,
-		"collectChangelogs":   true,
-		"collectRemotelinks":  true,
-		"enrichIssues":        true,
-		"enrichRemotelinks":   true,
-		"collectSprints":      true,
-		"collectUsers":        true,
-		"convertBoard":        true,
-		"convertIssues":       true,
-		"convertWorklogs":     true,
-		"convertChangelogs":   true,
-		"convertUsers":        true,
-		"convertSprints":      true,
-		"convertIssueCommits": true,
+		"collectBoard":         true,
+		"collectProjects":      true,
+		"collectIssues":        true,
+		"collectApiIssues":     false,
+		"extractApiIssues":     false,
+		"collectChangelogs":    true,
+		"collectApiChangelogs": false,
+		"extractApiChangelogs": false,
+		"collectRemotelinks":   true,
+		"enrichIssues":         true,
+		"enrichRemotelinks":    true,
+		"collectSprints":       true,
+		"collectUsers":         true,
+		"convertBoard":         true,
+		"convertIssues":        true,
+		"convertWorklogs":      true,
+		"convertChangelogs":    true,
+		"convertUsers":         true,
+		"convertSprints":       true,
+		"convertIssueCommits":  true,
 	}
 	if len(op.Tasks) > 0 {
 		// set all to false
@@ -200,30 +202,26 @@ func (plugin Jira) Execute(options map[string]interface{}, progress chan<- float
 	}
 	progress <- 0.02
 
-	collectApiIssuesCtx, err := taskCtx.SubTaskContext("collectApiIssues")
-	if err != nil {
-		return err
+	newTasks := []struct {
+		name       string
+		entryPoint core.SubTaskEntryPoint
+	}{
+		{name: "collectApiIssues", entryPoint: tasks.CollectApiIssues},
+		{name: "extractApiIssues", entryPoint: tasks.ExtractApiIssues},
+		{name: "collectApiChangelogs", entryPoint: tasks.CollectApiChangelogs},
 	}
-	if collectApiIssuesCtx != nil {
-		err = tasks.CollectApiIssues(collectApiIssuesCtx)
+	for _, t := range newTasks {
+		c, err := taskCtx.SubTaskContext(t.name)
 		if err != nil {
-			return &errors.SubTaskError{
-				SubTaskName: "collectApiIssues",
-				Message:     err.Error(),
-			}
+			return err
 		}
-	}
-
-	extractApiIssuesCtx, err := taskCtx.SubTaskContext("extractApiIssues")
-	if err != nil {
-		return err
-	}
-	if extractApiIssuesCtx != nil {
-		err = tasks.ExtractApiIssues(extractApiIssuesCtx)
-		if err != nil {
-			return &errors.SubTaskError{
-				SubTaskName: "extractApiIssues",
-				Message:     err.Error(),
+		if c != nil {
+			err = t.entryPoint(c)
+			if err != nil {
+				return &errors.SubTaskError{
+					SubTaskName: t.name,
+					Message:     err.Error(),
+				}
 			}
 		}
 	}
@@ -459,8 +457,9 @@ func main() {
 					//"collectProjects",
 					//"collectIssues",
 					//"collectApiIssues",
-					"extractApiIssues",
+					//"extractApiIssues",
 					//"collectChangelogs",
+					"collectApiChangelogs",
 					//"collectRemotelinks",
 					//"enrichIssues",
 					//"enrichRemotelinks",

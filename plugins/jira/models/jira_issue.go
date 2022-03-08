@@ -40,7 +40,7 @@ type JiraIssue struct {
 	SprintName               string
 	ResolutionDate           *time.Time
 	Created                  time.Time
-	Updated                  time.Time
+	Updated                  time.Time `gorm:"index"`
 
 	// enriched fields
 	// RequirementAnalsyisLeadTime uint
