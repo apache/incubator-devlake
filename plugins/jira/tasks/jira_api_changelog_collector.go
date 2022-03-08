@@ -12,7 +12,7 @@ import (
 
 var _ core.SubTaskEntryPoint = CollectApiChangelogs
 
-const RAW_CHANGELOG_TABLE = "jira_changelogs"
+const RAW_CHANGELOG_TABLE = "jira_api_changelogs"
 
 func CollectApiChangelogs(taskCtx core.SubTaskContext) error {
 	db := taskCtx.GetDb()
