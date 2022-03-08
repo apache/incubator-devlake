@@ -68,14 +68,22 @@ func (c *defaultExecContext) SetProgress(current int, total int) {
 	c.current = current
 	c.total = total
 	c.mu.Unlock()
-	c.logger.Info("set task %s progress: %d/%d", c.name, c.current, c.total)
+	if c.total >= 0 {
+		c.logger.Info("set task %s progress: %d/%d", c.name, c.current, c.total)
+	} else {
+		c.logger.Info("set task %s progress: %d", c.name, c.current)
+	}
 }
 
 func (c *defaultExecContext) IncProgress(quantity int) {
 	c.mu.Lock()
 	c.current += quantity
 	c.mu.Unlock()
-	c.logger.Info("increased task %s progress %d/%d", c.name, c.current, c.total)
+	if c.total >= 0 {
+		c.logger.Info("increased task %s progress %d/%d", c.name, c.current, c.total)
+	} else {
+		c.logger.Info("increased task %s progress %d", c.name, c.current)
+	}
 }
 
 func (c *defaultExecContext) fork(name string) *defaultExecContext {

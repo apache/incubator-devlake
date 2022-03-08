@@ -59,5 +59,5 @@ type JiraIssue struct {
 	ChangelogUpdated  *time.Time
 	RemotelinkUpdated *time.Time
 
-	helper.ExtractedRawData
+	helper.RawDataOrigin
 }
