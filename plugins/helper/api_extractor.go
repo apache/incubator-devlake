@@ -18,6 +18,11 @@ type ApiExtractorArgs struct {
 	BatchSize int
 }
 
+// ApiExtractor helps you extract Raw Data from api responses to Tool Layer Data
+// It reads rows from specified raw data table, and feed it into `Extract` handler
+// you can return arbitrary tool layer entities in this handler, ApiExtractor would
+// first delete old data by their RawDataOrigin information, and then perform a
+// batch insertion for you.
 type ApiExtractor struct {
 	*RawDataSubTask
 	args *ApiExtractorArgs
