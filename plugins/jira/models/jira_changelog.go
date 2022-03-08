@@ -1,8 +1,9 @@
 package models
 
 import (
-	"github.com/merico-dev/lake/models/common"
 	"time"
+
+	"github.com/merico-dev/lake/models/common"
 )
 
 type JiraChangelog struct {
@@ -15,7 +16,7 @@ type JiraChangelog struct {
 	AuthorAccountId   string
 	AuthorDisplayName string
 	AuthorActive      bool
-	Created           time.Time
+	Created           time.Time `gorm:"index"`
 }
 
 type JiraChangelogItem struct {
