@@ -6,6 +6,7 @@ import (
 
 	"github.com/merico-dev/lake/config"
 	"github.com/sirupsen/logrus"
+	prefixed "github.com/x-cray/logrus-prefixed-formatter"
 )
 
 var log *logrus.Logger
@@ -14,7 +15,11 @@ func init() {
 	log = logrus.New()
 	// log.SetFormatter(&logrus.JSONFormatter{})
 	// TODO: setting log level with config
-	log.SetLevel(logrus.DebugLevel)
+	log.SetLevel(logrus.InfoLevel)
+	log.SetFormatter(&prefixed.TextFormatter{
+		TimestampFormat: "2006-01-02 15:04:05",
+		FullTimestamp:   true,
+	})
 }
 
 var (
@@ -39,7 +44,9 @@ func Color(colorString string) func(...interface{}) string {
 	return sprint
 }
 
+// Deprecated: use core.Logger interface instead of global variable
 func Log(context string, data interface{}, color func(...interface{}) string, level string, logFunction func(args ...interface{})) {
+	// This operation is likely to be slow, should be avoided except for error handling
 	_, file, line, ok := runtime.Caller(2)
 	if !ok {
 		file = "unknown"
@@ -47,22 +54,31 @@ func Log(context string, data interface{}, color func(...interface{}) string, le
 	logFunction(color("[", level, " >>> ", context, " - ", file, ":", line, " - "), data)
 }
 
+// Deprecated: use core.Logger interface instead of global variable
 func Print(context string) {
 	Log(context, nil, Magenta, "DEBUG", log.Info)
 }
 
+// Deprecated: use core.Logger interface instead of global variable
 func Debug(context string, data interface{}) {
 	Log(context, data, Green, "DEBUG", log.Debug)
 }
 
+// Deprecated: use core.Logger interface instead of global variable
 func Info(context string, data interface{}) {
 	Log(context, data, Teal, "INFO", log.Info)
 }
 
+// Deprecated: use core.Logger interface instead of global variable
 func Error(context string, data interface{}) {
 	Log(context, data, Red, "ERROR", log.Error)
 }
 
+// Deprecated: use core.Logger interface instead of global variable
 func Warn(context string, data interface{}) {
 	Log(context, data, Yellow, "WARN", log.Warn)
+}
+
+func GetLogger() *logrus.Logger {
+	return log
 }

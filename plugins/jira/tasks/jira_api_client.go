@@ -7,8 +7,6 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/merico-dev/lake/logger"
-	lakeModels "github.com/merico-dev/lake/models"
 	"github.com/merico-dev/lake/plugins/core"
 	"github.com/merico-dev/lake/plugins/jira/models"
 	"github.com/merico-dev/lake/utils"
@@ -18,7 +16,13 @@ type JiraApiClient struct {
 	core.ApiClient
 }
 
-func NewJiraApiClient(endpoint string, auth string, proxy string, scheduler *utils.WorkerScheduler) *JiraApiClient {
+func NewJiraApiClient(
+	endpoint string,
+	auth string,
+	proxy string,
+	scheduler *utils.WorkerScheduler,
+	logger core.Logger,
+) *JiraApiClient {
 	jiraApiClient := &JiraApiClient{}
 	jiraApiClient.Setup(
 		endpoint,
@@ -41,17 +45,14 @@ func NewJiraApiClient(endpoint string, auth string, proxy string, scheduler *uti
 			panic(err)
 		}
 	}
-	return jiraApiClient
-}
-
-func NewJiraApiClientBySourceId(sourceId uint64, scheduler *utils.WorkerScheduler) (*JiraApiClient, error) {
-	jiraSource := &models.JiraSource{}
-	err := lakeModels.Db.First(jiraSource, sourceId).Error
-	if err != nil {
-		return nil, err
+	if proxy != "" {
+		err := jiraApiClient.SetProxy(proxy)
+		if err != nil {
+			panic(err)
+		}
 	}
-
-	return NewJiraApiClient(jiraSource.Endpoint, jiraSource.BasicAuthEncoded, jiraSource.Proxy, scheduler), nil
+	jiraApiClient.SetLogger(logger)
+	return jiraApiClient
 }
 
 type JiraPagination struct {
@@ -67,7 +68,7 @@ func (jiraApiClient *JiraApiClient) FetchPages(path string, query *url.Values, h
 	if query == nil {
 		query = &url.Values{}
 	}
-	nextStart, total, pageSize := 0, 1, 100
+	nextStart, pageSize := 0, 100
 
 	// 获取issue总数
 	// get issue count
@@ -84,10 +85,9 @@ func (jiraApiClient *JiraApiClient) FetchPages(path string, query *url.Values, h
 	jiraApiResponse := &JiraPagination{}
 	err = core.UnmarshalResponse(res, jiraApiResponse)
 	if err != nil {
-		logger.Error("Error: ", err)
 		return nil
 	}
-	total = jiraApiResponse.Total
+	total := jiraApiResponse.Total
 
 	for nextStart < total {
 		nextStartTmp := nextStart
@@ -97,14 +97,14 @@ func (jiraApiClient *JiraApiClient) FetchPages(path string, query *url.Values, h
 		}
 		queryCopy.Set("maxResults", strconv.Itoa(pageSize))
 		queryCopy.Set("startAt", strconv.Itoa(nextStartTmp))
-		err = jiraApiClient.GetAsync(path, &queryCopy, handler)
+		err = jiraApiClient.GetAsync(path, &queryCopy, nil, handler)
 		if err != nil {
 			return err
 		}
 
 		nextStart += pageSize
 	}
-	jiraApiClient.WaitOtherGoroutines()
+	jiraApiClient.WaitAsync()
 	return nil
 }
 
@@ -149,7 +149,6 @@ func (jiraApiClient *JiraApiClient) FetchWithoutPaginationHeaders(
 		maxResults, err = handler(res)
 		res.Body.Close()
 		if err != nil {
-			logger.Error("Error: ", err)
 			return err
 		}
 		startAt += maxResults
