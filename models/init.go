@@ -89,6 +89,7 @@ func migrateDB() {
 		&crossdomain.PullRequestIssue{},
 		&crossdomain.IssueCommit{},
 		&crossdomain.RefsIssuesDiffs{},
+		&code.RefsPrCherrypick{},
 	)
 	if err != nil {
 		panic(err)

@@ -116,7 +116,7 @@ func (plugin Github) Execute(options map[string]interface{}, progress chan<- flo
 	if err != nil {
 		return err
 	}
-	scheduler, err := utils.NewWorkerScheduler(50, rateLimitPerSecondInt, ctx)
+	scheduler, err := utils.NewWorkerScheduler(20, rateLimitPerSecondInt, ctx)
 	if err != nil {
 		return err
 	}
@@ -412,8 +412,8 @@ var PluginEntry Github //nolint
 // standalone mode for debugging
 func main() {
 	args := os.Args[1:]
-	owner := "pingcap"
-	repo := "tidb"
+	owner := "tikv"
+	repo := "pd"
 	if len(args) > 0 {
 		owner = args[0]
 	}
@@ -449,7 +449,7 @@ func main() {
 					//"collectIssues",
 					//"collectIssueEvents",
 					//"collectIssueComments",
-					//"collectPullRequests",
+					"collectPullRequests",
 					//"collectPullRequestReviews",
 					//"collectPullRequestCommits",
 					//"enrichIssues",
@@ -459,11 +459,11 @@ func main() {
 					//"convertRepos",
 					//"convertIssues",
 					//"convertIssueLabels",
-					//"convertPullRequests",
+					"convertPullRequests",
 					//"convertCommits",
 					//"convertPullRequestCommits",
 					//"convertPullRequestLabels",
-					"convertPullRequestIssues",
+					//"convertPullRequestIssues",
 					//"convertNotes",
 					//"convertUsers",
 				},
