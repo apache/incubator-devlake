@@ -11,6 +11,8 @@ function usePipelineValidation ({
   boardId,
   owner,
   repositoryName,
+  gitExtractorUrl,
+  gitExtractorRepoId,
   sourceId,
   tasks,
   tasksAdvanced,
@@ -81,6 +83,23 @@ function usePipelineValidation ({
       errs.push('GitHub: Repository name invalid format')
     }
 
+    if (enabledProviders.includes(Providers.GITEXTRACTOR) && !gitExtractorUrl) {
+      errs.push('GitExtractor: Repository Git URL is required')
+    }
+
+    if (enabledProviders.includes(Providers.GITEXTRACTOR) &&
+        gitExtractorUrl.toLowerCase().match(/^(http:\/\/|https:\/\/|ssh:\/\/|git@)+/g) === null) {
+      errs.push('GitExtractor: Repository Git URL must be valid HTTP/S, SSH or Git@ protocol')
+    }
+
+    if (enabledProviders.includes(Providers.GITEXTRACTOR) && !gitExtractorUrl.toLowerCase().endsWith('.git')) {
+      errs.push('GitExtractor: Invalid Git URL Extension')
+    }
+
+    if (enabledProviders.includes(Providers.GITEXTRACTOR) && !gitExtractorRepoId) {
+      errs.push('GitExtractor: Repository Column ID Code is required')
+    }
+
     if (enabledProviders.length === 0) {
       errs.push('Pipeline: Invalid/Empty Configuration')
     }
@@ -92,6 +111,8 @@ function usePipelineValidation ({
     boardId,
     owner,
     repositoryName,
+    gitExtractorUrl,
+    gitExtractorRepoId,
     sourceId
   ])
 

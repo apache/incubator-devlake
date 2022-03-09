@@ -22,7 +22,7 @@ import {
   Providers,
   ProviderIcons
 } from '@/data/Providers'
-import { integrationsData } from '@/data/integrations'
+import { integrationsData, pluginsData } from '@/data/integrations'
 import usePipelineManager from '@/hooks/usePipelineManager'
 import usePipelineValidation from '@/hooks/usePipelineValidation'
 import useConnectionManager from '@/hooks/useConnectionManager'
@@ -51,7 +51,7 @@ const CreatePipeline = (props) => {
   const location = useLocation()
   // const { providerId } = useParams()
   // const [activeProvider, setActiveProvider] = useState(integrationsData[0])
-  const [integrations, setIntegrations] = useState(integrationsData)
+  const [integrations, setIntegrations] = useState([...integrationsData, ...pluginsData])
   const [jiraIntegration, setJiraIntegration] = useState(integrationsData.find(p => p.id === Providers.JIRA))
 
   const [today, setToday] = useState(new Date())
@@ -86,6 +86,8 @@ const CreatePipeline = (props) => {
   const [selectedSource, setSelectedSource] = useState()
   const [repositoryName, setRepositoryName] = useState('')
   const [owner, setOwner] = useState('')
+  const [gitExtractorUrl, setGitExtractorUrl] = useState('')
+  const [gitExtractorRepoId, setGitExtractorRepoId] = useState('')
 
   const [autoRedirect, setAutoRedirect] = useState(true)
   const [restartDetected, setRestartDetected] = useState(false)
@@ -117,6 +119,8 @@ const CreatePipeline = (props) => {
     owner,
     repositoryName,
     sourceId,
+    gitExtractorUrl,
+    gitExtractorRepoId,
     tasks: runTasks,
     tasksAdvanced: runTasksAdvanced,
     advancedMode
@@ -132,7 +136,7 @@ const CreatePipeline = (props) => {
   })
 
   useEffect(() => {
-    integrationsData.forEach((i, idx) => {
+    [...integrationsData, ...pluginsData].forEach((i, idx) => {
       setTimeout(() => {
         setReadyProviders(r => [...r, i.id])
       }, idx * 50)
@@ -197,11 +201,17 @@ const CreatePipeline = (props) => {
           projectId: parseInt(projectId, 10)
         }
         break
+      case Providers.GITEXTRACTOR:
+        options = {
+          url: gitExtractorUrl,
+          repoId: gitExtractorRepoId
+        }
+        break
       default:
         break
     }
     return options
-  }, [boardId, owner, projectId, repositoryName, sourceId])
+  }, [boardId, owner, projectId, repositoryName, sourceId, gitExtractorUrl, gitExtractorRepoId])
 
   const configureProvider = useCallback((providerId) => {
     let providerConfig = {}
@@ -246,6 +256,8 @@ const CreatePipeline = (props) => {
     setSelectedSource(null)
     setRepositoryName('')
     setOwner('')
+    setGitExtractorUrl('')
+    setGitExtractorRepoId('')
     setAdvancedMode(false)
     setRawConfiguration('[[]]')
   }
@@ -369,6 +381,7 @@ const CreatePipeline = (props) => {
       const GitHubTask = tasks.find(t => t.plugin === Providers.GITHUB)
       const JiraTask = tasks.filter(t => t.plugin === Providers.JIRA)
       const JenkinsTask = tasks.find(t => t.plugin === Providers.JENKINS)
+      const GitExtractorTask = tasks.find(t => t.plugin === Providers.GITEXTRACTOR)
       const configuredProviders = []
       if (GitLabTask && GitLabTask.length > 0) {
         configuredProviders.push(Providers.GITLAB)
@@ -392,6 +405,11 @@ const CreatePipeline = (props) => {
       }
       if (JenkinsTask) {
         configuredProviders.push(Providers.JENKINS)
+      }
+      if (GitExtractorTask) {
+        setGitExtractorRepoId(GitExtractorTask.options?.repoId)
+        setGitExtractorUrl(GitExtractorTask.options?.url)
+        configuredProviders.push(Providers.GITEXTRACTOR)
       }
       setEnabledProviders(eP => [...eP, ...configuredProviders])
     } else {
@@ -880,11 +898,15 @@ const CreatePipeline = (props) => {
                               selectedSource={selectedSource}
                               setSelectedSource={setSelectedSource}
                               boardId={boardId}
+                              gitExtractorUrl={gitExtractorUrl}
+                              gitExtractorRepoId={gitExtractorRepoId}
                               setProjectId={setProjectId}
                               setOwner={setOwner}
                               setRepositoryName={setRepositoryName}
                               setSourceId={setSourceId}
                               setBoardId={setBoardId}
+                              setGitExtractorUrl={setGitExtractorUrl}
+                              setGitExtractorRepoId={setGitExtractorRepoId}
                               isEnabled={isProviderEnabled}
                               isRunning={isRunning}
                             />
