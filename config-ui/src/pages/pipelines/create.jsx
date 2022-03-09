@@ -958,7 +958,7 @@ const CreatePipeline = (props) => {
                                 position={Position.RIGHT}
                                 autoFocus={false}
                                 enforceFocus={false}
-                                usePortal={false}
+                                usePortal={true}
                               >
                                 <Button className='pipeline-action-btn' minimal><Icon icon='help' color={Colors.GRAY4} size={16} /></Button>
                                 <>
@@ -1005,6 +1005,36 @@ const CreatePipeline = (props) => {
                                               src={GithubHelpNote}
                                               alt={provider.name} style={{ maxHeight: '64px', maxWidth: '100%' }}
                                             />
+                                          )
+                                          break
+                                        case Providers.GITEXTRACTOR:
+                                          helpContext = (
+                                            <>
+                                              <div><strong>GitExtractor README</strong></div>
+                                              <p>This plugin extract commits and references from a remote or local git repository.</p>
+                                              <a
+                                                className='bp3-button bp3-small'
+                                                rel='noreferrer'
+                                                target='_blank'
+                                                href='https://github.com/merico-dev/lake/tree/main/plugins/gitextractor'
+                                              >Learn More
+                                              </a>
+                                            </>
+                                          )
+                                          break
+                                        case Providers.REFDIFF:
+                                          helpContext = (
+                                            <>
+                                              <div><strong>RefDiff README</strong></div>
+                                              <p>You need to run gitextractor before the refdiff plugin.</p>
+                                              <a
+                                                className='bp3-button bp3-small'
+                                                rel='noreferrer'
+                                                target='_blank'
+                                                href='https://github.com/merico-dev/lake/tree/main/plugins/refdiff'
+                                              >Learn More
+                                              </a>
+                                            </>
                                           )
                                           break
                                       }
