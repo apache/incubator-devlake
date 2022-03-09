@@ -452,7 +452,14 @@ const ProviderSettings = (props) => {
                   <InputGroup
                     id='refdiff-pair-newref'
                     round='true'
-                    leftElement={<Tag intent={Intent.WARNING}>New Ref</Tag>}
+                    leftElement={(
+                      <Tag
+                        intent={Intent.WARNING} style={{
+                          opacity: isEnabled(providerId) ? 1 : 0.3
+                        }}
+                      >New Ref
+                      </Tag>
+                    )}
                     inline={true}
                     disabled={isRunning || !isEnabled(providerId)}
                     placeholder='eg. refs/tags/v0.6.0'
@@ -468,7 +475,14 @@ const ProviderSettings = (props) => {
                   <InputGroup
                     id='refdiff-pair-oldref'
                     round='true'
-                    leftElement={<Tag>Old Ref</Tag>}
+                    leftElement={(
+                      <Tag
+                        style={{
+                          opacity: isEnabled(providerId) ? 1 : 0.3
+                        }}
+                      >Old Ref
+                      </Tag>
+                    )}
                     inline={true}
                     disabled={isRunning || !isEnabled(providerId)}
                     placeholder='eg. refs/tags/v0.5.0'
