@@ -4,6 +4,7 @@ import (
 	"time"
 
 	"github.com/merico-dev/lake/models/common"
+	"github.com/merico-dev/lake/plugins/helper"
 	"gorm.io/datatypes"
 )
 
@@ -39,7 +40,7 @@ type JiraIssue struct {
 	SprintName               string
 	ResolutionDate           *time.Time
 	Created                  time.Time
-	Updated                  time.Time
+	Updated                  time.Time `gorm:"index"`
 
 	// enriched fields
 	// RequirementAnalsyisLeadTime uint
@@ -57,4 +58,6 @@ type JiraIssue struct {
 	// internal status tracking
 	ChangelogUpdated  *time.Time
 	RemotelinkUpdated *time.Time
+
+	helper.RawDataOrigin
 }

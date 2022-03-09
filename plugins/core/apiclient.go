@@ -5,9 +5,6 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"github.com/merico-dev/lake/errors"
-	"github.com/merico-dev/lake/logger"
-	"github.com/merico-dev/lake/utils"
 	"io"
 	"io/ioutil"
 	"net/http"
@@ -16,6 +13,9 @@ import (
 	"strings"
 	"time"
 	"unicode/utf8"
+
+	"github.com/merico-dev/lake/errors"
+	"github.com/merico-dev/lake/utils"
 )
 
 type ApiClientBeforeRequest func(req *http.Request) error
@@ -30,6 +30,7 @@ type ApiClient struct {
 	afterReponse  ApiClientAfterResponse
 	ctx           context.Context
 	scheduler     *utils.WorkerScheduler
+	logger        Logger
 }
 
 func NewApiClient(
@@ -114,12 +115,28 @@ func (apiClient *ApiClient) SetProxy(proxyUrl string) error {
 	return nil
 }
 
+func (apiClient *ApiClient) SetLogger(logger Logger) {
+	apiClient.logger = logger
+}
+
+func (apiClient *ApiClient) logDebug(format string, a ...interface{}) {
+	if apiClient.logger != nil {
+		apiClient.logger.Debug(format, a...)
+	}
+}
+
+func (apiClient *ApiClient) logError(format string, a ...interface{}) {
+	if apiClient.logger != nil {
+		apiClient.logger.Error(format, a...)
+	}
+}
+
 func (apiClient *ApiClient) Do(
 	method string,
 	path string,
 	query *url.Values,
 	body *map[string]interface{},
-	headers *map[string]string,
+	headers *url.Values,
 ) (*http.Response, error) {
 	uri, err := GetURIStringPointer(apiClient.endpoint, path, query)
 	if err != nil {
@@ -152,8 +169,10 @@ func (apiClient *ApiClient) Do(
 		}
 	}
 	if headers != nil {
-		for name, value := range *headers {
-			req.Header.Set(name, value)
+		for name, values := range *headers {
+			for _, value := range values {
+				req.Header.Add(name, value)
+			}
 		}
 	}
 
@@ -184,10 +203,22 @@ func (apiClient *ApiClient) Do(
 				return nil, err
 			}
 		}
-		logger.Print(fmt.Sprintf("[api-client][retry %v] %v %v", retry, method, *uri))
+		apiClient.logDebug("[api-client] %d %v %v", retry, method, *uri)
 		res, err = apiClient.client.Do(req)
+
+		// now, the problem is when caller reads res.Body, it could cause a timeout error
+		// we would like it to be retried as well, so we read it before returning,
+		// this is a temporary measure, until we find a better solution
+		if err == nil {
+			var body []byte
+			body, err = ioutil.ReadAll(res.Body)
+			if err == nil {
+				res.Body = io.NopCloser(bytes.NewBuffer(body))
+			}
+		}
+
 		if err != nil {
-			logger.Error("[api-client] error:", err)
+			apiClient.logError("[api-client] failed to request %s with error:\n%w", req.URL.String(), err)
 			if retry < apiClient.maxRetry-1 {
 				retry += 1
 				continue
@@ -235,7 +266,7 @@ func (apiClient *ApiClient) Do(
 func (apiClient *ApiClient) Get(
 	path string,
 	query *url.Values,
-	headers *map[string]string,
+	headers *url.Values,
 ) (*http.Response, error) {
 	return apiClient.Do("GET", path, query, nil, headers)
 }
@@ -297,15 +328,15 @@ func RemoveStartingSlashFromPath(relativePath string) string {
 	}
 	return relativePath
 }
-func (apiClient *ApiClient) GetAsync(path string, queryParams *url.Values, handler func(*http.Response) error) error {
+func (apiClient *ApiClient) GetAsync(path string, queryParams *url.Values, headerParams *url.Values, handler func(*http.Response) error) error {
 	err := apiClient.scheduler.Submit(func() error {
-		res, err := apiClient.Get(path, queryParams, nil)
+		res, err := apiClient.Get(path, queryParams, headerParams)
 		if err != nil {
 			return err
 		}
-		handlerErr := handler(res)
-		if handlerErr != nil {
-			return handlerErr
+		err = handler(res)
+		if err != nil {
+			return fmt.Errorf("handle response for %s failed: %w", res.Request.URL, err)
 		}
 		return nil
 	})
@@ -315,6 +346,13 @@ func (apiClient *ApiClient) GetAsync(path string, queryParams *url.Values, handl
 	return nil
 }
 
-func (apiClient *ApiClient) WaitOtherGoroutines() {
+func (apiClient *ApiClient) WaitAsync() {
 	apiClient.scheduler.WaitUntilFinish()
 }
+
+type AsyncApiClient interface {
+	GetAsync(path string, queryParams *url.Values, headerParams *url.Values, handler func(*http.Response) error) error
+	WaitAsync()
+}
+
+var _ AsyncApiClient = (*ApiClient)(nil)
