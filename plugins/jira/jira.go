@@ -245,20 +245,10 @@ func (plugin Jira) Execute(options map[string]interface{}, progress chan<- float
 	}
 	// TODO: Remove this subtask, we can collect user while we are collecting issues
 	if tasksToRun["collectUsers"] {
-		err := tasks.CollectUsers(jiraApiClient, op.SourceId)
+		err := collector.CollectUsers(jiraApiClient, op.SourceId)
 		if err != nil {
 			return &errors.SubTaskError{
 				SubTaskName: "collectUsers",
-				Message:     err.Error(),
-			}
-		}
-	}
-	progress <- 0.02
-	if tasksToRun["collectApiIssues"] {
-		err = tasks.CollectApiIssues(taskCtx)
-		if err != nil {
-			return &errors.SubTaskError{
-				SubTaskName: "collectApiIssues",
 				Message:     err.Error(),
 			}
 		}
