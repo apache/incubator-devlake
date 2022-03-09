@@ -114,6 +114,7 @@ func (collector *ApiCollector) Execute() error {
 		// load all rows from iterator, and exec them in parallel
 		// TODO: this loads all records into memory, we need lazy-load
 		iterator := collector.args.Input
+		defer iterator.Close()
 		for iterator.HasNext() {
 			input, err := iterator.Fetch()
 			if err != nil {
