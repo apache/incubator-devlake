@@ -6,37 +6,37 @@ import (
 	"gorm.io/gorm"
 )
 
-type OnNewBatchInsert func(rowType reflect.Type) error
+type OnNewBatchSave func(rowType reflect.Type) error
 
 // Holds a map of BatchInsert, return `*BatchInsert` for a specific records, so caller can do batch operation for it
-type BatchInsertDivider struct {
+type BatchSaveDivider struct {
 	db               *gorm.DB
-	batches          map[reflect.Type]*BatchInsert
+	batches          map[reflect.Type]*BatchSave
 	batchSize        int
-	onNewBatchInsert OnNewBatchInsert
+	onNewBatchInsert OnNewBatchSave
 }
 
 // Return a new BatchInsertDivider instance
-func NewBatchInsertDivider(db *gorm.DB, batchSize int) *BatchInsertDivider {
-	return &BatchInsertDivider{
+func NewBatchSaveDivider(db *gorm.DB, batchSize int) *BatchSaveDivider {
+	return &BatchSaveDivider{
 		db:        db,
-		batches:   make(map[reflect.Type]*BatchInsert),
+		batches:   make(map[reflect.Type]*BatchSave),
 		batchSize: batchSize,
 	}
 }
 
-func (d *BatchInsertDivider) OnNewBatchInsert(cb OnNewBatchInsert) {
+func (d *BatchSaveDivider) OnNewBatchSave(cb OnNewBatchSave) {
 	d.onNewBatchInsert = cb
 }
 
 // return *BatchInsert for specified type
-func (d *BatchInsertDivider) ForType(rowType reflect.Type) (*BatchInsert, error) {
+func (d *BatchSaveDivider) ForType(rowType reflect.Type) (*BatchSave, error) {
 	// get the cache for the specific type
 	batch := d.batches[rowType]
 	var err error
 	// create one if not exists
 	if batch == nil {
-		batch, err = NewBatchInsert(d.db, rowType, d.batchSize)
+		batch, err = NewBatchSave(d.db, rowType, d.batchSize)
 		if err != nil {
 			return nil, err
 		}
@@ -52,7 +52,7 @@ func (d *BatchInsertDivider) ForType(rowType reflect.Type) (*BatchInsert, error)
 }
 
 // close all batches so all rest records get saved into db as well
-func (d *BatchInsertDivider) Close() error {
+func (d *BatchSaveDivider) Close() error {
 	for _, batch := range d.batches {
 		err := batch.Close()
 		if err != nil {

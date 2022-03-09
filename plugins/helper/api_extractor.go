@@ -55,8 +55,8 @@ func (extractor *ApiExtractor) Execute() error {
 
 	// batch insertion divider
 	RAW_DATA_ORIGIN := "RawDataOrigin"
-	divider := NewBatchInsertDivider(db, extractor.args.BatchSize)
-	divider.OnNewBatchInsert(func(rowType reflect.Type) error {
+	divider := NewBatchSaveDivider(db, extractor.args.BatchSize)
+	divider.OnNewBatchSave(func(rowType reflect.Type) error {
 		// check if row type has RawDataOrigin
 		if rawDataOrigin, ok := rowType.Elem().FieldByName(RAW_DATA_ORIGIN); ok {
 			if (rawDataOrigin.Type != reflect.TypeOf(RawDataOrigin{})) {
