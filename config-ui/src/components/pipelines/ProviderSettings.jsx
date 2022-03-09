@@ -444,7 +444,7 @@ const ProviderSettings = (props) => {
               labelFor='refdiff-pair-newref'
               className=''
               contentClassName=''
-              style={{ minWidth: '600px', marginBottom: 'auto' }}
+              style={{ minWidth: '588px', marginBottom: 'auto' }}
               fill={false}
             >
               <div style={{ display: 'flex' }}>
