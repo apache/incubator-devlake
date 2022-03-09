@@ -99,7 +99,18 @@ const pluginsData = [
       null
     )
   },
-
+  {
+    id: Providers.REFDIFF,
+    type: ProviderTypes.PIPELINE,
+    enabled: true,
+    multiSource: false,
+    name: ProviderLabels.REFDIFF,
+    icon: <img src={RefDiffProvider} className='providerIconPng' width='30' height='30' style={{ float: 'left', marginTop: '5px' }} />,
+    iconDashboard: <img src={RefDiffProvider} className='providerIconPng' width='48' height='48' />,
+    settings: ({ activeProvider, activeConnection, isSaving, setSettings }) => (
+      null
+    )
+  },
 ]
 
 export {

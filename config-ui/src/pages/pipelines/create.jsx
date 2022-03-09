@@ -20,6 +20,7 @@ import {
 } from '@blueprintjs/core'
 import {
   Providers,
+  ProviderTypes,
   ProviderIcons
 } from '@/data/Providers'
 import { integrationsData, pluginsData } from '@/data/integrations'
@@ -88,6 +89,9 @@ const CreatePipeline = (props) => {
   const [owner, setOwner] = useState('')
   const [gitExtractorUrl, setGitExtractorUrl] = useState('')
   const [gitExtractorRepoId, setGitExtractorRepoId] = useState('')
+  const [refDiffRepoId, setRefDiffRepoId] = useState('')
+  const [refDiffPairs, setRefDiffPairs] = useState([])
+  const [refDiffTasks, setRefDiffTasks] = useState(['calculateCommitsDiff'])
 
   const [autoRedirect, setAutoRedirect] = useState(true)
   const [restartDetected, setRestartDetected] = useState(false)
@@ -121,6 +125,9 @@ const CreatePipeline = (props) => {
     sourceId,
     gitExtractorUrl,
     gitExtractorRepoId,
+    refDiffRepoId,
+    refDiffTasks,
+    refDiffPairs,
     tasks: runTasks,
     tasksAdvanced: runTasksAdvanced,
     advancedMode
@@ -207,11 +214,28 @@ const CreatePipeline = (props) => {
           repoId: gitExtractorRepoId
         }
         break
+      case Providers.REFDIFF:
+        options = {
+          repoId: refDiffRepoId,
+          pairs: refDiffPairs,
+          tasks: refDiffTasks,
+        }
+        break
       default:
         break
     }
     return options
-  }, [boardId, owner, projectId, repositoryName, sourceId, gitExtractorUrl, gitExtractorRepoId])
+  }, [boardId,
+    owner,
+    projectId,
+    repositoryName,
+    sourceId,
+    gitExtractorUrl,
+    gitExtractorRepoId,
+    refDiffRepoId,
+    refDiffTasks,
+    refDiffPairs
+  ])
 
   const configureProvider = useCallback((providerId) => {
     let providerConfig = {}
@@ -258,6 +282,9 @@ const CreatePipeline = (props) => {
     setOwner('')
     setGitExtractorUrl('')
     setGitExtractorRepoId('')
+    setRefDiffRepoId('')
+    setRefDiffTasks([])
+    setRefDiffPairs([])
     setAdvancedMode(false)
     setRawConfiguration('[[]]')
   }
@@ -900,6 +927,9 @@ const CreatePipeline = (props) => {
                               boardId={boardId}
                               gitExtractorUrl={gitExtractorUrl}
                               gitExtractorRepoId={gitExtractorRepoId}
+                              refDiffRepoId={refDiffRepoId}
+                              refDiffTasks={refDiffTasks}
+                              refDiffPairs={refDiffPairs}
                               setProjectId={setProjectId}
                               setOwner={setOwner}
                               setRepositoryName={setRepositoryName}
@@ -907,15 +937,20 @@ const CreatePipeline = (props) => {
                               setBoardId={setBoardId}
                               setGitExtractorUrl={setGitExtractorUrl}
                               setGitExtractorRepoId={setGitExtractorRepoId}
+                              setRefDiffRepoId={setRefDiffRepoId}
+                              setRefDiffPairs={setRefDiffPairs}
+                              setRefDiffTasks={setRefDiffTasks}
                               isEnabled={isProviderEnabled}
                               isRunning={isRunning}
                             />
                           </div>
                           <div className='provider-actions'>
                             <ButtonGroup minimal rounded='true'>
-                              <Button className='pipeline-action-btn' minimal onClick={() => history.push(`/integrations/${provider.id}`)}>
-                                <Icon icon='cog' color={Colors.GRAY4} size={16} />
-                              </Button>
+                              {provider.type === ProviderTypes.INTEGRATION && (
+                                <Button className='pipeline-action-btn' minimal onClick={() => history.push(`/integrations/${provider.id}`)}>
+                                  <Icon icon='cog' color={Colors.GRAY4} size={16} />
+                                </Button>
+                              )}
                               <Popover
                                 key={`popover-help-key-provider-${provider.id}`}
                                 className='trigger-provider-help'
