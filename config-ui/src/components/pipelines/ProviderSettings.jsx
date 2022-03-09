@@ -490,19 +490,32 @@ const ProviderSettings = (props) => {
                     onChange={(e) => setRefDiffOldTag(e.target.value)}
                     autoComplete='off'
                     fill={false}
+                    rightElement={(
+                      <Tooltip content='Add Tag Pair'>
+                        <Button
+                          intent={Intent.PRIMARY}
+                          disabled={!refDiffOldTag || !refDiffNewTag || refDiffOldTag === refDiffNewTag}
+                          icon='plus'
+                          small
+                          style={{}}
+                          onClick={() => addRefDiffPairObject(refDiffOldTag, refDiffNewTag)}
+                        />
+                      </Tooltip>
+
+                    )}
                     // small
                   />
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
                   {/* <Button icon='remove' minimal small style={{ marginTop: 'auto', alignSelf: 'center' }} /> */}
-                  <Button
+                  {/* <Button
                     intent={Intent.PRIMARY}
                     disabled={!refDiffOldTag || !refDiffNewTag || refDiffOldTag === refDiffNewTag}
                     icon='add'
                     small
                     style={{ marginTop: 'auto', alignSelf: 'center' }}
                     onClick={() => addRefDiffPairObject(refDiffOldTag, refDiffNewTag)}
-                  />
+                  /> */}
                 </div>
               </div>
               <div
