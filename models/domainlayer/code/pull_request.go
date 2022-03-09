@@ -12,6 +12,7 @@ type PullRequest struct {
 	Status         string `gorm:"comment:open/closed or other"`
 	Title          string
 	Url            string
+	ParentPrId     string `gorm:"index;type:varchar(100)"`
 	Key            int
 	CreatedDate    time.Time
 	MergedDate     *time.Time
