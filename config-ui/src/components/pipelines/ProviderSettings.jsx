@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import {
   Providers,
 } from '@/data/Providers'
@@ -6,13 +6,20 @@ import {
   Button,
   ButtonGroup,
   FormGroup,
+  Popover,
   InputGroup,
   MenuItem,
+  Menu,
   Intent,
   TagInput,
+  Checkbox,
+  Tag,
+  Switch,
   Tooltip,
+  Colors,
 } from '@blueprintjs/core'
 import { Select } from '@blueprintjs/select'
+import RefDiffTasksMenu from '@/components/menus/RefDiffTasksMenu'
 
 const ProviderSettings = (props) => {
   const {
@@ -26,6 +33,9 @@ const ProviderSettings = (props) => {
     repositoryName,
     gitExtractorUrl,
     gitExtractorRepoId,
+    refDiffRepoId,
+    refDiffPairs = [],
+    refDiffTasks = [],
     setProjectId = () => {},
     setSourceId = () => {},
     setSelectedSource = () => {},
@@ -34,11 +44,89 @@ const ProviderSettings = (props) => {
     setRepositoryName = () => {},
     setGitExtractorUrl = () => {},
     setGitExtractorRepoId = () => {},
+    setRefDiffRepoId = () => {},
+    setRefDiffPairs = () => {},
+    setRefDiffTasks = () => {},
     isEnabled = () => {},
     isRunning = false,
+    onReset = () => {}
   } = props
 
   let providerSettings = null
+
+  const [refDiffOldTag, setRefDiffOldTag] = useState('')
+  const [refDiffNewTag, setRefDiffNewTag] = useState('')
+
+  const handleRefDiffTaskSelect = (e, task) => {
+    setRefDiffTasks(t => t.includes(task.task)
+      ? t.filter(t2 => t2 !== task.task)
+      : [...new Set([...t, task.task])])
+  }
+
+  const createRefDiffPair = (oldRef, newRef) => {
+    return {
+      oldRef,
+      newRef
+    }
+  }
+
+  const addRefDiffPairObject = (oldRef, newRef) => {
+    setRefDiffPairs(pairs => (!pairs.some(p => p.oldRef === oldRef && p.newRef === newRef))
+      ? [...pairs, { oldRef, newRef }]
+      : [...pairs])
+    setRefDiffNewTag('')
+    setRefDiffOldTag('')
+  }
+
+  const removeRefDiffPairObject = (oldRef, newRef) => {
+    console.log('>>> REMOVE PAIR', 'old: ' + oldRef, 'new: ' + newRef)
+    setRefDiffPairs(pairs => pairs.filter(p => !(p.oldRef === oldRef && p.newRef === newRef)))
+  }
+
+  // const refdiffTasksMenu = (
+  //   <Menu className='tasks-menu refdiff-tasks-menu'>
+  //     <MenuItem
+  //       minimal='true'
+  //       active={refDiffTasks.includes('calculateCommitsDiff')}
+  //       // onClick={(e) => e.preventDefault()}
+  //       data-task='calculateCommitsDiff'
+  //       style={{ marginBottom: '2px' }}
+  //       text={(
+  //         <>
+  //           <Checkbox
+  //             intent={Intent.WARNING}
+  //             checked={Boolean(refDiffTasks.includes('calculateCommitsDiff'))}
+  //             label='Calculate Commits Diff'
+  //             onChange={() => setRefDiffTasks(t => t.includes('calculateCommitsDiff')
+  //               ? t.filter(t2 => t2 !== 'calculateCommitsDiff')
+  //               : [...new Set([...t, 'calculateCommitsDiff'])])}
+  //           />
+  //         </>
+  //       )}
+  //     />
+  //     <MenuItem
+  //       minimal='true'
+  //       active={refDiffTasks.includes('calculateIssuesDiff')}
+  //       // onClick={(e) => e.preventDefault()}
+  //       data-task='calculateIssuesDiff'
+  //       text={(
+  //         <>
+  //           <Checkbox
+  //             checked={Boolean(refDiffTasks.includes('calculateIssuesDiff'))}
+  //             label='Calculate Issues Diff'
+  //             onChange={() => setRefDiffTasks(t => t.includes('calculateIssuesDiff')
+  //               ? t.filter(t2 => t2 !== 'calculateIssuesDiff')
+  //               : [...new Set([...t, 'calculateIssuesDiff'])])}
+  //           />
+  //         </>
+  //       )}
+  //     />
+  //   </Menu>
+  // )
+
+  useEffect(() => {
+    console.log('>>>> REF DIFF PAIRS ARRAY...', refDiffPairs)
+  }, [refDiffPairs])
 
   switch (providerId) {
     case Providers.JENKINS:
@@ -318,6 +406,165 @@ const ProviderSettings = (props) => {
             />
           </FormGroup>
         </>
+      )
+      break
+    case Providers.REFDIFF:
+      providerSettings = (
+        <>
+          <FormGroup
+            disabled={isRunning || !isEnabled(providerId)}
+            label={<strong>Repository ID<span className='requiredStar'>*</span></strong>}
+            labelInfo={<span style={{ display: 'block' }}>Enter Repo Column ID</span>}
+            inline={false}
+            labelFor='refdiff-repo-id'
+            className=''
+            contentClassName=''
+            style={{ minWidth: '280px', marginBottom: 'auto' }}
+            fill
+          >
+            <InputGroup
+              id='refdiff-repo-id'
+              disabled={isRunning || !isEnabled(providerId)}
+              placeholder='eg. github:GithubRepo:384111310'
+              value={refDiffRepoId}
+              onChange={(e) => setRefDiffRepoId(e.target.value)}
+              className='input-refdiff-repo-id'
+              autoComplete='off'
+              fill={false}
+              style={{ marginBottom: '10px' }}
+            />
+          </FormGroup>
+          <FormGroup
+            disabled={isRunning || !isEnabled(providerId)}
+            label={(
+              <strong>Tasks<span className='requiredStar'>*</span>
+                <span
+                  className='badge-count'
+                  style={{
+                    opacity: isEnabled(providerId) ? 0.5 : 0.1
+                  }}
+                >{refDiffTasks.length}
+                </span>
+              </strong>
+              )}
+            labelInfo={<span style={{ display: 'block' }}>Select Tasks to Execute</span>}
+            inline={false}
+            labelFor='refdiff-tasks'
+            className=''
+            contentClassName=''
+            style={{ marginLeft: '12px', marginRight: '12px', marginBottom: 'auto' }}
+            fill
+          >
+
+            <Popover
+              className='provider-tasks-popover'
+              disabled={isRunning || !isEnabled(providerId)}
+              content={(
+                <RefDiffTasksMenu onSelect={handleRefDiffTaskSelect} selected={refDiffTasks} />
+              )}
+              placement='top-center'
+            >
+              <Button icon='menu' text='Choose Tasks' disabled={isRunning || !isEnabled(providerId)} />
+            </Popover>
+          </FormGroup>
+          <div style={{ display: 'flex', flex: 1, width: '100%' }}>
+            <FormGroup
+              disabled={isRunning || !isEnabled(providerId)}
+              label={(
+                <strong>Tags<span className='requiredStar'>*</span>
+                  <span
+                    className='badge-count'
+                    style={{
+                      opacity: isEnabled(providerId) ? 0.5 : 0.1
+                    }}
+                  >{refDiffPairs.length}
+                  </span>
+                </strong>
+              )}
+              labelInfo={<span style={{ display: 'block' }}>Specify tag Ref Pairs</span>}
+              inline={false}
+              labelFor='refdiff-pair-newref'
+              className=''
+              contentClassName=''
+              style={{ minWidth: '600px', marginBottom: 'auto' }}
+              fill={false}
+            >
+              <div style={{ display: 'flex' }}>
+                <div>
+                  <InputGroup
+                    id='refdiff-pair-newref'
+                    round='true'
+                    leftElement={<Tag intent={Intent.WARNING}>New Ref</Tag>}
+                    inline={true}
+                    disabled={isRunning || !isEnabled(providerId)}
+                    placeholder='eg. refs/tags/v0.6.0'
+                    value={refDiffNewTag}
+                    onChange={(e) => setRefDiffNewTag(e.target.value)}
+                    autoComplete='off'
+                    fill={false}
+                    // small
+                  />
+                </div>
+                <div style={{ marginLeft: '10px', marginRight: '10px' }}>
+                  {/* <label>Old Ref</label> */}
+                  <InputGroup
+                    id='refdiff-pair-oldref'
+                    round='true'
+                    leftElement={<Tag>Old Ref</Tag>}
+                    inline={true}
+                    disabled={isRunning || !isEnabled(providerId)}
+                    placeholder='eg. refs/tags/v0.5.0'
+                    value={refDiffOldTag}
+                    onChange={(e) => setRefDiffOldTag(e.target.value)}
+                    autoComplete='off'
+                    fill={false}
+                    // small
+                  />
+                </div>
+                <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+                  {/* <Button icon='remove' minimal small style={{ marginTop: 'auto', alignSelf: 'center' }} /> */}
+                  <Button
+                    intent={Intent.PRIMARY}
+                    disabled={!refDiffOldTag || !refDiffNewTag || refDiffOldTag === refDiffNewTag}
+                    icon='add'
+                    small
+                    style={{ marginTop: 'auto', alignSelf: 'center' }}
+                    onClick={() => addRefDiffPairObject(refDiffOldTag, refDiffNewTag)}
+                  />
+                </div>
+              </div>
+              <div
+                style={{
+                  borderRadius: '4px',
+                  padding: '10px',
+                  margin: '5px 0'
+                }}
+              >
+                {refDiffPairs.map((pair, pairIdx) => (
+                  <div key={`refdiff-added-pairs-itemkey-$${pairIdx}`} style={{ display: 'flex' }}>
+                    <div style={{ flex: 1 }}>
+                      <Tag intent={Intent.WARNING} round='true' small>new</Tag> {pair.newRef}
+                    </div>
+                    <div style={{ flex: 1, marginLeft: '10px', marginRight: '10px' }}>
+                      <Tag round='true' small>old</Tag> {pair.oldRef}
+                    </div>
+                    <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+                      <Button
+                        icon='remove'
+                        minimal
+                        small
+                        style={{ marginTop: 'auto', alignSelf: 'center' }}
+                        onClick={() => removeRefDiffPairObject(pair.oldRef, pair.newRef)}
+                      />
+                    </div>
+                  </div>
+                ))}
+                {refDiffPairs.length === 0 && <><span style={{ color: Colors.GRAY3 }}>( No Tag Pairs Added)</span></>}
+              </div>
+            </FormGroup>
+          </div>
+        </>
+
       )
       break
     default:

@@ -100,6 +100,7 @@
     padding: 0 20px;
     align-items: flex-end;
     display: flex;
+    flex-wrap: wrap;
 
     .bp3-form-group {
       margin-bottom: 0;
@@ -399,6 +400,21 @@
         &:hover {
           background-color: rgba(66, 66, 66, 0.08);
           color: darken(#007cff, 5%);
+        }
+      }
+    }
+  }
+  &.refdiff-tasks-menu {
+    > li {
+      margin-bottom: 2px;
+      border-radius: 8px;
+      outline: none !important;
+
+      .bp3-menu-item {
+        outline: none !important;
+        border-radius: inherit;
+        &.bp3-active {
+          font-weight: bold;
         }
       }
     }
