@@ -117,7 +117,7 @@ func (plugin Jira) Execute(options map[string]interface{}, progress chan<- float
 	if rateLimit <= 0 {
 		rateLimit = 50
 	}
-	scheduler, err := utils.NewWorkerScheduler(rateLimit/2, rateLimit, ctx)
+	scheduler, err := utils.NewWorkerScheduler(rateLimit, rateLimit, ctx)
 	if err != nil {
 		return err
 	}
@@ -143,6 +143,29 @@ func (plugin Jira) Execute(options map[string]interface{}, progress chan<- float
 		Since:     since,
 	}
 	taskCtx := helper.NewDefaultTaskContext("jira", ctx, logger, taskData, tasksToRun)
+	newTasks := []struct {
+		name       string
+		entryPoint core.SubTaskEntryPoint
+	}{
+		{name: "collectApiIssues", entryPoint: tasks.CollectApiIssues},
+		{name: "extractApiIssues", entryPoint: tasks.ExtractApiIssues},
+		{name: "collectApiChangelogs", entryPoint: tasks.CollectApiChangelogs},
+	}
+	for _, t := range newTasks {
+		c, err := taskCtx.SubTaskContext(t.name)
+		if err != nil {
+			return err
+		}
+		if c != nil {
+			err = t.entryPoint(c)
+			if err != nil {
+				return &errors.SubTaskError{
+					SubTaskName: t.name,
+					Message:     err.Error(),
+				}
+			}
+		}
+	}
 
 	// run tasks
 	var collector tasks.Collector
@@ -197,31 +220,6 @@ func (plugin Jira) Execute(options map[string]interface{}, progress chan<- float
 			return &errors.SubTaskError{
 				SubTaskName: "collectIssues",
 				Message:     err.Error(),
-			}
-		}
-	}
-	progress <- 0.02
-
-	newTasks := []struct {
-		name       string
-		entryPoint core.SubTaskEntryPoint
-	}{
-		{name: "collectApiIssues", entryPoint: tasks.CollectApiIssues},
-		{name: "extractApiIssues", entryPoint: tasks.ExtractApiIssues},
-		{name: "collectApiChangelogs", entryPoint: tasks.CollectApiChangelogs},
-	}
-	for _, t := range newTasks {
-		c, err := taskCtx.SubTaskContext(t.name)
-		if err != nil {
-			return err
-		}
-		if c != nil {
-			err = t.entryPoint(c)
-			if err != nil {
-				return &errors.SubTaskError{
-					SubTaskName: t.name,
-					Message:     err.Error(),
-				}
 			}
 		}
 	}
