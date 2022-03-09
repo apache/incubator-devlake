@@ -103,13 +103,19 @@ const TaskActivity = (props) => {
               }}
             >
               {t.plugin !== Providers.JENKINS && t.plugin !== 'refdiff' && (
-                <div style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                <div style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', display: 'flex', justifyContent: 'flex-start' }}>
                   <span style={{ color: Colors.GRAY2 }}>
-                    <Icon icon='link' size={8} style={{ marginBottom: '3px' }} />{' '}
+                    <Icon icon='link' size={8} style={{ marginBottom: '3px', alignSelf: 'flex-start' }} />{' '}
                     {t.options.projectId || t.options.boardId || t.options.owner}
                   </span>
                   {t.plugin === Providers.GITHUB && (
-                    <span style={{ fontWeight: 60 }}>/{t.options.repositoryName || t.options.repo || '(Repository)'}</span>
+                    <span style={{ fontWeight: 600 }}>/{t.options.repositoryName || t.options.repo || '(Repository)'}</span>
+                  )}
+                  {t.plugin === Providers.GITEXTRACTOR && (
+                    <div style={{ paddingLeft: '12px', display: 'inline-block' }}>
+                      <span>{t.options.url}</span><br />
+                      <strong>{t.options.repoId}</strong>
+                    </div>
                   )}
                 </div>
               )}
