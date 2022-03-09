@@ -79,54 +79,12 @@ const ProviderSettings = (props) => {
   }
 
   const removeRefDiffPairObject = (oldRef, newRef) => {
-    console.log('>>> REMOVE PAIR', 'old: ' + oldRef, 'new: ' + newRef)
     setRefDiffPairs(pairs => pairs.filter(p => !(p.oldRef === oldRef && p.newRef === newRef)))
   }
 
-  // const refdiffTasksMenu = (
-  //   <Menu className='tasks-menu refdiff-tasks-menu'>
-  //     <MenuItem
-  //       minimal='true'
-  //       active={refDiffTasks.includes('calculateCommitsDiff')}
-  //       // onClick={(e) => e.preventDefault()}
-  //       data-task='calculateCommitsDiff'
-  //       style={{ marginBottom: '2px' }}
-  //       text={(
-  //         <>
-  //           <Checkbox
-  //             intent={Intent.WARNING}
-  //             checked={Boolean(refDiffTasks.includes('calculateCommitsDiff'))}
-  //             label='Calculate Commits Diff'
-  //             onChange={() => setRefDiffTasks(t => t.includes('calculateCommitsDiff')
-  //               ? t.filter(t2 => t2 !== 'calculateCommitsDiff')
-  //               : [...new Set([...t, 'calculateCommitsDiff'])])}
-  //           />
-  //         </>
-  //       )}
-  //     />
-  //     <MenuItem
-  //       minimal='true'
-  //       active={refDiffTasks.includes('calculateIssuesDiff')}
-  //       // onClick={(e) => e.preventDefault()}
-  //       data-task='calculateIssuesDiff'
-  //       text={(
-  //         <>
-  //           <Checkbox
-  //             checked={Boolean(refDiffTasks.includes('calculateIssuesDiff'))}
-  //             label='Calculate Issues Diff'
-  //             onChange={() => setRefDiffTasks(t => t.includes('calculateIssuesDiff')
-  //               ? t.filter(t2 => t2 !== 'calculateIssuesDiff')
-  //               : [...new Set([...t, 'calculateIssuesDiff'])])}
-  //           />
-  //         </>
-  //       )}
-  //     />
-  //   </Menu>
-  // )
-
-  useEffect(() => {
-    console.log('>>>> REF DIFF PAIRS ARRAY...', refDiffPairs)
-  }, [refDiffPairs])
+  // useEffect(() => {
+  //   console.log('>>>> REF DIFF PAIRS ARRAY...', refDiffPairs)
+  // }, [refDiffPairs])
 
   switch (providerId) {
     case Providers.JENKINS:
