@@ -75,8 +75,14 @@ func (extractor *ApiExtractor) Execute() error {
 
 	// prgress
 	extractor.args.Ctx.SetProgress(0, -1)
+	ctx := extractor.args.Ctx.GetContext()
 	// iterate all rows
 	for cursor.Next() {
+		select {
+		case <-ctx.Done():
+			return ctx.Err()
+		default:
+		}
 		err = db.ScanRows(cursor, row)
 		if err != nil {
 			return err

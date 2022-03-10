@@ -14,7 +14,6 @@ import (
 	"time"
 	"unicode/utf8"
 
-	"github.com/merico-dev/lake/errors"
 	"github.com/merico-dev/lake/utils"
 )
 
@@ -176,15 +175,6 @@ func (apiClient *ApiClient) Do(
 		}
 	}
 
-	// canceling check
-	if apiClient.ctx != nil {
-		select {
-		case <-apiClient.ctx.Done():
-			return nil, errors.TaskCanceled
-		default:
-		}
-	}
-
 	var res *http.Response
 	retry := 0
 	for {
@@ -192,7 +182,7 @@ func (apiClient *ApiClient) Do(
 		if apiClient.ctx != nil {
 			select {
 			case <-apiClient.ctx.Done():
-				return nil, errors.TaskCanceled
+				return nil, apiClient.ctx.Err()
 			default:
 			}
 		}
@@ -238,7 +228,7 @@ func (apiClient *ApiClient) Do(
 	if apiClient.ctx != nil {
 		select {
 		case <-apiClient.ctx.Done():
-			return nil, errors.TaskCanceled
+			return nil, apiClient.ctx.Err()
 		default:
 		}
 	}
@@ -248,15 +238,6 @@ func (apiClient *ApiClient) Do(
 		err = apiClient.afterReponse(res)
 		if err != nil {
 			return nil, err
-		}
-	}
-
-	// canceling check
-	if apiClient.ctx != nil {
-		select {
-		case <-apiClient.ctx.Done():
-			return nil, errors.TaskCanceled
-		default:
 		}
 	}
 
