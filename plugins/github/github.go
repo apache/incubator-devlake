@@ -226,17 +226,6 @@ func (plugin Github) Execute(options map[string]interface{}, progress chan<- flo
 			}
 		}
 	}
-	if tasksToRun["collectPullRequests"] {
-		progress <- 0.28
-		fmt.Println("INFO >>> collecting PR collection")
-		err = tasks.CollectPullRequests(op.Owner, op.Repo, repoId, apiClient)
-		if err != nil {
-			return &errors.SubTaskError{
-				Message:     fmt.Errorf("Could not collect PR: %v", err).Error(),
-				SubTaskName: "collectPullRequests",
-			}
-		}
-	}
 
 	if tasksToRun["collectPullRequestReviews"] {
 		progress <- 0.38

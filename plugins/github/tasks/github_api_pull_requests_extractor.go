@@ -49,8 +49,8 @@ func ExtractApiPullRequests(taskCtx core.SubTaskContext) error {
 				}
 				results = append(results, githubPr)
 				for _, label := range apiPullRequest.Labels {
-					results = append(results, &models.GithubIssueLabel{
-						IssueId:   githubPr.GithubId,
+					results = append(results, &models.GithubPullRequestLabel{
+						PullId:    githubPr.GithubId,
 						LabelName: label.Name,
 					})
 
