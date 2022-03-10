@@ -13,6 +13,9 @@ function usePipelineValidation ({
   repositoryName,
   gitExtractorUrl,
   gitExtractorRepoId,
+  refDiffRepoId,
+  refDiffTasks,
+  refDiffPairs,
   sourceId,
   tasks,
   tasksAdvanced,
@@ -100,6 +103,10 @@ function usePipelineValidation ({
       errs.push('GitExtractor: Repository Column ID Code is required')
     }
 
+    if (enabledProviders.includes(Providers.REFDIFF) && !refDiffRepoId) {
+      errs.push('RefDiff: Repository Column ID Code is required')
+    }
+
     if (enabledProviders.length === 0) {
       errs.push('Pipeline: Invalid/Empty Configuration')
     }
@@ -113,6 +120,9 @@ function usePipelineValidation ({
     repositoryName,
     gitExtractorUrl,
     gitExtractorRepoId,
+    refDiffRepoId,
+    refDiffTasks,
+    refDiffPairs,
     sourceId
   ])
 
