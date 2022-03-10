@@ -153,8 +153,8 @@ func (plugin Github) Execute(options map[string]interface{}, progress chan<- flo
 	}{
 		{name: "collectApiIssues", entryPoint: tasks.CollectApiIssues},
 		{name: "extractApiIssues", entryPoint: tasks.ExtractApiIssues},
-		//{name: "collectApiPullRequests", entryPoint: tasks.CollectApiPullRequests},
-		//{name: "extractApiPullRequests", entryPoint: tasks.ExtractApiPullRequests},
+		{name: "collectApiPullRequests", entryPoint: tasks.CollectApiPullRequests},
+		{name: "extractApiPullRequests", entryPoint: tasks.ExtractApiPullRequests},
 	}
 	for _, t := range newTasks {
 		c, err := taskCtx.SubTaskContext(t.name)
