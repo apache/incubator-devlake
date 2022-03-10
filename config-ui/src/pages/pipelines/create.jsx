@@ -91,7 +91,7 @@ const CreatePipeline = (props) => {
   const [gitExtractorRepoId, setGitExtractorRepoId] = useState('')
   const [refDiffRepoId, setRefDiffRepoId] = useState('')
   const [refDiffPairs, setRefDiffPairs] = useState([])
-  const [refDiffTasks, setRefDiffTasks] = useState(['calculateCommitsDiff'])
+  const [refDiffTasks, setRefDiffTasks] = useState(['calculateCommitsDiff', 'calculateIssuesDiff'])
 
   const [autoRedirect, setAutoRedirect] = useState(true)
   const [restartDetected, setRestartDetected] = useState(false)
