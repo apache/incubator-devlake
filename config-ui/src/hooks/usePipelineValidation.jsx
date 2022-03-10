@@ -107,6 +107,10 @@ function usePipelineValidation ({
       errs.push('RefDiff: Repository Column ID Code is required')
     }
 
+    if (enabledProviders.includes(Providers.REFDIFF) && refDiffTasks.length === 0) {
+      errs.push('RefDiff: Please select at least ONE (1) Plugin Task')
+    }
+
     if (enabledProviders.length === 0) {
       errs.push('Pipeline: Invalid/Empty Configuration')
     }
