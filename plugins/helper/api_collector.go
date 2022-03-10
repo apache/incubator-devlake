@@ -122,19 +122,19 @@ func (collector *ApiCollector) Execute() error {
 			}
 			err = collector.exec(input)
 			if err != nil {
-				return err
+				break
 			}
 		}
 
 		scheduler.WaitUntilFinish()
 	} else {
 		// or we just did it once
-		return collector.exec(nil)
+		err = collector.exec(nil)
 	}
 
 	collector.args.ApiClient.WaitAsync()
 	logger.Info("end api collection")
-	return nil
+	return err
 }
 
 func (collector *ApiCollector) exec(input interface{}) error {
