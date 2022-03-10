@@ -201,12 +201,10 @@ const RefDiffSettings = (props) => {
                       intent={Intent.PRIMARY}
                       disabled={!refDiffOldTag || !refDiffNewTag || refDiffOldTag === refDiffNewTag}
                       icon='plus'
-                      small
                       style={{}}
                       onClick={() => addRefDiffPairObject(refDiffOldTag, refDiffNewTag)}
                     />
                   </Tooltip>
-
               )}
               />
             </div>
@@ -242,7 +240,7 @@ const RefDiffSettings = (props) => {
                     className='btn-remove-tagpair'
                     icon='remove'
                     minimal
-                    small
+                    small='true'
                     style={{ marginTop: 'auto', alignSelf: 'center' }}
                     onClick={() => removeRefDiffPairObject(pair.oldRef, pair.newRef)}
                   />

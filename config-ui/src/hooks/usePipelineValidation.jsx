@@ -14,11 +14,11 @@ function usePipelineValidation ({
   gitExtractorUrl,
   gitExtractorRepoId,
   refDiffRepoId,
-  refDiffTasks,
-  refDiffPairs,
+  refDiffTasks = [],
+  refDiffPairs = [],
   sourceId,
-  tasks,
-  tasksAdvanced,
+  tasks = [],
+  tasksAdvanced = [],
   advancedMode
 }) {
   const [errors, setErrors] = useState([])
