@@ -422,7 +422,25 @@ const ProviderSettings = (props) => {
               )}
               placement='top-center'
             >
-              <Button icon='menu' text='Choose Tasks' disabled={isRunning || !isEnabled(providerId)} />
+              <ButtonGroup disabled={isRunning || !isEnabled(providerId)}>
+                <Button
+                  disabled={isRunning || !isEnabled(providerId)}
+                  icon='menu'
+                  // text='Choose Tasks'
+                  text={refDiffTasks.length > 0
+                    ? <>Choose Tasks <Tag intent={Intent.PRIMARY} round>{refDiffTasks.length}</Tag></>
+                    : 'Choose Tasks'}
+                />
+                <Button
+                  icon='eraser'
+                  // text={refDiffTasks.length > 0
+                  //   ? <><Tag intent={Intent.PRIMARY} round>{refDiffTasks.length}</Tag></>
+                  //   : ''}
+                  intent={Intent.WARNING}
+                  disabled={isRunning || !isEnabled(providerId) || refDiffTasks.length === 0}
+                  onClick={() => setRefDiffTasks([])}
+                />
+              </ButtonGroup>
             </Popover>
           </FormGroup>
           <div style={{ display: 'flex', flex: 1, width: '100%' }}>
