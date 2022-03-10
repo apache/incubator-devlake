@@ -43,8 +43,9 @@ func (rd RefDiff) Execute(options map[string]interface{}, progress chan<- float3
 	tasksToRun := make(map[string]bool, len(op.Tasks))
 	if len(op.Tasks) == 0 {
 		tasksToRun = map[string]bool{
-			"calculateCommitsDiff": true,
-			"calculateIssuesDiff":  true,
+			"calculateCommitsDiff":  true,
+			"calculateIssuesDiff":   true,
+			"calculatePrCherryPick": true,
 		}
 	} else {
 		for _, task := range op.Tasks {
@@ -77,7 +78,17 @@ func (rd RefDiff) Execute(options map[string]interface{}, progress chan<- float3
 			}
 		}
 	}
-
+	if tasksToRun["calculatePrCherryPick"] {
+		progress <- 0.8
+		fmt.Println("INFO >>> starting calculatePrCherryPick")
+		err = tasks.CalculatePrCherryPick(ctx, op.Pairs, progress, op.RepoId)
+		if err != nil {
+			return &errors.SubTaskError{
+				Message:     fmt.Errorf("could not process calculatePrCherryPick: %v", err).Error(),
+				SubTaskName: "calculatePrCherryPick",
+			}
+		}
+	}
 	return nil
 }
 
@@ -117,8 +128,9 @@ func main() {
 					},
 				},
 				"tasks": []string{
-					"calculateCommitsDiff",
-					"calculateIssuesDiff",
+					//"calculateCommitsDiff",
+					//"calculateIssuesDiff",
+					"calculatePrCherryPick",
 				},
 			},
 			progress,
