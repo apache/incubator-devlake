@@ -3,11 +3,9 @@ package utils
 import (
 	"context"
 	"fmt"
-	"github.com/merico-dev/lake/errors"
 	"sync"
 	"time"
 
-	"github.com/merico-dev/lake/logger"
 	"github.com/panjf2000/ants/v2"
 )
 
@@ -54,7 +52,7 @@ func NewWorkerScheduler(workerNum int, maxWorkEverySeconds int, ctx context.Cont
 func (s *WorkerScheduler) Submit(task func() error) error {
 	select {
 	case <-s.ctx.Done():
-		return errors.TaskCanceled
+		return s.ctx.Err()
 	default:
 	}
 	s.waitGroup.Add(1)
@@ -68,7 +66,7 @@ func (s *WorkerScheduler) Submit(task func() error) error {
 		}()
 		select {
 		case <-s.ctx.Done():
-			logger.Error("task got canceled", errors.TaskCanceled)
+			panic(s.ctx.Err())
 		default:
 		}
 		if s.ticker != nil {
