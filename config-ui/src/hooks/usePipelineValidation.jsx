@@ -111,6 +111,10 @@ function usePipelineValidation ({
       errs.push('RefDiff: Please select at least ONE (1) Plugin Task')
     }
 
+    if (enabledProviders.includes(Providers.REFDIFF) && refDiffPairs.length === 0) {
+      errs.push('RefDiff: Please enter at least ONE (1) Tag Ref Pair')
+    }
+
     if (enabledProviders.length === 0) {
       errs.push('Pipeline: Invalid/Empty Configuration')
     }
