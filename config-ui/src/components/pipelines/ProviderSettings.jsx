@@ -469,7 +469,7 @@ const ProviderSettings = (props) => {
                 <div>
                   <InputGroup
                     id='refdiff-pair-newref'
-                    round='true'
+                    // round='true'
                     leftElement={(
                       <Tag
                         intent={Intent.WARNING} style={{
@@ -492,7 +492,7 @@ const ProviderSettings = (props) => {
                   {/* <label>Old Ref</label> */}
                   <InputGroup
                     id='refdiff-pair-oldref'
-                    round='true'
+                    // round='true'
                     leftElement={(
                       <Tag
                         style={{
@@ -511,6 +511,7 @@ const ProviderSettings = (props) => {
                     rightElement={(
                       <Tooltip content='Add Tag Pair'>
                         <Button
+                          className='btn-add-tagpair'
                           intent={Intent.PRIMARY}
                           disabled={!refDiffOldTag || !refDiffNewTag || refDiffOldTag === refDiffNewTag}
                           icon='plus'
@@ -546,13 +547,14 @@ const ProviderSettings = (props) => {
                 {refDiffPairs.map((pair, pairIdx) => (
                   <div key={`refdiff-added-pairs-itemkey-$${pairIdx}`} style={{ display: 'flex' }}>
                     <div style={{ flex: 1 }}>
-                      <Tag intent={Intent.WARNING} round='true' small>new</Tag> {pair.newRef}
+                      <Tag intent={Intent.WARNING} round='false' small>new</Tag> {pair.newRef}
                     </div>
                     <div style={{ flex: 1, marginLeft: '10px', marginRight: '10px' }}>
-                      <Tag round='true' small>old</Tag> {pair.oldRef}
+                      <Tag round='false' small>old</Tag> {pair.oldRef}
                     </div>
                     <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
                       <Button
+                        className='btn-remove-tagpair'
                         icon='remove'
                         minimal
                         small
