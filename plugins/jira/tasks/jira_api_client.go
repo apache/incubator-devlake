@@ -72,9 +72,9 @@ func (jiraApiClient *JiraApiClient) FetchPages(path string, query *url.Values, h
 
 	// 获取issue总数
 	// get issue count
-	pageQuery := &url.Values{}
+	pageQuery := url.Values{}
 	for key, value := range *query {
-		(*pageQuery)[key] = value
+		pageQuery[key] = value
 	}
 	pageQuery.Set("maxResults", "0")
 	// make a call to the api just to get the paging details
@@ -97,7 +97,7 @@ func (jiraApiClient *JiraApiClient) FetchPages(path string, query *url.Values, h
 		}
 		queryCopy.Set("maxResults", strconv.Itoa(pageSize))
 		queryCopy.Set("startAt", strconv.Itoa(nextStartTmp))
-		err = jiraApiClient.GetAsync(path, &queryCopy, nil, handler)
+		err = jiraApiClient.GetAsync(path, queryCopy, nil, handler)
 		if err != nil {
 			return err
 		}
@@ -115,13 +115,13 @@ func (jiraApiClient *JiraApiClient) FetchPages(path string, query *url.Values, h
 // us whether or not to continue making requests. This is why we created JiraSearchPaginationHandler.
 func (jiraApiClient *JiraApiClient) FetchWithoutPaginationHeaders(
 	path string,
-	query *url.Values,
+	query url.Values,
 	handler JiraSearchPaginationHandler,
 ) error {
 	// this method is sequential, data would be collected page by page
 	// because all collectors using this method do not contains many records.
 	if query == nil {
-		query = &url.Values{}
+		query = url.Values{}
 	}
 	// these are the names from the jira search api for pagination
 	// eg: https://merico.atlassian.net/rest/api/2/user/assignable/search?project=EE&maxResults=100&startAt=1
