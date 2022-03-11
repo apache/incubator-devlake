@@ -19,33 +19,6 @@ type GithubApiParams struct {
 
 var _ core.SubTaskEntryPoint = CollectApiIssues
 
-const BatchSize = 100
-
-type ApiIssuesResponse []IssuesResponse
-
-type IssuesResponse struct {
-	GithubId    int `json:"id"`
-	Number      int
-	State       string
-	Title       string
-	Body        string
-	PullRequest struct {
-		Url     string `json:"url"`
-		HtmlUrl string `json:"html_url"`
-	} `json:"pull_request"`
-	Labels []struct {
-		Name string `json:"name"`
-	} `json:"labels"`
-
-	Assignee *struct {
-		Login string
-		Id    int
-	}
-	ClosedAt        *core.Iso8601Time `json:"closed_at"`
-	GithubCreatedAt core.Iso8601Time  `json:"created_at"`
-	GithubUpdatedAt core.Iso8601Time  `json:"updated_at"`
-}
-
 func CollectApiIssues(taskCtx core.SubTaskContext) error {
 	db := taskCtx.GetDb()
 	data := taskCtx.GetData().(*GithubTaskData)
