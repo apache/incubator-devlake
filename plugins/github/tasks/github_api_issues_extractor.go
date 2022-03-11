@@ -2,6 +2,8 @@ package tasks
 
 import (
 	"encoding/json"
+	"github.com/merico-dev/lake/models/domainlayer/ticket"
+	"regexp"
 
 	"github.com/merico-dev/lake/plugins/core"
 	"github.com/merico-dev/lake/plugins/github/models"
@@ -9,8 +11,6 @@ import (
 )
 
 var _ core.SubTaskEntryPoint = ExtractApiIssues
-
-const BatchSize = 100
 
 type ApiIssuesResponse []IssuesResponse
 
@@ -39,6 +39,36 @@ type IssuesResponse struct {
 
 func ExtractApiIssues(taskCtx core.SubTaskContext) error {
 	data := taskCtx.GetData().(*GithubTaskData)
+	var issueSeverityRegex *regexp.Regexp
+	var issueComponentRegex *regexp.Regexp
+	var issuePriorityRegex *regexp.Regexp
+	var issueTypeBugRegex *regexp.Regexp
+	var issueTypeRequirementRegex *regexp.Regexp
+	var issueTypeIncidentRegex *regexp.Regexp
+	var issueSeverity = taskCtx.GetConfig("GITHUB_ISSUE_SEVERITY")
+	var issueComponent = taskCtx.GetConfig("GITHUB_ISSUE_COMPONENT")
+	var issuePriority = taskCtx.GetConfig("GITHUB_ISSUE_PRIORITY")
+	var issueTypeBug = taskCtx.GetConfig("GITHUB_ISSUE_TYPE_BUG")
+	var issueTypeRequirement = taskCtx.GetConfig("GITHUB_ISSUE_TYPE_REQUIREMENT")
+	var issueTypeIncident = taskCtx.GetConfig("GITHUB_ISSUE_TYPE_INCIDENT")
+	if len(issueSeverity) > 0 {
+		issueSeverityRegex = regexp.MustCompile(issueSeverity)
+	}
+	if len(issueComponent) > 0 {
+		issueComponentRegex = regexp.MustCompile(issueComponent)
+	}
+	if len(issuePriority) > 0 {
+		issuePriorityRegex = regexp.MustCompile(issuePriority)
+	}
+	if len(issueTypeBug) > 0 {
+		issueTypeBugRegex = regexp.MustCompile(issueTypeBug)
+	}
+	if len(issueTypeRequirement) > 0 {
+		issueTypeRequirementRegex = regexp.MustCompile(issueTypeRequirement)
+	}
+	if len(issueTypeIncident) > 0 {
+		issueTypeIncidentRegex = regexp.MustCompile(issueTypeIncident)
+	}
 
 	extractor, err := helper.NewApiExtractor(helper.ApiExtractorArgs{
 		RawDataSubTaskArgs: helper.RawDataSubTaskArgs{
@@ -76,14 +106,52 @@ func ExtractApiIssues(taskCtx core.SubTaskContext) error {
 				if err != nil {
 					return nil, err
 				}
-				results = append(results, githubIssue)
 				for _, label := range apiIssue.Labels {
 					results = append(results, &models.GithubIssueLabel{
 						IssueId:   githubIssue.GithubId,
 						LabelName: label.Name,
 					})
+					if issueSeverityRegex != nil {
+						groups := issueSeverityRegex.FindStringSubmatch(label.Name)
+						if len(groups) > 0 {
+							githubIssue.Severity = groups[1]
+						}
+					}
 
+					if issueComponentRegex != nil {
+						groups := issueComponentRegex.FindStringSubmatch(label.Name)
+						if len(groups) > 0 {
+							githubIssue.Component = groups[1]
+						}
+					}
+
+					if issuePriorityRegex != nil {
+						groups := issuePriorityRegex.FindStringSubmatch(label.Name)
+						if len(groups) > 0 {
+							githubIssue.Priority = groups[1]
+						}
+					}
+
+					if issueTypeBugRegex != nil {
+						if ok := issueTypeBugRegex.MatchString(label.Name); ok {
+							githubIssue.Type = ticket.BUG
+						}
+					}
+
+					if issueTypeRequirementRegex != nil {
+						if ok := issueTypeRequirementRegex.MatchString(label.Name); ok {
+							githubIssue.Type = ticket.REQUIREMENT
+						}
+					}
+
+					if issueTypeIncidentRegex != nil {
+						if ok := issueTypeIncidentRegex.MatchString(label.Name); ok {
+							githubIssue.Type = ticket.INCIDENT
+						}
+					}
 				}
+				results = append(results, githubIssue)
+
 			}
 			return results, nil
 		},

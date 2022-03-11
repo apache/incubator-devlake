@@ -2,8 +2,6 @@ package tasks
 
 import (
 	"context"
-	"github.com/merico-dev/lake/errors"
-
 	lakeModels "github.com/merico-dev/lake/models"
 	"github.com/merico-dev/lake/models/domainlayer"
 	"github.com/merico-dev/lake/models/domainlayer/code"
@@ -25,7 +23,7 @@ func ConvertPullRequests(ctx context.Context, repoId int) error {
 	for cursor.Next() {
 		select {
 		case <-ctx.Done():
-			return errors.TaskCanceled
+			return ctx.Err()
 		default:
 		}
 		err = lakeModels.Db.ScanRows(cursor, pr)
