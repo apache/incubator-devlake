@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"github.com/merico-dev/lake/config"
-	"github.com/merico-dev/lake/errors"
 	lakeModels "github.com/merico-dev/lake/models"
 	githubModels "github.com/merico-dev/lake/plugins/github/models"
 	"gorm.io/gorm/clause"
@@ -45,7 +44,7 @@ func EnrichPullRequestIssues(ctx context.Context, repoId int, owner string, repo
 	for cursor.Next() {
 		select {
 		case <-ctx.Done():
-			return errors.TaskCanceled
+			return ctx.Err()
 		default:
 		}
 		err = lakeModels.Db.ScanRows(cursor, githubPullRequst)

@@ -37,7 +37,7 @@ type GitlabApiCommit struct {
 
 func CollectCommits(ctx context.Context, projectId int, gitlabApiClient *GitlabApiClient) error {
 	relativePath := fmt.Sprintf("projects/%v/repository/commits", projectId)
-	queryParams := &url.Values{}
+	queryParams := url.Values{}
 	queryParams.Set("with_stats", "true")
 	gitlabUser := &models.GitlabUser{}
 	return gitlabApiClient.FetchWithPaginationAnts(relativePath, queryParams, 100,

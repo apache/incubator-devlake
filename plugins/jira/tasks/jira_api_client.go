@@ -64,16 +64,16 @@ type JiraPagination struct {
 type JiraPaginationHandler func(res *http.Response) error
 type JiraSearchPaginationHandler func(res *http.Response) (int, error)
 
-func (jiraApiClient *JiraApiClient) FetchPages(path string, query *url.Values, handler JiraPaginationHandler) error {
+func (jiraApiClient *JiraApiClient) FetchPages(path string, query url.Values, handler JiraPaginationHandler) error {
 	if query == nil {
-		query = &url.Values{}
+		query = url.Values{}
 	}
 	nextStart, pageSize := 0, 100
 
 	// 获取issue总数
 	// get issue count
 	pageQuery := url.Values{}
-	for key, value := range *query {
+	for key, value := range query {
 		pageQuery[key] = value
 	}
 	pageQuery.Set("maxResults", "0")
@@ -92,7 +92,7 @@ func (jiraApiClient *JiraApiClient) FetchPages(path string, query *url.Values, h
 	for nextStart < total {
 		nextStartTmp := nextStart
 		queryCopy := url.Values{}
-		for key, value := range *query {
+		for key, value := range query {
 			queryCopy[key] = value
 		}
 		queryCopy.Set("maxResults", strconv.Itoa(pageSize))

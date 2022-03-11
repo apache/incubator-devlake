@@ -114,7 +114,7 @@ func CollectIssues(
 		jql = fmt.Sprintf("updated >= '%v' %v", since.Format("2006/01/02 15:04"), jql)
 	}
 
-	query := &url.Values{}
+	query := url.Values{}
 	query.Set("jql", jql)
 
 	err := jiraApiClient.FetchPages(fmt.Sprintf("agile/1.0/board/%v/issue", boardId), query,

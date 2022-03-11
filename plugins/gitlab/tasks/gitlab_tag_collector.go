@@ -28,7 +28,7 @@ type GitlabApiTag struct {
 
 func CollectTags(ctx context.Context, projectId int, gitlabApiClient *GitlabApiClient) error {
 	relativePath := fmt.Sprintf("projects/%v/repository/tags", projectId)
-	queryParams := &url.Values{}
+	queryParams := url.Values{}
 	queryParams.Set("with_stats", "true")
 	return gitlabApiClient.FetchWithPaginationAnts(relativePath, queryParams, 100,
 		func(res *http.Response) error {
