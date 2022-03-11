@@ -70,8 +70,8 @@ func CollectApiChangelogs(taskCtx core.SubTaskContext) error {
 		Incremental: incremental,
 		Input:       iterator,
 		UrlTemplate: "api/3/issue/{{ .Input.IssueId }}/changelog",
-		Query: func(pager *helper.Pager) (*url.Values, error) {
-			query := &url.Values{}
+		Query: func(pager *helper.Pager) (url.Values, error) {
+			query := url.Values{}
 			query.Set("startAt", fmt.Sprintf("%v", pager.Skip))
 			query.Set("maxResults", fmt.Sprintf("%v", pager.Size))
 			return query, nil
