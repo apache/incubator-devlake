@@ -10,6 +10,36 @@ import (
 
 var _ core.SubTaskEntryPoint = ExtractApiPullRequests
 
+type ApiPullRequestResponse []GithubApiPullRequest
+
+type GithubApiPullRequest struct {
+	GithubId int `json:"id"`
+	Number   int
+	State    string
+	Title    string
+	Body     string
+	Labels   []struct {
+		Name string `json:"name"`
+	} `json:"labels"`
+	Assignee *struct {
+		Login string
+		Id    int
+	}
+	ClosedAt        *core.Iso8601Time `json:"closed_at"`
+	MergedAt        *core.Iso8601Time `json:"merged_at"`
+	GithubCreatedAt core.Iso8601Time  `json:"created_at"`
+	GithubUpdatedAt core.Iso8601Time  `json:"updated_at"`
+	MergeCommitSha  string            `json:"merge_commit_sha"`
+	Head            struct {
+		Ref string
+		Sha string
+	}
+	Base struct {
+		Ref string
+		Sha string
+	}
+}
+
 func ExtractApiPullRequests(taskCtx core.SubTaskContext) error {
 	data := taskCtx.GetData().(*GithubTaskData)
 
@@ -35,7 +65,7 @@ func ExtractApiPullRequests(taskCtx core.SubTaskContext) error {
 			if err != nil {
 				return nil, err
 			}
-			// need to extract 3 kinds of entities here
+			// need to extract 2 kinds of entities here
 			results := make([]interface{}, 0, len(*body)*2)
 			for _, apiPullRequest := range *body {
 				if apiPullRequest.GithubId == 0 {
