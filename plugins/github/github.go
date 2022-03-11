@@ -151,10 +151,10 @@ func (plugin Github) Execute(options map[string]interface{}, progress chan<- flo
 		name       string
 		entryPoint core.SubTaskEntryPoint
 	}{
-		{name: "collectApiIssues", entryPoint: tasks.CollectApiIssues},
+		//{name: "collectApiIssues", entryPoint: tasks.CollectApiIssues},
 		{name: "extractApiIssues", entryPoint: tasks.ExtractApiIssues},
-		{name: "collectApiPullRequests", entryPoint: tasks.CollectApiPullRequests},
-		{name: "extractApiPullRequests", entryPoint: tasks.ExtractApiPullRequests},
+		//{name: "collectApiPullRequests", entryPoint: tasks.CollectApiPullRequests},
+		//{name: "extractApiPullRequests", entryPoint: tasks.ExtractApiPullRequests},
 	}
 	for _, t := range newTasks {
 		c, err := taskCtx.SubTaskContext(t.name)
@@ -251,17 +251,6 @@ func (plugin Github) Execute(options map[string]interface{}, progress chan<- flo
 		}
 	}
 
-	if tasksToRun["enrichIssues"] {
-		progress <- 0.6
-		fmt.Println("INFO >>> Enriching Issues")
-		err = tasks.EnrichIssues(ctx, repoId)
-		if err != nil {
-			return &errors.SubTaskError{
-				Message:     fmt.Errorf("could not enrich issues: %v", err).Error(),
-				SubTaskName: "enrichIssues",
-			}
-		}
-	}
 	if tasksToRun["enrichPullRequests"] {
 		progress <- 0.65
 		fmt.Println("INFO >>> Enriching PullRequests")
@@ -437,8 +426,8 @@ var PluginEntry Github //nolint
 // standalone mode for debugging
 func main() {
 	args := os.Args[1:]
-	owner := "tikv"
-	repo := "pd"
+	owner := "pingcap"
+	repo := "tidb"
 	if len(args) > 0 {
 		owner = args[0]
 	}
@@ -462,10 +451,11 @@ func main() {
 					//"collectRepo",
 					//"collectCommits",
 					//"collectCommitsStat",
-					"collectApiIssues",
+					//"collectApiIssues",
 					"extractApiIssues",
-					"collectApiPullRequests",
-					"extractApiPullRequests",
+					//"collectApiPullRequests",
+					//"extractApiPullRequests",
+					//"enrichApiIssues",
 					//"collectIssueEvents",
 					//"collectIssueComments",
 					//"collectPullRequests",

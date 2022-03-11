@@ -2,8 +2,6 @@ package tasks
 
 import (
 	"context"
-	"github.com/merico-dev/lake/errors"
-
 	lakeModels "github.com/merico-dev/lake/models"
 	"github.com/merico-dev/lake/models/domainlayer/didgen"
 	"github.com/merico-dev/lake/models/domainlayer/user"
@@ -26,7 +24,7 @@ func ConvertUsers(ctx context.Context) error {
 	for cursor.Next() {
 		select {
 		case <-ctx.Done():
-			return errors.TaskCanceled
+			return ctx.Err()
 		default:
 		}
 		err = lakeModels.Db.ScanRows(cursor, githubUser)

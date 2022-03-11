@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"github.com/cayleygraph/cayley"
 	"github.com/cayleygraph/quad"
-	"github.com/merico-dev/lake/errors"
 	"github.com/merico-dev/lake/logger"
 	"github.com/merico-dev/lake/models"
 	"github.com/merico-dev/lake/models/domainlayer/code"
@@ -65,7 +64,7 @@ func CalculateCommitsDiff(ctx context.Context, pairs []RefPair, repoId string, p
 	for cursor.Next() {
 		select {
 		case <-ctx.Done():
-			return errors.TaskCanceled
+			return ctx.Err()
 		default:
 		}
 		err = models.Db.ScanRows(cursor, commitParent)
@@ -85,7 +84,7 @@ func CalculateCommitsDiff(ctx context.Context, pairs []RefPair, repoId string, p
 	for i, pair := range commitPairs {
 		select {
 		case <-ctx.Done():
-			return errors.TaskCanceled
+			return ctx.Err()
 		default:
 		}
 		// ref might advance, keep commit sha for debugging
