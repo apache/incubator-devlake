@@ -64,7 +64,7 @@ const RefDiffSettings = (props) => {
         labelFor='refdiff-repo-id'
         className=''
         contentClassName=''
-        style={{ minWidth: '280px', marginBottom: 'auto' }}
+        style={{ minWidth: '280px', marginBottom: 'auto', whiteSpace: 'nowrap' }}
         fill
       >
         <InputGroup
@@ -97,7 +97,7 @@ const RefDiffSettings = (props) => {
         labelFor='refdiff-tasks'
         className=''
         contentClassName=''
-        style={{ marginLeft: '12px', marginRight: '12px', marginBottom: 'auto' }}
+        style={{ marginLeft: '12px', marginRight: '12px', marginBottom: 'auto', whiteSpace: 'nowrap' }}
         fill
       >
 
@@ -113,16 +113,12 @@ const RefDiffSettings = (props) => {
             <Button
               disabled={isRunning || !isEnabled(providerId)}
               icon='menu'
-              // text='Choose Tasks'
               text={tasks.length > 0
                 ? <>Choose Tasks <Tag intent={Intent.PRIMARY} round>{tasks.length}</Tag></>
                 : 'Choose Tasks'}
             />
             <Button
               icon='eraser'
-              // text={refDiffTasks.length > 0
-              //   ? <><Tag intent={Intent.PRIMARY} round>{refDiffTasks.length}</Tag></>
-              //   : ''}
               intent={Intent.WARNING}
               disabled={isRunning || !isEnabled(providerId) || tasks.length === 0}
               onClick={() => setTasks([])}
@@ -149,14 +145,13 @@ const RefDiffSettings = (props) => {
           labelFor='refdiff-pair-newref'
           className=''
           contentClassName=''
-          style={{ minWidth: '588px', marginBottom: 'auto' }}
+          style={{ minWidth: '582px', marginBottom: 'auto' }}
           fill={false}
         >
           <div style={{ display: 'flex' }}>
             <div>
               <InputGroup
                 id='refdiff-pair-newref'
-                // round='true'
                 leftElement={(
                   <Tag
                     intent={Intent.WARNING} style={{
@@ -174,11 +169,9 @@ const RefDiffSettings = (props) => {
                 fill={false}
               />
             </div>
-            <div style={{ marginLeft: '10px', marginRight: '10px' }}>
-              {/* <label>Old Ref</label> */}
+            <div style={{ marginLeft: '10px', marginRight: 0 }}>
               <InputGroup
                 id='refdiff-pair-oldref'
-                // round='true'
                 leftElement={(
                   <Tag
                     style={{
