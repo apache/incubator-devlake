@@ -153,8 +153,8 @@ func (plugin Github) Execute(options map[string]interface{}, progress chan<- flo
 	}{
 		{name: "collectApiIssues", entryPoint: tasks.CollectApiIssues},
 		{name: "extractApiIssues", entryPoint: tasks.ExtractApiIssues},
-		//{name: "collectApiPullRequests", entryPoint: tasks.CollectApiPullRequests},
-		//{name: "extractApiPullRequests", entryPoint: tasks.ExtractApiPullRequests},
+		{name: "collectApiPullRequests", entryPoint: tasks.CollectApiPullRequests},
+		{name: "extractApiPullRequests", entryPoint: tasks.ExtractApiPullRequests},
 	}
 	for _, t := range newTasks {
 		c, err := taskCtx.SubTaskContext(t.name)
@@ -223,17 +223,6 @@ func (plugin Github) Execute(options map[string]interface{}, progress chan<- flo
 			return &errors.SubTaskError{
 				Message:     fmt.Errorf("Could not collect Issue Comments: %v", err).Error(),
 				SubTaskName: "collectIssueComments",
-			}
-		}
-	}
-	if tasksToRun["collectPullRequests"] {
-		progress <- 0.28
-		fmt.Println("INFO >>> collecting PR collection")
-		err = tasks.CollectPullRequests(op.Owner, op.Repo, repoId, apiClient)
-		if err != nil {
-			return &errors.SubTaskError{
-				Message:     fmt.Errorf("Could not collect PR: %v", err).Error(),
-				SubTaskName: "collectPullRequests",
 			}
 		}
 	}
@@ -479,7 +468,7 @@ func main() {
 					"extractApiPullRequests",
 					//"collectIssueEvents",
 					//"collectIssueComments",
-					"collectPullRequests",
+					//"collectPullRequests",
 					//"collectPullRequestReviews",
 					//"collectPullRequestCommits",
 					//"enrichIssues",
@@ -489,7 +478,7 @@ func main() {
 					//"convertRepos",
 					//"convertIssues",
 					//"convertIssueLabels",
-					"convertPullRequests",
+					//"convertPullRequests",
 					//"convertCommits",
 					//"convertPullRequestCommits",
 					//"convertPullRequestLabels",

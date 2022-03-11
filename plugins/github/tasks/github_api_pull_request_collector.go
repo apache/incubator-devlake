@@ -9,26 +9,23 @@ import (
 	"github.com/merico-dev/lake/plugins/github/models"
 )
 
-const RAW_ISSUE_TABLE = "github_api_issues"
+const RAW_PULL_REQUEST_TABLE = "github_api_pull_requests"
 
 // this struct should be moved to `gitub_api_common.go`
-type GithubApiParams struct {
-	Owner string
-	Repo  string
-}
 
-var _ core.SubTaskEntryPoint = CollectApiIssues
+var _ core.SubTaskEntryPoint = CollectApiPullRequests
 
-func CollectApiIssues(taskCtx core.SubTaskContext) error {
+func CollectApiPullRequests(taskCtx core.SubTaskContext) error {
 	db := taskCtx.GetDb()
 	data := taskCtx.GetData().(*GithubTaskData)
 
 	since := data.Since
 	incremental := false
 	// user didn't specify a time range to sync, try load from database
+	// actually, for github pull, since doesn't make any sense, github pull api doesn't support it
 	if since == nil {
-		var latestUpdated models.GithubIssue
-		err := db.Model(&latestUpdated).Joins("left join github_repos on github_issues.repo_id = github_repos.github_id").
+		var latestUpdated models.GithubPullRequest
+		err := db.Model(&latestUpdated).Joins("left join github_repos on github_pull_requests.repo_id = github_repos.github_id").
 			Where("github_repos.`name` = ? and github_repos.owner_login = ?", data.Options.Repo, data.Options.Owner).
 			Order("github_updated_at DESC").Limit(1).Find(&latestUpdated).Error
 		if err != nil {
@@ -54,7 +51,7 @@ func CollectApiIssues(taskCtx core.SubTaskContext) error {
 			/*
 				Table store raw data
 			*/
-			Table: RAW_ISSUE_TABLE,
+			Table: RAW_PULL_REQUEST_TABLE,
 		},
 		ApiClient:   data.ApiClient,
 		PageSize:    100,
@@ -68,7 +65,7 @@ func CollectApiIssues(taskCtx core.SubTaskContext) error {
 			avoid duplicate logic for every tasks, and when we have a better idea like improving performance, we can
 			do it in one place
 		*/
-		UrlTemplate: "repos/{{ .Params.Owner }}/{{ .Params.Repo }}/issues",
+		UrlTemplate: "repos/{{ .Params.Owner }}/{{ .Params.Repo }}/pulls",
 		/*
 			(Optional) Return query string for request, or you can plug them into UrlTemplate directly
 		*/
@@ -78,8 +75,8 @@ func CollectApiIssues(taskCtx core.SubTaskContext) error {
 			if since != nil {
 				query.Set("since", since.String())
 			}
-			query.Set("direction", "asc")
 			query.Set("page", fmt.Sprintf("%v", pager.Page))
+			query.Set("direction", "asc")
 			query.Set("per_page", fmt.Sprintf("%v", pager.Size))
 
 			return query, nil
