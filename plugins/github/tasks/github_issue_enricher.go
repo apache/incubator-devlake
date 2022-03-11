@@ -2,7 +2,6 @@ package tasks
 
 import (
 	"context"
-	"github.com/merico-dev/lake/errors"
 	"regexp"
 
 	"github.com/merico-dev/lake/config"
@@ -57,7 +56,7 @@ func EnrichIssues(ctx context.Context, repoId int) (err error) {
 	for cursor.Next() {
 		select {
 		case <-ctx.Done():
-			return errors.TaskCanceled
+			return ctx.Err()
 		default:
 		}
 		err = lakeModels.Db.ScanRows(cursor, githubIssue)

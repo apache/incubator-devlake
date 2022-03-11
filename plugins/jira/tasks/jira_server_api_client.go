@@ -25,7 +25,7 @@ func NewServerVersion8(db *gorm.DB, client *JiraApiClient) *ServerVersion8 {
 	return &ServerVersion8{db: db, client: client}
 }
 
-func (v8 *ServerVersion8) FetchPages(path string, query *url.Values, handler JiraSearchPaginationHandler) error {
+func (v8 *ServerVersion8) FetchPages(path string, query url.Values, handler JiraSearchPaginationHandler) error {
 	f := func(resp *http.Response) error {
 		_, err := handler(resp)
 		return err
@@ -114,7 +114,7 @@ func (v8 *ServerVersion8) CollectIssues(
 	handler := func(resp *http.Response) (int, error) {
 		return 0, v8.issueHandle(ctx, boardId, source, resp)
 	}
-	err := v8.FetchPages(fmt.Sprintf("agile/1.0/board/%d/issue", boardId), &query, handler)
+	err := v8.FetchPages(fmt.Sprintf("agile/1.0/board/%d/issue", boardId), query, handler)
 	if err != nil {
 		logger.Error("collect issue", err)
 	}

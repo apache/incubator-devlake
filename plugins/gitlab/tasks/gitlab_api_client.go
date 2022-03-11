@@ -35,7 +35,7 @@ func CreateApiClient(scheduler *utils.WorkerScheduler) *GitlabApiClient {
 
 type GitlabPaginationHandler func(res *http.Response) error
 
-func (gitlabApiClient *GitlabApiClient) getTotal(path string, queryParams *url.Values) (totalInt int, rateLimitPerSecond int, err error) {
+func (gitlabApiClient *GitlabApiClient) getTotal(path string, queryParams url.Values) (totalInt int, rateLimitPerSecond int, err error) {
 	// just get the first page of results. The response has a head that tells the total pages
 	queryParams.Set("page", "0")
 	queryParams.Set("per_page", "1")
@@ -86,10 +86,10 @@ func convertStringToInt(input string) (int, error) {
 }
 
 // run all requests in an Ants worker pool
-func (gitlabApiClient *GitlabApiClient) FetchWithPaginationAnts(path string, queryParams *url.Values, pageSize int, handler GitlabPaginationHandler) error {
+func (gitlabApiClient *GitlabApiClient) FetchWithPaginationAnts(path string, queryParams url.Values, pageSize int, handler GitlabPaginationHandler) error {
 	// We need to get the total pages first so we can loop through all requests concurrently
 	if queryParams == nil {
-		queryParams = &url.Values{}
+		queryParams = url.Values{}
 	}
 	total, _, err := gitlabApiClient.getTotal(path, queryParams)
 	if err != nil {
@@ -106,13 +106,13 @@ func (gitlabApiClient *GitlabApiClient) FetchWithPaginationAnts(path string, que
 			for i := conc; i > 0; i-- {
 				page := step*conc + i
 				queryCopy := url.Values{}
-				for k, v := range *queryParams {
+				for k, v := range queryParams {
 					queryCopy[k] = v
 				}
 				queryCopy.Set("page", strconv.Itoa(page))
 				queryCopy.Set("per_page", strconv.Itoa(pageSize))
 
-				err = gitlabApiClient.GetAsync(path, &queryCopy, nil, handler)
+				err = gitlabApiClient.GetAsync(path, queryCopy, nil, handler)
 				if err != nil {
 					return err
 				}
@@ -131,14 +131,14 @@ func (gitlabApiClient *GitlabApiClient) FetchWithPaginationAnts(path string, que
 			// we need to save the value for the request so it is not overwritten
 			currentPage := i
 			queryCopy := url.Values{}
-			for k, v := range *queryParams {
+			for k, v := range queryParams {
 				queryCopy[k] = v
 
 			}
 			queryCopy.Set("page", strconv.Itoa(currentPage))
 			queryCopy.Set("per_page", strconv.Itoa(pageSize))
 
-			err = gitlabApiClient.GetAsync(path, &queryCopy, nil, handler)
+			err = gitlabApiClient.GetAsync(path, queryCopy, nil, handler)
 
 			if err != nil {
 				return err
@@ -151,9 +151,9 @@ func (gitlabApiClient *GitlabApiClient) FetchWithPaginationAnts(path string, que
 }
 
 // fetch paginated without ANTS worker pool
-func (gitlabApiClient *GitlabApiClient) FetchWithPagination(path string, queryParams *url.Values, pageSize int, handler GitlabPaginationHandler) error {
+func (gitlabApiClient *GitlabApiClient) FetchWithPagination(path string, queryParams url.Values, pageSize int, handler GitlabPaginationHandler) error {
 	if queryParams == nil {
-		queryParams = &url.Values{}
+		queryParams = url.Values{}
 	}
 	// We need to get the total pages first so we can loop through all requests concurrently
 	total, _, _ := gitlabApiClient.getTotal(path, queryParams)
