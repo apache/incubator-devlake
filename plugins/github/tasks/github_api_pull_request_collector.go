@@ -15,36 +15,6 @@ const RAW_PULL_REQUEST_TABLE = "github_api_pull_requests"
 
 var _ core.SubTaskEntryPoint = CollectApiPullRequests
 
-type ApiPullRequestResponse []GithubApiPullRequest
-
-type GithubApiPullRequest struct {
-	GithubId int `json:"id"`
-	Number   int
-	State    string
-	Title    string
-	Body     string
-	Labels   []struct {
-		Name string `json:"name"`
-	} `json:"labels"`
-	Assignee *struct {
-		Login string
-		Id    int
-	}
-	ClosedAt        *core.Iso8601Time `json:"closed_at"`
-	MergedAt        *core.Iso8601Time `json:"merged_at"`
-	GithubCreatedAt core.Iso8601Time  `json:"created_at"`
-	GithubUpdatedAt core.Iso8601Time  `json:"updated_at"`
-	MergeCommitSha  string            `json:"merge_commit_sha"`
-	Head            struct {
-		Ref string
-		Sha string
-	}
-	Base struct {
-		Ref string
-		Sha string
-	}
-}
-
 func CollectApiPullRequests(taskCtx core.SubTaskContext) error {
 	db := taskCtx.GetDb()
 	data := taskCtx.GetData().(*GithubTaskData)

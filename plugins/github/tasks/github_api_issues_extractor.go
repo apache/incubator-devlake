@@ -10,6 +10,33 @@ import (
 
 var _ core.SubTaskEntryPoint = ExtractApiIssues
 
+const BatchSize = 100
+
+type ApiIssuesResponse []IssuesResponse
+
+type IssuesResponse struct {
+	GithubId    int `json:"id"`
+	Number      int
+	State       string
+	Title       string
+	Body        string
+	PullRequest struct {
+		Url     string `json:"url"`
+		HtmlUrl string `json:"html_url"`
+	} `json:"pull_request"`
+	Labels []struct {
+		Name string `json:"name"`
+	} `json:"labels"`
+
+	Assignee *struct {
+		Login string
+		Id    int
+	}
+	ClosedAt        *core.Iso8601Time `json:"closed_at"`
+	GithubCreatedAt core.Iso8601Time  `json:"created_at"`
+	GithubUpdatedAt core.Iso8601Time  `json:"updated_at"`
+}
+
 func ExtractApiIssues(taskCtx core.SubTaskContext) error {
 	data := taskCtx.GetData().(*GithubTaskData)
 
@@ -35,7 +62,7 @@ func ExtractApiIssues(taskCtx core.SubTaskContext) error {
 			if err != nil {
 				return nil, err
 			}
-			// need to extract 3 kinds of entities here
+			// need to extract 2 kinds of entities here
 			results := make([]interface{}, 0, len(*body)*2)
 			for _, apiIssue := range *body {
 				if apiIssue.GithubId == 0 {
