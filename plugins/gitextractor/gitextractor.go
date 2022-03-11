@@ -5,7 +5,7 @@ import (
 	"errors"
 	"strings"
 
-	"github.com/merico-dev/lake/logger"
+	"github.com/merico-dev/lake/plugins/helper"
 	lakeModels "github.com/merico-dev/lake/models"
 	"github.com/merico-dev/lake/plugins/core"
 	"github.com/merico-dev/lake/plugins/gitextractor/parser"
@@ -47,11 +47,13 @@ func (plugin GitExtractor) Description() string {
 }
 
 func (plugin GitExtractor) Init() {
-	logger.Info("INFO >>> init git extractor", true)
+	logger := helper.NewDefaultTaskLogger(nil, "git extractor")
+	logger.Info("INFO >>> init git extractor")
 }
 
 func (plugin GitExtractor) Execute(options map[string]interface{}, progress chan<- float32, ctx context.Context) error {
-	logger.Print("start gitlab plugin execution")
+	logger := helper.NewDefaultTaskLogger(nil, "git extractor")
+	logger.Info("INFO >>> start git extractor plugin execution")
 	var op GitExtractorOptions
 	err := mapstructure.Decode(options, &op)
 	if err != nil {
