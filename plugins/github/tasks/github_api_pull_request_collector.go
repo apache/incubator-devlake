@@ -69,8 +69,8 @@ func CollectApiPullRequests(taskCtx core.SubTaskContext) error {
 		/*
 			(Optional) Return query string for request, or you can plug them into UrlTemplate directly
 		*/
-		Query: func(pager *helper.Pager) (*url.Values, error) {
-			query := &url.Values{}
+		Query: func(pager *helper.Pager) (url.Values, error) {
+			query := url.Values{}
 			query.Set("state", "all")
 			if since != nil {
 				query.Set("since", since.String())
