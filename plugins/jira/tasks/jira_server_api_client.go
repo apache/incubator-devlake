@@ -32,7 +32,7 @@ func (v8 *ServerVersion8) FetchPages(path string, query *url.Values, handler Jir
 	}
 	return v8.client.FetchPages(path, query, f)
 }
-func (v8 *ServerVersion8) FetchWithoutPaginationHeaders(path string, query *url.Values, handler JiraSearchPaginationHandler) error {
+func (v8 *ServerVersion8) FetchWithoutPaginationHeaders(path string, query url.Values, handler JiraSearchPaginationHandler) error {
 	return v8.client.FetchWithoutPaginationHeaders(path, query, handler)
 }
 

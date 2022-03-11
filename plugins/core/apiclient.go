@@ -133,9 +133,9 @@ func (apiClient *ApiClient) logError(format string, a ...interface{}) {
 func (apiClient *ApiClient) Do(
 	method string,
 	path string,
-	query *url.Values,
+	query url.Values,
 	body interface{},
-	headers *url.Values,
+	headers http.Header,
 ) (*http.Response, error) {
 	uri, err := GetURIStringPointer(apiClient.endpoint, path, query)
 	if err != nil {
@@ -168,7 +168,7 @@ func (apiClient *ApiClient) Do(
 		}
 	}
 	if headers != nil {
-		for name, values := range *headers {
+		for name, values := range headers {
 			for _, value := range values {
 				req.Header.Add(name, value)
 			}
@@ -224,8 +224,8 @@ func (apiClient *ApiClient) Do(
 
 func (apiClient *ApiClient) Get(
 	path string,
-	query *url.Values,
-	headers *url.Values,
+	query url.Values,
+	headers http.Header,
 ) (*http.Response, error) {
 	return apiClient.Do("GET", path, query, nil, headers)
 }
@@ -243,7 +243,7 @@ func UnmarshalResponse(res *http.Response, v interface{}) error {
 	return nil
 }
 
-func GetURIStringPointer(baseUrl string, relativePath string, queryParams *url.Values) (*string, error) {
+func GetURIStringPointer(baseUrl string, relativePath string, query url.Values) (*string, error) {
 	// If the base URL doesn't end with a slash, and has a relative path attached
 	// the values will be removed by the Go package, therefore we need to add a missing slash.
 	AddMissingSlashToURL(&baseUrl)
@@ -257,9 +257,9 @@ func GetURIStringPointer(baseUrl string, relativePath string, queryParams *url.V
 	if err != nil {
 		return nil, err
 	}
-	if queryParams != nil {
+	if query != nil {
 		queryString := u.Query()
-		for key, value := range *queryParams {
+		for key, value := range query {
 			queryString.Set(key, strings.Join(value, ""))
 		}
 		u.RawQuery = queryString.Encode()
@@ -292,9 +292,9 @@ func RemoveStartingSlashFromPath(relativePath string) string {
 func (apiClient *ApiClient) DoAsync(
 	method string,
 	path string,
-	query *url.Values,
+	query url.Values,
 	body interface{},
-	header *url.Values,
+	header http.Header,
 	handler func(*http.Response) error,
 	retry int,
 ) error {
@@ -313,7 +313,7 @@ func (apiClient *ApiClient) DoAsync(
 	})
 }
 
-func (apiClient *ApiClient) GetAsync(path string, query *url.Values, header *url.Values, handler func(*http.Response) error) error {
+func (apiClient *ApiClient) GetAsync(path string, query url.Values, header http.Header, handler func(*http.Response) error) error {
 	return apiClient.DoAsync(http.MethodGet, path, query, nil, header, handler, 0)
 }
 
@@ -323,7 +323,7 @@ func (apiClient *ApiClient) WaitAsync() {
 }
 
 type AsyncApiClient interface {
-	GetAsync(path string, queryParams *url.Values, headerParams *url.Values, handler func(*http.Response) error) error
+	GetAsync(path string, query url.Values, header http.Header, handler func(*http.Response) error) error
 	WaitAsync()
 }
 
