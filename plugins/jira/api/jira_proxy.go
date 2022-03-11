@@ -35,7 +35,7 @@ func Proxy(input *core.ApiResourceInput) (*core.ApiResourceOutput, error) {
 	if err != nil {
 		return nil, err
 	}
-	resp, err := client.Get(input.Params["path"], &input.Query, nil)
+	resp, err := client.Get(input.Params["path"], input.Query, nil)
 	if err != nil {
 		return nil, err
 	}

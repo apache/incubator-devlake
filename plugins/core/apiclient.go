@@ -133,9 +133,9 @@ func (apiClient *ApiClient) logError(format string, a ...interface{}) {
 func (apiClient *ApiClient) Do(
 	method string,
 	path string,
-	query *url.Values,
-	body *map[string]interface{},
-	headers *url.Values,
+	query url.Values,
+	body interface{},
+	headers http.Header,
 ) (*http.Response, error) {
 	uri, err := GetURIStringPointer(apiClient.endpoint, path, query)
 	if err != nil {
@@ -168,7 +168,7 @@ func (apiClient *ApiClient) Do(
 		}
 	}
 	if headers != nil {
-		for name, values := range *headers {
+		for name, values := range headers {
 			for _, value := range values {
 				req.Header.Add(name, value)
 			}
@@ -176,48 +176,26 @@ func (apiClient *ApiClient) Do(
 	}
 
 	var res *http.Response
-	retry := 0
-	for {
-		// canceling check
-		if apiClient.ctx != nil {
-			select {
-			case <-apiClient.ctx.Done():
-				return nil, apiClient.ctx.Err()
-			default:
-			}
+	// canceling check
+	if apiClient.ctx != nil {
+		select {
+		case <-apiClient.ctx.Done():
+			return nil, apiClient.ctx.Err()
+		default:
 		}
-		// before send
-		if apiClient.beforeRequest != nil {
-			err = apiClient.beforeRequest(req)
-			if err != nil {
-				return nil, err
-			}
-		}
-		apiClient.logDebug("[api-client] %d %v %v", retry, method, *uri)
-		res, err = apiClient.client.Do(req)
-
-		// now, the problem is when caller reads res.Body, it could cause a timeout error
-		// we would like it to be retried as well, so we read it before returning,
-		// this is a temporary measure, until we find a better solution
-		if err == nil {
-			var body []byte
-			body, err = ioutil.ReadAll(res.Body)
-			if err == nil {
-				res.Body = io.NopCloser(bytes.NewBuffer(body))
-			}
-		}
-
+	}
+	// before send
+	if apiClient.beforeRequest != nil {
+		err = apiClient.beforeRequest(req)
 		if err != nil {
-			apiClient.logError("[api-client] failed to request %s with error:\n%w", req.URL.String(), err)
-			if retry < apiClient.maxRetry-1 {
-				retry += 1
-				continue
-			} else {
-				return nil, err
-			}
-		} else {
-			break
+			return nil, err
 		}
+	}
+	apiClient.logDebug("[api-client] %v %v", method, *uri)
+	res, err = apiClient.client.Do(req)
+	if err != nil {
+		apiClient.logError("[api-client] failed to request %s with error:\n%w", req.URL.String(), err)
+		return nil, err
 	}
 
 	if err != nil {
@@ -246,8 +224,8 @@ func (apiClient *ApiClient) Do(
 
 func (apiClient *ApiClient) Get(
 	path string,
-	query *url.Values,
-	headers *url.Values,
+	query url.Values,
+	headers http.Header,
 ) (*http.Response, error) {
 	return apiClient.Do("GET", path, query, nil, headers)
 }
@@ -265,7 +243,7 @@ func UnmarshalResponse(res *http.Response, v interface{}) error {
 	return nil
 }
 
-func GetURIStringPointer(baseUrl string, relativePath string, queryParams *url.Values) (*string, error) {
+func GetURIStringPointer(baseUrl string, relativePath string, query url.Values) (*string, error) {
 	// If the base URL doesn't end with a slash, and has a relative path attached
 	// the values will be removed by the Go package, therefore we need to add a missing slash.
 	AddMissingSlashToURL(&baseUrl)
@@ -279,9 +257,9 @@ func GetURIStringPointer(baseUrl string, relativePath string, queryParams *url.V
 	if err != nil {
 		return nil, err
 	}
-	if queryParams != nil {
+	if query != nil {
 		queryString := u.Query()
-		for key, value := range *queryParams {
+		for key, value := range query {
 			queryString.Set(key, strings.Join(value, ""))
 		}
 		u.RawQuery = queryString.Encode()
@@ -297,6 +275,7 @@ func AddMissingSlashToURL(baseUrl *string) {
 		*baseUrl += "/"
 	}
 }
+
 func RemoveStartingSlashFromPath(relativePath string) string {
 	pattern := `^\/`
 	byteArrayOfPath := []byte(relativePath)
@@ -309,30 +288,42 @@ func RemoveStartingSlashFromPath(relativePath string) string {
 	}
 	return relativePath
 }
-func (apiClient *ApiClient) GetAsync(path string, queryParams *url.Values, headerParams *url.Values, handler func(*http.Response) error) error {
-	err := apiClient.scheduler.Submit(func() error {
-		res, err := apiClient.Get(path, queryParams, headerParams)
-		if err != nil {
-			return err
+
+func (apiClient *ApiClient) DoAsync(
+	method string,
+	path string,
+	query url.Values,
+	body interface{},
+	header http.Header,
+	handler func(*http.Response) error,
+	retry int,
+) error {
+	return apiClient.scheduler.Submit(func() error {
+		var err error
+		var res *http.Response
+		res, err = apiClient.Do(method, path, query, body, header)
+		if err == nil {
+			err = handler(res)
 		}
-		err = handler(res)
-		if err != nil {
-			return fmt.Errorf("handle response for %s failed: %w", res.Request.URL, err)
+		if err != nil && retry < apiClient.maxRetry {
+			apiClient.logError("retry #%d for %s", retry, err.Error())
+			err = apiClient.DoAsync(method, path, query, body, header, handler, retry+1)
 		}
-		return nil
-	})
-	if err != nil {
 		return err
-	}
-	return nil
+	})
+}
+
+func (apiClient *ApiClient) GetAsync(path string, query url.Values, header http.Header, handler func(*http.Response) error) error {
+	return apiClient.DoAsync(http.MethodGet, path, query, nil, header, handler, 0)
 }
 
 func (apiClient *ApiClient) WaitAsync() {
+	println("wait until finish")
 	apiClient.scheduler.WaitUntilFinish()
 }
 
 type AsyncApiClient interface {
-	GetAsync(path string, queryParams *url.Values, headerParams *url.Values, handler func(*http.Response) error) error
+	GetAsync(path string, query url.Values, header http.Header, handler func(*http.Response) error) error
 	WaitAsync()
 }
 
