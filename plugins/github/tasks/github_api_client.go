@@ -58,9 +58,9 @@ type GithubSearchPaginationHandler func(res *http.Response) (int, error)
 
 // run all requests in an Ants worker pool
 // conc - number of concurent requests you want to run
-func (githubApiClient *GithubApiClient) FetchPages(path string, queryParams *url.Values, pageSize int, handler GithubPaginationHandler) error {
+func (githubApiClient *GithubApiClient) FetchPages(path string, queryParams url.Values, pageSize int, handler GithubPaginationHandler) error {
 	if queryParams == nil {
-		queryParams = &url.Values{}
+		queryParams = url.Values{}
 	}
 
 	queryParams.Set("page", strconv.Itoa(1))
@@ -86,13 +86,13 @@ func (githubApiClient *GithubApiClient) FetchPages(path string, queryParams *url
 	for i := 2; i <= pages; i++ {
 		page := i
 		queryCopy := url.Values{}
-		for k, v := range *queryParams {
+		for k, v := range queryParams {
 			queryCopy[k] = v
 		}
 		queryCopy.Set("page", strconv.Itoa(page))
 		queryCopy.Set("per_page", strconv.Itoa(pageSize))
 
-		err = githubApiClient.GetAsync(path, &queryCopy, nil, handler)
+		err = githubApiClient.GetAsync(path, queryCopy, nil, handler)
 		if err != nil {
 			return err
 		}
