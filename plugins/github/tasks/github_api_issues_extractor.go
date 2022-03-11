@@ -37,15 +37,14 @@ type IssuesResponse struct {
 	GithubUpdatedAt core.Iso8601Time  `json:"updated_at"`
 }
 
-var issueSeverityRegex *regexp.Regexp
-var issueComponentRegex *regexp.Regexp
-var issuePriorityRegex *regexp.Regexp
-var issueTypeBugRegex *regexp.Regexp
-var issueTypeRequirementRegex *regexp.Regexp
-var issueTypeIncidentRegex *regexp.Regexp
-
 func ExtractApiIssues(taskCtx core.SubTaskContext) error {
 	data := taskCtx.GetData().(*GithubTaskData)
+	var issueSeverityRegex *regexp.Regexp
+	var issueComponentRegex *regexp.Regexp
+	var issuePriorityRegex *regexp.Regexp
+	var issueTypeBugRegex *regexp.Regexp
+	var issueTypeRequirementRegex *regexp.Regexp
+	var issueTypeIncidentRegex *regexp.Regexp
 	var issueSeverity = taskCtx.GetConfig("GITHUB_ISSUE_SEVERITY")
 	var issueComponent = taskCtx.GetConfig("GITHUB_ISSUE_COMPONENT")
 	var issuePriority = taskCtx.GetConfig("GITHUB_ISSUE_PRIORITY")
@@ -112,7 +111,44 @@ func ExtractApiIssues(taskCtx core.SubTaskContext) error {
 						IssueId:   githubIssue.GithubId,
 						LabelName: label.Name,
 					})
-					setIssueLabel(label.Name, githubIssue)
+					if issueSeverityRegex != nil {
+						groups := issueSeverityRegex.FindStringSubmatch(label.Name)
+						if len(groups) > 0 {
+							githubIssue.Severity = groups[1]
+						}
+					}
+
+					if issueComponentRegex != nil {
+						groups := issueComponentRegex.FindStringSubmatch(label.Name)
+						if len(groups) > 0 {
+							githubIssue.Component = groups[1]
+						}
+					}
+
+					if issuePriorityRegex != nil {
+						groups := issuePriorityRegex.FindStringSubmatch(label.Name)
+						if len(groups) > 0 {
+							githubIssue.Priority = groups[1]
+						}
+					}
+
+					if issueTypeBugRegex != nil {
+						if ok := issueTypeBugRegex.MatchString(label.Name); ok {
+							githubIssue.Type = ticket.BUG
+						}
+					}
+
+					if issueTypeRequirementRegex != nil {
+						if ok := issueTypeRequirementRegex.MatchString(label.Name); ok {
+							githubIssue.Type = ticket.REQUIREMENT
+						}
+					}
+
+					if issueTypeIncidentRegex != nil {
+						if ok := issueTypeIncidentRegex.MatchString(label.Name); ok {
+							githubIssue.Type = ticket.INCIDENT
+						}
+					}
 				}
 				results = append(results, githubIssue)
 
@@ -149,51 +185,4 @@ func convertGithubIssue(issue *IssuesResponse, repositoryId int) (*models.Github
 	}
 
 	return githubIssue, nil
-}
-
-func setIssueLabel(label string, githubIssue *models.GithubIssue) {
-	if issueSeverityRegex != nil {
-		groups := issueSeverityRegex.FindStringSubmatch(label)
-		if len(groups) > 0 {
-			githubIssue.Severity = groups[1]
-			return
-		}
-	}
-
-	if issueComponentRegex != nil {
-		groups := issueComponentRegex.FindStringSubmatch(label)
-		if len(groups) > 0 {
-			githubIssue.Component = groups[1]
-			return
-		}
-	}
-
-	if issuePriorityRegex != nil {
-		groups := issuePriorityRegex.FindStringSubmatch(label)
-		if len(groups) > 0 {
-			githubIssue.Priority = groups[1]
-			return
-		}
-	}
-
-	if issueTypeBugRegex != nil {
-		if ok := issueTypeBugRegex.MatchString(label); ok {
-			githubIssue.Type = ticket.BUG
-			return
-		}
-	}
-
-	if issueTypeRequirementRegex != nil {
-		if ok := issueTypeRequirementRegex.MatchString(label); ok {
-			githubIssue.Type = ticket.REQUIREMENT
-			return
-		}
-	}
-
-	if issueTypeIncidentRegex != nil {
-		if ok := issueTypeIncidentRegex.MatchString(label); ok {
-			githubIssue.Type = ticket.INCIDENT
-			return
-		}
-	}
 }
