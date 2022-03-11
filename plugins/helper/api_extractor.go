@@ -46,7 +46,7 @@ func NewApiExtractor(args ApiExtractorArgs) (*ApiExtractor, error) {
 func (extractor *ApiExtractor) Execute() error {
 	// load data from database
 	db := extractor.args.Ctx.GetDb()
-	cursor, err := db.Table(extractor.table).Order("id ASC").Rows()
+	cursor, err := db.Table(extractor.table).Order("id ASC").Where("params = ?", extractor.params).Rows()
 	if err != nil {
 		return err
 	}

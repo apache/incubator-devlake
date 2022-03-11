@@ -151,9 +151,9 @@ func (plugin Github) Execute(options map[string]interface{}, progress chan<- flo
 		name       string
 		entryPoint core.SubTaskEntryPoint
 	}{
-		//{name: "collectApiIssues", entryPoint: tasks.CollectApiIssues},
-		//{name: "extractApiIssues", entryPoint: tasks.ExtractApiIssues},
-		//{name: "collectApiPullRequests", entryPoint: tasks.CollectApiPullRequests},
+		{name: "collectApiIssues", entryPoint: tasks.CollectApiIssues},
+		{name: "extractApiIssues", entryPoint: tasks.ExtractApiIssues},
+		{name: "collectApiPullRequests", entryPoint: tasks.CollectApiPullRequests},
 		{name: "extractApiPullRequests", entryPoint: tasks.ExtractApiPullRequests},
 	}
 	for _, t := range newTasks {
@@ -468,7 +468,7 @@ func main() {
 					"extractApiPullRequests",
 					//"collectIssueEvents",
 					//"collectIssueComments",
-					"collectPullRequests",
+					//"collectPullRequests",
 					//"collectPullRequestReviews",
 					//"collectPullRequestCommits",
 					//"enrichIssues",
@@ -478,7 +478,7 @@ func main() {
 					//"convertRepos",
 					//"convertIssues",
 					//"convertIssueLabels",
-					"convertPullRequests",
+					//"convertPullRequests",
 					//"convertCommits",
 					//"convertPullRequestCommits",
 					//"convertPullRequestLabels",
