@@ -115,7 +115,7 @@ const RefDiffSettings = (props) => {
               icon='menu'
               text={tasks.length > 0
                 ? <>Choose Tasks <Tag intent={Intent.PRIMARY} round>{tasks.length}</Tag></>
-                : 'Choose Tasks'}
+                : <>Choose Tasks <Tag intent={Intent.PRIMARY} round>None</Tag></>}
             />
             <Button
               icon='eraser'
