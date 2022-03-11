@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"github.com/merico-dev/lake/config"
-	"github.com/merico-dev/lake/errors"
 	lakeModels "github.com/merico-dev/lake/models"
 	"github.com/merico-dev/lake/models/domainlayer/code"
 	"gorm.io/gorm/clause"
@@ -41,7 +40,7 @@ func CalculatePrCherryPick(ctx context.Context, pairs []RefPair, progress chan<-
 	for cursor.Next() {
 		select {
 		case <-ctx.Done():
-			return errors.TaskCanceled
+			return ctx.Err()
 		default:
 		}
 

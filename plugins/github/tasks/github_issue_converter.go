@@ -2,7 +2,6 @@ package tasks
 
 import (
 	"context"
-	"github.com/merico-dev/lake/errors"
 	"strconv"
 
 	lakeModels "github.com/merico-dev/lake/models"
@@ -30,7 +29,7 @@ func ConvertIssues(ctx context.Context, repoId int) error {
 	for cursor.Next() {
 		select {
 		case <-ctx.Done():
-			return errors.TaskCanceled
+			return ctx.Err()
 		default:
 		}
 		err = lakeModels.Db.ScanRows(cursor, githubIssue)

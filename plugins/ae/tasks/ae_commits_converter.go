@@ -2,8 +2,6 @@ package tasks
 
 import (
 	"context"
-	"github.com/merico-dev/lake/errors"
-
 	lakeModels "github.com/merico-dev/lake/models"
 	"github.com/merico-dev/lake/models/domainlayer/code"
 	aeModels "github.com/merico-dev/lake/plugins/ae/models"
@@ -26,7 +24,7 @@ func ConvertCommits(ctx context.Context) error {
 		// we do a non-blocking checking, this should be applied to all converters from all plugins
 		select {
 		case <-ctx.Done():
-			return errors.TaskCanceled
+			return ctx.Err()
 		default:
 		}
 		// uncomment following line if you want to test out canceling feature for this task

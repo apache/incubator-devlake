@@ -40,7 +40,7 @@ type ApiSinglePipelineResponse struct {
 
 func CollectAllPipelines(projectId int, gitlabApiClient *GitlabApiClient) error {
 
-	queryParams := &url.Values{}
+	queryParams := url.Values{}
 	queryParams.Set("order_by", "updated_at")
 	queryParams.Set("sort", "desc")
 	return gitlabApiClient.FetchWithPaginationAnts(

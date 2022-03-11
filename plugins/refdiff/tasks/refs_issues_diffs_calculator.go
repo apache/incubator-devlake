@@ -3,7 +3,6 @@ package tasks
 import (
 	"context"
 	"fmt"
-	"github.com/merico-dev/lake/errors"
 	lakeModels "github.com/merico-dev/lake/models"
 	"github.com/merico-dev/lake/models/domainlayer/crossdomain"
 	"gorm.io/gorm/clause"
@@ -43,7 +42,7 @@ func CalculateIssuesDiff(ctx context.Context, pairs []RefPair, progress chan<- f
 	for cursor.Next() {
 		select {
 		case <-ctx.Done():
-			return errors.TaskCanceled
+			return ctx.Err()
 		default:
 		}
 

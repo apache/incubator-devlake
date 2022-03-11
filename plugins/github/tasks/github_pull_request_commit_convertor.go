@@ -2,8 +2,6 @@ package tasks
 
 import (
 	"context"
-	"github.com/merico-dev/lake/errors"
-
 	lakeModels "github.com/merico-dev/lake/models"
 	"github.com/merico-dev/lake/models/domainlayer/code"
 	"github.com/merico-dev/lake/models/domainlayer/didgen"
@@ -29,7 +27,7 @@ func PrCommitConvertor(ctx context.Context, repoId int) (err error) {
 	for cursor.Next() {
 		select {
 		case <-ctx.Done():
-			return errors.TaskCanceled
+			return ctx.Err()
 		default:
 		}
 		err = lakeModels.Db.ScanRows(cursor, githubPullRequestCommit)
