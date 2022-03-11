@@ -3,6 +3,7 @@ package api
 import (
 	"fmt"
 	"github.com/merico-dev/lake/logger"
+	"github.com/merico-dev/lake/plugins/helper"
 	"github.com/mitchellh/mapstructure"
 	"strings"
 	"time"
@@ -43,6 +44,7 @@ func TestConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, erro
 		return &core.ApiResourceOutput{Body: core.TestResult{Success: false, Message: core.InvalidParams}}, nil
 	}
 	tokens := strings.Split(params.Auth, ",")
+	logger := helper.NewDefaultTaskLogger(nil, "github")
 
 	// verify multiple token in parallel
 	// PLEASE NOTE: This works because GitHub API Client rotates tokens on each request
@@ -51,7 +53,7 @@ func TestConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, erro
 		token := tokens[i]
 		i := i
 		go func() {
-			githubApiClient := tasks.NewGithubApiClient(params.Endpoint, []string{token}, nil, nil)
+			githubApiClient := tasks.NewGithubApiClient(params.Endpoint, []string{token}, params.Proxy, nil, nil, logger)
 			githubApiClient.SetTimeout(3 * time.Second)
 			if params.Proxy != "" {
 				err := githubApiClient.SetProxy(params.Proxy)

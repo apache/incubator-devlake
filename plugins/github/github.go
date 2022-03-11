@@ -4,11 +4,12 @@ import (
 	"context"
 	"fmt"
 	"github.com/merico-dev/lake/errors"
+	"github.com/merico-dev/lake/plugins/helper"
 	"os"
 	"strings"
+	"time"
 
 	"github.com/merico-dev/lake/config"
-	"github.com/merico-dev/lake/logger" // A pseudo type for Plugin Interface implementation
 	lakeModels "github.com/merico-dev/lake/models"
 	"github.com/merico-dev/lake/plugins/core"
 	"github.com/merico-dev/lake/plugins/github/api"
@@ -20,15 +21,9 @@ import (
 
 var _ core.Plugin = (*Github)(nil)
 
-type GithubOptions struct {
-	Owner string
-	Repo  string
-	Tasks []string
-}
 type Github string
 
 func (plugin Github) Init() {
-	logger.Info("INFO >>> init GitHub plugin", true)
 	err := lakeModels.Db.AutoMigrate(
 		&models.GithubRepo{},
 		&models.GithubCommit{},
@@ -46,7 +41,6 @@ func (plugin Github) Init() {
 		&models.GithubPullRequestIssue{},
 	)
 	if err != nil {
-		logger.Error("Error migrating github: ", err)
 		panic(err)
 	}
 }
@@ -59,7 +53,7 @@ func (plugin Github) Execute(options map[string]interface{}, progress chan<- flo
 	var err error
 
 	// process option from request
-	var op GithubOptions
+	var op tasks.GithubOptions
 	err = mapstructure.Decode(options, &op)
 	if err != nil {
 		return err
@@ -70,6 +64,15 @@ func (plugin Github) Execute(options map[string]interface{}, progress chan<- flo
 	if op.Repo == "" {
 		return fmt.Errorf("repo is required for GitHub execution")
 	}
+	var since *time.Time
+	if op.Since != "" {
+		*since, err = time.Parse("2006-01-02T15:04:05Z", op.Since)
+		if err != nil {
+			return fmt.Errorf("invalid value for `since`: %w", err)
+		}
+	}
+	logger := helper.NewDefaultTaskLogger(nil, "github")
+
 	tasksToRun := make(map[string]bool, len(op.Tasks))
 	if len(op.Tasks) == 0 {
 		tasksToRun = map[string]bool{
@@ -79,6 +82,10 @@ func (plugin Github) Execute(options map[string]interface{}, progress chan<- flo
 			"collectIssues":             true,
 			"collectIssueEvents":        true,
 			"collectIssueComments":      true,
+			"collectApiIssues":          false,
+			"extractApiIssues":          false,
+			"collectApiPullRequests":    false,
+			"extractApiPullRequests":    false,
 			"collectPullRequests":       true,
 			"collectPullRequestReviews": true,
 			"collectPullRequestCommits": true,
@@ -122,17 +129,56 @@ func (plugin Github) Execute(options map[string]interface{}, progress chan<- flo
 	}
 	defer scheduler.Release()
 	// TODO: add endpoind, auth validation
-	apiClient := tasks.NewGithubApiClient(endpoint, tokens, ctx, scheduler)
-	err = apiClient.SetProxy(v.GetString("GITHUB_PROXY"))
+	apiClient := tasks.NewGithubApiClient(endpoint, tokens, v.GetString("GITHUB_PROXY"), ctx, scheduler, logger)
+
+	//------------------
+	taskData := &tasks.GithubTaskData{
+		Options:   &op,
+		ApiClient: &apiClient.ApiClient,
+		Since:     since,
+	}
+	taskCtx := helper.NewDefaultTaskContext("github", ctx, logger, taskData, tasksToRun)
+	repo := models.GithubRepo{}
+	err = taskCtx.GetDb().Model(&models.GithubRepo{}).
+		Where("owner_login = ? and `name` = ?", taskData.Options.Owner, taskData.Options.Repo).Limit(1).Find(&repo).Error
 	if err != nil {
 		return err
 	}
 
-	logger.Print("start github plugin execution")
+	taskData.Repo = &repo
 
-	repoId, err := tasks.CollectRepository(op.Owner, op.Repo, apiClient)
-	if err != nil {
-		return fmt.Errorf("Could not collect repositories: %v", err)
+	newTasks := []struct {
+		name       string
+		entryPoint core.SubTaskEntryPoint
+	}{
+		{name: "collectApiIssues", entryPoint: tasks.CollectApiIssues},
+		{name: "extractApiIssues", entryPoint: tasks.ExtractApiIssues},
+		//{name: "collectApiPullRequests", entryPoint: tasks.CollectApiPullRequests},
+		//{name: "extractApiPullRequests", entryPoint: tasks.ExtractApiPullRequests},
+	}
+	for _, t := range newTasks {
+		c, err := taskCtx.SubTaskContext(t.name)
+		if err != nil {
+			return err
+		}
+		if c != nil {
+			err = t.entryPoint(c)
+			if err != nil {
+				return &errors.SubTaskError{
+					SubTaskName: t.name,
+					Message:     err.Error(),
+				}
+			}
+		}
+	}
+	//------------------
+
+	repoId := 1
+	if tasksToRun["collectRepo"] {
+		repoId, err = tasks.CollectRepository(op.Owner, op.Repo, apiClient)
+		if err != nil {
+			return fmt.Errorf("Could not collect repositories: %v", err)
+		}
 	}
 	if tasksToRun["collectCommits"] {
 		progress <- 0.1
@@ -156,17 +202,7 @@ func (plugin Github) Execute(options map[string]interface{}, progress chan<- flo
 			}
 		}
 	}
-	if tasksToRun["collectIssues"] {
-		progress <- 0.15
-		fmt.Println("INFO >>> starting issues collection")
-		err = tasks.CollectIssues(op.Owner, op.Repo, repoId, apiClient)
-		if err != nil {
-			return &errors.SubTaskError{
-				Message:     fmt.Errorf("Could not collect issues: %v", err).Error(),
-				SubTaskName: "collectIssues",
-			}
-		}
-	}
+
 	if tasksToRun["collectIssueEvents"] {
 		progress <- 0.21
 		fmt.Println("INFO >>> starting Issue Events collection")
@@ -427,16 +463,7 @@ func main() {
 	}
 	PluginEntry.Init()
 	progress := make(chan float32)
-	v := config.GetConfig()
-	endpoint := v.GetString("GITHUB_ENDPOINT")
-	configTokensString := v.GetString("GITHUB_AUTH")
-	tokens := strings.Split(configTokensString, ",")
-	githubApiClient := tasks.NewGithubApiClient(endpoint, tokens, nil, nil)
-	_ = githubApiClient.SetProxy(v.GetString("GITHUB_PROXY"))
-	_, collectRepoErr := tasks.CollectRepository(owner, repo, githubApiClient)
-	if collectRepoErr != nil {
-		fmt.Println(fmt.Errorf("Could not collect repositories: %v", collectRepoErr))
-	}
+
 	go func() {
 		err := PluginEntry.Execute(
 			map[string]interface{}{
@@ -446,7 +473,10 @@ func main() {
 					//"collectRepo",
 					//"collectCommits",
 					//"collectCommitsStat",
-					//"collectIssues",
+					"collectApiIssues",
+					"extractApiIssues",
+					"collectApiPullRequests",
+					"extractApiPullRequests",
 					//"collectIssueEvents",
 					//"collectIssueComments",
 					"collectPullRequests",

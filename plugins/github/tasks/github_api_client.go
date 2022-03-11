@@ -21,7 +21,7 @@ type GithubApiClient struct {
 	core.ApiClient
 }
 
-func NewGithubApiClient(endpoint string, tokens []string, ctx context.Context, scheduler *utils.WorkerScheduler) *GithubApiClient {
+func NewGithubApiClient(endpoint string, tokens []string, proxy string, ctx context.Context, scheduler *utils.WorkerScheduler, logger core.Logger) *GithubApiClient {
 	githubApiClient := &GithubApiClient{}
 	githubApiClient.tokenIndex = 0
 	githubApiClient.tokens = tokens
@@ -42,6 +42,14 @@ func NewGithubApiClient(endpoint string, tokens []string, ctx context.Context, s
 	if ctx != nil {
 		githubApiClient.SetContext(ctx)
 	}
+	if proxy != "" {
+		err := githubApiClient.SetProxy(proxy)
+		if err != nil {
+			panic(err)
+		}
+	}
+
+	githubApiClient.SetLogger(logger)
 	return githubApiClient
 }
 
