@@ -22,6 +22,7 @@ func CollectApiPullRequests(taskCtx core.SubTaskContext) error {
 	since := data.Since
 	incremental := false
 	// user didn't specify a time range to sync, try load from database
+	// actually, for github pull, since doesn't make any sense, github pull api doesn't support it
 	if since == nil {
 		var latestUpdated models.GithubPullRequest
 		err := db.Model(&latestUpdated).Joins("left join github_repos on github_pull_requests.repo_id = github_repos.github_id").

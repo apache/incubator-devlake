@@ -101,7 +101,7 @@ type AEPaginationHandler func(res *http.Response) error
 func (aeApiClient *AEApiClient) FetchWithPagination(path string, pageSize int, handler AEPaginationHandler) error {
 	currentPage := 1
 
-	query := &url.Values{}
+	query := url.Values{}
 	query.Set("per_page", fmt.Sprintf("%d", pageSize))
 	// Loop until all pages are requested
 	for {
