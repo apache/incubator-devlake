@@ -29,9 +29,9 @@ type AsyncResponseHandler func(res *http.Response) error
 
 type ApiCollectorArgs struct {
 	RawDataSubTaskArgs
-	UrlTemplate    string                                  `comment:"GoTemplate for API url"`
-	Query          func(pager *Pager) (*url.Values, error) `comment:"Extra query string when requesting API, like 'Since' option for jira issues collection"`
-	Header         func(pager *Pager) (*url.Values, error)
+	UrlTemplate    string                                 `comment:"GoTemplate for API url"`
+	Query          func(pager *Pager) (url.Values, error) `comment:"Extra query string when requesting API, like 'Since' option for jira issues collection"`
+	Header         func(pager *Pager) (http.Header, error)
 	PageSize       int
 	Incremental    bool `comment:"Indicate this is a incremental collection, so the existing data won't get flushed"`
 	ApiClient      core.AsyncApiClient
@@ -248,14 +248,14 @@ func (collector *ApiCollector) fetchAsync(pager *Pager, input interface{}, handl
 	if err != nil {
 		return err
 	}
-	apiQuery := (*url.Values)(nil)
+	apiQuery := (url.Values)(nil)
 	if collector.args.Query != nil {
 		apiQuery, err = collector.args.Query(pager)
 		if err != nil {
 			return err
 		}
 	}
-	apiHeader := (*url.Values)(nil)
+	apiHeader := (http.Header)(nil)
 	if collector.args.Header != nil {
 		apiHeader, err = collector.args.Header(pager)
 		if err != nil {
