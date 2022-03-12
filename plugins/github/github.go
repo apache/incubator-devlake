@@ -159,7 +159,7 @@ func (plugin Github) Execute(options map[string]interface{}, progress chan<- flo
 		//{name: "collectApiPullRequests", entryPoint: tasks.CollectApiPullRequests},
 		//{name: "extractApiPullRequests", entryPoint: tasks.ExtractApiPullRequests},
 		//{name: "collectApiComments", entryPoint: tasks.CollectApiComments},
-		//{name: "extractApiComments", entryPoint: tasks.ExtractApiComments},
+		{name: "extractApiComments", entryPoint: tasks.ExtractApiComments},
 		//{name: "collectApiEvents", entryPoint: tasks.CollectApiEvents},
 		{name: "extractApiEvents", entryPoint: tasks.ExtractApiEvents},
 	}
@@ -180,12 +180,6 @@ func (plugin Github) Execute(options map[string]interface{}, progress chan<- flo
 	}
 
 	repoId := 1
-	if tasksToRun["collectRepo"] {
-		repoId, err = tasks.CollectRepository(op.Owner, op.Repo, apiClient)
-		if err != nil {
-			return fmt.Errorf("Could not collect repositories: %v", err)
-		}
-	}
 	if tasksToRun["collectCommits"] {
 		progress <- 0.1
 		fmt.Println("INFO >>> starting commits collection")
