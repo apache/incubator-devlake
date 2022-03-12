@@ -1,9 +1,8 @@
 package models
 
 import (
+	"github.com/merico-dev/lake/plugins/helper"
 	"time"
-
-	"github.com/merico-dev/lake/models/common"
 )
 
 type GithubRepo struct {
@@ -19,5 +18,8 @@ type GithubRepo struct {
 	CreatedDate    time.Time  `json:"createdDate"`
 	UpdatedDate    *time.Time `json:"updatedDate"`
 
-	common.NoPKModel
+	CreatedAt time.Time
+	UpdatedAt time.Time
+
+	helper.RawDataOrigin
 }
