@@ -1,7 +1,7 @@
 package models
 
 import (
-	"github.com/merico-dev/lake/plugins/helper"
+	"github.com/merico-dev/lake/models/common"
 	"time"
 )
 
@@ -11,9 +11,6 @@ type GithubPullRequestComment struct {
 	Body            string
 	AuthorUsername  string
 	GithubCreatedAt time.Time
-	GithubUpdatedAt time.Time `gorm:"index"`
-	CreatedAt       time.Time
-	UpdatedAt       time.Time
 
-	helper.RawDataOrigin
+	common.NoPKModel
 }
