@@ -88,6 +88,8 @@ func (plugin Github) Execute(options map[string]interface{}, progress chan<- flo
 			"extractApiPullRequests":    false,
 			"collectApiComments":        false,
 			"extractApiComments":        false,
+			"collectApiEvents":          false,
+			"extractApiEvents":          false,
 			"collectPullRequests":       true,
 			"collectPullRequestReviews": true,
 			"collectPullRequestCommits": true,
@@ -157,7 +159,9 @@ func (plugin Github) Execute(options map[string]interface{}, progress chan<- flo
 		//{name: "collectApiPullRequests", entryPoint: tasks.CollectApiPullRequests},
 		//{name: "extractApiPullRequests", entryPoint: tasks.ExtractApiPullRequests},
 		//{name: "collectApiComments", entryPoint: tasks.CollectApiComments},
-		{name: "extractApiComments", entryPoint: tasks.ExtractApiComments},
+		//{name: "extractApiComments", entryPoint: tasks.ExtractApiComments},
+		//{name: "collectApiEvents", entryPoint: tasks.CollectApiEvents},
+		{name: "extractApiEvents", entryPoint: tasks.ExtractApiEvents},
 	}
 	for _, t := range newTasks {
 		c, err := taskCtx.SubTaskContext(t.name)
@@ -201,18 +205,6 @@ func (plugin Github) Execute(options map[string]interface{}, progress chan<- flo
 			return &errors.SubTaskError{
 				Message:     fmt.Errorf("Could not collect commits: %v", err).Error(),
 				SubTaskName: "collectCommitsStat",
-			}
-		}
-	}
-
-	if tasksToRun["collectIssueEvents"] {
-		progress <- 0.21
-		fmt.Println("INFO >>> starting Issue Events collection")
-		err = tasks.CollectIssueEvents(op.Owner, op.Repo, apiClient)
-		if err != nil {
-			return &errors.SubTaskError{
-				Message:     fmt.Errorf("Could not collect Issue Events: %v", err).Error(),
-				SubTaskName: "collectIssueEvents",
 			}
 		}
 	}
@@ -434,7 +426,9 @@ func main() {
 					//"collectApiIssues",
 					//"extractApiIssues",
 					//"collectApiComments",
-					"extractApiComments",
+					//"extractApiComments",
+					//"collectApiEvents",
+					"extractApiEvents",
 					//"collectApiPullRequests",
 					//"extractApiPullRequests",
 					//"enrichApiIssues",
