@@ -86,6 +86,8 @@ func (plugin Github) Execute(options map[string]interface{}, progress chan<- flo
 			"extractApiIssues":          false,
 			"collectApiPullRequests":    false,
 			"extractApiPullRequests":    false,
+			"collectApiComments":        false,
+			"extractApiComments":        false,
 			"collectPullRequests":       true,
 			"collectPullRequestReviews": true,
 			"collectPullRequestCommits": true,
@@ -131,7 +133,6 @@ func (plugin Github) Execute(options map[string]interface{}, progress chan<- flo
 	// TODO: add endpoind, auth validation
 	apiClient := tasks.NewGithubApiClient(endpoint, tokens, v.GetString("GITHUB_PROXY"), ctx, scheduler, logger)
 
-	//------------------
 	taskData := &tasks.GithubTaskData{
 		Options:   &op,
 		ApiClient: &apiClient.ApiClient,
@@ -152,9 +153,11 @@ func (plugin Github) Execute(options map[string]interface{}, progress chan<- flo
 		entryPoint core.SubTaskEntryPoint
 	}{
 		//{name: "collectApiIssues", entryPoint: tasks.CollectApiIssues},
-		{name: "extractApiIssues", entryPoint: tasks.ExtractApiIssues},
+		//{name: "extractApiIssues", entryPoint: tasks.ExtractApiIssues},
 		//{name: "collectApiPullRequests", entryPoint: tasks.CollectApiPullRequests},
 		//{name: "extractApiPullRequests", entryPoint: tasks.ExtractApiPullRequests},
+		//{name: "collectApiComments", entryPoint: tasks.CollectApiComments},
+		{name: "extractApiComments", entryPoint: tasks.ExtractApiComments},
 	}
 	for _, t := range newTasks {
 		c, err := taskCtx.SubTaskContext(t.name)
@@ -171,7 +174,6 @@ func (plugin Github) Execute(options map[string]interface{}, progress chan<- flo
 			}
 		}
 	}
-	//------------------
 
 	repoId := 1
 	if tasksToRun["collectRepo"] {
@@ -215,18 +217,6 @@ func (plugin Github) Execute(options map[string]interface{}, progress chan<- flo
 		}
 	}
 
-	if tasksToRun["collectIssueComments"] {
-		progress <- 0.24
-		fmt.Println("INFO >>> starting Issue Comments collection")
-		err = tasks.CollectIssueComments(op.Owner, op.Repo, apiClient)
-		if err != nil {
-			return &errors.SubTaskError{
-				Message:     fmt.Errorf("Could not collect Issue Comments: %v", err).Error(),
-				SubTaskName: "collectIssueComments",
-			}
-		}
-	}
-
 	if tasksToRun["collectPullRequestReviews"] {
 		progress <- 0.38
 		fmt.Println("INFO >>> collecting PR Reviews collection")
@@ -262,17 +252,7 @@ func (plugin Github) Execute(options map[string]interface{}, progress chan<- flo
 			}
 		}
 	}
-	if tasksToRun["enrichComments"] {
-		progress <- 0.68
-		fmt.Println("INFO >>> Enriching comments")
-		err = tasks.EnrichComments(ctx, repoId)
-		if err != nil {
-			return &errors.SubTaskError{
-				Message:     fmt.Errorf("could not enrich PullRequests: %v", err).Error(),
-				SubTaskName: "enrichComments",
-			}
-		}
-	}
+
 	if tasksToRun["enrichPullRequestIssues"] {
 		progress <- 0.73
 		fmt.Println("INFO >>> Enriching PullRequestIssues")
@@ -452,7 +432,9 @@ func main() {
 					//"collectCommits",
 					//"collectCommitsStat",
 					//"collectApiIssues",
-					"extractApiIssues",
+					//"extractApiIssues",
+					//"collectApiComments",
+					"extractApiComments",
 					//"collectApiPullRequests",
 					//"extractApiPullRequests",
 					//"enrichApiIssues",
