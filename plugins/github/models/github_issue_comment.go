@@ -11,9 +11,9 @@ type GithubIssueComment struct {
 	Body            string
 	AuthorUsername  string
 	GithubCreatedAt time.Time
-	GithubUpdatedAt time.Time
+	GithubUpdatedAt time.Time `gorm:"index"`
 	CreatedAt       time.Time
-	UpdatedAt       time.Time `gorm:"index"`
+	UpdatedAt       time.Time
 
 	helper.RawDataOrigin
 }
