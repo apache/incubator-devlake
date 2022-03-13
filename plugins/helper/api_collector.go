@@ -129,7 +129,13 @@ func (collector *ApiCollector) Execute() error {
 			if err != nil {
 				return err
 			}
-			err = collector.exec(input)
+			err = scheduler.Submit(func() error {
+				err = collector.exec(input)
+				if err != nil {
+					return err
+				}
+				return nil
+			})
 			if err != nil {
 				break
 			}
