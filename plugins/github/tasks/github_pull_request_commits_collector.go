@@ -13,27 +13,6 @@ import (
 	"gorm.io/gorm/clause"
 )
 
-type ApiPullRequestCommitResponse []PrCommitsResponse
-type PrCommitsResponse struct {
-	Sha    string `json:"sha"`
-	Commit PullRequestCommit
-	Url    string
-}
-
-type PullRequestCommit struct {
-	Author struct {
-		Name  string
-		Email string
-		Date  core.Iso8601Time
-	}
-	Committer struct {
-		Name  string
-		Email string
-		Date  core.Iso8601Time
-	}
-	Message string
-}
-
 func CollectPullRequestCommits(ctx context.Context, owner string, repo string, repoId int, rateLimitPerSecondInt int, apiClient *GithubApiClient) error {
 	scheduler, err := utils.NewWorkerScheduler(rateLimitPerSecondInt*2, rateLimitPerSecondInt, ctx)
 	if err != nil {
@@ -65,20 +44,6 @@ func CollectPullRequestCommits(ctx context.Context, owner string, repo string, r
 	//scheduler.WaitUntilFinish()
 
 	return nil
-}
-func convertPullRequestCommit(prCommit *PrCommitsResponse) (*models.GithubCommit, error) {
-	githubCommit := &models.GithubCommit{
-		Sha:            prCommit.Sha,
-		Message:        prCommit.Commit.Message,
-		AuthorName:     prCommit.Commit.Author.Name,
-		AuthorEmail:    prCommit.Commit.Author.Email,
-		AuthoredDate:   prCommit.Commit.Author.Date.ToTime(),
-		CommitterName:  prCommit.Commit.Committer.Name,
-		CommitterEmail: prCommit.Commit.Committer.Email,
-		CommittedDate:  prCommit.Commit.Committer.Date.ToTime(),
-		Url:            prCommit.Url,
-	}
-	return githubCommit, nil
 }
 
 func ProcessCollection(owner string, repo string, pr *models.GithubPullRequest, apiClient *GithubApiClient) error {
