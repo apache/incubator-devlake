@@ -21,6 +21,7 @@ type ApiResourceHandler func(input *ApiResourceInput) (*ApiResourceOutput, error
 type Plugin interface {
 	Description() string
 	Init()
+	// Deprecated: implement ManagedSubTasks interface instead
 	Execute(options map[string]interface{}, progress chan<- float32, ctx context.Context) error
 	// PkgPath information lost when compiled as plugin(.so)
 	RootPkgPath() string
