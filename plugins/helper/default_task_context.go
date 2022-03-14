@@ -139,6 +139,10 @@ func (c *DefaultTaskContext) SubTaskContext(subtask string) (core.SubTaskContext
 	return nil, fmt.Errorf("subtask %s doesn't exist", subtask)
 }
 
+func (c *DefaultTaskContext) SetData(data interface{}) {
+	c.data = data
+}
+
 var _ core.TaskContext = (*DefaultTaskContext)(nil)
 
 func (c *DefaultSubTaskContext) TaskContext() core.TaskContext {
