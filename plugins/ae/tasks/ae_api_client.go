@@ -95,6 +95,7 @@ func CreateApiClient(ctx context.Context) *AEApiClient {
 	return aeApiClient
 }
 
+/*
 type AEPaginationHandler func(res *http.Response) error
 
 // fetch paginated without ANTS worker pool
@@ -124,3 +125,4 @@ func (aeApiClient *AEApiClient) FetchWithPagination(path string, pageSize int, h
 
 	return nil
 }
+*/
