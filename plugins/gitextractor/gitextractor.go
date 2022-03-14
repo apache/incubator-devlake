@@ -86,12 +86,12 @@ func (plugin GitExtractor) Execute(options map[string]interface{}, progress chan
 	if err != nil {
 		return err
 	}
-	progress <- 0.1
 
 	// construct task context
 	subtasksToRun := map[string]bool{"collectGitRepo": true}
 	taskCtx := helper.NewDefaultTaskContext("git", ctx, logger, op, subtasksToRun)
-	taskCtx.SetProgress(10, 100)
+	// only 1 subtask to be executed, set current progress to 0 and total to 1
+	taskCtx.SetProgress(0, 1)
 
 	// execute subtasks, only one subtask for now
 	c, err := taskCtx.SubTaskContext("collectGitRepo")
@@ -105,7 +105,7 @@ func (plugin GitExtractor) Execute(options map[string]interface{}, progress chan
 			Message: err.Error(),
 		}
 	}
-	progress <- 1
+	taskCtx.IncProgress(1)
 	return nil
 }
 
