@@ -20,6 +20,7 @@ import {
 } from '@blueprintjs/core'
 import {
   Providers,
+  ProviderTypes,
   ProviderIcons
 } from '@/data/Providers'
 import { integrationsData, pluginsData } from '@/data/integrations'
@@ -88,6 +89,9 @@ const CreatePipeline = (props) => {
   const [owner, setOwner] = useState('')
   const [gitExtractorUrl, setGitExtractorUrl] = useState('')
   const [gitExtractorRepoId, setGitExtractorRepoId] = useState('')
+  const [refDiffRepoId, setRefDiffRepoId] = useState('')
+  const [refDiffPairs, setRefDiffPairs] = useState([])
+  const [refDiffTasks, setRefDiffTasks] = useState(['calculateCommitsDiff', 'calculateIssuesDiff'])
 
   const [autoRedirect, setAutoRedirect] = useState(true)
   const [restartDetected, setRestartDetected] = useState(false)
@@ -121,6 +125,9 @@ const CreatePipeline = (props) => {
     sourceId,
     gitExtractorUrl,
     gitExtractorRepoId,
+    refDiffRepoId,
+    refDiffTasks,
+    refDiffPairs,
     tasks: runTasks,
     tasksAdvanced: runTasksAdvanced,
     advancedMode
@@ -207,11 +214,28 @@ const CreatePipeline = (props) => {
           repoId: gitExtractorRepoId
         }
         break
+      case Providers.REFDIFF:
+        options = {
+          repoId: refDiffRepoId,
+          pairs: refDiffPairs,
+          tasks: refDiffTasks,
+        }
+        break
       default:
         break
     }
     return options
-  }, [boardId, owner, projectId, repositoryName, sourceId, gitExtractorUrl, gitExtractorRepoId])
+  }, [boardId,
+    owner,
+    projectId,
+    repositoryName,
+    sourceId,
+    gitExtractorUrl,
+    gitExtractorRepoId,
+    refDiffRepoId,
+    refDiffTasks,
+    refDiffPairs
+  ])
 
   const configureProvider = useCallback((providerId) => {
     let providerConfig = {}
@@ -258,6 +282,9 @@ const CreatePipeline = (props) => {
     setOwner('')
     setGitExtractorUrl('')
     setGitExtractorRepoId('')
+    setRefDiffRepoId('')
+    setRefDiffTasks([])
+    setRefDiffPairs([])
     setAdvancedMode(false)
     setRawConfiguration('[[]]')
   }
@@ -382,6 +409,7 @@ const CreatePipeline = (props) => {
       const JiraTask = tasks.filter(t => t.plugin === Providers.JIRA)
       const JenkinsTask = tasks.find(t => t.plugin === Providers.JENKINS)
       const GitExtractorTask = tasks.find(t => t.plugin === Providers.GITEXTRACTOR)
+      const RefDiffTask = tasks.find(t => t.plugin === Providers.REFDIFF)
       const configuredProviders = []
       if (GitLabTask && GitLabTask.length > 0) {
         configuredProviders.push(Providers.GITLAB)
@@ -410,6 +438,12 @@ const CreatePipeline = (props) => {
         setGitExtractorRepoId(GitExtractorTask.options?.repoId)
         setGitExtractorUrl(GitExtractorTask.options?.url)
         configuredProviders.push(Providers.GITEXTRACTOR)
+      }
+      if (RefDiffTask) {
+        setRefDiffRepoId(RefDiffTask.options?.repoId)
+        setRefDiffTasks(RefDiffTask.options?.tasks || [])
+        setRefDiffPairs(RefDiffTask.options?.pairs || [])
+        configuredProviders.push(Providers.REFDIFF)
       }
       setEnabledProviders(eP => [...eP, ...configuredProviders])
     } else {
@@ -900,6 +934,9 @@ const CreatePipeline = (props) => {
                               boardId={boardId}
                               gitExtractorUrl={gitExtractorUrl}
                               gitExtractorRepoId={gitExtractorRepoId}
+                              refDiffRepoId={refDiffRepoId}
+                              refDiffTasks={refDiffTasks}
+                              refDiffPairs={refDiffPairs}
                               setProjectId={setProjectId}
                               setOwner={setOwner}
                               setRepositoryName={setRepositoryName}
@@ -907,15 +944,20 @@ const CreatePipeline = (props) => {
                               setBoardId={setBoardId}
                               setGitExtractorUrl={setGitExtractorUrl}
                               setGitExtractorRepoId={setGitExtractorRepoId}
+                              setRefDiffRepoId={setRefDiffRepoId}
+                              setRefDiffPairs={setRefDiffPairs}
+                              setRefDiffTasks={setRefDiffTasks}
                               isEnabled={isProviderEnabled}
                               isRunning={isRunning}
                             />
                           </div>
                           <div className='provider-actions'>
                             <ButtonGroup minimal rounded='true'>
-                              <Button className='pipeline-action-btn' minimal onClick={() => history.push(`/integrations/${provider.id}`)}>
-                                <Icon icon='cog' color={Colors.GRAY4} size={16} />
-                              </Button>
+                              {provider.type === ProviderTypes.INTEGRATION && (
+                                <Button className='pipeline-action-btn' minimal onClick={() => history.push(`/integrations/${provider.id}`)}>
+                                  <Icon icon='cog' color={Colors.GRAY4} size={16} />
+                                </Button>
+                              )}
                               <Popover
                                 key={`popover-help-key-provider-${provider.id}`}
                                 className='trigger-provider-help'
@@ -923,7 +965,7 @@ const CreatePipeline = (props) => {
                                 position={Position.RIGHT}
                                 autoFocus={false}
                                 enforceFocus={false}
-                                usePortal={false}
+                                usePortal={true}
                               >
                                 <Button className='pipeline-action-btn' minimal><Icon icon='help' color={Colors.GRAY4} size={16} /></Button>
                                 <>
@@ -970,6 +1012,36 @@ const CreatePipeline = (props) => {
                                               src={GithubHelpNote}
                                               alt={provider.name} style={{ maxHeight: '64px', maxWidth: '100%' }}
                                             />
+                                          )
+                                          break
+                                        case Providers.GITEXTRACTOR:
+                                          helpContext = (
+                                            <>
+                                              <div><strong>GitExtractor README</strong></div>
+                                              <p>This plugin extract commits and references from a remote or local git repository.</p>
+                                              <a
+                                                className='bp3-button bp3-small'
+                                                rel='noreferrer'
+                                                target='_blank'
+                                                href='https://github.com/merico-dev/lake/tree/main/plugins/gitextractor'
+                                              >Learn More
+                                              </a>
+                                            </>
+                                          )
+                                          break
+                                        case Providers.REFDIFF:
+                                          helpContext = (
+                                            <>
+                                              <div><strong>RefDiff README</strong></div>
+                                              <p>You need to run gitextractor before the refdiff plugin.</p>
+                                              <a
+                                                className='bp3-button bp3-small'
+                                                rel='noreferrer'
+                                                target='_blank'
+                                                href='https://github.com/merico-dev/lake/tree/main/plugins/refdiff'
+                                              >Learn More
+                                              </a>
+                                            </>
                                           )
                                           break
                                       }
