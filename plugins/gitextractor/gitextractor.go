@@ -5,8 +5,8 @@ import (
 	"errors"
 	"strings"
 
+	lakeErrors "github.com/merico-dev/lake/errors"
 	"github.com/merico-dev/lake/plugins/helper"
-	lakeModels "github.com/merico-dev/lake/models"
 	"github.com/merico-dev/lake/plugins/core"
 	"github.com/merico-dev/lake/plugins/gitextractor/parser"
 	"github.com/merico-dev/lake/plugins/gitextractor/store"
@@ -51,22 +51,14 @@ func (plugin GitExtractor) Init() {
 	logger.Info("INFO >>> init git extractor")
 }
 
-func (plugin GitExtractor) Execute(options map[string]interface{}, progress chan<- float32, ctx context.Context) error {
-	logger := helper.NewDefaultTaskLogger(nil, "git extractor")
-	logger.Info("INFO >>> start git extractor plugin execution")
-	var op GitExtractorOptions
-	err := mapstructure.Decode(options, &op)
-	if err != nil {
-		return err
-	}
-	err = op.Valid()
-	if err != nil {
-		return err
-	}
-	storage := store.NewDatabase(lakeModels.Db)
+func collectGitRepo(taskCtx core.SubTaskContext) error {
+	db := taskCtx.GetDb()
+	storage := store.NewDatabase(db)
 	defer storage.Close()
-	progress <- 0.1
+	op := taskCtx.GetData().(GitExtractorOptions)
+	ctx := taskCtx.GetContext()
 	p := parser.NewLibGit2(storage)
+	var err error
 	if strings.HasPrefix(op.Url, "http") {
 		err = p.CloneOverHTTP(ctx, op.RepoId, op.Url, op.User, op.Password, op.Proxy)
 	} else if url := strings.TrimPrefix(op.Url, "ssh://"); strings.HasPrefix(url, "git@") {
@@ -76,6 +68,42 @@ func (plugin GitExtractor) Execute(options map[string]interface{}, progress chan
 	}
 	if err != nil {
 		return err
+	}
+	return nil
+}
+
+func (plugin GitExtractor) Execute(options map[string]interface{}, progress chan<- float32, ctx context.Context) error {
+	logger := helper.NewDefaultTaskLogger(nil, "git extractor")
+	logger.Info("INFO >>> start git extractor plugin execution")
+
+	// decode options into op
+	var op GitExtractorOptions
+	err := mapstructure.Decode(options, &op)
+	if err != nil {
+		return err
+	}
+	err = op.Valid()
+	if err != nil {
+		return err
+	}
+	progress <- 0.1
+
+	// construct task context
+	subtasksToRun := map[string]bool{"collectGitRepo": true}
+	taskCtx := helper.NewDefaultTaskContext("git", ctx, logger, op, subtasksToRun)
+	taskCtx.SetProgress(10, 100)
+
+	// execute subtasks, only one subtask for now
+	c, err := taskCtx.SubTaskContext("collectGitRepo")
+	if err != nil {
+		return err
+	}
+	err = collectGitRepo(c)
+	if err != nil {
+		return &lakeErrors.SubTaskError{
+			SubTaskName: "collectGitRepo",
+			Message: err.Error(),
+		}
 	}
 	progress <- 1
 	return nil
