@@ -13,6 +13,7 @@ import {
   Tooltip,
 } from '@blueprintjs/core'
 import { Select } from '@blueprintjs/select'
+import RefDiffSettings from '@/components/pipelines/pipeline-settings/refdiff'
 
 const ProviderSettings = (props) => {
   const {
@@ -26,6 +27,9 @@ const ProviderSettings = (props) => {
     repositoryName,
     gitExtractorUrl,
     gitExtractorRepoId,
+    refDiffRepoId,
+    refDiffPairs = [],
+    refDiffTasks = [],
     setProjectId = () => {},
     setSourceId = () => {},
     setSelectedSource = () => {},
@@ -34,8 +38,12 @@ const ProviderSettings = (props) => {
     setRepositoryName = () => {},
     setGitExtractorUrl = () => {},
     setGitExtractorRepoId = () => {},
+    setRefDiffRepoId = () => {},
+    setRefDiffPairs = () => {},
+    setRefDiffTasks = () => {},
     isEnabled = () => {},
     isRunning = false,
+    onReset = () => {}
   } = props
 
   let providerSettings = null
@@ -57,16 +65,6 @@ const ProviderSettings = (props) => {
             contentClassName=''
             fill
           >
-            {/* <InputGroup
-              id='source-id'
-              disabled={isRunning || !isEnabled(providerId)}
-              placeholder='eg. 54'
-              value={sourceId}
-              onChange={(e) => setSourceId(e.target.value)}
-              className='input-source-id'
-              autoComplete='off'
-              fill={false}
-            /> */}
             <ButtonGroup>
               <Select
                 disabled={isRunning || !isEnabled(providerId)}
@@ -128,17 +126,6 @@ const ProviderSettings = (props) => {
             style={{ marginLeft: '12px' }}
             fill
           >
-            {/* (DISABLED) Single Input */}
-            {/* <InputGroup
-              id='board-id'
-              disabled={isRunning || !isEnabled(providerId)}
-              placeholder='eg. 8'
-              value={boardId}
-              onChange={(e) => setBoardId(e.target.value)}
-              className='input-board-id'
-              autoComplete='off'
-              fill={false}
-            /> */}
             <div style={{ width: '100%' }}>
               <TagInput
                 id='board-id'
@@ -235,16 +222,6 @@ const ProviderSettings = (props) => {
             className=''
             contentClassName=''
           >
-            {/* (DISABLED) Single Input */}
-            {/* <InputGroup
-              id='project-id'
-              disabled={isRunning || !isEnabled(providerId)}
-              placeholder='eg. 937810831'
-              value={projectId}
-              onChange={(e) => setProjectId(pId => e.target.value)}
-              className='input-project-id'
-              autoComplete='off'
-            /> */}
             <div style={{ width: '100%' }}>
               <TagInput
                 id='project-id'
@@ -320,7 +297,23 @@ const ProviderSettings = (props) => {
         </>
       )
       break
+    case Providers.REFDIFF:
+      providerSettings = (
+        <RefDiffSettings
+          providerId={providerId}
+          repoId={refDiffRepoId}
+          tasks={refDiffTasks}
+          pairs={refDiffPairs}
+          setRepoId={setRefDiffRepoId}
+          setTasks={setRefDiffTasks}
+          setPairs={setRefDiffPairs}
+          isRunning={isRunning}
+          isEnabled={isEnabled}
+        />
+      )
+      break
     default:
+      providerSettings = null
       break
   }
 

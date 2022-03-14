@@ -649,7 +649,7 @@ const PipelineActivity = (props) => {
                                       <Icon icon='nest' size={12} color={Colors.GRAY4} style={{ marginRight: '0' }} /> <Tag style={{ fontSize: '9px', marginLeft: '0', backgroundColor: '#eee', color: '#777' }}>TAG PAIRS</Tag>
                                       <ul style={{ fontSize: '9px' }}>
                                         {t.options.pairs.map((ref, refIdx) => (
-                                          <li key={`option-subtask-key${refIdx}`}><strong>old</strong> {ref.oldRef} &nbsp; <strong>new</strong> {ref.oldRef} </li>
+                                          <li key={`option-subtask-key${refIdx}`}><strong>old</strong> {ref.oldRef} &nbsp; <strong>new</strong> {ref.newRef} </li>
                                         ))}
                                       </ul>
                                     </div>

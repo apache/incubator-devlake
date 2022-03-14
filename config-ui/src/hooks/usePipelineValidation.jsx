@@ -13,9 +13,12 @@ function usePipelineValidation ({
   repositoryName,
   gitExtractorUrl,
   gitExtractorRepoId,
+  refDiffRepoId,
+  refDiffTasks = [],
+  refDiffPairs = [],
   sourceId,
-  tasks,
-  tasksAdvanced,
+  tasks = [],
+  tasksAdvanced = [],
   advancedMode
 }) {
   const [errors, setErrors] = useState([])
@@ -100,6 +103,18 @@ function usePipelineValidation ({
       errs.push('GitExtractor: Repository Column ID Code is required')
     }
 
+    if (enabledProviders.includes(Providers.REFDIFF) && !refDiffRepoId) {
+      errs.push('RefDiff: Repository Column ID Code is required')
+    }
+
+    if (enabledProviders.includes(Providers.REFDIFF) && refDiffTasks.length === 0) {
+      errs.push('RefDiff: Please select at least ONE (1) Plugin Task')
+    }
+
+    if (enabledProviders.includes(Providers.REFDIFF) && refDiffPairs.length === 0) {
+      errs.push('RefDiff: Please enter at least ONE (1) Tag Ref Pair')
+    }
+
     if (enabledProviders.length === 0) {
       errs.push('Pipeline: Invalid/Empty Configuration')
     }
@@ -113,6 +128,9 @@ function usePipelineValidation ({
     repositoryName,
     gitExtractorUrl,
     gitExtractorRepoId,
+    refDiffRepoId,
+    refDiffTasks,
+    refDiffPairs,
     sourceId
   ])
 
