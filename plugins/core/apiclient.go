@@ -317,6 +317,16 @@ func (apiClient *ApiClient) GetAsync(path string, query url.Values, header http.
 	return apiClient.DoAsync(http.MethodGet, path, query, nil, header, handler, 0)
 }
 
+func (apiClient *ApiClient) GetSync(path string, query url.Values, header http.Header, handler func(*http.Response) (bool, error)) (bool, error) {
+	var err error
+	var res *http.Response
+	res, err = apiClient.Do(http.MethodGet, path, query, nil, header)
+	if err != nil {
+		return false, err
+	}
+	return handler(res)
+}
+
 func (apiClient *ApiClient) WaitAsync() {
 	println("wait until finish")
 	apiClient.scheduler.WaitUntilFinish()
@@ -325,6 +335,10 @@ func (apiClient *ApiClient) WaitAsync() {
 type AsyncApiClient interface {
 	GetAsync(path string, query url.Values, header http.Header, handler func(*http.Response) error) error
 	WaitAsync()
+}
+
+type SyncApiClient interface {
+	GetSync(path string, query url.Values, header http.Header, handler func(*http.Response) (bool, error)) (bool, error)
 }
 
 var _ AsyncApiClient = (*ApiClient)(nil)
