@@ -14,6 +14,12 @@ type DomainIdGenerator struct {
 	pkTypes []reflect.Type
 }
 
+type WildCard string
+
+const WILDCARD WildCard = "%"
+
+var wildcardType = reflect.TypeOf(WILDCARD)
+
 func walkFields(t reflect.Type, pkNames *[]string, pkTypes *[]reflect.Type) {
 	for i := 0; i < t.NumField(); i++ {
 		field := t.Field(i)
@@ -66,15 +72,18 @@ func NewDomainIdGenerator(entityPtr interface{}) *DomainIdGenerator {
 func (g *DomainIdGenerator) Generate(pkValues ...interface{}) string {
 	id := g.prefix
 	for i, pkValue := range pkValues {
+		// append pk
+		id += ":" + fmt.Sprintf("%v", pkValue)
 		// type checking
-		if reflect.ValueOf(pkValue).Type() != g.pkTypes[i] {
+		pkValueType := reflect.TypeOf(pkValue)
+		if pkValueType == wildcardType {
+			break
+		} else if pkValueType != g.pkTypes[i] {
 			panic(fmt.Errorf("primary key type does not match: %s should be %s",
 				g.pkNames[i],
 				g.pkTypes[i].Name(),
 			))
 		}
-		// append pk
-		id += ":" + fmt.Sprintf("%v", pkValue)
 	}
 	return id
 }

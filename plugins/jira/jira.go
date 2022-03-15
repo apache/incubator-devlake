@@ -152,6 +152,7 @@ func (plugin Jira) Execute(options map[string]interface{}, progress chan<- float
 		{name: "collectApiIssues", entryPoint: tasks.CollectApiIssues},
 		{name: "extractApiIssues", entryPoint: tasks.ExtractApiIssues},
 		{name: "collectApiChangelogs", entryPoint: tasks.CollectApiChangelogs},
+		{name: "convertIssues", entryPoint: tasks.ConvertIssues},
 	}
 	for _, t := range newTasks {
 		c, err := taskCtx.SubTaskContext(t.name)
@@ -304,16 +305,6 @@ func (plugin Jira) Execute(options map[string]interface{}, progress chan<- float
 			}
 		}
 	}
-	progress <- 0.6
-	if tasksToRun["convertIssues"] {
-		err = tasks.ConvertIssues(op.SourceId, boardId)
-		if err != nil {
-			return &errors.SubTaskError{
-				SubTaskName: "convertIssues",
-				Message:     err.Error(),
-			}
-		}
-	}
 	progress <- 0.7
 	if tasksToRun["convertWorklogs"] {
 		err = tasks.ConvertWorklog(op.SourceId, boardId)
@@ -449,14 +440,14 @@ func main() {
 					//"collectApiIssues",
 					//"extractApiIssues",
 					//"collectChangelogs",
-					"collectApiChangelogs",
+					//"collectApiChangelogs",
 					//"collectRemotelinks",
 					//"enrichIssues",
 					//"enrichRemotelinks",
 					//"collectSprints",
 					//"collectUsers",
 					//"convertBoard",
-					//"convertIssues",
+					"convertIssues",
 					//"convertWorklogs",
 					//"convertChangelogs",
 					//"convertUsers",

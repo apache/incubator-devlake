@@ -13,7 +13,6 @@ type RawDataExtractor func(row *RawData) ([]interface{}, error)
 type ApiExtractorArgs struct {
 	RawDataSubTaskArgs
 	Params    interface{}
-	RowData   interface{}
 	Extract   RawDataExtractor
 	BatchSize int
 }
