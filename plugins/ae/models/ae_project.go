@@ -2,6 +2,8 @@ package models
 
 import (
 	"time"
+
+	"github.com/merico-dev/lake/plugins/helper"
 )
 
 type AEProject struct {
@@ -10,4 +12,6 @@ type AEProject struct {
 	Priority     int
 	AECreateTime *time.Time
 	AEUpdateTime *time.Time
+
+	helper.RawDataOrigin
 }

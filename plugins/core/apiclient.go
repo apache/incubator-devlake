@@ -301,13 +301,21 @@ func (apiClient *ApiClient) DoAsync(
 	return apiClient.scheduler.Submit(func() error {
 		var err error
 		var res *http.Response
+		var body []byte
 		res, err = apiClient.Do(method, path, query, body, header)
 		if err == nil {
-			err = handler(res)
+			body, err = ioutil.ReadAll(res.Body)
+			res.Body.Close()
+			res.Body = io.NopCloser(bytes.NewBuffer(body))
 		}
-		if err != nil && retry < apiClient.maxRetry {
-			apiClient.logError("retry #%d for %s", retry, err.Error())
-			err = apiClient.DoAsync(method, path, query, body, header, handler, retry+1)
+		// it make sense to retry on request failure, but not error from handler
+		if err != nil {
+			if retry < apiClient.maxRetry {
+				apiClient.logError("retry #%d for %s", retry, err.Error())
+				err = apiClient.DoAsync(method, path, query, body, header, handler, retry+1)
+			}
+		} else {
+			err = handler(res)
 		}
 		return err
 	})
@@ -318,7 +326,6 @@ func (apiClient *ApiClient) GetAsync(path string, query url.Values, header http.
 }
 
 func (apiClient *ApiClient) WaitAsync() {
-	println("wait until finish")
 	apiClient.scheduler.WaitUntilFinish()
 }
 
