@@ -26,25 +26,23 @@ func ExtractCommits(taskCtx core.SubTaskContext) error {
 			Params: AeApiParams{
 				ProjectId: data.Options.ProjectId,
 			},
-			Table: RAW_PROJECT_TABLE,
+			Table: RAW_COMMITS_TABLE,
 		},
 		Extract: func(row *helper.RawData) ([]interface{}, error) {
-			body := &ApiCommitsResponse{}
-			err := json.Unmarshal(row.Data, body)
+			apiCommit := &AeApiCommit{}
+			err := json.Unmarshal(row.Data, apiCommit)
 			if err != nil {
 				return nil, err
 			}
-			results := make([]interface{}, len(*body))
-			for _, apiCommit := range *body {
-				results = append(results, models.AECommit{
+			return []interface{}{
+				&models.AECommit{
 					HexSha:      apiCommit.HexSha,
 					AnalysisId:  apiCommit.AnalysisId,
 					AuthorEmail: apiCommit.AuthorEmail,
 					DevEq:       apiCommit.DevEq,
 					AEProjectId: data.Options.ProjectId,
-				})
-			}
-			return results, nil
+				},
+			}, nil
 		},
 	})
 

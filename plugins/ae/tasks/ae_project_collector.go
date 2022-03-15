@@ -1,6 +1,10 @@
 package tasks
 
 import (
+	"encoding/json"
+	"io/ioutil"
+	"net/http"
+
 	"github.com/merico-dev/lake/plugins/core"
 	"github.com/merico-dev/lake/plugins/helper"
 )
@@ -18,8 +22,17 @@ func CollectProject(taskCtx core.SubTaskContext) error {
 			Table: RAW_PROJECT_TABLE,
 		},
 		ApiClient:   data.ApiClient,
-		PageSize:    100,
 		UrlTemplate: "projects/{{ .Params.ProjectId }}",
+		ResponseParser: func(res *http.Response) ([]json.RawMessage, error) {
+			body, err := ioutil.ReadAll(res.Body)
+			if err != nil {
+				return nil, err
+			}
+			res.Body.Close()
+			return []json.RawMessage{
+				json.RawMessage(body),
+			}, nil
+		},
 	})
 
 	if err != nil {

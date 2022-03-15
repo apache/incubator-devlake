@@ -56,9 +56,14 @@ func (plugin AE) PrepareTaskData(taskCtx core.TaskContext, options map[string]in
 	if op.ProjectId <= 0 {
 		return nil, fmt.Errorf("projectId is required")
 	}
+	apiClient, err := tasks.CreateApiClient(taskCtx.GetContext())
+	apiClient.SetLogger(taskCtx.GetLogger())
+	if err != nil {
+		return nil, err
+	}
 	return &tasks.AeTaskData{
 		Options:   &op,
-		ApiClient: tasks.CreateApiClient(taskCtx.GetContext()),
+		ApiClient: apiClient,
 	}, nil
 }
 
@@ -102,6 +107,13 @@ func (plugin AE) Execute(options map[string]interface{}, progress chan<- float32
 			}
 		}
 	}
+	// calculate total step(number of task to run)
+	steps := 0
+	for _, enabled := range subtasks {
+		if enabled {
+			steps++
+		}
+	}
 
 	taskCtx := helper.NewDefaultTaskContext("ae", ctx, logger, nil, subtasks)
 	taskData, err := plugin.PrepareTaskData(taskCtx, options)
@@ -111,6 +123,7 @@ func (plugin AE) Execute(options map[string]interface{}, progress chan<- float32
 	taskCtx.SetData(taskData)
 
 	// execute subtasks in order
+	taskCtx.SetProgress(0, steps)
 	for _, subtaskMeta := range subtaskMetas {
 		subtaskCtx, err := taskCtx.SubTaskContext(subtaskMeta.Name)
 		if err != nil {
@@ -131,6 +144,7 @@ func (plugin AE) Execute(options map[string]interface{}, progress chan<- float32
 				Message:     err.Error(),
 			}
 		}
+		taskCtx.IncProgress(1)
 	}
 
 	return nil
