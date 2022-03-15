@@ -9,8 +9,6 @@ import (
 
 var _ core.SubTaskEntryPoint = ExtractApiEvents
 
-type ApiIssueEventResponse []IssueEvent
-
 type IssueEvent struct {
 	GithubId int `json:"id"`
 	Event    string
@@ -36,23 +34,21 @@ func ExtractApiEvents(taskCtx core.SubTaskContext) error {
 			Table: RAW_EVENTS_TABLE,
 		},
 		Extract: func(row *helper.RawData) ([]interface{}, error) {
-			body := &ApiIssueEventResponse{}
+			body := &IssueEvent{}
 			err := json.Unmarshal(row.Data, body)
 			if err != nil {
 				return nil, err
 			}
-			results := make([]interface{}, 0, len(*body)*2)
-			for _, apiEvent := range *body {
-				if apiEvent.GithubId == 0 {
-					return nil, nil
-				}
-				githubIssueEvent, err := convertGithubEvent(&apiEvent)
-				if err != nil {
-					return nil, err
-				}
-
-				results = append(results, githubIssueEvent)
+			results := make([]interface{}, 0, 1)
+			if body.GithubId == 0 {
+				return nil, nil
 			}
+			githubIssueEvent, err := convertGithubEvent(body)
+			if err != nil {
+				return nil, err
+			}
+			results = append(results, githubIssueEvent)
+
 			return results, nil
 		},
 	})

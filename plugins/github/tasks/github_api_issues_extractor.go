@@ -12,8 +12,6 @@ import (
 
 var _ core.SubTaskEntryPoint = ExtractApiIssues
 
-type ApiIssuesResponse []IssuesResponse
-
 type IssuesResponse struct {
 	GithubId    int `json:"id"`
 	Number      int
@@ -87,72 +85,70 @@ func ExtractApiIssues(taskCtx core.SubTaskContext) error {
 			Table: RAW_ISSUE_TABLE,
 		},
 		Extract: func(row *helper.RawData) ([]interface{}, error) {
-			body := &ApiIssuesResponse{}
+			body := &IssuesResponse{}
 			err := json.Unmarshal(row.Data, body)
 			if err != nil {
 				return nil, err
 			}
 			// need to extract 2 kinds of entities here
-			results := make([]interface{}, 0, len(*body)*2)
-			for _, apiIssue := range *body {
-				if apiIssue.GithubId == 0 {
-					return nil, nil
-				}
-				//If this is a pr, ignore
-				if apiIssue.PullRequest.Url != "" {
-					continue
-				}
-				githubIssue, err := convertGithubIssue(&apiIssue, data.Repo.GithubId)
-				if err != nil {
-					return nil, err
-				}
-				for _, label := range apiIssue.Labels {
-					results = append(results, &models.GithubIssueLabel{
-						IssueId:   githubIssue.GithubId,
-						LabelName: label.Name,
-					})
-					if issueSeverityRegex != nil {
-						groups := issueSeverityRegex.FindStringSubmatch(label.Name)
-						if len(groups) > 0 {
-							githubIssue.Severity = groups[1]
-						}
-					}
-
-					if issueComponentRegex != nil {
-						groups := issueComponentRegex.FindStringSubmatch(label.Name)
-						if len(groups) > 0 {
-							githubIssue.Component = groups[1]
-						}
-					}
-
-					if issuePriorityRegex != nil {
-						groups := issuePriorityRegex.FindStringSubmatch(label.Name)
-						if len(groups) > 0 {
-							githubIssue.Priority = groups[1]
-						}
-					}
-
-					if issueTypeBugRegex != nil {
-						if ok := issueTypeBugRegex.MatchString(label.Name); ok {
-							githubIssue.Type = ticket.BUG
-						}
-					}
-
-					if issueTypeRequirementRegex != nil {
-						if ok := issueTypeRequirementRegex.MatchString(label.Name); ok {
-							githubIssue.Type = ticket.REQUIREMENT
-						}
-					}
-
-					if issueTypeIncidentRegex != nil {
-						if ok := issueTypeIncidentRegex.MatchString(label.Name); ok {
-							githubIssue.Type = ticket.INCIDENT
-						}
-					}
-				}
-				results = append(results, githubIssue)
-
+			if body.GithubId == 0 {
+				return nil, nil
 			}
+			//If this is a pr, ignore
+			if body.PullRequest.Url != "" {
+				return nil, nil
+			}
+			results := make([]interface{}, 0, 2)
+			githubIssue, err := convertGithubIssue(body, data.Repo.GithubId)
+			if err != nil {
+				return nil, err
+			}
+			for _, label := range body.Labels {
+				results = append(results, &models.GithubIssueLabel{
+					IssueId:   githubIssue.GithubId,
+					LabelName: label.Name,
+				})
+				if issueSeverityRegex != nil {
+					groups := issueSeverityRegex.FindStringSubmatch(label.Name)
+					if len(groups) > 0 {
+						githubIssue.Severity = groups[1]
+					}
+				}
+
+				if issueComponentRegex != nil {
+					groups := issueComponentRegex.FindStringSubmatch(label.Name)
+					if len(groups) > 0 {
+						githubIssue.Component = groups[1]
+					}
+				}
+
+				if issuePriorityRegex != nil {
+					groups := issuePriorityRegex.FindStringSubmatch(label.Name)
+					if len(groups) > 0 {
+						githubIssue.Priority = groups[1]
+					}
+				}
+
+				if issueTypeBugRegex != nil {
+					if ok := issueTypeBugRegex.MatchString(label.Name); ok {
+						githubIssue.Type = ticket.BUG
+					}
+				}
+
+				if issueTypeRequirementRegex != nil {
+					if ok := issueTypeRequirementRegex.MatchString(label.Name); ok {
+						githubIssue.Type = ticket.REQUIREMENT
+					}
+				}
+
+				if issueTypeIncidentRegex != nil {
+					if ok := issueTypeIncidentRegex.MatchString(label.Name); ok {
+						githubIssue.Type = ticket.INCIDENT
+					}
+				}
+			}
+			results = append(results, githubIssue)
+
 			return results, nil
 		},
 	})

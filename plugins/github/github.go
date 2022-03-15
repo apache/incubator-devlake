@@ -157,14 +157,14 @@ func (plugin Github) Execute(options map[string]interface{}, progress chan<- flo
 	}{
 		{name: "collectApiRepositories", entryPoint: tasks.CollectApiRepositories},
 		{name: "extractApiRepositories", entryPoint: tasks.ExtractApiRepositories},
-		//{name: "collectApiIssues", entryPoint: tasks.CollectApiIssues},
-		//{name: "extractApiIssues", entryPoint: tasks.ExtractApiIssues},
-		//{name: "collectApiPullRequests", entryPoint: tasks.CollectApiPullRequests},
-		//{name: "extractApiPullRequests", entryPoint: tasks.ExtractApiPullRequests},
-		//{name: "collectApiComments", entryPoint: tasks.CollectApiComments},
-		//{name: "extractApiComments", entryPoint: tasks.ExtractApiComments},
-		//{name: "collectApiEvents", entryPoint: tasks.CollectApiEvents},
-		//{name: "extractApiEvents", entryPoint: tasks.ExtractApiEvents},
+		{name: "collectApiIssues", entryPoint: tasks.CollectApiIssues},
+		{name: "extractApiIssues", entryPoint: tasks.ExtractApiIssues},
+		{name: "collectApiPullRequests", entryPoint: tasks.CollectApiPullRequests},
+		{name: "extractApiPullRequests", entryPoint: tasks.ExtractApiPullRequests},
+		{name: "collectApiComments", entryPoint: tasks.CollectApiComments},
+		{name: "extractApiComments", entryPoint: tasks.ExtractApiComments},
+		{name: "collectApiEvents", entryPoint: tasks.CollectApiEvents},
+		{name: "extractApiEvents", entryPoint: tasks.ExtractApiEvents},
 	}
 	for _, t := range newTasks {
 		c, err := taskCtx.SubTaskContext(t.name)
@@ -396,8 +396,8 @@ var PluginEntry Github //nolint
 // standalone mode for debugging
 func main() {
 	args := os.Args[1:]
-	owner := "merico-dev"
-	repo := "lake"
+	owner := "pingcap"
+	repo := "tidb"
 	if len(args) > 0 {
 		owner = args[0]
 	}
@@ -422,14 +422,14 @@ func main() {
 					"extractApiRepositories",
 					//"collectCommits",
 					//"collectCommitsStat",
-					//"collectApiIssues",
-					//"extractApiIssues",
-					//"collectApiComments",
-					//"extractApiComments",
-					//"collectApiEvents",
-					//"extractApiEvents",
-					//"collectApiPullRequests",
-					//"extractApiPullRequests",
+					"collectApiIssues",
+					"extractApiIssues",
+					"collectApiComments",
+					"extractApiComments",
+					"collectApiEvents",
+					"extractApiEvents",
+					"collectApiPullRequests",
+					"extractApiPullRequests",
 					//"enrichApiIssues",
 					//"collectIssueEvents",
 					//"collectIssueComments",

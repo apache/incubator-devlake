@@ -2,6 +2,7 @@ package tasks
 
 import (
 	"encoding/json"
+	"regexp"
 
 	"github.com/merico-dev/lake/plugins/core"
 	"github.com/merico-dev/lake/plugins/github/models"
@@ -9,8 +10,6 @@ import (
 )
 
 var _ core.SubTaskEntryPoint = ExtractApiPullRequests
-
-type ApiPullRequestResponse []GithubApiPullRequest
 
 type GithubApiPullRequest struct {
 	GithubId int `json:"id"`
@@ -42,6 +41,16 @@ type GithubApiPullRequest struct {
 
 func ExtractApiPullRequests(taskCtx core.SubTaskContext) error {
 	data := taskCtx.GetData().(*GithubTaskData)
+	var labelTypeRegex *regexp.Regexp
+	var labelComponentRegex *regexp.Regexp
+	var prType = taskCtx.GetConfig("GITHUB_PR_TYPE")
+	var prComponent = taskCtx.GetConfig("GITHUB_PR_COMPONENT")
+	if len(prType) > 0 {
+		labelTypeRegex = regexp.MustCompile(prType)
+	}
+	if len(prComponent) > 0 {
+		labelComponentRegex = regexp.MustCompile(prComponent)
+	}
 
 	extractor, err := helper.NewApiExtractor(helper.ApiExtractorArgs{
 		RawDataSubTaskArgs: helper.RawDataSubTaskArgs{
@@ -60,32 +69,44 @@ func ExtractApiPullRequests(taskCtx core.SubTaskContext) error {
 			Table: RAW_PULL_REQUEST_TABLE,
 		},
 		Extract: func(row *helper.RawData) ([]interface{}, error) {
-			body := &ApiPullRequestResponse{}
-			err := json.Unmarshal(row.Data, body)
+			apiPullRequest := &GithubApiPullRequest{}
+			err := json.Unmarshal(row.Data, apiPullRequest)
 			if err != nil {
 				return nil, err
 			}
 			// need to extract 2 kinds of entities here
-			results := make([]interface{}, 0, len(*body)*2)
-			for _, apiPullRequest := range *body {
-				if apiPullRequest.GithubId == 0 {
-					return nil, nil
+			results := make([]interface{}, 0, 1)
+			if apiPullRequest.GithubId == 0 {
+				return nil, nil
+			}
+			//If this is a pr, ignore
+			githubPr, err := convertGithubPullRequest(apiPullRequest, data.Repo.GithubId)
+			if err != nil {
+				return nil, err
+			}
+			for _, label := range apiPullRequest.Labels {
+				results = append(results, &models.GithubPullRequestLabel{
+					PullId:    githubPr.GithubId,
+					LabelName: label.Name,
+				})
+				// if pr.Type has not been set and prType is set in .env, process the below
+				if labelTypeRegex != nil {
+					groups := labelTypeRegex.FindStringSubmatch(label.Name)
+					if len(groups) > 0 {
+						githubPr.Type = groups[1]
+					}
 				}
-				//If this is a pr, ignore
 
-				githubPr, err := convertGithubPullRequest(&apiPullRequest, data.Repo.GithubId)
-				if err != nil {
-					return nil, err
-				}
-				results = append(results, githubPr)
-				for _, label := range apiPullRequest.Labels {
-					results = append(results, &models.GithubPullRequestLabel{
-						PullId:    githubPr.GithubId,
-						LabelName: label.Name,
-					})
-
+				// if pr.Component has not been set and prComponent is set in .env, process
+				if labelComponentRegex != nil {
+					groups := labelComponentRegex.FindStringSubmatch(label.Name)
+					if len(groups) > 0 {
+						githubPr.Component = groups[1]
+					}
 				}
 			}
+			results = append(results, githubPr)
+
 			return results, nil
 		},
 	})
