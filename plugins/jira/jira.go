@@ -70,9 +70,9 @@ func (plugin Jira) Execute(options map[string]interface{}, progress chan<- float
 		return err
 	}
 
-	var since *time.Time
+	var since time.Time
 	if op.Since != "" {
-		*since, err = time.Parse("2006-01-02T15:04:05Z", op.Since)
+		since, err = time.Parse("2006-01-02T15:04:05Z", op.Since)
 		if err != nil {
 			return fmt.Errorf("invalid value for `since`: %w", err)
 		}
@@ -140,7 +140,9 @@ func (plugin Jira) Execute(options map[string]interface{}, progress chan<- float
 		Options:   &op,
 		ApiClient: &jiraApiClient.ApiClient,
 		Source:    source,
-		Since:     since,
+	}
+	if !since.IsZero() {
+		taskData.Since = &since
 	}
 	taskCtx := helper.NewDefaultTaskContext("jira", ctx, logger, taskData, tasksToRun)
 	newTasks := []struct {
@@ -150,6 +152,7 @@ func (plugin Jira) Execute(options map[string]interface{}, progress chan<- float
 		{name: "collectApiIssues", entryPoint: tasks.CollectApiIssues},
 		{name: "extractApiIssues", entryPoint: tasks.ExtractApiIssues},
 		{name: "collectApiChangelogs", entryPoint: tasks.CollectApiChangelogs},
+		{name: "convertIssues", entryPoint: tasks.ConvertIssues},
 	}
 	for _, t := range newTasks {
 		c, err := taskCtx.SubTaskContext(t.name)
@@ -215,7 +218,7 @@ func (plugin Jira) Execute(options map[string]interface{}, progress chan<- float
 	}
 	progress <- 0.01
 	if tasksToRun["collectIssues"] {
-		err = collector.CollectIssues(jiraApiClient, source, boardId, *since, source.RateLimit, ctx)
+		err = collector.CollectIssues(jiraApiClient, source, boardId, since, source.RateLimit, ctx)
 		if err != nil {
 			return &errors.SubTaskError{
 				SubTaskName: "collectIssues",
@@ -298,16 +301,6 @@ func (plugin Jira) Execute(options map[string]interface{}, progress chan<- float
 		if err != nil {
 			return &errors.SubTaskError{
 				SubTaskName: "convertUsers",
-				Message:     err.Error(),
-			}
-		}
-	}
-	progress <- 0.6
-	if tasksToRun["convertIssues"] {
-		err = tasks.ConvertIssues(op.SourceId, boardId)
-		if err != nil {
-			return &errors.SubTaskError{
-				SubTaskName: "convertIssues",
 				Message:     err.Error(),
 			}
 		}
@@ -447,14 +440,14 @@ func main() {
 					//"collectApiIssues",
 					//"extractApiIssues",
 					//"collectChangelogs",
-					"collectApiChangelogs",
+					//"collectApiChangelogs",
 					//"collectRemotelinks",
 					//"enrichIssues",
 					//"enrichRemotelinks",
 					//"collectSprints",
 					//"collectUsers",
 					//"convertBoard",
-					//"convertIssues",
+					"convertIssues",
 					//"convertWorklogs",
 					//"convertChangelogs",
 					//"convertUsers",
