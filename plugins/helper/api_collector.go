@@ -2,6 +2,7 @@ package helper
 
 import (
 	"bytes"
+	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"net/http"
@@ -38,6 +39,8 @@ type ApiCollectorArgs struct {
 	Input          Iterator
 	InputRateLimit int
 	GetTotalPages  func(res *http.Response, args *ApiCollectorArgs) (int, error)
+	Concurrency    int
+	ResponseParser func(res *http.Response) ([]json.RawMessage, error)
 }
 
 type ApiCollector struct {
@@ -66,8 +69,14 @@ func NewApiCollector(args ApiCollectorArgs) (*ApiCollector, error) {
 	if args.ApiClient == nil {
 		return nil, fmt.Errorf("ApiClient is required")
 	}
+	if args.ResponseParser == nil {
+		return nil, fmt.Errorf("ResponseParser is required")
+	}
 	if args.InputRateLimit == 0 {
 		args.InputRateLimit = 50
+	}
+	if args.Concurrency < 1 {
+		args.Concurrency = 1
 	}
 	return &ApiCollector{
 		RawDataSubTask: rawDataSubTask,
@@ -207,11 +216,23 @@ func (collector *ApiCollector) fetchPagesAsync(input interface{}) error {
 			}
 			return nil
 		})
+	} else if collector.args.PageSize > 0 {
+		for i := 0; i < collector.args.Concurrency; i++ {
+			pager := Pager{
+				Page: i + 1,
+				Size: collector.args.PageSize,
+				Skip: collector.args.PageSize * (i),
+			}
+			err = collector.fetchAsync(&pager, input, collector.recursive(input, &pager))
+			if err != nil {
+				return err
+			}
+		}
 	} else {
-		/* when total pages is available from api*/
-		// fetch page by page in sequential?
-		// use step currency technique? fetch like 10 pages at once, if all went well, fetch next 10 pages?
-		panic("not implmented")
+		err = collector.fetchAsync(nil, input, collector.handleResponse)
+		if err != nil {
+			return err
+		}
 	}
 	if err != nil {
 		return err
@@ -223,20 +244,47 @@ func (collector *ApiCollector) fetchPagesAsync(input interface{}) error {
 }
 
 func (collector *ApiCollector) handleResponse(res *http.Response) error {
-	body, err := ioutil.ReadAll(res.Body)
+	_, err := collector.saveRawData(res)
+	return err
+}
+func (collector *ApiCollector) saveRawData(res *http.Response) (int, error) {
+	items, err := collector.args.ResponseParser(res)
 	if err != nil {
-		return err
+		return 0, err
 	}
 	res.Body.Close()
+	if len(items) == 0 {
+		return 0, nil
+	}
 	db := collector.args.Ctx.GetDb()
-	return db.Table(collector.table).Create(&RawData{
-		Data:   datatypes.JSON(body),
-		Params: collector.params,
-		Url:    res.Request.URL.String(),
-	}).Error
+	u := res.Request.URL.String()
+	dd := make([]*RawData, len(items))
+	for i, msg := range items {
+		dd[i] = &RawData{
+			Params: collector.params,
+			Data:   datatypes.JSON(msg),
+			Url:    u,
+		}
+	}
+	return len(dd), db.Table(collector.table).Create(dd).Error
 }
 
-func (collector *ApiCollector) fetchAsync(pager *Pager, input interface{}, handler AsyncResponseHandler) error {
+func (collector *ApiCollector) recursive(input interface{}, p *Pager) func(res *http.Response) error {
+	return func(res *http.Response) error {
+		count, err := collector.saveRawData(res)
+		if err != nil {
+			return err
+		}
+		if count < collector.args.PageSize {
+			return nil
+		}
+		p.Skip += collector.args.PageSize * p.Page
+		p.Page += collector.args.Concurrency
+		return collector.fetchAsync(p, input, collector.recursive(input, p))
+	}
+}
+
+func (collector *ApiCollector) fetchAsync(pager *Pager, input interface{}, handler func(*http.Response) error) error {
 	if pager == nil {
 		pager = &Pager{
 			Page: 1,
@@ -248,7 +296,7 @@ func (collector *ApiCollector) fetchAsync(pager *Pager, input interface{}, handl
 	if err != nil {
 		return err
 	}
-	apiQuery := (url.Values)(nil)
+	var apiQuery url.Values
 	if collector.args.Query != nil {
 		apiQuery, err = collector.args.Query(pager)
 		if err != nil {
