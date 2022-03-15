@@ -76,7 +76,8 @@ func (plugin Github) Execute(options map[string]interface{}, progress chan<- flo
 	tasksToRun := make(map[string]bool, len(op.Tasks))
 	if len(op.Tasks) == 0 {
 		tasksToRun = map[string]bool{
-			"collectRepo":               true,
+			"collectApiRepositories":    false,
+			"extractApiRepositories":    false,
 			"collectCommits":            true,
 			"collectCommitsStat":        true,
 			"collectIssues":             true,
@@ -154,6 +155,8 @@ func (plugin Github) Execute(options map[string]interface{}, progress chan<- flo
 		name       string
 		entryPoint core.SubTaskEntryPoint
 	}{
+		{name: "collectApiRepositories", entryPoint: tasks.CollectApiRepositories},
+		{name: "extractApiRepositories", entryPoint: tasks.ExtractApiRepositories},
 		//{name: "collectApiIssues", entryPoint: tasks.CollectApiIssues},
 		//{name: "extractApiIssues", entryPoint: tasks.ExtractApiIssues},
 		//{name: "collectApiPullRequests", entryPoint: tasks.CollectApiPullRequests},
@@ -161,7 +164,7 @@ func (plugin Github) Execute(options map[string]interface{}, progress chan<- flo
 		//{name: "collectApiComments", entryPoint: tasks.CollectApiComments},
 		//{name: "extractApiComments", entryPoint: tasks.ExtractApiComments},
 		//{name: "collectApiEvents", entryPoint: tasks.CollectApiEvents},
-		{name: "extractApiEvents", entryPoint: tasks.ExtractApiEvents},
+		//{name: "extractApiEvents", entryPoint: tasks.ExtractApiEvents},
 	}
 	for _, t := range newTasks {
 		c, err := taskCtx.SubTaskContext(t.name)
@@ -180,12 +183,7 @@ func (plugin Github) Execute(options map[string]interface{}, progress chan<- flo
 	}
 
 	repoId := 1
-	if tasksToRun["collectRepo"] {
-		repoId, err = tasks.CollectRepository(op.Owner, op.Repo, apiClient)
-		if err != nil {
-			return fmt.Errorf("Could not collect repositories: %v", err)
-		}
-	}
+
 	if tasksToRun["collectCommits"] {
 		progress <- 0.1
 		fmt.Println("INFO >>> starting commits collection")
@@ -398,8 +396,8 @@ var PluginEntry Github //nolint
 // standalone mode for debugging
 func main() {
 	args := os.Args[1:]
-	owner := "pingcap"
-	repo := "tidb"
+	owner := "merico-dev"
+	repo := "lake"
 	if len(args) > 0 {
 		owner = args[0]
 	}
@@ -420,7 +418,8 @@ func main() {
 				"owner": owner,
 				"repo":  repo,
 				"tasks": []string{
-					//"collectRepo",
+					"collectApiRepositories",
+					"extractApiRepositories",
 					//"collectCommits",
 					//"collectCommitsStat",
 					//"collectApiIssues",
@@ -428,7 +427,7 @@ func main() {
 					//"collectApiComments",
 					//"extractApiComments",
 					//"collectApiEvents",
-					"extractApiEvents",
+					//"extractApiEvents",
 					//"collectApiPullRequests",
 					//"extractApiPullRequests",
 					//"enrichApiIssues",
