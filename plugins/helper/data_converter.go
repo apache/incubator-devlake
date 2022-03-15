@@ -110,4 +110,4 @@ func (converter *DataConverter) Execute() error {
 	return divider.Close()
 }
 
-var _ core.SubTask = (*ApiExtractor)(nil)
+var _ core.SubTask = (*DataConverter)(nil)
