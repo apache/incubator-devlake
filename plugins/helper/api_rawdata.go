@@ -31,8 +31,13 @@ type RawDataOrigin struct {
 }
 
 type RawDataSubTaskArgs struct {
-	Ctx    core.SubTaskContext
-	Table  string      `comment:"Raw data table name"`
+	Ctx core.SubTaskContext
+
+	//	Table store raw data
+	Table string `comment:"Raw data table name"`
+
+	//	This struct will be JSONEncoded and stored into database along with raw data itself, to identity minimal
+	//	set of data to be process, for example, we process JiraIssues by Board
 	Params interface{} `comment:"To identify a set of records with same UrlTemplate, i.e. {SourceId, BoardId} for jira entities"`
 }
 

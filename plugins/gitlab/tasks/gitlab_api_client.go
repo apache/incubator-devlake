@@ -18,6 +18,30 @@ type GitlabApiClient struct {
 	core.ApiClient
 }
 
+func NewGitlabApiClient(
+	endpoint string,
+	auth string,
+	proxy string,
+	scheduler *utils.WorkerScheduler,
+	logger core.Logger,
+) *GitlabApiClient {
+	gitlabApiClient := CreateApiClient(scheduler)
+	gitlabApiClient.SetAfterFunction(func(res *http.Response) error {
+		if res.StatusCode == http.StatusUnauthorized {
+			return fmt.Errorf("authentication failed, please check your Basic Auth Token")
+		}
+		return nil
+	})
+	if proxy != "" {
+		err := gitlabApiClient.SetProxy(proxy)
+		if err != nil {
+			panic(err)
+		}
+	}
+	gitlabApiClient.SetLogger(logger)
+	return gitlabApiClient
+}
+
 func CreateApiClient(scheduler *utils.WorkerScheduler) *GitlabApiClient {
 	gitlabApiClient := &GitlabApiClient{}
 	V := config.GetConfig()

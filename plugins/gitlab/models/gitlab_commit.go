@@ -4,6 +4,7 @@ import (
 	"time"
 
 	"github.com/merico-dev/lake/models/common"
+	"github.com/merico-dev/lake/plugins/helper"
 )
 
 type GitlabCommit struct {
@@ -22,4 +23,6 @@ type GitlabCommit struct {
 	Deletions      int `gorm:"comment:Deleted lines of code"`
 	Total          int `gorm:"comment:Sum of added/deleted lines of code"`
 	common.NoPKModel
+
+	helper.RawDataOrigin
 }
