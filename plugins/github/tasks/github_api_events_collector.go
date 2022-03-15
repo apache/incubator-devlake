@@ -1,8 +1,10 @@
 package tasks
 
 import (
+	"encoding/json"
 	"fmt"
 	"github.com/merico-dev/lake/plugins/helper"
+	"net/http"
 	"net/url"
 
 	"github.com/merico-dev/lake/plugins/core"
@@ -67,6 +69,14 @@ func CollectApiEvents(taskCtx core.SubTaskContext) error {
 			return query, nil
 		},
 		GetTotalPages: GetTotalPagesFromResponse,
+		ResponseParser: func(res *http.Response) ([]json.RawMessage, error) {
+			var items []json.RawMessage
+			err := core.UnmarshalResponse(res, &items)
+			if err != nil {
+				return nil, err
+			}
+			return items, nil
+		},
 	})
 
 	if err != nil {

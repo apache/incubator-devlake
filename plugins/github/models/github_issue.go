@@ -20,11 +20,11 @@ type GithubIssue struct {
 	LeadTimeMinutes uint
 	ClosedAt        *time.Time
 	GithubCreatedAt time.Time
-	GithubUpdatedAt time.Time
+	GithubUpdatedAt time.Time `gorm:"index"`
 	Severity        string
 	Component       string
 	CreatedAt       time.Time
-	UpdatedAt       time.Time `gorm:"index"`
+	UpdatedAt       time.Time
 
 	helper.RawDataOrigin
 }

@@ -12,7 +12,7 @@ type GithubPullRequest struct {
 	State           string
 	Title           string
 	GithubCreatedAt time.Time
-	GithubUpdatedAt time.Time
+	GithubUpdatedAt time.Time `gorm:"index"`
 	ClosedAt        *time.Time
 	// In order to get the following fields, we need to collect PRs individually from GitHub
 	Additions      int
@@ -31,7 +31,7 @@ type GithubPullRequest struct {
 	BaseCommitSha  string
 	HeadCommitSha  string
 	CreatedAt      time.Time
-	UpdatedAt      time.Time `gorm:"index"`
+	UpdatedAt      time.Time
 
 	helper.RawDataOrigin
 }
