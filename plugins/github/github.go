@@ -39,6 +39,7 @@ func (plugin Github) Init() {
 		&models.GithubIssueLabel{},
 		&models.GithubUser{},
 		&models.GithubPullRequestIssue{},
+		&models.GithubCommitStat{},
 	)
 	if err != nil {
 		panic(err)
@@ -76,10 +77,12 @@ func (plugin Github) Execute(options map[string]interface{}, progress chan<- flo
 	tasksToRun := make(map[string]bool, len(op.Tasks))
 	if len(op.Tasks) == 0 {
 		tasksToRun = map[string]bool{
-			"collectApiRepositories":       false,
-			"extractApiRepositories":       false,
-			"collectCommits":               true,
-			"collectCommitsStat":           true,
+			"collectApiRepositories": false,
+			"extractApiRepositories": false,
+			//"collectApiCommits":
+			//"extractApiCommits":
+			//"collectApiCommitStats":
+			//"extractApiCommitStats":        false,
 			"collectIssues":                true,
 			"collectIssueEvents":           true,
 			"collectIssueComments":         true,
@@ -157,8 +160,14 @@ func (plugin Github) Execute(options map[string]interface{}, progress chan<- flo
 		name       string
 		entryPoint core.SubTaskEntryPoint
 	}{
-		{name: "collectApiRepositories", entryPoint: tasks.CollectApiRepositories},
-		{name: "extractApiRepositories", entryPoint: tasks.ExtractApiRepositories},
+		//{name: "collectApiRepositories", entryPoint: tasks.CollectApiRepositories},
+		//{name: "extractApiRepositories", entryPoint: tasks.ExtractApiRepositories},
+
+		//{name: "collectApiCommits", entryPoint: tasks.CollectApiCommits},
+		//{name: "extractApiCommits", entryPoint: tasks.ExtractApiCommits},
+		//{name: "collectApiCommitStats", entryPoint: tasks.CollectApiCommitStats},
+		{name: "extractApiCommitStats", entryPoint: tasks.ExtractApiCommitStats},
+
 		//{name: "collectApiIssues", entryPoint: tasks.CollectApiIssues},
 		//{name: "extractApiIssues", entryPoint: tasks.ExtractApiIssues},
 		//{name: "collectApiPullRequests", entryPoint: tasks.CollectApiPullRequests},
@@ -168,7 +177,7 @@ func (plugin Github) Execute(options map[string]interface{}, progress chan<- flo
 		//{name: "collectApiEvents", entryPoint: tasks.CollectApiEvents},
 		//{name: "extractApiEvents", entryPoint: tasks.ExtractApiEvents},
 		//{name: "collectApiPullRequestCommits", entryPoint: tasks.CollectApiPullRequestCommits},
-		{name: "extractApiPullRequestCommits", entryPoint: tasks.ExtractApiPullRequestCommits},
+		//{name: "extractApiPullRequestCommits", entryPoint: tasks.ExtractApiPullRequestCommits},
 	}
 	for _, t := range newTasks {
 		c, err := taskCtx.SubTaskContext(t.name)
@@ -187,29 +196,6 @@ func (plugin Github) Execute(options map[string]interface{}, progress chan<- flo
 	}
 
 	repoId := 1
-
-	if tasksToRun["collectCommits"] {
-		progress <- 0.1
-		fmt.Println("INFO >>> starting commits collection")
-		err = tasks.CollectCommits(op.Owner, op.Repo, repoId, apiClient)
-		if err != nil {
-			return &errors.SubTaskError{
-				Message:     fmt.Errorf("Could not collect commits: %v", err).Error(),
-				SubTaskName: "collectCommits",
-			}
-		}
-	}
-	if tasksToRun["collectCommitsStat"] {
-		progress <- 0.11
-		fmt.Println("INFO >>> starting commits stat collection")
-		err = tasks.CollectCommitsStat(op.Owner, op.Repo, repoId, apiClient, rateLimitPerSecondInt, ctx)
-		if err != nil {
-			return &errors.SubTaskError{
-				Message:     fmt.Errorf("Could not collect commits: %v", err).Error(),
-				SubTaskName: "collectCommitsStat",
-			}
-		}
-	}
 
 	if tasksToRun["collectPullRequestReviews"] {
 		progress <- 0.38
@@ -400,8 +386,11 @@ func main() {
 				"tasks": []string{
 					"collectApiRepositories",
 					"extractApiRepositories",
-					//"collectCommits",
-					//"collectCommitsStat",
+					"collectApiCommits",
+					"extractApiCommits",
+					"collectApiCommitStats",
+					"extractApiCommitStats",
+
 					//"collectApiIssues",
 					//"extractApiIssues",
 					//"collectApiComments",
@@ -411,7 +400,7 @@ func main() {
 					//"collectApiPullRequests",
 					//"extractApiPullRequests",
 					//"collectApiPullRequestCommits",
-					"extractApiPullRequestCommits",
+					//"extractApiPullRequestCommits",
 					//"enrichApiIssues",
 					//"collectIssueEvents",
 					//"collectIssueComments",
