@@ -20,8 +20,6 @@ func ExtractApiMergeRequests(taskCtx core.SubTaskContext) error {
 			Table: RAW_MERGE_REQUEST_TABLE,
 		},
 		Extract: func(row *helper.RawData) ([]interface{}, error) {
-			results := make([]interface{}, 0, 1)
-
 			mr := &MergeRequestRes{}
 			err := json.Unmarshal(row.Data, mr)
 			if err != nil {
@@ -32,6 +30,7 @@ func ExtractApiMergeRequests(taskCtx core.SubTaskContext) error {
 			if err != nil {
 				return nil, err
 			}
+			results := make([]interface{}, 0, len(mr.Reviewers)+1)
 
 			results = append(results, gitlabMergeRequest)
 
