@@ -59,7 +59,7 @@ func ExtractApiPullRequestCommits(taskCtx core.SubTaskContext) error {
 			if err != nil {
 				return nil, err
 			}
-			pull := &models.GithubPullRequest{}
+			pull := &SimplePr{}
 			err = json.Unmarshal(row.Input, pull)
 			if err != nil {
 				return nil, err
