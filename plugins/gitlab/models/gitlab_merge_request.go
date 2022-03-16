@@ -1,8 +1,10 @@
 package models
 
 import (
-	"github.com/merico-dev/lake/models/common"
 	"time"
+
+	"github.com/merico-dev/lake/models/common"
+	"github.com/merico-dev/lake/plugins/helper"
 )
 
 type GitlabMergeRequest struct {
@@ -25,4 +27,6 @@ type GitlabMergeRequest struct {
 	ReviewRounds     int        `gorm:"comment:How many rounds of review this MR went through"`
 
 	common.NoPKModel
+
+	helper.RawDataOrigin
 }

@@ -3,10 +3,11 @@ package main // must be main for plugin entry point
 import (
 	"context"
 	"fmt"
-	"github.com/merico-dev/lake/config"
-	errors "github.com/merico-dev/lake/errors"
 	"os"
 	"strconv"
+
+	"github.com/merico-dev/lake/config"
+	errors "github.com/merico-dev/lake/errors"
 
 	"github.com/merico-dev/lake/logger" // A pseudo type for Plugin Interface implementation
 	lakeModels "github.com/merico-dev/lake/models"
@@ -14,15 +15,12 @@ import (
 	"github.com/merico-dev/lake/plugins/gitlab/api"
 	"github.com/merico-dev/lake/plugins/gitlab/models"
 	"github.com/merico-dev/lake/plugins/gitlab/tasks"
+	"github.com/merico-dev/lake/plugins/helper"
 	"github.com/merico-dev/lake/utils"
 	"github.com/mitchellh/mapstructure"
 )
 
 var _ core.Plugin = (*Gitlab)(nil)
-
-type GitlabOptions struct {
-	Tasks []string `json:"tasks,omitempty"`
-}
 
 type Gitlab string
 
@@ -77,7 +75,7 @@ func (plugin Gitlab) Execute(options map[string]interface{}, progress chan<- flo
 		return fmt.Errorf("projectId is invalid")
 	}
 
-	var op GitlabOptions
+	var op tasks.GitlabOptions
 	err = mapstructure.Decode(options, &op)
 	if err != nil {
 		return err
@@ -88,30 +86,73 @@ func (plugin Gitlab) Execute(options map[string]interface{}, progress chan<- flo
 	}
 	if len(tasksToRun) == 0 {
 		tasksToRun = map[string]bool{
-			"collectPipelines": true,
-			"collectCommits":   true,
-			"CollectTags":      true,
-			"collectMrs":       true,
-			"collectMrNotes":   true,
-			"collectMrCommits": true,
-			"enrichMrs":        true,
-			"convertProjects":  true,
-			"convertMrs":       true,
-			"convertCommits":   true,
-			"convertNotes":     true,
+			"collectApiCommits":       true,
+			"extractApiCommits":       true,
+			"collectApiMergeRequests": true,
+			"extractApiMergeRequests": true,
+			"collectPipelines":        true,
+			"collectCommits":          true,
+			"CollectTags":             true,
+			"collectMrs":              true,
+			"collectMrNotes":          true,
+			"collectMrCommits":        true,
+			"enrichMrs":               true,
+			"convertProjects":         true,
+			"convertMrs":              true,
+			"convertCommits":          true,
+			"convertNotes":            true,
 		}
 	}
 
-	gitlabApiClient := tasks.CreateApiClient(scheduler)
+	s := config.GetConfig()
+	logger := helper.NewDefaultTaskLogger(nil, "gitlab")
+	gitlabApiClient := tasks.NewGitlabApiClient(
+		s.GetString("GITLAB_ENDPOINT"),
+		s.GetString("GITLAB_AUTH"),
+		s.GetString("GITLAB_PROXY"),
+		scheduler,
+		logger,
+	)
 	err = gitlabApiClient.SetProxy(config.GetConfig().GetString("GITLAB_PROXY"))
 	if err != nil {
 		return err
 	}
+	taskData := &tasks.GitlabTaskData{
+		Options:   &op,
+		ApiClient: &gitlabApiClient.ApiClient,
+	}
+	taskCtx := helper.NewDefaultTaskContext("gitlab", ctx, logger, taskData, tasksToRun)
+	newTasks := []struct {
+		name       string
+		entryPoint core.SubTaskEntryPoint
+	}{
+		{name: "collectApiCommits", entryPoint: tasks.CollectApiCommits},
+		{name: "extractApiCommits", entryPoint: tasks.ExtractApiCommits},
+		{name: "collectApiMergeRequests", entryPoint: tasks.CollectApiMergeRequests},
+		{name: "extractApiMergeRequests", entryPoint: tasks.ExtractApiMergeRequests},
+	}
+	progress <- 0.05
+	for _, t := range newTasks {
+		c, err := taskCtx.SubTaskContext(t.name)
+		if err != nil {
+			return err
+		}
+		if c != nil {
+			err = t.entryPoint(c)
+			if err != nil {
+				return &errors.SubTaskError{
+					SubTaskName: t.name,
+					Message:     err.Error(),
+				}
+			}
+		}
+	}
+
 	progress <- 0.1
 	if err := tasks.CollectProject(ctx, projectIdInt, gitlabApiClient); err != nil {
 		return fmt.Errorf("could not collect projects: %v", err)
 	}
-	if tasksToRun["collectCommits"] {
+	/*if tasksToRun["collectCommits"] {
 		progress <- 0.25
 		if err := tasks.CollectCommits(ctx, projectIdInt, gitlabApiClient); err != nil {
 			return &errors.SubTaskError{
@@ -119,7 +160,7 @@ func (plugin Gitlab) Execute(options map[string]interface{}, progress chan<- flo
 				Message:     fmt.Errorf("could not collect commits: %v", err).Error(),
 			}
 		}
-	}
+	}*/
 	if tasksToRun["collectTags"] {
 		progress <- 0.3
 		if err := tasks.CollectTags(ctx, projectIdInt, gitlabApiClient); err != nil {
@@ -129,7 +170,7 @@ func (plugin Gitlab) Execute(options map[string]interface{}, progress chan<- flo
 			}
 		}
 	}
-	if tasksToRun["collectMrs"] {
+	/*if tasksToRun["collectMrs"] {
 		progress <- 0.35
 		mergeRequestErr := tasks.CollectMergeRequests(ctx, projectIdInt, gitlabApiClient)
 		if mergeRequestErr != nil {
@@ -138,7 +179,7 @@ func (plugin Gitlab) Execute(options map[string]interface{}, progress chan<- flo
 				Message:     fmt.Errorf("could not collect merge requests: %v", mergeRequestErr).Error(),
 			}
 		}
-	}
+	}*/
 
 	if tasksToRun["collectMrNotes"] {
 		progress <- 0.4
