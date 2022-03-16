@@ -14,6 +14,7 @@ import (
 
 	"github.com/merico-dev/lake/config"
 	"github.com/merico-dev/lake/plugins/core"
+	"github.com/merico-dev/lake/utils"
 )
 
 type AEApiClient struct {
@@ -81,20 +82,25 @@ func (client *AEApiClient) beforeRequest(req *http.Request) error {
 	return nil
 }
 
-func CreateApiClient(ctx context.Context) *AEApiClient {
+func CreateApiClient(ctx context.Context) (*AEApiClient, error) {
+	scheduler, err := utils.NewWorkerScheduler(10, 100, ctx)
+	if err != nil {
+		return nil, err
+	}
 	aeApiClient := &AEApiClient{}
 	aeApiClient.Setup(
 		config.GetConfig().GetString("AE_ENDPOINT"),
 		nil,
 		30*time.Second,
 		3,
-		nil,
+		scheduler,
 	)
 	aeApiClient.SetBeforeFunction(aeApiClient.beforeRequest)
 	aeApiClient.SetContext(ctx)
-	return aeApiClient
+	return aeApiClient, nil
 }
 
+/*
 type AEPaginationHandler func(res *http.Response) error
 
 // fetch paginated without ANTS worker pool
@@ -124,3 +130,4 @@ func (aeApiClient *AEApiClient) FetchWithPagination(path string, pageSize int, h
 
 	return nil
 }
+*/

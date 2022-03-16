@@ -13,15 +13,13 @@ import (
 	"github.com/merico-dev/lake/plugins/ae/models"
 	"github.com/merico-dev/lake/plugins/ae/tasks"
 	"github.com/merico-dev/lake/plugins/core"
+	"github.com/merico-dev/lake/plugins/helper"
 	"github.com/mitchellh/mapstructure"
 )
 
 var _ core.Plugin = (*AE)(nil)
+var _ core.ManagedSubTasks = (*AE)(nil)
 
-type AEOptions struct {
-	ProjectId int
-	Tasks     []string `json:"tasks,omitempty"`
-}
 type AE string
 
 func (plugin AE) Init() {
@@ -39,60 +37,116 @@ func (plugin AE) Description() string {
 	return "To collect and enrich data from AE"
 }
 
-func (plugin AE) Execute(options map[string]interface{}, progress chan<- float32, ctx context.Context) error {
-	logger.Print("start ae plugin execution")
+func (plugin AE) SubTaskMetas() []core.SubTaskMeta {
+	return []core.SubTaskMeta{
+		tasks.CollectProjectMeta,
+		tasks.CollectCommitsMeta,
+		tasks.ExtractProjectMeta,
+		tasks.ExtractCommitsMeta,
+		tasks.ConvertCommitsMeta,
+	}
+}
 
-	var op AEOptions
+func (plugin AE) PrepareTaskData(taskCtx core.TaskContext, options map[string]interface{}) (interface{}, error) {
+	var op tasks.AeOptions
 	err := mapstructure.Decode(options, &op)
+	if err != nil {
+		return nil, err
+	}
+	if op.ProjectId <= 0 {
+		return nil, fmt.Errorf("projectId is required")
+	}
+	apiClient, err := tasks.CreateApiClient(taskCtx.GetContext())
+	apiClient.SetLogger(taskCtx.GetLogger())
+	if err != nil {
+		return nil, err
+	}
+	return &tasks.AeTaskData{
+		Options:   &op,
+		ApiClient: apiClient,
+	}, nil
+}
+
+func (plugin AE) Execute(options map[string]interface{}, progress chan<- float32, ctx context.Context) error {
+	logger := helper.NewDefaultTaskLogger(nil, "ae")
+	logger.Info("start plugin")
+
+	// find out all possible subtasks this plugin can offer
+	subtaskMetas := plugin.SubTaskMetas()
+	subtasks := make(map[string]bool)
+	for _, subtaskMeta := range subtaskMetas {
+		subtasks[subtaskMeta.Name] = subtaskMeta.EnabledByDefault
+	}
+	/* subtasks example
+	subtasks := map[string]bool{
+		"collectProject": true,
+		"convertCommits": true,
+		...
+	}
+	*/
+
+	// if user specified what subtasks to run, obey
+	// TODO: move tasks field to outer level, and rename it to subtasks
+	if _, ok := options["tasks"]; ok {
+		// decode user specified subtasks
+		var specifiedTasks []string
+		err := mapstructure.Decode(options["tasks"], &specifiedTasks)
+		if err != nil {
+			return err
+		}
+		// first, disable all subtasks
+		for task := range subtasks {
+			subtasks[task] = false
+		}
+		// second, check specified subtasks is valid and enable them if so
+		for _, task := range specifiedTasks {
+			if _, ok := subtasks[task]; ok {
+				subtasks[task] = true
+			} else {
+				return fmt.Errorf("subtask %s does not exist", task)
+			}
+		}
+	}
+	// calculate total step(number of task to run)
+	steps := 0
+	for _, enabled := range subtasks {
+		if enabled {
+			steps++
+		}
+	}
+
+	taskCtx := helper.NewDefaultTaskContext("ae", ctx, logger, nil, subtasks)
+	taskData, err := plugin.PrepareTaskData(taskCtx, options)
 	if err != nil {
 		return err
 	}
+	taskCtx.SetData(taskData)
 
-	tasksToRun := make(map[string]bool, len(op.Tasks))
-	for _, task := range op.Tasks {
-		tasksToRun[task] = true
-	}
-	if len(tasksToRun) == 0 {
-		tasksToRun = map[string]bool{
-			"collectProject": true,
-			"collectCommits": true,
-			"convertCommits": true,
+	// execute subtasks in order
+	taskCtx.SetProgress(0, steps)
+	for _, subtaskMeta := range subtaskMetas {
+		subtaskCtx, err := taskCtx.SubTaskContext(subtaskMeta.Name)
+		if err != nil {
+			// sth went wrong
+			return err
 		}
-	}
+		if subtaskCtx == nil {
+			// subtask was disabled
+			continue
+		}
 
-	progress <- 0.1
-	if tasksToRun["collectProject"] {
-		if err := tasks.CollectProject(op.ProjectId, ctx); err != nil {
+		// run subtask
+		logger.Info("executing subtask %s", subtaskMeta.Name)
+		err = subtaskMeta.EntryPoint(subtaskCtx)
+		if err != nil {
 			return &errors.SubTaskError{
-				SubTaskName: "collectProject",
-				Message:     fmt.Sprintf("could not collect project: %v", err),
+				SubTaskName: subtaskMeta.Name,
+				Message:     err.Error(),
 			}
 		}
+		taskCtx.IncProgress(1)
 	}
 
-	progress <- 0.25
-
-	if tasksToRun["collectCommits"] {
-		if err := tasks.CollectCommits(op.ProjectId, ctx); err != nil {
-			return &errors.SubTaskError{
-				SubTaskName: "collectCommitDevEqs",
-				Message:     fmt.Sprintf("could not collect commits: %v", err),
-			}
-		}
-	}
-
-	progress <- 0.75
-
-	if tasksToRun["convertCommits"] {
-		if err := tasks.ConvertCommits(ctx); err != nil {
-			return &errors.SubTaskError{
-				SubTaskName: "convertCommitDevEqs",
-				Message:     fmt.Sprintf("could not enhance commits with AE dev equivalent: %v", err),
-			}
-		}
-	}
-
-	progress <- 1
 	return nil
 }
 

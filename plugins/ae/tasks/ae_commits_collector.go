@@ -1,67 +1,57 @@
 package tasks
 
 import (
-	"context"
+	"encoding/json"
 	"fmt"
+	"io/ioutil"
 	"net/http"
+	"net/url"
 
-	"github.com/merico-dev/lake/logger"
-	lakeModels "github.com/merico-dev/lake/models"
-	"github.com/merico-dev/lake/plugins/ae/models"
 	"github.com/merico-dev/lake/plugins/core"
-	"gorm.io/gorm/clause"
+	"github.com/merico-dev/lake/plugins/helper"
 )
 
-type ApiCommitResponse []AEApiCommit
+const RAW_COMMITS_TABLE = "ae_commits"
 
-type AEApiCommit struct {
-	HexSha      string `json:"hexsha"`
-	AnalysisId  string `json:"analysis_id"`
-	AuthorEmail string `json:"author_email"`
-	DevEq       int    `json:"dev_eq"`
-}
-
-func CollectCommits(projectId int, ctx context.Context) error {
-	aeApiClient := CreateApiClient(ctx)
-	relativePath := fmt.Sprintf("projects/%v/commits", projectId)
-	pageSize := 2000
-	return aeApiClient.FetchWithPagination(relativePath, pageSize,
-		func(res *http.Response) error {
-
-			aeApiResponse := &ApiCommitResponse{}
-			err := core.UnmarshalResponse(res, aeApiResponse)
-
+func CollectCommits(taskCtx core.SubTaskContext) error {
+	data := taskCtx.GetData().(*AeTaskData)
+	collector, err := helper.NewApiCollector(helper.ApiCollectorArgs{
+		RawDataSubTaskArgs: helper.RawDataSubTaskArgs{
+			Ctx: taskCtx,
+			Params: AeApiParams{
+				ProjectId: data.Options.ProjectId,
+			},
+			Table: RAW_COMMITS_TABLE,
+		},
+		ApiClient:   data.ApiClient,
+		PageSize:    2000,
+		UrlTemplate: "projects/{{ .Params.ProjectId }}/commits",
+		Query: func(pager *helper.Pager) (url.Values, error) {
+			query := url.Values{}
+			query.Set("page", fmt.Sprintf("%v", pager.Page))
+			query.Set("per_page", fmt.Sprintf("%v", pager.Size))
+			return query, nil
+		},
+		ResponseParser: func(res *http.Response) ([]json.RawMessage, error) {
+			body, err := ioutil.ReadAll(res.Body)
 			if err != nil {
-				logger.Error("Error: ", err)
-				return nil
+				return nil, err
 			}
-			for _, aeApiCommit := range *aeApiResponse {
-				aeCommit, err := convertCommit(&aeApiCommit, projectId)
-				if err != nil {
-					return err
-				}
+			var results []json.RawMessage
+			err = json.Unmarshal(body, &results)
+			return results, err
+		},
+	})
 
-				err = lakeModels.Db.Clauses(clause.OnConflict{
-					UpdateAll: true,
-				}).Create(&aeCommit).Error
-
-				if err != nil {
-					logger.Error("Could not upsert: ", err)
-				}
-			}
-
-			return nil
-		})
+	if err != nil {
+		return err
+	}
+	return collector.Execute()
 }
 
-// Convert the API response to our DB model instance
-func convertCommit(commit *AEApiCommit, projectId int) (*models.AECommit, error) {
-	aeCommit := &models.AECommit{
-		HexSha:      commit.HexSha,
-		AnalysisId:  commit.AnalysisId,
-		AuthorEmail: commit.AuthorEmail,
-		DevEq:       commit.DevEq,
-		AEProjectId: projectId,
-	}
-	return aeCommit, nil
+var CollectCommitsMeta = core.SubTaskMeta{
+	Name:             "collectCommits",
+	EntryPoint:       CollectCommits,
+	EnabledByDefault: true,
+	Description:      "Collect commit analysis data from AE api",
 }
