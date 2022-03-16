@@ -12,18 +12,13 @@ import (
 	"github.com/merico-dev/lake/plugins/github/models"
 )
 
-const RAW_PULL_REQUEST_COMMIT_TABLE = "github_api_pull_request_commits"
+const RAW_PULL_REQUEST_REVIEW_TABLE = "github_api_pull_request_reviews"
 
 // this struct should be moved to `gitub_api_common.go`
 
-var _ core.SubTaskEntryPoint = CollectApiPullRequestCommits
+var _ core.SubTaskEntryPoint = CollectApiPullRequestReviews
 
-type SimplePr struct {
-	Number   int
-	GithubId int
-}
-
-func CollectApiPullRequestCommits(taskCtx core.SubTaskContext) error {
+func CollectApiPullRequestReviews(taskCtx core.SubTaskContext) error {
 	db := taskCtx.GetDb()
 	data := taskCtx.GetData().(*GithubTaskData)
 
@@ -56,14 +51,14 @@ func CollectApiPullRequestCommits(taskCtx core.SubTaskContext) error {
 			/*
 				Table store raw data
 			*/
-			Table: RAW_PULL_REQUEST_COMMIT_TABLE,
+			Table: RAW_PULL_REQUEST_REVIEW_TABLE,
 		},
 		ApiClient:   data.ApiClient,
 		PageSize:    100,
 		Incremental: incremental,
 		Input:       iterator,
 
-		UrlTemplate: "repos/{{ .Params.Owner }}/{{ .Params.Repo }}/pulls/{{ .Input.Number }}/commits",
+		UrlTemplate: "repos/{{ .Params.Owner }}/{{ .Params.Repo }}/pulls/{{ .Input.Number }}/reviews",
 
 		Query: func(pager *helper.Pager) (url.Values, error) {
 			query := url.Values{}
@@ -74,23 +69,6 @@ func CollectApiPullRequestCommits(taskCtx core.SubTaskContext) error {
 
 			return query, nil
 		},
-		/*
-			Some api might do pagination by http headers
-		*/
-		//Header: func(pager *core.Pager) http.Header {
-		//},
-		/*
-			Sometimes, we need to collect data based on previous collected data, like jira changelog, it requires
-			issue_id as part of the url.
-			We can mimic `stdin` design, to accept a `Input` function which produces a `Iterator`, collector
-			should iterate all records, and do data-fetching for each on, either in parallel or sequential order
-			UrlTemplate: "api/3/issue/{{ Input.ID }}/changelog"
-		*/
-		//Input: databaseIssuesIterator,
-		/*
-			For api endpoint that returns number of total pages, ApiCollector can collect pages in parallel with ease,
-			or other techniques are required if this information was missing.
-		*/
 		ResponseParser: func(res *http.Response) ([]json.RawMessage, error) {
 			var items []json.RawMessage
 			err := core.UnmarshalResponse(res, &items)
