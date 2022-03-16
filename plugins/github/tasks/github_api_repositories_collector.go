@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/merico-dev/lake/plugins/helper"
+	"io/ioutil"
 	"net/http"
 	"net/url"
 
@@ -41,12 +42,12 @@ func CollectApiRepositories(taskCtx core.SubTaskContext) error {
 			return query, nil
 		},
 		ResponseParser: func(res *http.Response) ([]json.RawMessage, error) {
-			var items []json.RawMessage
-			err := core.UnmarshalResponse(res, &items)
+			body, err := ioutil.ReadAll(res.Body)
+			res.Body.Close()
 			if err != nil {
 				return nil, err
 			}
-			return items, nil
+			return []json.RawMessage{body}, nil
 		},
 	})
 

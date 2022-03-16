@@ -129,7 +129,13 @@ func (collector *ApiCollector) Execute() error {
 			if err != nil {
 				return err
 			}
-			err = collector.exec(input)
+			err = scheduler.Submit(func() error {
+				err = collector.exec(input)
+				if err != nil {
+					return err
+				}
+				return nil
+			})
 			if err != nil {
 				break
 			}
@@ -244,15 +250,18 @@ func (collector *ApiCollector) fetchPagesAsync(input interface{}) error {
 }
 
 func (collector *ApiCollector) handleResponse(res *http.Response) error {
-	_, err := collector.saveRawData(res)
+	_, err := collector.saveRawData(res, nil)
 	return err
 }
-func (collector *ApiCollector) saveRawData(res *http.Response) (int, error) {
+func (collector *ApiCollector) saveRawData(res *http.Response, input interface{}) (int, error) {
 	items, err := collector.args.ResponseParser(res)
 	if err != nil {
 		return 0, err
 	}
 	res.Body.Close()
+
+	inputJson, _ := json.Marshal(input)
+
 	if len(items) == 0 {
 		return 0, nil
 	}
@@ -264,6 +273,7 @@ func (collector *ApiCollector) saveRawData(res *http.Response) (int, error) {
 			Params: collector.params,
 			Data:   datatypes.JSON(msg),
 			Url:    u,
+			Input:  inputJson,
 		}
 	}
 	return len(dd), db.Table(collector.table).Create(dd).Error
@@ -271,7 +281,7 @@ func (collector *ApiCollector) saveRawData(res *http.Response) (int, error) {
 
 func (collector *ApiCollector) recursive(input interface{}, p *Pager) func(res *http.Response) error {
 	return func(res *http.Response) error {
-		count, err := collector.saveRawData(res)
+		count, err := collector.saveRawData(res, input)
 		if err != nil {
 			return err
 		}
