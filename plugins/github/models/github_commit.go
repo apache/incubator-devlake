@@ -1,6 +1,7 @@
 package models
 
 import (
+	"github.com/merico-dev/lake/plugins/helper"
 	"time"
 
 	"github.com/merico-dev/lake/models/common"
@@ -22,4 +23,5 @@ type GithubCommit struct {
 	Deletions      int `gorm:"comment:Deleted lines of code"`
 
 	common.NoPKModel
+	helper.RawDataOrigin
 }

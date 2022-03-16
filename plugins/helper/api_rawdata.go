@@ -15,6 +15,7 @@ type RawData struct {
 	Params    string `gorm:"type:varchar(255);index"`
 	Data      datatypes.JSON
 	Url       string
+	Input     datatypes.JSON
 	CreatedAt time.Time
 }
 
