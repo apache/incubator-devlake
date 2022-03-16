@@ -20,7 +20,7 @@ type Pager struct {
 	Size int
 }
 
-type UrlData struct {
+type RequestData struct {
 	Pager  *Pager
 	Params interface{}
 	Input  interface{}
@@ -39,15 +39,14 @@ type ApiCollectorArgs struct {
 		avoid duplicate logic for every tasks, and when we have a better idea like improving performance, we can
 		do it in one place
 	*/
-	UrlTemplate string `comment:"GoTemplate for API url"`
-
-	//	(Optional) Return query string for request, or you can plug them into UrlTemplate directly
-	Query func(pager *Pager) (url.Values, error) `comment:"Extra query string when requesting API, like 'Since' option for jira issues collection"`
+	UrlTemplate    string                                 `comment:"GoTemplate for API url"`
+	// (Optional) Return query string for request, or you can plug them into UrlTemplate directly
+	Query          func(reqData *RequestData) (url.Values, error) `comment:"Extra query string when requesting API, like 'Since' option for jira issues collection"`
 	// Some api might do pagination by http headers
-	Header      func(pager *Pager) (http.Header, error)
-	PageSize    int
-	Incremental bool `comment:"Indicate this is a incremental collection, so the existing data won't get flushed"`
-	ApiClient   core.AsyncApiClient
+	Header         func(reqData *RequestData) (http.Header, error)
+	PageSize       int
+	Incremental    bool `comment:"Indicate this is a incremental collection, so the existing data won't get flushed"`
+	ApiClient      core.AsyncApiClient
 	/*
 		Sometimes, we need to collect data based on previous collected data, like jira changelog, it requires
 		issue_id as part of the url.
@@ -176,17 +175,19 @@ func (collector *ApiCollector) Execute() error {
 }
 
 func (collector *ApiCollector) exec(input interface{}) error {
+	reqData := new(RequestData)
+	reqData.Input = input
 	if collector.args.PageSize > 0 {
 		// collect multiple pages
-		return collector.fetchPagesAsync(input)
+		return collector.fetchPagesAsync(reqData)
 	}
 	// collect detail of a record
-	return collector.fetchAsync(nil, input, collector.handleResponse)
+	return collector.fetchAsync(reqData, collector.handleResponse)
 }
 
 func (collector *ApiCollector) generateUrl(pager *Pager, input interface{}) (string, error) {
 	var buf bytes.Buffer
-	err := collector.urlTemplate.Execute(&buf, &UrlData{
+	err := collector.urlTemplate.Execute(&buf, &RequestData{
 		Pager:  pager,
 		Params: collector.args.Params,
 		Input:  input,
@@ -197,12 +198,12 @@ func (collector *ApiCollector) generateUrl(pager *Pager, input interface{}) (str
 	return buf.String(), nil
 }
 
-func (collector *ApiCollector) fetchPagesAsync(input interface{}) error {
+func (collector *ApiCollector) fetchPagesAsync(reqData *RequestData) error {
 	var err error
 	if collector.args.GetTotalPages != nil {
 		/* when total pages is available from api*/
 		// fetch the very first page
-		err = collector.fetchAsync(nil, input, func(res *http.Response) error {
+		err = collector.fetchAsync(reqData, func(res *http.Response) error {
 			// gather total pages
 			body, err := ioutil.ReadAll(res.Body)
 			if err != nil {
@@ -225,11 +226,15 @@ func (collector *ApiCollector) fetchPagesAsync(input interface{}) error {
 			}
 			// fetch other pages in parallel
 			for page := 2; page <= totalPages; page++ {
-				err = collector.fetchAsync(&Pager{
-					Page: page,
-					Size: collector.args.PageSize,
-					Skip: collector.args.PageSize * (page - 1),
-				}, input, func(res *http.Response) error {
+				reqDataTemp := &RequestData{
+					Pager: &Pager{
+						Page : page,
+						Size : collector.args.PageSize,
+						Skip : collector.args.PageSize * (page - 1),
+					},
+					Input: reqData.Input,
+				}
+				err = collector.fetchAsync(reqDataTemp, func(res *http.Response) error {
 					err := collector.handleResponse(res)
 					if err != nil {
 						return err
@@ -247,18 +252,21 @@ func (collector *ApiCollector) fetchPagesAsync(input interface{}) error {
 		})
 	} else if collector.args.PageSize > 0 {
 		for i := 0; i < collector.args.Concurrency; i++ {
-			pager := Pager{
-				Page: i + 1,
-				Size: collector.args.PageSize,
-				Skip: collector.args.PageSize * (i),
+			reqDataTemp := &RequestData{
+				Pager: &Pager{
+					Page : i + 1,
+					Size : collector.args.PageSize,
+					Skip : collector.args.PageSize * (i),
+				},
+				Input: reqData.Input,
 			}
-			err = collector.fetchAsync(&pager, input, collector.recursive(input, &pager))
+			err = collector.fetchAsync(reqDataTemp, collector.recursive(reqDataTemp))
 			if err != nil {
 				return err
 			}
 		}
 	} else {
-		err = collector.fetchAsync(nil, input, collector.handleResponse)
+		err = collector.fetchAsync(reqData, collector.handleResponse)
 		if err != nil {
 			return err
 		}
@@ -302,43 +310,43 @@ func (collector *ApiCollector) saveRawData(res *http.Response, input interface{}
 	return len(dd), db.Table(collector.table).Create(dd).Error
 }
 
-func (collector *ApiCollector) recursive(input interface{}, p *Pager) func(res *http.Response) error {
+func (collector *ApiCollector) recursive(reqData *RequestData) func(res *http.Response) error {
 	return func(res *http.Response) error {
-		count, err := collector.saveRawData(res, input)
+		count, err := collector.saveRawData(res, reqData.Input)
 		if err != nil {
 			return err
 		}
 		if count < collector.args.PageSize {
 			return nil
 		}
-		p.Skip += collector.args.PageSize * p.Page
-		p.Page += collector.args.Concurrency
-		return collector.fetchAsync(p, input, collector.recursive(input, p))
+		reqData.Pager.Skip += collector.args.PageSize * reqData.Pager.Page
+		reqData.Pager.Page += collector.args.Concurrency
+		return collector.fetchAsync(reqData, collector.recursive(reqData))
 	}
 }
 
-func (collector *ApiCollector) fetchAsync(pager *Pager, input interface{}, handler func(*http.Response) error) error {
-	if pager == nil {
-		pager = &Pager{
+func (collector *ApiCollector) fetchAsync(reqData *RequestData, handler func(*http.Response) error) error {
+	if reqData.Pager == nil {
+		reqData.Pager = &Pager{
 			Page: 1,
 			Size: 100,
 			Skip: 0,
 		}
 	}
-	apiUrl, err := collector.generateUrl(pager, input)
+	apiUrl, err := collector.generateUrl(reqData.Pager, reqData.Input)
 	if err != nil {
 		return err
 	}
 	var apiQuery url.Values
 	if collector.args.Query != nil {
-		apiQuery, err = collector.args.Query(pager)
+		apiQuery, err = collector.args.Query(reqData)
 		if err != nil {
 			return err
 		}
 	}
 	apiHeader := (http.Header)(nil)
 	if collector.args.Header != nil {
-		apiHeader, err = collector.args.Header(pager)
+		apiHeader, err = collector.args.Header(reqData)
 		if err != nil {
 			return err
 		}

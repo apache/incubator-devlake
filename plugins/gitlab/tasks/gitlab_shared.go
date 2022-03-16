@@ -43,10 +43,10 @@ func GetRawMessageFromResponse(res *http.Response) ([]json.RawMessage, error) {
 	return *rawMessages, nil
 }
 
-func GetQuery(pager *helper.Pager) (url.Values, error) {
+func GetQuery(reqData *helper.RequestData) (url.Values, error) {
 	query := url.Values{}
 	query.Set("with_stats", "true")
-	query.Set("page", strconv.Itoa(pager.Page))
-	query.Set("per_page", strconv.Itoa(pager.Size))
+	query.Set("page", strconv.Itoa(reqData.Pager.Page))
+	query.Set("per_page", strconv.Itoa(reqData.Pager.Size))
 	return query, nil
 }
