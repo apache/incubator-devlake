@@ -1,56 +1,49 @@
 package tasks
 
 import (
-	"context"
-	"fmt"
+	"encoding/json"
+	"io/ioutil"
 	"net/http"
-	"time"
 
-	"github.com/merico-dev/lake/logger"
-	lakeModels "github.com/merico-dev/lake/models"
-	"github.com/merico-dev/lake/plugins/ae/models"
 	"github.com/merico-dev/lake/plugins/core"
-	"gorm.io/gorm/clause"
+	"github.com/merico-dev/lake/plugins/helper"
 )
 
-type ApiProjectResponse struct {
-	Id           int        `json:"id"`
-	GitUrl       string     `json:"git_url"`
-	Priority     int        `json:"priority"`
-	AECreateTime *time.Time `json:"create_time"`
-	AEUpdateTime *time.Time `json:"update_time"`
+const RAW_PROJECT_TABLE = "ae_project"
+
+func CollectProject(taskCtx core.SubTaskContext) error {
+	data := taskCtx.GetData().(*AeTaskData)
+	collector, err := helper.NewApiCollector(helper.ApiCollectorArgs{
+		RawDataSubTaskArgs: helper.RawDataSubTaskArgs{
+			Ctx: taskCtx,
+			Params: AeApiParams{
+				ProjectId: data.Options.ProjectId,
+			},
+			Table: RAW_PROJECT_TABLE,
+		},
+		ApiClient:   data.ApiClient,
+		UrlTemplate: "projects/{{ .Params.ProjectId }}",
+		ResponseParser: func(res *http.Response) ([]json.RawMessage, error) {
+			body, err := ioutil.ReadAll(res.Body)
+			if err != nil {
+				return nil, err
+			}
+			res.Body.Close()
+			return []json.RawMessage{
+				json.RawMessage(body),
+			}, nil
+		},
+	})
+
+	if err != nil {
+		return err
+	}
+	return collector.Execute()
 }
 
-func CollectProject(projectId int, ctx context.Context) error {
-	aeApiClient := CreateApiClient(ctx)
-
-	res, err := aeApiClient.Get(fmt.Sprintf("/projects/%v", projectId), nil, nil)
-	if err != nil {
-		logger.Error("Error: ", err)
-		return err
-	}
-	if res.StatusCode != http.StatusOK {
-		return fmt.Errorf("unexpected status code %d", res.StatusCode)
-	}
-	aeApiResponse := &ApiProjectResponse{}
-	err = core.UnmarshalResponse(res, aeApiResponse)
-	if err != nil {
-		logger.Error("Error: ", err)
-		return err
-	}
-	aeProject := &models.AEProject{
-		Id:           aeApiResponse.Id,
-		GitUrl:       aeApiResponse.GitUrl,
-		Priority:     aeApiResponse.Priority,
-		AECreateTime: aeApiResponse.AECreateTime,
-		AEUpdateTime: aeApiResponse.AEUpdateTime,
-	}
-	err = lakeModels.Db.Clauses(clause.OnConflict{
-		UpdateAll: true,
-	}).Create(&aeProject).Error
-	if err != nil {
-		logger.Error("Could not upsert: ", err)
-		return err
-	}
-	return nil
+var CollectProjectMeta = core.SubTaskMeta{
+	Name:             "collectProject",
+	EntryPoint:       CollectProject,
+	EnabledByDefault: true,
+	Description:      "Collect analysis project data from AE api",
 }

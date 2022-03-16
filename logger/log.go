@@ -15,7 +15,7 @@ func init() {
 	log = logrus.New()
 	// log.SetFormatter(&logrus.JSONFormatter{})
 	// TODO: setting log level with config
-	log.SetLevel(logrus.InfoLevel)
+	log.SetLevel(logrus.DebugLevel)
 	log.SetFormatter(&prefixed.TextFormatter{
 		TimestampFormat: "2006-01-02 15:04:05",
 		FullTimestamp:   true,
