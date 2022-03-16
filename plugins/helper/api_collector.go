@@ -226,10 +226,11 @@ func (collector *ApiCollector) fetchPagesAsync(reqData *RequestData) error {
 			}
 			// fetch other pages in parallel
 			for page := 2; page <= totalPages; page++ {
-				reqData.Pager.Page = page
-				reqData.Pager.Size = collector.args.PageSize
-				reqData.Pager.Skip = collector.args.PageSize * (page - 1)
-				err = collector.fetchAsync(reqData, func(res *http.Response) error {
+				reqDataTemp := new(RequestData)
+				reqDataTemp.Pager.Page = page
+				reqDataTemp.Pager.Size = collector.args.PageSize
+				reqDataTemp.Pager.Skip = collector.args.PageSize * (page - 1)
+				err = collector.fetchAsync(reqDataTemp, func(res *http.Response) error {
 					err := collector.handleResponse(res)
 					if err != nil {
 						return err
@@ -247,10 +248,11 @@ func (collector *ApiCollector) fetchPagesAsync(reqData *RequestData) error {
 		})
 	} else if collector.args.PageSize > 0 {
 		for i := 0; i < collector.args.Concurrency; i++ {
-			reqData.Pager.Page = i + 1
-			reqData.Pager.Size = collector.args.PageSize
-			reqData.Pager.Skip = collector.args.PageSize * (i)
-			err = collector.fetchAsync(reqData, collector.recursive(reqData))
+			reqDataTemp := new(RequestData)
+			reqDataTemp.Pager.Page = i + 1
+			reqDataTemp.Pager.Size = collector.args.PageSize
+			reqDataTemp.Pager.Skip = collector.args.PageSize * (i)
+			err = collector.fetchAsync(reqDataTemp, collector.recursive(reqDataTemp))
 			if err != nil {
 				return err
 			}
