@@ -1,8 +1,10 @@
 package tasks
 
 import (
+	"encoding/json"
 	"fmt"
 	"github.com/merico-dev/lake/plugins/helper"
+	"net/http"
 	"net/url"
 	"reflect"
 
@@ -81,7 +83,14 @@ func CollectApiPullRequestCommits(taskCtx core.SubTaskContext) error {
 			For api endpoint that returns number of total pages, ApiCollector can collect pages in parallel with ease,
 			or other techniques are required if this information was missing.
 		*/
-		GetTotalPages: GetTotalPagesFromResponse,
+		ResponseParser: func(res *http.Response) ([]json.RawMessage, error) {
+			var items []json.RawMessage
+			err := core.UnmarshalResponse(res, &items)
+			if err != nil {
+				return nil, err
+			}
+			return items, nil
+		},
 	})
 
 	if err != nil {
