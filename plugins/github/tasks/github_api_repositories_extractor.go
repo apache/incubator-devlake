@@ -25,7 +25,6 @@ type GithubApiRepo struct {
 
 func ExtractApiRepositories(taskCtx core.SubTaskContext) error {
 	data := taskCtx.GetData().(*GithubTaskData)
-
 	extractor, err := helper.NewApiExtractor(helper.ApiExtractorArgs{
 		RawDataSubTaskArgs: helper.RawDataSubTaskArgs{
 			Ctx: taskCtx,
@@ -60,6 +59,7 @@ func ExtractApiRepositories(taskCtx core.SubTaskContext) error {
 				CreatedDate: body.CreatedAt.ToTime(),
 				UpdatedDate: core.Iso8601TimeToTime(body.UpdatedAt),
 			}
+			data.Repo = githubRepository
 
 			if body.Parent != nil {
 				githubRepository.ParentGithubId = body.Parent.GithubId
