@@ -166,7 +166,7 @@ func (plugin Github) Execute(options map[string]interface{}, progress chan<- flo
 		//{name: "collectApiCommits", entryPoint: tasks.CollectApiCommits},
 		//{name: "extractApiCommits", entryPoint: tasks.ExtractApiCommits},
 		//{name: "collectApiCommitStats", entryPoint: tasks.CollectApiCommitStats},
-		{name: "extractApiCommitStats", entryPoint: tasks.ExtractApiCommitStats},
+		//{name: "extractApiCommitStats", entryPoint: tasks.ExtractApiCommitStats},
 
 		//{name: "collectApiIssues", entryPoint: tasks.CollectApiIssues},
 		//{name: "extractApiIssues", entryPoint: tasks.ExtractApiIssues},
@@ -176,8 +176,10 @@ func (plugin Github) Execute(options map[string]interface{}, progress chan<- flo
 		//{name: "extractApiComments", entryPoint: tasks.ExtractApiComments},
 		//{name: "collectApiEvents", entryPoint: tasks.CollectApiEvents},
 		//{name: "extractApiEvents", entryPoint: tasks.ExtractApiEvents},
-		//{name: "collectApiPullRequestCommits", entryPoint: tasks.CollectApiPullRequestCommits},
-		//{name: "extractApiPullRequestCommits", entryPoint: tasks.ExtractApiPullRequestCommits},
+		{name: "collectApiPullRequestCommits", entryPoint: tasks.CollectApiPullRequestCommits},
+		{name: "extractApiPullRequestCommits", entryPoint: tasks.ExtractApiPullRequestCommits},
+		{name: "collectApiPullRequestReviews", entryPoint: tasks.CollectApiPullRequestReviews},
+		{name: "extractApiPullRequestReviews", entryPoint: tasks.ExtractApiPullRequestReviews},
 	}
 	for _, t := range newTasks {
 		c, err := taskCtx.SubTaskContext(t.name)
@@ -196,18 +198,6 @@ func (plugin Github) Execute(options map[string]interface{}, progress chan<- flo
 	}
 
 	repoId := 1
-
-	if tasksToRun["collectPullRequestReviews"] {
-		progress <- 0.38
-		fmt.Println("INFO >>> collecting PR Reviews collection")
-		err = tasks.CollectPullRequestReviews(ctx, op.Owner, op.Repo, repoId, apiClient, rateLimitPerSecondInt)
-		if err != nil {
-			return &errors.SubTaskError{
-				Message:     fmt.Errorf("Could not collect PR Reviews: %v", err).Error(),
-				SubTaskName: "collectPullRequestReviews",
-			}
-		}
-	}
 
 	if tasksToRun["enrichPullRequestIssues"] {
 		progress <- 0.73
@@ -391,16 +381,18 @@ func main() {
 					"collectApiCommitStats",
 					"extractApiCommitStats",
 
-					//"collectApiIssues",
-					//"extractApiIssues",
-					//"collectApiComments",
-					//"extractApiComments",
-					//"collectApiEvents",
-					//"extractApiEvents",
-					//"collectApiPullRequests",
-					//"extractApiPullRequests",
-					//"collectApiPullRequestCommits",
-					//"extractApiPullRequestCommits",
+					"collectApiIssues",
+					"extractApiIssues",
+					"collectApiComments",
+					"extractApiComments",
+					"collectApiEvents",
+					"extractApiEvents",
+					"collectApiPullRequests",
+					"extractApiPullRequests",
+					"collectApiPullRequestCommits",
+					"extractApiPullRequestCommits",
+					"collectApiPullRequestReviews",
+					"extractApiPullRequestReviews",
 					//"enrichApiIssues",
 					//"collectIssueEvents",
 					//"collectIssueComments",
