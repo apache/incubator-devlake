@@ -30,14 +30,36 @@ type AsyncResponseHandler func(res *http.Response) error
 
 type ApiCollectorArgs struct {
 	RawDataSubTaskArgs
+	/*
+		url may use arbitrary variables from different source in any order, we need GoTemplate to allow more
+		flexible for all kinds of possibility.
+		Pager contains information for a particular page, calculated by ApiCollector, and will be passed into
+		GoTemplate to generate a url for that page.
+		We want to do page-fetching in ApiCollector, because the logic are highly similar, by doing so, we can
+		avoid duplicate logic for every tasks, and when we have a better idea like improving performance, we can
+		do it in one place
+	*/
 	UrlTemplate    string                                 `comment:"GoTemplate for API url"`
+	// (Optional) Return query string for request, or you can plug them into UrlTemplate directly
 	Query          func(reqData *RequestData) (url.Values, error) `comment:"Extra query string when requesting API, like 'Since' option for jira issues collection"`
+	// Some api might do pagination by http headers
 	Header         func(reqData *RequestData) (http.Header, error)
 	PageSize       int
 	Incremental    bool `comment:"Indicate this is a incremental collection, so the existing data won't get flushed"`
 	ApiClient      core.AsyncApiClient
+	/*
+		Sometimes, we need to collect data based on previous collected data, like jira changelog, it requires
+		issue_id as part of the url.
+		We can mimic `stdin` design, to accept a `Input` function which produces a `Iterator`, collector
+		should iterate all records, and do data-fetching for each on, either in parallel or sequential order
+		UrlTemplate: "api/3/issue/{{ Input.ID }}/changelog"
+	*/
 	Input          Iterator
 	InputRateLimit int
+	/*
+		For api endpoint that returns number of total pages, ApiCollector can collect pages in parallel with ease,
+		or other techniques are required if this information was missing.
+	*/
 	GetTotalPages  func(res *http.Response, args *ApiCollectorArgs) (int, error)
 	Concurrency    int
 	ResponseParser func(res *http.Response) ([]json.RawMessage, error)
