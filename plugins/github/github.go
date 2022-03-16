@@ -76,38 +76,40 @@ func (plugin Github) Execute(options map[string]interface{}, progress chan<- flo
 	tasksToRun := make(map[string]bool, len(op.Tasks))
 	if len(op.Tasks) == 0 {
 		tasksToRun = map[string]bool{
-			"collectApiRepositories":    false,
-			"extractApiRepositories":    false,
-			"collectCommits":            true,
-			"collectCommitsStat":        true,
-			"collectIssues":             true,
-			"collectIssueEvents":        true,
-			"collectIssueComments":      true,
-			"collectApiIssues":          false,
-			"extractApiIssues":          false,
-			"collectApiPullRequests":    false,
-			"extractApiPullRequests":    false,
-			"collectApiComments":        false,
-			"extractApiComments":        false,
-			"collectApiEvents":          false,
-			"extractApiEvents":          false,
-			"collectPullRequests":       true,
-			"collectPullRequestReviews": true,
-			"collectPullRequestCommits": true,
-			"enrichIssues":              true,
-			"enrichPullRequests":        true,
-			"enrichComments":            true,
-			"enrichPullRequestIssues":   true,
-			"convertRepos":              true,
-			"convertIssues":             true,
-			"convertIssueLabels":        true,
-			"convertPullRequests":       true,
-			"convertCommits":            true,
-			"convertPullRequestCommits": true,
-			"convertPullRequestLabels":  true,
-			"convertPullRequestIssues":  true,
-			"convertNotes":              true,
-			"convertUsers":              true,
+			"collectApiRepositories":       false,
+			"extractApiRepositories":       false,
+			"collectCommits":               true,
+			"collectCommitsStat":           true,
+			"collectIssues":                true,
+			"collectIssueEvents":           true,
+			"collectIssueComments":         true,
+			"collectApiIssues":             false,
+			"extractApiIssues":             false,
+			"collectApiPullRequests":       false,
+			"extractApiPullRequests":       false,
+			"collectApiComments":           false,
+			"extractApiComments":           false,
+			"collectApiEvents":             false,
+			"extractApiEvents":             false,
+			"collectApiPullRequestCommits": false,
+			"extractApiPullRequestCommits": false,
+			"collectPullRequests":          true,
+			"collectPullRequestReviews":    true,
+			"collectPullRequestCommits":    true,
+			"enrichIssues":                 true,
+			"enrichPullRequests":           true,
+			"enrichComments":               true,
+			"enrichPullRequestIssues":      true,
+			"convertRepos":                 true,
+			"convertIssues":                true,
+			"convertIssueLabels":           true,
+			"convertPullRequests":          true,
+			"convertCommits":               true,
+			"convertPullRequestCommits":    true,
+			"convertPullRequestLabels":     true,
+			"convertPullRequestIssues":     true,
+			"convertNotes":                 true,
+			"convertUsers":                 true,
 		}
 	} else {
 		for _, task := range op.Tasks {
@@ -157,14 +159,16 @@ func (plugin Github) Execute(options map[string]interface{}, progress chan<- flo
 	}{
 		{name: "collectApiRepositories", entryPoint: tasks.CollectApiRepositories},
 		{name: "extractApiRepositories", entryPoint: tasks.ExtractApiRepositories},
-		{name: "collectApiIssues", entryPoint: tasks.CollectApiIssues},
-		{name: "extractApiIssues", entryPoint: tasks.ExtractApiIssues},
-		{name: "collectApiPullRequests", entryPoint: tasks.CollectApiPullRequests},
-		{name: "extractApiPullRequests", entryPoint: tasks.ExtractApiPullRequests},
-		{name: "collectApiComments", entryPoint: tasks.CollectApiComments},
-		{name: "extractApiComments", entryPoint: tasks.ExtractApiComments},
-		{name: "collectApiEvents", entryPoint: tasks.CollectApiEvents},
-		{name: "extractApiEvents", entryPoint: tasks.ExtractApiEvents},
+		//{name: "collectApiIssues", entryPoint: tasks.CollectApiIssues},
+		//{name: "extractApiIssues", entryPoint: tasks.ExtractApiIssues},
+		//{name: "collectApiPullRequests", entryPoint: tasks.CollectApiPullRequests},
+		//{name: "extractApiPullRequests", entryPoint: tasks.ExtractApiPullRequests},
+		//{name: "collectApiComments", entryPoint: tasks.CollectApiComments},
+		//{name: "extractApiComments", entryPoint: tasks.ExtractApiComments},
+		//{name: "collectApiEvents", entryPoint: tasks.CollectApiEvents},
+		//{name: "extractApiEvents", entryPoint: tasks.ExtractApiEvents},
+		//{name: "collectApiPullRequestCommits", entryPoint: tasks.CollectApiPullRequestCommits},
+		{name: "extractApiPullRequestCommits", entryPoint: tasks.ExtractApiPullRequestCommits},
 	}
 	for _, t := range newTasks {
 		c, err := taskCtx.SubTaskContext(t.name)
@@ -215,30 +219,6 @@ func (plugin Github) Execute(options map[string]interface{}, progress chan<- flo
 			return &errors.SubTaskError{
 				Message:     fmt.Errorf("Could not collect PR Reviews: %v", err).Error(),
 				SubTaskName: "collectPullRequestReviews",
-			}
-		}
-	}
-
-	if tasksToRun["collectPullRequestCommits"] {
-		progress <- 0.5
-		fmt.Println("INFO >>> starting PR Commits collection")
-		err = tasks.CollectPullRequestCommits(ctx, op.Owner, op.Repo, repoId, rateLimitPerSecondInt, apiClient)
-		if err != nil {
-			return &errors.SubTaskError{
-				Message:     fmt.Errorf("Could not collect PR Commits: %v", err).Error(),
-				SubTaskName: "collectPullRequestCommits",
-			}
-		}
-	}
-
-	if tasksToRun["enrichPullRequests"] {
-		progress <- 0.65
-		fmt.Println("INFO >>> Enriching PullRequests")
-		err = tasks.EnrichPullRequests(ctx, repoId)
-		if err != nil {
-			return &errors.SubTaskError{
-				Message:     fmt.Errorf("could not enrich PullRequests: %v", err).Error(),
-				SubTaskName: "enrichPullRequests",
 			}
 		}
 	}
@@ -396,8 +376,8 @@ var PluginEntry Github //nolint
 // standalone mode for debugging
 func main() {
 	args := os.Args[1:]
-	owner := "pingcap"
-	repo := "tidb"
+	owner := "merico-dev"
+	repo := "lake"
 	if len(args) > 0 {
 		owner = args[0]
 	}
@@ -422,14 +402,16 @@ func main() {
 					"extractApiRepositories",
 					//"collectCommits",
 					//"collectCommitsStat",
-					"collectApiIssues",
-					"extractApiIssues",
-					"collectApiComments",
-					"extractApiComments",
-					"collectApiEvents",
-					"extractApiEvents",
-					"collectApiPullRequests",
-					"extractApiPullRequests",
+					//"collectApiIssues",
+					//"extractApiIssues",
+					//"collectApiComments",
+					//"extractApiComments",
+					//"collectApiEvents",
+					//"extractApiEvents",
+					//"collectApiPullRequests",
+					//"extractApiPullRequests",
+					//"collectApiPullRequestCommits",
+					"extractApiPullRequestCommits",
 					//"enrichApiIssues",
 					//"collectIssueEvents",
 					//"collectIssueComments",
