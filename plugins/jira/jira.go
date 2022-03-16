@@ -8,8 +8,7 @@ import (
 	"strconv"
 	"time"
 
-	errors "github.com/merico-dev/lake/errors"
-
+	"github.com/merico-dev/lake/errors"
 	lakeModels "github.com/merico-dev/lake/models"
 	"github.com/merico-dev/lake/plugins/core"
 	"github.com/merico-dev/lake/plugins/helper"
@@ -82,7 +81,9 @@ func (plugin Jira) Execute(options map[string]interface{}, progress chan<- float
 
 	tasksToRun := map[string]bool{
 		"collectBoard":         true,
+		"collectApiBoard":      false,
 		"collectProjects":      true,
+		"collectApiProjects":   false,
 		"collectIssues":        true,
 		"collectApiIssues":     false,
 		"extractApiIssues":     false,
@@ -93,6 +94,7 @@ func (plugin Jira) Execute(options map[string]interface{}, progress chan<- float
 		"enrichIssues":         true,
 		"enrichRemotelinks":    true,
 		"collectSprints":       true,
+		"collectApiSprints":    false,
 		"collectUsers":         true,
 		"convertBoard":         true,
 		"convertIssues":        true,
@@ -149,10 +151,13 @@ func (plugin Jira) Execute(options map[string]interface{}, progress chan<- float
 		name       string
 		entryPoint core.SubTaskEntryPoint
 	}{
+		{name: "collectApiBoard", entryPoint: tasks.CollectApiBoard},
+		{name: "collectApiProjects", entryPoint: tasks.CollectApiProjects},
 		{name: "collectApiIssues", entryPoint: tasks.CollectApiIssues},
 		{name: "extractApiIssues", entryPoint: tasks.ExtractApiIssues},
 		{name: "collectApiChangelogs", entryPoint: tasks.CollectApiChangelogs},
 		{name: "convertIssues", entryPoint: tasks.ConvertIssues},
+		{name: "collectApiSprints", entryPoint: tasks.CollectApiSprints},
 	}
 	for _, t := range newTasks {
 		c, err := taskCtx.SubTaskContext(t.name)
