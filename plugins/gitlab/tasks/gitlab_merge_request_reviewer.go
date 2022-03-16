@@ -19,16 +19,7 @@ type Reviewer struct {
 
 func CreateReviewers(projectId int, mergeRequestId int, reviewers []Reviewer) {
 	for _, reviewer := range reviewers {
-		gitlabReviewer := &models.GitlabReviewer{
-			GitlabId:       reviewer.GitlabId,
-			MergeRequestId: mergeRequestId,
-			ProjectId:      projectId,
-			Username:       reviewer.Username,
-			Name:           reviewer.Name,
-			State:          reviewer.State,
-			AvatarUrl:      reviewer.AvatarUrl,
-			WebUrl:         reviewer.WebUrl,
-		}
+		gitlabReviewer := NewReviewer(projectId, mergeRequestId, reviewer)
 		err := lakeModels.Db.Clauses(clause.OnConflict{
 			UpdateAll: true,
 		}).Create(&gitlabReviewer).Error
@@ -36,4 +27,18 @@ func CreateReviewers(projectId int, mergeRequestId int, reviewers []Reviewer) {
 			logger.Error("Could not upsert: ", err)
 		}
 	}
+}
+
+func NewReviewer(projectId int, mergeRequestId int, reviewer Reviewer) *models.GitlabReviewer {
+	gitlabReviewer := &models.GitlabReviewer{
+		GitlabId:       reviewer.GitlabId,
+		MergeRequestId: mergeRequestId,
+		ProjectId:      projectId,
+		Username:       reviewer.Username,
+		Name:           reviewer.Name,
+		State:          reviewer.State,
+		AvatarUrl:      reviewer.AvatarUrl,
+		WebUrl:         reviewer.WebUrl,
+	}
+	return gitlabReviewer
 }
