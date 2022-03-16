@@ -84,11 +84,11 @@ func CollectApiIssues(taskCtx core.SubTaskContext) error {
 		/*
 			(Optional) Return query string for request, or you can plug them into UrlTemplate directly
 		*/
-		Query: func(pager *helper.Pager) (url.Values, error) {
+		Query: func(reqData *helper.RequestData) (url.Values, error) {
 			query := url.Values{}
 			query.Set("jql", jql)
-			query.Set("startAt", fmt.Sprintf("%v", pager.Skip))
-			query.Set("maxResults", fmt.Sprintf("%v", pager.Size))
+			query.Set("startAt", fmt.Sprintf("%v", reqData.Pager.Skip))
+			query.Set("maxResults", fmt.Sprintf("%v", reqData.Pager.Size))
 			return query, nil
 		},
 		/*
