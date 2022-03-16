@@ -25,9 +25,7 @@ func CollectApiPullRequestCommits(taskCtx core.SubTaskContext) error {
 	incremental := false
 
 	cursor, err := db.Model(&models.GithubPullRequest{}).
-		Joins("left join github_repos on github_repos.github_id = github_pull_requests.repo_id").
-		Where("github_repos.`name` = ? and github_repos.owner_login = ?", data.Options.Repo, data.Options.Owner).
-		Rows()
+		Joins("left join github_repos on github_repos.github_id = github_pull_requests.repo_id").Rows()
 	if err != nil {
 		return err
 	}
@@ -59,12 +57,12 @@ func CollectApiPullRequestCommits(taskCtx core.SubTaskContext) error {
 
 		UrlTemplate: "repos/{{ .Params.Owner }}/{{ .Params.Repo }}/pulls/{{ .Input.Number }}/commits",
 
-		Query: func(pager *helper.Pager) (url.Values, error) {
+		Query: func(reqData *helper.RequestData) (url.Values, error) {
 			query := url.Values{}
 			query.Set("state", "all")
-			query.Set("page", fmt.Sprintf("%v", pager.Page))
+			query.Set("page", fmt.Sprintf("%v", reqData.Pager.Page))
 			query.Set("direction", "asc")
-			query.Set("per_page", fmt.Sprintf("%v", pager.Size))
+			query.Set("per_page", fmt.Sprintf("%v", reqData.Pager.Size))
 
 			return query, nil
 		},

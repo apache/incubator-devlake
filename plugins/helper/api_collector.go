@@ -232,6 +232,7 @@ func (collector *ApiCollector) fetchPagesAsync(reqData *RequestData) error {
 						Size : collector.args.PageSize,
 						Skip : collector.args.PageSize * (page - 1),
 					},
+					Input: reqData.Input,
 				}
 				err = collector.fetchAsync(reqDataTemp, func(res *http.Response) error {
 					err := collector.handleResponse(res)
@@ -257,6 +258,7 @@ func (collector *ApiCollector) fetchPagesAsync(reqData *RequestData) error {
 					Size : collector.args.PageSize,
 					Skip : collector.args.PageSize * (i),
 				},
+				Input: reqData.Input,
 			}
 			err = collector.fetchAsync(reqDataTemp, collector.recursive(reqDataTemp))
 			if err != nil {
