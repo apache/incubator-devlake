@@ -149,7 +149,7 @@ func (plugin Github) Execute(options map[string]interface{}, progress chan<- flo
 	taskCtx := helper.NewDefaultTaskContext("github", ctx, logger, taskData, tasksToRun)
 	repo := models.GithubRepo{}
 	err = taskCtx.GetDb().Model(&models.GithubRepo{}).
-		Where("owner_login = ? and `name` = ?", taskData.Options.Owner, taskData.Options.Repo).Limit(1).Find(&repo).Error
+		Where("owner_login = ? and name = ?", taskData.Options.Owner, taskData.Options.Repo).Limit(1).Find(&repo).Error
 	if err != nil {
 		return err
 	}
@@ -160,22 +160,22 @@ func (plugin Github) Execute(options map[string]interface{}, progress chan<- flo
 		name       string
 		entryPoint core.SubTaskEntryPoint
 	}{
-		//{name: "collectApiRepositories", entryPoint: tasks.CollectApiRepositories},
-		//{name: "extractApiRepositories", entryPoint: tasks.ExtractApiRepositories},
+		{name: "collectApiRepositories", entryPoint: tasks.CollectApiRepositories},
+		{name: "extractApiRepositories", entryPoint: tasks.ExtractApiRepositories},
 
-		//{name: "collectApiCommits", entryPoint: tasks.CollectApiCommits},
-		//{name: "extractApiCommits", entryPoint: tasks.ExtractApiCommits},
-		//{name: "collectApiCommitStats", entryPoint: tasks.CollectApiCommitStats},
-		//{name: "extractApiCommitStats", entryPoint: tasks.ExtractApiCommitStats},
+		{name: "collectApiCommits", entryPoint: tasks.CollectApiCommits},
+		{name: "extractApiCommits", entryPoint: tasks.ExtractApiCommits},
+		{name: "collectApiCommitStats", entryPoint: tasks.CollectApiCommitStats},
+		{name: "extractApiCommitStats", entryPoint: tasks.ExtractApiCommitStats},
 
-		//{name: "collectApiIssues", entryPoint: tasks.CollectApiIssues},
-		//{name: "extractApiIssues", entryPoint: tasks.ExtractApiIssues},
-		//{name: "collectApiPullRequests", entryPoint: tasks.CollectApiPullRequests},
-		//{name: "extractApiPullRequests", entryPoint: tasks.ExtractApiPullRequests},
-		//{name: "collectApiComments", entryPoint: tasks.CollectApiComments},
-		//{name: "extractApiComments", entryPoint: tasks.ExtractApiComments},
-		//{name: "collectApiEvents", entryPoint: tasks.CollectApiEvents},
-		//{name: "extractApiEvents", entryPoint: tasks.ExtractApiEvents},
+		{name: "collectApiIssues", entryPoint: tasks.CollectApiIssues},
+		{name: "extractApiIssues", entryPoint: tasks.ExtractApiIssues},
+		{name: "collectApiPullRequests", entryPoint: tasks.CollectApiPullRequests},
+		{name: "extractApiPullRequests", entryPoint: tasks.ExtractApiPullRequests},
+		{name: "collectApiComments", entryPoint: tasks.CollectApiComments},
+		{name: "extractApiComments", entryPoint: tasks.ExtractApiComments},
+		{name: "collectApiEvents", entryPoint: tasks.CollectApiEvents},
+		{name: "extractApiEvents", entryPoint: tasks.ExtractApiEvents},
 		{name: "collectApiPullRequestCommits", entryPoint: tasks.CollectApiPullRequestCommits},
 		{name: "extractApiPullRequestCommits", entryPoint: tasks.ExtractApiPullRequestCommits},
 		{name: "collectApiPullRequestReviews", entryPoint: tasks.CollectApiPullRequestReviews},

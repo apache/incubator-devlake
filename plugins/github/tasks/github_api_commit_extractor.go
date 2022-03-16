@@ -60,7 +60,7 @@ func ExtractApiCommits(taskCtx core.SubTaskContext) error {
 				return nil, nil
 			}
 
-			results := make([]interface{}, 0, 2)
+			results := make([]interface{}, 0, 4)
 
 			githubCommit := &models.GithubCommit{
 				Sha:            commit.Sha,
@@ -75,9 +75,12 @@ func ExtractApiCommits(taskCtx core.SubTaskContext) error {
 			}
 			if commit.Author != nil {
 				githubCommit.AuthorId = commit.Author.Id
+				results = append(results, commit.Author)
 			}
 			if commit.Committer != nil {
 				githubCommit.CommitterId = commit.Committer.Id
+				results = append(results, commit.Committer)
+
 			}
 
 			githubRepoCommit := &models.GithubRepoCommit{

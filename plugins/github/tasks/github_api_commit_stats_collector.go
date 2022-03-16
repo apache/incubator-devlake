@@ -23,7 +23,7 @@ func CollectApiCommitStats(taskCtx core.SubTaskContext) error {
 
 	var latestUpdated models.GithubCommitStat
 	err := db.Model(&latestUpdated).Joins("left join github_repo_commits on github_commit_stats.sha = github_repo_commits.commit_sha").
-		Where("github_repo_commits.`repo_id` = ?", data.Repo.GithubId).
+		Where("github_repo_commits.repo_id = ?", data.Repo.GithubId).
 		Order("committed_date DESC").Limit(1).Find(&latestUpdated).Error
 	if err != nil {
 		return fmt.Errorf("failed to get latest github commit record: %w", err)
@@ -31,9 +31,8 @@ func CollectApiCommitStats(taskCtx core.SubTaskContext) error {
 
 	cursor, err := db.Model(&models.GithubCommit{}).
 		Joins("left join github_repo_commits on github_commits.sha = github_repo_commits.commit_sha").
-		Joins("left join github_repos on github_repo_commits.repo_id = github_repos.github_id").
-		Where("github_repos.`name` = ? and github_repos.owner_login = ? and github_commits.committed_date >= ?",
-			data.Options.Repo, data.Options.Owner, latestUpdated.CommittedDate.String()).
+		Where("github_repo_commits.repo_id = ? and github_commits.committed_date >= ?",
+			data.Repo.GithubId, latestUpdated.CommittedDate.String()).
 		Rows()
 	if err != nil {
 		return err
