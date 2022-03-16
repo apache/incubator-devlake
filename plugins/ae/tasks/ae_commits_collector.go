@@ -26,10 +26,10 @@ func CollectCommits(taskCtx core.SubTaskContext) error {
 		ApiClient:   data.ApiClient,
 		PageSize:    2000,
 		UrlTemplate: "projects/{{ .Params.ProjectId }}/commits",
-		Query: func(pager *helper.Pager) (url.Values, error) {
+		Query: func(reqData *helper.RequestData) (url.Values, error) {
 			query := url.Values{}
-			query.Set("page", fmt.Sprintf("%v", pager.Page))
-			query.Set("per_page", fmt.Sprintf("%v", pager.Size))
+			query.Set("page", fmt.Sprintf("%v", reqData.Pager.Page))
+			query.Set("per_page", fmt.Sprintf("%v", reqData.Pager.Size))
 			return query, nil
 		},
 		ResponseParser: func(res *http.Response) ([]json.RawMessage, error) {
