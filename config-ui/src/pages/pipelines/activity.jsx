@@ -696,6 +696,7 @@ const PipelineActivity = (props) => {
                 <span>See <strong style={{ textDecoration: 'underline' }}>All Jobs</strong> to monitor all pipeline activity.</span>
                 <div>
                   <Button
+                    className='btn-inspect-pipeline'
                     onClick={() => setShowInspector((iS) => !iS)}
                     icon='code' text='Inspect JSON' small minimal
                     style={{ marginRight: '3px', color: Colors.GRAY3 }}

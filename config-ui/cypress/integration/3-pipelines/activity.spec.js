@@ -102,4 +102,18 @@ context('Pipeline RUN Activity', () => {
     })
   })
 
+  it('has pipeline code inspector', () => {
+    cy.wait('@getPipelines').then(({ response }) => {
+      const Run = response.body.pipelines[0]
+      cy.visit(`/pipelines/activity/${Run.ID}`)
+    })
+    cy.get('.btn-inspect-pipeline')
+      .should('be.visible')
+      .click()
+
+    cy.get('.drawer-json-inspector')
+      .should('be.visible')
+      .find('.bp3-drawer-header')
+      .contains(/inspect run/i)
+  })
 })
