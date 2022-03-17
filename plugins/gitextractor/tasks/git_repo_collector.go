@@ -42,14 +42,13 @@ func CollectGitRepo(subTaskCtx core.SubTaskContext) error {
 	defer storage.Close()
 	op := subTaskCtx.GetData().(GitExtractorOptions)
 	p := parser.NewLibGit2(storage, subTaskCtx)
-	ctx := subTaskCtx.GetContext()
 	var err error
 	if strings.HasPrefix(op.Url, "http") {
-		err = p.CloneOverHTTP(ctx, op.RepoId, op.Url, op.User, op.Password, op.Proxy)
+		err = p.CloneOverHTTP(op.RepoId, op.Url, op.User, op.Password, op.Proxy)
 	} else if url := strings.TrimPrefix(op.Url, "ssh://"); strings.HasPrefix(url, "git@") {
-		err = p.CloneOverSSH(ctx, op.RepoId, url, op.PrivateKey, op.Passphrase)
+		err = p.CloneOverSSH(op.RepoId, url, op.PrivateKey, op.Passphrase)
 	} else if strings.HasPrefix(op.Url, "/") {
-		err = p.LocalRepo(ctx, op.Url, op.RepoId)
+		err = p.LocalRepo(op.Url, op.RepoId)
 	}
 	if err != nil {
 		return err

@@ -1,7 +1,6 @@
 package parser
 
 import (
-	"context"
 	"encoding/base64"
 	"fmt"
 	"io/ioutil"
@@ -36,7 +35,7 @@ func cloneOverSSH(url, dir, passphrase string, pk []byte) error {
 	return nil
 }
 
-func (l *LibGit2) CloneOverHTTP(ctx context.Context, repoId, url, user, password, proxy string) error {
+func (l *LibGit2) CloneOverHTTP(repoId, url, user, password, proxy string) error {
 	cloneOptions := &git.CloneOptions{Bare: true}
 	if proxy != "" {
 		cloneOptions.FetchOptions.ProxyOptions.Type = git.ProxyTypeSpecified
@@ -55,10 +54,10 @@ func (l *LibGit2) CloneOverHTTP(ctx context.Context, repoId, url, user, password
 	if err != nil {
 		return err
 	}
-	return l.run(ctx, repo, repoId)
+	return l.run(repo, repoId)
 }
 
-func (l *LibGit2) CloneOverSSH(ctx context.Context, repoId, url, privateKey, passphrase string) error {
+func (l *LibGit2) CloneOverSSH(repoId, url, privateKey, passphrase string) error {
 	dir, err := ioutil.TempDir("", "gitextractor")
 	if err != nil {
 		return err
@@ -72,5 +71,5 @@ func (l *LibGit2) CloneOverSSH(ctx context.Context, repoId, url, privateKey, pas
 	if err != nil {
 		return err
 	}
-	return l.LocalRepo(ctx, dir, repoId)
+	return l.LocalRepo(dir, repoId)
 }

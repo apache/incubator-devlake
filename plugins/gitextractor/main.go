@@ -54,13 +54,13 @@ func main() {
 	)
 	p := parser.NewLibGit2(storage, subTaskCtx)
 	if strings.HasPrefix(*url, "http") {
-		err = p.CloneOverHTTP(ctx, *url, *id, *user, *password, *proxy)
+		err = p.CloneOverHTTP(*url, *id, *user, *password, *proxy)
 		if err != nil {
 			panic(err)
 		}
 	}
 	if strings.HasPrefix(*url, "/") {
-		err = p.LocalRepo(ctx, *url, *id)
+		err = p.LocalRepo(*url, *id)
 		if err != nil {
 			panic(err)
 		}
