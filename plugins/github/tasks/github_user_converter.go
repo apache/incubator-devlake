@@ -15,7 +15,6 @@ func ConvertUsers(taskCtx core.SubTaskContext) error {
 	data := taskCtx.GetData().(*GithubTaskData)
 
 	cursor, err := db.Model(&githubModels.GithubUser{}).
-		Where("_raw_data_params = ?", data.Options.ParamString).
 		Rows()
 	if err != nil {
 		return err
@@ -25,16 +24,15 @@ func ConvertUsers(taskCtx core.SubTaskContext) error {
 	userIdGen := didgen.NewDomainIdGenerator(&githubModels.GithubUser{})
 
 	converter, err := helper.NewDataConverter(helper.DataConverterArgs{
-		Ctx:          taskCtx,
 		InputRowType: reflect.TypeOf(githubModels.GithubUser{}),
 		Input:        cursor,
-		BatchSelectors: map[reflect.Type]helper.BatchSelector{
-			reflect.TypeOf(&user.User{}): {
-				Query: "_raw_data_params = ?",
-				Parameters: []interface{}{
-					data.Options.ParamString,
-				},
+		RawDataSubTaskArgs: helper.RawDataSubTaskArgs{
+			Ctx: taskCtx,
+			Params: GithubApiParams{
+				Owner: data.Options.Owner,
+				Repo:  data.Options.Repo,
 			},
+			Table: RAW_COMMIT_TABLE,
 		},
 		Convert: func(inputRow interface{}) ([]interface{}, error) {
 			githubUser := inputRow.(*githubModels.GithubUser)
@@ -43,8 +41,6 @@ func ConvertUsers(taskCtx core.SubTaskContext) error {
 				Name:         githubUser.Login,
 				AvatarUrl:    githubUser.AvatarUrl,
 			}
-			domainUser.RawDataOrigin = githubUser.RawDataOrigin
-
 			return []interface{}{
 				domainUser,
 			}, nil

@@ -37,22 +37,15 @@ func ConvertIssues(taskCtx core.SubTaskContext) error {
 	boardId := boardIdGen.Generate(data.Options.SourceId, data.Options.BoardId)
 
 	converter, err := helper.NewDataConverter(helper.DataConverterArgs{
-		Ctx:          taskCtx,
 		InputRowType: reflect.TypeOf(jiraModels.JiraIssue{}),
 		Input:        cursor,
-		BatchSelectors: map[reflect.Type]helper.BatchSelector{
-			reflect.TypeOf(&ticket.Issue{}): {
-				Query: "id like ?",
-				Parameters: []interface{}{
-					issueIdGen.Generate(data.Options.SourceId, didgen.WILDCARD),
-				},
+		RawDataSubTaskArgs: helper.RawDataSubTaskArgs{
+			Ctx: taskCtx,
+			Params: JiraApiParams{
+				SourceId: data.Source.ID,
+				BoardId:  data.Options.BoardId,
 			},
-			reflect.TypeOf(&ticket.BoardIssue{}): {
-				Query: "board_id = ?",
-				Parameters: []interface{}{
-					boardIdGen.Generate(data.Options.SourceId, didgen.WILDCARD),
-				},
-			},
+			Table: RAW_ISSUE_TABLE,
 		},
 		Convert: func(inputRow interface{}) ([]interface{}, error) {
 			jiraIssue := inputRow.(*jiraModels.JiraIssue)

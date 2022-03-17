@@ -3,30 +3,23 @@ package helper
 import (
 	"database/sql"
 	"fmt"
+	"github.com/merico-dev/lake/models/common"
 	"reflect"
 
 	"github.com/merico-dev/lake/plugins/core"
 )
 
-// sql query and parameters to select the same batch of data, i.e. all issues that came from
-// the same jira board
-type BatchSelector struct {
-	Query      string
-	Parameters []interface{}
-}
-
 // Accept row from source cursor, return list of entities that need to be stored
 type DataConvertHandler func(row interface{}) ([]interface{}, error)
 
 type DataConverterArgs struct {
-	Ctx core.SubTaskContext
+	RawDataSubTaskArgs
 	// Domain layer entity Id prefix, i.e. `jira:JiraIssue:1`, `github:GithubIssue`
 	InputRowType reflect.Type
 	// Cursor to a set of Tool Layer Records
-	Input          *sql.Rows
-	Convert        DataConvertHandler
-	BatchSelectors map[reflect.Type]BatchSelector
-	BatchSize      int
+	Input     *sql.Rows
+	Convert   DataConvertHandler
+	BatchSize int
 }
 
 // DataConverter helps you convert Data from Tool Layer Tables to Domain Layer Tables
@@ -35,16 +28,22 @@ type DataConverterArgs struct {
 // first delete old data by their RawDataOrigin information, and then perform a
 // batch save operation for you.
 type DataConverter struct {
+	*RawDataSubTask
 	args *DataConverterArgs
 }
 
 func NewDataConverter(args DataConverterArgs) (*DataConverter, error) {
+	rawDataSubTask, err := newRawDataSubTask(args.RawDataSubTaskArgs)
+	if err != nil {
+		return nil, err
+	}
 	// process args
 	if args.BatchSize == 0 {
 		args.BatchSize = 500
 	}
 	return &DataConverter{
-		args: &args,
+		RawDataSubTask: rawDataSubTask,
+		args:           &args,
 	}, nil
 }
 
@@ -54,17 +53,22 @@ func (converter *DataConverter) Execute() error {
 
 	inputRow := reflect.New(converter.args.InputRowType).Interface()
 	// batch insertion divider
+	RAW_DATA_ORIGIN := "RawDataOrigin"
 	divider := NewBatchSaveDivider(db, converter.args.BatchSize)
 	divider.OnNewBatchSave(func(rowType reflect.Type) error {
-		sel, ok := converter.args.BatchSelectors[rowType]
-		if !ok {
-			return fmt.Errorf("must provide BatchSelector for type %s in order to clean up old data", rowType)
+		// check if row type has RawDataOrigin
+		if rawDataOrigin, ok := rowType.Elem().FieldByName(RAW_DATA_ORIGIN); ok {
+			if (rawDataOrigin.Type != reflect.TypeOf(common.RawDataOrigin{})) {
+				return fmt.Errorf("type %s must nested RawDataOrigin struct", rowType.Name())
+			}
+		} else {
+			return fmt.Errorf("type %s must nested RawDataOrigin struct", rowType.Name())
 		}
 		// delete old data
 		return db.Delete(
 			reflect.New(rowType).Interface(),
-			sel.Query,
-			sel.Parameters,
+			"_raw_data_table = ? AND _raw_data_params = ?",
+			converter.table, converter.params,
 		).Error
 	})
 
@@ -97,6 +101,9 @@ func (converter *DataConverter) Execute() error {
 			if err != nil {
 				return err
 			}
+			// set raw data origin field
+			reflect.ValueOf(result).Elem().FieldByName(RAW_DATA_ORIGIN).
+				Set(reflect.ValueOf(inputRow).Elem().FieldByName(RAW_DATA_ORIGIN))
 			// records get saved into db when slots were max outed
 			err = batch.Add(result)
 			if err != nil {

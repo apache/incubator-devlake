@@ -15,9 +15,10 @@ import (
 func ConvertRepos(taskCtx core.SubTaskContext) error {
 	db := taskCtx.GetDb()
 	data := taskCtx.GetData().(*GithubTaskData)
+	repoId := data.Repo.GithubId
 
 	cursor, err := db.Model(&githubModels.GithubRepo{}).
-		Where("_raw_data_params = ?", data.Options.ParamString).
+		Where("github_id = ?", repoId).
 		Rows()
 	if err != nil {
 		return err
@@ -27,22 +28,15 @@ func ConvertRepos(taskCtx core.SubTaskContext) error {
 	repoIdGen := didgen.NewDomainIdGenerator(&githubModels.GithubRepo{})
 
 	converter, err := helper.NewDataConverter(helper.DataConverterArgs{
-		Ctx:          taskCtx,
-		InputRowType: reflect.TypeOf(githubModels.GithubIssue{}),
+		InputRowType: reflect.TypeOf(githubModels.GithubRepo{}),
 		Input:        cursor,
-		BatchSelectors: map[reflect.Type]helper.BatchSelector{
-			reflect.TypeOf(&code.Repo{}): {
-				Query: "_raw_data_params = ?",
-				Parameters: []interface{}{
-					data.Options.ParamString,
-				},
+		RawDataSubTaskArgs: helper.RawDataSubTaskArgs{
+			Ctx: taskCtx,
+			Params: GithubApiParams{
+				Owner: data.Options.Owner,
+				Repo:  data.Options.Repo,
 			},
-			reflect.TypeOf(&ticket.Board{}): {
-				Query: "_raw_data_params = ?",
-				Parameters: []interface{}{
-					data.Options.ParamString,
-				},
-			},
+			Table: RAW_REPOSITORIES_TABLE,
 		},
 		Convert: func(inputRow interface{}) ([]interface{}, error) {
 			repository := inputRow.(*githubModels.GithubRepo)
@@ -58,7 +52,6 @@ func ConvertRepos(taskCtx core.SubTaskContext) error {
 				CreatedDate: repository.CreatedDate,
 				UpdatedDate: repository.UpdatedDate,
 			}
-			domainRepository.RawDataOrigin = repository.RawDataOrigin
 
 			domainBoard := &ticket.Board{
 				DomainEntity: domainlayer.DomainEntity{
@@ -69,7 +62,6 @@ func ConvertRepos(taskCtx core.SubTaskContext) error {
 				Description: repository.Description,
 				CreatedDate: &repository.CreatedDate,
 			}
-			domainBoard.RawDataOrigin = repository.RawDataOrigin
 
 			return []interface{}{
 				domainRepository,

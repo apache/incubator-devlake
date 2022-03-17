@@ -12,9 +12,11 @@ import (
 func ConvertPullRequestLabels(taskCtx core.SubTaskContext) error {
 	db := taskCtx.GetDb()
 	data := taskCtx.GetData().(*GithubTaskData)
+	repoId := data.Repo.GithubId
 
 	cursor, err := db.Model(&githubModels.GithubPullRequestLabel{}).
-		Where("github_pull_request_labels._raw_data_params = ?", data.Options.ParamString).
+		Joins(`left join github_pull_requests on github_pull_requests.github_id = github_pull_request_labels.pull_id`).
+		Where("github_pull_requests.repo_id = ?", repoId).
 		Order("pull_id ASC").
 		Rows()
 	if err != nil {
@@ -24,16 +26,15 @@ func ConvertPullRequestLabels(taskCtx core.SubTaskContext) error {
 	prIdGen := didgen.NewDomainIdGenerator(&githubModels.GithubPullRequest{})
 
 	converter, err := helper.NewDataConverter(helper.DataConverterArgs{
-		Ctx:          taskCtx,
 		InputRowType: reflect.TypeOf(githubModels.GithubPullRequestLabel{}),
 		Input:        cursor,
-		BatchSelectors: map[reflect.Type]helper.BatchSelector{
-			reflect.TypeOf(&code.PullRequestLabel{}): {
-				Query: "_raw_data_params = ?",
-				Parameters: []interface{}{
-					data.Options.ParamString,
-				},
+		RawDataSubTaskArgs: helper.RawDataSubTaskArgs{
+			Ctx: taskCtx,
+			Params: GithubApiParams{
+				Owner: data.Options.Owner,
+				Repo:  data.Options.Repo,
 			},
+			Table: RAW_PULL_REQUEST_TABLE,
 		},
 		Convert: func(inputRow interface{}) ([]interface{}, error) {
 			prLabel := inputRow.(*githubModels.GithubPullRequestLabel)
@@ -41,8 +42,6 @@ func ConvertPullRequestLabels(taskCtx core.SubTaskContext) error {
 				PullRequestId: prIdGen.Generate(prLabel.PullId),
 				LabelName:     prLabel.LabelName,
 			}
-			domainPrLabel.RawDataOrigin = prLabel.RawDataOrigin
-
 			return []interface{}{
 				domainPrLabel,
 			}, nil

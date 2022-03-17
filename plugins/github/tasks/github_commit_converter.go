@@ -14,8 +14,12 @@ func ConvertCommits(taskCtx core.SubTaskContext) error {
 	data := taskCtx.GetData().(*GithubTaskData)
 	repoId := data.Repo.GithubId
 
-	cursor, err := db.Table("github_commits").
-		Where("github_commits._raw_data_params = ?", data.Options.ParamString).
+	cursor, err := db.Table("github_commits gc").
+		Joins(`left join github_repo_commits grc on (
+			grc.commit_sha = gc.sha
+		)`).
+		Select("gc.*").
+		Where("grc.repo_id = ?", repoId).
 		Rows()
 	if err != nil {
 		return err
@@ -27,23 +31,17 @@ func ConvertCommits(taskCtx core.SubTaskContext) error {
 	userDidGen := didgen.NewDomainIdGenerator(&githubModels.GithubUser{})
 
 	converter, err := helper.NewDataConverter(helper.DataConverterArgs{
-		Ctx:          taskCtx,
+		RawDataSubTaskArgs: helper.RawDataSubTaskArgs{
+			Ctx: taskCtx,
+			Params: GithubApiParams{
+				Owner: data.Options.Owner,
+				Repo:  data.Options.Repo,
+			},
+			Table: RAW_COMMENTS_TABLE,
+		},
 		InputRowType: reflect.TypeOf(githubModels.GithubCommit{}),
 		Input:        cursor,
-		BatchSelectors: map[reflect.Type]helper.BatchSelector{
-			reflect.TypeOf(&code.Commit{}): {
-				Query: "_raw_data_params = ?",
-				Parameters: []interface{}{
-					data.Options.ParamString,
-				},
-			},
-			reflect.TypeOf(&code.RepoCommit{}): {
-				Query: "_raw_data_params = ?",
-				Parameters: []interface{}{
-					data.Options.ParamString,
-				},
-			},
-		},
+
 		Convert: func(inputRow interface{}) ([]interface{}, error) {
 			githubCommit := inputRow.(*githubModels.GithubCommit)
 			domainCommit := &code.Commit{
@@ -60,14 +58,10 @@ func ConvertCommits(taskCtx core.SubTaskContext) error {
 				CommittedDate:  githubCommit.CommittedDate,
 				CommitterId:    userDidGen.Generate(githubCommit.CommitterId),
 			}
-			domainCommit.RawDataOrigin = githubCommit.RawDataOrigin
-
 			repoCommit := &code.RepoCommit{
 				RepoId:    domainRepoId,
 				CommitSha: domainCommit.Sha,
 			}
-			repoCommit.RawDataOrigin = githubCommit.RawDataOrigin
-
 			return []interface{}{
 				domainCommit,
 				repoCommit,
