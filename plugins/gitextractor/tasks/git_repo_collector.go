@@ -36,13 +36,13 @@ func (o GitExtractorOptions) Valid() error {
 	return nil
 }
 
-func CollectGitRepo(taskCtx core.SubTaskContext) error {
-	db := taskCtx.GetDb()
+func CollectGitRepo(subTaskCtx core.SubTaskContext) error {
+	db := subTaskCtx.GetDb()
 	storage := store.NewDatabase(db)
 	defer storage.Close()
-	op := taskCtx.GetData().(GitExtractorOptions)
-	ctx := taskCtx.GetContext()
-	p := parser.NewLibGit2(storage)
+	op := subTaskCtx.GetData().(GitExtractorOptions)
+	ctx := subTaskCtx.GetContext()
+	p := parser.NewLibGit2(storage, subTaskCtx.GetLogger())
 	var err error
 	if strings.HasPrefix(op.Url, "http") {
 		err = p.CloneOverHTTP(ctx, op.RepoId, op.Url, op.User, op.Password, op.Proxy)

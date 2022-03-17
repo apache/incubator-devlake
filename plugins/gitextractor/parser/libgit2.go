@@ -4,9 +4,10 @@ import (
 	"context"
 	"fmt"
 	git "github.com/libgit2/git2go/v33"
-	"github.com/merico-dev/lake/logger"
+
 	"github.com/merico-dev/lake/models/domainlayer"
 	"github.com/merico-dev/lake/models/domainlayer/code"
+	"github.com/merico-dev/lake/plugins/core"
 	"github.com/merico-dev/lake/plugins/gitextractor/models"
 )
 
@@ -17,10 +18,11 @@ const (
 
 type LibGit2 struct {
 	store models.Store
+	logger core.Logger
 }
 
-func NewLibGit2(store models.Store) *LibGit2 {
-	return &LibGit2{store: store}
+func NewLibGit2(store models.Store, logger core.Logger) *LibGit2 {
+	return &LibGit2{store: store, logger: logger}
 }
 
 func (l *LibGit2) LocalRepo(ctx context.Context, repoPath, repoId string) error {
@@ -99,7 +101,7 @@ func (l *LibGit2) run(ctx context.Context, repo *git.Repository, repoId string) 
 		return nil
 	}
 	err = odb.ForEach(func(id *git.Oid) error {
-		logger.Info("process commit:", id.String())
+		l.logger.Info("process commit:", id.String())
 		select {
 		case <-ctx.Done():
 			return ctx.Err()
@@ -162,7 +164,7 @@ func (l *LibGit2) run(ctx context.Context, repo *git.Repository, repoId string) 
 				if commitFile.CommitSha != "" {
 					err = l.store.CommitFiles(commitFile)
 					if err != nil {
-						logger.Error("CommitFiles error:", err)
+						l.logger.Error("CommitFiles error:", err)
 					}
 				}
 				commitFile.CommitSha = id.String()
@@ -185,7 +187,7 @@ func (l *LibGit2) run(ctx context.Context, repo *git.Repository, repoId string) 
 			if commitFile.CommitSha != "" {
 				err = l.store.CommitFiles(commitFile)
 				if err != nil {
-					logger.Error("CommitFiles error:", err)
+					l.logger.Error("CommitFiles error:", err)
 				}
 			}
 			stats, err := diff.Stats()
