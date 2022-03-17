@@ -54,7 +54,7 @@ func main() {
 	)
 	p := parser.NewLibGit2(storage, subTaskCtx)
 	if strings.HasPrefix(*url, "http") {
-		err = p.CloneOverHTTP(*url, *id, *user, *password, *proxy)
+		err = p.CloneOverHTTP(*id, *url, *user, *password, *proxy)
 		if err != nil {
 			panic(err)
 		}
