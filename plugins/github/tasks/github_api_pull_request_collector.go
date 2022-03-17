@@ -27,8 +27,8 @@ func CollectApiPullRequests(taskCtx core.SubTaskContext) error {
 	// actually, for github pull, since doesn't make any sense, github pull api doesn't support it
 	if since == nil {
 		var latestUpdated models.GithubPullRequest
-		err := db.Model(&latestUpdated).Joins("left join github_repos on github_pull_requests.repo_id = github_repos.github_id").
-			Where("github_repos.`name` = ? and github_repos.owner_login = ?", data.Options.Repo, data.Options.Owner).
+		err := db.Model(&latestUpdated).
+			Where("github_pull_requests.repo_id = ?", data.Repo.GithubId).
 			Order("github_updated_at DESC").Limit(1).Find(&latestUpdated).Error
 		if err != nil {
 			return fmt.Errorf("failed to get latest github issue record: %w", err)

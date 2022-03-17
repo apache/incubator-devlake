@@ -25,9 +25,7 @@ func CollectApiPullRequestReviews(taskCtx core.SubTaskContext) error {
 	incremental := false
 
 	cursor, err := db.Model(&models.GithubPullRequest{}).
-		Joins("left join github_repos on github_repos.github_id = github_pull_requests.repo_id").
-		Where("github_repos.`name` = ? and github_repos.owner_login = ?", data.Options.Repo, data.Options.Owner).
-		Select("number, github_pull_requests.github_id").
+		Where("github_pull_requests.repo_id = ?", data.Repo.GithubId).
 		Rows()
 	if err != nil {
 		return err

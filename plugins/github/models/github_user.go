@@ -1,6 +1,9 @@
 package models
 
-import "github.com/merico-dev/lake/models/common"
+import (
+	"github.com/merico-dev/lake/models/common"
+	"github.com/merico-dev/lake/plugins/helper"
+)
 
 type GithubUser struct {
 	common.NoPKModel
@@ -11,4 +14,6 @@ type GithubUser struct {
 	Url       string `json:"url"`
 	HtmlUrl   string `json:"html_url"`
 	Type      string `json:"type"`
+
+	helper.RawDataOrigin
 }
