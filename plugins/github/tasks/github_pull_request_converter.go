@@ -25,16 +25,15 @@ func ConvertPullRequests(taskCtx core.SubTaskContext) error {
 	repoIdGen := didgen.NewDomainIdGenerator(&githubModels.GithubRepo{})
 
 	converter, err := helper.NewDataConverter(helper.DataConverterArgs{
-		Ctx:          taskCtx,
 		InputRowType: reflect.TypeOf(githubModels.GithubPullRequest{}),
 		Input:        cursor,
-		BatchSelectors: map[reflect.Type]helper.BatchSelector{
-			reflect.TypeOf(&code.PullRequest{}): {
-				Query: "_raw_data_params = ?",
-				Parameters: []interface{}{
-					data.Options.ParamString,
-				},
+		RawDataSubTaskArgs: helper.RawDataSubTaskArgs{
+			Ctx: taskCtx,
+			Params: GithubApiParams{
+				Owner: data.Options.Owner,
+				Repo:  data.Options.Repo,
 			},
+			Table: RAW_PULL_REQUEST_TABLE,
 		},
 		Convert: func(inputRow interface{}) ([]interface{}, error) {
 			pr := inputRow.(*githubModels.GithubPullRequest)
@@ -57,7 +56,6 @@ func ConvertPullRequests(taskCtx core.SubTaskContext) error {
 				HeadRef:        pr.HeadRef,
 				HeadCommitSha:  pr.HeadCommitSha,
 			}
-			domainPr.RawDataOrigin = pr.RawDataOrigin
 			return []interface{}{
 				domainPr,
 			}, nil
