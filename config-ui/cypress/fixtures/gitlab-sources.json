@@ -1,0 +1,7 @@
+[{
+  "Name": "Gitlab",
+  "ID": 1,
+  "Endpoint": "https://gitlab.com/api/v4/",
+  "Auth": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+  "Proxy": ""
+}]
