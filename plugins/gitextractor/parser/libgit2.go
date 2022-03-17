@@ -106,7 +106,7 @@ func (l *LibGit2) run(repo *git.Repository, repoId string) error {
 		return nil
 	}
 	err = odb.ForEach(func(id *git.Oid) error {
-		l.logger.Info("process commit:", id.String())
+		l.logger.Info("process commit: %s", id.String())
 		select {
 		case <-l.ctx.Done():
 			return l.ctx.Err()
