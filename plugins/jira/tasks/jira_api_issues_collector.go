@@ -3,6 +3,7 @@ package tasks
 import (
 	"encoding/json"
 	"fmt"
+	"net/http"
 	"net/url"
 
 	"github.com/merico-dev/lake/plugins/core"
@@ -109,6 +110,16 @@ func CollectApiIssues(taskCtx core.SubTaskContext) error {
 			or other techniques are required if this information was missing.
 		*/
 		GetTotalPages: GetTotalPagesFromResponse,
+		ResponseParser: func(res *http.Response) ([]json.RawMessage, error) {
+			var data struct {
+				Issues []json.RawMessage `json:"issues"`
+			}
+			err := core.UnmarshalResponse(res, &data)
+			if err != nil {
+				return nil, err
+			}
+			return data.Issues, nil
+		},
 	})
 
 	if err != nil {
