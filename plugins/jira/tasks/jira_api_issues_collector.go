@@ -112,10 +112,7 @@ func CollectApiIssues(taskCtx core.SubTaskContext) error {
 		GetTotalPages: GetTotalPagesFromResponse,
 		ResponseParser: func(res *http.Response) ([]json.RawMessage, error) {
 			var data struct {
-				StartAt    int               `json:"startAt"`
-				MaxResults int               `json:"maxResults"`
-				Total      int               `json:"total"`
-				Issues     []json.RawMessage `json:"issues"`
+				Issues []json.RawMessage `json:"issues"`
 			}
 			err := core.UnmarshalResponse(res, &data)
 			if err != nil {
