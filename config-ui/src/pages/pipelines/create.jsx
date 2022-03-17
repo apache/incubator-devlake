@@ -898,7 +898,8 @@ const CreatePipeline = (props) => {
                       >
                         {/* <div key={`provider-${provider.id}`}> */}
                         <div
-                          className={`data-provider-row ${enabledProviders.includes(provider.id) ? 'on' : 'off'}`}
+                          // eslint-disable-next-line max-len
+                          className={`data-provider-row data-provider-${provider.id.toLowerCase()} ${enabledProviders.includes(provider.id) ? 'on' : 'off'}`}
                         >
                           <div className='provider-info'>
                             <div className='provider-icon'>{provider.iconDashboard}</div>
@@ -1092,6 +1093,7 @@ const CreatePipeline = (props) => {
               <div style={{ padding: '7px 5px 0 50px' }}>
                 <Tooltip content='Advanced Pipeline Mode' position={Position.TOP}>
                   <Switch
+                    className='advanced-mode-toggleswitch'
                     intent={Intent.DANGER}
                     checked={advancedMode}
                     onChange={() => setAdvancedMode(t => !t)}
