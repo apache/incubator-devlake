@@ -8,6 +8,7 @@ import (
 	"net/url"
 	"strconv"
 
+	"github.com/merico-dev/lake/plugins/core"
 	"github.com/merico-dev/lake/plugins/helper"
 )
 
@@ -49,4 +50,16 @@ func GetQuery(reqData *helper.RequestData) (url.Values, error) {
 	query.Set("page", strconv.Itoa(reqData.Pager.Page))
 	query.Set("per_page", strconv.Itoa(reqData.Pager.Size))
 	return query, nil
+}
+
+func CreateRawDataSubTaskArgs(taskCtx core.SubTaskContext, Table string) (*helper.RawDataSubTaskArgs, *GitlabTaskData) {
+	data := taskCtx.GetData().(*GitlabTaskData)
+	RawDataSubTaskArgs := &helper.RawDataSubTaskArgs{
+		Ctx: taskCtx,
+		Params: GitlabApiParams{
+			ProjectId: data.Options.ProjectId,
+		},
+		Table: Table,
+	}
+	return RawDataSubTaskArgs, data
 }

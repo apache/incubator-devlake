@@ -88,6 +88,8 @@ func (plugin Gitlab) Execute(options map[string]interface{}, progress chan<- flo
 		tasksToRun = map[string]bool{
 			"collectApiCommits":       true,
 			"extractApiCommits":       true,
+			"collectApiTag":           true,
+			"extractApiTag":           true,
 			"collectApiMergeRequests": true,
 			"extractApiMergeRequests": true,
 			"collectPipelines":        true,
@@ -128,7 +130,7 @@ func (plugin Gitlab) Execute(options map[string]interface{}, progress chan<- flo
 	}{
 		{name: "collectApiCommits", entryPoint: tasks.CollectApiCommits},
 		{name: "extractApiCommits", entryPoint: tasks.ExtractApiCommits},
-		{name: "extractApiTag", entryPoint: tasks.CollectApiTag},
+		{name: "collectApiTag", entryPoint: tasks.CollectApiTag},
 		{name: "extractApiTag", entryPoint: tasks.ExtractApiTag},
 		{name: "collectApiMergeRequests", entryPoint: tasks.CollectApiMergeRequests},
 		{name: "extractApiMergeRequests", entryPoint: tasks.ExtractApiMergeRequests},

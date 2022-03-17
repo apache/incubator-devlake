@@ -8,23 +8,17 @@ import (
 const RAW_MERGE_REQUEST_TABLE = "gitlab_api_merge_requests"
 
 func CollectApiMergeRequests(taskCtx core.SubTaskContext) error {
-	data := taskCtx.GetData().(*GitlabTaskData)
+	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_MERGE_REQUEST_TABLE)
 
 	collector, err := helper.NewApiCollector(helper.ApiCollectorArgs{
-		RawDataSubTaskArgs: helper.RawDataSubTaskArgs{
-			Ctx: taskCtx,
-			Params: GitlabApiParams{
-				ProjectId: data.Options.ProjectId,
-			},
-			Table: RAW_MERGE_REQUEST_TABLE,
-		},
-		ApiClient:      data.ApiClient,
-		PageSize:       100,
-		Incremental:    false,
-		UrlTemplate:    "projects/{{ .Params.ProjectId }}/merge_requests",
-		Query:          GetQuery,
-		GetTotalPages:  GetTotalPagesFromResponse,
-		ResponseParser: GetRawMessageFromResponse,
+		RawDataSubTaskArgs: *rawDataSubTaskArgs,
+		ApiClient:          data.ApiClient,
+		PageSize:           100,
+		Incremental:        false,
+		UrlTemplate:        "projects/{{ .Params.ProjectId }}/merge_requests",
+		Query:              GetQuery,
+		GetTotalPages:      GetTotalPagesFromResponse,
+		ResponseParser:     GetRawMessageFromResponse,
 	})
 
 	if err != nil {

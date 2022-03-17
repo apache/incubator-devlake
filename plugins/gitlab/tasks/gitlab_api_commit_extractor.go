@@ -9,17 +9,10 @@ import (
 )
 
 func ExtractApiCommits(taskCtx core.SubTaskContext) error {
-	data := taskCtx.GetData().(*GitlabTaskData)
+	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_COMMIT_TABLE)
 
 	extractor, err := helper.NewApiExtractor(helper.ApiExtractorArgs{
-		RawDataSubTaskArgs: helper.RawDataSubTaskArgs{
-			Ctx: taskCtx,
-
-			Params: GitlabApiParams{
-				ProjectId: data.Options.ProjectId,
-			},
-			Table: RAW_COMMIT_TABLE,
-		},
+		RawDataSubTaskArgs: *rawDataSubTaskArgs,
 		Extract: func(row *helper.RawData) ([]interface{}, error) {
 			// need to extract 3 kinds of entities here
 			results := make([]interface{}, 0, 3)

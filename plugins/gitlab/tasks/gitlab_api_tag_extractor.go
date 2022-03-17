@@ -8,20 +8,13 @@ import (
 )
 
 func ExtractApiTag(taskCtx core.SubTaskContext) error {
-	data := taskCtx.GetData().(*GitlabTaskData)
+	rawDataSubTaskArgs, _ := CreateRawDataSubTaskArgs(taskCtx, RAW_TAG_TABLE)
 
 	extractor, err := helper.NewApiExtractor(helper.ApiExtractorArgs{
-		RawDataSubTaskArgs: helper.RawDataSubTaskArgs{
-			Ctx: taskCtx,
-
-			Params: GitlabApiParams{
-				ProjectId: data.Options.ProjectId,
-			},
-			Table: RAW_TAG_TABLE,
-		},
+		RawDataSubTaskArgs: *rawDataSubTaskArgs,
 		Extract: func(row *helper.RawData) ([]interface{}, error) {
-			// need to extract 3 kinds of entities here
-			results := make([]interface{}, 0, 3)
+			// need to extract 1 kinds of entities here
+			results := make([]interface{}, 0, 1)
 
 			// create gitlab commit
 			gitlabApiTag := &GitlabApiTag{}
