@@ -30,15 +30,15 @@ func NewLibGit2(store models.Store, subTaskCtx core.SubTaskContext) *LibGit2 {
 					subTaskCtx: subTaskCtx}
 }
 
-func (l *LibGit2) LocalRepo(ctx context.Context, repoPath, repoId string) error {
+func (l *LibGit2) LocalRepo(repoPath, repoId string) error {
 	repo, err := git.OpenRepository(repoPath)
 	if err != nil {
 		return err
 	}
-	return l.run(ctx, repo, repoId)
+	return l.run(repo, repoId)
 }
 
-func (l *LibGit2) run(ctx context.Context, repo *git.Repository, repoId string) error {
+func (l *LibGit2) run(repo *git.Repository, repoId string) error {
 	defer l.store.Close()
 	repoInter, err := repo.NewBranchIterator(git.BranchAll)
 	if err != nil {
@@ -46,8 +46,8 @@ func (l *LibGit2) run(ctx context.Context, repo *git.Repository, repoId string) 
 	}
 	err = repo.Tags.Foreach(func(name string, id *git.Oid) error {
 		select {
-		case <-ctx.Done():
-			return ctx.Err()
+		case <-l.ctx.Done():
+			return l.ctx.Err()
 		default:
 			break
 		}
@@ -65,8 +65,8 @@ func (l *LibGit2) run(ctx context.Context, repo *git.Repository, repoId string) 
 	}
 	err = repoInter.ForEach(func(branch *git.Branch, branchType git.BranchType) error {
 		select {
-		case <-ctx.Done():
-			return ctx.Err()
+		case <-l.ctx.Done():
+			return l.ctx.Err()
 		default:
 			break
 		}
@@ -108,8 +108,8 @@ func (l *LibGit2) run(ctx context.Context, repo *git.Repository, repoId string) 
 	err = odb.ForEach(func(id *git.Oid) error {
 		l.logger.Info("process commit:", id.String())
 		select {
-		case <-ctx.Done():
-			return ctx.Err()
+		case <-l.ctx.Done():
+			return l.ctx.Err()
 		default:
 			break
 		}
