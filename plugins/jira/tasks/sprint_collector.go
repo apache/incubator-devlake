@@ -31,11 +31,11 @@ func CollectApiSprints(taskCtx core.SubTaskContext) error {
 		ApiClient:   data.ApiClient,
 		PageSize:    50,
 		UrlTemplate: "agile/1.0/board/{{ .Params.BoardId }}/sprint",
-		Query: func(pager *helper.Pager) (url.Values, error) {
+		Query: func(reqData *helper.RequestData) (url.Values, error) {
 			query := url.Values{}
 			query.Set("jql", jql)
-			query.Set("startAt", fmt.Sprintf("%v", pager.Skip))
-			query.Set("maxResults", fmt.Sprintf("%v", pager.Size))
+			query.Set("startAt", fmt.Sprintf("%v", reqData.Pager.Skip))
+			query.Set("maxResults", fmt.Sprintf("%v", reqData.Pager.Size))
 			return query, nil
 		},
 

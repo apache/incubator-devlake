@@ -28,7 +28,7 @@ func CollectApiProjects(taskCtx core.SubTaskContext) error {
 		},
 		ApiClient:   data.ApiClient,
 		UrlTemplate: "api/2/project",
-		Query: func(pager *helper.Pager) (url.Values, error) {
+		Query: func(reqData *helper.RequestData) (url.Values, error) {
 			query := url.Values{}
 			query.Set("jql", jql)
 			return query, nil
