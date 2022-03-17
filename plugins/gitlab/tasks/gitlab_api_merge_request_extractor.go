@@ -8,17 +8,10 @@ import (
 )
 
 func ExtractApiMergeRequests(taskCtx core.SubTaskContext) error {
-	data := taskCtx.GetData().(*GitlabTaskData)
+	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_MERGE_REQUEST_TABLE)
 
 	extractor, err := helper.NewApiExtractor(helper.ApiExtractorArgs{
-		RawDataSubTaskArgs: helper.RawDataSubTaskArgs{
-			Ctx: taskCtx,
-
-			Params: GitlabApiParams{
-				ProjectId: data.Options.ProjectId,
-			},
-			Table: RAW_MERGE_REQUEST_TABLE,
-		},
+		RawDataSubTaskArgs: *rawDataSubTaskArgs,
 		Extract: func(row *helper.RawData) ([]interface{}, error) {
 			mr := &MergeRequestRes{}
 			err := json.Unmarshal(row.Data, mr)
