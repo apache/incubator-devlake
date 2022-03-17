@@ -52,6 +52,10 @@ context('Manage Pipelines & Runs', () => {
       .should('have.class', 'bp3-intent-primary')
       .contains(/create run/i)
       .should('be.visible')
+      .as('createRunBtn')
+
+    cy.get('@createRunBtn').click()
+    cy.url().should('include', `${Cypress.config().baseUrl}/pipelines/create`)
   })
 
 })
