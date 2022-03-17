@@ -62,4 +62,32 @@ context('Create New Pipelines', () => {
       .find('.data-provider-row.data-provider-gitextractor')
       .should('be.visible')
   })
+
+  it('has form button control for running pipeline', () => {
+    cy.get('.btn-run-pipeline')
+      .should('be.visible')
+  })
+
+  it('has form button control for resetting pipeline', () => {
+    cy.get('.btn-reset-pipeline')
+      .should('be.visible')
+  })
+
+  it('has form button control for viewing all pipelines (manage)', () => {
+    cy.get('.btn-view-jobs')
+      .should('be.visible')
+  })
+
+  it('supports advanced-mode user interface options', () => {
+    cy.get('.advanced-mode-toggleswitch')
+      .should('be.visible')
+      .find('.bp3-control-indicator')
+      .click()
+
+    cy.get('h2')
+      .contains(/pipeline name \(advanced\)/i)
+      .should('be.visible')
+  })
+
+
 })
