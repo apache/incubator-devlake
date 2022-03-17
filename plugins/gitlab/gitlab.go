@@ -128,6 +128,8 @@ func (plugin Gitlab) Execute(options map[string]interface{}, progress chan<- flo
 	}{
 		{name: "collectApiCommits", entryPoint: tasks.CollectApiCommits},
 		{name: "extractApiCommits", entryPoint: tasks.ExtractApiCommits},
+		{name: "extractApiTag", entryPoint: tasks.CollectApiTag},
+		{name: "extractApiTag", entryPoint: tasks.ExtractApiTag},
 		{name: "collectApiMergeRequests", entryPoint: tasks.CollectApiMergeRequests},
 		{name: "extractApiMergeRequests", entryPoint: tasks.ExtractApiMergeRequests},
 	}
@@ -160,7 +162,7 @@ func (plugin Gitlab) Execute(options map[string]interface{}, progress chan<- flo
 				Message:     fmt.Errorf("could not collect commits: %v", err).Error(),
 			}
 		}
-	}*/
+	}
 	if tasksToRun["collectTags"] {
 		progress <- 0.3
 		if err := tasks.CollectTags(ctx, projectIdInt, gitlabApiClient); err != nil {
@@ -170,7 +172,7 @@ func (plugin Gitlab) Execute(options map[string]interface{}, progress chan<- flo
 			}
 		}
 	}
-	/*if tasksToRun["collectMrs"] {
+	if tasksToRun["collectMrs"] {
 		progress <- 0.35
 		mergeRequestErr := tasks.CollectMergeRequests(ctx, projectIdInt, gitlabApiClient)
 		if mergeRequestErr != nil {
