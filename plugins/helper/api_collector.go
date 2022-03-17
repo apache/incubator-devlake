@@ -10,7 +10,6 @@ import (
 	"text/template"
 
 	"github.com/merico-dev/lake/plugins/core"
-	"github.com/merico-dev/lake/utils"
 	"gorm.io/datatypes"
 )
 
@@ -39,14 +38,14 @@ type ApiCollectorArgs struct {
 		avoid duplicate logic for every tasks, and when we have a better idea like improving performance, we can
 		do it in one place
 	*/
-	UrlTemplate    string                                 `comment:"GoTemplate for API url"`
+	UrlTemplate string `comment:"GoTemplate for API url"`
 	// (Optional) Return query string for request, or you can plug them into UrlTemplate directly
-	Query          func(reqData *RequestData) (url.Values, error) `comment:"Extra query string when requesting API, like 'Since' option for jira issues collection"`
+	Query func(reqData *RequestData) (url.Values, error) `comment:"Extra query string when requesting API, like 'Since' option for jira issues collection"`
 	// Some api might do pagination by http headers
-	Header         func(reqData *RequestData) (http.Header, error)
-	PageSize       int
-	Incremental    bool `comment:"Indicate this is a incremental collection, so the existing data won't get flushed"`
-	ApiClient      core.AsyncApiClient
+	Header      func(reqData *RequestData) (http.Header, error)
+	PageSize    int
+	Incremental bool `comment:"Indicate this is a incremental collection, so the existing data won't get flushed"`
+	ApiClient   core.AsyncApiClient
 	/*
 		Sometimes, we need to collect data based on previous collected data, like jira changelog, it requires
 		issue_id as part of the url.
@@ -128,21 +127,8 @@ func (collector *ApiCollector) Execute() error {
 	}
 
 	if collector.args.Input != nil {
-		// if Input was given, we iterate through it and exec multiple times
-		// create a parent scheduler, note that the rate limit of this scheduler is different than
-		// api rate limit
-		scheduler, err := utils.NewWorkerScheduler(
-			collector.args.InputRateLimit*6/5, // increase by 20 percent
-			collector.args.InputRateLimit,
-			collector.args.Ctx.GetContext(),
-		)
-		if err != nil {
-			return err
-		}
-		defer scheduler.Release()
-
 		collector.args.Ctx.SetProgress(0, -1)
-		// load all rows from iterator, and exec them in parallel
+		// load all rows from iterator, and do multiple `exec` accordingly
 		// TODO: this loads all records into memory, we need lazy-load
 		iterator := collector.args.Input
 		defer iterator.Close()
@@ -151,19 +137,12 @@ func (collector *ApiCollector) Execute() error {
 			if err != nil {
 				return err
 			}
-			err = scheduler.Submit(func() error {
-				err = collector.exec(input)
-				if err != nil {
-					return err
-				}
-				return nil
-			})
+			err = collector.exec(input)
 			if err != nil {
 				break
 			}
 		}
 
-		scheduler.WaitUntilFinish()
 	} else {
 		// or we just did it once
 		err = collector.exec(nil)
@@ -228,9 +207,9 @@ func (collector *ApiCollector) fetchPagesAsync(reqData *RequestData) error {
 			for page := 2; page <= totalPages; page++ {
 				reqDataTemp := &RequestData{
 					Pager: &Pager{
-						Page : page,
-						Size : collector.args.PageSize,
-						Skip : collector.args.PageSize * (page - 1),
+						Page: page,
+						Size: collector.args.PageSize,
+						Skip: collector.args.PageSize * (page - 1),
 					},
 					Input: reqData.Input,
 				}
@@ -250,13 +229,18 @@ func (collector *ApiCollector) fetchPagesAsync(reqData *RequestData) error {
 			}
 			return nil
 		})
-	} else if collector.args.PageSize > 0 {
+	} else {
+		// if api doesn't return total number of pages, employ a step concurrent technique
+		// when `Concurrency` was set to 3:
+		// goroutine #1 fetches pages 1/4/7..
+		// goroutine #2 fetches pages 2/5/8...
+		// goroutine #3 fetches pages 3/6/9...
 		for i := 0; i < collector.args.Concurrency; i++ {
 			reqDataTemp := &RequestData{
 				Pager: &Pager{
-					Page : i + 1,
-					Size : collector.args.PageSize,
-					Skip : collector.args.PageSize * (i),
+					Page: i + 1,
+					Size: collector.args.PageSize,
+					Skip: collector.args.PageSize * (i),
 				},
 				Input: reqData.Input,
 			}
@@ -264,11 +248,6 @@ func (collector *ApiCollector) fetchPagesAsync(reqData *RequestData) error {
 			if err != nil {
 				return err
 			}
-		}
-	} else {
-		err = collector.fetchAsync(reqData, collector.handleResponse)
-		if err != nil {
-			return err
 		}
 	}
 	if err != nil {
