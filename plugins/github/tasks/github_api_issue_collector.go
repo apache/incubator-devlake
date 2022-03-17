@@ -30,8 +30,8 @@ func CollectApiIssues(taskCtx core.SubTaskContext) error {
 	// user didn't specify a time range to sync, try load from database
 	if since == nil {
 		var latestUpdated models.GithubIssue
-		err := db.Model(&latestUpdated).Joins("left join github_repos on github_issues.repo_id = github_repos.github_id").
-			Where("github_repos.`name` = ? and github_repos.owner_login = ?", data.Options.Repo, data.Options.Owner).
+		err := db.Model(&latestUpdated).
+			Where("github_issues.repo_id = ?", data.Repo.GithubId).
 			Order("github_updated_at DESC").Limit(1).Find(&latestUpdated).Error
 		if err != nil {
 			return fmt.Errorf("failed to get latest github issue record: %w", err)

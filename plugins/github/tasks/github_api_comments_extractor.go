@@ -50,14 +50,14 @@ func ExtractApiComments(taskCtx core.SubTaskContext) error {
 				return nil, err
 			}
 			issue := &models.GithubIssue{}
-			err = taskCtx.GetDb().Where("number = ? and `repo_id` = ?", issueINumber, data.Repo.GithubId).Limit(1).Find(issue).Error
+			err = taskCtx.GetDb().Where("number = ? and repo_id = ?", issueINumber, data.Repo.GithubId).Limit(1).Find(issue).Error
 			if err != nil {
 				return nil, err
 			}
 			//if we can not find issues with issue number above, move the comments to github_pull_request_comments
 			if issue.GithubId == 0 {
 				pr := &models.GithubPullRequest{}
-				err = taskCtx.GetDb().Where("number = ? and `repo_id` = ?", issueINumber, data.Repo.GithubId).Limit(1).Find(pr).Error
+				err = taskCtx.GetDb().Where("number = ? and repo_id = ?", issueINumber, data.Repo.GithubId).Limit(1).Find(pr).Error
 				if err != nil {
 					return nil, err
 				}
