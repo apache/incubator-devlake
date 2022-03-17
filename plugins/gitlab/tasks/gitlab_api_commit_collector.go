@@ -21,6 +21,7 @@ func CollectApiCommits(taskCtx core.SubTaskContext) error {
 		ApiClient:      data.ApiClient,
 		PageSize:       100,
 		Incremental:    false,
+		Concurrency:    10,
 		UrlTemplate:    "projects/{{ .Params.ProjectId }}/repository/commits",
 		Query:          GetQuery,
 		ResponseParser: GetRawMessageFromResponse,
