@@ -41,8 +41,8 @@ func CollectGitRepo(subTaskCtx core.SubTaskContext) error {
 	storage := store.NewDatabase(db)
 	defer storage.Close()
 	op := subTaskCtx.GetData().(GitExtractorOptions)
+	p := parser.NewLibGit2(storage, subTaskCtx)
 	ctx := subTaskCtx.GetContext()
-	p := parser.NewLibGit2(storage, subTaskCtx.GetLogger())
 	var err error
 	if strings.HasPrefix(op.Url, "http") {
 		err = p.CloneOverHTTP(ctx, op.RepoId, op.Url, op.User, op.Password, op.Proxy)

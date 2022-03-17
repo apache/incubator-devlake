@@ -46,7 +46,13 @@ func main() {
 	}
 	defer storage.Close()
 	ctx := context.Background()
-	p := parser.NewLibGit2(storage, helper.NewDefaultTaskLogger(nil, "git extractor"))
+	subTaskCtx := helper.NewStandaloneSubTaskContext(
+		"git extractor",
+		ctx,
+		helper.NewDefaultTaskLogger(nil, "git extractor"),
+		nil,
+	)
+	p := parser.NewLibGit2(storage, subTaskCtx)
 	if strings.HasPrefix(*url, "http") {
 		err = p.CloneOverHTTP(ctx, *url, *id, *user, *password, *proxy)
 		if err != nil {

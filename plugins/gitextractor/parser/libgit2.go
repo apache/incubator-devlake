@@ -19,10 +19,15 @@ const (
 type LibGit2 struct {
 	store models.Store
 	logger core.Logger
+	ctx context.Context // for canceling
+	subTaskCtx core.SubTaskContext // for updating progress
 }
 
-func NewLibGit2(store models.Store, logger core.Logger) *LibGit2 {
-	return &LibGit2{store: store, logger: logger}
+func NewLibGit2(store models.Store, subTaskCtx core.SubTaskContext) *LibGit2 {
+	return &LibGit2{store: store,
+				    logger: subTaskCtx.GetLogger(),
+				    ctx: subTaskCtx.GetContext(),
+					subTaskCtx: subTaskCtx}
 }
 
 func (l *LibGit2) LocalRepo(ctx context.Context, repoPath, repoId string) error {
