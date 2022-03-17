@@ -2,6 +2,7 @@ package helper
 
 import (
 	"fmt"
+	"github.com/merico-dev/lake/models/common"
 	"reflect"
 
 	"github.com/merico-dev/lake/plugins/core"
@@ -58,7 +59,7 @@ func (extractor *ApiExtractor) Execute() error {
 	divider.OnNewBatchSave(func(rowType reflect.Type) error {
 		// check if row type has RawDataOrigin
 		if rawDataOrigin, ok := rowType.Elem().FieldByName(RAW_DATA_ORIGIN); ok {
-			if (rawDataOrigin.Type != reflect.TypeOf(RawDataOrigin{})) {
+			if (rawDataOrigin.Type != reflect.TypeOf(common.RawDataOrigin{})) {
 				return fmt.Errorf("type %s must nested RawDataOrigin struct", rowType.Name())
 			}
 		} else {
@@ -99,7 +100,7 @@ func (extractor *ApiExtractor) Execute() error {
 				return err
 			}
 			// set raw data origin field
-			reflect.ValueOf(result).Elem().FieldByName(RAW_DATA_ORIGIN).Set(reflect.ValueOf(RawDataOrigin{
+			reflect.ValueOf(result).Elem().FieldByName(RAW_DATA_ORIGIN).Set(reflect.ValueOf(common.RawDataOrigin{
 				RawDataTable:  extractor.args.Table,
 				RawDataId:     row.ID,
 				RawDataParams: row.Params,

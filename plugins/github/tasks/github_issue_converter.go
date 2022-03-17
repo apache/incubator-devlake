@@ -15,9 +15,12 @@ import (
 func ConvertIssues(taskCtx core.SubTaskContext) error {
 	db := taskCtx.GetDb()
 	data := taskCtx.GetData().(*GithubTaskData)
+	repoId := data.Repo.GithubId
 
 	issue := &githubModels.GithubIssue{}
-	cursor, err := db.Model(issue).Where("repo_id = ?", data.Repo.GithubId).Rows()
+	cursor, err := db.Model(issue).
+		Where("_raw_data_params = ?", data.Options.ParamString).
+		Rows()
 
 	if err != nil {
 		return err
@@ -34,15 +37,15 @@ func ConvertIssues(taskCtx core.SubTaskContext) error {
 		Input:        cursor,
 		BatchSelectors: map[reflect.Type]helper.BatchSelector{
 			reflect.TypeOf(&ticket.Issue{}): {
-				Query: "id like ?",
+				Query: "_raw_data_params = ?",
 				Parameters: []interface{}{
-					issueIdGen.Generate(data.Repo.GithubId, didgen.WILDCARD),
+					data.Options.ParamString,
 				},
 			},
 			reflect.TypeOf(&ticket.BoardIssue{}): {
-				Query: "board_id = ?",
+				Query: "_raw_data_params = ?",
 				Parameters: []interface{}{
-					boardIdGen.Generate(data.Repo.GithubId, didgen.WILDCARD),
+					data.Options.ParamString,
 				},
 			},
 		},
@@ -69,11 +72,14 @@ func ConvertIssues(taskCtx core.SubTaskContext) error {
 			} else {
 				domainIssue.Status = ticket.TODO
 			}
+			domainIssue.RawDataOrigin = issue.RawDataOrigin
 
 			boardIssue := &ticket.BoardIssue{
-				BoardId: boardIdGen.Generate(data.Repo.GithubId),
+				BoardId: boardIdGen.Generate(repoId),
 				IssueId: domainIssue.Id,
 			}
+			boardIssue.RawDataOrigin = issue.RawDataOrigin
+
 			return []interface{}{
 				domainIssue,
 				boardIssue,
