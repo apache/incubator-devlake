@@ -33,3 +33,13 @@ curl --location --request POST 'localhost:8080/pipelines' \
 - `password`: 可选, 通过HTTP/HTTPS协议克隆私有代码库时使用
 - `privateKey`: 可选, 通过SSH协议克隆代码库时使用, 值为经过base64编码的`PEM`文件
 - `passphrase`: 可选, 私钥的密码
+
+## 独立运行本插件
+
+本插件可以作为独立于DevLake服务的命令行工具使用:
+
+```
+go run plugins/gitextractor/main.go -url https://github.com/merico-dev/lake.git -id github:GithubRepo:384111310 -db "merico:merico@tcp(127.0.0.1:3306)/lake?charset=utf8mb4&parseTime=True"
+```
+
+如果想了解命令行工具的更多选项，比如如何输出收集结果到csv文件，请直接阅读`plugins/gitextractor/main.go`。
