@@ -40,10 +40,10 @@ func (l *LibGit2) LocalRepo(repoPath, repoId string) error {
 
 func (l *LibGit2) run(repo *git.Repository, repoId string) error {
 	defer l.store.Close()
-	repoInter, err := repo.NewBranchIterator(git.BranchAll)
-	if err != nil {
-		return err
-	}
+	l.subTaskCtx.SetProgress(0, -1)
+
+	// collect tags
+	var err error
 	err = repo.Tags.Foreach(func(name string, id *git.Oid) error {
 		select {
 		case <-l.ctx.Done():
@@ -58,8 +58,19 @@ func (l *LibGit2) run(repo *git.Repository, repoId string) error {
 			CommitSha:    id.String(),
 			RefType:      TAG,
 		}
-		return l.store.Refs(ref)
+		err = l.store.Refs(ref)
+		if err != nil {
+			return err
+		}
+		l.subTaskCtx.IncProgress(1)
+		return nil
 	})
+	if err != nil {
+		return err
+	}
+
+	// collect branches
+	repoInter, err := repo.NewBranchIterator(git.BranchAll)
 	if err != nil {
 		return err
 	}
@@ -87,13 +98,20 @@ func (l *LibGit2) run(repo *git.Repository, repoId string) error {
 				RefType:      BRANCH,
 			}
 			ref.IsDefault, _ = branch.IsHead()
-			return l.store.Refs(ref)
+			err = l.store.Refs(ref)
+			if err != nil {
+				return err
+			}
+			l.subTaskCtx.IncProgress(1)
+			return nil
 		}
 		return nil
 	})
 	if err != nil {
 		return err
 	}
+
+	// collect commits
 	odb, err := repo.Odb()
 	if err != nil {
 		return err
@@ -218,6 +236,7 @@ func (l *LibGit2) run(repo *git.Repository, repoId string) error {
 		if err != nil {
 			return err
 		}
+		l.subTaskCtx.IncProgress(1)
 		return nil
 	})
 	return err
