@@ -12,9 +12,11 @@ import (
 func ConvertIssueLabels(taskCtx core.SubTaskContext) error {
 	db := taskCtx.GetDb()
 	data := taskCtx.GetData().(*GithubTaskData)
+	repoId := data.Repo.GithubId
 
 	cursor, err := db.Model(&githubModels.GithubIssueLabel{}).
-		Where("_raw_data_params = ?", data.Options.ParamString).
+		Joins(`left join github_issues on github_issues.github_id = github_issue_labels.issue_id`).
+		Where("github_issues.repo_id = ?", repoId).
 		Order("issue_id ASC").
 		Rows()
 	if err != nil {
@@ -24,24 +26,22 @@ func ConvertIssueLabels(taskCtx core.SubTaskContext) error {
 	issueIdGen := didgen.NewDomainIdGenerator(&githubModels.GithubIssue{})
 
 	converter, err := helper.NewDataConverter(helper.DataConverterArgs{
-		Ctx:          taskCtx,
+		RawDataSubTaskArgs: helper.RawDataSubTaskArgs{
+			Ctx: taskCtx,
+			Params: GithubApiParams{
+				Owner: data.Options.Owner,
+				Repo:  data.Options.Repo,
+			},
+			Table: RAW_ISSUE_TABLE,
+		},
 		InputRowType: reflect.TypeOf(githubModels.GithubIssueLabel{}),
 		Input:        cursor,
-		BatchSelectors: map[reflect.Type]helper.BatchSelector{
-			reflect.TypeOf(&ticket.IssueLabel{}): {
-				Query: "_raw_data_params = ?",
-				Parameters: []interface{}{
-					data.Options.ParamString,
-				},
-			},
-		},
 		Convert: func(inputRow interface{}) ([]interface{}, error) {
 			issueLabel := inputRow.(*githubModels.GithubIssueLabel)
 			domainIssueLabel := &ticket.IssueLabel{
 				IssueId:   issueIdGen.Generate(issueLabel.IssueId),
 				LabelName: issueLabel.LabelName,
 			}
-			domainIssueLabel.RawDataOrigin = issueLabel.RawDataOrigin
 			return []interface{}{
 				domainIssueLabel,
 			}, nil

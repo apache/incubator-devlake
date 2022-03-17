@@ -2,7 +2,6 @@ package main // must be main for plugin entry point
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 	lakeModels "github.com/merico-dev/lake/models"
 	"os"
@@ -107,6 +106,7 @@ func (plugin Github) Execute(options map[string]interface{}, progress chan<- flo
 			"enrichPullRequestIssues":      true,
 			"convertRepos":                 true,
 			"convertIssues":                true,
+			"convertBoardIssues":           false,
 			"convertIssueLabels":           true,
 			"convertPullRequests":          true,
 			"convertCommits":               true,
@@ -149,18 +149,6 @@ func (plugin Github) Execute(options map[string]interface{}, progress chan<- flo
 		Since:     since,
 	}
 
-	params := tasks.GithubApiParams{
-		Owner: taskData.Options.Owner,
-		Repo:  taskData.Options.Repo,
-	}
-
-	paramsBytes, err := json.Marshal(params)
-	if err != nil {
-		return err
-	}
-	paramsString := string(paramsBytes)
-	taskData.Options.ParamString = paramsString
-
 	taskCtx := helper.NewDefaultTaskContext("github", ctx, logger, taskData, tasksToRun)
 	repo := models.GithubRepo{}
 	err = taskCtx.GetDb().Model(&models.GithubRepo{}).
@@ -177,12 +165,6 @@ func (plugin Github) Execute(options map[string]interface{}, progress chan<- flo
 	}{
 		//{name: "collectApiRepositories", entryPoint: tasks.CollectApiRepositories},
 		//{name: "extractApiRepositories", entryPoint: tasks.ExtractApiRepositories},
-		//
-		//{name: "collectApiCommits", entryPoint: tasks.CollectApiCommits},
-		//{name: "extractApiCommits", entryPoint: tasks.ExtractApiCommits},
-		//{name: "collectApiCommitStats", entryPoint: tasks.CollectApiCommitStats},
-		//{name: "extractApiCommitStats", entryPoint: tasks.ExtractApiCommitStats},
-		//
 		//{name: "collectApiIssues", entryPoint: tasks.CollectApiIssues},
 		//{name: "extractApiIssues", entryPoint: tasks.ExtractApiIssues},
 		//{name: "collectApiPullRequests", entryPoint: tasks.CollectApiPullRequests},
@@ -195,12 +177,19 @@ func (plugin Github) Execute(options map[string]interface{}, progress chan<- flo
 		//{name: "extractApiPullRequestCommits", entryPoint: tasks.ExtractApiPullRequestCommits},
 		//{name: "collectApiPullRequestReviews", entryPoint: tasks.CollectApiPullRequestReviews},
 		//{name: "extractApiPullRequestReviews", entryPoint: tasks.ExtractApiPullRequestReviews},
-		//{name: "convertIssues", entryPoint: tasks.ConvertIssues},
-		//{name: "convertCommits", entryPoint: tasks.ConvertCommits},
-		//{name: "convertIssueLabels", entryPoint: tasks.ConvertIssueLabels},
-		//{name: "convertPullRequestCommits", entryPoint: tasks.ConvertPullRequestCommits},
-		//{name: "convertPullRequests", entryPoint: tasks.ConvertPullRequests},
+		//{name: "collectApiCommits", entryPoint: tasks.CollectApiCommits},
+		//{name: "extractApiCommits", entryPoint: tasks.ExtractApiCommits},
+		//{name: "collectApiCommitStats", entryPoint: tasks.CollectApiCommitStats},
+		//{name: "extractApiCommitStats", entryPoint: tasks.ExtractApiCommitStats},
+		{name: "convertRepos", entryPoint: tasks.ConvertRepos},
+		{name: "convertIssues", entryPoint: tasks.ConvertIssues},
+		{name: "convertCommits", entryPoint: tasks.ConvertCommits},
+		{name: "convertIssueLabels", entryPoint: tasks.ConvertIssueLabels},
+		{name: "convertPullRequestCommits", entryPoint: tasks.ConvertPullRequestCommits},
+		{name: "convertPullRequests", entryPoint: tasks.ConvertPullRequests},
 		{name: "convertPullRequestLabels", entryPoint: tasks.ConvertPullRequestLabels},
+		{name: "convertNotes", entryPoint: tasks.ConvertNotes},
+		{name: "convertUsers", entryPoint: tasks.ConvertUsers},
 	}
 	for _, t := range newTasks {
 		c, err := taskCtx.SubTaskContext(t.name)
@@ -240,17 +229,6 @@ func (plugin Github) Execute(options map[string]interface{}, progress chan<- flo
 			return &errors.SubTaskError{
 				Message:     fmt.Errorf("could not convert PullRequestCommits: %v", err).Error(),
 				SubTaskName: "convertPullRequestIssues",
-			}
-		}
-	}
-	if tasksToRun["convertNotes"] {
-		progress <- 0.97
-		fmt.Println("INFO >>> starting convertNotes")
-		err = tasks.ConvertNotes(ctx, repoId)
-		if err != nil {
-			return &errors.SubTaskError{
-				Message:     fmt.Errorf("could not convert Notes: %v", err).Error(),
-				SubTaskName: "convertNotes",
 			}
 		}
 	}
@@ -307,34 +285,25 @@ func main() {
 				"owner": owner,
 				"repo":  repo,
 				"tasks": []string{
-					"collectApiRepositories",
-					"extractApiRepositories",
-					"collectApiCommits",
-					"extractApiCommits",
-					"collectApiCommitStats",
-					"extractApiCommitStats",
-
-					"collectApiIssues",
-					"extractApiIssues",
-					"collectApiComments",
-					"extractApiComments",
-					"collectApiEvents",
-					"extractApiEvents",
-					"collectApiPullRequests",
-					"extractApiPullRequests",
-					"collectApiPullRequestCommits",
-					"extractApiPullRequestCommits",
-					"collectApiPullRequestReviews",
-					"extractApiPullRequestReviews",
-					//"enrichApiIssues",
-					//"collectIssueEvents",
-					//"collectIssueComments",
-					//"collectPullRequests",
-					//"collectPullRequestReviews",
-					//"collectPullRequestCommits",
-					//"enrichIssues",
-					//"enrichPullRequests",
-					//"enrichComments",
+					//"collectApiRepositories",
+					//"extractApiRepositories",
+					//"collectApiCommits",
+					//"extractApiCommits",
+					//"collectApiCommitStats",
+					//"extractApiCommitStats",
+					//
+					//"collectApiIssues",
+					//"extractApiIssues",
+					//"collectApiComments",
+					//"extractApiComments",
+					//"collectApiEvents",
+					//"extractApiEvents",
+					//"collectApiPullRequests",
+					//"extractApiPullRequests",
+					//"collectApiPullRequestCommits",
+					//"extractApiPullRequestCommits",
+					//"collectApiPullRequestReviews",
+					//"extractApiPullRequestReviews",
 					//"enrichPullRequestIssues",
 					"convertRepos",
 					"convertIssues",
@@ -344,7 +313,7 @@ func main() {
 					"convertPullRequestCommits",
 					"convertPullRequestLabels",
 					//"convertPullRequestIssues",
-					//"convertNotes",
+					"convertNotes",
 					"convertUsers",
 				},
 			},

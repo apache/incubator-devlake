@@ -8,11 +8,10 @@ import (
 )
 
 type GithubOptions struct {
-	Tasks       []string `json:"tasks,omitempty"`
-	Since       string
-	Owner       string
-	Repo        string
-	ParamString string
+	Tasks []string `json:"tasks,omitempty"`
+	Since string
+	Owner string
+	Repo  string
 }
 
 type GithubTaskData struct {

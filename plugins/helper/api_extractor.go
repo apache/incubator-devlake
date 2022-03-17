@@ -69,7 +69,7 @@ func (extractor *ApiExtractor) Execute() error {
 		return db.Delete(
 			reflect.New(rowType).Interface(),
 			"_raw_data_table = ? AND _raw_data_params = ?",
-			extractor.args.Table, extractor.params,
+			extractor.table, extractor.params,
 		).Error
 	})
 
@@ -101,7 +101,7 @@ func (extractor *ApiExtractor) Execute() error {
 			}
 			// set raw data origin field
 			reflect.ValueOf(result).Elem().FieldByName(RAW_DATA_ORIGIN).Set(reflect.ValueOf(common.RawDataOrigin{
-				RawDataTable:  extractor.args.Table,
+				RawDataTable:  extractor.table,
 				RawDataId:     row.ID,
 				RawDataParams: row.Params,
 			}))
