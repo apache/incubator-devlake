@@ -86,23 +86,25 @@ func (plugin Gitlab) Execute(options map[string]interface{}, progress chan<- flo
 	}
 	if len(tasksToRun) == 0 {
 		tasksToRun = map[string]bool{
-			"collectApiCommits":       true,
-			"extractApiCommits":       true,
-			"collectApiTag":           true,
-			"extractApiTag":           true,
-			"collectApiMergeRequests": true,
-			"extractApiMergeRequests": true,
-			"collectPipelines":        true,
-			"collectCommits":          true,
-			"CollectTags":             true,
-			"collectMrs":              true,
-			"collectMrNotes":          true,
-			"collectMrCommits":        true,
-			"enrichMrs":               true,
-			"convertProjects":         true,
-			"convertMrs":              true,
-			"convertCommits":          true,
-			"convertNotes":            true,
+			"collectApiCommits":            true,
+			"extractApiCommits":            true,
+			"collectApiTag":                true,
+			"extractApiTag":                true,
+			"collectApiMergeRequests":      true,
+			"extractApiMergeRequests":      true,
+			"collectApiMergeRequestsNotes": true,
+			"extractApiMergeRequestsNotes": true,
+			"collectPipelines":             true,
+			"collectCommits":               true,
+			"CollectTags":                  true,
+			"collectMrs":                   true,
+			"collectMrNotes":               true,
+			"collectMrCommits":             true,
+			"enrichMrs":                    true,
+			"convertProjects":              true,
+			"convertMrs":                   true,
+			"convertCommits":               true,
+			"convertNotes":                 true,
 		}
 	}
 
@@ -134,6 +136,8 @@ func (plugin Gitlab) Execute(options map[string]interface{}, progress chan<- flo
 		{name: "extractApiTag", entryPoint: tasks.ExtractApiTag},
 		{name: "collectApiMergeRequests", entryPoint: tasks.CollectApiMergeRequests},
 		{name: "extractApiMergeRequests", entryPoint: tasks.ExtractApiMergeRequests},
+		{name: "collectApiMergeRequestsNotes", entryPoint: tasks.CollectApiMergeRequestsNotes},
+		{name: "extractApiMergeRequestsNotes", entryPoint: tasks.ExtractApiMergeRequestsNotes},
 	}
 	progress <- 0.05
 	for _, t := range newTasks {
@@ -183,7 +187,7 @@ func (plugin Gitlab) Execute(options map[string]interface{}, progress chan<- flo
 				Message:     fmt.Errorf("could not collect merge requests: %v", mergeRequestErr).Error(),
 			}
 		}
-	}*/
+	}
 
 	if tasksToRun["collectMrNotes"] {
 		progress <- 0.4
@@ -194,7 +198,7 @@ func (plugin Gitlab) Execute(options map[string]interface{}, progress chan<- flo
 				Message:     fmt.Errorf("could not collect merge request notes: %v", err).Error(),
 			}
 		}
-	}
+	}*/
 	if tasksToRun["collectMrCommits"] {
 		progress <- 0.45
 		err = tasks.CollectMergeRequestCommits(ctx, projectIdInt, rateLimitPerSecondInt, gitlabApiClient)

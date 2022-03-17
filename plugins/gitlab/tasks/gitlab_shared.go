@@ -6,14 +6,21 @@ import (
 	"io/ioutil"
 	"net/http"
 	"net/url"
+	"reflect"
 	"strconv"
 
 	"github.com/merico-dev/lake/plugins/core"
+	"github.com/merico-dev/lake/plugins/gitlab/models"
 	"github.com/merico-dev/lake/plugins/helper"
 )
 
 type GitlabApiParams struct {
 	ProjectId int
+}
+
+type SimpleMr struct {
+	GitlabId int
+	Iid      int
 }
 
 func GetTotalPagesFromResponse(res *http.Response, args *helper.ApiCollectorArgs) (int, error) {
@@ -62,4 +69,15 @@ func CreateRawDataSubTaskArgs(taskCtx core.SubTaskContext, Table string) (*helpe
 		Table: Table,
 	}
 	return RawDataSubTaskArgs, data
+}
+
+func GetMergeRequestsIterator(taskCtx core.SubTaskContext) (*helper.CursorIterator, error) {
+	db := taskCtx.GetDb()
+	data := taskCtx.GetData().(*GitlabTaskData)
+	cursor, err := db.Model(&models.GitlabMergeRequest{}).Where("project_id = ?", data.Options.ProjectId).Select("gitlab_id,iid").Rows()
+	if err != nil {
+		return nil, err
+	}
+
+	return helper.NewCursorIterator(db, cursor, reflect.TypeOf(SimpleMr{}))
 }
