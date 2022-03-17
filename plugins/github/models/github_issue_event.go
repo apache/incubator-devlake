@@ -1,7 +1,7 @@
 package models
 
 import (
-	"github.com/merico-dev/lake/plugins/helper"
+	"github.com/merico-dev/lake/models/common"
 	"time"
 )
 
@@ -11,8 +11,5 @@ type GithubIssueEvent struct {
 	Type            string `gorm:"comment:Events that can occur to an issue, ex. assigned, closed, labeled, etc."`
 	AuthorUsername  string
 	GithubCreatedAt time.Time `gorm:"index"`
-	CreatedAt       time.Time
-	UpdatedAt       time.Time
-
-	helper.RawDataOrigin
+	common.NoPKModel
 }

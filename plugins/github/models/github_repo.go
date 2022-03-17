@@ -1,7 +1,7 @@
 package models
 
 import (
-	"github.com/merico-dev/lake/plugins/helper"
+	"github.com/merico-dev/lake/models/common"
 	"time"
 )
 
@@ -17,9 +17,5 @@ type GithubRepo struct {
 	ParentHTMLUrl  string     `json:"parentHtmlUrl"`
 	CreatedDate    time.Time  `json:"createdDate"`
 	UpdatedDate    *time.Time `json:"updatedDate"`
-
-	CreatedAt time.Time
-	UpdatedAt time.Time
-
-	helper.RawDataOrigin
+	common.NoPKModel
 }

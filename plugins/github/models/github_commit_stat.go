@@ -2,7 +2,6 @@ package models
 
 import (
 	"github.com/merico-dev/lake/models/common"
-	"github.com/merico-dev/lake/plugins/helper"
 	"time"
 )
 
@@ -13,5 +12,4 @@ type GithubCommitStat struct {
 
 	CommittedDate time.Time `gorm:"index"`
 	common.NoPKModel
-	helper.RawDataOrigin
 }

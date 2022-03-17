@@ -12,11 +12,9 @@ import (
 func ConvertIssueLabels(taskCtx core.SubTaskContext) error {
 	db := taskCtx.GetDb()
 	data := taskCtx.GetData().(*GithubTaskData)
-	repoId := data.Repo.GithubId
 
 	cursor, err := db.Model(&githubModels.GithubIssueLabel{}).
-		Joins(`left join github_issues on github_issues.github_id = github_issue_labels.issue_id`).
-		Where("github_issues.repo_id = ?", repoId).
+		Where("_raw_data_params = ?", data.Options.ParamString).
 		Order("issue_id ASC").
 		Rows()
 	if err != nil {
@@ -31,9 +29,9 @@ func ConvertIssueLabels(taskCtx core.SubTaskContext) error {
 		Input:        cursor,
 		BatchSelectors: map[reflect.Type]helper.BatchSelector{
 			reflect.TypeOf(&ticket.IssueLabel{}): {
-				Query: "issue_id like ?",
+				Query: "_raw_data_params = ?",
 				Parameters: []interface{}{
-					issueIdGen.Generate(data.Repo.GithubId, didgen.WILDCARD),
+					data.Options.ParamString,
 				},
 			},
 		},
@@ -43,7 +41,7 @@ func ConvertIssueLabels(taskCtx core.SubTaskContext) error {
 				IssueId:   issueIdGen.Generate(issueLabel.IssueId),
 				LabelName: issueLabel.LabelName,
 			}
-
+			domainIssueLabel.RawDataOrigin = issueLabel.RawDataOrigin
 			return []interface{}{
 				domainIssueLabel,
 			}, nil
