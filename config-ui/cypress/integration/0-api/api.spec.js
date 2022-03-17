@@ -2,18 +2,18 @@
 
 context('API Network Requests', () => {
   beforeEach(() => {
-    cy.visit('http://localhost:4000/')
+    cy.visit('/')
   })
 
   it('listens for network ping request', () => {
-    cy.request('http://localhost:8080/ping')
+    cy.request(`${Cypress.env('apiUrl')}ping`)
       .should((response) => {
         expect(response.status).to.eq(200)
       })
   })
 
   it('provides jira connection resources', () => {
-    cy.request('http://localhost:8080/plugins/jira/sources')
+    cy.request(`${Cypress.env('apiUrl')}plugins/jira/sources`)
       .should((response) => {
         expect(response.status).to.eq(200)
         expect(response.headers).to.have.property('content-type').and.to.eq('application/json; charset=utf-8')
@@ -32,7 +32,7 @@ context('API Network Requests', () => {
   })
 
   it('provides jenkins connection resources', () => {
-    cy.request('http://localhost:8080/plugins/jenkins/sources')
+    cy.request(`${Cypress.env('apiUrl')}plugins/jenkins/sources`)
       .should((response) => {
         expect(response.status).to.eq(200)
         expect(response.headers).to.have.property('content-type').and.to.eq('application/json; charset=utf-8')
@@ -47,7 +47,7 @@ context('API Network Requests', () => {
   })
 
   it('provides gitlab connection resources', () => {
-    cy.request('http://localhost:8080/plugins/gitlab/sources')
+    cy.request(`${Cypress.env('apiUrl')}plugins/gitlab/sources`)
       .should((response) => {
         expect(response.status).to.eq(200)
         expect(response.headers).to.have.property('content-type').and.to.eq('application/json; charset=utf-8')
@@ -61,7 +61,7 @@ context('API Network Requests', () => {
   })
 
   it('provides github connection resources', () => {
-    cy.request('http://localhost:8080/plugins/github/sources')
+    cy.request(`${Cypress.env('apiUrl')}plugins/github/sources`)
       .should((response) => {
         expect(response.status).to.eq(200)
         expect(response.headers).to.have.property('content-type').and.to.eq('application/json; charset=utf-8')

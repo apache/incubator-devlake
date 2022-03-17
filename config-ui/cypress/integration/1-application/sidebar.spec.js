@@ -2,7 +2,7 @@
 
 context('Sidebar', () => {
   beforeEach(() => {
-    cy.visit('http://localhost:4000')
+    cy.visit('/')
   })
 
   it('shows merico application logo', () => {
