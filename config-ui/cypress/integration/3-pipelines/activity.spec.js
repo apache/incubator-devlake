@@ -81,7 +81,7 @@ context('Pipeline RUN Activity', () => {
       const Activity = response.body
       cy.get('.pipeline-task-activity')
         .children()
-        .should('have.length', Activity.tasks.length)
+        .should('have.length', Activity.tasks[0].length)
     })
   })
 

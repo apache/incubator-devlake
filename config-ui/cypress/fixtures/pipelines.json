@@ -13,6 +13,13 @@
           {
             "plugin": "jenkins",
             "options": {}
+          },
+          {
+            "plugin": "github",
+            "options": {
+              "owner": "e2corporation",
+              "repositoryName": "publicity.js"
+            }
           }
         ]
       ],
