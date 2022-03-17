@@ -12,13 +12,11 @@ import (
 func ConvertPullRequestCommits(taskCtx core.SubTaskContext) (err error) {
 	db := taskCtx.GetDb()
 	data := taskCtx.GetData().(*GithubTaskData)
-	repoId := data.Repo.GithubId
 
 	pullIdGen := didgen.NewDomainIdGenerator(&githubModels.GithubPullRequest{})
 
 	cursor, err := db.Model(&githubModels.GithubPullRequestCommit{}).
-		Joins(`left join github_pull_requests on github_pull_requests.github_id = github_pull_request_commits.pull_request_id`).
-		Where("github_pull_requests.repo_id = ?", repoId).
+		Where("_raw_data_params = ?", data.Options.ParamString).
 		Order("pull_request_id ASC").Rows()
 	if err != nil {
 		return err
@@ -31,9 +29,9 @@ func ConvertPullRequestCommits(taskCtx core.SubTaskContext) (err error) {
 		Input:        cursor,
 		BatchSelectors: map[reflect.Type]helper.BatchSelector{
 			reflect.TypeOf(&code.PullRequestCommit{}): {
-				Query: "pull_request_id like ?",
+				Query: "_raw_data_params = ?",
 				Parameters: []interface{}{
-					pullIdGen.Generate(data.Repo.GithubId, didgen.WILDCARD),
+					data.Options.ParamString,
 				},
 			},
 		},
@@ -43,7 +41,7 @@ func ConvertPullRequestCommits(taskCtx core.SubTaskContext) (err error) {
 				CommitSha:     githubPullRequestCommit.CommitSha,
 				PullRequestId: pullIdGen.Generate(githubPullRequestCommit.PullRequestId),
 			}
-
+			domainPrCommit.RawDataOrigin = githubPullRequestCommit.RawDataOrigin
 			return []interface{}{
 				domainPrCommit,
 			}, nil

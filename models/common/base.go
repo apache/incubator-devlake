@@ -14,6 +14,18 @@ type Model struct {
 type NoPKModel struct {
 	CreatedAt time.Time
 	UpdatedAt time.Time
+	RawDataOrigin
+}
+
+// embedded fields for tool layer tables
+type RawDataOrigin struct {
+	// can be used for flushing outdated records from table
+	RawDataParams string `gorm:"column:_raw_data_params;type:varchar(255);index"`
+	RawDataTable  string `gorm:"column:_raw_data_table"`
+	// can be used for debugging
+	RawDataId uint64 `gorm:"column:_raw_data_id"`
+	// we can store record index into this field, which is helpful for debugging
+	RawDataRemark string `gorm:"column:_raw_data_remark"`
 }
 
 var (

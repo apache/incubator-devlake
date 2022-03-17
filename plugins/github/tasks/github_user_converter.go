@@ -1,45 +1,58 @@
 package tasks
 
 import (
-	"context"
-	lakeModels "github.com/merico-dev/lake/models"
+	"github.com/merico-dev/lake/models/domainlayer"
 	"github.com/merico-dev/lake/models/domainlayer/didgen"
 	"github.com/merico-dev/lake/models/domainlayer/user"
+	"github.com/merico-dev/lake/plugins/core"
 	githubModels "github.com/merico-dev/lake/plugins/github/models"
-	"gorm.io/gorm/clause"
+	"github.com/merico-dev/lake/plugins/helper"
+	"reflect"
 )
 
-func ConvertUsers(ctx context.Context) error {
-	domainUser := &user.User{}
-	githubUser := &githubModels.GithubUser{}
+func ConvertUsers(taskCtx core.SubTaskContext) error {
+	db := taskCtx.GetDb()
+	data := taskCtx.GetData().(*GithubTaskData)
 
-	cursor, err := lakeModels.Db.Model(githubUser).Rows()
+	cursor, err := db.Model(&githubModels.GithubUser{}).
+		Where("_raw_data_params = ?", data.Options.ParamString).
+		Rows()
 	if err != nil {
 		return err
 	}
 	defer cursor.Close()
 
-	userIdGenerator := didgen.NewDomainIdGenerator(githubUser)
-	// iterate all rows
-	for cursor.Next() {
-		select {
-		case <-ctx.Done():
-			return ctx.Err()
-		default:
-		}
-		err = lakeModels.Db.ScanRows(cursor, githubUser)
-		if err != nil {
-			return err
-		}
-		domainUser.Id = userIdGenerator.Generate(githubUser.Id)
-		domainUser.Name = githubUser.Login
-		domainUser.AvatarUrl = githubUser.AvatarUrl
-		err := lakeModels.Db.Clauses(clause.OnConflict{
-			UpdateAll: true,
-		}).Create(domainUser).Error
-		if err != nil {
-			return err
-		}
+	userIdGen := didgen.NewDomainIdGenerator(&githubModels.GithubUser{})
+
+	converter, err := helper.NewDataConverter(helper.DataConverterArgs{
+		Ctx:          taskCtx,
+		InputRowType: reflect.TypeOf(githubModels.GithubUser{}),
+		Input:        cursor,
+		BatchSelectors: map[reflect.Type]helper.BatchSelector{
+			reflect.TypeOf(&user.User{}): {
+				Query: "_raw_data_params = ?",
+				Parameters: []interface{}{
+					data.Options.ParamString,
+				},
+			},
+		},
+		Convert: func(inputRow interface{}) ([]interface{}, error) {
+			githubUser := inputRow.(*githubModels.GithubUser)
+			domainUser := &user.User{
+				DomainEntity: domainlayer.DomainEntity{Id: userIdGen.Generate(githubUser.Id)},
+				Name:         githubUser.Login,
+				AvatarUrl:    githubUser.AvatarUrl,
+			}
+			domainUser.RawDataOrigin = githubUser.RawDataOrigin
+
+			return []interface{}{
+				domainUser,
+			}, nil
+		},
+	})
+	if err != nil {
+		return err
 	}
-	return nil
+
+	return converter.Execute()
 }

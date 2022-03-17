@@ -1,52 +1,56 @@
 package tasks
 
 import (
-	"context"
-	lakeModels "github.com/merico-dev/lake/models"
 	"github.com/merico-dev/lake/models/domainlayer/code"
 	"github.com/merico-dev/lake/models/domainlayer/didgen"
+	"github.com/merico-dev/lake/plugins/core"
 	githubModels "github.com/merico-dev/lake/plugins/github/models"
-	"gorm.io/gorm/clause"
+	"github.com/merico-dev/lake/plugins/helper"
+	"reflect"
 )
 
-func ConvertPullRequestLabels(ctx context.Context, repoId int) error {
-	githubPullRequestLabel := &githubModels.GithubPullRequestLabel{}
-	cursor, err := lakeModels.Db.Model(githubPullRequestLabel).
-		Joins(`left join github_pull_requests on github_pull_requests.github_id = github_pull_request_labels.pull_id`).
-		Where("github_pull_requests.repo_id = ?", repoId).
+func ConvertPullRequestLabels(taskCtx core.SubTaskContext) error {
+	db := taskCtx.GetDb()
+	data := taskCtx.GetData().(*GithubTaskData)
+
+	cursor, err := db.Model(&githubModels.GithubPullRequestLabel{}).
+		Where("github_pull_request_labels._raw_data_params = ?", data.Options.ParamString).
 		Order("pull_id ASC").
 		Rows()
 	if err != nil {
 		return err
 	}
 	defer cursor.Close()
-	domainIdGeneratorPr := didgen.NewDomainIdGenerator(&githubModels.GithubPullRequest{})
-	lastPrId := 0
-	// iterate all rows
-	for cursor.Next() {
-		err = lakeModels.Db.ScanRows(cursor, githubPullRequestLabel)
-		if err != nil {
-			return err
-		}
-		pullRequestId := domainIdGeneratorPr.Generate(githubPullRequestLabel.PullId)
-		if lastPrId != githubPullRequestLabel.PullId {
-			// Clean up old data
-			err := lakeModels.Db.Where("pull_request_id = ?",
-				pullRequestId).Delete(&code.PullRequestLabel{}).Error
-			if err != nil {
-				return err
-			}
-			lastPrId = githubPullRequestLabel.PullId
-		}
+	prIdGen := didgen.NewDomainIdGenerator(&githubModels.GithubPullRequest{})
 
-		pullRequestLabel := &code.PullRequestLabel{
-			PullRequestId: pullRequestId,
-			LabelName:     githubPullRequestLabel.LabelName,
-		}
-		err = lakeModels.Db.Clauses(clause.OnConflict{DoNothing: true}).Create(pullRequestLabel).Error
-		if err != nil {
-			return err
-		}
+	converter, err := helper.NewDataConverter(helper.DataConverterArgs{
+		Ctx:          taskCtx,
+		InputRowType: reflect.TypeOf(githubModels.GithubPullRequestLabel{}),
+		Input:        cursor,
+		BatchSelectors: map[reflect.Type]helper.BatchSelector{
+			reflect.TypeOf(&code.PullRequestLabel{}): {
+				Query: "_raw_data_params = ?",
+				Parameters: []interface{}{
+					data.Options.ParamString,
+				},
+			},
+		},
+		Convert: func(inputRow interface{}) ([]interface{}, error) {
+			prLabel := inputRow.(*githubModels.GithubPullRequestLabel)
+			domainPrLabel := &code.PullRequestLabel{
+				PullRequestId: prIdGen.Generate(prLabel.PullId),
+				LabelName:     prLabel.LabelName,
+			}
+			domainPrLabel.RawDataOrigin = prLabel.RawDataOrigin
+
+			return []interface{}{
+				domainPrLabel,
+			}, nil
+		},
+	})
+	if err != nil {
+		return err
 	}
-	return nil
+
+	return converter.Execute()
 }

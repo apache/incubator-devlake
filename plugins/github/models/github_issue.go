@@ -1,7 +1,7 @@
 package models
 
 import (
-	"github.com/merico-dev/lake/plugins/helper"
+	"github.com/merico-dev/lake/models/common"
 	"time"
 )
 
@@ -23,8 +23,5 @@ type GithubIssue struct {
 	GithubUpdatedAt time.Time `gorm:"index"`
 	Severity        string
 	Component       string
-	CreatedAt       time.Time
-	UpdatedAt       time.Time
-
-	helper.RawDataOrigin
+	common.NoPKModel
 }

@@ -1,7 +1,7 @@
 package models
 
 import (
-	"github.com/merico-dev/lake/plugins/helper"
+	"github.com/merico-dev/lake/models/common"
 	"time"
 )
 
@@ -30,8 +30,5 @@ type GithubPullRequest struct {
 	BaseRef        string
 	BaseCommitSha  string
 	HeadCommitSha  string
-	CreatedAt      time.Time
-	UpdatedAt      time.Time
-
-	helper.RawDataOrigin
+	common.NoPKModel
 }
