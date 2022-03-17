@@ -85,4 +85,21 @@ context('Pipeline RUN Activity', () => {
     })
   })
 
+  it('displays provider run settings and configuration', () => {
+    cy.wait('@getPipelines').then(({ response }) => {
+      const Run = response.body.pipelines[0]
+      cy.visit(`/pipelines/activity/${Run.ID}`)
+    })
+    cy.wait('@getPipelineActivity').then(({ response }) => {
+      const Activity = response.body
+      cy.get('.run-settings')
+        .should('be.visible')
+      Activity.tasks[0].forEach(task => {
+        cy.get('.run-settings')
+          .find(`.${task.plugin.toLowerCase()}-settings`)
+          .should('be.visible')
+      })
+    })
+  })
+
 })
