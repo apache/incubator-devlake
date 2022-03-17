@@ -73,3 +73,22 @@ func CollectProject(ctx context.Context, projectId int, gitlabApiClient *GitlabA
 	}
 	return nil
 }
+
+// Convert the API response to our DB model instance
+func convertProject(gitlabApiProject *GitlabApiProject) *models.GitlabProject {
+	gitlabProject := &models.GitlabProject{
+		GitlabId:          gitlabApiProject.GitlabId,
+		Name:              gitlabApiProject.Name,
+		Description:       gitlabApiProject.Description,
+		DefaultBranch:     gitlabApiProject.DefaultBranch,
+		CreatorId:         gitlabApiProject.CreatorId,
+		PathWithNamespace: gitlabApiProject.PathWithNamespace,
+		WebUrl:            gitlabApiProject.WebUrl,
+		Visibility:        gitlabApiProject.Visibility,
+		OpenIssuesCount:   gitlabApiProject.OpenIssuesCount,
+		StarCount:         gitlabApiProject.StarCount,
+		CreatedDate:       gitlabApiProject.CreatedAt.ToTime(),
+		UpdatedDate:       core.Iso8601TimeToTime(gitlabApiProject.LastActivityAt),
+	}
+	return gitlabProject
+}

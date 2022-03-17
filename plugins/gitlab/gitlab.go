@@ -86,6 +86,8 @@ func (plugin Gitlab) Execute(options map[string]interface{}, progress chan<- flo
 	}
 	if len(tasksToRun) == 0 {
 		tasksToRun = map[string]bool{
+			"collectApiProject":              true,
+			"extractApiProject":              true,
 			"collectApiCommits":              true,
 			"extractApiCommits":              true,
 			"collectApiTag":                  true,
@@ -132,6 +134,8 @@ func (plugin Gitlab) Execute(options map[string]interface{}, progress chan<- flo
 		name       string
 		entryPoint core.SubTaskEntryPoint
 	}{
+		{name: "collectApiProject", entryPoint: tasks.CollectApiProject},
+		{name: "extractApiProject", entryPoint: tasks.ExtractApiProject},
 		{name: "collectApiCommits", entryPoint: tasks.CollectApiCommits},
 		{name: "extractApiCommits", entryPoint: tasks.ExtractApiCommits},
 		{name: "collectApiTag", entryPoint: tasks.CollectApiTag},
@@ -161,10 +165,10 @@ func (plugin Gitlab) Execute(options map[string]interface{}, progress chan<- flo
 	}
 
 	progress <- 0.1
-	if err := tasks.CollectProject(ctx, projectIdInt, gitlabApiClient); err != nil {
+	/*if err := tasks.CollectProject(ctx, projectIdInt, gitlabApiClient); err != nil {
 		return fmt.Errorf("could not collect projects: %v", err)
 	}
-	/*if tasksToRun["collectCommits"] {
+	if tasksToRun["collectCommits"] {
 		progress <- 0.25
 		if err := tasks.CollectCommits(ctx, projectIdInt, gitlabApiClient); err != nil {
 			return &errors.SubTaskError{
