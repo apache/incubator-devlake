@@ -41,9 +41,7 @@ func CollectApiSprints(taskCtx core.SubTaskContext) error {
 
 		ResponseParser: func(res *http.Response) ([]json.RawMessage, error) {
 			var data struct {
-				StartAt    int               `json:"startAt"`
-				MaxResults int               `json:"maxResults"`
-				Values     []json.RawMessage `json:"values"`
+				Values []json.RawMessage `json:"values"`
 			}
 			err := core.UnmarshalResponse(res, &data)
 			if err != nil {
