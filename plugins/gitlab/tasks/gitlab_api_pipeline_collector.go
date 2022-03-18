@@ -5,18 +5,20 @@ import (
 	"github.com/merico-dev/lake/plugins/helper"
 )
 
-const RAW_PROJECT_TABLE = "gitlab_api_project"
+const RAW_PIPELINE_TABLE = "gitlab_api_pipeline"
 
-func CollectApiProject(taskCtx core.SubTaskContext) error {
-	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_PROJECT_TABLE)
+func CollectApiPipeline(taskCtx core.SubTaskContext) error {
+	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_PIPELINE_TABLE)
 
 	collector, err := helper.NewApiCollector(helper.ApiCollectorArgs{
 		RawDataSubTaskArgs: *rawDataSubTaskArgs,
 		ApiClient:          data.ApiClient,
+		PageSize:           100,
 		Incremental:        false,
-		UrlTemplate:        "projects/{{ .Params.ProjectId }}",
+		UrlTemplate:        "projects/{{ .Params.ProjectId }}/pipeline",
 		Query:              GetQuery,
-		ResponseParser:     helper.GetRawMessageDirectFromResponse,
+		GetTotalPages:      GetTotalPagesFromResponse,
+		ResponseParser:     GetRawMessageFromResponse,
 	})
 
 	if err != nil {

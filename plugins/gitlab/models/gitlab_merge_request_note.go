@@ -4,7 +4,6 @@ import (
 	"time"
 
 	"github.com/merico-dev/lake/models/common"
-	"github.com/merico-dev/lake/plugins/helper"
 )
 
 type GitlabMergeRequestNote struct {
@@ -20,6 +19,4 @@ type GitlabMergeRequestNote struct {
 	System          bool `gorm:"comment:Is or is not auto-generated vs. human generated"`
 
 	common.NoPKModel
-
-	helper.RawDataOrigin
 }
