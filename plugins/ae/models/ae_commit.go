@@ -1,6 +1,6 @@
 package models
 
-import "github.com/merico-dev/lake/plugins/helper"
+import "github.com/merico-dev/lake/models/common"
 
 type AECommit struct {
 	HexSha      string `gorm:"primaryKey"`
@@ -8,6 +8,5 @@ type AECommit struct {
 	AuthorEmail string
 	DevEq       int
 	AEProjectId int
-
-	helper.RawDataOrigin
+	common.NoPKModel
 }

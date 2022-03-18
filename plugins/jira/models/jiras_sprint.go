@@ -4,11 +4,9 @@ import (
 	"time"
 
 	"github.com/merico-dev/lake/models/common"
-	"github.com/merico-dev/lake/plugins/helper"
 )
 
 type JiraSprint struct {
-	common.NoPKModel
 	SourceId      uint64 `gorm:"primaryKey"`
 	SprintId      uint64 `gorm:"primaryKey"`
 	Self          string
@@ -18,6 +16,7 @@ type JiraSprint struct {
 	EndDate       *time.Time
 	CompleteDate  *time.Time
 	OriginBoardID uint64
+	common.NoPKModel
 }
 
 type JiraBoardSprint struct {
@@ -32,5 +31,4 @@ type JiraSprintIssue struct {
 	IssueId          uint64 `gorm:"primaryKey"`
 	ResolutionDate   *time.Time
 	IssueCreatedDate *time.Time
-	helper.RawDataOrigin
 }

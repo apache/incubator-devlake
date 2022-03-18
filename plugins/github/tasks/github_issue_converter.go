@@ -15,9 +15,10 @@ import (
 func ConvertIssues(taskCtx core.SubTaskContext) error {
 	db := taskCtx.GetDb()
 	data := taskCtx.GetData().(*GithubTaskData)
+	repoId := data.Repo.GithubId
 
 	issue := &githubModels.GithubIssue{}
-	cursor, err := db.Model(issue).Where("repo_id = ?", data.Repo.GithubId).Rows()
+	cursor, err := db.Model(issue).Where("repo_id = ?", repoId).Rows()
 
 	if err != nil {
 		return err
@@ -29,23 +30,16 @@ func ConvertIssues(taskCtx core.SubTaskContext) error {
 	boardIdGen := didgen.NewDomainIdGenerator(&githubModels.GithubRepo{})
 
 	converter, err := helper.NewDataConverter(helper.DataConverterArgs{
-		Ctx:          taskCtx,
+		RawDataSubTaskArgs: helper.RawDataSubTaskArgs{
+			Ctx: taskCtx,
+			Params: GithubApiParams{
+				Owner: data.Options.Owner,
+				Repo:  data.Options.Repo,
+			},
+			Table: RAW_ISSUE_TABLE,
+		},
 		InputRowType: reflect.TypeOf(githubModels.GithubIssue{}),
 		Input:        cursor,
-		BatchSelectors: map[reflect.Type]helper.BatchSelector{
-			reflect.TypeOf(&ticket.Issue{}): {
-				Query: "id like ?",
-				Parameters: []interface{}{
-					issueIdGen.Generate(data.Repo.GithubId, didgen.WILDCARD),
-				},
-			},
-			reflect.TypeOf(&ticket.BoardIssue{}): {
-				Query: "board_id = ?",
-				Parameters: []interface{}{
-					boardIdGen.Generate(data.Repo.GithubId, didgen.WILDCARD),
-				},
-			},
-		},
 		Convert: func(inputRow interface{}) ([]interface{}, error) {
 			issue := inputRow.(*githubModels.GithubIssue)
 			domainIssue := &ticket.Issue{
@@ -69,9 +63,8 @@ func ConvertIssues(taskCtx core.SubTaskContext) error {
 			} else {
 				domainIssue.Status = ticket.TODO
 			}
-
 			boardIssue := &ticket.BoardIssue{
-				BoardId: boardIdGen.Generate(data.Repo.GithubId),
+				BoardId: boardIdGen.Generate(repoId),
 				IssueId: domainIssue.Id,
 			}
 			return []interface{}{

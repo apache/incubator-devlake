@@ -29,28 +29,19 @@ func ConvertCommits(taskCtx core.SubTaskContext) error {
 	repoDidGen := didgen.NewDomainIdGenerator(&githubModels.GithubRepo{})
 	domainRepoId := repoDidGen.Generate(repoId)
 	userDidGen := didgen.NewDomainIdGenerator(&githubModels.GithubUser{})
-	repoCommit := &code.RepoCommit{
-		RepoId: domainRepoId,
-	}
 
 	converter, err := helper.NewDataConverter(helper.DataConverterArgs{
-		Ctx:          taskCtx,
+		RawDataSubTaskArgs: helper.RawDataSubTaskArgs{
+			Ctx: taskCtx,
+			Params: GithubApiParams{
+				Owner: data.Options.Owner,
+				Repo:  data.Options.Repo,
+			},
+			Table: RAW_COMMENTS_TABLE,
+		},
 		InputRowType: reflect.TypeOf(githubModels.GithubCommit{}),
 		Input:        cursor,
-		BatchSelectors: map[reflect.Type]helper.BatchSelector{
-			reflect.TypeOf(&code.Commit{}): {
-				Query: "1 != ?",
-				Parameters: []interface{}{
-					1,
-				},
-			},
-			reflect.TypeOf(&code.RepoCommit{}): {
-				Query: "repo_id = ?",
-				Parameters: []interface{}{
-					repoDidGen.Generate(data.Repo.GithubId, didgen.WILDCARD),
-				},
-			},
-		},
+
 		Convert: func(inputRow interface{}) ([]interface{}, error) {
 			githubCommit := inputRow.(*githubModels.GithubCommit)
 			domainCommit := &code.Commit{
@@ -67,8 +58,10 @@ func ConvertCommits(taskCtx core.SubTaskContext) error {
 				CommittedDate:  githubCommit.CommittedDate,
 				CommitterId:    userDidGen.Generate(githubCommit.CommitterId),
 			}
-
-			repoCommit.CommitSha = domainCommit.Sha
+			repoCommit := &code.RepoCommit{
+				RepoId:    domainRepoId,
+				CommitSha: domainCommit.Sha,
+			}
 			return []interface{}{
 				domainCommit,
 				repoCommit,

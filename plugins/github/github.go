@@ -3,14 +3,15 @@ package main // must be main for plugin entry point
 import (
 	"context"
 	"fmt"
-	"github.com/merico-dev/lake/errors"
-	"github.com/merico-dev/lake/plugins/helper"
+	lakeModels "github.com/merico-dev/lake/models"
 	"os"
 	"strings"
 	"time"
 
+	"github.com/merico-dev/lake/errors"
+	"github.com/merico-dev/lake/plugins/helper"
+
 	"github.com/merico-dev/lake/config"
-	lakeModels "github.com/merico-dev/lake/models"
 	"github.com/merico-dev/lake/plugins/core"
 	"github.com/merico-dev/lake/plugins/github/api"
 	"github.com/merico-dev/lake/plugins/github/models"
@@ -105,6 +106,7 @@ func (plugin Github) Execute(options map[string]interface{}, progress chan<- flo
 			"enrichPullRequestIssues":      true,
 			"convertRepos":                 true,
 			"convertIssues":                true,
+			"convertBoardIssues":           false,
 			"convertIssueLabels":           true,
 			"convertPullRequests":          true,
 			"convertCommits":               true,
@@ -146,6 +148,7 @@ func (plugin Github) Execute(options map[string]interface{}, progress chan<- flo
 		ApiClient: &apiClient.ApiClient,
 		Since:     since,
 	}
+
 	taskCtx := helper.NewDefaultTaskContext("github", ctx, logger, taskData, tasksToRun)
 	repo := models.GithubRepo{}
 	err = taskCtx.GetDb().Model(&models.GithubRepo{}).
@@ -162,12 +165,6 @@ func (plugin Github) Execute(options map[string]interface{}, progress chan<- flo
 	}{
 		//{name: "collectApiRepositories", entryPoint: tasks.CollectApiRepositories},
 		//{name: "extractApiRepositories", entryPoint: tasks.ExtractApiRepositories},
-		//
-		//{name: "collectApiCommits", entryPoint: tasks.CollectApiCommits},
-		//{name: "extractApiCommits", entryPoint: tasks.ExtractApiCommits},
-		//{name: "collectApiCommitStats", entryPoint: tasks.CollectApiCommitStats},
-		//{name: "extractApiCommitStats", entryPoint: tasks.ExtractApiCommitStats},
-		//
 		//{name: "collectApiIssues", entryPoint: tasks.CollectApiIssues},
 		//{name: "extractApiIssues", entryPoint: tasks.ExtractApiIssues},
 		//{name: "collectApiPullRequests", entryPoint: tasks.CollectApiPullRequests},
@@ -180,10 +177,19 @@ func (plugin Github) Execute(options map[string]interface{}, progress chan<- flo
 		//{name: "extractApiPullRequestCommits", entryPoint: tasks.ExtractApiPullRequestCommits},
 		//{name: "collectApiPullRequestReviews", entryPoint: tasks.CollectApiPullRequestReviews},
 		//{name: "extractApiPullRequestReviews", entryPoint: tasks.ExtractApiPullRequestReviews},
-		//{name: "convertIssues", entryPoint: tasks.ConvertIssues},
-		//{name: "convertCommits", entryPoint: tasks.ConvertCommits},
+		//{name: "collectApiCommits", entryPoint: tasks.CollectApiCommits},
+		//{name: "extractApiCommits", entryPoint: tasks.ExtractApiCommits},
+		//{name: "collectApiCommitStats", entryPoint: tasks.CollectApiCommitStats},
+		//{name: "extractApiCommitStats", entryPoint: tasks.ExtractApiCommitStats},
+		{name: "convertRepos", entryPoint: tasks.ConvertRepos},
+		{name: "convertIssues", entryPoint: tasks.ConvertIssues},
+		{name: "convertCommits", entryPoint: tasks.ConvertCommits},
 		{name: "convertIssueLabels", entryPoint: tasks.ConvertIssueLabels},
 		{name: "convertPullRequestCommits", entryPoint: tasks.ConvertPullRequestCommits},
+		{name: "convertPullRequests", entryPoint: tasks.ConvertPullRequests},
+		{name: "convertPullRequestLabels", entryPoint: tasks.ConvertPullRequestLabels},
+		{name: "convertNotes", entryPoint: tasks.ConvertNotes},
+		{name: "convertUsers", entryPoint: tasks.ConvertUsers},
 	}
 	for _, t := range newTasks {
 		c, err := taskCtx.SubTaskContext(t.name)
@@ -214,40 +220,6 @@ func (plugin Github) Execute(options map[string]interface{}, progress chan<- flo
 			}
 		}
 	}
-	if tasksToRun["convertRepos"] {
-		progress <- 0.80
-		fmt.Println("INFO >>> Converting repos")
-		err = tasks.ConvertRepos(ctx)
-		if err != nil {
-			return &errors.SubTaskError{
-				Message:     fmt.Errorf("could not convert Repos: %v", err).Error(),
-				SubTaskName: "convertRepos",
-			}
-		}
-	}
-
-	if tasksToRun["convertPullRequests"] {
-		progress <- 0.91
-		fmt.Println("INFO >>> starting convertPullRequests")
-		err = tasks.ConvertPullRequests(ctx, repoId)
-		if err != nil {
-			return &errors.SubTaskError{
-				Message:     fmt.Errorf("could not convert PullRequests: %v", err).Error(),
-				SubTaskName: "convertPullRequests",
-			}
-		}
-	}
-	if tasksToRun["convertPullRequestLabels"] {
-		progress <- 0.92
-		fmt.Println("INFO >>> starting convertPullRequestLabels")
-		err = tasks.ConvertPullRequestLabels(ctx, repoId)
-		if err != nil {
-			return &errors.SubTaskError{
-				Message:     fmt.Errorf("could not convert PullRequests: %v", err).Error(),
-				SubTaskName: "convertPullRequestLabels",
-			}
-		}
-	}
 
 	if tasksToRun["convertPullRequestIssues"] {
 		progress <- 0.95
@@ -257,28 +229,6 @@ func (plugin Github) Execute(options map[string]interface{}, progress chan<- flo
 			return &errors.SubTaskError{
 				Message:     fmt.Errorf("could not convert PullRequestCommits: %v", err).Error(),
 				SubTaskName: "convertPullRequestIssues",
-			}
-		}
-	}
-	if tasksToRun["convertNotes"] {
-		progress <- 0.97
-		fmt.Println("INFO >>> starting convertNotes")
-		err = tasks.ConvertNotes(ctx, repoId)
-		if err != nil {
-			return &errors.SubTaskError{
-				Message:     fmt.Errorf("could not convert Notes: %v", err).Error(),
-				SubTaskName: "convertNotes",
-			}
-		}
-	}
-	if tasksToRun["convertUsers"] {
-		progress <- 0.98
-		fmt.Println("INFO >>> starting convertUsers")
-		err = tasks.ConvertUsers(ctx)
-		if err != nil {
-			return &errors.SubTaskError{
-				Message:     fmt.Errorf("could not convert Users: %v", err).Error(),
-				SubTaskName: "convertUsers",
 			}
 		}
 	}
@@ -335,45 +285,36 @@ func main() {
 				"owner": owner,
 				"repo":  repo,
 				"tasks": []string{
-					"collectApiRepositories",
-					"extractApiRepositories",
-					"collectApiCommits",
-					"extractApiCommits",
-					"collectApiCommitStats",
-					"extractApiCommitStats",
-
-					"collectApiIssues",
-					"extractApiIssues",
-					"collectApiComments",
-					"extractApiComments",
-					"collectApiEvents",
-					"extractApiEvents",
-					"collectApiPullRequests",
-					"extractApiPullRequests",
-					"collectApiPullRequestCommits",
-					"extractApiPullRequestCommits",
-					"collectApiPullRequestReviews",
-					"extractApiPullRequestReviews",
-					//"enrichApiIssues",
-					//"collectIssueEvents",
-					//"collectIssueComments",
-					//"collectPullRequests",
-					//"collectPullRequestReviews",
-					//"collectPullRequestCommits",
-					//"enrichIssues",
-					//"enrichPullRequests",
-					//"enrichComments",
+					//"collectApiRepositories",
+					//"extractApiRepositories",
+					//"collectApiCommits",
+					//"extractApiCommits",
+					//"collectApiCommitStats",
+					//"extractApiCommitStats",
+					//
+					//"collectApiIssues",
+					//"extractApiIssues",
+					//"collectApiComments",
+					//"extractApiComments",
+					//"collectApiEvents",
+					//"extractApiEvents",
+					//"collectApiPullRequests",
+					//"extractApiPullRequests",
+					//"collectApiPullRequestCommits",
+					//"extractApiPullRequestCommits",
+					//"collectApiPullRequestReviews",
+					//"extractApiPullRequestReviews",
 					//"enrichPullRequestIssues",
-					//"convertRepos",
+					"convertRepos",
 					"convertIssues",
 					"convertIssueLabels",
-					//"convertPullRequests",
+					"convertPullRequests",
 					"convertCommits",
 					"convertPullRequestCommits",
-					//"convertPullRequestLabels",
+					"convertPullRequestLabels",
 					//"convertPullRequestIssues",
-					//"convertNotes",
-					//"convertUsers",
+					"convertNotes",
+					"convertUsers",
 				},
 			},
 			progress,

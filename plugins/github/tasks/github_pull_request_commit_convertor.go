@@ -26,16 +26,15 @@ func ConvertPullRequestCommits(taskCtx core.SubTaskContext) (err error) {
 	defer cursor.Close()
 
 	converter, err := helper.NewDataConverter(helper.DataConverterArgs{
-		Ctx:          taskCtx,
 		InputRowType: reflect.TypeOf(githubModels.GithubPullRequestCommit{}),
 		Input:        cursor,
-		BatchSelectors: map[reflect.Type]helper.BatchSelector{
-			reflect.TypeOf(&code.PullRequestCommit{}): {
-				Query: "pull_request_id like ?",
-				Parameters: []interface{}{
-					pullIdGen.Generate(data.Repo.GithubId, didgen.WILDCARD),
-				},
+		RawDataSubTaskArgs: helper.RawDataSubTaskArgs{
+			Ctx: taskCtx,
+			Params: GithubApiParams{
+				Owner: data.Options.Owner,
+				Repo:  data.Options.Repo,
 			},
+			Table: RAW_PULL_REQUEST_COMMIT_TABLE,
 		},
 		Convert: func(inputRow interface{}) ([]interface{}, error) {
 			githubPullRequestCommit := inputRow.(*githubModels.GithubPullRequestCommit)
@@ -43,7 +42,6 @@ func ConvertPullRequestCommits(taskCtx core.SubTaskContext) (err error) {
 				CommitSha:     githubPullRequestCommit.CommitSha,
 				PullRequestId: pullIdGen.Generate(githubPullRequestCommit.PullRequestId),
 			}
-
 			return []interface{}{
 				domainPrCommit,
 			}, nil

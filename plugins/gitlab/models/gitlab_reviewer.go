@@ -2,7 +2,6 @@ package models
 
 import (
 	"github.com/merico-dev/lake/models/common"
-	"github.com/merico-dev/lake/plugins/helper"
 )
 
 type GitlabReviewer struct {
@@ -15,6 +14,4 @@ type GitlabReviewer struct {
 	AvatarUrl      string
 	WebUrl         string
 	common.NoPKModel
-
-	helper.RawDataOrigin
 }
