@@ -26,7 +26,7 @@ func ExtractApiMergeRequestsCommits(taskCtx core.SubTaskContext) error {
 			}
 
 			// get input info
-			input := &SimpleMr{}
+			input := &GitlabInput{}
 			err = json.Unmarshal(row.Input, input)
 			if err != nil {
 				return nil, err

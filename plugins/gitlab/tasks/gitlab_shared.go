@@ -18,7 +18,7 @@ type GitlabApiParams struct {
 	ProjectId int
 }
 
-type SimpleMr struct {
+type GitlabInput struct {
 	GitlabId int
 	Iid      int
 }
@@ -59,6 +59,15 @@ func GetQuery(reqData *helper.RequestData) (url.Values, error) {
 	return query, nil
 }
 
+func GetQueryOrder(reqData *helper.RequestData) (url.Values, error) {
+	query := url.Values{}
+	query.Set("order_by", "updated_at")
+	query.Set("sort", "desc")
+	query.Set("page", strconv.Itoa(reqData.Pager.Page))
+	query.Set("per_page", strconv.Itoa(reqData.Pager.Size))
+	return query, nil
+}
+
 func CreateRawDataSubTaskArgs(taskCtx core.SubTaskContext, Table string) (*helper.RawDataSubTaskArgs, *GitlabTaskData) {
 	data := taskCtx.GetData().(*GitlabTaskData)
 	RawDataSubTaskArgs := &helper.RawDataSubTaskArgs{
@@ -79,5 +88,16 @@ func GetMergeRequestsIterator(taskCtx core.SubTaskContext) (*helper.CursorIterat
 		return nil, err
 	}
 
-	return helper.NewCursorIterator(db, cursor, reflect.TypeOf(SimpleMr{}))
+	return helper.NewCursorIterator(db, cursor, reflect.TypeOf(GitlabInput{}))
+}
+
+func GetPipelinesIterator(taskCtx core.SubTaskContext) (*helper.CursorIterator, error) {
+	db := taskCtx.GetDb()
+	data := taskCtx.GetData().(*GitlabTaskData)
+	cursor, err := db.Model(&models.GitlabPipeline{}).Where("project_id = ?", data.Options.ProjectId).Select("gitlab_id").Rows()
+	if err != nil {
+		return nil, err
+	}
+
+	return helper.NewCursorIterator(db, cursor, reflect.TypeOf(GitlabInput{}))
 }
