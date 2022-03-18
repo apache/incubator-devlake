@@ -1,4 +1,4 @@
-package v8models
+package apiv2models
 
 import (
 	"github.com/merico-dev/lake/plugins/core"
