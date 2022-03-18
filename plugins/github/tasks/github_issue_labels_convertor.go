@@ -26,24 +26,22 @@ func ConvertIssueLabels(taskCtx core.SubTaskContext) error {
 	issueIdGen := didgen.NewDomainIdGenerator(&githubModels.GithubIssue{})
 
 	converter, err := helper.NewDataConverter(helper.DataConverterArgs{
-		Ctx:          taskCtx,
+		RawDataSubTaskArgs: helper.RawDataSubTaskArgs{
+			Ctx: taskCtx,
+			Params: GithubApiParams{
+				Owner: data.Options.Owner,
+				Repo:  data.Options.Repo,
+			},
+			Table: RAW_ISSUE_TABLE,
+		},
 		InputRowType: reflect.TypeOf(githubModels.GithubIssueLabel{}),
 		Input:        cursor,
-		BatchSelectors: map[reflect.Type]helper.BatchSelector{
-			reflect.TypeOf(&ticket.IssueLabel{}): {
-				Query: "issue_id like ?",
-				Parameters: []interface{}{
-					issueIdGen.Generate(data.Repo.GithubId, didgen.WILDCARD),
-				},
-			},
-		},
 		Convert: func(inputRow interface{}) ([]interface{}, error) {
 			issueLabel := inputRow.(*githubModels.GithubIssueLabel)
 			domainIssueLabel := &ticket.IssueLabel{
 				IssueId:   issueIdGen.Generate(issueLabel.IssueId),
 				LabelName: issueLabel.LabelName,
 			}
-
 			return []interface{}{
 				domainIssueLabel,
 			}, nil
