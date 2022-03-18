@@ -90,5 +90,9 @@ func convertProject(gitlabApiProject *GitlabApiProject) *models.GitlabProject {
 		CreatedDate:       gitlabApiProject.CreatedAt.ToTime(),
 		UpdatedDate:       core.Iso8601TimeToTime(gitlabApiProject.LastActivityAt),
 	}
+	if gitlabApiProject.ForkedFromProject != nil {
+		gitlabProject.ForkedFromProjectId = gitlabApiProject.ForkedFromProject.GitlabId
+		gitlabProject.ForkedFromProjectWebUrl = gitlabApiProject.ForkedFromProject.WebUrl
+	}
 	return gitlabProject
 }

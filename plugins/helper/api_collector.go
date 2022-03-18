@@ -344,4 +344,13 @@ func (collector *ApiCollector) fetchAsync(reqData *RequestData, handler func(*ht
 	return collector.args.ApiClient.GetAsync(apiUrl, apiQuery, apiHeader, handler)
 }
 
+func GetRawMessageDirectFromResponse(res *http.Response) ([]json.RawMessage, error) {
+	body, err := ioutil.ReadAll(res.Body)
+	res.Body.Close()
+	if err != nil {
+		return nil, err
+	}
+	return []json.RawMessage{body}, nil
+}
+
 var _ core.SubTask = (*ApiCollector)(nil)

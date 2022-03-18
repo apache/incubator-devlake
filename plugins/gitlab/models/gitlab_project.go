@@ -4,7 +4,6 @@ import (
 	"time"
 
 	"github.com/merico-dev/lake/models/common"
-	"github.com/merico-dev/lake/plugins/helper"
 )
 
 type GitlabProject struct {
@@ -24,6 +23,4 @@ type GitlabProject struct {
 	CreatedDate time.Time
 	UpdatedDate *time.Time
 	common.NoPKModel
-
-	helper.RawDataOrigin
 }

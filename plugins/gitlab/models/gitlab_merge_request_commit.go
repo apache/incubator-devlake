@@ -2,7 +2,6 @@ package models
 
 import (
 	"github.com/merico-dev/lake/models/common"
-	"github.com/merico-dev/lake/plugins/helper"
 )
 
 // This Model is intended to save commits that are associated to a merge request
@@ -15,6 +14,4 @@ type GitlabMergeRequestCommit struct {
 	CommitSha      string `gorm:"primaryKey"`
 	MergeRequestId int    `gorm:"primaryKey;autoIncrement:false"`
 	common.NoPKModel
-
-	helper.RawDataOrigin
 }

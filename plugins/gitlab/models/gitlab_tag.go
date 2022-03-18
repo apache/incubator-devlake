@@ -2,7 +2,6 @@ package models
 
 import (
 	"github.com/merico-dev/lake/models/common"
-	"github.com/merico-dev/lake/plugins/helper"
 )
 
 type GitlabTag struct {
@@ -12,6 +11,4 @@ type GitlabTag struct {
 	Protected          bool
 	ReleaseDescription string
 	common.NoPKModel
-
-	helper.RawDataOrigin
 }
