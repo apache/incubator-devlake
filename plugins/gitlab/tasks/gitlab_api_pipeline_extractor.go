@@ -7,30 +7,62 @@ import (
 	"github.com/merico-dev/lake/plugins/helper"
 )
 
-func ExtractApiPipeline(taskCtx core.SubTaskContext) error {
+func ExtractApiPipelines(taskCtx core.SubTaskContext) error {
 	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_PIPELINE_TABLE)
 
 	extractor, err := helper.NewApiExtractor(helper.ApiExtractorArgs{
 		RawDataSubTaskArgs: *rawDataSubTaskArgs,
 		Extract: func(row *helper.RawData) ([]interface{}, error) {
-			mr := &MergeRequestRes{}
-			err := json.Unmarshal(row.Data, mr)
+			// create gitlab commit
+			gitlabApiPipeline := &ApiPipeline{}
+			err := json.Unmarshal(row.Data, gitlabApiPipeline)
+			if err != nil {
+				return nil, err
+			}
+			gitlabPipeline, err := convertPipeline(gitlabApiPipeline)
 			if err != nil {
 				return nil, err
 			}
 
-			gitlabMergeRequest, err := convertMergeRequest(mr, data.Options.ProjectId)
+			// use data.Options.ProjectId to set the value of ProjectId for it
+			gitlabPipeline.ProjectId = data.Options.ProjectId
+
+			results := make([]interface{}, 0, 1)
+			results = append(results, gitlabPipeline)
+
+			return results, nil
+		},
+	})
+
+	if err != nil {
+		return err
+	}
+
+	return extractor.Execute()
+}
+
+func ExtractApiChildrenOnPipelines(taskCtx core.SubTaskContext) error {
+	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_CHILDREN_ON_PIPELINE_TABLE)
+
+	extractor, err := helper.NewApiExtractor(helper.ApiExtractorArgs{
+		RawDataSubTaskArgs: *rawDataSubTaskArgs,
+		Extract: func(row *helper.RawData) ([]interface{}, error) {
+			pipelineRes := &ApiSinglePipelineResponse{}
+			err := json.Unmarshal(row.Data, pipelineRes)
 			if err != nil {
 				return nil, err
 			}
-			results := make([]interface{}, 0, len(mr.Reviewers)+1)
 
-			results = append(results, gitlabMergeRequest)
-
-			for _, reviewer := range mr.Reviewers {
-				gitlabReviewer := NewReviewer(data.Options.ProjectId, mr.GitlabId, reviewer)
-				results = append(results, gitlabReviewer)
+			gitlabPipeline, err := convertSinglePipeline(pipelineRes)
+			if err != nil {
+				return nil, err
 			}
+
+			// use data.Options.ProjectId to set the value of ProjectId for it
+			gitlabPipeline.ProjectId = data.Options.ProjectId
+
+			results := make([]interface{}, 0, 1)
+			results = append(results, gitlabPipeline)
 
 			return results, nil
 		},
