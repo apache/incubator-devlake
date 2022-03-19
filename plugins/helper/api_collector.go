@@ -161,7 +161,8 @@ func (collector *ApiCollector) exec(input interface{}) error {
 		return collector.fetchPagesAsync(reqData)
 	}
 	// collect detail of a record
-	return collector.fetchAsync(reqData, collector.handleResponse)
+	//return collector.fetchAsync(reqData, collector.handleResponse)
+	return collector.fetchAsync(reqData, collector.handleNoPageResponse(reqData))
 }
 
 func (collector *ApiCollector) generateUrl(pager *Pager, input interface{}) (string, error) {
@@ -257,6 +258,16 @@ func (collector *ApiCollector) fetchPagesAsync(reqData *RequestData) error {
 		collector.args.Ctx.IncProgress(1)
 	}
 	return nil
+}
+
+func (collector *ApiCollector) handleNoPageResponse(reqData *RequestData) func(res *http.Response) error {
+	return func(res *http.Response) error {
+		_, err := collector.saveRawData(res, reqData.Input)
+		if err != nil{
+			return err
+		}
+		return nil
+	}
 }
 
 func (collector *ApiCollector) handleResponse(res *http.Response) error {

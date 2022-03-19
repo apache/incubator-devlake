@@ -1,9 +1,9 @@
 package helper
 
 import (
+	"time"
 	"database/sql"
 	"reflect"
-
 	"gorm.io/gorm"
 )
 
@@ -45,3 +45,43 @@ func (c *CursorIterator) Close() error {
 }
 
 var _ Iterator = (*CursorIterator)(nil)
+
+
+type DateInterator struct{
+	startTime time.Time
+	endTime time.Time
+	Days int
+	Current int
+}
+
+type DatePair struct{
+	PairStartTime time.Time
+	PairEndTime time.Time
+}
+
+func (c *DateInterator) HasNext() bool{
+	return c.Current < c.Days
+}
+
+func (c *DateInterator) Fetch() (interface{}, error){
+	c.Current++
+	return &DatePair{
+		PairStartTime: c.startTime.AddDate(0, 0, -c.Current),
+		PairEndTime: c.endTime.AddDate(0, 0, -c.Current),
+	}, nil
+
+}
+
+func (c *DateInterator) Close() error{
+	return nil
+}
+
+func NewDateInterator(days int) (*DateInterator, error){
+	endTime := time.Now().Truncate(24 * time.Hour)
+	return &DateInterator{
+		startTime: endTime,
+		endTime: endTime.AddDate(0, 0, 1),
+		Days: days,
+		Current: 0,
+	}, nil
+}

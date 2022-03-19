@@ -1,11 +1,11 @@
 package apimodels
 
-import "github.com/merico-dev/lake/plugins/feishu/models"
+import "encoding/json"
 
 type FeishuMeetingTopUserItemResult struct {
 	Code int64 `json:"code"`
 	Data struct {
-		TopUserReport []models.FeishuMeetingTopUserItem `json:"top_user_report"`
+		TopUserReport []json.RawMessage `json:"top_user_report"`
 	} `json:"data"`
 	Msg string `json:"msg"`
 }
