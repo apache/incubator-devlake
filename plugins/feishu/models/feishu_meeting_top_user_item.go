@@ -12,4 +12,5 @@ type FeishuMeetingTopUserItem struct {
 	MeetingDuration string `json:"meeting_duration"`
 	Name            string `json:"name"`
 	UserType        int64  `json:"user_type"`
+	common.RawDataOrigin
 }
