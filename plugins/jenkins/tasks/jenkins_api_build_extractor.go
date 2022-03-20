@@ -51,11 +51,6 @@ func ExtractApiBuilds(taskCtx core.SubTaskContext) error {
 				Timestamp:         body.Timestamp,
 				StartTime:         time.Unix(body.Timestamp/1000, 0),
 			}
-			//for _, v := range body.Actions {
-			//	if &v.LastBuiltRevision != nil {
-			//
-			//	}
-			//}
 
 			vcs := body.ChangeSet.Kind
 			if vcs == "git" || vcs == "hg" {
