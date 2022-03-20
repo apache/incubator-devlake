@@ -309,7 +309,7 @@ func (collector *ApiCollector) recursive(reqData *RequestData) func(res *http.Re
 		if count < collector.args.PageSize {
 			return nil
 		}
-		reqData.Pager.Skip += collector.args.PageSize * reqData.Pager.Page
+		reqData.Pager.Skip += collector.args.PageSize
 		reqData.Pager.Page += collector.args.Concurrency
 		return collector.fetchAsync(reqData, collector.recursive(reqData))
 	}

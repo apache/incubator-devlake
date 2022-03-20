@@ -47,9 +47,8 @@ func CollectApiBuilds(taskCtx core.SubTaskContext) error {
 			query := url.Values{}
 			treeValue := fmt.Sprintf(
 				"allBuilds[number,timestamp,duration,estimatedDuration,displayName,result,actions[lastBuiltRevision[SHA1],mercurialRevisionNumber],changeSet[kind,revisions[revision]]]{%d,%d}",
-				(reqData.Pager.Page-1)*reqData.Pager.Size, reqData.Pager.Page*reqData.Pager.Size)
+				reqData.Pager.Skip, reqData.Pager.Skip+reqData.Pager.Size)
 			query.Set("tree", treeValue)
-			fmt.Println(fmt.Sprintf("%s:  %d--%d", reqData.Input, (reqData.Pager.Page-1)*reqData.Pager.Size, reqData.Pager.Page*reqData.Pager.Size))
 			return query, nil
 		},
 		ResponseParser: func(res *http.Response) ([]json.RawMessage, error) {
