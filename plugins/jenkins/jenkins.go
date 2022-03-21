@@ -108,12 +108,12 @@ func (plugin Jenkins) Execute(options map[string]interface{}, progress chan<- fl
 		name       string
 		entryPoint core.SubTaskEntryPoint
 	}{
-		{name: "collectApiJobs", entryPoint: tasks.CollectApiJobs},
-		{name: "extractApiJobs", entryPoint: tasks.ExtractApiJobs},
+		//{name: "collectApiJobs", entryPoint: tasks.CollectApiJobs},
+		//{name: "extractApiJobs", entryPoint: tasks.ExtractApiJobs},
 		{name: "collectApiBuilds", entryPoint: tasks.CollectApiBuilds},
-		{name: "extractApiBuilds", entryPoint: tasks.ExtractApiBuilds},
-		{name: "convertJobs", entryPoint: tasks.ConvertJobs},
-		{name: "convertBuilds", entryPoint: tasks.ConvertBuilds},
+		//{name: "extractApiBuilds", entryPoint: tasks.ExtractApiBuilds},
+		//{name: "convertJobs", entryPoint: tasks.ConvertJobs},
+		//{name: "convertBuilds", entryPoint: tasks.ConvertBuilds},
 	}
 	for _, t := range newTasks {
 		c, err := taskCtx.SubTaskContext(t.name)
