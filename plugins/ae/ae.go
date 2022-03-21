@@ -7,7 +7,7 @@ import (
 	"github.com/merico-dev/lake/plugins/ae/models"
 	"github.com/merico-dev/lake/plugins/ae/tasks"
 	"github.com/merico-dev/lake/plugins/core"
-	"github.com/merico-dev/lake/worker"
+	"github.com/merico-dev/lake/runner"
 	"github.com/mitchellh/mapstructure"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
@@ -91,9 +91,9 @@ func main() {
 	projectId := aeCmd.Flags().IntP("project-id", "p", 0, "ae project id")
 	aeCmd.MarkFlagRequired("project-id")
 	aeCmd.Run = func(cmd *cobra.Command, args []string) {
-		worker.DirectRun(cmd, args, PluginEntry, map[string]interface{}{
+		runner.DirectRun(cmd, args, PluginEntry, map[string]interface{}{
 			"projectId": *projectId,
 		})
 	}
-	worker.RunCmd(aeCmd)
+	runner.RunCmd(aeCmd)
 }

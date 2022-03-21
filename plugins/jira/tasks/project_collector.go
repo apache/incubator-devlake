@@ -36,7 +36,7 @@ func CollectProjects(taskCtx core.SubTaskContext) error {
 		GetTotalPages: GetTotalPagesFromResponse,
 		ResponseParser: func(res *http.Response) ([]json.RawMessage, error) {
 			var result []json.RawMessage
-			err := core.UnmarshalResponse(res, &result)
+			err := helper.UnmarshalResponse(res, &result)
 			return result, err
 		},
 	})

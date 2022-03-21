@@ -1,4 +1,4 @@
-package worker
+package runner
 
 import (
 	"fmt"
@@ -8,10 +8,12 @@ import (
 	"strings"
 
 	"github.com/merico-dev/lake/plugins/core"
+	"github.com/spf13/viper"
+	"gorm.io/gorm"
 )
 
 // LoadPlugins load plugins from local directory
-func LoadPlugins(pluginsDir string, logger core.Logger) error {
+func LoadPlugins(pluginsDir string, config *viper.Viper, logger core.Logger, db *gorm.DB) error {
 	walkErr := filepath.WalkDir(pluginsDir, func(path string, d fs.DirEntry, err error) error {
 		if err != nil {
 			return err
@@ -31,9 +33,8 @@ func LoadPlugins(pluginsDir string, logger core.Logger) error {
 			if !ok {
 				return fmt.Errorf("%v PluginEntry must implement PluginMeta interface", pluginName)
 			}
-			// Deprecated
-			if plugin, ok := symPluginEntry.(core.Plugin); ok {
-				plugin.Init()
+			if plugin, ok := symPluginEntry.(core.PluginInit); ok {
+				plugin.Init(config, logger, db)
 			}
 			err = core.RegisterPlugin(pluginName, pluginMeta)
 			if err != nil {
