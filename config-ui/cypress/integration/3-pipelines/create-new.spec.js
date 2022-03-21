@@ -170,5 +170,31 @@ context('RUN / Trigger New Pipelines', () => {
     })
   })
 
+  it('can run a gitextractor pipeline', () => {
+    cy.fixture('new-gitextractor-pipeline').then((newGitExtractorPipelineJSON) => {
+      cy.intercept('GET', `/api/pipelines/${newGitExtractorPipelineJSON.ID}`, { body: newGitExtractorPipelineJSON }).as('GitExtractorPipeline')
+      cy.intercept('POST', '/api/pipelines', { body: newGitExtractorPipelineJSON }).as('runGitExtractorPipeline')
+      cy.fixture('new-github-pipeline-tasks').then((newGitExtractorPipelineTasksJSON) => {
+        cy.intercept('GET', `/api/pipelines/${newGitExtractorPipelineJSON.ID}/tasks`, { body: newGitExtractorPipelineTasksJSON }).as('GitExtractorPipelineTasks')
+      })
+    })
+    cy.get('input#pipeline-name').type(`{selectAll}{backSpace}COLLECT GITEXTRACTOR ${Date.now()}`)
+    cy.get('.provider-toggle-switch.switch-gitextractor')
+      .should('be.visible')
+      .click()
+      .trigger('mouseleave')
+    
+    cy.get('input#gitextractor-url').click().type('https://github.com/merico-dev/lake.git')
+    cy.get('input#gitextractor-repo-id').type('github:GithubRepo:384111310')
+    
+    cy.get('button#btn-run-pipeline').click()
+    cy.wait('@GitExtractorPipeline')
+    cy.wait('@GitExtractorPipelineTasks')
+    cy.wait('@runGitExtractorPipeline').then(({ response }) => {
+      const NewGitExtractorRun = response.body
+      cy.url().should('include', `/pipelines/activity/${NewGitExtractorRun.ID}`)
+    })
+  })
+
 
 })

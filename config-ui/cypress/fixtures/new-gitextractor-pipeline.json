@@ -1,0 +1,24 @@
+{
+  "ID": 1000,
+  "CreatedAt": "2022-03-21T16:59:09.429-04:00",
+  "UpdatedAt": "2022-03-21T16:59:09.468-04:00",
+  "name": "COLLECT GITEXTRACTOR 1647893388050",
+  "tasks": [
+    [
+      {
+        "plugin": "gitextractor",
+        "options": {
+          "repoId": "github:GithubRepo:384111310",
+          "url": "https://github.com/merico-dev/lake.git"
+        }
+      }
+    ]
+  ],
+  "totalTasks": 1,
+  "finishedTasks": 0,
+  "beganAt": null,
+  "finishedAt": null,
+  "status": "TASK_CREATED",
+  "message": "",
+  "spentSeconds": 0
+}
