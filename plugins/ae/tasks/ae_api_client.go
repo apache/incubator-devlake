@@ -15,12 +15,6 @@ import (
 	"github.com/merico-dev/lake/plugins/helper"
 )
 
-type AEApiClient struct {
-	*helper.ApiAsyncClient
-	appId     string
-	secretKey string
-}
-
 const letterBytes = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
 
 func init() {
@@ -62,18 +56,7 @@ func getSign(query url.Values, appId, secretKey, nonceStr, timestamp string) str
 	return strings.ToUpper(hex.EncodeToString(hasher.Sum(nil)))
 }
 
-func (client *AEApiClient) beforeRequest(req *http.Request) error {
-	nonceStr := RandString(8)
-	timestamp := fmt.Sprintf("%v", time.Now().Unix())
-	sign := getSign(req.URL.Query(), client.appId, client.secretKey, nonceStr, timestamp)
-	req.Header.Set("x-ae-app-id", client.appId)
-	req.Header.Set("x-ae-timestamp", timestamp)
-	req.Header.Set("x-ae-nonce-str", nonceStr)
-	req.Header.Set("x-ae-sign", sign)
-	return nil
-}
-
-func CreateApiClient(taskCtx core.TaskContext) (*AEApiClient, error) {
+func CreateApiClient(taskCtx core.TaskContext) (*helper.ApiAsyncClient, error) {
 	// load and process cconfiguration
 	endpoint := taskCtx.GetConfig("AE_ENDPOINT")
 	if endpoint == "" {
@@ -89,20 +72,26 @@ func CreateApiClient(taskCtx core.TaskContext) (*AEApiClient, error) {
 	}
 	proxy := taskCtx.GetConfig("AE_PROXY")
 
-	// create ae api client
-	asyncApiCLient, err := helper.CreateAsyncApiClient(taskCtx, proxy, endpoint, nil, nil)
+	apiClient, err := helper.NewApiClient(endpoint, nil, 0, proxy, taskCtx.GetContext())
 	if err != nil {
 		return nil, err
 	}
-	aeApiClient := &AEApiClient{
-		ApiAsyncClient: asyncApiCLient,
-		appId:          appId,
-		secretKey:      secretKey,
+	apiClient.SetBeforeFunction(func(req *http.Request) error {
+		nonceStr := RandString(8)
+		timestamp := fmt.Sprintf("%v", time.Now().Unix())
+		sign := getSign(req.URL.Query(), appId, secretKey, nonceStr, timestamp)
+		req.Header.Set("x-ae-app-id", appId)
+		req.Header.Set("x-ae-timestamp", timestamp)
+		req.Header.Set("x-ae-nonce-str", nonceStr)
+		req.Header.Set("x-ae-sign", sign)
+		return nil
+	})
+
+	// create ae api client
+	asyncApiCLient, err := helper.CreateAsyncApiClient(taskCtx, apiClient, nil)
+	if err != nil {
+		return nil, err
 	}
 
-	// set callbacks
-	aeApiClient.SetBeforeFunction(aeApiClient.beforeRequest)
-	aeApiClient.SetContext(taskCtx.GetContext())
-
-	return aeApiClient, nil
+	return asyncApiCLient, nil
 }

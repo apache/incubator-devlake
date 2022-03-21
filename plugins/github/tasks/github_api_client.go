@@ -12,19 +12,13 @@ import (
 	"github.com/merico-dev/lake/utils"
 )
 
-type GithubApiClient struct {
-	*helper.ApiAsyncClient
-	// This is for multiple token functionality so we can loop through an array of tokens.
-	tokens     []string
-	tokenIndex int
-}
-
-func NewGithubApiClient(taskCtx core.TaskContext) (*GithubApiClient, error) {
+func NewGithubApiClient(taskCtx core.TaskContext) (*helper.ApiAsyncClient, error) {
 	// load configuration
 	endpoint := taskCtx.GetConfig("GITHUB_ENDPOINT")
 	if endpoint == "" {
 		return nil, fmt.Errorf("endpint is required")
 	}
+	proxy := taskCtx.GetConfig("GITHUB_PROXY")
 	userRateLimit, err := utils.StrToIntOr(taskCtx.GetConfig("GITHUB_API_REQUESTS_PER_HOUR"), 0)
 	if err != nil {
 		return nil, err
@@ -34,6 +28,25 @@ func NewGithubApiClient(taskCtx core.TaskContext) (*GithubApiClient, error) {
 		return nil, fmt.Errorf("GITHUB_AUTH is required")
 	}
 	tokens := strings.Split(auth, ",")
+	tokenIndex := 0
+	// create synchronize api client so we can calculate api rate limit dynamically
+	apiClient, err := helper.NewApiClient(endpoint, nil, 0, proxy, taskCtx.GetContext())
+	if err != nil {
+		return nil, err
+	}
+	// Rotates token on each request.
+	apiClient.SetBeforeFunction(func(req *http.Request) error {
+		req.Header.Set("Authorization", fmt.Sprintf("Bearer %v", tokens[tokenIndex]))
+		// Set next token index
+		tokenIndex = (tokenIndex + 1) % len(tokens)
+		return nil
+	})
+	apiClient.SetAfterFunction(func(res *http.Response) error {
+		if res.StatusCode == http.StatusUnauthorized {
+			return fmt.Errorf("authentication failed, please check your Token configuration")
+		}
+		return nil
+	})
 
 	// create rate limit calculator
 	rateLimiter := &helper.ApiRateLimitCalculator{
@@ -66,36 +79,13 @@ func NewGithubApiClient(taskCtx core.TaskContext) (*GithubApiClient, error) {
 
 		},
 	}
-	proxy := taskCtx.GetConfig("GITHUB_PROXY")
 	asyncApiClient, err := helper.CreateAsyncApiClient(
 		taskCtx,
-		proxy,
-		endpoint,
-		nil,
+		apiClient,
 		rateLimiter,
 	)
 	if err != nil {
 		return nil, err
 	}
-
-	githubApiClient := &GithubApiClient{
-		asyncApiClient,
-		tokens,
-		0,
-	}
-	// Rotates token on each request.
-	githubApiClient.SetBeforeFunction(func(req *http.Request) error {
-		req.Header.Set("Authorization", fmt.Sprintf("Bearer %v", githubApiClient.tokens[githubApiClient.tokenIndex]))
-		// Set next token index
-		githubApiClient.tokenIndex = (githubApiClient.tokenIndex + 1) % len(githubApiClient.tokens)
-		return nil
-	})
-	githubApiClient.SetAfterFunction(func(res *http.Response) error {
-		if res.StatusCode == http.StatusUnauthorized {
-			return fmt.Errorf("authentication failed, please check your Token configuration")
-		}
-		return nil
-	})
-
-	return githubApiClient, nil
+	return asyncApiClient, nil
 }

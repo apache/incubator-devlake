@@ -219,7 +219,16 @@ func (apiClient *ApiClient) Get(
 	query url.Values,
 	headers http.Header,
 ) (*http.Response, error) {
-	return apiClient.Do("GET", path, query, nil, headers)
+	return apiClient.Do(http.MethodGet, path, query, nil, headers)
+}
+
+func (apiClient *ApiClient) Post(
+	path string,
+	query url.Values,
+	body interface{},
+	headers http.Header,
+) (*http.Response, error) {
+	return apiClient.Do(http.MethodPost, path, query, body, headers)
 }
 
 func UnmarshalResponse(res *http.Response, v interface{}) error {

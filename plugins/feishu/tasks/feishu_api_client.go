@@ -1,152 +1,89 @@
 package tasks
 
 import (
-	"encoding/json"
 	"fmt"
-	"io/ioutil"
 	"net/http"
-	"net/url"
-	"strings"
-	"sync"
-	"time"
-	"os"
+
 	"github.com/merico-dev/lake/plugins/core"
+	"github.com/merico-dev/lake/plugins/helper"
 	"github.com/merico-dev/lake/utils"
-	"github.com/merico-dev/lake/config"
-	"github.com/faabiosr/cachego"
-	"github.com/faabiosr/cachego/file"
 )
 
-type FeishuApiClient struct{
-	core.ApiClient
-}
-var ServerUrl  = "https://open.feishu.cn"
-
-type getRefreshRequestFunc func() *http.Request
-type DefaultAccessTokenManager struct {
-	Id                    string
-	GetRefreshRequestFunc getRefreshRequestFunc
-	Cache                 cachego.Cache
+type ApiAccessTokenRequest struct {
+	AppId     string `json:"app_id"`
+	AppSecret string `json:"app_secret"`
 }
 
-var getAccessTokenLock sync.Mutex
-
-// GetAccessToken
-func (m *DefaultAccessTokenManager) GetAccessToken() (accessToken string, err error) {
-
-	cacheKey := m.getCacheKey()
-	accessToken, err = m.Cache.Fetch(cacheKey)
-	if accessToken != "" {
-		return
-	}
-
-	getAccessTokenLock.Lock()
-	defer getAccessTokenLock.Unlock()
-
-	accessToken, err = m.Cache.Fetch(cacheKey)
-	if accessToken != "" {
-		return
-	}
-
-	req := m.GetRefreshRequestFunc()
-
-	// 添加 serverUrl
-	if !strings.HasPrefix(req.URL.String(), "http") {
-		parse, _ := url.Parse(ServerUrl)
-		req.URL.Host = parse.Host
-		req.URL.Scheme = parse.Scheme
-	}
-
-	response, err := http.DefaultClient.Do(req)
-	if err != nil {
-		return
-	}
-
-	resp, err := ioutil.ReadAll(response.Body)
-	if err != nil {
-		return
-	}
-	defer response.Body.Close()
-
-	var result = struct {
-		Code int    `json:"code"`
-		Msg  string `json:"msg"`
-
-		AppAccessToken    string `json:"app_access_token"`
-		TenantAccessToken string `json:"tenant_access_token"`
-
-		Expire int `json:"expire"`
-	}{}
-
-	err = json.Unmarshal(resp, &result)
-	if err != nil {
-		err = fmt.Errorf("unmarshal error %s", string(resp))
-		return
-	}
-
-	if result.AppAccessToken == "" && result.TenantAccessToken == "" {
-		err = fmt.Errorf("%s", string(resp))
-		return
-	}
-
-	accessToken = result.AppAccessToken
-	if result.TenantAccessToken != "" {
-		accessToken = result.TenantAccessToken
-	}
-
-	err = m.Cache.Save(cacheKey, accessToken, time.Duration(result.Expire)*time.Second)
-	if err != nil {
-		return
-	}
-
-	return
+type ApiAccessTokenResponse struct {
+	Code              int    `json:"code"`
+	Msg               string `json:"msg"`
+	AppAccessToken    string `json:"app_access_token"`
+	TenantAccessToken string `json:"tenant_access_token"`
+	Expire            int    `json:"expire"`
 }
 
-// getCacheKey
-func (m *DefaultAccessTokenManager) getCacheKey() (key string) {
-	return "access_token:" + m.Id
-}
+const ENDPOINT = "https://open.feishu.cn"
 
-
-func NewFeishuApiClient(
-	endpoint string,
-	scheduler *utils.WorkerScheduler,
-	logger core.Logger,
-) *FeishuApiClient{
-	feishuApiClient := &FeishuApiClient{}
-	//get feishu token
-	atm := &DefaultAccessTokenManager{
-		Id: config.GetConfig().GetString("FEISHU_APPID"),
-		Cache: file.New(os.TempDir()),
-		GetRefreshRequestFunc: func() *http.Request {
-			payload := `{
-                "app_id":"` + config.GetConfig().GetString("FEISHU_APPID") + `",
-                "app_secret":"` + config.GetConfig().GetString("FEISHU_APPSCRECT") + `"
-            }`
-			req, _ := http.NewRequest(http.MethodPost, ServerUrl+"/open-apis/auth/v3/tenant_access_token/internal/", strings.NewReader(payload))
-			return req
-		},
+func NewFeishuApiClient(taskCtx core.TaskContext) (*helper.ApiAsyncClient, error) {
+	// load and process cconfiguration
+	appId := taskCtx.GetConfig("FEISHU_APPID")
+	if appId == "" {
+		return nil, fmt.Errorf("invalid FEISHU_APPID")
 	}
-	// request AccessToken api
-	tenantAccessToken, _ := atm.GetAccessToken()
+	secretKey := taskCtx.GetConfig("FEISHU_APPSCRECT")
+	if secretKey == "" {
+		return nil, fmt.Errorf("invalid FEISHU_APPSCRECT")
+	}
+	userRateLimit, err := utils.StrToIntOr(taskCtx.GetConfig("FEISHU_API_REQUESTS_PER_HOUR"), 50)
+	if err != nil {
+		return nil, err
+	}
+	proxy := taskCtx.GetConfig("FEISHU_PROXY")
 
-	feishuApiClient.Setup(
-		endpoint,
-		map[string]string{
-			"Authorization": fmt.Sprintf("Bearer %v", tenantAccessToken),
-		},
-		50*time.Second,
-		3, 
-		scheduler,
-	)
+	apiClient, err := helper.NewApiClient(ENDPOINT, nil, 0, proxy, taskCtx.GetContext())
+	if err != nil {
+		return nil, err
+	}
 
-	feishuApiClient.SetAfterFunction(func(res *http.Response) error {
+	// request for access token
+	tokenReqBody := &ApiAccessTokenRequest{
+		AppId:     appId,
+		AppSecret: secretKey,
+	}
+	tokenRes, err := apiClient.Post("open-apis/auth/v3/tenant_access_token/internal", nil, tokenReqBody, nil)
+	if err != nil {
+		return nil, err
+	}
+	tokenResBody := &ApiAccessTokenResponse{}
+	err = helper.UnmarshalResponse(tokenRes, tokenResBody)
+	if err != nil {
+		return nil, err
+	}
+	if tokenResBody.AppAccessToken == "" {
+		return nil, fmt.Errorf("failed to request access token")
+	}
+
+	// set token
+	apiClient.SetHeaders(map[string]string{
+		"Authorization": fmt.Sprintf("Bearer %v", tokenResBody.AppAccessToken),
+	})
+
+	apiClient.SetAfterFunction(func(res *http.Response) error {
 		if res.StatusCode == http.StatusUnauthorized {
 			return fmt.Errorf("feishu authentication failed, please check your Bearer Auth Token")
 		}
 		return nil
 	})
 
-	feishuApiClient.SetLogger(logger)
-	return feishuApiClient
+	// create async api client
+	// TODO: investigate feishu rate limit
+	asyncApiCLient, err := helper.CreateAsyncApiClient(taskCtx, apiClient, &helper.ApiRateLimitCalculator{
+		UserRateLimitPerHour: userRateLimit,
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	return asyncApiCLient, nil
 }
+

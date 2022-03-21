@@ -24,9 +24,7 @@ type ApiAsyncClient struct {
 
 func CreateAsyncApiClient(
 	taskCtx core.TaskContext,
-	proxy string,
-	endpoint string,
-	headers map[string]string,
+	apiClient *ApiClient,
 	rateLimiter *ApiRateLimitCalculator,
 ) (*ApiAsyncClient, error) {
 	// load retry/timeout from configuration
@@ -38,6 +36,8 @@ func CreateAsyncApiClient(
 	if err != nil {
 		return nil, fmt.Errorf("failed to parse API_TIMEOUT: %w", err)
 	}
+	apiClient.SetTimeout(timeout)
+	apiClient.SetLogger(taskCtx.GetLogger())
 	globalRateLimitPerHour, err := utils.StrToIntOr(taskCtx.GetConfig("API_REQUESTS_PER_HOUR"), 10000)
 	if err != nil {
 		return nil, fmt.Errorf("failed to parse API_REQUESTS_PER_HOUR: %w", err)
@@ -47,13 +47,6 @@ func CreateAsyncApiClient(
 	}
 	rateLimiter.GlobalRateLimitPerHour = globalRateLimitPerHour
 
-	// create synchronize api client so we can calculate api rate limit dynamically
-	apiClient, err := NewApiClient(endpoint, headers, timeout, proxy, taskCtx.GetContext())
-	apiClient.SetLogger(taskCtx.GetLogger())
-	if err != nil {
-		return nil, err
-	}
-
 	// ok, calculate api rate limit based on response (normally from headers)
 	requests, duration, err := rateLimiter.Calculate(apiClient)
 	if err != nil {
@@ -62,8 +55,8 @@ func CreateAsyncApiClient(
 
 	// it is hard to tell how many workers would be sufficient, it depends on how slow the server responds.
 	// we need more workers when server is responding slowly, because requests are sent in a fixed pace.
-	// and because workers are relatively cheap, lets assume response takes 3 seconds
-	const RESPONSE_TIME = 3 * time.Second
+	// and because workers are relatively cheap, lets assume response takes 5 seconds
+	const RESPONSE_TIME = 5 * time.Second
 	// in order for scheduler to hold requests of 3 seconds, we need:
 	d := duration / RESPONSE_TIME
 	numOfWorkers := requests / int(d)
