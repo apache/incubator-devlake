@@ -86,21 +86,33 @@ func (plugin Gitlab) Execute(options map[string]interface{}, progress chan<- flo
 	}
 	if len(tasksToRun) == 0 {
 		tasksToRun = map[string]bool{
-			"collectApiCommits":       true,
-			"extractApiCommits":       true,
-			"collectApiMergeRequests": true,
-			"extractApiMergeRequests": true,
-			"collectPipelines":        true,
-			"collectCommits":          true,
-			"CollectTags":             true,
-			"collectMrs":              true,
-			"collectMrNotes":          true,
-			"collectMrCommits":        true,
-			"enrichMrs":               true,
-			"convertProjects":         true,
-			"convertMrs":              true,
-			"convertCommits":          true,
-			"convertNotes":            true,
+			"collectApiProject":              true,
+			"extractApiProject":              true,
+			"collectApiCommits":              true,
+			"extractApiCommits":              true,
+			"collectApiTag":                  true,
+			"extractApiTag":                  true,
+			"collectApiMergeRequests":        true,
+			"extractApiMergeRequests":        true,
+			"collectApiMergeRequestsNotes":   true,
+			"extractApiMergeRequestsNotes":   true,
+			"collectApiMergeRequestsCommits": true,
+			"extractApiMergeRequestsCommits": true,
+			"collectApiPipelines":            true,
+			"extractApiPipelines":            true,
+			"collectApiChildrenOnPipelines":  true,
+			"extractApiChildrenOnPipelines":  true,
+			"collectPipelines":               true,
+			"collectCommits":                 true,
+			"CollectTags":                    true,
+			"collectMrs":                     true,
+			"collectMrNotes":                 true,
+			"collectMrCommits":               true,
+			"enrichMrs":                      true,
+			"convertProjects":                true,
+			"convertMrs":                     true,
+			"convertCommits":                 true,
+			"convertNotes":                   true,
 		}
 	}
 
@@ -126,10 +138,22 @@ func (plugin Gitlab) Execute(options map[string]interface{}, progress chan<- flo
 		name       string
 		entryPoint core.SubTaskEntryPoint
 	}{
+		{name: "collectApiProject", entryPoint: tasks.CollectApiProject},
+		{name: "extractApiProject", entryPoint: tasks.ExtractApiProject},
 		{name: "collectApiCommits", entryPoint: tasks.CollectApiCommits},
 		{name: "extractApiCommits", entryPoint: tasks.ExtractApiCommits},
+		{name: "collectApiTag", entryPoint: tasks.CollectApiTag},
+		{name: "extractApiTag", entryPoint: tasks.ExtractApiTag},
 		{name: "collectApiMergeRequests", entryPoint: tasks.CollectApiMergeRequests},
 		{name: "extractApiMergeRequests", entryPoint: tasks.ExtractApiMergeRequests},
+		{name: "collectApiMergeRequestsNotes", entryPoint: tasks.CollectApiMergeRequestsNotes},
+		{name: "extractApiMergeRequestsNotes", entryPoint: tasks.ExtractApiMergeRequestsNotes},
+		{name: "collectApiMergeRequestsCommits", entryPoint: tasks.CollectApiMergeRequestsCommits},
+		{name: "extractApiMergeRequestsCommits", entryPoint: tasks.ExtractApiMergeRequestsCommits},
+		{name: "collectApiPipelines", entryPoint: tasks.CollectApiPipelines},
+		{name: "extractApiPipelines", entryPoint: tasks.ExtractApiPipelines},
+		{name: "collectApiChildrenOnPipelines", entryPoint: tasks.CollectApiChildrenOnPipelines},
+		{name: "extractApiChildrenOnPipelines", entryPoint: tasks.ExtractApiChildrenOnPipelines},
 	}
 	progress <- 0.05
 	for _, t := range newTasks {
@@ -149,10 +173,10 @@ func (plugin Gitlab) Execute(options map[string]interface{}, progress chan<- flo
 	}
 
 	progress <- 0.1
-	if err := tasks.CollectProject(ctx, projectIdInt, gitlabApiClient); err != nil {
+	/*if err := tasks.CollectProject(ctx, projectIdInt, gitlabApiClient); err != nil {
 		return fmt.Errorf("could not collect projects: %v", err)
 	}
-	/*if tasksToRun["collectCommits"] {
+	if tasksToRun["collectCommits"] {
 		progress <- 0.25
 		if err := tasks.CollectCommits(ctx, projectIdInt, gitlabApiClient); err != nil {
 			return &errors.SubTaskError{
@@ -160,7 +184,7 @@ func (plugin Gitlab) Execute(options map[string]interface{}, progress chan<- flo
 				Message:     fmt.Errorf("could not collect commits: %v", err).Error(),
 			}
 		}
-	}*/
+	}
 	if tasksToRun["collectTags"] {
 		progress <- 0.3
 		if err := tasks.CollectTags(ctx, projectIdInt, gitlabApiClient); err != nil {
@@ -170,7 +194,7 @@ func (plugin Gitlab) Execute(options map[string]interface{}, progress chan<- flo
 			}
 		}
 	}
-	/*if tasksToRun["collectMrs"] {
+	if tasksToRun["collectMrs"] {
 		progress <- 0.35
 		mergeRequestErr := tasks.CollectMergeRequests(ctx, projectIdInt, gitlabApiClient)
 		if mergeRequestErr != nil {
@@ -179,7 +203,7 @@ func (plugin Gitlab) Execute(options map[string]interface{}, progress chan<- flo
 				Message:     fmt.Errorf("could not collect merge requests: %v", mergeRequestErr).Error(),
 			}
 		}
-	}*/
+	}
 
 	if tasksToRun["collectMrNotes"] {
 		progress <- 0.4
@@ -200,7 +224,7 @@ func (plugin Gitlab) Execute(options map[string]interface{}, progress chan<- flo
 				Message:     fmt.Errorf("could not collect merge request commits: %v", err).Error(),
 			}
 		}
-	}
+	}*/
 	if tasksToRun["enrichMrs"] {
 		progress <- 0.5
 		enrichErr := tasks.EnrichMergeRequests(ctx, projectIdInt)
@@ -211,21 +235,23 @@ func (plugin Gitlab) Execute(options map[string]interface{}, progress chan<- flo
 			}
 		}
 	}
-	if tasksToRun["collectPipelines"] {
-		progress <- 0.6
-		if err := tasks.CollectAllPipelines(projectIdInt, gitlabApiClient); err != nil {
-			return &errors.SubTaskError{
-				SubTaskName: "collectPipelines",
-				Message:     fmt.Errorf("could not collect pipelines: %v", err).Error(),
+	/*
+		if tasksToRun["collectPipelines"] {
+			progress <- 0.6
+			if err := tasks.CollectAllPipelines(projectIdInt, gitlabApiClient); err != nil {
+				return &errors.SubTaskError{
+					SubTaskName: "collectPipelines",
+					Message:     fmt.Errorf("could not collect pipelines: %v", err).Error(),
+				}
+			}
+			if err := tasks.CollectChildrenOnPipelines(projectIdInt, gitlabApiClient); err != nil {
+				return &errors.SubTaskError{
+					SubTaskName: "collectChildrenOnPipelines",
+					Message:     fmt.Errorf("could not collect children pipelines: %v", err).Error(),
+				}
 			}
 		}
-		if err := tasks.CollectChildrenOnPipelines(projectIdInt, gitlabApiClient); err != nil {
-			return &errors.SubTaskError{
-				SubTaskName: "collectChildrenOnPipelines",
-				Message:     fmt.Errorf("could not collect children pipelines: %v", err).Error(),
-			}
-		}
-	}
+	*/
 	if tasksToRun["convertProjects"] {
 		progress <- 0.7
 		err = tasks.ConvertProjects(ctx, projectIdInt)
