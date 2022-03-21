@@ -8,17 +8,17 @@ import (
 
 // Allowing plugin to know each other
 
-var plugins map[string]Plugin
+var plugins map[string]PluginMeta
 
-func RegisterPlugin(name string, plugin Plugin) error {
+func RegisterPlugin(name string, plugin PluginMeta) error {
 	if plugins == nil {
-		plugins = make(map[string]Plugin)
+		plugins = make(map[string]PluginMeta)
 	}
 	plugins[name] = plugin
 	return nil
 }
 
-func GetPlugin(name string) (Plugin, error) {
+func GetPlugin(name string) (PluginMeta, error) {
 	if plugins == nil {
 		return nil, errors.New("RegisterPlugin have never been called.")
 	}
@@ -28,7 +28,7 @@ func GetPlugin(name string) (Plugin, error) {
 	return nil, fmt.Errorf("Plugin `%s` doesn't exist", name)
 }
 
-func AllPlugins() map[string]Plugin {
+func AllPlugins() map[string]PluginMeta {
 	return plugins
 }
 

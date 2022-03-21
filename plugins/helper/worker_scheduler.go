@@ -1,4 +1,4 @@
-package utils
+package helper
 
 import (
 	"context"
@@ -6,6 +6,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/merico-dev/lake/utils"
 	"github.com/panjf2000/ants/v2"
 )
 
@@ -21,7 +22,7 @@ type WorkerScheduler struct {
 // NewWorkerScheduler Create a parallel scheduler to control the maximum number of runs and the maximum number of runs per second
 // 注意: task执行是无序的
 // Warning: task execution is out of order
-func NewWorkerScheduler(workerNum int, maxWorkEverySeconds int, ctx context.Context) (*WorkerScheduler, error) {
+func NewWorkerScheduler(workerNum int, maxWork int, maxWorkDuration time.Duration, ctx context.Context) (*WorkerScheduler, error) {
 	var waitGroup sync.WaitGroup
 	workerErrors := make([]error, 0)
 	pWorkerErrors := &workerErrors
@@ -36,8 +37,8 @@ func NewWorkerScheduler(workerNum int, maxWorkEverySeconds int, ctx context.Cont
 		return nil, err
 	}
 	var ticker *time.Ticker
-	if maxWorkEverySeconds > 0 {
-		ticker = time.NewTicker(time.Second / time.Duration(maxWorkEverySeconds))
+	if maxWork > 0 {
+		ticker = time.NewTicker(maxWorkDuration / time.Duration(maxWork))
 	}
 	scheduler := &WorkerScheduler{
 		waitGroup:    &waitGroup,
@@ -61,7 +62,7 @@ func (s *WorkerScheduler) Submit(task func() error) error {
 		defer func() {
 			r := recover()
 			if r != nil {
-				panic(fmt.Errorf("%s\n%s", r, GatherCallFrames()))
+				panic(fmt.Errorf("%s\n%s", r, utils.GatherCallFrames()))
 			}
 		}()
 		select {
@@ -74,7 +75,7 @@ func (s *WorkerScheduler) Submit(task func() error) error {
 		}
 		err := task()
 		if err != nil {
-			panic(fmt.Errorf("%w\n%s", err, GatherCallFrames()))
+			panic(fmt.Errorf("%w\n%s", err, utils.GatherCallFrames()))
 		}
 	})
 }

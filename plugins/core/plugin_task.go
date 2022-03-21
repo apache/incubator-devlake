@@ -8,6 +8,7 @@ import (
 
 // prepare for temporal
 
+// This interface define all resources that needed for task/subtask execution
 type ExecContext interface {
 	GetName() string
 	GetConfig(name string) string
@@ -19,20 +20,27 @@ type ExecContext interface {
 	IncProgress(quantity int)
 }
 
+// This interface define all resources that needed for subtask execution
 type SubTaskContext interface {
 	ExecContext
 	TaskContext() TaskContext
 }
 
-// Transient resources needed for task execution
+// This interface define all resources that needed for task execution
 type TaskContext interface {
 	ExecContext
 	SetData(data interface{})
 	SubTaskContext(subtask string) (SubTaskContext, error)
 }
 
+type SubTask interface {
+	Execute() error
+}
+
+// All subtasks from plugins should comply to this prototype, so they could be orchestrated by framework
 type SubTaskEntryPoint func(c SubTaskContext) error
 
+// Meta data of a subtask
 type SubTaskMeta struct {
 	Name             string
 	EntryPoint       SubTaskEntryPoint
@@ -40,8 +48,8 @@ type SubTaskMeta struct {
 	Description      string
 }
 
-// implement this interface to let framework run tasks for you
-type ManagedSubTasks interface {
+// Implement this interface to let framework run tasks for you
+type PluginTask interface {
 	// return all available subtasks, framework will run them for you in order
 	SubTaskMetas() []SubTaskMeta
 	// based on task context and user input options, return data that shared among all subtasks

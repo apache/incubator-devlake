@@ -1,4 +1,4 @@
-package core
+package helper
 
 import (
 	"bytes"
@@ -14,39 +14,40 @@ import (
 	"time"
 	"unicode/utf8"
 
-	"github.com/merico-dev/lake/utils"
+	"github.com/merico-dev/lake/plugins/core"
 )
 
 type ApiClientBeforeRequest func(req *http.Request) error
 type ApiClientAfterResponse func(res *http.Response) error
 
+// ApiClient is designed for simple api requests
 type ApiClient struct {
 	client        *http.Client
 	endpoint      string
 	headers       map[string]string
-	maxRetry      int
 	beforeRequest ApiClientBeforeRequest
 	afterReponse  ApiClientAfterResponse
 	ctx           context.Context
-	scheduler     *utils.WorkerScheduler
-	logger        Logger
+	logger        core.Logger
 }
 
 func NewApiClient(
 	endpoint string,
 	headers map[string]string,
 	timeout time.Duration,
-	maxRetry int,
-	scheduler *utils.WorkerScheduler,
+	proxy string,
+	ctx context.Context,
 ) *ApiClient {
 	apiClient := &ApiClient{}
 	apiClient.Setup(
 		endpoint,
 		headers,
 		timeout,
-		maxRetry,
-		scheduler,
 	)
+	if proxy != "" {
+		apiClient.SetProxy(proxy)
+	}
+	apiClient.SetContext(ctx)
 	return apiClient
 }
 
@@ -54,15 +55,11 @@ func (apiClient *ApiClient) Setup(
 	endpoint string,
 	headers map[string]string,
 	timeout time.Duration,
-	maxRetry int,
-	scheduler *utils.WorkerScheduler,
 
 ) {
 	apiClient.client = &http.Client{Timeout: timeout}
 	apiClient.SetEndpoint(endpoint)
 	apiClient.SetHeaders(headers)
-	apiClient.SetMaxRetry(maxRetry)
-	apiClient.setScheduler(scheduler)
 }
 
 func (apiClient *ApiClient) SetEndpoint(endpoint string) {
@@ -74,10 +71,6 @@ func (apiClient *ApiClient) GetEndpoint() string {
 
 func (ApiClient *ApiClient) SetTimeout(timeout time.Duration) {
 	ApiClient.client.Timeout = timeout
-}
-
-func (ApiClient *ApiClient) SetMaxRetry(maxRetry int) {
-	ApiClient.maxRetry = maxRetry
 }
 
 func (apiClient *ApiClient) SetHeaders(headers map[string]string) {
@@ -99,10 +92,6 @@ func (apiClient *ApiClient) SetContext(ctx context.Context) {
 	apiClient.ctx = ctx
 }
 
-func (apiClient *ApiClient) setScheduler(scheduler *utils.WorkerScheduler) {
-	apiClient.scheduler = scheduler
-}
-
 func (apiClient *ApiClient) SetProxy(proxyUrl string) error {
 	pu, err := url.Parse(proxyUrl)
 	if err != nil {
@@ -114,7 +103,7 @@ func (apiClient *ApiClient) SetProxy(proxyUrl string) error {
 	return nil
 }
 
-func (apiClient *ApiClient) SetLogger(logger Logger) {
+func (apiClient *ApiClient) SetLogger(logger core.Logger) {
 	apiClient.logger = logger
 }
 
@@ -176,14 +165,6 @@ func (apiClient *ApiClient) Do(
 	}
 
 	var res *http.Response
-	// canceling check
-	if apiClient.ctx != nil {
-		select {
-		case <-apiClient.ctx.Done():
-			return nil, apiClient.ctx.Err()
-		default:
-		}
-	}
 	// before send
 	if apiClient.beforeRequest != nil {
 		err = apiClient.beforeRequest(req)
@@ -200,15 +181,6 @@ func (apiClient *ApiClient) Do(
 
 	if err != nil {
 		return nil, err
-	}
-
-	// canceling check
-	if apiClient.ctx != nil {
-		select {
-		case <-apiClient.ctx.Done():
-			return nil, apiClient.ctx.Err()
-		default:
-		}
 	}
 
 	// after recieve
@@ -288,50 +260,3 @@ func RemoveStartingSlashFromPath(relativePath string) string {
 	}
 	return relativePath
 }
-
-func (apiClient *ApiClient) DoAsync(
-	method string,
-	path string,
-	query url.Values,
-	body interface{},
-	header http.Header,
-	handler func(*http.Response) error,
-	retry int,
-) error {
-	return apiClient.scheduler.Submit(func() error {
-		var err error
-		var res *http.Response
-		var body []byte
-		res, err = apiClient.Do(method, path, query, body, header)
-		if err == nil {
-			body, err = ioutil.ReadAll(res.Body)
-			res.Body.Close()
-			res.Body = io.NopCloser(bytes.NewBuffer(body))
-		}
-		// it make sense to retry on request failure, but not error from handler
-		if err != nil {
-			if retry < apiClient.maxRetry {
-				apiClient.logError("retry #%d for %s", retry, err.Error())
-				err = apiClient.DoAsync(method, path, query, body, header, handler, retry+1)
-			}
-		} else {
-			err = handler(res)
-		}
-		return err
-	})
-}
-
-func (apiClient *ApiClient) GetAsync(path string, query url.Values, header http.Header, handler func(*http.Response) error) error {
-	return apiClient.DoAsync(http.MethodGet, path, query, nil, header, handler, 0)
-}
-
-func (apiClient *ApiClient) WaitAsync() {
-	apiClient.scheduler.WaitUntilFinish()
-}
-
-type AsyncApiClient interface {
-	GetAsync(path string, query url.Values, header http.Header, handler func(*http.Response) error) error
-	WaitAsync()
-}
-
-var _ AsyncApiClient = (*ApiClient)(nil)
