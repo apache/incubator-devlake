@@ -197,4 +197,36 @@ context('RUN / Trigger New Pipelines', () => {
   })
 
 
+  it('can run a jira pipeline', () => {
+    cy.fixture('new-jira-pipeline').then((newJiraPipelineJSON) => {
+      cy.intercept('GET', `/api/pipelines/${newJiraPipelineJSON.ID}`, { body: newJiraPipelineJSON }).as('JiraPipeline')
+      cy.intercept('POST', '/api/pipelines', { body: newJiraPipelineJSON }).as('runJiraPipeline')
+      cy.fixture('new-jira-pipeline-tasks').then((newJiraPipelineTasksJSON) => {
+        cy.intercept('GET', `/api/pipelines/${newJiraPipelineJSON.ID}/tasks`, { body: newJiraPipelineTasksJSON }).as('JiraPipelineTasks')
+      })
+    })
+    cy.get('input#pipeline-name').type(`{selectAll}{backSpace}COLLECT JIRA ${Date.now()}`)
+    cy.get('.provider-toggle-switch.switch-jira')
+      .should('be.visible')
+      .click()
+    
+    cy.get('button.btn-source-id-selector').click()
+    cy.wait(500)
+    cy.get('.bp3-select-popover.source-id-popover')
+      .find('ul.bp3-menu li')
+      .first()
+      .click()
+    cy.wait(500)
+    cy.get('.input-board-id').find('input').type('1{enter}')
+
+    
+    cy.get('button#btn-run-pipeline').click()
+    cy.wait('@JiraPipeline')
+    cy.wait('@JiraPipelineTasks')
+    cy.wait('@runJiraPipeline').then(({ response }) => {
+      const NewJiraRun = response.body
+      cy.url().should('include', `/pipelines/activity/${NewJiraRun.ID}`)
+    })
+  })
+
 })

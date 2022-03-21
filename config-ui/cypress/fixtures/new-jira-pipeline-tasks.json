@@ -1,0 +1,25 @@
+{
+  "count": 1,
+  "tasks": [
+    {
+      "ID": 100,
+      "CreatedAt": "2022-03-21T21:14:32.903Z",
+      "UpdatedAt": "2022-03-21T21:14:34.97Z",
+      "plugin": "jira",
+      "options": {
+        "boardId": 1,
+        "sourceId": 54
+      },
+      "status": "TASK_RUNNING",
+      "message": "",
+      "progress": 0.01,
+      "failedSubTask": "",
+      "pipelineId": 1000,
+      "pipelineRow": 1,
+      "pipelineCol": 1,
+      "beganAt": "2022-03-21T21:14:32.949Z",
+      "finishedAt": null,
+      "spentSeconds": 2
+    }
+  ]
+}
