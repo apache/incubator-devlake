@@ -1,6 +1,6 @@
 /// <reference types="cypress" />
 
-context('Create New Pipelines', () => {
+context('Create New Pipelines Interface', () => {
   beforeEach(() => {
     cy.visit('/pipelines/create')
   })
@@ -87,6 +87,60 @@ context('Create New Pipelines', () => {
     cy.get('h2')
       .contains(/pipeline name \(advanced\)/i)
       .should('be.visible')
+  })
+
+
+})
+
+context('RUN / Trigger New Pipelines', () => {
+  beforeEach(() => {
+    cy.visit('/pipelines/create')
+  })
+
+  it('can run a jenkins pipeline', () => {
+    cy.fixture('new-jenkins-pipeline').then((newJenkinsPipelineJSON) => {
+      cy.intercept('GET', `/api/pipelines/${newJenkinsPipelineJSON.ID}`, { body: newJenkinsPipelineJSON }).as('JenkinsPipeline')
+      cy.intercept('POST', '/api/pipelines', { body: newJenkinsPipelineJSON }).as('runJenkinsPipeline')
+      cy.fixture('new-jenkins-pipeline-tasks').then((newJenkinsPipelineTasksJSON) => {
+        cy.intercept('GET', `/api/pipelines/${newJenkinsPipelineJSON.ID}/tasks`, { body: newJenkinsPipelineTasksJSON }).as('JenkinsPipelineTasks')
+      })
+    })
+
+    cy.get('input#pipeline-name').type(`{selectAll}{backSpace}COLLECT JENKINS ${Date.now()}`)
+    cy.get('.provider-toggle-switch.switch-jenkins')
+      .should('be.visible')
+      .click()
+    
+    cy.get('button#btn-run-pipeline').click()
+    cy.wait('@JenkinsPipeline')
+    cy.wait('@JenkinsPipelineTasks')
+    cy.wait('@runJenkinsPipeline').then(({ response }) => {
+      const NewJenkinsRun = response.body
+      cy.url().should('include', `/pipelines/activity/${NewJenkinsRun.ID}`)
+    })
+  })
+
+  it('can run a gitlab pipeline', () => {
+    cy.fixture('new-gitlab-pipeline').then((newGitlabPipelineJSON) => {
+      cy.intercept('GET', `/api/pipelines/${newGitlabPipelineJSON.ID}`, { body: newGitlabPipelineJSON }).as('GitlabPipeline')
+      cy.intercept('POST', '/api/pipelines', { body: newGitlabPipelineJSON }).as('runGitlabPipeline')
+      cy.fixture('new-gitlab-pipeline-tasks').then((newGitlabPipelineTasksJSON) => {
+        cy.intercept('GET', `/api/pipelines/${newGitlabPipelineJSON.ID}/tasks`, { body: newGitlabPipelineTasksJSON }).as('GitlabPipelineTasks')
+      })
+    })
+    cy.get('input#pipeline-name').type(`{selectAll}{backSpace}COLLECT GITLAB ${Date.now()}`)
+    cy.get('.provider-toggle-switch.switch-gitlab')
+      .should('be.visible')
+      .click()
+    cy.get('.input-project-id').find('input').type('278964{enter}')
+    
+    cy.get('button#btn-run-pipeline').click()
+    cy.wait('@GitlabPipeline')
+    cy.wait('@GitlabPipelineTasks')
+    cy.wait('@runGitlabPipeline').then(({ response }) => {
+      const NewGitlabRun = response.body
+      cy.url().should('include', `/pipelines/activity/${NewGitlabRun.ID}`)
+    })
   })
 
 

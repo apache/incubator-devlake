@@ -911,7 +911,7 @@ const CreatePipeline = (props) => {
                               <Switch
                           // alignIndicator={Alignment.CENTER}
                                 disabled={isRunning}
-                                className='provider-toggle-switch'
+                                className={`provider-toggle-switch switch-${provider.id.toLowerCase()}`}
                                 innerLabel={!enabledProviders.includes(provider.id) ? 'OFF' : null}
                                 innerLabelChecked='ON'
                                 checked={enabledProviders.includes(provider.id)}
@@ -1070,6 +1070,7 @@ const CreatePipeline = (props) => {
             </div>
             <div style={{ display: 'flex', width: '100%', justifyContent: 'flex-start', alignItems: 'flex-start' }}>
               <Button
+                id='btn-run-pipeline'
                 className='btn-pipeline btn-run-pipeline' icon='play' intent='primary'
                 disabled={advancedMode ? !isValidAdvancedPipeline() : !isValidPipeline()}
                 onClick={runPipeline}
