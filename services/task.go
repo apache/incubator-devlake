@@ -10,8 +10,9 @@ import (
 	"github.com/merico-dev/lake/errors"
 	"github.com/merico-dev/lake/logger"
 	"github.com/merico-dev/lake/models"
-	"github.com/merico-dev/lake/plugins"
+	"github.com/merico-dev/lake/plugins/core"
 	"github.com/merico-dev/lake/utils"
+	"github.com/merico-dev/lake/worker"
 )
 
 type RunningTask struct {
@@ -52,7 +53,6 @@ type TaskQuery struct {
 
 func init() {
 	// set all previous unfinished tasks to status failed
-	models.Db.Model(&models.Task{}).Where("status = ?", models.TASK_RUNNING).Update("status", models.TASK_FAILED)
 	runningTasks.tasks = make(map[uint64]context.CancelFunc)
 }
 
@@ -70,7 +70,7 @@ func CreateTask(newTask *models.NewTask) (*models.Task, error) {
 		PipelineRow: newTask.PipelineRow,
 		PipelineCol: newTask.PipelineCol,
 	}
-	err = models.Db.Save(&task).Error
+	err = db.Save(&task).Error
 	if err != nil {
 		logger.Error("save task failed", err)
 		return nil, errors.InternalError
@@ -79,7 +79,7 @@ func CreateTask(newTask *models.NewTask) (*models.Task, error) {
 }
 
 func GetTasks(query *TaskQuery) ([]models.Task, int64, error) {
-	db := models.Db.Model(&models.Task{}).Order("id DESC")
+	db := db.Model(&models.Task{}).Order("id DESC")
 	if query.Status != "" {
 		db = db.Where("status = ?", query.Status)
 	}
@@ -111,15 +111,15 @@ func GetTasks(query *TaskQuery) ([]models.Task, int64, error) {
 
 func GetTask(taskId uint64) (*models.Task, error) {
 	task := &models.Task{}
-	err := models.Db.Find(task, taskId).Error
+	err := db.Find(task, taskId).Error
 	if err != nil {
 		return nil, err
 	}
 	return task, nil
 }
 
-// RunTask guarantees database is update even if it panicked, and the error will be returned to caller
 func RunTask(taskId uint64) error {
+	// load task information from database
 	task, err := GetTask(taskId)
 	if err != nil {
 		return err
@@ -127,6 +127,43 @@ func RunTask(taskId uint64) error {
 	if task.Status != models.TASK_CREATED {
 		return fmt.Errorf("invalid task status")
 	}
+	pluginMeta, err := core.GetPlugin(task.Plugin)
+	if err != nil {
+		return err
+	}
+	beganAt := time.Now()
+	// make sure task status always correct even if it panicked
+	defer func() {
+		_, _ = runningTasks.Remove(task.ID)
+		if r := recover(); r != nil {
+			err = fmt.Errorf("run task failed with panic (%s): %v", utils.GatherCallFrames(), r)
+		}
+		finishedAt := time.Now()
+		spentSeconds := finishedAt.Unix() - beganAt.Unix()
+		if err != nil {
+			subTaskName := ""
+			if pluginErr, ok := err.(*errors.SubTaskError); ok {
+				subTaskName = pluginErr.GetSubTaskName()
+			}
+			dbe := db.Model(task).Updates(map[string]interface{}{
+				"status":          models.TASK_FAILED,
+				"message":         err.Error(),
+				"finished_at":     finishedAt,
+				"spent_seconds":   spentSeconds,
+				"failed_sub_task": subTaskName,
+			}).Error
+			if dbe != nil {
+				logger.Error("eror is not nil", err)
+			}
+		} else {
+			err = db.Model(task).Updates(map[string]interface{}{
+				"status":        models.TASK_COMPLETED,
+				"message":       "",
+				"finished_at":   finishedAt,
+				"spent_seconds": spentSeconds,
+			}).Error
+		}
+	}()
 
 	// for task cancelling
 	ctx, cancel := context.WithCancel(context.Background())
@@ -134,68 +171,47 @@ func RunTask(taskId uint64) error {
 	if err != nil {
 		return err
 	}
+	// start execution
+	logger.Info("start executing task ", task.ID)
+	err = db.Model(task).Updates(map[string]interface{}{
+		"status":   models.TASK_RUNNING,
+		"message":  "",
+		"began_at": beganAt,
+	}).Error
+	if err != nil {
+		return err
+	}
 
-	progress := make(chan float32)
 	var options map[string]interface{}
 	err = json.Unmarshal(task.Options, &options)
 	if err != nil {
 		return err
 	}
 
+	// TODO: remove this
+	if _, ok := pluginMeta.(core.Plugin); ok {
+		return RunTaskOld(task, options, ctx)
+	}
+
+	return worker.RunPluginTask(task.Plugin, options, db, ctx, logger.Global.Nested(task.Plugin))
+}
+
+// Deprecated
+func RunTaskOld(task *models.Task, options map[string]interface{}, ctx context.Context) error {
+	progress := make(chan float32)
+	defer close(progress)
+
+	var err error
+
 	// run in new thread so we can track progress asynchronously
 	go func() {
-		beganAt := time.Now()
-		// make sure task status always correct even if it panicked
-		defer func() {
-			_, _ = runningTasks.Remove(task.ID)
-			if r := recover(); r != nil {
-				err = fmt.Errorf("run task failed with panic (%s): %v", utils.GatherCallFrames(), r)
-			}
-			finishedAt := time.Now()
-			spentSeconds := finishedAt.Unix() - beganAt.Unix()
-			if err != nil {
-				subTaskName := ""
-				if pluginErr, ok := err.(*errors.SubTaskError); ok {
-					subTaskName = pluginErr.GetSubTaskName()
-				}
-				dbe := models.Db.Model(task).Updates(map[string]interface{}{
-					"status":          models.TASK_FAILED,
-					"message":         err.Error(),
-					"finished_at":     finishedAt,
-					"spent_seconds":   spentSeconds,
-					"failed_sub_task": subTaskName,
-				}).Error
-				if dbe != nil {
-					logger.Error("eror is not nil", err)
-				}
-			} else {
-				err = models.Db.Model(task).Updates(map[string]interface{}{
-					"status":        models.TASK_COMPLETED,
-					"message":       "",
-					"finished_at":   finishedAt,
-					"spent_seconds": spentSeconds,
-				}).Error
-			}
-			close(progress)
-		}()
-		// start execution
-		logger.Info("start executing task ", task.ID)
-		err = models.Db.Model(task).Updates(map[string]interface{}{
-			"status":   models.TASK_RUNNING,
-			"message":  "",
-			"began_at": beganAt,
-		}).Error
-		if err != nil {
-			logger.Error("update task state failed", err)
-			return
-		}
-		err = plugins.RunPlugin(task.Plugin, options, progress, ctx)
+		err = worker.RunPlugin(task.Plugin, options, progress, ctx)
 	}()
 
 	// read progress from working thread and save into database
 	for p := range progress {
 		logger.Info("running plugin progress", fmt.Sprintf(" %d %s %.0f%%", task.ID, task.Plugin, p*100))
-		dbe := models.Db.Model(task).Updates(map[string]interface{}{
+		dbe := db.Model(task).Updates(map[string]interface{}{
 			"progress": p,
 		}).Error
 		if dbe != nil {
@@ -203,8 +219,7 @@ func RunTask(taskId uint64) error {
 			return dbe
 		}
 	}
-
-	return err
+	return nil
 }
 
 func CancelTask(taskId uint64) error {

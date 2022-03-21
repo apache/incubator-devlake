@@ -1,7 +1,6 @@
 package tasks
 
 import (
-	lakeModels "github.com/merico-dev/lake/models"
 	"github.com/merico-dev/lake/models/domainlayer/code"
 	aeModels "github.com/merico-dev/lake/plugins/ae/models"
 	"github.com/merico-dev/lake/plugins/core"
@@ -40,7 +39,7 @@ func ConvertCommits(taskCtx core.SubTaskContext) error {
 			return err
 		}
 
-		err := lakeModels.Db.Model(commit).Where("sha = ?", aeCommit.HexSha).Update("dev_eq", aeCommit.DevEq).Error
+		err := db.Model(commit).Where("sha = ?", aeCommit.HexSha).Update("dev_eq", aeCommit.DevEq).Error
 		if err != nil {
 			return err
 		}

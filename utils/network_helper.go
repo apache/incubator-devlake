@@ -4,8 +4,6 @@ import (
 	"fmt"
 	"net"
 	"time"
-
-	"github.com/merico-dev/lake/logger"
 )
 
 func CheckDNS(domain string) error {
@@ -21,15 +19,10 @@ func CheckDNS(domain string) error {
 
 func CheckNetwork(host, port string, timeout time.Duration) error {
 	var target = fmt.Sprintf("%s:%s", host, port)
-	conn, err := net.DialTimeout("tcp", target, timeout)
+	_, err := net.DialTimeout("tcp", target, timeout)
 	if err != nil {
 		return err
 	}
-	logger.Info("Connect successfully", map[string]string{
-		"Target": target,
-		"Remote": conn.RemoteAddr().String(),
-		"Local":  conn.LocalAddr().String(),
-	})
 	return nil
 }
 
@@ -39,12 +32,6 @@ func ResolvePort(port string, schema string) (string, error) {
 		"https": "443",
 	}
 	if port != "" {
-		if schema != "" {
-			logger.Warn("both port and schema is provided, will using port directly", map[string]string{
-				port:   port,
-				schema: schema,
-			})
-		}
 		return port, nil
 	}
 	if schema != "" {

@@ -1,11 +1,13 @@
 package core
 
 import (
-	"context"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
 )
+
+var _ PluginMeta = (*Foo)(nil)
+var _ PluginMeta = (*Bar)(nil)
 
 type Foo string
 
@@ -13,19 +15,8 @@ func (f *Foo) Description() string {
 	return "foo"
 }
 
-func (f *Foo) Init() {
-}
-
-func (f *Foo) Execute(options map[string]interface{}, progress chan<- float32, ctx context.Context) error {
-	return nil
-}
-
 func (f *Foo) RootPkgPath() string {
 	return "path/to/foo"
-}
-
-func (f *Foo) ApiResources() map[string]map[string]ApiResourceHandler {
-	return make(map[string]map[string]ApiResourceHandler)
 }
 
 type Bar string
@@ -34,19 +25,8 @@ func (b *Bar) Description() string {
 	return "foo"
 }
 
-func (b *Bar) Init() {
-}
-
-func (b *Bar) Execute(options map[string]interface{}, progress chan<- float32, ctx context.Context) error {
-	return nil
-}
-
 func (b *Bar) RootPkgPath() string {
 	return "path/to/bar"
-}
-
-func (b *Bar) ApiResources() map[string]map[string]ApiResourceHandler {
-	return make(map[string]map[string]ApiResourceHandler)
 }
 
 func TestHub(t *testing.T) {

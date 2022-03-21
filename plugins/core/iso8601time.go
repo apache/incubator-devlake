@@ -25,6 +25,7 @@ var time time.Time
 time = foo.Created.ToTime()
 */
 
+// TODO: move this to helper
 type DateTimeFormatItem struct {
 	Matcher *regexp.Regexp
 	Format  string

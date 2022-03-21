@@ -5,9 +5,8 @@ import (
 	"fmt"
 	"sync"
 
-	"github.com/merico-dev/lake/config"
-	"github.com/merico-dev/lake/models"
 	"github.com/merico-dev/lake/plugins/core"
+	"github.com/spf13/viper"
 	"gorm.io/gorm"
 )
 
@@ -16,26 +15,32 @@ import (
 
 // shared by TasContext and SubTaskContext
 type defaultExecContext struct {
-	name    string
-	ctx     context.Context
-	data    interface{}
+	cfg     *viper.Viper
 	logger  core.Logger
+	db      *gorm.DB
+	ctx     context.Context
+	name    string
+	data    interface{}
 	total   int
 	current int
 	mu      sync.Mutex
 }
 
 func newDefaultExecContext(
-	name string,
-	ctx context.Context,
-	data interface{},
+	cfg *viper.Viper,
 	logger core.Logger,
+	db *gorm.DB,
+	ctx context.Context,
+	name string,
+	data interface{},
 ) *defaultExecContext {
 	return &defaultExecContext{
-		name:   name,
-		ctx:    ctx,
-		data:   data,
+		cfg:    cfg,
 		logger: logger,
+		db:     db,
+		ctx:    ctx,
+		name:   name,
+		data:   data,
 	}
 }
 
@@ -44,11 +49,11 @@ func (c *defaultExecContext) GetName() string {
 }
 
 func (c *defaultExecContext) GetConfig(name string) string {
-	return config.GetConfig().GetString(name)
+	return c.cfg.GetString(name)
 }
 
 func (c *defaultExecContext) GetDb() *gorm.DB {
-	return models.Db
+	return c.db
 }
 
 func (c *defaultExecContext) GetContext() context.Context {
@@ -68,26 +73,23 @@ func (c *defaultExecContext) SetProgress(current int, total int) {
 	c.current = current
 	c.total = total
 	c.mu.Unlock()
-	if c.total >= 0 {
-		c.logger.Info("set progress: %d/%d", c.current, c.total)
-	} else {
-		c.logger.Info("set progress: %d", c.current)
-	}
 }
 
 func (c *defaultExecContext) IncProgress(quantity int) {
 	c.mu.Lock()
 	c.current += quantity
 	c.mu.Unlock()
-	if c.total >= 0 {
-		c.logger.Info("inc progress %d/%d", c.current, c.total)
-	} else {
-		c.logger.Info("inc progress %d", c.current)
-	}
 }
 
 func (c *defaultExecContext) fork(name string) *defaultExecContext {
-	return newDefaultExecContext(name, c.ctx, c.data, c.logger.Nested(name))
+	return newDefaultExecContext(
+		c.cfg,
+		c.logger.Nested(name),
+		c.db,
+		c.ctx,
+		name,
+		c.data,
+	)
 }
 
 // TaskContext default implementation
@@ -97,21 +99,44 @@ type DefaultTaskContext struct {
 	subtaskCtxs map[string]*DefaultSubTaskContext
 }
 
+func (c *DefaultTaskContext) SetProgress(current int, total int) {
+	c.defaultExecContext.SetProgress(current, total)
+	c.logger.Info("total step: %d", c.total)
+}
+
+func (c *DefaultTaskContext) IncProgress(quantity int) {
+	c.defaultExecContext.IncProgress(quantity)
+	c.logger.Info("finished step: %d / %d", c.current, c.total)
+}
+
 // SubTaskContext default implementation
 type DefaultSubTaskContext struct {
 	*defaultExecContext
 	taskCtx *DefaultTaskContext
 }
 
+func (c *DefaultSubTaskContext) SetProgress(current int, total int) {
+	c.defaultExecContext.SetProgress(current, total)
+	if total > -1 {
+		c.logger.Info("total records: %d", c.total)
+	}
+}
+
+func (c *DefaultSubTaskContext) IncProgress(quantity int) {
+	c.defaultExecContext.IncProgress(quantity)
+	c.logger.Info("finished records: %d", c.current)
+}
+
 func NewDefaultTaskContext(
-	name string,
-	ctx context.Context,
+	cfg *viper.Viper,
 	logger core.Logger,
-	data interface{},
+	db *gorm.DB,
+	ctx context.Context,
+	name string,
 	subtasks map[string]bool,
 ) core.TaskContext {
 	return &DefaultTaskContext{
-		newDefaultExecContext(name, ctx, data, logger),
+		newDefaultExecContext(cfg, logger, db, ctx, name, nil),
 		subtasks,
 		make(map[string]*DefaultSubTaskContext),
 	}

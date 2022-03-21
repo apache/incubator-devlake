@@ -13,6 +13,7 @@ const (
 
 // General logger interface, can be used any where
 type Logger interface {
+	Printf(format string, a ...interface{})
 	Debug(format string, a ...interface{})
 	Info(format string, a ...interface{})
 	Warn(format string, a ...interface{})
