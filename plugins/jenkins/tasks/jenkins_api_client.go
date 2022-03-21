@@ -9,11 +9,7 @@ import (
 	"github.com/merico-dev/lake/utils"
 )
 
-type JenkinsApiClient struct {
-	*helper.ApiAsyncClient
-}
-
-func NewJenkinsApiClient(taskCtx core.TaskContext) (*JenkinsApiClient, error) {
+func NewJenkinsApiClient(taskCtx core.TaskContext) (*helper.ApiAsyncClient, error) {
 	// load configuration
 	endpoint := taskCtx.GetConfig("JENKINS_ENDPOINT")
 	if endpoint == "" {
@@ -32,34 +28,34 @@ func NewJenkinsApiClient(taskCtx core.TaskContext) (*JenkinsApiClient, error) {
 		return nil, fmt.Errorf("JENKINS_PASSWORD is required")
 	}
 	encodedToken := utils.GetEncodedToken(username, password)
+	proxy := taskCtx.GetConfig("JENKINS_PROXY")
 
+	// create synchronize api client so we can calculate api rate limit dynamically
+	headers := map[string]string{
+		"Authorization": fmt.Sprintf("Basic %v", encodedToken),
+	}
+	apiClient, err := helper.NewApiClient(endpoint, headers, 0, proxy, taskCtx.GetContext())
+	if err != nil {
+		return nil, err
+	}
+	apiClient.SetAfterFunction(func(res *http.Response) error {
+		if res.StatusCode == http.StatusUnauthorized {
+			return fmt.Errorf("authentication failed, please check your Username/Password")
+		}
+		return nil
+	})
 	// create rate limit calculator
 	rateLimiter := &helper.ApiRateLimitCalculator{
 		UserRateLimitPerHour: userRateLimit,
 	}
-	proxy := taskCtx.GetConfig("JENKINS_PROXY")
 	asyncApiClient, err := helper.CreateAsyncApiClient(
 		taskCtx,
-		proxy,
-		endpoint,
-		map[string]string{
-			"Authorization": fmt.Sprintf("Basic %v", encodedToken),
-		},
+		apiClient,
 		rateLimiter,
 	)
 	if err != nil {
 		return nil, err
 	}
 
-	jenkinsApiClient := &JenkinsApiClient{
-		asyncApiClient,
-	}
-
-	jenkinsApiClient.SetAfterFunction(func(res *http.Response) error {
-		if res.StatusCode == http.StatusUnauthorized {
-			return fmt.Errorf("authentication failed, please check your Username/Password")
-		}
-		return nil
-	})
-	return jenkinsApiClient, nil
+	return asyncApiClient, nil
 }
