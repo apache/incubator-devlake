@@ -8,15 +8,16 @@ import (
 	"github.com/merico-dev/lake/logger"
 	"github.com/merico-dev/lake/models"
 	"github.com/merico-dev/lake/models/domainlayer/code"
+	"github.com/merico-dev/lake/plugins/core"
 	"gorm.io/gorm/clause"
 )
 
-type RefPair struct {
-	NewRef string
-	OldRef string
-}
-
-func CalculateCommitsDiff(ctx context.Context, pairs []RefPair, repoId string, progress chan<- float32) error {
+func CalculateCommitsDiff(taskCtx core.SubTaskContext) error {
+	data := taskCtx.GetData().(*RefdiffTaskData)
+	repoId := data.Options.RepoId
+	pairs := data.Options.Pairs
+	db := taskCtx.GetDb()
+	ctx := taskCtx.GetContext()
 	// convert ref pairs into commit pairs
 	ref2sha := func(refName string) (string, error) {
 		ref := &code.Ref{}
@@ -51,7 +52,7 @@ func CalculateCommitsDiff(ctx context.Context, pairs []RefPair, repoId string, p
 
 	// load commits from db
 	commitParent := &code.CommitParent{}
-	cursor, err := models.Db.Table("commit_parents cp").
+	cursor, err := db.Table("commit_parents cp").
 		Select("cp.*").
 		Joins("LEFT JOIN repo_commits rc ON (rc.commit_sha = cp.commit_sha)").
 		Where("rc.repo_id = ?", repoId).
@@ -67,7 +68,7 @@ func CalculateCommitsDiff(ctx context.Context, pairs []RefPair, repoId string, p
 			return ctx.Err()
 		default:
 		}
-		err = models.Db.ScanRows(cursor, commitParent)
+		err = db.ScanRows(cursor, commitParent)
 		if err != nil {
 			return fmt.Errorf("failed to read commit from database: %v", err)
 		}
@@ -80,8 +81,10 @@ func CalculateCommitsDiff(ctx context.Context, pairs []RefPair, repoId string, p
 	// calculate diffs for commits pairs and store them into database
 	commitsDiff := &code.RefsCommitsDiff{}
 	ancestors := cayley.StartMorphism().Out(quad.String("childOf"))
-	lenCommitPairs := float32(len(commitPairs))
-	for i, pair := range commitPairs {
+	lenCommitPairs := len(commitPairs)
+	taskCtx.SetProgress(0, lenCommitPairs)
+
+	for _, pair := range commitPairs {
 		select {
 		case <-ctx.Done():
 			return ctx.Err()
@@ -158,8 +161,7 @@ func CalculateCommitsDiff(ctx context.Context, pairs []RefPair, repoId string, p
 			commitsDiff.NewRefCommitSha,
 			commitsDiff.OldRefCommitSha,
 		))
-		// calculate progress after conversion
-		progress <- float32(i+1) / lenCommitPairs
+		taskCtx.IncProgress(1)
 	}
 	return nil
 }

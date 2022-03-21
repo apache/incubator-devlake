@@ -1,30 +1,29 @@
 package tasks
 
 import (
-	"context"
 	"fmt"
-	"github.com/merico-dev/lake/config"
-	lakeModels "github.com/merico-dev/lake/models"
 	"github.com/merico-dev/lake/models/domainlayer/code"
+	"github.com/merico-dev/lake/plugins/core"
 	"gorm.io/gorm/clause"
 	"regexp"
 	"strconv"
 )
 
-var prTitleRegex *regexp.Regexp
-var prTitlePattern string
+func CalculatePrCherryPick(taskCtx core.SubTaskContext) error {
+	data := taskCtx.GetData().(*RefdiffTaskData)
+	repoId := data.Options.RepoId
+	ctx := taskCtx.GetContext()
+	db := taskCtx.GetDb()
+	var prTitleRegex *regexp.Regexp
+	var prTitlePattern string
+	prTitlePattern = taskCtx.GetConfig("GITHUB_PR_TITLE_PATTERN")
 
-func init() {
-	prTitlePattern = config.GetConfig().GetString("GITHUB_PR_TITLE_PATTERN")
-}
-
-func CalculatePrCherryPick(ctx context.Context, pairs []RefPair, progress chan<- float32, repoId string) error {
 	if len(prTitlePattern) > 0 {
 		fmt.Println(prTitlePattern)
 		prTitleRegex = regexp.MustCompile(prTitlePattern)
 	}
 
-	cursor, err := lakeModels.Db.Model(&code.PullRequest{}).
+	cursor, err := db.Model(&code.PullRequest{}).
 		Joins("left join repos on pull_requests.repo_id = repos.id").
 		Where("repos.id = ?", repoId).Rows()
 	if err != nil {
@@ -35,6 +34,7 @@ func CalculatePrCherryPick(ctx context.Context, pairs []RefPair, progress chan<-
 
 	pr := &code.PullRequest{}
 	var parentPrKeyInt int
+	taskCtx.SetProgress(0, -1)
 
 	// iterate all rows
 	for cursor.Next() {
@@ -44,19 +44,25 @@ func CalculatePrCherryPick(ctx context.Context, pairs []RefPair, progress chan<-
 		default:
 		}
 
-		err = lakeModels.Db.ScanRows(cursor, pr)
+		err = db.ScanRows(cursor, pr)
 		if err != nil {
 			return err
 		}
 
-		parentPrKey := getParentPrKey(pr.Title)
+		parentPrKey := ""
+		if prTitleRegex != nil {
+			groups := prTitleRegex.FindStringSubmatch(pr.Title)
+			if len(groups) > 0 {
+				parentPrKey = groups[1]
+			}
+		}
 
 		if parentPrKeyInt, err = strconv.Atoi(parentPrKey); err != nil {
 			continue
 		}
 
 		var parentPrId string
-		err = lakeModels.Db.Model(&code.PullRequest{}).
+		err = db.Model(&code.PullRequest{}).
 			Where("`key` = ? and repo_id = ?", parentPrKeyInt, repoId).
 			Pluck("id", &parentPrId).Error
 		if err != nil {
@@ -67,15 +73,14 @@ func CalculatePrCherryPick(ctx context.Context, pairs []RefPair, progress chan<-
 		}
 		pr.ParentPrId = parentPrId
 
-		err = lakeModels.Db.Save(pr).Error
+		err = db.Save(pr).Error
 		if err != nil {
 			return err
 		}
+		taskCtx.IncProgress(1)
 	}
 
-	progress <- 0.90
-
-	cursor2, err := lakeModels.Db.Table("pull_requests pr1").
+	cursor2, err := db.Table("pull_requests pr1").
 		Joins("left join pull_requests pr2 on pr1.parent_pr_id = pr2.id").Group("pr1.parent_pr_id, pr2.created_date").Where("pr1.parent_pr_id != ''").
 		Joins("left join repos on pr2.repo_id = repos.id").
 		Order("pr2.created_date ASC").
@@ -86,28 +91,16 @@ func CalculatePrCherryPick(ctx context.Context, pairs []RefPair, progress chan<-
 
 	refsPrCherryPick := &code.RefsPrCherrypick{}
 	for cursor2.Next() {
-		err = lakeModels.Db.ScanRows(cursor2, refsPrCherryPick)
+		err = db.ScanRows(cursor2, refsPrCherryPick)
 		if err != nil {
 			return err
 		}
-		err = lakeModels.Db.Clauses(clause.OnConflict{
+		err = db.Clauses(clause.OnConflict{
 			UpdateAll: true,
 		}).Create(refsPrCherryPick).Error
 		if err != nil {
 			return err
 		}
 	}
-	progress <- 1
-
 	return nil
-}
-
-func getParentPrKey(title string) string {
-	if prTitleRegex != nil {
-		groups := prTitleRegex.FindStringSubmatch(title)
-		if len(groups) > 0 {
-			return groups[1]
-		}
-	}
-	return ""
 }
