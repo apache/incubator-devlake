@@ -1,10 +1,10 @@
 package tasks
 
 import (
-	"github.com/merico-dev/lake/plugins/github/models"
 	"time"
 
-	"github.com/merico-dev/lake/plugins/core"
+	"github.com/merico-dev/lake/plugins/github/models"
+	"github.com/merico-dev/lake/plugins/helper"
 )
 
 type GithubOptions struct {
@@ -16,7 +16,7 @@ type GithubOptions struct {
 
 type GithubTaskData struct {
 	Options   *GithubOptions
-	ApiClient *core.ApiClient
+	ApiClient *helper.ApiAsyncClient
 	Since     *time.Time
 	Repo      *models.GithubRepo
 }
