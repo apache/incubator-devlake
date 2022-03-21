@@ -113,6 +113,7 @@ func (plugin Gitlab) Execute(options map[string]interface{}, progress chan<- flo
 			"convertMrs":                     true,
 			"convertCommits":                 true,
 			"convertNotes":                   true,
+			"convertApiProjects":             true,
 		}
 	}
 
@@ -155,6 +156,7 @@ func (plugin Gitlab) Execute(options map[string]interface{}, progress chan<- flo
 		{name: "collectApiChildrenOnPipelines", entryPoint: tasks.CollectApiChildrenOnPipelines},
 		{name: "extractApiChildrenOnPipelines", entryPoint: tasks.ExtractApiChildrenOnPipelines},
 		{name: "enrichMrs", entryPoint: tasks.EnrichMergeRequests},
+		{name: "convertApiProjects", entryPoint: tasks.ConvertApiProjects},
 	}
 	progress <- 0.05
 	for _, t := range newTasks {
@@ -252,7 +254,7 @@ func (plugin Gitlab) Execute(options map[string]interface{}, progress chan<- flo
 				}
 			}
 		}
-	*/
+
 	if tasksToRun["convertProjects"] {
 		progress <- 0.7
 		err = tasks.ConvertProjects(ctx, projectIdInt)
@@ -262,7 +264,7 @@ func (plugin Gitlab) Execute(options map[string]interface{}, progress chan<- flo
 				Message:     err.Error(),
 			}
 		}
-	}
+	}*/
 	if tasksToRun["convertMrs"] {
 		progress <- 0.75
 		err = tasks.ConvertMrs(ctx, projectIdInt)
