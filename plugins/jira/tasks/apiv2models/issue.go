@@ -1,4 +1,4 @@
-package v8models
+package apiv2models
 
 import (
 	"encoding/json"
@@ -257,7 +257,7 @@ func (i Issue) ExtractEntities(sourceId uint64, storyPointField string) ([]uint6
 			needCollectWorklog = true
 		} else {
 			for _, w := range i.Fields.Worklog.Worklogs {
-				worklogs = append(worklogs, w.toToolLayer(sourceId, i.ID))
+				worklogs = append(worklogs, w.ToToolLayer(sourceId))
 			}
 		}
 	}

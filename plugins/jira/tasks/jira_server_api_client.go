@@ -11,7 +11,7 @@ import (
 
 	"github.com/merico-dev/lake/logger"
 	"github.com/merico-dev/lake/plugins/jira/models"
-	"github.com/merico-dev/lake/plugins/jira/tasks/v8models"
+	"github.com/merico-dev/lake/plugins/jira/tasks/apiv2models"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
 )
@@ -47,7 +47,7 @@ func (v8 *ServerVersion8) Get(path string, handler JiraSearchPaginationHandler) 
 }
 
 func (v8 *ServerVersion8) CollectBoard(jiraApiClient *JiraApiClient, source *models.JiraSource, boardId uint64) error {
-	var transformer v8models.Board
+	var transformer apiv2models.Board
 	err := v8.Get(fmt.Sprintf("agile/1.0/board/%d", boardId), v8.newHandler(source.ID, transformer))
 	if err != nil {
 		logger.Error("collect board", err)
@@ -67,8 +67,8 @@ func (v8 *ServerVersion8) CollectChangelogs(
 }
 
 func (v8 *ServerVersion8) collectWorklog(sourceId, issueId uint64) error {
-	var transformer v8models.Worklog
-	err := v8.FetchPages(fmt.Sprintf("api/2/issue/%d/worklog", issueId), nil, v8.newHandlerWithIssueId(sourceId, issueId, transformer))
+	var transformer apiv2models.Worklog
+	err := v8.FetchPages(fmt.Sprintf("api/2/issue/%d/worklog", issueId), nil, v8.newHandler(sourceId, transformer))
 	if err != nil {
 		logger.Error("collect worklog", err)
 	}
@@ -76,7 +76,7 @@ func (v8 *ServerVersion8) collectWorklog(sourceId, issueId uint64) error {
 }
 
 func (v8 *ServerVersion8) collectRemotelinksByIssueId(source *models.JiraSource, jiraApiClient *JiraApiClient, issueId uint64) error {
-	var transformer v8models.RemoteLink
+	var transformer apiv2models.RemoteLink
 	err := v8.Get(fmt.Sprintf("api/2/issue/%d/remotelink", issueId), v8.newHandlerWithIssueId(source.ID, issueId, transformer))
 	if err != nil && err != ErrNotFoundResource {
 		logger.Error("collect remotelink", err)
@@ -128,7 +128,7 @@ func (v8 *ServerVersion8) issueHandle(ctx context.Context, boardId uint64, sourc
 		return err
 	}
 	defer resp.Body.Close()
-	var issue v8models.Issue
+	var issue apiv2models.Issue
 	raw, err := issue.ExtractRawMessage(blob)
 	if err != nil {
 		logger.Error("issueHandle ExtractRawMessage", err)
@@ -197,7 +197,7 @@ func (v8 *ServerVersion8) issueHandle(ctx context.Context, boardId uint64, sourc
 }
 
 func (v8 *ServerVersion8) CollectProjects(jiraApiClient *JiraApiClient, sourceId uint64) error {
-	var transformer v8models.Project
+	var transformer apiv2models.Project
 	err := v8.Get("api/2/project", v8.newHandler(sourceId, transformer))
 	if err != nil {
 		logger.Error("jira collect projects", err)
@@ -229,7 +229,7 @@ func (v8 *ServerVersion8) CollectSprint(jiraApiClient *JiraApiClient, source *mo
 }
 
 func (v8 *ServerVersion8) handleSprint(sourceId, boardId uint64, resp *http.Response) (int, error) {
-	var s v8models.Sprint
+	var s apiv2models.Sprint
 	blob, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
 		logger.Error("handleSprint read response body", err)
@@ -271,7 +271,7 @@ func (v8 *ServerVersion8) CollectUsers(jiraApiClient *JiraApiClient, sourceId ui
 	return nil
 }
 
-func (v8 *ServerVersion8) newHandler(sourceId uint64, transformer v8models.Transformer) func(resp *http.Response) (int, error) {
+func (v8 *ServerVersion8) newHandler(sourceId uint64, transformer apiv2models.Transformer) func(resp *http.Response) (int, error) {
 	return func(resp *http.Response) (int, error) {
 		if resp.StatusCode == http.StatusNotFound {
 			return 0, ErrNotFoundResource
@@ -306,7 +306,7 @@ func (v8 *ServerVersion8) newHandler(sourceId uint64, transformer v8models.Trans
 	}
 }
 
-func (v8 *ServerVersion8) newHandlerWithIssueId(sourceId, issueId uint64, transformer v8models.TransformerWithIssueId) func(resp *http.Response) (int, error) {
+func (v8 *ServerVersion8) newHandlerWithIssueId(sourceId, issueId uint64, transformer apiv2models.TransformerWithIssueId) func(resp *http.Response) (int, error) {
 	return func(resp *http.Response) (int, error) {
 		if resp.StatusCode == http.StatusNotFound {
 			return 0, ErrNotFoundResource

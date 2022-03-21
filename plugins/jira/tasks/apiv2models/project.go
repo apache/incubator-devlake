@@ -1,4 +1,4 @@
-package v8models
+package apiv2models
 
 import (
 	"encoding/json"
@@ -13,7 +13,7 @@ type Project struct {
 	Name string `json:"name"`
 }
 
-func (p Project) toToolLayer(sourceId uint64) *models.JiraProject {
+func (p Project) ToToolLayer(sourceId uint64) *models.JiraProject {
 	return &models.JiraProject{
 		SourceId: sourceId,
 		Id:       p.ID,
@@ -29,7 +29,7 @@ func (Project) FromAPI(sourceId uint64, raw json.RawMessage) (interface{}, error
 	}
 	list := make([]*models.JiraProject, len(vv))
 	for i, item := range vv {
-		list[i] = item.toToolLayer(sourceId)
+		list[i] = item.ToToolLayer(sourceId)
 	}
 	return list, nil
 }

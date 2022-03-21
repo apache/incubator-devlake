@@ -1,4 +1,4 @@
-package v8models
+package apiv2models
 
 import (
 	"encoding/json"

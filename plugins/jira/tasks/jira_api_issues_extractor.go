@@ -6,6 +6,7 @@ import (
 	"github.com/merico-dev/lake/plugins/core"
 	"github.com/merico-dev/lake/plugins/helper"
 	"github.com/merico-dev/lake/plugins/jira/models"
+	"github.com/merico-dev/lake/plugins/jira/tasks/apiv2models"
 )
 
 var _ core.SubTaskEntryPoint = ExtractApiIssues
@@ -30,31 +31,30 @@ func ExtractApiIssues(taskCtx core.SubTaskContext) error {
 			Table: RAW_ISSUE_TABLE,
 		},
 		Extract: func(row *helper.RawData) ([]interface{}, error) {
-			body := &JiraApiIssuesResponse{}
-			err := json.Unmarshal(row.Data, body)
+			var apiIssue apiv2models.Issue
+			err := json.Unmarshal(row.Data, &apiIssue)
 			if err != nil {
 				return nil, err
 			}
-			// need to extract 3 kinds of entities here
-			results := make([]interface{}, 0, len(body.Issues)*3)
-			for _, apiIssue := range body.Issues {
-				jiraIssue, sprintIds, err := convertIssue(data.Source, &apiIssue)
-				if err != nil {
-					return nil, err
-				}
-				results = append(results, jiraIssue)
-				results = append(results, &models.JiraBoardIssue{
+			var results []interface{}
+			sprints, issue, _, worklogs, changelogs, changelogItems := apiIssue.ExtractEntities(data.Source.ID, data.Source.StoryPointField)
+			for _, sprintId := range sprints {
+				sprintIssue := &models.JiraSprintIssue{
 					SourceId: data.Source.ID,
-					BoardId:  data.Options.BoardId,
-					IssueId:  jiraIssue.IssueId,
-				})
-				for _, sprintId := range sprintIds {
-					results = append(results, &models.JiraSprintIssue{
-						SourceId: data.Source.ID,
-						SprintId: sprintId,
-						IssueId:  jiraIssue.IssueId,
-					})
+					SprintId: sprintId,
+					IssueId:  issue.IssueId,
 				}
+				results = append(results, sprintIssue)
+			}
+			results = append(results, issue)
+			for _, worklog := range worklogs {
+				results = append(results, worklog)
+			}
+			for _, changelog := range changelogs {
+				results = append(results, changelog)
+			}
+			for _, changelogItem := range changelogItems {
+				results = append(results, changelogItem)
 			}
 			return results, nil
 		},
