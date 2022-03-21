@@ -30,9 +30,6 @@ func ConvertApiCommits(taskCtx core.SubTaskContext) error {
 
 	// TODO: adopt batch indate operation
 	userDidGen := didgen.NewDomainIdGenerator(&models.GitlabUser{})
-	repoCommit := &code.RepoCommit{
-		RepoId: didgen.NewDomainIdGenerator(&models.GitlabProject{}).Generate(data.Options.ProjectId),
-	}
 
 	converter, err := helper.NewDataConverter(helper.DataConverterArgs{
 		RawDataSubTaskArgs: *rawDataSubTaskArgs,
@@ -58,7 +55,10 @@ func ConvertApiCommits(taskCtx core.SubTaskContext) error {
 			commit.CommitterId = userDidGen.Generate(gitlabCommit.AuthorEmail)
 
 			// convert repo / commits relationship
-			repoCommit.CommitSha = gitlabCommit.Sha
+			repoCommit := &code.RepoCommit{
+				RepoId:    didgen.NewDomainIdGenerator(&models.GitlabProject{}).Generate(data.Options.ProjectId),
+				CommitSha: gitlabCommit.Sha,
+			}
 
 			return []interface{}{
 				commit,
