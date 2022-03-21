@@ -43,7 +43,7 @@ func CollectSprints(taskCtx core.SubTaskContext) error {
 			var data struct {
 				Values []json.RawMessage `json:"values"`
 			}
-			err := core.UnmarshalResponse(res, &data)
+			err := helper.UnmarshalResponse(res, &data)
 			if err != nil {
 				return nil, err
 			}

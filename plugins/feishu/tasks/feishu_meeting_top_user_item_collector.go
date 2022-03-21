@@ -1,31 +1,32 @@
 package tasks
 
 import (
-	"strconv"
-	"net/url"
-	"net/http"
 	"encoding/json"
-	"github.com/merico-dev/lake/plugins/helper"
+	"net/http"
+	"net/url"
+	"strconv"
+
 	"github.com/merico-dev/lake/plugins/core"
 	"github.com/merico-dev/lake/plugins/feishu/apimodels"
+	"github.com/merico-dev/lake/plugins/helper"
 )
 
 const RAW_MEETING_TOP_USER_ITEM_TABLE = "feishu_meeting_top_user_item"
 
 var _ core.SubTaskEntryPoint = CollectMeetingTopUserItem
 
-func CollectMeetingTopUserItem(taskCtx core.SubTaskContext) error{
+func CollectMeetingTopUserItem(taskCtx core.SubTaskContext) error {
 	logger := helper.NewDefaultTaskLogger(nil, "feishu")
 	data := taskCtx.GetData().(*FeishuTaskData)
 	pageSize := 100
 	NumOfDaysToCollectInt := int(data.Options.NumOfDaysToCollect)
 	iterator, err := helper.NewDateInterator(NumOfDaysToCollectInt)
-	if err != nil{
+	if err != nil {
 		return err
 	}
-	
+
 	incremental := false
-	
+
 	collector, err := helper.NewApiCollector(helper.ApiCollectorArgs{
 		RawDataSubTaskArgs: helper.RawDataSubTaskArgs{
 			Ctx: taskCtx,
@@ -34,9 +35,9 @@ func CollectMeetingTopUserItem(taskCtx core.SubTaskContext) error{
 			},
 			Table: RAW_MEETING_TOP_USER_ITEM_TABLE,
 		},
-		ApiClient: data.ApiClient,
+		ApiClient:   data.ApiClient,
 		Incremental: incremental,
-		Input: iterator,
+		Input:       iterator,
 		//PageSize: pageSize,
 		UrlTemplate: "/reports/get_top_user",
 		Query: func(reqData *helper.RequestData) (url.Values, error) {
@@ -49,19 +50,19 @@ func CollectMeetingTopUserItem(taskCtx core.SubTaskContext) error{
 			return query, nil
 		},
 		ResponseParser: func(res *http.Response) ([]json.RawMessage, error) {
-			
 			body := &apimodels.FeishuMeetingTopUserItemResult{}
-			err := core.UnmarshalResponse(res, body)
-			if err != nil{
+			err := helper.UnmarshalResponse(res, body)
+			if err != nil {
 				return nil, err
 			}
 			return body.Data.TopUserReport, nil
 		},
 	})
-	if err != nil{
+	if err != nil {
 		logger.Info("input paras error ")
 		return err
 	}
-	
+
 	return collector.Execute()
 }
+

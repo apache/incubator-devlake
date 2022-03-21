@@ -61,7 +61,7 @@ func Collect() error {
 		func(res *http.Response) error {
 			pluginApiResponse := &ApiResponse{}
       // You must unmarshal the response from the api to use the results.
-			err := core.UnmarshalResponse(res, pluginApiResponse)
+			err := helper.UnmarshalResponse(res, pluginApiResponse)
 			if err != nil {
 				logger.Error("Error: ", err)
 				return nil
