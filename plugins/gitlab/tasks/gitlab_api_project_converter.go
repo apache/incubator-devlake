@@ -13,14 +13,8 @@ func ConvertApiProjects(taskCtx core.SubTaskContext) error {
 
 	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_PROJECT_TABLE)
 
-	// select all commits belongs to the project
-	cursor, err := lakeModels.Db.Table("gitlab_commits gc").
-		Joins(`left join gitlab_project_commits gpc on (
-			gpc.commit_sha = gc.sha
-		)`).
-		Select("gc.*").
-		Where("gpc.gitlab_project_id = ?", data.Options.ProjectId).
-		Rows()
+	//Find all piplines associated with the current projectid
+	cursor, err := lakeModels.Db.Model(&models.GitlabProject{}).Where("gitlab_id=?", data.Options.ProjectId).Rows()
 	if err != nil {
 		return err
 	}
@@ -28,7 +22,7 @@ func ConvertApiProjects(taskCtx core.SubTaskContext) error {
 
 	converter, err := helper.NewDataConverter(helper.DataConverterArgs{
 		RawDataSubTaskArgs: *rawDataSubTaskArgs,
-		InputRowType:       reflect.TypeOf(models.GitlabCommit{}),
+		InputRowType:       reflect.TypeOf(models.GitlabProject{}),
 		Input:              cursor,
 
 		Convert: func(inputRow interface{}) ([]interface{}, error) {

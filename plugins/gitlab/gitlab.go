@@ -105,6 +105,7 @@ func (plugin Gitlab) Execute(options map[string]interface{}, progress chan<- flo
 			"convertApiProjects":             true,
 			"convertApiMergeRequests":        true,
 			"convertApiCommits":              true,
+			"convertApiNotes":                true,
 			"enrichMrs":                      true,
 			"collectPipelines":               true,
 			"collectCommits":                 true,
@@ -161,6 +162,7 @@ func (plugin Gitlab) Execute(options map[string]interface{}, progress chan<- flo
 		{name: "convertApiProjects", entryPoint: tasks.ConvertApiProjects},
 		{name: "convertApiMergeRequests", entryPoint: tasks.ConvertApiMergeRequests},
 		{name: "convertApiCommits", entryPoint: tasks.ConvertApiCommits},
+		{name: "convertApiNotes", entryPoint: tasks.ConvertApiNotes},
 	}
 	progress <- 0.05
 	for _, t := range newTasks {
@@ -288,7 +290,7 @@ func (plugin Gitlab) Execute(options map[string]interface{}, progress chan<- flo
 				Message:     err.Error(),
 			}
 		}
-	}*/
+	}
 	if tasksToRun["convertNotes"] {
 		progress <- 0.9
 		err = tasks.ConvertNotes(ctx, projectIdInt)
@@ -298,7 +300,7 @@ func (plugin Gitlab) Execute(options map[string]interface{}, progress chan<- flo
 				Message:     err.Error(),
 			}
 		}
-	}
+	}*/
 	progress <- 1
 	return nil
 }
