@@ -1,47 +1,51 @@
 package tasks
 
 import (
-	"context"
-	lakeModels "github.com/merico-dev/lake/models"
 	"github.com/merico-dev/lake/models/domainlayer"
 	"github.com/merico-dev/lake/models/domainlayer/devops"
 	"github.com/merico-dev/lake/models/domainlayer/didgen"
-	jenkinsModels "github.com/merico-dev/lake/plugins/jenkins/models"
-	"gorm.io/gorm/clause"
+	"github.com/merico-dev/lake/plugins/core"
+	"github.com/merico-dev/lake/plugins/helper"
+	"github.com/merico-dev/lake/plugins/jenkins/models"
+	"reflect"
 )
 
-func ConvertJobs(ctx context.Context) error {
-	jenkinsJob := &jenkinsModels.JenkinsJob{}
+func ConvertJobs(taskCtx core.SubTaskContext) error {
+	db := taskCtx.GetDb()
+
+	jenkinsJob := &models.JenkinsJob{}
 
 	jobIdGen := didgen.NewDomainIdGenerator(jenkinsJob)
-	err := lakeModels.Db.Where("id like 'jenkins:JenkinsJob:%'").Delete(&devops.Job{}).Error
-	if err != nil {
-		return err
-	}
 
-	cursor, err := lakeModels.Db.Model(jenkinsJob).Rows()
+	cursor, err := db.Model(jenkinsJob).Rows()
 	if err != nil {
 		return err
 	}
 	defer cursor.Close()
 
-	// iterate all rows
-	for cursor.Next() {
-		err = lakeModels.Db.ScanRows(cursor, jenkinsJob)
-		if err != nil {
-			return err
-		}
-		job := &devops.Job{
-			DomainEntity: domainlayer.DomainEntity{
-				Id: jobIdGen.Generate(jenkinsJob.Name),
-			},
-			Name: jenkinsJob.Name,
-		}
-
-		err = lakeModels.Db.Clauses(clause.OnConflict{UpdateAll: true}).Create(job).Error
-		if err != nil {
-			return err
-		}
+	converter, err := helper.NewDataConverter(helper.DataConverterArgs{
+		InputRowType: reflect.TypeOf(models.JenkinsJob{}),
+		Input:        cursor,
+		RawDataSubTaskArgs: helper.RawDataSubTaskArgs{
+			Ctx:   taskCtx,
+			Table: RAW_JOB_TABLE,
+		},
+		Convert: func(inputRow interface{}) ([]interface{}, error) {
+			jenkinsJob := inputRow.(*models.JenkinsJob)
+			job := &devops.Job{
+				DomainEntity: domainlayer.DomainEntity{
+					Id: jobIdGen.Generate(jenkinsJob.Name),
+				},
+				Name: jenkinsJob.Name,
+			}
+			return []interface{}{
+				job,
+			}, nil
+		},
+	})
+	if err != nil {
+		return err
 	}
-	return nil
+
+	return converter.Execute()
 }
