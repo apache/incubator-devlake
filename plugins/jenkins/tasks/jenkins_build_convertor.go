@@ -1,54 +1,57 @@
 package tasks
 
 import (
-	"context"
-	lakeModels "github.com/merico-dev/lake/models"
 	"github.com/merico-dev/lake/models/domainlayer"
 	"github.com/merico-dev/lake/models/domainlayer/devops"
 	"github.com/merico-dev/lake/models/domainlayer/didgen"
-	jenkinsModels "github.com/merico-dev/lake/plugins/jenkins/models"
-	"gorm.io/gorm/clause"
+	"github.com/merico-dev/lake/plugins/core"
+	"github.com/merico-dev/lake/plugins/helper"
+	models "github.com/merico-dev/lake/plugins/jenkins/models"
+	"reflect"
 )
 
-func ConvertBuilds(ctx context.Context) error {
-	err := lakeModels.Db.Where("id like 'jenkins:JenkinsBuild:%'").Delete(&devops.Build{}).Error
-	if err != nil {
-		return err
-	}
+func ConvertBuilds(taskCtx core.SubTaskContext) error {
+	db := taskCtx.GetDb()
 
-	jenkinsBuild := &jenkinsModels.JenkinsBuild{}
+	jenkinsBuild := &models.JenkinsBuild{}
 
-	cursor, err := lakeModels.Db.Model(jenkinsBuild).Rows()
+	cursor, err := db.Model(jenkinsBuild).Rows()
 	if err != nil {
 		return err
 	}
 	defer cursor.Close()
 
-	jobIdGen := didgen.NewDomainIdGenerator(&jenkinsModels.JenkinsJob{})
-	buildIdGen := didgen.NewDomainIdGenerator(&jenkinsModels.JenkinsBuild{})
+	jobIdGen := didgen.NewDomainIdGenerator(&models.JenkinsJob{})
+	buildIdGen := didgen.NewDomainIdGenerator(&models.JenkinsBuild{})
 
-	// iterate all rows
-	for cursor.Next() {
-		err = lakeModels.Db.ScanRows(cursor, jenkinsBuild)
-		if err != nil {
-			return err
-		}
-		build := &devops.Build{
-			DomainEntity: domainlayer.DomainEntity{
-				Id: buildIdGen.Generate(jenkinsBuild.JobName, jenkinsBuild.Number),
-			},
-			JobId:       jobIdGen.Generate(jenkinsBuild.JobName),
-			Name:        jenkinsBuild.DisplayName,
-			DurationSec: uint64(jenkinsBuild.Duration / 1000),
-			Status:      jenkinsBuild.Result,
-			StartedDate: jenkinsBuild.StartTime,
-			CommitSha:   jenkinsBuild.CommitSha,
-		}
-
-		err = lakeModels.Db.Clauses(clause.OnConflict{UpdateAll: true}).Create(build).Error
-		if err != nil {
-			return err
-		}
+	converter, err := helper.NewDataConverter(helper.DataConverterArgs{
+		InputRowType: reflect.TypeOf(models.JenkinsBuild{}),
+		Input:        cursor,
+		RawDataSubTaskArgs: helper.RawDataSubTaskArgs{
+			Ctx:   taskCtx,
+			Table: RAW_BUILD_TABLE,
+		},
+		Convert: func(inputRow interface{}) ([]interface{}, error) {
+			jenkinsBuild := inputRow.(*models.JenkinsBuild)
+			build := &devops.Build{
+				DomainEntity: domainlayer.DomainEntity{
+					Id: buildIdGen.Generate(jenkinsBuild.JobName, jenkinsBuild.Number),
+				},
+				JobId:       jobIdGen.Generate(jenkinsBuild.JobName),
+				Name:        jenkinsBuild.DisplayName,
+				DurationSec: uint64(jenkinsBuild.Duration / 1000),
+				Status:      jenkinsBuild.Result,
+				StartedDate: jenkinsBuild.StartTime,
+				CommitSha:   jenkinsBuild.CommitSha,
+			}
+			return []interface{}{
+				build,
+			}, nil
+		},
+	})
+	if err != nil {
+		return err
 	}
-	return nil
+
+	return converter.Execute()
 }

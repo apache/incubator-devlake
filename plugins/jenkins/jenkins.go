@@ -3,8 +3,10 @@ package main
 import (
 	"context"
 	"fmt"
-
 	"github.com/merico-dev/lake/config"
+	"github.com/merico-dev/lake/plugins/helper"
+	"time"
+
 	errors "github.com/merico-dev/lake/errors"
 	"github.com/merico-dev/lake/logger"
 	lakeModels "github.com/merico-dev/lake/models"
@@ -18,43 +20,59 @@ import (
 
 var _ core.Plugin = (*Jenkins)(nil)
 
-type JenkinsOptions struct {
-	Host     string
-	Username string
-	Password string
-}
-
 type Jenkins struct{}
 
-func (j Jenkins) Init() {
-	var err = lakeModels.Db.AutoMigrate(&models.JenkinsJob{}, &models.JenkinsBuild{})
+func (plugin Jenkins) Init() {
+	var err = lakeModels.Db.AutoMigrate(
+		&models.JenkinsJob{},
+		&models.JenkinsBuild{})
 	if err != nil {
 		logger.Error("Failed to auto migrate jenkins models", err)
 	}
 }
 
-func (j Jenkins) Description() string {
+func (plugin Jenkins) Description() string {
 	return "Jenkins plugin"
 }
 
-func (j Jenkins) CleanData() {
+func (plugin Jenkins) CleanData() {
 	var err = lakeModels.Db.Exec("truncate table jenkins_jobs").Error
 	if err != nil {
 		logger.Error("Failed to truncate jenkins models", err)
 	}
 }
 
-func (j Jenkins) Execute(options map[string]interface{}, progress chan<- float32, ctx context.Context) error {
-	v := config.GetConfig()
-	var op = JenkinsOptions{
-		Host:     v.GetString("JENKINS_ENDPOINT"),
-		Username: v.GetString("JENKINS_USERNAME"),
-		Password: v.GetString("JENKINS_PASSWORD"),
-	}
-
+func (plugin Jenkins) Execute(options map[string]interface{}, progress chan<- float32, ctx context.Context) error {
+	var op tasks.JenkinsOptions
 	var err = mapstructure.Decode(options, &op)
 	if err != nil {
 		return fmt.Errorf("Failed to decode options: %v", err)
+	}
+	v := config.GetConfig()
+
+	var since *time.Time
+	if op.Since != "" {
+		*since, err = time.Parse("2006-01-02T15:04:05Z", op.Since)
+		if err != nil {
+			return fmt.Errorf("invalid value for `since`: %w", err)
+		}
+	}
+	logger := helper.NewDefaultTaskLogger(nil, "jenkins")
+
+	tasksToRun := make(map[string]bool, len(op.Tasks))
+	if len(op.Tasks) == 0 {
+		tasksToRun = map[string]bool{
+			"collectApiJobs":   false,
+			"extractApiJobs":   false,
+			"collectApiBuilds": false,
+			"extractApiBuilds": false,
+			"convertJobs":      false,
+			"convertBuilds":    false,
+		}
+	} else {
+		for _, task := range op.Tasks {
+			tasksToRun[task] = true
+		}
 	}
 
 	var rateLimitPerSecondInt int
@@ -69,49 +87,49 @@ func (j Jenkins) Execute(options map[string]interface{}, progress chan<- float32
 		return fmt.Errorf("could not create scheduler")
 	}
 
-	j.CleanData()
-	var apiClient = tasks.CreateApiClient(nil, op.Host, op.Username, op.Password)
+	plugin.CleanData()
 
-	progress <- float32(0.1)
-	err = tasks.CollectJobs(apiClient, scheduler, ctx)
-	if err != nil {
-		logger.Error("Fail to sync jobs", err)
-		return &errors.SubTaskError{
-			SubTaskName: "CollectJobs",
-			Message:     err.Error(),
-		}
+	op = tasks.JenkinsOptions{
+		Host:     v.GetString("JENKINS_ENDPOINT"),
+		Username: v.GetString("JENKINS_USERNAME"),
+		Password: v.GetString("JENKINS_PASSWORD"),
 	}
 
-	progress <- float32(0.2)
-	err = tasks.CollectBuilds(apiClient, scheduler, ctx)
-	if err != nil {
-		logger.Error("Fail to collect builds", err)
-		return &errors.SubTaskError{
-			SubTaskName: "CollectJobs",
-			Message:     err.Error(),
-		}
+	var apiClient = tasks.NewJenkinsApiClient(op.Host, op.Username, op.Password, "", ctx, scheduler, logger)
+
+	taskData := &tasks.JenkinsTaskData{
+		Options:   &op,
+		ApiClient: &apiClient.ApiClient,
+		Since:     since,
 	}
 
-	progress <- float32(0.6)
-	err = tasks.ConvertJobs(ctx)
-	if err != nil {
-		logger.Error("Fail to convert jobs", err)
-		return &errors.SubTaskError{
-			SubTaskName: "ConvertJobs",
-			Message:     err.Error(),
+	taskCtx := helper.NewDefaultTaskContext("github", ctx, logger, taskData, tasksToRun)
+	newTasks := []struct {
+		name       string
+		entryPoint core.SubTaskEntryPoint
+	}{
+		{name: "collectApiJobs", entryPoint: tasks.CollectApiJobs},
+		{name: "extractApiJobs", entryPoint: tasks.ExtractApiJobs},
+		{name: "collectApiBuilds", entryPoint: tasks.CollectApiBuilds},
+		{name: "extractApiBuilds", entryPoint: tasks.ExtractApiBuilds},
+		{name: "convertJobs", entryPoint: tasks.ConvertJobs},
+		{name: "convertBuilds", entryPoint: tasks.ConvertBuilds},
+	}
+	for _, t := range newTasks {
+		c, err := taskCtx.SubTaskContext(t.name)
+		if err != nil {
+			return err
+		}
+		if c != nil {
+			err = t.entryPoint(c)
+			if err != nil {
+				return &errors.SubTaskError{
+					SubTaskName: t.name,
+					Message:     err.Error(),
+				}
+			}
 		}
 	}
-
-	progress <- float32(0.8)
-	err = tasks.ConvertBuilds(ctx)
-	if err != nil {
-		logger.Error("Fail to convert builds", err)
-		return &errors.SubTaskError{
-			SubTaskName: "ConvertBuilds",
-			Message:     err.Error(),
-		}
-	}
-	progress <- float32(1.0)
 
 	return nil
 }
@@ -148,7 +166,16 @@ func main() {
 	progress := make(chan float32)
 	go func() {
 		err := PluginEntry.Execute(
-			map[string]interface{}{},
+			map[string]interface{}{
+				"tasks": []string{
+					"collectApiJobs",
+					"extractApiJobs",
+					"collectApiBuilds",
+					"extractApiBuilds",
+					"convertJobs",
+					"convertBuilds",
+				},
+			},
 			progress,
 			context.Background(),
 		)
