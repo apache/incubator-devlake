@@ -3,10 +3,6 @@
 <img src="https://user-images.githubusercontent.com/3789273/128085813-92845abd-7c26-4fa2-9f98-928ce2246616.png" width="120px">
 
 # DevLake
-<p>
-
-  </p>
-  <p>
 
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat&logo=github&color=2370ff&labelColor=454545)](http://makeapullrequest.com)
 [![Discord](https://img.shields.io/discord/844603288082186240.svg?style=flat?label=&logo=discord&logoColor=ffffff&color=747df7&labelColor=454545)](https://discord.gg/83rDG6ydVZ)
@@ -25,24 +21,14 @@ DevLake brings your DevOps data into one practical, customized, extensible view.
 
 DevLake is designed for developer teams looking to make better sense of their development process and to bring a more data-driven approach to their own practices. You can ask DevLake many questions regarding your development process. Just connect and query.
 
+#### Demo Address
+<a href="https://app-259373083972538368-3002.ars.teamcode.com/d/0Rjxknc7z/demo-homepage?orgId=1">See demo</a>. Username/password:test/test.The demo is based on the data from this repo.
+
 
 #### Get started with just a few clicks
-
 <table>
   <tr>
-    <td valign="middle"><a href="#user-setup">Run Locally</a></td>
-    <td valign="middle">
-      <a valign="middle" href="https://www.teamcode.com/tin/clone?applicationId=259777118600769536">
-        <img
-          src="https://static01.teamcode.com/badge/teamcode-badge-run-in-cloud-en.svg"
-          width="140px"
-          alt="Teamcode" valign="middle"
-        />
-      </a>
-      <a valign="middle"
-        href="https://github.com/merico-dev/lake/wiki/How-to-Set-Up-DevLake-with-Tin"><span valign="middle">See the Guide</span>
-      </a>
-    </td>
+    <td valign="middle"><a href="#user-setup">Run DevLake</a></td>
   </tr>
 </table>
 
@@ -56,30 +42,24 @@ DevLake is designed for developer teams looking to make better sense of their de
 
 
 
-### Why DevLake?
-1. Comprehensive understanding of software development lifecycle, digging workflow bottlenecks
-2. Timely review of team iteration performance, rapid feedback, agile adjustment
-3. Quickly build scenario-based data dashboards and drill down to analyze the root cause of problems
-
-
 ### What can be accomplished with DevLake?
-1. Collect DevOps performance data for the whole process
-2. Share <a href="https://github.com/merico-dev/lake/wiki/DataModel.Domain-layer-schema">domain layer</a> with similar tools to output standardized engineering data
-3. Built-in 20+ <a href="https://github.com/merico-dev/lake/wiki/Metric-Cheatsheet" target="_blank">engineering metrics</a> and drill-down analysis capability
-4. Support custom SQL analysis and drag and drop to build scenario-based data views
-5. Flexible [architecture](ARCHITECTURE.md) and plug-in design to support fast access to new data sources
+1. Collect DevOps data across the entire SDLC process and connect data silos
+2. A standard <a href="https://github.com/merico-dev/lake/wiki/DataModel.Domain-layer-schema">data model</a> and out-of-the-box <a href="https://github.com/merico-dev/lake/wiki/Metric-Cheatsheet">metrics</a> for software engineering
+3. Flexible framework for data collection and ETL, support customized analysis
 
-### See Demo
-[Click here](https://app-259373083972538368-3002.ars.teamcode.com/d/0Rjxknc7z/demo-homepage?orgId=1) to see demo. The demo is based on data from this repo.<br>
-Username/Password: test/test
 
-<br>
 <br>
 
 ## User setup<a id="user-setup"></a>
 
 - If you only plan to run the product locally, this is the **ONLY** section you should need.
-- If you want to run in a cloud environment, click [here](https://github.com/merico-dev/lake/wiki/How-to-Set-Up-DevLake-with-Tin).
+- If you want to run in a cloud environment, click <a valign="middle" href="https://www.teamcode.com/tin/clone?applicationId=259777118600769536">
+        <img
+          src="https://static01.teamcode.com/badge/teamcode-badge-run-in-cloud-en.svg"
+          width="120px"
+          alt="Teamcode" valign="middle"
+        />
+      </a> to set up. This is the detailed [guide](https://github.com/merico-dev/lake/wiki/How-to-Set-Up-Dev-Lake-with-Tin).
 - Commands written `like this` are to be run in your terminal.
 
 #### Required Packages to Install<a id="user-setup-requirements"></a>
@@ -93,24 +73,21 @@ NOTE: After installing docker, you may need to run the docker application and re
 
 **IMPORTANT: DevLake doesn't support Database Schema Migration yet,  upgrading an existing instance is likely to break, we recommend that you deploy a new instance instead.**
 
-1. Download `docker-compose.yml` and `env.example` from [latest release page](https://github.com/merico-dev/lake/releases/latest) into a folder
-2. Rename `env.example` to `.env`
+1. Download `docker-compose.yml` and `env.example` from [latest release page](https://github.com/merico-dev/lake/releases/latest) into a folder.
+2. Rename `env.example` to `.env`. For Mac/Linux users, please run `mv env.example .env` in the terminal.
 3. Start Docker on your machine, then run `docker-compose up -d` to start the services.
-4. Visit `localhost:4000` to setup configuration files.
-   >- Navigate to desired plugins pages on the Integrations page
-   >- You will need to enter the required information for the plugins you intend to use.
-   >- Please reference the following for more details on how to configure each one:
-   >-> <a href="plugins/jira/README.md" target="_blank">Jira</a>
-   >-> <a href="plugins/gitlab/README.md" target="_blank">GitLab</a>
-   >-> <a href="plugins/jenkins/README.md" target="_blank">Jenkins</a>
-   >-> <a href="plugins/github/README.md" target="_blank">GitHub</a>
-
+4. Visit `localhost:4000` to set up configuration files.
+   >- Navigate to desired plugins on the Integrations page
+   >- Please reference the following for more details on how to configure each one:<br>
+      > <a href="plugins/jira/README.md" target="_blank">Jira</a><br>
+      > <a href="plugins/gitlab/README.md" target="_blank">GitLab</a><br>
+      > <a href="plugins/jenkins/README.md" target="_blank">Jenkins</a><br>
+      > <a href="plugins/github/README.md" target="_blank">GitHub</a><br>
    >- Submit the form to update the values by clicking on the **Save Connection** button on each form page
-
    >- `devlake` takes a while to fully boot up. if `config-ui` complaining about api being unreachable, please wait a few seconds and try refreshing the page.
-   >- To collect this repo for a quick preview, please provide a Github personal token on **Data Integrations / Github** page.
 
-5. Visit `localhost:4000/create-pipeline` to RUN a Pipeline and trigger data collection.
+
+5. Visit `localhost:4000/pipelines/create` to RUN a Pipeline and trigger data collection.
 
 
    Pipelines Runs can be initiated by the new "Create Run" Interface. Simply enable the **Data Source Providers** you wish to run collection for, and specify the data you want to collect, for instance, **Project ID** for Gitlab and **Repository Name** for GitHub.
@@ -120,9 +97,9 @@ NOTE: After installing docker, you may need to run the docker application and re
 
    **Pipelines** is accessible from the main menu of the config-ui for easy access.
 
-   - **Manage All Pipelines** `http://localhost:4000/pipelines`
-   - **Create Pipeline RUN** `http://localhost:4000/create-pipeline`
-   - **Track Pipeline Activity** `http://localhost:4000/pipelines/activity/[RUN_ID]`
+   - Manage All Pipelines: `http://localhost:4000/pipelines`
+   - Create Pipeline RUN: `http://localhost:4000/pipelines/create`
+   - Track Pipeline Activity: `http://localhost:4000/pipelines/activity/[RUN_ID]`
 
    For advanced use cases and complex pipelines, please use the Raw JSON API to manually initiate a run using **cURL** or graphical API tool such as **Postman**. `POST` the following request to the DevLake API Endpoint.
 
@@ -222,7 +199,7 @@ To synchronize data periodically, we provide [`lake-cli`](./cmd/lake-cli/README.
 
    >- Submit the form to update the values by clicking on the **Save Connection** button on each form page
 
-8. Visit `localhost:4000/create-pipeline` to RUN a Pipeline and trigger data collection.
+8. Visit `localhost:4000/pipelines/create` to RUN a Pipeline and trigger data collection.
 
 
    Pipelines Runs can be initiated by the new "Create Run" Interface. Simply enable the **Data Source Providers** you wish to run collection for, and specify the data you want to collect, for instance, **Project ID** for Gitlab and **Repository Name** for GitHub.
@@ -232,9 +209,9 @@ To synchronize data periodically, we provide [`lake-cli`](./cmd/lake-cli/README.
 
    **Pipelines** is accessible from the main menu of the config-ui for easy access.
 
-   - **Manage All Pipelines** `http://localhost:4000/pipelines`
-   - **Create Pipeline RUN** `http://localhost:4000/create-pipeline`
-   - **Track Pipeline Activity** `http://localhost:4000/pipelines/activity/[RUN_ID]`
+   - Manage All Pipelines: `http://localhost:4000/pipelines`
+   - Create Pipeline RUN: `http://localhost:4000/pipelines/create`
+   - Track Pipeline Activity: `http://localhost:4000/pipelines/activity/[RUN_ID]`
 
    For advanced use cases and complex pipelines, please use the Raw JSON API to manually initiate a run using **cURL** or graphical API tool such as **Postman**. `POST` the following request to the DevLake API Endpoint.
 
