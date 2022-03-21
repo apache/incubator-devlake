@@ -3,12 +3,6 @@
 <img src="https://user-images.githubusercontent.com/3789273/128085813-92845abd-7c26-4fa2-9f98-928ce2246616.png" width="120px">
 
 # DevLake
-<p>
-    <b>
-     <!Software development workflow analysis for free> 
-    </b>
-  </p>
-  <p>
 
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat&logo=github&color=2370ff&labelColor=454545)](http://makeapullrequest.com)
 [![Discord](https://img.shields.io/discord/844603288082186240.svg?style=flat?label=&logo=discord&logoColor=ffffff&color=747df7&labelColor=454545)](https://discord.gg/83rDG6ydVZ)
@@ -24,30 +18,23 @@
 <div align="left">
 
 ### 什么是 DevLake？
-DevLake 将你所有的 DevOps 数据以实用、个性化、可扩展的视图呈现。通过 DevLake，从不断增加的开发者工具列表中收集、分析和可视化数据。
+DevLake 将你所有 DevOps 工具里的数据以实用、个性化、可扩展的视图呈现。通过 DevLake，从不断增加的工具列表中收集、分析和可视化数据。
 
 DevLake 适用于希望更好地通过数据了解其开发过程的开发团队，以及希望以数据驱动提升自身实践的开发团队。有了 DevLake，你可以向你的开发过程提出任何问题，只要连接数据并查询。
 
 
-#### 一键体验 DevLake
+#### Demo 地址
+<a href="https://app-259373083972538368-3002.ars.teamcode.com/d/0Rjxknc7z/demo-homepage?orgId=1">查看 demo</a>。用户名/密码： test/test。Demo里呈现的数据来自 merico-dev/lake。
 
+
+#### 安装 DevLake
 <table>
   <tr>
-    <td valign="middle"><a href="#user-setup">在本地运行</a></td>
-    <td valign="middle">
-      <a valign="middle" href="https://www.teamcode.com/tin/clone?applicationId=259777118600769536">
-        <img
-          src="https://static01.teamcode.com/badge/teamcode-badge-run-in-cloud-cn.svg"
-          width="140px"
-          alt="Teamcode" valign="middle"
-        />
-      </a>
-      <a valign="middle"
-        href="https://github.com/merico-dev/lake/wiki/How-to-Set-Up-Dev-Lake-with-Tin-zh-CN"><span valign="middle">查看手册</span>
-      </a>
-    </td>
+    <td valign="middle"><a href="#user-setup">运行 DevLake</a></td>
   </tr>
 </table>
+
+
 
 <br>
 
@@ -57,30 +44,25 @@ DevLake 适用于希望更好地通过数据了解其开发过程的开发团队
 
 
 
-### 为什么选择 DevLake？
-1. 全面了解软件研发生命周期，挖掘工作流瓶颈
-2. 及时回顾团队迭代表现，快速反馈，敏捷调整
-3. 快速搭建场景化数据仪表盘，下钻分析洞察问题根因
-
 ### DevLake 可以完成什么?
-1. 归集 DevOps 全流程效能数据
-2. 同类工具共用一套标准的<a href="https://github.com/merico-dev/lake/wiki/DataModel.Domain-layer-schema" target="_blank">数据抽象层</a>，输出标准化效能数据
-3. 内置 20+ <a href="https://github.com/merico-dev/lake/wiki/Metric-Cheatsheet" target="_blank">效能指标</a>与下钻分析能力
-4. 支持自定义 SQL 分析及拖拽搭建场景化数据视图
-5. 灵活的[架构](ARCHITECTURE.md)与插件设计，支持快速接入新数据源
-
-### 查看 Demo
-[点击这里](https://app-259373083972538368-3002.ars.teamcode.com/d/0Rjxknc7z/demo-homepage?orgId=1) 查看 Demo, Demo里呈现的数据来自此仓库。<br>
-用户名/密码: test/test
+1. 归集 DevOps 全流程效能数据，连接数据孤岛
+2. 标准的<a href="https://github.com/merico-dev/lake/wiki/DataModel.Domain-layer-schema" target="_blank">研发数据模型</a>和开箱即用的<a href="https://github.com/merico-dev/lake/wiki/Metric-Cheatsheet" target="_blank">效能指标</a>
+3. 灵活的数据收集、ETL的框架，支持自定义分析
 
 
-<br>
+
 <br>
 
 ## 用户安装<a id="user-setup"></a>
 
 - 如果你只打算运行 DevLake，你只需要阅读这一小节<br>
-- 如果你想在云端安装 DevLake，你可以使用 [Tin](https://github.com/merico-dev/lake/wiki/How-to-Set-Up-Dev-Lake-with-Tin-zh-CN) 来进行
+- 如果你想在云端安装 DevLake，你可以参考[安装手册](https://github.com/merico-dev/lake/wiki/How-to-Set-Up-Dev-Lake-with-Tin-zh-CN)，点击 <a valign="middle" href="https://www.teamcode.com/tin/clone?applicationId=259777118600769536">
+        <img
+          src="https://static01.teamcode.com/badge/teamcode-badge-run-in-cloud-cn.svg"
+          width="120px"
+          alt="Teamcode" valign="middle"
+        />
+      </a> 完成安装
 - 写成 `这样` 的命令需要在你的终端中运行
 
 #### 需要安装的软件包<a id="user-setup-requirements"></a>
@@ -95,23 +77,19 @@ DevLake 适用于希望更好地通过数据了解其开发过程的开发团队
 **IMPORTANT（新用户可以忽略）: DevLake暂不支持向前兼容。当 DB Schema 发生变化时，直接更新已有实例可能出错，建议已经安装 DevLake 的用户在升级时，重新部署实例并导入数据。**
 
 1. 在[最新版本列表](https://github.com/merico-dev/lake/releases/latest) 下载 `docker-compose.yml` 和 `env.example`
-2. 将 `env.example` 重命名为 `.env`
-3. 启动 Docker，然后运行 `docker-compose up -d` 启动服务。
+2. 将 `env.example` 重命名为 `.env`。Mac/Linux 用户请在命令行里运行 `mv env.example .env` 来完成修改
+3. 启动 Docker，然后运行 `docker-compose up -d` 启动服务
 4. 访问 `localhost:4000` 来设置 DevLake 的配置文件
-   >- 在 Integration 页面上找到到所需的插件页面
-   >- 你需要为你打算使用的插件输入必要的信息
-   >- 请参考以下内容，以了解如何配置每个插件的更多细节
-   >-> <a href="plugins/jira/README-zh-CN.md" target="_blank">Jira</a>
-   >-> <a href="plugins/gitlab/README-zh-CN.md" target="_blank">GitLab</a>
-   >-> <a href="plugins/jenkins/README-zh-CN.md" target="_blank">Jenkins</a> 
-   >-> <a href="plugins/github/README-zh-CN.md" target="_blank">GitHub</a>
-   
+   >- 在 Integrations 页面上找到你想要导入的数据源
+   >- 了解如何配置每个数据源：<br>
+      > <a href="plugins/jira/README-zh-CN.md" target="_blank">Jira</a><br>
+      > <a href="plugins/gitlab/README-zh-CN.md" target="_blank">GitLab</a><br>
+      > <a href="plugins/jenkins/README-zh-CN.md" target="_blank">Jenkins</a><br>
+      > <a href="plugins/github/README-zh-CN.md" target="_blank">GitHub</a><br>
    >- 提交表单，通过点击每个表单页面上的**Save Connection**按钮来更新数值。
-
    >- `devlake`需要一段时间才能完全启动。如果`config-ui`提示 API 无法访问，请等待几秒钟并尝试刷新页面。
-   >- 如果想收集一个 Repo 进行快速预览，请在**数据集成/Github**页面提供一个 Github 的个人 Token。
 
-5. 访问 `localhost:4000/create-pipeline`，创建 1个Pipeline run，并触发数据收集
+5. 访问 `localhost:4000/pipelines/create`，创建 1个Pipeline run，并触发数据收集
 
    Pipeline Runs 可以通过新的 "Create Run"界面启动。只需启用你希望运行的**数据源**，并指定数据收集的范围，比如Gitlab的项目ID和GitHub的仓库名称。
 
@@ -120,9 +98,9 @@ DevLake 适用于希望更好地通过数据了解其开发过程的开发团队
 
    **Pipelines**可从 config-ui 的主菜单进入。
 
-   - **管理所有Pipeline** `http://localhost:4000/pipelines`。
-   - **创建Pipeline Run** `http://localhost:4000/create-pipeline`。
-   - **查看Pipeline Activity** `http://localhost:4000/pipelines/activity/[RUN_ID]`。
+   - 管理所有Pipeline: `http://localhost:4000/pipelines`。
+   - 创建Pipeline Run: `localhost:4000/pipelines/create`。
+   - 查看Pipeline Activity: `http://localhost:4000/pipelines/activity/[RUN_ID]`。
 
    对于复杂度较高的用例，请使用Raw JSON API进行任务配置。使用**cURL**或图形API工具（如**Postman**）手动启动运行。`POST`以下请求到DevLake API端点。
 
@@ -218,7 +196,7 @@ DevLake 适用于希望更好地通过数据了解其开发过程的开发团队
    >-> <a href="plugins/github/README-zh-CN.md" target="_blank">GitHub</a>
 
 
-8. 访问 `localhost:4000/create-pipeline`，创建 1个Pipeline run，并触发数据收集
+8. 访问 `localhost:4000/pipelines/create`，创建 1个Pipeline run，并触发数据收集
 
    Pipeline Runs 可以通过新的 "Create Run"界面启动。只需启用你希望运行的数据源，并指定数据收集的范围，比如Gitlab的项目ID和GitHub的仓库名称。
 
@@ -227,9 +205,9 @@ DevLake 适用于希望更好地通过数据了解其开发过程的开发团队
 
    **Pipelines**可从 config-ui 的主菜单进入。
 
-   - **管理所有Pipeline** `http://localhost:4000/pipelines`。
-   - **创建Pipeline Run** `http://localhost:4000/create-pipeline`。
-   - **查看Pipeline Activity** `http://localhost:4000/pipelines/activity/[RUN_ID]`。
+   - 管理所有Pipeline: `http://localhost:4000/pipelines`。
+   - 创建Pipeline Run: `http://localhost:4000/pipelines/create`。
+   - 查看Pipeline Activity: `http://localhost:4000/pipelines/activity/[RUN_ID]`。
 
    对于复杂度较高的用例，请使用Raw JSON API进行任务配置。使用**cURL**或图形API工具（如**Postman**）手动启动运行。`POST`以下请求到DevLake API端点。
 
