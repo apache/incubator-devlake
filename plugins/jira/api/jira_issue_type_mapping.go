@@ -2,11 +2,11 @@ package api
 
 import (
 	"fmt"
-	"github.com/merico-dev/lake/models/common"
 	"net/http"
 
+	"github.com/merico-dev/lake/models/common"
+
 	"github.com/go-playground/validator/v10"
-	lakeModels "github.com/merico-dev/lake/models"
 	"github.com/merico-dev/lake/plugins/core"
 	"github.com/merico-dev/lake/plugins/jira/models"
 	"github.com/mitchellh/mapstructure"
@@ -25,7 +25,7 @@ func findIssueTypeMappingByInputParam(input *core.ApiResourceInput) (*models.Jir
 		return nil, fmt.Errorf("missing userType")
 	}
 	jiraIssueTypeMapping := &models.JiraIssueTypeMapping{}
-	err = lakeModels.Db.First(jiraIssueTypeMapping, jiraSource.ID, userType).Error
+	err = db.First(jiraIssueTypeMapping, jiraSource.ID, userType).Error
 	if err != nil {
 		return nil, err
 	}
@@ -100,7 +100,7 @@ func saveTypeMappings(tx *gorm.DB, jiraSourceId uint64, typeMappings interface{}
 
 func findIssueTypeMappingBySourceId(jiraSourceId uint64) ([]*models.JiraIssueTypeMapping, error) {
 	jiraIssueTypeMappings := make([]*models.JiraIssueTypeMapping, 0)
-	err := lakeModels.Db.Where("source_id = ?", jiraSourceId).Find(&jiraIssueTypeMappings).Error
+	err := db.Where("source_id = ?", jiraSourceId).Find(&jiraIssueTypeMappings).Error
 	if err != nil {
 		return nil, err
 	}
@@ -128,7 +128,7 @@ func PostIssueTypeMappings(input *core.ApiResourceInput) (*core.ApiResourceOutpu
 		return nil, err
 	}
 	// save
-	err = wrapIssueTypeDuplicateErr(lakeModels.Db.Create(jiraIssueTypeMapping).Error)
+	err = wrapIssueTypeDuplicateErr(db.Create(jiraIssueTypeMapping).Error)
 	if err != nil {
 		return nil, err
 	}
@@ -153,7 +153,7 @@ func PutIssueTypeMapping(input *core.ApiResourceInput) (*core.ApiResourceOutput,
 		return nil, err
 	}
 	// save
-	err = wrapIssueTypeDuplicateErr(lakeModels.Db.Save(jiraIssueTypeMapping).Error)
+	err = wrapIssueTypeDuplicateErr(db.Save(jiraIssueTypeMapping).Error)
 	if err != nil {
 		return nil, err
 	}
@@ -169,11 +169,11 @@ func DeleteIssueTypeMapping(input *core.ApiResourceInput) (*core.ApiResourceOutp
 	if err != nil {
 		return nil, err
 	}
-	err = lakeModels.Db.Delete(jiraIssueTypeMapping).Error
+	err = db.Delete(jiraIssueTypeMapping).Error
 	if err != nil {
 		return nil, err
 	}
-	err = lakeModels.Db.Where(
+	err = db.Where(
 		"source_id = ? AND user_type = ?",
 		jiraIssueTypeMapping.SourceID,
 		jiraIssueTypeMapping.UserType,

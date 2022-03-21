@@ -7,10 +7,9 @@ import (
 	"strconv"
 	"time"
 
-	lakeModels "github.com/merico-dev/lake/models"
 	"github.com/merico-dev/lake/plugins/core"
+	"github.com/merico-dev/lake/plugins/helper"
 	"github.com/merico-dev/lake/plugins/jira/models"
-	"github.com/merico-dev/lake/plugins/jira/tasks"
 )
 
 const (
@@ -27,15 +26,28 @@ func Proxy(input *core.ApiResourceInput) (*core.ApiResourceOutput, error) {
 		return nil, err
 	}
 	jiraSource := &models.JiraSource{}
-	err = lakeModels.Db.First(jiraSource, jiraSourceId).Error
+	err = db.First(jiraSource, jiraSourceId).Error
 	if err != nil {
 		return nil, err
 	}
-	client := tasks.NewJiraApiClient(jiraSource.Endpoint, jiraSource.BasicAuthEncoded, jiraSource.Proxy, nil, nil)
+	encKey := cfg.GetString(core.EncodeKeyEnvStr)
+	basicAuth, err := core.Decrypt(encKey, jiraSource.BasicAuthEncoded)
 	if err != nil {
 		return nil, err
 	}
-	resp, err := client.Get(input.Params["path"], input.Query, nil)
+	apiClient, err := helper.NewApiClient(
+		jiraSource.Endpoint,
+		map[string]string{
+			"Authorization": fmt.Sprintf("Basic %v", basicAuth),
+		},
+		30*time.Second,
+		jiraSource.Proxy,
+		nil,
+	)
+	if err != nil {
+		return nil, err
+	}
+	resp, err := apiClient.Get(input.Params["path"], input.Query, nil)
 	if err != nil {
 		return nil, err
 	}

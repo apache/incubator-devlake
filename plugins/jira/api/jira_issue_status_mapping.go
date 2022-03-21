@@ -2,11 +2,11 @@ package api
 
 import (
 	"fmt"
-	"github.com/merico-dev/lake/models/common"
 	"net/http"
 
+	"github.com/merico-dev/lake/models/common"
+
 	"github.com/go-playground/validator/v10"
-	lakeModels "github.com/merico-dev/lake/models"
 	"github.com/merico-dev/lake/plugins/core"
 	"github.com/merico-dev/lake/plugins/jira/models"
 	"github.com/mitchellh/mapstructure"
@@ -25,7 +25,7 @@ func findIssueStatusMappingFromInput(input *core.ApiResourceInput) (*models.Jira
 		return nil, fmt.Errorf("missing userStatus")
 	}
 	jiraIssueStatusMapping := &models.JiraIssueStatusMapping{}
-	err = lakeModels.Db.First(
+	err = db.First(
 		jiraIssueStatusMapping,
 		jiraIssueTypeMapping.SourceID,
 		jiraIssueTypeMapping.UserType,
@@ -104,7 +104,7 @@ func findIssueStatusMappingBySourceIdAndUserType(
 	userType string,
 ) ([]*models.JiraIssueStatusMapping, error) {
 	jiraIssueStatusMappings := make([]*models.JiraIssueStatusMapping, 0)
-	err := lakeModels.Db.Where(
+	err := db.Where(
 		"source_id = ? AND user_type = ?",
 		jiraSourceId,
 		userType,
@@ -133,7 +133,7 @@ func PostIssueStatusMappings(input *core.ApiResourceInput) (*core.ApiResourceOut
 		return nil, err
 	}
 	// save
-	err = wrapIssueStatusDuplicateErr(lakeModels.Db.Create(jiraIssueStatusMapping).Error)
+	err = wrapIssueStatusDuplicateErr(db.Create(jiraIssueStatusMapping).Error)
 	if err != nil {
 		return nil, err
 	}
@@ -158,7 +158,7 @@ func PutIssueStatusMapping(input *core.ApiResourceInput) (*core.ApiResourceOutpu
 		return nil, err
 	}
 	// save
-	err = wrapIssueStatusDuplicateErr(lakeModels.Db.Save(jiraIssueStatusMapping).Error)
+	err = wrapIssueStatusDuplicateErr(db.Save(jiraIssueStatusMapping).Error)
 	if err != nil {
 		return nil, err
 	}
@@ -173,7 +173,7 @@ func DeleteIssueStatusMapping(input *core.ApiResourceInput) (*core.ApiResourceOu
 	if err != nil {
 		return nil, err
 	}
-	err = lakeModels.Db.Delete(jiraIssueStatusMapping).Error
+	err = db.Delete(jiraIssueStatusMapping).Error
 	if err != nil {
 		return nil, err
 	}

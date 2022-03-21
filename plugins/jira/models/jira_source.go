@@ -1,11 +1,7 @@
 package models
 
 import (
-	"github.com/merico-dev/lake/logger"
 	"github.com/merico-dev/lake/models/common"
-	"github.com/merico-dev/lake/plugins/core"
-	"gorm.io/gorm"
-	"gorm.io/gorm/callbacks"
 )
 
 type JiraSource struct {
@@ -37,42 +33,3 @@ type JiraSourceDetail struct {
 	JiraSource
 	TypeMappings map[string]map[string]interface{} `json:"typeMappings"`
 }
-
-func (s *JiraSource) BeforeSave(tx *gorm.DB) error {
-	var err error
-	// Sensitive information is encrypted before storing in the database
-	s.BasicAuthEncoded, err = core.Encode(s.BasicAuthEncoded)
-	if err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (s *JiraSource) AfterSave(tx *gorm.DB) error {
-	var err error
-	// Decrypt the sensitive information after saving to recover the original data
-	s.BasicAuthEncoded, err = core.Decode(s.BasicAuthEncoded)
-	if err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (s *JiraSource) AfterFind(tx *gorm.DB) error {
-	var err error
-	// Decrypt the sensitive information after reading the data from the database
-	s.BasicAuthEncoded, err = core.Decode(s.BasicAuthEncoded)
-	if err != nil {
-		logger.Warn("Decrypt BasicAuthEncoded failed:", err)
-		s.BasicAuthEncoded = ""
-		return nil
-	}
-
-	return nil
-}
-
-var _ callbacks.BeforeSaveInterface = (*JiraSource)(nil)
-var _ callbacks.AfterSaveInterface = (*JiraSource)(nil)
-var _ callbacks.AfterFindInterface = (*JiraSource)(nil)

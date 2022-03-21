@@ -15,6 +15,7 @@ import (
 	"unicode/utf8"
 
 	"github.com/merico-dev/lake/plugins/core"
+	"github.com/merico-dev/lake/utils"
 )
 
 type ApiClientBeforeRequest func(req *http.Request) error
@@ -37,7 +38,26 @@ func NewApiClient(
 	timeout time.Duration,
 	proxy string,
 	ctx context.Context,
-) *ApiClient {
+) (*ApiClient, error) {
+	parsedUrl, err := url.Parse(endpoint)
+	if err != nil {
+		return nil, fmt.Errorf("Invalid URL: %w", err)
+	}
+	if parsedUrl.Scheme == "" {
+		return nil, fmt.Errorf("Invalid schema")
+	}
+	err = utils.CheckDNS(parsedUrl.Hostname())
+	if err != nil {
+		return nil, fmt.Errorf("Failed to resolve DNS: %w", err)
+	}
+	port, err := utils.ResolvePort(parsedUrl.Port(), parsedUrl.Scheme)
+	if err != nil {
+		return nil, fmt.Errorf("Failed to resolve Port: %w", err)
+	}
+	err = utils.CheckNetwork(parsedUrl.Hostname(), port, time.Duration(2)*time.Second)
+	if err != nil {
+		return nil, fmt.Errorf("Failed to connect: %w", err)
+	}
 	apiClient := &ApiClient{}
 	apiClient.Setup(
 		endpoint,
@@ -48,7 +68,7 @@ func NewApiClient(
 		apiClient.SetProxy(proxy)
 	}
 	apiClient.SetContext(ctx)
-	return apiClient
+	return apiClient, nil
 }
 
 func (apiClient *ApiClient) Setup(

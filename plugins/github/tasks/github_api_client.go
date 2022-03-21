@@ -90,7 +90,12 @@ func NewGithubApiClient(taskCtx core.TaskContext) (*GithubApiClient, error) {
 		githubApiClient.tokenIndex = (githubApiClient.tokenIndex + 1) % len(githubApiClient.tokens)
 		return nil
 	})
+	githubApiClient.SetAfterFunction(func(res *http.Response) error {
+		if res.StatusCode == http.StatusUnauthorized {
+			return fmt.Errorf("authentication failed, please check your Token configuration")
+		}
+		return nil
+	})
 
-	githubApiClient.SetLogger(taskCtx.GetLogger())
 	return githubApiClient, nil
 }

@@ -7,22 +7,22 @@ import (
 	"github.com/merico-dev/lake/plugins/ae/models"
 	"github.com/merico-dev/lake/plugins/ae/tasks"
 	"github.com/merico-dev/lake/plugins/core"
-	"github.com/merico-dev/lake/runner"
+	"github.com/merico-dev/lake/worker"
 	"github.com/mitchellh/mapstructure"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 	"gorm.io/gorm" // A pseudo type for Plugin Interface implementation
 )
 
-var _ core.PluginInit = (*AE)(nil)
 var _ core.PluginMeta = (*AE)(nil)
+var _ core.PluginInit = (*AE)(nil)
 var _ core.PluginTask = (*AE)(nil)
 var _ core.PluginApi = (*AE)(nil)
 
 type AE string
 
 func (plugin AE) Init(config *viper.Viper, logger core.Logger, db *gorm.DB) error {
-	logger.Info("INFO >>> init go plugin", true)
+	// you can pass down db instance to plugin api
 	return db.AutoMigrate(
 		&models.AEProject{},
 		&models.AECommit{},
@@ -91,9 +91,9 @@ func main() {
 	projectId := aeCmd.Flags().IntP("project-id", "p", 0, "ae project id")
 	aeCmd.MarkFlagRequired("project-id")
 	aeCmd.Run = func(cmd *cobra.Command, args []string) {
-		runner.DirectRun(cmd, args, PluginEntry, map[string]interface{}{
+		worker.DirectRun(cmd, args, PluginEntry, map[string]interface{}{
 			"projectId": *projectId,
 		})
 	}
-	runner.RunCmd(aeCmd)
+	worker.RunCmd(aeCmd)
 }

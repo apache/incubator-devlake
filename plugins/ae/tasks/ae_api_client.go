@@ -103,7 +103,6 @@ func CreateApiClient(taskCtx core.TaskContext) (*AEApiClient, error) {
 	// set callbacks
 	aeApiClient.SetBeforeFunction(aeApiClient.beforeRequest)
 	aeApiClient.SetContext(taskCtx.GetContext())
-	aeApiClient.SetProxy(taskCtx.GetConfig("AE_PROXY"))
 
 	return aeApiClient, nil
 }

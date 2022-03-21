@@ -5,54 +5,52 @@ import (
 	"net/http"
 	"net/url"
 	"strconv"
-	"time"
 
 	"github.com/merico-dev/lake/plugins/core"
+	"github.com/merico-dev/lake/plugins/helper"
 	"github.com/merico-dev/lake/plugins/jira/models"
-	"github.com/merico-dev/lake/utils"
 )
 
 type JiraApiClient struct {
-	core.ApiClient
+	*helper.ApiAsyncClient
 }
 
-func NewJiraApiClient(
-	endpoint string,
-	auth string,
-	proxy string,
-	scheduler *utils.WorkerScheduler,
-	logger core.Logger,
-) *JiraApiClient {
-	jiraApiClient := &JiraApiClient{}
-	jiraApiClient.Setup(
-		endpoint,
+func NewJiraApiClient(taskCtx core.TaskContext, source *models.JiraSource) (*JiraApiClient, error) {
+	// load configuration
+	encKey := taskCtx.GetConfig(core.EncodeKeyEnvStr)
+	auth, err := core.Decrypt(encKey, source.BasicAuthEncoded)
+	if err != nil {
+		return nil, fmt.Errorf("Failed to decrypt Auth Token: %w", err)
+	}
+
+	// create rate limit calculator
+	rateLimiter := &helper.ApiRateLimitCalculator{
+		UserRateLimitPerHour: source.RateLimit,
+	}
+	asyncApiClient, err := helper.CreateAsyncApiClient(
+		taskCtx,
+		source.Proxy,
+		source.Endpoint,
 		map[string]string{
 			"Authorization": fmt.Sprintf("Basic %v", auth),
 		},
-		20*time.Second,
-		3,
-		scheduler,
+		rateLimiter,
 	)
+	if err != nil {
+		return nil, err
+	}
+
+	jiraApiClient := &JiraApiClient{
+		asyncApiClient,
+	}
+
 	jiraApiClient.SetAfterFunction(func(res *http.Response) error {
 		if res.StatusCode == http.StatusUnauthorized {
 			return fmt.Errorf("authentication failed, please check your Basic Auth Token")
 		}
 		return nil
 	})
-	if proxy != "" {
-		err := jiraApiClient.SetProxy(proxy)
-		if err != nil {
-			panic(err)
-		}
-	}
-	if proxy != "" {
-		err := jiraApiClient.SetProxy(proxy)
-		if err != nil {
-			panic(err)
-		}
-	}
-	jiraApiClient.SetLogger(logger)
-	return jiraApiClient
+	return jiraApiClient, nil
 }
 
 type JiraPagination struct {
@@ -61,9 +59,13 @@ type JiraPagination struct {
 	Total      int `json:"total"`
 }
 
+// Deprecated
 type JiraPaginationHandler func(res *http.Response) error
+
+// Deprecated
 type JiraSearchPaginationHandler func(res *http.Response) (int, error)
 
+// Deprecated
 func (jiraApiClient *JiraApiClient) FetchPages(path string, query url.Values, handler JiraPaginationHandler) error {
 	if query == nil {
 		query = url.Values{}
@@ -83,7 +85,7 @@ func (jiraApiClient *JiraApiClient) FetchPages(path string, query url.Values, ha
 		return err
 	}
 	jiraApiResponse := &JiraPagination{}
-	err = core.UnmarshalResponse(res, jiraApiResponse)
+	err = helper.UnmarshalResponse(res, jiraApiResponse)
 	if err != nil {
 		return nil
 	}
@@ -108,6 +110,7 @@ func (jiraApiClient *JiraApiClient) FetchPages(path string, query url.Values, ha
 	return nil
 }
 
+// Deprecated
 // FetchWithoutPaginationHeaders uses pagination in a different way than FetchPages.
 // We set the pagination params to what we want, and then we just keep making requests
 // until the response array is empty. This is why we need to check the "next" variable
@@ -154,36 +157,4 @@ func (jiraApiClient *JiraApiClient) FetchWithoutPaginationHeaders(
 		startAt += maxResults
 	}
 	return nil
-}
-
-func (jiraApiClient *JiraApiClient) GetJiraServerInfo() (*models.JiraServerInfo, int, error) {
-	res, err := jiraApiClient.Get("api/2/serverInfo", nil, nil)
-	if err != nil {
-		return nil, 0, err
-	}
-	if res.StatusCode >= 300 || res.StatusCode < 200 {
-		return nil, res.StatusCode, fmt.Errorf("request failed with status code: %d", res.StatusCode)
-	}
-	serverInfo := &models.JiraServerInfo{}
-	err = core.UnmarshalResponse(res, serverInfo)
-	if err != nil {
-		return nil, res.StatusCode, err
-	}
-	return serverInfo, res.StatusCode, nil
-}
-
-func (jiraApiClient *JiraApiClient) GetMyselfInfo() (*models.ApiMyselfResponse, error) {
-	res, err := jiraApiClient.Get("api/3/myself", nil, nil)
-	if err != nil {
-		return nil, err
-	}
-	if res.StatusCode >= 300 || res.StatusCode < 200 {
-		return nil, fmt.Errorf("request failed with status code: %d", res.StatusCode)
-	}
-	myselfFromApi := &models.ApiMyselfResponse{}
-	err = core.UnmarshalResponse(res, myselfFromApi)
-	if err != nil {
-		return nil, err
-	}
-	return myselfFromApi, nil
 }

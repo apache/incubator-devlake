@@ -7,14 +7,11 @@ import (
 	"plugin"
 	"strings"
 
-	"github.com/merico-dev/lake/logger"
 	"github.com/merico-dev/lake/plugins/core"
 )
 
-var log = logger.Global.Nested("runner")
-
 // LoadPlugins load plugins from local directory
-func LoadPlugins(pluginsDir string) error {
+func LoadPlugins(pluginsDir string, logger core.Logger) error {
 	walkErr := filepath.WalkDir(pluginsDir, func(path string, d fs.DirEntry, err error) error {
 		if err != nil {
 			return err
@@ -42,7 +39,7 @@ func LoadPlugins(pluginsDir string) error {
 			if err != nil {
 				return nil
 			}
-			log.Info(`plugin loaded %s`, pluginName)
+			logger.Info(`plugin loaded %s`, pluginName)
 		}
 		return nil
 	})
