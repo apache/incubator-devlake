@@ -1,16 +1,18 @@
 package tasks
 
 import (
-	"context"
+	"time"
+
 	lakeModels "github.com/merico-dev/lake/models"
+	"github.com/merico-dev/lake/plugins/core"
 	gitlabModels "github.com/merico-dev/lake/plugins/gitlab/models"
 	"gorm.io/gorm/clause"
-	"time"
 )
 
-func EnrichMergeRequests(ctx context.Context, projectId int) error {
+func EnrichMergeRequests(taskCtx core.SubTaskContext) error {
+	data := taskCtx.GetData().(*GitlabTaskData)
 	// get mrs from theDB
-	cursor, err := lakeModels.Db.Model(&gitlabModels.GitlabMergeRequest{}).Where("project_id = ?", projectId).Rows()
+	cursor, err := lakeModels.Db.Model(&gitlabModels.GitlabMergeRequest{}).Where("project_id = ?", data.Options.ProjectId).Rows()
 	if err != nil {
 		return err
 	}
