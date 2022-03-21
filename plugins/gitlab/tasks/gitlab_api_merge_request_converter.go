@@ -18,9 +18,8 @@ func ConvertApiMergeRequests(taskCtx core.SubTaskContext) error {
 	domainMrIdGenerator := didgen.NewDomainIdGenerator(&models.GitlabMergeRequest{})
 	domainRepoIdGenerator := didgen.NewDomainIdGenerator(&models.GitlabProject{})
 
-	gitlabMr := &models.GitlabMergeRequest{}
 	//Find all piplines associated with the current projectid
-	cursor, err := lakeModels.Db.Model(gitlabMr).Where("project_id=?", data.Options.ProjectId).Rows()
+	cursor, err := lakeModels.Db.Model(&models.GitlabMergeRequest{}).Where("project_id=?", data.Options.ProjectId).Rows()
 	if err != nil {
 		return err
 	}
