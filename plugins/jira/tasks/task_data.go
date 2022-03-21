@@ -3,7 +3,7 @@ package tasks
 import (
 	"time"
 
-	"github.com/merico-dev/lake/plugins/core"
+	"github.com/merico-dev/lake/plugins/helper"
 	"github.com/merico-dev/lake/plugins/jira/models"
 )
 
@@ -16,7 +16,7 @@ type JiraOptions struct {
 
 type JiraTaskData struct {
 	Options   *JiraOptions
-	ApiClient *core.ApiClient
+	ApiClient *helper.ApiAsyncClient
 	Source    *models.JiraSource
 	Since     *time.Time
 }

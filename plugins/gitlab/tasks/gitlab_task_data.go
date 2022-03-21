@@ -3,8 +3,8 @@ package tasks
 import (
 	"time"
 
-	"github.com/merico-dev/lake/plugins/core"
 	"github.com/merico-dev/lake/plugins/gitlab/models"
+	"github.com/merico-dev/lake/plugins/helper"
 )
 
 type GitlabOptions struct {
@@ -16,7 +16,7 @@ type GitlabOptions struct {
 
 type GitlabTaskData struct {
 	Options       *GitlabOptions
-	ApiClient     *core.ApiClient
+	ApiClient     *helper.ApiAsyncClient
 	ProjectCommit *models.GitlabProjectCommit
 	Since         *time.Time
 }
