@@ -132,6 +132,7 @@ context('RUN / Trigger New Pipelines', () => {
     cy.get('.provider-toggle-switch.switch-gitlab')
       .should('be.visible')
       .click()
+    
     cy.get('.input-project-id').find('input').type('278964{enter}')
     
     cy.get('button#btn-run-pipeline').click()
@@ -140,6 +141,32 @@ context('RUN / Trigger New Pipelines', () => {
     cy.wait('@runGitlabPipeline').then(({ response }) => {
       const NewGitlabRun = response.body
       cy.url().should('include', `/pipelines/activity/${NewGitlabRun.ID}`)
+    })
+  })
+
+  it('can run a github pipeline', () => {
+    cy.fixture('new-github-pipeline').then((newGithubPipelineJSON) => {
+      cy.intercept('GET', `/api/pipelines/${newGithubPipelineJSON.ID}`, { body: newGithubPipelineJSON }).as('GithubPipeline')
+      cy.intercept('POST', '/api/pipelines', { body: newGithubPipelineJSON }).as('runGithubPipeline')
+      cy.fixture('new-github-pipeline-tasks').then((newGithubPipelineTasksJSON) => {
+        cy.intercept('GET', `/api/pipelines/${newGithubPipelineJSON.ID}/tasks`, { body: newGithubPipelineTasksJSON }).as('GithubPipelineTasks')
+      })
+    })
+    cy.get('input#pipeline-name').type(`{selectAll}{backSpace}COLLECT GITHUB ${Date.now()}`)
+    cy.get('.provider-toggle-switch.switch-github')
+      .should('be.visible')
+      .click()
+      .trigger('mouseleave')
+    
+    cy.get('input#owner').click().type('merico-dev', {force: true})
+    cy.get('input#repository-name').type('lake')
+    
+    cy.get('button#btn-run-pipeline').click()
+    cy.wait('@GithubPipeline')
+    cy.wait('@GithubPipelineTasks')
+    cy.wait('@runGithubPipeline').then(({ response }) => {
+      const NewGithubRun = response.body
+      cy.url().should('include', `/pipelines/activity/${NewGithubRun.ID}`)
     })
   })
 

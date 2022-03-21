@@ -906,7 +906,7 @@ const CreatePipeline = (props) => {
                             <span className='provider-name'>{provider.name}</span>
                             <Tooltip
                               intent={Intent.PRIMARY}
-                              content={`Enable ${provider.name}`} position={Position.RIGHT} popoverClassName='pipeline-tooltip'
+                              content={`Enable ${provider.name}`} position={Position.LEFT} popoverClassName='pipeline-tooltip'
                             >
                               <Switch
                           // alignIndicator={Alignment.CENTER}

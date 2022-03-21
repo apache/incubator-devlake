@@ -1,0 +1,25 @@
+{
+  "count": 1,
+  "tasks": [
+    {
+      "ID": 100,
+      "CreatedAt": "2022-03-21T19:59:08.531Z",
+      "UpdatedAt": "2022-03-21T19:59:08.531Z",
+      "plugin": "github",
+      "options": {
+        "repo": "lake",
+        "owner": "merico-dev"
+      },
+      "status": "TASK_CREATED",
+      "message": "",
+      "progress": 0,
+      "failedSubTask": "",
+      "pipelineId": 1000,
+      "pipelineRow": 1,
+      "pipelineCol": 1,
+      "beganAt": null,
+      "finishedAt": null,
+      "spentSeconds": 0
+    }
+  ]
+}
