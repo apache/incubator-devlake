@@ -2,13 +2,8 @@ package main
 
 import (
 	"context"
-	"fmt"
-	"github.com/merico-dev/lake/errors"
+
 	"github.com/merico-dev/lake/plugins/core"
-	"github.com/merico-dev/lake/plugins/helper"
-	"github.com/merico-dev/lake/plugins/refdiff/tasks"
-	"github.com/mitchellh/mapstructure"
-	"os"
 )
 
 // make sure interface is implemented
@@ -27,6 +22,7 @@ func (rd RefDiff) Init() {
 }
 
 func (rd RefDiff) Execute(options map[string]interface{}, progress chan<- float32, ctx context.Context) error {
+	/* TODO: adopt new interface
 	var op tasks.RefdiffOptions
 	var err error
 	progress <- 0.00
@@ -79,6 +75,7 @@ func (rd RefDiff) Execute(options map[string]interface{}, progress chan<- float3
 			}
 		}
 	}
+	*/
 	return nil
 }
 
@@ -93,6 +90,7 @@ func (rd RefDiff) ApiResources() map[string]map[string]core.ApiResourceHandler {
 
 // standalone mode for debugging
 func main() {
+	/* TODO: adopt new method
 	var err error
 
 	args := os.Args[1:]
@@ -134,4 +132,5 @@ func main() {
 	for p := range progress {
 		fmt.Println(p)
 	}
+	*/
 }

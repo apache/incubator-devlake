@@ -1,51 +1,65 @@
 package tasks
 
 import (
-	"context"
 	"fmt"
-	"github.com/merico-dev/lake/plugins/core"
-	"github.com/merico-dev/lake/utils"
 	"net/http"
-	"time"
+
+	"github.com/merico-dev/lake/plugins/core"
+	"github.com/merico-dev/lake/plugins/helper"
+	"github.com/merico-dev/lake/utils"
 )
 
 type JenkinsApiClient struct {
-	core.ApiClient
+	*helper.ApiAsyncClient
 }
 
-func NewJenkinsApiClient(endpoint string, username string, password string, proxy string, ctx context.Context, scheduler *utils.WorkerScheduler, logger core.Logger) *JenkinsApiClient {
-	jenkinsApiClient := &JenkinsApiClient{}
+func NewJenkinsApiClient(taskCtx core.TaskContext) (*JenkinsApiClient, error) {
+	// load configuration
+	endpoint := taskCtx.GetConfig("JENKINS_ENDPOINT")
+	if endpoint == "" {
+		return nil, fmt.Errorf("JENKINS_ENDPOINT is required")
+	}
+	userRateLimit, err := utils.StrToIntOr(taskCtx.GetConfig("JENKINS_API_REQUESTS_PER_HOUR"), 0)
+	if err != nil {
+		return nil, err
+	}
+	username := taskCtx.GetConfig("JENKINS_USERNAME")
+	if username == "" {
+		return nil, fmt.Errorf("JENKINS_USERNAME is required")
+	}
+	password := taskCtx.GetConfig("JENKINS_PASSWORD")
+	if password == "" {
+		return nil, fmt.Errorf("JENKINS_PASSWORD is required")
+	}
 	encodedToken := utils.GetEncodedToken(username, password)
 
-	jenkinsApiClient.Setup(
+	// create rate limit calculator
+	rateLimiter := &helper.ApiRateLimitCalculator{
+		UserRateLimitPerHour: userRateLimit,
+	}
+	proxy := taskCtx.GetConfig("JENKINS_PROXY")
+	asyncApiClient, err := helper.CreateAsyncApiClient(
+		taskCtx,
+		proxy,
 		endpoint,
 		map[string]string{
 			"Authorization": fmt.Sprintf("Basic %v", encodedToken),
 		},
-		50*time.Second,
-		3,
-		scheduler,
+		rateLimiter,
 	)
+	if err != nil {
+		return nil, err
+	}
+
+	jenkinsApiClient := &JenkinsApiClient{
+		asyncApiClient,
+	}
 
 	jenkinsApiClient.SetAfterFunction(func(res *http.Response) error {
 		if res.StatusCode == http.StatusUnauthorized {
-			return fmt.Errorf("authentication failed, please check your Basic Auth Token")
+			return fmt.Errorf("authentication failed, please check your Username/Password")
 		}
 		return nil
 	})
-	if ctx != nil {
-		jenkinsApiClient.SetContext(ctx)
-	}
-	if proxy != "" {
-		err := jenkinsApiClient.SetProxy(proxy)
-		if err != nil {
-			panic(err)
-		}
-	}
-
-	jenkinsApiClient.SetLogger(logger)
-	return jenkinsApiClient
+	return jenkinsApiClient, nil
 }
-
-type JenkinsPaginationHandler func(res *http.Response) error
-type JenkinsSearchPaginationHandler func(res *http.Response) (int, error)

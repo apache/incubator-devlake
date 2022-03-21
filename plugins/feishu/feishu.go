@@ -2,16 +2,8 @@ package main
 
 import (
 	"context"
-	"fmt"
 
-	"github.com/merico-dev/lake/config"
-	"github.com/merico-dev/lake/errors"
-	lakeModels "github.com/merico-dev/lake/models"
 	"github.com/merico-dev/lake/plugins/core"
-	"github.com/merico-dev/lake/plugins/feishu/models"
-	"github.com/merico-dev/lake/plugins/feishu/tasks"
-	"github.com/merico-dev/lake/plugins/helper"
-	"github.com/mitchellh/mapstructure"
 )
 
 var _ core.Plugin = (*Feishu)(nil)
@@ -23,16 +15,19 @@ func (plugin Feishu) Description() string {
 }
 
 func (plugin Feishu) Init() {
+	/* TODO: adopt new interface
 	err := lakeModels.Db.AutoMigrate(
 		&models.FeishuMeetingTopUserItem{},
 	)
 	if err != nil {
 		panic(err)
 	}
+	*/
 }
 
 func (plugin Feishu) Execute(options map[string]interface{}, progress chan<- float32, ctx context.Context) error {
 
+	/* TODO: adopt new interface
 	var op tasks.FeishuOptions
 	var err error
 	err = mapstructure.Decode(options, &op)
@@ -104,6 +99,7 @@ func (plugin Feishu) Execute(options map[string]interface{}, progress chan<- flo
 		}
 	}
 	logger.Info("feishu plugin is end")
+	*/
 	return nil
 
 }
@@ -120,6 +116,7 @@ var PluginEntry Feishu
 
 // standalone mode for debugging
 func main() {
+	/* TODO: adopt new method
 	PluginEntry.Init()
 	progress := make(chan float32)
 	go func() {
@@ -137,4 +134,5 @@ func main() {
 	for p := range progress {
 		fmt.Println(p)
 	}
+	*/
 }

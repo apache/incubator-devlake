@@ -48,7 +48,11 @@ func CreateAsyncApiClient(
 	rateLimiter.GlobalRateLimitPerHour = globalRateLimitPerHour
 
 	// create synchronize api client so we can calculate api rate limit dynamically
-	apiClient := NewApiClient(endpoint, headers, timeout, proxy, taskCtx.GetContext())
+	apiClient, err := NewApiClient(endpoint, headers, timeout, proxy, taskCtx.GetContext())
+	apiClient.SetLogger(taskCtx.GetLogger())
+	if err != nil {
+		return nil, err
+	}
 
 	// ok, calculate api rate limit based on response (normally from headers)
 	requests, duration, err := rateLimiter.Calculate(apiClient)

@@ -52,7 +52,7 @@ func TestConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, erro
 		token := tokens[i]
 		i := i
 		go func() {
-			apiClient := helper.NewApiClient(
+			apiClient, err := helper.NewApiClient(
 				params.Endpoint,
 				map[string]string{
 					"Authorization": fmt.Sprintf("Bearer %s", token),
@@ -61,6 +61,10 @@ func TestConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, erro
 				params.Proxy,
 				nil,
 			)
+			if err != nil {
+				results <- fmt.Errorf("verify token failed for #%v %s %w", i, token, err)
+				return
+			}
 			res, err := apiClient.Get("user/public_emails", nil, nil)
 			if err != nil {
 				results <- fmt.Errorf("verify token failed for #%v %s %w", i, token, err)

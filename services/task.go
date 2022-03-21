@@ -7,10 +7,10 @@ import (
 	"sync"
 	"time"
 
+	"github.com/merico-dev/lake/config"
 	"github.com/merico-dev/lake/errors"
 	"github.com/merico-dev/lake/logger"
 	"github.com/merico-dev/lake/models"
-	"github.com/merico-dev/lake/plugins/core"
 	"github.com/merico-dev/lake/utils"
 	"github.com/merico-dev/lake/worker"
 )
@@ -127,10 +127,6 @@ func RunTask(taskId uint64) error {
 	if task.Status != models.TASK_CREATED {
 		return fmt.Errorf("invalid task status")
 	}
-	pluginMeta, err := core.GetPlugin(task.Plugin)
-	if err != nil {
-		return err
-	}
 	beganAt := time.Now()
 	// make sure task status always correct even if it panicked
 	defer func() {
@@ -188,38 +184,14 @@ func RunTask(taskId uint64) error {
 		return err
 	}
 
-	// TODO: remove this
-	if _, ok := pluginMeta.(core.Plugin); ok {
-		return RunTaskOld(task, options, ctx)
-	}
-
-	return worker.RunPluginTask(task.Plugin, options, db, ctx, logger.Global.Nested(task.Plugin))
-}
-
-// Deprecated
-func RunTaskOld(task *models.Task, options map[string]interface{}, ctx context.Context) error {
-	progress := make(chan float32)
-	defer close(progress)
-
-	var err error
-
-	// run in new thread so we can track progress asynchronously
-	go func() {
-		err = worker.RunPlugin(task.Plugin, options, progress, ctx)
-	}()
-
-	// read progress from working thread and save into database
-	for p := range progress {
-		logger.Info("running plugin progress", fmt.Sprintf(" %d %s %.0f%%", task.ID, task.Plugin, p*100))
-		dbe := db.Model(task).Updates(map[string]interface{}{
-			"progress": p,
-		}).Error
-		if dbe != nil {
-			logger.Error("save task progress failed", err)
-			return dbe
-		}
-	}
-	return nil
+	return worker.RunPluginTask(
+		config.GetConfig(),
+		logger.Global.Nested(task.Plugin),
+		db,
+		ctx,
+		task.Plugin,
+		options,
+	)
 }
 
 func CancelTask(taskId uint64) error {
