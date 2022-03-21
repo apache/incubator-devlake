@@ -1,0 +1,22 @@
+{
+  "count": 1,
+  "tasks": [
+    {
+      "ID": 100,
+      "CreatedAt": "2022-03-21T19:11:52.74Z",
+      "UpdatedAt": "2022-03-21T19:11:53Z",
+      "plugin": "jenkins",
+      "options": {},
+      "status": "TASK_COMPLETED",
+      "message": "",
+      "progress": 1,
+      "failedSubTask": "",
+      "pipelineId": 1000,
+      "pipelineRow": 1,
+      "pipelineCol": 1,
+      "beganAt": "2022-03-21T19:11:52.779Z",
+      "finishedAt": "2022-03-21T19:11:52.997Z",
+      "spentSeconds": 0
+    }
+  ]
+}
