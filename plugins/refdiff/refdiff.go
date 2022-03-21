@@ -5,16 +5,11 @@ import (
 	"fmt"
 	"github.com/merico-dev/lake/errors"
 	"github.com/merico-dev/lake/plugins/core"
+	"github.com/merico-dev/lake/plugins/helper"
 	"github.com/merico-dev/lake/plugins/refdiff/tasks"
 	"github.com/mitchellh/mapstructure"
 	"os"
 )
-
-type RefDiffOptions struct {
-	RepoId string
-	Pairs  []tasks.RefPair
-	Tasks  []string
-}
 
 // make sure interface is implemented
 var _ core.Plugin = (*RefDiff)(nil)
@@ -32,7 +27,7 @@ func (rd RefDiff) Init() {
 }
 
 func (rd RefDiff) Execute(options map[string]interface{}, progress chan<- float32, ctx context.Context) error {
-	var op RefDiffOptions
+	var op tasks.RefdiffOptions
 	var err error
 	progress <- 0.00
 	// decode options
@@ -40,6 +35,9 @@ func (rd RefDiff) Execute(options map[string]interface{}, progress chan<- float3
 	if err != nil {
 		return fmt.Errorf("failed to parse option: %v", err)
 	}
+
+	logger := helper.NewDefaultTaskLogger(nil, "refdiff")
+
 	tasksToRun := make(map[string]bool, len(op.Tasks))
 	if len(op.Tasks) == 0 {
 		tasksToRun = map[string]bool{
@@ -52,40 +50,32 @@ func (rd RefDiff) Execute(options map[string]interface{}, progress chan<- float3
 			tasksToRun[task] = true
 		}
 	}
-	// validation
-	if op.RepoId == "" {
-		return fmt.Errorf("repoId is required")
+
+	taskData := &tasks.RefdiffTaskData{
+		Options: &op,
 	}
-	if tasksToRun["calculateCommitsDiff"] {
-		progress <- 0.1
-		fmt.Println("INFO >>> starting calculateCommitsDiff")
-		err = tasks.CalculateCommitsDiff(ctx, op.Pairs, op.RepoId, progress)
+
+	taskCtx := helper.NewDefaultTaskContext("refdiff", ctx, logger, taskData, tasksToRun)
+	newTasks := []struct {
+		name       string
+		entryPoint core.SubTaskEntryPoint
+	}{
+		{name: "calculateCommitsDiff", entryPoint: tasks.CalculateCommitsDiff},
+		{name: "calculateIssuesDiff", entryPoint: tasks.CalculateIssuesDiff},
+		{name: "calculatePrCherryPick", entryPoint: tasks.CalculatePrCherryPick},
+	}
+	for _, t := range newTasks {
+		c, err := taskCtx.SubTaskContext(t.name)
 		if err != nil {
-			return &errors.SubTaskError{
-				Message:     fmt.Errorf("could not process calculateCommitsDiff: %v", err).Error(),
-				SubTaskName: "calculateCommitsDiff",
-			}
+			return err
 		}
-	}
-	if tasksToRun["calculateIssuesDiff"] {
-		progress <- 0.5
-		fmt.Println("INFO >>> starting calculateIssuesDiff")
-		err = tasks.CalculateIssuesDiff(ctx, op.Pairs, progress, op.RepoId)
-		if err != nil {
-			return &errors.SubTaskError{
-				Message:     fmt.Errorf("could not process calculateIssuesDiff: %v", err).Error(),
-				SubTaskName: "calculateIssuesDiff",
-			}
-		}
-	}
-	if tasksToRun["calculatePrCherryPick"] {
-		progress <- 0.8
-		fmt.Println("INFO >>> starting calculatePrCherryPick")
-		err = tasks.CalculatePrCherryPick(ctx, op.Pairs, progress, op.RepoId)
-		if err != nil {
-			return &errors.SubTaskError{
-				Message:     fmt.Errorf("could not process calculatePrCherryPick: %v", err).Error(),
-				SubTaskName: "calculatePrCherryPick",
+		if c != nil {
+			err = t.entryPoint(c)
+			if err != nil {
+				return &errors.SubTaskError{
+					SubTaskName: t.name,
+					Message:     err.Error(),
+				}
 			}
 		}
 	}
