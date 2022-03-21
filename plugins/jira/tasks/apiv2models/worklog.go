@@ -1,4 +1,4 @@
-package v8models
+package apiv2models
 
 import (
 	"encoding/json"
@@ -18,13 +18,13 @@ type Worklog struct {
 	TimeSpent        string           `json:"timeSpent"`
 	TimeSpentSeconds int              `json:"timeSpentSeconds"`
 	ID               string           `json:"id"`
-	IssueID          string           `json:"issueId"`
+	IssueID          uint64           `json:"issueId,string"`
 }
 
-func (w Worklog) toToolLayer(sourceId, issueId uint64) *models.JiraWorklog {
+func (w Worklog) ToToolLayer(sourceId uint64) *models.JiraWorklog {
 	result := &models.JiraWorklog{
 		SourceId:         sourceId,
-		IssueId:          issueId,
+		IssueId:          w.IssueID,
 		WorklogId:        w.ID,
 		TimeSpent:        w.TimeSpent,
 		TimeSpentSeconds: w.TimeSpentSeconds,
@@ -40,7 +40,7 @@ func (w Worklog) toToolLayer(sourceId, issueId uint64) *models.JiraWorklog {
 	return result
 }
 
-func (Worklog) FromAPI(sourceId, issueId uint64, raw json.RawMessage) (interface{}, error) {
+func (Worklog) FromAPI(sourceId uint64, raw json.RawMessage) (interface{}, error) {
 	var vv []Worklog
 	err := json.Unmarshal(raw, &vv)
 	if err != nil {
@@ -48,7 +48,7 @@ func (Worklog) FromAPI(sourceId, issueId uint64, raw json.RawMessage) (interface
 	}
 	list := make([]*models.JiraWorklog, len(vv))
 	for i, item := range vv {
-		list[i] = item.toToolLayer(sourceId, issueId)
+		list[i] = item.ToToolLayer(sourceId)
 	}
 	return list, nil
 }

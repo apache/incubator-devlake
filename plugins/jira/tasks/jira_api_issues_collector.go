@@ -3,12 +3,14 @@ package tasks
 import (
 	"encoding/json"
 	"fmt"
+	"io/ioutil"
 	"net/http"
 	"net/url"
 
 	"github.com/merico-dev/lake/plugins/core"
 	"github.com/merico-dev/lake/plugins/helper"
 	"github.com/merico-dev/lake/plugins/jira/models"
+	"github.com/merico-dev/lake/plugins/jira/tasks/apiv2models"
 )
 
 const RAW_ISSUE_TABLE = "jira_api_issues"
@@ -114,9 +116,26 @@ func CollectApiIssues(taskCtx core.SubTaskContext) error {
 			var data struct {
 				Issues []json.RawMessage `json:"issues"`
 			}
-			err := core.UnmarshalResponse(res, &data)
+			blob, err := ioutil.ReadAll(res.Body)
 			if err != nil {
 				return nil, err
+			}
+			err = json.Unmarshal(blob, &data)
+			if err != nil {
+				return nil, err
+			}
+			var issue apiv2models.Issue
+			err = json.Unmarshal(blob, &issue)
+			if err != nil {
+				return nil, err
+			}
+			if issue.Fields.Worklog != nil {
+				if issue.Fields.Worklog.Total > len(issue.Fields.Worklog.Worklogs) {
+					err = collectApiWorklogs(taskCtx, issue.ID)
+					if err != nil {
+						return nil, err
+					}
+				}
 			}
 			return data.Issues, nil
 		},

@@ -1,4 +1,4 @@
-package v8models
+package apiv2models
 
 import (
 	"encoding/json"
@@ -18,7 +18,7 @@ type Sprint struct {
 	OriginBoardID uint64     `json:"originBoardId"`
 }
 
-func (s Sprint) toToolLayer(sourceId uint64) *models.JiraSprint {
+func (s Sprint) ToToolLayer(sourceId uint64) *models.JiraSprint {
 	return &models.JiraSprint{
 		SourceId:      sourceId,
 		SprintId:      s.ID,
@@ -43,7 +43,7 @@ func (s Sprint) GetJiraSprints(sourceId uint64, raw json.RawMessage) ([]*models.
 	}
 	list := make([]*models.JiraSprint, len(vv))
 	for i, item := range vv {
-		list[i] = item.toToolLayer(sourceId)
+		list[i] = item.ToToolLayer(sourceId)
 	}
 	return list, nil
 }
