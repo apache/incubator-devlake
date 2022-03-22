@@ -129,14 +129,6 @@ func CollectIssues(taskCtx core.SubTaskContext) error {
 			if err != nil {
 				return nil, err
 			}
-			if issue.Fields.Worklog != nil {
-				if issue.Fields.Worklog.Total > len(issue.Fields.Worklog.Worklogs) {
-					err = collectWorklogs(taskCtx, issue.ID)
-					if err != nil {
-						return nil, err
-					}
-				}
-			}
 			return data.Issues, nil
 		},
 	})
