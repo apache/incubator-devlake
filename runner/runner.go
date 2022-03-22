@@ -20,6 +20,7 @@ func RunPluginTask(
 	ctx context.Context,
 	name string,
 	options map[string]interface{},
+	progress chan core.RunningProgress,
 ) error {
 	pluginMeta, err := core.GetPlugin(name)
 	if err != nil {
@@ -38,6 +39,7 @@ func RunPluginTask(
 		name,
 		options,
 		pluginTask,
+		progress,
 	)
 }
 
@@ -49,6 +51,7 @@ func RunPluginSubTasks(
 	name string,
 	options map[string]interface{},
 	pluginTask core.PluginTask,
+	progress chan core.RunningProgress,
 ) error {
 	logger.Info("start plugin")
 
@@ -104,7 +107,7 @@ func RunPluginSubTasks(
 		}
 	}
 
-	taskCtx := helper.NewDefaultTaskContext(cfg, logger, db, ctx, name, subtasks)
+	taskCtx := helper.NewDefaultTaskContext(cfg, logger, db, ctx, name, subtasks, progress)
 	taskData, err := pluginTask.PrepareTaskData(taskCtx, options)
 	if err != nil {
 		return err
@@ -113,6 +116,7 @@ func RunPluginSubTasks(
 
 	// execute subtasks in order
 	taskCtx.SetProgress(0, steps)
+	i := 0
 	for _, subtaskMeta := range subtaskMetas {
 		subtaskCtx, err := taskCtx.SubTaskContext(subtaskMeta.Name)
 		if err != nil {
@@ -126,6 +130,12 @@ func RunPluginSubTasks(
 
 		// run subtask
 		logger.Info("executing subtask %s", subtaskMeta.Name)
+		i++
+		progress <- core.RunningProgress{
+			Type:          core.SetCurrentSubTask,
+			SubTaskName:   subtaskMeta.Name,
+			SubTaskNumber: i,
+		}
 		err = subtaskMeta.EntryPoint(subtaskCtx)
 		if err != nil {
 			return &errors.SubTaskError{

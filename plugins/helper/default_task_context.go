@@ -15,15 +15,16 @@ import (
 
 // shared by TasContext and SubTaskContext
 type defaultExecContext struct {
-	cfg     *viper.Viper
-	logger  core.Logger
-	db      *gorm.DB
-	ctx     context.Context
-	name    string
-	data    interface{}
-	total   int
-	current int
-	mu      sync.Mutex
+	cfg      *viper.Viper
+	logger   core.Logger
+	db       *gorm.DB
+	ctx      context.Context
+	name     string
+	data     interface{}
+	total    int
+	current  int
+	mu       sync.Mutex
+	progress chan core.RunningProgress
 }
 
 func newDefaultExecContext(
@@ -33,14 +34,16 @@ func newDefaultExecContext(
 	ctx context.Context,
 	name string,
 	data interface{},
+	progress chan core.RunningProgress,
 ) *defaultExecContext {
 	return &defaultExecContext{
-		cfg:    cfg,
-		logger: logger,
-		db:     db,
-		ctx:    ctx,
-		name:   name,
-		data:   data,
+		cfg:      cfg,
+		logger:   logger,
+		db:       db,
+		ctx:      ctx,
+		name:     name,
+		data:     data,
+		progress: progress,
 	}
 }
 
@@ -68,17 +71,39 @@ func (c *defaultExecContext) GetLogger() core.Logger {
 	return c.logger
 }
 
-func (c *defaultExecContext) SetProgress(current int, total int) {
+func (c *defaultExecContext) SetProgress(progressType core.ProgressType, current int, total int) {
 	c.mu.Lock()
 	c.current = current
 	c.total = total
 	c.mu.Unlock()
+
+	if c.progress != nil {
+		c.progress <- core.RunningProgress{
+			Type:    progressType,
+			Current: current,
+			Total:   total,
+		}
+	}
 }
 
-func (c *defaultExecContext) IncProgress(quantity int) {
+func (c *defaultExecContext) IncProgress(progressType core.ProgressType, quantity int) {
 	c.mu.Lock()
 	c.current += quantity
+	current := c.current
 	c.mu.Unlock()
+	if c.progress != nil {
+		c.progress <- core.RunningProgress{
+			Type:    progressType,
+			Current: current,
+			Total:   c.total,
+		}
+		// subtask progress may go too fast, remove old messages because they don't matter any more
+		if progressType == core.SubTaskSetProgress {
+			for len(c.progress) > 1 {
+				<-c.progress
+			}
+		}
+	}
 }
 
 func (c *defaultExecContext) fork(name string) *defaultExecContext {
@@ -89,6 +114,7 @@ func (c *defaultExecContext) fork(name string) *defaultExecContext {
 		c.ctx,
 		name,
 		c.data,
+		c.progress,
 	)
 }
 
@@ -100,12 +126,12 @@ type DefaultTaskContext struct {
 }
 
 func (c *DefaultTaskContext) SetProgress(current int, total int) {
-	c.defaultExecContext.SetProgress(current, total)
+	c.defaultExecContext.SetProgress(core.TaskSetProgress, current, total)
 	c.logger.Info("total step: %d", c.total)
 }
 
 func (c *DefaultTaskContext) IncProgress(quantity int) {
-	c.defaultExecContext.IncProgress(quantity)
+	c.defaultExecContext.IncProgress(core.TaskIncProgress, quantity)
 	c.logger.Info("finished step: %d / %d", c.current, c.total)
 }
 
@@ -116,14 +142,14 @@ type DefaultSubTaskContext struct {
 }
 
 func (c *DefaultSubTaskContext) SetProgress(current int, total int) {
-	c.defaultExecContext.SetProgress(current, total)
+	c.defaultExecContext.SetProgress(core.SubTaskSetProgress, current, total)
 	if total > -1 {
 		c.logger.Info("total records: %d", c.total)
 	}
 }
 
 func (c *DefaultSubTaskContext) IncProgress(quantity int) {
-	c.defaultExecContext.IncProgress(quantity)
+	c.defaultExecContext.IncProgress(core.SubTaskIncProgress, quantity)
 	c.logger.Info("finished records: %d", c.current)
 }
 
@@ -134,9 +160,10 @@ func NewDefaultTaskContext(
 	ctx context.Context,
 	name string,
 	subtasks map[string]bool,
+	progress chan core.RunningProgress,
 ) core.TaskContext {
 	return &DefaultTaskContext{
-		newDefaultExecContext(cfg, logger, db, ctx, name, nil),
+		newDefaultExecContext(cfg, logger, db, ctx, name, nil, progress),
 		subtasks,
 		make(map[string]*DefaultSubTaskContext),
 	}
@@ -167,15 +194,17 @@ func (c *DefaultTaskContext) SubTaskContext(subtask string) (core.SubTaskContext
 // This returns a stand-alone core.SubTaskContext,
 // not attached to any core.TaskContext.
 // Use this if you need to run/debug a subtask without
-// going through the usual workflow. 
+// going through the usual workflow.
 func NewStandaloneSubTaskContext(
-	name string,
-	ctx context.Context,
+	cfg *viper.Viper,
 	logger core.Logger,
+	db *gorm.DB,
+	ctx context.Context,
+	name string,
 	data interface{},
 ) core.SubTaskContext {
 	return &DefaultSubTaskContext{
-		newDefaultExecContext(name, ctx, data, logger),
+		newDefaultExecContext(cfg, logger, db, ctx, name, data, nil),
 		nil,
 	}
 }
