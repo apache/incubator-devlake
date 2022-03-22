@@ -3,28 +3,32 @@ package tasks
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/merico-dev/lake/plugins/jira/models"
 	"net/http"
+	"reflect"
 
 	"github.com/merico-dev/lake/plugins/core"
 	"github.com/merico-dev/lake/plugins/helper"
+	"github.com/merico-dev/lake/plugins/jira/models"
+	"github.com/merico-dev/lake/plugins/jira/tasks/apiv2models"
 )
 
 const RAW_WORKLOGS_TABLE = "jira_api_worklogs"
 
-// make sure table _raw_jira_api_worklogs exists
 func CollectWorklogs(taskCtx core.SubTaskContext) error {
 	data := taskCtx.GetData().(*JiraTaskData)
 	logger := taskCtx.GetLogger()
 	db := taskCtx.GetDb()
 	sourceId := data.Source.ID
 	boardId := data.Options.BoardId
-	var boardIssue models.JiraBoardIssue
-	err := db.First(&boardIssue, "source_id = ? AND board_id = ?", sourceId, boardId).Error
+	cursor, err := db.Model(&models.JiraBoardIssue{}).Select("issue_id, NOW() AS update_time").Where("source_id = ? AND board_id = ?", sourceId, boardId).Rows()
 	if err != nil {
 		return err
 	}
-	logger.Info("collect worklog, board_id:%d, issue_id:%d", data.Options.BoardId, boardIssue.IssueId)
+	iterator, err := helper.NewCursorIterator(db, cursor, reflect.TypeOf(apiv2models.Input{}))
+	if err != nil {
+		return err
+	}
+
 	collector, err := helper.NewApiCollector(helper.ApiCollectorArgs{
 		RawDataSubTaskArgs: helper.RawDataSubTaskArgs{
 			Ctx: taskCtx,
@@ -34,10 +38,20 @@ func CollectWorklogs(taskCtx core.SubTaskContext) error {
 			},
 			Table: RAW_WORKLOGS_TABLE,
 		},
-		ApiClient:   data.ApiClient,
-		UrlTemplate: fmt.Sprintf("api/2/issue/%d/worklog", boardIssue.IssueId),
+		Input:         iterator,
+		ApiClient:     data.ApiClient,
+		UrlTemplate:   "api/2/issue/{{ .Input.IssueId }}/worklog",
+		PageSize:      50,
+		GetTotalPages: GetTotalPagesFromResponse,
 		ResponseParser: func(res *http.Response) ([]json.RawMessage, error) {
-			return nil, nil
+			var data struct {
+				Worklogs []json.RawMessage `json:"worklogs"`
+			}
+			err := core.UnmarshalResponse(res, &data)
+			if err != nil {
+				return nil, err
+			}
+			return data.Worklogs, nil
 		},
 	})
 	if err != nil {
