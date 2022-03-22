@@ -5,6 +5,7 @@ import (
 	"flag"
 	"strings"
 
+	"github.com/merico-dev/lake/plugins/helper"
 	"github.com/merico-dev/lake/plugins/gitextractor/models"
 	"github.com/merico-dev/lake/plugins/gitextractor/parser"
 	"github.com/merico-dev/lake/plugins/gitextractor/store"
@@ -45,15 +46,21 @@ func main() {
 	}
 	defer storage.Close()
 	ctx := context.Background()
-	p := parser.NewLibGit2(storage)
+	subTaskCtx := helper.NewStandaloneSubTaskContext(
+		"git extractor",
+		ctx,
+		helper.NewDefaultTaskLogger(nil, "git extractor"),
+		nil,
+	)
+	p := parser.NewLibGit2(storage, subTaskCtx)
 	if strings.HasPrefix(*url, "http") {
-		err = p.CloneOverHTTP(ctx, *url, *id, *user, *password, *proxy)
+		err = p.CloneOverHTTP(*id, *url, *user, *password, *proxy)
 		if err != nil {
 			panic(err)
 		}
 	}
 	if strings.HasPrefix(*url, "/") {
-		err = p.LocalRepo(ctx, *url, *id)
+		err = p.LocalRepo(*url, *id)
 		if err != nil {
 			panic(err)
 		}
