@@ -229,4 +229,33 @@ context('RUN / Trigger New Pipelines', () => {
     })
   })
 
+  it('can run a refdiff pipeline', () => {
+    cy.fixture('new-refdiff-pipeline').then((newRefDiffJSON) => {
+      cy.intercept('GET', `/api/pipelines/${newRefDiffJSON.ID}`, { body: newRefDiffJSON }).as('RefDiffPipeline')
+      cy.intercept('POST', '/api/pipelines', { body: newRefDiffJSON }).as('runRefDiffPipeline')
+      cy.fixture('new-refdiff-pipeline-tasks').then((newRefDiffPipelineTasksJSON) => {
+        cy.intercept('GET', `/api/pipelines/${newRefDiffJSON.ID}/tasks`, { body: newRefDiffPipelineTasksJSON }).as('RefDiffPipelineTasks')
+      })
+    })
+    cy.get('input#pipeline-name').type(`{selectAll}{backSpace}COLLECT REFDIFF ${Date.now()}`)
+    cy.get('.provider-toggle-switch.switch-refdiff')
+      .should('be.visible')
+      .click()
+      .trigger('mouseleave')
+    
+    cy.get('input#refdiff-repo-id').click().type('github:GithubRepo:384111310')
+    cy.get('input#refdiff-pair-newref').type('refs/tags/v0.2.0')
+    cy.get('input#refdiff-pair-oldref').type('refs/tags/v0.1.0')
+    cy.get('button.btn-add-tagpair').click()
+    
+    cy.get('button#btn-run-pipeline').click()
+    cy.wait('@RefDiffPipeline')
+    cy.wait('@RefDiffPipelineTasks')
+    cy.wait('@runRefDiffPipeline').then(({ response }) => {
+      const NewRefDiffRun = response.body
+      cy.url().should('include', `/pipelines/activity/${NewRefDiffRun.ID}`)
+    })
+  })
+
+
 })
