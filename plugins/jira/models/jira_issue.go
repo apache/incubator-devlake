@@ -38,19 +38,12 @@ type JiraIssue struct {
 	ResolutionDate           *time.Time
 	Created                  time.Time
 	Updated                  time.Time `gorm:"index"`
-
-	// enriched fields
-	// RequirementAnalsyisLeadTime uint
-	// DesignLeadTime              uint
-	// DevelopmentLeadTime         uint
-	// TestLeadTime                uint
-	// DeliveryLeadTime            uint
-	SpentMinutes    int64
-	LeadTimeMinutes uint
-	StdStoryPoint   uint
-	StdType         string
-	StdStatus       string
-	AllFields       datatypes.JSONMap
+	SpentMinutes             int64
+	LeadTimeMinutes          uint
+	StdStoryPoint            uint
+	StdType                  string
+	StdStatus                string
+	AllFields                datatypes.JSONMap
 
 	// internal status tracking
 	ChangelogUpdated  *time.Time

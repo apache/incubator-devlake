@@ -11,9 +11,9 @@ import (
 
 const RAW_BOARD_TABLE = "jira_api_boards"
 
-var _ core.SubTaskEntryPoint = CollectApiBoard
+var _ core.SubTaskEntryPoint = CollectBoard
 
-func CollectApiBoard(taskCtx core.SubTaskContext) error {
+func CollectBoard(taskCtx core.SubTaskContext) error {
 	data := taskCtx.GetData().(*JiraTaskData)
 	logger := taskCtx.GetLogger()
 	logger.Info("collect board:%d", data.Options.BoardId)

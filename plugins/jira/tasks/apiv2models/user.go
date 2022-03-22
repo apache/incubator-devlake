@@ -1,11 +1,14 @@
 package apiv2models
 
+import "github.com/merico-dev/lake/plugins/jira/models"
+
 type User struct {
 	Self         string `json:"self"`
 	Key          string `json:"key"`
 	Name         string `json:"name"`
 	EmailAddress string `json:"emailAddress"`
 	AccountId    string `json:"accountId"`
+	AccountType  string `json:"accountType"`
 	AvatarUrls   struct {
 		Four8X48  string `json:"48x48"`
 		Two4X24   string `json:"24x24"`
@@ -27,4 +30,16 @@ func (u *User) getAccountId() string {
 		return u.AccountId
 	}
 	return u.EmailAddress
+}
+
+func (u *User) ToToolLayer(sourceId uint64) *models.JiraUser {
+	return &models.JiraUser{
+		SourceId:    sourceId,
+		AccountId:   u.getAccountId(),
+		AccountType: u.AccountType,
+		Name:        u.DisplayName,
+		Email:       u.EmailAddress,
+		Timezone:    u.TimeZone,
+		AvatarUrl:   u.AvatarUrls.Four8X48,
+	}
 }
