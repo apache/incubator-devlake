@@ -7,6 +7,26 @@ import (
 
 const RAW_COMMIT_TABLE = "gitlab_api_commit"
 
+type GitlabApiCommit struct {
+	GitlabId       string `json:"id"`
+	Title          string
+	Message        string
+	ProjectId      int
+	ShortId        string           `json:"short_id"`
+	AuthorName     string           `json:"author_name"`
+	AuthorEmail    string           `json:"author_email"`
+	AuthoredDate   core.Iso8601Time `json:"authored_date"`
+	CommitterName  string           `json:"committer_name"`
+	CommitterEmail string           `json:"committer_email"`
+	CommittedDate  core.Iso8601Time `json:"committed_date"`
+	WebUrl         string           `json:"web_url"`
+	Stats          struct {
+		Additions int
+		Deletions int
+		Total     int
+	}
+}
+
 func CollectApiCommits(taskCtx core.SubTaskContext) error {
 	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_COMMIT_TABLE)
 

@@ -3,6 +3,9 @@ package tasks
 import (
 	"reflect"
 
+	"github.com/merico-dev/lake/models/domainlayer"
+	"github.com/merico-dev/lake/models/domainlayer/code"
+	"github.com/merico-dev/lake/models/domainlayer/didgen"
 	"github.com/merico-dev/lake/plugins/core"
 	"github.com/merico-dev/lake/plugins/gitlab/models"
 	"github.com/merico-dev/lake/plugins/helper"
@@ -40,4 +43,42 @@ func ConvertApiProjects(taskCtx core.SubTaskContext) error {
 	}
 
 	return converter.Execute()
+}
+
+// Convert the API response to our DB model instance
+func convertProject(gitlabApiProject *GitlabApiProject) *models.GitlabProject {
+	gitlabProject := &models.GitlabProject{
+		GitlabId:          gitlabApiProject.GitlabId,
+		Name:              gitlabApiProject.Name,
+		Description:       gitlabApiProject.Description,
+		DefaultBranch:     gitlabApiProject.DefaultBranch,
+		CreatorId:         gitlabApiProject.CreatorId,
+		PathWithNamespace: gitlabApiProject.PathWithNamespace,
+		WebUrl:            gitlabApiProject.WebUrl,
+		Visibility:        gitlabApiProject.Visibility,
+		OpenIssuesCount:   gitlabApiProject.OpenIssuesCount,
+		StarCount:         gitlabApiProject.StarCount,
+		CreatedDate:       gitlabApiProject.CreatedAt.ToTime(),
+		UpdatedDate:       core.Iso8601TimeToTime(gitlabApiProject.LastActivityAt),
+	}
+	if gitlabApiProject.ForkedFromProject != nil {
+		gitlabProject.ForkedFromProjectId = gitlabApiProject.ForkedFromProject.GitlabId
+		gitlabProject.ForkedFromProjectWebUrl = gitlabApiProject.ForkedFromProject.WebUrl
+	}
+	return gitlabProject
+}
+
+func convertToRepositoryModel(project *models.GitlabProject) *code.Repo {
+	domainRepository := &code.Repo{
+		DomainEntity: domainlayer.DomainEntity{
+			Id: didgen.NewDomainIdGenerator(project).Generate(project.GitlabId),
+		},
+		Name:        project.Name,
+		Url:         project.WebUrl,
+		Description: project.Description,
+		ForkedFrom:  project.ForkedFromProjectWebUrl,
+		CreatedDate: project.CreatedDate,
+		UpdatedDate: project.UpdatedDate,
+	}
+	return domainRepository
 }

@@ -59,3 +59,24 @@ func ExtractApiCommits(taskCtx core.SubTaskContext) error {
 
 	return extractor.Execute()
 }
+
+// Convert the API response to our DB model instance
+func ConvertCommit(commit *GitlabApiCommit) (*models.GitlabCommit, error) {
+	gitlabCommit := &models.GitlabCommit{
+		Sha:            commit.GitlabId,
+		Title:          commit.Title,
+		Message:        commit.Message,
+		ShortId:        commit.ShortId,
+		AuthorName:     commit.AuthorName,
+		AuthorEmail:    commit.AuthorEmail,
+		AuthoredDate:   commit.AuthoredDate.ToTime(),
+		CommitterName:  commit.CommitterName,
+		CommitterEmail: commit.CommitterEmail,
+		CommittedDate:  commit.CommittedDate.ToTime(),
+		WebUrl:         commit.WebUrl,
+		Additions:      commit.Stats.Additions,
+		Deletions:      commit.Stats.Deletions,
+		Total:          commit.Stats.Total,
+	}
+	return gitlabCommit, nil
+}

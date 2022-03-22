@@ -3,6 +3,8 @@ package tasks
 import (
 	"reflect"
 
+	"github.com/merico-dev/lake/models/domainlayer"
+	"github.com/merico-dev/lake/models/domainlayer/code"
 	"github.com/merico-dev/lake/models/domainlayer/didgen"
 	"github.com/merico-dev/lake/plugins/core"
 	"github.com/merico-dev/lake/plugins/gitlab/models"
@@ -42,4 +44,20 @@ func ConvertApiNotes(taskCtx core.SubTaskContext) error {
 	}
 
 	return converter.Execute()
+}
+
+func convertToNoteModel(note *models.GitlabMergeRequestNote, domainIdGeneratorNote *didgen.DomainIdGenerator) *code.Note {
+	domainNote := &code.Note{
+		DomainEntity: domainlayer.DomainEntity{
+			Id: domainIdGeneratorNote.Generate(note.GitlabId),
+		},
+		PrId:        uint64(note.MergeRequestId),
+		Type:        note.NoteableType,
+		Author:      note.AuthorUsername,
+		Body:        note.Body,
+		Resolvable:  note.Resolvable,
+		System:      note.System,
+		CreatedDate: note.GitlabCreatedAt,
+	}
+	return domainNote
 }
