@@ -90,6 +90,12 @@ func RunPluginSubTasks(
 			}
 		}
 	}
+	// make sure `Required` subtasks are always enabled
+	for _, subtaskMeta := range subtaskMetas {
+		if subtaskMeta.Required {
+			subtasks[subtaskMeta.Name] = true
+		}
+	}
 	// calculate total step(number of task to run)
 	steps := 0
 	for _, enabled := range subtasks {

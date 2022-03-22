@@ -42,8 +42,10 @@ type SubTaskEntryPoint func(c SubTaskContext) error
 
 // Meta data of a subtask
 type SubTaskMeta struct {
-	Name             string
-	EntryPoint       SubTaskEntryPoint
+	Name       string
+	EntryPoint SubTaskEntryPoint
+	// Required SubTask will be executed no matter what
+	Required         bool
 	EnabledByDefault bool
 	Description      string
 }
