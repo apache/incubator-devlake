@@ -102,13 +102,17 @@ func (plugin Gitlab) Execute(options map[string]interface{}, progress chan<- flo
 			"extractApiPipelines":            true,
 			"collectApiChildrenOnPipelines":  true,
 			"extractApiChildrenOnPipelines":  true,
+			"convertApiProjects":             true,
+			"convertApiMergeRequests":        true,
+			"convertApiCommits":              true,
+			"convertApiNotes":                true,
+			"enrichMrs":                      true,
 			"collectPipelines":               true,
 			"collectCommits":                 true,
 			"CollectTags":                    true,
 			"collectMrs":                     true,
 			"collectMrNotes":                 true,
 			"collectMrCommits":               true,
-			"enrichMrs":                      true,
 			"convertProjects":                true,
 			"convertMrs":                     true,
 			"convertCommits":                 true,
@@ -154,6 +158,11 @@ func (plugin Gitlab) Execute(options map[string]interface{}, progress chan<- flo
 		{name: "extractApiPipelines", entryPoint: tasks.ExtractApiPipelines},
 		{name: "collectApiChildrenOnPipelines", entryPoint: tasks.CollectApiChildrenOnPipelines},
 		{name: "extractApiChildrenOnPipelines", entryPoint: tasks.ExtractApiChildrenOnPipelines},
+		{name: "enrichMrs", entryPoint: tasks.EnrichMergeRequests},
+		{name: "convertApiProjects", entryPoint: tasks.ConvertApiProjects},
+		{name: "convertApiMergeRequests", entryPoint: tasks.ConvertApiMergeRequests},
+		{name: "convertApiCommits", entryPoint: tasks.ConvertApiCommits},
+		{name: "convertApiNotes", entryPoint: tasks.ConvertApiNotes},
 	}
 	progress <- 0.05
 	for _, t := range newTasks {
@@ -224,7 +233,7 @@ func (plugin Gitlab) Execute(options map[string]interface{}, progress chan<- flo
 				Message:     fmt.Errorf("could not collect merge request commits: %v", err).Error(),
 			}
 		}
-	}*/
+	}
 	if tasksToRun["enrichMrs"] {
 		progress <- 0.5
 		enrichErr := tasks.EnrichMergeRequests(ctx, projectIdInt)
@@ -235,7 +244,7 @@ func (plugin Gitlab) Execute(options map[string]interface{}, progress chan<- flo
 			}
 		}
 	}
-	/*
+
 		if tasksToRun["collectPipelines"] {
 			progress <- 0.6
 			if err := tasks.CollectAllPipelines(projectIdInt, gitlabApiClient); err != nil {
@@ -251,7 +260,7 @@ func (plugin Gitlab) Execute(options map[string]interface{}, progress chan<- flo
 				}
 			}
 		}
-	*/
+
 	if tasksToRun["convertProjects"] {
 		progress <- 0.7
 		err = tasks.ConvertProjects(ctx, projectIdInt)
@@ -291,7 +300,7 @@ func (plugin Gitlab) Execute(options map[string]interface{}, progress chan<- flo
 				Message:     err.Error(),
 			}
 		}
-	}
+	}*/
 	progress <- 1
 	return nil
 }
