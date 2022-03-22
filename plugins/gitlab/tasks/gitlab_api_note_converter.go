@@ -3,7 +3,6 @@ package tasks
 import (
 	"reflect"
 
-	lakeModels "github.com/merico-dev/lake/models"
 	"github.com/merico-dev/lake/models/domainlayer/didgen"
 	"github.com/merico-dev/lake/plugins/core"
 	"github.com/merico-dev/lake/plugins/gitlab/models"
@@ -13,8 +12,9 @@ import (
 func ConvertApiNotes(taskCtx core.SubTaskContext) error {
 
 	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_PROJECT_TABLE)
+	db := taskCtx.GetDb()
 
-	cursor, err := lakeModels.Db.Model(&models.GitlabMergeRequestNote{}).
+	cursor, err := db.Model(&models.GitlabMergeRequestNote{}).
 		Joins("left join gitlab_merge_requests on gitlab_merge_requests.gitlab_id = gitlab_merge_request_notes.merge_request_id").
 		Where("gitlab_merge_requests.project_id = ?", data.Options.ProjectId).Rows()
 	if err != nil {

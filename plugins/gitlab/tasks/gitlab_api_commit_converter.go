@@ -3,7 +3,6 @@ package tasks
 import (
 	"reflect"
 
-	lakeModels "github.com/merico-dev/lake/models"
 	"github.com/merico-dev/lake/models/domainlayer/code"
 	"github.com/merico-dev/lake/models/domainlayer/didgen"
 	"github.com/merico-dev/lake/plugins/core"
@@ -14,9 +13,10 @@ import (
 func ConvertApiCommits(taskCtx core.SubTaskContext) error {
 
 	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_COMMIT_TABLE)
+	db := taskCtx.GetDb()
 
 	// select all commits belongs to the project
-	cursor, err := lakeModels.Db.Table("gitlab_commits gc").
+	cursor, err := db.Table("gitlab_commits gc").
 		Joins(`left join gitlab_project_commits gpc on (
 			gpc.commit_sha = gc.sha
 		)`).

@@ -3,7 +3,6 @@ package tasks
 import (
 	"reflect"
 
-	lakeModels "github.com/merico-dev/lake/models"
 	"github.com/merico-dev/lake/plugins/core"
 	"github.com/merico-dev/lake/plugins/gitlab/models"
 	"github.com/merico-dev/lake/plugins/helper"
@@ -12,9 +11,10 @@ import (
 func ConvertApiProjects(taskCtx core.SubTaskContext) error {
 
 	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_PROJECT_TABLE)
+	db := taskCtx.GetDb()
 
 	//Find all piplines associated with the current projectid
-	cursor, err := lakeModels.Db.Model(&models.GitlabProject{}).Where("gitlab_id=?", data.Options.ProjectId).Rows()
+	cursor, err := db.Model(&models.GitlabProject{}).Where("gitlab_id=?", data.Options.ProjectId).Rows()
 	if err != nil {
 		return err
 	}

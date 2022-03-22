@@ -3,7 +3,6 @@ package tasks
 import (
 	"reflect"
 
-	lakeModels "github.com/merico-dev/lake/models"
 	"github.com/merico-dev/lake/models/domainlayer"
 	"github.com/merico-dev/lake/models/domainlayer/code"
 	"github.com/merico-dev/lake/models/domainlayer/didgen"
@@ -14,12 +13,13 @@ import (
 
 func ConvertApiMergeRequests(taskCtx core.SubTaskContext) error {
 	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_MERGE_REQUEST_TABLE)
+	db := taskCtx.GetDb()
 
 	domainMrIdGenerator := didgen.NewDomainIdGenerator(&models.GitlabMergeRequest{})
 	domainRepoIdGenerator := didgen.NewDomainIdGenerator(&models.GitlabProject{})
 
 	//Find all piplines associated with the current projectid
-	cursor, err := lakeModels.Db.Model(&models.GitlabMergeRequest{}).Where("project_id=?", data.Options.ProjectId).Rows()
+	cursor, err := db.Model(&models.GitlabMergeRequest{}).Where("project_id=?", data.Options.ProjectId).Rows()
 	if err != nil {
 		return err
 	}
@@ -32,7 +32,6 @@ func ConvertApiMergeRequests(taskCtx core.SubTaskContext) error {
 
 		Convert: func(inputRow interface{}) ([]interface{}, error) {
 			gitlabMr := inputRow.(*models.GitlabMergeRequest)
-			err = lakeModels.Db.ScanRows(cursor, gitlabMr)
 
 			domainPr := &code.PullRequest{
 				DomainEntity: domainlayer.DomainEntity{
