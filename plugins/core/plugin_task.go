@@ -6,7 +6,23 @@ import (
 	"gorm.io/gorm"
 )
 
-// prepare for temporal
+type ProgressType int
+
+const (
+	TaskSetProgress ProgressType = iota
+	TaskIncProgress
+	SubTaskSetProgress
+	SubTaskIncProgress
+	SetCurrentSubTask
+)
+
+type RunningProgress struct {
+	Type          ProgressType
+	Current       int
+	Total         int
+	SubTaskName   string
+	SubTaskNumber int
+}
 
 // This interface define all resources that needed for task/subtask execution
 type ExecContext interface {

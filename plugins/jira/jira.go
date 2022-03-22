@@ -205,8 +205,6 @@ func (plugin Jira) Execute(options map[string]interface{}, progress chan<- float
 		}
 	}
 
-<<<<<<< HEAD
-=======
 	// run tasks
 	var collector tasks.Collector
 	info, code, err := jiraApiClient.GetJiraServerInfo()
@@ -385,7 +383,6 @@ func (plugin Jira) Execute(options map[string]interface{}, progress chan<- float
 	progress <- 1.0
 	logger.Info("end plugin execution")
 	*/
->>>>>>> feat: decouple global variables
 	return nil
 }
 

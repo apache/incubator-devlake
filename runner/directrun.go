@@ -37,6 +37,7 @@ func DirectRun(cmd *cobra.Command, args []string, pluginTask core.PluginTask, op
 		cmd.Use,
 		options,
 		pluginTask,
+		nil,
 	)
 	if err != nil {
 		panic(err)

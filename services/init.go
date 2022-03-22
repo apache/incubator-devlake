@@ -4,7 +4,7 @@ import (
 	"github.com/merico-dev/lake/config"
 	"github.com/merico-dev/lake/logger"
 	"github.com/merico-dev/lake/models"
-	"github.com/merico-dev/lake/worker"
+	"github.com/merico-dev/lake/runner"
 	"gorm.io/gorm"
 )
 
@@ -13,14 +13,19 @@ var db *gorm.DB
 func init() {
 	var err error
 	cfg := config.GetConfig()
-	db, err = worker.NewGormDb(cfg, logger.Global.Nested("db"))
+	db, err = runner.NewGormDb(cfg, logger.Global.Nested("db"))
 
 	if err != nil {
 		panic(err)
 	}
 
 	// load plugins
-	err = worker.LoadPlugins(config.GetConfig().GetString("PLUGIN_DIR"), logger.Global.Nested("plugin"))
+	err = runner.LoadPlugins(
+		cfg.GetString("PLUGIN_DIR"),
+		cfg,
+		logger.Global.Nested("plugin"),
+		db,
+	)
 	if err != nil {
 		panic(err)
 	}
@@ -37,7 +42,7 @@ func init() {
 
 	// migrate data tables if run in standalone mode
 	if cfg.GetBool("STAND_ALONE") {
-		err = worker.MigrateDb(db)
+		err = runner.MigrateDb(db)
 		if err != nil {
 			panic(err)
 		}

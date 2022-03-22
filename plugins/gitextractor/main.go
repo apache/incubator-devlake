@@ -5,10 +5,11 @@ import (
 	"flag"
 	"strings"
 
-	"github.com/merico-dev/lake/plugins/helper"
+	"github.com/merico-dev/lake/config"
 	"github.com/merico-dev/lake/plugins/gitextractor/models"
 	"github.com/merico-dev/lake/plugins/gitextractor/parser"
 	"github.com/merico-dev/lake/plugins/gitextractor/store"
+	"github.com/merico-dev/lake/plugins/helper"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 )
@@ -47,9 +48,11 @@ func main() {
 	defer storage.Close()
 	ctx := context.Background()
 	subTaskCtx := helper.NewStandaloneSubTaskContext(
-		"git extractor",
-		ctx,
+		config.GetConfig(),
 		helper.NewDefaultTaskLogger(nil, "git extractor"),
+		nil,
+		ctx,
+		"git extractor",
 		nil,
 	)
 	p := parser.NewLibGit2(storage, subTaskCtx)

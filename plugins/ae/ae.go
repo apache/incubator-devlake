@@ -19,7 +19,7 @@ var _ core.PluginInit = (*AE)(nil)
 var _ core.PluginTask = (*AE)(nil)
 var _ core.PluginApi = (*AE)(nil)
 
-type AE string
+type AE struct{}
 
 func (plugin AE) Init(config *viper.Viper, logger core.Logger, db *gorm.DB) error {
 	// you can pass down db instance to plugin api
@@ -53,7 +53,6 @@ func (plugin AE) PrepareTaskData(taskCtx core.TaskContext, options map[string]in
 		return nil, fmt.Errorf("projectId is required")
 	}
 	apiClient, err := tasks.CreateApiClient(taskCtx)
-	apiClient.SetLogger(taskCtx.GetLogger())
 	if err != nil {
 		return nil, err
 	}
