@@ -1,0 +1,33 @@
+{
+  "ID": 1000,
+  "CreatedAt": "2022-03-22T10:08:53.616-04:00",
+  "UpdatedAt": "2022-03-22T10:08:53.639-04:00",
+  "name": "COLLECT REFDIFF 1647957882192",
+  "tasks": [
+    [
+      {
+        "plugin": "refdiff",
+        "options": {
+          "pairs": [
+            {
+              "newRef": "refs/tags/v0.2.0",
+              "oldRef": "refs/tags/v0.1.0"
+            }
+          ],
+          "repoId": "github:GithubRepo:384111310",
+          "tasks": [
+            "calculateCommitsDiff",
+            "calculateIssuesDiff"
+          ]
+        }
+      }
+    ]
+  ],
+  "totalTasks": 1,
+  "finishedTasks": 0,
+  "beganAt": null,
+  "finishedAt": null,
+  "status": "TASK_CREATED",
+  "message": "",
+  "spentSeconds": 0
+}
