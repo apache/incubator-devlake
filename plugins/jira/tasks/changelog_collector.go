@@ -1,20 +1,23 @@
 package tasks
 
 import (
+	"encoding/json"
 	"fmt"
+	"net/http"
 	"net/url"
 	"reflect"
 
 	"github.com/merico-dev/lake/plugins/core"
 	"github.com/merico-dev/lake/plugins/helper"
 	"github.com/merico-dev/lake/plugins/jira/models"
+	"github.com/merico-dev/lake/plugins/jira/tasks/apiv2models"
 )
 
-var _ core.SubTaskEntryPoint = CollectApiChangelogs
+var _ core.SubTaskEntryPoint = CollectChangelogs
 
 const RAW_CHANGELOG_TABLE = "jira_api_changelogs"
 
-func CollectApiChangelogs(taskCtx core.SubTaskContext) error {
+func CollectChangelogs(taskCtx core.SubTaskContext) error {
 	db := taskCtx.GetDb()
 	data := taskCtx.GetData().(*JiraTaskData)
 
@@ -36,8 +39,9 @@ func CollectApiChangelogs(taskCtx core.SubTaskContext) error {
 
 	// filter out issue_ids that needed collection
 	tx := db.Table("jira_board_issues bi").
+		Select("bi.issue_id, NOW() AS update_time").
 		Joins("LEFT JOIN jira_issues i ON (bi.source_id = i.source_id AND bi.issue_id = i.issue_id)").
-		Where("bi.source_id = ? AND bi.board_id = ?", data.Options.SourceId, data.Options.BoardId)
+		Where("bi.source_id = ? AND bi.board_id = ? AND (i.changelog_updated IS NULL OR i.changelog_updated < i.updated)", data.Options.SourceId, data.Options.BoardId)
 
 	// apply time range if any
 	if since != nil {
@@ -50,7 +54,7 @@ func CollectApiChangelogs(taskCtx core.SubTaskContext) error {
 		return err
 	}
 	// smaller struct can reduce memory footprint, we should try to avoid using big struct
-	iterator, err := helper.NewCursorIterator(db, cursor, reflect.TypeOf(models.JiraBoardIssue{}))
+	iterator, err := helper.NewCursorIterator(db, cursor, reflect.TypeOf(apiv2models.Input{}))
 	if err != nil {
 		return err
 	}
@@ -66,7 +70,7 @@ func CollectApiChangelogs(taskCtx core.SubTaskContext) error {
 			Table: RAW_CHANGELOG_TABLE,
 		},
 		ApiClient:   data.ApiClient,
-		PageSize:    100,
+		PageSize:    50,
 		Incremental: incremental,
 		Input:       iterator,
 		UrlTemplate: "api/3/issue/{{ .Input.IssueId }}/changelog",
@@ -76,7 +80,16 @@ func CollectApiChangelogs(taskCtx core.SubTaskContext) error {
 			query.Set("maxResults", fmt.Sprintf("%v", reqData.Pager.Size))
 			return query, nil
 		},
-		GetTotalPages: GetTotalPagesFromResponse,
+		ResponseParser: func(res *http.Response) ([]json.RawMessage, error) {
+			var data struct {
+				Values []json.RawMessage
+			}
+			err := core.UnmarshalResponse(res, &data)
+			if err != nil {
+				return nil, err
+			}
+			return data.Values, nil
+		},
 	})
 
 	if err != nil {

@@ -2,19 +2,32 @@ package tasks
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/http"
+	"reflect"
 
 	"github.com/merico-dev/lake/plugins/core"
 	"github.com/merico-dev/lake/plugins/helper"
+	"github.com/merico-dev/lake/plugins/jira/models"
+	"github.com/merico-dev/lake/plugins/jira/tasks/apiv2models"
 )
 
 const RAW_WORKLOGS_TABLE = "jira_api_worklogs"
 
-func collectApiWorklogs(taskCtx core.SubTaskContext, issueId uint64) error {
+func CollectWorklogs(taskCtx core.SubTaskContext) error {
 	data := taskCtx.GetData().(*JiraTaskData)
 	logger := taskCtx.GetLogger()
-	logger.Info("collect worklog, board_id:%d, issue_id:%d", data.Options.BoardId, issueId)
+	db := taskCtx.GetDb()
+	sourceId := data.Source.ID
+	boardId := data.Options.BoardId
+	cursor, err := db.Model(&models.JiraBoardIssue{}).Select("issue_id, NOW() AS update_time").Where("source_id = ? AND board_id = ?", sourceId, boardId).Rows()
+	if err != nil {
+		return err
+	}
+	iterator, err := helper.NewCursorIterator(db, cursor, reflect.TypeOf(apiv2models.Input{}))
+	if err != nil {
+		return err
+	}
+
 	collector, err := helper.NewApiCollector(helper.ApiCollectorArgs{
 		RawDataSubTaskArgs: helper.RawDataSubTaskArgs{
 			Ctx: taskCtx,
@@ -24,16 +37,20 @@ func collectApiWorklogs(taskCtx core.SubTaskContext, issueId uint64) error {
 			},
 			Table: RAW_WORKLOGS_TABLE,
 		},
-		ApiClient:   data.ApiClient,
-		UrlTemplate: fmt.Sprintf("api/2/issue/%d/worklog", issueId),
-		PageSize:    50,
+		Input:         iterator,
+		ApiClient:     data.ApiClient,
+		UrlTemplate:   "api/2/issue/{{ .Input.IssueId }}/worklog",
+		PageSize:      50,
+		GetTotalPages: GetTotalPagesFromResponse,
 		ResponseParser: func(res *http.Response) ([]json.RawMessage, error) {
-			var result []json.RawMessage
-			err := core.UnmarshalResponse(res, &result)
+			var data struct {
+				Worklogs []json.RawMessage `json:"worklogs"`
+			}
+			err := core.UnmarshalResponse(res, &data)
 			if err != nil {
 				return nil, err
 			}
-			return result, nil
+			return data.Worklogs, nil
 		},
 	})
 	if err != nil {

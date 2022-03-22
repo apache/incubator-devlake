@@ -26,9 +26,9 @@ type JiraApiRawIssuesResponse struct {
 	Issues []json.RawMessage `json:"issues"`
 }
 
-var _ core.SubTaskEntryPoint = CollectApiIssues
+var _ core.SubTaskEntryPoint = CollectIssues
 
-func CollectApiIssues(taskCtx core.SubTaskContext) error {
+func CollectIssues(taskCtx core.SubTaskContext) error {
 	db := taskCtx.GetDb()
 	data := taskCtx.GetData().(*JiraTaskData)
 
@@ -128,14 +128,6 @@ func CollectApiIssues(taskCtx core.SubTaskContext) error {
 			err = json.Unmarshal(blob, &issue)
 			if err != nil {
 				return nil, err
-			}
-			if issue.Fields.Worklog != nil {
-				if issue.Fields.Worklog.Total > len(issue.Fields.Worklog.Worklogs) {
-					err = collectApiWorklogs(taskCtx, issue.ID)
-					if err != nil {
-						return nil, err
-					}
-				}
 			}
 			return data.Issues, nil
 		},
