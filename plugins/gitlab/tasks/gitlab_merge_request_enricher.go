@@ -3,7 +3,6 @@ package tasks
 import (
 	"time"
 
-	lakeModels "github.com/merico-dev/lake/models"
 	"github.com/merico-dev/lake/plugins/core"
 	gitlabModels "github.com/merico-dev/lake/plugins/gitlab/models"
 	"gorm.io/gorm/clause"
@@ -11,8 +10,9 @@ import (
 
 func EnrichMergeRequests(taskCtx core.SubTaskContext) error {
 	data := taskCtx.GetData().(*GitlabTaskData)
+	db := taskCtx.GetDb()
 	// get mrs from theDB
-	cursor, err := lakeModels.Db.Model(&gitlabModels.GitlabMergeRequest{}).Where("project_id = ?", data.Options.ProjectId).Rows()
+	cursor, err := db.Model(&gitlabModels.GitlabMergeRequest{}).Where("project_id = ?", data.Options.ProjectId).Rows()
 	if err != nil {
 		return err
 	}
@@ -20,17 +20,17 @@ func EnrichMergeRequests(taskCtx core.SubTaskContext) error {
 
 	gitlabMr := &gitlabModels.GitlabMergeRequest{}
 	for cursor.Next() {
-		err = lakeModels.Db.ScanRows(cursor, gitlabMr)
+		err = db.ScanRows(cursor, gitlabMr)
 		if err != nil {
 			return err
 		}
 		// enrich first_comment_time field
 		notes := make([]gitlabModels.GitlabMergeRequestNote, 0)
 		// `system` = 0 is needed since we only care about human comments
-		lakeModels.Db.Where("merge_request_id = ? AND `system` = 0", gitlabMr.GitlabId).
+		db.Where("merge_request_id = ? AND `system` = 0", gitlabMr.GitlabId).
 			Order("gitlab_created_at asc").Find(&notes)
 		commits := make([]gitlabModels.GitlabCommit, 0)
-		lakeModels.Db.Joins("join gitlab_merge_request_commits gmrc on gmrc.commit_sha = gitlab_commits.sha").
+		db.Joins("join gitlab_merge_request_commits gmrc on gmrc.commit_sha = gitlab_commits.sha").
 			Where("merge_request_id = ?", gitlabMr.GitlabId).Order("authored_date asc").Find(&commits)
 		// calculate reviewRounds from commits and notes
 		reviewRounds := getReviewRounds(commits, notes)
@@ -46,7 +46,7 @@ func EnrichMergeRequests(taskCtx core.SubTaskContext) error {
 			}
 		}
 
-		err = lakeModels.Db.Clauses(clause.OnConflict{
+		err = db.Clauses(clause.OnConflict{
 			UpdateAll: true,
 		}).Create(gitlabMr).Error
 		if err != nil {
