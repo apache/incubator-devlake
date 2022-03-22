@@ -146,7 +146,7 @@ type Issue struct {
 	} `json:"changelog"`
 }
 
-func (i Issue) toToolLayer(sourceId uint64, storyPointField string) *models.JiraIssue {
+func (i Issue) toToolLayer(sourceId uint64, epicField, storyPointField string) *models.JiraIssue {
 	var workload float64
 	if storyPointField != "" {
 		workload, _ = i.Fields.AllFields[storyPointField].(float64)
@@ -170,6 +170,9 @@ func (i Issue) toToolLayer(sourceId uint64, storyPointField string) *models.Jira
 	}
 	if i.Fields.Epic != nil {
 		result.EpicKey = i.Fields.Epic.Key
+	}
+	if epicField != "" {
+		result.EpicKey, _ = i.Fields.AllFields[epicField].(string)
 	}
 	if i.Fields.Assignee != nil {
 		result.AssigneeAccountId = i.Fields.Assignee.getAccountId()
@@ -245,8 +248,8 @@ func (Issue) ExtractRawMessage(blob []byte) (json.RawMessage, error) {
 	return resp.Issues, nil
 }
 
-func (i Issue) ExtractEntities(sourceId uint64, storyPointField string) ([]uint64, *models.JiraIssue, bool, []*models.JiraWorklog, []*models.JiraChangelog, []*models.JiraChangelogItem) {
-	issue := i.toToolLayer(sourceId, storyPointField)
+func (i Issue) ExtractEntities(sourceId uint64, epicField, storyPointField string) ([]uint64, *models.JiraIssue, bool, []*models.JiraWorklog, []*models.JiraChangelog, []*models.JiraChangelogItem) {
+	issue := i.toToolLayer(sourceId, epicField, storyPointField)
 	var worklogs []*models.JiraWorklog
 	var changelogs []*models.JiraChangelog
 	var changelogItems []*models.JiraChangelogItem
@@ -263,9 +266,9 @@ func (i Issue) ExtractEntities(sourceId uint64, storyPointField string) ([]uint6
 	}
 	if i.Changelog != nil {
 		for _, changelog := range i.Changelog.Histories {
-			changelogs = append(changelogs, changelog.toToolLayer(sourceId, i.ID))
+			changelogs = append(changelogs, changelog.ToToolLayer(sourceId, i.ID))
 			for _, item := range changelog.Items {
-				changelogItems = append(changelogItems, item.toToolLayer(sourceId, i.ID))
+				changelogItems = append(changelogItems, item.ToToolLayer(sourceId, i.ID))
 			}
 		}
 	}

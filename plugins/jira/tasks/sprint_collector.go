@@ -12,9 +12,9 @@ import (
 
 const RAW_SPRINT_TABLE = "jira_api_sprints"
 
-var _ core.SubTaskEntryPoint = CollectApiSprints
+var _ core.SubTaskEntryPoint = CollectSprints
 
-func CollectApiSprints(taskCtx core.SubTaskContext) error {
+func CollectSprints(taskCtx core.SubTaskContext) error {
 	data := taskCtx.GetData().(*JiraTaskData)
 	logger := taskCtx.GetLogger()
 	logger.Info("collect sprints")

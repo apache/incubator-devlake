@@ -8,9 +8,9 @@ import (
 	"github.com/merico-dev/lake/plugins/jira/tasks/apiv2models"
 )
 
-var _ core.SubTaskEntryPoint = ExtractWorklogs
+var _ core.SubTaskEntryPoint = ExtractUsers
 
-func ExtractWorklogs(taskCtx core.SubTaskContext) error {
+func ExtractUsers(taskCtx core.SubTaskContext) error {
 	data := taskCtx.GetData().(*JiraTaskData)
 	extractor, err := helper.NewApiExtractor(helper.ApiExtractorArgs{
 		RawDataSubTaskArgs: helper.RawDataSubTaskArgs{
@@ -19,15 +19,15 @@ func ExtractWorklogs(taskCtx core.SubTaskContext) error {
 				SourceId: data.Source.ID,
 				BoardId:  data.Options.BoardId,
 			},
-			Table: RAW_WORKLOGS_TABLE,
+			Table: RAW_USERS_TABLE,
 		},
 		Extract: func(row *helper.RawData) ([]interface{}, error) {
-			var worklog apiv2models.Worklog
-			err := json.Unmarshal(row.Data, &worklog)
+			var user apiv2models.User
+			err := json.Unmarshal(row.Data, &user)
 			if err != nil {
 				return nil, err
 			}
-			return []interface{}{worklog.ToToolLayer(data.Source.ID)}, nil
+			return []interface{}{user.ToToolLayer(data.Source.ID)}, nil
 		},
 	})
 

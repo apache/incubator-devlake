@@ -2,26 +2,20 @@ package tasks
 
 import (
 	"encoding/json"
-	"io/ioutil"
 	"net/http"
 	"reflect"
-	"time"
 
 	"github.com/merico-dev/lake/plugins/core"
 	"github.com/merico-dev/lake/plugins/helper"
 	"github.com/merico-dev/lake/plugins/jira/models"
+	"github.com/merico-dev/lake/plugins/jira/tasks/apiv2models"
 )
 
 const RAW_REMOTELINK_TABLE = "jira_api_remotelinks"
 
-var _ core.SubTaskEntryPoint = CollectApiRemotelinks
+var _ core.SubTaskEntryPoint = CollectRemotelinks
 
-type RemotelinkUpdate struct {
-	IssueId   uint64
-	UpdatedAt time.Time
-}
-
-func CollectApiRemotelinks(taskCtx core.SubTaskContext) error {
+func CollectRemotelinks(taskCtx core.SubTaskContext) error {
 	data := taskCtx.GetData().(*JiraTaskData)
 	db := taskCtx.GetDb()
 	logger := taskCtx.GetLogger()
@@ -35,7 +29,7 @@ func CollectApiRemotelinks(taskCtx core.SubTaskContext) error {
 		set its `remotelink_updated` to `updated` at the end.
 	*/
 	cursor, err := db.Model(jiraIssue).
-		Select("jira_issues.issue_id", "NOW() AS updated_at").
+		Select("jira_issues.issue_id", "NOW() AS update_time").
 		Joins(`LEFT JOIN jira_board_issues ON (
 			jira_board_issues.source_id = jira_issues.source_id AND
 			jira_board_issues.issue_id = jira_issues.issue_id
@@ -56,7 +50,7 @@ func CollectApiRemotelinks(taskCtx core.SubTaskContext) error {
 	defer cursor.Close()
 
 	// smaller struct can reduce memory footprint, we should try to avoid using big struct
-	iterator, err := helper.NewCursorIterator(db, cursor, reflect.TypeOf(RemotelinkUpdate{}))
+	iterator, err := helper.NewCursorIterator(db, cursor, reflect.TypeOf(apiv2models.Input{}))
 	if err != nil {
 		return err
 	}
@@ -77,12 +71,12 @@ func CollectApiRemotelinks(taskCtx core.SubTaskContext) error {
 			if res.StatusCode == http.StatusNotFound {
 				return nil, nil
 			}
-			blob, err := ioutil.ReadAll(res.Body)
+			var result []json.RawMessage
+			err := core.UnmarshalResponse(res, &result)
 			if err != nil {
 				return nil, err
 			}
-			res.Body.Close()
-			return []json.RawMessage{blob}, nil
+			return result, nil
 		},
 	})
 	if err != nil {

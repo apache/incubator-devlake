@@ -1,6 +1,7 @@
 package ticket
 
 import (
+	"github.com/merico-dev/lake/models/common"
 	"time"
 
 	"github.com/merico-dev/lake/models/domainlayer"
@@ -25,6 +26,7 @@ type Sprint struct {
 }
 
 type SprintIssue struct {
+	common.NoPKModel
 	SprintId      string `gorm:"primaryKey"`
 	IssueId       string `gorm:"primaryKey"`
 	IsRemoved     bool
