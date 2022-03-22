@@ -8,8 +8,6 @@ import (
 	"github.com/merico-dev/lake/plugins/helper"
 )
 
-type ApiTagsResponse []GitlabApiTag
-
 type GitlabApiTag struct {
 	Name      string
 	Message   string

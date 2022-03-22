@@ -23,8 +23,6 @@ type GitlabApiProject struct {
 	LastActivityAt    *core.Iso8601Time `json:"last_activity_at"`
 }
 
-type GitlabApiProjectResponse GitlabApiProject
-
 func CollectApiProject(taskCtx core.SubTaskContext) error {
 	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_PROJECT_TABLE)
 

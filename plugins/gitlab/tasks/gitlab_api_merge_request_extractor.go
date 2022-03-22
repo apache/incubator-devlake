@@ -32,8 +32,6 @@ type MergeRequestRes struct {
 	FirstCommentTime core.Iso8601Time
 }
 
-type ApiMergeRequestResponse []MergeRequestRes
-
 func ExtractApiMergeRequests(taskCtx core.SubTaskContext) error {
 	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_MERGE_REQUEST_TABLE)
 
