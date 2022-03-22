@@ -5,11 +5,8 @@ import (
 
 	"github.com/merico-dev/lake/plugins/core"
 	"github.com/merico-dev/lake/plugins/gitlab/models"
-	gitlabModels "github.com/merico-dev/lake/plugins/gitlab/models"
 	"github.com/merico-dev/lake/plugins/helper"
 )
-
-type ApiPipelineResponse []ApiPipeline
 
 type ApiPipeline struct {
 	GitlabId        int              `json:"id"`
@@ -104,7 +101,7 @@ func ExtractApiChildrenOnPipelines(taskCtx core.SubTaskContext) error {
 }
 
 func convertSinglePipeline(pipeline *ApiSinglePipelineResponse) (*models.GitlabPipeline, error) {
-	gitlabPipeline := &gitlabModels.GitlabPipeline{
+	gitlabPipeline := &models.GitlabPipeline{
 		GitlabId:        pipeline.GitlabId,
 		ProjectId:       pipeline.ProjectId,
 		GitlabCreatedAt: pipeline.GitlabCreatedAt.ToTime(),
@@ -121,7 +118,7 @@ func convertSinglePipeline(pipeline *ApiSinglePipelineResponse) (*models.GitlabP
 }
 
 func convertPipeline(pipeline *ApiPipeline) (*models.GitlabPipeline, error) {
-	gitlabPipeline := &gitlabModels.GitlabPipeline{
+	gitlabPipeline := &models.GitlabPipeline{
 		GitlabId:        pipeline.GitlabId,
 		ProjectId:       pipeline.ProjectId,
 		GitlabCreatedAt: pipeline.GitlabCreatedAt.ToTime(),

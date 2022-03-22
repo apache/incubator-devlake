@@ -8,7 +8,6 @@ import (
 	"github.com/merico-dev/lake/models/domainlayer/didgen"
 	"github.com/merico-dev/lake/plugins/core"
 	"github.com/merico-dev/lake/plugins/gitlab/models"
-	gitlabModels "github.com/merico-dev/lake/plugins/gitlab/models"
 	"github.com/merico-dev/lake/plugins/helper"
 )
 
@@ -69,7 +68,7 @@ func convertProject(gitlabApiProject *GitlabApiProject) *models.GitlabProject {
 	return gitlabProject
 }
 
-func convertToRepositoryModel(project *gitlabModels.GitlabProject) *code.Repo {
+func convertToRepositoryModel(project *models.GitlabProject) *code.Repo {
 	domainRepository := &code.Repo{
 		DomainEntity: domainlayer.DomainEntity{
 			Id: didgen.NewDomainIdGenerator(project).Generate(project.GitlabId),

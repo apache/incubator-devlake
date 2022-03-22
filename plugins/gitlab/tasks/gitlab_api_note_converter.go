@@ -8,7 +8,6 @@ import (
 	"github.com/merico-dev/lake/models/domainlayer/didgen"
 	"github.com/merico-dev/lake/plugins/core"
 	"github.com/merico-dev/lake/plugins/gitlab/models"
-	gitlabModels "github.com/merico-dev/lake/plugins/gitlab/models"
 	"github.com/merico-dev/lake/plugins/helper"
 )
 
@@ -47,7 +46,7 @@ func ConvertApiNotes(taskCtx core.SubTaskContext) error {
 	return converter.Execute()
 }
 
-func convertToNoteModel(note *gitlabModels.GitlabMergeRequestNote, domainIdGeneratorNote *didgen.DomainIdGenerator) *code.Note {
+func convertToNoteModel(note *models.GitlabMergeRequestNote, domainIdGeneratorNote *didgen.DomainIdGenerator) *code.Note {
 	domainNote := &code.Note{
 		DomainEntity: domainlayer.DomainEntity{
 			Id: domainIdGeneratorNote.Generate(note.GitlabId),

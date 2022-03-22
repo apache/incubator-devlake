@@ -23,8 +23,6 @@ type MergeRequestNote struct {
 	}
 }
 
-type ApiMergeRequestNoteResponse []MergeRequestNote
-
 func ExtractApiMergeRequestsNotes(taskCtx core.SubTaskContext) error {
 	rawDataSubTaskArgs, _ := CreateRawDataSubTaskArgs(taskCtx, RAW_MERGE_REQUEST_NOTES_TABLE)
 
