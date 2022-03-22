@@ -9,9 +9,9 @@ import (
 	"github.com/merico-dev/lake/plugins/jira/tasks/apiv2models"
 )
 
-var _ core.SubTaskEntryPoint = ExtractApiSprints
+var _ core.SubTaskEntryPoint = ExtractSprints
 
-func ExtractApiSprints(taskCtx core.SubTaskContext) error {
+func ExtractSprints(taskCtx core.SubTaskContext) error {
 	data := taskCtx.GetData().(*JiraTaskData)
 	extractor, err := helper.NewApiExtractor(helper.ApiExtractorArgs{
 		RawDataSubTaskArgs: helper.RawDataSubTaskArgs{

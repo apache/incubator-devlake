@@ -8,9 +8,9 @@ import (
 	"github.com/merico-dev/lake/plugins/jira/tasks/apiv2models"
 )
 
-var _ core.SubTaskEntryPoint = ExtractApiBoard
+var _ core.SubTaskEntryPoint = ExtractBoard
 
-func ExtractApiBoard(taskCtx core.SubTaskContext) error {
+func ExtractBoard(taskCtx core.SubTaskContext) error {
 	data := taskCtx.GetData().(*JiraTaskData)
 
 	extractor, err := helper.NewApiExtractor(helper.ApiExtractorArgs{
