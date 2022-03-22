@@ -4,8 +4,33 @@ import (
 	"encoding/json"
 
 	"github.com/merico-dev/lake/plugins/core"
+	"github.com/merico-dev/lake/plugins/gitlab/models"
 	"github.com/merico-dev/lake/plugins/helper"
 )
+
+type MergeRequestRes struct {
+	GitlabId        int `json:"id"`
+	Iid             int
+	ProjectId       int `json:"project_id"`
+	State           string
+	Title           string
+	Description     string
+	WebUrl          string            `json:"web_url"`
+	UserNotesCount  int               `json:"user_notes_count"`
+	WorkInProgress  bool              `json:"work_in_progress"`
+	SourceBranch    string            `json:"source_branch"`
+	GitlabCreatedAt core.Iso8601Time  `json:"created_at"`
+	MergedAt        *core.Iso8601Time `json:"merged_at"`
+	ClosedAt        *core.Iso8601Time `json:"closed_at"`
+	MergedBy        struct {
+		Username string `json:"username"`
+	} `json:"merged_by"`
+	Author struct {
+		Username string `json:"username"`
+	}
+	Reviewers        []Reviewer
+	FirstCommentTime core.Iso8601Time
+}
 
 func ExtractApiMergeRequests(taskCtx core.SubTaskContext) error {
 	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_MERGE_REQUEST_TABLE)
@@ -41,4 +66,25 @@ func ExtractApiMergeRequests(taskCtx core.SubTaskContext) error {
 	}
 
 	return extractor.Execute()
+}
+
+func convertMergeRequest(mr *MergeRequestRes, projectId int) (*models.GitlabMergeRequest, error) {
+	gitlabMergeRequest := &models.GitlabMergeRequest{
+		GitlabId:         mr.GitlabId,
+		Iid:              mr.Iid,
+		ProjectId:        mr.ProjectId,
+		State:            mr.State,
+		Title:            mr.Title,
+		Description:      mr.Description,
+		WebUrl:           mr.WebUrl,
+		UserNotesCount:   mr.UserNotesCount,
+		WorkInProgress:   mr.WorkInProgress,
+		SourceBranch:     mr.SourceBranch,
+		MergedAt:         core.Iso8601TimeToTime(mr.MergedAt),
+		GitlabCreatedAt:  mr.GitlabCreatedAt.ToTime(),
+		ClosedAt:         core.Iso8601TimeToTime(mr.ClosedAt),
+		MergedByUsername: mr.MergedBy.Username,
+		AuthorUsername:   mr.Author.Username,
+	}
+	return gitlabMergeRequest, nil
 }

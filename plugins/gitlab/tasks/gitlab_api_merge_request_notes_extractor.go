@@ -4,8 +4,24 @@ import (
 	"encoding/json"
 
 	"github.com/merico-dev/lake/plugins/core"
+	"github.com/merico-dev/lake/plugins/gitlab/models"
 	"github.com/merico-dev/lake/plugins/helper"
 )
+
+type MergeRequestNote struct {
+	GitlabId        int    `json:"id"`
+	MergeRequestId  int    `json:"noteable_id"`
+	MergeRequestIid int    `json:"noteable_iid"`
+	NoteableType    string `json:"noteable_type"`
+	Body            string
+	GitlabCreatedAt core.Iso8601Time `json:"created_at"`
+	Confidential    bool
+	Resolvable      bool `json:"resolvable"`
+	System          bool `json:"system"`
+	Author          struct {
+		Username string `json:"username"`
+	}
+}
 
 func ExtractApiMergeRequestsNotes(taskCtx core.SubTaskContext) error {
 	rawDataSubTaskArgs, _ := CreateRawDataSubTaskArgs(taskCtx, RAW_MERGE_REQUEST_NOTES_TABLE)
@@ -36,4 +52,20 @@ func ExtractApiMergeRequestsNotes(taskCtx core.SubTaskContext) error {
 	}
 
 	return extractor.Execute()
+}
+
+func convertMergeRequestNote(mrNote *MergeRequestNote) (*models.GitlabMergeRequestNote, error) {
+	gitlabMergeRequestNote := &models.GitlabMergeRequestNote{
+		GitlabId:        mrNote.GitlabId,
+		MergeRequestId:  mrNote.MergeRequestId,
+		MergeRequestIid: mrNote.MergeRequestIid,
+		NoteableType:    mrNote.NoteableType,
+		AuthorUsername:  mrNote.Author.Username,
+		Body:            mrNote.Body,
+		GitlabCreatedAt: mrNote.GitlabCreatedAt.ToTime(),
+		Confidential:    mrNote.Confidential,
+		Resolvable:      mrNote.Resolvable,
+		System:          mrNote.System,
+	}
+	return gitlabMergeRequestNote, nil
 }

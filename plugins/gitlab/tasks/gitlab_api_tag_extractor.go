@@ -4,8 +4,20 @@ import (
 	"encoding/json"
 
 	"github.com/merico-dev/lake/plugins/core"
+	"github.com/merico-dev/lake/plugins/gitlab/models"
 	"github.com/merico-dev/lake/plugins/helper"
 )
+
+type GitlabApiTag struct {
+	Name      string
+	Message   string
+	Target    string
+	Protected bool
+	Release   struct {
+		TagName     string
+		Description string
+	}
+}
 
 func ExtractApiTag(taskCtx core.SubTaskContext) error {
 	rawDataSubTaskArgs, _ := CreateRawDataSubTaskArgs(taskCtx, RAW_TAG_TABLE)
@@ -37,4 +49,16 @@ func ExtractApiTag(taskCtx core.SubTaskContext) error {
 	}
 
 	return extractor.Execute()
+}
+
+// Convert the API response to our DB model instance
+func convertTag(tag *GitlabApiTag) (*models.GitlabTag, error) {
+	gitlabTag := &models.GitlabTag{
+		Name:               tag.Name,
+		Message:            tag.Message,
+		Target:             tag.Target,
+		Protected:          tag.Protected,
+		ReleaseDescription: tag.Release.Description,
+	}
+	return gitlabTag, nil
 }
