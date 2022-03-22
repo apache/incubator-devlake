@@ -6,7 +6,6 @@ import (
 	"net/http"
 	"os"
 	"strconv"
-	"strings"
 	"time"
 
 	"github.com/merico-dev/lake/errors"
@@ -110,11 +109,7 @@ func (plugin Jira) Execute(options map[string]interface{}, progress chan<- float
 			tasksToRun[task] = true
 		}
 	}
-	for task := range tasksToRun {
-		if strings.HasPrefix(task, "collect") {
-			tasksToRun[task] = false
-		}
-	}
+
 	rateLimit := source.RateLimit
 	if rateLimit <= 0 {
 		rateLimit = 50
@@ -153,7 +148,6 @@ func (plugin Jira) Execute(options map[string]interface{}, progress chan<- float
 
 	if info.DeploymentType == models.DeploymentServer {
 		if versions := info.VersionNumbers; len(versions) == 3 && versions[0] == 8 {
-			tasksToRun["collectUsers"] = false
 			tasksToRun["collectChangelogs"] = false
 			tasksToRun["extractChangelogs"] = false
 		} else {
@@ -177,6 +171,9 @@ func (plugin Jira) Execute(options map[string]interface{}, progress chan<- float
 		{name: "collectChangelogs", entryPoint: tasks.CollectChangelogs},
 		{name: "extractChangelogs", entryPoint: tasks.ExtractChangelogs},
 
+		{name: "collectWorklogs", entryPoint: tasks.CollectWorklogs},
+		{name: "extractWorklogs", entryPoint: tasks.ExtractWorklogs},
+
 		{name: "collectRemotelinks", entryPoint: tasks.CollectRemotelinks},
 		{name: "extractRemotelinks", entryPoint: tasks.ExtractRemotelinks},
 
@@ -187,8 +184,6 @@ func (plugin Jira) Execute(options map[string]interface{}, progress chan<- float
 
 		{name: "convertIssues", entryPoint: tasks.ConvertIssues},
 
-		{name: "collectWorklogs", entryPoint: tasks.CollectWorklogs},
-		{name: "extractWorklogs", entryPoint: tasks.ExtractWorklogs},
 		{name: "convertWorklogs", entryPoint: tasks.ConvertWorklogs},
 
 		{name: "convertChangelogs", entryPoint: tasks.ConvertChangelogs},
@@ -202,7 +197,9 @@ func (plugin Jira) Execute(options map[string]interface{}, progress chan<- float
 		if err != nil {
 			return err
 		}
+		fmt.Println(c)
 		if c != nil {
+			logger.Info("enter")
 			err = t.entryPoint(c)
 			if err != nil {
 				return &errors.SubTaskError{
