@@ -4,8 +4,36 @@ import (
 	"encoding/json"
 
 	"github.com/merico-dev/lake/plugins/core"
+	"github.com/merico-dev/lake/plugins/gitlab/models"
+	gitlabModels "github.com/merico-dev/lake/plugins/gitlab/models"
 	"github.com/merico-dev/lake/plugins/helper"
 )
+
+type ApiPipelineResponse []ApiPipeline
+
+type ApiPipeline struct {
+	GitlabId        int              `json:"id"`
+	ProjectId       int              `json:"project_id"`
+	GitlabCreatedAt core.Iso8601Time `json:"created_at"`
+	Ref             string
+	Sha             string
+	WebUrl          string `json:"web_url"`
+	Status          string
+}
+
+type ApiSinglePipelineResponse struct {
+	GitlabId        int              `json:"id"`
+	ProjectId       int              `json:"project_id"`
+	GitlabCreatedAt core.Iso8601Time `json:"created_at"`
+	Ref             string
+	Sha             string
+	WebUrl          string `json:"web_url"`
+	Duration        int
+	StartedAt       *core.Iso8601Time `json:"started_at"`
+	FinishedAt      *core.Iso8601Time `json:"finished_at"`
+	Coverage        string
+	Status          string
+}
 
 func ExtractApiPipelines(taskCtx core.SubTaskContext) error {
 	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_PIPELINE_TABLE)
@@ -73,4 +101,34 @@ func ExtractApiChildrenOnPipelines(taskCtx core.SubTaskContext) error {
 	}
 
 	return extractor.Execute()
+}
+
+func convertSinglePipeline(pipeline *ApiSinglePipelineResponse) (*models.GitlabPipeline, error) {
+	gitlabPipeline := &gitlabModels.GitlabPipeline{
+		GitlabId:        pipeline.GitlabId,
+		ProjectId:       pipeline.ProjectId,
+		GitlabCreatedAt: pipeline.GitlabCreatedAt.ToTime(),
+		Ref:             pipeline.Ref,
+		Sha:             pipeline.Sha,
+		WebUrl:          pipeline.WebUrl,
+		Duration:        pipeline.Duration,
+		StartedAt:       core.Iso8601TimeToTime(pipeline.StartedAt),
+		FinishedAt:      core.Iso8601TimeToTime(pipeline.FinishedAt),
+		Coverage:        pipeline.Coverage,
+		Status:          pipeline.Status,
+	}
+	return gitlabPipeline, nil
+}
+
+func convertPipeline(pipeline *ApiPipeline) (*models.GitlabPipeline, error) {
+	gitlabPipeline := &gitlabModels.GitlabPipeline{
+		GitlabId:        pipeline.GitlabId,
+		ProjectId:       pipeline.ProjectId,
+		GitlabCreatedAt: pipeline.GitlabCreatedAt.ToTime(),
+		Ref:             pipeline.Ref,
+		Sha:             pipeline.Sha,
+		WebUrl:          pipeline.WebUrl,
+		Status:          pipeline.Status,
+	}
+	return gitlabPipeline, nil
 }
