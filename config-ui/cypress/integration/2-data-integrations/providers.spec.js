@@ -38,6 +38,28 @@ context('Data Integration Providers', () => {
         .should('be.visible')
     })
 
+    it('can create a new jira connection source', () => {
+      cy.fixture('new-jira-connection').as('JIRAConnectionSourceJSON')
+      cy.intercept('POST', '/api/plugins/jira/sources', { statusCode: 201, body: '@JIRAConnectionSourceJSON' }).as('createJIRASource')
+      cy.visit('/integrations/jira')
+      cy.get('button#btn-add-new-connection').click()
+      cy.get('button#btn-save')
+        .should('be.visible')
+        .should('be.disabled')
+
+      cy.get('input#connection-name').type('TEST JIRA INSTANCE')
+      cy.get('input#connection-endpoint').type('https://test-46f2c29a-2955-4fa6-8de8-fffeaf8cf8e0.atlassian.net/rest/')
+      cy.get('input#connection-token').type('xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx')
+      cy.get('input#connection-proxy').type('http://proxy.localhost:8800')
+
+      cy.get('button#btn-save')
+        .should('be.visible')
+        .should('be.enabled')
+        .click()
+      
+      cy.wait('@createJIRASource').its('response.statusCode').should('eq', 201)
+      cy.url().should('include', '/integrations/jira')
+    })
   })
 
   describe('GitLab Data Provider', () => {
@@ -141,6 +163,4 @@ context('Data Integration Providers', () => {
         .should('have.attr', 'disabled')
     })
   })
-
-
 })

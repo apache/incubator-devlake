@@ -201,6 +201,8 @@ export default function ManageIntegration () {
                 <>
                   <p>
                     <Button
+                      id='btn-add-new-connection'
+                      className='add-new-connection'
                       disabled={maxConnectionsExceeded(sourceLimits[activeProvider.id], connections.length)}
                       onClick={addConnection}
                       rightIcon='add'
