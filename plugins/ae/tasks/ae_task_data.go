@@ -1,5 +1,7 @@
 package tasks
 
+import "github.com/merico-dev/lake/plugins/helper"
+
 type AeOptions struct {
 	ProjectId int
 	Tasks     []string `json:"tasks,omitempty"`
@@ -7,7 +9,7 @@ type AeOptions struct {
 
 type AeTaskData struct {
 	Options   *AeOptions
-	ApiClient *AEApiClient
+	ApiClient *helper.ApiAsyncClient
 }
 type AeApiParams struct {
 	ProjectId int

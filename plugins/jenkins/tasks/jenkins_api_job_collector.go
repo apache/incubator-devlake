@@ -2,9 +2,10 @@ package tasks
 
 import (
 	"encoding/json"
+	"net/http"
+
 	"github.com/merico-dev/lake/plugins/core"
 	"github.com/merico-dev/lake/plugins/helper"
-	"net/http"
 )
 
 const RAW_JOB_TABLE = "jenkins_api_jobs"
@@ -41,7 +42,7 @@ func CollectApiJobs(taskCtx core.SubTaskContext) error {
 			var data struct {
 				Jobs []json.RawMessage `json:"jobs"`
 			}
-			err := core.UnmarshalResponse(res, &data)
+			err := helper.UnmarshalResponse(res, &data)
 			if err != nil {
 				return nil, err
 			}

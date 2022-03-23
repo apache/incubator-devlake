@@ -5,10 +5,10 @@ import (
 	"net/http"
 	"strconv"
 
+	"github.com/merico-dev/lake/config"
 	"github.com/merico-dev/lake/models/common"
 
 	"github.com/go-playground/validator/v10"
-	lakeModels "github.com/merico-dev/lake/models"
 	"github.com/merico-dev/lake/plugins/core"
 	"github.com/merico-dev/lake/plugins/jira/models"
 	"github.com/mitchellh/mapstructure"
@@ -23,12 +23,21 @@ func findSourceByInputParam(input *core.ApiResourceInput) (*models.JiraSource, e
 	if err != nil {
 		return nil, fmt.Errorf("invalid sourceId")
 	}
+
 	return getJiraSourceById(jiraSourceId)
 }
 
 func getJiraSourceById(id uint64) (*models.JiraSource, error) {
 	jiraSource := &models.JiraSource{}
-	err := lakeModels.Db.First(jiraSource, id).Error
+	err := db.First(jiraSource, id).Error
+	if err != nil {
+		return nil, err
+	}
+
+	// decrypt
+	v := config.GetConfig()
+	encKey := v.GetString(core.EncodeKeyEnvStr)
+	jiraSource.BasicAuthEncoded, err = core.Decrypt(encKey, jiraSource.BasicAuthEncoded)
 	if err != nil {
 		return nil, err
 	}
@@ -62,8 +71,25 @@ func refreshAndSaveJiraSource(jiraSource *models.JiraSource, data map[string]int
 		return err
 	}
 
+	// encrypt
+	v := config.GetConfig()
+	encKey := v.GetString(core.EncodeKeyEnvStr)
+	if encKey == "" {
+		// Randomly generate a bunch of encryption keys and set them to config
+		encKey = core.RandomEncKey()
+		v.Set(core.EncodeKeyEnvStr, encKey)
+		err := v.WriteConfig()
+		if err != nil {
+			return err
+		}
+	}
+	jiraSource.BasicAuthEncoded, err = core.Encrypt(encKey, jiraSource.BasicAuthEncoded)
+	if err != nil {
+		return err
+	}
+
 	// transaction for nested operations
-	tx := lakeModels.Db.Begin()
+	tx := db.Begin()
 	defer func() {
 		if err != nil {
 			tx.Rollback()
@@ -172,16 +198,16 @@ func DeleteSource(input *core.ApiResourceInput) (*core.ApiResourceOutput, error)
 	if err != nil {
 		return nil, err
 	}
-	err = lakeModels.Db.Delete(jiraSource).Error
+	err = db.Delete(jiraSource).Error
 	if err != nil {
 		return nil, err
 	}
 	// cascading delete
-	err = lakeModels.Db.Where("source_id = ?", jiraSource.ID).Delete(&models.JiraIssueTypeMapping{}).Error
+	err = db.Where("source_id = ?", jiraSource.ID).Delete(&models.JiraIssueTypeMapping{}).Error
 	if err != nil {
 		return nil, err
 	}
-	err = lakeModels.Db.Where("source_id = ?", jiraSource.ID).Delete(&models.JiraIssueStatusMapping{}).Error
+	err = db.Where("source_id = ?", jiraSource.ID).Delete(&models.JiraIssueStatusMapping{}).Error
 	if err != nil {
 		return nil, err
 	}
@@ -194,7 +220,7 @@ GET /plugins/jira/sources
 */
 func ListSources(input *core.ApiResourceInput) (*core.ApiResourceOutput, error) {
 	jiraSources := make([]models.JiraSource, 0)
-	err := lakeModels.Db.Find(&jiraSources).Error
+	err := db.Find(&jiraSources).Error
 	if err != nil {
 		return nil, err
 	}
@@ -326,7 +352,7 @@ func GetBoardsBySourceId(input *core.ApiResourceInput) (*core.ApiResourceOutput,
 		return nil, fmt.Errorf("invalid sourceId")
 	}
 	var jiraBoards []models.JiraBoard
-	err = lakeModels.Db.Where("source_Id = ?", jiraSourceId).Find(&jiraBoards).Error
+	err = db.Where("source_Id = ?", jiraSourceId).Find(&jiraBoards).Error
 	if err != nil {
 		return nil, err
 	}

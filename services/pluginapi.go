@@ -17,7 +17,9 @@ return value
 func GetPluginsApiResources() (map[string]map[string]map[string]core.ApiResourceHandler, error) {
 	res := make(map[string]map[string]map[string]core.ApiResourceHandler)
 	for pluginName, pluginEntry := range core.AllPlugins() {
-		res[pluginName] = pluginEntry.ApiResources()
+		if pluginApi, ok := pluginEntry.(core.PluginApi); ok {
+			res[pluginName] = pluginApi.ApiResources()
+		}
 	}
 	return res, nil
 }

@@ -46,7 +46,7 @@ func CollectWorklogs(taskCtx core.SubTaskContext) error {
 			var data struct {
 				Worklogs []json.RawMessage `json:"worklogs"`
 			}
-			err := core.UnmarshalResponse(res, &data)
+			err := helper.UnmarshalResponse(res, &data)
 			if err != nil {
 				return nil, err
 			}

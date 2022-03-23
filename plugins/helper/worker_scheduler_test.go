@@ -1,4 +1,4 @@
-package utils
+package helper
 
 import (
 	"context"
@@ -64,6 +64,7 @@ func TestNewWorkerSchedulerWithoutSecond(t *testing.T) {
 	}
 	cancel()
 }
+
 /*
 func TestNewWorkerSchedulerWithPanic(t *testing.T) {
 	testChannel := make(chan int, 100)
@@ -81,3 +82,4 @@ func TestNewWorkerSchedulerWithPanic(t *testing.T) {
 	cancel()
 }
 */
+

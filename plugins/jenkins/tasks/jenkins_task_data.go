@@ -1,8 +1,9 @@
 package tasks
 
 import (
-	"github.com/merico-dev/lake/plugins/core"
 	"time"
+
+	"github.com/merico-dev/lake/plugins/helper"
 )
 
 type JenkinsOptions struct {
@@ -15,6 +16,6 @@ type JenkinsOptions struct {
 
 type JenkinsTaskData struct {
 	Options   *JenkinsOptions
-	ApiClient *core.ApiClient
+	ApiClient *helper.ApiAsyncClient
 	Since     *time.Time
 }

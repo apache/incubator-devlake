@@ -3,9 +3,10 @@ package tasks
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/merico-dev/lake/plugins/helper"
 	"net/http"
 	"net/url"
+
+	"github.com/merico-dev/lake/plugins/helper"
 
 	"github.com/merico-dev/lake/plugins/core"
 	"github.com/merico-dev/lake/plugins/github/models"
@@ -88,7 +89,7 @@ func CollectApiComments(taskCtx core.SubTaskContext) error {
 		GetTotalPages: GetTotalPagesFromResponse,
 		ResponseParser: func(res *http.Response) ([]json.RawMessage, error) {
 			var items []json.RawMessage
-			err := core.UnmarshalResponse(res, &items)
+			err := helper.UnmarshalResponse(res, &items)
 			if err != nil {
 				return nil, err
 			}

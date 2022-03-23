@@ -9,8 +9,6 @@ import (
 	"fmt"
 	"math/rand"
 	"time"
-
-	"github.com/merico-dev/lake/config"
 )
 
 type TestResult struct {
@@ -23,6 +21,7 @@ func (testResult *TestResult) Set(success bool, message string) {
 	testResult.Message = message
 }
 
+// Deprecated: use `validator` instead
 func ValidateParams(input *ApiResourceInput, requiredParams []string) *TestResult {
 	message := "Missing params: "
 	missingParams := []string{}
@@ -48,6 +47,7 @@ func ValidateParams(input *ApiResourceInput, requiredParams []string) *TestResul
 	}
 }
 
+// Deprecated: make no sense to put error message here
 const InvalidParams = "Failed to decode request params"
 const SourceIdError = "Missing or Invalid sourceId"
 const InvalidConnectionError = "Your connection configuration is invalid."
@@ -60,6 +60,7 @@ const DNSResolveFailedError = "Failed to find ip address"
 const NetworkConnectError = "Failed to connect to endpoint"
 const EncodeKeyEnvStr = "ENCODE_KEY"
 
+// Deprecated
 func GetRateLimitPerSecond(options map[string]interface{}, defaultValue int) (int, error) {
 	if options["rateLimitPerSecond"] == nil {
 		return defaultValue, nil
@@ -73,52 +74,37 @@ func GetRateLimitPerSecond(options map[string]interface{}, defaultValue int) (in
 	}
 }
 
+// TODO: maybe move encryption/decryption into helper?
 // AES + Base64 encryption using ENCODE_KEY in .env as key
-func Encode(Input string) (string, error) {
-	// Read encryption key from configuration
-	v := config.GetConfig()
-	encodingKey := v.GetString(EncodeKeyEnvStr)
-	// when encryption key is not set
-	if encodingKey == "" {
-		// Randomly generate a bunch of encryption keys and set them to config
-		encodingKey = RandomCapsStr(128)
-		v.Set(EncodeKeyEnvStr, encodingKey)
-		err := v.WriteConfig()
-		if err != nil {
-			return "", err
-		}
-	}
+func Encrypt(encKey, plainText string) (string, error) {
 	// add suffix to the data part
-	inputBytes := append([]byte(Input), 123, 110, 100, 100, 116, 102, 125)
+	inputBytes := append([]byte(plainText), 123, 110, 100, 100, 116, 102, 125)
 	// perform encryption
-	output, err := AesEncrypt(inputBytes, []byte(encodingKey))
+	output, err := AesEncrypt(inputBytes, []byte(encKey))
 	if err != nil {
-		return Input, err
+		return plainText, err
 	}
 	// Return the result after Base64 processing
 	return base64.StdEncoding.EncodeToString(output), nil
 }
 
 //  Base64 + AES decryption using ENCODE_KEY in .env as key
-func Decode(Input string) (string, error) {
-	// Read encryption key from configuration
-	v := config.GetConfig()
-	encodingKey := v.GetString(EncodeKeyEnvStr)
+func Decrypt(encKey, encryptedText string) (string, error) {
 	// when encryption key is not set
-	if encodingKey == "" {
+	if encKey == "" {
 		// return error message
-		return Input, fmt.Errorf("The setting ENCODE_KEY from the file '.env' is empty.decrypted fail.")
+		return encryptedText, fmt.Errorf("encKey is required")
 	}
 
 	// Decode Base64
-	decodingFromBase64, err1 := base64.StdEncoding.DecodeString(Input)
+	decodingFromBase64, err1 := base64.StdEncoding.DecodeString(encryptedText)
 	if err1 != nil {
-		return Input, err1
+		return encryptedText, err1
 	}
 	// perform AES decryption
-	output, err2 := AesDecrypt(decodingFromBase64, []byte(encodingKey))
+	output, err2 := AesDecrypt(decodingFromBase64, []byte(encKey))
 	if err2 != nil {
-		return Input, err2
+		return encryptedText, err2
 	}
 
 	// Verify and remove suffix
@@ -132,7 +118,7 @@ func Decode(Input string) (string, error) {
 			return string(output), nil
 		}
 	}
-	return "", fmt.Errorf("The setting ENCODE_KEY from the file '.env' is incorrect.decrypted fail.")
+	return "", fmt.Errorf("invalid encKey")
 }
 
 // PKCS7 padding
@@ -202,4 +188,8 @@ func RandomCapsStr(len int) string {
 		bytes[i] = byte(b)
 	}
 	return string(bytes)
+}
+
+func RandomEncKey() string {
+	return RandomCapsStr(128)
 }

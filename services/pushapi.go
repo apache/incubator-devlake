@@ -1,11 +1,7 @@
-package push
-
-import (
-	"github.com/merico-dev/lake/models"
-)
+package services
 
 func InsertRow(tableName string, rowToInsert map[string]interface{}) (int64, error) {
-	tx := models.Db.Table(tableName).Create(rowToInsert)
+	tx := db.Table(tableName).Create(rowToInsert)
 	if tx.Error != nil {
 		return 0, tx.Error
 	}

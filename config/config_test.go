@@ -3,7 +3,7 @@ package config
 import (
 	"testing"
 
-	"github.com/magiconair/properties/assert"
+	"github.com/stretchr/testify/assert"
 )
 
 type TestStruct struct {
@@ -40,7 +40,7 @@ func TestSetStruct(t *testing.T) {
 	}
 
 	v := GetConfig()
-	SetStruct(ts, "json", "mapstructure")
+	assert.Nil(t, SetStruct(ts, "json", "mapstructure"))
 	v1 := v.GetString("TEST_F1")
 	assert.Equal(t, v1, "123")
 	v2 := v.GetInt("TEST_F2")
@@ -51,7 +51,7 @@ func TestSetStruct(t *testing.T) {
 	assert.Equal(t, v4, "Test")
 
 	ts.F1 = ""
-	SetStruct(ts, "json", "mapstructure")
+	assert.Nil(t, SetStruct(ts, "json", "mapstructure"))
 	v1 = v.GetString("TEST_F1")
 	assert.Equal(t, v1, "")
 }

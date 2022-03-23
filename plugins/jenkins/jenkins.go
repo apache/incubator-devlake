@@ -2,20 +2,9 @@ package main
 
 import (
 	"context"
-	"fmt"
-	"github.com/merico-dev/lake/config"
-	"github.com/merico-dev/lake/plugins/helper"
-	"time"
 
-	errors "github.com/merico-dev/lake/errors"
-	"github.com/merico-dev/lake/logger"
-	lakeModels "github.com/merico-dev/lake/models"
 	"github.com/merico-dev/lake/plugins/core"
 	"github.com/merico-dev/lake/plugins/jenkins/api"
-	"github.com/merico-dev/lake/plugins/jenkins/models"
-	"github.com/merico-dev/lake/plugins/jenkins/tasks"
-	"github.com/merico-dev/lake/utils"
-	"github.com/mitchellh/mapstructure"
 )
 
 var _ core.Plugin = (*Jenkins)(nil)
@@ -23,26 +12,22 @@ var _ core.Plugin = (*Jenkins)(nil)
 type Jenkins struct{}
 
 func (plugin Jenkins) Init() {
+	/* TODO: adopt to new interface
 	var err = lakeModels.Db.AutoMigrate(
 		&models.JenkinsJob{},
 		&models.JenkinsBuild{})
 	if err != nil {
 		logger.Error("Failed to auto migrate jenkins models", err)
 	}
+	*/
 }
 
 func (plugin Jenkins) Description() string {
 	return "Jenkins plugin"
 }
 
-func (plugin Jenkins) CleanData() {
-	var err = lakeModels.Db.Exec("truncate table jenkins_jobs").Error
-	if err != nil {
-		logger.Error("Failed to truncate jenkins models", err)
-	}
-}
-
 func (plugin Jenkins) Execute(options map[string]interface{}, progress chan<- float32, ctx context.Context) error {
+	/* TODO: adopt to new interface
 	var op tasks.JenkinsOptions
 	var err = mapstructure.Decode(options, &op)
 	if err != nil {
@@ -130,6 +115,7 @@ func (plugin Jenkins) Execute(options map[string]interface{}, progress chan<- fl
 			}
 		}
 	}
+	*/
 
 	return nil
 }
@@ -158,6 +144,7 @@ var PluginEntry Jenkins //nolint
 
 func main() {
 
+	/* TODO: adopt new method
 	err := core.RegisterPlugin("jenkins", PluginEntry)
 	if err != nil {
 		panic(err)
@@ -187,4 +174,5 @@ func main() {
 	for p := range progress {
 		fmt.Println(p)
 	}
+	*/
 }

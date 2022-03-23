@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/merico-dev/lake/services"
 )
 
 /*
@@ -26,7 +27,7 @@ func Post(c *gin.Context) {
 		_ = c.AbortWithError(http.StatusBadRequest, err)
 	}
 	for _, rowToInsert := range rowsToInsert {
-		rowsAffected, err := InsertRow(tableName, rowToInsert)
+		rowsAffected, err := services.InsertRow(tableName, rowToInsert)
 		if err != nil {
 			_ = c.AbortWithError(http.StatusInternalServerError, err)
 		}
