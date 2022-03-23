@@ -181,17 +181,15 @@ func (plugin Github) Execute(options map[string]interface{}, progress chan<- flo
 		//{name: "extractApiCommits", entryPoint: tasks.ExtractApiCommits},
 		//{name: "collectApiCommitStats", entryPoint: tasks.CollectApiCommitStats},
 		//{name: "extractApiCommitStats", entryPoint: tasks.ExtractApiCommitStats},
-		{name: "enrichPullRequestIssues", entryPoint: tasks.EnrichPullRequestIssues},
-		//{name: "convertRepos", entryPoint: tasks.ConvertRepos},
-		//{name: "convertIssues", entryPoint: tasks.ConvertIssues},
-		//{name: "convertCommits", entryPoint: tasks.ConvertCommits},
-		//{name: "convertIssueLabels", entryPoint: tasks.ConvertIssueLabels},
-		//{name: "convertPullRequestCommits", entryPoint: tasks.ConvertPullRequestCommits},
-		//{name: "convertPullRequests", entryPoint: tasks.ConvertPullRequests},
-		//{name: "convertPullRequestLabels", entryPoint: tasks.ConvertPullRequestLabels},
-		{name: "convertPullRequestIssues", entryPoint: tasks.ConvertPullRequestIssues},
-		//{name: "convertNotes", entryPoint: tasks.ConvertNotes},
-		//{name: "convertUsers", entryPoint: tasks.ConvertUsers},
+		{name: "convertRepos", entryPoint: tasks.ConvertRepos},
+		{name: "convertIssues", entryPoint: tasks.ConvertIssues},
+		{name: "convertCommits", entryPoint: tasks.ConvertCommits},
+		{name: "convertIssueLabels", entryPoint: tasks.ConvertIssueLabels},
+		{name: "convertPullRequestCommits", entryPoint: tasks.ConvertPullRequestCommits},
+		{name: "convertPullRequests", entryPoint: tasks.ConvertPullRequests},
+		{name: "convertPullRequestLabels", entryPoint: tasks.ConvertPullRequestLabels},
+		{name: "convertNotes", entryPoint: tasks.ConvertNotes},
+		{name: "convertUsers", entryPoint: tasks.ConvertUsers},
 	}
 	for _, t := range newTasks {
 		c, err := taskCtx.SubTaskContext(t.name)
@@ -208,6 +206,34 @@ func (plugin Github) Execute(options map[string]interface{}, progress chan<- flo
 			}
 		}
 	}
+
+	repoId := 1
+
+	if tasksToRun["enrichPullRequestIssues"] {
+		progress <- 0.73
+		fmt.Println("INFO >>> Enriching PullRequestIssues")
+		err = tasks.EnrichPullRequestIssues(ctx, repoId, op.Owner, op.Repo)
+		if err != nil {
+			return &errors.SubTaskError{
+				Message:     fmt.Errorf("could not enrich PullRequests: %v", err).Error(),
+				SubTaskName: "enrichPullRequestIssues",
+			}
+		}
+	}
+
+	if tasksToRun["convertPullRequestIssues"] {
+		progress <- 0.95
+		fmt.Println("INFO >>> Converting PullRequestIssues")
+		err = tasks.ConvertPullRequestIssues(ctx, repoId)
+		if err != nil {
+			return &errors.SubTaskError{
+				Message:     fmt.Errorf("could not convert PullRequestCommits: %v", err).Error(),
+				SubTaskName: "convertPullRequestIssues",
+			}
+		}
+	}
+
+	progress <- 1
 	return nil
 }
 
@@ -278,7 +304,7 @@ func main() {
 					//"extractApiPullRequestCommits",
 					//"collectApiPullRequestReviews",
 					//"extractApiPullRequestReviews",
-					"enrichPullRequestIssues",
+					//"enrichPullRequestIssues",
 					"convertRepos",
 					"convertIssues",
 					"convertIssueLabels",
@@ -286,7 +312,7 @@ func main() {
 					"convertCommits",
 					"convertPullRequestCommits",
 					"convertPullRequestLabels",
-					"convertPullRequestIssues",
+					//"convertPullRequestIssues",
 					"convertNotes",
 					"convertUsers",
 				},
