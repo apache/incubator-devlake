@@ -21,9 +21,7 @@ DevLake brings your DevOps data into one practical, customized, extensible view.
 
 DevLake is designed for developer teams looking to make better sense of their development process and to bring a more data-driven approach to their own practices. You can ask DevLake many questions regarding your development process. Just connect and query.
 
-#### Demo Address
-<a href="https://app-259373083972538368-3002.ars.teamcode.com/d/0Rjxknc7z/demo-homepage?orgId=1">See demo</a>. Username/password:test/test.The demo is based on the data from this repo.
-
+<a href="https://app-259373083972538368-3002.ars.teamcode.com/d/0Rjxknc7z/demo-homepage?orgId=1">See demo</a>. Username/password:test/test. The demo is based on the data from this repo, merico-dev/lake.
 
 #### Get started with just a few clicks
 <table>
@@ -45,7 +43,7 @@ DevLake is designed for developer teams looking to make better sense of their de
 ### What can be accomplished with DevLake?
 1. Collect DevOps data across the entire SDLC process and connect data silos
 2. A standard <a href="https://github.com/merico-dev/lake/wiki/DataModel.Domain-layer-schema">data model</a> and out-of-the-box <a href="https://github.com/merico-dev/lake/wiki/Metric-Cheatsheet">metrics</a> for software engineering
-3. Flexible framework for data collection and ETL, support customized analysis
+3. Flexible <a href="https://github.com/merico-dev/lake/blob/main/ARCHITECTURE.md">framework</a> for data collection and ETL, support customized analysis
 
 
 <br>
@@ -279,4 +277,4 @@ This section lists all the documents to help you contribute to the repo.
 
 ## License<a id="license"></a>
 
-This project is licensed under Apache License 2.0 - see the [`LICENSE`](LICENSE) file for details.
+This project is licensed under Apache License 2.0 - see the [LICENSE](LICENSE) file for details.

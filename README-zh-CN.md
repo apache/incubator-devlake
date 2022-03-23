@@ -23,11 +23,10 @@ DevLake 将你所有 DevOps 工具里的数据以实用、个性化、可扩展�
 DevLake 适用于希望更好地通过数据了解其开发过程的开发团队，以及希望以数据驱动提升自身实践的开发团队。有了 DevLake，你可以向你的开发过程提出任何问题，只要连接数据并查询。
 
 
-#### Demo 地址
-<a href="https://app-259373083972538368-3002.ars.teamcode.com/d/0Rjxknc7z/demo-homepage?orgId=1">查看 demo</a>。用户名/密码： test/test。Demo里呈现的数据来自 merico-dev/lake。
+<a href="https://app-259373083972538368-3002.ars.teamcode.com/d/0Rjxknc7z/demo-homepage?orgId=1">查看 demo</a>。用户名/密码： test/test。Demo里呈现的数据来自本仓库 merico-dev/lake。
 
 
-#### 安装 DevLake
+#### 开始安装 DevLake
 <table>
   <tr>
     <td valign="middle"><a href="#user-setup">运行 DevLake</a></td>
@@ -47,7 +46,7 @@ DevLake 适用于希望更好地通过数据了解其开发过程的开发团队
 ### DevLake 可以完成什么?
 1. 归集 DevOps 全流程效能数据，连接数据孤岛
 2. 标准的<a href="https://github.com/merico-dev/lake/wiki/DataModel.Domain-layer-schema" target="_blank">研发数据模型</a>和开箱即用的<a href="https://github.com/merico-dev/lake/wiki/Metric-Cheatsheet" target="_blank">效能指标</a>
-3. 灵活的数据收集、ETL的框架，支持自定义分析
+3. 灵活的数据收集、ETL的<a href="https://github.com/merico-dev/lake/blob/main/ARCHITECTURE.md">框架</a>，支持自定义分析
 
 
 
@@ -273,4 +272,4 @@ DevLake 适用于希望更好地通过数据了解其开发过程的开发团队
 
 ### License<a id="license"></a>
 
-此项目的许可证为 Apache License 2.0 - 查看 [`许可证`](LICENSE) 详情。
+此项目的许可证为 Apache License 2.0 - 查看 [许可证](LICENSE) 详情。
