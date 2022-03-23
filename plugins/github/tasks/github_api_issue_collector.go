@@ -20,7 +20,12 @@ type GithubApiParams struct {
 	Repo  string
 }
 
-var _ core.SubTaskEntryPoint = CollectApiIssues
+var CollectApiIssuesMeta = core.SubTaskMeta{
+	Name:             "collectApiIssues",
+	EntryPoint:       CollectApiIssues,
+	EnabledByDefault: true,
+	Description:      "Collect issues data from Github api",
+}
 
 func CollectApiIssues(taskCtx core.SubTaskContext) error {
 	db := taskCtx.GetDb()

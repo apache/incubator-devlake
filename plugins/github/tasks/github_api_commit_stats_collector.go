@@ -15,7 +15,12 @@ import (
 
 const RAW_COMMIT_STATS_TABLE = "github_api_commit_stats"
 
-var _ core.SubTaskEntryPoint = CollectApiCommitStats
+var CollectApiCommitStatsMeta = core.SubTaskMeta{
+	Name:             "collectApiCommitStats",
+	EntryPoint:       CollectApiCommitStats,
+	EnabledByDefault: false,
+	Description:      "Collect commitStats data from Github api",
+}
 
 func CollectApiCommitStats(taskCtx core.SubTaskContext) error {
 	db := taskCtx.GetDb()

@@ -1,19 +1,28 @@
 package main // must be main for plugin entry point
 
 import (
-	"context"
+	"fmt"
+	"github.com/merico-dev/lake/plugins/github/models"
+	"github.com/merico-dev/lake/plugins/github/tasks"
+	"github.com/merico-dev/lake/runner"
+	"github.com/mitchellh/mapstructure"
+	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
+	"gorm.io/gorm"
 
 	"github.com/merico-dev/lake/plugins/core"
 	"github.com/merico-dev/lake/plugins/github/api"
 )
 
-var _ core.Plugin = (*Github)(nil)
+var _ core.PluginMeta = (*Github)(nil)
+var _ core.PluginInit = (*Github)(nil)
+var _ core.PluginTask = (*Github)(nil)
+var _ core.PluginApi = (*Github)(nil)
 
-type Github string
+type Github struct{}
 
-func (plugin Github) Init() {
-	/* TODO: adopt new interface
-	err := lakeModels.Db.AutoMigrate(
+func (plugin Github) Init(config *viper.Viper, logger core.Logger, db *gorm.DB) error {
+	return db.AutoMigrate(
 		&models.GithubRepo{},
 		&models.GithubCommit{},
 		&models.GithubRepoCommit{},
@@ -30,174 +39,69 @@ func (plugin Github) Init() {
 		&models.GithubPullRequestIssue{},
 		&models.GithubCommitStat{},
 	)
-	if err != nil {
-		panic(err)
-	}
-	*/
 }
 
 func (plugin Github) Description() string {
 	return "To collect and enrich data from GitHub"
 }
 
-func (plugin Github) Execute(options map[string]interface{}, progress chan<- float32, ctx context.Context) error {
-	/*
-			var err error
-			// process option from request
-			var op tasks.GithubOptions
-			err = mapstructure.Decode(options, &op)
-			if err != nil {
-				return err
-			}
-			if op.Owner == "" {
-				return fmt.Errorf("owner is required for GitHub execution")
-			}
-			if op.Repo == "" {
-				return fmt.Errorf("repo is required for GitHub execution")
-			}
-			var since *time.Time
-			if op.Since != "" {
-				*since, err = time.Parse("2006-01-02T15:04:05Z", op.Since)
-				if err != nil {
-					return fmt.Errorf("invalid value for `since`: %w", err)
-				}
-			}
-			logger := helper.NewDefaultTaskLogger(nil, "github")
+func (plugin Github) SubTaskMetas() []core.SubTaskMeta {
+	return []core.SubTaskMeta{
+		//tasks.CollectApiRepositoriesMeta,
+		//tasks.ExtractApiRepositoriesMeta,
+		//tasks.CollectApiIssuesMeta,
+		//tasks.ExtractApiIssuesMeta,
+		//tasks.CollectApiPullRequestsMeta,
+		//tasks.ExtractApiPullRequestsMeta,
+		//tasks.CollectApiCommentsMeta,
+		//tasks.ExtractApiCommentsMeta,
+		//tasks.CollectApiEventsMeta,
+		//tasks.ExtractApiEventsMeta,
+		//tasks.CollectApiPullRequestCommitsMeta,
+		//tasks.ExtractApiPullRequestCommitsMeta,
+		//tasks.CollectApiPullRequestReviewsMeta,
+		//tasks.ExtractApiPullRequestReviewsMeta,
+		//tasks.CollectApiCommitsMeta,
+		//tasks.ExtractApiCommitsMeta,
+		//tasks.CollectApiCommitStatsMeta,
+		//tasks.ExtractApiCommitStatsMeta,
+		tasks.ConvertReposMeta,
+		tasks.ConvertIssuesMeta,
+		tasks.ConvertCommitsMeta,
+		tasks.ConvertIssueLabelsMeta,
+		tasks.ConvertPullRequestCommitsMeta,
+		tasks.ConvertPullRequestsMeta,
+		tasks.ConvertPullRequestLabelsMeta,
+		tasks.ConvertNotesMeta,
+		tasks.ConvertUsersMeta,
+	}
+}
 
-			tasksToRun := make(map[string]bool, len(op.Tasks))
-			if len(op.Tasks) == 0 {
-				tasksToRun = map[string]bool{
-					"collectApiRepositories": false,
-					"extractApiRepositories": false,
-					//"collectApiCommits":
-					//"extractApiCommits":
-					//"collectApiCommitStats":
-					//"extractApiCommitStats":        false,
-					"collectIssues":                true,
-					"collectIssueEvents":           true,
-					"collectIssueComments":         true,
-					"collectApiIssues":             false,
-					"extractApiIssues":             false,
-					"collectApiPullRequests":       false,
-					"extractApiPullRequests":       false,
-					"collectApiComments":           false,
-					"extractApiComments":           false,
-					"collectApiEvents":             false,
-					"extractApiEvents":             false,
-					"collectApiPullRequestCommits": false,
-					"extractApiPullRequestCommits": false,
-					"collectPullRequests":          true,
-					"collectPullRequestReviews":    true,
-					"collectPullRequestCommits":    true,
-					"enrichIssues":                 true,
-					"enrichPullRequests":           true,
-					"enrichComments":               true,
-					"enrichPullRequestIssues":      true,
-					"convertRepos":                 true,
-					"convertIssues":                true,
-					"convertBoardIssues":           false,
-					"convertIssueLabels":           true,
-					"convertPullRequests":          true,
-					"convertCommits":               true,
-					"convertPullRequestCommits":    true,
-					"convertPullRequestLabels":     true,
-					"convertPullRequestIssues":     true,
-					"convertNotes":                 true,
-					"convertUsers":                 true,
-				}
-			} else {
-				for _, task := range op.Tasks {
-					tasksToRun[task] = true
-				}
-			}
+func (plugin Github) PrepareTaskData(taskCtx core.TaskContext, options map[string]interface{}) (interface{}, error) {
+	var op tasks.GithubOptions
+	err := mapstructure.Decode(options, &op)
+	if err != nil {
+		return nil, err
+	}
+	if op.Owner == "" {
+		return nil, fmt.Errorf("owner is required for GitHub execution")
+	}
+	if op.Repo == "" {
+		return nil, fmt.Errorf("repo is required for GitHub execution")
+	}
+	apiClient, err := tasks.CreateApiClient(taskCtx)
+	repo := models.GithubRepo{}
+	err = taskCtx.GetDb().Model(&models.GithubRepo{}).
+		Where("owner_login = ? and name = ?", op.Owner, op.Repo).Limit(1).Find(&repo).Error
+	if err != nil {
+		return nil, err
+	}
 
-			v := config.GetConfig()
-			// process configuration
-			endpoint := v.GetString("GITHUB_ENDPOINT")
-			tokens := strings.Split(v.GetString("GITHUB_AUTH"), ",")
-			// setup rate limit
-			tokenCount := len(tokens)
-			if tokenCount == 0 {
-				return fmt.Errorf("owner is required for GitHub execution")
-			}
-			rateLimitPerSecondInt, err := core.GetRateLimitPerSecond(options, tokenCount)
-			if err != nil {
-				return err
-			}
-			scheduler, err := utils.NewWorkerScheduler(20, rateLimitPerSecondInt, ctx)
-			if err != nil {
-				return err
-			}
-			defer scheduler.Release()
-			// TODO: add endpoind, auth validation
-			apiClient := tasks.NewGithubApiClient(endpoint, tokens, v.GetString("GITHUB_PROXY"), ctx, scheduler, logger)
-
-			taskData := &tasks.GithubTaskData{
-				Options:   &op,
-				ApiClient: &apiClient.ApiClient,
-				Since:     since,
-			}
-
-			taskCtx := helper.NewDefaultTaskContext("github", ctx, logger, taskData, tasksToRun)
-			repo := models.GithubRepo{}
-			err = taskCtx.GetDb().Model(&models.GithubRepo{}).
-				Where("owner_login = ? and name = ?", taskData.Options.Owner, taskData.Options.Repo).Limit(1).Find(&repo).Error
-			if err != nil {
-				return err
-			}
-
-			taskData.Repo = &repo
-
-			newTasks := []struct {
-				name       string
-				entryPoint core.SubTaskEntryPoint
-			}{
-				//{name: "collectApiRepositories", entryPoint: tasks.CollectApiRepositories},
-				//{name: "extractApiRepositories", entryPoint: tasks.ExtractApiRepositories},
-				//{name: "collectApiIssues", entryPoint: tasks.CollectApiIssues},
-				//{name: "extractApiIssues", entryPoint: tasks.ExtractApiIssues},
-				//{name: "collectApiPullRequests", entryPoint: tasks.CollectApiPullRequests},
-				//{name: "extractApiPullRequests", entryPoint: tasks.ExtractApiPullRequests},
-				//{name: "collectApiComments", entryPoint: tasks.CollectApiComments},
-				//{name: "extractApiComments", entryPoint: tasks.ExtractApiComments},
-				//{name: "collectApiEvents", entryPoint: tasks.CollectApiEvents},
-				//{name: "extractApiEvents", entryPoint: tasks.ExtractApiEvents},
-				//{name: "collectApiPullRequestCommits", entryPoint: tasks.CollectApiPullRequestCommits},
-				//{name: "extractApiPullRequestCommits", entryPoint: tasks.ExtractApiPullRequestCommits},
-				//{name: "collectApiPullRequestReviews", entryPoint: tasks.CollectApiPullRequestReviews},
-				//{name: "extractApiPullRequestReviews", entryPoint: tasks.ExtractApiPullRequestReviews},
-				//{name: "collectApiCommits", entryPoint: tasks.CollectApiCommits},
-				//{name: "extractApiCommits", entryPoint: tasks.ExtractApiCommits},
-				//{name: "collectApiCommitStats", entryPoint: tasks.CollectApiCommitStats},
-				//{name: "extractApiCommitStats", entryPoint: tasks.ExtractApiCommitStats},
-				{name: "convertRepos", entryPoint: tasks.ConvertRepos},
-				{name: "convertIssues", entryPoint: tasks.ConvertIssues},
-				{name: "convertCommits", entryPoint: tasks.ConvertCommits},
-				{name: "convertIssueLabels", entryPoint: tasks.ConvertIssueLabels},
-				{name: "convertPullRequestCommits", entryPoint: tasks.ConvertPullRequestCommits},
-				{name: "convertPullRequests", entryPoint: tasks.ConvertPullRequests},
-				{name: "convertPullRequestLabels", entryPoint: tasks.ConvertPullRequestLabels},
-				{name: "convertNotes", entryPoint: tasks.ConvertNotes},
-				{name: "convertUsers", entryPoint: tasks.ConvertUsers},
-			}
-			for _, t := range newTasks {
-				c, err := taskCtx.SubTaskContext(t.name)
-				if err != nil {
-					return err
-				}
-				if c != nil {
-					err = t.entryPoint(c)
-					if err != nil {
-						return &errors.SubTaskError{
-							SubTaskName: t.name,
-							Message:     err.Error(),
-						}
-					}
-				}
-			}
-		}
-	*/
-	return nil
+	return &tasks.GithubTaskData{
+		Options:   &op,
+		ApiClient: apiClient,
+		Repo:      &repo,
+	}, nil
 }
 
 func (plugin Github) RootPkgPath() string {
@@ -225,72 +129,17 @@ var PluginEntry Github //nolint
 
 // standalone mode for debugging
 func main() {
-	/* TODO: adopt new method
-	args := os.Args[1:]
-	owner := "merico-dev"
-	repo := "lake"
-	if len(args) > 0 {
-		owner = args[0]
-	}
-	if len(args) > 1 {
-		repo = args[1]
-	}
+	githubCmd := &cobra.Command{Use: "github"}
+	owner := githubCmd.Flags().StringP("owner", "o", "", "github owner")
+	repo := githubCmd.Flags().StringP("repo", "r", "", "github repo")
+	githubCmd.MarkFlagRequired("owner")
+	githubCmd.MarkFlagRequired("repo")
 
-	err := core.RegisterPlugin("github", PluginEntry)
-	if err != nil {
-		panic(err)
+	githubCmd.Run = func(cmd *cobra.Command, args []string) {
+		runner.DirectRun(cmd, args, PluginEntry, map[string]interface{}{
+			"owner": *owner,
+			"repo":  *repo,
+		})
 	}
-	PluginEntry.Init()
-	progress := make(chan float32)
-
-	go func() {
-		err := PluginEntry.Execute(
-			map[string]interface{}{
-				"owner": owner,
-				"repo":  repo,
-				"tasks": []string{
-					//"collectApiRepositories",
-					//"extractApiRepositories",
-					//"collectApiCommits",
-					//"extractApiCommits",
-					//"collectApiCommitStats",
-					//"extractApiCommitStats",
-					//
-					//"collectApiIssues",
-					//"extractApiIssues",
-					//"collectApiComments",
-					//"extractApiComments",
-					//"collectApiEvents",
-					//"extractApiEvents",
-					//"collectApiPullRequests",
-					//"extractApiPullRequests",
-					//"collectApiPullRequestCommits",
-					//"extractApiPullRequestCommits",
-					//"collectApiPullRequestReviews",
-					//"extractApiPullRequestReviews",
-					"enrichPullRequestIssues",
-					"convertRepos",
-					"convertIssues",
-					"convertIssueLabels",
-					"convertPullRequests",
-					"convertCommits",
-					"convertPullRequestCommits",
-					"convertPullRequestLabels",
-					"convertPullRequestIssues",
-					"convertNotes",
-					"convertUsers",
-				},
-			},
-			progress,
-			context.Background(),
-		)
-		if err != nil {
-			panic(err)
-		}
-		close(progress)
-	}()
-	for p := range progress {
-		fmt.Println(p)
-	}
-	*/
+	runner.RunCmd(githubCmd)
 }

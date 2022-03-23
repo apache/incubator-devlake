@@ -16,7 +16,12 @@ const RAW_EVENTS_TABLE = "github_api_events"
 
 // this struct should be moved to `gitub_api_common.go`
 
-var _ core.SubTaskEntryPoint = CollectApiEvents
+var CollectApiEventsMeta = core.SubTaskMeta{
+	Name:             "collectApiEvents",
+	EntryPoint:       CollectApiEvents,
+	EnabledByDefault: true,
+	Description:      "Collect Events data from Github api",
+}
 
 func CollectApiEvents(taskCtx core.SubTaskContext) error {
 	db := taskCtx.GetDb()

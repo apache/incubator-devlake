@@ -16,7 +16,12 @@ const RAW_PULL_REQUEST_TABLE = "github_api_pull_requests"
 
 // this struct should be moved to `gitub_api_common.go`
 
-var _ core.SubTaskEntryPoint = CollectApiPullRequests
+var CollectApiPullRequestsMeta = core.SubTaskMeta{
+	Name:             "collectApiPullRequests",
+	EntryPoint:       CollectApiPullRequests,
+	EnabledByDefault: true,
+	Description:      "Collect PullRequests data from Github api",
+}
 
 func CollectApiPullRequests(taskCtx core.SubTaskContext) error {
 	db := taskCtx.GetDb()

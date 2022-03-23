@@ -9,7 +9,12 @@ import (
 	"github.com/merico-dev/lake/plugins/helper"
 )
 
-var _ core.SubTaskEntryPoint = ExtractApiPullRequests
+var ExtractApiPullRequestsMeta = core.SubTaskMeta{
+	Name:             "extractApiPullRequests",
+	EntryPoint:       ExtractApiPullRequests,
+	EnabledByDefault: true,
+	Description:      "Extract raw PullRequests data into tool layer table github_pull_requests",
+}
 
 type GithubApiPullRequest struct {
 	GithubId int `json:"id"`

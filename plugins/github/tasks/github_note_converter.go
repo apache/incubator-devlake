@@ -10,6 +10,13 @@ import (
 	"reflect"
 )
 
+var ConvertNotesMeta = core.SubTaskMeta{
+	Name:             "ConvertNotes",
+	EntryPoint:       ConvertNotes,
+	EnabledByDefault: true,
+	Description:      "Convert tool layer table github_pull_request_comments into  domain layer table notes",
+}
+
 func ConvertNotes(taskCtx core.SubTaskContext) error {
 	db := taskCtx.GetDb()
 	data := taskCtx.GetData().(*GithubTaskData)
