@@ -29,6 +29,10 @@ func DirectRun(cmd *cobra.Command, args []string, pluginTask core.PluginTask, op
 	if pluginInit, ok := pluginTask.(core.PluginInit); ok {
 		pluginInit.Init(cfg, log, db)
 	}
+	err = core.RegisterPlugin(cmd.Use, pluginTask.(core.PluginMeta))
+	if err != nil {
+		panic(err)
+	}
 	err = RunPluginSubTasks(
 		cfg,
 		log,
