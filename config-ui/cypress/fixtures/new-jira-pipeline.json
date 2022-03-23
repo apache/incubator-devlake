@@ -1,0 +1,24 @@
+{
+  "ID": 1000,
+  "CreatedAt": "2022-03-21T17:14:32.887-04:00",
+  "UpdatedAt": "2022-03-21T17:14:32.915-04:00",
+  "name": "COLLECT JIRA 1647897256166",
+  "tasks": [
+    [
+      {
+        "plugin": "jira",
+        "options": {
+          "boardId": 1,
+          "sourceId": 54
+        }
+      }
+    ]
+  ],
+  "totalTasks": 1,
+  "finishedTasks": 0,
+  "beganAt": null,
+  "finishedAt": null,
+  "status": "TASK_CREATED",
+  "message": "",
+  "spentSeconds": 0
+}

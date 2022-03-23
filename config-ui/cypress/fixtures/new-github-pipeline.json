@@ -1,0 +1,24 @@
+{
+  "ID": 1000,
+  "CreatedAt": "2022-03-21T15:59:08.516-04:00",
+  "UpdatedAt": "2022-03-21T15:59:08.546-04:00",
+  "name": "COLLECT GITHUB 1647890923175",
+  "tasks": [
+    [
+      {
+        "plugin": "github",
+        "options": {
+          "owner": "merico-dev",
+          "repo": "lake"
+        }
+      }
+    ]
+  ],
+  "totalTasks": 1,
+  "finishedTasks": 0,
+  "beganAt": null,
+  "finishedAt": null,
+  "status": "TASK_CREATED",
+  "message": "",
+  "spentSeconds": 0
+}

@@ -1,0 +1,14 @@
+{
+  "ID": 63,
+  "CreatedAt": "2022-03-22T02:12:01.426Z",
+  "UpdatedAt": "2022-03-22T02:12:01.426Z",
+  "name": "TEST JIRA INSTANCE",
+  "endpoint": "https://test-46f2c29a-2955-4fa6-8de8-fffeaf8cf8e0.atlassian.net/rest/",
+  "basicAuthEncoded": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+  "epicKeyField": "",
+  "storyPointField": "",
+  "remotelinkCommitShaPattern": "",
+  "proxy": "http://proxy.localhost:8800",
+  "RateLimit": 0,
+  "typeMappings": {}
+}

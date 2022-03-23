@@ -1,0 +1,360 @@
+
+{
+  "count": 10,
+  "pipelines": [
+
+    {
+      "ID": 100,
+      "CreatedAt": "2022-03-04T19:12:38.652Z",
+      "UpdatedAt": "2022-03-04T19:12:39.002Z",
+      "name": "COLLECT 1646421154881",
+      "tasks": [
+        [
+          {
+            "plugin": "jenkins",
+            "options": {}
+          },
+          {
+            "plugin": "github",
+            "options": {
+              "owner": "e2corporation",
+              "repositoryName": "publicity.js"
+            }
+          }
+        ]
+      ],
+      "totalTasks": 1,
+      "finishedTasks": 1,
+      "beganAt": "2022-03-04T19:12:38.69Z",
+      "finishedAt": "2022-03-04T19:12:39.001Z",
+      "status": "TASK_COMPLETED",
+      "message": "",
+      "spentSeconds": 1
+    },
+    {
+      "ID": 120,
+      "CreatedAt": "2022-02-18T20:19:12.74Z",
+      "UpdatedAt": "2022-02-21T14:45:46.575Z",
+      "name": "DEVLAKE 1645215528120",
+      "tasks": [
+        [
+          {
+            "plugin": "gitlab",
+            "options": {
+              "projectId": 8967944
+            }
+          },
+          {
+            "plugin": "jenkins",
+            "options": {}
+          },
+          {
+            "plugin": "github",
+            "options": {
+              "repo": "lake",
+              "owner": "merico-dev"
+            }
+          }
+        ]
+      ],
+      "totalTasks": 3,
+      "finishedTasks": 2,
+      "beganAt": "2022-02-18T20:19:12.789Z",
+      "finishedAt": null,
+      "status": "TASK_FAILED",
+      "message": "",
+      "spentSeconds": 0
+    },
+    {
+      "ID": 130,
+      "CreatedAt": "2022-02-18T20:17:34.257Z",
+      "UpdatedAt": "2022-02-21T14:45:46.575Z",
+      "name": "COLLECT 1645215348961",
+      "tasks": [
+        [
+          {
+            "plugin": "gitlab",
+            "options": {
+              "projectId": 8967944
+            }
+          },
+          {
+            "plugin": "jira",
+            "options": {
+              "boardId": 8,
+              "sourceId": 1
+            }
+          },
+          {
+            "plugin": "jenkins",
+            "options": {}
+          },
+          {
+            "plugin": "github",
+            "options": {
+              "repo": "lake",
+              "owner": "merico-dev"
+            }
+          }
+        ]
+      ],
+      "totalTasks": 4,
+      "finishedTasks": 3,
+      "beganAt": "2022-02-18T20:17:34.318Z",
+      "finishedAt": null,
+      "status": "TASK_FAILED",
+      "message": "",
+      "spentSeconds": 0
+    },
+    {
+      "ID": 140,
+      "CreatedAt": "2022-02-18T17:57:00.572Z",
+      "UpdatedAt": "2022-02-18T17:57:01.156Z",
+      "name": "COLLECT 1645206990997",
+      "tasks": [
+        [
+          {
+            "plugin": "feishu",
+            "options": {}
+          }
+        ],
+        [
+          {
+            "plugin": "jenkins",
+            "options": {}
+          }
+        ]
+      ],
+      "totalTasks": 2,
+      "finishedTasks": 1,
+      "beganAt": "2022-02-18T17:57:00.622Z",
+      "finishedAt": "2022-02-18T17:57:01.155Z",
+      "status": "TASK_FAILED",
+      "message": "{\"code\":10003,\"data\":{},\"msg\":\"invalid param\"}",
+      "spentSeconds": 1
+    },
+    {
+      "ID": 150,
+      "CreatedAt": "2022-02-18T17:56:15.819Z",
+      "UpdatedAt": "2022-02-18T17:56:16.818Z",
+      "name": "COLLECT 1645206942991",
+      "tasks": [
+        [
+          {
+            "plugin": "feishu",
+            "options": {}
+          }
+        ]
+      ],
+      "totalTasks": 1,
+      "finishedTasks": 1,
+      "beganAt": "2022-02-18T17:56:15.854Z",
+      "finishedAt": "2022-02-18T17:56:16.816Z",
+      "status": "TASK_FAILED",
+      "message": "{\"code\":10003,\"data\":{},\"msg\":\"invalid param\"}",
+      "spentSeconds": 1
+    },
+    {
+      "ID": 160,
+      "CreatedAt": "2022-02-16T05:39:55.211Z",
+      "UpdatedAt": "2022-02-18T18:21:08.942Z",
+      "name": "COLLECT 1644989989548",
+      "tasks": [
+        [
+          {
+            "plugin": "github",
+            "options": {
+              "owner": "merico-dev",
+              "repositoryName": "lake"
+            }
+          },
+          {
+            "plugin": "jenkins",
+            "options": {}
+          },
+          {
+            "plugin": "jira",
+            "options": {
+              "boardId": 8,
+              "sourceId": 1
+            }
+          },
+          {
+            "plugin": "gitlab",
+            "options": {
+              "projectId": 8967944
+            }
+          }
+        ],
+        [
+          {
+            "plugin": "gitlab",
+            "options": {
+              "projectId": 8967944
+            }
+          }
+        ],
+        [
+          {
+            "plugin": "gitlab",
+            "options": {
+              "projectId": 4967944
+            }
+          }
+        ],
+        [
+          {
+            "plugin": "gitlab",
+            "options": {
+              "projectId": 1967944
+            }
+          }
+        ]
+      ],
+      "totalTasks": 7,
+      "finishedTasks": 3,
+      "beganAt": "2022-02-16T05:39:55.286Z",
+      "finishedAt": null,
+      "status": "TASK_FAILED",
+      "message": "",
+      "spentSeconds": 0
+    },
+    {
+      "ID": 170,
+      "CreatedAt": "2022-02-16T05:39:38.849Z",
+      "UpdatedAt": "2022-02-16T05:39:44.388Z",
+      "name": "COLLECT 1644989938074",
+      "tasks": [
+        [
+          {
+            "plugin": "gitextractor",
+            "options": {
+              "url": "https://github.com/merico-dev/lake.git",
+              "repoId": "github:GithubRepo:384111310"
+            }
+          }
+        ]
+      ],
+      "totalTasks": 1,
+      "finishedTasks": 1,
+      "beganAt": "2022-02-16T05:39:38.886Z",
+      "finishedAt": "2022-02-16T05:39:44.386Z",
+      "status": "TASK_FAILED",
+      "message": "Error 1364: Field 'origin_key' doesn't have a default value",
+      "spentSeconds": 6
+    },
+    {
+      "ID": 180,
+      "CreatedAt": "2022-02-16T03:24:45.977Z",
+      "UpdatedAt": "2022-02-16T03:25:46.185Z",
+      "name": "COLLECT 1644981873533",
+      "tasks": [
+        [
+          {
+            "plugin": "github",
+            "options": {
+              "repo": "lake",
+              "owner": "merico-dev"
+            }
+          }
+        ]
+      ],
+      "totalTasks": 1,
+      "finishedTasks": 1,
+      "beganAt": "2022-02-16T03:24:46.014Z",
+      "finishedAt": "2022-02-16T03:25:46.184Z",
+      "status": "TASK_FAILED",
+      "message": "run task failed with panic (github.com/merico-dev/lake/utils.(*WorkerScheduler).WaitUntilFinish:87): [Error 1364: Field 'github_repo_id' doesn't have a default value\ngithub.com/panjf2000/ants/v2.(*goWorker).run.func1:71\ngithub.com/merico-dev/lake/utils.(*WorkerScheduler).Submit.func1:79 Error 1364: Field 'github_repo_id' doesn't have a default value\ngithub.com/panjf2000/ants/v2.(*goWorker).run.func1:71\ngithub.com/merico-dev/lake/utils.(*WorkerScheduler).Submit.func1:79 Error 1364: Field 'github_repo_id' doesn't have a default value\ngithub.com/panjf2000/ants/v2.(*goWorker).run.func1:71\ngithub.com/merico-dev/lake/utils.(*WorkerScheduler).Submit.func1:79 Error 1364: Field 'github_repo_id' doesn't have a default value\ngithub.com/panjf2000/ants/v2.(*goWorker).run.func1:71\ngithub.com/merico-dev/lake/utils.(*WorkerScheduler).Submit.func1:79 Error 1364: Field 'github_repo_id' doesn't have a default value\ngithub.com/panjf2000/ants/v2.(*goWorker).run.func1:71\ngithub.com/merico-dev/lake/utils.(*WorkerScheduler).Submit.func1:79 Error 1364: Field 'github_repo_id' doesn't have a default value\ngithub.com/panjf2000/ants/v2.(*goWorker).run.func1:71\ngithub.com/merico-dev/lake/utils.(*WorkerScheduler).Submit.func1:79 Error 1364: Field 'github_repo_id' doesn't have a default value\ngithub.com/panjf2000/ants/v2.(*goWorker).run.func1:71\ngithub.com/merico-dev/lake/utils.(*WorkerScheduler).Submit.func1:79 Error 1364: Field 'github_repo_id' doesn't have a default value\ngithub.com/panjf2000/ants/v2.(*goWorker).run.func1:71\ngithub.com/merico-dev/lake/utils.(*WorkerScheduler).Submit.func1:79 Error 1364: Field 'github_repo_id' doesn't have a default value\ngithub.com/panjf2000/ants/v2.(*goWorker).run.func1:71\ngithub.com/merico-dev/lake/utils.(*WorkerScheduler).Submit.func1:79 Error 1364: Field 'github_repo_id' doesn't have a default value\ngithub.com/panjf2000/ants/v2.(*goWorker).run.func1:71\ngithub.com/merico-dev/lake/utils.(*WorkerScheduler).Submit.func1:79 Error 1364: Field 'github_repo_id' doesn't have a default value\ngithub.com/panjf2000/ants/v2.(*goWorker).run.func1:71\ngithub.com/merico-dev/lake/utils.(*WorkerScheduler).Submit.func1:79 Error 1364: Field 'github_repo_id' doesn't have a default value\ngithub.com/panjf2000/ants/v2.(*goWorker).run.func1:71\ngithub.com/merico-dev/lake/utils.(*WorkerScheduler).Submit.func1:79 Error 1364: Field 'github_repo_id' doesn't have a default value\ngithub.com/panjf2000/ants/v2.(*goWorker).run.func1:71\ngithub.com/merico-dev/lake/utils.(*WorkerScheduler).Submit.func1:79 Error 1364: Field 'github_repo_id' doesn't have a default value\ngithub.com/panjf2000/ants/v2.(*goWorker).run.func1:71\ngithub.com/merico-dev/lake/utils.(*WorkerScheduler).Submit.func1:79 Error 1364: Field 'github_repo_id' doesn't have a default value\ngithub.com/panjf2000/ants/v2.(*goWorker).run.func1:71\ngithub.com/merico-dev/lake/utils.(*WorkerScheduler).Submit.func1:79]",
+      "spentSeconds": 60
+    },
+    {
+      "ID": 190,
+      "CreatedAt": "2022-02-16T03:24:19.572Z",
+      "UpdatedAt": "2022-02-16T03:24:19.683Z",
+      "name": "COLLECT 1644981843233",
+      "tasks": [
+        [
+          {
+            "plugin": "github",
+            "options": {
+              "owner": "merico-dev",
+              "repositoryName": "lake"
+            }
+          }
+        ]
+      ],
+      "totalTasks": 1,
+      "finishedTasks": 1,
+      "beganAt": "2022-02-16T03:24:19.621Z",
+      "finishedAt": "2022-02-16T03:24:19.68Z",
+      "status": "TASK_FAILED",
+      "message": "repo is required for GitHub execution",
+      "spentSeconds": 0
+    },
+    {
+      "ID": 200,
+      "CreatedAt": "2022-02-16T03:23:52.253Z",
+      "UpdatedAt": "2022-02-18T18:21:08.942Z",
+      "name": "COLLECT 1644981827433",
+      "tasks": [
+        [
+          {
+            "plugin": "github",
+            "options": {
+              "owner": "merico-dev",
+              "repositoryName": "lake"
+            }
+          },
+          {
+            "plugin": "jenkins",
+            "options": {}
+          },
+          {
+            "plugin": "jira",
+            "options": {
+              "boardId": 8,
+              "sourceId": 1
+            }
+          },
+          {
+            "plugin": "gitlab",
+            "options": {
+              "projectId": 8967944
+            }
+          }
+        ],
+        [
+          {
+            "plugin": "gitlab",
+            "options": {
+              "projectId": 8967944
+            }
+          }
+        ],
+        [
+          {
+            "plugin": "gitlab",
+            "options": {
+              "projectId": 4967944
+            }
+          }
+        ],
+        [
+          {
+            "plugin": "gitlab",
+            "options": {
+              "projectId": 1967944
+            }
+          }
+        ]
+      ],
+      "totalTasks": 7,
+      "finishedTasks": 3,
+      "beganAt": "2022-02-16T03:23:52.333Z",
+      "finishedAt": null,
+      "status": "TASK_FAILED",
+      "message": "",
+      "spentSeconds": 0
+    }
+  ]
+}

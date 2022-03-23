@@ -358,7 +358,7 @@ export default function ConnectionForm (props) {
                     )}
               </Label>
               <InputGroup
-                id='github-proxy'
+                id='connection-proxy'
                 placeholder={placeholders.proxy ? placeholders.proxy : 'http://proxy.localhost:8080'}
                 defaultValue={proxy}
                 onChange={(e) => onProxyChange(e.target.value)}
@@ -383,8 +383,14 @@ export default function ConnectionForm (props) {
             />
           </div>
           <div style={{ display: 'flex' }}>
-            <Button className='btn-cancel' icon='remove' text='Cancel' onClick={onCancel} disabled={isSaving || isTesting} />
             <Button
+              id='btn-cancel'
+              className='btn-cancel'
+              icon='remove' text='Cancel'
+              onClick={onCancel} disabled={isSaving || isTesting}
+            />
+            <Button
+              id='btn-save'
               className='btn-save'
               icon='cloud-upload' intent='primary' text='Save Connection'
               loading={isSaving}

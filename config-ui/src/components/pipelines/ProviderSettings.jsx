@@ -69,6 +69,7 @@ const ProviderSettings = (props) => {
               <Select
                 disabled={isRunning || !isEnabled(providerId)}
                 className='selector-source-id'
+                popoverProps={{ popoverClassName: 'source-id-popover' }}
                 multiple
                 inline={true}
                 fill={true}
@@ -90,6 +91,7 @@ const ProviderSettings = (props) => {
                 }}
               >
                 <Button
+                  className='btn-source-id-selector'
                   disabled={isRunning || !isEnabled(providerId)}
                   style={{ justifyContent: 'space-between', minWidth: '206px', maxWidth: '290px', whiteSpace: 'nowrap' }}
                   text={selectedSource ? `${selectedSource.title} [${selectedSource.value}]` : 'Select Instance'}

@@ -1,0 +1,25 @@
+{
+  "count": 1,
+  "tasks": [
+    {
+      "ID": 100,
+      "CreatedAt": "2022-03-21T20:59:09.448Z",
+      "UpdatedAt": "2022-03-21T20:59:17.699Z",
+      "plugin": "gitextractor",
+      "options": {
+        "url": "https://github.com/merico-dev/lake.git",
+        "repoId": "github:GithubRepo:384111310"
+      },
+      "status": "TASK_FAILED",
+      "message": "Error 1364: Field 'origin_key' doesn't have a default value",
+      "progress": 0.1,
+      "failedSubTask": "",
+      "pipelineId": 1000,
+      "pipelineRow": 1,
+      "pipelineCol": 1,
+      "beganAt": "2022-03-21T20:59:09.506Z",
+      "finishedAt": "2022-03-21T20:59:17.698Z",
+      "spentSeconds": 8
+    }
+  ]
+}

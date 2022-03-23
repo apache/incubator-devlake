@@ -1,0 +1,13 @@
+{
+  "environment": "development",
+  "baseUrl": "http://localhost:4000",
+  "env": {
+    "appUrl": "http://localhost:4000",
+    "apiUrl": "http://localhost:8080/"
+  },
+  "chromeWebSecurity": false,
+  "viewportWidth": 1360,
+  "viewportHeight": 768,
+  "screenshotOnRunFailure": false,
+  "video": false
+}

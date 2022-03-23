@@ -314,7 +314,7 @@ const Pipelines = (props) => {
 
                 <div style={{ display: 'flex', width: '100%', justifySelf: 'flex-start', marginTop: '8px' }}>
                   <Card interactive={false} elevation={Elevation.TWO} style={{ width: '100%', padding: '2px' }}>
-                    <table className='bp3-html-table bp3-html-table-bordered connections-table' style={{ width: '100%' }}>
+                    <table className='bp3-html-table bp3-html-table-bordered pipelines-table' style={{ width: '100%' }}>
                       <thead>
                         <tr>
                           <th style={{ minWidth: '80px', maxWidth: '80px', whiteSpace: 'nowrap' }}>
@@ -620,6 +620,7 @@ const Pipelines = (props) => {
                   <div className='pagination-controls' style={{ display: 'flex', whiteSpace: 'nowrap' }}>
                     <Popover placement='bottom'>
                       <Button
+                        className='btn-select-page-size'
                         style={{ whiteSpace: 'nowrap' }}
                         icon='numbered-list'
                         text={`Rows: ${perPage}`}
