@@ -23,6 +23,13 @@ type MergeRequestNote struct {
 	}
 }
 
+var ExtractApiMergeRequestsNotesMeta = core.SubTaskMeta{
+	Name:             "extractApiMergeRequestsNotes",
+	EntryPoint:       ExtractApiMergeRequestsNotes,
+	EnabledByDefault: true,
+	Description:      "Extract raw merge requests notes data into tool layer table GitlabMergeRequestNote",
+}
+
 func ExtractApiMergeRequestsNotes(taskCtx core.SubTaskContext) error {
 	rawDataSubTaskArgs, _ := CreateRawDataSubTaskArgs(taskCtx, RAW_MERGE_REQUEST_NOTES_TABLE)
 

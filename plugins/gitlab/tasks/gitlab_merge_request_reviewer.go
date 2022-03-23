@@ -1,10 +1,7 @@
 package tasks
 
 import (
-	"github.com/merico-dev/lake/logger"
-	lakeModels "github.com/merico-dev/lake/models"
 	"github.com/merico-dev/lake/plugins/gitlab/models"
-	"gorm.io/gorm/clause"
 )
 
 type Reviewer struct {
@@ -15,18 +12,6 @@ type Reviewer struct {
 	State          string
 	AvatarUrl      string `json:"avatar_url"`
 	WebUrl         string `json:"web_url"`
-}
-
-func CreateReviewers(projectId int, mergeRequestId int, reviewers []Reviewer) {
-	for _, reviewer := range reviewers {
-		gitlabReviewer := NewReviewer(projectId, mergeRequestId, reviewer)
-		err := lakeModels.Db.Clauses(clause.OnConflict{
-			UpdateAll: true,
-		}).Create(&gitlabReviewer).Error
-		if err != nil {
-			logger.Error("Could not upsert: ", err)
-		}
-	}
 }
 
 func NewReviewer(projectId int, mergeRequestId int, reviewer Reviewer) *models.GitlabReviewer {

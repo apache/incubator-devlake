@@ -8,6 +8,13 @@ import (
 	"gorm.io/gorm/clause"
 )
 
+var EnrichMergeRequestsMeta = core.SubTaskMeta{
+	Name:             "enrichMrs",
+	EntryPoint:       EnrichMergeRequests,
+	EnabledByDefault: true,
+	Description:      "Enrich merge requests data from GitlabCommit, GitlabMergeRequestNote and GitlabMergeRequest",
+}
+
 func EnrichMergeRequests(taskCtx core.SubTaskContext) error {
 	data := taskCtx.GetData().(*GitlabTaskData)
 	db := taskCtx.GetDb()

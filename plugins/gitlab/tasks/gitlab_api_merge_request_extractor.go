@@ -32,6 +32,13 @@ type MergeRequestRes struct {
 	FirstCommentTime core.Iso8601Time
 }
 
+var ExtractApiMergeRequestsMeta = core.SubTaskMeta{
+	Name:             "extractApiMergeRequests",
+	EntryPoint:       ExtractApiMergeRequests,
+	EnabledByDefault: true,
+	Description:      "Extract raw merge requests data into tool layer table GitlabMergeRequest and GitlabReviewer",
+}
+
 func ExtractApiMergeRequests(taskCtx core.SubTaskContext) error {
 	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_MERGE_REQUEST_TABLE)
 
