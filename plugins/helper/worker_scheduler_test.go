@@ -9,7 +9,7 @@ import (
 func TestNewWorkerScheduler(t *testing.T) {
 	testChannel := make(chan int, 100)
 	ctx, cancel := context.WithCancel(context.Background())
-	s, _ := NewWorkerScheduler(5, 2, ctx)
+	s, _ := NewWorkerScheduler(5, 2, 1*time.Second, ctx)
 	defer s.Release()
 	for i := 1; i <= 5; i++ {
 		t := i
@@ -45,7 +45,7 @@ func TestNewWorkerScheduler(t *testing.T) {
 func TestNewWorkerSchedulerWithoutSecond(t *testing.T) {
 	testChannel := make(chan int, 100)
 	ctx, cancel := context.WithCancel(context.Background())
-	s, _ := NewWorkerScheduler(5, 0, ctx)
+	s, _ := NewWorkerScheduler(5, 0, 1*time.Second, ctx)
 	defer s.Release()
 	for i := 1; i <= 5; i++ {
 		t := i
@@ -82,4 +82,3 @@ func TestNewWorkerSchedulerWithPanic(t *testing.T) {
 	cancel()
 }
 */
-
