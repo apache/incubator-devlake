@@ -28,7 +28,7 @@ func GetTotalPagesFromResponse(res *http.Response, args *helper.ApiCollectorArgs
 	if total == "" {
 		return 0, nil
 	}
-	totalInt, err := convertStringToInt(total)
+	totalInt, err := strconv.Atoi(total)
 	if err != nil {
 		return 0, err
 	}
@@ -36,19 +36,20 @@ func GetTotalPagesFromResponse(res *http.Response, args *helper.ApiCollectorArgs
 }
 
 func GetRawMessageFromResponse(res *http.Response) ([]json.RawMessage, error) {
-	rawMessages := &[]json.RawMessage{}
+	rawMessages := []json.RawMessage{}
 
 	defer res.Body.Close()
 	resBody, err := ioutil.ReadAll(res.Body)
 	if err != nil {
 		return nil, fmt.Errorf("%w %s", err, res.Request.URL.String())
 	}
-	err = json.Unmarshal(resBody, rawMessages)
+
+	err = json.Unmarshal(resBody, &rawMessages)
 	if err != nil {
 		return nil, fmt.Errorf("%w %s %s", err, res.Request.URL.String(), string(resBody))
 	}
 
-	return *rawMessages, nil
+	return rawMessages, nil
 }
 
 func GetQuery(reqData *helper.RequestData) (url.Values, error) {

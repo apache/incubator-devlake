@@ -8,6 +8,13 @@ import (
 	"github.com/merico-dev/lake/plugins/helper"
 )
 
+var ExtractApiMergeRequestsCommitsMeta = core.SubTaskMeta{
+	Name:             "extractApiMergeRequestsCommits",
+	EntryPoint:       ExtractApiMergeRequestsCommits,
+	EnabledByDefault: true,
+	Description:      "Extract raw merge requests commit data into tool layer table GitlabMergeRequestCommit and GitlabCommit",
+}
+
 func ExtractApiMergeRequestsCommits(taskCtx core.SubTaskContext) error {
 	rawDataSubTaskArgs, _ := CreateRawDataSubTaskArgs(taskCtx, RAW_MERGE_REQUEST_COMMITS_TABLE)
 

@@ -10,6 +10,13 @@ import (
 	"github.com/merico-dev/lake/plugins/helper"
 )
 
+var ConvertApiCommitsMeta = core.SubTaskMeta{
+	Name:             "convertApiCommits",
+	EntryPoint:       ConvertApiCommits,
+	EnabledByDefault: true,
+	Description:      "Update domain layer commit according to GitlabCommit",
+}
+
 func ConvertApiCommits(taskCtx core.SubTaskContext) error {
 
 	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_COMMIT_TABLE)

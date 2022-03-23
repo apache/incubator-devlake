@@ -11,6 +11,13 @@ import (
 	"github.com/merico-dev/lake/plugins/helper"
 )
 
+var ConvertApiNotesMeta = core.SubTaskMeta{
+	Name:             "convertApiNotes",
+	EntryPoint:       ConvertApiNotes,
+	EnabledByDefault: true,
+	Description:      "Update domain layer Note according to GitlabMergeRequestNote",
+}
+
 func ConvertApiNotes(taskCtx core.SubTaskContext) error {
 
 	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_PROJECT_TABLE)

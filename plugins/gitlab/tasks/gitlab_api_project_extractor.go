@@ -7,6 +7,13 @@ import (
 	"github.com/merico-dev/lake/plugins/helper"
 )
 
+var ExtractProjectMeta = core.SubTaskMeta{
+	Name:             "extractApiProject",
+	EntryPoint:       ExtractApiProject,
+	EnabledByDefault: true,
+	Description:      "Extract raw project data into tool layer table GitlabProject",
+}
+
 func ExtractApiProject(taskCtx core.SubTaskContext) error {
 	rawDataSubTaskArgs, _ := CreateRawDataSubTaskArgs(taskCtx, RAW_PROJECT_TABLE)
 
