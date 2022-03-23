@@ -14,7 +14,12 @@ import (
 
 const RAW_BUILD_TABLE = "jenkins_api_builds"
 
-var _ core.SubTaskEntryPoint = CollectApiBuilds
+var CollectApiBuildsMeta = core.SubTaskMeta{
+	Name:             "collectApiBuilds",
+	EntryPoint:       CollectApiBuilds,
+	EnabledByDefault: true,
+	Description:      "Collect builds data from jenkins api",
+}
 
 type SimpleJob struct {
 	Name string

@@ -9,7 +9,12 @@ import (
 
 // this struct should be moved to `gitub_api_common.go`
 
-var _ core.SubTaskEntryPoint = ExtractApiJobs
+var ExtractApiJobsMeta = core.SubTaskMeta{
+	Name:             "extractApiJobs",
+	EntryPoint:       ExtractApiJobs,
+	EnabledByDefault: true,
+	Description:      "Extract raw jobs data into tool layer table jenkins_jobs",
+}
 
 func ExtractApiJobs(taskCtx core.SubTaskContext) error {
 	extractor, err := helper.NewApiExtractor(helper.ApiExtractorArgs{
