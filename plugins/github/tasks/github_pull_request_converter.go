@@ -10,6 +10,13 @@ import (
 	"reflect"
 )
 
+var ConvertPullRequestsMeta = core.SubTaskMeta{
+	Name:             "ConvertPullRequests",
+	EntryPoint:       ConvertPullRequests,
+	EnabledByDefault: true,
+	Description:      "ConvertPullRequests data from Github api",
+}
+
 func ConvertPullRequests(taskCtx core.SubTaskContext) error {
 	db := taskCtx.GetDb()
 	data := taskCtx.GetData().(*GithubTaskData)

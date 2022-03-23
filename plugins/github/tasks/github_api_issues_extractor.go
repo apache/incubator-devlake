@@ -10,7 +10,12 @@ import (
 	"github.com/merico-dev/lake/plugins/helper"
 )
 
-var _ core.SubTaskEntryPoint = ExtractApiIssues
+var ExtractApiIssuesMeta = core.SubTaskMeta{
+	Name:             "extractApiIssues",
+	EntryPoint:       ExtractApiIssues,
+	EnabledByDefault: true,
+	Description:      "Extract raw Issues data into tool layer table github_issues",
+}
 
 type IssuesResponse struct {
 	GithubId    int `json:"id"`

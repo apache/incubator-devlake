@@ -7,17 +7,24 @@ import (
 	"github.com/merico-dev/lake/models/domainlayer/didgen"
 	"github.com/merico-dev/lake/models/domainlayer/ticket"
 	"github.com/merico-dev/lake/plugins/core"
-	githubModels "github.com/merico-dev/lake/plugins/github/models"
+	"github.com/merico-dev/lake/plugins/github/models"
 	"github.com/merico-dev/lake/plugins/helper"
 	"reflect"
 )
+
+var ConvertReposMeta = core.SubTaskMeta{
+	Name:             "ConvertRepos",
+	EntryPoint:       ConvertRepos,
+	EnabledByDefault: true,
+	Description:      "Convert tool layer table github_repos into  domain layer table repos and boards",
+}
 
 func ConvertRepos(taskCtx core.SubTaskContext) error {
 	db := taskCtx.GetDb()
 	data := taskCtx.GetData().(*GithubTaskData)
 	repoId := data.Repo.GithubId
 
-	cursor, err := db.Model(&githubModels.GithubRepo{}).
+	cursor, err := db.Model(&models.GithubRepo{}).
 		Where("github_id = ?", repoId).
 		Rows()
 	if err != nil {
@@ -25,10 +32,10 @@ func ConvertRepos(taskCtx core.SubTaskContext) error {
 	}
 	defer cursor.Close()
 
-	repoIdGen := didgen.NewDomainIdGenerator(&githubModels.GithubRepo{})
+	repoIdGen := didgen.NewDomainIdGenerator(&models.GithubRepo{})
 
 	converter, err := helper.NewDataConverter(helper.DataConverterArgs{
-		InputRowType: reflect.TypeOf(githubModels.GithubRepo{}),
+		InputRowType: reflect.TypeOf(models.GithubRepo{}),
 		Input:        cursor,
 		RawDataSubTaskArgs: helper.RawDataSubTaskArgs{
 			Ctx: taskCtx,
@@ -39,7 +46,7 @@ func ConvertRepos(taskCtx core.SubTaskContext) error {
 			Table: RAW_REPOSITORIES_TABLE,
 		},
 		Convert: func(inputRow interface{}) ([]interface{}, error) {
-			repository := inputRow.(*githubModels.GithubRepo)
+			repository := inputRow.(*models.GithubRepo)
 			domainRepository := &code.Repo{
 				DomainEntity: domainlayer.DomainEntity{
 					Id: repoIdGen.Generate(repository.GithubId),

@@ -12,7 +12,7 @@ import (
 	"github.com/merico-dev/lake/utils"
 )
 
-func NewGithubApiClient(taskCtx core.TaskContext) (*helper.ApiAsyncClient, error) {
+func CreateApiClient(taskCtx core.TaskContext) (*helper.ApiAsyncClient, error) {
 	// load configuration
 	endpoint := taskCtx.GetConfig("GITHUB_ENDPOINT")
 	if endpoint == "" {

@@ -17,7 +17,12 @@ const RAW_PULL_REQUEST_COMMIT_TABLE = "github_api_pull_request_commits"
 
 // this struct should be moved to `gitub_api_common.go`
 
-var _ core.SubTaskEntryPoint = CollectApiPullRequestCommits
+var CollectApiPullRequestCommitsMeta = core.SubTaskMeta{
+	Name:             "collectApiPullRequestCommits",
+	EntryPoint:       CollectApiPullRequestCommits,
+	EnabledByDefault: true,
+	Description:      "Collect PullRequestCommits data from Github api",
+}
 
 type SimplePr struct {
 	Number   int
