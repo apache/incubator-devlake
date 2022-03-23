@@ -23,6 +23,13 @@ type GitlabApiProject struct {
 	LastActivityAt    *core.Iso8601Time `json:"last_activity_at"`
 }
 
+var CollectProjectMeta = core.SubTaskMeta{
+	Name:             "collectApiProject",
+	EntryPoint:       CollectApiProject,
+	EnabledByDefault: true,
+	Description:      "Collect project data from gitlab api",
+}
+
 func CollectApiProject(taskCtx core.SubTaskContext) error {
 	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_PROJECT_TABLE)
 

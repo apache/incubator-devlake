@@ -11,6 +11,13 @@ import (
 	"github.com/merico-dev/lake/plugins/helper"
 )
 
+var ConvertProjectMeta = core.SubTaskMeta{
+	Name:             "convertApiProject",
+	EntryPoint:       ConvertApiProjects,
+	EnabledByDefault: true,
+	Description:      "Update domain layer Repo according to GitlabProject",
+}
+
 func ConvertApiProjects(taskCtx core.SubTaskContext) error {
 
 	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_PROJECT_TABLE)

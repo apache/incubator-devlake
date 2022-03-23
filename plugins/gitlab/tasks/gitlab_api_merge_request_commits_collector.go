@@ -7,6 +7,13 @@ import (
 
 const RAW_MERGE_REQUEST_COMMITS_TABLE = "gitlab_api_merge_request_commits"
 
+var CollectApiMergeRequestsCommitsMeta = core.SubTaskMeta{
+	Name:             "collectApiMergeRequestsCommits",
+	EntryPoint:       CollectApiMergeRequestsCommits,
+	EnabledByDefault: true,
+	Description:      "Collect merge requests commits data from gitlab api",
+}
+
 func CollectApiMergeRequestsCommits(taskCtx core.SubTaskContext) error {
 	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_MERGE_REQUEST_COMMITS_TABLE)
 

@@ -32,6 +32,20 @@ type ApiSinglePipelineResponse struct {
 	Status          string
 }
 
+var ExtractApiPipelinesMeta = core.SubTaskMeta{
+	Name:             "extractApiPipelines",
+	EntryPoint:       ExtractApiPipelines,
+	EnabledByDefault: true,
+	Description:      "Extract raw pipelines data into tool layer table GitlabPipeline",
+}
+
+var ExtractApiChildrenOnPipelinesMeta = core.SubTaskMeta{
+	Name:             "extractApiChildrenOnPipelines",
+	EntryPoint:       ExtractApiChildrenOnPipelines,
+	EnabledByDefault: true,
+	Description:      "Extract raw pipelines data into tool layer table GitlabPipeline",
+}
+
 func ExtractApiPipelines(taskCtx core.SubTaskContext) error {
 	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_PIPELINE_TABLE)
 
