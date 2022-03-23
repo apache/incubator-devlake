@@ -10,6 +10,13 @@ import (
 	"reflect"
 )
 
+var ConvertBuildsMeta = core.SubTaskMeta{
+	Name:             "convertBuilds",
+	EntryPoint:       ConvertBuilds,
+	EnabledByDefault: true,
+	Description:      "Convert tool layer table jenkins_builds into  domain layer table builds",
+}
+
 func ConvertBuilds(taskCtx core.SubTaskContext) error {
 	db := taskCtx.GetDb()
 
