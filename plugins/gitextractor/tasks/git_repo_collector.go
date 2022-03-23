@@ -1,8 +1,8 @@
 package tasks
 
 import (
-	"strings"
 	"errors"
+	"strings"
 
 	"github.com/merico-dev/lake/plugins/core"
 	"github.com/merico-dev/lake/plugins/gitextractor/parser"
@@ -54,4 +54,11 @@ func CollectGitRepo(subTaskCtx core.SubTaskContext) error {
 		return err
 	}
 	return nil
+}
+
+var CollectGitRepoMeta = core.SubTaskMeta{
+	Name:             "collectGitRepo",
+	EntryPoint:       CollectGitRepo,
+	EnabledByDefault: true,
+	Description:      "collect git commits/branches/tags int Domain Layer Tables",
 }

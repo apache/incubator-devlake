@@ -3,12 +3,13 @@ package tasks
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/merico-dev/lake/plugins/core"
-	"github.com/merico-dev/lake/plugins/helper"
-	"github.com/merico-dev/lake/plugins/jenkins/models"
 	"net/http"
 	"net/url"
 	"reflect"
+
+	"github.com/merico-dev/lake/plugins/core"
+	"github.com/merico-dev/lake/plugins/helper"
+	"github.com/merico-dev/lake/plugins/jenkins/models"
 )
 
 const RAW_BUILD_TABLE = "jenkins_api_builds"
@@ -55,7 +56,7 @@ func CollectApiBuilds(taskCtx core.SubTaskContext) error {
 			var data struct {
 				Builds []json.RawMessage `json:"allBuilds"`
 			}
-			err := core.UnmarshalResponse(res, &data)
+			err := helper.UnmarshalResponse(res, &data)
 			if err != nil {
 				return nil, err
 			}

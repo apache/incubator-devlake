@@ -2,21 +2,9 @@ package main // must be main for plugin entry point
 
 import (
 	"context"
-	"fmt"
-	"net/http"
-	"os"
-	"strconv"
-	"time"
 
-	"github.com/merico-dev/lake/errors"
-	lakeModels "github.com/merico-dev/lake/models"
 	"github.com/merico-dev/lake/plugins/core"
-	"github.com/merico-dev/lake/plugins/helper"
 	"github.com/merico-dev/lake/plugins/jira/api"
-	"github.com/merico-dev/lake/plugins/jira/models"
-	"github.com/merico-dev/lake/plugins/jira/tasks"
-	"github.com/merico-dev/lake/utils"
-	"github.com/mitchellh/mapstructure"
 )
 
 var _ core.Plugin = (*Jira)(nil)
@@ -24,8 +12,10 @@ var _ core.Plugin = (*Jira)(nil)
 // plugin interface
 type Jira string
 
-func (plugin Jira) Init() {
-	err := lakeModels.Db.AutoMigrate(
+/*
+func (plugin Jira) Init(config *viper.Viper, logger core.Logger, db *gorm.DB) error {
+	api.Init(config, logger, db)
+	err := db.AutoMigrate(
 		&models.JiraProject{},
 		&models.JiraUser{},
 		&models.JiraIssue{},
@@ -47,12 +37,17 @@ func (plugin Jira) Init() {
 		panic(err)
 	}
 }
+*/
+func (plugin Jira) Init() {
+
+}
 
 func (plugin Jira) Description() string {
 	return "To collect and enrich data from JIRA"
 }
 
 func (plugin Jira) Execute(options map[string]interface{}, progress chan<- float32, ctx context.Context) error {
+	/* TODO: adopt new interface
 	// process options
 	var op tasks.JiraOptions
 	var err error
@@ -210,6 +205,184 @@ func (plugin Jira) Execute(options map[string]interface{}, progress chan<- float
 		}
 	}
 
+	// run tasks
+	var collector tasks.Collector
+	info, code, err := jiraApiClient.GetJiraServerInfo()
+	if err != nil || code != http.StatusOK {
+		return fmt.Errorf("fail to get server info")
+	}
+	if info.DeploymentType == models.DeploymentCloud {
+		collector = tasks.NewCloud()
+	}
+	if info.DeploymentType == models.DeploymentServer {
+		if versions := info.VersionNumbers; len(versions) == 3 && versions[0] == 8 {
+			collector = tasks.NewServerVersion8(lakeModels.Db, jiraApiClient)
+		}
+	}
+	if collector == nil {
+		return fmt.Errorf("Jira server %s is not supported", info.Version)
+	}
+
+	logger.Info("start plugin execution")
+	if tasksToRun["collectProjects"] {
+		err := collector.CollectProjects(jiraApiClient, op.SourceId)
+		if err != nil {
+			return &errors.SubTaskError{
+				SubTaskName: "collectProjects",
+				Message:     err.Error(),
+			}
+		}
+	}
+	if tasksToRun["collectUsers"] {
+		err := collector.CollectUsers(jiraApiClient, op.SourceId)
+		if err != nil {
+			return &errors.SubTaskError{
+				SubTaskName: "collectUsers",
+				Message:     err.Error(),
+			}
+		}
+	}
+	if tasksToRun["collectBoard"] {
+		err := collector.CollectBoard(jiraApiClient, source, boardId)
+		if err != nil {
+			return &errors.SubTaskError{
+				SubTaskName: "collectBoard",
+				Message:     err.Error(),
+			}
+		}
+	}
+	progress <- 0.01
+	if tasksToRun["collectIssues"] {
+		err = collector.CollectIssues(jiraApiClient, source, boardId, since, source.RateLimit, ctx)
+		if err != nil {
+			return &errors.SubTaskError{
+				SubTaskName: "collectIssues",
+				Message:     err.Error(),
+			}
+		}
+	}
+
+	progress <- 0.1
+	if tasksToRun["collectChangelogs"] {
+		err = collector.CollectChangelogs(jiraApiClient, source, boardId, rateLimit, ctx)
+		if err != nil {
+			return &errors.SubTaskError{
+				SubTaskName: "collectChangelogs",
+				Message:     err.Error(),
+			}
+		}
+	}
+	if tasksToRun["collectRemotelinks"] {
+		err = collector.CollectRemoteLinks(jiraApiClient, source, boardId, rateLimit, ctx)
+		if err != nil {
+			return &errors.SubTaskError{
+				SubTaskName: "collectRemotelinks",
+				Message:     err.Error(),
+			}
+		}
+	}
+	// TODO: Remove this subtask, we can collect user while we are collecting issues
+	if tasksToRun["collectUsers"] {
+		err := collector.CollectUsers(jiraApiClient, op.SourceId)
+		if err != nil {
+			return &errors.SubTaskError{
+				SubTaskName: "collectUsers",
+				Message:     err.Error(),
+			}
+		}
+	}
+	progress <- 0.2
+	if tasksToRun["enrichIssues"] {
+		err = tasks.EnrichIssues(source, boardId)
+		if err != nil {
+			return &errors.SubTaskError{
+				SubTaskName: "enrichIssues",
+				Message:     err.Error(),
+			}
+		}
+	}
+	if tasksToRun["enrichRemotelinks"] {
+		err = tasks.EnrichRemotelinks(source, boardId)
+		if err != nil {
+			return &errors.SubTaskError{
+				SubTaskName: "enrichRemotelinks",
+				Message:     err.Error(),
+			}
+		}
+	}
+	progress <- 0.3
+	if tasksToRun["collectSprints"] {
+		err = collector.CollectSprint(jiraApiClient, source, boardId)
+		if err != nil {
+			return &errors.SubTaskError{
+				SubTaskName: "collectSprints",
+				Message:     err.Error(),
+			}
+		}
+	}
+	progress <- 0.4
+	if tasksToRun["convertBoard"] {
+		err := tasks.ConvertBoard(op.SourceId, boardId)
+		if err != nil {
+			return &errors.SubTaskError{
+				SubTaskName: "convertBoard",
+				Message:     err.Error(),
+			}
+		}
+	}
+	progress <- 0.5
+	if tasksToRun["convertUsers"] {
+		err := tasks.ConvertUsers(op.SourceId)
+		if err != nil {
+			return &errors.SubTaskError{
+				SubTaskName: "convertUsers",
+				Message:     err.Error(),
+			}
+		}
+	}
+	progress <- 0.7
+	if tasksToRun["convertWorklogs"] {
+		err = tasks.ConvertWorklog(op.SourceId, boardId)
+		if err != nil {
+			return &errors.SubTaskError{
+				SubTaskName: "convertWorklogs",
+				Message:     err.Error(),
+			}
+		}
+	}
+	progress <- 0.8
+	if tasksToRun["convertChangelogs"] {
+		err = tasks.ConvertChangelogs(op.SourceId, boardId)
+		if err != nil {
+			return &errors.SubTaskError{
+				SubTaskName: "convertChangelogs",
+				Message:     err.Error(),
+			}
+		}
+	}
+	progress <- 0.85
+	if tasksToRun["convertSprints"] {
+		err = tasks.ConvertSprint(op.SourceId, boardId)
+		if err != nil {
+			return &errors.SubTaskError{
+				SubTaskName: "convertSprints",
+				Message:     err.Error(),
+			}
+		}
+	}
+	progress <- 0.9
+	if tasksToRun["convertIssueCommits"] {
+		err = tasks.ConvertIssueCommits(op.SourceId, boardId)
+		if err != nil {
+			return &errors.SubTaskError{
+				SubTaskName: "convertIssueCommits",
+				Message:     err.Error(),
+			}
+		}
+	}
+	progress <- 1.0
+	logger.Info("end plugin execution")
+	*/
 	return nil
 }
 
@@ -272,6 +445,7 @@ var PluginEntry Jira //nolint
 
 // standalone mode for debugging
 func main() {
+	/* TODO: adopt new method
 	args := os.Args[1:]
 	if len(args) < 2 {
 		panic(fmt.Errorf("Usage: jira <source_id> <board_id>"))
@@ -329,4 +503,5 @@ func main() {
 	for p := range progress {
 		fmt.Println(p)
 	}
+	*/
 }

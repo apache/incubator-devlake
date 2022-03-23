@@ -28,7 +28,7 @@ func init() {
 	if strings.TrimSpace(notificationEndpoint) != "" {
 		notificationService = NewNotificationService(notificationEndpoint, notificationSecret)
 	}
-	models.Db.Model(&models.Pipeline{}).Where("status = ?", models.TASK_RUNNING).Update("status", models.TASK_FAILED)
+	db.Model(&models.Pipeline{}).Where("status = ?", models.TASK_RUNNING).Update("status", models.TASK_FAILED)
 }
 
 func CreatePipeline(newPipeline *models.NewPipeline) (*models.Pipeline, error) {
@@ -42,7 +42,7 @@ func CreatePipeline(newPipeline *models.NewPipeline) (*models.Pipeline, error) {
 	}
 
 	// save pipeline to database
-	err := models.Db.Create(&pipeline).Error
+	err := db.Create(&pipeline).Error
 	if err != nil {
 		logger.Error("create pipline failed", err)
 		return nil, errors.InternalError
@@ -77,7 +77,7 @@ func CreatePipeline(newPipeline *models.NewPipeline) (*models.Pipeline, error) {
 	if err != nil {
 		return nil, err
 	}
-	err = models.Db.Model(pipeline).Updates(map[string]interface{}{
+	err = db.Model(pipeline).Updates(map[string]interface{}{
 		"total_tasks": pipeline.TotalTasks,
 		"tasks":       pipeline.Tasks,
 	}).Error
@@ -91,7 +91,7 @@ func CreatePipeline(newPipeline *models.NewPipeline) (*models.Pipeline, error) {
 
 func GetPipelines(query *PipelineQuery) ([]*models.Pipeline, int64, error) {
 	pipelines := make([]*models.Pipeline, 0)
-	db := models.Db.Model(pipelines).Order("id DESC")
+	db := db.Model(pipelines).Order("id DESC")
 	if query.Status != "" {
 		db = db.Where("status = ?", query.Status)
 	}
@@ -116,7 +116,7 @@ func GetPipelines(query *PipelineQuery) ([]*models.Pipeline, int64, error) {
 
 func GetPipeline(pipelineId uint64) (*models.Pipeline, error) {
 	pipeline := &models.Pipeline{}
-	err := models.Db.Find(pipeline, pipelineId).Error
+	err := db.Find(pipeline, pipelineId).Error
 	if err != nil {
 		return nil, err
 	}
@@ -130,7 +130,7 @@ func RunPipeline(pipelineId uint64) error {
 	}
 	// load tasks for pipeline
 	var tasks []*models.Task
-	err = models.Db.Where("pipeline_id = ?", pipeline.ID).Order("pipeline_row, pipeline_col").Find(&tasks).Error
+	err = db.Where("pipeline_id = ?", pipeline.ID).Order("pipeline_row, pipeline_col").Find(&tasks).Error
 	if err != nil {
 		return err
 	}
@@ -144,7 +144,7 @@ func RunPipeline(pipelineId uint64) error {
 	}
 
 	beganAt := time.Now()
-	err = models.Db.Model(pipeline).Updates(map[string]interface{}{
+	err = db.Model(pipeline).Updates(map[string]interface{}{
 		"status":   models.TASK_RUNNING,
 		"message":  "",
 		"began_at": beganAt,
@@ -173,7 +173,7 @@ func RunPipeline(pipelineId uint64) error {
 				logger.Error("pipeline task failed", err)
 				rowErrors = append(rowErrors, err.Error())
 			}
-			err = models.Db.Model(pipeline).Updates(map[string]interface{}{
+			err = db.Model(pipeline).Updates(map[string]interface{}{
 				"status":         models.TASK_RUNNING,
 				"finished_tasks": finishedTasks,
 			}).Error
@@ -197,14 +197,14 @@ func RunPipeline(pipelineId uint64) error {
 	finishedAt := time.Now()
 	spentSeconds := finishedAt.Unix() - beganAt.Unix()
 	if err != nil {
-		err = models.Db.Model(pipeline).Updates(map[string]interface{}{
+		err = db.Model(pipeline).Updates(map[string]interface{}{
 			"status":        models.TASK_FAILED,
 			"message":       err.Error(),
 			"finished_at":   finishedAt,
 			"spent_seconds": spentSeconds,
 		}).Error
 	} else {
-		err = models.Db.Model(pipeline).Updates(map[string]interface{}{
+		err = db.Model(pipeline).Updates(map[string]interface{}{
 			"status":        models.TASK_COMPLETED,
 			"message":       "",
 			"finished_at":   finishedAt,

@@ -5,13 +5,11 @@ import (
 )
 
 type ApiMeResponse struct {
-	Name     string `json:"name"`
-	GithubId int    `json:"id"`
-	HTMLUrl  string `json:"html_url"`
+	Name string `json:"name"`
 }
 
 /*
-GET /plugins/github/test
+GET /plugins/ae/test
 */
 func TestConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, error) {
 	// TODO: implement test connection

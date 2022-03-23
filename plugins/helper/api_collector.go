@@ -45,7 +45,7 @@ type ApiCollectorArgs struct {
 	Header      func(reqData *RequestData) (http.Header, error)
 	PageSize    int
 	Incremental bool `comment:"Indicate this is a incremental collection, so the existing data won't get flushed"`
-	ApiClient   core.AsyncApiClient
+	ApiClient   RateLimitedApiClient
 	/*
 		Sometimes, we need to collect data based on previous collected data, like jira changelog, it requires
 		issue_id as part of the url.
