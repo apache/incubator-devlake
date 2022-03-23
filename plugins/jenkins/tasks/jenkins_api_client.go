@@ -9,7 +9,7 @@ import (
 	"github.com/merico-dev/lake/utils"
 )
 
-func NewJenkinsApiClient(taskCtx core.TaskContext) (*helper.ApiAsyncClient, error) {
+func CreateApiClient(taskCtx core.TaskContext) (*helper.ApiAsyncClient, error) {
 	// load configuration
 	endpoint := taskCtx.GetConfig("JENKINS_ENDPOINT")
 	if endpoint == "" {
