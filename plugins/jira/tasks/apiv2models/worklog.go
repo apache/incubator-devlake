@@ -1,7 +1,6 @@
 package apiv2models
 
 import (
-	"encoding/json"
 	"github.com/merico-dev/lake/plugins/core"
 
 	"github.com/merico-dev/lake/plugins/jira/models"
@@ -38,31 +37,4 @@ func (w Worklog) ToToolLayer(sourceId uint64) *models.JiraWorklog {
 		result.UpdateAuthorId = w.UpdateAuthor.EmailAddress
 	}
 	return result
-}
-
-func (Worklog) FromAPI(sourceId uint64, raw json.RawMessage) (interface{}, error) {
-	var vv []Worklog
-	err := json.Unmarshal(raw, &vv)
-	if err != nil {
-		return nil, err
-	}
-	list := make([]*models.JiraWorklog, len(vv))
-	for i, item := range vv {
-		list[i] = item.ToToolLayer(sourceId)
-	}
-	return list, nil
-}
-
-func (Worklog) ExtractRawMessage(blob []byte) (json.RawMessage, error) {
-	var resp struct {
-		StartAt    int             `json:"startAt"`
-		MaxResults int             `json:"maxResults"`
-		Total      int             `json:"total"`
-		Worklogs   json.RawMessage `json:"worklogs"`
-	}
-	err := json.Unmarshal(blob, &resp)
-	if err != nil {
-		return nil, err
-	}
-	return resp.Worklogs, nil
 }

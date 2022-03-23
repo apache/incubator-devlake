@@ -6,16 +6,17 @@ import (
 	"strings"
 	"time"
 
-	"github.com/merico-dev/lake/logger"
-	lakeModels "github.com/merico-dev/lake/models"
 	"github.com/merico-dev/lake/models/domainlayer/didgen"
 	"github.com/merico-dev/lake/models/domainlayer/ticket"
+	"github.com/merico-dev/lake/plugins/core"
 	"github.com/merico-dev/lake/plugins/jira/models"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
 )
 
 type SprintIssuesConverter struct {
+	db             *gorm.DB
+	logger         core.Logger
 	sprintIdGen    *didgen.DomainIdGenerator
 	issueIdGen     *didgen.DomainIdGenerator
 	userIdGen      *didgen.DomainIdGenerator
@@ -26,8 +27,10 @@ type SprintIssuesConverter struct {
 	sprintsHistory map[string]*ticket.IssueSprintsHistory
 }
 
-func NewSprintIssueConverter() *SprintIssuesConverter {
+func NewSprintIssueConverter(taskCtx core.SubTaskContext) *SprintIssuesConverter {
 	return &SprintIssuesConverter{
+		db:             taskCtx.GetDb(),
+		logger:         taskCtx.GetLogger(),
 		sprintIdGen:    didgen.NewDomainIdGenerator(&models.JiraSprint{}),
 		issueIdGen:     didgen.NewDomainIdGenerator(&models.JiraIssue{}),
 		userIdGen:      didgen.NewDomainIdGenerator(&models.JiraUser{}),
@@ -62,14 +65,14 @@ func (c *SprintIssuesConverter) FeedIn(sourceId uint64, cl ChangelogItemResult) 
 	for sprintId := range from {
 		err = c.handleFrom(sourceId, sprintId, cl)
 		if err != nil {
-			logger.Error("handle from error:", err)
+			c.logger.Error("handle from error:", err)
 			return
 		}
 	}
 	for sprintId := range to {
 		err = c.handleTo(sourceId, sprintId, cl)
 		if err != nil {
-			logger.Error("handle to error:", err)
+			c.logger.Error("handle to error:", err)
 			return
 		}
 	}
@@ -78,7 +81,7 @@ func (c *SprintIssuesConverter) FeedIn(sourceId uint64, cl ChangelogItemResult) 
 func (c *SprintIssuesConverter) UpdateSprintIssue() error {
 	var err error
 	for _, fresh := range c.sprintIssue {
-		err = lakeModels.Db.Updates(fresh).Error
+		err = c.db.Updates(fresh).Error
 		if err == nil {
 			return err
 		}
@@ -149,7 +152,7 @@ func (c *SprintIssuesConverter) handleFrom(sourceId, sprintId uint64, cl Changel
 	k := fmt.Sprintf("%d:%d", sprintId, cl.IssueId)
 	if item := c.sprintsHistory[k]; item != nil {
 		item.EndDate = &cl.Created
-		err := lakeModels.Db.Clauses(clause.OnConflict{
+		err := c.db.Clauses(clause.OnConflict{
 			UpdateAll: true,
 		}).Create(item).Error
 		if err != nil {
@@ -206,7 +209,7 @@ func (c *SprintIssuesConverter) getSprint(id string) (*ticket.Sprint, error) {
 		return value, nil
 	}
 	var sprint ticket.Sprint
-	err := lakeModels.Db.First(&sprint, "id = ?", id).Error
+	err := c.db.First(&sprint, "id = ?", id).Error
 	if err != nil {
 		c.sprints[id] = &sprint
 	}
@@ -226,7 +229,7 @@ func (c *SprintIssuesConverter) handleStatus(sourceId uint64, cl ChangelogItemRe
 	issueId := c.issueIdGen.Generate(sourceId, cl.IssueId)
 	if statusHistory := c.status[issueId]; statusHistory != nil {
 		statusHistory.EndDate = &cl.Created
-		err = lakeModels.Db.Clauses(clause.OnConflict{
+		err = c.db.Clauses(clause.OnConflict{
 			UpdateAll: true,
 		}).Create(c.status[issueId]).Error
 		if err != nil {
@@ -240,7 +243,7 @@ func (c *SprintIssuesConverter) handleStatus(sourceId uint64, cl ChangelogItemRe
 		StartDate:      cl.Created,
 		EndDate:        &now,
 	}
-	err = lakeModels.Db.Clauses(clause.OnConflict{
+	err = c.db.Clauses(clause.OnConflict{
 		UpdateAll: true,
 	}).Create(c.status[issueId]).Error
 	if err != nil {
@@ -265,7 +268,7 @@ func (c *SprintIssuesConverter) handleAssignee(sourceId uint64, cl ChangelogItem
 		StartDate: cl.Created,
 		EndDate:   &now,
 	}
-	err := lakeModels.Db.Clauses(clause.OnConflict{
+	err := c.db.Clauses(clause.OnConflict{
 		UpdateAll: true,
 	}).Create(c.assignee[issueId]).Error
 	if err != nil {

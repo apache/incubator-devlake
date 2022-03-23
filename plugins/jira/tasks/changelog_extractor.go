@@ -13,6 +13,9 @@ var _ core.SubTaskEntryPoint = ExtractChangelogs
 
 func ExtractChangelogs(taskCtx core.SubTaskContext) error {
 	data := taskCtx.GetData().(*JiraTaskData)
+	if data.JiraServerInfo.DeploymentType == models.DeploymentServer {
+		return nil
+	}
 	db := taskCtx.GetDb()
 	sourceId := data.Source.ID
 	extractor, err := helper.NewApiExtractor(helper.ApiExtractorArgs{

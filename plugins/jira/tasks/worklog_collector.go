@@ -42,6 +42,7 @@ func CollectWorklogs(taskCtx core.SubTaskContext) error {
 		UrlTemplate:   "api/2/issue/{{ .Input.IssueId }}/worklog",
 		PageSize:      50,
 		GetTotalPages: GetTotalPagesFromResponse,
+		Concurrency:   10,
 		ResponseParser: func(res *http.Response) ([]json.RawMessage, error) {
 			var data struct {
 				Worklogs []json.RawMessage `json:"worklogs"`

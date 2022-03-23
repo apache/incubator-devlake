@@ -35,7 +35,7 @@ type RemoteLink struct {
 	} `json:"object"`
 }
 
-func (r RemoteLink) toToolLayer(sourceId, issueId uint64, raw json.RawMessage) *models.JiraRemotelink {
+func (r RemoteLink) ToToolLayer(sourceId, issueId uint64, raw json.RawMessage) *models.JiraRemotelink {
 	return &models.JiraRemotelink{
 		SourceId:     sourceId,
 		RemotelinkId: r.ID,
@@ -45,26 +45,4 @@ func (r RemoteLink) toToolLayer(sourceId, issueId uint64, raw json.RawMessage) *
 		Url:          r.Object.URL,
 		RawJson:      datatypes.JSON(raw),
 	}
-}
-
-func (RemoteLink) FromAPI(sourceId, issueId uint64, raw json.RawMessage) (interface{}, error) {
-	var msgs []json.RawMessage
-	err := json.Unmarshal(raw, &msgs)
-	if err != nil {
-		return nil, err
-	}
-	var list []*models.JiraRemotelink
-	for _, msg := range msgs {
-		var remoteLink RemoteLink
-		err = json.Unmarshal(msg, &remoteLink)
-		if err != nil {
-			return nil, err
-		}
-		list = append(list, remoteLink.toToolLayer(sourceId, issueId, msg))
-	}
-	return list, nil
-}
-
-func (RemoteLink) ExtractRawMessage(blob []byte) (json.RawMessage, error) {
-	return blob, nil
 }

@@ -29,6 +29,7 @@ func CollectBoard(taskCtx core.SubTaskContext) error {
 		ApiClient:     data.ApiClient,
 		UrlTemplate:   "agile/1.0/board/{{ .Params.BoardId }}",
 		GetTotalPages: GetTotalPagesFromResponse,
+		Concurrency:   10,
 		ResponseParser: func(res *http.Response) ([]json.RawMessage, error) {
 			blob, err := ioutil.ReadAll(res.Body)
 			if err != nil {
