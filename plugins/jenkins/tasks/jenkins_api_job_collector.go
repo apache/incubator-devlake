@@ -10,7 +10,12 @@ import (
 
 const RAW_JOB_TABLE = "jenkins_api_jobs"
 
-var _ core.SubTaskEntryPoint = CollectApiJobs
+var CollectApiJobsMeta = core.SubTaskMeta{
+	Name:             "collectApiJobs",
+	EntryPoint:       CollectApiJobs,
+	EnabledByDefault: true,
+	Description:      "Collect jobs data from jenkins api",
+}
 
 func CollectApiJobs(taskCtx core.SubTaskContext) error {
 	//db := taskCtx.GetDb()
