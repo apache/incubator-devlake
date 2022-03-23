@@ -2,10 +2,11 @@ package tasks
 
 import (
 	"fmt"
+	"reflect"
+
 	"github.com/merico-dev/lake/models/domainlayer/crossdomain"
 	"github.com/merico-dev/lake/plugins/core"
 	"github.com/merico-dev/lake/plugins/helper"
-	"reflect"
 )
 
 func CalculateIssuesDiff(taskCtx core.SubTaskContext) error {
@@ -38,7 +39,7 @@ func CalculateIssuesDiff(taskCtx core.SubTaskContext) error {
 		Input:        cursor,
 		RawDataSubTaskArgs: helper.RawDataSubTaskArgs{
 			Ctx:   taskCtx,
-			Table: "",
+			Table: "refs_commits_diffs",
 		},
 		Convert: func(inputRow interface{}) ([]interface{}, error) {
 			refPairIssue := inputRow.(*crossdomain.RefsIssuesDiffs)
@@ -52,4 +53,11 @@ func CalculateIssuesDiff(taskCtx core.SubTaskContext) error {
 	}
 
 	return converter.Execute()
+}
+
+var CalculateIssuesDiffMeta = core.SubTaskMeta{
+	Name:             "calculateIssuesDiff",
+	EntryPoint:       CalculateIssuesDiff,
+	EnabledByDefault: true,
+	Description:      "Calculate diff issues between refs",
 }
