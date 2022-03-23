@@ -13,9 +13,13 @@ import (
 
 const RAW_REPOSITORIES_TABLE = "github_api_repositories"
 
-// this struct should be moved to `gitub_api_common.go`
-
-var _ core.SubTaskEntryPoint = CollectApiRepositories
+var CollectApiRepositoriesMeta = core.SubTaskMeta{
+	Name:             "collectApiRepositories",
+	EntryPoint:       CollectApiRepositories,
+	Required:         true,
+	EnabledByDefault: true,
+	Description:      "Collect repositories data from Github api",
+}
 
 func CollectApiRepositories(taskCtx core.SubTaskContext) error {
 	data := taskCtx.GetData().(*GithubTaskData)

@@ -11,6 +11,13 @@ import (
 	"strings"
 )
 
+var EnrichPullRequestIssuesMeta = core.SubTaskMeta{
+	Name:             "enrichPullRequestIssues",
+	EntryPoint:       EnrichPullRequestIssues,
+	EnabledByDefault: true,
+	Description:      "Create tool layer table github_pull_request_issues from github_pull_reqeusts",
+}
+
 func EnrichPullRequestIssues(taskCtx core.SubTaskContext) (err error) {
 	db := taskCtx.GetDb()
 	data := taskCtx.GetData().(*GithubTaskData)

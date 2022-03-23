@@ -9,7 +9,12 @@ import (
 	"github.com/merico-dev/lake/plugins/helper"
 )
 
-var _ core.SubTaskEntryPoint = ExtractApiPullRequestCommits
+var ExtractApiPullRequestCommitsMeta = core.SubTaskMeta{
+	Name:             "extractApiPullRequestCommits",
+	EntryPoint:       ExtractApiPullRequestCommits,
+	EnabledByDefault: true,
+	Description:      "Extract raw PullRequestCommits data into tool layer table github_commits",
+}
 
 type PrCommitsResponse struct {
 	Sha    string `json:"sha"`

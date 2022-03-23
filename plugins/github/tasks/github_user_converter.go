@@ -10,6 +10,13 @@ import (
 	"reflect"
 )
 
+var ConvertUsersMeta = core.SubTaskMeta{
+	Name:             "ConvertUsers",
+	EntryPoint:       ConvertUsers,
+	EnabledByDefault: true,
+	Description:      "Convert tool layer table github_users into  domain layer table users",
+}
+
 func ConvertUsers(taskCtx core.SubTaskContext) error {
 	db := taskCtx.GetDb()
 	data := taskCtx.GetData().(*GithubTaskData)

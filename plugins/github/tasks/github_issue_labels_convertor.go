@@ -9,6 +9,13 @@ import (
 	"reflect"
 )
 
+var ConvertIssueLabelsMeta = core.SubTaskMeta{
+	Name:             "ConvertIssueLabels",
+	EntryPoint:       ConvertIssueLabels,
+	EnabledByDefault: true,
+	Description:      "Convert tool layer table github_issue_labels into  domain layer table issue_labels",
+}
+
 func ConvertIssueLabels(taskCtx core.SubTaskContext) error {
 	db := taskCtx.GetDb()
 	data := taskCtx.GetData().(*GithubTaskData)

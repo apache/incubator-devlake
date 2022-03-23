@@ -16,8 +16,6 @@ const RAW_COMMENTS_TABLE = "github_api_comments"
 
 // this struct should be moved to `gitub_api_common.go`
 
-var _ core.SubTaskEntryPoint = CollectApiComments
-
 func CollectApiComments(taskCtx core.SubTaskContext) error {
 	db := taskCtx.GetDb()
 	data := taskCtx.GetData().(*GithubTaskData)
@@ -102,4 +100,11 @@ func CollectApiComments(taskCtx core.SubTaskContext) error {
 	}
 
 	return collector.Execute()
+}
+
+var CollectApiCommentsMeta = core.SubTaskMeta{
+	Name:             "collectApiComments",
+	EntryPoint:       CollectApiComments,
+	EnabledByDefault: true,
+	Description:      "Collect comments data from Github api",
 }

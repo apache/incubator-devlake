@@ -7,7 +7,12 @@ import (
 	"github.com/merico-dev/lake/plugins/helper"
 )
 
-var _ core.SubTaskEntryPoint = ExtractApiCommitStats
+var ExtractApiCommitStatsMeta = core.SubTaskMeta{
+	Name:             "extractApiCommitStats",
+	EntryPoint:       ExtractApiCommitStats,
+	EnabledByDefault: false,
+	Description:      "Extract raw commit stats data into tool layer table github_commit_stats",
+}
 
 type ApiSingleCommitResponse struct {
 	Sha   string

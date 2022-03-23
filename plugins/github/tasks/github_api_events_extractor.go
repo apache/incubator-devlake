@@ -7,7 +7,12 @@ import (
 	"github.com/merico-dev/lake/plugins/helper"
 )
 
-var _ core.SubTaskEntryPoint = ExtractApiEvents
+var ExtractApiEventsMeta = core.SubTaskMeta{
+	Name:             "extractApiEvents",
+	EntryPoint:       ExtractApiEvents,
+	EnabledByDefault: true,
+	Description:      "Extract raw Events data into tool layer table github_issue_events",
+}
 
 type IssueEvent struct {
 	GithubId int `json:"id"`

@@ -7,7 +7,13 @@ import (
 	"github.com/merico-dev/lake/plugins/helper"
 )
 
-var _ core.SubTaskEntryPoint = ExtractApiRepositories
+var ExtractApiRepositoriesMeta = core.SubTaskMeta{
+	Name:             "extractApiRepositories",
+	EntryPoint:       ExtractApiRepositories,
+	Required:         true,
+	EnabledByDefault: true,
+	Description:      "Extract raw Repositories data into tool layer table github_repos",
+}
 
 type ApiRepoResponse GithubApiRepo
 
