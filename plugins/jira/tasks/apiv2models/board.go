@@ -1,8 +1,6 @@
 package apiv2models
 
 import (
-	"encoding/json"
-
 	"github.com/merico-dev/lake/plugins/jira/models"
 )
 
@@ -34,16 +32,4 @@ func (b Board) ToToolLayer(sourceId uint64) *models.JiraBoard {
 		result.ProjectId = b.Location.ProjectId
 	}
 	return result
-}
-
-func (b Board) FromAPI(sourceId uint64, raw json.RawMessage) (interface{}, error) {
-	var board Board
-	err := json.Unmarshal(raw, &board)
-	if err != nil {
-		return nil, err
-	}
-	return board.ToToolLayer(sourceId), nil
-}
-func (b Board) ExtractRawMessage(blob []byte) (json.RawMessage, error) {
-	return blob, nil
 }

@@ -26,9 +26,10 @@ func CollectUsers(taskCtx core.SubTaskContext) error {
 		ApiClient:   data.ApiClient,
 		UrlTemplate: "api/3/users/search",
 		PageSize:    50,
+		Concurrency: 10,
 		ResponseParser: func(res *http.Response) ([]json.RawMessage, error) {
 			var result []json.RawMessage
-			err := core.UnmarshalResponse(res, &result)
+			err := helper.UnmarshalResponse(res, &result)
 			if err != nil {
 				return nil, err
 			}

@@ -21,11 +21,6 @@ type JiraApiParams struct {
 	BoardId  uint64
 }
 
-type JiraApiRawIssuesResponse struct {
-	JiraPagination
-	Issues []json.RawMessage `json:"issues"`
-}
-
 var _ core.SubTaskEntryPoint = CollectIssues
 
 func CollectIssues(taskCtx core.SubTaskContext) error {
@@ -92,6 +87,7 @@ func CollectIssues(taskCtx core.SubTaskContext) error {
 			query.Set("jql", jql)
 			query.Set("startAt", fmt.Sprintf("%v", reqData.Pager.Skip))
 			query.Set("maxResults", fmt.Sprintf("%v", reqData.Pager.Size))
+			query.Set("expand", "changelog")
 			return query, nil
 		},
 		/*
@@ -112,6 +108,7 @@ func CollectIssues(taskCtx core.SubTaskContext) error {
 			or other techniques are required if this information was missing.
 		*/
 		GetTotalPages: GetTotalPagesFromResponse,
+		Concurrency:   10,
 		ResponseParser: func(res *http.Response) ([]json.RawMessage, error) {
 			var data struct {
 				Issues []json.RawMessage `json:"issues"`

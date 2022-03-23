@@ -1,7 +1,6 @@
 package tasks
 
 import (
-	lakeModels "github.com/merico-dev/lake/models"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
 	"reflect"
@@ -22,7 +21,7 @@ func ConvertSprints(taskCtx core.SubTaskContext) error {
 	logger := taskCtx.GetLogger()
 	db := taskCtx.GetDb()
 	logger.Info("convert sprints")
-	cursor, err := lakeModels.Db.Model(&models.JiraSprint{}).
+	cursor, err := db.Model(&models.JiraSprint{}).
 		Select("jira_sprints.*").
 		Joins("left join jira_board_sprints on jira_board_sprints.sprint_id = jira_sprints.sprint_id").
 		Where("jira_board_sprints.source_id = ? AND jira_board_sprints.board_id = ?", sourceId, boardId).
@@ -31,12 +30,12 @@ func ConvertSprints(taskCtx core.SubTaskContext) error {
 		return err
 	}
 	defer cursor.Close()
-
+	var converter *helper.DataConverter
 	domainBoardId := didgen.NewDomainIdGenerator(&models.JiraBoard{}).Generate(sourceId, boardId)
 	sprintIdGen := didgen.NewDomainIdGenerator(&models.JiraSprint{})
 	issueIdGen := didgen.NewDomainIdGenerator(&models.JiraIssue{})
 	boardIdGen := didgen.NewDomainIdGenerator(&models.JiraBoard{})
-	converter, err := helper.NewDataConverter(helper.DataConverterArgs{
+	converter, err = helper.NewDataConverter(helper.DataConverterArgs{
 		RawDataSubTaskArgs: helper.RawDataSubTaskArgs{
 			Ctx: taskCtx,
 			Params: JiraApiParams{

@@ -15,8 +15,9 @@ type JiraOptions struct {
 }
 
 type JiraTaskData struct {
-	Options   *JiraOptions
-	ApiClient *helper.ApiAsyncClient
-	Source    *models.JiraSource
-	Since     *time.Time
+	Options        *JiraOptions
+	ApiClient      *helper.ApiAsyncClient
+	Source         *models.JiraSource
+	Since          *time.Time
+	JiraServerInfo models.JiraServerInfo
 }
