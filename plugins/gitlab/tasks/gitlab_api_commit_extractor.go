@@ -8,6 +8,13 @@ import (
 	"github.com/merico-dev/lake/plugins/helper"
 )
 
+var ExtractCommitsMeta = core.SubTaskMeta{
+	Name:             "extractApiCommits",
+	EntryPoint:       ExtractApiCommits,
+	EnabledByDefault: true,
+	Description:      "Extract raw commit data into tool layer table GitlabCommit,GitlabUser and GitlabProjectCommit",
+}
+
 func ExtractApiCommits(taskCtx core.SubTaskContext) error {
 	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_COMMIT_TABLE)
 

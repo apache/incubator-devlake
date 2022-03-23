@@ -7,6 +7,13 @@ import (
 
 const RAW_COMMIT_TABLE = "gitlab_api_commit"
 
+var CollectCommitsMeta = core.SubTaskMeta{
+	Name:             "collectApiCommits",
+	EntryPoint:       CollectApiCommits,
+	EnabledByDefault: true,
+	Description:      "Collect commit data from gitlab api",
+}
+
 type GitlabApiCommit struct {
 	GitlabId       string `json:"id"`
 	Title          string

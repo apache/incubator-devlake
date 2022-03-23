@@ -8,6 +8,20 @@ import (
 const RAW_PIPELINE_TABLE = "gitlab_api_pipeline"
 const RAW_CHILDREN_ON_PIPELINE_TABLE = "gitlab_api_children_on_pipeline"
 
+var CollectApiPipelinesMeta = core.SubTaskMeta{
+	Name:             "collectApiPipelines",
+	EntryPoint:       CollectApiPipelines,
+	EnabledByDefault: true,
+	Description:      "Collect pipeline data from gitlab api",
+}
+
+var CollectApiChildrenOnPipelinesMeta = core.SubTaskMeta{
+	Name:             "collectApiChildrenOnPipelines",
+	EntryPoint:       CollectApiChildrenOnPipelines,
+	EnabledByDefault: true,
+	Description:      "Collect pipline child data from gitlab api",
+}
+
 func CollectApiPipelines(taskCtx core.SubTaskContext) error {
 	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_PIPELINE_TABLE)
 

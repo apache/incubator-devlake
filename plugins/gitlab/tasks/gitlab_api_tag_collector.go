@@ -7,6 +7,13 @@ import (
 
 const RAW_TAG_TABLE = "gitlab_api_tag"
 
+var CollectTagMeta = core.SubTaskMeta{
+	Name:             "collectApiTag",
+	EntryPoint:       CollectApiTag,
+	EnabledByDefault: true,
+	Description:      "Collect tag data from gitlab api",
+}
+
 func CollectApiTag(taskCtx core.SubTaskContext) error {
 	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_TAG_TABLE)
 

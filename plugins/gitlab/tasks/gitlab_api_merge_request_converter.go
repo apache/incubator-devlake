@@ -11,6 +11,13 @@ import (
 	"github.com/merico-dev/lake/plugins/helper"
 )
 
+var ConvertApiMergeRequestsMeta = core.SubTaskMeta{
+	Name:             "convertApiMergeRequests",
+	EntryPoint:       ConvertApiMergeRequests,
+	EnabledByDefault: true,
+	Description:      "Update domain layer PullRequest according to GitlabMergeRequest",
+}
+
 func ConvertApiMergeRequests(taskCtx core.SubTaskContext) error {
 	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_MERGE_REQUEST_TABLE)
 	db := taskCtx.GetDb()

@@ -263,7 +263,7 @@ func (collector *ApiCollector) fetchPagesAsync(reqData *RequestData) error {
 func (collector *ApiCollector) handleNoPageResponse(reqData *RequestData) func(res *http.Response) error {
 	return func(res *http.Response) error {
 		_, err := collector.saveRawData(res, reqData.Input)
-		if err != nil{
+		if err != nil {
 			return err
 		}
 		return nil
@@ -274,6 +274,7 @@ func (collector *ApiCollector) handleResponse(res *http.Response) error {
 	_, err := collector.saveRawData(res, nil)
 	return err
 }
+
 func (collector *ApiCollector) saveRawData(res *http.Response, input interface{}) (int, error) {
 	items, err := collector.args.ResponseParser(res)
 	if err != nil {
