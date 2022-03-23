@@ -67,12 +67,13 @@ func CollectRemotelinks(taskCtx core.SubTaskContext) error {
 		ApiClient:   data.ApiClient,
 		Input:       iterator,
 		UrlTemplate: "api/2/issue/{{ .Input.IssueId }}/remotelink",
+		Concurrency: 10,
 		ResponseParser: func(res *http.Response) ([]json.RawMessage, error) {
 			if res.StatusCode == http.StatusNotFound {
 				return nil, nil
 			}
 			var result []json.RawMessage
-			err := core.UnmarshalResponse(res, &result)
+			err := helper.UnmarshalResponse(res, &result)
 			if err != nil {
 				return nil, err
 			}

@@ -18,9 +18,11 @@ var _ core.SubTaskEntryPoint = CollectChangelogs
 const RAW_CHANGELOG_TABLE = "jira_api_changelogs"
 
 func CollectChangelogs(taskCtx core.SubTaskContext) error {
-	db := taskCtx.GetDb()
 	data := taskCtx.GetData().(*JiraTaskData)
-
+	if data.JiraServerInfo.DeploymentType == models.DeploymentServer {
+		return nil
+	}
+	db := taskCtx.GetDb()
 	// figure out the time range
 	since := data.Since
 	incremental := false
@@ -80,11 +82,12 @@ func CollectChangelogs(taskCtx core.SubTaskContext) error {
 			query.Set("maxResults", fmt.Sprintf("%v", reqData.Pager.Size))
 			return query, nil
 		},
+		Concurrency: 10,
 		ResponseParser: func(res *http.Response) ([]json.RawMessage, error) {
 			var data struct {
 				Values []json.RawMessage
 			}
-			err := core.UnmarshalResponse(res, &data)
+			err := helper.UnmarshalResponse(res, &data)
 			if err != nil {
 				return nil, err
 			}

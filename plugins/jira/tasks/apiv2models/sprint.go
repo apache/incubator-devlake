@@ -1,7 +1,6 @@
 package apiv2models
 
 import (
-	"encoding/json"
 	"time"
 
 	"github.com/merico-dev/lake/plugins/jira/models"
@@ -30,34 +29,4 @@ func (s Sprint) ToToolLayer(sourceId uint64) *models.JiraSprint {
 		CompleteDate:  s.CompleteDate,
 		OriginBoardID: s.OriginBoardID,
 	}
-}
-func (s Sprint) FromAPI(sourceId uint64, raw json.RawMessage) (interface{}, error) {
-	v, err := s.GetJiraSprints(sourceId, raw)
-	return v, err
-}
-func (s Sprint) GetJiraSprints(sourceId uint64, raw json.RawMessage) ([]*models.JiraSprint, error) {
-	var vv []Sprint
-	err := json.Unmarshal(raw, &vv)
-	if err != nil {
-		return nil, err
-	}
-	list := make([]*models.JiraSprint, len(vv))
-	for i, item := range vv {
-		list[i] = item.ToToolLayer(sourceId)
-	}
-	return list, nil
-}
-
-func (Sprint) ExtractRawMessage(blob []byte) (json.RawMessage, error) {
-	var resp struct {
-		MaxResults int             `json:"maxResults"`
-		StartAt    int             `json:"startAt"`
-		IsLast     bool            `json:"isLast"`
-		Values     json.RawMessage `json:"values"`
-	}
-	err := json.Unmarshal(blob, &resp)
-	if err != nil {
-		return nil, err
-	}
-	return resp.Values, nil
 }

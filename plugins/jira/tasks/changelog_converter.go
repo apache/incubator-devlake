@@ -55,7 +55,7 @@ func ConvertChangelogs(taskCtx core.SubTaskContext) error {
 		return err
 	}
 	defer cursor.Close()
-	sprintIssueConverter := NewSprintIssueConverter()
+	sprintIssueConverter := NewSprintIssueConverter(taskCtx)
 	issueIdGenerator := didgen.NewDomainIdGenerator(&models.JiraIssue{})
 	changelogIdGenerator := didgen.NewDomainIdGenerator(&models.JiraChangelogItem{})
 
@@ -100,8 +100,5 @@ func ConvertChangelogs(taskCtx core.SubTaskContext) error {
 	if err != nil {
 		return err
 	}
-	err = sprintIssueConverter.UpdateSprintIssue()
-	if err != nil {
-	}
-	return err
+	return sprintIssueConverter.UpdateSprintIssue()
 }
