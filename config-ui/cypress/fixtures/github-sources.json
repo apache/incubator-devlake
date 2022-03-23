@@ -1,0 +1,15 @@
+[{
+  "Name": "Github",
+  "ID": 1,
+  "Endpoint": "https://api.github.com/",
+  "Auth": "xxxxxxxxxxxxxxxxxxx",
+  "Proxy": "",
+  "PrType": "",
+  "PrComponent": "",
+  "IssueSeverity": "",
+  "IssuePriority": "",
+  "IssueComponent": "",
+  "IssueTypeBug": "",
+  "IssueTypeIncident": "",
+  "IssueTypeRequirement": ""
+}]

@@ -7,7 +7,8 @@
     "build-production": "webpack --config webpack.production.config.js --mode production",
     "start": "webpack serve --progress",
     "start-production": "npm run build-production;node server.js",
-    "lint": "eslint ./src --fix"
+    "lint": "eslint ./src --fix",
+    "cypress": "./node_modules/.bin/cypress open"
   },
   "dependencies": {
     "@blueprintjs/core": "^3.49.1",
@@ -43,6 +44,7 @@
     "css-loader": "^3.6.0",
     "css-minimizer-webpack-plugin": "^1.3.0",
     "cssnano": "^4.1.11",
+    "cypress": "^9.5.1",
     "eslint": "^7.15.0",
     "eslint-config-airbnb": "^18.2.1",
     "eslint-config-standard": "^16.0.2",

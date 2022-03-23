@@ -898,19 +898,20 @@ const CreatePipeline = (props) => {
                       >
                         {/* <div key={`provider-${provider.id}`}> */}
                         <div
-                          className={`data-provider-row ${enabledProviders.includes(provider.id) ? 'on' : 'off'}`}
+                          // eslint-disable-next-line max-len
+                          className={`data-provider-row data-provider-${provider.id.toLowerCase()} ${enabledProviders.includes(provider.id) ? 'on' : 'off'}`}
                         >
                           <div className='provider-info'>
                             <div className='provider-icon'>{provider.iconDashboard}</div>
                             <span className='provider-name'>{provider.name}</span>
                             <Tooltip
                               intent={Intent.PRIMARY}
-                              content={`Enable ${provider.name}`} position={Position.RIGHT} popoverClassName='pipeline-tooltip'
+                              content={`Enable ${provider.name}`} position={Position.LEFT} popoverClassName='pipeline-tooltip'
                             >
                               <Switch
                           // alignIndicator={Alignment.CENTER}
                                 disabled={isRunning}
-                                className='provider-toggle-switch'
+                                className={`provider-toggle-switch switch-${provider.id.toLowerCase()}`}
                                 innerLabel={!enabledProviders.includes(provider.id) ? 'OFF' : null}
                                 innerLabelChecked='ON'
                                 checked={enabledProviders.includes(provider.id)}
@@ -1069,6 +1070,7 @@ const CreatePipeline = (props) => {
             </div>
             <div style={{ display: 'flex', width: '100%', justifyContent: 'flex-start', alignItems: 'flex-start' }}>
               <Button
+                id='btn-run-pipeline'
                 className='btn-pipeline btn-run-pipeline' icon='play' intent='primary'
                 disabled={advancedMode ? !isValidAdvancedPipeline() : !isValidPipeline()}
                 onClick={runPipeline}
@@ -1092,6 +1094,7 @@ const CreatePipeline = (props) => {
               <div style={{ padding: '7px 5px 0 50px' }}>
                 <Tooltip content='Advanced Pipeline Mode' position={Position.TOP}>
                   <Switch
+                    className='advanced-mode-toggleswitch'
                     intent={Intent.DANGER}
                     checked={advancedMode}
                     onChange={() => setAdvancedMode(t => !t)}

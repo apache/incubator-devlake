@@ -1,0 +1,23 @@
+{
+  "ID": 1000,
+  "CreatedAt": "2022-03-21T15:06:22.053-04:00",
+  "UpdatedAt": "2022-03-21T15:06:22.077-04:00",
+  "name": "COLLECT GITLAB 1647889530097",
+  "tasks": [
+    [
+      {
+        "plugin": "gitlab",
+        "options": {
+          "projectId": 278964
+        }
+      }
+    ]
+  ],
+  "totalTasks": 1,
+  "finishedTasks": 0,
+  "beganAt": null,
+  "finishedAt": null,
+  "status": "TASK_CREATED",
+  "message": "",
+  "spentSeconds": 0
+}

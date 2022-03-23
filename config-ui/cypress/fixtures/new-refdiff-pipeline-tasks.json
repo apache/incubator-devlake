@@ -1,0 +1,34 @@
+{
+  "count": 1,
+  "tasks": [
+    {
+      "ID": 100,
+      "CreatedAt": "2022-03-22T14:08:53.627Z",
+      "UpdatedAt": "2022-03-22T14:08:53.698Z",
+      "plugin": "refdiff",
+      "options": {
+        "pairs": [
+          {
+            "newRef": "refs/tags/v0.2.0",
+            "oldRef": "refs/tags/v0.1.0"
+          }
+        ],
+        "tasks": [
+          "calculateCommitsDiff",
+          "calculateIssuesDiff"
+        ],
+        "repoId": "github:GithubRepo:384111310"
+      },
+      "status": "TASK_FAILED",
+      "message": "could not process calculateCommitsDiff: failed to load commit sha for OleRef on pair #0: faild to load Ref info for repoId:github:GithubRepo:384111310, refName:refs/tags/v0.1.0",
+      "progress": 0.1,
+      "failedSubTask": "calculateCommitsDiff",
+      "pipelineId": 1000,
+      "pipelineRow": 1,
+      "pipelineCol": 1,
+      "beganAt": "2022-03-22T14:08:53.67Z",
+      "finishedAt": "2022-03-22T14:08:53.697Z",
+      "spentSeconds": 0
+    }
+  ]
+}
