@@ -131,10 +131,12 @@ func RunPluginSubTasks(
 		// run subtask
 		logger.Info("executing subtask %s", subtaskMeta.Name)
 		i++
-		progress <- core.RunningProgress{
-			Type:          core.SetCurrentSubTask,
-			SubTaskName:   subtaskMeta.Name,
-			SubTaskNumber: i,
+		if progress != nil {
+			progress <- core.RunningProgress{
+				Type:          core.SetCurrentSubTask,
+				SubTaskName:   subtaskMeta.Name,
+				SubTaskNumber: i,
+			}
 		}
 		err = subtaskMeta.EntryPoint(subtaskCtx)
 		if err != nil {
