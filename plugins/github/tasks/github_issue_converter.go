@@ -12,6 +12,13 @@ import (
 	githubModels "github.com/merico-dev/lake/plugins/github/models"
 )
 
+var ConvertIssuesMeta = core.SubTaskMeta{
+	Name:             "ConvertIssues",
+	EntryPoint:       ConvertIssues,
+	EnabledByDefault: true,
+	Description:      "Convert tool layer table github_issues into  domain layer table issues",
+}
+
 func ConvertIssues(taskCtx core.SubTaskContext) error {
 	db := taskCtx.GetDb()
 	data := taskCtx.GetData().(*GithubTaskData)

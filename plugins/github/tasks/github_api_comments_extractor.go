@@ -8,7 +8,13 @@ import (
 	"github.com/merico-dev/lake/plugins/helper"
 )
 
-var _ core.SubTaskEntryPoint = ExtractApiComments
+var ExtractApiCommentsMeta = core.SubTaskMeta{
+	Name:             "extractApiComments",
+	EntryPoint:       ExtractApiComments,
+	EnabledByDefault: true,
+	Description: "Extract raw comment data  into tool layer table github_pull_request_comments" +
+		"and github_issue_comments",
+}
 
 type IssueComment struct {
 	GithubId int `json:"id"`

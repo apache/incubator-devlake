@@ -9,6 +9,13 @@ import (
 	"reflect"
 )
 
+var ConvertPullRequestCommitsMeta = core.SubTaskMeta{
+	Name:             "ConvertPullRequestCommits",
+	EntryPoint:       ConvertPullRequestCommits,
+	EnabledByDefault: true,
+	Description:      "Convert tool layer table github_pull_request_commits into  domain layer table pull_request_commits",
+}
+
 func ConvertPullRequestCommits(taskCtx core.SubTaskContext) (err error) {
 	db := taskCtx.GetDb()
 	data := taskCtx.GetData().(*GithubTaskData)
