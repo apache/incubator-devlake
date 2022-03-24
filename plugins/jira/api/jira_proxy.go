@@ -63,5 +63,5 @@ func Proxy(input *core.ApiResourceInput) (*core.ApiResourceOutput, error) {
 	if err != nil {
 		return nil, err
 	}
-	return &core.ApiResourceOutput{Body: json.RawMessage(body)}, nil
+	return &core.ApiResourceOutput{Status: resp.StatusCode, Body: json.RawMessage(body)}, nil
 }

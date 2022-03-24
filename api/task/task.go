@@ -5,6 +5,7 @@ import (
 	"strconv"
 
 	"github.com/gin-gonic/gin"
+	"github.com/merico-dev/lake/api/shared"
 	"github.com/merico-dev/lake/services"
 )
 
@@ -18,35 +19,37 @@ GET /pipelines/pipeline:id/tasks?status=TASK_RUNNING&pending=1&page=1&=pagesize=
 	"count": 5
 }
 */
-func Index(ctx *gin.Context) {
+func Index(c *gin.Context) {
 	var query services.TaskQuery
-	err := ctx.BindQuery(&query)
+	err := c.ShouldBindQuery(&query)
 	if err != nil {
-		_ = ctx.AbortWithError(http.StatusBadRequest, err)
+		shared.ApiOutputError(c, err, http.StatusBadRequest)
 		return
 	}
-	err = ctx.BindUri(&query)
+	err = c.ShouldBindUri(&query)
 	if err != nil {
-		_ = ctx.AbortWithError(http.StatusBadRequest, err)
+		shared.ApiOutputError(c, err, http.StatusBadRequest)
 		return
 	}
 	tasks, count, err := services.GetTasks(&query)
 	if err != nil {
-		_ = ctx.AbortWithError(http.StatusBadRequest, err)
+		shared.ApiOutputError(c, err, http.StatusBadRequest)
 		return
 	}
-	ctx.JSON(http.StatusOK, gin.H{"tasks": tasks, "count": count})
+	shared.ApiOutputSuccess(c, gin.H{"tasks": tasks, "count": count}, http.StatusOK)
 }
 
-func Delete(ctx *gin.Context) {
-	taskId := ctx.Param("taskId")
+func Delete(c *gin.Context) {
+	taskId := c.Param("taskId")
 	id, err := strconv.ParseUint(taskId, 10, 64)
 	if err != nil {
-		ctx.JSON(http.StatusBadRequest, "invalid task id")
+		c.JSON(http.StatusBadRequest, "invalid task id")
 		return
 	}
 	err = services.CancelTask(id)
 	if err != nil {
-		ctx.JSON(http.StatusBadRequest, err.Error())
+		shared.ApiOutputError(c, err, http.StatusBadRequest)
+		return
 	}
+	shared.ApiOutputSuccess(c, nil, http.StatusOK)
 }
