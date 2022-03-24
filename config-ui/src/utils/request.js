@@ -2,6 +2,14 @@ import axios from 'axios'
 
 const headers = {}
 
+const handleErrorResponse = (e) => {
+  let errorResponse = { success: false, message: e.message, data: null, status: 504 }
+  if (e.response) {
+    errorResponse = { ...errorResponse, data: e.response ? e.response.data : null, status: e.response ? e.response.status : 504 }
+  }
+  return errorResponse
+}
+
 export default {
   post: async (url, body) => {
     return await axios.post(
@@ -10,7 +18,7 @@ export default {
       {
         headers
       }
-    )
+    ).catch(e => handleErrorResponse(e))
   },
   get: async (url) => {
     return await axios.get(
@@ -18,7 +26,7 @@ export default {
       {
         headers
       }
-    )
+    ).catch(e => handleErrorResponse(e))
   },
   put: async (url, body) => {
     return await axios.put(
@@ -27,7 +35,7 @@ export default {
       {
         headers
       }
-    )
+    ).catch(e => handleErrorResponse(e))
   },
   delete: async (url, body) => {
     return await axios.delete(
@@ -36,6 +44,6 @@ export default {
       {
         headers
       }
-    )
+    ).catch(e => handleErrorResponse(e))
   }
 }

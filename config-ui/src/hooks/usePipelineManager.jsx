@@ -129,9 +129,9 @@ function usePipelineManager (pipelineName = `COLLECTION ${Date.now()}`, initialT
       console.log('>> FETCHING ALL PIPELINE RUNS...')
       const fetchAll = async () => {
         const p = await request.get(`${DEVLAKE_ENDPOINT}/pipelines`)
-        console.log('>> RAW PIPELINES RUN DATA FROM API...', p.data.pipelines)
-        setPipelines([...p.data.pipelines])
-        setPipelineCount(p.data.count)
+        console.log('>> RAW PIPELINES RUN DATA FROM API...', p.data?.pipelines)
+        setPipelines(p.data && p.data.pipelines ? [...p.data.pipelines] : [])
+        setPipelineCount(p.data ? p.data.count : 0)
         // ToastNotification.show({ message: `Fetched All Pipelines`, intent: 'danger', icon: 'small-tick' })
         setTimeout(() => {
           setIsFetchingAll(false)
