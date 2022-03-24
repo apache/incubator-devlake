@@ -247,6 +247,19 @@ GitHub | 概述，数据和指标，配置，API | [Link](plugins/github/README-
 
 <br>
 
+#### 部署到 Kubernetes
+
+你也可以选择将 DevLake 部署到 Kubernetes 集群。这个操作只有一个前提条件，就是你有一套可以用的 Kubernetes 集群，并且确保本地 kubeconfig 配置正确。接着执行如下命令完成部署：
+
+```sh
+kubectl apply -f https://raw.githubusercontent.com/merico-dev/lake/main/k8s-deploy.yaml
+```
+
+接下来的设置与上一节 docker-compose 方式部署一致，需要注意的点是由于 Kubernetes 默认 NodePort 端口范围的限制，所以：
+
+1. DevLake 的 4000 端口需要通过 30004 访问
+2. Grafana 的 3000 端口需要通过 30002 访问
+
 ### 开发者安装<a id="dev-setup"></a>
 
 #### 前期准备
