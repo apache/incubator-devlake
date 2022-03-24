@@ -21,58 +21,7 @@ func (testResult *TestResult) Set(success bool, message string) {
 	testResult.Message = message
 }
 
-// Deprecated: use `validator` instead
-func ValidateParams(input *ApiResourceInput, requiredParams []string) *TestResult {
-	message := "Missing params: "
-	missingParams := []string{}
-	if len(input.Body) == 0 {
-		for _, param := range requiredParams {
-			message += fmt.Sprintf(" %v", param)
-		}
-		return &TestResult{Success: false, Message: message}
-	} else {
-		for _, param := range requiredParams {
-			if input.Body[param] == "" {
-				missingParams = append(missingParams, param)
-			}
-		}
-		if len(missingParams) > 0 {
-			for _, param := range missingParams {
-				message += fmt.Sprintf(" %v", param)
-			}
-			return &TestResult{Success: false, Message: message}
-		} else {
-			return &TestResult{Success: true, Message: ""}
-		}
-	}
-}
-
-// Deprecated: make no sense to put error message here
-const InvalidParams = "Failed to decode request params"
-const SourceIdError = "Missing or Invalid sourceId"
-const InvalidConnectionError = "Your connection configuration is invalid."
-const UnsetConnectionError = "Your connection configuration is not set."
-const UnmarshallingError = "There was a problem unmarshalling the response"
-const InvalidEndpointError = "Failed to parse endpoint"
-const SchemaIsRequired = "Endpoint schema is required"
-const InvalidSchema = "Failed to find port for schema"
-const DNSResolveFailedError = "Failed to find ip address"
-const NetworkConnectError = "Failed to connect to endpoint"
 const EncodeKeyEnvStr = "ENCODE_KEY"
-
-// Deprecated
-func GetRateLimitPerSecond(options map[string]interface{}, defaultValue int) (int, error) {
-	if options["rateLimitPerSecond"] == nil {
-		return defaultValue, nil
-	}
-
-	rateLimitPerSecond := options["rateLimitPerSecond"]
-	if value, ok := rateLimitPerSecond.(float64); ok {
-		return int(value), nil
-	} else {
-		return 0, fmt.Errorf("rateLimitPerSecond is invalid")
-	}
-}
 
 // TODO: maybe move encryption/decryption into helper?
 // AES + Base64 encryption using ENCODE_KEY in .env as key

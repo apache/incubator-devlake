@@ -5,7 +5,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/merico-dev/lake/logger"
+	"github.com/go-playground/validator/v10"
 	"github.com/merico-dev/lake/plugins/helper"
 	"github.com/mitchellh/mapstructure"
 
@@ -22,26 +22,28 @@ type PublicEmail struct {
 	Verified   bool
 	Visibility string
 }
+
 type TestConnectionRequest struct {
-	Endpoint string `json:"endpoint"`
-	Auth     string `json:"auth"`
+	Endpoint string `json:"endpoint" validate:"required,url"`
+	Auth     string `json:"auth" validate:"required"`
 	Proxy    string `json:"proxy"`
 }
+
+var vld = validator.New()
 
 /*
 POST /plugins/github/test
 */
 func TestConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, error) {
 	// process input
-	ValidationResult := core.ValidateParams(input, []string{"endpoint", "auth"})
-	if !ValidationResult.Success {
-		return &core.ApiResourceOutput{Body: ValidationResult}, nil
-	}
 	var params TestConnectionRequest
 	err := mapstructure.Decode(input.Body, &params)
 	if err != nil {
-		logger.Error("Error: ", err)
-		return &core.ApiResourceOutput{Body: core.TestResult{Success: false, Message: core.InvalidParams}}, nil
+		return nil, err
+	}
+	err = vld.Struct(params)
+	if err != nil {
+		return nil, err
 	}
 	tokens := strings.Split(params.Auth, ",")
 
