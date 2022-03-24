@@ -22,13 +22,10 @@ configure-dev:
 commit:
 	git cz
 
-test: unit-test e2e-test models-test
+test: unit-test e2e-test
 
 unit-test: build
 	set -e; for m in $$(go list ./... | egrep -v 'test|models|e2e'); do echo $$m; go test -v $$m; done
-
-models-test:
-	TEST=true go test ./models/test -v
 
 e2e-test: build
 	PLUGIN_DIR=$(shell readlink -f bin/plugins) go test -v ./test/...
