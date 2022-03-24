@@ -22,7 +22,8 @@ type ApiAccessTokenResponse struct {
 	Expire            int    `json:"expire"`
 }
 
-const ENDPOINT = "https://open.feishu.cn"
+const AUTH_ENDPOINT = "https://open.feishu.cn"
+const ENDPOINT = "https://open.feishu.cn/open-apis/vc/v1"
 
 func NewFeishuApiClient(taskCtx core.TaskContext) (*helper.ApiAsyncClient, error) {
 	// load and process cconfiguration
@@ -34,13 +35,13 @@ func NewFeishuApiClient(taskCtx core.TaskContext) (*helper.ApiAsyncClient, error
 	if secretKey == "" {
 		return nil, fmt.Errorf("invalid FEISHU_APPSCRECT")
 	}
-	userRateLimit, err := utils.StrToIntOr(taskCtx.GetConfig("FEISHU_API_REQUESTS_PER_HOUR"), 50)
+	userRateLimit, err := utils.StrToIntOr(taskCtx.GetConfig("FEISHU_API_REQUESTS_PER_HOUR"), 18000)
 	if err != nil {
 		return nil, err
 	}
 	proxy := taskCtx.GetConfig("FEISHU_PROXY")
 
-	apiClient, err := helper.NewApiClient(ENDPOINT, nil, 0, proxy, taskCtx.GetContext())
+	authApiClient, err := helper.NewApiClient(AUTH_ENDPOINT, nil, 0, proxy, taskCtx.GetContext())
 	if err != nil {
 		return nil, err
 	}
@@ -50,7 +51,7 @@ func NewFeishuApiClient(taskCtx core.TaskContext) (*helper.ApiAsyncClient, error
 		AppId:     appId,
 		AppSecret: secretKey,
 	}
-	tokenRes, err := apiClient.Post("open-apis/auth/v3/tenant_access_token/internal", nil, tokenReqBody, nil)
+	tokenRes, err := authApiClient.Post("open-apis/auth/v3/tenant_access_token/internal", nil, tokenReqBody, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -59,13 +60,17 @@ func NewFeishuApiClient(taskCtx core.TaskContext) (*helper.ApiAsyncClient, error
 	if err != nil {
 		return nil, err
 	}
-	if tokenResBody.AppAccessToken == "" {
+	if tokenResBody.AppAccessToken == "" && tokenResBody.TenantAccessToken == "" {
 		return nil, fmt.Errorf("failed to request access token")
 	}
-
+	// real request apiClient
+	apiClient, err := helper.NewApiClient(ENDPOINT, nil, 0, proxy, taskCtx.GetContext())
+	if err != nil {
+		return nil, err
+	}
 	// set token
 	apiClient.SetHeaders(map[string]string{
-		"Authorization": fmt.Sprintf("Bearer %v", tokenResBody.AppAccessToken),
+		"Authorization": fmt.Sprintf("Bearer %v", tokenResBody.TenantAccessToken),
 	})
 
 	apiClient.SetAfterFunction(func(res *http.Response) error {
@@ -76,7 +81,6 @@ func NewFeishuApiClient(taskCtx core.TaskContext) (*helper.ApiAsyncClient, error
 	})
 
 	// create async api client
-	// TODO: investigate feishu rate limit
 	asyncApiCLient, err := helper.CreateAsyncApiClient(taskCtx, apiClient, &helper.ApiRateLimitCalculator{
 		UserRateLimitPerHour: userRateLimit,
 	})
@@ -86,4 +90,3 @@ func NewFeishuApiClient(taskCtx core.TaskContext) (*helper.ApiAsyncClient, error
 
 	return asyncApiCLient, nil
 }
-
