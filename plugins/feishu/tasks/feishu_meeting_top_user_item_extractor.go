@@ -47,3 +47,10 @@ func ExtractMeetingTopUserItem(taskCtx core.SubTaskContext) error{
 
 	return exetractor.Execute()
 }
+
+var ExtractMeetingTopUserItemMeta = core.SubTaskMeta{
+	Name: "extractMeetingTopUserItem",
+	EntryPoint: ExtractMeetingTopUserItem,
+	EnabledByDefault: true,
+	Description: "Extrat raw top user meeting data into tool layer table feishu_meeting_top_user_item",
+}

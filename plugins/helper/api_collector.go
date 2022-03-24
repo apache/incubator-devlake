@@ -161,7 +161,6 @@ func (collector *ApiCollector) exec(input interface{}) error {
 		return collector.fetchPagesAsync(reqData)
 	}
 	// collect detail of a record
-	//return collector.fetchAsync(reqData, collector.handleResponse)
 	return collector.fetchAsync(reqData, collector.handleNoPageResponse(reqData))
 }
 
@@ -335,6 +334,7 @@ func (collector *ApiCollector) fetchAsync(reqData *RequestData, handler func(*ht
 			return err
 		}
 	}
+
 	apiHeader := (http.Header)(nil)
 	if collector.args.Header != nil {
 		apiHeader, err = collector.args.Header(reqData)
@@ -342,6 +342,7 @@ func (collector *ApiCollector) fetchAsync(reqData *RequestData, handler func(*ht
 			return err
 		}
 	}
+
 	return collector.args.ApiClient.GetAsync(apiUrl, apiQuery, apiHeader, handler)
 }
 
