@@ -3,10 +3,10 @@ package tasks
 import (
 	"context"
 	"fmt"
+
 	"github.com/cayleygraph/cayley"
 	"github.com/cayleygraph/quad"
 	"github.com/merico-dev/lake/logger"
-	"github.com/merico-dev/lake/models"
 	"github.com/merico-dev/lake/models/domainlayer/code"
 	"github.com/merico-dev/lake/plugins/core"
 	"gorm.io/gorm/clause"
@@ -25,7 +25,7 @@ func CalculateCommitsDiff(taskCtx core.SubTaskContext) error {
 			return "", fmt.Errorf("ref name is empty")
 		}
 		ref.Id = fmt.Sprintf("%s:%s", repoId, refName)
-		err := models.Db.First(ref).Error
+		err := db.First(ref).Error
 		if err != nil {
 			return "", fmt.Errorf("faild to load Ref info for repoId:%s, refName:%s", repoId, refName)
 		}
@@ -106,7 +106,7 @@ func CalculateCommitsDiff(taskCtx core.SubTaskContext) error {
 		p := newCommit.Except(oldCommit)
 
 		// delete records before creation
-		err = models.Db.Exec(
+		err = db.Exec(
 			"DELETE FROM refs_commits_diffs WHERE new_ref_name = ? AND old_ref_name = ?",
 			commitsDiff.NewRefName,
 			commitsDiff.OldRefName,
@@ -134,7 +134,7 @@ func CalculateCommitsDiff(taskCtx core.SubTaskContext) error {
 		// don't know  why exactly cayley does it this way, but we have to handle it anyway
 		// 1. adding new commit sha
 		commitsDiff.CommitSha = commitsDiff.NewRefCommitSha
-		err = models.Db.Clauses(clause.OnConflict{DoNothing: true}).Create(commitsDiff).Error
+		err = db.Clauses(clause.OnConflict{DoNothing: true}).Create(commitsDiff).Error
 		if err != nil {
 			return err
 		}
@@ -146,7 +146,7 @@ func CalculateCommitsDiff(taskCtx core.SubTaskContext) error {
 				return
 			}
 			commitsDiff.SortingIndex = index
-			err = models.Db.Clauses(clause.OnConflict{DoNothing: true}).Create(commitsDiff).Error
+			err = db.Clauses(clause.OnConflict{DoNothing: true}).Create(commitsDiff).Error
 			if err != nil {
 				panic(err)
 			}
@@ -164,4 +164,11 @@ func CalculateCommitsDiff(taskCtx core.SubTaskContext) error {
 		taskCtx.IncProgress(1)
 	}
 	return nil
+}
+
+var CalculateCommitsDiffMeta = core.SubTaskMeta{
+	Name:             "calculateCommitsDiff",
+	EntryPoint:       CalculateCommitsDiff,
+	EnabledByDefault: true,
+	Description:      "Calculate diff commits between refs",
 }
