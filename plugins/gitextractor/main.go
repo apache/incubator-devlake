@@ -5,6 +5,8 @@ import (
 	"flag"
 	"strings"
 
+	"github.com/merico-dev/lake/logger"
+
 	"github.com/merico-dev/lake/config"
 	"github.com/merico-dev/lake/plugins/gitextractor/models"
 	"github.com/merico-dev/lake/plugins/gitextractor/parser"
@@ -47,9 +49,10 @@ func main() {
 	}
 	defer storage.Close()
 	ctx := context.Background()
+	log := logger.Global.Nested("git extractor")
 	subTaskCtx := helper.NewStandaloneSubTaskContext(
 		config.GetConfig(),
-		helper.NewDefaultTaskLogger(nil, "git extractor"),
+		log,
 		nil,
 		ctx,
 		"git extractor",
