@@ -65,7 +65,7 @@ var PluginEntry Feishu
 // standalone mode for debugging
 func main(){
 	feishuCmd := &cobra.Command{Use: "feishu"}
-	numOfDaysToCollect := feishuCmd.Flags().IntP("numOfDaysToCollect", "p", 8, "feishu collect days")
+	numOfDaysToCollect := feishuCmd.Flags().IntP("numOfDaysToCollect", "n", 8, "feishu collect days")
 	feishuCmd.MarkFlagRequired("numOfDaysToCollect")
 	feishuCmd.Run = func(cmd *cobra.Command, args []string){
 		runner.DirectRun(cmd, args, PluginEntry, map[string]interface{}{
