@@ -55,6 +55,7 @@ DevLake 适用于希望更好地通过数据了解其开发过程的开发团队
 ## 用户安装<a id="user-setup"></a>
 
 - 如果你只打算运行 DevLake，你只需要阅读这一小节<br>
+- 本节描述了 2 种安装方式，[本地安装](#local-setup)和[Kubernetes安装](#k8s-setup)
 - 如果你想在云端安装 DevLake，你可以参考[安装手册](https://github.com/merico-dev/lake/wiki/How-to-Set-Up-Dev-Lake-with-Tin-zh-CN)，点击 <a valign="middle" href="https://www.teamcode.com/tin/clone?applicationId=259777118600769536">
         <img
           src="https://static01.teamcode.com/badge/teamcode-badge-run-in-cloud-cn.svg"
@@ -64,6 +65,8 @@ DevLake 适用于希望更好地通过数据了解其开发过程的开发团队
       </a> 完成安装
 - 写成 `这样` 的命令需要在你的终端中运行
 
+  
+### 部署到本地<a id="local-setup"></a>
 #### 需要安装的软件包<a id="user-setup-requirements"></a>
 
 - [Docker](https://docs.docker.com/get-docker)
@@ -130,7 +133,23 @@ DevLake 适用于希望更好地通过数据了解其开发过程的开发团队
 
 <br>
 
-### 开发者安装<a id="dev-setup"></a>
+
+### 部署到 Kubernetes 环境<a id="k8s-setup"></a>
+
+你也可以选择将 DevLake 部署到 Kubernetes 集群。这个操作只有一个前提条件，就是你有一套可以用的 Kubernetes 集群，并且确保本地 kubeconfig 配置正确。接着执行如下命令完成部署：
+
+```sh
+kubectl apply -f https://raw.githubusercontent.com/merico-dev/lake/main/k8s-deploy.yaml
+```
+
+接下来的设置与上一节 docker-compose 方式部署一致，需要注意的点是由于 Kubernetes 默认 NodePort 端口范围的限制，所以：
+
+1. DevLake 的 4000 端口需要通过 30004 访问
+2. Grafana 的 3000 端口需要通过 30002 访问
+
+<br>
+
+## 开发者安装<a id="dev-setup"></a>
 
 #### 前期准备
 
