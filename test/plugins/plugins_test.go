@@ -3,34 +3,23 @@ package plugins
 import (
 	"testing"
 
-	"github.com/merico-dev/lake/plugins"
+	"github.com/merico-dev/lake/config"
+	"github.com/merico-dev/lake/logger"
 	"github.com/merico-dev/lake/plugins/core"
+	"github.com/merico-dev/lake/runner"
+	"github.com/stretchr/testify/assert"
 )
 
 func TestPluginsLoading(t *testing.T) {
-	err := plugins.LoadPlugins(plugins.PluginDir())
-	if err != nil {
-		t.Errorf("Failed to LoadPlugins %v", err)
+	cfg := config.GetConfig()
+	log := logger.Global
+	db, err := runner.NewGormDb(cfg, log)
+	if !assert.Nil(t, err) {
+		return
 	}
-	if len(core.AllPlugins()) == 0 {
-		t.Errorf("No plugin found")
+	err = runner.LoadPlugins(cfg.GetString("PLUGIN_DIR"), cfg, log, db)
+	if !assert.Nil(t, err) {
+		return
 	}
-
-	// name := "jira"
-	// options := map[string]interface{}{
-	// 	"boardId": 20,
-	// }
-	// progress := make(chan float32)
-	// fmt.Printf("start runing plugin %v\n", name)
-	// go func() {
-	// 	_ = plugins.RunPlugin(name, options, progress)
-	// }()
-	// for p := range progress {
-	// 	fmt.Printf("running plugin %v, progress: %v\n", name, p*100)
-	// }
-	// fmt.Printf("end running plugin %v\n", name)
-	// if err != nil {
-	// 	t.Error(err)
-	// }
-
+	assert.NotEmpty(t, core.AllPlugins())
 }
