@@ -2,20 +2,16 @@
 # https://stackoverflow.com/questions/920413/make-error-missing-separator
 # https://tutorialedge.net/golang/makefiles-for-go-developers/
 
-hello:
-	echo "Hello"
-
 build-plugin:
 	@sh scripts/compile-plugins.sh
 
 build: build-plugin
 	go build -o bin/lake
 
-dev: build
-	bin/lake
-
 run:
 	go run main.go
+
+dev: build-plugin run
 
 configure:
 	docker-compose up config-ui
@@ -23,26 +19,13 @@ configure:
 configure-dev:
 	cd config-ui; npm install; npm start;
 
-compose:
-	docker-compose up -d grafana
-
-compose-down:
-	docker-compose down
-
 commit:
 	git cz
 
-install:
-	go clean --modcache
-	go get
-
-test: unit-test e2e-test models-test
+test: unit-test e2e-test
 
 unit-test: build
-	go test -v $$(go list ./... | grep -v /test/ | grep -v /models/ | grep -v /e2e/)
-
-models-test:
-	TEST=true go test ./models/test -v
+	set -e; for m in $$(go list ./... | egrep -v 'test|models|e2e'); do echo $$m; go test -v $$m; done
 
 e2e-test: build
 	PLUGIN_DIR=$(shell readlink -f bin/plugins) go test -v ./test/...

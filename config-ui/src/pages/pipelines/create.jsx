@@ -8,29 +8,35 @@ import {
 import { GRAFANA_URL } from '@/utils/config'
 import {
   Button, Icon, Intent, Switch,
-  FormGroup,
-  ButtonGroup,
-  InputGroup,
+  FormGroup, ButtonGroup, InputGroup,
+  Elevation,
+  TextArea,
+  Card,
   Popover,
   Tooltip,
   Position,
   Colors,
+  Tag
 } from '@blueprintjs/core'
 import {
   Providers,
+  ProviderTypes,
+  ProviderIcons
 } from '@/data/Providers'
-import { integrationsData } from '@/data/integrations'
+import { integrationsData, pluginsData } from '@/data/integrations'
 import usePipelineManager from '@/hooks/usePipelineManager'
 import usePipelineValidation from '@/hooks/usePipelineValidation'
 import useConnectionManager from '@/hooks/useConnectionManager'
 import FormValidationErrors from '@/components/messages/FormValidationErrors'
 import PipelineIndicator from '@/components/widgets/PipelineIndicator'
 import PipelinePresetsMenu from '@/components/menus/PipelinePresetsMenu'
+import PipelineConfigsMenu from '@/components/menus/PipelineConfigsMenu'
 import ProviderSettings from '@/components/pipelines/ProviderSettings'
 import Nav from '@/components/Nav'
 import Sidebar from '@/components/Sidebar'
 import AppCrumbs from '@/components/Breadcrumbs'
 import Content from '@/components/Content'
+// import CodeEditor from '@uiw/react-textarea-code-editor'
 import { ReactComponent as HelpIcon } from '@/images/help.svg'
 import { ReactComponent as BackArrowIcon } from '@/images/undo.svg'
 import RunPipelineIcon from '@/images/duplicate.png'
@@ -46,7 +52,7 @@ const CreatePipeline = (props) => {
   const location = useLocation()
   // const { providerId } = useParams()
   // const [activeProvider, setActiveProvider] = useState(integrationsData[0])
-  const [integrations, setIntegrations] = useState(integrationsData)
+  const [integrations, setIntegrations] = useState([...integrationsData, ...pluginsData])
   const [jiraIntegration, setJiraIntegration] = useState(integrationsData.find(p => p.id === Providers.JIRA))
 
   const [today, setToday] = useState(new Date())
@@ -61,13 +67,15 @@ const CreatePipeline = (props) => {
   ]
 
   const [readyProviders, setReadyProviders] = useState([])
-  // const [isRunning, setIsRunning] = useState(false)
-  // const [autoRun, setAutoRun] = useState(false)
-  // const [enableThrottling, setEnableThrottling] = useState(false)
+  const [advancedMode, setAdvancedMode] = useState(false)
 
   const [enabledProviders, setEnabledProviders] = useState([])
   const [runTasks, setRunTasks] = useState([])
+  const [runTasksAdvanced, setRunTasksAdvanced] = useState([])
   const [existingTasks, setExistingTasks] = useState([])
+  const [rawConfiguration, setRawConfiguration] = useState(JSON.stringify([runTasks], null, '  '))
+  const [isValidConfiguration, setIsValidConfiguration] = useState(false)
+  const [validationError, setValidationError] = useState()
 
   const [namePrefix, setNamePrefix] = useState(pipelinePrefixes[0])
   const [nameSuffix, setNameSuffix] = useState(pipelineSuffixes[0])
@@ -77,8 +85,13 @@ const CreatePipeline = (props) => {
   const [sourceId, setSourceId] = useState('')
   const [sources, setSources] = useState([])
   const [selectedSource, setSelectedSource] = useState()
-  const [repo, setRepo] = useState('')
+  const [repositoryName, setRepositoryName] = useState('')
   const [owner, setOwner] = useState('')
+  const [gitExtractorUrl, setGitExtractorUrl] = useState('')
+  const [gitExtractorRepoId, setGitExtractorRepoId] = useState('')
+  const [refDiffRepoId, setRefDiffRepoId] = useState('')
+  const [refDiffPairs, setRefDiffPairs] = useState([])
+  const [refDiffTasks, setRefDiffTasks] = useState(['calculateCommitsDiff', 'calculateIssuesDiff'])
 
   const [autoRedirect, setAutoRedirect] = useState(true)
   const [restartDetected, setRestartDetected] = useState(false)
@@ -88,6 +101,7 @@ const CreatePipeline = (props) => {
     cancelPipeline,
     fetchPipeline,
     pipelineRun,
+    buildPipelineStages,
     isRunning,
     errors: pipelineErrors,
     setSettings: setPipelineSettings,
@@ -96,28 +110,40 @@ const CreatePipeline = (props) => {
 
   const {
     validate,
+    validateAdvanced,
     errors: validationErrors,
-    isValid: isValidPipelineForm
+    setErrors: setPipelineErrors,
+    isValid: isValidPipelineForm,
+    detectedProviders
   } = usePipelineValidation({
     enabledProviders,
     pipelineName,
     projectId,
     boardId,
     owner,
-    repo,
+    repositoryName,
     sourceId,
-    runTasks
+    gitExtractorUrl,
+    gitExtractorRepoId,
+    refDiffRepoId,
+    refDiffTasks,
+    refDiffPairs,
+    tasks: runTasks,
+    tasksAdvanced: runTasksAdvanced,
+    advancedMode
   })
 
   const {
     allConnections,
-    fetchAllConnections
+    isFetching: isFetchingConnections,
+    fetchAllConnections,
+    getConnectionName
   } = useConnectionManager({
     activeProvider: jiraIntegration
   })
 
   useEffect(() => {
-    integrationsData.forEach((i, idx) => {
+    [...integrationsData, ...pluginsData].forEach((i, idx) => {
       setTimeout(() => {
         setReadyProviders(r => [...r, i.id])
       }, idx * 50)
@@ -129,10 +155,22 @@ const CreatePipeline = (props) => {
   }
 
   const isValidPipeline = () => {
+    if (advancedMode) { return isValidAdvancedPipeline() }
     return enabledProviders.length >= 1 &&
       pipelineName !== '' &&
       pipelineName.length > 2 &&
       validationErrors.length === 0
+  }
+
+  const isValidAdvancedPipeline = () => {
+    return pipelineName !== '' &&
+    pipelineName.length > 2 &&
+    validationErrors.length === 0 &&
+    isValidConfiguration
+  }
+
+  const isMultiStagePipeline = (tasks = []) => {
+    return tasks.length > 1 && Array.isArray(tasks[0])
   }
 
   const getManyProviderOptions = useCallback((providerId, optionProperty, ids, options = {}) => {
@@ -161,7 +199,7 @@ const CreatePipeline = (props) => {
         break
       case Providers.GITHUB:
         options = {
-          repo,
+          repo: repositoryName,
           owner
         }
         break
@@ -170,11 +208,34 @@ const CreatePipeline = (props) => {
           projectId: parseInt(projectId, 10)
         }
         break
+      case Providers.GITEXTRACTOR:
+        options = {
+          url: gitExtractorUrl,
+          repoId: gitExtractorRepoId
+        }
+        break
+      case Providers.REFDIFF:
+        options = {
+          repoId: refDiffRepoId,
+          pairs: refDiffPairs,
+          tasks: refDiffTasks,
+        }
+        break
       default:
         break
     }
     return options
-  }, [boardId, owner, projectId, repo, sourceId])
+  }, [boardId,
+    owner,
+    projectId,
+    repositoryName,
+    sourceId,
+    gitExtractorUrl,
+    gitExtractorRepoId,
+    refDiffRepoId,
+    refDiffTasks,
+    refDiffPairs
+  ])
 
   const configureProvider = useCallback((providerId) => {
     let providerConfig = {}
@@ -219,12 +280,51 @@ const CreatePipeline = (props) => {
     setSelectedSource(null)
     setRepositoryName('')
     setOwner('')
+    setGitExtractorUrl('')
+    setGitExtractorRepoId('')
+    setRefDiffRepoId('')
+    setRefDiffTasks([])
+    setRefDiffPairs([])
+    setAdvancedMode(false)
+    setRawConfiguration('[[]]')
   }
 
-  const getConnectionName = useCallback((connectionId) => {
-    const source = sources.find(s => s.id === connectionId)
-    return source ? source.title : '(Instance)'
-  }, [sources])
+  const parseJSON = (jsonString = '') => {
+    try {
+      return JSON.parse(jsonString)
+    } catch (e) {
+      console.log('>> PARSE JSON ERROR!', e)
+      setValidationError(e.message)
+      setPipelineErrors(errs => [...errs, e.message])
+      // ToastNotification.show({ message: e.message, intent: 'danger', icon: 'error' })
+    }
+  }
+
+  const formatRawCode = () => {
+    try {
+      setRawConfiguration(config => {
+        const parsedConfig = parseJSON(config)
+        const formattedConfig = JSON.stringify(parsedConfig, null, '  ')
+        return formattedConfig || config
+      })
+    } catch (e) {
+      console.log('>> FORMAT CODE: Invalid Code Format!')
+    }
+  }
+
+  const isValidCode = useCallback(() => {
+    let isValid = false
+    try {
+      const parsedCode = parseJSON(rawConfiguration)
+      isValid = parsedCode
+      // setValidationError(null)
+    } catch (e) {
+      console.log('>> FORMAT CODE: Invalid Code Format!', e)
+      setValidationError(e.message)
+    }
+    setIsValidConfiguration(isValid)
+    return isValid
+  }, [rawConfiguration])
 
   useEffect(() => {
 
@@ -234,12 +334,15 @@ const CreatePipeline = (props) => {
     console.log('>> PIPELINE RUN TASK SETTINGS FOR PIPELINE MANAGER ....', runTasks)
     setPipelineSettings({
       name: pipelineName,
-      tasks: [
-        [...runTasks]
-      ]
+      tasks: advancedMode ? runTasksAdvanced : [[...runTasks]]
     })
-    validate()
-  }, [runTasks, pipelineName, setPipelineSettings, validate])
+    // setRawConfiguration(JSON.stringify(buildPipelineStages(runTasks, true), null, '  '))
+    if (advancedMode) {
+      validateAdvanced()
+    } else {
+      validate()
+    }
+  }, [advancedMode, runTasks, runTasksAdvanced, pipelineName, setPipelineSettings, validate, validateAdvanced])
 
   useEffect(() => {
     console.log('>> ENBALED PROVIDERS = ', enabledProviders)
@@ -253,7 +356,16 @@ const CreatePipeline = (props) => {
       setSources([])
       setSelectedSource(null)
     }
-  }, [enabledProviders, projectId, boardId, sourceId, owner, repo, configureProvider, validate, fetchAllConnections])
+  }, [
+    enabledProviders,
+    projectId,
+    boardId, sourceId,
+    owner, repositoryName,
+    configureProvider,
+    validate,
+    fetchAllConnections,
+    buildPipelineStages
+  ])
 
   useEffect(() => {
     console.log('>> PIPELINE LAST RUN OBJECT CHANGED!!...', pipelineRun)
@@ -296,29 +408,44 @@ const CreatePipeline = (props) => {
       const GitHubTask = tasks.find(t => t.plugin === Providers.GITHUB)
       const JiraTask = tasks.filter(t => t.plugin === Providers.JIRA)
       const JenkinsTask = tasks.find(t => t.plugin === Providers.JENKINS)
+      const GitExtractorTask = tasks.find(t => t.plugin === Providers.GITEXTRACTOR)
+      const RefDiffTask = tasks.find(t => t.plugin === Providers.REFDIFF)
+      const configuredProviders = []
       if (GitLabTask && GitLabTask.length > 0) {
-        setEnabledProviders(eP => [...eP, Providers.GITLAB])
+        configuredProviders.push(Providers.GITLAB)
         setProjectId(Array.isArray(GitLabTask) ? GitLabTask.map(gT => gT.options?.projectId) : GitLabTask.options?.projectId)
       }
       if (GitHubTask) {
-        setEnabledProviders(eP => [...eP, Providers.GITHUB])
-        setRepositoryName(GitHubTask.options?.repo)
+        configuredProviders.push(Providers.GITHUB)
+        setRepositoryName(GitHubTask.options?.repositoryName || GitHubTask.options?.repo)
         setOwner(GitHubTask.options?.owner)
       }
       if (JiraTask && JiraTask.length > 0) {
         fetchAllConnections(false)
-        setEnabledProviders(eP => [...eP, Providers.JIRA])
+        configuredProviders.push(Providers.JIRA)
         setBoardId(Array.isArray(JiraTask) ? JiraTask.map(jT => jT.options?.boardId) : JiraTask.options?.boardId)
         const connSrcId = JiraTask[0].options?.sourceId
         setSelectedSource({
           id: parseInt(connSrcId, 10),
-          title: getConnectionName(connSrcId),
+          title: '(Instance)',
           value: parseInt(connSrcId, 10)
         })
       }
       if (JenkinsTask) {
-        setEnabledProviders(eP => [...eP, Providers.JENKINS])
+        configuredProviders.push(Providers.JENKINS)
       }
+      if (GitExtractorTask) {
+        setGitExtractorRepoId(GitExtractorTask.options?.repoId)
+        setGitExtractorUrl(GitExtractorTask.options?.url)
+        configuredProviders.push(Providers.GITEXTRACTOR)
+      }
+      if (RefDiffTask) {
+        setRefDiffRepoId(RefDiffTask.options?.repoId)
+        setRefDiffTasks(RefDiffTask.options?.tasks || [])
+        setRefDiffPairs(RefDiffTask.options?.pairs || [])
+        configuredProviders.push(Providers.REFDIFF)
+      }
+      setEnabledProviders(eP => [...eP, ...configuredProviders])
     } else {
       setRestartDetected(false)
       setExistingTasks([])
@@ -327,13 +454,40 @@ const CreatePipeline = (props) => {
     return () => {
       setRestartDetected(false)
       setExistingTasks([])
-      // setProjectId([])
     }
-  }, [location])
+  }, [location, fetchAllConnections])
+
+  useEffect(() => {
+    if (isValidCode()) {
+      setRunTasksAdvanced(JSON.parse(rawConfiguration))
+    }
+  }, [rawConfiguration, isValidCode])
+
+  useEffect(() => {
+    if (existingTasks.length > 0) {
+      const multiStageTasks = buildPipelineStages(existingTasks, true)
+      const PipelineTasks = multiStageTasks.map(s => {
+        return s.map(t => {
+          return {
+            Plugin: t.plugin,
+            Options: {
+              ...t.options
+            }
+          }
+        })
+      })
+      setRunTasksAdvanced(PipelineTasks)
+      setRawConfiguration(JSON.stringify(PipelineTasks, null, '  '))
+    }
+  }, [existingTasks, buildPipelineStages])
+
+  useEffect(() => {
+    console.log('>>> ADVANCED MODE ENABLED?: ', advancedMode)
+  }, [advancedMode])
 
   return (
     <>
-      <div className='container container-create-pipeline'>
+      <div className={`container container-create-pipeline ${advancedMode ? 'advanced-mode' : ''}`}>
         <Nav />
         <Sidebar />
         <Content>
@@ -402,7 +556,10 @@ const CreatePipeline = (props) => {
 
             <div className='' style={{ width: '100%', marginTop: '10px', alignSelf: 'flex-start', alignContent: 'flex-start' }}>
               <h2 className='headline'>
-                <Icon icon='git-pull' height={16} size={16} color='rgba(0,0,0,0.5)' /> Pipeline Name<span className='requiredStar'>*</span>
+                <Icon
+                  icon='git-pull'
+                  height={16} size={16} color='rgba(0,0,0,0.5)'
+                /> Pipeline Name {advancedMode && <>(Advanced)</>}<span className='requiredStar'>*</span>
               </h2>
               <p className='group-caption'>Create a user-friendly name for this Run, or select and use a default auto-generated one.</p>
               <div className='form-group' style={{ maxWidth: '480px', paddingLeft: '22px' }}>
@@ -458,6 +615,8 @@ const CreatePipeline = (props) => {
                               pipelineSuffixes={pipelineSuffixes}
                               setNamePrefix={setNamePrefix}
                               setNameSuffix={setNameSuffix}
+                              setRawConfiguration={setRawConfiguration}
+                              advancedMode={advancedMode}
                             />
                           </>
                         </Popover>
@@ -495,150 +654,425 @@ const CreatePipeline = (props) => {
                 </FormGroup>
               </div>
 
-              <h2 className='headline'>
-                <Icon icon='database' height={16} size={16} color='rgba(0,0,0,0.5)' /> Data Providers<span className='requiredStar'>*</span>
-              </h2>
-              <p className='group-caption'>
-                Configure available plugins to enable for this <strong>Pipeline Run</strong>.<br />
-                Turn the switch to the ON position to activate.
-              </p>
-              <div className='data-providers' style={{ marginTop: '8px', width: '100%' }}>
-                {integrations.map((provider) => (
-                  <CSSTransition
-                    key={`fx-key-provider-${provider.id}`}
-                    in={readyProviders.includes(provider.id)}
-                    timeout={350}
-                    classNames='provider-datarow'
-                    unmountOnExit
-                  >
-                    {/* <div key={`provider-${provider.id}`}> */}
-                    <div
-                      className={`data-provider-row ${enabledProviders.includes(provider.id) ? 'on' : 'off'}`}
-                    >
-                      <div className='provider-info'>
-                        <div className='provider-icon'>{provider.iconDashboard}</div>
-                        <span className='provider-name'>{provider.name}</span>
-                        <Tooltip
-                          intent={Intent.PRIMARY}
-                          content={`Enable ${provider.name}`} position={Position.RIGHT} popoverClassName='pipeline-tooltip'
-                        >
-                          <Switch
-                          // alignIndicator={Alignment.CENTER}
-                            disabled={isRunning}
-                            className='provider-toggle-switch'
-                            innerLabel={!enabledProviders.includes(provider.id) ? 'OFF' : null}
-                            innerLabelChecked='ON'
-                            checked={enabledProviders.includes(provider.id)}
-                            onChange={() => setEnabledProviders(p =>
-                              enabledProviders.includes(provider.id) ? p.filter(p => p !== provider.id) : [...p, provider.id]
-                            )}
-                          />
-                        </Tooltip>
-                      </div>
-                      <div className='provider-settings'>
-                        {/* showProviderSettings(provider.id) */}
-                        <ProviderSettings
-                          providerId={provider.id}
-                          projectId={projectId}
-                          owner={owner}
-                          repo={repo}
-                          sourceId={sourceId}
-                          sources={sources}
-                          selectedSource={selectedSource}
-                          setSelectedSource={setSelectedSource}
-                          boardId={boardId}
-                          setProjectId={setProjectId}
-                          setOwner={setOwner}
-                          setRepositoryName={setRepositoryName}
-                          setSourceId={setSourceId}
-                          setBoardId={setBoardId}
-                          isEnabled={isProviderEnabled}
-                          isRunning={isRunning}
-                        />
-                      </div>
-                      <div className='provider-actions'>
-                        <ButtonGroup minimal rounded='true'>
-                          <Button className='pipeline-action-btn' minimal onClick={() => history.push(`/integrations/${provider.id}`)}>
-                            <Icon icon='cog' color={Colors.GRAY4} size={16} />
-                          </Button>
-                          <Popover
-                            key={`popover-help-key-provider-${provider.id}`}
-                            className='trigger-provider-help'
-                            popoverClassName='popover-provider-help'
-                            position={Position.RIGHT}
-                            autoFocus={false}
-                            enforceFocus={false}
-                            usePortal={false}
-                          >
-                            <Button className='pipeline-action-btn' minimal><Icon icon='help' color={Colors.GRAY4} size={16} /></Button>
+              {advancedMode && (
+                <>
+                  <h2 className='headline'>
+                    <Icon icon='code' height={16} size={16} color='rgba(0,0,0,0.5)' />{' '}
+                    <strong>JSON</strong> Provider Configuration<span className='requiredStar'>*</span>
+                  </h2>
+                  <p className='group-caption'>Define Plugins and Options manually. Only valid JSON code is allowed.</p>
+                  <div style={{ padding: '10px 0', borderBottom: '1px solid rgba(0, 0, 0, 0.08)' }}>
+                    <div className='form-group' style={{ paddingLeft: '22px' }}>
+                      <Card
+                        className='code-editor-card'
+                        interactive={false}
+                        elevation={Elevation.TWO}
+                        style={{ padding: '2px', minWidth: '320px', width: '100%', maxWidth: '640px', marginBottom: '20px' }}
+                      >
+                        <h3 style={{ borderBottom: '1px solid #eeeeee', margin: 0, padding: '8px 10px' }}>
+                          <span style={{ float: 'right', fontSize: '9px', color: '#aaaaaa' }}>application/json</span>
+                          TASKS EDITOR
+                          {isMultiStagePipeline(runTasksAdvanced) && (
                             <>
-                              <div style={{ textShadow: 'none', fontSize: '12px', padding: '12px', maxWidth: '300px' }}>
+                              {' '} &rarr; {' '}
+                              <Icon icon='layers' color={Colors.GRAY4} size={14} style={{ marginRight: '5px' }} />
+                              <span style={{
+                                fontStyle: 'normal',
+                                fontWeight: 900,
+                                letterSpacing: '1px',
+                                color: '#333',
+                                fontSize: '11px'
+                              }}
+                              >
+                                MULTI-STAGE <Tag intent={Intent.PRIMARY} style={{ borderRadius: '20px' }}>{runTasksAdvanced.length}</Tag>
+                              </span>
+                            </>
+                          )}
+                        </h3>
+                        <TextArea
+                          growVertically={false}
+                          fill={true}
+                          className='codeArea'
+                          style={{ height: '440px !important', maxWidth: '640px' }}
+                          value={rawConfiguration}
+                          onChange={(e) => setRawConfiguration(e.target.value)}
+                        />
+                        {/* @todo: fix bug with @uiw/react-textarea-code-editor in a future release */}
+                        {/* <div
+                          className='code-editor-wrapper' style={{
+                            minHeight: '384px',
+                            height: '440px !important',
+                            maxWidth: '640px',
+                            maxHeight: '384px',
+                            overflow: 'hidden',
+                            overflowY: 'auto'
+                          }}
+                        >
+                          <CodeEditor
+                            value={rawConfiguration}
+                            language='json'
+                            placeholder='< Please enter JSON configuration with supported Plugins. >'
+                            onChange={(e) => setRawConfiguration(e.target.value)}
+                            padding={15}
+                            minHeight={384}
+                            style={{
+                              fontSize: 12,
+                              backgroundColor: '#f5f5f5',
+                              // eslint-disable-next-line max-len
+                              fontFamily: 'JetBrains Mono,Source Code Pro,ui-monospace,SFMono-Regular,SF Mono,Consolas,Liberation Mono,Menlo,monospace',
+                            }}
+                          />
+                        </div> */}
+                        <div
+                          className='code-editor-card-footer'
+                          style={{
+                            display: 'flex',
+                            justifyContent: 'flex-end',
+                            padding: '5px',
+                            borderTop: '1px solid #eeeeee',
+                            fontSize: '11px'
+                          }}
+                        >
+                          <ButtonGroup
+                            className='code-editor-controls' style={{
+                              borderRadius: '3px',
+                              boxShadow: '0px 0px 2px rgba(0, 0, 0, 0.30)'
+                            }}
+                          >
+                            <Popover
+                              className='popover-options-menu-trigger'
+                              popoverClassName='popover-options-menu'
+                              position={Position.TOP}
+                              usePortal={true}
+                            >
+                              <Button
+                                disabled={isRunning}
+                                icon='cog'
+                              />
+                              <>
+                                <PipelineConfigsMenu
+                                  setRawConfiguration={setRawConfiguration}
+                                  advancedMode={advancedMode}
+                                />
+                              </>
+                            </Popover>
+                            <Button
+                              disabled={!isValidConfiguration}
+                              small text='Format' icon='align-left'
+                              onClick={() => formatRawCode()}
+                            />
+                            <Button
+                              small text='Revert' icon='reset'
+                              onClick={() => setRawConfiguration(JSON.stringify([runTasks], null, '  '))}
+                            />
+                            <Button
+                              small text='Clear' icon='eraser'
+                              onClick={() => setRawConfiguration('[[]]')}
+                            />
+                            <Popover
+                              className='trigger-code-validation-help'
+                              popoverClassName='popover-code-validation-help'
+                              position={Position.RIGHT}
+                              autoFocus={false}
+                              enforceFocus={false}
+                              usePortal={false}
+                            >
+                              <Button
+                                intent={isValidConfiguration ? Intent.SUCCESS : Intent.PRIMARY}
+                                small
+                                text={isValidConfiguration ? 'Valid' : 'Invalid'}
+                                icon={isValidConfiguration ? 'confirm' : 'warning-sign'}
+                              />
+                              <>
                                 <div style={{
-                                  marginBottom: '10px',
-                                  fontWeight: 700,
-                                  fontSize: '14px',
-                                  fontFamily: '"Montserrat", sans-serif'
+                                  textShadow: 'none',
+                                  fontSize: '12px',
+                                  padding: '12px',
+                                  minWidth: '300px',
+                                  maxWidth: '300px',
+                                  maxHeight: '200px',
+                                  overflow: 'hidden',
+                                  overflowY: 'auto'
                                 }}
                                 >
-                                  <Icon icon='help' size={16} /> {provider.name} Settings
+                                  {isValidConfiguration
+                                    ? (
+                                      <>
+                                        <Icon
+                                          icon='tick' color={Colors.GREEN5} size={16}
+                                          style={{ float: 'left', marginRight: '5px' }}
+                                        />
+                                        <div style={{ fontSize: '13px', fontWeight: 800, marginBottom: '5px' }}>
+                                          JSON Configuration Valid
+                                        </div>
+                                        {isMultiStagePipeline(runTasksAdvanced) && (
+                                          <>
+                                            <div
+                                              className='bp3-elevation-1' style={{
+                                                backgroundColor: '#f6f6f6',
+                                                padding: '4px 6px',
+                                                borderRadius: '3px',
+                                                marginBottom: '10px'
+                                              }}
+                                            >
+                                              <Icon icon='layers' color={Colors.GRAY4} size={14} style={{ marginRight: '5px' }} />
+                                              <span style={{
+                                                fontFamily: 'Montserrat',
+                                                fontStyle: 'normal',
+                                                fontWeight: 900,
+                                                letterSpacing: '1px',
+                                                color: '#333',
+                                                fontSize: '11px'
+                                              }}
+                                              >
+                                                MULTI-STAGE <Tag>{runTasksAdvanced.length}</Tag>
+                                              </span>
+                                            </div>
+                                            <span style={{ fontSize: '10px' }}>Multi-stage task configuration detected.</span>
+                                          </>
+                                        )}
+                                      </>
+                                      )
+                                    : (
+                                      <>
+                                        <Icon
+                                          icon='issue' color={Colors.RED5} size={16}
+                                          style={{ float: 'left', marginRight: '5px' }}
+                                        />
+                                        <div style={{ fontSize: '13px', fontWeight: 800, marginBottom: '5px' }}>
+                                          Invalid JSON Configuration
+                                        </div>
+                                        {validationError}
+                                      </>
+                                      )}
                                 </div>
-                                <p>Need Help? &mdash; Please enter the required <strong>Run Settings</strong> for this data provider.</p>
-                                {/* specific provider field help notes */}
-                                {(() => {
-                                  let helpContext = null
-                                  switch (provider.id) {
-                                    case Providers.GITLAB:
-                                      helpContext = (
-                                        <img
-                                          src={GitlabHelpNote}
-                                          alt={provider.name} style={{ maxHeight: '64px', maxWidth: '100%' }}
-                                        />
-                                      )
-                                      break
-                                    case Providers.JENKINS:
-                                      helpContext = <strong>(Options not required)</strong>
-                                      break
-                                    case Providers.JIRA:
-                                      helpContext = (
-                                        <img
-                                          src={JiraHelpNote}
-                                          alt={provider.name} style={{ maxHeight: '64px', maxWidth: '100%' }}
-                                        />
-                                      )
-                                      break
-                                    case Providers.GITHUB:
-                                      helpContext = (
-                                        <img
-                                          src={GithubHelpNote}
-                                          alt={provider.name} style={{ maxHeight: '64px', maxWidth: '100%' }}
-                                        />
-                                      )
-                                      break
-                                  }
-                                  return helpContext
-                                })()}
-                              </div>
-                            </>
-                          </Popover>
-                        </ButtonGroup>
+                              </>
+                            </Popover>
+
+                          </ButtonGroup>
+                        </div>
+                      </Card>
+                      <div style={{ marginTop: '0', maxWidth: '640px' }}>
+                        <div style={{ display: 'flex', minHeight: '34px' }}>
+                          <div style={{
+                            marginRight: '5px',
+                            paddingLeft: '10px',
+                            fontWeight: 800,
+                            letterSpacing: '2px',
+                            color: Colors.GRAY2,
+                            fontFamily: '"Montserrat", sans-serif'
+                          }}
+                          ><span><Icon icon='nest' size={12} color={Colors.GRAY4} style={{ marginRight: '2px' }} /> DATA PROVIDERS</span>
+                          </div>
+                          {detectedProviders.map((provider, pIdx) => (
+                            <div className='detected-provider-icon' key={`provider-icon-key-${pIdx}`} style={{ margin: '5px 18px' }}>
+                              {ProviderIcons[provider] ? ProviderIcons[provider](20, 20) : <></>}
+                            </div>
+                          ))}
+                          {detectedProviders.length === 0 && (<span style={{ color: Colors.GRAY4 }}>&lt; None Configured &gt;</span>)}
+                        </div>
                       </div>
                     </div>
-                    {/* </div> */}
-                  </CSSTransition>
-                ))}
-              </div>
+                  </div>
+                </>
+              )}
+
+              {!advancedMode && (
+                <>
+                  <h2 className='headline'>
+                    <Icon icon='database' height={16} size={16} color='rgba(0,0,0,0.5)' />{' '}
+                    Data Providers<span className='requiredStar'>*</span>
+                  </h2>
+                  <p className='group-caption'>
+                    Configure available plugins to enable for this <strong>Pipeline Run</strong>.<br />
+                    Turn the switch to the ON position to activate.
+                  </p>
+                  <div className='data-providers' style={{ marginTop: '8px', width: '100%' }}>
+                    {integrations.map((provider) => (
+                      <CSSTransition
+                        key={`fx-key-provider-${provider.id}`}
+                        in={readyProviders.includes(provider.id)}
+                        timeout={350}
+                        classNames='provider-datarow'
+                        unmountOnExit
+                      >
+                        {/* <div key={`provider-${provider.id}`}> */}
+                        <div
+                          // eslint-disable-next-line max-len
+                          className={`data-provider-row data-provider-${provider.id.toLowerCase()} ${enabledProviders.includes(provider.id) ? 'on' : 'off'}`}
+                        >
+                          <div className='provider-info'>
+                            <div className='provider-icon'>{provider.iconDashboard}</div>
+                            <span className='provider-name'>{provider.name}</span>
+                            <Tooltip
+                              intent={Intent.PRIMARY}
+                              content={`Enable ${provider.name}`} position={Position.LEFT} popoverClassName='pipeline-tooltip'
+                            >
+                              <Switch
+                          // alignIndicator={Alignment.CENTER}
+                                disabled={isRunning}
+                                className={`provider-toggle-switch switch-${provider.id.toLowerCase()}`}
+                                innerLabel={!enabledProviders.includes(provider.id) ? 'OFF' : null}
+                                innerLabelChecked='ON'
+                                checked={enabledProviders.includes(provider.id)}
+                                onChange={() => setEnabledProviders(p =>
+                                  enabledProviders.includes(provider.id) ? p.filter(p => p !== provider.id) : [...p, provider.id]
+                                )}
+                              />
+                            </Tooltip>
+                          </div>
+                          <div className='provider-settings'>
+                            {/* showProviderSettings(provider.id) */}
+                            <ProviderSettings
+                              providerId={provider.id}
+                              projectId={projectId}
+                              owner={owner}
+                              repositoryName={repositoryName}
+                              sourceId={sourceId}
+                              sources={sources}
+                              selectedSource={selectedSource}
+                              setSelectedSource={setSelectedSource}
+                              boardId={boardId}
+                              gitExtractorUrl={gitExtractorUrl}
+                              gitExtractorRepoId={gitExtractorRepoId}
+                              refDiffRepoId={refDiffRepoId}
+                              refDiffTasks={refDiffTasks}
+                              refDiffPairs={refDiffPairs}
+                              setProjectId={setProjectId}
+                              setOwner={setOwner}
+                              setRepositoryName={setRepositoryName}
+                              setSourceId={setSourceId}
+                              setBoardId={setBoardId}
+                              setGitExtractorUrl={setGitExtractorUrl}
+                              setGitExtractorRepoId={setGitExtractorRepoId}
+                              setRefDiffRepoId={setRefDiffRepoId}
+                              setRefDiffPairs={setRefDiffPairs}
+                              setRefDiffTasks={setRefDiffTasks}
+                              isEnabled={isProviderEnabled}
+                              isRunning={isRunning}
+                            />
+                          </div>
+                          <div className='provider-actions'>
+                            <ButtonGroup minimal rounded='true'>
+                              {provider.type === ProviderTypes.INTEGRATION && (
+                                <Button className='pipeline-action-btn' minimal onClick={() => history.push(`/integrations/${provider.id}`)}>
+                                  <Icon icon='cog' color={Colors.GRAY4} size={16} />
+                                </Button>
+                              )}
+                              <Popover
+                                key={`popover-help-key-provider-${provider.id}`}
+                                className='trigger-provider-help'
+                                popoverClassName='popover-provider-help'
+                                position={Position.RIGHT}
+                                autoFocus={false}
+                                enforceFocus={false}
+                                usePortal={true}
+                              >
+                                <Button className='pipeline-action-btn' minimal><Icon icon='help' color={Colors.GRAY4} size={16} /></Button>
+                                <>
+                                  <div style={{ textShadow: 'none', fontSize: '12px', padding: '12px', maxWidth: '300px' }}>
+                                    <div style={{
+                                      marginBottom: '10px',
+                                      fontWeight: 700,
+                                      fontSize: '14px',
+                                      fontFamily: '"Montserrat", sans-serif'
+                                    }}
+                                    >
+                                      <Icon icon='help' size={16} /> {provider.name} Settings
+                                    </div>
+                                    <p>
+                                      Need Help? &mdash; Please enter the required{' '}
+                                      <strong>Run Settings</strong> for this data provider.
+                                    </p>
+                                    {/* specific provider field help notes */}
+                                    {(() => {
+                                      let helpContext = null
+                                      switch (provider.id) {
+                                        case Providers.GITLAB:
+                                          helpContext = (
+                                            <img
+                                              src={GitlabHelpNote}
+                                              alt={provider.name} style={{ maxHeight: '64px', maxWidth: '100%' }}
+                                            />
+                                          )
+                                          break
+                                        case Providers.JENKINS:
+                                          helpContext = <strong>(Options not required)</strong>
+                                          break
+                                        case Providers.JIRA:
+                                          helpContext = (
+                                            <img
+                                              src={JiraHelpNote}
+                                              alt={provider.name} style={{ maxHeight: '64px', maxWidth: '100%' }}
+                                            />
+                                          )
+                                          break
+                                        case Providers.GITHUB:
+                                          helpContext = (
+                                            <img
+                                              src={GithubHelpNote}
+                                              alt={provider.name} style={{ maxHeight: '64px', maxWidth: '100%' }}
+                                            />
+                                          )
+                                          break
+                                        case Providers.GITEXTRACTOR:
+                                          helpContext = (
+                                            <>
+                                              <div><strong>GitExtractor README</strong></div>
+                                              <p>This plugin extract commits and references from a remote or local git repository.</p>
+                                              <a
+                                                className='bp3-button bp3-small'
+                                                rel='noreferrer'
+                                                target='_blank'
+                                                href='https://github.com/merico-dev/lake/tree/main/plugins/gitextractor'
+                                              >Learn More
+                                              </a>
+                                            </>
+                                          )
+                                          break
+                                        case Providers.REFDIFF:
+                                          helpContext = (
+                                            <>
+                                              <div><strong>RefDiff README</strong></div>
+                                              <p>You need to run gitextractor before the refdiff plugin.</p>
+                                              <a
+                                                className='bp3-button bp3-small'
+                                                rel='noreferrer'
+                                                target='_blank'
+                                                href='https://github.com/merico-dev/lake/tree/main/plugins/refdiff'
+                                              >Learn More
+                                              </a>
+                                            </>
+                                          )
+                                          break
+                                      }
+                                      return helpContext
+                                    })()}
+                                  </div>
+                                </>
+                              </Popover>
+                            </ButtonGroup>
+                          </div>
+                        </div>
+                        {/* </div> */}
+                      </CSSTransition>
+                    ))}
+                  </div>
+                </>
+              )}
 
             </div>
 
-            <div style={{ display: 'flex', marginTop: '50px', width: '100%', justifyContent: 'flex-start' }}>
+            <div style={{ display: 'flex', marginTop: '32px', width: '100%', justifyContent: 'flex-start' }}>
               {validationErrors.length > 0 && (
                 <FormValidationErrors errors={validationErrors} />
               )}
             </div>
-            <div style={{ display: 'flex', width: '100%', justifyContent: 'flex-start' }}>
+            <div style={{ display: 'flex', width: '100%', justifyContent: 'flex-start', alignItems: 'flex-start' }}>
               <Button
+                id='btn-run-pipeline'
                 className='btn-pipeline btn-run-pipeline' icon='play' intent='primary'
-                disabled={!isValidPipeline()}
+                disabled={advancedMode ? !isValidAdvancedPipeline() : !isValidPipeline()}
                 onClick={runPipeline}
                 loading={isRunning}
               ><strong>Run</strong> Pipeline
@@ -657,21 +1091,63 @@ const CreatePipeline = (props) => {
                 onClick={resetConfiguration}
               >Reset
               </Button>
-              {/* <div style={{ padding: '7px 5px 0 5px' }}>
-                <Tooltip content='Manage API Rate Limits' position={Position.TOP}>
+              <div style={{ padding: '7px 5px 0 50px' }}>
+                <Tooltip content='Advanced Pipeline Mode' position={Position.TOP}>
                   <Switch
+                    className='advanced-mode-toggleswitch'
                     intent={Intent.DANGER}
-                    checked={enableThrottling}
-                    onChange={() => setEnableThrottling(t => !t)}
-                    labelElement={<strong style={{ color: !enableThrottling ? Colors.GRAY3 : '' }}>Enable Throttling</strong>}
+                    checked={advancedMode}
+                    onChange={() => setAdvancedMode(t => !t)}
+                    labelElement={
+                      <>
+                        <span style={{
+                          fontSize: '14px',
+                          fontWeight: 800,
+                          fontFamily: '"Montserrat", sans-serif',
+                          display: 'inline-block',
+                          whiteSpace: 'nowrap'
+                        }}
+                        >Advanced Mode
+                        </span><br />
+                        <strong style={{ color: !advancedMode ? Colors.GRAY3 : '' }}>Raw JSON Trigger</strong>
+                      </>
+                    }
                   />
                 </Tooltip>
-              </div> */}
+              </div>
             </div>
             <p style={{ margin: '5px 3px', alignSelf: 'flex-start', fontSize: '10px' }}>
               Visit the <a href='#'><strong>All Jobs</strong></a> section to monitor complete pipeline activity.<br />
               Once you run this pipeline, you’ll be redirected to collection status.
             </p>
+            {advancedMode && (
+              <div style={{ alignSelf: 'flex-start' }}>
+                <h4 style={{
+                  marginBottom: '8px',
+                  fontSize: '12px',
+                  fontWeight: 700,
+                  fontFamily: '"Montserrat", sans-serif'
+                }}
+                ><Icon icon='issue' size={12} style={{ marginBottom: '2px' }} /> <span>Expert Use Only</span>
+                </h4>
+                <p style={{ fontSize: '10px' }}>
+                  Trigger a manual Pipeline with <a href='#'><strong>JSON Configuration</strong></a>.<br />
+                  Please review the{' '}
+                  <a
+                    href='https://github.com/merico-dev/lake/wiki/How-to-use-the-triggers-page' target='_blank'
+                    rel='noreferrer'
+                    style={{
+                      fontWeight:
+                          'bold',
+                      color: '#E8471C',
+                      textDecoration: 'underline'
+                    }}
+                  >
+                    Documentation
+                  </a> on creating complex Pipelines.
+                </p>
+              </div>
+            )}
           </main>
         </Content>
       </div>

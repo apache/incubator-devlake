@@ -1,58 +1,76 @@
 package tasks
 
 import (
-	"context"
-
-	lakeModels "github.com/merico-dev/lake/models"
 	"github.com/merico-dev/lake/models/domainlayer"
 	"github.com/merico-dev/lake/models/domainlayer/code"
 	"github.com/merico-dev/lake/models/domainlayer/didgen"
 	"github.com/merico-dev/lake/plugins/core"
 	githubModels "github.com/merico-dev/lake/plugins/github/models"
-	"gorm.io/gorm/clause"
+	"github.com/merico-dev/lake/plugins/helper"
+	"reflect"
 )
 
-func ConvertPullRequests(ctx context.Context) error {
-	githubPullRequest := &githubModels.GithubPullRequest{}
-	cursor, err := lakeModels.Db.Model(githubPullRequest).Rows()
+var ConvertPullRequestsMeta = core.SubTaskMeta{
+	Name:             "ConvertPullRequests",
+	EntryPoint:       ConvertPullRequests,
+	EnabledByDefault: true,
+	Description:      "ConvertPullRequests data from Github api",
+}
+
+func ConvertPullRequests(taskCtx core.SubTaskContext) error {
+	db := taskCtx.GetDb()
+	data := taskCtx.GetData().(*GithubTaskData)
+	repoId := data.Repo.GithubId
+
+	cursor, err := db.Model(&githubModels.GithubPullRequest{}).Where("repo_id = ?", repoId).Rows()
 	if err != nil {
 		return err
 	}
 	defer cursor.Close()
-	domainPrIdGenerator := didgen.NewDomainIdGenerator(githubPullRequest)
 
-	for cursor.Next() {
-		select {
-		case <-ctx.Done():
-			return core.TaskCanceled
-		default:
-		}
-		err = lakeModels.Db.ScanRows(cursor, githubPullRequest)
-		if err != nil {
-			return err
-		}
-		domainPr := convertToPullRequestModel(githubPullRequest, domainPrIdGenerator)
-		err = lakeModels.Db.Clauses(clause.OnConflict{UpdateAll: true}).Create(domainPr).Error
-		if err != nil {
-			return err
-		}
-	}
-	return nil
-}
-func convertToPullRequestModel(pr *githubModels.GithubPullRequest, domainGenerator *didgen.DomainIdGenerator) *code.PullRequest {
-	domainPr := &code.PullRequest{
-		DomainEntity: domainlayer.DomainEntity{
-			Id: domainGenerator.Generate(pr.GithubId),
+	prIdGen := didgen.NewDomainIdGenerator(&githubModels.GithubPullRequest{})
+	repoIdGen := didgen.NewDomainIdGenerator(&githubModels.GithubRepo{})
+
+	converter, err := helper.NewDataConverter(helper.DataConverterArgs{
+		InputRowType: reflect.TypeOf(githubModels.GithubPullRequest{}),
+		Input:        cursor,
+		RawDataSubTaskArgs: helper.RawDataSubTaskArgs{
+			Ctx: taskCtx,
+			Params: GithubApiParams{
+				Owner: data.Options.Owner,
+				Repo:  data.Options.Repo,
+			},
+			Table: RAW_PULL_REQUEST_TABLE,
 		},
-		RepoId:         uint64(pr.RepoId),
-		Status:         pr.State,
-		Title:          pr.Title,
-		CreatedDate:    pr.GithubCreatedAt,
-		MergedDate:     pr.MergedAt,
-		ClosedAt:       pr.ClosedAt,
-		Type:           pr.Type,
-		Component:      pr.Component,
-		MergeCommitSha: pr.MergeCommitSha,
+		Convert: func(inputRow interface{}) ([]interface{}, error) {
+			pr := inputRow.(*githubModels.GithubPullRequest)
+			domainPr := &code.PullRequest{
+				DomainEntity: domainlayer.DomainEntity{
+					Id: prIdGen.Generate(pr.GithubId),
+				},
+				RepoId:         repoIdGen.Generate(pr.RepoId),
+				Status:         pr.State,
+				Title:          pr.Title,
+				CreatedDate:    pr.GithubCreatedAt,
+				MergedDate:     pr.MergedAt,
+				ClosedAt:       pr.ClosedAt,
+				Key:            pr.Number,
+				Type:           pr.Type,
+				Component:      pr.Component,
+				MergeCommitSha: pr.MergeCommitSha,
+				BaseRef:        pr.BaseRef,
+				BaseCommitSha:  pr.BaseCommitSha,
+				HeadRef:        pr.HeadRef,
+				HeadCommitSha:  pr.HeadCommitSha,
+			}
+			return []interface{}{
+				domainPr,
+			}, nil
+		},
+	})
+	if err != nil {
+		return err
 	}
-	return domainPr
+
+	return converter.Execute()
 }

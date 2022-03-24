@@ -8,7 +8,8 @@ import (
 	"time"
 
 	"github.com/merico-dev/lake/plugins/core"
-	"github.com/merico-dev/lake/plugins/jira/tasks"
+	"github.com/merico-dev/lake/plugins/helper"
+	"github.com/merico-dev/lake/plugins/jira/models"
 )
 
 const (
@@ -24,11 +25,29 @@ func Proxy(input *core.ApiResourceInput) (*core.ApiResourceOutput, error) {
 	if err != nil {
 		return nil, err
 	}
-	client, err := tasks.NewJiraApiClientBySourceId(jiraSourceId)
+	jiraSource := &models.JiraSource{}
+	err = db.First(jiraSource, jiraSourceId).Error
 	if err != nil {
 		return nil, err
 	}
-	resp, err := client.Get(input.Params["path"], &input.Query, nil)
+	encKey := cfg.GetString(core.EncodeKeyEnvStr)
+	basicAuth, err := core.Decrypt(encKey, jiraSource.BasicAuthEncoded)
+	if err != nil {
+		return nil, err
+	}
+	apiClient, err := helper.NewApiClient(
+		jiraSource.Endpoint,
+		map[string]string{
+			"Authorization": fmt.Sprintf("Basic %v", basicAuth),
+		},
+		30*time.Second,
+		jiraSource.Proxy,
+		nil,
+	)
+	if err != nil {
+		return nil, err
+	}
+	resp, err := apiClient.Get(input.Params["path"], input.Query, nil)
 	if err != nil {
 		return nil, err
 	}

@@ -13,6 +13,7 @@ import {
   Tooltip,
 } from '@blueprintjs/core'
 import { Select } from '@blueprintjs/select'
+import RefDiffSettings from '@/components/pipelines/pipeline-settings/refdiff'
 
 const ProviderSettings = (props) => {
   const {
@@ -23,15 +24,26 @@ const ProviderSettings = (props) => {
     sources = [],
     boardId = [],
     owner,
-    repo,
+    repositoryName,
+    gitExtractorUrl,
+    gitExtractorRepoId,
+    refDiffRepoId,
+    refDiffPairs = [],
+    refDiffTasks = [],
     setProjectId = () => {},
     setSourceId = () => {},
     setSelectedSource = () => {},
     setBoardId = () => {},
     setOwner = () => {},
     setRepositoryName = () => {},
+    setGitExtractorUrl = () => {},
+    setGitExtractorRepoId = () => {},
+    setRefDiffRepoId = () => {},
+    setRefDiffPairs = () => {},
+    setRefDiffTasks = () => {},
     isEnabled = () => {},
     isRunning = false,
+    onReset = () => {}
   } = props
 
   let providerSettings = null
@@ -53,20 +65,11 @@ const ProviderSettings = (props) => {
             contentClassName=''
             fill
           >
-            {/* <InputGroup
-              id='source-id'
-              disabled={isRunning || !isEnabled(providerId)}
-              placeholder='eg. 54'
-              value={sourceId}
-              onChange={(e) => setSourceId(e.target.value)}
-              className='input-source-id'
-              autoComplete='off'
-              fill={false}
-            /> */}
             <ButtonGroup>
               <Select
                 disabled={isRunning || !isEnabled(providerId)}
                 className='selector-source-id'
+                popoverProps={{ popoverClassName: 'source-id-popover' }}
                 multiple
                 inline={true}
                 fill={true}
@@ -88,6 +91,7 @@ const ProviderSettings = (props) => {
                 }}
               >
                 <Button
+                  className='btn-source-id-selector'
                   disabled={isRunning || !isEnabled(providerId)}
                   style={{ justifyContent: 'space-between', minWidth: '206px', maxWidth: '290px', whiteSpace: 'nowrap' }}
                   text={selectedSource ? `${selectedSource.title} [${selectedSource.value}]` : 'Select Instance'}
@@ -124,17 +128,6 @@ const ProviderSettings = (props) => {
             style={{ marginLeft: '12px' }}
             fill
           >
-            {/* (DISABLED) Single Input */}
-            {/* <InputGroup
-              id='board-id'
-              disabled={isRunning || !isEnabled(providerId)}
-              placeholder='eg. 8'
-              value={boardId}
-              onChange={(e) => setBoardId(e.target.value)}
-              className='input-board-id'
-              autoComplete='off'
-              fill={false}
-            /> */}
             <div style={{ width: '100%' }}>
               <TagInput
                 id='board-id'
@@ -199,7 +192,7 @@ const ProviderSettings = (props) => {
               id='repository-name'
               disabled={isRunning || !isEnabled(providerId)}
               placeholder='eg. lake'
-              value={repo}
+              value={repositoryName}
               onChange={(e) => setRepositoryName(e.target.value)}
               className='input-repository-name'
               autoComplete='off'
@@ -231,16 +224,6 @@ const ProviderSettings = (props) => {
             className=''
             contentClassName=''
           >
-            {/* (DISABLED) Single Input */}
-            {/* <InputGroup
-              id='project-id'
-              disabled={isRunning || !isEnabled(providerId)}
-              placeholder='eg. 937810831'
-              value={projectId}
-              onChange={(e) => setProjectId(pId => e.target.value)}
-              className='input-project-id'
-              autoComplete='off'
-            /> */}
             <div style={{ width: '100%' }}>
               <TagInput
                 id='project-id'
@@ -267,7 +250,72 @@ const ProviderSettings = (props) => {
         </>
       )
       break
+    case Providers.GITEXTRACTOR:
+      providerSettings = (
+        <>
+          <FormGroup
+            disabled={isRunning || !isEnabled(providerId)}
+            label={<strong>Git URL<span className='requiredStar'>*</span></strong>}
+            labelInfo={<span style={{ display: 'block' }}>Enter Repository URL</span>}
+            inline={false}
+            labelFor='git-url'
+            className=''
+            contentClassName=''
+            fill
+            style={{ minWidth: '372px' }}
+          >
+            <InputGroup
+              id='gitextractor-url'
+              disabled={isRunning || !isEnabled(providerId)}
+              placeholder='eg. https://github.com/merico-dev/lake.git'
+              value={gitExtractorUrl}
+              onChange={(e) => setGitExtractorUrl(e.target.value)}
+              className='input-gitextractor-url'
+              autoComplete='off'
+            />
+          </FormGroup>
+          <FormGroup
+            disabled={isRunning || !isEnabled(providerId)}
+            label={<strong>Repository ID<span className='requiredStar'>*</span></strong>}
+            labelInfo={<span style={{ display: 'block' }}>Enter Repo Column ID</span>}
+            inline={false}
+            labelFor='gitextractor-repo-id'
+            className=''
+            contentClassName=''
+            style={{ marginLeft: '12px', minWidth: '280px' }}
+            fill
+          >
+            <InputGroup
+              id='gitextractor-repo-id'
+              disabled={isRunning || !isEnabled(providerId)}
+              placeholder='eg. github:GithubRepo:384111310'
+              value={gitExtractorRepoId}
+              onChange={(e) => setGitExtractorRepoId(e.target.value)}
+              className='input-gitextractor-repo-id'
+              autoComplete='off'
+              fill={false}
+            />
+          </FormGroup>
+        </>
+      )
+      break
+    case Providers.REFDIFF:
+      providerSettings = (
+        <RefDiffSettings
+          providerId={providerId}
+          repoId={refDiffRepoId}
+          tasks={refDiffTasks}
+          pairs={refDiffPairs}
+          setRepoId={setRefDiffRepoId}
+          setTasks={setRefDiffTasks}
+          setPairs={setRefDiffPairs}
+          isRunning={isRunning}
+          isEnabled={isEnabled}
+        />
+      )
+      break
     default:
+      providerSettings = null
       break
   }
 

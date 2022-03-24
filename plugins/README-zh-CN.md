@@ -60,7 +60,7 @@ func Collect() error {
 		func(res *http.Response) error {
 			pluginApiResponse := &ApiResponse{}
       // 你必须解除对api的响应，才能使用这些结果
-			err := core.UnmarshalResponse(res, pluginApiResponse)
+			err := helper.UnmarshalResponse(res, pluginApiResponse)
 			if err != nil {
 				logger.Error("Error: ", err)
 				return nil

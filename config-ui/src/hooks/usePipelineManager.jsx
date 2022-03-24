@@ -147,6 +147,21 @@ function usePipelineManager (pipelineName = `COLLECTION ${Date.now()}`, initialT
     }
   }, [])
 
+  const buildPipelineStages = useCallback((tasks = [], outputArray = false) => {
+    let stages = {}
+    let stagesArray = []
+    tasks?.forEach(tS => {
+      stages = {
+        ...stages,
+        [tS.pipelineRow]: tasks?.filter(t => t.pipelineRow === tS.pipelineRow)
+      }
+    })
+    const stageKeys = Object.keys(stages)
+    stagesArray = Object.values(stages)
+    console.log('>>> BUILDING PIPELINE STAGES...', tasks, stages, stagesArray)
+    return outputArray ? stagesArray : stages
+  }, [])
+
   useEffect(() => {
     console.log('>> PIPELINE MANAGER - RECEIVED RUN/TASK SETTINGS', settings)
   }, [settings])
@@ -172,7 +187,8 @@ function usePipelineManager (pipelineName = `COLLECTION ${Date.now()}`, initialT
     cancelPipeline,
     fetchPipeline,
     fetchPipelineTasks,
-    fetchAllPipelines
+    fetchAllPipelines,
+    buildPipelineStages
   }
 }
 

@@ -4,23 +4,20 @@ import (
 	"github.com/merico-dev/lake/config"
 	"github.com/merico-dev/lake/plugins/core"
 	"github.com/mitchellh/mapstructure"
-	"github.com/spf13/viper"
 )
 
-var V *viper.Viper
-
-type JenkinsConfig struct {
-	JENKINS_ENDPOINT string `mapstructure:"JENKINS_ENDPOINT"`
-	JENKINS_USERNAME string `mapstructure:"JENKINS_USERNAME"`
-	JENKINS_PASSWORD string `mapstructure:"JENKINS_PASSWORD"`
+// This object conforms to what the frontend currently sends.
+type JenkinsSource struct {
+	Endpoint string `mapstructure:"JENKINS_ENDPOINT" validate:"required"`
+	Username string `mapstructure:"JENKINS_USERNAME" validate:"required"`
+	Password string `mapstructure:"JENKINS_PASSWORD" validate:"required"`
+	Proxy    string `mapstructure:"JENKINS_PROXY"`
 }
 
-type JenkinsSource struct {
-	ID       int
-	Username string
-	Password string
-	Endpoint string
-	Name     string
+type JenkinsResponse struct {
+	ID   int
+	Name string
+	JenkinsSource
 }
 
 /*
@@ -46,16 +43,12 @@ PUT /plugins/jenkins/sources/:sourceId
 }
 */
 func PutSource(input *core.ApiResourceInput) (*core.ApiResourceOutput, error) {
-	jenkinsSource := JenkinsConfig{}
+	jenkinsSource := JenkinsSource{}
 	err := mapstructure.Decode(input.Body, &jenkinsSource)
 	if err != nil {
 		return nil, err
 	}
-	V := config.LoadConfigFile()
-	V.Set("JENKINS_ENDPOINT", jenkinsSource.JENKINS_ENDPOINT)
-	V.Set("JENKINS_USERNAME", jenkinsSource.JENKINS_USERNAME)
-	V.Set("JENKINS_PASSWORD", jenkinsSource.JENKINS_PASSWORD)
-	err = V.WriteConfig()
+	err = config.SetStruct(jenkinsSource, "mapstructure")
 	if err != nil {
 		return nil, err
 	}
@@ -68,8 +61,8 @@ GET /plugins/jenkins/sources
 */
 func ListSources(input *core.ApiResourceInput) (*core.ApiResourceOutput, error) {
 	// RETURN ONLY 1 SOURCE (FROM ENV) until multi-source is developed.
-	jenkinsSources, err := GetSourceFromEnv()
-	response := []JenkinsSource{*jenkinsSources}
+	jenkinsResponse, err := GetSourceFromEnv()
+	response := []JenkinsResponse{*jenkinsResponse}
 	if err != nil {
 		return nil, err
 	}
@@ -81,24 +74,23 @@ GET /plugins/jenkins/sources/:sourceId
 */
 func GetSource(input *core.ApiResourceInput) (*core.ApiResourceOutput, error) {
 	//  RETURN ONLY 1 SOURCE FROM ENV (Ignore ID until multi-source is developed.)
-	jenkinsSources, err := GetSourceFromEnv()
+	jenkinsResponse, err := GetSourceFromEnv()
 	if err != nil {
 		return nil, err
 	}
-	return &core.ApiResourceOutput{Body: jenkinsSources}, nil
+	return &core.ApiResourceOutput{Body: jenkinsResponse}, nil
 }
 
-func GetSourceFromEnv() (*JenkinsSource, error) {
-	configJson, err := config.GetConfigJson()
+func GetSourceFromEnv() (*JenkinsResponse, error) {
+	v := config.GetConfig()
+	var jenkinsSource JenkinsSource
+	err := v.Unmarshal(&jenkinsSource)
 	if err != nil {
 		return nil, err
 	}
-	return &JenkinsSource{
-		Endpoint: configJson.JENKINS_ENDPOINT,
-		Username: configJson.JENKINS_USERNAME,
-		Password: configJson.JENKINS_PASSWORD,
-		// The UI relies on a source ID here but we will hardcode it until the sources work is done for Jenkins
-		ID:   1,
-		Name: "Jenkins",
+	return &JenkinsResponse{
+		Name:          "Jenkins",
+		ID:            1,
+		JenkinsSource: jenkinsSource,
 	}, nil
 }

@@ -1,6 +1,8 @@
 package models
 
-import "github.com/merico-dev/lake/models/common"
+import (
+	"github.com/merico-dev/lake/models/common"
+)
 
 type GithubPullRequestCommit struct {
 	CommitSha     string `gorm:"primaryKey"`

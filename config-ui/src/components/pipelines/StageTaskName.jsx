@@ -68,9 +68,10 @@ const StageTaskName = (props) => {
                 >
                   {task.plugin === Providers.REFDIFF && (<>{ProviderLabels.REFDIFF}</>)}
                   {task.plugin === Providers.GITEXTRACTOR && (<>{ProviderLabels.GITEXTRACTOR}</>)}
+                  {task.plugin === Providers.FEISHU && (<>{ProviderLabels.FEISHU}</>)}
                   {task.plugin === Providers.JENKINS && (<>{ProviderLabels.JENKINS}</>)}
                   {(task.plugin === Providers.GITLAB || task.plugin === Providers.JIRA) && (<>ID {task.options.projectId || task.options.boardId}</>)}
-                  {task.plugin === Providers.GITHUB && task.plugin !== Providers.JENKINS && (<>@{task.options.owner}/{task.options.repo}</>)}
+                  {task.plugin === Providers.GITHUB && task.plugin !== Providers.JENKINS && (<>@{task.options.owner}/{task.options.repositoryName}</>)}
                 </H3>
                 {![Providers.JENKINS, Providers.REFDIFF, Providers.GITEXTRACTOR].includes(task.plugin) && (
                   <>{ProviderLabels[task.plugin.toUpperCase()] || 'System Task'}<br /></>

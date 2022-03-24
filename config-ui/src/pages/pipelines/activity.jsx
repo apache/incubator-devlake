@@ -93,7 +93,9 @@ const PipelineActivity = (props) => {
     const existingTasksConfiguration = tasks.map(t => {
       return {
         plugin: t.plugin,
-        options: t.options
+        options: t.options,
+        pipelineRow: t.pipelineRow,
+        pipelineCol: t.pipelineCol
       }
     })
     console.log('>>> RESTARTING PIPELINE WITH EXISTING CONFIGURATION!!', existingTasksConfiguration)
@@ -576,7 +578,7 @@ const PipelineActivity = (props) => {
                               <span>
                                 <strong>{t.options.owner}</strong>
                                 <span style={{ color: Colors.GRAY5, padding: '0 1px' }}>/</span>
-                                <strong>{t.options.repo}</strong>
+                                <strong>{t.options.repositoryName || t.options.repo || '(Repository)'}</strong>
                               </span>
                               {t.options.tasks && (
                                 <>
@@ -647,7 +649,7 @@ const PipelineActivity = (props) => {
                                       <Icon icon='nest' size={12} color={Colors.GRAY4} style={{ marginRight: '0' }} /> <Tag style={{ fontSize: '9px', marginLeft: '0', backgroundColor: '#eee', color: '#777' }}>TAG PAIRS</Tag>
                                       <ul style={{ fontSize: '9px' }}>
                                         {t.options.pairs.map((ref, refIdx) => (
-                                          <li key={`option-subtask-key${refIdx}`}><strong>old</strong> {ref.oldRef} &nbsp; <strong>new</strong> {ref.oldRef} </li>
+                                          <li key={`option-subtask-key${refIdx}`}><strong>old</strong> {ref.oldRef} &nbsp; <strong>new</strong> {ref.newRef} </li>
                                         ))}
                                       </ul>
                                     </div>
@@ -694,6 +696,7 @@ const PipelineActivity = (props) => {
                 <span>See <strong style={{ textDecoration: 'underline' }}>All Jobs</strong> to monitor all pipeline activity.</span>
                 <div>
                   <Button
+                    className='btn-inspect-pipeline'
                     onClick={() => setShowInspector((iS) => !iS)}
                     icon='code' text='Inspect JSON' small minimal
                     style={{ marginRight: '3px', color: Colors.GRAY3 }}

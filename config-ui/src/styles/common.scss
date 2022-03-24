@@ -86,8 +86,9 @@
 
 .codeArea {
   width: 100%;
-  max-width: 600px !important;
-  height: 384px !important;
+  max-width: 600px;
+  height: 384px;
+  min-height: 384px;
   font-family: "JetBrains Mono", monospace;
   font-size: 13px;
   border: 0;
@@ -261,22 +262,26 @@ h3 {
   // font-size: 13px;
   font-style: normal;
   font-weight: normal;
-  line-height: 102%;
+  line-height: 110%;
   font-feature-settings: 'pnum'on, 'lnum'on;
   color: #717484;
   padding-left: 26px;
 }
 
 .badge-count {
-  width: 18px;
-  height: 18px;
+  width: 20px;
+  height: 20px;
   display: inline-block;
   border-radius: 50%;
   background-color: rgba(0, 0, 255, 0.9);
   color: #ffffff;
-  line-height: 18px;
+  line-height: 20px;
   text-align: center;
   margin-left: 5px;
   font-weight: 300;
+  font-size: 10px;
   opacity: 1.0;
+  float: right;
+  margin-top: -3px;
+  transform: scale(0.85);
 }

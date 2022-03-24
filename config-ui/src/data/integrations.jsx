@@ -1,6 +1,6 @@
 import React from 'react'
 
-import { Providers, ProviderLabels } from '@/data/Providers'
+import { Providers, ProviderLabels, ProviderTypes } from '@/data/Providers'
 
 import JiraSettings from '@/pages/configure/settings/jira'
 import GitlabSettings from '@/pages/configure/settings/gitlab'
@@ -11,11 +11,14 @@ import { ReactComponent as GitlabProvider } from '@/images/integrations/gitlab.s
 import { ReactComponent as JenkinsProvider } from '@/images/integrations/jenkins.svg'
 import { ReactComponent as JiraProvider } from '@/images/integrations/jira.svg'
 import { ReactComponent as GitHubProvider } from '@/images/integrations/github.svg'
+import GitExtractorProvider from '@/images/git.png'
+import RefDiffProvider from '@/images/git-diff.png'
 // import { ReactComponent as NullProvider } from '@/images/integrations/null.svg'
 
 const integrationsData = [
   {
     id: Providers.GITLAB,
+    type: ProviderTypes.INTEGRATION,
     enabled: true,
     multiSource: false,
     name: ProviderLabels.GITLAB,
@@ -32,6 +35,7 @@ const integrationsData = [
   },
   {
     id: Providers.JENKINS,
+    type: ProviderTypes.INTEGRATION,
     enabled: true,
     multiSource: false,
     name: ProviderLabels.JENKINS,
@@ -48,6 +52,7 @@ const integrationsData = [
   },
   {
     id: Providers.JIRA,
+    type: ProviderTypes.INTEGRATION,
     enabled: true,
     multiSource: true,
     name: ProviderLabels.JIRA,
@@ -64,6 +69,7 @@ const integrationsData = [
   },
   {
     id: Providers.GITHUB,
+    type: ProviderTypes.INTEGRATION,
     enabled: true,
     multiSource: false,
     name: ProviderLabels.GITHUB,
@@ -80,6 +86,34 @@ const integrationsData = [
   },
 ]
 
+const pluginsData = [
+  {
+    id: Providers.GITEXTRACTOR,
+    type: ProviderTypes.PIPELINE,
+    enabled: true,
+    multiSource: false,
+    name: ProviderLabels.GITEXTRACTOR,
+    icon: <img src={GitExtractorProvider} className='providerIconPng' width='30' height='30' style={{ float: 'left', marginTop: '5px' }} />,
+    iconDashboard: <img src={GitExtractorProvider} className='providerIconPng' width='48' height='48' />,
+    settings: ({ activeProvider, activeConnection, isSaving, setSettings }) => (
+      null
+    )
+  },
+  {
+    id: Providers.REFDIFF,
+    type: ProviderTypes.PIPELINE,
+    enabled: true,
+    multiSource: false,
+    name: ProviderLabels.REFDIFF,
+    icon: <img src={RefDiffProvider} className='providerIconPng' width='30' height='30' style={{ float: 'left', marginTop: '5px' }} />,
+    iconDashboard: <img src={RefDiffProvider} className='providerIconPng' width='48' height='48' />,
+    settings: ({ activeProvider, activeConnection, isSaving, setSettings }) => (
+      null
+    )
+  },
+]
+
 export {
-  integrationsData
+  integrationsData,
+  pluginsData
 }

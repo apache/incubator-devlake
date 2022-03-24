@@ -1,89 +1,73 @@
 package api
 
 import (
+	"fmt"
 	"net/http"
-	"net/url"
 	"time"
 
-	"github.com/merico-dev/lake/logger"
+	"github.com/go-playground/validator/v10"
 	"github.com/merico-dev/lake/plugins/core"
+	"github.com/merico-dev/lake/plugins/helper"
 	"github.com/merico-dev/lake/plugins/jira/models"
-	"github.com/merico-dev/lake/plugins/jira/tasks"
-	"github.com/merico-dev/lake/utils"
 	"github.com/mitchellh/mapstructure"
 )
 
 type TestConnectionRequest struct {
 	Endpoint string `json:"endpoint"`
 	Auth     string `json:"auth"`
+	Proxy    string `json:"proxy"`
 }
+
+var vld = validator.New()
 
 func TestConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, error) {
-	ValidationResult := core.ValidateParams(input, []string{"endpoint", "auth"})
-	if !ValidationResult.Success {
-		return &core.ApiResourceOutput{Body: ValidationResult}, nil
-	}
-	var params TestConnectionRequest
-	err := mapstructure.Decode(input.Body, &params)
-	if err != nil {
-		logger.Error("Error: ", err)
-		return &core.ApiResourceOutput{Body: core.TestResult{Success: false, Message: core.InvalidParams}}, nil
-	}
 
-	parsedUrl, err := url.Parse(params.Endpoint)
+	// decode
+	var err error
+	var connection TestConnectionRequest
+	err = mapstructure.Decode(input.Body, &connection)
 	if err != nil {
-		// parsed error
-		logger.Error("Error: ", err)
-		return &core.ApiResourceOutput{Body: core.TestResult{Success: false, Message: core.InvalidEndpointError}}, nil
+		return nil, err
 	}
-	if parsedUrl.Scheme == "" {
-		// no schema
-		return &core.ApiResourceOutput{Body: core.TestResult{Success: false, Message: core.SchemaIsRequired}}, nil
-	}
-	err = utils.CheckDNS(parsedUrl.Hostname())
+	// validate
+	err = vld.Struct(connection)
 	if err != nil {
-		// ip not found
-		logger.Error("Error: ", err)
-		return &core.ApiResourceOutput{Body: core.TestResult{Success: false, Message: core.DNSResolveFailedError}}, nil
+		return nil, err
 	}
-	port, err := utils.ResolvePort(parsedUrl.Port(), parsedUrl.Scheme)
+	// test connection
+	apiClient, err := helper.NewApiClient(
+		connection.Endpoint,
+		map[string]string{
+			"Authorization": fmt.Sprintf("Bearer %v", connection.Auth),
+		},
+		3*time.Second,
+		connection.Proxy,
+		nil,
+	)
 	if err != nil {
-		// resolve port failed
-		logger.Error("Error: ", err)
-		return &core.ApiResourceOutput{Body: core.TestResult{Success: false, Message: core.InvalidSchema}}, nil
+		return nil, err
 	}
-	err = utils.CheckNetwork(parsedUrl.Hostname(), port, time.Duration(2)*time.Second)
+	res, err := apiClient.Get("api/2/serverInfo", nil, nil)
 	if err != nil {
-		// connect failed
-		logger.Error("Error: ", err)
-		return &core.ApiResourceOutput{Body: core.TestResult{Success: false, Message: core.NetworkConnectError}}, nil
+		return nil, err
 	}
-
-	jiraApiClient := tasks.NewJiraApiClient(params.Endpoint, params.Auth)
-
-	serverInfo, statusCode, err := jiraApiClient.GetJiraServerInfo()
-	if statusCode == http.StatusNotFound {
-		// failed to get jira version
-		return &core.ApiResourceOutput{Body: core.TestResult{Success: false, Message: InvaildJiraApi}}, nil
-	}
-	if statusCode == http.StatusUnauthorized {
-		// NOTICE: jira api will check your token if you provided it, even the api can be accessed anonymously
-		return &core.ApiResourceOutput{Body: core.TestResult{Success: false, Message: InvalidAuthInfo}}, nil
-	}
+	resBody := &models.JiraServerInfo{}
+	err = helper.UnmarshalResponse(res, resBody)
 	if err != nil {
-		logger.Error("Error: ", err)
-		return &core.ApiResourceOutput{Body: core.TestResult{Success: false, Message: err.Error()}}, nil
+		return nil, err
 	}
-
-	if serverInfo.DeploymentType != models.DeploymentCloud {
-		// unsupported jira version
-		// FIXME: remove it when jira server is supported
-		return &core.ApiResourceOutput{Body: core.TestResult{Success: false, Message: InvalidJiraVersion}}, nil
+	// check version
+	if resBody.DeploymentType == models.DeploymentServer {
+		// only support 8.x.x or higher
+		if versions := resBody.VersionNumbers; len(versions) == 3 && versions[0] < 8 {
+			return nil, fmt.Errorf("Support JIRA Server 8+ only")
+		}
 	}
-
-	return &core.ApiResourceOutput{Body: core.TestResult{Success: true, Message: ""}}, nil
+	return &core.ApiResourceOutput{
+		Status: res.StatusCode,
+		Body: &core.TestResult{
+			Success: res.StatusCode == http.StatusOK,
+			Message: "success",
+		},
+	}, nil
 }
-
-const InvaildJiraApi = "Failed to request jira version api"
-const InvalidJiraVersion = "Unsupported jira server, only support jira cloud version now"
-const InvalidAuthInfo = "Authentication failed, please check your Basic Auth Token"

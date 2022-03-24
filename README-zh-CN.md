@@ -2,13 +2,7 @@
 <br />
 <img src="https://user-images.githubusercontent.com/3789273/128085813-92845abd-7c26-4fa2-9f98-928ce2246616.png" width="120px">
 
-# Dev Lake
-<p>
-    <b>
-     <!Software development workflow analysis for free> 
-    </b>
-  </p>
-  <p>
+# DevLake
 
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat&logo=github&color=2370ff&labelColor=454545)](http://makeapullrequest.com)
 [![Discord](https://img.shields.io/discord/844603288082186240.svg?style=flat?label=&logo=discord&logoColor=ffffff&color=747df7&labelColor=454545)](https://discord.gg/83rDG6ydVZ)
@@ -23,168 +17,57 @@
 <br>
 <div align="left">
 
-### 什么是 Dev Lake？
-DevLake 将你所有的 DevOps 数据以实用、个性化、可扩展的视图呈现。通过 DevLake，从不断增加的开发者工具列表中收集、分析和可视化数据。
+### 什么是 DevLake？
+DevLake 将你所有 DevOps 工具里的数据以实用、个性化、可扩展的视图呈现。通过 DevLake，从不断增加的工具列表中收集、分析和可视化数据。
 
 DevLake 适用于希望更好地通过数据了解其开发过程的开发团队，以及希望以数据驱动提升自身实践的开发团队。有了 DevLake，你可以向你的开发过程提出任何问题，只要连接数据并查询。
 
 
-#### 一键体验 Dev Lake
+<a href="https://app-259373083972538368-3002.ars.teamcode.com/d/0Rjxknc7z/demo-homepage?orgId=1">查看 demo</a>。用户名/密码： test/test。Demo里呈现的数据来自本仓库 merico-dev/lake。
 
+
+#### 开始安装 DevLake
 <table>
   <tr>
-    <td valign="middle"><a href="#user-setup">在本地运行</a></td>
-    <td valign="middle">
-      <a valign="middle" href="https://www.teamcode.com/tin/clone?applicationId=259777118600769536">
-        <img
-          src="https://static01.teamcode.com/badge/teamcode-badge-run-in-cloud-cn.svg"
-          width="140px"
-          alt="Teamcode" valign="middle"
-        />
-      </a>
-      <a valign="middle"
-        href="https://github.com/merico-dev/lake/wiki/How-to-Set-Up-Dev-Lake-with-Tin-zh-CN"><span valign="middle">查看手册</span>
-      </a>
-    </td>
+    <td valign="middle"><a href="#user-setup">运行 DevLake</a></td>
   </tr>
 </table>
+
+
 
 <br>
 
 <div align="left">
-<img src="https://user-images.githubusercontent.com/2908155/130271622-827c4ffa-d812-4843-b09d-ea1338b7e6e5.png" width="100%" alt="Dev Lake Grafana Dashboard" style="border-radius:15px;" />
-<p align="center">数据面板截图</p><br>
 <img src="https://user-images.githubusercontent.com/14050754/142356580-40637a30-5578-48ed-8e4a-128cd0738e3e.png" width="100%" alt="User Flow" style="border-radius:15px;"/>
 <p align="center">用户使用流程</p><br>
 
 
 
-### 为什么选择 Dev Lake？
-1. 全面了解软件研发生命周期，挖掘工作流瓶颈
-2. 及时回顾团队迭代表现，快速反馈，敏捷调整
-3. 快速搭建场景化数据仪表盘，下钻分析洞察问题根因
+### DevLake 可以完成什么?
+1. 归集 DevOps 全流程效能数据，连接数据孤岛
+2. 标准的<a href="https://github.com/merico-dev/lake/wiki/DataModel.Domain-layer-schema" target="_blank">研发数据模型</a>和开箱即用的<a href="https://github.com/merico-dev/lake/wiki/Metric-Cheatsheet" target="_blank">效能指标</a>
+3. 灵活的数据收集、ETL的<a href="https://github.com/merico-dev/lake/blob/main/ARCHITECTURE.md">框架</a>，支持自定义分析
 
-### Dev Lake 可以完成什么?
-1. 归集 DevOps 全流程效能数据
-2. 同类工具共用抽象层，输出标准化效能数据
-3. 内置20+效能指标与下钻分析能力
-4. 支持自定义 SQL 分析及拖拽搭建场景化数据视图
-5. 灵活架构与插件设计，支持快速接入新数据源
-
-### 查看 Demo
-[点击这里](https://app-259373083972538368-3002.ars.teamcode.com/d/0Rjxknc7z/demo-homepage?orgId=1) 查看 Demo. Demo里呈现的数据来自此仓库。<br>
-用户名/密码: test/test
 
 
 <br>
 
-## 目录
-<table>
-    <tr>
-        <td><b>目录</b></td>
-        <td><b>子目录</b></td>
-        <td><b>描述</b></td>
-        <td><b>文档链接</b></td>
-    </tr>
-    <tr>
-        <td>数据源</td>
-        <td>当前支持的数据源</td>
-        <td>链接到具体的插件使用和细节</td>
-        <td><a href="#data-source-plugins">查看本节</a></td>
-    </tr>
-    <tr>
-        <td rowspan="3">安装手册</td>
-        <td>用户安装</td>
-        <td>以用户身份运行项目的步骤</td>
-        <td><a href="#user-setup">查看本节</a></td>
-    </tr>
-    <tr>
-        <td>开发者安装</td>
-        <td>如何设置开发环境</td>
-        <td><a href="#dev-setup">查看本节</a></td>
-    </tr>
-    <tr>
-        <td>云端安装</td>
-        <td>使用 Tin 进行云端安装</td>
-        <td><a href="#cloud-setup">查看本节</a></td>
-    </tr>
-   <tr>
-        <td>测试</td>
-        <td>测试</td>
-        <td>运行测试的命令</td>
-        <td><a href="#tests">查看本节</a></td>
-    </tr>
-    <tr>
-        <td rowspan="4">贡献</td>
-        <td>了解 DevLake 的架构</td>
-        <td>查看系统架构图</td>
-        <td><a href="#architecture">查看本节</a></td>
-    </tr>
-    <tr>
-        <td>添加一个插件</td>
-        <td>如何制作自己的插件的详细信息</td>
-        <td><a href="#plugin">查看本节</a></td>
-    </tr>
-   <tr>
-        <td>添加新的指标</td>
-        <td>如何给插件添加指标</td>
-        <td><a href="#metrics">查看本节</a></td>
-    </tr>
-    <tr>
-        <td>代码规范</td>
-        <td>如何进行贡献</td>
-        <td><a href="#contributing">查看本节</a></td>
-    </tr>
-    <tr>
-        <td rowspan="4">用户使用手册，帮助文档等</td>
-        <td>Grafana</td>
-        <td>如何将数据进行可视化</td>
-        <td><a href="#grafana">查看本节</a></td>
-    </tr>
-    <tr>
-        <td>帮助</td>
-        <td>在 Discord 上联系我们</td>
-        <td><a href="#help">查看本节</a></td>
-    </tr>
-    <tr>
-        <td>FAQ</td>
-        <td>常见问题</td>
-        <td><a href="#faq">查看本节</a></td>
-    </tr>
-    <tr>
-        <td>许可证</td>
-        <td>Dev Lake 许可证</td>
-        <td><a href="#license">查看本节</a></td>
-    </tr>
-</table>
+## 用户安装<a id="user-setup"></a>
 
-<br>
-
-## 我们目前支持的数据源<a id="data-source-plugins"></a>
-
-下面是一个 _数据源插件（data source plugins）_ 的列表，用于收集和处理特定来源的数据。每个插件都有一个 `README.md` 文件，包含基本设置、故障排除和指标信息。
-
-关于建立一个新的 _data source plugins_ 的更多信息，请参见[添加一个插件](plugins/README-zh-CN.md)。
-
-目录 | 内容 | 文档
------------- | ------------- | -------------
-Jira | 概述，数据和指标，配置，API | [Link](plugins/jira/README-zh-CN.md) 
-Gitlab | 概述，数据和指标，配置，API | [Link](plugins/gitlab/README-zh-CN.md) 
-Jenkins | 概述，数据和指标，配置，API | [Link](plugins/jenkins/README-zh-CN.md) 
-GitHub | 概述，数据和指标，配置，API | [Link](plugins/github/README-zh-CN.md)
-
-<br>
-
-## 安装手册
-一共有 3 种方式来安装 Dev Lake：用户安装，开发者安装和云端安装。
-
-
-### 用户安装<a id="user-setup"></a>
-
-- 如果你只打算运行 Dev Lake，你只需要阅读这一小节<br>
+- 如果你只打算运行 DevLake，你只需要阅读这一小节<br>
+- 本节描述了 2 种安装方式，[本地安装](#local-setup)和[Kubernetes安装](#k8s-setup)
+- 如果你想在云端安装 DevLake，你可以参考[安装手册](https://github.com/merico-dev/lake/wiki/How-to-Set-Up-Dev-Lake-with-Tin-zh-CN)，点击 <a valign="middle" href="https://www.teamcode.com/tin/clone?applicationId=259777118600769536">
+        <img
+          src="https://static01.teamcode.com/badge/teamcode-badge-run-in-cloud-cn.svg"
+          width="120px"
+          alt="Teamcode" valign="middle"
+        />
+      </a> 完成安装
 - 写成 `这样` 的命令需要在你的终端中运行
 
-### 需要安装的软件包<a id="user-setup-requirements"></a>
+  
+### 部署到本地<a id="local-setup"></a>
+#### 需要安装的软件包<a id="user-setup-requirements"></a>
 
 - [Docker](https://docs.docker.com/get-docker)
 - [docker-compose](https://docs.docker.com/compose/install/)
@@ -193,34 +76,36 @@ GitHub | 概述，数据和指标，配置，API | [Link](plugins/github/README-
 
 #### 在你的终端中运行以下命令<a id="user-setup-commands"></a>
 
-1. 克隆仓库。
+**IMPORTANT（新用户可以忽略）: DevLake暂不支持向前兼容。当 DB Schema 发生变化时，直接更新已有实例可能出错，建议已经安装 DevLake 的用户在升级时，重新部署实例并导入数据。**
 
-   ```sh
-   git clone https://github.com/merico-dev/lake.git devlake
-   cd devlake
-   cp .env.example .env
-   ```
-2. 启动 Docker，然后运行 `docker-compose up -d` 启动服务。
-
-3. 访问 `localhost:4000` 来设置 Dev Lake 的配置文件
-   >- 在 "Integration"页面上找到到所需的插件页面
-   >- 你需要为你打算使用的插件输入必要的信息
-   >- 请参考以下内容，以了解如何配置每个插件的更多细节
-   >-> <a href="plugins/jira/README-zh-CN.md" target="_blank">Jira</a>
-   >-> <a href="plugins/gitlab/README-zh-CN.md" target="_blank">GitLab</a>
-   >-> <a href="plugins/jenkins/README-zh-CN.md" target="_blank">Jenkins</a> 
-   >-> <a href="plugins/github/README-zh-CN.md" target="_blank">GitHub</a>
-   
+1. 在[最新版本列表](https://github.com/merico-dev/lake/releases/latest) 下载 `docker-compose.yml` 和 `env.example`
+2. 将 `env.example` 重命名为 `.env`。Mac/Linux 用户请在命令行里运行 `mv env.example .env` 来完成修改
+3. 启动 Docker，然后运行 `docker-compose up -d` 启动服务
+4. 访问 `localhost:4000` 来设置 DevLake 的配置文件
+   >- 在 Integrations 页面上找到你想要导入的数据源
+   >- 了解如何配置每个数据源：<br>
+      > <a href="plugins/jira/README-zh-CN.md" target="_blank">Jira</a><br>
+      > <a href="plugins/gitlab/README-zh-CN.md" target="_blank">GitLab</a><br>
+      > <a href="plugins/jenkins/README-zh-CN.md" target="_blank">Jenkins</a><br>
+      > <a href="plugins/github/README-zh-CN.md" target="_blank">GitHub</a><br>
    >- 提交表单，通过点击每个表单页面上的**Save Connection**按钮来更新数值。
-
    >- `devlake`需要一段时间才能完全启动。如果`config-ui`提示 API 无法访问，请等待几秒钟并尝试刷新页面。
-   >- 如果想收集一个 Repo 进行快速预览，请在**数据集成/Github**页面提供一个 Github 的个人 Token。
 
-4. 访问 `localhost:4000/triggers`，触发数据收集
+5. 访问 `localhost:4000/pipelines/create`，创建 1个Pipeline run，并触发数据收集
 
-> 请参考这篇Wiki [How to trigger data collection](https://github.com/merico-dev/lake/wiki/How-to-use-the-triggers-page)。数据收集可能需要一段时间，取决于你想收集的数据量。
+   Pipeline Runs 可以通过新的 "Create Run"界面启动。只需启用你希望运行的**数据源**，并指定数据收集的范围，比如Gitlab的项目ID和GitHub的仓库名称。
 
-> - 如果要收集这个 repo 以进行，你可以使用以下 JSON
+   一旦创建了有效的 Pipeline Run 配置，按**Create Run**来启动/运行该 Pipeline。
+   Pipeline Run 启动后，你会被自动转到**Pipeline Activity**界面，以监控采集活动。
+
+   **Pipelines**可从 config-ui 的主菜单进入。
+
+   - 管理所有Pipeline: `http://localhost:4000/pipelines`。
+   - 创建Pipeline Run: `localhost:4000/pipelines/create`。
+   - 查看Pipeline Activity: `http://localhost:4000/pipelines/activity/[RUN_ID]`。
+
+   对于复杂度较高的用例，请使用Raw JSON API进行任务配置。使用**cURL**或图形API工具（如**Postman**）手动启动运行。`POST`以下请求到DevLake API端点。
+
    >   ```json
    >   [
    >     [
@@ -234,20 +119,22 @@ GitHub | 概述，数据和指标，配置，API | [Link](plugins/github/README-
    >     ]
    >   ]
    >   ```
+   
+   请参考这篇 wiki [How to trigger data collection](https://github.com/merico-dev/lake/wiki/How-to-use-the-triggers-page).
 
+6. 数据收集完成后，点击配置页面左上角的 *View Dashboards* 按钮或者访问 `localhost:3002`，访问 Grafana (用户名: `admin`, 密码: `admin`)
 
-5. 完成后，点击 *Go to grafana* (用户名: `admin`, 密码: `admin`)。当数据收集完成后，该按钮将显示在触发收集页面。
+   我们使用 <a href="https://grafana.com/" target="_blank">Grafana</a> 作为可视化工具，为存储在<a href="https://github.com/merico-dev/lake/wiki/DataModel.Domain-layer-schema">我们数据库中的数据</a>建立图表。可以使用SQL查询，添加面板来构建、保存和编辑自定义仪表盘。
+
+   关于配置和定制仪表盘的所有细节可以在 [Grafana 文档](docs/GRAFANA.md) 中找到。
 
 #### 设置 Cron job
 为了定期同步数据，我们提供了[`lake-cli`](./cmd/lake-cli/README.md)以方便发送数据收集请求，我们同时提供了[cron job](./devops/sync/README.md)以定期触发 cli 工具。
 
 <br>
 
-****
 
-<br>
-
-#### 部署到 Kubernetes
+### 部署到 Kubernetes 环境<a id="k8s-setup"></a>
 
 你也可以选择将 DevLake 部署到 Kubernetes 集群。这个操作只有一个前提条件，就是你有一套可以用的 Kubernetes 集群，并且确保本地 kubeconfig 配置正确。接着执行如下命令完成部署：
 
@@ -260,7 +147,9 @@ kubectl apply -f https://raw.githubusercontent.com/merico-dev/lake/main/k8s-depl
 1. DevLake 的 4000 端口需要通过 30004 访问
 2. Grafana 的 3000 端口需要通过 30002 访问
 
-### 开发者安装<a id="dev-setup"></a>
+<br>
+
+## 开发者安装<a id="dev-setup"></a>
 
 #### 前期准备
 
@@ -279,10 +168,14 @@ kubectl apply -f https://raw.githubusercontent.com/merico-dev/lake/main/k8s-depl
    cd lake
    ```
 
+2. 安装插件依赖
+
+   - [RefDiff](plugins/refdiff#development)
+
 2. 安装 go packages
 
     ```sh
-    make install
+	go get
     ```
 
 3. 将样本配置文件复制到新的本地文件
@@ -290,17 +183,19 @@ kubectl apply -f https://raw.githubusercontent.com/merico-dev/lake/main/k8s-depl
     ```sh
     cp .env.example .env
     ```
-   在`.env`文件中找到以`DB_URL`开头的那一行，把`mysql:3306`替换为`127.0.0.1:3306`
 
-4. 启动 MySQL 和 Grafana
+4. 在`.env`文件中找到以`DB_URL`开头的那一行，把`mysql:3306`替换为`127.0.0.1:3306`
+
+5. 启动 MySQL 和 Grafana
 
     > 确保在此步骤之前 Docker 正在运行。
 
     ```sh
-    docker-compose up mysql grafana
+    docker-compose up -d mysql grafana
     ```
 
-5. 在 2 个终端种分别以开发者模式运行 lake 和 config UI:
+
+6. 在 2 个终端种分别以开发者模式运行 lake 和 config UI:
 
     ```sh
     # run lake
@@ -309,21 +204,31 @@ kubectl apply -f https://raw.githubusercontent.com/merico-dev/lake/main/k8s-depl
     make configure-dev
     ```
 
-6. 访问 config-ui `localhost:4000` 来配置 Dev Lake 数据源
+7. 访问 config-ui `localhost:4000` 来配置 DevLake 数据源
    >- 在 "Integration"页面上找到到所需的插件页面
    >- 你需要为你打算使用的插件输入必要的信息
    >- 请参考以下内容，以了解如何配置每个插件的更多细节
    >-> <a href="plugins/jira/README-zh-CN.md" target="_blank">Jira</a>
    >-> <a href="plugins/gitlab/README-zh-CN.md" target="_blank">GitLab</a>
-   >-> <a href="plugins/jenkins/README-zh-CN.md" target="_blank">Jenkins</a> 
+   >-> <a href="plugins/jenkins/README-zh-CN.md" target="_blank">Jenkins</a>
    >-> <a href="plugins/github/README-zh-CN.md" target="_blank">GitHub</a>
 
 
-7. 访问 `localhost:4000/triggers`，触发数据收集
+8. 访问 `localhost:4000/pipelines/create`，创建 1个Pipeline run，并触发数据收集
 
-    > 请参考这篇Wiki [How to trigger data collection](https://github.com/merico-dev/lake/wiki/How-to-use-the-triggers-page)。对于大型项目，这可能需要20分钟。 (Gitlab 10k+ commits 或 Jira 5k+ 事务)
+   Pipeline Runs 可以通过新的 "Create Run"界面启动。只需启用你希望运行的数据源，并指定数据收集的范围，比如Gitlab的项目ID和GitHub的仓库名称。
 
-    > - 如果要收集这个 repo 以进行，你可以使用以下 JSON
+   一旦创建了有效的 Pipeline Run 配置，按**Create Run**来启动/运行该 Pipeline。
+   Pipeline Run 启动后，你会被自动转到**Pipeline Activity**界面，以监控采集活动。
+
+   **Pipelines**可从 config-ui 的主菜单进入。
+
+   - 管理所有Pipeline: `http://localhost:4000/pipelines`。
+   - 创建Pipeline Run: `http://localhost:4000/pipelines/create`。
+   - 查看Pipeline Activity: `http://localhost:4000/pipelines/activity/[RUN_ID]`。
+
+   对于复杂度较高的用例，请使用Raw JSON API进行任务配置。使用**cURL**或图形API工具（如**Postman**）手动启动运行。`POST`以下请求到DevLake API端点。
+
    >   ```json
    >   [
    >     [
@@ -338,82 +243,52 @@ kubectl apply -f https://raw.githubusercontent.com/merico-dev/lake/main/k8s-depl
    >   ]
    >   ```
 
+   请参考这篇 wiki [How to trigger data collection](https://github.com/merico-dev/lake/wiki/How-to-use-the-triggers-page).
 
-8. 在Grafana仪表板中实现数据的可视化
 
-    _从这里你可以看到丰富的图表，这些图表来自于收集和处理后的数据_
+9. 数据收集完成后，点击配置页面左上角的 *View Dashboards* 按钮或者访问 `localhost:3002`(用户名: `admin`, 密码: `admin`)
 
-    - 导航到 http://localhost:3002 (用户名: `admin`, 密码: `admin`)
-    - 你也可以创建/修改现有的/保存到 `Dev lake` 中的仪表板
-    - 关于在Dev Lake中使用Grafana的更多信息，请看 [Grafana 文档](docs/GRAFANA.md)
+   我们使用 <a href="https://grafana.com/" target="_blank">Grafana</a> 作为可视化工具，为存储在<a href="https://github.com/merico-dev/lake/wiki/DataModel.Domain-layer-schema">我们数据库中的数据</a>建立图表。可以使用SQL查询，添加面板来构建、保存和编辑自定义仪表盘。
 
-<br>
+   关于配置和定制仪表盘的所有细节可以在 [Grafana 文档](docs/GRAFANA.md) 中找到。
 
-****
+10. （可选）运行测试: 
 
-<br>
-
-### 云端安装<a id="cloud-setup"></a>
-如果你想在云端安装Dev Lake，你可以使用 Tin 来进行. [查看详细信息](https://github.com/merico-dev/lake/wiki/How-to-Set-Up-Dev-Lake-with-Tin-zh-CN)
-
-**声明:** 
-> 对于使用 Tin 在云端托管 Dev Lake 的用户，设置密码来保护实例下配置信息的安全是至关重要的。Dev Lake作为一个自我托管的产品，部分是为了确保用户对数据有完全的保护和所有权，对于 Tin 托管来说也是如此，这个风险点需要由终端用户来消除。
+    ```sh
+    make test
+    ```
 
 <br>
 
-## 测试<a id="tests"></a>
-
-运行测试: 
-
-```sh
-make test
-```
+## 项目路线图
+- <a href="https://github.com/merico-dev/lake/wiki/Roadmap-2022" target="_blank">2022年路线图</a>: 2022年的目标和路线图
+- DevLake 已经支持的数据源：
+    - <a href="plugins/jira/README.md" target="_blank">Jira(Cloud)</a>
+    - <a href="plugins/gitextractor/README.md" target="_blank">Git</a>
+    - <a href="plugins/github/README.md" target="_blank">GitHub</a>
+    - <a href="plugins/gitlab/README.md" target="_blank">GitLab(Cloud)</a>
+    - <a href="plugins/jenkins/README.md" target="_blank">Jenkins</a>
+- <a href="https://github.com/merico-dev/lake/wiki/Metric-Cheatsheet" target="_blank">已经支持的指标</a>: 为观测和分析提供不同的视角
 
 <br>
 
 ## 贡献
-本节列出了所有的文件，以帮助你快速为 repo 做出贡献。
+本节列出了所有与共建 DevLake 相关的文档
 
-### 了解 DevLake 的架构<a id="architecture"></a>
-![devlake-architecture](https://user-images.githubusercontent.com/14050754/143292041-a4839bf1-ca46-462d-96da-2381c8aa0fed.png)
-<p align="center">架构图</p>
-
-### 添加一个插件<a id="plugin"></a>
-
-[plugins/README.md](/plugins/README.md)
-
-### 添加新的指标<a id="metrics"></a>
-
-[plugins/HOW-TO-ADD-METRICS.md](/plugins/HOW-TO-ADD-METRICS.md)
-
-### 代码规范<a id="contributing"></a>
-
-[CONTRIBUTING.md](CONTRIBUTING.md)
+- [架构设计](ARCHITECTURE.md): DevLake的架构设计
+- [添加一个插件](/plugins/README.md): 如何添加一个新插件
+- [添加新的指标](/plugins/HOW-TO-ADD-METRICS.md): 如何在一个插件里添加新的指标
+- [贡献规范](CONTRIBUTING.md): 如果你想给 DevLake 贡献代码，请看下这个文档
 
 <br>
 
+## 社区
 
-## 用户使用手册，帮助文档及其他
-### Grafana<a id="grafana"></a>
+- <a href="https://discord.com/invite/83rDG6ydVZ" target="_blank">Discord</a>: 在 Discord 上给我们发消息
+- <a href="https://github.com/merico-dev/lake/wiki/FAQ" target="_blank">FAQ</a>: 常见问题汇总
 
-我们使用 <a href="https://grafana.com/" target="_blank">Grafana</a> 作为可视化工具，为存储在我们数据库中的数据建立图表。可以使用SQL查询，添加面板来构建、保存和编辑自定义仪表盘。
-
-关于配置和定制仪表盘的所有细节可以在 [Grafana 文档](docs/GRAFANA.md) 中找到。
-
-
-### 需要帮助?
-
-在 <a href="https://discord.com/invite/83rDG6ydVZ" target="_blank">Discord</a> 上给我们发消息
-
-
-### FAQ<a id="faq"></a>
-
-问：当我运行```docker-compose up -d ```时，得到这个错误: "qemu: uncaught target signal 11 (Segmentation fault) - core dumped"。如何解决这个问题？
-
-答：Mac M1用户需要在他们的机器上下载一个特定版本的docker。你可以在这里找到它。
-https://docs.docker.com/desktop/mac/apple-silicon/
-
+<br>
 
 ### License<a id="license"></a>
 
-此项目的许可证为 Apache License 2.0 - 查看 [`许可证`](LICENSE) 详情。
+此项目的许可证为 Apache License 2.0 - 查看 [许可证](LICENSE) 详情。

@@ -8,8 +8,6 @@ import (
 )
 
 type JiraIssue struct {
-	common.NoPKModel
-
 	// collected fields
 	SourceId                 uint64 `gorm:"primaryKey"`
 	IssueId                  uint64 `gorm:"primarykey"`
@@ -39,22 +37,16 @@ type JiraIssue struct {
 	SprintName               string
 	ResolutionDate           *time.Time
 	Created                  time.Time
-	Updated                  time.Time
-
-	// enriched fields
-	// RequirementAnalsyisLeadTime uint
-	// DesignLeadTime              uint
-	// DevelopmentLeadTime         uint
-	// TestLeadTime                uint
-	// DeliveryLeadTime            uint
-	SpentMinutes    int64
-	LeadTimeMinutes uint
-	StdStoryPoint   uint
-	StdType         string
-	StdStatus       string
-	AllFields       datatypes.JSONMap
+	Updated                  time.Time `gorm:"index"`
+	SpentMinutes             int64
+	LeadTimeMinutes          uint
+	StdStoryPoint            uint
+	StdType                  string
+	StdStatus                string
+	AllFields                datatypes.JSONMap
 
 	// internal status tracking
 	ChangelogUpdated  *time.Time
 	RemotelinkUpdated *time.Time
+	common.NoPKModel
 }

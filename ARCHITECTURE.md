@@ -1,4 +1,6 @@
-# Architecture Layers
+## Architecture Overview</a>
+![devlake-architecture](https://user-images.githubusercontent.com/14050754/143292041-a4839bf1-ca46-462d-96da-2381c8aa0fed.png)
+<p align="center">Architecture Diagram</p>
 
 ## Stack (from low to high)
 

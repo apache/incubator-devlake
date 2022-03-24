@@ -1,7 +1,6 @@
 package tasks
 
 import (
-	"context"
 	"crypto/md5"
 	"encoding/hex"
 	"fmt"
@@ -12,24 +11,20 @@ import (
 	"strings"
 	"time"
 
-	"github.com/merico-dev/lake/config"
 	"github.com/merico-dev/lake/plugins/core"
+	"github.com/merico-dev/lake/plugins/helper"
 )
 
-type AEApiClient struct {
-	core.ApiClient
-}
-
-var letterRunes = []rune("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789")
+const letterBytes = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
 
 func init() {
 	rand.Seed(time.Now().UnixNano())
 }
 
-func RandStringRunes(n int) string {
-	b := make([]rune, n)
+func RandString(n int) string {
+	b := make([]byte, n)
 	for i := range b {
-		b[i] = letterRunes[rand.Intn(len(letterRunes))]
+		b[i] = letterBytes[rand.Intn(len(letterBytes))]
 	}
 	return string(b)
 }
@@ -61,64 +56,42 @@ func getSign(query url.Values, appId, secretKey, nonceStr, timestamp string) str
 	return strings.ToUpper(hex.EncodeToString(hasher.Sum(nil)))
 }
 
-func (client *AEApiClient) beforeRequest(req *http.Request) error {
-	appId := config.V.GetString("AE_APP_ID")
+func CreateApiClient(taskCtx core.TaskContext) (*helper.ApiAsyncClient, error) {
+	// load and process cconfiguration
+	endpoint := taskCtx.GetConfig("AE_ENDPOINT")
+	if endpoint == "" {
+		return nil, fmt.Errorf("invalid AE_ENDPOINT")
+	}
+	appId := taskCtx.GetConfig("AE_APP_ID")
 	if appId == "" {
-		return fmt.Errorf("invalid AE_APP_ID")
+		return nil, fmt.Errorf("invalid AE_APP_ID")
 	}
-	secretKey := config.V.GetString("AE_SECRET_KEY")
-	if appId == "" {
-		return fmt.Errorf("invalid AE_SECRET_KEY")
+	secretKey := taskCtx.GetConfig("AE_SECRET_KEY")
+	if secretKey == "" {
+		return nil, fmt.Errorf("invalid AE_SECRET_KEY")
 	}
-	nonceStr := RandStringRunes(8)
-	timestamp := fmt.Sprintf("%v", time.Now().Unix())
-	sign := getSign(req.URL.Query(), appId, secretKey, nonceStr, timestamp)
-	req.Header.Set("x-ae-app-id", appId)
-	req.Header.Set("x-ae-timestamp", timestamp)
-	req.Header.Set("x-ae-nonce-str", nonceStr)
-	req.Header.Set("x-ae-sign", sign)
-	return nil
-}
+	proxy := taskCtx.GetConfig("AE_PROXY")
 
-func CreateApiClient(ctx context.Context) *AEApiClient {
-	aeApiClient := &AEApiClient{}
-	aeApiClient.Setup(
-		config.V.GetString("AE_ENDPOINT"),
-		nil,
-		10*time.Second,
-		3,
-	)
-	aeApiClient.SetBeforeFunction(aeApiClient.beforeRequest)
-	aeApiClient.SetContext(ctx)
-	return aeApiClient
-}
+	apiClient, err := helper.NewApiClient(endpoint, nil, 0, proxy, taskCtx.GetContext())
+	if err != nil {
+		return nil, err
+	}
+	apiClient.SetBeforeFunction(func(req *http.Request) error {
+		nonceStr := RandString(8)
+		timestamp := fmt.Sprintf("%v", time.Now().Unix())
+		sign := getSign(req.URL.Query(), appId, secretKey, nonceStr, timestamp)
+		req.Header.Set("x-ae-app-id", appId)
+		req.Header.Set("x-ae-timestamp", timestamp)
+		req.Header.Set("x-ae-nonce-str", nonceStr)
+		req.Header.Set("x-ae-sign", sign)
+		return nil
+	})
 
-type AEPaginationHandler func(res *http.Response) error
-
-// fetch paginated without ANTS worker pool
-func (aeApiClient *AEApiClient) FetchWithPagination(path string, pageSize int, handler AEPaginationHandler) error {
-	currentPage := 1
-
-	query := &url.Values{}
-	query.Set("per_page", fmt.Sprintf("%d", pageSize))
-	// Loop until all pages are requested
-	for {
-		query.Set("page", fmt.Sprintf("%d", currentPage))
-		res, err := aeApiClient.Get(path, query, nil)
-		if err != nil {
-			return err
-		}
-
-		handlerErr := handler(res)
-		if handlerErr != nil {
-			return handlerErr
-		}
-
-		currentPage += 1
-		if res.Header.Get("x-ae-has-next-page") == "false" {
-			break
-		}
+	// create ae api client
+	asyncApiCLient, err := helper.CreateAsyncApiClient(taskCtx, apiClient, nil)
+	if err != nil {
+		return nil, err
 	}
 
-	return nil
+	return asyncApiCLient, nil
 }

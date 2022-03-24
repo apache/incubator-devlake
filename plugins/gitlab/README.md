@@ -50,15 +50,8 @@ For an overview of the **GitLab REST API**, please see official [GitLab Docs on 
 Click **Save Connection** to update connection settings.
     
 ### Provider (Datasource) Settings
-Manage additional settings and options for the GitLab Datasource Provider. Currently there is only one **optional** setting that allows you to Map multiple JIRA Boards to GitLab Projects.
-
-- **JIRA Board Mappings [ `Optional`]**
-**Map JIRA Boards to GitLab**. Type comma separated mappings using the format `[JIRA_BOARD_ID]:[GITLAB_PROJECT_ID]`
-```
-# Map JIRA Board ID 8 ==> Gitlab Projects 8967944,8967945
-<JIRA_BOARD>:<GITLAB_PROJECT_ID>,...; eg. 8:8967944,8967945;9:8967946,8967947
-```
-Click **Save Settings** to update additional settings.
+There are no additional settings for the GitLab Datasource Provider at this time.
+NOTE: `GitLab Project ID` Mappings feature has been deprecated.
 
 ## Gathering Data with Gitlab
 

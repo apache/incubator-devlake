@@ -1,9 +1,8 @@
 package models
 
 import (
-	"time"
-
 	"github.com/merico-dev/lake/models/common"
+	"time"
 )
 
 type GithubPullRequest struct {
@@ -13,7 +12,7 @@ type GithubPullRequest struct {
 	State           string
 	Title           string
 	GithubCreatedAt time.Time
-	GithubUpdatedAt *time.Time
+	GithubUpdatedAt time.Time `gorm:"index"`
 	ClosedAt        *time.Time
 	// In order to get the following fields, we need to collect PRs individually from GitHub
 	Additions      int
@@ -23,8 +22,13 @@ type GithubPullRequest struct {
 	ReviewComments int
 	Merged         bool
 	MergedAt       *time.Time
+	Body           string
 	Type           string
 	Component      string
 	MergeCommitSha string `gorm:"type:char(40)"`
+	HeadRef        string
+	BaseRef        string
+	BaseCommitSha  string
+	HeadCommitSha  string
 	common.NoPKModel
 }

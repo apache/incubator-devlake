@@ -7,7 +7,7 @@ import (
 type GithubReviewer struct {
 	GithubId      int `gorm:"primaryKey"`
 	Login         string
-	PullRequestId int
+	PullRequestId int `gorm:"primaryKey"`
 
 	common.NoPKModel
 }

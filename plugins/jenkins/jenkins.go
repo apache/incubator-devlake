@@ -1,101 +1,60 @@
 package main
 
 import (
-	"context"
 	"fmt"
-	"github.com/merico-dev/lake/utils"
-
-	"github.com/merico-dev/lake/config"
-	"github.com/merico-dev/lake/logger"
-	lakeModels "github.com/merico-dev/lake/models"
 	"github.com/merico-dev/lake/plugins/core"
 	"github.com/merico-dev/lake/plugins/jenkins/api"
 	"github.com/merico-dev/lake/plugins/jenkins/models"
 	"github.com/merico-dev/lake/plugins/jenkins/tasks"
+	"github.com/merico-dev/lake/runner"
 	"github.com/mitchellh/mapstructure"
+	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
+	"gorm.io/gorm"
 )
 
-var _ core.Plugin = (*Jenkins)(nil)
-
-type JenkinsOptions struct {
-	Host     string
-	Username string
-	Password string
-}
+var _ core.PluginMeta = (*Jenkins)(nil)
+var _ core.PluginInit = (*Jenkins)(nil)
+var _ core.PluginTask = (*Jenkins)(nil)
+var _ core.PluginApi = (*Jenkins)(nil)
 
 type Jenkins struct{}
 
-func (j Jenkins) Init() {
-	var err = lakeModels.Db.AutoMigrate(&models.JenkinsJob{}, &models.JenkinsBuild{})
-	if err != nil {
-		logger.Error("Failed to auto migrate jenkins models", err)
-	}
+func (plugin Jenkins) Init(config *viper.Viper, logger core.Logger, db *gorm.DB) error {
+	return db.AutoMigrate(
+		&models.JenkinsJob{},
+		&models.JenkinsBuild{},
+	)
 }
 
-func (j Jenkins) Description() string {
-	return "Jenkins plugin"
+func (plugin Jenkins) Description() string {
+	return "To collect and enrich data from Jenkins"
 }
 
-func (j Jenkins) CleanData() {
-	var err = lakeModels.Db.Exec("truncate table jenkins_jobs").Error
-	if err != nil {
-		logger.Error("Failed to truncate jenkins models", err)
-	}
-	err = lakeModels.Db.Exec("truncate table jenkins_builds").Error
-	if err != nil {
-		logger.Error("Failed to truncate jenkins models", err)
+func (plugin Jenkins) SubTaskMetas() []core.SubTaskMeta {
+	return []core.SubTaskMeta{
+		tasks.CollectApiJobsMeta,
+		tasks.ExtractApiJobsMeta,
+		tasks.CollectApiBuildsMeta,
+		tasks.ExtractApiBuildsMeta,
+		tasks.ConvertJobsMeta,
+		tasks.ConvertBuildsMeta,
 	}
 }
-
-func (j Jenkins) Execute(options map[string]interface{}, progress chan<- float32, ctx context.Context) error {
-	var op = JenkinsOptions{
-		Host:     config.V.GetString("JENKINS_ENDPOINT"),
-		Username: config.V.GetString("JENKINS_USERNAME"),
-		Password: config.V.GetString("JENKINS_PASSWORD"),
-	}
-
-	var err = mapstructure.Decode(options, &op)
+func (plugin Jenkins) PrepareTaskData(taskCtx core.TaskContext, options map[string]interface{}) (interface{}, error) {
+	var op tasks.JenkinsOptions
+	err := mapstructure.Decode(options, &op)
 	if err != nil {
-		return fmt.Errorf("Failed to decode options: %v", err)
+		return nil, fmt.Errorf("Failed to decode options: %v", err)
 	}
-
-	var rateLimitPerSecondInt int
-	rateLimitPerSecondInt, err = core.GetRateLimitPerSecond(options, 15)
+	apiClient, err := tasks.CreateApiClient(taskCtx)
 	if err != nil {
-		return err
+		return nil, err
 	}
-
-	// to keep the progress work properly, we set workerNum = 1, so it will work one by one
-
-	scheduler, err := utils.NewWorkerScheduler(10, rateLimitPerSecondInt, ctx)
-	defer scheduler.Release()
-	if err != nil {
-		return fmt.Errorf("could not create scheduler")
-	}
-
-	j.CleanData()
-	var worker = tasks.NewJenkinsWorker(nil, tasks.NewDefaultJenkinsStorage(lakeModels.Db), op.Host, op.Username, op.Password)
-
-	err = worker.SyncJobs(scheduler)
-	if err != nil {
-		logger.Error("Fail to sync jobs", err)
-		return err
-	}
-	progress <- float32(0.4)
-	err = tasks.ConvertJobs()
-	if err != nil {
-		logger.Error("Fail to convert jobs", err)
-		return err
-	}
-	progress <- float32(0.7)
-	err = tasks.ConvertBuilds()
-	if err != nil {
-		logger.Error("Fail to convert builds", err)
-		return err
-	}
-	progress <- float32(1.0)
-
-	return nil
+	return &tasks.JenkinsTaskData{
+		Options:   &op,
+		ApiClient: apiClient,
+	}, nil
 }
 
 func (plugin Jenkins) RootPkgPath() string {
@@ -119,3 +78,11 @@ func (plugin Jenkins) ApiResources() map[string]map[string]core.ApiResourceHandl
 }
 
 var PluginEntry Jenkins //nolint
+
+func main() {
+	jenkinsCmd := &cobra.Command{Use: "jenkins"}
+	jenkinsCmd.Run = func(cmd *cobra.Command, args []string) {
+		runner.DirectRun(cmd, args, PluginEntry, map[string]interface{}{})
+	}
+	runner.RunCmd(jenkinsCmd)
+}

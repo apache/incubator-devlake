@@ -1,47 +1,61 @@
 package tasks
 
 import (
-	"context"
-
-	lakeModels "github.com/merico-dev/lake/models"
+	"github.com/merico-dev/lake/models/domainlayer"
 	"github.com/merico-dev/lake/models/domainlayer/didgen"
 	"github.com/merico-dev/lake/models/domainlayer/user"
 	"github.com/merico-dev/lake/plugins/core"
 	githubModels "github.com/merico-dev/lake/plugins/github/models"
-	"gorm.io/gorm/clause"
+	"github.com/merico-dev/lake/plugins/helper"
+	"reflect"
 )
 
-func ConvertUsers(ctx context.Context) error {
-	domainUser := &user.User{}
-	githubUser := &githubModels.GithubUser{}
+var ConvertUsersMeta = core.SubTaskMeta{
+	Name:             "ConvertUsers",
+	EntryPoint:       ConvertUsers,
+	EnabledByDefault: true,
+	Description:      "Convert tool layer table github_users into  domain layer table users",
+}
 
-	cursor, err := lakeModels.Db.Model(githubUser).Rows()
+func ConvertUsers(taskCtx core.SubTaskContext) error {
+	db := taskCtx.GetDb()
+	data := taskCtx.GetData().(*GithubTaskData)
+
+	cursor, err := db.Model(&githubModels.GithubUser{}).
+		Rows()
 	if err != nil {
 		return err
 	}
 	defer cursor.Close()
 
-	userIdGenerator := didgen.NewDomainIdGenerator(githubUser)
-	// iterate all rows
-	for cursor.Next() {
-		select {
-		case <-ctx.Done():
-			return core.TaskCanceled
-		default:
-		}
-		err = lakeModels.Db.ScanRows(cursor, githubUser)
-		if err != nil {
-			return err
-		}
-		domainUser.Id = userIdGenerator.Generate(githubUser.Id)
-		domainUser.Name = githubUser.Login
-		domainUser.AvatarUrl = githubUser.AvatarUrl
-		err := lakeModels.Db.Clauses(clause.OnConflict{
-			UpdateAll: true,
-		}).Create(domainUser).Error
-		if err != nil {
-			return err
-		}
+	userIdGen := didgen.NewDomainIdGenerator(&githubModels.GithubUser{})
+
+	converter, err := helper.NewDataConverter(helper.DataConverterArgs{
+		InputRowType: reflect.TypeOf(githubModels.GithubUser{}),
+		Input:        cursor,
+		RawDataSubTaskArgs: helper.RawDataSubTaskArgs{
+			Ctx: taskCtx,
+			Params: GithubApiParams{
+				Owner: data.Options.Owner,
+				Repo:  data.Options.Repo,
+			},
+			Table: RAW_COMMIT_TABLE,
+		},
+		Convert: func(inputRow interface{}) ([]interface{}, error) {
+			githubUser := inputRow.(*githubModels.GithubUser)
+			domainUser := &user.User{
+				DomainEntity: domainlayer.DomainEntity{Id: userIdGen.Generate(githubUser.Id)},
+				Name:         githubUser.Login,
+				AvatarUrl:    githubUser.AvatarUrl,
+			}
+			return []interface{}{
+				domainUser,
+			}, nil
+		},
+	})
+	if err != nil {
+		return err
 	}
-	return nil
+
+	return converter.Execute()
 }

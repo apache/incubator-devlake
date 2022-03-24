@@ -117,6 +117,10 @@ export default function GitlabSettings (props) {
     console.log('>> LINKING JIRA BOARD', selectedBoard, ' TO GITLAB PROJECT ', selectedProject)
   }
 
+  const cancel = () => {
+    history.push(`/integrations/${provider.id}`)
+  }
+
   useEffect(() => {
     // @todo FETCH BOARDS FROM BE API
     // setBoards([])
@@ -133,7 +137,17 @@ export default function GitlabSettings (props) {
 
   return (
     <>
-      <h3 className='headline'>Enter Map IDs Manually</h3>
+      <div className='headlineContainer'>
+        <h3 className='headline'>No Additional Settings</h3>
+        <p className='description'>
+          This integration doesn’t require any configuration.
+          You can continue to&nbsp;
+          <a href='#' style={{ textDecoration: 'underline' }} onClick={cancel}>add other data sources</a>&nbsp;
+          or trigger collection at the <a href='#' style={{ textDecoration: 'underline' }} onClick={cancel}>previous page</a>.
+        </p>
+      </div>
+      {/* #1245 - DISABLE Gitlab Project ID Mappings <DEPRECATED> */}
+      {/* <h3 className='headline'>Enter Map IDs Manually</h3>
       <p className=''>Type comma separated mappings using the format <code>[JIRA_BOARD_ID]:[GITLAB_PROJECT_ID]</code></p>
       <div className='formContainer'>
         <FormGroup
@@ -155,7 +169,7 @@ export default function GitlabSettings (props) {
             className='input'
           />
         </FormGroup>
-      </div>
+      </div> */}
       {/* ========== BOARD LINKING UX ======================== */}
       {/* @todo continue/restore  board-linking ux after ITER3 */}
       {/* <h3 className='headline'>JIRA Board Mappings <span className='bp3-form-helper-text'>JIRA_BOARD_GITLAB_PROJECTS</span></h3>

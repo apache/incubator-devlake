@@ -2,33 +2,61 @@ package api
 
 import (
 	"fmt"
+	"net/http"
 	"time"
 
-	"github.com/merico-dev/lake/logger"
+	"github.com/go-playground/validator/v10"
 	"github.com/merico-dev/lake/plugins/core"
+	"github.com/merico-dev/lake/plugins/helper"
 	"github.com/merico-dev/lake/utils"
+	"github.com/mitchellh/mapstructure"
 )
 
-func TestConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, error) {
-	ValidationResult := core.ValidateParams(input, []string{"username", "password", "endpoint"})
-	if !ValidationResult.Success {
-		return &core.ApiResourceOutput{Body: ValidationResult}, nil
-	}
+var vld = validator.New()
 
-	encodedToken := utils.GetEncodedToken(input.Body["username"].(string), input.Body["password"].(string))
-	apiClient := &core.ApiClient{}
-	apiClient.Setup(
-		input.Body["endpoint"].(string),
+type TestConnectionRequest struct {
+	Endpoint string `json:"endpoint" validate:"required"`
+	Username string `json:"username" validate:"required"`
+	Password string `json:"password" validate:"required"`
+	Proxy    string `json:"proxy"`
+}
+
+func TestConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, error) {
+	// decode
+	var err error
+	var connection TestConnectionRequest
+	err = mapstructure.Decode(input.Body, &connection)
+	if err != nil {
+		return nil, err
+	}
+	// validate
+	err = vld.Struct(connection)
+	if err != nil {
+		return nil, err
+	}
+	// test connection
+	encodedToken := utils.GetEncodedToken(connection.Username, connection.Password)
+	apiClient, err := helper.NewApiClient(
+		connection.Endpoint,
 		map[string]string{
 			"Authorization": fmt.Sprintf("Basic %v", encodedToken),
 		},
-		10*time.Second,
-		3,
+		3*time.Second,
+		connection.Proxy,
+		nil,
 	)
-	res, err := apiClient.Get("", nil, nil)
-	if err != nil || res.StatusCode != 200 {
-		logger.Error("Error: ", err)
-		return &core.ApiResourceOutput{Body: core.TestResult{Success: false, Message: core.InvalidConnectionError}}, nil
+	if err != nil {
+		return nil, err
 	}
-	return &core.ApiResourceOutput{Body: core.TestResult{Success: true, Message: ""}}, nil
+	res, err := apiClient.Get("", nil, nil)
+	if err != nil {
+		return nil, err
+	}
+	return &core.ApiResourceOutput{
+		Status: res.StatusCode,
+		Body: &core.TestResult{
+			Success: res.StatusCode == http.StatusOK,
+			Message: "success",
+		},
+	}, nil
 }

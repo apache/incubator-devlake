@@ -52,8 +52,17 @@ func TestGetRateLimitPerSecond(t *testing.T) {
 
 	rateLimitInfo, err := ConvertRateLimitInfo(date, resetTime, remaining)
 	if err != nil {
-		fmt.Println("INFO >>> err", err)
+		fmt.Println("ERROR: ", err)
 	}
 	rateLimitPerSecond := GetRateLimitPerSecond(rateLimitInfo)
 	assert.Equal(t, rateLimitPerSecond, 31)
+}
+
+func TestGetIssueIdByIssueUrl(t *testing.T) {
+	s := "https://api.github.com/repos/octocat/Hello-World/issues/1347"
+	s1, err := GetIssueIdByIssueUrl(s)
+	if err != nil {
+		fmt.Println("ERROR: ", err)
+	}
+	assert.Equal(t, s1, 1347)
 }

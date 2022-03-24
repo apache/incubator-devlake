@@ -7,16 +7,23 @@ import (
 	"sync"
 	"time"
 
+	"github.com/merico-dev/lake/config"
 	"github.com/merico-dev/lake/errors"
 	"github.com/merico-dev/lake/logger"
 	"github.com/merico-dev/lake/models"
-	"github.com/merico-dev/lake/plugins"
+	"github.com/merico-dev/lake/plugins/core"
+	"github.com/merico-dev/lake/runner"
 	"github.com/merico-dev/lake/utils"
 )
 
+type RunningTaskData struct {
+	Cancel         context.CancelFunc
+	ProgressDetail *models.TaskProgressDetail
+}
+
 type RunningTask struct {
 	mu    sync.Mutex
-	tasks map[uint64]context.CancelFunc
+	tasks map[uint64]*RunningTaskData
 }
 
 func (rt *RunningTask) Add(taskId uint64, cancel context.CancelFunc) error {
@@ -25,16 +32,19 @@ func (rt *RunningTask) Add(taskId uint64, cancel context.CancelFunc) error {
 	if _, ok := rt.tasks[taskId]; ok {
 		return fmt.Errorf("task with id %v already running", taskId)
 	}
-	rt.tasks[taskId] = cancel
+	rt.tasks[taskId] = &RunningTaskData{
+		Cancel:         cancel,
+		ProgressDetail: &models.TaskProgressDetail{},
+	}
 	return nil
 }
 
 func (rt *RunningTask) Remove(taskId uint64) (context.CancelFunc, error) {
 	rt.mu.Lock()
 	defer rt.mu.Unlock()
-	if cancel, ok := rt.tasks[taskId]; ok {
+	if d, ok := rt.tasks[taskId]; ok {
 		delete(rt.tasks, taskId)
-		return cancel, nil
+		return d.Cancel, nil
 	}
 	return nil, fmt.Errorf("task with id %v not found", taskId)
 }
@@ -52,8 +62,7 @@ type TaskQuery struct {
 
 func init() {
 	// set all previous unfinished tasks to status failed
-	models.Db.Model(&models.Task{}).Where("status = ?", models.TASK_RUNNING).Update("status", models.TASK_FAILED)
-	runningTasks.tasks = make(map[uint64]context.CancelFunc)
+	runningTasks.tasks = make(map[uint64]*RunningTaskData)
 }
 
 func CreateTask(newTask *models.NewTask) (*models.Task, error) {
@@ -70,7 +79,7 @@ func CreateTask(newTask *models.NewTask) (*models.Task, error) {
 		PipelineRow: newTask.PipelineRow,
 		PipelineCol: newTask.PipelineCol,
 	}
-	err = models.Db.Save(&task).Error
+	err = db.Save(&task).Error
 	if err != nil {
 		logger.Error("save task failed", err)
 		return nil, errors.InternalError
@@ -79,7 +88,7 @@ func CreateTask(newTask *models.NewTask) (*models.Task, error) {
 }
 
 func GetTasks(query *TaskQuery) ([]models.Task, int64, error) {
-	db := models.Db.Model(&models.Task{}).Order("id DESC")
+	db := db.Model(&models.Task{}).Order("id DESC")
 	if query.Status != "" {
 		db = db.Where("status = ?", query.Status)
 	}
@@ -111,15 +120,15 @@ func GetTasks(query *TaskQuery) ([]models.Task, int64, error) {
 
 func GetTask(taskId uint64) (*models.Task, error) {
 	task := &models.Task{}
-	err := models.Db.Find(task, taskId).Error
+	err := db.Find(task, taskId).Error
 	if err != nil {
 		return nil, err
 	}
 	return task, nil
 }
 
-// RunTask guarantees database is update even if it panicked, and the error will be returned to caller
 func RunTask(taskId uint64) error {
+	// load task information from database
 	task, err := GetTask(taskId)
 	if err != nil {
 		return err
@@ -127,6 +136,39 @@ func RunTask(taskId uint64) error {
 	if task.Status != models.TASK_CREATED {
 		return fmt.Errorf("invalid task status")
 	}
+	beganAt := time.Now()
+	// make sure task status always correct even if it panicked
+	defer func() {
+		_, _ = runningTasks.Remove(task.ID)
+		if r := recover(); r != nil {
+			err = fmt.Errorf("run task failed with panic (%s): %v", utils.GatherCallFrames(), r)
+		}
+		finishedAt := time.Now()
+		spentSeconds := finishedAt.Unix() - beganAt.Unix()
+		if err != nil {
+			subTaskName := ""
+			if pluginErr, ok := err.(*errors.SubTaskError); ok {
+				subTaskName = pluginErr.GetSubTaskName()
+			}
+			dbe := db.Model(task).Updates(map[string]interface{}{
+				"status":          models.TASK_FAILED,
+				"message":         err.Error(),
+				"finished_at":     finishedAt,
+				"spent_seconds":   spentSeconds,
+				"failed_sub_task": subTaskName,
+			}).Error
+			if dbe != nil {
+				logger.Error("eror is not nil", err)
+			}
+		} else {
+			err = db.Model(task).Updates(map[string]interface{}{
+				"status":        models.TASK_COMPLETED,
+				"message":       "",
+				"finished_at":   finishedAt,
+				"spent_seconds": spentSeconds,
+			}).Error
+		}
+	}()
 
 	// for task cancelling
 	ctx, cancel := context.WithCancel(context.Background())
@@ -134,72 +176,69 @@ func RunTask(taskId uint64) error {
 	if err != nil {
 		return err
 	}
+	// start execution
+	logger.Info("start executing task ", task.ID)
+	err = db.Model(task).Updates(map[string]interface{}{
+		"status":   models.TASK_RUNNING,
+		"message":  "",
+		"began_at": beganAt,
+	}).Error
+	if err != nil {
+		return err
+	}
 
-	progress := make(chan float32)
 	var options map[string]interface{}
 	err = json.Unmarshal(task.Options, &options)
 	if err != nil {
 		return err
 	}
 
-	// run in new thread so we can track progress asynchronously
-	go func() {
-		beganAt := time.Now()
-		// make sure task status always correct even if it panicked
-		defer func() {
-			_, _ = runningTasks.Remove(task.ID)
-			if r := recover(); r != nil {
-				err = fmt.Errorf("run task failed with panic (%s): %v", utils.GatherCallFrames(), r)
-			}
-			finishedAt := time.Now()
-			spentSeconds := finishedAt.Unix() - beganAt.Unix()
-			if err != nil {
-				dbe := models.Db.Model(task).Updates(map[string]interface{}{
-					"status":        models.TASK_FAILED,
-					"message":       err.Error(),
-					"finished_at":   finishedAt,
-					"spent_seconds": spentSeconds,
-				}).Error
-				if dbe != nil {
-					logger.Error("eror is not nil", err)
-				}
-			} else {
-				err = models.Db.Model(task).Updates(map[string]interface{}{
-					"status":        models.TASK_COMPLETED,
-					"message":       "",
-					"finished_at":   finishedAt,
-					"spent_seconds": spentSeconds,
-				}).Error
-			}
-			close(progress)
-		}()
-		// start execution
-		logger.Info("start executing task ", task.ID)
-		err = models.Db.Model(task).Updates(map[string]interface{}{
-			"status":   models.TASK_RUNNING,
-			"message":  "",
-			"began_at": beganAt,
-		}).Error
-		if err != nil {
-			logger.Error("update task state failed", err)
-			return
-		}
-		err = plugins.RunPlugin(task.Plugin, options, progress, ctx)
-	}()
+	progress := make(chan core.RunningProgress)
+	go updateTaskProgress(taskId, progress)
+	err = runner.RunPluginTask(
+		config.GetConfig(),
+		logger.Global.Nested(task.Plugin),
+		db,
+		ctx,
+		task.Plugin,
+		options,
+		progress,
+	)
+	close(progress)
+	return err
+}
 
-	// read progress from working thread and save into database
+func updateTaskProgress(taskId uint64, progress chan core.RunningProgress) {
+	data := runningTasks.tasks[taskId]
+	if data == nil {
+		return
+	}
+	progressDetail := data.ProgressDetail
+	task := &models.Task{}
+	task.ID = taskId
 	for p := range progress {
-		logger.Info("running plugin progress", fmt.Sprintf(" %d %s %.0f%%", task.ID, task.Plugin, p*100))
-		dbe := models.Db.Model(task).Updates(map[string]interface{}{
-			"progress": p,
-		}).Error
-		if dbe != nil {
-			logger.Error("save task progress failed", err)
-			return dbe
+		switch p.Type {
+		case core.TaskSetProgress:
+			progressDetail.TotalSubTasks = p.Total
+			progressDetail.FinishedSubTasks = p.Current
+		case core.TaskIncProgress:
+			progressDetail.FinishedSubTasks = p.Current
+			// TODO: get rid of db update
+			pct := float32(p.Current) / float32(p.Total)
+			err := db.Model(task).Update("progress", pct).Error
+			if err != nil {
+				logger.Global.Error("failed to update progress: %w", err)
+			}
+		case core.SubTaskSetProgress:
+			progressDetail.TotalRecords = p.Total
+			progressDetail.FinishedRecords = p.Current
+		case core.SubTaskIncProgress:
+			progressDetail.FinishedRecords = p.Current
+		case core.SetCurrentSubTask:
+			progressDetail.SubTaskName = p.SubTaskName
+			progressDetail.SubTaskNumber = p.SubTaskNumber
 		}
 	}
-
-	return err
 }
 
 func CancelTask(taskId uint64) error {

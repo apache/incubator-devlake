@@ -8,10 +8,10 @@ import (
 
 type IssueStatusHistory struct {
 	common.NoPKModel
-	IssueId   string    `gorm:"primaryKey"`
-	Status    string    `gorm:"primaryKey"`
-	StartDate time.Time `gorm:"primaryKey"`
-	EndDate   *time.Time
+	IssueId        string    `gorm:"primaryKey"`
+	OriginalStatus string    `gorm:"primaryKey"`
+	StartDate      time.Time `gorm:"primaryKey"`
+	EndDate        *time.Time
 }
 
 func (IssueStatusHistory) TableName() string {

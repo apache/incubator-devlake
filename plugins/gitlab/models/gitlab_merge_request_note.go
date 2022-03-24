@@ -1,8 +1,9 @@
 package models
 
 import (
-	"github.com/merico-dev/lake/models/common"
 	"time"
+
+	"github.com/merico-dev/lake/models/common"
 )
 
 type GitlabMergeRequestNote struct {

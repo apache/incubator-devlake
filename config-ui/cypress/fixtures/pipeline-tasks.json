@@ -1,0 +1,42 @@
+{
+  "count": 2,
+  "tasks": [
+    {
+      "ID": 1792,
+      "CreatedAt": "2022-03-10T22:22:29.717Z",
+      "UpdatedAt": "2022-03-10T22:22:30.142Z",
+      "plugin": "jenkins",
+      "options": {},
+      "status": "TASK_COMPLETED",
+      "message": "",
+      "progress": 1,
+      "failedSubTask": "",
+      "pipelineId": 100,
+      "pipelineRow": 1,
+      "pipelineCol": 1,
+      "beganAt": "2022-03-10T22:22:29.783Z",
+      "finishedAt": "2022-03-10T22:22:30.141Z",
+      "spentSeconds": 1
+    },
+    {
+      "ID": 632,
+      "CreatedAt": "2022-03-10T22:08:39.525Z",
+      "UpdatedAt": "2022-03-10T22:41:40.833Z",
+      "plugin": "github",
+      "options": {
+        "owner": "e2corporation",
+        "repositoryName": "publicity.js"
+      },
+      "status": "TASK_FAILED",
+      "message": "Error 1364: Field 'origin_key' doesn't have a default value",
+      "progress": 0.5,
+      "failedSubTask": "",
+      "pipelineId": 100,
+      "pipelineRow": 1,
+      "pipelineCol": 2,
+      "beganAt": "2022-03-10T22:08:39.581Z",
+      "finishedAt": "2022-03-10T22:41:40.831Z",
+      "spentSeconds": 1981
+    }
+  ]
+}

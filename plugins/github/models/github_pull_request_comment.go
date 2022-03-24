@@ -11,6 +11,6 @@ type GithubPullRequestComment struct {
 	Body            string
 	AuthorUsername  string
 	GithubCreatedAt time.Time
-
+	GithubUpdatedAt time.Time `gorm:"index"`
 	common.NoPKModel
 }

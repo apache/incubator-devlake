@@ -1,0 +1,28 @@
+{
+  "ID": 100,
+  "CreatedAt": "2022-03-04T19:12:38.652Z",
+  "UpdatedAt": "2022-03-04T19:12:39.002Z",
+  "name": "COLLECT 1646421154881",
+  "tasks": [
+    [
+      {
+        "plugin": "jenkins",
+        "options": {}
+      },
+      {
+        "plugin": "github",
+        "options": {
+          "owner": "e2corporation",
+          "repositoryName": "publicity.js"
+        }
+      }
+    ]
+  ],
+  "totalTasks": 2,
+  "finishedTasks": 1,
+  "beganAt": "2022-03-04T19:12:38.69Z",
+  "finishedAt": "2022-03-04T19:12:39.001Z",
+  "status": "TASK_COMPLETED",
+  "message": "",
+  "spentSeconds": 1
+}

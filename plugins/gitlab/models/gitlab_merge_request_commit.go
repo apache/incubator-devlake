@@ -1,8 +1,6 @@
 package models
 
 import (
-	"time"
-
 	"github.com/merico-dev/lake/models/common"
 )
 
@@ -13,16 +11,7 @@ import (
 // Thus a "Merge Request Commit" needs to be considered as distinct from a "Commit"
 
 type GitlabMergeRequestCommit struct {
-	CommitId       string `gorm:"primaryKey"`
-	Title          string
-	Message        string
-	ShortId        string
-	AuthorName     string
-	AuthorEmail    string
-	AuthoredDate   time.Time
-	CommitterName  string
-	CommitterEmail string
-	CommittedDate  time.Time
-	WebUrl         string
+	CommitSha      string `gorm:"primaryKey"`
+	MergeRequestId int    `gorm:"primaryKey;autoIncrement:false"`
 	common.NoPKModel
 }

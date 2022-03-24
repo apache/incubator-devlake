@@ -1,61 +1,76 @@
 package config
 
 import (
+	"reflect"
+
+	"github.com/go-playground/validator/v10"
+	"github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
 )
 
-type Config struct {
-	PORT                               string `mapstructure:"PORT"`
-	DB_URL                             string `mapstructure:"DB_URL"`
-	MODE                               string `mapstructure:"MODE"`
-	JIRA_ENDPOINT                      string `mapstructure:"JIRA_ENDPOINT"`
-	JIRA_BASIC_AUTH_ENCODED            string `mapstructure:"JIRA_BASIC_AUTH_ENCODED"`
-	JIRA_ISSUE_EPIC_KEY_FIELD          string `mapstructure:"JIRA_ISSUE_EPIC_KEY_FIELD"`
-	JIRA_ISSUE_WORKLOAD_FIELD          string `mapstructure:"JIRA_ISSUE_WORKLOAD_FIELD"`
-	JIRA_BOARD_GITLAB_PROJECTS         string `mapstructure:"JIRA_BOARD_GITLAB_PROJECTS"`
-	JIRA_ISSUE_BUG_STATUS_MAPPING      string `mapstructure:"JIRA_ISSUE_BUG_STATUS_MAPPING"`
-	JIRA_ISSUE_INCIDENT_STATUS_MAPPING string `mapstructure:"JIRA_ISSUE_INCIDENT_STATUS_MAPPING"`
-	JIRA_ISSUE_STORY_STATUS_MAPPING    string `mapstructure:"JIRA_ISSUE_STORY_STATUS_MAPPING"`
-	JIRA_ISSUE_TYPE_MAPPING            string `mapstructure:"JIRA_ISSUE_TYPE_MAPPING"`
-	GITLAB_ENDPOINT                    string `mapstructure:"GITLAB_ENDPOINT"`
-	GITLAB_AUTH                        string `mapstructure:"GITLAB_AUTH"`
-	GITHUB_ENDPOINT                    string `mapstructure:"GITHUB_ENDPOINT"`
-	GITHUB_AUTH                        string `mapstructure:"GITHUB_AUTH"`
-	GITHUB_PROXY                       string `mapstructure:"GITHUB_PROXY"`
-	JENKINS_ENDPOINT                   string `mapstructure:"JENKINS_ENDPOINT"`
-	JENKINS_USERNAME                   string `mapstructure:"JENKINS_USERNAME"`
-	JENKINS_PASSWORD                   string `mapstructure:"JENKINS_PASSWORD"`
-	FEISHU_APPID                       string `mapstructure:"FEISHU_APPID"`
-	FEISHU_APPSCRECT                   string `mapstructure:"FEISHU_APPSCRECT"`
-	AE_APP_ID                          string `mapstructure:"AE_APP_ID"`
-	AE_NONCE_STR                       string `mapstructure:"AE_NONCE_STR"`
-	AE_SIGN                            string `mapstructure:"AE_SIGN"`
-	AE_ENDPOINT                        string `mapstructure:"AE_ENDPOINT"`
+// Lowcase V for private this. You can use it by call GetConfig.
+var v *viper.Viper = nil
+
+func GetConfig() *viper.Viper {
+	return v
 }
 
-var V *viper.Viper
+// Set a struct for viper
+// `Tags` represent the fields when setting config, and the fields in Tags shall prevail. `Tags` that appear first have higher priority.
+func SetStruct(S interface{}, Tags ...string) error {
+	err := validator.New().Struct(S)
+	if err != nil {
+		return err
+	}
 
-func LoadConfigFile() *viper.Viper {
-	V = viper.New()
-	V.SetConfigFile(".env")
-	_ = V.ReadInConfig()
-	V.AutomaticEnv()
-	return V
+	v := GetConfig()
+	tf := reflect.TypeOf(S)
+	vf := reflect.ValueOf(S)
+
+	for i := 0; i < tf.NumField(); i++ {
+		tfield := tf.Field(i)
+		vfield := vf.Field(i)
+
+		// Check if the first letter is uppercase (indicates a public element, accessible)
+		ascii := rune(tfield.Name[0])
+		if int(ascii) < int('A') || int(ascii) > int('Z') {
+			continue
+		}
+
+		// View their tags in order to filter out members who don't have a valid tag set
+		ft := ""
+		for _, Tag := range Tags {
+			ft = tfield.Tag.Get(Tag)
+			if ft != "" {
+				break
+			}
+		}
+		if ft == "" {
+			continue
+		}
+
+		v.Set(ft, vfield.Interface())
+	}
+	return v.WriteConfig()
+}
+
+// Set default value for no .env or .env not set it
+func setDefaultValue() {
+	v.SetDefault("PORT", ":8080")
+	v.SetDefault("PLUGIN_DIR", "bin/plugins")
 }
 
 func init() {
-	V := LoadConfigFile()
-	V.SetDefault("PORT", ":8080")
-	V.SetDefault("PLUGIN_DIR", "bin/plugins")
-	// This line is essential for reading and writing
-	V.WatchConfig()
-}
-
-func GetConfigJson() (*Config, error) {
-	var configJson Config
-	err := V.Unmarshal(&configJson)
+	// create the object and load the .env file
+	v = viper.New()
+	v.SetConfigFile(".env")
+	err := v.ReadInConfig()
 	if err != nil {
-		return nil, err
+		logrus.Warn("Failed to read [.env] file:", err)
 	}
-	return &configJson, nil
+	v.AutomaticEnv()
+
+	setDefaultValue()
+	// This line is essential for reading and writing
+	v.WatchConfig()
 }

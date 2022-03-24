@@ -113,3 +113,13 @@ func GetPagingFromLinkHeader(link string) (PagingInfo, error) {
 		return result, errors.New("the link string provided is invalid. There is likely no next page of data to fetch")
 	}
 }
+
+func GetIssueIdByIssueUrl(s string) (int, error) {
+	regex := regexp.MustCompile(`.*/issues/(\d+)`)
+	groups := regex.FindStringSubmatch(s)
+	if len(groups) > 0 {
+		return strconv.Atoi(groups[1])
+	} else {
+		return 0, errors.New("invalid issue url")
+	}
+}

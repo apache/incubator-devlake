@@ -1,61 +1,62 @@
 package tasks
 
 import (
-	"context"
-
-	lakeModels "github.com/merico-dev/lake/models"
 	"github.com/merico-dev/lake/models/domainlayer/code"
 	"github.com/merico-dev/lake/models/domainlayer/didgen"
 	"github.com/merico-dev/lake/plugins/core"
-	"github.com/merico-dev/lake/plugins/github/models"
-	"gorm.io/gorm/clause"
+	githubModels "github.com/merico-dev/lake/plugins/github/models"
+	"github.com/merico-dev/lake/plugins/helper"
+	"reflect"
 )
 
-func PrCommitConvertor(ctx context.Context) (err error) {
-	githubPullRequestCommit := &models.GithubPullRequestCommit{}
+var ConvertPullRequestCommitsMeta = core.SubTaskMeta{
+	Name:             "ConvertPullRequestCommits",
+	EntryPoint:       ConvertPullRequestCommits,
+	EnabledByDefault: true,
+	Description:      "Convert tool layer table github_pull_request_commits into  domain layer table pull_request_commits",
+}
 
-	cursor, err := lakeModels.Db.Model(&githubPullRequestCommit).
+func ConvertPullRequestCommits(taskCtx core.SubTaskContext) (err error) {
+	db := taskCtx.GetDb()
+	data := taskCtx.GetData().(*GithubTaskData)
+	repoId := data.Repo.GithubId
+
+	pullIdGen := didgen.NewDomainIdGenerator(&githubModels.GithubPullRequest{})
+
+	cursor, err := db.Model(&githubModels.GithubPullRequestCommit{}).
+		Joins(`left join github_pull_requests on github_pull_requests.github_id = github_pull_request_commits.pull_request_id`).
+		Where("github_pull_requests.repo_id = ?", repoId).
 		Order("pull_request_id ASC").Rows()
 	if err != nil {
 		return err
 	}
 	defer cursor.Close()
-	var pullRequestId int
-	domainPullRequestId := ""
-	domainIdGenerator := didgen.NewDomainIdGenerator(&models.GithubPullRequest{})
-	// iterate all rows
-	for cursor.Next() {
-		select {
-		case <-ctx.Done():
-			return core.TaskCanceled
-		default:
-		}
-		err = lakeModels.Db.ScanRows(cursor, githubPullRequestCommit)
-		if err != nil {
-			return err
-		}
-		if pullRequestId != githubPullRequestCommit.PullRequestId {
-			domainPullRequestId = domainIdGenerator.Generate(pullRequestId)
-			err := lakeModels.Db.Where("pull_request_id = ?",
-				domainPullRequestId).Delete(&code.PullRequestCommit{}).Error
-			if err != nil {
-				return err
-			}
-			pullRequestId = githubPullRequestCommit.PullRequestId
-		}
 
-		if err != nil {
-			return err
-		}
-		err = lakeModels.Db.Clauses(clause.OnConflict{
-			DoNothing: true,
-		}).Create(&code.PullRequestCommit{
-			CommitSha:     githubPullRequestCommit.CommitSha,
-			PullRequestId: domainPullRequestId,
-		}).Error
-		if err != nil {
-			return err
-		}
+	converter, err := helper.NewDataConverter(helper.DataConverterArgs{
+		InputRowType: reflect.TypeOf(githubModels.GithubPullRequestCommit{}),
+		Input:        cursor,
+		RawDataSubTaskArgs: helper.RawDataSubTaskArgs{
+			Ctx: taskCtx,
+			Params: GithubApiParams{
+				Owner: data.Options.Owner,
+				Repo:  data.Options.Repo,
+			},
+			Table: RAW_PULL_REQUEST_COMMIT_TABLE,
+		},
+		Convert: func(inputRow interface{}) ([]interface{}, error) {
+			githubPullRequestCommit := inputRow.(*githubModels.GithubPullRequestCommit)
+			domainPrCommit := &code.PullRequestCommit{
+				CommitSha:     githubPullRequestCommit.CommitSha,
+				PullRequestId: pullIdGen.Generate(githubPullRequestCommit.PullRequestId),
+			}
+			return []interface{}{
+				domainPrCommit,
+			}, nil
+		},
+	})
+	if err != nil {
+		return err
 	}
-	return nil
+
+	return converter.Execute()
 }

@@ -1,65 +1,65 @@
 package main // must be main for plugin entry point
 
 import (
-	"context"
 	"fmt"
 
-	"github.com/merico-dev/lake/logger" // A pseudo type for Plugin Interface implementation
 	"github.com/merico-dev/lake/plugins/ae/api"
+	"github.com/merico-dev/lake/plugins/ae/models"
 	"github.com/merico-dev/lake/plugins/ae/tasks"
 	"github.com/merico-dev/lake/plugins/core"
+	"github.com/merico-dev/lake/runner"
 	"github.com/mitchellh/mapstructure"
+	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
+	"gorm.io/gorm" // A pseudo type for Plugin Interface implementation
 )
 
-var _ core.Plugin = (*AE)(nil)
+var _ core.PluginMeta = (*AE)(nil)
+var _ core.PluginInit = (*AE)(nil)
+var _ core.PluginTask = (*AE)(nil)
+var _ core.PluginApi = (*AE)(nil)
 
-type AEOptions struct {
-	Tasks []string `json:"tasks,omitempty"`
+type AE struct{}
+
+func (plugin AE) Init(config *viper.Viper, logger core.Logger, db *gorm.DB) error {
+	// you can pass down db instance to plugin api
+	return db.AutoMigrate(
+		&models.AEProject{},
+		&models.AECommit{},
+	)
 }
-type AE string
 
 func (plugin AE) Description() string {
 	return "To collect and enrich data from AE"
 }
 
-func (plugin AE) Execute(options map[string]interface{}, progress chan<- float32, ctx context.Context) error {
-	logger.Print("start ae plugin execution")
-
-	projectId, ok := options["projectId"]
-	if !ok {
-		return fmt.Errorf("projectId is required for ae execution")
+func (plugin AE) SubTaskMetas() []core.SubTaskMeta {
+	return []core.SubTaskMeta{
+		tasks.CollectProjectMeta,
+		tasks.CollectCommitsMeta,
+		tasks.ExtractProjectMeta,
+		tasks.ExtractCommitsMeta,
+		tasks.ConvertCommitsMeta,
 	}
+}
 
-	projectIdInt := int(projectId.(float64))
-	if projectIdInt < 0 {
-		return fmt.Errorf("projectId is invalid")
-	}
-
-	var op AEOptions
+func (plugin AE) PrepareTaskData(taskCtx core.TaskContext, options map[string]interface{}) (interface{}, error) {
+	var op tasks.AeOptions
 	err := mapstructure.Decode(options, &op)
 	if err != nil {
-		return err
+		return nil, err
 	}
-
-	progress <- 0.1
-	if err := tasks.CollectProject(projectIdInt, ctx); err != nil {
-		return fmt.Errorf("could not collect project: %v", err)
+	if op.ProjectId <= 0 {
+		return nil, fmt.Errorf("projectId is required")
 	}
-
-	progress <- 0.25
-
-	if err := tasks.CollectCommits(projectIdInt, ctx); err != nil {
-		return fmt.Errorf("could not collect commits: %v", err)
+	apiClient, err := tasks.CreateApiClient(taskCtx)
+	if err != nil {
+		return nil, err
 	}
-
-	progress <- 0.75
-
-	if err := tasks.SetDevEqOnCommits(ctx); err != nil {
-		return fmt.Errorf("could not enhance commits with AE dev equivalent: %v", err)
-	}
-
-	progress <- 1
-	return nil
+	return &tasks.AeTaskData{
+		Options:   &op,
+		ApiClient: apiClient,
+	}, nil
 }
 
 func (plugin AE) RootPkgPath() string {
@@ -84,3 +84,15 @@ func (plugin AE) ApiResources() map[string]map[string]core.ApiResourceHandler {
 
 // Export a variable named PluginEntry for Framework to search and load
 var PluginEntry AE //nolint
+
+func main() {
+	aeCmd := &cobra.Command{Use: "ae"}
+	projectId := aeCmd.Flags().IntP("project-id", "p", 0, "ae project id")
+	aeCmd.MarkFlagRequired("project-id")
+	aeCmd.Run = func(cmd *cobra.Command, args []string) {
+		runner.DirectRun(cmd, args, PluginEntry, map[string]interface{}{
+			"projectId": *projectId,
+		})
+	}
+	runner.RunCmd(aeCmd)
+}

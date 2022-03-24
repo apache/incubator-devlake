@@ -18,7 +18,7 @@ const StageTaskCaption = (props) => {
       }}
     >
       {(task.plugin === Providers.GITLAB || task.plugin === Providers.JIRA) && (<>ID {options.projectId || options.boardId}</>)}
-      {task.plugin === Providers.GITHUB && (<>@{options.owner}/{options.repo}</>)}
+      {task.plugin === Providers.GITHUB && (<>@{options.owner}/{options.repositoryName}</>)}
       {task.plugin === Providers.JENKINS && (<>Task #{task.ID}</>)}
       {(task.plugin === Providers.GITEXTRACTOR || task.plugin === Providers.REFDIFF) && (<>{options.repoId || `ID ${task.ID}`}</>)}
     </span>

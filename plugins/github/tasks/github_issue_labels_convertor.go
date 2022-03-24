@@ -1,58 +1,62 @@
 package tasks
 
 import (
-	"context"
-
-	lakeModels "github.com/merico-dev/lake/models"
 	"github.com/merico-dev/lake/models/domainlayer/didgen"
 	"github.com/merico-dev/lake/models/domainlayer/ticket"
 	"github.com/merico-dev/lake/plugins/core"
 	githubModels "github.com/merico-dev/lake/plugins/github/models"
-	"gorm.io/gorm/clause"
+	"github.com/merico-dev/lake/plugins/helper"
+	"reflect"
 )
 
-func ConvertIssueLabels(ctx context.Context) error {
-	githubIssueLabel := &githubModels.GithubIssueLabel{}
-	cursor, err := lakeModels.Db.Model(githubIssueLabel).
-		Select("github_issue_labels.*").
+var ConvertIssueLabelsMeta = core.SubTaskMeta{
+	Name:             "ConvertIssueLabels",
+	EntryPoint:       ConvertIssueLabels,
+	EnabledByDefault: true,
+	Description:      "Convert tool layer table github_issue_labels into  domain layer table issue_labels",
+}
+
+func ConvertIssueLabels(taskCtx core.SubTaskContext) error {
+	db := taskCtx.GetDb()
+	data := taskCtx.GetData().(*GithubTaskData)
+	repoId := data.Repo.GithubId
+
+	cursor, err := db.Model(&githubModels.GithubIssueLabel{}).
+		Joins(`left join github_issues on github_issues.github_id = github_issue_labels.issue_id`).
+		Where("github_issues.repo_id = ?", repoId).
 		Order("issue_id ASC").
 		Rows()
 	if err != nil {
 		return err
 	}
 	defer cursor.Close()
-	domainIdGeneratorIssue := didgen.NewDomainIdGenerator(&githubModels.GithubIssue{})
-	lastIssueId := 0
-	// iterate all rows
-	for cursor.Next() {
-		select {
-		case <-ctx.Done():
-			return core.TaskCanceled
-		default:
-		}
-		err = lakeModels.Db.ScanRows(cursor, githubIssueLabel)
-		if err != nil {
-			return err
-		}
-		issueId := domainIdGeneratorIssue.Generate(githubIssueLabel.IssueId)
-		if lastIssueId != githubIssueLabel.IssueId {
-			// Clean up old data
-			err := lakeModels.Db.Where("issue_id = ?",
-				issueId).Delete(&ticket.IssueLabel{}).Error
-			if err != nil {
-				return err
-			}
-			lastIssueId = githubIssueLabel.IssueId
-		}
+	issueIdGen := didgen.NewDomainIdGenerator(&githubModels.GithubIssue{})
 
-		issueLabel := &ticket.IssueLabel{
-			IssueId:   issueId,
-			LabelName: githubIssueLabel.LabelName,
-		}
-		err = lakeModels.Db.Clauses(clause.OnConflict{DoNothing: true}).Create(issueLabel).Error
-		if err != nil {
-			return err
-		}
+	converter, err := helper.NewDataConverter(helper.DataConverterArgs{
+		RawDataSubTaskArgs: helper.RawDataSubTaskArgs{
+			Ctx: taskCtx,
+			Params: GithubApiParams{
+				Owner: data.Options.Owner,
+				Repo:  data.Options.Repo,
+			},
+			Table: RAW_ISSUE_TABLE,
+		},
+		InputRowType: reflect.TypeOf(githubModels.GithubIssueLabel{}),
+		Input:        cursor,
+		Convert: func(inputRow interface{}) ([]interface{}, error) {
+			issueLabel := inputRow.(*githubModels.GithubIssueLabel)
+			domainIssueLabel := &ticket.IssueLabel{
+				IssueId:   issueIdGen.Generate(issueLabel.IssueId),
+				LabelName: issueLabel.LabelName,
+			}
+			return []interface{}{
+				domainIssueLabel,
+			}, nil
+		},
+	})
+	if err != nil {
+		return err
 	}
-	return nil
+
+	return converter.Execute()
 }

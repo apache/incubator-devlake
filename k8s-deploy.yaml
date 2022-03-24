@@ -117,7 +117,7 @@ data:
 
     # Lake REST API
     PORT=:8080
-    MODE=debug
+    MODE=release
 
     NOTIFICATION_ENDPOINT=
     NOTIFICATION_SECRET=

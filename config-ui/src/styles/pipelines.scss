@@ -1,5 +1,5 @@
 .data-providers {
-  min-width: 514px;
+  min-width: 875px;
 }
 
 .data-provider-row {
@@ -72,7 +72,7 @@
     .provider-icon {
       transition: all 0.3s ease;
 
-      >svg {
+      >svg, >img {
         transition: all 0.3s ease;
       }
     }
@@ -100,6 +100,7 @@
     padding: 0 20px;
     align-items: flex-end;
     display: flex;
+    flex-wrap: wrap;
 
     .bp3-form-group {
       margin-bottom: 0;
@@ -130,6 +131,14 @@
 
   &.btn-run-pipeline:hover {
     background-color: #007cff
+  }
+}
+
+.advanced-mode {
+  .btn-pipeline {
+    &.btn-run-pipeline:not(:hover) {
+      background-color: #252525;
+    }
   }
 }
 
@@ -327,6 +336,10 @@
       box-shadow: 0px 0px 6px rgba(0, 0, 0, 0.40);
     }
   }
+
+  .bp3-button-text {
+    white-space: nowrap;
+  }
 }
 
 .bp3-input-group {
@@ -387,6 +400,21 @@
         &:hover {
           background-color: rgba(66, 66, 66, 0.08);
           color: darken(#007cff, 5%);
+        }
+      }
+    }
+  }
+  &.refdiff-tasks-menu {
+    > li {
+      margin-bottom: 2px;
+      border-radius: 8px;
+      outline: none !important;
+
+      .bp3-menu-item {
+        outline: none !important;
+        border-radius: inherit;
+        &.bp3-active {
+          font-weight: bold;
         }
       }
     }
@@ -779,4 +807,27 @@
 
 .pipeline-activity {
   background-image: linear-gradient(to bottom, rgba(220, 220, 220, 0.2), rgba(255, 255, 255, 0));
+}
+
+.code-editor-controls {
+  > .bp3-button, .bp3-popover-wrapper {
+    > .bp3-icon, > .bp3-popover-target .bp3-icon {
+      svg {
+        width: 12px;
+        height: 12px;
+      }
+    }
+  }
+
+  .bp3-intent-success {
+    background-color: #2eaa5f;
+  }
+
+}
+
+.w-tc-editor  {
+  height: 100%;
+  textarea {
+    min-height: 384px;
+  }
 }

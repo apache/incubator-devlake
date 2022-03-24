@@ -25,6 +25,7 @@ var time time.Time
 time = foo.Created.ToTime()
 */
 
+// TODO: move this to helper
 type DateTimeFormatItem struct {
 	Matcher *regexp.Regexp
 	Format  string
@@ -79,6 +80,13 @@ func (jt *Iso8601Time) UnmarshalJSON(b []byte) error {
 
 func (jt *Iso8601Time) ToTime() time.Time {
 	return jt.time
+}
+
+func (jt *Iso8601Time) ToNullableTime() *time.Time {
+	if jt == nil {
+		return nil
+	}
+	return &jt.time
 }
 
 func ConvertStringToTime(timeString string) (t time.Time, err error) {

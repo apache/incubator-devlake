@@ -1,0 +1,8 @@
+[{
+  "ID": 1,
+  "Name": "Jenkins",
+  "Endpoint": "http://localhost:9090/",
+  "Username": "username",
+  "Password": "password",
+  "Proxy": ""
+}]

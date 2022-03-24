@@ -20,6 +20,5 @@ type GithubCommit struct {
 	Url            string
 	Additions      int `gorm:"comment:Added lines of code"`
 	Deletions      int `gorm:"comment:Deleted lines of code"`
-
 	common.NoPKModel
 }

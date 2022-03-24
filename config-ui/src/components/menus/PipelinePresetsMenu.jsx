@@ -1,8 +1,16 @@
 import React from 'react'
 import { Menu } from '@blueprintjs/core'
+import PipelineConfigsMenu from '@/components/menus/PipelineConfigsMenu'
 
 const PipelinePresetsMenu = (props) => {
-  const { namePrefix, pipelineSuffixes, setNamePrefix, setNameSuffix } = props
+  const {
+    namePrefix,
+    pipelineSuffixes,
+    setNamePrefix = () => {},
+    setNameSuffix = () => {},
+    setRawConfiguration = () => {},
+    advancedMode = false
+  } = props
   return (
     <Menu className='pipeline-presets-menu'>
       <label style={{
@@ -73,6 +81,12 @@ const PipelinePresetsMenu = (props) => {
       <Menu.Divider />
       <Menu.Item text='Advanced Options' icon='cog'>
         <Menu.Item icon='new-object' text='Save Pipeline Blueprint' disabled />
+        {advancedMode && (
+          <PipelineConfigsMenu
+            setRawConfiguration={setRawConfiguration}
+            advancedMode={advancedMode}
+          />
+        )}
       </Menu.Item>
     </Menu>
   )

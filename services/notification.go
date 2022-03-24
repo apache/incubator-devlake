@@ -56,7 +56,7 @@ func (n *NotificationService) sendNotification(notificationType models.Notificat
 	nonce := randSeq(16)
 	notification.Nonce = nonce
 
-	err = models.Db.Save(&notification).Error
+	err = db.Save(&notification).Error
 	if err != nil {
 		return err
 	}
@@ -75,7 +75,7 @@ func (n *NotificationService) sendNotification(notificationType models.Notificat
 		return err
 	}
 	notification.Response = string(respBody)
-	return models.Db.Save(&notification).Error
+	return db.Save(&notification).Error
 }
 
 func (n *NotificationService) signature(input, nouce string) string {
