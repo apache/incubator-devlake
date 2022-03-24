@@ -16,7 +16,6 @@ const RAW_MEETING_TOP_USER_ITEM_TABLE = "feishu_meeting_top_user_item"
 var _ core.SubTaskEntryPoint = CollectMeetingTopUserItem
 
 func CollectMeetingTopUserItem(taskCtx core.SubTaskContext) error {
-	logger := helper.NewDefaultTaskLogger(nil, "feishu")
 	data := taskCtx.GetData().(*FeishuTaskData)
 	pageSize := 100
 	NumOfDaysToCollectInt := int(data.Options.NumOfDaysToCollect)
@@ -24,7 +23,6 @@ func CollectMeetingTopUserItem(taskCtx core.SubTaskContext) error {
 	if err != nil {
 		return err
 	}
-
 	incremental := false
 
 	collector, err := helper.NewApiCollector(helper.ApiCollectorArgs{
@@ -38,7 +36,6 @@ func CollectMeetingTopUserItem(taskCtx core.SubTaskContext) error {
 		ApiClient:   data.ApiClient,
 		Incremental: incremental,
 		Input:       iterator,
-		//PageSize: pageSize,
 		UrlTemplate: "/reports/get_top_user",
 		Query: func(reqData *helper.RequestData) (url.Values, error) {
 			query := url.Values{}
@@ -59,10 +56,16 @@ func CollectMeetingTopUserItem(taskCtx core.SubTaskContext) error {
 		},
 	})
 	if err != nil {
-		logger.Info("input paras error ")
 		return err
 	}
 
 	return collector.Execute()
+}
+
+var CollectMeetingTopUserItemMeta = core.SubTaskMeta{
+	Name: "collectMeetingTopUserItem",
+	EntryPoint: CollectMeetingTopUserItem,
+	EnabledByDefault: true,
+	Description: "Collect top user meeting data from Feishu api",
 }
 
