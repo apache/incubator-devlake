@@ -25,7 +25,7 @@ commit:
 test: unit-test e2e-test models-test
 
 unit-test: build
-	go test -v $$(go list ./... | egrep -v 'test|models|e2e')
+	set -e; for m in $$(go list ./... | egrep -v 'test|models|e2e'); do echo $$m; go test -v $$m; done
 
 models-test:
 	TEST=true go test ./models/test -v
