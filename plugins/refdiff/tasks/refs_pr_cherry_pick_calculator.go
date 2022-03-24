@@ -2,11 +2,12 @@ package tasks
 
 import (
 	"fmt"
+	"regexp"
+	"strconv"
+
 	"github.com/merico-dev/lake/models/domainlayer/code"
 	"github.com/merico-dev/lake/plugins/core"
 	"gorm.io/gorm/clause"
-	"regexp"
-	"strconv"
 )
 
 func CalculatePrCherryPick(taskCtx core.SubTaskContext) error {
@@ -103,4 +104,11 @@ func CalculatePrCherryPick(taskCtx core.SubTaskContext) error {
 		}
 	}
 	return nil
+}
+
+var CalculatePrCherryPickMeta = core.SubTaskMeta{
+	Name:             "calculatePrCherryPick",
+	EntryPoint:       CalculatePrCherryPick,
+	EnabledByDefault: true,
+	Description:      "Calculate pr cherry pick",
 }
