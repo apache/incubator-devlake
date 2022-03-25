@@ -11,14 +11,14 @@ import (
 	githubModels "github.com/merico-dev/lake/plugins/github/models"
 )
 
-var issueSeverityRegex *regexp.Regexp
-var issueComponentRegex *regexp.Regexp
-var issuePriorityRegex *regexp.Regexp
-var issueTypeBugRegex *regexp.Regexp
-var issueTypeRequirementRegex *regexp.Regexp
-var issueTypeIncidentRegex *regexp.Regexp
+func EnrichIssues(ctx context.Context, repoId int) (err error) {
+	var issueSeverityRegex *regexp.Regexp
+	var issueComponentRegex *regexp.Regexp
+	var issuePriorityRegex *regexp.Regexp
+	var issueTypeBugRegex *regexp.Regexp
+	var issueTypeRequirementRegex *regexp.Regexp
+	var issueTypeIncidentRegex *regexp.Regexp
 
-func init() {
 	v := config.GetConfig()
 	var issueSeverity = v.GetString("GITHUB_ISSUE_SEVERITY")
 	var issueComponent = v.GetString("GITHUB_ISSUE_COMPONENT")
@@ -44,9 +44,7 @@ func init() {
 	if len(issueTypeIncident) > 0 {
 		issueTypeIncidentRegex = regexp.MustCompile(issueTypeIncident)
 	}
-}
 
-func EnrichIssues(ctx context.Context, repoId int) (err error) {
 	githubIssue := &githubModels.GithubIssue{}
 	cursor, err := lakeModels.Db.Model(&githubIssue).Where("repo_id = ?", repoId).Rows()
 	if err != nil {
@@ -78,8 +76,52 @@ func EnrichIssues(ctx context.Context, repoId int) (err error) {
 			return err
 		}
 
+		// enrich issues by issue_labels
 		for _, issueLabel := range issueLabels {
-			setIssueLabel(issueLabel, githubIssue)
+			if issueSeverityRegex != nil {
+				groups := issueSeverityRegex.FindStringSubmatch(issueLabel)
+				if len(groups) > 0 {
+					githubIssue.Severity = groups[1]
+					continue
+				}
+			}
+
+			if issueComponentRegex != nil {
+				groups := issueComponentRegex.FindStringSubmatch(issueLabel)
+				if len(groups) > 0 {
+					githubIssue.Component = groups[1]
+					continue
+				}
+			}
+
+			if issuePriorityRegex != nil {
+				groups := issuePriorityRegex.FindStringSubmatch(issueLabel)
+				if len(groups) > 0 {
+					githubIssue.Priority = groups[1]
+					continue
+				}
+			}
+
+			if issueTypeBugRegex != nil {
+				if ok := issueTypeBugRegex.MatchString(issueLabel); ok {
+					githubIssue.Type = ticket.BUG
+					continue
+				}
+			}
+
+			if issueTypeRequirementRegex != nil {
+				if ok := issueTypeRequirementRegex.MatchString(issueLabel); ok {
+					githubIssue.Type = ticket.REQUIREMENT
+					continue
+				}
+			}
+
+			if issueTypeIncidentRegex != nil {
+				if ok := issueTypeIncidentRegex.MatchString(issueLabel); ok {
+					githubIssue.Type = ticket.INCIDENT
+					continue
+				}
+			}
 		}
 
 		err = lakeModels.Db.Save(githubIssue).Error
@@ -90,49 +132,3 @@ func EnrichIssues(ctx context.Context, repoId int) (err error) {
 	return nil
 }
 
-func setIssueLabel(label string, githubIssue *githubModels.GithubIssue) {
-	if issueSeverityRegex != nil {
-		groups := issueSeverityRegex.FindStringSubmatch(label)
-		if len(groups) > 0 {
-			githubIssue.Severity = groups[1]
-			return
-		}
-	}
-
-	if issueComponentRegex != nil {
-		groups := issueComponentRegex.FindStringSubmatch(label)
-		if len(groups) > 0 {
-			githubIssue.Component = groups[1]
-			return
-		}
-	}
-
-	if issuePriorityRegex != nil {
-		groups := issuePriorityRegex.FindStringSubmatch(label)
-		if len(groups) > 0 {
-			githubIssue.Priority = groups[1]
-			return
-		}
-	}
-
-	if issueTypeBugRegex != nil {
-		if ok := issueTypeBugRegex.MatchString(label); ok {
-			githubIssue.Type = ticket.BUG
-			return
-		}
-	}
-
-	if issueTypeRequirementRegex != nil {
-		if ok := issueTypeRequirementRegex.MatchString(label); ok {
-			githubIssue.Type = ticket.REQUIREMENT
-			return
-		}
-	}
-
-	if issueTypeIncidentRegex != nil {
-		if ok := issueTypeIncidentRegex.MatchString(label); ok {
-			githubIssue.Type = ticket.INCIDENT
-			return
-		}
-	}
-}

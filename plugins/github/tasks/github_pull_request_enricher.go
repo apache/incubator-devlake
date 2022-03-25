@@ -10,22 +10,20 @@ import (
 	githubModels "github.com/merico-dev/lake/plugins/github/models"
 )
 
-var labelTypeRegex *regexp.Regexp
-var labelComponentRegex *regexp.Regexp
+func EnrichPullRequests(ctx context.Context, repoId int) (err error) {
+	var labelTypeRegex *regexp.Regexp
+	var labelComponentRegex *regexp.Regexp
 
-func init() {
-	V := config.GetConfig()
-	var prType = V.GetString("GITHUB_PR_TYPE")
-	var prComponent = V.GetString("GITHUB_PR_COMPONENT")
+	v := config.GetConfig()
+	var prType = v.GetString("GITHUB_PR_TYPE")
+	var prComponent = v.GetString("GITHUB_PR_COMPONENT")
 	if len(prType) > 0 {
 		labelTypeRegex = regexp.MustCompile(prType)
 	}
 	if len(prComponent) > 0 {
 		labelComponentRegex = regexp.MustCompile(prComponent)
 	}
-}
 
-func EnrichPullRequests(ctx context.Context, repoId int) (err error) {
 	githubPullRequst := &githubModels.GithubPullRequest{}
 	cursor, err := lakeModels.Db.Model(&githubPullRequst).
 		Where("repo_id = ?", repoId).
@@ -56,7 +54,22 @@ func EnrichPullRequests(ctx context.Context, repoId int) (err error) {
 		}
 
 		for _, pullRequestLabel := range pullRequestLabels {
-			setPullRequestLabel(pullRequestLabel, githubPullRequst)
+			if labelTypeRegex != nil {
+				groups := labelTypeRegex.FindStringSubmatch(pullRequestLabel)
+				if len(groups) > 0 {
+					githubPullRequst.Type = groups[1]
+					continue
+				}
+			}
+
+			// if pr.Component has not been set and prComponent is set in .env, process
+			if labelComponentRegex != nil {
+				groups := labelComponentRegex.FindStringSubmatch(pullRequestLabel)
+				if len(groups) > 0 {
+					githubPullRequst.Component = groups[1]
+					continue
+				}
+			}
 		}
 
 		err = lakeModels.Db.Save(githubPullRequst).Error
@@ -65,24 +78,4 @@ func EnrichPullRequests(ctx context.Context, repoId int) (err error) {
 		}
 	}
 	return nil
-}
-
-func setPullRequestLabel(label string, pr *githubModels.GithubPullRequest) {
-	// if pr.Type has not been set and prType is set in .env, process the below
-	if labelTypeRegex != nil {
-		groups := labelTypeRegex.FindStringSubmatch(label)
-		if len(groups) > 0 {
-			pr.Type = groups[1]
-			return
-		}
-	}
-
-	// if pr.Component has not been set and prComponent is set in .env, process
-	if labelComponentRegex != nil {
-		groups := labelComponentRegex.FindStringSubmatch(label)
-		if len(groups) > 0 {
-			pr.Component = groups[1]
-			return
-		}
-	}
 }

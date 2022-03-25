@@ -13,17 +13,16 @@ import (
 	"strings"
 )
 
-var prBodyCloseRegex *regexp.Regexp
-var prBodyClosePattern string
-var numberPrefix string
-
-func init() {
-	prBodyClosePattern = config.GetConfig().GetString("GITHUB_PR_BODY_CLOSE_PATTERN")
-	numberPrefix = config.GetConfig().GetString("GITHUB_PR_BODY_NUMBER_PREFIX")
-}
-
 func EnrichPullRequestIssues(ctx context.Context, repoId int, owner string, repo string) (err error) {
 	//the pattern before the issue number, sometimes, the issue number is #1098, sometimes it is https://xxx/#1098
+	var prBodyCloseRegex *regexp.Regexp
+	var prBodyClosePattern string
+	var numberPrefix string
+
+	v := config.GetConfig()
+	prBodyClosePattern = v.GetString("GITHUB_PR_BODY_CLOSE_PATTERN")
+	numberPrefix = v.GetString("GITHUB_PR_BODY_NUMBER_PREFIX")
+
 	numberPattern := fmt.Sprintf(numberPrefix+`\d+[ ]*)+)`, owner, repo)
 	if len(prBodyClosePattern) > 0 {
 		prPattern := prBodyClosePattern + numberPattern
@@ -52,12 +51,10 @@ func EnrichPullRequestIssues(ctx context.Context, repoId int, owner string, repo
 		if err != nil {
 			return err
 		}
-
+		issueNumberListStr := ""
 		//find the matched string in body
-		issueNumberListStr := getCloseIssueId(githubPullRequst.Body)
-
-		if issueNumberListStr == "" {
-			continue
+		if prBodyCloseRegex != nil {
+			issueNumberListStr = prBodyCloseRegex.FindString(githubPullRequst.Body)
 		}
 		//replace https:// to #, then we can process it later
 		if strings.Contains(issueNumberListStr, "https") {
@@ -101,12 +98,4 @@ func EnrichPullRequestIssues(ctx context.Context, repoId int, owner string, repo
 	}
 
 	return nil
-}
-
-func getCloseIssueId(body string) string {
-	if prBodyCloseRegex != nil {
-		matchString := prBodyCloseRegex.FindString(body)
-		return matchString
-	}
-	return ""
 }
