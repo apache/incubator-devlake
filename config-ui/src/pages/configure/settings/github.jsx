@@ -6,6 +6,8 @@ import {
 import {
   FormGroup,
   InputGroup,
+  Button,
+  Intent,
   Label,
   Tag
 } from '@blueprintjs/core'
@@ -14,7 +16,7 @@ import '@/styles/integration.scss'
 import '@/styles/connections.scss'
 
 export default function GithubSettings (props) {
-  const { connection, provider, isSaving, onSettingsChange } = props
+  const { connection, provider, isSaving, isSavingConnection, onSettingsChange } = props
   const history = useHistory()
   const { providerId, connectionId } = useParams()
   const [prType, setPrType] = useState('')
@@ -84,7 +86,7 @@ export default function GithubSettings (props) {
       <div style={{ maxWidth: '60%' }}>
         <div className='formContainer'>
           <FormGroup
-            disabled={isSaving}
+            disabled={isSaving || isSavingConnection}
             labelFor='github-pr-type'
             className='formGroup'
             contentClassName='formGroupContent'
@@ -97,7 +99,8 @@ export default function GithubSettings (props) {
               placeholder='type/(.*)$'
               defaultValue={prType}
               onChange={(e) => setPrType(e.target.value)}
-              disabled={isSaving}
+              onKeyUp={(e) => e.target.value.length === 0 ? setPrType('') : null}
+              disabled={isSaving || isSavingConnection}
               className='input'
               maxLength={255}
             />
@@ -105,7 +108,7 @@ export default function GithubSettings (props) {
         </div>
         <div className='formContainer'>
           <FormGroup
-            disabled={isSaving}
+            disabled={isSaving || isSavingConnection}
             labelFor='github-pr-component'
             className='formGroup'
             contentClassName='formGroupContent'
@@ -118,7 +121,8 @@ export default function GithubSettings (props) {
               placeholder='component/(.*)$'
               defaultValue={prComponent}
               onChange={(e) => setPrComponent(e.target.value)}
-              disabled={isSaving}
+              onKeyUp={(e) => e.target.value.length === 0 ? setPrComponent('') : null}
+              disabled={isSaving || isSavingConnection}
               className='input'
               maxLength={255}
             />
@@ -131,7 +135,7 @@ export default function GithubSettings (props) {
       <div style={{ maxWidth: '60%' }}>
         <div className='formContainer'>
           <FormGroup
-            disabled={isSaving}
+            disabled={isSaving || isSavingConnection}
             labelFor='github-issue-severity'
             className='formGroup'
             contentClassName='formGroupContent'
@@ -141,10 +145,11 @@ export default function GithubSettings (props) {
             </Label>
             <InputGroup
               id='github-issue-severity'
-              placeholder='type/(.*)$'
+              placeholder='severity/(.*)$'
               defaultValue={issueSeverity}
               onChange={(e) => setIssueSeverity(e.target.value)}
-              disabled={isSaving}
+              onKeyUp={(e) => e.target.value.length === 0 ? setIssueSeverity('') : null}
+              disabled={isSaving || isSavingConnection}
               className='input'
               maxLength={255}
             />
@@ -152,7 +157,7 @@ export default function GithubSettings (props) {
         </div>
         <div className='formContainer'>
           <FormGroup
-            disabled={isSaving}
+            disabled={isSaving || isSavingConnection}
             labelFor='github-issue-component'
             className='formGroup'
             contentClassName='formGroupContent'
@@ -165,7 +170,8 @@ export default function GithubSettings (props) {
               placeholder='component/(.*)$'
               defaultValue={issueComponent}
               onChange={(e) => setIssueComponent(e.target.value)}
-              disabled={isSaving}
+              onKeyUp={(e) => e.target.value.length === 0 ? setIssueComponent('') : null}
+              disabled={isSaving || isSavingConnection}
               className='input'
               maxLength={255}
             />
@@ -173,7 +179,7 @@ export default function GithubSettings (props) {
         </div>
         <div className='formContainer'>
           <FormGroup
-            disabled={isSaving}
+            disabled={isSaving || isSavingConnection}
             labelFor='github-issue-priority'
             className='formGroup'
             contentClassName='formGroupContent'
@@ -186,7 +192,8 @@ export default function GithubSettings (props) {
               placeholder='(highest|high|medium|low)$'
               defaultValue={issuePriority}
               onChange={(e) => setIssuePriority(e.target.value)}
-              disabled={isSaving}
+              onKeyUp={(e) => e.target.value.length === 0 ? setIssuePriority('') : null}
+              disabled={isSaving || isSavingConnection}
               className='input'
               maxLength={255}
             />
@@ -194,7 +201,7 @@ export default function GithubSettings (props) {
         </div>
         <div className='formContainer'>
           <FormGroup
-            disabled={isSaving}
+            disabled={isSaving || isSavingConnection}
             labelFor='github-issue-requirement'
             className='formGroup'
             contentClassName='formGroupContent'
@@ -207,7 +214,8 @@ export default function GithubSettings (props) {
               placeholder='(feat|feature|proposal|requirement)$'
               defaultValue={issueTypeRequirement}
               onChange={(e) => setIssueTypeRequirement(e.target.value)}
-              disabled={isSaving}
+              onKeyUp={(e) => e.target.value.length === 0 ? setIssueTypeRequirement('') : null}
+              disabled={isSaving || isSavingConnection}
               className='input'
               maxLength={255}
             />
@@ -215,7 +223,7 @@ export default function GithubSettings (props) {
         </div>
         <div className='formContainer'>
           <FormGroup
-            disabled={isSaving}
+            disabled={isSaving || isSavingConnection}
             labelFor='github-issue-bug'
             className='formGroup'
             contentClassName='formGroupContent'
@@ -228,7 +236,8 @@ export default function GithubSettings (props) {
               placeholder='(bug|broken)$'
               defaultValue={issueTypeBug}
               onChange={(e) => setIssueTypeBug(e.target.value)}
-              disabled={isSaving}
+              onKeyUp={(e) => e.target.value.length === 0 ? setIssueTypeBug('') : null}
+              disabled={isSaving || isSavingConnection}
               className='input'
               maxLength={255}
             />
@@ -236,7 +245,7 @@ export default function GithubSettings (props) {
         </div>
         <div className='formContainer'>
           <FormGroup
-            disabled={isSaving}
+            disabled={isSaving || isSavingConnection}
             labelFor='github-issue-bug'
             className='formGroup'
             contentClassName='formGroupContent'
@@ -249,7 +258,8 @@ export default function GithubSettings (props) {
               placeholder='(incident|p0|p1|p2)$'
               defaultValue={issueTypeIncident}
               onChange={(e) => setIssueTypeIncident(e.target.value)}
-              disabled={isSaving}
+              onKeyUp={(e) => e.target.value.length === 0 ? setIssueTypeIncident('') : null}
+              disabled={isSaving || isSavingConnection}
               className='input'
               maxLength={255}
             />
@@ -260,7 +270,7 @@ export default function GithubSettings (props) {
       <p className=''>Optional</p>
       <div className='formContainer'>
         <FormGroup
-          disabled={isSaving}
+          disabled={isSaving || isSavingConnection}
           labelFor='github-proxy'
           helperText='PROXY'
           className='formGroup'
@@ -274,7 +284,7 @@ export default function GithubSettings (props) {
             placeholder='http://your-proxy-server.com:1080'
             defaultValue={githubProxy}
             onChange={(e) => setGithubProxy(e.target.value)}
-            disabled={isSaving}
+            disabled={isSaving || isSavingConnection}
             className='input'
           />
         </FormGroup>

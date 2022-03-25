@@ -8,7 +8,7 @@ import '@/styles/integration.scss'
 import '@/styles/connections.scss'
 
 export default function JenkinsSettings (props) {
-  const { connection, provider, isSaving, onSettingsChange } = props
+  const { connection, provider, isSaving, isSavingConnection, onSettingsChange } = props
   const history = useHistory()
   const { providerId, connectionId } = useParams()
 

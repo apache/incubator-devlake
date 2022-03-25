@@ -26,7 +26,7 @@ const MAPPING_TYPES = {
 }
 
 export default function JiraSettings (props) {
-  const { connection, provider, isSaving, onSettingsChange } = props
+  const { connection, provider, isSaving, isSavingConnection, onSettingsChange } = props
   // const { providerId, connectionId } = useParams()
   // const history = useHistory()
 

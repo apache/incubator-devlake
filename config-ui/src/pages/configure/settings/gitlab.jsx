@@ -30,7 +30,7 @@ import '@/styles/connections.scss'
 // import '@blueprintjs/popover2/lib/css/blueprint-popover2.css'
 
 export default function GitlabSettings (props) {
-  const { connection, provider, isSaving, onSettingsChange } = props
+  const { connection, provider, isSaving, isSavingConnection, onSettingsChange } = props
   const history = useHistory()
   const { providerId, connectionId } = useParams()
   const [jiraBoardGitlabProjects, setJiraBoardGitlabProjects] = useState('')
