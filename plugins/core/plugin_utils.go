@@ -11,16 +11,6 @@ import (
 	"time"
 )
 
-type TestResult struct {
-	Success bool
-	Message string
-}
-
-func (testResult *TestResult) Set(success bool, message string) {
-	testResult.Success = success
-	testResult.Message = message
-}
-
 const EncodeKeyEnvStr = "ENCODE_KEY"
 
 // TODO: maybe move encryption/decryption into helper?
