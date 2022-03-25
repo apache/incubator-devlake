@@ -35,6 +35,7 @@ func init() {
 		&models.Task{},
 		&models.Notification{},
 		&models.Pipeline{},
+		&models.PipelinePlan{},
 	)
 	if err != nil {
 		panic(err)

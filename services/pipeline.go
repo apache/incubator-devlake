@@ -3,6 +3,7 @@ package services
 import (
 	"encoding/json"
 	"fmt"
+	"gorm.io/gorm/clause"
 	"strings"
 	"time"
 
@@ -31,7 +32,38 @@ func init() {
 	db.Model(&models.Pipeline{}).Where("status = ?", models.TASK_RUNNING).Update("status", models.TASK_FAILED)
 }
 
-func CreatePipeline(newPipeline *models.NewPipeline) (*models.Pipeline, error) {
+func CreatePipelinePlan(newPipeline *models.NewPipeline) (*models.PipelinePlan, error) {
+	cronConfig := newPipeline.CronConfig
+	cronTime := ""
+	switch newPipeline.CronConfig.Type {
+	case "weekly":
+		cronTime = fmt.Sprintf("%d %d * * %d", cronConfig.Minute, cronConfig.Hour, cronConfig.Day)
+	case "monthly":
+		cronTime = fmt.Sprintf("%d %d %d * *", cronConfig.Minute, cronConfig.Hour, cronConfig.Day)
+	case "interval":
+		cronTime = fmt.Sprintf("%d %d /%d * *", cronConfig.Minute, cronConfig.Hour, cronConfig.Day)
+	}
+	pipelinePlan := &models.PipelinePlan{
+		Enable:   newPipeline.Enable,
+		CronTime: cronTime,
+		Name:     newPipeline.Name,
+	}
+	var err error
+	// update tasks state
+	pipelinePlan.Tasks, err = json.Marshal(newPipeline.Tasks)
+	if err != nil {
+		return nil, err
+	}
+
+	err = db.Create(&pipelinePlan).Error
+	if err != nil {
+		logger.Error("create pipline failed", err)
+		return nil, errors.InternalError
+	}
+	return pipelinePlan, nil
+}
+
+func CreatePipeline(newPipeline *models.NewPipeline, pipelinePlan *models.PipelinePlan) (*models.Pipeline, error) {
 	// create pipeline object from posted data
 	pipeline := &models.Pipeline{
 		Name:          newPipeline.Name,
@@ -39,6 +71,9 @@ func CreatePipeline(newPipeline *models.NewPipeline) (*models.Pipeline, error) {
 		Status:        models.TASK_CREATED,
 		Message:       "",
 		SpentSeconds:  0,
+	}
+	if pipelinePlan != nil {
+		pipeline.PipelinePlanId = pipelinePlan.ID
 	}
 
 	// save pipeline to database
@@ -255,4 +290,37 @@ func CancelPipeline(pipelineId uint64) error {
 		_ = CancelTask(pendingTask.ID)
 	}
 	return err
+}
+
+func ModifyPipelinePlan(newPipeline *models.NewPipeline) (*models.PipelinePlan, error) {
+	cronConfig := newPipeline.CronConfig
+	cronTime := ""
+	switch newPipeline.CronConfig.Type {
+	case "weekly":
+		cronTime = fmt.Sprintf("%d %d * * %d", cronConfig.Minute, cronConfig.Hour, cronConfig.Day)
+	case "monthly":
+		cronTime = fmt.Sprintf("%d %d %d * *", cronConfig.Minute, cronConfig.Hour, cronConfig.Day)
+	case "interval":
+		cronTime = fmt.Sprintf("%d %d /%d * *", cronConfig.Minute, cronConfig.Hour, cronConfig.Day)
+	}
+	pipelinePlan := &models.PipelinePlan{}
+	err := db.Model(&models.PipelinePlan{}).Where("id = ?", newPipeline.PipelinePlanId).Limit(1).Find(pipelinePlan).Error
+	if err != nil {
+		return nil, err
+	}
+	pipelinePlan.CronTime = cronTime
+	pipelinePlan.Enable = newPipeline.Enable
+	// update tasks state
+	pipelinePlan.Tasks, err = json.Marshal(newPipeline.Tasks)
+	if err != nil {
+		return nil, err
+	}
+
+	err = db.Model(&models.PipelinePlan{}).
+		Clauses(clause.OnConflict{UpdateAll: true}).Create(&pipelinePlan).Error
+	if err != nil {
+		logger.Error("create pipline failed", err)
+		return nil, errors.InternalError
+	}
+	return pipelinePlan, nil
 }

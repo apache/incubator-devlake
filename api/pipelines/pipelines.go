@@ -32,7 +32,16 @@ func Post(c *gin.Context) {
 		return
 	}
 
-	pipeline, err := services.CreatePipeline(newPipeline)
+	var pipelinePlan *models.PipelinePlan
+	if newPipeline.CronConfig != nil {
+		pipelinePlan, err = services.CreatePipelinePlan(newPipeline)
+		if err != nil {
+			ctx.JSON(http.StatusBadRequest, err)
+			return
+		}
+	}
+
+	pipeline, err := services.CreatePipeline(newPipeline, pipelinePlan)
 	// Return all created tasks to the User
 	if err != nil {
 		shared.ApiOutputError(c, err, http.StatusBadRequest)
@@ -111,4 +120,28 @@ func Delete(c *gin.Context) {
 		return
 	}
 	shared.ApiOutputSuccess(c, nil, http.StatusOK)
+}
+
+func Patch(ctx *gin.Context) {
+	pipelinePlanId := ctx.Param("pipelinePlanId")
+	id, err := strconv.ParseUint(pipelinePlanId, 10, 64)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, "invalid id")
+		return
+	}
+	newPipeline := &models.NewPipeline{}
+
+	err = ctx.MustBindWith(newPipeline, binding.JSON)
+	if err != nil {
+		logger.Error("patch /pipeline failed", err)
+		ctx.JSON(http.StatusBadRequest, err)
+		return
+	}
+	newPipeline.PipelinePlanId = id
+	pipelinePlan, err := services.ModifyPipelinePlan(newPipeline)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, err)
+		return
+	}
+	ctx.JSON(http.StatusOK, pipelinePlan)
 }
