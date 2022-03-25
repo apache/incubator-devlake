@@ -412,8 +412,8 @@ var PluginEntry Github //nolint
 // standalone mode for debugging
 func main() {
 	args := os.Args[1:]
-	owner := "pingcap"
-	repo := "tidb"
+	owner := "merico-dev"
+	repo := "lake"
 	if len(args) > 0 {
 		owner = args[0]
 	}
@@ -443,7 +443,7 @@ func main() {
 				"owner": owner,
 				"repo":  repo,
 				"tasks": []string{
-					//"collectRepo",
+					"collectRepo",
 					//"collectCommits",
 					//"collectCommitsStat",
 					//"collectIssues",
@@ -452,7 +452,7 @@ func main() {
 					//"collectPullRequests",
 					//"collectPullRequestReviews",
 					//"collectPullRequestCommits",
-					//"enrichIssues",
+					"enrichIssues",
 					//"enrichPullRequests",
 					//"enrichComments",
 					//"enrichPullRequestIssues",
@@ -463,7 +463,7 @@ func main() {
 					//"convertCommits",
 					//"convertPullRequestCommits",
 					//"convertPullRequestLabels",
-					"convertPullRequestIssues",
+					//"convertPullRequestIssues",
 					//"convertNotes",
 					//"convertUsers",
 				},
