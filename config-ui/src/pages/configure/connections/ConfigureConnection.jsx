@@ -121,6 +121,7 @@ export default function ConfigureConnection () {
         activeProvider,
         activeConnection,
         isSaving,
+        isSavingConnection,
         setSettings
       })
     } else {
@@ -128,7 +129,7 @@ export default function ConfigureConnection () {
       console.log('>> WARNING: NO PROVIDER SETTINGS RENDERED, PROVIDER = ', activeProvider)
     }
     return settingsComponent
-  }, [activeConnection, isSaving])
+  }, [activeConnection, isSaving, isSavingConnection])
 
   useEffect(() => {
     console.log('>>>> DETECTED PROVIDER ID = ', providerId)
@@ -252,7 +253,8 @@ export default function ConfigureConnection () {
                             token={token}
                             username={username}
                             password={password}
-                            onSave={saveConnection}
+                            // JIRA is a multi-source plugin, for now we intentially won't include additional settings during save...
+                            onSave={() => saveConnection(activeProvider.id !== Providers.JIRA ? settings : {})}
                             onTest={testConnection}
                             onCancel={cancel}
                             onValidate={validate}
