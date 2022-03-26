@@ -10,7 +10,7 @@ import (
 type Pipeline struct {
 	common.Model
 	Name           string         `json:"name" gorm:"index"`
-	PipelinePlanId uint64         `json:"pipeline_plan_id"`
+	PipelinePlanId uint64         `json:"pipelinePlanId"`
 	Tasks          datatypes.JSON `json:"tasks"`
 	TotalTasks     int            `json:"totalTasks"`
 	FinishedTasks  int            `json:"finishedTasks"`
@@ -25,15 +25,8 @@ type Pipeline struct {
 // to be executed concurrently, while each set is to be executed sequentially.
 type NewPipeline struct {
 	Name           string       `json:"name"`
-	PipelinePlanId uint64       `json:"pipeline_plan_id"`
+	PipelinePlanId uint64       `json:"pipelinePlanId"`
 	Tasks          [][]*NewTask `json:"tasks"`
-	CronConfig     *CronConfig
-	Enable         string
-}
-
-type CronConfig struct {
-	Type   string //weekly, monthly, interval
-	Day    int
-	Hour   int
-	Minute int
+	CronConfig     *CronConfig  `json:"cronConfig"`
+	Enable         bool         `json:"enable"`
 }

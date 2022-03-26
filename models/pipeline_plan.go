@@ -7,8 +7,15 @@ import (
 
 type PipelinePlan struct {
 	common.Model
-	Name     string
-	CronTime string         //cron job format, like '5 * * * 2'
-	Tasks    datatypes.JSON `json:"tasks"`
-	Enable   string
+	Name   string
+	Tasks  datatypes.JSON `json:"tasks"`
+	Enable bool
+	CronConfig
+}
+
+type CronConfig struct {
+	Type   string //weekly, monthly, interval
+	Day    int
+	Hour   int
+	Minute int
 }
