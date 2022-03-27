@@ -51,5 +51,4 @@ func init() {
 
 	// set all unfinished tasks to failed
 	db.Model(&models.Task{}).Where("status = ?", models.TASK_RUNNING).Update("status", models.TASK_FAILED)
-
 }
