@@ -15,7 +15,7 @@
   "editable": true,
   "gnetId": null,
   "graphTooltip": 0,
-  "id": 67,
+  "id": 7,
   "links": [
     {
       "asDropdown": false,
@@ -213,7 +213,7 @@
           "metricColumn": "none",
           "queryType": "randomWalk",
           "rawQuery": true,
-          "rawSql": "select \n    title,\n    summary,\n    case when assignee_id = '' then '-' else assignee_id end as assignee,\n    status,\n    created_date\n  from issues i\n  where \n    type = 'Bug'\n    and $__timeFilter(created_date)\n  order by created_date desc",
+          "rawSql": "select \n    title,\n    summary,\n    case when assignee_id = '' then '-' else assignee_name end as assignee,\n    status,\n    created_date\n  from issues i\n  where \n    type = 'Bug'\n    and $__timeFilter(created_date)\n  order by created_date desc",
           "refId": "A",
           "select": [
             [
@@ -253,5 +253,5 @@
   "timezone": "",
   "title": "Demo-Detailed Bug Info",
   "uid": "s48Lzn5nz",
-  "version": 10
+  "version": 1
 }
