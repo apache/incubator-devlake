@@ -1,8 +1,9 @@
 package pipelineplans
 
 import (
+	"encoding/json"
 	"fmt"
-	"io/ioutil"
+	"github.com/merico-dev/lake/api/shared"
 	"net/http"
 	"strconv"
 
@@ -13,107 +14,76 @@ import (
 	"github.com/merico-dev/lake/services"
 )
 
-/*
-Create and run a new pipeline
-POST /pipelines
-{
-	"name": "name-of-pipeline",
-	"tasks": [
-		[ {"plugin": "gitlab", ...}, {"plugin": "jira"} ],
-		[ {"plugin": "github", ...}],
-	]
-}
-*/
-
 func Post(ctx *gin.Context) {
 	newPipeline := &models.NewPipeline{}
 
 	err := ctx.MustBindWith(newPipeline, binding.JSON)
 	if err != nil {
 		logger.Error("post /pipeline failed", err)
-		ctx.JSON(http.StatusBadRequest, err)
+		shared.ApiOutputError(ctx, err, http.StatusBadRequest)
 		return
 	}
 
-	var pipelinePlan *models.PipelinePlan
-	if newPipeline.CronConfig != nil {
-		pipelinePlan, err = services.CreatePipelinePlan(newPipeline)
-		if err != nil {
-			ctx.JSON(http.StatusBadRequest, err)
-			return
-		}
+	pipelinePlan, err := services.CreatePipelinePlan(newPipeline)
+	if err != nil {
+		shared.ApiOutputError(ctx, err, http.StatusBadRequest)
+		return
 	}
 
-	pipeline, err := services.CreatePipeline(newPipeline, pipelinePlan)
+	var tasks [][]*models.NewTask
+	err = json.Unmarshal(pipelinePlan.Tasks, &tasks)
+	if err != nil {
+		shared.ApiOutputError(ctx, err, http.StatusBadRequest)
+		return
+	}
+
+	pipeline, err := services.CreatePipeline(pipelinePlan.Name, tasks, pipelinePlan.ID)
 	// Return all created tasks to the User
 	if err != nil {
-		ctx.JSON(http.StatusBadRequest, err)
+		shared.ApiOutputError(ctx, err, http.StatusBadRequest)
 		return
 	}
 
 	go func() {
 		_ = services.RunPipeline(pipeline.ID)
 	}()
-	ctx.JSON(http.StatusCreated, pipeline)
+	shared.ApiOutputSuccess(ctx, pipelinePlan, http.StatusCreated)
 }
 
-/*
-Get list of pipelines
-GET /pipelinePlans
-{
-	"pipelines": [
-		{"id": 1, "name": "test-pipeline", ...}
-	],
-	"count": 5
-}
-*/
 func Index(ctx *gin.Context) {
 	pipelines, count, err := services.GetPipelinePlans()
 	if err != nil {
 		_ = ctx.AbortWithError(http.StatusBadRequest, err)
 		return
 	}
-	ctx.JSON(http.StatusOK, gin.H{"pipelines": pipelines, "count": count})
+	shared.ApiOutputSuccess(ctx, gin.H{"pipelines": pipelines, "count": count}, http.StatusOK)
 }
 
-/*
-Get detail of a pipeline
-GET /pipelines/:pipelineId
-{
-	"id": 1,
-	"name": "test-pipeline",
-	...
-}
-*/
 func Get(ctx *gin.Context) {
 	pipelinePlanId := ctx.Param("pipelinePlanId")
 	id, err := strconv.ParseUint(pipelinePlanId, 10, 64)
 	if err != nil {
-		ctx.JSON(http.StatusBadRequest, "invalid id")
+		shared.ApiOutputError(ctx, err, http.StatusBadRequest)
 		return
 	}
 	pipelinePlan, err := services.GetPipelinePlan(id)
 	if err != nil {
-		ctx.JSON(http.StatusBadRequest, err.Error())
+		shared.ApiOutputError(ctx, err, http.StatusBadRequest)
 		return
 	}
-	ctx.JSON(http.StatusOK, pipelinePlan)
+	shared.ApiOutputSuccess(ctx, pipelinePlan, http.StatusOK)
 }
 
-/*
-Cancel a pending pipeline
-DELETE /pipelines/:pipelineId
-*/
 func Delete(ctx *gin.Context) {
 	pipelineId := ctx.Param("pipelinePlanId")
 	id, err := strconv.ParseUint(pipelineId, 10, 64)
 	if err != nil {
-		ctx.JSON(http.StatusBadRequest, "invalid id")
+		shared.ApiOutputError(ctx, err, http.StatusBadRequest)
 		return
 	}
 	err = services.DeletePipelinePlan(id)
 	if err != nil {
-		ctx.JSON(http.StatusBadRequest, err.Error())
+		shared.ApiOutputError(ctx, err, http.StatusBadRequest)
 	}
 }
 
@@ -121,24 +91,21 @@ func Patch(ctx *gin.Context) {
 	pipelinePlanId := ctx.Param("pipelinePlanId")
 	id, err := strconv.ParseUint(pipelinePlanId, 10, 64)
 	if err != nil {
-		ctx.JSON(http.StatusBadRequest, "invalid id")
+		shared.ApiOutputError(ctx, err, http.StatusBadRequest)
 		return
 	}
 	newPipeline := &models.NewPipeline{}
-	r, _ := ioutil.ReadAll(ctx.Request.Body)
-
-	fmt.Println(string(r))
 	err = ctx.MustBindWith(newPipeline, binding.JSON)
 	if err != nil {
 		logger.Error("patch /pipelines/plans/:pipelinePlanId failed", err)
-		ctx.JSON(http.StatusBadRequest, err)
+		shared.ApiOutputError(ctx, err, http.StatusBadRequest)
+		fmt.Println(err)
 		return
 	}
-	newPipeline.PipelinePlanId = id
-	pipelinePlan, err := services.ModifyPipelinePlan(newPipeline)
+	pipelinePlan, err := services.ModifyPipelinePlan(newPipeline, id)
 	if err != nil {
-		ctx.JSON(http.StatusBadRequest, err)
+		shared.ApiOutputError(ctx, err, http.StatusBadRequest)
 		return
 	}
-	ctx.JSON(http.StatusOK, pipelinePlan)
+	shared.ApiOutputSuccess(ctx, pipelinePlan, http.StatusOK)
 }

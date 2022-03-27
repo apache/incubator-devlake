@@ -23,7 +23,7 @@ func init() {
 func CreatePipelinePlan(newPipeline *models.NewPipeline) (*models.PipelinePlan, error) {
 	pipelinePlan := &models.PipelinePlan{
 		Enable:     newPipeline.Enable,
-		CronConfig: *newPipeline.CronConfig,
+		CronConfig: newPipeline.CronConfig,
 		Name:       newPipeline.Name,
 	}
 	var err error
@@ -67,13 +67,14 @@ func GetPipelinePlan(pipelinePlanId uint64) (*models.PipelinePlan, error) {
 	return pipelinePlan, nil
 }
 
-func ModifyPipelinePlan(newPipeline *models.NewPipeline) (*models.PipelinePlan, error) {
+func ModifyPipelinePlan(newPipeline *models.NewPipeline, pipelinePlanId uint64) (*models.PipelinePlan, error) {
 	pipelinePlan := &models.PipelinePlan{}
-	err := db.Model(&models.PipelinePlan{}).Where("id = ?", newPipeline.PipelinePlanId).Limit(1).Find(pipelinePlan).Error
+	err := db.Model(&models.PipelinePlan{}).
+		Where("id = ?", pipelinePlanId).Limit(1).Find(pipelinePlan).Error
 	if err != nil {
 		return nil, err
 	}
-	pipelinePlan.CronConfig = *newPipeline.CronConfig
+	pipelinePlan.CronConfig = newPipeline.CronConfig
 	pipelinePlan.Enable = newPipeline.Enable
 	// update tasks state
 	pipelinePlan.Tasks, err = json.Marshal(newPipeline.Tasks)

@@ -7,15 +7,8 @@ import (
 
 type PipelinePlan struct {
 	common.Model
-	Name   string
+	Name   string         `json:"name"`
 	Tasks  datatypes.JSON `json:"tasks"`
-	Enable bool
-	CronConfig
-}
-
-type CronConfig struct {
-	Type   string //weekly, monthly, interval
-	Day    int
-	Hour   int
-	Minute int
+	Enable bool           `json:"enable"`
+	CronConfig string
 }

@@ -24,9 +24,8 @@ type Pipeline struct {
 // We use a 2D array because the request body must be an array of a set of tasks
 // to be executed concurrently, while each set is to be executed sequentially.
 type NewPipeline struct {
-	Name           string       `json:"name"`
-	PipelinePlanId uint64       `json:"pipelinePlanId"`
-	Tasks          [][]*NewTask `json:"tasks"`
-	CronConfig     *CronConfig  `json:"cronConfig"`
-	Enable         bool         `json:"enable"`
+	Name       string       `json:"name"`
+	Tasks      [][]*NewTask `json:"tasks"`
+	CronConfig string   `json:"cronConfig"`
+	Enable     bool         `json:"enable"`
 }

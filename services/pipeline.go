@@ -47,17 +47,17 @@ func pipelineServiceInit() {
 	db.Model(&models.Pipeline{}).Where("status = ?", models.TASK_RUNNING).Update("status", models.TASK_FAILED)
 }
 
-func CreatePipeline(newPipeline *models.NewPipeline, pipelinePlan *models.PipelinePlan) (*models.Pipeline, error) {
+func CreatePipeline(name string, tasks [][]*models.NewTask, pipelinePlanId uint64) (*models.Pipeline, error) {
 	// create pipeline object from posted data
 	pipeline := &models.Pipeline{
-		Name:          newPipeline.Name,
+		Name:          name,
 		FinishedTasks: 0,
 		Status:        models.TASK_CREATED,
 		Message:       "",
 		SpentSeconds:  0,
 	}
-	if pipelinePlan != nil {
-		pipeline.PipelinePlanId = pipelinePlan.ID
+	if pipelinePlanId != 0 {
+		pipeline.PipelinePlanId = pipelinePlanId
 	}
 
 	// save pipeline to database
@@ -68,9 +68,9 @@ func CreatePipeline(newPipeline *models.NewPipeline, pipelinePlan *models.Pipeli
 	}
 
 	// create tasks accordingly
-	for i := range newPipeline.Tasks {
-		for j := range newPipeline.Tasks[i] {
-			newTask := newPipeline.Tasks[i][j]
+	for i := range tasks {
+		for j := range tasks[i] {
+			newTask := tasks[i][j]
 			newTask.PipelineId = pipeline.ID
 			newTask.PipelineRow = i + 1
 			newTask.PipelineCol = j + 1
@@ -92,7 +92,7 @@ func CreatePipeline(newPipeline *models.NewPipeline, pipelinePlan *models.Pipeli
 	}
 
 	// update tasks state
-	pipeline.Tasks, err = json.Marshal(newPipeline.Tasks)
+	pipeline.Tasks, err = json.Marshal(tasks)
 	if err != nil {
 		return nil, err
 	}
