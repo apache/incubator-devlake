@@ -46,6 +46,7 @@ func CreateAsyncApiClient(
 		rateLimiter = &ApiRateLimitCalculator{}
 	}
 	rateLimiter.GlobalRateLimitPerHour = globalRateLimitPerHour
+	rateLimiter.MaxRetry = retry
 
 	// ok, calculate api rate limit based on response (normally from headers)
 	requests, duration, err := rateLimiter.Calculate(apiClient)
@@ -61,6 +62,13 @@ func CreateAsyncApiClient(
 	d := duration / RESPONSE_TIME
 	numOfWorkers := requests / int(d)
 
+	taskCtx.GetLogger().Info(
+		"scheduler for api %s worker: %d, request: %d, duration: %v",
+		apiClient.GetEndpoint(),
+		numOfWorkers,
+		requests,
+		duration,
+	)
 	scheduler, err := NewWorkerScheduler(numOfWorkers, requests, duration, taskCtx.GetContext())
 	if err != nil {
 		return nil, fmt.Errorf("failed to create scheduler: %w", err)

@@ -7,12 +7,12 @@ import (
 
 // A helper to calculate api rate limit dynamically, assuming api returning remaining/resettime information
 type ApiRateLimitCalculator struct {
-	UserRateLimitPerHour    int
-	GlobalRateLimitPerHour  int
-	MaxRetry                int
-	Method                  string
-	ApiPath                 string
-	DynamicRateLimitPerHour func(res *http.Response) (int, time.Duration, error)
+	UserRateLimitPerHour   int
+	GlobalRateLimitPerHour int
+	MaxRetry               int
+	Method                 string
+	ApiPath                string
+	DynamicRateLimit       func(res *http.Response) (int, time.Duration, error)
 }
 
 func (c *ApiRateLimitCalculator) Calculate(apiClient *ApiClient) (int, time.Duration, error) {
@@ -21,7 +21,7 @@ func (c *ApiRateLimitCalculator) Calculate(apiClient *ApiClient) (int, time.Dura
 		return c.UserRateLimitPerHour, 1 * time.Hour, nil
 	}
 	// plugin dynamical rate limit is medium priority
-	if c.DynamicRateLimitPerHour != nil {
+	if c.DynamicRateLimit != nil {
 		method := c.Method
 		if method == "" {
 			method = http.MethodOptions
@@ -34,7 +34,7 @@ func (c *ApiRateLimitCalculator) Calculate(apiClient *ApiClient) (int, time.Dura
 			if err != nil {
 				continue
 			}
-			return c.DynamicRateLimitPerHour(res)
+			return c.DynamicRateLimit(res)
 		}
 	}
 
