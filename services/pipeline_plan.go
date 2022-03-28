@@ -9,6 +9,12 @@ import (
 	"gorm.io/gorm/clause"
 )
 
+type PipelinePlanQuery struct {
+	Enable   bool `form:"enable"`
+	Page     int  `form:"page"`
+	PageSize int  `form:"pageSize"`
+}
+
 func CreatePipelinePlan(newPipeline *models.InputPipelinePlan) (*models.PipelinePlan, error) {
 	pipelinePlan := &models.PipelinePlan{
 		Enable:     newPipeline.Enable,
@@ -36,20 +42,20 @@ func CreatePipelinePlan(newPipeline *models.InputPipelinePlan) (*models.Pipeline
 	return pipelinePlan, nil
 }
 
-func GetPipelinePlans() ([]*models.PipelinePlan, int64, error) {
+func GetPipelinePlans(query *PipelinePlanQuery) ([]*models.PipelinePlan, int64, error) {
 	pipelinePlans := make([]*models.PipelinePlan, 0)
-	db := db.Model(pipelinePlans).Order("id DESC")
+	db := db.Model(pipelinePlans).Order("id DESC").Where("enable = ?", query.Enable)
 
 	var count int64
 	err := db.Count(&count).Error
 	if err != nil {
 		return nil, 0, err
 	}
-
-	err = db.Find(&pipelinePlans).Error
-	if err != nil {
-		return nil, count, err
+	if query.Page > 0 && query.PageSize > 0 {
+		offset := query.PageSize * (query.Page - 1)
+		db = db.Limit(query.PageSize).Offset(offset)
 	}
+	err = db.Find(&pipelinePlans).Error
 	return pipelinePlans, count, nil
 }
 

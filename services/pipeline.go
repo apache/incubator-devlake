@@ -17,7 +17,7 @@ type PipelineQuery struct {
 	Status   string `form:"status"`
 	Pending  int    `form:"pending"`
 	Page     int    `form:"page"`
-	PageSize int    `form:"page_size"`
+	PageSize int    `form:"pageSize"`
 }
 
 func CreatePipeline(newPipeline *models.NewPipeline) (*models.Pipeline, error) {
