@@ -311,9 +311,10 @@ func (collector *ApiCollector) saveRawData(res *http.Response, input interface{}
 	return len(dd), db.Table(collector.table).Create(dd).Error
 }
 
+// stepFetch collect pages synchronously. In practice, several stepFetch running concurrently, we could stop all of them by calling `cancel`.
 func (collector *ApiCollector) stepFetch(ctx context.Context, cancel func(), reqData RequestData) error {
+	// channel `c` is used to make sure fetchAsync is called serially
 	c := make(chan struct{})
-	collector.args.Ctx.GetContext()
 	handler := func(res *http.Response) error {
 		select {
 		case <-ctx.Done():
@@ -339,6 +340,7 @@ func (collector *ApiCollector) stepFetch(ctx context.Context, cancel func(), req
 		c <- struct{}{}
 		return nil
 	}
+	// kick off
 	go func() { c <- struct{}{} }()
 	for range c {
 		err := collector.fetchAsync(&reqData, handler)
