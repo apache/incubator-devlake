@@ -51,7 +51,7 @@ func CreateApiClient(taskCtx core.TaskContext) (*helper.ApiAsyncClient, error) {
 	// create rate limit calculator
 	rateLimiter := &helper.ApiRateLimitCalculator{
 		UserRateLimitPerHour: userRateLimit,
-		DynamicRateLimitPerHour: func(res *http.Response) (int, time.Duration, error) {
+		DynamicRateLimit: func(res *http.Response) (int, time.Duration, error) {
 			/* calculate by number of remaining requests
 			remaining, err := strconv.Atoi(res.Header.Get("X-RateLimit-Remaining"))
 			if err != nil {
