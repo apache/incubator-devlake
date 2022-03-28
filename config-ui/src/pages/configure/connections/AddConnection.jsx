@@ -155,7 +155,7 @@ export default function AddConnection () {
                   token={token}
                   username={username}
                   password={password}
-                  onSave={saveConnection}
+                  onSave={() => saveConnection({})}
                   onTest={testConnection}
                   onCancel={cancel}
                   onValidate={validate}
