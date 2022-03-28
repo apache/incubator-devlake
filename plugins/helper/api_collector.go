@@ -2,6 +2,7 @@ package helper
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
@@ -235,8 +236,12 @@ func (collector *ApiCollector) fetchPagesAsync(reqData *RequestData) error {
 		// goroutine #1 fetches pages 1/4/7..
 		// goroutine #2 fetches pages 2/5/8...
 		// goroutine #3 fetches pages 3/6/9...
+		errs := make(chan error, collector.args.Concurrency)
+		var errCount int
+		ctx, cancel := context.WithCancel(collector.args.Ctx.GetContext())
+		defer cancel()
 		for i := 0; i < collector.args.Concurrency; i++ {
-			reqDataTemp := &RequestData{
+			reqDataTemp := RequestData{
 				Pager: &Pager{
 					Page: i + 1,
 					Size: collector.args.PageSize,
@@ -244,9 +249,15 @@ func (collector *ApiCollector) fetchPagesAsync(reqData *RequestData) error {
 				},
 				Input: reqData.Input,
 			}
-			err = collector.fetchAsync(reqDataTemp, collector.recursive(reqDataTemp))
-			if err != nil {
-				return err
+			go func() {
+				errs <- collector.stepFetch(ctx, cancel, reqDataTemp)
+			}()
+		}
+		for e := range errs {
+			errCount++
+			if err != nil || errCount == collector.args.Concurrency {
+				err = e
+				break
 			}
 		}
 	}
@@ -300,19 +311,43 @@ func (collector *ApiCollector) saveRawData(res *http.Response, input interface{}
 	return len(dd), db.Table(collector.table).Create(dd).Error
 }
 
-func (collector *ApiCollector) recursive(reqData *RequestData) func(res *http.Response) error {
-	return func(res *http.Response) error {
+func (collector *ApiCollector) stepFetch(ctx context.Context, cancel func(), reqData RequestData) error {
+	c := make(chan struct{})
+	collector.args.Ctx.GetContext()
+	handler := func(res *http.Response) error {
+		select {
+		case <-ctx.Done():
+			close(c)
+			return ctx.Err()
+		default:
+			if collector.args.Input == nil {
+				collector.args.Ctx.IncProgress(1)
+			}
+		}
 		count, err := collector.saveRawData(res, reqData.Input)
 		if err != nil {
+			close(c)
+			cancel()
 			return err
 		}
 		if count < collector.args.PageSize {
+			close(c)
 			return nil
 		}
 		reqData.Pager.Skip += collector.args.PageSize
 		reqData.Pager.Page += collector.args.Concurrency
-		return collector.fetchAsync(reqData, collector.recursive(reqData))
+		c <- struct{}{}
+		return nil
 	}
+	go func() { c <- struct{}{} }()
+	for range c {
+		err := collector.fetchAsync(&reqData, handler)
+		if err != nil {
+			cancel()
+			return err
+		}
+	}
+	return nil
 }
 
 func (collector *ApiCollector) fetchAsync(reqData *RequestData, handler func(*http.Response) error) error {
