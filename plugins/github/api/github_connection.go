@@ -95,11 +95,10 @@ func TestConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, erro
 		}
 	}
 
+	if len(msgs) > 0 {
+		return nil, fmt.Errorf(strings.Join(msgs, "\n"))
+	}
+
 	// output
-	return &core.ApiResourceOutput{
-		Body: core.TestResult{
-			Success: len(msgs) == 0,
-			Message: strings.Join(msgs, "\n"),
-		},
-	}, nil
+	return nil, nil
 }

@@ -63,11 +63,8 @@ func TestConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, erro
 			return nil, fmt.Errorf("Support JIRA Server 8+ only")
 		}
 	}
-	return &core.ApiResourceOutput{
-		Status: res.StatusCode,
-		Body: &core.TestResult{
-			Success: res.StatusCode == http.StatusOK,
-			Message: "success",
-		},
-	}, nil
+	if res.StatusCode != http.StatusOK {
+		return nil, fmt.Errorf("unexpected status code: %d", res.StatusCode)
+	}
+	return nil, nil
 }

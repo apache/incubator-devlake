@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/merico-dev/lake/api/shared"
 	"github.com/merico-dev/lake/services"
 )
 
@@ -19,23 +20,17 @@ import (
 
 func Post(c *gin.Context) {
 	var err error
-	var totalRowsAffected int64
 	tableName := c.Param("tableName")
 	var rowsToInsert []map[string]interface{}
-	err = c.BindJSON(&rowsToInsert)
+	err = c.ShouldBindJSON(&rowsToInsert)
 	if err != nil {
-		_ = c.AbortWithError(http.StatusBadRequest, err)
+		shared.ApiOutputError(c, err, http.StatusBadRequest)
+		return
 	}
-	for _, rowToInsert := range rowsToInsert {
-		rowsAffected, err := services.InsertRow(tableName, rowToInsert)
-		if err != nil {
-			_ = c.AbortWithError(http.StatusInternalServerError, err)
-		}
-		totalRowsAffected += rowsAffected
+	rowsAffected, err := services.InsertRow(tableName, rowsToInsert)
+	if err != nil {
+		shared.ApiOutputError(c, err, http.StatusBadRequest)
+		return
 	}
-	if len(c.Errors) > 0 {
-		c.JSON(http.StatusOK, c.Errors)
-	} else {
-		c.JSON(http.StatusOK, gin.H{"Rows affected": totalRowsAffected})
-	}
+	shared.ApiOutputSuccess(c, gin.H{"rowsAffected": rowsAffected}, http.StatusOK)
 }

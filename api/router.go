@@ -8,6 +8,7 @@ import (
 	"github.com/merico-dev/lake/api/ping"
 	"github.com/merico-dev/lake/api/pipelines"
 	"github.com/merico-dev/lake/api/push"
+	"github.com/merico-dev/lake/api/shared"
 	"github.com/merico-dev/lake/api/task"
 	"github.com/merico-dev/lake/plugins/core"
 	"github.com/merico-dev/lake/services"
@@ -47,19 +48,21 @@ func RegisterRouter(r *gin.Engine) {
 						if c.Request.Body != nil {
 							err := c.ShouldBindJSON(&input.Body)
 							if err != nil && err.Error() != "EOF" {
-								c.JSON(http.StatusBadRequest, err.Error())
+								shared.ApiOutputError(c, err, http.StatusBadRequest)
 								return
 							}
 						}
 						output, err := handler(input)
 						if err != nil {
-							c.JSON(http.StatusBadRequest, err.Error())
-						} else {
+							shared.ApiOutputError(c, err, http.StatusBadRequest)
+						} else if output != nil {
 							status := output.Status
 							if status < http.StatusContinue {
 								status = http.StatusOK
 							}
-							c.JSON(status, output.Body)
+							shared.ApiOutputSuccess(c, output.Body, status)
+						} else {
+							shared.ApiOutputSuccess(c, nil, http.StatusOK)
 						}
 					},
 				)
