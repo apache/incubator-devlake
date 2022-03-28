@@ -69,13 +69,18 @@ func ModifyPipelinePlan(newPipelinePlan *models.EditPipelinePlan) (*models.Pipel
 	if err != nil {
 		return nil, err
 	}
-	pipelinePlan.CronConfig = newPipelinePlan.CronConfig
-	pipelinePlan.Enable = newPipelinePlan.Enable
-	// update tasks state
-	pipelinePlan.Tasks, err = json.Marshal(newPipelinePlan.Tasks)
-	if err != nil {
-		return nil, err
+	// update cronConfig
+	if newPipelinePlan.CronConfig != "" {
+		pipelinePlan.CronConfig = newPipelinePlan.CronConfig
 	}
+	// update tasks
+	if newPipelinePlan.Tasks != nil {
+		pipelinePlan.Tasks, err = json.Marshal(newPipelinePlan.Tasks)
+		if err != nil {
+			return nil, err
+		}
+	}
+	pipelinePlan.Enable = newPipelinePlan.Enable
 
 	err = db.Model(&models.PipelinePlan{}).
 		Clauses(clause.OnConflict{UpdateAll: true}).Create(&pipelinePlan).Error
