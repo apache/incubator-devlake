@@ -94,21 +94,22 @@ function useConnectionManager ({
     runTest()
   }
 
-  const saveConnection = () => {
+  const saveConnection = (configurationSettings = {}) => {
     setIsSaving(true)
-    let connectionPayload
+    let connectionPayload = { ...configurationSettings }
     switch (activeProvider.id) {
       case Providers.JIRA:
-        connectionPayload = { name: name, Endpoint: endpointUrl, BasicAuthEncoded: token, Proxy: proxy }
+        connectionPayload = { name: name, Endpoint: endpointUrl, BasicAuthEncoded: token, Proxy: proxy, ...connectionPayload }
         break
       case Providers.GITHUB:
-        connectionPayload = { name: name, GITHUB_ENDPOINT: endpointUrl, GITHUB_AUTH: token, GITHUB_PROXY: proxy }
+        connectionPayload = { name: name, GITHUB_ENDPOINT: endpointUrl, GITHUB_AUTH: token, GITHUB_PROXY: proxy, ...connectionPayload }
         break
       case Providers.JENKINS:
-        connectionPayload = { name: name, JENKINS_ENDPOINT: endpointUrl, JENKINS_USERNAME: username, JENKINS_PASSWORD: password }
+        // eslint-disable-next-line max-len
+        connectionPayload = { name: name, JENKINS_ENDPOINT: endpointUrl, JENKINS_USERNAME: username, JENKINS_PASSWORD: password, ...connectionPayload }
         break
       case Providers.GITLAB:
-        connectionPayload = { name: name, GITLAB_ENDPOINT: endpointUrl, GITLAB_AUTH: token, GITLAB_PROXY: proxy }
+        connectionPayload = { name: name, GITLAB_ENDPOINT: endpointUrl, GITLAB_AUTH: token, GITLAB_PROXY: proxy, ...connectionPayload }
         break
     }
 

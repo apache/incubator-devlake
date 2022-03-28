@@ -24,11 +24,12 @@ const integrationsData = [
     name: ProviderLabels.GITLAB,
     icon: <GitlabProvider className='providerIconSvg' width='30' height='30' style={{ float: 'left', marginTop: '5px' }} />,
     iconDashboard: <GitlabProvider className='providerIconSvg' width='48' height='48' />,
-    settings: ({ activeProvider, activeConnection, isSaving, setSettings }) => (
+    settings: ({ activeProvider, activeConnection, isSaving, isSavingConnection, setSettings }) => (
       <GitlabSettings
         provider={activeProvider}
         connection={activeConnection}
         isSaving={isSaving}
+        isSavingConnection={isSavingConnection}
         onSettingsChange={setSettings}
       />
     )
@@ -41,11 +42,12 @@ const integrationsData = [
     name: ProviderLabels.JENKINS,
     icon: <JenkinsProvider className='providerIconSvg' width='30' height='30' style={{ float: 'left', marginTop: '5px' }} />,
     iconDashboard: <JenkinsProvider className='providerIconSvg' width='48' height='48' />,
-    settings: ({ activeProvider, activeConnection, isSaving, setSettings }) => (
+    settings: ({ activeProvider, activeConnection, isSaving, isSavingConnection, setSettings }) => (
       <JenkinsSettings
         provider={activeProvider}
         connection={activeConnection}
         isSaving={isSaving}
+        isSavingConnection={isSavingConnection}
         onSettingsChange={setSettings}
       />
     )
@@ -58,11 +60,12 @@ const integrationsData = [
     name: ProviderLabels.JIRA,
     icon: <JiraProvider className='providerIconSvg' width='30' height='30' style={{ float: 'left', marginTop: '5px' }} />,
     iconDashboard: <JiraProvider className='providerIconSvg' width='48' height='48' />,
-    settings: ({ activeProvider, activeConnection, isSaving, setSettings }) => (
+    settings: ({ activeProvider, activeConnection, isSaving, isSavingConnection, setSettings }) => (
       <JiraSettings
         provider={activeProvider}
         connection={activeConnection}
         isSaving={isSaving}
+        isSavingConnection={isSavingConnection}
         onSettingsChange={setSettings}
       />
     )
@@ -75,11 +78,12 @@ const integrationsData = [
     name: ProviderLabels.GITHUB,
     icon: <GitHubProvider className='providerIconSvg' width='30' height='30' style={{ float: 'left', marginTop: '5px' }} />,
     iconDashboard: <GitHubProvider className='providerIconSvg' width='48' height='48' />,
-    settings: ({ activeProvider, activeConnection, isSaving, setSettings }) => (
+    settings: ({ activeProvider, activeConnection, isSaving, isSavingConnection, setSettings }) => (
       <GithubSettings
         provider={activeProvider}
         connection={activeConnection}
         isSaving={isSaving}
+        isSavingConnection={isSavingConnection}
         onSettingsChange={setSettings}
       />
     )

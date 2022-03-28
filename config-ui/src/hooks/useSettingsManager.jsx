@@ -132,7 +132,8 @@ function useSettingsManager ({
     setIsTesting,
     setErrors,
     setShowError,
-    buildConnectionPayload
+    buildConnectionPayload,
+    settings
   }
 }
 
