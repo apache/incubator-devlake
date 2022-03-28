@@ -5,11 +5,13 @@ import (
 	"github.com/merico-dev/lake/logger"
 	"github.com/merico-dev/lake/models"
 	"github.com/merico-dev/lake/runner"
+	"github.com/robfig/cron/v3"
 	"gorm.io/gorm"
 	"strings"
 )
 
 var db *gorm.DB
+var cronManager *cron.Cron
 
 func init() {
 	var err error
@@ -36,7 +38,8 @@ func init() {
 		&models.Task{},
 		&models.Notification{},
 		&models.Pipeline{},
-		&models.PipelinePlan{},
+		&models.Blueprint{},
+		&models.CronEntry{},
 	)
 	if err != nil {
 		panic(err)

@@ -1,9 +1,9 @@
-## pipeline-plan
+## blueprint
 
 ### Summary
 
 Users can set pipepline plan by config-ui to create schedule jobs.
-And config-ui will send pipeline-plan request with cronConfig in crontab format.
+And config-ui will send blueprint request with cronConfig in crontab format.
 
 ### Cron Job
 
@@ -23,7 +23,7 @@ Please check cron time format in https://crontab.guru/
 
 ### API
 
-POST /pipeline-plans
+POST /blueprints
 ```json
 Request
 {
@@ -63,7 +63,7 @@ Response
 	"cronConfig": "103 13 /13 * *"
 }
 ```
-GET /pipeline-plans
+GET /blueprints
 ```json
 Response
 {
@@ -88,7 +88,7 @@ Response
 }
 ```
 
-GET /pipeline-plans/:pipelinePlanId
+GET /blueprints/:blueprintId
 ```json
 Response
 {
@@ -113,7 +113,7 @@ Response
 ```
 
 
-PATCH /pipeline-plans/:pipelinePlanId
+PATCH /blueprints/:blueprintId
 ```json
 Request
 {
