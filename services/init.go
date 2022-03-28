@@ -5,16 +5,15 @@ import (
 	"github.com/merico-dev/lake/logger"
 	"github.com/merico-dev/lake/models"
 	"github.com/merico-dev/lake/runner"
-	"github.com/spf13/viper"
 	"gorm.io/gorm"
+	"strings"
 )
 
-var cfg *viper.Viper
 var db *gorm.DB
 
 func init() {
 	var err error
-	cfg = config.GetConfig()
+	cfg := config.GetConfig()
 	db, err = runner.NewGormDb(cfg, logger.Global.Nested("db"))
 
 	if err != nil {
@@ -57,4 +56,5 @@ func init() {
 	// call service init
 	pipelineServiceInit()
 	taskServiceInit()
+
 }
