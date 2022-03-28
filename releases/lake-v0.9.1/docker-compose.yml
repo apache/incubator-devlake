@@ -1,0 +1,60 @@
+version: "3"
+services:
+  mysql:
+    image: mysql:8.0.26
+    platform: linux/x86_64
+    volumes:
+      - mysql-storage:/var/lib/mysql
+    restart: always
+    ports:
+      - 127.0.0.1:3306:3306
+    environment:
+      MYSQL_ROOT_PASSWORD: admin
+      MYSQL_DATABASE: lake
+      MYSQL_USER: merico
+      MYSQL_PASSWORD: merico
+
+  grafana:
+    image: mericodev/grafana:v0.9.1
+    ports:
+      - 3002:3000
+    volumes:
+      - grafana-storage:/var/lib/grafana
+    environment:
+      GF_USERS_ALLOW_SIGN_UP: 'false'
+      GF_DASHBOARDS_JSON_ENABLED: 'true'
+      GF_INSTALL_PLUGINS: grafana-piechart-panel
+      GF_LIVE_ALLOWED_ORIGINS: '*'
+      MYSQL_URL: mysql:3306
+      MYSQL_DATABASE: lake
+      MYSQL_USER: merico
+      MYSQL_PASSWORD: merico
+    restart: always
+    depends_on:
+      - mysql
+
+  devlake:
+    image: mericodev/lake:v0.9.1
+    ports:
+      - 127.0.0.1:8080:8080
+    restart: always
+    volumes:
+      - ./.env:/app/.env
+    depends_on:
+      - mysql
+
+  config-ui:
+    image: mericodev/config-ui:v0.9.1
+    ports:
+      - 127.0.0.1:4000:80
+    env_file:
+      - ./.env
+    #environment:
+      #ADMIN_USER: devlake
+      #ADMIN_PASS: merico
+    depends_on:
+      - devlake
+
+volumes:
+  mysql-storage:
+  grafana-storage:
