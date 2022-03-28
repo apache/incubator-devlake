@@ -2,25 +2,14 @@ package services
 
 import (
 	"encoding/json"
-	"github.com/merico-dev/lake/config"
 	"github.com/merico-dev/lake/errors"
 	"github.com/merico-dev/lake/logger"
 	"github.com/merico-dev/lake/models"
+	"github.com/robfig/cron/v3"
 	"gorm.io/gorm/clause"
-	"strings"
 )
 
-func init() {
-	v := config.GetConfig()
-	var notificationEndpoint = v.GetString("NOTIFICATION_ENDPOINT")
-	var notificationSecret = v.GetString("NOTIFICATION_SECRET")
-	if strings.TrimSpace(notificationEndpoint) != "" {
-		notificationService = NewNotificationService(notificationEndpoint, notificationSecret)
-	}
-	db.Model(&models.Pipeline{}).Where("status = ?", models.TASK_RUNNING).Update("status", models.TASK_FAILED)
-}
-
-func CreatePipelinePlan(newPipeline *models.NewPipeline) (*models.PipelinePlan, error) {
+func CreatePipelinePlan(newPipeline *models.InputPipelinePlan) (*models.PipelinePlan, error) {
 	pipelinePlan := &models.PipelinePlan{
 		Enable:     newPipeline.Enable,
 		CronConfig: newPipeline.CronConfig,
@@ -38,6 +27,12 @@ func CreatePipelinePlan(newPipeline *models.NewPipeline) (*models.PipelinePlan, 
 		logger.Error("create pipline failed", err)
 		return nil, errors.InternalError
 	}
+	err = ReloadPipelinePlans()
+	if err != nil {
+		logger.Error("create cron job failed", err)
+		return nil, errors.InternalError
+	}
+
 	return pipelinePlan, nil
 }
 
@@ -67,17 +62,17 @@ func GetPipelinePlan(pipelinePlanId uint64) (*models.PipelinePlan, error) {
 	return pipelinePlan, nil
 }
 
-func ModifyPipelinePlan(newPipeline *models.NewPipeline, pipelinePlanId uint64) (*models.PipelinePlan, error) {
+func ModifyPipelinePlan(newPipelinePlan *models.EditPipelinePlan) (*models.PipelinePlan, error) {
 	pipelinePlan := &models.PipelinePlan{}
 	err := db.Model(&models.PipelinePlan{}).
-		Where("id = ?", pipelinePlanId).Limit(1).Find(pipelinePlan).Error
+		Where("id = ?", newPipelinePlan.PipelinePlanId).Limit(1).Find(pipelinePlan).Error
 	if err != nil {
 		return nil, err
 	}
-	pipelinePlan.CronConfig = newPipeline.CronConfig
-	pipelinePlan.Enable = newPipeline.Enable
+	pipelinePlan.CronConfig = newPipelinePlan.CronConfig
+	pipelinePlan.Enable = newPipelinePlan.Enable
 	// update tasks state
-	pipelinePlan.Tasks, err = json.Marshal(newPipeline.Tasks)
+	pipelinePlan.Tasks, err = json.Marshal(newPipelinePlan.Tasks)
 	if err != nil {
 		return nil, err
 	}
@@ -96,6 +91,50 @@ func DeletePipelinePlan(id uint64) error {
 	if err != nil {
 		logger.Error("create pipline failed", err)
 		return errors.InternalError
+	}
+	return nil
+}
+
+func ReloadPipelinePlans() error {
+	pipelinePlans := make([]*models.PipelinePlan, 0)
+	err := db.Model(&models.PipelinePlan{}).Where("enable = ?", true).Find(&pipelinePlans).Error
+	if err != nil {
+		panic(err)
+	}
+	c := cron.New()
+	cLog := logger.Global.Nested("plan")
+
+	for _, pp := range pipelinePlans {
+		var tasks [][]*models.NewTask
+		err = json.Unmarshal(pp.Tasks, &tasks)
+		if err != nil {
+			cLog.Error("created cron job failed: %s", err)
+			return err
+		}
+		//
+		newPipeline := models.NewPipeline{}
+		newPipeline.Tasks = tasks
+		newPipeline.Name = pp.Name
+		newPipeline.PipelinePlanId = pp.ID
+		_, err = c.AddFunc(pp.CronConfig, func() {
+			pipeline, err := CreatePipeline(&newPipeline)
+			// Return all created tasks to the User
+			if err != nil {
+				cLog.Error("created cron job failed: %s", err)
+				return
+			}
+			go func() {
+				_ = RunPipeline(pipeline.ID)
+			}()
+		})
+		if err != nil {
+			cLog.Error("created cron job failed: %s", err)
+			return err
+
+		}
+	}
+	if len(pipelinePlans) > 0 {
+		c.Start()
 	}
 	return nil
 }

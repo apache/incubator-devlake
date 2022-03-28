@@ -32,7 +32,7 @@ func Post(c *gin.Context) {
 		return
 	}
 
-	pipeline, err := services.CreatePipeline(newPipeline.Name, newPipeline.Tasks, 0)
+	pipeline, err := services.CreatePipeline(newPipeline)
 	// Return all created tasks to the User
 	if err != nil {
 		shared.ApiOutputError(c, err, http.StatusBadRequest)

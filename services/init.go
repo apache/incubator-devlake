@@ -6,6 +6,7 @@ import (
 	"github.com/merico-dev/lake/models"
 	"github.com/merico-dev/lake/runner"
 	"gorm.io/gorm"
+	"strings"
 )
 
 var db *gorm.DB
@@ -51,4 +52,16 @@ func init() {
 
 	// set all unfinished tasks to failed
 	db.Model(&models.Task{}).Where("status = ?", models.TASK_RUNNING).Update("status", models.TASK_FAILED)
+
+	var notificationEndpoint = cfg.GetString("NOTIFICATION_ENDPOINT")
+	var notificationSecret = cfg.GetString("NOTIFICATION_SECRET")
+	if strings.TrimSpace(notificationEndpoint) != "" {
+		notificationService = NewNotificationService(notificationEndpoint, notificationSecret)
+	}
+	db.Model(&models.Pipeline{}).Where("status = ?", models.TASK_RUNNING).Update("status", models.TASK_FAILED)
+
+	err = ReloadPipelinePlans()
+	if err != nil {
+		panic(err)
+	}
 }

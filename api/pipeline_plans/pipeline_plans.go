@@ -1,7 +1,6 @@
 package pipelineplans
 
 import (
-	"encoding/json"
 	"fmt"
 	"github.com/merico-dev/lake/api/shared"
 	"net/http"
@@ -15,38 +14,21 @@ import (
 )
 
 func Post(ctx *gin.Context) {
-	newPipeline := &models.NewPipeline{}
+	inputPipelinePlan := &models.InputPipelinePlan{}
 
-	err := ctx.MustBindWith(newPipeline, binding.JSON)
+	err := ctx.MustBindWith(inputPipelinePlan, binding.JSON)
 	if err != nil {
 		logger.Error("post /pipeline failed", err)
 		shared.ApiOutputError(ctx, err, http.StatusBadRequest)
 		return
 	}
 
-	pipelinePlan, err := services.CreatePipelinePlan(newPipeline)
+	pipelinePlan, err := services.CreatePipelinePlan(inputPipelinePlan)
 	if err != nil {
 		shared.ApiOutputError(ctx, err, http.StatusBadRequest)
 		return
 	}
 
-	var tasks [][]*models.NewTask
-	err = json.Unmarshal(pipelinePlan.Tasks, &tasks)
-	if err != nil {
-		shared.ApiOutputError(ctx, err, http.StatusBadRequest)
-		return
-	}
-
-	pipeline, err := services.CreatePipeline(pipelinePlan.Name, tasks, pipelinePlan.ID)
-	// Return all created tasks to the User
-	if err != nil {
-		shared.ApiOutputError(ctx, err, http.StatusBadRequest)
-		return
-	}
-
-	go func() {
-		_ = services.RunPipeline(pipeline.ID)
-	}()
 	shared.ApiOutputSuccess(ctx, pipelinePlan, http.StatusCreated)
 }
 
@@ -94,15 +76,16 @@ func Patch(ctx *gin.Context) {
 		shared.ApiOutputError(ctx, err, http.StatusBadRequest)
 		return
 	}
-	newPipeline := &models.NewPipeline{}
-	err = ctx.MustBindWith(newPipeline, binding.JSON)
+	editPipelinePlan := &models.EditPipelinePlan{}
+	err = ctx.MustBindWith(editPipelinePlan, binding.JSON)
 	if err != nil {
-		logger.Error("patch /pipelines/plans/:pipelinePlanId failed", err)
+		logger.Error("patch /pipeline-plans/:pipelinePlanId failed", err)
 		shared.ApiOutputError(ctx, err, http.StatusBadRequest)
 		fmt.Println(err)
 		return
 	}
-	pipelinePlan, err := services.ModifyPipelinePlan(newPipeline, id)
+	editPipelinePlan.PipelinePlanId = id
+	pipelinePlan, err := services.ModifyPipelinePlan(editPipelinePlan)
 	if err != nil {
 		shared.ApiOutputError(ctx, err, http.StatusBadRequest)
 		return
