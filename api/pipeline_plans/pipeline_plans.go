@@ -33,12 +33,12 @@ func Post(ctx *gin.Context) {
 }
 
 func Index(ctx *gin.Context) {
-	pipelines, count, err := services.GetPipelinePlans()
+	pipelinePlans, count, err := services.GetPipelinePlans()
 	if err != nil {
 		_ = ctx.AbortWithError(http.StatusBadRequest, err)
 		return
 	}
-	shared.ApiOutputSuccess(ctx, gin.H{"pipelines": pipelines, "count": count}, http.StatusOK)
+	shared.ApiOutputSuccess(ctx, gin.H{"pipeline-plans": pipelinePlans, "count": count}, http.StatusOK)
 }
 
 func Get(ctx *gin.Context) {
@@ -69,7 +69,7 @@ func Delete(ctx *gin.Context) {
 	}
 }
 
-func Patch(ctx *gin.Context) {
+func PUT(ctx *gin.Context) {
 	pipelinePlanId := ctx.Param("pipelinePlanId")
 	id, err := strconv.ParseUint(pipelinePlanId, 10, 64)
 	if err != nil {

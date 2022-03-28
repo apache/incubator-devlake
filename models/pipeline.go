@@ -1,14 +1,13 @@
 package models
 
 import (
+	"github.com/merico-dev/lake/models/common"
 	"time"
 
-	"github.com/merico-dev/lake/models/common"
 	"gorm.io/datatypes"
 )
 
 type Pipeline struct {
-	common.Model
 	Name           string         `json:"name" gorm:"index"`
 	PipelinePlanId uint64         `json:"pipelinePlanId"`
 	Tasks          datatypes.JSON `json:"tasks"`
@@ -19,6 +18,7 @@ type Pipeline struct {
 	Status         string         `json:"status"`
 	Message        string         `json:"message"`
 	SpentSeconds   int            `json:"spentSeconds"`
+	common.Model
 }
 
 // We use a 2D array because the request body must be an array of a set of tasks
