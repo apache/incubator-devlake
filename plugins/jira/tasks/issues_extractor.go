@@ -111,6 +111,11 @@ func ExtractIssues(taskCtx core.SubTaskContext) error {
 			for _, changelogItem := range changelogItems {
 				results = append(results, changelogItem)
 			}
+			results = append(results, &models.JiraBoardIssue{
+				SourceId: sourceId,
+				BoardId:  boardId,
+				IssueId:  issue.IssueId,
+			})
 			return results, nil
 		},
 	})
