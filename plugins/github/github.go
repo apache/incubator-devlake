@@ -2,6 +2,7 @@ package main // must be main for plugin entry point
 
 import (
 	"fmt"
+
 	"github.com/merico-dev/lake/plugins/github/models"
 	"github.com/merico-dev/lake/plugins/github/tasks"
 	"github.com/merico-dev/lake/runner"
@@ -47,31 +48,33 @@ func (plugin Github) Description() string {
 
 func (plugin Github) SubTaskMetas() []core.SubTaskMeta {
 	return []core.SubTaskMeta{
-		//tasks.CollectApiRepositoriesMeta,
-		//tasks.ExtractApiRepositoriesMeta,
-		//tasks.CollectApiIssuesMeta,
-		//tasks.ExtractApiIssuesMeta,
-		//tasks.CollectApiPullRequestsMeta,
-		//tasks.ExtractApiPullRequestsMeta,
-		//tasks.CollectApiCommentsMeta,
-		//tasks.ExtractApiCommentsMeta,
-		//tasks.CollectApiEventsMeta,
-		//tasks.ExtractApiEventsMeta,
-		//tasks.CollectApiPullRequestCommitsMeta,
-		//tasks.ExtractApiPullRequestCommitsMeta,
-		//tasks.CollectApiPullRequestReviewsMeta,
-		//tasks.ExtractApiPullRequestReviewsMeta,
-		//tasks.CollectApiCommitsMeta,
-		//tasks.ExtractApiCommitsMeta,
-		//tasks.CollectApiCommitStatsMeta,
-		//tasks.ExtractApiCommitStatsMeta,
-		tasks.ConvertReposMeta,
+		tasks.CollectApiRepoMeta,
+		tasks.ExtractApiRepoMeta,
+		tasks.CollectApiIssuesMeta,
+		tasks.ExtractApiIssuesMeta,
+		tasks.CollectApiPullRequestsMeta,
+		tasks.ExtractApiPullRequestsMeta,
+		tasks.CollectApiCommentsMeta,
+		tasks.ExtractApiCommentsMeta,
+		tasks.CollectApiEventsMeta,
+		tasks.ExtractApiEventsMeta,
+		tasks.CollectApiPullRequestCommitsMeta,
+		tasks.ExtractApiPullRequestCommitsMeta,
+		tasks.CollectApiPullRequestReviewsMeta,
+		tasks.ExtractApiPullRequestReviewsMeta,
+		tasks.CollectApiCommitsMeta,
+		tasks.ExtractApiCommitsMeta,
+		tasks.CollectApiCommitStatsMeta,
+		tasks.ExtractApiCommitStatsMeta,
+		tasks.EnrichPullRequestIssuesMeta,
+		tasks.ConvertRepoMeta,
 		tasks.ConvertIssuesMeta,
 		tasks.ConvertCommitsMeta,
 		tasks.ConvertIssueLabelsMeta,
 		tasks.ConvertPullRequestCommitsMeta,
 		tasks.ConvertPullRequestsMeta,
 		tasks.ConvertPullRequestLabelsMeta,
+		tasks.ConvertPullRequestIssuesMeta,
 		tasks.ConvertNotesMeta,
 		tasks.ConvertUsersMeta,
 	}
@@ -90,9 +93,6 @@ func (plugin Github) PrepareTaskData(taskCtx core.TaskContext, options map[strin
 		return nil, fmt.Errorf("repo is required for GitHub execution")
 	}
 	apiClient, err := tasks.CreateApiClient(taskCtx)
-	repo := models.GithubRepo{}
-	err = taskCtx.GetDb().Model(&models.GithubRepo{}).
-		Where("owner_login = ? and name = ?", op.Owner, op.Repo).Limit(1).Find(&repo).Error
 	if err != nil {
 		return nil, err
 	}
@@ -100,7 +100,6 @@ func (plugin Github) PrepareTaskData(taskCtx core.TaskContext, options map[strin
 	return &tasks.GithubTaskData{
 		Options:   &op,
 		ApiClient: apiClient,
-		Repo:      &repo,
 	}, nil
 }
 

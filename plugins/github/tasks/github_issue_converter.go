@@ -1,10 +1,11 @@
 package tasks
 
 import (
-	"github.com/merico-dev/lake/plugins/core"
-	"github.com/merico-dev/lake/plugins/helper"
 	"reflect"
 	"strconv"
+
+	"github.com/merico-dev/lake/plugins/core"
+	"github.com/merico-dev/lake/plugins/helper"
 
 	"github.com/merico-dev/lake/models/domainlayer"
 	"github.com/merico-dev/lake/models/domainlayer/didgen"
@@ -13,7 +14,7 @@ import (
 )
 
 var ConvertIssuesMeta = core.SubTaskMeta{
-	Name:             "ConvertIssues",
+	Name:             "convertIssues",
 	EntryPoint:       ConvertIssues,
 	EnabledByDefault: true,
 	Description:      "Convert tool layer table github_issues into  domain layer table issues",

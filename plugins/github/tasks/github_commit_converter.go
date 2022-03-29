@@ -1,16 +1,17 @@
 package tasks
 
 import (
+	"reflect"
+
 	"github.com/merico-dev/lake/models/domainlayer/code"
 	"github.com/merico-dev/lake/models/domainlayer/didgen"
 	"github.com/merico-dev/lake/plugins/core"
 	githubModels "github.com/merico-dev/lake/plugins/github/models"
 	"github.com/merico-dev/lake/plugins/helper"
-	"reflect"
 )
 
 var ConvertCommitsMeta = core.SubTaskMeta{
-	Name:             "ConvertCommits",
+	Name:             "convertCommits",
 	EntryPoint:       ConvertCommits,
 	EnabledByDefault: true,
 	Description:      "Convert tool layer table github_commits into  domain layer table commits",

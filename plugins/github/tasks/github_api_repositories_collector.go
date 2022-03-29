@@ -3,21 +3,21 @@ package tasks
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/merico-dev/lake/plugins/helper"
 	"io/ioutil"
 	"net/http"
 	"net/url"
+
+	"github.com/merico-dev/lake/plugins/helper"
 
 	"github.com/merico-dev/lake/plugins/core"
 )
 
 const RAW_REPOSITORIES_TABLE = "github_api_repositories"
 
-var CollectApiRepositoriesMeta = core.SubTaskMeta{
-	Name:             "collectApiRepositories",
+var CollectApiRepoMeta = core.SubTaskMeta{
+	Name:             "collectApiRepo",
 	EntryPoint:       CollectApiRepositories,
 	Required:         true,
-	EnabledByDefault: true,
 	Description:      "Collect repositories data from Github api",
 }
 
