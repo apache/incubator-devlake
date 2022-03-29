@@ -13,7 +13,6 @@ import (
 var _ core.PluginMeta = (*Dbt)(nil)
 var _ core.PluginInit = (*Dbt)(nil)
 var _ core.PluginTask = (*Dbt)(nil)
-var _ core.PluginApi = (*Dbt)(nil)
 
 type Dbt struct{}
 
@@ -44,11 +43,7 @@ func (plugin Dbt) PrepareTaskData(taskCtx core.TaskContext, options map[string]i
 }
 
 func (plugin Dbt) RootPkgPath() string {
-	return "github.com/merico-dev/lake/plugins/dbt"
-}
-
-func (plugin Dbt) ApiResources() map[string]map[string]core.ApiResourceHandler {
-	return map[string]map[string]core.ApiResourceHandler{}
+	return "github.com/merico-dev/lake/plugins/dbtplugin"
 }
 
 var PluginEntry Dbt
