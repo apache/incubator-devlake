@@ -4,15 +4,16 @@ import (
 	"encoding/json"
 	"fmt"
 	"strings"
-	"time"
 
-	"github.com/merico-dev/lake/config"
 	"github.com/merico-dev/lake/errors"
 	"github.com/merico-dev/lake/logger"
 	"github.com/merico-dev/lake/models"
+	"github.com/merico-dev/lake/runner"
+	"go.temporal.io/sdk/client"
 )
 
 var notificationService *NotificationService
+var temporalClient client.Client
 
 type PipelineQuery struct {
 	Status   string `form:"status"`
@@ -21,13 +22,28 @@ type PipelineQuery struct {
 	PageSize int    `form:"page_size"`
 }
 
-func init() {
-	v := config.GetConfig()
-	var notificationEndpoint = v.GetString("NOTIFICATION_ENDPOINT")
-	var notificationSecret = v.GetString("NOTIFICATION_SECRET")
+func pipelineServiceInit() {
+	// notification
+	var notificationEndpoint = cfg.GetString("NOTIFICATION_ENDPOINT")
+	var notificationSecret = cfg.GetString("NOTIFICATION_SECRET")
 	if strings.TrimSpace(notificationEndpoint) != "" {
 		notificationService = NewNotificationService(notificationEndpoint, notificationSecret)
 	}
+
+	// temporal client
+	var temporalUrl = cfg.GetString("TEMPORAL_URL")
+	if temporalUrl != "" {
+		// TODO: logger
+		var err error
+		temporalClient, err = client.NewClient(client.Options{
+			HostPort: temporalUrl,
+		})
+		if err != nil {
+			panic(err)
+		}
+	}
+
+	// reset pipeline status
 	db.Model(&models.Pipeline{}).Where("status = ?", models.TASK_RUNNING).Update("status", models.TASK_FAILED)
 }
 
@@ -124,92 +140,11 @@ func GetPipeline(pipelineId uint64) (*models.Pipeline, error) {
 }
 
 func RunPipeline(pipelineId uint64) error {
-	pipeline, err := GetPipeline(pipelineId)
-	if err != nil {
-		return err
-	}
-	// load tasks for pipeline
-	var tasks []*models.Task
-	err = db.Where("pipeline_id = ?", pipeline.ID).Order("pipeline_row, pipeline_col").Find(&tasks).Error
-	if err != nil {
-		return err
-	}
-	// convert to 2d array
-	taskIds := make([][]uint64, 0)
-	for _, task := range tasks {
-		for len(taskIds) < task.PipelineRow {
-			taskIds = append(taskIds, make([]uint64, 0))
-		}
-		taskIds[task.PipelineRow-1] = append(taskIds[task.PipelineRow-1], task.ID)
-	}
-
-	beganAt := time.Now()
-	err = db.Model(pipeline).Updates(map[string]interface{}{
-		"status":   models.TASK_RUNNING,
-		"message":  "",
-		"began_at": beganAt,
-	}).Error
-	if err != nil {
-		return err
-	}
-	// This double for loop executes each set of tasks sequentially while
-	// executing the set of tasks concurrently.
-	finishedTasks := 0
-	rowResults := make(chan error)
-	rowErrors := make([]string, 0)
-	for _, row := range taskIds {
-		rowFinished := 0
-		for _, taskId := range row {
-			taskId := taskId
-			go func() {
-				logger.Info("run task in background ", taskId)
-				rowResults <- RunTask(taskId)
-			}()
-		}
-		for err = range rowResults {
-			finishedTasks++
-			rowFinished++
-			if err != nil {
-				logger.Error("pipeline task failed", err)
-				rowErrors = append(rowErrors, err.Error())
-			}
-			err = db.Model(pipeline).Updates(map[string]interface{}{
-				"status":         models.TASK_RUNNING,
-				"finished_tasks": finishedTasks,
-			}).Error
-			if err != nil {
-				logger.Error("update pipeline state failed", err)
-				rowErrors = append(rowErrors, err.Error())
-			}
-			if rowFinished == len(row) {
-				break
-			}
-		}
-		if len(rowErrors) > 0 {
-			err = fmt.Errorf(strings.Join(rowErrors, "\n"))
-			break
-		}
-	}
-	close(rowResults)
-
-	logger.Info("pipeline finished:", err == nil)
-	// finished, update database
-	finishedAt := time.Now()
-	spentSeconds := finishedAt.Unix() - beganAt.Unix()
-	if err != nil {
-		err = db.Model(pipeline).Updates(map[string]interface{}{
-			"status":        models.TASK_FAILED,
-			"message":       err.Error(),
-			"finished_at":   finishedAt,
-			"spent_seconds": spentSeconds,
-		}).Error
+	var err error
+	if temporalClient != nil {
+		err = runPipelineViaTemporal(pipelineId)
 	} else {
-		err = db.Model(pipeline).Updates(map[string]interface{}{
-			"status":        models.TASK_COMPLETED,
-			"message":       "",
-			"finished_at":   finishedAt,
-			"spent_seconds": spentSeconds,
-		}).Error
+		err = runPipelineStandalone(pipelineId)
 	}
 	if err != nil {
 		return err
@@ -217,6 +152,21 @@ func RunPipeline(pipelineId uint64) error {
 
 	// notify external webhook
 	return NotifyExternal(pipelineId)
+}
+
+func runPipelineViaTemporal(pipelineId uint64) error {
+	// TODO: send pipeline to temporal
+	return nil
+}
+
+func runPipelineStandalone(pipelineId uint64) error {
+	return runner.RunPipeline(
+		cfg,
+		logger.Global.Nested(fmt.Sprintf("pipeline #%d", pipelineId)),
+		db,
+		pipelineId,
+		runTaskStandalone,
+	)
 }
 
 func NotifyExternal(pipelineId uint64) error {
