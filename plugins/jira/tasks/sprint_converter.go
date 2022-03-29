@@ -80,9 +80,12 @@ func ConvertSprints(taskCtx core.SubTaskContext) error {
 				}
 				domainSprintIssues = append(domainSprintIssues, dsi)
 			}
-			err = db.Clauses(clause.OnConflict{DoUpdates: clause.AssignmentColumns([]string{"resolved_stage"})}).Create(domainSprintIssues).Error
-			if err != nil {
-				return nil, err
+			if len(domainSprintIssues) > 0 {
+				err = db.Clauses(clause.OnConflict{DoUpdates: clause.AssignmentColumns([]string{"resolved_stage"})}).Create(domainSprintIssues).Error
+				if err != nil {
+					return nil, err
+				}
+
 			}
 			boardSprint := &ticket.BoardSprint{
 				BoardId:  domainBoardId,
