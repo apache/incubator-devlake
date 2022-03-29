@@ -5,15 +5,12 @@ import (
 	"encoding/json"
 	"fmt"
 	"sync"
-	"time"
 
-	"github.com/merico-dev/lake/config"
 	"github.com/merico-dev/lake/errors"
 	"github.com/merico-dev/lake/logger"
 	"github.com/merico-dev/lake/models"
 	"github.com/merico-dev/lake/plugins/core"
 	"github.com/merico-dev/lake/runner"
-	"github.com/merico-dev/lake/utils"
 )
 
 type RunningTaskData struct {
@@ -24,6 +21,11 @@ type RunningTaskData struct {
 type RunningTask struct {
 	mu    sync.Mutex
 	tasks map[uint64]*RunningTaskData
+}
+
+func taskServiceInit() {
+	// reset task status
+	db.Model(&models.Task{}).Where("status = ?", models.TASK_RUNNING).Update("status", models.TASK_FAILED)
 }
 
 func (rt *RunningTask) Add(taskId uint64, cancel context.CancelFunc) error {
@@ -127,82 +129,36 @@ func GetTask(taskId uint64) (*models.Task, error) {
 	return task, nil
 }
 
-func RunTask(taskId uint64) error {
-	// load task information from database
-	task, err := GetTask(taskId)
+func CancelTask(taskId uint64) error {
+	cancel, err := runningTasks.Remove(taskId)
 	if err != nil {
 		return err
 	}
-	if task.Status != models.TASK_CREATED {
-		return fmt.Errorf("invalid task status")
-	}
-	beganAt := time.Now()
-	// make sure task status always correct even if it panicked
-	defer func() {
-		_, _ = runningTasks.Remove(task.ID)
-		if r := recover(); r != nil {
-			err = fmt.Errorf("run task failed with panic (%s): %v", utils.GatherCallFrames(), r)
-		}
-		finishedAt := time.Now()
-		spentSeconds := finishedAt.Unix() - beganAt.Unix()
-		if err != nil {
-			subTaskName := ""
-			if pluginErr, ok := err.(*errors.SubTaskError); ok {
-				subTaskName = pluginErr.GetSubTaskName()
-			}
-			dbe := db.Model(task).Updates(map[string]interface{}{
-				"status":          models.TASK_FAILED,
-				"message":         err.Error(),
-				"finished_at":     finishedAt,
-				"spent_seconds":   spentSeconds,
-				"failed_sub_task": subTaskName,
-			}).Error
-			if dbe != nil {
-				logger.Error("eror is not nil", err)
-			}
-		} else {
-			err = db.Model(task).Updates(map[string]interface{}{
-				"status":        models.TASK_COMPLETED,
-				"message":       "",
-				"finished_at":   finishedAt,
-				"spent_seconds": spentSeconds,
-			}).Error
-		}
-	}()
+	cancel()
+	return nil
+}
 
+func runTaskStandalone(taskId uint64) error {
+	// deferng cleaning up
+	defer func() {
+		_, _ = runningTasks.Remove(taskId)
+	}()
 	// for task cancelling
 	ctx, cancel := context.WithCancel(context.Background())
-	err = runningTasks.Add(taskId, cancel)
+	err := runningTasks.Add(taskId, cancel)
 	if err != nil {
 		return err
 	}
-	// start execution
-	logger.Info("start executing task ", task.ID)
-	err = db.Model(task).Updates(map[string]interface{}{
-		"status":   models.TASK_RUNNING,
-		"message":  "",
-		"began_at": beganAt,
-	}).Error
-	if err != nil {
-		return err
-	}
-
-	var options map[string]interface{}
-	err = json.Unmarshal(task.Options, &options)
-	if err != nil {
-		return err
-	}
-
-	progress := make(chan core.RunningProgress)
+	// now , create a progress update channel and kick off
+	progress := make(chan core.RunningProgress, 100)
 	go updateTaskProgress(taskId, progress)
-	err = runner.RunPluginTask(
-		config.GetConfig(),
-		logger.Global.Nested(task.Plugin),
+	err = runner.RunTask(
+		cfg,
+		logger.Global.Nested(fmt.Sprintf("task #%d", taskId)),
 		db,
 		ctx,
-		task.Plugin,
-		options,
 		progress,
+		taskId,
 	)
 	close(progress)
 	return err
@@ -239,13 +195,4 @@ func updateTaskProgress(taskId uint64, progress chan core.RunningProgress) {
 			progressDetail.SubTaskNumber = p.SubTaskNumber
 		}
 	}
-}
-
-func CancelTask(taskId uint64) error {
-	cancel, err := runningTasks.Remove(taskId)
-	if err != nil {
-		return err
-	}
-	cancel()
-	return nil
 }

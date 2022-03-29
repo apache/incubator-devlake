@@ -2,9 +2,14 @@ package runner
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
+	"time"
 
+	"github.com/merico-dev/lake/config"
 	"github.com/merico-dev/lake/errors"
+	"github.com/merico-dev/lake/models"
+	"github.com/merico-dev/lake/utils"
 	"github.com/mitchellh/mapstructure"
 	"github.com/spf13/viper"
 	"gorm.io/gorm"
@@ -12,6 +17,84 @@ import (
 	"github.com/merico-dev/lake/plugins/core"
 	"github.com/merico-dev/lake/plugins/helper"
 )
+
+func RunTask(
+	cfg *viper.Viper,
+	logger core.Logger,
+	db *gorm.DB,
+	ctx context.Context,
+	progress chan core.RunningProgress,
+	taskId uint64,
+) error {
+	task := &models.Task{}
+	err := db.Find(task, taskId).Error
+	if err != nil {
+		return err
+	}
+	if task.Status != models.TASK_CREATED {
+		return fmt.Errorf("invalid task status")
+	}
+	beganAt := time.Now()
+	// make sure task status always correct even if it panicked
+	defer func() {
+		if r := recover(); r != nil {
+			err = fmt.Errorf("run task failed with panic (%s): %v", utils.GatherCallFrames(), r)
+		}
+		finishedAt := time.Now()
+		spentSeconds := finishedAt.Unix() - beganAt.Unix()
+		if err != nil {
+			subTaskName := ""
+			if pluginErr, ok := err.(*errors.SubTaskError); ok {
+				subTaskName = pluginErr.GetSubTaskName()
+			}
+			dbe := db.Model(task).Updates(map[string]interface{}{
+				"status":          models.TASK_FAILED,
+				"message":         err.Error(),
+				"finished_at":     finishedAt,
+				"spent_seconds":   spentSeconds,
+				"failed_sub_task": subTaskName,
+			}).Error
+			if dbe != nil {
+				logger.Error("failed to finalize task status into db: %w", err)
+			}
+		} else {
+			err = db.Model(task).Updates(map[string]interface{}{
+				"status":        models.TASK_COMPLETED,
+				"message":       "",
+				"finished_at":   finishedAt,
+				"spent_seconds": spentSeconds,
+			}).Error
+		}
+	}()
+
+	// start execution
+	logger.Info("start executing task: %d", task.ID)
+	err = db.Model(task).Updates(map[string]interface{}{
+		"status":   models.TASK_RUNNING,
+		"message":  "",
+		"began_at": beganAt,
+	}).Error
+	if err != nil {
+		return err
+	}
+
+	var options map[string]interface{}
+	err = json.Unmarshal(task.Options, &options)
+	if err != nil {
+		return err
+	}
+
+	err = RunPluginTask(
+		config.GetConfig(),
+		logger.Nested(task.Plugin),
+		db,
+		ctx,
+		task.Plugin,
+		options,
+		progress,
+	)
+	return err
+}
 
 func RunPluginTask(
 	cfg *viper.Viper,
