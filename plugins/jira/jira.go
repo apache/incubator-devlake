@@ -1,7 +1,6 @@
 package main // must be main for plugin entry point
 
 import (
-	"context"
 	"fmt"
 	"gorm.io/gorm"
 	"net/http"
@@ -25,7 +24,7 @@ var _ core.PluginApi = (*Jira)(nil)
 type Jira struct{}
 
 func (plugin Jira) Init(config *viper.Viper, logger core.Logger, db *gorm.DB) error {
-
+	api.Init(config, logger, db)
 	return db.AutoMigrate(
 		&models.JiraProject{},
 		&models.JiraUser{},
@@ -82,7 +81,8 @@ func (plugin Jira) SubTaskMetas() []core.SubTaskMeta {
 
 		{Name: "convertSprints", EntryPoint: tasks.ConvertSprints, EnabledByDefault: true, Description: "convert Jira sprints"},
 
-		{Name: "convertIssueCommits", EntryPoint: tasks.ConvertIssueCommits, EnabledByDefault: true, Description: "convert Jira issue commits"}}
+		{Name: "convertIssueCommits", EntryPoint: tasks.ConvertIssueCommits, EnabledByDefault: true, Description: "convert Jira issue commits"},
+		{Name: "convertIssueRepoCommits", EntryPoint: tasks.ConvertIssueRepoCommits, EnabledByDefault: false, Description: "convert Jira issue repo commits"}}
 }
 
 func (plugin Jira) PrepareTaskData(taskCtx core.TaskContext, options map[string]interface{}) (interface{}, error) {
@@ -128,346 +128,6 @@ func (plugin Jira) PrepareTaskData(taskCtx core.TaskContext, options map[string]
 		taskData.Since = &since
 	}
 	return taskData, nil
-}
-
-func (plugin Jira) Execute(options map[string]interface{}, progress chan<- float32, ctx context.Context) error {
-	/* TODO: adopt new interface
-	// process options
-	var op tasks.JiraOptions
-	var err error
-	err = mapstructure.Decode(options, &op)
-	if err != nil {
-		return err
-	}
-	if op.SourceId == 0 {
-		return fmt.Errorf("sourceId is invalid")
-	}
-	source := &models.JiraSource{}
-	err = lakeModels.Db.Find(source, op.SourceId).Error
-	if err != nil {
-		return err
-	}
-
-	var since time.Time
-	if op.Since != "" {
-		since, err = time.Parse("2006-01-02T15:04:05Z", op.Since)
-		if err != nil {
-			return fmt.Errorf("invalid value for `since`: %w", err)
-		}
-	}
-
-	tasksToRun := map[string]bool{
-		"collectProjects":     true,
-		"extractProjects":     true,
-		"collectBoard":        true,
-		"extractBoard":        true,
-		"collectIssues":       true,
-		"extractIssues":       true,
-		"collectChangelogs":   true,
-		"extractChangelogs":   true,
-		"collectRemotelinks":  true,
-		"extractRemotelinks":  true,
-		"collectSprints":      true,
-		"extractSprints":      true,
-		"convertBoard":        true,
-		"convertIssues":       true,
-		"collectWorklogs":     true,
-		"extractWorklogs":     true,
-		"convertWorklogs":     true,
-		"convertChangelogs":   true,
-		"convertSprints":      true,
-		"convertIssueCommits": true,
-	}
-	if len(op.Tasks) > 0 {
-		// set all to false
-		for task := range tasksToRun {
-			tasksToRun[task] = false
-		}
-		// set those specified tasks to true
-		for _, task := range op.Tasks {
-			tasksToRun[task] = true
-		}
-	}
-
-	rateLimit := source.RateLimit
-	if rateLimit <= 0 {
-		rateLimit = 50
-	}
-	scheduler, err := utils.NewWorkerScheduler(rateLimit, rateLimit, ctx)
-	if err != nil {
-		return err
-	}
-	defer scheduler.Release()
-
-	// prepare contextual variables
-	logger := helper.NewDefaultTaskLogger(nil, "jira")
-	jiraApiClient := tasks.NewJiraApiClient(
-		source.Endpoint,
-		source.BasicAuthEncoded,
-		source.Proxy,
-		scheduler,
-		logger,
-	)
-	if err != nil {
-		return fmt.Errorf("failed to create jira api client: %w", err)
-	}
-
-	taskData := &tasks.JiraTaskData{
-		Options:   &op,
-		ApiClient: &jiraApiClient.ApiClient,
-		Source:    source,
-	}
-	if !since.IsZero() {
-		taskData.Since = &since
-	}
-	info, code, err := jiraApiClient.GetJiraServerInfo()
-	if err != nil || code != http.StatusOK {
-		return fmt.Errorf("fail to get server info")
-	}
-
-	if info.DeploymentType == models.DeploymentServer {
-		if versions := info.VersionNumbers; len(versions) == 3 && versions[0] == 8 {
-			tasksToRun["collectChangelogs"] = false
-			tasksToRun["extractChangelogs"] = false
-		} else {
-			return fmt.Errorf("not support version:%s", info.Version)
-		}
-	}
-	taskCtx := helper.NewDefaultTaskContext("jira", ctx, logger, taskData, tasksToRun)
-	newTasks := []struct {
-		name       string
-		entryPoint core.SubTaskEntryPoint
-	}{
-		{name: "collectProjects", entryPoint: tasks.CollectProjects},
-		{name: "extractProjects", entryPoint: tasks.ExtractProjects},
-
-		{name: "collectBoard", entryPoint: tasks.CollectBoard},
-		{name: "extractBoard", entryPoint: tasks.ExtractBoard},
-
-		{name: "collectIssues", entryPoint: tasks.CollectIssues},
-		{name: "extractIssues", entryPoint: tasks.ExtractIssues},
-
-		{name: "collectChangelogs", entryPoint: tasks.CollectChangelogs},
-		{name: "extractChangelogs", entryPoint: tasks.ExtractChangelogs},
-
-		{name: "collectWorklogs", entryPoint: tasks.CollectWorklogs},
-		{name: "extractWorklogs", entryPoint: tasks.ExtractWorklogs},
-
-		{name: "collectRemotelinks", entryPoint: tasks.CollectRemotelinks},
-		{name: "extractRemotelinks", entryPoint: tasks.ExtractRemotelinks},
-
-		{name: "collectSprints", entryPoint: tasks.CollectSprints},
-		{name: "extractSprints", entryPoint: tasks.ExtractSprints},
-
-		{name: "convertBoard", entryPoint: tasks.ConvertBoard},
-
-		{name: "convertIssues", entryPoint: tasks.ConvertIssues},
-
-		{name: "convertWorklogs", entryPoint: tasks.ConvertWorklogs},
-
-		{name: "convertChangelogs", entryPoint: tasks.ConvertChangelogs},
-
-		{name: "convertSprints", entryPoint: tasks.ConvertSprints},
-
-		{name: "convertIssueCommits", entryPoint: tasks.ConvertIssueCommits},
-	}
-	for _, t := range newTasks {
-		c, err := taskCtx.SubTaskContext(t.name)
-		if err != nil {
-			return err
-		}
-		fmt.Println(c)
-		if c != nil {
-			logger.Info("enter")
-			err = t.entryPoint(c)
-			if err != nil {
-				return &errors.SubTaskError{
-					SubTaskName: t.name,
-					Message:     err.Error(),
-				}
-			}
-		}
-	}
-
-	// run tasks
-	var collector tasks.Collector
-	info, code, err := jiraApiClient.GetJiraServerInfo()
-	if err != nil || code != http.StatusOK {
-		return fmt.Errorf("fail to get server info")
-	}
-	if info.DeploymentType == models.DeploymentCloud {
-		collector = tasks.NewCloud()
-	}
-	if info.DeploymentType == models.DeploymentServer {
-		if versions := info.VersionNumbers; len(versions) == 3 && versions[0] == 8 {
-			collector = tasks.NewServerVersion8(lakeModels.Db, jiraApiClient)
-		}
-	}
-	if collector == nil {
-		return fmt.Errorf("Jira server %s is not supported", info.Version)
-	}
-
-	logger.Info("start plugin execution")
-	if tasksToRun["collectProjects"] {
-		err := collector.CollectProjects(jiraApiClient, op.SourceId)
-		if err != nil {
-			return &errors.SubTaskError{
-				SubTaskName: "collectProjects",
-				Message:     err.Error(),
-			}
-		}
-	}
-	if tasksToRun["collectUsers"] {
-		err := collector.CollectUsers(jiraApiClient, op.SourceId)
-		if err != nil {
-			return &errors.SubTaskError{
-				SubTaskName: "collectUsers",
-				Message:     err.Error(),
-			}
-		}
-	}
-	if tasksToRun["collectBoard"] {
-		err := collector.CollectBoard(jiraApiClient, source, boardId)
-		if err != nil {
-			return &errors.SubTaskError{
-				SubTaskName: "collectBoard",
-				Message:     err.Error(),
-			}
-		}
-	}
-	progress <- 0.01
-	if tasksToRun["collectIssues"] {
-		err = collector.CollectIssues(jiraApiClient, source, boardId, since, source.RateLimit, ctx)
-		if err != nil {
-			return &errors.SubTaskError{
-				SubTaskName: "collectIssues",
-				Message:     err.Error(),
-			}
-		}
-	}
-
-	progress <- 0.1
-	if tasksToRun["collectChangelogs"] {
-		err = collector.CollectChangelogs(jiraApiClient, source, boardId, rateLimit, ctx)
-		if err != nil {
-			return &errors.SubTaskError{
-				SubTaskName: "collectChangelogs",
-				Message:     err.Error(),
-			}
-		}
-	}
-	if tasksToRun["collectRemotelinks"] {
-		err = collector.CollectRemoteLinks(jiraApiClient, source, boardId, rateLimit, ctx)
-		if err != nil {
-			return &errors.SubTaskError{
-				SubTaskName: "collectRemotelinks",
-				Message:     err.Error(),
-			}
-		}
-	}
-	// TODO: Remove this subtask, we can collect user while we are collecting issues
-	if tasksToRun["collectUsers"] {
-		err := collector.CollectUsers(jiraApiClient, op.SourceId)
-		if err != nil {
-			return &errors.SubTaskError{
-				SubTaskName: "collectUsers",
-				Message:     err.Error(),
-			}
-		}
-	}
-	progress <- 0.2
-	if tasksToRun["enrichIssues"] {
-		err = tasks.EnrichIssues(source, boardId)
-		if err != nil {
-			return &errors.SubTaskError{
-				SubTaskName: "enrichIssues",
-				Message:     err.Error(),
-			}
-		}
-	}
-	if tasksToRun["enrichRemotelinks"] {
-		err = tasks.EnrichRemotelinks(source, boardId)
-		if err != nil {
-			return &errors.SubTaskError{
-				SubTaskName: "enrichRemotelinks",
-				Message:     err.Error(),
-			}
-		}
-	}
-	progress <- 0.3
-	if tasksToRun["collectSprints"] {
-		err = collector.CollectSprint(jiraApiClient, source, boardId)
-		if err != nil {
-			return &errors.SubTaskError{
-				SubTaskName: "collectSprints",
-				Message:     err.Error(),
-			}
-		}
-	}
-	progress <- 0.4
-	if tasksToRun["convertBoard"] {
-		err := tasks.ConvertBoard(op.SourceId, boardId)
-		if err != nil {
-			return &errors.SubTaskError{
-				SubTaskName: "convertBoard",
-				Message:     err.Error(),
-			}
-		}
-	}
-	progress <- 0.5
-	if tasksToRun["convertUsers"] {
-		err := tasks.ConvertUsers(op.SourceId)
-		if err != nil {
-			return &errors.SubTaskError{
-				SubTaskName: "convertUsers",
-				Message:     err.Error(),
-			}
-		}
-	}
-	progress <- 0.7
-	if tasksToRun["convertWorklogs"] {
-		err = tasks.ConvertWorklog(op.SourceId, boardId)
-		if err != nil {
-			return &errors.SubTaskError{
-				SubTaskName: "convertWorklogs",
-				Message:     err.Error(),
-			}
-		}
-	}
-	progress <- 0.8
-	if tasksToRun["convertChangelogs"] {
-		err = tasks.ConvertChangelogs(op.SourceId, boardId)
-		if err != nil {
-			return &errors.SubTaskError{
-				SubTaskName: "convertChangelogs",
-				Message:     err.Error(),
-			}
-		}
-	}
-	progress <- 0.85
-	if tasksToRun["convertSprints"] {
-		err = tasks.ConvertSprint(op.SourceId, boardId)
-		if err != nil {
-			return &errors.SubTaskError{
-				SubTaskName: "convertSprints",
-				Message:     err.Error(),
-			}
-		}
-	}
-	progress <- 0.9
-	if tasksToRun["convertIssueCommits"] {
-		err = tasks.ConvertIssueCommits(op.SourceId, boardId)
-		if err != nil {
-			return &errors.SubTaskError{
-				SubTaskName: "convertIssueCommits",
-				Message:     err.Error(),
-			}
-		}
-	}
-	progress <- 1.0
-	logger.Info("end plugin execution")
-	*/
-	return nil
 }
 
 func (plugin Jira) RootPkgPath() string {
@@ -532,7 +192,11 @@ func main() {
 	cmd := &cobra.Command{Use: "jira"}
 	sourceId := cmd.Flags().Uint64P("source", "s", 0, "jira source id")
 	boardId := cmd.Flags().Uint64P("board", "b", 0, "jira board id")
-	err := cmd.MarkFlagRequired("project-id")
+	err := cmd.MarkFlagRequired("source")
+	if err != nil {
+		panic(err)
+	}
+	err = cmd.MarkFlagRequired("board")
 	if err != nil {
 		panic(err)
 	}
