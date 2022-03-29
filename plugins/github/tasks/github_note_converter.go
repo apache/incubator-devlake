@@ -1,17 +1,18 @@
 package tasks
 
 import (
+	"reflect"
+
 	"github.com/merico-dev/lake/models/domainlayer"
 	"github.com/merico-dev/lake/models/domainlayer/code"
 	"github.com/merico-dev/lake/models/domainlayer/didgen"
 	"github.com/merico-dev/lake/plugins/core"
 	githubModels "github.com/merico-dev/lake/plugins/github/models"
 	"github.com/merico-dev/lake/plugins/helper"
-	"reflect"
 )
 
 var ConvertNotesMeta = core.SubTaskMeta{
-	Name:             "ConvertNotes",
+	Name:             "convertNotes",
 	EntryPoint:       ConvertNotes,
 	EnabledByDefault: true,
 	Description:      "Convert tool layer table github_pull_request_comments into  domain layer table notes",

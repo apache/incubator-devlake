@@ -1,16 +1,17 @@
 package tasks
 
 import (
+	"reflect"
+
 	"github.com/merico-dev/lake/models/domainlayer/crossdomain"
 	"github.com/merico-dev/lake/models/domainlayer/didgen"
 	"github.com/merico-dev/lake/plugins/core"
 	githubModels "github.com/merico-dev/lake/plugins/github/models"
 	"github.com/merico-dev/lake/plugins/helper"
-	"reflect"
 )
 
 var ConvertPullRequestIssuesMeta = core.SubTaskMeta{
-	Name:             "ConvertPullRequestIssues",
+	Name:             "convertPullRequestIssues",
 	EntryPoint:       ConvertPullRequestIssues,
 	EnabledByDefault: true,
 	Description:      "Convert tool layer table github_pull_request_issues into  domain layer table pull_request_issues",

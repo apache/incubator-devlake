@@ -2,17 +2,17 @@ package tasks
 
 import (
 	"encoding/json"
+
 	"github.com/merico-dev/lake/plugins/core"
 	"github.com/merico-dev/lake/plugins/github/models"
 	"github.com/merico-dev/lake/plugins/helper"
 )
 
-var ExtractApiRepositoriesMeta = core.SubTaskMeta{
-	Name:             "extractApiRepositories",
-	EntryPoint:       ExtractApiRepositories,
-	Required:         true,
-	EnabledByDefault: true,
-	Description:      "Extract raw Repositories data into tool layer table github_repos",
+var ExtractApiRepoMeta = core.SubTaskMeta{
+	Name:        "extractApiRepo",
+	EntryPoint:  ExtractApiRepositories,
+	Required:    true,
+	Description: "Extract raw Repositories data into tool layer table github_repos",
 }
 
 type ApiRepoResponse GithubApiRepo
@@ -72,6 +72,7 @@ func ExtractApiRepositories(taskCtx core.SubTaskContext) error {
 				githubRepository.ParentHTMLUrl = body.Parent.HTMLUrl
 			}
 			results = append(results, githubRepository)
+			taskCtx.TaskContext().GetData().(*GithubTaskData).Repo = githubRepository
 			return results, nil
 		},
 	})

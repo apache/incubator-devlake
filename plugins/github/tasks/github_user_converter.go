@@ -1,17 +1,18 @@
 package tasks
 
 import (
+	"reflect"
+
 	"github.com/merico-dev/lake/models/domainlayer"
 	"github.com/merico-dev/lake/models/domainlayer/didgen"
 	"github.com/merico-dev/lake/models/domainlayer/user"
 	"github.com/merico-dev/lake/plugins/core"
 	githubModels "github.com/merico-dev/lake/plugins/github/models"
 	"github.com/merico-dev/lake/plugins/helper"
-	"reflect"
 )
 
 var ConvertUsersMeta = core.SubTaskMeta{
-	Name:             "ConvertUsers",
+	Name:             "convertUsers",
 	EntryPoint:       ConvertUsers,
 	EnabledByDefault: true,
 	Description:      "Convert tool layer table github_users into  domain layer table users",

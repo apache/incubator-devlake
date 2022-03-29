@@ -2,6 +2,8 @@ package tasks
 
 import (
 	"fmt"
+	"reflect"
+
 	"github.com/merico-dev/lake/models/domainlayer"
 	"github.com/merico-dev/lake/models/domainlayer/code"
 	"github.com/merico-dev/lake/models/domainlayer/didgen"
@@ -9,17 +11,16 @@ import (
 	"github.com/merico-dev/lake/plugins/core"
 	"github.com/merico-dev/lake/plugins/github/models"
 	"github.com/merico-dev/lake/plugins/helper"
-	"reflect"
 )
 
-var ConvertReposMeta = core.SubTaskMeta{
-	Name:             "ConvertRepos",
-	EntryPoint:       ConvertRepos,
+var ConvertRepoMeta = core.SubTaskMeta{
+	Name:             "convertRepo",
+	EntryPoint:       ConvertRepo,
 	EnabledByDefault: true,
 	Description:      "Convert tool layer table github_repos into  domain layer table repos and boards",
 }
 
-func ConvertRepos(taskCtx core.SubTaskContext) error {
+func ConvertRepo(taskCtx core.SubTaskContext) error {
 	db := taskCtx.GetDb()
 	data := taskCtx.GetData().(*GithubTaskData)
 	repoId := data.Repo.GithubId

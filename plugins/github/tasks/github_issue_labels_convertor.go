@@ -1,16 +1,17 @@
 package tasks
 
 import (
+	"reflect"
+
 	"github.com/merico-dev/lake/models/domainlayer/didgen"
 	"github.com/merico-dev/lake/models/domainlayer/ticket"
 	"github.com/merico-dev/lake/plugins/core"
 	githubModels "github.com/merico-dev/lake/plugins/github/models"
 	"github.com/merico-dev/lake/plugins/helper"
-	"reflect"
 )
 
 var ConvertIssueLabelsMeta = core.SubTaskMeta{
-	Name:             "ConvertIssueLabels",
+	Name:             "convertIssueLabels",
 	EntryPoint:       ConvertIssueLabels,
 	EnabledByDefault: true,
 	Description:      "Convert tool layer table github_issue_labels into  domain layer table issue_labels",

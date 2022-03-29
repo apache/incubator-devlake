@@ -1,16 +1,17 @@
 package tasks
 
 import (
+	"reflect"
+
 	"github.com/merico-dev/lake/models/domainlayer/code"
 	"github.com/merico-dev/lake/models/domainlayer/didgen"
 	"github.com/merico-dev/lake/plugins/core"
 	githubModels "github.com/merico-dev/lake/plugins/github/models"
 	"github.com/merico-dev/lake/plugins/helper"
-	"reflect"
 )
 
 var ConvertPullRequestLabelsMeta = core.SubTaskMeta{
-	Name:             "ConvertPullRequestLabels",
+	Name:             "convertPullRequestLabels",
 	EntryPoint:       ConvertPullRequestLabels,
 	EnabledByDefault: true,
 	Description:      "Convert tool layer table github_pull_request_labels into  domain layer table pull_request_labels",
