@@ -58,6 +58,7 @@ func SetStruct(S interface{}, Tags ...string) error {
 func setDefaultValue() {
 	v.SetDefault("PORT", ":8080")
 	v.SetDefault("PLUGIN_DIR", "bin/plugins")
+	v.SetDefault("TEMPORAL_TASK_QUEUE", "DEVLAKE_TASK_QUEUE")
 }
 
 func init() {

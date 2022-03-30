@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"strings"
 	"sync"
 
 	"github.com/merico-dev/lake/errors"
@@ -25,7 +26,7 @@ type RunningTask struct {
 
 func taskServiceInit() {
 	// reset task status
-	db.Model(&models.Task{}).Where("status = ?", models.TASK_RUNNING).Update("status", models.TASK_FAILED)
+	db.Model(&models.Task{}).Where("status <> ?", models.TASK_COMPLETED).Update("status", models.TASK_FAILED)
 }
 
 func (rt *RunningTask) Add(taskId uint64, cancel context.CancelFunc) error {
@@ -164,6 +165,33 @@ func CancelTask(taskId uint64) error {
 	}
 	cancel()
 	return nil
+}
+
+func runTasksStandalone(taskIds []uint64) error {
+	results := make(chan error)
+	for _, taskId := range taskIds {
+		taskId := taskId
+		go func() {
+			log.Info("run task in background ", taskId)
+			results <- runTaskStandalone(taskId)
+		}()
+	}
+	errs := make([]string, 0)
+	var err error
+	finished := 0
+	for err = range results {
+		if err != nil {
+			log.Error("pipeline task failed", err)
+			errs = append(errs, err.Error())
+		}
+		if finished == len(taskIds) {
+			close(results)
+		}
+	}
+	if len(errs) > 0 {
+		err = fmt.Errorf(strings.Join(errs, "\n"))
+	}
+	return err
 }
 
 func runTaskStandalone(taskId uint64) error {

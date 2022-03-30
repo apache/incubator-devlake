@@ -31,7 +31,7 @@ func RunTask(
 	if err != nil {
 		return err
 	}
-	if task.Status != models.TASK_CREATED {
+	if task.Status == models.TASK_COMPLETED {
 		return fmt.Errorf("invalid task status")
 	}
 	beganAt := time.Now()

@@ -1,6 +1,7 @@
 package services
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"strings"
@@ -9,11 +10,13 @@ import (
 	"github.com/merico-dev/lake/logger"
 	"github.com/merico-dev/lake/models"
 	"github.com/merico-dev/lake/runner"
+	"github.com/merico-dev/lake/worker/app"
 	"go.temporal.io/sdk/client"
 )
 
 var notificationService *NotificationService
 var temporalClient client.Client
+var log = logger.Global.Nested("pipeline service")
 
 type PipelineQuery struct {
 	Status   string `form:"status"`
@@ -45,6 +48,7 @@ func pipelineServiceInit() {
 
 	// reset pipeline status
 	db.Model(&models.Pipeline{}).Where("status = ?", models.TASK_RUNNING).Update("status", models.TASK_FAILED)
+	db.Model(&models.Pipeline{}).Where("status <> ?", models.TASK_COMPLETED).Update("status", models.TASK_FAILED)
 	err := ReloadBlueprints(cronManager)
 	if err != nil {
 		panic(err)
@@ -67,7 +71,7 @@ func CreatePipeline(newPipeline *models.NewPipeline) (*models.Pipeline, error) {
 	// save pipeline to database
 	err := db.Create(&pipeline).Error
 	if err != nil {
-		logger.Error("create pipline failed", err)
+		log.Error("create pipline failed: %w", err)
 		return nil, errors.InternalError
 	}
 
@@ -80,7 +84,7 @@ func CreatePipeline(newPipeline *models.NewPipeline) (*models.Pipeline, error) {
 			newTask.PipelineCol = j + 1
 			_, err := CreateTask(newTask)
 			if err != nil {
-				logger.Error("create task for pipeline failed", err)
+				log.Error("create task for pipeline failed: %w", err)
 				return nil, err
 			}
 			// sync task state back to pipeline
@@ -88,7 +92,7 @@ func CreatePipeline(newPipeline *models.NewPipeline) (*models.Pipeline, error) {
 		}
 	}
 	if err != nil {
-		logger.Error("save tasks for pipeline failed", err)
+		log.Error("save tasks for pipeline failed: %w", err)
 		return nil, errors.InternalError
 	}
 	if pipeline.TotalTasks == 0 {
@@ -105,7 +109,7 @@ func CreatePipeline(newPipeline *models.NewPipeline) (*models.Pipeline, error) {
 		"tasks":       pipeline.Tasks,
 	}).Error
 	if err != nil {
-		logger.Error("update pipline state failed", err)
+		log.Error("update pipline state failed: %w", err)
 		return nil, errors.InternalError
 	}
 
@@ -154,6 +158,15 @@ func RunPipeline(pipelineId uint64) error {
 		err = runPipelineStandalone(pipelineId)
 	}
 	if err != nil {
+		pipeline := &models.Pipeline{}
+		pipeline.ID = pipelineId
+		dbe := db.Model(pipeline).Updates(map[string]interface{}{
+			"status":  models.TASK_FAILED,
+			"message": err.Error(),
+		}).Error
+		if dbe != nil {
+			log.Error("update pipeline state failed: %w", dbe)
+		}
 		return err
 	}
 
@@ -162,17 +175,42 @@ func RunPipeline(pipelineId uint64) error {
 }
 
 func runPipelineViaTemporal(pipelineId uint64) error {
-	// TODO: send pipeline to temporal
-	return nil
+	workflowOpts := client.StartWorkflowOptions{
+		ID:        fmt.Sprintf("pipeline #%d", pipelineId),
+		TaskQueue: cfg.GetString("TEMPORAL_TASK_QUEUE"),
+	}
+	// send only the very basis data
+	configJson, err := json.Marshal(cfg.AllSettings())
+	if err != nil {
+		return err
+	}
+	log.Info("enqueue pipeline #%d into temporal task queue", pipelineId)
+	workflow, err := temporalClient.ExecuteWorkflow(
+		context.Background(),
+		workflowOpts,
+		app.DevLakePipelineWorkflow,
+		configJson,
+		pipelineId,
+	)
+	if err != nil {
+		log.Error("failed to enqueue pipeline #%d into temporal", pipelineId)
+		return err
+	}
+	err = workflow.Get(context.Background(), nil)
+	if err != nil {
+		log.Info("failed to execute pipeline #%d via temporal: %w", pipelineId, err)
+	}
+	log.Info("pipeline #%d finished by temporal", pipelineId)
+	return err
 }
 
 func runPipelineStandalone(pipelineId uint64) error {
 	return runner.RunPipeline(
 		cfg,
-		logger.Global.Nested(fmt.Sprintf("pipeline #%d", pipelineId)),
+		log.Nested(fmt.Sprintf("pipeline #%d", pipelineId)),
 		db,
 		pipelineId,
-		runTaskStandalone,
+		runTasksStandalone,
 	)
 }
 
@@ -194,7 +232,7 @@ func NotifyExternal(pipelineId uint64) error {
 		Status:     pipeline.Status,
 	})
 	if err != nil {
-		logger.Error("Failed to send notification", err)
+		log.Error("failed to send notification: %w", err)
 		return err
 	}
 	return nil
