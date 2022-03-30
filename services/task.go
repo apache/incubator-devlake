@@ -42,16 +42,14 @@ func (rt *RunningTask) Add(taskId uint64, cancel context.CancelFunc) error {
 }
 
 // less lock times than GetProgressDetail
-func (rt *RunningTask) GetProgressDetailToTasks(Tasks *[]models.Task) error {
+func (rt *RunningTask) GetProgressDetailToTasks(tasks []models.Task) error {
 	rt.mu.Lock()
 	defer rt.mu.Unlock()
 
-	for index, task := range *Tasks {
+	for index, task := range tasks {
 		taskId := task.ID
 		if task, ok := rt.tasks[taskId]; ok {
-			// use copy for readonly
-			progressDetail := *(task.ProgressDetail)
-			(*Tasks)[index].ProgressDetail = &progressDetail
+			tasks[index].ProgressDetail = task.ProgressDetail
 		}
 	}
 
@@ -63,9 +61,7 @@ func (rt *RunningTask) GetProgressDetail(taskId uint64) *models.TaskProgressDeta
 	defer rt.mu.Unlock()
 
 	if task, ok := rt.tasks[taskId]; ok {
-		// use copy for readonly
-		progressDetail := *(task.ProgressDetail)
-		return &progressDetail
+		return task.ProgressDetail
 	}
 	return nil
 }
@@ -147,7 +143,7 @@ func GetTasks(query *TaskQuery) ([]models.Task, int64, error) {
 		return nil, count, err
 	}
 
-	runningTasks.GetProgressDetailToTasks(&tasks)
+	runningTasks.GetProgressDetailToTasks(tasks)
 
 	return tasks, count, nil
 }
