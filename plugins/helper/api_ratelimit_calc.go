@@ -34,7 +34,16 @@ func (c *ApiRateLimitCalculator) Calculate(apiClient *ApiClient) (int, time.Dura
 			if err != nil {
 				continue
 			}
-			return c.DynamicRateLimit(res)
+			requests, duration, err := c.DynamicRateLimit(res)
+			if err != nil {
+				return requests, duration, err
+			}
+
+			if duration == 0 {
+				return c.GlobalRateLimitPerHour, 1 * time.Hour, nil
+			}
+
+			return requests, duration, err
 		}
 	}
 
