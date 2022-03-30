@@ -100,6 +100,7 @@ func MigrateDb(db *gorm.DB) error {
 		&crossdomain.BoardRepo{},
 		&crossdomain.PullRequestIssue{},
 		&crossdomain.IssueCommit{},
+		&crossdomain.IssueRepoCommit{},
 		&crossdomain.RefsIssuesDiffs{},
 		&code.RefsPrCherrypick{},
 	)

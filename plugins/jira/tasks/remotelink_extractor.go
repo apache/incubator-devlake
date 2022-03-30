@@ -86,6 +86,7 @@ func ExtractRemotelinks(taskCtx core.SubTaskContext) error {
 						SourceId:  sourceId,
 						IssueId:   remotelink.IssueId,
 						CommitSha: groups[1],
+						CommitUrl: remotelink.Url,
 					}
 					result = append(result, issueCommit)
 				}
