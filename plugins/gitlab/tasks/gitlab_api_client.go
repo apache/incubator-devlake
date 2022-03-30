@@ -48,7 +48,7 @@ func NewGitlabApiClient(taskCtx core.TaskContext) (*helper.ApiAsyncClient, error
 		DynamicRateLimit: func(res *http.Response) (int, time.Duration, error) {
 			rateLimitHeader := res.Header.Get("RateLimit-Limit")
 			if rateLimitHeader == "" {
-				// unlimited
+				// use default
 				return 0, 0, nil
 			}
 			rateLimit, err := strconv.Atoi(rateLimitHeader)
