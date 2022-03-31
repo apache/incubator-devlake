@@ -38,7 +38,7 @@ please use the Raw JSON API to manually initiate a run using **cURL** or graphic
           "projectPath": "/Users/abeizn/demoapp",
           "projectName": "demoapp",
           "projectTarget": "dev",
-          "selectedModels": ["my_fisrt_dbt_model","my_second_dbt_model"]
+          "selectedModels": ["my_first_dbt_model","my_second_dbt_model"]
       }
     }
   ]

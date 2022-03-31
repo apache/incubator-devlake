@@ -2,7 +2,7 @@ package tasks
 
 import (
 	"bufio"
-	"io"
+	"fmt"
 	"os"
 	"os/exec"
 	"strconv"
@@ -23,6 +23,10 @@ func DbtConverter(taskCtx core.SubTaskContext) error {
 
 	dbUrl := taskCtx.GetConfig("DB_URL")
 	dbSlice := strings.FieldsFunc(dbUrl, func(r rune) bool { return strings.ContainsRune(":@()/?", r) })
+	if len(dbSlice) < 6 {
+		return fmt.Errorf("DB_URL parsing error")
+	}
+
 	dbUsername := dbSlice[0]
 	dbPassword := dbSlice[1]
 	dbServer := dbSlice[3]
@@ -49,18 +53,16 @@ func DbtConverter(taskCtx core.SubTaskContext) error {
 		return err
 	}
 	cmd.Start()
-	reader := bufio.NewReader(stdout)
-	for {
 
-		line, err := reader.ReadString('\n')
-		if err != nil || io.EOF == err {
-			break
-		}
-		substr1 := "of"
-		substr2 := "OK"
-		if strings.Contains(line, substr1) && strings.Contains(line, substr2) {
+	scanner := bufio.NewScanner(stdout)
+	for scanner.Scan() {
+		line := scanner.Text()
+		if strings.Contains(line, "of") && strings.Contains(line, "OK") {
 			taskCtx.IncProgress(1)
 		}
+	}
+	if err := scanner.Err(); err != nil {
+		return err
 	}
 
 	return nil

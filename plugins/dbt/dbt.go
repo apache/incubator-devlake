@@ -72,9 +72,9 @@ func main() {
 
 	dbtCmd.Run = func(cmd *cobra.Command, args []string) {
 		runner.DirectRun(cmd, args, PluginEntry, map[string]interface{}{
-			"projectPath":    projectPath,
-			"projectName":    projectName,
-			"projectTarget":  projectTarget,
+			"projectPath":    *projectPath,
+			"projectName":    *projectName,
+			"projectTarget":  *projectTarget,
 			"selectedModels": *selectedModels,
 		})
 	}
