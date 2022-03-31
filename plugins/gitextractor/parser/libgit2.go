@@ -156,38 +156,38 @@ func (l *LibGit2) run(ctx context.Context, repo *git.Repository, repoId string) 
 			if err != nil {
 				continue
 			}
-			commitFile := new(code.CommitFile)
-			err = diff.ForEach(func(file git.DiffDelta, progress float64) (
-				git.DiffForEachHunkCallback, error) {
-				if commitFile.CommitSha != "" {
-					err = l.store.CommitFiles(commitFile)
-					if err != nil {
-						logger.Error("CommitFiles error:", err)
-					}
-				}
-				commitFile.CommitSha = id.String()
-				commitFile.FilePath = file.NewFile.Path
-				return func(hunk git.DiffHunk) (git.DiffForEachLineCallback, error) {
-					return func(line git.DiffLine) error {
-						if line.Origin == git.DiffLineAddition {
-							commitFile.Additions += line.NumLines
-						}
-						if line.Origin == git.DiffLineDeletion {
-							commitFile.Deletions += line.NumLines
-						}
-						return nil
-					}, nil
-				}, nil
-			}, git.DiffDetailLines)
-			if err != nil {
-				return err
-			}
-			if commitFile.CommitSha != "" {
-				err = l.store.CommitFiles(commitFile)
-				if err != nil {
-					logger.Error("CommitFiles error:", err)
-				}
-			}
+			//commitFile := new(code.CommitFile)
+			//err = diff.ForEach(func(file git.DiffDelta, progress float64) (
+			//	git.DiffForEachHunkCallback, error) {
+			//	if commitFile.CommitSha != "" {
+			//		err = l.store.CommitFiles(commitFile)
+			//		if err != nil {
+			//			logger.Error("CommitFiles error:", err)
+			//		}
+			//	}
+			//	commitFile.CommitSha = id.String()
+			//	commitFile.FilePath = file.NewFile.Path
+			//	return func(hunk git.DiffHunk) (git.DiffForEachLineCallback, error) {
+			//		return func(line git.DiffLine) error {
+			//			if line.Origin == git.DiffLineAddition {
+			//				commitFile.Additions += line.NumLines
+			//			}
+			//			if line.Origin == git.DiffLineDeletion {
+			//				commitFile.Deletions += line.NumLines
+			//			}
+			//			return nil
+			//		}, nil
+			//	}, nil
+			//}, git.DiffDetailLines)
+			//if err != nil {
+			//	return err
+			//}
+			//if commitFile.CommitSha != "" {
+			//	err = l.store.CommitFiles(commitFile)
+			//	if err != nil {
+			//		logger.Error("CommitFiles error:", err)
+			//	}
+			//}
 			stats, err := diff.Stats()
 			if err != nil {
 				continue
