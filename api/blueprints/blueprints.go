@@ -8,7 +8,6 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/gin-gonic/gin/binding"
-	"github.com/merico-dev/lake/logger"
 	"github.com/merico-dev/lake/models"
 	"github.com/merico-dev/lake/services"
 )
@@ -18,7 +17,6 @@ func Post(c *gin.Context) {
 
 	err := c.MustBindWith(inputBlueprint, binding.JSON)
 	if err != nil {
-		logger.Error("post /blueprint failed", err)
 		shared.ApiOutputError(c, err, http.StatusBadRequest)
 		return
 	}
@@ -75,7 +73,7 @@ func Delete(c *gin.Context) {
 	}
 }
 
-func PUT(c *gin.Context) {
+func Put(c *gin.Context) {
 	blueprintId := c.Param("blueprintId")
 	id, err := strconv.ParseUint(blueprintId, 10, 64)
 	if err != nil {
@@ -85,7 +83,6 @@ func PUT(c *gin.Context) {
 	editBlueprint := &models.EditBlueprint{}
 	err = c.MustBindWith(editBlueprint, binding.JSON)
 	if err != nil {
-		logger.Error("patch /blueprints/:blueprintId failed", err)
 		shared.ApiOutputError(c, err, http.StatusBadRequest)
 		fmt.Println(err)
 		return

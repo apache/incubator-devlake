@@ -40,7 +40,6 @@ func init() {
 		&models.Notification{},
 		&models.Pipeline{},
 		&models.Blueprint{},
-		&models.CronEntry{},
 	)
 	if err != nil {
 		panic(err)

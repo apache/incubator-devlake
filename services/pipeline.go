@@ -45,7 +45,7 @@ func pipelineServiceInit() {
 
 	// reset pipeline status
 	db.Model(&models.Pipeline{}).Where("status = ?", models.TASK_RUNNING).Update("status", models.TASK_FAILED)
-	err := RunBlueprints(cronManager)
+	err := ReloadBlueprints(cronManager)
 	if err != nil {
 		panic(err)
 	}

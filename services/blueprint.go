@@ -33,9 +33,8 @@ func CreateBlueprint(newBlueprint *models.InputBlueprint) (*models.Blueprint, er
 		logger.Error("create pipline failed", err)
 		return nil, errors.InternalError
 	}
-	err = ChangeBlueprints(cronManager, &blueprint)
+	err = ReloadBlueprints(cronManager)
 	if err != nil {
-		logger.Error("create cron job failed", err)
 		return nil, errors.InternalError
 	}
 
@@ -91,12 +90,10 @@ func ModifyBlueprint(newBlueprint *models.EditBlueprint) (*models.Blueprint, err
 	err = db.Model(&models.Blueprint{}).
 		Clauses(clause.OnConflict{UpdateAll: true}).Create(&blueprint).Error
 	if err != nil {
-		logger.Error("modify blueprint failed", err)
 		return nil, errors.InternalError
 	}
-	err = ChangeBlueprints(cronManager, &blueprint)
+	err = ReloadBlueprints(cronManager)
 	if err != nil {
-		logger.Error("modify blueprint failed", err)
 		return nil, errors.InternalError
 	}
 	return &blueprint, nil
@@ -105,23 +102,26 @@ func ModifyBlueprint(newBlueprint *models.EditBlueprint) (*models.Blueprint, err
 func DeleteBlueprint(id uint64) error {
 	err := db.Delete(&models.Blueprint{}, "id = ?", id).Error
 	if err != nil {
-		logger.Error("create pipline failed", err)
+		return errors.InternalError
+	}
+	err = ReloadBlueprints(cronManager)
+	if err != nil {
 		return errors.InternalError
 	}
 	return nil
 }
 
-func RunBlueprints(c *cron.Cron) error {
+func ReloadBlueprints(c *cron.Cron) error {
 	blueprints := make([]*models.Blueprint, 0)
 	err := db.Model(&models.Blueprint{}).Where("enable = ?", true).Find(&blueprints).Error
 	if err != nil {
 		panic(err)
 	}
 	cLog := logger.Global.Nested("blueprint")
-	err = db.Delete(&models.CronEntry{}, "1=1").Error
-	if err != nil {
-		panic(err)
+	for _, e := range c.Entries() {
+		c.Remove(e.ID)
 	}
+	c.Stop()
 	for _, pp := range blueprints {
 		var tasks [][]*models.NewTask
 		err = json.Unmarshal(pp.Tasks, &tasks)
@@ -129,12 +129,11 @@ func RunBlueprints(c *cron.Cron) error {
 			cLog.Error("created cron job failed: %s", err)
 			return err
 		}
-		//
-		newPipeline := models.NewPipeline{}
-		newPipeline.Tasks = tasks
-		newPipeline.Name = pp.Name
-		newPipeline.BlueprintId = pp.ID
-		entryId, err := c.AddFunc(pp.CronConfig, func() {
+		_, err := c.AddFunc(pp.CronConfig, func() {
+			newPipeline := models.NewPipeline{}
+			newPipeline.Tasks = tasks
+			newPipeline.Name = pp.Name
+			newPipeline.BlueprintId = pp.ID
 			pipeline, err := CreatePipeline(&newPipeline)
 			// Return all created tasks to the User
 			if err != nil {
@@ -152,75 +151,9 @@ func RunBlueprints(c *cron.Cron) error {
 			cLog.Error("created cron job failed: %s", err)
 			return err
 		}
-		err = db.Create(&models.CronEntry{
-			EntryId:     entryId,
-			Enable:      true,
-			BlueprintId: pp.ID,
-		}).Error
-		if err != nil {
-			cLog.Error("created cron job failed: %s", err)
-			return err
-		}
 	}
 	if len(blueprints) > 0 {
 		c.Start()
-	}
-	return nil
-}
-
-func ChangeBlueprints(c *cron.Cron, blueprint *models.Blueprint) error {
-	cronEntry := models.CronEntry{}
-	err := db.Model(&models.CronEntry{}).Where("blueprint_id = ?", blueprint.ID).Find(&cronEntry).Error
-	if err != nil {
-		return err
-	}
-	cLog := logger.Global.Nested("blueprint")
-	if cronEntry.Enable {
-		c.Remove(cronEntry.EntryId)
-		cronEntry.Enable = false
-		err = db.Model(&cronEntry).Update("enable", false).Error
-		if err != nil {
-			return err
-		}
-	}
-	if !blueprint.Enable {
-		return nil
-	}
-	var tasks [][]*models.NewTask
-	err = json.Unmarshal(blueprint.Tasks, &tasks)
-	if err != nil {
-		cLog.Error("created cron job failed: %s", err)
-		return err
-	}
-	newPipeline := models.NewPipeline{}
-	newPipeline.Tasks = tasks
-	newPipeline.Name = blueprint.Name
-	newPipeline.BlueprintId = blueprint.ID
-	entryId, err := c.AddFunc(blueprint.CronConfig, func() {
-		pipeline, err := CreatePipeline(&newPipeline)
-		// Return all created tasks to the User
-		if err != nil {
-			cLog.Error("created cron job failed: %s", err)
-			return
-		}
-		err = RunPipeline(pipeline.ID)
-		if err != nil {
-			cLog.Error("run cron job failed: %s", err)
-			return
-		}
-		cLog.Info("Run new cron job successfully")
-	})
-	if err != nil {
-		return err
-	}
-
-	err = db.Model(&models.CronEntry{}).Clauses(clause.OnConflict{
-		UpdateAll: true,
-	}).Create(&models.CronEntry{
-		EntryId: entryId, Enable: true, BlueprintId: blueprint.ID,
-	}).Error
-	if err != nil {
-		return err
 	}
 	return nil
 }
