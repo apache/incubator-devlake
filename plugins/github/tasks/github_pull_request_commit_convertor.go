@@ -37,7 +37,7 @@ func PrCommitConvertor(ctx context.Context, repoId int) (err error) {
 			return err
 		}
 		if pullRequestId != githubPullRequestCommit.PullRequestId {
-			domainPullRequestId = domainIdGenerator.Generate(pullRequestId)
+			domainPullRequestId = domainIdGenerator.Generate(githubPullRequestCommit.PullRequestId)
 			err := lakeModels.Db.Where("pull_request_id = ?",
 				domainPullRequestId).Delete(&code.PullRequestCommit{}).Error
 			if err != nil {
@@ -45,7 +45,6 @@ func PrCommitConvertor(ctx context.Context, repoId int) (err error) {
 			}
 			pullRequestId = githubPullRequestCommit.PullRequestId
 		}
-
 		if err != nil {
 			return err
 		}
