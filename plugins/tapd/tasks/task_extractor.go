@@ -7,20 +7,20 @@ import (
 	"github.com/merico-dev/lake/plugins/tapd/models"
 )
 
-var _ core.SubTaskEntryPoint = ExtractUsers
+var _ core.SubTaskEntryPoint = ExtractTasks
 
-var ExtractUserMeta = core.SubTaskMeta{
-	Name:             "extractUsers",
-	EntryPoint:       ExtractUsers,
+var ExtractTaskMeta = core.SubTaskMeta{
+	Name:             "extractTasks",
+	EntryPoint:       ExtractTasks,
 	EnabledByDefault: true,
-	Description:      "Extract raw workspace data into tool layer table tapd_users",
+	Description:      "Extract raw workspace data into tool layer table tapd_iterations",
 }
 
-type TapdUserRes struct {
-	UserWorkspace models.TapdUserApiRes
+type TapdTaskRes struct {
+	Task models.TapdTaskApiRes
 }
 
-func ExtractUsers(taskCtx core.SubTaskContext) error {
+func ExtractTasks(taskCtx core.SubTaskContext) error {
 	data := taskCtx.GetData().(*TapdTaskData)
 	extractor, err := helper.NewApiExtractor(helper.ApiExtractorArgs{
 		RawDataSubTaskArgs: helper.RawDataSubTaskArgs{
@@ -30,21 +30,24 @@ func ExtractUsers(taskCtx core.SubTaskContext) error {
 				//CompanyId: data.Options.CompanyId,
 				WorkspaceId: data.Options.WorkspaceId,
 			},
-			Table: RAW_USER_TABLE,
+			Table: RAW_TASK_TABLE,
 		},
 		Extract: func(row *helper.RawData) ([]interface{}, error) {
-			var userRes TapdUserRes
-			err := json.Unmarshal(row.Data, &userRes)
+			var taskBody TapdTaskRes
+			err := json.Unmarshal(row.Data, &taskBody)
 			if err != nil {
 				return nil, err
 			}
-			toolL := models.TapdUser{
-				SourceId:    data.Source.ID,
-				WorkspaceId: data.Options.WorkspaceId,
-				Name:        userRes.UserWorkspace.User,
+			taskRes := taskBody.Task
+
+			i, err := ResToDb(&taskRes, &models.TapdTask{})
+			if err != nil {
+				return nil, err
 			}
+			task := i.(*models.TapdTask)
+			task.SourceId = data.Source.ID
 			return []interface{}{
-				&toolL,
+				task,
 			}, nil
 		},
 	})

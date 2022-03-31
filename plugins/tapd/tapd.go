@@ -27,9 +27,11 @@ func (plugin Tapd) Init(config *viper.Viper, logger core.Logger, db *gorm.DB) er
 	return db.AutoMigrate(
 		&models.TapdSource{},
 		&models.TapdWorkspace{},
+		&models.TapdUser{},
 		&models.TapdIteration{},
 		&models.TapdStory{},
 		&models.TapdBug{},
+		&models.TapdTask{},
 	)
 }
 
@@ -42,15 +44,21 @@ func (plugin Tapd) SubTaskMetas() []core.SubTaskMeta {
 		//tasks.CollectWorkspaceMeta,
 		//tasks.ExtractWorkspaceMeta,
 		//tasks.ConvertWorkspaceMeta,
+		tasks.CollectUserMeta,
+		tasks.ExtractUserMeta,
+		tasks.ConvertUserMeta,
 		//tasks.CollectIterationMeta,
 		//tasks.ExtractIterationMeta,
 		//tasks.ConvertIterationMeta,
-		//tasks.CollectStoryMeta,
+		tasks.CollectStoryMeta,
 		tasks.ExtractStoryMeta,
 		tasks.ConvertStoryMeta,
 		tasks.CollectBugMeta,
 		tasks.ExtractBugMeta,
 		tasks.ConvertBugMeta,
+		tasks.CollectTaskMeta,
+		tasks.ExtractTaskMeta,
+		tasks.ConvertTaskMeta,
 	}
 }
 

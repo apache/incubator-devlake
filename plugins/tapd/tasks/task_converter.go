@@ -12,13 +12,13 @@ import (
 	"strconv"
 )
 
-func ConvertBug(taskCtx core.SubTaskContext) error {
+func ConvertTask(taskCtx core.SubTaskContext) error {
 	data := taskCtx.GetData().(*TapdTaskData)
 	logger := taskCtx.GetLogger()
 	db := taskCtx.GetDb()
 	logger.Info("convert board:%d", data.Options.WorkspaceId)
-	issueIdGen := didgen.NewDomainIdGenerator(&models.TapdBug{})
-	cursor, err := db.Model(&models.TapdBug{}).Where("source_id = ? AND workspace_id = ?", data.Source.ID, data.Options.WorkspaceId).Rows()
+	issueIdGen := didgen.NewDomainIdGenerator(&models.TapdTask{})
+	cursor, err := db.Model(&models.TapdTask{}).Where("source_id = ? AND workspace_id = ?", data.Source.ID, data.Options.WorkspaceId).Rows()
 	if err != nil {
 		return err
 	}
@@ -31,39 +31,37 @@ func ConvertBug(taskCtx core.SubTaskContext) error {
 				//CompanyId:   data.Source.CompanyId,
 				WorkspaceId: data.Options.WorkspaceId,
 			},
-			Table: RAW_BUG_TABLE,
+			Table: RAW_TASK_TABLE,
 		},
-		InputRowType: reflect.TypeOf(models.TapdBug{}),
+		InputRowType: reflect.TypeOf(models.TapdTask{}),
 		Input:        cursor,
 		Convert: func(inputRow interface{}) ([]interface{}, error) {
-			toolL := inputRow.(*models.TapdBug)
-			domainL := &ticket.Issue{
+			toolL := inputRow.(*models.TapdTask)
+			issue := &ticket.Issue{
 				DomainEntity: domainlayer.DomainEntity{
 					Id: issueIdGen.Generate(toolL.SourceId, toolL.ID),
 				},
-				Url:            fmt.Sprintf("https://www.tapd.cn/%d/prong/Bugs/view/%d", toolL.WorkspaceID, toolL.ID),
+				Url:            fmt.Sprintf("https://www.tapd.cn/%d/prong/Tasks/view/%d", toolL.WorkspaceID, toolL.ID),
 				Key:            strconv.FormatUint(toolL.ID, 10),
-				Title:          toolL.Title,
-				Summary:        toolL.Title,
+				Title:          toolL.Name,
+				Summary:        toolL.Description,
 				EpicKey:        toolL.EpicKey,
-				Type:           "BUG",
+				Type:           "TASK",
 				Status:         toolL.Status,
-				ResolutionDate: toolL.Resolved,
+				ResolutionDate: toolL.Completed,
 				CreatedDate:    toolL.Created,
 				UpdatedDate:    toolL.Modified,
-				ParentIssueId:  issueIdGen.Generate(toolL.SourceId, toolL.IssueID),
+				ParentIssueId:  issueIdGen.Generate(toolL.SourceId, toolL.StoryID),
 				Priority:       toolL.Priority,
-				CreatorId:      UserIdGen.Generate(data.Options.SourceId, toolL.WorkspaceID, toolL.Reporter),
-				AssigneeId:     UserIdGen.Generate(data.Options.SourceId, toolL.WorkspaceID, toolL.De),
-				AssigneeName:   toolL.De,
-				Severity:       toolL.Severity,
-				Component:      toolL.Feature, // todo not sure about this
+				CreatorId:      UserIdGen.Generate(data.Options.SourceId, toolL.WorkspaceID, toolL.Creator),
+				AssigneeId:     UserIdGen.Generate(data.Options.SourceId, toolL.WorkspaceID, toolL.Owner),
+				AssigneeName:   toolL.Owner,
 			}
-			if domainL.ResolutionDate != nil && domainL.CreatedDate != nil {
-				domainL.TimeSpentMinutes = int64(domainL.ResolutionDate.Minute() - domainL.CreatedDate.Minute())
+			if issue.ResolutionDate != nil && issue.CreatedDate != nil {
+				issue.TimeSpentMinutes = int64(issue.ResolutionDate.Minute() - issue.CreatedDate.Minute())
 			}
 			return []interface{}{
-				domainL,
+				issue,
 			}, nil
 		},
 	})
@@ -74,9 +72,9 @@ func ConvertBug(taskCtx core.SubTaskContext) error {
 	return converter.Execute()
 }
 
-var ConvertBugMeta = core.SubTaskMeta{
-	Name:             "convertBug",
-	EntryPoint:       ConvertBug,
+var ConvertTaskMeta = core.SubTaskMeta{
+	Name:             "convertTask",
+	EntryPoint:       ConvertTask,
 	EnabledByDefault: true,
-	Description:      "convert Tapd Bug",
+	Description:      "convert Tapd Task",
 }

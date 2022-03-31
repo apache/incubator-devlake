@@ -31,7 +31,7 @@ func ConvertIteration(taskCtx core.SubTaskContext) error {
 				//CompanyId:   data.Source.CompanyId,
 				WorkspaceId: data.Options.WorkspaceId,
 			},
-			Table: RAW_WORKSPACE_TABLE,
+			Table: RAW_ITERATION_TABLE,
 		},
 		InputRowType: reflect.TypeOf(models.TapdIteration{}),
 		Input:        cursor,
