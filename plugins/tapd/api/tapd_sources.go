@@ -351,7 +351,7 @@ func GetBoardsBySourceId(input *core.ApiResourceInput) (*core.ApiResourceOutput,
 	if err != nil {
 		return nil, fmt.Errorf("invalid sourceId")
 	}
-	var tapdWorkspaces []models.TapdWorkspace
+	var tapdWorkspaces []models.TapdWorkspaceApiRes
 	err = db.Where("source_Id = ?", tapdSourceId).Find(&tapdWorkspaces).Error
 	if err != nil {
 		return nil, err

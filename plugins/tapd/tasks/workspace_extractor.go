@@ -5,6 +5,8 @@ import (
 	"github.com/merico-dev/lake/plugins/core"
 	"github.com/merico-dev/lake/plugins/helper"
 	"github.com/merico-dev/lake/plugins/tapd/models"
+	"strconv"
+	"time"
 )
 
 var _ core.SubTaskEntryPoint = ExtractWorkspaces
@@ -17,7 +19,7 @@ var ExtractWorkspacesMeta = core.SubTaskMeta{
 }
 
 type TapdWorkspaceRes struct {
-	Workspace models.TapdWorkspace
+	Workspace models.TapdWorkspaceApiRes
 }
 
 func ExtractWorkspaces(taskCtx core.SubTaskContext) error {
@@ -38,10 +40,36 @@ func ExtractWorkspaces(taskCtx core.SubTaskContext) error {
 			if err != nil {
 				return nil, err
 			}
-			results := make([]interface{}, 0, 1)
-			workspaceRes.Workspace.SourceId = data.Source.ID
-			results = append(results, &workspaceRes.Workspace)
-			return results, nil
+			idInt, err := strconv.Atoi(workspaceRes.Workspace.ID)
+			if err != nil {
+				return nil, err
+			}
+			tmp := workspaceRes.Workspace
+			start, err := time.Parse(shortForm, tmp.BeginDate)
+			if err != nil {
+				return nil, err
+			}
+			end, err := time.Parse(shortForm, tmp.EndDate)
+			if err != nil {
+				return nil, err
+			}
+			workSpace := &models.TapdWorkspace{
+				SourceId:    data.Source.ID,
+				ID:          uint64(idInt),
+				Name:        tmp.Name,
+				PrettyName:  tmp.PrettyName,
+				Category:    tmp.Category,
+				Status:      tmp.Status,
+				Description: tmp.Description,
+				BeginDate:   &start,
+				EndDate:     &end,
+				ExternalOn:  tmp.ExternalOn,
+				Creator:     tmp.Creator,
+				Created:     tmp.Created,
+			}
+			return []interface{}{
+				workSpace,
+			}, nil
 		},
 	})
 

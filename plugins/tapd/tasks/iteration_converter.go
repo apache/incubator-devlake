@@ -10,7 +10,6 @@ import (
 	"github.com/merico-dev/lake/plugins/tapd/models"
 	"reflect"
 	"strings"
-	"time"
 )
 
 func ConvertIteration(taskCtx core.SubTaskContext) error {
@@ -19,9 +18,6 @@ func ConvertIteration(taskCtx core.SubTaskContext) error {
 	db := taskCtx.GetDb()
 	logger.Info("collect board:%d", data.Options.WorkspaceId)
 	iterIdGen := didgen.NewDomainIdGenerator(&models.TapdIteration{})
-	workspaceIdGen := didgen.NewDomainIdGenerator(&models.TapdWorkspace{})
-	const shortForm = "2006-01-02"
-	const longForm = "2006-01-02 15:04:05"
 	cursor, err := db.Model(&models.TapdIteration{}).Where("source_id = ? AND workspace_id = ?", data.Source.ID, data.Options.WorkspaceId).Rows()
 	if err != nil {
 		return err
@@ -41,21 +37,17 @@ func ConvertIteration(taskCtx core.SubTaskContext) error {
 		Input:        cursor,
 		Convert: func(inputRow interface{}) ([]interface{}, error) {
 			iter := inputRow.(*models.TapdIteration)
-			start, _ := time.Parse(shortForm, iter.Startdate)
-			end, _ := time.Parse(shortForm, iter.Enddate)
 			domainIter := &ticket.Sprint{
 				DomainEntity:  domainlayer.DomainEntity{Id: iterIdGen.Generate(data.Source.ID, iter.ID)},
 				Url:           fmt.Sprintf("https://www.tapd.cn/%s/prong/iterations/view/%s", iter.WorkspaceID, iter.ID),
 				Status:        strings.ToUpper(iter.Status),
 				Name:          iter.Name,
-				StartedDate:   &start,
-				EndedDate:     &end,
-				OriginBoardID: workspaceIdGen.Generate(iter.SourceId, iter.WorkspaceID),
+				StartedDate:   iter.Startdate,
+				EndedDate:     iter.Enddate,
+				OriginBoardID: WorkspaceIdGen.Generate(iter.SourceId, iter.WorkspaceID),
+				CompletedDate: iter.Completed,
 			}
-			if iter.Completed != "" {
-				completed, _ := time.Parse(longForm, iter.Completed)
-				domainIter.CompletedDate = &completed
-			}
+
 			return []interface{}{
 				domainIter,
 			}, nil

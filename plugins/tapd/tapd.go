@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"github.com/merico-dev/lake/models/domainlayer/didgen"
 	"github.com/merico-dev/lake/plugins/core"
 	"github.com/merico-dev/lake/plugins/tapd/api"
 	"github.com/merico-dev/lake/plugins/tapd/models"
@@ -27,6 +28,7 @@ func (plugin Tapd) Init(config *viper.Viper, logger core.Logger, db *gorm.DB) er
 		&models.TapdSource{},
 		&models.TapdWorkspace{},
 		&models.TapdIteration{},
+		&models.TapdStory{},
 	)
 }
 
@@ -42,6 +44,9 @@ func (plugin Tapd) SubTaskMetas() []core.SubTaskMeta {
 		tasks.CollectIterationMeta,
 		tasks.ExtractIterationsMeta,
 		tasks.ConvertIterationMeta,
+		tasks.CollectStoryMeta,
+		tasks.ExtractStoriesMeta,
+		tasks.ConvertStoryMeta,
 	}
 }
 
@@ -77,7 +82,8 @@ func (plugin Tapd) PrepareTaskData(taskCtx core.TaskContext, options map[string]
 		Source:    source,
 		Since:     &since,
 	}
-
+	tasks.UserIdGen = didgen.NewDomainIdGenerator(&models.TapdUser{})
+	tasks.WorkspaceIdGen = didgen.NewDomainIdGenerator(&models.TapdWorkspace{})
 	return taskData, nil
 }
 

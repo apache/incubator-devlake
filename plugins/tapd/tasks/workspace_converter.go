@@ -3,7 +3,6 @@ package tasks
 import (
 	"fmt"
 	"github.com/merico-dev/lake/models/domainlayer"
-	"github.com/merico-dev/lake/models/domainlayer/didgen"
 	"github.com/merico-dev/lake/models/domainlayer/ticket"
 	"github.com/merico-dev/lake/plugins/core"
 	"github.com/merico-dev/lake/plugins/helper"
@@ -16,7 +15,6 @@ func ConvertWorkspace(taskCtx core.SubTaskContext) error {
 	logger := taskCtx.GetLogger()
 	db := taskCtx.GetDb()
 	logger.Info("collect board:%d", data.Options.WorkspaceId)
-	idGen := didgen.NewDomainIdGenerator(&models.TapdWorkspace{})
 	cursor, err := db.Model(&models.TapdWorkspace{}).Where("source_id = ? AND id = ?", data.Source.ID, data.Options.WorkspaceId).Rows()
 	if err != nil {
 		return err
@@ -38,7 +36,7 @@ func ConvertWorkspace(taskCtx core.SubTaskContext) error {
 			workspace := inputRow.(*models.TapdWorkspace)
 			domainBoard := &ticket.Board{
 				DomainEntity: domainlayer.DomainEntity{
-					Id: idGen.Generate(workspace.SourceId, workspace.ID),
+					Id: WorkspaceIdGen.Generate(workspace.SourceId, workspace.ID),
 				},
 				Name: workspace.Name,
 				Url:  fmt.Sprintf("%s/%s", "https://tapd.cn", workspace.ID),
