@@ -117,7 +117,7 @@ func RunBlueprints(c *cron.Cron) error {
 	if err != nil {
 		panic(err)
 	}
-	cLog := logger.Global.Nested("plan")
+	cLog := logger.Global.Nested("blueprint")
 	err = db.Delete(&models.CronEntry{}, "1=1").Error
 	if err != nil {
 		panic(err)
@@ -141,9 +141,12 @@ func RunBlueprints(c *cron.Cron) error {
 				cLog.Error("created cron job failed: %s", err)
 				return
 			}
-			go func() {
-				_ = RunPipeline(pipeline.ID)
-			}()
+			err = RunPipeline(pipeline.ID)
+			if err != nil {
+				cLog.Error("run cron job failed: %s", err)
+				return
+			}
+			cLog.Info("Run new cron job successfully")
 		})
 		if err != nil {
 			cLog.Error("created cron job failed: %s", err)
@@ -171,7 +174,7 @@ func ChangeBlueprints(c *cron.Cron, blueprint *models.Blueprint) error {
 	if err != nil {
 		return err
 	}
-	cLog := logger.Global.Nested("plan")
+	cLog := logger.Global.Nested("blueprint")
 	if cronEntry.Enable {
 		c.Remove(cronEntry.EntryId)
 		cronEntry.Enable = false
@@ -200,9 +203,12 @@ func ChangeBlueprints(c *cron.Cron, blueprint *models.Blueprint) error {
 			cLog.Error("created cron job failed: %s", err)
 			return
 		}
-		go func() {
-			_ = RunPipeline(pipeline.ID)
-		}()
+		err = RunPipeline(pipeline.ID)
+		if err != nil {
+			cLog.Error("run cron job failed: %s", err)
+			return
+		}
+		cLog.Info("Run new cron job successfully")
 	})
 	if err != nil {
 		return err
