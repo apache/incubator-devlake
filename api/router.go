@@ -2,6 +2,7 @@ package api
 
 import (
 	"fmt"
+	"github.com/merico-dev/lake/api/blueprints"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -16,9 +17,14 @@ import (
 
 func RegisterRouter(r *gin.Engine) {
 	r.GET("/pipelines", pipelines.Index)
+	r.GET("/blueprints", blueprints.Index)
 	r.GET("/pipelines/:pipelineId", pipelines.Get)
+	r.GET("/blueprints/:blueprintId", blueprints.Get)
 	r.POST("/pipelines", pipelines.Post)
+	r.POST("/blueprints", blueprints.Post)
 	r.DELETE("/pipelines/:pipelineId", pipelines.Delete)
+	r.DELETE("/blueprints/:blueprintId", blueprints.Delete)
+	r.PUT("/blueprints/:blueprintId", blueprints.Put)
 	r.GET("/pipelines/:pipelineId/tasks", task.Index)
 	r.GET("/ping", ping.Get)
 	r.POST("/push/:tableName", push.Post)

@@ -19,7 +19,7 @@ type PipelineQuery struct {
 	Status   string `form:"status"`
 	Pending  int    `form:"pending"`
 	Page     int    `form:"page"`
-	PageSize int    `form:"page_size"`
+	PageSize int    `form:"pageSize"`
 }
 
 func pipelineServiceInit() {
@@ -45,6 +45,10 @@ func pipelineServiceInit() {
 
 	// reset pipeline status
 	db.Model(&models.Pipeline{}).Where("status = ?", models.TASK_RUNNING).Update("status", models.TASK_FAILED)
+	err := ReloadBlueprints(cronManager)
+	if err != nil {
+		panic(err)
+	}
 }
 
 func CreatePipeline(newPipeline *models.NewPipeline) (*models.Pipeline, error) {
@@ -55,6 +59,9 @@ func CreatePipeline(newPipeline *models.NewPipeline) (*models.Pipeline, error) {
 		Status:        models.TASK_CREATED,
 		Message:       "",
 		SpentSeconds:  0,
+	}
+	if newPipeline.BlueprintId != 0 {
+		pipeline.BlueprintId = newPipeline.BlueprintId
 	}
 
 	// save pipeline to database
