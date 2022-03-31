@@ -7,20 +7,20 @@ import (
 	"github.com/merico-dev/lake/plugins/tapd/models"
 )
 
-var _ core.SubTaskEntryPoint = ExtractWorkspaces
+var _ core.SubTaskEntryPoint = ExtractIterations
 
-var ExtractWorkspacesMeta = core.SubTaskMeta{
-	Name:             "extractWorkspaces",
-	EntryPoint:       ExtractWorkspaces,
+var ExtractIterationsMeta = core.SubTaskMeta{
+	Name:             "extractIterations",
+	EntryPoint:       ExtractIterations,
 	EnabledByDefault: true,
-	Description:      "Extract raw workspace data into tool layer table tapd_workspaces",
+	Description:      "Extract raw workspace data into tool layer table tapd_iterations",
 }
 
-type TapdWorkspaceRes struct {
-	Workspace models.TapdWorkspace
+type TapdIterationRes struct {
+	Iteration models.TapdIteration
 }
 
-func ExtractWorkspaces(taskCtx core.SubTaskContext) error {
+func ExtractIterations(taskCtx core.SubTaskContext) error {
 	data := taskCtx.GetData().(*TapdTaskData)
 	extractor, err := helper.NewApiExtractor(helper.ApiExtractorArgs{
 		RawDataSubTaskArgs: helper.RawDataSubTaskArgs{
@@ -30,17 +30,17 @@ func ExtractWorkspaces(taskCtx core.SubTaskContext) error {
 				//CompanyId: data.Options.CompanyId,
 				WorkspaceId: data.Options.WorkspaceId,
 			},
-			Table: RAW_WORKSPACE_TABLE,
+			Table: RAW_ITERATION_TABLE,
 		},
 		Extract: func(row *helper.RawData) ([]interface{}, error) {
-			var workspaceRes TapdWorkspaceRes
-			err := json.Unmarshal(row.Data, &workspaceRes)
+			var iterRes TapdIterationRes
+			err := json.Unmarshal(row.Data, &iterRes)
 			if err != nil {
 				return nil, err
 			}
 			results := make([]interface{}, 0, 1)
-			workspaceRes.Workspace.SourceId = data.Source.ID
-			results = append(results, &workspaceRes.Workspace)
+			iterRes.Iteration.SourceId = data.Source.ID
+			results = append(results, &iterRes.Iteration)
 			return results, nil
 		},
 	})

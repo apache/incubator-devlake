@@ -6,18 +6,17 @@ import (
 )
 
 type TapdWorkspace struct {
-	ID          uint64     `gorm:"primaryKey" json:"id"`
+	SourceId    uint64     `gorm:"primaryKey;type:INT(10) UNSIGNED NOT NULL"`
+	ID          string     `gorm:"primaryKey;type:varchar(255)" json:"id"`
 	Name        string     `json:"name"`
-	PrettyName  uint64     `json:"pretty_name"`
-	Description string     `json:"description"`
+	PrettyName  string     `json:"pretty_name"`
+	Category    string     `json:"category"`
 	Status      string     `json:"status"`
-	ParentID    uint64     `json:"parent_id"`
-	Secrecy     string     `json:"secrecy"`
-	Created     string     `json:"created"`
-	CreatorID   uint64     `json:"creator_id"`
+	Description string     `json:"description"`
+	BeginDate   string     `json:"begin_date"`
+	EndDate     string     `json:"end_date"`
+	ExternalOn  string     `json:"external_on"`
 	Creator     string     `json:"creator"`
-	BeginDate   *time.Time `json:"begin_date"`
-	EndDate     *time.Time `json:"end_date"`
-	MemberCount uint64     `json:"member_count"`
+	Created     *time.Time `json:"created"`
 	common.NoPKModel
 }

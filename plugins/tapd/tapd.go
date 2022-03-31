@@ -26,6 +26,7 @@ func (plugin Tapd) Init(config *viper.Viper, logger core.Logger, db *gorm.DB) er
 	return db.AutoMigrate(
 		&models.TapdSource{},
 		&models.TapdWorkspace{},
+		&models.TapdIteration{},
 	)
 }
 
@@ -35,8 +36,12 @@ func (plugin Tapd) Description() string {
 
 func (plugin Tapd) SubTaskMetas() []core.SubTaskMeta {
 	return []core.SubTaskMeta{
-		//tasks.CollectWorkspaceMeta,
+		tasks.CollectWorkspaceMeta,
 		tasks.ExtractWorkspacesMeta,
+		tasks.ConvertWorkspaceMeta,
+		tasks.CollectIterationMeta,
+		tasks.ExtractIterationsMeta,
+		tasks.ConvertIterationMeta,
 	}
 }
 
@@ -110,14 +115,14 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	err = cmd.MarkFlagRequired("company")
-	if err != nil {
-		panic(err)
-	}
-	//err = cmd.MarkFlagRequired("workspace")
+	//err = cmd.MarkFlagRequired("company")
 	//if err != nil {
 	//	panic(err)
 	//}
+	err = cmd.MarkFlagRequired("workspace")
+	if err != nil {
+		panic(err)
+	}
 	cmd.Run = func(c *cobra.Command, args []string) {
 		runner.DirectRun(c, args, PluginEntry, map[string]interface{}{
 			"sourceId":    *sourceId,

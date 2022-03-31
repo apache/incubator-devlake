@@ -14,7 +14,8 @@ type TapdSource struct {
 	RemotelinkCommitShaPattern string `gorm:"type:varchar(255);comment='golang regexp, the first group will be recognized as commit sha, ref https://github.com/google/re2/wiki/Syntax'" json:"remotelinkCommitShaPattern"`
 	Proxy                      string `json:"proxy"`
 	RateLimit                  int    `comment:"api request rate limt per second"`
-	CompanyId                  uint64 `json:"companyId" validate:"required"`
+	//CompanyId                  uint64 `json:"companyId" validate:"required"`
+	WorkspaceId uint64 `json:"companyId" validate:"required"`
 }
 
 type TapdIssueTypeMapping struct {

@@ -358,8 +358,12 @@ func GetBoardsBySourceId(input *core.ApiResourceInput) (*core.ApiResourceOutput,
 	}
 	var workSpaceResponses []WorkspaceResponse
 	for _, workSpace := range tapdWorkspaces {
+		idInt, err := strconv.Atoi(workSpace.ID)
+		if err == nil {
+			return nil, err
+		}
 		workSpaceResponses = append(workSpaceResponses, WorkspaceResponse{
-			Id:    int(workSpace.ID),
+			Id:    idInt,
 			Title: workSpace.Name,
 			Value: fmt.Sprintf("%v", workSpace.ID),
 		})

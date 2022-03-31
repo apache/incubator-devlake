@@ -8,11 +8,11 @@ import (
 )
 
 type TapdOptions struct {
-	SourceId   uint64   `json:"sourceId"`
-	WorkspceId uint64   `json:"workspceId"`
-	CompanyId  uint64   `json:"companyId"`
-	Tasks      []string `json:"tasks,omitempty"`
-	Since      string
+	SourceId    uint64   `json:"sourceId"`
+	WorkspaceId uint64   `json:"workspceId"`
+	CompanyId   uint64   `json:"companyId"`
+	Tasks       []string `json:"tasks,omitempty"`
+	Since       string
 }
 
 type TapdTaskData struct {

@@ -9,20 +9,14 @@ import (
 	"net/url"
 )
 
-const RAW_WORKSPACE_TABLE = "tapd_api_workspaces"
+const RAW_ITERATION_TABLE = "tapd_api_iterations"
 
-var _ core.SubTaskEntryPoint = CollectWorkspaces
+var _ core.SubTaskEntryPoint = CollectIterations
 
-type TapdApiParams struct {
-	SourceId    uint64
-	CompanyId   uint64
-	WorkspaceId uint64
-}
-
-func CollectWorkspaces(taskCtx core.SubTaskContext) error {
+func CollectIterations(taskCtx core.SubTaskContext) error {
 	data := taskCtx.GetData().(*TapdTaskData)
 	logger := taskCtx.GetLogger()
-	logger.Info("collect workspaces")
+	logger.Info("collect iterations")
 	collector, err := helper.NewApiCollector(helper.ApiCollectorArgs{
 		RawDataSubTaskArgs: helper.RawDataSubTaskArgs{
 			Ctx: taskCtx,
@@ -31,10 +25,10 @@ func CollectWorkspaces(taskCtx core.SubTaskContext) error {
 				//CompanyId: data.Options.CompanyId,
 				WorkspaceId: data.Options.WorkspaceId,
 			},
-			Table: RAW_WORKSPACE_TABLE,
+			Table: RAW_ITERATION_TABLE,
 		},
 		ApiClient:   data.ApiClient,
-		UrlTemplate: "workspaces/sub_workspaces",
+		UrlTemplate: "iterations",
 		Query: func(reqData *helper.RequestData) (url.Values, error) {
 			query := url.Values{}
 			query.Set("workspace_id", fmt.Sprintf("%v", data.Options.WorkspaceId))
@@ -42,22 +36,22 @@ func CollectWorkspaces(taskCtx core.SubTaskContext) error {
 		},
 		ResponseParser: func(res *http.Response) ([]json.RawMessage, error) {
 			var data struct {
-				Workspaces []json.RawMessage `json:"data"`
+				Iterations []json.RawMessage `json:"data"`
 			}
 			err := helper.UnmarshalResponse(res, &data)
-			return data.Workspaces, err
+			return data.Iterations, err
 		},
 	})
 	if err != nil {
-		logger.Error("collect workspace error:", err)
+		logger.Error("collect iteration error:", err)
 		return err
 	}
 	return collector.Execute()
 }
 
-var CollectWorkspaceMeta = core.SubTaskMeta{
-	Name:        "collectWorkspaces",
-	EntryPoint:  CollectWorkspaces,
+var CollectIterationMeta = core.SubTaskMeta{
+	Name:        "collectIterations",
+	EntryPoint:  CollectIterations,
 	Required:    true,
-	Description: "collect Tapd workspaces",
+	Description: "collect Tapd iterations",
 }
