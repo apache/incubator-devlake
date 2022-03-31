@@ -11,7 +11,10 @@ type PullRequest struct {
 	RepoId         string `gorm:"index"`
 	Status         string `gorm:"comment:open/closed or other"`
 	Title          string
-	Url            string
+	Description    string
+	Url            string `gorm:"type:char(255)"`
+	AuthorName     string `gorm:"type:char(100)"`
+	AuthorId       int
 	ParentPrId     string `gorm:"index;type:varchar(100)"`
 	Key            int
 	CreatedDate    time.Time

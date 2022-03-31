@@ -30,5 +30,8 @@ type GithubPullRequest struct {
 	BaseRef        string
 	BaseCommitSha  string
 	HeadCommitSha  string
+	Url            string `gorm:"type:char(255)"`
+	AuthorName     string `gorm:"type:char(100)"`
+	AuthorId       int
 	common.NoPKModel
 }
