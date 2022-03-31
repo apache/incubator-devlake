@@ -31,5 +31,8 @@ type GithubPullRequest struct {
 	BaseRef        string
 	BaseCommitSha  string
 	HeadCommitSha  string
+	Url            string
+	AuthorName     string
+	AuthorId       int
 	common.NoPKModel
 }

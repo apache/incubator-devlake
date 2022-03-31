@@ -20,12 +20,17 @@ type GithubApiPullRequest struct {
 	State    string
 	Title    string
 	Body     string
+	Url      string
 	Labels   []struct {
 		Name string `json:"name"`
 	} `json:"labels"`
 	Assignee *struct {
 		Login string
 		Id    int
+	}
+	User *struct {
+		Id    int
+		Login string
 	}
 	ClosedAt        *core.Iso8601Time `json:"closed_at"`
 	MergedAt        *core.Iso8601Time `json:"merged_at"`
@@ -108,6 +113,9 @@ func convertGithubPullRequest(pull *GithubApiPullRequest, repoId int) (*models.G
 		Number:          pull.Number,
 		State:           pull.State,
 		Title:           pull.Title,
+		Url:             pull.Url,
+		AuthorName:      pull.User.Login,
+		AuthorId:        pull.User.Id,
 		GithubCreatedAt: pull.GithubCreatedAt.ToTime(),
 		GithubUpdatedAt: core.Iso8601TimeToTime(pull.GithubUpdatedAt),
 		ClosedAt:        core.Iso8601TimeToTime(pull.ClosedAt),
