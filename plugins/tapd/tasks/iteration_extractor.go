@@ -5,13 +5,11 @@ import (
 	"github.com/merico-dev/lake/plugins/core"
 	"github.com/merico-dev/lake/plugins/helper"
 	"github.com/merico-dev/lake/plugins/tapd/models"
-	"strconv"
-	"time"
 )
 
 var _ core.SubTaskEntryPoint = ExtractIterations
 
-var ExtractIterationsMeta = core.SubTaskMeta{
+var ExtractIterationMeta = core.SubTaskMeta{
 	Name:             "extractIterations",
 	EntryPoint:       ExtractIterations,
 	EnabledByDefault: true,
@@ -35,56 +33,21 @@ func ExtractIterations(taskCtx core.SubTaskContext) error {
 			Table: RAW_ITERATION_TABLE,
 		},
 		Extract: func(row *helper.RawData) ([]interface{}, error) {
-			var iterRes TapdIterationRes
-			err := json.Unmarshal(row.Data, &iterRes)
+			var iterBody TapdIterationRes
+			err := json.Unmarshal(row.Data, &iterBody)
 			if err != nil {
 				return nil, err
 			}
-			idInt, err := strconv.Atoi(iterRes.Iteration.ID)
+			iterRes := iterBody.Iteration
+
+			i, err := ResToDb(&iterRes, &models.TapdIteration{})
 			if err != nil {
 				return nil, err
 			}
-			start, err := time.Parse(shortForm, iterRes.Iteration.Startdate)
-			if err != nil {
-				return nil, err
-			}
-			end, err := time.Parse(shortForm, iterRes.Iteration.Enddate)
-			if err != nil {
-				return nil, err
-			}
-			iteration := models.TapdIteration{
-				SourceId:     data.Options.SourceId,
-				ID:           uint64(idInt),
-				Name:         iterRes.Iteration.Name,
-				WorkspaceID:  data.Options.WorkspaceId,
-				Startdate:    &start,
-				Enddate:      &end,
-				Status:       iterRes.Iteration.Status,
-				ReleaseID:    iterRes.Iteration.ReleaseID,
-				Description:  iterRes.Iteration.Description,
-				Creator:      iterRes.Iteration.Creator,
-				Releaseowner: iterRes.Iteration.Releaseowner,
-				Notice:       iterRes.Iteration.Notice,
-				Releasename:  iterRes.Iteration.Releasename,
-			}
-			if iterRes.Iteration.Completed != "" {
-				v, _ := time.Parse(longForm, iterRes.Iteration.Completed)
-				iteration.Completed = &v
-			}
-			if iterRes.Iteration.Created != "" {
-				v, _ := time.Parse(longForm, iterRes.Iteration.Created)
-				iteration.Created = &v
-			}
-			if iterRes.Iteration.Modified != "" {
-				v, _ := time.Parse(longForm, iterRes.Iteration.Modified)
-				iteration.Modified = &v
-			}
-			if iterRes.Iteration.Launchdate != "" {
-				v, _ := time.Parse(longForm, iterRes.Iteration.Launchdate)
-				iteration.Launchdate = &v
-			}
+			iter := i.(*models.TapdStory)
+			iter.SourceId = data.Source.ID
 			return []interface{}{
-				&iteration,
+				iter,
 			}, nil
 		},
 	})

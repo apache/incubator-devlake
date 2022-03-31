@@ -7,20 +7,20 @@ import (
 	"github.com/merico-dev/lake/plugins/tapd/models"
 )
 
-var _ core.SubTaskEntryPoint = ExtractWorkspaces
+var _ core.SubTaskEntryPoint = ExtractBugs
 
-var ExtractWorkspaceMeta = core.SubTaskMeta{
-	Name:             "extractWorkspaces",
-	EntryPoint:       ExtractWorkspaces,
+var ExtractBugMeta = core.SubTaskMeta{
+	Name:             "extractBugs",
+	EntryPoint:       ExtractBugs,
 	EnabledByDefault: true,
-	Description:      "Extract raw workspace data into tool layer table tapd_workspaces",
+	Description:      "Extract raw workspace data into tool layer table tapd_iterations",
 }
 
-type TapdWorkspaceRes struct {
-	Workspace models.TapdWorkspaceApiRes
+type TapdBugRes struct {
+	Bug models.TapdBugApiRes
 }
 
-func ExtractWorkspaces(taskCtx core.SubTaskContext) error {
+func ExtractBugs(taskCtx core.SubTaskContext) error {
 	data := taskCtx.GetData().(*TapdTaskData)
 	extractor, err := helper.NewApiExtractor(helper.ApiExtractorArgs{
 		RawDataSubTaskArgs: helper.RawDataSubTaskArgs{
@@ -30,25 +30,24 @@ func ExtractWorkspaces(taskCtx core.SubTaskContext) error {
 				//CompanyId: data.Options.CompanyId,
 				WorkspaceId: data.Options.WorkspaceId,
 			},
-			Table: RAW_WORKSPACE_TABLE,
+			Table: RAW_BUG_TABLE,
 		},
 		Extract: func(row *helper.RawData) ([]interface{}, error) {
-			var workspaceRes TapdWorkspaceRes
-			err := json.Unmarshal(row.Data, &workspaceRes)
+			var bugBody TapdBugRes
+			err := json.Unmarshal(row.Data, &bugBody)
 			if err != nil {
 				return nil, err
 			}
+			bugRes := bugBody.Bug
 
-			wsRes := workspaceRes.Workspace
-
-			i, err := ResToDb(&wsRes, &models.TapdStory{})
+			i, err := ResToDb(&bugRes, &models.TapdBug{})
 			if err != nil {
 				return nil, err
 			}
-			ws := i.(*models.TapdStory)
-			ws.SourceId = data.Source.ID
+			bug := i.(*models.TapdBug)
+			bug.SourceId = data.Source.ID
 			return []interface{}{
-				ws,
+				bug,
 			}, nil
 		},
 	})
