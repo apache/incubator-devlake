@@ -89,7 +89,7 @@ func EnrichPullRequestIssues(taskCtx core.SubTaskContext) (err error) {
 				if err != nil {
 					return nil, err
 				}
-				if issue == nil {
+				if issue.Number == 0 {
 					continue
 				}
 				githubPullRequstIssue := &githubModels.GithubPullRequestIssue{
