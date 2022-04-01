@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"github.com/merico-dev/lake/errors"
-	"os"
 	"strings"
 
 	"github.com/merico-dev/lake/config"
@@ -411,15 +410,15 @@ var PluginEntry Github //nolint
 
 // standalone mode for debugging
 func main() {
-	args := os.Args[1:]
-	owner := "merico-dev"
-	repo := "lake"
-	if len(args) > 0 {
-		owner = args[0]
-	}
-	if len(args) > 1 {
-		repo = args[1]
-	}
+	//args := os.Args[1:]
+	owner := "pingcap"
+	repo := "tidb"
+	//if len(args) > 0 {
+	//	owner = args[0]
+	//}
+	//if len(args) > 1 {
+	//	repo = args[1]
+	//}
 
 	err := core.RegisterPlugin("github", PluginEntry)
 	if err != nil {
@@ -443,27 +442,27 @@ func main() {
 				"owner": owner,
 				"repo":  repo,
 				"tasks": []string{
-					"collectRepo",
+					//"collectRepo",
 					//"collectCommits",
 					//"collectCommitsStat",
 					//"collectIssues",
 					//"collectIssueEvents",
 					//"collectIssueComments",
-					"collectPullRequests",
+					//"collectPullRequests",
 					//"collectPullRequestReviews",
 					//"collectPullRequestCommits",
 					//"enrichIssues",
 					//"enrichPullRequests",
 					//"enrichComments",
-					//"enrichPullRequestIssues",
+					"enrichPullRequestIssues",
 					//"convertRepos",
 					//"convertIssues",
 					//"convertIssueLabels",
-					"convertPullRequests",
+					//"convertPullRequests",
 					//"convertCommits",
 					//"convertPullRequestCommits",
 					//"convertPullRequestLabels",
-					//"convertPullRequestIssues",
+					"convertPullRequestIssues",
 					//"convertNotes",
 					//"convertUsers",
 				},

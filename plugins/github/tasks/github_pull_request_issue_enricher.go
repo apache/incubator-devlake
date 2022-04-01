@@ -37,8 +37,6 @@ func EnrichPullRequestIssues(ctx context.Context, repoId int, owner string, repo
 	if err != nil {
 		return err
 	}
-	resList := make([]string, 0)
-
 	defer cursor.Close()
 	// iterate all rows
 	for cursor.Next() {
@@ -76,7 +74,7 @@ func EnrichPullRequestIssues(ctx context.Context, repoId int, owner string, repo
 			if err != nil {
 				return err
 			}
-			if issue == nil {
+			if issue.Number == 0 {
 				continue
 			}
 			githubPullRequstIssue := &githubModels.GithubPullRequestIssue{
@@ -93,9 +91,5 @@ func EnrichPullRequestIssues(ctx context.Context, repoId int, owner string, repo
 			}
 		}
 	}
-	for _, v := range resList {
-		fmt.Println(v)
-	}
-
 	return nil
 }
