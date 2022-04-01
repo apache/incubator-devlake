@@ -9,14 +9,14 @@ import (
 	"net/url"
 )
 
-const RAW_BUG_TABLE = "tapd_api_bugs"
+const RAW_WORKLOG_TABLE = "tapd_api_worklogs"
 
-var _ core.SubTaskEntryPoint = CollectBugs
+var _ core.SubTaskEntryPoint = CollectWorklogs
 
-func CollectBugs(taskCtx core.SubTaskContext) error {
+func CollectWorklogs(taskCtx core.SubTaskContext) error {
 	data := taskCtx.GetData().(*TapdTaskData)
 	logger := taskCtx.GetLogger()
-	logger.Info("collect bugs")
+	logger.Info("collect worklogs")
 	collector, err := helper.NewApiCollector(helper.ApiCollectorArgs{
 		RawDataSubTaskArgs: helper.RawDataSubTaskArgs{
 			Ctx: taskCtx,
@@ -25,11 +25,11 @@ func CollectBugs(taskCtx core.SubTaskContext) error {
 				//CompanyId: data.Options.CompanyId,
 				WorkspaceId: data.Options.WorkspaceId,
 			},
-			Table: RAW_BUG_TABLE,
+			Table: RAW_WORKLOG_TABLE,
 		},
 		ApiClient:   data.ApiClient,
 		PageSize:    100,
-		UrlTemplate: "bugs",
+		UrlTemplate: "timesheets",
 		Query: func(reqData *helper.RequestData) (url.Values, error) {
 			query := url.Values{}
 			query.Set("workspace_id", fmt.Sprintf("%v", data.Options.WorkspaceId))
@@ -47,15 +47,15 @@ func CollectBugs(taskCtx core.SubTaskContext) error {
 		},
 	})
 	if err != nil {
-		logger.Error("collect bug error:", err)
+		logger.Error("collect worklog error:", err)
 		return err
 	}
 	return collector.Execute()
 }
 
-var CollectBugMeta = core.SubTaskMeta{
-	Name:        "collectBugs",
-	EntryPoint:  CollectBugs,
+var CollectWorklogMeta = core.SubTaskMeta{
+	Name:        "collectWorklogs",
+	EntryPoint:  CollectWorklogs,
 	Required:    true,
-	Description: "collect Tapd bugs",
+	Description: "collect Tapd worklogs",
 }

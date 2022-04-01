@@ -9,7 +9,7 @@ type TapdIteration struct {
 	SourceId     uint64     `gorm:"primaryKey;type:INT(10) UNSIGNED NOT NULL"`
 	ID           uint64     `gorm:"primaryKey;type:BIGINT(10) UNSIGNED NOT NULL" json:"id"`
 	Name         string     `json:"name"`
-	WorkspaceID  uint64     `json:"workspace_id"`
+	WorkspaceId  uint64     `json:"workspace_id"`
 	Startdate    *time.Time `json:"startdate"`
 	Enddate      *time.Time `json:"enddate"`
 	Status       string     `json:"status"`
@@ -28,7 +28,7 @@ type TapdIteration struct {
 type TapdIterationRes struct {
 	ID           string `json:"id"`
 	Name         string `json:"name"`
-	WorkspaceID  string `json:"workspace_id"`
+	WorkspaceId  string `json:"workspace_id"`
 	Startdate    string `json:"startdate"`
 	Enddate      string `json:"enddate"`
 	Status       string `json:"status"`
@@ -42,4 +42,20 @@ type TapdIterationRes struct {
 	Launchdate   string `json:"launchdate"`
 	Notice       string `json:"notice"`
 	Releasename  string `json:"releasename"`
+}
+
+type TapdWorkspaceIteration struct {
+	common.NoPKModel
+	SourceId    uint64 `gorm:"primaryKey"`
+	WorkspaceId uint64 `gorm:"primaryKey"`
+	IterationId uint64 `gorm:"primaryKey"`
+}
+
+type TapdIterationIssue struct {
+	common.NoPKModel
+	SourceId         uint64 `gorm:"primaryKey"`
+	IterationId      uint64 `gorm:"primaryKey"`
+	IssueId          uint64 `gorm:"primaryKey"`
+	ResolutionDate   *time.Time
+	IssueCreatedDate *time.Time
 }

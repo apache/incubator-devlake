@@ -12,7 +12,7 @@ type TapdStory struct {
 	EpicKey         string
 	Name            string     `json:"name"`
 	Description     string     `json:"description"`
-	WorkspaceID     uint64     `json:"workspace_id"`
+	WorkspaceId     uint64     `json:"workspace_id"`
 	Creator         string     `json:"creator"`
 	Created         *time.Time `json:"created"`
 	Modified        *time.Time `json:"modified" gorm:"index"`
@@ -46,6 +46,7 @@ type TapdStory struct {
 	TemplatedID     uint64     `json:"templated_id"`
 	CreatedFrom     string     `json:"created_from"`
 	Feature         string     `json:"feature"`
+	Url             string
 	common.NoPKModel
 }
 
@@ -55,7 +56,7 @@ type TapdStoryApiRes struct {
 	EpicKey         string
 	Name            string `json:"name"`
 	Description     string `json:"description"`
-	WorkspaceID     string `json:"workspace_id"`
+	WorkspaceId     string `json:"workspace_id"`
 	Creator         string `json:"creator"`
 	Created         string `json:"created"`
 	Modified        string `json:"modified" gorm:"index"`

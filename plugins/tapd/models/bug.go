@@ -11,7 +11,7 @@ type TapdBug struct {
 	EpicKey     string
 	Title       string     `json:"name"`
 	Description string     `json:"description"`
-	WorkspaceID uint64     `json:"workspace_id"`
+	WorkspaceId uint64     `json:"workspace_id"`
 	Created     *time.Time `json:"created"`
 	Modified    *time.Time `json:"modified" gorm:"index"`
 	Status      string     `json:"status"`
@@ -70,6 +70,7 @@ type TapdBug struct {
 	AssignedTime     *time.Time `json:"assigned_time"`
 	TemplateID       uint64     `json:"template_id"`
 	StoryID          uint64     `json:"story_id"`
+	Url              string
 }
 
 type TapdBugApiRes struct {
@@ -77,7 +78,7 @@ type TapdBugApiRes struct {
 	EpicKey     string
 	Title       string `json:"name"`
 	Description string `json:"description"`
-	WorkspaceID string `json:"workspace_id"`
+	WorkspaceId string `json:"workspace_id"`
 	Created     string `json:"created"`
 	Modified    string `json:"modified" gorm:"index"`
 	Status      string `json:"status"`

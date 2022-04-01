@@ -39,12 +39,12 @@ func ConvertIteration(taskCtx core.SubTaskContext) error {
 			iter := inputRow.(*models.TapdIteration)
 			domainIter := &ticket.Sprint{
 				DomainEntity:  domainlayer.DomainEntity{Id: iterIdGen.Generate(data.Source.ID, iter.ID)},
-				Url:           fmt.Sprintf("https://www.tapd.cn/%s/prong/iterations/view/%s", iter.WorkspaceID, iter.ID),
+				Url:           fmt.Sprintf("https://www.tapd.cn/%d/prong/iterations/view/%d", iter.WorkspaceId, iter.ID),
 				Status:        strings.ToUpper(iter.Status),
 				Name:          iter.Name,
 				StartedDate:   iter.Startdate,
 				EndedDate:     iter.Enddate,
-				OriginBoardID: WorkspaceIdGen.Generate(iter.SourceId, iter.WorkspaceID),
+				OriginBoardID: WorkspaceIdGen.Generate(iter.SourceId, iter.WorkspaceId),
 				CompletedDate: iter.Completed,
 			}
 

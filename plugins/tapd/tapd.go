@@ -32,6 +32,16 @@ func (plugin Tapd) Init(config *viper.Viper, logger core.Logger, db *gorm.DB) er
 		&models.TapdStory{},
 		&models.TapdBug{},
 		&models.TapdTask{},
+		&models.TapdWorkspaceIteration{},
+		&models.TapdIterationIssue{},
+		&models.TapdWorkSpaceIssue{},
+		&models.TapdChangelogItem{},
+		&models.TapdChangelog{},
+		&models.TapdWorklog{},
+		&models.TapdIssueCommit{},
+		&models.TapdIssueSprintsHistory{},
+		&models.TapdIssueStatusHistory{},
+		&models.TapdIssueAssigneeHistory{},
 	)
 }
 
@@ -41,24 +51,46 @@ func (plugin Tapd) Description() string {
 
 func (plugin Tapd) SubTaskMetas() []core.SubTaskMeta {
 	return []core.SubTaskMeta{
-		//tasks.CollectWorkspaceMeta,
-		//tasks.ExtractWorkspaceMeta,
-		//tasks.ConvertWorkspaceMeta,
+		tasks.CollectWorkspaceMeta,
+		tasks.ExtractWorkspaceMeta,
+		tasks.ConvertWorkspaceMeta,
 		tasks.CollectUserMeta,
 		tasks.ExtractUserMeta,
 		tasks.ConvertUserMeta,
-		//tasks.CollectIterationMeta,
-		//tasks.ExtractIterationMeta,
-		//tasks.ConvertIterationMeta,
+		tasks.CollectIterationMeta,
+		tasks.ExtractIterationMeta,
+		tasks.ConvertIterationMeta,
 		tasks.CollectStoryMeta,
-		tasks.ExtractStoryMeta,
 		tasks.ConvertStoryMeta,
 		tasks.CollectBugMeta,
-		tasks.ExtractBugMeta,
 		tasks.ConvertBugMeta,
 		tasks.CollectTaskMeta,
 		tasks.ExtractTaskMeta,
 		tasks.ConvertTaskMeta,
+		tasks.CollectStoryChangelogMeta,
+		tasks.CollectBugChangelogMeta,
+		tasks.CollectTaskChangelogMeta,
+		tasks.ExtractStoryChangelogMeta,
+		tasks.ExtractTaskChangelogMeta,
+		tasks.ExtractBugChangelogMeta,
+		tasks.ExtractStoryMeta,
+		tasks.ConvertStoryMeta,
+		tasks.ExtractBugMeta,
+		tasks.ConvertBugMeta,
+		tasks.ExtractTaskMeta,
+		tasks.ConvertTaskMeta,
+		tasks.ConvertChangelogMeta,
+		tasks.CollectWorklogMeta,
+		tasks.ExtractWorklogMeta,
+		tasks.ConvertWorklogMeta,
+		tasks.CollectStoryIssueCommitMeta,
+		tasks.CollectBugIssueCommitMeta,
+		tasks.CollectTaskIssueCommitMeta,
+		tasks.ExtractIssueCommitMeta,
+		tasks.ConvertIssueCommitMeta,
+		tasks.ConvertIssueSprintsHistoryMeta,
+		tasks.ConvertIssueStatusHistoryMeta,
+		tasks.ConvertIssueAssigneeHistoryMeta,
 	}
 }
 
@@ -96,6 +128,7 @@ func (plugin Tapd) PrepareTaskData(taskCtx core.TaskContext, options map[string]
 	}
 	tasks.UserIdGen = didgen.NewDomainIdGenerator(&models.TapdUser{})
 	tasks.WorkspaceIdGen = didgen.NewDomainIdGenerator(&models.TapdWorkspace{})
+	tasks.IssueIdGen = didgen.NewDomainIdGenerator(&models.TapdIssue{})
 	return taskData, nil
 }
 

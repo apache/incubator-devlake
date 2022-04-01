@@ -40,14 +40,19 @@ func ExtractIterations(taskCtx core.SubTaskContext) error {
 			}
 			iterRes := iterBody.Iteration
 
-			i, err := ResToDb(&iterRes, &models.TapdIteration{})
+			i, err := VoToDTO(&iterRes, &models.TapdIteration{})
 			if err != nil {
 				return nil, err
 			}
-			iter := i.(*models.TapdStory)
+			iter := i.(*models.TapdIteration)
 			iter.SourceId = data.Source.ID
+			workspaceIter := &models.TapdWorkspaceIteration{
+				SourceId:    data.Source.ID,
+				WorkspaceId: iter.WorkspaceId,
+				IterationId: iter.ID,
+			}
 			return []interface{}{
-				iter,
+				iter, workspaceIter,
 			}, nil
 		},
 	})

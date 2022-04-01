@@ -1,9 +1,7 @@
 package tasks
 
 import (
-	"fmt"
 	"github.com/merico-dev/lake/models/domainlayer"
-	"github.com/merico-dev/lake/models/domainlayer/didgen"
 	"github.com/merico-dev/lake/models/domainlayer/ticket"
 	"github.com/merico-dev/lake/plugins/core"
 	"github.com/merico-dev/lake/plugins/helper"
@@ -17,7 +15,7 @@ func ConvertTask(taskCtx core.SubTaskContext) error {
 	logger := taskCtx.GetLogger()
 	db := taskCtx.GetDb()
 	logger.Info("convert board:%d", data.Options.WorkspaceId)
-	issueIdGen := didgen.NewDomainIdGenerator(&models.TapdTask{})
+
 	cursor, err := db.Model(&models.TapdTask{}).Where("source_id = ? AND workspace_id = ?", data.Source.ID, data.Options.WorkspaceId).Rows()
 	if err != nil {
 		return err
@@ -39,9 +37,9 @@ func ConvertTask(taskCtx core.SubTaskContext) error {
 			toolL := inputRow.(*models.TapdTask)
 			issue := &ticket.Issue{
 				DomainEntity: domainlayer.DomainEntity{
-					Id: issueIdGen.Generate(toolL.SourceId, toolL.ID),
+					Id: IssueIdGen.Generate(toolL.SourceId, toolL.ID),
 				},
-				Url:            fmt.Sprintf("https://www.tapd.cn/%d/prong/Tasks/view/%d", toolL.WorkspaceID, toolL.ID),
+				Url:            toolL.Url,
 				Key:            strconv.FormatUint(toolL.ID, 10),
 				Title:          toolL.Name,
 				Summary:        toolL.Description,
@@ -51,14 +49,14 @@ func ConvertTask(taskCtx core.SubTaskContext) error {
 				ResolutionDate: toolL.Completed,
 				CreatedDate:    toolL.Created,
 				UpdatedDate:    toolL.Modified,
-				ParentIssueId:  issueIdGen.Generate(toolL.SourceId, toolL.StoryID),
+				ParentIssueId:  IssueIdGen.Generate(toolL.SourceId, toolL.StoryID),
 				Priority:       toolL.Priority,
-				CreatorId:      UserIdGen.Generate(data.Options.SourceId, toolL.WorkspaceID, toolL.Creator),
-				AssigneeId:     UserIdGen.Generate(data.Options.SourceId, toolL.WorkspaceID, toolL.Owner),
+				CreatorId:      UserIdGen.Generate(data.Options.SourceId, toolL.WorkspaceId, toolL.Creator),
+				AssigneeId:     UserIdGen.Generate(data.Options.SourceId, toolL.WorkspaceId, toolL.Owner),
 				AssigneeName:   toolL.Owner,
 			}
 			if issue.ResolutionDate != nil && issue.CreatedDate != nil {
-				issue.TimeSpentMinutes = int64(issue.ResolutionDate.Minute() - issue.CreatedDate.Minute())
+				issue.LeadTimeMinutes = uint(int64(issue.ResolutionDate.Minute() - issue.CreatedDate.Minute()))
 			}
 			return []interface{}{
 				issue,

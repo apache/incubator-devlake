@@ -41,7 +41,7 @@ func ExtractUserRoles(taskCtx core.SubTaskContext) error {
 			for k, v := range iterRes {
 				userRole := models.TapdUserRole{
 					SourceId:    data.Source.ID,
-					WorkspaceID: strconv.FormatUint(data.Options.WorkspaceId, 10),
+					WorkspaceId: strconv.FormatUint(data.Options.WorkspaceId, 10),
 					ID:          k,
 					Name:        v,
 				}

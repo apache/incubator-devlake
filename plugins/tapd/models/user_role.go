@@ -8,6 +8,6 @@ type TapdUserRole struct {
 	SourceId    uint64 `gorm:"primaryKey;type:INT(10) UNSIGNED NOT NULL"`
 	ID          string `gorm:"primaryKey;type:varchar(255)" json:"id"`
 	Name        string `json:"name"`
-	WorkspaceID string `json:"workspace_id"`
+	WorkspaceId string `json:"workspace_id"`
 	common.NoPKModel
 }

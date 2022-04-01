@@ -29,11 +29,15 @@ func CollectUsers(taskCtx core.SubTaskContext) error {
 		},
 		ApiClient:   data.ApiClient,
 		UrlTemplate: "workspaces/users",
+		//PageSize:    100,
 		Query: func(reqData *helper.RequestData) (url.Values, error) {
 			query := url.Values{}
 			query.Set("workspace_id", fmt.Sprintf("%v", data.Options.WorkspaceId))
+			//query.Set("page", fmt.Sprintf("%v", reqData.Pager.Page))
+			//query.Set("limit", fmt.Sprintf("%v", reqData.Pager.Size))
 			return query, nil
 		},
+		//GetTotalPages: GetTotalPagesFromResponse,
 		ResponseParser: func(res *http.Response) ([]json.RawMessage, error) {
 			var data struct {
 				Users []json.RawMessage `json:"data"`

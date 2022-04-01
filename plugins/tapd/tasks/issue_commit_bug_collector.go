@@ -5,24 +5,27 @@ import (
 	"fmt"
 	"github.com/merico-dev/lake/plugins/core"
 	"github.com/merico-dev/lake/plugins/helper"
+	"github.com/merico-dev/lake/plugins/tapd/models"
 	"net/http"
 	"net/url"
+	"reflect"
 )
 
-const RAW_WORKSPACE_TABLE = "tapd_api_workspaces"
-
-var _ core.SubTaskEntryPoint = CollectWorkspaces
-
-type TapdApiParams struct {
-	SourceId    uint64
-	CompanyId   uint64
-	WorkspaceId uint64
-}
-
-func CollectWorkspaces(taskCtx core.SubTaskContext) error {
+func CollectBugIssueCommits(taskCtx core.SubTaskContext) error {
 	data := taskCtx.GetData().(*TapdTaskData)
+	db := taskCtx.GetDb()
 	logger := taskCtx.GetLogger()
-	logger.Info("collect workspaces")
+	logger.Info("collect issueCommits")
+	cursor, err := db.Model(&models.TapdBug{}).Select("id as issue_id, 'bug' as type").
+		Where("source_id = ? and workspace_id = ?",
+			data.Options.SourceId, data.Options.WorkspaceId).Rows()
+	if err != nil {
+		return err
+	}
+	iterator, err := helper.NewCursorIterator(db, cursor, reflect.TypeOf(models.IssueTypeAndId{}))
+	if err != nil {
+		return err
+	}
 	collector, err := helper.NewApiCollector(helper.ApiCollectorArgs{
 		RawDataSubTaskArgs: helper.RawDataSubTaskArgs{
 			Ctx: taskCtx,
@@ -31,14 +34,18 @@ func CollectWorkspaces(taskCtx core.SubTaskContext) error {
 				//CompanyId: data.Options.CompanyId,
 				WorkspaceId: data.Options.WorkspaceId,
 			},
-			Table: RAW_WORKSPACE_TABLE,
+			Table: RAW_ISSUE_COMMIT_TABLE,
 		},
 		ApiClient: data.ApiClient,
 		//PageSize:    100,
-		UrlTemplate: "workspaces/sub_workspaces",
+		Input:       iterator,
+		UrlTemplate: "code_commit_infos",
 		Query: func(reqData *helper.RequestData) (url.Values, error) {
+			input := reqData.Input.(*models.IssueTypeAndId)
 			query := url.Values{}
 			query.Set("workspace_id", fmt.Sprintf("%v", data.Options.WorkspaceId))
+			query.Set("type", input.Type)
+			query.Set("object_id", fmt.Sprintf("%v", input.IssueId))
 			//query.Set("page", fmt.Sprintf("%v", reqData.Pager.Page))
 			//query.Set("limit", fmt.Sprintf("%v", reqData.Pager.Size))
 			return query, nil
@@ -46,22 +53,22 @@ func CollectWorkspaces(taskCtx core.SubTaskContext) error {
 		//GetTotalPages: GetTotalPagesFromResponse,
 		ResponseParser: func(res *http.Response) ([]json.RawMessage, error) {
 			var data struct {
-				Workspaces []json.RawMessage `json:"data"`
+				Stories []json.RawMessage `json:"data"`
 			}
 			err := helper.UnmarshalResponse(res, &data)
-			return data.Workspaces, err
+			return data.Stories, err
 		},
 	})
 	if err != nil {
-		logger.Error("collect workspace error:", err)
+		logger.Error("collect issueCommit error:", err)
 		return err
 	}
 	return collector.Execute()
 }
 
-var CollectWorkspaceMeta = core.SubTaskMeta{
-	Name:        "collectWorkspaces",
-	EntryPoint:  CollectWorkspaces,
+var CollectBugIssueCommitMeta = core.SubTaskMeta{
+	Name:        "collectBugIssueCommits",
+	EntryPoint:  CollectBugIssueCommits,
 	Required:    true,
-	Description: "collect Tapd workspaces",
+	Description: "collect Tapd issueCommits",
 }
