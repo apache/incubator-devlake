@@ -23,7 +23,8 @@ DevLake 将你所有 DevOps 工具里的数据以实用、个性化、可扩展�
 DevLake 适用于希望更好地通过数据了解其开发过程的开发团队，以及希望以数据驱动提升自身实践的开发团队。有了 DevLake，你可以向你的开发过程提出任何问题，只要连接数据并查询。
 
 
-<a href="https://app-259373083972538368-3002.ars.teamcode.com/d/0Rjxknc7z/demo-homepage?orgId=1">查看 demo</a>。用户名/密码： test/test。Demo里呈现的数据来自本仓库 merico-dev/lake。
+### [查看 Demo](https://app-259373083972538368-3002.ars.teamcode.com/d/0Rjxknc7z/demo-homepage?orgId=1)
+用户名/密码： test/test。Demo里呈现的数据来自本仓库 merico-dev/lake。
 
 
 #### 开始安装 DevLake
