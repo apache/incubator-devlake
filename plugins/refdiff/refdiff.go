@@ -32,7 +32,7 @@ func (plugin RefDiff) Init(config *viper.Viper, logger core.Logger, db *gorm.DB)
 
 func (plugin RefDiff) SubTaskMetas() []core.SubTaskMeta {
 	return []core.SubTaskMeta{
-		//tasks.CalculateCommitsDiffMeta,
+		tasks.CalculateCommitsDiffMeta,
 		tasks.CalculateIssuesDiffMeta,
 		tasks.CalculatePrCherryPickMeta,
 	}
