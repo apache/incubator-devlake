@@ -3,6 +3,7 @@ package helper
 import (
 	"context"
 	"fmt"
+	"os"
 	"sync"
 	"time"
 
@@ -57,34 +58,44 @@ func (s *WorkerScheduler) Submit(task func() error) error {
 	default:
 	}
 	s.waitGroup.Add(1)
+	// this is expensive, enable by EnvVar
+	cf := "set Environment Varaible ASYNC_CF=true to enable callframes information"
+	if os.Getenv("ASYNC_CF") == "true" {
+		cf = utils.GatherCallFrames()
+	}
+
 	return s.pool.Submit(func() {
+		var err error
 		defer s.waitGroup.Done()
 		defer func() {
-			r := recover()
-			if r != nil {
-				panic(fmt.Errorf("%s\n%s", r, utils.GatherCallFrames()))
+			if err == nil {
+				r := recover()
+				if r != nil {
+					err = fmt.Errorf("%s", r)
+				}
+			}
+			if err != nil {
+				panic(fmt.Errorf("%s\n%s", err, cf))
 			}
 		}()
-		select {
-		case <-s.ctx.Done():
-			panic(s.ctx.Err())
-		default:
-		}
 		if s.ticker != nil {
 			<-s.ticker.C
 		}
-		err := task()
-		if err != nil {
-			panic(fmt.Errorf("%w\n%s", err, utils.GatherCallFrames()))
+		select {
+		case <-s.ctx.Done():
+			err = s.ctx.Err()
+		default:
+			err = task()
 		}
 	})
 }
 
-func (s *WorkerScheduler) WaitUntilFinish() {
+func (s *WorkerScheduler) WaitUntilFinish() error {
 	s.waitGroup.Wait()
 	if s.workerErrors != nil && len(*s.workerErrors) > 0 {
-		panic(fmt.Errorf("%s", *s.workerErrors))
+		return fmt.Errorf("%s", *s.workerErrors)
 	}
+	return nil
 }
 
 func (s *WorkerScheduler) Release() {

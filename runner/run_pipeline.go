@@ -62,14 +62,8 @@ func RunPipeline(
 		// run tasks in parallel
 		err = runTasks(row)
 		if err != nil {
-			err = db.Model(pipeline).Updates(map[string]interface{}{
-				"status":  models.TASK_FAILED,
-				"message": err.Error(),
-			}).Error
-			if err != nil {
-				log.Error("update pipeline state failed: %w", err)
-			}
-			break
+			log.Error("run tasks failed: %w", err)
+			return err
 		}
 		// Deprecated
 		// update finishedTasks
@@ -79,29 +73,10 @@ func RunPipeline(
 		}).Error
 		if err != nil {
 			log.Error("update pipeline state failed: %w", err)
-			break
+			return err
 		}
-
 	}
 
-	log.Info("pipeline finished:", err == nil)
-	// finished, update database
-	finishedAt := time.Now()
-	spentSeconds := finishedAt.Unix() - beganAt.Unix()
-	if err != nil {
-		err = db.Model(pipeline).Updates(map[string]interface{}{
-			"status":        models.TASK_FAILED,
-			"message":       err.Error(),
-			"finished_at":   finishedAt,
-			"spent_seconds": spentSeconds,
-		}).Error
-	} else {
-		err = db.Model(pipeline).Updates(map[string]interface{}{
-			"status":        models.TASK_COMPLETED,
-			"message":       "",
-			"finished_at":   finishedAt,
-			"spent_seconds": spentSeconds,
-		}).Error
-	}
+	log.Info("pipeline finished: %w", err)
 	return err
 }

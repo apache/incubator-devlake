@@ -2,6 +2,7 @@ package helper
 
 import (
 	"bytes"
+	"context"
 	"fmt"
 	"io"
 	"io/ioutil"
@@ -12,6 +13,8 @@ import (
 	"github.com/merico-dev/lake/plugins/core"
 	"github.com/merico-dev/lake/utils"
 )
+
+type ApiAsyncCallback func(*http.Response, error) error
 
 // ApiAsyncClient is built on top of ApiClient, to provide a asynchronous semantic
 // You may submit multiple requests at once by calling `GetAsync`, and those requests
@@ -88,7 +91,7 @@ func (apiClient *ApiAsyncClient) DoAsync(
 	query url.Values,
 	body interface{},
 	header http.Header,
-	handler func(*http.Response) error,
+	handler ApiAsyncCallback,
 	retry int,
 ) error {
 	return apiClient.scheduler.Submit(func() error {
@@ -101,16 +104,16 @@ func (apiClient *ApiAsyncClient) DoAsync(
 			res.Body.Close()
 			res.Body = io.NopCloser(bytes.NewBuffer(body))
 		}
-		// it make sense to retry on request failure, but not error from handler
+		// it make sense to retry on request failure, but not error from handler and canceled error
 		if err != nil {
-			if retry < apiClient.maxRetry {
+			if retry < apiClient.maxRetry && err != context.Canceled {
 				apiClient.logError("retry #%d for %s", retry, err.Error())
 				err = apiClient.DoAsync(method, path, query, body, header, handler, retry+1)
 			}
-		} else {
-			err = handler(res)
 		}
-		return err
+		// it is important to let handler have a chance to handle error, or it can hang indefinitely
+		// when error occurs
+		return handler(res, err)
 	})
 }
 
@@ -119,19 +122,19 @@ func (apiClient *ApiAsyncClient) GetAsync(
 	path string,
 	query url.Values,
 	header http.Header,
-	handler func(*http.Response) error,
+	handler ApiAsyncCallback,
 ) error {
 	return apiClient.DoAsync(http.MethodGet, path, query, nil, header, handler, 0)
 }
 
 // Wait until all async requests were done
-func (apiClient *ApiAsyncClient) WaitAsync() {
-	apiClient.scheduler.WaitUntilFinish()
+func (apiClient *ApiAsyncClient) WaitAsync() error {
+	return apiClient.scheduler.WaitUntilFinish()
 }
 
 type RateLimitedApiClient interface {
-	GetAsync(path string, query url.Values, header http.Header, handler func(*http.Response) error) error
-	WaitAsync()
+	GetAsync(path string, query url.Values, header http.Header, handler ApiAsyncCallback) error
+	WaitAsync() error
 }
 
 var _ RateLimitedApiClient = (*ApiAsyncClient)(nil)

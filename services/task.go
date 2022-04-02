@@ -14,6 +14,8 @@ import (
 	"github.com/merico-dev/lake/runner"
 )
 
+var taskLog = logger.Global.Nested("task service")
+
 type RunningTaskData struct {
 	Cancel         context.CancelFunc
 	ProgressDetail *models.TaskProgressDetail
@@ -172,7 +174,7 @@ func runTasksStandalone(taskIds []uint64) error {
 	for _, taskId := range taskIds {
 		taskId := taskId
 		go func() {
-			log.Info("run task in background ", taskId)
+			taskLog.Info("run task in background ", taskId)
 			results <- runTaskStandalone(taskId)
 		}()
 	}
@@ -181,9 +183,10 @@ func runTasksStandalone(taskIds []uint64) error {
 	finished := 0
 	for err = range results {
 		if err != nil {
-			log.Error("pipeline task failed", err)
+			taskLog.Error("task failed", err)
 			errs = append(errs, err.Error())
 		}
+		finished++
 		if finished == len(taskIds) {
 			close(results)
 		}

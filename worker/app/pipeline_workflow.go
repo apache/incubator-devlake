@@ -23,9 +23,10 @@ func DevLakePipelineWorkflow(ctx workflow.Context, configJson []byte, pipelineId
 				activityOpts := workflow.ActivityOptions{
 					ActivityID:          fmt.Sprintf("task #%d", taskId),
 					StartToCloseTimeout: 24 * time.Hour,
+					WaitForCancellation: true,
 				}
-				ctx = workflow.WithActivityOptions(ctx, activityOpts)
-				futures[i] = workflow.ExecuteActivity(ctx, DevLakeTaskActivity, configJson, taskId)
+				activityCtx := workflow.WithActivityOptions(ctx, activityOpts)
+				futures[i] = workflow.ExecuteActivity(activityCtx, DevLakeTaskActivity, configJson, taskId)
 			}
 			errs := make([]string, 0)
 			for _, future := range futures {
