@@ -3,6 +3,7 @@ package parser
 import (
 	"context"
 	"fmt"
+
 	git "github.com/libgit2/git2go/v33"
 	"github.com/merico-dev/lake/logger"
 	"github.com/merico-dev/lake/models/domainlayer"
@@ -33,10 +34,9 @@ func (l *LibGit2) LocalRepo(ctx context.Context, repoPath, repoId string) error 
 
 func (l *LibGit2) run(ctx context.Context, repo *git.Repository, repoId string) error {
 	defer l.store.Close()
-	repoInter, err := repo.NewBranchIterator(git.BranchAll)
-	if err != nil {
-		return err
-	}
+
+	// collect tags
+	var err error
 	err = repo.Tags.Foreach(func(name string, id *git.Oid) error {
 		select {
 		case <-ctx.Done():
@@ -44,15 +44,42 @@ func (l *LibGit2) run(ctx context.Context, repo *git.Repository, repoId string) 
 		default:
 			break
 		}
-		ref := &code.Ref{
-			DomainEntity: domainlayer.DomainEntity{Id: fmt.Sprintf("%s:%s", repoId, name)},
-			RepoId:       repoId,
-			Ref:          name,
-			CommitSha:    id.String(),
-			RefType:      TAG,
+		var err1 error
+		var obj *git.Object
+		var tag *git.Tag
+		obj, err1 = repo.Lookup(id)
+		if err1 != nil {
+			return err1
 		}
-		return l.store.Refs(ref)
+		var tagCommit string
+		tag, _ = obj.AsTag()
+		if tag != nil {
+			tagCommit = tag.TargetId().String()
+		} else {
+			tagCommit = id.String()
+		}
+		if tagCommit != "" {
+			ref := &code.Ref{
+				DomainEntity: domainlayer.DomainEntity{Id: fmt.Sprintf("%s:%s", repoId, name)},
+				RepoId:       repoId,
+				Ref:          name,
+				CommitSha:    tagCommit,
+				RefType:      TAG,
+			}
+			err1 = l.store.Refs(ref)
+			if err1 != nil {
+				return err1
+			}
+		}
+		return nil
 	})
+	if err != nil {
+		return err
+	}
+
+	// collect branches
+	var repoInter *git.BranchIterator
+	repoInter, err = repo.NewBranchIterator(git.BranchAll)
 	if err != nil {
 		return err
 	}
@@ -64,9 +91,9 @@ func (l *LibGit2) run(ctx context.Context, repo *git.Repository, repoId string) 
 			break
 		}
 		if branch.IsBranch() {
-			name, err := branch.Name()
-			if err != nil {
-				return err
+			name, err1 := branch.Name()
+			if err1 != nil {
+				return err1
 			}
 			var sha string
 			if oid := branch.Target(); oid != nil {
@@ -80,17 +107,19 @@ func (l *LibGit2) run(ctx context.Context, repo *git.Repository, repoId string) 
 				RefType:      BRANCH,
 			}
 			ref.IsDefault, _ = branch.IsHead()
-			return l.store.Refs(ref)
+			err1 = l.store.Refs(ref)
+			if err1 != nil {
+				return err1
+			}
+			return nil
 		}
 		return nil
 	})
 	if err != nil {
 		return err
 	}
-	odb, err := repo.Odb()
-	if err != nil {
-		return err
-	}
+
+	// collect commits
 	opts, err := git.DefaultDiffOptions()
 	if err != nil {
 		return err
@@ -98,23 +127,27 @@ func (l *LibGit2) run(ctx context.Context, repo *git.Repository, repoId string) 
 	opts.NotifyCallback = func(diffSoFar *git.Diff, delta git.DiffDelta, matchedPathSpec string) error {
 		return nil
 	}
-	err = odb.ForEach(func(id *git.Oid) error {
-		logger.Info("process commit:", id.String())
+	revWalk, err := repo.Walk()
+	if err != nil {
+		return err
+	}
+	err = revWalk.PushHead()
+	if err != nil {
+		return err
+	}
+	var err2 error
+	err = revWalk.Iterate(func(commit *git.Commit) bool {
+		commitSha := commit.Id().String()
+		logger.Info("process commit:", commitSha)
 		select {
 		case <-ctx.Done():
-			return ctx.Err()
+			err2 = ctx.Err()
+			return false
 		default:
 			break
 		}
-		if id == nil {
-			return nil
-		}
-		commit, err := repo.LookupCommit(id)
-		if err != nil {
-			return nil
-		}
 		c := &code.Commit{
-			Sha:     id.String(),
+			Sha:     commitSha,
 			Message: commit.Message(),
 		}
 		author := commit.Author()
@@ -134,84 +167,98 @@ func (l *LibGit2) run(ctx context.Context, repo *git.Repository, repoId string) 
 		var commitParents []*code.CommitParent
 		for i := uint(0); i < commit.ParentCount(); i++ {
 			parent := commit.Parent(i)
-			if parent == nil {
-				continue
+			if parent != nil {
+				if parentId := parent.Id(); parentId != nil {
+					commitParents = append(commitParents, &code.CommitParent{
+						CommitSha:       c.Sha,
+						ParentCommitSha: parentId.String(),
+					})
+				}
 			}
-			if parentId := parent.Id(); parentId != nil {
-				commitParents = append(commitParents, &code.CommitParent{
-					CommitSha:       id.String(),
-					ParentCommitSha: parentId.String(),
-				})
-			}
-			parentTree, err := parent.Tree()
-			if err != nil {
-				continue
-			}
-			tree, err := commit.Tree()
-			if err != nil {
-				continue
-			}
-
-			diff, err := repo.DiffTreeToTree(parentTree, tree, &opts)
-			if err != nil {
-				continue
-			}
-			//commitFile := new(code.CommitFile)
-			//err = diff.ForEach(func(file git.DiffDelta, progress float64) (
-			//	git.DiffForEachHunkCallback, error) {
-			//	if commitFile.CommitSha != "" {
-			//		err = l.store.CommitFiles(commitFile)
-			//		if err != nil {
-			//			logger.Error("CommitFiles error:", err)
-			//		}
-			//	}
-			//	commitFile.CommitSha = id.String()
-			//	commitFile.FilePath = file.NewFile.Path
-			//	return func(hunk git.DiffHunk) (git.DiffForEachLineCallback, error) {
-			//		return func(line git.DiffLine) error {
-			//			if line.Origin == git.DiffLineAddition {
-			//				commitFile.Additions += line.NumLines
-			//			}
-			//			if line.Origin == git.DiffLineDeletion {
-			//				commitFile.Deletions += line.NumLines
-			//			}
-			//			return nil
-			//		}, nil
-			//	}, nil
-			//}, git.DiffDetailLines)
-			//if err != nil {
-			//	return err
-			//}
-			//if commitFile.CommitSha != "" {
-			//	err = l.store.CommitFiles(commitFile)
-			//	if err != nil {
-			//		logger.Error("CommitFiles error:", err)
-			//	}
-			//}
-			stats, err := diff.Stats()
-			if err != nil {
-				continue
-			}
-			c.Additions += stats.Insertions()
-			c.Deletions += stats.Deletions()
 		}
-		err = l.store.Commits(c)
-		if err != nil {
-			return err
+		err2 = l.store.CommitParents(commitParents)
+		if err2 != nil {
+			return false
+		}
+		if commit.ParentCount() > 0 {
+			parent := commit.Parent(0)
+			if parent != nil {
+				var parentTree, tree *git.Tree
+				parentTree, err2 = parent.Tree()
+				if err2 != nil {
+					return false
+				}
+				tree, err2 = commit.Tree()
+				if err2 != nil {
+					return false
+				}
+				var diff *git.Diff
+				diff, err2 = repo.DiffTreeToTree(parentTree, tree, &opts)
+				if err2 != nil {
+					return false
+				}
+				var commitFile *code.CommitFile
+				err2 = diff.ForEach(func(file git.DiffDelta, progress float64) (
+					git.DiffForEachHunkCallback, error) {
+					if commitFile != nil {
+						err2 = l.store.CommitFiles(commitFile)
+						if err2 != nil {
+							logger.Error("CommitFiles error:", err2)
+							return nil, err2
+						}
+					}
+					commitFile = new(code.CommitFile)
+					commitFile.CommitSha = c.Sha
+					commitFile.FilePath = file.NewFile.Path
+					return func(hunk git.DiffHunk) (git.DiffForEachLineCallback, error) {
+						return func(line git.DiffLine) error {
+							if line.Origin == git.DiffLineAddition {
+								commitFile.Additions += line.NumLines
+							}
+							if line.Origin == git.DiffLineDeletion {
+								commitFile.Deletions += line.NumLines
+							}
+							return nil
+						}, nil
+					}, nil
+				}, git.DiffDetailLines)
+				if err2 != nil {
+					return false
+				}
+				if commitFile != nil {
+					err2 = l.store.CommitFiles(commitFile)
+					if err2 != nil {
+						logger.Error("CommitFiles error:", err2)
+					}
+				}
+				var stats *git.DiffStats
+				stats, err2 = diff.Stats()
+				if err2 != nil {
+					return false
+				}
+				c.Additions += stats.Insertions()
+				c.Deletions += stats.Deletions()
+			}
+		}
+		err2 = l.store.Commits(c)
+		if err2 != nil {
+			return false
 		}
 		repoCommit := &code.RepoCommit{
 			RepoId:    repoId,
 			CommitSha: c.Sha,
 		}
-		err = l.store.RepoCommits(repoCommit)
-		if err != nil {
-			return err
+		err2 = l.store.RepoCommits(repoCommit)
+		if err2 != nil {
+			return false
 		}
-		err = l.store.CommitParents(commitParents)
-		if err != nil {
-			return err
-		}
-		return nil
+		return true
 	})
+	if err2 != nil {
+		return err2
+	}
+	if err == nil {
+		err = l.store.Flush()
+	}
 	return err
 }
