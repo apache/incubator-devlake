@@ -52,18 +52,30 @@ func (l *LibGit2) run(repo *git.Repository, repoId string) error {
 		default:
 			break
 		}
-		ref := &code.Ref{
-			DomainEntity: domainlayer.DomainEntity{Id: fmt.Sprintf("%s:%s", repoId, name)},
-			RepoId:       repoId,
-			Ref:          name,
-			CommitSha:    id.String(),
-			RefType:      TAG,
+		var err1 error
+		var tag *git.Tag
+		var tagCommit string
+		tag, _ = repo.LookupTag(id)
+		if tag != nil {
+			tagCommit = tag.TargetId().String()
+		} else {
+			tagCommit = id.String()
 		}
-		err = l.store.Refs(ref)
-		if err != nil {
-			return err
+		l.logger.Info("tagCommit", tagCommit)
+		if tagCommit != "" {
+			ref := &code.Ref{
+				DomainEntity: domainlayer.DomainEntity{Id: fmt.Sprintf("%s:%s", repoId, name)},
+				RepoId:       repoId,
+				Ref:          name,
+				CommitSha:    tagCommit,
+				RefType:      TAG,
+			}
+			err1 = l.store.Refs(ref)
+			if err1 != nil {
+				return err1
+			}
+			l.subTaskCtx.IncProgress(1)
 		}
-		l.subTaskCtx.IncProgress(1)
 		return nil
 	})
 	if err != nil {
@@ -71,7 +83,8 @@ func (l *LibGit2) run(repo *git.Repository, repoId string) error {
 	}
 
 	// collect branches
-	repoInter, err := repo.NewBranchIterator(git.BranchAll)
+	var repoInter *git.BranchIterator
+	repoInter, err = repo.NewBranchIterator(git.BranchAll)
 	if err != nil {
 		return err
 	}
@@ -83,9 +96,9 @@ func (l *LibGit2) run(repo *git.Repository, repoId string) error {
 			break
 		}
 		if branch.IsBranch() {
-			name, err := branch.Name()
-			if err != nil {
-				return err
+			name, err1 := branch.Name()
+			if err1 != nil {
+				return err1
 			}
 			var sha string
 			if oid := branch.Target(); oid != nil {
@@ -99,9 +112,9 @@ func (l *LibGit2) run(repo *git.Repository, repoId string) error {
 				RefType:      BRANCH,
 			}
 			ref.IsDefault, _ = branch.IsHead()
-			err = l.store.Refs(ref)
-			if err != nil {
-				return err
+			err1 = l.store.Refs(ref)
+			if err1 != nil {
+				return err1
 			}
 			l.subTaskCtx.IncProgress(1)
 			return nil
@@ -113,10 +126,6 @@ func (l *LibGit2) run(repo *git.Repository, repoId string) error {
 	}
 
 	// collect commits
-	odb, err := repo.Odb()
-	if err != nil {
-		return err
-	}
 	opts, err := git.DefaultDiffOptions()
 	if err != nil {
 		return err
@@ -124,23 +133,26 @@ func (l *LibGit2) run(repo *git.Repository, repoId string) error {
 	opts.NotifyCallback = func(diffSoFar *git.Diff, delta git.DiffDelta, matchedPathSpec string) error {
 		return nil
 	}
+
+	odb, err := repo.Odb()
+	if err != nil {
+		return err
+	}
 	err = odb.ForEach(func(id *git.Oid) error {
-		l.logger.Info("process commit: %s", id.String())
 		select {
 		case <-l.ctx.Done():
 			return l.ctx.Err()
 		default:
 			break
 		}
-		if id == nil {
+		commit, _ := repo.LookupCommit(id)
+		if commit == nil {
 			return nil
 		}
-		commit, err := repo.LookupCommit(id)
-		if err != nil {
-			return nil
-		}
+		commitSha := commit.Id().String()
+		l.logger.Info("process commit: %s", commitSha)
 		c := &code.Commit{
-			Sha:     id.String(),
+			Sha:     commitSha,
 			Message: commit.Message(),
 		}
 		author := commit.Author()
@@ -160,85 +172,96 @@ func (l *LibGit2) run(repo *git.Repository, repoId string) error {
 		var commitParents []*code.CommitParent
 		for i := uint(0); i < commit.ParentCount(); i++ {
 			parent := commit.Parent(i)
-			if parent == nil {
-				continue
+			if parent != nil {
+				if parentId := parent.Id(); parentId != nil {
+					commitParents = append(commitParents, &code.CommitParent{
+						CommitSha:       c.Sha,
+						ParentCommitSha: parentId.String(),
+					})
+				}
 			}
-			if parentId := parent.Id(); parentId != nil {
-				commitParents = append(commitParents, &code.CommitParent{
-					CommitSha:       id.String(),
-					ParentCommitSha: parentId.String(),
-				})
-			}
-			parentTree, err := parent.Tree()
-			if err != nil {
-				continue
-			}
-			tree, err := commit.Tree()
-			if err != nil {
-				continue
-			}
-
-			diff, err := repo.DiffTreeToTree(parentTree, tree, &opts)
-			if err != nil {
-				continue
-			}
-			commitFile := new(code.CommitFile)
-			err = diff.ForEach(func(file git.DiffDelta, progress float64) (
-				git.DiffForEachHunkCallback, error) {
-				if commitFile.CommitSha != "" {
-					err = l.store.CommitFiles(commitFile)
-					if err != nil {
+		}
+		err2 := l.store.CommitParents(commitParents)
+		if err2 != nil {
+			return err2
+		}
+		if commit.ParentCount() > 0 {
+			parent := commit.Parent(0)
+			if parent != nil {
+				var parentTree, tree *git.Tree
+				parentTree, err2 = parent.Tree()
+				if err2 != nil {
+					return err2
+				}
+				tree, err2 = commit.Tree()
+				if err2 != nil {
+					return err2
+				}
+				var diff *git.Diff
+				diff, err2 = repo.DiffTreeToTree(parentTree, tree, &opts)
+				if err2 != nil {
+					return err2
+				}
+				var commitFile *code.CommitFile
+				err2 = diff.ForEach(func(file git.DiffDelta, progress float64) (
+					git.DiffForEachHunkCallback, error) {
+					if commitFile != nil {
+						err2 = l.store.CommitFiles(commitFile)
+						if err2 != nil {
+							l.logger.Error("CommitFiles error:", err)
+							return nil, err2
+						}
+					}
+					commitFile = new(code.CommitFile)
+					commitFile.CommitSha = c.Sha
+					commitFile.FilePath = file.NewFile.Path
+					return func(hunk git.DiffHunk) (git.DiffForEachLineCallback, error) {
+						return func(line git.DiffLine) error {
+							if line.Origin == git.DiffLineAddition {
+								commitFile.Additions += line.NumLines
+							}
+							if line.Origin == git.DiffLineDeletion {
+								commitFile.Deletions += line.NumLines
+							}
+							return nil
+						}, nil
+					}, nil
+				}, git.DiffDetailLines)
+				if err2 != nil {
+					return err2
+				}
+				if commitFile != nil {
+					err2 = l.store.CommitFiles(commitFile)
+					if err2 != nil {
 						l.logger.Error("CommitFiles error:", err)
 					}
 				}
-				commitFile.CommitSha = id.String()
-				commitFile.FilePath = file.NewFile.Path
-				return func(hunk git.DiffHunk) (git.DiffForEachLineCallback, error) {
-					return func(line git.DiffLine) error {
-						if line.Origin == git.DiffLineAddition {
-							commitFile.Additions += line.NumLines
-						}
-						if line.Origin == git.DiffLineDeletion {
-							commitFile.Deletions += line.NumLines
-						}
-						return nil
-					}, nil
-				}, nil
-			}, git.DiffDetailLines)
-			if err != nil {
-				return err
-			}
-			if commitFile.CommitSha != "" {
-				err = l.store.CommitFiles(commitFile)
-				if err != nil {
-					l.logger.Error("CommitFiles error:", err)
+				var stats *git.DiffStats
+				stats, err2 = diff.Stats()
+				if err2 != nil {
+					return err2
 				}
+				c.Additions += stats.Insertions()
+				c.Deletions += stats.Deletions()
 			}
-			stats, err := diff.Stats()
-			if err != nil {
-				continue
-			}
-			c.Additions += stats.Insertions()
-			c.Deletions += stats.Deletions()
 		}
-		err = l.store.Commits(c)
-		if err != nil {
-			return err
+		err2 = l.store.Commits(c)
+		if err2 != nil {
+			return err2
 		}
 		repoCommit := &code.RepoCommit{
 			RepoId:    repoId,
 			CommitSha: c.Sha,
 		}
-		err = l.store.RepoCommits(repoCommit)
-		if err != nil {
-			return err
-		}
-		err = l.store.CommitParents(commitParents)
-		if err != nil {
-			return err
+		err2 = l.store.RepoCommits(repoCommit)
+		if err2 != nil {
+			return err2
 		}
 		l.subTaskCtx.IncProgress(1)
 		return nil
 	})
+	if err == nil {
+		err = l.store.Flush()
+	}
 	return err
 }

@@ -1,8 +1,6 @@
 package models
 
 import (
-	"context"
-
 	"github.com/merico-dev/lake/models/domainlayer/code"
 )
 
@@ -12,11 +10,6 @@ type Store interface {
 	Refs(ref *code.Ref) error
 	CommitFiles(file *code.CommitFile) error
 	CommitParents(pp []*code.CommitParent) error
+	Flush() error
 	Close() error
-}
-
-type Parser interface {
-	CloneOverHTTP(ctx context.Context, repoId, url, user, password, proxy string) error
-	CloneOverSSH(ctx context.Context, repoId, url, privateKey, passphrase string) error
-	LocalRepo(ctx context.Context, repoPath, repoId string) error
 }

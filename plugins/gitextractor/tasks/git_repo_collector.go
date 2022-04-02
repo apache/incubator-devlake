@@ -39,7 +39,6 @@ func (o GitExtractorOptions) Valid() error {
 func CollectGitRepo(subTaskCtx core.SubTaskContext) error {
 	db := subTaskCtx.GetDb()
 	storage := store.NewDatabase(db)
-	defer storage.Close()
 	op := subTaskCtx.GetData().(GitExtractorOptions)
 	p := parser.NewLibGit2(storage, subTaskCtx)
 	var err error
