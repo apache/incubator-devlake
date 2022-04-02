@@ -114,24 +114,25 @@ func CalculateCommitsDiff(taskCtx core.SubTaskContext) error {
 
 		lostSha, oldCount, newCount := commitNodeGraph.CalculateLost(pair[1], pair[0])
 
-		logger.Info("refdiff", fmt.Sprintf("OldRefName[%s]ancestor[%d]", commitsDiff.OldRefName, oldCount))
-		logger.Info("refdiff", fmt.Sprintf("NewRefName[%s]ancestor(except in old)[%d]", commitsDiff.NewRefName, newCount))
-
+		commitsDiffs := []code.RefsCommitsDiff{}
 		commitsDiff.SortingIndex = 1
 		for _, sha := range lostSha {
 			commitsDiff.CommitSha = sha
-			err = db.Clauses(clause.OnConflict{DoNothing: true}).Create(commitsDiff).Error
-			if err != nil {
-				panic(err)
-			}
+			commitsDiffs = append(commitsDiffs, *commitsDiff)
 			commitsDiff.SortingIndex++
 		}
 
+		err = db.Clauses(clause.OnConflict{DoNothing: true}).Create(commitsDiffs).Error
+		if err != nil {
+			panic(err)
+		}
+
 		logger.Info("refdiff", fmt.Sprintf(
-			"total %d commits of difference found between %s and %s",
+			"total %d commits of difference found between %s and %s(total:%d)",
 			newCount,
 			commitsDiff.NewRefCommitSha,
 			commitsDiff.OldRefCommitSha,
+			oldCount,
 		))
 		taskCtx.IncProgress(1)
 	}
