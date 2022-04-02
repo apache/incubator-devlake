@@ -10,6 +10,8 @@ import {
   Intent,
   Card,
   Elevation,
+  Popover,
+  Colors,
 } from '@blueprintjs/core'
 import Nav from '@/components/Nav'
 import Sidebar from '@/components/Sidebar'
@@ -218,7 +220,8 @@ export default function ConfigureConnection () {
                     </div>
                     {activeConnection && (
                       <>
-                        <h2 style={{ margin: 0 }}>{activeConnection.name}</h2>
+                        {activeProvider.id === Providers.JIRA &&
+                        (<h2 style={{ margin: 0 }}>#{activeConnection.ID} {activeConnection.name}</h2>)}
                         <p className='page-description'>Manage settings and options for this connection.</p>
                       </>
                     )}
@@ -246,6 +249,7 @@ export default function ConfigureConnection () {
                         <div className='editConnection' style={{ display: 'flex' }}>
                           <ConnectionForm
                             isValid={isValidForm}
+                            validationErrors={validationErrors}
                             activeProvider={activeProvider}
                             name={name}
                             endpointUrl={endpointUrl}
@@ -285,9 +289,9 @@ export default function ConfigureConnection () {
                           </p>
                         </>
                         )}
-                    {validationErrors.length > 0 && (
+                    {/* {validationErrors.length > 0 && (
                       <FormValidationErrors errors={validationErrors} />
-                    )}
+                    )} */}
                   </Card>
                   <div style={{ marginTop: '30px' }}>
                     {renderProviderSettings(providerId, activeProvider)}
