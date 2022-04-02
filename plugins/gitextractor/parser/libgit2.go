@@ -53,19 +53,21 @@ func (l *LibGit2) run(repo *git.Repository, repoId string) error {
 			break
 		}
 		var err1 error
-		var obj *git.Object
 		var tag *git.Tag
-		obj, err1 = repo.Lookup(id)
-		if err1 != nil {
-			return err1
-		}
-		tag, _ = obj.AsTag()
+		var tagCommit string
+		tag, _ = repo.LookupTag(id)
 		if tag != nil {
+			tagCommit = tag.TargetId().String()
+		} else {
+			tagCommit = id.String()
+		}
+		l.logger.Info("tagCommit", tagCommit)
+		if tagCommit != "" {
 			ref := &code.Ref{
 				DomainEntity: domainlayer.DomainEntity{Id: fmt.Sprintf("%s:%s", repoId, name)},
 				RepoId:       repoId,
 				Ref:          name,
-				CommitSha:    tag.TargetId().String(),
+				CommitSha:    tagCommit,
 				RefType:      TAG,
 			}
 			err1 = l.store.Refs(ref)
@@ -131,25 +133,24 @@ func (l *LibGit2) run(repo *git.Repository, repoId string) error {
 	opts.NotifyCallback = func(diffSoFar *git.Diff, delta git.DiffDelta, matchedPathSpec string) error {
 		return nil
 	}
-	revWalk, err := repo.Walk()
+
+	odb, err := repo.Odb()
 	if err != nil {
 		return err
 	}
-	err = revWalk.PushHead()
-	if err != nil {
-		return err
-	}
-	var err2 error
-	err = revWalk.Iterate(func(commit *git.Commit) bool {
-		commitSha := commit.Id().String()
-		l.logger.Info("process commit: %s", commitSha)
+	err = odb.ForEach(func(id *git.Oid) error {
 		select {
 		case <-l.ctx.Done():
-			err2 = l.ctx.Err()
-			return false
+			return l.ctx.Err()
 		default:
 			break
 		}
+		commit, _ := repo.LookupCommit(id)
+		if commit == nil {
+			return nil
+		}
+		commitSha := commit.Id().String()
+		l.logger.Info("process commit: %s", commitSha)
 		c := &code.Commit{
 			Sha:     commitSha,
 			Message: commit.Message(),
@@ -180,9 +181,9 @@ func (l *LibGit2) run(repo *git.Repository, repoId string) error {
 				}
 			}
 		}
-		err2 = l.store.CommitParents(commitParents)
+		err2 := l.store.CommitParents(commitParents)
 		if err2 != nil {
-			return false
+			return err2
 		}
 		if commit.ParentCount() > 0 {
 			parent := commit.Parent(0)
@@ -190,16 +191,16 @@ func (l *LibGit2) run(repo *git.Repository, repoId string) error {
 				var parentTree, tree *git.Tree
 				parentTree, err2 = parent.Tree()
 				if err2 != nil {
-					return false
+					return err2
 				}
 				tree, err2 = commit.Tree()
 				if err2 != nil {
-					return false
+					return err2
 				}
 				var diff *git.Diff
 				diff, err2 = repo.DiffTreeToTree(parentTree, tree, &opts)
 				if err2 != nil {
-					return false
+					return err2
 				}
 				var commitFile *code.CommitFile
 				err2 = diff.ForEach(func(file git.DiffDelta, progress float64) (
@@ -227,7 +228,7 @@ func (l *LibGit2) run(repo *git.Repository, repoId string) error {
 					}, nil
 				}, git.DiffDetailLines)
 				if err2 != nil {
-					return false
+					return err2
 				}
 				if commitFile != nil {
 					err2 = l.store.CommitFiles(commitFile)
@@ -238,7 +239,7 @@ func (l *LibGit2) run(repo *git.Repository, repoId string) error {
 				var stats *git.DiffStats
 				stats, err2 = diff.Stats()
 				if err2 != nil {
-					return false
+					return err2
 				}
 				c.Additions += stats.Insertions()
 				c.Deletions += stats.Deletions()
@@ -246,7 +247,7 @@ func (l *LibGit2) run(repo *git.Repository, repoId string) error {
 		}
 		err2 = l.store.Commits(c)
 		if err2 != nil {
-			return false
+			return err2
 		}
 		repoCommit := &code.RepoCommit{
 			RepoId:    repoId,
@@ -254,14 +255,11 @@ func (l *LibGit2) run(repo *git.Repository, repoId string) error {
 		}
 		err2 = l.store.RepoCommits(repoCommit)
 		if err2 != nil {
-			return false
+			return err2
 		}
 		l.subTaskCtx.IncProgress(1)
-		return true
+		return nil
 	})
-	if err2 != nil {
-		return err2
-	}
 	if err == nil {
 		err = l.store.Flush()
 	}
