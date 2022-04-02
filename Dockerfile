@@ -18,7 +18,15 @@ RUN go install ./cmd/lake-cli/
 FROM alpine:3.15
 
 RUN apk add --no-cache libgit2-dev
+
+ENV PYTHONUNBUFFERED=1
+RUN apk add --update --no-cache python3 && ln -sf python3 /usr/bin/python
+RUN python3 -m ensurepip
+RUN pip3 install --no-cache --upgrade pip setuptools
+RUN pip3 install dbt-mysql
+
 EXPOSE 8080
+
 WORKDIR /app
 
 COPY --from=builder /app/bin /app/bin
