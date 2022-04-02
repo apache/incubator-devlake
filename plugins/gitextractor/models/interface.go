@@ -13,6 +13,7 @@ type Store interface {
 	CommitFiles(file *code.CommitFile) error
 	CommitParents(pp []*code.CommitParent) error
 	Close() error
+	Flush() error
 }
 
 type Parser interface {
