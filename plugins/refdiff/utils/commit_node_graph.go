@@ -16,23 +16,23 @@ func NewCommitNodeGraph() *CommitNodeGraph {
 }
 
 func (cng *CommitNodeGraph) AddSide(commit_sha string, commit_parent_sha string) {
-	var CommitNow *CommitNode
-	var CommitParentNow *CommitNode
+	var commitNow *CommitNode
+	var commitParentNow *CommitNode
 	var ok bool
-	if CommitNow, ok = cng.node[commit_sha]; !ok {
-		CommitNow = &CommitNode{
+	if commitNow, ok = cng.node[commit_sha]; !ok {
+		commitNow = &CommitNode{
 			Sha: commit_sha,
 		}
-		cng.node[commit_sha] = CommitNow
+		cng.node[commit_sha] = commitNow
 	}
 
-	if CommitParentNow, ok = cng.node[commit_parent_sha]; !ok {
-		CommitParentNow = &CommitNode{
+	if commitParentNow, ok = cng.node[commit_parent_sha]; !ok {
+		commitParentNow = &CommitNode{
 			Sha: commit_parent_sha,
 		}
-		cng.node[commit_parent_sha] = CommitParentNow
+		cng.node[commit_parent_sha] = commitParentNow
 	}
-	CommitNow.Parent = append(CommitNow.Parent, CommitParentNow)
+	commitNow.Parent = append(commitNow.Parent, commitParentNow)
 }
 
 func (cng *CommitNodeGraph) CalculateLost(source_sha string, target_sha string) ([]string, int, int) {
