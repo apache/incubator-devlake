@@ -52,18 +52,28 @@ func (l *LibGit2) run(repo *git.Repository, repoId string) error {
 		default:
 			break
 		}
-		ref := &code.Ref{
-			DomainEntity: domainlayer.DomainEntity{Id: fmt.Sprintf("%s:%s", repoId, name)},
-			RepoId:       repoId,
-			Ref:          name,
-			CommitSha:    id.String(),
-			RefType:      TAG,
+		var err1 error
+		var obj *git.Object
+		var tag *git.Tag
+		obj, err1 = repo.Lookup(id)
+		if err1 != nil {
+			return err1
 		}
-		err = l.store.Refs(ref)
-		if err != nil {
-			return err
+		tag, _ = obj.AsTag()
+		if tag != nil {
+			ref := &code.Ref{
+				DomainEntity: domainlayer.DomainEntity{Id: fmt.Sprintf("%s:%s", repoId, name)},
+				RepoId:       repoId,
+				Ref:          name,
+				CommitSha:    tag.TargetId().String(),
+				RefType:      TAG,
+			}
+			err1 = l.store.Refs(ref)
+			if err1 != nil {
+				return err1
+			}
+			l.subTaskCtx.IncProgress(1)
 		}
-		l.subTaskCtx.IncProgress(1)
 		return nil
 	})
 	if err != nil {
@@ -71,7 +81,8 @@ func (l *LibGit2) run(repo *git.Repository, repoId string) error {
 	}
 
 	// collect branches
-	repoInter, err := repo.NewBranchIterator(git.BranchAll)
+	var repoInter *git.BranchIterator
+	repoInter, err = repo.NewBranchIterator(git.BranchAll)
 	if err != nil {
 		return err
 	}
@@ -83,9 +94,9 @@ func (l *LibGit2) run(repo *git.Repository, repoId string) error {
 			break
 		}
 		if branch.IsBranch() {
-			name, err := branch.Name()
-			if err != nil {
-				return err
+			name, err1 := branch.Name()
+			if err1 != nil {
+				return err1
 			}
 			var sha string
 			if oid := branch.Target(); oid != nil {
@@ -99,9 +110,9 @@ func (l *LibGit2) run(repo *git.Repository, repoId string) error {
 				RefType:      BRANCH,
 			}
 			ref.IsDefault, _ = branch.IsHead()
-			err = l.store.Refs(ref)
-			if err != nil {
-				return err
+			err1 = l.store.Refs(ref)
+			if err1 != nil {
+				return err1
 			}
 			l.subTaskCtx.IncProgress(1)
 			return nil
@@ -158,8 +169,8 @@ func (l *LibGit2) run(repo *git.Repository, repoId string) error {
 			c.CommittedDate = committer.When
 		}
 		var commitParents []*code.CommitParent
-		if commit.ParentCount() > 0 {
-			parent := commit.Parent(0)
+		for i := uint(0); i < commit.ParentCount(); i++ {
+			parent := commit.Parent(i)
 			if parent != nil {
 				if parentId := parent.Id(); parentId != nil {
 					commitParents = append(commitParents, &code.CommitParent{
@@ -167,6 +178,15 @@ func (l *LibGit2) run(repo *git.Repository, repoId string) error {
 						ParentCommitSha: parentId.String(),
 					})
 				}
+			}
+		}
+		err2 = l.store.CommitParents(commitParents)
+		if err2 != nil {
+			return false
+		}
+		if commit.ParentCount() > 0 {
+			parent := commit.Parent(0)
+			if parent != nil {
 				var parentTree, tree *git.Tree
 				parentTree, err2 = parent.Tree()
 				if err2 != nil {
@@ -236,17 +256,13 @@ func (l *LibGit2) run(repo *git.Repository, repoId string) error {
 		if err2 != nil {
 			return false
 		}
-		err2 = l.store.CommitParents(commitParents)
-		if err2 != nil {
-			return false
-		}
 		l.subTaskCtx.IncProgress(1)
 		return true
 	})
 	if err2 != nil {
 		return err2
 	}
-	if err != nil {
+	if err == nil {
 		err = l.store.Flush()
 	}
 	return err
