@@ -496,7 +496,7 @@ const CreatePipeline = (props) => {
               items={[
                 { href: '/', icon: false, text: 'Dashboard' },
                 { href: '/pipelines', icon: false, text: 'Pipelines' },
-                { href: '/pipelines/create', icon: false, text: 'RUN Pipeline', current: true },
+                { href: '/pipelines/create', icon: false, text: 'Create Pipeline Run', current: true },
               ]}
             />
 
@@ -522,7 +522,7 @@ const CreatePipeline = (props) => {
                 </div>
                 <div>
                   <h1 style={{ margin: 0 }}>
-                    Run New Pipeline
+                    Create Pipeline Run
                     <Popover
                       key='popover-help-key-create-pipeline'
                       className='trigger-delete-connection'
