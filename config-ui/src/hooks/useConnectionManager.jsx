@@ -48,13 +48,14 @@ function useConnectionManager ({
 
   const [activeConnection, setActiveConnection] = useState(NullConnection)
   const [allConnections, setAllConnections] = useState([])
+  const [testedConnections, setTestedConnections] = useState([])
   const [connectionCount, setConnectionCount] = useState(0)
   const [connectionLimitReached, setConnectionLimitReached] = useState(false)
 
   const [saveComplete, setSaveComplete] = useState(false)
   const [deleteComplete, setDeleteComplete] = useState(false)
 
-  const testConnection = () => {
+  const testConnection = useCallback((notify = true, manualPayload = {}, onSuccess = () => {}, onFail = () => {}) => {
     setIsTesting(true)
     setShowError(false)
     ToastNotification.clear()
@@ -75,24 +76,30 @@ function useConnectionManager ({
           connectionPayload = { endpoint: endpointUrl, auth: token, proxy: proxy }
           break
       }
-
+      connectionPayload = { ...connectionPayload, ...manualPayload }
       const testUrl = `${DEVLAKE_ENDPOINT}/plugins/${activeProvider.id}/test`
-      console.log('INFO >>> POST URL for testing: ', testUrl)
+      console.log('INFO >>> Endopoint URL & Payload for testing: ', testUrl, connectionPayload)
       const res = await request.post(testUrl, connectionPayload)
       console.log('res.data', res.data)
       if (res?.data?.Success && res.status === 200) {
         setIsTesting(false)
         setTestStatus(1)
-        ToastNotification.show({ message: 'Connection test OK.', intent: 'success', icon: 'small-tick' })
+        if (notify) {
+          ToastNotification.show({ message: `Connection test OK. ${connectionPayload.endpoint}`, intent: 'success', icon: 'small-tick' })
+        }
+        onSuccess(res)
       } else {
         setIsTesting(false)
         setTestStatus(2)
         const errorMessage = 'Connection test FAILED. ' + res?.data?.Message
-        ToastNotification.show({ message: errorMessage, intent: 'danger', icon: 'error' })
+        if (notify) {
+          ToastNotification.show({ message: errorMessage, intent: 'danger', icon: 'error' })
+        }
+        onFail(res)
       }
     }
     runTest()
-  }
+  }, [activeProvider.id, endpointUrl, password, proxy, token, username])
 
   const saveConnection = (configurationSettings = {}) => {
     setIsSaving(true)
@@ -238,7 +245,7 @@ function useConnectionManager ({
       const providerConnections = f.data?.map((conn, idx) => {
         return {
           ...conn,
-          status: f.status === 200 || f.status === 201 ? 1 : 0, // conn.status
+          status: 0,
           id: conn.ID,
           name: conn.name,
           endpoint: conn.endpoint,
@@ -289,6 +296,28 @@ function useConnectionManager ({
     const source = sources.find(s => s.id === connectionId)
     return source ? source.title : '(Instance)'
   }, [])
+
+  const testAllConnections = useCallback((connections) => {
+    console.log('>> TESTING ALL CONNECTION SOURCES...')
+    connections.forEach((c, cIdx) => {
+      console.log('>>> TESTING CONNECTION INSTANCE...', c)
+      const notify = false
+      const payload = {
+        endpoint: c.Endpoint || c.endpoint,
+        username: c.Username,
+        password: c.Password,
+        auth: c.basicAuthEncoded || c.Auth,
+        proxy: c.Proxy || c.Proxy
+      }
+      const onSuccess = (res) => {
+        setTestedConnections([...connections.filter(oC => oC.ID !== c.ID), { ...c, status: 1 }])
+      }
+      const onFail = (res) => {
+        setTestedConnections([...connections.filter(oC => oC.ID !== c.ID), { ...c, status: 2 }])
+      }
+      testConnection(notify, payload, onSuccess, onFail)
+    })
+  }, [testConnection])
 
   useEffect(() => {
     if (activeConnection && activeConnection.ID !== null) {
@@ -344,10 +373,15 @@ function useConnectionManager ({
     }
   }, [connectionId, fetchConnection])
 
+  useEffect(() => {
+    console.log('>> TESTED CONNECTION RESULTS...', testedConnections)
+  }, [testedConnections])
+
   return {
     activeConnection,
     fetchConnection,
     fetchAllConnections,
+    testAllConnections,
     testConnection,
     saveConnection,
     deleteConnection,
@@ -378,6 +412,7 @@ function useConnectionManager ({
     setTestStatus,
     setSourceLimits,
     allConnections,
+    testedConnections,
     sourceLimits,
     connectionCount,
     connectionLimitReached,
