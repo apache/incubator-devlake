@@ -193,7 +193,7 @@ export default function Triggers () {
                   <div className='bp3-callout' style={{ maxWidth: '600px', margin: '5px 0', fontSize: '11px' }}>
                     <h4 className='bp3-heading' style={{ fontSize: '15px' }}>
                       <Icon icon='warning-sign' color='#ffcc00' size={16} style={{ marginRight: '5px', marginBottom: '3px' }} />
-                      Leacy Feature Notice
+                      Legacy Feature Notice
                     </h4>
                     This is a legacy service and will soon be deprecated in favor of <strong>Pipelines</strong> Feature.
                     See <a href='/pipelines/create' style={{ textDecoration: 'underline' }}>Create a Pipeline</a> for more details.
