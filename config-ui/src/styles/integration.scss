@@ -118,3 +118,28 @@ table.connections-table {
   background-repeat: no-repeat;
   background-size: 12px 12px;
 }
+
+.configureConnection {
+  min-width: 690px;
+  max-width: 860px;
+  margin-right: auto;
+
+  .bp3-input-group {
+    &.connection-name-input, &.username-input, &.password-input {
+      min-width: 320px;
+      width: auto;
+      max-width: 460px;
+    }
+  }
+}
+
+.bp3-input-group {
+  &.invalid-field {
+    + label { font-weight: bold }
+    > input {
+      box-shadow: rgb(232, 28, 28) 0px 0px 0px 1px, rgba(232, 71, 28, 0.3) 0px 0px 0px 3px, rgba(16, 22, 26, 0.2) 0px 1px 1px 0px inset;
+      box-sizing: border-box;
+      background-color: #ffeeee;
+    }
+  }
+}

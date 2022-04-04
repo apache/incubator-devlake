@@ -7,11 +7,15 @@ import {
   Tag,
   Elevation,
   Popover,
+  // PopoverInteractionKind,
   Position,
-  Intent
+  Intent,
+  PopoverInteractionKind
 } from '@blueprintjs/core'
 import { Providers } from '@/data/Providers'
 import GenerateTokenForm from '@/pages/configure/connections/GenerateTokenForm'
+import FormValidationErrors from '@/components/messages/FormValidationErrors'
+import InputValidationError from '@/components/validation/InputValidationError'
 
 import '@/styles/integration.scss'
 import '@/styles/connections.scss'
@@ -20,6 +24,7 @@ export default function ConnectionForm (props) {
   const {
     isLocked = false,
     isValid = true,
+    validationErrors = [],
     activeProvider,
     name,
     endpointUrl,
@@ -81,6 +86,14 @@ export default function ConnectionForm (props) {
 
   const handleTokenInteraction = (isOpen) => {
     setShowTokenCreator(isOpen)
+  }
+
+  const fieldHasError = (fieldId) => {
+    return validationErrors.some(e => e.includes(fieldId))
+  }
+
+  const getFieldError = (fieldId) => {
+    return validationErrors.find(e => e.includes(fieldId))
   }
 
   useEffect(() => {
@@ -158,10 +171,10 @@ export default function ConnectionForm (props) {
             label=''
             inline={true}
             labelFor='connection-name'
-            className='formGroup'
+            className='formGroup-inline'
             contentClassName='formGroupContent'
           >
-            <Label style={{ display: 'inline' }}>
+            <Label style={{ display: 'inline', marginRight: 0 }}>
               {labels
                 ? labels.name
                 : (
@@ -176,9 +189,15 @@ export default function ConnectionForm (props) {
               placeholder={placeholders ? placeholders.name : 'Enter Instance Name'}
               value={name}
               onChange={(e) => onNameChange(e.target.value)}
-              className='input connection-name-input'
+              className={`input connection-name-input ${fieldHasError('Connection Source') ? 'invalid-field' : ''}`}
               leftIcon={[Providers.GITHUB, Providers.GITLAB, Providers.JENKINS].includes(activeProvider.id) ? 'lock' : null}
-              fill
+              inline={true}
+              rightElement={(
+                <InputValidationError
+                  error={getFieldError('Connection Source')}
+                />
+              )}
+              // fill
             />
           </FormGroup>
         </div>
@@ -206,8 +225,13 @@ export default function ConnectionForm (props) {
               placeholder={placeholders ? placeholders.endpoint : 'Enter Endpoint URL'}
               value={endpointUrl}
               onChange={(e) => onEndpointChange(e.target.value)}
-              className='input'
+              className={`input endpoint-url-input ${fieldHasError('Endpoint') ? 'invalid-field' : ''}`}
               fill
+              rightElement={(
+                <InputValidationError
+                  error={getFieldError('Endpoint')}
+                />
+              )}
             />
             {/* <a href='#' style={{ margin: '5px 0 5px 5px' }}><Icon icon='info-sign' size='16' /></a> */}
           </FormGroup>
@@ -237,9 +261,14 @@ export default function ConnectionForm (props) {
                 placeholder={placeholders ? placeholders.token : 'Enter Auth Token eg. EJrLG8DNeXADQcGOaaaX4B47'}
                 value={token}
                 onChange={(e) => onTokenChange(e.target.value)}
-                className='input'
+                className={`input auth-input ${fieldHasError('Auth') ? 'invalid-field' : ''}`}
                 fill
                 required
+                rightElement={(
+                  <InputValidationError
+                    error={getFieldError('Auth')}
+                  />
+                )}
               />
               {
                 activeProvider.id === Providers.JIRA &&
@@ -305,8 +334,13 @@ export default function ConnectionForm (props) {
                   placeholder='Enter Username'
                   defaultValue={username}
                   onChange={(e) => onUsernameChange(e.target.value)}
-                  className='input'
-                  style={{ maxWidth: '300px' }}
+                  className={`input username-input ${fieldHasError('Username') ? 'invalid-field' : ''}`}
+                  // style={{ maxWidth: '300px' }}
+                  rightElement={(
+                    <InputValidationError
+                      error={getFieldError('Username')}
+                    />
+                  )}
                 />
               </FormGroup>
             </div>
@@ -334,8 +368,13 @@ export default function ConnectionForm (props) {
                   placeholder='Enter Password'
                   defaultValue={password}
                   onChange={(e) => onPasswordChange(e.target.value)}
-                  className='input'
-                  style={{ maxWidth: '300px' }}
+                  className={`input password-input ${fieldHasError('Password') ? 'invalid-field' : ''}`}
+                  // style={{ maxWidth: '300px' }}
+                  rightElement={(
+                    <InputValidationError
+                      error={getFieldError('Password')}
+                    />
+                  )}
                 />
               </FormGroup>
             </div>
@@ -358,12 +397,17 @@ export default function ConnectionForm (props) {
                     )}
               </Label>
               <InputGroup
-                id='connection-proxy'
+                id='github-proxy'
                 placeholder={placeholders.proxy ? placeholders.proxy : 'http://proxy.localhost:8080'}
                 defaultValue={proxy}
                 onChange={(e) => onProxyChange(e.target.value)}
                 disabled={isTesting || isSaving || isLocked}
-                className='input'
+                className={`input input-proxy ${fieldHasError('Proxy') ? 'invalid-field' : ''}`}
+                rightElement={(
+                  <InputValidationError
+                    error={getFieldError('Proxy')}
+                  />
+                )}
               />
             </FormGroup>
           </div>
@@ -383,12 +427,15 @@ export default function ConnectionForm (props) {
             />
           </div>
           <div style={{ display: 'flex' }}>
-            <Button
-              id='btn-cancel'
-              className='btn-cancel'
-              icon='remove' text='Cancel'
-              onClick={onCancel} disabled={isSaving || isTesting}
-            />
+            <div style={{ justifyContent: 'center', padding: '8px' }}>
+              {validationErrors.length > 0 && (
+                <Popover interactionKind={PopoverInteractionKind.HOVER_TARGET_ONLY}>
+                  <Icon icon='warning-sign' size={16} color={Colors.RED5} style={{ outline: 'none' }} />
+                  <div style={{ padding: '5px' }}><FormValidationErrors errors={validationErrors} /></div>
+                </Popover>
+              )}
+            </div>
+            <Button className='btn-cancel' icon='remove' text='Cancel' onClick={onCancel} disabled={isSaving || isTesting} />
             <Button
               id='btn-save'
               className='btn-save'
