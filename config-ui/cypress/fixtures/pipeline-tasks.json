@@ -2,9 +2,9 @@
   "count": 2,
   "tasks": [
     {
-      "ID": 1792,
-      "CreatedAt": "2022-03-10T22:22:29.717Z",
-      "UpdatedAt": "2022-03-10T22:22:30.142Z",
+      "id": 1792,
+      "createdAt": "2022-03-10T22:22:29.717Z",
+      "updatedAt": "2022-03-10T22:22:30.142Z",
       "plugin": "jenkins",
       "options": {},
       "status": "TASK_COMPLETED",
@@ -19,9 +19,9 @@
       "spentSeconds": 1
     },
     {
-      "ID": 632,
-      "CreatedAt": "2022-03-10T22:08:39.525Z",
-      "UpdatedAt": "2022-03-10T22:41:40.833Z",
+      "id": 632,
+      "createdAt": "2022-03-10T22:08:39.525Z",
+      "updatedAt": "2022-03-10T22:41:40.833Z",
       "plugin": "github",
       "options": {
         "owner": "e2corporation",

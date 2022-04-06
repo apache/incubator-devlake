@@ -2,9 +2,9 @@
   "count": 1,
   "tasks": [
     {
-      "ID": 100,
-      "CreatedAt": "2022-03-21T21:14:32.903Z",
-      "UpdatedAt": "2022-03-21T21:14:34.97Z",
+      "id": 100,
+      "createdAt": "2022-03-21T21:14:32.903Z",
+      "updatedAt": "2022-03-21T21:14:34.97Z",
       "plugin": "jira",
       "options": {
         "boardId": 1,

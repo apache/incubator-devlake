@@ -2,9 +2,9 @@
   "count": 1,
   "tasks": [
     {
-      "ID": 100,
-      "CreatedAt": "2022-03-21T19:59:08.531Z",
-      "UpdatedAt": "2022-03-21T19:59:08.531Z",
+      "id": 100,
+      "createdAt": "2022-03-21T19:59:08.531Z",
+      "updatedAt": "2022-03-21T19:59:08.531Z",
       "plugin": "github",
       "options": {
         "repo": "lake",

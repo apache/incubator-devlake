@@ -34,10 +34,10 @@ function usePipelineManager (pipelineName = `COLLECTION ${Date.now()}`, initialT
       console.log('>> DISPATCHING PIPELINE REQUEST', settings)
       const run = async () => {
         const p = await request.post(`${DEVLAKE_ENDPOINT}/pipelines`, settings)
-        const t = await request.get(`${DEVLAKE_ENDPOINT}/pipelines/${p.data?.ID}/tasks`)
+        const t = await request.get(`${DEVLAKE_ENDPOINT}/pipelines/${p.data?.ID || p.data?.id}/tasks`)
         console.log('>> RAW PIPELINE DATA FROM API...', p.data)
-        setPipelineRun({ ...p.data, tasks: [...t.data.tasks] })
-        setLastRunId(p.data?.ID)
+        setPipelineRun({ ...p.data, ID: p.data?.ID || p.data?.id, tasks: [...t.data.tasks] })
+        setLastRunId(p.data?.ID || p.data?.id)
         ToastNotification.show({ message: `Created New Pipeline - ${pipelineName}.`, intent: 'danger', icon: 'small-tick' })
         setTimeout(() => {
           setIsRunning(false)

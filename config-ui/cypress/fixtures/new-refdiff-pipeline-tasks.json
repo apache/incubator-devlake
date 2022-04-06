@@ -2,9 +2,9 @@
   "count": 1,
   "tasks": [
     {
-      "ID": 100,
-      "CreatedAt": "2022-03-22T14:08:53.627Z",
-      "UpdatedAt": "2022-03-22T14:08:53.698Z",
+      "id": 100,
+      "createdAt": "2022-03-22T14:08:53.627Z",
+      "updatedAt": "2022-03-22T14:08:53.698Z",
       "plugin": "refdiff",
       "options": {
         "pairs": [

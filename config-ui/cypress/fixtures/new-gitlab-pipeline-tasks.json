@@ -2,9 +2,9 @@
   "count": 1,
   "tasks": [
     {
-      "ID": 100,
-      "CreatedAt": "2022-03-21T19:19:51.778Z",
-      "UpdatedAt": "2022-03-21T19:19:51.83Z",
+      "id": 100,
+      "createdAt": "2022-03-21T19:19:51.778Z",
+      "updatedAt": "2022-03-21T19:19:51.83Z",
       "plugin": "gitlab",
       "options": {
         "projectId": 278964

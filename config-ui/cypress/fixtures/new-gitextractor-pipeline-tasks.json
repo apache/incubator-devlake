@@ -2,9 +2,9 @@
   "count": 1,
   "tasks": [
     {
-      "ID": 100,
-      "CreatedAt": "2022-03-21T20:59:09.448Z",
-      "UpdatedAt": "2022-03-21T20:59:17.699Z",
+      "id": 100,
+      "createdAt": "2022-03-21T20:59:09.448Z",
+      "updatedAt": "2022-03-21T20:59:17.699Z",
       "plugin": "gitextractor",
       "options": {
         "url": "https://github.com/merico-dev/lake.git",
