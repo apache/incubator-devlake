@@ -91,7 +91,7 @@ function useConnectionManager ({
       } else {
         setIsTesting(false)
         setTestStatus(2)
-        const errorMessage = 'Connection test FAILED. ' + res?.data?.Message
+        const errorMessage = 'Connection test FAILED. ' + res.message
         if (notify) {
           ToastNotification.show({ message: errorMessage, intent: 'danger', icon: 'error' })
         }
@@ -242,7 +242,7 @@ function useConnectionManager ({
       console.log('>> FETCHING ALL CONNECTION SOURCES')
       const f = await request.get(`${DEVLAKE_ENDPOINT}/plugins/${activeProvider.id}/sources`)
       console.log('>> RAW ALL CONNECTIONS DATA FROM API...', f.data)
-      const providerConnections = f.data?.map((conn, idx) => {
+      const providerConnections = [].concat(f.data || []).map((conn, idx) => {
         return {
           ...conn,
           status: 0,
