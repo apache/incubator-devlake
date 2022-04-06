@@ -8,6 +8,8 @@ import {
   Button, Card, Elevation, Colors,
   Tooltip,
   Position,
+  Spinner,
+  Intent,
   Icon,
 } from '@blueprintjs/core'
 import Nav from '@/components/Nav'
@@ -39,13 +41,14 @@ export default function ManageIntegration () {
     sourceLimits,
     Providers,
     allConnections: connections,
+    testedConnections,
     isFetching: isLoading,
     isDeleting: isDeletingConnection,
     deleteConnection,
     fetchAllConnections,
     errors,
     deleteComplete,
-    // testConnection
+    testAllConnections,
   } = useConnectionManager({
     activeProvider
   })
@@ -89,15 +92,38 @@ export default function ManageIntegration () {
   }
 
   const refreshConnections = () => {
-    fetchAllConnections(true)
+    fetchAllConnections(false)
   }
 
   const maxConnectionsExceeded = (limit, totalConnections) => {
     return totalConnections > 0 && totalConnections >= limit
   }
 
+  const getTestedConnection = (connection) => {
+    return testedConnections.find(tC => tC.ID === connection.ID)
+  }
+
+  const getConnectionStatus = (connection) => {
+    let s = null
+    const connectionAfterTest = testedConnections.find(tC => tC.ID === connection.ID)
+    switch (parseInt(connectionAfterTest?.status, 10)) {
+      case 1:
+        s = <strong style={{ color: Colors.GREEN3 }}>Online</strong>
+        break
+      case 2:
+        s = <strong style={{ color: Colors.RED3 }}>Error</strong>
+        break
+      case 0:
+      default:
+        // eslint-disable-next-line max-len
+        s = <strong style={{ color: Colors.GRAY4 }}><span style={{ float: 'right' }}><Spinner size={11} intent={Intent.NONE} /></span> Offline</strong>
+        break
+    }
+    return s
+  }
+
   useEffect(() => {
-    fetchAllConnections(true)
+    fetchAllConnections(false)
   }, [activeProvider, fetchAllConnections])
 
   useEffect(() => {
@@ -122,6 +148,11 @@ export default function ManageIntegration () {
 
     return () => clearTimeout(flushTimeout)
   }, [deleteComplete, fetchAllConnections])
+
+  useEffect(() => {
+    console.log('>> TESTING CONNECTION SOURCES...')
+    testAllConnections(connections)
+  }, [connections])
 
   return (
     <>
@@ -227,7 +258,8 @@ export default function ManageIntegration () {
                         {connections.map((connection, idx) => (
                           <tr
                             key={`connection-row-${idx}`}
-                            className={connection.status === 0 ? 'connection-offline' : ''}
+                            // eslint-disable-next-line max-len
+                            className={getTestedConnection(connection) && getTestedConnection(connection).status !== 1 ? 'connection-offline' : ''}
                           >
                             {activeProvider.id === Providers.JIRA && (
                               <td
@@ -266,20 +298,7 @@ export default function ManageIntegration () {
                               {!connection.endpoint && !connection.Endpoint && (<span style={{ color: Colors.GRAY4 }}>( Empty )</span>)}
                             </td>
                             <td className='cell-status'>
-                              {connection.status === 0 && (
-                                <strong style={{ color: Colors.GRAY4 }}>Offline</strong>
-                              )}
-                              {connection.status === 1 && (
-                                <strong style={{ color: Colors.GREEN3 }}>Online</strong>
-                              )}
-                              {connection.status === 2 && (
-                                <strong style={{ color: Colors.RED3 }}>Error</strong>
-                              )}
-                              {connection.status === 3 && (
-                                <strong style={{ color: Colors.BLUE3 }}>
-                                  <Icon icon='array' size={14} color={Colors.GRAY2} /> Collecting...
-                                </strong>
-                              )}
+                              {getConnectionStatus(connection)}
                             </td>
                             <td className='cell-actions'>
                               <a

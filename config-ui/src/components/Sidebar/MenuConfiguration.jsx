@@ -55,16 +55,16 @@ const MenuConfiguration = (activeRoute) => {
     //   children: [
     //   ]
     // },
-     {
-       id: 2,
-       label: 'Triggers',
-       icon: 'asterisk',
-       classNames: [],
-       route: '/triggers',
-       active: activeRoute.url === '/triggers',
-       children: [
-       ]
-     },
+    {
+      id: 2,
+      label: 'Triggers',
+      icon: 'asterisk',
+      classNames: [],
+      route: '/triggers',
+      active: activeRoute.url === '/triggers',
+      children: [
+      ]
+    },
     {
       id: 3,
       label: 'Pipelines',
@@ -75,7 +75,7 @@ const MenuConfiguration = (activeRoute) => {
       children: [
         {
           id: 0,
-          label: 'Create New Pipeline',
+          label: 'Create Pipeline Run',
           route: '/pipelines/create',
           active: activeRoute.url.endsWith('/pipelines/create'),
           icon: 'git-pull',

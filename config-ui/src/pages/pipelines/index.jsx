@@ -201,7 +201,7 @@ const Pipelines = (props) => {
               items={[
                 { href: '/', icon: false, text: 'Dashboard' },
                 { href: '/pipelines', icon: false, text: 'Pipelines' },
-                { href: '/pipelines', icon: false, text: 'Manage Pipeline Runs', current: true },
+                { href: '/pipelines', icon: false, text: 'All Pipeline Runs', current: true },
               ]}
             />
             <div className='headlineContainer'>
@@ -216,7 +216,7 @@ const Pipelines = (props) => {
                 </div>
                 <div>
                   <h1 style={{ margin: 0 }}>
-                    Pipeline Runs
+                    All Pipeline Runs
                     <Popover
                       className='trigger-manage-pipelines-help'
                       popoverClassName='popover-help-manage-pipelines'
@@ -242,7 +242,7 @@ const Pipelines = (props) => {
                   <p className=''>The most recent runs are shown first, filter by key status types.</p>
                 </div>
                 <div style={{ marginLeft: 'auto' }}>
-                  <Button icon='add' intent={Intent.PRIMARY} text='Create Run' onClick={() => history.push('/pipelines/create')} />
+                  <Button icon='add' intent={Intent.PRIMARY} text='Create Pipeline Run' onClick={() => history.push('/pipelines/create')} />
                 </div>
               </div>
             </div>
