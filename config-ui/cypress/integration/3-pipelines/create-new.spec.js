@@ -8,13 +8,13 @@ context('Create New Pipelines Interface', () => {
   it('provides access to creating a new pipeline', () => {
     cy.get('ul.bp3-breadcrumbs')
       .find('a.bp3-breadcrumb-current')
-      .contains(/run pipeline/i)
+      .contains(/create pipeline run/i)
       .should('be.visible')
       .should('have.attr', 'href', '/pipelines/create')
 
     cy.get('.headlineContainer')
       .find('h1')
-      .contains(/run new pipeline/i)
+      .contains(/create pipeline run/i)
       .should('be.visible')
   })  
 
