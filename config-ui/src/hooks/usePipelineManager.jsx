@@ -91,9 +91,10 @@ function usePipelineManager (pipelineName = `COLLECTION ${Date.now()}`, initialT
         console.log('>> RAW PIPELINE TASKS DATA FROM API...', t.data)
         setActivePipeline({
           ...p.data,
+          ID: p.data.id,
           tasks: [...t.data.tasks]
         })
-        setPipelineRun((pR) => refresh ? { ...p.data, tasks: [...t.data.tasks] } : pR)
+        setPipelineRun((pR) => refresh ? { ...p.data, ID: p.data.id, tasks: [...t.data.tasks] } : pR)
         setLastRunId((lrId) => refresh ? p.data?.ID : lrId)
         // ToastNotification.show({ message: `Fetched Pipeline ID - ${p.data?.ID}.`, intent: 'danger', icon: 'small-tick' })
         setTimeout(() => {
@@ -130,7 +131,9 @@ function usePipelineManager (pipelineName = `COLLECTION ${Date.now()}`, initialT
       const fetchAll = async () => {
         const p = await request.get(`${DEVLAKE_ENDPOINT}/pipelines`)
         console.log('>> RAW PIPELINES RUN DATA FROM API...', p.data?.pipelines)
-        setPipelines(p.data && p.data.pipelines ? [...p.data.pipelines] : [])
+        let pipelines = p.data && p.data.pipelines ? [...p.data.pipelines] : []
+        pipelines = pipelines.map(p => ({ ...p, ID: p.id }))
+        setPipelines(pipelines)
         setPipelineCount(p.data ? p.data.count : 0)
         // ToastNotification.show({ message: `Fetched All Pipelines`, intent: 'danger', icon: 'small-tick' })
         setTimeout(() => {
