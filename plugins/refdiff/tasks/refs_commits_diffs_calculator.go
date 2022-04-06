@@ -2,6 +2,7 @@ package tasks
 
 import (
 	"fmt"
+	"reflect"
 
 	"github.com/merico-dev/lake/models/domainlayer/code"
 	"github.com/merico-dev/lake/plugins/core"
@@ -16,6 +17,7 @@ func CalculateCommitsDiff(taskCtx core.SubTaskContext) error {
 	db := taskCtx.GetDb()
 	ctx := taskCtx.GetContext()
 	logger := taskCtx.GetLogger()
+	insertCountLimitOfRefsCommitsDiff := int(65535 / reflect.ValueOf(code.RefsCommitsDiff{}).NumField())
 	// convert ref pairs into commit pairs
 	ref2sha := func(refName string) (string, error) {
 		ref := &code.Ref{}
@@ -115,16 +117,31 @@ func CalculateCommitsDiff(taskCtx core.SubTaskContext) error {
 		lostSha, oldCount, newCount := commitNodeGraph.CalculateLost(pair[1], pair[0])
 
 		commitsDiffs := []code.RefsCommitsDiff{}
+
 		commitsDiff.SortingIndex = 1
 		for _, sha := range lostSha {
 			commitsDiff.CommitSha = sha
 			commitsDiffs = append(commitsDiffs, *commitsDiff)
+
+			// sql limit placeholders count only 65535
+			if commitsDiff.SortingIndex%insertCountLimitOfRefsCommitsDiff == 0 {
+				logger.Info("refdiff", fmt.Sprintf("commitsDiffs count in limited[%d] index[%d]--exec and clean", len(commitsDiffs), commitsDiff.SortingIndex))
+				err = db.Clauses(clause.OnConflict{DoNothing: true}).Create(commitsDiffs).Error
+				if err != nil {
+					return err
+				}
+				commitsDiffs = []code.RefsCommitsDiff{}
+			}
+
 			commitsDiff.SortingIndex++
 		}
 
-		err = db.Clauses(clause.OnConflict{DoNothing: true}).Create(commitsDiffs).Error
-		if err != nil {
-			panic(err)
+		if len(commitsDiffs) > 0 {
+			logger.Info("refdiff", fmt.Sprintf("insert data count [%d]", len(commitsDiffs)))
+			err = db.Clauses(clause.OnConflict{DoNothing: true}).Create(commitsDiffs).Error
+			if err != nil {
+				return err
+			}
 		}
 
 		logger.Info("refdiff", fmt.Sprintf(
