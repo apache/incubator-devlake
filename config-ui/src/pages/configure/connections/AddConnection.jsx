@@ -148,6 +148,7 @@ export default function AddConnection () {
                 <ConnectionForm
                   isLocked={connectionLimitReached}
                   isValid={isValidForm}
+                  validationErrors={validationErrors}
                   activeProvider={activeProvider}
                   name={name}
                   endpointUrl={endpointUrl}
@@ -176,9 +177,9 @@ export default function AddConnection () {
                   placeholders={ProviderFormPlaceholders[activeProvider.id]}
                 />
               </div>
-              {validationErrors.length > 0 && (
+              {/* {validationErrors.length > 0 && (
                 <FormValidationErrors errors={validationErrors} />
-              )}
+              )} */}
             </div>
           </main>
         </Content>
