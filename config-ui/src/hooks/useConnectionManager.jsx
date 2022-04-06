@@ -81,7 +81,7 @@ function useConnectionManager ({
       console.log('INFO >>> Endopoint URL & Payload for testing: ', testUrl, connectionPayload)
       const res = await request.post(testUrl, connectionPayload)
       console.log('res.data', res.data)
-      if (res?.data?.Success && res.status === 200) {
+      if (res.data?.success && res.status === 200) {
         setIsTesting(false)
         setTestStatus(1)
         if (notify) {
@@ -213,6 +213,7 @@ function useConnectionManager ({
         console.log('>> RAW CONNECTION DATA FROM API...', connectionData)
         setActiveConnection({
           ...connectionData,
+          ID: connectionData.ID || connectionData.id,
           name: connectionData.name || connectionData.Name,
           endpoint: connectionData.endpoint || connectionData.Endpoint,
           proxy: connectionData.proxy || connectionData.Proxy,
@@ -246,13 +247,12 @@ function useConnectionManager ({
         return {
           ...conn,
           status: 0,
-          id: conn.ID,
+          ID: conn.ID || conn.id,
           name: conn.name,
           endpoint: conn.endpoint,
           errors: []
         }
       })
-      // setConnections(providerConnections)
       if (notify) {
         ToastNotification.show({ message: 'Loaded all connections.', intent: 'success', icon: 'small-tick' })
       }
