@@ -8,13 +8,13 @@ context('Manage Pipelines & Runs', () => {
   it('provides access/management of pipeline runs', () => {
     cy.get('ul.bp3-breadcrumbs')
       .find('a.bp3-breadcrumb-current')
-      .contains(/manage pipeline runs/i)
+      .contains(/all pipeline runs/i)
       .should('be.visible')
       .should('have.attr', 'href', '/pipelines')
 
     cy.get('.headlineContainer')
       .find('h1')
-      .contains(/pipeline runs/i)
+      .contains(/all pipeline runs/i)
       .should('be.visible')
   })
 
@@ -50,7 +50,7 @@ context('Manage Pipelines & Runs', () => {
   it('has action to create new pipeline run', () => {
     cy.get('.bp3-button')
       .should('have.class', 'bp3-intent-primary')
-      .contains(/create run/i)
+      .contains(/create pipeline run/i)
       .should('be.visible')
       .as('createRunBtn')
 
