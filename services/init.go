@@ -46,18 +46,11 @@ func init() {
 	}
 
 	// migrate data tables if run in standalone mode
-	temporalUrl := cfg.GetString("TEMPORAL_URL")
-	if temporalUrl == "" {
-		err = runner.MigrateDb(db)
-		if err != nil {
-			panic(err)
-		}
-	} else {
-
+	err = runner.MigrateDb(db)
+	if err != nil {
+		panic(err)
 	}
 
 	// call service init
 	pipelineServiceInit()
-	taskServiceInit()
-
 }

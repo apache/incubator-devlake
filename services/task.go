@@ -4,6 +4,9 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"regexp"
+	"strconv"
+	"strings"
 	"sync"
 
 	"github.com/merico-dev/lake/errors"
@@ -13,6 +16,9 @@ import (
 	"github.com/merico-dev/lake/runner"
 )
 
+var taskLog = logger.Global.Nested("task service")
+var ACTIVITY_PATTERN = regexp.MustCompile(`task #(\d+)`)
+
 type RunningTaskData struct {
 	Cancel         context.CancelFunc
 	ProgressDetail *models.TaskProgressDetail
@@ -21,11 +27,6 @@ type RunningTaskData struct {
 type RunningTask struct {
 	mu    sync.Mutex
 	tasks map[uint64]*RunningTaskData
-}
-
-func taskServiceInit() {
-	// reset task status
-	db.Model(&models.Task{}).Where("status = ?", models.TASK_RUNNING).Update("status", models.TASK_FAILED)
 }
 
 func (rt *RunningTask) Add(taskId uint64, cancel context.CancelFunc) error {
@@ -41,8 +42,25 @@ func (rt *RunningTask) Add(taskId uint64, cancel context.CancelFunc) error {
 	return nil
 }
 
+func (rt *RunningTask) setAll(progressDetails map[uint64]*models.TaskProgressDetail) {
+	rt.mu.Lock()
+	defer rt.mu.Unlock()
+	// delete finished tasks
+	for taskId := range rt.tasks {
+		if _, ok := progressDetails[taskId]; !ok {
+			delete(rt.tasks, taskId)
+		}
+	}
+	for taskId, progressDetail := range progressDetails {
+		if _, ok := rt.tasks[taskId]; !ok {
+			rt.tasks[taskId] = &RunningTaskData{}
+		}
+		rt.tasks[taskId].ProgressDetail = progressDetail
+	}
+}
+
 // less lock times than GetProgressDetail
-func (rt *RunningTask) GetProgressDetailToTasks(tasks []models.Task) error {
+func (rt *RunningTask) FillProgressDetailToTasks(tasks []models.Task) {
 	rt.mu.Lock()
 	defer rt.mu.Unlock()
 
@@ -52,8 +70,6 @@ func (rt *RunningTask) GetProgressDetailToTasks(tasks []models.Task) error {
 			tasks[index].ProgressDetail = task.ProgressDetail
 		}
 	}
-
-	return nil
 }
 
 func (rt *RunningTask) GetProgressDetail(taskId uint64) *models.TaskProgressDetail {
@@ -108,7 +124,7 @@ func CreateTask(newTask *models.NewTask) (*models.Task, error) {
 	}
 	err = db.Save(&task).Error
 	if err != nil {
-		logger.Error("save task failed", err)
+		taskLog.Error("save task failed", err)
 		return nil, errors.InternalError
 	}
 	return &task, nil
@@ -143,7 +159,7 @@ func GetTasks(query *TaskQuery) ([]models.Task, int64, error) {
 		return nil, count, err
 	}
 
-	runningTasks.GetProgressDetailToTasks(tasks)
+	runningTasks.FillProgressDetailToTasks(tasks)
 
 	return tasks, count, nil
 }
@@ -164,6 +180,34 @@ func CancelTask(taskId uint64) error {
 	}
 	cancel()
 	return nil
+}
+
+func runTasksStandalone(taskIds []uint64) error {
+	results := make(chan error)
+	for _, taskId := range taskIds {
+		taskId := taskId
+		go func() {
+			taskLog.Info("run task in background ", taskId)
+			results <- runTaskStandalone(taskId)
+		}()
+	}
+	errs := make([]string, 0)
+	var err error
+	finished := 0
+	for err = range results {
+		if err != nil {
+			taskLog.Error("task failed", err)
+			errs = append(errs, err.Error())
+		}
+		finished++
+		if finished == len(taskIds) {
+			close(results)
+		}
+	}
+	if len(errs) > 0 {
+		err = fmt.Errorf(strings.Join(errs, "\n"))
+	}
+	return err
 }
 
 func runTaskStandalone(taskId uint64) error {
@@ -198,29 +242,15 @@ func updateTaskProgress(taskId uint64, progress chan core.RunningProgress) {
 		return
 	}
 	progressDetail := data.ProgressDetail
-	task := &models.Task{}
-	task.ID = taskId
 	for p := range progress {
-		switch p.Type {
-		case core.TaskSetProgress:
-			progressDetail.TotalSubTasks = p.Total
-			progressDetail.FinishedSubTasks = p.Current
-		case core.TaskIncProgress:
-			progressDetail.FinishedSubTasks = p.Current
-			// TODO: get rid of db update
-			pct := float32(p.Current) / float32(p.Total)
-			err := db.Model(task).Update("progress", pct).Error
-			if err != nil {
-				logger.Global.Error("failed to update progress: %w", err)
-			}
-		case core.SubTaskSetProgress:
-			progressDetail.TotalRecords = p.Total
-			progressDetail.FinishedRecords = p.Current
-		case core.SubTaskIncProgress:
-			progressDetail.FinishedRecords = p.Current
-		case core.SetCurrentSubTask:
-			progressDetail.SubTaskName = p.SubTaskName
-			progressDetail.SubTaskNumber = p.SubTaskNumber
-		}
+		runner.UpdateProgressDetail(db, taskId, progressDetail, &p)
 	}
+}
+
+func getTaskIdFromActivityId(activityId string) (uint64, error) {
+	submatches := ACTIVITY_PATTERN.FindStringSubmatch(activityId)
+	if len(submatches) < 2 {
+		return 0, fmt.Errorf("activityId does not match")
+	}
+	return strconv.ParseUint(submatches[1], 10, 64)
 }

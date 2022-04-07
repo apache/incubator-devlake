@@ -33,7 +33,10 @@ func DbtConverter(taskCtx core.SubTaskContext) error {
 	dbPort, _ := strconv.Atoi(dbSlice[4])
 	dbSchema := dbSlice[5]
 
-	os.Chdir(projectPath)
+	err := os.Chdir(projectPath)
+	if err != nil {
+		return err
+	}
 	config := viper.New()
 	config.Set(projectName+".target", projectTarget)
 	config.Set(projectName+".outputs."+projectTarget+".type", "mysql")
@@ -43,7 +46,10 @@ func DbtConverter(taskCtx core.SubTaskContext) error {
 	config.Set(projectName+".outputs."+projectTarget+".database", dbSchema)
 	config.Set(projectName+".outputs."+projectTarget+".username", dbUsername)
 	config.Set(projectName+".outputs."+projectTarget+".password", dbPassword)
-	config.WriteConfigAs("profiles.yml")
+	err = config.WriteConfigAs("profiles.yml")
+	if err != nil {
+		return err
+	}
 
 	dbtExecParams := []string{"dbt", "run", "--profiles-dir", projectPath, "--select"}
 	dbtExecParams = append(dbtExecParams, models...)
@@ -52,7 +58,10 @@ func DbtConverter(taskCtx core.SubTaskContext) error {
 	if err != nil {
 		return err
 	}
-	cmd.Start()
+	err = cmd.Start()
+	if err != nil {
+		return err
+	}
 
 	scanner := bufio.NewScanner(stdout)
 	for scanner.Scan() {

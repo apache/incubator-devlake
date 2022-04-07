@@ -138,10 +138,12 @@ func (collector *ApiCollector) Execute() error {
 			if err != nil {
 				return err
 			}
-			err = collector.exec(input)
-			if err != nil {
-				break
-			}
+			go func() {
+				err := collector.exec(input)
+				if err != nil {
+					logger.Error("failed to execute for input: %v, %w", input, err)
+				}
+			}()
 		}
 
 	} else {
@@ -149,7 +151,11 @@ func (collector *ApiCollector) Execute() error {
 		err = collector.exec(nil)
 	}
 
-	collector.args.ApiClient.WaitAsync()
+	if err != nil {
+		return err
+	}
+	logger.Debug("wait for all async api to finished")
+	err = collector.args.ApiClient.WaitAsync()
 	logger.Info("end api collection")
 	return err
 }
@@ -183,23 +189,26 @@ func (collector *ApiCollector) fetchPagesAsync(reqData *RequestData) error {
 	if collector.args.GetTotalPages != nil {
 		/* when total pages is available from api*/
 		// fetch the very first page
-		err = collector.fetchAsync(reqData, func(res *http.Response) error {
+		err = collector.fetchAsync(reqData, func(res *http.Response, e error) error {
+			if e != nil {
+				return e
+			}
 			// gather total pages
-			body, err := ioutil.ReadAll(res.Body)
-			if err != nil {
-				return err
+			body, e := ioutil.ReadAll(res.Body)
+			if e != nil {
+				return e
 			}
 			res.Body.Close()
 			res.Body = ioutil.NopCloser(bytes.NewBuffer(body))
-			totalPages, err := collector.args.GetTotalPages(res, collector.args)
-			if err != nil {
-				return err
+			totalPages, e := collector.args.GetTotalPages(res, collector.args)
+			if e != nil {
+				return e
 			}
 			// save response body of first page
 			res.Body = ioutil.NopCloser(bytes.NewBuffer(body))
-			err = collector.handleResponse(res)
-			if err != nil {
-				return err
+			e = collector.handleResponse(res)
+			if e != nil {
+				return e
 			}
 			if collector.args.Input == nil {
 				collector.args.Ctx.SetProgress(1, totalPages)
@@ -214,8 +223,11 @@ func (collector *ApiCollector) fetchPagesAsync(reqData *RequestData) error {
 					},
 					Input: reqData.Input,
 				}
-				err = collector.fetchAsync(reqDataTemp, func(res *http.Response) error {
-					err := collector.handleResponse(res)
+				e = collector.fetchAsync(reqDataTemp, func(res *http.Response, err error) error {
+					if err != nil {
+						return err
+					}
+					err = collector.handleResponse(res)
 					if err != nil {
 						return err
 					}
@@ -224,8 +236,8 @@ func (collector *ApiCollector) fetchPagesAsync(reqData *RequestData) error {
 					}
 					return nil
 				})
-				if err != nil {
-					return err
+				if e != nil {
+					return e
 				}
 			}
 			return nil
@@ -238,6 +250,7 @@ func (collector *ApiCollector) fetchPagesAsync(reqData *RequestData) error {
 		// goroutine #3 fetches pages 3/6/9...
 		errs := make(chan error, collector.args.Concurrency)
 		var errCount int
+		// cancel can only be called when error occurs, because we are doomed anyway.
 		ctx, cancel := context.WithCancel(collector.args.Ctx.GetContext())
 		defer cancel()
 		for i := 0; i < collector.args.Concurrency; i++ {
@@ -270,13 +283,13 @@ func (collector *ApiCollector) fetchPagesAsync(reqData *RequestData) error {
 	return nil
 }
 
-func (collector *ApiCollector) handleNoPageResponse(reqData *RequestData) func(res *http.Response) error {
-	return func(res *http.Response) error {
-		_, err := collector.saveRawData(res, reqData.Input)
+func (collector *ApiCollector) handleNoPageResponse(reqData *RequestData) ApiAsyncCallback {
+	return func(res *http.Response, err error) error {
 		if err != nil {
 			return err
 		}
-		return nil
+		_, err = collector.saveRawData(res, reqData.Input)
+		return err
 	}
 }
 
@@ -315,15 +328,10 @@ func (collector *ApiCollector) saveRawData(res *http.Response, input interface{}
 func (collector *ApiCollector) stepFetch(ctx context.Context, cancel func(), reqData RequestData) error {
 	// channel `c` is used to make sure fetchAsync is called serially
 	c := make(chan struct{})
-	handler := func(res *http.Response) error {
-		select {
-		case <-ctx.Done():
+	handler := func(res *http.Response, err error) error {
+		if err != nil {
 			close(c)
-			return ctx.Err()
-		default:
-			if collector.args.Input == nil {
-				collector.args.Ctx.IncProgress(1)
-			}
+			return err
 		}
 		count, err := collector.saveRawData(res, reqData.Input)
 		if err != nil {
@@ -352,7 +360,7 @@ func (collector *ApiCollector) stepFetch(ctx context.Context, cancel func(), req
 	return nil
 }
 
-func (collector *ApiCollector) fetchAsync(reqData *RequestData, handler func(*http.Response) error) error {
+func (collector *ApiCollector) fetchAsync(reqData *RequestData, handler ApiAsyncCallback) error {
 	if reqData.Pager == nil {
 		reqData.Pager = &Pager{
 			Page: 1,

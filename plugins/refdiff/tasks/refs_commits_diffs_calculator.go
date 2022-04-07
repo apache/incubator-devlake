@@ -6,7 +6,6 @@ import (
 
 	"github.com/cayleygraph/cayley"
 	"github.com/cayleygraph/quad"
-	"github.com/merico-dev/lake/logger"
 	"github.com/merico-dev/lake/models/domainlayer/code"
 	"github.com/merico-dev/lake/plugins/core"
 	"gorm.io/gorm/clause"
@@ -18,6 +17,7 @@ func CalculateCommitsDiff(taskCtx core.SubTaskContext) error {
 	pairs := data.Options.Pairs
 	db := taskCtx.GetDb()
 	ctx := taskCtx.GetContext()
+	logger := taskCtx.GetLogger()
 	// convert ref pairs into commit pairs
 	ref2sha := func(refName string) (string, error) {
 		ref := &code.Ref{}

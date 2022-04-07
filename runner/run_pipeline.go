@@ -1,8 +1,6 @@
 package runner
 
 import (
-	"fmt"
-	"strings"
 	"time"
 
 	"github.com/merico-dev/lake/models"
@@ -13,10 +11,10 @@ import (
 
 func RunPipeline(
 	cfg *viper.Viper,
-	logger core.Logger,
+	log core.Logger,
 	db *gorm.DB,
 	pipelineId uint64,
-	runTask func(uint64) error,
+	runTasks func([]uint64) error,
 ) error {
 	// load pipeline from db
 	pipeline := &models.Pipeline{}
@@ -51,61 +49,34 @@ func RunPipeline(
 	// This double for loop executes each set of tasks sequentially while
 	// executing the set of tasks concurrently.
 	finishedTasks := 0
-	rowResults := make(chan error)
-	rowErrors := make([]string, 0)
-	for _, row := range taskIds {
-		rowFinished := 0
-		for _, taskId := range row {
-			taskId := taskId
-			go func() {
-				logger.Info("run task in background ", taskId)
-				rowResults <- runTask(taskId)
-			}()
-		}
-		for err = range rowResults {
-			finishedTasks++
-			rowFinished++
-			if err != nil {
-				logger.Error("pipeline task failed", err)
-				rowErrors = append(rowErrors, err.Error())
-			}
-			err = db.Model(pipeline).Updates(map[string]interface{}{
-				"status":         models.TASK_RUNNING,
-				"finished_tasks": finishedTasks,
-			}).Error
-			if err != nil {
-				logger.Error("update pipeline state failed", err)
-				rowErrors = append(rowErrors, err.Error())
-			}
-			if rowFinished == len(row) {
-				break
-			}
-		}
-		if len(rowErrors) > 0 {
-			err = fmt.Errorf(strings.Join(rowErrors, "\n"))
+	for i, row := range taskIds {
+		// update step
+		err = db.Model(pipeline).Updates(map[string]interface{}{
+			"status": models.TASK_RUNNING,
+			"step":   i + 1,
+		}).Error
+		if err != nil {
+			log.Error("update pipeline state failed: %w", err)
 			break
 		}
+		// run tasks in parallel
+		err = runTasks(row)
+		if err != nil {
+			log.Error("run tasks failed: %w", err)
+			return err
+		}
+		// Deprecated
+		// update finishedTasks
+		finishedTasks += len(row)
+		err = db.Model(pipeline).Updates(map[string]interface{}{
+			"finished_tasks": finishedTasks,
+		}).Error
+		if err != nil {
+			log.Error("update pipeline state failed: %w", err)
+			return err
+		}
 	}
-	close(rowResults)
 
-	logger.Info("pipeline finished:", err == nil)
-	// finished, update database
-	finishedAt := time.Now()
-	spentSeconds := finishedAt.Unix() - beganAt.Unix()
-	if err != nil {
-		err = db.Model(pipeline).Updates(map[string]interface{}{
-			"status":        models.TASK_FAILED,
-			"message":       err.Error(),
-			"finished_at":   finishedAt,
-			"spent_seconds": spentSeconds,
-		}).Error
-	} else {
-		err = db.Model(pipeline).Updates(map[string]interface{}{
-			"status":        models.TASK_COMPLETED,
-			"message":       "",
-			"finished_at":   finishedAt,
-			"spent_seconds": spentSeconds,
-		}).Error
-	}
+	log.Info("pipeline finished: %w", err)
 	return err
 }

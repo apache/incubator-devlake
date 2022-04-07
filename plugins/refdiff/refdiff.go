@@ -67,9 +67,9 @@ func main() {
 	newRef := refdiffCmd.Flags().StringP("new-ref", "n", "", "new ref")
 	oldRef := refdiffCmd.Flags().StringP("old-ref", "o", "", "old ref")
 
-	refdiffCmd.MarkFlagRequired("repo-id")
-	refdiffCmd.MarkFlagRequired("new-ref")
-	refdiffCmd.MarkFlagRequired("old-ref")
+	_ = refdiffCmd.MarkFlagRequired("repo-id")
+	_ = refdiffCmd.MarkFlagRequired("new-ref")
+	_ = refdiffCmd.MarkFlagRequired("old-ref")
 
 	pairs := []map[string]string{
 		{

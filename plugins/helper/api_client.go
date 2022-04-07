@@ -65,7 +65,10 @@ func NewApiClient(
 		timeout,
 	)
 	if proxy != "" {
-		apiClient.SetProxy(proxy)
+		err = apiClient.SetProxy(proxy)
+		if err != nil {
+			return nil, err
+		}
 	}
 	apiClient.SetContext(ctx)
 	return apiClient, nil
@@ -176,11 +179,9 @@ func (apiClient *ApiClient) Do(
 			req.Header.Set(name, value)
 		}
 	}
-	if headers != nil {
-		for name, values := range headers {
-			for _, value := range values {
-				req.Header.Add(name, value)
-			}
+	for name, values := range headers {
+		for _, value := range values {
+			req.Header.Add(name, value)
 		}
 	}
 

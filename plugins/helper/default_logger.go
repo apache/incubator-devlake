@@ -16,14 +16,17 @@ func NewDefaultLogger(log *logrus.Logger, prefix string) *DefaultLogger {
 	return &DefaultLogger{prefix: prefix, log: log}
 }
 
+func (l *DefaultLogger) IsLevelEnabled(level core.LogLevel) bool {
+	return l.log.IsLevelEnabled(logrus.Level(level))
+}
+
 func (l *DefaultLogger) Log(level core.LogLevel, format string, a ...interface{}) {
-	lv := logrus.Level(level)
-	if l.log.IsLevelEnabled(lv) {
+	if l.IsLevelEnabled(level) {
 		msg := fmt.Sprintf(format, a...)
 		if l.prefix != "" {
 			msg = fmt.Sprintf("%s %s", l.prefix, msg)
 		}
-		l.log.Log(lv, msg)
+		l.log.Log(logrus.Level(level), msg)
 	}
 }
 

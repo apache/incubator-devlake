@@ -8,6 +8,7 @@ import (
 
 	"github.com/merico-dev/lake/config"
 	"github.com/merico-dev/lake/errors"
+	"github.com/merico-dev/lake/logger"
 	"github.com/merico-dev/lake/models"
 	"github.com/merico-dev/lake/utils"
 	"github.com/mitchellh/mapstructure"
@@ -31,7 +32,7 @@ func RunTask(
 	if err != nil {
 		return err
 	}
-	if task.Status != models.TASK_CREATED {
+	if task.Status == models.TASK_COMPLETED {
 		return fmt.Errorf("invalid task status")
 	}
 	beganAt := time.Now()
@@ -232,4 +233,30 @@ func RunPluginSubTasks(
 	}
 
 	return nil
+}
+
+func UpdateProgressDetail(db *gorm.DB, taskId uint64, progressDetail *models.TaskProgressDetail, p *core.RunningProgress) {
+	task := &models.Task{}
+	task.ID = taskId
+	switch p.Type {
+	case core.TaskSetProgress:
+		progressDetail.TotalSubTasks = p.Total
+		progressDetail.FinishedSubTasks = p.Current
+	case core.TaskIncProgress:
+		progressDetail.FinishedSubTasks = p.Current
+		// TODO: get rid of db update
+		pct := float32(p.Current) / float32(p.Total)
+		err := db.Model(task).Update("progress", pct).Error
+		if err != nil {
+			logger.Global.Error("failed to update progress: %w", err)
+		}
+	case core.SubTaskSetProgress:
+		progressDetail.TotalRecords = p.Total
+		progressDetail.FinishedRecords = p.Current
+	case core.SubTaskIncProgress:
+		progressDetail.FinishedRecords = p.Current
+	case core.SetCurrentSubTask:
+		progressDetail.SubTaskName = p.SubTaskName
+		progressDetail.SubTaskNumber = p.SubTaskNumber
+	}
 }

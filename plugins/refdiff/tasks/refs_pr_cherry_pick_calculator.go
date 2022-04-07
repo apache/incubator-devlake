@@ -16,8 +16,7 @@ func CalculatePrCherryPick(taskCtx core.SubTaskContext) error {
 	ctx := taskCtx.GetContext()
 	db := taskCtx.GetDb()
 	var prTitleRegex *regexp.Regexp
-	var prTitlePattern string
-	prTitlePattern = taskCtx.GetConfig("GITHUB_PR_TITLE_PATTERN")
+	prTitlePattern := taskCtx.GetConfig("GITHUB_PR_TITLE_PATTERN")
 
 	if len(prTitlePattern) > 0 {
 		fmt.Println(prTitlePattern)
@@ -88,6 +87,9 @@ func CalculatePrCherryPick(taskCtx core.SubTaskContext) error {
 		Select("pr2.`key` as parent_pr_key, pr1.parent_pr_id as parent_pr_id, GROUP_CONCAT(pr1.base_ref order by pr1.base_ref ASC) as cherrypick_base_branches, " +
 			"GROUP_CONCAT(pr1.`key` order by pr1.base_ref ASC) as cherrypick_pr_keys, repos.`name` as repo_name, " +
 			"concat(repos.url, '/pull/', pr2.`key`) as parent_pr_url").Rows()
+	if err != nil {
+		return err
+	}
 	defer cursor2.Close()
 
 	refsPrCherryPick := &code.RefsPrCherrypick{}

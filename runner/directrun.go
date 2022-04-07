@@ -11,7 +11,10 @@ import (
 
 func RunCmd(cmd *cobra.Command) {
 	cmd.Flags().StringSliceP("tasks", "t", nil, "specify what tasks to run, --tasks=collectIssues,extractIssues")
-	cmd.Execute()
+	err := cmd.Execute()
+	if err != nil {
+		panic(err)
+	}
 }
 
 func DirectRun(cmd *cobra.Command, args []string, pluginTask core.PluginTask, options map[string]interface{}) {
@@ -27,7 +30,10 @@ func DirectRun(cmd *cobra.Command, args []string, pluginTask core.PluginTask, op
 		panic(err)
 	}
 	if pluginInit, ok := pluginTask.(core.PluginInit); ok {
-		pluginInit.Init(cfg, log, db)
+		err = pluginInit.Init(cfg, log, db)
+		if err != nil {
+			panic(err)
+		}
 	}
 	err = core.RegisterPlugin(cmd.Use, pluginTask.(core.PluginMeta))
 	if err != nil {

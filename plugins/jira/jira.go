@@ -2,9 +2,10 @@ package main // must be main for plugin entry point
 
 import (
 	"fmt"
-	"gorm.io/gorm"
 	"net/http"
 	"time"
+
+	"gorm.io/gorm"
 
 	"github.com/merico-dev/lake/plugins/core"
 	"github.com/merico-dev/lake/plugins/jira/api"
@@ -192,14 +193,8 @@ func main() {
 	cmd := &cobra.Command{Use: "jira"}
 	sourceId := cmd.Flags().Uint64P("source", "s", 0, "jira source id")
 	boardId := cmd.Flags().Uint64P("board", "b", 0, "jira board id")
-	err := cmd.MarkFlagRequired("source")
-	if err != nil {
-		panic(err)
-	}
-	err = cmd.MarkFlagRequired("board")
-	if err != nil {
-		panic(err)
-	}
+	_ = cmd.MarkFlagRequired("source")
+	_ = cmd.MarkFlagRequired("board")
 	cmd.Run = func(c *cobra.Command, args []string) {
 		runner.DirectRun(c, args, PluginEntry, map[string]interface{}{
 			"sourceId": *sourceId,

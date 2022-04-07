@@ -59,16 +59,16 @@ var PluginEntry Dbt
 func main() {
 	dbtCmd := &cobra.Command{Use: "dbt"}
 	projectPath := dbtCmd.Flags().StringP("projectPath", "p", "/Users/abeizn/demoapp", "user dbt project directory.")
-	dbtCmd.MarkFlagRequired("projectPath")
+	_ = dbtCmd.MarkFlagRequired("projectPath")
 
 	projectName := dbtCmd.Flags().StringP("projectName", "n", "demoapp", "user dbt project name.")
-	dbtCmd.MarkFlagRequired("projectName")
+	_ = dbtCmd.MarkFlagRequired("projectName")
 
 	projectTarget := dbtCmd.Flags().StringP("projectTarget", "o", "dev", "this is the default target your dbt project will use.")
 
 	modelsSlice := []string{"my_first_dbt_model", "my_second_dbt_model"}
 	selectedModels := dbtCmd.Flags().StringSliceP("models", "m", modelsSlice, "dbt select models")
-	dbtCmd.MarkFlagRequired("selectedModels")
+	_ = dbtCmd.MarkFlagRequired("selectedModels")
 
 	dbtCmd.Run = func(cmd *cobra.Command, args []string) {
 		runner.DirectRun(cmd, args, PluginEntry, map[string]interface{}{
