@@ -3,10 +3,7 @@ name: test-e2e
 on: [pull_request]
 jobs:
   e2e-mysql:
-    strategy:
-      matrix:
-        os: [ubuntu-20.04]
-    runs-on: ${{ matrix.os }}
+    runs-on: ubuntu-latest
     services:
       db:
         image: mysql:8.0.26
@@ -17,8 +14,7 @@ jobs:
           MYSQL_ROOT_PASSWORD: root
     container: mericodev/lake-builder:0.0.4
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - name: Test
         env:
           DB_URL: root:root@tcp(db:3306)/lake?charset=utf8mb4&loc=Asia%2fShanghai&parseTime=True
