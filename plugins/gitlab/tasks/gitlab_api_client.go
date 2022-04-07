@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"net/url"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/merico-dev/lake/config"
@@ -26,8 +27,8 @@ func CreateApiClient(scheduler *utils.WorkerScheduler) *GitlabApiClient {
 		map[string]string{
 			"Authorization": fmt.Sprintf("Bearer %v", V.GetString("GITLAB_AUTH")),
 		},
-		10*time.Second,
-		3,
+		20*time.Second,
+		5,
 		scheduler,
 	)
 	return gitlabApiClient
@@ -103,10 +104,13 @@ func (gitlabApiClient *GitlabApiClient) FetchWithPaginationAnts(path string, que
 	// not all api return x-total header, use step concurrency
 	if total == -1 {
 		// TODO: How do we know how high we can set the conc? Is is rateLimit?
-		conc := 10
+		conc := 30
 		step := 0
 		c := make(chan bool)
+		errs := make([]string, 0)
 		for {
+			// first, we fetch 10 pages in parallel, and we want to fetch the 10th page first,
+			// so we can start next 10 pages ASAP
 			for i := conc; i > 0; i-- {
 				page := step*conc + i
 				queryCopy := url.Values{}
@@ -115,18 +119,34 @@ func (gitlabApiClient *GitlabApiClient) FetchWithPaginationAnts(path string, que
 				}
 				queryCopy.Set("page", strconv.Itoa(page))
 				queryCopy.Set("per_page", strconv.Itoa(pageSize))
-				err = gitlabApiClient.GetAsync(path, &queryCopy, handler)
+				err = gitlabApiClient.GetAsync(path, &queryCopy, func(res *http.Response) error {
+					e := handler(res)
+					// sth went wrong during page process
+					if e != nil {
+						errs = append(errs, e.Error())
+						c <- false
+						return e
+					}
+					// see if there was next page for 10th page
+					if page%conc == 0 {
+						_, e = strconv.ParseInt(res.Header.Get("X-Next-Page"), 10, 32)
+						c <- e == nil
+					}
+					return nil
+				})
 				if err != nil {
 					return err
 				}
-				return nil
-
 			}
+			// wait for 10th page or any error
 			cont := <-c
 			if !cont {
 				break
 			}
 			step += 1
+		}
+		if len(errs) > 0 {
+			return fmt.Errorf(strings.Join(errs, "\n"))
 		}
 	} else {
 		// Loop until all pages are requested
