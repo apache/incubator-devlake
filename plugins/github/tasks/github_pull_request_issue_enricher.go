@@ -1,7 +1,6 @@
 package tasks
 
 import (
-	"fmt"
 	"github.com/merico-dev/lake/plugins/core"
 	githubModels "github.com/merico-dev/lake/plugins/github/models"
 	"github.com/merico-dev/lake/plugins/helper"
@@ -25,14 +24,12 @@ func EnrichPullRequestIssues(taskCtx core.SubTaskContext) (err error) {
 
 	var prBodyCloseRegex *regexp.Regexp
 	prBodyClosePattern := taskCtx.GetConfig("GITHUB_PR_BODY_CLOSE_PATTERN")
-	numberPrefix := taskCtx.GetConfig("GITHUB_PR_BODY_NUMBER_PREFIX")
 	//the pattern before the issue number, sometimes, the issue number is #1098, sometimes it is https://xxx/#1098
-	numberPattern := fmt.Sprintf(numberPrefix+`\d+[ ]*)+)`, data.Options.Owner, data.Options.Repo)
+	prBodyClosePattern = strings.Replace(prBodyClosePattern, "%s", data.Options.Owner, 1)
+	prBodyClosePattern = strings.Replace(prBodyClosePattern, "%s", data.Options.Repo, 1)
 	if len(prBodyClosePattern) > 0 {
-		prPattern := prBodyClosePattern + numberPattern
-		prBodyCloseRegex = regexp.MustCompile(prPattern)
+		prBodyCloseRegex = regexp.MustCompile(prBodyClosePattern)
 	}
-	numberPrefixRegex := regexp.MustCompile(numberPrefix)
 	charPattern := regexp.MustCompile(`[a-zA-Z\s,]+`)
 	cursor, err := db.Model(&githubModels.GithubPullRequest{}).
 		Where("repo_id = ?", repoId).
@@ -68,10 +65,7 @@ func EnrichPullRequestIssues(taskCtx core.SubTaskContext) (err error) {
 			if issueNumberListStr == "" {
 				return nil, nil
 			}
-			//replace https:// to #, then we can process it later
-			if strings.Contains(issueNumberListStr, "https") {
-				issueNumberListStr = numberPrefixRegex.ReplaceAllString(issueNumberListStr, "#")
-			}
+
 			issueNumberListStr = charPattern.ReplaceAllString(issueNumberListStr, "#")
 			//split the string by '#'
 			issueNumberList := strings.Split(issueNumberListStr, "#")

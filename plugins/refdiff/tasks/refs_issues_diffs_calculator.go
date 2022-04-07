@@ -20,8 +20,14 @@ func CalculateIssuesDiff(taskCtx core.SubTaskContext) error {
 		pairList[i] = [2]string{fmt.Sprintf("%s:%s", repoId, pair.NewRef), fmt.Sprintf("%s:%s", repoId, pair.OldRef)}
 	}
 	cursor, err := db.Table("refs_commits_diffs").
-		Joins("left join pull_requests on pull_requests.merge_commit_sha = refs_commits_diffs.commit_sha").
-		Joins("left join pull_request_issues on pull_request_issues.pull_request_id = pull_requests.id").
+		Joins("left join (  "+
+			"select pull_request_id as id, commit_sha from pull_request_commits "+
+			"left join pull_requests p on pull_request_commits.pull_request_id = p.id "+
+			"where p.repo_id = '"+repoId+
+			"' union  "+
+			"select id, merge_commit_sha as commit_sha from pull_requests where repo_id = '"+repoId+"') _combine_pr "+
+			"on _combine_pr.commit_sha = refs_commits_diffs.commit_sha").
+		Joins("left join pull_request_issues on pull_request_issues.pull_request_id = _combine_pr.id").
 		Joins("left join refs on refs.commit_sha = refs_commits_diffs.new_ref_commit_sha").
 		Order("refs_commits_diffs.new_ref_name ASC").
 		Where("refs.repo_id = ? and pull_request_issues.issue_number > 0 and (refs_commits_diffs.new_ref_name, refs_commits_diffs.old_ref_name) in ?",

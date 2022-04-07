@@ -61,7 +61,6 @@
 ### 正则配置
 在.env文件中，可以配置
 - GITHUB_PR_BODY_CLOSE_PATTERN: 定义了pr body关联issue的关键字，可查看.env.example里面的示例
-- GITHUB_PR_BODY_NUMBER_PREFIX: 定义了pr body中issue的前缀（在pr中关联issue有两种可能的表示方法，分别是#100和https://github.com/{owner}/{repo}/issues/1000）
 
 ## 示例
 
