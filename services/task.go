@@ -42,7 +42,7 @@ func (rt *RunningTask) Add(taskId uint64, cancel context.CancelFunc) error {
 	return nil
 }
 
-func (rt *RunningTask) setAll(progressDetails map[uint64]*models.TaskProgressDetail) error {
+func (rt *RunningTask) setAll(progressDetails map[uint64]*models.TaskProgressDetail) {
 	rt.mu.Lock()
 	defer rt.mu.Unlock()
 	// delete finished tasks
@@ -57,11 +57,10 @@ func (rt *RunningTask) setAll(progressDetails map[uint64]*models.TaskProgressDet
 		}
 		rt.tasks[taskId].ProgressDetail = progressDetail
 	}
-	return nil
 }
 
 // less lock times than GetProgressDetail
-func (rt *RunningTask) GetProgressDetailToTasks(tasks []models.Task) error {
+func (rt *RunningTask) FillProgressDetailToTasks(tasks []models.Task) {
 	rt.mu.Lock()
 	defer rt.mu.Unlock()
 
@@ -71,8 +70,6 @@ func (rt *RunningTask) GetProgressDetailToTasks(tasks []models.Task) error {
 			tasks[index].ProgressDetail = task.ProgressDetail
 		}
 	}
-
-	return nil
 }
 
 func (rt *RunningTask) GetProgressDetail(taskId uint64) *models.TaskProgressDetail {
@@ -127,7 +124,7 @@ func CreateTask(newTask *models.NewTask) (*models.Task, error) {
 	}
 	err = db.Save(&task).Error
 	if err != nil {
-		logger.Error("save task failed", err)
+		taskLog.Error("save task failed", err)
 		return nil, errors.InternalError
 	}
 	return &task, nil
@@ -162,7 +159,7 @@ func GetTasks(query *TaskQuery) ([]models.Task, int64, error) {
 		return nil, count, err
 	}
 
-	runningTasks.GetProgressDetailToTasks(tasks)
+	runningTasks.FillProgressDetailToTasks(tasks)
 
 	return tasks, count, nil
 }

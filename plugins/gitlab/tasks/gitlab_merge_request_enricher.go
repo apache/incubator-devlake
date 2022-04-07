@@ -66,7 +66,7 @@ func EnrichMergeRequests(taskCtx core.SubTaskContext) error {
 func findEarliestNote(notes []gitlabModels.GitlabMergeRequestNote) (*gitlabModels.GitlabMergeRequestNote, error) {
 	var earliestNote *gitlabModels.GitlabMergeRequestNote
 	earliestTime := time.Now()
-	for i, _ := range notes {
+	for i := range notes {
 		if !notes[i].Resolvable {
 			continue
 		}

@@ -138,7 +138,12 @@ func (collector *ApiCollector) Execute() error {
 			if err != nil {
 				return err
 			}
-			go collector.exec(input)
+			go func() {
+				err := collector.exec(input)
+				if err != nil {
+					logger.Error("failed to execute for input: %v, %w", input, err)
+				}
+			}()
 		}
 
 	} else {
@@ -184,23 +189,26 @@ func (collector *ApiCollector) fetchPagesAsync(reqData *RequestData) error {
 	if collector.args.GetTotalPages != nil {
 		/* when total pages is available from api*/
 		// fetch the very first page
-		err = collector.fetchAsync(reqData, func(res *http.Response, err error) error {
+		err = collector.fetchAsync(reqData, func(res *http.Response, e error) error {
+			if e != nil {
+				return e
+			}
 			// gather total pages
-			body, err := ioutil.ReadAll(res.Body)
-			if err != nil {
-				return err
+			body, e := ioutil.ReadAll(res.Body)
+			if e != nil {
+				return e
 			}
 			res.Body.Close()
 			res.Body = ioutil.NopCloser(bytes.NewBuffer(body))
-			totalPages, err := collector.args.GetTotalPages(res, collector.args)
-			if err != nil {
-				return err
+			totalPages, e := collector.args.GetTotalPages(res, collector.args)
+			if e != nil {
+				return e
 			}
 			// save response body of first page
 			res.Body = ioutil.NopCloser(bytes.NewBuffer(body))
-			err = collector.handleResponse(res)
-			if err != nil {
-				return err
+			e = collector.handleResponse(res)
+			if e != nil {
+				return e
 			}
 			if collector.args.Input == nil {
 				collector.args.Ctx.SetProgress(1, totalPages)
@@ -215,7 +223,7 @@ func (collector *ApiCollector) fetchPagesAsync(reqData *RequestData) error {
 					},
 					Input: reqData.Input,
 				}
-				err = collector.fetchAsync(reqDataTemp, func(res *http.Response, err error) error {
+				e = collector.fetchAsync(reqDataTemp, func(res *http.Response, err error) error {
 					if err != nil {
 						return err
 					}
@@ -228,8 +236,8 @@ func (collector *ApiCollector) fetchPagesAsync(reqData *RequestData) error {
 					}
 					return nil
 				})
-				if err != nil {
-					return err
+				if e != nil {
+					return e
 				}
 			}
 			return nil

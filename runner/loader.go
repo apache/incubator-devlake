@@ -34,7 +34,10 @@ func LoadPlugins(pluginsDir string, config *viper.Viper, logger core.Logger, db 
 				return fmt.Errorf("%v PluginEntry must implement PluginMeta interface", pluginName)
 			}
 			if plugin, ok := symPluginEntry.(core.PluginInit); ok {
-				plugin.Init(config, logger, db)
+				err = plugin.Init(config, logger, db)
+				if err != nil {
+					return err
+				}
 			}
 			err = core.RegisterPlugin(pluginName, pluginMeta)
 			if err != nil {

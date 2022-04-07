@@ -11,7 +11,7 @@ type TestStruct struct {
 	F2 int     `mapstructure:"TEST_F2"`
 	F3 float64 `json:"TEST_F3" mapstructure:"TEST_F3"`
 	F4 string  `json:"TEST_F4"`
-	f5 string  `json:"TEST_F5"`
+	F5 string  `json:"TEST_F5"`
 }
 
 func TestReadAndWriteToConfig(t *testing.T) {
@@ -36,7 +36,7 @@ func TestSetStruct(t *testing.T) {
 		F2: 123,
 		F3: 1.23,
 		F4: "Test",
-		f5: "No Use",
+		F5: "No Use",
 	}
 
 	v := GetConfig()

@@ -4,6 +4,8 @@ import (
 	"context"
 	"testing"
 	"time"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func TestNewWorkerScheduler(t *testing.T) {
@@ -32,7 +34,7 @@ func TestNewWorkerScheduler(t *testing.T) {
 	if len(testChannel) > 4 {
 		t.Fatal(`worker run too fast after a second`)
 	}
-	s.WaitUntilFinish()
+	assert.Nil(t, s.WaitUntilFinish())
 	if len(*s.workerErrors) != 0 {
 		t.Fatal(`worker got panic`)
 	}
@@ -58,7 +60,7 @@ func TestNewWorkerSchedulerWithoutSecond(t *testing.T) {
 	if len(testChannel) != 5 {
 		t.Fatal(`worker not finish`)
 	}
-	s.WaitUntilFinish()
+	assert.Nil(t, s.WaitUntilFinish())
 	if len(testChannel) != 5 {
 		t.Fatal(`worker not finish`)
 	}

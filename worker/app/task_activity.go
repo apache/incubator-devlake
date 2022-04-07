@@ -11,6 +11,9 @@ import (
 
 func DevLakeTaskActivity(ctx context.Context, configJson []byte, taskId uint64) error {
 	cfg, log, db, err := loadResources(configJson)
+	if err != nil {
+		return err
+	}
 	log.Info("received task #%d", taskId)
 	progressDetail := &models.TaskProgressDetail{}
 	progChan := make(chan core.RunningProgress)

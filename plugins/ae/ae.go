@@ -88,7 +88,7 @@ var PluginEntry AE //nolint
 func main() {
 	aeCmd := &cobra.Command{Use: "ae"}
 	projectId := aeCmd.Flags().IntP("project-id", "p", 0, "ae project id")
-	aeCmd.MarkFlagRequired("project-id")
+	_ = aeCmd.MarkFlagRequired("project-id")
 	aeCmd.Run = func(cmd *cobra.Command, args []string) {
 		runner.DirectRun(cmd, args, PluginEntry, map[string]interface{}{
 			"projectId": *projectId,

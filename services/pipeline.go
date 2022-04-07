@@ -348,10 +348,8 @@ func NotifyExternal(pipelineId uint64) error {
 
 func CancelPipeline(pipelineId uint64) error {
 	if temporalClient != nil {
-		println("hello")
 		return temporalClient.CancelWorkflow(context.Background(), getTemporalWorkflowId(pipelineId), "")
 	}
-	println("fuck")
 	pendingTasks, count, err := GetTasks(&TaskQuery{PipelineId: pipelineId, Pending: 1, PageSize: -1})
 	if err != nil {
 		return err

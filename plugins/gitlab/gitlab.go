@@ -115,7 +115,7 @@ func main() {
 	gitlabCmd := &cobra.Command{Use: "gitlab"}
 	projectId := gitlabCmd.Flags().IntP("project-id", "p", 0, "gitlab project id")
 
-	gitlabCmd.MarkFlagRequired("project-id")
+	_ = gitlabCmd.MarkFlagRequired("project-id")
 	gitlabCmd.Run = func(cmd *cobra.Command, args []string) {
 		runner.DirectRun(cmd, args, PluginEntry, map[string]interface{}{
 			"projectId": *projectId,

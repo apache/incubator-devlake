@@ -2,6 +2,7 @@ package services
 
 import (
 	"encoding/json"
+
 	"github.com/merico-dev/lake/errors"
 	"github.com/merico-dev/lake/logger"
 	"github.com/merico-dev/lake/models"
@@ -14,6 +15,8 @@ type BlueprintQuery struct {
 	Page     int  `form:"page"`
 	PageSize int  `form:"pageSize"`
 }
+
+var blueprintLog = logger.Global.Nested("blueprint")
 
 func CreateBlueprint(newBlueprint *models.InputBlueprint) (*models.Blueprint, error) {
 	blueprint := models.Blueprint{
@@ -30,7 +33,7 @@ func CreateBlueprint(newBlueprint *models.InputBlueprint) (*models.Blueprint, er
 
 	err = db.Create(&blueprint).Error
 	if err != nil {
-		logger.Error("create pipline failed", err)
+		blueprintLog.Error("create pipline failed", err)
 		return nil, errors.InternalError
 	}
 	err = ReloadBlueprints(cronManager)
@@ -55,6 +58,9 @@ func GetBlueprints(query *BlueprintQuery) ([]*models.Blueprint, int64, error) {
 		db = db.Limit(query.PageSize).Offset(offset)
 	}
 	err = db.Find(&blueprints).Error
+	if err != nil {
+		return nil, 0, err
+	}
 	return blueprints, count, nil
 }
 
@@ -117,7 +123,6 @@ func ReloadBlueprints(c *cron.Cron) error {
 	if err != nil {
 		panic(err)
 	}
-	cLog := logger.Global.Nested("blueprint")
 	for _, e := range c.Entries() {
 		c.Remove(e.ID)
 	}
@@ -126,7 +131,7 @@ func ReloadBlueprints(c *cron.Cron) error {
 		var tasks [][]*models.NewTask
 		err = json.Unmarshal(pp.Tasks, &tasks)
 		if err != nil {
-			cLog.Error("created cron job failed: %s", err)
+			blueprintLog.Error("created cron job failed: %s", err)
 			return err
 		}
 		_, err := c.AddFunc(pp.CronConfig, func() {
@@ -137,18 +142,18 @@ func ReloadBlueprints(c *cron.Cron) error {
 			pipeline, err := CreatePipeline(&newPipeline)
 			// Return all created tasks to the User
 			if err != nil {
-				cLog.Error("created cron job failed: %s", err)
+				blueprintLog.Error("created cron job failed: %s", err)
 				return
 			}
 			err = RunPipeline(pipeline.ID)
 			if err != nil {
-				cLog.Error("run cron job failed: %s", err)
+				blueprintLog.Error("run cron job failed: %s", err)
 				return
 			}
-			cLog.Info("Run new cron job successfully")
+			blueprintLog.Info("Run new cron job successfully")
 		})
 		if err != nil {
-			cLog.Error("created cron job failed: %s", err)
+			blueprintLog.Error("created cron job failed: %s", err)
 			return err
 		}
 	}

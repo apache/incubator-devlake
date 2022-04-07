@@ -131,8 +131,8 @@ func main() {
 	githubCmd := &cobra.Command{Use: "github"}
 	owner := githubCmd.Flags().StringP("owner", "o", "", "github owner")
 	repo := githubCmd.Flags().StringP("repo", "r", "", "github repo")
-	githubCmd.MarkFlagRequired("owner")
-	githubCmd.MarkFlagRequired("repo")
+	_ = githubCmd.MarkFlagRequired("owner")
+	_ = githubCmd.MarkFlagRequired("repo")
 
 	githubCmd.Run = func(cmd *cobra.Command, args []string) {
 		runner.DirectRun(cmd, args, PluginEntry, map[string]interface{}{

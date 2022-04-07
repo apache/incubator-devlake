@@ -14,7 +14,10 @@ func loadResources(configJson []byte) (*viper.Viper, core.Logger, *gorm.DB, erro
 	// prepare
 	cfg := viper.New()
 	cfg.SetConfigType("json")
-	cfg.ReadConfig(bytes.NewBuffer(configJson))
+	err := cfg.ReadConfig(bytes.NewBuffer(configJson))
+	if err != nil {
+		return nil, nil, nil, err
+	}
 	// TODO: should be redirected to server
 	logger := logger.Global.Nested("worker")
 	db, err := runner.NewGormDb(cfg, logger)
