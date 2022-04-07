@@ -43,12 +43,16 @@ func (gitlabApiClient *GitlabApiClient) getTotal(path string, queryParams *url.V
 	res, err := gitlabApiClient.Get(path, queryParams, nil)
 
 	if err != nil {
-		resBody, err := ioutil.ReadAll(res.Body)
-		if err != nil {
-			logger.Error("UnmarshalResponse failed: ", string(resBody))
-			return 0, 0, err
+		logger.Error("failed to get total page", err)
+		// try to read response body if it was not nil
+		if res != nil {
+			resBody, err := ioutil.ReadAll(res.Body)
+			if err != nil {
+				logger.Error("failed to read response body", err)
+				return 0, 0, err
+			}
+			return 0, 0, fmt.Errorf("failed to get total page: %w\n%s", err, resBody)
 		}
-		logger.Print(string(resBody) + "\n")
 		return 0, 0, err
 	}
 
