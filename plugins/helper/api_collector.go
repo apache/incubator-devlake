@@ -138,10 +138,7 @@ func (collector *ApiCollector) Execute() error {
 			if err != nil {
 				return err
 			}
-			err = collector.exec(input)
-			if err != nil {
-				break
-			}
+			go collector.exec(input)
 		}
 
 	} else {
