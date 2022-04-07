@@ -4,6 +4,8 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"regexp"
+	"strconv"
 	"strings"
 	"sync"
 
@@ -15,6 +17,7 @@ import (
 )
 
 var taskLog = logger.Global.Nested("task service")
+var ACTIVITY_PATTERN = regexp.MustCompile(`task #(\d+)`)
 
 type RunningTaskData struct {
 	Cancel         context.CancelFunc
@@ -26,11 +29,6 @@ type RunningTask struct {
 	tasks map[uint64]*RunningTaskData
 }
 
-func taskServiceInit() {
-	// reset task status
-	db.Model(&models.Task{}).Where("status <> ?", models.TASK_COMPLETED).Update("status", models.TASK_FAILED)
-}
-
 func (rt *RunningTask) Add(taskId uint64, cancel context.CancelFunc) error {
 	rt.mu.Lock()
 	defer rt.mu.Unlock()
@@ -40,6 +38,24 @@ func (rt *RunningTask) Add(taskId uint64, cancel context.CancelFunc) error {
 	rt.tasks[taskId] = &RunningTaskData{
 		Cancel:         cancel,
 		ProgressDetail: &models.TaskProgressDetail{},
+	}
+	return nil
+}
+
+func (rt *RunningTask) setAll(progressDetails map[uint64]*models.TaskProgressDetail) error {
+	rt.mu.Lock()
+	defer rt.mu.Unlock()
+	// delete finished tasks
+	for taskId := range rt.tasks {
+		if _, ok := progressDetails[taskId]; !ok {
+			delete(rt.tasks, taskId)
+		}
+	}
+	for taskId, progressDetail := range progressDetails {
+		if _, ok := rt.tasks[taskId]; !ok {
+			rt.tasks[taskId] = &RunningTaskData{}
+		}
+		rt.tasks[taskId].ProgressDetail = progressDetail
 	}
 	return nil
 }
@@ -229,29 +245,15 @@ func updateTaskProgress(taskId uint64, progress chan core.RunningProgress) {
 		return
 	}
 	progressDetail := data.ProgressDetail
-	task := &models.Task{}
-	task.ID = taskId
 	for p := range progress {
-		switch p.Type {
-		case core.TaskSetProgress:
-			progressDetail.TotalSubTasks = p.Total
-			progressDetail.FinishedSubTasks = p.Current
-		case core.TaskIncProgress:
-			progressDetail.FinishedSubTasks = p.Current
-			// TODO: get rid of db update
-			pct := float32(p.Current) / float32(p.Total)
-			err := db.Model(task).Update("progress", pct).Error
-			if err != nil {
-				logger.Global.Error("failed to update progress: %w", err)
-			}
-		case core.SubTaskSetProgress:
-			progressDetail.TotalRecords = p.Total
-			progressDetail.FinishedRecords = p.Current
-		case core.SubTaskIncProgress:
-			progressDetail.FinishedRecords = p.Current
-		case core.SetCurrentSubTask:
-			progressDetail.SubTaskName = p.SubTaskName
-			progressDetail.SubTaskNumber = p.SubTaskNumber
-		}
+		runner.UpdateProgressDetail(db, taskId, progressDetail, &p)
 	}
+}
+
+func getTaskIdFromActivityId(activityId string) (uint64, error) {
+	submatches := ACTIVITY_PATTERN.FindStringSubmatch(activityId)
+	if len(submatches) < 2 {
+		return 0, fmt.Errorf("activityId does not match")
+	}
+	return strconv.ParseUint(submatches[1], 10, 64)
 }

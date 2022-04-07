@@ -12,7 +12,9 @@ import (
 	"github.com/merico-dev/lake/models"
 	"github.com/merico-dev/lake/runner"
 	"github.com/merico-dev/lake/worker/app"
+	v11 "go.temporal.io/api/enums/v1"
 	"go.temporal.io/sdk/client"
+	"go.temporal.io/sdk/converter"
 )
 
 var notificationService *NotificationService
@@ -45,11 +47,13 @@ func pipelineServiceInit() {
 		if err != nil {
 			panic(err)
 		}
+		watchTemporalPipelines()
+	} else {
+		// standalone mode: reset pipeline status
+		db.Model(&models.Pipeline{}).Where("status <> ?", models.TASK_COMPLETED).Update("status", models.TASK_FAILED)
+		db.Model(&models.Task{}).Where("status <> ?", models.TASK_COMPLETED).Update("status", models.TASK_FAILED)
 	}
 
-	// reset pipeline status
-	db.Model(&models.Pipeline{}).Where("status = ?", models.TASK_RUNNING).Update("status", models.TASK_FAILED)
-	db.Model(&models.Pipeline{}).Where("status <> ?", models.TASK_COMPLETED).Update("status", models.TASK_FAILED)
 	err := ReloadBlueprints(cronManager)
 	if err != nil {
 		panic(err)
@@ -218,6 +222,96 @@ func runPipelineViaTemporal(pipelineId uint64) error {
 	return err
 }
 
+func watchTemporalPipelines() {
+	ticker := time.NewTicker(3 * time.Second)
+	dc := converter.GetDefaultDataConverter()
+	go func() {
+		// run forever
+		for range ticker.C {
+			// load all running pipeline from database
+			runningPipelines := make([]models.Pipeline, 0)
+			err := db.Find(&runningPipelines, "status = ?", models.TASK_RUNNING).Error
+			if err != nil {
+				panic(err)
+			}
+			progressDetails := make(map[uint64]*models.TaskProgressDetail)
+			// check their status against temporal
+			for _, rp := range runningPipelines {
+				workflowId := getTemporalWorkflowId(rp.ID)
+				desc, err := temporalClient.DescribeWorkflowExecution(
+					context.Background(),
+					workflowId,
+					"",
+				)
+				if err != nil {
+					pipelineLog.Error("failed to query workflow execution: %w", err)
+					continue
+				}
+				// workflow is terminated by outsider
+				s := desc.WorkflowExecutionInfo.Status
+				if s != v11.WORKFLOW_EXECUTION_STATUS_RUNNING {
+					rp.Status = models.TASK_COMPLETED
+					if s != v11.WORKFLOW_EXECUTION_STATUS_COMPLETED {
+						rp.Status = models.TASK_FAILED
+						// get error message
+						hisIter := temporalClient.GetWorkflowHistory(
+							context.Background(),
+							workflowId,
+							"",
+							false,
+							v11.HISTORY_EVENT_FILTER_TYPE_CLOSE_EVENT,
+						)
+						for hisIter.HasNext() {
+							his, err := hisIter.Next()
+							if err != nil {
+								pipelineLog.Error("failed to get next from workflow history iterator: %w", err)
+								continue
+							}
+							rp.Message = fmt.Sprintf("temporal event type: %v", his.GetEventType())
+						}
+					}
+					rp.FinishedAt = desc.WorkflowExecutionInfo.CloseTime
+					err = db.Model(rp).Updates(map[string]interface{}{
+						"status":      rp.Status,
+						"message":     rp.Message,
+						"finished_at": rp.FinishedAt,
+					}).Error
+					if err != nil {
+						pipelineLog.Error("failed to update db: %w", err)
+					}
+					continue
+				}
+
+				// check pending activity
+				for _, activity := range desc.PendingActivities {
+					taskId, err := getTaskIdFromActivityId(activity.ActivityId)
+					if err != nil {
+						pipelineLog.Error("unable to extract task id from activity id `%s`", activity.ActivityId)
+						continue
+					}
+					progressDetail := &models.TaskProgressDetail{}
+					progressDetails[taskId] = progressDetail
+					heartbeats := activity.GetHeartbeatDetails()
+					if heartbeats == nil {
+						continue
+					}
+					payloads := heartbeats.GetPayloads()
+					if len(payloads) == 0 {
+						return
+					}
+					lastPayload := payloads[len(payloads)-1]
+					err = dc.FromPayload(lastPayload, progressDetail)
+					if err != nil {
+						pipelineLog.Error("failed to unmarshal heartbeat payload: %w", err)
+						continue
+					}
+				}
+			}
+			runningTasks.setAll(progressDetails)
+		}
+	}()
+}
+
 func runPipelineStandalone(pipelineId uint64) error {
 	return runner.RunPipeline(
 		cfg,
@@ -254,8 +348,10 @@ func NotifyExternal(pipelineId uint64) error {
 
 func CancelPipeline(pipelineId uint64) error {
 	if temporalClient != nil {
+		println("hello")
 		return temporalClient.CancelWorkflow(context.Background(), getTemporalWorkflowId(pipelineId), "")
 	}
+	println("fuck")
 	pendingTasks, count, err := GetTasks(&TaskQuery{PipelineId: pipelineId, Pending: 1, PageSize: -1})
 	if err != nil {
 		return err

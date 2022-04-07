@@ -28,6 +28,7 @@ func main() {
 	// Create the client object just once per process
 	c, err := client.NewClient(client.Options{
 		HostPort: cfg.GetString("TEMPORAL_URL"),
+		Logger:   app.NewTemporalLogger(logger.Global),
 	})
 	if err != nil {
 		log.Fatalln("unable to create Temporal client", err)

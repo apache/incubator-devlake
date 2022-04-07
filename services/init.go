@@ -53,6 +53,4 @@ func init() {
 
 	// call service init
 	pipelineServiceInit()
-	taskServiceInit()
-
 }

@@ -3,6 +3,7 @@ package app
 import (
 	"context"
 
+	"github.com/merico-dev/lake/models"
 	"github.com/merico-dev/lake/plugins/core"
 	"github.com/merico-dev/lake/runner"
 	"go.temporal.io/sdk/activity"
@@ -11,14 +12,16 @@ import (
 func DevLakeTaskActivity(ctx context.Context, configJson []byte, taskId uint64) error {
 	cfg, log, db, err := loadResources(configJson)
 	log.Info("received task #%d", taskId)
-	progress := make(chan core.RunningProgress)
-	defer close(progress)
+	progressDetail := &models.TaskProgressDetail{}
+	progChan := make(chan core.RunningProgress)
+	defer close(progChan)
 	go func() {
-		for p := range progress {
-			activity.RecordHeartbeat(ctx, p)
+		for p := range progChan {
+			runner.UpdateProgressDetail(db, taskId, progressDetail, &p)
+			activity.RecordHeartbeat(ctx, progressDetail)
 		}
 	}()
-	err = runner.RunTask(cfg, log, db, ctx, progress, taskId)
+	err = runner.RunTask(cfg, log, db, ctx, progChan, taskId)
 	if err != nil {
 		log.Error("failed to execute task #%d: %w", taskId, err)
 	}
