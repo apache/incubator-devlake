@@ -21,6 +21,7 @@ type IssueComment struct {
 	Body     string
 	User     struct {
 		Login string
+		Id    int
 	}
 	IssueUrl        string           `json:"issue_url"`
 	GithubCreatedAt core.Iso8601Time `json:"created_at"`
@@ -72,6 +73,7 @@ func ExtractApiComments(taskCtx core.SubTaskContext) error {
 					PullRequestId:   pr.GithubId,
 					Body:            apiComment.Body,
 					AuthorUsername:  apiComment.User.Login,
+					AuthorUserId:    apiComment.User.Id,
 					GithubCreatedAt: apiComment.GithubCreatedAt.ToTime(),
 					GithubUpdatedAt: apiComment.GithubUpdatedAt.ToTime(),
 				}
@@ -82,6 +84,7 @@ func ExtractApiComments(taskCtx core.SubTaskContext) error {
 					IssueId:         issue.GithubId,
 					Body:            apiComment.Body,
 					AuthorUsername:  apiComment.User.Login,
+					AuthorUserId:    apiComment.User.Id,
 					GithubCreatedAt: apiComment.GithubCreatedAt.ToTime(),
 					GithubUpdatedAt: apiComment.GithubUpdatedAt.ToTime(),
 				}
