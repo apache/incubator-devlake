@@ -9,16 +9,16 @@ import (
 type GithubCommit struct {
 	Sha            string `gorm:"primaryKey;type:char(40)"`
 	AuthorId       int
-	AuthorName     string
-	AuthorEmail    string
+	AuthorName     string `gorm:"type:varchar(255)"`
+	AuthorEmail    string `gorm:"type:varchar(255)"`
 	AuthoredDate   time.Time
 	CommitterId    int
-	CommitterName  string
-	CommitterEmail string
+	CommitterName  string `gorm:"type:varchar(255)"`
+	CommitterEmail string `gorm:"type:varchar(255)"`
 	CommittedDate  time.Time
 	Message        string
-	Url            string
-	Additions      int `gorm:"comment:Added lines of code"`
-	Deletions      int `gorm:"comment:Deleted lines of code"`
+	Url            string `gorm:"type:varchar(255)"`
+	Additions      int    `gorm:"comment:Added lines of code"`
+	Deletions      int    `gorm:"comment:Deleted lines of code"`
 	common.NoPKModel
 }

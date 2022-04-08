@@ -9,6 +9,6 @@ import (
 
 type GithubIssueLabel struct {
 	IssueId   int    `gorm:"primaryKey;autoIncrement:false"`
-	LabelName string `gorm:"primaryKey"`
+	LabelName string `gorm:"primaryKey;type:varchar(255)"`
 	common.NoPKModel
 }

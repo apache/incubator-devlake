@@ -60,6 +60,7 @@ func ConvertIssues(taskCtx core.SubTaskContext) error {
 				AssigneeId:      userIdGen.Generate(issue.AssigneeId),
 				AssigneeName:    issue.AssigneeName,
 				LeadTimeMinutes: issue.LeadTimeMinutes,
+				Url:             issue.Url,
 				CreatedDate:     &issue.GithubCreatedAt,
 				UpdatedDate:     &issue.GithubUpdatedAt,
 				ResolutionDate:  issue.ClosedAt,

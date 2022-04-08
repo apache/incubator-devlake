@@ -23,6 +23,7 @@ type IssuesResponse struct {
 	State       string
 	Title       string
 	Body        string
+	HtmlUrl     string `json:"html_url"`
 	PullRequest struct {
 		Url     string `json:"url"`
 		HtmlUrl string `json:"html_url"`
@@ -172,6 +173,7 @@ func convertGithubIssue(issue *IssuesResponse, repositoryId int) (*models.Github
 		State:           issue.State,
 		Title:           issue.Title,
 		Body:            issue.Body,
+		Url:             issue.HtmlUrl,
 		ClosedAt:        core.Iso8601TimeToTime(issue.ClosedAt),
 		GithubCreatedAt: issue.GithubCreatedAt.ToTime(),
 		GithubUpdatedAt: issue.GithubUpdatedAt.ToTime(),

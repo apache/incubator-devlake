@@ -22,7 +22,7 @@ type GithubApiPullRequest struct {
 	State    string
 	Title    string
 	Body     string
-	Url      string
+	HtmlUrl  string `json:"html_url"`
 	Labels   []struct {
 		Name string `json:"name"`
 	} `json:"labels"`
@@ -134,7 +134,7 @@ func convertGithubPullRequest(pull *GithubApiPullRequest, repoId int) (*models.G
 		Number:          pull.Number,
 		State:           pull.State,
 		Title:           pull.Title,
-		Url:             pull.Url,
+		Url:             pull.HtmlUrl,
 		AuthorName:      pull.User.Login,
 		AuthorId:        pull.User.Id,
 		GithubCreatedAt: pull.GithubCreatedAt.ToTime(),
