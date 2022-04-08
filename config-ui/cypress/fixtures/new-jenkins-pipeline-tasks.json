@@ -2,9 +2,9 @@
   "count": 1,
   "tasks": [
     {
-      "ID": 100,
-      "CreatedAt": "2022-03-21T19:11:52.74Z",
-      "UpdatedAt": "2022-03-21T19:11:53Z",
+      "id": 100,
+      "createdAt": "2022-03-21T19:11:52.74Z",
+      "updatedAt": "2022-03-21T19:11:53Z",
       "plugin": "jenkins",
       "options": {},
       "status": "TASK_COMPLETED",

@@ -1,8 +1,8 @@
 [
   {
-  "ID": 10,
-  "CreatedAt": "2021-11-22T21:19:34.684Z",
-  "UpdatedAt": "2022-03-03T16:17:11.278Z",
+  "id": 10,
+  "createdAt": "2021-11-22T21:19:34.684Z",
+  "updatedAt": "2022-03-03T16:17:11.278Z",
   "name": "JIRA SERVER #1",
   "endpoint": "https://jira-619dd0c0-78f0-4661-9763-d59196fa33ff.atlassian.net/rest/",
   "basicAuthEncoded": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx===============",
@@ -10,12 +10,12 @@
   "storyPointField": "",
   "remotelinkCommitShaPattern": "",
   "proxy": "",
-  "RateLimit": 0
+  "rateLimit": 0
   },
   {
-    "ID": 20,
-    "CreatedAt": "2021-11-23T21:19:34.684Z",
-    "UpdatedAt": "2022-03-04T16:17:11.278Z",
+    "id": 20,
+    "createdAt": "2021-11-23T21:19:34.684Z",
+    "updatedAt": "2022-03-04T16:17:11.278Z",
     "name": "JIRA SERVER #2",
     "endpoint": "https://5fc93aeb-bb6f-45d4-a2c7-d7b7b424141d.atlassian.net/rest/",
     "basicAuthEncoded": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx===============",
@@ -23,12 +23,12 @@
     "storyPointField": "",
     "remotelinkCommitShaPattern": "",
     "proxy": "",
-    "RateLimit": 0
+    "rateLimit": 0
   },
   {
-    "ID": 30,
-    "CreatedAt": "2021-11-23T21:19:34.684Z",
-    "UpdatedAt": "2022-03-04T16:17:11.278Z",
+    "id": 30,
+    "createdAt": "2021-11-23T21:19:34.684Z",
+    "updatedAt": "2022-03-04T16:17:11.278Z",
     "name": "JIRA SERVER #3",
     "endpoint": "https://e9272d1c-bd23-4937-9129-ae9b55fd14f6.atlassian.net/rest/",
     "basicAuthEncoded": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx===============",
@@ -36,6 +36,6 @@
     "storyPointField": "",
     "remotelinkCommitShaPattern": "",
     "proxy": "",
-    "RateLimit": 0
+    "rateLimit": 0
   }
 ]

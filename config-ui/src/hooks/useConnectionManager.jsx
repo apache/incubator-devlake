@@ -81,7 +81,7 @@ function useConnectionManager ({
       console.log('INFO >>> Endopoint URL & Payload for testing: ', testUrl, connectionPayload)
       const res = await request.post(testUrl, connectionPayload)
       console.log('res.data', res.data)
-      if (res?.data?.Success && res.status === 200) {
+      if (res.data?.success && res.status === 200) {
         setIsTesting(false)
         setTestStatus(1)
         if (notify) {
@@ -91,7 +91,7 @@ function useConnectionManager ({
       } else {
         setIsTesting(false)
         setTestStatus(2)
-        const errorMessage = 'Connection test FAILED. ' + res?.data?.Message
+        const errorMessage = 'Connection test FAILED. ' + res.message
         if (notify) {
           ToastNotification.show({ message: errorMessage, intent: 'danger', icon: 'error' })
         }
@@ -213,6 +213,7 @@ function useConnectionManager ({
         console.log('>> RAW CONNECTION DATA FROM API...', connectionData)
         setActiveConnection({
           ...connectionData,
+          ID: connectionData.ID || connectionData.id,
           name: connectionData.name || connectionData.Name,
           endpoint: connectionData.endpoint || connectionData.Endpoint,
           proxy: connectionData.proxy || connectionData.Proxy,
@@ -242,17 +243,16 @@ function useConnectionManager ({
       console.log('>> FETCHING ALL CONNECTION SOURCES')
       const f = await request.get(`${DEVLAKE_ENDPOINT}/plugins/${activeProvider.id}/sources`)
       console.log('>> RAW ALL CONNECTIONS DATA FROM API...', f.data)
-      const providerConnections = f.data?.map((conn, idx) => {
+      const providerConnections = [].concat(Array.isArray(f.data) ? f.data : []).map((conn, idx) => {
         return {
           ...conn,
           status: 0,
-          id: conn.ID,
+          ID: conn.ID || conn.id,
           name: conn.name,
           endpoint: conn.endpoint,
           errors: []
         }
       })
-      // setConnections(providerConnections)
       if (notify) {
         ToastNotification.show({ message: 'Loaded all connections.', intent: 'success', icon: 'small-tick' })
       }

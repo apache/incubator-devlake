@@ -60,6 +60,22 @@ context('Data Integration Providers', () => {
       cy.wait('@createJIRASource').its('response.statusCode').should('eq', 201)
       cy.url().should('include', '/integrations/jira')
     })
+
+    it('can perform test for online connection source', () => {
+      cy.intercept('GET', '/api/plugins/jira/sources/*').as('fetchJIRAConnection')
+      cy.intercept('POST', '/api/plugins/jira/test').as('testJIRAConnection')  
+      cy.visit('/integrations/jira')
+      cy.get('.connections-table')
+      .find('tr.connection-online')
+      .first()
+      .click()
+
+      cy.wait('@fetchJIRAConnection')
+      cy.get('button#btn-test').click()
+      cy.wait('@testJIRAConnection').its('response.statusCode').should('eq', 200)
+      cy.wait(500)
+      cy.get('.bp3-toast').contains(/OK/i)
+    })
   })
 
   describe('GitLab Data Provider', () => {
@@ -94,6 +110,21 @@ context('Data Integration Providers', () => {
         .should('have.class', 'bp3-disabled')
         .should('have.attr', 'disabled')
     })
+    it('can perform test for online connection source', () => {
+      cy.intercept('GET', '/api/plugins/gitlab/sources/*').as('fetchGitlabConnection')
+      cy.intercept('POST', '/api/plugins/gitlab/test').as('testGitlabConnection')  
+      cy.visit('/integrations/gitlab')
+      cy.get('.connections-table')
+      .find('tr.connection-online')
+      .first()
+      .click()
+
+      cy.wait('@fetchGitlabConnection')
+      cy.get('button#btn-test').click()
+      cy.wait('@testGitlabConnection').its('response.statusCode').should('eq', 200)
+      cy.wait(500)
+      cy.get('.bp3-toast').contains(/OK/i)
+    })  
   })
 
   describe('GitHub Data Provider', () => {
@@ -128,6 +159,21 @@ context('Data Integration Providers', () => {
         .should('have.class', 'bp3-disabled')
         .should('have.attr', 'disabled')
     })
+    it('can perform test for online connection source', () => {
+      cy.intercept('GET', '/api/plugins/github/sources/*').as('fetchGithubConnection')
+      cy.intercept('POST', '/api/plugins/github/test').as('testGithubConnection')  
+      cy.visit('/integrations/github')
+      cy.get('.connections-table')
+      .find('tr.connection-online')
+      .first()
+      .click()
+
+      cy.wait('@fetchGithubConnection')
+      cy.get('button#btn-test').click()
+      cy.wait('@testGithubConnection').its('response.statusCode').should('eq', 200)
+      cy.wait(500)
+      cy.get('.bp3-toast').contains(/OK/i)
+    })   
   })
 
   describe('Jenkins Data Provider', () => {
@@ -162,5 +208,20 @@ context('Data Integration Providers', () => {
         .should('have.class', 'bp3-disabled')
         .should('have.attr', 'disabled')
     })
+    it('can perform test for online connection source', () => {
+      cy.intercept('GET', '/api/plugins/jenkins/sources/*').as('fetchJenkinsConnection')
+      cy.intercept('POST', '/api/plugins/jenkins/test').as('testJenkinsConnection')  
+      cy.visit('/integrations/jenkins')
+      cy.get('.connections-table')
+      .find('tr.connection-online')
+      .first()
+      .click()
+
+      cy.wait('@fetchJenkinsConnection')
+      cy.get('button#btn-test').click()
+      cy.wait('@testJenkinsConnection').its('response.statusCode').should('eq', 200)
+      cy.wait(500)
+      cy.get('.bp3-toast').contains(/OK/i)
+    })   
   })
 })

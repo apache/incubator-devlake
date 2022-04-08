@@ -313,7 +313,12 @@ const Pipelines = (props) => {
                 </div>
 
                 <div style={{ display: 'flex', width: '100%', justifySelf: 'flex-start', marginTop: '8px' }}>
-                  <Card interactive={false} elevation={Elevation.TWO} style={{ width: '100%', padding: '2px' }}>
+                  <Card
+                    className='manage-pipelines-card'
+                    interactive={false}
+                    elevation={Elevation.TWO}
+                    style={{ width: '100%', minWidth: '836px', padding: '2px' }}
+                  >
                     <table className='bp3-html-table bp3-html-table-bordered pipelines-table' style={{ width: '100%' }}>
                       <thead>
                         <tr>

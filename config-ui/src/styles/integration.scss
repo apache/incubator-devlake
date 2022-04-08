@@ -58,6 +58,7 @@
   flex-direction: column;
   align-self: flex-start;
   width: 100%;
+  min-width: 786px;
 }
 
 .table-action-link {
@@ -119,7 +120,7 @@ table.connections-table {
   background-size: 12px 12px;
 }
 
-.configureConnection {
+.configureConnection, .addConnection {
   min-width: 690px;
   max-width: 860px;
   margin-right: auto;

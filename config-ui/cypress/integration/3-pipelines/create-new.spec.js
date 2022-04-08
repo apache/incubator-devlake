@@ -8,13 +8,13 @@ context('Create New Pipelines Interface', () => {
   it('provides access to creating a new pipeline', () => {
     cy.get('ul.bp3-breadcrumbs')
       .find('a.bp3-breadcrumb-current')
-      .contains(/run pipeline/i)
+      .contains(/create pipeline run/i)
       .should('be.visible')
       .should('have.attr', 'href', '/pipelines/create')
 
     cy.get('.headlineContainer')
       .find('h1')
-      .contains(/run new pipeline/i)
+      .contains(/create pipeline run/i)
       .should('be.visible')
   })  
 
@@ -99,10 +99,10 @@ context('RUN / Trigger New Pipelines', () => {
 
   it('can run a jenkins pipeline', () => {
     cy.fixture('new-jenkins-pipeline').then((newJenkinsPipelineJSON) => {
-      cy.intercept('GET', `/api/pipelines/${newJenkinsPipelineJSON.ID}`, { body: newJenkinsPipelineJSON }).as('JenkinsPipeline')
+      cy.intercept('GET', `/api/pipelines/${newJenkinsPipelineJSON.id}`, { body: newJenkinsPipelineJSON }).as('JenkinsPipeline')
       cy.intercept('POST', '/api/pipelines', { body: newJenkinsPipelineJSON }).as('runJenkinsPipeline')
       cy.fixture('new-jenkins-pipeline-tasks').then((newJenkinsPipelineTasksJSON) => {
-        cy.intercept('GET', `/api/pipelines/${newJenkinsPipelineJSON.ID}/tasks`, { body: newJenkinsPipelineTasksJSON }).as('JenkinsPipelineTasks')
+        cy.intercept('GET', `/api/pipelines/${newJenkinsPipelineJSON.id}/tasks`, { body: newJenkinsPipelineTasksJSON }).as('JenkinsPipelineTasks')
       })
     })
 
@@ -116,16 +116,16 @@ context('RUN / Trigger New Pipelines', () => {
     cy.wait('@JenkinsPipelineTasks')
     cy.wait('@runJenkinsPipeline').then(({ response }) => {
       const NewJenkinsRun = response.body
-      cy.url().should('include', `/pipelines/activity/${NewJenkinsRun.ID}`)
+      cy.url().should('include', `/pipelines/activity/${NewJenkinsRun.id}`)
     })
   })
 
   it('can run a gitlab pipeline', () => {
     cy.fixture('new-gitlab-pipeline').then((newGitlabPipelineJSON) => {
-      cy.intercept('GET', `/api/pipelines/${newGitlabPipelineJSON.ID}`, { body: newGitlabPipelineJSON }).as('GitlabPipeline')
+      cy.intercept('GET', `/api/pipelines/${newGitlabPipelineJSON.id}`, { body: newGitlabPipelineJSON }).as('GitlabPipeline')
       cy.intercept('POST', '/api/pipelines', { body: newGitlabPipelineJSON }).as('runGitlabPipeline')
       cy.fixture('new-gitlab-pipeline-tasks').then((newGitlabPipelineTasksJSON) => {
-        cy.intercept('GET', `/api/pipelines/${newGitlabPipelineJSON.ID}/tasks`, { body: newGitlabPipelineTasksJSON }).as('GitlabPipelineTasks')
+        cy.intercept('GET', `/api/pipelines/${newGitlabPipelineJSON.id}/tasks`, { body: newGitlabPipelineTasksJSON }).as('GitlabPipelineTasks')
       })
     })
     cy.get('input#pipeline-name').type(`{selectAll}{backSpace}COLLECT GITLAB ${Date.now()}`)
@@ -140,16 +140,16 @@ context('RUN / Trigger New Pipelines', () => {
     cy.wait('@GitlabPipelineTasks')
     cy.wait('@runGitlabPipeline').then(({ response }) => {
       const NewGitlabRun = response.body
-      cy.url().should('include', `/pipelines/activity/${NewGitlabRun.ID}`)
+      cy.url().should('include', `/pipelines/activity/${NewGitlabRun.id}`)
     })
   })
 
   it('can run a github pipeline', () => {
     cy.fixture('new-github-pipeline').then((newGithubPipelineJSON) => {
-      cy.intercept('GET', `/api/pipelines/${newGithubPipelineJSON.ID}`, { body: newGithubPipelineJSON }).as('GithubPipeline')
+      cy.intercept('GET', `/api/pipelines/${newGithubPipelineJSON.id}`, { body: newGithubPipelineJSON }).as('GithubPipeline')
       cy.intercept('POST', '/api/pipelines', { body: newGithubPipelineJSON }).as('runGithubPipeline')
       cy.fixture('new-github-pipeline-tasks').then((newGithubPipelineTasksJSON) => {
-        cy.intercept('GET', `/api/pipelines/${newGithubPipelineJSON.ID}/tasks`, { body: newGithubPipelineTasksJSON }).as('GithubPipelineTasks')
+        cy.intercept('GET', `/api/pipelines/${newGithubPipelineJSON.id}/tasks`, { body: newGithubPipelineTasksJSON }).as('GithubPipelineTasks')
       })
     })
     cy.get('input#pipeline-name').type(`{selectAll}{backSpace}COLLECT GITHUB ${Date.now()}`)
@@ -166,16 +166,16 @@ context('RUN / Trigger New Pipelines', () => {
     cy.wait('@GithubPipelineTasks')
     cy.wait('@runGithubPipeline').then(({ response }) => {
       const NewGithubRun = response.body
-      cy.url().should('include', `/pipelines/activity/${NewGithubRun.ID}`)
+      cy.url().should('include', `/pipelines/activity/${NewGithubRun.id}`)
     })
   })
 
   it('can run a gitextractor pipeline', () => {
     cy.fixture('new-gitextractor-pipeline').then((newGitExtractorPipelineJSON) => {
-      cy.intercept('GET', `/api/pipelines/${newGitExtractorPipelineJSON.ID}`, { body: newGitExtractorPipelineJSON }).as('GitExtractorPipeline')
+      cy.intercept('GET', `/api/pipelines/${newGitExtractorPipelineJSON.id}`, { body: newGitExtractorPipelineJSON }).as('GitExtractorPipeline')
       cy.intercept('POST', '/api/pipelines', { body: newGitExtractorPipelineJSON }).as('runGitExtractorPipeline')
       cy.fixture('new-github-pipeline-tasks').then((newGitExtractorPipelineTasksJSON) => {
-        cy.intercept('GET', `/api/pipelines/${newGitExtractorPipelineJSON.ID}/tasks`, { body: newGitExtractorPipelineTasksJSON }).as('GitExtractorPipelineTasks')
+        cy.intercept('GET', `/api/pipelines/${newGitExtractorPipelineJSON.id}/tasks`, { body: newGitExtractorPipelineTasksJSON }).as('GitExtractorPipelineTasks')
       })
     })
     cy.get('input#pipeline-name').type(`{selectAll}{backSpace}COLLECT GITEXTRACTOR ${Date.now()}`)
@@ -192,17 +192,17 @@ context('RUN / Trigger New Pipelines', () => {
     cy.wait('@GitExtractorPipelineTasks')
     cy.wait('@runGitExtractorPipeline').then(({ response }) => {
       const NewGitExtractorRun = response.body
-      cy.url().should('include', `/pipelines/activity/${NewGitExtractorRun.ID}`)
+      cy.url().should('include', `/pipelines/activity/${NewGitExtractorRun.id}`)
     })
   })
 
 
   it('can run a jira pipeline', () => {
     cy.fixture('new-jira-pipeline').then((newJiraPipelineJSON) => {
-      cy.intercept('GET', `/api/pipelines/${newJiraPipelineJSON.ID}`, { body: newJiraPipelineJSON }).as('JiraPipeline')
+      cy.intercept('GET', `/api/pipelines/${newJiraPipelineJSON.id}`, { body: newJiraPipelineJSON }).as('JiraPipeline')
       cy.intercept('POST', '/api/pipelines', { body: newJiraPipelineJSON }).as('runJiraPipeline')
       cy.fixture('new-jira-pipeline-tasks').then((newJiraPipelineTasksJSON) => {
-        cy.intercept('GET', `/api/pipelines/${newJiraPipelineJSON.ID}/tasks`, { body: newJiraPipelineTasksJSON }).as('JiraPipelineTasks')
+        cy.intercept('GET', `/api/pipelines/${newJiraPipelineJSON.id}/tasks`, { body: newJiraPipelineTasksJSON }).as('JiraPipelineTasks')
       })
     })
     cy.get('input#pipeline-name').type(`{selectAll}{backSpace}COLLECT JIRA ${Date.now()}`)
@@ -225,16 +225,16 @@ context('RUN / Trigger New Pipelines', () => {
     cy.wait('@JiraPipelineTasks')
     cy.wait('@runJiraPipeline').then(({ response }) => {
       const NewJiraRun = response.body
-      cy.url().should('include', `/pipelines/activity/${NewJiraRun.ID}`)
+      cy.url().should('include', `/pipelines/activity/${NewJiraRun.id}`)
     })
   })
 
   it('can run a refdiff pipeline', () => {
     cy.fixture('new-refdiff-pipeline').then((newRefDiffJSON) => {
-      cy.intercept('GET', `/api/pipelines/${newRefDiffJSON.ID}`, { body: newRefDiffJSON }).as('RefDiffPipeline')
+      cy.intercept('GET', `/api/pipelines/${newRefDiffJSON.id}`, { body: newRefDiffJSON }).as('RefDiffPipeline')
       cy.intercept('POST', '/api/pipelines', { body: newRefDiffJSON }).as('runRefDiffPipeline')
       cy.fixture('new-refdiff-pipeline-tasks').then((newRefDiffPipelineTasksJSON) => {
-        cy.intercept('GET', `/api/pipelines/${newRefDiffJSON.ID}/tasks`, { body: newRefDiffPipelineTasksJSON }).as('RefDiffPipelineTasks')
+        cy.intercept('GET', `/api/pipelines/${newRefDiffJSON.id}/tasks`, { body: newRefDiffPipelineTasksJSON }).as('RefDiffPipelineTasks')
       })
     })
     cy.get('input#pipeline-name').type(`{selectAll}{backSpace}COLLECT REFDIFF ${Date.now()}`)
@@ -253,7 +253,7 @@ context('RUN / Trigger New Pipelines', () => {
     cy.wait('@RefDiffPipelineTasks')
     cy.wait('@runRefDiffPipeline').then(({ response }) => {
       const NewRefDiffRun = response.body
-      cy.url().should('include', `/pipelines/activity/${NewRefDiffRun.ID}`)
+      cy.url().should('include', `/pipelines/activity/${NewRefDiffRun.id}`)
     })
   })
 

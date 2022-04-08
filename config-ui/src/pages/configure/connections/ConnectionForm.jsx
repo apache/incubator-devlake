@@ -397,7 +397,7 @@ export default function ConnectionForm (props) {
                     )}
               </Label>
               <InputGroup
-                id='github-proxy'
+                id='connection-proxy'
                 placeholder={placeholders.proxy ? placeholders.proxy : 'http://proxy.localhost:8080'}
                 defaultValue={proxy}
                 onChange={(e) => onProxyChange(e.target.value)}
@@ -418,6 +418,7 @@ export default function ConnectionForm (props) {
         >
           <div style={{ display: 'flex' }}>
             <Button
+              id='btn-test'
               className='btn-test-connection'
               icon={getConnectionStatusIcon()}
               text='Test Connection'

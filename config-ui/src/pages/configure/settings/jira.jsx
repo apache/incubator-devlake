@@ -222,7 +222,7 @@ export default function JiraSettings (props) {
             items={requirementTagsList}
             selectedItems={requirementTags}
             activeItem={null}
-            itemPredicate={(query, item) => item.title.toLowerCase().indexOf(query.toLowerCase()) >= 0}
+            itemPredicate={(query, item) => item?.title.toLowerCase().indexOf(query.toLowerCase()) >= 0}
             itemRenderer={(item, { handleClick, modifiers }) => (
               <MenuItem
                 active={modifiers.active || requirementTags.includes(item)}
@@ -289,7 +289,7 @@ export default function JiraSettings (props) {
             items={bugTagsList}
             selectedItems={bugTags}
             activeItem={null}
-            itemPredicate={(query, item) => item.title.toLowerCase().indexOf(query.toLowerCase()) >= 0}
+            itemPredicate={(query, item) => item?.title.toLowerCase().indexOf(query.toLowerCase()) >= 0}
             itemRenderer={(item, { handleClick, modifiers }) => (
               <MenuItem
                 active={modifiers.active || bugTags.includes(item)}
@@ -356,7 +356,7 @@ export default function JiraSettings (props) {
             items={incidentTagsList}
             selectedItems={incidentTags}
             activeItem={null}
-            itemPredicate={(query, item) => item.title.toLowerCase().indexOf(query.toLowerCase()) >= 0}
+            itemPredicate={(query, item) => item?.title.toLowerCase().indexOf(query.toLowerCase()) >= 0}
             itemRenderer={(item, { handleClick, modifiers }) => (
               <MenuItem
                 active={modifiers.active || incidentTags.includes(item)}
@@ -417,7 +417,7 @@ export default function JiraSettings (props) {
               fill={true}
               items={fieldsList}
               activeItem={jiraIssueEpicKeyField}
-              itemPredicate={(query, item) => item.title.toLowerCase().indexOf(query.toLowerCase()) >= 0}
+              itemPredicate={(query, item) => item?.title.toLowerCase().indexOf(query.toLowerCase()) >= 0}
               itemRenderer={(item, { handleClick, modifiers }) => (
                 <MenuItem
                   disabled={jiraIssueStoryPointField?.value === item.value}
@@ -484,7 +484,7 @@ export default function JiraSettings (props) {
               fill={true}
               items={fieldsList}
               activeItem={jiraIssueStoryPointField}
-              itemPredicate={(query, item) => item.title.toLowerCase().indexOf(query.toLowerCase()) >= 0}
+              itemPredicate={(query, item) => item?.title.toLowerCase().indexOf(query.toLowerCase()) >= 0}
               itemRenderer={(item, { handleClick, modifiers }) => (
                 <MenuItem
                   disabled={jiraIssueEpicKeyField?.value === item.value}

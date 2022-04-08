@@ -22,7 +22,7 @@ const useJIRA = ({ apiProxyPath, issuesEndpoint, fieldsEndpoint }) => {
           .get(issuesEndpoint)
           .catch(e => setError(e))
         console.log('>>> JIRA API PROXY: Issues Response...', issues)
-        setIssueTypesResponse(issues ? issues.data : [])
+        setIssueTypesResponse(issues && Array.isArray(issues.data) ? issues.data : [])
         setTimeout(() => {
           setIsFetching(false)
         }, 1000)
@@ -47,7 +47,7 @@ const useJIRA = ({ apiProxyPath, issuesEndpoint, fieldsEndpoint }) => {
           .get(fieldsEndpoint)
           .catch(e => setError(e))
         console.log('>>> JIRA API PROXY: Fields Response...', fields)
-        setFieldsResponse(fields ? fields.data : [])
+        setFieldsResponse(fields && Array.isArray(fields.data) ? fields.data : [])
         setTimeout(() => {
           setIsFetching(false)
         }, 1000)
@@ -74,11 +74,11 @@ const useJIRA = ({ apiProxyPath, issuesEndpoint, fieldsEndpoint }) => {
   }
 
   useEffect(() => {
-    setIssueTypes(createListData(issueTypesResponse))
+    setIssueTypes(issueTypesResponse ? createListData(issueTypesResponse) : [])
   }, [issueTypesResponse])
 
   useEffect(() => {
-    setFields(createListData(fieldsResponse, 'name', 'key'))
+    setFields(fieldsResponse ? createListData(fieldsResponse, 'name', 'key') : [])
   }, [fieldsResponse])
 
   useEffect(() => {
