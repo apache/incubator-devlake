@@ -33,10 +33,12 @@ func CalculateCommitsDiff(taskCtx core.SubTaskContext) error {
 	}
 	commitPairs := make([][4]string, 0, len(pairs))
 	for i, refPair := range pairs {
+		// get new ref's commit sha
 		newCommit, err := ref2sha(refPair.NewRef)
 		if err != nil {
 			return fmt.Errorf("failed to load commit sha for NewRef on pair #%d: %w", i, err)
 		}
+		// get old ref's commit sha
 		oldCommit, err := ref2sha(refPair.OldRef)
 		if err != nil {
 			return fmt.Errorf("failed to load commit sha for OleRef on pair #%d: %w", i, err)
@@ -68,7 +70,7 @@ func CalculateCommitsDiff(taskCtx core.SubTaskContext) error {
 		if err != nil {
 			return fmt.Errorf("failed to read commit from database: %v", err)
 		}
-		commitNodeGraph.AddSide(commitParent.CommitSha, commitParent.ParentCommitSha)
+		commitNodeGraph.AddParent(commitParent.CommitSha, commitParent.ParentCommitSha)
 	}
 
 	logger.Info("refdiff", fmt.Sprintf("Create a commit node graph with node count[%d]", commitNodeGraph.Size()))
@@ -114,7 +116,7 @@ func CalculateCommitsDiff(taskCtx core.SubTaskContext) error {
 			continue
 		}
 
-		lostSha, oldCount, newCount := commitNodeGraph.CalculateLost(pair[1], pair[0])
+		lostSha, oldCount, newCount := commitNodeGraph.CalculateLostSha(pair[1], pair[0])
 
 		commitsDiffs := []code.RefsCommitsDiff{}
 
