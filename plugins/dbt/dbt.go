@@ -67,21 +67,25 @@ func main() {
 	projectTarget := dbtCmd.Flags().StringP("projectTarget", "o", "dev", "this is the default target your dbt project will use.")
 
 	_ = dbtCmd.MarkFlagRequired("selectedModels")
-
 	modelsSlice := []string{"my_first_dbt_model", "my_second_dbt_model"}
 	selectedModels := dbtCmd.Flags().StringSliceP("models", "m", modelsSlice, "dbt select models")
 
-	projectVars := make(map[string]interface{})
-	projectVars["event_min_id"] = 7584
-	projectVars["event_max_id"] = 7590
+	projectVars := make(map[string]string)
+	projectVars["event_min_id"] = "7581"
+	projectVars["event_max_id"] = "7582"
+	dbtCmd.Flags().StringToStringVarP(&projectVars, "projectVars", "v", projectVars, "dbt provides variables to provide data to models for compilation.")
 	
 	dbtCmd.Run = func(cmd *cobra.Command, args []string) {
+		projectVarsConvert := make(map[string]interface{}, len(projectVars))
+		for k, v := range projectVars{
+			projectVarsConvert[k] = v
+		}
 		runner.DirectRun(cmd, args, PluginEntry, map[string]interface{}{
 			"projectPath":    *projectPath,
 			"projectName":    *projectName,
 			"projectTarget":  *projectTarget,
 			"selectedModels": *selectedModels,
-			"projectVars":    projectVars,
+			"projectVars":    projectVarsConvert,
 		})
 	}
 	runner.RunCmd(dbtCmd)

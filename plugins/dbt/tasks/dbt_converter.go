@@ -53,14 +53,16 @@ func DbtConverter(taskCtx core.SubTaskContext) error {
 		return err
 	}
 
-	dbtExecParams := []string{"dbt", "run", "--profiles-dir", projectPath, "--select"}
+	dbtExecParams := []string{"dbt", "run", "--profiles-dir", projectPath}
 	if projectVars != nil {
 		jsonProjectVars, err := json.Marshal(projectVars)
 		if err != nil {
 			return fmt.Errorf("parameters vars json marshal error")
 		}
-		dbtExecParams = []string{"dbt", "run", "--profiles-dir", projectPath, "--vars", string(jsonProjectVars), "--select"}
+		dbtExecParams = append(dbtExecParams, "--vars")
+		dbtExecParams = append(dbtExecParams, string(jsonProjectVars))
 	}
+	dbtExecParams = append(dbtExecParams, "--select")
 	dbtExecParams = append(dbtExecParams, models...)
 	cmd := exec.Command(dbtExecParams[0], (dbtExecParams[1:])...)
 	stdout, err := cmd.StdoutPipe()
