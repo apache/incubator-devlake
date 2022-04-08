@@ -15,7 +15,8 @@ func NewCommitNodeGraph() *CommitNodeGraph {
 	}
 }
 
-func (cng *CommitNodeGraph) AddSide(commit_sha string, commit_parent_sha string) {
+// AddParent adds node's edge to node.Parent
+func (cng *CommitNodeGraph) AddParent(commit_sha string, commit_parent_sha string) {
 	var commitNow *CommitNode
 	var commitParentNow *CommitNode
 	var ok bool
@@ -35,10 +36,11 @@ func (cng *CommitNodeGraph) AddSide(commit_sha string, commit_parent_sha string)
 	commitNow.Parent = append(commitNow.Parent, commitParentNow)
 }
 
-func (cng *CommitNodeGraph) CalculateLost(source_sha string, target_sha string) ([]string, int, int) {
+// CalculateLostSha calculates commit sha which newCommitNode has but oldCommitNode does not have
+func (cng *CommitNodeGraph) CalculateLostSha(source_sha string, target_sha string) ([]string, int, int) {
 	var oldCommitNode *CommitNode
 	var newCommitNode *CommitNode
-	var lostSha []string
+	var diffSha []string
 	var ok bool
 	if oldCommitNode, ok = cng.node[source_sha]; !ok {
 		oldCommitNode = &CommitNode{
@@ -51,9 +53,10 @@ func (cng *CommitNodeGraph) CalculateLost(source_sha string, target_sha string) 
 		}
 	}
 
-	var oldGroup map[string]*CommitNode = make(map[string]*CommitNode)
-	type funcType func(*CommitNode)
-	var dfs funcType
+	oldGroup := make(map[string]*CommitNode)
+
+	var dfs func(*CommitNode)
+	// put all commit sha which can be depth-first-searched by old commit
 	dfs = func(now *CommitNode) {
 		if _, ok = oldGroup[now.Sha]; ok {
 			return
@@ -65,7 +68,8 @@ func (cng *CommitNodeGraph) CalculateLost(source_sha string, target_sha string) 
 	}
 	dfs(oldCommitNode)
 
-	var newGroup map[string]*CommitNode = make(map[string]*CommitNode)
+	var newGroup = make(map[string]*CommitNode)
+	// put all commit sha which can be depth-first-searched by new commit, will stop when find any in either group
 	dfs = func(now *CommitNode) {
 		if _, ok = oldGroup[now.Sha]; ok {
 			return
@@ -74,14 +78,14 @@ func (cng *CommitNodeGraph) CalculateLost(source_sha string, target_sha string) 
 			return
 		}
 		newGroup[now.Sha] = now
-		lostSha = append(lostSha, now.Sha)
+		diffSha = append(diffSha, now.Sha)
 		for _, node := range now.Parent {
 			dfs(node)
 		}
 	}
 	dfs(newCommitNode)
 
-	return lostSha, len(oldGroup), len(newGroup)
+	return diffSha, len(oldGroup), len(newGroup)
 }
 
 func (cng *CommitNodeGraph) Size() int {
