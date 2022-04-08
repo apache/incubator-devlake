@@ -2,6 +2,7 @@ package tasks
 
 import (
 	"bufio"
+	"encoding/json"
 	"fmt"
 	"os"
 	"os/exec"
@@ -20,11 +21,12 @@ func DbtConverter(taskCtx core.SubTaskContext) error {
 	projectPath := data.Options.ProjectPath
 	projectName := data.Options.ProjectName
 	projectTarget := data.Options.ProjectTarget
+	projectVars := data.Options.ProjectVars
 
 	dbUrl := taskCtx.GetConfig("DB_URL")
 	dbSlice := strings.FieldsFunc(dbUrl, func(r rune) bool { return strings.ContainsRune(":@()/?", r) })
 	if len(dbSlice) < 6 {
-		return fmt.Errorf("DB_URL parsing error")
+		return fmt.Errorf("DB_URL data parsing error")
 	}
 
 	dbUsername := dbSlice[0]
@@ -51,7 +53,16 @@ func DbtConverter(taskCtx core.SubTaskContext) error {
 		return err
 	}
 
-	dbtExecParams := []string{"dbt", "run", "--profiles-dir", projectPath, "--select"}
+	dbtExecParams := []string{"dbt", "run", "--profiles-dir", projectPath}
+	if projectVars != nil {
+		jsonProjectVars, err := json.Marshal(projectVars)
+		if err != nil {
+			return fmt.Errorf("parameters vars json marshal error")
+		}
+		dbtExecParams = append(dbtExecParams, "--vars")
+		dbtExecParams = append(dbtExecParams, string(jsonProjectVars))
+	}
+	dbtExecParams = append(dbtExecParams, "--select")
 	dbtExecParams = append(dbtExecParams, models...)
 	cmd := exec.Command(dbtExecParams[0], (dbtExecParams[1:])...)
 	stdout, err := cmd.StdoutPipe()

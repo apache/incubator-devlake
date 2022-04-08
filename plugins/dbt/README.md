@@ -38,7 +38,11 @@ please use the Raw JSON API to manually initiate a run using **cURL** or graphic
           "projectPath": "/Users/abeizn/demoapp",
           "projectName": "demoapp",
           "projectTarget": "dev",
-          "selectedModels": ["my_first_dbt_model","my_second_dbt_model"]
+          "selectedModels": ["my_first_dbt_model","my_second_dbt_model"],
+          "projectVars": {
+            "demokey1": "demovalue1",
+            "demokey2": "demovalue2"
+        }
       }
     }
   ]
@@ -53,6 +57,8 @@ And selectedModels accepts one or more arguments. Each argument can be one of:
 1. a package name #runs all models in your project, example: example
 2. a model name   # runs a specific model, example: my_fisrt_dbt_model
 3. a fully-qualified path to a directory of models # you need update the value of model-paths in dbt_project.yml. 
+- `vars`: dbt provides a mechanism variables to provide data to models for compilation. (optional) 
+example: select * from events where event_type = '{{ var("event_type") }}' this sql in your model, you need set parameters "vars": "{event_type: real_value}"
 
 ### Resources:
 - Learn more about dbt [in the docs](https://docs.getdbt.com/docs/introduction)
