@@ -9,7 +9,7 @@ type GithubPullRequestComment struct {
 	GithubId        int `gorm:"primaryKey"`
 	PullRequestId   int `gorm:"index"`
 	Body            string
-	AuthorUsername  string
+	AuthorUsername  string `gorm:"type:varchar(255)"`
 	AuthorUserId    int
 	GithubCreatedAt time.Time
 	GithubUpdatedAt time.Time `gorm:"index"`
