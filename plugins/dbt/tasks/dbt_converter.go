@@ -13,13 +13,14 @@ import (
 )
 
 func DbtConverter(taskCtx core.SubTaskContext) error {
-
+	
 	taskCtx.SetProgress(0, -1)
 	data := taskCtx.GetData().(*DbtTaskData)
 	models := data.Options.SelectedModels
 	projectPath := data.Options.ProjectPath
 	projectName := data.Options.ProjectName
 	projectTarget := data.Options.ProjectTarget
+	projectVars := data.Options.ProjectVars
 
 	dbUrl := taskCtx.GetConfig("DB_URL")
 	dbSlice := strings.FieldsFunc(dbUrl, func(r rune) bool { return strings.ContainsRune(":@()/?", r) })
@@ -52,8 +53,12 @@ func DbtConverter(taskCtx core.SubTaskContext) error {
 	}
 
 	dbtExecParams := []string{"dbt", "run", "--profiles-dir", projectPath, "--select"}
+	if projectVars != "" {
+		dbtExecParams = []string{"dbt", "run", "--profiles-dir", projectPath, "--vars", projectVars, "--select"}
+	}
 	dbtExecParams = append(dbtExecParams, models...)
 	cmd := exec.Command(dbtExecParams[0], (dbtExecParams[1:])...)
+	
 	stdout, err := cmd.StdoutPipe()
 	if err != nil {
 		return err
@@ -62,7 +67,7 @@ func DbtConverter(taskCtx core.SubTaskContext) error {
 	if err != nil {
 		return err
 	}
-
+	
 	scanner := bufio.NewScanner(stdout)
 	for scanner.Scan() {
 		line := scanner.Text()

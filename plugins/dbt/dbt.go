@@ -58,17 +58,20 @@ var PluginEntry Dbt
 // standalone mode for debugging
 func main() {
 	dbtCmd := &cobra.Command{Use: "dbt"}
-	projectPath := dbtCmd.Flags().StringP("projectPath", "p", "/Users/abeizn/demoapp", "user dbt project directory.")
 	_ = dbtCmd.MarkFlagRequired("projectPath")
-
-	projectName := dbtCmd.Flags().StringP("projectName", "n", "demoapp", "user dbt project name.")
+	projectPath := dbtCmd.Flags().StringP("projectPath", "p", "/Users/abeizn/demoapp", "user dbt project directory.")
+	
 	_ = dbtCmd.MarkFlagRequired("projectName")
-
+	projectName := dbtCmd.Flags().StringP("projectName", "n", "demoapp", "user dbt project name.")
+	
 	projectTarget := dbtCmd.Flags().StringP("projectTarget", "o", "dev", "this is the default target your dbt project will use.")
 
+	_ = dbtCmd.MarkFlagRequired("selectedModels")
+	
 	modelsSlice := []string{"my_first_dbt_model", "my_second_dbt_model"}
 	selectedModels := dbtCmd.Flags().StringSliceP("models", "m", modelsSlice, "dbt select models")
-	_ = dbtCmd.MarkFlagRequired("selectedModels")
+
+	projectVars := dbtCmd.Flags().StringP("projectVars", "v", "{key1:value1, key2:value2}", "user defined dbt parameters.")
 
 	dbtCmd.Run = func(cmd *cobra.Command, args []string) {
 		runner.DirectRun(cmd, args, PluginEntry, map[string]interface{}{
@@ -76,6 +79,7 @@ func main() {
 			"projectName":    *projectName,
 			"projectTarget":  *projectTarget,
 			"selectedModels": *selectedModels,
+			"projectVars":	*projectVars,
 		})
 	}
 	runner.RunCmd(dbtCmd)
