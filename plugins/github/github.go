@@ -2,9 +2,6 @@ package main // must be main for plugin entry point
 
 import (
 	"fmt"
-	"github.com/merico-dev/lake/models/domainlayer/code"
-	"github.com/merico-dev/lake/models/domainlayer/ticket"
-
 	"github.com/merico-dev/lake/plugins/github/models"
 	"github.com/merico-dev/lake/plugins/github/tasks"
 	"github.com/merico-dev/lake/runner"
@@ -43,8 +40,6 @@ func (plugin Github) Init(config *viper.Viper, logger core.Logger, db *gorm.DB) 
 		&models.GithubCommitStat{},
 		&models.GithubIssueComment{},
 		&models.GithubPullRequestComment{},
-		&ticket.IssueComment{},
-		&code.PullRequestComment{},
 	)
 }
 
@@ -56,33 +51,33 @@ func (plugin Github) SubTaskMetas() []core.SubTaskMeta {
 	return []core.SubTaskMeta{
 		tasks.CollectApiRepoMeta,
 		tasks.ExtractApiRepoMeta,
-		//tasks.CollectApiIssuesMeta,
-		//tasks.ExtractApiIssuesMeta,
-		//tasks.CollectApiPullRequestsMeta,
-		//tasks.ExtractApiPullRequestsMeta,
-		//tasks.CollectApiCommentsMeta,
+		tasks.CollectApiIssuesMeta,
+		tasks.ExtractApiIssuesMeta,
+		tasks.CollectApiPullRequestsMeta,
+		tasks.ExtractApiPullRequestsMeta,
+		tasks.CollectApiCommentsMeta,
 		tasks.ExtractApiCommentsMeta,
-		//tasks.CollectApiEventsMeta,
-		//tasks.ExtractApiEventsMeta,
-		//tasks.CollectApiPullRequestCommitsMeta,
-		//tasks.ExtractApiPullRequestCommitsMeta,
-		//tasks.CollectApiPullRequestReviewsMeta,
-		//tasks.ExtractApiPullRequestReviewsMeta,
-		//tasks.CollectApiCommitsMeta,
-		//tasks.ExtractApiCommitsMeta,
-		//tasks.CollectApiCommitStatsMeta,
-		//tasks.ExtractApiCommitStatsMeta,
-		//tasks.EnrichPullRequestIssuesMeta,
-		//tasks.ConvertRepoMeta,
-		//tasks.ConvertIssuesMeta,
-		//tasks.ConvertCommitsMeta,
-		//tasks.ConvertIssueLabelsMeta,
-		//tasks.ConvertPullRequestCommitsMeta,
-		//tasks.ConvertPullRequestsMeta,
-		//tasks.ConvertPullRequestLabelsMeta,
-		//tasks.ConvertPullRequestIssuesMeta,
-		//tasks.ConvertNotesMeta,
-		//tasks.ConvertUsersMeta,
+		tasks.CollectApiEventsMeta,
+		tasks.ExtractApiEventsMeta,
+		tasks.CollectApiPullRequestCommitsMeta,
+		tasks.ExtractApiPullRequestCommitsMeta,
+		tasks.CollectApiPullRequestReviewsMeta,
+		tasks.ExtractApiPullRequestReviewsMeta,
+		tasks.CollectApiCommitsMeta,
+		tasks.ExtractApiCommitsMeta,
+		tasks.CollectApiCommitStatsMeta,
+		tasks.ExtractApiCommitStatsMeta,
+		tasks.EnrichPullRequestIssuesMeta,
+		tasks.ConvertRepoMeta,
+		tasks.ConvertIssuesMeta,
+		tasks.ConvertCommitsMeta,
+		tasks.ConvertIssueLabelsMeta,
+		tasks.ConvertPullRequestCommitsMeta,
+		tasks.ConvertPullRequestsMeta,
+		tasks.ConvertPullRequestLabelsMeta,
+		tasks.ConvertPullRequestIssuesMeta,
+		tasks.ConvertNotesMeta,
+		tasks.ConvertUsersMeta,
 		tasks.ConvertIssueCommentsMeta,
 		tasks.ConvertPullRequestCommentsMeta,
 	}
