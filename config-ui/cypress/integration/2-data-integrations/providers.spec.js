@@ -144,6 +144,21 @@ context('Data Integration Providers', () => {
         .should('have.class', 'bp3-disabled')
         .should('have.attr', 'disabled')
     })
+    it('can perform test for online connection source', () => {
+      cy.intercept('GET', '/api/plugins/github/sources/*').as('fetchGithubConnection')
+      cy.intercept('POST', '/api/plugins/github/test').as('testGithubConnection')  
+      cy.visit('/integrations/github')
+      cy.get('.connections-table')
+      .find('tr.connection-online')
+      .first()
+      .click()
+
+      cy.wait('@fetchGithubConnection')
+      cy.get('button#btn-test').click()
+      cy.wait('@testGithubConnection').its('response.statusCode').should('eq', 200)
+      cy.wait(500)
+      cy.get('.bp3-toast').contains(/OK/i)
+    })   
   })
 
   describe('Jenkins Data Provider', () => {
