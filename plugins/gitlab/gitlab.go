@@ -3,10 +3,11 @@ package main // must be main for plugin entry point
 import (
 	"context"
 	"fmt"
-	"github.com/merico-dev/lake/config"
-	errors "github.com/merico-dev/lake/errors"
 	"os"
 	"strconv"
+
+	"github.com/merico-dev/lake/config"
+	errors "github.com/merico-dev/lake/errors"
 
 	"github.com/merico-dev/lake/logger" // A pseudo type for Plugin Interface implementation
 	lakeModels "github.com/merico-dev/lake/models"
@@ -88,17 +89,18 @@ func (plugin Gitlab) Execute(options map[string]interface{}, progress chan<- flo
 	}
 	if len(tasksToRun) == 0 {
 		tasksToRun = map[string]bool{
-			"collectPipelines": true,
-			"collectCommits":   true,
-			"CollectTags":      true,
-			"collectMrs":       true,
-			"collectMrNotes":   true,
-			"collectMrCommits": true,
-			"enrichMrs":        true,
-			"convertProjects":  true,
-			"convertMrs":       true,
-			"convertCommits":   true,
-			"convertNotes":     true,
+			"collectPipelines":  true,
+			"collectCommits":    true,
+			"CollectTags":       true,
+			"collectMrs":        true,
+			"collectMrNotes":    true,
+			"collectMrCommits":  true,
+			"enrichMrs":         true,
+			"convertProjects":   true,
+			"convertMrs":        true,
+			"convertCommits":    true,
+			"convertMrsCommits": true,
+			"convertNotes":      true,
 		}
 	}
 
@@ -211,6 +213,16 @@ func (plugin Gitlab) Execute(options map[string]interface{}, progress chan<- flo
 		if err != nil {
 			return &errors.SubTaskError{
 				SubTaskName: "convertCommits",
+				Message:     err.Error(),
+			}
+		}
+	}
+	if tasksToRun["convertMrsCommits"] {
+		progress <- 0.85
+		err = tasks.ConvertMergeRequestCommits(projectIdInt)
+		if err != nil {
+			return &errors.SubTaskError{
+				SubTaskName: "convertMrsCommits",
 				Message:     err.Error(),
 			}
 		}
