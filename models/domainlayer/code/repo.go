@@ -10,7 +10,7 @@ type Repo struct {
 	domainlayer.DomainEntity
 	Name        string     `json:"name"`
 	Url         string     `json:"url"`
-	Description string     `json:"Description"`
+	Description string     `json:"description"`
 	OwnerId     string     `json:"ownerId" gorm:"type:varchar(255)"`
 	Language    string     `json:"language" gorm:"type:varchar(255)"`
 	ForkedFrom  string     `json:"forkedFrom"`
