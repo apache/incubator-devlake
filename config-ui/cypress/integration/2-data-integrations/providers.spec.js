@@ -110,6 +110,21 @@ context('Data Integration Providers', () => {
         .should('have.class', 'bp3-disabled')
         .should('have.attr', 'disabled')
     })
+    it('can perform test for online connection source', () => {
+      cy.intercept('GET', '/api/plugins/gitlab/sources/*').as('fetchGitlabConnection')
+      cy.intercept('POST', '/api/plugins/gitlab/test').as('testGitlabConnection')  
+      cy.visit('/integrations/gitlab')
+      cy.get('.connections-table')
+      .find('tr.connection-online')
+      .first()
+      .click()
+
+      cy.wait('@fetchGitlabConnection')
+      cy.get('button#btn-test').click()
+      cy.wait('@testGitlabConnection').its('response.statusCode').should('eq', 200)
+      cy.wait(500)
+      cy.get('.bp3-toast').contains(/OK/i)
+    })  
   })
 
   describe('GitHub Data Provider', () => {
