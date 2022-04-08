@@ -60,6 +60,22 @@ context('Data Integration Providers', () => {
       cy.wait('@createJIRASource').its('response.statusCode').should('eq', 201)
       cy.url().should('include', '/integrations/jira')
     })
+
+    it('can perform test for online connection source', () => {
+      cy.intercept('GET', '/api/plugins/jira/sources/*').as('fetchJIRAConnection')
+      cy.intercept('POST', '/api/plugins/jira/test').as('testJIRAConnection')  
+      cy.visit('/integrations/jira')
+      cy.get('.connections-table')
+      .find('tr.connection-online')
+      .first()
+      .click()
+
+      cy.wait('@fetchJIRAConnection')
+      cy.get('button#btn-test').click()
+      cy.wait('@testJIRAConnection').its('response.statusCode').should('eq', 200)
+      cy.wait(500)
+      cy.get('.bp3-toast').contains(/OK/i)
+    })
   })
 
   describe('GitLab Data Provider', () => {

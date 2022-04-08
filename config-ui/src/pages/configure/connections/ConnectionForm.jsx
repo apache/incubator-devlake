@@ -418,6 +418,7 @@ export default function ConnectionForm (props) {
         >
           <div style={{ display: 'flex' }}>
             <Button
+              id='btn-test'
               className='btn-test-connection'
               icon={getConnectionStatusIcon()}
               text='Test Connection'

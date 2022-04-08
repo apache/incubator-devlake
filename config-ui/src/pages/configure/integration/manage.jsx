@@ -259,7 +259,7 @@ export default function ManageIntegration () {
                           <tr
                             key={`connection-row-${idx}`}
                             // eslint-disable-next-line max-len
-                            className={getTestedConnection(connection) && getTestedConnection(connection).status !== 1 ? 'connection-offline' : ''}
+                            className={getTestedConnection(connection) && getTestedConnection(connection).status !== 1 ? 'connection-offline' : 'connection-online'}
                           >
                             {activeProvider.id === Providers.JIRA && (
                               <td
