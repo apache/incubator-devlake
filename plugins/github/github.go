@@ -411,8 +411,8 @@ var PluginEntry Github //nolint
 // standalone mode for debugging
 func main() {
 	//args := os.Args[1:]
-	owner := "pingcap"
-	repo := "tidb"
+	owner := "ClickHouse"
+	repo := "ClickHouse"
 	//if len(args) > 0 {
 	//	owner = args[0]
 	//}

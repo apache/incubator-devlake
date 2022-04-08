@@ -67,7 +67,6 @@ Click **Save Settings** to update additional settings.
 ### 正则配置
 Define regex pattern in .env
 - GITHUB_PR_BODY_CLOSE_PATTERN: Define key word to associate issue in pr body, please check the example in .env.example
-- GITHUB_PR_BODY_NUMBER_PREFIX: Define the prefix of issue number in pr(issue can be shown as two types: 1. #1000, 2. https://github.com/{owner}/{repo}/issues/1000), please check the example in .env.example
 
 ## Sample Request
 

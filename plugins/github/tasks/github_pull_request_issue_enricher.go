@@ -17,22 +17,18 @@ func EnrichPullRequestIssues(ctx context.Context, repoId int, owner string, repo
 	//the pattern before the issue number, sometimes, the issue number is #1098, sometimes it is https://xxx/#1098
 	var prBodyCloseRegex *regexp.Regexp
 	var prBodyClosePattern string
-	var numberPrefix string
 
 	v := config.GetConfig()
 	prBodyClosePattern = v.GetString("GITHUB_PR_BODY_CLOSE_PATTERN")
-	numberPrefix = v.GetString("GITHUB_PR_BODY_NUMBER_PREFIX")
-
-	numberPattern := fmt.Sprintf(numberPrefix+`\d+[ ]*)+)`, owner, repo)
+	prBodyClosePattern = strings.Replace(prBodyClosePattern, "%s", owner, 1)
+	prBodyClosePattern = strings.Replace(prBodyClosePattern, "%s", repo, 1)
 	if len(prBodyClosePattern) > 0 {
-		prPattern := prBodyClosePattern + numberPattern
-		prBodyCloseRegex = regexp.MustCompile(prPattern)
+		prBodyCloseRegex = regexp.MustCompile(prBodyClosePattern)
 	}
-	numberPrefixRegex := regexp.MustCompile(numberPrefix)
 	charPattern := regexp.MustCompile(`[a-zA-Z\s,]+`)
 	githubPullRequst := &githubModels.GithubPullRequest{}
 	cursor, err := lakeModels.Db.Model(&githubPullRequst).
-		Where("repo_id = ?", repoId).
+		Where("repo_id = ?", repoId).Order("github_id desc").
 		Rows()
 	if err != nil {
 		return err
@@ -49,15 +45,18 @@ func EnrichPullRequestIssues(ctx context.Context, repoId int, owner string, repo
 		if err != nil {
 			return err
 		}
-		issueNumberListStr := ""
+
 		//find the matched string in body
+		issueNumberListStr := ""
+
 		if prBodyCloseRegex != nil {
 			issueNumberListStr = prBodyCloseRegex.FindString(githubPullRequst.Body)
 		}
-		//replace https:// to #, then we can process it later
-		if strings.Contains(issueNumberListStr, "https") {
-			issueNumberListStr = numberPrefixRegex.ReplaceAllString(issueNumberListStr, "#")
+
+		if issueNumberListStr == "" {
+			return nil
 		}
+
 		issueNumberListStr = charPattern.ReplaceAllString(issueNumberListStr, "#")
 		//split the string by '#'
 		issueNumberList := strings.Split(issueNumberListStr, "#")
@@ -89,6 +88,7 @@ func EnrichPullRequestIssues(ctx context.Context, repoId int, owner string, repo
 			if err != nil {
 				return err
 			}
+			fmt.Println(githubPullRequstIssue.PullNumber)
 		}
 	}
 	return nil
