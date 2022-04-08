@@ -1,13 +1,12 @@
 package tasks
 
 import (
-	"context"
 	"fmt"
+	"reflect"
 
-	"github.com/cayleygraph/cayley"
-	"github.com/cayleygraph/quad"
 	"github.com/merico-dev/lake/models/domainlayer/code"
 	"github.com/merico-dev/lake/plugins/core"
+	"github.com/merico-dev/lake/plugins/refdiff/utils"
 	"gorm.io/gorm/clause"
 )
 
@@ -18,6 +17,7 @@ func CalculateCommitsDiff(taskCtx core.SubTaskContext) error {
 	db := taskCtx.GetDb()
 	ctx := taskCtx.GetContext()
 	logger := taskCtx.GetLogger()
+	insertCountLimitOfRefsCommitsDiff := int(65535 / reflect.ValueOf(code.RefsCommitsDiff{}).NumField())
 	// convert ref pairs into commit pairs
 	ref2sha := func(refName string) (string, error) {
 		ref := &code.Ref{}
@@ -44,11 +44,7 @@ func CalculateCommitsDiff(taskCtx core.SubTaskContext) error {
 		commitPairs = append(commitPairs, [4]string{newCommit, oldCommit, refPair.NewRef, refPair.OldRef})
 	}
 
-	// create a in memory graph database
-	store, err := cayley.NewMemoryGraph()
-	if err != nil {
-		return fmt.Errorf("failed to init graph store: %v", err)
-	}
+	commitNodeGraph := utils.NewCommitNodeGraph()
 
 	// load commits from db
 	commitParent := &code.CommitParent{}
@@ -72,15 +68,13 @@ func CalculateCommitsDiff(taskCtx core.SubTaskContext) error {
 		if err != nil {
 			return fmt.Errorf("failed to read commit from database: %v", err)
 		}
-		err = store.AddQuad(quad.Make(commitParent.CommitSha, "childOf", commitParent.ParentCommitSha, nil))
-		if err != nil {
-			return fmt.Errorf("failed to add commit to graph store: %v", err)
-		}
+		commitNodeGraph.AddSide(commitParent.CommitSha, commitParent.ParentCommitSha)
 	}
+
+	logger.Info("refdiff", fmt.Sprintf("Create a commit node graph with node count[%d]", commitNodeGraph.Size()))
 
 	// calculate diffs for commits pairs and store them into database
 	commitsDiff := &code.RefsCommitsDiff{}
-	ancestors := cayley.StartMorphism().Out(quad.String("childOf"))
 	lenCommitPairs := len(commitPairs)
 	taskCtx.SetProgress(0, lenCommitPairs)
 
@@ -95,15 +89,6 @@ func CalculateCommitsDiff(taskCtx core.SubTaskContext) error {
 		commitsDiff.OldRefCommitSha = pair[1]
 		commitsDiff.NewRefName = fmt.Sprintf("%s:%s", repoId, pair[2])
 		commitsDiff.OldRefName = fmt.Sprintf("%s:%s", repoId, pair[3])
-
-		newCommit := cayley.
-			StartPath(store, quad.String(commitsDiff.NewRefCommitSha)).
-			FollowRecursive(ancestors, -1, []string{})
-		oldCommit := cayley.
-			StartPath(store, quad.String(commitsDiff.OldRefCommitSha)).
-			FollowRecursive(ancestors, -1, []string{})
-
-		p := newCommit.Except(oldCommit)
 
 		// delete records before creation
 		err = db.Exec(
@@ -129,37 +114,42 @@ func CalculateCommitsDiff(taskCtx core.SubTaskContext) error {
 			continue
 		}
 
-		// cayley produces a result that contains old commit sha but not new one
-		// that is the opposite of what `git log oldcommit..newcommit would produces`
-		// don't know  why exactly cayley does it this way, but we have to handle it anyway
-		// 1. adding new commit sha
-		commitsDiff.CommitSha = commitsDiff.NewRefCommitSha
-		err = db.Clauses(clause.OnConflict{DoNothing: true}).Create(commitsDiff).Error
-		if err != nil {
-			return err
-		}
-		index := 1
-		err = p.Iterate(context.Background()).EachValue(nil, func(value quad.Value) {
-			commitsDiff.CommitSha = fmt.Sprintf("%s", quad.NativeOf(value))
-			// 2. ignoring old commit sha
-			if commitsDiff.CommitSha == commitsDiff.OldRefCommitSha {
-				return
+		lostSha, oldCount, newCount := commitNodeGraph.CalculateLost(pair[1], pair[0])
+
+		commitsDiffs := []code.RefsCommitsDiff{}
+
+		commitsDiff.SortingIndex = 1
+		for _, sha := range lostSha {
+			commitsDiff.CommitSha = sha
+			commitsDiffs = append(commitsDiffs, *commitsDiff)
+
+			// sql limit placeholders count only 65535
+			if commitsDiff.SortingIndex%insertCountLimitOfRefsCommitsDiff == 0 {
+				logger.Info("refdiff", fmt.Sprintf("commitsDiffs count in limited[%d] index[%d]--exec and clean", len(commitsDiffs), commitsDiff.SortingIndex))
+				err = db.Clauses(clause.OnConflict{DoNothing: true}).Create(commitsDiffs).Error
+				if err != nil {
+					return err
+				}
+				commitsDiffs = []code.RefsCommitsDiff{}
 			}
-			commitsDiff.SortingIndex = index
-			err = db.Clauses(clause.OnConflict{DoNothing: true}).Create(commitsDiff).Error
+
+			commitsDiff.SortingIndex++
+		}
+
+		if len(commitsDiffs) > 0 {
+			logger.Info("refdiff", fmt.Sprintf("insert data count [%d]", len(commitsDiffs)))
+			err = db.Clauses(clause.OnConflict{DoNothing: true}).Create(commitsDiffs).Error
 			if err != nil {
-				panic(err)
+				return err
 			}
-			index++
-		})
-		if err != nil {
-			return err
 		}
+
 		logger.Info("refdiff", fmt.Sprintf(
-			"total %d commits of difference found between %s and %s",
-			index,
+			"total %d commits of difference found between %s and %s(total:%d)",
+			newCount,
 			commitsDiff.NewRefCommitSha,
 			commitsDiff.OldRefCommitSha,
+			oldCount,
 		))
 		taskCtx.IncProgress(1)
 	}

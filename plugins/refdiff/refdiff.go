@@ -32,7 +32,7 @@ func (plugin RefDiff) Init(config *viper.Viper, logger core.Logger, db *gorm.DB)
 
 func (plugin RefDiff) SubTaskMetas() []core.SubTaskMeta {
 	return []core.SubTaskMeta{
-		//tasks.CalculateCommitsDiffMeta,
+		tasks.CalculateCommitsDiffMeta,
 		tasks.CalculateIssuesDiffMeta,
 		tasks.CalculatePrCherryPickMeta,
 	}
@@ -62,7 +62,6 @@ func (plugin RefDiff) ApiResources() map[string]map[string]core.ApiResourceHandl
 // standalone mode for debugging
 func main() {
 	refdiffCmd := &cobra.Command{Use: "refdiff"}
-
 	repoId := refdiffCmd.Flags().StringP("repo-id", "r", "", "repo id")
 	newRef := refdiffCmd.Flags().StringP("new-ref", "n", "", "new ref")
 	oldRef := refdiffCmd.Flags().StringP("old-ref", "o", "", "old ref")
@@ -71,16 +70,15 @@ func main() {
 	_ = refdiffCmd.MarkFlagRequired("new-ref")
 	_ = refdiffCmd.MarkFlagRequired("old-ref")
 
-	pairs := []map[string]string{
-		{
-			"NewRef": *newRef,
-			"OldRef": *oldRef,
-		},
-	}
 	refdiffCmd.Run = func(cmd *cobra.Command, args []string) {
 		runner.DirectRun(cmd, args, PluginEntry, map[string]interface{}{
 			"repoId": repoId,
-			"pairs":  pairs,
+			"pairs": []map[string]string{
+				{
+					"NewRef": *newRef,
+					"OldRef": *oldRef,
+				},
+			},
 		})
 	}
 	runner.RunCmd(refdiffCmd)
