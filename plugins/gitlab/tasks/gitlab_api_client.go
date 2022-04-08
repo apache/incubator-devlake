@@ -103,14 +103,13 @@ func (gitlabApiClient *GitlabApiClient) FetchWithPaginationAnts(path string, que
 
 	// not all api return x-total header, use step concurrency
 	if total == -1 {
-		// TODO: How do we know how high we can set the conc? Is is rateLimit?
 		conc := 30
 		step := 0
 		c := make(chan bool)
 		errs := make([]string, 0)
 		for {
-			// first, we fetch 10 pages in parallel, and we want to fetch the 10th page first,
-			// so we can start next 10 pages ASAP
+			// first, we fetch like 30 pages in parallel, and we want to fetch the 30th page first,
+			// so we can start next 30 pages ASAP
 			for i := conc; i > 0; i-- {
 				page := step*conc + i
 				queryCopy := url.Values{}
@@ -127,7 +126,7 @@ func (gitlabApiClient *GitlabApiClient) FetchWithPaginationAnts(path string, que
 						c <- false
 						return e
 					}
-					// see if there was next page for 10th page
+					// see if there was next page for 30th page
 					if page%conc == 0 {
 						_, e = strconv.ParseInt(res.Header.Get("X-Next-Page"), 10, 32)
 						c <- e == nil
@@ -138,7 +137,7 @@ func (gitlabApiClient *GitlabApiClient) FetchWithPaginationAnts(path string, que
 					return err
 				}
 			}
-			// wait for 10th page or any error
+			// wait for 30th page or any error
 			cont := <-c
 			if !cont {
 				break
