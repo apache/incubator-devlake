@@ -60,26 +60,28 @@ func main() {
 	dbtCmd := &cobra.Command{Use: "dbt"}
 	_ = dbtCmd.MarkFlagRequired("projectPath")
 	projectPath := dbtCmd.Flags().StringP("projectPath", "p", "/Users/abeizn/demoapp", "user dbt project directory.")
-	
+
 	_ = dbtCmd.MarkFlagRequired("projectName")
 	projectName := dbtCmd.Flags().StringP("projectName", "n", "demoapp", "user dbt project name.")
-	
+
 	projectTarget := dbtCmd.Flags().StringP("projectTarget", "o", "dev", "this is the default target your dbt project will use.")
 
 	_ = dbtCmd.MarkFlagRequired("selectedModels")
-	
+
 	modelsSlice := []string{"my_first_dbt_model", "my_second_dbt_model"}
 	selectedModels := dbtCmd.Flags().StringSliceP("models", "m", modelsSlice, "dbt select models")
 
-	projectVars := dbtCmd.Flags().StringP("projectVars", "v", "{key1:value1, key2:value2}", "user defined dbt parameters.")
-
+	projectVars := make(map[string]interface{})
+	projectVars["event_min_id"] = 7584
+	projectVars["event_max_id"] = 7590
+	
 	dbtCmd.Run = func(cmd *cobra.Command, args []string) {
 		runner.DirectRun(cmd, args, PluginEntry, map[string]interface{}{
 			"projectPath":    *projectPath,
 			"projectName":    *projectName,
 			"projectTarget":  *projectTarget,
 			"selectedModels": *selectedModels,
-			"projectVars":	*projectVars,
+			"projectVars":    projectVars,
 		})
 	}
 	runner.RunCmd(dbtCmd)

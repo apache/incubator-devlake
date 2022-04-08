@@ -39,7 +39,10 @@ please use the Raw JSON API to manually initiate a run using **cURL** or graphic
           "projectName": "demoapp",
           "projectTarget": "dev",
           "selectedModels": ["my_first_dbt_model","my_second_dbt_model"],
-          "vars": "{demokey1:demovalue1, demokey2:demovalue2}"
+          "projectVars": {
+            "demokey1": "demovalue1",
+            "demokey2": "demovalue2"
+        }
       }
     }
   ]
