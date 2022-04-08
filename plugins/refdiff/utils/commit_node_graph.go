@@ -40,7 +40,7 @@ func (cng *CommitNodeGraph) AddParent(commit_sha string, commit_parent_sha strin
 func (cng *CommitNodeGraph) CalculateLostSha(source_sha string, target_sha string) ([]string, int, int) {
 	var oldCommitNode *CommitNode
 	var newCommitNode *CommitNode
-	var diffSha []string
+	var lostSha []string
 	var ok bool
 	if oldCommitNode, ok = cng.node[source_sha]; !ok {
 		oldCommitNode = &CommitNode{
@@ -78,14 +78,14 @@ func (cng *CommitNodeGraph) CalculateLostSha(source_sha string, target_sha strin
 			return
 		}
 		newGroup[now.Sha] = now
-		diffSha = append(diffSha, now.Sha)
+		lostSha = append(lostSha, now.Sha)
 		for _, node := range now.Parent {
 			dfs(node)
 		}
 	}
 	dfs(newCommitNode)
 
-	return diffSha, len(oldGroup), len(newGroup)
+	return lostSha, len(oldGroup), len(newGroup)
 }
 
 func (cng *CommitNodeGraph) Size() int {
