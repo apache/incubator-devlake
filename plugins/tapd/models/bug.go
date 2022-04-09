@@ -9,8 +9,8 @@ type TapdBug struct {
 	SourceId    uint64 `gorm:"primaryKey"`
 	ID          uint64 `gorm:"primaryKey;type:BIGINT(100)" json:"id"`
 	EpicKey     string
-	Title       string     `json:"name"`
-	Description string     `json:"description"`
+	Title       string `json:"name"`
+	Description string
 	WorkspaceId uint64     `json:"workspace_id"`
 	Created     *time.Time `json:"created"`
 	Modified    *time.Time `json:"modified" gorm:"index"`
@@ -70,6 +70,9 @@ type TapdBug struct {
 	AssignedTime     *time.Time `json:"assigned_time"`
 	TemplateID       uint64     `json:"template_id"`
 	StoryID          uint64     `json:"story_id"`
+	StdStatus        string
+	StdType          string
+	Type             string
 	Url              string
 }
 
@@ -137,4 +140,8 @@ type TapdBugApiRes struct {
 	AssignedTime     string `json:"assigned_time"`
 	TemplateID       string `json:"template_id"`
 	StoryID          string `json:"story_id"`
+}
+
+func (TapdBug) TableName() string {
+	return "_tool_tapd_bugs"
 }

@@ -27,6 +27,8 @@ type TapdChangelogItem struct {
 	Field             string `json:"field" gorm:"primaryKey"`
 	ValueBeforeParsed string `json:"value_before"`
 	ValueAfterParsed  string `json:"value_after"`
+	IterationIdFrom   uint64
+	IterationIdTo     uint64
 	common.NoPKModel
 }
 
@@ -114,14 +116,23 @@ type ChangelogItemApiRes struct {
 }
 
 type ChangelogTmp struct {
-	Id          uint64
-	IssueId     uint64
-	AuthorId    string
-	AuthorName  string
-	FieldId     string
-	FieldName   string
-	From        string
-	To          string
-	CreatedDate time.Time
+	Id              uint64
+	IssueId         uint64
+	AuthorId        string
+	AuthorName      string
+	FieldId         string
+	FieldName       string
+	From            string
+	To              string
+	IterationIdFrom uint64
+	IterationIdTo   uint64
+	CreatedDate     time.Time
 	common.RawDataOrigin
+}
+
+func (TapdChangelog) TableName() string {
+	return "_tool_tapd_changelogs"
+}
+func (TapdChangelogItem) TableName() string {
+	return "_tool_tapd_changelog_items"
 }

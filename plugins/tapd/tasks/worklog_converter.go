@@ -35,7 +35,7 @@ func ConvertWorklog(taskCtx core.SubTaskContext) error {
 		Input:        cursor,
 		Convert: func(inputRow interface{}) ([]interface{}, error) {
 			toolL := inputRow.(*models.TapdWorklog)
-			domainL := &ticket.Worklog{
+			domainL := &ticket.IssueWorklog{
 				DomainEntity: domainlayer.DomainEntity{
 					Id: worklogIdGen.Generate(data.Source.ID, toolL.ID),
 				},

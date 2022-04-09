@@ -1,4 +1,4 @@
-package models
+package archived
 
 type TapdIssue struct {
 	SourceId uint64 `gorm:"primaryKey"`

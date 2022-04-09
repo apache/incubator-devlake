@@ -13,7 +13,7 @@ var ExtractIterationMeta = core.SubTaskMeta{
 	Name:             "extractIterations",
 	EntryPoint:       ExtractIterations,
 	EnabledByDefault: true,
-	Description:      "Extract raw workspace data into tool layer table tapd_iterations",
+	Description:      "Extract raw workspace data into tool layer table _tool_tapd_iterations",
 }
 
 type TapdIterationRes struct {

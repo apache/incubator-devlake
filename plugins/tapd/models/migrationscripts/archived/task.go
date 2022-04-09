@@ -1,4 +1,4 @@
-package models
+package archived
 
 import (
 	"github.com/merico-dev/lake/models/common"
@@ -8,7 +8,7 @@ import (
 type TapdTask struct {
 	SourceId        uint64 `gorm:"primaryKey"`
 	ID              uint64 `gorm:"primaryKey;type:BIGINT(100)" json:"id"`
-	EpicKey         string `gorm:"type:varchar(255)"`
+	EpicKey         string
 	Name            string `gorm:"type:varchar(255)"`
 	Description     string
 	WorkspaceId     uint64     `json:"workspace_id"`
@@ -35,32 +35,6 @@ type TapdTask struct {
 	HasAttachment   string `gorm:"type:varchar(255)"`
 	Url             string
 	common.NoPKModel
-}
-
-type TapdTaskApiRes struct {
-	ID              string `gorm:"primaryKey" json:"id"`
-	EpicKey         string
-	Name            string `json:"name"`
-	Description     string `json:"description"`
-	WorkspaceId     string `json:"workspace_id"`
-	Creator         string `json:"creator"`
-	Created         string `json:"created"`
-	Modified        string `json:"modified" gorm:"index"`
-	Status          string `json:"status"`
-	Owner           string `json:"owner"`
-	Cc              string `json:"cc"`
-	Begin           string `json:"begin"`
-	Due             string `json:"due"`
-	Priority        string `json:"priority"`
-	IterationID     string `json:"iteration_id"`
-	Completed       string `json:"completed"`
-	Effort          string `json:"effort"`
-	EffortCompleted string `json:"effort_completed"`
-	Exceed          string `json:"exceed"`
-	Remain          string `json:"remain"`
-	StoryID         string `json:"story_id"`
-	Progress        string `json:"progress"`
-	HasAttachment   string `json:"has_attachment"`
 }
 
 func (TapdTask) TableName() string {

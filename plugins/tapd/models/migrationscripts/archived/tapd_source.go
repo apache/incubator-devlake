@@ -1,4 +1,4 @@
-package models
+package archived
 
 import (
 	"github.com/merico-dev/lake/models/common"
@@ -29,11 +29,6 @@ type TapdIssueStatusMapping struct {
 	UserType       string `gorm:"type:varchar(50);primaryKey" json:"userType" validate:"required"`
 	UserStatus     string `gorm:"type:varchar(50);primaryKey" json:"userStatus" validate:"required"`
 	StandardStatus string `gorm:"type:varchar(50)" json:"standardStatus" validate:"required"`
-}
-
-type TapdSourceDetail struct {
-	TapdSource
-	TypeMappings map[string]map[string]interface{} `json:"typeMappings"`
 }
 
 func (TapdSource) TableName() string {

@@ -13,7 +13,7 @@ var ExtractWorklogMeta = core.SubTaskMeta{
 	Name:             "extractWorklogs",
 	EntryPoint:       ExtractWorklogs,
 	EnabledByDefault: true,
-	Description:      "Extract raw workspace data into tool layer table tapd_iterations",
+	Description:      "Extract raw workspace data into tool layer table _tool_tapd_iterations",
 }
 
 type TapdWorklogRes struct {

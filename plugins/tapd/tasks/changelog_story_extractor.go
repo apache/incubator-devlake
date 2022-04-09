@@ -13,7 +13,7 @@ var ExtractStoryChangelogMeta = core.SubTaskMeta{
 	Name:             "extractStoryChangelog",
 	EntryPoint:       ExtractStoryChangelog,
 	EnabledByDefault: true,
-	Description:      "Extract raw workspace data into tool layer table tapd_iterations",
+	Description:      "Extract raw workspace data into tool layer table _tool_tapd_iterations",
 }
 
 type TapdStoryChangelogRes struct {
@@ -60,13 +60,19 @@ func ExtractStoryChangelog(taskCtx core.SubTaskContext) error {
 			}
 			results := make([]interface{}, 0, 1)
 
-			for _, item := range v.FieldChanges {
+			for _, fc := range v.FieldChanges {
 				item := &models.TapdChangelogItem{
 					SourceId:          data.Source.ID,
 					ChangelogId:       toolL.ID,
-					Field:             item.Field,
-					ValueBeforeParsed: item.ValueBeforeParsed,
-					ValueAfterParsed:  item.ValueAfterParsed,
+					Field:             fc.Field,
+					ValueBeforeParsed: fc.ValueBeforeParsed,
+					ValueAfterParsed:  fc.ValueAfterParsed,
+				}
+				if item.Field == "iteration_id" {
+					item, err = parseIterationChangelog(taskCtx, item)
+					if err != nil {
+						return nil, err
+					}
 				}
 				results = append(results, item)
 			}

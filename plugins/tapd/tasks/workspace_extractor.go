@@ -13,7 +13,7 @@ var ExtractWorkspaceMeta = core.SubTaskMeta{
 	Name:             "extractWorkspaces",
 	EntryPoint:       ExtractWorkspaces,
 	EnabledByDefault: true,
-	Description:      "Extract raw workspace data into tool layer table tapd_workspaces",
+	Description:      "Extract raw workspace data into tool layer table _tool_tapd_workspaces",
 }
 
 type TapdWorkspaceRes struct {

@@ -35,7 +35,7 @@ func ConvertUser(taskCtx core.SubTaskContext) error {
 			userTool := inputRow.(*models.TapdUser)
 			issue := &user.User{
 				DomainEntity: domainlayer.DomainEntity{
-					Id: UserIdGen.Generate(userTool.SourceId, userTool.WorkspaceId, userTool.Name),
+					Id: UserIdGen.Generate(userTool.SourceId, userTool.WorkspaceId, userTool.User),
 				},
 				Name: userTool.Name,
 			}

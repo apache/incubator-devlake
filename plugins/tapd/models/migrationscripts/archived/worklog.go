@@ -1,4 +1,4 @@
-package models
+package archived
 
 import (
 	"github.com/merico-dev/lake/models/common"
@@ -17,17 +17,6 @@ type TapdWorklog struct {
 	Created     *time.Time `json:"created"`
 	Memo        string     `gorm:"type:varchar(255)"`
 	common.NoPKModel
-}
-type TapdWorklogApiRes struct {
-	ID          string `json:"id"`
-	EntityType  string `json:"entity_type"`
-	EntityID    string `json:"entity_id"`
-	Timespent   string `json:"timespent"`
-	Spentdate   string `json:"spentdate"`
-	Owner       string `json:"owner"`
-	Created     string `json:"created"`
-	WorkspaceId string `json:"workspace_id"`
-	Memo        string `json:"memo"`
 }
 
 func (TapdWorklog) TableName() string {

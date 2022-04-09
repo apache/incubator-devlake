@@ -13,7 +13,7 @@ var ExtractIssueCommitMeta = core.SubTaskMeta{
 	Name:             "extractIssueCommits",
 	EntryPoint:       ExtractIssueCommits,
 	EnabledByDefault: true,
-	Description:      "Extract raw IssueCommits data into tool layer table tapd_issue_commits",
+	Description:      "Extract raw IssueCommits data into tool layer table _tool_tapd_issue_commits",
 }
 
 func ExtractIssueCommits(taskCtx core.SubTaskContext) error {

@@ -1,4 +1,4 @@
-package models
+package archived
 
 import (
 	"github.com/merico-dev/lake/models/common"
@@ -26,30 +26,6 @@ type TapdIssueCommit struct {
 	IssueId         uint64
 	IssueType       string `gorm:"type:varchar(255)"`
 	common.NoPKModel
-}
-
-type TapdIssueCommitApiRes struct {
-	ID              string `json:"id"`
-	UserName        string `json:"user_name"`
-	UserID          string `json:"user_id"`
-	HookUserName    string `json:"hook_user_name"`
-	CommitID        string `json:"commit_id"`
-	WorkspaceID     string `json:"workspace_id"`
-	Message         string `json:"message"`
-	Path            string `json:"path"`
-	WebURL          string `json:"web_url"`
-	HookProjectName string `json:"hook_project_name"`
-	CommitTime      string `json:"commit_time"`
-	Created         string `json:"created"`
-	Ref             string `json:"ref"`
-	RefStatus       string `json:"ref_status"`
-	GitEnv          string `json:"git_env"`
-	FileCommit      string `json:"file_commit"`
-}
-
-type IssueTypeAndId struct {
-	Type    string
-	IssueId uint64
 }
 
 func (TapdIssueCommit) TableName() string {

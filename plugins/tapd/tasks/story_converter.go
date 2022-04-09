@@ -35,17 +35,16 @@ func ConvertStory(taskCtx core.SubTaskContext) error {
 		Input:        cursor,
 		Convert: func(inputRow interface{}) ([]interface{}, error) {
 			toolL := inputRow.(*models.TapdStory)
-			issue := &ticket.Issue{
+			domainL := &ticket.Issue{
 				DomainEntity: domainlayer.DomainEntity{
 					Id: IssueIdGen.Generate(toolL.SourceId, toolL.ID),
 				},
 				Url:                  toolL.Url,
-				Key:                  strconv.FormatUint(toolL.ID, 10),
+				Number:               strconv.FormatUint(toolL.ID, 10),
 				Title:                toolL.Name,
-				Summary:              toolL.Name,
 				EpicKey:              toolL.EpicKey,
-				Type:                 toolL.Type,
-				Status:               toolL.Status,
+				Type:                 toolL.StdType,
+				Status:               toolL.StdStatus,
 				StoryPoint:           uint(toolL.Size),
 				ResolutionDate:       toolL.Completed,
 				CreatedDate:          toolL.Created,
@@ -59,12 +58,16 @@ func ConvertStory(taskCtx core.SubTaskContext) error {
 				Severity:             "",
 				Component:            toolL.Feature,
 			}
-			if issue.ResolutionDate != nil && issue.CreatedDate != nil {
-				issue.LeadTimeMinutes = uint(int64(issue.ResolutionDate.Minute() - issue.CreatedDate.Minute()))
+			if domainL.ResolutionDate != nil && domainL.CreatedDate != nil {
+				domainL.LeadTimeMinutes = uint(int64(domainL.ResolutionDate.Minute() - domainL.CreatedDate.Minute()))
 			}
-			return []interface{}{
-				issue,
-			}, nil
+			results := make([]interface{}, 0, 2)
+			boardIssue := &ticket.BoardIssue{
+				BoardId: WorkspaceIdGen.Generate(data.Options.WorkspaceId),
+				IssueId: domainL.Id,
+			}
+			results = append(results, domainL, boardIssue)
+			return results, nil
 		},
 	})
 	if err != nil {

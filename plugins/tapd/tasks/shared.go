@@ -3,7 +3,9 @@ package tasks
 import (
 	"fmt"
 	"github.com/merico-dev/lake/models/domainlayer/didgen"
+	"github.com/merico-dev/lake/plugins/core"
 	"github.com/merico-dev/lake/plugins/helper"
+	"github.com/merico-dev/lake/plugins/tapd/models"
 	"net/http"
 	"net/url"
 )
@@ -40,4 +42,27 @@ func GetTotalPagesFromResponse(_ *http.Response, args *helper.ApiCollectorArgs) 
 	totalPage := count/args.PageSize + 1
 
 	return totalPage, err
+}
+
+func parseIterationChangelog(taskCtx core.SubTaskContext, item *models.TapdChangelogItem) (*models.TapdChangelogItem, error) {
+	data := taskCtx.GetData().(*TapdTaskData)
+	db := taskCtx.GetDb()
+	iterationFrom := &models.TapdIteration{}
+	err := db.Model(&models.TapdIteration{}).
+		Where("source_id = ? and workspace_id = ? and name = ?",
+			data.Source.ID, data.Options.WorkspaceId, item.ValueBeforeParsed).Limit(1).Find(iterationFrom).Error
+	if err != nil {
+		return nil, err
+	}
+	item.IterationIdFrom = iterationFrom.ID
+
+	iterationTo := &models.TapdIteration{}
+	err = db.Model(&models.TapdIteration{}).
+		Where("source_id = ? and workspace_id = ? and name = ?",
+			data.Source.ID, data.Options.WorkspaceId, item.ValueAfterParsed).Limit(1).Find(iterationTo).Error
+	if err != nil {
+		return nil, err
+	}
+	item.IterationIdTo = iterationTo.ID
+	return item, nil
 }

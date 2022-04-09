@@ -17,26 +17,29 @@ func ConvertChangelog(taskCtx core.SubTaskContext) error {
 	logger.Info("convert changelog :%d", data.Options.WorkspaceId)
 	clIdGen := didgen.NewDomainIdGenerator(&models.TapdChangelogItem{})
 
-	cursor, err := db.Table("tapd_changelog_items").
-		Joins("left join tapd_changelogs tc on tc.id = tapd_changelog_items.changelog_id ").
+	cursor, err := db.Table("_tool_tapd_changelog_items").
+		Joins("left join _tool_tapd_changelogs tc on tc.id = _tool_tapd_changelog_items.changelog_id ").
 		Where("tc.source_id = ? AND tc.workspace_id = ?", data.Source.ID, data.Options.WorkspaceId).
 		Select("tc.issue_id as issue_id, " +
 			"tc.creator as author_name," +
 			"tc.created as created_date," +
 			"tc.id as id," +
-			"tapd_changelog_items.field as field_id, " +
-			"tapd_changelog_items.field as field_name," +
-			"tapd_changelog_items.value_before_parsed as 'from'," +
-			"tapd_changelog_items.value_after_parsed as 'to'," +
-			"tapd_changelog_items._raw_data_params as _raw_data_params," +
-			"tapd_changelog_items._raw_data_table as _raw_data_table," +
-			"tapd_changelog_items._raw_data_id as _raw_data_id," +
-			"tapd_changelog_items._raw_data_remark as _raw_data_remark").
+			"_tool_tapd_changelog_items.iteration_id_from," +
+			"_tool_tapd_changelog_items.iteration_id_to," +
+			"_tool_tapd_changelog_items.field as field_id, " +
+			"_tool_tapd_changelog_items.field as field_name," +
+			"_tool_tapd_changelog_items.value_before_parsed as 'from'," +
+			"_tool_tapd_changelog_items.value_after_parsed as 'to'," +
+			"_tool_tapd_changelog_items._raw_data_params as _raw_data_params," +
+			"_tool_tapd_changelog_items._raw_data_table as _raw_data_table," +
+			"_tool_tapd_changelog_items._raw_data_id as _raw_data_id," +
+			"_tool_tapd_changelog_items._raw_data_remark as _raw_data_remark").
 		Rows()
 	if err != nil {
 		return err
 	}
 	defer cursor.Close()
+	changelogToHistoryConverter := NewChangelogToHistoryConverter(taskCtx)
 	converter, err := helper.NewDataConverter(helper.DataConverterArgs{
 		RawDataSubTaskArgs: helper.RawDataSubTaskArgs{
 			Ctx: taskCtx,
@@ -45,7 +48,7 @@ func ConvertChangelog(taskCtx core.SubTaskContext) error {
 				//CompanyId:   data.Source.CompanyId,
 				WorkspaceId: data.Options.WorkspaceId,
 			},
-			Table: "tapd_api_%_changelogs",
+			Table: "_tool_tapd_api_%_changelogs",
 		},
 		InputRowType: reflect.TypeOf(models.ChangelogTmp{}),
 		Input:        cursor,
@@ -64,6 +67,7 @@ func ConvertChangelog(taskCtx core.SubTaskContext) error {
 				To:          cl.To,
 				CreatedDate: cl.CreatedDate,
 			}
+			changelogToHistoryConverter.FeedIn(data.Source.ID, *cl)
 
 			return []interface{}{
 				domainCl,
@@ -71,10 +75,15 @@ func ConvertChangelog(taskCtx core.SubTaskContext) error {
 		},
 	})
 	if err != nil {
+		logger.Info(err.Error())
 		return err
 	}
 
-	return converter.Execute()
+	err = converter.Execute()
+	if err != nil {
+		return err
+	}
+	return changelogToHistoryConverter.UpdateSprintIssue()
 }
 
 var ConvertChangelogMeta = core.SubTaskMeta{

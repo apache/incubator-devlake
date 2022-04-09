@@ -2,10 +2,12 @@ package main
 
 import (
 	"fmt"
+	"github.com/merico-dev/lake/migration"
 	"github.com/merico-dev/lake/models/domainlayer/didgen"
 	"github.com/merico-dev/lake/plugins/core"
 	"github.com/merico-dev/lake/plugins/tapd/api"
 	"github.com/merico-dev/lake/plugins/tapd/models"
+	"github.com/merico-dev/lake/plugins/tapd/models/migrationscripts"
 	"github.com/merico-dev/lake/plugins/tapd/tasks"
 	"github.com/merico-dev/lake/runner"
 	"github.com/mitchellh/mapstructure"
@@ -24,25 +26,7 @@ type Tapd struct{}
 
 func (plugin Tapd) Init(config *viper.Viper, logger core.Logger, db *gorm.DB) error {
 	api.Init(config, logger, db)
-	return db.AutoMigrate(
-		&models.TapdSource{},
-		&models.TapdWorkspace{},
-		&models.TapdUser{},
-		&models.TapdIteration{},
-		&models.TapdStory{},
-		&models.TapdBug{},
-		&models.TapdTask{},
-		&models.TapdWorkspaceIteration{},
-		&models.TapdIterationIssue{},
-		&models.TapdWorkSpaceIssue{},
-		&models.TapdChangelogItem{},
-		&models.TapdChangelog{},
-		&models.TapdWorklog{},
-		&models.TapdIssueCommit{},
-		&models.TapdIssueSprintsHistory{},
-		&models.TapdIssueStatusHistory{},
-		&models.TapdIssueAssigneeHistory{},
-	)
+	return nil
 }
 
 func (plugin Tapd) Description() string {
@@ -88,9 +72,9 @@ func (plugin Tapd) SubTaskMetas() []core.SubTaskMeta {
 		tasks.CollectTaskIssueCommitMeta,
 		tasks.ExtractIssueCommitMeta,
 		tasks.ConvertIssueCommitMeta,
-		tasks.ConvertIssueSprintsHistoryMeta,
-		tasks.ConvertIssueStatusHistoryMeta,
-		tasks.ConvertIssueAssigneeHistoryMeta,
+		//tasks.ConvertIssueSprintsHistoryMeta,
+		//tasks.ConvertIssueStatusHistoryMeta,
+		//tasks.ConvertIssueAssigneeHistoryMeta,
 	}
 }
 
@@ -135,6 +119,9 @@ func (plugin Tapd) PrepareTaskData(taskCtx core.TaskContext, options map[string]
 func (plugin Tapd) RootPkgPath() string {
 	return "github.com/merico-dev/lake/plugins/tapd"
 }
+func (plugin Tapd) MigrationScripts() []migration.Script {
+	return []migration.Script{new(migrationscripts.InitSchemas)}
+}
 
 func (plugin Tapd) ApiResources() map[string]map[string]core.ApiResourceHandler {
 	return map[string]map[string]core.ApiResourceHandler{
@@ -149,6 +136,34 @@ func (plugin Tapd) ApiResources() map[string]map[string]core.ApiResourceHandler 
 			"PUT":    api.PutSource,
 			"DELETE": api.DeleteSource,
 			"GET":    api.GetSource,
+		},
+		"sources/:sourceId/epics": {
+			"GET": api.GetEpicsBySourceId,
+		},
+		"sources/:sourceId/granularities": {
+			"GET": api.GetGranularitiesBySourceId,
+		},
+		"sources/:sourceId/boards": {
+			"GET": api.GetBoardsBySourceId,
+		},
+		"sources/:sourceId/type-mappings": {
+			"POST": api.PostIssueTypeMappings,
+			"GET":  api.ListIssueTypeMappings,
+		},
+		"sources/:sourceId/type-mappings/:userType": {
+			"PUT":    api.PutIssueTypeMapping,
+			"DELETE": api.DeleteIssueTypeMapping,
+		},
+		"sources/:sourceId/type-mappings/:userType/status-mappings": {
+			"POST": api.PostIssueStatusMappings,
+			"GET":  api.ListIssueStatusMappings,
+		},
+		"sources/:sourceId/type-mappings/:userType/status-mappings/:userStatus": {
+			"PUT":    api.PutIssueStatusMapping,
+			"DELETE": api.DeleteIssueStatusMapping,
+		},
+		"sources/:sourceId/proxy/rest/*path": {
+			"GET": api.Proxy,
 		},
 	}
 }

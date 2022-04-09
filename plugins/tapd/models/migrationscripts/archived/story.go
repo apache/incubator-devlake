@@ -1,4 +1,4 @@
-package models
+package archived
 
 import (
 	"github.com/merico-dev/lake/models/common"
@@ -50,48 +50,6 @@ type TapdStory struct {
 	StdType         string
 	Url             string
 	common.NoPKModel
-}
-
-type TapdStoryApiRes struct {
-	ID              string `gorm:"primaryKey" json:"id"`
-	WorkitemTypeID  string `json:"workitem_type_id"`
-	EpicKey         string
-	Name            string `json:"name"`
-	Description     string `json:"description"`
-	WorkspaceId     string `json:"workspace_id"`
-	Creator         string `json:"creator"`
-	Created         string `json:"created"`
-	Modified        string `json:"modified" gorm:"index"`
-	Status          string `json:"status"`
-	Owner           string `json:"owner"`
-	Cc              string `json:"cc"`
-	Begin           string `json:"begin"`
-	Due             string `json:"due"`
-	Size            string `json:"size"`
-	Priority        string `json:"priority"`
-	Developer       string `json:"developer"`
-	IterationID     string `json:"iteration_id"`
-	TestFocus       string `json:"test_focus"`
-	Type            string `json:"type"`
-	Source          string `json:"source"`
-	Module          string `json:"module"`
-	Version         string `json:"version"`
-	Completed       string `json:"completed"`
-	CategoryID      string `json:"category_id"`
-	Path            string `json:"path"`
-	ParentID        string `json:"parent_id"`
-	ChildrenID      string `json:"children_id"`
-	AncestorID      string `json:"ancestor_id"`
-	BusinessValue   string `json:"business_value"`
-	Effort          string `json:"effort"`
-	EffortCompleted string `json:"effort_completed"`
-	Exceed          string `json:"exceed"`
-	Remain          string `json:"remain"`
-	ReleaseID       string `json:"release_id"`
-	Confidential    string `json:"confidential"`
-	TemplatedID     string `json:"templated_id"`
-	CreatedFrom     string `json:"created_from"`
-	Feature         string `json:"feature"`
 }
 
 func (TapdStory) TableName() string {
