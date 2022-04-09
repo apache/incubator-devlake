@@ -17,6 +17,7 @@ function useBlueprintManager (blueprintName = `BLUEPRINT WEEKLY ${Date.now()}`, 
 
   const [name, setName] = useState('DAILY BLUEPRINT')
   const [cronConfig, setCronConfig] = useState('0 0 * * *')
+  const [customCronConfig, setCustomCronConfig] = useState('0 0 * * *')
   const [tasks, setTasks] = useState([])
   const [enable, setEnable] = useState(false)
 
@@ -43,6 +44,7 @@ function useBlueprintManager (blueprintName = `BLUEPRINT WEEKLY ${Date.now()}`, 
         return {
           ...blueprint,
           id: blueprint.id,
+          enable: blueprint.enable,
           status: 0,
           nextRunAt: null, // @todo: calculate next run date
           interval: 'Daily' // @todo: add interval detection
@@ -78,6 +80,7 @@ function useBlueprintManager (blueprintName = `BLUEPRINT WEEKLY ${Date.now()}`, 
         setBlueprint({
           ...blueprintData,
           id: blueprintData.id,
+          enable: blueprint.enable,
           status: 0,
           nextRunAt: null, // @todo: calculate next run date
           interval: 'Daily' // @todo: add interval detection
@@ -104,16 +107,16 @@ function useBlueprintManager (blueprintName = `BLUEPRINT WEEKLY ${Date.now()}`, 
       ToastNotification.clear()
       const blueprintPayload = {
         name,
-        cronConfig,
+        cronConfig: cronConfig === 'custom' ? customCronConfig : cronConfig,
         tasks,
-        enable
+        enable: enable
       }
       console.log('>> DISPATCHING BLUEPRINT SAVE REQUEST', blueprintPayload)
       const run = async () => {
         // eslint-disable-next-line max-len
         // const b = await request.post(`${DEVLAKE_ENDPOINT}/blueprints`, blueprintPayload)
         const b = blueprintId
-          ? await request.patch(`${DEVLAKE_ENDPOINT}/blueprints/${blueprintId}`, blueprintPayload)
+          ? await request.put(`${DEVLAKE_ENDPOINT}/blueprints/${blueprintId}`, blueprintPayload)
           : await request.post(`${DEVLAKE_ENDPOINT}/blueprints`, blueprintPayload)
         console.log('>> RAW BLUEPRINT DATA FROM API...', b.data)
         setBlueprint(b.data)
@@ -184,6 +187,7 @@ function useBlueprintManager (blueprintName = `BLUEPRINT WEEKLY ${Date.now()}`, 
         ToastNotification.show({ message: `Activated Blueprint - ${blueprint.name}.`, intent: 'danger', icon: 'small-tick' })
         setTimeout(() => {
           setIsSaving(false)
+          fetchAllBlueprints()
         }, 500)
       }
       run()
@@ -202,13 +206,16 @@ function useBlueprintManager (blueprintName = `BLUEPRINT WEEKLY ${Date.now()}`, 
       setErrors([])
       ToastNotification.clear()
       const blueprintPayload = {
+        id: blueprint.id,
+        cronConfig: blueprint.cronConfig,
+        tasks: tasks,
         enable: false
       }
       console.log('>> DISPATCHING BLUEPRINT ACTIVATION REQUEST', blueprintPayload)
       const run = async () => {
         // eslint-disable-next-line max-len
         // const b = await request.post(`${DEVLAKE_ENDPOINT}/blueprints`, blueprintPayload)
-        const deactivateB = await request.patch(`${DEVLAKE_ENDPOINT}/blueprints/${blueprint.id}`, blueprintPayload)
+        const deactivateB = await request.put(`${DEVLAKE_ENDPOINT}/blueprints/${blueprint.id}`, blueprintPayload)
         console.log('>> RAW BLUEPRINT DATA FROM API...', deactivateB.data)
         const updatedBlueprint = deactivateB.data
         // setBlueprint(b.data)
@@ -216,6 +223,7 @@ function useBlueprintManager (blueprintName = `BLUEPRINT WEEKLY ${Date.now()}`, 
         ToastNotification.show({ message: `Deactivated Blueprint - ${blueprint.name}.`, intent: 'danger', icon: 'small-tick' })
         setTimeout(() => {
           setIsSaving(false)
+          fetchAllBlueprints()
         }, 500)
       }
       run()
@@ -232,6 +240,7 @@ function useBlueprintManager (blueprintName = `BLUEPRINT WEEKLY ${Date.now()}`, 
     blueprintCount,
     name,
     cronConfig,
+    customCronConfig,
     cronPresets,
     tasks,
     enable,
@@ -246,6 +255,7 @@ function useBlueprintManager (blueprintName = `BLUEPRINT WEEKLY ${Date.now()}`, 
     deactivateBlueprint,
     setName,
     setCronConfig,
+    setCustomCronConfig,
     setTasks,
     setEnable,
     isFetching,

@@ -43,14 +43,16 @@ const Blueprints = (props) => {
 
   const {
     blueprint,
-    // blueprints,
+    blueprints,
     name,
     cronConfig,
+    customCronConfig,
     cronPresets,
     tasks,
     enable,
     setName: setBlueprintName,
     setCronConfig,
+    setCustomCronConfig,
     setTasks: setBlueprintTasks,
     setEnable: setEnableBlueprint,
     isFetching: isFetchingBlueprints,
@@ -66,27 +68,27 @@ const Blueprints = (props) => {
   } = useBlueprintManager()
 
   // BLUEPRINTS MOCK DATA
-  const [blueprints, setBlueprints] = useState([
-    { id: 5, name: 'GITHUB DAILY', cronConfig: '0 0 * * *', nextRunAt: null, enabled: true, interval: 'Daily', tasks: [[]], createdAt: Date.now(), updatedAt: null },
-    { id: 6, name: 'GITLAB WEEKLY', cronConfig: '0 0 * * 1', nextRunAt: null, enabled: true, interval: 'Weekly', tasks: [[]], createdAt: Date.now(), updatedAt: null },
-    { id: 7, name: 'GITHUB MONTHLY', cronConfig: '0 0 30 * 1', nextRunAt: null, enabled: true, interval: 'Monthly', tasks: [[]], createdAt: Date.now(), updatedAt: null },
-    { id: 8, name: 'JIRA DAILY', cronConfig: '0 23 * * 1-5', nextRunAt: null, enabled: false, interval: 'Daily', tasks: [[]], createdAt: Date.now(), updatedAt: null },
-    { id: 9, name: 'JENKINS DAILY 8AM @hezyin', cronConfig: '0 0 * * 1-5', nextRunAt: null, enabled: false, interval: 'Daily', tasks: [[]], createdAt: Date.now(), updatedAt: null },
-    { id: 10, name: 'GITLAB CUSTOM @klesh', cronConfig: '0 4 8-14 * *', nextRunAt: null, enabled: false, interval: 'Custom', tasks: [[]], createdAt: Date.now(), updatedAt: null },
-    { id: 11, name: 'JIRA CUSTOM @e2corporation', cronConfig: '0 22 * * 1-5', nextRunAt: null, enabled: true, interval: 'Custom', tasks: [[]], createdAt: Date.now(), updatedAt: null },
-  ])
+  // const [blueprints, setBlueprints] = useState([
+  //   { id: 5, name: 'GITHUB DAILY', cronConfig: '0 0 * * *', nextRunAt: null, enable: true, interval: 'Daily', tasks: [[]], createdAt: Date.now(), updatedAt: null },
+  //   { id: 6, name: 'GITLAB WEEKLY', cronConfig: '0 0 * * 1', nextRunAt: null, enable: true, interval: 'Weekly', tasks: [[]], createdAt: Date.now(), updatedAt: null },
+  //   { id: 7, name: 'GITHUB MONTHLY', cronConfig: '0 0 30 * 1', nextRunAt: null, enable: true, interval: 'Monthly', tasks: [[]], createdAt: Date.now(), updatedAt: null },
+  //   { id: 8, name: 'JIRA DAILY', cronConfig: '0 23 * * 1-5', nextRunAt: null, enable: false, interval: 'Daily', tasks: [[]], createdAt: Date.now(), updatedAt: null },
+  //   { id: 9, name: 'JENKINS DAILY 8AM @hezyin', cronConfig: '0 0 * * 1-5', nextRunAt: null, enable: false, interval: 'Daily', tasks: [[]], createdAt: Date.now(), updatedAt: null },
+  //   { id: 10, name: 'GITLAB CUSTOM @klesh', cronConfig: '0 4 8-14 * *', nextRunAt: null, enable: false, interval: 'Custom', tasks: [[]], createdAt: Date.now(), updatedAt: null },
+  //   { id: 11, name: 'JIRA CUSTOM @e2corporation', cronConfig: '0 22 * * 1-5', nextRunAt: null, enable: true, interval: 'Custom', tasks: [[]], createdAt: Date.now(), updatedAt: null },
+  // ])
 
   const [expandDetails, setExpandDetails] = useState(false)
   const [activeBlueprint, setActiveBlueprint] = useState(null)
   const [draftBlueprint, setDraftBlueprint] = useState(null)
   const [blueprintSchedule, setBlueprintSchedule] = useState([])
-  const [customCron, setCustomCron] = useState('0 0 * * *')
+  // const [customCron, setCustomCron] = useState('0 0 * * *')
 
   const [blueprintDialogIsOpen, setBlueprintDialogIsOpen] = useState(false)
   const [blueprintErrors, setBlueprintErrors] = useState([])
 
   const handleBlueprintActivation = (blueprint) => {
-    if (blueprint.enabled) {
+    if (blueprint.enable) {
       deactivateBlueprint(blueprint)
     } else {
       activateBlueprint(blueprint)
@@ -107,7 +109,7 @@ const Blueprints = (props) => {
     setExpandDetails(false)
     setBlueprintName('DAILY BLUEPRINT')
     setCronConfig('0 0 * * *')
-    setCustomCron('0 0 * * *')
+    setCustomCronConfig('0 0 * * *')
     setBlueprintDialogIsOpen(true)
   }
 
@@ -139,7 +141,7 @@ const Blueprints = (props) => {
     if (draftBlueprint && draftBlueprint.id) {
       setBlueprintName(draftBlueprint.name)
       setCronConfig(!isStandardCronPreset(draftBlueprint.cronConfig) ? 'custom' : draftBlueprint.cronConfig)
-      setCustomCron(draftBlueprint.cronConfig)
+      setCustomCronConfig(draftBlueprint.cronConfig)
       setBlueprintDialogIsOpen(true)
     }
   }, [draftBlueprint, setBlueprintName, setCronConfig])
@@ -147,6 +149,7 @@ const Blueprints = (props) => {
   useEffect(() => {
     if (saveComplete?.id) {
       setBlueprintDialogIsOpen(false)
+      fetchAllBlueprints()
     }
   }, [saveComplete])
 
@@ -254,7 +257,7 @@ const Blueprints = (props) => {
                             color: '#777777',
                             fontFamily: 'Montserrat, sans-serif',
                             fontSize: '9px',
-                            backgroundColor: !b.enabled ? '#f8f8f8' : 'inherit',
+                            backgroundColor: !b.enable ? '#f8f8f8' : 'inherit',
                             paddingTop: '10px'
                           }}
                         >
@@ -270,8 +273,8 @@ const Blueprints = (props) => {
                             width: '100%',
                             minHeight: '48px',
                             borderBottom: isActiveBlueprint(b.id) && expandDetails ? 'none' : '1px solid #eee',
-                            backgroundColor: !b.enabled ? '#f8f8f8' : 'inherit',
-                            color: !b.enabled ? '#555555' : 'inherit',
+                            backgroundColor: !b.enable ? '#f8f8f8' : 'inherit',
+                            color: !b.enable ? '#555555' : 'inherit',
                           }}
                         >
                           <div
@@ -335,7 +338,7 @@ const Blueprints = (props) => {
                                 size={16}
                                 icon={(
                                   <img
-                                    src={b.enabled ? EventIcon : EventOffIcon} width={16} height={16}
+                                    src={b.enable ? EventIcon : EventOffIcon} width={16} height={16}
                                     style={{ float: 'left', marginRight: '5px' }}
                                   />)}
                                 style={{
@@ -372,7 +375,7 @@ const Blueprints = (props) => {
                               </div>
                               <div>{dayjs(createCron(b.cronConfig).getNextDate().toString()).format('L LTS')}</div>
                               <div>
-                                <span style={{ color: b.enabled ? Colors.GREEN5 : Colors.GRAY3 }}>{b.cronConfig}</span>
+                                <span style={{ color: b.enable ? Colors.GREEN5 : Colors.GRAY3 }}>{b.cronConfig}</span>
                               </div>
                             </div>
                             <div className='blueprint-actions' style={{ flex: 1, textAlign: 'right' }}>
@@ -397,7 +400,7 @@ const Blueprints = (props) => {
                                   <Icon icon='trash' color={Colors.GRAY3} size={15} />
                                 </Button>
                                 <Switch
-                                  checked={b.enabled}
+                                  checked={b.enable}
                                   label={false}
                                   onChange={() => handleBlueprintActivation(b)}
                                   style={{ marginBottom: '0' }}
@@ -407,7 +410,7 @@ const Blueprints = (props) => {
                           </div>
                         </div>
                         <Collapse isOpen={expandDetails && activeBlueprint.id === b.id}>
-                          <Card elevation={Elevation.TWO} style={{ padding: '0', margin: '30px 30px', backgroundColor: !b.enabled ? '#f8f8f8' : 'initial' }}>
+                          <Card elevation={Elevation.TWO} style={{ padding: '0', margin: '30px 30px', backgroundColor: !b.enable ? '#f8f8f8' : 'initial' }}>
                             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', margin: '0', padding: '10px' }}>
                               <div>
                                 <span style={{ float: 'left', display: 'block', marginRight: '10px' }}>
@@ -416,7 +419,7 @@ const Blueprints = (props) => {
                                 LOADING ASSOCIATED PIPELINES...
                               </div>
                               <div>
-                                <Tag style={{ backgroundColor: b.enabled ? Colors.GREEN3 : Colors.GRAY3 }} round='true'>{b.enabled ? 'ACTIVE' : 'INACTIVE'}</Tag>
+                                <Tag style={{ backgroundColor: b.enable ? Colors.GREEN3 : Colors.GRAY3 }} round='true'>{b.enable ? 'ACTIVE' : 'INACTIVE'}</Tag>
                               </div>
                             </div>
                             <Divider style={{ marginRight: 0, marginLeft: 0 }} />
@@ -426,14 +429,14 @@ const Blueprints = (props) => {
                                 <p style={{ margin: 0 }}>Based on the current CRON settings, here are next <strong>5</strong> expected pipeline collection dates.</p>
                                 <div style={{ margin: '10px 0' }}>
                                   {activeBlueprint?.id && blueprintSchedule.map((s, sIdx) => (
-                                    <div key={`run-schedule-event-key${sIdx}`} style={{ padding: '6px 4px', opacity: b.enabled ? 1 : 0.5 }}>
-                                      <Icon icon='calendar' size={14} color={b.enabled ? Colors.BLUE4 : Colors.GRAY4} style={{ marginRight: '10px' }} />
+                                    <div key={`run-schedule-event-key${sIdx}`} style={{ padding: '6px 4px', opacity: b.enable ? 1 : 0.5 }}>
+                                      <Icon icon='calendar' size={14} color={b.enable ? Colors.BLUE4 : Colors.GRAY4} style={{ marginRight: '10px' }} />
                                       {dayjs(s).format('L LTS')}
                                     </div>
                                   ))}
                                 </div>
 
-                                {!b.enabled && (
+                                {!b.enable && (
                                   <p style={{ margin: 0, fontSize: '9px', fontFamily: 'Montserrat, sans-serif' }}>
                                     <Icon icon='warning-sign' size={11} color={Colors.ORANGE5} style={{ float: 'left', marginRight: '5px' }} />
                                     Blueprint is NOT Enabled / Active this schedule will not run.
@@ -465,8 +468,8 @@ const Blueprints = (props) => {
                                   />
                                   <Button icon='trash' text='Delete' small minimal style={{ marginRight: '8px' }} />
                                   <Switch
-                                    checked={b.enabled}
-                                    label={b.enabled ? 'Disable' : 'Enable'}
+                                    checked={b.enable}
+                                    label={b.enable ? 'Disable' : 'Enable'}
                                     onChange={() => handleBlueprintActivation(b)}
                                     style={{ marginBottom: '0', fontSize: '11px' }}
                                   />
@@ -573,12 +576,12 @@ const Blueprints = (props) => {
                       <InputGroup
                         id='cron-custom'
                         // disabled={cronConfig !== 'custom'}
-                        readonly={cronConfig !== 'custom'}
+                        readOnly={cronConfig !== 'custom'}
                         rightElement={cronConfig !== 'custom' ? <Icon icon='lock' size={11} style={{ alignSelf: 'center', margin: '4px 10px -2px 2px' }} /> : null}
                         placeholder='Enter Crontab Syntax'
                         // defaultValue='0 0 * * *'
-                        value={cronConfig !== 'custom' ? cronConfig : customCron}
-                        onChange={(e) => setCustomCron(e.target.value)}
+                        value={cronConfig !== 'custom' ? cronConfig : customCronConfig}
+                        onChange={(e) => setCustomCronConfig(e.target.value)}
                         className={`cron-custom-input ${fieldHasError('Cron Custom') ? 'invalid-field' : ''}`}
                         inline={true}
                         style={{ backgroundColor: cronConfig !== 'custom' ? '#ffffdd' : 'inherit' }}
@@ -598,9 +601,9 @@ const Blueprints = (props) => {
                 </Label>
               </div>
               <div style={{ fontSize: '14px', fontWeight: 800 }}>
-                {!cron(cronConfig === 'custom' ? customCron : cronConfig).isValid() && <Icon icon='warning-sign' size={14} color={Colors.RED4} style={{ marginRight: '5px' }} />}
-                {dayjs(createCron(cronConfig === 'custom' ? customCron : cronConfig).getNextDate().toString()).format('L LTS')} &middot;{' '}
-                <span style={{ color: Colors.GRAY3 }}>({dayjs(createCron(cronConfig === 'custom' ? customCron : cronConfig).getNextDate().toString()).fromNow()})</span>
+                {!cron(cronConfig === 'custom' ? customCronConfig : cronConfig).isValid() && <Icon icon='warning-sign' size={14} color={Colors.RED4} style={{ marginRight: '5px' }} />}
+                {dayjs(createCron(cronConfig === 'custom' ? customCronConfig : cronConfig).getNextDate().toString()).format('L LTS')} &middot;{' '}
+                <span style={{ color: Colors.GRAY3 }}>({dayjs(createCron(cronConfig === 'custom' ? customCronConfig : cronConfig).getNextDate().toString()).fromNow()})</span>
               </div>
             </div>
           </div>
