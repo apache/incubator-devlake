@@ -16,6 +16,7 @@ import {
   Colors,
   Label,
   Collapse,
+  NonIdealState,
   Divider,
   H5,
   Switch,
@@ -559,6 +560,37 @@ const Blueprints = (props) => {
                   </div>
                 </div>
               </>)}
+
+            {!isFetchingBlueprints && blueprints.length === 0 && (
+              <div>
+                <NonIdealState
+                  icon='grid'
+                  title='No Defined Blueprints'
+                      // eslint-disable-next-line max-len
+                  description={(
+                    <div>
+                      Please create a new blueprint to get started. Need Help? Visit the DevLake Wiki on <strong>GitHub</strong>.{' '}
+                      <div style={{
+                        display: 'flex',
+                        alignSelf: 'center',
+                        justifyContent: 'center',
+                        marginTop: '5px'
+                      }}
+                      >
+                        <Button
+                          intent={Intent.PRIMARY} text='Create Blueprint' small
+                          style={{ marginRight: '10px' }}
+                        />
+                        {/* <Button
+                          intent={Intent.NONE} text='View README' small
+                        /> */}
+                      </div>
+                    </div>
+                  )}
+                  action={() => {}}
+                />
+              </div>
+            )}
           </main>
         </Content>
       </div>
