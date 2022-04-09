@@ -6,21 +6,12 @@ import (
 )
 
 type Blueprint struct {
-	Name       string         `json:"name"`
-	Tasks      datatypes.JSON `json:"tasks"`
+	Name       string         `json:"name" validate:"required"`
+	Tasks      datatypes.JSON `json:"tasks" validate:"required"`
 	Enable     bool           `json:"enable"`
-	CronConfig string         `json:"cronConfig"`
+	CronConfig string         `json:"cronConfig" validate:"required"`
 	common.Model
 }
-type InputBlueprint struct {
-	Name        string       `json:"name"`
-	Tasks       [][]*NewTask `json:"tasks"`
-	CronConfig  string       `json:"cronConfig"`
-	Enable      bool         `json:"enable"`
-	BlueprintId uint64
-}
-
-type EditBlueprint InputBlueprint
 
 func (Blueprint) TableName() string {
 	return "_devlake_blueprints"

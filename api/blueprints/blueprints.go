@@ -1,27 +1,26 @@
 package blueprints
 
 import (
-	"fmt"
-	"github.com/merico-dev/lake/api/shared"
 	"net/http"
 	"strconv"
 
+	"github.com/merico-dev/lake/api/shared"
+
 	"github.com/gin-gonic/gin"
-	"github.com/gin-gonic/gin/binding"
 	"github.com/merico-dev/lake/models"
 	"github.com/merico-dev/lake/services"
 )
 
 func Post(c *gin.Context) {
-	inputBlueprint := &models.InputBlueprint{}
+	blueprint := &models.Blueprint{}
 
-	err := c.MustBindWith(inputBlueprint, binding.JSON)
+	err := c.ShouldBind(blueprint)
 	if err != nil {
 		shared.ApiOutputError(c, err, http.StatusBadRequest)
 		return
 	}
 
-	blueprint, err := services.CreateBlueprint(inputBlueprint)
+	err = services.CreateBlueprint(blueprint)
 	if err != nil {
 		shared.ApiOutputError(c, err, http.StatusBadRequest)
 		return
@@ -73,6 +72,7 @@ func Delete(c *gin.Context) {
 	}
 }
 
+/*
 func Put(c *gin.Context) {
 	blueprintId := c.Param("blueprintId")
 	id, err := strconv.ParseUint(blueprintId, 10, 64)
@@ -89,6 +89,32 @@ func Put(c *gin.Context) {
 	}
 	editBlueprint.BlueprintId = id
 	blueprint, err := services.ModifyBlueprint(editBlueprint)
+	if err != nil {
+		shared.ApiOutputError(c, err, http.StatusBadRequest)
+		return
+	}
+	shared.ApiOutputSuccess(c, blueprint, http.StatusOK)
+}
+*/
+
+func Patch(c *gin.Context) {
+	blueprintId := c.Param("blueprintId")
+	id, err := strconv.ParseUint(blueprintId, 10, 64)
+	if err != nil {
+		shared.ApiOutputError(c, err, http.StatusBadRequest)
+		return
+	}
+	blueprint, err := services.GetBlueprint(id)
+	if err != nil {
+		shared.ApiOutputError(c, err, http.StatusBadRequest)
+		return
+	}
+	err = c.ShouldBind(blueprint)
+	if err != nil {
+		shared.ApiOutputError(c, err, http.StatusBadRequest)
+		return
+	}
+	err = services.UpdateBlueprint(blueprint)
 	if err != nil {
 		shared.ApiOutputError(c, err, http.StatusBadRequest)
 		return
