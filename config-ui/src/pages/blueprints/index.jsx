@@ -36,6 +36,34 @@ import EventIcon from '@/images/calendar-3.png'
 import EventOffIcon from '@/images/calendar-4.png'
 import { NullBlueprint } from '@/data/NullBlueprint'
 
+const DeletePopover = (props) => {
+  const {
+    activeBlueprint,
+    onCancel = () => {},
+    onConfirm = () => {},
+    isRunning = false
+  } = props
+  return (
+    <>
+      <div style={{ padding: '10px', fontSize: '10px', maxWidth: '220px' }}>
+        <h3 style={{ margin: '0 0 5px 0', color: Colors.RED3 }}>Delete {activeBlueprint?.name}?</h3>
+        <p><strong>Are you sure? This Blueprint will be removed, all pipelines will be stopped.</strong></p>
+        <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+          <Button
+            className={Classes.POPOVER_DISMISS}
+            intent={Intent.NONE}
+            text='CANCEL'
+            small style={{ marginRight: '5px' }}
+            onClick={() => onCancel(activeBlueprint)}
+            disabled={isRunning}
+          />
+          <Button disabled={isRunning} intent={Intent.DANGER} text='YES' small onClick={() => onConfirm(activeBlueprint)} />
+        </div>
+      </div>
+    </>
+  )
+}
+
 const Blueprints = (props) => {
   const history = useHistory()
   // const { providerId } = useParams()
@@ -57,6 +85,7 @@ const Blueprints = (props) => {
     setEnable: setEnableBlueprint,
     isFetching: isFetchingBlueprints,
     isSaving,
+    isDeleting,
     createCronExpression: createCron,
     getCronSchedule: getSchedule,
     activateBlueprint,
@@ -64,7 +93,9 @@ const Blueprints = (props) => {
     fetchBlueprint,
     fetchAllBlueprints,
     saveBlueprint,
+    deleteBlueprint,
     saveComplete,
+    deleteComplete
   } = useBlueprintManager()
 
   // BLUEPRINTS MOCK DATA
@@ -152,6 +183,12 @@ const Blueprints = (props) => {
       fetchAllBlueprints()
     }
   }, [saveComplete])
+
+  useEffect(() => {
+    if (deleteComplete.status === 200) {
+      fetchAllBlueprints()
+    }
+  }, [deleteComplete])
 
   useEffect(() => {
     fetchAllBlueprints()
@@ -396,9 +433,18 @@ const Blueprints = (props) => {
                                     <Icon icon='cog' size={16} color={Colors.GRAY3} />
                                   </Tooltip>
                                 </Button>
-                                <Button small minimal style={{ marginRight: '10px' }}>
-                                  <Icon icon='trash' color={Colors.GRAY3} size={15} />
-                                </Button>
+                                <Popover position={Position.LEFT}>
+                                  <Button small minimal style={{ marginRight: '10px' }}>
+                                    <Icon icon='trash' color={Colors.GRAY3} size={15} />
+                                  </Button>
+                                  <DeletePopover
+                                    activeBlueprint={b}
+                                    onCancel={() => {}}
+                                    onConfirm={deleteBlueprint}
+                                    isRunning={isDeleting}
+                                  />
+                                </Popover>
+
                                 <Switch
                                   checked={b.enable}
                                   label={false}
@@ -466,7 +512,20 @@ const Blueprints = (props) => {
                                     style={{ marginRight: '8px' }}
                                     onClick={() => configureBlueprint(b)}
                                   />
-                                  <Button icon='trash' text='Delete' small minimal style={{ marginRight: '8px' }} />
+                                  <Popover>
+                                    <Button icon='trash' text='Delete' small minimal style={{ marginRight: '8px' }} />
+                                    <DeletePopover activeBlueprint={activeBlueprint} onCancel={() => {}} onConfirm={deleteBlueprint} isRunning={isDeleting} />
+                                    {/* <>
+                                      <div style={{ padding: '10px', fontSize: '10px', maxWidth: '220px' }}>
+                                        <h3 style={{ margin: '0 0 5px 0', color: Colors.RED3 }}>Delete {activeBlueprint?.name}?</h3>
+                                        <p><strong>Are you sure? This Blueprint will be removed, all pipelines will be stopped.</strong></p>
+                                        <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+                                          <Button className={Classes.POPOVER_DISMISS} intent={Intent.NONE} text='CANCEL' small style={{ marginRight: '5px' }} />
+                                          <Button intent={Intent.DANGER} text='YES' small />
+                                        </div>
+                                      </div>
+                                    </> */}
+                                  </Popover>
                                   <Switch
                                     checked={b.enable}
                                     label={b.enable ? 'Disable' : 'Enable'}

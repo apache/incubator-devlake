@@ -139,6 +139,23 @@ function useBlueprintManager (blueprintName = `BLUEPRINT WEEKLY ${Date.now()}`, 
     }
   }, [name, cronConfig, tasks, enable])
 
+  const deleteBlueprint = useCallback(async (blueprint) => {
+    try {
+      setIsDeleting(true)
+      setErrors([])
+      console.log('>> TRYING TO DELETE BLUEPRINT...', blueprint)
+      const d = await request.delete(`${DEVLAKE_ENDPOINT}/blueprints/${blueprint.id}`)
+      console.log('>> BLUEPRINT DELETED...', d)
+      setIsDeleting(false)
+      setDeleteComplete({ status: d.status, data: d.data || null })
+    } catch (e) {
+      setIsDeleting(false)
+      setDeleteComplete(false)
+      setErrors([e.message])
+      console.log('>> FAILED TO DELETE BLUEPRINT', e)
+    }
+  }, [])
+
   const createCronExpression = (cronExpression = '0 0 * * *') => {
     let newCron = parseCronExpression('0 0 * * *')
     try {
@@ -245,6 +262,7 @@ function useBlueprintManager (blueprintName = `BLUEPRINT WEEKLY ${Date.now()}`, 
     tasks,
     enable,
     saveBlueprint,
+    deleteBlueprint,
     fetchAllBlueprints,
     fetchBlueprint,
     saveComplete,
