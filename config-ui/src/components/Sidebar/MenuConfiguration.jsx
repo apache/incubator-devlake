@@ -90,6 +90,14 @@ const MenuConfiguration = (activeRoute) => {
           classNames: [],
           disabled: false
         },
+        {
+          id: 2,
+          label: 'Pipeline Blueprints',
+          route: '/blueprints',
+          active: activeRoute.url.endsWith('/blueprints'),
+          icon: 'grid',
+          classNames: [],
+        },
       ]
     },
     // {
