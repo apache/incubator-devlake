@@ -37,6 +37,15 @@ export default {
       }
     ).catch(e => handleErrorResponse(e))
   },
+  patch: async (url, body) => {
+    return await axios.patch(
+      url,
+      body,
+      {
+        headers
+      }
+    ).catch(e => handleErrorResponse(e))
+  },
   delete: async (url, body) => {
     return await axios.delete(
       url,

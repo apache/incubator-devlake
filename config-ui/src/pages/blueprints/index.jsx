@@ -42,28 +42,38 @@ const Blueprints = (props) => {
   // const [activeProvider, setActiveProvider] = useState(integrationsData[0])
 
   const {
+    blueprint,
+    // blueprints,
     name,
     cronConfig,
     cronPresets,
     tasks,
+    enable,
     setName: setBlueprintName,
     setCronConfig,
     setTasks: setBlueprintTasks,
+    setEnable: setEnableBlueprint,
     isFetching: isFetchingBlueprints,
+    isSaving,
     createCronExpression: createCron,
     getCronSchedule: getSchedule,
     activateBlueprint,
-    deactivateBlueprint
+    deactivateBlueprint,
+    fetchBlueprint,
+    fetchAllBlueprints,
+    saveBlueprint,
+    saveComplete,
   } = useBlueprintManager()
 
+  // BLUEPRINTS MOCK DATA
   const [blueprints, setBlueprints] = useState([
-    { id: 100, name: 'GITHUB DAILY', cronConfig: '0 0 * * *', nextRunAt: null, enabled: true, interval: 'Daily', tasks: [[]], createdAt: Date.now(), updatedAt: null },
-    { id: 200, name: 'GITLAB WEEKLY', cronConfig: '0 0 * * 1', nextRunAt: null, enabled: true, interval: 'Weekly', tasks: [[]], createdAt: Date.now(), updatedAt: null },
-    { id: 300, name: 'GITHUB MONTHLY', cronConfig: '0 0 30 * 1', nextRunAt: null, enabled: true, interval: 'Monthly', tasks: [[]], createdAt: Date.now(), updatedAt: null },
-    { id: 400, name: 'JIRA DAILY', cronConfig: '0 23 * * 1-5', nextRunAt: null, enabled: false, interval: 'Daily', tasks: [[]], createdAt: Date.now(), updatedAt: null },
-    { id: 500, name: 'JENKINS DAILY 8AM @hezyin', cronConfig: '0 0 * * 1-5', nextRunAt: null, enabled: false, interval: 'Daily', tasks: [[]], createdAt: Date.now(), updatedAt: null },
-    { id: 600, name: 'GITLAB CUSTOM @klesh', cronConfig: '0 4 8-14 * *', nextRunAt: null, enabled: false, interval: 'Custom', tasks: [[]], createdAt: Date.now(), updatedAt: null },
-    { id: 700, name: 'JIRA CUSTOM @e2corporation', cronConfig: '0 22 * * 1-5', nextRunAt: null, enabled: true, interval: 'Custom', tasks: [[]], createdAt: Date.now(), updatedAt: null },
+    { id: 5, name: 'GITHUB DAILY', cronConfig: '0 0 * * *', nextRunAt: null, enabled: true, interval: 'Daily', tasks: [[]], createdAt: Date.now(), updatedAt: null },
+    { id: 6, name: 'GITLAB WEEKLY', cronConfig: '0 0 * * 1', nextRunAt: null, enabled: true, interval: 'Weekly', tasks: [[]], createdAt: Date.now(), updatedAt: null },
+    { id: 7, name: 'GITHUB MONTHLY', cronConfig: '0 0 30 * 1', nextRunAt: null, enabled: true, interval: 'Monthly', tasks: [[]], createdAt: Date.now(), updatedAt: null },
+    { id: 8, name: 'JIRA DAILY', cronConfig: '0 23 * * 1-5', nextRunAt: null, enabled: false, interval: 'Daily', tasks: [[]], createdAt: Date.now(), updatedAt: null },
+    { id: 9, name: 'JENKINS DAILY 8AM @hezyin', cronConfig: '0 0 * * 1-5', nextRunAt: null, enabled: false, interval: 'Daily', tasks: [[]], createdAt: Date.now(), updatedAt: null },
+    { id: 10, name: 'GITLAB CUSTOM @klesh', cronConfig: '0 4 8-14 * *', nextRunAt: null, enabled: false, interval: 'Custom', tasks: [[]], createdAt: Date.now(), updatedAt: null },
+    { id: 11, name: 'JIRA CUSTOM @e2corporation', cronConfig: '0 22 * * 1-5', nextRunAt: null, enabled: true, interval: 'Custom', tasks: [[]], createdAt: Date.now(), updatedAt: null },
   ])
 
   const [expandDetails, setExpandDetails] = useState(false)
@@ -77,9 +87,9 @@ const Blueprints = (props) => {
 
   const handleBlueprintActivation = (blueprint) => {
     if (blueprint.enabled) {
-      deactivateBlueprint(blueprint.id)
+      deactivateBlueprint(blueprint)
     } else {
-      activateBlueprint(blueprint.id)
+      activateBlueprint(blueprint)
     }
   }
 
@@ -133,6 +143,16 @@ const Blueprints = (props) => {
       setBlueprintDialogIsOpen(true)
     }
   }, [draftBlueprint, setBlueprintName, setCronConfig])
+
+  useEffect(() => {
+    if (saveComplete?.id) {
+      setBlueprintDialogIsOpen(false)
+    }
+  }, [saveComplete])
+
+  useEffect(() => {
+    fetchAllBlueprints()
+  }, [fetchAllBlueprints])
 
   return (
     <>
@@ -552,13 +572,16 @@ const Blueprints = (props) => {
                       </Label>
                       <InputGroup
                         id='cron-custom'
-                        disabled={cronConfig !== 'custom'}
+                        // disabled={cronConfig !== 'custom'}
+                        readonly={cronConfig !== 'custom'}
+                        rightElement={cronConfig !== 'custom' ? <Icon icon='lock' size={11} style={{ alignSelf: 'center', margin: '4px 10px -2px 2px' }} /> : null}
                         placeholder='Enter Crontab Syntax'
                         // defaultValue='0 0 * * *'
                         value={cronConfig !== 'custom' ? cronConfig : customCron}
                         onChange={(e) => setCustomCron(e.target.value)}
                         className={`cron-custom-input ${fieldHasError('Cron Custom') ? 'invalid-field' : ''}`}
                         inline={true}
+                        style={{ backgroundColor: cronConfig !== 'custom' ? '#ffffdd' : 'inherit' }}
                       />
                     </FormGroup>
                   </div>
@@ -585,8 +608,13 @@ const Blueprints = (props) => {
         </div>
         <div className={Classes.DIALOG_FOOTER}>
           <div className={Classes.DIALOG_FOOTER_ACTIONS}>
-            <Button onClick={() => setBlueprintDialogIsOpen(false)}>Cancel</Button>
-            <Button icon='cloud-upload' intent={Intent.PRIMARY} onClick={() => setBlueprintDialogIsOpen(false)}>
+            <Button disabled={isSaving} onClick={() => setBlueprintDialogIsOpen(false)}>Cancel</Button>
+            <Button
+              disabled={isSaving}
+              icon='cloud-upload'
+              intent={Intent.PRIMARY}
+              onClick={() => saveBlueprint(draftBlueprint ? draftBlueprint.id : null)}
+            >
               {draftBlueprint ? 'Modify Blueprint' : 'Save Blueprint'}
             </Button>
           </div>
