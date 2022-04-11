@@ -67,6 +67,7 @@ func (plugin Gitlab) SubTaskMetas() []core.SubTaskMeta {
 		tasks.ConvertApiCommitsMeta,
 		tasks.ConvertApiNotesMeta,
 		tasks.ConvertMergeRequestCommentMeta,
+		tasks.ConvertApiMergeRequestsCommitsMeta,
 	}
 }
 
