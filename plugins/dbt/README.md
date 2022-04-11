@@ -15,15 +15,16 @@ dbt (data build tool) enables analytics engineers to transform data in their war
 dbt does the T in ELT (Extract, Load, Transform) processes – it doesn’t extract or load data, but it’s extremely good at transforming data that’s already loaded into your warehouse.
 
 ## User setup<a id="user-setup"></a>
-- If you only plan to run the product locally, this is the **ONLY** section you should need.
+- If you plan to use this product, you need to install some environments first.
 
 #### Required Packages to Install<a id="user-setup-requirements"></a>
 - [python3.7+](https://www.python.org/downloads/)
 - [dbt-mysql](https://pypi.org/project/dbt-mysql/#configuring-your-profile)
 
+#### Commands to run or create in your terminal and the dbt project<a id="user-setup-commands"></a>
 1. pip install dbt-mysql
 2. dbt init demoapp (demoapp is project name) 
-3. create your SQL transformations and data models if you need
+3. create your SQL transformations and data models
 
 ## Convert Data By Dbt
 
@@ -56,14 +57,12 @@ please use the Raw JSON API to manually initiate a run using **cURL** or graphic
 And selectedModels accepts one or more arguments. Each argument can be one of:
 1. a package name #runs all models in your project, example: example
 2. a model name   # runs a specific model, example: my_fisrt_dbt_model
-3. a fully-qualified path to a directory of models # you need update the value of model-paths in dbt_project.yml. 
+3. a fully-qualified path to a directory of models.
+
 - `vars`: dbt provides a mechanism variables to provide data to models for compilation. (optional) 
 example: select * from events where event_type = '{{ var("event_type") }}' this sql in your model, you need set parameters "vars": "{event_type: real_value}"
 
 ### Resources:
 - Learn more about dbt [in the docs](https://docs.getdbt.com/docs/introduction)
 - Check out [Discourse](https://discourse.getdbt.com/) for commonly asked questions and answers
-- Join the [chat](https://community.getdbt.com/) on Slack for live discussions and support
-- Find [dbt events](https://events.getdbt.com) near you
-- Check out [the blog](https://blog.getdbt.com/) for the latest news on dbt's development and best practices
 
