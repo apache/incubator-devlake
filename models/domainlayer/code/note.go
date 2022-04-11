@@ -8,7 +8,7 @@ import (
 
 type Note struct {
 	domainlayer.DomainEntity
-	PrId        uint64 `gorm:"index;comment:References the pull request for this note"`
+	PrId        string `gorm:"index;comment:References the pull request for this note;type:varchar(100)"`
 	Type        string
 	Author      string
 	Body        string

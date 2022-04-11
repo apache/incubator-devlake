@@ -2,7 +2,6 @@ package tasks
 
 import (
 	"encoding/json"
-
 	"github.com/merico-dev/lake/plugins/core"
 	"github.com/merico-dev/lake/plugins/gitlab/models"
 	"github.com/merico-dev/lake/plugins/helper"
@@ -42,13 +41,26 @@ func ExtractApiMergeRequestsNotes(taskCtx core.SubTaskContext) error {
 				return nil, err
 			}
 
-			gitlabMergeRequestNote, err := convertMergeRequestNote(mrNote)
+			toolMrNote, err := convertMergeRequestNote(mrNote)
 			if err != nil {
 				return nil, err
 			}
-			results := make([]interface{}, 0, 1)
+			results := make([]interface{}, 0, 2)
+			if !toolMrNote.System {
+				toolMrComment := &models.GitlabMergeRequestComment{
+					GitlabId:        toolMrNote.GitlabId,
+					MergeRequestId:  toolMrNote.MergeRequestId,
+					MergeRequestIid: toolMrNote.MergeRequestIid,
+					Body:            toolMrNote.Body,
+					AuthorUsername:  toolMrNote.AuthorUsername,
+					GitlabCreatedAt: toolMrNote.GitlabCreatedAt,
+					Resolvable:      toolMrNote.Resolvable,
+				}
+				results = append(results, toolMrComment)
 
-			results = append(results, gitlabMergeRequestNote)
+			}
+
+			results = append(results, toolMrNote)
 
 			return results, nil
 		},
