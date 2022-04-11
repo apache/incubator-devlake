@@ -41,7 +41,7 @@ func LoadPlugins(pluginsDir string, config *viper.Viper, logger core.Logger, db 
 				}
 			}
 			if migratable, ok := symPluginEntry.(core.Migratable); ok {
-				migration.Register(migratable.MigrationScripts()...)
+				migration.Register(migratable.MigrationScripts(), pluginName)
 			}
 			err = core.RegisterPlugin(pluginName, pluginMeta)
 			if err != nil {

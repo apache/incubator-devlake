@@ -8,30 +8,38 @@ import (
 	"sync"
 )
 
-var m = migrator{scripts: make(map[string]Script)}
+var m = migrator{scripts: make(map[string]scriptWithComment)}
 
+type scriptWithComment struct {
+	Script
+	comment string
+}
 type migrator struct {
 	sync.Mutex
 	db      *gorm.DB
-	scripts map[string]Script
+	scripts map[string]scriptWithComment
 }
 
 func Init(db *gorm.DB) {
 	m.db = db
 }
 
-func (m *migrator) register(scripts ...Script) {
+func (m *migrator) register(scripts []Script, comment string) {
 	m.Lock()
 	defer m.Unlock()
 	for _, script := range scripts {
-		m.scripts[fmt.Sprintf("%s:%d", script.Name(), script.Version())] = script
+		m.scripts[fmt.Sprintf("%s:%d", script.Name(), script.Version())] = scriptWithComment{
+			Script:  script,
+			comment: comment,
+		}
 	}
 }
 
-func (m *migrator) bookKeep(script Script) error {
+func (m *migrator) bookKeep(script scriptWithComment) error {
 	record := &MigrationHistory{
 		ScriptVersion: script.Version(),
 		ScriptName:    script.Name(),
+		Comment:       script.comment,
 	}
 	return m.db.Create(record).Error
 }
@@ -44,7 +52,7 @@ func (m *migrator) execute(ctx context.Context) error {
 	for key := range versions {
 		delete(m.scripts, key)
 	}
-	var scriptSlice []Script
+	var scriptSlice []scriptWithComment
 	for _, script := range m.scripts {
 		scriptSlice = append(scriptSlice, script)
 	}
@@ -81,8 +89,8 @@ func (m *migrator) getExecuted() (map[string]struct{}, error) {
 	return versions, nil
 }
 
-func Register(script ...Script) {
-	m.register(script...)
+func Register(scripts []Script, comment string) {
+	m.register(scripts, comment)
 }
 
 func Execute(ctx context.Context) error {
