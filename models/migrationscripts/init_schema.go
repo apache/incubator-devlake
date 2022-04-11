@@ -21,6 +21,7 @@ func (*initSchemas) Up(ctx context.Context, db *gorm.DB) error {
 		&archived.CommitParent{},
 		&archived.PullRequest{},
 		&archived.PullRequestCommit{},
+		&archived.PullRequestComment{},
 		&archived.PullRequestLabel{},
 		&archived.Note{},
 		&archived.RepoCommit{},

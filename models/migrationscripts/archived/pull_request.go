@@ -53,3 +53,13 @@ type PullRequestLabel struct {
 	LabelName     string `gorm:"primaryKey;type:varchar(255)"`
 	common.NoPKModel
 }
+
+type PullRequestComment struct {
+	domainlayer.DomainEntity
+	PullRequestId string `gorm:"index"`
+	Body          string
+	UserId        string `gorm:"type:varchar(255)"`
+	CreatedDate   time.Time
+	CommitSha     string `gorm:"type:varchar(255)"`
+	Position      int
+}
