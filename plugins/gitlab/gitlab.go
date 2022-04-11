@@ -35,7 +35,6 @@ func (plugin Gitlab) Init(config *viper.Viper, logger core.Logger, db *gorm.DB) 
 		&models.GitlabMergeRequestNote{},
 		&models.GitlabMergeRequestCommit{},
 		&models.GitlabUser{},
-		&models.GitlabMergeRequestComment{},
 	)
 }
 
@@ -67,6 +66,7 @@ func (plugin Gitlab) SubTaskMetas() []core.SubTaskMeta {
 		tasks.ConvertApiCommitsMeta,
 		tasks.ConvertApiNotesMeta,
 		tasks.ConvertMergeRequestCommentMeta,
+		tasks.ConvertUsersMeta,
 	}
 }
 
