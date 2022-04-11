@@ -53,7 +53,7 @@ func ConvertNotes(taskCtx core.SubTaskContext) error {
 					Id: noteIdGen.Generate(prComment.GithubId),
 				},
 				PrId:        noteIdGen.Generate(prComment.PullRequestId),
-				Author:      userIdGen.Generate(prComment.AuthorUsername),
+				Author:      userIdGen.Generate(prComment.AuthorUserId),
 				Body:        prComment.Body,
 				CreatedDate: prComment.GithubCreatedAt,
 			}
