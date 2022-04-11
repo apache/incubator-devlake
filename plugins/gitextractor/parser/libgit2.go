@@ -66,7 +66,7 @@ func (l *LibGit2) run(repo *git.Repository, repoId string) error {
 			ref := &code.Ref{
 				DomainEntity: domainlayer.DomainEntity{Id: fmt.Sprintf("%s:%s", repoId, name)},
 				RepoId:       repoId,
-				Ref:          name,
+				Name:         name,
 				CommitSha:    tagCommit,
 				RefType:      TAG,
 			}
@@ -107,7 +107,7 @@ func (l *LibGit2) run(repo *git.Repository, repoId string) error {
 			ref := &code.Ref{
 				DomainEntity: domainlayer.DomainEntity{Id: fmt.Sprintf("%s:%s", repoId, name)},
 				RepoId:       repoId,
-				Ref:          name,
+				Name:         name,
 				CommitSha:    sha,
 				RefType:      BRANCH,
 			}
