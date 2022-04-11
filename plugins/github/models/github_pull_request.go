@@ -35,3 +35,8 @@ type GithubPullRequest struct {
 	AuthorId       int
 	common.NoPKModel
 }
+
+func (GithubPullRequest) TableName() string{
+	return "_tool_github_pull_requests"
+}
+

@@ -36,7 +36,7 @@ func CollectApiPullRequestCommits(taskCtx core.SubTaskContext) error {
 	incremental := false
 
 	cursor, err := db.Model(&models.GithubPullRequest{}).
-		Where("github_pull_requests.repo_id = ?", data.Repo.GithubId).
+		Where("repo_id = ?", data.Repo.GithubId).
 		Rows()
 	if err != nil {
 		return err

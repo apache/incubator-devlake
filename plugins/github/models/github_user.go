@@ -13,3 +13,8 @@ type GithubUser struct {
 	Type      string `json:"type" gorm:"type:varchar(255)"`
 	common.NoPKModel
 }
+
+func (GithubUser) TableName() string{
+	return "_tool_github_users"
+}
+

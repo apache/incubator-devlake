@@ -8,8 +8,8 @@ import (
 
 type IssueStatusHistory struct {
 	common.NoPKModel
-	IssueId        string    `gorm:"primaryKey"`
-	OriginalStatus string    `gorm:"primaryKey"`
+	IssueId        string    `gorm:"primaryKey;type:varchar(255)"`
+	OriginalStatus string    `gorm:"primaryKey;type:varchar(255)"`
 	StartDate      time.Time `gorm:"primaryKey"`
 	EndDate        *time.Time
 }
@@ -20,8 +20,8 @@ func (IssueStatusHistory) TableName() string {
 
 type IssueAssigneeHistory struct {
 	common.NoPKModel
-	IssueId   string    `gorm:"primaryKey"`
-	Assignee  string    `gorm:"primaryKey"`
+	IssueId   string    `gorm:"primaryKey;type:varchar(255)"`
+	Assignee  string    `gorm:"primaryKey;type:varchar(255)"`
 	StartDate time.Time `gorm:"primaryKey"`
 	EndDate   *time.Time
 }
@@ -32,8 +32,8 @@ func (IssueAssigneeHistory) TableName() string {
 
 type IssueSprintsHistory struct {
 	common.NoPKModel
-	IssueId   string    `gorm:"primaryKey"`
-	SprintId  string    `gorm:"primaryKey"`
+	IssueId   string    `gorm:"primaryKey;type:varchar(255)"`
+	SprintId  string    `gorm:"primaryKey;type:varchar(255)"`
 	StartDate time.Time `gorm:"primaryKey"`
 	EndDate   *time.Time
 }

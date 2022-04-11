@@ -2,9 +2,11 @@ package main
 
 import (
 	"fmt"
+
+	"github.com/merico-dev/lake/migration"
 	"github.com/merico-dev/lake/plugins/core"
 	"github.com/merico-dev/lake/plugins/jenkins/api"
-	"github.com/merico-dev/lake/plugins/jenkins/models"
+	"github.com/merico-dev/lake/plugins/jenkins/models/migrationscripts"
 	"github.com/merico-dev/lake/plugins/jenkins/tasks"
 	"github.com/merico-dev/lake/runner"
 	"github.com/mitchellh/mapstructure"
@@ -17,14 +19,12 @@ var _ core.PluginMeta = (*Jenkins)(nil)
 var _ core.PluginInit = (*Jenkins)(nil)
 var _ core.PluginTask = (*Jenkins)(nil)
 var _ core.PluginApi = (*Jenkins)(nil)
+var _ core.Migratable = (*Jenkins)(nil)
 
 type Jenkins struct{}
 
 func (plugin Jenkins) Init(config *viper.Viper, logger core.Logger, db *gorm.DB) error {
-	return db.AutoMigrate(
-		&models.JenkinsJob{},
-		&models.JenkinsBuild{},
-	)
+	return nil
 }
 
 func (plugin Jenkins) Description() string {
@@ -59,6 +59,10 @@ func (plugin Jenkins) PrepareTaskData(taskCtx core.TaskContext, options map[stri
 
 func (plugin Jenkins) RootPkgPath() string {
 	return "github.com/merico-dev/lake/plugins/jenkins"
+}
+
+func (plugin Jenkins) MigrationScripts() []migration.Script {
+	return []migration.Script{new(migrationscripts.InitSchemas)}
 }
 
 func (plugin Jenkins) ApiResources() map[string]map[string]core.ApiResourceHandler {

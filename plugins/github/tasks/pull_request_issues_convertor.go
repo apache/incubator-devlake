@@ -23,8 +23,8 @@ func ConvertPullRequestIssues(taskCtx core.SubTaskContext) error {
 	repoId := data.Repo.GithubId
 
 	cursor, err := db.Model(&githubModels.GithubPullRequestIssue{}).
-		Joins(`left join github_pull_requests on github_pull_requests.github_id = github_pull_request_issues.pull_request_id`).
-		Where("github_pull_requests.repo_id = ?", repoId).
+		Joins(`left join _tool_github_pull_requests on _tool_github_pull_requests.github_id = _tool_github_pull_request_issues.pull_request_id`).
+		Where("_tool_github_pull_requests.repo_id = ?", repoId).
 		Order("pull_request_id ASC").
 		Rows()
 	if err != nil {

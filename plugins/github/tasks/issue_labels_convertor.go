@@ -23,8 +23,8 @@ func ConvertIssueLabels(taskCtx core.SubTaskContext) error {
 	repoId := data.Repo.GithubId
 
 	cursor, err := db.Model(&githubModels.GithubIssueLabel{}).
-		Joins(`left join github_issues on github_issues.github_id = github_issue_labels.issue_id`).
-		Where("github_issues.repo_id = ?", repoId).
+		Joins(`left join _tool_github_issues on _tool_github_issues.github_id = _tool_github_issue_labels.issue_id`).
+		Where("_tool_github_issues.repo_id = ?", repoId).
 		Order("issue_id ASC").
 		Rows()
 	if err != nil {

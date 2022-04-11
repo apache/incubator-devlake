@@ -8,28 +8,29 @@ import (
 
 type Issue struct {
 	domainlayer.DomainEntity
-	Url                     string
-	Key                     string
+	Url                     string `gorm:"type:char(255)"`
+	Key                     string `gorm:"type:char(255)"`
 	Title                   string
-	Summary                 string
-	EpicKey                 string
-	Type                    string
-	Status                  string
+	Description             string
+	EpicKey                 string `gorm:"type:char(255)"`
+	Type                    string `gorm:"type:char(100)"`
+	Status                  string `gorm:"type:char(100)"`
+	OriginalStatus          string `gorm:"type:char(100)"`
 	StoryPoint              uint
 	ResolutionDate          *time.Time
 	CreatedDate             *time.Time
 	UpdatedDate             *time.Time
 	LeadTimeMinutes         uint
-	ParentIssueId           string
-	Priority                string
+	ParentIssueId           string `gorm:"type:char(255)"`
+	Priority                string `gorm:"type:char(255)"`
 	OriginalEstimateMinutes int64
 	TimeSpentMinutes        int64
 	TimeRemainingMinutes    int64
-	CreatorId               string
-	AssigneeId              string
-	AssigneeName            string
-	Severity                string
-	Component               string
+	CreatorId               string `gorm:"type:char(255)"`
+	AssigneeId              string `gorm:"type:char(255)"`
+	AssigneeName            string `gorm:"type:char(255)"`
+	Severity                string `gorm:"type:char(255)"`
+	Component               string `gorm:"type:char(255)"`
 }
 
 const (

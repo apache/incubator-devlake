@@ -37,7 +37,7 @@ func EnrichMergeRequests(taskCtx core.SubTaskContext) error {
 		db.Where("merge_request_id = ? AND `system` = 0", gitlabMr.GitlabId).
 			Order("gitlab_created_at asc").Find(&notes)
 		commits := make([]gitlabModels.GitlabCommit, 0)
-		db.Joins("join gitlab_merge_request_commits gmrc on gmrc.commit_sha = gitlab_commits.sha").
+		db.Joins("join _tool_gitlab_merge_request_commits gmrc on gmrc.commit_sha = _tool_gitlab_commits.sha").
 			Where("merge_request_id = ?", gitlabMr.GitlabId).Order("authored_date asc").Find(&commits)
 		// calculate reviewRounds from commits and notes
 		reviewRounds := getReviewRounds(commits, notes)

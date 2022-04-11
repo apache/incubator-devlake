@@ -11,10 +11,10 @@ type Changelog struct {
 
 	// collected fields
 	IssueId     string `gorm:"index"`
-	AuthorId    string
-	AuthorName  string
-	FieldId     string
-	FieldName   string
+	AuthorId    string `gorm:"type:char(255)"`
+	AuthorName  string `gorm:"type:char(255)"`
+	FieldId     string `gorm:"type:char(255)"`
+	FieldName   string `gorm:"type:char(255)"`
 	From        string
 	To          string
 	CreatedDate time.Time

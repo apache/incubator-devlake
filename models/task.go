@@ -20,7 +20,7 @@ type TaskProgressDetail struct {
 	TotalRecords     int    `json:"totalRecords"`
 	FinishedRecords  int    `json:"finishedRecords"`
 	SubTaskName      string `json:"subTaskName"`
-	SubTaskNumber    int  `json:"subTaskNumber"`
+	SubTaskNumber    int    `json:"subTaskNumber"`
 }
 
 type Task struct {
@@ -49,4 +49,8 @@ type NewTask struct {
 	PipelineId  uint64                 `json:"-"`
 	PipelineRow int                    `json:"-"`
 	PipelineCol int                    `json:"-"`
+}
+
+func (Task) TableName() string {
+	return "_devlake_tasks"
 }

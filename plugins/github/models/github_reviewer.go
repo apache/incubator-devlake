@@ -11,3 +11,8 @@ type GithubReviewer struct {
 
 	common.NoPKModel
 }
+
+func (GithubReviewer) TableName() string{
+	return "_tool_github_reviewers"
+}
+

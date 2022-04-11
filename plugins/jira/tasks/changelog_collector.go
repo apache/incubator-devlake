@@ -40,9 +40,9 @@ func CollectChangelogs(taskCtx core.SubTaskContext) error {
 	}
 
 	// filter out issue_ids that needed collection
-	tx := db.Table("jira_board_issues bi").
+	tx := db.Table("_tool_jira_board_issues bi").
 		Select("bi.issue_id, NOW() AS update_time").
-		Joins("LEFT JOIN jira_issues i ON (bi.source_id = i.source_id AND bi.issue_id = i.issue_id)").
+		Joins("LEFT JOIN _tool_jira_issues i ON (bi.source_id = i.source_id AND bi.issue_id = i.issue_id)").
 		Where("bi.source_id = ? AND bi.board_id = ? AND (i.changelog_updated IS NULL OR i.changelog_updated < i.updated)", data.Options.SourceId, data.Options.BoardId)
 
 	// apply time range if any

@@ -21,3 +21,7 @@ type InputBlueprint struct {
 }
 
 type EditBlueprint InputBlueprint
+
+func (Blueprint) TableName() string {
+	return "_devlake_blueprints"
+}

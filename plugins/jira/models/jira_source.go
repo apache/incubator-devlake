@@ -33,3 +33,15 @@ type JiraSourceDetail struct {
 	JiraSource
 	TypeMappings map[string]map[string]interface{} `json:"typeMappings"`
 }
+
+func (JiraSource) TableName() string {
+	return "_tool_jira_sources"
+}
+
+func (JiraIssueTypeMapping) TableName() string {
+	return "_tool_jira_issue_type_mappings"
+}
+
+func (JiraIssueStatusMapping) TableName() string {
+	return "_tool_jira_issue_status_mappings"
+}

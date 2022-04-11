@@ -20,9 +20,9 @@ func ConvertWorklogs(taskCtx core.SubTaskContext) error {
 	logger.Info("convert worklog")
 	// select all worklogs belongs to the board
 	cursor, err := db.Model(&models.JiraWorklog{}).
-		Select("jira_worklogs.*").
-		Joins(`left join jira_board_issues on (jira_board_issues.issue_id = jira_worklogs.issue_id)`).
-		Where("jira_board_issues.source_id = ? AND jira_board_issues.board_id = ?", sourceId, boardId).
+		Select("_tool_jira_worklogs.*").
+		Joins(`left join _tool_jira_board_issues on (_tool_jira_board_issues.issue_id = _tool_jira_worklogs.issue_id)`).
+		Where("_tool_jira_board_issues.source_id = ? AND _tool_jira_board_issues.board_id = ?", sourceId, boardId).
 		Rows()
 	if err != nil {
 		logger.Error("convert worklog error:", err)

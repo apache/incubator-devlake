@@ -29,15 +29,15 @@ func CollectRemotelinks(taskCtx core.SubTaskContext) error {
 		set its `remotelink_updated` to `updated` at the end.
 	*/
 	cursor, err := db.Model(jiraIssue).
-		Select("jira_issues.issue_id", "NOW() AS update_time").
-		Joins(`LEFT JOIN jira_board_issues ON (
-			jira_board_issues.source_id = jira_issues.source_id AND
-			jira_board_issues.issue_id = jira_issues.issue_id
+		Select("_tool_jira_issues.issue_id", "NOW() AS update_time").
+		Joins(`LEFT JOIN _tool_jira_board_issues ON (
+			_tool_jira_board_issues.source_id = _tool_jira_issues.source_id AND
+			_tool_jira_board_issues.issue_id = _tool_jira_issues.issue_id
 		)`).
 		Where(`
-			jira_board_issues.source_id = ? AND
-			jira_board_issues.board_id = ? AND
-			(jira_issues.remotelink_updated IS NULL OR jira_issues.remotelink_updated < jira_issues.updated)
+			_tool_jira_board_issues.source_id = ? AND
+			_tool_jira_board_issues.board_id = ? AND
+			(_tool_jira_issues.remotelink_updated IS NULL OR _tool_jira_issues.remotelink_updated < _tool_jira_issues.updated)
 			`,
 			data.Options.SourceId,
 			data.Options.BoardId,

@@ -25,8 +25,8 @@ func ExtractRemotelinks(taskCtx core.SubTaskContext) error {
 	// clean up issue_commits relationship for board
 	err := db.Exec(`
 	DELETE ic
-	FROM jira_issue_commits ic
-	LEFT JOIN jira_board_issues bi ON (bi.source_id = ic.source_id AND bi.issue_id = ic.issue_id)
+	FROM _tool_jira_issue_commits ic
+	LEFT JOIN _tool_jira_board_issues bi ON (bi.source_id = ic.source_id AND bi.issue_id = ic.issue_id)
 	WHERE ic.source_id = ? AND bi.board_id = ?
 	`, sourceId, boardId).Error
 	if err != nil {
@@ -35,9 +35,9 @@ func ExtractRemotelinks(taskCtx core.SubTaskContext) error {
 
 	// select all remotelinks belongs to the board, cursor is important for low memory footprint
 	cursor, err := db.Model(&models.JiraRemotelink{}).
-		Select("jira_remotelinks.*").
-		Joins("left join jira_board_issues on jira_board_issues.issue_id = jira_remotelinks.issue_id").
-		Where("jira_board_issues.board_id = ? AND jira_board_issues.source_id = ?", boardId, sourceId).
+		Select("_tool_jira_remotelinks.*").
+		Joins("left join _tool_jira_board_issues on _tool_jira_board_issues.issue_id = _tool_jira_remotelinks.issue_id").
+		Where("_tool_jira_board_issues.board_id = ? AND _tool_jira_board_issues.source_id = ?", boardId, sourceId).
 		Rows()
 	if err != nil {
 		return err

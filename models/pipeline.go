@@ -31,3 +31,7 @@ type NewPipeline struct {
 	Tasks       [][]*NewTask `json:"tasks"`
 	BlueprintId uint64
 }
+
+func (Pipeline) TableName() string {
+	return "_devlake_pipelines"
+}

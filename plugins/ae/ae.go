@@ -3,30 +3,28 @@ package main // must be main for plugin entry point
 import (
 	"fmt"
 
+	"github.com/merico-dev/lake/migration"
 	"github.com/merico-dev/lake/plugins/ae/api"
-	"github.com/merico-dev/lake/plugins/ae/models"
+	"github.com/merico-dev/lake/plugins/ae/models/migrationscripts"
 	"github.com/merico-dev/lake/plugins/ae/tasks"
 	"github.com/merico-dev/lake/plugins/core"
 	"github.com/merico-dev/lake/runner"
 	"github.com/mitchellh/mapstructure"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
-	"gorm.io/gorm" // A pseudo type for Plugin Interface implementation
+	"gorm.io/gorm"
 )
 
 var _ core.PluginMeta = (*AE)(nil)
 var _ core.PluginInit = (*AE)(nil)
 var _ core.PluginTask = (*AE)(nil)
 var _ core.PluginApi = (*AE)(nil)
+var _ core.Migratable = (*AE)(nil)
 
 type AE struct{}
 
 func (plugin AE) Init(config *viper.Viper, logger core.Logger, db *gorm.DB) error {
-	// you can pass down db instance to plugin api
-	return db.AutoMigrate(
-		&models.AEProject{},
-		&models.AECommit{},
-	)
+	return nil
 }
 
 func (plugin AE) Description() string {
@@ -64,6 +62,10 @@ func (plugin AE) PrepareTaskData(taskCtx core.TaskContext, options map[string]in
 
 func (plugin AE) RootPkgPath() string {
 	return "github.com/merico-dev/lake/plugins/ae"
+}
+
+func (plugin AE) MigrationScripts() []migration.Script {
+	return []migration.Script{new(migrationscripts.InitSchemas)}
 }
 
 func (plugin AE) ApiResources() map[string]map[string]core.ApiResourceHandler {

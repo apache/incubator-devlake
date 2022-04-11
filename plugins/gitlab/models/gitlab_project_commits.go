@@ -7,3 +7,8 @@ type GitlabProjectCommit struct {
 	CommitSha       string `gorm:"primaryKey;type:char(40)"`
 	common.NoPKModel
 }
+
+func (GitlabProjectCommit) TableName() string{
+	return "_tool_gitlab_project_commits"
+}
+

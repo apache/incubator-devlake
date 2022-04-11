@@ -8,8 +8,9 @@ import (
 
 type PullRequest struct {
 	domainlayer.DomainEntity
-	RepoId         string `gorm:"index"`
-	Status         string `gorm:"comment:open/closed or other"`
+	BaseRepoId     string `gorm:"index"`
+	HeadRepoId     string `gorm:"index"`
+	Status         string `gorm:"type:varchar(100);comment:open/closed or other"`
 	Title          string
 	Description    string
 	Url            string `gorm:"type:char(255)"`
@@ -19,12 +20,12 @@ type PullRequest struct {
 	Key            int
 	CreatedDate    time.Time
 	MergedDate     *time.Time
-	ClosedAt       *time.Time
-	Type           string
-	Component      string
+	ClosedDate     *time.Time
+	Type           string `gorm:"type:char(100)"`
+	Component      string `gorm:"type:char(100)"`
 	MergeCommitSha string `gorm:"type:char(40)"`
-	HeadRef        string
-	BaseRef        string
-	BaseCommitSha  string
-	HeadCommitSha  string
+	HeadRef        string `gorm:"type:char(255)"`
+	BaseRef        string `gorm:"type:char(255)"`
+	BaseCommitSha  string `gorm:"type:char(40)"`
+	HeadCommitSha  string `gorm:"type:char(40)"`
 }

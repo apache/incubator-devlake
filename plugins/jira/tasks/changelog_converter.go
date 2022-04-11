@@ -38,17 +38,17 @@ func ConvertChangelogs(taskCtx core.SubTaskContext) error {
 	db := taskCtx.GetDb()
 	logger.Info("covert changelog")
 	// select all changelogs belongs to the board
-	cursor, err := db.Table("jira_changelog_items").
-		Joins(`left join jira_changelogs on (
-			jira_changelogs.source_id = jira_changelog_items.source_id
-			AND jira_changelogs.changelog_id = jira_changelog_items.changelog_id
+	cursor, err := db.Table("_tool_jira_changelog_items").
+		Joins(`left join _tool_jira_changelogs on (
+			_tool_jira_changelogs.source_id = _tool_jira_changelog_items.source_id
+			AND _tool_jira_changelogs.changelog_id = _tool_jira_changelog_items.changelog_id
 		)`).
-		Joins(`left join jira_board_issues on (
-			jira_board_issues.source_id = jira_changelogs.source_id
-			AND jira_board_issues.issue_id = jira_changelogs.issue_id
+		Joins(`left join _tool_jira_board_issues on (
+			_tool_jira_board_issues.source_id = _tool_jira_changelogs.source_id
+			AND _tool_jira_board_issues.issue_id = _tool_jira_changelogs.issue_id
 		)`).
-		Select("jira_changelog_items.*, jira_changelogs.*").
-		Where("jira_changelog_items.source_id = ? AND jira_board_issues.board_id = ?", sourceId, boardId).
+		Select("_tool_jira_changelog_items.*, _tool_jira_changelogs.*").
+		Where("_tool_jira_changelog_items.source_id = ? AND _tool_jira_board_issues.board_id = ?", sourceId, boardId).
 		Rows()
 	if err != nil {
 		logger.Info(err.Error())

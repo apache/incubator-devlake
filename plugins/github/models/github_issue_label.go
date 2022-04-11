@@ -12,3 +12,8 @@ type GithubIssueLabel struct {
 	LabelName string `gorm:"primaryKey;type:varchar(255)"`
 	common.NoPKModel
 }
+
+func (GithubIssueLabel) TableName() string{
+	return "_tool_github_issue_labels"
+}
+

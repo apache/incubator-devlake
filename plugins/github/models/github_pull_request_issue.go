@@ -9,3 +9,8 @@ type GithubPullRequestIssue struct {
 	IssueNumber   int
 	common.NoPKModel
 }
+
+func (GithubPullRequestIssue) TableName() string{
+	return "_tool_github_pull_request_issues"
+}
+

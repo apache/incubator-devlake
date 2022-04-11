@@ -7,3 +7,8 @@ type GitlabUser struct {
 	Name  string `gorm:"type:varchar(255)"`
 	common.NoPKModel
 }
+
+func (GitlabUser) TableName() string{
+	return "_tool_gitlab_users"
+}
+

@@ -15,20 +15,20 @@ var (
 
 type Sprint struct {
 	domainlayer.DomainEntity
-	Name          string
-	Url           string
-	Status        string
-	Title         string
-	StartedDate   *time.Time
-	EndedDate     *time.Time
-	CompletedDate *time.Time
-	OriginBoardID string
+	Name            string `gorm:"type:char(255)"`
+	Url             string `gorm:"type:char(255)"`
+	Status          string `gorm:"type:char(100)"`
+	Title           string `gorm:"type:char(255)"`
+	StartedDate     *time.Time
+	EndedDate       *time.Time
+	CompletedDate   *time.Time
+	OriginalBoardID string `gorm:"type:char(255)"`
 }
 
 type SprintIssue struct {
 	common.NoPKModel
-	SprintId      string `gorm:"primaryKey"`
-	IssueId       string `gorm:"primaryKey"`
+	SprintId      string `gorm:"primaryKey;type:varchar(255)"`
+	IssueId       string `gorm:"primaryKey;type:varchar(255)"`
 	IsRemoved     bool
 	AddedDate     *time.Time
 	RemovedDate   *time.Time

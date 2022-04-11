@@ -13,3 +13,8 @@ type GithubIssueEvent struct {
 	GithubCreatedAt time.Time `gorm:"index"`
 	common.NoPKModel
 }
+
+func (GithubIssueEvent) TableName() string{
+	return "_tool_github_issue_events"
+}
+

@@ -8,3 +8,7 @@ type JiraBoardIssue struct {
 	IssueId  uint64 `gorm:"primaryKey"`
 	common.NoPKModel
 }
+
+func (JiraBoardIssue) TableName() string {
+	return "_tool_jira_board_issues"
+}

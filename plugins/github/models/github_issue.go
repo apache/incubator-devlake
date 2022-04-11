@@ -13,7 +13,7 @@ type GithubIssue struct {
 	Title           string
 	Body            string
 	Priority        string `gorm:"type:varchar(255)"`
-	Type            string
+	Type            string `gorm:"type:varchar(100)"`
 	Status          string `gorm:"type:varchar(255)"`
 	AssigneeId      int
 	AssigneeName    string `gorm:"type:varchar(255)"`
@@ -25,4 +25,8 @@ type GithubIssue struct {
 	Severity        string    `gorm:"type:varchar(255)"`
 	Component       string    `gorm:"type:varchar(255)"`
 	common.NoPKModel
+}
+
+func (GithubIssue) TableName() string {
+	return "_tool_github_issues"
 }
