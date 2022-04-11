@@ -31,6 +31,8 @@ func ConvertApiNotes(taskCtx core.SubTaskContext) error {
 	}
 	defer cursor.Close()
 	domainIdGeneratorNote := didgen.NewDomainIdGenerator(&models.GitlabMergeRequestNote{})
+	prIdGen := didgen.NewDomainIdGenerator(&models.GitlabMergeRequest{})
+	userIdGen := didgen.NewDomainIdGenerator(&models.GitlabUser{})
 
 	converter, err := helper.NewDataConverter(helper.DataConverterArgs{
 		RawDataSubTaskArgs: *rawDataSubTaskArgs,
@@ -39,8 +41,18 @@ func ConvertApiNotes(taskCtx core.SubTaskContext) error {
 
 		Convert: func(inputRow interface{}) ([]interface{}, error) {
 			gitlabNotes := inputRow.(*models.GitlabMergeRequestNote)
-			domainNote := convertToNoteModel(gitlabNotes, domainIdGeneratorNote)
-
+			domainNote := &code.Note{
+				DomainEntity: domainlayer.DomainEntity{
+					Id: domainIdGeneratorNote.Generate(gitlabNotes.GitlabId),
+				},
+				PrId:        prIdGen.Generate(gitlabNotes.MergeRequestId),
+				Type:        gitlabNotes.NoteableType,
+				Author:      userIdGen.Generate(gitlabNotes.AuthorUsername),
+				Body:        gitlabNotes.Body,
+				Resolvable:  gitlabNotes.Resolvable,
+				System:      gitlabNotes.System,
+				CreatedDate: gitlabNotes.GitlabCreatedAt,
+			}
 			return []interface{}{
 				domainNote,
 			}, nil
@@ -51,20 +63,4 @@ func ConvertApiNotes(taskCtx core.SubTaskContext) error {
 	}
 
 	return converter.Execute()
-}
-
-func convertToNoteModel(note *models.GitlabMergeRequestNote, domainIdGeneratorNote *didgen.DomainIdGenerator) *code.Note {
-	domainNote := &code.Note{
-		DomainEntity: domainlayer.DomainEntity{
-			Id: domainIdGeneratorNote.Generate(note.GitlabId),
-		},
-		PrId:        uint64(note.MergeRequestId),
-		Type:        note.NoteableType,
-		Author:      note.AuthorUsername,
-		Body:        note.Body,
-		Resolvable:  note.Resolvable,
-		System:      note.System,
-		CreatedDate: note.GitlabCreatedAt,
-	}
-	return domainNote
 }

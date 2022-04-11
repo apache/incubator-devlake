@@ -7,7 +7,7 @@ import (
 	"github.com/merico-dev/lake/models/domainlayer/code"
 	"github.com/merico-dev/lake/models/domainlayer/didgen"
 	"github.com/merico-dev/lake/plugins/core"
-	githubModels "github.com/merico-dev/lake/plugins/github/models"
+	"github.com/merico-dev/lake/plugins/github/models"
 	"github.com/merico-dev/lake/plugins/helper"
 )
 
@@ -23,9 +23,10 @@ func ConvertNotes(taskCtx core.SubTaskContext) error {
 	data := taskCtx.GetData().(*GithubTaskData)
 	repoId := data.Repo.GithubId
 
-	noteIdGen := didgen.NewDomainIdGenerator(&githubModels.GithubPullRequestComment{})
+	noteIdGen := didgen.NewDomainIdGenerator(&models.GithubPullRequestComment{})
+	userIdGen := didgen.NewDomainIdGenerator(&models.GithubUser{})
 
-	cursor, err := db.Model(&githubModels.GithubPullRequestComment{}).
+	cursor, err := db.Model(&models.GithubPullRequestComment{}).
 		Joins(`left join github_pull_requests on github_pull_requests.github_id = github_pull_request_comments.pull_request_id`).
 		Where("github_pull_requests.repo_id = ?", repoId).
 		Rows()
@@ -35,7 +36,7 @@ func ConvertNotes(taskCtx core.SubTaskContext) error {
 	defer cursor.Close()
 
 	converter, err := helper.NewDataConverter(helper.DataConverterArgs{
-		InputRowType: reflect.TypeOf(githubModels.GithubPullRequestComment{}),
+		InputRowType: reflect.TypeOf(models.GithubPullRequestComment{}),
 		Input:        cursor,
 		RawDataSubTaskArgs: helper.RawDataSubTaskArgs{
 			Ctx: taskCtx,
@@ -46,13 +47,13 @@ func ConvertNotes(taskCtx core.SubTaskContext) error {
 			Table: RAW_COMMENTS_TABLE,
 		},
 		Convert: func(inputRow interface{}) ([]interface{}, error) {
-			prComment := inputRow.(*githubModels.GithubPullRequestComment)
+			prComment := inputRow.(*models.GithubPullRequestComment)
 			domainNote := &code.Note{
 				DomainEntity: domainlayer.DomainEntity{
 					Id: noteIdGen.Generate(prComment.GithubId),
 				},
-				PrId:        uint64(prComment.PullRequestId),
-				Author:      prComment.AuthorUsername,
+				PrId:        noteIdGen.Generate(prComment.PullRequestId),
+				Author:      userIdGen.Generate(prComment.AuthorUsername),
 				Body:        prComment.Body,
 				CreatedDate: prComment.GithubCreatedAt,
 			}

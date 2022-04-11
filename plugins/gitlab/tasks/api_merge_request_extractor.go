@@ -32,6 +32,16 @@ type MergeRequestRes struct {
 	FirstCommentTime core.Iso8601Time
 }
 
+type Reviewer struct {
+	GitlabId       int `json:"id"`
+	MergeRequestId int
+	Name           string
+	Username       string
+	State          string
+	AvatarUrl      string `json:"avatar_url"`
+	WebUrl         string `json:"web_url"`
+}
+
 var ExtractApiMergeRequestsMeta = core.SubTaskMeta{
 	Name:             "extractApiMergeRequests",
 	EntryPoint:       ExtractApiMergeRequests,
@@ -60,7 +70,16 @@ func ExtractApiMergeRequests(taskCtx core.SubTaskContext) error {
 			results = append(results, gitlabMergeRequest)
 
 			for _, reviewer := range mr.Reviewers {
-				gitlabReviewer := NewReviewer(data.Options.ProjectId, mr.GitlabId, reviewer)
+				gitlabReviewer := &models.GitlabReviewer{
+					GitlabId:       reviewer.GitlabId,
+					MergeRequestId: mr.GitlabId,
+					ProjectId:      data.Options.ProjectId,
+					Username:       reviewer.Username,
+					Name:           reviewer.Name,
+					State:          reviewer.State,
+					AvatarUrl:      reviewer.AvatarUrl,
+					WebUrl:         reviewer.WebUrl,
+				}
 				results = append(results, gitlabReviewer)
 			}
 
