@@ -7,10 +7,6 @@ import (
 	"gorm.io/gorm"
 )
 
-const (
-	Owner = "Github"
-)
-
 type InitSchemas struct{}
 
 func (*InitSchemas) Up(ctx context.Context, db *gorm.DB) error {
@@ -36,10 +32,6 @@ func (*InitSchemas) Version() uint64 {
 	return 20220407201135
 }
 
-func (*InitSchemas) Owner() string {
-	return Owner
-}
-
 func (*InitSchemas) Name() string {
-	return "create init schemas"
+	return "Github init schemas"
 }
