@@ -26,7 +26,7 @@ func RegisterRouter(r *gin.Engine) {
 	r.POST("/blueprints", blueprints.Post)
 	r.DELETE("/pipelines/:pipelineId", pipelines.Delete)
 	r.DELETE("/blueprints/:blueprintId", blueprints.Delete)
-	r.PUT("/blueprints/:blueprintId", blueprints.Put)
+	r.PATCH("/blueprints/:blueprintId", blueprints.Patch)
 	r.GET("/pipelines/:pipelineId/tasks", task.Index)
 	r.GET("/ping", ping.Get)
 	r.POST("/push/:tableName", push.Post)

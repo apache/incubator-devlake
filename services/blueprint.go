@@ -2,51 +2,46 @@ package services
 
 import (
 	"encoding/json"
+	"fmt"
 
+	"github.com/go-playground/validator/v10"
 	"github.com/merico-dev/lake/errors"
 	"github.com/merico-dev/lake/logger"
 	"github.com/merico-dev/lake/models"
 	"github.com/robfig/cron/v3"
-	"gorm.io/gorm/clause"
 )
 
 type BlueprintQuery struct {
-	Enable   bool `form:"enable"`
-	Page     int  `form:"page"`
-	PageSize int  `form:"pageSize"`
+	Enable   *bool `form:"enable,omitempty"`
+	Page     int   `form:"page"`
+	PageSize int   `form:"pageSize"`
 }
 
 var blueprintLog = logger.Global.Nested("blueprint")
+var vld = validator.New()
 
-func CreateBlueprint(newBlueprint *models.InputBlueprint) (*models.Blueprint, error) {
-	blueprint := models.Blueprint{
-		Enable:     newBlueprint.Enable,
-		CronConfig: newBlueprint.CronConfig,
-		Name:       newBlueprint.Name,
-	}
-	var err error
-	// update tasks state
-	blueprint.Tasks, err = json.Marshal(newBlueprint.Tasks)
+func CreateBlueprint(blueprint *models.Blueprint) error {
+	err := validateBlueprint(blueprint)
 	if err != nil {
-		return nil, err
+		return err
 	}
-
 	err = db.Create(&blueprint).Error
 	if err != nil {
-		blueprintLog.Error("create pipline failed", err)
-		return nil, errors.InternalError
+		return err
 	}
 	err = ReloadBlueprints(cronManager)
 	if err != nil {
-		return nil, errors.InternalError
+		return errors.InternalError
 	}
-
-	return &blueprint, nil
+	return nil
 }
 
 func GetBlueprints(query *BlueprintQuery) ([]*models.Blueprint, int64, error) {
 	blueprints := make([]*models.Blueprint, 0)
-	db := db.Model(blueprints).Order("id DESC").Where("enable = ?", query.Enable)
+	db := db.Model(blueprints).Order("id DESC")
+	if query.Enable != nil {
+		db = db.Where("enable = ?", *query.Enable)
+	}
 
 	var count int64
 	err := db.Count(&count).Error
@@ -73,9 +68,15 @@ func GetBlueprint(blueprintId uint64) (*models.Blueprint, error) {
 	return blueprint, nil
 }
 
+/*
 func ModifyBlueprint(newBlueprint *models.EditBlueprint) (*models.Blueprint, error) {
+	_, err := cron.ParseStandard(newBlueprint.CronConfig)
+	if err != nil {
+		return nil, fmt.Errorf("invalid cronConfig: %w", err)
+	}
+
 	blueprint := models.Blueprint{}
-	err := db.Model(&models.Blueprint{}).
+	err = db.Model(&models.Blueprint{}).
 		Where("id = ?", newBlueprint.BlueprintId).Limit(1).Find(&blueprint).Error
 	if err != nil {
 		return nil, err
@@ -103,6 +104,50 @@ func ModifyBlueprint(newBlueprint *models.EditBlueprint) (*models.Blueprint, err
 		return nil, errors.InternalError
 	}
 	return &blueprint, nil
+}
+*/
+
+func validateBlueprint(blueprint *models.Blueprint) error {
+	// validation
+	err := vld.Struct(blueprint)
+	if err != nil {
+		return err
+	}
+	_, err = cron.ParseStandard(blueprint.CronConfig)
+	if err != nil {
+		return fmt.Errorf("invalid cronConfig: %w", err)
+	}
+	tasks := make([][]models.NewTask, 0)
+	err = json.Unmarshal(blueprint.Tasks, &tasks)
+	if err != nil {
+		return fmt.Errorf("invalid tasks: %w", err)
+	}
+	// tasks should not be empty
+	if len(tasks) == 0 || len(tasks[0]) == 0 {
+		return fmt.Errorf("empty tasks")
+	}
+	// TODO: validate each of every task object
+	return nil
+}
+
+func UpdateBlueprint(blueprint *models.Blueprint) error {
+	// validation
+	err := validateBlueprint(blueprint)
+	if err != nil {
+		return err
+	}
+	// save
+	err = db.Save(blueprint).Error
+	if err != nil {
+		return errors.InternalError
+	}
+	// reload schedule
+	err = ReloadBlueprints(cronManager)
+	if err != nil {
+		return errors.InternalError
+	}
+	// done
+	return nil
 }
 
 func DeleteBlueprint(id uint64) error {
