@@ -26,16 +26,19 @@ import {
 import { parseCronExpression } from 'cron-schedule'
 import usePipelineManager from '@/hooks/usePipelineManager'
 import useBlueprintManager from '@/hooks/useBlueprintManager'
+import useBlueprintValidation from '@/hooks/useBlueprintValidation'
 import Nav from '@/components/Nav'
 import Sidebar from '@/components/Sidebar'
 import AppCrumbs from '@/components/Breadcrumbs'
 import Content from '@/components/Content'
-import ContentLoader from '@/components/loaders/ContentLoader'
+// import ContentLoader from '@/components/loaders/ContentLoader'
+import AddBlueprintDialog from '@/components/blueprints/AddBlueprintDialog'
 import { ReactComponent as HelpIcon } from '@/images/help.svg'
 import ManageBlueprintsIcon from '@/images/blueprints.png'
 import EventIcon from '@/images/calendar-3.png'
 import EventOffIcon from '@/images/calendar-4.png'
 import { NullBlueprint } from '@/data/NullBlueprint'
+import InputValidationError from '@/components/validation/InputValidationError'
 
 const DeletePopover = (props) => {
   const {
@@ -99,6 +102,13 @@ const Blueprints = (props) => {
     deleteComplete
   } = useBlueprintManager()
 
+  const {
+    pipelines,
+    fetchAllPipelines,
+    allowedProviders,
+    detectPipelineProviders
+  } = usePipelineManager()
+
   // BLUEPRINTS MOCK DATA
   // const [blueprints, setBlueprints] = useState([
   //   { id: 5, name: 'GITHUB DAILY', cronConfig: '0 0 * * *', nextRunAt: null, enable: true, interval: 'Daily', tasks: [[]], createdAt: Date.now(), updatedAt: null },
@@ -117,7 +127,22 @@ const Blueprints = (props) => {
   // const [customCron, setCustomCron] = useState('0 0 * * *')
 
   const [blueprintDialogIsOpen, setBlueprintDialogIsOpen] = useState(false)
-  const [blueprintErrors, setBlueprintErrors] = useState([])
+  const [pipelineTemplates, setPipelineTemplates] = useState([])
+  const [selectedPipelineTemplate, setSelectedPipelineTemplate] = useState()
+  // const [blueprintErrors, setBlueprintErrors] = useState([])
+
+  const {
+    validate,
+    errors: blueprintValidationErrors,
+    setErrors: setPipelineErrors,
+    isValid: isValidBlueprint,
+  } = useBlueprintValidation({
+    name,
+    cronConfig,
+    customCronConfig,
+    enable,
+    tasks
+  })
 
   const handleBlueprintActivation = (blueprint) => {
     if (blueprint.enable) {
@@ -142,6 +167,9 @@ const Blueprints = (props) => {
     setBlueprintName('DAILY BLUEPRINT')
     setCronConfig('0 0 * * *')
     setCustomCronConfig('0 0 * * *')
+    setEnableBlueprint(true)
+    setBlueprintTasks([])
+    setSelectedPipelineTemplate(null)
     setBlueprintDialogIsOpen(true)
   }
 
@@ -154,11 +182,11 @@ const Blueprints = (props) => {
   }
 
   const fieldHasError = (fieldId) => {
-    return blueprintErrors.some(e => e.includes(fieldId))
+    return blueprintValidationErrors.some(e => e.includes(fieldId))
   }
 
   const getFieldError = (fieldId) => {
-    return blueprintErrors.find(e => e.includes(fieldId))
+    return blueprintValidationErrors.find(e => e.includes(fieldId))
   }
 
   useEffect(() => {
@@ -174,6 +202,8 @@ const Blueprints = (props) => {
       setBlueprintName(draftBlueprint.name)
       setCronConfig(!isStandardCronPreset(draftBlueprint.cronConfig) ? 'custom' : draftBlueprint.cronConfig)
       setCustomCronConfig(draftBlueprint.cronConfig)
+      setBlueprintTasks(draftBlueprint.tasks)
+      setEnableBlueprint(draftBlueprint.enable)
       setBlueprintDialogIsOpen(true)
     }
   }, [draftBlueprint, setBlueprintName, setCronConfig])
@@ -195,6 +225,31 @@ const Blueprints = (props) => {
     fetchAllBlueprints()
   }, [fetchAllBlueprints])
 
+  useEffect(() => {
+    // console.log('>> BLUEPRINT VALIDATION....')
+    validate()
+  }, [name, cronConfig, customCronConfig, tasks, enable, validate])
+
+  useEffect(() => {
+    if (blueprintDialogIsOpen) {
+      fetchAllPipelines('TASK_COMPLETED')
+    }
+  }, [blueprintDialogIsOpen, fetchAllPipelines])
+
+  useEffect(() => {
+    setPipelineTemplates(pipelines.slice(0, 100).map(p => ({ ...p, id: p.id, title: p.name, value: p.id })))
+  }, [pipelines])
+
+  useEffect(() => {
+    if (selectedPipelineTemplate) {
+      setBlueprintTasks(selectedPipelineTemplate.tasks)
+    }
+  }, [selectedPipelineTemplate, setBlueprintTasks])
+
+  useEffect(() => {
+    setSelectedPipelineTemplate(pipelineTemplates.find(pT => pT.tasks.flat().toString() === tasks.flat().toString()))
+  }, [pipelineTemplates])
+
   return (
     <>
       <div className='container'>
@@ -206,7 +261,7 @@ const Blueprints = (props) => {
               items={[
                 { href: '/', icon: false, text: 'Dashboard' },
                 { href: '/pipelines', icon: false, text: 'Pipelines' },
-                { href: '/blueprints', icon: false, text: 'Blueprints', current: true },
+                { href: '/blueprints', icon: false, text: 'Pipeline Blueprints', current: true },
               ]}
             />
             <div className='headlineContainer'>
@@ -233,8 +288,8 @@ const Blueprints = (props) => {
                           <div style={{ marginBottom: '10px', fontWeight: 700, fontSize: '14px', fontFamily: '"Montserrat", sans-serif' }}>
                             <Icon icon='help' size={16} /> Schedule Recurring Pipelines
                           </div>
-                          <p>Need Help? &mdash; Manage, Stop running and Restart failed pipelines.
-                            Access <strong>Task Progress</strong> and Activity for all your pipelines.
+                          <p>Need Help? &mdash; Automate pipelines by creating a Blueprint.
+                            Schedule data collection with Crontab and save hours of time.
                           </p>
                         </div>
                       </>
@@ -568,7 +623,7 @@ const Blueprints = (props) => {
                   title='No Defined Blueprints'
                       // eslint-disable-next-line max-len
                   description={(
-                    <div>
+                    <>
                       Please create a new blueprint to get started. Need Help? Visit the DevLake Wiki on <strong>GitHub</strong>.{' '}
                       <div style={{
                         display: 'flex',
@@ -580,14 +635,12 @@ const Blueprints = (props) => {
                         <Button
                           intent={Intent.PRIMARY} text='Create Blueprint' small
                           style={{ marginRight: '10px' }}
+                          onClick={createNewBlueprint}
                         />
-                        {/* <Button
-                          intent={Intent.NONE} text='View README' small
-                        /> */}
                       </div>
-                    </div>
+                    </>
                   )}
-                  action={() => {}}
+                  // action={createNewBlueprint}
                 />
               </div>
             )}
@@ -595,7 +648,34 @@ const Blueprints = (props) => {
         </Content>
       </div>
 
-      <Dialog
+      <AddBlueprintDialog
+        isOpen={blueprintDialogIsOpen}
+        setIsOpen={setBlueprintDialogIsOpen}
+        name={name}
+        cronConfig={cronConfig}
+        customCronConfig={customCronConfig}
+        enable={enable}
+        tasks={tasks}
+        draftBlueprint={draftBlueprint}
+        setDraftBlueprint={setDraftBlueprint}
+        setBlueprintName={setBlueprintName}
+        setCronConfig={setCronConfig}
+        setCustomCronConfig={setCustomCronConfig}
+        setEnableBlueprint={setEnableBlueprint}
+        setBlueprintTasks={setBlueprintTasks}
+        createCron={createCron}
+        saveBlueprint={saveBlueprint}
+        isSaving={isSaving}
+        isValidBlueprint={isValidBlueprint}
+        fieldHasError={fieldHasError}
+        getFieldError={getFieldError}
+        pipelines={pipelineTemplates}
+        selectedPipelineTemplate={selectedPipelineTemplate}
+        setSelectedPipelineTemplate={setSelectedPipelineTemplate}
+        detectedProviders={detectPipelineProviders(tasks, allowedProviders)}
+      />
+
+      {/* <Dialog
         className='dialog-manage-blueprint'
         icon={draftBlueprint ? 'edit' : 'add'}
         title={draftBlueprint ? `Edit ${draftBlueprint.name}` : 'Create Pipeline Blueprint'}
@@ -607,7 +687,7 @@ const Blueprints = (props) => {
         <div className={Classes.DIALOG_BODY}>
 
           <div className='pipeline-form-container'>
-            <div className='formContainer'>
+            <div className='formContainer' style={{ marginBottom: 0 }}>
               <FormGroup
                 label=''
                 inline={true}
@@ -629,6 +709,11 @@ const Blueprints = (props) => {
                   className={`blueprint-name-input ${fieldHasError('Blueprint Name') ? 'invalid-field' : ''}`}
                   inline={true}
                   style={{ marginBottom: '10px' }}
+                  rightElement={(
+                    <InputValidationError
+                      error={getFieldError('Blueprint Name')}
+                    />
+                  )}
                 />
                 <Label style={{ display: 'inline', marginRight: 0, marginBottom: 0 }}>
                   Frequency
@@ -649,7 +734,7 @@ const Blueprints = (props) => {
                   <Radio label='Custom' value='custom' style={{ fontWeight: cronConfig === 'custom' ? 'bold' : 'normal' }} />
                 </RadioGroup>
 
-                {/* {cronConfig === 'custom' && ( */}
+                {/* {cronConfig === 'custom' && ( *\\/}
                 <>
                   <div className='formContainer'>
                     <FormGroup
@@ -659,6 +744,7 @@ const Blueprints = (props) => {
                       labelFor='connection-name'
                       className='formGroup-inline'
                       contentClassName='formGroupContent'
+                      style={{ marginBottom: '5px'}}
                     >
                       <Label style={{ display: 'inline', marginRight: 0 }}>
                         Custom Shedule
@@ -681,8 +767,29 @@ const Blueprints = (props) => {
                   </div>
 
                 </>
-                {/* )} */}
-
+                {/* )} *\\/}
+              </FormGroup>
+            </div>
+            <div className='formContainer'>
+              <FormGroup
+                label=''
+                inline={true}
+                labelFor='blueprint-enable'
+                className='formGroup-inline'
+                contentClassName='formGroupContent'
+              >
+                <Label style={{ display: 'inline', marginRight: 0 }}>
+                  Enable
+                  <span className='requiredStar'>*</span>
+                </Label>
+                <Switch
+                  id='blueprint-enable'
+                  name='blueprint-enable'
+                  checked={enable}
+                  label={enable ? 'Active' : 'Inactive'}
+                  onChange={() => setEnableBlueprint(e => !e)}
+                  style={{ marginBottom: '0' }}
+                />
               </FormGroup>
             </div>
             <div>
@@ -704,7 +811,7 @@ const Blueprints = (props) => {
           <div className={Classes.DIALOG_FOOTER_ACTIONS}>
             <Button disabled={isSaving} onClick={() => setBlueprintDialogIsOpen(false)}>Cancel</Button>
             <Button
-              disabled={isSaving}
+              disabled={isSaving || !isValidBlueprint}
               icon='cloud-upload'
               intent={Intent.PRIMARY}
               onClick={() => saveBlueprint(draftBlueprint ? draftBlueprint.id : null)}
@@ -713,7 +820,7 @@ const Blueprints = (props) => {
             </Button>
           </div>
         </div>
-      </Dialog>
+      </Dialog> */}
 
     </>
   )

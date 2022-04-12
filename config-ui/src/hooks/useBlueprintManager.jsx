@@ -18,7 +18,7 @@ function useBlueprintManager (blueprintName = `BLUEPRINT WEEKLY ${Date.now()}`, 
   const [name, setName] = useState('DAILY BLUEPRINT')
   const [cronConfig, setCronConfig] = useState('0 0 * * *')
   const [customCronConfig, setCustomCronConfig] = useState('0 0 * * *')
-  const [tasks, setTasks] = useState([])
+  const [tasks, setTasks] = useState([[]])
   const [enable, setEnable] = useState(false)
 
   const [cronPresets, setCronPresets] = useState([
