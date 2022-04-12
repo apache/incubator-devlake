@@ -1,8 +1,8 @@
 import React, { Fragment, useEffect, useState, useCallback } from 'react'
-import { useHistory } from 'react-router-dom'
-import dayjs from '@/utils/time'
-import cron from 'cron-validate'
-import { parseCronExpression } from 'cron-schedule'
+// import { useHistory } from 'react-router-dom'
+// import dayjs from '@/utils/time'
+// import cron from 'cron-validate'
+// import { parseCronExpression } from 'cron-schedule'
 import {
   Button, Icon, Intent,
   Popover,
@@ -22,9 +22,10 @@ import ManageBlueprintsIcon from '@/images/blueprints.png'
 import BlueprintsGrid from '@/components/blueprints/BlueprintsGrid'
 
 const Blueprints = (props) => {
-  const history = useHistory()
+  // const history = useHistory()
 
   const {
+    // eslint-disable-next-line no-unused-vars
     blueprint,
     blueprints,
     name,
@@ -48,6 +49,7 @@ const Blueprints = (props) => {
     getCronPreset,
     activateBlueprint,
     deactivateBlueprint,
+    // eslint-disable-next-line no-unused-vars
     fetchBlueprint,
     fetchAllBlueprints,
     saveBlueprint,
@@ -60,7 +62,9 @@ const Blueprints = (props) => {
     pipelines,
     isFetchingAll: isFetchingAllPipelines,
     fetchAllPipelines,
+    // eslint-disable-next-line no-unused-vars
     allowedProviders,
+    // eslint-disable-next-line no-unused-vars
     detectPipelineProviders
   } = usePipelineManager()
 
