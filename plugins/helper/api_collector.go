@@ -145,7 +145,6 @@ func (collector *ApiCollector) Execute() error {
 				}
 			}()
 		}
-
 	} else {
 		// or we just did it once
 		err = collector.exec(nil)
@@ -231,17 +230,19 @@ func (collector *ApiCollector) generateUrl(pager *Pager, input interface{}) (str
 func (collector *ApiCollector) stepFetch(ctx context.Context, cancel func(), reqData RequestData) error {
 	// channel `c` is used to make sure fetchAsync is called serially
 	c := make(chan struct{})
-	defer close(c)
 	handler := func(res *http.Response, err error) error {
 		if err != nil {
+			close(c)
 			return err
 		}
 		count, err := collector.saveRawData(res, reqData.Input)
 		if err != nil {
+			close(c)
 			cancel()
 			return err
 		}
 		if count < collector.args.PageSize {
+			close(c)
 			return nil
 		}
 		reqData.Pager.Skip += collector.args.PageSize
@@ -254,6 +255,7 @@ func (collector *ApiCollector) stepFetch(ctx context.Context, cancel func(), req
 	for range c {
 		err := collector.fetchAsync(&reqData, handler)
 		if err != nil {
+			close(c)
 			cancel()
 			return err
 		}
@@ -288,7 +290,6 @@ func (collector *ApiCollector) fetchAsync(reqData *RequestData, handler ApiAsync
 			return err
 		}
 	}
-
 	return collector.args.ApiClient.GetAsync(apiUrl, apiQuery, apiHeader, handler)
 }
 
