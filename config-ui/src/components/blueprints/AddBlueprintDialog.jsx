@@ -23,6 +23,7 @@ import { parseCronExpression } from 'cron-schedule'
 import InputValidationError from '@/components/validation/InputValidationError'
 import ContentLoader from '@/components/loaders/ContentLoader'
 import { ProviderLabels, ProviderIcons } from '@/data/Providers'
+import PipelineTasks from '@/components/blueprints/PipelineTasks'
 
 const AddBlueprintDialog = (props) => {
   const {
@@ -55,7 +56,6 @@ const AddBlueprintDialog = (props) => {
   } = props
 
   useEffect(() => {
-
   }, [enable])
 
   return (
@@ -225,34 +225,7 @@ const AddBlueprintDialog = (props) => {
                 </FormGroup>
               </div>
               <div>
-                {detectedProviders.map((provider, pIdx) => (
-                  <Popover key={`provider-popover-key-${pIdx}`} usePortal={true}>
-                    <Tag
-                      key={`provider-icon-key-${pIdx}`} intent={Intent.NONE} round='true' style={{
-                        backgroundColor: '#fff',
-                        border: '1px solid #aaa',
-                        margin: '0 5px 5px 0',
-                        boxShadow: '0px 0px 2px rgba(0, 0, 0, 0.45)',
-                        color: Colors.DARK_GRAY1
-                      }}
-                    >
-                      <span className='detected-provider-icon' style={{ margin: '2px 3px 0 0px', float: 'left' }}>
-                        {ProviderIcons[provider] ? ProviderIcons[provider](20, 20) : <></>}
-                      </span>
-                      <span style={{ display: 'flex', marginTop: '3px', fontFamily: 'Montserrat, sans-serif', fontWeight: 800 }}>
-                        {ProviderLabels[provider.toUpperCase()]}
-                      </span>
-                    </Tag>
-                    <div style={{ padding: '10px', maxWidth: '340px', overflow: 'hidden', overflowX: 'auto' }}>
-                      <div style={{ marginBottom: '10px', fontWeight: 700, fontSize: '14px', fontFamily: '"Montserrat", sans-serif' }}>
-                        <Icon icon='layers' size={16} /> {ProviderLabels[provider.toUpperCase()]}
-                      </div>
-                      <code>
-                        {JSON.stringify(tasks.flat().find(t => t.Plugin === provider || t.plugin === provider))}
-                      </code>
-                    </div>
-                  </Popover>
-                ))}
+                <PipelineTasks tasks={detectedProviders} />
                 {!tasksLocked && tasks.length > 0 && (<Button onClick={() => setBlueprintTasks([]) | setSelectedPipelineTemplate(null)} icon='eraser' round minimal text='Clear' />)}
               </div>
               <div className='formContainer'>

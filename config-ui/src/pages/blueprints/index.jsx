@@ -55,11 +55,13 @@ const Blueprints = (props) => {
     customCronConfig,
     cronPresets,
     tasks,
+    detectedProviderTasks,
     enable,
     setName: setBlueprintName,
     setCronConfig,
     setCustomCronConfig,
     setTasks: setBlueprintTasks,
+    setDetectedProviderTasks,
     setEnable: setEnableBlueprint,
     isFetching: isFetchingBlueprints,
     isSaving,
@@ -178,11 +180,13 @@ const Blueprints = (props) => {
 
   useEffect(() => {
     if (draftBlueprint && draftBlueprint.id) {
+      console.log('>>> DRAFT = ', draftBlueprint)
       setBlueprintName(draftBlueprint.name)
       setCronConfig(!isStandardCronPreset(draftBlueprint.cronConfig) ? 'custom' : draftBlueprint.cronConfig)
       setCustomCronConfig(draftBlueprint.cronConfig)
       setBlueprintTasks(draftBlueprint.tasks)
       setEnableBlueprint(draftBlueprint.enable)
+      setDetectedProviderTasks(draftBlueprint.tasks.flat())
       setBlueprintDialogIsOpen(true)
     }
   }, [
@@ -192,7 +196,8 @@ const Blueprints = (props) => {
     isStandardCronPreset,
     setBlueprintTasks,
     setEnableBlueprint,
-    setCustomCronConfig
+    setCustomCronConfig,
+    setDetectedProviderTasks
   ])
 
   useEffect(() => {
@@ -228,10 +233,11 @@ const Blueprints = (props) => {
   }, [pipelines])
 
   useEffect(() => {
-    if (selectedPipelineTemplate) {
+    if (!draftBlueprint?.id && selectedPipelineTemplate) {
+      console.log('>>>> SELECTED TEMPLATE?', selectedPipelineTemplate.tasks)
       setBlueprintTasks(selectedPipelineTemplate.tasks)
     }
-  }, [selectedPipelineTemplate, setBlueprintTasks])
+  }, [selectedPipelineTemplate, setBlueprintTasks, draftBlueprint?.id])
 
   useEffect(() => {
     setSelectedPipelineTemplate(pipelineTemplates.find(pT => pT.tasks.flat().toString() === tasks.flat().toString()))
@@ -261,11 +267,22 @@ const Blueprints = (props) => {
           ))
           break
         default:
-
-        //   break
+          // NO FILTERS
+          break
       }
     }
   }, [activeFilterStatus, blueprints, getCronPreset])
+
+  useEffect(() => {
+    if (Array.isArray(tasks)) {
+      setDetectedProviderTasks([...tasks.flat()])
+    }
+    return () => setDetectedProviderTasks([])
+  }, [tasks, setDetectedProviderTasks])
+
+  useEffect(() => {
+    console.log('>>>> DETECTED PROVIDERS TASKS....', detectedProviderTasks)
+  }, [detectedProviderTasks])
 
   return (
     <>
@@ -397,7 +414,7 @@ const Blueprints = (props) => {
         pipelines={pipelineTemplates}
         selectedPipelineTemplate={selectedPipelineTemplate}
         setSelectedPipelineTemplate={setSelectedPipelineTemplate}
-        detectedProviders={detectPipelineProviders(tasks, allowedProviders)}
+        detectedProviders={detectedProviderTasks}
       />
 
     </>

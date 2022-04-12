@@ -179,9 +179,9 @@ function usePipelineManager (pipelineName = `COLLECTION ${Date.now()}`, initialT
     return outputArray ? stagesArray : stages
   }, [])
 
-  const detectPipelineProviders = (tasks, providers) => {
-    return [...new Set(tasks?.flat().filter(aT => providers.includes(aT.Plugin || aT.plugin)).map(p => p.Plugin || p.plugin))]
-  }
+  const detectPipelineProviders = useCallback((tasks, providers = allowedProviders) => {
+    return [...tasks?.flat().filter(aT => providers.includes(aT.Plugin || aT.plugin)).map(p => p.Plugin || p.plugin)]
+  }, [allowedProviders])
 
   useEffect(() => {
     console.log('>> PIPELINE MANAGER - RECEIVED RUN/TASK SETTINGS', settings)

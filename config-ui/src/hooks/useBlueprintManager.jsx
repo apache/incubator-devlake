@@ -20,6 +20,7 @@ function useBlueprintManager (blueprintName = `BLUEPRINT WEEKLY ${Date.now()}`, 
   const [customCronConfig, setCustomCronConfig] = useState('0 0 * * *')
   const [tasks, setTasks] = useState([])
   const [enable, setEnable] = useState(false)
+  const [detectedProviderTasks, setDetectedProviderTasks] = useState([])
 
   const [cronPresets, setCronPresets] = useState([
     // eslint-disable-next-line max-len
@@ -192,11 +193,11 @@ function useBlueprintManager (blueprintName = `BLUEPRINT WEEKLY ${Date.now()}`, 
     return cronPresets.find(p => p.name === presetName)
   }, [cronPresets])
 
-  const detectCronInterval = (cronConfig) => {
+  const detectCronInterval = useCallback((cronConfig) => {
     return cronPresets.find(p => p.cronConfig === cronConfig)
       ? cronPresets.find(p => p.cronConfig === cronConfig).label
       : 'Custom'
-  }
+  }, [cronPresets])
 
   const activateBlueprint = useCallback((blueprint) => {
     console.log('>> ACTIVATING BLUEPRINT....')
@@ -271,6 +272,10 @@ function useBlueprintManager (blueprintName = `BLUEPRINT WEEKLY ${Date.now()}`, 
     }
   }, [])
 
+  // useEffect(() => {
+
+  // }, [detectedProviderTasks])
+
   return {
     blueprints,
     blueprintCount,
@@ -279,6 +284,7 @@ function useBlueprintManager (blueprintName = `BLUEPRINT WEEKLY ${Date.now()}`, 
     customCronConfig,
     cronPresets,
     tasks,
+    detectedProviderTasks,
     enable,
     saveBlueprint,
     deleteBlueprint,
@@ -297,6 +303,7 @@ function useBlueprintManager (blueprintName = `BLUEPRINT WEEKLY ${Date.now()}`, 
     setCustomCronConfig,
     setTasks,
     setEnable,
+    setDetectedProviderTasks,
     isFetching,
     isSaving,
     isDeleting,

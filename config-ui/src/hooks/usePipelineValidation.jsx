@@ -141,6 +141,7 @@ function usePipelineValidation ({
       console.log('>> VALIDATING ADVANCED PIPELINE RUN ', tasksAdvanced, pipelineName)
 
       if (Array.isArray(tasksAdvanced)) {
+        // eslint-disable-next-line max-len
         setDetectedProviders([...new Set(tasksAdvanced?.flat().filter(aT => allowedProviders.includes(aT.Plugin || aT.plugin)).map(p => p.Plugin || p.plugin))])
       }
 

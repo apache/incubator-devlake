@@ -44,7 +44,7 @@ function useBlueprintValidation ({
       errs.push('Blueprint Cron: Invalid Custom Crontab Expression, unable to parse.')
     }
 
-    if (enable && tasks.length === 0) {
+    if (enable && tasks?.length === 0) {
       errs.push('Blueprint Tasks: Invalid/Empty Configuration')
     }
 
