@@ -2,6 +2,7 @@ package tasks
 
 import (
 	"encoding/json"
+	"fmt"
 
 	"github.com/merico-dev/lake/plugins/core"
 	"github.com/merico-dev/lake/plugins/github/models"
@@ -52,6 +53,9 @@ func ExtractApiRepositories(taskCtx core.SubTaskContext) error {
 			err := json.Unmarshal(row.Data, body)
 			if err != nil {
 				return nil, err
+			}
+			if body.GithubId == 0 {
+				return nil, fmt.Errorf("repo %s/%s not found", data.Options.Owner, data.Options.Repo)
 			}
 			results := make([]interface{}, 0, 1)
 			githubRepository := &models.GithubRepo{
