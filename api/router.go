@@ -2,8 +2,10 @@ package api
 
 import (
 	"fmt"
-	"github.com/merico-dev/lake/api/blueprints"
 	"net/http"
+
+	"github.com/merico-dev/lake/api/blueprints"
+	"github.com/merico-dev/lake/api/domainlayer"
 
 	"github.com/gin-gonic/gin"
 	"github.com/merico-dev/lake/api/ping"
@@ -28,6 +30,7 @@ func RegisterRouter(r *gin.Engine) {
 	r.GET("/pipelines/:pipelineId/tasks", task.Index)
 	r.GET("/ping", ping.Get)
 	r.POST("/push/:tableName", push.Post)
+	r.GET("/domainlayer/repos", domainlayer.ReposIndex)
 
 	// mount all api resources for all plugins
 	pluginsApiResources, err := services.GetPluginsApiResources()
