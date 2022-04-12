@@ -5,6 +5,7 @@ import {
   ButtonGroup,
   Button, Icon, Intent,
   Card, Elevation,
+  PopoverInteractionKind,
   Popover,
   Tooltip,
   Position,
@@ -220,7 +221,13 @@ const BlueprintsGrid = (props) => {
                     </div>
                     <div style={{ display: 'flex', alignItems: 'center', justifySelf: 'flex-end' }}>
                       <Button small minimal style={{ marginLeft: 'auto', marginRight: '5px' }} onClick={() => configureBlueprint(b)}>
-                        <Tooltip content='Blueprint Settings'>
+                        <Tooltip
+                          content='Blueprint Settings'
+                          interactionKind={PopoverInteractionKind.HOVER}
+                          openOnTargetFocus={false}
+                          enforceFocus={false}
+                          autoFocus={false}
+                        >
                           <Icon icon='cog' size={16} color={Colors.GRAY3} />
                         </Tooltip>
                       </Button>
