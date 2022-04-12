@@ -25,6 +25,7 @@ func ConvertNotes(taskCtx core.SubTaskContext) error {
 
 	noteIdGen := didgen.NewDomainIdGenerator(&models.GithubPullRequestComment{})
 	userIdGen := didgen.NewDomainIdGenerator(&models.GithubUser{})
+	prIdGen := didgen.NewDomainIdGenerator(&models.GithubPullRequest{})
 
 	cursor, err := db.Model(&models.GithubPullRequestComment{}).
 		Joins(`left join _tool_github_pull_requests on _tool_github_pull_requests.github_id = _tool_github_pull_request_comments.pull_request_id`).
@@ -52,7 +53,7 @@ func ConvertNotes(taskCtx core.SubTaskContext) error {
 				DomainEntity: domainlayer.DomainEntity{
 					Id: noteIdGen.Generate(prComment.GithubId),
 				},
-				PrId:        noteIdGen.Generate(prComment.PullRequestId),
+				PrId:        prIdGen.Generate(prComment.PullRequestId),
 				Author:      userIdGen.Generate(prComment.AuthorUserId),
 				Body:        prComment.Body,
 				CreatedDate: prComment.GithubCreatedAt,
