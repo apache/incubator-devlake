@@ -1171,7 +1171,7 @@ const CreatePipeline = (props) => {
                     {!saveBlueprintComplete && (
                       <Button
                         disabled={!enableAutomation}
-                        intent={enableAutomation ? Intent.PRIMARY : Intent.NONE}
+                        intent={enableAutomation ? Intent.WARNING : Intent.NONE}
                         small text='Add Blueprint'
                         style={{ marginLeft: '25px' }}
                         onClick={() => setBlueprintDialogIsOpen(opened => !opened)}
@@ -1181,7 +1181,7 @@ const CreatePipeline = (props) => {
                       <ButtonGroup>
                         <Button
                           disabled={!enableAutomation}
-                          intent={enableAutomation ? Intent.PRIMARY : Intent.NONE}
+                          intent={enableAutomation ? Intent.WARNING : Intent.NONE}
                           small text={saveBlueprintComplete.name}
                           style={{ marginLeft: '25px' }}
                           onClick={() => setBlueprintDialogIsOpen(opened => !opened)}
