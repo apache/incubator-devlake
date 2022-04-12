@@ -158,7 +158,7 @@ const AddBlueprintDialog = (props) => {
 
               </FormGroup>
             </div>
-            <div className='formContainer' style={{ marginBottom: 0 }}>
+            <div className='formContainer'>
               <FormGroup
                 disabled={isSaving}
                 label={<strong>Pipeline Tasks<span className='requiredStar'>*</span></strong>}
@@ -168,8 +168,9 @@ const AddBlueprintDialog = (props) => {
                 className=''
                 contentClassName=''
                 fill
+                style={{ marginBottom: '5px' }}
               >
-                <ButtonGroup>
+                {tasks.length === 0 && (<ButtonGroup>
                   <Select
                     disabled={isSaving}
                     className='selector-blueprint-tasks'
@@ -215,7 +216,7 @@ const AddBlueprintDialog = (props) => {
                     disabled={isSaving}
                     onClick={() => setSelectedPipelineTemplate(null) | setBlueprintTasks([])}
                   />
-                </ButtonGroup>
+                </ButtonGroup>)}
               </FormGroup>
             </div>
             <div>
@@ -247,6 +248,7 @@ const AddBlueprintDialog = (props) => {
                   </div>
                 </Popover>
               ))}
+              {tasks.length > 0 && (<Button onClick={() => setBlueprintTasks([]) | setSelectedPipelineTemplate(null)} icon='eraser' round minimal text='Clear' />)}
             </div>
             <div className='formContainer'>
               <FormGroup
@@ -255,6 +257,7 @@ const AddBlueprintDialog = (props) => {
                 labelFor='blueprint-enable'
                 className='formGroup-inline'
                 contentClassName='formGroupContent'
+                style={{ marginBottom: '5px' }}
               >
                 <Label style={{ display: 'inline', marginRight: 0, fontWeight: 'bold' }}>
                   Enable Blueprint?
@@ -266,7 +269,7 @@ const AddBlueprintDialog = (props) => {
                   checked={enable}
                   label={enable ? 'Active' : 'Inactive'}
                   onChange={() => setEnableBlueprint(e => !e)}
-                  style={{ marginBottom: 0, margintTop: 0 }}
+                  style={{ marginBottom: 0, marginTop: 0 }}
                 />
               </FormGroup>
             </div>
