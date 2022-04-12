@@ -23,8 +23,8 @@ func ConvertPullRequestComments(taskCtx core.SubTaskContext) error {
 	repoId := data.Repo.GithubId
 
 	cursor, err := db.Model(&githubModels.GithubPullRequestComment{}).
-		Joins("left join github_pull_requests "+
-			"on github_pull_requests.github_id = github_pull_request_comments.pull_request_id").
+		Joins("left join _tool_github_pull_requests "+
+			"on _tool_github_pull_requests.github_id = _tool_github_pull_request_comments.pull_request_id").
 		Where("repo_id = ?", repoId).Rows()
 	if err != nil {
 		return err

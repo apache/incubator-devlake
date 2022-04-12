@@ -5,6 +5,6 @@ import (
 )
 
 type Job struct {
-	Name string
+	Name string `gorm:"type:char(255)"`
 	domainlayer.DomainEntity
 }

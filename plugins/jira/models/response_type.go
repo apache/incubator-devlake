@@ -23,3 +23,12 @@ type ApiMyselfResponse struct {
 	AccountId   string
 	DisplayName string
 }
+
+func (JiraServerInfo) TableName() string{
+	return "_tool_jira_server_infos"
+}
+
+func (ApiMyselfResponse) TableName() string{
+	return "_tool_api_myself_responses"
+}
+

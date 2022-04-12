@@ -16,3 +16,7 @@ type GitlabMergeRequestComment struct {
 	Resolvable      bool `gorm:"comment:Is or is not review comment"`
 	common.NoPKModel
 }
+
+func (GitlabMergeRequestComment) TableName() string {
+	return "_tool_gitlab_merge_request_comments"
+}

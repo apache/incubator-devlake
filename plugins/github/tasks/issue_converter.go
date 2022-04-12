@@ -54,7 +54,7 @@ func ConvertIssues(taskCtx core.SubTaskContext) error {
 				DomainEntity:    domainlayer.DomainEntity{Id: issueIdGen.Generate(issue.GithubId)},
 				Key:             strconv.Itoa(issue.Number),
 				Title:           issue.Title,
-				Summary:         issue.Body,
+				Description:     issue.Body,
 				Priority:        issue.Priority,
 				Type:            issue.Type,
 				AssigneeId:      userIdGen.Generate(issue.AssigneeId),

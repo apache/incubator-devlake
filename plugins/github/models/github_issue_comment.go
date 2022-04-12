@@ -15,3 +15,8 @@ type GithubIssueComment struct {
 	GithubUpdatedAt time.Time `gorm:"index"`
 	common.NoPKModel
 }
+
+func (GithubIssueComment) TableName() string{
+	return "_tool_github_issue_comments"
+}
+

@@ -24,8 +24,8 @@ func ConvertApiNotes(taskCtx core.SubTaskContext) error {
 	db := taskCtx.GetDb()
 
 	cursor, err := db.Model(&models.GitlabMergeRequestNote{}).
-		Joins("left join gitlab_merge_requests on gitlab_merge_requests.gitlab_id = gitlab_merge_request_notes.merge_request_id").
-		Where("gitlab_merge_requests.project_id = ?", data.Options.ProjectId).Rows()
+		Joins("left join _tool_gitlab_merge_requests on _tool_gitlab_merge_requests.gitlab_id = _tool_gitlab_merge_request_notes.merge_request_id").
+		Where("_tool_gitlab_merge_requests.project_id = ?", data.Options.ProjectId).Rows()
 	if err != nil {
 		return err
 	}

@@ -49,7 +49,7 @@ func ConvertPullRequests(taskCtx core.SubTaskContext) error {
 				DomainEntity: domainlayer.DomainEntity{
 					Id: prIdGen.Generate(pr.GithubId),
 				},
-				RepoId:         repoIdGen.Generate(pr.RepoId),
+				BaseRepoId:     repoIdGen.Generate(pr.RepoId),
 				Status:         pr.State,
 				Title:          pr.Title,
 				Url:            pr.Url,
@@ -58,7 +58,7 @@ func ConvertPullRequests(taskCtx core.SubTaskContext) error {
 				Description:    pr.Body,
 				CreatedDate:    pr.GithubCreatedAt,
 				MergedDate:     pr.MergedAt,
-				ClosedAt:       pr.ClosedAt,
+				ClosedDate:     pr.ClosedAt,
 				Key:            pr.Number,
 				Type:           pr.Type,
 				Component:      pr.Component,

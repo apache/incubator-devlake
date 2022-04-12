@@ -1,28 +1,27 @@
 package main
 
 import (
+	"github.com/merico-dev/lake/migration"
 	"github.com/merico-dev/lake/plugins/core"
-	"github.com/merico-dev/lake/plugins/feishu/models"
+	"github.com/merico-dev/lake/plugins/feishu/models/migrationscripts"
 	"github.com/merico-dev/lake/plugins/feishu/tasks"
 	"github.com/merico-dev/lake/runner"
 	"github.com/mitchellh/mapstructure"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
-	"gorm.io/gorm" // A pseudo type for Plugin Interface implementation
+	"gorm.io/gorm"
 )
 
 var _ core.PluginMeta = (*Feishu)(nil)
 var _ core.PluginInit = (*Feishu)(nil)
 var _ core.PluginTask = (*Feishu)(nil)
 var _ core.PluginApi = (*Feishu)(nil)
+var _ core.Migratable = (*Feishu)(nil)
 
 type Feishu struct{}
 
 func (plugin Feishu) Init(config *viper.Viper, logger core.Logger, db *gorm.DB) error {
-	// feishu: init
-	return db.AutoMigrate(
-		&models.FeishuMeetingTopUserItem{},
-	)
+	return nil
 }
 
 func (plugin Feishu) Description() string {
@@ -54,6 +53,10 @@ func (plugin Feishu) PrepareTaskData(taskCtx core.TaskContext, options map[strin
 
 func (plugin Feishu) RootPkgPath() string {
 	return "github.com/merico-dev/lake/plugins/feishu"
+}
+
+func (plugin Feishu) MigrationScripts() []migration.Script {
+	return []migration.Script{new(migrationscripts.InitSchemas)}
 }
 
 func (plugin Feishu) ApiResources() map[string]map[string]core.ApiResourceHandler {

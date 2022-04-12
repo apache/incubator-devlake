@@ -12,3 +12,8 @@ type GithubPullRequestLabel struct {
 	LabelName string `gorm:"primaryKey;type:varchar(255)"`
 	common.NoPKModel
 }
+
+func (GithubPullRequestLabel) TableName() string{
+	return "_tool_github_pull_request_labels"
+}
+

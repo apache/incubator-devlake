@@ -24,8 +24,8 @@ func ConvertIssueRepoCommits(taskCtx core.SubTaskContext) error {
 	commitRepoUrlPattern := `(.*)\-\/commit`
 	commitRepoUrlRegex = regexp.MustCompile(commitRepoUrlPattern)
 
-	cursor, err := db.Table("jira_issue_commits jic").
-		Joins(`left join jira_board_issues jbi on (
+	cursor, err := db.Table("_tool_jira_issue_commits jic").
+		Joins(`left join _tool_jira_board_issues jbi on (
 			jbi.source_id = jic.source_id
 			AND jbi.issue_id = jic.issue_id
 		)`).

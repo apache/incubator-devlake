@@ -9,14 +9,14 @@ import (
 
 type Board struct {
 	domainlayer.DomainEntity
-	Name        string
+	Name        string `gorm:"type:char(255)"`
 	Description string
-	Url         string
+	Url         string `gorm:"type:char(255)"`
 	CreatedDate *time.Time
 }
 
 type BoardSprint struct {
 	common.NoPKModel
-	BoardId  string `gorm:"primaryKey"`
-	SprintId string `gorm:"primaryKey"`
+	BoardId  string `gorm:"primaryKey;type:varchar(255)"`
+	SprintId string `gorm:"primaryKey;type:varchar(255)"`
 }

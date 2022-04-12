@@ -27,16 +27,16 @@ func CollectApiComments(taskCtx core.SubTaskContext) error {
 	if since == nil {
 		var latestUpdatedIssueComt models.GithubIssueComment
 		err := db.Model(&latestUpdatedIssueComt).
-			Joins("left join github_issues on github_issues.github_id = github_issue_comments.issue_id").
-			Where("github_issues.repo_id = ?", data.Repo.GithubId).
+			Joins("left join _tool_github_issues on _tool_github_issues.github_id = _tool_github_issue_comments.issue_id").
+			Where("_tool_github_issues.repo_id = ?", data.Repo.GithubId).
 			Order("github_updated_at DESC").Limit(1).Find(&latestUpdatedIssueComt).Error
 		if err != nil {
 			return fmt.Errorf("failed to get latest github issue record: %w", err)
 		}
 		var latestUpdatedPrComt models.GithubPullRequestComment
 		err = db.Model(&latestUpdatedPrComt).
-			Joins("left join github_pull_requests on github_pull_requests.github_id = github_pull_request_comments.pull_request_id").
-			Where("github_pull_requests.repo_id = ?", data.Repo.GithubId).
+			Joins("left join _tool_github_pull_requests on _tool_github_pull_requests.github_id = _tool_github_pull_request_comments.pull_request_id").
+			Where("_tool_github_pull_requests.repo_id = ?", data.Repo.GithubId).
 			Order("github_updated_at DESC").Limit(1).Find(&latestUpdatedPrComt).Error
 		if err != nil {
 			return fmt.Errorf("failed to get latest github issue record: %w", err)

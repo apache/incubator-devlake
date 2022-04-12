@@ -13,3 +13,8 @@ type GithubCommitStat struct {
 	CommittedDate time.Time `gorm:"index"`
 	common.NoPKModel
 }
+
+func (GithubCommitStat) TableName() string{
+	return "_tool_github_commit_stats"
+}
+

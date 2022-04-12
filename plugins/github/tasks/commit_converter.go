@@ -22,8 +22,8 @@ func ConvertCommits(taskCtx core.SubTaskContext) error {
 	data := taskCtx.GetData().(*GithubTaskData)
 	repoId := data.Repo.GithubId
 
-	cursor, err := db.Table("github_commits gc").
-		Joins(`left join github_repo_commits grc on (
+	cursor, err := db.Table("_tool_github_commits gc").
+		Joins(`left join _tool_github_repo_commits grc on (
 			grc.commit_sha = gc.sha
 		)`).
 		Select("gc.*").

@@ -23,8 +23,8 @@ func ConvertIssueComments(taskCtx core.SubTaskContext) error {
 	repoId := data.Repo.GithubId
 
 	cursor, err := db.Model(&githubModels.GithubIssueComment{}).
-		Joins("left join github_issues "+
-			"on github_issues.github_id = github_issue_comments.issue_id").
+		Joins("left join _tool_github_issues "+
+			"on _tool_github_issues.github_id = _tool_github_issue_comments.issue_id").
 		Where("repo_id = ?", repoId).Rows()
 	if err != nil {
 		return err

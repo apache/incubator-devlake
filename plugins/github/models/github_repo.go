@@ -19,3 +19,8 @@ type GithubRepo struct {
 	UpdatedDate    *time.Time `json:"updatedDate"`
 	common.NoPKModel
 }
+
+func (GithubRepo) TableName() string{
+	return "_tool_github_repos"
+}
+

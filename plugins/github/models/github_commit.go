@@ -22,3 +22,8 @@ type GithubCommit struct {
 	Deletions      int    `gorm:"comment:Deleted lines of code"`
 	common.NoPKModel
 }
+
+func (GithubCommit) TableName() string{
+	return "_tool_github_commits"
+}
+

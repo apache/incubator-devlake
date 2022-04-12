@@ -11,7 +11,11 @@ import (
 // Thus a "Merge Request Commit" needs to be considered as distinct from a "Commit"
 
 type GitlabMergeRequestCommit struct {
-	CommitSha      string `gorm:"primaryKey"`
+	CommitSha      string `gorm:"primaryKey;type:varchar(40)"`
 	MergeRequestId int    `gorm:"primaryKey;autoIncrement:false"`
 	common.NoPKModel
+}
+
+func (GitlabMergeRequestCommit) TableName() string {
+	return "_tool_gitlab_merge_request_commits"
 }

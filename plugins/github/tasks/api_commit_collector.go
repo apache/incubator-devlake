@@ -30,9 +30,9 @@ func CollectApiCommits(taskCtx core.SubTaskContext) error {
 	// user didn't specify a time range to sync, try load from database
 	if since == nil {
 		latestUpdated := &models.GithubCommit{}
-		err := db.Model(&latestUpdated).Joins("left join github_repo_commits on github_commits.sha = github_repo_commits.commit_sha").
-			Joins("left join github_repos on github_repo_commits.repo_id = github_repos.github_id").
-			Where("github_repo_commits.repo_id = ?", data.Repo.GithubId).
+		err := db.Model(&latestUpdated).Joins("left join _tool_github_repo_commits on _tool_github_commits.sha = _tool_github_repo_commits.commit_sha").
+			Joins("left join _tool_github_repos on _tool_github_repo_commits.repo_id = _tool_github_repos.github_id").
+			Where("_tool_github_repo_commits.repo_id = ?", data.Repo.GithubId).
 			Order("committed_date DESC").Limit(1).Find(latestUpdated).Error
 		if err != nil {
 			return fmt.Errorf("failed to get latest github commit record: %w", err)

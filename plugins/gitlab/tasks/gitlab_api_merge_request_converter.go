@@ -44,13 +44,13 @@ func ConvertApiMergeRequests(taskCtx core.SubTaskContext) error {
 				DomainEntity: domainlayer.DomainEntity{
 					Id: domainMrIdGenerator.Generate(gitlabMr.GitlabId),
 				},
-				RepoId:      domainRepoIdGenerator.Generate(gitlabMr.ProjectId),
+				BaseRepoId:  domainRepoIdGenerator.Generate(gitlabMr.ProjectId),
 				Status:      gitlabMr.State,
 				Title:       gitlabMr.Title,
 				Url:         gitlabMr.WebUrl,
 				CreatedDate: gitlabMr.GitlabCreatedAt,
 				MergedDate:  gitlabMr.MergedAt,
-				ClosedAt:    gitlabMr.ClosedAt,
+				ClosedDate:  gitlabMr.ClosedAt,
 			}
 
 			return []interface{}{

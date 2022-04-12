@@ -18,10 +18,10 @@ func ConvertIssues(taskCtx core.SubTaskContext) error {
 	jiraIssue := &jiraModels.JiraIssue{}
 	// select all issues belongs to the board
 	cursor, err := db.Model(jiraIssue).
-		Select("jira_issues.*").
-		Joins("left join jira_board_issues on jira_board_issues.issue_id = jira_issues.issue_id").
+		Select("_tool_jira_issues.*").
+		Joins("left join _tool_jira_board_issues on _tool_jira_board_issues.issue_id = _tool_jira_issues.issue_id").
 		Where(
-			"jira_board_issues.source_id = ? AND jira_board_issues.board_id = ?",
+			"_tool_jira_board_issues.source_id = ? AND _tool_jira_board_issues.board_id = ?",
 			data.Options.SourceId,
 			data.Options.BoardId,
 		).

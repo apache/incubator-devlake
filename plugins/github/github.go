@@ -2,45 +2,29 @@ package main // must be main for plugin entry point
 
 import (
 	"fmt"
-	"github.com/merico-dev/lake/plugins/github/models"
+
+	"github.com/merico-dev/lake/migration"
+	"github.com/merico-dev/lake/plugins/core"
+	"github.com/merico-dev/lake/plugins/github/api"
+	"github.com/merico-dev/lake/plugins/github/models/migrationscripts"
 	"github.com/merico-dev/lake/plugins/github/tasks"
 	"github.com/merico-dev/lake/runner"
 	"github.com/mitchellh/mapstructure"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 	"gorm.io/gorm"
-
-	"github.com/merico-dev/lake/plugins/core"
-	"github.com/merico-dev/lake/plugins/github/api"
 )
 
 var _ core.PluginMeta = (*Github)(nil)
 var _ core.PluginInit = (*Github)(nil)
 var _ core.PluginTask = (*Github)(nil)
 var _ core.PluginApi = (*Github)(nil)
+var _ core.Migratable = (*Github)(nil)
 
 type Github struct{}
 
 func (plugin Github) Init(config *viper.Viper, logger core.Logger, db *gorm.DB) error {
-	return db.AutoMigrate(
-		&models.GithubRepo{},
-		&models.GithubCommit{},
-		&models.GithubRepoCommit{},
-		&models.GithubPullRequest{},
-		&models.GithubReviewer{},
-		&models.GithubPullRequestComment{},
-		&models.GithubPullRequestCommit{},
-		&models.GithubPullRequestLabel{},
-		&models.GithubIssue{},
-		&models.GithubIssueComment{},
-		&models.GithubIssueEvent{},
-		&models.GithubIssueLabel{},
-		&models.GithubUser{},
-		&models.GithubPullRequestIssue{},
-		&models.GithubCommitStat{},
-		&models.GithubIssueComment{},
-		&models.GithubPullRequestComment{},
-	)
+	return nil
 }
 
 func (plugin Github) Description() string {
@@ -108,6 +92,10 @@ func (plugin Github) PrepareTaskData(taskCtx core.TaskContext, options map[strin
 
 func (plugin Github) RootPkgPath() string {
 	return "github.com/merico-dev/lake/plugins/github"
+}
+
+func (plugin Github) MigrationScripts() []migration.Script {
+	return []migration.Script{new(migrationscripts.InitSchemas)}
 }
 
 func (plugin Github) ApiResources() map[string]map[string]core.ApiResourceHandler {

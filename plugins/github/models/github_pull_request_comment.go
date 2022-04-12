@@ -15,3 +15,8 @@ type GithubPullRequestComment struct {
 	GithubUpdatedAt time.Time `gorm:"index"`
 	common.NoPKModel
 }
+
+func (GithubPullRequestComment) TableName() string{
+	return "_tool_github_pull_request_comments"
+}
+

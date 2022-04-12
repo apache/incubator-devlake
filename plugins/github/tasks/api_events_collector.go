@@ -34,8 +34,8 @@ func CollectApiEvents(taskCtx core.SubTaskContext) error {
 	if since == nil {
 		var latestUpdatedIssueEvent models.GithubIssueEvent
 		err := db.Model(&latestUpdatedIssueEvent).
-			Joins("left join github_issues on github_issues.github_id = github_issue_events.issue_id").
-			Where("github_issues.repo_id = ?", data.Repo.GithubId).
+			Joins("left join _tool_github_issues on _tool_github_issues.github_id = _tool_github_issue_events.issue_id").
+			Where("_tool_github_issues.repo_id = ?", data.Repo.GithubId).
 			Order("github_created_at DESC").Limit(1).Find(&latestUpdatedIssueEvent).Error
 		if err != nil {
 			return fmt.Errorf("failed to get latest github issue record: %w", err)

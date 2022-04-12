@@ -34,7 +34,7 @@ func CollectApiPullRequests(taskCtx core.SubTaskContext) error {
 	if since == nil {
 		var latestUpdated models.GithubPullRequest
 		err := db.Model(&latestUpdated).
-			Where("github_pull_requests.repo_id = ?", data.Repo.GithubId).
+			Where("repo_id = ?", data.Repo.GithubId).
 			Order("github_updated_at DESC").Limit(1).Find(&latestUpdated).Error
 		if err != nil {
 			return fmt.Errorf("failed to get latest github issue record: %w", err)

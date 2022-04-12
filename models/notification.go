@@ -18,3 +18,8 @@ type Notification struct {
 	Response     string
 	Data         string
 }
+
+func (Notification) TableName() string{
+	return "_devlake_notifications"
+}
+

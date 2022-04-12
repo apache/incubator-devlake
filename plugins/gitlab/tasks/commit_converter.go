@@ -23,8 +23,8 @@ func ConvertApiCommits(taskCtx core.SubTaskContext) error {
 	db := taskCtx.GetDb()
 
 	// select all commits belongs to the project
-	cursor, err := db.Table("gitlab_commits gc").
-		Joins(`left join gitlab_project_commits gpc on (
+	cursor, err := db.Table("_tool_gitlab_commits gc").
+		Joins(`left join _tool_gitlab_project_commits gpc on (
 			gpc.commit_sha = gc.sha
 		)`).
 		Select("gc.*").

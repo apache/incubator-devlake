@@ -1,9 +1,12 @@
 package services
 
 import (
+	"context"
+	"github.com/merico-dev/lake/models/migrationscripts"
+
 	"github.com/merico-dev/lake/config"
 	"github.com/merico-dev/lake/logger"
-	"github.com/merico-dev/lake/models"
+	"github.com/merico-dev/lake/migration"
 	"github.com/merico-dev/lake/runner"
 	"github.com/robfig/cron/v3"
 	"github.com/spf13/viper"
@@ -22,7 +25,8 @@ func init() {
 	if err != nil {
 		panic(err)
 	}
-
+	migration.Init(db)
+	migrationscripts.RegisterAll()
 	// load plugins
 	err = runner.LoadPlugins(
 		cfg.GetString("PLUGIN_DIR"),
@@ -33,20 +37,7 @@ func init() {
 	if err != nil {
 		panic(err)
 	}
-
-	// migrate framework tables
-	err = db.AutoMigrate(
-		&models.Task{},
-		&models.Notification{},
-		&models.Pipeline{},
-		&models.Blueprint{},
-	)
-	if err != nil {
-		panic(err)
-	}
-
-	// migrate data tables if run in standalone mode
-	err = runner.MigrateDb(db)
+	err = migration.Execute(context.Background())
 	if err != nil {
 		panic(err)
 	}

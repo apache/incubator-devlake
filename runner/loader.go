@@ -2,6 +2,7 @@ package runner
 
 import (
 	"fmt"
+	"github.com/merico-dev/lake/migration"
 	"io/fs"
 	"path/filepath"
 	"plugin"
@@ -38,6 +39,9 @@ func LoadPlugins(pluginsDir string, config *viper.Viper, logger core.Logger, db 
 				if err != nil {
 					return err
 				}
+			}
+			if migratable, ok := symPluginEntry.(core.Migratable); ok {
+				migration.Register(migratable.MigrationScripts(), pluginName)
 			}
 			err = core.RegisterPlugin(pluginName, pluginMeta)
 			if err != nil {

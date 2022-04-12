@@ -9,9 +9,9 @@ import (
 type JiraSprint struct {
 	SourceId      uint64 `gorm:"primaryKey"`
 	SprintId      uint64 `gorm:"primaryKey"`
-	Self          string
-	State         string
-	Name          string
+	Self          string `gorm:"type:varchar(255)"`
+	State         string `gorm:"type:varchar(255)"`
+	Name          string `gorm:"type:varchar(255)"`
 	StartDate     *time.Time
 	EndDate       *time.Time
 	CompleteDate  *time.Time
@@ -33,4 +33,16 @@ type JiraSprintIssue struct {
 	IssueId          uint64 `gorm:"primaryKey"`
 	ResolutionDate   *time.Time
 	IssueCreatedDate *time.Time
+}
+
+func (JiraSprint) TableName() string {
+	return "_tool_jira_sprints"
+}
+
+func (JiraBoardSprint) TableName() string {
+	return "_tool_jira_board_sprints"
+}
+
+func (JiraSprintIssue) TableName() string {
+	return "_tool_jira_sprint_issues"
 }
