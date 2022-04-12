@@ -14,21 +14,14 @@ import {
   Spinner,
   Colors,
   Label,
-  Collapse,
-  NonIdealState,
   Divider,
-  H5,
   Switch,
-  Pre,
   Tag
 } from '@blueprintjs/core'
 import { Select } from '@blueprintjs/select'
 import { parseCronExpression } from 'cron-schedule'
 import InputValidationError from '@/components/validation/InputValidationError'
 import { ProviderLabels, ProviderIcons } from '@/data/Providers'
-// import usePipelineManager from '@/hooks/usePipelineManager'
-// import useBlueprintManager from '@/hooks/useBlueprintManager'
-// import useBlueprintValidation from '@/hooks/useBlueprintValidation'
 
 const AddBlueprintDialog = (props) => {
   const {
@@ -141,7 +134,9 @@ const AddBlueprintDialog = (props) => {
                     id='cron-custom'
                     // disabled={cronConfig !== 'custom'}
                     readOnly={cronConfig !== 'custom'}
-                    leftElement={cronConfig !== 'custom' ? <Icon icon='lock' size={11} style={{ alignSelf: 'center', margin: '4px 10px -2px 6px' }} /> : null}
+                    leftElement={cronConfig !== 'custom'
+                      ? <Icon icon='lock' size={11} style={{ alignSelf: 'center', margin: '4px 10px -2px 6px' }} />
+                      : null}
                     rightElement={(
                       <InputValidationError
                         error={getFieldError('Blueprint Cron')}
@@ -173,12 +168,9 @@ const AddBlueprintDialog = (props) => {
               >
                 <ButtonGroup>
                   <Select
-                  // usePortal={true}
                     disabled={isSaving}
-                  // filterable={false}
                     className='selector-blueprint-tasks'
                     popoverProps={{ usePortal: false, popoverClassName: 'blueprint-tasks-popover', }}
-                  // multiple
                     inline={true}
                     fill={true}
                     items={pipelines}
@@ -282,9 +274,16 @@ const AddBlueprintDialog = (props) => {
                 </Label>
               </div>
               <div style={{ fontSize: '14px', fontWeight: 800 }}>
-                {!cron(cronConfig === 'custom' ? customCronConfig : cronConfig).isValid() && <Icon icon='warning-sign' size={14} color={Colors.RED4} style={{ marginRight: '5px' }} />}
-                {dayjs(createCron(cronConfig === 'custom' ? customCronConfig : cronConfig).getNextDate().toString()).format('L LTS')} &middot;{' '}
-                <span style={{ color: Colors.GRAY3 }}>({dayjs(createCron(cronConfig === 'custom' ? customCronConfig : cronConfig).getNextDate().toString()).fromNow()})</span>
+                {!cron(cronConfig === 'custom'
+                  ? customCronConfig
+                  : cronConfig).isValid() && <Icon icon='warning-sign' size={14} color={Colors.RED4} style={{ marginRight: '5px' }} />}
+                {dayjs(createCron(cronConfig === 'custom'
+                  ? customCronConfig
+                  : cronConfig).getNextDate().toString()).format('L LTS')} &middot;{' '}
+                <span style={{ color: Colors.GRAY3 }}>({dayjs(createCron(cronConfig === 'custom'
+                  ? customCronConfig
+                  : cronConfig).getNextDate().toString()).fromNow()})
+                </span>
               </div>
             </div>
           </div>
