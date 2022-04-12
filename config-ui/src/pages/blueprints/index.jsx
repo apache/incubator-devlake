@@ -1,29 +1,14 @@
-import React, { Fragment, useEffect, useState, useRef, useCallback } from 'react'
+import React, { Fragment, useEffect, useState, useCallback } from 'react'
 import { useHistory } from 'react-router-dom'
 import dayjs from '@/utils/time'
 import cron from 'cron-validate'
-import {
-  Classes, FormGroup, InputGroup, ButtonGroup,
-  Button, Icon, Intent,
-  Dialog, DialogProps,
-  RadioGroup, Radio,
-  Menu, MenuItem,
-  Card, Elevation,
-  Popover,
-  Tooltip,
-  Position,
-  Spinner,
-  Colors,
-  Label,
-  Collapse,
-  NonIdealState,
-  Divider,
-  H5,
-  Switch,
-  Pre,
-  Tag
-} from '@blueprintjs/core'
 import { parseCronExpression } from 'cron-schedule'
+import {
+  Button, Icon, Intent,
+  Popover,
+  Position,
+  NonIdealState,
+} from '@blueprintjs/core'
 import usePipelineManager from '@/hooks/usePipelineManager'
 import useBlueprintManager from '@/hooks/useBlueprintManager'
 import useBlueprintValidation from '@/hooks/useBlueprintValidation'
@@ -31,21 +16,13 @@ import Nav from '@/components/Nav'
 import Sidebar from '@/components/Sidebar'
 import AppCrumbs from '@/components/Breadcrumbs'
 import Content from '@/components/Content'
-// import ContentLoader from '@/components/loaders/ContentLoader'
 import AddBlueprintDialog from '@/components/blueprints/AddBlueprintDialog'
 import { ReactComponent as HelpIcon } from '@/images/help.svg'
 import ManageBlueprintsIcon from '@/images/blueprints.png'
-import EventIcon from '@/images/calendar-3.png'
-import EventOffIcon from '@/images/calendar-4.png'
-import { NullBlueprint } from '@/data/NullBlueprint'
-import InputValidationError from '@/components/validation/InputValidationError'
-import DeletePopover from '@/components/blueprints/DeletePopover'
-import BlueprintsGrid from '../../components/blueprints/BlueprintsGrid'
+import BlueprintsGrid from '@/components/blueprints/BlueprintsGrid'
 
 const Blueprints = (props) => {
   const history = useHistory()
-  // const { providerId } = useParams()
-  // const [activeProvider, setActiveProvider] = useState(integrationsData[0])
 
   const {
     blueprint,
@@ -87,27 +64,14 @@ const Blueprints = (props) => {
     detectPipelineProviders
   } = usePipelineManager()
 
-  // BLUEPRINTS MOCK DATA
-  // const [blueprints, setBlueprints] = useState([
-  //   { id: 5, name: 'GITHUB DAILY', cronConfig: '0 0 * * *', nextRunAt: null, enable: true, interval: 'Daily', tasks: [[]], createdAt: Date.now(), updatedAt: null },
-  //   { id: 6, name: 'GITLAB WEEKLY', cronConfig: '0 0 * * 1', nextRunAt: null, enable: true, interval: 'Weekly', tasks: [[]], createdAt: Date.now(), updatedAt: null },
-  //   { id: 7, name: 'GITHUB MONTHLY', cronConfig: '0 0 30 * 1', nextRunAt: null, enable: true, interval: 'Monthly', tasks: [[]], createdAt: Date.now(), updatedAt: null },
-  //   { id: 8, name: 'JIRA DAILY', cronConfig: '0 23 * * 1-5', nextRunAt: null, enable: false, interval: 'Daily', tasks: [[]], createdAt: Date.now(), updatedAt: null },
-  //   { id: 9, name: 'JENKINS DAILY 8AM @hezyin', cronConfig: '0 0 * * 1-5', nextRunAt: null, enable: false, interval: 'Daily', tasks: [[]], createdAt: Date.now(), updatedAt: null },
-  //   { id: 10, name: 'GITLAB CUSTOM @klesh', cronConfig: '0 4 8-14 * *', nextRunAt: null, enable: false, interval: 'Custom', tasks: [[]], createdAt: Date.now(), updatedAt: null },
-  //   { id: 11, name: 'JIRA CUSTOM @e2corporation', cronConfig: '0 22 * * 1-5', nextRunAt: null, enable: true, interval: 'Custom', tasks: [[]], createdAt: Date.now(), updatedAt: null },
-  // ])
-
   const [expandDetails, setExpandDetails] = useState(false)
   const [activeBlueprint, setActiveBlueprint] = useState(null)
   const [draftBlueprint, setDraftBlueprint] = useState(null)
   const [blueprintSchedule, setBlueprintSchedule] = useState([])
-  // const [customCron, setCustomCron] = useState('0 0 * * *')
 
   const [blueprintDialogIsOpen, setBlueprintDialogIsOpen] = useState(false)
   const [pipelineTemplates, setPipelineTemplates] = useState([])
   const [selectedPipelineTemplate, setSelectedPipelineTemplate] = useState()
-  // const [blueprintErrors, setBlueprintErrors] = useState([])
 
   const [filteredBlueprints, setFilteredBlueprints] = useState([])
   const [activeFilterStatus, setActiveFilterStatus] = useState()

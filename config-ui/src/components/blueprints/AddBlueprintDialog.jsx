@@ -1,28 +1,21 @@
 import React, { useEffect, useState, Fragment } from 'react'
 import dayjs from '@/utils/time'
 import cron from 'cron-validate'
+import { parseCronExpression } from 'cron-schedule'
 import {
   Classes, FormGroup, InputGroup, ButtonGroup,
   Button, Icon, Intent,
-  Dialog, DialogProps,
+  Dialog,
   RadioGroup, Radio,
-  Menu, MenuItem,
-  Card, Elevation,
-  Popover,
-  Tooltip,
-  Position,
-  Spinner,
+  MenuItem,
+  Elevation,
   Colors,
   Label,
-  Divider,
   Switch,
-  Tag
 } from '@blueprintjs/core'
 import { Select } from '@blueprintjs/select'
-import { parseCronExpression } from 'cron-schedule'
 import InputValidationError from '@/components/validation/InputValidationError'
 import ContentLoader from '@/components/loaders/ContentLoader'
-import { ProviderLabels, ProviderIcons } from '@/data/Providers'
 import PipelineTasks from '@/components/blueprints/PipelineTasks'
 
 const AddBlueprintDialog = (props) => {
