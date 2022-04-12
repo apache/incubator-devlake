@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react'
+import React, { useEffect, useCallback } from 'react'
 import dayjs from '@/utils/time'
 import cron from 'cron-validate'
 import {
@@ -29,6 +29,7 @@ import EventOffIcon from '@/images/calendar-4.png'
 const BlueprintsGrid = (props) => {
   const {
     blueprints = [],
+    filteredBlueprints = [],
     activeBlueprint,
     blueprintSchedule,
     isActiveBlueprint = (b) => {},
@@ -39,12 +40,52 @@ const BlueprintsGrid = (props) => {
     configureBlueprint = (b) => {},
     isDeleting = false,
     expandDetails = false,
-    cronPresets
+    cronPresets,
+    activeFilterStatus,
+    onFilter = () => {}
   } = props
+
+  const getCronPreset = useCallback((presetName) => {
+    return cronPresets.find(p => p.name === presetName)
+  }, [cronPresets])
+
+  useEffect(() => {
+    console.log('>> FILTER BLUEPRINTS BY INTERVAL....', activeFilterStatus)
+  }, [activeFilterStatus])
 
   return (
     <>
-      <div style={{ display: 'flex', marginTop: '30px', minHeight: '36px', width: '100%', justifyContent: 'flex-start' }}>
+      <div
+        className='blueprints-filter-panel'
+        style={{
+          marginTop: '30px',
+          display: 'flex',
+          alignSelf: 'flex-start',
+          alignContent: 'flex-start'
+        }}
+      >
+        <ButtonGroup className='filter-status-group blueprints-filter-group' style={{ zIndex: 0 }}>
+          <Button intent={!activeFilterStatus ? Intent.PRIMARY : Intent.NONE} active={!activeFilterStatus} onClick={() => onFilter(null)}>All</Button>
+          <Button intent={activeFilterStatus === 'hourly' ? Intent.PRIMARY : Intent.NONE} active={activeFilterStatus === 'hourly'} onClick={() => onFilter('hourly')}>Hourly</Button>
+          <Button intent={activeFilterStatus === 'daily' ? Intent.PRIMARY : Intent.NONE} active={activeFilterStatus === 'daily'} onClick={() => onFilter('daily')}>Daily</Button>
+          <Button intent={activeFilterStatus === 'weekly' ? Intent.PRIMARY : Intent.NONE} active={activeFilterStatus === 'weekly'} onClick={() => onFilter('weekly')}>Weekly</Button>
+          <Button intent={activeFilterStatus === 'monthly' ? Intent.PRIMARY : Intent.NONE} active={activeFilterStatus === 'monthly'} onClick={() => onFilter('monthly')}>Monthly</Button>
+          <Button intent={activeFilterStatus === 'custom' ? Intent.PRIMARY : Intent.NONE} active={activeFilterStatus === 'custom'} onClick={() => onFilter('custom')}>Custom</Button>
+        </ButtonGroup>
+      </div>
+      <Card
+        className='blueprints-grid-card'
+        elevation={expandDetails ? Elevation.ZERO : Elevation.TWO}
+        style={{
+          display: 'flex',
+          marginTop: '8px',
+          minHeight: '36px',
+          width: '100%',
+          padding: 0,
+          justifyContent: 'flex-start',
+          boxShadow: expandDetails ? 'none' : ''
+        }}
+      >
         <div
           className='blueprints-list-grid' style={{
             display: 'flex',
@@ -53,7 +94,7 @@ const BlueprintsGrid = (props) => {
             minWidth: '830px'
           }}
         >
-          {blueprints.map((b, bIdx) => (
+          {(activeFilterStatus ? filteredBlueprints : blueprints).map((b, bIdx) => (
             <div key={`blueprint-row-key-${bIdx}`}>
               <div
                 style={{
@@ -286,8 +327,24 @@ const BlueprintsGrid = (props) => {
               </Collapse>
             </div>
           ))}
+          {(activeFilterStatus ? filteredBlueprints.length === 0 : blueprints.length === 0) && (
+            <div style={{ padding: '12px' }}>
+              <h3 style={{
+                fontWeight: 800,
+                letterSpacing: '2px',
+                textTransform: 'uppercase',
+                margin: 0,
+                fontFamily: '"Montserrat", sans-serif'
+              }}
+              >0 Blueprints
+              </h3>
+              <p style={{ margin: 0 }}>There are no blueprints for the current status
+                {' '}<strong>{activeFilterStatus}</strong>.
+              </p>
+            </div>
+          )}
         </div>
-      </div>
+      </Card>
       <div style={{
         display: 'flex',
         margin: '20px 10px',
@@ -300,7 +357,7 @@ const BlueprintsGrid = (props) => {
         <Icon icon='user' size={14} style={{ marginRight: '8px' }} />
         <div>
           <span>by {' '} <strong>Administrator</strong></span><br />
-          Displaying {blueprints.length} Blueprints from API.
+          Displaying {activeFilterStatus ? filteredBlueprints.length : blueprints.length} Blueprints from API.
         </div>
       </div>
     </>

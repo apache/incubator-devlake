@@ -128,6 +128,7 @@ const AddBlueprintDialog = (props) => {
                     className='formGroup-inline'
                     contentClassName='formGroupContent'
                     style={{ marginBottom: '5px' }}
+                    fill={false}
                   >
                     <Label style={{ display: 'inline', marginRight: 0, fontWeight: 'bold' }}>
                       Custom Shedule
@@ -135,7 +136,7 @@ const AddBlueprintDialog = (props) => {
                     </Label>
                     <InputGroup
                       id='cron-custom'
-                    // disabled={cronConfig !== 'custom'}
+                      // disabled={cronConfig !== 'custom'}
                       readOnly={cronConfig !== 'custom'}
                       leftElement={cronConfig !== 'custom'
                         ? <Icon icon='lock' size={11} style={{ alignSelf: 'center', margin: '4px 10px -2px 6px' }} />
@@ -146,12 +147,13 @@ const AddBlueprintDialog = (props) => {
                         />
                         )}
                       placeholder='Enter Crontab Syntax'
-                    // defaultValue='0 0 * * *'
+                      // defaultValue='0 0 * * *'
                       value={cronConfig !== 'custom' ? cronConfig : customCronConfig}
                       onChange={(e) => setCustomCronConfig(e.target.value)}
                       className={`cron-custom-input ${fieldHasError('Blueprint Cron') ? 'invalid-field' : ''}`}
                       inline={true}
-                      style={{ backgroundColor: cronConfig !== 'custom' ? '#ffffdd' : 'inherit' }}
+                      fill={false}
+                      // style={{ backgroundColor: cronConfig !== 'custom' ? '#ffffdd' : 'inherit' }}
                     />
                   </FormGroup>
                   {/* </div> */}

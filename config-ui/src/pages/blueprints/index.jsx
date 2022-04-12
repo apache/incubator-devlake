@@ -107,6 +107,9 @@ const Blueprints = (props) => {
   const [selectedPipelineTemplate, setSelectedPipelineTemplate] = useState()
   // const [blueprintErrors, setBlueprintErrors] = useState([])
 
+  const [filteredBlueprints, setFilteredBlueprints] = useState([])
+  const [activeFilterStatus, setActiveFilterStatus] = useState()
+
   const {
     validate,
     errors: blueprintValidationErrors,
@@ -153,9 +156,9 @@ const Blueprints = (props) => {
     return activeBlueprint?.id === bId
   }
 
-  const isStandardCronPreset = (cronConfig) => {
+  const isStandardCronPreset = useCallback((cronConfig) => {
     return cronPresets.some(p => p.cronConfig === cronConfig)
-  }
+  }, [cronPresets])
 
   const fieldHasError = (fieldId) => {
     return blueprintValidationErrors.some(e => e.includes(fieldId))
@@ -182,7 +185,15 @@ const Blueprints = (props) => {
       setEnableBlueprint(draftBlueprint.enable)
       setBlueprintDialogIsOpen(true)
     }
-  }, [draftBlueprint, setBlueprintName, setCronConfig])
+  }, [
+    draftBlueprint,
+    setBlueprintName,
+    setCronConfig,
+    isStandardCronPreset,
+    setBlueprintTasks,
+    setEnableBlueprint,
+    setCustomCronConfig
+  ])
 
   useEffect(() => {
     if (saveComplete?.id) {
@@ -225,6 +236,36 @@ const Blueprints = (props) => {
   useEffect(() => {
     setSelectedPipelineTemplate(pipelineTemplates.find(pT => pT.tasks.flat().toString() === tasks.flat().toString()))
   }, [pipelineTemplates])
+
+  useEffect(() => {
+    if (activeFilterStatus) {
+      switch (activeFilterStatus) {
+        case 'hourly':
+          setFilteredBlueprints(blueprints.filter(b => b.cronConfig === getCronPreset(activeFilterStatus).cronConfig))
+          break
+        case 'daily':
+          setFilteredBlueprints(blueprints.filter(b => b.cronConfig === getCronPreset(activeFilterStatus).cronConfig))
+          break
+        case 'weekly':
+          setFilteredBlueprints(blueprints.filter(b => b.cronConfig === getCronPreset(activeFilterStatus).cronConfig))
+          break
+        case 'monthly':
+          setFilteredBlueprints(blueprints.filter(b => b.cronConfig === getCronPreset(activeFilterStatus).cronConfig))
+          break
+        case 'custom':
+          setFilteredBlueprints(blueprints.filter(
+            b => b.cronConfig !== getCronPreset('hourly').cronConfig &&
+            b.cronConfig !== getCronPreset('daily').cronConfig &&
+            b.cronConfig !== getCronPreset('weekly').cronConfig &&
+            b.cronConfig !== getCronPreset('monthly').cronConfig
+          ))
+          break
+        default:
+
+        //   break
+      }
+    }
+  }, [activeFilterStatus, blueprints, getCronPreset])
 
   return (
     <>
@@ -283,6 +324,9 @@ const Blueprints = (props) => {
               <>
                 <BlueprintsGrid
                   blueprints={blueprints}
+                  filteredBlueprints={filteredBlueprints}
+                  activeFilterStatus={activeFilterStatus}
+                  onFilter={setActiveFilterStatus}
                   activeBlueprint={activeBlueprint}
                   blueprintSchedule={blueprintSchedule}
                   isActiveBlueprint={isActiveBlueprint}

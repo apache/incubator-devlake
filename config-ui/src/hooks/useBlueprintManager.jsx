@@ -137,7 +137,7 @@ function useBlueprintManager (blueprintName = `BLUEPRINT WEEKLY ${Date.now()}`, 
       setSaveComplete(false)
       console.log('>> FAILED TO SAVE BLUEPRINT!!', e)
     }
-  }, [name, cronConfig, tasks, enable])
+  }, [name, cronConfig, customCronConfig, tasks, enable])
 
   const deleteBlueprint = useCallback(async (blueprint) => {
     try {
@@ -179,9 +179,9 @@ function useBlueprintManager (blueprintName = `BLUEPRINT WEEKLY ${Date.now()}`, 
     return schedule
   }, [])
 
-  const getCronPreset = (presetName) => {
+  const getCronPreset = useCallback((presetName) => {
     return cronPresets.find(p => p.name === presetName)
-  }
+  }, [cronPresets])
 
   const detectCronInterval = (cronConfig) => {
     return cronPresets.find(p => p.cronConfig === cronConfig)
