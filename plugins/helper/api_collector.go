@@ -206,7 +206,7 @@ func (collector *ApiCollector) fetchPagesAsync(reqData *RequestData) error {
 			}
 			// save response body of first page
 			res.Body = ioutil.NopCloser(bytes.NewBuffer(body))
-			e = collector.handleResponse(res)
+			_, e = collector.saveRawData(res, reqData.Input)
 			if e != nil {
 				return e
 			}
@@ -227,7 +227,7 @@ func (collector *ApiCollector) fetchPagesAsync(reqData *RequestData) error {
 					if err != nil {
 						return err
 					}
-					err = collector.handleResponse(res)
+					_, err = collector.saveRawData(res, reqData.Input)
 					if err != nil {
 						return err
 					}
@@ -291,11 +291,6 @@ func (collector *ApiCollector) handleNoPageResponse(reqData *RequestData) ApiAsy
 		_, err = collector.saveRawData(res, reqData.Input)
 		return err
 	}
-}
-
-func (collector *ApiCollector) handleResponse(res *http.Response) error {
-	_, err := collector.saveRawData(res, nil)
-	return err
 }
 
 func (collector *ApiCollector) saveRawData(res *http.Response, input interface{}) (int, error) {
