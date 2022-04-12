@@ -21,6 +21,7 @@ import {
 import { Select } from '@blueprintjs/select'
 import { parseCronExpression } from 'cron-schedule'
 import InputValidationError from '@/components/validation/InputValidationError'
+import ContentLoader from '@/components/loaders/ContentLoader'
 import { ProviderLabels, ProviderIcons } from '@/data/Providers'
 
 const AddBlueprintDialog = (props) => {
@@ -32,6 +33,7 @@ const AddBlueprintDialog = (props) => {
     enable,
     draftBlueprint,
     isOpen = true,
+    isLoading = false,
     selectedPipelineTemplate,
     setIsOpen = () => {},
     setDraftBlueprint = () => {},
@@ -67,8 +69,9 @@ const AddBlueprintDialog = (props) => {
         style={{ backgroundColor: '#ffffff' }}
       >
         <div className={Classes.DIALOG_BODY}>
+          {isLoading && (<ContentLoader title='Loading Blueprint...' elevation={Elevation.ZERO} message='Please wait for configuration.' />)}
 
-          <div className='pipeline-form-container'>
+          {!isLoading && (<div className='pipeline-form-container'>
             <div className='formContainer' style={{ marginBottom: 0 }}>
               <FormGroup
                 label=''
@@ -286,7 +289,7 @@ const AddBlueprintDialog = (props) => {
                 </span>
               </div>
             </div>
-          </div>
+          </div>)}
 
         </div>
         <div className={Classes.DIALOG_FOOTER}>

@@ -132,7 +132,7 @@ function usePipelineManager (pipelineName = `COLLECTION ${Date.now()}`, initialT
     }
   }, [])
 
-  const fetchAllPipelines = useCallback((status = null) => {
+  const fetchAllPipelines = useCallback((status = null, fetchTimeout = 500) => {
     try {
       setIsFetchingAll(true)
       setErrors([])
@@ -152,7 +152,7 @@ function usePipelineManager (pipelineName = `COLLECTION ${Date.now()}`, initialT
         // ToastNotification.show({ message: `Fetched All Pipelines`, intent: 'danger', icon: 'small-tick' })
         setTimeout(() => {
           setIsFetchingAll(false)
-        }, 500)
+        }, fetchTimeout)
       }
       fetchAll()
     } catch (e) {

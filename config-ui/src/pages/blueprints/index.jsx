@@ -39,34 +39,8 @@ import EventIcon from '@/images/calendar-3.png'
 import EventOffIcon from '@/images/calendar-4.png'
 import { NullBlueprint } from '@/data/NullBlueprint'
 import InputValidationError from '@/components/validation/InputValidationError'
-
-const DeletePopover = (props) => {
-  const {
-    activeBlueprint,
-    onCancel = () => {},
-    onConfirm = () => {},
-    isRunning = false
-  } = props
-  return (
-    <>
-      <div style={{ padding: '10px', fontSize: '10px', maxWidth: '220px' }}>
-        <h3 style={{ margin: '0 0 5px 0', color: Colors.RED3 }}>Delete {activeBlueprint?.name}?</h3>
-        <p><strong>Are you sure? This Blueprint will be removed, all pipelines will be stopped.</strong></p>
-        <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
-          <Button
-            className={Classes.POPOVER_DISMISS}
-            intent={Intent.NONE}
-            text='CANCEL'
-            small style={{ marginRight: '5px' }}
-            onClick={() => onCancel(activeBlueprint)}
-            disabled={isRunning}
-          />
-          <Button disabled={isRunning} intent={Intent.DANGER} text='YES' small onClick={() => onConfirm(activeBlueprint)} />
-        </div>
-      </div>
-    </>
-  )
-}
+import DeletePopover from '@/components/blueprints/DeletePopover'
+import BlueprintsGrid from '../../components/blueprints/BlueprintsGrid'
 
 const Blueprints = (props) => {
   const history = useHistory()
@@ -104,6 +78,7 @@ const Blueprints = (props) => {
 
   const {
     pipelines,
+    isFetchingAll: isFetchingAllPipelines,
     fetchAllPipelines,
     allowedProviders,
     detectPipelineProviders
@@ -232,7 +207,7 @@ const Blueprints = (props) => {
 
   useEffect(() => {
     if (blueprintDialogIsOpen) {
-      fetchAllPipelines('TASK_COMPLETED')
+      fetchAllPipelines('TASK_COMPLETED', 100)
     }
   }, [blueprintDialogIsOpen, fetchAllPipelines])
 
@@ -305,7 +280,20 @@ const Blueprints = (props) => {
             </div>
             {(!isFetchingBlueprints) && (
               <>
-                <div style={{ display: 'flex', marginTop: '30px', minHeight: '36px', width: '100%', justifyContent: 'flex-start' }}>
+                <BlueprintsGrid
+                  blueprints={blueprints}
+                  activeBlueprint={activeBlueprint}
+                  blueprintSchedule={blueprintSchedule}
+                  isActiveBlueprint={isActiveBlueprint}
+                  expandBlueprint={expandBlueprint}
+                  deleteBlueprint={deleteBlueprint}
+                  createCron={createCron}
+                  handleBlueprintActivation={handleBlueprintActivation}
+                  configureBlueprint={configureBlueprint}
+                  isDeleting={isDeleting}
+                  expandDetails={expandDetails}
+                />
+                {/* <div style={{ display: 'flex', marginTop: '30px', minHeight: '36px', width: '100%', justifyContent: 'flex-start' }}>
                   <div
                     className='blueprints-list-grid' style={{
                       display: 'flex',
@@ -314,52 +302,8 @@ const Blueprints = (props) => {
                       minWidth: '830px'
                     }}
                   >
-                    {/* <Card
-                      elevation={Elevation.ZERO}
-                      style={{ boxShadow: 'none', padding: '8px', marginBottom: '10px', borderBottom: '1px solid #bbbbbb' }}
-                    >
-                      <div
-                        className='blueprint-header-row'
-                        style={{
-                          margin: 'auto auto',
-                          display: 'flex',
-                          width: '100%',
-                          justifyContent: 'space-between',
-                          color: '#777777',
-                          fontFamily: 'Montserrat, sans-serif',
-                          fontSize: '11px',
-                        }}
-                      >
-                        <div className='blueprint-header-id' style={{ flex: 1, maxWidth: '100px' }}>ID</div>
-                        <div className='blueprint-header-name' style={{ flex: 2 }}>Blueprint Name</div>
-                        <div className='blueprint-header-interval' style={{ flex: 2 }}>Frequency</div>
-                        <div className='blueprint-header-next-rundate' style={{ flex: 1 }}>Next Run Date</div>
-                        <div className='blueprint-header-actions' style={{ flex: 1, textAlign: 'right' }}>&nbsp;</div>
-                      </div>
-                    </Card> */}
                     {blueprints.map((b, bIdx) => (
                       <div key={`blueprint-row-key-${bIdx}`}>
-                        {/* <div
-                          className='blueprint-header-row'
-                          style={{
-                            margin: 'auto auto',
-                            marginBottom: '-10px',
-                            display: 'flex',
-                            width: '100%',
-                            justifyContent: 'space-between',
-                            color: '#777777',
-                            fontFamily: 'Montserrat, sans-serif',
-                            fontSize: '9px',
-                            backgroundColor: !b.enable ? '#f8f8f8' : 'inherit',
-                            paddingTop: '10px'
-                          }}
-                        >
-                          <div className='blueprint-header-id' style={{ flex: 1, maxWidth: '100px', paddingLeft: '30px' }}>ID</div>
-                          <div className='blueprint-header-name' style={{ flex: 2 }}>Blueprint Name</div>
-                          <div className='blueprint-header-interval' style={{ flex: 2 }}>Frequency</div>
-                          <div className='blueprint-header-next-rundate' style={{ flex: 1 }}>Next Run Date</div>
-                          <div className='blueprint-header-actions' style={{ flex: 1, textAlign: 'right' }}>&nbsp;</div>
-                        </div> */}
                         <div
                           style={{
                             display: 'flex',
@@ -571,16 +515,6 @@ const Blueprints = (props) => {
                                   <Popover>
                                     <Button icon='trash' text='Delete' small minimal style={{ marginRight: '8px' }} />
                                     <DeletePopover activeBlueprint={activeBlueprint} onCancel={() => {}} onConfirm={deleteBlueprint} isRunning={isDeleting} />
-                                    {/* <>
-                                      <div style={{ padding: '10px', fontSize: '10px', maxWidth: '220px' }}>
-                                        <h3 style={{ margin: '0 0 5px 0', color: Colors.RED3 }}>Delete {activeBlueprint?.name}?</h3>
-                                        <p><strong>Are you sure? This Blueprint will be removed, all pipelines will be stopped.</strong></p>
-                                        <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
-                                          <Button className={Classes.POPOVER_DISMISS} intent={Intent.NONE} text='CANCEL' small style={{ marginRight: '5px' }} />
-                                          <Button intent={Intent.DANGER} text='YES' small />
-                                        </div>
-                                      </div>
-                                    </> */}
                                   </Popover>
                                   <Switch
                                     checked={b.enable}
@@ -613,7 +547,7 @@ const Blueprints = (props) => {
                     <span>by {' '} <strong>Administrator</strong></span><br />
                     Displaying {blueprints.length} Blueprints from API.
                   </div>
-                </div>
+                </div> */}
               </>)}
 
             {!isFetchingBlueprints && blueprints.length === 0 && (
@@ -621,7 +555,6 @@ const Blueprints = (props) => {
                 <NonIdealState
                   icon='grid'
                   title='No Defined Blueprints'
-                      // eslint-disable-next-line max-len
                   description={(
                     <>
                       Please create a new blueprint to get started. Need Help? Visit the DevLake Wiki on <strong>GitHub</strong>.{' '}
@@ -649,6 +582,7 @@ const Blueprints = (props) => {
       </div>
 
       <AddBlueprintDialog
+        isLoading={isFetchingAllPipelines}
         isOpen={blueprintDialogIsOpen}
         setIsOpen={setBlueprintDialogIsOpen}
         name={name}
