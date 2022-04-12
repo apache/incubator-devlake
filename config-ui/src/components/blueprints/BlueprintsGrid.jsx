@@ -152,7 +152,8 @@ const BlueprintsGrid = (props) => {
                   </div>
                   <div
                     className='blueprint-name'
-                    style={{ flex: 2, minWidth: '176px', fontWeight: 800 }}
+                    style={{ flex: 2, minWidth: '176px', fontWeight: 800, cursor: 'pointer' }}
+                    onClick={() => expandBlueprint(b)}
                   >
                     <div style={{ height: '24px', lineHeight: '24px' }}>
                       <label style={{
