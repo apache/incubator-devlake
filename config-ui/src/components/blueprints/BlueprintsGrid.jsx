@@ -71,6 +71,8 @@ const BlueprintsGrid = (props) => {
                     justifyContent: 'space-between',
                     alignItems: 'center',
                     padding: '8px 5px',
+                    paddingBottom: '16px',
+                    position: 'relative'
                   }}
                 >
                   <div className='blueprint-id' style={{ flex: 1, maxWidth: '100px' }}>
@@ -160,9 +162,11 @@ const BlueprintsGrid = (props) => {
                         Next Run Date
                       </label>
                     </div>
-                    <div>{dayjs(createCron(b.cronConfig).getNextDate().toString()).format('L LTS')}</div>
                     <div>
-                      <span style={{ color: b.enable ? Colors.GREEN5 : Colors.GRAY3 }}>{b.cronConfig}</span>
+                      {dayjs(createCron(b.cronConfig).getNextDate().toString()).format('L LTS')}
+                    </div>
+                    <div>
+                      <span style={{ color: b.enable ? Colors.GREEN5 : Colors.GRAY3, position: 'absolute', bottom: '4px' }}>{b.cronConfig}</span>
                     </div>
                   </div>
                   <div className='blueprint-actions' style={{ flex: 1, textAlign: 'right' }}>
