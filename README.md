@@ -5,10 +5,9 @@
 # DevLake
 
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat&logo=github&color=2370ff&labelColor=454545)](http://makeapullrequest.com)
-[![Discord](https://img.shields.io/discord/844603288082186240.svg?style=flat?label=&logo=discord&logoColor=ffffff&color=747df7&labelColor=454545)](https://discord.gg/83rDG6ydVZ)
 ![badge](https://github.com/merico-dev/lake/actions/workflows/test.yml/badge.svg)
 [![Go Report Card](https://goreportcard.com/badge/github.com/merico-dev/lake)](https://goreportcard.com/report/github.com/merico-dev/lake)
-
+[![Slack](https://img.shields.io/badge/slack-join_chat-success.svg?logo=slack)](https://join.slack.com/t/devlake-io/shared_invite/zt-17b6vuvps-x98pqseoUagM7EAmKC82xQ)
 
 | [English](README.md) | [中文](README-zh-CN.md) |
 | --- | --- |
@@ -271,7 +270,7 @@ This section lists all the documents to help you contribute to the repo.
 
 ## Community
 
-- <a href="https://discord.com/invite/83rDG6ydVZ" target="_blank">Discord</a>: Message us on Discord
+- <a href="https://join.slack.com/t/devlake-io/shared_invite/zt-17b6vuvps-x98pqseoUagM7EAmKC82xQ" target="_blank">Slack</a>: Message us on Slack
 - <a href="https://github.com/merico-dev/lake/wiki/FAQ" target="_blank">FAQ</a>: Frequently Asked Questions
 
 <br>
