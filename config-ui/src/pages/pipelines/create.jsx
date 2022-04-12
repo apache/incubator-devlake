@@ -24,7 +24,9 @@ import {
   ProviderIcons
 } from '@/data/Providers'
 import { integrationsData, pluginsData } from '@/data/integrations'
+import useBlueprintManager from '@/hooks/useBlueprintManager'
 import usePipelineManager from '@/hooks/usePipelineManager'
+import useBlueprintValidation from '@/hooks/useBlueprintValidation'
 import usePipelineValidation from '@/hooks/usePipelineValidation'
 import useConnectionManager from '@/hooks/useConnectionManager'
 import FormValidationErrors from '@/components/messages/FormValidationErrors'
@@ -36,6 +38,7 @@ import Nav from '@/components/Nav'
 import Sidebar from '@/components/Sidebar'
 import AppCrumbs from '@/components/Breadcrumbs'
 import Content from '@/components/Content'
+import AddBlueprintDialog from '@/components/blueprints/AddBlueprintDialog'
 // import CodeEditor from '@uiw/react-textarea-code-editor'
 import { ReactComponent as HelpIcon } from '@/images/help.svg'
 import { ReactComponent as BackArrowIcon } from '@/images/undo.svg'
@@ -68,6 +71,11 @@ const CreatePipeline = (props) => {
 
   const [readyProviders, setReadyProviders] = useState([])
   const [advancedMode, setAdvancedMode] = useState(false)
+  const [enableAutomation, setEnableAutomation] = useState(false)
+  const [blueprintDialogIsOpen, setBlueprintDialogIsOpen] = useState(false)
+  const [draftBlueprint, setDraftBlueprint] = useState(null)
+  const [pipelineTemplates, setPipelineTemplates] = useState([])
+  const [selectedPipelineTemplate, setSelectedPipelineTemplate] = useState()
 
   const [enabledProviders, setEnabledProviders] = useState([])
   const [runTasks, setRunTasks] = useState([])
@@ -97,16 +105,66 @@ const CreatePipeline = (props) => {
   const [restartDetected, setRestartDetected] = useState(false)
 
   const {
+    blueprint,
+    blueprints,
+    name,
+    cronConfig,
+    customCronConfig,
+    cronPresets,
+    tasks,
+    enable,
+    setName: setBlueprintName,
+    setCronConfig,
+    setCustomCronConfig,
+    setTasks: setBlueprintTasks,
+    setEnable: setEnableBlueprint,
+    isFetching: isFetchingBlueprints,
+    isSaving,
+    // isDeleting,
+    createCronExpression: createCron,
+    getCronSchedule: getSchedule,
+    // getCronPreset,
+    // activateBlueprint,
+    // deactivateBlueprint,
+    // fetchBlueprint,
+    // fetchAllBlueprints,
+    saveBlueprint,
+    deleteBlueprint,
+    saveComplete: saveBlueprintComplete,
+    // deleteComplete
+  } = useBlueprintManager()
+
+  const {
+    pipelines,
     runPipeline,
     cancelPipeline,
     fetchPipeline,
+    fetchAllPipelines,
     pipelineRun,
     buildPipelineStages,
     isRunning,
+    isFetchingAll: isFetchingAllPipelines,
     errors: pipelineErrors,
     setSettings: setPipelineSettings,
-    lastRunId
+    lastRunId,
+    allowedProviders,
+    detectPipelineProviders
   } = usePipelineManager(pipelineName, runTasks)
+
+  const {
+    validate: validateBlueprint,
+    errors: blueprintValidationErrors,
+    // setErrors: setBlueprintErrors,
+    isValid: isValidBlueprint,
+    fieldHasError,
+    getFieldError
+  } = useBlueprintValidation({
+    name,
+    cronConfig,
+    customCronConfig,
+    enable,
+    tasks
+  })
 
   const {
     validate,
@@ -339,10 +397,16 @@ const CreatePipeline = (props) => {
     // setRawConfiguration(JSON.stringify(buildPipelineStages(runTasks, true), null, '  '))
     if (advancedMode) {
       validateAdvanced()
+      setBlueprintTasks(runTasksAdvanced)
     } else {
       validate()
+      setBlueprintTasks([[...runTasks]])
     }
-  }, [advancedMode, runTasks, runTasksAdvanced, pipelineName, setPipelineSettings, validate, validateAdvanced])
+  }, [advancedMode, runTasks, runTasksAdvanced, pipelineName, setPipelineSettings, validate, validateAdvanced, setBlueprintTasks])
+
+  useEffect(() => {
+    validateBlueprint()
+  }, [name, cronConfig, customCronConfig, tasks, enable, validateBlueprint])
 
   useEffect(() => {
     console.log('>> ENBALED PROVIDERS = ', enabledProviders)
@@ -478,12 +542,39 @@ const CreatePipeline = (props) => {
       })
       setRunTasksAdvanced(PipelineTasks)
       setRawConfiguration(JSON.stringify(PipelineTasks, null, '  '))
+      setBlueprintTasks(PipelineTasks)
     }
   }, [existingTasks, buildPipelineStages])
 
   useEffect(() => {
     console.log('>>> ADVANCED MODE ENABLED?: ', advancedMode)
   }, [advancedMode])
+
+  useEffect(() => {
+    if (blueprintDialogIsOpen) {
+      fetchAllPipelines('TASK_COMPLETED', 100)
+    }
+  }, [blueprintDialogIsOpen, fetchAllPipelines])
+
+  useEffect(() => {
+    setPipelineTemplates(pipelines.slice(0, 100).map(p => ({ ...p, id: p.id, title: p.name, value: p.id })))
+  }, [pipelines])
+
+  useEffect(() => {
+    if (selectedPipelineTemplate) {
+      setBlueprintTasks(selectedPipelineTemplate.tasks)
+    }
+  }, [selectedPipelineTemplate, setBlueprintTasks])
+
+  useEffect(() => {
+    setSelectedPipelineTemplate(pipelineTemplates.find(pT => pT.tasks.flat().toString() === tasks.flat().toString()))
+  }, [pipelineTemplates])
+
+  useEffect(() => {
+    if (saveBlueprintComplete && saveBlueprintComplete?.id) {
+      setDraftBlueprint(saveBlueprintComplete)
+    }
+  }, [saveBlueprintComplete])
 
   return (
     <>
@@ -1058,6 +1149,47 @@ const CreatePipeline = (props) => {
                       </CSSTransition>
                     ))}
                   </div>
+                  <div className='blueprint-options' style={{ marginBottom: '30px' }}>
+                    <div style={{ marginTop: '10px', display: 'flex', justifyContent: 'flex-start', alignItems: 'center', alignContent: 'center' }}>
+                      <h2 className='headline' style={{ color: enableAutomation ? Colors.BLACK : Colors.GRAY2 }}>
+                        <Icon
+                          icon='calendar'
+                          height={16} size={16} color='rgba(0,0,0,0.5)'
+                        /> Automate Pipeline
+
+                      </h2>
+                      <Switch
+                        disabled={advancedMode ? !isValidAdvancedPipeline() : !isValidPipeline()}
+                        style={{ display: 'flex', alignSelf: 'center', margin: '13px 0 0 15px' }}
+                        checked={enableAutomation}
+                        onChange={(e) => setEnableAutomation(a => !a)} label={false}
+                      />
+                    </div>
+                    <p className='group-caption'>
+                      Automatically run this pipeline configuration by setting up a recurring <strong>Blueprint</strong>.
+                    </p>
+                    {!saveBlueprintComplete && (
+                      <Button
+                        disabled={!enableAutomation}
+                        intent={enableAutomation ? Intent.PRIMARY : Intent.NONE}
+                        small text='Add Blueprint'
+                        style={{ marginLeft: '25px' }}
+                        onClick={() => setBlueprintDialogIsOpen(opened => !opened)}
+                      />
+                    )}
+                    {saveBlueprintComplete && (
+                      <ButtonGroup>
+                        <Button
+                          disabled={!enableAutomation}
+                          intent={enableAutomation ? Intent.PRIMARY : Intent.NONE}
+                          small text={saveBlueprintComplete.name}
+                          style={{ marginLeft: '25px' }}
+                          onClick={() => setBlueprintDialogIsOpen(opened => !opened)}
+                        />
+                        <Button icon='trash' text='Delete' small onClick={() => deleteBlueprint(saveBlueprintComplete)} />
+                      </ButtonGroup>
+                    )}
+                  </div>
                 </>
               )}
 
@@ -1158,6 +1290,35 @@ const CreatePipeline = (props) => {
         onCancel={cancelPipeline}
         onView={() => history.push(`/pipelines/activity/${pipelineRun.ID}`)}
       />
+      <AddBlueprintDialog
+        isLoading={isFetchingAllPipelines}
+        isOpen={blueprintDialogIsOpen}
+        setIsOpen={setBlueprintDialogIsOpen}
+        name={name}
+        cronConfig={cronConfig}
+        customCronConfig={customCronConfig}
+        enable={enable}
+        tasks={tasks}
+        draftBlueprint={draftBlueprint}
+        setDraftBlueprint={setDraftBlueprint}
+        setBlueprintName={setBlueprintName}
+        setCronConfig={setCronConfig}
+        setCustomCronConfig={setCustomCronConfig}
+        setEnableBlueprint={setEnableBlueprint}
+        setBlueprintTasks={setBlueprintTasks}
+        createCron={createCron}
+        saveBlueprint={saveBlueprint}
+        isSaving={isSaving}
+        isValidBlueprint={isValidBlueprint}
+        fieldHasError={fieldHasError}
+        getFieldError={getFieldError}
+        pipelines={pipelineTemplates}
+        selectedPipelineTemplate={selectedPipelineTemplate}
+        setSelectedPipelineTemplate={setSelectedPipelineTemplate}
+        detectedProviders={detectPipelineProviders(tasks, allowedProviders)}
+        tasksLocked={true}
+      />
+
     </>
   )
 }

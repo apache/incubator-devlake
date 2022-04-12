@@ -119,8 +119,16 @@ function useBlueprintManager (blueprintName = `BLUEPRINT WEEKLY ${Date.now()}`, 
           ? await request.patch(`${DEVLAKE_ENDPOINT}/blueprints/${blueprintId}`, blueprintPayload)
           : await request.post(`${DEVLAKE_ENDPOINT}/blueprints`, blueprintPayload)
         console.log('>> RAW BLUEPRINT DATA FROM API...', b.data)
-        setBlueprint(b.data)
-        setSaveComplete(b.data)
+        const blueprintObject = {
+          ...b.data,
+          id: b.data?.id,
+          enable: b.data?.enable,
+          status: 0,
+          nextRunAt: null,
+          interval: detectCronInterval(b.data?.cronConfig)
+        }
+        setBlueprint(blueprintObject)
+        setSaveComplete(blueprintObject)
         ToastNotification.show({
           message: `${blueprintId ? 'Updated' : 'Created'} Blueprint - ${name}.`,
           intent: 'danger',
@@ -148,6 +156,7 @@ function useBlueprintManager (blueprintName = `BLUEPRINT WEEKLY ${Date.now()}`, 
       console.log('>> BLUEPRINT DELETED...', d)
       setIsDeleting(false)
       setDeleteComplete({ status: d.status, data: d.data || null })
+      setSaveComplete(null)
     } catch (e) {
       setIsDeleting(false)
       setDeleteComplete(false)

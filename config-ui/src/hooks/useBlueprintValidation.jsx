@@ -57,6 +57,14 @@ function useBlueprintValidation ({
     enable
   ])
 
+  const fieldHasError = useCallback((fieldId) => {
+    return errors.some(e => e.includes(fieldId))
+  }, [errors])
+
+  const getFieldError = useCallback((fieldId) => {
+    return errors.find(e => e.includes(fieldId))
+  }, [errors])
+
   useEffect(() => {
     // console.log('>>> BLUEPRINT FORM ERRORS...', errors)
     setIsValid(errors.length === 0)
@@ -71,6 +79,8 @@ function useBlueprintValidation ({
     isValid,
     validate,
     clear,
+    fieldHasError,
+    getFieldError
   }
 }
 

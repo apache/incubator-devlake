@@ -113,7 +113,7 @@ const Blueprints = (props) => {
   const {
     validate,
     errors: blueprintValidationErrors,
-    setErrors: setPipelineErrors,
+    // setErrors: setBlueprintErrors,
     isValid: isValidBlueprint,
   } = useBlueprintValidation({
     name,

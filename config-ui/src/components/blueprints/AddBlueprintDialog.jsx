@@ -50,7 +50,8 @@ const AddBlueprintDialog = (props) => {
     isSaving = false,
     isValidBlueprint = false,
     pipelines = [],
-    detectedProviders = []
+    detectedProviders = [],
+    tasksLocked = false
   } = props
 
   useEffect(() => {
@@ -65,7 +66,7 @@ const AddBlueprintDialog = (props) => {
         title={draftBlueprint ? `Edit ${draftBlueprint.name}` : 'Create Pipeline Blueprint'}
         isOpen={isOpen}
         onClose={() => setIsOpen(false)}
-        onClosed={() => setDraftBlueprint(null)}
+        onClosed={() => !tasksLocked ? setDraftBlueprint(null) : {}}
         style={{ backgroundColor: '#ffffff' }}
       >
         <div className={Classes.DIALOG_BODY}>
@@ -164,7 +165,7 @@ const AddBlueprintDialog = (props) => {
                 <FormGroup
                   disabled={isSaving}
                   label={<strong>Pipeline Tasks<span className='requiredStar'>*</span></strong>}
-                  labelInfo={<span style={{ display: 'block' }}>Choose Pipeline Run Template for task configuration</span>}
+                  labelInfo={tasksLocked ? '' : <span style={{ display: 'block' }}>Choose Pipeline Run Template for task configuration</span>}
                   inline={false}
                   labelFor='blueprint-tasks'
                   className=''
@@ -252,7 +253,7 @@ const AddBlueprintDialog = (props) => {
                     </div>
                   </Popover>
                 ))}
-                {tasks.length > 0 && (<Button onClick={() => setBlueprintTasks([]) | setSelectedPipelineTemplate(null)} icon='eraser' round minimal text='Clear' />)}
+                {!tasksLocked && tasks.length > 0 && (<Button onClick={() => setBlueprintTasks([]) | setSelectedPipelineTemplate(null)} icon='eraser' round minimal text='Clear' />)}
               </div>
               <div className='formContainer'>
                 <FormGroup
