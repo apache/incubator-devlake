@@ -47,7 +47,7 @@ function useBlueprintManager (blueprintName = `BLUEPRINT WEEKLY ${Date.now()}`, 
           enable: blueprint.enable,
           status: 0,
           nextRunAt: null, // @todo: calculate next run date
-          interval: 'Daily' // @todo: add interval detection
+          interval: detectCronInterval(blueprint.cronConfig)
         }
       })
       if (notify) {
@@ -83,7 +83,7 @@ function useBlueprintManager (blueprintName = `BLUEPRINT WEEKLY ${Date.now()}`, 
           enable: blueprint.enable,
           status: 0,
           nextRunAt: null, // @todo: calculate next run date
-          interval: 'Daily' // @todo: add interval detection
+          interval: detectCronInterval(blueprint.cronConfig)
         })
         setTimeout(() => {
           setIsFetching(false)
@@ -179,6 +179,16 @@ function useBlueprintManager (blueprintName = `BLUEPRINT WEEKLY ${Date.now()}`, 
     return schedule
   }, [])
 
+  const getCronPreset = (presetName) => {
+    return cronPresets.find(p => p.name === presetName)
+  }
+
+  const detectCronInterval = (cronConfig) => {
+    return cronPresets.find(p => p.cronConfig === cronConfig)
+      ? cronPresets.find(p => p.cronConfig === cronConfig).label
+      : 'Custom'
+  }
+
   const activateBlueprint = useCallback((blueprint) => {
     console.log('>> ACTIVATING BLUEPRINT....')
     try {
@@ -269,6 +279,8 @@ function useBlueprintManager (blueprintName = `BLUEPRINT WEEKLY ${Date.now()}`, 
     deleteComplete,
     createCronExpression,
     getCronSchedule,
+    getCronPreset,
+    detectCronInterval,
     activateBlueprint,
     deactivateBlueprint,
     setName,

@@ -39,6 +39,7 @@ const BlueprintsGrid = (props) => {
     configureBlueprint = (b) => {},
     isDeleting = false,
     expandDetails = false,
+    cronPresets
   } = props
 
   return (
