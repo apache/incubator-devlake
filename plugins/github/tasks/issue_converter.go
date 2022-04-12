@@ -52,7 +52,7 @@ func ConvertIssues(taskCtx core.SubTaskContext) error {
 			issue := inputRow.(*githubModels.GithubIssue)
 			domainIssue := &ticket.Issue{
 				DomainEntity:    domainlayer.DomainEntity{Id: issueIdGen.Generate(issue.GithubId)},
-				Key:             strconv.Itoa(issue.Number),
+				Number:          strconv.Itoa(issue.Number),
 				Title:           issue.Title,
 				Description:     issue.Body,
 				Priority:        issue.Priority,

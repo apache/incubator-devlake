@@ -89,14 +89,14 @@ func CalculateCommitsDiff(taskCtx core.SubTaskContext) error {
 		// ref might advance, keep commit sha for debugging
 		commitsDiff.NewRefCommitSha = pair[0]
 		commitsDiff.OldRefCommitSha = pair[1]
-		commitsDiff.NewRefName = fmt.Sprintf("%s:%s", repoId, pair[2])
-		commitsDiff.OldRefName = fmt.Sprintf("%s:%s", repoId, pair[3])
+		commitsDiff.NewRefId = fmt.Sprintf("%s:%s", repoId, pair[2])
+		commitsDiff.OldRefId = fmt.Sprintf("%s:%s", repoId, pair[3])
 
 		// delete records before creation
 		err = db.Exec(
 			"DELETE FROM refs_commits_diffs WHERE new_ref_name = ? AND old_ref_name = ?",
-			commitsDiff.NewRefName,
-			commitsDiff.OldRefName,
+			commitsDiff.NewRefId,
+			commitsDiff.OldRefId,
 		).Error
 		if err != nil {
 			return err
@@ -108,8 +108,8 @@ func CalculateCommitsDiff(taskCtx core.SubTaskContext) error {
 				"refdiff",
 				fmt.Sprintf(
 					"skipping ref pair due to they are the same %s %s => %s",
-					commitsDiff.NewRefName,
-					commitsDiff.OldRefName,
+					commitsDiff.NewRefId,
+					commitsDiff.OldRefId,
 					commitsDiff.NewRefCommitSha,
 				),
 			)

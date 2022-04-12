@@ -11,6 +11,7 @@ type PullRequest struct {
 	BaseRepoId     string `gorm:"index"`
 	HeadRepoId     string `gorm:"index"`
 	Status         string `gorm:"type:varchar(100);comment:open/closed or other"`
+	Number         int
 	Title          string
 	Description    string
 	Url            string `gorm:"type:char(255)"`

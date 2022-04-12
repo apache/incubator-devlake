@@ -9,7 +9,7 @@ import (
 type Issue struct {
 	domainlayer.DomainEntity
 	Url                     string `gorm:"type:char(255)"`
-	Key                     string `gorm:"type:char(255)"`
+	Number                  string `gorm:"type:char(255)"`
 	Title                   string
 	Description             string
 	EpicKey                 string `gorm:"type:char(255)"`
