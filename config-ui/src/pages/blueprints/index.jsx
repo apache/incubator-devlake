@@ -279,7 +279,7 @@ const Blueprints = (props) => {
                 </div>
               </div>
             </div>
-            {(!isFetchingBlueprints) && (
+            {(!isFetchingBlueprints) && blueprints.length > 0 && (
               <>
                 <BlueprintsGrid
                   blueprints={blueprints}
@@ -298,7 +298,7 @@ const Blueprints = (props) => {
               </>)}
 
             {!isFetchingBlueprints && blueprints.length === 0 && (
-              <div>
+              <div style={{ marginTop: '36px' }}>
                 <NonIdealState
                   icon='grid'
                   title='No Defined Blueprints'

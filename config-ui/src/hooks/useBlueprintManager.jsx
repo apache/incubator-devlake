@@ -116,7 +116,7 @@ function useBlueprintManager (blueprintName = `BLUEPRINT WEEKLY ${Date.now()}`, 
         // eslint-disable-next-line max-len
         // const b = await request.post(`${DEVLAKE_ENDPOINT}/blueprints`, blueprintPayload)
         const b = blueprintId
-          ? await request.put(`${DEVLAKE_ENDPOINT}/blueprints/${blueprintId}`, blueprintPayload)
+          ? await request.patch(`${DEVLAKE_ENDPOINT}/blueprints/${blueprintId}`, blueprintPayload)
           : await request.post(`${DEVLAKE_ENDPOINT}/blueprints`, blueprintPayload)
         console.log('>> RAW BLUEPRINT DATA FROM API...', b.data)
         setBlueprint(b.data)
@@ -196,17 +196,17 @@ function useBlueprintManager (blueprintName = `BLUEPRINT WEEKLY ${Date.now()}`, 
       setErrors([])
       ToastNotification.clear()
       const blueprintPayload = {
-        id: blueprint.id,
+        // id: blueprint.id,
         name: blueprint.name,
-        cronConfig: blueprint.cronConfig,
-        tasks: blueprint.tasks || [],
+        // cronConfig: blueprint.cronConfig,
+        // tasks: blueprint.tasks || [],
         enable: true
       }
       console.log('>> DISPATCHING BLUEPRINT ACTIVATION REQUEST', blueprintPayload)
       const run = async () => {
         // eslint-disable-next-line max-len
         // const b = await request.post(`${DEVLAKE_ENDPOINT}/blueprints`, blueprintPayload)
-        const activateB = await request.put(`${DEVLAKE_ENDPOINT}/blueprints/${blueprint.id}`, blueprintPayload)
+        const activateB = await request.patch(`${DEVLAKE_ENDPOINT}/blueprints/${blueprint.id}`, blueprintPayload)
         console.log('>> RAW BLUEPRINT DATA FROM API...', activateB.data)
         const updatedBlueprint = activateB.data
         // setBlueprint(b.data)
@@ -233,16 +233,16 @@ function useBlueprintManager (blueprintName = `BLUEPRINT WEEKLY ${Date.now()}`, 
       setErrors([])
       ToastNotification.clear()
       const blueprintPayload = {
-        id: blueprint.id,
-        cronConfig: blueprint.cronConfig,
-        tasks: tasks,
+        // id: blueprint.id,
+        // cronConfig: blueprint.cronConfig,
+        // tasks: tasks,
         enable: false
       }
       console.log('>> DISPATCHING BLUEPRINT ACTIVATION REQUEST', blueprintPayload)
       const run = async () => {
         // eslint-disable-next-line max-len
         // const b = await request.post(`${DEVLAKE_ENDPOINT}/blueprints`, blueprintPayload)
-        const deactivateB = await request.put(`${DEVLAKE_ENDPOINT}/blueprints/${blueprint.id}`, blueprintPayload)
+        const deactivateB = await request.patch(`${DEVLAKE_ENDPOINT}/blueprints/${blueprint.id}`, blueprintPayload)
         console.log('>> RAW BLUEPRINT DATA FROM API...', deactivateB.data)
         const updatedBlueprint = deactivateB.data
         // setBlueprint(b.data)
