@@ -55,7 +55,9 @@ const CreatePipeline = (props) => {
   const location = useLocation()
   // const { providerId } = useParams()
   // const [activeProvider, setActiveProvider] = useState(integrationsData[0])
+  // eslint-disable-next-line no-unused-vars
   const [integrations, setIntegrations] = useState([...integrationsData, ...pluginsData])
+  // eslint-disable-next-line no-unused-vars
   const [jiraIntegration, setJiraIntegration] = useState(integrationsData.find(p => p.id === Providers.JIRA))
 
   const [today, setToday] = useState(new Date())
@@ -101,15 +103,20 @@ const CreatePipeline = (props) => {
   const [refDiffPairs, setRefDiffPairs] = useState([])
   const [refDiffTasks, setRefDiffTasks] = useState(['calculateCommitsDiff', 'calculateIssuesDiff'])
 
+  // eslint-disable-next-line no-unused-vars
   const [autoRedirect, setAutoRedirect] = useState(true)
+  // eslint-disable-next-line no-unused-vars
   const [restartDetected, setRestartDetected] = useState(false)
 
   const {
+    // eslint-disable-next-line no-unused-vars
     blueprint,
+    // eslint-disable-next-line no-unused-vars
     blueprints,
     name,
     cronConfig,
     customCronConfig,
+    // eslint-disable-next-line no-unused-vars
     cronPresets,
     tasks: blueprintTasks,
     detectedProviderTasks,
@@ -120,9 +127,11 @@ const CreatePipeline = (props) => {
     setTasks: setBlueprintTasks,
     setDetectedProviderTasks,
     setEnable: setEnableBlueprint,
+    // eslint-disable-next-line no-unused-vars
     isFetching: isFetchingBlueprints,
     isSaving,
     createCronExpression: createCron,
+    // eslint-disable-next-line no-unused-vars
     getCronSchedule: getSchedule,
     saveBlueprint,
     deleteBlueprint,
@@ -140,15 +149,21 @@ const CreatePipeline = (props) => {
     buildPipelineStages,
     isRunning,
     isFetchingAll: isFetchingAllPipelines,
+    // eslint-disable-next-line no-unused-vars
     errors: pipelineErrors,
     setSettings: setPipelineSettings,
+    // eslint-disable-next-line no-unused-vars
     lastRunId,
+    // eslint-disable-next-line no-unused-vars
     allowedProviders,
+    // eslint-disable-next-line no-unused-vars
     detectPipelineProviders
   } = usePipelineManager(pipelineName, runTasks)
 
   const {
+    // eslint-disable-next-line no-unused-vars
     validate: validateBlueprint,
+    // eslint-disable-next-line no-unused-vars
     errors: blueprintValidationErrors,
     // setErrors: setBlueprintErrors,
     isValid: isValidBlueprint,
@@ -189,8 +204,10 @@ const CreatePipeline = (props) => {
 
   const {
     allConnections,
+    // eslint-disable-next-line no-unused-vars
     isFetching: isFetchingConnections,
     fetchAllConnections,
+    // eslint-disable-next-line no-unused-vars
     getConnectionName
   } = useConnectionManager({
     activeProvider: jiraIntegration
