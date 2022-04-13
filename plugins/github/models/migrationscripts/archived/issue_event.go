@@ -1,8 +1,9 @@
 package archived
 
 import (
-	"github.com/merico-dev/lake/models/common"
 	"time"
+
+	"github.com/merico-dev/lake/models/migrationscripts/archived"
 )
 
 type GithubIssueEvent struct {
@@ -11,7 +12,7 @@ type GithubIssueEvent struct {
 	Type            string    `gorm:"type:varchar(255);comment:Events that can occur to an issue, ex. assigned, closed, labeled, etc."`
 	AuthorUsername  string    `gorm:"type:varchar(255)"`
 	GithubCreatedAt time.Time `gorm:"index"`
-	common.NoPKModel
+	archived.NoPKModel
 }
 
 func (GithubIssueEvent) TableName() string {

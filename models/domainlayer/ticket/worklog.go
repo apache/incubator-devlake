@@ -6,7 +6,7 @@ import (
 	"github.com/merico-dev/lake/models/domainlayer"
 )
 
-type Worklog struct {
+type IssueWorklog struct {
 	domainlayer.DomainEntity
 	AuthorId         string `gorm:"type:varchar(255)"`
 	Comment          string

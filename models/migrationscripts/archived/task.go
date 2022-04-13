@@ -3,12 +3,11 @@ package archived
 import (
 	"time"
 
-	"github.com/merico-dev/lake/models/common"
 	"gorm.io/datatypes"
 )
 
 type Task struct {
-	common.Model
+	Model
 	Plugin        string `gorm:"index"`
 	Options       datatypes.JSON
 	Status        string

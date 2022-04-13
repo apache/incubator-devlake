@@ -1,11 +1,9 @@
 package archived
 
-import (
-	"github.com/merico-dev/lake/models/common"
-)
+import "github.com/merico-dev/lake/models/migrationscripts/archived"
 
 type JiraUser struct {
-	common.NoPKModel
+	archived.NoPKModel
 
 	// collected fields
 	SourceId    uint64 `gorm:"primarykey"`

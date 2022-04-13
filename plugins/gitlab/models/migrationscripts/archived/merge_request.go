@@ -3,7 +3,7 @@ package archived
 import (
 	"time"
 
-	"github.com/merico-dev/lake/models/common"
+	"github.com/merico-dev/lake/models/migrationscripts/archived"
 )
 
 type GitlabMergeRequest struct {
@@ -24,7 +24,7 @@ type GitlabMergeRequest struct {
 	AuthorUsername   string     `gorm:"type:varchar(255)"`
 	FirstCommentTime *time.Time `gorm:"comment:Time when the first comment occurred"`
 	ReviewRounds     int        `gorm:"comment:How many rounds of review this MR went through"`
-	common.NoPKModel
+	archived.NoPKModel
 }
 
 func (GitlabMergeRequest) TableName() string {

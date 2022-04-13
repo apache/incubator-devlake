@@ -1,8 +1,9 @@
 package archived
 
 import (
-	"github.com/merico-dev/lake/models/common"
 	"time"
+
+	"github.com/merico-dev/lake/models/migrationscripts/archived"
 )
 
 type GithubIssueComment struct {
@@ -13,7 +14,7 @@ type GithubIssueComment struct {
 	AuthorUserId    int
 	GithubCreatedAt time.Time
 	GithubUpdatedAt time.Time `gorm:"index"`
-	common.NoPKModel
+	archived.NoPKModel
 }
 
 func (GithubIssueComment) TableName() string {

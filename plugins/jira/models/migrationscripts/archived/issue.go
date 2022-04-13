@@ -3,7 +3,7 @@ package archived
 import (
 	"time"
 
-	"github.com/merico-dev/lake/models/common"
+	"github.com/merico-dev/lake/models/migrationscripts/archived"
 	"gorm.io/datatypes"
 )
 
@@ -48,11 +48,11 @@ type JiraIssue struct {
 	// internal status tracking
 	ChangelogUpdated  *time.Time
 	RemotelinkUpdated *time.Time
-	common.NoPKModel
+	archived.NoPKModel
 }
 
 type JiraIssueCommit struct {
-	common.NoPKModel
+	archived.NoPKModel
 	SourceId  uint64 `gorm:"primaryKey"`
 	IssueId   uint64 `gorm:"primaryKey"`
 	CommitSha string `gorm:"primaryKey;type:char(40)"`

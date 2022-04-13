@@ -1,7 +1,7 @@
 package archived
 
 import (
-	"github.com/merico-dev/lake/models/common"
+	"github.com/merico-dev/lake/models/migrationscripts/archived"
 )
 
 type GitlabReviewer struct {
@@ -13,7 +13,7 @@ type GitlabReviewer struct {
 	State          string `gorm:"type:varchar(255)"`
 	AvatarUrl      string `gorm:"type:varchar(255)"`
 	WebUrl         string `gorm:"type:varchar(255)"`
-	common.NoPKModel
+	archived.NoPKModel
 }
 
 func (GitlabReviewer) TableName() string {

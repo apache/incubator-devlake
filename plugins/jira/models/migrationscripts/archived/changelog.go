@@ -3,11 +3,11 @@ package archived
 import (
 	"time"
 
-	"github.com/merico-dev/lake/models/common"
+	"github.com/merico-dev/lake/models/migrationscripts/archived"
 )
 
 type JiraChangelog struct {
-	common.NoPKModel
+	archived.NoPKModel
 
 	// collected fields
 	SourceId          uint64 `gorm:"primaryKey"`
@@ -20,7 +20,7 @@ type JiraChangelog struct {
 }
 
 type JiraChangelogItem struct {
-	common.NoPKModel
+	archived.NoPKModel
 
 	// collected fields
 	SourceId    uint64 `gorm:"primaryKey"`

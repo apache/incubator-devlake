@@ -1,6 +1,8 @@
 package archived
 
-import "github.com/merico-dev/lake/models/common"
+import (
+	"github.com/merico-dev/lake/models/migrationscripts/archived"
+)
 
 // JenkinsJobProps current used jenkins job props
 type JenkinsJobProps struct {
@@ -13,7 +15,7 @@ type JenkinsJobProps struct {
 // JenkinsJob db entity for jenkins job
 type JenkinsJob struct {
 	JenkinsJobProps
-	common.NoPKModel
+	archived.NoPKModel
 }
 
 func (JenkinsJob) TableName() string {

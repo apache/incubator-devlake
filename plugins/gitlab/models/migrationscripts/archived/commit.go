@@ -3,7 +3,7 @@ package archived
 import (
 	"time"
 
-	"github.com/merico-dev/lake/models/common"
+	"github.com/merico-dev/lake/models/migrationscripts/archived"
 )
 
 type GitlabCommit struct {
@@ -21,7 +21,7 @@ type GitlabCommit struct {
 	Additions      int    `gorm:"comment:Added lines of code"`
 	Deletions      int    `gorm:"comment:Deleted lines of code"`
 	Total          int    `gorm:"comment:Sum of added/deleted lines of code"`
-	common.NoPKModel
+	archived.NoPKModel
 }
 
 func (GitlabCommit) TableName() string {

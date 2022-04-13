@@ -46,7 +46,7 @@ func ConvertWorklogs(taskCtx core.SubTaskContext) error {
 		Input:        cursor,
 		Convert: func(inputRow interface{}) ([]interface{}, error) {
 			jiraWorklog := inputRow.(*models.JiraWorklog)
-			worklog := &ticket.Worklog{
+			worklog := &ticket.IssueWorklog{
 				DomainEntity:     domainlayer.DomainEntity{Id: worklogIdGen.Generate(jiraWorklog.SourceId, jiraWorklog.IssueId, jiraWorklog.WorklogId)},
 				IssueId:          issueIdGen.Generate(jiraWorklog.SourceId, jiraWorklog.IssueId),
 				TimeSpentMinutes: jiraWorklog.TimeSpentSeconds / 60,

@@ -18,7 +18,6 @@ type Sprint struct {
 	Name            string `gorm:"type:char(255)"`
 	Url             string `gorm:"type:char(255)"`
 	Status          string `gorm:"type:char(100)"`
-	Title           string `gorm:"type:char(255)"`
 	StartedDate     *time.Time
 	EndedDate       *time.Time
 	CompletedDate   *time.Time

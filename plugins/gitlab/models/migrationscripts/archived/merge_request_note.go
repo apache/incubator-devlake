@@ -3,7 +3,7 @@ package archived
 import (
 	"time"
 
-	"github.com/merico-dev/lake/models/common"
+	"github.com/merico-dev/lake/models/migrationscripts/archived"
 )
 
 type GitlabMergeRequestNote struct {
@@ -18,7 +18,7 @@ type GitlabMergeRequestNote struct {
 	Resolvable      bool `gorm:"comment:Is or is not review comment"`
 	System          bool `gorm:"comment:Is or is not auto-generated vs. human generated"`
 
-	common.NoPKModel
+	archived.NoPKModel
 }
 
 func (GitlabMergeRequestNote) TableName() string {

@@ -3,12 +3,12 @@ package archived
 import (
 	"time"
 
-	"github.com/merico-dev/lake/models/common"
+	"github.com/merico-dev/lake/models/migrationscripts/archived"
 )
 
 // JenkinsBuild db entity for jenkins build
 type JenkinsBuild struct {
-	common.NoPKModel
+	archived.NoPKModel
 	JobName           string  `gorm:"primaryKey;type:varchar(255)"`
 	Duration          float64 // build time
 	DisplayName       string  `gorm:"type:varchar(255)"` // "#7"

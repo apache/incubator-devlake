@@ -97,7 +97,7 @@ func MigrateDb(db *gorm.DB) error {
 		&ticket.IssueAssigneeHistory{},
 		&devops.Job{},
 		&devops.Build{},
-		&ticket.Worklog{},
+		&ticket.IssueWorklog{},
 		&ticket.IssueComment{},
 		&crossdomain.BoardRepo{},
 		&crossdomain.PullRequestIssue{},

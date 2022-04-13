@@ -1,14 +1,11 @@
 package archived
 
 import (
-	"github.com/merico-dev/lake/models/common"
 	"time"
-
-	"github.com/merico-dev/lake/models/domainlayer"
 )
 
 type PullRequest struct {
-	domainlayer.DomainEntity
+	DomainEntity
 	BaseRepoId     string `gorm:"index"`
 	HeadRepoId     string `gorm:"index"`
 	Status         string `gorm:"type:varchar(100);comment:open/closed or other"`
@@ -35,7 +32,7 @@ type PullRequest struct {
 type PullRequestCommit struct {
 	CommitSha     string `gorm:"primaryKey;type:char(40)"`
 	PullRequestId string `json:"id" gorm:"primaryKey;type:varchar(255);comment:This key is generated based on details from the original plugin"` // format: <Plugin>:<Entity>:<PK0>:<PK1>
-	common.NoPKModel
+	NoPKModel
 }
 
 type PullRequestIssue struct {
@@ -43,7 +40,7 @@ type PullRequestIssue struct {
 	IssueId       string `gorm:"primaryKey;type:varchar(255)"`
 	PullNumber    int
 	IssueNumber   int
-	common.NoPKModel
+	NoPKModel
 }
 
 // Please note that Issue Labels can also apply to Pull Requests.
@@ -52,11 +49,11 @@ type PullRequestIssue struct {
 type PullRequestLabel struct {
 	PullRequestId string `json:"id" gorm:"primaryKey;type:varchar(255);comment:This key is generated based on details from the original plugin"` // format: <Plugin>:<Entity>:<PK0>:<PK1>
 	LabelName     string `gorm:"primaryKey;type:varchar(255)"`
-	common.NoPKModel
+	NoPKModel
 }
 
 type PullRequestComment struct {
-	domainlayer.DomainEntity
+	DomainEntity
 	PullRequestId string `gorm:"index"`
 	Body          string
 	UserId        string `gorm:"type:varchar(255)"`

@@ -3,12 +3,11 @@ package archived
 import (
 	"time"
 
-	"github.com/merico-dev/lake/models/common"
 	"gorm.io/datatypes"
 )
 
 type Pipeline struct {
-	common.Model
+	Model
 	Name        string `json:"name" gorm:"index"`
 	BlueprintId uint64
 	Tasks       datatypes.JSON

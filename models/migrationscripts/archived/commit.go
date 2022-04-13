@@ -2,12 +2,10 @@ package archived
 
 import (
 	"time"
-
-	"github.com/merico-dev/lake/models/common"
 )
 
 type Commit struct {
-	common.NoPKModel
+	NoPKModel
 	Sha            string `json:"sha" gorm:"primaryKey;type:char(40);comment:commit hash"`
 	Additions      int    `gorm:"comment:Added lines of code"`
 	Deletions      int    `gorm:"comment:Deleted lines of code"`
@@ -24,7 +22,7 @@ type Commit struct {
 }
 
 type CommitFile struct {
-	common.NoPKModel
+	NoPKModel
 	CommitSha string `gorm:"primaryKey;type:char(40)"`
 	FilePath  string `gorm:"primaryKey;type:varchar(255)"`
 	Additions int

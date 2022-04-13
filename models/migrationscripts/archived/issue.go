@@ -1,14 +1,11 @@
 package archived
 
 import (
-	"github.com/merico-dev/lake/models/common"
 	"time"
-
-	"github.com/merico-dev/lake/models/domainlayer"
 )
 
 type Issue struct {
-	domainlayer.DomainEntity
+	DomainEntity
 	Url                     string `gorm:"type:char(255)"`
 	Number                  string `gorm:"type:char(255)"`
 	Title                   string
@@ -35,7 +32,7 @@ type Issue struct {
 }
 
 type IssueCommit struct {
-	common.NoPKModel
+	NoPKModel
 	IssueId   string `gorm:"primaryKey;type:varchar(255)"`
 	CommitSha string `gorm:"primaryKey;type:varchar(255)"`
 }
@@ -43,11 +40,11 @@ type IssueCommit struct {
 type IssueLabel struct {
 	IssueId   string `json:"id" gorm:"primaryKey;type:varchar(255);comment:This key is generated based on details from the original plugin"` // format: <Plugin>:<Entity>:<PK0>:<PK1>
 	LabelName string `gorm:"primaryKey;type:varchar(255)"`
-	common.NoPKModel
+	NoPKModel
 }
 
 type IssueComment struct {
-	domainlayer.DomainEntity
+	DomainEntity
 	IssueId     string `gorm:"index"`
 	Body        string
 	UserId      string `gorm:"type:varchar(255)"`

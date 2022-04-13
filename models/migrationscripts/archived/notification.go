@@ -1,12 +1,10 @@
 package archived
 
-import "github.com/merico-dev/lake/models/common"
-
 type NotificationType string
 
 // Notification records notifications sent by lake
 type Notification struct {
-	common.Model
+	Model
 	Type         NotificationType
 	Endpoint     string
 	Nonce        string

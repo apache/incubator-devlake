@@ -2,12 +2,10 @@ package archived
 
 import (
 	"time"
-
-	"github.com/merico-dev/lake/models/common"
 )
 
 type IssueStatusHistory struct {
-	common.NoPKModel
+	NoPKModel
 	IssueId        string    `gorm:"primaryKey;type:varchar(255)"`
 	OriginalStatus string    `gorm:"primaryKey;type:varchar(255)"`
 	StartDate      time.Time `gorm:"primaryKey"`
@@ -19,7 +17,7 @@ func (IssueStatusHistory) TableName() string {
 }
 
 type IssueAssigneeHistory struct {
-	common.NoPKModel
+	NoPKModel
 	IssueId   string    `gorm:"primaryKey;type:varchar(255)"`
 	Assignee  string    `gorm:"primaryKey;type:varchar(255)"`
 	StartDate time.Time `gorm:"primaryKey"`
@@ -31,7 +29,7 @@ func (IssueAssigneeHistory) TableName() string {
 }
 
 type IssueSprintsHistory struct {
-	common.NoPKModel
+	NoPKModel
 	IssueId   string    `gorm:"primaryKey;type:varchar(255)"`
 	SprintId  string    `gorm:"primaryKey;type:varchar(255)"`
 	StartDate time.Time `gorm:"primaryKey"`

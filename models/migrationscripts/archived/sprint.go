@@ -2,17 +2,13 @@ package archived
 
 import (
 	"time"
-
-	"github.com/merico-dev/lake/models/common"
-	"github.com/merico-dev/lake/models/domainlayer"
 )
 
 type Sprint struct {
-	domainlayer.DomainEntity
+	DomainEntity
 	Name            string `gorm:"type:char(255)"`
 	Url             string `gorm:"type:char(255)"`
 	Status          string `gorm:"type:char(100)"`
-	Title           string `gorm:"type:char(255)"`
 	StartedDate     *time.Time
 	EndedDate       *time.Time
 	CompletedDate   *time.Time
@@ -20,7 +16,7 @@ type Sprint struct {
 }
 
 type SprintIssue struct {
-	common.NoPKModel
+	NoPKModel
 	SprintId      string `gorm:"primaryKey;type:varchar(255)"`
 	IssueId       string `gorm:"primaryKey;type:varchar(255)"`
 	IsRemoved     bool

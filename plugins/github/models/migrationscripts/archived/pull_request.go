@@ -1,8 +1,9 @@
 package archived
 
 import (
-	"github.com/merico-dev/lake/models/common"
 	"time"
+
+	"github.com/merico-dev/lake/models/migrationscripts/archived"
 )
 
 type GithubPullRequest struct {
@@ -33,7 +34,7 @@ type GithubPullRequest struct {
 	Url            string `gorm:"type:char(255)"`
 	AuthorName     string `gorm:"type:char(100)"`
 	AuthorId       int
-	common.NoPKModel
+	archived.NoPKModel
 }
 
 func (GithubPullRequest) TableName() string {
