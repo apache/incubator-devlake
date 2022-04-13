@@ -1,9 +1,0 @@
-version: "3"
-services:
-  sync:
-    image: mericodev/lake:latest
-    volumes:
-      - ./req.json:/bin/app/req.json
-    # This command will request task api every 60 mins 
-    command: lake-cli api pipeline -m POST --cron "@every 60m" --body ./req.json 
-    network_mode: host
