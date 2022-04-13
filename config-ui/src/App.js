@@ -20,7 +20,6 @@ import Offline from '@/pages/offline/index'
 import Pipelines from '@/pages/pipelines/index'
 import CreatePipeline from '@/pages/pipelines/create'
 import PipelineActivity from '@/pages/pipelines/activity'
-// #1462 Blueprints
 import Blueprints from '@/pages/blueprints/index'
 
 function App () {
