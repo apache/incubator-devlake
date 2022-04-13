@@ -23,6 +23,7 @@ func CollectProjects(taskCtx core.SubTaskContext) error {
 			Ctx: taskCtx,
 			Params: JiraApiParams{
 				SourceId: data.Source.ID,
+				BoardId:  data.Options.BoardId,
 			},
 			Table: RAW_PROJECT_TABLE,
 		},

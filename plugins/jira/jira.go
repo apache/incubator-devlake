@@ -102,7 +102,7 @@ func (plugin Jira) PrepareTaskData(taskCtx core.TaskContext, options map[string]
 	}
 	info, code, err := tasks.GetJiraServerInfo(jiraApiClient)
 	if err != nil || code != http.StatusOK || info == nil {
-		return nil, fmt.Errorf("fail to get server info")
+		return nil, fmt.Errorf("fail to get server info: error:[%s] code:[%d]", err, code)
 	}
 	taskData := &tasks.JiraTaskData{
 		Options:        &op,
