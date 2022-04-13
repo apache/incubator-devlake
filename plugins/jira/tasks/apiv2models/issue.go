@@ -268,7 +268,7 @@ func (i Issue) ExtractEntities(sourceId uint64, epicField, storyPointField strin
 		for _, changelog := range i.Changelog.Histories {
 			changelogs = append(changelogs, changelog.ToToolLayer(sourceId, i.ID))
 			for _, item := range changelog.Items {
-				changelogItems = append(changelogItems, item.ToToolLayer(sourceId, i.ID))
+				changelogItems = append(changelogItems, item.ToToolLayer(sourceId, changelog.ID))
 			}
 		}
 	}
