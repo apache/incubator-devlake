@@ -24,6 +24,7 @@ const BlueprintsGrid = (props) => {
   const {
     blueprints = [],
     filteredBlueprints = [],
+    pipelines = [],
     activeBlueprint,
     blueprintSchedule,
     isActiveBlueprint = (b) => {},
@@ -33,10 +34,12 @@ const BlueprintsGrid = (props) => {
     handleBlueprintActivation = (b) => {},
     configureBlueprint = (b) => {},
     isDeleting = false,
+    isLoading = false,
     expandDetails = false,
     cronPresets,
     activeFilterStatus,
-    onFilter = () => {}
+    onFilter = () => {},
+    onViewPipeline = () => {}
   } = props
 
   // eslint-disable-next-line no-unused-vars
@@ -254,16 +257,35 @@ const BlueprintsGrid = (props) => {
                 </div>
               </div>
               <Collapse isOpen={expandDetails && activeBlueprint.id === b.id}>
-                <Card elevation={Elevation.TWO} style={{ padding: '0', margin: '30px 30px', backgroundColor: !b.enable ? '#f8f8f8' : 'initial' }}>
+                <Card
+                  elevation={Elevation.TWO} style={{
+                    padding: '0',
+                    margin: '30px 30px',
+                    backgroundColor: !b.enable ? '#f8f8f8' : 'initial'
+                  }}
+                >
                   <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', margin: '0', padding: '10px' }}>
-                    <div>
-                      <span style={{ float: 'left', display: 'block', marginRight: '10px' }}>
-                        <Spinner size={14} />
-                      </span>
-                      LOADING ASSOCIATED PIPELINES...
+                    <div style={{ fontFamily: 'Montserrat', letterSpacing: '1px', fontWeight: 800 }}>
+                      <Icon icon='bold' color={Colors.BLUE4} size={14} style={{ marginRight: '5px' }} /> BLUEPRINT ID {activeBlueprint?.id}
+                      {isLoading && (
+                        <span style={{ paddingLeft: '20px', fontWeight: 700, color: '#777777', fontSize: '11px' }}>
+                          <span style={{ display: 'inline-block', marginRight: '10px', marginTop: '2px' }}>
+                            <Spinner size={12} />
+                          </span>
+                          LOADING ASSOCIATED PIPELINES...
+                        </span>
+                      )}
                     </div>
                     <div>
-                      <Tag style={{ backgroundColor: b.enable ? Colors.GREEN3 : Colors.GRAY3 }} round='true'>{b.enable ? 'ACTIVE' : 'INACTIVE'}</Tag>
+                      <Tag
+                        style={{
+                          backgroundColor: b.enable
+                            ? Colors.GREEN3
+                            : Colors.GRAY3
+                        }} round='true'
+                      >
+                        {b.enable ? 'ACTIVE' : 'INACTIVE'}
+                      </Tag>
                     </div>
                   </div>
                   <Divider style={{ marginRight: 0, marginLeft: 0 }} />
@@ -274,14 +296,42 @@ const BlueprintsGrid = (props) => {
                       <div style={{ margin: '10px 0' }}>
                         {activeBlueprint?.id && blueprintSchedule.map((s, sIdx) => (
                           <div key={`run-schedule-event-key${sIdx}`} style={{ padding: '6px 4px', opacity: b.enable ? 1 : 0.5 }}>
-                            <Icon icon='calendar' size={14} color={b.enable ? Colors.BLUE4 : Colors.GRAY4} style={{ marginRight: '10px' }} />
+                            <Icon
+                              icon='calendar' size={14}
+                              color={b.enable ? Colors.BLUE4 : Colors.GRAY4}
+                              style={{ marginRight: '10px' }}
+                            />
                             {dayjs(s).format('L LTS')}
+                          </div>
+                        ))}
+                      </div>
+                      <div className='related-pipelines-list' style={{ marginBottom: '20px' }}>
+                        {!isLoading && <h3 style={{ margin: '0 0 5px 0', textTransform: 'uppercase' }}>Pipeline Runs</h3>}
+                        {!isLoading && pipelines.length === 0 && (<p>No Pipelines have been found for this blueprint.</p>)}
+                        {!isLoading && pipelines.map((p, pIdx) => (
+                          <div key={`pipeline-run-key-${pIdx}`} className='pipeline-run-entry' style={{ display: 'flex', justifyContent: 'flex-start', alignItems: 'center' }}>
+                            <div className='pipeline-id' style={{ minWidth: '80px', paddingRight: '15px', fontWeight: 'bold' }}>#{p.id}</div>
+                            <div className='pipeline-created' style={{ minWidth: '180px', paddingRight: '15px' }}>
+                              {dayjs(p.createdAt).format('L LTS')}
+                            </div>
+                            <div className='pipeline-name' style={{ flex: 1, paddingRight: '15px' }}>
+                              {p.name}
+                            </div>
+                            <div style={{ paddingRight: '15px', color: Colors.GRAY2 }}>
+                              {p.status === 'TASK_RUNNING'
+                                ? dayjs(p.createdAt).toNow(true)
+                                : dayjs(p.updatedAt).from(p.createdAt, true)}
+                            </div>
+                            <div>{p.status?.replace('TASK_', '')}</div>
+                            <div style={{ padding: '0 15px' }}>
+                              <Button onClick={() => onViewPipeline(p.id || p.ID)} icon='eye-open' size={14} color={Colors.GRAY3} small minimal />
+                            </div>
                           </div>
                         ))}
                       </div>
 
                       {!b.enable && (
-                        <p style={{ margin: 0, fontSize: '9px', fontFamily: 'Montserrat, sans-serif' }}>
+                        <p style={{ marginTop: '10px 0 0 0', fontSize: '9px', fontFamily: 'Montserrat, sans-serif' }}>
                           <Icon icon='warning-sign' size={11} color={Colors.ORANGE5} style={{ float: 'left', marginRight: '5px' }} />
                           Blueprint is NOT Enabled / Active this schedule will not run.
                         </p>

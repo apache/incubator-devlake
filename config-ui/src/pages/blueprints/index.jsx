@@ -1,5 +1,5 @@
 import React, { Fragment, useEffect, useState, useCallback } from 'react'
-// import { useHistory } from 'react-router-dom'
+import { useHistory } from 'react-router-dom'
 // import dayjs from '@/utils/time'
 // import cron from 'cron-validate'
 // import { parseCronExpression } from 'cron-schedule'
@@ -22,7 +22,7 @@ import ManageBlueprintsIcon from '@/images/blueprints.png'
 import BlueprintsGrid from '@/components/blueprints/BlueprintsGrid'
 
 const Blueprints = (props) => {
-  // const history = useHistory()
+  const history = useHistory()
 
   const {
     // eslint-disable-next-line no-unused-vars
@@ -80,6 +80,8 @@ const Blueprints = (props) => {
   const [filteredBlueprints, setFilteredBlueprints] = useState([])
   const [activeFilterStatus, setActiveFilterStatus] = useState()
 
+  const [relatedPipelines, setRelatedPipelines] = useState([])
+
   const {
     validate,
     errors: blueprintValidationErrors,
@@ -103,6 +105,7 @@ const Blueprints = (props) => {
 
   const expandBlueprint = (blueprint) => {
     setExpandDetails(opened => blueprint.id === activeBlueprint?.id && opened ? false : !opened)
+    fetchAllPipelines()
     setActiveBlueprint(blueprint)
   }
 
@@ -138,13 +141,18 @@ const Blueprints = (props) => {
     return blueprintValidationErrors.find(e => e.includes(fieldId))
   }
 
+  const viewPipeline = (runId) => {
+    history.push(`/pipelines/activity/${runId}`)
+  }
+
   useEffect(() => {
-    if (activeBlueprint) {
-      console.log(getSchedule(activeBlueprint?.cronConfig))
-    }
+    // if (activeBlueprint) {
+    //   console.log(getSchedule(activeBlueprint?.cronConfig))
+    // }
     setBlueprintSchedule(activeBlueprint?.id ? getSchedule(activeBlueprint.cronConfig) : [])
+    setRelatedPipelines(pipelines.filter(p => p.blueprintId === activeBlueprint?.id))
     console.log('>>> ACTIVE/EXPANDED BLUEPRINT', activeBlueprint)
-  }, [activeBlueprint, getSchedule])
+  }, [activeBlueprint, getSchedule, pipelines])
 
   useEffect(() => {
     if (draftBlueprint && draftBlueprint.id) {
@@ -198,7 +206,7 @@ const Blueprints = (props) => {
 
   useEffect(() => {
     setPipelineTemplates(pipelines.slice(0, 100).map(p => ({ ...p, id: p.id, title: p.name, value: p.id })))
-  }, [pipelines])
+  }, [pipelines, activeBlueprint?.id])
 
   useEffect(() => {
     if ((!draftBlueprint?.id && selectedPipelineTemplate) || (tasks.length === 0 && selectedPipelineTemplate)) {
@@ -309,6 +317,7 @@ const Blueprints = (props) => {
               <>
                 <BlueprintsGrid
                   blueprints={blueprints}
+                  pipelines={relatedPipelines}
                   filteredBlueprints={filteredBlueprints}
                   activeFilterStatus={activeFilterStatus}
                   onFilter={setActiveFilterStatus}
@@ -321,8 +330,10 @@ const Blueprints = (props) => {
                   handleBlueprintActivation={handleBlueprintActivation}
                   configureBlueprint={configureBlueprint}
                   isDeleting={isDeleting}
+                  isLoading={isFetchingAllPipelines}
                   expandDetails={expandDetails}
                   cronPresets={cronPresets}
+                  onViewPipeline={viewPipeline}
                 />
               </>)}
 
