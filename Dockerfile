@@ -15,7 +15,7 @@ ENV GOBIN=/app/bin
 RUN go build -o bin/lake && sh scripts/compile-plugins.sh
 RUN go install ./cmd/lake-cli/
 
-FROM alpine3.15
+FROM alpine:3.15
 RUN apk add --no-cache libgit2-dev
 
 ENV PYTHONUNBUFFERED=1
