@@ -42,7 +42,7 @@ func (*initSchemas) Up(ctx context.Context, db *gorm.DB) error {
 		&archived.IssueAssigneeHistory{},
 		&archived.Job{},
 		&archived.Build{},
-		&archived.Worklog{},
+		&archived.IssueWorklog{},
 		&archived.BoardRepo{},
 		&archived.PullRequestIssue{},
 		&archived.IssueCommit{},

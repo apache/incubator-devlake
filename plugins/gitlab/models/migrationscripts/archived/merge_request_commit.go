@@ -1,7 +1,7 @@
 package archived
 
 import (
-	"github.com/merico-dev/lake/models/common"
+	"github.com/merico-dev/lake/models/migrationscripts/archived"
 )
 
 // This Model is intended to save commits that are associated to a merge request
@@ -13,7 +13,7 @@ import (
 type GitlabMergeRequestCommit struct {
 	CommitSha      string `gorm:"primaryKey;type:varchar(40)"`
 	MergeRequestId int    `gorm:"primaryKey;autoIncrement:false"`
-	common.NoPKModel
+	archived.NoPKModel
 }
 
 func (GitlabMergeRequestCommit) TableName() string {

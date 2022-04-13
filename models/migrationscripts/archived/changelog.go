@@ -2,12 +2,10 @@ package archived
 
 import (
 	"time"
-
-	"github.com/merico-dev/lake/models/domainlayer"
 )
 
 type Changelog struct {
-	domainlayer.DomainEntity
+	DomainEntity
 	IssueId     string `gorm:"index"`
 	AuthorId    string `gorm:"type:char(255)"`
 	AuthorName  string `gorm:"type:char(255)"`

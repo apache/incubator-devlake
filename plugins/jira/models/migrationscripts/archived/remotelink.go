@@ -1,12 +1,12 @@
 package archived
 
 import (
-	"github.com/merico-dev/lake/models/common"
+	"github.com/merico-dev/lake/models/migrationscripts/archived"
 	"gorm.io/datatypes"
 )
 
 type JiraRemotelink struct {
-	common.NoPKModel
+	archived.NoPKModel
 	SourceId     uint64 `gorm:"primaryKey"`
 	RemotelinkId uint64 `gorm:"primarykey"`
 	IssueId      uint64 `gorm:"index"`

@@ -3,7 +3,7 @@ package archived
 import (
 	"time"
 
-	"github.com/merico-dev/lake/models/common"
+	"github.com/merico-dev/lake/models/migrationscripts/archived"
 )
 
 type JiraSprint struct {
@@ -16,18 +16,18 @@ type JiraSprint struct {
 	EndDate       *time.Time
 	CompleteDate  *time.Time
 	OriginBoardID uint64
-	common.NoPKModel
+	archived.NoPKModel
 }
 
 type JiraBoardSprint struct {
-	common.NoPKModel
+	archived.NoPKModel
 	SourceId uint64 `gorm:"primaryKey"`
 	BoardId  uint64 `gorm:"primaryKey"`
 	SprintId uint64 `gorm:"primaryKey"`
 }
 
 type JiraSprintIssue struct {
-	common.NoPKModel
+	archived.NoPKModel
 	SourceId         uint64 `gorm:"primaryKey"`
 	SprintId         uint64 `gorm:"primaryKey"`
 	IssueId          uint64 `gorm:"primaryKey"`

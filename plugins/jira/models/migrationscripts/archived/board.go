@@ -1,11 +1,9 @@
 package archived
 
-import (
-	"github.com/merico-dev/lake/models/common"
-)
+import "github.com/merico-dev/lake/models/migrationscripts/archived"
 
 type JiraBoard struct {
-	common.NoPKModel
+	archived.NoPKModel
 	SourceId  uint64 `gorm:"primaryKey"`
 	BoardId   uint64 `gorm:"primaryKey"`
 	ProjectId uint
@@ -18,7 +16,7 @@ type JiraBoardIssue struct {
 	SourceId uint64 `gorm:"primaryKey"`
 	BoardId  uint64 `gorm:"primaryKey"`
 	IssueId  uint64 `gorm:"primaryKey"`
-	common.NoPKModel
+	archived.NoPKModel
 }
 
 func (JiraBoard) TableName() string {

@@ -1,8 +1,9 @@
 package archived
 
 import (
-	"github.com/merico-dev/lake/models/common"
 	"time"
+
+	"github.com/merico-dev/lake/models/migrationscripts/archived"
 )
 
 type AEProject struct {
@@ -11,7 +12,7 @@ type AEProject struct {
 	Priority     int
 	AECreateTime *time.Time
 	AEUpdateTime *time.Time
-	common.NoPKModel
+	archived.NoPKModel
 }
 
 func (AEProject) TableName() string {

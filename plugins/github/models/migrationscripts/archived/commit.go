@@ -3,7 +3,7 @@ package archived
 import (
 	"time"
 
-	"github.com/merico-dev/lake/models/common"
+	"github.com/merico-dev/lake/models/migrationscripts/archived"
 )
 
 type GithubCommit struct {
@@ -20,7 +20,7 @@ type GithubCommit struct {
 	Url            string `gorm:"type:varchar(255)"`
 	Additions      int    `gorm:"comment:Added lines of code"`
 	Deletions      int    `gorm:"comment:Deleted lines of code"`
-	common.NoPKModel
+	archived.NoPKModel
 }
 
 func (GithubCommit) TableName() string {

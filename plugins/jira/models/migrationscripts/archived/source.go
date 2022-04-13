@@ -1,11 +1,9 @@
 package archived
 
-import (
-	"github.com/merico-dev/lake/models/common"
-)
+import "github.com/merico-dev/lake/models/migrationscripts/archived"
 
 type JiraSource struct {
-	common.Model
+	archived.Model
 	Name                       string `gorm:"type:varchar(100);uniqueIndex" json:"name" validate:"required"`
 	Endpoint                   string `json:"endpoint" validate:"required"`
 	BasicAuthEncoded           string `json:"basicAuthEncoded" validate:"required"`

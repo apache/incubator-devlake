@@ -2,13 +2,10 @@ package archived
 
 import (
 	"time"
-
-	"github.com/merico-dev/lake/models/common"
-	"github.com/merico-dev/lake/models/domainlayer"
 )
 
 type Ref struct {
-	domainlayer.DomainEntity
+	DomainEntity
 	RepoId      string `gorm:"type:varchar(255)"`
 	Name        string `gorm:"type:varchar(255)"`
 	CommitSha   string `gorm:"type:char(40)"`
@@ -33,7 +30,7 @@ type RefsIssuesDiffs struct {
 	OldRefCommitSha string `gorm:"type:char(40)"`
 	IssueNumber     string `gorm:"type:varchar(255)"`
 	IssueId         string `gorm:";type:varchar(255)"`
-	common.NoPKModel
+	NoPKModel
 }
 
 type RefsPrCherrypick struct {
@@ -43,5 +40,5 @@ type RefsPrCherrypick struct {
 	CherrypickPrKeys       string `gorm:"type:char(255)"`
 	ParentPrUrl            string `gorm:"type:char(255)"`
 	ParentPrId             string `json:"parent_pr_id" gorm:"primaryKey;type:varchar(255);comment:This key is generated based on details from the original plugin"` // format: <Plugin>:<Entity>:<PK0>:<PK1>
-	common.NoPKModel
+	NoPKModel
 }

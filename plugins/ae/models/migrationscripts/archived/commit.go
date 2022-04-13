@@ -1,6 +1,8 @@
 package archived
 
-import "github.com/merico-dev/lake/models/common"
+import (
+	"github.com/merico-dev/lake/models/migrationscripts/archived"
+)
 
 type AECommit struct {
 	HexSha      string `gorm:"primaryKey;type:varchar(255)"`
@@ -8,7 +10,7 @@ type AECommit struct {
 	AuthorEmail string `gorm:"type:varchar(255)"`
 	DevEq       int
 	AEProjectId int
-	common.NoPKModel
+	archived.NoPKModel
 }
 
 func (AECommit) TableName() string {

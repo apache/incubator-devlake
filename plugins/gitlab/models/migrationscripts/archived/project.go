@@ -3,7 +3,7 @@ package archived
 import (
 	"time"
 
-	"github.com/merico-dev/lake/models/common"
+	"github.com/merico-dev/lake/models/migrationscripts/archived"
 )
 
 type GitlabProject struct {
@@ -22,7 +22,7 @@ type GitlabProject struct {
 
 	CreatedDate time.Time
 	UpdatedDate *time.Time
-	common.NoPKModel
+	archived.NoPKModel
 }
 
 func (GitlabProject) TableName() string {

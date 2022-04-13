@@ -1,14 +1,11 @@
 package archived
 
 import (
-	"github.com/merico-dev/lake/models/common"
 	"time"
-
-	"github.com/merico-dev/lake/models/domainlayer"
 )
 
 type Repo struct {
-	domainlayer.DomainEntity
+	DomainEntity
 	Name        string     `json:"name"`
 	Url         string     `json:"url"`
 	Description string     `json:"Description"`
@@ -29,5 +26,5 @@ type RepoLanguage struct {
 type RepoCommit struct {
 	RepoId    string `json:"repoId" gorm:"primaryKey;type:varchar(255)"`
 	CommitSha string `json:"commitSha" gorm:"primaryKey;type:char(40)"`
-	common.NoPKModel
+	NoPKModel
 }

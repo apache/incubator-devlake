@@ -2,12 +2,10 @@ package archived
 
 import (
 	"time"
-
-	"github.com/merico-dev/lake/models/domainlayer"
 )
 
 type Note struct {
-	domainlayer.DomainEntity
+	DomainEntity
 	PrId        string `gorm:"index;comment:References the pull request for this note;type:varchar(100)"`
 	Type        string `gorm:"type:char(100)"`
 	Author      string `gorm:"type:char(255)"`

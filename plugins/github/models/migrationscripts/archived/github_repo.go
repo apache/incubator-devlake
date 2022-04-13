@@ -1,8 +1,9 @@
 package archived
 
 import (
-	"github.com/merico-dev/lake/models/common"
 	"time"
+
+	"github.com/merico-dev/lake/models/migrationscripts/archived"
 )
 
 type GithubRepo struct {
@@ -17,10 +18,9 @@ type GithubRepo struct {
 	ParentHTMLUrl  string     `json:"parentHtmlUrl"`
 	CreatedDate    time.Time  `json:"createdDate"`
 	UpdatedDate    *time.Time `json:"updatedDate"`
-	common.NoPKModel
+	archived.NoPKModel
 }
 
-func (GithubRepo) TableName() string{
+func (GithubRepo) TableName() string {
 	return "_tool_github_repos"
 }
-

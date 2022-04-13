@@ -1,7 +1,7 @@
 package archived
 
 import (
-	"github.com/merico-dev/lake/models/common"
+	"github.com/merico-dev/lake/models/migrationscripts/archived"
 )
 
 type GitlabTag struct {
@@ -10,7 +10,7 @@ type GitlabTag struct {
 	Target             string `gorm:"type:varchar(255)"`
 	Protected          bool
 	ReleaseDescription string
-	common.NoPKModel
+	archived.NoPKModel
 }
 
 func (GitlabTag) TableName() string {

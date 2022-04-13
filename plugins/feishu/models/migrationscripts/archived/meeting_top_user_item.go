@@ -1,18 +1,19 @@
 package archived
 
 import (
-	"github.com/merico-dev/lake/models/common"
 	"time"
+
+	"github.com/merico-dev/lake/models/migrationscripts/archived"
 )
 
 type FeishuMeetingTopUserItem struct {
-	common.Model    `json:"-"`
+	archived.Model  `json:"-"`
 	StartTime       time.Time
 	MeetingCount    string `json:"meeting_count" gorm:"type:varchar(255)"`
 	MeetingDuration string `json:"meeting_duration" gorm:"type:varchar(255)"`
 	Name            string `json:"name" gorm:"type:varchar(255)"`
 	UserType        int64  `json:"user_type"`
-	common.RawDataOrigin
+	archived.RawDataOrigin
 }
 
 func (FeishuMeetingTopUserItem) TableName() string {

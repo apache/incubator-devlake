@@ -2,12 +2,10 @@ package archived
 
 import (
 	"time"
-
-	"github.com/merico-dev/lake/models/domainlayer"
 )
 
-type Worklog struct {
-	domainlayer.DomainEntity
+type IssueWorklog struct {
+	DomainEntity
 	AuthorId         string `gorm:"type:varchar(255)"`
 	Comment          string
 	TimeSpentMinutes int

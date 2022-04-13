@@ -1,8 +1,9 @@
 package archived
 
 import (
-	"github.com/merico-dev/lake/models/common"
 	"time"
+
+	"github.com/merico-dev/lake/models/migrationscripts/archived"
 )
 
 type GitlabPipeline struct {
@@ -17,7 +18,7 @@ type GitlabPipeline struct {
 	StartedAt       *time.Time
 	FinishedAt      *time.Time
 	Coverage        string
-	common.NoPKModel
+	archived.NoPKModel
 }
 
 func (GitlabPipeline) TableName() string {
