@@ -306,9 +306,9 @@ const BlueprintsGrid = (props) => {
                         ))}
                       </div>
                       <div className='related-pipelines-list' style={{ marginBottom: '20px' }}>
-                        {!isLoading && <h3 style={{ margin: '0 0 5px 0', textTransform: 'uppercase' }}>Pipeline Runs</h3>}
+                        {!isLoading && <h3 style={{ margin: '0 0 5px 0', textTransform: 'uppercase' }}>Pipeline Runs <small style={{ color: Colors.GRAY5}}>(last 5)</small></h3>}
                         {!isLoading && pipelines.length === 0 && (<p>No Pipelines have been found for this blueprint.</p>)}
-                        {!isLoading && pipelines.map((p, pIdx) => (
+                        {!isLoading && pipelines.slice(0, 5).map((p, pIdx) => (
                           <div key={`pipeline-run-key-${pIdx}`} className='pipeline-run-entry' style={{ display: 'flex', justifyContent: 'flex-start', alignItems: 'center' }}>
                             <div className='pipeline-id' style={{ minWidth: '80px', paddingRight: '15px', fontWeight: 'bold' }}>#{p.id}</div>
                             <div className='pipeline-created' style={{ minWidth: '180px', paddingRight: '15px' }}>

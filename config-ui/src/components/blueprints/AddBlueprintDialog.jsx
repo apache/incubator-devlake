@@ -171,7 +171,7 @@ const AddBlueprintDialog = (props) => {
                       <Select
                         disabled={isSaving || pipelines.length === 0}
                         className='selector-blueprint-tasks'
-                        popoverProps={{ usePortal: false, popoverClassName: 'blueprint-tasks-popover', }}
+                        popoverProps={{ usePortal: false, popoverClassName: 'blueprint-tasks-popover', fill: true }}
                         inline={true}
                         fill={true}
                         items={pipelines}
@@ -181,9 +181,16 @@ const AddBlueprintDialog = (props) => {
                           <MenuItem
                             active={modifiers.active}
                             key={item.value}
-                            label={item.value}
+                            label={<small>Run ID #{item.value}</small>}
                             onClick={handleClick}
-                            text={item.title}
+                            text={
+                              <span style={{ paddingRight: '20px' }}>
+                                <Icon
+                                  color={item.status === 'TASK_COMPLETED' ? Colors.GREEN4 : Colors.GRAY4}
+                                  icon={item.status === 'TASK_COMPLETED' ? 'small-tick' : 'dot'} size={11}
+                                /> {item.title}
+                              </span>
+                             }
                           />
                         )}
                         noResults={<MenuItem disabled={true} text='No Pipeline Runs.' />}
@@ -194,7 +201,7 @@ const AddBlueprintDialog = (props) => {
                         <Button
                           className='btn-pipeline-selector'
                           disabled={isSaving}
-                          style={{ justifyContent: 'space-between', minWidth: '206px', maxWidth: '410px', whiteSpace: 'nowrap' }}
+                          style={{ justifyContent: 'space-between', minWidth: '300px', maxWidth: '460px', whiteSpace: 'nowrap' }}
                           text={selectedPipelineTemplate ? `${selectedPipelineTemplate?.title}` : 'Select Pipeline Run Tasks'}
                           icon='double-caret-vertical'
                           fill={true}
