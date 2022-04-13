@@ -21,7 +21,7 @@ func TestGitLabMergeRequestCommitsJoins(t *testing.T) {
 	if err != nil {
 		log.Fatal(err)
 	}
-	sqlCommand := "Select gitlab_id from gitlab_merge_requests mr JOIN gitlab_merge_request_commit_merge_requests mrj ON mrj.merge_request_id = mr.gitlab_id where gitlab_created_at < '2019-04-25 04:40:11.000';"
+	sqlCommand := "Select gitlab_id from _tool_gitlab_merge_requests mr JOIN gitlab_merge_request_commit_merge_requests mrj ON mrj.merge_request_id = mr.gitlab_id where gitlab_created_at < '2019-04-25 04:40:11.000';"
 	rows, err := db.Query(sqlCommand)
 	if err != nil {
 		fmt.Println("ERROR: ", err)
