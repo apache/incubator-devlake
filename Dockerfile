@@ -14,7 +14,7 @@ ENV GOBIN=/app/bin
 
 RUN go build -o bin/lake && sh scripts/compile-plugins.sh
 
-FROM python:3.10.4-alpine3.15
+FROM --platform=linux/amd64 python:3.10.4-alpine3.15
 RUN apk add --no-cache musl-dev libgit2-dev libffi-dev \
     && apk add --no-cache gcc
 RUN pip3 install dbt-mysql
