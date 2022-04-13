@@ -5,11 +5,19 @@
 build-plugin:
 	@sh scripts/compile-plugins.sh
 
+build-worker:
+	go build -o bin/lake-worker ./worker/
+
 build: build-plugin
 	go build -o bin/lake
 
+all: build build-worker
+
 run:
 	go run main.go
+
+worker:
+	go run worker/*.go
 
 dev: build-plugin run
 
