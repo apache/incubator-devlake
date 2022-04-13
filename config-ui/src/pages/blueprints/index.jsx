@@ -201,11 +201,11 @@ const Blueprints = (props) => {
   }, [pipelines])
 
   useEffect(() => {
-    if (!draftBlueprint?.id && selectedPipelineTemplate) {
+    if ((!draftBlueprint?.id && selectedPipelineTemplate) || (tasks.length === 0 && selectedPipelineTemplate)) {
       console.log('>>>> SELECTED TEMPLATE?', selectedPipelineTemplate.tasks)
       setBlueprintTasks(selectedPipelineTemplate.tasks)
     }
-  }, [selectedPipelineTemplate, setBlueprintTasks, draftBlueprint?.id])
+  }, [selectedPipelineTemplate, setBlueprintTasks, tasks?.length, draftBlueprint?.id])
 
   useEffect(() => {
     setSelectedPipelineTemplate(pipelineTemplates.find(pT => pT.tasks.flat().toString() === tasks.flat().toString()))
