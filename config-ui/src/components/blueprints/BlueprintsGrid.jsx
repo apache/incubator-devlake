@@ -81,7 +81,8 @@ const BlueprintsGrid = (props) => {
           width: '100%',
           padding: 0,
           justifyContent: 'flex-start',
-          boxShadow: expandDetails ? 'none' : ''
+          boxShadow: expandDetails ? 'none' : '',
+          overflow: 'hidden'
         }}
       >
         <div
@@ -261,6 +262,7 @@ const BlueprintsGrid = (props) => {
                   elevation={Elevation.TWO} style={{
                     padding: '0',
                     margin: '30px 30px',
+                    minWidth: '860px',
                     backgroundColor: !b.enable ? '#f8f8f8' : 'initial'
                   }}
                 >
@@ -290,7 +292,7 @@ const BlueprintsGrid = (props) => {
                   </div>
                   <Divider style={{ marginRight: 0, marginLeft: 0 }} />
                   <div style={{ padding: '20px', display: 'flex' }}>
-                    <div style={{ flex: 2, paddingRight: '20px' }}>
+                    <div style={{ flex: 2, paddingRight: '30px' }}>
                       <h3 style={{ margin: 0, textTransform: 'uppercase' }}>Pipeline Run Schedule</h3>
                       <p style={{ margin: 0 }}>Based on the current CRON settings, here are next <strong>5</strong> expected pipeline collection dates.</p>
                       <div style={{ margin: '10px 0' }}>
@@ -310,14 +312,14 @@ const BlueprintsGrid = (props) => {
                         {!isLoading && pipelines.length === 0 && (<p>No Pipelines have been found for this blueprint.</p>)}
                         {!isLoading && pipelines.slice(0, 5).map((p, pIdx) => (
                           <div key={`pipeline-run-key-${pIdx}`} className='pipeline-run-entry' style={{ display: 'flex', justifyContent: 'flex-start', alignItems: 'center' }}>
-                            <div className='pipeline-id' style={{ minWidth: '80px', paddingRight: '15px', fontWeight: 'bold' }}>#{p.id}</div>
+                            <div className='pipeline-id' style={{ minWidth: '60px', paddingRight: '15px', fontWeight: 'bold' }}>#{p.id}</div>
                             <div className='pipeline-created' style={{ minWidth: '180px', paddingRight: '15px' }}>
                               {dayjs(p.createdAt).format('L LTS')}
                             </div>
                             <div className='pipeline-name' style={{ flex: 1, paddingRight: '15px' }}>
-                              {p.name}
+                              <span style={{ display: 'block', whiteSpace: 'wrap', maxWidth: '300px', textOverflow: 'ellipsis', overflow: 'hidden' }}>{p.name}</span>
                             </div>
-                            <div style={{ paddingRight: '15px', color: Colors.GRAY2 }}>
+                            <div style={{ paddingRight: '15px', color: Colors.GRAY2, whiteSpace: 'nowrap' }}>
                               {p.status === 'TASK_RUNNING'
                                 ? dayjs(p.createdAt).toNow(true)
                                 : dayjs(p.updatedAt).from(p.createdAt, true)}
