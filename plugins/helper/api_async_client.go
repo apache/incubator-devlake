@@ -108,7 +108,7 @@ func (apiClient *ApiAsyncClient) DoAsync(
 		if err != nil {
 			if retry < apiClient.maxRetry && err != context.Canceled {
 				apiClient.logError("retry #%d for %s", retry, err.Error())
-				err = apiClient.DoAsync(method, path, query, body, header, handler, retry+1)
+				return apiClient.DoAsync(method, path, query, body, header, handler, retry+1)
 			}
 		}
 		// it is important to let handler have a chance to handle error, or it can hang indefinitely

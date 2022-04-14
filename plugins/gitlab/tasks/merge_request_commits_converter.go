@@ -22,8 +22,8 @@ func ConvertApiMergeRequestsCommits(taskCtx core.SubTaskContext) error {
 	db := taskCtx.GetDb()
 
 	cursor, err := db.Model(&models.GitlabMergeRequestCommit{}).
-		Joins(`left join gitlab_merge_requests on gitlab_merge_requests.gitlab_id = gitlab_merge_request_commits.merge_request_id`).
-		Where("gitlab_merge_requests.project_id = ?", data.Options.ProjectId).
+		Joins(`left join _tool_gitlab_merge_requests on _tool_gitlab_merge_requests.gitlab_id = _tool_gitlab_merge_request_commits.merge_request_id`).
+		Where("_tool_gitlab_merge_requests.project_id = ?", data.Options.ProjectId).
 		Order("merge_request_id ASC").Rows()
 	if err != nil {
 		return err

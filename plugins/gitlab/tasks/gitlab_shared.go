@@ -38,6 +38,9 @@ func GetTotalPagesFromResponse(res *http.Response, args *helper.ApiCollectorArgs
 func GetRawMessageFromResponse(res *http.Response) ([]json.RawMessage, error) {
 	rawMessages := []json.RawMessage{}
 
+	if res == nil {
+		return nil, fmt.Errorf("res is nil")
+	}
 	defer res.Body.Close()
 	resBody, err := ioutil.ReadAll(res.Body)
 	if err != nil {
