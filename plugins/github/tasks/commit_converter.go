@@ -13,7 +13,7 @@ import (
 var ConvertCommitsMeta = core.SubTaskMeta{
 	Name:             "convertCommits",
 	EntryPoint:       ConvertCommits,
-	EnabledByDefault: true,
+	EnabledByDefault: false,
 	Description:      "Convert tool layer table github_commits into  domain layer table commits",
 }
 
