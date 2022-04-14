@@ -24,7 +24,6 @@ func ConvertApiMergeRequests(taskCtx core.SubTaskContext) error {
 
 	domainMrIdGenerator := didgen.NewDomainIdGenerator(&models.GitlabMergeRequest{})
 	domainRepoIdGenerator := didgen.NewDomainIdGenerator(&models.GitlabProject{})
-
 	//Find all piplines associated with the current projectid
 	cursor, err := db.Model(&models.GitlabMergeRequest{}).Where("project_id=?", data.Options.ProjectId).Rows()
 	if err != nil {
@@ -52,7 +51,6 @@ func ConvertApiMergeRequests(taskCtx core.SubTaskContext) error {
 				Description:    gitlabMr.Description,
 				Url:            gitlabMr.WebUrl,
 				AuthorName:     gitlabMr.AuthorUsername,
-				AuthorId:       gitlabMr.AuthorUserId,
 				CreatedDate:    gitlabMr.GitlabCreatedAt,
 				MergedDate:     gitlabMr.MergedAt,
 				ClosedDate:     gitlabMr.ClosedAt,
