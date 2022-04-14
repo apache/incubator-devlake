@@ -69,8 +69,8 @@ export default function ManageIntegration () {
   }
 
   const configureConnection = (connection) => {
-    const { id, endpoint } = connection
-    history.push(`/connections/configure/${activeProvider.id}/${id}`)
+    const { id, ID, endpoint } = connection
+    history.push(`/connections/configure/${activeProvider.id}/${id || ID}`)
     console.log('>> editing/modifying connection: ', id, endpoint)
   }
 
