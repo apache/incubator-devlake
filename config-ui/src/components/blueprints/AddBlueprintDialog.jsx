@@ -125,7 +125,7 @@ const AddBlueprintDialog = (props) => {
                     fill={false}
                   >
                     <Label style={{ display: 'inline', marginRight: 0, fontWeight: 'bold' }}>
-                      Custom Shedule
+                      Custom Schedule
                       {cronConfig === 'custom' && <span className='requiredStar'>*</span>}
                     </Label>
                     <InputGroup
