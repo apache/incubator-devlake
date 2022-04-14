@@ -12,6 +12,8 @@ type MergeRequestRes struct {
 	GitlabId        int `json:"id"`
 	Iid             int
 	ProjectId       int `json:"project_id"`
+	SourceProjectId int `json:"source_project_id"`
+	TargetProjectId int `json:"target_project_id"`
 	State           string
 	Title           string
 	Description     string
@@ -19,13 +21,16 @@ type MergeRequestRes struct {
 	UserNotesCount  int               `json:"user_notes_count"`
 	WorkInProgress  bool              `json:"work_in_progress"`
 	SourceBranch    string            `json:"source_branch"`
+	TargetBranch    string            `json:"target_branch"`
 	GitlabCreatedAt core.Iso8601Time  `json:"created_at"`
 	MergedAt        *core.Iso8601Time `json:"merged_at"`
 	ClosedAt        *core.Iso8601Time `json:"closed_at"`
+	MergeCommitSha  string            `json:"merge_commit_sha"`
 	MergedBy        struct {
 		Username string `json:"username"`
 	} `json:"merged_by"`
 	Author struct {
+		Id       int    `json:"id"`
 		Username string `json:"username"`
 	}
 	Reviewers        []Reviewer
@@ -61,7 +66,7 @@ func ExtractApiMergeRequests(taskCtx core.SubTaskContext) error {
 				return nil, err
 			}
 
-			gitlabMergeRequest, err := convertMergeRequest(mr, data.Options.ProjectId)
+			gitlabMergeRequest, err := convertMergeRequest(mr)
 			if err != nil {
 				return nil, err
 			}
@@ -94,11 +99,13 @@ func ExtractApiMergeRequests(taskCtx core.SubTaskContext) error {
 	return extractor.Execute()
 }
 
-func convertMergeRequest(mr *MergeRequestRes, projectId int) (*models.GitlabMergeRequest, error) {
+func convertMergeRequest(mr *MergeRequestRes) (*models.GitlabMergeRequest, error) {
 	gitlabMergeRequest := &models.GitlabMergeRequest{
 		GitlabId:         mr.GitlabId,
 		Iid:              mr.Iid,
 		ProjectId:        mr.ProjectId,
+		SourceProjectId:  mr.SourceProjectId,
+		TargetProjectId:  mr.TargetProjectId,
 		State:            mr.State,
 		Title:            mr.Title,
 		Description:      mr.Description,
@@ -106,11 +113,14 @@ func convertMergeRequest(mr *MergeRequestRes, projectId int) (*models.GitlabMerg
 		UserNotesCount:   mr.UserNotesCount,
 		WorkInProgress:   mr.WorkInProgress,
 		SourceBranch:     mr.SourceBranch,
+		TargetBranch:     mr.TargetBranch,
+		MergeCommitSha:   mr.MergeCommitSha,
 		MergedAt:         core.Iso8601TimeToTime(mr.MergedAt),
 		GitlabCreatedAt:  mr.GitlabCreatedAt.ToTime(),
 		ClosedAt:         core.Iso8601TimeToTime(mr.ClosedAt),
 		MergedByUsername: mr.MergedBy.Username,
 		AuthorUsername:   mr.Author.Username,
+		AuthorUserId:     mr.Author.Id,
 	}
 	return gitlabMergeRequest, nil
 }
