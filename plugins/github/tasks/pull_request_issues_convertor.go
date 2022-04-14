@@ -48,10 +48,10 @@ func ConvertPullRequestIssues(taskCtx core.SubTaskContext) error {
 		Convert: func(inputRow interface{}) ([]interface{}, error) {
 			githubPrIssue := inputRow.(*githubModels.GithubPullRequestIssue)
 			pullRequestIssue := &crossdomain.PullRequestIssue{
-				PullRequestId: prIdGen.Generate(githubPrIssue.PullRequestId),
-				IssueId:       issueIdGen.Generate(githubPrIssue.IssueId),
-				IssueNumber:   githubPrIssue.IssueNumber,
-				PullNumber:    githubPrIssue.PullNumber,
+				PullRequestId:     prIdGen.Generate(githubPrIssue.PullRequestId),
+				IssueId:           issueIdGen.Generate(githubPrIssue.IssueId),
+				IssueNumber:       githubPrIssue.IssueNumber,
+				PullRequestNumber: githubPrIssue.PullRequestNumber,
 			}
 			return []interface{}{
 				pullRequestIssue,

@@ -3,10 +3,10 @@ package archived
 import "github.com/merico-dev/lake/models/migrationscripts/archived"
 
 type GithubPullRequestIssue struct {
-	PullRequestId int `gorm:"primaryKey"`
-	IssueId       int `gorm:"primaryKey"`
-	PullNumber    int
-	IssueNumber   int
+	PullRequestId     int `gorm:"primaryKey"`
+	IssueId           int `gorm:"primaryKey"`
+	PullRequestNumber int
+	IssueNumber       int
 	archived.NoPKModel
 }
 

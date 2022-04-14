@@ -33,7 +33,7 @@ type GithubPullRequest struct {
 	HeadCommitSha  string `gorm:"type:varchar(255)"`
 	Url            string `gorm:"type:char(255)"`
 	AuthorName     string `gorm:"type:char(100)"`
-	AuthorId       int
+	AuthorId       string `gorm:"type:char(100)"`
 	archived.NoPKModel
 }
 

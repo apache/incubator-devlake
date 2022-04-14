@@ -16,7 +16,7 @@ type PullRequest struct {
 	Description    string
 	Url            string `gorm:"type:char(255)"`
 	AuthorName     string `gorm:"type:char(100)"`
-	AuthorId       int
+	AuthorId       string `gorm:"type:char(100)"`
 	ParentPrId     string `gorm:"index;type:varchar(100)"`
 	Key            int
 	CreatedDate    time.Time

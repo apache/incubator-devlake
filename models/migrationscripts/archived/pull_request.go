@@ -14,7 +14,7 @@ type PullRequest struct {
 	Description    string
 	Url            string `gorm:"type:char(255)"`
 	AuthorName     string `gorm:"type:char(100)"`
-	AuthorId       int
+	AuthorId       string `gorm:"type:char(100)"`
 	ParentPrId     string `gorm:"index;type:varchar(100)"`
 	Key            int
 	CreatedDate    time.Time
@@ -36,10 +36,10 @@ type PullRequestCommit struct {
 }
 
 type PullRequestIssue struct {
-	PullRequestId string `json:"id" gorm:"primaryKey;type:varchar(255);comment:This key is generated based on details from the original plugin"` // format: <Plugin>:<Entity>:<PK0>:<PK1>
-	IssueId       string `gorm:"primaryKey;type:varchar(255)"`
-	PullNumber    int
-	IssueNumber   int
+	PullRequestId     string `json:"id" gorm:"primaryKey;type:varchar(255);comment:This key is generated based on details from the original plugin"` // format: <Plugin>:<Entity>:<PK0>:<PK1>
+	IssueId           string `gorm:"primaryKey;type:varchar(255)"`
+	PullRequestNumber int
+	IssueNumber       int
 	NoPKModel
 }
 

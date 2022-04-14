@@ -87,10 +87,10 @@ func EnrichPullRequestIssues(taskCtx core.SubTaskContext) (err error) {
 					continue
 				}
 				githubPullRequstIssue := &githubModels.GithubPullRequestIssue{
-					PullRequestId: githubPullRequst.GithubId,
-					IssueId:       issue.GithubId,
-					PullNumber:    githubPullRequst.Number,
-					IssueNumber:   issue.Number,
+					PullRequestId:     githubPullRequst.GithubId,
+					IssueId:           issue.GithubId,
+					PullRequestNumber: githubPullRequst.Number,
+					IssueNumber:       issue.Number,
 				}
 				results = append(results, githubPullRequstIssue)
 			}
