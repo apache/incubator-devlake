@@ -42,7 +42,7 @@ For each connection, you will need to set up following items:
 - Issue Type Mapping: JIRA is highly customizable, each JIRA instance may have a different set of issue types than others. In order to compute and visualize metrics for different instances, you need to map your issue types to standard ones. See [Issue Type Mapping](#issue-type-mapping) for detail.
 - Epic Key: unfortunately, epic relationship implementation in JIRA is based on `custom field`, which is vary from instance to instance. Please see [Find Out Custom Fields](#find-out-custom-fields).
 - Story Point Field: same as Epic Key.
-
+- Remotelink Commit SHA:A regular expression that matches commit links to determine whether an external link is a link to a commit. Taking gitlab as an example, to match all commits similar to https://gitlab.com/merico-dev/ce/example-repository/-/commit/8ab8fb319930dbd8615830276444b8545fd0ad24, you can directly use the regular expression **/commit/([0-9a-f]{40})$**
 ### Generating API token
 1. Once logged into Jira, visit the url `https://id.atlassian.com/manage-profile/security/api-tokens`
 2. Click the **Create API Token** button, and give it any label name
@@ -68,6 +68,7 @@ Please follow this guide: [How to find Jira the custom field ID in Jira? · meri
 ## Collect Data From JIRA
 
 In order to collect data from JIRA, you have to compose a JSON looks like following one, and send it via `Triggers` page on `config-ui`:
+<font color=“red”>Warning: Data collection only supports single-task execution, and the results of concurrent multi-task execution may not meet expectations.</font>
 
 ```
 [
