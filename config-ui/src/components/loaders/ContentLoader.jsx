@@ -12,7 +12,7 @@ const ContentLoader = (props) => {
     spinnerSize = 24,
     spinnerIntent = Intent.PRIMARY,
     elevation = Elevation.TWO,
-    cardStyle = { width: '100%', marginBottom: '20px' }
+    cardStyle = { width: '100%', marginBottom: '20px', boxShadow: elevation === Elevation.ZERO ? 'none' : 'initial' }
   } = props
 
   useEffect(() => {

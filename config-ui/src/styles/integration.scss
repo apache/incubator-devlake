@@ -143,4 +143,8 @@ table.connections-table {
       background-color: #ffeeee;
     }
   }
+
+  > input[readonly] {
+    background-color: #f8f8f8;
+  }
 }

@@ -3,6 +3,7 @@ import { DEVLAKE_ENDPOINT } from '@/utils/config'
 import request from '@/utils/request'
 import { NullPipelineRun } from '@/data/NullPipelineRun'
 import { ToastNotification } from '@/components/Toast'
+import { Providers } from '@/data/Providers'
 // import { integrationsData } from '@/data/integrations'
 
 function usePipelineManager (pipelineName = `COLLECTION ${Date.now()}`, initialTasks = []) {
@@ -24,6 +25,15 @@ function usePipelineManager (pipelineName = `COLLECTION ${Date.now()}`, initialT
   const [activePipeline, setActivePipeline] = useState(NullPipelineRun)
   const [lastRunId, setLastRunId] = useState(null)
   const [pipelineRun, setPipelineRun] = useState(NullPipelineRun)
+  const [allowedProviders, setAllowedProviders] = useState([
+    Providers.JIRA,
+    Providers.GITLAB,
+    Providers.JENKINS,
+    Providers.GITHUB,
+    Providers.REFDIFF,
+    Providers.GITEXTRACTOR,
+    Providers.FEISHU
+  ])
 
   const runPipeline = useCallback(() => {
     console.log('>> RUNNING PIPELINE....')
@@ -122,14 +132,18 @@ function usePipelineManager (pipelineName = `COLLECTION ${Date.now()}`, initialT
     }
   }, [])
 
-  const fetchAllPipelines = useCallback(() => {
+  const fetchAllPipelines = useCallback((status = null, fetchTimeout = 500) => {
     try {
       setIsFetchingAll(true)
       setErrors([])
       ToastNotification.clear()
       console.log('>> FETCHING ALL PIPELINE RUNS...')
       const fetchAll = async () => {
-        const p = await request.get(`${DEVLAKE_ENDPOINT}/pipelines`)
+        let queryParams = '?'
+        queryParams += status && ['TASK_COMPLETED', 'TASK_RUNNING', 'TASK_FAILED'].includes(status)
+          ? `status=${status}&`
+          : ''
+        const p = await request.get(`${DEVLAKE_ENDPOINT}/pipelines${queryParams}`)
         console.log('>> RAW PIPELINES RUN DATA FROM API...', p.data?.pipelines)
         let pipelines = p.data && p.data.pipelines ? [...p.data.pipelines] : []
         pipelines = pipelines.map(p => ({ ...p, ID: p.ID || p.id }))
@@ -138,7 +152,7 @@ function usePipelineManager (pipelineName = `COLLECTION ${Date.now()}`, initialT
         // ToastNotification.show({ message: `Fetched All Pipelines`, intent: 'danger', icon: 'small-tick' })
         setTimeout(() => {
           setIsFetchingAll(false)
-        }, 500)
+        }, fetchTimeout)
       }
       fetchAll()
     } catch (e) {
@@ -164,6 +178,10 @@ function usePipelineManager (pipelineName = `COLLECTION ${Date.now()}`, initialT
     console.log('>>> BUILDING PIPELINE STAGES...', tasks, stages, stagesArray)
     return outputArray ? stagesArray : stages
   }, [])
+
+  const detectPipelineProviders = useCallback((tasks, providers = allowedProviders) => {
+    return [...tasks?.flat().filter(aT => providers.includes(aT.Plugin || aT.plugin)).map(p => p.Plugin || p.plugin)]
+  }, [allowedProviders])
 
   useEffect(() => {
     console.log('>> PIPELINE MANAGER - RECEIVED RUN/TASK SETTINGS', settings)
@@ -191,7 +209,10 @@ function usePipelineManager (pipelineName = `COLLECTION ${Date.now()}`, initialT
     fetchPipeline,
     fetchPipelineTasks,
     fetchAllPipelines,
-    buildPipelineStages
+    buildPipelineStages,
+    detectPipelineProviders,
+    allowedProviders,
+    setAllowedProviders
   }
 }
 

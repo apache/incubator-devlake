@@ -17,12 +17,10 @@ import EditConnection from '@/pages/configure/connections/EditConnection'
 import ConfigureConnection from '@/pages/configure/connections/ConfigureConnection'
 import Triggers from '@/pages/triggers/index'
 import Offline from '@/pages/offline/index'
-// #964 Manage Pipelines
 import Pipelines from '@/pages/pipelines/index'
-// #963 Create Pipelines
 import CreatePipeline from '@/pages/pipelines/create'
-// #965 Pipeline Activity
 import PipelineActivity from '@/pages/pipelines/activity'
+import Blueprints from '@/pages/blueprints/index'
 
 function App () {
   return (
@@ -60,6 +58,9 @@ function App () {
       </Route>
       <Route exact path='/pipelines/activity/:pId'>
         <PipelineActivity />
+      </Route>
+      <Route exact path='/blueprints'>
+        <Blueprints />
       </Route>
       <Route exact path='/lake/api/configuration'>
         <Configure />
