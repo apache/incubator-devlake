@@ -4,7 +4,7 @@ import cron from 'cron-validate'
 // import { parseCronExpression } from 'cron-schedule'
 import {
   Classes, FormGroup, InputGroup, ButtonGroup,
-  Button, Icon, Intent,
+  Button, Icon, Intent, Popover, Position,
   Dialog,
   RadioGroup, Radio,
   MenuItem,
@@ -17,6 +17,7 @@ import { Select } from '@blueprintjs/select'
 import InputValidationError from '@/components/validation/InputValidationError'
 import ContentLoader from '@/components/loaders/ContentLoader'
 import PipelineTasks from '@/components/blueprints/PipelineTasks'
+import CronHelp from '@/images/cron-help.png'
 
 const AddBlueprintDialog = (props) => {
   const {
@@ -113,44 +114,72 @@ const AddBlueprintDialog = (props) => {
                     <Radio label='Custom' value='custom' style={{ fontWeight: cronConfig === 'custom' ? 'bold' : 'normal' }} />
                   </RadioGroup>
 
-                  {/* <div className='formContainer'> */}
-                  <FormGroup
-                    disabled={cronConfig !== 'custom'}
-                    label=''
-                    inline={true}
-                    labelFor='cron-custom'
-                    className='formGroup-inline'
-                    contentClassName='formGroupContent'
-                    style={{ marginBottom: '5px' }}
-                    fill={false}
-                  >
-                    <Label style={{ display: 'inline', marginRight: 0, fontWeight: 'bold' }}>
-                      Custom Schedule
-                      {cronConfig === 'custom' && <span className='requiredStar'>*</span>}
-                    </Label>
-                    <InputGroup
-                      id='cron-custom'
-                      // disabled={cronConfig !== 'custom'}
-                      readOnly={cronConfig !== 'custom'}
-                      leftElement={cronConfig !== 'custom'
-                        ? <Icon icon='lock' size={11} style={{ alignSelf: 'center', margin: '4px 10px -2px 6px' }} />
-                        : null}
-                      rightElement={(
-                        <InputValidationError
-                          error={getFieldError('Blueprint Cron')}
-                        />
-                        )}
-                      placeholder='Enter Crontab Syntax'
-                      // defaultValue='0 0 * * *'
-                      value={cronConfig !== 'custom' ? cronConfig : customCronConfig}
-                      onChange={(e) => setCustomCronConfig(e.target.value)}
-                      className={`cron-custom-input ${fieldHasError('Blueprint Cron') ? 'invalid-field' : ''}`}
+                  <div style={{ display: 'flex' }}>
+                    <FormGroup
+                      disabled={cronConfig !== 'custom'}
+                      label=''
                       inline={true}
+                      labelFor='cron-custom'
+                      className='formGroup-inline'
+                      contentClassName='formGroupContent'
+                      style={{ marginBottom: '5px' }}
                       fill={false}
-                      // style={{ backgroundColor: cronConfig !== 'custom' ? '#ffffdd' : 'inherit' }}
-                    />
-                  </FormGroup>
-                  {/* </div> */}
+                    >
+                      <Label style={{ display: 'inline', marginRight: 0, fontWeight: 'bold' }}>
+                        Custom Schedule
+                        {cronConfig === 'custom' && <span className='requiredStar'>*</span>}
+                      </Label>
+                      <InputGroup
+                        id='cron-custom'
+                        readOnly={cronConfig !== 'custom'}
+                        leftElement={cronConfig !== 'custom'
+                          ? <Icon icon='lock' size={11} style={{ alignSelf: 'center', margin: '4px 10px -2px 6px' }} />
+                          : null}
+                        rightElement={(
+                          <InputValidationError
+                            error={getFieldError('Blueprint Cron')}
+                          />
+                        )}
+                        placeholder='Enter Crontab Syntax'
+                        value={cronConfig !== 'custom' ? cronConfig : customCronConfig}
+                        onChange={(e) => setCustomCronConfig(e.target.value)}
+                        className={`cron-custom-input ${fieldHasError('Blueprint Cron') ? 'invalid-field' : ''}`}
+                        inline={true}
+                        fill={false}
+                        style={{ transition: 'none' }}
+                      />
+                    </FormGroup>
+                    <div style={{ marginTop: 'auto', paddingBottom: '15px' }}>
+                      <Popover
+                        className='trigger-crontab-help'
+                        popoverClassName='popover-help-crontab'
+                        position={Position.RIGHT}
+                        autoFocus={false}
+                        enforceFocus={false}
+                        usePortal={false}
+                      >
+                        <a href='#' rel='noreferrer'><Icon icon='help' size={14} style={{ marginLeft: '10px', transition: 'none' }} /></a>
+                        <>
+                          <div style={{ textShadow: 'none', fontSize: '12px', padding: '12px', maxWidth: '300px' }}>
+                            <div style={{ marginBottom: '10px', fontWeight: 700, fontSize: '14px', fontFamily: '"Montserrat", sans-serif' }}>
+                              <Icon icon='help' size={16} style={{ marginRight: '5px' }} /> Cron Expression Format
+                            </div>
+                            <p>Need Help? &mdash; For additional information on <strong>Crontab</strong>,
+                              please reference the{' '}
+                              <a
+                                href='https://man7.org/linux/man-pages/man5/crontab.5.html'
+                                rel='noreferrer'
+                                target='_blank' style={{ textDecoration: 'underline' }}
+                              >
+                                Crontab Linux manual
+                              </a>.
+                            </p>
+                            <img src={CronHelp} style={{ border: 0, margin: 0, maxWidth: '100%' }} />
+                          </div>
+                        </>
+                      </Popover>
+                    </div>
+                  </div>
 
                 </FormGroup>
               </div>
