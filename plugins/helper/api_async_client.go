@@ -111,6 +111,11 @@ func (apiClient *ApiAsyncClient) DoAsync(
 				return apiClient.DoAsync(method, path, query, body, header, handler, retry+1)
 			}
 		}
+		if err == nil {
+			if res.StatusCode >= 400 {
+				err = fmt.Errorf("http code error[%d]:[%s]", res.StatusCode, body)
+			}
+		}
 		// it is important to let handler have a chance to handle error, or it can hang indefinitely
 		// when error occurs
 		return handler(res, err)
