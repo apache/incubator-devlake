@@ -4,8 +4,8 @@ on:
     tags:
     - '*'
 jobs:
-  build:
-    name: Build Server
+  build-lake:
+    name: Build lake image
     runs-on: ubuntu-20.04
     steps:
     - uses: actions/checkout@v2
@@ -20,6 +20,15 @@ jobs:
         docker tag $IMAGE_LAKE:latest $IMAGE_LAKE:$(echo ${GITHUB_REF:10})
         docker push $IMAGE_LAKE:$(echo ${GITHUB_REF:10})
         docker push $IMAGE_LAKE:latest
+  build-configui:
+    name: Build config-ui image
+    runs-on: ubuntu-20.04
+    steps:
+    - uses: actions/checkout@v2
+    - uses: docker/login-action@f054a8b539a109f9f41c372932f1ae047eff08c9
+      with:
+        username: ${{ secrets.DOCKER_REGISTRY_USERNAME }}
+        password: ${{ secrets.DOCKER_REGISTRY_PASSWORD }}
     - name: Build config ui image
       run: |
         export IMAGE_CONFIG_UI=mericodev/config-ui
@@ -28,6 +37,15 @@ jobs:
         docker tag $IMAGE_CONFIG_UI:latest $IMAGE_CONFIG_UI:$(echo ${GITHUB_REF:10})
         docker push $IMAGE_CONFIG_UI:$(echo ${GITHUB_REF:10})
         docker push $IMAGE_CONFIG_UI:latest
+  build-grafana:
+    name: Build grafana image
+    runs-on: ubuntu-20.04
+    steps:
+    - uses: actions/checkout@v2
+    - uses: docker/login-action@f054a8b539a109f9f41c372932f1ae047eff08c9
+      with:
+        username: ${{ secrets.DOCKER_REGISTRY_USERNAME }}
+        password: ${{ secrets.DOCKER_REGISTRY_PASSWORD }}
     - name: Build grafana
       run: |
         export IMAGE_GRAFANA=mericodev/grafana
