@@ -93,11 +93,7 @@ func CalculateCommitsDiff(taskCtx core.SubTaskContext) error {
 		commitsDiff.OldRefId = fmt.Sprintf("%s:%s", repoId, pair[3])
 
 		// delete records before creation
-		err = db.Exec(
-			"DELETE FROM refs_commits_diffs WHERE new_ref_name = ? AND old_ref_name = ?",
-			commitsDiff.NewRefId,
-			commitsDiff.OldRefId,
-		).Error
+		err = db.Delete(&code.RefsCommitsDiff{NewRefId: commitsDiff.NewRefId, OldRefId: commitsDiff.OldRefId}).Error
 		if err != nil {
 			return err
 		}
