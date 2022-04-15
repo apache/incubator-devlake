@@ -118,7 +118,7 @@ const Blueprints = (props) => {
   const createNewBlueprint = () => {
     setDraftBlueprint(null)
     setExpandDetails(false)
-    setBlueprintName('DAILY BLUEPRINT')
+    setBlueprintName('MY BLUEPRINT')
     setCronConfig('0 0 * * *')
     setCustomCronConfig('0 0 * * *')
     setEnableBlueprint(true)
