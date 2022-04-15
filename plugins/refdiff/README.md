@@ -34,8 +34,9 @@ github:GithubRepo:384111310:refs/tags/v0.4.0  TAG
 github:GithubRepo:384111310:refs/tags/v0.6.0  TAG
 github:GithubRepo:384111310:refs/tags/v0.6.1  TAG
 ```
-2. If you want to calculate pr cherrypick, please configure GITHUB_PR_TITLE_PATTERN in .env, you can check the example in .env.example
-3. And then, trigger a pipeline like following, you can also define sub tasks, calculateRefDiff will calculate commits between two ref, and creatRefBugStats will create a table to show bug list between two ref:
+2. If you want to run calculateIssuesDiff, please configure GITHUB_PR_BODY_CLOSE_PATTERN in .env, you can check the example in .env.example(we have a default value, please make sure your pattern is disclosed by single quotes '')
+3. If you want to run calculatePrCherryPick, please configure GITHUB_PR_TITLE_PATTERN in .env, you can check the example in .env.example(we have a default value, please make sure your pattern is disclosed by single quotes '')
+4. And then, trigger a pipeline like following, you can also define sub tasks, calculateRefDiff will calculate commits between two ref, and creatRefBugStats will create a table to show bug list between two ref:
 ```
 curl -v -XPOST http://localhost:8080/pipelines --data @- <<'JSON'
 {

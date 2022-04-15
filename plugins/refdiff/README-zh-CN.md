@@ -31,8 +31,9 @@ github:GithubRepository:384111310:refs/tags/v0.4.0  TAG
 github:GithubRepository:384111310:refs/tags/v0.6.0  TAG
 github:GithubRepository:384111310:refs/tags/v0.6.1  TAG
 ```
-2. 如果您想要使用calculatePrCherryPick，请在.env文件中配置GITHUB_PR_TITLE_PATTERN，可以在.env.example中查看示例
-3. 然后，通过类似下面的命令触发一个 pipeline，在tasks中，可以定义想要执行的任务，calculateRefDiff可以计算新老版本间的差了多少个 commits，creatRefBugStats可以生成新老版本间的issue列表
+2. 如果您想要使用calculateIssuesDiff，请在.GITHUB_PR_BODY_CLOSE_PATTERN，可以在.env.example中查看示例(示例为当前默认值，请确认你的表达式带有单引号'')
+3. 如果您想要使用calculatePrCherryPick，请在.env文件中配置GITHUB_PR_TITLE_PATTERN，可以在.env.example中查看示例(示例为当前默认值，请确认你的表达式带有单引号'')
+4. 然后，通过类似下面的命令触发一个 pipeline，在tasks中，可以定义想要执行的任务，calculateRefDiff可以计算新老版本间的差了多少个 commits，creatRefBugStats可以生成新老版本间的issue列表
 ```
 curl -v -XPOST http://localhost:8080/pipelines --data @- <<'JSON'
 {
