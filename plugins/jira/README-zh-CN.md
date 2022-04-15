@@ -77,13 +77,13 @@ Devlake 支持三种标准类型，所有的指标将会基于标准类型进行
     {
       "plugin": "jira",
       "options": {
-        "sourceId": 1
+        "sourceId": 1,
         "boardId": 8,
         "since": "2006-01-02T15:04:05Z",
       }
     }
   ]
-]'
+]
 ```
 - `sourceId`: 数据源的 ID, 即 **JIRA Integration** 中 Connection 表中的ID列。
 - `boardId`: JIRA board id, 请参照 [Find如何获取 Jira Board IdBoard Id](#如何获取-jira-board-id)。
