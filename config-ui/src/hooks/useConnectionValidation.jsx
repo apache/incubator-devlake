@@ -44,15 +44,15 @@ function useConnectionValidation ({
       errs.push('Connection Source name too short/incomplete')
     }
 
-    if (!endpointUrl || endpointUrl.length <= 2) {
+    if (endpointUrl && endpointUrl !== '' && (!endpointUrl || endpointUrl.length <= 2)) {
       errs.push('Endpoint URL is required')
     }
 
-    if (!endpointUrl?.startsWith('http')) {
+    if (endpointUrl && endpointUrl !== '' && !endpointUrl?.startsWith('http')) {
       errs.push('Endpoint URL must be valid HTTP/S protocol')
     }
 
-    if (!endpointUrl?.endsWith('/')) {
+    if (endpointUrl && endpointUrl !== '' && !endpointUrl?.endsWith('/')) {
       errs.push('Endpoint URL must end in trailing slash (/)')
     }
 
@@ -64,15 +64,15 @@ function useConnectionValidation ({
       case Providers.GITHUB:
       case Providers.JIRA:
       case Providers.GITLAB:
-        if (!token || token.length <= 2) {
+        if (token && token !== '' && (!token || token.length <= 2)) {
           errs.push('Authentication token(s) are required')
         }
         break
       case Providers.JENKINS:
-        if (!username || username.length <= 2) {
+        if (username && username !== '' && (!username || username.length <= 2)) {
           errs.push('Username is required')
         }
-        if (!password || password.length <= 2) {
+        if (password && password !== '' && (!password || password.length <= 2)) {
           errs.push('Password is required')
         }
         break
