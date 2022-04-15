@@ -29,7 +29,7 @@ FEISHU_APPSCRECT=app_secret
 
 ## Collect Data From Feishu
 
-In order to collect data, you have to compose a JSON looks like following one, and send it via `Triggers` page on `config-ui`:
+In order to collect data, you have to compose a JSON looks like following one, and send it by selecting `Advanced Mode` on `Create Pipeline Run` page:
 numOfDaysToCollect： The number of days you want to collect
 rateLimitPerSecond: The number of requests to send(Maximum is 8)
 
@@ -45,4 +45,22 @@ rateLimitPerSecond: The number of requests to send(Maximum is 8)
     }
   ]
 ]
+```
+
+You can also trigger data collection by making a POST request to `/pipelines`.
+```
+curl --location --request POST 'localhost:8080/pipelines' \
+--header 'Content-Type: application/json' \
+--data-raw '
+{
+    "name": "feishu 20211126",
+    "tasks": [[{
+      "plugin": "feishu",
+      "options": {
+        "numOfDaysToCollect" : 80,
+        "rateLimitPerSecond" : 5
+      }
+    }]]
+}
+'
 ```

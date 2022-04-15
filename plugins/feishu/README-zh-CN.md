@@ -28,7 +28,7 @@ FEISHU_APPSCRECT=app_secret
 
 ## 数据收集及计算
 
-为了触发插件进行数据收集和计算，您需要构造一个 JSON， 通过 `config-ui` 中的 `Triggers` 功能，发送请求触发收集计算任务：
+为了触发插件进行数据收集和计算，您需要构造一个 JSON， 通过 `Pipelines` 中的 `Create Pipeline Run`选项来选择`Advanced Mode`, 发送请求触发收集计算任务：
 numOfDaysToCollect: 收集的天数
 rateLimitPerSecond: 每秒发送请求的数量（最大值为8）
 
@@ -44,4 +44,22 @@ rateLimitPerSecond: 每秒发送请求的数量（最大值为8）
     }
   ]
 ]
+```
+
+你也可以通过向 `/pipelines` 发起一个POST请求来触发数据收集。
+```
+curl --location --request POST 'localhost:8080/pipelines' \
+--header 'Content-Type: application/json' \
+--data-raw '
+{
+    "name": "feishu 20211126",
+    "tasks": [[{
+      "plugin": "feishu",
+      "options": {
+        "numOfDaysToCollect" : 80,
+        "rateLimitPerSecond" : 5
+      }
+    }]]
+}
+'
 ```
