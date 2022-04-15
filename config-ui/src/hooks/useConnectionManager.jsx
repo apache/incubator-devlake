@@ -154,7 +154,9 @@ function useConnectionManager ({
         setShowError(false)
         setErrors([])
         ToastNotification.clear()
-        const s = await request.put(`${DEVLAKE_ENDPOINT}/plugins/${activeProvider.id}/sources/${activeConnection.ID}`, configPayload)
+        // eslint-disable-next-line max-len
+        const s = await request.put(`${DEVLAKE_ENDPOINT}/plugins/${activeProvider.id}/sources/${activeConnection.id || activeConnection.ID}`, configPayload)
+        const silentRefetch = true
         console.log('>> CONFIGURATION MODIFIED SUCCESSFULLY', configPayload, s)
         saveResponse = {
           ...saveResponse,
@@ -162,6 +164,7 @@ function useConnectionManager ({
           connection: { ...s.data },
           errors: s.isAxiosError ? [s.message] : []
         }
+        fetchConnection(silentRefetch)
       } catch (e) {
         saveResponse.errors.push(e.message)
         setErrors(saveResponse.errors)
@@ -200,10 +203,10 @@ function useConnectionManager ({
     // Run Collection Tasks...
   }
 
-  const fetchConnection = useCallback(() => {
+  const fetchConnection = useCallback((silent = false, notify = false) => {
     console.log('>> FETCHING CONNECTION....')
     try {
-      setIsFetching(true)
+      setIsFetching(!silent)
       setErrors([])
       ToastNotification.clear()
       console.log('>> FETCHING CONNECTION SOURCE')
@@ -276,7 +279,7 @@ function useConnectionManager ({
       setIsDeleting(true)
       setErrors([])
       console.log('>> TRYING TO DELETE CONNECTION...', connection)
-      const d = await request.delete(`${DEVLAKE_ENDPOINT}/plugins/${activeProvider.id}/sources/${connection.ID}`)
+      const d = await request.delete(`${DEVLAKE_ENDPOINT}/plugins/${activeProvider.id}/sources/${connection.ID || connection.id}`)
       console.log('>> CONNECTION DELETED...', d)
       setIsDeleting(false)
       setDeleteComplete({
@@ -365,7 +368,7 @@ function useConnectionManager ({
           break
       }
       ToastNotification.clear()
-      ToastNotification.show({ message: `Fetched settings for ${activeConnection.name}.`, intent: 'success', icon: 'small-tick' })
+      // ToastNotification.show({ message: `Fetched settings for ${activeConnection.name}.`, intent: 'success', icon: 'small-tick' })
       console.log('>> FETCHED CONNECTION FOR MODIFY', activeConnection)
     }
   }, [activeConnection, activeProvider.id])
