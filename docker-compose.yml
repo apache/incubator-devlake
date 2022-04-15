@@ -58,7 +58,9 @@ services:
       - 127.0.0.1:4000:80
     env_file:
       - ./.env
-    #environment:
+    environment:
+      DEVLAKE_ENDPOINT: devlake:8080
+      GRAFANA_ENDPOINT: http://localhost:3002
       #ADMIN_USER: devlake
       #ADMIN_PASS: merico
     depends_on:

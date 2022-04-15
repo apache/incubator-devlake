@@ -7,7 +7,9 @@ if [ -n "$ADMIN_USER" ] && [ -n "$ADMIN_PASS" ]; then
     auth_basic_user_file /etc/nginx/.htpasswd;
     '
 fi
-envsubst '${DEVLAKE_ENDPOINT} ${GRAFANA_ENDPOINT} ${SERVER_CONF}' \
+export DNS=$(grep nameserver /etc/resolv.conf | awk '{print $2}')
+export DNS_VALID=${DNS_VALID:-300s}
+envsubst '${DEVLAKE_ENDPOINT} ${GRAFANA_ENDPOINT} ${SERVER_CONF} ${DNS} ${DNS_VALID}' \
     < /etc/nginx/conf.d/default.conf.tpl \
     > /etc/nginx/conf.d/default.conf
 nginx -g 'daemon off;'
