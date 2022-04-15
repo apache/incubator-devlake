@@ -69,7 +69,7 @@ const StageLane = (props) => {
     const now = dayjs()
     const diffDuration = (pV, cV) => pV + dayjs(cV.status === 'TASK_RUNNING'
       ? now
-      : (cV.status === 'TASK_FAILED' ? cV.UpdatedAt : cV.finishedAt || cV.UpdatedAt)).diff(dayjs(cV.beganAt), unit)
+      : (cV.status === 'TASK_FAILED' ? cV.finishedAt == null : cV.updatedAt || cV.finishedAt)).diff(dayjs(cV.beganAt), unit)
     const filterParallel = (pV, cV) => !pV.some(t => t.CreatedAt.split('.')[0] === cV.CreatedAt.split('.')[0]) ? [...pV, cV] : [...pV]
     const parallelTasks = stageTasks.reduce(filterParallel, [])
     duration = parallelMode && !isStageFailed(sK) ? parallelTasks.reduce(diffDuration, 0) : stageTasks.reduce(diffDuration, 0)

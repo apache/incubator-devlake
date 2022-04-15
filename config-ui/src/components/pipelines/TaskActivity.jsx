@@ -135,11 +135,11 @@ const TaskActivity = (props) => {
                   switch (t.status) {
                     case 'TASK_COMPLETED':
                     case 'TASK_FAILED':
-                      statusRelativeTime = dayjs(t.UpdatedAt).from(t.CreatedAt, true)
+                      statusRelativeTime = t.finishedAt == null ? 'N/A' : dayjs(t.finishedAt).from(t.beganAt, true)
                       break
                     case 'TASK_RUNNING':
                     default:
-                      statusRelativeTime = dayjs(t.CreatedAt).toNow(true)
+                      statusRelativeTime = dayjs(t.beganAt).toNow(true)
                       break
                   }
                   return statusRelativeTime
