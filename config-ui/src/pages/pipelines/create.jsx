@@ -610,6 +610,7 @@ const CreatePipeline = (props) => {
   useEffect(() => {
     if (saveBlueprintComplete && saveBlueprintComplete?.id) {
       setDraftBlueprint(saveBlueprintComplete)
+      setBlueprintDialogIsOpen(false)
     }
   }, [saveBlueprintComplete])
 
