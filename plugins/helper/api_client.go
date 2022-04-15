@@ -200,10 +200,6 @@ func (apiClient *ApiClient) Do(
 		return nil, err
 	}
 
-	if err != nil {
-		return nil, err
-	}
-
 	// after recieve
 	if apiClient.afterReponse != nil {
 		err = apiClient.afterReponse(res)
