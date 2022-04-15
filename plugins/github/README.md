@@ -69,7 +69,22 @@ Define regex pattern in .env
 - GITHUB_PR_BODY_CLOSE_PATTERN: Define key word to associate issue in pr body, please check the example in .env.example
 
 ## Sample Request
+In order to collect data, you have to compose a JSON looks like following one, and send it by selecting `Advanced Mode` on `Create Pipeline Run` page:
+```json
+[
+  [
+    {
+      "plugin": "github",
+      "options": {
+        "repo": "lake",
+        "owner": "merico-dev"
+      }
+    }
+  ]
+]
+```
 
+You can also trigger data collection by making a POST request to `/pipelines`.
 ```
 curl --location --request POST 'localhost:8080/pipelines' \
 --header 'Content-Type: application/json' \
