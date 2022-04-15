@@ -55,7 +55,7 @@ curl --location --request POST 'localhost:8080/pipelines' \
 {
     "name": "feishu 20211126",
     "tasks": [[{
-        "plugin": "feishu",
+      "plugin": "feishu",
       "options": {
         "numOfDaysToCollect" : 80,
         "rateLimitPerSecond" : 5
