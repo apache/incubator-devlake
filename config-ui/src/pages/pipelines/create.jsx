@@ -661,9 +661,6 @@ const CreatePipeline = (props) => {
                   </h1>
 
                   <p className='page-description mb-0'>Trigger data collection for one or more Data Providers.</p>
-                  <p style={{ margin: 0, padding: 0 }}>
-                    In a future release you’ll be able to define Blueprints, and schedule recurring plans.
-                  </p>
                 </div>
               </div>
             </div>
