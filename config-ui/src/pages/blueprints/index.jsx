@@ -315,7 +315,7 @@ const Blueprints = (props) => {
                   <p className=''>
                     Choose a preset schedule or use your custom crontab configuration.
                   </p>
-                  {pipelines.length === 0 && (
+                  {!isFetchingAllPipelines && pipelines.length === 0 && (
                     <p style={{ padding: '5px', borderRadius: '12px', backgroundColor: '#f8f8f8' }}>
                       <Icon icon='warning-sign' size={12} color={Colors.RED5} style={{ marginBottom: '2px', marginRight: '5px' }} />
                       Please RUN at least 1 successful pipeline to enable blueprints.
