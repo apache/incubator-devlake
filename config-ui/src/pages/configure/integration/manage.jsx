@@ -111,7 +111,7 @@ export default function ManageIntegration () {
         s = <strong style={{ color: Colors.GREEN3 }}>Online</strong>
         break
       case 2:
-        s = <strong style={{ color: Colors.RED3 }}>Error</strong>
+        s = <strong style={{ color: Colors.RED3 }}>Disconnected</strong>
         break
       case 0:
       default:
@@ -295,7 +295,7 @@ export default function ManageIntegration () {
                               style={{ cursor: 'pointer' }}
                             >
                               {connection.endpoint || connection.Endpoint}
-                              {!connection.endpoint && !connection.Endpoint && (<span style={{ color: Colors.GRAY4 }}>( Empty )</span>)}
+                              {!connection.endpoint && !connection.Endpoint && (<span style={{ color: Colors.GRAY4 }}>( To be configured )</span>)}
                             </td>
                             <td className='cell-status'>
                               {getConnectionStatus(connection)}
