@@ -48,6 +48,7 @@ function useConnectionManager ({
 
   const [activeConnection, setActiveConnection] = useState(NullConnection)
   const [allConnections, setAllConnections] = useState([])
+  const [domainRepositories, setDomainRepositories] = useState([])
   const [testedConnections, setTestedConnections] = useState([])
   const [connectionCount, setConnectionCount] = useState(0)
   const [connectionLimitReached, setConnectionLimitReached] = useState(false)
@@ -199,7 +200,6 @@ function useConnectionManager ({
     // Run Collection Tasks...
   }
 
-  // const fetchConnection = async () => {
   const fetchConnection = useCallback(() => {
     console.log('>> FETCHING CONNECTION....')
     try {
@@ -225,7 +225,6 @@ function useConnectionManager ({
         }, 500)
       }
       fetch()
-      // setIsFetching(false)
     } catch (e) {
       setIsFetching(false)
       setActiveConnection(NullConnection)
@@ -319,6 +318,30 @@ function useConnectionManager ({
     })
   }, [testConnection])
 
+  const fetchDomainLayerRepositories = useCallback(() => {
+    console.log('>> FETCHING DOMAIN LAYER REPOS....')
+    try {
+      setIsFetching(true)
+      setErrors([])
+      ToastNotification.clear()
+      const fetch = async () => {
+        const r = await request.get(`${DEVLAKE_ENDPOINT}/domainlayer/repos`)
+        console.log('>> RAW REPOSITORY DATA FROM API...', r.data?.repos)
+        setDomainRepositories(r.data?.repos || [])
+        setTimeout(() => {
+          setIsFetching(false)
+        }, 500)
+      }
+      fetch()
+    } catch (e) {
+      setIsFetching(false)
+      setDomainRepositories([])
+      setErrors([e.message])
+      ToastNotification.show({ message: `${e}`, intent: 'danger', icon: 'error' })
+      console.log('>> FAILED TO FETCH DOMAIN LAYER REPOS', e)
+    }
+  }, [])
+
   useEffect(() => {
     if (activeConnection && activeConnection.ID !== null) {
       setName(activeConnection.name)
@@ -381,6 +404,7 @@ function useConnectionManager ({
     activeConnection,
     fetchConnection,
     fetchAllConnections,
+    fetchDomainLayerRepositories,
     testAllConnections,
     testConnection,
     saveConnection,
@@ -412,6 +436,7 @@ function useConnectionManager ({
     setTestStatus,
     setSourceLimits,
     allConnections,
+    domainRepositories,
     testedConnections,
     sourceLimits,
     connectionCount,

@@ -94,11 +94,13 @@ const CreatePipeline = (props) => {
   const [boardId, setBoardId] = useState([])
   const [sourceId, setSourceId] = useState('')
   const [sources, setSources] = useState([])
+  const [repositories, setRepositories] = useState([])
   const [selectedSource, setSelectedSource] = useState()
   const [repositoryName, setRepositoryName] = useState('')
   const [owner, setOwner] = useState('')
   const [gitExtractorUrl, setGitExtractorUrl] = useState('')
   const [gitExtractorRepoId, setGitExtractorRepoId] = useState('')
+  const [selectedGithubRepo, setSelectedGithubRepo] = useState()
   const [refDiffRepoId, setRefDiffRepoId] = useState('')
   const [refDiffPairs, setRefDiffPairs] = useState([])
   const [refDiffTasks, setRefDiffTasks] = useState(['calculateCommitsDiff', 'calculateIssuesDiff'])
@@ -206,9 +208,11 @@ const CreatePipeline = (props) => {
 
   const {
     allConnections,
+    domainRepositories,
     // eslint-disable-next-line no-unused-vars
     isFetching: isFetchingConnections,
     fetchAllConnections,
+    fetchDomainLayerRepositories,
     // eslint-disable-next-line no-unused-vars
     getConnectionName
   } = useConnectionManager({
@@ -435,6 +439,12 @@ const CreatePipeline = (props) => {
       setSources([])
       setSelectedSource(null)
     }
+    if (enabledProviders.includes(Providers.GITEXTRACTOR)) {
+      fetchDomainLayerRepositories()
+    } else {
+      setRepositories([])
+      setSelectedGithubRepo(null)
+    }
   }, [
     enabledProviders,
     projectId,
@@ -443,6 +453,7 @@ const CreatePipeline = (props) => {
     configureProvider,
     validate,
     fetchAllConnections,
+    fetchDomainLayerRepositories,
     buildPipelineStages
   ])
 
@@ -466,9 +477,20 @@ const CreatePipeline = (props) => {
   }, [selectedSource, validate])
 
   useEffect(() => {
+    console.log('>> DOMAIN LAYER REPOSITIRY SELECTED, REPO = ', selectedGithubRepo)
+    setGitExtractorRepoId(rId => selectedGithubRepo ? selectedGithubRepo.value : null)
+    validate()
+  }, [selectedGithubRepo, validate])
+
+  useEffect(() => {
     console.log('>> FETCHED ALL JIRA CONNECTIONS... ', allConnections)
     setSources(allConnections.map(c => { return { id: c.ID, title: c.name || 'Instance', value: c.ID } }))
   }, [allConnections])
+
+  useEffect(() => {
+    console.log('>> FETCHED DOMAIN LAYER REPOS... ', domainRepositories)
+    setRepositories(domainRepositories.map((r, rIdx) => { return { id: rIdx, title: r.name || r.id || 'Repository', value: r.id } }))
+  }, [domainRepositories])
 
   useEffect(() => {
     console.log('>> BUILT JIRA INSTANCE SELECT MENU... ', sources)
@@ -1053,7 +1075,9 @@ const CreatePipeline = (props) => {
                               repositoryName={repositoryName}
                               sourceId={sourceId}
                               sources={sources}
+                              repositories={repositories}
                               selectedSource={selectedSource}
+                              selectedGithubRepo={selectedGithubRepo}
                               setSelectedSource={setSelectedSource}
                               boardId={boardId}
                               gitExtractorUrl={gitExtractorUrl}
@@ -1068,6 +1092,7 @@ const CreatePipeline = (props) => {
                               setBoardId={setBoardId}
                               setGitExtractorUrl={setGitExtractorUrl}
                               setGitExtractorRepoId={setGitExtractorRepoId}
+                              setSelectedGithubRepo={setSelectedGithubRepo}
                               setRefDiffRepoId={setRefDiffRepoId}
                               setRefDiffPairs={setRefDiffPairs}
                               setRefDiffTasks={setRefDiffTasks}
