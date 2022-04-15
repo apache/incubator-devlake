@@ -29,7 +29,7 @@ FEISHU_APPSCRECT=app_secret
 
 ## Collect Data From Feishu
 
-In order to collect data, you have to compose a JSON looks like following one, and send it by selecting `Advanced Mode` in `Create Pipeline Run` in `Pipelines`:
+In order to collect data, you have to compose a JSON looks like following one, and send it by selecting `Advanced Mode` on `Create Pipeline Run` page:
 numOfDaysToCollect： The number of days you want to collect
 rateLimitPerSecond: The number of requests to send(Maximum is 8)
 
