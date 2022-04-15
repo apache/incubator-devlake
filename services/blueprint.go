@@ -179,11 +179,12 @@ func ReloadBlueprints(c *cron.Cron) error {
 			blueprintLog.Error("created cron job failed: %s", err)
 			return err
 		}
+		blueprint := pp
 		_, err := c.AddFunc(pp.CronConfig, func() {
 			newPipeline := models.NewPipeline{}
 			newPipeline.Tasks = tasks
-			newPipeline.Name = pp.Name
-			newPipeline.BlueprintId = pp.ID
+			newPipeline.Name = blueprint.Name
+			newPipeline.BlueprintId = blueprint.ID
 			pipeline, err := CreatePipeline(&newPipeline)
 			// Return all created tasks to the User
 			if err != nil {
