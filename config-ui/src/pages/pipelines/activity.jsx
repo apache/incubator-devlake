@@ -343,8 +343,8 @@ const PipelineActivity = (props) => {
                             <label style={{ color: Colors.GRAY3 }}>Duration</label>
                             <div style={{ fontSize: '15px', whiteSpace: 'nowrap' }}>
                               {activePipeline.status === 'TASK_RUNNING'
-                                ? dayjs(activePipeline.CreatedAt).toNow(true)
-                                : dayjs(activePipeline.UpdatedAt).from(activePipeline.CreatedAt, true)}
+                                ? dayjs(activePipeline.beganAt).toNow(true)
+                                : activePipeline.finishedAt == null ? 0 : dayjs(activePipeline.finishedAt).from(activePipeline.beganAt, true)}
                             </div>
                           </div>
                           <div className='pipeline-actions' style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
@@ -415,7 +415,6 @@ const PipelineActivity = (props) => {
                             )}
                           </div>
                         </div>
-
                       </div>
                       <TaskActivity activePipeline={activePipeline} stages={buildPipelineStages(activePipeline.tasks)} />
                     </Card>

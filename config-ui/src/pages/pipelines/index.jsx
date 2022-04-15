@@ -397,7 +397,7 @@ const Pipelines = (props) => {
                             >
 
                               {/* {dayjs(pipeline.CreatedAt).toNow(pipeline.CreatedAt)} */}
-                              {dayjs(pipeline.UpdatedAt).from(pipeline.CreatedAt, true)}
+                              {pipeline.status === 'TASK_RUNNING' ? dayjs(pipeline.beganAt).toNow(pipeline.beganAt) : pipeline.finishedAt == null ? 'N/A' : dayjs(pipeline.finishedAt).from(pipeline.beganAt, true)}
                             </td>
                             <td className='cell-status no-user-select' style={{ textTransform: 'uppercase', whiteSpace: 'nowrap' }}>
                               <span style={{ display: 'inline-block', float: 'left', marginRight: '10px' }}>
