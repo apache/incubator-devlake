@@ -38,7 +38,7 @@ func Proxy(input *core.ApiResourceInput) (*core.ApiResourceOutput, error) {
 	apiClient, err := helper.NewApiClient(
 		jiraSource.Endpoint,
 		map[string]string{
-			"Authorization": fmt.Sprintf("Basic %v", basicAuth),
+			"Authorization": fmt.Sprintf("Bearer %v", basicAuth),
 		},
 		30*time.Second,
 		jiraSource.Proxy,
@@ -49,6 +49,7 @@ func Proxy(input *core.ApiResourceInput) (*core.ApiResourceOutput, error) {
 	}
 	resp, err := apiClient.Get(input.Params["path"], input.Query, nil)
 	if err != nil {
+		fmt.Println(err)
 		return nil, err
 	}
 	defer resp.Body.Close()
