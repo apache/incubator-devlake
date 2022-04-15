@@ -42,7 +42,7 @@
 - Issue Type Mapping:  JIRA 是高度可定制的，因此，每个 JIRA 实例 可以有一套完全不同于其它实例的 Issue Type。为了能正确地计算并展示各种指标，您必须将自定义的 Issue Type 映射到系统的标准类型。请参照 [事务类型映射](#事务类型映射) 进行设定。
 - Epic Key: 在 JIRA 中， issue 和 epic 的关联是通过 `customfield` 实现的，因此这个字段的名称在不同的实例上是不一样的。需要手动指定，请参照 [查找自定义字段的名称](#查找自定义字段名称) 进行设定。
 - Story Point Field: 同上，
-
+- Remotelink Commit SHA: 一个对commit链接进行匹配的正则表达式，用于判断一个外部链接是否为指向commit的链接。以gitlab为例，要匹配所有类似于https://gitlab.com/merico-dev/ce/example-repository/-/commit/8ab8fb319930dbd8615830276444b8545fd0ad24 这样的commit 可以直接使用正则表达式 **/commit/([0-9a-f]{40})$**
 ### 生成 API Token
 
 1. 登录Jira后，访问网址 `https://id.atlassian.com/manage-profile/security/api-tokens`
@@ -69,6 +69,7 @@ Devlake 支持三种标准类型，所有的指标将会基于标准类型进行
 ## 数据收集及计算
 
 为了触发插件进行数据收集和计算，您需要构造一个 JSON， 通过 `config-ui` 中的 `Triggers` 功能，发送请求触发收集计算任务：
+<font color=“red”>警告：数据收集只支持单任务执行，多任务并发执行的结果可能达不到预期。</font>
 
 ```json
 [
