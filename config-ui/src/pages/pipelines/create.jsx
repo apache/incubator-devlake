@@ -1209,7 +1209,9 @@ const CreatePipeline = (props) => {
                   <Button
                     disabled={!enableAutomation}
                     intent={enableAutomation ? Intent.WARNING : Intent.NONE}
-                    small text={saveBlueprintComplete.name}
+                    small
+                    text={saveBlueprintComplete.name}
+                    icon='bold'
                     style={{ marginLeft: '25px' }}
                     onClick={() => setBlueprintDialogIsOpen(opened => !opened)}
                   />

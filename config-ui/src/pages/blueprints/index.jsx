@@ -7,6 +7,8 @@ import {
   Button, Icon, Intent,
   Popover,
   Position,
+  Tooltip,
+  Colors,
   NonIdealState,
 } from '@blueprintjs/core'
 import usePipelineManager from '@/hooks/usePipelineManager'
@@ -187,7 +189,7 @@ const Blueprints = (props) => {
     if (deleteComplete.status === 200) {
       fetchAllBlueprints()
     }
-  }, [deleteComplete])
+  }, [deleteComplete, fetchAllBlueprints])
 
   useEffect(() => {
     fetchAllBlueprints()
@@ -218,6 +220,10 @@ const Blueprints = (props) => {
   useEffect(() => {
     setSelectedPipelineTemplate(pipelineTemplates.find(pT => pT.tasks.flat().toString() === tasks.flat().toString()))
   }, [pipelineTemplates])
+
+  useEffect(() => {
+    fetchAllPipelines()
+  }, [fetchAllPipelines])
 
   useEffect(() => {
     if (activeFilterStatus) {
@@ -306,10 +312,23 @@ const Blueprints = (props) => {
                     </Popover>
                   </h1>
                   <p className='page-description mb-0'>Create scheduled plans for automating pipelines with CRON.</p>
-                  <p className=''>Choose a preset schedule or use your custom crontab configuration.</p>
+                  <p className=''>
+                    Choose a preset schedule or use your custom crontab configuration.
+                  </p>
+                  {!isFetchingAllPipelines && pipelines.length === 0 && (
+                    <p style={{ padding: '5px', borderRadius: '12px', backgroundColor: '#f8f8f8' }}>
+                      <Icon icon='warning-sign' size={12} color={Colors.RED5} style={{ marginBottom: '2px', marginRight: '5px' }} />
+                      Please RUN at least 1 successful pipeline to enable blueprints.
+                    </p>
+                  )}
                 </div>
                 <div style={{ marginLeft: 'auto' }}>
-                  <Button icon='add' intent={Intent.PRIMARY} text='Create Blueprint' onClick={() => createNewBlueprint()} />
+                  <Button
+                    disabled={pipelines.length === 0}
+                    icon='add' intent={Intent.PRIMARY}
+                    text='Create Blueprint'
+                    onClick={() => createNewBlueprint()}
+                  />
                 </div>
               </div>
             </div>
@@ -352,11 +371,25 @@ const Blueprints = (props) => {
                         marginTop: '5px'
                       }}
                       >
-                        <Button
-                          intent={Intent.PRIMARY} text='Create Blueprint' small
-                          style={{ marginRight: '10px' }}
-                          onClick={createNewBlueprint}
-                        />
+                        {pipelines.length === 0
+                          ? (
+                            <Tooltip content='Please RUN at least 1 successful pipeline to enable blueprints.'>
+                              <Button
+                                disabled={pipelines.length === 0}
+                                intent={Intent.PRIMARY} text='Create Blueprint' small
+                                style={{ marginRight: '10px' }}
+                                onClick={createNewBlueprint}
+                              />
+                            </Tooltip>
+                            )
+                          : (
+                            <Button
+                              intent={Intent.PRIMARY} text='Create Blueprint' small
+                              style={{ marginRight: '10px' }}
+                              onClick={createNewBlueprint}
+                            />
+                            )}
+
                       </div>
                     </>
                   )}
