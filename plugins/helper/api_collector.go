@@ -350,6 +350,7 @@ func (collector *ApiCollector) handleResponseWithPages(reqData *RequestData) Api
 
 func (collector *ApiCollector) saveRawData(res *http.Response, input interface{}) (int, error) {
 	items, err := collector.args.ResponseParser(res)
+	logger := collector.args.Ctx.GetLogger()
 	if err != nil {
 		return 0, err
 	}
@@ -371,7 +372,11 @@ func (collector *ApiCollector) saveRawData(res *http.Response, input interface{}
 			Input:  inputJson,
 		}
 	}
-	return len(dd), db.Table(collector.table).Create(dd).Error
+	err = db.Table(collector.table).Create(dd).Error
+	if err != nil {
+		logger.Error("failed to save raw data: %s", err)
+	}
+	return len(dd), err
 }
 
 func GetRawMessageDirectFromResponse(res *http.Response) ([]json.RawMessage, error) {

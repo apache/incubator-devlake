@@ -42,7 +42,7 @@ func (c *ApiRateLimitCalculator) Calculate(apiClient *ApiClient) (int, time.Dura
 			if duration == 0 {
 				return c.GlobalRateLimitPerHour, 1 * time.Hour, nil
 			}
-
+			requests = int(float32(requests) * 0.95)
 			return requests, duration, err
 		}
 	}
