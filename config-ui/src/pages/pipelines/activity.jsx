@@ -344,7 +344,7 @@ const PipelineActivity = (props) => {
                             <div style={{ fontSize: '15px', whiteSpace: 'nowrap' }}>
                               {activePipeline.status === 'TASK_RUNNING'
                                 ? dayjs(activePipeline.beganAt).toNow(true)
-                                : activePipeline.finishedAt == null ? 0 : dayjs(activePipeline.finishedAt).from(activePipeline.beganAt, true)}
+                                : activePipeline.finishedAt == null ? 'N/A' : dayjs(activePipeline.finishedAt).from(activePipeline.beganAt, true)}
                             </div>
                           </div>
                           <div className='pipeline-actions' style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
