@@ -1,4 +1,4 @@
-import React, { Fragment, useEffect, useCallback, useState } from 'react'
+import React, { Fragment, useEffect, useCallback, useState, useRef } from 'react'
 import { CSSTransition } from 'react-transition-group'
 import {
   useHistory,
@@ -102,6 +102,8 @@ const CreatePipeline = (props) => {
   const [refDiffRepoId, setRefDiffRepoId] = useState('')
   const [refDiffPairs, setRefDiffPairs] = useState([])
   const [refDiffTasks, setRefDiffTasks] = useState(['calculateCommitsDiff', 'calculateIssuesDiff'])
+
+  const addBlueprintRef = useRef()
 
   // eslint-disable-next-line no-unused-vars
   const [autoRedirect, setAutoRedirect] = useState(true)
@@ -598,6 +600,16 @@ const CreatePipeline = (props) => {
   useEffect(() => {
     console.log('>>>> DETECTED PROVIDERS TASKS....', detectedProviderTasks)
   }, [detectedProviderTasks])
+
+  useEffect(() => {
+    if (enableAutomation && !blueprintDialogIsOpen) {
+      if (addBlueprintRef) {
+        addBlueprintRef.current?.buttonRef.click()
+      }
+    }
+    // NOTE: do NOT include $blueprintDialogIsOpen to deps -- excluded intentionally!
+    // This will allow auto-open to fire only once when automation swtich is toggled.
+  }, [enableAutomation])
 
   return (
     <>
@@ -1194,9 +1206,11 @@ const CreatePipeline = (props) => {
               </p>
               {!saveBlueprintComplete && (
                 <Button
+                  ref={addBlueprintRef}
                   disabled={!enableAutomation || (advancedMode ? !isValidAdvancedPipeline() : !isValidPipeline())}
                   intent={enableAutomation ? Intent.WARNING : Intent.NONE}
                   small text='Add Blueprint'
+                  icon='plus'
                   style={{ marginLeft: '25px' }}
                   onClick={() => setBlueprintDialogIsOpen(opened => !opened)}
                 />
@@ -1204,6 +1218,7 @@ const CreatePipeline = (props) => {
               {saveBlueprintComplete && (
                 <ButtonGroup>
                   <Button
+                    ref={addBlueprintRef}
                     disabled={!enableAutomation}
                     intent={enableAutomation ? Intent.WARNING : Intent.NONE}
                     small
