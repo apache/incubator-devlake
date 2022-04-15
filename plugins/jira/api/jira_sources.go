@@ -117,6 +117,10 @@ func refreshAndSaveJiraSource(jiraSource *models.JiraSource, data map[string]int
 		}
 	}
 
+	jiraSource.BasicAuthEncoded, err = core.Decrypt(encKey, jiraSource.BasicAuthEncoded)
+	if err != nil {
+		return err
+	}
 	return nil
 }
 
