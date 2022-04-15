@@ -55,16 +55,16 @@ const MenuConfiguration = (activeRoute) => {
     //   children: [
     //   ]
     // },
-    {
-      id: 2,
-      label: 'Triggers',
-      icon: 'asterisk',
-      classNames: [],
-      route: '/triggers',
-      active: activeRoute.url === '/triggers',
-      children: [
-      ]
-    },
+    // {
+    //   id: 2,
+    //   label: 'Triggers',
+    //   icon: 'asterisk',
+    //   classNames: [],
+    //   route: '/triggers',
+    //   active: activeRoute.url === '/triggers',
+    //   children: [
+    //   ]
+    // },
     {
       id: 3,
       label: 'Pipelines',
