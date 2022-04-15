@@ -63,7 +63,7 @@
 - GITHUB_PR_BODY_CLOSE_PATTERN: 定义了pr body关联issue的关键字，可查看.env.example里面的示例
 
 ## 示例
-为了触发插件进行数据收集和计算，您需要构造一个 JSON， 通过 `Pipelines` 中的 `Create Pipeline Run`选项来选择`Advanced Mode`, 发送请求触发收集计算任务：
+为了触发插件进行数据收集和计算，您需要构造一个 JSON， 通过 `Pipelines` 中的 `Create Pipeline Run` 选项来选择 `Advanced Mode`, 发送请求触发收集计算任务：
 ```json
 [
   [
