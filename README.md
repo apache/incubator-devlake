@@ -268,11 +268,11 @@ But, be careful, many API services like JIRA/GITHUB have request rate limit mech
 
 - [Docker](https://docs.docker.com/get-docker)
 - [docker-compose](https://docs.docker.com/compose/install/)
-- [temporalio](https://github.com/merico-dev/lake/pull/1559)
+- [temporalio](https://temporal.io/)
 
 #### How to setup
 
-1. Clone and fire up  [temporalio](https://github.com/merico-dev/lake/pull/1559) services
+1. Clone and fire up  [temporalio](https://temporal.io/) services
 2. Clone this repo, and fire up DevLake with command `docker-compose -f docker-compose-temporal.yml up -d`
 
 
