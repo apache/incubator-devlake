@@ -32,7 +32,6 @@ func CollectApiPipelines(taskCtx core.SubTaskContext) error {
 		Incremental:        false,
 		UrlTemplate:        "projects/{{ .Params.ProjectId }}/pipelines",
 		Query:              GetQueryOrder,
-		GetTotalPages:      GetTotalPagesFromResponse,
 		ResponseParser:     GetRawMessageFromResponse,
 	})
 
