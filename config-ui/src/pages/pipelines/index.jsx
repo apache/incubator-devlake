@@ -383,11 +383,17 @@ const Pipelines = (props) => {
                               >
 
                                 {pipeline.name}
-                                {pipeline.blueprintId && (<Tooltip content={`Blueprint ID ${pipeline.blueprintId}`}><Icon icon='bold' color={Colors.BLUE4} size={12} style={{ margin: '3px' }} /></Tooltip>)}
-                                {pipeline.status === 'TASK_COMPLETED' && (<Icon
-                                  icon='tick' size={10} color={Colors.GREEN5}
-                                  style={{ margin: '0 10px', float: 'right', marginBottom: '2px' }}
-                                                                          />)}
+                                {parseInt(pipeline.blueprintId, 10) > 0 && (
+                                  <Tooltip content={`Blueprint ID ${pipeline.blueprintId}`}>
+                                    <Icon icon='bold' color={Colors.BLUE4} size={12} style={{ margin: '3px' }} />
+                                  </Tooltip>
+                                )}
+                                {pipeline.status === 'TASK_COMPLETED' && (
+                                  <Icon
+                                    icon='tick' size={10} color={Colors.GREEN5}
+                                    style={{ margin: '0 10px', float: 'right', marginBottom: '2px' }}
+                                  />
+                                )}
                               </strong>
 
                             </td>

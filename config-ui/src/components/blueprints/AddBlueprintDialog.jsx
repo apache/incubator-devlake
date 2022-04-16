@@ -5,7 +5,7 @@ import cron from 'cron-validate'
 import {
   Classes, FormGroup, InputGroup, ButtonGroup,
   Button, Icon, Intent, Popover, Position,
-  Dialog,
+  Dialog, Tooltip,
   RadioGroup, Radio,
   MenuItem,
   Elevation,
@@ -42,6 +42,8 @@ const AddBlueprintDialog = (props) => {
     saveBlueprint = () => {},
     fieldHasError = () => {},
     getFieldError = () => {},
+    getCronPreset = () => {},
+    getCronPresetByConfig = () => {},
     isSaving = false,
     isValidBlueprint = false,
     pipelines = [],
@@ -95,10 +97,17 @@ const AddBlueprintDialog = (props) => {
                       />
                   )}
                   />
-                  <Label style={{ display: 'inline', marginRight: 0, marginBottom: 0, fontWeight: 'bold' }}>
+                  <Label style={{ display: 'inline', lineHeight: '18px', marginRight: 0, marginBottom: 0, fontWeight: 'bold' }}>
                     Frequency
                     <span className='requiredStar'>*</span>
                   </Label>
+                  {getCronPresetByConfig(cronConfig)
+                    ? (
+                      <small style={{ fontSize: '10px', color: Colors.GRAY2, display: 'block' }}>
+                        {getCronPresetByConfig(cronConfig).description}
+                      </small>
+                      )
+                    : ''}
                   <RadioGroup
                     inline={true}
                     label={false}
@@ -107,13 +116,33 @@ const AddBlueprintDialog = (props) => {
                     selectedValue={cronConfig}
                     required
                   >
-                    <Radio label='Hourly' value='59 * * * 1-5' style={{ fontWeight: cronConfig === '59 * * * 1-5' ? 'bold' : 'normal' }} />
-                    <Radio label='Daily' value='0 0 * * *' style={{ fontWeight: cronConfig === '0 0 * * *' ? 'bold' : 'normal' }} />
+                    {/* Dynamic Presets from Connection Manager */}
+                    {[getCronPreset('hourly'),
+                      getCronPreset('daily'),
+                      getCronPreset('weekly'),
+                      getCronPreset('monthly')].map((preset, prIdx) => (
+                        <Radio
+                          key={`cron-preset-tooltip-key${prIdx}`}
+                          label={(
+                            <>
+                              <Tooltip
+                                position={Position.TOP}
+                                intent={Intent.PRIMARY}
+                                content={preset.description}
+                              >{preset.label}
+                              </Tooltip>
+                            </>
+                            )}
+                          value={preset.cronConfig}
+                          style={{ fontWeight: cronConfig === preset.cronConfig ? 'bold' : 'normal', outline: 'none !important' }}
+                        />
+
+                    ))}
+                    {/* <Radio label='Daily' value='0 0 * * *' style={{ fontWeight: cronConfig === '0 0 * * *' ? 'bold' : 'normal' }} />
                     <Radio label='Weekly' value='0 0 * * 1' style={{ fontWeight: cronConfig === '0 0 * * 1' ? 'bold' : 'normal' }} />
-                    <Radio label='Monthly' value='0 0 1 * *' style={{ fontWeight: cronConfig === '0 0 1 * *' ? 'bold' : 'normal' }} />
+                    <Radio label='Monthly' value='0 0 1 * *' style={{ fontWeight: cronConfig === '0 0 1 * *' ? 'bold' : 'normal' }} /> */}
                     <Radio label='Custom' value='custom' style={{ fontWeight: cronConfig === 'custom' ? 'bold' : 'normal' }} />
                   </RadioGroup>
-
                   <div style={{ display: 'flex' }}>
                     <FormGroup
                       disabled={cronConfig !== 'custom'}
