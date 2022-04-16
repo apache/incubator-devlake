@@ -133,17 +133,30 @@ func (collector *ApiCollector) Execute() error {
 		// TODO: this loads all records into memory, we need lazy-load
 		iterator := collector.args.Input
 		defer iterator.Close()
+		c := make(chan bool)
+		total := 0
 		for iterator.HasNext() {
 			input, err := iterator.Fetch()
 			if err != nil {
 				return err
 			}
+			// go routine may not be scheduled in time, so we have to make sure they do.
+			total++
 			go func() {
-				err := collector.exec(input)
+				err = collector.exec(input)
+				c <- true
 				if err != nil {
 					logger.Error("failed to execute for input: %v, %w", input, err)
 				}
 			}()
+		}
+
+		// wait go func finish
+		for range c {
+			total--
+			if total == 0 {
+				close(c)
+			}
 		}
 	} else {
 		// or we just did it once
