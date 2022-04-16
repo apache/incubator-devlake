@@ -49,6 +49,7 @@ const Blueprints = (props) => {
     createCronExpression: createCron,
     getCronSchedule: getSchedule,
     getCronPreset,
+    getCronPresetByConfig,
     activateBlueprint,
     deactivateBlueprint,
     // eslint-disable-next-line no-unused-vars
@@ -427,6 +428,8 @@ const Blueprints = (props) => {
         selectedPipelineTemplate={selectedPipelineTemplate}
         setSelectedPipelineTemplate={setSelectedPipelineTemplate}
         detectedProviders={detectedProviderTasks}
+        getCronPreset={getCronPreset}
+        getCronPresetByConfig={getCronPresetByConfig}
       />
 
     </>

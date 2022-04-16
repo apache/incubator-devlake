@@ -23,9 +23,9 @@ function useBlueprintManager (blueprintName = `BLUEPRINT WEEKLY ${Date.now()}`, 
 
   const [cronPresets, setCronPresets] = useState([
     // eslint-disable-next-line max-len
-    { id: 0, name: 'hourly', label: 'Hourly', cronConfig: '59 * * * 1-5', description: 'At minute 59 on every day-of-week from Monday through Friday.' },
+    { id: 0, name: 'hourly', label: 'Hourly', cronConfig: '59 * * * *', description: 'At minute 59 on every day-of-week from Monday through Sunday.' },
     // eslint-disable-next-line max-len
-    { id: 1, name: 'daily', label: 'Daily', cronConfig: '0 0 * * *', description: 'At 00:00 (Midnight) on every day-of-week from Monday through Friday.' },
+    { id: 1, name: 'daily', label: 'Daily', cronConfig: '0 0 * * *', description: 'At 00:00 (Midnight) on every day-of-week from Monday through Sunday.' },
     { id: 2, name: 'weekly', label: 'Weekly', cronConfig: '0 0 * * 1', description: 'At 00:00 (Midnight) on Monday.' },
     { id: 3, name: 'monthly', label: 'Monthly', cronConfig: '0 0 1 * *', description: 'At 00:00 (Midnight) on day-of-month 1.' },
   ])
@@ -199,6 +199,10 @@ function useBlueprintManager (blueprintName = `BLUEPRINT WEEKLY ${Date.now()}`, 
     return cronPresets.find(p => p.name === presetName)
   }, [cronPresets])
 
+  const getCronPresetByConfig = useCallback((cronConfig) => {
+    return cronPresets.find(p => p.cronConfig === cronConfig)
+  }, [cronPresets])
+
   const activateBlueprint = useCallback((blueprint) => {
     console.log('>> ACTIVATING BLUEPRINT....')
     try {
@@ -293,6 +297,7 @@ function useBlueprintManager (blueprintName = `BLUEPRINT WEEKLY ${Date.now()}`, 
     createCronExpression,
     getCronSchedule,
     getCronPreset,
+    getCronPresetByConfig,
     detectCronInterval,
     activateBlueprint,
     deactivateBlueprint,

@@ -283,7 +283,7 @@ const PipelineActivity = (props) => {
                             </span>
                           </h2>
                           <div className='pipeline-timestamp'>
-                            {dayjs(activePipeline.CreatedAt).utc().format()} (UTC)
+                            {dayjs(activePipeline.createdAt).utc().format()} (UTC)
                           </div>
                           {Object.keys(buildPipelineStages(activePipeline.tasks)).length > 1 && (
                             <div className='pipeline-multistage-tag' style={{ padding: '5px 0 0 0' }}>
@@ -456,7 +456,7 @@ const PipelineActivity = (props) => {
                       <span style={{ padding: '0 2px' }}>
                         <Icon icon='dot' size={10} color={Colors.GRAY3} style={{ marginBottom: '3px' }} />
                       </span>
-                      <strong>Created </strong> {activePipeline.CreatedAt}
+                      <strong>Created </strong> {activePipeline.createdAt}
                     </div>
                     <div>
                       {isFetching && (
