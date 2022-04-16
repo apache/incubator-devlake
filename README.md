@@ -69,12 +69,12 @@ NOTE: After installing docker, you may need to run the docker application and re
 
 #### Commands to run in your terminal<a id="user-setup-commands"></a>
 
-**IMPORTANT: DevLake doesn't support Database Schema Migration yet,  upgrading an existing instance is likely to break, we recommend that you deploy a new instance instead.**
+**IMPORTANT: Database Schema Migration support was added to DevLake on v0.10.0, which means, you can upgrade your instance from v0.10.0 to any greater version. However, downgrading, or upgrading older version to v0.10.0 or newer are not supported and likely to break, we recommend that you deploy a new instance if needed.**
 
 1. Download `docker-compose.yml` and `env.example` from [latest release page](https://github.com/merico-dev/lake/releases/latest) into a folder.
 2. Rename `env.example` to `.env`. For Mac/Linux users, please run `mv env.example .env` in the terminal.
 3. Start Docker on your machine, then run `docker-compose up -d` to start the services.
-4. Visit `localhost:4000` to set up configuration files.
+4. Utilize `config-ui` to setup connection by opening `http://localhost:4000` in your browser. **We highly recommend that you take a look at our [GitHub-and-GitLab-New-User-Guide](./docs/GitHub-and-GitLab-New-User-Guide-v0.10.0.md) which covers step 4-7 in detail.**
    >- Navigate to desired plugins on the Integrations page
    >- Please reference the following for more details on how to configure each one:<br>
       > <a href="plugins/jira/README.md" target="_blank">Jira</a><br>
@@ -83,52 +83,14 @@ NOTE: After installing docker, you may need to run the docker application and re
       > <a href="plugins/github/README.md" target="_blank">GitHub</a><br>
    >- Submit the form to update the values by clicking on the **Save Connection** button on each form page
    >- `devlake` takes a while to fully boot up. if `config-ui` complaining about api being unreachable, please wait a few seconds and try refreshing the page.
-
-
-5. Visit `localhost:4000/pipelines/create` to RUN a Pipeline and trigger data collection.
-
-
-   Pipelines Runs can be initiated by the new "Create Run" Interface. Simply enable the **Data Source Providers** you wish to run collection for, and specify the data you want to collect, for instance, **Project ID** for Gitlab and **Repository Name** for GitHub.
-
-   Once a valid pipeline configuration has been created, press **Create Run** to start/run the pipeline.
-   After the pipeline starts, you will be automatically redirected to the **Pipeline Activity** screen to monitor collection activity.
-
-   **Pipelines** is accessible from the main menu of the config-ui for easy access.
-
-   - Manage All Pipelines: `http://localhost:4000/pipelines`
-   - Create Pipeline RUN: `http://localhost:4000/pipelines/create`
-   - Track Pipeline Activity: `http://localhost:4000/pipelines/activity/[RUN_ID]`
-
-   For advanced use cases and complex pipelines, please use the Raw JSON API to manually initiate a run using **cURL** or graphical API tool such as **Postman**. `POST` the following request to the DevLake API Endpoint.
-
-    ```json
-    [
-        [
-            {
-                "plugin": "github",
-                "options": {
-                    "repo": "lake",
-                    "owner": "merico-dev"
-                }
-            }
-        ]
-    ]
-    ```
-
-   Please refer to this wiki [How to trigger data collection](https://github.com/merico-dev/lake/wiki/How-to-use-the-triggers-page).
-
+5. Create pipelines to trigger data collection in `config-ui`
 6. Click *View Dashboards* button in the top left when done, or visit `localhost:3002` (username: `admin`, password: `admin`).
 
    We use <a href="https://grafana.com/" target="_blank">Grafana</a> as a visualization tool to build charts for the <a href="https://github.com/merico-dev/lake/wiki/DataModel.Domain-layer-schema">data stored in our database</a>. Using SQL queries, we can add panels to build, save, and edit customized dashboards.
 
    All the details on provisioning and customizing a dashboard can be found in the [Grafana Doc](docs/GRAFANA.md).
+7. To synchronize data periodically and automatically, we offer you the **Blueprint** feature, you can find it in `config-ui` pipeline section.
 
-#### Setup cron job
-
-To synchronize data periodically, we provide [`lake-cli`](./cmd/lake-cli/README.md) for easily sending data collection requests along with [a cron job](./devops/sync/README.md) to periodically trigger the cli tool.
-
-
-<br>
 
 ## Developer Setup<a id="dev-setup"></a>
 
