@@ -80,57 +80,7 @@ export default function GithubSettings (props) {
 
   return (
     <>
-      <h3 className='headline'>Pull Request Enrichment Options <Tag className='bp3-form-helper-text'>RegExp</Tag></h3>
-      <p className=''>Enrich GitHub PRs using Label data.</p>
-
-      <div style={{ maxWidth: '60%' }}>
-        <div className='formContainer'>
-          <FormGroup
-            disabled={isSaving || isSavingConnection}
-            labelFor='github-pr-type'
-            className='formGroup'
-            contentClassName='formGroupContent'
-          >
-            <Label>
-              Type
-            </Label>
-            <InputGroup
-              id='github-pr-type'
-              placeholder='type/(.*)$'
-              defaultValue={prType}
-              onChange={(e) => setPrType(e.target.value)}
-              onKeyUp={(e) => e.target.value.length === 0 ? setPrType('') : null}
-              disabled={isSaving || isSavingConnection}
-              className='input'
-              maxLength={255}
-            />
-          </FormGroup>
-        </div>
-        <div className='formContainer'>
-          <FormGroup
-            disabled={isSaving || isSavingConnection}
-            labelFor='github-pr-component'
-            className='formGroup'
-            contentClassName='formGroupContent'
-          >
-            <Label>
-              Component
-            </Label>
-            <InputGroup
-              id='github-pr-type'
-              placeholder='component/(.*)$'
-              defaultValue={prComponent}
-              onChange={(e) => setPrComponent(e.target.value)}
-              onKeyUp={(e) => e.target.value.length === 0 ? setPrComponent('') : null}
-              disabled={isSaving || isSavingConnection}
-              className='input'
-              maxLength={255}
-            />
-          </FormGroup>
-        </div>
-      </div>
-
-      <h3 className='headline'>Issue Type Enrichment Options <Tag className='bp3-form-helper-text'>RegExp</Tag></h3>
+      <h3 className='headline'>Issue Enrichment Options <Tag className='bp3-form-helper-text'>RegExp</Tag></h3>
       <p className=''>Enrich GitHub Issues using Label data.</p>
       <div style={{ maxWidth: '60%' }}>
         <div className='formContainer'>
@@ -207,7 +157,7 @@ export default function GithubSettings (props) {
             contentClassName='formGroupContent'
           >
             <Label>
-              <span className='bp3-tag tag-requirement'>Requirement</span>
+              <span className='bp3-tag tag-requirement'>Type - Requirement</span>
             </Label>
             <InputGroup
               id='github-issue-requirement'
@@ -229,7 +179,7 @@ export default function GithubSettings (props) {
             contentClassName='formGroupContent'
           >
             <Label>
-              <span className='bp3-tag tag-bug'>Bug</span>
+              <span className='bp3-tag tag-bug'>Type - Bug</span>
             </Label>
             <InputGroup
               id='github-issue-bug'
@@ -251,7 +201,7 @@ export default function GithubSettings (props) {
             contentClassName='formGroupContent'
           >
             <Label>
-              <span className='bp3-tag tag-incident'>Incident</span>
+              <span className='bp3-tag tag-incident'>Type - Incident</span>
             </Label>
             <InputGroup
               id='github-issue-incident'
@@ -259,6 +209,56 @@ export default function GithubSettings (props) {
               defaultValue={issueTypeIncident}
               onChange={(e) => setIssueTypeIncident(e.target.value)}
               onKeyUp={(e) => e.target.value.length === 0 ? setIssueTypeIncident('') : null}
+              disabled={isSaving || isSavingConnection}
+              className='input'
+              maxLength={255}
+            />
+          </FormGroup>
+        </div>
+      </div>
+
+      <h3 className='headline'>Pull Request Enrichment Options <Tag className='bp3-form-helper-text'>RegExp</Tag></h3>
+      <p className=''>Enrich GitHub PRs using Label data.</p>
+
+      <div style={{ maxWidth: '60%' }}>
+        <div className='formContainer'>
+          <FormGroup
+            disabled={isSaving || isSavingConnection}
+            labelFor='github-pr-type'
+            className='formGroup'
+            contentClassName='formGroupContent'
+          >
+            <Label>
+              Type
+            </Label>
+            <InputGroup
+              id='github-pr-type'
+              placeholder='type/(.*)$'
+              defaultValue={prType}
+              onChange={(e) => setPrType(e.target.value)}
+              onKeyUp={(e) => e.target.value.length === 0 ? setPrType('') : null}
+              disabled={isSaving || isSavingConnection}
+              className='input'
+              maxLength={255}
+            />
+          </FormGroup>
+        </div>
+        <div className='formContainer'>
+          <FormGroup
+            disabled={isSaving || isSavingConnection}
+            labelFor='github-pr-component'
+            className='formGroup'
+            contentClassName='formGroupContent'
+          >
+            <Label>
+              Component
+            </Label>
+            <InputGroup
+              id='github-pr-type'
+              placeholder='component/(.*)$'
+              defaultValue={prComponent}
+              onChange={(e) => setPrComponent(e.target.value)}
+              onKeyUp={(e) => e.target.value.length === 0 ? setPrComponent('') : null}
               disabled={isSaving || isSavingConnection}
               className='input'
               maxLength={255}

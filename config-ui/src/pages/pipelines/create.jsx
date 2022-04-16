@@ -1,4 +1,4 @@
-import React, { Fragment, useEffect, useCallback, useState } from 'react'
+import React, { Fragment, useEffect, useCallback, useState, useRef } from 'react'
 import { CSSTransition } from 'react-transition-group'
 import {
   useHistory,
@@ -94,14 +94,18 @@ const CreatePipeline = (props) => {
   const [boardId, setBoardId] = useState([])
   const [sourceId, setSourceId] = useState('')
   const [sources, setSources] = useState([])
+  const [repositories, setRepositories] = useState([])
   const [selectedSource, setSelectedSource] = useState()
   const [repositoryName, setRepositoryName] = useState('')
   const [owner, setOwner] = useState('')
   const [gitExtractorUrl, setGitExtractorUrl] = useState('')
   const [gitExtractorRepoId, setGitExtractorRepoId] = useState('')
+  const [selectedGithubRepo, setSelectedGithubRepo] = useState()
   const [refDiffRepoId, setRefDiffRepoId] = useState('')
   const [refDiffPairs, setRefDiffPairs] = useState([])
   const [refDiffTasks, setRefDiffTasks] = useState(['calculateCommitsDiff', 'calculateIssuesDiff'])
+
+  const addBlueprintRef = useRef()
 
   // eslint-disable-next-line no-unused-vars
   const [autoRedirect, setAutoRedirect] = useState(true)
@@ -204,9 +208,11 @@ const CreatePipeline = (props) => {
 
   const {
     allConnections,
+    domainRepositories,
     // eslint-disable-next-line no-unused-vars
     isFetching: isFetchingConnections,
     fetchAllConnections,
+    fetchDomainLayerRepositories,
     // eslint-disable-next-line no-unused-vars
     getConnectionName
   } = useConnectionManager({
@@ -433,6 +439,12 @@ const CreatePipeline = (props) => {
       setSources([])
       setSelectedSource(null)
     }
+    if (enabledProviders.includes(Providers.GITEXTRACTOR)) {
+      fetchDomainLayerRepositories()
+    } else {
+      setRepositories([])
+      setSelectedGithubRepo(null)
+    }
   }, [
     enabledProviders,
     projectId,
@@ -441,6 +453,7 @@ const CreatePipeline = (props) => {
     configureProvider,
     validate,
     fetchAllConnections,
+    fetchDomainLayerRepositories,
     buildPipelineStages
   ])
 
@@ -464,9 +477,20 @@ const CreatePipeline = (props) => {
   }, [selectedSource, validate])
 
   useEffect(() => {
+    console.log('>> DOMAIN LAYER REPOSITIRY SELECTED, REPO = ', selectedGithubRepo)
+    setGitExtractorRepoId(rId => selectedGithubRepo ? selectedGithubRepo.value : null)
+    validate()
+  }, [selectedGithubRepo, validate])
+
+  useEffect(() => {
     console.log('>> FETCHED ALL JIRA CONNECTIONS... ', allConnections)
     setSources(allConnections.map(c => { return { id: c.ID, title: c.name || 'Instance', value: c.ID } }))
   }, [allConnections])
+
+  useEffect(() => {
+    console.log('>> FETCHED DOMAIN LAYER REPOS... ', domainRepositories)
+    setRepositories(domainRepositories.map((r, rIdx) => { return { id: rIdx, title: r.name || r.id || 'Repository', value: r.id } }))
+  }, [domainRepositories])
 
   useEffect(() => {
     console.log('>> BUILT JIRA INSTANCE SELECT MENU... ', sources)
@@ -586,6 +610,7 @@ const CreatePipeline = (props) => {
   useEffect(() => {
     if (saveBlueprintComplete && saveBlueprintComplete?.id) {
       setDraftBlueprint(saveBlueprintComplete)
+      setBlueprintDialogIsOpen(false)
     }
   }, [saveBlueprintComplete])
 
@@ -598,6 +623,16 @@ const CreatePipeline = (props) => {
   useEffect(() => {
     console.log('>>>> DETECTED PROVIDERS TASKS....', detectedProviderTasks)
   }, [detectedProviderTasks])
+
+  useEffect(() => {
+    if (enableAutomation && !blueprintDialogIsOpen) {
+      if (addBlueprintRef) {
+        addBlueprintRef.current?.buttonRef.click()
+      }
+    }
+    // NOTE: do NOT include $blueprintDialogIsOpen to deps -- excluded intentionally!
+    // This will allow auto-open to fire only once when automation swtich is toggled.
+  }, [enableAutomation])
 
   return (
     <>
@@ -661,9 +696,6 @@ const CreatePipeline = (props) => {
                   </h1>
 
                   <p className='page-description mb-0'>Trigger data collection for one or more Data Providers.</p>
-                  <p style={{ margin: 0, padding: 0 }}>
-                    In a future release you’ll be able to define Blueprints, and schedule recurring plans.
-                  </p>
                 </div>
               </div>
             </div>
@@ -1044,7 +1076,9 @@ const CreatePipeline = (props) => {
                               repositoryName={repositoryName}
                               sourceId={sourceId}
                               sources={sources}
+                              repositories={repositories}
                               selectedSource={selectedSource}
+                              selectedGithubRepo={selectedGithubRepo}
                               setSelectedSource={setSelectedSource}
                               boardId={boardId}
                               gitExtractorUrl={gitExtractorUrl}
@@ -1059,6 +1093,7 @@ const CreatePipeline = (props) => {
                               setBoardId={setBoardId}
                               setGitExtractorUrl={setGitExtractorUrl}
                               setGitExtractorRepoId={setGitExtractorRepoId}
+                              setSelectedGithubRepo={setSelectedGithubRepo}
                               setRefDiffRepoId={setRefDiffRepoId}
                               setRefDiffPairs={setRefDiffPairs}
                               setRefDiffTasks={setRefDiffTasks}
@@ -1197,9 +1232,11 @@ const CreatePipeline = (props) => {
               </p>
               {!saveBlueprintComplete && (
                 <Button
+                  ref={addBlueprintRef}
                   disabled={!enableAutomation || (advancedMode ? !isValidAdvancedPipeline() : !isValidPipeline())}
                   intent={enableAutomation ? Intent.WARNING : Intent.NONE}
                   small text='Add Blueprint'
+                  icon='plus'
                   style={{ marginLeft: '25px' }}
                   onClick={() => setBlueprintDialogIsOpen(opened => !opened)}
                 />
@@ -1207,6 +1244,7 @@ const CreatePipeline = (props) => {
               {saveBlueprintComplete && (
                 <ButtonGroup>
                   <Button
+                    ref={addBlueprintRef}
                     disabled={!enableAutomation}
                     intent={enableAutomation ? Intent.WARNING : Intent.NONE}
                     small

@@ -21,7 +21,9 @@ const ProviderSettings = (props) => {
     projectId = [],
     sourceId,
     selectedSource,
+    selectedGithubRepo,
     sources = [],
+    repositories = [],
     boardId = [],
     owner,
     repositoryName,
@@ -38,6 +40,7 @@ const ProviderSettings = (props) => {
     setRepositoryName = () => {},
     setGitExtractorUrl = () => {},
     setGitExtractorRepoId = () => {},
+    setSelectedGithubRepo = () => {},
     setRefDiffRepoId = () => {},
     setRefDiffPairs = () => {},
     setRefDiffTasks = () => {},
@@ -277,7 +280,7 @@ const ProviderSettings = (props) => {
           <FormGroup
             disabled={isRunning || !isEnabled(providerId)}
             label={<strong>Repository ID<span className='requiredStar'>*</span></strong>}
-            labelInfo={<span style={{ display: 'block' }}>Enter Repo Column ID</span>}
+            labelInfo={<span style={{ display: 'block' }}>Choose Repo Column ID</span>}
             inline={false}
             labelFor='gitextractor-repo-id'
             className=''
@@ -285,7 +288,8 @@ const ProviderSettings = (props) => {
             style={{ marginLeft: '12px', minWidth: '280px' }}
             fill
           >
-            <InputGroup
+            {/* Manual Text Input @DISABLED */}
+            {/* <InputGroup
               id='gitextractor-repo-id'
               disabled={isRunning || !isEnabled(providerId)}
               placeholder='eg. github:GithubRepo:384111310'
@@ -294,7 +298,48 @@ const ProviderSettings = (props) => {
               className='input-gitextractor-repo-id'
               autoComplete='off'
               fill={false}
-            />
+            /> */}
+            <ButtonGroup>
+              <Select
+                disabled={isRunning || !isEnabled(providerId) || repositories.length === 0}
+                className='selector-gitextractor-repo-id'
+                popoverProps={{ popoverClassName: 'gitextractor-repo-id-popover' }}
+                multiple
+                inline={true}
+                fill={true}
+                items={repositories}
+                activeItem={selectedGithubRepo}
+                itemPredicate={(query, item) => item?.title?.toLowerCase().indexOf(query.toLowerCase()) >= 0}
+                itemRenderer={(item, { handleClick, modifiers }) => (
+                  <MenuItem
+                    active={modifiers.active}
+                    key={item.value}
+                    label={item.value}
+                    onClick={handleClick}
+                    text={item.title}
+                  />
+                )}
+                noResults={<MenuItem disabled={true} text='No Repositories.' />}
+                onItemSelect={(item) => {
+                  setSelectedGithubRepo(item)
+                }}
+              >
+                <Button
+                  className='btn-gitextractor-repo-id-selector'
+                  disabled={isRunning || !isEnabled(providerId)}
+                  style={{ justifyContent: 'space-between', minWidth: '206px', maxWidth: '290px', whiteSpace: 'nowrap' }}
+                  text={selectedGithubRepo ? `${selectedGithubRepo.title} [${selectedGithubRepo.value}]` : 'Select GitHub Repository'}
+                  rightIcon='double-caret-vertical'
+                  fill
+                />
+              </Select>
+              <Button
+                icon='eraser'
+                intent={Intent.WARNING}
+                disabled={isRunning || !isEnabled(providerId)}
+                onClick={() => setSelectedGithubRepo(null)}
+              />
+            </ButtonGroup>
           </FormGroup>
         </>
       )
