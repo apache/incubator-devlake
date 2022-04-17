@@ -152,7 +152,7 @@ export default function ManageIntegration () {
   useEffect(() => {
     console.log('>> TESTING CONNECTION SOURCES...')
     testAllConnections(connections)
-  }, [connections])
+  }, [connections, testAllConnections])
 
   return (
     <>

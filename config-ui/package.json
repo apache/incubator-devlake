@@ -17,7 +17,7 @@
     "@uiw/react-textarea-code-editor": "^1.4.16",
     "axios": "^0.21.4",
     "babel-plugin-module-resolver": "^4.1.0",
-    "cron-schedule": "^3.0.5",
+    "cron-parser": "^4.3.0",
     "cron-validate": "^1.4.3",
     "dayjs": "^1.10.7",
     "dotenv": "^10.0.0",

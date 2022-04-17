@@ -11,6 +11,7 @@ import {
   Intent,
   TagInput,
   Tooltip,
+  Colors,
 } from '@blueprintjs/core'
 import { Select } from '@blueprintjs/select'
 import RefDiffSettings from '@/components/pipelines/pipeline-settings/refdiff'
@@ -67,6 +68,7 @@ const ProviderSettings = (props) => {
             className=''
             contentClassName=''
             fill
+            style={{ marginRight: '12px' }}
           >
             <ButtonGroup>
               <Select
@@ -113,7 +115,7 @@ const ProviderSettings = (props) => {
           <FormGroup
             disabled={isRunning || !isEnabled(providerId)}
             label={
-              <strong>Board IDs<span className='requiredStar'>*</span>
+              <strong style={{ marginTop: '10px', display: 'inline-block' }}>Board IDs<span className='requiredStar'>*</span>
                 <span
                   className='badge-count'
                   style={{
@@ -128,7 +130,6 @@ const ProviderSettings = (props) => {
             labelFor='board-id'
             className=''
             contentClassName=''
-            style={{ marginLeft: '12px' }}
             fill
           >
             <div style={{ width: '100%' }}>
@@ -265,7 +266,7 @@ const ProviderSettings = (props) => {
             className=''
             contentClassName=''
             fill
-            style={{ minWidth: '372px' }}
+            style={{ minWidth: '372px', marginRight: '12px' }}
           >
             <InputGroup
               id='gitextractor-url'
@@ -279,13 +280,13 @@ const ProviderSettings = (props) => {
           </FormGroup>
           <FormGroup
             disabled={isRunning || !isEnabled(providerId)}
-            label={<strong>Repository ID<span className='requiredStar'>*</span></strong>}
+            label={<strong style={{ marginTop: '10px', display: 'inline-block' }}>Repository ID<span className='requiredStar'>*</span></strong>}
             labelInfo={<span style={{ display: 'block' }}>Choose Repo Column ID</span>}
             inline={false}
             labelFor='gitextractor-repo-id'
             className=''
             contentClassName=''
-            style={{ marginLeft: '12px', minWidth: '280px' }}
+            style={{ minWidth: '280px', whiteSpace: 'nowrap' }}
             fill
           >
             {/* Manual Text Input @DISABLED */}
@@ -327,8 +328,11 @@ const ProviderSettings = (props) => {
                 <Button
                   className='btn-gitextractor-repo-id-selector'
                   disabled={isRunning || !isEnabled(providerId)}
-                  style={{ justifyContent: 'space-between', minWidth: '206px', maxWidth: '290px', whiteSpace: 'nowrap' }}
-                  text={selectedGithubRepo ? `${selectedGithubRepo.title} [${selectedGithubRepo.value}]` : 'Select GitHub Repository'}
+                  style={{ justifyContent: 'space-between', minWidth: '220px', maxWidth: '420px', whiteSpace: 'nowrap' }}
+                  text={(
+                      selectedGithubRepo
+                        ? <>{selectedGithubRepo.title} <span style={{ fontSize: '10px', color: Colors.GRAY3 }}>[{selectedGithubRepo.value}]</span></>
+                        : 'Select GitHub Repository')}
                   rightIcon='double-caret-vertical'
                   fill
                 />

@@ -137,6 +137,7 @@ const CreatePipeline = (props) => {
     createCronExpression: createCron,
     // eslint-disable-next-line no-unused-vars
     getCronSchedule: getSchedule,
+    getNextRunDate,
     getCronPreset,
     getCronPresetByConfig,
     saveBlueprint,
@@ -491,7 +492,7 @@ const CreatePipeline = (props) => {
 
   useEffect(() => {
     console.log('>> FETCHED DOMAIN LAYER REPOS... ', domainRepositories)
-    setRepositories(domainRepositories.map((r, rIdx) => { return { id: rIdx, title: r.name || r.id || 'Repository', value: r.id } }))
+    setRepositories(domainRepositories.map((r, rIdx) => { return { id: rIdx, title: r.name || r.id || `Repository #${r.id || rIdx}`, value: r.id || rIdx } }))
   }, [domainRepositories])
 
   useEffect(() => {
@@ -1367,6 +1368,7 @@ const CreatePipeline = (props) => {
         name={name}
         cronConfig={cronConfig}
         customCronConfig={customCronConfig}
+        getNextRunDate={getNextRunDate}
         enable={enable}
         tasks={blueprintTasks}
         draftBlueprint={draftBlueprint}

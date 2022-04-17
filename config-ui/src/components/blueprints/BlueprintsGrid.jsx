@@ -1,6 +1,5 @@
 import React, { useEffect, useCallback } from 'react'
 import dayjs from '@/utils/time'
-// import cron from 'cron-validate'
 import {
   ButtonGroup,
   Button, Icon, Intent,
@@ -30,9 +29,11 @@ const BlueprintsGrid = (props) => {
     isActiveBlueprint = (b) => {},
     expandBlueprint = (b) => {},
     deleteBlueprint = (b) => {},
+    // eslint-disable-next-line no-unused-vars
     createCron = () => {},
     handleBlueprintActivation = (b) => {},
     configureBlueprint = (b) => {},
+    getNextRunDate = (b) => {},
     isDeleting = false,
     isLoading = false,
     expandDetails = false,
@@ -63,12 +64,47 @@ const BlueprintsGrid = (props) => {
         }}
       >
         <ButtonGroup className='filter-status-group blueprints-filter-group' style={{ zIndex: 0 }}>
-          <Button intent={!activeFilterStatus ? Intent.PRIMARY : Intent.NONE} active={!activeFilterStatus} onClick={() => onFilter(null)}>All</Button>
-          <Button intent={activeFilterStatus === 'hourly' ? Intent.PRIMARY : Intent.NONE} active={activeFilterStatus === 'hourly'} onClick={() => onFilter('hourly')}>Hourly</Button>
-          <Button intent={activeFilterStatus === 'daily' ? Intent.PRIMARY : Intent.NONE} active={activeFilterStatus === 'daily'} onClick={() => onFilter('daily')}>Daily</Button>
-          <Button intent={activeFilterStatus === 'weekly' ? Intent.PRIMARY : Intent.NONE} active={activeFilterStatus === 'weekly'} onClick={() => onFilter('weekly')}>Weekly</Button>
-          <Button intent={activeFilterStatus === 'monthly' ? Intent.PRIMARY : Intent.NONE} active={activeFilterStatus === 'monthly'} onClick={() => onFilter('monthly')}>Monthly</Button>
-          <Button intent={activeFilterStatus === 'custom' ? Intent.PRIMARY : Intent.NONE} active={activeFilterStatus === 'custom'} onClick={() => onFilter('custom')}>Custom</Button>
+          <Button
+            intent={!activeFilterStatus ? Intent.PRIMARY : Intent.NONE}
+            active={!activeFilterStatus}
+            onClick={() => onFilter(null)}
+          >All
+          </Button>
+          <Button
+            intent={activeFilterStatus === 'hourly' ? Intent.PRIMARY : Intent.NONE}
+            active={activeFilterStatus === 'hourly'}
+            onClick={() => onFilter('hourly')}
+          >
+            Hourly
+          </Button>
+          <Button
+            intent={activeFilterStatus === 'daily' ? Intent.PRIMARY : Intent.NONE}
+            active={activeFilterStatus === 'daily'}
+            onClick={() => onFilter('daily')}
+          >
+            Daily
+          </Button>
+          <Button
+            intent={activeFilterStatus === 'weekly' ? Intent.PRIMARY : Intent.NONE}
+            active={activeFilterStatus === 'weekly'}
+            onClick={() => onFilter('weekly')}
+          >
+            Weekly
+          </Button>
+          <Button
+            intent={activeFilterStatus === 'monthly' ? Intent.PRIMARY : Intent.NONE}
+            active={activeFilterStatus === 'monthly'}
+            onClick={() => onFilter('monthly')}
+          >
+            Monthly
+          </Button>
+          <Button
+            intent={activeFilterStatus === 'custom' ? Intent.PRIMARY : Intent.NONE}
+            active={activeFilterStatus === 'custom'}
+            onClick={() => onFilter('custom')}
+          >
+            Custom
+          </Button>
         </ButtonGroup>
       </div>
       <Card
@@ -205,10 +241,12 @@ const BlueprintsGrid = (props) => {
                       </label>
                     </div>
                     <div>
-                      {dayjs(createCron(b.cronConfig).getNextDate().toString()).format('L LTS')}
+                      {dayjs(getNextRunDate(b.cronConfig)).format('L LTS')}
                     </div>
                     <div>
-                      <span style={{ color: b.enable ? Colors.GREEN5 : Colors.GRAY3, position: 'absolute', bottom: '4px' }}>{b.cronConfig}</span>
+                      <span style={{ color: b.enable ? Colors.GREEN5 : Colors.GRAY3, position: 'absolute', bottom: '4px' }}>
+                        {b.cronConfig}
+                      </span>
                     </div>
                   </div>
                   <div className='blueprint-actions' style={{ flex: 1, textAlign: 'right' }}>
@@ -294,7 +332,10 @@ const BlueprintsGrid = (props) => {
                   <div style={{ padding: '20px', display: 'flex' }}>
                     <div style={{ flex: 2, paddingRight: '30px' }}>
                       <h3 style={{ margin: 0, textTransform: 'uppercase' }}>Pipeline Run Schedule</h3>
-                      <p style={{ margin: 0 }}>Based on the current CRON settings, here are next <strong>5</strong> expected pipeline collection dates.</p>
+                      <p style={{ margin: 0 }}>
+                        Based on the current CRON settings, here are next{' '}
+                        <strong>5</strong> expected pipeline collection dates.
+                      </p>
                       <div style={{ margin: '10px 0' }}>
                         {activeBlueprint?.id && blueprintSchedule.map((s, sIdx) => (
                           <div key={`run-schedule-event-key${sIdx}`} style={{ padding: '6px 4px', opacity: b.enable ? 1 : 0.5 }}>
@@ -308,16 +349,38 @@ const BlueprintsGrid = (props) => {
                         ))}
                       </div>
                       <div className='related-pipelines-list' style={{ marginBottom: '20px' }}>
-                        {!isLoading && <h3 style={{ margin: '0 0 5px 0', textTransform: 'uppercase' }}>Pipeline Runs <small style={{ color: Colors.GRAY5}}>(last 5)</small></h3>}
+                        {!isLoading && (
+                          <h3 style={{ margin: '0 0 5px 0', textTransform: 'uppercase' }}>
+                            Pipeline Runs <small style={{ color: Colors.GRAY5 }}>(last 5)</small>
+                          </h3>
+                        )}
                         {!isLoading && pipelines.length === 0 && (<p>No Pipelines have been found for this blueprint.</p>)}
                         {!isLoading && pipelines.slice(0, 5).map((p, pIdx) => (
-                          <div key={`pipeline-run-key-${pIdx}`} className='pipeline-run-entry' style={{ display: 'flex', justifyContent: 'flex-start', alignItems: 'center' }}>
-                            <div className='pipeline-id' style={{ minWidth: '60px', paddingRight: '15px', fontWeight: 'bold' }}>#{p.id}</div>
+                          <div
+                            key={`pipeline-run-key-${pIdx}`}
+                            className='pipeline-run-entry'
+                            style={{ display: 'flex', justifyContent: 'flex-start', alignItems: 'center' }}
+                          >
+                            <div
+                              className='pipeline-id'
+                              style={{ minWidth: '60px', paddingRight: '15px', fontWeight: 'bold' }}
+                            >
+                              #{p.id}
+                            </div>
                             <div className='pipeline-created' style={{ minWidth: '180px', paddingRight: '15px' }}>
                               {dayjs(p.createdAt).format('L LTS')}
                             </div>
                             <div className='pipeline-name' style={{ flex: 1, paddingRight: '15px' }}>
-                              <span style={{ display: 'block', whiteSpace: 'wrap', maxWidth: '300px', textOverflow: 'ellipsis', overflow: 'hidden' }}>{p.name}</span>
+                              <span
+                                style={{
+                                  display: 'block',
+                                  whiteSpace: 'wrap',
+                                  maxWidth: '300px',
+                                  textOverflow: 'ellipsis',
+                                  overflow: 'hidden'
+                                }}
+                              >{p.name}
+                              </span>
                             </div>
                             <div style={{ paddingRight: '15px', color: Colors.GRAY2, whiteSpace: 'nowrap' }}>
                               {p.status === 'TASK_RUNNING'
@@ -326,7 +389,13 @@ const BlueprintsGrid = (props) => {
                             </div>
                             <div>{p.status?.replace('TASK_', '')}</div>
                             <div style={{ padding: '0 15px' }}>
-                              <Button onClick={() => onViewPipeline(p.id || p.ID)} icon='eye-open' size={14} color={Colors.GRAY3} small minimal />
+                              <Button
+                                onClick={() => onViewPipeline(p.id || p.ID)}
+                                icon='eye-open'
+                                size={14}
+                                color={Colors.GRAY3}
+                                small minimal
+                              />
                             </div>
                           </div>
                         ))}
@@ -349,11 +418,19 @@ const BlueprintsGrid = (props) => {
 
                       <label style={{ color: Colors.GRAY1, fontFamily: 'Montserrat,sans-serif' }}>Next Run</label>
                       <h3 style={{ margin: '0 0 20px 0', fontSize: '18px' }}>
-                        {dayjs(createCron(b.cronConfig).getNextDate().toString()).fromNow()}
+                        {dayjs(getNextRunDate(b.cronConfig)).fromNow()}
                       </h3>
 
                       <label style={{ color: Colors.GRAY3, fontFamily: 'Montserrat,sans-serif' }}>Operations</label>
-                      <div style={{ marginTop: '5px', display: 'flex', justifySelf: 'flex-start', alignItems: 'center', justifyContent: 'left', fontSize: '10px' }}>
+                      <div style={{
+                        marginTop: '5px',
+                        display: 'flex',
+                        justifySelf: 'flex-start',
+                        alignItems: 'center',
+                        justifyContent: 'left',
+                        fontSize: '10px'
+                      }}
+                      >
                         <Button
                           intent={Intent.PRIMARY}
                           icon='cog'
@@ -364,7 +441,12 @@ const BlueprintsGrid = (props) => {
                         />
                         <Popover>
                           <Button icon='trash' text='Delete' small minimal style={{ marginRight: '8px' }} />
-                          <DeletePopover activeBlueprint={activeBlueprint} onCancel={() => {}} onConfirm={deleteBlueprint} isRunning={isDeleting} />
+                          <DeletePopover
+                            activeBlueprint={activeBlueprint}
+                            onCancel={() => {}}
+                            onConfirm={deleteBlueprint}
+                            isRunning={isDeleting}
+                          />
                         </Popover>
                         <Switch
                           checked={b.enable}

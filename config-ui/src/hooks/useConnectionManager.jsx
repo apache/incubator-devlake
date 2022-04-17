@@ -40,6 +40,7 @@ function useConnectionManager ({
   const [isFetching, setIsFetching] = useState(false)
   const [isRunning, setIsRunning] = useState(false)
   const [isTesting, setIsTesting] = useState(false)
+  // eslint-disable-next-line no-unused-vars
   const [isDeleting, setIsDeleting] = useState(false)
   const [errors, setErrors] = useState([])
   const [showError, setShowError] = useState(false)
@@ -312,10 +313,10 @@ function useConnectionManager ({
         proxy: c.Proxy || c.Proxy
       }
       const onSuccess = (res) => {
-        setTestedConnections([...connections.filter(oC => oC.ID !== c.ID), { ...c, status: 1 }])
+        setTestedConnections(testedConnections => [...new Set([...testedConnections.filter(oC => oC.id !== c.id), { ...c, status: 1 }])])
       }
       const onFail = (res) => {
-        setTestedConnections([...connections.filter(oC => oC.ID !== c.ID), { ...c, status: 2 }])
+        setTestedConnections(testedConnections => [...new Set([...testedConnections.filter(oC => oC.ID !== c.ID), { ...c, status: 2 }])])
       }
       testConnection(notify, payload, onSuccess, onFail)
     })
