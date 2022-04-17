@@ -492,7 +492,7 @@ const CreatePipeline = (props) => {
 
   useEffect(() => {
     console.log('>> FETCHED DOMAIN LAYER REPOS... ', domainRepositories)
-    setRepositories(domainRepositories.map((r, rIdx) => { return { id: rIdx, title: r.name || r.id || 'Repository', value: r.id } }))
+    setRepositories(domainRepositories.map((r, rIdx) => { return { id: rIdx, title: r.name || r.id || `Repository #${r.id || rIdx}`, value: r.id || rIdx } }))
   }, [domainRepositories])
 
   useEffect(() => {
