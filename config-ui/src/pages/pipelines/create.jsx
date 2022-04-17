@@ -137,6 +137,7 @@ const CreatePipeline = (props) => {
     createCronExpression: createCron,
     // eslint-disable-next-line no-unused-vars
     getCronSchedule: getSchedule,
+    getNextRunDate,
     getCronPreset,
     getCronPresetByConfig,
     saveBlueprint,
@@ -1367,6 +1368,7 @@ const CreatePipeline = (props) => {
         name={name}
         cronConfig={cronConfig}
         customCronConfig={customCronConfig}
+        getNextRunDate={getNextRunDate}
         enable={enable}
         tasks={blueprintTasks}
         draftBlueprint={draftBlueprint}

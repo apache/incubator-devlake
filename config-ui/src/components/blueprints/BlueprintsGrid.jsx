@@ -33,6 +33,7 @@ const BlueprintsGrid = (props) => {
     createCron = () => {},
     handleBlueprintActivation = (b) => {},
     configureBlueprint = (b) => {},
+    getNextRunDate = (b) => {},
     isDeleting = false,
     isLoading = false,
     expandDetails = false,
@@ -205,7 +206,7 @@ const BlueprintsGrid = (props) => {
                       </label>
                     </div>
                     <div>
-                      {dayjs(createCron(b.cronConfig).getNextDate().toString()).format('L LTS')}
+                      {dayjs(getNextRunDate(b.cronConfig)).format('L LTS')}
                     </div>
                     <div>
                       <span style={{ color: b.enable ? Colors.GREEN5 : Colors.GRAY3, position: 'absolute', bottom: '4px' }}>{b.cronConfig}</span>
@@ -349,7 +350,8 @@ const BlueprintsGrid = (props) => {
 
                       <label style={{ color: Colors.GRAY1, fontFamily: 'Montserrat,sans-serif' }}>Next Run</label>
                       <h3 style={{ margin: '0 0 20px 0', fontSize: '18px' }}>
-                        {dayjs(createCron(b.cronConfig).getNextDate().toString()).fromNow()}
+                        {/* {dayjs(createCron(b.cronConfig).getNextDate().toString()).fromNow()} */}
+                        {dayjs(getNextRunDate(b.cronConfig)).fromNow()}
                       </h3>
 
                       <label style={{ color: Colors.GRAY3, fontFamily: 'Montserrat,sans-serif' }}>Operations</label>

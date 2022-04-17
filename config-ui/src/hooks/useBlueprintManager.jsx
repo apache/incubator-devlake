@@ -1,9 +1,10 @@
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useEffect } from 'react'
 import { DEVLAKE_ENDPOINT } from '@/utils/config'
 import request from '@/utils/request'
 import { ToastNotification } from '@/components/Toast'
-import { parseCronExpression } from 'cron-schedule'
+// import { parseCronExpression } from 'cron-schedule'
 import cron from 'cron-validate'
+import parser from 'cron-parser'
 
 function useBlueprintManager (blueprintName = `BLUEPRINT WEEKLY ${Date.now()}`, initialConfiguration = {}) {
   const [isFetching, setIsFetching] = useState(false)
@@ -32,6 +33,10 @@ function useBlueprintManager (blueprintName = `BLUEPRINT WEEKLY ${Date.now()}`, 
 
   const [saveComplete, setSaveComplete] = useState(false)
   const [deleteComplete, setDeleteComplete] = useState(false)
+
+  const parseCronExpression = useCallback((expression, utc = true, additionalOptions = {}) => {
+    return parser.parseExpression(expression, { utc, ...additionalOptions })
+  }, [])
 
   const detectCronInterval = useCallback((cronConfig) => {
     return cronPresets.find(p => p.cronConfig === cronConfig)
@@ -188,12 +193,17 @@ function useBlueprintManager (blueprintName = `BLUEPRINT WEEKLY ${Date.now()}`, 
     let schedule = []
     try {
       const cS = cron(cronExpression).isValid() ? parseCronExpression(cronExpression) : parseCronExpression('0 0 * * *')
-      schedule = cS ? cS.getNextDates(events) : []
+      schedule = cS ? new Array(events).fill(cS, 0, events).map(interval => interval.next().toString()) : []
+      console.log('>>> NEW CRON SCHEDULE= ', schedule)
     } catch (e) {
       console.log('>> INVALID CRON SCHEDULE!', e)
     }
     return schedule
   }, [])
+
+  const getNextRunDate = useCallback((cronExpression) => {
+    return parseCronExpression(cronExpression).next().toString()
+  }, [parseCronExpression])
 
   const getCronPreset = useCallback((presetName) => {
     return cronPresets.find(p => p.name === presetName)
@@ -296,6 +306,7 @@ function useBlueprintManager (blueprintName = `BLUEPRINT WEEKLY ${Date.now()}`, 
     deleteComplete,
     createCronExpression,
     getCronSchedule,
+    getNextRunDate,
     getCronPreset,
     getCronPresetByConfig,
     detectCronInterval,

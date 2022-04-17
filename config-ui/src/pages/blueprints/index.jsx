@@ -2,7 +2,6 @@ import React, { Fragment, useEffect, useState, useCallback } from 'react'
 import { useHistory } from 'react-router-dom'
 // import dayjs from '@/utils/time'
 // import cron from 'cron-validate'
-// import { parseCronExpression } from 'cron-schedule'
 import {
   Button, Icon, Intent,
   Popover,
@@ -50,6 +49,7 @@ const Blueprints = (props) => {
     getCronSchedule: getSchedule,
     getCronPreset,
     getCronPresetByConfig,
+    getNextRunDate,
     activateBlueprint,
     deactivateBlueprint,
     // eslint-disable-next-line no-unused-vars
@@ -347,6 +347,7 @@ const Blueprints = (props) => {
                   expandBlueprint={expandBlueprint}
                   deleteBlueprint={deleteBlueprint}
                   createCron={createCron}
+                  getNextRunDate={getNextRunDate}
                   handleBlueprintActivation={handleBlueprintActivation}
                   configureBlueprint={configureBlueprint}
                   isDeleting={isDeleting}

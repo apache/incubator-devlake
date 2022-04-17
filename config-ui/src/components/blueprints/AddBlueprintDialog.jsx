@@ -1,7 +1,6 @@
 import React, { useEffect, Fragment } from 'react'
 import dayjs from '@/utils/time'
 import cron from 'cron-validate'
-// import { parseCronExpression } from 'cron-schedule'
 import {
   Classes, FormGroup, InputGroup, ButtonGroup,
   Button, Icon, Intent, Popover, Position,
@@ -38,7 +37,9 @@ const AddBlueprintDialog = (props) => {
     setBlueprintTasks = () => {},
     setEnableBlueprint = () => {},
     setSelectedPipelineTemplate = () => {},
+    // eslint-disable-next-line no-unused-vars
     createCron = () => {},
+    getNextRunDate = (cronExpression) => {},
     saveBlueprint = () => {},
     fieldHasError = () => {},
     getFieldError = () => {},
@@ -52,7 +53,7 @@ const AddBlueprintDialog = (props) => {
   } = props
 
   useEffect(() => {
-  }, [enable])
+  }, [enable, cronConfig, customCronConfig])
 
   return (
     <>
@@ -321,10 +322,10 @@ const AddBlueprintDialog = (props) => {
                     : cronConfig).isValid() && <Icon icon='warning-sign' size={14} color={Colors.RED4} style={{ marginRight: '5px' }} />}
                   {dayjs(createCron(cronConfig === 'custom'
                     ? customCronConfig
-                    : cronConfig).getNextDate().toString()).format('L LTS')} &middot;{' '}
+                    : cronConfig).next().toString()).format('L LTS')} &middot;{' '}
                   <span style={{ color: Colors.GRAY3 }}>({dayjs(createCron(cronConfig === 'custom'
                     ? customCronConfig
-                    : cronConfig).getNextDate().toString()).fromNow()})
+                    : cronConfig).next().toString()).fromNow()})
                   </span>
                 </div>
               </div>
