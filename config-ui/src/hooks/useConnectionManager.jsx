@@ -40,6 +40,7 @@ function useConnectionManager ({
   const [isFetching, setIsFetching] = useState(false)
   const [isRunning, setIsRunning] = useState(false)
   const [isTesting, setIsTesting] = useState(false)
+  // eslint-disable-next-line no-unused-vars
   const [isDeleting, setIsDeleting] = useState(false)
   const [errors, setErrors] = useState([])
   const [showError, setShowError] = useState(false)
