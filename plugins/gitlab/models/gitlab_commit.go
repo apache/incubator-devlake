@@ -7,7 +7,7 @@ import (
 )
 
 type GitlabCommit struct {
-	Sha            string `gorm:"primaryKey;type:char(40)"`
+	Sha            string `gorm:"primaryKey;type:varchar(40)"`
 	Title          string
 	Message        string
 	ShortId        string `gorm:"type:varchar(255)"`

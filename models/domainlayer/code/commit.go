@@ -8,7 +8,7 @@ import (
 
 type Commit struct {
 	common.NoPKModel
-	Sha            string `json:"sha" gorm:"primaryKey;type:char(40);comment:commit hash"`
+	Sha            string `json:"sha" gorm:"primaryKey;type:varchar(40);comment:commit hash"`
 	Additions      int    `json:"additions" gorm:"comment:Added lines of code"`
 	Deletions      int    `json:"deletions" gorm:"comment:Deleted lines of code"`
 	DevEq          int    `json:"deveq" gorm:"comment:Merico developer equivalent from analysis engine"`
@@ -25,7 +25,7 @@ type Commit struct {
 
 type CommitFile struct {
 	common.NoPKModel
-	CommitSha string `gorm:"primaryKey;type:char(40)"`
+	CommitSha string `gorm:"primaryKey;type:varchar(40)"`
 	FilePath  string `gorm:"primaryKey;type:varchar(255)"`
 	Additions int
 	Deletions int

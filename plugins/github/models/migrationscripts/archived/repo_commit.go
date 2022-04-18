@@ -4,7 +4,7 @@ import "github.com/merico-dev/lake/models/migrationscripts/archived"
 
 type GithubRepoCommit struct {
 	RepoId    int    `gorm:"primaryKey"`
-	CommitSha string `gorm:"primaryKey;type:char(40)"`
+	CommitSha string `gorm:"primaryKey;type:varchar(40)"`
 	archived.NoPKModel
 }
 

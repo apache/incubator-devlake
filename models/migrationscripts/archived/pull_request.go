@@ -12,25 +12,25 @@ type PullRequest struct {
 	Number         int
 	Title          string
 	Description    string
-	Url            string `gorm:"type:char(255)"`
-	AuthorName     string `gorm:"type:char(100)"`
-	AuthorId       string `gorm:"type:char(100)"`
+	Url            string `gorm:"type:varchar(255)"`
+	AuthorName     string `gorm:"type:varchar(100)"`
+	AuthorId       string `gorm:"type:varchar(100)"`
 	ParentPrId     string `gorm:"index;type:varchar(100)"`
 	Key            int
 	CreatedDate    time.Time
 	MergedDate     *time.Time
 	ClosedDate     *time.Time
-	Type           string `gorm:"type:char(100)"`
-	Component      string `gorm:"type:char(100)"`
-	MergeCommitSha string `gorm:"type:char(40)"`
-	HeadRef        string `gorm:"type:char(255)"`
-	BaseRef        string `gorm:"type:char(255)"`
-	BaseCommitSha  string `gorm:"type:char(40)"`
-	HeadCommitSha  string `gorm:"type:char(40)"`
+	Type           string `gorm:"type:varchar(100)"`
+	Component      string `gorm:"type:varchar(100)"`
+	MergeCommitSha string `gorm:"type:varchar(40)"`
+	HeadRef        string `gorm:"type:varchar(255)"`
+	BaseRef        string `gorm:"type:varchar(255)"`
+	BaseCommitSha  string `gorm:"type:varchar(40)"`
+	HeadCommitSha  string `gorm:"type:varchar(40)"`
 }
 
 type PullRequestCommit struct {
-	CommitSha     string `gorm:"primaryKey;type:char(40)"`
+	CommitSha     string `gorm:"primaryKey;type:varchar(40)"`
 	PullRequestId string `json:"id" gorm:"primaryKey;type:varchar(255);comment:This key is generated based on details from the original plugin"` // format: <Plugin>:<Entity>:<PK0>:<PK1>
 	NoPKModel
 }

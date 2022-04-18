@@ -26,14 +26,14 @@ type GithubPullRequest struct {
 	Body           string
 	Type           string `gorm:"type:varchar(255)"`
 	Component      string `gorm:"type:varchar(255)"`
-	MergeCommitSha string `gorm:"type:char(40)"`
+	MergeCommitSha string `gorm:"type:varchar(40)"`
 	HeadRef        string `gorm:"type:varchar(255)"`
 	BaseRef        string `gorm:"type:varchar(255)"`
 	BaseCommitSha  string `gorm:"type:varchar(255)"`
 	HeadCommitSha  string `gorm:"type:varchar(255)"`
-	Url            string `gorm:"type:char(255)"`
-	AuthorName     string `gorm:"type:char(100)"`
-	AuthorId       string `gorm:"type:char(100)"`
+	Url            string `gorm:"type:varchar(255)"`
+	AuthorName     string `gorm:"type:varchar(100)"`
+	AuthorId       string `gorm:"type:varchar(100)"`
 	archived.NoPKModel
 }
 

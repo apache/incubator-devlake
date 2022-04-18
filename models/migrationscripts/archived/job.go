@@ -1,6 +1,6 @@
 package archived
 
 type Job struct {
-	Name string `gorm:"type:char(255)"`
+	Name string `gorm:"type:varchar(255)"`
 	DomainEntity
 }

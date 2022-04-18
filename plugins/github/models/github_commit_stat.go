@@ -6,7 +6,7 @@ import (
 )
 
 type GithubCommitStat struct {
-	Sha       string `gorm:"primaryKey;type:char(40)"`
+	Sha       string `gorm:"primaryKey;type:varchar(40)"`
 	Additions int    `gorm:"comment:Added lines of code"`
 	Deletions int    `gorm:"comment:Deleted lines of code"`
 
@@ -14,7 +14,7 @@ type GithubCommitStat struct {
 	common.NoPKModel
 }
 
-func (GithubCommitStat) TableName() string{
+func (GithubCommitStat) TableName() string {
 	return "_tool_github_commit_stats"
 }
 

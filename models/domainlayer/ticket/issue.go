@@ -8,29 +8,29 @@ import (
 
 type Issue struct {
 	domainlayer.DomainEntity
-	Url                     string `gorm:"type:char(255)"`
-	Number                  string `gorm:"type:char(255)"`
+	Url                     string `gorm:"type:varchar(255)"`
+	Number                  string `gorm:"type:varchar(255)"`
 	Title                   string
 	Description             string
-	EpicKey                 string `gorm:"type:char(255)"`
-	Type                    string `gorm:"type:char(100)"`
-	Status                  string `gorm:"type:char(100)"`
-	OriginalStatus          string `gorm:"type:char(100)"`
+	EpicKey                 string `gorm:"type:varchar(255)"`
+	Type                    string `gorm:"type:varchar(100)"`
+	Status                  string `gorm:"type:varchar(100)"`
+	OriginalStatus          string `gorm:"type:varchar(100)"`
 	StoryPoint              uint
 	ResolutionDate          *time.Time
 	CreatedDate             *time.Time
 	UpdatedDate             *time.Time
 	LeadTimeMinutes         uint
-	ParentIssueId           string `gorm:"type:char(255)"`
-	Priority                string `gorm:"type:char(255)"`
+	ParentIssueId           string `gorm:"type:varchar(255)"`
+	Priority                string `gorm:"type:varchar(255)"`
 	OriginalEstimateMinutes int64
 	TimeSpentMinutes        int64
 	TimeRemainingMinutes    int64
-	CreatorId               string `gorm:"type:char(255)"`
-	AssigneeId              string `gorm:"type:char(255)"`
-	AssigneeName            string `gorm:"type:char(255)"`
-	Severity                string `gorm:"type:char(255)"`
-	Component               string `gorm:"type:char(255)"`
+	CreatorId               string `gorm:"type:varchar(255)"`
+	AssigneeId              string `gorm:"type:varchar(255)"`
+	AssigneeName            string `gorm:"type:varchar(255)"`
+	Severity                string `gorm:"type:varchar(255)"`
+	Component               string `gorm:"type:varchar(255)"`
 }
 
 const (
@@ -38,7 +38,7 @@ const (
 	REQUIREMENT = "REQUIREMENT"
 	INCIDENT    = "INCIDENT"
 
-	TODO        = "TODO"
-	DONE        = "DONE"
+	TODO = "TODO"
+	DONE = "DONE"
 	IN_PROGRESS = "IN_PROGRESS"
 )
