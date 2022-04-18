@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"sync"
+	"sync/atomic"
 
 	"github.com/merico-dev/lake/plugins/core"
 	"github.com/spf13/viper"
@@ -22,7 +23,7 @@ type defaultExecContext struct {
 	name     string
 	data     interface{}
 	total    int
-	current  int
+	current  int64
 	mu       sync.Mutex
 	progress chan core.RunningProgress
 }
@@ -72,10 +73,8 @@ func (c *defaultExecContext) GetLogger() core.Logger {
 }
 
 func (c *defaultExecContext) SetProgress(progressType core.ProgressType, current int, total int) {
-	c.mu.Lock()
-	c.current = current
+	c.current = int64(current)
 	c.total = total
-	c.mu.Unlock()
 
 	if c.progress != nil {
 		c.progress <- core.RunningProgress{
@@ -87,14 +86,12 @@ func (c *defaultExecContext) SetProgress(progressType core.ProgressType, current
 }
 
 func (c *defaultExecContext) IncProgress(progressType core.ProgressType, quantity int) {
-	c.mu.Lock()
-	c.current += quantity
+	atomic.AddInt64(&c.current, int64(quantity))
 	current := c.current
-	c.mu.Unlock()
 	if c.progress != nil {
 		c.progress <- core.RunningProgress{
 			Type:    progressType,
-			Current: current,
+			Current: int(current),
 			Total:   c.total,
 		}
 		// subtask progress may go too fast, remove old messages because they don't matter any more

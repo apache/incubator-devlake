@@ -9,6 +9,7 @@ import (
 	"math"
 	"net/http"
 	"net/url"
+	"sync"
 	"text/template"
 
 	"github.com/merico-dev/lake/plugins/core"
@@ -137,12 +138,15 @@ func (collector *ApiCollector) Execute() error {
 		// throttle input process speed so it can be canceled, create a channel to represent available slots
 		slots := int(math.Ceil(collector.args.ApiClient.GetQps())) * 2
 		slotsChan := make(chan bool, slots)
+		defer close(slotsChan)
 		for i := 0; i < slots; i++ {
 			slotsChan <- true
 		}
 
-		errors := make(chan error, int(math.Ceil(collector.args.ApiClient.GetQps()))*2)
+		errors := make(chan error, slots)
+		defer close(errors)
 
+		var wg sync.WaitGroup
 		ctx := collector.args.Ctx.GetContext()
 		for iterator.HasNext() {
 			select {
@@ -152,12 +156,14 @@ func (collector *ApiCollector) Execute() error {
 				break
 			// obtain a slot
 			case <-slotsChan:
+				wg.Add(1)
 				input, err := iterator.Fetch()
 				if err != nil {
 					break
 				}
 				go func() {
 					defer func() {
+						wg.Done()
 						recover()
 					}()
 					e := collector.exec(input)
@@ -173,6 +179,7 @@ func (collector *ApiCollector) Execute() error {
 				break
 			}
 		}
+		wg.Wait()
 	} else {
 		// or we just did it once
 		err = collector.exec(nil)
