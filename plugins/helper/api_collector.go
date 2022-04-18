@@ -156,11 +156,11 @@ func (collector *ApiCollector) Execute() error {
 				break
 			// obtain a slot
 			case <-slotsChan:
-				wg.Add(1)
 				input, err := iterator.Fetch()
 				if err != nil {
 					break
 				}
+				wg.Add(1)
 				go func() {
 					defer func() {
 						wg.Done()
