@@ -135,6 +135,9 @@ func (collector *ApiCollector) Execute() error {
 		defer iterator.Close()
 		c := make(chan bool)
 		total := 0
+		if !iterator.HasNext() {
+			close(c)
+		}
 		for iterator.HasNext() {
 			input, err := iterator.Fetch()
 			if err != nil {
