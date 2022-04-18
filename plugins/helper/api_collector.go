@@ -139,7 +139,7 @@ func (collector *ApiCollector) Execute() error {
 		for iterator.HasNext() {
 			select {
 			case <-ctx.Done():
-				break
+				return ctx.Err()
 			default:
 			}
 			input, err := iterator.Fetch()
