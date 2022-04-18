@@ -332,7 +332,7 @@ const ProviderSettings = (props) => {
                   text={(
                       selectedGithubRepo
                         ? <>{selectedGithubRepo.title} <span style={{ fontSize: '10px', color: Colors.GRAY3 }}>[{selectedGithubRepo.value}]</span></>
-                        : 'Select GitHub Repository')}
+                        : 'Select Repository')}
                   rightIcon='double-caret-vertical'
                   fill
                 />
