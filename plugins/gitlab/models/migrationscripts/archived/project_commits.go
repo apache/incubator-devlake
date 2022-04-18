@@ -6,7 +6,7 @@ import (
 
 type GitlabProjectCommit struct {
 	GitlabProjectId int    `gorm:"primaryKey"`
-	CommitSha       string `gorm:"primaryKey;type:char(40)"`
+	CommitSha       string `gorm:"primaryKey;type:varchar(40)"`
 	archived.NoPKModel
 }
 

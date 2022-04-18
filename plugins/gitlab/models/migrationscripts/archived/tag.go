@@ -5,7 +5,7 @@ import (
 )
 
 type GitlabTag struct {
-	Name               string `gorm:"primaryKey;type:char(60)"`
+	Name               string `gorm:"primaryKey;type:varchar(60)"`
 	Message            string
 	Target             string `gorm:"type:varchar(255)"`
 	Protected          bool

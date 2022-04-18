@@ -55,7 +55,7 @@ type JiraIssueCommit struct {
 	archived.NoPKModel
 	SourceId  uint64 `gorm:"primaryKey"`
 	IssueId   uint64 `gorm:"primaryKey"`
-	CommitSha string `gorm:"primaryKey;type:char(40)"`
+	CommitSha string `gorm:"primaryKey;type:varchar(40)"`
 	CommitUrl string `gorm:"type:varchar(255)"`
 }
 

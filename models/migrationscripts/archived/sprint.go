@@ -6,13 +6,13 @@ import (
 
 type Sprint struct {
 	DomainEntity
-	Name            string `gorm:"type:char(255)"`
-	Url             string `gorm:"type:char(255)"`
-	Status          string `gorm:"type:char(100)"`
+	Name            string `gorm:"type:varchar(255)"`
+	Url             string `gorm:"type:varchar(255)"`
+	Status          string `gorm:"type:varchar(100)"`
 	StartedDate     *time.Time
 	EndedDate       *time.Time
 	CompletedDate   *time.Time
-	OriginalBoardID string `gorm:"type:char(255)"`
+	OriginalBoardID string `gorm:"type:varchar(255)"`
 }
 
 type SprintIssue struct {

@@ -6,9 +6,9 @@ import (
 
 type Board struct {
 	DomainEntity
-	Name        string `gorm:"type:char(255)"`
+	Name        string `gorm:"type:varchar(255)"`
 	Description string
-	Url         string `gorm:"type:char(255)"`
+	Url         string `gorm:"type:varchar(255)"`
 	CreatedDate *time.Time
 }
 

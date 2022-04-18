@@ -7,7 +7,7 @@ import (
 )
 
 type GithubCommit struct {
-	Sha            string `gorm:"primaryKey;type:char(40)"`
+	Sha            string `gorm:"primaryKey;type:varchar(40)"`
 	AuthorId       int
 	AuthorName     string `gorm:"type:varchar(255)"`
 	AuthorEmail    string `gorm:"type:varchar(255)"`
@@ -23,7 +23,7 @@ type GithubCommit struct {
 	common.NoPKModel
 }
 
-func (GithubCommit) TableName() string{
+func (GithubCommit) TableName() string {
 	return "_tool_github_commits"
 }
 
