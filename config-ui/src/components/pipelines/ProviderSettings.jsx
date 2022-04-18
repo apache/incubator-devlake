@@ -115,7 +115,7 @@ const ProviderSettings = (props) => {
           <FormGroup
             disabled={isRunning || !isEnabled(providerId)}
             label={
-              <strong style={{ marginTop: '10px', display: 'inline-block' }}>Board IDs<span className='requiredStar'>*</span>
+              <strong style={{ marginTop: '10px', display: 'inline-block' }}>Board ID<span className='requiredStar'>*</span>
                 <span
                   className='badge-count'
                   style={{
@@ -125,7 +125,7 @@ const ProviderSettings = (props) => {
                 </span>
               </strong>
             }
-            labelInfo={<span style={{ display: 'block' }}>Enter one or more JIRA Board IDs.</span>}
+            labelInfo={<span style={{ display: 'block' }}>Enter JIRA Board ID.</span>}
             inline={false}
             labelFor='board-id'
             className=''
@@ -136,7 +136,7 @@ const ProviderSettings = (props) => {
               <TagInput
                 id='board-id'
                 disabled={isRunning || !isEnabled(providerId)}
-                placeholder='eg. 8, 100, 200'
+                placeholder='eg. 8'
                 values={boardId || []}
                 fill={true}
                 onChange={(values) => setBoardId([...new Set(values)])}
@@ -222,7 +222,7 @@ const ProviderSettings = (props) => {
                 </span>
               </strong>
             }
-            labelInfo={<span style={{ display: 'block' }}>Enter one or more GitLab Project IDs.</span>}
+            labelInfo={<span style={{ display: 'block' }}>Enter GitLab Project ID.</span>}
             inline={false}
             labelFor='project-id'
             className=''
@@ -232,7 +232,7 @@ const ProviderSettings = (props) => {
               <TagInput
                 id='project-id'
                 disabled={isRunning || !isEnabled(providerId)}
-                placeholder='eg. 937810831, 95781015'
+                placeholder='eg. 937810831'
                 values={projectId || []}
                 fill={true}
                 onChange={(values) => setProjectId([...new Set(values)])}
