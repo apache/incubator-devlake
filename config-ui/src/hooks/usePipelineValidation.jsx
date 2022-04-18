@@ -50,24 +50,24 @@ function usePipelineValidation ({
       errs.push('Name: Enter a valid Pipeline Name')
     }
 
-    if (enabledProviders.includes(Providers.GITLAB) && (!projectId || projectId.length === 0 || projectId.toString() === '')) {
-      errs.push('GitLab: Enter one or more valid Project IDs (Numeric)')
+    if (enabledProviders.includes(Providers.GITLAB) && (!projectId || projectId.length !== 1 || projectId.toString() === '')) {
+      errs.push('GitLab: Enter one valid Project ID (Numeric)')
     }
 
     if (enabledProviders.includes(Providers.GITLAB) && !validateNumericSet(projectId)) {
-      errs.push('GitLab: One of the entered Project IDs is NOT numeric!')
+      errs.push('GitLab: Entered Project ID is NOT numeric!')
     }
 
     if (enabledProviders.includes(Providers.JIRA) && (!sourceId || isNaN(sourceId))) {
       errs.push('JIRA: Select a valid Connection Source ID (Numeric)')
     }
 
-    if (enabledProviders.includes(Providers.JIRA) && (!boardId || boardId.length === 0 || boardId.toString() === '')) {
-      errs.push('JIRA: Enter one or more valid Board IDs (Numeric)')
+    if (enabledProviders.includes(Providers.JIRA) && (!boardId || boardId.length !== 1 || boardId.toString() === '')) {
+      errs.push('JIRA: Enter one valid Board ID (Numeric)')
     }
 
     if (enabledProviders.includes(Providers.JIRA) && !validateNumericSet(boardId)) {
-      errs.push('JIRA: One of the entered Board IDs is NOT numeric!')
+      errs.push('JIRA: Entered Board ID is NOT numeric!')
     }
 
     if (enabledProviders.includes(Providers.GITHUB) && (!owner || owner <= 2)) {
