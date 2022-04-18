@@ -15,7 +15,7 @@ services:
       MYSQL_PASSWORD: merico
 
   grafana:
-    image: mericodev/grafana:latest
+    image: mericodev/grafana:v0.10.0-beta1
     ports:
       - 3002:3000
     volumes:
@@ -34,7 +34,7 @@ services:
       - mysql
 
   devlake:
-    image: mericodev/lake:latest
+    image: mericodev/lake:v0.10.0-beta1
     ports:
       - 127.0.0.1:8080:8080
     restart: always
@@ -44,7 +44,7 @@ services:
       - mysql
 
   config-ui:
-    image: mericodev/config-ui:latest
+    image: mericodev/config-ui:v0.10.0-beta1
     ports:
       - 127.0.0.1:4000:80
     env_file:
