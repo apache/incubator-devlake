@@ -8,6 +8,7 @@ import (
 	"io/ioutil"
 	"net/http"
 	"net/url"
+	"sync"
 	"text/template"
 
 	"github.com/merico-dev/lake/plugins/core"
@@ -133,21 +134,23 @@ func (collector *ApiCollector) Execute() error {
 		// TODO: this loads all records into memory, we need lazy-load
 		iterator := collector.args.Input
 		defer iterator.Close()
-		c := make(chan bool)
-		total := 0
-		if !iterator.HasNext() {
-			close(c)
-		}
+		var wg sync.WaitGroup
+		ctx := collector.args.Ctx.GetContext()
 		for iterator.HasNext() {
+			select {
+			case <-ctx.Done():
+				break
+			default:
+			}
 			input, err := iterator.Fetch()
 			if err != nil {
 				return err
 			}
 			// go routine may not be scheduled in time, so we have to make sure they do.
-			total++
+			wg.Add(1)
 			go func() {
 				err = collector.exec(input)
-				c <- true
+				wg.Done()
 				if err != nil {
 					logger.Error("failed to execute for input: %v, %w", input, err)
 				}
@@ -155,12 +158,7 @@ func (collector *ApiCollector) Execute() error {
 		}
 
 		// wait go func finish
-		for range c {
-			total--
-			if total == 0 {
-				close(c)
-			}
-		}
+		wg.Wait()
 	} else {
 		// or we just did it once
 		err = collector.exec(nil)
