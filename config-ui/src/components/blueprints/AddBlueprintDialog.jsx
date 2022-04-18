@@ -337,9 +337,9 @@ const AddBlueprintDialog = (props) => {
                   </Label>
                 </div>
                 <div style={{ fontSize: '14px', fontWeight: 800 }}>
-                  {!cron(cronConfig === 'custom'
-                    ? customCronConfig
-                    : cronConfig).isValid() && <Icon icon='warning-sign' size={14} color={Colors.RED4} style={{ marginRight: '5px' }} />}
+                  {getFieldError('Blueprint Cron') && (
+                    <Icon icon='warning-sign' size={14} color={Colors.RED4} style={{ marginRight: '5px' }} />
+                  )}
                   {dayjs(createCron(cronConfig === 'custom'
                     ? customCronConfig
                     : cronConfig).next().toString()).format('L LTS')} &middot;{' '}

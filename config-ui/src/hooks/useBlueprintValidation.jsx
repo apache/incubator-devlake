@@ -3,6 +3,7 @@ import {
   Providers,
 } from '@/data/Providers'
 import cron from 'cron-validate'
+import parser from 'cron-parser'
 
 function useBlueprintValidation ({
   name,
@@ -16,6 +17,17 @@ function useBlueprintValidation ({
 
   const clear = () => {
     setErrors([])
+  }
+
+  const isValidCronExpression = (expression) => {
+    let isValid = false
+    try {
+      parser.parseExpression(expression)
+      isValid = true
+    } catch (e) {
+      isValid = false
+    }
+    return isValid
   }
 
   const validate = useCallback(() => {
@@ -34,12 +46,12 @@ function useBlueprintValidation ({
       errs.push('Blueprint Cron: No Crontab schedule defined.')
     }
 
-    if (cronConfig && cronConfig !== 'custom' && !cron(cronConfig).isValid()) {
+    if (cronConfig && cronConfig !== 'custom' && !isValidCronExpression(cronConfig)) {
       errs.push('Blueprint Cron: Invalid Crontab Expression, unable to parse.')
     }
 
-    if (cronConfig === 'custom' && !cron(customCronConfig).isValid()) {
-      errs.push('Blueprint Cron: Invalid Custom Crontab Expression, unable to parse.')
+    if (cronConfig === 'custom' && !isValidCronExpression(customCronConfig)) {
+      errs.push(`Blueprint Cron: Invalid Custom Expression, unable to parse. [${customCronConfig}]`)
     }
 
     if (enable && tasks?.length === 0) {
