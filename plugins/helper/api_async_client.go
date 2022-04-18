@@ -23,6 +23,7 @@ type ApiAsyncClient struct {
 	*ApiClient
 	maxRetry  int
 	scheduler *WorkerScheduler
+	qps       float64
 }
 
 func CreateAsyncApiClient(
@@ -76,12 +77,14 @@ func CreateAsyncApiClient(
 	if err != nil {
 		return nil, fmt.Errorf("failed to create scheduler: %w", err)
 	}
+	qps := float64(requests) / duration.Seconds()
 
 	// finally, wrap around api client with async sematic
 	return &ApiAsyncClient{
 		apiClient,
 		retry,
 		scheduler,
+		qps,
 	}, nil
 }
 
@@ -137,9 +140,14 @@ func (apiClient *ApiAsyncClient) WaitAsync() error {
 	return apiClient.scheduler.WaitUntilFinish()
 }
 
+func (apiClient *ApiAsyncClient) GetQps() float64 {
+	return apiClient.qps
+}
+
 type RateLimitedApiClient interface {
 	GetAsync(path string, query url.Values, header http.Header, handler ApiAsyncCallback) error
 	WaitAsync() error
+	GetQps() float64
 }
 
 var _ RateLimitedApiClient = (*ApiAsyncClient)(nil)
