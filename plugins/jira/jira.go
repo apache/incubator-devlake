@@ -108,7 +108,6 @@ func (plugin Jira) PrepareTaskData(taskCtx core.TaskContext, options map[string]
 		Options:        &op,
 		ApiClient:      jiraApiClient,
 		Source:         source,
-		Since:          &since,
 		JiraServerInfo: *info,
 	}
 	if !since.IsZero() {
