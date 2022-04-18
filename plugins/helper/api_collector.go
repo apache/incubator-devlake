@@ -6,9 +6,9 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
+	"math"
 	"net/http"
 	"net/url"
-	"sync"
 	"text/template"
 
 	"github.com/merico-dev/lake/plugins/core"
@@ -134,31 +134,45 @@ func (collector *ApiCollector) Execute() error {
 		// TODO: this loads all records into memory, we need lazy-load
 		iterator := collector.args.Input
 		defer iterator.Close()
-		var wg sync.WaitGroup
+		// throttle input process speed so it can be canceled, create a channel to represent available slots
+		slots := int(math.Ceil(collector.args.ApiClient.GetQps())) * 2
+		slotsChan := make(chan bool, slots)
+		for i := 0; i < slots; i++ {
+			slotsChan <- true
+		}
+
+		errors := make(chan error, int(math.Ceil(collector.args.ApiClient.GetQps()))*2)
+
 		ctx := collector.args.Ctx.GetContext()
 		for iterator.HasNext() {
 			select {
+			// canceled by user, stop
 			case <-ctx.Done():
-				return ctx.Err()
-			default:
-			}
-			input, err := iterator.Fetch()
-			if err != nil {
-				return err
-			}
-			// go routine may not be scheduled in time, so we have to make sure they do.
-			wg.Add(1)
-			go func() {
-				err = collector.exec(input)
-				wg.Done()
+				err = ctx.Err()
+				break
+			// obtain a slot
+			case <-slotsChan:
+				input, err := iterator.Fetch()
 				if err != nil {
-					logger.Error("failed to execute for input: %v, %w", input, err)
+					break
 				}
-			}()
+				go func() {
+					defer func() {
+						recover()
+					}()
+					e := collector.exec(input)
+					// propagate error
+					if e != nil {
+						errors <- e
+					} else {
+						// release 1 slot
+						slotsChan <- true
+					}
+				}()
+			case err = <-errors:
+				break
+			}
 		}
-
-		// wait go func finish
-		wg.Wait()
 	} else {
 		// or we just did it once
 		err = collector.exec(nil)
