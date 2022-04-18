@@ -212,7 +212,7 @@ const ProviderSettings = (props) => {
           <FormGroup
             disabled={isRunning || !isEnabled(providerId)}
             label={
-              <strong>Project IDs<span className='requiredStar'>*</span>
+              <strong>Project ID<span className='requiredStar'>*</span>
                 <span
                   className='badge-count'
                   style={{

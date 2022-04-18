@@ -543,7 +543,7 @@ const PipelineActivity = (props) => {
                               fontWeight: 800
                             }}
                             >{ProviderLabels.GITLAB}
-                            </strong><br />Project IDs
+                            </strong><br />Project ID
                           </label>
                           {activePipeline.tasks.filter(t => t.plugin === 'gitlab').map((t, tIdx) => (
                             <div key={`project-id-key-${tIdx}`}>
