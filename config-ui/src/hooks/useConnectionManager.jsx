@@ -93,7 +93,7 @@ function useConnectionManager ({
       } else {
         setIsTesting(false)
         setTestStatus(2)
-        const errorMessage = 'Connection test FAILED. ' + res.message
+        const errorMessage = 'Connection test FAILED. ' + (res.data ? res.data.message : '')
         if (notify) {
           ToastNotification.show({ message: errorMessage, intent: 'danger', icon: 'error' })
         }

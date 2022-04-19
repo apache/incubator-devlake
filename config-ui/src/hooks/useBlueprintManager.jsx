@@ -180,9 +180,7 @@ function useBlueprintManager (blueprintName = `BLUEPRINT WEEKLY ${Date.now()}`, 
   const createCronExpression = (cronExpression = '0 0 * * *') => {
     let newCron = parseCronExpression('0 0 * * *')
     try {
-      if (cron(cronExpression).isValid()) {
-        newCron = parseCronExpression(cronExpression)
-      }
+      newCron = parseCronExpression(cronExpression)
     } catch (e) {
       console.log('>> INVALID CRON EXPRESSION INPUT!', e)
     }
