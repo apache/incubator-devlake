@@ -74,7 +74,9 @@ const useJIRA = ({ apiProxyPath, issuesEndpoint, fieldsEndpoint }) => {
   }
 
   useEffect(() => {
-    setIssueTypes(issueTypesResponse ? createListData(issueTypesResponse) : [])
+    setIssueTypes(issueTypesResponse
+      ? createListData(issueTypesResponse).reduce((pV, cV) => !pV.some(i => i.value === cV.value) ? [...pV, cV] : [...pV], [])
+      : [])
   }, [issueTypesResponse])
 
   useEffect(() => {
