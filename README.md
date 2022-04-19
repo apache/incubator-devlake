@@ -60,19 +60,20 @@ Username/password:test/test. The demo is based on the data from this repo, meric
       </a> to set up. This is the detailed [guide](https://github.com/merico-dev/lake/wiki/How-to-Set-Up-Dev-Lake-with-Tin).
 - Commands written `like this` are to be run in your terminal.
 
-#### Required Packages to Install<a id="user-setup-requirements"></a>
+#### Prerequisites
 
 - [Docker](https://docs.docker.com/get-docker)
 - [docker-compose](https://docs.docker.com/compose/install/)
 
-NOTE: After installing docker, you may need to run the docker application and restart your terminal
-
-#### Commands to run in your terminal<a id="user-setup-commands"></a>
+#### Launch DevLake
 
 1. Download `docker-compose.yml` and `env.example` from [latest release page](https://github.com/merico-dev/lake/releases/latest) into a folder.
 2. Rename `env.example` to `.env`. For Mac/Linux users, please run `mv env.example .env` in the terminal.
-3. Start Docker on your machine, then run `docker-compose up -d` to start the services.
-4. Utilize `config-ui` to setup connection by opening `http://localhost:4000` in your browser. **We highly recommend that you take a look at our [GitHub-and-GitLab-New-User-Guide](./docs/GitHub-and-GitLab-New-User-Guide-v0.10.0.md) which covers step 4-7 in detail.**
+3. Run `docker-compose up -d` to launch DevLake.
+
+#### Configure data sources and collect data
+
+1. Visit `config-ui` at `http://localhost:4000` in your browser to configure data sources. **We recommend reading our [GitHub-and-GitLab-New-User-Guide](./docs/GitHub-and-GitLab-New-User-Guide-v0.10.0.md) which covers the following steps in detail.**
    >- Navigate to desired plugins on the Integrations page
    >- Please reference the following for more details on how to configure each one:<br>
       > <a href="plugins/jira/README.md" target="_blank">Jira</a><br>
@@ -81,13 +82,13 @@ NOTE: After installing docker, you may need to run the docker application and re
       > <a href="plugins/github/README.md" target="_blank">GitHub</a><br>
    >- Submit the form to update the values by clicking on the **Save Connection** button on each form page
    >- `devlake` takes a while to fully boot up. if `config-ui` complaining about api being unreachable, please wait a few seconds and try refreshing the page.
-5. Create pipelines to trigger data collection in `config-ui`
-6. Click *View Dashboards* button in the top left when done, or visit `localhost:3002` (username: `admin`, password: `admin`).
+2. Create pipelines to trigger data collection in `config-ui`
+3. Click *View Dashboards* button in the top left when done, or visit `localhost:3002` (username: `admin`, password: `admin`).
 
    We use <a href="https://grafana.com/" target="_blank">Grafana</a> as a visualization tool to build charts for the <a href="https://github.com/merico-dev/lake/wiki/DataModel.Domain-layer-schema">data stored in our database</a>. Using SQL queries, we can add panels to build, save, and edit customized dashboards.
 
    All the details on provisioning and customizing a dashboard can be found in the [Grafana Doc](docs/GRAFANA.md).
-7. To synchronize data periodically and automatically, we offer you the **Blueprint** feature, you can find it in `config-ui` pipeline section.
+4. To synchronize data periodically, users can set up recurring pipelines with DevLake's **Blueprint** feature.
 
 #### Upgrade to a newer version
 
@@ -252,7 +253,7 @@ But, be careful, many API services like JIRA/GITHUB have request rate limit mech
 
 <br>
 
-## Make Contribution
+## How to Contribute
 This section lists all the documents to help you contribute to the repo.
 
 - [Architecture](ARCHITECTURE.md): Architecture of DevLake
