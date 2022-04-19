@@ -1,11 +1,17 @@
 ## Summary
-In order to accelerate data collection due to the rate limit of GitHub and GitLab APIs, DevLake decided to reduce API calls by introducing a new plugin GitExtractor, which can extract Git data by cloning the repo instead of API fetching. 
-After v0.10.0, DevLake will collect GitHub/GitLab data in 2  separate plugins: 
 
-- GitHub/GitLab plugin (via API): collect repos, issues, pull requests
-- GitExtractor (via data extraction from cloned repos):  collect refs , commits
+GitHub has a rate limit of 5,000 API calls per hour for their REST API.
+As a result, it may take hours to collect commits data from GitHub API for a repo that has 10,000+ commits.
+To accelerate the process, DevLake introduces GitExtractor, a new plugin that collects git data by cloning the git repo instead of by calling GitHub APIs.
 
-This doc describes the whole process of collecting GitHub/GitLab data in v0.10.0. We'll iterate the design to simplify the process in the future.
+Starting from v0.10.0, DevLake will collect GitHub data in 2 separate plugins: 
+
+- GitHub plugin (via GitHub API): collect repos, issues, pull requests
+- GitExtractor (via cloning repos):  collect commits, refs
+
+Note that GitLab plugin still collects commits via API by default since GitLab has a much higher API rate limit.
+
+This doc details the process of collecting GitHub data in v0.10.0. We're working on simplifying this process in the next releases.
 
 Before start, please make sure all services are started.
 
