@@ -69,8 +69,6 @@ NOTE: After installing docker, you may need to run the docker application and re
 
 #### Commands to run in your terminal<a id="user-setup-commands"></a>
 
-**IMPORTANT: Database Schema Migration support was added to DevLake on v0.10.0, which means, you can upgrade your instance from v0.10.0 to any greater version. However, downgrading, or upgrading older version to v0.10.0 or newer are not supported and likely to break, we recommend that you deploy a new instance if needed.**
-
 1. Download `docker-compose.yml` and `env.example` from [latest release page](https://github.com/merico-dev/lake/releases/latest) into a folder.
 2. Rename `env.example` to `.env`. For Mac/Linux users, please run `mv env.example .env` in the terminal.
 3. Start Docker on your machine, then run `docker-compose up -d` to start the services.
@@ -90,6 +88,10 @@ NOTE: After installing docker, you may need to run the docker application and re
 
    All the details on provisioning and customizing a dashboard can be found in the [Grafana Doc](docs/GRAFANA.md).
 7. To synchronize data periodically and automatically, we offer you the **Blueprint** feature, you can find it in `config-ui` pipeline section.
+
+#### Upgrade to a newer version
+
+Support for database schema migration was introduced to DevLake in v0.10.0. From v0.10.0 onwards, users can upgrade their instance smoothly to a newer version. However, versions prior to v0.10.0 do not support upgrading to a newer version with a different database schema. We recommend users deploying a new instance if needed.
 
 
 ## Developer Setup<a id="dev-setup"></a>
