@@ -7,27 +7,13 @@ import (
 )
 
 type Changelog struct {
-	ID     uint64 `json:"id,string"`
-	Author struct {
-		Self         string `json:"self"`
-		Name         string `json:"name"`
-		Key          string `json:"key"`
-		EmailAddress string `json:"emailAddress"`
-		AvatarUrls   struct {
-			Four8X48  string `json:"48x48"`
-			Two4X24   string `json:"24x24"`
-			One6X16   string `json:"16x16"`
-			Three2X32 string `json:"32x32"`
-		} `json:"avatarUrls"`
-		DisplayName string `json:"displayName"`
-		Active      bool   `json:"active"`
-		TimeZone    string `json:"timeZone"`
-	} `json:"author"`
+	ID      uint64           `json:"id,string"`
+	Author  User             `json:"author"`
 	Created core.Iso8601Time `json:"created"`
 	Items   []ChangelogItem  `json:"items"`
 }
 
-func (c Changelog) ToToolLayer(sourceId, issueId uint64) *models.JiraChangelog {
+func (c Changelog) ToToolLayer(sourceId, issueId uint64) (*models.JiraChangelog, *models.JiraUser) {
 	return &models.JiraChangelog{
 		SourceId:          sourceId,
 		ChangelogId:       c.ID,
@@ -36,7 +22,7 @@ func (c Changelog) ToToolLayer(sourceId, issueId uint64) *models.JiraChangelog {
 		AuthorDisplayName: c.Author.DisplayName,
 		AuthorActive:      c.Author.Active,
 		Created:           c.Created.ToTime(),
-	}
+	}, c.Author.ToToolLayer(sourceId)
 }
 
 type ChangelogItem struct {
