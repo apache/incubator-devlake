@@ -73,7 +73,7 @@ Username/password:test/test. The demo is based on the data from this repo, meric
 
 #### Configure data sources and collect data
 
-1. Visit `config-ui` at `http://localhost:4000` in your browser to configure data sources. **We recommend reading our [GitHub-and-GitLab-New-User-Guide](./docs/GitHub-and-GitLab-New-User-Guide-v0.10.0.md) which covers the following steps in detail.**
+1. Visit `config-ui` at `http://localhost:4000` in your browser to configure data sources. **For users who'd like to collect GitHub data, we recommend reading our [GitHub data collection guide](./docs/github-user-guide-v0.10.0.md) which covers the following steps in detail.**
    >- Navigate to desired plugins on the Integrations page
    >- Please reference the following for more details on how to configure each one:<br>
       > <a href="plugins/jira/README.md" target="_blank">Jira</a><br>
