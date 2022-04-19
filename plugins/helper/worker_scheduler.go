@@ -14,6 +14,7 @@ import (
 type WorkerScheduler struct {
 	waitGroup    *sync.WaitGroup
 	pool         *ants.Pool
+	subPool      *ants.Pool
 	ticker       *time.Ticker
 	workerErrors *[]error
 	ctx          context.Context
@@ -23,12 +24,18 @@ type WorkerScheduler struct {
 // NewWorkerScheduler Create a parallel scheduler to control the maximum number of runs and the maximum number of runs per second
 // 注意: task执行是无序的
 // Warning: task execution is out of order
-func NewWorkerScheduler(workerNum int, maxWork int, maxWorkDuration time.Duration, ctx context.Context) (*WorkerScheduler, error) {
+func NewWorkerScheduler(workerNum int, maxWork int, maxWorkDuration time.Duration, ctx context.Context, maxRetry int) (*WorkerScheduler, error) {
 	var waitGroup sync.WaitGroup
 	workerErrors := make([]error, 0)
 	pWorkerErrors := &workerErrors
 	var mux sync.Mutex
 	pool, err := ants.NewPool(workerNum, ants.WithPanicHandler(func(i interface{}) {
+		mux.Lock()
+		defer mux.Unlock()
+		workerErrors = append(*pWorkerErrors, i.(error))
+		pWorkerErrors = &workerErrors
+	}))
+	subPool, err := ants.NewPool(workerNum*maxRetry, ants.WithPanicHandler(func(i interface{}) {
 		mux.Lock()
 		defer mux.Unlock()
 		workerErrors = append(*pWorkerErrors, i.(error))
@@ -44,6 +51,7 @@ func NewWorkerScheduler(workerNum int, maxWork int, maxWorkDuration time.Duratio
 	scheduler := &WorkerScheduler{
 		waitGroup:    &waitGroup,
 		pool:         pool,
+		subPool:      subPool,
 		ticker:       ticker,
 		workerErrors: pWorkerErrors,
 		ctx:          ctx,
@@ -51,7 +59,7 @@ func NewWorkerScheduler(workerNum int, maxWork int, maxWorkDuration time.Duratio
 	return scheduler, nil
 }
 
-func (s *WorkerScheduler) Submit(task func() error) error {
+func (s *WorkerScheduler) Submit(task func() error, pool ...*ants.Pool) error {
 	select {
 	case <-s.ctx.Done():
 		return s.ctx.Err()
@@ -63,8 +71,14 @@ func (s *WorkerScheduler) Submit(task func() error) error {
 	if os.Getenv("ASYNC_CF") == "true" {
 		cf = utils.GatherCallFrames()
 	}
+	var currentPool *ants.Pool
+	if pool == nil {
+		currentPool = s.pool
+	} else {
+		currentPool = pool[0]
+	}
 
-	return s.pool.Submit(func() {
+	return currentPool.Submit(func() {
 		var err error
 		defer s.waitGroup.Done()
 		defer func() {
@@ -78,6 +92,11 @@ func (s *WorkerScheduler) Submit(task func() error) error {
 				panic(fmt.Errorf("%s\n%s", err, cf))
 			}
 		}()
+		if pool == nil && s.ticker != nil {
+			for s.subPool.Running() != 0 {
+				<-s.ticker.C
+			}
+		}
 		if s.ticker != nil {
 			<-s.ticker.C
 		}
@@ -100,6 +119,7 @@ func (s *WorkerScheduler) WaitUntilFinish() error {
 
 func (s *WorkerScheduler) Release() {
 	s.pool.Release()
+	s.subPool.Release()
 	if s.ticker != nil {
 		s.ticker.Stop()
 	}

@@ -73,7 +73,7 @@ func CreateAsyncApiClient(
 		requests,
 		duration,
 	)
-	scheduler, err := NewWorkerScheduler(numOfWorkers, requests, duration, taskCtx.GetContext())
+	scheduler, err := NewWorkerScheduler(numOfWorkers, requests, duration, taskCtx.GetContext(), retry)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create scheduler: %w", err)
 	}
@@ -97,7 +97,8 @@ func (apiClient *ApiAsyncClient) DoAsync(
 	handler ApiAsyncCallback,
 	retry int,
 ) error {
-	return apiClient.scheduler.Submit(func() error {
+	var subFunc func() error
+	subFunc = func() error {
 		var err error
 		var res *http.Response
 		var body []byte
@@ -111,7 +112,8 @@ func (apiClient *ApiAsyncClient) DoAsync(
 		if err != nil {
 			if retry < apiClient.maxRetry && err != context.Canceled {
 				apiClient.logError("retry #%d for %s", retry, err.Error())
-				return apiClient.DoAsync(method, path, query, body, header, handler, retry+1)
+				retry++
+				return apiClient.scheduler.Submit(subFunc, apiClient.scheduler.subPool)
 			}
 		}
 		if err == nil {
@@ -122,7 +124,8 @@ func (apiClient *ApiAsyncClient) DoAsync(
 		// it is important to let handler have a chance to handle error, or it can hang indefinitely
 		// when error occurs
 		return handler(res, err)
-	})
+	}
+	return apiClient.scheduler.Submit(subFunc)
 }
 
 // Enqueue an api get request, the request may be sent sometime in future in parallel with other api requests
