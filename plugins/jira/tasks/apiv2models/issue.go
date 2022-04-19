@@ -106,22 +106,8 @@ type Issue struct {
 		Summary               string        `json:"summary"`
 		Creator               User          `json:"creator"`
 		Subtasks              []interface{} `json:"subtasks"`
-		Reporter              struct {
-			Self         string `json:"self"`
-			Name         string `json:"name"`
-			Key          string `json:"key"`
-			EmailAddress string `json:"emailAddress"`
-			AvatarUrls   struct {
-				Four8X48  string `json:"48x48"`
-				Two4X24   string `json:"24x24"`
-				One6X16   string `json:"16x16"`
-				Three2X32 string `json:"32x32"`
-			} `json:"avatarUrls"`
-			DisplayName string `json:"displayName"`
-			Active      bool   `json:"active"`
-			TimeZone    string `json:"timeZone"`
-		} `json:"reporter"`
-		Aggregateprogress struct {
+		Reporter              User          `json:"reporter"`
+		Aggregateprogress     struct {
 			Progress int `json:"progress"`
 			Total    int `json:"total"`
 		} `json:"aggregateprogress"`
@@ -248,11 +234,12 @@ func (Issue) ExtractRawMessage(blob []byte) (json.RawMessage, error) {
 	return resp.Issues, nil
 }
 
-func (i Issue) ExtractEntities(sourceId uint64, epicField, storyPointField string) ([]uint64, *models.JiraIssue, bool, []*models.JiraWorklog, []*models.JiraChangelog, []*models.JiraChangelogItem) {
+func (i Issue) ExtractEntities(sourceId uint64, epicField, storyPointField string) ([]uint64, *models.JiraIssue, bool, []*models.JiraWorklog, []*models.JiraChangelog, []*models.JiraChangelogItem, []*models.JiraUser) {
 	issue := i.toToolLayer(sourceId, epicField, storyPointField)
 	var worklogs []*models.JiraWorklog
 	var changelogs []*models.JiraChangelog
 	var changelogItems []*models.JiraChangelogItem
+	var users []*models.JiraUser
 	var needCollectWorklog bool
 	var sprints []uint64
 	if i.Fields.Worklog != nil {
@@ -266,7 +253,9 @@ func (i Issue) ExtractEntities(sourceId uint64, epicField, storyPointField strin
 	}
 	if i.Changelog != nil {
 		for _, changelog := range i.Changelog.Histories {
-			changelogs = append(changelogs, changelog.ToToolLayer(sourceId, i.ID))
+			cl, user := changelog.ToToolLayer(sourceId, i.ID)
+			changelogs = append(changelogs, cl)
+			users = append(users, user)
 			for _, item := range changelog.Items {
 				changelogItems = append(changelogItems, item.ToToolLayer(sourceId, changelog.ID))
 			}
@@ -278,5 +267,9 @@ func (i Issue) ExtractEntities(sourceId uint64, epicField, storyPointField strin
 	for _, sprint := range i.Fields.ClosedSprints {
 		sprints = append(sprints, sprint.ID)
 	}
-	return sprints, issue, needCollectWorklog, worklogs, changelogs, changelogItems
+	users = append(users, i.Fields.Creator.ToToolLayer(sourceId), i.Fields.Reporter.ToToolLayer(sourceId))
+	if i.Fields.Assignee != nil {
+		users = append(users, i.Fields.Assignee.ToToolLayer(sourceId))
+	}
+	return sprints, issue, needCollectWorklog, worklogs, changelogs, changelogItems, users
 }

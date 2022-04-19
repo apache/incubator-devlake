@@ -69,7 +69,10 @@ func (plugin Jira) SubTaskMetas() []core.SubTaskMeta {
 		{Name: "convertSprints", EntryPoint: tasks.ConvertSprints, EnabledByDefault: true, Description: "convert Jira sprints"},
 
 		{Name: "convertIssueCommits", EntryPoint: tasks.ConvertIssueCommits, EnabledByDefault: true, Description: "convert Jira issue commits"},
-		{Name: "convertIssueRepoCommits", EntryPoint: tasks.ConvertIssueRepoCommits, EnabledByDefault: false, Description: "convert Jira issue repo commits"}}
+		{Name: "convertIssueRepoCommits", EntryPoint: tasks.ConvertIssueRepoCommits, EnabledByDefault: false, Description: "convert Jira issue repo commits"},
+
+		{Name: "ConvertUsers", EntryPoint: tasks.ConvertUsers, EnabledByDefault: true, Description: "convert Jira users"},
+	}
 }
 
 func (plugin Jira) PrepareTaskData(taskCtx core.TaskContext, options map[string]interface{}) (interface{}, error) {
