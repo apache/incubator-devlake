@@ -22,6 +22,7 @@ There're 3 steps.
 1. Configure GitHub connection
 2. Create a pipeline to run GitHub plugin
 3. Create a pipeline to run GitExtractor plugin
+4. [Optional] Set up a recurring pipeline to keep data fresh
 
 ### Step 1 - Configure GitHub connection
 
@@ -101,29 +102,10 @@ See the pipeline finishes (progress 100%):
 
 4. See dashboards populated with GitHub data.
 
-## Create a Blueprint (recurring pipelines)
+### Step 4 - [Optional] Set up a recurring pipeline to keep data fresh
 
-Now, let's assume that you are happy with what you see on grafana dashboard. Most likely, what you want next is to make DevLake collecting data periodically for you without manual operation, no worry, we've got you covered:
+Please see [How to create recurring pipelines](./recurring-pipeline.md) for details.
 
-1. Click 'Create Pipeline Run'
-  - Toggle on Github
-  - Toggle on GitExtractor
-  - Toggle on Automate Pipeline
-    ![image](https://user-images.githubusercontent.com/14050754/163596590-484e4300-b17e-4119-9818-52463c10b889.png)
-
-
-2. Click 'Add Blueprint'. Fill in the form and 'Save Blueprint'.
-    
-    - **NOTE**: That the schedule syntax is standard unix cron syntax, check [Crontab.guru](https://crontab.guru/) to learn more
-    - **IMPORANT**: The scheduler is running under `UTC` timezone. If you prefer data collecting happens at 3am NewYork(UTC-04:00) every day, use **Custom Shedule** and set it to `0 7 * * *`
-    
-    ![image](https://user-images.githubusercontent.com/14050754/163596655-db59e154-405f-4739-89f2-7dceab7341fe.png)
-    
-3. Click 'Save Blueprint'.
-    
-4. Click 'Pipeline Blueprints', you can view and edit the new blueprint in the blueprint list.
-    
-    ![image](https://user-images.githubusercontent.com/14050754/163596773-4fb4237e-e3f2-4aef-993f-8a1499ca30e2.png)
 
 
 
