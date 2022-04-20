@@ -88,9 +88,11 @@ func ExtractIssues(taskCtx core.SubTaskContext) error {
 			sprints, issue, _, worklogs, changelogs, changelogItems, users := apiIssue.ExtractEntities(data.Source.ID, data.Source.EpicKeyField, data.Source.StoryPointField)
 			for _, sprintId := range sprints {
 				sprintIssue := &models.JiraSprintIssue{
-					SourceId: data.Source.ID,
-					SprintId: sprintId,
-					IssueId:  issue.IssueId,
+					SourceId:         data.Source.ID,
+					SprintId:         sprintId,
+					IssueId:          issue.IssueId,
+					IssueCreatedDate: &issue.Created,
+					ResolutionDate:   issue.ResolutionDate,
 				}
 				results = append(results, sprintIssue)
 			}
