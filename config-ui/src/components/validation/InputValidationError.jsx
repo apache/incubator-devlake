@@ -12,12 +12,15 @@ const InputValidationError = (props) => {
   const {
     error,
     position = Position.TOP,
+    // eslint-disable-next-line no-unused-vars
     validateOnFocus = false,
     elementRef, onError = () => {},
-    onSuccess = () => {}
+    onSuccess = () => {},
+    interactionKind = PopoverInteractionKind.HOVER_TARGET_ONLY
   } = props
 
   const [elementIsFocused, setElementIsFocused] = useState(false)
+  // eslint-disable-next-line no-unused-vars
   const [inputElement, setInputElement] = useState(null)
 
   const handleElementFocus = useCallback((isFocused, ref) => {
@@ -36,15 +39,12 @@ const InputValidationError = (props) => {
     if (!error) {
       elementRef?.current.parentElement.classList.remove('invalid-field')
     }
-  }, [elementRef])
+  }, [elementRef, error])
 
   useEffect(() => {
-    console.log('cName Ref===', elementRef)
     const iRef = elementRef?.current
     if (iRef) {
       setInputElement(iRef)
-      // iRef.addEventListener('focus', (e) => setElementIsFocused(true), true)
-      // iRef.addEventListener('blur', (e) => setElementIsFocused(false), true)
       iRef.addEventListener('focus', (e) => handleElementFocus(true, iRef), true)
       iRef.addEventListener('keyup', (e) => handleElementFocus(true, iRef), true)
       iRef.addEventListener('blur', (e) => handleElementBlur(false, iRef), true)
@@ -61,12 +61,18 @@ const InputValidationError = (props) => {
   }, [elementRef, handleElementBlur, handleElementFocus])
 
   useEffect(() => {
-    if (error && elementIsFocused) {
+    if (error && validateOnFocus && elementIsFocused) {
+      onError(elementRef?.current?.id ? elementRef?.current?.id : null)
+    } else if (error && !validateOnFocus) {
       onError(elementRef?.current?.id ? elementRef?.current?.id : null)
     } else {
       onSuccess()
     }
-  }, [error, onError, onSuccess, elementIsFocused, elementRef])
+  }, [error, onError, onSuccess, elementIsFocused, validateOnFocus, elementRef])
+
+  useEffect(() => {
+
+  }, [validateOnFocus])
 
   return error
     ? (
@@ -76,14 +82,14 @@ const InputValidationError = (props) => {
           usePortal={true}
           openOnTargetFocus={true}
           intent={Intent.WARNING}
-          interactionKind={PopoverInteractionKind.HOVER_TARGET_ONLY}
+          interactionKind={interactionKind}
           enforceFocus={false}
           // autoFocus={false}
         >
           <Icon
             icon='warning-sign'
             size={12}
-            color={elementIsFocused ? Colors.RED5 : Colors.GRAY5}
+            color={(validateOnFocus && elementIsFocused) || (error && !validateOnFocus) ? Colors.RED5 : Colors.GRAY5}
             style={{ outline: 'none' }}
             onClick={(e) => e.stopPropagation()}
           />
