@@ -3,8 +3,9 @@ package helper
 import (
 	"database/sql"
 	"fmt"
-	"github.com/merico-dev/lake/models/common"
 	"reflect"
+
+	"github.com/merico-dev/lake/models/common"
 
 	"github.com/merico-dev/lake/plugins/core"
 )
@@ -51,7 +52,6 @@ func (converter *DataConverter) Execute() error {
 	// load data from database
 	db := converter.args.Ctx.GetDb()
 
-	inputRow := reflect.New(converter.args.InputRowType).Interface()
 	// batch insertion divider
 	RAW_DATA_ORIGIN := "RawDataOrigin"
 	divider := NewBatchSaveDivider(db, converter.args.BatchSize)
@@ -85,6 +85,7 @@ func (converter *DataConverter) Execute() error {
 			return ctx.Err()
 		default:
 		}
+		inputRow := reflect.New(converter.args.InputRowType).Interface()
 		err := db.ScanRows(cursor, inputRow)
 		if err != nil {
 			return err
