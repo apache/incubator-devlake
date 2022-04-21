@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback } from 'react'
+import React, { useEffect, useState, useCallback, useRef } from 'react'
 import {
   Button, Colors,
   FormGroup, InputGroup, Label,
@@ -54,9 +54,15 @@ export default function ConnectionForm (props) {
     placeholders
   } = props
 
+  const connectionNameRef = useRef()
+  const connectionEndpointRef = useRef()
+  const connectionTokenRef = useRef()
+
   // const [isValidForm, setIsValidForm] = useState(true)
   const [allowedAuthTypes, setAllowedAuthTypes] = useState(['token', 'plain'])
   const [showTokenCreator, setShowTokenCreator] = useState(false)
+  const [stateErrored, setStateErrored] = useState(false)
+
   const getConnectionStatusIcon = () => {
     let statusIcon = <Icon icon='full-circle' size='10' color={Colors.RED3} />
     switch (testStatus) {
@@ -94,6 +100,10 @@ export default function ConnectionForm (props) {
 
   const getFieldError = (fieldId) => {
     return validationErrors.find(e => e.includes(fieldId))
+  }
+
+  const activateErrorStates = (elementId) => {
+    setStateErrored(elementId || false)
   }
 
   useEffect(() => {
@@ -184,17 +194,24 @@ export default function ConnectionForm (props) {
             </Label>
             <InputGroup
               id='connection-name'
+              inputRef={connectionNameRef}
               disabled={isTesting || isSaving || isLocked}
               readOnly={[Providers.GITHUB, Providers.GITLAB, Providers.JENKINS].includes(activeProvider.id)}
               placeholder={placeholders ? placeholders.name : 'Enter Instance Name'}
               value={name}
               onChange={(e) => onNameChange(e.target.value)}
-              className={`input connection-name-input ${fieldHasError('Connection Source') ? 'invalid-field' : ''}`}
+              // className={`input connection-name-input ${fieldHasError('Connection Source') ? 'invalid-field' : ''}`}
+              // className='input connection-name-input'
+              className={`input connection-name-input ${stateErrored === 'connection-name' ? 'invalid-field' : ''}`}
               leftIcon={[Providers.GITHUB, Providers.GITLAB, Providers.JENKINS].includes(activeProvider.id) ? 'lock' : null}
               inline={true}
               rightElement={(
                 <InputValidationError
                   error={getFieldError('Connection Source')}
+                  elementRef={connectionNameRef}
+                  onError={activateErrorStates}
+                  onSuccess={() => setStateErrored(null)}
+                  validateOnFocus
                 />
               )}
               // fill
@@ -221,15 +238,20 @@ export default function ConnectionForm (props) {
             </Label>
             <InputGroup
               id='connection-endpoint'
+              inputRef={connectionEndpointRef}
               disabled={isTesting || isSaving || isLocked}
               placeholder={placeholders ? placeholders.endpoint : 'Enter Endpoint URL'}
               value={endpointUrl}
               onChange={(e) => onEndpointChange(e.target.value)}
-              className={`input endpoint-url-input ${fieldHasError('Endpoint') ? 'invalid-field' : ''}`}
+              className={`input endpoint-url-input ${stateErrored === 'connection-endpoint' ? 'invalid-field' : ''}`}
               fill
               rightElement={(
                 <InputValidationError
                   error={getFieldError('Endpoint')}
+                  elementRef={connectionEndpointRef}
+                  onError={activateErrorStates}
+                  onSuccess={() => setStateErrored(null)}
+                  validateOnFocus
                 />
               )}
             />
@@ -257,16 +279,21 @@ export default function ConnectionForm (props) {
               </Label>
               <InputGroup
                 id='connection-token'
+                inputRef={connectionTokenRef}
                 disabled={isTesting || isSaving || isLocked}
                 placeholder={placeholders ? placeholders.token : 'Enter Auth Token eg. EJrLG8DNeXADQcGOaaaX4B47'}
                 value={token}
                 onChange={(e) => onTokenChange(e.target.value)}
-                className={`input auth-input ${fieldHasError('Auth') ? 'invalid-field' : ''}`}
+                className={`input auth-input ${stateErrored === 'connection-token' ? 'invalid-field' : ''}`}
                 fill
                 required
                 rightElement={(
                   <InputValidationError
                     error={getFieldError('Auth')}
+                    elementRef={connectionTokenRef}
+                    onError={activateErrorStates}
+                    onSuccess={() => setStateErrored(null)}
+                    validateOnFocus
                   />
                 )}
               />
