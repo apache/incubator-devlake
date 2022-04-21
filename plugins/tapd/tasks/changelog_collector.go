@@ -7,16 +7,31 @@ import (
 	"github.com/merico-dev/lake/plugins/helper"
 	"net/http"
 	"net/url"
+	"reflect"
 )
 
-const RAW_STORY_CHANGELOG_TABLE = "tapd_api_story_changelogs"
+const RAW_CHANGELOG_TABLE = "tapd_api_changelogs"
 
-var _ core.SubTaskEntryPoint = CollectStoryChangelogs
+var _ core.SubTaskEntryPoint = CollectChangelogs
 
-func CollectStoryChangelogs(taskCtx core.SubTaskContext) error {
+type Type struct {
+	Type string
+}
+
+func CollectChangelogs(taskCtx core.SubTaskContext) error {
 	data := taskCtx.GetData().(*TapdTaskData)
+	db := taskCtx.GetDb()
 	logger := taskCtx.GetLogger()
 	logger.Info("collect storyChangelogs")
+
+	cursor, err := db.Raw("select 'task' as 'type' UNION select 'story' as 'type' UNION select 'bug' as 'type'").Rows()
+	if err != nil {
+		return err
+	}
+	iterator, err := helper.NewCursorIterator(db, cursor, reflect.TypeOf(Type{}))
+	if err != nil {
+		return err
+	}
 	collector, err := helper.NewApiCollector(helper.ApiCollectorArgs{
 		RawDataSubTaskArgs: helper.RawDataSubTaskArgs{
 			Ctx: taskCtx,
@@ -25,11 +40,12 @@ func CollectStoryChangelogs(taskCtx core.SubTaskContext) error {
 				//CompanyId: data.Options.CompanyId,
 				WorkspaceId: data.Options.WorkspaceId,
 			},
-			Table: RAW_STORY_CHANGELOG_TABLE,
+			Table: RAW_CHANGELOG_TABLE,
 		},
+		Input:       iterator,
 		ApiClient:   data.ApiClient,
 		PageSize:    100,
-		UrlTemplate: "story_changes",
+		UrlTemplate: "{{ .Input.Type }}_changes",
 		Query: func(reqData *helper.RequestData) (url.Values, error) {
 			query := url.Values{}
 			query.Set("workspace_id", fmt.Sprintf("%v", data.Options.WorkspaceId))
@@ -54,9 +70,9 @@ func CollectStoryChangelogs(taskCtx core.SubTaskContext) error {
 	return collector.Execute()
 }
 
-var CollectStoryChangelogMeta = core.SubTaskMeta{
+var CollectChangelogMeta = core.SubTaskMeta{
 	Name:        "collectStoryChangelogs",
-	EntryPoint:  CollectStoryChangelogs,
+	EntryPoint:  CollectChangelogs,
 	Required:    true,
 	Description: "collect Tapd storyChangelogs",
 }

@@ -67,7 +67,7 @@ func (converter *DataConverter) Execute() error {
 		// delete old data
 		return db.Delete(
 			reflect.New(rowType).Interface(),
-			"_raw_data_table like ? AND _raw_data_params = ?",
+			"_raw_data_table = ? AND _raw_data_params = ?",
 			converter.table, converter.params,
 		).Error
 	})

@@ -20,9 +20,13 @@ func CollectStoryIssueCommits(taskCtx core.SubTaskContext) error {
 	db := taskCtx.GetDb()
 	logger := taskCtx.GetLogger()
 	logger.Info("collect issueCommits")
-	cursor, err := db.Model(&models.TapdStory{}).Select("id as issue_id, 'story' as type").
+	cursor, err := db.Raw("? UNION ? UNION ?", db.Model(&models.TapdStory{}).Select("id as issue_id, 'story' as type").
 		Where("source_id = ? and workspace_id = ?",
-			data.Options.SourceId, data.Options.WorkspaceId).Rows()
+			data.Options.SourceId, data.Options.WorkspaceId), db.Model(&models.TapdTask{}).Select("id as issue_id, 'task' as type").
+		Where("source_id = ? and workspace_id = ?",
+			data.Options.SourceId, data.Options.WorkspaceId), db.Model(&models.TapdBug{}).Select("id as issue_id, 'bug' as type").
+		Where("source_id = ? and workspace_id = ?",
+			data.Options.SourceId, data.Options.WorkspaceId)).Rows()
 	if err != nil {
 		return err
 	}

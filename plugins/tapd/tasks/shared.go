@@ -22,7 +22,7 @@ var WorkspaceIdGen *didgen.DomainIdGenerator
 var IssueIdGen *didgen.DomainIdGenerator
 
 // res will not be used
-func GetTotalPagesFromResponse(_ *http.Response, args *helper.ApiCollectorArgs) (int, error) {
+func GetTotalPagesFromResponse(r *http.Response, args *helper.ApiCollectorArgs) (int, error) {
 	data := args.Ctx.GetData().(*TapdTaskData)
 	apiClient, err := NewTapdApiPageClient(args.Ctx.TaskContext(), data.Source)
 	if err != nil {
@@ -30,8 +30,7 @@ func GetTotalPagesFromResponse(_ *http.Response, args *helper.ApiCollectorArgs) 
 	}
 	query := url.Values{}
 	query.Set("workspace_id", fmt.Sprintf("%v", data.Options.WorkspaceId))
-
-	res, err := apiClient.Get(fmt.Sprintf("%s/count", args.UrlTemplate), query, nil)
+	res, err := apiClient.Get(fmt.Sprintf("%s/count", r.Request.URL.Path), query, nil)
 	if err != nil {
 		return 0, err
 	}
