@@ -18,8 +18,8 @@ type Issue struct {
 	OriginalStatus          string `gorm:"type:varchar(100)"`
 	StoryPoint              uint
 	ResolutionDate          *time.Time
-	CreatedDate             *time.Time
-	UpdatedDate             *time.Time
+	CreatedDate             time.Time
+	UpdatedDate             time.Time
 	LeadTimeMinutes         uint
 	ParentIssueId           string `gorm:"type:varchar(255)"`
 	Priority                string `gorm:"type:varchar(255)"`
@@ -38,7 +38,7 @@ const (
 	REQUIREMENT = "REQUIREMENT"
 	INCIDENT    = "INCIDENT"
 
-	TODO = "TODO"
-	DONE = "DONE"
+	TODO        = "TODO"
+	DONE        = "DONE"
 	IN_PROGRESS = "IN_PROGRESS"
 )

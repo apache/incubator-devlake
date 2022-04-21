@@ -64,8 +64,8 @@ func ConvertIssues(taskCtx core.SubTaskContext) error {
 				CreatorId:               userIdGen.Generate(data.Options.SourceId, jiraIssue.CreatorAccountId),
 				ResolutionDate:          jiraIssue.ResolutionDate,
 				Priority:                jiraIssue.PriorityName,
-				CreatedDate:             &jiraIssue.Created,
-				UpdatedDate:             &jiraIssue.Updated,
+				CreatedDate:             jiraIssue.Created,
+				UpdatedDate:             jiraIssue.Updated,
 				LeadTimeMinutes:         jiraIssue.LeadTimeMinutes,
 				TimeSpentMinutes:        jiraIssue.SpentMinutes,
 			}
