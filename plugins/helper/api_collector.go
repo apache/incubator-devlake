@@ -179,7 +179,9 @@ func (collector *ApiCollector) Execute() error {
 				break
 			}
 		}
-		wg.Wait()
+		if err == nil {
+			wg.Wait()
+		}
 	} else {
 		// or we just did it once
 		err = collector.exec(nil)

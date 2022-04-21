@@ -2,6 +2,8 @@ package runner
 
 import (
 	"context"
+	"os"
+	"os/exec"
 
 	"github.com/merico-dev/lake/config"
 	"github.com/merico-dev/lake/logger"
@@ -39,11 +41,27 @@ func DirectRun(cmd *cobra.Command, args []string, pluginTask core.PluginTask, op
 	if err != nil {
 		panic(err)
 	}
+
+	exec.Command("stty", "-F", "/dev/tty", "cbreak", "min", "1").Run()
+	ctx, cancel := context.WithCancel(context.Background())
+	go func() {
+		buf := make([]byte, 1)
+		n, err := os.Stdin.Read(buf)
+		if err != nil {
+			panic(err)
+		} else if n == 1 && buf[0] == 99 {
+			cancel()
+		} else {
+			println("unknown key press, code: ", buf[0])
+		}
+	}()
+	println("press `c` to send cancel signal")
+
 	err = RunPluginSubTasks(
 		cfg,
 		log,
 		db,
-		context.Background(),
+		ctx,
 		cmd.Use,
 		options,
 		pluginTask,
