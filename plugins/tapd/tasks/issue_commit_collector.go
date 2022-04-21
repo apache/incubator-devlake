@@ -20,13 +20,33 @@ func CollectStoryIssueCommits(taskCtx core.SubTaskContext) error {
 	db := taskCtx.GetDb()
 	logger := taskCtx.GetLogger()
 	logger.Info("collect issueCommits")
-	cursor, err := db.Raw("? UNION ? UNION ?", db.Model(&models.TapdStory{}).Select("id as issue_id, 'story' as type").
+
+	since := data.Since
+	incremental := false
+	if since == nil {
+		// user didn't specify a time range to sync, try load from database
+		var latestUpdated models.TapdIssueCommit
+		err := db.Where("source_id = ?", data.Source.ID).Order("created DESC").Limit(1).Find(&latestUpdated).Error
+		if err != nil {
+			return fmt.Errorf("failed to get latest jira changelog record: %w", err)
+		}
+		if latestUpdated.ID > 0 {
+			since = latestUpdated.Created
+			incremental = true
+		}
+	}
+
+	tx := db.Raw("? UNION ? UNION ?", db.Model(&models.TapdStory{}).Select("id as issue_id, 'story' as type, modified").
 		Where("source_id = ? and workspace_id = ?",
-			data.Options.SourceId, data.Options.WorkspaceId), db.Model(&models.TapdTask{}).Select("id as issue_id, 'task' as type").
+			data.Options.SourceId, data.Options.WorkspaceId), db.Model(&models.TapdTask{}).Select("id as issue_id, 'task' as type, modified").
 		Where("source_id = ? and workspace_id = ?",
-			data.Options.SourceId, data.Options.WorkspaceId), db.Model(&models.TapdBug{}).Select("id as issue_id, 'bug' as type").
+			data.Options.SourceId, data.Options.WorkspaceId), db.Model(&models.TapdBug{}).Select("id as issue_id, 'bug' as type, modified").
 		Where("source_id = ? and workspace_id = ?",
-			data.Options.SourceId, data.Options.WorkspaceId)).Rows()
+			data.Options.SourceId, data.Options.WorkspaceId))
+	if since != nil {
+		tx = tx.Where("modified > ?", since)
+	}
+	cursor, err := tx.Rows()
 	if err != nil {
 		return err
 	}
@@ -44,7 +64,8 @@ func CollectStoryIssueCommits(taskCtx core.SubTaskContext) error {
 			},
 			Table: RAW_ISSUE_COMMIT_TABLE,
 		},
-		ApiClient: data.ApiClient,
+		Incremental: incremental,
+		ApiClient:   data.ApiClient,
 		//PageSize:    100,
 		Input:       iterator,
 		UrlTemplate: "code_commit_infos",
@@ -54,8 +75,7 @@ func CollectStoryIssueCommits(taskCtx core.SubTaskContext) error {
 			query.Set("workspace_id", fmt.Sprintf("%v", data.Options.WorkspaceId))
 			query.Set("type", input.Type)
 			query.Set("object_id", fmt.Sprintf("%v", input.IssueId))
-			//query.Set("page", fmt.Sprintf("%v", reqData.Pager.Page))
-			//query.Set("limit", fmt.Sprintf("%v", reqData.Pager.Size))
+			query.Set("order", "created asc")
 			return query, nil
 		},
 		//GetTotalPages: GetTotalPagesFromResponse,

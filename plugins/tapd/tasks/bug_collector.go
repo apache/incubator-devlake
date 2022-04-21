@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/merico-dev/lake/plugins/core"
 	"github.com/merico-dev/lake/plugins/helper"
+	"github.com/merico-dev/lake/plugins/tapd/models"
 	"net/http"
 	"net/url"
 )
@@ -15,8 +16,25 @@ var _ core.SubTaskEntryPoint = CollectBugs
 
 func CollectBugs(taskCtx core.SubTaskContext) error {
 	data := taskCtx.GetData().(*TapdTaskData)
+	db := taskCtx.GetDb()
 	logger := taskCtx.GetLogger()
 	logger.Info("collect bugs")
+
+	since := data.Since
+	incremental := false
+	if since == nil {
+		// user didn't specify a time range to sync, try load from database
+		var latestUpdated models.TapdBug
+		err := db.Where("source_id = ?", data.Source.ID).Order("modified DESC").Limit(1).Find(&latestUpdated).Error
+		if err != nil {
+			return fmt.Errorf("failed to get latest jira changelog record: %w", err)
+		}
+		if latestUpdated.ID > 0 {
+			since = latestUpdated.Modified
+			incremental = true
+		}
+	}
+
 	collector, err := helper.NewApiCollector(helper.ApiCollectorArgs{
 		RawDataSubTaskArgs: helper.RawDataSubTaskArgs{
 			Ctx: taskCtx,
@@ -27,6 +45,7 @@ func CollectBugs(taskCtx core.SubTaskContext) error {
 			},
 			Table: RAW_BUG_TABLE,
 		},
+		Incremental: incremental,
 		ApiClient:   data.ApiClient,
 		PageSize:    100,
 		UrlTemplate: "bugs",
@@ -35,6 +54,10 @@ func CollectBugs(taskCtx core.SubTaskContext) error {
 			query.Set("workspace_id", fmt.Sprintf("%v", data.Options.WorkspaceId))
 			query.Set("page", fmt.Sprintf("%v", reqData.Pager.Page))
 			query.Set("limit", fmt.Sprintf("%v", reqData.Pager.Size))
+			query.Set("order", "created asc")
+			if since != nil {
+				query.Set("modified", fmt.Sprintf(">%v", since.Format("YYYY-MM-DD")))
+			}
 			return query, nil
 		},
 		GetTotalPages: GetTotalPagesFromResponse,
