@@ -15,8 +15,8 @@
   "editable": true,
   "gnetId": null,
   "graphTooltip": 0,
-  "id": 16,
-  "iteration": 1650033937381,
+  "id": 13,
+  "iteration": 1650629880265,
   "links": [],
   "panels": [
     {
@@ -60,7 +60,7 @@
       },
       "gridPos": {
         "h": 6,
-        "w": 6,
+        "w": 7,
         "x": 0,
         "y": 1
       },
@@ -88,7 +88,7 @@
           "hide": false,
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "select \n\tcount(distinct i.id)\nfrom \n\tissues i\n\tjoin board_issues bi on i.id = bi.issue_id\n\tjoin boards b on bi.board_id = b.id\nwhere\n  $__timeFilter(i.created_date)\n  and b.id in ($repo_id)\n\n",
+          "rawSql": "select \n\tcount(distinct i.id)\nfrom \n\tissues i\n\tjoin board_issues bi on i.id = bi.issue_id\n\tjoin boards b on bi.board_id = b.id\nwhere\n  $__timeFilter(i.created_date)\n  and b.id in ($repo_id)\n",
           "refId": "A",
           "select": [
             [
@@ -112,7 +112,7 @@
           ]
         }
       ],
-      "title": "1.1 Number of New Issues (Selected Time Range)",
+      "title": "1.1 Number of New Issues [Selected Time Range]",
       "type": "stat"
     },
     {
@@ -155,8 +155,8 @@
       },
       "gridPos": {
         "h": 6,
-        "w": 18,
-        "x": 6,
+        "w": 17,
+        "x": 7,
         "y": 1
       },
       "id": 74,
@@ -164,7 +164,9 @@
         "barWidth": 0.5,
         "groupWidth": 0.7,
         "legend": {
-          "calcs": [],
+          "calcs": [
+            "mean"
+          ],
           "displayMode": "list",
           "placement": "bottom"
         },
@@ -213,13 +215,93 @@
       "type": "barchart"
     },
     {
+      "datasource": "mysql",
+      "description": "",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 6,
+        "w": 24,
+        "x": 0,
+        "y": 7
+      },
+      "id": 90,
+      "options": {
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showThresholdLabels": false,
+        "showThresholdMarkers": true,
+        "text": {}
+      },
+      "pluginVersion": "8.0.6",
+      "targets": [
+        {
+          "format": "table",
+          "group": [],
+          "hide": false,
+          "metricColumn": "none",
+          "rawQuery": true,
+          "rawSql": "with _issues as(\n  SELECT\n    DATE_ADD(date(i.created_date), INTERVAL -DAY(date(i.created_date))+1 DAY) as time,\n    count(distinct i.id) as issue_count\n  FROM issues i\n  \tjoin board_issues bi on i.id = bi.issue_id\n  \tjoin boards b on bi.board_id = b.id\n  WHERE\n    $__timeFilter(i.created_date)\n    and b.id in ($repo_id)\n  group by 1\n)\n\nSELECT \n  avg(issue_count) as \"Mean Issue Count\",\n  std(issue_count) as \"STD\"\nFROM _issues",
+          "refId": "A",
+          "select": [
+            [
+              {
+                "params": [
+                  "id"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "table": "ae_projects",
+          "timeColumn": "ae_create_time",
+          "timeColumnType": "timestamp",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        }
+      ],
+      "title": "1.3 Mean New Issue Count and Standard Deviation",
+      "type": "gauge"
+    },
+    {
       "collapsed": false,
       "datasource": null,
       "gridPos": {
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 7
+        "y": 13
       },
       "id": 87,
       "panels": [],
@@ -253,9 +335,9 @@
       },
       "gridPos": {
         "h": 6,
-        "w": 6,
+        "w": 7,
         "x": 0,
-        "y": 8
+        "y": 14
       },
       "id": 43,
       "options": {
@@ -305,7 +387,7 @@
           ]
         }
       ],
-      "title": "2.1 Number of Closed Issues (Selected Time Range)",
+      "title": "2.1 Number of Closed Issues [Issues Created in Selected Time Range]",
       "type": "stat"
     },
     {
@@ -379,9 +461,9 @@
       },
       "gridPos": {
         "h": 6,
-        "w": 18,
-        "x": 6,
-        "y": 8
+        "w": 17,
+        "x": 7,
+        "y": 14
       },
       "id": 76,
       "options": {
@@ -428,7 +510,7 @@
           ]
         }
       ],
-      "title": "2.2 Number of Open and Closed Issues [Each Month]",
+      "title": "2.2 Number of Open and Closed Issues [Issues Created in Each Month]",
       "type": "timeseries"
     },
     {
@@ -458,9 +540,9 @@
       },
       "gridPos": {
         "h": 6,
-        "w": 6,
+        "w": 7,
         "x": 0,
-        "y": 14
+        "y": 20
       },
       "id": 64,
       "options": {
@@ -486,7 +568,7 @@
           "hide": false,
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "select \n\tAVG(i.lead_time_minutes/3600) issue_lead_time\nfrom \n\tissues i\n\tjoin board_issues bi on i.id = bi.issue_id\n\tjoin boards b on bi.board_id = b.id\nwhere\n  $__timeFilter(i.created_date)\n  and b.id in ($repo_id)\n  and i.status = \"DONE\"",
+          "rawSql": "select \n\tAVG(i.lead_time_minutes/1440) issue_lead_time\nfrom \n\tissues i\n\tjoin board_issues bi on i.id = bi.issue_id\n\tjoin boards b on bi.board_id = b.id\nwhere\n  $__timeFilter(i.created_date)\n  and b.id in ($repo_id)\n  and i.status = \"DONE\"",
           "refId": "A",
           "select": [
             [
@@ -510,7 +592,7 @@
           ]
         }
       ],
-      "title": "2.3 Mean Issue Lead Time in Days [Selected Time Range]",
+      "title": "2.3 Mean Issue Lead Time in Days [Issues Created in Selected Time Range]",
       "type": "stat"
     },
     {
@@ -553,9 +635,9 @@
       },
       "gridPos": {
         "h": 6,
-        "w": 18,
-        "x": 6,
-        "y": 14
+        "w": 17,
+        "x": 7,
+        "y": 20
       },
       "id": 75,
       "options": {
@@ -583,7 +665,7 @@
           "hide": false,
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "with _issues as(\n  SELECT\n    DATE_ADD(date(i.created_date), INTERVAL -DAY(date(i.created_date))+1 DAY) as time,\n    AVG(i.lead_time_minutes/3600) as issue_lead_time\n  FROM issues i\n  \tjoin board_issues bi on i.id = bi.issue_id\n  \tjoin boards b on bi.board_id = b.id\n  WHERE\n    b.id in ($repo_id)\n    and i.status = \"DONE\"\n    and $__timeFilter(i.created_date)\n  group by 1\n)\n\nSELECT \n  date_format(time,'%M %Y') as month,\n  issue_lead_time as \"Issue Lead Time\"\nFROM _issues\nORDER BY time\n",
+          "rawSql": "with _issues as(\n  SELECT\n    DATE_ADD(date(i.created_date), INTERVAL -DAY(date(i.created_date))+1 DAY) as time,\n    AVG(i.lead_time_minutes/1440) as issue_lead_time\n  FROM issues i\n  \tjoin board_issues bi on i.id = bi.issue_id\n  \tjoin boards b on bi.board_id = b.id\n  WHERE\n    b.id in ($repo_id)\n    and i.status = \"DONE\"\n    and $__timeFilter(i.created_date)\n  group by 1\n)\n\nSELECT \n  date_format(time,'%M %Y') as month,\n  issue_lead_time as \"Issue Lead Time\"\nFROM _issues\nORDER BY time\n",
           "refId": "A",
           "select": [
             [
@@ -607,8 +689,302 @@
           ]
         }
       ],
-      "title": "2.4 Mean Issue Lead Time [Each Month]",
+      "title": "2.4 Mean Issue Lead Time in Days [Issues Created in Each Month]",
       "type": "barchart"
+    },
+    {
+      "datasource": "mysql",
+      "description": "",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisLabel": "Queue Time (Days)",
+            "axisPlacement": "auto",
+            "axisSoftMin": 0,
+            "fillOpacity": 80,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineWidth": 1
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "none"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "<avg_bug_age"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "semi-dark-green",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": ">=avg_bug_age"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "red",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 6,
+        "w": 24,
+        "x": 0,
+        "y": 26
+      },
+      "id": 93,
+      "options": {
+        "barWidth": 0.1,
+        "groupWidth": 0.7,
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom"
+        },
+        "orientation": "auto",
+        "showValue": "auto",
+        "text": {},
+        "tooltip": {
+          "mode": "single"
+        }
+      },
+      "pluginVersion": "8.0.6",
+      "targets": [
+        {
+          "format": "table",
+          "group": [],
+          "metricColumn": "none",
+          "queryType": "randomWalk",
+          "rawQuery": true,
+          "rawSql": "-- Get the queue time of all backlog bugs\nwith _outstanding_issues as(\n  select \n    b.name as repo_name,\n    i.number as issue_key,\n    i.title,\n    i.created_date,\n    (TIMESTAMPDIFF(MINUTE, i.created_date,NOW()))/1440 as queue_time_in_days,\n    concat(b.url,'/',i.number) as url\n  from \n    issues i\n    left join board_issues bi on i.id = bi.issue_id\n    left join boards b on bi.board_id = b.id\n  where\n    b.id in ($repo_id)\n    and $__timeFilter(i.created_date)\n    and i.status != 'DONE'\n)\n\nselect title, queue_time_in_days from _outstanding_issues\norder by 2 desc",
+          "refId": "A",
+          "select": [
+            [
+              {
+                "params": [
+                  "id"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "table": "ae_projects",
+          "timeColumn": "ae_create_time",
+          "timeColumnType": "timestamp",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        }
+      ],
+      "title": "2.5 Queue Time in Days [All Open Issues]",
+      "type": "barchart"
+    },
+    {
+      "datasource": "mysql",
+      "description": "",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "custom": {
+            "align": "auto",
+            "displayMode": "auto"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "none"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "<avg_bug_age"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "semi-dark-green",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": ">=avg_bug_age"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "red",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "issue_key"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 110
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "title"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 590
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "created_date"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 149
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "queue_time_in_days"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 155
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "repo_name"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 256
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 6,
+        "w": 24,
+        "x": 0,
+        "y": 32
+      },
+      "id": 92,
+      "options": {
+        "showHeader": true,
+        "sortBy": []
+      },
+      "pluginVersion": "8.0.6",
+      "targets": [
+        {
+          "format": "table",
+          "group": [],
+          "metricColumn": "none",
+          "queryType": "randomWalk",
+          "rawQuery": true,
+          "rawSql": "-- Get the queue time of all backlog bugs\nselect \n  b.name as repo_name,\n  i.number as issue_key,\n  i.title,\n  i.created_date,\n  (TIMESTAMPDIFF(MINUTE, i.created_date,NOW()))/1440 as queue_time_in_days,\n  concat(b.url,'/',i.number) as url\nfrom \n  issues i\n  left join board_issues bi on i.id = bi.issue_id\n  left join boards b on bi.board_id = b.id\nwhere\n  b.id in ($repo_id)\n  and $__timeFilter(i.created_date)\n  and i.status != 'DONE'\norder by queue_time_in_days desc",
+          "refId": "A",
+          "select": [
+            [
+              {
+                "params": [
+                  "id"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "table": "ae_projects",
+          "timeColumn": "ae_create_time",
+          "timeColumnType": "timestamp",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        }
+      ],
+      "title": "2.6 List of Outstanding Issues Order By Queue Time [All Open Issues]",
+      "type": "table"
     },
     {
       "collapsed": false,
@@ -617,7 +993,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 20
+        "y": 38
       },
       "id": 83,
       "panels": [],
@@ -653,7 +1029,7 @@
         "h": 6,
         "w": 6,
         "x": 0,
-        "y": 21
+        "y": 39
       },
       "id": 68,
       "options": {
@@ -679,7 +1055,7 @@
           "hide": false,
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "select\n\tcount(*) as pull_request_count\nfrom \n\tpull_requests pr\nwhere\n  $__timeFilter(created_date)\n\tand repo_id in ($repo_id)\n\t\n\n",
+          "rawSql": "select\n\tcount(*) as pull_request_count\nfrom \n\tpull_requests pr\nwhere\n  $__timeFilter(created_date)\n\tand base_repo_id in ($repo_id)\n\t\n\n",
           "refId": "A",
           "select": [
             [
@@ -748,7 +1124,7 @@
         "h": 6,
         "w": 18,
         "x": 6,
-        "y": 21
+        "y": 39
       },
       "id": 77,
       "options": {
@@ -776,7 +1152,7 @@
           "hide": false,
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "with _prs as(\n  SELECT\n    DATE_ADD(date(created_date), INTERVAL -DAY(date(created_date))+1 DAY) as time,\n    count(*) as pr_count\n  FROM pull_requests\n  WHERE\n    repo_id in ($repo_id)\n    and $__timeFilter(created_date)\n  group by 1\n)\n\nSELECT \n  date_format(time,'%M %Y') as month,\n  pr_count as \"Pull Request Count\"\nFROM _prs\nORDER BY time\n",
+          "rawSql": "with _prs as(\n  SELECT\n    DATE_ADD(date(created_date), INTERVAL -DAY(date(created_date))+1 DAY) as time,\n    count(*) as pr_count\n  FROM pull_requests\n  WHERE\n    base_repo_id in ($repo_id)\n    and $__timeFilter(created_date)\n  group by 1\n)\n\nSELECT \n  date_format(time,'%M %Y') as month,\n  pr_count as \"Pull Request Count\"\nFROM _prs\nORDER BY time\n",
           "refId": "A",
           "select": [
             [
@@ -846,7 +1222,7 @@
         "h": 6,
         "w": 24,
         "x": 0,
-        "y": 27
+        "y": 45
       },
       "id": 59,
       "options": {
@@ -874,7 +1250,7 @@
           "hide": false,
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "select\n  author_name,\n\tcount(*) as merged_pull_request_count\nfrom \n\tpull_requests pr\nwhere\n  $__timeFilter(created_date)\n\tand repo_id in ($repo_id)\n\tand status = \"closed\"\n\tand merged_date is not null\ngroup by 1\norder by 2 desc\nlimit 20\n",
+          "rawSql": "select\n  author_name,\n\tcount(*) as merged_pull_request_count\nfrom \n\tpull_requests pr\nwhere\n  $__timeFilter(created_date)\n\tand base_repo_id in ($repo_id)\n\tand status = \"closed\"\n\tand merged_date is not null\ngroup by 1\norder by 2 desc\nlimit 20\n",
           "refId": "A",
           "select": [
             [
@@ -908,7 +1284,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 33
+        "y": 51
       },
       "id": 85,
       "panels": [],
@@ -945,7 +1321,7 @@
         "h": 6,
         "w": 6,
         "x": 0,
-        "y": 34
+        "y": 52
       },
       "id": 66,
       "options": {
@@ -969,7 +1345,7 @@
           "hide": false,
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "select\n  count(distinct case when status = 'closed' and merged_date is null then id else null end)/count(distinct case when status = 'closed' then id else null end) as ratio\nfrom \n\tpull_requests pr\nwhere\n  $__timeFilter(created_date)\n\tand repo_id in ($repo_id)",
+          "rawSql": "select\n  count(distinct case when status = 'closed' and merged_date is null then id else null end)/count(distinct case when status = 'closed' then id else null end) as ratio\nfrom \n\tpull_requests pr\nwhere\n  $__timeFilter(created_date)\n\tand base_repo_id in ($repo_id)",
           "refId": "A",
           "select": [
             [
@@ -1049,7 +1425,7 @@
         "h": 6,
         "w": 18,
         "x": 6,
-        "y": 34
+        "y": 52
       },
       "id": 79,
       "options": {
@@ -1072,7 +1448,7 @@
           "hide": false,
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "SELECT\n  DATE_ADD(date(created_date), INTERVAL -DAYOFMONTH(date(created_date))+1 DAY) as time,\n  count(distinct case when status != 'closed' then id else null end) as \"PR: Open\",\n  count(distinct case when status = 'closed' and merged_date is null then id else null end) as \"PR: Closed without merging\",\n  count(distinct case when status = 'closed' and merged_date is not null then id else null end) as \"PR: Closed and merged\"\nFROM pull_requests\nWHERE\n  $__timeFilter(created_date)\n  and repo_id in ($repo_id)\ngroup by 1\n",
+          "rawSql": "SELECT\n  DATE_ADD(date(created_date), INTERVAL -DAYOFMONTH(date(created_date))+1 DAY) as time,\n  count(distinct case when status != 'closed' then id else null end) as \"PR: Open\",\n  count(distinct case when status = 'closed' and merged_date is null then id else null end) as \"PR: Closed without merging\",\n  count(distinct case when status = 'closed' and merged_date is not null then id else null end) as \"PR: Closed and merged\"\nFROM pull_requests\nWHERE\n  $__timeFilter(created_date)\n  and base_repo_id in ($repo_id)\ngroup by 1\n",
           "refId": "A",
           "select": [
             [
@@ -1128,7 +1504,7 @@
         "h": 6,
         "w": 6,
         "x": 0,
-        "y": 40
+        "y": 58
       },
       "id": 80,
       "options": {
@@ -1154,7 +1530,7 @@
           "hide": false,
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "select\n\tcount(*) as merged_pull_request_count\nfrom \n\tpull_requests pr\nwhere\n  $__timeFilter(created_date)\n\tand repo_id in ($repo_id)\n\tand status = \"closed\"\n\tand merged_date is null",
+          "rawSql": "select\n\tcount(*) as merged_pull_request_count\nfrom \n\tpull_requests pr\nwhere\n  $__timeFilter(created_date)\n\tand base_repo_id in ($repo_id)\n\tand status = \"closed\"\n\tand merged_date is null",
           "refId": "A",
           "select": [
             [
@@ -1238,7 +1614,7 @@
         "h": 6,
         "w": 18,
         "x": 6,
-        "y": 40
+        "y": 58
       },
       "id": 81,
       "options": {
@@ -1261,7 +1637,7 @@
           "hide": false,
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "SELECT\n  DATE_ADD(date(created_date), INTERVAL -DAYOFMONTH(date(created_date))+1 DAY) as time,\n  count(distinct case when status = 'closed' and merged_date is null then id else null end)/count(distinct case when status = 'closed' then id else null end) as ratio\nFROM pull_requests\nWHERE\n  $__timeFilter(created_date)\n  and repo_id in ($repo_id)\ngroup by 1\n",
+          "rawSql": "SELECT\n  DATE_ADD(date(created_date), INTERVAL -DAYOFMONTH(date(created_date))+1 DAY) as time,\n  count(distinct case when status = 'closed' and merged_date is null then id else null end)/count(distinct case when status = 'closed' then id else null end) as ratio\nFROM pull_requests\nWHERE\n  $__timeFilter(created_date)\n  and base_repo_id in ($repo_id)\ngroup by 1\n",
           "refId": "A",
           "select": [
             [
@@ -1317,7 +1693,7 @@
         "h": 6,
         "w": 6,
         "x": 0,
-        "y": 46
+        "y": 64
       },
       "id": 72,
       "options": {
@@ -1343,7 +1719,7 @@
           "hide": false,
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "select\n\tavg(TIMESTAMPDIFF(DAY,created_date,merged_date))\nfrom \n\tpull_requests\nwhere \n  $__timeFilter(created_date)\n\tand repo_id in ($repo_id)\n\tand status = \"closed\"\n\tand merged_date is not null\n\n\n",
+          "rawSql": "select\n\tavg(TIMESTAMPDIFF(Minute,created_date,merged_date)/1440)\nfrom \n\tpull_requests\nwhere \n  $__timeFilter(created_date)\n\tand base_repo_id in ($repo_id)\n\tand merged_date is not null\n\n\n",
           "refId": "A",
           "select": [
             [
@@ -1412,9 +1788,9 @@
         "h": 6,
         "w": 18,
         "x": 6,
-        "y": 46
+        "y": 64
       },
-      "id": 78,
+      "id": 95,
       "options": {
         "barWidth": 0.5,
         "groupWidth": 0.7,
@@ -1440,7 +1816,7 @@
           "hide": false,
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "with _prs as(\n  SELECT\n    DATE_ADD(date(created_date), INTERVAL -DAY(date(created_date))+1 DAY) as time,\n    avg(TIMESTAMPDIFF(DAY,created_date,merged_date)) as time_to_merge\n  FROM pull_requests\n  WHERE\n    $__timeFilter(created_date)\n    and repo_id in ($repo_id)\n  group by 1\n)\n\nSELECT \n  date_format(time,'%M %Y') as month,\n  time_to_merge as \"Time to Merge\"\nFROM _prs\nORDER BY time\n",
+          "rawSql": "with _prs as(\n  SELECT\n    DATE_ADD(date(created_date), INTERVAL -DAY(date(created_date))+1 DAY) as time,\n    avg(TIMESTAMPDIFF(Minute,created_date,merged_date)/1440) as time_to_merge\n  FROM pull_requests\n  WHERE\n    $__timeFilter(created_date)\n    and base_repo_id in ($repo_id)\n  group by 1\n)\n\nSELECT \n  date_format(time,'%M %Y') as month,\n  time_to_merge as \"Time to Merge\"\nFROM _prs\nORDER BY time\n",
           "refId": "A",
           "select": [
             [
@@ -1466,6 +1842,183 @@
       ],
       "title": "4.6 Mean Time to Merge of Pull Requests in Days [Each Month]",
       "type": "barchart"
+    },
+    {
+      "datasource": "mysql",
+      "description": "",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 6,
+        "w": 6,
+        "x": 0,
+        "y": 70
+      },
+      "id": 96,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [],
+          "fields": "",
+          "values": false
+        },
+        "text": {},
+        "textMode": "auto"
+      },
+      "pluginVersion": "8.0.6",
+      "targets": [
+        {
+          "format": "table",
+          "group": [],
+          "hide": false,
+          "metricColumn": "none",
+          "rawQuery": true,
+          "rawSql": "select\n\tavg(TIMESTAMPDIFF(Minute,created_date,closed_date)/1440) as time_to_close\nfrom \n\tpull_requests\nwhere \n  $__timeFilter(created_date)\n\tand base_repo_id in ($repo_id)\n\tand status = 'closed'\n\n\n",
+          "refId": "A",
+          "select": [
+            [
+              {
+                "params": [
+                  "id"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "table": "ae_projects",
+          "timeColumn": "ae_create_time",
+          "timeColumnType": "timestamp",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        }
+      ],
+      "title": "4.7 Mean Time to Close of Pull Requests in Days [Selected Time Range]",
+      "type": "stat"
+    },
+    {
+      "datasource": "mysql",
+      "description": "",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "axisSoftMin": 0,
+            "fillOpacity": 80,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineWidth": 1
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 6,
+        "w": 18,
+        "x": 6,
+        "y": 70
+      },
+      "id": 97,
+      "options": {
+        "barWidth": 0.5,
+        "groupWidth": 0.7,
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom"
+        },
+        "orientation": "auto",
+        "showValue": "auto",
+        "text": {
+          "valueSize": 12
+        },
+        "tooltip": {
+          "mode": "single"
+        }
+      },
+      "pluginVersion": "8.0.6",
+      "targets": [
+        {
+          "format": "table",
+          "group": [],
+          "hide": false,
+          "metricColumn": "none",
+          "rawQuery": true,
+          "rawSql": "with _prs as(\n  SELECT\n    DATE_ADD(date(created_date), INTERVAL -DAY(date(created_date))+1 DAY) as time,\n    avg(TIMESTAMPDIFF(Minute,created_date,closed_date)/1440) as time_to_close\n  FROM pull_requests\n  WHERE\n    $__timeFilter(created_date)\n    and base_repo_id in ($repo_id)\n    and status = 'closed'\n  group by 1\n)\n\nSELECT \n  date_format(time,'%M %Y') as month,\n  time_to_close as \"Time to Close\"\nFROM _prs\nORDER BY time\n",
+          "refId": "A",
+          "select": [
+            [
+              {
+                "params": [
+                  "id"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "table": "ae_projects",
+          "timeColumn": "ae_create_time",
+          "timeColumnType": "timestamp",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        }
+      ],
+      "title": "4.8 Mean Time to Close of Pull Requests in Days [Each Month]",
+      "type": "barchart"
     }
   ],
   "refresh": "",
@@ -1486,7 +2039,7 @@
           ]
         },
         "datasource": "mysql",
-        "definition": "select concat(name, '-', id) as text from repos",
+        "definition": "select concat(name, '--', id) as text from repos",
         "description": null,
         "error": null,
         "hide": 0,
@@ -1495,9 +2048,9 @@
         "multi": true,
         "name": "repo_id",
         "options": [],
-        "query": "select concat(name, '-', id) as text from repos",
+        "query": "select concat(name, '--', id) as text from repos",
         "refresh": 1,
-        "regex": "/^(?<text>.*)-(?<value>.*)$/",
+        "regex": "/^(?<text>.*)--(?<value>.*)$/",
         "skipUrlSync": false,
         "sort": 0,
         "type": "query"
@@ -1510,7 +2063,7 @@
   },
   "timepicker": {},
   "timezone": "",
-  "title": "GitHub_Basic_Metrics",
-  "uid": "vlbSawU7z",
-  "version": 2
+  "title": "Github_Basic_Metrics",
+  "uid": "KXWvOFQnz",
+  "version": 7
 }
