@@ -2,6 +2,7 @@ package tasks
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"reflect"
 
@@ -14,12 +15,34 @@ import (
 const RAW_WORKLOGS_TABLE = "jira_api_worklogs"
 
 func CollectWorklogs(taskCtx core.SubTaskContext) error {
-	data := taskCtx.GetData().(*JiraTaskData)
-	logger := taskCtx.GetLogger()
 	db := taskCtx.GetDb()
+	data := taskCtx.GetData().(*JiraTaskData)
+	since := data.Since
+	incremental := false
+
+	if since == nil {
+		var latestUpdated models.JiraWorklog
+		err := db.Where("source_id = ?", data.Source.ID).Order("updated DESC").Limit(1).Find(&latestUpdated).Error
+		if err != nil {
+			return fmt.Errorf("failed to get latest jira issue worklog record: %w", err)
+		}
+		if latestUpdated.IssueId > 0 {
+			since = &latestUpdated.Updated
+			incremental = true
+		}
+	}
+
+	logger := taskCtx.GetLogger()
 	sourceId := data.Source.ID
 	boardId := data.Options.BoardId
-	cursor, err := db.Model(&models.JiraBoardIssue{}).Select("issue_id, NOW() AS update_time").Where("source_id = ? AND board_id = ?", sourceId, boardId).Rows()
+	tx := db.Model(&models.JiraIssue{}).
+		Joins("left join _tool_jira_board_issues on _tool_jira_issues.issue_id = _tool_jira_board_issues.issue_id").
+		Select("_tool_jira_board_issues.issue_id").Where("_tool_jira_board_issues.source_id = ? AND _tool_jira_board_issues.board_id = ?", sourceId, boardId)
+
+	if since != nil {
+		tx = tx.Where("_tool_jira_issues.updated > ?", since)
+	}
+	cursor, err := tx.Rows()
 	if err != nil {
 		return err
 	}
@@ -41,6 +64,7 @@ func CollectWorklogs(taskCtx core.SubTaskContext) error {
 		ApiClient:     data.ApiClient,
 		UrlTemplate:   "api/2/issue/{{ .Input.IssueId }}/worklog",
 		PageSize:      50,
+		Incremental:   incremental,
 		GetTotalPages: GetTotalPagesFromResponse,
 		ResponseParser: func(res *http.Response) ([]json.RawMessage, error) {
 			var data struct {
