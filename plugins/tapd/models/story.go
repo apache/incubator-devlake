@@ -37,10 +37,10 @@ type TapdStory struct {
 	ChildrenID      string     `gorm:"type:varchar(255)"`
 	AncestorID      uint64     `json:"ancestor_id"`
 	BusinessValue   string     `gorm:"type:varchar(255)"`
-	Effort          uint64     `json:"effort"`
-	EffortCompleted uint64     `json:"effort_completed"`
-	Exceed          uint64     `json:"exceed"`
-	Remain          uint64     `json:"remain"`
+	Effort          int        `json:"effort"`
+	EffortCompleted int        `json:"effort_completed"`
+	Exceed          int        `json:"exceed"`
+	Remain          int        `json:"remain"`
 	ReleaseID       uint64     `json:"release_id"`
 	Confidential    string     `gorm:"type:varchar(255)"`
 	TemplatedID     uint64     `json:"templated_id"`
@@ -49,6 +49,17 @@ type TapdStory struct {
 	StdStatus       string
 	StdType         string
 	Url             string
+
+	AttachmentCount  int
+	HasAttachment    string
+	BugID            uint64
+	SyncType         string
+	PredecessorCount int
+	IsArchived       string
+	Modifier         string
+	ProgressManual   string
+	SuccessorCount   int
+	Label            string
 	common.NoPKModel
 }
 
@@ -92,6 +103,18 @@ type TapdStoryApiRes struct {
 	TemplatedID     string `json:"templated_id"`
 	CreatedFrom     string `json:"created_from"`
 	Feature         string `json:"feature"`
+
+	AttachmentCount  string `json:"attachment_count"`
+	HasAttachment    string `json:"has_attachment"`
+	BugID            string `json:"bug_id"`
+	Follower         string `json:"follower"`
+	SyncType         string `json:"sync_type"`
+	PredecessorCount string `json:"predecessor_count"`
+	IsArchived       string `json:"is_archived"`
+	Modifier         string `json:"modifier"`
+	ProgressManual   string `json:"progress_manual"`
+	SuccessorCount   string `json:"successor_count"`
+	Label            string `json:"label"`
 }
 
 func (TapdStory) TableName() string {

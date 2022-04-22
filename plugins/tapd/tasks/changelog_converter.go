@@ -48,7 +48,7 @@ func ConvertChangelog(taskCtx core.SubTaskContext) error {
 				//CompanyId:   data.Source.CompanyId,
 				WorkspaceId: data.Options.WorkspaceId,
 			},
-			Table: "_tool_tapd_api_%_changelogs",
+			Table: "_tool_tapd_api_changelogs",
 		},
 		InputRowType: reflect.TypeOf(models.ChangelogTmp{}),
 		Input:        cursor,

@@ -74,6 +74,18 @@ type TapdBug struct {
 	StdType          string     `gorm:"type:varchar(255)"`
 	Type             string     `gorm:"type:varchar(255)"`
 	Url              string     `gorm:"type:varchar(255)"`
+
+	SupportID       uint64 `json:"support_id"`
+	SupportForumID  uint64 `json:"support_forum_id"`
+	TicketID        uint64 `json:"ticket_id"`
+	Follower        string `json:"follower"`
+	SyncType        string `json:"sync_type"`
+	Label           string `json:"label"`
+	Effort          int    `json:"effort"`
+	EffortCompleted int    `json:"effort_completed"`
+	Exceed          int    `json:"exceed"`
+	Remain          int    `json:"remain"`
+	Progress        string `json:"progress"`
 }
 
 func (TapdBug) TableName() string {

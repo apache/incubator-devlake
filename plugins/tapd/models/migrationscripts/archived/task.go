@@ -23,10 +23,10 @@ type TapdTask struct {
 	Priority        string     `gorm:"type:varchar(255)"`
 	IterationID     uint64     `json:"iteration_id"`
 	Completed       *time.Time `json:"completed"`
-	Effort          uint64     `json:"effort"`
-	EffortCompleted uint64     `json:"effort_completed"`
-	Exceed          uint64     `json:"exceed"`
-	Remain          uint64     `json:"remain"`
+	Effort          int        `json:"effort"`
+	EffortCompleted int        `json:"effort_completed"`
+	Exceed          int        `json:"exceed"`
+	Remain          int        `json:"remain"`
 	StdStatus       string
 	StdType         string
 	Type            string
@@ -34,6 +34,15 @@ type TapdTask struct {
 	Progress        int    `json:"progress"`
 	HasAttachment   string `gorm:"type:varchar(255)"`
 	Url             string
+
+	AttachmentCount  int    `json:"attachment_count"`
+	Follower         string `json:"follower"`
+	CreatedFrom      string `json:"created_from"`
+	PredecessorCount int    `json:"predecessor_count"`
+	SuccessorCount   int    `json:"successor_count"`
+	ReleaseId        uint64 `json:"release_id"`
+	Label            string `json:"label"`
+	NewStoryId       uint64 `json:"new_story_id"`
 	common.NoPKModel
 }
 

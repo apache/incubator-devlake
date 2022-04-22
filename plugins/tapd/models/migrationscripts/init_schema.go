@@ -31,6 +31,7 @@ func (*InitSchemas) Up(ctx context.Context, db *gorm.DB) error {
 		&archived.TapdBug{},
 		&archived.TapdStory{},
 		&archived.TapdTask{},
+		&archived.TapdIssueLabel{},
 	)
 }
 

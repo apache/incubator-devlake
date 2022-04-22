@@ -74,6 +74,18 @@ type TapdBug struct {
 	StdType          string
 	Type             string
 	Url              string
+
+	SupportID       uint64 `json:"support_id"`
+	SupportForumID  uint64 `json:"support_forum_id"`
+	TicketID        uint64 `json:"ticket_id"`
+	Follower        string `json:"follower"`
+	SyncType        string `json:"sync_type"`
+	Label           string `json:"label"`
+	Effort          int    `json:"effort"`
+	EffortCompleted int    `json:"effort_completed"`
+	Exceed          int    `json:"exceed"`
+	Remain          int    `json:"remain"`
+	Progress        string `json:"progress"`
 }
 
 type TapdBugApiRes struct {
@@ -140,6 +152,18 @@ type TapdBugApiRes struct {
 	AssignedTime     string `json:"assigned_time"`
 	TemplateID       string `json:"template_id"`
 	StoryID          string `json:"story_id"`
+
+	SupportID       string `json:"support_id"`
+	SupportForumID  string `json:"support_forum_id"`
+	TicketID        string `json:"ticket_id"`
+	Follower        string `json:"follower"`
+	SyncType        string `json:"sync_type"`
+	Label           string `json:"label"`
+	Effort          string `json:"effort"`
+	EffortCompleted string `json:"effort_completed"`
+	Exceed          string `json:"exceed"`
+	Remain          string `json:"remain"`
+	Progress        string `json:"progress"`
 }
 
 func (TapdBug) TableName() string {

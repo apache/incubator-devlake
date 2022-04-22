@@ -99,6 +99,16 @@ func ExtractBugs(taskCtx core.SubTaskContext) error {
 				}
 				results = append(results, iterationIssue)
 			}
+			if toolL.Label != "" {
+				labelList := strings.Split(toolL.Label, "|")
+				for _, v := range labelList {
+					toolLIssueLabel := &models.TapdIssueLabel{
+						IssueId:   toolL.ID,
+						LabelName: v,
+					}
+					results = append(results, toolLIssueLabel)
+				}
+			}
 			return results, nil
 		},
 	})
