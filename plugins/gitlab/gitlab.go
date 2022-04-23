@@ -11,6 +11,7 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 	"gorm.io/gorm"
+	_ "net/http/pprof"
 )
 
 var _ core.PluginMeta = (*Gitlab)(nil)
