@@ -63,13 +63,16 @@ func NewGormDb(config *viper.Viper, logger core.Logger) (*gorm.DB, error) {
 		// most of our operation are in batch, this can improve performance
 		PrepareStmt: true,
 	}
-	dbType := config.GetString("DB_MAX_CONNS")
+	dbType := config.GetString("DB_TYPE")
 	var db *gorm.DB
 	var err error
 	if dbType == "postgresql" {
 		db, err = gorm.Open(postgres.Open(dbUrl), dbConfig)
 	} else {
 		db, err = gorm.Open(mysql.Open(dbUrl), dbConfig)
+	}
+	if err != nil {
+		return nil, err
 	}
 	sqlDB, err := db.DB()
 	if err != nil {
