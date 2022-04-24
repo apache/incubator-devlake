@@ -14,6 +14,7 @@ import (
 	"github.com/merico-dev/lake/models"
 	"github.com/merico-dev/lake/plugins/core"
 	"github.com/merico-dev/lake/runner"
+	"gorm.io/gorm"
 )
 
 var taskLog = logger.Global.Nested("task service")
@@ -166,8 +167,11 @@ func GetTasks(query *TaskQuery) ([]models.Task, int64, error) {
 
 func GetTask(taskId uint64) (*models.Task, error) {
 	task := &models.Task{}
-	err := db.Find(task, taskId).Error
+	err := db.First(task, taskId).Error
 	if err != nil {
+		if err == gorm.ErrRecordNotFound {
+			return nil, errors.NewNotFound("task not found")
+		}
 		return nil, err
 	}
 	return task, nil

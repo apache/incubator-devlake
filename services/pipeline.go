@@ -15,6 +15,7 @@ import (
 	v11 "go.temporal.io/api/enums/v1"
 	"go.temporal.io/sdk/client"
 	"go.temporal.io/sdk/converter"
+	"gorm.io/gorm"
 )
 
 var notificationService *NotificationService
@@ -148,8 +149,11 @@ func GetPipelines(query *PipelineQuery) ([]*models.Pipeline, int64, error) {
 
 func GetPipeline(pipelineId uint64) (*models.Pipeline, error) {
 	pipeline := &models.Pipeline{}
-	err := db.Find(pipeline, pipelineId).Error
+	err := db.First(pipeline, pipelineId).Error
 	if err != nil {
+		if err == gorm.ErrRecordNotFound {
+			return nil, errors.NewNotFound("pipeline not found")
+		}
 		return nil, err
 	}
 	return pipeline, nil
