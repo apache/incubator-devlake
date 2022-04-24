@@ -9,24 +9,19 @@ import (
 	"github.com/merico-dev/lake/plugins/helper"
 )
 
-var ConvertIssueLabelsMeta = core.SubTaskMeta{
-	Name:             "convertIssueLabels",
-	EntryPoint:       ConvertIssueLabels,
+var ConvertBugLabelsMeta = core.SubTaskMeta{
+	Name:             "convertBugLabels",
+	EntryPoint:       ConvertBugLabels,
 	EnabledByDefault: true,
 	Description:      "Convert tool layer table tapd_issue_labels into  domain layer table issue_labels",
 }
 
-func ConvertIssueLabels(taskCtx core.SubTaskContext) error {
+func ConvertBugLabels(taskCtx core.SubTaskContext) error {
 	db := taskCtx.GetDb()
 	data := taskCtx.GetData().(*TapdTaskData)
 
-	err := db.Model(&models.TapdIssueLabel{}).Where("_raw_data_table like ?", "_raw_tapd_api_%").
-		Update("_raw_data_table", "_raw_tapd_api_issues").Error
-	if err != nil {
-		return err
-	}
-	cursor, err := db.Model(&models.TapdIssueLabel{}).
-		Joins(`left join _tool_tapd_workspace_issues on _tool_tapd_workspace_issues.issue_id = _tool_tapd_issue_labels.issue_id`).
+	cursor, err := db.Model(&models.TapdBugLabel{}).
+		Joins(`left join _tool_tapd_workspace_issues on _tool_tapd_workspace_issues.issue_id = _tool_tapd_bug_labels.bug_id`).
 		Where("_tool_tapd_workspace_issues.workspace_id = ?", data.Source.WorkspaceId).
 		Order("issue_id ASC").
 		Rows()
@@ -43,18 +38,18 @@ func ConvertIssueLabels(taskCtx core.SubTaskContext) error {
 				//CompanyId:   data.Source.CompanyId,
 				WorkspaceId: data.Options.WorkspaceId,
 			},
-			Table: "tapd_api_issues",
+			Table: RAW_BUG_TABLE,
 		},
-		InputRowType: reflect.TypeOf(models.TapdIssueLabel{}),
+		InputRowType: reflect.TypeOf(models.TapdBugLabel{}),
 		Input:        cursor,
 		Convert: func(inputRow interface{}) ([]interface{}, error) {
-			issueLabel := inputRow.(*models.TapdIssueLabel)
-			domainIssueLabel := &ticket.IssueLabel{
-				IssueId:   IssueIdGen.Generate(issueLabel.IssueId),
+			issueLabel := inputRow.(*models.TapdBugLabel)
+			domainBugLabel := &ticket.IssueLabel{
+				IssueId:   IssueIdGen.Generate(issueLabel.BugId),
 				LabelName: issueLabel.LabelName,
 			}
 			return []interface{}{
-				domainIssueLabel,
+				domainBugLabel,
 			}, nil
 		},
 	})

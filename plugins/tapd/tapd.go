@@ -62,7 +62,9 @@ func (plugin Tapd) SubTaskMetas() []core.SubTaskMeta {
 		tasks.ConvertWorklogMeta,
 		tasks.ConvertChangelogMeta,
 		tasks.ConvertIssueCommitMeta,
-		tasks.ConvertIssueLabelsMeta,
+		tasks.ConvertStoryLabelsMeta,
+		tasks.ConvertTaskLabelsMeta,
+		tasks.ConvertBugLabelsMeta,
 	}
 }
 

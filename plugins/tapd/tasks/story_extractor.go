@@ -101,8 +101,8 @@ func ExtractStories(taskCtx core.SubTaskContext) error {
 			if toolL.Label != "" {
 				labelList := strings.Split(toolL.Label, "|")
 				for _, v := range labelList {
-					toolLIssueLabel := &models.TapdIssueLabel{
-						IssueId:   toolL.ID,
+					toolLIssueLabel := &models.TapdStoryLabel{
+						StoryId:   toolL.ID,
 						LabelName: v,
 					}
 					results = append(results, toolLIssueLabel)
