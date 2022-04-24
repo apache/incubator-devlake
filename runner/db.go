@@ -13,6 +13,7 @@ import (
 	"github.com/merico-dev/lake/plugins/core"
 	"github.com/spf13/viper"
 	"gorm.io/driver/mysql"
+	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 	gormLogger "gorm.io/gorm/logger"
 )
@@ -49,7 +50,7 @@ func NewGormDb(config *viper.Viper, logger core.Logger) (*gorm.DB, error) {
 		dbMaxOpenConns = 100
 	}
 
-	db, err := gorm.Open(mysql.Open(dbUrl), &gorm.Config{
+	dbConfig := &gorm.Config{
 		Logger: gormLogger.New(
 			logger,
 			gormLogger.Config{
@@ -61,9 +62,14 @@ func NewGormDb(config *viper.Viper, logger core.Logger) (*gorm.DB, error) {
 		),
 		// most of our operation are in batch, this can improve performance
 		PrepareStmt: true,
-	})
-	if err != nil {
-		return nil, err
+	}
+	dbType := config.GetString("DB_MAX_CONNS")
+	var db *gorm.DB
+	var err error
+	if dbType == "postgresql" {
+		db, err = gorm.Open(postgres.Open(dbUrl), dbConfig)
+	} else {
+		db, err = gorm.Open(mysql.Open(dbUrl), dbConfig)
 	}
 	sqlDB, err := db.DB()
 	if err != nil {

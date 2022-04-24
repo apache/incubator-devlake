@@ -13,7 +13,7 @@ type JenkinsBuild struct {
 	Duration          float64 // build time
 	DisplayName       string  `gorm:"type:varchar(255)"` // "#7"
 	EstimatedDuration float64
-	Number            int64 `gorm:"primaryKey;type:INT(10) UNSIGNED NOT NULL"`
+	Number            int64 `gorm:"primaryKey"`
 	Result            string
 	Timestamp         int64     // start time
 	StartTime         time.Time // convered by timestamp
