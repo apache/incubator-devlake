@@ -9,6 +9,7 @@ import (
 	"github.com/merico-dev/lake/logger"
 	"github.com/merico-dev/lake/models"
 	"github.com/robfig/cron/v3"
+	"gorm.io/gorm"
 )
 
 type BlueprintQuery struct {
@@ -61,8 +62,11 @@ func GetBlueprints(query *BlueprintQuery) ([]*models.Blueprint, int64, error) {
 
 func GetBlueprint(blueprintId uint64) (*models.Blueprint, error) {
 	blueprint := &models.Blueprint{}
-	err := db.Find(blueprint, blueprintId).Error
+	err := db.First(blueprint, blueprintId).Error
 	if err != nil {
+		if err == gorm.ErrRecordNotFound {
+			return nil, errors.NewNotFound("blueprint not found")
+		}
 		return nil, err
 	}
 	return blueprint, nil

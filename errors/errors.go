@@ -25,6 +25,10 @@ func NewError(status int, message string) *Error {
 	}
 }
 
+func NewNotFound(message string) *Error {
+	return NewError(http.StatusNotFound, message)
+}
+
 var InternalError = NewError(http.StatusInternalServerError, "Server Internal Error")
 
 // Deprecated: use ctx.Err() instead
