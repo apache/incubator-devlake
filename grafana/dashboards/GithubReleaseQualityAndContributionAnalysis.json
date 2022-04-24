@@ -16,7 +16,7 @@
   "gnetId": null,
   "graphTooltip": 0,
   "id": 11,
-  "iteration": 1650636611699,
+  "iteration": 1650642496197,
   "links": [],
   "panels": [
     {
@@ -2281,7 +2281,7 @@
   },
   "timepicker": {},
   "timezone": "",
-  "title": "New_GitHub_Release_Quality_and_Contribution_Analysis",
+  "title": "GitHub_Release_Quality_and_Contribution_Analysis",
   "uid": "2xuOaQUnk1",
-  "version": 50
+  "version": 51
 }
