@@ -44,6 +44,13 @@ func populate(v reflect.Value, value reflect.Value) error {
 		}
 		v.Set(reflect.ValueOf(finalV))
 		break
+	case "time.Time":
+		finalV, err := core.ConvertStringToTime(value.String())
+		if err != nil {
+			return err
+		}
+		v.Set(reflect.ValueOf(finalV))
+		break
 	case "int":
 		finalV, err := AtoIIgnoreEmpty(value.String())
 		if err != nil {

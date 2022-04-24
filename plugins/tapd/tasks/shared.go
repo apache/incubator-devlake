@@ -43,25 +43,22 @@ func GetTotalPagesFromResponse(r *http.Response, args *helper.ApiCollectorArgs) 
 	return totalPage, err
 }
 
-func parseIterationChangelog(taskCtx core.SubTaskContext, item *models.TapdChangelogItem) (*models.TapdChangelogItem, error) {
+func parseIterationChangelog(taskCtx core.SubTaskContext, old string, new string) (uint64, uint64, error) {
 	data := taskCtx.GetData().(*TapdTaskData)
 	db := taskCtx.GetDb()
 	iterationFrom := &models.TapdIteration{}
 	err := db.Model(&models.TapdIteration{}).
 		Where("source_id = ? and workspace_id = ? and name = ?",
-			data.Source.ID, data.Options.WorkspaceId, item.ValueBeforeParsed).Limit(1).Find(iterationFrom).Error
+			data.Source.ID, data.Options.WorkspaceId, old).Limit(1).Find(iterationFrom).Error
 	if err != nil {
-		return nil, err
+		return 0, 0, err
 	}
-	item.IterationIdFrom = iterationFrom.ID
-
 	iterationTo := &models.TapdIteration{}
 	err = db.Model(&models.TapdIteration{}).
 		Where("source_id = ? and workspace_id = ? and name = ?",
-			data.Source.ID, data.Options.WorkspaceId, item.ValueAfterParsed).Limit(1).Find(iterationTo).Error
+			data.Source.ID, data.Options.WorkspaceId, new).Limit(1).Find(iterationTo).Error
 	if err != nil {
-		return nil, err
+		return 0, 0, err
 	}
-	item.IterationIdTo = iterationTo.ID
-	return item, nil
+	return iterationFrom.ID, iterationTo.ID, nil
 }

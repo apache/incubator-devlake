@@ -8,18 +8,13 @@ import (
 	"github.com/merico-dev/lake/plugins/tapd/models"
 	"net/http"
 	"net/url"
-	"reflect"
 )
 
-const RAW_CHANGELOG_TABLE = "tapd_api_changelogs"
+const RAW_BUG_CHANGELOG_TABLE = "tapd_api_bug_changelogs"
 
-var _ core.SubTaskEntryPoint = CollectChangelogs
+var _ core.SubTaskEntryPoint = CollectBugChangelogs
 
-type Type struct {
-	Type string
-}
-
-func CollectChangelogs(taskCtx core.SubTaskContext) error {
+func CollectBugChangelogs(taskCtx core.SubTaskContext) error {
 	data := taskCtx.GetData().(*TapdTaskData)
 	db := taskCtx.GetDb()
 	logger := taskCtx.GetLogger()
@@ -28,24 +23,17 @@ func CollectChangelogs(taskCtx core.SubTaskContext) error {
 	incremental := false
 	if since == nil {
 		// user didn't specify a time range to sync, try load from database
-		var latestUpdated models.TapdChangelog
+		var latestUpdated models.TapdBugChangelog
 		err := db.Where("source_id = ?", data.Source.ID).Order("created DESC").Limit(1).Find(&latestUpdated).Error
 		if err != nil {
 			return fmt.Errorf("failed to get latest jira changelog record: %w", err)
 		}
 		if latestUpdated.ID > 0 {
-			since = latestUpdated.Created
+			since = &latestUpdated.Created
 			incremental = true
 		}
 	}
-	cursor, err := db.Raw("select 'task' as 'type' UNION select 'story' as 'type' UNION select 'bug' as 'type'").Rows()
-	if err != nil {
-		return err
-	}
-	iterator, err := helper.NewCursorIterator(db, cursor, reflect.TypeOf(Type{}))
-	if err != nil {
-		return err
-	}
+
 	collector, err := helper.NewApiCollector(helper.ApiCollectorArgs{
 		RawDataSubTaskArgs: helper.RawDataSubTaskArgs{
 			Ctx: taskCtx,
@@ -54,13 +42,12 @@ func CollectChangelogs(taskCtx core.SubTaskContext) error {
 				//CompanyId: data.Options.CompanyId,
 				WorkspaceId: data.Options.WorkspaceId,
 			},
-			Table: RAW_CHANGELOG_TABLE,
+			Table: RAW_BUG_CHANGELOG_TABLE,
 		},
 		Incremental: incremental,
-		Input:       iterator,
 		ApiClient:   data.ApiClient,
 		PageSize:    100,
-		UrlTemplate: "{{ .Input.Type }}_changes",
+		UrlTemplate: "bug_changes",
 		Query: func(reqData *helper.RequestData) (url.Values, error) {
 			query := url.Values{}
 			query.Set("workspace_id", fmt.Sprintf("%v", data.Options.WorkspaceId))
@@ -88,9 +75,9 @@ func CollectChangelogs(taskCtx core.SubTaskContext) error {
 	return collector.Execute()
 }
 
-var CollectChangelogMeta = core.SubTaskMeta{
-	Name:        "collectStoryChangelogs",
-	EntryPoint:  CollectChangelogs,
+var CollectBugChangelogMeta = core.SubTaskMeta{
+	Name:        "collectBugChangelogs",
+	EntryPoint:  CollectBugChangelogs,
 	Required:    true,
-	Description: "collect Tapd storyChangelogs",
+	Description: "collect Tapd bugChangelogs",
 }
