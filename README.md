@@ -134,7 +134,7 @@ Support for database schema migration was introduced to DevLake in v0.10.0. From
 
     * `DB_URL`: Replace `mysql:3306` with `127.0.0.1:3306`
 
-5. Start the MySQL and Grafana containers:
+6. Start the MySQL and Grafana containers:
 
     > Make sure the Docker daemon is running before this step.
 
@@ -142,7 +142,7 @@ Support for database schema migration was introduced to DevLake in v0.10.0. From
     docker-compose up -d mysql grafana
     ```
 
-6. Run lake and config UI in dev mode in two seperate terminals:
+7. Run lake and config UI in dev mode in two seperate terminals:
 
     ```sh
     # run lake
@@ -151,7 +151,7 @@ Support for database schema migration was introduced to DevLake in v0.10.0. From
     make configure-dev
     ```
 
-7. Visit config UI at `localhost:4000` to configure data sources.
+8. Visit config UI at `localhost:4000` to configure data sources.
    >- Navigate to desired plugins pages on the Integrations page
    >- You will need to enter the required information for the plugins you intend to use.
    >- Please reference the following for more details on how to configure each one:
@@ -162,7 +162,7 @@ Support for database schema migration was introduced to DevLake in v0.10.0. From
 
    >- Submit the form to update the values by clicking on the **Save Connection** button on each form page
 
-8. Visit `localhost:4000/pipelines/create` to RUN a Pipeline and trigger data collection.
+9. Visit `localhost:4000/pipelines/create` to RUN a Pipeline and trigger data collection.
 
 
    Pipelines Runs can be initiated by the new "Create Run" Interface. Simply enable the **Data Source Providers** you wish to run collection for, and specify the data you want to collect, for instance, **Project ID** for Gitlab and **Repository Name** for GitHub.
@@ -192,17 +192,17 @@ Support for database schema migration was introduced to DevLake in v0.10.0. From
     ]
     ```
 
-   Please refer to this wiki [How to trigger data collection](https://github.com/merico-dev/lake/wiki/How-to-use-the-triggers-page).
+   Please refer to [Pipeline Advanced Mode](docs/create-pipeline-advanced-mode.md) for in-depth explanation.
 
 
-9. Click *View Dashboards* button in the top left when done, or visit `localhost:3002` (username: `admin`, password: `admin`).
+10. Click *View Dashboards* button in the top left when done, or visit `localhost:3002` (username: `admin`, password: `admin`).
 
    We use <a href="https://grafana.com/" target="_blank">Grafana</a> as a visualization tool to build charts for the <a href="https://github.com/merico-dev/lake/wiki/DataModel.Domain-layer-schema">data stored in our database</a>. Using SQL queries, we can add panels to build, save, and edit customized dashboards.
 
    All the details on provisioning and customizing a dashboard can be found in the [Grafana Doc](docs/GRAFANA.md).
 
 
-10. (Optional) To run the tests:
+11. (Optional) To run the tests:
 
     ```sh
     make test
