@@ -17,6 +17,9 @@ func NewDefaultLogger(log *logrus.Logger, prefix string) *DefaultLogger {
 }
 
 func (l *DefaultLogger) IsLevelEnabled(level core.LogLevel) bool {
+	if l.log == nil {
+		return false
+	}
 	return l.log.IsLevelEnabled(logrus.Level(level))
 }
 
