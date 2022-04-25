@@ -51,10 +51,17 @@ type GithubApiPullRequest struct {
 
 func ExtractApiPullRequests(taskCtx core.SubTaskContext) error {
 	data := taskCtx.GetData().(*GithubTaskData)
+	config := data.Options.Config
 	var labelTypeRegex *regexp.Regexp
 	var labelComponentRegex *regexp.Regexp
-	var prType = taskCtx.GetConfig("GITHUB_PR_TYPE")
-	var prComponent = taskCtx.GetConfig("GITHUB_PR_COMPONENT")
+	var prType = config.GITHUB_PR_TYPE
+	if prType == "" {
+		prType = taskCtx.GetConfig("GITHUB_PR_TYPE")
+	}
+	var prComponent = config.GITHUB_PR_COMPONENT
+	if prComponent == "" {
+		prComponent = taskCtx.GetConfig("GITHUB_PR_COMPONENT")
+	}
 	if len(prType) > 0 {
 		labelTypeRegex = regexp.MustCompile(prType)
 	}
