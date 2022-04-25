@@ -65,8 +65,8 @@ func (c *DateInterator) HasNext() bool {
 func (c *DateInterator) Fetch() (interface{}, error) {
 	c.Current++
 	return &DatePair{
-		PairStartTime: c.startTime.AddDate(0, 0, -c.Current),
-		PairEndTime:   c.endTime.AddDate(0, 0, -c.Current),
+		PairStartTime: c.startTime.AddDate(0, 0, c.Current),
+		PairEndTime:   c.endTime.AddDate(0, 0, c.Current),
 	}, nil
 
 }

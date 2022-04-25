@@ -58,15 +58,7 @@ func GetRawMessageFromResponse(res *http.Response) ([]json.RawMessage, error) {
 func GetQuery(reqData *helper.RequestData) (url.Values, error) {
 	query := url.Values{}
 	query.Set("with_stats", "true")
-	query.Set("page", strconv.Itoa(reqData.Pager.Page))
-	query.Set("per_page", strconv.Itoa(reqData.Pager.Size))
-	return query, nil
-}
-
-func GetQueryOrder(reqData *helper.RequestData) (url.Values, error) {
-	query := url.Values{}
-	query.Set("order_by", "updated_at")
-	query.Set("sort", "desc")
+	query.Set("sort", "asc")
 	query.Set("page", strconv.Itoa(reqData.Pager.Page))
 	query.Set("per_page", strconv.Itoa(reqData.Pager.Size))
 	return query, nil
