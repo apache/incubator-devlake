@@ -115,8 +115,10 @@ func (apiClient *ApiAsyncClient) DoAsync(
 		res, err = apiClient.Do(method, path, query, body, header)
 		if err == nil {
 			body, err = ioutil.ReadAll(res.Body)
-			res.Body.Close()
-			res.Body = io.NopCloser(bytes.NewBuffer(body))
+			if err == nil {
+				res.Body.Close()
+				res.Body = io.NopCloser(bytes.NewBuffer(body))
+			}
 		}
 		// it make sense to retry on request failure, but not error from handler and canceled error
 		if err != nil {
