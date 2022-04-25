@@ -88,6 +88,16 @@ func CreateAsyncApiClient(
 	}, nil
 }
 
+func (apiClient *ApiAsyncClient) GetMaxRetry() int {
+	return apiClient.maxRetry
+}
+
+func (apiClient *ApiAsyncClient) SetMaxRetry(
+	maxRetry int,
+) {
+	apiClient.maxRetry = maxRetry
+}
+
 func (apiClient *ApiAsyncClient) DoAsync(
 	method string,
 	path string,
