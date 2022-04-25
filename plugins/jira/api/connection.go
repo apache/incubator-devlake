@@ -41,7 +41,7 @@ func TestConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, erro
 	apiClient, err := helper.NewApiClient(
 		connection.Endpoint,
 		map[string]string{
-			"Authorization": fmt.Sprintf("Bearer %v", connection.Auth),
+			"Authorization": fmt.Sprintf("Basic %v", connection.Auth),
 		},
 		3*time.Second,
 		connection.Proxy,
