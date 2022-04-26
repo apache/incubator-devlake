@@ -25,49 +25,35 @@ func DbtConverter(taskCtx core.SubTaskContext) error {
 	projectTarget := data.Options.ProjectTarget
 	projectVars := data.Options.ProjectVars
 
-	dbType := "mysql"
-	var dbUsername string
-	var dbPassword string
-	var dbServer string
-	var dbPort string
-	var dbDataBase string
+	dbUrl := taskCtx.GetConfig("DB_URL")
+	u, err := url.Parse(dbUrl)
+	if err != nil {
+		return err
+	}
+
+	dbType := u.Scheme
+	dbUsername := u.User.Username()
+	dbPassword, _ := u.User.Password()
+	dbServer, dbPort, _ := net.SplitHostPort(u.Host)
+	dbDataBase := u.Path[1:]
 	var dbSchema string
 
-	dbUrl := taskCtx.GetConfig("DB_URL")
-	flag := strings.Contains(dbUrl, "://")
+	flag := strings.Contains(dbUrl, "mysql")
 	if flag {
+		// mysql database
+		dbSchema = dbDataBase
+	} else {
 		// other database
-		u, err := url.Parse(dbUrl)
-		if err != nil {
-			return err
-		}
-		dbType = u.Scheme
-		dbUsername = u.User.Username()
-		dbPassword, _ = u.User.Password()
-		dbServer, dbPort, _ = net.SplitHostPort(u.Host)
-		dbDataBase = u.Path[1:]
 		mapQuery, _ := url.ParseQuery(u.RawQuery)
 		if value, ok := mapQuery["search_path"]; ok{
 			dbSchema = value[0]
 		}else{
 			dbSchema = "public"
 		}
-
-	} else {
-		// mysql database
-		dbSlice := strings.FieldsFunc(dbUrl, func(r rune) bool { return strings.ContainsRune(":@()/?", r) })
-		if len(dbSlice) < 6 {
-			return fmt.Errorf("DB_URL data parsing error, please check the DB_URL value in .env file")
-		}
-		dbUsername = dbSlice[0]
-		dbPassword = dbSlice[1]
-		dbServer = dbSlice[3]
-		dbPort = dbSlice[4]
-		dbDataBase = dbSlice[5]
-		dbSchema = dbDataBase
+		fmt.Println(mapQuery)
 	}
 
-	err := os.Chdir(projectPath)
+	err = os.Chdir(projectPath)
 	if err != nil {
 		return err
 	}
@@ -80,13 +66,13 @@ func DbtConverter(taskCtx core.SubTaskContext) error {
 	config.Set(projectName+".outputs."+projectTarget+".password", dbPassword)
 	config.Set(projectName+".outputs."+projectTarget+".schema", dbSchema)
 	if flag {
-		config.Set(projectName+".outputs."+projectTarget+".host", dbServer)
-		config.Set(projectName+".outputs."+projectTarget+".user", dbUsername)
-		config.Set(projectName+".outputs."+projectTarget+".dbname", dbDataBase)
-	} else {
 		config.Set(projectName+".outputs."+projectTarget+".server", dbServer)
 		config.Set(projectName+".outputs."+projectTarget+".username", dbUsername)
 		config.Set(projectName+".outputs."+projectTarget+".database", dbDataBase)	
+	} else {
+		config.Set(projectName+".outputs."+projectTarget+".host", dbServer)
+		config.Set(projectName+".outputs."+projectTarget+".user", dbUsername)
+		config.Set(projectName+".outputs."+projectTarget+".dbname", dbDataBase)
 	}
 		
 	err = config.WriteConfigAs("profiles.yml")
