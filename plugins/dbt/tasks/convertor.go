@@ -31,7 +31,8 @@ func DbtConverter(taskCtx core.SubTaskContext) error {
 	var dbServer string
 	var dbPort string
 	var dbDataBase string
-	
+	var dbSchema string
+
 	dbUrl := taskCtx.GetConfig("DB_URL")
 	flag := strings.Contains(dbUrl, "://")
 	if flag {
@@ -45,6 +46,13 @@ func DbtConverter(taskCtx core.SubTaskContext) error {
 		dbPassword, _ = u.User.Password()
 		dbServer, dbPort, _ = net.SplitHostPort(u.Host)
 		dbDataBase = u.Path[1:]
+		mapQuery, _ := url.ParseQuery(u.RawQuery)
+		if value, ok := mapQuery["search_path"]; ok{
+			dbSchema = value[0]
+		}else{
+			dbSchema = "public"
+		}
+
 	} else {
 		// mysql database
 		dbSlice := strings.FieldsFunc(dbUrl, func(r rune) bool { return strings.ContainsRune(":@()/?", r) })
@@ -56,6 +64,7 @@ func DbtConverter(taskCtx core.SubTaskContext) error {
 		dbServer = dbSlice[3]
 		dbPort = dbSlice[4]
 		dbDataBase = dbSlice[5]
+		dbSchema = dbDataBase
 	}
 
 	err := os.Chdir(projectPath)
@@ -65,10 +74,11 @@ func DbtConverter(taskCtx core.SubTaskContext) error {
 	config := viper.New()
 	config.Set(projectName+".target", projectTarget)
 	config.Set(projectName+".outputs."+projectTarget+".type", dbType)
-	config.Set(projectName+".outputs."+projectTarget+".schema", dbDataBase)
+	
 	dbPortInt, _ := strconv.Atoi(dbPort)
 	config.Set(projectName+".outputs."+projectTarget+".port", dbPortInt)
 	config.Set(projectName+".outputs."+projectTarget+".password", dbPassword)
+	config.Set(projectName+".outputs."+projectTarget+".schema", dbSchema)
 	if flag {
 		config.Set(projectName+".outputs."+projectTarget+".host", dbServer)
 		config.Set(projectName+".outputs."+projectTarget+".user", dbUsername)
@@ -76,7 +86,7 @@ func DbtConverter(taskCtx core.SubTaskContext) error {
 	} else {
 		config.Set(projectName+".outputs."+projectTarget+".server", dbServer)
 		config.Set(projectName+".outputs."+projectTarget+".username", dbUsername)
-		config.Set(projectName+".outputs."+projectTarget+".database", dbDataBase)
+		config.Set(projectName+".outputs."+projectTarget+".database", dbDataBase)	
 	}
 		
 	err = config.WriteConfigAs("profiles.yml")
