@@ -13,6 +13,7 @@ import (
 	"github.com/merico-dev/lake/api/push"
 	"github.com/merico-dev/lake/api/shared"
 	"github.com/merico-dev/lake/api/task"
+	"github.com/merico-dev/lake/api/version"
 	"github.com/merico-dev/lake/plugins/core"
 	"github.com/merico-dev/lake/services"
 )
@@ -29,6 +30,7 @@ func RegisterRouter(r *gin.Engine) {
 	r.PATCH("/blueprints/:blueprintId", blueprints.Patch)
 	r.GET("/pipelines/:pipelineId/tasks", task.Index)
 	r.GET("/ping", ping.Get)
+	r.GET("/version", version.Get)
 	r.POST("/push/:tableName", push.Post)
 	r.GET("/domainlayer/repos", domainlayer.ReposIndex)
 

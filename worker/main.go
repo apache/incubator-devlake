@@ -6,6 +6,7 @@ import (
 	"github.com/merico-dev/lake/config"
 	"github.com/merico-dev/lake/logger"
 	"github.com/merico-dev/lake/runner"
+	_ "github.com/merico-dev/lake/version"
 	"github.com/merico-dev/lake/worker/app"
 	"go.temporal.io/sdk/client"
 	"go.temporal.io/sdk/worker"
