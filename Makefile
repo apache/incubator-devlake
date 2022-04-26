@@ -33,7 +33,7 @@ commit:
 test: unit-test e2e-test
 
 unit-test: build
-	set -e; for m in $$(go list ./... | egrep -v 'test|models|e2e'); do echo $$m; go test -v $$m; done
+	set -e; for m in $$(go list ./... | egrep -v 'test|models|e2e'); do echo $$m; go test -gcflags=all=-l -v $$m; done
 
 e2e-test: build
 	PLUGIN_DIR=$(shell readlink -f bin/plugins) go test -v ./test/...

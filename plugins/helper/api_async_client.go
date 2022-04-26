@@ -88,6 +88,16 @@ func CreateAsyncApiClient(
 	}, nil
 }
 
+func (apiClient *ApiAsyncClient) GetMaxRetry() int {
+	return apiClient.maxRetry
+}
+
+func (apiClient *ApiAsyncClient) SetMaxRetry(
+	maxRetry int,
+) {
+	apiClient.maxRetry = maxRetry
+}
+
 func (apiClient *ApiAsyncClient) DoAsync(
 	method string,
 	path string,
@@ -104,10 +114,13 @@ func (apiClient *ApiAsyncClient) DoAsync(
 		var body []byte
 		res, err = apiClient.Do(method, path, query, body, header)
 		if err == nil {
+			defer func(body io.ReadCloser) { body.Close() }(res.Body)
 			body, err = ioutil.ReadAll(res.Body)
-			res.Body.Close()
-			res.Body = io.NopCloser(bytes.NewBuffer(body))
+			if err == nil {
+				res.Body = io.NopCloser(bytes.NewBuffer(body))
+			}
 		}
+
 		// it make sense to retry on request failure, but not error from handler and canceled error
 		if err != nil {
 			if retry < apiClient.maxRetry && err != context.Canceled {
@@ -115,12 +128,10 @@ func (apiClient *ApiAsyncClient) DoAsync(
 				retry++
 				return apiClient.scheduler.Submit(subFunc, apiClient.scheduler.subPool)
 			}
+		} else if res.StatusCode >= 400 {
+			err = fmt.Errorf("http code error[%d]:[%s]", res.StatusCode, body)
 		}
-		if err == nil {
-			if res.StatusCode >= 400 {
-				err = fmt.Errorf("http code error[%d]:[%s]", res.StatusCode, body)
-			}
-		}
+
 		// it is important to let handler have a chance to handle error, or it can hang indefinitely
 		// when error occurs
 		return handler(res, err)
