@@ -24,11 +24,15 @@ func ExtractRemotelinks(taskCtx core.SubTaskContext) error {
 
 	// clean up issue_commits relationship for board
 	err := db.Exec(`
-	DELETE ic
-	FROM _tool_jira_issue_commits ic
-	LEFT JOIN _tool_jira_board_issues bi ON (bi.source_id = ic.source_id AND bi.issue_id = ic.issue_id)
-	WHERE ic.source_id = ? AND bi.board_id = ?
-	`, sourceId, boardId).Error
+	DELETE
+	FROM _tool_jira_issue_commits
+	WHERE source_id = ?
+	  AND issue_id IN
+	    (SELECT issue_id
+	     FROM _tool_jira_board_issues
+	     WHERE source_id = ?
+	       AND board_id = ?)
+	`, sourceId, sourceId, boardId).Error
 	if err != nil {
 		return err
 	}
