@@ -1,6 +1,8 @@
 package tasks
 
 import (
+	"net/url"
+	"path/filepath"
 	"reflect"
 
 	"github.com/merico-dev/lake/models/domainlayer"
@@ -53,7 +55,7 @@ func ConvertIssues(taskCtx core.SubTaskContext) error {
 				DomainEntity: domainlayer.DomainEntity{
 					Id: issueIdGen.Generate(jiraIssue.SourceId, jiraIssue.IssueId),
 				},
-				Url:                     jiraIssue.Self,
+				Url:                     convertURL(jiraIssue.Self, jiraIssue.Key),
 				Number:                  jiraIssue.Key,
 				Title:                   jiraIssue.Summary,
 				EpicKey:                 jiraIssue.EpicKey,
@@ -93,4 +95,13 @@ func ConvertIssues(taskCtx core.SubTaskContext) error {
 	}
 
 	return converter.Execute()
+}
+
+func convertURL(api, issueKey string) string {
+	u, err := url.Parse(api)
+	if err != nil {
+		return api
+	}
+	u.Path = filepath.Join("/browse", issueKey)
+	return u.String()
 }
