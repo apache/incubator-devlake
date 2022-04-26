@@ -11,13 +11,25 @@
   color: #E8471C;
 }
 
-.discordIcon:hover {
-  filter: invert(33%) sepia(24%) saturate(6982%) hue-rotate(355deg) brightness(97%) contrast(88%);
-}
 .discordIcon {
   height: 1.4em;
   width: 1.4em;
   display: block;
   margin-left: auto;
   margin-right: auto;
+  &:hover {
+    filter: invert(33%) sepia(24%) saturate(6982%) hue-rotate(355deg) brightness(97%) contrast(88%);
+  }
+}
+
+.slackIcon {
+  height: 2.5em;
+  width: 2.5em;
+  display: block;
+  margin-left: -5px;
+  margin-right: -5px;
+  margin-top: 2px;
+  &:hover {
+    filter: invert(33%) sepia(24%) saturate(6982%) hue-rotate(355deg) brightness(97%) contrast(88%);
+  }
 }
