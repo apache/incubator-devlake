@@ -5,8 +5,8 @@ import (
 )
 
 type TapdBugLabel struct {
-	BugId     uint64 `gorm:"primaryKey;autoIncrement:false"`
-	LabelName string `gorm:"primaryKey;type:varchar(255)"`
+	BugId     Uint64s `gorm:"primaryKey;autoIncrement:false"`
+	LabelName string  `gorm:"primaryKey;type:varchar(255)"`
 	common.NoPKModel
 }
 

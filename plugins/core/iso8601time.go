@@ -1,6 +1,7 @@
 package core
 
 import (
+	"database/sql/driver"
 	"fmt"
 	"reflect"
 	"regexp"
@@ -174,4 +175,20 @@ func ConvertStringToTimePtr(timeString string) (*time.Time, error) {
 	}
 	t, err := time.Parse(time.RFC3339, timeString)
 	return &t, err
+}
+
+func (t Iso8601Time) Value() (driver.Value, error) {
+	var zeroTime time.Time
+	if t.time.UnixNano() == zeroTime.UnixNano() {
+		return nil, nil
+	}
+	return t.time, nil
+}
+func (t *Iso8601Time) Scan(v interface{}) error {
+	value, ok := v.(time.Time)
+	if ok {
+		*t = Iso8601Time{time: value}
+		return nil
+	}
+	return fmt.Errorf("can not convert %v to timestamp", v)
 }

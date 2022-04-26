@@ -17,7 +17,7 @@ var ExtractWorklogMeta = core.SubTaskMeta{
 }
 
 type TapdWorklogRes struct {
-	Timesheet models.TapdWorklogApiRes
+	Timesheet models.TapdWorklog
 }
 
 func ExtractWorklogs(taskCtx core.SubTaskContext) error {
@@ -38,16 +38,11 @@ func ExtractWorklogs(taskCtx core.SubTaskContext) error {
 			if err != nil {
 				return nil, err
 			}
-			worklogRes := worklogBody.Timesheet
+			toolL := worklogBody.Timesheet
 
-			i, err := VoToDTO(&worklogRes, &models.TapdWorklog{})
-			if err != nil {
-				return nil, err
-			}
-			toolL := i.(*models.TapdWorklog)
-			toolL.SourceId = data.Source.ID
+			toolL.SourceId = models.Uint64s(data.Source.ID)
 			results := make([]interface{}, 0, 1)
-			results = append(results, toolL)
+			results = append(results, &toolL)
 
 			return results, nil
 		},

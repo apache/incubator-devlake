@@ -29,18 +29,13 @@ func ExtractIssueCommits(taskCtx core.SubTaskContext) error {
 			Table: RAW_ISSUE_COMMIT_TABLE,
 		},
 		Extract: func(row *helper.RawData) ([]interface{}, error) {
-			var issueCommitBody models.TapdIssueCommitApiRes
+			var issueCommitBody models.TapdIssueCommit
 			err := json.Unmarshal(row.Data, &issueCommitBody)
 			if err != nil {
 				return nil, err
 			}
-
-			i, err := VoToDTO(&issueCommitBody, &models.TapdIssueCommit{})
-			if err != nil {
-				return nil, err
-			}
-			toolL := i.(*models.TapdIssueCommit)
-			toolL.SourceId = data.Source.ID
+			toolL := issueCommitBody
+			toolL.SourceId = models.Uint64s(data.Source.ID)
 			issue := &models.IssueTypeAndId{}
 			err = json.Unmarshal(row.Input, issue)
 			if err != nil {
@@ -48,9 +43,9 @@ func ExtractIssueCommits(taskCtx core.SubTaskContext) error {
 			}
 			toolL.IssueId = issue.IssueId
 			toolL.IssueType = issue.Type
-			toolL.WorkspaceId = data.Options.WorkspaceId
+			toolL.WorkspaceId = models.Uint64s(data.Options.WorkspaceId)
 			results := make([]interface{}, 0, 1)
-			results = append(results, toolL)
+			results = append(results, &toolL)
 
 			return results, nil
 		},

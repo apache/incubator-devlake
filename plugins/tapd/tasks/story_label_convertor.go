@@ -22,7 +22,7 @@ func ConvertStoryLabels(taskCtx core.SubTaskContext) error {
 
 	cursor, err := db.Model(&models.TapdStoryLabel{}).
 		Joins(`left join _tool_tapd_workspace_issues on _tool_tapd_workspace_issues.issue_id = _tool_tapd_story_labels.story_id`).
-		Where("_tool_tapd_workspace_issues.workspace_id = ?", data.Source.WorkspaceId).
+		Where("_tool_tapd_workspace_issues.workspace_id = ?", data.Options.WorkspaceId).
 		Order("issue_id ASC").
 		Rows()
 	if err != nil {

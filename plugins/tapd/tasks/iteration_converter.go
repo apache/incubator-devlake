@@ -44,10 +44,10 @@ func ConvertIteration(taskCtx core.SubTaskContext) error {
 				Url:             fmt.Sprintf("https://www.tapd.cn/%d/prong/iterations/view/%d", iter.WorkspaceId, iter.ID),
 				Status:          strings.ToUpper(iter.Status),
 				Name:            iter.Name,
-				StartedDate:     iter.Startdate,
-				EndedDate:       iter.Enddate,
+				StartedDate:     iter.Startdate.ToNullableTime(),
+				EndedDate:       iter.Enddate.ToNullableTime(),
 				OriginalBoardID: WorkspaceIdGen.Generate(iter.SourceId, iter.WorkspaceId),
-				CompletedDate:   iter.Completed,
+				CompletedDate:   iter.Completed.ToNullableTime(),
 			}
 			results := make([]interface{}, 0)
 			results = append(results, domainIter)
@@ -61,13 +61,13 @@ func ConvertIteration(taskCtx core.SubTaskContext) error {
 				dsi := ticket.SprintIssue{
 					SprintId:  domainIter.Id,
 					IssueId:   IssueIdGen.Generate(data.Source.ID, si.IssueId),
-					AddedDate: si.IssueCreatedDate,
+					AddedDate: si.IssueCreatedDate.ToNullableTime(),
 				}
 				if dsi.AddedDate != nil {
 					dsi.AddedStage = getStage(*dsi.AddedDate, domainIter.StartedDate, domainIter.CompletedDate)
 				}
 				if si.ResolutionDate != nil {
-					dsi.ResolvedStage = getStage(*si.ResolutionDate, domainIter.StartedDate, domainIter.CompletedDate)
+					dsi.ResolvedStage = getStage(*si.ResolutionDate.ToNullableTime(), domainIter.StartedDate, domainIter.CompletedDate)
 				}
 				domainSprintIssues = append(domainSprintIssues, dsi)
 			}

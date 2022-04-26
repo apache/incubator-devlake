@@ -17,7 +17,7 @@ var ExtractWorkspaceMeta = core.SubTaskMeta{
 }
 
 type TapdWorkspaceRes struct {
-	Workspace models.TapdWorkspaceApiRes
+	Workspace models.TapdWorkspace
 }
 
 func ExtractWorkspaces(taskCtx core.SubTaskContext) error {
@@ -39,16 +39,11 @@ func ExtractWorkspaces(taskCtx core.SubTaskContext) error {
 				return nil, err
 			}
 
-			wsRes := workspaceRes.Workspace
+			ws := workspaceRes.Workspace
 
-			i, err := VoToDTO(&wsRes, &models.TapdWorkspace{})
-			if err != nil {
-				return nil, err
-			}
-			ws := i.(*models.TapdWorkspace)
-			ws.SourceId = data.Source.ID
+			ws.SourceId = models.Uint64s(data.Source.ID)
 			return []interface{}{
-				ws,
+				&ws,
 			}, nil
 		},
 	})

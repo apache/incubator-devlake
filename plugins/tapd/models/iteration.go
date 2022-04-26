@@ -2,62 +2,44 @@ package models
 
 import (
 	"github.com/merico-dev/lake/models/common"
-	"time"
+	"github.com/merico-dev/lake/plugins/core"
 )
 
 type TapdIteration struct {
-	SourceId     uint64     `gorm:"primaryKey;type:INT(10) UNSIGNED NOT NULL"`
-	ID           uint64     `gorm:"primaryKey;type:BIGINT(10) UNSIGNED NOT NULL" json:"id"`
-	Name         string     `gorm:"type:varchar(255)"`
-	WorkspaceId  uint64     `json:"workspace_id"`
-	Startdate    *time.Time `json:"startdate"`
-	Enddate      *time.Time `json:"enddate"`
-	Status       string     `gorm:"type:varchar(255)"`
-	ReleaseID    string     `gorm:"type:varchar(255)"`
-	Description  string
-	Creator      string     `gorm:"type:varchar(255)"`
-	Created      *time.Time `json:"created"`
-	Modified     *time.Time `json:"modified"`
-	Completed    *time.Time `json:"completed"`
-	Releaseowner string     `gorm:"type:varchar(255)"`
-	Launchdate   *time.Time `json:"launchdate"`
-	Notice       string     `gorm:"type:varchar(255)"`
-	Releasename  string     `gorm:"type:varchar(255)"`
+	SourceId     Uint64s           `gorm:"primaryKey;type:INT(10) UNSIGNED NOT NULL"`
+	ID           Uint64s           `gorm:"primaryKey;type:BIGINT(10) UNSIGNED NOT NULL" json:"id"`
+	Name         string            `gorm:"type:varchar(255)" json:"name"`
+	WorkspaceId  Uint64s           `json:"workspace_id"`
+	Startdate    *core.Iso8601Time `json:"startdate"`
+	Enddate      *core.Iso8601Time `json:"enddate"`
+	Status       string            `gorm:"type:varchar(255)" json:"status"`
+	ReleaseID    Uint64s           `gorm:"type:varchar(255)" json:"release_id"`
+	Description  string            `json:"description"`
+	Creator      string            `gorm:"type:varchar(255)" json:"creator"`
+	Created      *core.Iso8601Time `json:"created"`
+	Modified     *core.Iso8601Time `json:"modified"`
+	Completed    *core.Iso8601Time `json:"completed"`
+	Releaseowner string            `gorm:"type:varchar(255)" json:"releaseowner"`
+	Launchdate   *core.Iso8601Time `json:"launchdate"`
+	Notice       string            `gorm:"type:varchar(255)" json:"notice"`
+	Releasename  string            `gorm:"type:varchar(255)" json:"releasename"`
 	common.NoPKModel
-}
-type TapdIterationRes struct {
-	ID           string `json:"id"`
-	Name         string `json:"name"`
-	WorkspaceId  string `json:"workspace_id"`
-	Startdate    string `json:"startdate"`
-	Enddate      string `json:"enddate"`
-	Status       string `json:"status"`
-	ReleaseID    string `json:"release_id"`
-	Description  string `json:"description"`
-	Creator      string `json:"creator"`
-	Created      string `json:"created"`
-	Modified     string `json:"modified"`
-	Completed    string `json:"completed"`
-	Releaseowner string `json:"releaseowner"`
-	Launchdate   string `json:"launchdate"`
-	Notice       string `json:"notice"`
-	Releasename  string `json:"releasename"`
 }
 
 type TapdWorkspaceIteration struct {
 	common.NoPKModel
-	SourceId    uint64 `gorm:"primaryKey"`
-	WorkspaceId uint64 `gorm:"primaryKey"`
-	IterationId uint64 `gorm:"primaryKey"`
+	SourceId    Uint64s `gorm:"primaryKey"`
+	WorkspaceId Uint64s `gorm:"primaryKey"`
+	IterationId Uint64s `gorm:"primaryKey"`
 }
 
 type TapdIterationIssue struct {
 	common.NoPKModel
-	SourceId         uint64 `gorm:"primaryKey"`
-	IterationId      uint64 `gorm:"primaryKey"`
-	IssueId          uint64 `gorm:"primaryKey"`
-	ResolutionDate   *time.Time
-	IssueCreatedDate *time.Time
+	SourceId         Uint64s `gorm:"primaryKey"`
+	IterationId      Uint64s `gorm:"primaryKey"`
+	IssueId          Uint64s `gorm:"primaryKey"`
+	ResolutionDate   *core.Iso8601Time
+	IssueCreatedDate *core.Iso8601Time
 }
 
 func (TapdIteration) TableName() string {

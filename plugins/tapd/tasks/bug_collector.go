@@ -30,7 +30,7 @@ func CollectBugs(taskCtx core.SubTaskContext) error {
 			return fmt.Errorf("failed to get latest jira changelog record: %w", err)
 		}
 		if latestUpdated.ID > 0 {
-			since = latestUpdated.Modified
+			since = latestUpdated.Modified.ToNullableTime()
 			incremental = true
 		}
 	}

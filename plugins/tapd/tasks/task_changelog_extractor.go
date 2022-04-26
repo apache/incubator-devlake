@@ -17,7 +17,7 @@ var ExtractTaskChangelogMeta = core.SubTaskMeta{
 }
 
 type TapdTaskChangelogRes struct {
-	WorkitemChange models.TapdTaskChangelogApiRes
+	WorkitemChange models.TapdTaskChangelog
 }
 
 func ExtractTaskChangelog(taskCtx core.SubTaskContext) error {
@@ -41,18 +41,13 @@ func ExtractTaskChangelog(taskCtx core.SubTaskContext) error {
 			if err != nil {
 				return nil, err
 			}
-			taskChangelogRes := taskChangelogBody.WorkitemChange
+			taskChangelog := taskChangelogBody.WorkitemChange
 
-			i, err := VoToDTO(&taskChangelogRes, &models.TapdTaskChangelog{})
-			if err != nil {
-				return nil, err
-			}
-			v := i.(*models.TapdTaskChangelog)
-			v.SourceId = data.Source.ID
-			for _, fc := range taskChangelogRes.FieldChanges {
+			taskChangelog.SourceId = models.Uint64s(data.Source.ID)
+			for _, fc := range taskChangelog.FieldChanges {
 				item := &models.TapdTaskChangelogItem{
-					SourceId:          data.Source.ID,
-					ChangelogId:       v.ID,
+					SourceId:          models.Uint64s(data.Source.ID),
+					ChangelogId:       taskChangelog.ID,
 					Field:             fc.Field,
 					ValueBeforeParsed: fc.ValueBeforeParsed,
 					ValueAfterParsed:  fc.ValueAfterParsed,
@@ -67,7 +62,7 @@ func ExtractTaskChangelog(taskCtx core.SubTaskContext) error {
 				}
 				results = append(results, item)
 			}
-			results = append(results, v)
+			results = append(results, &taskChangelog)
 			return results, nil
 		},
 	})

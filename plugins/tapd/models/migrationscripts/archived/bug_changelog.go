@@ -2,31 +2,32 @@ package archived
 
 import (
 	"github.com/merico-dev/lake/models/common"
-	"time"
+	"github.com/merico-dev/lake/plugins/core"
+	"github.com/merico-dev/lake/plugins/tapd/models"
 )
 
 type TapdBugChangelog struct {
-	SourceId    uint64    `gorm:"primaryKey;type:INT(10) UNSIGNED NOT NULL"`
-	WorkspaceId uint64    `gorm:"type:INT(10) UNSIGNED NOT NULL"`
-	ID          uint64    `gorm:"primaryKey;type:BIGINT(10) UNSIGNED NOT NULL" json:"id"`
-	BugID       uint64    `json:"bug_id"`
-	Author      string    `json:"author"`
-	Field       string    `json:"field"`
-	OldValue    string    `json:"old_value"`
-	NewValue    string    `json:"new_value"`
-	Memo        string    `json:"memo"`
-	Created     time.Time `json:"created"`
+	SourceId    models.Uint64s    `gorm:"primaryKey;type:INT(10) UNSIGNED NOT NULL"`
+	WorkspaceId models.Uint64s    `gorm:"type:INT(10) UNSIGNED NOT NULL"`
+	ID          models.Uint64s    `gorm:"primaryKey;type:BIGINT(10) UNSIGNED NOT NULL" json:"id"`
+	BugID       models.Uint64s    `json:"bug_id"`
+	Author      string            `json:"author"`
+	Field       string            `gorm:"primaryKey" json:"field"`
+	OldValue    string            `json:"old_value"`
+	NewValue    string            `json:"new_value"`
+	Memo        string            `json:"memo"`
+	Created     *core.Iso8601Time `json:"created"`
 	common.NoPKModel
 }
 
 type TapdBugChangelogItem struct {
-	SourceId          uint64 `gorm:"primaryKey;type:INT(10) UNSIGNED NOT NULL"`
-	ChangelogId       uint64 `gorm:"primaryKey;type:BIGINT(10) UNSIGNED NOT NULL"`
-	Field             string `json:"field" gorm:"primaryKey"`
-	ValueBeforeParsed string `json:"value_before"`
-	ValueAfterParsed  string `json:"value_after"`
-	IterationIdFrom   uint64
-	IterationIdTo     uint64
+	SourceId          models.Uint64s `gorm:"primaryKey;type:INT(10) UNSIGNED NOT NULL"`
+	ChangelogId       models.Uint64s `gorm:"primaryKey;type:BIGINT(10) UNSIGNED NOT NULL"`
+	Field             string         `json:"field" gorm:"primaryKey;foreignKey:ChangelogId;references:ID"`
+	ValueBeforeParsed string         `json:"value_before"`
+	ValueAfterParsed  string         `json:"value_after"`
+	IterationIdFrom   models.Uint64s
+	IterationIdTo     models.Uint64s
 	common.NoPKModel
 }
 

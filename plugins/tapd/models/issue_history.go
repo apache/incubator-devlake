@@ -8,9 +8,9 @@ import (
 
 type TapdIssueStatusHistory struct {
 	common.NoPKModel
-	SourceId       uint64 `gorm:"primaryKey"`
-	WorkspaceId    uint64
-	IssueId        uint64    `gorm:"primaryKey"`
+	SourceId       Uint64s `gorm:"primaryKey"`
+	WorkspaceId    Uint64s
+	IssueId        Uint64s   `gorm:"primaryKey"`
 	OriginalStatus string    `gorm:"primaryKey;type:varchar(250)"`
 	StartDate      time.Time `gorm:"primaryKey"`
 	EndDate        time.Time
@@ -18,10 +18,10 @@ type TapdIssueStatusHistory struct {
 
 type TapdIssueAssigneeHistory struct {
 	common.NoPKModel
-	SourceId    uint64 `gorm:"primaryKey"`
-	WorkspaceId uint64
+	SourceId    Uint64s `gorm:"primaryKey"`
+	WorkspaceId Uint64s
 
-	IssueId   uint64    `gorm:"primaryKey"`
+	IssueId   Uint64s   `gorm:"primaryKey"`
 	Assignee  string    `gorm:"primaryKey;type:varchar(250)"`
 	StartDate time.Time `gorm:"primaryKey"`
 	EndDate   time.Time
@@ -29,11 +29,11 @@ type TapdIssueAssigneeHistory struct {
 
 type TapdIssueSprintHistory struct {
 	common.NoPKModel
-	SourceId    uint64 `gorm:"primaryKey"`
-	WorkspaceId uint64
-	ChangelogId uint64
-	IssueId     uint64    `gorm:"primaryKey"`
-	SprintId    uint64    `gorm:"primaryKey"`
+	SourceId    Uint64s `gorm:"primaryKey"`
+	WorkspaceId Uint64s
+	ChangelogId Uint64s
+	IssueId     Uint64s   `gorm:"primaryKey"`
+	SprintId    Uint64s   `gorm:"primaryKey"`
 	StartDate   time.Time `gorm:"primaryKey"`
 	EndDate     time.Time
 }

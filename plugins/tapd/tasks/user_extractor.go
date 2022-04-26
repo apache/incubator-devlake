@@ -17,7 +17,7 @@ var ExtractUserMeta = core.SubTaskMeta{
 }
 
 type TapdUserRes struct {
-	UserWorkspace models.TapdUserApiRes
+	UserWorkspace models.TapdUser
 }
 
 func ExtractUsers(taskCtx core.SubTaskContext) error {
@@ -39,8 +39,8 @@ func ExtractUsers(taskCtx core.SubTaskContext) error {
 				return nil, err
 			}
 			toolL := models.TapdUser{
-				SourceId:    data.Source.ID,
-				WorkspaceId: data.Options.WorkspaceId,
+				SourceId:    models.Uint64s(data.Source.ID),
+				WorkspaceId: models.Uint64s(data.Options.WorkspaceId),
 				Name:        userRes.UserWorkspace.Name,
 				User:        userRes.UserWorkspace.User,
 			}

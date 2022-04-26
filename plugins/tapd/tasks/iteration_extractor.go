@@ -17,7 +17,7 @@ var ExtractIterationMeta = core.SubTaskMeta{
 }
 
 type TapdIterationRes struct {
-	Iteration models.TapdIterationRes
+	Iteration models.TapdIteration
 }
 
 func ExtractIterations(taskCtx core.SubTaskContext) error {
@@ -38,21 +38,16 @@ func ExtractIterations(taskCtx core.SubTaskContext) error {
 			if err != nil {
 				return nil, err
 			}
-			iterRes := iterBody.Iteration
+			iter := iterBody.Iteration
 
-			i, err := VoToDTO(&iterRes, &models.TapdIteration{})
-			if err != nil {
-				return nil, err
-			}
-			iter := i.(*models.TapdIteration)
-			iter.SourceId = data.Source.ID
+			iter.SourceId = models.Uint64s(data.Source.ID)
 			workspaceIter := &models.TapdWorkspaceIteration{
-				SourceId:    data.Source.ID,
+				SourceId:    models.Uint64s(data.Source.ID),
 				WorkspaceId: iter.WorkspaceId,
 				IterationId: iter.ID,
 			}
 			return []interface{}{
-				iter, workspaceIter,
+				&iter, workspaceIter,
 			}, nil
 		},
 	})

@@ -20,7 +20,7 @@ var ExtractTaskMeta = core.SubTaskMeta{
 }
 
 type TapdTaskRes struct {
-	Task models.TapdTaskApiRes
+	Task models.TapdTask
 }
 
 func ExtractTasks(taskCtx core.SubTaskContext) error {
@@ -66,14 +66,9 @@ func ExtractTasks(taskCtx core.SubTaskContext) error {
 			if err != nil {
 				return nil, err
 			}
-			taskRes := taskBody.Task
+			toolL := taskBody.Task
 
-			i, err := VoToDTO(&taskRes, &models.TapdTask{})
-			if err != nil {
-				return nil, err
-			}
-			toolL := i.(*models.TapdTask)
-			toolL.SourceId = data.Source.ID
+			toolL.SourceId = models.Uint64s(data.Source.ID)
 			toolL.Type = "TASK"
 			toolL.StdType = "TASK"
 			toolL.StdStatus = getStdStatus(toolL.Status)
@@ -83,15 +78,15 @@ func ExtractTasks(taskCtx core.SubTaskContext) error {
 			toolL.Url = fmt.Sprintf("https://www.tapd.cn/%d/prong/stories/view/%d", toolL.WorkspaceId, toolL.ID)
 
 			workSpaceIssue := &models.TapdWorkSpaceIssue{
-				SourceId:    data.Source.ID,
+				SourceId:    models.Uint64s(data.Source.ID),
 				WorkspaceId: toolL.WorkspaceId,
 				IssueId:     toolL.ID,
 			}
 			results := make([]interface{}, 0, 3)
-			results = append(results, toolL, workSpaceIssue)
+			results = append(results, &toolL, workSpaceIssue)
 			if toolL.IterationID != 0 {
 				iterationIssue := &models.TapdIterationIssue{
-					SourceId:         data.Source.ID,
+					SourceId:         models.Uint64s(data.Source.ID),
 					IterationId:      toolL.IterationID,
 					IssueId:          toolL.ID,
 					ResolutionDate:   toolL.Completed,

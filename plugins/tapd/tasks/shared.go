@@ -43,7 +43,7 @@ func GetTotalPagesFromResponse(r *http.Response, args *helper.ApiCollectorArgs) 
 	return totalPage, err
 }
 
-func parseIterationChangelog(taskCtx core.SubTaskContext, old string, new string) (uint64, uint64, error) {
+func parseIterationChangelog(taskCtx core.SubTaskContext, old string, new string) (models.Uint64s, models.Uint64s, error) {
 	data := taskCtx.GetData().(*TapdTaskData)
 	db := taskCtx.GetDb()
 	iterationFrom := &models.TapdIteration{}

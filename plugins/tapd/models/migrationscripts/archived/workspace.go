@@ -2,29 +2,30 @@ package archived
 
 import (
 	"github.com/merico-dev/lake/models/common"
-	"time"
+	"github.com/merico-dev/lake/plugins/core"
+	"github.com/merico-dev/lake/plugins/tapd/models"
 )
 
 type TapdWorkspace struct {
-	SourceId    uint64 `gorm:"primaryKey;type:INT(10) UNSIGNED NOT NULL"`
-	ID          uint64 `gorm:"primaryKey;type:BIGINT(100)" json:"id"`
-	Name        string `gorm:"type:varchar(255)"`
-	PrettyName  string `gorm:"type:varchar(255)"`
-	Category    string `gorm:"type:varchar(255)"`
-	Status      string `gorm:"type:varchar(255)"`
-	Description string
-	BeginDate   *time.Time `json:"begin_date"`
-	EndDate     *time.Time `json:"end_date"`
-	ExternalOn  string     `gorm:"type:varchar(255)"`
-	Creator     string     `gorm:"type:varchar(255)"`
-	Created     *time.Time `json:"created"`
+	SourceId    models.Uint64s    `gorm:"primaryKey;type:INT(10) UNSIGNED NOT NULL"`
+	ID          models.Uint64s    `gorm:"primaryKey;type:BIGINT(100)" json:"id"`
+	Name        string            `gorm:"type:varchar(255)" json:"name"`
+	PrettyName  string            `gorm:"type:varchar(255)" json:"pretty_name"`
+	Category    string            `gorm:"type:varchar(255)" json:"category"`
+	Status      string            `gorm:"type:varchar(255)" json:"status"`
+	Description string            `json:"description"`
+	BeginDate   *core.Iso8601Time `json:"begin_date"`
+	EndDate     *core.Iso8601Time `json:"end_date"`
+	ExternalOn  string            `gorm:"type:varchar(255)" json:"external_on"`
+	Creator     string            `gorm:"type:varchar(255)" json:"creator"`
+	Created     *core.Iso8601Time `json:"created"`
 	common.NoPKModel
 }
 
 type TapdWorkSpaceIssue struct {
-	SourceId    uint64 `gorm:"primaryKey"`
-	WorkspaceId uint64 `gorm:"primaryKey"`
-	IssueId     uint64 `gorm:"primaryKey"`
+	SourceId    models.Uint64s `gorm:"primaryKey"`
+	WorkspaceId models.Uint64s `gorm:"primaryKey"`
+	IssueId     models.Uint64s `gorm:"primaryKey"`
 	common.NoPKModel
 }
 

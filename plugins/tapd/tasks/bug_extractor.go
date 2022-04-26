@@ -20,7 +20,7 @@ var ExtractBugMeta = core.SubTaskMeta{
 }
 
 type TapdBugRes struct {
-	Bug models.TapdBugApiRes
+	Bug models.TapdBug
 }
 
 func ExtractBugs(taskCtx core.SubTaskContext) error {
@@ -67,14 +67,9 @@ func ExtractBugs(taskCtx core.SubTaskContext) error {
 			if err != nil {
 				return nil, err
 			}
-			bugRes := bugBody.Bug
+			toolL := bugBody.Bug
 
-			i, err := VoToDTO(&bugRes, &models.TapdBug{})
-			if err != nil {
-				return nil, err
-			}
-			toolL := i.(*models.TapdBug)
-			toolL.SourceId = data.Source.ID
+			toolL.SourceId = models.Uint64s(data.Source.ID)
 			toolL.Type = "BUG"
 			toolL.StdType = "BUG"
 			toolL.StdStatus = getStdStatus(toolL.Status)
@@ -83,15 +78,15 @@ func ExtractBugs(taskCtx core.SubTaskContext) error {
 				toolL.CurrentOwner = strings.Split(toolL.CurrentOwner, ";")[0]
 			}
 			workSpaceIssue := &models.TapdWorkSpaceIssue{
-				SourceId:    data.Source.ID,
+				SourceId:    models.Uint64s(data.Source.ID),
 				WorkspaceId: toolL.WorkspaceId,
 				IssueId:     toolL.ID,
 			}
 			results := make([]interface{}, 0, 3)
-			results = append(results, toolL, workSpaceIssue)
+			results = append(results, &toolL, workSpaceIssue)
 			if toolL.IterationID != 0 {
 				iterationIssue := &models.TapdIterationIssue{
-					SourceId:         data.Source.ID,
+					SourceId:         models.Uint64s(data.Source.ID),
 					IterationId:      toolL.IterationID,
 					IssueId:          toolL.ID,
 					ResolutionDate:   toolL.Resolved,

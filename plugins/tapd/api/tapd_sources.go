@@ -335,7 +335,7 @@ func GetGranularitiesBySourceId(input *core.ApiResourceInput) (*core.ApiResource
 }
 
 type WorkspaceResponse struct {
-	Id    int
+	Id    uint64
 	Title string
 	Value string
 }
@@ -351,19 +351,15 @@ func GetBoardsBySourceId(input *core.ApiResourceInput) (*core.ApiResourceOutput,
 	if err != nil {
 		return nil, fmt.Errorf("invalid sourceId")
 	}
-	var tapdWorkspaces []models.TapdWorkspaceApiRes
+	var tapdWorkspaces []models.TapdWorkspace
 	err = db.Where("source_Id = ?", tapdSourceId).Find(&tapdWorkspaces).Error
 	if err != nil {
 		return nil, err
 	}
 	var workSpaceResponses []WorkspaceResponse
 	for _, workSpace := range tapdWorkspaces {
-		idInt, err := strconv.Atoi(workSpace.ID)
-		if err == nil {
-			return nil, err
-		}
 		workSpaceResponses = append(workSpaceResponses, WorkspaceResponse{
-			Id:    idInt,
+			Id:    uint64(workSpace.ID),
 			Title: workSpace.Name,
 			Value: fmt.Sprintf("%v", workSpace.ID),
 		})

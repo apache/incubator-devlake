@@ -17,7 +17,7 @@ var ExtractStoryChangelogMeta = core.SubTaskMeta{
 }
 
 type TapdStoryChangelogRes struct {
-	WorkitemChange models.TapdStoryChangelogApiRes
+	WorkitemChange models.TapdStoryChangelog
 }
 
 func ExtractStoryChangelog(taskCtx core.SubTaskContext) error {
@@ -41,18 +41,13 @@ func ExtractStoryChangelog(taskCtx core.SubTaskContext) error {
 			if err != nil {
 				return nil, err
 			}
-			storyChangelogRes := storyChangelogBody.WorkitemChange
+			storyChangelog := storyChangelogBody.WorkitemChange
 
-			i, err := VoToDTO(&storyChangelogRes, &models.TapdStoryChangelog{})
-			if err != nil {
-				return nil, err
-			}
-			v := i.(*models.TapdStoryChangelog)
-			v.SourceId = data.Source.ID
-			for _, fc := range storyChangelogRes.FieldChanges {
+			storyChangelog.SourceId = models.Uint64s(data.Source.ID)
+			for _, fc := range storyChangelog.FieldChanges {
 				item := &models.TapdStoryChangelogItem{
-					SourceId:          data.Source.ID,
-					ChangelogId:       v.ID,
+					SourceId:          models.Uint64s(data.Source.ID),
+					ChangelogId:       storyChangelog.ID,
 					Field:             fc.Field,
 					ValueBeforeParsed: fc.ValueBeforeParsed,
 					ValueAfterParsed:  fc.ValueAfterParsed,
@@ -67,7 +62,7 @@ func ExtractStoryChangelog(taskCtx core.SubTaskContext) error {
 				}
 				results = append(results, item)
 			}
-			results = append(results, v)
+			results = append(results, &storyChangelog)
 			return results, nil
 		},
 	})

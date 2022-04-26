@@ -17,7 +17,7 @@ var ExtractBugChangelogMeta = core.SubTaskMeta{
 }
 
 type TapdBugChangelogRes struct {
-	BugChange models.TapdBugChangelogApiRes
+	BugChange models.TapdBugChangelog
 }
 
 func ExtractBugChangelog(taskCtx core.SubTaskContext) error {
@@ -39,21 +39,16 @@ func ExtractBugChangelog(taskCtx core.SubTaskContext) error {
 			if err != nil {
 				return nil, err
 			}
-			bugChangelogRes := bugChangelogBody.BugChange
+			bugChangelog := bugChangelogBody.BugChange
 
-			i, err := VoToDTO(&bugChangelogRes, &models.TapdBugChangelog{})
-			if err != nil {
-				return nil, err
-			}
-			v := i.(*models.TapdBugChangelog)
-			v.SourceId = data.Source.ID
-			v.WorkspaceId = data.Source.WorkspaceId
+			bugChangelog.SourceId = models.Uint64s(data.Source.ID)
+			bugChangelog.WorkspaceId = models.Uint64s(data.Options.WorkspaceId)
 			item := &models.TapdBugChangelogItem{
-				SourceId:          data.Source.ID,
-				ChangelogId:       v.ID,
-				Field:             v.Field,
-				ValueBeforeParsed: v.OldValue,
-				ValueAfterParsed:  v.NewValue,
+				SourceId:          models.Uint64s(data.Source.ID),
+				ChangelogId:       bugChangelog.ID,
+				Field:             bugChangelog.Field,
+				ValueBeforeParsed: bugChangelog.OldValue,
+				ValueAfterParsed:  bugChangelog.NewValue,
 			}
 			if item.Field == "iteration_id" {
 				iterationFrom, iterationTo, err := parseIterationChangelog(taskCtx, item.ValueBeforeParsed, item.ValueAfterParsed)
@@ -63,7 +58,7 @@ func ExtractBugChangelog(taskCtx core.SubTaskContext) error {
 				item.IterationIdFrom = iterationFrom
 				item.IterationIdTo = iterationTo
 			}
-			results = append(results, v, item)
+			results = append(results, &bugChangelog, item)
 			return results, nil
 		},
 	})

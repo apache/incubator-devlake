@@ -3,7 +3,6 @@ package migrationscripts
 import (
 	"context"
 	"github.com/merico-dev/lake/plugins/tapd/models/migrationscripts/archived"
-
 	"gorm.io/gorm"
 )
 
