@@ -204,6 +204,7 @@ func (apiClient *ApiClient) Do(
 	if apiClient.afterReponse != nil {
 		err = apiClient.afterReponse(res)
 		if err != nil {
+			res.Body.Close()
 			return nil, err
 		}
 	}
