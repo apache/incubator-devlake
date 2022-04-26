@@ -43,9 +43,9 @@ func ExtractStories(taskCtx core.SubTaskContext) error {
 		statusMappings[k] = statusMappingRow.StandardStatus
 	}
 	getStdStatus := func(statusKey string) string {
-		if statusKey == "done" {
+		if statusKey == "resolved" {
 			return ticket.DONE
-		} else if statusKey == "new" {
+		} else if statusKey == "planning" {
 			return ticket.TODO
 		} else {
 			return ticket.IN_PROGRESS
