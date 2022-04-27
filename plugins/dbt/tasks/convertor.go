@@ -37,20 +37,25 @@ func DbtConverter(taskCtx core.SubTaskContext) error {
 	dbServer, dbPort, _ := net.SplitHostPort(u.Host)
 	dbDataBase := u.Path[1:]
 	var dbSchema string
-	
+
 	flag := strings.Compare(dbType, "mysql")
 	if flag == 0 {
 		// mysql database
 		dbSchema = dbDataBase
 	} else {
 		// other database
-		mapQuery, _ := url.ParseQuery(u.RawQuery)
+		mapQuery, err := url.ParseQuery(u.RawQuery)
+		if err != nil{
+			return err
+		}
 		if value, ok := mapQuery["search_path"]; ok{
+			if len(value) < 1{
+				return fmt.Errorf("DB_URL search_path parses error")
+			}
 			dbSchema = value[0]
 		}else{
 			dbSchema = "public"
 		}
-		fmt.Println(mapQuery)
 	}
 
 	err = os.Chdir(projectPath)
