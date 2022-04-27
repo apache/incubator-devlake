@@ -2,6 +2,7 @@ package runner
 
 import (
 	"fmt"
+	"net/url"
 	"os/user"
 	"time"
 
@@ -20,6 +21,13 @@ func NewGormDb(config *viper.Viper, logger core.Logger) (*gorm.DB, error) {
 	dbUrl := config.GetString("DB_URL")
 	if dbUrl == "" {
 		return nil, fmt.Errorf("DB_URL is required")
+	}
+	u, err := url.Parse(dbUrl)
+	if err != nil {
+		return nil, err
+	}
+	if u.Scheme == "mysql"{
+		dbUrl = u.User.String() + "@tcp(" + u.Host + ")" + u.Path + "?" + u.RawQuery
 	}
 
 	dbLoggingLevel := gormLogger.Error
