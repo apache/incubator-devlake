@@ -4,6 +4,8 @@ import (
 	"bufio"
 	"encoding/json"
 	"fmt"
+	"net"
+	"net/url"
 	"os"
 	"os/exec"
 	"strconv"
@@ -24,30 +26,60 @@ func DbtConverter(taskCtx core.SubTaskContext) error {
 	projectVars := data.Options.ProjectVars
 
 	dbUrl := taskCtx.GetConfig("DB_URL")
-	dbSlice := strings.FieldsFunc(dbUrl, func(r rune) bool { return strings.ContainsRune(":@()/?", r) })
-	if len(dbSlice) < 6 {
-		return fmt.Errorf("DB_URL data parsing error")
+	u, err := url.Parse(dbUrl)
+	if err != nil {
+		return err
 	}
 
-	dbUsername := dbSlice[0]
-	dbPassword := dbSlice[1]
-	dbServer := dbSlice[3]
-	dbPort, _ := strconv.Atoi(dbSlice[4])
-	dbSchema := dbSlice[5]
+	dbType := u.Scheme
+	dbUsername := u.User.Username()
+	dbPassword, _ := u.User.Password()
+	dbServer, dbPort, _ := net.SplitHostPort(u.Host)
+	dbDataBase := u.Path[1:]
+	var dbSchema string
 
-	err := os.Chdir(projectPath)
+	flag := strings.Compare(dbType, "mysql")
+	if flag == 0 {
+		// mysql database
+		dbSchema = dbDataBase
+	} else {
+		// other database
+		mapQuery, err := url.ParseQuery(u.RawQuery)
+		if err != nil{
+			return err
+		}
+		if value, ok := mapQuery["search_path"]; ok{
+			if len(value) < 1{
+				return fmt.Errorf("DB_URL search_path parses error")
+			}
+			dbSchema = value[0]
+		}else{
+			dbSchema = "public"
+		}
+	}
+
+	err = os.Chdir(projectPath)
 	if err != nil {
 		return err
 	}
 	config := viper.New()
 	config.Set(projectName+".target", projectTarget)
-	config.Set(projectName+".outputs."+projectTarget+".type", "mysql")
-	config.Set(projectName+".outputs."+projectTarget+".server", dbServer)
-	config.Set(projectName+".outputs."+projectTarget+".port", dbPort)
-	config.Set(projectName+".outputs."+projectTarget+".schema", dbSchema)
-	config.Set(projectName+".outputs."+projectTarget+".database", dbSchema)
-	config.Set(projectName+".outputs."+projectTarget+".username", dbUsername)
+	config.Set(projectName+".outputs."+projectTarget+".type", dbType)
+	
+	dbPortInt, _ := strconv.Atoi(dbPort)
+	config.Set(projectName+".outputs."+projectTarget+".port", dbPortInt)
 	config.Set(projectName+".outputs."+projectTarget+".password", dbPassword)
+	config.Set(projectName+".outputs."+projectTarget+".schema", dbSchema)
+	if flag == 0 {
+		config.Set(projectName+".outputs."+projectTarget+".server", dbServer)
+		config.Set(projectName+".outputs."+projectTarget+".username", dbUsername)
+		config.Set(projectName+".outputs."+projectTarget+".database", dbDataBase)	
+	} else {
+		config.Set(projectName+".outputs."+projectTarget+".host", dbServer)
+		config.Set(projectName+".outputs."+projectTarget+".user", dbUsername)
+		config.Set(projectName+".outputs."+projectTarget+".dbname", dbDataBase)
+	}
+		
 	err = config.WriteConfigAs("profiles.yml")
 	if err != nil {
 		return err
