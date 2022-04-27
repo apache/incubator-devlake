@@ -12,7 +12,7 @@ import (
 type TapdIterationRes struct {
 	ID           string `json:"id"`
 	Name         string `json:"name"`
-	WorkspaceId  string `json:"workspace_id"`
+	WorkspaceID  string `json:"workspace_id"`
 	Startdate    string `json:"startdate"`
 	Enddate      string `json:"enddate"`
 	Status       string `json:"status"`
@@ -42,7 +42,7 @@ func PrepareSprintTestData(taskCtx core.TaskContext) error {
 		_ = db.ScanRows(cursorSprint, &jiraSprint)
 		tapdIter := TapdIterationRes{
 			Name:        jiraSprint.Name,
-			WorkspaceId: strconv.FormatUint(data.Options.WorkspaceId, 10),
+			WorkspaceID: strconv.FormatUint(data.Options.WorkspaceID, 10),
 			Creator:     "陈映初",
 		}
 		//if jiraSprint.CompleteDate != nil {

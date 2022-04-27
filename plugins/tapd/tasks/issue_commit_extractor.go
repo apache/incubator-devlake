@@ -24,7 +24,7 @@ func ExtractIssueCommits(taskCtx core.SubTaskContext) error {
 			Params: TapdApiParams{
 				SourceId: data.Source.ID,
 				//CompanyId: data.Options.CompanyId,
-				WorkspaceId: data.Options.WorkspaceId,
+				WorkspaceID: data.Options.WorkspaceID,
 			},
 			Table: RAW_ISSUE_COMMIT_TABLE,
 		},
@@ -43,7 +43,7 @@ func ExtractIssueCommits(taskCtx core.SubTaskContext) error {
 			}
 			toolL.IssueId = issue.IssueId
 			toolL.IssueType = issue.Type
-			toolL.WorkspaceId = models.Uint64s(data.Options.WorkspaceId)
+			toolL.WorkspaceID = models.Uint64s(data.Options.WorkspaceID)
 			results := make([]interface{}, 0, 1)
 			results = append(results, &toolL)
 

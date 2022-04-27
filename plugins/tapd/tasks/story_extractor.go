@@ -57,7 +57,7 @@ func ExtractStories(taskCtx core.SubTaskContext) error {
 			Params: TapdApiParams{
 				SourceId: data.Source.ID,
 				//CompanyId: data.Options.CompanyId,
-				WorkspaceId: data.Options.WorkspaceId,
+				WorkspaceID: data.Options.WorkspaceID,
 			},
 			Table: RAW_STORY_TABLE,
 		},
@@ -72,13 +72,13 @@ func ExtractStories(taskCtx core.SubTaskContext) error {
 			toolL.SourceId = models.Uint64s(data.Source.ID)
 			toolL.StdType = "REQUIREMENT"
 			toolL.StdStatus = getStdStatus(toolL.Status)
-			toolL.Url = fmt.Sprintf("https://www.tapd.cn/%d/prong/stories/view/%d", toolL.WorkspaceId, toolL.ID)
+			toolL.Url = fmt.Sprintf("https://www.tapd.cn/%d/prong/stories/view/%d", toolL.WorkspaceID, toolL.ID)
 			if strings.Contains(toolL.Owner, ";") {
 				toolL.Owner = strings.Split(toolL.Owner, ";")[0]
 			}
 			workSpaceIssue := &models.TapdWorkSpaceIssue{
 				SourceId:    models.Uint64s(data.Source.ID),
-				WorkspaceId: toolL.WorkspaceId,
+				WorkspaceID: toolL.WorkspaceID,
 				IssueId:     toolL.ID,
 			}
 			results := make([]interface{}, 0, 3)

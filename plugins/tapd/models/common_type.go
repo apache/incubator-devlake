@@ -43,3 +43,20 @@ func (i *Ints) UnmarshalJSON(b []byte) error {
 	*i = Ints(ui)
 	return nil
 }
+
+type Floats int
+
+func (f *Floats) UnmarshalJSON(b []byte) error {
+	str := string(b)
+	if str == "null" {
+		*f = Floats(0)
+		return nil
+	}
+	str = strings.Trim(str, `"`)
+	ui, err := strconv.ParseFloat(str, 16)
+	if err != nil {
+		return err
+	}
+	*f = Floats(ui)
+	return nil
+}

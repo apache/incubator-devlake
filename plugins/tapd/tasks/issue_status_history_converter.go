@@ -12,8 +12,8 @@ package tasks
 //	data := taskCtx.GetData().(*TapdTaskData)
 //	logger := taskCtx.GetLogger()
 //	db := taskCtx.GetDb()
-//	logger.Info("convert board:%d", data.Options.WorkspaceId)
-//	cursor, err := db.Model(&models.TapdIssueStatusHistory{}).Where("source_id = ? AND workspace_id = ?", data.Source.ID, data.Options.WorkspaceId).Rows()
+//	logger.Info("convert board:%d", data.Options.WorkspaceID)
+//	cursor, err := db.Model(&models.TapdIssueStatusHistory{}).Where("source_id = ? AND workspace_id = ?", data.Source.ID, data.Options.WorkspaceID).Rows()
 //	if err != nil {
 //		return err
 //	}
@@ -24,7 +24,7 @@ package tasks
 //			Params: TapdApiParams{
 //				SourceId: data.Source.ID,
 //				//CompanyId:   data.Source.CompanyId,
-//				WorkspaceId: data.Options.WorkspaceId,
+//				WorkspaceID: data.Options.WorkspaceID,
 //			},
 //			Table: "tapd_api_%",
 //		},

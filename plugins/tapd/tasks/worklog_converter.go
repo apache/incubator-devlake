@@ -14,9 +14,9 @@ func ConvertWorklog(taskCtx core.SubTaskContext) error {
 	data := taskCtx.GetData().(*TapdTaskData)
 	logger := taskCtx.GetLogger()
 	db := taskCtx.GetDb()
-	logger.Info("convert board:%d", data.Options.WorkspaceId)
+	logger.Info("convert board:%d", data.Options.WorkspaceID)
 	worklogIdGen := didgen.NewDomainIdGenerator(&models.TapdWorklog{})
-	cursor, err := db.Model(&models.TapdWorklog{}).Where("source_id = ? AND workspace_id = ?", data.Source.ID, data.Options.WorkspaceId).Rows()
+	cursor, err := db.Model(&models.TapdWorklog{}).Where("source_id = ? AND workspace_id = ?", data.Source.ID, data.Options.WorkspaceID).Rows()
 	if err != nil {
 		return err
 	}
@@ -27,7 +27,7 @@ func ConvertWorklog(taskCtx core.SubTaskContext) error {
 			Params: TapdApiParams{
 				SourceId: data.Source.ID,
 				//CompanyId:   data.Source.CompanyId,
-				WorkspaceId: data.Options.WorkspaceId,
+				WorkspaceID: data.Options.WorkspaceID,
 			},
 			Table: RAW_WORKLOG_TABLE,
 		},
@@ -39,7 +39,7 @@ func ConvertWorklog(taskCtx core.SubTaskContext) error {
 				DomainEntity: domainlayer.DomainEntity{
 					Id: worklogIdGen.Generate(data.Source.ID, toolL.ID),
 				},
-				AuthorId:         UserIdGen.Generate(data.Source.ID, toolL.WorkspaceId, toolL.Owner),
+				AuthorId:         UserIdGen.Generate(data.Source.ID, toolL.WorkspaceID, toolL.Owner),
 				Comment:          toolL.Memo,
 				TimeSpentMinutes: int(toolL.Timespent),
 				LoggedDate:       toolL.Created.ToNullableTime(),

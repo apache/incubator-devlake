@@ -9,7 +9,7 @@ import (
 type TapdIssueCommit struct {
 	SourceId    models.Uint64s `gorm:"primaryKey"`
 	ID          models.Uint64s `gorm:"primaryKey;type:BIGINT(100)" json:"id"`
-	WorkspaceId models.Uint64s `json:"workspace_id"`
+	WorkspaceID models.Uint64s `json:"workspace_id"`
 
 	UserID          string `json:"user_id" gorm:"type:varchar(255)"`
 	HookUserName    string `json:"hook_user_name" gorm:"type:varchar(255)"`

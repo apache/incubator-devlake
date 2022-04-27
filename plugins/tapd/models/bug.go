@@ -11,7 +11,7 @@ type TapdBug struct {
 	EpicKey     string
 	Title       string `json:"name"`
 	Description string
-	WorkspaceId Uint64s           `json:"workspace_id"`
+	WorkspaceID Uint64s           `json:"workspace_id"`
 	Created     *core.Iso8601Time `json:"created"`
 	Modified    *core.Iso8601Time `json:"modified" gorm:"index"`
 	Status      string            `json:"status"`
@@ -81,11 +81,15 @@ type TapdBug struct {
 	Follower        string  `json:"follower"`
 	SyncType        string  `json:"sync_type"`
 	Label           string  `json:"label"`
-	Effort          Ints    `json:"effort"`
-	EffortCompleted Ints    `json:"effort_completed"`
-	Exceed          Ints    `json:"exceed"`
-	Remain          Ints    `json:"remain"`
+	Effort          Floats  `json:"effort"`
+	EffortCompleted Floats  `json:"effort_completed"`
+	Exceed          Floats  `json:"exceed"`
+	Remain          Floats  `json:"remain"`
 	Progress        string  `json:"progress"`
+	Estimate        Floats  `json:"estimate"`
+	Bugtype         string  `json:"bugtype"`
+
+	Milestone string `json:"milestone"`
 }
 
 func (TapdBug) TableName() string {

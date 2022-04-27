@@ -9,7 +9,7 @@ import (
 type TapdStoryChangelog struct {
 	SourceId       models.Uint64s    `gorm:"primaryKey;type:INT(10) UNSIGNED NOT NULL"`
 	ID             models.Uint64s    `gorm:"primaryKey;type:BIGINT(10) UNSIGNED NOT NULL" json:"id"`
-	WorkspaceId    models.Uint64s    `json:"workspace_id"`
+	WorkspaceID    models.Uint64s    `json:"workspace_id"`
 	WorkitemTypeID models.Uint64s    `json:"workitem_type_id"`
 	Creator        string            `json:"creator"`
 	Created        *core.Iso8601Time `json:"created"`

@@ -56,7 +56,7 @@ func ExtractTasks(taskCtx core.SubTaskContext) error {
 			Params: TapdApiParams{
 				SourceId: data.Source.ID,
 				//CompanyId: data.Options.CompanyId,
-				WorkspaceId: data.Options.WorkspaceId,
+				WorkspaceID: data.Options.WorkspaceID,
 			},
 			Table: RAW_TASK_TABLE,
 		},
@@ -75,11 +75,11 @@ func ExtractTasks(taskCtx core.SubTaskContext) error {
 			if strings.Contains(toolL.Owner, ";") {
 				toolL.Owner = strings.Split(toolL.Owner, ";")[0]
 			}
-			toolL.Url = fmt.Sprintf("https://www.tapd.cn/%d/prong/stories/view/%d", toolL.WorkspaceId, toolL.ID)
+			toolL.Url = fmt.Sprintf("https://www.tapd.cn/%d/prong/stories/view/%d", toolL.WorkspaceID, toolL.ID)
 
 			workSpaceIssue := &models.TapdWorkSpaceIssue{
 				SourceId:    models.Uint64s(data.Source.ID),
-				WorkspaceId: toolL.WorkspaceId,
+				WorkspaceID: toolL.WorkspaceID,
 				IssueId:     toolL.ID,
 			}
 			results := make([]interface{}, 0, 3)

@@ -9,7 +9,7 @@ type TapdIteration struct {
 	SourceId     Uint64s           `gorm:"primaryKey;type:INT(10) UNSIGNED NOT NULL"`
 	ID           Uint64s           `gorm:"primaryKey;type:BIGINT(10) UNSIGNED NOT NULL" json:"id"`
 	Name         string            `gorm:"type:varchar(255)" json:"name"`
-	WorkspaceId  Uint64s           `json:"workspace_id"`
+	WorkspaceID  Uint64s           `json:"workspace_id"`
 	Startdate    *core.Iso8601Time `json:"startdate"`
 	Enddate      *core.Iso8601Time `json:"enddate"`
 	Status       string            `gorm:"type:varchar(255)" json:"status"`
@@ -29,7 +29,7 @@ type TapdIteration struct {
 type TapdWorkspaceIteration struct {
 	common.NoPKModel
 	SourceId    Uint64s `gorm:"primaryKey"`
-	WorkspaceId Uint64s `gorm:"primaryKey"`
+	WorkspaceID Uint64s `gorm:"primaryKey"`
 	IterationId Uint64s `gorm:"primaryKey"`
 }
 

@@ -29,7 +29,7 @@ func GetTotalPagesFromResponse(r *http.Response, args *helper.ApiCollectorArgs) 
 		return 0, err
 	}
 	query := url.Values{}
-	query.Set("workspace_id", fmt.Sprintf("%v", data.Options.WorkspaceId))
+	query.Set("workspace_id", fmt.Sprintf("%v", data.Options.WorkspaceID))
 	res, err := apiClient.Get(fmt.Sprintf("%s/count", r.Request.URL.Path), query, nil)
 	if err != nil {
 		return 0, err
@@ -49,14 +49,14 @@ func parseIterationChangelog(taskCtx core.SubTaskContext, old string, new string
 	iterationFrom := &models.TapdIteration{}
 	err := db.Model(&models.TapdIteration{}).
 		Where("source_id = ? and workspace_id = ? and name = ?",
-			data.Source.ID, data.Options.WorkspaceId, old).Limit(1).Find(iterationFrom).Error
+			data.Source.ID, data.Options.WorkspaceID, old).Limit(1).Find(iterationFrom).Error
 	if err != nil {
 		return 0, 0, err
 	}
 	iterationTo := &models.TapdIteration{}
 	err = db.Model(&models.TapdIteration{}).
 		Where("source_id = ? and workspace_id = ? and name = ?",
-			data.Source.ID, data.Options.WorkspaceId, new).Limit(1).Find(iterationTo).Error
+			data.Source.ID, data.Options.WorkspaceID, new).Limit(1).Find(iterationTo).Error
 	if err != nil {
 		return 0, 0, err
 	}

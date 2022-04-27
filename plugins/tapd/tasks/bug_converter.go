@@ -14,9 +14,9 @@ func ConvertBug(taskCtx core.SubTaskContext) error {
 	data := taskCtx.GetData().(*TapdTaskData)
 	logger := taskCtx.GetLogger()
 	db := taskCtx.GetDb()
-	logger.Info("convert board:%d", data.Options.WorkspaceId)
+	logger.Info("convert board:%d", data.Options.WorkspaceID)
 
-	cursor, err := db.Model(&models.TapdBug{}).Where("source_id = ? AND workspace_id = ?", data.Source.ID, data.Options.WorkspaceId).Rows()
+	cursor, err := db.Model(&models.TapdBug{}).Where("source_id = ? AND workspace_id = ?", data.Source.ID, data.Options.WorkspaceID).Rows()
 	if err != nil {
 		return err
 	}
@@ -27,7 +27,7 @@ func ConvertBug(taskCtx core.SubTaskContext) error {
 			Params: TapdApiParams{
 				SourceId: data.Source.ID,
 				//CompanyId:   data.Source.CompanyId,
-				WorkspaceId: data.Options.WorkspaceId,
+				WorkspaceID: data.Options.WorkspaceID,
 			},
 			Table: RAW_BUG_TABLE,
 		},
@@ -50,8 +50,8 @@ func ConvertBug(taskCtx core.SubTaskContext) error {
 				UpdatedDate:    toolL.Modified.ToNullableTime(),
 				ParentIssueId:  IssueIdGen.Generate(toolL.SourceId, toolL.IssueID),
 				Priority:       toolL.Priority,
-				CreatorId:      UserIdGen.Generate(data.Options.SourceId, toolL.WorkspaceId, toolL.Reporter),
-				AssigneeId:     UserIdGen.Generate(data.Options.SourceId, toolL.WorkspaceId, toolL.CurrentOwner),
+				CreatorId:      UserIdGen.Generate(data.Options.SourceId, toolL.WorkspaceID, toolL.Reporter),
+				AssigneeId:     UserIdGen.Generate(data.Options.SourceId, toolL.WorkspaceID, toolL.CurrentOwner),
 				AssigneeName:   toolL.CurrentOwner,
 				Severity:       toolL.Severity,
 				Component:      toolL.Feature, // todo not sure about this
@@ -61,7 +61,7 @@ func ConvertBug(taskCtx core.SubTaskContext) error {
 			}
 			results := make([]interface{}, 0, 2)
 			boardIssue := &ticket.BoardIssue{
-				BoardId: WorkspaceIdGen.Generate(data.Options.WorkspaceId),
+				BoardId: WorkspaceIdGen.Generate(data.Options.WorkspaceID),
 				IssueId: domainL.Id,
 			}
 			results = append(results, domainL, boardIssue)

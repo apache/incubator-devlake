@@ -10,7 +10,7 @@ import (
 type TapdIssueStatusHistory struct {
 	common.NoPKModel
 	SourceId       models.Uint64s `gorm:"primaryKey"`
-	WorkspaceId    models.Uint64s
+	WorkspaceID    models.Uint64s
 	IssueId        models.Uint64s `gorm:"primaryKey"`
 	OriginalStatus string         `gorm:"primaryKey;type:varchar(250)"`
 	StartDate      time.Time      `gorm:"primaryKey"`
@@ -20,7 +20,7 @@ type TapdIssueStatusHistory struct {
 type TapdIssueAssigneeHistory struct {
 	common.NoPKModel
 	SourceId    models.Uint64s `gorm:"primaryKey"`
-	WorkspaceId models.Uint64s
+	WorkspaceID models.Uint64s
 
 	IssueId   models.Uint64s `gorm:"primaryKey"`
 	Assignee  string         `gorm:"primaryKey;type:varchar(250)"`
@@ -31,7 +31,7 @@ type TapdIssueAssigneeHistory struct {
 type TapdIssueSprintHistory struct {
 	common.NoPKModel
 	SourceId    models.Uint64s `gorm:"primaryKey"`
-	WorkspaceId models.Uint64s
+	WorkspaceID models.Uint64s
 	ChangelogId models.Uint64s
 	IssueId     models.Uint64s `gorm:"primaryKey"`
 	SprintId    models.Uint64s `gorm:"primaryKey"`

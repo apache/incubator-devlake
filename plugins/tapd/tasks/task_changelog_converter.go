@@ -16,7 +16,7 @@ import (
 type TaskChangelogItemResult struct {
 	SourceId          uint64    `gorm:"primaryKey;type:INT(10) UNSIGNED NOT NULL"`
 	ID                uint64    `gorm:"primaryKey;type:BIGINT(10) UNSIGNED NOT NULL" json:"id"`
-	WorkspaceId       uint64    `json:"workspace_id"`
+	WorkspaceID       uint64    `json:"workspace_id"`
 	WorkitemTypeID    uint64    `json:"workitem_type_id"`
 	Creator           string    `json:"creator"`
 	Created           time.Time `json:"created"`
@@ -39,12 +39,12 @@ func ConvertTaskChangelog(taskCtx core.SubTaskContext) error {
 	data := taskCtx.GetData().(*TapdTaskData)
 	logger := taskCtx.GetLogger()
 	db := taskCtx.GetDb()
-	logger.Info("convert changelog :%d", data.Options.WorkspaceId)
+	logger.Info("convert changelog :%d", data.Options.WorkspaceID)
 	clIdGen := didgen.NewDomainIdGenerator(&models.TapdTaskChangelog{})
 
 	cursor, err := db.Table("_tool_tapd_task_changelog_items").
 		Joins("left join _tool_tapd_task_changelogs tc on tc.id = _tool_tapd_task_changelog_items.changelog_id ").
-		Where("tc.source_id = ? AND tc.workspace_id = ?", data.Source.ID, data.Options.WorkspaceId).
+		Where("tc.source_id = ? AND tc.workspace_id = ?", data.Source.ID, data.Options.WorkspaceID).
 		Select("tc.*, _tool_tapd_task_changelog_items.*").
 		Rows()
 	if err != nil {
@@ -58,7 +58,7 @@ func ConvertTaskChangelog(taskCtx core.SubTaskContext) error {
 			Params: TapdApiParams{
 				SourceId: data.Source.ID,
 				//CompanyId:   data.Source.CompanyId,
-				WorkspaceId: data.Options.WorkspaceId,
+				WorkspaceID: data.Options.WorkspaceID,
 			},
 			Table: RAW_TASK_CHANGELOG_TABLE,
 		},
@@ -71,7 +71,7 @@ func ConvertTaskChangelog(taskCtx core.SubTaskContext) error {
 					Id: fmt.Sprintf("%s:%s", clIdGen.Generate(data.Source.ID, cl.ID), cl.Field),
 				},
 				IssueId:     IssueIdGen.Generate(data.Source.ID, cl.TaskID),
-				AuthorId:    UserIdGen.Generate(data.Source.ID, data.Options.WorkspaceId, cl.Creator),
+				AuthorId:    UserIdGen.Generate(data.Source.ID, data.Options.WorkspaceID, cl.Creator),
 				AuthorName:  cl.Creator,
 				FieldId:     cl.Field,
 				FieldName:   cl.Field,

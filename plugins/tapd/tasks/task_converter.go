@@ -14,9 +14,9 @@ func ConvertTask(taskCtx core.SubTaskContext) error {
 	data := taskCtx.GetData().(*TapdTaskData)
 	logger := taskCtx.GetLogger()
 	db := taskCtx.GetDb()
-	logger.Info("convert board:%d", data.Options.WorkspaceId)
+	logger.Info("convert board:%d", data.Options.WorkspaceID)
 
-	cursor, err := db.Model(&models.TapdTask{}).Where("source_id = ? AND workspace_id = ?", data.Source.ID, data.Options.WorkspaceId).Rows()
+	cursor, err := db.Model(&models.TapdTask{}).Where("source_id = ? AND workspace_id = ?", data.Source.ID, data.Options.WorkspaceID).Rows()
 	if err != nil {
 		return err
 	}
@@ -27,7 +27,7 @@ func ConvertTask(taskCtx core.SubTaskContext) error {
 			Params: TapdApiParams{
 				SourceId: data.Source.ID,
 				//CompanyId:   data.Source.CompanyId,
-				WorkspaceId: data.Options.WorkspaceId,
+				WorkspaceID: data.Options.WorkspaceID,
 			},
 			Table: RAW_TASK_TABLE,
 		},
@@ -50,8 +50,8 @@ func ConvertTask(taskCtx core.SubTaskContext) error {
 				UpdatedDate:    toolL.Modified.ToNullableTime(),
 				ParentIssueId:  IssueIdGen.Generate(toolL.SourceId, toolL.StoryID),
 				Priority:       toolL.Priority,
-				CreatorId:      UserIdGen.Generate(data.Options.SourceId, toolL.WorkspaceId, toolL.Creator),
-				AssigneeId:     UserIdGen.Generate(data.Options.SourceId, toolL.WorkspaceId, toolL.Owner),
+				CreatorId:      UserIdGen.Generate(data.Options.SourceId, toolL.WorkspaceID, toolL.Creator),
+				AssigneeId:     UserIdGen.Generate(data.Options.SourceId, toolL.WorkspaceID, toolL.Owner),
 				AssigneeName:   toolL.Owner,
 			}
 			if domainL.ResolutionDate != nil && domainL.CreatedDate != nil {
@@ -59,7 +59,7 @@ func ConvertTask(taskCtx core.SubTaskContext) error {
 			}
 			results := make([]interface{}, 0, 2)
 			boardIssue := &ticket.BoardIssue{
-				BoardId: WorkspaceIdGen.Generate(data.Options.WorkspaceId),
+				BoardId: WorkspaceIdGen.Generate(data.Options.WorkspaceID),
 				IssueId: domainL.Id,
 			}
 			results = append(results, domainL, boardIssue)

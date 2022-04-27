@@ -13,8 +13,8 @@ func ConvertUser(taskCtx core.SubTaskContext) error {
 	data := taskCtx.GetData().(*TapdTaskData)
 	logger := taskCtx.GetLogger()
 	db := taskCtx.GetDb()
-	logger.Info("convert board:%d", data.Options.WorkspaceId)
-	cursor, err := db.Model(&models.TapdUser{}).Where("source_id = ? AND workspace_id = ?", data.Source.ID, data.Options.WorkspaceId).Rows()
+	logger.Info("convert board:%d", data.Options.WorkspaceID)
+	cursor, err := db.Model(&models.TapdUser{}).Where("source_id = ? AND workspace_id = ?", data.Source.ID, data.Options.WorkspaceID).Rows()
 	if err != nil {
 		return err
 	}
@@ -25,7 +25,7 @@ func ConvertUser(taskCtx core.SubTaskContext) error {
 			Params: TapdApiParams{
 				SourceId: data.Source.ID,
 				//CompanyId:   data.Source.CompanyId,
-				WorkspaceId: data.Options.WorkspaceId,
+				WorkspaceID: data.Options.WorkspaceID,
 			},
 			Table: RAW_USER_TABLE,
 		},
@@ -35,7 +35,7 @@ func ConvertUser(taskCtx core.SubTaskContext) error {
 			userTool := inputRow.(*models.TapdUser)
 			issue := &user.User{
 				DomainEntity: domainlayer.DomainEntity{
-					Id: UserIdGen.Generate(userTool.SourceId, userTool.WorkspaceId, userTool.User),
+					Id: UserIdGen.Generate(userTool.SourceId, userTool.WorkspaceID, userTool.User),
 				},
 				Name: userTool.Name,
 			}

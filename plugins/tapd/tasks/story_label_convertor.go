@@ -22,7 +22,7 @@ func ConvertStoryLabels(taskCtx core.SubTaskContext) error {
 
 	cursor, err := db.Model(&models.TapdStoryLabel{}).
 		Joins(`left join _tool_tapd_workspace_issues on _tool_tapd_workspace_issues.issue_id = _tool_tapd_story_labels.story_id`).
-		Where("_tool_tapd_workspace_issues.workspace_id = ?", data.Options.WorkspaceId).
+		Where("_tool_tapd_workspace_issues.workspace_id = ?", data.Options.WorkspaceID).
 		Order("issue_id ASC").
 		Rows()
 	if err != nil {
@@ -36,7 +36,7 @@ func ConvertStoryLabels(taskCtx core.SubTaskContext) error {
 			Params: TapdApiParams{
 				SourceId: data.Source.ID,
 				//CompanyId:   data.Source.CompanyId,
-				WorkspaceId: data.Options.WorkspaceId,
+				WorkspaceID: data.Options.WorkspaceID,
 			},
 			Table: RAW_BUG_TABLE,
 		},

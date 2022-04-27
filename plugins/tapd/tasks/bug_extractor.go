@@ -57,7 +57,7 @@ func ExtractBugs(taskCtx core.SubTaskContext) error {
 			Params: TapdApiParams{
 				SourceId: data.Source.ID,
 				//CompanyId: data.Options.CompanyId,
-				WorkspaceId: data.Options.WorkspaceId,
+				WorkspaceID: data.Options.WorkspaceID,
 			},
 			Table: RAW_BUG_TABLE,
 		},
@@ -73,13 +73,13 @@ func ExtractBugs(taskCtx core.SubTaskContext) error {
 			toolL.Type = "BUG"
 			toolL.StdType = "BUG"
 			toolL.StdStatus = getStdStatus(toolL.Status)
-			toolL.Url = fmt.Sprintf("https://www.tapd.cn/%d/prong/stories/view/%d", toolL.WorkspaceId, toolL.ID)
+			toolL.Url = fmt.Sprintf("https://www.tapd.cn/%d/prong/stories/view/%d", toolL.WorkspaceID, toolL.ID)
 			if strings.Contains(toolL.CurrentOwner, ";") {
 				toolL.CurrentOwner = strings.Split(toolL.CurrentOwner, ";")[0]
 			}
 			workSpaceIssue := &models.TapdWorkSpaceIssue{
 				SourceId:    models.Uint64s(data.Source.ID),
-				WorkspaceId: toolL.WorkspaceId,
+				WorkspaceID: toolL.WorkspaceID,
 				IssueId:     toolL.ID,
 			}
 			results := make([]interface{}, 0, 3)

@@ -8,7 +8,7 @@ import (
 
 type TapdBugChangelog struct {
 	SourceId    models.Uint64s    `gorm:"primaryKey;type:INT(10) UNSIGNED NOT NULL"`
-	WorkspaceId models.Uint64s    `gorm:"type:INT(10) UNSIGNED NOT NULL"`
+	WorkspaceID models.Uint64s    `gorm:"type:INT(10) UNSIGNED NOT NULL"`
 	ID          models.Uint64s    `gorm:"primaryKey;type:BIGINT(10) UNSIGNED NOT NULL" json:"id"`
 	BugID       models.Uint64s    `json:"bug_id"`
 	Author      string            `json:"author"`

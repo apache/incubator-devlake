@@ -23,7 +23,7 @@ func CollectUsers(taskCtx core.SubTaskContext) error {
 			Params: TapdApiParams{
 				SourceId: data.Source.ID,
 				//CompanyId: data.Options.CompanyId,
-				WorkspaceId: data.Options.WorkspaceId,
+				WorkspaceID: data.Options.WorkspaceID,
 			},
 			Table: RAW_USER_TABLE,
 		},
@@ -32,7 +32,7 @@ func CollectUsers(taskCtx core.SubTaskContext) error {
 		//PageSize:    100,
 		Query: func(reqData *helper.RequestData) (url.Values, error) {
 			query := url.Values{}
-			query.Set("workspace_id", fmt.Sprintf("%v", data.Options.WorkspaceId))
+			query.Set("workspace_id", fmt.Sprintf("%v", data.Options.WorkspaceID))
 			//query.Set("page", fmt.Sprintf("%v", reqData.Pager.Page))
 			//query.Set("limit", fmt.Sprintf("%v", reqData.Pager.Size))
 			return query, nil

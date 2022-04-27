@@ -21,7 +21,7 @@ import (
 
 type TapdOptions struct {
 	SourceId    uint64   `json:"sourceId"`
-	WorkspaceId uint64   `json:"workspceId"`
+	WorkspaceID uint64   `json:"workspceId"`
 	CompanyId   uint64   `json:"companyId"`
 	Tasks       []string `json:"tasks,omitempty"`
 	Since       string
@@ -74,7 +74,7 @@ type Temp struct {
 type TapdBugReq struct {
 	Title       string `json:"title"`
 	Description string `json:"description"`
-	WorkspaceId string `json:"workspace_id"`
+	WorkspaceID string `json:"workspace_id"`
 	Reporter    string `json:"reporter"`
 	Created     string `json:"created"`
 	Status      string `json:"status"`
@@ -138,7 +138,7 @@ func PrepareTestData(options TapdOptions) error {
 			tapdIssue := TapdStoryReq{
 				Name:            jiraIssueWithIter.Key,
 				Description:     jiraIssueWithIter.Summary,
-				WorkspaceID:     strconv.FormatUint(options.WorkspaceId, 10),
+				WorkspaceID:     strconv.FormatUint(options.WorkspaceID, 10),
 				Creator:         jiraIssueWithIter.CreatorDisplayName,
 				Created:         jiraIssueWithIter.Created.String(),
 				Modified:        jiraIssueWithIter.Updated.String(),
@@ -190,7 +190,7 @@ func PrepareTestData(options TapdOptions) error {
 			tapdIssue := TapdStoryReq{
 				Name:            jiraIssueWithIter.Key,
 				Description:     jiraIssueWithIter.Summary,
-				WorkspaceID:     strconv.FormatUint(options.WorkspaceId, 10),
+				WorkspaceID:     strconv.FormatUint(options.WorkspaceID, 10),
 				Creator:         jiraIssueWithIter.CreatorDisplayName,
 				Created:         jiraIssueWithIter.Created.String(),
 				Modified:        jiraIssueWithIter.Updated.String(),
@@ -236,7 +236,7 @@ func PrepareTestData(options TapdOptions) error {
 			tapdIssue := TapdBugReq{
 				Title:       jiraIssueWithIter.Key,
 				Description: jiraIssueWithIter.Summary,
-				WorkspaceId: strconv.FormatUint(options.WorkspaceId, 10),
+				WorkspaceID: strconv.FormatUint(options.WorkspaceID, 10),
 				Reporter:    jiraIssueWithIter.CreatorDisplayName,
 				Created:     jiraIssueWithIter.Created.String(),
 				Status:      jiraIssueWithIter.StatusKey,

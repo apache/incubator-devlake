@@ -8,7 +8,7 @@ import (
 type TapdWorklog struct {
 	SourceId    Uint64s           `gorm:"primaryKey;type:INT(10) UNSIGNED NOT NULL"`
 	ID          Uint64s           `gorm:"primaryKey;type:BIGINT(10) UNSIGNED NOT NULL" json:"id"`
-	WorkspaceId Uint64s           `json:"workspace_id"`
+	WorkspaceID Uint64s           `json:"workspace_id"`
 	EntityType  string            `gorm:"type:varchar(255)" json:"entity_type"`
 	EntityID    Uint64s           `json:"entity_id"`
 	Timespent   Ints              `json:"timespent"`

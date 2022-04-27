@@ -7,7 +7,7 @@ import (
 
 type TapdBugChangelog struct {
 	SourceId    Uint64s           `gorm:"primaryKey;type:INT(10) UNSIGNED NOT NULL"`
-	WorkspaceId Uint64s           `gorm:"type:INT(10) UNSIGNED NOT NULL"`
+	WorkspaceID Uint64s           `gorm:"type:INT(10) UNSIGNED NOT NULL"`
 	ID          Uint64s           `gorm:"primaryKey;type:BIGINT(10) UNSIGNED NOT NULL" json:"id"`
 	BugID       Uint64s           `json:"bug_id"`
 	Author      string            `json:"author"`

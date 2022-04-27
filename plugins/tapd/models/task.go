@@ -10,7 +10,7 @@ type TapdTask struct {
 	ID              Uint64s           `gorm:"primaryKey;type:BIGINT(100)" json:"id"`
 	Name            string            `gorm:"type:varchar(255)" json:"name"`
 	Description     string            `json:"description"`
-	WorkspaceId     Uint64s           `json:"workspace_id"`
+	WorkspaceID     Uint64s           `json:"workspace_id"`
 	Creator         string            `gorm:"type:varchar(255)" json:"creator"`
 	Created         *core.Iso8601Time `json:"created"`
 	Modified        *core.Iso8601Time `json:"modified" gorm:"index"`
@@ -22,10 +22,10 @@ type TapdTask struct {
 	Priority        string            `gorm:"type:varchar(255)" json:"priority"`
 	IterationID     Uint64s           `json:"iteration_id"`
 	Completed       *core.Iso8601Time `json:"completed"`
-	Effort          Ints              `json:"effort"`
-	EffortCompleted Ints              `json:"effort_completed"`
-	Exceed          Ints              `json:"exceed"`
-	Remain          Ints              `json:"remain"`
+	Effort          Floats            `json:"effort"`
+	EffortCompleted Floats            `json:"effort_completed"`
+	Exceed          Floats            `json:"exceed"`
+	Remain          Floats            `json:"remain"`
 	StdStatus       string
 	StdType         string
 	Type            string

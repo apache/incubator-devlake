@@ -23,7 +23,7 @@ type TapdWorkspace struct {
 
 type TapdWorkSpaceIssue struct {
 	SourceId    Uint64s `gorm:"primaryKey"`
-	WorkspaceId Uint64s `gorm:"primaryKey"`
+	WorkspaceID Uint64s `gorm:"primaryKey"`
 	IssueId     Uint64s `gorm:"primaryKey"`
 	common.NoPKModel
 }

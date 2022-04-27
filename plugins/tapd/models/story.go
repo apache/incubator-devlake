@@ -11,7 +11,7 @@ type TapdStory struct {
 	WorkitemTypeID  Uint64s           `json:"workitem_type_id"`
 	Name            string            `gorm:"type:varchar(255)" json:"name"`
 	Description     string            `json:"description"`
-	WorkspaceId     Uint64s           `json:"workspace_id"`
+	WorkspaceID     Uint64s           `json:"workspace_id"`
 	Creator         string            `gorm:"type:varchar(255)"`
 	Created         *core.Iso8601Time `json:"created"`
 	Modified        *core.Iso8601Time `json:"modified" gorm:"index"`
@@ -36,10 +36,10 @@ type TapdStory struct {
 	ChildrenID      string            `gorm:"type:varchar(255)" json:"children_id"`
 	AncestorID      Uint64s           `json:"ancestor_id"`
 	BusinessValue   string            `gorm:"type:varchar(255)" json:"business_value"`
-	Effort          Ints              `json:"effort"`
-	EffortCompleted Ints              `json:"effort_completed"`
-	Exceed          Ints              `json:"exceed"`
-	Remain          Ints              `json:"remain"`
+	Effort          Floats            `json:"effort"`
+	EffortCompleted Floats            `json:"effort_completed"`
+	Exceed          Floats            `json:"exceed"`
+	Remain          Floats            `json:"remain"`
 	ReleaseID       Uint64s           `json:"release_id"`
 	Confidential    string            `gorm:"type:varchar(255)" json:"confidential"`
 	TemplatedID     Uint64s           `json:"templated_id"`

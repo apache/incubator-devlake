@@ -207,7 +207,7 @@ func (c *SprintIssuesConverter) handleAssignee(sourceId uint64, cl models.Change
 	}
 	var assignee string
 	if cl.To != "" {
-		assignee = UserIdGen.Generate(sourceId, c.data.Options.WorkspaceId, cl.To)
+		assignee = UserIdGen.Generate(sourceId, c.data.Options.WorkspaceID, cl.To)
 	}
 	now := time.Now()
 	c.assignee[issueId] = &ticket.IssueAssigneeHistory{

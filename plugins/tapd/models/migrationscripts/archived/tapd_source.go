@@ -16,7 +16,7 @@ type TapdSource struct {
 	Proxy                      string      `gorm:"type:varchar(255)"`
 	RateLimit                  models.Ints `comment:"api request rate limt per second"`
 	//CompanyId                  models.Uint64s `json:"companyId" validate:"required"`
-	WorkspaceId models.Uint64s `json:"workspaceId" validate:"required"`
+	WorkspaceID models.Uint64s `json:"workspaceId" validate:"required"`
 }
 
 type TapdIssueTypeMapping struct {

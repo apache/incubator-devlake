@@ -38,11 +38,11 @@ func CollectStoryIssueCommits(taskCtx core.SubTaskContext) error {
 
 	tx := db.Raw("? UNION ? UNION ?", db.Model(&models.TapdStory{}).Select("id as issue_id, 'story' as type, modified").
 		Where("source_id = ? and workspace_id = ?",
-			data.Options.SourceId, data.Options.WorkspaceId), db.Model(&models.TapdTask{}).Select("id as issue_id, 'task' as type, modified").
+			data.Options.SourceId, data.Options.WorkspaceID), db.Model(&models.TapdTask{}).Select("id as issue_id, 'task' as type, modified").
 		Where("source_id = ? and workspace_id = ?",
-			data.Options.SourceId, data.Options.WorkspaceId), db.Model(&models.TapdBug{}).Select("id as issue_id, 'bug' as type, modified").
+			data.Options.SourceId, data.Options.WorkspaceID), db.Model(&models.TapdBug{}).Select("id as issue_id, 'bug' as type, modified").
 		Where("source_id = ? and workspace_id = ?",
-			data.Options.SourceId, data.Options.WorkspaceId))
+			data.Options.SourceId, data.Options.WorkspaceID))
 	if since != nil {
 		tx = tx.Where("modified > ?", since)
 	}
@@ -60,7 +60,7 @@ func CollectStoryIssueCommits(taskCtx core.SubTaskContext) error {
 			Params: TapdApiParams{
 				SourceId: data.Source.ID,
 				//CompanyId: data.Options.CompanyId,
-				WorkspaceId: data.Options.WorkspaceId,
+				WorkspaceID: data.Options.WorkspaceID,
 			},
 			Table: RAW_ISSUE_COMMIT_TABLE,
 		},
@@ -72,7 +72,7 @@ func CollectStoryIssueCommits(taskCtx core.SubTaskContext) error {
 		Query: func(reqData *helper.RequestData) (url.Values, error) {
 			input := reqData.Input.(*models.IssueTypeAndId)
 			query := url.Values{}
-			query.Set("workspace_id", fmt.Sprintf("%v", data.Options.WorkspaceId))
+			query.Set("workspace_id", fmt.Sprintf("%v", data.Options.WorkspaceID))
 			query.Set("type", input.Type)
 			query.Set("object_id", fmt.Sprintf("%v", input.IssueId))
 			query.Set("order", "created asc")

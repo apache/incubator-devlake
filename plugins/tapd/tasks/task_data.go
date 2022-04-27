@@ -9,7 +9,7 @@ import (
 
 type TapdOptions struct {
 	SourceId    uint64   `json:"sourceId"`
-	WorkspaceId uint64   `json:"workspceId"`
+	WorkspaceID uint64   `json:"workspceId"`
 	CompanyId   uint64   `json:"companyId"`
 	Tasks       []string `json:"tasks,omitempty"`
 	Since       string
