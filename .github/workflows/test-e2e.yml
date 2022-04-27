@@ -17,7 +17,7 @@ jobs:
       - uses: actions/checkout@v3
       - name: Test
         env:
-          DB_URL: root:root@tcp(db:3306)/lake?charset=utf8mb4&loc=Asia%2fShanghai&parseTime=True
+          DB_URL: mysql://root:root@db:3306/lake?charset=utf8mb4&loc=Asia%2fShanghai&parseTime=True
         run: |
           cp .env.example .env
           make e2e-test

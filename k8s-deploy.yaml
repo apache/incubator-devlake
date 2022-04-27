@@ -19,7 +19,7 @@ data:
   PLUGIN_DIR: bin/plugins
 
   # Lake Database Connection String
-  DB_URL: merico:merico@tcp(mysql:3306)/lake?charset=utf8mb4&parseTime=True
+  DB_URL: mysql://merico:merico@mysql:3306/lake?charset=utf8mb4&parseTime=True
 
   # Lake REST API
   PORT: :8080
@@ -113,7 +113,7 @@ data:
     PLUGIN_DIR=bin/plugins
 
     # Lake Database Connection String
-    DB_URL=merico:merico@tcp(mysql:3306)/lake?charset=utf8mb4&parseTime=True
+    DB_URL=mysql://merico:merico@mysql:3306/lake?charset=utf8mb4&parseTime=True
 
     # Lake REST API
     PORT=:8080

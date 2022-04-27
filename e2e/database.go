@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"fmt"
 	"log"
+	"net/url"
 
 	mysqlGorm "gorm.io/driver/mysql"
 	"gorm.io/gorm"
@@ -12,6 +13,13 @@ import (
 func InitializeDb() (*sql.DB, error) {
 	v := LoadConfigFile()
 	dbUrl := v.GetString("DB_URL")
+	u, err := url.Parse(dbUrl)
+	if err != nil {
+		return nil, err
+	}
+	if u.Scheme == "mysql" {
+		dbUrl = fmt.Sprintf(("%s@tcp(%s)%s?%s"), u.User.String(), u.Host, u.Path, u.RawQuery)
+	}
 	db, err := sql.Open("mysql", dbUrl)
 	if err != nil {
 		return nil, err
