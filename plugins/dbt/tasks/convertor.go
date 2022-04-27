@@ -64,7 +64,7 @@ func DbtConverter(taskCtx core.SubTaskContext) error {
 	config.Set(projectName+".outputs."+projectTarget+".port", dbPortInt)
 	config.Set(projectName+".outputs."+projectTarget+".password", dbPassword)
 	config.Set(projectName+".outputs."+projectTarget+".schema", dbSchema)
-	if flag {
+	if dbType == "mysql" {
 		config.Set(projectName+".outputs."+projectTarget+".server", dbServer)
 		config.Set(projectName+".outputs."+projectTarget+".username", dbUsername)
 		config.Set(projectName+".outputs."+projectTarget+".database", dbDataBase)	
