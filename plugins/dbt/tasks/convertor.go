@@ -37,8 +37,9 @@ func DbtConverter(taskCtx core.SubTaskContext) error {
 	dbServer, dbPort, _ := net.SplitHostPort(u.Host)
 	dbDataBase := u.Path[1:]
 	var dbSchema string
-
-	if dbType == "mysql" {
+	
+	flag := strings.Compare(dbType, "mysql")
+	if flag == 0 {
 		// mysql database
 		dbSchema = dbDataBase
 	} else {
@@ -64,7 +65,7 @@ func DbtConverter(taskCtx core.SubTaskContext) error {
 	config.Set(projectName+".outputs."+projectTarget+".port", dbPortInt)
 	config.Set(projectName+".outputs."+projectTarget+".password", dbPassword)
 	config.Set(projectName+".outputs."+projectTarget+".schema", dbSchema)
-	if dbType == "mysql" {
+	if flag == 0 {
 		config.Set(projectName+".outputs."+projectTarget+".server", dbServer)
 		config.Set(projectName+".outputs."+projectTarget+".username", dbUsername)
 		config.Set(projectName+".outputs."+projectTarget+".database", dbDataBase)	
