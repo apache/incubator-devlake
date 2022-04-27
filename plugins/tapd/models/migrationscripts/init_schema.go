@@ -23,8 +23,6 @@ func (*InitSchemas) Up(ctx context.Context, db *gorm.DB) error {
 		&archived.TapdTaskChangelogItem{},
 		&archived.TapdIssue{},
 		&archived.TapdIssueCommit{},
-		&archived.TapdIssueTypeMapping{},
-		&archived.TapdIssueStatusMapping{},
 		&archived.TapdIssueSprintHistory{},
 		&archived.TapdIssueStatusHistory{},
 		&archived.TapdIssueAssigneeHistory{},
@@ -37,6 +35,8 @@ func (*InitSchemas) Up(ctx context.Context, db *gorm.DB) error {
 		&archived.TapdTaskLabel{},
 		&archived.TapdBugLabel{},
 		&archived.TapdStoryLabel{},
+		&archived.TapdBugStatus{},
+		&archived.TapdStoryStatus{},
 	)
 }
 

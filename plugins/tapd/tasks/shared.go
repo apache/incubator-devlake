@@ -1,11 +1,13 @@
 package tasks
 
 import (
+	"encoding/json"
 	"fmt"
 	"github.com/merico-dev/lake/models/domainlayer/didgen"
 	"github.com/merico-dev/lake/plugins/core"
 	"github.com/merico-dev/lake/plugins/helper"
 	"github.com/merico-dev/lake/plugins/tapd/models"
+	"io/ioutil"
 	"net/http"
 	"net/url"
 )
@@ -61,4 +63,12 @@ func parseIterationChangelog(taskCtx core.SubTaskContext, old string, new string
 		return 0, 0, err
 	}
 	return iterationFrom.ID, iterationTo.ID, nil
+}
+func GetRawMessageDirectFromResponse(res *http.Response) ([]json.RawMessage, error) {
+	body, err := ioutil.ReadAll(res.Body)
+	res.Body.Close()
+	if err != nil {
+		return nil, err
+	}
+	return []json.RawMessage{body}, nil
 }

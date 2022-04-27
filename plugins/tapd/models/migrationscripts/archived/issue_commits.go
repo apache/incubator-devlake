@@ -7,18 +7,17 @@ import (
 )
 
 type TapdIssueCommit struct {
-	SourceId    models.Uint64s `gorm:"primaryKey"`
-	ID          models.Uint64s `gorm:"primaryKey;type:BIGINT(100)" json:"id"`
-	WorkspaceID models.Uint64s `json:"workspace_id"`
+	SourceId models.Uint64s `gorm:"primaryKey"`
+	ID       models.Uint64s `gorm:"primaryKey;type:BIGINT(100)" json:"id"`
 
-	UserID          string `json:"user_id" gorm:"type:varchar(255)"`
-	HookUserName    string `json:"hook_user_name" gorm:"type:varchar(255)"`
-	CommitID        string `json:"commit_id" gorm:"type:varchar(255)"`
-	WorkspaceID     string `json:"workspace_id" gorm:"type:varchar(255)"`
-	Message         string `json:"message" gorm:"type:varchar(255)"`
-	Path            string `json:"path" gorm:"type:varchar(255)"`
-	WebURL          string `json:"web_url" gorm:"type:varchar(255)"`
-	HookProjectName string `json:"hook_project_name" gorm:"type:varchar(255)"`
+	UserID          string         `json:"user_id" gorm:"type:varchar(255)"`
+	HookUserName    string         `json:"hook_user_name" gorm:"type:varchar(255)"`
+	CommitID        string         `json:"commit_id" gorm:"type:varchar(255)"`
+	WorkspaceID     models.Uint64s `json:"workspace_id" gorm:"type:varchar(255)"`
+	Message         string         `json:"message" gorm:"type:varchar(255)"`
+	Path            string         `json:"path" gorm:"type:varchar(255)"`
+	WebURL          string         `json:"web_url" gorm:"type:varchar(255)"`
+	HookProjectName string         `json:"hook_project_name" gorm:"type:varchar(255)"`
 
 	Ref        string            `json:"ref" gorm:"type:varchar(255)"`
 	RefStatus  string            `json:"ref_status" gorm:"type:varchar(255)"`

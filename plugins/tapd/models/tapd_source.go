@@ -17,30 +17,10 @@ type TapdSource struct {
 	//CompanyId                  Uint64s `json:"companyId" validate:"required"`
 }
 
-type TapdIssueTypeMapping struct {
-	SourceID     uint64 `gorm:"primaryKey" json:"jiraSourceId" validate:"required"`
-	UserType     string `gorm:"type:varchar(50);primaryKey" json:"userType" validate:"required"`
-	StandardType string `gorm:"type:varchar(50)" json:"standardType" validate:"required"`
-}
-
-type TapdIssueStatusMapping struct {
-	SourceID       uint64 `gorm:"primaryKey" json:"jiraSourceId" validate:"required"`
-	UserType       string `gorm:"type:varchar(50);primaryKey" json:"userType" validate:"required"`
-	UserStatus     string `gorm:"type:varchar(50);primaryKey" json:"userStatus" validate:"required"`
-	StandardStatus string `gorm:"type:varchar(50)" json:"standardStatus" validate:"required"`
-}
-
 type TapdSourceDetail struct {
 	TapdSource
-	TypeMappings map[string]map[string]interface{} `json:"typeMappings"`
 }
 
 func (TapdSource) TableName() string {
 	return "_tool_tapd_sources"
-}
-func (TapdIssueTypeMapping) TableName() string {
-	return "_tool_tapd_issue_type_mappings"
-}
-func (TapdIssueStatusMapping) TableName() string {
-	return "_tool_tapd_issue_status_mappings"
 }

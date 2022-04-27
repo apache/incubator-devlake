@@ -25,23 +25,7 @@ type TapdBugRes struct {
 
 func ExtractBugs(taskCtx core.SubTaskContext) error {
 	data := taskCtx.GetData().(*TapdTaskData)
-	db := taskCtx.GetDb()
-	sourceId := data.Source.ID
 
-	// prepare getStdStatus function
-	var statusMappingRows []*models.TapdIssueStatusMapping
-	err := db.Find(&statusMappingRows, "source_id = ?", sourceId).Error
-	if err != nil {
-		return err
-	}
-	statusMappings := make(map[string]string)
-	makeStatusMappingKey := func(userType string, userStatus string) string {
-		return fmt.Sprintf("%v:%v", userType, userStatus)
-	}
-	for _, statusMappingRow := range statusMappingRows {
-		k := makeStatusMappingKey(statusMappingRow.UserType, statusMappingRow.UserStatus)
-		statusMappings[k] = statusMappingRow.StandardStatus
-	}
 	getStdStatus := func(statusKey string) string {
 		if statusKey == "done" {
 			return ticket.DONE

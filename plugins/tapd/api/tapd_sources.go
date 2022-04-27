@@ -97,6 +97,9 @@ func refreshAndSaveTapdSource(tapdSource *models.TapdSource, data map[string]int
 			tx.Commit()
 		}
 	}()
+	if tapdSource.RateLimit == 0 {
+		tapdSource.RateLimit = 10800
+	}
 	if tapdSource.ID > 0 {
 		err = tx.Save(tapdSource).Error
 	} else {
@@ -107,14 +110,6 @@ func refreshAndSaveTapdSource(tapdSource *models.TapdSource, data map[string]int
 			return fmt.Errorf("tapd source with name %s already exists", tapdSource.Name)
 		}
 		return err
-	}
-	// perform optional operation
-	typeMappings := data["typeMappings"]
-	if typeMappings != nil {
-		err = saveTypeMappings(tx, tapdSource.ID, typeMappings)
-		if err != nil {
-			return err
-		}
 	}
 
 	return nil
@@ -202,15 +197,6 @@ func DeleteSource(input *core.ApiResourceInput) (*core.ApiResourceOutput, error)
 	if err != nil {
 		return nil, err
 	}
-	// cascading delete
-	err = db.Where("source_id = ?", tapdSource.ID).Delete(&models.TapdIssueTypeMapping{}).Error
-	if err != nil {
-		return nil, err
-	}
-	err = db.Where("source_id = ?", tapdSource.ID).Delete(&models.TapdIssueStatusMapping{}).Error
-	if err != nil {
-		return nil, err
-	}
 
 	return &core.ApiResourceOutput{Body: tapdSource}, nil
 }
@@ -256,41 +242,8 @@ func GetSource(input *core.ApiResourceInput) (*core.ApiResourceOutput, error) {
 	}
 
 	detail := &models.TapdSourceDetail{
-		TapdSource:   *tapdSource,
-		TypeMappings: make(map[string]map[string]interface{}),
+		TapdSource: *tapdSource,
 	}
-
-	typeMappings, err := findIssueTypeMappingBySourceId(tapdSource.ID)
-	if err != nil {
-		return nil, err
-	}
-	for _, tapdTypeMapping := range typeMappings {
-		// type mapping
-		typeMappingDict := map[string]interface{}{
-			"standardType": tapdTypeMapping.StandardType,
-		}
-		detail.TypeMappings[tapdTypeMapping.UserType] = typeMappingDict
-
-		// status mapping
-		statusMappings, err := findIssueStatusMappingBySourceIdAndUserType(
-			tapdSource.ID,
-			tapdTypeMapping.UserType,
-		)
-		if err != nil {
-			return nil, err
-		}
-		if len(statusMappings) == 0 {
-			continue
-		}
-		statusMappingsDict := make(map[string]interface{})
-		for _, tapdStatusMapping := range statusMappings {
-			statusMappingsDict[tapdStatusMapping.UserStatus] = map[string]interface{}{
-				"standardStatus": tapdStatusMapping.StandardStatus,
-			}
-		}
-		typeMappingDict["statusMappings"] = statusMappingsDict
-	}
-
 	return &core.ApiResourceOutput{Body: detail}, nil
 }
 
