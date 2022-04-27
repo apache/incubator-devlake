@@ -73,9 +73,3 @@ func NewTapdApiPageClient(taskCtx core.TaskContext, source *models.TapdSource) (
 
 	return apiClient, nil
 }
-
-type TapdPagination struct {
-	StartAt    int `json:"startAt"`
-	MaxResults int `json:"maxResults"`
-	Total      int `json:"total"`
-}
