@@ -18,7 +18,7 @@ func InitializeDb() (*sql.DB, error) {
 		return nil, err
 	}
 	if u.Scheme == "mysql" {
-		dbUrl = u.User.String() + "@tcp(" + u.Host + ")" + u.Path + "?" + u.RawQuery
+		dbUrl = fmt.Sprintf(("%s@tcp(%s)%s?%s"), u.User.String(), u.Host, u.Path, u.RawQuery)
 	}
 	db, err := sql.Open("mysql", dbUrl)
 	if err != nil {

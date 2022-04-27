@@ -26,8 +26,8 @@ func NewGormDb(config *viper.Viper, logger core.Logger) (*gorm.DB, error) {
 	if err != nil {
 		return nil, err
 	}
-	if u.Scheme == "mysql"{
-		dbUrl = u.User.String() + "@tcp(" + u.Host + ")" + u.Path + "?" + u.RawQuery
+	if u.Scheme == "mysql" {
+		dbUrl = fmt.Sprintf(("%s@tcp(%s)%s?%s"), u.User.String(), u.Host, u.Path, u.RawQuery)
 	}
 
 	dbLoggingLevel := gormLogger.Error
