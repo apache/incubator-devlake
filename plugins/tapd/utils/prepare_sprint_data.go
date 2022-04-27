@@ -1,4 +1,4 @@
-package utils
+package main
 
 import (
 	"encoding/json"
@@ -8,15 +8,6 @@ import (
 	"github.com/merico-dev/lake/plugins/tapd/tasks"
 	"strconv"
 )
-
-var _ core.SubTaskEntryPoint = PrepareSprintTestData
-
-var PrepareSprintTestDataMeta = core.SubTaskMeta{
-	Name:             "prepareSprintTestData",
-	EntryPoint:       PrepareSprintTestData,
-	EnabledByDefault: true,
-	Description:      "Extract raw workspace data into tool layer table _tool_tapd_iterations",
-}
 
 type TapdIterationRes struct {
 	ID           string `json:"id"`
@@ -37,7 +28,7 @@ type TapdIterationRes struct {
 	Releasename  string `json:"releasename"`
 }
 
-func PrepareSprintTestData(taskCtx core.SubTaskContext) error {
+func PrepareSprintTestData(taskCtx core.TaskContext) error {
 	db := taskCtx.GetDb()
 	source := &models.TapdSource{}
 	err := db.Find(source, 1).Error
@@ -51,7 +42,7 @@ func PrepareSprintTestData(taskCtx core.SubTaskContext) error {
 		_ = db.ScanRows(cursorSprint, &jiraSprint)
 		tapdIter := TapdIterationRes{
 			Name:        jiraSprint.Name,
-			WorkspaceId: strconv.FormatUint(data.Source.WorkspaceId, 10),
+			WorkspaceId: strconv.FormatUint(data.Options.WorkspaceId, 10),
 			Creator:     "陈映初",
 		}
 		//if jiraSprint.CompleteDate != nil {

@@ -1,14 +1,17 @@
-package utils
+package main
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"fmt"
+	"github.com/merico-dev/lake/config"
+	"github.com/merico-dev/lake/logger"
 	"github.com/merico-dev/lake/models/common"
-	"github.com/merico-dev/lake/plugins/core"
+	"github.com/merico-dev/lake/plugins/helper"
 	jiraModels "github.com/merico-dev/lake/plugins/jira/models"
-	"github.com/merico-dev/lake/plugins/tapd/models"
-	"github.com/merico-dev/lake/plugins/tapd/tasks"
+	"github.com/merico-dev/lake/runner"
+	"github.com/mitchellh/mapstructure"
 	"gorm.io/datatypes"
 	"io/ioutil"
 	"net/http"
@@ -16,17 +19,15 @@ import (
 	"time"
 )
 
-var _ core.SubTaskEntryPoint = PrepareTestData
-
-var PrepareTestDataMeta = core.SubTaskMeta{
-	Name:             "PrepareTestData",
-	EntryPoint:       PrepareTestData,
-	EnabledByDefault: true,
-	Description:      "Extract raw workspace data into tool layer table _tool_tapd_iterations",
+type TapdOptions struct {
+	SourceId    uint64   `json:"sourceId"`
+	WorkspaceId uint64   `json:"workspceId"`
+	CompanyId   uint64   `json:"companyId"`
+	Tasks       []string `json:"tasks,omitempty"`
+	Since       string
 }
 
 type Temp struct {
-	// collected fields
 	SourceId                 uint64 `gorm:"primaryKey"`
 	IssueId                  uint64 `gorm:"primarykey"`
 	ProjectId                uint64
@@ -71,45 +72,51 @@ type Temp struct {
 }
 
 type TapdBugReq struct {
-	Title       string
-	Description string
-	WorkspaceId string
-	Reporter    string
-	Created     string
-	Status      string
-	Fixer       string
-	Priority    string
-	Estimate    string
-	Resolved    string
+	Title       string `json:"title"`
+	Description string `json:"description"`
+	WorkspaceId string `json:"workspace_id"`
+	Reporter    string `json:"reporter"`
+	Created     string `json:"created"`
+	Status      string `json:"status"`
+	Fixer       string `json:"fixer"`
+	Priority    string `json:"priority"`
+	Estimate    string `json:"estimate"`
+	Resolved    string `json:"resolved"`
+	IterationID string `json:"iteration_id"`
 }
 
 type TapdStoryReq struct {
-	Name            string
-	Description     string
-	WorkspaceId     string
-	Creator         string
-	Created         string
-	Modified        string
-	Status          string
-	Owner           string
-	Priority        string
-	Effort          string
-	EffortCompleted string
-	IterationID     string
-	Remain          string
-	Size            string
-	Developer       string
-	Completed       string
+	ID              string `json:"id"`
+	Name            string `json:"name"`
+	Description     string `json:"description"`
+	WorkspaceID     string `json:"workspace_id"`
+	Creator         string `json:"creator"`
+	Created         string `json:"created"`
+	Modified        string `json:"modified"`
+	Status          string `json:"status"`
+	Owner           string `json:"owner"`
+	Priority        string `json:"priority"`
+	Effort          string `json:"effort"`
+	EffortCompleted string `json:"effort_completed"`
+	Exceed          string `json:"exceed"`
+	Remain          string `json:"remain"`
+	IterationID     string `json:"iteration_id"`
+	Size            string `json:"size"`
+	Developer       string `json:"developer"`
+	Completed       string `json:"completed"`
 }
 
-func PrepareTestData(taskCtx core.SubTaskContext) error {
-	db := taskCtx.GetDb()
-	source := &models.TapdSource{}
-	err := db.Find(source, 1).Error
+func PrepareTestData(options TapdOptions) error {
+	cfg := config.GetConfig()
+	log := logger.Global.Nested("prepare data")
+	db, err := runner.NewGormDb(cfg, log)
 	if err != nil {
+		return err
 	}
-	data := taskCtx.GetData().(*tasks.TapdTaskData)
-	cursor, err := db.Model(&jiraModels.JiraIssue{}).
+	ctx, _ := context.WithCancel(context.Background())
+
+	scheduler, _ := helper.NewWorkerScheduler(10000, 1, time.Second*1, ctx, 3)
+	cursor, _ := db.Model(&jiraModels.JiraIssue{}).
 		Joins("left join _tool_jira_sprint_issues on _tool_jira_sprint_issues.issue_id = _tool_jira_issues.issue_id").
 		Joins("left join _tool_jira_sprints on _tool_jira_sprint_issues.sprint_id = _tool_jira_sprints.sprint_id").
 		Joins("left join _tool_tapd_iterations on _tool_tapd_iterations.name = _tool_jira_sprints.name").Select("_tool_jira_issues.*, _tool_tapd_iterations.id as iter_id").
@@ -131,7 +138,7 @@ func PrepareTestData(taskCtx core.SubTaskContext) error {
 			tapdIssue := TapdStoryReq{
 				Name:            jiraIssueWithIter.Key,
 				Description:     jiraIssueWithIter.Summary,
-				WorkspaceId:     strconv.FormatUint(data.Source.WorkspaceId, 10),
+				WorkspaceID:     strconv.FormatUint(options.WorkspaceId, 10),
 				Creator:         jiraIssueWithIter.CreatorDisplayName,
 				Created:         jiraIssueWithIter.Created.String(),
 				Modified:        jiraIssueWithIter.Updated.String(),
@@ -169,7 +176,10 @@ func PrepareTestData(taskCtx core.SubTaskContext) error {
 				tapdIssue.Priority = "5"
 			}
 			jsonstr, _ := json.Marshal(tapdIssue)
-			httpPostJson("stories", jsonstr)
+			scheduler.Submit(func() error {
+				httpPostJson("stories", jsonstr)
+				return nil
+			})
 		case "任务":
 			fallthrough
 		case "测试任务":
@@ -180,7 +190,7 @@ func PrepareTestData(taskCtx core.SubTaskContext) error {
 			tapdIssue := TapdStoryReq{
 				Name:            jiraIssueWithIter.Key,
 				Description:     jiraIssueWithIter.Summary,
-				WorkspaceId:     strconv.FormatUint(data.Source.WorkspaceId, 10),
+				WorkspaceID:     strconv.FormatUint(options.WorkspaceId, 10),
 				Creator:         jiraIssueWithIter.CreatorDisplayName,
 				Created:         jiraIssueWithIter.Created.String(),
 				Modified:        jiraIssueWithIter.Updated.String(),
@@ -216,20 +226,24 @@ func PrepareTestData(taskCtx core.SubTaskContext) error {
 				tapdIssue.Priority = "5"
 			}
 			jsonstr, _ := json.Marshal(tapdIssue)
-			httpPostJson("tasks", jsonstr)
+			scheduler.Submit(func() error {
+				httpPostJson("tasks", jsonstr)
+				return nil
+			})
 		case "缺陷":
 			fallthrough
 		case "线上事故":
 			tapdIssue := TapdBugReq{
 				Title:       jiraIssueWithIter.Key,
 				Description: jiraIssueWithIter.Summary,
-				WorkspaceId: strconv.FormatUint(data.Source.WorkspaceId, 10),
+				WorkspaceId: strconv.FormatUint(options.WorkspaceId, 10),
 				Reporter:    jiraIssueWithIter.CreatorDisplayName,
 				Created:     jiraIssueWithIter.Created.String(),
 				Status:      jiraIssueWithIter.StatusKey,
 				Fixer:       jiraIssueWithIter.AssigneeDisplayName,
 				Priority:    strconv.FormatUint(jiraIssueWithIter.PriorityId, 10),
 				Estimate:    strconv.FormatInt(jiraIssueWithIter.OriginalEstimateMinutes/60, 10),
+				IterationID: strconv.FormatUint(jiraIssueWithIter.IterId, 10),
 			}
 			if jiraIssueWithIter.ResolutionDate != nil {
 				tapdIssue.Resolved = jiraIssueWithIter.ResolutionDate.String()
@@ -255,23 +269,25 @@ func PrepareTestData(taskCtx core.SubTaskContext) error {
 				tapdIssue.Status = "developing"
 			}
 			jsonstr, _ := json.Marshal(tapdIssue)
-			httpPostJson("bugs", jsonstr)
+			scheduler.Submit(func() error {
+				httpPostJson("bugs", jsonstr)
+				return nil
+			})
 		}
-
 	}
 	return nil
 }
 
-func httpPostJson(path string, jsonstr []byte) {
+func httpPostJson(path string, jsonstr []byte) error {
 	url := fmt.Sprintf("https://api.tapd.cn/%s", path)
-	req, err := http.NewRequest("POST", url, bytes.NewBuffer(jsonstr))
+	req, _ := http.NewRequest("POST", url, bytes.NewBuffer(jsonstr))
 	//req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("Authorization", "Basic eWtQWWdqQVA6MDY2RkVEQTItNzMxNS1DMUExLUZBMjEtMzhDQkE3OTVCODgx")
 
 	client := &http.Client{}
 	resp, err := client.Do(req)
 	if err != nil {
-		// handle error
+		return err
 	}
 	defer resp.Body.Close()
 
@@ -279,10 +295,27 @@ func httpPostJson(path string, jsonstr []byte) {
 	if statuscode != 200 {
 		fmt.Println(statuscode)
 	}
-	hea := resp.Header
+	head := resp.Header
 	body, _ := ioutil.ReadAll(resp.Body)
 	fmt.Println(string(body))
 	fmt.Println(statuscode)
-	fmt.Println(hea)
+	fmt.Println(head)
+	return nil
 
+}
+
+// standalone mode for debugging
+func main() {
+	options := map[string]interface{}{
+		"sourceId":    1,
+		"companyId":   55850509,
+		"workspaceId": 62390899,
+	}
+
+	var op TapdOptions
+	err := mapstructure.Decode(options, &op)
+	if err != nil {
+		panic(err)
+	}
+	PrepareTestData(op)
 }
