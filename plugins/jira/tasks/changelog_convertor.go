@@ -90,5 +90,5 @@ func ConvertChangelogs(taskCtx core.SubTaskContext) error {
 	if err != nil {
 		return err
 	}
-	return sprintIssueConverter.UpdateSprintIssue()
+	return sprintIssueConverter.CreateSprintIssue()
 }
