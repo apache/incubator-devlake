@@ -38,8 +38,7 @@ func DbtConverter(taskCtx core.SubTaskContext) error {
 	dbDataBase := u.Path[1:]
 	var dbSchema string
 
-	flag := strings.Contains(dbUrl, "mysql")
-	if flag {
+	if dbType == "mysql" {
 		// mysql database
 		dbSchema = dbDataBase
 	} else {
