@@ -3,33 +3,18 @@ package runner
 import (
 	"fmt"
 	"net/url"
-	"os/user"
+	"strings"
 	"time"
 
-	"github.com/merico-dev/lake/models/domainlayer/code"
-	"github.com/merico-dev/lake/models/domainlayer/crossdomain"
-	"github.com/merico-dev/lake/models/domainlayer/devops"
-	"github.com/merico-dev/lake/models/domainlayer/ticket"
 	"github.com/merico-dev/lake/plugins/core"
 	"github.com/spf13/viper"
 	"gorm.io/driver/mysql"
+	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 	gormLogger "gorm.io/gorm/logger"
 )
 
 func NewGormDb(config *viper.Viper, logger core.Logger) (*gorm.DB, error) {
-	dbUrl := config.GetString("DB_URL")
-	if dbUrl == "" {
-		return nil, fmt.Errorf("DB_URL is required")
-	}
-	u, err := url.Parse(dbUrl)
-	if err != nil {
-		return nil, err
-	}
-	if u.Scheme == "mysql" {
-		dbUrl = fmt.Sprintf(("%s@tcp(%s)%s?%s"), u.User.String(), u.Host, u.Path, u.RawQuery)
-	}
-
 	dbLoggingLevel := gormLogger.Error
 	switch config.GetString("DB_LOGGING_LEVEL") {
 	case "Silent":
@@ -49,7 +34,7 @@ func NewGormDb(config *viper.Viper, logger core.Logger) (*gorm.DB, error) {
 		dbMaxOpenConns = 100
 	}
 
-	db, err := gorm.Open(mysql.Open(dbUrl), &gorm.Config{
+	dbConfig := &gorm.Config{
 		Logger: gormLogger.New(
 			logger,
 			gormLogger.Config{
@@ -61,7 +46,25 @@ func NewGormDb(config *viper.Viper, logger core.Logger) (*gorm.DB, error) {
 		),
 		// most of our operation are in batch, this can improve performance
 		PrepareStmt: true,
-	})
+	}
+	dbUrl := config.GetString("DB_URL")
+	if dbUrl == "" {
+		return nil, fmt.Errorf("DB_URL is required")
+	}
+	u, err := url.Parse(dbUrl)
+	if err != nil {
+		return nil, err
+	}
+	var db *gorm.DB
+	switch strings.ToLower(u.Scheme) {
+	case "mysql":
+		dbUrl = fmt.Sprintf(("%s@tcp(%s)%s?%s"), u.User.String(), u.Host, u.Path, u.RawQuery)
+		db, err = gorm.Open(mysql.Open(dbUrl), dbConfig)
+	case "postgresql", "postgres", "pg":
+		db, err = gorm.Open(postgres.Open(dbUrl), dbConfig)
+	default:
+		return nil, fmt.Errorf("invalid DB_URL:%s", dbUrl)
+	}
 	if err != nil {
 		return nil, err
 	}
@@ -74,44 +77,4 @@ func NewGormDb(config *viper.Viper, logger core.Logger) (*gorm.DB, error) {
 	sqlDB.SetConnMaxLifetime(time.Hour)
 
 	return db, err
-}
-
-func MigrateDb(db *gorm.DB) error {
-	// domain layer entity
-	return db.AutoMigrate(
-		&user.User{},
-		&code.Repo{},
-		&code.Commit{},
-		&code.CommitParent{},
-		&code.PullRequest{},
-		&code.PullRequestCommit{},
-		&code.PullRequestLabel{},
-		&code.Note{},
-		&code.RepoCommit{},
-		&code.Ref{},
-		&code.RefsCommitsDiff{},
-		&code.CommitFile{},
-		&code.PullRequestComment{},
-		&ticket.Board{},
-		&ticket.Issue{},
-		&ticket.IssueLabel{},
-		&ticket.BoardIssue{},
-		&ticket.BoardSprint{},
-		&ticket.Changelog{},
-		&ticket.Sprint{},
-		&ticket.SprintIssue{},
-		&ticket.IssueStatusHistory{},
-		&ticket.IssueSprintsHistory{},
-		&ticket.IssueAssigneeHistory{},
-		&devops.Job{},
-		&devops.Build{},
-		&ticket.IssueWorklog{},
-		&ticket.IssueComment{},
-		&crossdomain.BoardRepo{},
-		&crossdomain.PullRequestIssue{},
-		&crossdomain.IssueCommit{},
-		&crossdomain.IssueRepoCommit{},
-		&crossdomain.RefsIssuesDiffs{},
-		&code.RefsPrCherrypick{},
-	)
 }

@@ -4,7 +4,6 @@ import (
 	"reflect"
 	"time"
 
-	"github.com/merico-dev/lake/models/common"
 	"github.com/merico-dev/lake/models/domainlayer"
 	"github.com/merico-dev/lake/models/domainlayer/didgen"
 	"github.com/merico-dev/lake/models/domainlayer/ticket"
@@ -14,20 +13,11 @@ import (
 )
 
 type ChangelogItemResult struct {
-	SourceId          uint64 `gorm:"primaryKey"`
-	ChangelogId       uint64 `gorm:"primaryKey"`
-	Field             string `gorm:"primaryKey"`
-	FieldType         string
-	FieldId           string
-	From              string
-	FromString        string
-	To                string
-	ToString          string
+	models.JiraChangelogItem
 	IssueId           uint64 `gorm:"index"`
 	AuthorAccountId   string
 	AuthorDisplayName string
 	Created           time.Time
-	common.RawDataOrigin
 }
 
 func ConvertChangelogs(taskCtx core.SubTaskContext) error {
@@ -35,6 +25,11 @@ func ConvertChangelogs(taskCtx core.SubTaskContext) error {
 	sourceId := data.Source.ID
 	boardId := data.Options.BoardId
 	logger := taskCtx.GetLogger()
+	sprintIssueConverter, err := NewSprintIssueConverter(taskCtx)
+	if err != nil {
+		logger.Info(err.Error())
+		return err
+	}
 	db := taskCtx.GetDb()
 	logger.Info("covert changelog")
 	// select all changelogs belongs to the board
@@ -47,7 +42,7 @@ func ConvertChangelogs(taskCtx core.SubTaskContext) error {
 			_tool_jira_board_issues.source_id = _tool_jira_changelogs.source_id
 			AND _tool_jira_board_issues.issue_id = _tool_jira_changelogs.issue_id
 		)`).
-		Select("_tool_jira_changelog_items.*, _tool_jira_changelogs.*").
+		Select("_tool_jira_changelog_items.*, _tool_jira_changelogs.issue_id, author_account_id, author_display_name, created").
 		Where("_tool_jira_changelog_items.source_id = ? AND _tool_jira_board_issues.board_id = ?", sourceId, boardId).
 		Rows()
 	if err != nil {
@@ -55,7 +50,6 @@ func ConvertChangelogs(taskCtx core.SubTaskContext) error {
 		return err
 	}
 	defer cursor.Close()
-	sprintIssueConverter := NewSprintIssueConverter(taskCtx)
 	issueIdGenerator := didgen.NewDomainIdGenerator(&models.JiraIssue{})
 	changelogIdGenerator := didgen.NewDomainIdGenerator(&models.JiraChangelogItem{})
 
@@ -100,5 +94,5 @@ func ConvertChangelogs(taskCtx core.SubTaskContext) error {
 	if err != nil {
 		return err
 	}
-	return sprintIssueConverter.UpdateSprintIssue()
+	return sprintIssueConverter.CreateSprintIssue()
 }

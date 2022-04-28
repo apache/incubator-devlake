@@ -22,17 +22,6 @@ func ExtractRemotelinks(taskCtx core.SubTaskContext) error {
 		commitShaRegex = regexp.MustCompile(pattern)
 	}
 
-	// clean up issue_commits relationship for board
-	err := db.Exec(`
-	DELETE ic
-	FROM _tool_jira_issue_commits ic
-	LEFT JOIN _tool_jira_board_issues bi ON (bi.source_id = ic.source_id AND bi.issue_id = ic.issue_id)
-	WHERE ic.source_id = ? AND bi.board_id = ?
-	`, sourceId, boardId).Error
-	if err != nil {
-		return err
-	}
-
 	// select all remotelinks belongs to the board, cursor is important for low memory footprint
 	cursor, err := db.Model(&models.JiraRemotelink{}).
 		Select("_tool_jira_remotelinks.*").
