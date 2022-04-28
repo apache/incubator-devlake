@@ -12,7 +12,7 @@ type TapdWorklog struct {
 	WorkspaceID models.Uint64s    `json:"workspace_id"`
 	EntityType  string            `gorm:"type:varchar(255)" json:"entity_type"`
 	EntityID    models.Uint64s    `json:"entity_id"`
-	Timespent   models.Ints       `json:"timespent"`
+	Timespent   models.Floats     `json:"timespent"`
 	Spentdate   *core.Iso8601Time `json:"spentdate"`
 	Owner       string            `gorm:"type:varchar(255)" json:"owner"`
 	Created     *core.Iso8601Time `json:"created"`

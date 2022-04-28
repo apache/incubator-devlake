@@ -5,6 +5,7 @@ import (
 	"github.com/merico-dev/lake/plugins/core"
 	"github.com/merico-dev/lake/plugins/helper"
 	"github.com/merico-dev/lake/plugins/tapd/models"
+	"strings"
 )
 
 var _ core.SubTaskEntryPoint = ExtractStoryChangelog
@@ -45,12 +46,35 @@ func ExtractStoryChangelog(taskCtx core.SubTaskContext) error {
 
 			storyChangelog.SourceId = models.Uint64s(data.Source.ID)
 			for _, fc := range storyChangelog.FieldChanges {
+				if fc.ValueAfterParsed[0] == '{' {
+					valueAfterMap := map[string]string{}
+					err = json.Unmarshal(fc.ValueAfterParsed, &valueAfterMap)
+					if err != nil {
+						return nil, err
+					}
+					valueBeforeMap := map[string]string{}
+					err = json.Unmarshal(fc.ValueBeforeParsed, &valueBeforeMap)
+					if err != nil {
+						return nil, err
+					}
+					for k, v := range valueAfterMap {
+						item := &models.TapdStoryChangelogItem{
+							SourceId:         models.Uint64s(data.Source.ID),
+							ChangelogId:      storyChangelog.ID,
+							Field:            k,
+							ValueAfterParsed: v,
+						}
+						item.ValueBeforeParsed = valueBeforeMap[k]
+						results = append(results, item)
+					}
+					continue
+				}
 				item := &models.TapdStoryChangelogItem{
 					SourceId:          models.Uint64s(data.Source.ID),
 					ChangelogId:       storyChangelog.ID,
 					Field:             fc.Field,
-					ValueBeforeParsed: fc.ValueBeforeParsed,
-					ValueAfterParsed:  fc.ValueAfterParsed,
+					ValueBeforeParsed: strings.Trim(string(fc.ValueBeforeParsed), `"`),
+					ValueAfterParsed:  strings.Trim(string(fc.ValueAfterParsed), `"`),
 				}
 				if item.Field == "iteration_id" {
 					iterationFrom, iterationTo, err := parseIterationChangelog(taskCtx, item.ValueBeforeParsed, item.ValueAfterParsed)

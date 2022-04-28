@@ -1,6 +1,7 @@
 package models
 
 import (
+	"encoding/json"
 	"github.com/merico-dev/lake/models/common"
 	"github.com/merico-dev/lake/plugins/core"
 )
@@ -19,7 +20,7 @@ type TapdTaskChangelog struct {
 	ChangeTypeText string            `json:"change_type_text"`
 	TaskID         Uint64s           `json:"task_id"`
 	common.NoPKModel
-	FieldChanges []TapdTaskChangelogItem `json:"field_changes" gorm:"-"`
+	FieldChanges []TapdTaskChangelogItemRes `json:"field_changes" gorm:"-"`
 }
 
 type TapdTaskChangelogItem struct {
@@ -28,6 +29,17 @@ type TapdTaskChangelogItem struct {
 	Field             string  `json:"field" gorm:"primaryKey"`
 	ValueBeforeParsed string  `json:"value_before_parsed"`
 	ValueAfterParsed  string  `json:"value_after_parsed"`
+	IterationIdFrom   Uint64s
+	IterationIdTo     Uint64s
+	common.NoPKModel
+}
+
+type TapdTaskChangelogItemRes struct {
+	SourceId          Uint64s         `gorm:"primaryKey;type:INT(10) UNSIGNED NOT NULL"`
+	ChangelogId       Uint64s         `gorm:"primaryKey;type:BIGINT(10) UNSIGNED NOT NULL"`
+	Field             string          `json:"field" gorm:"primaryKey"`
+	ValueBeforeParsed json.RawMessage `json:"value_before_parsed"`
+	ValueAfterParsed  json.RawMessage `json:"value_after_parsed"`
 	IterationIdFrom   Uint64s
 	IterationIdTo     Uint64s
 	common.NoPKModel

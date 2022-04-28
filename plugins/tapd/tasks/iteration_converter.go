@@ -40,7 +40,7 @@ func ConvertIteration(taskCtx core.SubTaskContext) error {
 		Convert: func(inputRow interface{}) ([]interface{}, error) {
 			iter := inputRow.(*models.TapdIteration)
 			domainIter := &ticket.Sprint{
-				DomainEntity:    domainlayer.DomainEntity{Id: iterIdGen.Generate(data.Source.ID, iter.ID)},
+				DomainEntity:    domainlayer.DomainEntity{Id: iterIdGen.Generate(models.Uint64s(data.Source.ID), iter.ID)},
 				Url:             fmt.Sprintf("https://www.tapd.cn/%d/prong/iterations/view/%d", iter.WorkspaceID, iter.ID),
 				Status:          strings.ToUpper(iter.Status),
 				Name:            iter.Name,
@@ -60,7 +60,7 @@ func ConvertIteration(taskCtx core.SubTaskContext) error {
 			for _, si := range sprintIssues {
 				dsi := ticket.SprintIssue{
 					SprintId:  domainIter.Id,
-					IssueId:   IssueIdGen.Generate(data.Source.ID, si.IssueId),
+					IssueId:   IssueIdGen.Generate(models.Uint64s(data.Source.ID), si.IssueId),
 					AddedDate: si.IssueCreatedDate.ToNullableTime(),
 				}
 				if dsi.AddedDate != nil {

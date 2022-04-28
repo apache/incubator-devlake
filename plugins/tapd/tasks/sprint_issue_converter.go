@@ -36,8 +36,8 @@ func ConvertIterationIssue(taskCtx core.SubTaskContext) error {
 		Convert: func(inputRow interface{}) ([]interface{}, error) {
 			toolL := inputRow.(*models.TapdIterationIssue)
 			domainL := &ticket.SprintIssue{
-				SprintId:      iterIdGen.Generate(data.Source.ID, toolL.IterationId),
-				IssueId:       IssueIdGen.Generate(data.Source.ID, toolL.IssueId),
+				SprintId:      iterIdGen.Generate(models.Uint64s(data.Source.ID), toolL.IterationId),
+				IssueId:       IssueIdGen.Generate(models.Uint64s(data.Source.ID), toolL.IssueId),
 				AddedDate:     nil,
 				RemovedDate:   nil,
 				AddedStage:    nil,

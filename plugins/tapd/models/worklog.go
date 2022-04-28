@@ -11,7 +11,7 @@ type TapdWorklog struct {
 	WorkspaceID Uint64s           `json:"workspace_id"`
 	EntityType  string            `gorm:"type:varchar(255)" json:"entity_type"`
 	EntityID    Uint64s           `json:"entity_id"`
-	Timespent   Ints              `json:"timespent"`
+	Timespent   Floats            `json:"timespent"`
 	Spentdate   *core.Iso8601Time `json:"spentdate"`
 	Owner       string            `gorm:"type:varchar(255)" json:"owner"`
 	Created     *core.Iso8601Time `json:"created"`

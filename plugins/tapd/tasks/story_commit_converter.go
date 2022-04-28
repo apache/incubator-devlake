@@ -8,13 +8,13 @@ import (
 	"reflect"
 )
 
-func ConvertIssueCommit(taskCtx core.SubTaskContext) error {
+func ConvertStoryCommit(taskCtx core.SubTaskContext) error {
 	data := taskCtx.GetData().(*TapdTaskData)
 	logger := taskCtx.GetLogger()
 	db := taskCtx.GetDb()
 	logger.Info("convert board:%d", data.Options.WorkspaceID)
 
-	cursor, err := db.Model(&models.TapdIssueCommit{}).Where("source_id = ? AND workspace_id = ?", data.Source.ID, data.Options.WorkspaceID).Rows()
+	cursor, err := db.Model(&models.TapdStoryCommit{}).Where("source_id = ? AND workspace_id = ?", data.Source.ID, data.Options.WorkspaceID).Rows()
 	if err != nil {
 		return err
 	}
@@ -27,14 +27,14 @@ func ConvertIssueCommit(taskCtx core.SubTaskContext) error {
 				//CompanyId:   data.Source.CompanyId,
 				WorkspaceID: data.Options.WorkspaceID,
 			},
-			Table: RAW_ISSUE_COMMIT_TABLE,
+			Table: RAW_STORY_COMMIT_TABLE,
 		},
-		InputRowType: reflect.TypeOf(models.TapdIssueCommit{}),
+		InputRowType: reflect.TypeOf(models.TapdStoryCommit{}),
 		Input:        cursor,
 		Convert: func(inputRow interface{}) ([]interface{}, error) {
-			toolL := inputRow.(*models.TapdIssueCommit)
+			toolL := inputRow.(*models.TapdStoryCommit)
 			domainL := &crossdomain.IssueCommit{
-				IssueId:   IssueIdGen.Generate(data.Source.ID, toolL.IssueId),
+				IssueId:   IssueIdGen.Generate(models.Uint64s(data.Source.ID), models.Uint64s(toolL.StoryId)),
 				CommitSha: toolL.CommitID,
 			}
 
@@ -50,9 +50,9 @@ func ConvertIssueCommit(taskCtx core.SubTaskContext) error {
 	return converter.Execute()
 }
 
-var ConvertIssueCommitMeta = core.SubTaskMeta{
-	Name:             "convertIssueCommit",
-	EntryPoint:       ConvertIssueCommit,
+var ConvertStoryCommitMeta = core.SubTaskMeta{
+	Name:             "convertStoryCommit",
+	EntryPoint:       ConvertStoryCommit,
 	EnabledByDefault: true,
-	Description:      "convert Tapd IssueCommit",
+	Description:      "convert Tapd StoryCommit",
 }

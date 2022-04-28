@@ -67,10 +67,10 @@ func ConvertStoryChangelog(taskCtx core.SubTaskContext) error {
 			cl := inputRow.(*StoryChangelogItemResult)
 			domainCl := &ticket.Changelog{
 				DomainEntity: domainlayer.DomainEntity{
-					Id: fmt.Sprintf("%s:%s", clIdGen.Generate(data.Source.ID, cl.ID), cl.Field),
+					Id: fmt.Sprintf("%s:%s", clIdGen.Generate(models.Uint64s(data.Source.ID), cl.ID), cl.Field),
 				},
-				IssueId:     IssueIdGen.Generate(data.Source.ID, cl.StoryID),
-				AuthorId:    UserIdGen.Generate(data.Source.ID, data.Options.WorkspaceID, cl.Creator),
+				IssueId:     IssueIdGen.Generate(models.Uint64s(data.Source.ID), cl.StoryID),
+				AuthorId:    UserIdGen.Generate(models.Uint64s(data.Source.ID), data.Options.WorkspaceID, cl.Creator),
 				AuthorName:  cl.Creator,
 				FieldId:     cl.Field,
 				FieldName:   cl.Field,

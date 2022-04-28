@@ -7,16 +7,16 @@ import (
 	"github.com/merico-dev/lake/plugins/tapd/models"
 )
 
-var _ core.SubTaskEntryPoint = ExtractIssueCommits
+var _ core.SubTaskEntryPoint = ExtractStoryCommits
 
-var ExtractIssueCommitMeta = core.SubTaskMeta{
-	Name:             "extractIssueCommits",
-	EntryPoint:       ExtractIssueCommits,
+var ExtractStoryCommitMeta = core.SubTaskMeta{
+	Name:             "extractStoryCommits",
+	EntryPoint:       ExtractStoryCommits,
 	EnabledByDefault: true,
-	Description:      "Extract raw IssueCommits data into tool layer table _tool_tapd_issue_commits",
+	Description:      "Extract raw StoryCommits data into tool layer table _tool_tapd_issue_commits",
 }
 
-func ExtractIssueCommits(taskCtx core.SubTaskContext) error {
+func ExtractStoryCommits(taskCtx core.SubTaskContext) error {
 	data := taskCtx.GetData().(*TapdTaskData)
 	extractor, err := helper.NewApiExtractor(helper.ApiExtractorArgs{
 		RawDataSubTaskArgs: helper.RawDataSubTaskArgs{
@@ -26,23 +26,22 @@ func ExtractIssueCommits(taskCtx core.SubTaskContext) error {
 				//CompanyId: data.Options.CompanyId,
 				WorkspaceID: data.Options.WorkspaceID,
 			},
-			Table: RAW_ISSUE_COMMIT_TABLE,
+			Table: RAW_STORY_COMMIT_TABLE,
 		},
 		Extract: func(row *helper.RawData) ([]interface{}, error) {
-			var issueCommitBody models.TapdIssueCommit
+			var issueCommitBody models.TapdStoryCommit
 			err := json.Unmarshal(row.Data, &issueCommitBody)
 			if err != nil {
 				return nil, err
 			}
 			toolL := issueCommitBody
 			toolL.SourceId = models.Uint64s(data.Source.ID)
-			issue := &models.IssueTypeAndId{}
-			err = json.Unmarshal(row.Input, issue)
+			issue := SimpleStory{}
+			err = json.Unmarshal(row.Input, &issue)
 			if err != nil {
 				return nil, err
 			}
-			toolL.IssueId = issue.IssueId
-			toolL.IssueType = issue.Type
+			toolL.StoryId = issue.Id
 			toolL.WorkspaceID = models.Uint64s(data.Options.WorkspaceID)
 			results := make([]interface{}, 0, 1)
 			results = append(results, &toolL)

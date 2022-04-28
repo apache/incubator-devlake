@@ -34,7 +34,7 @@ package tasks
 //		Convert: func(inputRow interface{}) ([]interface{}, error) {
 //			toolL := inputRow.(*models.TapdIssueAssigneeHistory)
 //			domainL := &ticket.IssueAssigneeHistory{
-//				IssueId:   IssueIdGen.Generate(data.Source.ID, toolL.IssueId),
+//				IssueId:   IssueIdGen.Generate(models.Uint64s(data.Source.ID), toolL.IssueId),
 //				Assignee:  toolL.Assignee,
 //				StartDate: toolL.StartDate,
 //				EndDate:   &toolL.EndDate,

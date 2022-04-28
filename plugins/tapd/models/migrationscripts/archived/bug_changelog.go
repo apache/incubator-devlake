@@ -24,8 +24,8 @@ type TapdBugChangelogItem struct {
 	SourceId          models.Uint64s `gorm:"primaryKey;type:INT(10) UNSIGNED NOT NULL"`
 	ChangelogId       models.Uint64s `gorm:"primaryKey;type:BIGINT(10) UNSIGNED NOT NULL"`
 	Field             string         `json:"field" gorm:"primaryKey;foreignKey:ChangelogId;references:ID"`
-	ValueBeforeParsed string         `json:"value_before"`
-	ValueAfterParsed  string         `json:"value_after"`
+	ValueBeforeParsed string         `json:"value_before_parsed"`
+	ValueAfterParsed  string         `json:"value_after_parsed"`
 	IterationIdFrom   models.Uint64s
 	IterationIdTo     models.Uint64s
 	common.NoPKModel

@@ -1,6 +1,7 @@
 package models
 
 import (
+	"encoding/json"
 	"github.com/merico-dev/lake/models/common"
 	"github.com/merico-dev/lake/plugins/core"
 )
@@ -18,7 +19,18 @@ type TapdStoryChangelog struct {
 	ChangeType     string            `json:"change_type"`
 	StoryID        Uint64s           `json:"story_id"`
 	common.NoPKModel
-	FieldChanges []TapdStoryChangelogItem `json:"field_changes" gorm:"-"`
+	FieldChanges []TapdStoryChangelogItemRes `json:"field_changes" gorm:"-"`
+}
+
+type TapdStoryChangelogItemRes struct {
+	SourceId          Uint64s         `gorm:"primaryKey;type:INT(10) UNSIGNED NOT NULL"`
+	ChangelogId       Uint64s         `gorm:"primaryKey;type:BIGINT(10) UNSIGNED NOT NULL"`
+	Field             string          `json:"field" gorm:"primaryKey"`
+	ValueBeforeParsed json.RawMessage `json:"value_before_parsed"`
+	ValueAfterParsed  json.RawMessage `json:"value_after_parsed"`
+	IterationIdFrom   Uint64s
+	IterationIdTo     Uint64s
+	common.NoPKModel
 }
 
 type TapdStoryChangelogItem struct {

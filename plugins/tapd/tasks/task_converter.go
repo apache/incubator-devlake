@@ -51,8 +51,8 @@ func ConvertTask(taskCtx core.SubTaskContext) error {
 				UpdatedDate:    toolL.Modified.ToNullableTime(),
 				ParentIssueId:  IssueIdGen.Generate(toolL.SourceId, toolL.StoryID),
 				Priority:       toolL.Priority,
-				CreatorId:      UserIdGen.Generate(data.Options.SourceId, toolL.WorkspaceID, toolL.Creator),
-				AssigneeId:     UserIdGen.Generate(data.Options.SourceId, toolL.WorkspaceID, toolL.Owner),
+				CreatorId:      UserIdGen.Generate(models.Uint64s(data.Source.ID), toolL.WorkspaceID, toolL.Creator),
+				AssigneeId:     UserIdGen.Generate(models.Uint64s(data.Source.ID), toolL.WorkspaceID, toolL.Owner),
 				AssigneeName:   toolL.Owner,
 			}
 			if domainL.ResolutionDate != nil && domainL.CreatedDate != nil {
@@ -60,7 +60,7 @@ func ConvertTask(taskCtx core.SubTaskContext) error {
 			}
 			results := make([]interface{}, 0, 2)
 			boardIssue := &ticket.BoardIssue{
-				BoardId: WorkspaceIdGen.Generate(data.Options.WorkspaceID),
+				BoardId: WorkspaceIdGen.Generate(toolL.WorkspaceID),
 				IssueId: domainL.Id,
 			}
 			results = append(results, domainL, boardIssue)

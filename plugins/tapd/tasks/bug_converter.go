@@ -50,8 +50,8 @@ func ConvertBug(taskCtx core.SubTaskContext) error {
 				UpdatedDate:    toolL.Modified.ToNullableTime(),
 				ParentIssueId:  IssueIdGen.Generate(toolL.SourceId, toolL.IssueID),
 				Priority:       toolL.Priority,
-				CreatorId:      UserIdGen.Generate(data.Options.SourceId, toolL.WorkspaceID, toolL.Reporter),
-				AssigneeId:     UserIdGen.Generate(data.Options.SourceId, toolL.WorkspaceID, toolL.CurrentOwner),
+				CreatorId:      UserIdGen.Generate(models.Uint64s(data.Source.ID), toolL.WorkspaceID, toolL.Reporter),
+				AssigneeId:     UserIdGen.Generate(models.Uint64s(data.Source.ID), toolL.WorkspaceID, toolL.CurrentOwner),
 				AssigneeName:   toolL.CurrentOwner,
 				Severity:       toolL.Severity,
 				Component:      toolL.Feature, // todo not sure about this
@@ -62,7 +62,7 @@ func ConvertBug(taskCtx core.SubTaskContext) error {
 			}
 			results := make([]interface{}, 0, 2)
 			boardIssue := &ticket.BoardIssue{
-				BoardId: WorkspaceIdGen.Generate(data.Options.WorkspaceID),
+				BoardId: WorkspaceIdGen.Generate(toolL.WorkspaceID),
 				IssueId: domainL.Id,
 			}
 			results = append(results, domainL, boardIssue)

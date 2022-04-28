@@ -11,11 +11,15 @@ import (
 	"reflect"
 )
 
-const RAW_ISSUE_COMMIT_TABLE = "tapd_api_issue_commits"
+const RAW_TASK_COMMIT_TABLE = "tapd_api_task_commits"
 
-var _ core.SubTaskEntryPoint = CollectStoryIssueCommits
+var _ core.SubTaskEntryPoint = CollectTaskCommits
 
-func CollectStoryIssueCommits(taskCtx core.SubTaskContext) error {
+type SimpleTask struct {
+	Id uint64
+}
+
+func CollectTaskCommits(taskCtx core.SubTaskContext) error {
 	data := taskCtx.GetData().(*TapdTaskData)
 	db := taskCtx.GetDb()
 	logger := taskCtx.GetLogger()
@@ -25,7 +29,7 @@ func CollectStoryIssueCommits(taskCtx core.SubTaskContext) error {
 	incremental := false
 	if since == nil {
 		// user didn't specify a time range to sync, try load from database
-		var latestUpdated models.TapdIssueCommit
+		var latestUpdated models.TapdTaskCommit
 		err := db.Where("source_id = ?", data.Source.ID).Order("created DESC").Limit(1).Find(&latestUpdated).Error
 		if err != nil {
 			return fmt.Errorf("failed to get latest jira changelog record: %w", err)
@@ -36,21 +40,15 @@ func CollectStoryIssueCommits(taskCtx core.SubTaskContext) error {
 		}
 	}
 
-	tx := db.Raw("? UNION ? UNION ?", db.Model(&models.TapdStory{}).Select("id as issue_id, 'story' as type, modified").
-		Where("source_id = ? and workspace_id = ?",
-			data.Options.SourceId, data.Options.WorkspaceID), db.Model(&models.TapdTask{}).Select("id as issue_id, 'task' as type, modified").
-		Where("source_id = ? and workspace_id = ?",
-			data.Options.SourceId, data.Options.WorkspaceID), db.Model(&models.TapdBug{}).Select("id as issue_id, 'bug' as type, modified").
-		Where("source_id = ? and workspace_id = ?",
-			data.Options.SourceId, data.Options.WorkspaceID))
+	tx := db.Model(&models.TapdTask{})
 	if since != nil {
-		tx = tx.Where("modified > ?", since)
+		tx = tx.Where("modified > ? and source_id = ? and workspace_id = ?", since, data.Options.SourceId, data.Options.WorkspaceID)
 	}
 	cursor, err := tx.Rows()
 	if err != nil {
 		return err
 	}
-	iterator, err := helper.NewCursorIterator(db, cursor, reflect.TypeOf(models.IssueTypeAndId{}))
+	iterator, err := helper.NewCursorIterator(db, cursor, reflect.TypeOf(SimpleTask{}))
 	if err != nil {
 		return err
 	}
@@ -62,7 +60,7 @@ func CollectStoryIssueCommits(taskCtx core.SubTaskContext) error {
 				//CompanyId: data.Options.CompanyId,
 				WorkspaceID: data.Options.WorkspaceID,
 			},
-			Table: RAW_ISSUE_COMMIT_TABLE,
+			Table: RAW_TASK_COMMIT_TABLE,
 		},
 		Incremental: incremental,
 		ApiClient:   data.ApiClient,
@@ -70,11 +68,11 @@ func CollectStoryIssueCommits(taskCtx core.SubTaskContext) error {
 		Input:       iterator,
 		UrlTemplate: "code_commit_infos",
 		Query: func(reqData *helper.RequestData) (url.Values, error) {
-			input := reqData.Input.(*models.IssueTypeAndId)
+			input := reqData.Input.(*SimpleTask)
 			query := url.Values{}
 			query.Set("workspace_id", fmt.Sprintf("%v", data.Options.WorkspaceID))
-			query.Set("type", input.Type)
-			query.Set("object_id", fmt.Sprintf("%v", input.IssueId))
+			query.Set("type", "task")
+			query.Set("object_id", fmt.Sprintf("%v", input.Id))
 			query.Set("order", "created asc")
 			return query, nil
 		},
@@ -94,9 +92,9 @@ func CollectStoryIssueCommits(taskCtx core.SubTaskContext) error {
 	return collector.Execute()
 }
 
-var CollectStoryIssueCommitMeta = core.SubTaskMeta{
-	Name:        "collectStoryIssueCommits",
-	EntryPoint:  CollectStoryIssueCommits,
+var CollectTaskCommitMeta = core.SubTaskMeta{
+	Name:        "collectTaskCommits",
+	EntryPoint:  CollectTaskCommits,
 	Required:    true,
 	Description: "collect Tapd issueCommits",
 }
