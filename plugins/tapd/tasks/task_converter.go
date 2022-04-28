@@ -45,6 +45,7 @@ func ConvertTask(taskCtx core.SubTaskContext) error {
 				Description:    toolL.Description,
 				Type:           toolL.StdType,
 				Status:         toolL.StdStatus,
+				OriginalStatus: toolL.Status,
 				ResolutionDate: toolL.Completed.ToNullableTime(),
 				CreatedDate:    toolL.Created.ToNullableTime(),
 				UpdatedDate:    toolL.Modified.ToNullableTime(),

@@ -25,11 +25,25 @@ type TapdBugRes struct {
 
 func ExtractBugs(taskCtx core.SubTaskContext) error {
 	data := taskCtx.GetData().(*TapdTaskData)
+	db := taskCtx.GetDb()
+	statusList := make([]*models.TapdBugStatus, 0)
+
+	err := db.Model(&models.TapdBugStatus{}).
+		Find(&statusList, "source_id = ? and workspace_id = ?", data.Options.SourceId, data.Options.WorkspaceID).
+		Error
+	if err != nil {
+		return err
+	}
+
+	statusMap := make(map[string]string, len(statusList))
+	for _, v := range statusList {
+		statusMap[v.EnglishName] = v.ChineseName
+	}
 
 	getStdStatus := func(statusKey string) string {
-		if statusKey == "done" {
+		if statusKey == "已关闭" || statusKey == "不处理" {
 			return ticket.DONE
-		} else if statusKey == "new" {
+		} else if statusKey == "新建" {
 			return ticket.TODO
 		} else {
 			return ticket.IN_PROGRESS
@@ -53,6 +67,7 @@ func ExtractBugs(taskCtx core.SubTaskContext) error {
 			}
 			toolL := bugBody.Bug
 
+			toolL.Status = statusMap[toolL.Status]
 			toolL.SourceId = models.Uint64s(data.Source.ID)
 			toolL.Type = "BUG"
 			toolL.StdType = "BUG"

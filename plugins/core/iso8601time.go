@@ -78,6 +78,9 @@ func (jt *Iso8601Time) UnmarshalJSON(b []byte) error {
 	if timeString == "null" {
 		return nil
 	}
+	if strings.Contains(timeString, "0000-00-00") {
+		return nil
+	}
 	timeString = strings.Trim(timeString, `"`)
 	t, err := ConvertStringToTime(timeString)
 	if err != nil {

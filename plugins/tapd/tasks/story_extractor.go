@@ -7,7 +7,6 @@ import (
 	"github.com/merico-dev/lake/plugins/core"
 	"github.com/merico-dev/lake/plugins/helper"
 	"github.com/merico-dev/lake/plugins/tapd/models"
-	"strconv"
 	"strings"
 )
 
@@ -26,10 +25,23 @@ type TapdStoryRes struct {
 
 func ExtractStories(taskCtx core.SubTaskContext) error {
 	data := taskCtx.GetData().(*TapdTaskData)
+	db := taskCtx.GetDb()
+	statusList := make([]*models.TapdBugStatus, 0)
+	err := db.Model(&models.TapdBugStatus{}).
+		Find(&statusList, "source_id = ? and workspace_id = ?", data.Options.SourceId, data.Options.WorkspaceID).
+		Error
+	if err != nil {
+		return err
+	}
+
+	statusMap := make(map[string]string, len(statusList))
+	for _, v := range statusList {
+		statusMap[v.EnglishName] = v.ChineseName
+	}
 	getStdStatus := func(statusKey string) string {
-		if statusKey == "resolved" {
+		if statusKey == "已实现" || statusKey == "已拒绝" || statusKey == "关闭" || statusKey == "已取消" {
 			return ticket.DONE
-		} else if statusKey == "planning" {
+		} else if statusKey == "草稿" {
 			return ticket.TODO
 		} else {
 			return ticket.IN_PROGRESS
@@ -52,7 +64,7 @@ func ExtractStories(taskCtx core.SubTaskContext) error {
 				return nil, err
 			}
 			toolL := storyBody.Story
-
+			toolL.Status = statusMap[toolL.Status]
 			toolL.SourceId = models.Uint64s(data.Source.ID)
 			toolL.StdType = "REQUIREMENT"
 			toolL.StdStatus = getStdStatus(toolL.Status)
@@ -96,15 +108,4 @@ func ExtractStories(taskCtx core.SubTaskContext) error {
 	}
 
 	return extractor.Execute()
-}
-
-func AtoIIgnoreEmpty(s string) (int, error) {
-	if len(s) == 0 {
-		return 0, nil
-	}
-	i, err := strconv.Atoi(s)
-	if err != nil {
-		return 0, err
-	}
-	return i, nil
 }

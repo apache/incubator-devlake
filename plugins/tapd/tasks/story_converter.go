@@ -45,6 +45,7 @@ func ConvertStory(taskCtx core.SubTaskContext) error {
 				Type:                 toolL.StdType,
 				Status:               toolL.StdStatus,
 				StoryPoint:           uint(toolL.Size),
+				OriginalStatus:       toolL.Status,
 				ResolutionDate:       toolL.Completed.ToNullableTime(),
 				CreatedDate:          toolL.Created.ToNullableTime(),
 				UpdatedDate:          toolL.Modified.ToNullableTime(),

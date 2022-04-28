@@ -28,10 +28,10 @@ func ExtractTasks(taskCtx core.SubTaskContext) error {
 	getStdStatus := func(statusKey string) string {
 		if statusKey == "done" {
 			return ticket.DONE
-		} else if statusKey == "new" {
-			return ticket.TODO
-		} else {
+		} else if statusKey == "progressing" {
 			return ticket.IN_PROGRESS
+		} else {
+			return ticket.TODO
 		}
 	}
 	extractor, err := helper.NewApiExtractor(helper.ApiExtractorArgs{

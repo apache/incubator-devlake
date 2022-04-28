@@ -55,6 +55,7 @@ func ConvertBug(taskCtx core.SubTaskContext) error {
 				AssigneeName:   toolL.CurrentOwner,
 				Severity:       toolL.Severity,
 				Component:      toolL.Feature, // todo not sure about this
+				OriginalStatus: toolL.Status,
 			}
 			if domainL.ResolutionDate != nil && domainL.CreatedDate != nil {
 				domainL.LeadTimeMinutes = uint(int64(domainL.ResolutionDate.Minute() - domainL.CreatedDate.Minute()))
