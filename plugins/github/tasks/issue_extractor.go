@@ -43,18 +43,37 @@ type IssuesResponse struct {
 
 func ExtractApiIssues(taskCtx core.SubTaskContext) error {
 	data := taskCtx.GetData().(*GithubTaskData)
+	config := data.Options.Config
 	var issueSeverityRegex *regexp.Regexp
 	var issueComponentRegex *regexp.Regexp
 	var issuePriorityRegex *regexp.Regexp
 	var issueTypeBugRegex *regexp.Regexp
 	var issueTypeRequirementRegex *regexp.Regexp
 	var issueTypeIncidentRegex *regexp.Regexp
-	var issueSeverity = taskCtx.GetConfig("GITHUB_ISSUE_SEVERITY")
-	var issueComponent = taskCtx.GetConfig("GITHUB_ISSUE_COMPONENT")
-	var issuePriority = taskCtx.GetConfig("GITHUB_ISSUE_PRIORITY")
-	var issueTypeBug = taskCtx.GetConfig("GITHUB_ISSUE_TYPE_BUG")
-	var issueTypeRequirement = taskCtx.GetConfig("GITHUB_ISSUE_TYPE_REQUIREMENT")
-	var issueTypeIncident = taskCtx.GetConfig("GITHUB_ISSUE_TYPE_INCIDENT")
+	var issueSeverity = config.GITHUB_ISSUE_SEVERITY
+	if issueSeverity == "" {
+		issueSeverity = taskCtx.GetConfig("GITHUB_ISSUE_SEVERITY")
+	}
+	var issueComponent = config.GITHUB_ISSUE_COMPONENT
+	if issueComponent == "" {
+		issueComponent = taskCtx.GetConfig("GITHUB_ISSUE_COMPONENT")
+	}
+	var issuePriority = config.GITHUB_ISSUE_PRIORITY
+	if issuePriority == "" {
+		issuePriority = taskCtx.GetConfig("GITHUB_ISSUE_PRIORITY")
+	}
+	var issueTypeBug = config.GITHUB_ISSUE_TYPE_BUG
+	if issueTypeBug == "" {
+		issueTypeBug = taskCtx.GetConfig("GITHUB_ISSUE_TYPE_BUG")
+	}
+	var issueTypeRequirement = config.GITHUB_ISSUE_TYPE_REQUIREMENT
+	if issueTypeRequirement == "" {
+		issueTypeRequirement = taskCtx.GetConfig("GITHUB_ISSUE_TYPE_REQUIREMENT")
+	}
+	var issueTypeIncident = config.GITHUB_ISSUE_TYPE_INCIDENT
+	if issueTypeIncident == "" {
+		issueTypeIncident = taskCtx.GetConfig("GITHUB_ISSUE_TYPE_INCIDENT")
+	}
 	if len(issueSeverity) > 0 {
 		issueSeverityRegex = regexp.MustCompile(issueSeverity)
 	}
