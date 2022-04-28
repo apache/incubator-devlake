@@ -25,6 +25,11 @@ func ConvertChangelogs(taskCtx core.SubTaskContext) error {
 	sourceId := data.Source.ID
 	boardId := data.Options.BoardId
 	logger := taskCtx.GetLogger()
+	sprintIssueConverter, err := NewSprintIssueConverter(taskCtx)
+	if err != nil {
+		logger.Info(err.Error())
+		return err
+	}
 	db := taskCtx.GetDb()
 	logger.Info("covert changelog")
 	// select all changelogs belongs to the board
@@ -45,7 +50,6 @@ func ConvertChangelogs(taskCtx core.SubTaskContext) error {
 		return err
 	}
 	defer cursor.Close()
-	sprintIssueConverter := NewSprintIssueConverter(taskCtx)
 	issueIdGenerator := didgen.NewDomainIdGenerator(&models.JiraIssue{})
 	changelogIdGenerator := didgen.NewDomainIdGenerator(&models.JiraChangelogItem{})
 

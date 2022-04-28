@@ -55,14 +55,10 @@ func NewGormDb(config *viper.Viper, logger core.Logger) (*gorm.DB, error) {
 	if err != nil {
 		return nil, err
 	}
-	if u.Scheme == "mysql" {
-		dbUrl = fmt.Sprintf(("%s@tcp(%s)%s?%s"), u.User.String(), u.Host, u.Path, u.RawQuery)
-	}
 	var db *gorm.DB
 	switch strings.ToLower(u.Scheme) {
 	case "mysql":
 		dbUrl = fmt.Sprintf(("%s@tcp(%s)%s?%s"), u.User.String(), u.Host, u.Path, u.RawQuery)
-		fmt.Println(dbUrl)
 		db, err = gorm.Open(mysql.Open(dbUrl), dbConfig)
 	case "postgresql", "postgres", "pg":
 		db, err = gorm.Open(postgres.Open(dbUrl), dbConfig)
