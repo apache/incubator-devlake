@@ -2,14 +2,20 @@
 # https://stackoverflow.com/questions/920413/make-error-missing-separator
 # https://tutorialedge.net/golang/makefiles-for-go-developers/
 
+SHA = $(shell git show -s --format=%h)
+TAG = $(shell git tag --points-at HEAD)
+VERSION = $(TAG)@$(SHA)
+
 build-plugin:
 	@sh scripts/compile-plugins.sh
 
 build-worker:
-	go build -o bin/lake-worker ./worker/
+	go build -ldflags "-X 'github.com/merico-dev/lake/version.Version=$(VERSION)'" -o bin/lake-worker ./worker/
 
-build: build-plugin
-	go build -o bin/lake
+build-server:
+	go build -ldflags "-X 'github.com/merico-dev/lake/version.Version=$(VERSION)'" -o bin/lake
+
+build: build-plugin build-server
 
 all: build build-worker
 
@@ -49,9 +55,3 @@ clean:
 
 restart:
 	docker-compose down; docker-compose up -d
-
-test-migrateup:
-	migrate -path db/migration -database "mysql://merico:merico@localhost:3306/lake" -verbose up
-
-test-migratedown:
-	migrate -path db/migration -database "mysql://merico:merico@localhost:3306/lake" -verbose down
