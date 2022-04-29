@@ -2,6 +2,7 @@ package api
 
 import (
 	"fmt"
+	"net/http"
 	"time"
 
 	"github.com/go-playground/validator/v10"
@@ -10,16 +11,6 @@ import (
 
 	"github.com/merico-dev/lake/plugins/core"
 )
-
-type TapdTestResponse struct {
-	Status int `json:"status"`
-	Data   struct {
-		APIUser     string `json:"api_user"`
-		APIPassword string `json:"api_password"`
-		RequestIP   string `json:"request_ip"`
-	} `json:"data"`
-	Info string `json:"info"`
-}
 
 type TestConnectionRequest struct {
 	Endpoint string `json:"endpoint" validate:"required,url"`
@@ -60,12 +51,13 @@ func TestConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, erro
 	}
 	res, err := apiClient.Get("/quickstart/testauth", nil, nil)
 	if err != nil {
-		return nil, fmt.Errorf("verify token failed for %s %w", token, err)
-	}
-	resBody := &TapdTestResponse{}
-	err = helper.UnmarshalResponse(res, resBody)
-	if err != nil {
 		return nil, err
+	}
+	if res.StatusCode == http.StatusUnauthorized {
+		return nil, fmt.Errorf("verify token failed for %s", token)
+	}
+	if res.StatusCode != http.StatusOK {
+		return nil, fmt.Errorf("unexpected status code: %d", res.StatusCode)
 	}
 	// output
 	return nil, nil

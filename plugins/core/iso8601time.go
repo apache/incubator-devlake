@@ -102,9 +102,6 @@ func (jt *Iso8601Time) ToNullableTime() *time.Time {
 }
 
 func ConvertStringToTime(timeString string) (t time.Time, err error) {
-	if len(timeString) == 0 {
-		return time.Time{}, nil
-	}
 	for _, formatItem := range DateTimeFormats {
 		if formatItem.Matcher.MatchString(timeString) {
 			t, err = time.Parse(formatItem.Format, timeString)
@@ -164,20 +161,6 @@ func DecodeMapStruct(input map[string]interface{}, result interface{}) error {
 		return err
 	}
 	return err
-}
-
-func ConvertStringToTimePtr(timeString string) (*time.Time, error) {
-	if len(timeString) == 0 {
-		return nil, nil
-	}
-	for _, formatItem := range DateTimeFormats {
-		if formatItem.Matcher.MatchString(timeString) {
-			t, err := time.Parse(formatItem.Format, timeString)
-			return &t, err
-		}
-	}
-	t, err := time.Parse(time.RFC3339, timeString)
-	return &t, err
 }
 
 func (t Iso8601Time) Value() (driver.Value, error) {

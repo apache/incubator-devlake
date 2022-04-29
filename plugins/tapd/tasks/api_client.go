@@ -21,7 +21,7 @@ func NewTapdApiClient(taskCtx core.TaskContext, source *models.TapdSource) (*hel
 	headers := map[string]string{
 		"Authorization": fmt.Sprintf("Basic %v", auth),
 	}
-	apiClient, err := helper.NewApiClient(source.Endpoint, headers, 0, source.Proxy, taskCtx.GetContext())
+	apiClient, err := helper.NewApiClient(source.Endpoint, headers, 0, "", taskCtx.GetContext())
 	if err != nil {
 		return nil, err
 	}
@@ -46,30 +46,4 @@ func NewTapdApiClient(taskCtx core.TaskContext, source *models.TapdSource) (*hel
 	}
 
 	return asyncApiClient, nil
-}
-
-func NewTapdApiPageClient(taskCtx core.TaskContext, source *models.TapdSource) (*helper.ApiClient, error) {
-	// load configuration
-	encKey := taskCtx.GetConfig(core.EncodeKeyEnvStr)
-	auth, err := core.Decrypt(encKey, source.BasicAuthEncoded)
-	if err != nil {
-		return nil, fmt.Errorf("Failed to decrypt Auth Token: %w", err)
-	}
-
-	// create synchronize api client so we can calculate api rate limit dynamically
-	headers := map[string]string{
-		"Authorization": fmt.Sprintf("Basic %v", auth),
-	}
-	apiClient, err := helper.NewApiClient(source.Endpoint, headers, 0, source.Proxy, taskCtx.GetContext())
-	if err != nil {
-		return nil, err
-	}
-	apiClient.SetAfterFunction(func(res *http.Response) error {
-		if res.StatusCode == http.StatusUnprocessableEntity {
-			return fmt.Errorf("authentication failed, please check your Basic Auth Token")
-		}
-		return nil
-	})
-
-	return apiClient, nil
 }

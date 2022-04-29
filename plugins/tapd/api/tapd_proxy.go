@@ -12,10 +12,6 @@ import (
 	"github.com/merico-dev/lake/plugins/tapd/models"
 )
 
-const (
-	TimeOut = 10 * time.Second
-)
-
 func Proxy(input *core.ApiResourceInput) (*core.ApiResourceOutput, error) {
 	sourceId := input.Params["sourceId"]
 	if sourceId == "" {
@@ -41,7 +37,7 @@ func Proxy(input *core.ApiResourceInput) (*core.ApiResourceOutput, error) {
 			"Authorization": fmt.Sprintf("Basic %v", basicAuth),
 		},
 		30*time.Second,
-		tapdSource.Proxy,
+		"",
 		nil,
 	)
 	if err != nil {

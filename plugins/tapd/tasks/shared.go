@@ -27,7 +27,7 @@ var IterIdGen *didgen.DomainIdGenerator
 // res will not be used
 func GetTotalPagesFromResponse(r *http.Response, args *helper.ApiCollectorArgs) (int, error) {
 	data := args.Ctx.GetData().(*TapdTaskData)
-	apiClient, err := NewTapdApiPageClient(args.Ctx.TaskContext(), data.Source)
+	apiClient, err := NewTapdApiClient(args.Ctx.TaskContext(), data.Source)
 	if err != nil {
 		return 0, err
 	}

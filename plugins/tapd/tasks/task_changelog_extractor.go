@@ -46,7 +46,7 @@ func ExtractTaskChangelog(taskCtx core.SubTaskContext) error {
 
 			taskChangelog.SourceId = data.Source.ID
 			for _, fc := range taskChangelog.FieldChanges {
-				var item *models.TapdTaskChangelogItem
+				var item models.TapdTaskChangelogItem
 				var valueAfterMap interface{}
 				if err = json.Unmarshal(fc.ValueAfterParsed, &valueAfterMap); err != nil {
 					return nil, err
@@ -81,7 +81,7 @@ func ExtractTaskChangelog(taskCtx core.SubTaskContext) error {
 					item.IterationIdFrom = iterationFrom
 					item.IterationIdTo = iterationTo
 				}
-				results = append(results, item)
+				results = append(results, &item)
 			}
 			results = append(results, &taskChangelog)
 			return results, nil

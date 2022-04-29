@@ -145,12 +145,6 @@ func (plugin Tapd) ApiResources() map[string]map[string]core.ApiResourceHandler 
 			"DELETE": api.DeleteSource,
 			"GET":    api.GetSource,
 		},
-		"sources/:sourceId/epics": {
-			"GET": api.GetEpicsBySourceId,
-		},
-		"sources/:sourceId/granularities": {
-			"GET": api.GetGranularitiesBySourceId,
-		},
 		"sources/:sourceId/boards": {
 			"GET": api.GetBoardsBySourceId,
 		},

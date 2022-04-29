@@ -46,7 +46,7 @@ func ExtractStoryChangelog(taskCtx core.SubTaskContext) error {
 
 			storyChangelog.SourceId = data.Source.ID
 			for _, fc := range storyChangelog.FieldChanges {
-				var item *models.TapdStoryChangelogItem
+				var item models.TapdStoryChangelogItem
 				var valueAfterMap interface{}
 				if err = json.Unmarshal(fc.ValueAfterParsed, &valueAfterMap); err != nil {
 					return nil, err
@@ -64,7 +64,6 @@ func ExtractStoryChangelog(taskCtx core.SubTaskContext) error {
 						item.Field = k
 						item.ValueAfterParsed = v.(string)
 						item.ValueBeforeParsed = valueBeforeMap[k]
-						results = append(results, item)
 					}
 				default:
 					item.SourceId = data.Source.ID
@@ -81,7 +80,7 @@ func ExtractStoryChangelog(taskCtx core.SubTaskContext) error {
 					item.IterationIdFrom = iterationFrom
 					item.IterationIdTo = iterationTo
 				}
-				results = append(results, item)
+				results = append(results, &item)
 			}
 			results = append(results, &storyChangelog)
 			return results, nil

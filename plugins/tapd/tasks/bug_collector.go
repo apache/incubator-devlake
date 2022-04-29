@@ -27,7 +27,7 @@ func CollectBugs(taskCtx core.SubTaskContext) error {
 		var latestUpdated models.TapdBug
 		err := db.Where("source_id = ?", data.Source.ID).Order("modified DESC").Limit(1).Find(&latestUpdated).Error
 		if err != nil {
-			return fmt.Errorf("failed to get latest jira changelog record: %w", err)
+			return fmt.Errorf("failed to get latest tapd changelog record: %w", err)
 		}
 		if latestUpdated.ID > 0 {
 			since = latestUpdated.Modified.ToNullableTime()
