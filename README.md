@@ -61,8 +61,8 @@ DevLake is designed for developer teams looking to make better sense of their de
 
 #### Prerequisites
 
-- [Docker](https://docs.docker.com/get-docker) (docker engine version should be upgrated to v19.03.10 at least)
-- [docker-compose](https://docs.docker.com/compose/install/) (docker-compose version should be upgraded to v2.2.3 at least)
+- [Docker v19.03.10+](https://docs.docker.com/get-docker)
+- [docker-compose v2.2.3+](https://docs.docker.com/compose/install/)
 
 #### Launch DevLake
 
@@ -125,7 +125,7 @@ Here's the step-by-step guide:
 
 #### Requirements
 
-- <a href="https://docs.docker.com/get-docker" target="_blank">Docker</a> (docker engine version should be upgrated to v19.03.10 at least)
+- <a href="https://docs.docker.com/get-docker" target="_blank">Docker v19.03.10+</a>
 - <a href="https://golang.org/doc/install" target="_blank">Golang v1.17+</a>
 - Make
   - Mac (Already installed)
