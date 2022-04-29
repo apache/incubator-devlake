@@ -32,3 +32,6 @@ COPY --from=builder /usr/share/zoneinfo /usr/share/zoneinfo
 ENV PATH="/app/bin:${PATH}"
 
 CMD ["lake"]
+
+# Notes: Docker for Mac sets up qemu emulation, you can likely use the amd64 image by adding the --platform=linux/amd64 flag. 
+# Such as: FROM --platform=linux/amd64 alpine:3.15
