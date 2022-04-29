@@ -51,7 +51,6 @@ func ConvertTaskChangelog(taskCtx core.SubTaskContext) error {
 		return err
 	}
 	defer cursor.Close()
-	changelogToHistoryConverter := NewChangelogToHistoryConverter(taskCtx)
 	converter, err := helper.NewDataConverter(helper.DataConverterArgs{
 		RawDataSubTaskArgs: helper.RawDataSubTaskArgs{
 			Ctx: taskCtx,
@@ -80,22 +79,6 @@ func ConvertTaskChangelog(taskCtx core.SubTaskContext) error {
 				CreatedDate: cl.Created,
 			}
 
-			changelogTmp := &models.ChangelogTmp{
-				Id:              cl.ID,
-				IssueId:         cl.TaskID,
-				AuthorId:        cl.Creator,
-				AuthorName:      cl.Creator,
-				FieldId:         cl.Field,
-				FieldName:       cl.Field,
-				From:            cl.ValueBeforeParsed,
-				To:              cl.ValueBeforeParsed,
-				IterationIdFrom: cl.IterationIdFrom,
-				IterationIdTo:   cl.IterationIdTo,
-				CreatedDate:     cl.Created,
-			}
-
-			changelogToHistoryConverter.FeedIn(data.Source.ID, *changelogTmp)
-
 			return []interface{}{
 				domainCl,
 			}, nil
@@ -106,11 +89,7 @@ func ConvertTaskChangelog(taskCtx core.SubTaskContext) error {
 		return err
 	}
 
-	err = converter.Execute()
-	if err != nil {
-		return err
-	}
-	return changelogToHistoryConverter.UpdateSprintIssue()
+	return converter.Execute()
 }
 
 var ConvertTaskChangelogMeta = core.SubTaskMeta{
