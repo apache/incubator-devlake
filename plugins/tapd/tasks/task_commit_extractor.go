@@ -35,14 +35,14 @@ func ExtractTaskCommits(taskCtx core.SubTaskContext) error {
 				return nil, err
 			}
 			toolL := issueCommitBody
-			toolL.SourceId = models.Uint64s(data.Source.ID)
+			toolL.SourceId = data.Source.ID
 			issue := SimpleTask{}
 			err = json.Unmarshal(row.Input, &issue)
 			if err != nil {
 				return nil, err
 			}
 			toolL.TaskId = issue.Id
-			toolL.WorkspaceID = models.Uint64s(data.Options.WorkspaceID)
+			toolL.WorkspaceID = data.Options.WorkspaceID
 			results := make([]interface{}, 0, 1)
 			results = append(results, &toolL)
 

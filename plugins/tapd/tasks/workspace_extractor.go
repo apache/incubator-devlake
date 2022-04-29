@@ -41,7 +41,7 @@ func ExtractWorkspaces(taskCtx core.SubTaskContext) error {
 
 			ws := workspaceRes.Workspace
 
-			ws.SourceId = models.Uint64s(data.Source.ID)
+			ws.SourceId = data.Source.ID
 			return []interface{}{
 				&ws,
 			}, nil

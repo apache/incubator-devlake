@@ -5,8 +5,8 @@ import (
 )
 
 type TapdStoryLabel struct {
-	StoryId   Uint64s `gorm:"primaryKey;autoIncrement:false"`
-	LabelName string  `gorm:"primaryKey;type:varchar(255)"`
+	StoryId   uint64 `gorm:"primaryKey;autoIncrement:false"`
+	LabelName string `gorm:"primaryKey;type:varchar(255)"`
 	common.NoPKModel
 }
 

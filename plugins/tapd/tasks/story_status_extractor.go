@@ -41,8 +41,8 @@ func ExtractStoryStatus(taskCtx core.SubTaskContext) error {
 			results := make([]interface{}, 0)
 			for k, v := range statusRes.Data {
 				toolL := &models.TapdStoryStatus{
-					SourceId:    models.Uint64s(data.Source.ID),
-					WorkspaceID: models.Uint64s(data.Options.WorkspaceID),
+					SourceId:    data.Source.ID,
+					WorkspaceID: data.Options.WorkspaceID,
 					EnglishName: k,
 					ChineseName: v,
 					IsLastStep:  false,

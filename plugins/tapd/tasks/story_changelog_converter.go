@@ -26,7 +26,7 @@ type StoryChangelogItemResult struct {
 	ChangeType        string    `json:"change_type"`
 	StoryID           uint64    `json:"story_id"`
 	ChangelogId       uint64    `gorm:"primaryKey;type:BIGINT(10) UNSIGNED NOT NULL"`
-	Field             string    `json:"field" gorm:"primaryKey"`
+	Field             string    `json:"field" gorm:"primaryKey;type:varchar(255)"`
 	ValueBeforeParsed string    `json:"value_before"`
 	ValueAfterParsed  string    `json:"value_after"`
 	IterationIdFrom   uint64
@@ -66,10 +66,10 @@ func ConvertStoryChangelog(taskCtx core.SubTaskContext) error {
 			cl := inputRow.(*StoryChangelogItemResult)
 			domainCl := &ticket.Changelog{
 				DomainEntity: domainlayer.DomainEntity{
-					Id: fmt.Sprintf("%s:%s", clIdGen.Generate(models.Uint64s(data.Source.ID), cl.ID), cl.Field),
+					Id: fmt.Sprintf("%s:%s", clIdGen.Generate(data.Source.ID, cl.ID), cl.Field),
 				},
-				IssueId:     IssueIdGen.Generate(models.Uint64s(data.Source.ID), cl.StoryID),
-				AuthorId:    UserIdGen.Generate(models.Uint64s(data.Source.ID), data.Options.WorkspaceID, cl.Creator),
+				IssueId:     IssueIdGen.Generate(data.Source.ID, cl.StoryID),
+				AuthorId:    UserIdGen.Generate(data.Source.ID, data.Options.WorkspaceID, cl.Creator),
 				AuthorName:  cl.Creator,
 				FieldId:     cl.Field,
 				FieldName:   cl.Field,

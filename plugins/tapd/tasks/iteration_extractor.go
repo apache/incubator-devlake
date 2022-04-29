@@ -40,9 +40,9 @@ func ExtractIterations(taskCtx core.SubTaskContext) error {
 			}
 			iter := iterBody.Iteration
 
-			iter.SourceId = models.Uint64s(data.Source.ID)
+			iter.SourceId = data.Source.ID
 			workspaceIter := &models.TapdWorkspaceIteration{
-				SourceId:    models.Uint64s(data.Source.ID),
+				SourceId:    data.Source.ID,
 				WorkspaceID: iter.WorkspaceID,
 				IterationId: iter.ID,
 			}

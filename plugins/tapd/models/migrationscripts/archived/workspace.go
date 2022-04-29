@@ -3,12 +3,11 @@ package archived
 import (
 	"github.com/merico-dev/lake/models/common"
 	"github.com/merico-dev/lake/plugins/core"
-	"github.com/merico-dev/lake/plugins/tapd/models"
 )
 
 type TapdWorkspace struct {
-	SourceId    models.Uint64s    `gorm:"primaryKey;type:INT(10) UNSIGNED NOT NULL"`
-	ID          models.Uint64s    `gorm:"primaryKey;type:BIGINT(100)" json:"id"`
+	SourceId    uint64            `gorm:"primaryKey;type:INT(10) UNSIGNED NOT NULL"`
+	ID          uint64            `gorm:"primaryKey;type:BIGINT(100)" json:"id,string"`
 	Name        string            `gorm:"type:varchar(255)" json:"name"`
 	PrettyName  string            `gorm:"type:varchar(255)" json:"pretty_name"`
 	Category    string            `gorm:"type:varchar(255)" json:"category"`
@@ -23,9 +22,9 @@ type TapdWorkspace struct {
 }
 
 type TapdWorkSpaceIssue struct {
-	SourceId    models.Uint64s `gorm:"primaryKey"`
-	WorkspaceID models.Uint64s `gorm:"primaryKey"`
-	IssueId     models.Uint64s `gorm:"primaryKey"`
+	SourceId    uint64 `gorm:"primaryKey"`
+	WorkspaceID uint64 `gorm:"primaryKey"`
+	IssueId     uint64 `gorm:"primaryKey"`
 	common.NoPKModel
 }
 

@@ -11,7 +11,6 @@ type InitSchemas struct{}
 func (*InitSchemas) Up(ctx context.Context, db *gorm.DB) error {
 	return db.Migrator().AutoMigrate(
 		&archived.TapdWorkspace{},
-		&archived.TapdWorkSpaceIssue{},
 		&archived.TapdWorklog{},
 		&archived.TapdWorkspaceIteration{},
 		&archived.TapdUser{},
@@ -26,7 +25,6 @@ func (*InitSchemas) Up(ctx context.Context, db *gorm.DB) error {
 		&archived.TapdIssueStatusHistory{},
 		&archived.TapdIssueAssigneeHistory{},
 		&archived.TapdIteration{},
-		&archived.TapdIterationIssue{},
 		&archived.TapdSource{},
 		&archived.TapdBug{},
 		&archived.TapdStory{},
@@ -39,6 +37,12 @@ func (*InitSchemas) Up(ctx context.Context, db *gorm.DB) error {
 		&archived.TapdBugCommit{},
 		&archived.TapdStoryCommit{},
 		&archived.TapdTaskCommit{},
+		&archived.TapdWorkSpaceBug{},
+		&archived.TapdWorkSpaceStory{},
+		&archived.TapdWorkSpaceTask{},
+		&archived.TapdIterationBug{},
+		&archived.TapdIterationStory{},
+		&archived.TapdIterationTask{},
 	)
 }
 

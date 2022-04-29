@@ -37,9 +37,9 @@ func ConvertWorklog(taskCtx core.SubTaskContext) error {
 			toolL := inputRow.(*models.TapdWorklog)
 			domainL := &ticket.IssueWorklog{
 				DomainEntity: domainlayer.DomainEntity{
-					Id: worklogIdGen.Generate(models.Uint64s(data.Source.ID), toolL.ID),
+					Id: worklogIdGen.Generate(data.Source.ID, toolL.ID),
 				},
-				AuthorId:         UserIdGen.Generate(models.Uint64s(data.Source.ID), toolL.WorkspaceID, toolL.Owner),
+				AuthorId:         UserIdGen.Generate(data.Source.ID, toolL.WorkspaceID, toolL.Owner),
 				Comment:          toolL.Memo,
 				TimeSpentMinutes: int(toolL.Timespent),
 				LoggedDate:       toolL.Created.ToNullableTime(),

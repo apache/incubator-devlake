@@ -40,7 +40,7 @@ func ExtractWorklogs(taskCtx core.SubTaskContext) error {
 			}
 			toolL := worklogBody.Timesheet
 
-			toolL.SourceId = models.Uint64s(data.Source.ID)
+			toolL.SourceId = data.Source.ID
 			results := make([]interface{}, 0, 1)
 			results = append(results, &toolL)
 

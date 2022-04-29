@@ -68,7 +68,7 @@ func ExtractBugs(taskCtx core.SubTaskContext) error {
 			toolL := bugBody.Bug
 
 			toolL.Status = statusMap[toolL.Status]
-			toolL.SourceId = models.Uint64s(data.Source.ID)
+			toolL.SourceId = data.Source.ID
 			toolL.Type = "BUG"
 			toolL.StdType = "BUG"
 			toolL.StdStatus = getStdStatus(toolL.Status)
@@ -76,22 +76,23 @@ func ExtractBugs(taskCtx core.SubTaskContext) error {
 			if strings.Contains(toolL.CurrentOwner, ";") {
 				toolL.CurrentOwner = strings.Split(toolL.CurrentOwner, ";")[0]
 			}
-			workSpaceIssue := &models.TapdWorkSpaceIssue{
-				SourceId:    models.Uint64s(data.Source.ID),
+			workSpaceBug := &models.TapdWorkSpaceBug{
+				SourceId:    data.Source.ID,
 				WorkspaceID: toolL.WorkspaceID,
-				IssueId:     toolL.ID,
+				BugId:       toolL.ID,
 			}
 			results := make([]interface{}, 0, 3)
-			results = append(results, &toolL, workSpaceIssue)
+			results = append(results, &toolL, workSpaceBug)
 			if toolL.IterationID != 0 {
-				iterationIssue := &models.TapdIterationIssue{
-					SourceId:         models.Uint64s(data.Source.ID),
-					IterationId:      toolL.IterationID,
-					IssueId:          toolL.ID,
-					ResolutionDate:   toolL.Resolved,
-					IssueCreatedDate: toolL.Created,
+				iterationBug := &models.TapdIterationBug{
+					SourceId:       data.Source.ID,
+					IterationId:    toolL.IterationID,
+					WorkspaceID:    toolL.WorkspaceID,
+					BugId:          toolL.ID,
+					ResolutionDate: toolL.Resolved,
+					BugCreatedDate: toolL.Created,
 				}
-				results = append(results, iterationIssue)
+				results = append(results, iterationBug)
 			}
 			if toolL.Label != "" {
 				labelList := strings.Split(toolL.Label, "|")

@@ -39,8 +39,8 @@ func ExtractUsers(taskCtx core.SubTaskContext) error {
 				return nil, err
 			}
 			toolL := models.TapdUser{
-				SourceId:    models.Uint64s(data.Source.ID),
-				WorkspaceID: models.Uint64s(data.Options.WorkspaceID),
+				SourceId:    data.Source.ID,
+				WorkspaceID: data.Options.WorkspaceID,
 				Name:        userRes.UserWorkspace.Name,
 				User:        userRes.UserWorkspace.User,
 			}

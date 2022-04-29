@@ -22,6 +22,7 @@ type Data struct {
 var UserIdGen *didgen.DomainIdGenerator
 var WorkspaceIdGen *didgen.DomainIdGenerator
 var IssueIdGen *didgen.DomainIdGenerator
+var IterIdGen *didgen.DomainIdGenerator
 
 // res will not be used
 func GetTotalPagesFromResponse(r *http.Response, args *helper.ApiCollectorArgs) (int, error) {
@@ -45,7 +46,7 @@ func GetTotalPagesFromResponse(r *http.Response, args *helper.ApiCollectorArgs) 
 	return totalPage, err
 }
 
-func parseIterationChangelog(taskCtx core.SubTaskContext, old string, new string) (models.Uint64s, models.Uint64s, error) {
+func parseIterationChangelog(taskCtx core.SubTaskContext, old string, new string) (uint64, uint64, error) {
 	data := taskCtx.GetData().(*TapdTaskData)
 	db := taskCtx.GetDb()
 	iterationFrom := &models.TapdIteration{}

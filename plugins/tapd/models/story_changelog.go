@@ -7,40 +7,40 @@ import (
 )
 
 type TapdStoryChangelog struct {
-	SourceId       Uint64s           `gorm:"primaryKey;type:INT(10) UNSIGNED NOT NULL"`
-	ID             Uint64s           `gorm:"primaryKey;type:BIGINT(10) UNSIGNED NOT NULL" json:"id"`
-	WorkspaceID    Uint64s           `json:"workspace_id"`
-	WorkitemTypeID Uint64s           `json:"workitem_type_id"`
+	SourceId       uint64            `gorm:"primaryKey;type:INT(10) UNSIGNED NOT NULL"`
+	ID             uint64            `gorm:"primaryKey;type:BIGINT(10) UNSIGNED NOT NULL" json:"id,string"`
+	WorkspaceID    uint64            `json:"workspace_id,string"`
+	WorkitemTypeID uint64            `json:"workitem_type_id,string"`
 	Creator        string            `json:"creator"`
 	Created        *core.Iso8601Time `json:"created"`
 	ChangeSummary  string            `json:"change_summary"`
 	Comment        string            `json:"comment"`
 	EntityType     string            `json:"entity_type"`
 	ChangeType     string            `json:"change_type"`
-	StoryID        Uint64s           `json:"story_id"`
+	StoryID        uint64            `json:"story_id,string"`
 	common.NoPKModel
 	FieldChanges []TapdStoryChangelogItemRes `json:"field_changes" gorm:"-"`
 }
 
 type TapdStoryChangelogItemRes struct {
-	SourceId          Uint64s         `gorm:"primaryKey;type:INT(10) UNSIGNED NOT NULL"`
-	ChangelogId       Uint64s         `gorm:"primaryKey;type:BIGINT(10) UNSIGNED NOT NULL"`
-	Field             string          `json:"field" gorm:"primaryKey"`
+	SourceId          uint64          `gorm:"primaryKey;type:INT(10) UNSIGNED NOT NULL"`
+	ChangelogId       uint64          `gorm:"primaryKey;type:BIGINT(10) UNSIGNED NOT NULL"`
+	Field             string          `json:"field" gorm:"primaryKey;type:varchar(255)"`
 	ValueBeforeParsed json.RawMessage `json:"value_before_parsed"`
 	ValueAfterParsed  json.RawMessage `json:"value_after_parsed"`
-	IterationIdFrom   Uint64s
-	IterationIdTo     Uint64s
+	IterationIdFrom   uint64
+	IterationIdTo     uint64
 	common.NoPKModel
 }
 
 type TapdStoryChangelogItem struct {
-	SourceId          Uint64s `gorm:"primaryKey;type:INT(10) UNSIGNED NOT NULL"`
-	ChangelogId       Uint64s `gorm:"primaryKey;type:BIGINT(10) UNSIGNED NOT NULL"`
-	Field             string  `json:"field" gorm:"primaryKey"`
-	ValueBeforeParsed string  `json:"value_before_parsed"`
-	ValueAfterParsed  string  `json:"value_after_parsed"`
-	IterationIdFrom   Uint64s
-	IterationIdTo     Uint64s
+	SourceId          uint64 `gorm:"primaryKey;type:INT(10) UNSIGNED NOT NULL"`
+	ChangelogId       uint64 `gorm:"primaryKey;type:BIGINT(10) UNSIGNED NOT NULL"`
+	Field             string `json:"field" gorm:"primaryKey;type:varchar(255)"`
+	ValueBeforeParsed string `json:"value_before_parsed"`
+	ValueAfterParsed  string `json:"value_after_parsed"`
+	IterationIdFrom   uint64
+	IterationIdTo     uint64
 	common.NoPKModel
 }
 

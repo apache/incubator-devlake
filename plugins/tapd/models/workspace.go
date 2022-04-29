@@ -6,8 +6,8 @@ import (
 )
 
 type TapdWorkspace struct {
-	SourceId    Uint64s           `gorm:"primaryKey;type:INT(10) UNSIGNED NOT NULL"`
-	ID          Uint64s           `gorm:"primaryKey;type:BIGINT(100)" json:"id"`
+	SourceId    uint64            `gorm:"primaryKey;type:INT(10) UNSIGNED NOT NULL"`
+	ID          uint64            `gorm:"primaryKey;type:BIGINT(100)" json:"id,string"`
 	Name        string            `gorm:"type:varchar(255)" json:"name"`
 	PrettyName  string            `gorm:"type:varchar(255)" json:"pretty_name"`
 	Category    string            `gorm:"type:varchar(255)" json:"category"`
@@ -21,17 +21,6 @@ type TapdWorkspace struct {
 	common.NoPKModel
 }
 
-type TapdWorkSpaceIssue struct {
-	SourceId    Uint64s `gorm:"primaryKey"`
-	WorkspaceID Uint64s `gorm:"primaryKey"`
-	IssueId     Uint64s `gorm:"primaryKey"`
-	common.NoPKModel
-}
-
 func (TapdWorkspace) TableName() string {
 	return "_tool_tapd_workspaces"
-}
-
-func (TapdWorkSpaceIssue) TableName() string {
-	return "_tool_tapd_workspace_issues"
 }

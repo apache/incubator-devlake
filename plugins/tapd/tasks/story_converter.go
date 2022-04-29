@@ -52,8 +52,8 @@ func ConvertStory(taskCtx core.SubTaskContext) error {
 				ParentIssueId:        IssueIdGen.Generate(toolL.SourceId, toolL.ParentID),
 				Priority:             toolL.Priority,
 				TimeRemainingMinutes: int64(toolL.Remain),
-				CreatorId:            UserIdGen.Generate(models.Uint64s(data.Source.ID), toolL.WorkspaceID, toolL.Creator),
-				AssigneeId:           UserIdGen.Generate(models.Uint64s(data.Source.ID), toolL.WorkspaceID, toolL.Owner),
+				CreatorId:            UserIdGen.Generate(data.Source.ID, toolL.WorkspaceID, toolL.Creator),
+				AssigneeId:           UserIdGen.Generate(data.Source.ID, toolL.WorkspaceID, toolL.Owner),
 				AssigneeName:         toolL.Owner,
 				Severity:             "",
 				Component:            toolL.Feature,
@@ -66,6 +66,11 @@ func ConvertStory(taskCtx core.SubTaskContext) error {
 				BoardId: WorkspaceIdGen.Generate(toolL.WorkspaceID),
 				IssueId: domainL.Id,
 			}
+			sprintIssue := &ticket.SprintIssue{
+				SprintId: IterIdGen.Generate(data.Source.ID, toolL.IterationID),
+				IssueId:  IssueIdGen.Generate(data.Source.ID, toolL.ID),
+			}
+			results = append(results, domainL, boardIssue, sprintIssue)
 			results = append(results, domainL, boardIssue)
 			return results, nil
 		},

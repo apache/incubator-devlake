@@ -44,37 +44,34 @@ func ExtractStoryChangelog(taskCtx core.SubTaskContext) error {
 			}
 			storyChangelog := storyChangelogBody.WorkitemChange
 
-			storyChangelog.SourceId = models.Uint64s(data.Source.ID)
+			storyChangelog.SourceId = data.Source.ID
 			for _, fc := range storyChangelog.FieldChanges {
-				if fc.ValueAfterParsed[0] == '{' {
-					valueAfterMap := map[string]string{}
-					err = json.Unmarshal(fc.ValueAfterParsed, &valueAfterMap)
-					if err != nil {
-						return nil, err
-					}
+				var item *models.TapdStoryChangelogItem
+				var valueAfterMap interface{}
+				if err = json.Unmarshal(fc.ValueAfterParsed, &valueAfterMap); err != nil {
+					return nil, err
+				}
+				switch valueAfterMap.(type) {
+				case map[string]interface{}:
 					valueBeforeMap := map[string]string{}
 					err = json.Unmarshal(fc.ValueBeforeParsed, &valueBeforeMap)
 					if err != nil {
 						return nil, err
 					}
-					for k, v := range valueAfterMap {
-						item := &models.TapdStoryChangelogItem{
-							SourceId:         models.Uint64s(data.Source.ID),
-							ChangelogId:      storyChangelog.ID,
-							Field:            k,
-							ValueAfterParsed: v,
-						}
+					for k, v := range valueAfterMap.(map[string]interface{}) {
+						item.SourceId = data.Source.ID
+						item.ChangelogId = storyChangelog.ID
+						item.Field = k
+						item.ValueAfterParsed = v.(string)
 						item.ValueBeforeParsed = valueBeforeMap[k]
 						results = append(results, item)
 					}
-					continue
-				}
-				item := &models.TapdStoryChangelogItem{
-					SourceId:          models.Uint64s(data.Source.ID),
-					ChangelogId:       storyChangelog.ID,
-					Field:             fc.Field,
-					ValueBeforeParsed: strings.Trim(string(fc.ValueBeforeParsed), `"`),
-					ValueAfterParsed:  strings.Trim(string(fc.ValueAfterParsed), `"`),
+				default:
+					item.SourceId = data.Source.ID
+					item.ChangelogId = storyChangelog.ID
+					item.Field = fc.Field
+					item.ValueAfterParsed = strings.Trim(string(fc.ValueAfterParsed), `"`)
+					item.ValueBeforeParsed = strings.Trim(string(fc.ValueBeforeParsed), `"`)
 				}
 				if item.Field == "iteration_id" {
 					iterationFrom, iterationTo, err := parseIterationChangelog(taskCtx, item.ValueBeforeParsed, item.ValueAfterParsed)

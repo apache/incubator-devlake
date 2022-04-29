@@ -34,7 +34,7 @@ func ConvertTaskCommit(taskCtx core.SubTaskContext) error {
 		Convert: func(inputRow interface{}) ([]interface{}, error) {
 			toolL := inputRow.(*models.TapdTaskCommit)
 			domainL := &crossdomain.IssueCommit{
-				IssueId:   IssueIdGen.Generate(models.Uint64s(data.Source.ID), models.Uint64s(toolL.TaskId)),
+				IssueId:   IssueIdGen.Generate(data.Source.ID, toolL.TaskId),
 				CommitSha: toolL.CommitID,
 			}
 

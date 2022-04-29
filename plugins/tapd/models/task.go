@@ -6,11 +6,11 @@ import (
 )
 
 type TapdTask struct {
-	SourceId        Uint64s           `gorm:"primaryKey"`
-	ID              Uint64s           `gorm:"primaryKey;type:BIGINT(100)" json:"id"`
+	SourceId        uint64            `gorm:"primaryKey"`
+	ID              uint64            `gorm:"primaryKey;type:BIGINT(100)" json:"id,string"`
 	Name            string            `gorm:"type:varchar(255)" json:"name"`
 	Description     string            `json:"description"`
-	WorkspaceID     Uint64s           `json:"workspace_id"`
+	WorkspaceID     uint64            `json:"workspace_id,string"`
 	Creator         string            `gorm:"type:varchar(255)" json:"creator"`
 	Created         *core.Iso8601Time `json:"created"`
 	Modified        *core.Iso8601Time `json:"modified" gorm:"index"`
@@ -20,28 +20,28 @@ type TapdTask struct {
 	Begin           *core.Iso8601Time `json:"begin"`
 	Due             *core.Iso8601Time `json:"due"`
 	Priority        string            `gorm:"type:varchar(255)" json:"priority"`
-	IterationID     Uint64s           `json:"iteration_id"`
+	IterationID     uint64            `json:"iteration_id,string"`
 	Completed       *core.Iso8601Time `json:"completed"`
-	Effort          Floats            `json:"effort"`
-	EffortCompleted Floats            `json:"effort_completed"`
-	Exceed          Floats            `json:"exceed"`
-	Remain          Floats            `json:"remain"`
+	Effort          float32           `json:"effort,string"`
+	EffortCompleted float32           `json:"effort_completed,string"`
+	Exceed          float32           `json:"exceed,string"`
+	Remain          float32           `json:"remain,string"`
 	StdStatus       string
 	StdType         string
 	Type            string
-	StoryID         Uint64s `json:"story_id"`
-	Progress        Ints    `json:"progress"`
-	HasAttachment   string  `gorm:"type:varchar(255)"`
+	StoryID         uint64 `json:"story_id,string"`
+	Progress        int16  `json:"progress,string"`
+	HasAttachment   string `gorm:"type:varchar(255)"`
 	Url             string
 
-	AttachmentCount  Ints    `json:"attachment_count"`
-	Follower         string  `json:"follower"`
-	CreatedFrom      string  `json:"created_from"`
-	PredecessorCount Ints    `json:"predecessor_count"`
-	SuccessorCount   Ints    `json:"successor_count"`
-	ReleaseId        Uint64s `json:"release_id"`
-	Label            string  `json:"label"`
-	NewStoryId       Uint64s `json:"new_story_id"`
+	AttachmentCount  int16  `json:"attachment_count,string"`
+	Follower         string `json:"follower" gorm:"type:varchar(255)"`
+	CreatedFrom      string `json:"created_from" gorm:"type:varchar(255)"`
+	PredecessorCount int16  `json:"predecessor_count,string"`
+	SuccessorCount   int16  `json:"successor_count,string"`
+	ReleaseId        uint64 `json:"release_id,string"`
+	Label            string `json:"label" gorm:"type:varchar(255)"`
+	NewStoryId       uint64 `json:"new_story_id,string"`
 	common.NoPKModel
 }
 

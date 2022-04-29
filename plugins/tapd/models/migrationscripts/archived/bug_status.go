@@ -2,13 +2,12 @@ package archived
 
 import (
 	"github.com/merico-dev/lake/models/common"
-	"github.com/merico-dev/lake/plugins/tapd/models"
 )
 
 type TapdBugStatus struct {
-	SourceId    models.Uint64s `gorm:"primaryKey"`
-	WorkspaceID models.Uint64s `gorm:"primaryKey"`
-	EnglishName string         `gorm:"primaryKey"`
+	SourceId    uint64 `gorm:"primaryKey"`
+	WorkspaceID uint64 `gorm:"primaryKey"`
+	EnglishName string `gorm:"primaryKey;type:varchar(255)"`
 	ChineseName string
 	IsLastStep  bool
 	common.NoPKModel

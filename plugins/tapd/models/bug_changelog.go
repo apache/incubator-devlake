@@ -6,12 +6,12 @@ import (
 )
 
 type TapdBugChangelog struct {
-	SourceId    Uint64s           `gorm:"primaryKey;type:INT(10) UNSIGNED NOT NULL"`
-	WorkspaceID Uint64s           `gorm:"type:INT(10) UNSIGNED NOT NULL"`
-	ID          Uint64s           `gorm:"primaryKey;type:BIGINT(10) UNSIGNED NOT NULL" json:"id"`
-	BugID       Uint64s           `json:"bug_id"`
+	SourceId    uint64            `gorm:"primaryKey;type:INT(10) UNSIGNED NOT NULL"`
+	WorkspaceID uint64            `gorm:"type:INT(10) UNSIGNED NOT NULL"`
+	ID          uint64            `gorm:"primaryKey;type:BIGINT(10) UNSIGNED NOT NULL" json:"id,string"`
+	BugID       uint64            `json:"bug_id,string"`
 	Author      string            `json:"author"`
-	Field       string            `gorm:"primaryKey" json:"field"`
+	Field       string            `gorm:"primaryKey;type:varchar(255)" json:"field"`
 	OldValue    string            `json:"old_value"`
 	NewValue    string            `json:"new_value"`
 	Memo        string            `json:"memo"`
@@ -20,13 +20,13 @@ type TapdBugChangelog struct {
 }
 
 type TapdBugChangelogItem struct {
-	SourceId          Uint64s `gorm:"primaryKey;type:INT(10) UNSIGNED NOT NULL"`
-	ChangelogId       Uint64s `gorm:"primaryKey;type:BIGINT(10) UNSIGNED NOT NULL"`
-	Field             string  `json:"field" gorm:"primaryKey;foreignKey:ChangelogId;references:ID"`
-	ValueBeforeParsed string  `json:"value_before_parsed"`
-	ValueAfterParsed  string  `json:"value_after_parsed"`
-	IterationIdFrom   Uint64s
-	IterationIdTo     Uint64s
+	SourceId          uint64 `gorm:"primaryKey;type:INT(10) UNSIGNED NOT NULL"`
+	ChangelogId       uint64 `gorm:"primaryKey;type:BIGINT(10) UNSIGNED NOT NULL"`
+	Field             string `json:"field" gorm:"primaryKey;"`
+	ValueBeforeParsed string `json:"value_before_parsed"`
+	ValueAfterParsed  string `json:"value_after_parsed"`
+	IterationIdFrom   uint64
+	IterationIdTo     uint64
 	common.NoPKModel
 }
 

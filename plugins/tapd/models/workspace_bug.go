@@ -1,0 +1,17 @@
+package models
+
+import (
+	"github.com/merico-dev/lake/models/common"
+)
+
+
+type TapdWorkSpaceBug struct {
+	SourceId    uint64 `gorm:"primaryKey"`
+	WorkspaceID uint64 `gorm:"primaryKey"`
+	BugId     uint64 `gorm:"primaryKey"`
+	common.NoPKModel
+}
+
+func (TapdWorkSpaceBug) TableName() string {
+	return "_tool_tapd_workspace_bugs"
+}

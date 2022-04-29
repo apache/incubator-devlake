@@ -3,14 +3,13 @@ package archived
 import (
 	"github.com/merico-dev/lake/models/common"
 	"github.com/merico-dev/lake/plugins/core"
-	"github.com/merico-dev/lake/plugins/tapd/models"
 )
 
 type TapdTaskChangelog struct {
-	SourceId       models.Uint64s    `gorm:"primaryKey;type:INT(10) UNSIGNED NOT NULL"`
-	ID             models.Uint64s    `gorm:"primaryKey;type:BIGINT(10) UNSIGNED NOT NULL" json:"id"`
-	WorkspaceID    models.Uint64s    `json:"workspace_id"`
-	WorkitemTypeID models.Uint64s    `json:"workitem_type_id"`
+	SourceId       uint64            `gorm:"primaryKey;type:INT(10) UNSIGNED NOT NULL"`
+	ID             uint64            `gorm:"primaryKey;type:BIGINT(10) UNSIGNED NOT NULL" json:"id,string"`
+	WorkspaceID    uint64            `json:"workspace_id,string"`
+	WorkitemTypeID uint64            `json:"workitem_type_id,string"`
 	Creator        string            `json:"creator"`
 	Created        *core.Iso8601Time `json:"created"`
 	ChangeSummary  string            `json:"change_summary"`
@@ -18,19 +17,19 @@ type TapdTaskChangelog struct {
 	EntityType     string            `json:"entity_type"`
 	ChangeType     string            `json:"change_type"`
 	ChangeTypeText string            `json:"change_type_text"`
-	TaskID         models.Uint64s    `json:"task_id"`
+	TaskID         uint64            `json:"task_id,string"`
 	common.NoPKModel
 	FieldChanges []TapdTaskChangelogItem `json:"field_changes" gorm:"-"`
 }
 
 type TapdTaskChangelogItem struct {
-	SourceId          models.Uint64s `gorm:"primaryKey;type:INT(10) UNSIGNED NOT NULL"`
-	ChangelogId       models.Uint64s `gorm:"primaryKey;type:BIGINT(10) UNSIGNED NOT NULL"`
-	Field             string         `json:"field" gorm:"primaryKey"`
-	ValueBeforeParsed string         `json:"value_before_parsed"`
-	ValueAfterParsed  string         `json:"value_after_parsed"`
-	IterationIdFrom   models.Uint64s
-	IterationIdTo     models.Uint64s
+	SourceId          uint64 `gorm:"primaryKey;type:INT(10) UNSIGNED NOT NULL"`
+	ChangelogId       uint64 `gorm:"primaryKey;type:BIGINT(10) UNSIGNED NOT NULL"`
+	Field             string `json:"field" gorm:"primaryKey;type:varchar(255)"`
+	ValueBeforeParsed string `json:"value_before_parsed"`
+	ValueAfterParsed  string `json:"value_after_parsed"`
+	IterationIdFrom   uint64
+	IterationIdTo     uint64
 	common.NoPKModel
 }
 

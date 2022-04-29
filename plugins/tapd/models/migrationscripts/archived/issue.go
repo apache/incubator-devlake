@@ -1,10 +1,8 @@
 package archived
 
-import "github.com/merico-dev/lake/plugins/tapd/models"
-
 type TapdIssue struct {
-	SourceId models.Uint64s `gorm:"primaryKey"`
-	ID       models.Uint64s `gorm:"primaryKey;type:BIGINT(100)" json:"id"`
+	SourceId uint64 `gorm:"primaryKey"`
+	ID       uint64 `gorm:"primaryKey;type:BIGINT(100)" json:"id,string"`
 }
 
 func (TapdIssue) TableName() string {

@@ -3,16 +3,15 @@ package archived
 import (
 	"github.com/merico-dev/lake/models/common"
 	"github.com/merico-dev/lake/plugins/core"
-	"github.com/merico-dev/lake/plugins/tapd/models"
 )
 
 type TapdStory struct {
-	SourceId        models.Uint64s    `gorm:"primaryKey"`
-	ID              models.Uint64s    `gorm:"primaryKey;type:BIGINT(100)" json:"id"`
-	WorkitemTypeID  models.Uint64s    `json:"workitem_type_id"`
+	SourceId        uint64            `gorm:"primaryKey"`
+	ID              uint64            `gorm:"primaryKey;type:BIGINT(100)" json:"id,string"`
+	WorkitemTypeID  uint64            `json:"workitem_type_id,string"`
 	Name            string            `gorm:"type:varchar(255)" json:"name"`
 	Description     string            `json:"description"`
-	WorkspaceID     models.Uint64s    `json:"workspace_id"`
+	WorkspaceID     uint64            `json:"workspace_id,string"`
 	Creator         string            `gorm:"type:varchar(255)"`
 	Created         *core.Iso8601Time `json:"created"`
 	Modified        *core.Iso8601Time `json:"modified" gorm:"index"`
@@ -21,46 +20,46 @@ type TapdStory struct {
 	Cc              string            `json:"cc" gorm:"type:varchar(255)"`
 	Begin           *core.Iso8601Time `json:"begin"`
 	Due             *core.Iso8601Time `json:"due"`
-	Size            models.Ints       `json:"size"`
+	Size            int16             `json:"size,string"`
 	Priority        string            `gorm:"type:varchar(255)" json:"priority"`
 	Developer       string            `gorm:"type:varchar(255)" json:"developer"`
-	IterationID     models.Uint64s    `json:"iteration_id"`
+	IterationID     uint64            `json:"iteration_id,string"`
 	TestFocus       string            `json:"test_focus" gorm:"type:varchar(255)"`
 	Type            string            `json:"type" gorm:"type:varchar(255)"`
 	Source          string            `json:"source" gorm:"type:varchar(255)"`
 	Module          string            `json:"module" gorm:"type:varchar(255)"`
 	Version         string            `json:"version" gorm:"type:varchar(255)"`
 	Completed       *core.Iso8601Time `json:"completed"`
-	CategoryID      models.Uint64s    `json:"category_id"`
+	CategoryID      uint64            `json:"category_id,string"`
 	Path            string            `gorm:"type:varchar(255)" json:"path"`
-	ParentID        models.Uint64s    `json:"parent_id"`
+	ParentID        uint64            `json:"parent_id,string"`
 	ChildrenID      string            `gorm:"type:varchar(255)" json:"children_id"`
-	AncestorID      models.Uint64s    `json:"ancestor_id"`
+	AncestorID      uint64            `json:"ancestor_id,string"`
 	BusinessValue   string            `gorm:"type:varchar(255)" json:"business_value"`
-	Effort          models.Floats     `json:"effort"`
-	EffortCompleted models.Floats     `json:"effort_completed"`
-	Exceed          models.Floats     `json:"exceed"`
-	Remain          models.Floats     `json:"remain"`
-	ReleaseID       models.Uint64s    `json:"release_id"`
+	Effort          float32           `json:"effort,string"`
+	EffortCompleted float32           `json:"effort_completed,string"`
+	Exceed          float32           `json:"exceed,string"`
+	Remain          float32           `json:"remain,string"`
+	ReleaseID       uint64            `json:"release_id,string"`
 	Confidential    string            `gorm:"type:varchar(255)" json:"confidential"`
-	TemplatedID     models.Uint64s    `json:"templated_id"`
+	TemplatedID     uint64            `json:"templated_id,string"`
 	CreatedFrom     string            `gorm:"type:varchar(255)" json:"created_from"`
 	Feature         string            `gorm:"type:varchar(255)" json:"feature"`
 	StdStatus       string
 	StdType         string
 	Url             string
 
-	AttachmentCount  models.Ints    `json:"attachment_count"`
-	HasAttachment    string         `json:"has_attachment"`
-	BugID            models.Uint64s `json:"bug_id"`
-	Follower         string         `json:"follower"`
-	SyncType         string         `json:"sync_type"`
-	PredecessorCount models.Ints    `json:"predecessor_count"`
-	IsArchived       string         `json:"is_archived"`
-	Modifier         string         `json:"modifier"`
-	ProgressManual   string         `json:"progress_manual"`
-	SuccessorCount   models.Ints    `json:"successor_count"`
-	Label            string         `json:"label"`
+	AttachmentCount  int16  `json:"attachment_count,string"`
+	HasAttachment    string `json:"has_attachment" gorm:"type:varchar(255)"`
+	BugID            uint64 `json:"bug_id,string"`
+	Follower         string `json:"follower" gorm:"type:varchar(255)"`
+	SyncType         string `json:"sync_type" gorm:"type:varchar(255)"`
+	PredecessorCount int16  `json:"predecessor_count,string"`
+	IsArchived       string `json:"is_archived" gorm:"type:varchar(255)"`
+	Modifier         string `json:"modifier" gorm:"type:varchar(255)"`
+	ProgressManual   string `json:"progress_manual" gorm:"type:varchar(255)"`
+	SuccessorCount   int16  `json:"successor_count,string"`
+	Label            string `json:"label" gorm:"type:varchar(255)"`
 	common.NoPKModel
 }
 

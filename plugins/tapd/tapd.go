@@ -119,6 +119,8 @@ func (plugin Tapd) PrepareTaskData(taskCtx core.TaskContext, options map[string]
 	tasks.UserIdGen = didgen.NewDomainIdGenerator(&models.TapdUser{})
 	tasks.WorkspaceIdGen = didgen.NewDomainIdGenerator(&models.TapdWorkspace{})
 	tasks.IssueIdGen = didgen.NewDomainIdGenerator(&models.TapdIssue{})
+	tasks.IterIdGen = didgen.NewDomainIdGenerator(&models.TapdIteration{})
+
 	return taskData, nil
 }
 

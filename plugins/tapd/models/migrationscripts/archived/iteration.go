@@ -3,18 +3,17 @@ package archived
 import (
 	"github.com/merico-dev/lake/models/common"
 	"github.com/merico-dev/lake/plugins/core"
-	"github.com/merico-dev/lake/plugins/tapd/models"
 )
 
 type TapdIteration struct {
-	SourceId     models.Uint64s    `gorm:"primaryKey;type:INT(10) UNSIGNED NOT NULL"`
-	ID           models.Uint64s    `gorm:"primaryKey;type:BIGINT(10) UNSIGNED NOT NULL" json:"id"`
+	SourceId     uint64            `gorm:"primaryKey;type:INT(10) UNSIGNED NOT NULL"`
+	ID           uint64            `gorm:"primaryKey;type:BIGINT(10) UNSIGNED NOT NULL" json:"id,string"`
 	Name         string            `gorm:"type:varchar(255)" json:"name"`
-	WorkspaceID  models.Uint64s    `json:"workspace_id"`
+	WorkspaceID  uint64            `json:"workspace_id,string"`
 	Startdate    *core.Iso8601Time `json:"startdate"`
 	Enddate      *core.Iso8601Time `json:"enddate"`
 	Status       string            `gorm:"type:varchar(255)" json:"status"`
-	ReleaseID    models.Uint64s    `gorm:"type:varchar(255)" json:"release_id"`
+	ReleaseID    uint64            `gorm:"type:varchar(255)" json:"release_id,string"`
 	Description  string            `json:"description"`
 	Creator      string            `gorm:"type:varchar(255)" json:"creator"`
 	Created      *core.Iso8601Time `json:"created"`
@@ -29,16 +28,16 @@ type TapdIteration struct {
 
 type TapdWorkspaceIteration struct {
 	common.NoPKModel
-	SourceId    models.Uint64s `gorm:"primaryKey"`
-	WorkspaceID models.Uint64s `gorm:"primaryKey"`
-	IterationId models.Uint64s `gorm:"primaryKey"`
+	SourceId    uint64 `gorm:"primaryKey"`
+	WorkspaceID uint64 `gorm:"primaryKey"`
+	IterationId uint64 `gorm:"primaryKey"`
 }
 
 type TapdIterationIssue struct {
 	common.NoPKModel
-	SourceId         models.Uint64s `gorm:"primaryKey"`
-	IterationId      models.Uint64s `gorm:"primaryKey"`
-	IssueId          models.Uint64s `gorm:"primaryKey"`
+	SourceId         uint64 `gorm:"primaryKey"`
+	IterationId      uint64 `gorm:"primaryKey"`
+	IssueId          uint64 `gorm:"primaryKey"`
 	ResolutionDate   *core.Iso8601Time
 	IssueCreatedDate *core.Iso8601Time
 }

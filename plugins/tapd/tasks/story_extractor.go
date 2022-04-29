@@ -65,29 +65,30 @@ func ExtractStories(taskCtx core.SubTaskContext) error {
 			}
 			toolL := storyBody.Story
 			toolL.Status = statusMap[toolL.Status]
-			toolL.SourceId = models.Uint64s(data.Source.ID)
+			toolL.SourceId = data.Source.ID
 			toolL.StdType = "REQUIREMENT"
 			toolL.StdStatus = getStdStatus(toolL.Status)
 			toolL.Url = fmt.Sprintf("https://www.tapd.cn/%d/prong/stories/view/%d", toolL.WorkspaceID, toolL.ID)
 			if strings.Contains(toolL.Owner, ";") {
 				toolL.Owner = strings.Split(toolL.Owner, ";")[0]
 			}
-			workSpaceIssue := &models.TapdWorkSpaceIssue{
-				SourceId:    models.Uint64s(data.Source.ID),
+			workSpaceStory := &models.TapdWorkSpaceStory{
+				SourceId:    data.Source.ID,
 				WorkspaceID: toolL.WorkspaceID,
-				IssueId:     toolL.ID,
+				StoryId:     toolL.ID,
 			}
 			results := make([]interface{}, 0, 3)
-			results = append(results, &toolL, workSpaceIssue)
+			results = append(results, &toolL, workSpaceStory)
 			if toolL.IterationID != 0 {
-				iterationIssue := &models.TapdIterationIssue{
-					SourceId:         models.Uint64s(data.Source.ID),
+				iterationStory := &models.TapdIterationStory{
+					SourceId:         data.Source.ID,
 					IterationId:      toolL.IterationID,
-					IssueId:          toolL.ID,
+					StoryId:          toolL.ID,
+					WorkspaceID:      toolL.WorkspaceID,
 					ResolutionDate:   toolL.Completed,
-					IssueCreatedDate: toolL.Created,
+					StoryCreatedDate: toolL.Created,
 				}
-				results = append(results, iterationIssue)
+				results = append(results, iterationStory)
 			}
 			if toolL.Label != "" {
 				labelList := strings.Split(toolL.Label, "|")

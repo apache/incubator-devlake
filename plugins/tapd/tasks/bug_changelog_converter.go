@@ -63,10 +63,10 @@ func ConvertBugChangelog(taskCtx core.SubTaskContext) error {
 			cl := inputRow.(*BugChangelogItemResult)
 			domainCl := &ticket.Changelog{
 				DomainEntity: domainlayer.DomainEntity{
-					Id: clIdGen.Generate(models.Uint64s(data.Source.ID), models.Uint64s(cl.ID), cl.Field),
+					Id: clIdGen.Generate(data.Source.ID, cl.ID, cl.Field),
 				},
-				IssueId:     IssueIdGen.Generate(models.Uint64s(data.Source.ID), cl.BugID),
-				AuthorId:    UserIdGen.Generate(models.Uint64s(data.Source.ID), data.Options.WorkspaceID, cl.Author),
+				IssueId:     IssueIdGen.Generate(data.Source.ID, cl.BugID),
+				AuthorId:    UserIdGen.Generate(data.Source.ID, data.Options.WorkspaceID, cl.Author),
 				AuthorName:  cl.Author,
 				FieldId:     cl.Field,
 				FieldName:   cl.Field,

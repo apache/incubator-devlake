@@ -6,14 +6,14 @@ import (
 )
 
 type TapdIteration struct {
-	SourceId     Uint64s           `gorm:"primaryKey;type:INT(10) UNSIGNED NOT NULL"`
-	ID           Uint64s           `gorm:"primaryKey;type:BIGINT(10) UNSIGNED NOT NULL" json:"id"`
+	SourceId     uint64            `gorm:"primaryKey;type:INT(10) UNSIGNED NOT NULL"`
+	ID           uint64            `gorm:"primaryKey;type:BIGINT(10) UNSIGNED NOT NULL" json:"id,string"`
 	Name         string            `gorm:"type:varchar(255)" json:"name"`
-	WorkspaceID  Uint64s           `json:"workspace_id"`
+	WorkspaceID  uint64            `json:"workspace_id,string"`
 	Startdate    *core.Iso8601Time `json:"startdate"`
 	Enddate      *core.Iso8601Time `json:"enddate"`
 	Status       string            `gorm:"type:varchar(255)" json:"status"`
-	ReleaseID    Uint64s           `gorm:"type:varchar(255)" json:"release_id"`
+	ReleaseID    uint64            `gorm:"type:varchar(255)" json:"release_id,string"`
 	Description  string            `json:"description"`
 	Creator      string            `gorm:"type:varchar(255)" json:"creator"`
 	Created      *core.Iso8601Time `json:"created"`
@@ -28,18 +28,9 @@ type TapdIteration struct {
 
 type TapdWorkspaceIteration struct {
 	common.NoPKModel
-	SourceId    Uint64s `gorm:"primaryKey"`
-	WorkspaceID Uint64s `gorm:"primaryKey"`
-	IterationId Uint64s `gorm:"primaryKey"`
-}
-
-type TapdIterationIssue struct {
-	common.NoPKModel
-	SourceId         Uint64s `gorm:"primaryKey"`
-	IterationId      Uint64s `gorm:"primaryKey"`
-	IssueId          Uint64s `gorm:"primaryKey"`
-	ResolutionDate   *core.Iso8601Time
-	IssueCreatedDate *core.Iso8601Time
+	SourceId    uint64 `gorm:"primaryKey"`
+	WorkspaceID uint64 `gorm:"primaryKey"`
+	IterationId uint64 `gorm:"primaryKey"`
 }
 
 func (TapdIteration) TableName() string {
@@ -48,8 +39,4 @@ func (TapdIteration) TableName() string {
 
 func (TapdWorkspaceIteration) TableName() string {
 	return "_tool_tapd_workspace_iterations"
-}
-
-func (TapdIterationIssue) TableName() string {
-	return "_tool_tapd_iteration_issues"
 }

@@ -3,9 +3,9 @@ package models
 import "github.com/merico-dev/lake/models/common"
 
 type TapdBugStatus struct {
-	SourceId    Uint64s `gorm:"primaryKey"`
-	WorkspaceID Uint64s `gorm:"primaryKey"`
-	EnglishName string  `gorm:"primaryKey"`
+	SourceId    uint64 `gorm:"primaryKey"`
+	WorkspaceID uint64 `gorm:"primaryKey"`
+	EnglishName string `gorm:"primaryKey;type:varchar(255)"`
 	ChineseName string
 	IsLastStep  bool
 	common.NoPKModel

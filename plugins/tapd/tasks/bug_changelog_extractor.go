@@ -41,10 +41,10 @@ func ExtractBugChangelog(taskCtx core.SubTaskContext) error {
 			}
 			bugChangelog := bugChangelogBody.BugChange
 
-			bugChangelog.SourceId = models.Uint64s(data.Source.ID)
-			bugChangelog.WorkspaceID = models.Uint64s(data.Options.WorkspaceID)
+			bugChangelog.SourceId = data.Source.ID
+			bugChangelog.WorkspaceID = data.Options.WorkspaceID
 			item := &models.TapdBugChangelogItem{
-				SourceId:          models.Uint64s(data.Source.ID),
+				SourceId:          data.Source.ID,
 				ChangelogId:       bugChangelog.ID,
 				Field:             bugChangelog.Field,
 				ValueBeforeParsed: bugChangelog.OldValue,

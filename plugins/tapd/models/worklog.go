@@ -6,12 +6,12 @@ import (
 )
 
 type TapdWorklog struct {
-	SourceId    Uint64s           `gorm:"primaryKey;type:INT(10) UNSIGNED NOT NULL"`
-	ID          Uint64s           `gorm:"primaryKey;type:BIGINT(10) UNSIGNED NOT NULL" json:"id"`
-	WorkspaceID Uint64s           `json:"workspace_id"`
+	SourceId    uint64            `gorm:"primaryKey;type:INT(10) UNSIGNED NOT NULL"`
+	ID          uint64            `gorm:"primaryKey;type:BIGINT(10) UNSIGNED NOT NULL" json:"id,string"`
+	WorkspaceID uint64            `json:"workspace_id,string"`
 	EntityType  string            `gorm:"type:varchar(255)" json:"entity_type"`
-	EntityID    Uint64s           `json:"entity_id"`
-	Timespent   Floats            `json:"timespent"`
+	EntityID    uint64            `json:"entity_id,string"`
+	Timespent   float32           `json:"timespent,string"`
 	Spentdate   *core.Iso8601Time `json:"spentdate"`
 	Owner       string            `gorm:"type:varchar(255)" json:"owner"`
 	Created     *core.Iso8601Time `json:"created"`

@@ -2,14 +2,13 @@ package archived
 
 import (
 	"github.com/merico-dev/lake/models/common"
-	"github.com/merico-dev/lake/plugins/tapd/models"
 )
 
 type TapdUser struct {
-	SourceId    models.Uint64s `gorm:"primaryKey;type:BIGINT(20)"`
-	WorkspaceID models.Uint64s `gorm:"primaryKey;type:BIGINT(20)"`
-	Name        string         `gorm:"index;type:varchar(255)" json:"name"`
-	User        string         `gorm:"primaryKey;type:varchar(255)" json:"user"`
+	SourceId    uint64 `gorm:"primaryKey;type:BIGINT(20)"`
+	WorkspaceID uint64 `gorm:"primaryKey;type:BIGINT(20)"`
+	Name        string `gorm:"index;type:varchar(255)" json:"name"`
+	User        string `gorm:"primaryKey;type:varchar(255)" json:"user"`
 	common.NoPKModel
 }
 

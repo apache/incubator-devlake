@@ -3,16 +3,15 @@ package archived
 import (
 	"github.com/merico-dev/lake/models/common"
 	"github.com/merico-dev/lake/plugins/core"
-	"github.com/merico-dev/lake/plugins/tapd/models"
 )
 
 type TapdBug struct {
-	SourceId    models.Uint64s `gorm:"primaryKey"`
-	ID          models.Uint64s `gorm:"primaryKey;type:BIGINT(100)" json:"id"`
+	SourceId    uint64 `gorm:"primaryKey"`
+	ID          uint64 `gorm:"primaryKey;type:BIGINT(100)" json:"id,string"`
 	EpicKey     string
-	Title       string `json:"name"`
+	Title       string `json:"name" gorm:"type:varchar(255)"`
 	Description string
-	WorkspaceID models.Uint64s    `json:"workspace_id"`
+	WorkspaceID uint64            `json:"workspace_id,string"`
 	Created     *core.Iso8601Time `json:"created"`
 	Modified    *core.Iso8601Time `json:"modified" gorm:"index"`
 	Status      string            `json:"status"`
@@ -20,10 +19,10 @@ type TapdBug struct {
 	Begin       *core.Iso8601Time `json:"begin"`
 	Due         *core.Iso8601Time `json:"due"`
 	Priority    string            `json:"priority"`
-	IterationID models.Uint64s    `json:"iteration_id"`
+	IterationID uint64            `json:"iteration_id,string"`
 	Source      string            `json:"source"`
 	Module      string            `json:"module"`
-	ReleaseID   models.Uint64s    `json:"release_id"`
+	ReleaseID   uint64            `json:"release_id,string"`
 	CreatedFrom string            `json:"created_from"`
 	Feature     string            `json:"feature"`
 	common.NoPKModel
@@ -60,7 +59,7 @@ type TapdBug struct {
 	RegressionNumber string            `json:"regression_number"`
 	Flows            string            `json:"flows"`
 	Testmode         string            `json:"testmode"`
-	IssueID          models.Uint64s    `json:"issue_id"`
+	IssueID          uint64            `json:"issue_id,string"`
 	VerifyTime       *core.Iso8601Time `json:"verify_time"`
 	RejectTime       *core.Iso8601Time `json:"reject_time"`
 	ReopenTime       *core.Iso8601Time `json:"reopen_time"`
@@ -69,29 +68,29 @@ type TapdBug struct {
 	Deadline         *core.Iso8601Time `json:"deadline"`
 	InProgressTime   *core.Iso8601Time `json:"in_progress_time"`
 	AssignedTime     *core.Iso8601Time `json:"assigned_time"`
-	TemplateID       models.Uint64s    `json:"template_id"`
-	StoryID          models.Uint64s    `json:"story_id"`
+	TemplateID       uint64            `json:"template_id,string"`
+	StoryID          uint64            `json:"story_id,string"`
 	StdStatus        string
 	StdType          string
 	Type             string
 	Url              string
 
-	SupportID       models.Uint64s `json:"support_id"`
-	SupportForumID  models.Uint64s `json:"support_forum_id"`
-	TicketID        models.Uint64s `json:"ticket_id"`
-	Follower        string         `json:"follower"`
-	SyncType        string         `json:"sync_type"`
-	Label           string         `json:"label"`
-	Effort          models.Floats  `json:"effort"`
-	EffortCompleted models.Floats  `json:"effort_completed"`
-	Exceed          models.Floats  `json:"exceed"`
-	Remain          models.Floats  `json:"remain"`
-	Progress        string         `json:"progress"`
-	Estimate        models.Floats  `json:"estimate"`
+	SupportID       uint64  `json:"support_id,string"`
+	SupportForumID  uint64  `json:"support_forum_id,string"`
+	TicketID        uint64  `json:"ticket_id,string"`
+	Follower        string  `json:"follower"`
+	SyncType        string  `json:"sync_type"`
+	Label           string  `json:"label"`
+	Effort          float32 `json:"effort,string"`
+	EffortCompleted float32 `json:"effort_completed,string"`
+	Exceed          float32 `json:"exceed,string"`
+	Remain          float32 `json:"remain,string"`
+	Progress        string  `json:"progress"`
+	Estimate        float32 `json:"estimate,string"`
 
-	Bugtype string `json:"bugtype"`
+	Bugtype string `json:"bugtype" gorm:"type:varchar(255)"`
 
-	Milestone string `json:"milestone"`
+	Milestone string `json:"milestone" gorm:"type:varchar(255)"`
 }
 
 func (TapdBug) TableName() string {
