@@ -7,7 +7,7 @@ import (
 )
 
 type TapdTaskChangelog struct {
-	SourceId       uint64            `gorm:"primaryKey;type:INT(10) UNSIGNED NOT NULL"`
+	ConnectionId   uint64            `gorm:"primaryKey;type:INT(10) UNSIGNED NOT NULL"`
 	ID             uint64            `gorm:"primaryKey;type:BIGINT(10) UNSIGNED NOT NULL" json:"id,string"`
 	WorkspaceID    uint64            `json:"workspace_id,string"`
 	WorkitemTypeID uint64            `json:"workitem_type_id,string"`
@@ -24,7 +24,7 @@ type TapdTaskChangelog struct {
 }
 
 type TapdTaskChangelogItem struct {
-	SourceId          uint64 `gorm:"primaryKey;type:INT(10) UNSIGNED NOT NULL"`
+	ConnectionId      uint64 `gorm:"primaryKey;type:INT(10) UNSIGNED NOT NULL"`
 	ChangelogId       uint64 `gorm:"primaryKey;type:BIGINT(10) UNSIGNED NOT NULL"`
 	Field             string `json:"field" gorm:"primaryKey;type:varchar(255)"`
 	ValueBeforeParsed string `json:"value_before_parsed"`
@@ -35,7 +35,7 @@ type TapdTaskChangelogItem struct {
 }
 
 type TapdTaskChangelogItemRes struct {
-	SourceId          uint64          `gorm:"primaryKey;type:INT(10) UNSIGNED NOT NULL"`
+	ConnectionId      uint64          `gorm:"primaryKey;type:INT(10) UNSIGNED NOT NULL"`
 	ChangelogId       uint64          `gorm:"primaryKey;type:BIGINT(10) UNSIGNED NOT NULL"`
 	Field             string          `json:"field" gorm:"primaryKey;type:varchar(255)"`
 	ValueBeforeParsed json.RawMessage `json:"value_before_parsed"`

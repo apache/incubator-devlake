@@ -24,7 +24,7 @@ func CollectWorklogs(taskCtx core.SubTaskContext) error {
 	if since == nil {
 		// user didn't specify a time range to sync, try load from database
 		var latestUpdated models.TapdWorklog
-		err := db.Where("source_id = ?", data.Source.ID).Order("created DESC").Limit(1).Find(&latestUpdated).Error
+		err := db.Where("connection_id = ?", data.Connection.ID).Order("created DESC").Limit(1).Find(&latestUpdated).Error
 		if err != nil {
 			return fmt.Errorf("failed to get latest tapd changelog record: %w", err)
 		}
@@ -37,7 +37,7 @@ func CollectWorklogs(taskCtx core.SubTaskContext) error {
 		RawDataSubTaskArgs: helper.RawDataSubTaskArgs{
 			Ctx: taskCtx,
 			Params: TapdApiParams{
-				SourceId: data.Source.ID,
+				ConnectionId: data.Connection.ID,
 				//CompanyId: data.Options.CompanyId,
 				WorkspaceID: data.Options.WorkspaceID,
 			},

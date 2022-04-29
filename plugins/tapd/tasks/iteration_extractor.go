@@ -26,7 +26,7 @@ func ExtractIterations(taskCtx core.SubTaskContext) error {
 		RawDataSubTaskArgs: helper.RawDataSubTaskArgs{
 			Ctx: taskCtx,
 			Params: TapdApiParams{
-				SourceId: data.Source.ID,
+				ConnectionId: data.Connection.ID,
 				//CompanyId: data.Options.CompanyId,
 				WorkspaceID: data.Options.WorkspaceID,
 			},
@@ -40,11 +40,11 @@ func ExtractIterations(taskCtx core.SubTaskContext) error {
 			}
 			iter := iterBody.Iteration
 
-			iter.SourceId = data.Source.ID
+			iter.ConnectionId = data.Connection.ID
 			workspaceIter := &models.TapdWorkspaceIteration{
-				SourceId:    data.Source.ID,
-				WorkspaceID: iter.WorkspaceID,
-				IterationId: iter.ID,
+				ConnectionId: data.Connection.ID,
+				WorkspaceID:  iter.WorkspaceID,
+				IterationId:  iter.ID,
 			}
 			return []interface{}{
 				&iter, workspaceIter,

@@ -14,7 +14,7 @@ import (
 )
 
 type StoryChangelogItemResult struct {
-	SourceId          uint64    `gorm:"primaryKey;type:INT(10) UNSIGNED NOT NULL"`
+	ConnectionId      uint64    `gorm:"primaryKey;type:INT(10) UNSIGNED NOT NULL"`
 	ID                uint64    `gorm:"primaryKey;type:BIGINT(10) UNSIGNED NOT NULL" json:"id"`
 	WorkspaceID       uint64    `json:"workspace_id"`
 	WorkitemTypeID    uint64    `json:"workitem_type_id"`
@@ -43,7 +43,7 @@ func ConvertStoryChangelog(taskCtx core.SubTaskContext) error {
 
 	cursor, err := db.Table("_tool_tapd_story_changelog_items").
 		Joins("left join _tool_tapd_story_changelogs tc on tc.id = _tool_tapd_story_changelog_items.changelog_id ").
-		Where("tc.source_id = ? AND tc.workspace_id = ?", data.Source.ID, data.Options.WorkspaceID).
+		Where("tc.connection_id = ? AND tc.workspace_id = ?", data.Connection.ID, data.Options.WorkspaceID).
 		Select("tc.*, _tool_tapd_story_changelog_items.*").
 		Rows()
 	if err != nil {
@@ -54,8 +54,8 @@ func ConvertStoryChangelog(taskCtx core.SubTaskContext) error {
 		RawDataSubTaskArgs: helper.RawDataSubTaskArgs{
 			Ctx: taskCtx,
 			Params: TapdApiParams{
-				SourceId: data.Source.ID,
-				//CompanyId:   data.Source.CompanyId,
+				ConnectionId: data.Connection.ID,
+
 				WorkspaceID: data.Options.WorkspaceID,
 			},
 			Table: RAW_STORY_CHANGELOG_TABLE,
@@ -66,10 +66,10 @@ func ConvertStoryChangelog(taskCtx core.SubTaskContext) error {
 			cl := inputRow.(*StoryChangelogItemResult)
 			domainCl := &ticket.Changelog{
 				DomainEntity: domainlayer.DomainEntity{
-					Id: fmt.Sprintf("%s:%s", clIdGen.Generate(data.Source.ID, cl.ID), cl.Field),
+					Id: fmt.Sprintf("%s:%s", clIdGen.Generate(data.Connection.ID, cl.ID), cl.Field),
 				},
-				IssueId:     IssueIdGen.Generate(data.Source.ID, cl.StoryID),
-				AuthorId:    UserIdGen.Generate(data.Source.ID, data.Options.WorkspaceID, cl.Creator),
+				IssueId:     IssueIdGen.Generate(data.Connection.ID, cl.StoryID),
+				AuthorId:    UserIdGen.Generate(data.Connection.ID, data.Options.WorkspaceID, cl.Creator),
 				AuthorName:  cl.Creator,
 				FieldId:     cl.Field,
 				FieldName:   cl.Field,

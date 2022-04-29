@@ -13,7 +13,7 @@ package tasks
 //	logger := taskCtx.GetLogger()
 //	db := taskCtx.GetDb()
 //	logger.Info("convert board:%d", data.Options.WorkspaceID)
-//	cursor, err := db.Model(&models.TapdIssueStatusHistory{}).Where("source_id = ? AND workspace_id = ?", data.Source.ID, data.Options.WorkspaceID).Rows()
+//	cursor, err := db.Model(&models.TapdIssueStatusHistory{}).Where("connection_id = ? AND workspace_id = ?", data.Connection.ID, data.Options.WorkspaceID).Rows()
 //	if err != nil {
 //		return err
 //	}
@@ -22,8 +22,8 @@ package tasks
 //		RawDataSubTaskArgs: helper.RawDataSubTaskArgs{
 //			Ctx: taskCtx,
 //			Params: TapdApiParams{
-//				SourceId: data.Source.ID,
-//				//CompanyId:   data.Source.CompanyId,
+//				ConnectionId: data.Connection.ID,
+//
 //				WorkspaceID: data.Options.WorkspaceID,
 //			},
 //			Table: "tapd_api_%",
@@ -33,7 +33,7 @@ package tasks
 //		Convert: func(inputRow interface{}) ([]interface{}, error) {
 //			toolL := inputRow.(*models.TapdIssueStatusHistory)
 //			domainL := &ticket.IssueStatusHistory{
-//				IssueId:        IssueIdGen.Generate(data.Source.ID, toolL.IssueId),
+//				IssueId:        IssueIdGen.Generate(data.Connection.ID, toolL.IssueId),
 //				OriginalStatus: toolL.OriginalStatus,
 //				StartDate:      toolL.StartDate,
 //				EndDate:        &toolL.EndDate,

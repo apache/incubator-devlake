@@ -30,7 +30,7 @@ func CollectTaskCommits(taskCtx core.SubTaskContext) error {
 	if since == nil {
 		// user didn't specify a time range to sync, try load from database
 		var latestUpdated models.TapdTaskCommit
-		err := db.Where("source_id = ?", data.Source.ID).Order("created DESC").Limit(1).Find(&latestUpdated).Error
+		err := db.Where("connection_id = ?", data.Connection.ID).Order("created DESC").Limit(1).Find(&latestUpdated).Error
 		if err != nil {
 			return fmt.Errorf("failed to get latest tapd changelog record: %w", err)
 		}
@@ -42,7 +42,7 @@ func CollectTaskCommits(taskCtx core.SubTaskContext) error {
 
 	tx := db.Model(&models.TapdTask{})
 	if since != nil {
-		tx = tx.Where("modified > ? and source_id = ? and workspace_id = ?", since, data.Options.SourceId, data.Options.WorkspaceID)
+		tx = tx.Where("modified > ? and connection_id = ? and workspace_id = ?", since, data.Options.ConnectionId, data.Options.WorkspaceID)
 	}
 	cursor, err := tx.Rows()
 	if err != nil {
@@ -56,7 +56,7 @@ func CollectTaskCommits(taskCtx core.SubTaskContext) error {
 		RawDataSubTaskArgs: helper.RawDataSubTaskArgs{
 			Ctx: taskCtx,
 			Params: TapdApiParams{
-				SourceId: data.Source.ID,
+				ConnectionId: data.Connection.ID,
 				//CompanyId: data.Options.CompanyId,
 				WorkspaceID: data.Options.WorkspaceID,
 			},

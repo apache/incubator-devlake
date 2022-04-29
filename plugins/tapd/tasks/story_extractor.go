@@ -28,7 +28,7 @@ func ExtractStories(taskCtx core.SubTaskContext) error {
 	db := taskCtx.GetDb()
 	statusList := make([]*models.TapdBugStatus, 0)
 	err := db.Model(&models.TapdBugStatus{}).
-		Find(&statusList, "source_id = ? and workspace_id = ?", data.Options.SourceId, data.Options.WorkspaceID).
+		Find(&statusList, "connection_id = ? and workspace_id = ?", data.Options.ConnectionId, data.Options.WorkspaceID).
 		Error
 	if err != nil {
 		return err
@@ -51,7 +51,7 @@ func ExtractStories(taskCtx core.SubTaskContext) error {
 		RawDataSubTaskArgs: helper.RawDataSubTaskArgs{
 			Ctx: taskCtx,
 			Params: TapdApiParams{
-				SourceId: data.Source.ID,
+				ConnectionId: data.Connection.ID,
 				//CompanyId: data.Options.CompanyId,
 				WorkspaceID: data.Options.WorkspaceID,
 			},
@@ -65,7 +65,7 @@ func ExtractStories(taskCtx core.SubTaskContext) error {
 			}
 			toolL := storyBody.Story
 			toolL.Status = statusMap[toolL.Status]
-			toolL.SourceId = data.Source.ID
+			toolL.ConnectionId = data.Connection.ID
 			toolL.StdType = "REQUIREMENT"
 			toolL.StdStatus = getStdStatus(toolL.Status)
 			toolL.Url = fmt.Sprintf("https://www.tapd.cn/%d/prong/stories/view/%d", toolL.WorkspaceID, toolL.ID)
@@ -73,15 +73,15 @@ func ExtractStories(taskCtx core.SubTaskContext) error {
 				toolL.Owner = strings.Split(toolL.Owner, ";")[0]
 			}
 			workSpaceStory := &models.TapdWorkSpaceStory{
-				SourceId:    data.Source.ID,
-				WorkspaceID: toolL.WorkspaceID,
-				StoryId:     toolL.ID,
+				ConnectionId: data.Connection.ID,
+				WorkspaceID:  toolL.WorkspaceID,
+				StoryId:      toolL.ID,
 			}
 			results := make([]interface{}, 0, 3)
 			results = append(results, &toolL, workSpaceStory)
 			if toolL.IterationID != 0 {
 				iterationStory := &models.TapdIterationStory{
-					SourceId:         data.Source.ID,
+					ConnectionId:     data.Connection.ID,
 					IterationId:      toolL.IterationID,
 					StoryId:          toolL.ID,
 					WorkspaceID:      toolL.WorkspaceID,

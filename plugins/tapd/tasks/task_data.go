@@ -8,16 +8,16 @@ import (
 )
 
 type TapdOptions struct {
-	SourceId    uint64   `json:"sourceId"`
-	WorkspaceID uint64   `json:"workspceId"`
-	CompanyId   uint64   `json:"companyId"`
-	Tasks       []string `json:"tasks,omitempty"`
-	Since       string
+	ConnectionId uint64   `json:"connectionId"`
+	WorkspaceID  uint64   `json:"workspceId"`
+	CompanyId    uint64   `json:"companyId"`
+	Tasks        []string `json:"tasks,omitempty"`
+	Since        string
 }
 
 type TapdTaskData struct {
-	Options   *TapdOptions
-	ApiClient *helper.ApiAsyncClient
-	Since     *time.Time
-	Source    *models.TapdSource
+	Options    *TapdOptions
+	ApiClient  *helper.ApiAsyncClient
+	Since      *time.Time
+	Connection *models.TapdConnection
 }

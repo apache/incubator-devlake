@@ -26,7 +26,7 @@ func ExtractStoryStatus(taskCtx core.SubTaskContext) error {
 		RawDataSubTaskArgs: helper.RawDataSubTaskArgs{
 			Ctx: taskCtx,
 			Params: TapdApiParams{
-				SourceId: data.Source.ID,
+				ConnectionId: data.Connection.ID,
 				//CompanyId: data.Options.CompanyId,
 				WorkspaceID: data.Options.WorkspaceID,
 			},
@@ -41,11 +41,11 @@ func ExtractStoryStatus(taskCtx core.SubTaskContext) error {
 			results := make([]interface{}, 0)
 			for k, v := range statusRes.Data {
 				toolL := &models.TapdStoryStatus{
-					SourceId:    data.Source.ID,
-					WorkspaceID: data.Options.WorkspaceID,
-					EnglishName: k,
-					ChineseName: v,
-					IsLastStep:  false,
+					ConnectionId: data.Connection.ID,
+					WorkspaceID:  data.Options.WorkspaceID,
+					EnglishName:  k,
+					ChineseName:  v,
+					IsLastStep:   false,
 				}
 				results = append(results, toolL)
 			}

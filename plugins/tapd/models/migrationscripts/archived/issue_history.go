@@ -8,7 +8,7 @@ import (
 
 type TapdIssueStatusHistory struct {
 	common.NoPKModel
-	SourceId       uint64 `gorm:"primaryKey"`
+	ConnectionId   uint64 `gorm:"primaryKey"`
 	WorkspaceID    uint64
 	IssueId        uint64    `gorm:"primaryKey"`
 	OriginalStatus string    `gorm:"primaryKey;type:varchar(250)"`
@@ -18,8 +18,8 @@ type TapdIssueStatusHistory struct {
 
 type TapdIssueAssigneeHistory struct {
 	common.NoPKModel
-	SourceId    uint64 `gorm:"primaryKey"`
-	WorkspaceID uint64
+	ConnectionId uint64 `gorm:"primaryKey"`
+	WorkspaceID  uint64
 
 	IssueId   uint64    `gorm:"primaryKey"`
 	Assignee  string    `gorm:"primaryKey;type:varchar(250)"`
@@ -29,13 +29,13 @@ type TapdIssueAssigneeHistory struct {
 
 type TapdIssueSprintHistory struct {
 	common.NoPKModel
-	SourceId    uint64 `gorm:"primaryKey"`
-	WorkspaceID uint64
-	ChangelogId uint64
-	IssueId     uint64    `gorm:"primaryKey"`
-	SprintId    uint64    `gorm:"primaryKey"`
-	StartDate   time.Time `gorm:"primaryKey"`
-	EndDate     time.Time
+	ConnectionId uint64 `gorm:"primaryKey"`
+	WorkspaceID  uint64
+	ChangelogId  uint64
+	IssueId      uint64    `gorm:"primaryKey"`
+	SprintId     uint64    `gorm:"primaryKey"`
+	StartDate    time.Time `gorm:"primaryKey"`
+	EndDate      time.Time
 }
 
 func (TapdIssueStatusHistory) TableName() string {

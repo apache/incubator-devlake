@@ -27,7 +27,7 @@ var IterIdGen *didgen.DomainIdGenerator
 // res will not be used
 func GetTotalPagesFromResponse(r *http.Response, args *helper.ApiCollectorArgs) (int, error) {
 	data := args.Ctx.GetData().(*TapdTaskData)
-	apiClient, err := NewTapdApiClient(args.Ctx.TaskContext(), data.Source)
+	apiClient, err := NewTapdApiClient(args.Ctx.TaskContext(), data.Connection)
 	if err != nil {
 		return 0, err
 	}
@@ -51,15 +51,15 @@ func parseIterationChangelog(taskCtx core.SubTaskContext, old string, new string
 	db := taskCtx.GetDb()
 	iterationFrom := &models.TapdIteration{}
 	err := db.Model(&models.TapdIteration{}).
-		Where("source_id = ? and workspace_id = ? and name = ?",
-			data.Source.ID, data.Options.WorkspaceID, old).Limit(1).Find(iterationFrom).Error
+		Where("connection_id = ? and workspace_id = ? and name = ?",
+			data.Connection.ID, data.Options.WorkspaceID, old).Limit(1).Find(iterationFrom).Error
 	if err != nil {
 		return 0, 0, err
 	}
 	iterationTo := &models.TapdIteration{}
 	err = db.Model(&models.TapdIteration{}).
-		Where("source_id = ? and workspace_id = ? and name = ?",
-			data.Source.ID, data.Options.WorkspaceID, new).Limit(1).Find(iterationTo).Error
+		Where("connection_id = ? and workspace_id = ? and name = ?",
+			data.Connection.ID, data.Options.WorkspaceID, new).Limit(1).Find(iterationTo).Error
 	if err != nil {
 		return 0, 0, err
 	}

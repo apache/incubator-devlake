@@ -7,9 +7,9 @@ import (
 
 type TapdIterationStory struct {
 	common.NoPKModel
-	SourceId    uint64 `gorm:"primaryKey"`
-	IterationId uint64 `gorm:"primaryKey"`
-	WorkspaceID uint64 `gorm:"primaryKey"`
+	ConnectionId uint64 `gorm:"primaryKey"`
+	IterationId  uint64 `gorm:"primaryKey"`
+	WorkspaceID  uint64 `gorm:"primaryKey"`
 
 	StoryId          uint64 `gorm:"primaryKey"`
 	ResolutionDate   *core.Iso8601Time

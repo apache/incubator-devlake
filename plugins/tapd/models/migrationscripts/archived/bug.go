@@ -6,25 +6,25 @@ import (
 )
 
 type TapdBug struct {
-	SourceId    uint64 `gorm:"primaryKey"`
-	ID          uint64 `gorm:"primaryKey;type:BIGINT(100)" json:"id,string"`
-	EpicKey     string
-	Title       string `json:"name" gorm:"type:varchar(255)"`
-	Description string
-	WorkspaceID uint64            `json:"workspace_id,string"`
-	Created     *core.Iso8601Time `json:"created"`
-	Modified    *core.Iso8601Time `json:"modified" gorm:"index"`
-	Status      string            `json:"status"`
-	Cc          string            `json:"cc"`
-	Begin       *core.Iso8601Time `json:"begin"`
-	Due         *core.Iso8601Time `json:"due"`
-	Priority    string            `json:"priority"`
-	IterationID uint64            `json:"iteration_id,string"`
-	Source      string            `json:"source"`
-	Module      string            `json:"module"`
-	ReleaseID   uint64            `json:"release_id,string"`
-	CreatedFrom string            `json:"created_from"`
-	Feature     string            `json:"feature"`
+	ConnectionId uint64 `gorm:"primaryKey"`
+	ID           uint64 `gorm:"primaryKey;type:BIGINT(100)" json:"id,string"`
+	EpicKey      string
+	Title        string `json:"name" gorm:"type:varchar(255)"`
+	Description  string
+	WorkspaceID  uint64            `json:"workspace_id,string"`
+	Created      *core.Iso8601Time `json:"created"`
+	Modified     *core.Iso8601Time `json:"modified" gorm:"index"`
+	Status       string            `json:"status"`
+	Cc           string            `json:"cc"`
+	Begin        *core.Iso8601Time `json:"begin"`
+	Due          *core.Iso8601Time `json:"due"`
+	Priority     string            `json:"priority"`
+	IterationID  uint64            `json:"iteration_id,string"`
+	Source       string            `json:"source"`
+	Module       string            `json:"module"`
+	ReleaseID    uint64            `json:"release_id,string"`
+	CreatedFrom  string            `json:"created_from"`
+	Feature      string            `json:"feature"`
 	common.NoPKModel
 
 	Severity         string            `json:"severity"`

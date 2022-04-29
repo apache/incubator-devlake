@@ -20,15 +20,15 @@ import (
 )
 
 type TapdOptions struct {
-	SourceId    uint64   `json:"sourceId"`
-	WorkspaceID uint64   `json:"workspceId"`
-	CompanyId   uint64   `json:"companyId"`
-	Tasks       []string `json:"tasks,omitempty"`
-	Since       string
+	ConnectionId uint64   `json:"connectionId"`
+	WorkspaceID  uint64   `json:"workspceId"`
+	CompanyId    uint64   `json:"companyId"`
+	Tasks        []string `json:"tasks,omitempty"`
+	Since        string
 }
 
 type Temp struct {
-	SourceId                 uint64 `gorm:"primaryKey"`
+	ConnectionId             uint64 `gorm:"primaryKey"`
 	IssueId                  uint64 `gorm:"primarykey"`
 	ProjectId                uint64
 	Self                     string `gorm:"type:varchar(255)"`
@@ -307,9 +307,9 @@ func httpPostJson(path string, jsonstr []byte) error {
 // standalone mode for debugging
 func main() {
 	options := map[string]interface{}{
-		"sourceId":    1,
-		"companyId":   55850509,
-		"workspaceId": 62390899,
+		"connectionId": 1,
+		"companyId":    55850509,
+		"workspaceId":  62390899,
 	}
 
 	var op TapdOptions

@@ -15,7 +15,7 @@ package tasks
 //	db := taskCtx.GetDb()
 //	logger.Info("convert board:%d", data.Options.WorkspaceID)
 //	iterIdGen := didgen.NewDomainIdGenerator(&models.TapdIteration{})
-//	cursor, err := db.Model(&models.TapdIssueSprintHistory{}).Where("source_id = ? AND workspace_id = ?", data.Source.ID, data.Options.WorkspaceID).Rows()
+//	cursor, err := db.Model(&models.TapdIssueSprintHistory{}).Where("connection_id = ? AND workspace_id = ?", data.Connection.ID, data.Options.WorkspaceID).Rows()
 //	if err != nil {
 //		return err
 //	}
@@ -24,8 +24,8 @@ package tasks
 //		RawDataSubTaskArgs: helper.RawDataSubTaskArgs{
 //			Ctx: taskCtx,
 //			Params: TapdApiParams{
-//				SourceId: data.Source.ID,
-//				//CompanyId:   data.Source.CompanyId,
+//				ConnectionId: data.Connection.ID,
+//
 //				WorkspaceID: data.Options.WorkspaceID,
 //			},
 //			Table: "tapd_api_%",
@@ -35,8 +35,8 @@ package tasks
 //		Convert: func(inputRow interface{}) ([]interface{}, error) {
 //			toolL := inputRow.(*models.TapdIssueSprintHistory)
 //			domainL := &ticket.IssueSprintsHistory{
-//				IssueId:   IssueIdGen.Generate(data.Source.ID, toolL.IssueId),
-//				SprintId:  iterIdGen.Generate(data.Source.ID, toolL.SprintId),
+//				IssueId:   IssueIdGen.Generate(data.Connection.ID, toolL.IssueId),
+//				SprintId:  iterIdGen.Generate(data.Connection.ID, toolL.SprintId),
 //				StartDate: toolL.StartDate,
 //				EndDate:   &toolL.EndDate,
 //			}

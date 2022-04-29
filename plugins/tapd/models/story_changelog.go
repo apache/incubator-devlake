@@ -7,7 +7,7 @@ import (
 )
 
 type TapdStoryChangelog struct {
-	SourceId       uint64            `gorm:"primaryKey;type:INT(10) UNSIGNED NOT NULL"`
+	ConnectionId   uint64            `gorm:"primaryKey;type:INT(10) UNSIGNED NOT NULL"`
 	ID             uint64            `gorm:"primaryKey;type:BIGINT(10) UNSIGNED NOT NULL" json:"id,string"`
 	WorkspaceID    uint64            `json:"workspace_id,string"`
 	WorkitemTypeID uint64            `json:"workitem_type_id,string"`
@@ -23,7 +23,7 @@ type TapdStoryChangelog struct {
 }
 
 type TapdStoryChangelogItemRes struct {
-	SourceId          uint64          `gorm:"primaryKey;type:INT(10) UNSIGNED NOT NULL"`
+	ConnectionId      uint64          `gorm:"primaryKey;type:INT(10) UNSIGNED NOT NULL"`
 	ChangelogId       uint64          `gorm:"primaryKey;type:BIGINT(10) UNSIGNED NOT NULL"`
 	Field             string          `json:"field" gorm:"primaryKey;type:varchar(255)"`
 	ValueBeforeParsed json.RawMessage `json:"value_before_parsed"`
@@ -34,7 +34,7 @@ type TapdStoryChangelogItemRes struct {
 }
 
 type TapdStoryChangelogItem struct {
-	SourceId          uint64 `gorm:"primaryKey;type:INT(10) UNSIGNED NOT NULL"`
+	ConnectionId      uint64 `gorm:"primaryKey;type:INT(10) UNSIGNED NOT NULL"`
 	ChangelogId       uint64 `gorm:"primaryKey;type:BIGINT(10) UNSIGNED NOT NULL"`
 	Field             string `json:"field" gorm:"primaryKey;type:varchar(255)"`
 	ValueBeforeParsed string `json:"value_before_parsed"`

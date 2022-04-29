@@ -6,7 +6,7 @@ import (
 )
 
 type TapdStory struct {
-	SourceId        uint64            `gorm:"primaryKey"`
+	ConnectionId    uint64            `gorm:"primaryKey"`
 	ID              uint64            `gorm:"primaryKey;type:BIGINT(100)" json:"id,string"`
 	WorkitemTypeID  uint64            `json:"workitem_type_id,string"`
 	Name            string            `gorm:"type:varchar(255)" json:"name"`

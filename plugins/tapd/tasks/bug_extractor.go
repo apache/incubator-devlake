@@ -29,7 +29,7 @@ func ExtractBugs(taskCtx core.SubTaskContext) error {
 	statusList := make([]*models.TapdBugStatus, 0)
 
 	err := db.Model(&models.TapdBugStatus{}).
-		Find(&statusList, "source_id = ? and workspace_id = ?", data.Options.SourceId, data.Options.WorkspaceID).
+		Find(&statusList, "connection_id = ? and workspace_id = ?", data.Options.ConnectionId, data.Options.WorkspaceID).
 		Error
 	if err != nil {
 		return err
@@ -53,7 +53,7 @@ func ExtractBugs(taskCtx core.SubTaskContext) error {
 		RawDataSubTaskArgs: helper.RawDataSubTaskArgs{
 			Ctx: taskCtx,
 			Params: TapdApiParams{
-				SourceId: data.Source.ID,
+				ConnectionId: data.Connection.ID,
 				//CompanyId: data.Options.CompanyId,
 				WorkspaceID: data.Options.WorkspaceID,
 			},
@@ -68,7 +68,7 @@ func ExtractBugs(taskCtx core.SubTaskContext) error {
 			toolL := bugBody.Bug
 
 			toolL.Status = statusMap[toolL.Status]
-			toolL.SourceId = data.Source.ID
+			toolL.ConnectionId = data.Connection.ID
 			toolL.Type = "BUG"
 			toolL.StdType = "BUG"
 			toolL.StdStatus = getStdStatus(toolL.Status)
@@ -77,15 +77,15 @@ func ExtractBugs(taskCtx core.SubTaskContext) error {
 				toolL.CurrentOwner = strings.Split(toolL.CurrentOwner, ";")[0]
 			}
 			workSpaceBug := &models.TapdWorkSpaceBug{
-				SourceId:    data.Source.ID,
-				WorkspaceID: toolL.WorkspaceID,
-				BugId:       toolL.ID,
+				ConnectionId: data.Connection.ID,
+				WorkspaceID:  toolL.WorkspaceID,
+				BugId:        toolL.ID,
 			}
 			results := make([]interface{}, 0, 3)
 			results = append(results, &toolL, workSpaceBug)
 			if toolL.IterationID != 0 {
 				iterationBug := &models.TapdIterationBug{
-					SourceId:       data.Source.ID,
+					ConnectionId:   data.Connection.ID,
 					IterationId:    toolL.IterationID,
 					WorkspaceID:    toolL.WorkspaceID,
 					BugId:          toolL.ID,

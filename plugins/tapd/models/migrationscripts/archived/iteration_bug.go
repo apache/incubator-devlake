@@ -7,7 +7,7 @@ import (
 
 type TapdIterationBug struct {
 	common.NoPKModel
-	SourceId       uint64 `gorm:"primaryKey"`
+	ConnectionId   uint64 `gorm:"primaryKey"`
 	IterationId    uint64 `gorm:"primaryKey"`
 	WorkspaceID    uint64 `gorm:"primaryKey"`
 	BugId          uint64 `gorm:"primaryKey"`

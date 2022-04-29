@@ -26,7 +26,7 @@ func ExtractBugChangelog(taskCtx core.SubTaskContext) error {
 		RawDataSubTaskArgs: helper.RawDataSubTaskArgs{
 			Ctx: taskCtx,
 			Params: TapdApiParams{
-				SourceId: data.Source.ID,
+				ConnectionId: data.Connection.ID,
 				//CompanyId: data.Options.CompanyId,
 				WorkspaceID: data.Options.WorkspaceID,
 			},
@@ -41,10 +41,10 @@ func ExtractBugChangelog(taskCtx core.SubTaskContext) error {
 			}
 			bugChangelog := bugChangelogBody.BugChange
 
-			bugChangelog.SourceId = data.Source.ID
+			bugChangelog.ConnectionId = data.Connection.ID
 			bugChangelog.WorkspaceID = data.Options.WorkspaceID
 			item := &models.TapdBugChangelogItem{
-				SourceId:          data.Source.ID,
+				ConnectionId:      data.Connection.ID,
 				ChangelogId:       bugChangelog.ID,
 				Field:             bugChangelog.Field,
 				ValueBeforeParsed: bugChangelog.OldValue,

@@ -6,7 +6,7 @@ import (
 )
 
 type TapdIteration struct {
-	SourceId     uint64            `gorm:"primaryKey;type:INT(10) UNSIGNED NOT NULL"`
+	ConnectionId uint64            `gorm:"primaryKey;type:INT(10) UNSIGNED NOT NULL"`
 	ID           uint64            `gorm:"primaryKey;type:BIGINT(10) UNSIGNED NOT NULL" json:"id,string"`
 	Name         string            `gorm:"type:varchar(255)" json:"name"`
 	WorkspaceID  uint64            `json:"workspace_id,string"`
@@ -28,9 +28,9 @@ type TapdIteration struct {
 
 type TapdWorkspaceIteration struct {
 	common.NoPKModel
-	SourceId    uint64 `gorm:"primaryKey"`
-	WorkspaceID uint64 `gorm:"primaryKey"`
-	IterationId uint64 `gorm:"primaryKey"`
+	ConnectionId uint64 `gorm:"primaryKey"`
+	WorkspaceID  uint64 `gorm:"primaryKey"`
+	IterationId  uint64 `gorm:"primaryKey"`
 }
 
 func (TapdIteration) TableName() string {

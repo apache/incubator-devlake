@@ -30,8 +30,8 @@ type TapdIterationRes struct {
 
 func PrepareSprintTestData(taskCtx core.TaskContext) error {
 	db := taskCtx.GetDb()
-	source := &models.TapdSource{}
-	err := db.Find(source, 1).Error
+	connection := &models.TapdConnection{}
+	err := db.Find(connection, 1).Error
 	if err != nil {
 	}
 	data := taskCtx.GetData().(*tasks.TapdTaskData)

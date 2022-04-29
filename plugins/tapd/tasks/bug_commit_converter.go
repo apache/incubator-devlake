@@ -14,7 +14,7 @@ func ConvertBugCommit(taskCtx core.SubTaskContext) error {
 	db := taskCtx.GetDb()
 	logger.Info("convert board:%d", data.Options.WorkspaceID)
 
-	cursor, err := db.Model(&models.TapdBugCommit{}).Where("source_id = ? AND workspace_id = ?", data.Source.ID, data.Options.WorkspaceID).Rows()
+	cursor, err := db.Model(&models.TapdBugCommit{}).Where("connection_id = ? AND workspace_id = ?", data.Connection.ID, data.Options.WorkspaceID).Rows()
 	if err != nil {
 		return err
 	}
@@ -23,8 +23,8 @@ func ConvertBugCommit(taskCtx core.SubTaskContext) error {
 		RawDataSubTaskArgs: helper.RawDataSubTaskArgs{
 			Ctx: taskCtx,
 			Params: TapdApiParams{
-				SourceId: data.Source.ID,
-				//CompanyId:   data.Source.CompanyId,
+				ConnectionId: data.Connection.ID,
+
 				WorkspaceID: data.Options.WorkspaceID,
 			},
 			Table: RAW_BUG_COMMIT_TABLE,
@@ -34,7 +34,7 @@ func ConvertBugCommit(taskCtx core.SubTaskContext) error {
 		Convert: func(inputRow interface{}) ([]interface{}, error) {
 			toolL := inputRow.(*models.TapdBugCommit)
 			domainL := &crossdomain.IssueCommit{
-				IssueId:   IssueIdGen.Generate(data.Source.ID, toolL.BugId),
+				IssueId:   IssueIdGen.Generate(data.Connection.ID, toolL.BugId),
 				CommitSha: toolL.CommitID,
 			}
 

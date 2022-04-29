@@ -21,6 +21,7 @@ var _ core.PluginMeta = (*Tapd)(nil)
 var _ core.PluginInit = (*Tapd)(nil)
 var _ core.PluginTask = (*Tapd)(nil)
 var _ core.PluginApi = (*Tapd)(nil)
+var _ core.Migratable = (*Tapd)(nil)
 
 type Tapd struct{}
 
@@ -89,11 +90,11 @@ func (plugin Tapd) PrepareTaskData(taskCtx core.TaskContext, options map[string]
 	if err != nil {
 		return nil, err
 	}
-	if op.SourceId == 0 {
-		return nil, fmt.Errorf("SourceId is required for Tapd execution")
+	if op.ConnectionId == 0 {
+		return nil, fmt.Errorf("ConnectionId is required for Tapd execution")
 	}
-	source := &models.TapdSource{}
-	err = db.Find(source, op.SourceId).Error
+	connection := &models.TapdConnection{}
+	err = db.Find(connection, op.ConnectionId).Error
 	if err != nil {
 		return nil, err
 	}
@@ -104,14 +105,14 @@ func (plugin Tapd) PrepareTaskData(taskCtx core.TaskContext, options map[string]
 			return nil, fmt.Errorf("invalid value for `since`: %w", err)
 		}
 	}
-	tapdApiClient, err := tasks.NewTapdApiClient(taskCtx, source)
+	tapdApiClient, err := tasks.NewTapdApiClient(taskCtx, connection)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create tapd api client: %w", err)
 	}
 	taskData := &tasks.TapdTaskData{
-		Options:   &op,
-		ApiClient: tapdApiClient,
-		Source:    source,
+		Options:    &op,
+		ApiClient:  tapdApiClient,
+		Connection: connection,
 	}
 	if !since.IsZero() {
 		taskData.Since = &since
@@ -127,6 +128,7 @@ func (plugin Tapd) PrepareTaskData(taskCtx core.TaskContext, options map[string]
 func (plugin Tapd) RootPkgPath() string {
 	return "github.com/merico-dev/lake/plugins/tapd"
 }
+
 func (plugin Tapd) MigrationScripts() []migration.Script {
 	return []migration.Script{new(migrationscripts.InitSchemas)}
 }
@@ -136,19 +138,19 @@ func (plugin Tapd) ApiResources() map[string]map[string]core.ApiResourceHandler 
 		"test": {
 			"POST": api.TestConnection,
 		},
-		"sources": {
-			"POST": api.PostSources,
-			"GET":  api.ListSources,
+		"connections": {
+			"POST": api.PostConnections,
+			"GET":  api.ListConnections,
 		},
-		"sources/:sourceId": {
-			"PUT":    api.PutSource,
-			"DELETE": api.DeleteSource,
-			"GET":    api.GetSource,
+		"connections/:connectionId": {
+			"PUT":    api.PutConnection,
+			"DELETE": api.DeleteConnection,
+			"GET":    api.GetConnection,
 		},
-		"sources/:sourceId/boards": {
-			"GET": api.GetBoardsBySourceId,
+		"connections/:connectionId/boards": {
+			"GET": api.GetBoardsByConnectionId,
 		},
-		"sources/:sourceId/proxy/rest/*path": {
+		"connections/:connectionId/proxy/rest/*path": {
 			"GET": api.Proxy,
 		},
 	}
@@ -160,10 +162,9 @@ var PluginEntry Tapd //nolint
 // standalone mode for debugging
 func main() {
 	cmd := &cobra.Command{Use: "tapd"}
-	sourceId := cmd.Flags().Uint64P("source", "s", 0, "tapd source id")
-	companyId := cmd.Flags().Uint64P("company", "c", 0, "tapd company id")
+	connectionId := cmd.Flags().Uint64P("connection", "c", 0, "tapd connection id")
 	workspaceId := cmd.Flags().Uint64P("workspace", "w", 0, "tapd workspace id")
-	err := cmd.MarkFlagRequired("source")
+	err := cmd.MarkFlagRequired("connection")
 	if err != nil {
 		panic(err)
 	}
@@ -177,9 +178,8 @@ func main() {
 	}
 	cmd.Run = func(c *cobra.Command, args []string) {
 		runner.DirectRun(c, args, PluginEntry, map[string]interface{}{
-			"sourceId":    *sourceId,
-			"companyId":   *companyId,
-			"workspaceId": *workspaceId,
+			"connectionId": *connectionId,
+			"workspaceId":  *workspaceId,
 		})
 	}
 	runner.RunCmd(cmd)

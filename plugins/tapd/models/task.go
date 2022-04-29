@@ -6,7 +6,7 @@ import (
 )
 
 type TapdTask struct {
-	SourceId        uint64            `gorm:"primaryKey"`
+	ConnectionId    uint64            `gorm:"primaryKey"`
 	ID              uint64            `gorm:"primaryKey;type:BIGINT(100)" json:"id,string"`
 	Name            string            `gorm:"type:varchar(255)" json:"name"`
 	Description     string            `json:"description"`

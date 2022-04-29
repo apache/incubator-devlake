@@ -14,9 +14,9 @@ const RAW_WORKSPACE_TABLE = "tapd_api_workspaces"
 var _ core.SubTaskEntryPoint = CollectWorkspaces
 
 type TapdApiParams struct {
-	SourceId    uint64
-	CompanyId   uint64
-	WorkspaceID uint64
+	ConnectionId uint64
+	CompanyId    uint64
+	WorkspaceID  uint64
 }
 
 func CollectWorkspaces(taskCtx core.SubTaskContext) error {
@@ -27,7 +27,7 @@ func CollectWorkspaces(taskCtx core.SubTaskContext) error {
 		RawDataSubTaskArgs: helper.RawDataSubTaskArgs{
 			Ctx: taskCtx,
 			Params: TapdApiParams{
-				SourceId: data.Source.ID,
+				ConnectionId: data.Connection.ID,
 				//CompanyId: data.Options.CompanyId,
 				WorkspaceID: data.Options.WorkspaceID,
 			},

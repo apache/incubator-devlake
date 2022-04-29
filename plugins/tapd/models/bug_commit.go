@@ -6,8 +6,8 @@ import (
 )
 
 type TapdBugCommit struct {
-	SourceId uint64 `gorm:"primaryKey"`
-	ID       uint64 `gorm:"primaryKey;type:BIGINT(100)" json:"id,string"`
+	ConnectionId uint64 `gorm:"primaryKey"`
+	ID           uint64 `gorm:"primaryKey;type:BIGINT(100)" json:"id,string"`
 
 	UserID          string `json:"user_id" gorm:"type:varchar(255)"`
 	HookUserName    string `json:"hook_user_name" gorm:"type:varchar(255)"`

@@ -27,7 +27,7 @@ func ExtractStoryChangelog(taskCtx core.SubTaskContext) error {
 		RawDataSubTaskArgs: helper.RawDataSubTaskArgs{
 			Ctx: taskCtx,
 			Params: TapdApiParams{
-				SourceId: data.Source.ID,
+				ConnectionId: data.Connection.ID,
 				//CompanyId: data.Options.CompanyId,
 				WorkspaceID: data.Options.WorkspaceID,
 			},
@@ -44,7 +44,7 @@ func ExtractStoryChangelog(taskCtx core.SubTaskContext) error {
 			}
 			storyChangelog := storyChangelogBody.WorkitemChange
 
-			storyChangelog.SourceId = data.Source.ID
+			storyChangelog.ConnectionId = data.Connection.ID
 			for _, fc := range storyChangelog.FieldChanges {
 				var item models.TapdStoryChangelogItem
 				var valueAfterMap interface{}
@@ -59,14 +59,14 @@ func ExtractStoryChangelog(taskCtx core.SubTaskContext) error {
 						return nil, err
 					}
 					for k, v := range valueAfterMap.(map[string]interface{}) {
-						item.SourceId = data.Source.ID
+						item.ConnectionId = data.Connection.ID
 						item.ChangelogId = storyChangelog.ID
 						item.Field = k
 						item.ValueAfterParsed = v.(string)
 						item.ValueBeforeParsed = valueBeforeMap[k]
 					}
 				default:
-					item.SourceId = data.Source.ID
+					item.ConnectionId = data.Connection.ID
 					item.ChangelogId = storyChangelog.ID
 					item.Field = fc.Field
 					item.ValueAfterParsed = strings.Trim(string(fc.ValueAfterParsed), `"`)

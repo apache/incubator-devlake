@@ -5,9 +5,9 @@ import (
 )
 
 type TapdWorkSpaceBug struct {
-	SourceId    uint64 `gorm:"primaryKey"`
-	WorkspaceID uint64 `gorm:"primaryKey"`
-	BugId       uint64 `gorm:"primaryKey"`
+	ConnectionId uint64 `gorm:"primaryKey"`
+	WorkspaceID  uint64 `gorm:"primaryKey"`
+	BugId        uint64 `gorm:"primaryKey"`
 	common.NoPKModel
 }
 

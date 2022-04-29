@@ -26,7 +26,7 @@ func ExtractUsers(taskCtx core.SubTaskContext) error {
 		RawDataSubTaskArgs: helper.RawDataSubTaskArgs{
 			Ctx: taskCtx,
 			Params: TapdApiParams{
-				SourceId: data.Source.ID,
+				ConnectionId: data.Connection.ID,
 				//CompanyId: data.Options.CompanyId,
 				WorkspaceID: data.Options.WorkspaceID,
 			},
@@ -39,10 +39,10 @@ func ExtractUsers(taskCtx core.SubTaskContext) error {
 				return nil, err
 			}
 			toolL := models.TapdUser{
-				SourceId:    data.Source.ID,
-				WorkspaceID: data.Options.WorkspaceID,
-				Name:        userRes.UserWorkspace.Name,
-				User:        userRes.UserWorkspace.User,
+				ConnectionId: data.Connection.ID,
+				WorkspaceID:  data.Options.WorkspaceID,
+				Name:         userRes.UserWorkspace.Name,
+				User:         userRes.UserWorkspace.User,
 			}
 			return []interface{}{
 				&toolL,

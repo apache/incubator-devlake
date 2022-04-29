@@ -16,7 +16,7 @@ func ConvertBug(taskCtx core.SubTaskContext) error {
 	db := taskCtx.GetDb()
 	logger.Info("convert board:%d", data.Options.WorkspaceID)
 
-	cursor, err := db.Model(&models.TapdBug{}).Where("source_id = ? AND workspace_id = ?", data.Source.ID, data.Options.WorkspaceID).Rows()
+	cursor, err := db.Model(&models.TapdBug{}).Where("connection_id = ? AND workspace_id = ?", data.Connection.ID, data.Options.WorkspaceID).Rows()
 	if err != nil {
 		return err
 	}
@@ -25,8 +25,8 @@ func ConvertBug(taskCtx core.SubTaskContext) error {
 		RawDataSubTaskArgs: helper.RawDataSubTaskArgs{
 			Ctx: taskCtx,
 			Params: TapdApiParams{
-				SourceId: data.Source.ID,
-				//CompanyId:   data.Source.CompanyId,
+				ConnectionId: data.Connection.ID,
+
 				WorkspaceID: data.Options.WorkspaceID,
 			},
 			Table: RAW_BUG_TABLE,
@@ -37,10 +37,10 @@ func ConvertBug(taskCtx core.SubTaskContext) error {
 			toolL := inputRow.(*models.TapdBug)
 			domainL := &ticket.Issue{
 				DomainEntity: domainlayer.DomainEntity{
-					Id: IssueIdGen.Generate(toolL.SourceId, toolL.ID),
+					Id: IssueIdGen.Generate(toolL.ConnectionId, toolL.ID),
 				},
 				Url:            toolL.Url,
-				Number:         strconv.FormatUint(uint64(toolL.ID), 10),
+				Number:         strconv.FormatUint(toolL.ID, 10),
 				Title:          toolL.Title,
 				EpicKey:        toolL.EpicKey,
 				Type:           "BUG",
@@ -48,10 +48,10 @@ func ConvertBug(taskCtx core.SubTaskContext) error {
 				ResolutionDate: toolL.Resolved.ToNullableTime(),
 				CreatedDate:    toolL.Created.ToNullableTime(),
 				UpdatedDate:    toolL.Modified.ToNullableTime(),
-				ParentIssueId:  IssueIdGen.Generate(toolL.SourceId, toolL.IssueID),
+				ParentIssueId:  IssueIdGen.Generate(toolL.ConnectionId, toolL.IssueID),
 				Priority:       toolL.Priority,
-				CreatorId:      UserIdGen.Generate(data.Source.ID, toolL.WorkspaceID, toolL.Reporter),
-				AssigneeId:     UserIdGen.Generate(data.Source.ID, toolL.WorkspaceID, toolL.CurrentOwner),
+				CreatorId:      UserIdGen.Generate(data.Connection.ID, toolL.WorkspaceID, toolL.Reporter),
+				AssigneeId:     UserIdGen.Generate(data.Connection.ID, toolL.WorkspaceID, toolL.CurrentOwner),
 				AssigneeName:   toolL.CurrentOwner,
 				Severity:       toolL.Severity,
 				Component:      toolL.Feature, // todo not sure about this
@@ -66,8 +66,8 @@ func ConvertBug(taskCtx core.SubTaskContext) error {
 				IssueId: domainL.Id,
 			}
 			sprintIssue := &ticket.SprintIssue{
-				SprintId: IterIdGen.Generate(data.Source.ID, toolL.IterationID),
-				IssueId:  IssueIdGen.Generate(data.Source.ID, toolL.ID),
+				SprintId: IterIdGen.Generate(data.Connection.ID, toolL.IterationID),
+				IssueId:  domainL.Id,
 			}
 			results = append(results, domainL, boardIssue, sprintIssue)
 			return results, nil

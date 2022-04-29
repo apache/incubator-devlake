@@ -22,7 +22,7 @@ func ExtractStoryCommits(taskCtx core.SubTaskContext) error {
 		RawDataSubTaskArgs: helper.RawDataSubTaskArgs{
 			Ctx: taskCtx,
 			Params: TapdApiParams{
-				SourceId: data.Source.ID,
+				ConnectionId: data.Connection.ID,
 				//CompanyId: data.Options.CompanyId,
 				WorkspaceID: data.Options.WorkspaceID,
 			},
@@ -35,7 +35,7 @@ func ExtractStoryCommits(taskCtx core.SubTaskContext) error {
 				return nil, err
 			}
 			toolL := issueCommitBody
-			toolL.SourceId = data.Source.ID
+			toolL.ConnectionId = data.Connection.ID
 			issue := SimpleStory{}
 			err = json.Unmarshal(row.Input, &issue)
 			if err != nil {

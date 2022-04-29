@@ -38,7 +38,7 @@ func ExtractTasks(taskCtx core.SubTaskContext) error {
 		RawDataSubTaskArgs: helper.RawDataSubTaskArgs{
 			Ctx: taskCtx,
 			Params: TapdApiParams{
-				SourceId: data.Source.ID,
+				ConnectionId: data.Connection.ID,
 				//CompanyId: data.Options.CompanyId,
 				WorkspaceID: data.Options.WorkspaceID,
 			},
@@ -52,7 +52,7 @@ func ExtractTasks(taskCtx core.SubTaskContext) error {
 			}
 			toolL := taskBody.Task
 
-			toolL.SourceId = data.Source.ID
+			toolL.ConnectionId = data.Connection.ID
 			toolL.Type = "TASK"
 			toolL.StdType = "TASK"
 			toolL.StdStatus = getStdStatus(toolL.Status)
@@ -62,15 +62,15 @@ func ExtractTasks(taskCtx core.SubTaskContext) error {
 			toolL.Url = fmt.Sprintf("https://www.tapd.cn/%d/prong/stories/view/%d", toolL.WorkspaceID, toolL.ID)
 
 			workSpaceTask := &models.TapdWorkSpaceTask{
-				SourceId:    data.Source.ID,
-				WorkspaceID: toolL.WorkspaceID,
-				TaskId:      toolL.ID,
+				ConnectionId: data.Connection.ID,
+				WorkspaceID:  toolL.WorkspaceID,
+				TaskId:       toolL.ID,
 			}
 			results := make([]interface{}, 0, 3)
 			results = append(results, &toolL, workSpaceTask)
 			if toolL.IterationID != 0 {
 				iterationTask := &models.TapdIterationTask{
-					SourceId:        data.Source.ID,
+					ConnectionId:    data.Connection.ID,
 					IterationId:     toolL.IterationID,
 					TaskId:          toolL.ID,
 					WorkspaceID:     toolL.WorkspaceID,

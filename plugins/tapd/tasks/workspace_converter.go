@@ -15,7 +15,7 @@ func ConvertWorkspace(taskCtx core.SubTaskContext) error {
 	logger := taskCtx.GetLogger()
 	db := taskCtx.GetDb()
 	logger.Info("collect board:%d", data.Options.WorkspaceID)
-	cursor, err := db.Model(&models.TapdWorkspace{}).Where("source_id = ? AND id = ?", data.Source.ID, data.Options.WorkspaceID).Rows()
+	cursor, err := db.Model(&models.TapdWorkspace{}).Where("connection_id = ? AND id = ?", data.Connection.ID, data.Options.WorkspaceID).Rows()
 	if err != nil {
 		return err
 	}
@@ -24,8 +24,8 @@ func ConvertWorkspace(taskCtx core.SubTaskContext) error {
 		RawDataSubTaskArgs: helper.RawDataSubTaskArgs{
 			Ctx: taskCtx,
 			Params: TapdApiParams{
-				SourceId: data.Source.ID,
-				//CompanyId:   data.Source.CompanyId,
+				ConnectionId: data.Connection.ID,
+
 				WorkspaceID: data.Options.WorkspaceID,
 			},
 			Table: RAW_WORKSPACE_TABLE,
@@ -36,7 +36,7 @@ func ConvertWorkspace(taskCtx core.SubTaskContext) error {
 			workspace := inputRow.(*models.TapdWorkspace)
 			domainBoard := &ticket.Board{
 				DomainEntity: domainlayer.DomainEntity{
-					Id: WorkspaceIdGen.Generate(workspace.SourceId, workspace.ID),
+					Id: WorkspaceIdGen.Generate(workspace.ConnectionId, workspace.ID),
 				},
 				Name: workspace.Name,
 				Url:  fmt.Sprintf("%s/%d", "https://tapd.cn", workspace.ID),
