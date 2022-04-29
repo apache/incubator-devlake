@@ -29,7 +29,7 @@ const Sidebar = () => {
           console.log('>>> API VERSION ERROR...', e)
           setVersionTag('dev+error')
         })
-        setVersionTag(res?.data ? res.data?.version : 'dev+error')
+        setVersionTag(res?.data ? res.data?.version : '')
       } catch (e) {
         setVersionTag('dev+error')
       }
@@ -60,7 +60,7 @@ const Sidebar = () => {
       </h3>
       <SidebarMenu menu={menu} />
       <span className='copyright-tag'>
-        <span className='version-tag'>{versionTag || 'dev+unknown'}</span><br />
+        <span className='version-tag'>{versionTag || ''}</span><br />
         <strong>Apache 2.0 License</strong><br />&copy; 2021 Merico
       </span>
     </Card>
