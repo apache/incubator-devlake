@@ -33,5 +33,5 @@ ENV PATH="/app/bin:${PATH}"
 
 CMD ["lake"]
 
-# Notes: Docker for Mac(m1) sets up qemu emulation, you can likely use the amd64 image by adding the --platform=linux/amd64 flag. 
+# Notes: Docker for Mac(M1) sets up qemu emulation, you can likely use the amd64 image by adding the --platform=linux/amd64 flag. 
 # Such as: FROM --platform=linux/amd64 alpine:3.15
