@@ -32,7 +32,9 @@ function usePipelineManager (pipelineName = `COLLECTION ${Date.now()}`, initialT
     Providers.GITHUB,
     Providers.REFDIFF,
     Providers.GITEXTRACTOR,
-    Providers.FEISHU
+    Providers.FEISHU,
+    Providers.AE,
+    Providers.DBT
   ])
 
   const runPipeline = useCallback(() => {

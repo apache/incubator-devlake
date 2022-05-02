@@ -106,7 +106,7 @@ const TaskActivity = (props) => {
                 <div style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', display: 'flex', justifyContent: 'flex-start' }}>
                   <span style={{ color: Colors.GRAY2 }}>
                     <Icon icon='link' size={8} style={{ marginBottom: '3px', alignSelf: 'flex-start' }} />{' '}
-                    {t.options.projectId || t.options.boardId || t.options.owner}
+                    {t.options.projectId || t.options.boardId || t.options.owner || t.options.projectName}
                   </span>
                   {t.plugin === Providers.GITHUB && (
                     <span style={{ fontWeight: 600 }}>/{t.options.repositoryName || t.options.repo || '(Repository)'}</span>
@@ -116,6 +116,9 @@ const TaskActivity = (props) => {
                       <span>{t.options.url}</span><br />
                       <strong>{t.options.repoId}</strong>
                     </div>
+                  )}
+                  {t.plugin === Providers.DBT && (
+                    <span style={{ fontWeight: 600 }}>&nbsp;{t.options.projectPath}</span>
                   )}
                 </div>
               )}

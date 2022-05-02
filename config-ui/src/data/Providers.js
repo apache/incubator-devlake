@@ -7,6 +7,8 @@ import { ReactComponent as GitHubProviderIcon } from '@/images/integrations/gith
 import GitExtractorIcon from '@/images/git.png'
 import RefDiffIcon from '@/images/git-diff.png'
 import FeishuIcon from '@/images/feishu.png'
+import DBTIcon from '@/images/dbt.png'
+import AEIcon from '@/images/ae.png'
 
 const Providers = {
   NULL: 'null',
@@ -16,7 +18,9 @@ const Providers = {
   GITHUB: 'github',
   REFDIFF: 'refdiff',
   GITEXTRACTOR: 'gitextractor',
-  FEISHU: 'feishu'
+  FEISHU: 'feishu',
+  AE: 'ae',
+  DBT: 'dbt'
 }
 
 const ProviderTypes = {
@@ -33,7 +37,9 @@ const ProviderLabels = {
   GITHUB: 'GitHub',
   REFDIFF: 'RefDiff',
   GITEXTRACTOR: 'GitExtractor',
-  FEISHU: 'Feishu'
+  FEISHU: 'Feishu',
+  AE: 'Analysis Engine (AE)',
+  DBT: 'Data Build Tool (DBT)'
 }
 
 const ProviderSourceLimits = {
@@ -146,7 +152,8 @@ const ProviderIcons = {
   [Providers.REFDIFF]: (w, h) => <img src={RefDiffIcon} width={w || 24} height={h || 24} />,
   [Providers.GITEXTRACTOR]: (w, h) => <img src={GitExtractorIcon} width={w || 24} height={h || 24} />,
   [Providers.FEISHU]: (w, h) => <img src={FeishuIcon} width={w || 24} height={h || 24} />,
-
+  [Providers.AE]: (w, h) => <img src={AEIcon} width={w || 24} height={h || 24} />,
+  [Providers.DBT]: (w, h) => <img src={DBTIcon} width={w || 24} height={h || 24} />,
 }
 
 export {

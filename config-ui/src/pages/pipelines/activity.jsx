@@ -36,6 +36,8 @@ import { ReactComponent as HelpIcon } from '@/images/help.svg'
 import PipelineActivityIcon from '@/images/pulse-2.png'
 import GitExtractorIcon from '@/images/git.png'
 import RefDiffIcon from '@/images/git-diff.png'
+import AEIcon from '@/images/ae.png'
+import DBTIcon from '@/images/dbt.png'
 
 const PipelineActivity = (props) => {
   const history = useHistory()
@@ -653,6 +655,79 @@ const PipelineActivity = (props) => {
                                       </ul>
                                     </div>
                                   )}
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                    {pipelineHasProvider('ae') && (
+                      <div className='ae-settings' style={{ display: 'flex', paddingLeft: '20px', justifySelf: 'flex-start' }}>
+                        <div style={{ display: 'flex', padding: '2px 6px' }}>
+                          <img src={AEIcon} width={24} height={24} />
+                        </div>
+                        <div>
+                          <label style={{ lineHeight: '100%', display: 'block', fontSize: '10px', marginTop: '2px', marginBottom: '0px' }}>
+                            <strong style={{ fontSize: '16px', fontFamily: 'Montserrat', fontWeight: 800 }}>Analysis Engine (AE)</strong><br />
+                            Merico Enterprise Analysis
+                          </label>
+                          <div style={{ paddingTop: '15px' }}>
+                            {activePipeline.tasks.filter(t => t.plugin === 'ae').map((t, tIdx) => (
+                              <div key={`ae-opts-key-${tIdx}`}>
+                                <div>
+                                  <Icon icon='nest' size={12} color={Colors.GRAY4} style={{ marginRight: '6px' }} />
+                                  <strong>Project ID</strong>
+                                  <span style={{ color: Colors.GRAY5, padding: '0 1px' }}>: </span>
+                                  <span>{t.options.projectId}</span>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                    {pipelineHasProvider('dbt') && (
+                      <div className='dbt-settings' style={{ display: 'flex', paddingLeft: '20px', justifySelf: 'flex-start' }}>
+                        <div style={{ display: 'flex', padding: '2px 6px' }}>
+                          <img src={DBTIcon} width={24} height={24} />
+                        </div>
+                        <div>
+                          <label style={{ lineHeight: '100%', display: 'block', fontSize: '10px', marginTop: '2px', marginBottom: '0px' }}>
+                            <strong style={{ fontSize: '16px', fontFamily: 'Montserrat', fontWeight: 800 }}>Data Build Tool (DBT)</strong><br />Transform Data with SQL
+                          </label>
+                          <div style={{ paddingTop: '15px' }}>
+                            {activePipeline.tasks.filter(t => t.plugin === 'dbt').map((t, tIdx) => (
+                              <div key={`dbt-opts-key-${tIdx}`}>
+                                <div>
+                                  <Icon icon='nest' size={12} color={Colors.GRAY4} style={{ marginRight: '6px' }} />
+                                  <strong>Project Path</strong>
+                                  <span style={{ color: Colors.GRAY5, padding: '0 1px' }}>: </span>
+                                  <span>{t.options.projectPath}</span>
+                                </div>
+                                <div>
+                                  <Icon icon='nest' size={12} color={Colors.GRAY4} style={{ marginRight: '6px' }} />
+                                  <strong>Project Name</strong>
+                                  <span style={{ color: Colors.GRAY5, padding: '0 1px' }}>: </span>
+                                  <span>{t.options.projectName}</span>
+                                </div>
+                                <div>
+                                  <Icon icon='nest' size={12} color={Colors.GRAY4} style={{ marginRight: '6px' }} />
+                                  <strong>Project Target</strong>
+                                  <span style={{ color: Colors.GRAY5, padding: '0 1px' }}>: </span>
+                                  <span>{t.options.projectTarget}</span>
+                                </div>
+                                <div>
+                                  <Icon icon='nest' size={12} color={Colors.GRAY4} style={{ marginRight: '6px' }} />
+                                  <strong>Selected Models</strong>
+                                  <span style={{ color: Colors.GRAY5, padding: '0 1px' }}>: </span>
+                                  <span>[{t.options.selectedModels?.toString().split(', ')}]</span>
+                                </div>
+                                <div>
+                                  <Icon icon='nest' size={12} color={Colors.GRAY4} style={{ marginRight: '6px' }} />
+                                  <strong>Project Vars</strong>
+                                  <span style={{ color: Colors.GRAY5, padding: '0 1px' }}>: </span>
+                                  <span>{JSON.stringify(t.options.projectVars)}</span>
                                 </div>
                               </div>
                             ))}
