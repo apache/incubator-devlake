@@ -6,6 +6,8 @@ import {
 
 import 'normalize.css'
 import '@/styles/app.scss'
+import 'typeface-montserrat'
+import 'jetbrains-mono'
 // Theme variables (@styles/theme.scss) injected via Webpack w/ @sass-loader additionalData option!
 // import '@/styles/theme.scss'
 

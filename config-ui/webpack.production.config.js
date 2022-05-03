@@ -100,7 +100,10 @@ module.exports = (env = {}) => {
         {
           test: /\.(eot|ttf|woff|woff2|svg)$/,
           loader: require.resolve('file-loader'),
-          include: path.resolve(__dirname, './src/fonts/'),
+          include: [
+            path.resolve(__dirname, './src/fonts/'),
+            path.resolve(__dirname, './node_modules/')
+          ],
           options: {
             name: '[name].[ext]',
             outputPath: 'fonts/',
