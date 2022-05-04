@@ -2,6 +2,7 @@ import React, { useEffect, useState, useCallback, useRef } from 'react'
 import {
   Button, Colors,
   FormGroup, InputGroup, Label,
+  TextArea,
   Card,
   Icon,
   Tag,
@@ -277,26 +278,45 @@ export default function ConnectionForm (props) {
                     )}
                 <span className='requiredStar'>*</span>
               </Label>
-              <InputGroup
-                id='connection-token'
-                inputRef={connectionTokenRef}
-                disabled={isTesting || isSaving || isLocked}
-                placeholder={placeholders ? placeholders.token : 'Enter Auth Token eg. EJrLG8DNeXADQcGOaaaX4B47'}
-                value={token}
-                onChange={(e) => onTokenChange(e.target.value)}
-                className={`input auth-input ${stateErrored === 'connection-token' ? 'invalid-field' : ''}`}
-                fill
-                required
-                rightElement={(
-                  <InputValidationError
-                    error={getFieldError('Auth')}
-                    elementRef={connectionTokenRef}
-                    onError={activateErrorStates}
-                    onSuccess={() => setStateErrored(null)}
-                    validateOnFocus
+              {[Providers.GITHUB].includes(activeProvider.id)
+                ? (
+                  <TextArea
+                    id='connection-token'
+                    className={`input auth-input ${stateErrored === 'connection-token' ? 'invalid-field' : ''}`}
+                    inputRef={connectionTokenRef}
+                    disabled={isTesting || isSaving || isLocked}
+                    placeholder={placeholders ? placeholders.token : 'Enter Auth Token eg. EJrLG8DNeXADQcGOaaaX4B47'}
+                    growVertically={true}
+                    large={true}
+                    // intent={Intent.PRIMARY}
+                    onChange={(e) => onTokenChange(e.target.value)}
+                    value={token}
+                    required
+                    fill
                   />
+                  )
+                : (
+                  <InputGroup
+                    id='connection-token'
+                    inputRef={connectionTokenRef}
+                    disabled={isTesting || isSaving || isLocked}
+                    placeholder={placeholders ? placeholders.token : 'Enter Auth Token eg. EJrLG8DNeXADQcGOaaaX4B47'}
+                    value={token}
+                    onChange={(e) => onTokenChange(e.target.value)}
+                    className={`input auth-input ${stateErrored === 'connection-token' ? 'invalid-field' : ''}`}
+                    fill
+                    required
+                    rightElement={(
+                      <InputValidationError
+                        error={getFieldError('Auth')}
+                        elementRef={connectionTokenRef}
+                        onError={activateErrorStates}
+                        onSuccess={() => setStateErrored(null)}
+                        validateOnFocus
+                      />
                 )}
-              />
+                  />
+                  )}
               {
                 activeProvider.id === Providers.JIRA &&
                   <Popover
