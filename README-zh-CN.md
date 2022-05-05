@@ -259,6 +259,7 @@ kubectl apply -f https://raw.githubusercontent.com/merico-dev/lake/main/k8s-depl
     make test
     ```
 
+11. 关于DB migration请参考[Migration文档](docs/MIGRATIONS.md).
 <br>
 
 ## 项目路线图
