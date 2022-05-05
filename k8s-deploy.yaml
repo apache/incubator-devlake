@@ -3,7 +3,6 @@ apiVersion: v1
 kind: Namespace
 metadata:
   name: devlake
-
 ---
 apiVersion: v1
 kind: ConfigMap
@@ -11,193 +10,10 @@ metadata:
   name: devlake-config
   namespace: devlake
 data:
-  #############
-  # Lake core #
-  #############
-
-  # Lake plugin dir, absolute path or relative path
-  PLUGIN_DIR: bin/plugins
-
-  # Lake Database Connection String
-  DB_URL: mysql://merico:merico@mysql:3306/lake?charset=utf8mb4&parseTime=True
-
-  # Lake REST API
-  PORT: :8080
-  MODE: debug
-
-  NOTIFICATION_ENDPOINT: ""
-  NOTIFICATION_SECRET: ""
-
-  ########################
-  # Docker configuration #
-  ########################
-
-  COMPOSE_PROFILES: ""
-
-  ######################
-  # Jira configuration #
-  ######################
-
-  # Jira configuration has been migrated into MySQL #
-
-  ########################
-  # Gitlab configuration #
-  ########################
-
-  GITLAB_ENDPOINT: https://gitlab.com/api/v4/
-  GITLAB_AUTH: ""
-
-  ##########################
-  # Jira <> Gitlab mapping #
-  ##########################
-
-  # Lake maintains a many-to-many relationship between Jira boards and Gitlab projects
-  # Format:
-  #   JIRA_BOARD_GITLAB_PROJECTS=JIRA_BOARD_ID1:GITLAB_PROJECT_ID1,PROJECT_ID2;JIRA_BOARD_ID2:...
-  JIRA_BOARD_GITLAB_PROJECTS: ""
-
-  #########################
-  # Jenkins configuration #
-  #########################
-
-  JENKINS_ENDPOINT: ""
-  JENKINS_USERNAME: ""
-  JENKINS_PASSWORD: ""
-
-  #########################
-  # Feishu configuration #
-  #########################
-
-  FEISHU_APPID: ""
-  FEISHU_APPSCRECT: ""
-
-  ########################
-  # GitHub configuration #
-  ########################
-
-  GITHUB_ENDPOINT: https://api.github.com/
-  GITHUB_AUTH: '***'
-  GITHUB_PROXY: ""
-  # GITHUB_PR_TYPE: type/(.*)$ the program will extract the value in (), in this example, you will get "refactor" from "type/refactor"
-  GITHUB_PR_TYPE: 'type/(.*)$'
-  # GITHUB_PR_COMPONENT: component/(.*)$ the program will extract the value in (), in this example, you will get "plugins" from "component/plugins"
-  GITHUB_PR_COMPONENT: 'component/(.*)$'
-  # GITHUB_ISSUE_SEVERITY=severity/(.*)$ the program will extract the value in (), in this example, you will get "refactor" from "type/refactor"
-  GITHUB_ISSUE_SEVERITY: 'severity/(.*)$'
-  # GITHUB_ISSUE_COMPONENT=component/(.*)$ the program will extract the value in (), in this example, you will get "refactor" from "type/refactor"
-  GITHUB_ISSUE_COMPONENT: 'component/(.*)$'
-  GITHUB_ISSUE_PRIORITY: '^(highest|high|medium|low)$'
-  GITHUB_ISSUE_TYPE_BUG: '^(bug|failure|error)$'
-  GITHUB_ISSUE_TYPE_REQUIREMENT: '^(feat|feature|proposal|requirement)$'
-  GITHUB_ISSUE_TYPE_INCIDENT: ""
-
-  ##########################
-  # ConfigUI configuration #
-  ##########################
-  DEVLAKE_ENDPOINT: devlake:8080
-  GRAFANA_ENDPOINT: http://localhost:30002
-
-  ##########################
-  # AE (Merico-Analysis-Engine) configuration #
-  ##########################
-  AE_APP_ID: ""
-  AE_SECRET_KEY: ""
-  AE_ENDPOINT: ""
-
-  env: |
-    #############
-    # Lake core #
-    #############
-
-    # Lake plugin dir, absolute path or relative path
-    PLUGIN_DIR=bin/plugins
-
-    # Lake Database Connection String
-    DB_URL=mysql://merico:merico@mysql:3306/lake?charset=utf8mb4&parseTime=True
-
-    # Lake REST API
-    PORT=:8080
-    MODE=release
-
-    NOTIFICATION_ENDPOINT=
-    NOTIFICATION_SECRET=
-
-    ########################
-    # Docker configuration #
-    ########################
-
-    COMPOSE_PROFILES=user
-
-    ######################
-    # Jira configuration #
-    ######################
-
-    # Jira configuration has been migrated into MySQL #
-
-    ########################
-    # Gitlab configuration #
-    ########################
-
-    GITLAB_ENDPOINT=https://gitlab.com/api/v4/
-    GITLAB_AUTH=
-
-    ##########################
-    # Jira <> Gitlab mapping #
-    ##########################
-
-    # Lake maintains a many-to-many relationship between Jira boards and Gitlab projects
-    # Format:
-    #   JIRA_BOARD_GITLAB_PROJECTS=JIRA_BOARD_ID1:GITLAB_PROJECT_ID1,PROJECT_ID2;JIRA_BOARD_ID2:...
-    JIRA_BOARD_GITLAB_PROJECTS=
-
-    #########################
-    # Jenkins configuration #
-    #########################
-
-    JENKINS_ENDPOINT=
-    JENKINS_USERNAME=
-    JENKINS_PASSWORD=
-
-    #########################
-    # Feishu configuration #
-    #########################
-
-    FEISHU_APPID=
-    FEISHU_APPSCRECT=
-
-    ########################
-    # GitHub configuration #
-    ########################
-
-    GITHUB_ENDPOINT=https://api.github.com/
-    GITHUB_AUTH=***
-    GITHUB_PROXY=
-    # GITHUB_PR_TYPE=type/(.*)$ the program will extract the value in (), in this example, you will get "refactor" from "type/refactor"
-    GITHUB_PR_TYPE='type/(.*)$'
-    # GITHUB_PR_COMPONENT=component/(.*)$ the program will extract the value in (), in this example, you will get "plugins" from "component/plugins"
-    GITHUB_PR_COMPONENT='component/(.*)$'
-    # GITHUB_ISSUE_SEVERITY=severity/(.*)$ the program will extract the value in (), in this example, you will get "refactor" from "type/refactor"
-    GITHUB_ISSUE_SEVERITY='severity/(.*)$'
-    # GITHUB_ISSUE_COMPONENT=component/(.*)$ the program will extract the value in (), in this example, you will get "refactor" from "type/refactor"
-    GITHUB_ISSUE_COMPONENT='component/(.*)$'
-    GITHUB_ISSUE_PRIORITY='^(highest|high|medium|low)$'
-    GITHUB_ISSUE_TYPE_BUG='^(bug|failure|error)$'
-    GITHUB_ISSUE_TYPE_REQUIREMENT='^(feat|feature|proposal|requirement)$'
-    GITHUB_ISSUE_TYPE_INCIDENT=
-
-    ##########################
-    # ConfigUI configuration #
-    ##########################
-    DEVLAKE_ENDPOINT=devlake:8080
-    GRAFANA_ENDPOINT=http://localhost:30002
-
-    ##########################
-    # AE (Merico-Analysis-Engine) configuration #
-    ##########################
-    AE_APP_ID=
-    AE_SECRET_KEY=
-    AE_ENDPOINT=
-
+  MYSQL_USER: merico
+  MYSQL_PASSWORD: merico
+  MYSQL_DATABASE: lake
+  MYSQL_ROOT_PASSWORD: admin
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -218,19 +34,13 @@ spec:
     spec:
       containers:
         - name: mysql
-          image: mysql/mysql-server:latest
+          image: mysql:8.0.26
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 3306
-          env:
-            - name: MYSQL_ROOT_PASSWORD
-              value: admin
-            - name: MYSQL_DATABASE
-              value: lake
-            - name: MYSQL_USER
-              value: merico
-            - name: MYSQL_PASSWORD
-              value: merico
+          envFrom:
+            - configMapRef:
+                name: devlake-config
           volumeMounts:
             - mountPath: /var/lib/mysql
               name: data
@@ -273,9 +83,12 @@ spec:
     spec:
       containers:
         - name: grafana
-          image: mericodev/grafana:v0.7.0
+          image: mericodev/grafana:latest
           ports:
             - containerPort: 3000
+          envFrom:
+            - configMapRef:
+                name: devlake-config
           env:
             - name: GF_USERS_ALLOW_SIGN_UP
               value: 'false'
@@ -287,10 +100,6 @@ spec:
               value: '*'
             - name: MYSQL_URL
               value: mysql:3306
-            - name: MYSQL_DATABASE
-              value: lake
-            - name: merico
-              value: merico
 
 ---
 apiVersion: v1
@@ -328,13 +137,21 @@ spec:
     spec:
       containers:
         - name: config-ui
-          image: mericodev/config-ui:v0.7.0
+          image: mericodev/config-ui:latest
           ports:
             - containerPort: 80
           envFrom:
             - configMapRef:
                 name: devlake-config
-
+          env:
+            - name: DEVLAKE_ENDPOINT
+              value: devlake.devlake.svc.cluster.local:8080
+            - name: GRAFANA_ENDPOINT
+              value: http://grafana-on-yourdomain.example.com
+            #- name: ADMIN_USER
+              #value: devlake
+            #- name: ADMIN_PASS
+              #value: merico
 ---
 apiVersion: v1
 kind: Service
@@ -371,20 +188,20 @@ spec:
     spec:
       containers:
         - name: devlake
-          image: mericodev/lake:v0.7.0
+          image: mericodev/lake:latest
           ports:
             - containerPort: 8080
+          env:
+            - name: DB_URL
+              value: 'mysql://merico:merico@mysql:3306/lake?charset=utf8mb4&parseTime=True'
           volumeMounts:
             - name: config
               mountPath: "/app/.env"
-              subPath: ".env"
       volumes:
         - name: config
-          configMap:
-            name: devlake-config
-            items:
-              - key: env
-                path: ".env"
+          hostPath:
+            path: /var/lib/devlake/env
+            type: FileOrCreate
 
 ---
 apiVersion: v1

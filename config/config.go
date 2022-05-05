@@ -56,9 +56,12 @@ func SetStruct(S interface{}, Tags ...string) error {
 
 // Set default value for no .env or .env not set it
 func setDefaultValue() {
+	v.SetDefault("DB_URL", "merico:merico@tcp(mysql:3306)/lake?charset=utf8mb4&parseTime=True")
 	v.SetDefault("PORT", ":8080")
 	v.SetDefault("PLUGIN_DIR", "bin/plugins")
 	v.SetDefault("TEMPORAL_TASK_QUEUE", "DEVLAKE_TASK_QUEUE")
+	v.SetDefault("GITLAB_ENDPOINT", "https://gitlab.com/api/v4/")
+	v.SetDefault("GITHUB_ENDPOINT", "https://api.github.com/")
 }
 
 func init() {
