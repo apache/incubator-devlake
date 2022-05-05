@@ -8,6 +8,7 @@ import (
 	"github.com/merico-dev/lake/plugins/helper"
 	"github.com/merico-dev/lake/plugins/tapd/models"
 	"reflect"
+	"time"
 )
 
 func ConvertWorklog(taskCtx core.SubTaskContext) error {
@@ -42,7 +43,7 @@ func ConvertWorklog(taskCtx core.SubTaskContext) error {
 				AuthorId:         UserIdGen.Generate(data.Connection.ID, toolL.WorkspaceID, toolL.Owner),
 				Comment:          toolL.Memo,
 				TimeSpentMinutes: int(toolL.Timespent),
-				LoggedDate:       toolL.Created.ToNullableTime(),
+				LoggedDate:       (*time.Time)(toolL.Created),
 				//IssueId:          toolL.EntityID,
 			}
 			switch toolL.EntityType {

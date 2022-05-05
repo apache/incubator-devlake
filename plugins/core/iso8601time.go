@@ -1,7 +1,6 @@
 package core
 
 import (
-	"database/sql/driver"
 	"fmt"
 	"reflect"
 	"regexp"
@@ -44,14 +43,6 @@ func init() {
 			Matcher: regexp.MustCompile(`[+-][\d]{2}:[\d]{2}$`),
 			Format:  "2006-01-02T15:04:05.000-07:00",
 		},
-		{
-			Matcher: regexp.MustCompile(` [\d]{2}:[\d]{2}:[\d]{2}$`),
-			Format:  "2006-01-02 15:04:05",
-		},
-		{
-			Matcher: regexp.MustCompile(`[\d]{4}-[\d]{2}-[\d]{2}$`),
-			Format:  "2006-01-02",
-		},
 	}
 }
 
@@ -76,9 +67,6 @@ func (jt Iso8601Time) MarshalJSON() ([]byte, error) {
 func (jt *Iso8601Time) UnmarshalJSON(b []byte) error {
 	timeString := string(b)
 	if timeString == "null" {
-		return nil
-	}
-	if strings.Contains(timeString, "0000-00-00") {
 		return nil
 	}
 	timeString = strings.Trim(timeString, `"`)
@@ -161,20 +149,4 @@ func DecodeMapStruct(input map[string]interface{}, result interface{}) error {
 		return err
 	}
 	return err
-}
-
-func (t Iso8601Time) Value() (driver.Value, error) {
-	var zeroTime time.Time
-	if t.time.UnixNano() == zeroTime.UnixNano() {
-		return nil, nil
-	}
-	return t.time, nil
-}
-func (t *Iso8601Time) Scan(v interface{}) error {
-	value, ok := v.(time.Time)
-	if ok {
-		*t = Iso8601Time{time: value}
-		return nil
-	}
-	return fmt.Errorf("can not convert %v to timestamp", v)
 }

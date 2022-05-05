@@ -10,6 +10,7 @@ import (
 	"github.com/merico-dev/lake/plugins/tapd/models"
 	"reflect"
 	"strings"
+	"time"
 )
 
 func ConvertIteration(taskCtx core.SubTaskContext) error {
@@ -42,10 +43,10 @@ func ConvertIteration(taskCtx core.SubTaskContext) error {
 				Url:             fmt.Sprintf("https://www.tapd.cn/%d/prong/iterations/view/%d", iter.WorkspaceID, iter.ID),
 				Status:          strings.ToUpper(iter.Status),
 				Name:            iter.Name,
-				StartedDate:     iter.Startdate.ToNullableTime(),
-				EndedDate:       iter.Enddate.ToNullableTime(),
+				StartedDate:     (*time.Time)(iter.Startdate),
+				EndedDate:       (*time.Time)(iter.Enddate),
 				OriginalBoardID: WorkspaceIdGen.Generate(iter.ConnectionId, iter.WorkspaceID),
-				CompletedDate:   iter.Completed.ToNullableTime(),
+				CompletedDate:   (*time.Time)(iter.Completed),
 			}
 			results := make([]interface{}, 0)
 			results = append(results, domainIter)

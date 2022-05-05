@@ -8,6 +8,7 @@ import (
 	"github.com/merico-dev/lake/plugins/tapd/models"
 	"reflect"
 	"strconv"
+	"time"
 )
 
 func ConvertBug(taskCtx core.SubTaskContext) error {
@@ -45,9 +46,9 @@ func ConvertBug(taskCtx core.SubTaskContext) error {
 				EpicKey:        toolL.EpicKey,
 				Type:           "BUG",
 				Status:         toolL.StdStatus,
-				ResolutionDate: toolL.Resolved.ToNullableTime(),
-				CreatedDate:    toolL.Created.ToNullableTime(),
-				UpdatedDate:    toolL.Modified.ToNullableTime(),
+				ResolutionDate: (*time.Time)(toolL.Resolved),
+				CreatedDate:    (*time.Time)(toolL.Created),
+				UpdatedDate:    (*time.Time)(toolL.Modified),
 				ParentIssueId:  IssueIdGen.Generate(toolL.ConnectionId, toolL.IssueID),
 				Priority:       toolL.Priority,
 				CreatorId:      UserIdGen.Generate(data.Connection.ID, toolL.WorkspaceID, toolL.Reporter),

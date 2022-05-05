@@ -21,9 +21,9 @@ func ConvertTaskLabels(taskCtx core.SubTaskContext) error {
 	data := taskCtx.GetData().(*TapdTaskData)
 
 	cursor, err := db.Model(&models.TapdTaskLabel{}).
-		Joins(`left join _tool_tapd_workspace_issues on _tool_tapd_workspace_issues.issue_id = _tool_tapd_task_labels.task_id`).
-		Where("_tool_tapd_workspace_issues.workspace_id = ?", data.Options.WorkspaceID).
-		Order("issue_id ASC").
+		Joins(`left join _tool_tapd_workspace_tasks on _tool_tapd_workspace_tasks.task_id = _tool_tapd_task_labels.task_id`).
+		Where("_tool_tapd_workspace_tasks.workspace_id = ?", data.Options.WorkspaceID).
+		Order("task_id ASC").
 		Rows()
 	if err != nil {
 		return err

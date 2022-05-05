@@ -9,6 +9,7 @@ import (
 	"net/http"
 	"net/url"
 	"reflect"
+	"time"
 )
 
 const RAW_STORY_COMMIT_TABLE = "tapd_api_story_commits"
@@ -35,7 +36,7 @@ func CollectStoryCommits(taskCtx core.SubTaskContext) error {
 			return fmt.Errorf("failed to get latest tapd changelog record: %w", err)
 		}
 		if latestUpdated.ID > 0 {
-			since = latestUpdated.Created.ToNullableTime()
+			since = (*time.Time)(latestUpdated.Created)
 			incremental = true
 		}
 	}
@@ -76,7 +77,6 @@ func CollectStoryCommits(taskCtx core.SubTaskContext) error {
 			query.Set("order", "created asc")
 			return query, nil
 		},
-		//GetTotalPages: GetTotalPagesFromResponse,
 		ResponseParser: func(res *http.Response) ([]json.RawMessage, error) {
 			var data struct {
 				Stories []json.RawMessage `json:"data"`

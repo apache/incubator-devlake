@@ -6,18 +6,18 @@ import (
 )
 
 type TapdTaskChangelog struct {
-	ConnectionId   uint64            `gorm:"primaryKey;type:INT(10) UNSIGNED NOT NULL"`
-	ID             uint64            `gorm:"primaryKey;type:BIGINT(10) UNSIGNED NOT NULL" json:"id,string"`
-	WorkspaceID    uint64            `json:"workspace_id,string"`
-	WorkitemTypeID uint64            `json:"workitem_type_id,string"`
-	Creator        string            `json:"creator"`
-	Created        *core.Iso8601Time `json:"created"`
-	ChangeSummary  string            `json:"change_summary"`
-	Comment        string            `json:"comment"`
-	EntityType     string            `json:"entity_type"`
-	ChangeType     string            `json:"change_type"`
-	ChangeTypeText string            `json:"change_type_text"`
-	TaskID         uint64            `json:"task_id,string"`
+	ConnectionId   uint64        `gorm:"primaryKey;type:INT(10) UNSIGNED NOT NULL"`
+	ID             uint64        `gorm:"primaryKey;type:BIGINT(10) UNSIGNED NOT NULL" json:"id,string"`
+	WorkspaceID    uint64        `json:"workspace_id,string"`
+	WorkitemTypeID uint64        `json:"workitem_type_id,string"`
+	Creator        string        `json:"creator"`
+	Created        *core.CSTTime `json:"created"`
+	ChangeSummary  string        `json:"change_summary"`
+	Comment        string        `json:"comment"`
+	EntityType     string        `json:"entity_type"`
+	ChangeType     string        `json:"change_type"`
+	ChangeTypeText string        `json:"change_type_text"`
+	TaskID         uint64        `json:"task_id,string"`
 	common.NoPKModel
 	FieldChanges []TapdTaskChangelogItem `json:"field_changes" gorm:"-"`
 }

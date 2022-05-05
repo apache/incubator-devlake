@@ -8,6 +8,7 @@ import (
 	"github.com/merico-dev/lake/plugins/tapd/models"
 	"reflect"
 	"strconv"
+	"time"
 )
 
 func ConvertStory(taskCtx core.SubTaskContext) error {
@@ -46,9 +47,9 @@ func ConvertStory(taskCtx core.SubTaskContext) error {
 				Status:               toolL.StdStatus,
 				StoryPoint:           uint(toolL.Size),
 				OriginalStatus:       toolL.Status,
-				ResolutionDate:       toolL.Completed.ToNullableTime(),
-				CreatedDate:          toolL.Created.ToNullableTime(),
-				UpdatedDate:          toolL.Modified.ToNullableTime(),
+				ResolutionDate:       (*time.Time)(toolL.Completed),
+				CreatedDate:          (*time.Time)(toolL.Created),
+				UpdatedDate:          (*time.Time)(toolL.Modified),
 				ParentIssueId:        IssueIdGen.Generate(toolL.ConnectionId, toolL.ParentID),
 				Priority:             toolL.Priority,
 				TimeRemainingMinutes: int64(toolL.Remain),

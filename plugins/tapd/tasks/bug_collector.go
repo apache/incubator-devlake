@@ -8,6 +8,7 @@ import (
 	"github.com/merico-dev/lake/plugins/tapd/models"
 	"net/http"
 	"net/url"
+	"time"
 )
 
 const RAW_BUG_TABLE = "tapd_api_bugs"
@@ -30,7 +31,7 @@ func CollectBugs(taskCtx core.SubTaskContext) error {
 			return fmt.Errorf("failed to get latest tapd changelog record: %w", err)
 		}
 		if latestUpdated.ID > 0 {
-			since = latestUpdated.Modified.ToNullableTime()
+			since = (*time.Time)(latestUpdated.Modified)
 			incremental = true
 		}
 	}
@@ -61,7 +62,6 @@ func CollectBugs(taskCtx core.SubTaskContext) error {
 			}
 			return query, nil
 		},
-		GetTotalPages: GetTotalPagesFromResponse,
 		ResponseParser: func(res *http.Response) ([]json.RawMessage, error) {
 			var data struct {
 				Stories []json.RawMessage `json:"data"`

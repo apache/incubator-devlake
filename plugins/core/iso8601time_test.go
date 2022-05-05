@@ -35,7 +35,6 @@ func TestIso8601Time(t *testing.T) {
 		`{ "Created": "2021-07-30T19:14:33+0100" }`:      TimeMustParse("2021-07-30T18:14:33Z"),
 		`{ "Created": "2021-07-30T19:14:33.000-01:00" }`: TimeMustParse("2021-07-30T20:14:33Z"),
 		`{ "Created": "2021-07-30T19:14:33.000+01:00" }`: TimeMustParse("2021-07-30T18:14:33Z"),
-		`{ "Created": "2021-07-30 19:14:33" }`:           TimeMustParse("2021-07-30T19:14:33Z"),
 	}
 
 	for input, expected := range pairs {

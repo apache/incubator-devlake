@@ -37,7 +37,6 @@ func CollectUsers(taskCtx core.SubTaskContext) error {
 			//query.Set("limit", fmt.Sprintf("%v", reqData.Pager.Size))
 			return query, nil
 		},
-		//GetTotalPages: GetTotalPagesFromResponse,
 		ResponseParser: func(res *http.Response) ([]json.RawMessage, error) {
 			var data struct {
 				Users []json.RawMessage `json:"data"`

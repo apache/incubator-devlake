@@ -11,8 +11,8 @@ type TapdIterationTask struct {
 	IterationId     uint64 `gorm:"primaryKey"`
 	TaskId          uint64 `gorm:"primaryKey"`
 	WorkspaceID     uint64 `gorm:"primaryKey"`
-	ResolutionDate  *core.Iso8601Time
-	TaskCreatedDate *core.Iso8601Time
+	ResolutionDate  *core.CSTTime
+	TaskCreatedDate *core.CSTTime
 }
 
 func (TapdIterationTask) TableName() string {

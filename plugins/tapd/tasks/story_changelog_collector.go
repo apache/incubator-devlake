@@ -8,6 +8,7 @@ import (
 	"github.com/merico-dev/lake/plugins/tapd/models"
 	"net/http"
 	"net/url"
+	"time"
 )
 
 const RAW_STORY_CHANGELOG_TABLE = "tapd_api_story_changelogs"
@@ -29,7 +30,7 @@ func CollectStoryChangelogs(taskCtx core.SubTaskContext) error {
 			return fmt.Errorf("failed to get latest tapd changelog record: %w", err)
 		}
 		if latestUpdated.ID > 0 {
-			since = latestUpdated.Created.ToNullableTime()
+			since = (*time.Time)(latestUpdated.Created)
 			incremental = true
 		}
 	}
@@ -59,7 +60,6 @@ func CollectStoryChangelogs(taskCtx core.SubTaskContext) error {
 			}
 			return query, nil
 		},
-		GetTotalPages: GetTotalPagesFromResponse,
 		ResponseParser: func(res *http.Response) ([]json.RawMessage, error) {
 			var data struct {
 				Stories []json.RawMessage `json:"data"`
