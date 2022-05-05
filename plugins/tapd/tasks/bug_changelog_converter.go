@@ -13,9 +13,9 @@ import (
 )
 
 type BugChangelogItemResult struct {
-	ConnectionId      uint64    `gorm:"primaryKey;type:INT(10) UNSIGNED NOT NULL"`
-	WorkspaceID       uint64    `gorm:"primaryKey;type:INT(10) UNSIGNED NOT NULL"`
-	ID                uint64    `gorm:"primaryKey;type:BIGINT(10) UNSIGNED NOT NULL" json:"id"`
+	ConnectionId      uint64    `gorm:"primaryKey;type:BIGINT(10)  NOT NULL"`
+	WorkspaceID       uint64    `gorm:"primaryKey;type:BIGINT(10)  NOT NULL"`
+	ID                uint64    `gorm:"primaryKey;type:BIGINT(10)  NOT NULL" json:"id"`
 	BugID             uint64    `json:"bug_id"`
 	Author            string    `json:"author"`
 	Field             string    `json:"field"`
@@ -23,7 +23,7 @@ type BugChangelogItemResult struct {
 	NewValue          string    `json:"new_value"`
 	Memo              string    `json:"memo"`
 	Created           time.Time `json:"created"`
-	ChangelogId       uint64    `gorm:"primaryKey;type:BIGINT(10) UNSIGNED NOT NULL"`
+	ChangelogId       uint64    `gorm:"primaryKey;type:BIGINT(10)  NOT NULL"`
 	ValueBeforeParsed string    `json:"value_before"`
 	ValueAfterParsed  string    `json:"value_after"`
 	IterationIdFrom   uint64

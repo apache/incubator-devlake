@@ -6,8 +6,8 @@ import (
 )
 
 type TapdIteration struct {
-	ConnectionId uint64        `gorm:"primaryKey;type:INT(10) UNSIGNED NOT NULL"`
-	ID           uint64        `gorm:"primaryKey;type:BIGINT(10) UNSIGNED NOT NULL" json:"id,string"`
+	ConnectionId uint64        `gorm:"primaryKey;type:BIGINT(10)  NOT NULL"`
+	ID           uint64        `gorm:"primaryKey;type:BIGINT(10)  NOT NULL" json:"id,string"`
 	Name         string        `gorm:"type:varchar(255)" json:"name"`
 	WorkspaceID  uint64        `json:"workspace_id,string"`
 	Startdate    *core.CSTTime `json:"startdate"`

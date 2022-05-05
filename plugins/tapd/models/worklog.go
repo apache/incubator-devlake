@@ -6,8 +6,8 @@ import (
 )
 
 type TapdWorklog struct {
-	ConnectionId uint64        `gorm:"primaryKey;type:INT(10) UNSIGNED NOT NULL"`
-	ID           uint64        `gorm:"primaryKey;type:BIGINT(10) UNSIGNED NOT NULL" json:"id,string"`
+	ConnectionId uint64        `gorm:"primaryKey;type:BIGINT(10)  NOT NULL"`
+	ID           uint64        `gorm:"primaryKey;type:BIGINT(10)  NOT NULL" json:"id,string"`
 	WorkspaceID  uint64        `json:"workspace_id,string"`
 	EntityType   string        `gorm:"type:varchar(255)" json:"entity_type"`
 	EntityID     uint64        `json:"entity_id,string"`
