@@ -24,7 +24,6 @@ services:
     environment:
       GF_USERS_ALLOW_SIGN_UP: 'false'
       GF_DASHBOARDS_JSON_ENABLED: 'true'
-      GF_INSTALL_PLUGINS: grafana-piechart-panel
       GF_LIVE_ALLOWED_ORIGINS: '*'
       MYSQL_URL: mysql:3306
       MYSQL_DATABASE: lake
