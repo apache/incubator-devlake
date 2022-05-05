@@ -70,8 +70,8 @@ DevLake 适用于希望更好地通过数据了解其开发过程的开发团队
 ### 部署到本地<a id="local-setup"></a>
 #### 需要安装的软件包<a id="user-setup-requirements"></a>
 
-- [Docker](https://docs.docker.com/get-docker)
-- [docker-compose](https://docs.docker.com/compose/install/)
+- [Docker v19.03.10+](https://docs.docker.com/get-docker)
+- [docker-compose v2.2.3+](https://docs.docker.com/compose/install/)
 
 注：安装完 Docker 后，你可能需要运行 Docker 应用程序并重新启动你的终端
 
@@ -154,7 +154,7 @@ kubectl apply -f https://raw.githubusercontent.com/merico-dev/lake/main/k8s-depl
 
 #### 前期准备
 
-- <a href="https://docs.docker.com/get-docker" target="_blank">Docker</a>
+- <a href="https://docs.docker.com/get-docker" target="_blank">Docker v19.03.10+</a>
 - <a href="https://golang.org/doc/install" target="_blank">Golang</a>
 - Make
   - Mac (Already installed)
