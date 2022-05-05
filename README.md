@@ -233,6 +233,8 @@ Here's the step-by-step guide:
     ```sh
     make test
     ```
+    
+12. For DB migrations, please refer to [Migration Doc](docs/MIGRATIONS.md).
 <br>
 
 
