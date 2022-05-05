@@ -94,8 +94,6 @@ spec:
               value: 'false'
             - name: GF_DASHBOARDS_JSON_ENABLED
               value: 'true'
-            - name: GF_INSTALL_PLUGINS
-              value: grafana-piechart-panel
             - name: GF_LIVE_ALLOWED_ORIGINS
               value: '*'
             - name: MYSQL_URL
