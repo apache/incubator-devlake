@@ -73,4 +73,3 @@ func TestEncode(t *testing.T) {
 		})
 	}
 }
-
