@@ -93,6 +93,33 @@ DevLake is designed for developer teams looking to make better sense of their de
 
 Support for database schema migration was introduced to DevLake in v0.10.0. From v0.10.0 onwards, users can upgrade their instance smoothly to a newer version. However, versions prior to v0.10.0 do not support upgrading to a newer version with a different database schema. We recommend users deploying a new instance if needed.
 
+#### Deploy to Kubernates
+
+We provide a simple [k8s-deploy.yaml](k8s-deploy.ymal) as an quick-start example in case you needed it, however, it was not designed for production usage, merely to show how it can be done, please use with cautious.
+
+[k8s-deploy.yaml](k8s-deploy.ymal) will create a namespace `devlake` on your k8s cluster, and use `nodePort 30004` for `config-ui`,  `nodePort 30002` for `grafana` dashboards. If you would like to use certain version of DevLake, please update the image tags value of `grafana`, `devlake` and `config-ui` services to speccify version like `v0.10.1`.
+
+With that in mind, let's get started
+
+1. Download [k8s-deploy.yaml](k8s-deploy.ymal) to local machine
+2. Read it, make sure you understand what it is, and set it up:
+   - `config-ui` deployment:
+     * `GRAFANA_ENDPOINT`: FQDN of grafana service which can be reached from user's browser
+     * `DEVLAKE_ENDPOINT`: FQDN of devlake service which can be reached within k8s cluster, normally you don't need to change it unless namespace was changed
+     * `ADMIN_USER`/`ADMIN_PASS`: Not required, but highly recommended
+   - `devlake-config` config map:
+     * `MYSQL_USER`: shared between `mysql` and `grafana` service
+     * `MYSQL_PASSWORD`: shared between `mysql` and `grafana` service
+     * `MYSQL_DATABASE`: shared between `mysql` and `grafana` service
+     * `MYSQL_ROOT_PASSWORD`: set root password for `mysql`  service
+   - `devlake` deployment:
+     * `DB_URL`: update this value if  `MYSQL_USER`, `MYSQL_PASSWORD` or `MYSQL_DATABASE` were changed
+3. The `devlake` deployment store its configuration into `/app/.env` file, in this example, we use `hostPath` volume, please make sure directory `/var/lib/devlake` exists on your k8s workers, or employ other kinds of techniques to persist `/app/.env` file. Please DO NOT mount away entire `/app` directory, because plugins are located in `/app/bin` folder.
+4. Finally, execute the following command, DevLake should be up and running in minutes:
+    ```sh
+    kubectl apply -f k8s-deploy.yaml
+    ```
+
 
 ## Developer Setup<a id="dev-setup"></a>
 
