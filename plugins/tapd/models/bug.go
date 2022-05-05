@@ -7,7 +7,7 @@ import (
 
 type TapdBug struct {
 	ConnectionId uint64 `gorm:"primaryKey"`
-	ID           uint64 `gorm:"primaryKey;type:BIGINT(100)" json:"id,string"`
+	ID           uint64 `gorm:"primaryKey;type:BIGINT" json:"id,string"`
 	EpicKey      string
 	Title        string `json:"name" gorm:"type:varchar(255)"`
 	Description  string

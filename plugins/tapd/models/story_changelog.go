@@ -7,8 +7,8 @@ import (
 )
 
 type TapdStoryChangelog struct {
-	ConnectionId   uint64        `gorm:"primaryKey;type:BIGINT(10)  NOT NULL"`
-	ID             uint64        `gorm:"primaryKey;type:BIGINT(10)  NOT NULL" json:"id,string"`
+	ConnectionId   uint64        `gorm:"primaryKey;type:BIGINT  NOT NULL"`
+	ID             uint64        `gorm:"primaryKey;type:BIGINT  NOT NULL" json:"id,string"`
 	WorkspaceID    uint64        `json:"workspace_id,string"`
 	WorkitemTypeID uint64        `json:"workitem_type_id,string"`
 	Creator        string        `json:"creator"`
@@ -23,8 +23,8 @@ type TapdStoryChangelog struct {
 }
 
 type TapdStoryChangelogItemRes struct {
-	ConnectionId      uint64          `gorm:"primaryKey;type:BIGINT(10)  NOT NULL"`
-	ChangelogId       uint64          `gorm:"primaryKey;type:BIGINT(10)  NOT NULL"`
+	ConnectionId      uint64          `gorm:"primaryKey;type:BIGINT  NOT NULL"`
+	ChangelogId       uint64          `gorm:"primaryKey;type:BIGINT  NOT NULL"`
 	Field             string          `json:"field" gorm:"primaryKey;type:varchar(255)"`
 	ValueBeforeParsed json.RawMessage `json:"value_before_parsed"`
 	ValueAfterParsed  json.RawMessage `json:"value_after_parsed"`
@@ -34,8 +34,8 @@ type TapdStoryChangelogItemRes struct {
 }
 
 type TapdStoryChangelogItem struct {
-	ConnectionId      uint64 `gorm:"primaryKey;type:BIGINT(10)  NOT NULL"`
-	ChangelogId       uint64 `gorm:"primaryKey;type:BIGINT(10)  NOT NULL"`
+	ConnectionId      uint64 `gorm:"primaryKey;type:BIGINT  NOT NULL"`
+	ChangelogId       uint64 `gorm:"primaryKey;type:BIGINT  NOT NULL"`
 	Field             string `json:"field" gorm:"primaryKey;type:varchar(255)"`
 	ValueBeforeParsed string `json:"value_before_parsed"`
 	ValueAfterParsed  string `json:"value_after_parsed"`

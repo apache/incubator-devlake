@@ -6,9 +6,9 @@ import (
 )
 
 type TapdBugChangelog struct {
-	ConnectionId uint64        `gorm:"primaryKey;type:BIGINT(10)  NOT NULL"`
-	WorkspaceID  uint64        `gorm:"type:BIGINT(10)  NOT NULL"`
-	ID           uint64        `gorm:"primaryKey;type:BIGINT(10)  NOT NULL" json:"id,string"`
+	ConnectionId uint64        `gorm:"primaryKey;type:BIGINT  NOT NULL"`
+	WorkspaceID  uint64        `gorm:"type:BIGINT  NOT NULL"`
+	ID           uint64        `gorm:"primaryKey;type:BIGINT  NOT NULL" json:"id,string"`
 	BugID        uint64        `json:"bug_id,string"`
 	Author       string        `json:"author"`
 	Field        string        `gorm:"primaryKey;type:varchar(255)" json:"field"`
@@ -20,8 +20,8 @@ type TapdBugChangelog struct {
 }
 
 type TapdBugChangelogItem struct {
-	ConnectionId      uint64 `gorm:"primaryKey;type:BIGINT(10)  NOT NULL"`
-	ChangelogId       uint64 `gorm:"primaryKey;type:BIGINT(10)  NOT NULL"`
+	ConnectionId      uint64 `gorm:"primaryKey;type:BIGINT  NOT NULL"`
+	ChangelogId       uint64 `gorm:"primaryKey;type:BIGINT  NOT NULL"`
 	Field             string `json:"field" gorm:"primaryKey;foreignKey:ChangelogId;references:ID"`
 	ValueBeforeParsed string `json:"value_before_parsed"`
 	ValueAfterParsed  string `json:"value_after_parsed"`
