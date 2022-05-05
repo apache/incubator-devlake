@@ -42,10 +42,10 @@ const ProviderLabels = {
   DBT: 'Data Build Tool (DBT)'
 }
 
-const ProviderSourceLimits = {
+const ProviderConnectionLimits = {
   gitlab: 1,
   jenkins: 1,
-  // jira: null, // (Multi-source, no-limit)
+  // jira: null, // (Multi-connection, no-limit)
   github: 1
 }
 
@@ -161,7 +161,7 @@ export {
   ProviderTypes,
   ProviderIcons,
   ProviderLabels,
-  ProviderSourceLimits,
+  ProviderConnectionLimits,
   ProviderFormLabels,
   ProviderFormPlaceholders
 }

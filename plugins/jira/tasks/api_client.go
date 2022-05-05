@@ -9,10 +9,10 @@ import (
 	"github.com/merico-dev/lake/plugins/jira/models"
 )
 
-func NewJiraApiClient(taskCtx core.TaskContext, source *models.JiraSource) (*helper.ApiAsyncClient, error) {
+func NewJiraApiClient(taskCtx core.TaskContext, connection *models.JiraConnection) (*helper.ApiAsyncClient, error) {
 	// load configuration
 	encKey := taskCtx.GetConfig(core.EncodeKeyEnvStr)
-	auth, err := core.Decrypt(encKey, source.BasicAuthEncoded)
+	auth, err := core.Decrypt(encKey, connection.BasicAuthEncoded)
 	if err != nil {
 		return nil, fmt.Errorf("Failed to decrypt Auth Token: %w", err)
 	}
@@ -21,7 +21,7 @@ func NewJiraApiClient(taskCtx core.TaskContext, source *models.JiraSource) (*hel
 	headers := map[string]string{
 		"Authorization": fmt.Sprintf("Basic %v", auth),
 	}
-	apiClient, err := helper.NewApiClient(source.Endpoint, headers, 0, source.Proxy, taskCtx.GetContext())
+	apiClient, err := helper.NewApiClient(connection.Endpoint, headers, 0, connection.Proxy, taskCtx.GetContext())
 	if err != nil {
 		return nil, err
 	}
@@ -34,7 +34,7 @@ func NewJiraApiClient(taskCtx core.TaskContext, source *models.JiraSource) (*hel
 
 	// create rate limit calculator
 	rateLimiter := &helper.ApiRateLimitCalculator{
-		UserRateLimitPerHour: source.RateLimit,
+		UserRateLimitPerHour: connection.RateLimit,
 	}
 	asyncApiClient, err := helper.CreateAsyncApiClient(
 		taskCtx,

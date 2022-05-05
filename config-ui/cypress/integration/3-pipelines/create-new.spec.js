@@ -210,7 +210,7 @@ context('RUN / Trigger New Pipelines', () => {
       .should('be.visible')
       .click()
     
-    cy.get('button.btn-source-id-selector').click()
+    cy.get('button.btn-connection-id-selector').click()
     cy.wait(500)
     cy.get('.bp3-select-popover.source-id-popover')
       .find('ul.bp3-menu li')

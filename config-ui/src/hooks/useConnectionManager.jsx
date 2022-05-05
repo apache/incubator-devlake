@@ -6,7 +6,7 @@ import { ToastNotification } from '@/components/Toast'
 import { DEVLAKE_ENDPOINT } from '@/utils/config'
 import request from '@/utils/request'
 import { NullConnection } from '@/data/NullConnection'
-import { Providers, ProviderSourceLimits } from '@/data/Providers'
+import { Providers, ProviderConnectionLimits } from '@/data/Providers'
 
 import useNetworkOfflineMode from '@/hooks/useNetworkOfflineMode'
 
@@ -45,7 +45,7 @@ function useConnectionManager ({
   const [errors, setErrors] = useState([])
   const [showError, setShowError] = useState(false)
   const [testStatus, setTestStatus] = useState(0) //  0=Pending, 1=Success, 2=Failed
-  const [sourceLimits, setSourceLimits] = useState(ProviderSourceLimits)
+  const [sourceLimits, setConnectionLimits] = useState(ProviderConnectionLimits)
 
   const [activeConnection, setActiveConnection] = useState(NullConnection)
   const [allConnections, setAllConnections] = useState([])
@@ -135,7 +135,7 @@ function useConnectionManager ({
         setShowError(false)
         setErrors([])
         ToastNotification.clear()
-        const s = await request.post(`${DEVLAKE_ENDPOINT}/plugins/${activeProvider.id}/sources`, configPayload)
+        const s = await request.post(`${DEVLAKE_ENDPOINT}/plugins/${activeProvider.id}/connections`, configPayload)
         console.log('>> CONFIGURATION SAVED SUCCESSFULLY', configPayload, s)
         saveResponse = {
           ...saveResponse,
@@ -156,7 +156,7 @@ function useConnectionManager ({
         setErrors([])
         ToastNotification.clear()
         // eslint-disable-next-line max-len
-        const s = await request.put(`${DEVLAKE_ENDPOINT}/plugins/${activeProvider.id}/sources/${activeConnection.id || activeConnection.ID}`, configPayload)
+        const s = await request.put(`${DEVLAKE_ENDPOINT}/plugins/${activeProvider.id}/connections/${activeConnection.id || activeConnection.ID}`, configPayload)
         const silentRefetch = true
         console.log('>> CONFIGURATION MODIFIED SUCCESSFULLY', configPayload, s)
         saveResponse = {
@@ -215,7 +215,7 @@ function useConnectionManager ({
       ToastNotification.clear()
       console.log('>> FETCHING CONNECTION SOURCE')
       const fetch = async () => {
-        const f = await request.get(`${DEVLAKE_ENDPOINT}/plugins/${activeProvider.id}/sources/${connectionId}`)
+        const f = await request.get(`${DEVLAKE_ENDPOINT}/plugins/${activeProvider.id}/connections/${connectionId}`)
         const connectionData = f.data
         console.log('>> RAW CONNECTION DATA FROM API...', connectionData)
         setActiveConnection({
@@ -247,7 +247,7 @@ function useConnectionManager ({
       setErrors([])
       ToastNotification.clear()
       console.log('>> FETCHING ALL CONNECTION SOURCES')
-      const f = await request.get(`${DEVLAKE_ENDPOINT}/plugins/${activeProvider.id}/sources`)
+      const f = await request.get(`${DEVLAKE_ENDPOINT}/plugins/${activeProvider.id}/connections`)
       console.log('>> RAW ALL CONNECTIONS DATA FROM API...', f.data)
       const providerConnections = [].concat(Array.isArray(f.data) ? f.data : []).map((conn, idx) => {
         return {
@@ -283,7 +283,7 @@ function useConnectionManager ({
       setIsDeleting(true)
       setErrors([])
       console.log('>> TRYING TO DELETE CONNECTION...', connection)
-      const d = await request.delete(`${DEVLAKE_ENDPOINT}/plugins/${activeProvider.id}/sources/${connection.ID || connection.id}`)
+      const d = await request.delete(`${DEVLAKE_ENDPOINT}/plugins/${activeProvider.id}/connections/${connection.ID || connection.id}`)
       console.log('>> CONNECTION DELETED...', d)
       setIsDeleting(false)
       setDeleteComplete({
@@ -298,8 +298,8 @@ function useConnectionManager ({
     }
   }, [activeProvider.id])
 
-  const getConnectionName = useCallback((connectionId, sources) => {
-    const source = sources.find(s => s.id === connectionId)
+  const getConnectionName = useCallback((connectionId, connections) => {
+    const source = connections.find(s => s.id === connectionId)
     return source ? source.title : '(Instance)'
   }, [])
 
@@ -441,7 +441,7 @@ function useConnectionManager ({
     setErrors,
     setShowError,
     setTestStatus,
-    setSourceLimits,
+    setConnectionLimits,
     allConnections,
     domainRepositories,
     testedConnections,

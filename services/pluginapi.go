@@ -8,7 +8,7 @@ import (
 return value
 {
 	"jira": {
-		"sources": {
+		"connections": {
 			"POST": *ApiResourceHandler
 		}
 	}

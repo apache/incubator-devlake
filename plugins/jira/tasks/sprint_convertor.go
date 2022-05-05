@@ -14,7 +14,7 @@ import (
 
 func ConvertSprints(taskCtx core.SubTaskContext) error {
 	data := taskCtx.GetData().(*JiraTaskData)
-	sourceId := data.Source.ID
+	connectionId := data.Connection.ID
 	boardId := data.Options.BoardId
 	logger := taskCtx.GetLogger()
 	db := taskCtx.GetDb()
@@ -22,22 +22,22 @@ func ConvertSprints(taskCtx core.SubTaskContext) error {
 	cursor, err := db.Model(&models.JiraSprint{}).
 		Select("_tool_jira_sprints.*").
 		Joins("left join _tool_jira_board_sprints on _tool_jira_board_sprints.sprint_id = _tool_jira_sprints.sprint_id").
-		Where("_tool_jira_board_sprints.source_id = ? AND _tool_jira_board_sprints.board_id = ?", sourceId, boardId).
+		Where("_tool_jira_board_sprints.connection_id = ? AND _tool_jira_board_sprints.board_id = ?", connectionId, boardId).
 		Rows()
 	if err != nil {
 		return err
 	}
 	defer cursor.Close()
 	var converter *helper.DataConverter
-	domainBoardId := didgen.NewDomainIdGenerator(&models.JiraBoard{}).Generate(sourceId, boardId)
+	domainBoardId := didgen.NewDomainIdGenerator(&models.JiraBoard{}).Generate(connectionId, boardId)
 	sprintIdGen := didgen.NewDomainIdGenerator(&models.JiraSprint{})
 	boardIdGen := didgen.NewDomainIdGenerator(&models.JiraBoard{})
 	converter, err = helper.NewDataConverter(helper.DataConverterArgs{
 		RawDataSubTaskArgs: helper.RawDataSubTaskArgs{
 			Ctx: taskCtx,
 			Params: JiraApiParams{
-				SourceId: data.Source.ID,
-				BoardId:  data.Options.BoardId,
+				ConnectionId: data.Connection.ID,
+				BoardId:      data.Options.BoardId,
 			},
 			Table: RAW_SPRINT_TABLE,
 		},
@@ -47,14 +47,14 @@ func ConvertSprints(taskCtx core.SubTaskContext) error {
 			var result []interface{}
 			jiraSprint := inputRow.(*models.JiraSprint)
 			sprint := &ticket.Sprint{
-				DomainEntity:    domainlayer.DomainEntity{Id: sprintIdGen.Generate(sourceId, jiraSprint.SprintId)},
+				DomainEntity:    domainlayer.DomainEntity{Id: sprintIdGen.Generate(connectionId, jiraSprint.SprintId)},
 				Url:             jiraSprint.Self,
 				Status:          strings.ToUpper(jiraSprint.State),
 				Name:            jiraSprint.Name,
 				StartedDate:     jiraSprint.StartDate,
 				EndedDate:       jiraSprint.EndDate,
 				CompletedDate:   jiraSprint.CompleteDate,
-				OriginalBoardID: boardIdGen.Generate(sourceId, jiraSprint.OriginBoardID),
+				OriginalBoardID: boardIdGen.Generate(connectionId, jiraSprint.OriginBoardID),
 			}
 			result = append(result, sprint)
 			boardSprint := &ticket.BoardSprint{

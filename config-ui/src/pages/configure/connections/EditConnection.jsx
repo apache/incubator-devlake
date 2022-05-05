@@ -13,7 +13,7 @@ import AppCrumbs from '@/components/Breadcrumbs'
 import Content from '@/components/Content'
 import ConnectionForm from '@/pages/configure/connections/ConnectionForm'
 import { integrationsData } from '@/data/integrations'
-import { Providers, ProviderSourceLimits, ProviderFormLabels, ProviderFormPlaceholders } from '@/data/Providers'
+import { Providers, ProviderConnectionLimits, ProviderFormLabels, ProviderFormPlaceholders } from '@/data/Providers'
 // import { NullConnection } from '@/data/NullConnection'
 
 import useConnectionManager from '@/hooks/useConnectionManager'
@@ -115,7 +115,7 @@ export default function EditConnection () {
                   <h1 style={{ margin: 0 }}>
                     Edit <strong style={{ fontWeight: 900 }}>{activeProvider.name}</strong> Connection
                   </h1>
-                  <p className='description'>Manage the connection source for this provider.</p>
+                  <p className='description'>Manage the connection for this provider.</p>
                 </div>
               </div>
               <div className='editConnection' style={{ display: 'flex' }}>
@@ -140,7 +140,7 @@ export default function EditConnection () {
                   errors={errors}
                   showError={showError}
                   authType={activeProvider.id === Providers.JENKINS ? 'plain' : 'token'}
-                  sourceLimits={ProviderSourceLimits}
+                  sourceLimits={ProviderConnectionLimits}
                   labels={ProviderFormLabels[activeProvider.id]}
                   placeholders={ProviderFormPlaceholders[activeProvider.id]}
                 />

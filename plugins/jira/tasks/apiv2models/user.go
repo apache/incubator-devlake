@@ -32,14 +32,14 @@ func (u *User) getAccountId() string {
 	return u.EmailAddress
 }
 
-func (u *User) ToToolLayer(sourceId uint64) *models.JiraUser {
+func (u *User) ToToolLayer(connectionId uint64) *models.JiraUser {
 	return &models.JiraUser{
-		SourceId:    sourceId,
-		AccountId:   u.getAccountId(),
-		AccountType: u.AccountType,
-		Name:        u.DisplayName,
-		Email:       u.EmailAddress,
-		Timezone:    u.TimeZone,
-		AvatarUrl:   u.AvatarUrls.Four8X48,
+		ConnectionId: connectionId,
+		AccountId:    u.getAccountId(),
+		AccountType:  u.AccountType,
+		Name:         u.DisplayName,
+		Email:        u.EmailAddress,
+		Timezone:     u.TimeZone,
+		AvatarUrl:    u.AvatarUrls.Four8X48,
 	}
 }

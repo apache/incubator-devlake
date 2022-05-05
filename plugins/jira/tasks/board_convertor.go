@@ -17,7 +17,7 @@ func ConvertBoard(taskCtx core.SubTaskContext) error {
 	db := taskCtx.GetDb()
 	logger.Info("collect board:%d", data.Options.BoardId)
 	idGen := didgen.NewDomainIdGenerator(&models.JiraBoard{})
-	cursor, err := db.Model(&models.JiraBoard{}).Where("source_id = ? AND board_id = ?", data.Source.ID, data.Options.BoardId).Rows()
+	cursor, err := db.Model(&models.JiraBoard{}).Where("connection_id = ? AND board_id = ?", data.Connection.ID, data.Options.BoardId).Rows()
 	if err != nil {
 		return err
 	}
@@ -26,8 +26,8 @@ func ConvertBoard(taskCtx core.SubTaskContext) error {
 		RawDataSubTaskArgs: helper.RawDataSubTaskArgs{
 			Ctx: taskCtx,
 			Params: JiraApiParams{
-				SourceId: data.Source.ID,
-				BoardId:  data.Options.BoardId,
+				ConnectionId: data.Connection.ID,
+				BoardId:      data.Options.BoardId,
 			},
 			Table: RAW_BOARD_TABLE,
 		},
@@ -36,7 +36,7 @@ func ConvertBoard(taskCtx core.SubTaskContext) error {
 		Convert: func(inputRow interface{}) ([]interface{}, error) {
 			board := inputRow.(*models.JiraBoard)
 			domainBoard := &ticket.Board{
-				DomainEntity: domainlayer.DomainEntity{Id: idGen.Generate(data.Source.ID, data.Options.BoardId)},
+				DomainEntity: domainlayer.DomainEntity{Id: idGen.Generate(data.Connection.ID, data.Options.BoardId)},
 				Name:         board.Name,
 				Url:          board.Self,
 			}

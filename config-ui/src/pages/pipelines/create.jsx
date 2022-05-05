@@ -92,10 +92,10 @@ const CreatePipeline = (props) => {
   const [pipelineName, setPipelineName] = useState(`${namePrefix} ${nameSuffix}`)
   const [projectId, setProjectId] = useState([])
   const [boardId, setBoardId] = useState([])
-  const [sourceId, setSourceId] = useState('')
-  const [sources, setSources] = useState([])
+  const [connectionId, setConnectionId] = useState('')
+  const [connections, setConnections] = useState([])
   const [repositories, setRepositories] = useState([])
-  const [selectedSource, setSelectedSource] = useState()
+  const [selectedConnection, setSelectedConnection] = useState()
   const [repositoryName, setRepositoryName] = useState('')
   const [owner, setOwner] = useState('')
   const [gitExtractorUrl, setGitExtractorUrl] = useState('')
@@ -198,7 +198,7 @@ const CreatePipeline = (props) => {
     boardId,
     owner,
     repositoryName,
-    sourceId,
+    connectionId,
     gitExtractorUrl,
     gitExtractorRepoId,
     refDiffRepoId,
@@ -274,7 +274,7 @@ const CreatePipeline = (props) => {
       case Providers.JIRA:
         options = {
           boardId: parseInt(boardId, 10),
-          sourceId: parseInt(sourceId, 10)
+          connectionId: parseInt(connectionId, 10)
         }
         break
       case Providers.GITHUB:
@@ -309,7 +309,7 @@ const CreatePipeline = (props) => {
     owner,
     projectId,
     repositoryName,
-    sourceId,
+    connectionId,
     gitExtractorUrl,
     gitExtractorRepoId,
     refDiffRepoId,
@@ -329,7 +329,7 @@ const CreatePipeline = (props) => {
           'boardId',
           [...boardId],
           {
-            sourceId: parseInt(sourceId, 10)
+            connectionId: parseInt(connectionId, 10)
           }
         )
         break
@@ -343,7 +343,7 @@ const CreatePipeline = (props) => {
         break
     }
     return providerConfig
-  }, [getProviderOptions, getManyProviderOptions, projectId, boardId, sourceId])
+  }, [getProviderOptions, getManyProviderOptions, projectId, boardId, connectionId])
 
   const resetPipelineName = () => {
     setToday(new Date())
@@ -357,7 +357,7 @@ const CreatePipeline = (props) => {
     setEnabledProviders([])
     setProjectId([])
     setBoardId([])
-    setSelectedSource(null)
+    setSelectedConnection(null)
     setRepositoryName('')
     setOwner('')
     setGitExtractorUrl('')
@@ -439,8 +439,8 @@ const CreatePipeline = (props) => {
     if (enabledProviders.includes(Providers.JIRA)) {
       fetchAllConnections(false)
     } else {
-      setSources([])
-      setSelectedSource(null)
+      setConnections([])
+      setSelectedConnection(null)
     }
     if (enabledProviders.includes(Providers.GITEXTRACTOR)) {
       fetchDomainLayerRepositories()
@@ -451,7 +451,7 @@ const CreatePipeline = (props) => {
   }, [
     enabledProviders,
     projectId,
-    boardId, sourceId,
+    boardId, connectionId,
     owner, repositoryName,
     configureProvider,
     validate,
@@ -474,10 +474,10 @@ const CreatePipeline = (props) => {
   }, [namePrefix, nameSuffix])
 
   useEffect(() => {
-    console.log('>> JIRA SOURCE ID SELECTED, CONNECTION INSTANCE = ', selectedSource)
-    setSourceId(sId => selectedSource ? selectedSource.value : null)
+    console.log('>> JIRA CONNECTION ID SELECTED, CONNECTION INSTANCE = ', selectedConnection)
+    setConnectionId(sId => selectedConnection ? selectedConnection.value : null)
     validate()
-  }, [selectedSource, validate])
+  }, [selectedConnection, validate])
 
   useEffect(() => {
     console.log('>> DOMAIN LAYER REPOSITIRY SELECTED, REPO = ', selectedGithubRepo)
@@ -487,7 +487,7 @@ const CreatePipeline = (props) => {
 
   useEffect(() => {
     console.log('>> FETCHED ALL JIRA CONNECTIONS... ', allConnections)
-    setSources(allConnections.map(c => { return { id: c.ID, title: c.name || 'Instance', value: c.ID } }))
+    setConnections(allConnections.map(c => { return { id: c.ID, title: c.name || 'Instance', value: c.ID } }))
   }, [allConnections])
 
   useEffect(() => {
@@ -496,8 +496,8 @@ const CreatePipeline = (props) => {
   }, [domainRepositories])
 
   useEffect(() => {
-    console.log('>> BUILT JIRA INSTANCE SELECT MENU... ', sources)
-  }, [sources])
+    console.log('>> BUILT JIRA INSTANCE SELECT MENU... ', connections)
+  }, [connections])
 
   useEffect(() => {
     if (location.state?.existingTasks) {
@@ -528,8 +528,8 @@ const CreatePipeline = (props) => {
         fetchAllConnections(false)
         configuredProviders.push(Providers.JIRA)
         setBoardId(Array.isArray(JiraTask) ? JiraTask.map(jT => jT.options?.boardId) : JiraTask.options?.boardId)
-        const connSrcId = JiraTask[0].options?.sourceId
-        setSelectedSource({
+        const connSrcId = JiraTask[0].options?.connectionId
+        setSelectedConnection({
           id: parseInt(connSrcId, 10),
           title: '(Instance)',
           value: parseInt(connSrcId, 10)
@@ -1077,12 +1077,12 @@ const CreatePipeline = (props) => {
                               projectId={projectId}
                               owner={owner}
                               repositoryName={repositoryName}
-                              sourceId={sourceId}
-                              sources={sources}
+                              connectionId={connectionId}
+                              connections={connections}
                               repositories={repositories}
-                              selectedSource={selectedSource}
+                              selectedConnection={selectedConnection}
                               selectedGithubRepo={selectedGithubRepo}
-                              setSelectedSource={setSelectedSource}
+                              setSelectedConnection={setSelectedConnection}
                               boardId={boardId}
                               gitExtractorUrl={gitExtractorUrl}
                               gitExtractorRepoId={gitExtractorRepoId}
@@ -1092,7 +1092,7 @@ const CreatePipeline = (props) => {
                               setProjectId={setProjectId}
                               setOwner={setOwner}
                               setRepositoryName={setRepositoryName}
-                              setSourceId={setSourceId}
+                              setConnectionId={setConnectionId}
                               setBoardId={setBoardId}
                               setGitExtractorUrl={setGitExtractorUrl}
                               setGitExtractorRepoId={setGitExtractorRepoId}

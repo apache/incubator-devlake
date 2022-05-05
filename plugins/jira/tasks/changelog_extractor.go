@@ -17,13 +17,13 @@ func ExtractChangelogs(taskCtx core.SubTaskContext) error {
 		return nil
 	}
 	db := taskCtx.GetDb()
-	sourceId := data.Source.ID
+	connectionId := data.Connection.ID
 	extractor, err := helper.NewApiExtractor(helper.ApiExtractorArgs{
 		RawDataSubTaskArgs: helper.RawDataSubTaskArgs{
 			Ctx: taskCtx,
 			Params: JiraApiParams{
-				SourceId: data.Source.ID,
-				BoardId:  data.Options.BoardId,
+				ConnectionId: data.Connection.ID,
+				BoardId:      data.Options.BoardId,
 			},
 			Table: RAW_CHANGELOG_TABLE,
 		},
@@ -39,15 +39,15 @@ func ExtractChangelogs(taskCtx core.SubTaskContext) error {
 			if err != nil {
 				return nil, err
 			}
-			issue := &models.JiraIssue{SourceId: sourceId, IssueId: input.IssueId}
+			issue := &models.JiraIssue{ConnectionId: connectionId, IssueId: input.IssueId}
 			err = db.Model(issue).Update("changelog_updated", input.UpdateTime).Error
 			if err != nil {
 				return nil, err
 			}
-			cl, user := changelog.ToToolLayer(sourceId, input.IssueId)
+			cl, user := changelog.ToToolLayer(connectionId, input.IssueId)
 			result = append(result, cl, user)
 			for _, item := range changelog.Items {
-				result = append(result, item.ToToolLayer(sourceId, changelog.ID))
+				result = append(result, item.ToToolLayer(connectionId, changelog.ID))
 			}
 			return result, nil
 		},

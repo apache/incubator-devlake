@@ -22,7 +22,7 @@ type ChangelogItemResult struct {
 
 func ConvertChangelogs(taskCtx core.SubTaskContext) error {
 	data := taskCtx.GetData().(*JiraTaskData)
-	sourceId := data.Source.ID
+	connectionId := data.Connection.ID
 	boardId := data.Options.BoardId
 	logger := taskCtx.GetLogger()
 	sprintIssueConverter, err := NewSprintIssueConverter(taskCtx)
@@ -35,15 +35,15 @@ func ConvertChangelogs(taskCtx core.SubTaskContext) error {
 	// select all changelogs belongs to the board
 	cursor, err := db.Table("_tool_jira_changelog_items").
 		Joins(`left join _tool_jira_changelogs on (
-			_tool_jira_changelogs.source_id = _tool_jira_changelog_items.source_id
+			_tool_jira_changelogs.connection_id = _tool_jira_changelog_items.connection_id
 			AND _tool_jira_changelogs.changelog_id = _tool_jira_changelog_items.changelog_id
 		)`).
 		Joins(`left join _tool_jira_board_issues on (
-			_tool_jira_board_issues.source_id = _tool_jira_changelogs.source_id
+			_tool_jira_board_issues.connection_id = _tool_jira_changelogs.connection_id
 			AND _tool_jira_board_issues.issue_id = _tool_jira_changelogs.issue_id
 		)`).
 		Select("_tool_jira_changelog_items.*, _tool_jira_changelogs.issue_id, author_account_id, author_display_name, created").
-		Where("_tool_jira_changelog_items.source_id = ? AND _tool_jira_board_issues.board_id = ?", sourceId, boardId).
+		Where("_tool_jira_changelog_items.connection_id = ? AND _tool_jira_board_issues.board_id = ?", connectionId, boardId).
 		Rows()
 	if err != nil {
 		logger.Info(err.Error())
@@ -57,8 +57,8 @@ func ConvertChangelogs(taskCtx core.SubTaskContext) error {
 		RawDataSubTaskArgs: helper.RawDataSubTaskArgs{
 			Ctx: taskCtx,
 			Params: JiraApiParams{
-				SourceId: sourceId,
-				BoardId:  boardId,
+				ConnectionId: connectionId,
+				BoardId:      boardId,
 			},
 			Table: RAW_CHANGELOG_TABLE,
 		},
@@ -68,11 +68,11 @@ func ConvertChangelogs(taskCtx core.SubTaskContext) error {
 			row := inputRow.(*ChangelogItemResult)
 			changelog := &ticket.Changelog{
 				DomainEntity: domainlayer.DomainEntity{Id: changelogIdGenerator.Generate(
-					row.SourceId,
+					row.ConnectionId,
 					row.ChangelogId,
 					row.Field,
 				)},
-				IssueId:     issueIdGenerator.Generate(row.SourceId, row.IssueId),
+				IssueId:     issueIdGenerator.Generate(row.ConnectionId, row.IssueId),
 				AuthorId:    row.AuthorAccountId,
 				AuthorName:  row.AuthorDisplayName,
 				FieldId:     row.FieldId,
@@ -81,7 +81,7 @@ func ConvertChangelogs(taskCtx core.SubTaskContext) error {
 				To:          row.ToString,
 				CreatedDate: row.Created,
 			}
-			sprintIssueConverter.FeedIn(sourceId, *row)
+			sprintIssueConverter.FeedIn(connectionId, *row)
 			return []interface{}{changelog}, nil
 		},
 	})

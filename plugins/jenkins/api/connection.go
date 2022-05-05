@@ -2,6 +2,7 @@ package api
 
 import (
 	"fmt"
+	"github.com/merico-dev/lake/config"
 	"net/http"
 	"time"
 
@@ -57,4 +58,93 @@ func TestConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, erro
 		return nil, fmt.Errorf("unexpected status code: %d", res.StatusCode)
 	}
 	return nil, nil
+}
+
+// This object conforms to what the frontend currently sends.
+type JenkinsConnection struct {
+	Endpoint string `mapstructure:"JENKINS_ENDPOINT" validate:"required"`
+	Username string `mapstructure:"JENKINS_USERNAME" validate:"required"`
+	Password string `mapstructure:"JENKINS_PASSWORD" validate:"required"`
+	Proxy    string `mapstructure:"JENKINS_PROXY"`
+}
+
+type JenkinsResponse struct {
+	ID   int
+	Name string
+	JenkinsConnection
+}
+
+/*
+POST /plugins/jenkins/connections
+{
+	"Endpoint": "your-endpoint",
+	"Username": "your-username",
+	"Password": "your-password",
+}
+*/
+func PostConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, error) {
+	// TODO: For now, Jenkins does not support sources but it will in the future.
+
+	return PutConnection(input)
+}
+
+/*
+PUT /plugins/jenkins/connections/:connectionId
+{
+	"Endpoint": "your-endpoint",
+	"Username": "your-username",
+	"Password": "your-password",
+}
+*/
+func PutConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, error) {
+	jenkinsConnection := JenkinsConnection{}
+	err := mapstructure.Decode(input.Body, &jenkinsConnection)
+	if err != nil {
+		return nil, err
+	}
+	err = config.SetStruct(jenkinsConnection, "mapstructure")
+	if err != nil {
+		return nil, err
+	}
+
+	return &core.ApiResourceOutput{Body: "Success"}, nil
+}
+
+/*
+GET /plugins/jenkins/connections
+*/
+func ListConnections(input *core.ApiResourceInput) (*core.ApiResourceOutput, error) {
+	// RETURN ONLY 1 SOURCE (FROM ENV) until multi-source is developed.
+	jenkinsResponse, err := GetConnectionFromEnv()
+	response := []JenkinsResponse{*jenkinsResponse}
+	if err != nil {
+		return nil, err
+	}
+	return &core.ApiResourceOutput{Body: response}, nil
+}
+
+/*
+GET /plugins/jenkins/connections/:connectionId
+*/
+func GetConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, error) {
+	//  RETURN ONLY 1 SOURCE FROM ENV (Ignore ID until multi-source is developed.)
+	jenkinsResponse, err := GetConnectionFromEnv()
+	if err != nil {
+		return nil, err
+	}
+	return &core.ApiResourceOutput{Body: jenkinsResponse}, nil
+}
+
+func GetConnectionFromEnv() (*JenkinsResponse, error) {
+	v := config.GetConfig()
+	var jenkinsConnection JenkinsConnection
+	err := v.Unmarshal(&jenkinsConnection)
+	if err != nil {
+		return nil, err
+	}
+	return &JenkinsResponse{
+		Name:              "Jenkins",
+		ID:                1,
+		JenkinsConnection: jenkinsConnection,
+	}, nil
 }

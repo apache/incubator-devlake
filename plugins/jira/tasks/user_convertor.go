@@ -12,12 +12,12 @@ import (
 
 func ConvertUsers(taskCtx core.SubTaskContext) error {
 	data := taskCtx.GetData().(*JiraTaskData)
-	sourceId := data.Source.ID
+	connectionId := data.Connection.ID
 	boardId := data.Options.BoardId
 	logger := taskCtx.GetLogger()
 	db := taskCtx.GetDb()
 	logger.Info("convert user")
-	cursor, err := db.Model(&models.JiraUser{}).Where("source_id = ?", sourceId).Rows()
+	cursor, err := db.Model(&models.JiraUser{}).Where("connection_id = ?", connectionId).Rows()
 	if err != nil {
 		return err
 	}
@@ -28,8 +28,8 @@ func ConvertUsers(taskCtx core.SubTaskContext) error {
 		RawDataSubTaskArgs: helper.RawDataSubTaskArgs{
 			Ctx: taskCtx,
 			Params: JiraApiParams{
-				SourceId: sourceId,
-				BoardId:  boardId,
+				ConnectionId: connectionId,
+				BoardId:      boardId,
 			},
 			Table: RAW_USERS_TABLE,
 		},
@@ -39,7 +39,7 @@ func ConvertUsers(taskCtx core.SubTaskContext) error {
 			jiraUser := inputRow.(*models.JiraUser)
 			u := &user.User{
 				DomainEntity: domainlayer.DomainEntity{
-					Id: userIdGen.Generate(sourceId, jiraUser.AccountId),
+					Id: userIdGen.Generate(connectionId, jiraUser.AccountId),
 				},
 				Name:      jiraUser.Name,
 				Email:     jiraUser.Email,

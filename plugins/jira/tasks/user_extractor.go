@@ -16,8 +16,8 @@ func ExtractUsers(taskCtx core.SubTaskContext) error {
 		RawDataSubTaskArgs: helper.RawDataSubTaskArgs{
 			Ctx: taskCtx,
 			Params: JiraApiParams{
-				SourceId: data.Source.ID,
-				BoardId:  data.Options.BoardId,
+				ConnectionId: data.Connection.ID,
+				BoardId:      data.Options.BoardId,
 			},
 			Table: RAW_USERS_TABLE,
 		},
@@ -27,7 +27,7 @@ func ExtractUsers(taskCtx core.SubTaskContext) error {
 			if err != nil {
 				return nil, err
 			}
-			return []interface{}{user.ToToolLayer(data.Source.ID)}, nil
+			return []interface{}{user.ToToolLayer(data.Connection.ID)}, nil
 		},
 	})
 

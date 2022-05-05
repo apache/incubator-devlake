@@ -35,9 +35,9 @@ type RemoteLink struct {
 	} `json:"object"`
 }
 
-func (r RemoteLink) ToToolLayer(sourceId, issueId uint64, raw json.RawMessage) *models.JiraRemotelink {
+func (r RemoteLink) ToToolLayer(connectionId, issueId uint64, raw json.RawMessage) *models.JiraRemotelink {
 	return &models.JiraRemotelink{
-		SourceId:     sourceId,
+		ConnectionId: connectionId,
 		RemotelinkId: r.ID,
 		IssueId:      issueId,
 		Self:         r.Self,

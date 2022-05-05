@@ -20,13 +20,13 @@ type Board struct {
 	} `json:"location"`
 }
 
-func (b Board) ToToolLayer(sourceId uint64) *models.JiraBoard {
+func (b Board) ToToolLayer(connectionId uint64) *models.JiraBoard {
 	result := &models.JiraBoard{
-		SourceId: sourceId,
-		BoardId:  b.ID,
-		Name:     b.Name,
-		Self:     b.Self,
-		Type:     b.Type,
+		ConnectionId: connectionId,
+		BoardId:      b.ID,
+		Name:         b.Name,
+		Self:         b.Self,
+		Type:         b.Type,
 	}
 	if b.Location != nil {
 		result.ProjectId = b.Location.ProjectId

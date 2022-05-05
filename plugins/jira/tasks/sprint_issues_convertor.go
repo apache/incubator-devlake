@@ -34,7 +34,7 @@ type SprintIssuesConverter struct {
 
 func NewSprintIssueConverter(taskCtx core.SubTaskContext) (*SprintIssuesConverter, error) {
 	data := taskCtx.GetData().(*JiraTaskData)
-	sourceId := data.Source.ID
+	connectionId := data.Connection.ID
 	boardId := data.Options.BoardId
 	converter := &SprintIssuesConverter{
 		db:             taskCtx.GetDb(),
@@ -49,18 +49,18 @@ func NewSprintIssueConverter(taskCtx core.SubTaskContext) (*SprintIssuesConverte
 		sprintsHistory: make(map[string]*ticket.IssueSprintsHistory),
 		jiraIssue:      make(map[string]*models.JiraIssue),
 	}
-	return converter, converter.setupSprintIssue(sourceId, boardId)
+	return converter, converter.setupSprintIssue(connectionId, boardId)
 }
 
-func (c *SprintIssuesConverter) FeedIn(sourceId uint64, cl ChangelogItemResult) {
+func (c *SprintIssuesConverter) FeedIn(connectionId uint64, cl ChangelogItemResult) {
 	if cl.Field == "status" {
-		err := c.handleStatus(sourceId, cl)
+		err := c.handleStatus(connectionId, cl)
 		if err != nil {
 			return
 		}
 	}
 	if cl.Field == "assignee" {
-		err := c.handleAssignee(sourceId, cl)
+		err := c.handleAssignee(connectionId, cl)
 		if err != nil {
 			return
 		}
@@ -73,14 +73,14 @@ func (c *SprintIssuesConverter) FeedIn(sourceId uint64, cl ChangelogItemResult) 
 		return
 	}
 	for sprintId := range from {
-		err = c.handleFrom(sourceId, sprintId, cl)
+		err = c.handleFrom(connectionId, sprintId, cl)
 		if err != nil {
 			c.logger.Error("handle from error:", err)
 			return
 		}
 	}
 	for sprintId := range to {
-		err = c.handleTo(sourceId, sprintId, cl)
+		err = c.handleTo(connectionId, sprintId, cl)
 		if err != nil {
 			c.logger.Error("handle to error:", err)
 			return
@@ -150,26 +150,26 @@ func (c *SprintIssuesConverter) parseFromTo(from, to string) (map[uint64]struct{
 	return fromInts, toInts, nil
 }
 
-func (c *SprintIssuesConverter) handleFrom(sourceId, sprintId uint64, cl ChangelogItemResult) error {
-	if sprint, _ := c.getJiraSprint(sourceId, sprintId); sprint == nil {
+func (c *SprintIssuesConverter) handleFrom(connectionId, sprintId uint64, cl ChangelogItemResult) error {
+	if sprint, _ := c.getJiraSprint(connectionId, sprintId); sprint == nil {
 		return nil
 	}
-	key := fmt.Sprintf("%d:%d:%d", sourceId, sprintId, cl.IssueId)
+	key := fmt.Sprintf("%d:%d:%d", connectionId, sprintId, cl.IssueId)
 	if item, ok := c.sprintIssue[key]; ok {
 		if item != nil && (item.RemovedDate == nil || item.RemovedDate != nil && item.RemovedDate.Before(cl.Created)) {
 			item.RemovedDate = &cl.Created
 			item.IsRemoved = true
 		}
 	} else {
-		addedStage, _ := c.getStage(cl.Created, sourceId, sprintId)
-		jiraIssue, _ := c.getJiraIssue(sourceId, cl.IssueId)
-		sprint, _ := c.getJiraSprint(sourceId, sprintId)
+		addedStage, _ := c.getStage(cl.Created, connectionId, sprintId)
+		jiraIssue, _ := c.getJiraIssue(connectionId, cl.IssueId)
+		sprint, _ := c.getJiraSprint(connectionId, sprintId)
 		if sprint == nil {
 			return nil
 		}
 		sprintIssue := &ticket.SprintIssue{
-			SprintId:    c.sprintIdGen.Generate(sourceId, sprintId),
-			IssueId:     c.issueIdGen.Generate(sourceId, cl.IssueId),
+			SprintId:    c.sprintIdGen.Generate(connectionId, sprintId),
+			IssueId:     c.issueIdGen.Generate(connectionId, cl.IssueId),
 			AddedDate:   sprint.StartDate,
 			AddedStage:  addedStage,
 			RemovedDate: &cl.Created,
@@ -194,10 +194,10 @@ func (c *SprintIssuesConverter) handleFrom(sourceId, sprintId uint64, cl Changel
 	return nil
 }
 
-func (c *SprintIssuesConverter) handleTo(sourceId, sprintId uint64, cl ChangelogItemResult) error {
-	domainSprintId := c.sprintIdGen.Generate(sourceId, sprintId)
-	key := fmt.Sprintf("%d:%d:%d", sourceId, sprintId, cl.IssueId)
-	addedStage, err := c.getStage(cl.Created, sourceId, sprintId)
+func (c *SprintIssuesConverter) handleTo(connectionId, sprintId uint64, cl ChangelogItemResult) error {
+	domainSprintId := c.sprintIdGen.Generate(connectionId, sprintId)
+	key := fmt.Sprintf("%d:%d:%d", connectionId, sprintId, cl.IssueId)
+	addedStage, err := c.getStage(cl.Created, connectionId, sprintId)
 	if err == gorm.ErrRecordNotFound {
 		return nil
 	}
@@ -215,7 +215,7 @@ func (c *SprintIssuesConverter) handleTo(sourceId, sprintId uint64, cl Changelog
 	} else {
 		c.sprintIssue[key] = &ticket.SprintIssue{
 			SprintId:    domainSprintId,
-			IssueId:     c.issueIdGen.Generate(sourceId, cl.IssueId),
+			IssueId:     c.issueIdGen.Generate(connectionId, cl.IssueId),
 			AddedDate:   &cl.Created,
 			AddedStage:  addedStage,
 			RemovedDate: nil,
@@ -224,7 +224,7 @@ func (c *SprintIssuesConverter) handleTo(sourceId, sprintId uint64, cl Changelog
 	k := fmt.Sprintf("%d:%d", sprintId, cl.IssueId)
 	now := time.Now()
 	c.sprintsHistory[k] = &ticket.IssueSprintsHistory{
-		IssueId:   c.issueIdGen.Generate(sourceId, cl.IssueId),
+		IssueId:   c.issueIdGen.Generate(connectionId, cl.IssueId),
 		SprintId:  domainSprintId,
 		StartDate: cl.Created,
 		EndDate:   &now,
@@ -232,11 +232,11 @@ func (c *SprintIssuesConverter) handleTo(sourceId, sprintId uint64, cl Changelog
 	return nil
 }
 
-func (c *SprintIssuesConverter) setupSprintIssue(sourceId, boardId uint64) error {
+func (c *SprintIssuesConverter) setupSprintIssue(connectionId, boardId uint64) error {
 	cursor, err := c.db.Model(&models.JiraSprintIssue{}).
 		Select("_tool_jira_sprint_issues.*").
 		Joins("left join _tool_jira_board_sprints on _tool_jira_board_sprints.sprint_id = _tool_jira_sprint_issues.sprint_id").
-		Where("_tool_jira_board_sprints.source_id = ? AND _tool_jira_board_sprints.board_id = ?", sourceId, boardId).
+		Where("_tool_jira_board_sprints.connection_id = ? AND _tool_jira_board_sprints.board_id = ?", connectionId, boardId).
 		Rows()
 	if err != nil {
 		return err
@@ -248,14 +248,14 @@ func (c *SprintIssuesConverter) setupSprintIssue(sourceId, boardId uint64) error
 		if err != nil {
 			return err
 		}
-		sprint, _ := c.getJiraSprint(sourceId, jiraSprintIssue.SprintId)
+		sprint, _ := c.getJiraSprint(connectionId, jiraSprintIssue.SprintId)
 		if sprint == nil {
 			continue
 		}
-		key := fmt.Sprintf("%d:%d:%d", sourceId, jiraSprintIssue.SprintId, jiraSprintIssue.IssueId)
+		key := fmt.Sprintf("%d:%d:%d", connectionId, jiraSprintIssue.SprintId, jiraSprintIssue.IssueId)
 		dsi := ticket.SprintIssue{
-			SprintId:  c.sprintIdGen.Generate(sourceId, jiraSprintIssue.SprintId),
-			IssueId:   c.issueIdGen.Generate(sourceId, jiraSprintIssue.IssueId),
+			SprintId:  c.sprintIdGen.Generate(connectionId, jiraSprintIssue.SprintId),
+			IssueId:   c.issueIdGen.Generate(connectionId, jiraSprintIssue.IssueId),
 			AddedDate: jiraSprintIssue.IssueCreatedDate,
 		}
 		if dsi.AddedDate != nil {
@@ -268,13 +268,13 @@ func (c *SprintIssuesConverter) setupSprintIssue(sourceId, boardId uint64) error
 	}
 	return nil
 }
-func (c *SprintIssuesConverter) getJiraSprint(sourceId, sprintId uint64) (*models.JiraSprint, error) {
-	key := fmt.Sprintf("%d:%d", sourceId, sprintId)
+func (c *SprintIssuesConverter) getJiraSprint(connectionId, sprintId uint64) (*models.JiraSprint, error) {
+	key := fmt.Sprintf("%d:%d", connectionId, sprintId)
 	if value, ok := c.sprints[key]; ok {
 		return value, nil
 	}
 	var sprint models.JiraSprint
-	err := c.db.First(&sprint, "source_id = ? AND sprint_id = ?", sourceId, sprintId).Error
+	err := c.db.First(&sprint, "connection_id = ? AND sprint_id = ?", connectionId, sprintId).Error
 	if err != nil {
 		return nil, err
 	}
@@ -282,13 +282,13 @@ func (c *SprintIssuesConverter) getJiraSprint(sourceId, sprintId uint64) (*model
 	return &sprint, nil
 }
 
-func (c *SprintIssuesConverter) getJiraIssue(sourceId, issueId uint64) (*models.JiraIssue, error) {
-	key := fmt.Sprintf("%d:%d", sourceId, issueId)
+func (c *SprintIssuesConverter) getJiraIssue(connectionId, issueId uint64) (*models.JiraIssue, error) {
+	key := fmt.Sprintf("%d:%d", connectionId, issueId)
 	if issue, ok := c.jiraIssue[key]; ok {
 		return issue, nil
 	}
 	var jiraIssue models.JiraIssue
-	err := c.db.First(&jiraIssue, "source_id = ? AND issue_id = ?", sourceId, issueId).Error
+	err := c.db.First(&jiraIssue, "connection_id = ? AND issue_id = ?", connectionId, issueId).Error
 	if err != nil {
 		return nil, err
 	}
@@ -296,17 +296,17 @@ func (c *SprintIssuesConverter) getJiraIssue(sourceId, issueId uint64) (*models.
 	return &jiraIssue, nil
 }
 
-func (c *SprintIssuesConverter) getStage(t time.Time, sourceId, sprintId uint64) (*string, error) {
-	sprint, err := c.getJiraSprint(sprintId, sourceId)
+func (c *SprintIssuesConverter) getStage(t time.Time, connectionId, sprintId uint64) (*string, error) {
+	sprint, err := c.getJiraSprint(sprintId, connectionId)
 	if err != nil {
 		return nil, err
 	}
 	return getStage(t, sprint.StartDate, sprint.CompleteDate), nil
 }
 
-func (c *SprintIssuesConverter) handleStatus(sourceId uint64, cl ChangelogItemResult) error {
+func (c *SprintIssuesConverter) handleStatus(connectionId uint64, cl ChangelogItemResult) error {
 	var err error
-	issueId := c.issueIdGen.Generate(sourceId, cl.IssueId)
+	issueId := c.issueIdGen.Generate(connectionId, cl.IssueId)
 	if statusHistory := c.status[issueId]; statusHistory != nil {
 		statusHistory.EndDate = &cl.Created
 		err = c.db.Clauses(clause.OnConflict{
@@ -332,14 +332,14 @@ func (c *SprintIssuesConverter) handleStatus(sourceId uint64, cl ChangelogItemRe
 	return nil
 }
 
-func (c *SprintIssuesConverter) handleAssignee(sourceId uint64, cl ChangelogItemResult) error {
-	issueId := c.issueIdGen.Generate(sourceId, cl.IssueId)
+func (c *SprintIssuesConverter) handleAssignee(connectionId uint64, cl ChangelogItemResult) error {
+	issueId := c.issueIdGen.Generate(connectionId, cl.IssueId)
 	if assigneeHistory := c.assignee[issueId]; assigneeHistory != nil {
 		assigneeHistory.EndDate = &cl.Created
 	}
 	var assignee string
 	if cl.To != "" {
-		assignee = c.userIdGen.Generate(sourceId, cl.To)
+		assignee = c.userIdGen.Generate(connectionId, cl.To)
 	}
 	now := time.Now()
 	c.assignee[issueId] = &ticket.IssueAssigneeHistory{

@@ -700,10 +700,10 @@ DROP TABLE IF EXISTS `jira_board_issues`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `jira_board_issues` (
-  `source_id` bigint unsigned NOT NULL,
+  `connection_id` bigint unsigned NOT NULL,
   `board_id` bigint unsigned NOT NULL,
   `issue_id` bigint unsigned NOT NULL,
-  PRIMARY KEY (`source_id`,`board_id`,`issue_id`)
+  PRIMARY KEY (`connection_id`,`board_id`,`issue_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -715,10 +715,10 @@ DROP TABLE IF EXISTS `jira_board_sprints`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `jira_board_sprints` (
-  `source_id` bigint unsigned NOT NULL,
+  `connection_id` bigint unsigned NOT NULL,
   `board_id` bigint unsigned NOT NULL,
   `sprint_id` bigint unsigned NOT NULL,
-  PRIMARY KEY (`source_id`,`board_id`,`sprint_id`)
+  PRIMARY KEY (`connection_id`,`board_id`,`sprint_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -732,13 +732,13 @@ DROP TABLE IF EXISTS `jira_boards`;
 CREATE TABLE `jira_boards` (
   `created_at` datetime(3) DEFAULT NULL,
   `updated_at` datetime(3) DEFAULT NULL,
-  `source_id` bigint unsigned NOT NULL,
+  `connection_id` bigint unsigned NOT NULL,
   `board_id` bigint unsigned NOT NULL,
   `project_id` bigint unsigned DEFAULT NULL,
   `name` longtext,
   `self` longtext,
   `type` longtext,
-  PRIMARY KEY (`source_id`,`board_id`)
+  PRIMARY KEY (`connection_id`,`board_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -752,7 +752,7 @@ DROP TABLE IF EXISTS `jira_changelog_items`;
 CREATE TABLE `jira_changelog_items` (
   `created_at` datetime(3) DEFAULT NULL,
   `updated_at` datetime(3) DEFAULT NULL,
-  `source_id` bigint unsigned NOT NULL,
+  `connection_id` bigint unsigned NOT NULL,
   `changelog_id` bigint unsigned NOT NULL,
   `field` varchar(191) NOT NULL,
   `field_type` longtext,
@@ -761,7 +761,7 @@ CREATE TABLE `jira_changelog_items` (
   `from_string` longtext,
   `to` longtext,
   `to_string` longtext,
-  PRIMARY KEY (`source_id`,`changelog_id`,`field`)
+  PRIMARY KEY (`connection_id`,`changelog_id`,`field`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -775,14 +775,14 @@ DROP TABLE IF EXISTS `jira_changelogs`;
 CREATE TABLE `jira_changelogs` (
   `created_at` datetime(3) DEFAULT NULL,
   `updated_at` datetime(3) DEFAULT NULL,
-  `source_id` bigint unsigned NOT NULL,
+  `connection_id` bigint unsigned NOT NULL,
   `changelog_id` bigint unsigned NOT NULL,
   `issue_id` bigint unsigned DEFAULT NULL,
   `author_account_id` longtext,
   `author_display_name` longtext,
   `author_active` tinyint(1) DEFAULT NULL,
   `created` datetime(3) DEFAULT NULL,
-  PRIMARY KEY (`source_id`,`changelog_id`),
+  PRIMARY KEY (`connection_id`,`changelog_id`),
   KEY `idx_jira_changelogs_issue_id` (`issue_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -795,11 +795,11 @@ DROP TABLE IF EXISTS `jira_issue_status_mappings`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `jira_issue_status_mappings` (
-  `source_id` bigint unsigned NOT NULL,
+  `connection_id` bigint unsigned NOT NULL,
   `user_type` varchar(50) NOT NULL,
   `user_status` varchar(50) NOT NULL,
   `standard_status` varchar(50) DEFAULT NULL,
-  PRIMARY KEY (`source_id`,`user_type`,`user_status`)
+  PRIMARY KEY (`connection_id`,`user_type`,`user_status`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -811,10 +811,10 @@ DROP TABLE IF EXISTS `jira_issue_type_mappings`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `jira_issue_type_mappings` (
-  `source_id` bigint unsigned NOT NULL,
+  `connection_id` bigint unsigned NOT NULL,
   `user_type` varchar(50) NOT NULL,
   `standard_type` varchar(50) DEFAULT NULL,
-  PRIMARY KEY (`source_id`,`user_type`)
+  PRIMARY KEY (`connection_id`,`user_type`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -828,7 +828,7 @@ DROP TABLE IF EXISTS `jira_issues`;
 CREATE TABLE `jira_issues` (
   `created_at` datetime(3) DEFAULT NULL,
   `updated_at` datetime(3) DEFAULT NULL,
-  `source_id` bigint unsigned NOT NULL,
+  `connection_id` bigint unsigned NOT NULL,
   `issue_id` bigint unsigned NOT NULL,
   `project_id` bigint unsigned DEFAULT NULL,
   `self` longtext,
@@ -865,7 +865,7 @@ CREATE TABLE `jira_issues` (
   `std_status` longtext,
   `all_fields` json DEFAULT NULL,
   `changelog_updated` datetime(3) DEFAULT NULL,
-  PRIMARY KEY (`source_id`,`issue_id`)
+  PRIMARY KEY (`connection_id`,`issue_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -879,22 +879,22 @@ DROP TABLE IF EXISTS `jira_projects`;
 CREATE TABLE `jira_projects` (
   `created_at` datetime(3) DEFAULT NULL,
   `updated_at` datetime(3) DEFAULT NULL,
-  `source_id` bigint unsigned NOT NULL,
+  `connection_id` bigint unsigned NOT NULL,
   `id` varchar(191) NOT NULL,
   `key` longtext,
   `name` longtext,
-  PRIMARY KEY (`source_id`,`id`)
+  PRIMARY KEY (`connection_id`,`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Table structure for table `jira_sources`
+-- Table structure for table `jira_connections`
 --
 
-DROP TABLE IF EXISTS `jira_sources`;
+DROP TABLE IF EXISTS `jira_connections`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `jira_sources` (
+CREATE TABLE `jira_connections` (
   `id` bigint unsigned NOT NULL AUTO_INCREMENT,
   `created_at` datetime(3) DEFAULT NULL,
   `updated_at` datetime(3) DEFAULT NULL,
@@ -904,7 +904,7 @@ CREATE TABLE `jira_sources` (
   `epic_key_field` varchar(50) DEFAULT NULL,
   `story_point_field` varchar(50) DEFAULT NULL,
   PRIMARY KEY (`id`),
-  UNIQUE KEY `idx_jira_sources_name` (`name`)
+  UNIQUE KEY `idx_jira_connections_name` (`name`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -916,10 +916,10 @@ DROP TABLE IF EXISTS `jira_sprint_issues`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `jira_sprint_issues` (
-  `source_id` bigint unsigned NOT NULL,
+  `connection_id` bigint unsigned NOT NULL,
   `sprint_id` bigint unsigned NOT NULL,
   `issue_id` bigint unsigned NOT NULL,
-  PRIMARY KEY (`source_id`,`sprint_id`,`issue_id`)
+  PRIMARY KEY (`connection_id`,`sprint_id`,`issue_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -933,7 +933,7 @@ DROP TABLE IF EXISTS `jira_sprints`;
 CREATE TABLE `jira_sprints` (
   `created_at` datetime(3) DEFAULT NULL,
   `updated_at` datetime(3) DEFAULT NULL,
-  `source_id` bigint unsigned NOT NULL,
+  `connection_id` bigint unsigned NOT NULL,
   `sprint_id` bigint unsigned NOT NULL,
   `self` longtext,
   `state` longtext,
@@ -942,7 +942,7 @@ CREATE TABLE `jira_sprints` (
   `end_date` datetime(3) DEFAULT NULL,
   `complete_date` datetime(3) DEFAULT NULL,
   `origin_board_id` bigint unsigned DEFAULT NULL,
-  PRIMARY KEY (`source_id`,`sprint_id`)
+  PRIMARY KEY (`connection_id`,`sprint_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -956,14 +956,14 @@ DROP TABLE IF EXISTS `jira_users`;
 CREATE TABLE `jira_users` (
   `created_at` datetime(3) DEFAULT NULL,
   `updated_at` datetime(3) DEFAULT NULL,
-  `source_id` bigint unsigned NOT NULL,
+  `connection_id` bigint unsigned NOT NULL,
   `account_id` varchar(191) NOT NULL,
   `account_type` longtext,
   `name` longtext,
   `email` longtext,
   `avatar_url` longtext,
   `timezone` longtext,
-  PRIMARY KEY (`source_id`,`account_id`)
+  PRIMARY KEY (`connection_id`,`account_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -977,7 +977,7 @@ DROP TABLE IF EXISTS `jira_worklogs`;
 CREATE TABLE `jira_worklogs` (
   `created_at` datetime(3) DEFAULT NULL,
   `updated_at` datetime(3) DEFAULT NULL,
-  `source_id` bigint unsigned NOT NULL,
+  `connection_id` bigint unsigned NOT NULL,
   `issue_id` bigint unsigned NOT NULL,
   `worklog_id` varchar(191) NOT NULL,
   `author_id` longtext,
@@ -986,7 +986,7 @@ CREATE TABLE `jira_worklogs` (
   `time_spent_seconds` bigint DEFAULT NULL,
   `updated` datetime(3) DEFAULT NULL,
   `started` datetime(3) DEFAULT NULL,
-  PRIMARY KEY (`source_id`,`issue_id`,`worklog_id`)
+  PRIMARY KEY (`connection_id`,`issue_id`,`worklog_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 

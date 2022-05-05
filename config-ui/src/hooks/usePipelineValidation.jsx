@@ -16,7 +16,7 @@ function usePipelineValidation ({
   refDiffRepoId,
   refDiffTasks = [],
   refDiffPairs = [],
-  sourceId,
+  connectionId,
   tasks = [],
   tasksAdvanced = [],
   advancedMode
@@ -60,8 +60,8 @@ function usePipelineValidation ({
       errs.push('GitLab: Entered Project ID is NOT numeric!')
     }
 
-    if (enabledProviders.includes(Providers.JIRA) && (!sourceId || isNaN(sourceId))) {
-      errs.push('JIRA: Select a valid Connection Source ID (Numeric)')
+    if (enabledProviders.includes(Providers.JIRA) && (!connectionId || isNaN(connectionId))) {
+      errs.push('JIRA: Select a valid Connection ID (Numeric)')
     }
 
     if (enabledProviders.includes(Providers.JIRA) && (!boardId || boardId.length !== 1 || boardId.toString() === '')) {
@@ -133,7 +133,7 @@ function usePipelineValidation ({
     refDiffRepoId,
     refDiffTasks,
     refDiffPairs,
-    sourceId
+    connectionId
   ])
 
   const validateAdvanced = useCallback(() => {

@@ -23,8 +23,8 @@ func ConvertIssues(taskCtx core.SubTaskContext) error {
 		Select("_tool_jira_issues.*").
 		Joins("left join _tool_jira_board_issues on _tool_jira_board_issues.issue_id = _tool_jira_issues.issue_id").
 		Where(
-			"_tool_jira_board_issues.source_id = ? AND _tool_jira_board_issues.board_id = ?",
-			data.Options.SourceId,
+			"_tool_jira_board_issues.connection_id = ? AND _tool_jira_board_issues.board_id = ?",
+			data.Options.ConnectionId,
 			data.Options.BoardId,
 		).
 		Rows()
@@ -36,7 +36,7 @@ func ConvertIssues(taskCtx core.SubTaskContext) error {
 	issueIdGen := didgen.NewDomainIdGenerator(&jiraModels.JiraIssue{})
 	userIdGen := didgen.NewDomainIdGenerator(&jiraModels.JiraUser{})
 	boardIdGen := didgen.NewDomainIdGenerator(&jiraModels.JiraBoard{})
-	boardId := boardIdGen.Generate(data.Options.SourceId, data.Options.BoardId)
+	boardId := boardIdGen.Generate(data.Options.ConnectionId, data.Options.BoardId)
 
 	converter, err := helper.NewDataConverter(helper.DataConverterArgs{
 		InputRowType: reflect.TypeOf(jiraModels.JiraIssue{}),
@@ -44,8 +44,8 @@ func ConvertIssues(taskCtx core.SubTaskContext) error {
 		RawDataSubTaskArgs: helper.RawDataSubTaskArgs{
 			Ctx: taskCtx,
 			Params: JiraApiParams{
-				SourceId: data.Source.ID,
-				BoardId:  data.Options.BoardId,
+				ConnectionId: data.Connection.ID,
+				BoardId:      data.Options.BoardId,
 			},
 			Table: RAW_ISSUE_TABLE,
 		},
@@ -53,7 +53,7 @@ func ConvertIssues(taskCtx core.SubTaskContext) error {
 			jiraIssue := inputRow.(*jiraModels.JiraIssue)
 			issue := &ticket.Issue{
 				DomainEntity: domainlayer.DomainEntity{
-					Id: issueIdGen.Generate(jiraIssue.SourceId, jiraIssue.IssueId),
+					Id: issueIdGen.Generate(jiraIssue.ConnectionId, jiraIssue.IssueId),
 				},
 				Url:                     convertURL(jiraIssue.Self, jiraIssue.Key),
 				Number:                  jiraIssue.Key,
@@ -63,7 +63,7 @@ func ConvertIssues(taskCtx core.SubTaskContext) error {
 				Status:                  jiraIssue.StdStatus,
 				StoryPoint:              jiraIssue.StdStoryPoint,
 				OriginalEstimateMinutes: jiraIssue.OriginalEstimateMinutes,
-				CreatorId:               userIdGen.Generate(data.Options.SourceId, jiraIssue.CreatorAccountId),
+				CreatorId:               userIdGen.Generate(data.Options.ConnectionId, jiraIssue.CreatorAccountId),
 				ResolutionDate:          jiraIssue.ResolutionDate,
 				Priority:                jiraIssue.PriorityName,
 				CreatedDate:             &jiraIssue.Created,
@@ -72,13 +72,13 @@ func ConvertIssues(taskCtx core.SubTaskContext) error {
 				TimeSpentMinutes:        jiraIssue.SpentMinutes,
 			}
 			if jiraIssue.AssigneeAccountId != "" {
-				issue.AssigneeId = userIdGen.Generate(data.Options.SourceId, jiraIssue.AssigneeAccountId)
+				issue.AssigneeId = userIdGen.Generate(data.Options.ConnectionId, jiraIssue.AssigneeAccountId)
 			}
 			if jiraIssue.AssigneeDisplayName != "" {
 				issue.AssigneeName = jiraIssue.AssigneeDisplayName
 			}
 			if jiraIssue.ParentId != 0 {
-				issue.ParentIssueId = issueIdGen.Generate(data.Options.SourceId, jiraIssue.ParentId)
+				issue.ParentIssueId = issueIdGen.Generate(data.Options.ConnectionId, jiraIssue.ParentId)
 			}
 			boardIssue := &ticket.BoardIssue{
 				BoardId: boardId,

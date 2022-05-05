@@ -31,15 +31,15 @@ func CollectRemotelinks(taskCtx core.SubTaskContext) error {
 	cursor, err := db.Model(jiraIssue).
 		Select("_tool_jira_issues.issue_id", "NOW() AS update_time").
 		Joins(`LEFT JOIN _tool_jira_board_issues ON (
-			_tool_jira_board_issues.source_id = _tool_jira_issues.source_id AND
+			_tool_jira_board_issues.connection_id = _tool_jira_issues.connection_id AND
 			_tool_jira_board_issues.issue_id = _tool_jira_issues.issue_id
 		)`).
 		Where(`
-			_tool_jira_board_issues.source_id = ? AND
+			_tool_jira_board_issues.connection_id = ? AND
 			_tool_jira_board_issues.board_id = ? AND
 			(_tool_jira_issues.remotelink_updated IS NULL OR _tool_jira_issues.remotelink_updated < _tool_jira_issues.updated)
 			`,
-			data.Options.SourceId,
+			data.Options.ConnectionId,
 			data.Options.BoardId,
 		).
 		Rows()
@@ -59,8 +59,8 @@ func CollectRemotelinks(taskCtx core.SubTaskContext) error {
 		RawDataSubTaskArgs: helper.RawDataSubTaskArgs{
 			Ctx: taskCtx,
 			Params: JiraApiParams{
-				SourceId: data.Source.ID,
-				BoardId:  data.Options.BoardId,
+				ConnectionId: data.Connection.ID,
+				BoardId:      data.Options.BoardId,
 			},
 			Table: RAW_REMOTELINK_TABLE,
 		},

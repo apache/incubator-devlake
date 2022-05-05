@@ -9,7 +9,7 @@ import (
 
 type JiraIssue struct {
 	// collected fields
-	SourceId                 uint64 `gorm:"primaryKey"`
+	ConnectionId             uint64 `gorm:"primaryKey"`
 	IssueId                  uint64 `gorm:"primarykey"`
 	ProjectId                uint64
 	Self                     string `gorm:"type:varchar(255)"`

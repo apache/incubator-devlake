@@ -57,7 +57,7 @@ Below is an example for collecting 2 GitLab repos sequentially. It has 2 stages,
 
 2. Collect a GitHub repo and a Jira board in parallel
 
-Below is an example for collecting a GitHub repo and a Jira board in parallel. It has a single stage with a GitHub task and a Jira task. Since users can configure multiple Jira connection, it's required to pass in a `sourceId` for Jira task to specify which connection to use.
+Below is an example for collecting a GitHub repo and a Jira board in parallel. It has a single stage with a GitHub task and a Jira task. Since users can configure multiple Jira connection, it's required to pass in a `connectionId` for Jira task to specify which connection to use.
 
 ```
 [
@@ -72,7 +72,7 @@ Below is an example for collecting a GitHub repo and a Jira board in parallel. I
     {
       "Plugin": "jira",
       "Options": {
-        "sourceId": 1,
+        "connectionId": 1,
         "boardId": 76
       }
     }

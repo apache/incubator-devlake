@@ -17,7 +17,7 @@ import { integrationsData } from '@/data/integrations'
 import {
   Providers,
   ProviderLabels,
-  ProviderSourceLimits,
+  ProviderConnectionLimits,
   ProviderFormLabels,
   ProviderFormPlaceholders
 } from '@/data/Providers'
@@ -141,7 +141,7 @@ export default function AddConnection () {
                   <h1 style={{ margin: 0 }}>
                     {activeProvider.name} Add Connection
                   </h1>
-                  <p className='page-description'>Create a new connection source for this provider.</p>
+                  <p className='page-description'>Create a new connection for this provider.</p>
                 </div>
               </div>
               <div className='addConnection' style={{ display: 'flex' }}>
@@ -172,7 +172,7 @@ export default function AddConnection () {
                   errors={errors}
                   showError={showError}
                   authType={activeProvider.id === Providers.JENKINS ? 'plain' : 'token'}
-                  sourceLimits={ProviderSourceLimits}
+                  sourceLimits={ProviderConnectionLimits}
                   labels={ProviderFormLabels[activeProvider.id]}
                   placeholders={ProviderFormPlaceholders[activeProvider.id]}
                 />

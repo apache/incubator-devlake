@@ -17,8 +17,8 @@ const RAW_ISSUE_TABLE = "jira_api_issues"
 
 // this struct should be moved to `jira_api_common.go`
 type JiraApiParams struct {
-	SourceId uint64
-	BoardId  uint64
+	ConnectionId uint64
+	BoardId      uint64
 }
 
 var _ core.SubTaskEntryPoint = CollectIssues
@@ -32,7 +32,7 @@ func CollectIssues(taskCtx core.SubTaskContext) error {
 	// user didn't specify a time range to sync, try load from database
 	if since == nil {
 		var latestUpdated models.JiraIssue
-		err := db.Where("source_id = ?", data.Source.ID).Order("updated DESC").Limit(1).Find(&latestUpdated).Error
+		err := db.Where("connection_id = ?", data.Connection.ID).Order("updated DESC").Limit(1).Find(&latestUpdated).Error
 		if err != nil {
 			return fmt.Errorf("failed to get latest jira issue record: %w", err)
 		}
@@ -58,8 +58,8 @@ func CollectIssues(taskCtx core.SubTaskContext) error {
 				set of data to be process, for example, we process JiraIssues by Board
 			*/
 			Params: JiraApiParams{
-				SourceId: data.Source.ID,
-				BoardId:  data.Options.BoardId,
+				ConnectionId: data.Connection.ID,
+				BoardId:      data.Options.BoardId,
 			},
 			/*
 				Table store raw data
@@ -70,7 +70,7 @@ func CollectIssues(taskCtx core.SubTaskContext) error {
 		PageSize:    100,
 		Incremental: incremental,
 		/*
-			url may use arbitrary variables from different source in any order, we need GoTemplate to allow more
+			url may use arbitrary variables from different connection in any order, we need GoTemplate to allow more
 			flexible for all kinds of possibility.
 			Pager contains information for a particular page, calculated by ApiCollector, and will be passed into
 			GoTemplate to generate a url for that page.

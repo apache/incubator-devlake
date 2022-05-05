@@ -7,7 +7,7 @@ import (
 )
 
 type JiraSprint struct {
-	SourceId      uint64 `gorm:"primaryKey"`
+	ConnectionId  uint64 `gorm:"primaryKey"`
 	SprintId      uint64 `gorm:"primaryKey"`
 	Self          string `gorm:"type:varchar(255)"`
 	State         string `gorm:"type:varchar(255)"`
@@ -21,14 +21,14 @@ type JiraSprint struct {
 
 type JiraBoardSprint struct {
 	common.NoPKModel
-	SourceId uint64 `gorm:"primaryKey"`
-	BoardId  uint64 `gorm:"primaryKey"`
-	SprintId uint64 `gorm:"primaryKey"`
+	ConnectionId uint64 `gorm:"primaryKey"`
+	BoardId      uint64 `gorm:"primaryKey"`
+	SprintId     uint64 `gorm:"primaryKey"`
 }
 
 type JiraSprintIssue struct {
 	common.NoPKModel
-	SourceId         uint64 `gorm:"primaryKey"`
+	ConnectionId     uint64 `gorm:"primaryKey"`
 	SprintId         uint64 `gorm:"primaryKey"`
 	IssueId          uint64 `gorm:"primaryKey"`
 	ResolutionDate   *time.Time

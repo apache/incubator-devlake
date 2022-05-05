@@ -17,8 +17,8 @@ func ExtractSprints(taskCtx core.SubTaskContext) error {
 		RawDataSubTaskArgs: helper.RawDataSubTaskArgs{
 			Ctx: taskCtx,
 			Params: JiraApiParams{
-				SourceId: data.Source.ID,
-				BoardId:  data.Options.BoardId,
+				ConnectionId: data.Connection.ID,
+				BoardId:      data.Options.BoardId,
 			},
 			Table: RAW_SPRINT_TABLE,
 		},
@@ -29,11 +29,11 @@ func ExtractSprints(taskCtx core.SubTaskContext) error {
 				return nil, err
 			}
 			boardSprint := models.JiraBoardSprint{
-				SourceId: data.Source.ID,
-				BoardId:  data.Options.BoardId,
-				SprintId: sprint.ID,
+				ConnectionId: data.Connection.ID,
+				BoardId:      data.Options.BoardId,
+				SprintId:     sprint.ID,
 			}
-			return []interface{}{sprint.ToToolLayer(data.Source.ID), &boardSprint}, nil
+			return []interface{}{sprint.ToToolLayer(data.Connection.ID), &boardSprint}, nil
 		},
 	})
 

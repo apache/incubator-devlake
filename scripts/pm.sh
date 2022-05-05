@@ -18,9 +18,9 @@ run() {
 }
 
 jira_source_post() {
-    curl -v -XPOST "$LAKE_ENDPOINT/plugins/jira/sources" --data '
+    curl -v -XPOST "$LAKE_ENDPOINT/plugins/jira/connections" --data '
     {
-        "name": "test-jira-source",
+        "name": "test-jira-connection",
         "endpoint": "'"$JIRA_ENDPOINT"'",
         "basicAuthEncoded": "'"$JIRA_BASIC_AUTH_ENCODED"'",
         "epicKeyField": "'"$JIRA_ENDPOINT"'",
@@ -30,9 +30,9 @@ jira_source_post() {
 }
 
 jira_source_post_full() {
-    curl -v -XPOST "$LAKE_ENDPOINT/plugins/jira/sources" --data '
+    curl -v -XPOST "$LAKE_ENDPOINT/plugins/jira/connections" --data '
     {
-        "name": "test-jira-source",
+        "name": "test-jira-connection",
         "endpoint": "'"$JIRA_ENDPOINT"'",
         "basicAuthEncoded": "'"$JIRA_BASIC_AUTH_ENCODED"'",
         "epicKeyField": "'"$JIRA_ENDPOINT"'",
@@ -70,9 +70,9 @@ jira_source_post_full() {
 }
 
 jira_source_post_fail() {
-    curl -v -XPOST "$LAKE_ENDPOINT/plugins/jira/sources" --data @- <<'    JSON' | jq
+    curl -v -XPOST "$LAKE_ENDPOINT/plugins/jira/connections" --data @- <<'    JSON' | jq
     {
-        "name": "test-jira-source-fail",
+        "name": "test-jira-connection-fail",
         "endpoint": "https://merico.atlassian.net/rest",
         "basicAuthEncoded": "basicAuth",
         "epicKeyField": "epicKeyField",
@@ -83,9 +83,9 @@ jira_source_post_fail() {
 }
 
 jira_source_put() {
-    curl -v -XPUT "$LAKE_ENDPOINT/plugins/jira/sources/$1" --data @- <<'    JSON' | jq
+    curl -v -XPUT "$LAKE_ENDPOINT/plugins/jira/connections/$1" --data @- <<'    JSON' | jq
     {
-        "name": "test-jira-source-updated",
+        "name": "test-jira-connection-updated",
         "endpoint": "https://merico.atlassian.net/rest",
         "basicAuthEncoded": "basicAuth",
         "epicKeyField": "epicKeyField",
@@ -95,9 +95,9 @@ jira_source_put() {
 }
 
 jira_source_put_full() {
-    curl -v -XPUT "$LAKE_ENDPOINT/plugins/jira/sources/$1" --data '
+    curl -v -XPUT "$LAKE_ENDPOINT/plugins/jira/connections/$1" --data '
     {
-        "name": "test-jira-source-updated",
+        "name": "test-jira-connection-updated",
         "endpoint": "'"$JIRA_ENDPOINT"'",
         "basicAuthEncoded": "'"$JIRA_BASIC_AUTH_ENCODED"'",
         "epicKeyField": "'"$JIRA_ENDPOINT"'",
@@ -135,19 +135,19 @@ jira_source_put_full() {
 }
 
 jira_source_list() {
-    curl -v "$LAKE_ENDPOINT/plugins/jira/sources" | jq
+    curl -v "$LAKE_ENDPOINT/plugins/jira/connections" | jq
 }
 
 jira_source_get() {
-    curl -v "$LAKE_ENDPOINT/plugins/jira/sources/$1" | jq
+    curl -v "$LAKE_ENDPOINT/plugins/jira/connections/$1" | jq
 }
 
 jira_source_delete() {
-    curl -v -XDELETE "$LAKE_ENDPOINT/plugins/jira/sources/$1"
+    curl -v -XDELETE "$LAKE_ENDPOINT/plugins/jira/connections/$1"
 }
 
 jira_typemapping_post() {
-    curl -v -XPOST "$LAKE_ENDPOINT/plugins/jira/sources/$1/type-mappings" --data @- <<'    JSON' | jq
+    curl -v -XPOST "$LAKE_ENDPOINT/plugins/jira/connections/$1/type-mappings" --data @- <<'    JSON' | jq
     {
         "userType": "userType",
         "standardType": "standardType"
@@ -156,7 +156,7 @@ jira_typemapping_post() {
 }
 
 jira_typemapping_put() {
-    curl -v -XPUT "$LAKE_ENDPOINT/plugins/jira/sources/$1/type-mappings/$2" --data @- <<'    JSON' | jq
+    curl -v -XPUT "$LAKE_ENDPOINT/plugins/jira/connections/$1/type-mappings/$2" --data @- <<'    JSON' | jq
     {
         "standardType": "standardTypeUpdated"
     }
@@ -164,15 +164,15 @@ jira_typemapping_put() {
 }
 
 jira_typemapping_delete() {
-    curl -v -XDELETE "$LAKE_ENDPOINT/plugins/jira/sources/$1/type-mappings/$2"
+    curl -v -XDELETE "$LAKE_ENDPOINT/plugins/jira/connections/$1/type-mappings/$2"
 }
 
 jira_typemapping_list() {
-    curl -v "$LAKE_ENDPOINT/plugins/jira/sources/$1/type-mappings" | jq
+    curl -v "$LAKE_ENDPOINT/plugins/jira/connections/$1/type-mappings" | jq
 }
 
 jira_statusmapping_post() {
-    curl -v -XPOST "$LAKE_ENDPOINT/plugins/jira/sources/$1/type-mappings/$2/status-mappings" --data @- <<'    JSON' | jq
+    curl -v -XPOST "$LAKE_ENDPOINT/plugins/jira/connections/$1/type-mappings/$2/status-mappings" --data @- <<'    JSON' | jq
     {
         "userStatus": "userStatus",
         "standardStatus": "standardStatus"
@@ -181,7 +181,7 @@ jira_statusmapping_post() {
 }
 
 jira_statusmapping_put() {
-    curl -v -XPUT "$LAKE_ENDPOINT/plugins/jira/sources/$1/type-mappings/$2/status-mappings/$3" --data @- <<'    JSON' | jq
+    curl -v -XPUT "$LAKE_ENDPOINT/plugins/jira/connections/$1/type-mappings/$2/status-mappings/$3" --data @- <<'    JSON' | jq
     {
         "standardStatus": "standardStatusUpdated"
     }
@@ -189,11 +189,11 @@ jira_statusmapping_put() {
 }
 
 jira_statusmapping_delete() {
-    curl -v -XDELETE "$LAKE_ENDPOINT/plugins/jira/sources/$1/type-mappings/$2/status-mappings/$3"
+    curl -v -XDELETE "$LAKE_ENDPOINT/plugins/jira/connections/$1/type-mappings/$2/status-mappings/$3"
 }
 
 jira_statusmapping_list() {
-    curl -v "$LAKE_ENDPOINT/plugins/jira/sources/$1/type-mappings/$2/status-mappings" | jq
+    curl -v "$LAKE_ENDPOINT/plugins/jira/connections/$1/type-mappings/$2/status-mappings" | jq
 }
 
 jira_echo() {
@@ -216,7 +216,7 @@ pipeline_new() {
                 {
                     "plugin": "jira",
                     "options": {
-                        "sourceId": 1,
+                        "connectionId": 1,
                         "boardId": 8
                     }
                 },
@@ -255,7 +255,7 @@ jira() {
                 {
                     "plugin": "jira",
                     "options": {
-                        "sourceId": '$1',
+                        "connectionId": '$1',
                         "boardId": '$2',
                         "tasks": ['"$3"']
                     }

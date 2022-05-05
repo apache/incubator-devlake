@@ -14,7 +14,7 @@ import (
 func ConvertWorklogs(taskCtx core.SubTaskContext) error {
 	data := taskCtx.GetData().(*JiraTaskData)
 	db := taskCtx.GetDb()
-	sourceId := data.Source.ID
+	connectionId := data.Connection.ID
 	boardId := data.Options.BoardId
 	logger := taskCtx.GetLogger()
 	logger.Info("convert worklog")
@@ -22,7 +22,7 @@ func ConvertWorklogs(taskCtx core.SubTaskContext) error {
 	cursor, err := db.Model(&models.JiraWorklog{}).
 		Select("_tool_jira_worklogs.*").
 		Joins(`left join _tool_jira_board_issues on (_tool_jira_board_issues.issue_id = _tool_jira_worklogs.issue_id)`).
-		Where("_tool_jira_board_issues.source_id = ? AND _tool_jira_board_issues.board_id = ?", sourceId, boardId).
+		Where("_tool_jira_board_issues.connection_id = ? AND _tool_jira_board_issues.board_id = ?", connectionId, boardId).
 		Rows()
 	if err != nil {
 		logger.Error("convert worklog error:", err)
@@ -37,8 +37,8 @@ func ConvertWorklogs(taskCtx core.SubTaskContext) error {
 		RawDataSubTaskArgs: helper.RawDataSubTaskArgs{
 			Ctx: taskCtx,
 			Params: JiraApiParams{
-				SourceId: data.Source.ID,
-				BoardId:  data.Options.BoardId,
+				ConnectionId: data.Connection.ID,
+				BoardId:      data.Options.BoardId,
 			},
 			Table: RAW_WORKLOGS_TABLE,
 		},
@@ -47,14 +47,14 @@ func ConvertWorklogs(taskCtx core.SubTaskContext) error {
 		Convert: func(inputRow interface{}) ([]interface{}, error) {
 			jiraWorklog := inputRow.(*models.JiraWorklog)
 			worklog := &ticket.IssueWorklog{
-				DomainEntity:     domainlayer.DomainEntity{Id: worklogIdGen.Generate(jiraWorklog.SourceId, jiraWorklog.IssueId, jiraWorklog.WorklogId)},
-				IssueId:          issueIdGen.Generate(jiraWorklog.SourceId, jiraWorklog.IssueId),
+				DomainEntity:     domainlayer.DomainEntity{Id: worklogIdGen.Generate(jiraWorklog.ConnectionId, jiraWorklog.IssueId, jiraWorklog.WorklogId)},
+				IssueId:          issueIdGen.Generate(jiraWorklog.ConnectionId, jiraWorklog.IssueId),
 				TimeSpentMinutes: jiraWorklog.TimeSpentSeconds / 60,
 				StartedDate:      &jiraWorklog.Started,
 				LoggedDate:       &jiraWorklog.Updated,
 			}
 			if jiraWorklog.AuthorId != "" {
-				worklog.AuthorId = userIdGen.Generate(sourceId, jiraWorklog.AuthorId)
+				worklog.AuthorId = userIdGen.Generate(connectionId, jiraWorklog.AuthorId)
 			}
 			return []interface{}{worklog}, nil
 		},

@@ -15,7 +15,7 @@ import Content from '@/components/Content'
 import request from '@/utils/request'
 import { DEVLAKE_ENDPOINT, GRAFANA_URL } from '@/utils/config.js'
 import TriggersUtil from '@/utils/triggersUtil'
-import SourcesUtil from '@/utils/sourcesUtil'
+import ConnectionsUtil from '@/utils/connectionsUtil'
 
 const STAGE_INIT = 0
 const STAGE_PENDING = 1
@@ -72,7 +72,7 @@ export default function Triggers () {
   useEffect(() => {
     console.log('Setting JSON based on active plugins...')
     const setTriggerJsonBasedOnActivePlugins = async () => {
-      const pluginsToSet = await SourcesUtil.getPluginSources()
+      const pluginsToSet = await ConnectionsUtil.getPluginConnections()
       const collectionJson = TriggersUtil.getCollectionJson(pluginsToSet)
       setTriggerJson(collectionJson)
     }

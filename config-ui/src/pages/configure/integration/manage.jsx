@@ -266,7 +266,7 @@ export default function ManageIntegration () {
                                 style={{ cursor: 'pointer' }}
                                 className='cell-name'
                               >
-                                <Tooltip content='Use this SourceID for Triggers' position={Position.TOP}>
+                                <Tooltip content='Use this ConnectionID for Triggers' position={Position.TOP}>
                                   <span style={{ color: Colors.BLUE3, fontWeight: 'bold' }}>
                                     {connection.ID}
                                   </span>
@@ -311,7 +311,7 @@ export default function ManageIntegration () {
                                 <Icon icon='settings' size={12} />
                                 Settings
                               </a>
-                              {activeProvider?.multiSource && (
+                              {activeProvider?.multiConnection && (
                                 <DeleteAction
                                   id={deleteId}
                                   connection={connection}

@@ -89,13 +89,13 @@ func (plugin Gitlab) ApiResources() map[string]map[string]core.ApiResourceHandle
 		"test": {
 			"POST": api.TestConnection,
 		},
-		"sources": {
-			"GET":  api.ListSources,
-			"POST": api.PutSource,
+		"connections": {
+			"GET":  api.ListConnections,
+			"POST": api.PutConnection,
 		},
-		"sources/:sourceId": {
-			"GET": api.GetSource,
-			"PUT": api.PutSource,
+		"connections/:connectionId": {
+			"GET": api.GetConnection,
+			"PUT": api.PutConnection,
 		},
 	}
 }

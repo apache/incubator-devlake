@@ -83,11 +83,11 @@ func (plugin Jira) PrepareTaskData(taskCtx core.TaskContext, options map[string]
 	if err != nil {
 		return nil, err
 	}
-	if op.SourceId == 0 {
-		return nil, fmt.Errorf("sourceId is invalid")
+	if op.ConnectionId == 0 {
+		return nil, fmt.Errorf("connectionId is invalid")
 	}
-	source := &models.JiraSource{}
-	err = db.Find(source, op.SourceId).Error
+	connection := &models.JiraConnection{}
+	err = db.Find(connection, op.ConnectionId).Error
 	if err != nil {
 		return nil, err
 	}
@@ -99,7 +99,7 @@ func (plugin Jira) PrepareTaskData(taskCtx core.TaskContext, options map[string]
 			return nil, fmt.Errorf("invalid value for `since`: %w", err)
 		}
 	}
-	jiraApiClient, err := tasks.NewJiraApiClient(taskCtx, source)
+	jiraApiClient, err := tasks.NewJiraApiClient(taskCtx, connection)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create jira api client: %w", err)
 	}
@@ -110,7 +110,7 @@ func (plugin Jira) PrepareTaskData(taskCtx core.TaskContext, options map[string]
 	taskData := &tasks.JiraTaskData{
 		Options:        &op,
 		ApiClient:      jiraApiClient,
-		Source:         source,
+		Connection:     connection,
 		JiraServerInfo: *info,
 	}
 	if !since.IsZero() {
@@ -124,7 +124,7 @@ func (plugin Jira) RootPkgPath() string {
 }
 
 func (plugin Jira) MigrationScripts() []migration.Script {
-	return []migration.Script{new(migrationscripts.InitSchemas)}
+	return []migration.Script{new(migrationscripts.InitSchemas), new(migrationscripts.UpdateSchemas20220505)}
 }
 
 func (plugin Jira) ApiResources() map[string]map[string]core.ApiResourceHandler {
@@ -137,41 +137,41 @@ func (plugin Jira) ApiResources() map[string]map[string]core.ApiResourceHandler 
 				return &core.ApiResourceOutput{Body: input.Body}, nil
 			},
 		},
-		"sources": {
-			"POST": api.PostSources,
-			"GET":  api.ListSources,
+		"connections": {
+			"POST": api.PostConnections,
+			"GET":  api.ListConnections,
 		},
-		"sources/:sourceId": {
-			"PUT":    api.PutSource,
-			"DELETE": api.DeleteSource,
-			"GET":    api.GetSource,
+		"connections/:connectionId": {
+			"PUT":    api.PutConnection,
+			"DELETE": api.DeleteConnection,
+			"GET":    api.GetConnection,
 		},
-		"sources/:sourceId/epics": {
-			"GET": api.GetEpicsBySourceId,
+		"connections/:connectionId/epics": {
+			"GET": api.GetEpicsByConnectionId,
 		},
-		"sources/:sourceId/granularities": {
-			"GET": api.GetGranularitiesBySourceId,
+		"connections/:connectionId/granularities": {
+			"GET": api.GetGranularitiesByConnectionId,
 		},
-		"sources/:sourceId/boards": {
-			"GET": api.GetBoardsBySourceId,
+		"connections/:connectionId/boards": {
+			"GET": api.GetBoardsByConnectionId,
 		},
-		"sources/:sourceId/type-mappings": {
+		"connections/:connectionId/type-mappings": {
 			"POST": api.PostIssueTypeMappings,
 			"GET":  api.ListIssueTypeMappings,
 		},
-		"sources/:sourceId/type-mappings/:userType": {
+		"connections/:connectionId/type-mappings/:userType": {
 			"PUT":    api.PutIssueTypeMapping,
 			"DELETE": api.DeleteIssueTypeMapping,
 		},
-		"sources/:sourceId/type-mappings/:userType/status-mappings": {
+		"connections/:connectionId/type-mappings/:userType/status-mappings": {
 			"POST": api.PostIssueStatusMappings,
 			"GET":  api.ListIssueStatusMappings,
 		},
-		"sources/:sourceId/type-mappings/:userType/status-mappings/:userStatus": {
+		"connections/:connectionId/type-mappings/:userType/status-mappings/:userStatus": {
 			"PUT":    api.PutIssueStatusMapping,
 			"DELETE": api.DeleteIssueStatusMapping,
 		},
-		"sources/:sourceId/proxy/rest/*path": {
+		"connections/:connectionId/proxy/rest/*path": {
 			"GET": api.Proxy,
 		},
 	}
@@ -183,14 +183,14 @@ var PluginEntry Jira //nolint
 // standalone mode for debugging
 func main() {
 	cmd := &cobra.Command{Use: "jira"}
-	sourceId := cmd.Flags().Uint64P("source", "s", 0, "jira source id")
+	connectionId := cmd.Flags().Uint64P("connection", "s", 0, "jira connection id")
 	boardId := cmd.Flags().Uint64P("board", "b", 0, "jira board id")
-	_ = cmd.MarkFlagRequired("source")
+	_ = cmd.MarkFlagRequired("connection")
 	_ = cmd.MarkFlagRequired("board")
 	cmd.Run = func(c *cobra.Command, args []string) {
 		runner.DirectRun(c, args, PluginEntry, map[string]interface{}{
-			"sourceId": *sourceId,
-			"boardId":  *boardId,
+			"connectionId": *connectionId,
+			"boardId":      *boardId,
 		})
 	}
 	runner.RunCmd(cmd)

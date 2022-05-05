@@ -70,13 +70,13 @@ func (plugin Jenkins) ApiResources() map[string]map[string]core.ApiResourceHandl
 		"test": {
 			"POST": api.TestConnection,
 		},
-		"sources": {
-			"GET":  api.ListSources,
-			"POST": api.PostSource,
+		"connections": {
+			"GET":  api.ListConnections,
+			"POST": api.PostConnection,
 		},
-		"sources/:sourceId": {
-			"GET": api.GetSource,
-			"PUT": api.PutSource,
+		"connections/:connectionId": {
+			"GET": api.GetConnection,
+			"PUT": api.PutConnection,
 		},
 	}
 }

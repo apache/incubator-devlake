@@ -30,7 +30,7 @@ of rows were collected and processed or not.
   "tasks": [[{
     "Plugin": "jira",
     "Options": {
-        "sourceId": `<your_source_id>`,
+        "connectionId": `<your_connection_id>`,
         "boardId": 8
     }
   }]]

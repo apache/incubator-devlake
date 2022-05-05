@@ -29,7 +29,7 @@ func CollectChangelogs(taskCtx core.SubTaskContext) error {
 	if since == nil {
 		// user didn't specify a time range to sync, try load from database
 		var latestUpdated models.JiraChangelog
-		err := db.Where("source_id = ?", data.Source.ID).Order("created DESC").Limit(1).Find(&latestUpdated).Error
+		err := db.Where("connection_id = ?", data.Connection.ID).Order("created DESC").Limit(1).Find(&latestUpdated).Error
 		if err != nil {
 			return fmt.Errorf("failed to get latest jira changelog record: %w", err)
 		}
@@ -42,8 +42,8 @@ func CollectChangelogs(taskCtx core.SubTaskContext) error {
 	// filter out issue_ids that needed collection
 	tx := db.Table("_tool_jira_board_issues bi").
 		Select("bi.issue_id, NOW() AS update_time").
-		Joins("LEFT JOIN _tool_jira_issues i ON (bi.source_id = i.source_id AND bi.issue_id = i.issue_id)").
-		Where("bi.source_id = ? AND bi.board_id = ? AND (i.changelog_updated IS NULL OR i.changelog_updated < i.updated)", data.Options.SourceId, data.Options.BoardId)
+		Joins("LEFT JOIN _tool_jira_issues i ON (bi.connection_id = i.connection_id AND bi.issue_id = i.issue_id)").
+		Where("bi.connection_id = ? AND bi.board_id = ? AND (i.changelog_updated IS NULL OR i.changelog_updated < i.updated)", data.Options.ConnectionId, data.Options.BoardId)
 
 	// apply time range if any
 	if since != nil {
@@ -66,8 +66,8 @@ func CollectChangelogs(taskCtx core.SubTaskContext) error {
 		RawDataSubTaskArgs: helper.RawDataSubTaskArgs{
 			Ctx: taskCtx,
 			Params: JiraApiParams{
-				SourceId: data.Source.ID,
-				BoardId:  data.Options.BoardId,
+				ConnectionId: data.Connection.ID,
+				BoardId:      data.Options.BoardId,
 			},
 			Table: RAW_CHANGELOG_TABLE,
 		},

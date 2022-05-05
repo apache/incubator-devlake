@@ -8,7 +8,7 @@ import (
 
 type JiraWorklog struct {
 	common.NoPKModel
-	SourceId         uint64 `gorm:"primaryKey"`
+	ConnectionId     uint64 `gorm:"primaryKey"`
 	IssueId          uint64 `gorm:"primarykey"`
 	WorklogId        string `gorm:"primarykey;type:varchar(255)"`
 	AuthorId         string `gorm:"type:varchar(255)"`

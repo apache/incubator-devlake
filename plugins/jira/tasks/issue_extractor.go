@@ -16,14 +16,14 @@ var _ core.SubTaskEntryPoint = ExtractIssues
 
 func ExtractIssues(taskCtx core.SubTaskContext) error {
 	data := taskCtx.GetData().(*JiraTaskData)
-	sourceId := data.Source.ID
+	connectionId := data.Connection.ID
 	boardId := data.Options.BoardId
 	db := taskCtx.GetDb()
 	logger := taskCtx.GetLogger()
-	logger.Info("extract Issues, source_id=%d, board_id=%d", sourceId, boardId)
+	logger.Info("extract Issues, connection_id=%d, board_id=%d", connectionId, boardId)
 	// prepare getStdType function
 	var typeMappingRows []*models.JiraIssueTypeMapping
-	err := db.Find(&typeMappingRows, "source_id = ?", sourceId).Error
+	err := db.Find(&typeMappingRows, "connection_id = ?", connectionId).Error
 	if err != nil {
 		return err
 	}
@@ -40,7 +40,7 @@ func ExtractIssues(taskCtx core.SubTaskContext) error {
 	}
 	// prepare getStdStatus function
 	var statusMappingRows []*models.JiraIssueStatusMapping
-	err = db.Find(&statusMappingRows, "source_id = ?", sourceId).Error
+	err = db.Find(&statusMappingRows, "connection_id = ?", connectionId).Error
 	if err != nil {
 		return err
 	}
@@ -70,8 +70,8 @@ func ExtractIssues(taskCtx core.SubTaskContext) error {
 				set of data to be process, for example, we process JiraIssues by Board
 			*/
 			Params: JiraApiParams{
-				SourceId: data.Source.ID,
-				BoardId:  data.Options.BoardId,
+				ConnectionId: data.Connection.ID,
+				BoardId:      data.Options.BoardId,
 			},
 			/*
 				Table store raw data
@@ -85,10 +85,10 @@ func ExtractIssues(taskCtx core.SubTaskContext) error {
 				return nil, err
 			}
 			var results []interface{}
-			sprints, issue, _, worklogs, changelogs, changelogItems, users := apiIssue.ExtractEntities(data.Source.ID, data.Source.EpicKeyField, data.Source.StoryPointField)
+			sprints, issue, _, worklogs, changelogs, changelogItems, users := apiIssue.ExtractEntities(data.Connection.ID, data.Connection.EpicKeyField, data.Connection.StoryPointField)
 			for _, sprintId := range sprints {
 				sprintIssue := &models.JiraSprintIssue{
-					SourceId:         data.Source.ID,
+					ConnectionId:     data.Connection.ID,
 					SprintId:         sprintId,
 					IssueId:          issue.IssueId,
 					IssueCreatedDate: &issue.Created,
@@ -117,9 +117,9 @@ func ExtractIssues(taskCtx core.SubTaskContext) error {
 				results = append(results, user)
 			}
 			results = append(results, &models.JiraBoardIssue{
-				SourceId: sourceId,
-				BoardId:  boardId,
-				IssueId:  issue.IssueId,
+				ConnectionId: connectionId,
+				BoardId:      boardId,
+				IssueId:      issue.IssueId,
 			})
 			return results, nil
 		},
