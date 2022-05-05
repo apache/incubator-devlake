@@ -1,6 +1,8 @@
 package config
 
 import (
+	"os"
+
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
 )
@@ -25,7 +27,11 @@ func setDefaultValue() {
 func init() {
 	// create the object and load the .env file
 	v = viper.New()
-	v.SetConfigFile(".env")
+	envPath := os.Getenv("ENV_PATH")
+	if envPath == "" {
+		envPath = ".env"
+	}
+	v.SetConfigFile(envPath)
 	err := v.ReadInConfig()
 	if err != nil {
 		logrus.Warn("Failed to read [.env] file:", err)
