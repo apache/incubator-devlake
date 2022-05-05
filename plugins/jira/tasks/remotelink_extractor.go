@@ -12,13 +12,13 @@ import (
 
 func ExtractRemotelinks(taskCtx core.SubTaskContext) error {
 	data := taskCtx.GetData().(*JiraTaskData)
-	sourceId := data.Source.ID
+	connectionId := data.Connection.ID
 	boardId := data.Options.BoardId
 	logger := taskCtx.GetLogger()
 	db := taskCtx.GetDb()
 	logger.Info("extract remote links")
 	var commitShaRegex *regexp.Regexp
-	if pattern := data.Source.RemotelinkCommitShaPattern; pattern != "" {
+	if pattern := data.Connection.RemotelinkCommitShaPattern; pattern != "" {
 		commitShaRegex = regexp.MustCompile(pattern)
 	}
 
@@ -26,7 +26,7 @@ func ExtractRemotelinks(taskCtx core.SubTaskContext) error {
 	cursor, err := db.Model(&models.JiraRemotelink{}).
 		Select("_tool_jira_remotelinks.*").
 		Joins("left join _tool_jira_board_issues on _tool_jira_board_issues.issue_id = _tool_jira_remotelinks.issue_id").
-		Where("_tool_jira_board_issues.board_id = ? AND _tool_jira_board_issues.source_id = ?", boardId, sourceId).
+		Where("_tool_jira_board_issues.board_id = ? AND _tool_jira_board_issues.connection_id = ?", boardId, connectionId).
 		Rows()
 	if err != nil {
 		return err
@@ -37,8 +37,8 @@ func ExtractRemotelinks(taskCtx core.SubTaskContext) error {
 		RawDataSubTaskArgs: helper.RawDataSubTaskArgs{
 			Ctx: taskCtx,
 			Params: JiraApiParams{
-				SourceId: sourceId,
-				BoardId:  boardId,
+				ConnectionId: connectionId,
+				BoardId:      boardId,
 			},
 			Table: RAW_REMOTELINK_TABLE,
 		},
@@ -54,13 +54,13 @@ func ExtractRemotelinks(taskCtx core.SubTaskContext) error {
 			if err != nil {
 				return nil, err
 			}
-			issue := &models.JiraIssue{SourceId: sourceId, IssueId: input.IssueId}
+			issue := &models.JiraIssue{ConnectionId: connectionId, IssueId: input.IssueId}
 			err = db.Model(issue).Update("remotelink_updated", input.UpdateTime).Error
 			if err != nil {
 				return nil, err
 			}
 			remotelink := &models.JiraRemotelink{
-				SourceId:     sourceId,
+				ConnectionId: connectionId,
 				RemotelinkId: raw.ID,
 				IssueId:      input.IssueId,
 				Self:         raw.Self,
@@ -72,10 +72,10 @@ func ExtractRemotelinks(taskCtx core.SubTaskContext) error {
 				groups := commitShaRegex.FindStringSubmatch(remotelink.Url)
 				if len(groups) > 1 {
 					issueCommit := &models.JiraIssueCommit{
-						SourceId:  sourceId,
-						IssueId:   remotelink.IssueId,
-						CommitSha: groups[1],
-						CommitUrl: remotelink.Url,
+						ConnectionId: connectionId,
+						IssueId:      remotelink.IssueId,
+						CommitSha:    groups[1],
+						CommitUrl:    remotelink.Url,
 					}
 					result = append(result, issueCommit)
 				}

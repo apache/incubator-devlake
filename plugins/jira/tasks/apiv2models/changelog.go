@@ -13,16 +13,16 @@ type Changelog struct {
 	Items   []ChangelogItem  `json:"items"`
 }
 
-func (c Changelog) ToToolLayer(sourceId, issueId uint64) (*models.JiraChangelog, *models.JiraUser) {
+func (c Changelog) ToToolLayer(connectionId, issueId uint64) (*models.JiraChangelog, *models.JiraUser) {
 	return &models.JiraChangelog{
-		SourceId:          sourceId,
+		ConnectionId:      connectionId,
 		ChangelogId:       c.ID,
 		IssueId:           issueId,
 		AuthorAccountId:   c.Author.EmailAddress,
 		AuthorDisplayName: c.Author.DisplayName,
 		AuthorActive:      c.Author.Active,
 		Created:           c.Created.ToTime(),
-	}, c.Author.ToToolLayer(sourceId)
+	}, c.Author.ToToolLayer(connectionId)
 }
 
 type ChangelogItem struct {
@@ -34,15 +34,15 @@ type ChangelogItem struct {
 	ToString   string `json:"toString"`
 }
 
-func (c ChangelogItem) ToToolLayer(sourceId, changelogId uint64) *models.JiraChangelogItem {
+func (c ChangelogItem) ToToolLayer(connectionId, changelogId uint64) *models.JiraChangelogItem {
 	return &models.JiraChangelogItem{
-		SourceId:    sourceId,
-		ChangelogId: changelogId,
-		Field:       c.Field,
-		FieldType:   c.Fieldtype,
-		From:        c.From,
-		FromString:  c.FromString,
-		To:          c.To,
-		ToString:    c.ToString,
+		ConnectionId: connectionId,
+		ChangelogId:  changelogId,
+		Field:        c.Field,
+		FieldType:    c.Fieldtype,
+		From:         c.From,
+		FromString:   c.FromString,
+		To:           c.To,
+		ToString:     c.ToString,
 	}
 }

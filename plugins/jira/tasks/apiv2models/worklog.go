@@ -20,9 +20,9 @@ type Worklog struct {
 	IssueID          uint64           `json:"issueId,string"`
 }
 
-func (w Worklog) ToToolLayer(sourceId uint64) *models.JiraWorklog {
+func (w Worklog) ToToolLayer(connectionId uint64) *models.JiraWorklog {
 	result := &models.JiraWorklog{
-		SourceId:         sourceId,
+		ConnectionId:     connectionId,
 		IssueId:          w.IssueID,
 		WorklogId:        w.ID,
 		TimeSpent:        w.TimeSpent,

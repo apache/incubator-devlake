@@ -14,8 +14,8 @@ import (
 )
 
 func findIssueTypeMappingByInputParam(input *core.ApiResourceInput) (*models.JiraIssueTypeMapping, error) {
-	// load jira source
-	jiraSource, err := findSourceByInputParam(input)
+	// load jira connection
+	jiraConnection, err := findConnectionByInputParam(input)
 	if err != nil {
 		return nil, err
 	}
@@ -25,7 +25,7 @@ func findIssueTypeMappingByInputParam(input *core.ApiResourceInput) (*models.Jir
 		return nil, fmt.Errorf("missing userType")
 	}
 	jiraIssueTypeMapping := &models.JiraIssueTypeMapping{}
-	err = db.First(jiraIssueTypeMapping, jiraSource.ID, userType).Error
+	err = db.First(jiraIssueTypeMapping, jiraConnection.ID, userType).Error
 	if err != nil {
 		return nil, err
 	}
@@ -35,11 +35,11 @@ func findIssueTypeMappingByInputParam(input *core.ApiResourceInput) (*models.Jir
 
 func mergeFieldsToJiraTypeMapping(
 	jiraIssueTypeMapping *models.JiraIssueTypeMapping,
-	sources ...map[string]interface{},
+	connections ...map[string]interface{},
 ) error {
-	// merge fields from sources to jiraIssueTypeMapping
-	for _, source := range sources {
-		err := mapstructure.Decode(source, jiraIssueTypeMapping)
+	// merge fields from connections to jiraIssueTypeMapping
+	for _, connection := range connections {
+		err := mapstructure.Decode(connection, jiraIssueTypeMapping)
 		if err != nil {
 			return err
 		}
@@ -60,12 +60,12 @@ func wrapIssueTypeDuplicateErr(err error) error {
 	return err
 }
 
-func saveTypeMappings(tx *gorm.DB, jiraSourceId uint64, typeMappings interface{}) error {
+func saveTypeMappings(tx *gorm.DB, jiraConnectionId uint64, typeMappings interface{}) error {
 	typeMappingsMap, ok := typeMappings.(map[string]interface{})
 	if !ok {
 		return fmt.Errorf("typeMappings is not a JSON object: %v", typeMappings)
 	}
-	err := tx.Where("source_id = ?", jiraSourceId).Delete(&models.JiraIssueTypeMapping{}).Error
+	err := tx.Where("connection_id = ?", jiraConnectionId).Delete(&models.JiraIssueTypeMapping{}).Error
 	if err != nil {
 		return err
 	}
@@ -76,8 +76,8 @@ func saveTypeMappings(tx *gorm.DB, jiraSourceId uint64, typeMappings interface{}
 		}
 		jiraIssueTypeMapping := &models.JiraIssueTypeMapping{}
 		err = mergeFieldsToJiraTypeMapping(jiraIssueTypeMapping, typeMappingMap, map[string]interface{}{
-			"SourceID": jiraSourceId,
-			"UserType": userType,
+			"ConnectionID": jiraConnectionId,
+			"UserType":     userType,
 		})
 		if err != nil {
 			return err
@@ -89,7 +89,7 @@ func saveTypeMappings(tx *gorm.DB, jiraSourceId uint64, typeMappings interface{}
 
 		statusMappings := typeMappingMap["statusMappings"]
 		if statusMappings != nil {
-			err = saveStatusMappings(tx, jiraSourceId, userType, statusMappings)
+			err = saveStatusMappings(tx, jiraConnectionId, userType, statusMappings)
 			if err != nil {
 				return err
 			}
@@ -98,9 +98,9 @@ func saveTypeMappings(tx *gorm.DB, jiraSourceId uint64, typeMappings interface{}
 	return nil
 }
 
-func findIssueTypeMappingBySourceId(jiraSourceId uint64) ([]*models.JiraIssueTypeMapping, error) {
+func findIssueTypeMappingByConnectionId(jiraConnectionId uint64) ([]*models.JiraIssueTypeMapping, error) {
 	jiraIssueTypeMappings := make([]*models.JiraIssueTypeMapping, 0)
-	err := db.Where("source_id = ?", jiraSourceId).Find(&jiraIssueTypeMappings).Error
+	err := db.Where("connection_id = ?", jiraConnectionId).Find(&jiraIssueTypeMappings).Error
 	if err != nil {
 		return nil, err
 	}
@@ -108,7 +108,7 @@ func findIssueTypeMappingBySourceId(jiraSourceId uint64) ([]*models.JiraIssueTyp
 }
 
 /*
-POST /plugins/jira/sources/:sourceId/type-mappings
+POST /plugins/jira/connections/:connectionId/type-mappings
 {
 	"userType": "user custom type",
 	"standardType": "devlake standard type"
@@ -116,13 +116,13 @@ POST /plugins/jira/sources/:sourceId/type-mappings
 */
 func PostIssueTypeMappings(input *core.ApiResourceInput) (*core.ApiResourceOutput, error) {
 	// create new
-	jiraSource, err := findSourceByInputParam(input)
+	jiraConnection, err := findConnectionByInputParam(input)
 	if err != nil {
 		return nil, err
 	}
 	jiraIssueTypeMapping := &models.JiraIssueTypeMapping{}
 	err = mergeFieldsToJiraTypeMapping(jiraIssueTypeMapping, input.Body, map[string]interface{}{
-		"SourceID": jiraSource.ID,
+		"ConnectionID": jiraConnection.ID,
 	})
 	if err != nil {
 		return nil, err
@@ -136,7 +136,7 @@ func PostIssueTypeMappings(input *core.ApiResourceInput) (*core.ApiResourceOutpu
 }
 
 /*
-PUT /plugins/jira/sources/:sourceId/type-mappings/:userType
+PUT /plugins/jira/connections/:connectionId/type-mappings/:userType
 {
 	"standardType": "devlake standard type"
 }
@@ -161,7 +161,7 @@ func PutIssueTypeMapping(input *core.ApiResourceInput) (*core.ApiResourceOutput,
 }
 
 /*
-DELETE /plugins/jira/sources/:sourceId/type-mappings/:userType
+DELETE /plugins/jira/connections/:connectionId/type-mappings/:userType
 */
 func DeleteIssueTypeMapping(input *core.ApiResourceInput) (*core.ApiResourceOutput, error) {
 	// load from db
@@ -174,8 +174,8 @@ func DeleteIssueTypeMapping(input *core.ApiResourceInput) (*core.ApiResourceOutp
 		return nil, err
 	}
 	err = db.Where(
-		"source_id = ? AND user_type = ?",
-		jiraIssueTypeMapping.SourceID,
+		"connection_id = ? AND user_type = ?",
+		jiraIssueTypeMapping.ConnectionID,
 		jiraIssueTypeMapping.UserType,
 	).Delete(&models.JiraIssueStatusMapping{}).Error
 	if err != nil {
@@ -185,13 +185,13 @@ func DeleteIssueTypeMapping(input *core.ApiResourceInput) (*core.ApiResourceOutp
 }
 
 /*
-GET /plugins/jira/sources/:sourceId/type-mappings
+GET /plugins/jira/connections/:connectionId/type-mappings
 */
 func ListIssueTypeMappings(input *core.ApiResourceInput) (*core.ApiResourceOutput, error) {
-	jiraSource, err := findSourceByInputParam(input)
+	jiraConnection, err := findConnectionByInputParam(input)
 	if err != nil {
 		return nil, err
 	}
-	jiraIssueTypeMappings, err := findIssueTypeMappingBySourceId(jiraSource.ID)
+	jiraIssueTypeMappings, err := findIssueTypeMappingByConnectionId(jiraConnection.ID)
 	return &core.ApiResourceOutput{Body: jiraIssueTypeMappings}, err
 }

@@ -13,7 +13,7 @@ const useJIRA = ({ apiProxyPath, issuesEndpoint, fieldsEndpoint }) => {
   const fetchIssueTypes = useCallback(() => {
     try {
       if (apiProxyPath.includes('null')) {
-        throw new Error('Connection Source ID is Null')
+        throw new Error('Connection ID is Null')
       }
       setError(null)
       const fetchIssueTypes = async () => {
@@ -38,7 +38,7 @@ const useJIRA = ({ apiProxyPath, issuesEndpoint, fieldsEndpoint }) => {
   const fetchFields = useCallback(() => {
     try {
       if (apiProxyPath.includes('null')) {
-        throw new Error('Connection Source ID is Null')
+        throw new Error('Connection ID is Null')
       }
       setError(null)
       const fetchIssueFields = async () => {

@@ -20,10 +20,10 @@ const ProviderSettings = (props) => {
   const {
     providerId,
     projectId = [],
-    sourceId,
-    selectedSource,
+    connectionId,
+    selectedConnection,
     selectedGithubRepo,
-    sources = [],
+    connections = [],
     repositories = [],
     boardId = [],
     owner,
@@ -34,8 +34,8 @@ const ProviderSettings = (props) => {
     refDiffPairs = [],
     refDiffTasks = [],
     setProjectId = () => {},
-    setSourceId = () => {},
-    setSelectedSource = () => {},
+    setConnectionId = () => {},
+    setSelectedConnection = () => {},
     setBoardId = () => {},
     setOwner = () => {},
     setRepositoryName = () => {},
@@ -61,7 +61,7 @@ const ProviderSettings = (props) => {
         <>
           <FormGroup
             disabled={isRunning || !isEnabled(providerId)}
-            label={<strong>Source ID<span className='requiredStar'>*</span></strong>}
+            label={<strong>Connection ID<span className='requiredStar'>*</span></strong>}
             labelInfo={<span style={{ display: 'block' }}>Choose Connection Instance ID</span>}
             inline={false}
             labelFor='source-id'
@@ -73,13 +73,13 @@ const ProviderSettings = (props) => {
             <ButtonGroup>
               <Select
                 disabled={isRunning || !isEnabled(providerId)}
-                className='selector-source-id'
+                className='selector-connection-id'
                 popoverProps={{ popoverClassName: 'source-id-popover' }}
                 multiple
                 inline={true}
                 fill={true}
-                items={sources}
-                activeItem={selectedSource}
+                items={connections}
+                activeItem={selectedConnection}
                 itemPredicate={(query, item) => item?.title?.toLowerCase().indexOf(query.toLowerCase()) >= 0}
                 itemRenderer={(item, { handleClick, modifiers }) => (
                   <MenuItem
@@ -92,14 +92,14 @@ const ProviderSettings = (props) => {
                 )}
                 noResults={<MenuItem disabled={true} text='No Connections.' />}
                 onItemSelect={(item) => {
-                  setSelectedSource(item)
+                  setSelectedConnection(item)
                 }}
               >
                 <Button
-                  className='btn-source-id-selector'
+                  className='btn-connection-id-selector'
                   disabled={isRunning || !isEnabled(providerId)}
                   style={{ justifyContent: 'space-between', minWidth: '206px', maxWidth: '290px', whiteSpace: 'nowrap' }}
-                  text={selectedSource ? `${selectedSource.title} [${selectedSource.value}]` : 'Select Instance'}
+                  text={selectedConnection ? `${selectedConnection.title} [${selectedConnection.value}]` : 'Select Instance'}
                   rightIcon='double-caret-vertical'
                   fill
                 />
@@ -108,7 +108,7 @@ const ProviderSettings = (props) => {
                 icon='eraser'
                 intent={Intent.WARNING}
                 disabled={isRunning || !isEnabled(providerId)}
-                onClick={() => setSelectedSource(null)}
+                onClick={() => setSelectedConnection(null)}
               />
             </ButtonGroup>
           </FormGroup>

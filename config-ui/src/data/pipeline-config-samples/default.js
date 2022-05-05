@@ -10,7 +10,7 @@ const defaultConfig = [
       Plugin: 'jira',
       Options: {
         boardId: 8,
-        sourceId: 1
+        connectionId: 1
       }
     },
     {

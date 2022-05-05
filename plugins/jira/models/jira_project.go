@@ -8,10 +8,10 @@ type JiraProject struct {
 	common.NoPKModel
 
 	// collected fields
-	SourceId uint64 `gorm:"primarykey"`
-	Id       string `gorm:"primaryKey;type:varchar(255)"`
-	Key      string `gorm:"type:varchar(255)"`
-	Name     string `gorm:"type:varchar(255)"`
+	ConnectionId uint64 `gorm:"primarykey"`
+	Id           string `gorm:"primaryKey;type:varchar(255)"`
+	Key          string `gorm:"type:varchar(255)"`
+	Name         string `gorm:"type:varchar(255)"`
 }
 
 func (JiraProject) TableName() string {

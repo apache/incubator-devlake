@@ -4,7 +4,7 @@ import (
 	"github.com/merico-dev/lake/models/common"
 )
 
-type JiraSource struct {
+type JiraConnection struct {
 	common.Model
 	Name                       string `gorm:"type:varchar(100);uniqueIndex" json:"name" validate:"required"`
 	Endpoint                   string `json:"endpoint" validate:"required"`
@@ -17,25 +17,25 @@ type JiraSource struct {
 }
 
 type JiraIssueTypeMapping struct {
-	SourceID     uint64 `gorm:"primaryKey" json:"jiraSourceId" validate:"required"`
+	ConnectionID uint64 `gorm:"primaryKey" json:"jiraConnectionId" validate:"required"`
 	UserType     string `gorm:"type:varchar(50);primaryKey" json:"userType" validate:"required"`
 	StandardType string `gorm:"type:varchar(50)" json:"standardType" validate:"required"`
 }
 
 type JiraIssueStatusMapping struct {
-	SourceID       uint64 `gorm:"primaryKey" json:"jiraSourceId" validate:"required"`
+	ConnectionID   uint64 `gorm:"primaryKey" json:"jiraConnectionId" validate:"required"`
 	UserType       string `gorm:"type:varchar(50);primaryKey" json:"userType" validate:"required"`
 	UserStatus     string `gorm:"type:varchar(50);primaryKey" json:"userStatus" validate:"required"`
 	StandardStatus string `gorm:"type:varchar(50)" json:"standardStatus" validate:"required"`
 }
 
-type JiraSourceDetail struct {
-	JiraSource
+type JiraConnectionDetail struct {
+	JiraConnection
 	TypeMappings map[string]map[string]interface{} `json:"typeMappings"`
 }
 
-func (JiraSource) TableName() string {
-	return "_tool_jira_sources"
+func (JiraConnection) TableName() string {
+	return "_tool_jira_connections"
 }
 
 func (JiraIssueTypeMapping) TableName() string {

@@ -38,9 +38,9 @@ context('Data Integration Providers', () => {
         .should('be.visible')
     })
 
-    it('can create a new jira connection source', () => {
-      cy.fixture('new-jira-connection').as('JIRAConnectionSourceJSON')
-      cy.intercept('POST', '/api/plugins/jira/sources', { statusCode: 201, body: '@JIRAConnectionSourceJSON' }).as('createJIRASource')
+    it('can create a new jira connection', () => {
+      cy.fixture('new-jira-connection').as('JIRAConnectionConnectionJSON')
+      cy.intercept('POST', '/api/plugins/jira/connections', { statusCode: 201, body: '@JIRAConnectionConnectionJSON' }).as('createJIRAConnection')
       cy.visit('/integrations/jira')
       cy.get('button#btn-add-new-connection').click()
       cy.get('button#btn-save')
@@ -57,12 +57,12 @@ context('Data Integration Providers', () => {
         .should('be.enabled')
         .click()
       
-      cy.wait('@createJIRASource').its('response.statusCode').should('eq', 201)
+      cy.wait('@createJIRAConnection').its('response.statusCode').should('eq', 201)
       cy.url().should('include', '/integrations/jira')
     })
 
-    it('can perform test for online connection source', () => {
-      cy.intercept('GET', '/api/plugins/jira/sources/*').as('fetchJIRAConnection')
+    it('can perform test for online connection', () => {
+      cy.intercept('GET', '/api/plugins/jira/connections/*').as('fetchJIRAConnection')
       cy.intercept('POST', '/api/plugins/jira/test').as('testJIRAConnection')  
       cy.visit('/integrations/jira')
       cy.get('.connections-table')
@@ -96,7 +96,7 @@ context('Data Integration Providers', () => {
         .should('contain', 'Endpoint')
         .should('contain', 'Status')
     })
-    it('limited to one (1) connection source', () => {
+    it('limited to one (1) connection', () => {
       cy.visit('/integrations/gitlab')
       cy.get('.connections-table')
         .should('have.class', 'bp3-html-table')
@@ -110,8 +110,8 @@ context('Data Integration Providers', () => {
         .should('have.class', 'bp3-disabled')
         .should('have.attr', 'disabled')
     })
-    it('can perform test for online connection source', () => {
-      cy.intercept('GET', '/api/plugins/gitlab/sources/*').as('fetchGitlabConnection')
+    it('can perform test for online connection', () => {
+      cy.intercept('GET', '/api/plugins/gitlab/connections/*').as('fetchGitlabConnection')
       cy.intercept('POST', '/api/plugins/gitlab/test').as('testGitlabConnection')  
       cy.visit('/integrations/gitlab')
       cy.get('.connections-table')
@@ -145,7 +145,7 @@ context('Data Integration Providers', () => {
         .should('contain', 'Endpoint')
         .should('contain', 'Status')
     })
-    it('limited to one (1) connection source', () => {
+    it('limited to one (1) connection', () => {
       cy.visit('/integrations/github')
       cy.get('.connections-table')
         .should('have.class', 'bp3-html-table')
@@ -159,8 +159,8 @@ context('Data Integration Providers', () => {
         .should('have.class', 'bp3-disabled')
         .should('have.attr', 'disabled')
     })
-    it('can perform test for online connection source', () => {
-      cy.intercept('GET', '/api/plugins/github/sources/*').as('fetchGithubConnection')
+    it('can perform test for online connection', () => {
+      cy.intercept('GET', '/api/plugins/github/connections/*').as('fetchGithubConnection')
       cy.intercept('POST', '/api/plugins/github/test').as('testGithubConnection')  
       cy.visit('/integrations/github')
       cy.get('.connections-table')
@@ -194,7 +194,7 @@ context('Data Integration Providers', () => {
         .should('contain', 'Endpoint')
         .should('contain', 'Status')
     })
-    it('limited to one (1) connection source', () => {
+    it('limited to one (1) connection', () => {
       cy.visit('/integrations/jenkins')
       cy.get('.connections-table')
         .should('have.class', 'bp3-html-table')
@@ -208,8 +208,8 @@ context('Data Integration Providers', () => {
         .should('have.class', 'bp3-disabled')
         .should('have.attr', 'disabled')
     })
-    it('can perform test for online connection source', () => {
-      cy.intercept('GET', '/api/plugins/jenkins/sources/*').as('fetchJenkinsConnection')
+    it('can perform test for online connection', () => {
+      cy.intercept('GET', '/api/plugins/jenkins/connections/*').as('fetchJenkinsConnection')
       cy.intercept('POST', '/api/plugins/jenkins/test').as('testJenkinsConnection')  
       cy.visit('/integrations/jenkins')
       cy.get('.connections-table')

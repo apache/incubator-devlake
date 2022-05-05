@@ -37,11 +37,11 @@ function useConnectionValidation ({
     )
 
     if (!name) {
-      errs.push('Connection Source name is required')
+      errs.push('Connection name is required')
     }
 
     if (name && name.length <= 2) {
-      errs.push('Connection Source name too short/incomplete')
+      errs.push('Connection name too short/incomplete')
     }
 
     if (!endpointUrl || endpointUrl.length <= 2) {

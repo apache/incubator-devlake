@@ -10,7 +10,7 @@ type JiraChangelog struct {
 	common.NoPKModel
 
 	// collected fields
-	SourceId          uint64 `gorm:"primaryKey"`
+	ConnectionId      uint64 `gorm:"primaryKey"`
 	ChangelogId       uint64 `gorm:"primarykey"`
 	IssueId           uint64 `gorm:"index"`
 	AuthorAccountId   string `gorm:"type:varchar(255)"`
@@ -23,15 +23,15 @@ type JiraChangelogItem struct {
 	common.NoPKModel
 
 	// collected fields
-	SourceId    uint64 `gorm:"primaryKey"`
-	ChangelogId uint64 `gorm:"primaryKey"`
-	Field       string `gorm:"primaryKey"`
-	FieldType   string
-	FieldId     string
-	From        string
-	FromString  string
-	To          string
-	ToString    string
+	ConnectionId uint64 `gorm:"primaryKey"`
+	ChangelogId  uint64 `gorm:"primaryKey"`
+	Field        string `gorm:"primaryKey"`
+	FieldType    string
+	FieldId      string
+	From         string
+	FromString   string
+	To           string
+	ToString     string
 }
 
 func (JiraChangelog) TableName() string {

@@ -17,31 +17,31 @@ const (
 )
 
 func Proxy(input *core.ApiResourceInput) (*core.ApiResourceOutput, error) {
-	sourceId := input.Params["sourceId"]
-	if sourceId == "" {
-		return nil, fmt.Errorf("missing sourceid")
+	connectionId := input.Params["connectionId"]
+	if connectionId == "" {
+		return nil, fmt.Errorf("missing connectionid")
 	}
-	jiraSourceId, err := strconv.ParseUint(sourceId, 10, 64)
+	jiraConnectionId, err := strconv.ParseUint(connectionId, 10, 64)
 	if err != nil {
 		return nil, err
 	}
-	jiraSource := &models.JiraSource{}
-	err = db.First(jiraSource, jiraSourceId).Error
+	jiraConnection := &models.JiraConnection{}
+	err = db.First(jiraConnection, jiraConnectionId).Error
 	if err != nil {
 		return nil, err
 	}
 	encKey := cfg.GetString(core.EncodeKeyEnvStr)
-	basicAuth, err := core.Decrypt(encKey, jiraSource.BasicAuthEncoded)
+	basicAuth, err := core.Decrypt(encKey, jiraConnection.BasicAuthEncoded)
 	if err != nil {
 		return nil, err
 	}
 	apiClient, err := helper.NewApiClient(
-		jiraSource.Endpoint,
+		jiraConnection.Endpoint,
 		map[string]string{
 			"Authorization": fmt.Sprintf("Basic %v", basicAuth),
 		},
 		30*time.Second,
-		jiraSource.Proxy,
+		jiraConnection.Proxy,
 		nil,
 	)
 	if err != nil {

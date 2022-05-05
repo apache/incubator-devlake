@@ -30,7 +30,7 @@ export default function JiraSettings (props) {
   // const { providerId, connectionId } = useParams()
   // const history = useHistory()
 
-  const API_PROXY_ENDPOINT = `/api/plugins/jira/sources/${connection?.ID}/proxy/rest`
+  const API_PROXY_ENDPOINT = `/api/plugins/jira/connections/${connection?.ID}/proxy/rest`
   const ISSUE_TYPES_ENDPOINT = `${API_PROXY_ENDPOINT}/api/2/issuetype`
   const ISSUE_FIELDS_ENDPOINT = `${API_PROXY_ENDPOINT}/api/2/field`
 

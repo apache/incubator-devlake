@@ -8,16 +8,16 @@ import (
 )
 
 type JiraOptions struct {
-	SourceId uint64   `json:"sourceId"`
-	BoardId  uint64   `json:"boardId"`
-	Tasks    []string `json:"tasks,omitempty"`
-	Since    string
+	ConnectionId uint64   `json:"connectionId"`
+	BoardId      uint64   `json:"boardId"`
+	Tasks        []string `json:"tasks,omitempty"`
+	Since        string
 }
 
 type JiraTaskData struct {
 	Options        *JiraOptions
 	ApiClient      *helper.ApiAsyncClient
-	Source         *models.JiraSource
+	Connection     *models.JiraConnection
 	Since          *time.Time
 	JiraServerInfo models.JiraServerInfo
 }

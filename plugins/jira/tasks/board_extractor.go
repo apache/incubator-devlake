@@ -17,8 +17,8 @@ func ExtractBoard(taskCtx core.SubTaskContext) error {
 		RawDataSubTaskArgs: helper.RawDataSubTaskArgs{
 			Ctx: taskCtx,
 			Params: JiraApiParams{
-				SourceId: data.Source.ID,
-				BoardId:  data.Options.BoardId,
+				ConnectionId: data.Connection.ID,
+				BoardId:      data.Options.BoardId,
 			},
 			Table: RAW_BOARD_TABLE,
 		},
@@ -28,7 +28,7 @@ func ExtractBoard(taskCtx core.SubTaskContext) error {
 			if err != nil {
 				return nil, err
 			}
-			return []interface{}{board.ToToolLayer(data.Source.ID)}, nil
+			return []interface{}{board.ToToolLayer(data.Connection.ID)}, nil
 		},
 	})
 

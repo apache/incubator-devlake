@@ -37,7 +37,7 @@ export default function JenkinsSettings (props) {
         <p className='description'>
           This integration doesn’t require any configuration.
           You can continue to&nbsp;
-          <a href='#' style={{ textDecoration: 'underline' }} onClick={cancel}>add other data sources</a>&nbsp;
+          <a href='#' style={{ textDecoration: 'underline' }} onClick={cancel}>add other data connections</a>&nbsp;
           or trigger collection at the <a href='#' style={{ textDecoration: 'underline' }} onClick={cancel}>previous page</a>.
         </p>
       </div>

@@ -16,7 +16,7 @@ import (
 func ConvertIssueRepoCommits(taskCtx core.SubTaskContext) error {
 	data := taskCtx.GetData().(*JiraTaskData)
 	db := taskCtx.GetDb()
-	sourceId := data.Source.ID
+	connectionId := data.Connection.ID
 	boardId := data.Options.BoardId
 	logger := taskCtx.GetLogger()
 	logger.Info("convert issue repo commits")
@@ -26,12 +26,12 @@ func ConvertIssueRepoCommits(taskCtx core.SubTaskContext) error {
 
 	cursor, err := db.Table("_tool_jira_issue_commits jic").
 		Joins(`left join _tool_jira_board_issues jbi on (
-			jbi.source_id = jic.source_id
+			jbi.connection_id = jic.connection_id
 			AND jbi.issue_id = jic.issue_id
 		)`).
 		Select("jic.*").
-		Where("jbi.source_id = ? AND jbi.board_id = ?", sourceId, boardId).
-		Order("jbi.source_id, jbi.issue_id").
+		Where("jbi.connection_id = ? AND jbi.board_id = ?", connectionId, boardId).
+		Order("jbi.connection_id, jbi.issue_id").
 		Rows()
 	if err != nil {
 		return err
@@ -43,8 +43,8 @@ func ConvertIssueRepoCommits(taskCtx core.SubTaskContext) error {
 		RawDataSubTaskArgs: helper.RawDataSubTaskArgs{
 			Ctx: taskCtx,
 			Params: JiraApiParams{
-				SourceId: sourceId,
-				BoardId:  boardId,
+				ConnectionId: connectionId,
+				BoardId:      boardId,
 			},
 			Table: RAW_REMOTELINK_TABLE,
 		},
@@ -54,7 +54,7 @@ func ConvertIssueRepoCommits(taskCtx core.SubTaskContext) error {
 			var result []interface{}
 			issueCommit := inputRow.(*models.JiraIssueCommit)
 			item := &crossdomain.IssueRepoCommit{
-				IssueId:   issueIdGenerator.Generate(sourceId, issueCommit.IssueId),
+				IssueId:   issueIdGenerator.Generate(connectionId, issueCommit.IssueId),
 				CommitSha: issueCommit.CommitSha,
 			}
 			if commitRepoUrlRegex != nil {

@@ -70,9 +70,9 @@ DevLake is designed for developer teams looking to make better sense of their de
 2. Rename `env.example` to `.env`. For Mac/Linux users, please run `mv env.example .env` in the terminal.
 3. Run `docker-compose up -d` to launch DevLake.
 
-#### Configure data sources and collect data
+#### Configure data connections and collect data
 
-1. Visit `config-ui` at `http://localhost:4000` in your browser to configure data sources. **For users who'd like to collect GitHub data, we recommend reading our [GitHub data collection guide](./docs/github-user-guide-v0.10.0.md) which covers the following steps in detail.**
+1. Visit `config-ui` at `http://localhost:4000` in your browser to configure data connections. **For users who'd like to collect GitHub data, we recommend reading our [GitHub data collection guide](./docs/github-user-guide-v0.10.0.md) which covers the following steps in detail.**
    >- Navigate to desired plugins on the Integrations page
    >- Please reference the following for more details on how to configure each one:<br>
       > <a href="plugins/jira/README.md" target="_blank">Jira</a><br>
@@ -177,7 +177,7 @@ Here's the step-by-step guide:
     make configure-dev
     ```
 
-8. Visit config UI at `localhost:4000` to configure data sources.
+8. Visit config UI at `localhost:4000` to configure data connections.
    >- Navigate to desired plugins pages on the Integrations page
    >- You will need to enter the required information for the plugins you intend to use.
    >- Please reference the following for more details on how to configure each one:
@@ -191,7 +191,7 @@ Here's the step-by-step guide:
 9. Visit `localhost:4000/pipelines/create` to RUN a Pipeline and trigger data collection.
 
 
-   Pipelines Runs can be initiated by the new "Create Run" Interface. Simply enable the **Data Source Providers** you wish to run collection for, and specify the data you want to collect, for instance, **Project ID** for Gitlab and **Repository Name** for GitHub.
+   Pipelines Runs can be initiated by the new "Create Run" Interface. Simply enable the **Data Connection Providers** you wish to run collection for, and specify the data you want to collect, for instance, **Project ID** for Gitlab and **Repository Name** for GitHub.
 
    Once a valid pipeline configuration has been created, press **Create Run** to start/run the pipeline.
    After the pipeline starts, you will be automatically redirected to the **Pipeline Activity** screen to monitor collection activity.

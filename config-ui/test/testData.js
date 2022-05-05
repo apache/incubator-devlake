@@ -17,7 +17,7 @@ const TEST_DATA = {
         Plugin: "jira",
         Options: {
           boardId: 8,
-          sourceId: 1,
+          connectionId: 1,
         },
       },
       {

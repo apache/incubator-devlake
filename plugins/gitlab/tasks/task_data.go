@@ -8,9 +8,9 @@ import (
 )
 
 type GitlabOptions struct {
-	SourceId  uint64   `json:"sourceId"`
-	ProjectId int      `json:"projectId"`
-	Tasks     []string `json:"tasks,omitempty"`
+	ConnectionId uint64   `json:"connectionId"`
+	ProjectId    int      `json:"projectId"`
+	Tasks        []string `json:"tasks,omitempty"`
 	//Since    string
 }
 

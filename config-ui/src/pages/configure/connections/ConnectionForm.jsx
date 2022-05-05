@@ -143,7 +143,7 @@ export default function ConnectionForm (props) {
                 <Icon icon='warning-sign' size='16' color={Colors.GRAY1} style={{ marginRight: '5px' }} />
                 <strong>CONNECTION SOURCES LIMITED</strong><br />
                 You may only add <Tag intent={Intent.PRIMARY}>{sourceLimits[activeProvider.id]}</Tag> instance(s) at this time,
-                multiple sources will be supported in a future release.
+                multiple connections will be supported in a future release.
               </p>
             </Card>
           )}
@@ -200,14 +200,14 @@ export default function ConnectionForm (props) {
               placeholder={placeholders ? placeholders.name : 'Enter Instance Name'}
               value={name}
               onChange={(e) => onNameChange(e.target.value)}
-              // className={`input connection-name-input ${fieldHasError('Connection Source') ? 'invalid-field' : ''}`}
+              // className={`input connection-name-input ${fieldHasError('Connection') ? 'invalid-field' : ''}`}
               // className='input connection-name-input'
               className={`input connection-name-input ${stateErrored === 'connection-name' ? 'invalid-field' : ''}`}
               leftIcon={[Providers.GITHUB, Providers.GITLAB, Providers.JENKINS].includes(activeProvider.id) ? 'lock' : null}
               inline={true}
               rightElement={(
                 <InputValidationError
-                  error={getFieldError('Connection Source')}
+                  error={getFieldError('Connection')}
                   elementRef={connectionNameRef}
                   onError={activateErrorStates}
                   onSuccess={() => setStateErrored(null)}

@@ -54,7 +54,7 @@ export default function Integration () {
             />
             <div className='headlineContainer'>
               <h1>Data Integrations</h1>
-              <p className='page-description'>{integrationsData.length} sources are available for data collection.</p>
+              <p className='page-description'>{integrationsData.length} connections are available for data collection.</p>
             </div>
             <div className='integrationProviders'>
               {integrations.map((provider) => (

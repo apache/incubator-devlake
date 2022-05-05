@@ -9,7 +9,7 @@
         "plugin": "jira",
         "options": {
           "boardId": 1,
-          "sourceId": 54
+          "connectionId": 54
         }
       }
     ]

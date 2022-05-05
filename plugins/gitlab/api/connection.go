@@ -2,6 +2,7 @@ package api
 
 import (
 	"fmt"
+	"github.com/merico-dev/lake/config"
 	"net/http"
 	"time"
 
@@ -68,4 +69,74 @@ func TestConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, erro
 		return nil, fmt.Errorf("unexpected status code: %d", res.StatusCode)
 	}
 	return nil, nil
+}
+
+// This object conforms to what the frontend currently sends.
+type GitlabConnection struct {
+	Endpoint string `mapstructure:"GITLAB_ENDPOINT" validate:"required"`
+	Auth     string `mapstructure:"GITLAB_AUTH" validate:"required"`
+	Proxy    string `mapstructure:"GITLAB_PROXY"`
+}
+
+// This object conforms to what the frontend currently expects.
+type GitlabResponse struct {
+	Name string
+	ID   int
+	GitlabConnection
+}
+
+/*
+PUT /plugins/gitlab/connections/:connectionId
+*/
+func PutConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, error) {
+	gitlabConnection := GitlabConnection{}
+	err := mapstructure.Decode(input.Body, &gitlabConnection)
+	if err != nil {
+		return nil, err
+	}
+	err = config.SetStruct(gitlabConnection, "mapstructure")
+	if err != nil {
+		return nil, err
+	}
+
+	return &core.ApiResourceOutput{Body: "Success"}, nil
+}
+
+/*
+GET /plugins/gitlab/connections
+*/
+func ListConnections(input *core.ApiResourceInput) (*core.ApiResourceOutput, error) {
+	// RETURN ONLY 1 SOURCE (FROM ENV) until multi-connection is developed.
+	gitlabResponse, err := GetConnectionFromEnv()
+	response := []GitlabResponse{*gitlabResponse}
+	if err != nil {
+		return nil, err
+	}
+	return &core.ApiResourceOutput{Body: response}, nil
+}
+
+/*
+GET /plugins/gitlab/connections/:connectionId
+*/
+func GetConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, error) {
+	//  RETURN ONLY 1 SOURCE FROM ENV (Ignore ID until multi-connection is developed.)
+	gitlabResponse, err := GetConnectionFromEnv()
+	if err != nil {
+		return nil, err
+	}
+	return &core.ApiResourceOutput{Body: gitlabResponse}, nil
+}
+
+func GetConnectionFromEnv() (*GitlabResponse, error) {
+	V := config.GetConfig()
+	var gitlabConnection GitlabConnection
+	err := V.Unmarshal(&gitlabConnection)
+	if err != nil {
+		return nil, err
+	}
+	return &GitlabResponse{
+		Name:             "Gitlab",
+		ID:               1,
+		GitlabConnection: gitlabConnection,
+	}, nil
 }

@@ -27,7 +27,7 @@ type RawDataSubTaskArgs struct {
 
 	//	This struct will be JSONEncoded and stored into database along with raw data itself, to identity minimal
 	//	set of data to be process, for example, we process JiraIssues by Board
-	Params interface{} `comment:"To identify a set of records with same UrlTemplate, i.e. {SourceId, BoardId} for jira entities"`
+	Params interface{} `comment:"To identify a set of records with same UrlTemplate, i.e. {ConnectionId, BoardId} for jira entities"`
 }
 
 // Common features for raw data sub tasks

@@ -2,13 +2,13 @@ import { DEVLAKE_ENDPOINT } from './config.js'
 import request from './request'
 import PLUGINS from '../data/availablePlugins'
 
-const SourcesUtil = {
-  getPluginSources: async () => {
+const ConnectionsUtil = {
+  getPluginConnections: async () => {
     const pluginsToSet = []
     const errors = []
     for (const plugin of PLUGINS) {
       try {
-        const res = await request.get(`${DEVLAKE_ENDPOINT}/plugins/${plugin}/sources`)
+        const res = await request.get(`${DEVLAKE_ENDPOINT}/plugins/${plugin}/connections`)
         if (res?.data?.length > 0) {
           pluginsToSet.push(plugin)
         }
@@ -23,4 +23,4 @@ const SourcesUtil = {
   }
 }
 
-export default SourcesUtil
+export default ConnectionsUtil

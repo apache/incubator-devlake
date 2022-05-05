@@ -3,7 +3,7 @@ package models
 import "time"
 
 type IssueComment struct {
-	SourceId           uint64 `gorm:"primaryKey"`
+	ConnectionId       uint64 `gorm:"primaryKey"`
 	IssueId            uint64 `gorm:"primarykey"`
 	ComentId           string `gorm:"primarykey"`
 	Self               string `gorm:"type:varchar(255)"`

@@ -17,9 +17,9 @@ type Sprint struct {
 	OriginBoardID uint64     `json:"originBoardId"`
 }
 
-func (s Sprint) ToToolLayer(sourceId uint64) *models.JiraSprint {
+func (s Sprint) ToToolLayer(connectionId uint64) *models.JiraSprint {
 	return &models.JiraSprint{
-		SourceId:      sourceId,
+		ConnectionId:  connectionId,
 		SprintId:      s.ID,
 		Self:          s.Self,
 		State:         s.State,

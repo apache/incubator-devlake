@@ -18,13 +18,13 @@ type ApiResourceOutput struct {
 type ApiResourceHandler func(input *ApiResourceInput) (*ApiResourceOutput, error)
 
 // Implement this interface if plugin offered API
-// Code sample to register a api on `sources/:sourceId`:
+// Code sample to register a api on `sources/:connectionId`:
 // func (plugin Jira) ApiResources() map[string]map[string]core.ApiResourceHandler {
 // 	return map[string]map[string]core.ApiResourceHandler{
-// 		"sources/:sourceId": {
-// 			"PUT":    api.PutSource,
-// 			"DELETE": api.DeleteSource,
-// 			"GET":    api.GetSource,
+// 		"connections/:connectionId": {
+// 			"PUT":    api.PutConnection,
+// 			"DELETE": api.DeleteConnection,
+// 			"GET":    api.GetConnection,
 // 		},
 // 	}
 // }

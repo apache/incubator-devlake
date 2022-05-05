@@ -27,7 +27,7 @@ func findIssueStatusMappingFromInput(input *core.ApiResourceInput) (*models.Jira
 	jiraIssueStatusMapping := &models.JiraIssueStatusMapping{}
 	err = db.First(
 		jiraIssueStatusMapping,
-		jiraIssueTypeMapping.SourceID,
+		jiraIssueTypeMapping.ConnectionID,
 		jiraIssueTypeMapping.UserType,
 		userStatus,
 	).Error
@@ -40,11 +40,11 @@ func findIssueStatusMappingFromInput(input *core.ApiResourceInput) (*models.Jira
 
 func mergeFieldsToJiraStatusMapping(
 	jiraIssueStatusMapping *models.JiraIssueStatusMapping,
-	sources ...map[string]interface{},
+	connections ...map[string]interface{},
 ) error {
-	// merge fields from sources to jiraIssueStatusMapping
-	for _, source := range sources {
-		err := mapstructure.Decode(source, jiraIssueStatusMapping)
+	// merge fields from connections to jiraIssueStatusMapping
+	for _, connection := range connections {
+		err := mapstructure.Decode(connection, jiraIssueStatusMapping)
 		if err != nil {
 			return err
 		}
@@ -65,14 +65,14 @@ func wrapIssueStatusDuplicateErr(err error) error {
 	return err
 }
 
-func saveStatusMappings(tx *gorm.DB, jiraSourceId uint64, userType string, statusMappings interface{}) error {
+func saveStatusMappings(tx *gorm.DB, jiraConnectionId uint64, userType string, statusMappings interface{}) error {
 	statusMappingsMap, ok := statusMappings.(map[string]interface{})
 	if !ok {
 		return fmt.Errorf("statusMappings is not a JSON object: %v", statusMappings)
 	}
 	err := tx.Where(
-		"source_id = ? AND user_type = ?",
-		jiraSourceId,
+		"connection_id = ? AND user_type = ?",
+		jiraConnectionId,
 		userType).Delete(&models.JiraIssueStatusMapping{}).Error
 	if err != nil {
 		return err
@@ -84,9 +84,9 @@ func saveStatusMappings(tx *gorm.DB, jiraSourceId uint64, userType string, statu
 		}
 		jiraIssueStatusMapping := &models.JiraIssueStatusMapping{}
 		err = mergeFieldsToJiraStatusMapping(jiraIssueStatusMapping, statusMappingMap, map[string]interface{}{
-			"SourceID":   jiraSourceId,
-			"UserType":   userType,
-			"UserStatus": userStatus,
+			"ConnectionID": jiraConnectionId,
+			"UserType":     userType,
+			"UserStatus":   userStatus,
 		})
 		if err != nil {
 			return err
@@ -99,21 +99,21 @@ func saveStatusMappings(tx *gorm.DB, jiraSourceId uint64, userType string, statu
 	return nil
 }
 
-func findIssueStatusMappingBySourceIdAndUserType(
-	jiraSourceId uint64,
+func findIssueStatusMappingByConnectionIdAndUserType(
+	jiraConnectionId uint64,
 	userType string,
 ) ([]*models.JiraIssueStatusMapping, error) {
 	jiraIssueStatusMappings := make([]*models.JiraIssueStatusMapping, 0)
 	err := db.Where(
-		"source_id = ? AND user_type = ?",
-		jiraSourceId,
+		"connection_id = ? AND user_type = ?",
+		jiraConnectionId,
 		userType,
 	).Find(&jiraIssueStatusMappings).Error
 	return jiraIssueStatusMappings, err
 }
 
 /*
-POST /plugins/jira/sources/:sourceId/type-mappings/:userType/status-mappings
+POST /plugins/jira/connections/:connectionId/type-mappings/:userType/status-mappings
 {
 	"userStatus": "user custom status",
 	"standardStatus": "devlake standard status"
@@ -126,8 +126,8 @@ func PostIssueStatusMappings(input *core.ApiResourceInput) (*core.ApiResourceOut
 	}
 	jiraIssueStatusMapping := &models.JiraIssueStatusMapping{}
 	err = mergeFieldsToJiraStatusMapping(jiraIssueStatusMapping, input.Body, map[string]interface{}{
-		"SourceID": jiraIssueTypeMapping.SourceID,
-		"UserType": jiraIssueTypeMapping.UserType,
+		"ConnectionID": jiraIssueTypeMapping.ConnectionID,
+		"UserType":     jiraIssueTypeMapping.UserType,
 	})
 	if err != nil {
 		return nil, err
@@ -141,7 +141,7 @@ func PostIssueStatusMappings(input *core.ApiResourceInput) (*core.ApiResourceOut
 }
 
 /*
-PUT /plugins/jira/sources/:sourceId/type-mappings/:userType/status-mappings/:userStatus
+PUT /plugins/jira/connections/:connectionId/type-mappings/:userType/status-mappings/:userStatus
 {
 	"standardStatus": "devlake standard status"
 }
@@ -166,7 +166,7 @@ func PutIssueStatusMapping(input *core.ApiResourceInput) (*core.ApiResourceOutpu
 }
 
 /*
-DELETE /plugins/jira/sources/:sourceId/type-mappings/:userType/status-mappings/:userStatus
+DELETE /plugins/jira/connections/:connectionId/type-mappings/:userType/status-mappings/:userStatus
 */
 func DeleteIssueStatusMapping(input *core.ApiResourceInput) (*core.ApiResourceOutput, error) {
 	jiraIssueStatusMapping, err := findIssueStatusMappingFromInput(input)
@@ -181,15 +181,15 @@ func DeleteIssueStatusMapping(input *core.ApiResourceInput) (*core.ApiResourceOu
 }
 
 /*
-GET /plugins/jira/sources/:sourceId/type-mappings/:userType/status-mappings
+GET /plugins/jira/connections/:connectionId/type-mappings/:userType/status-mappings
 */
 func ListIssueStatusMappings(input *core.ApiResourceInput) (*core.ApiResourceOutput, error) {
 	jiraIssueTypeMapping, err := findIssueTypeMappingByInputParam(input)
 	if err != nil {
 		return nil, err
 	}
-	jiraIssueStatusMappings, err := findIssueStatusMappingBySourceIdAndUserType(
-		jiraIssueTypeMapping.SourceID,
+	jiraIssueStatusMappings, err := findIssueStatusMappingByConnectionIdAndUserType(
+		jiraIssueTypeMapping.ConnectionID,
 		jiraIssueTypeMapping.UserType,
 	)
 	if err != nil {

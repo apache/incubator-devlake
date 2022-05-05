@@ -11,11 +11,11 @@ type Project struct {
 	Name string `json:"name"`
 }
 
-func (p Project) ToToolLayer(sourceId uint64) *models.JiraProject {
+func (p Project) ToToolLayer(connectionId uint64) *models.JiraProject {
 	return &models.JiraProject{
-		SourceId: sourceId,
-		Id:       p.ID,
-		Key:      p.Key,
-		Name:     p.Name,
+		ConnectionId: connectionId,
+		Id:           p.ID,
+		Key:          p.Key,
+		Name:         p.Name,
 	}
 }

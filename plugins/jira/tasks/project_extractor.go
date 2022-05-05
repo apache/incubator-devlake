@@ -16,8 +16,8 @@ func ExtractProjects(taskCtx core.SubTaskContext) error {
 		RawDataSubTaskArgs: helper.RawDataSubTaskArgs{
 			Ctx: taskCtx,
 			Params: JiraApiParams{
-				SourceId: data.Source.ID,
-				BoardId:  data.Options.BoardId,
+				ConnectionId: data.Connection.ID,
+				BoardId:      data.Options.BoardId,
 			},
 			Table: RAW_PROJECT_TABLE,
 		},
@@ -27,7 +27,7 @@ func ExtractProjects(taskCtx core.SubTaskContext) error {
 			if err != nil {
 				return nil, err
 			}
-			return []interface{}{project.ToToolLayer(data.Source.ID)}, nil
+			return []interface{}{project.ToToolLayer(data.Connection.ID)}, nil
 		},
 	})
 

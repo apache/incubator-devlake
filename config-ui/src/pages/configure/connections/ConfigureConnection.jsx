@@ -31,7 +31,7 @@ import { integrationsData } from '@/data/integrations'
 import { NullSettings } from '@/data/NullSettings'
 import {
   Providers,
-  ProviderSourceLimits,
+  ProviderConnectionLimits,
   ProviderFormLabels,
   ProviderFormPlaceholders
 } from '@/data/Providers'
@@ -201,7 +201,7 @@ export default function ConfigureConnection () {
                       <h1 style={{ margin: 0 }}>
                         Manage <strong style={{ fontWeight: 900 }}>{activeProvider.name}</strong> Settings
                       </h1>
-                      {activeProvider.multiSource && (
+                      {activeProvider.multiConnection && (
                         <div style={{ paddingTop: '5px' }}>
                           <DeleteAction
                             id={deleteId}
@@ -257,7 +257,7 @@ export default function ConfigureConnection () {
                             token={token}
                             username={username}
                             password={password}
-                            // JIRA is a multi-source plugin, for now we intentially won't include additional settings during save...
+                            // JIRA is a multi-connection plugin, for now we intentially won't include additional settings during save...
                             onSave={() => saveConnection(activeProvider.id !== Providers.JIRA ? settings : {})}
                             onTest={testConnection}
                             onCancel={cancel}
@@ -275,7 +275,7 @@ export default function ConfigureConnection () {
                             showError={showConnectionError}
                             authType={activeProvider.id === Providers.JENKINS ? 'plain' : 'token'}
                             showLimitWarning={false}
-                            sourceLimits={ProviderSourceLimits}
+                            sourceLimits={ProviderConnectionLimits}
                             labels={ProviderFormLabels[activeProvider.id]}
                             placeholders={ProviderFormPlaceholders[activeProvider.id]}
                           />

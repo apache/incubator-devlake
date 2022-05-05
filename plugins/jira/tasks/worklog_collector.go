@@ -22,7 +22,7 @@ func CollectWorklogs(taskCtx core.SubTaskContext) error {
 
 	if since == nil {
 		var latestUpdated models.JiraWorklog
-		err := db.Where("source_id = ?", data.Source.ID).Order("updated DESC").Limit(1).Find(&latestUpdated).Error
+		err := db.Where("connection_id = ?", data.Connection.ID).Order("updated DESC").Limit(1).Find(&latestUpdated).Error
 		if err != nil {
 			return fmt.Errorf("failed to get latest jira issue worklog record: %w", err)
 		}
@@ -33,11 +33,11 @@ func CollectWorklogs(taskCtx core.SubTaskContext) error {
 	}
 
 	logger := taskCtx.GetLogger()
-	sourceId := data.Source.ID
+	connectionId := data.Connection.ID
 	boardId := data.Options.BoardId
 	tx := db.Model(&models.JiraIssue{}).
 		Joins("left join _tool_jira_board_issues on _tool_jira_issues.issue_id = _tool_jira_board_issues.issue_id").
-		Select("_tool_jira_board_issues.issue_id").Where("_tool_jira_board_issues.source_id = ? AND _tool_jira_board_issues.board_id = ?", sourceId, boardId)
+		Select("_tool_jira_board_issues.issue_id").Where("_tool_jira_board_issues.connection_id = ? AND _tool_jira_board_issues.board_id = ?", connectionId, boardId)
 
 	if since != nil {
 		tx = tx.Where("_tool_jira_issues.updated > ?", since)
@@ -55,8 +55,8 @@ func CollectWorklogs(taskCtx core.SubTaskContext) error {
 		RawDataSubTaskArgs: helper.RawDataSubTaskArgs{
 			Ctx: taskCtx,
 			Params: JiraApiParams{
-				SourceId: data.Source.ID,
-				BoardId:  data.Options.BoardId,
+				ConnectionId: data.Connection.ID,
+				BoardId:      data.Options.BoardId,
 			},
 			Table: RAW_WORKLOGS_TABLE,
 		},

@@ -13,7 +13,7 @@ const collectionDefaults = {
   jira: {
     options: {
       boardId: 8,
-      sourceId: 1,
+      connectionId: 1,
     }
   },
   jenkins: {
