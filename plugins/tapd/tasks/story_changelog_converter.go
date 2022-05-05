@@ -14,8 +14,8 @@ import (
 )
 
 type StoryChangelogItemResult struct {
-	ConnectionId      uint64    `gorm:"primaryKey;type:INT(10) UNSIGNED NOT NULL"`
-	ID                uint64    `gorm:"primaryKey;type:BIGINT(10) UNSIGNED NOT NULL" json:"id"`
+	ConnectionId      uint64    `gorm:"primaryKey;type:BIGINT(10)  NOT NULL"`
+	ID                uint64    `gorm:"primaryKey;type:BIGINT(10)  NOT NULL" json:"id"`
 	WorkspaceID       uint64    `json:"workspace_id"`
 	WorkitemTypeID    uint64    `json:"workitem_type_id"`
 	Creator           string    `json:"creator"`
@@ -25,7 +25,7 @@ type StoryChangelogItemResult struct {
 	EntityType        string    `json:"entity_type"`
 	ChangeType        string    `json:"change_type"`
 	StoryID           uint64    `json:"story_id"`
-	ChangelogId       uint64    `gorm:"primaryKey;type:BIGINT(10) UNSIGNED NOT NULL"`
+	ChangelogId       uint64    `gorm:"primaryKey;type:BIGINT(10)  NOT NULL"`
 	Field             string    `json:"field" gorm:"primaryKey;type:varchar(255)"`
 	ValueBeforeParsed string    `json:"value_before"`
 	ValueAfterParsed  string    `json:"value_after"`
