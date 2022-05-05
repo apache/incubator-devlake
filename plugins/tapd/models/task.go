@@ -7,7 +7,7 @@ import (
 
 type TapdTask struct {
 	ConnectionId    uint64        `gorm:"primaryKey"`
-	ID              uint64        `gorm:"primaryKey;type:BIGINT(100)" json:"id,string"`
+	ID              uint64        `gorm:"primaryKey;type:BIGINT" json:"id,string"`
 	Name            string        `gorm:"type:varchar(255)" json:"name"`
 	Description     string        `json:"description"`
 	WorkspaceID     uint64        `json:"workspace_id,string"`
