@@ -15,7 +15,7 @@ const Sidebar = () => {
   const activeRoute = useRouteMatch()
 
   const [menu, setMenu] = useState(MenuConfiguration(activeRoute))
-  const [versionTag, setVersionTag] = useState()
+  const [versionTag, setVersionTag] = useState('')
 
   useEffect(() => {
     setMenu(MenuConfiguration(activeRoute))
@@ -27,11 +27,11 @@ const Sidebar = () => {
         const versionUrl = `${DEVLAKE_ENDPOINT}/version`
         const res = await request.get(versionUrl).catch(e => {
           console.log('>>> API VERSION ERROR...', e)
-          setVersionTag('dev+error')
+          setVersionTag('')
         })
         setVersionTag(res?.data ? res.data?.version : '')
       } catch (e) {
-        setVersionTag('dev+error')
+        setVersionTag('')
       }
     }
     fetchVersion()

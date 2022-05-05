@@ -185,6 +185,9 @@ function useConnectionManager ({
         setShowError(false)
         setIsSaving(false)
         setSaveComplete(saveResponse.connection)
+        if ([Providers.GITHUB, Providers.JIRA].includes(activeProvider.id) && token !== '' && token?.toString().split(',').length > 1) {
+          testConnection()
+        }
         if (!updateMode) {
           history.push(`/integrations/${activeProvider.id}`)
         }
