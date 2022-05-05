@@ -50,10 +50,10 @@ func RunPipeline(
 	// executing the set of tasks concurrently.
 	finishedTasks := 0
 	for i, row := range taskIds {
-		// update step
+		// update stage
 		err = db.Model(pipeline).Updates(map[string]interface{}{
 			"status": models.TASK_RUNNING,
-			"step":   i + 1,
+			"stage":  i + 1,
 		}).Error
 		if err != nil {
 			log.Error("update pipeline state failed: %w", err)

@@ -21,7 +21,7 @@ type Pipeline struct {
 	Status        string     `json:"status"`
 	Message       string     `json:"message"`
 	SpentSeconds  int        `json:"spentSeconds"`
-	Step          int        `json:"step"`
+	Stage         int        `json:"stage"`
 }
 
 // We use a 2D array because the request body must be an array of a set of tasks
