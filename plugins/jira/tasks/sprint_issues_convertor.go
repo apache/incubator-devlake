@@ -19,17 +19,18 @@ const (
 )
 
 type SprintIssuesConverter struct {
-	db             *gorm.DB
-	logger         core.Logger
-	sprintIdGen    *didgen.DomainIdGenerator
-	issueIdGen     *didgen.DomainIdGenerator
-	userIdGen      *didgen.DomainIdGenerator
-	sprints        map[string]*models.JiraSprint
-	sprintIssue    map[string]*ticket.SprintIssue
-	status         map[string]*ticket.IssueStatusHistory
-	assignee       map[string]*ticket.IssueAssigneeHistory
-	sprintsHistory map[string]*ticket.IssueSprintsHistory
-	jiraIssue      map[string]*models.JiraIssue
+	db              *gorm.DB
+	logger          core.Logger
+	sprintIdGen     *didgen.DomainIdGenerator
+	issueIdGen      *didgen.DomainIdGenerator
+	userIdGen       *didgen.DomainIdGenerator
+	sprints         map[string]*models.JiraSprint
+	sprintIssue     map[string]*ticket.SprintIssue
+	status          map[string]*ticket.IssueStatusHistory
+	assignee        map[string]*ticket.IssueAssigneeHistory
+	assigneeDefault map[string]*ticket.IssueAssigneeHistory
+	sprintsHistory  map[string]*ticket.IssueSprintsHistory
+	jiraIssue       map[string]*models.JiraIssue
 }
 
 func NewSprintIssueConverter(taskCtx core.SubTaskContext) (*SprintIssuesConverter, error) {
@@ -37,17 +38,18 @@ func NewSprintIssueConverter(taskCtx core.SubTaskContext) (*SprintIssuesConverte
 	connectionId := data.Connection.ID
 	boardId := data.Options.BoardId
 	converter := &SprintIssuesConverter{
-		db:             taskCtx.GetDb(),
-		logger:         taskCtx.GetLogger(),
-		sprintIdGen:    didgen.NewDomainIdGenerator(&models.JiraSprint{}),
-		issueIdGen:     didgen.NewDomainIdGenerator(&models.JiraIssue{}),
-		userIdGen:      didgen.NewDomainIdGenerator(&models.JiraUser{}),
-		sprints:        make(map[string]*models.JiraSprint),
-		sprintIssue:    make(map[string]*ticket.SprintIssue),
-		status:         make(map[string]*ticket.IssueStatusHistory),
-		assignee:       make(map[string]*ticket.IssueAssigneeHistory),
-		sprintsHistory: make(map[string]*ticket.IssueSprintsHistory),
-		jiraIssue:      make(map[string]*models.JiraIssue),
+		db:              taskCtx.GetDb(),
+		logger:          taskCtx.GetLogger(),
+		sprintIdGen:     didgen.NewDomainIdGenerator(&models.JiraSprint{}),
+		issueIdGen:      didgen.NewDomainIdGenerator(&models.JiraIssue{}),
+		userIdGen:       didgen.NewDomainIdGenerator(&models.JiraUser{}),
+		sprints:         make(map[string]*models.JiraSprint),
+		sprintIssue:     make(map[string]*ticket.SprintIssue),
+		status:          make(map[string]*ticket.IssueStatusHistory),
+		assignee:        make(map[string]*ticket.IssueAssigneeHistory),
+		assigneeDefault: make(map[string]*ticket.IssueAssigneeHistory),
+		sprintsHistory:  make(map[string]*ticket.IssueSprintsHistory),
+		jiraIssue:       make(map[string]*models.JiraIssue),
 	}
 	return converter, converter.setupSprintIssue(connectionId, boardId)
 }
@@ -99,6 +101,28 @@ func (c *SprintIssuesConverter) CreateSprintIssue() error {
 				return err
 			}
 			cache = make([]*ticket.SprintIssue, 0, BatchSize)
+		}
+	}
+	if len(cache) != 0 {
+		err = c.db.Clauses(clause.OnConflict{UpdateAll: true}).Create(cache).Error
+		if err == nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func (c *SprintIssuesConverter) SaveAssigneeHistory() error {
+	var err error
+	cache := make([]*ticket.IssueAssigneeHistory, 0, BatchSize)
+	for _, item := range c.assigneeDefault {
+		cache = append(cache, item)
+		if len(cache) == BatchSize {
+			err = c.db.Clauses(clause.OnConflict{UpdateAll: true}).Create(cache).Error
+			if err != nil {
+				return err
+			}
+			cache = make([]*ticket.IssueAssigneeHistory, 0, BatchSize)
 		}
 	}
 	if len(cache) != 0 {
@@ -265,6 +289,17 @@ func (c *SprintIssuesConverter) setupSprintIssue(connectionId, boardId uint64) e
 			dsi.ResolvedStage = getStage(*jiraSprintIssue.ResolutionDate, sprint.StartDate, sprint.CompleteDate)
 		}
 		c.sprintIssue[key] = &dsi
+		issueId := c.issueIdGen.Generate(connectionId, jiraSprintIssue.IssueId)
+		issue, _ := c.getJiraIssue(connectionId, jiraSprintIssue.IssueId)
+		now := time.Now()
+		if issue != nil {
+			c.assigneeDefault[issueId] = &ticket.IssueAssigneeHistory{
+				IssueId:   issueId,
+				Assignee:  issue.AssigneeAccountId,
+				StartDate: issue.Created,
+				EndDate:   &now,
+			}
+		}
 	}
 	return nil
 }
@@ -333,9 +368,16 @@ func (c *SprintIssuesConverter) handleStatus(connectionId uint64, cl ChangelogIt
 }
 
 func (c *SprintIssuesConverter) handleAssignee(connectionId uint64, cl ChangelogItemResult) error {
+	var err error
 	issueId := c.issueIdGen.Generate(connectionId, cl.IssueId)
 	if assigneeHistory := c.assignee[issueId]; assigneeHistory != nil {
 		assigneeHistory.EndDate = &cl.Created
+		err = c.db.Clauses(clause.OnConflict{
+			UpdateAll: true,
+		}).Create(assigneeHistory).Error
+		if err != nil {
+			return err
+		}
 	}
 	var assignee string
 	if cl.To != "" {
@@ -348,12 +390,13 @@ func (c *SprintIssuesConverter) handleAssignee(connectionId uint64, cl Changelog
 		StartDate: cl.Created,
 		EndDate:   &now,
 	}
-	err := c.db.Clauses(clause.OnConflict{
+	err = c.db.Clauses(clause.OnConflict{
 		UpdateAll: true,
 	}).Create(c.assignee[issueId]).Error
 	if err != nil {
 		return err
 	}
+	delete(c.assigneeDefault, issueId)
 	return nil
 }
 
