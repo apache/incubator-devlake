@@ -73,9 +73,9 @@ func TestConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, erro
 
 // This object conforms to what the frontend currently sends.
 type GitlabConnection struct {
-	Endpoint string `mapstructure:"GITLAB_ENDPOINT" validate:"required"`
-	Auth     string `mapstructure:"GITLAB_AUTH" validate:"required"`
-	Proxy    string `mapstructure:"GITLAB_PROXY"`
+	Endpoint string `mapstructure:"endpoint" validate:"required" env:"GITLAB_ENDPOINT" json:"endpoint"`
+	Auth     string `mapstructure:"auth" validate:"required" env:"GITLAB_AUTH"  json:"auth"`
+	Proxy    string `mapstructure:"proxy" env:"GITLAB_PROXY" json:"proxy"`
 }
 
 // This object conforms to what the frontend currently expects.
@@ -86,20 +86,26 @@ type GitlabResponse struct {
 }
 
 /*
-PUT /plugins/gitlab/connections/:connectionId
+PATCH /plugins/gitlab/connections/:connectionId
 */
-func PutConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, error) {
-	gitlabConnection := GitlabConnection{}
-	err := mapstructure.Decode(input.Body, &gitlabConnection)
+func PatchConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, error) {
+	v := config.GetConfig()
+	connection, err := helper.LoadFromConfig(v, &GitlabConnection{}, "env")
 	if err != nil {
 		return nil, err
 	}
-	err = config.SetStruct(gitlabConnection, "mapstructure")
+	// update from request and save to .env
+	err = helper.SaveToConifgWithMap(v, connection, input.Body, "env")
 	if err != nil {
 		return nil, err
 	}
 
-	return &core.ApiResourceOutput{Body: "Success"}, nil
+	response := GitlabResponse{
+		GitlabConnection: *connection.(*GitlabConnection),
+		Name:             "Gitlab",
+		ID:               1,
+	}
+	return &core.ApiResourceOutput{Body: response, Status: http.StatusOK}, nil
 }
 
 /*
@@ -107,12 +113,18 @@ GET /plugins/gitlab/connections
 */
 func ListConnections(input *core.ApiResourceInput) (*core.ApiResourceOutput, error) {
 	// RETURN ONLY 1 SOURCE (FROM ENV) until multi-connection is developed.
-	gitlabResponse, err := GetConnectionFromEnv()
-	response := []GitlabResponse{*gitlabResponse}
+	v := config.GetConfig()
+	connection, err := helper.LoadFromConfig(v, &GitlabConnection{}, "env")
 	if err != nil {
 		return nil, err
 	}
-	return &core.ApiResourceOutput{Body: response}, nil
+	response := GitlabResponse{
+		GitlabConnection: *connection.(*GitlabConnection),
+		Name:             "Gitlab",
+		ID:               1,
+	}
+
+	return &core.ApiResourceOutput{Body: []GitlabResponse{response}}, nil
 }
 
 /*
@@ -120,23 +132,16 @@ GET /plugins/gitlab/connections/:connectionId
 */
 func GetConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, error) {
 	//  RETURN ONLY 1 SOURCE FROM ENV (Ignore ID until multi-connection is developed.)
-	gitlabResponse, err := GetConnectionFromEnv()
+	v := config.GetConfig()
+	connection, err := helper.LoadFromConfig(v, &GitlabConnection{}, "env")
 	if err != nil {
 		return nil, err
 	}
-	return &core.ApiResourceOutput{Body: gitlabResponse}, nil
-}
 
-func GetConnectionFromEnv() (*GitlabResponse, error) {
-	V := config.GetConfig()
-	var gitlabConnection GitlabConnection
-	err := V.Unmarshal(&gitlabConnection)
-	if err != nil {
-		return nil, err
-	}
-	return &GitlabResponse{
+	response := &GitlabResponse{
+		GitlabConnection: *connection.(*GitlabConnection),
 		Name:             "Gitlab",
 		ID:               1,
-		GitlabConnection: gitlabConnection,
-	}, nil
+	}
+	return &core.ApiResourceOutput{Body: response}, nil
 }

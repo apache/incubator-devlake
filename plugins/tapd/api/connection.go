@@ -191,11 +191,11 @@ func PostConnections(input *core.ApiResourceInput) (*core.ApiResourceOutput, err
 		return nil, err
 	}
 
-	return &core.ApiResourceOutput{Body: tapdConnection, Status: http.StatusCreated}, nil
+	return &core.ApiResourceOutput{Body: tapdConnection, Status: http.StatusOK}, nil
 }
 
 /*
-PUT /plugins/tapd/connections/:connectionId
+PATCH /plugins/tapd/connections/:connectionId
 {
 	"name": "tapd data connections name",
 	"endpoint": "tapd api endpoint, i.e. https://merico.atlassian.net/rest",
@@ -203,7 +203,7 @@ PUT /plugins/tapd/connections/:connectionId
 	"rateLimit": 10800,
 }
 */
-func PutConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, error) {
+func PatchConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, error) {
 	// load from db
 	tapdConnection, err := findConnectionByInputParam(input)
 	if err != nil {

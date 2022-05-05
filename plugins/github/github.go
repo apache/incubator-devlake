@@ -103,12 +103,11 @@ func (plugin Github) ApiResources() map[string]map[string]core.ApiResourceHandle
 			"POST": api.TestConnection,
 		},
 		"connections": {
-			"GET":  api.ListConnections,
-			"POST": api.PutConnection,
+			"GET": api.ListConnections,
 		},
 		"connections/:connectionId": {
-			"GET": api.GetConnection,
-			"PUT": api.PutConnection,
+			"GET":   api.GetConnection,
+			"PATCH": api.PatchConnection,
 		},
 	}
 }

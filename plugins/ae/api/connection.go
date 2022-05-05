@@ -3,7 +3,8 @@ package api
 import (
 	"github.com/merico-dev/lake/config"
 	"github.com/merico-dev/lake/plugins/core"
-	"github.com/mitchellh/mapstructure"
+	"github.com/merico-dev/lake/plugins/helper"
+	"net/http"
 )
 
 type ApiMeResponse struct {
@@ -18,53 +19,41 @@ func TestConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, erro
 	return &core.ApiResourceOutput{Body: true}, nil
 }
 
-type AEConfig struct {
-	AE_APP_ID    string `mapstructure:"AE_APP_ID"`
-	AE_SIGN      string `mapstructure:"AE_SIGN"`
-	AE_NONCE_STR string `mapstructure:"AE_NONCE_STR"`
-	AE_ENDPOINT  string `mapstructure:"AE_ENDPOINT"`
+type AeConnection struct {
+	AppId    string `mapstructure:"appId" env:"AE_APP_ID" json:"appId"`
+	Sign     string `mapstructure:"sign" env:"AE_SIGN" json:"sign"`
+	NonceStr string `mapstructure:"nonceStr" env:"AE_NONCE_STR" json:"nonceStr"`
+	Endpoint string `mapstructure:"endpoint" env:"AE_ENDPOINT" json:"endpoint"`
 }
 
 // This object conforms to what the frontend currently expects.
-type AEResponse struct {
-	Endpoint string
-	Sign     string
-	Nonce    string
-	AppId    string
-	Name     string
-	ID       int
+type AeResponse struct {
+	AeConnection
+	Name string
+	ID   int
 }
 
 /*
-PUT /plugins/ae/connections/:connectionId
+PATCH /plugins/ae/connections/:connectionId
 */
-func PutConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, error) {
-	aeConnection := AEConfig{}
-	err := mapstructure.Decode(input.Body, &aeConnection)
-	if err != nil {
-		return nil, err
-	}
+func PatchConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, error) {
 	v := config.GetConfig()
-
-	if aeConnection.AE_APP_ID != "" {
-		v.Set("AE_SIGN", aeConnection.AE_SIGN)
+	connection, err := helper.LoadFromConfig(v, &AeConnection{}, "env")
+	if err != nil {
+		return nil, err
 	}
-	if aeConnection.AE_SIGN != "" {
-		v.Set("AE_SIGN", aeConnection.AE_SIGN)
-	}
-	if aeConnection.AE_NONCE_STR != "" {
-		v.Set("AE_NONCE_STR", aeConnection.AE_NONCE_STR)
-	}
-	if aeConnection.AE_ENDPOINT != "" {
-		v.Set("AE_ENDPOINT", aeConnection.AE_ENDPOINT)
-	}
-
-	err = v.WriteConfig()
+	// update from request and save to .env
+	err = helper.SaveToConifgWithMap(v, connection, input.Body, "env")
 	if err != nil {
 		return nil, err
 	}
 
-	return &core.ApiResourceOutput{Body: "Success"}, nil
+	response := AeResponse{
+		AeConnection: *connection.(*AeConnection),
+		Name:         "AE",
+		ID:           1,
+	}
+	return &core.ApiResourceOutput{Body: response, Status: http.StatusOK}, nil
 }
 
 /*
@@ -72,12 +61,18 @@ GET /plugins/ae/connections
 */
 func ListConnections(input *core.ApiResourceInput) (*core.ApiResourceOutput, error) {
 	// RETURN ONLY 1 SOURCE (FROM ENV) until multi-connection is developed.
-	aeConnections, err := GetConnectionFromEnv()
-	response := []AEResponse{*aeConnections}
+	v := config.GetConfig()
+	connection, err := helper.LoadFromConfig(v, &AeConnection{}, "env")
 	if err != nil {
 		return nil, err
 	}
-	return &core.ApiResourceOutput{Body: response}, nil
+	response := AeResponse{
+		AeConnection: *connection.(*AeConnection),
+		Name:         "AE",
+		ID:           1,
+	}
+
+	return &core.ApiResourceOutput{Body: []AeResponse{response}}, nil
 }
 
 /*
@@ -85,26 +80,15 @@ GET /plugins/ae/connections/:connectionId
 */
 func GetConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, error) {
 	//  RETURN ONLY 1 SOURCE FROM ENV (Ignore ID until multi-connection is developed.)
-	aeConnections, err := GetConnectionFromEnv()
-	if err != nil {
-		return nil, err
-	}
-	return &core.ApiResourceOutput{Body: aeConnections}, nil
-}
-
-func GetConnectionFromEnv() (*AEResponse, error) {
 	v := config.GetConfig()
-	var configJson AEConfig
-	err := v.Unmarshal(&configJson)
+	connection, err := helper.LoadFromConfig(v, &AeConnection{}, "env")
 	if err != nil {
 		return nil, err
 	}
-	return &AEResponse{
-		AppId:    configJson.AE_APP_ID,
-		Nonce:    configJson.AE_NONCE_STR,
-		Sign:     configJson.AE_SIGN,
-		Endpoint: configJson.AE_ENDPOINT,
-		ID:       1,
-		Name:     "AE",
-	}, nil
+	response := &AeResponse{
+		AeConnection: *connection.(*AeConnection),
+		Name:         "AE",
+		ID:           1,
+	}
+	return &core.ApiResourceOutput{Body: response}, nil
 }

@@ -220,11 +220,11 @@ func PostConnections(input *core.ApiResourceInput) (*core.ApiResourceOutput, err
 		return nil, err
 	}
 
-	return &core.ApiResourceOutput{Body: jiraConnection, Status: http.StatusCreated}, nil
+	return &core.ApiResourceOutput{Body: jiraConnection, Status: http.StatusOK}, nil
 }
 
 /*
-PUT /plugins/jira/connections/:connectionId
+PATCH /plugins/jira/connections/:connectionId
 {
 	"name": "jira data connection name",
 	"endpoint": "jira api endpoint, i.e. https://merico.atlassian.net/rest",
@@ -243,7 +243,7 @@ PUT /plugins/jira/connections/:connectionId
 	}
 }
 */
-func PutConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, error) {
+func PatchConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, error) {
 	// load from db
 	jiraConnection, err := findConnectionByInputParam(input)
 	if err != nil {

@@ -62,10 +62,10 @@ func TestConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, erro
 
 // This object conforms to what the frontend currently sends.
 type JenkinsConnection struct {
-	Endpoint string `mapstructure:"JENKINS_ENDPOINT" validate:"required"`
-	Username string `mapstructure:"JENKINS_USERNAME" validate:"required"`
-	Password string `mapstructure:"JENKINS_PASSWORD" validate:"required"`
-	Proxy    string `mapstructure:"JENKINS_PROXY"`
+	Endpoint string `mapstructure:"endpoint" validate:"required" env:"JENKINS_ENDPOINT" json:"endpoint"`
+	Username string `mapstructure:"username" validate:"required" env:"JENKINS_USERNAME" json:"username"`
+	Password string `mapstructure:"password" validate:"required" env:"JENKINS_PASSWORD" json:"password"`
+	Proxy    string `mapstructure:"proxy" env:"JENKINS_PROXY" json:"proxy"`
 }
 
 type JenkinsResponse struct {
@@ -75,39 +75,31 @@ type JenkinsResponse struct {
 }
 
 /*
-POST /plugins/jenkins/connections
+PATCH /plugins/jenkins/connections/:connectionId
 {
 	"Endpoint": "your-endpoint",
 	"Username": "your-username",
 	"Password": "your-password",
 }
 */
-func PostConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, error) {
-	// TODO: For now, Jenkins does not support sources but it will in the future.
-
-	return PutConnection(input)
-}
-
-/*
-PUT /plugins/jenkins/connections/:connectionId
-{
-	"Endpoint": "your-endpoint",
-	"Username": "your-username",
-	"Password": "your-password",
-}
-*/
-func PutConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, error) {
-	jenkinsConnection := JenkinsConnection{}
-	err := mapstructure.Decode(input.Body, &jenkinsConnection)
+func PatchConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, error) {
+	v := config.GetConfig()
+	connection, err := helper.LoadFromConfig(v, &JenkinsConnection{}, "env")
 	if err != nil {
 		return nil, err
 	}
-	err = config.SetStruct(jenkinsConnection, "mapstructure")
+	// update from request and save to .env
+	err = helper.SaveToConifgWithMap(v, connection, input.Body, "env")
 	if err != nil {
 		return nil, err
 	}
 
-	return &core.ApiResourceOutput{Body: "Success"}, nil
+	response := JenkinsResponse{
+		JenkinsConnection: *connection.(*JenkinsConnection),
+		Name:              "Jenkins",
+		ID:                1,
+	}
+	return &core.ApiResourceOutput{Body: response, Status: http.StatusOK}, nil
 }
 
 /*
@@ -115,12 +107,17 @@ GET /plugins/jenkins/connections
 */
 func ListConnections(input *core.ApiResourceInput) (*core.ApiResourceOutput, error) {
 	// RETURN ONLY 1 SOURCE (FROM ENV) until multi-source is developed.
-	jenkinsResponse, err := GetConnectionFromEnv()
-	response := []JenkinsResponse{*jenkinsResponse}
+	v := config.GetConfig()
+	connection, err := helper.LoadFromConfig(v, &JenkinsConnection{}, "env")
 	if err != nil {
 		return nil, err
 	}
-	return &core.ApiResourceOutput{Body: response}, nil
+	response := JenkinsResponse{
+		Name:              "Jenkins",
+		ID:                1,
+		JenkinsConnection: *connection.(*JenkinsConnection),
+	}
+	return &core.ApiResourceOutput{Body: []JenkinsResponse{response}}, nil
 }
 
 /*
@@ -128,23 +125,15 @@ GET /plugins/jenkins/connections/:connectionId
 */
 func GetConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, error) {
 	//  RETURN ONLY 1 SOURCE FROM ENV (Ignore ID until multi-source is developed.)
-	jenkinsResponse, err := GetConnectionFromEnv()
-	if err != nil {
-		return nil, err
-	}
-	return &core.ApiResourceOutput{Body: jenkinsResponse}, nil
-}
-
-func GetConnectionFromEnv() (*JenkinsResponse, error) {
 	v := config.GetConfig()
-	var jenkinsConnection JenkinsConnection
-	err := v.Unmarshal(&jenkinsConnection)
+	connection, err := helper.LoadFromConfig(v, &JenkinsConnection{}, "env")
 	if err != nil {
 		return nil, err
 	}
-	return &JenkinsResponse{
+	response := &JenkinsResponse{
 		Name:              "Jenkins",
 		ID:                1,
-		JenkinsConnection: jenkinsConnection,
-	}, nil
+		JenkinsConnection: *connection.(*JenkinsConnection),
+	}
+	return &core.ApiResourceOutput{Body: response}, nil
 }
