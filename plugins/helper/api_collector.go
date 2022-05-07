@@ -148,17 +148,19 @@ func (collector *ApiCollector) Execute() error {
 
 		var wg sync.WaitGroup
 		ctx := collector.args.Ctx.GetContext()
+
+	out:
 		for iterator.HasNext() {
 			select {
 			// canceled by user, stop
 			case <-ctx.Done():
 				err = ctx.Err()
-				break
+				break out
 			// obtain a slot
 			case <-slotsChan:
 				input, err := iterator.Fetch()
 				if err != nil {
-					break
+					break out
 				}
 				wg.Add(1)
 				go func() {
@@ -176,7 +178,7 @@ func (collector *ApiCollector) Execute() error {
 					}
 				}()
 			case err = <-errors:
-				break
+				break out
 			}
 		}
 		if err == nil {
@@ -423,6 +425,26 @@ func GetRawMessageDirectFromResponse(res *http.Response) ([]json.RawMessage, err
 		return nil, err
 	}
 	return []json.RawMessage{body}, nil
+}
+
+func GetRawMessageArrayFromResponse(res *http.Response) ([]json.RawMessage, error) {
+	rawMessages := []json.RawMessage{}
+
+	if res == nil {
+		return nil, fmt.Errorf("res is nil")
+	}
+	defer res.Body.Close()
+	resBody, err := ioutil.ReadAll(res.Body)
+	if err != nil {
+		return nil, fmt.Errorf("%w %s", err, res.Request.URL.String())
+	}
+
+	err = json.Unmarshal(resBody, &rawMessages)
+	if err != nil {
+		return nil, fmt.Errorf("%w %s %s", err, res.Request.URL.String(), string(resBody))
+	}
+
+	return rawMessages, nil
 }
 
 var _ core.SubTask = (*ApiCollector)(nil)
