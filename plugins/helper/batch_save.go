@@ -47,17 +47,19 @@ func (c *BatchSave) Add(slot interface{}) error {
 	}
 	// deduplication
 	key := getPrimaryKeyValue(slot)
-	if index, ok := c.valueIndex[key]; ok {
-		c.slots.Index(index).Set(reflect.ValueOf(slot))
-	} else {
-		// push into slot
-		c.valueIndex[key] = c.current
-		c.slots.Index(c.current).Set(reflect.ValueOf(slot))
-		c.current++
-		// flush out into database if max outed
-		if c.current == c.size {
-			return c.Flush()
+	if key != "" {
+		if index, ok := c.valueIndex[key]; !ok {
+			c.valueIndex[key] = c.current
+		} else {
+			c.slots.Index(index).Set(reflect.ValueOf(slot))
+			return nil
 		}
+	}
+	c.slots.Index(c.current).Set(reflect.ValueOf(slot))
+	c.current++
+	// flush out into database if max outed
+	if c.current == c.size {
+		return c.Flush()
 	}
 	return nil
 }
