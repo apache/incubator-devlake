@@ -303,7 +303,7 @@ export default function ConnectionForm (props) {
                       fill
                       style={{ maxWidth: '99%' }}
                     />
-                    <span style={{ marginLeft: '-25px', zIndex: 1 }}>
+                    <span style={{ marginLeft: '-23px', zIndex: 1 }}>
                       <InputValidationError
                         error={getFieldError('Auth')}
                         elementRef={connectionTokenRef}
