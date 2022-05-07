@@ -293,12 +293,15 @@ func (c *SprintIssuesConverter) setupSprintIssue(connectionId, boardId uint64) e
 		issue, _ := c.getJiraIssue(connectionId, jiraSprintIssue.IssueId)
 		now := time.Now()
 		if issue != nil {
-			c.assigneeDefault[issueId] = &ticket.IssueAssigneeHistory{
+			issueAssigneeHistory := &ticket.IssueAssigneeHistory{
 				IssueId:   issueId,
-				Assignee:  issue.AssigneeAccountId,
 				StartDate: issue.Created,
 				EndDate:   &now,
 			}
+			if issue.AssigneeAccountId != "" {
+				issueAssigneeHistory.Assignee = c.userIdGen.Generate(connectionId, issue.AssigneeAccountId)
+			}
+			c.assigneeDefault[issueId] = issueAssigneeHistory
 		}
 	}
 	return nil
