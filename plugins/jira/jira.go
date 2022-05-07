@@ -142,7 +142,7 @@ func (plugin Jira) ApiResources() map[string]map[string]core.ApiResourceHandler 
 			"GET":  api.ListConnections,
 		},
 		"connections/:connectionId": {
-			"PUT":    api.PutConnection,
+			"PATCH":  api.PatchConnection,
 			"DELETE": api.DeleteConnection,
 			"GET":    api.GetConnection,
 		},

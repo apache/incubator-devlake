@@ -4,6 +4,24 @@ import (
 	"github.com/merico-dev/lake/models/common"
 )
 
+type EpicResponse struct {
+	Id    int
+	Title string
+	Value string
+}
+
+type TestConnectionRequest struct {
+	Endpoint string `json:"endpoint"`
+	Auth     string `json:"auth"`
+	Proxy    string `json:"proxy"`
+}
+
+type BoardResponse struct {
+	Id    int
+	Title string
+	Value string
+}
+
 type JiraConnection struct {
 	common.Model
 	Name                       string `gorm:"type:varchar(100);uniqueIndex" json:"name" validate:"required"`
@@ -13,7 +31,7 @@ type JiraConnection struct {
 	StoryPointField            string `gorm:"type:varchar(50);" json:"storyPointField"`
 	RemotelinkCommitShaPattern string `gorm:"type:varchar(255);comment='golang regexp, the first group will be recognized as commit sha, ref https://github.com/google/re2/wiki/Syntax'" json:"remotelinkCommitShaPattern"`
 	Proxy                      string `json:"proxy"`
-	RateLimit                  int    `comment:"api request rate limt per second"`
+	RateLimit                  int    `comment:"api request rate limt per hour" json:"rateLimit"`
 }
 
 type JiraIssueTypeMapping struct {

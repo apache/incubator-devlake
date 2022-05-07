@@ -54,11 +54,11 @@ func ExtractApiPullRequests(taskCtx core.SubTaskContext) error {
 	config := data.Options.Config
 	var labelTypeRegex *regexp.Regexp
 	var labelComponentRegex *regexp.Regexp
-	var prType = config.GITHUB_PR_TYPE
+	var prType = config.PrType
 	if prType == "" {
 		prType = taskCtx.GetConfig("GITHUB_PR_TYPE")
 	}
-	var prComponent = config.GITHUB_PR_COMPONENT
+	var prComponent = config.PrComponent
 	if prComponent == "" {
 		prComponent = taskCtx.GetConfig("GITHUB_PR_COMPONENT")
 	}

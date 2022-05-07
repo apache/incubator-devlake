@@ -3,6 +3,8 @@ package api
 import (
 	"fmt"
 	"github.com/merico-dev/lake/config"
+	"github.com/merico-dev/lake/plugins/github/models"
+	"net/http"
 	"strings"
 	"time"
 
@@ -13,22 +15,7 @@ import (
 	"github.com/merico-dev/lake/plugins/core"
 )
 
-type ApiUserPublicEmailResponse []PublicEmail
-
-// Using Public Email because it requires authentication, and it is public information anyway.
-// We're not using email information for anything here.
-type PublicEmail struct {
-	Email      string
-	Primary    bool
-	Verified   bool
-	Visibility string
-}
-
-type TestConnectionRequest struct {
-	Endpoint string `json:"endpoint" validate:"required,url"`
-	Auth     string `json:"auth" validate:"required"`
-	Proxy    string `json:"proxy"`
-}
+type ApiUserPublicEmailResponse []models.PublicEmail
 
 var vld = validator.New()
 
@@ -37,7 +24,7 @@ POST /plugins/github/test
 */
 func TestConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, error) {
 	// process input
-	var params TestConnectionRequest
+	var params models.TestConnectionRequest
 	err := mapstructure.Decode(input.Body, &params)
 	if err != nil {
 		return nil, err
@@ -104,59 +91,52 @@ func TestConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, erro
 	return nil, nil
 }
 
-// This object conforms to what the frontend currently sends.
-type GithubConnection struct {
-	Endpoint string `mapstructure:"GITHUB_ENDPOINT" validate:"required"`
-	Auth     string `mapstructure:"GITHUB_AUTH" validate:"required"`
-	Proxy    string `mapstructure:"GITHUB_PROXY"`
-
-	PrType               string `mapstructure:"GITHUB_PR_TYPE"`
-	PrComponent          string `mapstructure:"GITHUB_PR_COMPONENT"`
-	IssueSeverity        string `mapstructure:"GITHUB_ISSUE_SEVERITY"`
-	IssuePriority        string `mapstructure:"GITHUB_ISSUE_PRIORITY"`
-	IssueComponent       string `mapstructure:"GITHUB_ISSUE_COMPONENT"`
-	IssueTypeBug         string `mapstructure:"GITHUB_ISSUE_TYPE_BUG"`
-	IssueTypeIncident    string `mapstructure:"GITHUB_ISSUE_TYPE_INCIDENT"`
-	IssueTypeRequirement string `mapstructure:"GITHUB_ISSUE_TYPE_REQUIREMENT"`
-}
-
-// This object conforms to what the frontend currently expects.
-type GithubResponse struct {
-	Name string
-	ID   int
-
-	GithubConnection
-}
-
 /*
-PUT /plugins/github/connections/:connectionId
+PATCH /plugins/github/connections/:connectionId
 */
-func PutConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, error) {
-	githubConnection := GithubConnection{}
-	err := mapstructure.Decode(input.Body, &githubConnection)
+func PatchConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, error) {
+	v := config.GetConfig()
+	connection := &models.GithubConnection{}
+	err := helper.EncodeStruct(v, connection, "env")
 	if err != nil {
 		return nil, err
 	}
-
-	err = config.SetStruct(githubConnection, "mapstructure")
+	// update from request and save to .env
+	err = helper.DecodeStruct(v, connection, input.Body, "env")
 	if err != nil {
 		return nil, err
 	}
-
-	return &core.ApiResourceOutput{Body: "Success"}, nil
+	err = v.WriteConfig()
+	if err != nil {
+		return nil, err
+	}
+	response := models.GithubResponse{
+		GithubConnection: *connection,
+		Name:             "Github",
+		ID:               1,
+	}
+	return &core.ApiResourceOutput{Body: response, Status: http.StatusOK}, nil
 }
 
 /*
 GET /plugins/github/connections
 */
 func ListConnections(input *core.ApiResourceInput) (*core.ApiResourceOutput, error) {
-	// RETURN ONLY 1 Connection (FROM ENV) until multi-connection is developed.
-	githubConnections, err := GetConnectionFromEnv()
-	response := []GithubResponse{*githubConnections}
+	// RETURN ONLY 1 SOURCE (FROM ENV) until multi-connection is developed.
+	v := config.GetConfig()
+	connection := &models.GithubConnection{}
+
+	err := helper.EncodeStruct(v, connection, "env")
 	if err != nil {
 		return nil, err
 	}
-	return &core.ApiResourceOutput{Body: response}, nil
+	response := models.GithubResponse{
+		GithubConnection: *connection,
+		Name:             "Github",
+		ID:               1,
+	}
+
+	return &core.ApiResourceOutput{Body: []models.GithubResponse{response}}, nil
 }
 
 /*
@@ -164,24 +144,16 @@ GET /plugins/github/connections/:connectionId
 */
 func GetConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, error) {
 	//  RETURN ONLY 1 SOURCE FROM ENV (Ignore ID until multi-connection is developed.)
-	githubConnections, err := GetConnectionFromEnv()
-	if err != nil {
-		return nil, err
-	}
-	return &core.ApiResourceOutput{Body: githubConnections}, nil
-}
-
-func GetConnectionFromEnv() (*GithubResponse, error) {
 	v := config.GetConfig()
-	var githubConnection GithubConnection
-	err := v.Unmarshal(&githubConnection)
+	connection := &models.GithubConnection{}
+	err := helper.EncodeStruct(v, connection, "env")
 	if err != nil {
 		return nil, err
 	}
-
-	return &GithubResponse{
+	response := &models.GithubResponse{
+		GithubConnection: *connection,
 		Name:             "Github",
 		ID:               1,
-		GithubConnection: githubConnection,
-	}, nil
+	}
+	return &core.ApiResourceOutput{Body: response}, nil
 }

@@ -50,27 +50,27 @@ func ExtractApiIssues(taskCtx core.SubTaskContext) error {
 	var issueTypeBugRegex *regexp.Regexp
 	var issueTypeRequirementRegex *regexp.Regexp
 	var issueTypeIncidentRegex *regexp.Regexp
-	var issueSeverity = config.GITHUB_ISSUE_SEVERITY
+	var issueSeverity = config.IssueSeverity
 	if issueSeverity == "" {
 		issueSeverity = taskCtx.GetConfig("GITHUB_ISSUE_SEVERITY")
 	}
-	var issueComponent = config.GITHUB_ISSUE_COMPONENT
+	var issueComponent = config.IssueComponent
 	if issueComponent == "" {
 		issueComponent = taskCtx.GetConfig("GITHUB_ISSUE_COMPONENT")
 	}
-	var issuePriority = config.GITHUB_ISSUE_PRIORITY
+	var issuePriority = config.IssuePriority
 	if issuePriority == "" {
 		issuePriority = taskCtx.GetConfig("GITHUB_ISSUE_PRIORITY")
 	}
-	var issueTypeBug = config.GITHUB_ISSUE_TYPE_BUG
+	var issueTypeBug = config.IssueTypeBug
 	if issueTypeBug == "" {
 		issueTypeBug = taskCtx.GetConfig("GITHUB_ISSUE_TYPE_BUG")
 	}
-	var issueTypeRequirement = config.GITHUB_ISSUE_TYPE_REQUIREMENT
+	var issueTypeRequirement = config.IssueTypeRequirement
 	if issueTypeRequirement == "" {
 		issueTypeRequirement = taskCtx.GetConfig("GITHUB_ISSUE_TYPE_REQUIREMENT")
 	}
-	var issueTypeIncident = config.GITHUB_ISSUE_TYPE_INCIDENT
+	var issueTypeIncident = config.IssueTypeIncident
 	if issueTypeIncident == "" {
 		issueTypeIncident = taskCtx.GetConfig("GITHUB_ISSUE_TYPE_INCIDENT")
 	}
