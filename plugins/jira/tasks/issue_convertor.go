@@ -56,6 +56,7 @@ func ConvertIssues(taskCtx core.SubTaskContext) error {
 					Id: issueIdGen.Generate(jiraIssue.ConnectionId, jiraIssue.IssueId),
 				},
 				Url:                     convertURL(jiraIssue.Self, jiraIssue.Key),
+				IconURL:                 jiraIssue.IconURL,
 				Number:                  jiraIssue.Key,
 				Title:                   jiraIssue.Summary,
 				EpicKey:                 jiraIssue.EpicKey,

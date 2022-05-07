@@ -1,13 +1,14 @@
-package ticket
+package migrationscripts
 
 import (
+	"context"
 	"time"
-
-	"github.com/merico-dev/lake/models/domainlayer"
+	"github.com/merico-dev/lake/models/migrationscripts/archived"
+	"gorm.io/gorm"
 )
 
 type Issue struct {
-	domainlayer.DomainEntity
+	archived.DomainEntity
 	Url                     string `gorm:"type:varchar(255)"`
 	IconURL                 string `gorm:"column:icon_url"`
 	Number                  string `gorm:"type:varchar(255)"`
@@ -34,12 +35,24 @@ type Issue struct {
 	Component               string `gorm:"type:varchar(255)"`
 }
 
-const (
-	BUG         = "BUG"
-	REQUIREMENT = "REQUIREMENT"
-	INCIDENT    = "INCIDENT"
+func (Issue) TableName() string {
+	return "issues"
+}
 
-	TODO        = "TODO"
-	DONE        = "DONE"
-	IN_PROGRESS = "IN_PROGRESS"
-)
+type UpdateSchemas20220507 struct{}
+
+func (*UpdateSchemas20220507) Up(ctx context.Context, db *gorm.DB) error {
+	err := db.Migrator().AddColumn(&Issue{}, "icon_url")
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (*UpdateSchemas20220507) Version() uint64 {
+	return 20220507154644
+}
+
+func (*UpdateSchemas20220507) Name() string {
+	return "Add icon_url column to Issue"
+}
