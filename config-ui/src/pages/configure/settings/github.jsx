@@ -43,26 +43,26 @@ export default function GithubSettings (props) {
   }, [errors, onSettingsChange, connectionId, providerId])
 
   useEffect(() => {
-    setPrType(connection.PrType)
-    setPrComponent(connection.PrComponent)
-    setIssueSeverity(connection.IssueSeverity)
-    setIssuePriority(connection.IssuePriority)
-    setIssueComponent(connection.IssueComponent)
-    setIssueTypeBug(connection.IssueTypeBug)
-    setIssueTypeRequirement(connection.IssueTypeRequirement)
-    setIssueTypeIncident(connection.IssueTypeIncident)
+    setPrType(connection.prType)
+    setPrComponent(connection.prComponent)
+    setIssueSeverity(connection.issueSeverity)
+    setIssuePriority(connection.issuePriority)
+    setIssueComponent(connection.issueComponent)
+    setIssueTypeBug(connection.issueTypeBug)
+    setIssueTypeRequirement(connection.issueTypeRequirement)
+    setIssueTypeIncident(connection.issueTypeIncident)
   }, [connection])
 
   useEffect(() => {
     const settings = {
-      GITHUB_PR_TYPE: prType,
-      GITHUB_PR_COMPONENT: prComponent,
-      GITHUB_ISSUE_SEVERITY: issueSeverity,
-      GITHUB_ISSUE_COMPONENT: issueComponent,
-      GITHUB_ISSUE_PRIORITY: issuePriority,
-      GITHUB_ISSUE_TYPE_REQUIREMENT: issueTypeRequirement,
-      GITHUB_ISSUE_TYPE_BUG: issueTypeBug,
-      GITHUB_ISSUE_TYPE_INCIDENT: issueTypeIncident,
+      prType: prType,
+      prComponent: prComponent,
+      issueSeverity: issueSeverity,
+      issueComponent: issueComponent,
+      issuePriority: issuePriority,
+      issueTypeRequirement: issueTypeRequirement,
+      issueTypeBug: issueTypeBug,
+      issueTypeIncident: issueTypeIncident,
     }
     console.log('>> GITHUB INSTANCE SETTINGS FIELDS CHANGED!', settings)
     onSettingsChange(settings)

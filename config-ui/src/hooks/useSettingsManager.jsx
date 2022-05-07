@@ -36,7 +36,7 @@ function useSettingsManager ({
           ...connectionPayload,
           name: connection.name,
           GITHUB_ENDPOINT: connection.endpoint,
-          GITHUB_AUTH: connection.Auth,
+          GITHUB_AUTH: connection.auth,
           GITHUB_PROXY: connection.proxy || connection.Proxy
         }
         break
@@ -54,7 +54,7 @@ function useSettingsManager ({
           ...connectionPayload,
           name: connection.name,
           GITLAB_ENDPOINT: connection.endpoint,
-          GITLAB_AUTH: connection.Auth,
+          GITLAB_AUTH: connection.auth,
           GITLAB_PROXY: connection.proxy || connection.Proxy
         }
         break
@@ -82,7 +82,7 @@ function useSettingsManager ({
       try {
         setShowError(false)
         ToastNotification.clear()
-        const s = await request.put(`${DEVLAKE_ENDPOINT}/plugins/${activeProvider.id}/connections/${activeConnection.ID}`, settingsPayload)
+        const s = await request.patch(`${DEVLAKE_ENDPOINT}/plugins/${activeProvider.id}/connections/${activeConnection.ID}`, settingsPayload)
         console.log('>> SETTINGS SAVED SUCCESSFULLY', settingsPayload, s)
         saveResponse = {
           ...saveResponse,
