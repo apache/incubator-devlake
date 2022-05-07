@@ -137,6 +137,9 @@ func (collector *ApiCollector) Execute() error {
 		defer iterator.Close()
 		// throttle input process speed so it can be canceled, create a channel to represent available slots
 		slots := int(math.Ceil(collector.args.ApiClient.GetQps())) * 2
+		if slots <= 0 {
+			return fmt.Errorf("RateLimit can't use the 0 Qps")
+		}
 		slotsChan := make(chan bool, slots)
 		defer close(slotsChan)
 		for i := 0; i < slots; i++ {
