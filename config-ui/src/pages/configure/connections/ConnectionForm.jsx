@@ -280,20 +280,39 @@ export default function ConnectionForm (props) {
               </Label>
               {[Providers.GITHUB].includes(activeProvider.id)
                 ? (
-                  <TextArea
-                    id='connection-token'
-                    className={`input auth-input ${stateErrored === 'connection-token' ? 'invalid-field' : ''}`}
-                    inputRef={connectionTokenRef}
-                    disabled={isTesting || isSaving || isLocked}
-                    placeholder={placeholders ? placeholders.token : 'Enter Auth Token eg. EJrLG8DNeXADQcGOaaaX4B47'}
-                    growVertically={true}
-                    large={true}
-                    // intent={Intent.PRIMARY}
-                    onChange={(e) => onTokenChange(e.target.value)}
-                    value={token}
-                    required
-                    fill
-                  />
+                  <div
+                    className='bp3-input-group connection-token-group' style={{
+                      boxSizing: 'border-box',
+                      width: '99%',
+                      position: 'relative',
+                      display: 'flex'
+                    }}
+                  >
+                    <TextArea
+                      id='connection-token'
+                      className={`input auth-input ${stateErrored === 'connection-token' ? 'invalid-field' : ''}`}
+                      inputRef={connectionTokenRef}
+                      disabled={isTesting || isSaving || isLocked}
+                      placeholder={placeholders ? placeholders.token : 'Enter Auth Token eg. EJrLG8DNeXADQcGOaaaX4B47'}
+                      growVertically={true}
+                      large={true}
+                      // intent={Intent.PRIMARY}
+                      onChange={(e) => onTokenChange(e.target.value)}
+                      value={token}
+                      required
+                      fill
+                      style={{ maxWidth: '99%' }}
+                    />
+                    <span style={{ marginLeft: '-25px', zIndex: 1 }}>
+                      <InputValidationError
+                        error={getFieldError('Auth')}
+                        elementRef={connectionTokenRef}
+                        onError={activateErrorStates}
+                        onSuccess={() => setStateErrored(null)}
+                        validateOnFocus
+                      />
+                    </span>
+                  </div>
                   )
                 : (
                   <InputGroup
