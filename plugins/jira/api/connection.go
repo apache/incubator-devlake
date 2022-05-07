@@ -18,19 +18,13 @@ import (
 	"github.com/mitchellh/mapstructure"
 )
 
-type TestConnectionRequest struct {
-	Endpoint string `json:"endpoint"`
-	Auth     string `json:"auth"`
-	Proxy    string `json:"proxy"`
-}
-
 var vld = validator.New()
 
 func TestConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, error) {
 
 	// decode
 	var err error
-	var connection TestConnectionRequest
+	var connection models.TestConnectionRequest
 	err = mapstructure.Decode(input.Body, &connection)
 	if err != nil {
 		return nil, err
@@ -372,18 +366,12 @@ func GetConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, error
 }
 
 // GET /plugins/jira/connections/:connectionId/epics
-type EpicResponse struct {
-	Id    int
-	Title string
-	Value string
-}
-
 func GetEpicsByConnectionId(input *core.ApiResourceInput) (*core.ApiResourceOutput, error) {
 	jiraConnection, err := findConnectionByInputParam(input)
 	if err != nil {
 		return nil, err
 	}
-	return &core.ApiResourceOutput{Body: [1]EpicResponse{{
+	return &core.ApiResourceOutput{Body: [1]models.EpicResponse{{
 		Id:    1,
 		Title: jiraConnection.EpicKeyField,
 		Value: jiraConnection.EpicKeyField,
@@ -411,14 +399,7 @@ func GetGranularitiesByConnectionId(input *core.ApiResourceInput) (*core.ApiReso
 	}}, nil
 }
 
-type BoardResponse struct {
-	Id    int
-	Title string
-	Value string
-}
-
 // GET /plugins/jira/connections/:connectionId/boards
-
 func GetBoardsByConnectionId(input *core.ApiResourceInput) (*core.ApiResourceOutput, error) {
 	connectionId := input.Params["connectionId"]
 	if connectionId == "" {
@@ -433,9 +414,9 @@ func GetBoardsByConnectionId(input *core.ApiResourceInput) (*core.ApiResourceOut
 	if err != nil {
 		return nil, err
 	}
-	var boardResponses []BoardResponse
+	var boardResponses []models.BoardResponse
 	for _, board := range jiraBoards {
-		boardResponses = append(boardResponses, BoardResponse{
+		boardResponses = append(boardResponses, models.BoardResponse{
 			Id:    int(board.BoardId),
 			Title: board.Name,
 			Value: fmt.Sprintf("%v", board.BoardId),

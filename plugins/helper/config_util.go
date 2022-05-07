@@ -7,120 +7,118 @@ import (
 	"reflect"
 )
 
-// SaveToConifgWithMap will do two things, decode map to a struct and then save struct to config
-// `object` must be a pointer
-func SaveToConifgWithMap(v *viper.Viper, object interface{}, data map[string]interface{}, Tags ...string) error {
+// DecodeStruct validates `input` struct with `validator` and set it into viper
+// `tag` represent the fields when setting config, and the fields with `tag` shall prevail.
+// `input` must be a pointer
+func DecodeStruct(output *viper.Viper, input interface{}, data map[string]interface{}, tag string) error {
 	// update fields from request body
-	err := decodeMap(object, data)
+	err := mapstructure.Decode(data, input)
 	if err != nil {
 		return err
 	}
-	err = SaveToConfig(v, object, Tags...)
-	if err != nil {
-		return err
-	}
-	return nil
-}
-
-func decodeMap(object interface{}, data map[string]interface{}) error {
-	// decode
-	err := mapstructure.Decode(data, object)
-	if err != nil {
-		return err
-	}
-	// validate
+	// validate fields with `validate` tag
 	vld := validator.New()
-	err = vld.Struct(object)
+	err = vld.Struct(input)
+	if err != nil {
+		return err
+	}
+	err = validator.New().Struct(input)
 	if err != nil {
 		return err
 	}
 
+	vf := reflect.ValueOf(input)
+	if vf.Kind() != reflect.Ptr {
+		panic("input is not a pointer")
+	}
+	tf := reflect.Indirect(vf).Type()
+	fieldTags := make([]string, 0)
+	fieldNames := make([]string, 0)
+	fieldTypes := make([]reflect.Type, 0)
+	walkFields(tf, &fieldNames, &fieldTypes, &fieldTags, tag)
+	length := len(fieldNames)
+	for i := 0; i < length; i++ {
+		fieldName := fieldNames[i]
+		fieldType := fieldTypes[i]
+		fieldTag := fieldTags[i]
+
+		// Check if the first letter is uppercase (indicates a public element, accessible)
+		ascii := rune(fieldName[0])
+		if int(ascii) < int('A') || int(ascii) > int('Z') {
+			continue
+		}
+
+		// View their tags in order to filter out members who don't have a valid tag set
+		if fieldTag == "" {
+			continue
+		}
+		vfField := vf.Elem().FieldByName(fieldName)
+		switch fieldType.String() {
+		case "string":
+			output.Set(fieldTag, vfField.String())
+		case "int", "int64":
+			output.Set(fieldTag, vfField.Int())
+		case "float64":
+			output.Set(fieldTag, vfField.Float())
+		default:
+		}
+	}
 	return nil
 }
 
-// SaveToConfig Set a struct for viper
-// `Tags` represent the fields when setting config, and the fields in Tags shall prevail. `Tags` that appear first have higher priority.
-func SaveToConfig(v *viper.Viper, object interface{}, Tags ...string) error {
-	err := validator.New().Struct(object)
-	if err != nil {
-		return err
+// EncodeStruct encodes struct from viper
+// `tag` represent the fields when setting config, and the fields with `tag` shall prevail.
+// `object` must be a pointer
+func EncodeStruct(input *viper.Viper, output interface{}, tag string) error {
+	vf := reflect.ValueOf(output)
+	if vf.Kind() != reflect.Ptr {
+		panic("output is not a pointer")
 	}
-
-	vf := reflect.ValueOf(object)
 	tf := reflect.Indirect(vf).Type()
-	for i := 0; i < tf.NumField(); i++ {
-		if vf.Elem().Field(i).IsZero() {
-			continue
-		}
-		tfield := tf.Field(i)
+	fieldTags := make([]string, 0)
+	fieldNames := make([]string, 0)
+	fieldTypes := make([]reflect.Type, 0)
+	walkFields(tf, &fieldNames, &fieldTypes, &fieldTags, tag)
+	length := len(fieldNames)
+	for i := 0; i < length; i++ {
+		fieldName := fieldNames[i]
+		fieldType := fieldTypes[i]
+		fieldTag := fieldTags[i]
 
 		// Check if the first letter is uppercase (indicates a public element, accessible)
-		ascii := rune(tfield.Name[0])
+		ascii := rune(fieldName[0])
 		if int(ascii) < int('A') || int(ascii) > int('Z') {
 			continue
 		}
 
 		// View their tags in order to filter out members who don't have a valid tag set
-		ft := ""
-		for _, Tag := range Tags {
-			ft = tfield.Tag.Get(Tag)
-			if ft != "" {
-				break
-			}
-		}
-		if ft == "" {
+		if fieldTag == "" {
 			continue
 		}
-		vfField := vf.Elem().Field(i)
-		switch vfField.Type().String() {
+		vfField := vf.Elem().FieldByName(fieldName)
+		switch fieldType.String() {
 		case "string":
-			v.Set(ft, vfField.String())
+			vfField.SetString(input.GetString(fieldTag))
 		case "int", "int64":
-			v.Set(ft, vfField.Int())
+			vfField.SetInt(input.GetInt64(fieldTag))
 		case "float64":
-			v.Set(ft, vfField.Float())
+			vfField.SetFloat(input.GetFloat64(fieldTag))
 		default:
 		}
 	}
-	return v.WriteConfig()
+	return nil
 }
 
-// LoadFromConfig Load struct from viper
-// `Tags` represent the fields when setting config, and the fields in Tags shall prevail. `Tags` that appear first have higher priority.
-// `object` must be a pointer
-func LoadFromConfig(v *viper.Viper, object interface{}, Tags ...string) (interface{}, error) {
-	vf := reflect.ValueOf(object)
-	tf := reflect.Indirect(vf).Type()
-	for i := 0; i < tf.NumField(); i++ {
-		tfield := tf.Field(i)
-
-		// Check if the first letter is uppercase (indicates a public element, accessible)
-		ascii := rune(tfield.Name[0])
-		if int(ascii) < int('A') || int(ascii) > int('Z') {
-			continue
-		}
-
-		// View their tags in order to filter out members who don't have a valid tag set
-		ft := ""
-		for _, Tag := range Tags {
-			ft = tfield.Tag.Get(Tag)
-			if ft != "" {
-				break
-			}
-		}
-		if ft == "" {
-			continue
-		}
-		vfField := vf.Elem().Field(i)
-		switch vfField.Type().String() {
-		case "string":
-			vfField.SetString(v.GetString(ft))
-		case "int", "int64":
-			vfField.SetInt(v.GetInt64(ft))
-		case "float64":
-			vfField.SetFloat(v.GetFloat64(ft))
-		default:
+func walkFields(t reflect.Type, fieldNames *[]string, fieldTypes *[]reflect.Type, fieldTags *[]string, tag string) {
+	for i := 0; i < t.NumField(); i++ {
+		field := t.Field(i)
+		if field.Type.Kind() == reflect.Struct {
+			walkFields(field.Type, fieldNames, fieldTypes, fieldTags, tag)
+		} else {
+			fieldTag := field.Tag.Get(tag)
+			*fieldNames = append(*fieldNames, field.Name)
+			*fieldTypes = append(*fieldTypes, field.Type)
+			*fieldTags = append(*fieldTags, fieldTag)
 		}
 	}
-	return object, nil
 }

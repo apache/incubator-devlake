@@ -3,6 +3,7 @@ package api
 import (
 	"fmt"
 	"github.com/merico-dev/lake/config"
+	"github.com/merico-dev/lake/plugins/gitlab/models"
 	"net/http"
 	"time"
 
@@ -12,18 +13,6 @@ import (
 	"github.com/mitchellh/mapstructure"
 )
 
-// Using User because it requires authentication.
-type ApiUserResponse struct {
-	Id   int
-	Name string
-}
-
-type TestConnectionRequest struct {
-	Endpoint string `json:"endpoint" validate:"required"`
-	Auth     string `json:"auth" validate:"required"`
-	Proxy    string `json:"proxy"`
-}
-
 var vld = validator.New()
 
 /*
@@ -32,7 +21,7 @@ POST /plugins/gitlab/test
 func TestConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, error) {
 	// decode
 	var err error
-	var connection TestConnectionRequest
+	var connection models.TestConnectionRequest
 	err = mapstructure.Decode(input.Body, &connection)
 	if err != nil {
 		return nil, err
@@ -59,7 +48,7 @@ func TestConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, erro
 	if err != nil {
 		return nil, err
 	}
-	resBody := &ApiUserResponse{}
+	resBody := &models.ApiUserResponse{}
 	err = helper.UnmarshalResponse(res, resBody)
 	if err != nil {
 		return nil, err
@@ -71,37 +60,27 @@ func TestConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, erro
 	return nil, nil
 }
 
-// This object conforms to what the frontend currently sends.
-type GitlabConnection struct {
-	Endpoint string `mapstructure:"endpoint" validate:"required" env:"GITLAB_ENDPOINT" json:"endpoint"`
-	Auth     string `mapstructure:"auth" validate:"required" env:"GITLAB_AUTH"  json:"auth"`
-	Proxy    string `mapstructure:"proxy" env:"GITLAB_PROXY" json:"proxy"`
-}
-
-// This object conforms to what the frontend currently expects.
-type GitlabResponse struct {
-	Name string
-	ID   int
-	GitlabConnection
-}
-
 /*
 PATCH /plugins/gitlab/connections/:connectionId
 */
 func PatchConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, error) {
 	v := config.GetConfig()
-	connection, err := helper.LoadFromConfig(v, &GitlabConnection{}, "env")
+	connection := &models.GitlabConnection{}
+	err := helper.EncodeStruct(v, connection, "env")
 	if err != nil {
 		return nil, err
 	}
 	// update from request and save to .env
-	err = helper.SaveToConifgWithMap(v, connection, input.Body, "env")
+	err = helper.DecodeStruct(v, connection, input.Body, "env")
 	if err != nil {
 		return nil, err
 	}
-
-	response := GitlabResponse{
-		GitlabConnection: *connection.(*GitlabConnection),
+	err = v.WriteConfig()
+	if err != nil {
+		return nil, err
+	}
+	response := models.GitlabResponse{
+		GitlabConnection: *connection,
 		Name:             "Gitlab",
 		ID:               1,
 	}
@@ -114,17 +93,19 @@ GET /plugins/gitlab/connections
 func ListConnections(input *core.ApiResourceInput) (*core.ApiResourceOutput, error) {
 	// RETURN ONLY 1 SOURCE (FROM ENV) until multi-connection is developed.
 	v := config.GetConfig()
-	connection, err := helper.LoadFromConfig(v, &GitlabConnection{}, "env")
+	connection := &models.GitlabConnection{}
+
+	err := helper.EncodeStruct(v, connection, "env")
 	if err != nil {
 		return nil, err
 	}
-	response := GitlabResponse{
-		GitlabConnection: *connection.(*GitlabConnection),
+	response := models.GitlabResponse{
+		GitlabConnection: *connection,
 		Name:             "Gitlab",
 		ID:               1,
 	}
 
-	return &core.ApiResourceOutput{Body: []GitlabResponse{response}}, nil
+	return &core.ApiResourceOutput{Body: []models.GitlabResponse{response}}, nil
 }
 
 /*
@@ -133,13 +114,13 @@ GET /plugins/gitlab/connections/:connectionId
 func GetConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, error) {
 	//  RETURN ONLY 1 SOURCE FROM ENV (Ignore ID until multi-connection is developed.)
 	v := config.GetConfig()
-	connection, err := helper.LoadFromConfig(v, &GitlabConnection{}, "env")
+	connection := &models.GitlabConnection{}
+	err := helper.EncodeStruct(v, connection, "env")
 	if err != nil {
 		return nil, err
 	}
-
-	response := &GitlabResponse{
-		GitlabConnection: *connection.(*GitlabConnection),
+	response := &models.GitlabResponse{
+		GitlabConnection: *connection,
 		Name:             "Gitlab",
 		ID:               1,
 	}

@@ -16,12 +16,6 @@ import (
 	"github.com/merico-dev/lake/plugins/core"
 )
 
-type TestConnectionRequest struct {
-	Endpoint string `json:"endpoint" validate:"required,url"`
-	Auth     string `json:"auth" validate:"required"`
-	Proxy    string `json:"proxy"`
-}
-
 var vld = validator.New()
 
 /*
@@ -29,7 +23,7 @@ POST /plugins/tapd/test
 */
 func TestConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, error) {
 	// process input
-	var params TestConnectionRequest
+	var params models.TestConnectionRequest
 	err := mapstructure.Decode(input.Body, &params)
 	if err != nil {
 		return nil, err
@@ -271,12 +265,6 @@ func GetConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, error
 	return &core.ApiResourceOutput{Body: detail}, nil
 }
 
-type WorkspaceResponse struct {
-	Id    uint64
-	Title string
-	Value string
-}
-
 // GET /plugins/tapd/connections/:connectionId/boards
 
 func GetBoardsByConnectionId(input *core.ApiResourceInput) (*core.ApiResourceOutput, error) {
@@ -293,9 +281,9 @@ func GetBoardsByConnectionId(input *core.ApiResourceInput) (*core.ApiResourceOut
 	if err != nil {
 		return nil, err
 	}
-	var workSpaceResponses []WorkspaceResponse
+	var workSpaceResponses []models.WorkspaceResponse
 	for _, workSpace := range tapdWorkspaces {
-		workSpaceResponses = append(workSpaceResponses, WorkspaceResponse{
+		workSpaceResponses = append(workSpaceResponses, models.WorkspaceResponse{
 			Id:    uint64(workSpace.ID),
 			Title: workSpace.Name,
 			Value: fmt.Sprintf("%v", workSpace.ID),

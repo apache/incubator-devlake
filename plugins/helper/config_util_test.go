@@ -11,8 +11,8 @@ type TestStruct struct {
 	F1 string  `env:"TEST_F1"`
 	F2 int     `env:"TEST_F2"`
 	F3 float64 `env:"TEST_F3" mapstructure:"TEST_F3"`
-	F4 string  `json:"TEST_F4"`
-	F5 string  `json:"TEST_F5"`
+	F4 string  `env:"TEST_F4"`
+	F5 string  `env:"TEST_F5"`
 }
 
 func TestSaveToConfig(t *testing.T) {
@@ -23,9 +23,10 @@ func TestSaveToConfig(t *testing.T) {
 		F4: "Test",
 		F5: "No Use",
 	}
+	data := make(map[string]interface{})
 
 	v := config.GetConfig()
-	assert.Nil(t, SaveToConfig(v, &ts, "env", "json", "mapstructure"))
+	assert.Nil(t, DecodeStruct(v, &ts, data, "env"))
 	v1 := v.GetString("TEST_F1")
 	assert.Equal(t, v1, "123")
 	v2 := v.GetInt("TEST_F2")
@@ -37,10 +38,12 @@ func TestSaveToConfig(t *testing.T) {
 }
 
 func TestLoadFromConfig(t *testing.T) {
-
 	v := config.GetConfig()
-	x, _ := LoadFromConfig(v, &TestStruct{}, "env", "json", "mapstructure")
-	vF := x.(*TestStruct)
+	vF := TestStruct{}
+	err := EncodeStruct(v, &vF, "env")
+	if err != nil {
+		panic(err)
+	}
 	//assert.Nil(t, x)
 	assert.Equal(t, vF.F1, "123")
 	assert.Equal(t, vF.F2, 76)
