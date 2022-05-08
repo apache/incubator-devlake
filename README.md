@@ -9,7 +9,7 @@
 [![Go Report Card](https://goreportcard.com/badge/github.com/merico-dev/lake)](https://goreportcard.com/report/github.com/merico-dev/lake)
 [![Slack](https://img.shields.io/badge/slack-join_chat-success.svg?logo=slack)](https://join.slack.com/t/devlake-io/shared_invite/zt-17b6vuvps-x98pqseoUagM7EAmKC82xQ)
 
-| [English](README.md) | [中文](README-zh-CN.md) |
+| English | [中文](README-zh-CN.md) |
 | --- | --- |
 </div>
 <br>
