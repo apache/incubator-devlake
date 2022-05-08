@@ -10,7 +10,7 @@
 [![Go Report Card](https://goreportcard.com/badge/github.com/merico-dev/lake)](https://goreportcard.com/report/github.com/merico-dev/lake)
 
 
-| [English](README.md) | [中文](README-zh-CN.md) |
+| [English](README.md) | 中文 |
 | --- | --- |
 
 </div>
