@@ -40,7 +40,7 @@ func TestConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, erro
 	results := make(chan error)
 	for i := 0; i < len(tokens); i++ {
 		token := tokens[i]
-		i := i
+		j := i + 1
 		go func() {
 			apiClient, err := helper.NewApiClient(
 				params.Endpoint,
@@ -52,18 +52,18 @@ func TestConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, erro
 				nil,
 			)
 			if err != nil {
-				results <- fmt.Errorf("verify token failed for #%v %s %w", i, token, err)
+				results <- fmt.Errorf("verify token failed for #%v %s %w", j, token, err)
 				return
 			}
 			res, err := apiClient.Get("user/public_emails", nil, nil)
 			if err != nil {
-				results <- fmt.Errorf("verify token failed for #%v %s %w", i, token, err)
+				results <- fmt.Errorf("verify token failed for #%v %s %w", j, token, err)
 				return
 			}
 			githubApiResponse := &ApiUserPublicEmailResponse{}
 			err = helper.UnmarshalResponse(res, githubApiResponse)
 			if err != nil {
-				results <- fmt.Errorf("verify token failed for #%v %s %w", i, token, err)
+				results <- fmt.Errorf("verify token failed for #%v %s %w", j, token, err)
 			} else {
 				results <- nil
 			}
