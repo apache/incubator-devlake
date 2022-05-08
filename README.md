@@ -296,6 +296,8 @@ This section lists all the documents to help you contribute to the repo.
 
 - <a href="https://join.slack.com/t/devlake-io/shared_invite/zt-17b6vuvps-x98pqseoUagM7EAmKC82xQ" target="_blank">Slack</a>: Message us on Slack
 - <a href="https://github.com/merico-dev/lake/wiki/FAQ" target="_blank">FAQ</a>: Frequently Asked Questions
+- <div>Wechat Group QR Code
+![](wechat_group_qr_code.png)</div>
 
 <br>
 
