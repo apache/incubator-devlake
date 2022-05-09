@@ -94,7 +94,7 @@ func (plugin Github) RootPkgPath() string {
 }
 
 func (plugin Github) MigrationScripts() []migration.Script {
-	return []migration.Script{new(migrationscripts.InitSchemas)}
+	return []migration.Script{new(migrationscripts.InitSchemas), new(migrationscripts.UpdateSchemas20220509)}
 }
 
 func (plugin Github) ApiResources() map[string]map[string]core.ApiResourceHandler {
