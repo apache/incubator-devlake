@@ -31,7 +31,7 @@ func CollectApiPipelines(taskCtx core.SubTaskContext) error {
 		PageSize:           100,
 		Incremental:        false,
 		UrlTemplate:        "projects/{{ .Params.ProjectId }}/pipelines",
-		Query:              GetQueryOrder,
+		Query:              GetQuery,
 		ResponseParser:     GetRawMessageFromResponse,
 	})
 
@@ -56,7 +56,7 @@ func CollectApiChildrenOnPipelines(taskCtx core.SubTaskContext) error {
 		Incremental:        false,
 		Input:              iterator,
 		UrlTemplate:        "projects/{{ .Params.ProjectId }}/pipelines/{{ .Input.GitlabId }}",
-		Query:              GetQueryOrder,
+		Query:              GetQuery,
 		ResponseParser:     helper.GetRawMessageDirectFromResponse,
 	})
 
