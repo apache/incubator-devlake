@@ -137,7 +137,7 @@ table.connections-table {
 .bp3-input-group {
   &.invalid-field {
     + label { font-weight: bold }
-    > input {
+    > input, > textarea {
       box-shadow: rgb(232, 28, 28) 0px 0px 0px 1px, rgba(232, 71, 28, 0.3) 0px 0px 0px 3px, rgba(16, 22, 26, 0.2) 0px 1px 1px 0px inset;
       box-sizing: border-box;
       background-color: #ffeeee;

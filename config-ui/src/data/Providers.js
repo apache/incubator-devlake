@@ -1,5 +1,5 @@
 import React from 'react'
-import { Tooltip } from '@blueprintjs/core'
+import { Tooltip, Icon } from '@blueprintjs/core'
 import { ReactComponent as GitlabProviderIcon } from '@/images/integrations/gitlab.svg'
 import { ReactComponent as JenkinsProviderIcon } from '@/images/integrations/jenkins.svg'
 import { ReactComponent as JiraProviderIcon } from '@/images/integrations/jira.svg'
@@ -90,12 +90,26 @@ const ProviderFormLabels = {
     proxy: 'Proxy URL',
     // token: 'Auth Token(s)',
     token: (
-      <Tooltip
-        content={(<span>Due to Github’s rate limit, input more tokens, <br />comma separated, to accelerate data collection.</span>)}
-        intent='primary'
-      >
+      <>
+        <Tooltip
+          content={(<span>Due to Github’s rate limit, input more tokens, <br />comma separated, to accelerate data collection.</span>)}
+          intent='primary'
+        >
+          <Icon
+            icon='info-sign'
+            size={12}
+            style={{
+              float: 'left',
+              display: 'inline-block',
+              alignContent: 'center',
+              marginBottom: '4px',
+              marginRight: '8px',
+              color: '#999'
+            }}
+          />
+        </Tooltip>
         Auth Token(s)
-      </Tooltip>),
+      </>),
     username: 'Username',
     password: 'Password'
   },
