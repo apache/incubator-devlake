@@ -1,10 +1,12 @@
 package testhelper
 
 import (
+	"context"
 	"fmt"
 	"io"
 	"os"
 	"testing"
+	"time"
 
 	"encoding/csv"
 
@@ -13,15 +15,73 @@ import (
 	"github.com/merico-dev/lake/plugins/core"
 	"github.com/merico-dev/lake/plugins/helper"
 	"github.com/merico-dev/lake/runner"
+	"github.com/spf13/viper"
 	"github.com/stretchr/testify/assert"
 	"gorm.io/gorm"
 )
 
 // DataFlowTester helps you write subtasks e2e tests with ease
 type DataFlowTester struct {
+	Cfg    *viper.Viper
 	Db     *gorm.DB
 	T      *testing.T
 	Plugin core.PluginMeta
+	Log    core.Logger
+}
+
+type CsvFileIterator struct {
+	file   *os.File
+	reader *csv.Reader
+	fields []string
+	row    map[string]interface{}
+}
+
+func NewCsvFileIterator(csvPath string) *CsvFileIterator {
+	// open csv file
+	csvFile, err := os.Open(csvPath)
+	if err != nil {
+		panic(err)
+	}
+	csvReader := csv.NewReader(csvFile)
+	// load field names
+	fields, err := csvReader.Read()
+	if err != nil {
+		panic(err)
+	}
+	return &CsvFileIterator{
+		file:   csvFile,
+		reader: csvReader,
+		fields: fields,
+	}
+}
+
+func (ci *CsvFileIterator) Close() {
+	err := ci.file.Close()
+	if err != nil {
+		panic(err)
+	}
+}
+
+func (ci *CsvFileIterator) HasNext() bool {
+	row, err := ci.reader.Read()
+	if err == io.EOF {
+		ci.row = nil
+		return false
+	}
+	if err != nil {
+		ci.row = nil
+		panic(err)
+	}
+	// convert row tuple to map type, so gorm can insert data with it
+	ci.row = make(map[string]interface{})
+	for index, field := range ci.fields {
+		ci.row[field] = row[index]
+	}
+	return true
+}
+
+func (ci *CsvFileIterator) Fetch() map[string]interface{} {
+	return ci.row
 }
 
 // NewDataFlowTester create a *DataFlowTester to help developer test their subtasks data flow
@@ -32,27 +92,19 @@ func NewDataFlowTester(t *testing.T, plugin core.PluginMeta) *DataFlowTester {
 		panic(err)
 	}
 	return &DataFlowTester{
+		Cfg:    cfg,
 		Db:     db,
 		T:      t,
 		Plugin: plugin,
+		Log:    logger.Global,
 	}
 }
 
 func (t *DataFlowTester) ImportCsv(csvRelPath string, tableName string) {
-	// open csv file
-	csvFile, err := os.Open(csvRelPath)
-	if err != nil {
-		panic(err)
-	}
-	defer csvFile.Close()
-	csvReader := csv.NewReader(csvFile)
-	// load field names
-	fields, err := csvReader.Read()
-	if err != nil {
-		panic(err)
-	}
+	csvIter := NewCsvFileIterator(csvRelPath)
+	defer csvIter.Close()
 	// create table if not exists
-	err = t.Db.Table(tableName).AutoMigrate(&helper.RawData{})
+	err := t.Db.Table(tableName).AutoMigrate(&helper.RawData{})
 	if err != nil {
 		panic(err)
 	}
@@ -62,21 +114,9 @@ func (t *DataFlowTester) ImportCsv(csvRelPath string, tableName string) {
 		panic(err)
 	}
 	// load rows and insert into target table
-	data := make(map[string]interface{})
-	for {
-		row, err := csvReader.Read()
-		if err == io.EOF {
-			break
-		}
-		if err != nil {
-			panic(err)
-		}
-		// convert row tuple to map type, so gorm can insert data with it
-		for index, field := range fields {
-			data[field] = row[index]
-		}
+	for csvIter.HasNext() {
 		// make sure
-		result := t.Db.Table(tableName).Create(data)
+		result := t.Db.Table(tableName).Create(csvIter.Fetch())
 		if result.Error != nil {
 			panic(result.Error)
 		}
@@ -84,8 +124,39 @@ func (t *DataFlowTester) ImportCsv(csvRelPath string, tableName string) {
 	}
 }
 
-func (t *DataFlowTester) Subtask(subtaskMeta core.SubTaskMeta) {
+func (t *DataFlowTester) Subtask(subtaskMeta core.SubTaskMeta, taskData interface{}) {
+	subtaskCtx := helper.NewStandaloneSubTaskContext(t.Cfg, t.Log, t.Db, context.Background(), "e2e-test", taskData)
+	subtaskMeta.EntryPoint(subtaskCtx)
 }
 
-func (T *DataFlowTester) VerifyTable(tableName string, csvRelPaht string) {
+func (t *DataFlowTester) VerifyTable(tableName string, csvRelPath string, pkfields []string, targetfields []string) {
+	csvIter := NewCsvFileIterator(csvRelPath)
+	defer csvIter.Close()
+	for csvIter.HasNext() {
+		expected := csvIter.Fetch()
+		pkvalues := make([]interface{}, 0, len(pkfields))
+		for _, pkf := range pkfields {
+			pkvalues = append(pkvalues, expected[pkf])
+		}
+		actual := make(map[string]interface{})
+		where := ""
+		for _, field := range pkfields {
+			where += fmt.Sprintf(" %s = ?", field)
+		}
+		err := t.Db.Table(tableName).Where(where, pkvalues...).Find(actual).Error
+		if err != nil {
+			panic(err)
+		}
+		for _, field := range targetfields {
+			actualValue := ""
+			switch actual[field].(type) {
+			// TODO: ensure testing database is in UTC timezone
+			case time.Time:
+				actualValue = actual[field].(time.Time).Format("2006-01-02 15:04:05.000000000")
+			default:
+				actualValue = fmt.Sprint(actual[field])
+			}
+			assert.Equal(t.T, expected[field], actualValue)
+		}
+	}
 }
