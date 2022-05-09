@@ -1,11 +1,13 @@
 package logger
 
 import (
+	"fmt"
 	"github.com/merico-dev/lake/config"
 	"github.com/merico-dev/lake/plugins/core"
 	"github.com/merico-dev/lake/plugins/helper"
 	"github.com/sirupsen/logrus"
 	prefixed "github.com/x-cray/logrus-prefixed-formatter"
+	"os"
 )
 
 var inner *logrus.Logger
@@ -30,5 +32,9 @@ func init() {
 		FullTimestamp:   true,
 	})
 
-	Global = helper.NewDefaultLogger(inner, "")
+	if err := os.Mkdir("logs", 0777); err != nil {
+		inner.Info(fmt.Sprintf("failed to create dir logs: %s", err))
+	}
+	loggerPool := make(map[string]*logrus.Logger)
+	Global = helper.NewDefaultLogger(inner, "", loggerPool)
 }

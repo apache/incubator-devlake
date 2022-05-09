@@ -8,6 +8,6 @@ import (
 // bridge to current implementation at this point
 // TODO: implement another TaskLogger for distributed runner/worker
 
-func NewDefaultTaskLogger(log *logrus.Logger, prefix string) core.Logger {
-	return NewDefaultLogger(log, prefix)
+func NewDefaultTaskLogger(log *logrus.Logger, prefix string, loggerPool map[string]*logrus.Logger) core.Logger {
+	return NewDefaultLogger(log, prefix, loggerPool)
 }
