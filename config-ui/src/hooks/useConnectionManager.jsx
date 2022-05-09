@@ -108,17 +108,17 @@ function useConnectionManager ({
     let connectionPayload = { ...configurationSettings }
     switch (activeProvider.id) {
       case Providers.JIRA:
-        connectionPayload = { name: name, Endpoint: endpointUrl, BasicAuthEncoded: token, Proxy: proxy, ...connectionPayload }
+        connectionPayload = { name: name, endpoint: endpointUrl, basicAuthEncoded: token, proxy: proxy, ...connectionPayload }
         break
       case Providers.GITHUB:
-        connectionPayload = { name: name, GITHUB_ENDPOINT: endpointUrl, GITHUB_AUTH: token, GITHUB_PROXY: proxy, ...connectionPayload }
+        connectionPayload = { name: name, endpoint: endpointUrl, auth: token, proxy: proxy, ...connectionPayload }
         break
       case Providers.JENKINS:
         // eslint-disable-next-line max-len
-        connectionPayload = { name: name, JENKINS_ENDPOINT: endpointUrl, JENKINS_USERNAME: username, JENKINS_PASSWORD: password, ...connectionPayload }
+        connectionPayload = { name: name, endpoint: endpointUrl, username: username, password: password, ...connectionPayload }
         break
       case Providers.GITLAB:
-        connectionPayload = { name: name, GITLAB_ENDPOINT: endpointUrl, GITLAB_AUTH: token, GITLAB_PROXY: proxy, ...connectionPayload }
+        connectionPayload = { name: name, endpoint: endpointUrl, auth: token, proxy: proxy, ...connectionPayload }
         break
     }
 
@@ -156,7 +156,7 @@ function useConnectionManager ({
         setErrors([])
         ToastNotification.clear()
         // eslint-disable-next-line max-len
-        const s = await request.put(`${DEVLAKE_ENDPOINT}/plugins/${activeProvider.id}/connections/${activeConnection.id || activeConnection.ID}`, configPayload)
+        const s = await request.patch(`${DEVLAKE_ENDPOINT}/plugins/${activeProvider.id}/connections/${activeConnection.id || activeConnection.ID}`, configPayload)
         const silentRefetch = true
         console.log('>> CONFIGURATION MODIFIED SUCCESSFULLY', configPayload, s)
         saveResponse = {
@@ -312,7 +312,7 @@ function useConnectionManager ({
         endpoint: c.Endpoint || c.endpoint,
         username: c.Username,
         password: c.Password,
-        auth: c.basicAuthEncoded || c.Auth,
+        auth: c.basicAuthEncoded || c.auth,
         proxy: c.Proxy || c.Proxy
       }
       const onSuccess = (res) => {
@@ -359,15 +359,15 @@ function useConnectionManager ({
           setPassword(activeConnection.password)
           break
         case Providers.GITLAB:
-          setToken(activeConnection.basicAuthEncoded || activeConnection.Auth)
+          setToken(activeConnection.basicAuthEncoded || activeConnection.auth)
           setProxy(activeConnection.Proxy || activeConnection.proxy)
           break
         case Providers.GITHUB:
-          setToken(activeConnection.basicAuthEncoded || activeConnection.Auth)
+          setToken(activeConnection.basicAuthEncoded || activeConnection.auth)
           setProxy(activeConnection.Proxy || activeConnection.proxy)
           break
         case Providers.JIRA:
-          setToken(activeConnection.basicAuthEncoded || activeConnection.Auth)
+          setToken(activeConnection.basicAuthEncoded || activeConnection.auth)
           setProxy(activeConnection.Proxy || activeConnection.proxy)
           break
       }
