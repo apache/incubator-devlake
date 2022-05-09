@@ -2,6 +2,7 @@ package apiv2models
 
 import (
 	"encoding/json"
+
 	"github.com/merico-dev/lake/plugins/core"
 
 	"github.com/merico-dev/lake/plugins/jira/models"
@@ -142,6 +143,7 @@ func (i Issue) toToolLayer(connectionId uint64, epicField, storyPointField strin
 		IssueId:            i.ID,
 		ProjectId:          i.Fields.Project.ID,
 		Self:               i.Self,
+		IconURL:            i.Fields.Issuetype.IconURL,
 		Key:                i.Key,
 		StoryPoint:         workload,
 		Summary:            i.Fields.Summary,

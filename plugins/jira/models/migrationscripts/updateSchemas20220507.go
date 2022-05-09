@@ -1,15 +1,17 @@
-package models
+package migrationscripts
 
 import (
+	"context"
 	"time"
 
-	"github.com/merico-dev/lake/models/common"
+	"github.com/merico-dev/lake/models/migrationscripts/archived"
 	"gorm.io/datatypes"
+	"gorm.io/gorm"
 )
 
-type JiraIssue struct {
+type JiraIssue20220507 struct {
 	// collected fields
-	ConnectionId             uint64 `gorm:"primaryKey"`
+	SourceId                 uint64 `gorm:"primaryKey"`
 	IssueId                  uint64 `gorm:"primarykey"`
 	ProjectId                uint64
 	Self                     string `gorm:"type:varchar(255)"`
@@ -49,9 +51,27 @@ type JiraIssue struct {
 	// internal status tracking
 	ChangelogUpdated  *time.Time
 	RemotelinkUpdated *time.Time
-	common.NoPKModel
+	archived.NoPKModel
 }
 
-func (JiraIssue) TableName() string {
+func (JiraIssue20220507) TableName() string{
 	return "_tool_jira_issues"
+}
+
+type UpdateSchemas20220507 struct{}
+
+func (*UpdateSchemas20220507) Up(ctx context.Context, db *gorm.DB) error {
+	err := db.Migrator().AddColumn(&JiraIssue20220507{}, "icon_url")
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (*UpdateSchemas20220507) Version() uint64 {
+	return 20220507154646
+}
+
+func (*UpdateSchemas20220507) Name() string {
+	return "Add icon_url column to JiraIssue"
 }
