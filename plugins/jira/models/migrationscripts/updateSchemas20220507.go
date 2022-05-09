@@ -9,7 +9,7 @@ import (
 	"gorm.io/gorm"
 )
 
-type JiraIssue struct {
+type JiraIssue20220507 struct {
 	// collected fields
 	SourceId                 uint64 `gorm:"primaryKey"`
 	IssueId                  uint64 `gorm:"primarykey"`
@@ -54,14 +54,14 @@ type JiraIssue struct {
 	archived.NoPKModel
 }
 
-func (JiraIssue) TableName() string{
+func (JiraIssue20220507) TableName() string{
 	return "_tool_jira_issues"
 }
 
 type UpdateSchemas20220507 struct{}
 
 func (*UpdateSchemas20220507) Up(ctx context.Context, db *gorm.DB) error {
-	err := db.Migrator().AddColumn(&JiraIssue{}, "icon_url")
+	err := db.Migrator().AddColumn(&JiraIssue20220507{}, "icon_url")
 	if err != nil {
 		return err
 	}
