@@ -13,7 +13,7 @@ type JiraIssue struct {
 	IssueId                  uint64 `gorm:"primarykey"`
 	ProjectId                uint64
 	Self                     string `gorm:"type:varchar(255)"`
-	IconURL                  string `gorm:"column:icon_url"`
+	IconURL                  string `gorm:"type:varchar(255);column:icon_url"`
 	Key                      string `gorm:"type:varchar(255)"`
 	Summary                  string
 	Type                     string `gorm:"type:varchar(255)"`

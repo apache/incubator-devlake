@@ -9,7 +9,7 @@ import (
 type Issue struct {
 	domainlayer.DomainEntity
 	Url                     string `gorm:"type:varchar(255)"`
-	IconURL                 string `gorm:"column:icon_url"`
+	IconURL                 string `gorm:"type:varchar(255);column:icon_url"`
 	Number                  string `gorm:"type:varchar(255)"`
 	Title                   string
 	Description             string

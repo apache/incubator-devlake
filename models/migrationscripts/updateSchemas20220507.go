@@ -10,7 +10,7 @@ import (
 type Issue20220507 struct {
 	archived.DomainEntity
 	Url                     string `gorm:"type:varchar(255)"`
-	IconURL                 string `gorm:"column:icon_url"`
+	IconURL                 string `gorm:"type:varchar(255);column:icon_url"`
 	Number                  string `gorm:"type:varchar(255)"`
 	Title                   string
 	Description             string
@@ -39,9 +39,9 @@ func (Issue20220507) TableName() string {
 	return "issues"
 }
 
-type UpdateSchemas20220507 struct{}
+type updateSchemas20220507 struct{}
 
-func (*UpdateSchemas20220507) Up(ctx context.Context, db *gorm.DB) error {
+func (*updateSchemas20220507) Up(ctx context.Context, db *gorm.DB) error {
 	err := db.Migrator().AddColumn(&Issue20220507{}, "icon_url")
 	if err != nil {
 		return err
@@ -49,10 +49,10 @@ func (*UpdateSchemas20220507) Up(ctx context.Context, db *gorm.DB) error {
 	return nil
 }
 
-func (*UpdateSchemas20220507) Version() uint64 {
+func (*updateSchemas20220507) Version() uint64 {
 	return 20220507154644
 }
 
-func (*UpdateSchemas20220507) Name() string {
+func (*updateSchemas20220507) Name() string {
 	return "Add icon_url column to Issue"
 }

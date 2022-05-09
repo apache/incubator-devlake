@@ -15,7 +15,7 @@ type JiraIssue20220507 struct {
 	IssueId                  uint64 `gorm:"primarykey"`
 	ProjectId                uint64
 	Self                     string `gorm:"type:varchar(255)"`
-	IconURL                  string `gorm:"column:icon_url"`
+	IconURL                  string `gorm:"type:varchar(255);column:icon_url"`
 	Key                      string `gorm:"type:varchar(255)"`
 	Summary                  string
 	Type                     string `gorm:"type:varchar(255)"`
@@ -58,9 +58,9 @@ func (JiraIssue20220507) TableName() string{
 	return "_tool_jira_issues"
 }
 
-type UpdateSchemas20220507 struct{}
+type updateSchemas20220507 struct{}
 
-func (*UpdateSchemas20220507) Up(ctx context.Context, db *gorm.DB) error {
+func (*updateSchemas20220507) Up(ctx context.Context, db *gorm.DB) error {
 	err := db.Migrator().AddColumn(&JiraIssue20220507{}, "icon_url")
 	if err != nil {
 		return err
@@ -68,10 +68,10 @@ func (*UpdateSchemas20220507) Up(ctx context.Context, db *gorm.DB) error {
 	return nil
 }
 
-func (*UpdateSchemas20220507) Version() uint64 {
+func (*updateSchemas20220507) Version() uint64 {
 	return 20220507154646
 }
 
-func (*UpdateSchemas20220507) Name() string {
+func (*updateSchemas20220507) Name() string {
 	return "Add icon_url column to JiraIssue"
 }
