@@ -34,7 +34,7 @@ func EnrichMergeRequests(taskCtx core.SubTaskContext) error {
 		// enrich first_comment_time field
 		notes := make([]gitlabModels.GitlabMergeRequestNote, 0)
 		// `system` = 0 is needed since we only care about human comments
-		db.Where("merge_request_id = ? AND `system` = 0", gitlabMr.GitlabId).
+		db.Where("merge_request_id = ? AND is_system = ?", gitlabMr.GitlabId, false).
 			Order("gitlab_created_at asc").Find(&notes)
 		commits := make([]gitlabModels.GitlabCommit, 0)
 		db.Joins("join _tool_gitlab_merge_request_commits gmrc on gmrc.commit_sha = _tool_gitlab_commits.sha").

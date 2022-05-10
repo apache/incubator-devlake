@@ -16,7 +16,7 @@ type GitlabMergeRequestNote struct {
 	GitlabCreatedAt time.Time
 	Confidential    bool
 	Resolvable      bool `gorm:"comment:Is or is not review comment"`
-	System          bool `gorm:"comment:Is or is not auto-generated vs. human generated"`
+	IsSystem        bool `gorm:"comment:Is or is not auto-generated vs. human generated"`
 
 	common.NoPKModel
 }

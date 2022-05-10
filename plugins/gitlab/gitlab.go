@@ -82,7 +82,7 @@ func (plugin Gitlab) RootPkgPath() string {
 }
 
 func (plugin Gitlab) MigrationScripts() []migration.Script {
-	return []migration.Script{new(migrationscripts.InitSchemas)}
+	return []migration.Script{new(migrationscripts.InitSchemas), new(migrationscripts.UpdateSchemas20220510)}
 }
 
 func (plugin Gitlab) ApiResources() map[string]map[string]core.ApiResourceHandler {
