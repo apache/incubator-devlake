@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect } from 'react'
 // import { CSSTransition } from 'react-transition-group'
-import { Providers } from '@/data/Providers'
+import { Providers, ProviderLabels, ProviderIcons } from '@/data/Providers'
 import {
   Icon,
   Spinner,
@@ -18,6 +18,7 @@ import InfinityIcon from '@/images/infinity-2.png'
 const TaskActivity = (props) => {
   const { activePipeline, stages = [] } = props
 
+  const [activeTask, setActiveTask] = useState()
   const [progressDetail, setProgressDetail] = useState({
     totalSubTasks: 0,
     finishedSubTasks: 0,
@@ -35,6 +36,7 @@ const TaskActivity = (props) => {
     setProgressDetail(initialDetail => getActiveTask(activePipeline.tasks)
       ? getActiveTask(activePipeline.tasks).progressDetail
       : initialDetail)
+    setActiveTask(activePipeline.tasks.find(t => t.status === 'TASK_RUNNING'))
   }, [activePipeline])
 
   return (
@@ -244,8 +246,8 @@ const TaskActivity = (props) => {
             borderTop: '1px solid rgb(0, 102, 255)'
           }}
         >
-          <h2 className='headline' style={{ margin: '10px 20px' }}>
-            <span style={{ display: 'inline-block', margin: '0 5px', float: 'right' }}>
+          <h2 className='headline' style={{ margin: '10px 20px 10px 10px' }}>
+            <span style={{ display: 'inline-block', margin: '0 10px 0 0', float: 'right' }}>
               <Spinner
                 className='task-details-spinner'
                 size={14}
@@ -253,7 +255,10 @@ const TaskActivity = (props) => {
                 value={null}
               />
             </span>
-            TASK DETAILS
+            <span style={{ display: 'inline-block', margin: '0 5px', float: 'left' }}>
+              {activeTask && ProviderIcons[activeTask?.plugin.toLowerCase()](22, 22)}
+            </span>
+            TASK DETAILS <span style={{ color: Colors.GRAY3 }}>({ProviderLabels[activeTask?.plugin.toUpperCase()]})</span>
           </h2>
           <table className='bp3-html-table striped bordered' style={{ width: '100%' }}>
             <thead>
