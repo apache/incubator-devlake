@@ -1,5 +1,5 @@
 
-import React from 'react'
+import React, { useState, useEffect } from 'react'
 // import { CSSTransition } from 'react-transition-group'
 import { Providers } from '@/data/Providers'
 import {
@@ -16,6 +16,25 @@ import StageLane from '@/components/pipelines/StageLane'
 
 const TaskActivity = (props) => {
   const { activePipeline, stages = [] } = props
+
+  const [progressDetail, setProgressDetail] = useState({
+    totalSubTasks: 0,
+    finishedSubTasks: 0,
+    totalRecords: -1,
+    finishedRecords: 0,
+    subTaskName: null,
+    subTaskNumber: 1
+  })
+
+  const getActiveTask = (tasks = []) => {
+    return tasks.find(t => t.status === 'TASK_RUNNING')
+  }
+
+  useEffect(() => {
+    setProgressDetail(initialDetail => getActiveTask(activePipeline.tasks)
+      ? getActiveTask(activePipeline.tasks).progressDetail
+      : initialDetail)
+  }, [activePipeline])
 
   return (
     <>
@@ -216,6 +235,54 @@ const TaskActivity = (props) => {
           </>
         )}
       </div>
+      {progressDetail && progressDetail.subTaskName !== null && (
+        <div
+          className='pipeline-progress-detail' style={{
+            backgroundColor: 'rgb(235, 243, 255)',
+            padding: '0',
+            borderTop: '1px solid rgb(0, 102, 255)'
+          }}
+        >
+          <h2 className='headline' style={{ margin: '10px 20px' }}>
+            <span style={{ display: 'inline-block', margin: '0 5px', float: 'right' }}>
+              <Spinner
+                className='task-details-spinner'
+                size={14}
+                intent={Intent.NONE}
+                value={null}
+              />
+            </span>
+            TASK DETAILS
+          </h2>
+          <table className='bp3-html-table striped bordered' style={{ width: '100%' }}>
+            <thead>
+              <tr>
+                <th style={{ paddingLeft: '20px' }}>Sub-Tasks</th>
+                <th>Records</th>
+                <th>Subtask ID & Name</th>
+                <th />
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td style={{ paddingLeft: '20px' }}>
+                  <span style={{ color: 'rgb(0, 102, 255)', fontWeight: 'bold' }}>
+                    {progressDetail.finishedSubTasks}
+                  </span> / {progressDetail.totalSubTasks}
+                </td>
+                <td>
+                  <span style={{ color: 'rgb(0, 102, 255)', fontWeight: 'bold' }}>
+                    {progressDetail.finishedRecords}
+                  </span> / {progressDetail.totalRecords}
+                  
+                </td>
+                <td>{progressDetail.subTaskNumber}: <span style={{ color: 'rgb(0, 102, 255)', fontWeight: 'bold' }}>{progressDetail.subTaskName}</span></td>
+                <td />
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      )}
     </>
   )
 }
