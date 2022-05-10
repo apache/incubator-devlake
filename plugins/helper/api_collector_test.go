@@ -186,7 +186,7 @@ func CreateTestApiCollector() (*ApiCollector, error) {
 	return NewApiCollector(ApiCollectorArgs{
 		RawDataSubTaskArgs: RawDataSubTaskArgs{
 			Ctx: &DefaultSubTaskContext{
-				defaultExecContext: newDefaultExecContext(GetConfigForTest("../../"), NewDefaultLogger(logrus.New(), "Test"), db, context.Background(), "Test", nil, nil),
+				defaultExecContext: newDefaultExecContext(GetConfigForTest("../../"), NewDefaultLogger(logrus.New(), "Test", make(map[string]*logrus.Logger)), db, context.Background(), "Test", nil, nil),
 			},
 			Table: TestTable{}.TableName(),
 			Params: &TestParam{
