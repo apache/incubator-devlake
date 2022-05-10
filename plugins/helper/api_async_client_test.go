@@ -140,7 +140,7 @@ func TestWaitAsync_WithWork(t *testing.T) {
 	) (*http.Response, error) {
 		return &http.Response{
 			Body:       &TestReader{Err: io.EOF},
-			StatusCode: 200,
+			StatusCode: http.StatusOK,
 		}, nil
 	})
 	defer gm_do.Reset()
@@ -181,7 +181,7 @@ func TestWaitAsync_MutiWork(t *testing.T) {
 	) (*http.Response, error) {
 		return &http.Response{
 			Body:       &TestReader{Err: io.EOF},
-			StatusCode: 200,
+			StatusCode: http.StatusOK,
 		}, nil
 	})
 	defer gm_do.Reset()
@@ -225,7 +225,7 @@ func TestDoAsync_OnceSuceess(t *testing.T) {
 	) (*http.Response, error) {
 		return &http.Response{
 			Body:       &TestReader{Err: io.EOF},
-			StatusCode: 200,
+			StatusCode: http.StatusOK,
 		}, nil
 	})
 	defer gm_do.Reset()
@@ -255,7 +255,7 @@ func TestDoAsync_TryAndFail(t *testing.T) {
 	) (*http.Response, error) {
 		return &http.Response{
 			Body:       &TestReader{Err: ErrUnitTest},
-			StatusCode: 500,
+			StatusCode: http.StatusInternalServerError,
 		}, nil
 	})
 	defer gm_do.Reset()
@@ -289,16 +289,38 @@ func TestDoAsync_TryAndSuceess(t *testing.T) {
 		headers http.Header,
 	) (*http.Response, error) {
 		times++
-		if times <= 3 {
+		switch times {
+		case 1:
 			return &http.Response{
 				Body:       &TestReader{Err: ErrUnitTest},
-				StatusCode: 301,
+				StatusCode: http.StatusInternalServerError,
 			}, nil
-		} else {
+		case 2:
 			return &http.Response{
 				Body:       &TestReader{Err: io.EOF},
-				StatusCode: 200,
+				StatusCode: http.StatusInternalServerError,
 			}, nil
+		case 3:
+			return &http.Response{
+				Body:       &TestReader{Err: io.EOF},
+				StatusCode: http.StatusBadRequest,
+			}, nil
+		case 4:
+			return &http.Response{
+				Body:       &TestReader{Err: io.EOF},
+				StatusCode: http.StatusMultipleChoices,
+			}, nil
+		case 5:
+			return &http.Response{
+				Body:       &TestReader{Err: io.EOF},
+				StatusCode: http.StatusOK,
+			}, nil
+		default:
+			assert.Empty(t, TestNoRunHere)
+			return &http.Response{
+				Body:       &TestReader{Err: io.EOF},
+				StatusCode: http.StatusOK,
+			}, TestError
 		}
 	})
 	defer gm_do.Reset()
@@ -310,4 +332,5 @@ func TestDoAsync_TryAndSuceess(t *testing.T) {
 
 	err = asyncApiClient.WaitAsync()
 	assert.Equal(t, err, nil)
+	assert.Equal(t, times, 4)
 }

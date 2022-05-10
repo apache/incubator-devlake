@@ -69,7 +69,7 @@ var TestSize int = 116102
 
 var TestHttpResponse_Suc http.Response = http.Response{
 	Status:     "200 OK",
-	StatusCode: 200,
+	StatusCode: http.StatusOK,
 	Proto:      "HTTP/1.0",
 	ProtoMajor: 1,
 	ProtoMinor: 0,
@@ -77,7 +77,7 @@ var TestHttpResponse_Suc http.Response = http.Response{
 
 var TestHttpResponse_404 http.Response = http.Response{
 	Status:     "404 Not Found",
-	StatusCode: 404,
+	StatusCode: http.StatusNotFound,
 	Proto:      "HTTP/1.0",
 	ProtoMajor: 1,
 	ProtoMinor: 0,
