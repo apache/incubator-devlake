@@ -47,6 +47,17 @@ DevLake is designed for developer teams looking to make better sense of their de
 
 <br>
 
+### Supported data sources
+
+| Data Source | Versions                             |
+|-------------|--------------------------------------|
+| Feishu      |                                      |
+| GitHub      |                                      |
+| Gitlab      | Cloud, Community Edition 13.x+       |
+| Jenkins     | 2.263.x+                             |
+| Jira        | Cloud, Server 8.x+, Data Center 8.x+ |
+| TAPD        |                                      |
+
 ## User setup<a id="user-setup"></a>
 
 - If you only plan to run the product locally, this is the **ONLY** section you should need.
