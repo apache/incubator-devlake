@@ -51,12 +51,12 @@ DevLake is designed for developer teams looking to make better sense of their de
 
 | Data Source | Versions                             |
 |-------------|--------------------------------------|
-| Feishu      |                                      |
-| GitHub      |                                      |
+| Feishu      | Cloud                                |
+| GitHub      | Cloud                                |
 | Gitlab      | Cloud, Community Edition 13.x+       |
 | Jenkins     | 2.263.x+                             |
 | Jira        | Cloud, Server 8.x+, Data Center 8.x+ |
-| TAPD        |                                      |
+| TAPD        | Cloud                                |
 
 ## User setup<a id="user-setup"></a>
 

@@ -56,12 +56,12 @@ DevLake 适用于希望更好地通过数据了解其开发过程的开发团队
 
 | 数据源     | 版本                                   |
 |---------|--------------------------------------|
-| Feishu  |                                      |
-| GitHub  |                                      |
+| Feishu  | Cloud                                |
+| GitHub  | Cloud                                |
 | Gitlab  | Cloud, Community Edition 13.x+       |
 | Jenkins | 2.263.x+                             |
 | Jira    | Cloud, Server 8.x+, Data Center 8.x+ |
-| TAPD    |                                      |
+| TAPD    | Cloud                                |
 
 ## 用户安装<a id="user-setup"></a>
 
