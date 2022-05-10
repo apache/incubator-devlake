@@ -16,7 +16,7 @@ import (
 
 type ApiAsyncCallback func(*http.Response, error) error
 
-var HttpMinStatusRetryCode = 400
+var HttpMinStatusRetryCode = http.StatusBadRequest
 
 // ApiAsyncClient is built on top of ApiClient, to provide a asynchronous semantic
 // You may submit multiple requests at once by calling `GetAsync`, and those requests
