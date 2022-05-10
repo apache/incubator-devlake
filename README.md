@@ -20,7 +20,7 @@ DevLake brings your DevOps data into one practical, customized, extensible view.
 
 DevLake is designed for developer teams looking to make better sense of their development process and to bring a more data-driven approach to their own practices. You can ask DevLake many questions regarding your development process. Just connect and query.
 
-### See [demo](https://grafana-lake.demo.devlake.io/d/0Rjxknc7z/demo-homepage?orgId=1)
+### See [demo based on this repo](https://grafana-lake.demo.devlake.io/d/0Rjxknc7z/demo-homepage?orgId=1)
 
 #### Get started with just a few clicks
 <table>
