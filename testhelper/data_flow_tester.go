@@ -3,12 +3,8 @@ package testhelper
 import (
 	"context"
 	"fmt"
-	"io"
-	"os"
 	"testing"
 	"time"
-
-	"encoding/csv"
 
 	"github.com/merico-dev/lake/config"
 	"github.com/merico-dev/lake/logger"
@@ -20,7 +16,27 @@ import (
 	"gorm.io/gorm"
 )
 
-// DataFlowTester facilitate a universal data integration e2e-test to help you verifying records between each step
+// DataFlowTester provides a universal data integrity validation facility to help `Plugin` verifying records between
+// each step.
+//
+// How it works:
+//
+//   1. Flush specified `table` and import data from a `csv` file by `ImportCsv` method
+//   2. Execute specified `subtask` by `Subtask` method
+//   3. Verify actual data from specified table against expected data from another `csv` file
+//   4. Repeat step 2 and 3
+//
+// Recommended Usage:
+
+//   1. Create a folder under your plugin root folder. i.e. `plugins/gitlab/e2e/ to host all your e2e-tests`
+//   2. Create a folder named `tables` to hold all data in `csv` format
+//   3. Create e2e test-cases to cover all possible data-flow routes
+//
+// Example code:
+//
+//   See [Gitlab Project Data Flow Test](plugins/gitlab/e2e/project_test.go) for detail
+//
+// DataFlowTester use `N`
 type DataFlowTester struct {
 	Cfg    *viper.Viper
 	Db     *gorm.DB
@@ -28,61 +44,6 @@ type DataFlowTester struct {
 	Name   string
 	Plugin core.PluginMeta
 	Log    core.Logger
-}
-
-type CsvFileIterator struct {
-	file   *os.File
-	reader *csv.Reader
-	fields []string
-	row    map[string]interface{}
-}
-
-func NewCsvFileIterator(csvPath string) *CsvFileIterator {
-	// open csv file
-	csvFile, err := os.Open(csvPath)
-	if err != nil {
-		panic(err)
-	}
-	csvReader := csv.NewReader(csvFile)
-	// load field names
-	fields, err := csvReader.Read()
-	if err != nil {
-		panic(err)
-	}
-	return &CsvFileIterator{
-		file:   csvFile,
-		reader: csvReader,
-		fields: fields,
-	}
-}
-
-func (ci *CsvFileIterator) Close() {
-	err := ci.file.Close()
-	if err != nil {
-		panic(err)
-	}
-}
-
-func (ci *CsvFileIterator) HasNext() bool {
-	row, err := ci.reader.Read()
-	if err == io.EOF {
-		ci.row = nil
-		return false
-	}
-	if err != nil {
-		ci.row = nil
-		panic(err)
-	}
-	// convert row tuple to map type, so gorm can insert data with it
-	ci.row = make(map[string]interface{})
-	for index, field := range ci.fields {
-		ci.row[field] = row[index]
-	}
-	return true
-}
-
-func (ci *CsvFileIterator) Fetch() map[string]interface{} {
-	return ci.row
 }
 
 // NewDataFlowTester create a *DataFlowTester to help developer test their subtasks data flow
@@ -103,6 +64,7 @@ func NewDataFlowTester(t *testing.T, pluginName string, pluginMeta core.PluginMe
 	}
 }
 
+// ImportCsv imports records from specified csv file into target table, note that existing data would be deleted first.
 func (t *DataFlowTester) ImportCsv(csvRelPath string, tableName string) {
 	csvIter := NewCsvFileIterator(csvRelPath)
 	defer csvIter.Close()
@@ -123,6 +85,7 @@ func (t *DataFlowTester) ImportCsv(csvRelPath string, tableName string) {
 	}
 }
 
+// FlushTable deletes all records from specified table
 func (t *DataFlowTester) FlushTable(tableName string) {
 	// flush target table
 	err := t.Db.Exec(fmt.Sprintf("DELETE FROM %s", tableName)).Error
@@ -131,14 +94,20 @@ func (t *DataFlowTester) FlushTable(tableName string) {
 	}
 }
 
+// Subtask executes specified subtasks
 func (t *DataFlowTester) Subtask(subtaskMeta core.SubTaskMeta, taskData interface{}) {
 	subtaskCtx := helper.NewStandaloneSubTaskContext(t.Cfg, t.Log, t.Db, context.Background(), t.Name, taskData)
 	subtaskMeta.EntryPoint(subtaskCtx)
 }
 
+// VerifyTable reads rows from csv file and compare with records from database one by one. You must specified the
+// Primary Key Fields with `pkfields` so DataFlowTester could select the exact record from database, as well as which
+// fields to compare with by specifying `targetfields` parameter.
 func (t *DataFlowTester) VerifyTable(tableName string, csvRelPath string, pkfields []string, targetfields []string) {
 	csvIter := NewCsvFileIterator(csvRelPath)
 	defer csvIter.Close()
+
+	var expectedTotal int64
 	for csvIter.HasNext() {
 		expected := csvIter.Fetch()
 		pkvalues := make([]interface{}, 0, len(pkfields))
@@ -165,5 +134,13 @@ func (t *DataFlowTester) VerifyTable(tableName string, csvRelPath string, pkfiel
 			}
 			assert.Equal(t.T, expected[field], actualValue)
 		}
+		expectedTotal++
 	}
+
+	var actualTotal int64
+	err := t.Db.Table(tableName).Count(&actualTotal).Error
+	if err != nil {
+		panic(err)
+	}
+	assert.Equal(t.T, expectedTotal, actualTotal)
 }
