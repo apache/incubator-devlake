@@ -50,7 +50,7 @@ func ConvertApiNotes(taskCtx core.SubTaskContext) error {
 				Author:      userIdGen.Generate(gitlabNotes.AuthorUsername),
 				Body:        gitlabNotes.Body,
 				Resolvable:  gitlabNotes.Resolvable,
-				System:      gitlabNotes.System,
+				IsSystem:    gitlabNotes.IsSystem,
 				CreatedDate: gitlabNotes.GitlabCreatedAt,
 			}
 			return []interface{}{

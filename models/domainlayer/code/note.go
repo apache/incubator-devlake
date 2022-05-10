@@ -13,6 +13,6 @@ type Note struct {
 	Author      string `gorm:"type:varchar(255)"`
 	Body        string
 	Resolvable  bool `gorm:"comment:Is or is not a review comment"`
-	System      bool `gorm:"comment:Is or is not auto-generated vs. human generated"`
+	IsSystem    bool `gorm:"comment:Is or is not auto-generated vs. human generated"`
 	CreatedDate time.Time
 }

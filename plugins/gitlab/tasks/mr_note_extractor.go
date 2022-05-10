@@ -46,7 +46,7 @@ func ExtractApiMergeRequestsNotes(taskCtx core.SubTaskContext) error {
 				return nil, err
 			}
 			results := make([]interface{}, 0, 2)
-			if !toolMrNote.System {
+			if !toolMrNote.IsSystem {
 				toolMrComment := &models.GitlabMergeRequestComment{
 					GitlabId:        toolMrNote.GitlabId,
 					MergeRequestId:  toolMrNote.MergeRequestId,
@@ -84,7 +84,7 @@ func convertMergeRequestNote(mrNote *MergeRequestNote) (*models.GitlabMergeReque
 		GitlabCreatedAt: mrNote.GitlabCreatedAt.ToTime(),
 		Confidential:    mrNote.Confidential,
 		Resolvable:      mrNote.Resolvable,
-		System:          mrNote.System,
+		IsSystem:        mrNote.System,
 	}
 	return gitlabMergeRequestNote, nil
 }
