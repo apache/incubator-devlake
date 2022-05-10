@@ -11,14 +11,19 @@ import (
 func TestGitlabDataFlow(t *testing.T) {
 
 	var gitlab impl.Gitlab
-	dataflowTester := testhelper.NewDataFlowTester(t, gitlab)
+	dataflowTester := testhelper.NewDataFlowTester(t, "gitlab", gitlab)
 
 	taskData := &tasks.GitlabTaskData{
 		Options: &tasks.GitlabOptions{
 			ProjectId: 3472737,
 		},
 	}
+
+	// import raw data table
 	dataflowTester.ImportCsv("./rawdata/_raw_gitlab_api_projects.csv", "_raw_gitlab_api_project")
+
+	// verify extraction
+	dataflowTester.FlushTable("_tool_gitlab_projects")
 	dataflowTester.Subtask(tasks.ExtractProjectMeta, taskData)
 	dataflowTester.VerifyTable(
 		"_tool_gitlab_projects",
@@ -42,6 +47,30 @@ func TestGitlabDataFlow(t *testing.T) {
 			"_raw_data_table",
 			"_raw_data_id",
 			"_raw_data_remark",
+		},
+	)
+
+	// verify conversion
+	dataflowTester.FlushTable("repos")
+	dataflowTester.Subtask(tasks.ConvertProjectMeta, taskData)
+	dataflowTester.VerifyTable(
+		"repos",
+		"rawdata/repos.csv",
+		[]string{"id"},
+		[]string{
+			"_raw_data_params",
+			"_raw_data_table",
+			"_raw_data_id",
+			"_raw_data_remark",
+			"name",
+			"url",
+			"description",
+			"owner_id",
+			"language",
+			"forked_from",
+			"created_date",
+			"updated_date",
+			"deleted",
 		},
 	)
 }
