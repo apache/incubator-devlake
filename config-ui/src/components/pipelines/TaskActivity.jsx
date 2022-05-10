@@ -39,6 +39,10 @@ const TaskActivity = (props) => {
     setActiveTask(activePipeline.tasks.find(t => t.status === 'TASK_RUNNING'))
   }, [activePipeline])
 
+  useEffect(() => {
+
+  }, [activeTask])
+
   return (
     <>
 
@@ -238,7 +242,7 @@ const TaskActivity = (props) => {
           </>
         )}
       </div>
-      {progressDetail && progressDetail.subTaskName !== null && (
+      {activePipeline.status === 'TASK_RUNNING' && progressDetail && progressDetail.subTaskName !== null && (
         <div
           className='pipeline-progress-detail' style={{
             backgroundColor: 'rgb(235, 243, 255)',
@@ -246,7 +250,7 @@ const TaskActivity = (props) => {
             borderTop: '1px solid rgb(0, 102, 255)'
           }}
         >
-          <h2 className='headline' style={{ margin: '10px 20px 10px 10px' }}>
+          <h2 className='headline' style={{ margin: '10px 20px 10px 10px', fontSize: '14px' }}>
             <span style={{ display: 'inline-block', margin: '0 10px 0 0', float: 'right' }}>
               <Spinner
                 className='task-details-spinner'
@@ -256,7 +260,7 @@ const TaskActivity = (props) => {
               />
             </span>
             <span style={{ display: 'inline-block', margin: '0 5px', float: 'left' }}>
-              {activeTask && ProviderIcons[activeTask?.plugin.toLowerCase()](22, 22)}
+              {activeTask && ProviderIcons[activeTask?.plugin.toLowerCase()](16, 16)}
             </span>
             TASK DETAILS <span style={{ color: Colors.GRAY3 }}>({ProviderLabels[activeTask?.plugin.toUpperCase()]})</span>
           </h2>
