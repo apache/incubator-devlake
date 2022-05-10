@@ -20,11 +20,12 @@ import (
 	"gorm.io/gorm"
 )
 
-// DataFlowTester helps you write subtasks e2e tests with ease
+// DataFlowTester facilitate a universal data integration e2e-test to help you verifying records between each step
 type DataFlowTester struct {
 	Cfg    *viper.Viper
 	Db     *gorm.DB
 	T      *testing.T
+	Name   string
 	Plugin core.PluginMeta
 	Log    core.Logger
 }
@@ -85,7 +86,8 @@ func (ci *CsvFileIterator) Fetch() map[string]interface{} {
 }
 
 // NewDataFlowTester create a *DataFlowTester to help developer test their subtasks data flow
-func NewDataFlowTester(t *testing.T, plugin core.PluginMeta) *DataFlowTester {
+func NewDataFlowTester(t *testing.T, pluginName string, pluginMeta core.PluginMeta) *DataFlowTester {
+	core.RegisterPlugin(pluginName, pluginMeta)
 	cfg := config.GetConfig()
 	db, err := runner.NewGormDb(cfg, logger.Global)
 	if err != nil {
@@ -95,7 +97,8 @@ func NewDataFlowTester(t *testing.T, plugin core.PluginMeta) *DataFlowTester {
 		Cfg:    cfg,
 		Db:     db,
 		T:      t,
-		Plugin: plugin,
+		Name:   pluginName,
+		Plugin: pluginMeta,
 		Log:    logger.Global,
 	}
 }
@@ -108,11 +111,7 @@ func (t *DataFlowTester) ImportCsv(csvRelPath string, tableName string) {
 	if err != nil {
 		panic(err)
 	}
-	// flush target table
-	err = t.Db.Exec(fmt.Sprintf("DELETE FROM %s", tableName)).Error
-	if err != nil {
-		panic(err)
-	}
+	t.FlushTable(tableName)
 	// load rows and insert into target table
 	for csvIter.HasNext() {
 		// make sure
@@ -124,8 +123,16 @@ func (t *DataFlowTester) ImportCsv(csvRelPath string, tableName string) {
 	}
 }
 
+func (t *DataFlowTester) FlushTable(tableName string) {
+	// flush target table
+	err := t.Db.Exec(fmt.Sprintf("DELETE FROM %s", tableName)).Error
+	if err != nil {
+		panic(err)
+	}
+}
+
 func (t *DataFlowTester) Subtask(subtaskMeta core.SubTaskMeta, taskData interface{}) {
-	subtaskCtx := helper.NewStandaloneSubTaskContext(t.Cfg, t.Log, t.Db, context.Background(), "e2e-test", taskData)
+	subtaskCtx := helper.NewStandaloneSubTaskContext(t.Cfg, t.Log, t.Db, context.Background(), t.Name, taskData)
 	subtaskMeta.EntryPoint(subtaskCtx)
 }
 
