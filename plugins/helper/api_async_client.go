@@ -16,6 +16,8 @@ import (
 
 type ApiAsyncCallback func(*http.Response, error) error
 
+var HttpMinStatusRetryCode = 400
+
 // ApiAsyncClient is built on top of ApiClient, to provide a asynchronous semantic
 // You may submit multiple requests at once by calling `GetAsync`, and those requests
 // will be performed in parallel with rate-limit support
@@ -108,13 +110,25 @@ func (apiClient *ApiAsyncClient) DoAsync(
 			res.Body.Close()
 			res.Body = io.NopCloser(bytes.NewBuffer(body))
 		}
-		// it make sense to retry on request failure, but not error from handler and canceled error
+
+		// check
+		needRetry := false
 		if err != nil {
+			needRetry = true
+		} else if res.StatusCode >= HttpMinStatusRetryCode {
+			needRetry = true
+			err = fmt.Errorf("http code error[%d]:[%s]", res.StatusCode, body)
+		}
+
+		//  if it need retry, check and try to retry
+		if needRetry {
+			// check weather we still have retry times and not error from handler and canceled error
 			if retry < apiClient.maxRetry && err != context.Canceled {
 				apiClient.logError("retry #%d for %s", retry, err.Error())
 				retry++
 				return apiClient.scheduler.Submit(subFunc, apiClient.scheduler.subPool)
 			}
+			return err
 		}
 		if err == nil {
 			if res.StatusCode >= 400 {
