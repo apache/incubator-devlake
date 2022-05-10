@@ -1,17 +1,17 @@
-package e2e
+package testhelper
 
 import (
 	"testing"
 
-	"github.com/merico-dev/lake/plugins/gitlab/impl"
+	"github.com/merico-dev/lake/plugins/core"
 	"github.com/merico-dev/lake/plugins/gitlab/tasks"
-	"github.com/merico-dev/lake/testhelper"
 )
 
-func TestGitlabDataFlow(t *testing.T) {
+func ExampleDataFlowTester() {
+	var t *testing.T // stub
 
-	var gitlab impl.Gitlab
-	dataflowTester := testhelper.NewDataFlowTester(t, "gitlab", gitlab)
+	var gitlab core.PluginMeta
+	dataflowTester := NewDataFlowTester(t, "gitlab", gitlab)
 
 	taskData := &tasks.GitlabTaskData{
 		Options: &tasks.GitlabOptions{
@@ -47,30 +47,6 @@ func TestGitlabDataFlow(t *testing.T) {
 			"_raw_data_table",
 			"_raw_data_id",
 			"_raw_data_remark",
-		},
-	)
-
-	// verify conversion
-	dataflowTester.FlushTable("repos")
-	dataflowTester.Subtask(tasks.ConvertProjectMeta, taskData)
-	dataflowTester.VerifyTable(
-		"repos",
-		"tables/repos.csv",
-		[]string{"id"},
-		[]string{
-			"_raw_data_params",
-			"_raw_data_table",
-			"_raw_data_id",
-			"_raw_data_remark",
-			"name",
-			"url",
-			"description",
-			"owner_id",
-			"language",
-			"forked_from",
-			"created_date",
-			"updated_date",
-			"deleted",
 		},
 	)
 }
