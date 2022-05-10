@@ -280,7 +280,7 @@ const TaskActivity = (props) => {
                   <table className='bp3-html-table striped bordered' style={{ width: '100%' }}>
                     <thead>
                       <tr>
-                        <th style={{ paddingLeft: '20px' }}>Sub-Tasks</th>
+                        <th style={{ paddingLeft: '20px' }}>Subtasks</th>
                         <th>Records</th>
                         <th>Subtask ID & Name</th>
                         <th />
