@@ -2,6 +2,7 @@ package tasks
 
 import (
 	"encoding/json"
+	"strconv"
 	"time"
 
 	"github.com/merico-dev/lake/plugins/ae/models"
@@ -35,7 +36,7 @@ func ExtractProject(taskCtx core.SubTaskContext) error {
 				return nil, err
 			}
 			aeProject := &models.AEProject{
-				Id:           body.Id,
+				Id:           strconv.Itoa(body.Id),
 				GitUrl:       body.GitUrl,
 				Priority:     body.Priority,
 				AECreateTime: body.AECreateTime,

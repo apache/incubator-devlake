@@ -14,7 +14,7 @@ func GetConfig() *viper.Viper {
 
 // Set default value for no .env or .env not set it
 func setDefaultValue() {
-	v.SetDefault("DB_URL", "merico:merico@tcp(mysql:3306)/lake?charset=utf8mb4&parseTime=True")
+	v.SetDefault("DB_URL", "mysql://merico:merico@mysql:3306/lake?charset=utf8mb4&parseTime=True")
 	v.SetDefault("PORT", ":8080")
 	v.SetDefault("PLUGIN_DIR", "bin/plugins")
 	v.SetDefault("TEMPORAL_TASK_QUEUE", "DEVLAKE_TASK_QUEUE")
