@@ -65,7 +65,7 @@ func (plugin AE) RootPkgPath() string {
 }
 
 func (plugin AE) MigrationScripts() []migration.Script {
-	return []migration.Script{new(migrationscripts.InitSchemas), new(migrationscripts.UpdateSchemas20220511)}
+	return []migration.Script{new(migrationscripts.InitSchemas)}
 }
 
 func (plugin AE) ApiResources() map[string]map[string]core.ApiResourceHandler {
