@@ -24,18 +24,14 @@ func (AEProject20220511) TableName() string {
 type UpdateSchemas20220511 struct{}
 
 func (*UpdateSchemas20220511) Up(ctx context.Context, db *gorm.DB) error {
-	// if db.Name() == "postgres" || db.Name() == "pg" || db.Name() == "postgresql" {
-	// 	err := db.Exec("ALTER TABLE _tool_ae_projects ALTER COLUMN id TYPE bigint USING id::bigint").Error
-	// 	if err != nil {
-	// 		return err
-	// 	}
-	// 	return nil
-	// }
-	err := db.Exec("ALTER TABLE _tool_ae_projects ALTER COLUMN id TYPE bigint USING id::bigint").Error
-	if err != nil {
-		return err
+	if db.Name() == "postgres" || db.Name() == "pg" || db.Name() == "postgresql" {
+		err := db.Exec("ALTER TABLE _tool_ae_projects ALTER COLUMN id TYPE bigint USING id::bigint").Error
+		if err != nil {
+			return err
+		}
+		return nil
 	}
-	err = db.Migrator().AlterColumn(AEProject20220511{}, "id")
+	err := db.Migrator().AlterColumn(AEProject20220511{}, "id")
 	if err != nil {
 		return err
 	}
