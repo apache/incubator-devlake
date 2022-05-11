@@ -78,8 +78,8 @@ func (c *DateInterator) Close() error {
 func NewDateInterator(days int) (*DateInterator, error) {
 	endTime := time.Now().Truncate(24 * time.Hour)
 	return &DateInterator{
-		startTime: endTime,
-		endTime:   endTime.AddDate(0, 0, 1),
+		startTime: endTime.AddDate(0, 0, -days-1),
+		endTime:   endTime.AddDate(0, 0, -days),
 		Days:      days,
 		Current:   0,
 	}, nil
