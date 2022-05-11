@@ -63,7 +63,7 @@ func CalculatePrCherryPick(taskCtx core.SubTaskContext) error {
 
 		var parentPrId string
 		err = db.Model(&code.PullRequest{}).
-			Where("`key` = ? and repo_id = ?", parentPrKeyInt, repoId).
+			Where("key = ? and repo_id = ?", parentPrKeyInt, repoId).
 			Pluck("id", &parentPrId).Error
 		if err != nil {
 			return err
@@ -84,9 +84,9 @@ func CalculatePrCherryPick(taskCtx core.SubTaskContext) error {
 		Joins("left join pull_requests pr2 on pr1.parent_pr_id = pr2.id").Group("pr1.parent_pr_id, pr2.created_date").Where("pr1.parent_pr_id != ''").
 		Joins("left join repos on pr2.base_repo_id = repos.id").
 		Order("pr2.created_date ASC").
-		Select("pr2.`key` as parent_pr_key, pr1.parent_pr_id as parent_pr_id, GROUP_CONCAT(pr1.base_ref order by pr1.base_ref ASC) as cherrypick_base_branches, " +
-			"GROUP_CONCAT(pr1.`key` order by pr1.base_ref ASC) as cherrypick_pr_keys, repos.`name` as repo_name, " +
-			"concat(repos.url, '/pull/', pr2.`key`) as parent_pr_url").Rows()
+		Select(`pr2.key as parent_pr_key, pr1.parent_pr_id as parent_pr_id, GROUP_CONCAT(pr1.base_ref order by pr1.base_ref ASC) as cherrypick_base_branches, 
+			GROUP_CONCAT(pr1.key order by pr1.base_ref ASC) as cherrypick_pr_keys, repos.name as repo_name, 
+			concat(repos.url, '/pull/', pr2.key) as parent_pr_url`).Rows()
 	if err != nil {
 		return err
 	}

@@ -84,6 +84,10 @@ func ExtractIssues(taskCtx core.SubTaskContext) error {
 			if err != nil {
 				return nil, err
 			}
+			err = apiIssue.SetAllFields(row.Data)
+			if err != nil {
+				return nil, err
+			}
 			var results []interface{}
 			sprints, issue, _, worklogs, changelogs, changelogItems, users := apiIssue.ExtractEntities(data.Connection.ID, data.Connection.EpicKeyField, data.Connection.StoryPointField)
 			for _, sprintId := range sprints {

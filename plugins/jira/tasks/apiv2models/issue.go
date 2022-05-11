@@ -2,6 +2,7 @@ package apiv2models
 
 import (
 	"encoding/json"
+	"gorm.io/datatypes"
 
 	"github.com/merico-dev/lake/plugins/core"
 
@@ -190,50 +191,23 @@ func (i Issue) toToolLayer(connectionId uint64, epicField, storyPointField strin
 	return result
 }
 
-func (Issue) Unmarshal(raw json.RawMessage) ([]Issue, error) {
-	var raws []json.RawMessage
-	err := json.Unmarshal(raw, &raws)
+func (i *Issue) SetAllFields(raw datatypes.JSON) error {
+	var issue2 struct {
+		Expand string          `json:"expand"`
+		ID     uint64          `json:"id,string"`
+		Self   string          `json:"self"`
+		Key    string          `json:"key"`
+		Fields json.RawMessage `json:"fields"`
+	}
+	err := json.Unmarshal(raw, &issue2)
 	if err != nil {
-		return nil, err
+		return err
 	}
-	var issues []Issue
-	for _, msg := range raws {
-		var issue Issue
-		err = json.Unmarshal(msg, &issue)
-		if err != nil {
-			return nil, err
-		}
-		var issue2 struct {
-			Expand string          `json:"expand"`
-			ID     uint64          `json:"id,string"`
-			Self   string          `json:"self"`
-			Key    string          `json:"key"`
-			Fields json.RawMessage `json:"fields"`
-		}
-		err = json.Unmarshal(msg, &issue2)
-		if err != nil {
-			return nil, err
-		}
-		err = json.Unmarshal(issue2.Fields, &issue.Fields.AllFields)
-		if err != nil {
-			return nil, err
-		}
-		issues = append(issues, issue)
-	}
-	return issues, nil
-}
-func (Issue) ExtractRawMessage(blob []byte) (json.RawMessage, error) {
-	var resp struct {
-		StartAt    int             `json:"startAt"`
-		MaxResults int             `json:"maxResults"`
-		Total      int             `json:"total"`
-		Issues     json.RawMessage `json:"issues"`
-	}
-	err := json.Unmarshal(blob, &resp)
+	err = json.Unmarshal(issue2.Fields, &i.Fields.AllFields)
 	if err != nil {
-		return nil, err
+		return err
 	}
-	return resp.Issues, nil
+	return nil
 }
 
 func (i Issue) ExtractEntities(connectionId uint64, epicField, storyPointField string) ([]uint64, *models.JiraIssue, bool, []*models.JiraWorklog, []*models.JiraChangelog, []*models.JiraChangelogItem, []*models.JiraUser) {
