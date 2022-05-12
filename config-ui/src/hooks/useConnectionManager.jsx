@@ -310,8 +310,8 @@ function useConnectionManager ({
       const notify = false
       const payload = {
         endpoint: c.Endpoint || c.endpoint,
-        username: c.Username,
-        password: c.Password,
+        username: c.username,
+        password: c.password,
         auth: c.basicAuthEncoded || c.auth,
         proxy: c.Proxy || c.Proxy
       }
