@@ -18,7 +18,7 @@
 
 ## 维护者团队 @ Merico
 
-Dev Lake由Merico的一群工程师维护，由[@hezyin]（https://github.com/hezyin）领导。我们的目标是实现 24 小时内回复问题的 SLA
+Dev Lake 由 Merico 的一群工程师维护，由 [@hezyin](https://github.com/hezyin) 领导。我们的目标是实现 24 小时内回复问题的 SLA
 
 ## 风格指南
 
