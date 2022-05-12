@@ -1,6 +1,10 @@
 ## Architecture Overview</a>
-![devlake-architecture](docs/v0.11-arch.svg)
-<p align="center">Architecture Diagram</p>
+
+![devlake-architecture](docs/v0.11-arch-dataflow.svg)
+<p align="center">Architecture Diagram (data-flow perspective)</p>
+
+![devlake-architecture](docs/v0.11-arch-component.svg)
+<p align="center">Architecture Diagram (component perspective)</p>
 
 ## Stack (from low to high)
 
