@@ -77,7 +77,7 @@ func (c *DateIterator) Close() error {
 
 func NewDateIterator(days int) (*DateIterator, error) {
 	endTime := time.Now().Truncate(24 * time.Hour)
-	return &DateIterator{
+	return &DateInterator{
 		startTime: endTime.AddDate(0, 0, -days-1),
 		endTime:   endTime.AddDate(0, 0, -days),
 		Days:      days,
