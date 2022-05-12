@@ -89,12 +89,24 @@ func isPrimaryKey(f reflect.StructField, v reflect.Value) (string, bool) {
 	return "", false
 }
 
-func getPrimaryKeyValue(face interface{}) string {
+func getPrimaryKeyValue(iface interface{}) string {
 	var ss []string
-	e := reflect.ValueOf(face).Elem()
-	for i := 0; i < e.NumField(); i++ {
-		if s, ok := isPrimaryKey(e.Type().Field(i), e.Field(i)); ok {
-			ss = append(ss, s)
+	ifv := reflect.ValueOf(iface)
+	if ifv.Kind() == reflect.Ptr {
+		ifv = ifv.Elem()
+	}
+	for i := 0; i < ifv.NumField(); i++ {
+		v := ifv.Field(i)
+		switch v.Kind() {
+		case reflect.Struct:
+			s := getPrimaryKeyValue(v.Interface())
+			if s != "" {
+				ss = append(ss, s)
+			}
+		default:
+			if s, ok := isPrimaryKey(ifv.Type().Field(i), v); ok && s != "" {
+				ss = append(ss, s)
+			}
 		}
 	}
 	return strings.Join(ss, ":")
