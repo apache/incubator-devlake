@@ -31,10 +31,10 @@ func (plugin YourPlugin) Execute(options map[string]interface{}, progress chan<-
   if err != nil {
     logger.Error(err)
   }
-
-  // Export a variable named PluginEntry for Framework to search and load
-  var PluginEntry YourPlugin //nolint
 }
+
+// Export a variable named PluginEntry for Framework to search and load
+var PluginEntry YourPlugin //nolint
 ```
 
 ## Summary

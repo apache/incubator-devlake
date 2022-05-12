@@ -31,10 +31,10 @@ func (plugin YourPlugin) Execute(options map[string]interface{}, progress chan<-
   if err != nil {
     logger.Error(err)
   }
-
-  // 导出一个名为 PluginEntry 的变量供 Framework 搜索和加载
-  var PluginEntry YourPlugin //nolint
 }
+
+// 导出一个名为 PluginEntry 的变量供 Framework 搜索和加载
+var PluginEntry YourPlugin //nolint
 ```
 
 ## 概要
