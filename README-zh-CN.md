@@ -169,9 +169,10 @@ kubectl apply -f https://raw.githubusercontent.com/merico-dev/lake/main/k8s-depl
 - Make
   - Mac (Already installed)
   - Windows: [Download](http://gnuwin32.sourceforge.net/packages/make.htm)
-  - Ubuntu: `sudo apt-get install build-essential`
+  - Ubuntu: `sudo apt-get install build-essential libssl-dev`
 
 #### 如何设置开发环境
+
 1. 进入你想安装本项目的路径，并克隆资源库
 
    ```sh
@@ -183,21 +184,21 @@ kubectl apply -f https://raw.githubusercontent.com/merico-dev/lake/main/k8s-depl
 
    - [RefDiff](plugins/refdiff#development)
 
-2. 安装 go packages
+3. 安装 go packages
 
-    ```sh
-	go get
-    ```
+   ```sh
+   go get
+   ```
 
-3. 将样本配置文件复制到新的本地文件
+4. 将样本配置文件复制到新的本地文件
 
     ```sh
     cp .env.example .env
     ```
 
-4. 在`.env`文件中找到以`DB_URL`开头的那一行，把`mysql:3306`替换为`127.0.0.1:3306`
+5. 在`.env`文件中找到以`DB_URL`开头的那一行，把`mysql:3306`替换为`127.0.0.1:3306`
 
-5. 启动 MySQL 和 Grafana
+6. 启动 MySQL 和 Grafana
 
     > 确保在此步骤之前 Docker 正在运行。
 
@@ -205,8 +206,7 @@ kubectl apply -f https://raw.githubusercontent.com/merico-dev/lake/main/k8s-depl
     docker-compose up -d mysql grafana
     ```
 
-
-6. 在 2 个终端种分别以开发者模式运行 lake 和 config UI:
+7. 在 2 个终端种分别以开发者模式运行 lake 和 config UI:
 
     ```sh
     # run lake
@@ -215,7 +215,16 @@ kubectl apply -f https://raw.githubusercontent.com/merico-dev/lake/main/k8s-depl
     make configure-dev
     ```
 
-7. 访问 config-ui `localhost:4000` 来配置 DevLake 数据源
+    Q: 在执行 `make dev` 时出现错误：`libgit2.so.1.3: cannot open share object file: No such file or directory`
+
+    A: 确保程序在运行时可以找到 `libgit2.so.1.3`。如果机器中 `libgit2.so.1.3` 在 `/usr/local/lib` 下，您可以执行这样的命令：
+
+    ```sh
+   export LD_LIBRARY_PATH=/usr/local/lib
+    ```
+
+8. 访问 config-ui `localhost:4000` 来配置 DevLake 数据源
+
    >- 在 "Integration"页面上找到到所需的插件页面
    >- 你需要为你打算使用的插件输入必要的信息
    >- 请参考以下内容，以了解如何配置每个插件的更多细节
@@ -224,8 +233,7 @@ kubectl apply -f https://raw.githubusercontent.com/merico-dev/lake/main/k8s-depl
    >-> <a href="plugins/jenkins/README-zh-CN.md" target="_blank">Jenkins</a>
    >-> <a href="plugins/github/README-zh-CN.md" target="_blank">GitHub</a>
 
-
-8. 访问 `localhost:4000/pipelines/create`，创建 1个Pipeline run，并触发数据收集
+9. 访问 `localhost:4000/pipelines/create`，创建 1个Pipeline run，并触发数据收集
 
    Pipeline Runs 可以通过新的 "Create Run"界面启动。只需启用你希望运行的数据源，并指定数据收集的范围，比如Gitlab的项目ID和GitHub的仓库名称。
 
@@ -256,20 +264,19 @@ kubectl apply -f https://raw.githubusercontent.com/merico-dev/lake/main/k8s-depl
 
    请参考这篇 wiki [How to trigger data collection](https://github.com/merico-dev/lake/wiki/How-to-use-the-triggers-page).
 
-
-9. 数据收集完成后，点击配置页面左上角的 *View Dashboards* 按钮或者访问 `localhost:3002`(用户名: `admin`, 密码: `admin`)
+10. 数据收集完成后，点击配置页面左上角的 *View Dashboards* 按钮或者访问 `localhost:3002`(用户名: `admin`, 密码: `admin`)
 
    我们使用 <a href="https://grafana.com/" target="_blank">Grafana</a> 作为可视化工具，为存储在<a href="https://github.com/merico-dev/lake/wiki/DataModel.Domain-layer-schema">我们数据库中的数据</a>建立图表。可以使用SQL查询，添加面板来构建、保存和编辑自定义仪表盘。
 
    关于配置和定制仪表盘的所有细节可以在 [Grafana 文档](docs/GRAFANA.md) 中找到。
 
-10. （可选）运行测试: 
+11. （可选）运行测试:
 
     ```sh
     make test
     ```
 
-11. 关于DB migration请参考[Migration文档](docs/MIGRATIONS.md).
+12. 关于DB migration请参考[Migration文档](docs/MIGRATIONS.md).
 <br>
 
 ## 项目路线图
