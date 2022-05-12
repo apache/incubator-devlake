@@ -19,7 +19,7 @@ func CollectMeetingTopUserItem(taskCtx core.SubTaskContext) error {
 	data := taskCtx.GetData().(*FeishuTaskData)
 	pageSize := 100
 	NumOfDaysToCollectInt := int(data.Options.NumOfDaysToCollect)
-	iterator, err := helper.NewDateInterator(NumOfDaysToCollectInt)
+	iterator, err := helper.NewDateIterator(NumOfDaysToCollectInt)
 	if err != nil {
 		return err
 	}

@@ -2,9 +2,10 @@ package helper
 
 import (
 	"database/sql"
-	"gorm.io/gorm"
 	"reflect"
 	"time"
+
+	"gorm.io/gorm"
 )
 
 type Iterator interface {
@@ -46,7 +47,7 @@ func (c *CursorIterator) Close() error {
 
 var _ Iterator = (*CursorIterator)(nil)
 
-type DateInterator struct {
+type DateIterator struct {
 	startTime time.Time
 	endTime   time.Time
 	Days      int
@@ -58,11 +59,11 @@ type DatePair struct {
 	PairEndTime   time.Time
 }
 
-func (c *DateInterator) HasNext() bool {
+func (c *DateIterator) HasNext() bool {
 	return c.Current < c.Days
 }
 
-func (c *DateInterator) Fetch() (interface{}, error) {
+func (c *DateIterator) Fetch() (interface{}, error) {
 	c.Current++
 	return &DatePair{
 		PairStartTime: c.startTime.AddDate(0, 0, c.Current),
@@ -71,13 +72,13 @@ func (c *DateInterator) Fetch() (interface{}, error) {
 
 }
 
-func (c *DateInterator) Close() error {
+func (c *DateIterator) Close() error {
 	return nil
 }
 
-func NewDateInterator(days int) (*DateInterator, error) {
+func NewDateIterator(days int) (*DateIterator, error) {
 	endTime := time.Now().Truncate(24 * time.Hour)
-	return &DateInterator{
+	return &DateIterator{
 		startTime: endTime.AddDate(0, 0, -days-1),
 		endTime:   endTime.AddDate(0, 0, -days),
 		Days:      days,
