@@ -433,7 +433,7 @@ func getEncKey() (string, error) {
 		// Randomly generate a bunch of encryption keys and set them to config
 		encKey = core.RandomEncKey()
 		v.Set(core.EncodeKeyEnvStr, encKey)
-		err := v.WriteConfig()
+		err := config.WriteConfig(v)
 		if err != nil {
 			return encKey, err
 		}
