@@ -73,6 +73,7 @@ func loadData(starrocks *sql.DB, c core.SubTaskContext, table string, db *gorm.D
 		"format":            "json",
 		"strip_outer_array": "true",
 		"Expect":            "100-continue",
+		"ignore_json_size":  "true",
 	}
 	// marshal User to json
 	jsonData, err := json.Marshal(data)
