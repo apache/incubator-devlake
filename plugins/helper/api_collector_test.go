@@ -255,7 +255,7 @@ func TestSaveRawData(t *testing.T) {
 		for _, v := range rd {
 			// check data and url
 			assert.Equal(t, v.Params, string(params))
-			assert.Equal(t, v.Data.String(), TestRawMessage)
+			assert.Equal(t, string(v.Data), TestRawMessage)
 			assert.Equal(t, v.Url, TestUrl)
 			assert.Equal(t, v.Input.String(), string(input))
 		}

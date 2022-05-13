@@ -13,7 +13,6 @@ import (
 	"text/template"
 
 	"github.com/merico-dev/lake/plugins/core"
-	"gorm.io/datatypes"
 )
 
 type Pager struct {
@@ -409,7 +408,7 @@ func (collector *ApiCollector) saveRawData(res *http.Response, input interface{}
 	for i, msg := range items {
 		dd[i] = &RawData{
 			Params: collector.params,
-			Data:   datatypes.JSON(msg),
+			Data:   msg,
 			Url:    u,
 			Input:  inputJson,
 		}

@@ -21,7 +21,7 @@ type GithubApiPullRequest struct {
 	Number   int
 	State    string
 	Title    string
-	Body     string
+	Body     json.RawMessage
 	HtmlUrl  string `json:"html_url"`
 	Labels   []struct {
 		Name string `json:"name"`
@@ -86,22 +86,22 @@ func ExtractApiPullRequests(taskCtx core.SubTaskContext) error {
 			Table: RAW_PULL_REQUEST_TABLE,
 		},
 		Extract: func(row *helper.RawData) ([]interface{}, error) {
-			apiPullRequest := &GithubApiPullRequest{}
-			err := json.Unmarshal(row.Data, apiPullRequest)
+			rawL := &GithubApiPullRequest{}
+			err := json.Unmarshal(row.Data, rawL)
 			if err != nil {
 				return nil, err
 			}
 			// need to extract 2 kinds of entities here
 			results := make([]interface{}, 0, 1)
-			if apiPullRequest.GithubId == 0 {
+			if rawL.GithubId == 0 {
 				return nil, nil
 			}
 			//If this is a pr, ignore
-			githubPr, err := convertGithubPullRequest(apiPullRequest, data.Repo.GithubId)
+			githubPr, err := convertGithubPullRequest(rawL, data.Repo.GithubId)
 			if err != nil {
 				return nil, err
 			}
-			for _, label := range apiPullRequest.Labels {
+			for _, label := range rawL.Labels {
 				results = append(results, &models.GithubPullRequestLabel{
 					PullId:    githubPr.GithubId,
 					LabelName: label.Name,
@@ -149,7 +149,7 @@ func convertGithubPullRequest(pull *GithubApiPullRequest, repoId int) (*models.G
 		ClosedAt:        core.Iso8601TimeToTime(pull.ClosedAt),
 		MergedAt:        core.Iso8601TimeToTime(pull.MergedAt),
 		MergeCommitSha:  pull.MergeCommitSha,
-		Body:            pull.Body,
+		Body:            string(pull.Body),
 		BaseRef:         pull.Base.Ref,
 		BaseCommitSha:   pull.Base.Sha,
 		HeadRef:         pull.Head.Ref,

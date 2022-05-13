@@ -13,7 +13,7 @@ import (
 type RawData struct {
 	ID        uint64 `gorm:"primaryKey"`
 	Params    string `gorm:"type:varchar(255);index"`
-	Data      datatypes.JSON
+	Data      []byte
 	Url       string
 	Input     datatypes.JSON
 	CreatedAt time.Time
