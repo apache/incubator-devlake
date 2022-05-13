@@ -196,7 +196,7 @@ func (apiClient *ApiClient) Do(
 	apiClient.logDebug("[api-client] %v %v", method, *uri)
 	res, err = apiClient.client.Do(req)
 	if err != nil {
-		apiClient.logError("[api-client] failed to request %s with error:\n%w", req.URL.String(), err)
+		apiClient.logError("[api-client] failed to request %s with error:\n%s", req.URL.String(), err.Error())
 		return nil, err
 	}
 
@@ -261,6 +261,7 @@ func GetURIStringPointer(baseUrl string, relativePath string, query url.Values) 
 		for key, value := range query {
 			queryString.Set(key, strings.Join(value, ""))
 		}
+
 		u.RawQuery = queryString.Encode()
 	}
 	uri := base.ResolveReference(u).String()
