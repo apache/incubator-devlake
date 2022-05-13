@@ -107,13 +107,12 @@ func loadData(starrocks *sql.DB, c core.SubTaskContext, table string, db *gorm.D
 	if result["Status"] != "Success" {
 		c.GetLogger().Error("load %s failed: %s", table, b)
 	} else {
-		// replace table by tmp table
-		_, err = starrocks.Exec(fmt.Sprintf("alter table %s swap with %s_tmp", starrocksTable, starrocksTable))
-		if err == nil {
-			c.GetLogger().Info("load %s to starrocks success", table)
+		// drop old table and rename tmp table to old table
+		_, err = starrocks.Exec(fmt.Sprintf("drop table if exists %s;alter table %s_tmp rename %s", starrocksTable, starrocksTable, starrocksTable))
+		if err != nil {
+			return err
 		}
-		// drop tmp table
-		_, err = starrocks.Exec(fmt.Sprintf("drop table %s_tmp", starrocksTable))
+		c.GetLogger().Info("load %s to starrocks success", table)
 	}
 	return err
 }
