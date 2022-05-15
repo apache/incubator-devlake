@@ -5,8 +5,8 @@
 # DevLake
 
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat&logo=github&color=2370ff&labelColor=454545)](http://makeapullrequest.com)
-![badge](https://github.com/merico-dev/lake/actions/workflows/test.yml/badge.svg)
-[![Go Report Card](https://goreportcard.com/badge/github.com/merico-dev/lake)](https://goreportcard.com/report/github.com/merico-dev/lake)
+![badge](https://github.com/https://github.com/apache/incubator-devlake/wiki/DataModel.Domain-layer-schema/actions/workflows/test.yml/badge.svg)
+[![Go Report Card](https://goreportcard.com/badge/github.com/apache/incubator-devlake)](https://goreportcard.com/report/github.com/apache/incubator-devlake)
 [![Slack](https://img.shields.io/badge/slack-join_chat-success.svg?logo=slack)](https://join.slack.com/t/devlake-io/shared_invite/zt-17b6vuvps-x98pqseoUagM7EAmKC82xQ)
 
 | English | [中文](README-zh-CN.md) |
@@ -41,8 +41,8 @@ DevLake is designed for developer teams looking to make better sense of their de
 
 ### What can be accomplished with DevLake?
 1. Collect DevOps data across the entire SDLC process and connect data silos
-2. A standard <a href="https://github.com/merico-dev/lake/wiki/DataModel.Domain-layer-schema">data model</a> and out-of-the-box <a href="https://github.com/merico-dev/lake/wiki/Metric-Cheatsheet">metrics</a> for software engineering
-3. Flexible <a href="https://github.com/merico-dev/lake/blob/main/ARCHITECTURE.md">framework</a> for data collection and ETL, support customized analysis
+2. A standard <a href="https://github.com/apache/incubator-devlake/wiki/DataModel.Domain-layer-schema">data model</a> and out-of-the-box <a href="https://github.com/apache/incubator-devlake/wiki/Metric-Cheatsheet">metrics</a> for software engineering
+3. Flexible <a href="https://github.com/apache/incubator-devlake/blob/main/ARCHITECTURE.md">framework</a> for data collection and ETL, support customized analysis
 
 
 <br>
@@ -67,7 +67,7 @@ DevLake is designed for developer teams looking to make better sense of their de
           width="120px"
           alt="Teamcode" valign="middle"
         />
-      </a> to set up. This is the detailed [guide](https://github.com/merico-dev/lake/wiki/How-to-Set-Up-Dev-Lake-with-Tin).
+      </a> to set up. This is the detailed [guide](https://github.com/apache/incubator-devlake/wiki/How-to-Set-Up-Dev-Lake-with-Tin).
 - Commands written `like this` are to be run in your terminal.
 
 #### Prerequisites
@@ -77,7 +77,7 @@ DevLake is designed for developer teams looking to make better sense of their de
 
 #### Launch DevLake
 
-1. Download `docker-compose.yml` and `env.example` from [latest release page](https://github.com/merico-dev/lake/releases/latest) into a folder.
+1. Download `docker-compose.yml` and `env.example` from [latest release page](https://github.com/https://github.com/apache/incubator-devlake/wiki/How-to-Set-Up-Dev-Lake-with-Tin/releases/latest) into a folder.
 2. Rename `env.example` to `.env`. For Mac/Linux users, please run `mv env.example .env` in the terminal.
 3. Run `docker-compose up -d` to launch DevLake.
 
@@ -95,7 +95,7 @@ DevLake is designed for developer teams looking to make better sense of their de
 2. Create pipelines to trigger data collection in `config-ui`
 3. Click *View Dashboards* button in the top left when done, or visit `localhost:3002` (username: `admin`, password: `admin`).
 
-   We use <a href="https://grafana.com/" target="_blank">Grafana</a> as a visualization tool to build charts for the <a href="https://github.com/merico-dev/lake/wiki/DataModel.Domain-layer-schema">data stored in our database</a>. Using SQL queries, we can add panels to build, save, and edit customized dashboards.
+   We use <a href="https://grafana.com/" target="_blank">Grafana</a> as a visualization tool to build charts for the <a href="https://github.com/apache/incubator-devlake/wiki/DataModel.Domain-layer-schema">data stored in our database</a>. Using SQL queries, we can add panels to build, save, and edit customized dashboards.
 
    All the details on provisioning and customizing a dashboard can be found in the [Grafana Doc](docs/GRAFANA.md).
 4. To synchronize data periodically, users can set up recurring pipelines with DevLake's [pipeline blueprint](./docs/recurring-pipeline.md) for details.
@@ -147,7 +147,7 @@ Here's the step-by-step guide:
 1. Navigate to where you would like to install this project and clone the repository:
 
    ```sh
-   git clone https://github.com/merico-dev/lake.git
+   git clone https://github.com/apache/incubator-devlake.git
    cd lake
    ```
 
@@ -234,7 +234,7 @@ Here's the step-by-step guide:
 
 10. Click *View Dashboards* button in the top left when done, or visit `localhost:3002` (username: `admin`, password: `admin`).
 
-   We use <a href="https://grafana.com/" target="_blank">Grafana</a> as a visualization tool to build charts for the <a href="https://github.com/merico-dev/lake/wiki/DataModel.Domain-layer-schema">data stored in our database</a>. Using SQL queries, we can add panels to build, save, and edit customized dashboards.
+   We use <a href="https://grafana.com/" target="_blank">Grafana</a> as a visualization tool to build charts for the <a href="https://github.com/apache/incubator-devlake/wiki/DataModel.Domain-layer-schema">data stored in our database</a>. Using SQL queries, we can add panels to build, save, and edit customized dashboards.
 
    All the details on provisioning and customizing a dashboard can be found in the [Grafana Doc](docs/GRAFANA.md).
 
@@ -281,14 +281,14 @@ But, be careful, many API services like JIRA/GITHUB have request rate limit mech
 
 
 ## Project Roadmap
-- <a href="https://github.com/merico-dev/lake/wiki/Roadmap-2022" target="_blank">Roadmap 2022</a>: Detailed project roadmaps for 2022.
+- <a href="https://github.com/apache/incubator-devlake/wiki/Roadmap-2022" target="_blank">Roadmap 2022</a>: Detailed project roadmaps for 2022.
 - DevLake already supported following data sources:
     - <a href="plugins/jira/README.md" target="_blank">Jira(Cloud)</a>
     - <a href="plugins/gitextractor/README.md" target="_blank">Git</a>
     - <a href="plugins/github/README.md" target="_blank">GitHub</a>
     - <a href="plugins/gitlab/README.md" target="_blank">GitLab(Cloud)</a>
     - <a href="plugins/jenkins/README.md" target="_blank">Jenkins</a>
-- <a href="https://github.com/merico-dev/lake/wiki/Metric-Cheatsheet" target="_blank">Supported engineering metrics</a>: provide rich perspectives to observe and analyze SDLC.
+- <a href="https://github.com/apache/incubator-devlake/wiki/Metric-Cheatsheet" target="_blank">Supported engineering metrics</a>: provide rich perspectives to observe and analyze SDLC.
 
 <br>
 
@@ -296,7 +296,7 @@ But, be careful, many API services like JIRA/GITHUB have request rate limit mech
 This section lists all the documents to help you contribute to the repo.
 
 - [Architecture](ARCHITECTURE.md): Architecture of DevLake
-- [Data Model](https://github.com/merico-dev/lake/wiki/DataModel.Domain-layer-schema): Domain Layer Schema
+- [Data Model](https://github.com/apache/incubator-devlake/wiki/DataModel.Domain-layer-schema): Domain Layer Schema
 - [Add a Plugin](/plugins/README.md): Guide to add a plugin
 - [Add metrics](/plugins/HOW-TO-ADD-METRICS.md): Guide to add metrics in a plugin
 - [Contribution guidelines](CONTRIBUTING.md): Start from here if you want to make contribution
@@ -306,7 +306,7 @@ This section lists all the documents to help you contribute to the repo.
 ## Community
 
 - <a href="https://join.slack.com/t/devlake-io/shared_invite/zt-17b6vuvps-x98pqseoUagM7EAmKC82xQ" target="_blank">Slack</a>: Message us on Slack
-- <a href="https://github.com/merico-dev/lake/wiki/FAQ" target="_blank">FAQ</a>: Frequently Asked Questions
+- <a href="https://github.com/apache/incubator-devlake/wiki/FAQ" target="_blank">FAQ</a>: Frequently Asked Questions
 - <div>Wechat Group QR Code
 ![](wechat_group_qr_code.png)</div>
 
