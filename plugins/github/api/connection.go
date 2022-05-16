@@ -106,7 +106,7 @@ func PatchConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, err
 	if err != nil {
 		return nil, err
 	}
-	err = v.WriteConfig()
+	err = config.WriteConfig(v)
 	if err != nil {
 		return nil, err
 	}
