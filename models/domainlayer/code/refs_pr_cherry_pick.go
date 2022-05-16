@@ -2,6 +2,7 @@ package code
 
 import "github.com/merico-dev/lake/models/common"
 
+// multi pk
 type RefsPrCherrypick struct {
 	RepoName               string `gorm:"type:varchar(255)"`
 	ParentPrKey            int
