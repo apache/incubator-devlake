@@ -141,7 +141,7 @@ Here's the step-by-step guide:
 - Make
   - Mac (Already installed)
   - Windows: [Download](http://gnuwin32.sourceforge.net/packages/make.htm)
-  - Ubuntu: `sudo apt-get install build-essential`
+  - Ubuntu: `sudo apt-get install build-essential libssl-dev`
 
 #### How to setup dev environment
 1. Navigate to where you would like to install this project and clone the repository:
@@ -186,6 +186,14 @@ Here's the step-by-step guide:
     make dev
     # run config UI
     make configure-dev
+    ```
+
+    Q: I got an error saying: `libgit2.so.1.3: cannot open share object file: No such file or directory`
+
+    A: Make sure your program find `libgit2.so.1.3`. `LD_LIBRARY_PATH` can be assigned like this if your `libgit2.so.1.3` is located at `/usr/local/lib`:
+
+    ```sh
+    export LD_LIBRARY_PATH=/usr/local/lib
     ```
 
 8. Visit config UI at `localhost:4000` to configure data connections.
@@ -244,7 +252,7 @@ Here's the step-by-step guide:
     ```sh
     make test
     ```
-    
+
 12. For DB migrations, please refer to [Migration Doc](docs/MIGRATIONS.md).
 <br>
 
