@@ -27,7 +27,9 @@ func NewBatchSave(db *gorm.DB, slotType reflect.Type, size int) (*BatchSave, err
 	if slotType.Kind() != reflect.Ptr {
 		return nil, fmt.Errorf("slotType must be a pointer")
 	}
-
+	if !hasPrimaryKey(slotType) {
+		return nil, fmt.Errorf("no primary key")
+	}
 	return &BatchSave{
 		slotType:   slotType,
 		slots:      reflect.MakeSlice(reflect.SliceOf(slotType), size, size),
@@ -47,6 +49,7 @@ func (c *BatchSave) Add(slot interface{}) error {
 	}
 	// deduplication
 	key := getPrimaryKeyValue(slot)
+
 	if key != "" {
 		if index, ok := c.valueIndex[key]; !ok {
 			c.valueIndex[key] = c.current
@@ -81,12 +84,30 @@ func (c *BatchSave) Close() error {
 	return nil
 }
 
-func isPrimaryKey(f reflect.StructField, v reflect.Value) (string, bool) {
+func isPrimaryKey(f reflect.StructField) bool {
 	tag := strings.TrimSpace(f.Tag.Get("gorm"))
-	if strings.HasPrefix(strings.ToLower(tag), "primarykey") {
-		return fmt.Sprintf("%v", v.Interface()), true
+	return strings.HasPrefix(strings.ToLower(tag), "primarykey")
+}
+
+func hasPrimaryKey(ifv reflect.Type) bool {
+	if ifv.Kind() == reflect.Ptr {
+		ifv = ifv.Elem()
 	}
-	return "", false
+	for i := 0; i < ifv.NumField(); i++ {
+		v := ifv.Field(i)
+		switch v.Type.Kind() {
+		case reflect.Struct:
+			ok := hasPrimaryKey(v.Type)
+			if ok {
+				return true
+			}
+		default:
+			if ok := isPrimaryKey(v); ok {
+				return true
+			}
+		}
+	}
+	return false
 }
 
 func getPrimaryKeyValue(iface interface{}) string {
@@ -104,8 +125,11 @@ func getPrimaryKeyValue(iface interface{}) string {
 				ss = append(ss, s)
 			}
 		default:
-			if s, ok := isPrimaryKey(ifv.Type().Field(i), v); ok && s != "" {
-				ss = append(ss, s)
+			if isPrimaryKey(ifv.Type().Field(i)) {
+				s := fmt.Sprintf("%v", v.Interface())
+				if s != "" {
+					ss = append(ss, s)
+				}
 			}
 		}
 	}

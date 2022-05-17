@@ -4,11 +4,23 @@ import (
 	"fmt"
 	"regexp"
 	"strconv"
+	"strings"
+	"time"
 
 	"github.com/merico-dev/lake/models/domainlayer/code"
 	"github.com/merico-dev/lake/plugins/core"
 	"gorm.io/gorm/clause"
 )
+
+type cherryPick struct {
+	RepoName             string `gorm:"type:varchar(255)"`
+	ParentPrKey          int
+	CherrypickBaseBranch string `gorm:"type:varchar(255)"`
+	CherrypickPrKey      int
+	ParentPrUrl          string `gorm:"type:varchar(255)"`
+	ParentPrId           string `gorm:"type:varchar(255)"`
+	CreatedDate          time.Time
+}
 
 func CalculatePrCherryPick(taskCtx core.SubTaskContext) error {
 	data := taskCtx.GetData().(*RefdiffTaskData)
@@ -63,7 +75,7 @@ func CalculatePrCherryPick(taskCtx core.SubTaskContext) error {
 
 		var parentPrId string
 		err = db.Model(&code.PullRequest{}).
-			Where("key = ? and repo_id = ?", parentPrKeyInt, repoId).
+			Where("key = ? and base_repo_id = ?", parentPrKeyInt, repoId).
 			Pluck("id", &parentPrId).Error
 		if err != nil {
 			return err
@@ -80,24 +92,69 @@ func CalculatePrCherryPick(taskCtx core.SubTaskContext) error {
 		taskCtx.IncProgress(1)
 	}
 
-	cursor2, err := db.Table("pull_requests pr1").
-		Joins("left join pull_requests pr2 on pr1.parent_pr_id = pr2.id").Group("pr1.parent_pr_id, pr2.created_date").Where("pr1.parent_pr_id != ''").
-		Joins("left join repos on pr2.base_repo_id = repos.id").
-		Order("pr2.created_date ASC").
-		Select(`pr2.key as parent_pr_key, pr1.parent_pr_id as parent_pr_id, GROUP_CONCAT(pr1.base_ref order by pr1.base_ref ASC) as cherrypick_base_branches, 
-			GROUP_CONCAT(pr1.key order by pr1.base_ref ASC) as cherrypick_pr_keys, repos.name as repo_name, 
-			concat(repos.url, '/pull/', pr2.key) as parent_pr_url`).Rows()
+	cursor2, err := db.Raw(
+		`
+			SELECT pr2.KEY                              AS parent_pr_key,
+			       pr1.parent_pr_id                     AS parent_pr_id,
+			       pr1.base_ref                         AS cherrypick_base_branch,
+			       pr1.KEY                              AS cherrypick_pr_key,
+			       repos.NAME                           AS repo_name,
+			       Concat(repos.url, '/pull/', pr2.KEY) AS parent_pr_url,
+ 				   pr2.created_date
+			FROM   pull_requests pr1
+			       LEFT JOIN pull_requests pr2
+			              ON pr1.parent_pr_id = pr2.id
+			       LEFT JOIN repos
+			              ON pr2.base_repo_id = repos.id
+			WHERE  pr1.parent_pr_id != ''
+			ORDER  BY pr1.parent_pr_id,
+			          pr2.created_date,
+					  pr1.base_ref ASC
+			`).Rows()
 	if err != nil {
 		return err
 	}
 	defer cursor2.Close()
 
-	refsPrCherryPick := &code.RefsPrCherrypick{}
+	var refsPrCherryPick *code.RefsPrCherrypick
+	var lastParentPrId string
+	var lastCreatedDate time.Time
+	var cherrypickBaseBranches []string
+	var cherrypickPrKeys []string
 	for cursor2.Next() {
-		err = db.ScanRows(cursor2, refsPrCherryPick)
+		var item cherryPick
+		err = db.ScanRows(cursor2, &item)
 		if err != nil {
 			return err
 		}
+		if item.ParentPrId == lastParentPrId && item.CreatedDate == lastCreatedDate {
+			cherrypickBaseBranches = append(cherrypickBaseBranches, item.CherrypickBaseBranch)
+			cherrypickPrKeys = append(cherrypickPrKeys, strconv.Itoa(item.CherrypickPrKey))
+		} else {
+			if refsPrCherryPick != nil {
+				refsPrCherryPick.CherrypickBaseBranches = strings.Join(cherrypickBaseBranches, ",")
+				refsPrCherryPick.CherrypickPrKeys = strings.Join(cherrypickPrKeys, ",")
+				err = db.Clauses(clause.OnConflict{
+					UpdateAll: true,
+				}).Create(refsPrCherryPick).Error
+				if err != nil {
+					return err
+				}
+			}
+			lastParentPrId = item.ParentPrId
+			lastCreatedDate = item.CreatedDate
+			cherrypickBaseBranches = []string{item.CherrypickBaseBranch}
+			cherrypickPrKeys = []string{strconv.Itoa(item.CherrypickPrKey)}
+			refsPrCherryPick = &code.RefsPrCherrypick{
+				RepoName:    item.RepoName,
+				ParentPrKey: item.ParentPrKey,
+				ParentPrUrl: item.ParentPrUrl,
+				ParentPrId:  item.ParentPrId,
+			}
+		}
+	}
+
+	if refsPrCherryPick != nil {
 		err = db.Clauses(clause.OnConflict{
 			UpdateAll: true,
 		}).Create(refsPrCherryPick).Error
@@ -105,6 +162,7 @@ func CalculatePrCherryPick(taskCtx core.SubTaskContext) error {
 			return err
 		}
 	}
+
 	return nil
 }
 

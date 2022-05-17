@@ -1,6 +1,7 @@
 package helper
 
 import (
+	"reflect"
 	"testing"
 
 	"github.com/merico-dev/lake/models/domainlayer"
@@ -65,6 +66,52 @@ func Test_getPrimaryKeyValue(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			assert.Equalf(t, tt.want, getPrimaryKeyValue(tt.args.iface), "getPrimaryKeyValue(%v)", tt.args.iface)
+		})
+	}
+}
+
+func Test_hasPrimaryKey(t *testing.T) {
+	type args struct {
+		iface interface{}
+	}
+	tests := []struct {
+		name string
+		args args
+		want bool
+	}{
+		{
+			"",
+			args{ticket.SprintIssue{
+				SprintId: "abc",
+				IssueId:  "123",
+			},
+			},
+			true,
+		},
+		{
+			"",
+			args{&ticket.SprintIssue{
+				SprintId: "abc",
+				IssueId:  "123",
+			},
+			},
+			true,
+		},
+		{
+			"",
+			args{ticket.Issue{}},
+			true,
+		},
+		{
+			"",
+			args{&ticket.Issue{}},
+			true,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			assert.Equalf(t, tt.want, hasPrimaryKey(reflect.TypeOf(tt.args.iface)), "hasPrimaryKey(%v)", tt.args.iface)
 		})
 	}
 }

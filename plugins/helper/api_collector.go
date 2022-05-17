@@ -13,7 +13,6 @@ import (
 	"text/template"
 
 	"github.com/merico-dev/lake/plugins/core"
-	"gorm.io/datatypes"
 )
 
 type Pager struct {
@@ -272,13 +271,22 @@ func (collector *ApiCollector) generateUrl(pager *Pager, input interface{}) (str
 func (collector *ApiCollector) stepFetch(ctx context.Context, cancel func(), reqData RequestData) error {
 	// channel `c` is used to make sure fetchAsync is called serially
 	c := make(chan struct{})
+	var err1 error
 	handler := func(res *http.Response, err error) error {
+		select {
+		case <-ctx.Done():
+			err = ctx.Err()
+		default:
+
+		}
 		if err != nil {
+			err1 = err
 			close(c)
 			return err
 		}
 		count, err := collector.saveRawData(res, reqData.Input)
 		if err != nil {
+			err1 = err
 			close(c)
 			cancel()
 			return err
@@ -294,15 +302,24 @@ func (collector *ApiCollector) stepFetch(ctx context.Context, cancel func(), req
 	}
 	// kick off
 	go func() { c <- struct{}{} }()
-	for range c {
-		err := collector.fetchAsync(&reqData, handler)
-		if err != nil {
-			close(c)
-			cancel()
-			return err
+	for {
+		select {
+		case <-ctx.Done():
+			return ctx.Err()
+		case _, ok := <-c:
+			if !ok || err1 != nil {
+				return err1
+			} else {
+				err := collector.fetchAsync(&reqData, handler)
+				if err != nil {
+					close(c)
+					cancel()
+					return err
+				}
+			}
 		}
 	}
-	return nil
+	return err1
 }
 
 func (collector *ApiCollector) fetchAsync(reqData *RequestData, handler ApiAsyncCallback) error {
@@ -312,6 +329,13 @@ func (collector *ApiCollector) fetchAsync(reqData *RequestData, handler ApiAsync
 			Size: 100,
 			Skip: 0,
 		}
+	}
+	ctx := collector.args.Ctx.GetContext()
+	select {
+	case <-ctx.Done():
+		return ctx.Err()
+	default:
+
 	}
 	apiUrl, err := collector.generateUrl(reqData.Pager, reqData.Input)
 	if err != nil {
@@ -409,7 +433,7 @@ func (collector *ApiCollector) saveRawData(res *http.Response, input interface{}
 	for i, msg := range items {
 		dd[i] = &RawData{
 			Params: collector.params,
-			Data:   datatypes.JSON(msg),
+			Data:   msg,
 			Url:    u,
 			Input:  inputJson,
 		}
