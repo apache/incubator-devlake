@@ -18,7 +18,7 @@ func (c Changelog) ToToolLayer(connectionId, issueId uint64) (*models.JiraChange
 		ConnectionId:      connectionId,
 		ChangelogId:       c.ID,
 		IssueId:           issueId,
-		AuthorAccountId:   c.Author.EmailAddress,
+		AuthorAccountId:   c.Author.getAccountId(),
 		AuthorDisplayName: c.Author.DisplayName,
 		AuthorActive:      c.Author.Active,
 		Created:           c.Created.ToTime(),
@@ -45,4 +45,18 @@ func (c ChangelogItem) ToToolLayer(connectionId, changelogId uint64) *models.Jir
 		To:           c.To,
 		ToString:     c.ToString,
 	}
+}
+
+func (c ChangelogItem) ExtractUser(connectionId uint64) []*models.JiraUser {
+	if c.Field != "assignee" {
+		return nil
+	}
+	var result []*models.JiraUser
+	if c.From != "" {
+		result = append(result, &models.JiraUser{ConnectionId: connectionId, AccountId: c.From})
+	}
+	if c.To != "" {
+		result = append(result, &models.JiraUser{ConnectionId: connectionId, AccountId: c.To})
+	}
+	return result
 }
