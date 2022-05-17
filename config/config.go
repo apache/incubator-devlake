@@ -98,6 +98,17 @@ func WriteConfigAs(v *viper.Viper, filename string) error {
 		return err
 	}
 	defer f.Close()
+<<<<<<< Updated upstream
+=======
+	
+	for _, key := range v.AllKeys() {
+		envName := strings.ToUpper(key)
+		if !strings.Contains(envFileContent, envName) {
+			envFileContent = fmt.Sprintf("%s\n%s=", envFileContent, envName)
+		}
+	
+	}
+>>>>>>> Stashed changes
 	err, envFileContent = replaceNewEnvItemInOldContent(v, envFileContent)
 	if err != nil {
 		return err
