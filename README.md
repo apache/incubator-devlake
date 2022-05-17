@@ -77,7 +77,7 @@ DevLake is designed for developer teams looking to make better sense of their de
 
 #### Launch DevLake
 
-1. Download `docker-compose.yml` and `env.example` from [latest release page](https://github.com/https://github.com/apache/incubator-devlake/wiki/How-to-Set-Up-Dev-Lake-with-Tin/releases/latest) into a folder.
+1. Download `docker-compose.yml` and `env.example` from [latest release page](https://github.com/apache/incubator-devlake/wiki/How-to-Set-Up-Dev-Lake-with-Tin/releases/latest) into a folder.
 2. Rename `env.example` to `.env`. For Mac/Linux users, please run `mv env.example .env` in the terminal.
 3. Run `docker-compose up -d` to launch DevLake.
 
