@@ -99,6 +99,7 @@ func WriteConfigAs(v *viper.Viper, filename string) error {
 		return err
 	}
 	defer f.Close()
+
 	for _, key := range v.AllKeys() {
 		envName := strings.ToUpper(key)
 		if !strings.Contains(envFileContent, envName) {
