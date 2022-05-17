@@ -47,9 +47,6 @@ func replaceNewEnvItemInOldContent(v *viper.Viper, envFileContent string) (error
 		if envItemReg == nil {
 			return fmt.Errorf("regexp err"), ``
 		}
-		if !strings.Contains(envFileContent, envName) {
-			envFileContent = fmt.Sprintf("%s\n%s=", envFileContent, envName)
-		}
 		envFileContent = envItemReg.ReplaceAllStringFunc(envFileContent, func(s string) string {
 			switch ret := val.(type) {
 			case string:
@@ -105,7 +102,6 @@ func WriteConfigAs(v *viper.Viper, filename string) error {
 		if !strings.Contains(envFileContent, envName) {
 			envFileContent = fmt.Sprintf("%s\n%s=", envFileContent, envName)
 		}
-
 	}
 	err, envFileContent = replaceNewEnvItemInOldContent(v, envFileContent)
 	if err != nil {
