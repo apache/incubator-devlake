@@ -49,6 +49,8 @@ func (plugin Jira) SubTaskMetas() []core.SubTaskMeta {
 		{Name: "collectChangelogs", EntryPoint: tasks.CollectChangelogs, EnabledByDefault: true, Description: "collect Jira change logs"},
 		{Name: "extractChangelogs", EntryPoint: tasks.ExtractChangelogs, EnabledByDefault: true, Description: "extract Jira change logs"},
 
+		{Name: "collectUsers", EntryPoint: tasks.CollectUsers, EnabledByDefault: true, Description: "collect Jira users"},
+
 		{Name: "collectWorklogs", EntryPoint: tasks.CollectWorklogs, EnabledByDefault: true, Description: "collect Jira work logs"},
 		{Name: "extractWorklogs", EntryPoint: tasks.ExtractWorklogs, EnabledByDefault: true, Description: "extract Jira work logs"},
 
@@ -71,6 +73,7 @@ func (plugin Jira) SubTaskMetas() []core.SubTaskMeta {
 		{Name: "convertIssueCommits", EntryPoint: tasks.ConvertIssueCommits, EnabledByDefault: true, Description: "convert Jira issue commits"},
 		{Name: "convertIssueRepoCommits", EntryPoint: tasks.ConvertIssueRepoCommits, EnabledByDefault: false, Description: "convert Jira issue repo commits"},
 
+		{Name: "extractUsers", EntryPoint: tasks.ExtractUsers, EnabledByDefault: true, Description: "extract Jira users"},
 		{Name: "convertUsers", EntryPoint: tasks.ConvertUsers, EnabledByDefault: true, Description: "convert Jira users"},
 	}
 }

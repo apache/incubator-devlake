@@ -234,6 +234,9 @@ func (i Issue) ExtractEntities(connectionId uint64, epicField, storyPointField s
 			users = append(users, user)
 			for _, item := range changelog.Items {
 				changelogItems = append(changelogItems, item.ToToolLayer(connectionId, changelog.ID))
+				for _, u := range item.ExtractUser(connectionId) {
+					users = append(users, u)
+				}
 			}
 		}
 	}

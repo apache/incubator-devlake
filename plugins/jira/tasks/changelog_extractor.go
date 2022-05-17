@@ -48,6 +48,9 @@ func ExtractChangelogs(taskCtx core.SubTaskContext) error {
 			result = append(result, cl, user)
 			for _, item := range changelog.Items {
 				result = append(result, item.ToToolLayer(connectionId, changelog.ID))
+				for _, u := range item.ExtractUser(connectionId) {
+					result = append(result, u)
+				}
 			}
 			return result, nil
 		},
