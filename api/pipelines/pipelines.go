@@ -22,7 +22,15 @@ POST /pipelines
 	]
 }
 */
-
+// @Summary Create and run a new pipeline
+// @Description Create and run a new pipeline
+// @Tags pipelines
+// @Accept application/json
+// @Param pipeline body string true "pipline is json format"
+// @Success 200  {object} models.Pipeline
+// @Failure 400  {string} errcode.Error "Bad Request"
+// @Failure 500  {string} errcode.Error "Internel Error"
+// @Router /pipelines [post]
 func Post(c *gin.Context) {
 	newPipeline := &models.NewPipeline{}
 
@@ -47,7 +55,7 @@ func Post(c *gin.Context) {
 
 /*
 Get list of pipelines
-GET /pipelines?status=TASK_RUNNING&pending=1&page=1&=pagesize=10
+GET /pipelines?status=TASK_RUNNING&pending=1&page=1&pagesize=10
 {
 	"pipelines": [
 		{"id": 1, "name": "test-pipeline", ...}
@@ -55,6 +63,18 @@ GET /pipelines?status=TASK_RUNNING&pending=1&page=1&=pagesize=10
 	"count": 5
 }
 */
+
+// @Summary Get list of pipelines
+// @Description GET /pipelines?status=TASK_RUNNING&pending=1&page=1&pagesize=10
+// @Tags pipelines
+// @Param status query string true "query"
+// @Param pending query int true "query"
+// @Param page query int true "query"
+// @Param pagesize query int true "query"
+// @Success 200  {object} models.Pipeline
+// @Failure 400  {string} errcode.Error "Bad Request"
+// @Failure 500  {string} errcode.Error "Internel Error"
+// @Router /pipelines [get]
 func Index(c *gin.Context) {
 	var query services.PipelineQuery
 	err := c.ShouldBindQuery(&query)
@@ -79,6 +99,14 @@ GET /pipelines/:pipelineId
 	...
 }
 */
+// @Get detail of a pipeline
+// @Description GET /pipelines/:pipelineId
+// @Tags pipelines
+// @Param pipelineId path int true "query"
+// @Success 200  {object} models.Pipeline
+// @Failure 400  {string} errcode.Error "Bad Request"
+// @Failure 500  {string} errcode.Error "Internel Error"
+// @Router /pipelines/{pipelineId} [get]
 func Get(c *gin.Context) {
 	pipelineId := c.Param("pipelineId")
 	id, err := strconv.ParseUint(pipelineId, 10, 64)
@@ -98,6 +126,14 @@ func Get(c *gin.Context) {
 Cancel a pending pipeline
 DELETE /pipelines/:pipelineId
 */
+// @Cancel a pending pipeline
+// @Description DELETE /pipelines/:pipelineId
+// @Tags pipelines
+// @Param pipelineId path int true "id of your pipline"
+// @Success 200
+// @Failure 400  {string} errcode.Error "Bad Request"
+// @Failure 500  {string} errcode.Error "Internel Error"
+// @Router /pipelines/{pipelineId} [delete]
 func Delete(c *gin.Context) {
 	pipelineId := c.Param("pipelineId")
 	id, err := strconv.ParseUint(pipelineId, 10, 64)
