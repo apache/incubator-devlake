@@ -11,6 +11,15 @@ import (
 	"github.com/merico-dev/lake/services"
 )
 
+// @Summary Post BluePrints
+// @Description Post BluePrints
+// @Tags blueprints
+// @Accept application/json
+// @Param blueprint body string true "json"
+// @Success 200  {object} models.Blueprint
+// @Failure 400  {string} errcode.Error "Bad Request"
+// @Failure 500  {string} errcode.Error "Internel Error"
+// @Router /blueprints [post]
 func Post(c *gin.Context) {
 	blueprint := &models.Blueprint{}
 
@@ -29,6 +38,14 @@ func Post(c *gin.Context) {
 	shared.ApiOutputSuccess(c, blueprint, http.StatusCreated)
 }
 
+// @Summary Get BluePrints
+// @Description Get BluePrints
+// @Tags blueprints
+// @Accept application/json
+// @Success 200  {object} models.Blueprint
+// @Failure 400  {string} errcode.Error "Bad Request"
+// @Failure 500  {string} errcode.Error "Internel Error"
+// @Router /blueprints [get]
 func Index(c *gin.Context) {
 	var query services.BlueprintQuery
 	err := c.ShouldBindQuery(&query)
@@ -44,6 +61,15 @@ func Index(c *gin.Context) {
 	shared.ApiOutputSuccess(c, gin.H{"blueprints": blueprints, "count": count}, http.StatusOK)
 }
 
+// @Summary get BluePrints
+// @Description get BluePrints
+// @Tags blueprints
+// @Accept application/json
+// @Param blueprintId path int true "blueprint id"
+// @Success 200  {object} models.Blueprint
+// @Failure 400  {string} errcode.Error "Bad Request"
+// @Failure 500  {string} errcode.Error "Internel Error"
+// @Router /blueprints/{blueprintId} [get]
 func Get(c *gin.Context) {
 	blueprintId := c.Param("blueprintId")
 	id, err := strconv.ParseUint(blueprintId, 10, 64)
@@ -59,6 +85,14 @@ func Get(c *gin.Context) {
 	shared.ApiOutputSuccess(c, blueprint, http.StatusOK)
 }
 
+// @Summary Delete BluePrints
+// @Description Delete BluePrints
+// @Tags blueprints
+// @Param blueprintId path string true "blueprintId"
+// @Success 200
+// @Failure 400  {string} errcode.Error "Bad Request"
+// @Failure 500  {string} errcode.Error "Internel Error"
+// @Router /blueprints/{blueprintId} [delete]
 func Delete(c *gin.Context) {
 	pipelineId := c.Param("blueprintId")
 	id, err := strconv.ParseUint(pipelineId, 10, 64)
@@ -97,6 +131,15 @@ func Put(c *gin.Context) {
 }
 */
 
+// @Summary Patch BluePrints
+// @Description Patch BluePrints
+// @Tags blueprints
+// @Accept application/json
+// @Param blueprintId path string true "blueprintId"
+// @Success 200  {object} models.Blueprint
+// @Failure 400  {string} errcode.Error "Bad Request"
+// @Failure 500  {string} errcode.Error "Internel Error"
+// @Router /blueprints/{blueprintId} [Patch]
 func Patch(c *gin.Context) {
 	blueprintId := c.Param("blueprintId")
 	id, err := strconv.ParseUint(blueprintId, 10, 64)
