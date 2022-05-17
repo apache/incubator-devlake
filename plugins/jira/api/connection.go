@@ -284,7 +284,11 @@ func DeleteConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, er
 		return nil, err
 	}
 	// cascading delete
+<<<<<<< HEAD
 	err = db.Where("id = ?", jiraConnectionID).Delete(&models.JiraConnection{}).Error
+=======
+	err = db.Where("connection_id = ?", jiraConnectionID).Delete(&models.JiraConnection{}).Error
+>>>>>>> fix: delete jira connect without decrypt
 	if err != nil {
 		return nil, err
 	}
