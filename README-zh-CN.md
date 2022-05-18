@@ -306,7 +306,7 @@ kubectl apply -f https://raw.githubusercontent.com/merico-dev/lake/main/k8s-depl
 - <a href="https://discord.com/invite/83rDG6ydVZ" target="_blank">Discord</a>: 在 Discord 上给我们发消息
 - <a href="https://github.com/merico-dev/lake/wiki/FAQ" target="_blank">FAQ</a>: 常见问题汇总
 - 微信用户群二维码<br>
-![](DevLake 社区群（小）活码.png)
+![](wechat-group-qr-code.png)
 <br>
 
 ### License<a id="license"></a>
