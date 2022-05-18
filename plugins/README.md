@@ -2,101 +2,65 @@
 
 ...the good news is, it's easy!
 
-
-## Basic Interface
-
+## Preparation work
+1. Create a directory named `yourplugin` under directory `plugins`
+2. Under `yourplugin`, you need three more packages: `api`, `models` and `tasks`
+    1. `api` interacts with `config-ui` for test/get/save connection of data source. Please check [How to create connection to be used by config-ui for a data source]() for detail.
+    2. `models` stores all `data entities` and `data migration scripts`. Please check [How to create models and data migrations]() for detail.
+    3. `tasks` contains all of our `sub tasks` for a plugin
+3. Create a yourplugin.go in `yourplugin`
 ```golang
-type YourPlugin string
+type YourPlugin struct{}
+
+var _ core.PluginMeta = (*YourPlugin)(nil)
+var _ core.PluginInit = (*YourPlugin)(nil)
+var _ core.PluginTask = (*YourPlugin)(nil)
+var _ core.PluginApi = (*YourPlugin)(nil)
+var _ core.Migratable = (*YourPlugin)(nil)
+
+func (plugin YourPlugin) Init(config *viper.Viper, logger core.Logger, db *gorm.DB) error {
+	return nil
+}
 
 func (plugin YourPlugin) Description() string {
 	return "To collect and enrich data from YourPlugin"
 }
-
-func (plugin YourPlugin) Execute(options map[string]interface{}, progress chan<- float32) {
-	logger.Print("Starting YourPlugin execution...")
-
-  // Check fields that are needed in options.
-	projectId, ok := options["projectId"]
-	if !ok {
-		logger.Print("projectId is required for YourPlugin execution")
-		return
+// Register all subtasks
+func (plugin YourPlugin) SubTaskMetas() []core.SubTaskMeta {
+	return []core.SubTaskMeta{
+		tasks.CollectXXXX,
+		tasks.ExtractXXXX,
+		tasks.ConvertXXXX,
 	}
-
-  // Start collecting stuff.
-  if err := tasks.CollectProject(projectId); err != nil {
-		logger.Error("Could not collect projects: ", err)
-		return
+}
+// Prepare your apiClient which will be used to request remote api, 
+// `apiClient` is defined in `client.go` under `tasks`
+// `YourPluginTaskData` is defined in `task_data.go` under `tasks`
+func (plugin YourPlugin) PrepareTaskData(taskCtx core.TaskContext, options map[string]interface{}) (interface{}, error) {
+	var op tasks.YourPluginOptions
+	err := mapstructure.Decode(options, &op)
+	if err != nil {
+		return nil, err
 	}
   // Handle error.
   if err != nil {
     logger.Error(err)
   }
-}
 
-// Export a variable named PluginEntry for Framework to search and load
-var PluginEntry YourPlugin //nolint
+  // Export a variable named PluginEntry for Framework to search and load
+  var PluginEntry YourPlugin //nolint
+}
 ```
 
 ## Summary
 
-  To build a new plugin you will need a few things. You should choose an API that you'd like to see data from. Think about the metrics you would like to see first, and then look for data that can support those metrics.
+To build a new plugin you will need a few things. You should choose an API that you'd like to see data from. Think about the metrics you would like to see first, and then look for data that can support those metrics.
 
-## Collection
+## Create your sub tasks
 
-  Then you will want to write a collection to gather data. You will need to do some reading of the API documentation to figure out what metrics you will want to see at the end in your Grafana dashboard (configuring Grafana is the final step).
-
-## Build a Fetcher to make Requests
-
-The plugins/core folder contains an api client that you can implement within your own plugin. It has useful methods like Get(). 
-Each API handles pagination differently, so you will likely need to implement a "fetch with pagination" method. One way to do
-this is to use the "ants" package as a way to manage tasks concurrently: https://github.com/panjf2000/ants
-
-Your colection methods may look something like this:
-
-```golang
-func Collect() error {
-	pluginApiClient := CreateApiClient()
-
-	return pluginApiClient.FetchWithPagination("<your_api_url>",
-		func(res *http.Response) error {
-			pluginApiResponse := &ApiResponse{}
-      // You must unmarshal the response from the api to use the results.
-			err := helper.UnmarshalResponse(res, pluginApiResponse)
-			if err != nil {
-				logger.Error("Error: ", err)
-				return nil
-			}
-      // loop through the results and save them to the database.
-			for _, value := range *pluginApiResponse {
-				pluginModel := &models.pluginModel{
-					pluginId:       value.pluginId,
-					Title:          value.Title,
-					Message:        value.Message,
-				}
-
-				err = lakeModels.Db.Clauses(clause.OnConflict{
-					UpdateAll: true,
-				}).Create(&pluginModel).Error
-
-				if err != nil {
-					logger.Error("Could not upsert: ", err)
-				}
-			}
-
-			return nil
-		})
-}
-```
-
-Note the use of "upsert". This is useful for only saving modified records.
-
-## Enrichment
-
-  Once you have collected data from the API, you may want to enrich that data by:
-
-  - Add fields you don't currently have
-  - Compute fields you might want for metrics
-  - Eliminate fields you don't need
+1. [Create collector will collect data from remote api server and save into raw layer]()
+2. [Create extractor will extract data from raw layer and save into tool layer]()
+3. [Create convertor will convert data from tool layer and save into domain layer]()
 
 ## You're Done!
 
