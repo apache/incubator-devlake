@@ -9,8 +9,6 @@
 [![Go Report Card](https://goreportcard.com/badge/github.com/merico-dev/lake)](https://goreportcard.com/report/github.com/merico-dev/lake)
 [![Slack](https://img.shields.io/badge/slack-join_chat-success.svg?logo=slack)](https://join.slack.com/t/devlake-io/shared_invite/zt-17b6vuvps-x98pqseoUagM7EAmKC82xQ)
 
-| English | [中文](README-zh-CN.md) |
-| --- | --- |
 </div>
 <br>
 <div align="left">
@@ -29,9 +27,9 @@ DevLake is designed for developer teams looking to make better sense of their de
   </tr>
 </table>
 
+</div>
 
 <br>
-
 
 <div align="left">
 <img src="https://user-images.githubusercontent.com/14050754/145056261-ceaf7044-f5c5-420f-80ca-54e56eb8e2a7.png" width="100%" alt="User Flow" style="border-radius:15px;"/>
@@ -322,3 +320,5 @@ This section lists all the documents to help you contribute to the repo.
 ## License<a id="license"></a>
 
 This project is licensed under Apache License 2.0 - see the [LICENSE](LICENSE) file for details.
+
+</div>

@@ -1,17 +1,8 @@
 # Feishu
 
-<div align="center">
-
-| [English](README.md) | [中文](README-zh-CN.md) |
-| --- | --- |
-
-</div>
-
-<br>
-
 ## Summary
 
-This plugin collects Feishu data through [Feishu Openapi](https://open.feishu.cn/document/home/user-identity-introduction/introduction).
+This plugin collects Feishu meeting data through [Feishu Openapi](https://open.feishu.cn/document/home/user-identity-introduction/introduction).
 
 ## Configuration
 

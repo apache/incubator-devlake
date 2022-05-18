@@ -1,52 +1,52 @@
 # Jira
 
-<div align="center">
-
-| [English](README.md) | [中文](README-zh-CN.md) |
-| --- | --- |
-
-</div>
-
-<br>
-
 ## Summary
 
 This plugin collects Jira data through Jira Cloud REST API. It then computes and visualizes various engineering metrics from the Jira data.
 
-<img width="2035" alt="Screen Shot 2021-09-10 at 4 01 55 PM" src="https://user-images.githubusercontent.com/2908155/132926143-7a31d37f-22e1-487d-92a3-cf62e402e5a8.png">
+<img width="2035" alt="jira metric display" src="https://user-images.githubusercontent.com/2908155/132926143-7a31d37f-22e1-487d-92a3-cf62e402e5a8.png">
 
 ## Project Metrics This Covers
 
-Metric Name | Description
-:------------ | :-------------
-Requirement Count	| Number of issues with type "Requirement"
-Requirement Lead Time	| Lead time of issues with type "Requirement"
-Requirement Delivery Rate |	Ratio of delivered requirements to all requirements
-Requirement Granularity | Number of story points associated with an issue
-Bug Count	| Number of issues with type "Bug"<br><i>bugs are found during testing</i>
-Bug Age	| Lead time of issues with type "Bug"<br><i>both new and deleted lines count</i>
-Bugs Count per 1k Lines of Code |	Amount of bugs per 1000 lines of code
-Incident Count | Number of issues with type "Incident"<br><i>incidents are found when running in production</i>
-Incident Age | Lead time of issues with type "Incident"
-Incident Count per 1k Lines of Code | Amount of incidents per 1000 lines of code
+| Metric Name                         | Description                                                                                    |
+|:------------------------------------|:-----------------------------------------------------------------------------------------------|
+| Requirement Count	                  | Number of issues with type "Requirement"                                                       |
+| Requirement Lead Time	              | Lead time of issues with type "Requirement"                                                    |
+| Requirement Delivery Rate           | 	Ratio of delivered requirements to all requirements                                           |
+| Requirement Granularity             | Number of story points associated with an issue                                                |
+| Bug Count	                          | Number of issues with type "Bug"<br><i>bugs are found during testing</i>                       |
+| Bug Age	                            | Lead time of issues with type "Bug"<br><i>both new and deleted lines count</i>                 |
+| Bugs Count per 1k Lines of Code     | 	Amount of bugs per 1000 lines of code                                                         |
+| Incident Count                      | Number of issues with type "Incident"<br><i>incidents are found when running in production</i> |
+| Incident Age                        | Lead time of issues with type "Incident"                                                       |
+| Incident Count per 1k Lines of Code | Amount of incidents per 1000 lines of code                                                     |
 
 ## Configuration
 
 In order to fully use this plugin, you will need to set various configurations via Dev Lake's `config-ui` service. Open `config-ui` on browser, by default the URL is http://localhost:4000, then go to **Data Integrations / JIRA** page. JIRA plugin currently supports multiple data connections, Here you can **add** new connection to your JIRA connection or **update** the settings if needed.
 
-For each connection, you will need to set up following items:
+For each connection, you will need to set up following items first:
+
+![connection at config ui](connection-config-ui.png)
 
 - Connection Name: This allow you to distinguish different connections.
 - Endpoint URL: The JIRA instance api endpoint, for JIRA Cloud Service, it would be: `https://<mydomain>.atlassian.net/rest`. devlake officially supports JIRA Cloud Service on atlassian.net, may or may not work for JIRA Server Instance.
 - Basic Auth Token: First, generate a **JIRA API TOKEN** for your JIRA account on JIRA console (see [Generating API token](#generating-api-token)), then, in `config-ui` click the KEY icon on the right side of the input to generate a full `HTTP BASIC AUTH` token for you.
+- Proxy Url: Just use when you want collect through VPN.
+
+### More custom configuration
+If you want to add more custom config, you can click "settings" to change these config
+![More config in config ui](more-setting-in-config-ui.png)
 - Issue Type Mapping: JIRA is highly customizable, each JIRA instance may have a different set of issue types than others. In order to compute and visualize metrics for different instances, you need to map your issue types to standard ones. See [Issue Type Mapping](#issue-type-mapping) for detail.
 - Epic Key: unfortunately, epic relationship implementation in JIRA is based on `custom field`, which is vary from instance to instance. Please see [Find Out Custom Fields](#find-out-custom-fields).
 - Story Point Field: same as Epic Key.
 - Remotelink Commit SHA:A regular expression that matches commit links to determine whether an external link is a link to a commit. Taking gitlab as an example, to match all commits similar to https://gitlab.com/merico-dev/ce/example-repository/-/commit/8ab8fb319930dbd8615830276444b8545fd0ad24, you can directly use the regular expression **/commit/([0-9a-f]{40})$**
+
+
 ### Generating API token
 1. Once logged into Jira, visit the url `https://id.atlassian.com/manage-profile/security/api-tokens`
 2. Click the **Create API Token** button, and give it any label name
-![image](https://user-images.githubusercontent.com/27032263/129363611-af5077c9-7a27-474a-a685-4ad52366608b.png)
+   ![image](https://user-images.githubusercontent.com/27032263/129363611-af5077c9-7a27-474a-a685-4ad52366608b.png)
 
 
 ### Issue Type Mapping

@@ -1,14 +1,5 @@
 # Jenkins
 
-<div align="center">
-
-| [English](README.md) | [中文](README-zh-CN.md) |
-| --- | --- |
-
-</div>
-
-<br>
-
 ## Summary
 
 This plugin collects Jenkins data through [Remote Access API](https://www.jenkins.io/doc/book/using/remote-access-api/). It then computes and visualizes various devops metrics from the Jenkins data.
@@ -17,10 +8,10 @@ This plugin collects Jenkins data through [Remote Access API](https://www.jenkin
 
 ## Metrics
 
-Metric Name | Description
-:------------ | :-------------
-Build Count | The number of builds created
-Build Success Rate | The percentage of successful builds
+| Metric Name        | Description                         |
+|:-------------------|:------------------------------------|
+| Build Count        | The number of builds created        |
+| Build Success Rate | The percentage of successful builds |
 
 ## Configuration
 

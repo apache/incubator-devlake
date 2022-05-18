@@ -1,13 +1,4 @@
-# Github Pond
-
-<div align="center">
-
-| [English](README.md) | [中文](README-zh-CN.md) |
-| --- | --- |
-
-</div>
-
-<br>
+# GitHub Pond
 
 ## Summary
 
@@ -34,6 +25,8 @@ Here are some examples of what we can use `GitHub` data to show:
 ### Provider (Datasource) Connection
 The connection aspect of the configuration screen requires the following key fields to connect to the **GitHub API**. As GitHub is a _single-source data provider_ at the moment, the connection name is read-only as there is only one instance to manage. As we continue our development roadmap we may enable _multi-source_ connections for GitHub in the future.
 
+![connection-in-config-ui](connection-in-config-ui.png)
+
 - **Connection Name** [`READONLY`]
   - ⚠️ Defaults to "**Github**" and may not be changed.
 - **Endpoint URL** (REST URL, starts with `https://` or `http://`)
@@ -41,13 +34,14 @@ The connection aspect of the configuration screen requires the following key fie
   - ⚠️ URL should end with`/`
 - **Auth Token(s)** (Personal Access Token)
   - For help on **Creating a personal access token**, please see official [GitHub Docs on Personal Tokens](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/creating-a-personal-access-token)
-  - Provide at least one token for Authentication with the . This field accepts a comma-separated list of values for multiple tokens. The data collection will take longer for GitHub since they have a **rate limit of 2k requests per hour**. You can accelerate the process by configuring _multiple_ personal access tokens.
+  - Provide at least one token for Authentication.
+  - This field accepts a comma-separated list of values for multiple tokens. The data collection will take longer for GitHub since they have a **rate limit of 5k requests per hour**. You can accelerate the process by configuring _multiple_ personal access tokens.
     
-"For API requests using `Basic Authentication` or `OAuth`, you can make up to 5,000 requests per hour."
+"For API requests using `Basic Authentication` or `OAuth`, you can make up to [5,000 requests](https://docs.github.com/en/rest/overview/resources-in-the-rest-api#rate-limiting) per hour."
 
 - https://docs.github.com/en/rest/overview/resources-in-the-rest-api
 
-If you have a need for more api rate limits, you can set many tokens in the config file and we will use all of your tokens.
+If you have a need for more api rate limits, you can set many tokens in the config file, and we will use all of your tokens.
 
 NOTE: You can get 15000 requests/hour/token if you pay for `GitHub` enterprise.
     

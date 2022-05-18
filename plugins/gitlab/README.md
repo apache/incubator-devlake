@@ -1,32 +1,25 @@
 # Gitlab Pond
 
-<div align="center">
-
-| [English](README.md) | [中文](README-zh-CN.md) |
-| --- | --- |
-
-</div>
-
-<br>
-
 ## Metrics
 
-Metric Name | Description
-:------------ | :-------------
-Pull Request Count | Number of Pull/Merge Requests
-Pull Request Pass Rate | Ratio of Pull/Merge Review requests to merged
-Pull Request Reviewer Count | Number of Pull/Merge Reviewers
-Pull Request Review Time | Time from Pull/Merge created time until merged
-Commit Author Count | Number of Contributors
-Commit Count | Number of Commits
-Added Lines | Accumulated Number of New Lines
-Deleted Lines | Accumulated Number of Removed Lines
-Pull Request Review Rounds | Number of cycles of commits followed by comments/final merge
+| Metric Name                 | Description                                                  |
+|:----------------------------|:-------------------------------------------------------------|
+| Pull Request Count          | Number of Pull/Merge Requests                                |
+| Pull Request Pass Rate      | Ratio of Pull/Merge Review requests to merged                |
+| Pull Request Reviewer Count | Number of Pull/Merge Reviewers                               |
+| Pull Request Review Time    | Time from Pull/Merge created time until merged               |
+| Commit Author Count         | Number of Contributors                                       |
+| Commit Count                | Number of Commits                                            |
+| Added Lines                 | Accumulated Number of New Lines                              |
+| Deleted Lines               | Accumulated Number of Removed Lines                          |
+| Pull Request Review Rounds  | Number of cycles of commits followed by comments/final merge |
 
 ## Configuration
 
 ### Provider (Datasource) Connection
 The connection aspect of the configuration screen requires the following key fields to connect to the **GitLab API**. As GitLab is a _single-source data provider_ at the moment, the connection name is read-only as there is only one instance to manage. As we continue our development roadmap we may enable _multi-source_ connections for GitLab in the future.
+
+![connection-in-config-ui](connection-in-config-ui.png)
 
 - **Connection Name** [`READONLY`]
   - ⚠️ Defaults to "**Gitlab**" and may not be changed.

@@ -1,6 +1,6 @@
 # Why
 
-We have Jira/TAPD for **Project Management**, we have Github/Gitlab/BitBucket for **Code Hosting**, that is, we have
+We have Jira/TAPD for **Project Management**, we have GitHub/Gitlab/BitBucket for **Code Hosting**, that is, we have
 multiple _Platforms_ for a certain type of problem. So, how can we calculate metrics across different _Platforms_?
 
 For example, some users may use Jira as their **Project Management** platform, the others might opt for TAPD, if we
