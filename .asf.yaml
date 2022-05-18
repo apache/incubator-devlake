@@ -16,7 +16,7 @@
 #  under the License.
 
 github:
-  description: "Apache Devlake Website"
+  description: "Apache DevLake is an open-source dev data platform that ingests, analyzes, and visualizes the fragmented data from DevOps tools to distill insights for engineering productivity."
   homepage: https://devlake.apache.org/
   features:
     issues: false
@@ -27,10 +27,8 @@ github:
   enabled_merge_buttons:
     squash:  true
     merge:   false
-    rebase:  false
+    rebase:  true
 
-publish:
-  whoami: asf-site
 notifications:
   commits: commits@devlake.apache.org
   issues:  commits@devlake.apache.org
