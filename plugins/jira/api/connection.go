@@ -267,7 +267,7 @@ func DeleteConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, er
 		return nil, err
 	}
 	// cascading delete
-	err = db.Where("connection_id = ?", jiraConnectionID).Delete(&models.JiraConnection{}).Error
+	err = db.Where("id = ?", jiraConnectionID).Delete(&models.JiraConnection{}).Error
 	if err != nil {
 		return nil, err
 	}
