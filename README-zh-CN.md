@@ -6,8 +6,8 @@
 
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat&logo=github&color=2370ff&labelColor=454545)](http://makeapullrequest.com)
 [![Discord](https://img.shields.io/discord/844603288082186240.svg?style=flat?label=&logo=discord&logoColor=ffffff&color=747df7&labelColor=454545)](https://discord.gg/83rDG6ydVZ)
-![badge](https://github.com/merico-dev/lake/actions/workflows/test.yml/badge.svg)
-[![Go Report Card](https://goreportcard.com/badge/github.com/merico-dev/lake)](https://goreportcard.com/report/github.com/merico-dev/lake)
+![badge](https://github.com/apache/incubator-devlake/actions/workflows/test.yml/badge.svg)
+[![Go Report Card](https://goreportcard.com/badge/github.com/apache/incubator-devlake)](https://goreportcard.com/report/github.com/apache/incubator-devlake)
 
 
 | [English](README.md) | 中文 |
@@ -45,8 +45,8 @@ DevLake 适用于希望更好地通过数据了解其开发过程的开发团队
 
 ### DevLake 可以完成什么?
 1. 归集 DevOps 全流程效能数据，连接数据孤岛
-2. 标准的<a href="https://github.com/merico-dev/lake/wiki/DataModel.Domain-layer-schema" target="_blank">研发数据模型</a>和开箱即用的<a href="https://github.com/merico-dev/lake/wiki/Metric-Cheatsheet" target="_blank">效能指标</a>
-3. 灵活的数据收集、ETL的<a href="https://github.com/merico-dev/lake/blob/main/ARCHITECTURE.md">框架</a>，支持自定义分析
+2. 标准的<a href="https://github.com/apache/incubator-devlake/wiki/DataModel.Domain-layer-schema" target="_blank">研发数据模型</a>和开箱即用的<a href="https://github.com/apache/incubator-devlake/wiki/Metric-Cheatsheet" target="_blank">效能指标</a>
+3. 灵活的数据收集、ETL的<a href="https://github.com/apache/incubator-devlake/blob/main/ARCHITECTURE.md">框架</a>，支持自定义分析
 
 
 
@@ -67,7 +67,7 @@ DevLake 适用于希望更好地通过数据了解其开发过程的开发团队
 
 - 如果你只打算运行 DevLake，你只需要阅读这一小节<br>
 - 本节描述了 2 种安装方式，[本地安装](#local-setup)和[Kubernetes安装](#k8s-setup)
-- 如果你想在云端安装 DevLake，你可以参考[安装手册](https://github.com/merico-dev/lake/wiki/How-to-Set-Up-Dev-Lake-with-Tin-zh-CN)，点击 <a valign="middle" href="https://www.teamcode.com/tin/clone?applicationId=259777118600769536">
+- 如果你想在云端安装 DevLake，你可以参考[安装手册](https://github.com/apache/incubator-devlake/wiki/How-to-Set-Up-Dev-Lake-with-Tin-zh-CN)，点击 <a valign="middle" href="https://www.teamcode.com/tin/clone?applicationId=259777118600769536">
         <img
           src="https://static01.teamcode.com/badge/teamcode-badge-run-in-cloud-cn.svg"
           width="120px"
@@ -89,7 +89,7 @@ DevLake 适用于希望更好地通过数据了解其开发过程的开发团队
 
 **IMPORTANT（新用户可以忽略）: DevLake暂不支持向前兼容。当 DB Schema 发生变化时，直接更新已有实例可能出错，建议已经安装 DevLake 的用户在升级时，重新部署实例并导入数据。**
 
-1. 在[最新版本列表](https://github.com/merico-dev/lake/releases/latest) 下载 `docker-compose.yml` 和 `env.example`
+1. 在[最新版本列表](https://github.com/apache/incubator-devlake/releases/latest) 下载 `docker-compose.yml` 和 `env.example`
 2. 将 `env.example` 重命名为 `.env`。Mac/Linux 用户请在命令行里运行 `mv env.example .env` 来完成修改
 3. 启动 Docker，然后运行 `docker-compose up -d` 启动服务
 4. 访问 `localhost:4000` 来设置 DevLake 的配置文件
@@ -131,11 +131,11 @@ DevLake 适用于希望更好地通过数据了解其开发过程的开发团队
    >   ]
    >   ```
    
-   请参考这篇 wiki [How to trigger data collection](https://github.com/merico-dev/lake/wiki/How-to-use-the-triggers-page).
+   请参考这篇 wiki [How to trigger data collection](https://github.com/apache/incubator-devlake/wiki/How-to-use-the-triggers-page).
 
 6. 数据收集完成后，点击配置页面左上角的 *View Dashboards* 按钮或者访问 `localhost:3002`，访问 Grafana (用户名: `admin`, 密码: `admin`)
 
-   我们使用 <a href="https://grafana.com/" target="_blank">Grafana</a> 作为可视化工具，为存储在<a href="https://github.com/merico-dev/lake/wiki/DataModel.Domain-layer-schema">我们数据库中的数据</a>建立图表。可以使用SQL查询，添加面板来构建、保存和编辑自定义仪表盘。
+   我们使用 <a href="https://grafana.com/" target="_blank">Grafana</a> 作为可视化工具，为存储在<a href="https://github.com/apache/incubator-devlake/wiki/DataModel.Domain-layer-schema">我们数据库中的数据</a>建立图表。可以使用SQL查询，添加面板来构建、保存和编辑自定义仪表盘。
 
    关于配置和定制仪表盘的所有细节可以在 [Grafana 文档](docs/GRAFANA.md) 中找到。
 
@@ -150,7 +150,7 @@ DevLake 适用于希望更好地通过数据了解其开发过程的开发团队
 你也可以选择将 DevLake 部署到 Kubernetes 集群。这个操作只有一个前提条件，就是你有一套可以用的 Kubernetes 集群，并且确保本地 kubeconfig 配置正确。接着执行如下命令完成部署：
 
 ```sh
-kubectl apply -f https://raw.githubusercontent.com/merico-dev/lake/main/k8s-deploy.yaml
+kubectl apply -f https://raw.githubusercontent.com/apache/incubator-devlake/main/k8s-deploy.yaml
 ```
 
 接下来的设置与上一节 docker-compose 方式部署一致，需要注意的点是由于 Kubernetes 默认 NodePort 端口范围的限制，所以：
@@ -175,7 +175,7 @@ kubectl apply -f https://raw.githubusercontent.com/merico-dev/lake/main/k8s-depl
 1. 进入你想安装本项目的路径，并克隆资源库
 
    ```sh
-   git clone https://github.com/merico-dev/lake.git
+   git clone https://github.com/apache/incubator-devlake.git
    cd lake
    ```
 
@@ -254,12 +254,12 @@ kubectl apply -f https://raw.githubusercontent.com/merico-dev/lake/main/k8s-depl
    >   ]
    >   ```
 
-   请参考这篇 wiki [How to trigger data collection](https://github.com/merico-dev/lake/wiki/How-to-use-the-triggers-page).
+   请参考这篇 wiki [How to trigger data collection](https://github.com/apache/incubator-devlake/wiki/How-to-use-the-triggers-page).
 
 
 9. 数据收集完成后，点击配置页面左上角的 *View Dashboards* 按钮或者访问 `localhost:3002`(用户名: `admin`, 密码: `admin`)
 
-   我们使用 <a href="https://grafana.com/" target="_blank">Grafana</a> 作为可视化工具，为存储在<a href="https://github.com/merico-dev/lake/wiki/DataModel.Domain-layer-schema">我们数据库中的数据</a>建立图表。可以使用SQL查询，添加面板来构建、保存和编辑自定义仪表盘。
+   我们使用 <a href="https://grafana.com/" target="_blank">Grafana</a> 作为可视化工具，为存储在<a href="https://github.com/apache/incubator-devlake/wiki/DataModel.Domain-layer-schema">我们数据库中的数据</a>建立图表。可以使用SQL查询，添加面板来构建、保存和编辑自定义仪表盘。
 
    关于配置和定制仪表盘的所有细节可以在 [Grafana 文档](docs/GRAFANA.md) 中找到。
 
@@ -273,14 +273,14 @@ kubectl apply -f https://raw.githubusercontent.com/merico-dev/lake/main/k8s-depl
 <br>
 
 ## 项目路线图
-- <a href="https://github.com/merico-dev/lake/wiki/Roadmap-2022" target="_blank">2022年路线图</a>: 2022年的目标和路线图
+- <a href="https://github.com/apache/incubator-devlake/wiki/Roadmap-2022" target="_blank">2022年路线图</a>: 2022年的目标和路线图
 - DevLake 已经支持的数据源：
     - <a href="plugins/jira/README.md" target="_blank">Jira(Cloud)</a>
     - <a href="plugins/gitextractor/README.md" target="_blank">Git</a>
     - <a href="plugins/github/README.md" target="_blank">GitHub</a>
     - <a href="plugins/gitlab/README.md" target="_blank">GitLab(Cloud)</a>
     - <a href="plugins/jenkins/README.md" target="_blank">Jenkins</a>
-- <a href="https://github.com/merico-dev/lake/wiki/Metric-Cheatsheet" target="_blank">已经支持的指标</a>: 为观测和分析提供不同的视角
+- <a href="https://github.com/apache/incubator-devlake/wiki/Metric-Cheatsheet" target="_blank">已经支持的指标</a>: 为观测和分析提供不同的视角
 
 <br>
 
@@ -297,7 +297,7 @@ kubectl apply -f https://raw.githubusercontent.com/merico-dev/lake/main/k8s-depl
 ## 社区
 
 - <a href="https://discord.com/invite/83rDG6ydVZ" target="_blank">Discord</a>: 在 Discord 上给我们发消息
-- <a href="https://github.com/merico-dev/lake/wiki/FAQ" target="_blank">FAQ</a>: 常见问题汇总
+- <a href="https://github.com/apache/incubator-devlake/wiki/FAQ" target="_blank">FAQ</a>: 常见问题汇总
 - <div>微信用户群二维码
 ![](wechat_group_qr_code.png)</div>
 <br>
