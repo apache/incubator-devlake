@@ -147,3 +147,7 @@ vendor
 bin
 libgit2
 .air.toml
+
+#swagger .json and .yaml
+api/docs/swagger.json
+api/docs/swagger.yaml
