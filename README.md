@@ -22,13 +22,6 @@ Apache DevLake is designed for developer teams looking to make better sense of t
 See [demo](https://grafana-lake.demo.devlake.io/d/0Rjxknc7z/demo-homepage?orgId=1). The data in the demo comes from this repo.
 
 
-#### Get started with just a few clicks
-<table>
-  <tr>
-    <td valign="middle"><a href="#user-setup">Run Apache DevLake</a></td>
-  </tr>
-</table>
-
 <br/>
 
 <div align="left">
