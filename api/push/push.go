@@ -22,6 +22,7 @@ import (
 // @Tags push
 // @Accept application/json
 // @Param tableName path string true "table name"
+// @Param data body string true "data"
 // @Success 200  {object} gin.H "{"rowsAffected": rowsAffected}"
 // @Failure 400  {string} errcode.Error "Bad Request"
 // @Failure 500  {string} errcode.Error "Internel Error"
