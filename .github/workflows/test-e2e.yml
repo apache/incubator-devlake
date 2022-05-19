@@ -26,9 +26,9 @@ jobs:
           MYSQL_ROOT_PASSWORD: root
     container: mericodev/lake-builder:0.0.4
     steps:
-      - uses: actions/checkout@v3
       - run: |
           apk add --no-cache tar
+      - uses: actions/checkout@v3
       - name: Cache test-e2e
         id: cache-test-e2e
         uses: actions/cache@v3
