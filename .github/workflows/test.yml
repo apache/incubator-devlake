@@ -1,17 +1,42 @@
-on: [pull_request]
 name: unit-test
+
+on:
+  pull_request:
+    branches: [ main ]
+    paths:
+      - '**.go'
+      - 'Makefile'
+      - 'go.mod'
+      - 'go.sum'
+      - '.github/workflows/*.yml'
+      - 'test/**'
 jobs:
   test:
     strategy:
       matrix:
-        #go-version: [1.16.x]
         os: [ubuntu-latest]
     runs-on: ${{ matrix.os }}
     container:
       image: mericodev/lake-builder:0.0.4
     steps:
+    - run: |
+        apk add --no-cache tar
     - name: Checkout code
-      uses: actions/checkout@v2
+      uses: actions/checkout@v3
+    - name: Setup Golang env
+      uses: actions/setup-go@v3
+      with:
+        go-version: ${{ matrix.go }}
+    - name: Cache unit-test
+      id: cache-unit-test
+      uses: actions/cache@v3
+      with:
+        path: |
+          ~/.cache/go-build
+          ~/go/pkg/mod
+        key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
+        restore-keys: |
+          ${{ runner.os }}-go-
     - name: Unit tests
       run: |
         make unit-test
