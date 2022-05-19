@@ -1,0 +1,34 @@
+linters-settings:
+  goheader:
+    template-path: .golangci-goheader.template
+
+linters:
+  disable-all: true
+  # https://golangci-lint.run/usage/linters/
+  enable:
+    - deadcode
+    - errcheck
+    - gosimple
+    - govet
+    - ineffassign
+    - staticcheck
+    - structcheck
+    - unused
+    - varcheck
+    - exhaustive
+    - funlen
+    - goconst
+    - goheader
+    - goimports
+    - gomnd
+    - gosec
+    - importas
+    - lll
+    - misspell
+    - nestif
+    - prealloc
+    - tagliatelle
+    - revive
+    - dupl
+    - makezero
+    - stylecheck
