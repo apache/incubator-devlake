@@ -73,7 +73,7 @@ This section lists all the documents to help you contribute to the repo.
 
 ## Community
 
-- <a href="https://join.slack.com/t/devlake-io/shared_invite/zt-17b6vuvps-x98pqseoUagM7EAmKC82xQ" target="_blank">Slack</a>: Message us on Slack
+- <a href="https://join.slack.com/t/devlake-io/shared_invite/zt-18uayb6ut-cHOjiYcBwERQ8VVPZ9cQQw" target="_blank">Slack</a>: Message us on Slack
 - <a href="https://github.com/apache/incubator-devlake/wiki/FAQ" target="_blank">FAQ</a>: Frequently Asked Questions
 - Wechat Community:<br>
   ![](img/wechat_community_barcode.png)
