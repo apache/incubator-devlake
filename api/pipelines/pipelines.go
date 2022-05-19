@@ -24,9 +24,17 @@ POST /pipelines
 */
 // @Summary Create and run a new pipeline
 // @Description Create and run a new pipeline
+// @Description RETURN SAMPLE
+// @Description {
+// @Description 	"name": "name-of-pipeline",
+// @Description 	"tasks": [
+// @Description 		[ {"plugin": "gitlab", ...}, {"plugin": "jira"} ],
+// @Description 		[ {"plugin": "github", ...}],
+// @Description 	]
+// @Description }
 // @Tags pipelines
 // @Accept application/json
-// @Param pipeline body string true "pipline is json format"
+// @Param pipeline body string true "json"
 // @Success 200  {object} models.Pipeline
 // @Failure 400  {string} errcode.Error "Bad Request"
 // @Failure 500  {string} errcode.Error "Internel Error"
@@ -66,6 +74,13 @@ GET /pipelines?status=TASK_RUNNING&pending=1&page=1&pagesize=10
 
 // @Summary Get list of pipelines
 // @Description GET /pipelines?status=TASK_RUNNING&pending=1&page=1&pagesize=10
+// @Description RETURN SAMPLE
+// @Description {
+// @Description 	"pipelines": [
+// @Description 		{"id": 1, "name": "test-pipeline", ...}
+// @Description 	],
+// @Description 	"count": 5
+// @Description }
 // @Tags pipelines
 // @Param status query string true "query"
 // @Param pending query int true "query"
@@ -101,6 +116,12 @@ GET /pipelines/:pipelineId
 */
 // @Get detail of a pipeline
 // @Description GET /pipelines/:pipelineId
+// @Description RETURN SAMPLE
+// @Description {
+// @Description 	"id": 1,
+// @Description 	"name": "test-pipeline",
+// @Description 	...
+// @Description }
 // @Tags pipelines
 // @Param pipelineId path int true "query"
 // @Success 200  {object} models.Pipeline
@@ -127,9 +148,9 @@ Cancel a pending pipeline
 DELETE /pipelines/:pipelineId
 */
 // @Cancel a pending pipeline
-// @Description DELETE /pipelines/:pipelineId
+// @Description Cancel a pending pipeline
 // @Tags pipelines
-// @Param pipelineId path int true "id of your pipline"
+// @Param pipelineId path int true "pipeline ID"
 // @Success 200
 // @Failure 400  {string} errcode.Error "Bad Request"
 // @Failure 500  {string} errcode.Error "Internel Error"

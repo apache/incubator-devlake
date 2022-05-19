@@ -7,9 +7,9 @@ import (
 )
 
 // @Summary Ping
-// @Description Check if http status is OK
+// @Description check http status
 // @Tags Ping
-// @Success 200  "OK"
+// @Success 200
 // @Failure 400  {string} errcode.Error "Bad Request"
 // @Failure 500  {string} errcode.Error "Internel Error"
 // @Router /ping [get]
