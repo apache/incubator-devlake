@@ -15,7 +15,7 @@ type Config struct {
 	IssuePriority        string `mapstructure:"issuePriority" env:"GITHUB_ISSUE_PRIORITY" json:"issuePriority"`
 	IssueComponent       string `mapstructure:"issueComponent" env:"GITHUB_ISSUE_COMPONENT" json:"issueComponent"`
 	IssueTypeBug         string `mapstructure:"issueTypeBug" env:"GITHUB_ISSUE_TYPE_BUG" json:"issueTypeBug"`
-	IssueTypeIncident    string `mapstructure:"typeIncident" env:"GITHUB_ISSUE_TYPE_INCIDENT" json:"typeIncident"`
+	IssueTypeIncident    string `mapstructure:"issueTypeIncident" env:"GITHUB_ISSUE_TYPE_INCIDENT" json:"issueTypeIncident"`
 	IssueTypeRequirement string `mapstructure:"issueTypeRequirement" env:"GITHUB_ISSUE_TYPE_REQUIREMENT" json:"issueTypeRequirement"`
 }
 

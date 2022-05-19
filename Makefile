@@ -44,6 +44,9 @@ unit-test: build
 e2e-test: build
 	PLUGIN_DIR=$(shell readlink -f bin/plugins) go test -v ./test/...
 
+e2e-plugins:
+	export ENV_PATH=$(shell readlink -f .env); set -e; for m in $$(go list ./plugins/... | egrep 'e2e'); do echo $$m; go test -gcflags=all=-l -v $$m; done
+
 real-e2e-test:
 	PLUGIN_DIR=$(shell readlink -f bin/plugins) go test -v ./e2e/...
 
