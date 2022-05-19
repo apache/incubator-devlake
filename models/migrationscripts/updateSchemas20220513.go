@@ -68,7 +68,10 @@ func (*updateSchemas20220513) Up(ctx context.Context, db *gorm.DB) error {
 		return err
 	}
 	// 4. rename the temporary table to the old table
-	db.Migrator().RenameTable(RefsIssuesDiffs20220513{}, RefsIssuesDiffsNew{})
+	err = db.Migrator().RenameTable(RefsIssuesDiffs20220513{}, RefsIssuesDiffsNew{})
+	if err != nil {
+		return err
+	}
 
 	return nil
 }

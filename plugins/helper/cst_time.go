@@ -22,6 +22,9 @@ func (jt *CSTTime) UnmarshalJSON(b []byte) error {
 		timeString = fmt.Sprintf("%s 00:00:00", timeString)
 	}
 	cstZone, err := time.LoadLocation("Asia/Shanghai")
+	if err != nil {
+		return err
+	}
 	t, err := time.ParseInLocation("2006-01-02 15:04:05", timeString, cstZone)
 	if err != nil {
 		return err

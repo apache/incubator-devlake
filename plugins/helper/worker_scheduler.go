@@ -35,6 +35,9 @@ func NewWorkerScheduler(workerNum int, maxWork int, maxWorkDuration time.Duratio
 		workerErrors = append(*pWorkerErrors, i.(error))
 		pWorkerErrors = &workerErrors
 	}))
+	if err != nil {
+		return nil, err
+	}
 	subPool, err := ants.NewPool(workerNum*maxRetry, ants.WithPanicHandler(func(i interface{}) {
 		mux.Lock()
 		defer mux.Unlock()

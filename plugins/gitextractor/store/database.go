@@ -10,7 +10,7 @@ import (
 const BathSize = 100
 
 type Database struct {
-	db     *gorm.DB
+	//db     *gorm.DB
 	driver *helper.BatchSaveDivider
 }
 

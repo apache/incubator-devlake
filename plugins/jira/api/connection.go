@@ -296,8 +296,11 @@ func ListConnections(input *core.ApiResourceInput) (*core.ApiResourceOutput, err
 	if err != nil {
 		return nil, err
 	}
-	for i, _ := range jiraConnections {
+	for i := range jiraConnections {
 		jiraConnections[i].BasicAuthEncoded, err = core.Decrypt(encKey, jiraConnections[i].BasicAuthEncoded)
+		if err != nil {
+			return nil, err
+		}
 	}
 	return &core.ApiResourceOutput{Body: jiraConnections}, nil
 }

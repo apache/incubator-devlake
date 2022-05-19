@@ -47,7 +47,10 @@ func DirectRun(cmd *cobra.Command, args []string, pluginTask core.PluginTask, op
 		panic(err)
 	}
 
-	exec.Command("stty", "-F", "/dev/tty", "cbreak", "min", "1").Run()
+	err = exec.Command("stty", "-F", "/dev/tty", "cbreak", "min", "1").Run()
+	if err != nil {
+		panic(err)
+	}
 	ctx, cancel := context.WithCancel(context.Background())
 	go func() {
 		buf := make([]byte, 1)

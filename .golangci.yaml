@@ -1,10 +1,7 @@
-linters-settings:
-  goheader:
-    template-path: .golangci-goheader.template
 
+# https://golangci-lint.run/usage/linters/
 linters:
   disable-all: true
-  # https://golangci-lint.run/usage/linters/
   enable:
     - deadcode
     - errcheck
@@ -13,22 +10,41 @@ linters:
     - ineffassign
     - staticcheck
     - structcheck
+    - typecheck
     - unused
     - varcheck
-    - exhaustive
-    - funlen
-    - goconst
+#    - exhaustive
+#    - funlen
+#    - goconst
     - goheader
-    - goimports
-    - gomnd
-    - gosec
+#    - goimports
+#    - gomnd
+#    - gosec
     - importas
-    - lll
-    - misspell
-    - nestif
-    - prealloc
-    - tagliatelle
-    - revive
-    - dupl
+#    - lll
+#    - misspell
+#    - nestif
+#    - prealloc
+#    - tagliatelle
+#    - revive
+#    - dupl
     - makezero
-    - stylecheck
+#    - stylecheck
+
+linters-settings:
+  goheader:
+    template-path: /Users/lin/projects/lake/.golangci-goheader.template
+
+# Options for analysis running.
+run:
+  # The default concurrency value is the number of available CPU.
+  concurrency: 4
+  # Timeout for analysis, e.g. 30s, 5m.
+  # Default: 1m
+  timeout: 5m
+  # Exit code when at least one issue was found.
+  # Default: 1
+  issues-exit-code: 2
+  # Include test files or not.
+  # Default: true
+  tests: false

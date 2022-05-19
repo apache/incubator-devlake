@@ -48,7 +48,10 @@ type DataFlowTester struct {
 
 // NewDataFlowTester create a *DataFlowTester to help developer test their subtasks data flow
 func NewDataFlowTester(t *testing.T, pluginName string, pluginMeta core.PluginMeta) *DataFlowTester {
-	core.RegisterPlugin(pluginName, pluginMeta)
+	err := core.RegisterPlugin(pluginName, pluginMeta)
+	if err != nil {
+		panic(err)
+	}
 	cfg := config.GetConfig()
 	db, err := runner.NewGormDb(cfg, logger.Global)
 	if err != nil {
@@ -97,7 +100,10 @@ func (t *DataFlowTester) FlushTable(tableName string) {
 // Subtask executes specified subtasks
 func (t *DataFlowTester) Subtask(subtaskMeta core.SubTaskMeta, taskData interface{}) {
 	subtaskCtx := helper.NewStandaloneSubTaskContext(t.Cfg, t.Log, t.Db, context.Background(), t.Name, taskData)
-	subtaskMeta.EntryPoint(subtaskCtx)
+	err := subtaskMeta.EntryPoint(subtaskCtx)
+	if err != nil {
+		panic(err)
+	}
 }
 
 // VerifyTable reads rows from csv file and compare with records from database one by one. You must specified the
