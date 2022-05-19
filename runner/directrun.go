@@ -19,6 +19,11 @@ func RunCmd(cmd *cobra.Command) {
 	}
 }
 
+// DirectRun direct run plugin from command line.
+// cmd: type is cobra.Command
+// args: command line arguments
+// pluginTask: specific built-in plugin, for example: feishu, jira...
+// options: plugin config
 func DirectRun(cmd *cobra.Command, args []string, pluginTask core.PluginTask, options map[string]interface{}) {
 	tasks, err := cmd.Flags().GetStringSlice("tasks")
 	if err != nil {
