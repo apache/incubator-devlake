@@ -9,6 +9,13 @@ jobs:
     runs-on: ubuntu-20.04
     steps:
     - uses: actions/checkout@v2
+    - name: Cache Build-Images-Push-Docker
+      id: cache-Build-Images-Push-Docker
+      uses: actions/cache@v3
+      with:
+        path: Build-Images-Push-Docker
+        key: ${{ runner.os }}-Build-Images-Push-Docker
+
     - uses: docker/login-action@f054a8b539a109f9f41c372932f1ae047eff08c9
       with:
         username: ${{ secrets.DOCKER_REGISTRY_USERNAME }}
@@ -25,6 +32,12 @@ jobs:
     runs-on: ubuntu-20.04
     steps:
     - uses: actions/checkout@v2
+    - name: Cache config-ui
+      id: cache-config-ui
+      uses: actions/cache@v3
+      with:
+        path: config-ui
+        key: ${{ runner.os }}-config-ui
     - uses: docker/login-action@f054a8b539a109f9f41c372932f1ae047eff08c9
       with:
         username: ${{ secrets.DOCKER_REGISTRY_USERNAME }}
@@ -42,6 +55,12 @@ jobs:
     runs-on: ubuntu-20.04
     steps:
     - uses: actions/checkout@v2
+    - name: Cache grafana
+      id: cache-grafana
+      uses: actions/cache@v3
+      with:
+        path: grafana
+        key: ${{ runner.os }}-grafana
     - uses: docker/login-action@f054a8b539a109f9f41c372932f1ae047eff08c9
       with:
         username: ${{ secrets.DOCKER_REGISTRY_USERNAME }}

@@ -5,6 +5,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
+    - name: Cache Frontend-Lint
+      id: cache-Frontend-Lint
+      uses: actions/cache@v3
+      with:
+        path: Frontend-Lint
+        key: ${{ runner.os }}-Frontend-Lint
     - name: Install modules
       run: cd config-ui; npm i
     - name: Run ESLint

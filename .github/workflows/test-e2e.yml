@@ -1,6 +1,18 @@
 # This action run e2e test for pull requests
 name: test-e2e
-on: [pull_request]
+on:
+  pull_request:
+    branches: [ main ]
+    paths:
+      - '**.go'
+      - 'Makefile'
+      - 'go.mod'
+      - 'go.sum'
+      - '.github/workflows/*.yml'
+      - 'test/**'
+      - 'e2e/**'
+      - 'devops/**'
+      - 'config-ui/**'
 jobs:
   e2e-mysql:
     runs-on: ubuntu-latest
@@ -15,6 +27,18 @@ jobs:
     container: mericodev/lake-builder:0.0.4
     steps:
       - uses: actions/checkout@v3
+      - run: |
+          apk add --no-cache tar
+      - name: Cache test-e2e
+        id: cache-test-e2e
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.cache/go-build
+            ~/go/pkg/mod
+          key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
+          restore-keys: |
+            ${{ runner.os }}-go-
       - name: Test
         env:
           DB_URL: mysql://root:root@db:3306/lake?charset=utf8mb4&loc=Asia%2fShanghai&parseTime=True
