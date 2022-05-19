@@ -21,6 +21,13 @@ GET /pipelines/pipeline:id/tasks?status=TASK_RUNNING&pending=1&page=1&=pagesize=
 */
 // @Summary Get task
 // @Description get task
+// @Description SAMPLE
+// @Description {
+// @Description 	"tasks": [
+// @Description 		{"id": 1, "plugin": "", ...}
+// @Description 	],
+// @Description 	"count": 5
+// @Description }
 // @Tags task
 // @Accept application/json
 // @Param pipelineId path int true "pipelineId"

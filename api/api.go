@@ -17,7 +17,6 @@ import (
 // @description  <h2>This is the main page of devlake api</h2>
 // sdfasdfasd
 // @license.name Apache-2.0
-// @license.url https://www.baidu.com
 // @host localhost:8080
 // @BasePath /
 func CreateApiService() {

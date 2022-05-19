@@ -11,9 +11,9 @@ import (
 	"github.com/merico-dev/lake/services"
 )
 
-// @Summary Post BluePrints
-// @Description Post BluePrints
-// @Tags blueprints
+// @Summary post blueprints
+// @Description post blueprints
+// @Tags Blueprints
 // @Accept application/json
 // @Param blueprint body string true "json"
 // @Success 200  {object} models.Blueprint
@@ -38,11 +38,11 @@ func Post(c *gin.Context) {
 	shared.ApiOutputSuccess(c, blueprint, http.StatusCreated)
 }
 
-// @Summary Get BluePrints
-// @Description Get BluePrints
-// @Tags blueprints
+// @Summary get blueprints
+// @Description get blueprints
+// @Tags Blueprints
 // @Accept application/json
-// @Success 200  {object} models.Blueprint
+// @Success 200  {object} gin.H
 // @Failure 400  {string} errcode.Error "Bad Request"
 // @Failure 500  {string} errcode.Error "Internel Error"
 // @Router /blueprints [get]
@@ -61,9 +61,9 @@ func Index(c *gin.Context) {
 	shared.ApiOutputSuccess(c, gin.H{"blueprints": blueprints, "count": count}, http.StatusOK)
 }
 
-// @Summary get BluePrints
-// @Description get BluePrints
-// @Tags blueprints
+// @Summary get blueprints
+// @Description get blueprints
+// @Tags Blueprints
 // @Accept application/json
 // @Param blueprintId path int true "blueprint id"
 // @Success 200  {object} models.Blueprint
@@ -85,9 +85,9 @@ func Get(c *gin.Context) {
 	shared.ApiOutputSuccess(c, blueprint, http.StatusOK)
 }
 
-// @Summary Delete BluePrints
+// @Summary delete blueprints
 // @Description Delete BluePrints
-// @Tags blueprints
+// @Tags Blueprints
 // @Param blueprintId path string true "blueprintId"
 // @Success 200
 // @Failure 400  {string} errcode.Error "Bad Request"
@@ -131,9 +131,9 @@ func Put(c *gin.Context) {
 }
 */
 
-// @Summary Patch BluePrints
-// @Description Patch BluePrints
-// @Tags blueprints
+// @Summary patch blueprints
+// @Description patch blueprints
+// @Tags Blueprints
 // @Accept application/json
 // @Param blueprintId path string true "blueprintId"
 // @Success 200  {object} models.Blueprint

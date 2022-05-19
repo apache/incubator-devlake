@@ -12,8 +12,7 @@ const docTemplate = `{
         "title": "{{.Title}}",
         "contact": {},
         "license": {
-            "name": "Apache-2.0",
-            "url": "https://www.baidu.com"
+            "name": "Apache-2.0"
         },
         "version": "{{.Version}}"
     },
@@ -22,19 +21,19 @@ const docTemplate = `{
     "paths": {
         "/blueprints": {
             "get": {
-                "description": "Get BluePrints",
+                "description": "get blueprints",
                 "consumes": [
                     "application/json"
                 ],
                 "tags": [
-                    "blueprints"
+                    "Blueprints"
                 ],
-                "summary": "Get BluePrints",
+                "summary": "get blueprints",
                 "responses": {
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/models.Blueprint"
+                            "$ref": "#/definitions/gin.H"
                         }
                     },
                     "400": {
@@ -52,14 +51,14 @@ const docTemplate = `{
                 }
             },
             "post": {
-                "description": "Post BluePrints",
+                "description": "post blueprints",
                 "consumes": [
                     "application/json"
                 ],
                 "tags": [
-                    "blueprints"
+                    "Blueprints"
                 ],
-                "summary": "Post BluePrints",
+                "summary": "post blueprints",
                 "parameters": [
                     {
                         "description": "json",
@@ -95,14 +94,14 @@ const docTemplate = `{
         },
         "/blueprints/{blueprintId}": {
             "get": {
-                "description": "get BluePrints",
+                "description": "get blueprints",
                 "consumes": [
                     "application/json"
                 ],
                 "tags": [
-                    "blueprints"
+                    "Blueprints"
                 ],
-                "summary": "get BluePrints",
+                "summary": "get blueprints",
                 "parameters": [
                     {
                         "type": "integer",
@@ -136,9 +135,9 @@ const docTemplate = `{
             "delete": {
                 "description": "Delete BluePrints",
                 "tags": [
-                    "blueprints"
+                    "Blueprints"
                 ],
-                "summary": "Delete BluePrints",
+                "summary": "delete blueprints",
                 "parameters": [
                     {
                         "type": "string",
@@ -167,14 +166,14 @@ const docTemplate = `{
                 }
             },
             "patch": {
-                "description": "Patch BluePrints",
+                "description": "patch blueprints",
                 "consumes": [
                     "application/json"
                 ],
                 "tags": [
-                    "blueprints"
+                    "Blueprints"
                 ],
-                "summary": "Patch BluePrints",
+                "summary": "patch blueprints",
                 "parameters": [
                     {
                         "type": "string",
@@ -213,7 +212,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "domainlayer"
+                    "Domainlayer"
                 ],
                 "summary": "Get all repos from database",
                 "responses": {
@@ -240,14 +239,14 @@ const docTemplate = `{
         },
         "/ping": {
             "get": {
-                "description": "Check if http status is OK",
+                "description": "check http status",
                 "tags": [
                     "Ping"
                 ],
                 "summary": "Ping",
                 "responses": {
                     "200": {
-                        "description": "OK"
+                        "description": ""
                     },
                     "400": {
                         "description": "Bad Request",
@@ -266,7 +265,7 @@ const docTemplate = `{
         },
         "/pipelines": {
             "get": {
-                "description": "GET /pipelines?status=TASK_RUNNING\u0026pending=1\u0026page=1\u0026pagesize=10",
+                "description": "GET /pipelines?status=TASK_RUNNING\u0026pending=1\u0026page=1\u0026pagesize=10\nRETURN SAMPLE\n{\n\"pipelines\": [\n{\"id\": 1, \"name\": \"test-pipeline\", ...}\n],\n\"count\": 5\n}",
                 "tags": [
                     "pipelines"
                 ],
@@ -323,7 +322,7 @@ const docTemplate = `{
                 }
             },
             "post": {
-                "description": "Create and run a new pipeline",
+                "description": "Create and run a new pipeline\nRETURN SAMPLE\n{\n\"name\": \"name-of-pipeline\",\n\"tasks\": [\n[ {\"plugin\": \"gitlab\", ...}, {\"plugin\": \"jira\"} ],\n[ {\"plugin\": \"github\", ...}],\n]\n}",
                 "consumes": [
                     "application/json"
                 ],
@@ -333,7 +332,7 @@ const docTemplate = `{
                 "summary": "Create and run a new pipeline",
                 "parameters": [
                     {
-                        "description": "pipline is json format",
+                        "description": "json",
                         "name": "pipeline",
                         "in": "body",
                         "required": true,
@@ -366,7 +365,7 @@ const docTemplate = `{
         },
         "/pipelines/{pipelineId}": {
             "get": {
-                "description": "GET /pipelines/:pipelineId",
+                "description": "GET /pipelines/:pipelineId\nRETURN SAMPLE\n{\n\"id\": 1,\n\"name\": \"test-pipeline\",\n...\n}",
                 "tags": [
                     "pipelines"
                 ],
@@ -401,14 +400,14 @@ const docTemplate = `{
                 }
             },
             "delete": {
-                "description": "DELETE /pipelines/:pipelineId",
+                "description": "Cancel a pending pipeline",
                 "tags": [
                     "pipelines"
                 ],
                 "parameters": [
                     {
                         "type": "integer",
-                        "description": "id of your pipline",
+                        "description": "pipeline ID",
                         "name": "pipelineId",
                         "in": "path",
                         "required": true
@@ -435,7 +434,7 @@ const docTemplate = `{
         },
         "/pipelines/{pipelineId}/tasks": {
             "get": {
-                "description": "get task",
+                "description": "get task\nSAMPLE\n{\n\"tasks\": [\n{\"id\": 1, \"plugin\": \"\", ...}\n],\n\"count\": 5\n}",
                 "consumes": [
                     "application/json"
                 ],
@@ -491,6 +490,15 @@ const docTemplate = `{
                         "name": "tableName",
                         "in": "path",
                         "required": true
+                    },
+                    {
+                        "description": "data",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
                     }
                 ],
                 "responses": {
