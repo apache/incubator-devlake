@@ -3,7 +3,7 @@ package tasks
 import (
 	"net/http"
 
-	"github.com/merico-dev/lake/plugins/helper"
+	"github.com/apache/incubator-devlake/plugins/helper"
 )
 
 func GetTotalPagesFromResponse(res *http.Response, args *helper.ApiCollectorArgs) (int, error) {

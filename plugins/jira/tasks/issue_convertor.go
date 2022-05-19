@@ -5,12 +5,12 @@ import (
 	"path/filepath"
 	"reflect"
 
-	"github.com/merico-dev/lake/models/domainlayer"
-	"github.com/merico-dev/lake/models/domainlayer/didgen"
-	"github.com/merico-dev/lake/models/domainlayer/ticket"
-	"github.com/merico-dev/lake/plugins/core"
-	"github.com/merico-dev/lake/plugins/helper"
-	jiraModels "github.com/merico-dev/lake/plugins/jira/models"
+	"github.com/apache/incubator-devlake/models/domainlayer"
+	"github.com/apache/incubator-devlake/models/domainlayer/didgen"
+	"github.com/apache/incubator-devlake/models/domainlayer/ticket"
+	"github.com/apache/incubator-devlake/plugins/core"
+	"github.com/apache/incubator-devlake/plugins/helper"
+	jiraModels "github.com/apache/incubator-devlake/plugins/jira/models"
 )
 
 func ConvertIssues(taskCtx core.SubTaskContext) error {

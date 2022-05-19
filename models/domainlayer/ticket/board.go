@@ -1,10 +1,10 @@
 package ticket
 
 import (
-	"github.com/merico-dev/lake/models/common"
+	"github.com/apache/incubator-devlake/models/common"
 	"time"
 
-	"github.com/merico-dev/lake/models/domainlayer"
+	"github.com/apache/incubator-devlake/models/domainlayer"
 )
 
 type Board struct {

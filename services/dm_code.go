@@ -1,6 +1,6 @@
 package services
 
-import "github.com/merico-dev/lake/models/domainlayer/code"
+import "github.com/apache/incubator-devlake/models/domainlayer/code"
 
 func GetRepos() ([]*code.Repo, int64, error) {
 	repos := make([]*code.Repo, 0)

@@ -1,6 +1,6 @@
 package models
 
-import "github.com/merico-dev/lake/models/common"
+import "github.com/apache/incubator-devlake/models/common"
 
 type NotificationType string
 
@@ -19,7 +19,6 @@ type Notification struct {
 	Data         string
 }
 
-func (Notification) TableName() string{
+func (Notification) TableName() string {
 	return "_devlake_notifications"
 }
-

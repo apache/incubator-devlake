@@ -1,11 +1,11 @@
 package main
 
 import (
-	"github.com/merico-dev/lake/migration"
-	"github.com/merico-dev/lake/plugins/core"
-	"github.com/merico-dev/lake/plugins/feishu/models/migrationscripts"
-	"github.com/merico-dev/lake/plugins/feishu/tasks"
-	"github.com/merico-dev/lake/runner"
+	"github.com/apache/incubator-devlake/migration"
+	"github.com/apache/incubator-devlake/plugins/core"
+	"github.com/apache/incubator-devlake/plugins/feishu/models/migrationscripts"
+	"github.com/apache/incubator-devlake/plugins/feishu/tasks"
+	"github.com/apache/incubator-devlake/runner"
 	"github.com/mitchellh/mapstructure"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
@@ -52,7 +52,7 @@ func (plugin Feishu) PrepareTaskData(taskCtx core.TaskContext, options map[strin
 }
 
 func (plugin Feishu) RootPkgPath() string {
-	return "github.com/merico-dev/lake/plugins/feishu"
+	return "github.com/apache/incubator-devlake/plugins/feishu"
 }
 
 func (plugin Feishu) MigrationScripts() []migration.Script {

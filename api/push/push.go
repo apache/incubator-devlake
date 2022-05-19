@@ -3,9 +3,9 @@ package push
 import (
 	"net/http"
 
+	"github.com/apache/incubator-devlake/api/shared"
+	"github.com/apache/incubator-devlake/services"
 	"github.com/gin-gonic/gin"
-	"github.com/merico-dev/lake/api/shared"
-	"github.com/merico-dev/lake/services"
 )
 
 /*

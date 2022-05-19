@@ -7,7 +7,7 @@ import (
 	"path/filepath"
 	"reflect"
 
-	"github.com/merico-dev/lake/models/domainlayer/code"
+	"github.com/apache/incubator-devlake/models/domainlayer/code"
 )
 
 type csvWriter struct {

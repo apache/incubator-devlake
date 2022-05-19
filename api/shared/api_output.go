@@ -1,9 +1,9 @@
 package shared
 
 import (
+	"github.com/apache/incubator-devlake/errors"
+	"github.com/apache/incubator-devlake/logger"
 	"github.com/gin-gonic/gin"
-	"github.com/merico-dev/lake/errors"
-	"github.com/merico-dev/lake/logger"
 )
 
 type ApiBody struct {

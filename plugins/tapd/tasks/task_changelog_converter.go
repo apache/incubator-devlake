@@ -2,13 +2,13 @@ package tasks
 
 import (
 	"fmt"
-	"github.com/merico-dev/lake/models/common"
-	"github.com/merico-dev/lake/models/domainlayer"
-	"github.com/merico-dev/lake/models/domainlayer/didgen"
-	"github.com/merico-dev/lake/models/domainlayer/ticket"
-	"github.com/merico-dev/lake/plugins/core"
-	"github.com/merico-dev/lake/plugins/helper"
-	"github.com/merico-dev/lake/plugins/tapd/models"
+	"github.com/apache/incubator-devlake/models/common"
+	"github.com/apache/incubator-devlake/models/domainlayer"
+	"github.com/apache/incubator-devlake/models/domainlayer/didgen"
+	"github.com/apache/incubator-devlake/models/domainlayer/ticket"
+	"github.com/apache/incubator-devlake/plugins/core"
+	"github.com/apache/incubator-devlake/plugins/helper"
+	"github.com/apache/incubator-devlake/plugins/tapd/models"
 	"reflect"
 	"time"
 )

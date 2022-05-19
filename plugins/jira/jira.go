@@ -5,13 +5,13 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/merico-dev/lake/migration"
-	"github.com/merico-dev/lake/plugins/core"
-	"github.com/merico-dev/lake/plugins/jira/api"
-	"github.com/merico-dev/lake/plugins/jira/models"
-	"github.com/merico-dev/lake/plugins/jira/models/migrationscripts"
-	"github.com/merico-dev/lake/plugins/jira/tasks"
-	"github.com/merico-dev/lake/runner"
+	"github.com/apache/incubator-devlake/migration"
+	"github.com/apache/incubator-devlake/plugins/core"
+	"github.com/apache/incubator-devlake/plugins/jira/api"
+	"github.com/apache/incubator-devlake/plugins/jira/models"
+	"github.com/apache/incubator-devlake/plugins/jira/models/migrationscripts"
+	"github.com/apache/incubator-devlake/plugins/jira/tasks"
+	"github.com/apache/incubator-devlake/runner"
 	"github.com/mitchellh/mapstructure"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
@@ -123,7 +123,7 @@ func (plugin Jira) PrepareTaskData(taskCtx core.TaskContext, options map[string]
 }
 
 func (plugin Jira) RootPkgPath() string {
-	return "github.com/merico-dev/lake/plugins/jira"
+	return "github.com/apache/incubator-devlake/plugins/jira"
 }
 
 func (plugin Jira) MigrationScripts() []migration.Script {

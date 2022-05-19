@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"reflect"
 
-	"github.com/merico-dev/lake/models/domainlayer/code"
-	"github.com/merico-dev/lake/plugins/core"
-	"github.com/merico-dev/lake/plugins/refdiff/utils"
+	"github.com/apache/incubator-devlake/models/domainlayer/code"
+	"github.com/apache/incubator-devlake/plugins/core"
+	"github.com/apache/incubator-devlake/plugins/refdiff/utils"
 	"gorm.io/gorm/clause"
 )
 

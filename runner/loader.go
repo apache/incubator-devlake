@@ -2,13 +2,13 @@ package runner
 
 import (
 	"fmt"
-	"github.com/merico-dev/lake/migration"
+	"github.com/apache/incubator-devlake/migration"
 	"io/fs"
 	"path/filepath"
 	"plugin"
 	"strings"
 
-	"github.com/merico-dev/lake/plugins/core"
+	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/spf13/viper"
 	"gorm.io/gorm"
 )

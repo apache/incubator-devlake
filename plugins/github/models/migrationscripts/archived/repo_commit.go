@@ -1,6 +1,6 @@
 package archived
 
-import "github.com/merico-dev/lake/models/migrationscripts/archived"
+import "github.com/apache/incubator-devlake/models/migrationscripts/archived"
 
 type GithubRepoCommit struct {
 	RepoId    int    `gorm:"primaryKey"`

@@ -1,10 +1,10 @@
 package tasks
 
 import (
-	"github.com/merico-dev/lake/plugins/github/utils"
+	"github.com/apache/incubator-devlake/plugins/github/utils"
 	"net/http"
 
-	"github.com/merico-dev/lake/plugins/helper"
+	"github.com/apache/incubator-devlake/plugins/helper"
 )
 
 func GetTotalPagesFromResponse(res *http.Response, args *helper.ApiCollectorArgs) (int, error) {

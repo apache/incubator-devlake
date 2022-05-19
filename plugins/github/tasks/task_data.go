@@ -3,8 +3,8 @@ package tasks
 import (
 	"time"
 
-	"github.com/merico-dev/lake/plugins/github/models"
-	"github.com/merico-dev/lake/plugins/helper"
+	"github.com/apache/incubator-devlake/plugins/github/models"
+	"github.com/apache/incubator-devlake/plugins/helper"
 )
 
 type GithubOptions struct {

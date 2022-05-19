@@ -1,11 +1,11 @@
 package impl
 
 import (
-	"github.com/merico-dev/lake/migration"
-	"github.com/merico-dev/lake/plugins/core"
-	"github.com/merico-dev/lake/plugins/gitlab/api"
-	"github.com/merico-dev/lake/plugins/gitlab/models/migrationscripts"
-	"github.com/merico-dev/lake/plugins/gitlab/tasks"
+	"github.com/apache/incubator-devlake/migration"
+	"github.com/apache/incubator-devlake/plugins/core"
+	"github.com/apache/incubator-devlake/plugins/gitlab/api"
+	"github.com/apache/incubator-devlake/plugins/gitlab/models/migrationscripts"
+	"github.com/apache/incubator-devlake/plugins/gitlab/tasks"
 	"github.com/mitchellh/mapstructure"
 	"github.com/spf13/viper"
 	"gorm.io/gorm"
@@ -75,7 +75,7 @@ func (plugin Gitlab) PrepareTaskData(taskCtx core.TaskContext, options map[strin
 }
 
 func (plugin Gitlab) RootPkgPath() string {
-	return "github.com/merico-dev/lake/plugins/gitlab"
+	return "github.com/apache/incubator-devlake/plugins/gitlab"
 }
 
 func (plugin Gitlab) MigrationScripts() []migration.Script {
@@ -91,7 +91,7 @@ func (plugin Gitlab) ApiResources() map[string]map[string]core.ApiResourceHandle
 			"GET": api.ListConnections,
 		},
 		"connections/:connectionId": {
-			"GET":   api.GetConnection,
+			"GET": api.GetConnection,
 			"PATCH": api.PatchConnection,
 		},
 	}

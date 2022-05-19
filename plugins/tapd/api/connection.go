@@ -2,18 +2,18 @@ package api
 
 import (
 	"fmt"
-	"github.com/merico-dev/lake/config"
-	"github.com/merico-dev/lake/models/common"
-	"github.com/merico-dev/lake/plugins/tapd/models"
+	"github.com/apache/incubator-devlake/config"
+	"github.com/apache/incubator-devlake/models/common"
+	"github.com/apache/incubator-devlake/plugins/tapd/models"
 	"net/http"
 	"strconv"
 	"time"
 
+	"github.com/apache/incubator-devlake/plugins/helper"
 	"github.com/go-playground/validator/v10"
-	"github.com/merico-dev/lake/plugins/helper"
 	"github.com/mitchellh/mapstructure"
 
-	"github.com/merico-dev/lake/plugins/core"
+	"github.com/apache/incubator-devlake/plugins/core"
 )
 
 var vld = validator.New()

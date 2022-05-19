@@ -1,8 +1,8 @@
 package store
 
 import (
-	"github.com/merico-dev/lake/models/domainlayer/code"
-	"github.com/merico-dev/lake/plugins/helper"
+	"github.com/apache/incubator-devlake/models/domainlayer/code"
+	"github.com/apache/incubator-devlake/plugins/helper"
 	"gorm.io/gorm"
 	"reflect"
 )

@@ -1,7 +1,7 @@
 package models
 
 import (
-	"github.com/merico-dev/lake/models/common"
+	"github.com/apache/incubator-devlake/models/common"
 )
 
 type GithubUser struct {
@@ -14,7 +14,6 @@ type GithubUser struct {
 	common.NoPKModel
 }
 
-func (GithubUser) TableName() string{
+func (GithubUser) TableName() string {
 	return "_tool_github_users"
 }
-

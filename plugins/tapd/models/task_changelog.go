@@ -3,8 +3,8 @@ package models
 import (
 	"encoding/json"
 
-	"github.com/merico-dev/lake/models/common"
-	"github.com/merico-dev/lake/plugins/helper"
+	"github.com/apache/incubator-devlake/models/common"
+	"github.com/apache/incubator-devlake/plugins/helper"
 )
 
 type TapdTaskChangelog struct {

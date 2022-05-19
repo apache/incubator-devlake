@@ -3,12 +3,12 @@ package main // must be main for plugin entry point
 import (
 	"fmt"
 
-	"github.com/merico-dev/lake/migration"
-	"github.com/merico-dev/lake/plugins/ae/api"
-	"github.com/merico-dev/lake/plugins/ae/models/migrationscripts"
-	"github.com/merico-dev/lake/plugins/ae/tasks"
-	"github.com/merico-dev/lake/plugins/core"
-	"github.com/merico-dev/lake/runner"
+	"github.com/apache/incubator-devlake/migration"
+	"github.com/apache/incubator-devlake/plugins/ae/api"
+	"github.com/apache/incubator-devlake/plugins/ae/models/migrationscripts"
+	"github.com/apache/incubator-devlake/plugins/ae/tasks"
+	"github.com/apache/incubator-devlake/plugins/core"
+	"github.com/apache/incubator-devlake/runner"
 	"github.com/mitchellh/mapstructure"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
@@ -61,7 +61,7 @@ func (plugin AE) PrepareTaskData(taskCtx core.TaskContext, options map[string]in
 }
 
 func (plugin AE) RootPkgPath() string {
-	return "github.com/merico-dev/lake/plugins/ae"
+	return "github.com/apache/incubator-devlake/plugins/ae"
 }
 
 func (plugin AE) MigrationScripts() []migration.Script {

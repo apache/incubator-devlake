@@ -1,7 +1,7 @@
 package models
 
 import (
-	"github.com/merico-dev/lake/models/common"
+	"github.com/apache/incubator-devlake/models/common"
 )
 
 // Please note that Issue Labels can also apply to Pull Requests.
@@ -13,7 +13,6 @@ type GithubIssueLabel struct {
 	common.NoPKModel
 }
 
-func (GithubIssueLabel) TableName() string{
+func (GithubIssueLabel) TableName() string {
 	return "_tool_github_issue_labels"
 }
-

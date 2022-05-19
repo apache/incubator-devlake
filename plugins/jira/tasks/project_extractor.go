@@ -3,9 +3,9 @@ package tasks
 import (
 	"encoding/json"
 
-	"github.com/merico-dev/lake/plugins/core"
-	"github.com/merico-dev/lake/plugins/helper"
-	"github.com/merico-dev/lake/plugins/jira/tasks/apiv2models"
+	"github.com/apache/incubator-devlake/plugins/core"
+	"github.com/apache/incubator-devlake/plugins/helper"
+	"github.com/apache/incubator-devlake/plugins/jira/tasks/apiv2models"
 )
 
 var _ core.SubTaskEntryPoint = ExtractProjects

@@ -4,9 +4,9 @@ import (
 	"encoding/json"
 	"fmt"
 
-	"github.com/merico-dev/lake/plugins/core"
-	"github.com/merico-dev/lake/plugins/github/models"
-	"github.com/merico-dev/lake/plugins/helper"
+	"github.com/apache/incubator-devlake/plugins/core"
+	"github.com/apache/incubator-devlake/plugins/github/models"
+	"github.com/apache/incubator-devlake/plugins/helper"
 )
 
 var ExtractApiRepoMeta = core.SubTaskMeta{

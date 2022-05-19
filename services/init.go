@@ -2,12 +2,12 @@ package services
 
 import (
 	"context"
-	"github.com/merico-dev/lake/models/migrationscripts"
+	"github.com/apache/incubator-devlake/models/migrationscripts"
 
-	"github.com/merico-dev/lake/config"
-	"github.com/merico-dev/lake/logger"
-	"github.com/merico-dev/lake/migration"
-	"github.com/merico-dev/lake/runner"
+	"github.com/apache/incubator-devlake/config"
+	"github.com/apache/incubator-devlake/logger"
+	"github.com/apache/incubator-devlake/migration"
+	"github.com/apache/incubator-devlake/runner"
 	"github.com/robfig/cron/v3"
 	"github.com/spf13/viper"
 	"gorm.io/gorm"

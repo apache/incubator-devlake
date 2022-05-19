@@ -1,6 +1,6 @@
 package models
 
-import "github.com/merico-dev/lake/models/common"
+import "github.com/apache/incubator-devlake/models/common"
 
 type GithubRepoCommit struct {
 	RepoId    int    `gorm:"primaryKey"`
@@ -11,4 +11,3 @@ type GithubRepoCommit struct {
 func (GithubRepoCommit) TableName() string {
 	return "_tool_github_repo_commits"
 }
-

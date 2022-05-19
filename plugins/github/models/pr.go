@@ -1,7 +1,7 @@
 package models
 
 import (
-	"github.com/merico-dev/lake/models/common"
+	"github.com/apache/incubator-devlake/models/common"
 	"time"
 )
 
@@ -39,4 +39,3 @@ type GithubPullRequest struct {
 func (GithubPullRequest) TableName() string {
 	return "_tool_github_pull_requests"
 }
-

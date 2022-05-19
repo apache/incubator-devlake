@@ -1,7 +1,7 @@
 package models
 
 import (
-	"github.com/merico-dev/lake/models/common"
+	"github.com/apache/incubator-devlake/models/common"
 	"time"
 )
 
@@ -16,7 +16,6 @@ type GithubIssueComment struct {
 	common.NoPKModel
 }
 
-func (GithubIssueComment) TableName() string{
+func (GithubIssueComment) TableName() string {
 	return "_tool_github_issue_comments"
 }
-

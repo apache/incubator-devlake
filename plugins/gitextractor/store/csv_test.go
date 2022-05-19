@@ -7,7 +7,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/merico-dev/lake/models/domainlayer/code"
+	"github.com/apache/incubator-devlake/models/domainlayer/code"
 )
 
 func Test_csvWriter_Write(t *testing.T) {

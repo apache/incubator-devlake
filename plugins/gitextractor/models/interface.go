@@ -1,7 +1,7 @@
 package models
 
 import (
-	"github.com/merico-dev/lake/models/domainlayer/code"
+	"github.com/apache/incubator-devlake/models/domainlayer/code"
 )
 
 type Store interface {

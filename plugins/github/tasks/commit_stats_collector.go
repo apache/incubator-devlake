@@ -3,14 +3,14 @@ package tasks
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/merico-dev/lake/plugins/helper"
+	"github.com/apache/incubator-devlake/plugins/helper"
 	"io/ioutil"
 	"net/http"
 	"net/url"
 	"reflect"
 
-	"github.com/merico-dev/lake/plugins/core"
-	"github.com/merico-dev/lake/plugins/github/models"
+	"github.com/apache/incubator-devlake/plugins/core"
+	"github.com/apache/incubator-devlake/plugins/github/models"
 )
 
 const RAW_COMMIT_STATS_TABLE = "github_api_commit_stats"

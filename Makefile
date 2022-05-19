@@ -10,10 +10,10 @@ build-plugin:
 	@sh scripts/compile-plugins.sh
 
 build-worker:
-	go build -ldflags "-X 'github.com/merico-dev/lake/version.Version=$(VERSION)'" -o bin/lake-worker ./worker/
+	go build -ldflags "-X 'github.com/apache/incubator-devlake/version.Version=$(VERSION)'" -o bin/lake-worker ./worker/
 
 build-server:
-	go build -ldflags "-X 'github.com/merico-dev/lake/version.Version=$(VERSION)'" -o bin/lake
+	go build -ldflags "-X 'github.com/apache/incubator-devlake/version.Version=$(VERSION)'" -o bin/lake
 
 build: build-plugin build-server
 

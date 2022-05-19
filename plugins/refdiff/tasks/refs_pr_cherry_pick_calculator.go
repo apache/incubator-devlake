@@ -7,8 +7,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/merico-dev/lake/models/domainlayer/code"
-	"github.com/merico-dev/lake/plugins/core"
+	"github.com/apache/incubator-devlake/models/domainlayer/code"
+	"github.com/apache/incubator-devlake/plugins/core"
 	"gorm.io/gorm/clause"
 )
 

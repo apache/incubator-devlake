@@ -1,7 +1,7 @@
 package models
 
 import (
-	"github.com/merico-dev/lake/models/common"
+	"github.com/apache/incubator-devlake/models/common"
 	"time"
 )
 
@@ -16,7 +16,6 @@ type GithubPullRequestComment struct {
 	common.NoPKModel
 }
 
-func (GithubPullRequestComment) TableName() string{
+func (GithubPullRequestComment) TableName() string {
 	return "_tool_github_pull_request_comments"
 }
-

@@ -1,8 +1,8 @@
 package main
 
 import (
-	"github.com/merico-dev/lake/api"
-	_ "github.com/merico-dev/lake/version"
+	"github.com/apache/incubator-devlake/api"
+	_ "github.com/apache/incubator-devlake/version"
 )
 
 func main() {

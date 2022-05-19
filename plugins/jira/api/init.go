@@ -1,7 +1,7 @@
 package api
 
 import (
-	"github.com/merico-dev/lake/plugins/core"
+	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/spf13/viper"
 	"gorm.io/gorm"
 )

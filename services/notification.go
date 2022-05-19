@@ -11,7 +11,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/merico-dev/lake/models"
+	"github.com/apache/incubator-devlake/models"
 )
 
 func init() {

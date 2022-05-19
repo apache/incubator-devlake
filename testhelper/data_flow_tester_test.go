@@ -3,8 +3,8 @@ package testhelper
 import (
 	"testing"
 
-	"github.com/merico-dev/lake/plugins/core"
-	"github.com/merico-dev/lake/plugins/gitlab/tasks"
+	"github.com/apache/incubator-devlake/plugins/core"
+	"github.com/apache/incubator-devlake/plugins/gitlab/tasks"
 )
 
 func ExampleDataFlowTester() {

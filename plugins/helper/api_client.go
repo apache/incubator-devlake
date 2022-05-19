@@ -14,8 +14,8 @@ import (
 	"time"
 	"unicode/utf8"
 
-	"github.com/merico-dev/lake/plugins/core"
-	"github.com/merico-dev/lake/utils"
+	"github.com/apache/incubator-devlake/plugins/core"
+	"github.com/apache/incubator-devlake/utils"
 )
 
 type ApiClientBeforeRequest func(req *http.Request) error

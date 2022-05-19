@@ -1,7 +1,7 @@
 package models
 
 import (
-	"github.com/merico-dev/lake/models/common"
+	"github.com/apache/incubator-devlake/models/common"
 	"time"
 )
 
@@ -20,7 +20,6 @@ type GithubRepo struct {
 	common.NoPKModel
 }
 
-func (GithubRepo) TableName() string{
+func (GithubRepo) TableName() string {
 	return "_tool_github_repos"
 }
-

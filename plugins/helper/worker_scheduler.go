@@ -7,7 +7,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/merico-dev/lake/utils"
+	"github.com/apache/incubator-devlake/utils"
 	"github.com/panjf2000/ants/v2"
 )
 

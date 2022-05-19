@@ -3,7 +3,7 @@ package archived
 import (
 	"time"
 
-	"github.com/merico-dev/lake/models/migrationscripts/archived"
+	"github.com/apache/incubator-devlake/models/migrationscripts/archived"
 )
 
 // JenkinsBuild db entity for jenkins build

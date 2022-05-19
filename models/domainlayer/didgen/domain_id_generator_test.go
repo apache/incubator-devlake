@@ -4,7 +4,7 @@ import (
 	"context"
 	"testing"
 
-	"github.com/merico-dev/lake/plugins/core"
+	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/stretchr/testify/assert"
 	"gorm.io/gorm"
 )
@@ -23,7 +23,7 @@ func (f *FooPlugin) Execute(options map[string]interface{}, progress chan<- floa
 }
 
 func (f *FooPlugin) RootPkgPath() string {
-	return "github.com/merico-dev/lake"
+	return "github.com/apache/incubator-devlake"
 }
 
 func (f *FooPlugin) ApiResources() map[string]map[string]core.ApiResourceHandler {

@@ -1,7 +1,7 @@
 package archived
 
 import (
-	"github.com/merico-dev/lake/models/migrationscripts/archived"
+	"github.com/apache/incubator-devlake/models/migrationscripts/archived"
 )
 
 // This Model is intended to save commits that are associated to a merge request

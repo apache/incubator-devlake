@@ -3,11 +3,11 @@ package tasks
 import (
 	"reflect"
 
-	"github.com/merico-dev/lake/models/domainlayer/crossdomain"
-	"github.com/merico-dev/lake/models/domainlayer/didgen"
-	"github.com/merico-dev/lake/plugins/core"
-	githubModels "github.com/merico-dev/lake/plugins/github/models"
-	"github.com/merico-dev/lake/plugins/helper"
+	"github.com/apache/incubator-devlake/models/domainlayer/crossdomain"
+	"github.com/apache/incubator-devlake/models/domainlayer/didgen"
+	"github.com/apache/incubator-devlake/plugins/core"
+	githubModels "github.com/apache/incubator-devlake/plugins/github/models"
+	"github.com/apache/incubator-devlake/plugins/helper"
 )
 
 var ConvertPullRequestIssuesMeta = core.SubTaskMeta{

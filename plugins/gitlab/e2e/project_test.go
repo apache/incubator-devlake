@@ -3,9 +3,9 @@ package e2e
 import (
 	"testing"
 
-	"github.com/merico-dev/lake/plugins/gitlab/impl"
-	"github.com/merico-dev/lake/plugins/gitlab/tasks"
-	"github.com/merico-dev/lake/testhelper"
+	"github.com/apache/incubator-devlake/plugins/gitlab/impl"
+	"github.com/apache/incubator-devlake/plugins/gitlab/tasks"
+	"github.com/apache/incubator-devlake/testhelper"
 )
 
 func TestGitlabDataFlow(t *testing.T) {

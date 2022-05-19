@@ -1,6 +1,6 @@
 package code
 
-import "github.com/merico-dev/lake/models/common"
+import "github.com/apache/incubator-devlake/models/common"
 
 type RepoCommit struct {
 	RepoId    string `json:"repoId" gorm:"primaryKey;type:varchar(255)"`

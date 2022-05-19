@@ -6,9 +6,9 @@ import (
 	"net/url"
 	"reflect"
 
-	"github.com/merico-dev/lake/plugins/core"
-	"github.com/merico-dev/lake/plugins/helper"
-	"github.com/merico-dev/lake/plugins/jira/models"
+	"github.com/apache/incubator-devlake/plugins/core"
+	"github.com/apache/incubator-devlake/plugins/helper"
+	"github.com/apache/incubator-devlake/plugins/jira/models"
 )
 
 const RAW_USERS_TABLE = "jira_api_users"

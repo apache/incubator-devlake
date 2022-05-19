@@ -1,6 +1,6 @@
 package archived
 
-import "github.com/merico-dev/lake/models/migrationscripts/archived"
+import "github.com/apache/incubator-devlake/models/migrationscripts/archived"
 
 type GithubPullRequestCommit struct {
 	CommitSha     string `gorm:"primaryKey;type:varchar(40)"`

@@ -15,7 +15,7 @@ const Nav = () => {
   return (
     <Navbar className='navbar'>
       <Navbar.Group align={Alignment.RIGHT}>
-        <a href='https://github.com/merico-dev/lake' rel='noreferrer' target='_blank' className='navIconLink'>
+        <a href='https://github.com/apache/incubator-devlake' rel='noreferrer' target='_blank' className='navIconLink'>
           <Icon icon='git-branch' size={16} />
         </a>
         <Navbar.Divider />

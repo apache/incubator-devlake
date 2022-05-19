@@ -7,7 +7,7 @@ import (
 	"gorm.io/datatypes"
 	"gorm.io/gorm"
 
-	"github.com/merico-dev/lake/models/migrationscripts/archived"
+	"github.com/apache/incubator-devlake/models/migrationscripts/archived"
 )
 
 type JiraIssue20220518 struct {

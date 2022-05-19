@@ -5,7 +5,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/merico-dev/lake/runner"
+	"github.com/apache/incubator-devlake/runner"
 	"go.temporal.io/sdk/workflow"
 )
 

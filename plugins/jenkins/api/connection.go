@@ -2,15 +2,15 @@ package api
 
 import (
 	"fmt"
-	"github.com/merico-dev/lake/config"
-	"github.com/merico-dev/lake/plugins/jenkins/models"
+	"github.com/apache/incubator-devlake/config"
+	"github.com/apache/incubator-devlake/plugins/jenkins/models"
 	"net/http"
 	"time"
 
+	"github.com/apache/incubator-devlake/plugins/core"
+	"github.com/apache/incubator-devlake/plugins/helper"
+	"github.com/apache/incubator-devlake/utils"
 	"github.com/go-playground/validator/v10"
-	"github.com/merico-dev/lake/plugins/core"
-	"github.com/merico-dev/lake/plugins/helper"
-	"github.com/merico-dev/lake/utils"
 	"github.com/mitchellh/mapstructure"
 )
 

@@ -6,17 +6,17 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/merico-dev/lake/config"
-	"github.com/merico-dev/lake/errors"
-	"github.com/merico-dev/lake/logger"
-	"github.com/merico-dev/lake/models"
-	"github.com/merico-dev/lake/utils"
+	"github.com/apache/incubator-devlake/config"
+	"github.com/apache/incubator-devlake/errors"
+	"github.com/apache/incubator-devlake/logger"
+	"github.com/apache/incubator-devlake/models"
+	"github.com/apache/incubator-devlake/utils"
 	"github.com/mitchellh/mapstructure"
 	"github.com/spf13/viper"
 	"gorm.io/gorm"
 
-	"github.com/merico-dev/lake/plugins/core"
-	"github.com/merico-dev/lake/plugins/helper"
+	"github.com/apache/incubator-devlake/plugins/core"
+	"github.com/apache/incubator-devlake/plugins/helper"
 )
 
 func RunTask(

@@ -7,18 +7,18 @@ import (
 	"net/http"
 	"net/url"
 
-	"github.com/merico-dev/lake/plugins/helper"
+	"github.com/apache/incubator-devlake/plugins/helper"
 
-	"github.com/merico-dev/lake/plugins/core"
+	"github.com/apache/incubator-devlake/plugins/core"
 )
 
 const RAW_REPOSITORIES_TABLE = "github_api_repositories"
 
 var CollectApiRepoMeta = core.SubTaskMeta{
-	Name:             "collectApiRepo",
-	EntryPoint:       CollectApiRepositories,
-	Required:         true,
-	Description:      "Collect repositories data from Github api",
+	Name:        "collectApiRepo",
+	EntryPoint:  CollectApiRepositories,
+	Required:    true,
+	Description: "Collect repositories data from Github api",
 }
 
 func CollectApiRepositories(taskCtx core.SubTaskContext) error {

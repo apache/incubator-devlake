@@ -1,12 +1,12 @@
 package tasks
 
 import (
-	"github.com/merico-dev/lake/models/domainlayer"
-	"github.com/merico-dev/lake/models/domainlayer/didgen"
-	"github.com/merico-dev/lake/models/domainlayer/ticket"
-	"github.com/merico-dev/lake/plugins/core"
-	"github.com/merico-dev/lake/plugins/helper"
-	"github.com/merico-dev/lake/plugins/tapd/models"
+	"github.com/apache/incubator-devlake/models/domainlayer"
+	"github.com/apache/incubator-devlake/models/domainlayer/didgen"
+	"github.com/apache/incubator-devlake/models/domainlayer/ticket"
+	"github.com/apache/incubator-devlake/plugins/core"
+	"github.com/apache/incubator-devlake/plugins/helper"
+	"github.com/apache/incubator-devlake/plugins/tapd/models"
 	"reflect"
 	"time"
 )
@@ -50,15 +50,12 @@ func ConvertWorklog(taskCtx core.SubTaskContext) error {
 			case "TASK":
 				domainL.IssueId = didgen.
 					NewDomainIdGenerator(&models.TapdTask{}).Generate(toolL.EntityID)
-				break
 			case "BUG":
 				domainL.IssueId = didgen.
 					NewDomainIdGenerator(&models.TapdBug{}).Generate(toolL.EntityID)
-				break
 			case "STORY":
 				domainL.IssueId = didgen.
 					NewDomainIdGenerator(&models.TapdStory{}).Generate(toolL.EntityID)
-				break
 			}
 			return []interface{}{
 				domainL,

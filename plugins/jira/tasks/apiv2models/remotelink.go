@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"gorm.io/datatypes"
 
-	"github.com/merico-dev/lake/plugins/jira/models"
+	"github.com/apache/incubator-devlake/plugins/jira/models"
 )
 
 type RemoteLink struct {

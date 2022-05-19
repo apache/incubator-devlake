@@ -1,6 +1,6 @@
 package apiv2models
 
-import "github.com/merico-dev/lake/plugins/jira/models"
+import "github.com/apache/incubator-devlake/plugins/jira/models"
 
 type User struct {
 	Self         string `json:"self"`

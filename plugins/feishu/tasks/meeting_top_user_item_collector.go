@@ -6,9 +6,9 @@ import (
 	"net/url"
 	"strconv"
 
-	"github.com/merico-dev/lake/plugins/core"
-	"github.com/merico-dev/lake/plugins/feishu/apimodels"
-	"github.com/merico-dev/lake/plugins/helper"
+	"github.com/apache/incubator-devlake/plugins/core"
+	"github.com/apache/incubator-devlake/plugins/feishu/apimodels"
+	"github.com/apache/incubator-devlake/plugins/helper"
 )
 
 const RAW_MEETING_TOP_USER_ITEM_TABLE = "feishu_meeting_top_user_item"
@@ -63,9 +63,8 @@ func CollectMeetingTopUserItem(taskCtx core.SubTaskContext) error {
 }
 
 var CollectMeetingTopUserItemMeta = core.SubTaskMeta{
-	Name: "collectMeetingTopUserItem",
-	EntryPoint: CollectMeetingTopUserItem,
+	Name:             "collectMeetingTopUserItem",
+	EntryPoint:       CollectMeetingTopUserItem,
 	EnabledByDefault: true,
-	Description: "Collect top user meeting data from Feishu api",
+	Description:      "Collect top user meeting data from Feishu api",
 }
-

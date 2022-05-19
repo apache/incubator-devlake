@@ -1,7 +1,7 @@
 package models
 
 import (
-	"github.com/merico-dev/lake/models/common"
+	"github.com/apache/incubator-devlake/models/common"
 )
 
 type GithubPullRequestCommit struct {
@@ -10,7 +10,6 @@ type GithubPullRequestCommit struct {
 	common.NoPKModel
 }
 
-func (GithubPullRequestCommit) TableName() string{
+func (GithubPullRequestCommit) TableName() string {
 	return "_tool_github_pull_request_commits"
 }
-

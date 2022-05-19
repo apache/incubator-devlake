@@ -1,9 +1,8 @@
 package apiv2models
 
 import (
-	"github.com/merico-dev/lake/plugins/jira/models"
-
-	"github.com/merico-dev/lake/plugins/helper"
+	"github.com/apache/incubator-devlake/plugins/helper"
+	"github.com/apache/incubator-devlake/plugins/jira/models"
 )
 
 type Changelog struct {

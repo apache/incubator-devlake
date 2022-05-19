@@ -1,7 +1,7 @@
 package user
 
 import (
-	"github.com/merico-dev/lake/models/domainlayer"
+	"github.com/apache/incubator-devlake/models/domainlayer"
 )
 
 type User struct {

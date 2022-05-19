@@ -184,7 +184,7 @@ context('RUN / Trigger New Pipelines', () => {
       .click()
       .trigger('mouseleave')
     
-    cy.get('input#gitextractor-url').click().type('https://github.com/merico-dev/lake.git')
+    cy.get('input#gitextractor-url').click().type('https://github.com/apache/incubator-devlake.git')
     cy.get('input#gitextractor-repo-id').type('github:GithubRepo:384111310')
     
     cy.get('button#btn-run-pipeline').click()

@@ -219,7 +219,7 @@ const Offline = (props) => {
                           Open Dashboard
                         </Button>
                         <a
-                          href='https://github.com/merico-dev/lake/blob/main/README.md'
+                          href='https://github.com/apache/incubator-devlake/blob/main/README.md'
                           target='_blank'
                           rel='noreferrer'
                           style={{ marginLeft: '5px' }} className='bp3-button bp3-large bp3-minimal'
@@ -241,7 +241,7 @@ const Offline = (props) => {
                           OFFLINE &middot;&nbsp;
                         </strong>
                         <a
-                          href='https://github.com/merico-dev/lake/blob/main/README.md'
+                          href='https://github.com/apache/incubator-devlake/blob/main/README.md'
                           target='_blank'
                           rel='noreferrer'
                           style={{ fontWeight: 400, letterSpacing: 0 }}

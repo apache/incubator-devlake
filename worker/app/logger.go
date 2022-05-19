@@ -3,7 +3,7 @@ package app
 import (
 	"fmt"
 
-	"github.com/merico-dev/lake/plugins/core"
+	"github.com/apache/incubator-devlake/plugins/core"
 	"go.temporal.io/sdk/log"
 )
 

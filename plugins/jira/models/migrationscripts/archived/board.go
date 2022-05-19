@@ -1,6 +1,6 @@
 package archived
 
-import "github.com/merico-dev/lake/models/migrationscripts/archived"
+import "github.com/apache/incubator-devlake/models/migrationscripts/archived"
 
 type JiraBoard struct {
 	archived.NoPKModel

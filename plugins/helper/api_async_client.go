@@ -10,8 +10,8 @@ import (
 	"net/url"
 	"time"
 
-	"github.com/merico-dev/lake/plugins/core"
-	"github.com/merico-dev/lake/utils"
+	"github.com/apache/incubator-devlake/plugins/core"
+	"github.com/apache/incubator-devlake/utils"
 )
 
 type ApiAsyncCallback func(*http.Response, error) error

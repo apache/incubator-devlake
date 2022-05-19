@@ -3,8 +3,7 @@ package helper
 import (
 	"testing"
 
-	"github.com/merico-dev/lake/config"
-
+	"github.com/apache/incubator-devlake/config"
 	"github.com/stretchr/testify/assert"
 )
 

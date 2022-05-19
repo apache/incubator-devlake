@@ -3,7 +3,7 @@ package migrationscripts
 import (
 	"context"
 
-	"github.com/merico-dev/lake/plugins/feishu/models/migrationscripts/archived"
+	"github.com/apache/incubator-devlake/plugins/feishu/models/migrationscripts/archived"
 	"gorm.io/gorm"
 )
 

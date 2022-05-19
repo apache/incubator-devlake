@@ -1,14 +1,14 @@
 package main
 
 import (
-	"github.com/merico-dev/lake/plugins/refdiff/tasks"
-	"github.com/merico-dev/lake/runner"
+	"github.com/apache/incubator-devlake/plugins/refdiff/tasks"
+	"github.com/apache/incubator-devlake/runner"
 	"github.com/mitchellh/mapstructure"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 	"gorm.io/gorm"
 
-	"github.com/merico-dev/lake/plugins/core"
+	"github.com/apache/incubator-devlake/plugins/core"
 )
 
 // make sure interface is implemented
@@ -52,7 +52,7 @@ func (plugin RefDiff) PrepareTaskData(taskCtx core.TaskContext, options map[stri
 
 // PkgPath information lost when compiled as plugin(.so)
 func (plugin RefDiff) RootPkgPath() string {
-	return "github.com/merico-dev/lake/plugins/refdiff"
+	return "github.com/apache/incubator-devlake/plugins/refdiff"
 }
 
 func (plugin RefDiff) ApiResources() map[string]map[string]core.ApiResourceHandler {

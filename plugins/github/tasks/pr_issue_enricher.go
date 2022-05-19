@@ -1,9 +1,9 @@
 package tasks
 
 import (
-	"github.com/merico-dev/lake/plugins/core"
-	githubModels "github.com/merico-dev/lake/plugins/github/models"
-	"github.com/merico-dev/lake/plugins/helper"
+	"github.com/apache/incubator-devlake/plugins/core"
+	githubModels "github.com/apache/incubator-devlake/plugins/github/models"
+	"github.com/apache/incubator-devlake/plugins/helper"
 	"reflect"
 	"regexp"
 	"strconv"

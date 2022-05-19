@@ -8,7 +8,7 @@ context('Navbar', () => {
   it('shows merico github icon link', () => {
     cy.get('.navbar')
       .should('have.class', 'bp3-navbar')
-      .find('a[href="https://github.com/merico-dev/lake"]')
+      .find('a[href="https://github.com/apache/incubator-devlake"]')
       .should('be.visible')
       .and('have.class', 'navIconLink')
   })

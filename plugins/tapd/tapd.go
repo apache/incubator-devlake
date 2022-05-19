@@ -4,14 +4,14 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/merico-dev/lake/migration"
-	"github.com/merico-dev/lake/models/domainlayer/didgen"
-	"github.com/merico-dev/lake/plugins/core"
-	"github.com/merico-dev/lake/plugins/tapd/api"
-	"github.com/merico-dev/lake/plugins/tapd/models"
-	"github.com/merico-dev/lake/plugins/tapd/models/migrationscripts"
-	"github.com/merico-dev/lake/plugins/tapd/tasks"
-	"github.com/merico-dev/lake/runner"
+	"github.com/apache/incubator-devlake/migration"
+	"github.com/apache/incubator-devlake/models/domainlayer/didgen"
+	"github.com/apache/incubator-devlake/plugins/core"
+	"github.com/apache/incubator-devlake/plugins/tapd/api"
+	"github.com/apache/incubator-devlake/plugins/tapd/models"
+	"github.com/apache/incubator-devlake/plugins/tapd/models/migrationscripts"
+	"github.com/apache/incubator-devlake/plugins/tapd/tasks"
+	"github.com/apache/incubator-devlake/runner"
 	"github.com/mitchellh/mapstructure"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
@@ -127,7 +127,7 @@ func (plugin Tapd) PrepareTaskData(taskCtx core.TaskContext, options map[string]
 }
 
 func (plugin Tapd) RootPkgPath() string {
-	return "github.com/merico-dev/lake/plugins/tapd"
+	return "github.com/apache/incubator-devlake/plugins/tapd"
 }
 
 func (plugin Tapd) MigrationScripts() []migration.Script {

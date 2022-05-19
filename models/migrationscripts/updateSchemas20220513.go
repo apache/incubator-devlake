@@ -3,7 +3,7 @@ package migrationscripts
 import (
 	"context"
 
-	"github.com/merico-dev/lake/models/migrationscripts/archived"
+	"github.com/apache/incubator-devlake/models/migrationscripts/archived"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
 )

@@ -1,7 +1,7 @@
 package apiv2models
 
 import (
-	"github.com/merico-dev/lake/plugins/jira/models"
+	"github.com/apache/incubator-devlake/plugins/jira/models"
 )
 
 type Board struct {

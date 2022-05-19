@@ -3,8 +3,8 @@ package runner
 import (
 	"time"
 
-	"github.com/merico-dev/lake/models"
-	"github.com/merico-dev/lake/plugins/core"
+	"github.com/apache/incubator-devlake/models"
+	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/spf13/viper"
 	"gorm.io/gorm"
 )

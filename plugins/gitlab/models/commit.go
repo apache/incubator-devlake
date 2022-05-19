@@ -3,7 +3,7 @@ package models
 import (
 	"time"
 
-	"github.com/merico-dev/lake/models/common"
+	"github.com/apache/incubator-devlake/models/common"
 )
 
 type GitlabCommit struct {

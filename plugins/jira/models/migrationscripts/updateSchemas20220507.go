@@ -4,7 +4,7 @@ import (
 	"context"
 	"time"
 
-	"github.com/merico-dev/lake/models/migrationscripts/archived"
+	"github.com/apache/incubator-devlake/models/migrationscripts/archived"
 	"gorm.io/datatypes"
 	"gorm.io/gorm"
 )
@@ -54,7 +54,7 @@ type JiraIssue20220507 struct {
 	archived.NoPKModel
 }
 
-func (JiraIssue20220507) TableName() string{
+func (JiraIssue20220507) TableName() string {
 	return "_tool_jira_issues"
 }
 

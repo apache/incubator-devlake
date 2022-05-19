@@ -3,8 +3,8 @@ package tasks
 import (
 	"time"
 
-	"github.com/merico-dev/lake/plugins/helper"
-	"github.com/merico-dev/lake/plugins/tapd/models"
+	"github.com/apache/incubator-devlake/plugins/helper"
+	"github.com/apache/incubator-devlake/plugins/tapd/models"
 )
 
 type TapdOptions struct {

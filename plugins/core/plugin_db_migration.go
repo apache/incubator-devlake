@@ -1,6 +1,6 @@
 package core
 
-import "github.com/merico-dev/lake/migration"
+import "github.com/apache/incubator-devlake/migration"
 
 type Migratable interface {
 	MigrationScripts() []migration.Script

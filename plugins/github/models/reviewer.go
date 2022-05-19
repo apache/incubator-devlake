@@ -1,7 +1,7 @@
 package models
 
 import (
-	"github.com/merico-dev/lake/models/common"
+	"github.com/apache/incubator-devlake/models/common"
 )
 
 type GithubReviewer struct {
@@ -12,7 +12,6 @@ type GithubReviewer struct {
 	common.NoPKModel
 }
 
-func (GithubReviewer) TableName() string{
+func (GithubReviewer) TableName() string {
 	return "_tool_github_reviewers"
 }
-

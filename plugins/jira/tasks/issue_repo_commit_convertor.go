@@ -4,11 +4,11 @@ import (
 	"reflect"
 	"regexp"
 
-	"github.com/merico-dev/lake/models/domainlayer/crossdomain"
-	"github.com/merico-dev/lake/models/domainlayer/didgen"
-	"github.com/merico-dev/lake/plugins/core"
-	"github.com/merico-dev/lake/plugins/helper"
-	"github.com/merico-dev/lake/plugins/jira/models"
+	"github.com/apache/incubator-devlake/models/domainlayer/crossdomain"
+	"github.com/apache/incubator-devlake/models/domainlayer/didgen"
+	"github.com/apache/incubator-devlake/plugins/core"
+	"github.com/apache/incubator-devlake/plugins/helper"
+	"github.com/apache/incubator-devlake/plugins/jira/models"
 )
 
 // ConvertIssueRepoCommits is to extract issue_repo_commits from jira_issue_commits, nothing difference with

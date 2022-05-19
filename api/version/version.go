@@ -3,8 +3,8 @@ package version
 import (
 	"net/http"
 
+	"github.com/apache/incubator-devlake/version"
 	"github.com/gin-gonic/gin"
-	"github.com/merico-dev/lake/version"
 )
 
 // @Summary Get the version of lake

@@ -3,7 +3,7 @@ package code
 import (
 	"time"
 
-	"github.com/merico-dev/lake/models/domainlayer"
+	"github.com/apache/incubator-devlake/models/domainlayer"
 )
 
 type Note struct {

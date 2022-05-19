@@ -3,12 +3,12 @@ package main
 import (
 	"fmt"
 
-	"github.com/merico-dev/lake/migration"
-	"github.com/merico-dev/lake/plugins/core"
-	"github.com/merico-dev/lake/plugins/jenkins/api"
-	"github.com/merico-dev/lake/plugins/jenkins/models/migrationscripts"
-	"github.com/merico-dev/lake/plugins/jenkins/tasks"
-	"github.com/merico-dev/lake/runner"
+	"github.com/apache/incubator-devlake/migration"
+	"github.com/apache/incubator-devlake/plugins/core"
+	"github.com/apache/incubator-devlake/plugins/jenkins/api"
+	"github.com/apache/incubator-devlake/plugins/jenkins/models/migrationscripts"
+	"github.com/apache/incubator-devlake/plugins/jenkins/tasks"
+	"github.com/apache/incubator-devlake/runner"
 	"github.com/mitchellh/mapstructure"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
@@ -58,7 +58,7 @@ func (plugin Jenkins) PrepareTaskData(taskCtx core.TaskContext, options map[stri
 }
 
 func (plugin Jenkins) RootPkgPath() string {
-	return "github.com/merico-dev/lake/plugins/jenkins"
+	return "github.com/apache/incubator-devlake/plugins/jenkins"
 }
 
 func (plugin Jenkins) MigrationScripts() []migration.Script {

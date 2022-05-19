@@ -1,8 +1,8 @@
 package main // must be main for plugin entry point
 
 import (
-	"github.com/merico-dev/lake/plugins/gitlab/impl"
-	"github.com/merico-dev/lake/runner"
+	"github.com/apache/incubator-devlake/plugins/gitlab/impl"
+	"github.com/apache/incubator-devlake/runner"
 	"github.com/spf13/cobra"
 )
 

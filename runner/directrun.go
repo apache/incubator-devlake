@@ -5,9 +5,9 @@ import (
 	"os"
 	"os/exec"
 
-	"github.com/merico-dev/lake/config"
-	"github.com/merico-dev/lake/logger"
-	"github.com/merico-dev/lake/plugins/core"
+	"github.com/apache/incubator-devlake/config"
+	"github.com/apache/incubator-devlake/logger"
+	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/spf13/cobra"
 )
 

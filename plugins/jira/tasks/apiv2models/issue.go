@@ -5,9 +5,8 @@ import (
 
 	"gorm.io/datatypes"
 
-	"github.com/merico-dev/lake/plugins/helper"
-
-	"github.com/merico-dev/lake/plugins/jira/models"
+	"github.com/apache/incubator-devlake/plugins/helper"
+	"github.com/apache/incubator-devlake/plugins/jira/models"
 )
 
 type Issue struct {

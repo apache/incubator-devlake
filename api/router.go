@@ -4,18 +4,18 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/merico-dev/lake/api/blueprints"
-	"github.com/merico-dev/lake/api/domainlayer"
+	"github.com/apache/incubator-devlake/api/blueprints"
+	"github.com/apache/incubator-devlake/api/domainlayer"
 
+	"github.com/apache/incubator-devlake/api/ping"
+	"github.com/apache/incubator-devlake/api/pipelines"
+	"github.com/apache/incubator-devlake/api/push"
+	"github.com/apache/incubator-devlake/api/shared"
+	"github.com/apache/incubator-devlake/api/task"
+	"github.com/apache/incubator-devlake/api/version"
+	"github.com/apache/incubator-devlake/plugins/core"
+	"github.com/apache/incubator-devlake/services"
 	"github.com/gin-gonic/gin"
-	"github.com/merico-dev/lake/api/ping"
-	"github.com/merico-dev/lake/api/pipelines"
-	"github.com/merico-dev/lake/api/push"
-	"github.com/merico-dev/lake/api/shared"
-	"github.com/merico-dev/lake/api/task"
-	"github.com/merico-dev/lake/api/version"
-	"github.com/merico-dev/lake/plugins/core"
-	"github.com/merico-dev/lake/services"
 )
 
 func RegisterRouter(r *gin.Engine) {

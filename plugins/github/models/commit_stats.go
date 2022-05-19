@@ -1,7 +1,7 @@
 package models
 
 import (
-	"github.com/merico-dev/lake/models/common"
+	"github.com/apache/incubator-devlake/models/common"
 	"time"
 )
 
@@ -17,4 +17,3 @@ type GithubCommitStat struct {
 func (GithubCommitStat) TableName() string {
 	return "_tool_github_commit_stats"
 }
-

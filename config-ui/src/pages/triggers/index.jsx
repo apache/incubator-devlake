@@ -184,7 +184,7 @@ export default function Triggers () {
                   <p className='description' style={{ fontSize: '13px' }}>
                     <span style={{ fontWeight: 'bold' }}>Detailed configuration guide:</span>&nbsp;
                     <a
-                      href='https://github.com/merico-dev/lake/wiki/How-to-use-the-triggers-page' target='_blank'
+                      href='https://github.com/apache/incubator-devlake/wiki/How-to-use-the-triggers-page' target='_blank'
                       rel='noreferrer' style={{ fontWeight: 'bold', color: '#E8471C', textDecoration: 'underline' }}
                     >
                       How to use the Triggers page

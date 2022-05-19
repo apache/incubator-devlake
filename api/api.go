@@ -1,13 +1,12 @@
 package api
 
 import (
+	_ "github.com/apache/incubator-devlake/api/docs"
 	"time"
 
-	_ "github.com/merico-dev/lake/api/docs"
-
+	"github.com/apache/incubator-devlake/config"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
-	"github.com/merico-dev/lake/config"
 	ginSwagger "github.com/swaggo/gin-swagger"
 	"github.com/swaggo/gin-swagger/swaggerFiles"
 )

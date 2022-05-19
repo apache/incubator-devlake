@@ -105,7 +105,7 @@ const MenuConfiguration = (activeRoute) => {
     //   label: 'Documentation',
     //   icon: 'help',
     //   classNames: [],
-    //   route: 'https://github.com/merico-dev/lake/wiki',
+    //   route: 'https://github.com/apache/incubator-devlake/wiki',
     //   target: "_blank",
     //   external: true,
     //   active: activeRoute.url === '/documentation',

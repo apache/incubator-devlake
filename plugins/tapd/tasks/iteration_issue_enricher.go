@@ -1,7 +1,7 @@
 package tasks
 
 //import (
-//	"github.com/merico-dev/lake/models/domainlayer/ticket"
+//	"github.com/apache/incubator-devlake/models/domainlayer/ticket"
 //	"time"
 //)
 //

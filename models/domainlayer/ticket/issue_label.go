@@ -1,6 +1,6 @@
 package ticket
 
-import "github.com/merico-dev/lake/models/common"
+import "github.com/apache/incubator-devlake/models/common"
 
 // Please note that Issue Labels can also apply to Pull Requests.
 // Pull Requests are considered Issues in GitHub.

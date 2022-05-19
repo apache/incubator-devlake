@@ -9,11 +9,11 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/merico-dev/lake/errors"
-	"github.com/merico-dev/lake/logger"
-	"github.com/merico-dev/lake/models"
-	"github.com/merico-dev/lake/plugins/core"
-	"github.com/merico-dev/lake/runner"
+	"github.com/apache/incubator-devlake/errors"
+	"github.com/apache/incubator-devlake/logger"
+	"github.com/apache/incubator-devlake/models"
+	"github.com/apache/incubator-devlake/plugins/core"
+	"github.com/apache/incubator-devlake/runner"
 	"gorm.io/gorm"
 )
 

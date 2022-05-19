@@ -1,7 +1,7 @@
 package archived
 
 import (
-	"github.com/merico-dev/lake/models/common"
+	"github.com/apache/incubator-devlake/models/common"
 )
 
 type TapdTaskLabel struct {

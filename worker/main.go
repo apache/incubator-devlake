@@ -3,11 +3,11 @@ package main
 import (
 	"log"
 
-	"github.com/merico-dev/lake/config"
-	"github.com/merico-dev/lake/logger"
-	"github.com/merico-dev/lake/runner"
-	_ "github.com/merico-dev/lake/version"
-	"github.com/merico-dev/lake/worker/app"
+	"github.com/apache/incubator-devlake/config"
+	"github.com/apache/incubator-devlake/logger"
+	"github.com/apache/incubator-devlake/runner"
+	_ "github.com/apache/incubator-devlake/version"
+	"github.com/apache/incubator-devlake/worker/app"
 	"go.temporal.io/sdk/client"
 	"go.temporal.io/sdk/worker"
 )

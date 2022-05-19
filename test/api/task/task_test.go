@@ -7,10 +7,10 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/apache/incubator-devlake/api"
+	"github.com/apache/incubator-devlake/models"
 	"github.com/gin-gonic/gin"
 	"github.com/magiconair/properties/assert"
-	"github.com/merico-dev/lake/api"
-	"github.com/merico-dev/lake/models"
 	"github.com/stretchr/testify/mock"
 )
 

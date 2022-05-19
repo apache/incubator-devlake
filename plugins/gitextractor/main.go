@@ -5,13 +5,13 @@ import (
 	"flag"
 	"strings"
 
-	"github.com/merico-dev/lake/logger"
+	"github.com/apache/incubator-devlake/logger"
 
-	"github.com/merico-dev/lake/config"
-	"github.com/merico-dev/lake/plugins/gitextractor/models"
-	"github.com/merico-dev/lake/plugins/gitextractor/parser"
-	"github.com/merico-dev/lake/plugins/gitextractor/store"
-	"github.com/merico-dev/lake/plugins/helper"
+	"github.com/apache/incubator-devlake/config"
+	"github.com/apache/incubator-devlake/plugins/gitextractor/models"
+	"github.com/apache/incubator-devlake/plugins/gitextractor/parser"
+	"github.com/apache/incubator-devlake/plugins/gitextractor/store"
+	"github.com/apache/incubator-devlake/plugins/helper"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 )

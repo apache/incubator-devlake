@@ -1,11 +1,11 @@
 package tasks
 
 //import (
-//	"github.com/merico-dev/lake/models/domainlayer/didgen"
-//	"github.com/merico-dev/lake/models/domainlayer/ticket"
-//	"github.com/merico-dev/lake/plugins/core"
-//	"github.com/merico-dev/lake/plugins/helper"
-//	"github.com/merico-dev/lake/plugins/tapd/models"
+//	"github.com/apache/incubator-devlake/models/domainlayer/didgen"
+//	"github.com/apache/incubator-devlake/models/domainlayer/ticket"
+//	"github.com/apache/incubator-devlake/plugins/core"
+//	"github.com/apache/incubator-devlake/plugins/helper"
+//	"github.com/apache/incubator-devlake/plugins/tapd/models"
 //	"reflect"
 //)
 //

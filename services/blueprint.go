@@ -5,9 +5,9 @@ import (
 	"fmt"
 
 	"github.com/go-playground/validator/v10"
-	"github.com/merico-dev/lake/errors"
-	"github.com/merico-dev/lake/logger"
-	"github.com/merico-dev/lake/models"
+	"github.com/apache/incubator-devlake/errors"
+	"github.com/apache/incubator-devlake/logger"
+	"github.com/apache/incubator-devlake/models"
 	"github.com/robfig/cron/v3"
 	"gorm.io/gorm"
 )

@@ -7,9 +7,9 @@ import (
 	"strings"
 	"time"
 
-	"github.com/merico-dev/lake/plugins/core"
-	"github.com/merico-dev/lake/plugins/helper"
-	"github.com/merico-dev/lake/utils"
+	"github.com/apache/incubator-devlake/plugins/core"
+	"github.com/apache/incubator-devlake/plugins/helper"
+	"github.com/apache/incubator-devlake/utils"
 )
 
 func CreateApiClient(taskCtx core.TaskContext) (*helper.ApiAsyncClient, error) {

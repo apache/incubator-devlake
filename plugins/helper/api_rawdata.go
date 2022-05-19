@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/merico-dev/lake/plugins/core"
+	"github.com/apache/incubator-devlake/plugins/core"
 	"gorm.io/datatypes"
 )
 

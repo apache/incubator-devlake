@@ -1,7 +1,7 @@
 package helper
 
 import (
-	"github.com/merico-dev/lake/plugins/core"
+	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/sirupsen/logrus"
 )
 

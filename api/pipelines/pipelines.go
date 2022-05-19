@@ -4,11 +4,11 @@ import (
 	"net/http"
 	"strconv"
 
+	"github.com/apache/incubator-devlake/api/shared"
+	"github.com/apache/incubator-devlake/models"
+	"github.com/apache/incubator-devlake/services"
 	"github.com/gin-gonic/gin"
 	"github.com/gin-gonic/gin/binding"
-	"github.com/merico-dev/lake/api/shared"
-	"github.com/merico-dev/lake/models"
-	"github.com/merico-dev/lake/services"
 )
 
 /*

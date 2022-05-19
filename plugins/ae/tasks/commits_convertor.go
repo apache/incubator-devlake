@@ -1,9 +1,9 @@
 package tasks
 
 import (
-	"github.com/merico-dev/lake/models/domainlayer/code"
-	aeModels "github.com/merico-dev/lake/plugins/ae/models"
-	"github.com/merico-dev/lake/plugins/core"
+	"github.com/apache/incubator-devlake/models/domainlayer/code"
+	aeModels "github.com/apache/incubator-devlake/plugins/ae/models"
+	"github.com/apache/incubator-devlake/plugins/core"
 )
 
 // NOTE: This only works on Commits in the Domain layer. You need to run Github or Gitlab collection and Domain layer enrichemnt first.

@@ -3,12 +3,12 @@ package main // must be main for plugin entry point
 import (
 	"fmt"
 
-	"github.com/merico-dev/lake/migration"
-	"github.com/merico-dev/lake/plugins/core"
-	"github.com/merico-dev/lake/plugins/github/api"
-	"github.com/merico-dev/lake/plugins/github/models/migrationscripts"
-	"github.com/merico-dev/lake/plugins/github/tasks"
-	"github.com/merico-dev/lake/runner"
+	"github.com/apache/incubator-devlake/migration"
+	"github.com/apache/incubator-devlake/plugins/core"
+	"github.com/apache/incubator-devlake/plugins/github/api"
+	"github.com/apache/incubator-devlake/plugins/github/models/migrationscripts"
+	"github.com/apache/incubator-devlake/plugins/github/tasks"
+	"github.com/apache/incubator-devlake/runner"
 	"github.com/mitchellh/mapstructure"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
@@ -90,7 +90,7 @@ func (plugin Github) PrepareTaskData(taskCtx core.TaskContext, options map[strin
 }
 
 func (plugin Github) RootPkgPath() string {
-	return "github.com/merico-dev/lake/plugins/github"
+	return "github.com/apache/incubator-devlake/plugins/github"
 }
 
 func (plugin Github) MigrationScripts() []migration.Script {

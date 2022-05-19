@@ -4,11 +4,10 @@ import (
 	"encoding/json"
 	"regexp"
 
-	"github.com/merico-dev/lake/models/domainlayer/ticket"
-
-	"github.com/merico-dev/lake/plugins/core"
-	"github.com/merico-dev/lake/plugins/github/models"
-	"github.com/merico-dev/lake/plugins/helper"
+	"github.com/apache/incubator-devlake/models/domainlayer/ticket"
+	"github.com/apache/incubator-devlake/plugins/core"
+	"github.com/apache/incubator-devlake/plugins/github/models"
+	"github.com/apache/incubator-devlake/plugins/helper"
 )
 
 var ExtractApiIssuesMeta = core.SubTaskMeta{

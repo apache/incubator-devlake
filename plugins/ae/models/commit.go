@@ -1,6 +1,6 @@
 package models
 
-import "github.com/merico-dev/lake/models/common"
+import "github.com/apache/incubator-devlake/models/common"
 
 type AECommit struct {
 	HexSha      string `gorm:"primaryKey;type:varchar(255)"`

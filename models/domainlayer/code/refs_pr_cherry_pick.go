@@ -1,6 +1,6 @@
 package code
 
-import "github.com/merico-dev/lake/models/common"
+import "github.com/apache/incubator-devlake/models/common"
 
 // multi pk
 type RefsPrCherrypick struct {

@@ -2,17 +2,17 @@ package api
 
 import (
 	"fmt"
-	"github.com/merico-dev/lake/config"
-	"github.com/merico-dev/lake/plugins/github/models"
+	"github.com/apache/incubator-devlake/config"
+	"github.com/apache/incubator-devlake/plugins/github/models"
 	"net/http"
 	"strings"
 	"time"
 
+	"github.com/apache/incubator-devlake/plugins/helper"
 	"github.com/go-playground/validator/v10"
-	"github.com/merico-dev/lake/plugins/helper"
 	"github.com/mitchellh/mapstructure"
 
-	"github.com/merico-dev/lake/plugins/core"
+	"github.com/apache/incubator-devlake/plugins/core"
 )
 
 type ApiUserPublicEmailResponse []models.PublicEmail

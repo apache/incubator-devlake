@@ -1,8 +1,8 @@
 package main
 
 import (
-	"github.com/merico-dev/lake/plugins/core"
-	"github.com/merico-dev/lake/plugins/gitextractor/tasks"
+	"github.com/apache/incubator-devlake/plugins/core"
+	"github.com/apache/incubator-devlake/plugins/gitextractor/tasks"
 	"github.com/mitchellh/mapstructure"
 )
 
@@ -37,7 +37,7 @@ func (plugin GitExtractor) PrepareTaskData(taskCtx core.TaskContext, options map
 }
 
 func (plugin GitExtractor) RootPkgPath() string {
-	return "github.com/merico-dev/lake/plugins/gitextractor"
+	return "github.com/apache/incubator-devlake/plugins/gitextractor"
 }
 
 // Export a variable named PluginEntry for Framework to search and load

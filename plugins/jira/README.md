@@ -63,7 +63,7 @@ Type mapping is critical for some metrics, like **Requirement Count**, make sure
 
 ### Find Out Custom Field
 
-Please follow this guide: [How to find Jira the custom field ID in Jira? · merico-dev/lake Wiki](https://github.com/merico-dev/lake/wiki/How-to-find-the-custom-field-ID-in-Jira)
+Please follow this guide: [How to find Jira the custom field ID in Jira? · merico-dev/lake Wiki](https://github.com/apache/incubator-devlake/wiki/How-to-find-the-custom-field-ID-in-Jira)
 
 ## Collect Data From JIRA
 

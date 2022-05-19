@@ -22,7 +22,7 @@ curl --location --request POST 'localhost:8080/pipelines' \
             {
                 "Plugin": "gitextractor",
                 "Options": {
-                    "url": "https://github.com/merico-dev/lake.git",
+                    "url": "https://github.com/apache/incubator-devlake.git",
                     "repoId": "github:GithubRepo:384111310"
                 }
             }
@@ -45,7 +45,7 @@ curl --location --request POST 'localhost:8080/pipelines' \
 You call also run this plugin in a standalone mode without any DevLake service running using the following command:
 
 ```
-go run plugins/gitextractor/main.go -url https://github.com/merico-dev/lake.git -id github:GithubRepo:384111310 -db "merico:merico@tcp(127.0.0.1:3306)/lake?charset=utf8mb4&parseTime=True"
+go run plugins/gitextractor/main.go -url https://github.com/apache/incubator-devlake.git -id github:GithubRepo:384111310 -db "merico:merico@tcp(127.0.0.1:3306)/lake?charset=utf8mb4&parseTime=True"
 ```
 
 For more options (e.g., saving to a csv file instead of a db), please read `plugins/gitextractor/main.go`.

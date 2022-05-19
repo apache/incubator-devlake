@@ -12,7 +12,7 @@ import (
 	"sync"
 	"text/template"
 
-	"github.com/merico-dev/lake/plugins/core"
+	"github.com/apache/incubator-devlake/plugins/core"
 )
 
 type Pager struct {
@@ -319,7 +319,6 @@ func (collector *ApiCollector) stepFetch(ctx context.Context, cancel func(), req
 			}
 		}
 	}
-	return err1
 }
 
 func (collector *ApiCollector) fetchAsync(reqData *RequestData, handler ApiAsyncCallback) error {

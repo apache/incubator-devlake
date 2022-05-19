@@ -1,8 +1,8 @@
 package tasks
 
 import (
-	"github.com/merico-dev/lake/plugins/feishu/models"
-	"github.com/merico-dev/lake/plugins/helper"
+	"github.com/apache/incubator-devlake/plugins/feishu/models"
+	"github.com/apache/incubator-devlake/plugins/helper"
 )
 
 type FeishuApiParams struct {
@@ -19,4 +19,3 @@ type FeishuTaskData struct {
 	ApiClient                *helper.ApiAsyncClient
 	FeishuMeetingTopUserItem *models.FeishuMeetingTopUserItem
 }
-

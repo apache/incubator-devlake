@@ -1176,7 +1176,7 @@ const CreatePipeline = (props) => {
                                                 className='bp3-button bp3-small'
                                                 rel='noreferrer'
                                                 target='_blank'
-                                                href='https://github.com/merico-dev/lake/tree/main/plugins/gitextractor'
+                                                href='https://github.com/apache/incubator-devlake/tree/main/plugins/gitextractor'
                                               >Learn More
                                               </a>
                                             </>
@@ -1191,7 +1191,7 @@ const CreatePipeline = (props) => {
                                                 className='bp3-button bp3-small'
                                                 rel='noreferrer'
                                                 target='_blank'
-                                                href='https://github.com/merico-dev/lake/tree/main/plugins/refdiff'
+                                                href='https://github.com/apache/incubator-devlake/tree/main/plugins/refdiff'
                                               >Learn More
                                               </a>
                                             </>
@@ -1337,7 +1337,7 @@ const CreatePipeline = (props) => {
                   Trigger a manual Pipeline with <a href='#'><strong>JSON Configuration</strong></a>.<br />
                   Please review the{' '}
                   <a
-                    href='https://github.com/merico-dev/lake/wiki/How-to-use-the-triggers-page' target='_blank'
+                    href='https://github.com/apache/incubator-devlake/wiki/How-to-use-the-triggers-page' target='_blank'
                     rel='noreferrer'
                     style={{
                       fontWeight:

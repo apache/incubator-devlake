@@ -1,8 +1,8 @@
 package tasks
 
 import (
-	"github.com/merico-dev/lake/plugins/core"
-	"github.com/merico-dev/lake/plugins/helper"
+	"github.com/apache/incubator-devlake/plugins/core"
+	"github.com/apache/incubator-devlake/plugins/helper"
 )
 
 const RAW_MERGE_REQUEST_TABLE = "gitlab_api_merge_requests"

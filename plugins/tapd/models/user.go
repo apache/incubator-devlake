@@ -1,6 +1,6 @@
 package models
 
-import "github.com/merico-dev/lake/models/common"
+import "github.com/apache/incubator-devlake/models/common"
 
 type TapdUser struct {
 	ConnectionId uint64 `gorm:"primaryKey;type:BIGINT"`

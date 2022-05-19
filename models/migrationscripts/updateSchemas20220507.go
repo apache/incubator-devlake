@@ -2,9 +2,9 @@ package migrationscripts
 
 import (
 	"context"
-	"time"
-	"github.com/merico-dev/lake/models/migrationscripts/archived"
+	"github.com/apache/incubator-devlake/models/migrationscripts/archived"
 	"gorm.io/gorm"
+	"time"
 )
 
 type Issue20220507 struct {

@@ -3,8 +3,8 @@ package tasks
 import (
 	"time"
 
-	"github.com/merico-dev/lake/plugins/core"
-	gitlabModels "github.com/merico-dev/lake/plugins/gitlab/models"
+	"github.com/apache/incubator-devlake/plugins/core"
+	gitlabModels "github.com/apache/incubator-devlake/plugins/gitlab/models"
 	"gorm.io/gorm/clause"
 )
 

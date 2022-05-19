@@ -1,6 +1,6 @@
 package crossdomain
 
-import "github.com/merico-dev/lake/models/common"
+import "github.com/apache/incubator-devlake/models/common"
 
 type RefsIssuesDiffs struct {
 	NewRefId        string `gorm:"primaryKey;type:varchar(255)"`

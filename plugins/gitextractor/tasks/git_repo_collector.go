@@ -4,9 +4,9 @@ import (
 	"errors"
 	"strings"
 
-	"github.com/merico-dev/lake/plugins/core"
-	"github.com/merico-dev/lake/plugins/gitextractor/parser"
-	"github.com/merico-dev/lake/plugins/gitextractor/store"
+	"github.com/apache/incubator-devlake/plugins/core"
+	"github.com/apache/incubator-devlake/plugins/gitextractor/parser"
+	"github.com/apache/incubator-devlake/plugins/gitextractor/store"
 )
 
 type GitExtractorOptions struct {
