@@ -15,6 +15,12 @@ jobs:
         with:
           go-version: '1.17.x'
       - uses: actions/checkout@v3
+      - name: Cache golangci-lint
+        id: cache-golangci-lint
+        uses: actions/cache@v3
+        with:
+          path: golangci-lint
+          key: ${{ runner.os }}-golangci-lint
       - name: golangci-lint
         uses: golangci/golangci-lint-action@v3
         with:
