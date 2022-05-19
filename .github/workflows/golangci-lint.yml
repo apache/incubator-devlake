@@ -25,7 +25,4 @@ jobs:
         uses: golangci/golangci-lint-action@v3
         with:
           version: v1.43.0
-          args: "--out-${NO_FUTURE}format colored-line-number --timeout=3m12s"
-          skip-go-installation: true
-          skip-pkg-cache: true
-          skip-build-cache: true
+          args: ""
