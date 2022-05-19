@@ -29,6 +29,12 @@ type TestTable struct {
 	common.NoPKModel
 }
 
+type TestTable2 struct {
+	Email string `gorm:"primaryKey;type:varchar(255)"`
+	Name  string `gorm:"type:varchar(255)"`
+	common.NoPKModel
+}
+
 var TestTableData *TestTable = &TestTable{
 	Email: "test@test.com",
 	Name:  "test",

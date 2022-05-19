@@ -2,13 +2,14 @@ package api
 
 import (
 	"fmt"
-	"github.com/merico-dev/lake/config"
-	"github.com/merico-dev/lake/models/common"
 	"net/http"
 	"net/url"
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/merico-dev/lake/config"
+	"github.com/merico-dev/lake/models/common"
 
 	"github.com/go-playground/validator/v10"
 	"github.com/merico-dev/lake/errors"
@@ -83,16 +84,19 @@ func TestConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, erro
 }
 
 func findConnectionByInputParam(input *core.ApiResourceInput) (*models.JiraConnection, error) {
-	connectionId := input.Params["connectionId"]
-	if connectionId == "" {
-		return nil, fmt.Errorf("missing connectionId")
-	}
-	jiraConnectionId, err := strconv.ParseUint(connectionId, 10, 64)
+	jiraConnectionId, err := getJiraConnectionIdByInputParam(input)
 	if err != nil {
 		return nil, fmt.Errorf("invalid connectionId")
 	}
-
 	return getJiraConnectionById(jiraConnectionId)
+}
+
+func getJiraConnectionIdByInputParam(input *core.ApiResourceInput) (uint64, error) {
+	connectionId := input.Params["connectionId"]
+	if connectionId == "" {
+		return 0, fmt.Errorf("missing connectionId")
+	}
+	return strconv.ParseUint(connectionId, 10, 64)
 }
 
 func getJiraConnectionById(id uint64) (*models.JiraConnection, error) {
@@ -258,25 +262,25 @@ DELETE /plugins/jira/connections/:connectionId
 */
 func DeleteConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, error) {
 	// load from db
-	jiraConnection, err := findConnectionByInputParam(input)
-	if err != nil {
-		return nil, err
-	}
-	err = db.Delete(jiraConnection).Error
+	jiraConnectionID, err := getJiraConnectionIdByInputParam(input)
 	if err != nil {
 		return nil, err
 	}
 	// cascading delete
-	err = db.Where("connection_id = ?", jiraConnection.ID).Delete(&models.JiraIssueTypeMapping{}).Error
+	err = db.Where("id = ?", jiraConnectionID).Delete(&models.JiraConnection{}).Error
 	if err != nil {
 		return nil, err
 	}
-	err = db.Where("connection_id = ?", jiraConnection.ID).Delete(&models.JiraIssueStatusMapping{}).Error
+	err = db.Where("connection_id = ?", jiraConnectionID).Delete(&models.JiraIssueTypeMapping{}).Error
+	if err != nil {
+		return nil, err
+	}
+	err = db.Where("connection_id = ?", jiraConnectionID).Delete(&models.JiraIssueStatusMapping{}).Error
 	if err != nil {
 		return nil, err
 	}
 
-	return &core.ApiResourceOutput{Body: jiraConnection}, nil
+	return &core.ApiResourceOutput{Body: jiraConnectionID}, nil
 }
 
 /*

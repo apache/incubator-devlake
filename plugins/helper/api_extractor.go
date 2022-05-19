@@ -2,8 +2,9 @@ package helper
 
 import (
 	"fmt"
-	"github.com/merico-dev/lake/models/common"
 	"reflect"
+
+	"github.com/merico-dev/lake/models/common"
 
 	"github.com/merico-dev/lake/plugins/core"
 )

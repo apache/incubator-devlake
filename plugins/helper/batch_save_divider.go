@@ -10,10 +10,10 @@ type OnNewBatchSave func(rowType reflect.Type) error
 
 // Holds a map of BatchInsert, return `*BatchInsert` for a specific records, so caller can do batch operation for it
 type BatchSaveDivider struct {
-	db               *gorm.DB
-	batches          map[reflect.Type]*BatchSave
-	batchSize        int
-	onNewBatchInsert OnNewBatchSave
+	db             *gorm.DB
+	batches        map[reflect.Type]*BatchSave
+	batchSize      int
+	onNewBatchSave OnNewBatchSave
 }
 
 // Return a new BatchInsertDivider instance
@@ -26,10 +26,10 @@ func NewBatchSaveDivider(db *gorm.DB, batchSize int) *BatchSaveDivider {
 }
 
 func (d *BatchSaveDivider) OnNewBatchSave(cb OnNewBatchSave) {
-	d.onNewBatchInsert = cb
+	d.onNewBatchSave = cb
 }
 
-// return *BatchInsert for specified type
+// return *BatchSave for specified type
 func (d *BatchSaveDivider) ForType(rowType reflect.Type) (*BatchSave, error) {
 	// get the cache for the specific type
 	batch := d.batches[rowType]
@@ -40,8 +40,8 @@ func (d *BatchSaveDivider) ForType(rowType reflect.Type) (*BatchSave, error) {
 		if err != nil {
 			return nil, err
 		}
-		if d.onNewBatchInsert != nil {
-			err = d.onNewBatchInsert(rowType)
+		if d.onNewBatchSave != nil {
+			err = d.onNewBatchSave(rowType)
 			if err != nil {
 				return nil, err
 			}
