@@ -19,14 +19,14 @@ type GitlabApiCommit struct {
 	Title          string
 	Message        string
 	ProjectId      int
-	ShortId        string           `json:"short_id"`
-	AuthorName     string           `json:"author_name"`
-	AuthorEmail    string           `json:"author_email"`
-	AuthoredDate   core.Iso8601Time `json:"authored_date"`
-	CommitterName  string           `json:"committer_name"`
-	CommitterEmail string           `json:"committer_email"`
-	CommittedDate  core.Iso8601Time `json:"committed_date"`
-	WebUrl         string           `json:"web_url"`
+	ShortId        string             `json:"short_id"`
+	AuthorName     string             `json:"author_name"`
+	AuthorEmail    string             `json:"author_email"`
+	AuthoredDate   helper.Iso8601Time `json:"authored_date"`
+	CommitterName  string             `json:"committer_name"`
+	CommitterEmail string             `json:"committer_email"`
+	CommittedDate  helper.Iso8601Time `json:"committed_date"`
+	WebUrl         string             `json:"web_url"`
 	Stats          struct {
 		Additions int
 		Deletions int

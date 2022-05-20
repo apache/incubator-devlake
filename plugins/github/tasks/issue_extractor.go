@@ -2,8 +2,9 @@ package tasks
 
 import (
 	"encoding/json"
-	"github.com/merico-dev/lake/models/domainlayer/ticket"
 	"regexp"
+
+	"github.com/merico-dev/lake/models/domainlayer/ticket"
 
 	"github.com/merico-dev/lake/plugins/core"
 	"github.com/merico-dev/lake/plugins/github/models"
@@ -36,9 +37,9 @@ type IssuesResponse struct {
 		Login string
 		Id    int
 	}
-	ClosedAt        *core.Iso8601Time `json:"closed_at"`
-	GithubCreatedAt core.Iso8601Time  `json:"created_at"`
-	GithubUpdatedAt core.Iso8601Time  `json:"updated_at"`
+	ClosedAt        *helper.Iso8601Time `json:"closed_at"`
+	GithubCreatedAt helper.Iso8601Time  `json:"created_at"`
+	GithubUpdatedAt helper.Iso8601Time  `json:"updated_at"`
 }
 
 func ExtractApiIssues(taskCtx core.SubTaskContext) error {
@@ -193,7 +194,7 @@ func convertGithubIssue(issue *IssuesResponse, repositoryId int) (*models.Github
 		Title:           issue.Title,
 		Body:            issue.Body,
 		Url:             issue.HtmlUrl,
-		ClosedAt:        core.Iso8601TimeToTime(issue.ClosedAt),
+		ClosedAt:        helper.Iso8601TimeToTime(issue.ClosedAt),
 		GithubCreatedAt: issue.GithubCreatedAt.ToTime(),
 		GithubUpdatedAt: issue.GithubUpdatedAt.ToTime(),
 	}

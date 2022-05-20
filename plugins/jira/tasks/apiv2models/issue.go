@@ -2,9 +2,10 @@ package apiv2models
 
 import (
 	"encoding/json"
+
 	"gorm.io/datatypes"
 
-	"github.com/merico-dev/lake/plugins/core"
+	"github.com/merico-dev/lake/plugins/helper"
 
 	"github.com/merico-dev/lake/plugins/jira/models"
 )
@@ -45,18 +46,18 @@ type Issue struct {
 				Three2X32 string `json:"32x32"`
 			} `json:"avatarUrls"`
 		} `json:"project"`
-		FixVersions        []interface{}     `json:"fixVersions"`
-		Aggregatetimespent interface{}       `json:"aggregatetimespent"`
-		Resolution         interface{}       `json:"resolution"`
-		Resolutiondate     *core.Iso8601Time `json:"resolutiondate"`
-		Workratio          int               `json:"workratio"`
-		LastViewed         string            `json:"lastViewed"`
+		FixVersions        []interface{}       `json:"fixVersions"`
+		Aggregatetimespent interface{}         `json:"aggregatetimespent"`
+		Resolution         interface{}         `json:"resolution"`
+		Resolutiondate     *helper.Iso8601Time `json:"resolutiondate"`
+		Workratio          int                 `json:"workratio"`
+		LastViewed         string              `json:"lastViewed"`
 		Watches            struct {
 			Self       string `json:"self"`
 			WatchCount int    `json:"watchCount"`
 			IsWatching bool   `json:"isWatching"`
 		} `json:"watches"`
-		Created core.Iso8601Time `json:"created"`
+		Created helper.Iso8601Time `json:"created"`
 		Epic    *struct {
 			ID      int    `json:"id"`
 			Key     string `json:"key"`
@@ -74,13 +75,13 @@ type Issue struct {
 			Name    string `json:"name"`
 			ID      uint64 `json:"id,string"`
 		} `json:"priority"`
-		Labels                        []interface{}    `json:"labels"`
-		Timeestimate                  interface{}      `json:"timeestimate"`
-		Aggregatetimeoriginalestimate interface{}      `json:"aggregatetimeoriginalestimate"`
-		Versions                      []interface{}    `json:"versions"`
-		Issuelinks                    []interface{}    `json:"issuelinks"`
-		Assignee                      *User            `json:"assignee"`
-		Updated                       core.Iso8601Time `json:"updated"`
+		Labels                        []interface{}      `json:"labels"`
+		Timeestimate                  interface{}        `json:"timeestimate"`
+		Aggregatetimeoriginalestimate interface{}        `json:"aggregatetimeoriginalestimate"`
+		Versions                      []interface{}      `json:"versions"`
+		Issuelinks                    []interface{}      `json:"issuelinks"`
+		Assignee                      *User              `json:"assignee"`
+		Updated                       helper.Iso8601Time `json:"updated"`
 		Status                        struct {
 			Self           string `json:"self"`
 			Description    string `json:"description"`

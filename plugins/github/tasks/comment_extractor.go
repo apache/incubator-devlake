@@ -2,6 +2,7 @@ package tasks
 
 import (
 	"encoding/json"
+
 	"github.com/merico-dev/lake/plugins/core"
 	"github.com/merico-dev/lake/plugins/github/models"
 	githubUtils "github.com/merico-dev/lake/plugins/github/utils"
@@ -23,9 +24,9 @@ type IssueComment struct {
 		Login string
 		Id    int
 	}
-	IssueUrl        string           `json:"issue_url"`
-	GithubCreatedAt core.Iso8601Time `json:"created_at"`
-	GithubUpdatedAt core.Iso8601Time `json:"updated_at"`
+	IssueUrl        string             `json:"issue_url"`
+	GithubCreatedAt helper.Iso8601Time `json:"created_at"`
+	GithubUpdatedAt helper.Iso8601Time `json:"updated_at"`
 }
 
 func ExtractApiComments(taskCtx core.SubTaskContext) error {

@@ -15,12 +15,12 @@ type GitlabApiProject struct {
 	PathWithNamespace string `json:"path_with_namespace"`
 	WebUrl            string `json:"web_url"`
 	CreatorId         int
-	Visibility        string            `json:"visibility"`
-	OpenIssuesCount   int               `json:"open_issues_count"`
-	StarCount         int               `json:"star_count"`
-	ForkedFromProject *GitlabApiProject `json:"forked_from_project"`
-	CreatedAt         core.Iso8601Time  `json:"created_at"`
-	LastActivityAt    *core.Iso8601Time `json:"last_activity_at"`
+	Visibility        string              `json:"visibility"`
+	OpenIssuesCount   int                 `json:"open_issues_count"`
+	StarCount         int                 `json:"star_count"`
+	ForkedFromProject *GitlabApiProject   `json:"forked_from_project"`
+	CreatedAt         helper.Iso8601Time  `json:"created_at"`
+	LastActivityAt    *helper.Iso8601Time `json:"last_activity_at"`
 }
 
 var CollectProjectMeta = core.SubTaskMeta{

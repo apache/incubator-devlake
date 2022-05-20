@@ -2,6 +2,7 @@ package tasks
 
 import (
 	"encoding/json"
+
 	"github.com/merico-dev/lake/plugins/core"
 	"github.com/merico-dev/lake/plugins/github/models"
 	"github.com/merico-dev/lake/plugins/helper"
@@ -26,12 +27,12 @@ type Commit struct {
 	Author struct {
 		Name  string
 		Email string
-		Date  core.Iso8601Time
+		Date  helper.Iso8601Time
 	}
 	Committer struct {
 		Name  string
 		Email string
-		Date  core.Iso8601Time
+		Date  helper.Iso8601Time
 	}
 	Message string
 }

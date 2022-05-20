@@ -2,6 +2,7 @@ package tasks
 
 import (
 	"encoding/json"
+
 	"github.com/merico-dev/lake/plugins/core"
 	"github.com/merico-dev/lake/plugins/github/models"
 	"github.com/merico-dev/lake/plugins/helper"
@@ -23,7 +24,7 @@ type IssueEvent struct {
 	Issue struct {
 		Id int
 	}
-	GithubCreatedAt core.Iso8601Time `json:"created_at"`
+	GithubCreatedAt helper.Iso8601Time `json:"created_at"`
 }
 
 func ExtractApiEvents(taskCtx core.SubTaskContext) error {

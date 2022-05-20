@@ -1,16 +1,16 @@
 package apiv2models
 
 import (
-	"github.com/merico-dev/lake/plugins/core"
-
 	"github.com/merico-dev/lake/plugins/jira/models"
+
+	"github.com/merico-dev/lake/plugins/helper"
 )
 
 type Changelog struct {
-	ID      uint64           `json:"id,string"`
-	Author  User             `json:"author"`
-	Created core.Iso8601Time `json:"created"`
-	Items   []ChangelogItem  `json:"items"`
+	ID      uint64             `json:"id,string"`
+	Author  User               `json:"author"`
+	Created helper.Iso8601Time `json:"created"`
+	Items   []ChangelogItem    `json:"items"`
 }
 
 func (c Changelog) ToToolLayer(connectionId, issueId uint64) (*models.JiraChangelog, *models.JiraUser) {

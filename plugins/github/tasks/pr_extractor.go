@@ -34,11 +34,11 @@ type GithubApiPullRequest struct {
 		Id    int
 		Login string
 	}
-	ClosedAt        *core.Iso8601Time `json:"closed_at"`
-	MergedAt        *core.Iso8601Time `json:"merged_at"`
-	GithubCreatedAt core.Iso8601Time  `json:"created_at"`
-	GithubUpdatedAt core.Iso8601Time  `json:"updated_at"`
-	MergeCommitSha  string            `json:"merge_commit_sha"`
+	ClosedAt        *helper.Iso8601Time `json:"closed_at"`
+	MergedAt        *helper.Iso8601Time `json:"merged_at"`
+	GithubCreatedAt helper.Iso8601Time  `json:"created_at"`
+	GithubUpdatedAt helper.Iso8601Time  `json:"updated_at"`
+	MergeCommitSha  string              `json:"merge_commit_sha"`
 	Head            struct {
 		Ref string
 		Sha string
@@ -146,8 +146,8 @@ func convertGithubPullRequest(pull *GithubApiPullRequest, repoId int) (*models.G
 		AuthorId:        pull.User.Id,
 		GithubCreatedAt: pull.GithubCreatedAt.ToTime(),
 		GithubUpdatedAt: pull.GithubUpdatedAt.ToTime(),
-		ClosedAt:        core.Iso8601TimeToTime(pull.ClosedAt),
-		MergedAt:        core.Iso8601TimeToTime(pull.MergedAt),
+		ClosedAt:        helper.Iso8601TimeToTime(pull.ClosedAt),
+		MergedAt:        helper.Iso8601TimeToTime(pull.MergedAt),
 		MergeCommitSha:  pull.MergeCommitSha,
 		Body:            string(pull.Body),
 		BaseRef:         pull.Base.Ref,
