@@ -17,15 +17,15 @@ type MergeRequestRes struct {
 	State           string
 	Title           string
 	Description     string
-	WebUrl          string            `json:"web_url"`
-	UserNotesCount  int               `json:"user_notes_count"`
-	WorkInProgress  bool              `json:"work_in_progress"`
-	SourceBranch    string            `json:"source_branch"`
-	TargetBranch    string            `json:"target_branch"`
-	GitlabCreatedAt core.Iso8601Time  `json:"created_at"`
-	MergedAt        *core.Iso8601Time `json:"merged_at"`
-	ClosedAt        *core.Iso8601Time `json:"closed_at"`
-	MergeCommitSha  string            `json:"merge_commit_sha"`
+	WebUrl          string              `json:"web_url"`
+	UserNotesCount  int                 `json:"user_notes_count"`
+	WorkInProgress  bool                `json:"work_in_progress"`
+	SourceBranch    string              `json:"source_branch"`
+	TargetBranch    string              `json:"target_branch"`
+	GitlabCreatedAt helper.Iso8601Time  `json:"created_at"`
+	MergedAt        *helper.Iso8601Time `json:"merged_at"`
+	ClosedAt        *helper.Iso8601Time `json:"closed_at"`
+	MergeCommitSha  string              `json:"merge_commit_sha"`
 	MergedBy        struct {
 		Username string `json:"username"`
 	} `json:"merged_by"`
@@ -34,7 +34,7 @@ type MergeRequestRes struct {
 		Username string `json:"username"`
 	}
 	Reviewers        []Reviewer
-	FirstCommentTime core.Iso8601Time
+	FirstCommentTime helper.Iso8601Time
 }
 
 type Reviewer struct {
@@ -115,9 +115,9 @@ func convertMergeRequest(mr *MergeRequestRes) (*models.GitlabMergeRequest, error
 		SourceBranch:     mr.SourceBranch,
 		TargetBranch:     mr.TargetBranch,
 		MergeCommitSha:   mr.MergeCommitSha,
-		MergedAt:         core.Iso8601TimeToTime(mr.MergedAt),
+		MergedAt:         helper.Iso8601TimeToTime(mr.MergedAt),
 		GitlabCreatedAt:  mr.GitlabCreatedAt.ToTime(),
-		ClosedAt:         core.Iso8601TimeToTime(mr.ClosedAt),
+		ClosedAt:         helper.Iso8601TimeToTime(mr.ClosedAt),
 		MergedByUsername: mr.MergedBy.Username,
 		AuthorUsername:   mr.Author.Username,
 		AuthorUserId:     mr.Author.Id,

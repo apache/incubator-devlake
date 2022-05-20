@@ -25,9 +25,9 @@ type GithubApiRepo struct {
 	Language    string `json:"language"`
 	Description string `json:"description"`
 	Owner       models.GithubUser
-	Parent      *GithubApiRepo    `json:"parent"`
-	CreatedAt   core.Iso8601Time  `json:"created_at"`
-	UpdatedAt   *core.Iso8601Time `json:"updated_at"`
+	Parent      *GithubApiRepo      `json:"parent"`
+	CreatedAt   helper.Iso8601Time  `json:"created_at"`
+	UpdatedAt   *helper.Iso8601Time `json:"updated_at"`
 }
 
 func ExtractApiRepositories(taskCtx core.SubTaskContext) error {
@@ -67,7 +67,7 @@ func ExtractApiRepositories(taskCtx core.SubTaskContext) error {
 				OwnerLogin:  body.Owner.Login,
 				Language:    body.Language,
 				CreatedDate: body.CreatedAt.ToTime(),
-				UpdatedDate: core.Iso8601TimeToTime(body.UpdatedAt),
+				UpdatedDate: helper.Iso8601TimeToTime(body.UpdatedAt),
 			}
 			data.Repo = githubRepository
 

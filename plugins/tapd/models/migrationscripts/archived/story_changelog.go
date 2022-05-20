@@ -2,21 +2,21 @@ package archived
 
 import (
 	"github.com/merico-dev/lake/models/common"
-	"github.com/merico-dev/lake/plugins/core"
+	"github.com/merico-dev/lake/plugins/helper"
 )
 
 type TapdStoryChangelog struct {
-	ConnectionId   uint64        `gorm:"primaryKey;type:BIGINT  NOT NULL"`
-	ID             uint64        `gorm:"primaryKey;type:BIGINT  NOT NULL" json:"id,string"`
-	WorkspaceID    uint64        `json:"workspace_id,string"`
-	WorkitemTypeID uint64        `json:"workitem_type_id,string"`
-	Creator        string        `json:"creator"`
-	Created        *core.CSTTime `json:"created"`
-	ChangeSummary  string        `json:"change_summary"`
-	Comment        string        `json:"comment"`
-	EntityType     string        `json:"entity_type"`
-	ChangeType     string        `json:"change_type"`
-	StoryID        uint64        `json:"story_id,string"`
+	ConnectionId   uint64          `gorm:"primaryKey;type:BIGINT  NOT NULL"`
+	ID             uint64          `gorm:"primaryKey;type:BIGINT  NOT NULL" json:"id,string"`
+	WorkspaceID    uint64          `json:"workspace_id,string"`
+	WorkitemTypeID uint64          `json:"workitem_type_id,string"`
+	Creator        string          `json:"creator"`
+	Created        *helper.CSTTime `json:"created"`
+	ChangeSummary  string          `json:"change_summary"`
+	Comment        string          `json:"comment"`
+	EntityType     string          `json:"entity_type"`
+	ChangeType     string          `json:"change_type"`
+	StoryID        uint64          `json:"story_id,string"`
 	common.NoPKModel
 	FieldChanges []TapdStoryChangelogItem `json:"field_changes" gorm:"-"`
 }

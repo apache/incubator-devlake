@@ -9,10 +9,10 @@ import (
 )
 
 type ApiPipeline struct {
-	GitlabId        int               `json:"id"`
-	ProjectId       int               `json:"project_id"`
-	GitlabCreatedAt *core.Iso8601Time `json:"created_at"`
-	UpdatedAt       *core.Iso8601Time `json:"updated_at"`
+	GitlabId        int                 `json:"id"`
+	ProjectId       int                 `json:"project_id"`
+	GitlabCreatedAt *helper.Iso8601Time `json:"created_at"`
+	UpdatedAt       *helper.Iso8601Time `json:"updated_at"`
 	Ref             string
 	Sha             string
 	Duration        int
@@ -21,14 +21,14 @@ type ApiPipeline struct {
 }
 
 type ApiSinglePipelineResponse struct {
-	GitlabId        int               `json:"id"`
-	ProjectId       int               `json:"project_id"`
-	GitlabCreatedAt *core.Iso8601Time `json:"created_at"`
+	GitlabId        int                 `json:"id"`
+	ProjectId       int                 `json:"project_id"`
+	GitlabCreatedAt *helper.Iso8601Time `json:"created_at"`
 	Ref             string
 	Sha             string
 	WebUrl          string `json:"web_url"`
 	Duration        int
-	UpdatedAt       *core.Iso8601Time `json:"updated_at"`
+	UpdatedAt       *helper.Iso8601Time `json:"updated_at"`
 	Coverage        string
 	Status          string
 }
@@ -127,8 +127,8 @@ func convertSinglePipeline(pipeline *ApiSinglePipelineResponse) (*models.GitlabP
 		Sha:             pipeline.Sha,
 		WebUrl:          pipeline.WebUrl,
 		Duration:        pipeline.Duration,
-		StartedAt:       core.Iso8601TimeToTime(pipeline.GitlabCreatedAt),
-		FinishedAt:      core.Iso8601TimeToTime(pipeline.UpdatedAt),
+		StartedAt:       helper.Iso8601TimeToTime(pipeline.GitlabCreatedAt),
+		FinishedAt:      helper.Iso8601TimeToTime(pipeline.UpdatedAt),
 		Coverage:        pipeline.Coverage,
 		Status:          pipeline.Status,
 	}
@@ -144,8 +144,8 @@ func convertPipeline(pipeline *ApiPipeline) (*models.GitlabPipeline, error) {
 		Sha:             pipeline.Sha,
 		WebUrl:          pipeline.WebUrl,
 		Status:          pipeline.Status,
-		StartedAt:       core.Iso8601TimeToTime(pipeline.GitlabCreatedAt),
-		FinishedAt:      core.Iso8601TimeToTime(pipeline.UpdatedAt),
+		StartedAt:       helper.Iso8601TimeToTime(pipeline.GitlabCreatedAt),
+		FinishedAt:      helper.Iso8601TimeToTime(pipeline.UpdatedAt),
 		Duration:        pipeline.Duration,
 	}
 	return gitlabPipeline, nil

@@ -2,7 +2,7 @@ package models
 
 import (
 	"github.com/merico-dev/lake/models/common"
-	"github.com/merico-dev/lake/plugins/core"
+	"github.com/merico-dev/lake/plugins/helper"
 )
 
 type TapdIterationTask struct {
@@ -12,8 +12,8 @@ type TapdIterationTask struct {
 	WorkspaceID  uint64 `gorm:"primaryKey"`
 
 	TaskId          uint64 `gorm:"primaryKey"`
-	ResolutionDate  *core.CSTTime
-	TaskCreatedDate *core.CSTTime
+	ResolutionDate  *helper.CSTTime
+	TaskCreatedDate *helper.CSTTime
 }
 
 func (TapdIterationTask) TableName() string {

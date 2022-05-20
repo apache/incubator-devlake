@@ -2,8 +2,9 @@ package tasks
 
 import (
 	"encoding/json"
-	"github.com/merico-dev/lake/plugins/github/models"
 	"strings"
+
+	"github.com/merico-dev/lake/plugins/github/models"
 
 	"github.com/merico-dev/lake/plugins/core"
 	"github.com/merico-dev/lake/plugins/helper"
@@ -24,7 +25,7 @@ type PullRequestReview struct {
 	}
 	Body        string
 	State       string
-	SubmittedAt core.Iso8601Time `json:"submitted_at"`
+	SubmittedAt helper.Iso8601Time `json:"submitted_at"`
 }
 
 func ExtractApiPullRequestReviews(taskCtx core.SubTaskContext) error {

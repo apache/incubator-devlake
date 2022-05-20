@@ -2,7 +2,7 @@ package archived
 
 import (
 	"github.com/merico-dev/lake/models/common"
-	"github.com/merico-dev/lake/plugins/core"
+	"github.com/merico-dev/lake/plugins/helper"
 )
 
 type TapdIterationBug struct {
@@ -11,8 +11,8 @@ type TapdIterationBug struct {
 	IterationId    uint64 `gorm:"primaryKey"`
 	WorkspaceID    uint64 `gorm:"primaryKey"`
 	BugId          uint64 `gorm:"primaryKey"`
-	ResolutionDate *core.CSTTime
-	BugCreatedDate *core.CSTTime
+	ResolutionDate *helper.CSTTime
+	BugCreatedDate *helper.CSTTime
 }
 
 func (TapdIterationBug) TableName() string {

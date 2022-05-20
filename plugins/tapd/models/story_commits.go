@@ -2,7 +2,7 @@ package models
 
 import (
 	"github.com/merico-dev/lake/models/common"
-	"github.com/merico-dev/lake/plugins/core"
+	"github.com/merico-dev/lake/plugins/helper"
 )
 
 type TapdStoryCommit struct {
@@ -18,12 +18,12 @@ type TapdStoryCommit struct {
 	WebURL          string `json:"web_url" gorm:"type:varchar(255)"`
 	HookProjectName string `json:"hook_project_name" gorm:"type:varchar(255)"`
 
-	Ref        string        `json:"ref" gorm:"type:varchar(255)"`
-	RefStatus  string        `json:"ref_status" gorm:"type:varchar(255)"`
-	GitEnv     string        `json:"git_env" gorm:"type:varchar(255)"`
-	FileCommit string        `json:"file_commit"`
-	CommitTime *core.CSTTime `json:"commit_time"`
-	Created    *core.CSTTime `json:"created"`
+	Ref        string          `json:"ref" gorm:"type:varchar(255)"`
+	RefStatus  string          `json:"ref_status" gorm:"type:varchar(255)"`
+	GitEnv     string          `json:"git_env" gorm:"type:varchar(255)"`
+	FileCommit string          `json:"file_commit"`
+	CommitTime *helper.CSTTime `json:"commit_time"`
+	Created    *helper.CSTTime `json:"created"`
 
 	StoryId uint64
 	common.NoPKModel

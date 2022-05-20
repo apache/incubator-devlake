@@ -2,6 +2,7 @@ package tasks
 
 import (
 	"encoding/json"
+
 	"github.com/merico-dev/lake/plugins/core"
 	"github.com/merico-dev/lake/plugins/gitlab/models"
 	"github.com/merico-dev/lake/plugins/helper"
@@ -13,7 +14,7 @@ type MergeRequestNote struct {
 	MergeRequestIid int    `json:"noteable_iid"`
 	NoteableType    string `json:"noteable_type"`
 	Body            string
-	GitlabCreatedAt core.Iso8601Time `json:"created_at"`
+	GitlabCreatedAt helper.Iso8601Time `json:"created_at"`
 	Confidential    bool
 	Resolvable      bool `json:"resolvable"`
 	System          bool `json:"system"`

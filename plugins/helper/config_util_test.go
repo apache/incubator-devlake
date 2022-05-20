@@ -1,8 +1,9 @@
 package helper
 
 import (
-	"github.com/merico-dev/lake/config"
 	"testing"
+
+	"github.com/merico-dev/lake/config"
 
 	"github.com/stretchr/testify/assert"
 )

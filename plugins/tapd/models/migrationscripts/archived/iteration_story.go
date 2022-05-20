@@ -2,7 +2,7 @@ package archived
 
 import (
 	"github.com/merico-dev/lake/models/common"
-	"github.com/merico-dev/lake/plugins/core"
+	"github.com/merico-dev/lake/plugins/helper"
 )
 
 type TapdIterationStory struct {
@@ -11,8 +11,8 @@ type TapdIterationStory struct {
 	IterationId      uint64 `gorm:"primaryKey"`
 	WorkspaceID      uint64 `gorm:"primaryKey"`
 	StoryId          uint64 `gorm:"primaryKey"`
-	ResolutionDate   *core.CSTTime
-	StoryCreatedDate *core.CSTTime
+	ResolutionDate   *helper.CSTTime
+	StoryCreatedDate *helper.CSTTime
 }
 
 func (TapdIterationStory) TableName() string {
