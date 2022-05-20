@@ -232,10 +232,12 @@ func (c *SprintIssuesConverter) handleTo(connectionId, sprintId uint64, cl Chang
 		return nil
 	}
 	if item, ok := c.sprintIssue[key]; ok {
-		if item != nil && (item.AddedDate == nil || item.AddedDate != nil && item.AddedDate.After(cl.Created)) {
-			item.AddedDate = &cl.Created
-			item.AddedStage = addedStage
+		if item != nil {
 			item.IsRemoved = false
+			if item.AddedDate == nil || item.AddedDate.After(cl.Created) {
+				item.AddedDate = &cl.Created
+				item.AddedStage = addedStage
+			}
 		}
 	} else {
 		c.sprintIssue[key] = &ticket.SprintIssue{
@@ -336,7 +338,7 @@ func (c *SprintIssuesConverter) getJiraIssue(connectionId, issueId uint64) (*mod
 }
 
 func (c *SprintIssuesConverter) getStage(t time.Time, connectionId, sprintId uint64) (*string, error) {
-	sprint, err := c.getJiraSprint(sprintId, connectionId)
+	sprint, err := c.getJiraSprint(connectionId, sprintId)
 	if err != nil {
 		return nil, err
 	}
