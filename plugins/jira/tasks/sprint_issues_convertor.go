@@ -235,6 +235,7 @@ func (c *SprintIssuesConverter) handleTo(connectionId, sprintId uint64, cl Chang
 		if item != nil && (item.AddedDate == nil || item.AddedDate != nil && item.AddedDate.After(cl.Created)) {
 			item.AddedDate = &cl.Created
 			item.AddedStage = addedStage
+			item.IsRemoved = false
 		}
 	} else {
 		c.sprintIssue[key] = &ticket.SprintIssue{
