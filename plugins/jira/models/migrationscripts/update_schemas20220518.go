@@ -1,15 +1,18 @@
-package models
+package migrationscripts
 
 import (
+	"context"
 	"time"
 
-	"github.com/merico-dev/lake/models/common"
 	"gorm.io/datatypes"
+	"gorm.io/gorm"
+
+	"github.com/merico-dev/lake/models/migrationscripts/archived"
 )
 
-type JiraIssue struct {
+type JiraIssue20220518 struct {
 	// collected fields
-	ConnectionId             uint64 `gorm:"primaryKey"`
+	SourceId                 uint64 `gorm:"primaryKey"`
 	IssueId                  uint64 `gorm:"primarykey"`
 	ProjectId                uint64
 	Self                     string `gorm:"type:varchar(255)"`
@@ -50,9 +53,27 @@ type JiraIssue struct {
 	ChangelogUpdated  *time.Time
 	RemotelinkUpdated *time.Time
 	WorklogUpdated    *time.Time
-	common.NoPKModel
+	archived.NoPKModel
 }
 
-func (JiraIssue) TableName() string {
+func (JiraIssue20220518) TableName() string {
 	return "_tool_jira_issues"
+}
+
+type UpdateSchemas20220518 struct{}
+
+func (*UpdateSchemas20220518) Up(ctx context.Context, db *gorm.DB) error {
+	err := db.Migrator().AddColumn(&JiraIssue20220518{}, "worklog_updated")
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (*UpdateSchemas20220518) Version() uint64 {
+	return 20220518132510
+}
+
+func (*UpdateSchemas20220518) Name() string {
+	return "Add worklog_updated column to JiraIssue"
 }

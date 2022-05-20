@@ -127,7 +127,12 @@ func (plugin Jira) RootPkgPath() string {
 }
 
 func (plugin Jira) MigrationScripts() []migration.Script {
-	return []migration.Script{new(migrationscripts.InitSchemas), new(migrationscripts.UpdateSchemas20220505), new(migrationscripts.UpdateSchemas20220507)}
+	return []migration.Script{
+		new(migrationscripts.InitSchemas),
+		new(migrationscripts.UpdateSchemas20220505),
+		new(migrationscripts.UpdateSchemas20220507),
+		new(migrationscripts.UpdateSchemas20220518),
+	}
 }
 
 func (plugin Jira) ApiResources() map[string]map[string]core.ApiResourceHandler {
