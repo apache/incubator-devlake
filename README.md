@@ -51,7 +51,7 @@ See [demo](https://grafana-lake.demo.devlake.io/d/0Rjxknc7z/demo-homepage?orgId=
 
 ## Quick Start
 - [Deploy Locally](https://devlake.apache.org/docs/QuickStart/LocalSetup)
-- [Deploy to Kubernates](https://devlake.apache.org/docs/QuickStart/KubernetesSetup)
+- [Deploy to Kubernetes](https://devlake.apache.org/docs/QuickStart/KubernetesSetup)
 - [Deploy in Temporal Mode](https://devlake.apache.org/docs/QuickStart/TemporalSetup)
 - [Deploy in Developer Mode](https://devlake.apache.org/docs/QuickStart/DeveloperSetup)
 
