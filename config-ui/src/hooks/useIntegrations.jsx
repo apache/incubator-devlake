@@ -15,7 +15,7 @@
  * limitations under the License.
  *
  */
-import React, { useState, useEffect } from 'react'
+import { useState, useEffect } from 'react'
 import { integrationsData } from '@/data/integrations'
 
 function useIntegrations (data = []) {

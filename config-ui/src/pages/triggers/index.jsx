@@ -81,7 +81,9 @@ export default function Triggers () {
         }
         console.log(newTasks)
         setTasks(newTasks)
-      } finally { }
+      } catch (e) {
+        console.error(e)
+      }
     }, 3000)
     return () => clearInterval(interval)
   }, [pipeline])

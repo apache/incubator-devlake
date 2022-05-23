@@ -16,20 +16,8 @@
  *
  */
 import React from 'react'
-import {
-  Providers,
-} from '@/data/Providers'
-import {
-  Button,
-  ButtonGroup,
-  FormGroup,
-  InputGroup,
-  MenuItem,
-  Intent,
-  TagInput,
-  Tooltip,
-  Colors,
-} from '@blueprintjs/core'
+import { Providers, } from '@/data/Providers'
+import { Button, ButtonGroup, Colors, FormGroup, InputGroup, Intent, MenuItem, TagInput, } from '@blueprintjs/core'
 import { Select } from '@blueprintjs/select'
 import RefDiffSettings from '@/components/pipelines/pipeline-settings/refdiff'
 
@@ -37,7 +25,7 @@ const ProviderSettings = (props) => {
   const {
     providerId,
     projectId = [],
-    connectionId,
+    // connectionId,
     selectedConnection,
     selectedGithubRepo,
     connections = [],
@@ -46,25 +34,25 @@ const ProviderSettings = (props) => {
     owner,
     repositoryName,
     gitExtractorUrl,
-    gitExtractorRepoId,
+    // gitExtractorRepoId,
     refDiffRepoId,
     refDiffPairs = [],
     refDiffTasks = [],
     setProjectId = () => {},
-    setConnectionId = () => {},
+    // setConnectionId = () => {},
     setSelectedConnection = () => {},
     setBoardId = () => {},
     setOwner = () => {},
     setRepositoryName = () => {},
     setGitExtractorUrl = () => {},
-    setGitExtractorRepoId = () => {},
+    // setGitExtractorRepoId = () => {},
     setSelectedGithubRepo = () => {},
     setRefDiffRepoId = () => {},
     setRefDiffPairs = () => {},
     setRefDiffTasks = () => {},
     isEnabled = () => {},
     isRunning = false,
-    onReset = () => {}
+    // onReset = () => {}
   } = props
 
   let providerSettings = null

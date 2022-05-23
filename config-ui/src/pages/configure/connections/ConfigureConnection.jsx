@@ -15,21 +15,9 @@
  * limitations under the License.
  *
  */
-import React, { useEffect, useState, useCallback } from 'react'
-import {
-  useParams,
-  Link,
-  useHistory
-} from 'react-router-dom'
-import {
-  Button,
-  Icon,
-  Intent,
-  Card,
-  Elevation,
-  Popover,
-  Colors,
-} from '@blueprintjs/core'
+import React, { useCallback, useEffect, useState } from 'react'
+import { Link, useHistory, useParams } from 'react-router-dom'
+import { Button, Card, Elevation, Icon, Intent, } from '@blueprintjs/core'
 import Nav from '@/components/Nav'
 import Sidebar from '@/components/Sidebar'
 import AppCrumbs from '@/components/Breadcrumbs'
@@ -41,17 +29,10 @@ import useConnectionValidation from '@/hooks/useConnectionValidation'
 import ConnectionForm from '@/pages/configure/connections/ConnectionForm'
 import DeleteAction from '@/components/actions/DeleteAction'
 import DeleteConfirmationMessage from '@/components/actions/DeleteConfirmationMessage'
-import FormValidationErrors from '@/components/messages/FormValidationErrors'
 
 import { integrationsData } from '@/data/integrations'
-// import { NullConnection } from '@/data/NullConnection'
 import { NullSettings } from '@/data/NullSettings'
-import {
-  Providers,
-  ProviderConnectionLimits,
-  ProviderFormLabels,
-  ProviderFormPlaceholders
-} from '@/data/Providers'
+import { ProviderConnectionLimits, ProviderFormLabels, ProviderFormPlaceholders, Providers } from '@/data/Providers'
 
 import '@/styles/integration.scss'
 import '@/styles/connections.scss'
@@ -61,10 +42,8 @@ export default function ConfigureConnection () {
   const history = useHistory()
   const { providerId, connectionId } = useParams()
 
-  const [integrations, setIntegrations] = useState(integrationsData)
-  const [activeProvider, setActiveProvider] = useState(integrations.find(p => p.id === providerId))
+  const [activeProvider, setActiveProvider] = useState(integrationsData.find(p => p.id === providerId))
   // const [activeConnection, setActiveConnection] = useState(NullConnection)
-  const [connections, setConnections] = useState([])
   const [showConnectionSettings, setShowConnectionSettings] = useState(true)
   const [deleteId, setDeleteId] = useState(false)
 
@@ -73,7 +52,7 @@ export default function ConfigureConnection () {
   const {
     testConnection,
     saveConnection,
-    fetchConnection,
+    // fetchConnection,
     activeConnection,
     name,
     endpointUrl,
@@ -92,7 +71,7 @@ export default function ConfigureConnection () {
     setUsername,
     setPassword,
     setToken,
-    saveComplete: saveConnectionComplete,
+    // saveComplete: saveConnectionComplete,
     showError: showConnectionError,
     isDeleting: isDeletingConnection,
     deleteConnection,
@@ -106,8 +85,8 @@ export default function ConfigureConnection () {
     saveSettings,
     // errors: settingsErrors,
     isSaving,
-    isTesting,
-    showError,
+    // isTesting,
+    // showError,
   } = useSettingsManager({
     activeProvider,
     activeConnection,
@@ -154,19 +133,15 @@ export default function ConfigureConnection () {
     console.log('>>>> DETECTED PROVIDER ID = ', providerId)
     console.log('>>>> DETECTED CONNECTION ID = ', connectionId)
     if (connectionId && providerId) {
-      setActiveProvider(integrations.find(p => p.id === providerId))
+      setActiveProvider(integrationsData.find(p => p.id === providerId))
     } else {
       console.log('NO PARAMS!')
     }
-  }, [connectionId, providerId, integrations])
+  }, [connectionId, providerId, integrationsData])
 
   useEffect(() => {
 
   }, [settings])
-
-  useEffect(() => {
-
-  }, [connections])
 
   useEffect(() => {
     if (deleteComplete) {

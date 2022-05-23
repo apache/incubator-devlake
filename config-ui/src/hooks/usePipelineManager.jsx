@@ -15,7 +15,7 @@
  * limitations under the License.
  *
  */
-import React, { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { DEVLAKE_ENDPOINT } from '@/utils/config'
 import request from '@/utils/request'
 import { NullPipelineRun } from '@/data/NullPipelineRun'
@@ -192,7 +192,6 @@ function usePipelineManager (pipelineName = `COLLECTION ${Date.now()}`, initialT
         [tS.pipelineRow]: tasks?.filter(t => t.pipelineRow === tS.pipelineRow)
       }
     })
-    const stageKeys = Object.keys(stages)
     stagesArray = Object.values(stages)
     console.log('>>> BUILDING PIPELINE STAGES...', tasks, stages, stagesArray)
     return outputArray ? stagesArray : stages

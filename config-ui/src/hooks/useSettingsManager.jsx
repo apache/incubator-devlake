@@ -15,10 +15,7 @@
  * limitations under the License.
  *
  */
-import { useState, useEffect, useCallback } from 'react'
-import {
-  useHistory
-} from 'react-router-dom'
+import { useCallback, useState } from 'react'
 import { ToastNotification } from '@/components/Toast'
 import { DEVLAKE_ENDPOINT } from '@/utils/config'
 import request from '@/utils/request'
@@ -29,8 +26,6 @@ function useSettingsManager ({
   activeConnection,
   settings,
 }) {
-  const history = useHistory()
-
   const [isSaving, setIsSaving] = useState(false)
   const [isTesting, setIsTesting] = useState(false)
   const [errors, setErrors] = useState([])

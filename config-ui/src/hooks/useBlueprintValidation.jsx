@@ -15,11 +15,7 @@
  * limitations under the License.
  *
  */
-import React, { useState, useEffect, useCallback } from 'react'
-import {
-  Providers,
-} from '@/data/Providers'
-import cron from 'cron-validate'
+import { useCallback, useEffect, useState } from 'react'
 import parser from 'cron-parser'
 
 function useBlueprintValidation ({

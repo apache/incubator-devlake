@@ -16,27 +16,11 @@
  *
  */
 import React from 'react'
-// import { CSSTransition } from 'react-transition-group'
-import {
-  // Classes,
-  Icon,
-  Spinner,
-  Colors,
-  Tooltip,
-  Position,
-  Intent,
-  Card,
-  Elevation,
-  H4,
-  ProgressBar
-  // Alignment
-} from '@blueprintjs/core'
-import dayjs from '@/utils/time'
+import { Colors, Icon, Intent, ProgressBar } from '@blueprintjs/core'
 
 const StageLaneStatus = (props) => {
   const {
     stage,
-    stages = [],
     sK = 1,
     duration = '0 mins',
     isStageActive = () => {},
@@ -47,7 +31,6 @@ const StageLaneStatus = (props) => {
     getRunningTaskCount = () => {},
     getTotalTasksCount = () => {},
     getCompletedTaskCount = () => {}
-
   } = props
 
   return (

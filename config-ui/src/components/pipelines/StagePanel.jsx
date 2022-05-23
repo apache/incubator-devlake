@@ -32,7 +32,11 @@ import { ReactComponent as PipelineFailedIcon } from '@/images/no-synchronize.sv
 import { ReactComponent as PipelineCompleteIcon } from '@/images/check-circle.svg'
 
 const StagePanel = (props) => {
-  const { activePipeline, pipelineReady = false, stages, activeStageId = 1, isLoading = false } = props
+  const {
+    activePipeline,
+    // pipelineReady = false,
+    stages, activeStageId = 1, isLoading = false
+  } = props
 
   const getActiveStageDisplayColor = (status) => {
     let color = 'rgb(0, 102, 255)'

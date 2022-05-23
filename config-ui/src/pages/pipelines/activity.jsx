@@ -17,24 +17,23 @@
  */
 import React, { useCallback, useEffect, useRef, useState } from 'react'
 import { CSSTransition } from 'react-transition-group'
-import { useHistory, useParams, Link } from 'react-router-dom'
+import { Link, useHistory, useParams } from 'react-router-dom'
 import { GRAFANA_URL } from '@/utils/config'
 import dayjs from '@/utils/time'
 import {
-  Button, Icon, Intent,
-  Card, Elevation,
+  Button,
+  Card,
+  Classes,
+  Colors,
+  Elevation,
+  Icon,
+  Intent,
   Popover,
-  Tooltip,
   Position,
   Spinner,
-  Colors,
-  Classes,
   Tag
 } from '@blueprintjs/core'
-import {
-  Providers,
-  ProviderLabels
-} from '@/data/Providers'
+import { ProviderLabels, Providers } from '@/data/Providers'
 import usePipelineManager from '@/hooks/usePipelineManager'
 import Nav from '@/components/Nav'
 import Sidebar from '@/components/Sidebar'
@@ -62,14 +61,14 @@ const PipelineActivity = (props) => {
   const pollInterval = useRef()
 
   const [pipelineId, setPipelineId] = useState()
-  const [pipelineName, setPipelineName] = useState()
-  const [pollTimer, setPollTimer] = useState(5000)
+  // const [pipelineName, setPipelineName] = useState()
+  const pollTimer = 5000
   const [autoRefresh, setAutoRefresh] = useState(false)
 
   const [showInspector, setShowInspector] = useState(false)
   const [pipelineReady, setPipelineReady] = useState(false)
   const [stages, setStages] = useState()
-  const [activeStageId, setActiveStageId] = useState(1)
+  // const [activeStageId, setActiveStageId] = useState(1)
 
   const {
     // runPipeline,
@@ -79,11 +78,11 @@ const PipelineActivity = (props) => {
     // pipelineRun,
     // isRunning,
     isFetching,
-    errors: pipelineErrors,
-    setSettings: setPipelineSettings,
+    // errors: pipelineErrors,
+    // setSettings: setPipelineSettings,
     // setAutoStart: setPipelineAutoStart,
     lastRunId,
-  } = usePipelineManager(pipelineName)
+  } = usePipelineManager()
 
   const pipelineHasProvider = (providerId) => {
     return activePipeline.tasks.some(t => t.plugin === providerId)

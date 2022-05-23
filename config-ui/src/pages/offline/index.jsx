@@ -46,6 +46,7 @@ const Offline = (props) => {
   const [testResponse, setTestResponse] = useState({})
   const [testStatus, setTestStatus] = useState(504)
   const [cardReady, setCardReady] = useState(false)
+  // eslint-disable-next-line no-unused-vars
   const [aborted, setAborted] = useState(false)
 
   const testEndpoint = useCallback(async () => {

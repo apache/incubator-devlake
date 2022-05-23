@@ -15,7 +15,7 @@
  * limitations under the License.
  *
  */
-import React, { useEffect, useState } from 'react'
+
 const connectionsData = [
   {
     id: 0,

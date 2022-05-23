@@ -15,27 +15,18 @@
  * limitations under the License.
  *
  */
-import React, { useState, useEffect } from 'react'
-// import { CSSTransition } from 'react-transition-group'
-import {
-  Providers,
-  ProviderLabels
-} from '@/data/Providers'
-import {
-  Card,
-  Elevation,
-} from '@blueprintjs/core'
-import dayjs from '@/utils/time'
+import React, { useState } from 'react'
+import { Card, Elevation, } from '@blueprintjs/core'
 import StageTaskName from '@/components/pipelines/StageTaskName'
 import StageTaskIndicator from '@/components/pipelines/StageTaskIndicator'
 import StageTaskCaption from '@/components/pipelines/StageTaskCaption'
 
 const StageTask = (props) => {
   const {
-    stages = [],
+    // stages = [],
     task,
-    sK,
-    sIdx,
+    // sK,
+    // sIdx,
   } = props
 
   const [taskModuleOpened, setTaskModuleOpened] = useState(null)

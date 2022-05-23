@@ -16,30 +16,7 @@
  *
  */
 import React, { useEffect, useState } from 'react'
-import {
-  useParams,
-  useHistory
-} from 'react-router-dom'
-import {
-  FormGroup,
-  InputGroup,
-  Label,
-  // Button,
-  // Classes,
-  // Dialog,
-  // MenuItem,
-  // Card,
-  // Elevation,
-  // Colors,
-  // Icon,
-  // Tag,
-  // Intent
-} from '@blueprintjs/core'
-// import { Select } from '@blueprintjs/select'
-import { ToastNotification } from '@/components/Toast'
-
-import { boardsData } from '@/pages/configure/mock-data/boards'
-import { projectsData } from '@/pages/configure/mock-data/projects'
+import { useHistory } from 'react-router-dom'
 
 import '@/styles/integration.scss'
 import '@/styles/connections.scss'
@@ -47,43 +24,43 @@ import '@/styles/connections.scss'
 // import '@blueprintjs/popover2/lib/css/blueprint-popover2.css'
 
 export default function GitlabSettings (props) {
-  const { connection, provider, isSaving, isSavingConnection, onSettingsChange } = props
+  const { connection, provider, onSettingsChange } = props
   const history = useHistory()
-  const { providerId, connectionId } = useParams()
+  // const { providerId, connectionId } = useParams()
   const [jiraBoardGitlabProjects, setJiraBoardGitlabProjects] = useState('')
-  const [showBoardMappingDialog, setShowBoardMappingDialog] = useState(false)
-
-  const [selectedBoard, setSelectedBoard] = useState({ id: 1, title: 'Open', value: 1 })
-  const [boards, setBoards] = useState(boardsData)
-
-  const [selectedProject, setSelectedProject] = useState({ id: 0, title: 'GL PRJ 3E4', value: 938191 })
-  const [projects, setProjects] = useState(projectsData)
-
-  const [boardMappings, setBoardMappings] = useState([
-    {
-      id: 0,
-      boards: [8],
-      projects: [8967944, 8967945],
-      deleted: false
-    },
-    {
-      id: 1,
-      boards: [9],
-      projects: [8967946, 8967947],
-      deleted: false
-    },
-    {
-      id: 2,
-      boards: [10],
-      projects: [8967946, 8967947, 1967900],
-      deleted: false
-    }
-  ])
-  const [deletedBoards, setDeletedBoards] = useState([])
-
-  const boardMapExists = (boardMap) => {
-    return boardMappings.some(b => b.boards.includes(boardMap.boards[0]) && b.projects.includes(boardMap.projects[0]))
-  }
+  // const [showBoardMappingDialog, setShowBoardMappingDialog] = useState(false)
+  //
+  // const [selectedBoard, setSelectedBoard] = useState({ id: 1, title: 'Open', value: 1 })
+  // const [boards, setBoards] = useState(boardsData)
+  //
+  // const [selectedProject, setSelectedProject] = useState({ id: 0, title: 'GL PRJ 3E4', value: 938191 })
+  // const [projects, setProjects] = useState(projectsData)
+  //
+  // const [boardMappings, setBoardMappings] = useState([
+  //   {
+  //     id: 0,
+  //     boards: [8],
+  //     projects: [8967944, 8967945],
+  //     deleted: false
+  //   },
+  //   {
+  //     id: 1,
+  //     boards: [9],
+  //     projects: [8967946, 8967947],
+  //     deleted: false
+  //   },
+  //   {
+  //     id: 2,
+  //     boards: [10],
+  //     projects: [8967946, 8967947, 1967900],
+  //     deleted: false
+  //   }
+  // ])
+  // const [deletedBoards, setDeletedBoards] = useState([])
+  //
+  // const boardMapExists = (boardMap) => {
+  //   return boardMappings.some(b => b.boards.includes(boardMap.boards[0]) && b.projects.includes(boardMap.projects[0]))
+  // }
 
   useEffect(() => {
     const settings = {
@@ -96,43 +73,43 @@ export default function GitlabSettings (props) {
     onSettingsChange
   ])
 
-  const createBoardMapping = () => {
-    setShowBoardMappingDialog(true)
-  }
-
-  const addBoardMapping = (boardMap) => {
-    setBoardMappings([
-      ...boardMappings,
-      boardMap
-    ])
-  }
-
-  const editBoardMapping = () => {
-
-  }
-
-  const deleteBoardMapping = (boardMap) => {
-    const newBoards = boardMappings.filter(board => board.id !== boardMap.id)
-    setBoardMappings(newBoards)
-    console.log('>>> EDIT BOARD MAPPINGS', newBoards)
-  }
-
-  const linkProject = () => {
-    setShowBoardMappingDialog(false)
-    // @todo MULTI-PROJECT MAPPING!
-    const newBoardMap = {
-      id: boardMappings.length,
-      boards: [selectedBoard.value],
-      projects: [selectedProject.value],
-      deleted: false
-    }
-    if (!boardMapExists(newBoardMap)) {
-      addBoardMapping(newBoardMap)
-    } else {
-      ToastNotification.show({ message: 'Gitlab Project Link already ', intent: 'danger', icon: 'error' })
-    }
-    console.log('>> LINKING JIRA BOARD', selectedBoard, ' TO GITLAB PROJECT ', selectedProject)
-  }
+  // const createBoardMapping = () => {
+  //   setShowBoardMappingDialog(true)
+  // }
+  //
+  // const addBoardMapping = (boardMap) => {
+  //   setBoardMappings([
+  //     ...boardMappings,
+  //     boardMap
+  //   ])
+  // }
+  //
+  // const editBoardMapping = () => {
+  //
+  // }
+  //
+  // const deleteBoardMapping = (boardMap) => {
+  //   const newBoards = boardMappings.filter(board => board.id !== boardMap.id)
+  //   setBoardMappings(newBoards)
+  //   console.log('>>> EDIT BOARD MAPPINGS', newBoards)
+  // }
+  //
+  // const linkProject = () => {
+  //   setShowBoardMappingDialog(false)
+  //   // @todo MULTI-PROJECT MAPPING!
+  //   const newBoardMap = {
+  //     id: boardMappings.length,
+  //     boards: [selectedBoard.value],
+  //     projects: [selectedProject.value],
+  //     deleted: false
+  //   }
+  //   if (!boardMapExists(newBoardMap)) {
+  //     addBoardMapping(newBoardMap)
+  //   } else {
+  //     ToastNotification.show({ message: 'Gitlab Project Link already ', intent: 'danger', icon: 'error' })
+  //   }
+  //   console.log('>> LINKING JIRA BOARD', selectedBoard, ' TO GITLAB PROJECT ', selectedProject)
+  // }
 
   const cancel = () => {
     history.push(`/integrations/${provider.id}`)

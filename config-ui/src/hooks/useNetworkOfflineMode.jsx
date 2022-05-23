@@ -15,7 +15,7 @@
  * limitations under the License.
  *
  */
-import React, { useCallback, useState, useEffect } from 'react'
+import { useCallback, useState, useEffect } from 'react'
 import { useHistory } from 'react-router-dom'
 
 function useNetworkOfflineMode (offlineStatuses = [502, 504], offlineRoute = '/offline') {

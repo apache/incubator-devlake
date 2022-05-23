@@ -30,7 +30,7 @@ import { dbtConfig as sampleDbtPipelineConfig } from '@/data/pipeline-config-sam
 const PipelineConfigsMenu = (props) => {
   const {
     setRawConfiguration = () => {},
-    advancedMode = false
+    // advancedMode = false
   } = props
   return (
     <Menu className='pipeline-configs-menu'>

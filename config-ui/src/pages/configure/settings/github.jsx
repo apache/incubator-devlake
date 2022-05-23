@@ -16,25 +16,14 @@
  *
  */
 import React, { useEffect, useState } from 'react'
-import {
-  useParams,
-  useHistory
-} from 'react-router-dom'
-import {
-  FormGroup,
-  InputGroup,
-  Button,
-  Intent,
-  Label,
-  Tag
-} from '@blueprintjs/core'
+import { useParams } from 'react-router-dom'
+import { FormGroup, InputGroup, Label, Tag } from '@blueprintjs/core'
 
 import '@/styles/integration.scss'
 import '@/styles/connections.scss'
 
 export default function GithubSettings (props) {
-  const { connection, provider, isSaving, isSavingConnection, onSettingsChange } = props
-  const history = useHistory()
+  const { connection, isSaving, isSavingConnection, onSettingsChange } = props
   const { providerId, connectionId } = useParams()
   const [prType, setPrType] = useState('')
   const [prComponent, setPrComponent] = useState('')

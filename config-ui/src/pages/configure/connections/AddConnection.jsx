@@ -16,27 +16,20 @@
  *
  */
 import React, { useEffect, useState } from 'react'
-import {
-  useParams,
-  Link,
-  useHistory
-} from 'react-router-dom'
-import {
-  Icon,
-} from '@blueprintjs/core'
+import { Link, useHistory, useParams } from 'react-router-dom'
+import { Icon, } from '@blueprintjs/core'
 import Nav from '@/components/Nav'
 import Sidebar from '@/components/Sidebar'
 import AppCrumbs from '@/components/Breadcrumbs'
 import Content from '@/components/Content'
 import ConnectionForm from '@/pages/configure/connections/ConnectionForm'
-import FormValidationErrors from '@/components/messages/FormValidationErrors'
 import { integrationsData } from '@/data/integrations'
 import {
-  Providers,
-  ProviderLabels,
   ProviderConnectionLimits,
   ProviderFormLabels,
-  ProviderFormPlaceholders
+  ProviderFormPlaceholders,
+  ProviderLabels,
+  Providers
 } from '@/data/Providers'
 
 import useConnectionManager from '@/hooks/useConnectionManager'
@@ -49,8 +42,7 @@ export default function AddConnection () {
   const history = useHistory()
   const { providerId } = useParams()
 
-  const [integrations, setIntegrations] = useState(integrationsData)
-  const [activeProvider, setActiveProvider] = useState(integrations.find(p => p.id === providerId))
+  const [activeProvider, setActiveProvider] = useState(integrationsData.find(p => p.id === providerId))
 
   const {
     testConnection, saveConnection,
@@ -128,7 +120,7 @@ export default function AddConnection () {
 
   useEffect(() => {
     console.log('>>>> DETECTED PROVIDER = ', providerId)
-    setActiveProvider(integrations.find(p => p.id === providerId))
+    setActiveProvider(integrationsData.find(p => p.id === providerId))
   }, [])
 
   return (

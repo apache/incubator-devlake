@@ -20,18 +20,21 @@ import { useHistory } from 'react-router-dom'
 import { GRAFANA_URL } from '@/utils/config'
 import dayjs from '@/utils/time'
 import {
-  Button, Icon, Intent,
-  Card, Elevation,
-  Popover,
-  Tooltip,
-  Position,
-  Spinner,
-  Colors,
+  Button,
+  ButtonGroup,
+  Card,
   Classes,
+  Colors,
+  Elevation,
+  Icon,
+  Intent,
   Menu,
   MenuItem,
-  ButtonGroup,
-  Tag
+  Popover,
+  Position,
+  Spinner,
+  Tag,
+  Tooltip
 } from '@blueprintjs/core'
 import usePipelineManager from '@/hooks/usePipelineManager'
 import Nav from '@/components/Nav'
@@ -64,23 +67,17 @@ const Pipelines = (props) => {
     pipelineCount,
     fetchAllPipelines,
     activePipeline,
-    pipelineRun,
-    isFetching,
+    // pipelineRun,
+    // isFetching,
     isFetchingAll,
-    errors: pipelineErrors,
-    setSettings: setPipelineSettings,
-    lastRunId,
+    // errors: pipelineErrors,
+    // setSettings: setPipelineSettings,
+    // lastRunId,
   } = usePipelineManager()
 
   const [filteredPipelines, setFilteredPipelines] = useState([])
   const [pagedPipelines, setPagedPipelines] = useState([])
-  const [pageOptions, setPageOptions] = useState([
-    10,
-    25,
-    50,
-    75,
-    100
-  ])
+  const pageOptions = [10, 25, 50, 75, 100]
   const currentPage = useRef(1)
   const [perPage, setPerPage] = useState(pageOptions[0])
   const [maxPage, setMaxPage] = useState(Math.ceil(filteredPipelines.length / perPage))

@@ -15,11 +15,8 @@
  * limitations under the License.
  *
  */
-import React, { useState, useEffect, useCallback } from 'react'
-// import { ToastNotification } from '@/components/Toast'
-import {
-  Providers,
-} from '@/data/Providers'
+import { useCallback, useEffect, useState } from 'react'
+import { Providers, } from '@/data/Providers'
 
 function usePipelineValidation ({
   enabledProviders = [],
@@ -169,6 +166,7 @@ function usePipelineValidation ({
       }
 
       try {
+        // eslint-disable-next-line no-unused-vars
         parsed = JSON.parse(JSON.stringify(tasksAdvanced))
       } catch (e) {
         errs.push('Advanced Pipeline: Invalid JSON Configuration')

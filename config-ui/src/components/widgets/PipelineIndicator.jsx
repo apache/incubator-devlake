@@ -32,11 +32,11 @@ import { ReactComponent as PipelineFailedIcon } from '@/images/no-synchronize.sv
 import { ReactComponent as PipelineCompleteIcon } from '@/images/check-circle.svg'
 
 const PipelineIndicator = (props) => {
-  const { 
+  const {
     pipeline,
-    graphsUrl = '#', 
+    graphsUrl = '#',
     isVisible = true,
-    onFetch = () => {} ,
+    onFetch = () => {},
     onCancel = () => {},
     onView = () => {},
     onRetry = () => {}
@@ -99,26 +99,29 @@ const PipelineIndicator = (props) => {
                   }}
                 />
                 {(() => {
-                  switch (pipeline.status){
-                  case 'TASK_COMPLETED':
-                    return <Icon
-                      icon={<PipelineCompleteIcon width={40} height={40} style={{ marginTop: '3px', display: 'flex', alignSelf: 'center' }} />}
-                      size={40}
-                    />                    
-                    break
-                  case 'TASK_FAILED':
-                    return <Icon
-                      icon={<PipelineFailedIcon width={40} height={40} style={{ marginTop: '3px', display: 'flex', alignSelf: 'center' }} />}
-                      size={40}
-                    />                       
-                    break
-                  case 'TASK_RUNNING':
-                  default:
-                    return <Icon
-                      icon={<PipelineRunningIcon width={40} height={40} style={{ marginTop: '3px', display: 'flex', alignSelf: 'center' }} />}
-                      size={40}
-                    />
-                    break
+                  switch (pipeline.status) {
+                    case 'TASK_COMPLETED':
+                      return (
+                        <Icon
+                          icon={<PipelineCompleteIcon width={40} height={40} style={{ marginTop: '3px', display: 'flex', alignSelf: 'center' }} />}
+                          size={40}
+                        />
+                      )
+                    case 'TASK_FAILED':
+                      return (
+                        <Icon
+                          icon={<PipelineFailedIcon width={40} height={40} style={{ marginTop: '3px', display: 'flex', alignSelf: 'center' }} />}
+                          size={40}
+                        />
+                      )
+                    case 'TASK_RUNNING':
+                    default:
+                      return (
+                        <Icon
+                          icon={<PipelineRunningIcon width={40} height={40} style={{ marginTop: '3px', display: 'flex', alignSelf: 'center' }} />}
+                          size={40}
+                        />
+                      )
                   }
                 })()}
                 {/* <Icon
@@ -162,7 +165,7 @@ const PipelineIndicator = (props) => {
                       {pipeline.status === 'TASK_COMPLETED' && (
                         <a
                           className='bp3-button bp3-intent-primary bp3-small'
-                          href={ graphsUrl }
+                          href={graphsUrl}
                           target='_blank'
                           rel='noreferrer'
                           style={{ backgroundColor: '#3bd477', color: '#ffffff' }}
@@ -186,7 +189,7 @@ const PipelineIndicator = (props) => {
                           onClick={() => onRetry(pipeline)}
                           small
                         />
-                      )}                      
+                      )}
                       <Button
                         minimal
                         className={`btn-ok ${Classes.POPOVER_DISMISS}`}
@@ -196,25 +199,26 @@ const PipelineIndicator = (props) => {
                     </div>
                   </div>
                   <div style={{
-                   paddingTop: '7px',
-                   borderTop: '1px solid #f5f5f5',
-                   marginTop: '14px', 
-                  }}>
-                    {pipeline?.tasks?.map((t, tIdx) => (
+                    paddingTop: '7px',
+                    borderTop: '1px solid #f5f5f5',
+                    marginTop: '14px',
+                  }}
+                  >
+                    {pipeline?.tasks && pipeline.tasks.map((t, tIdx) => (
                       <div
                         className='pipeline-task-'
                         key={`pipeline-task-key-${tIdx}`}
-                        style={{ display: 'flex', padding: '4px 6px', justifyContent: 'space-between' 
-                      }}>
-                        <div style={{ paddingRight: '8px' }}><Spinner className='mini-task-spinner' size={14} intent={t.status === 'TASK_COMPLETED' ? 'success' : 'warning' } value={t.status === 'TASK_COMPLETED' ? 1 : t.progress} /></div>
+                        style={{ display: 'flex', padding: '4px 6px', justifyContent: 'space-between' }}
+                      >
+                        <div style={{ paddingRight: '8px' }}><Spinner className='mini-task-spinner' size={14} intent={t.status === 'TASK_COMPLETED' ? 'success' : 'warning'} value={t.status === 'TASK_COMPLETED' ? 1 : t.progress} /></div>
                         <div style={{ padding: '0 8px', width: '100%' }}>
-                          <strong style={{ overflow: 'hidden', textOverflow:'ellipsis', whiteSpace: 'nowrap' }}>{t.plugin}</strong>
-                          {t.status === 'TASK_COMPLETED' && (<Icon icon='small-tick' size={14} color={Colors.GREEN5} style={{marginLeft: '5px'}} />)}
-                          {t.status === 'TASK_FAILED' && (<Icon icon='warning-sign' size={11} color={Colors.RED5} style={{marginLeft: '5px', marginBottom: '3px'}} />)}
+                          <strong style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{t.plugin}</strong>
+                          {t.status === 'TASK_COMPLETED' && (<Icon icon='small-tick' size={14} color={Colors.GREEN5} style={{ marginLeft: '5px' }} />)}
+                          {t.status === 'TASK_FAILED' && (<Icon icon='warning-sign' size={11} color={Colors.RED5} style={{ marginLeft: '5px', marginBottom: '3px' }} />)}
                         </div>
                         <div style={{ padding: '0', minWidth: '80px', textAlign: 'right' }}><strong>{Number(t.spentSeconds / 60).toFixed(2)}mins</strong></div>
-                        <div style={{ padding: '0 8px', minWidth: '100px', textAlign: 'right' }}><span color={Colors.GRAY5}>{Number(t.status === 'TASK_COMPLETED' ? 100 : (t.progress/1) * 100).toFixed(2)}%</span></div>
-                        <div></div>
+                        <div style={{ padding: '0 8px', minWidth: '100px', textAlign: 'right' }}><span color={Colors.GRAY5}>{Number(t.status === 'TASK_COMPLETED' ? 100 : (t.progress / 1) * 100).toFixed(2)}%</span></div>
+                        <div />
                       </div>
                     ))}
                   </div>

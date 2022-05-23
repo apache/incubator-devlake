@@ -15,11 +15,10 @@
  * limitations under the License.
  *
  */
-import { useState, useCallback, useEffect } from 'react'
+import { useCallback, useState } from 'react'
 import { DEVLAKE_ENDPOINT } from '@/utils/config'
 import request from '@/utils/request'
 import { ToastNotification } from '@/components/Toast'
-// import { parseCronExpression } from 'cron-schedule'
 import cron from 'cron-validate'
 import parser from 'cron-parser'
 

@@ -17,20 +17,20 @@
  */
 import React, { useCallback, useEffect, useState } from 'react'
 import {
-  ButtonGroup,
-  FormGroup,
-  InputGroup,
-  MenuItem,
-  Position,
   Button,
+  ButtonGroup,
+  Colors,
+  FormGroup,
+  Icon,
+  InputGroup,
   Intent,
   Label,
-  Icon,
-  Colors,
+  MenuItem,
+  Position,
   Tag,
 } from '@blueprintjs/core'
 import useJIRA from '@/hooks/useJIRA'
-import { Select, MultiSelect } from '@blueprintjs/select'
+import { MultiSelect, Select } from '@blueprintjs/select'
 
 import ClearButton from '@/components/ClearButton'
 import '@/styles/integration.scss'
@@ -43,7 +43,7 @@ const MAPPING_TYPES = {
 }
 
 export default function JiraSettings (props) {
-  const { connection, provider, isSaving, isSavingConnection, onSettingsChange } = props
+  const { connection, isSaving, onSettingsChange } = props
   // const { providerId, connectionId } = useParams()
   // const history = useHistory()
 
@@ -63,7 +63,7 @@ export default function JiraSettings (props) {
   const [typeMappingAll, setTypeMappingAll] = useState({})
   const [statusMappings, setStatusMappings] = useState()
   const [jiraIssueEpicKeyField, setJiraIssueEpicKeyField] = useState('')
-  const [jiraIssueStoryCoefficient, setJiraIssueStoryCoefficient] = useState(1)
+  // const [jiraIssueStoryCoefficient, setJiraIssueStoryCoefficient] = useState(1)
   const [jiraIssueStoryPointField, setJiraIssueStoryPointField] = useState('')
   const [remoteLinkCommitSha, setRemoteLinkCommitSha] = useState('')
 
@@ -76,7 +76,7 @@ export default function JiraSettings (props) {
   const [incidentTagsList, setIncidentTagsList] = useState([])
 
   const [fieldsList, setFieldsList] = useState(fields)
-  const [issueTypesList, setIssueTypesList] = useState(issueTypes)
+  // const [issueTypesList, setIssueTypesList] = useState(issueTypes)
 
   const createTypeMapObject = (customType, standardType) => {
     return customType && standardType
@@ -124,7 +124,7 @@ export default function JiraSettings (props) {
       statusMappings,
       jiraIssueEpicKeyField,
       jiraIssueStoryPointField,
-      jiraIssueStoryCoefficient,
+      // jiraIssueStoryCoefficient,
       remoteLinkCommitSha,
       onSettingsChange)
   }, [
@@ -135,7 +135,7 @@ export default function JiraSettings (props) {
     statusMappings,
     jiraIssueEpicKeyField,
     jiraIssueStoryPointField,
-    jiraIssueStoryCoefficient,
+    // jiraIssueStoryCoefficient,
     remoteLinkCommitSha,
     onSettingsChange
   ])
@@ -197,7 +197,7 @@ export default function JiraSettings (props) {
 
   useEffect(() => {
     console.log('>>> JIRA SETTINGS :: ISSUE TYPES LIST DATA CHANGED!', issueTypes)
-    setIssueTypesList(issueTypes)
+    // setIssueTypesList(issueTypes)
     setRequirementTagsList(issueTypes)
     setBugTagsList(issueTypes)
     setIncidentTagsList(issueTypes)
