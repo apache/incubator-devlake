@@ -1,0 +1,89 @@
+package tasks
+
+import (
+	"reflect"
+	"strconv"
+
+	"github.com/merico-dev/lake/plugins/core"
+	"github.com/merico-dev/lake/plugins/helper"
+
+	"github.com/merico-dev/lake/models/domainlayer"
+	"github.com/merico-dev/lake/models/domainlayer/didgen"
+	"github.com/merico-dev/lake/models/domainlayer/ticket"
+	gitlabModels "github.com/merico-dev/lake/plugins/gitlab/models"
+)
+
+var ConvertIssuesMeta = core.SubTaskMeta{
+	Name:             "convertIssues",
+	EntryPoint:       ConvertIssues,
+	EnabledByDefault: true,
+	Description:      "Convert tool layer table gitlab_issues into  domain layer table issues",
+}
+
+func ConvertIssues(taskCtx core.SubTaskContext) error {
+	db := taskCtx.GetDb()
+	data := taskCtx.GetData().(*GitlabTaskData)
+	projectId := data.Options.ProjectId
+
+	issue := &gitlabModels.GitlabIssue{}
+	cursor, err := db.Model(issue).Where("project_id = ?", projectId).Rows()
+
+	if err != nil {
+		return err
+	}
+	defer cursor.Close()
+
+	issueIdGen := didgen.NewDomainIdGenerator(&gitlabModels.GitlabIssue{})
+	userIdGen := didgen.NewDomainIdGenerator(&gitlabModels.GitlabUser{})
+	boardIdGen := didgen.NewDomainIdGenerator(&gitlabModels.GitlabProject{})
+
+	converter, err := helper.NewDataConverter(helper.DataConverterArgs{
+		RawDataSubTaskArgs: helper.RawDataSubTaskArgs{
+			Ctx: taskCtx,
+			Params: GitlabApiParams{
+				ProjectId: data.Options.ProjectId,
+			},
+			Table: RAW_ISSUE_TABLE,
+		},
+		InputRowType: reflect.TypeOf(gitlabModels.GitlabIssue{}),
+		Input:        cursor,
+		Convert: func(inputRow interface{}) ([]interface{}, error) {
+			issue := inputRow.(*gitlabModels.GitlabIssue)
+			domainIssue := &ticket.Issue{
+				DomainEntity:    domainlayer.DomainEntity{Id: issueIdGen.Generate(issue.GitlabId)},
+				Number:          strconv.Itoa(issue.Number),
+				Title:           issue.Title,
+				Description:     issue.Body,
+				Priority:        issue.Priority,
+				Type:            issue.Type,
+				AssigneeId:      userIdGen.Generate(issue.AssigneeId),
+				AssigneeName:    issue.AssigneeName,
+				LeadTimeMinutes: issue.LeadTimeMinutes,
+				Url:             issue.Url,
+				CreatedDate:     &issue.GitlabCreatedAt,
+				UpdatedDate:     &issue.GitlabUpdatedAt,
+				ResolutionDate:  issue.ClosedAt,
+				Severity:        issue.Severity,
+				Component:       issue.Component,
+			}
+			if issue.State == "closed" {
+				domainIssue.Status = ticket.DONE
+			} else {
+				domainIssue.Status = ticket.TODO
+			}
+			boardIssue := &ticket.BoardIssue{
+				BoardId: boardIdGen.Generate(projectId),
+				IssueId: domainIssue.Id,
+			}
+			return []interface{}{
+				domainIssue,
+				boardIssue,
+			}, nil
+		},
+	})
+	if err != nil {
+		return err
+	}
+
+	return converter.Execute()
+}
