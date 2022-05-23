@@ -124,6 +124,9 @@ func ExtractIssues(taskCtx core.SubTaskContext) error {
 			issue.StdType = getStdType(issue.Type)
 			issue.StdStatus = getStdStatus(issue.StatusKey)
 			issue.SpentMinutes = issue.AggregateEstimateMinutes - issue.RemainingEstimateMinutes
+			if len(changelogs) < 100 {
+				issue.ChangelogUpdated = &row.CreatedAt
+			}
 			results = append(results, issue)
 			for _, worklog := range worklogs {
 				results = append(results, worklog)
