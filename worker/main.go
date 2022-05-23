@@ -1,13 +1,30 @@
+/*
+Licensed to the Apache Software Foundation (ASF) under one or more
+contributor license agreements.  See the NOTICE file distributed with
+this work for additional information regarding copyright ownership.
+The ASF licenses this file to You under the Apache License, Version 2.0
+(the "License"); you may not use this file except in compliance with
+the License.  You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+*/
+
 package main
 
 import (
 	"log"
 
-	"github.com/merico-dev/lake/config"
-	"github.com/merico-dev/lake/logger"
-	"github.com/merico-dev/lake/runner"
-	_ "github.com/merico-dev/lake/version"
-	"github.com/merico-dev/lake/worker/app"
+	"github.com/apache/incubator-devlake/config"
+	"github.com/apache/incubator-devlake/logger"
+	"github.com/apache/incubator-devlake/runner"
+	_ "github.com/apache/incubator-devlake/version"
+	"github.com/apache/incubator-devlake/worker/app"
 	"go.temporal.io/sdk/client"
 	"go.temporal.io/sdk/worker"
 )

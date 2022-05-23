@@ -271,7 +271,7 @@ const ProviderSettings = (props) => {
             <InputGroup
               id='gitextractor-url'
               disabled={isRunning || !isEnabled(providerId)}
-              placeholder='eg. https://github.com/merico-dev/lake.git'
+              placeholder='eg. https://github.com/apache/incubator-devlake.git'
               value={gitExtractorUrl}
               onChange={(e) => setGitExtractorUrl(e.target.value)}
               className='input-gitextractor-url'

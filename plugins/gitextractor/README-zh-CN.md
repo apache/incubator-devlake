@@ -17,7 +17,7 @@ curl --location --request POST 'localhost:8080/pipelines' \
             {
                 "Plugin": "gitextractor",
                 "Options": {
-                    "url": "https://github.com/merico-dev/lake.git",
+                    "url": "https://github.com/apache/incubator-devlake.git",
                     "repoId": "github:GithubRepos:384111310"
                 }
             }
@@ -39,7 +39,7 @@ curl --location --request POST 'localhost:8080/pipelines' \
 本插件可以作为独立于DevLake服务的命令行工具使用:
 
 ```
-go run plugins/gitextractor/main.go -url https://github.com/merico-dev/lake.git -id github:GithubRepo:384111310 -db "merico:merico@tcp(127.0.0.1:3306)/lake?charset=utf8mb4&parseTime=True"
+go run plugins/gitextractor/main.go -url https://github.com/apache/incubator-devlake.git -id github:GithubRepo:384111310 -db "merico:merico@tcp(127.0.0.1:3306)/lake?charset=utf8mb4&parseTime=True"
 ```
 
 如果想了解命令行工具的更多选项，比如如何输出收集结果到csv文件，请直接阅读`plugins/gitextractor/main.go`。

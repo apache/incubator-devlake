@@ -1,11 +1,28 @@
+/*
+Licensed to the Apache Software Foundation (ASF) under one or more
+contributor license agreements.  See the NOTICE file distributed with
+this work for additional information regarding copyright ownership.
+The ASF licenses this file to You under the Apache License, Version 2.0
+(the "License"); you may not use this file except in compliance with
+the License.  You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+*/
+
 package main
 
 import (
 	"fmt"
 
-	"github.com/merico-dev/lake/plugins/core"
-	"github.com/merico-dev/lake/plugins/dbt/tasks"
-	"github.com/merico-dev/lake/runner"
+	"github.com/apache/incubator-devlake/plugins/core"
+	"github.com/apache/incubator-devlake/plugins/dbt/tasks"
+	"github.com/apache/incubator-devlake/runner"
 	"github.com/mitchellh/mapstructure"
 	"github.com/spf13/cobra"
 )
@@ -50,7 +67,7 @@ func (plugin Dbt) PrepareTaskData(taskCtx core.TaskContext, options map[string]i
 }
 
 func (plugin Dbt) RootPkgPath() string {
-	return "github.com/merico-dev/lake/plugins/dbt"
+	return "github.com/apache/incubator-devlake/plugins/dbt"
 }
 
 var PluginEntry Dbt
@@ -74,10 +91,10 @@ func main() {
 	projectVars["event_min_id"] = "7581"
 	projectVars["event_max_id"] = "7582"
 	dbtCmd.Flags().StringToStringVarP(&projectVars, "projectVars", "v", projectVars, "dbt provides variables to provide data to models for compilation.")
-	
+
 	dbtCmd.Run = func(cmd *cobra.Command, args []string) {
 		projectVarsConvert := make(map[string]interface{}, len(projectVars))
-		for k, v := range projectVars{
+		for k, v := range projectVars {
 			projectVarsConvert[k] = v
 		}
 		runner.DirectRun(cmd, args, PluginEntry, map[string]interface{}{

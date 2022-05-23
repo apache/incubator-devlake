@@ -1,3 +1,18 @@
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
 # NOTE: you have to use tabs in this file for make. Not spaces.
 # https://stackoverflow.com/questions/920413/make-error-missing-separator
 # https://tutorialedge.net/golang/makefiles-for-go-developers/
@@ -10,10 +25,10 @@ build-plugin:
 	@sh scripts/compile-plugins.sh
 
 build-worker:
-	go build -ldflags "-X 'github.com/merico-dev/lake/version.Version=$(VERSION)'" -o bin/lake-worker ./worker/
+	go build -ldflags "-X 'github.com/apache/incubator-devlake/version.Version=$(VERSION)'" -o bin/lake-worker ./worker/
 
 build-server:
-	go build -ldflags "-X 'github.com/merico-dev/lake/version.Version=$(VERSION)'" -o bin/lake
+	go build -ldflags "-X 'github.com/apache/incubator-devlake/version.Version=$(VERSION)'" -o bin/lake
 
 build: build-plugin build-server
 

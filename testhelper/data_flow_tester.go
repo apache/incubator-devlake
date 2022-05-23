@@ -1,3 +1,20 @@
+/*
+Licensed to the Apache Software Foundation (ASF) under one or more
+contributor license agreements.  See the NOTICE file distributed with
+this work for additional information regarding copyright ownership.
+The ASF licenses this file to You under the Apache License, Version 2.0
+(the "License"); you may not use this file except in compliance with
+the License.  You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+*/
+
 package testhelper
 
 import (
@@ -6,11 +23,11 @@ import (
 	"testing"
 	"time"
 
-	"github.com/merico-dev/lake/config"
-	"github.com/merico-dev/lake/logger"
-	"github.com/merico-dev/lake/plugins/core"
-	"github.com/merico-dev/lake/plugins/helper"
-	"github.com/merico-dev/lake/runner"
+	"github.com/apache/incubator-devlake/config"
+	"github.com/apache/incubator-devlake/logger"
+	"github.com/apache/incubator-devlake/plugins/core"
+	"github.com/apache/incubator-devlake/plugins/helper"
+	"github.com/apache/incubator-devlake/runner"
 	"github.com/spf13/viper"
 	"github.com/stretchr/testify/assert"
 	"gorm.io/gorm"
@@ -48,7 +65,10 @@ type DataFlowTester struct {
 
 // NewDataFlowTester create a *DataFlowTester to help developer test their subtasks data flow
 func NewDataFlowTester(t *testing.T, pluginName string, pluginMeta core.PluginMeta) *DataFlowTester {
-	core.RegisterPlugin(pluginName, pluginMeta)
+	err := core.RegisterPlugin(pluginName, pluginMeta)
+	if err != nil {
+		panic(err)
+	}
 	cfg := config.GetConfig()
 	db, err := runner.NewGormDb(cfg, logger.Global)
 	if err != nil {
@@ -97,7 +117,10 @@ func (t *DataFlowTester) FlushTable(tableName string) {
 // Subtask executes specified subtasks
 func (t *DataFlowTester) Subtask(subtaskMeta core.SubTaskMeta, taskData interface{}) {
 	subtaskCtx := helper.NewStandaloneSubTaskContext(t.Cfg, t.Log, t.Db, context.Background(), t.Name, taskData)
-	subtaskMeta.EntryPoint(subtaskCtx)
+	err := subtaskMeta.EntryPoint(subtaskCtx)
+	if err != nil {
+		panic(err)
+	}
 }
 
 // VerifyTable reads rows from csv file and compare with records from database one by one. You must specified the

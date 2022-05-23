@@ -9,7 +9,7 @@
         "plugin": "gitextractor",
         "options": {
           "repoId": "github:GithubRepo:384111310",
-          "url": "https://github.com/merico-dev/lake.git"
+          "url": "https://github.com/apache/incubator-devlake.git"
         }
       }
     ]

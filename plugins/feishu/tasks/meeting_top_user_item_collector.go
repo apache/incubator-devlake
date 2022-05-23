@@ -1,3 +1,20 @@
+/*
+Licensed to the Apache Software Foundation (ASF) under one or more
+contributor license agreements.  See the NOTICE file distributed with
+this work for additional information regarding copyright ownership.
+The ASF licenses this file to You under the Apache License, Version 2.0
+(the "License"); you may not use this file except in compliance with
+the License.  You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+*/
+
 package tasks
 
 import (
@@ -6,9 +23,9 @@ import (
 	"net/url"
 	"strconv"
 
-	"github.com/merico-dev/lake/plugins/core"
-	"github.com/merico-dev/lake/plugins/feishu/apimodels"
-	"github.com/merico-dev/lake/plugins/helper"
+	"github.com/apache/incubator-devlake/plugins/core"
+	"github.com/apache/incubator-devlake/plugins/feishu/apimodels"
+	"github.com/apache/incubator-devlake/plugins/helper"
 )
 
 const RAW_MEETING_TOP_USER_ITEM_TABLE = "feishu_meeting_top_user_item"
@@ -63,9 +80,8 @@ func CollectMeetingTopUserItem(taskCtx core.SubTaskContext) error {
 }
 
 var CollectMeetingTopUserItemMeta = core.SubTaskMeta{
-	Name: "collectMeetingTopUserItem",
-	EntryPoint: CollectMeetingTopUserItem,
+	Name:             "collectMeetingTopUserItem",
+	EntryPoint:       CollectMeetingTopUserItem,
 	EnabledByDefault: true,
-	Description: "Collect top user meeting data from Feishu api",
+	Description:      "Collect top user meeting data from Feishu api",
 }
-
