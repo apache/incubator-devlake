@@ -7,7 +7,7 @@
     "build-production": "webpack --config webpack.production.config.js --mode production",
     "start": "webpack serve --progress",
     "start-production": "npm run build-production;node server.js",
-    "lint": "eslint ./src --fix",
+    "lint": "eslint ./src --fix --ext .jsx --ext .js",
     "cypress": "./node_modules/.bin/cypress open"
   },
   "dependencies": {
@@ -58,6 +58,7 @@
     "eslint-import-resolver-babel-module": "^5.2.0",
     "eslint-plugin-babel": "^5.3.1",
     "eslint-plugin-emotion": "^10.0.27",
+    "eslint-plugin-header": "^3.1.1",
     "eslint-plugin-import": "^2.22.1",
     "eslint-plugin-jsx-a11y": "^6.4.1",
     "eslint-plugin-node": "^11.1.0",

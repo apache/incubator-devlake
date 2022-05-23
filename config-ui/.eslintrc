@@ -20,7 +20,8 @@
   },
   "plugins": [
     "unicorn",
-    "babel"
+    "babel",
+    "header"
   ],
   "settings": {
     "import/resolver": {
@@ -49,6 +50,7 @@
     "import/no-named-as-default": "off",
     "comma-dangle": "off",
     "react/prop-types": "off",
-    "react/jsx-boolean-value": 0
+    "react/jsx-boolean-value": 0,
+    "header/header": ["error", ".file-headerrc"]
   }
 }
