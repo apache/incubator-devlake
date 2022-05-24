@@ -1,0 +1,1857 @@
+{
+  "annotations": {
+    "list": [
+      {
+        "builtIn": 1,
+        "datasource": "-- Grafana --",
+        "enable": true,
+        "hide": true,
+        "iconColor": "rgba(0, 211, 255, 1)",
+        "name": "Annotations & Alerts",
+        "type": "dashboard"
+      }
+    ]
+  },
+  "editable": true,
+  "gnetId": null,
+  "graphTooltip": 0,
+  "id": 13,
+  "iteration": 1653390976868,
+  "links": [],
+  "panels": [
+    {
+      "datasource": "mysql",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "orange",
+                "value": 10
+              },
+              {
+                "color": "red",
+                "value": 20
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 6,
+        "x": 0,
+        "y": 0
+      },
+      "id": 8,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "text": {},
+        "textMode": "auto"
+      },
+      "pluginVersion": "8.0.6",
+      "targets": [
+        {
+          "format": "table",
+          "group": [],
+          "metricColumn": "none",
+          "queryType": "randomWalk",
+          "rawQuery": true,
+          "rawSql": "select\n  count(*)\nfrom\n  lake.issues i\nwhere\n  i.priority in ($critical) and\n  i.type = 'BUG' and\n  date(i.created_date) between STR_TO_DATE('$month','%Y-%m-%d') and STR_TO_DATE('$month','%Y-%m-%d') + INTERVAL 1 MONTH - INTERVAL 1 DAY;",
+          "refId": "A",
+          "select": [
+            [
+              {
+                "params": [
+                  "id"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "table": "_devlake_blueprints",
+          "timeColumn": "created_at",
+          "timeColumnType": "timestamp",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        }
+      ],
+      "title": "Critical Defects Identified",
+      "type": "stat"
+    },
+    {
+      "datasource": "mysql",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "axisSoftMin": 0,
+            "fillOpacity": 80,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineWidth": 1
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 18,
+        "x": 6,
+        "y": 0
+      },
+      "id": 22,
+      "options": {
+        "barWidth": 0.46,
+        "groupWidth": 0.7,
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom"
+        },
+        "orientation": "auto",
+        "showValue": "auto",
+        "text": {
+          "valueSize": 12
+        },
+        "tooltip": {
+          "mode": "single"
+        }
+      },
+      "pluginVersion": "8.0.6",
+      "targets": [
+        {
+          "format": "table",
+          "group": [],
+          "metricColumn": "none",
+          "queryType": "randomWalk",
+          "rawQuery": true,
+          "rawSql": "with _issues as(\n  select\n    DATE_ADD(date(i.created_date), INTERVAL -DAY(date(i.created_date))+1 DAY) as time,\n    count(*) as defect_count\n  from\n    lake.issues i\n  where\n    i.priority in ($critical)\n    and i.type = 'BUG'\n    and $__timeFilter(i.created_date)\n    and i.created_date >= DATE_ADD(DATE_ADD($__timeFrom(), INTERVAL -DAY($__timeFrom())+1 DAY), INTERVAL +1 MONTH)\n  group by time\n)\n\nselect\n  date_format(time,'%M %Y') as month,\n  defect_count\nfrom _issues\norder by time asc\n",
+          "refId": "A",
+          "select": [
+            [
+              {
+                "params": [
+                  "id"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "table": "_devlake_blueprints",
+          "timeColumn": "created_at",
+          "timeColumnType": "timestamp",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        }
+      ],
+      "title": "Critical Defects Identified over Month",
+      "type": "barchart"
+    },
+    {
+      "datasource": "mysql",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "decimals": 1,
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 7
+              }
+            ]
+          },
+          "unit": "d"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 6,
+        "x": 0,
+        "y": 8
+      },
+      "id": 10,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "text": {},
+        "textMode": "auto"
+      },
+      "pluginVersion": "8.0.6",
+      "targets": [
+        {
+          "format": "table",
+          "group": [],
+          "metricColumn": "none",
+          "queryType": "randomWalk",
+          "rawQuery": true,
+          "rawSql": "with _inprogress_times as (\n  select\n    i.id as issue_id,\n    c.created_date as inprogress_time\n  from\n    lake.issues i\n    join lake.changelogs c on i.id = c.issue_id\n  where\n    c.field_name = 'status'\n    and c.to in ($inprogress_status) \n    and date(i.created_date) between STR_TO_DATE('$month','%Y-%m-%d') and STR_TO_DATE('$month','%Y-%m-%d') + INTERVAL 1 MONTH - INTERVAL 1 DAY\n),\n\n_done_times as (\n  select\n    i.id as issue_id,\n    c.created_date as done_time\n  from\n    lake.issues i\n    join lake.changelogs c on i.id = c.issue_id\n  where\n    c.field_name = 'status'\n    and c.to in ($done_status)\n    and date(i.created_date) between STR_TO_DATE('$month','%Y-%m-%d') and STR_TO_DATE('$month','%Y-%m-%d') + INTERVAL 1 MONTH - INTERVAL 1 DAY\n)\n\nselect\n  AVG(TIMESTAMPDIFF(MINUTE, inprogress_time, done_time) / 1440)\nfrom\n  _inprogress_times it\n  join _done_times dt on it.issue_id = dt.issue_id",
+          "refId": "A",
+          "select": [
+            [
+              {
+                "params": [
+                  "id"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "table": "_devlake_blueprints",
+          "timeColumn": "created_at",
+          "timeColumnType": "timestamp",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        }
+      ],
+      "title": "Issue Cycle Time",
+      "type": "stat"
+    },
+    {
+      "datasource": "mysql",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 0,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineInterpolation": "linear",
+            "lineStyle": {
+              "fill": "solid"
+            },
+            "lineWidth": 1,
+            "pointSize": 10,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "decimals": 1,
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 7
+              }
+            ]
+          },
+          "unit": "d"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 18,
+        "x": 6,
+        "y": 8
+      },
+      "id": 23,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom"
+        },
+        "tooltip": {
+          "mode": "single"
+        }
+      },
+      "pluginVersion": "8.0.6",
+      "targets": [
+        {
+          "format": "time_series",
+          "group": [],
+          "metricColumn": "none",
+          "queryType": "randomWalk",
+          "rawQuery": true,
+          "rawSql": "with _inprogress_times as (\n  select\n    i.id as issue_id,\n    i.created_date,\n    c.created_date as inprogress_time\n  from\n    lake.issues i\n    join lake.changelogs c on i.id = c.issue_id\n  where\n    c.field_name = 'status'\n    and c.to in ($inprogress_status) \n    and $__timeFilter(i.created_date)\n    and i.created_date >= DATE_ADD(DATE_ADD($__timeFrom(), INTERVAL -DAY($__timeFrom())+1 DAY), INTERVAL +1 MONTH)\n),\n\n_done_times as (\n  select\n    i.id as issue_id,\n    i.created_date,\n    c.created_date as done_time\n  from\n    lake.issues i\n    join lake.changelogs c on i.id = c.issue_id\n  where\n    c.field_name = 'status'\n    and c.to in ($done_status)\n    and $__timeFilter(i.created_date)\n    and i.created_date >= DATE_ADD(DATE_ADD($__timeFrom(), INTERVAL -DAY($__timeFrom())+1 DAY), INTERVAL +1 MONTH)\n)\n\nselect\n  DATE_ADD(date(it.created_date), INTERVAL -DAY(date(it.created_date))+1 DAY) as time,\n  AVG(TIMESTAMPDIFF(MINUTE, inprogress_time, done_time) / 1440) as avg_issue_cycle_time_in_days\nfrom\n  _inprogress_times it\n  join _done_times dt on it.issue_id = dt.issue_id\ngroup by time",
+          "refId": "A",
+          "select": [
+            [
+              {
+                "params": [
+                  "id"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "table": "_devlake_blueprints",
+          "timeColumn": "created_at",
+          "timeColumnType": "timestamp",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        }
+      ],
+      "title": "Issue Cycle Time over Month",
+      "type": "timeseries"
+    },
+    {
+      "datasource": "mysql",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "orange",
+                "value": 10
+              },
+              {
+                "color": "green",
+                "value": 15
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 6,
+        "x": 0,
+        "y": 16
+      },
+      "id": 14,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "text": {},
+        "textMode": "auto"
+      },
+      "pluginVersion": "8.0.6",
+      "targets": [
+        {
+          "format": "table",
+          "group": [],
+          "metricColumn": "none",
+          "queryType": "randomWalk",
+          "rawQuery": true,
+          "rawSql": "select\n  count(distinct author_name)\nfrom\n  lake.commits c\n  join lake.repo_commits rc on c.sha = rc.commit_sha\nwhere\n  date(authored_date) between\n    STR_TO_DATE('$month','%Y-%m-%d') and\n    STR_TO_DATE('$month','%Y-%m-%d') + INTERVAL 1 MONTH - INTERVAL 1 DAY and\n  rc.repo_id in ($repo_id);",
+          "refId": "A",
+          "select": [
+            [
+              {
+                "params": [
+                  "id"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "table": "_devlake_blueprints",
+          "timeColumn": "created_at",
+          "timeColumnType": "timestamp",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        }
+      ],
+      "title": "Number of Developers",
+      "type": "stat"
+    },
+    {
+      "datasource": "mysql",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "axisSoftMin": 0,
+            "fillOpacity": 80,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineWidth": 1
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 18,
+        "x": 6,
+        "y": 16
+      },
+      "id": 24,
+      "options": {
+        "barWidth": 0.5,
+        "groupWidth": 0.7,
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom"
+        },
+        "orientation": "auto",
+        "showValue": "auto",
+        "text": {
+          "valueSize": 12
+        },
+        "tooltip": {
+          "mode": "single"
+        }
+      },
+      "pluginVersion": "8.0.6",
+      "targets": [
+        {
+          "format": "table",
+          "group": [],
+          "metricColumn": "none",
+          "queryType": "randomWalk",
+          "rawQuery": true,
+          "rawSql": "with _developers as(\n  select\n    DATE_ADD(date(c.authored_date), INTERVAL -DAY(date(c.authored_date))+1 DAY) as time,\n    count(distinct author_name) as developer_count\n  from\n    lake.commits c\n    join lake.repo_commits rc on c.sha = rc.commit_sha\n  where\n    $__timeFilter(c.authored_date)\n    and c.authored_date >= DATE_ADD(DATE_ADD($__timeFrom(), INTERVAL -DAY($__timeFrom())+1 DAY), INTERVAL +1 MONTH)\n    and rc.repo_id in ($repo_id)\n  group by time\n)\n\nselect\n  date_format(time,'%M %Y') as month,\n  developer_count\nfrom _developers\norder by time asc",
+          "refId": "A",
+          "select": [
+            [
+              {
+                "params": [
+                  "id"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "table": "_devlake_blueprints",
+          "timeColumn": "created_at",
+          "timeColumnType": "timestamp",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        }
+      ],
+      "title": "Number of Developers",
+      "type": "barchart"
+    },
+    {
+      "datasource": "mysql",
+      "description": "",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "#EAB839",
+                "value": 60
+              },
+              {
+                "color": "green",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "percent"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 6,
+        "x": 0,
+        "y": 24
+      },
+      "id": 6,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "text": {},
+        "textMode": "auto"
+      },
+      "pluginVersion": "8.0.6",
+      "targets": [
+        {
+          "format": "table",
+          "group": [],
+          "metricColumn": "none",
+          "queryType": "randomWalk",
+          "rawQuery": true,
+          "rawSql": "with _num_issues_with_sprint_updated as (\n  select\n    count(*) as num_issues_with_sprint_updated\n  from\n    lake.issues i\n    join lake.changelogs c on i.id = c.issue_id\n  where\n    c.field_name = 'Sprint' and\n    c.from != '' and\n    c.to != '' and\n    date(i.created_date) between\n      STR_TO_DATE('$month','%Y-%m-%d') and\n      STR_TO_DATE('$month','%Y-%m-%d') + INTERVAL 1 MONTH - INTERVAL 1 DAY\n),\n\n_total_num_issues as (\n  select\n    count(*) as total_num_issues\n  from\n    lake.issues i\n  where\n    date(i.created_date) between\n      STR_TO_DATE('$month','%Y-%m-%d') and\n      STR_TO_DATE('$month','%Y-%m-%d') + INTERVAL 1 MONTH - INTERVAL 1 DAY\n)\n\nselect\n  now() as time,\n  100 - 100 * (select 1.0 * num_issues_with_sprint_updated from _num_issues_with_sprint_updated) / (select total_num_issues from _total_num_issues) as ratio;",
+          "refId": "A",
+          "select": [
+            [
+              {
+                "params": [
+                  "id"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "table": "_devlake_blueprints",
+          "timeColumn": "created_at",
+          "timeColumnType": "timestamp",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        }
+      ],
+      "title": "On-time Delivery",
+      "type": "stat"
+    },
+    {
+      "datasource": "mysql",
+      "description": "",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 0,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 10,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "green",
+                "value": 60
+              }
+            ]
+          },
+          "unit": "percent"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 18,
+        "x": 6,
+        "y": 24
+      },
+      "id": 25,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom"
+        },
+        "tooltip": {
+          "mode": "single"
+        }
+      },
+      "pluginVersion": "8.0.6",
+      "targets": [
+        {
+          "format": "time_series",
+          "group": [],
+          "metricColumn": "none",
+          "queryType": "randomWalk",
+          "rawQuery": true,
+          "rawSql": "with _num_issues_with_sprint_updated as (\n  select\n    DATE_ADD(date(i.created_date), INTERVAL -DAY(date(i.created_date))+1 DAY) as time,\n    count(*) as num_issues_with_sprint_updated\n  from\n    lake.issues i\n    join lake.changelogs c on i.id = c.issue_id\n  where\n    c.field_name = 'Sprint'\n    and c.from != '' \n    and c.to != ''\n    and $__timeFilter(i.created_date)\n    and i.created_date >= DATE_ADD(DATE_ADD($__timeFrom(), INTERVAL -DAY($__timeFrom())+1 DAY), INTERVAL +1 MONTH)\n  group by time\n),\n\n_total_num_issues as (\n  select\n    DATE_ADD(date(i.created_date), INTERVAL -DAY(date(i.created_date))+1 DAY) as time,\n    count(*) as total_num_issues\n  from\n    lake.issues i\n  where\n    $__timeFilter(i.created_date)\n    and i.created_date >= DATE_ADD(DATE_ADD($__timeFrom(), INTERVAL -DAY($__timeFrom())+1 DAY), INTERVAL +1 MONTH)\n  group by time\n)\n\nselect\n  x.time,\n  100 - 100 * (1.0 * x.num_issues_with_sprint_updated / y.total_num_issues) as delivery_rate\nfrom \n  _num_issues_with_sprint_updated x \n  join _total_num_issues y on x.time = y.time",
+          "refId": "A",
+          "select": [
+            [
+              {
+                "params": [
+                  "id"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "table": "_devlake_blueprints",
+          "timeColumn": "created_at",
+          "timeColumnType": "timestamp",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        }
+      ],
+      "title": "On-time Delivery over Month",
+      "type": "timeseries"
+    },
+    {
+      "datasource": "mysql",
+      "description": "",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "green",
+                "value": 20
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 6,
+        "x": 0,
+        "y": 32
+      },
+      "id": 4,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "text": {},
+        "textMode": "auto"
+      },
+      "pluginVersion": "8.0.6",
+      "targets": [
+        {
+          "format": "table",
+          "group": [],
+          "metricColumn": "none",
+          "queryType": "randomWalk",
+          "rawQuery": true,
+          "rawSql": "select\n  count(*)\nfrom\n  lake.pull_requests pr\nwhere\n  pr.merged_date is not null and\n  date(pr.merged_date) between\n    STR_TO_DATE('$month','%Y-%m-%d') and\n    STR_TO_DATE('$month','%Y-%m-%d') + INTERVAL 1 MONTH - INTERVAL 1 DAY and\n  pr.base_repo_id in ($repo_id);",
+          "refId": "A",
+          "select": [
+            [
+              {
+                "params": [
+                  "id"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "table": "_devlake_blueprints",
+          "timeColumn": "created_at",
+          "timeColumnType": "timestamp",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        }
+      ],
+      "title": "PRs merged",
+      "type": "stat"
+    },
+    {
+      "datasource": "mysql",
+      "description": "",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "axisSoftMin": 0,
+            "fillOpacity": 80,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineWidth": 1
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 18,
+        "x": 6,
+        "y": 32
+      },
+      "id": 26,
+      "options": {
+        "barWidth": 0.5,
+        "groupWidth": 0.7,
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom"
+        },
+        "orientation": "auto",
+        "showValue": "auto",
+        "text": {
+          "valueSize": 12
+        },
+        "tooltip": {
+          "mode": "single"
+        }
+      },
+      "pluginVersion": "8.0.6",
+      "targets": [
+        {
+          "format": "table",
+          "group": [],
+          "metricColumn": "none",
+          "queryType": "randomWalk",
+          "rawQuery": true,
+          "rawSql": "with _merged_prs as(\n  select\n    DATE_ADD(date(pr.merged_date), INTERVAL -DAY(date(pr.merged_date))+1 DAY) as time,\n    count(*) as pr_merged_count\n  from\n    lake.pull_requests pr\n  where\n    pr.base_repo_id in ($repo_id)\n    and pr.merged_date is not null\n    and $__timeFilter(pr.merged_date)\n    and pr.merged_date >= DATE_ADD(DATE_ADD($__timeFrom(), INTERVAL -DAY($__timeFrom())+1 DAY), INTERVAL +1 MONTH)\n  group by time\n)\n\nselect\n  date_format(time,'%M %Y') as month,\n  pr_merged_count\nfrom _merged_prs\norder by time asc",
+          "refId": "A",
+          "select": [
+            [
+              {
+                "params": [
+                  "id"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "table": "_devlake_blueprints",
+          "timeColumn": "created_at",
+          "timeColumnType": "timestamp",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        }
+      ],
+      "title": "PRs Merged over Month",
+      "type": "barchart"
+    },
+    {
+      "datasource": "mysql",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "orange",
+                "value": 20
+              },
+              {
+                "color": "red",
+                "value": 40
+              }
+            ]
+          },
+          "unit": "percent"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 6,
+        "x": 0,
+        "y": 40
+      },
+      "id": 16,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "text": {},
+        "textMode": "auto"
+      },
+      "pluginVersion": "8.0.6",
+      "targets": [
+        {
+          "format": "table",
+          "group": [],
+          "metricColumn": "none",
+          "queryType": "randomWalk",
+          "rawQuery": true,
+          "rawSql": "select \n  100*sum(case when id in (select pull_request_id from pull_request_issues) then 1 else 0 end)/count(*) as unlinked_pr_rate\nfrom lake.pull_requests \nwhere base_repo_id in ($repo_id)",
+          "refId": "A",
+          "select": [
+            [
+              {
+                "params": [
+                  "id"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "table": "_devlake_blueprints",
+          "timeColumn": "created_at",
+          "timeColumnType": "timestamp",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        }
+      ],
+      "title": "Unlinked PRs %",
+      "type": "stat"
+    },
+    {
+      "datasource": "mysql",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 0,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 10,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "percent"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 18,
+        "x": 6,
+        "y": 40
+      },
+      "id": 28,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom"
+        },
+        "tooltip": {
+          "mode": "single"
+        }
+      },
+      "pluginVersion": "8.0.6",
+      "targets": [
+        {
+          "format": "table",
+          "group": [],
+          "metricColumn": "none",
+          "queryType": "randomWalk",
+          "rawQuery": true,
+          "rawSql": "-- with _prs as(\nselect\n  DATE_ADD(date(created_date), INTERVAL -DAY(date(created_date))+1 DAY) as time,\n  100*sum(case when id in (select pull_request_id from pull_request_issues) then 1 else 0 end)/count(*) as unlinked_pr_rate\nfrom lake.pull_requests \nwhere base_repo_id in ($repo_id)\ngroup by time\n\n\n",
+          "refId": "A",
+          "select": [
+            [
+              {
+                "params": [
+                  "id"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "table": "_devlake_blueprints",
+          "timeColumn": "created_at",
+          "timeColumnType": "timestamp",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        }
+      ],
+      "title": "Unlinked PRs Ratio over Month",
+      "type": "timeseries"
+    },
+    {
+      "datasource": "mysql",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "green",
+                "value": 50
+              }
+            ]
+          },
+          "unit": "percent"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 6,
+        "x": 0,
+        "y": 48
+      },
+      "id": 12,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "text": {},
+        "textMode": "auto"
+      },
+      "pluginVersion": "8.0.6",
+      "targets": [
+        {
+          "format": "table",
+          "group": [],
+          "metricColumn": "none",
+          "queryType": "randomWalk",
+          "rawQuery": true,
+          "rawSql": "with _commits_groupby_name_and_date as (\n  select\n    author_name,\n    date(authored_date) as _day,\n    count(*)\n  from\n    lake.commits\n  where\n    WEEKDAY(authored_date) between 0 and 4 and\n    date(authored_date) between\n      STR_TO_DATE('$month','%Y-%m-%d') and\n      STR_TO_DATE('$month','%Y-%m-%d') + INTERVAL 1 MONTH - INTERVAL 1 DAY\n  group by\n  author_name, date(authored_date)\n)\n\nselect 100 * count(*) / (count(distinct author_name) * count(distinct _day))\nfrom _commits_groupby_name_and_date;",
+          "refId": "A",
+          "select": [
+            [
+              {
+                "params": [
+                  "id"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "table": "_devlake_blueprints",
+          "timeColumn": "created_at",
+          "timeColumnType": "timestamp",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        }
+      ],
+      "title": "Coding Days %",
+      "type": "stat"
+    },
+    {
+      "datasource": "mysql",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 0,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 10,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "percent"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 18,
+        "x": 6,
+        "y": 48
+      },
+      "id": 29,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom"
+        },
+        "tooltip": {
+          "mode": "single"
+        }
+      },
+      "pluginVersion": "8.0.6",
+      "targets": [
+        {
+          "format": "time_series",
+          "group": [],
+          "metricColumn": "none",
+          "queryType": "randomWalk",
+          "rawQuery": true,
+          "rawSql": "with _commits_groupby_name_and_date as (\n  select\n    author_name,\n    date(authored_date) as _day,\n    count(*)\n  from\n    lake.commits\n  where\n    (WEEKDAY(authored_date) between 0 and 4)\n    and $__timeFilter(authored_date)\n    and authored_date >= DATE_ADD(DATE_ADD($__timeFrom(), INTERVAL -DAY($__timeFrom())+1 DAY), INTERVAL +1 MONTH)\n  group by 1,2\n)\n\nselect\n  DATE_ADD(_day, INTERVAL -DAY(_day)+1 DAY) as time,\n  100*count(*)/(count(distinct author_name) * count(distinct _day)) as working_days_percentatages_per_month\nfrom _commits_groupby_name_and_date\ngroup by time",
+          "refId": "A",
+          "select": [
+            [
+              {
+                "params": [
+                  "id"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "table": "_devlake_blueprints",
+          "timeColumn": "created_at",
+          "timeColumnType": "timestamp",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        }
+      ],
+      "title": "Percentage of Coding Days Each Month",
+      "type": "timeseries"
+    },
+    {
+      "datasource": "mysql",
+      "description": "",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "decimals": 1,
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "d"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 6,
+        "x": 0,
+        "y": 56
+      },
+      "id": 2,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "text": {},
+        "textMode": "auto"
+      },
+      "pluginVersion": "8.0.6",
+      "targets": [
+        {
+          "format": "table",
+          "group": [],
+          "metricColumn": "none",
+          "queryType": "randomWalk",
+          "rawQuery": true,
+          "rawSql": "select\n  AVG(TIMESTAMPDIFF(MINUTE, pr.created_date, pr.merged_date) / 1440)\nfrom\n  lake.pull_requests pr\nwhere\n  pr.merged_date is not null\n  and pr.base_repo_id in ($repo_id)\n  and date(pr.created_date) between\n    STR_TO_DATE('$month','%Y-%m-%d') and\n    STR_TO_DATE('$month','%Y-%m-%d') + INTERVAL 1 MONTH - INTERVAL 1 DAY",
+          "refId": "A",
+          "select": [
+            [
+              {
+                "params": [
+                  "id"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "table": "_raw_github_api_repositories",
+          "timeColumn": "created_at",
+          "timeColumnType": "timestamp",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        }
+      ],
+      "title": "PR Cycle Time",
+      "type": "stat"
+    },
+    {
+      "datasource": "mysql",
+      "description": "",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 0,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 10,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "decimals": 1,
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "d"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 18,
+        "x": 6,
+        "y": 56
+      },
+      "id": 30,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom"
+        },
+        "tooltip": {
+          "mode": "single"
+        }
+      },
+      "pluginVersion": "8.0.6",
+      "targets": [
+        {
+          "format": "table",
+          "group": [],
+          "metricColumn": "none",
+          "queryType": "randomWalk",
+          "rawQuery": true,
+          "rawSql": "select\n  DATE_ADD(date(pr.created_date), INTERVAL -DAY(date(pr.created_date))+1 DAY) as time,\n  AVG(TIMESTAMPDIFF(MINUTE, pr.created_date, pr.merged_date) / 1440) as pr_cycle_time_in_days\nfrom\n  lake.pull_requests pr\nwhere\n  pr.merged_date is not null\n  and pr.base_repo_id in ($repo_id)\n  and $__timeFilter(pr.created_date)\n  and pr.created_date >= DATE_ADD(DATE_ADD($__timeFrom(), INTERVAL -DAY($__timeFrom())+1 DAY), INTERVAL +1 MONTH)\ngroup by time",
+          "refId": "A",
+          "select": [
+            [
+              {
+                "params": [
+                  "id"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "table": "_raw_github_api_repositories",
+          "timeColumn": "created_at",
+          "timeColumnType": "timestamp",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        }
+      ],
+      "title": "PR Cycle Time over Month",
+      "type": "timeseries"
+    },
+    {
+      "datasource": "mysql",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "axisSoftMin": 0,
+            "fillOpacity": 68,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineWidth": 1
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "d"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 64
+      },
+      "id": 20,
+      "options": {
+        "barWidth": 0.27,
+        "groupWidth": 0.7,
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom"
+        },
+        "orientation": "auto",
+        "showValue": "auto",
+        "text": {
+          "valueSize": 12
+        },
+        "tooltip": {
+          "mode": "single"
+        }
+      },
+      "targets": [
+        {
+          "format": "table",
+          "group": [],
+          "metricColumn": "none",
+          "queryType": "randomWalk",
+          "rawQuery": true,
+          "rawSql": "select\n  i.priority as 'Priority',\n  AVG(TIMESTAMPDIFF(MINUTE, i.created_date, NOW()) / 1440) as 'Average Age'\nfrom\n  lake.issues i\nwhere\n  i.status = 'TODO'\n  and i.type = 'BUG'\n  and i.priority in ($critical)\ngroup by\n  i.priority",
+          "refId": "A",
+          "select": [
+            [
+              {
+                "params": [
+                  "id"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "table": "_devlake_blueprints",
+          "timeColumn": "created_at",
+          "timeColumnType": "timestamp",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        }
+      ],
+      "title": "Average Age of Critical Outstanding Defects by Severity",
+      "type": "barchart"
+    },
+    {
+      "datasource": "mysql",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            }
+          },
+          "mappings": []
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 64
+      },
+      "id": 21,
+      "options": {
+        "displayLabels": [
+          "name",
+          "percent"
+        ],
+        "legend": {
+          "displayMode": "table",
+          "placement": "right",
+          "values": [
+            "value",
+            "percent"
+          ]
+        },
+        "pieType": "pie",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "tooltip": {
+          "mode": "single"
+        }
+      },
+      "targets": [
+        {
+          "format": "table",
+          "group": [],
+          "metricColumn": "none",
+          "queryType": "randomWalk",
+          "rawQuery": true,
+          "rawSql": "select\n  sum(case when type = 'BUG' then 1 else 0 end) as 'Bug',\n  sum(case when type != 'BUG' and epic_key != '' then 1 else 0 end) as 'Strategic',\n  sum(case when type != 'BUG' and epic_key = '' then 1 else 0 end) as 'Non-Strategic'\nfrom\n  issues\nwhere\n  resolution_date is not null and\n  date(resolution_date) between\n    STR_TO_DATE('$month','%Y-%m-%d') and\n    STR_TO_DATE('$month','%Y-%m-%d') + INTERVAL 1 MONTH - INTERVAL 1 DAY",
+          "refId": "A",
+          "select": [
+            [
+              {
+                "params": [
+                  "id"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "table": "_devlake_blueprints",
+          "timeColumn": "created_at",
+          "timeColumnType": "timestamp",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        }
+      ],
+      "title": "Work Done % [Selected Month]",
+      "type": "piechart"
+    }
+  ],
+  "refresh": "",
+  "schemaVersion": 30,
+  "style": "dark",
+  "tags": [],
+  "templating": {
+    "list": [
+      {
+        "allValue": null,
+        "current": {
+          "selected": true,
+          "text": "All",
+          "value": "$__all"
+        },
+        "datasource": "mysql",
+        "definition": "select concat(name, '-', id) as text from repos",
+        "description": null,
+        "error": null,
+        "hide": 0,
+        "includeAll": true,
+        "label": "Repo",
+        "multi": false,
+        "name": "repo_id",
+        "options": [],
+        "query": "select concat(name, '-', id) as text from repos",
+        "refresh": 1,
+        "regex": "/^(?<text>.*)-(?<value>.*)$/",
+        "skipUrlSync": false,
+        "sort": 0,
+        "type": "query"
+      },
+      {
+        "allValue": null,
+        "current": {
+          "selected": true,
+          "text": "2022-03",
+          "value": "2022-03-01"
+        },
+        "datasource": "mysql",
+        "definition": "select\n  distinct(concat(date_format(DATE_ADD(date(created_date), INTERVAL -DAY(date(created_date))+1 DAY), '%Y-%m') , ':', date_format(DATE_ADD(date(created_date), INTERVAL -DAY(date(created_date))+1 DAY), '%Y-%m-%d'))) as month\nfrom\n  lake.issues i\norder by month desc",
+        "description": null,
+        "error": null,
+        "hide": 0,
+        "includeAll": false,
+        "label": "Month",
+        "multi": false,
+        "name": "month",
+        "options": [],
+        "query": "select\n  distinct(concat(date_format(DATE_ADD(date(created_date), INTERVAL -DAY(date(created_date))+1 DAY), '%Y-%m') , ':', date_format(DATE_ADD(date(created_date), INTERVAL -DAY(date(created_date))+1 DAY), '%Y-%m-%d'))) as month\nfrom\n  lake.issues i\norder by month desc",
+        "refresh": 1,
+        "regex": "/^(?<text>.*):(?<value>.*)$/",
+        "skipUrlSync": false,
+        "sort": 0,
+        "type": "query"
+      },
+      {
+        "allValue": null,
+        "current": {
+          "selected": true,
+          "text": [
+            "Highest",
+            "High"
+          ],
+          "value": [
+            "Highest",
+            "High"
+          ]
+        },
+        "datasource": "mysql",
+        "definition": "select distinct priority from issues",
+        "description": "Customize what prioriti(es) are considered \"critical\"",
+        "error": null,
+        "hide": 0,
+        "includeAll": true,
+        "label": "Prioriti(es) of Critical Issues",
+        "multi": true,
+        "name": "critical",
+        "options": [],
+        "query": "select distinct priority from issues",
+        "refresh": 1,
+        "regex": "",
+        "skipUrlSync": false,
+        "sort": 0,
+        "type": "query"
+      },
+      {
+        "allValue": null,
+        "current": {
+          "selected": true,
+          "text": [
+            "In Progress",
+            "处理中",
+            "In Development"
+          ],
+          "value": [
+            "In Progress",
+            "处理中",
+            "In Development"
+          ]
+        },
+        "datasource": "mysql",
+        "definition": "select `to` from changelogs where field_name = 'status'",
+        "description": "Customize status(es) that are considered as \"In-Progress\"",
+        "error": null,
+        "hide": 0,
+        "includeAll": true,
+        "label": "Status(es) of In-progress Issues",
+        "multi": true,
+        "name": "inprogress_status",
+        "options": [],
+        "query": "select `to` from changelogs where field_name = 'status'",
+        "refresh": 1,
+        "regex": "",
+        "skipUrlSync": false,
+        "sort": 0,
+        "type": "query"
+      },
+      {
+        "allValue": null,
+        "current": {
+          "selected": true,
+          "text": [
+            "Resolved",
+            "已关闭",
+            "已完成"
+          ],
+          "value": [
+            "Resolved",
+            "已关闭",
+            "已完成"
+          ]
+        },
+        "datasource": "mysql",
+        "definition": "select `to` from changelogs where field_name = 'status'",
+        "description": "Customize status(es) that are considered as \"Done\"",
+        "error": null,
+        "hide": 0,
+        "includeAll": true,
+        "label": "Status(es) of Done Issues",
+        "multi": true,
+        "name": "done_status",
+        "options": [],
+        "query": "select `to` from changelogs where field_name = 'status'",
+        "refresh": 1,
+        "regex": "",
+        "skipUrlSync": false,
+        "sort": 0,
+        "type": "query"
+      }
+    ]
+  },
+  "time": {
+    "from": "now-6M",
+    "to": "now"
+  },
+  "timepicker": {},
+  "timezone": "",
+  "title": "Engineering Overview",
+  "uid": "ZF6abXX7z",
+  "version": 46
+}
