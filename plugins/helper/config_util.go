@@ -18,10 +18,12 @@ limitations under the License.
 package helper
 
 import (
+	"fmt"
+	"reflect"
+
 	"github.com/go-playground/validator/v10"
 	"github.com/mitchellh/mapstructure"
 	"github.com/spf13/viper"
-	"reflect"
 )
 
 // DecodeStruct validates `input` struct with `validator` and set it into viper
@@ -46,7 +48,7 @@ func DecodeStruct(output *viper.Viper, input interface{}, data map[string]interf
 
 	vf := reflect.ValueOf(input)
 	if vf.Kind() != reflect.Ptr {
-		panic("input is not a pointer")
+		return fmt.Errorf("input %v is not a pointer", input)
 	}
 	tf := reflect.Indirect(vf).Type()
 	fieldTags := make([]string, 0)
@@ -70,13 +72,34 @@ func DecodeStruct(output *viper.Viper, input interface{}, data map[string]interf
 			continue
 		}
 		vfField := vf.Elem().FieldByName(fieldName)
-		switch fieldType.String() {
-		case "string":
+		switch fieldType.Kind() {
+		case reflect.String:
 			output.Set(fieldTag, vfField.String())
-		case "int", "int64":
+		case reflect.Int, reflect.Int64:
 			output.Set(fieldTag, vfField.Int())
-		case "float64":
+		case reflect.Float64, reflect.Float32:
 			output.Set(fieldTag, vfField.Float())
+		case reflect.Bool:
+			output.Set(fieldTag, vfField.Bool())
+		case reflect.Slice:
+			elemType := vfField.Type().Elem().Kind()
+			switch elemType {
+			case reflect.String:
+				output.Set(fieldTag, vfField.Interface().([]string))
+			case reflect.Int:
+				output.Set(fieldTag, vfField.Interface().([]int))
+			}
+		case reflect.Map:
+			keyType := vfField.Type().Key().Kind()
+			elemType := vfField.Type().Elem().Kind()
+			if keyType == reflect.String {
+				switch elemType {
+				case reflect.String:
+					output.Set(fieldTag, vfField.Interface().(map[string]string))
+				case reflect.Interface:
+					output.Set(fieldTag, vfField.Interface().(map[string]interface{}))
+				}
+			}
 		default:
 		}
 	}
@@ -89,7 +112,7 @@ func DecodeStruct(output *viper.Viper, input interface{}, data map[string]interf
 func EncodeStruct(input *viper.Viper, output interface{}, tag string) error {
 	vf := reflect.ValueOf(output)
 	if vf.Kind() != reflect.Ptr {
-		panic("output is not a pointer")
+		return fmt.Errorf("output %v is not a pointer", output)
 	}
 	tf := reflect.Indirect(vf).Type()
 	fieldTags := make([]string, 0)
@@ -113,13 +136,51 @@ func EncodeStruct(input *viper.Viper, output interface{}, tag string) error {
 			continue
 		}
 		vfField := vf.Elem().FieldByName(fieldName)
-		switch fieldType.String() {
-		case "string":
+		switch fieldType.Kind() {
+		case reflect.String:
 			vfField.SetString(input.GetString(fieldTag))
-		case "int", "int64":
+		case reflect.Int, reflect.Int64:
 			vfField.SetInt(input.GetInt64(fieldTag))
-		case "float64":
+		case reflect.Float64:
 			vfField.SetFloat(input.GetFloat64(fieldTag))
+		case reflect.Bool:
+			vfField.SetBool(input.GetBool(fieldTag))
+		case reflect.Slice:
+			elem := vfField.Type().Elem()
+			switch elem.Kind() {
+			case reflect.String:
+				value := input.GetStringSlice(fieldTag)
+				stringSlice := reflect.MakeSlice(reflect.SliceOf(elem), 0, len(value))
+				for _, item := range value {
+					stringSlice = reflect.Append(stringSlice, reflect.ValueOf(item))
+				}
+				vfField.Set(stringSlice)
+			case reflect.Int:
+				value := input.GetIntSlice(fieldTag)
+				intSlice := reflect.MakeSlice(reflect.SliceOf(elem), 0, len(value))
+				for _, item := range value {
+					intSlice = reflect.Append(intSlice, reflect.ValueOf(item))
+				}
+				vfField.Set(intSlice)
+			}
+		case reflect.Map:
+			key := vfField.Type().Key()
+			elem := vfField.Type().Elem()
+			if key.Kind() == reflect.String {
+				mapType := reflect.MapOf(key, elem)
+				data := reflect.MakeMap(mapType)
+				switch elem.Kind() {
+				case reflect.String:
+					for k, value := range input.GetStringMapString(fieldTag) {
+						data.SetMapIndex(reflect.ValueOf(k), reflect.ValueOf(value))
+					}
+				case reflect.Interface:
+					for k, value := range input.GetStringMap(fieldTag) {
+						data.SetMapIndex(reflect.ValueOf(k), reflect.ValueOf(value))
+					}
+				}
+				vfField.Set(data)
+			}
 		default:
 		}
 	}
