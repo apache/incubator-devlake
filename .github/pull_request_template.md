@@ -2,7 +2,7 @@
 
 > Please complete _ALL_ items in this checklist, and remove before submitting
 
-- [ ] I have read through the [Contributing](../CONTRIBUTING.md) Documentation
+- [ ] I have read through the [Contributing](https://devlake.apache.org/community/) Documentation
 - [ ] This PR is using a `label` (bug, feature etc.)
 - [ ] My code is has necessary documentation (if appropriate)
 - [ ] I have added any relevant tests
