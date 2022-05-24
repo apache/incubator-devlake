@@ -1,20 +1,40 @@
-import React, { Fragment, useEffect, useState, useRef, useCallback } from 'react'
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
+import React, { useCallback, useEffect, useRef, useState } from 'react'
 import { useHistory } from 'react-router-dom'
 import { GRAFANA_URL } from '@/utils/config'
 import dayjs from '@/utils/time'
 import {
-  Button, Icon, Intent,
-  Card, Elevation,
-  Popover,
-  Tooltip,
-  Position,
-  Spinner,
-  Colors,
+  Button,
+  ButtonGroup,
+  Card,
   Classes,
+  Colors,
+  Elevation,
+  Icon,
+  Intent,
   Menu,
   MenuItem,
-  ButtonGroup,
-  Tag
+  Popover,
+  Position,
+  Spinner,
+  Tag,
+  Tooltip
 } from '@blueprintjs/core'
 import usePipelineManager from '@/hooks/usePipelineManager'
 import Nav from '@/components/Nav'
@@ -47,23 +67,17 @@ const Pipelines = (props) => {
     pipelineCount,
     fetchAllPipelines,
     activePipeline,
-    pipelineRun,
-    isFetching,
+    // pipelineRun,
+    // isFetching,
     isFetchingAll,
-    errors: pipelineErrors,
-    setSettings: setPipelineSettings,
-    lastRunId,
+    // errors: pipelineErrors,
+    // setSettings: setPipelineSettings,
+    // lastRunId,
   } = usePipelineManager()
 
   const [filteredPipelines, setFilteredPipelines] = useState([])
   const [pagedPipelines, setPagedPipelines] = useState([])
-  const [pageOptions, setPageOptions] = useState([
-    10,
-    25,
-    50,
-    75,
-    100
-  ])
+  const pageOptions = [10, 25, 50, 75, 100]
   const currentPage = useRef(1)
   const [perPage, setPerPage] = useState(pageOptions[0])
   const [maxPage, setMaxPage] = useState(Math.ceil(filteredPipelines.length / perPage))

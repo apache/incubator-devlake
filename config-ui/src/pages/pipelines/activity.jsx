@@ -1,23 +1,39 @@
-import React, { Fragment, useEffect, useState, useRef, useCallback } from 'react'
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
+import React, { useCallback, useEffect, useRef, useState } from 'react'
 import { CSSTransition } from 'react-transition-group'
-import { useHistory, useParams, Link } from 'react-router-dom'
+import { Link, useHistory, useParams } from 'react-router-dom'
 import { GRAFANA_URL } from '@/utils/config'
 import dayjs from '@/utils/time'
 import {
-  Button, Icon, Intent,
-  Card, Elevation,
+  Button,
+  Card,
+  Classes,
+  Colors,
+  Elevation,
+  Icon,
+  Intent,
   Popover,
-  Tooltip,
   Position,
   Spinner,
-  Colors,
-  Classes,
   Tag
 } from '@blueprintjs/core'
-import {
-  Providers,
-  ProviderLabels
-} from '@/data/Providers'
+import { ProviderLabels, Providers } from '@/data/Providers'
 import usePipelineManager from '@/hooks/usePipelineManager'
 import Nav from '@/components/Nav'
 import Sidebar from '@/components/Sidebar'
@@ -45,14 +61,14 @@ const PipelineActivity = (props) => {
   const pollInterval = useRef()
 
   const [pipelineId, setPipelineId] = useState()
-  const [pipelineName, setPipelineName] = useState()
-  const [pollTimer, setPollTimer] = useState(5000)
+  // const [pipelineName, setPipelineName] = useState()
+  const pollTimer = 5000
   const [autoRefresh, setAutoRefresh] = useState(false)
 
   const [showInspector, setShowInspector] = useState(false)
   const [pipelineReady, setPipelineReady] = useState(false)
   const [stages, setStages] = useState()
-  const [activeStageId, setActiveStageId] = useState(1)
+  // const [activeStageId, setActiveStageId] = useState(1)
 
   const {
     // runPipeline,
@@ -62,11 +78,11 @@ const PipelineActivity = (props) => {
     // pipelineRun,
     // isRunning,
     isFetching,
-    errors: pipelineErrors,
-    setSettings: setPipelineSettings,
+    // errors: pipelineErrors,
+    // setSettings: setPipelineSettings,
     // setAutoStart: setPipelineAutoStart,
     lastRunId,
-  } = usePipelineManager(pipelineName)
+  } = usePipelineManager()
 
   const pipelineHasProvider = (providerId) => {
     return activePipeline.tasks.some(t => t.plugin === providerId)

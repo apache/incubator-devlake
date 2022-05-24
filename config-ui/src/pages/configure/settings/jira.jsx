@@ -1,19 +1,36 @@
-import React, { useEffect, useState, useCallback, Fragment } from 'react'
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
+import React, { useCallback, useEffect, useState } from 'react'
 import {
-  ButtonGroup,
-  FormGroup,
-  InputGroup,
-  MenuItem,
-  Position,
   Button,
+  ButtonGroup,
+  Colors,
+  FormGroup,
+  Icon,
+  InputGroup,
   Intent,
   Label,
-  Icon,
-  Colors,
+  MenuItem,
+  Position,
   Tag,
 } from '@blueprintjs/core'
 import useJIRA from '@/hooks/useJIRA'
-import { Select, MultiSelect } from '@blueprintjs/select'
+import { MultiSelect, Select } from '@blueprintjs/select'
 
 import ClearButton from '@/components/ClearButton'
 import '@/styles/integration.scss'
@@ -26,7 +43,7 @@ const MAPPING_TYPES = {
 }
 
 export default function JiraSettings (props) {
-  const { connection, provider, isSaving, isSavingConnection, onSettingsChange } = props
+  const { connection, isSaving, onSettingsChange } = props
   // const { providerId, connectionId } = useParams()
   // const history = useHistory()
 
@@ -46,7 +63,7 @@ export default function JiraSettings (props) {
   const [typeMappingAll, setTypeMappingAll] = useState({})
   const [statusMappings, setStatusMappings] = useState()
   const [jiraIssueEpicKeyField, setJiraIssueEpicKeyField] = useState('')
-  const [jiraIssueStoryCoefficient, setJiraIssueStoryCoefficient] = useState(1)
+  // const [jiraIssueStoryCoefficient, setJiraIssueStoryCoefficient] = useState(1)
   const [jiraIssueStoryPointField, setJiraIssueStoryPointField] = useState('')
   const [remoteLinkCommitSha, setRemoteLinkCommitSha] = useState('')
 
@@ -59,7 +76,7 @@ export default function JiraSettings (props) {
   const [incidentTagsList, setIncidentTagsList] = useState([])
 
   const [fieldsList, setFieldsList] = useState(fields)
-  const [issueTypesList, setIssueTypesList] = useState(issueTypes)
+  // const [issueTypesList, setIssueTypesList] = useState(issueTypes)
 
   const createTypeMapObject = (customType, standardType) => {
     return customType && standardType
@@ -107,7 +124,7 @@ export default function JiraSettings (props) {
       statusMappings,
       jiraIssueEpicKeyField,
       jiraIssueStoryPointField,
-      jiraIssueStoryCoefficient,
+      // jiraIssueStoryCoefficient,
       remoteLinkCommitSha,
       onSettingsChange)
   }, [
@@ -118,7 +135,7 @@ export default function JiraSettings (props) {
     statusMappings,
     jiraIssueEpicKeyField,
     jiraIssueStoryPointField,
-    jiraIssueStoryCoefficient,
+    // jiraIssueStoryCoefficient,
     remoteLinkCommitSha,
     onSettingsChange
   ])
@@ -180,7 +197,7 @@ export default function JiraSettings (props) {
 
   useEffect(() => {
     console.log('>>> JIRA SETTINGS :: ISSUE TYPES LIST DATA CHANGED!', issueTypes)
-    setIssueTypesList(issueTypes)
+    // setIssueTypesList(issueTypes)
     setRequirementTagsList(issueTypes)
     setBugTagsList(issueTypes)
     setIncidentTagsList(issueTypes)

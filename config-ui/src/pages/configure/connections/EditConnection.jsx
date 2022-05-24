@@ -1,21 +1,30 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
 import React, { useEffect, useState } from 'react'
-import {
-  useParams,
-  Link,
-  useHistory
-} from 'react-router-dom'
-import {
-  Icon,
-} from '@blueprintjs/core'
+import { Link, useHistory, useParams } from 'react-router-dom'
+import { Icon, } from '@blueprintjs/core'
 import Nav from '@/components/Nav'
 import Sidebar from '@/components/Sidebar'
 import AppCrumbs from '@/components/Breadcrumbs'
 import Content from '@/components/Content'
 import ConnectionForm from '@/pages/configure/connections/ConnectionForm'
 import { integrationsData } from '@/data/integrations'
-import { Providers, ProviderConnectionLimits, ProviderFormLabels, ProviderFormPlaceholders } from '@/data/Providers'
-// import { NullConnection } from '@/data/NullConnection'
-
+import { ProviderConnectionLimits, ProviderFormLabels, ProviderFormPlaceholders, Providers } from '@/data/Providers'
 import useConnectionManager from '@/hooks/useConnectionManager'
 
 import '@/styles/integration.scss'
@@ -25,8 +34,7 @@ export default function EditConnection () {
   const history = useHistory()
   const { providerId, connectionId } = useParams()
 
-  const [integrations, setIntegrations] = useState(integrationsData)
-  const [activeProvider, setActiveProvider] = useState(integrations[0])
+  const [activeProvider, setActiveProvider] = useState(integrationsData[0])
 
   const {
     testConnection,
@@ -80,7 +88,7 @@ export default function EditConnection () {
 
   useEffect(() => {
     console.log('>>>> DETECTED PROVIDER = ', providerId)
-    setActiveProvider(integrations.find(p => p.id === providerId))
+    setActiveProvider(integrationsData.find(p => p.id === providerId))
   }, [])
 
   return (
