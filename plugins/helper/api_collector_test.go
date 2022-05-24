@@ -999,3 +999,89 @@ func TestExecute_Cancel(t *testing.T) {
 	assert.Equal(t, input.hasNextTimes >= input.fetchTimes, true)
 	assert.Equal(t, input.closeTimes > 0, true)
 }
+
+func TestExecute_Total(t *testing.T) {
+	MockDB(t)
+	defer UnMockDB()
+	apiCollector, _ := CreateTestApiCollector()
+	// less count for more quick test
+	TestDataCount = 10
+	// ReLimit the workNum to test the block
+	reWorkNum := 1
+
+	apiCollector.args.Input = &TestIterator{
+		data:         *TestTableData,
+		count:        TestDataCount,
+		hasNextTimes: 0,
+		fetchTimes:   0,
+		closeTimes:   0,
+		unlimit:      false,
+	}
+
+	gt.Reset()
+	gt = gomonkey.ApplyMethod(reflect.TypeOf(&gorm.DB{}), "Table", func(db *gorm.DB, name string, args ...interface{}) *gorm.DB {
+		assert.Equal(t, name, "_raw_"+TestTableData.TableName())
+		return db
+	},
+	)
+	defer gw.Reset()
+
+	gs := gomonkey.ApplyPrivateMethod(reflect.TypeOf(apiCollector), "saveRawData", func(collector *ApiCollector, res *http.Response, input interface{}) (int, error) {
+		items, err := collector.args.ResponseParser(res)
+		assert.Equal(t, err, nil)
+		for _, v := range items {
+			jsondata, err := json.Marshal(v)
+			assert.Equal(t, err, nil)
+			assert.Equal(t, string(jsondata), TestRawMessage)
+		}
+		assert.Equal(t, input, TestTableData)
+		AssertBaseResponse(t, res, &TestHttpResponse_Suc)
+		return len(items), nil
+	})
+	defer gs.Reset()
+
+	gin := gomonkey.ApplyMethod(reflect.TypeOf(&DefaultLogger{}), "Info", func(_ *DefaultLogger, _ string, _ ...interface{}) {
+	})
+	defer gin.Reset()
+
+	gdo := gomonkey.ApplyMethod(reflect.TypeOf(&ApiClient{}), "Do", func(
+		apiClient *ApiClient,
+		method string,
+		path string,
+		query url.Values,
+		body interface{},
+		headers http.Header,
+	) (*http.Response, error) {
+		res := TestHttpResponse_Suc
+
+		AddBodyData(&res, TestDataCount)
+		SetUrl(&res, TestUrl)
+
+		return &res, nil
+	})
+	defer gdo.Reset()
+
+	var gse *gomonkey.Patches
+	gse = gomonkey.ApplyFunc(NewWorkerScheduler, func(workerNum int, maxWork int, maxWorkDuration time.Duration, ctx context.Context, maxRetry int) (*WorkerScheduler, error) {
+		gse.Reset()
+		workerNum = reWorkNum
+		return NewWorkerScheduler(workerNum, maxWork, maxWorkDuration, ctx, maxRetry)
+	})
+	defer gse.Reset()
+
+	// create rate limit calculator
+	rateLimiter := &ApiRateLimitCalculator{
+		UserRateLimitPerHour: 360000000, // 100000 times each seconed
+	}
+
+	apiCollector.args.ApiClient, _ = CreateTestAsyncApiClientWithRateLimitAndCtx(t, rateLimiter, apiCollector.args.Ctx.GetContext())
+
+	// run testing
+	err := apiCollector.Execute()
+	assert.Equal(t, err, nil)
+
+	input := apiCollector.args.Input.(*TestIterator)
+	assert.Equal(t, input.fetchTimes, TestDataCount)
+	assert.Equal(t, input.hasNextTimes >= input.fetchTimes, true)
+	assert.Equal(t, input.closeTimes > 0, true)
+}
