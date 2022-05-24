@@ -412,7 +412,12 @@ func (collector *ApiCollector) handleResponseWithPages(reqData *RequestData) Api
 			collector.args.Ctx.SetProgress(1, totalPages)
 		}
 		// fetch other pages in parallel
+		collector.args.ApiClient.Add(1)
 		go func() {
+			defer func() {
+				collector.args.ApiClient.Done()
+				recover()
+			}()
 			for page := 2; page <= totalPages; page++ {
 				reqDataTemp := &RequestData{
 					Pager: &Pager{

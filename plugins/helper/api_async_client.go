@@ -185,11 +185,19 @@ func (apiClient *ApiAsyncClient) WaitAsync() error {
 func (apiClient *ApiAsyncClient) GetQps() float64 {
 	return apiClient.qps
 }
+func (apiClient *ApiAsyncClient) Add(delta int) {
+	apiClient.scheduler.Add(delta)
+}
+func (apiClient *ApiAsyncClient) Done() {
+	apiClient.scheduler.Done()
+}
 
 type RateLimitedApiClient interface {
 	GetAsync(path string, query url.Values, header http.Header, handler ApiAsyncCallback) error
 	WaitAsync() error
 	GetQps() float64
+	Add(delta int)
+	Done()
 }
 
 var _ RateLimitedApiClient = (*ApiAsyncClient)(nil)
