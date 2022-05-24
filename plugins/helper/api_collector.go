@@ -229,7 +229,7 @@ func (collector *ApiCollector) exec(input interface{}) error {
 	if collector.args.GetTotalPages != nil {
 		/* when total pages is available from api*/
 		// fetch the very first page
-		err = collector.fetchAsync(reqData, collector.handleResponseWithPages(reqData))
+		err = collector.pagerFetch(reqData)
 	} else {
 		// if api doesn't return total number of pages, employ a step concurrent technique
 		// when `Concurrency` was set to 3:
@@ -384,6 +384,67 @@ func (collector *ApiCollector) handleResponse(reqData *RequestData) ApiAsyncCall
 		collector.args.Ctx.IncProgress(1)
 		return err
 	}
+}
+func (collector *ApiCollector) pagerFetch(reqData *RequestData) error {
+	c := make(chan *RequestData)
+	go func() {
+		c <- reqData
+	}()
+	var err error
+	handlerWrap := func(c chan *RequestData, reqData *RequestData) ApiAsyncCallback {
+		return func(res *http.Response, e error) error {
+			if e != nil {
+				err = e
+				return e
+			}
+			collector.args.Ctx.GetLogger().Info("=========")
+			// gather total pages
+			var body []byte
+			body, err = ioutil.ReadAll(res.Body)
+			if err != nil {
+				return err
+			}
+			res.Body.Close()
+			res.Body = ioutil.NopCloser(bytes.NewBuffer(body))
+			var totalPages int
+			totalPages, err = collector.args.GetTotalPages(res, collector.args)
+			if err != nil {
+				return err
+			}
+			// save response body of first page
+			res.Body = ioutil.NopCloser(bytes.NewBuffer(body))
+			_, err = collector.saveRawData(res, reqData.Input)
+			if err != nil {
+				return err
+			}
+			if collector.args.Input == nil {
+				collector.args.Ctx.SetProgress(1, totalPages)
+			}
+
+			if reqData.Pager.Page >= totalPages {
+				close(c)
+				return nil
+			}
+			reqData.Pager.Page++
+			go func() {
+				c <- reqData
+			}()
+			return nil
+		}
+
+	}
+
+	for reqData := range c {
+		if err != nil {
+			return err
+		}
+		err1 := collector.fetchAsync(reqData, handlerWrap(c, reqData))
+		if err1 != nil {
+			return err1
+		}
+	}
+	collector.args.Ctx.GetLogger().Info("++++++++++++++++")
+	return nil
 }
 
 func (collector *ApiCollector) handleResponseWithPages(reqData *RequestData) ApiAsyncCallback {
