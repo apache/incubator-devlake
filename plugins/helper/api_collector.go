@@ -397,7 +397,6 @@ func (collector *ApiCollector) pagerFetch(reqData *RequestData) error {
 				err = e
 				return e
 			}
-			collector.args.Ctx.GetLogger().Info("=========")
 			// gather total pages
 			var body []byte
 			body, err = ioutil.ReadAll(res.Body)
@@ -443,7 +442,6 @@ func (collector *ApiCollector) pagerFetch(reqData *RequestData) error {
 			return err1
 		}
 	}
-	collector.args.Ctx.GetLogger().Info("++++++++++++++++")
 	return nil
 }
 
