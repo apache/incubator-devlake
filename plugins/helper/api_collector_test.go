@@ -531,6 +531,17 @@ func TestHandleResponseWithPages(t *testing.T) {
 	})
 	defer gs.Reset()
 
+	NeedWait := int64(0)
+	gad := gomonkey.ApplyMethod(reflect.TypeOf(&ApiAsyncClient{}), "Add", func(apiClient *ApiAsyncClient, delta int) {
+		atomic.AddInt64(&NeedWait, int64(delta))
+	})
+	defer gad.Reset()
+
+	gdo := gomonkey.ApplyMethod(reflect.TypeOf(&ApiAsyncClient{}), "Done", func(apiClient *ApiAsyncClient) {
+		atomic.AddInt64(&NeedWait, -1)
+	})
+	defer gdo.Reset()
+
 	// build request Input
 	reqData := new(RequestData)
 	reqData.Input = TestTableData
@@ -545,6 +556,12 @@ func TestHandleResponseWithPages(t *testing.T) {
 
 	// run testing
 	err := handle(res, nil)
+
+	// wait run finished
+	for atomic.LoadInt64(&NeedWait) > 0 {
+		time.Sleep(time.Millisecond)
+	}
+
 	assert.Equal(t, err, nil)
 	for i := 2; i <= TestTotalPage; i++ {
 		assert.True(t, pages[i], i)
