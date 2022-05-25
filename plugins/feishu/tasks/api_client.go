@@ -92,7 +92,7 @@ func NewFeishuApiClient(taskCtx core.TaskContext) (*helper.ApiAsyncClient, error
 
 	apiClient.SetAfterFunction(func(res *http.Response) error {
 		if res.StatusCode == http.StatusUnauthorized {
-			return fmt.Errorf("feishu authentication failed, please check your Bearer Auth Token")
+			return fmt.Errorf("feishu authentication failed, please check your AccessToken")
 		}
 		return nil
 	})

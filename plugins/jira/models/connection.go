@@ -18,7 +18,7 @@ limitations under the License.
 package models
 
 import (
-	"github.com/apache/incubator-devlake/models/common"
+	"github.com/apache/incubator-devlake/plugins/helper"
 )
 
 type EpicResponse struct {
@@ -28,9 +28,9 @@ type EpicResponse struct {
 }
 
 type TestConnectionRequest struct {
-	Endpoint string `json:"endpoint"`
-	Auth     string `json:"auth"`
-	Proxy    string `json:"proxy"`
+	Endpoint         string `json:"endpoint"`
+	Proxy            string `json:"proxy"`
+	helper.BasicAuth `mapstructure:",squash"`
 }
 
 type BoardResponse struct {
@@ -40,15 +40,11 @@ type BoardResponse struct {
 }
 
 type JiraConnection struct {
-	common.Model
-	Name                       string `gorm:"type:varchar(100);uniqueIndex" json:"name" validate:"required"`
-	Endpoint                   string `json:"endpoint" validate:"required"`
-	BasicAuthEncoded           string `json:"basicAuthEncoded" validate:"required"`
+	helper.RestConnection      `mapstructure:",squash"`
+	helper.BasicAuth           `mapstructure:",squash"`
 	EpicKeyField               string `gorm:"type:varchar(50);" json:"epicKeyField"`
 	StoryPointField            string `gorm:"type:varchar(50);" json:"storyPointField"`
 	RemotelinkCommitShaPattern string `gorm:"type:varchar(255);comment='golang regexp, the first group will be recognized as commit sha, ref https://github.com/google/re2/wiki/Syntax'" json:"remotelinkCommitShaPattern"`
-	Proxy                      string `json:"proxy"`
-	RateLimit                  int    `comment:"api request rate limt per hour" json:"rateLimit"`
 }
 
 type JiraIssueTypeMapping struct {
