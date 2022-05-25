@@ -3,11 +3,11 @@ package tasks
 import (
 	"reflect"
 
-	"github.com/merico-dev/lake/models/domainlayer/didgen"
-	"github.com/merico-dev/lake/models/domainlayer/ticket"
-	"github.com/merico-dev/lake/plugins/core"
-	gitlabModels "github.com/merico-dev/lake/plugins/gitlab/models"
-	"github.com/merico-dev/lake/plugins/helper"
+	"github.com/apache/incubator-devlake/models/domainlayer/didgen"
+	"github.com/apache/incubator-devlake/models/domainlayer/ticket"
+	"github.com/apache/incubator-devlake/plugins/core"
+	gitlabModels "github.com/apache/incubator-devlake/plugins/gitlab/models"
+	"github.com/apache/incubator-devlake/plugins/helper"
 )
 
 var ConvertIssueLabelsMeta = core.SubTaskMeta{
