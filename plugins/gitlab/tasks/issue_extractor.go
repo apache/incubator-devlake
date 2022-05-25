@@ -25,8 +25,8 @@ type IssuesResponse struct {
 		Iid 		int
 		Id 			int
 		Title 		string
-		CreatedAt *core.Iso8601Time
-		UpdatedAt *core.Iso8601Time
+		CreatedAt helper.Iso8601Time
+		UpdatedAt helper.Iso8601Time
 	}
 	Author struct{
 		State 		string
@@ -62,9 +62,9 @@ type IssuesResponse struct {
 	MergeRequestsCount 	int
 	Id 					int
 	Title       		string
-	GitlabUpdatedAt core.Iso8601Time  `json:"updated_at"`
-	GitlabCreatedAt core.Iso8601Time  `json:"created_at"`
-	GitlabClosedAt  *core.Iso8601Time `json:"closed_at"`
+	GitlabUpdatedAt helper.Iso8601Time  `json:"updated_at"`
+	GitlabCreatedAt helper.Iso8601Time  `json:"created_at"`
+	GitlabClosedAt  *helper.Iso8601Time `json:"closed_at"`
 	ClosedBy struct{
 		State 		string
 		WebUrl 		string
@@ -74,7 +74,7 @@ type IssuesResponse struct {
 		Name 		string
 	}
 	UserNotesCount int
-	DueDate *core.Iso8601Time
+	DueDate helper.Iso8601Time
 	WebUrl string	`json:"web_url"`
 	References struct {
 		Short 		string
@@ -176,7 +176,7 @@ func convertGitlabIssue(issue *IssuesResponse, projectId int) (*models.GitlabIss
 		Title:           issue.Title,
 		Body:            issue.Description,
 		Url:             issue.Links.Self,
-		ClosedAt:        core.Iso8601TimeToTime(issue.GitlabClosedAt),
+		ClosedAt:        helper.Iso8601TimeToTime(issue.GitlabClosedAt),
 		GitlabCreatedAt: issue.GitlabCreatedAt.ToTime(),
 		GitlabUpdatedAt: issue.GitlabUpdatedAt.ToTime(),
 	}
