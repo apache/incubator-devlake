@@ -54,50 +54,54 @@ func (plugin Tapd) Description() string {
 
 func (plugin Tapd) SubTaskMetas() []core.SubTaskMeta {
 	return []core.SubTaskMeta{
-		tasks.CollectWorkspaceMeta,
-		tasks.ExtractWorkspaceMeta,
-		tasks.CollectBugStatusMeta,
-		tasks.ExtractBugStatusMeta,
-		tasks.CollectUserMeta,
-		tasks.ExtractUserMeta,
-		tasks.CollectIterationMeta,
-		tasks.ExtractIterationMeta,
-		tasks.CollectStoryMeta,
-		tasks.CollectBugMeta,
-		tasks.CollectTaskMeta,
-		tasks.ExtractStoryMeta,
-		tasks.ExtractBugMeta,
-		tasks.ExtractTaskMeta,
-		tasks.CollectBugChangelogMeta,
-		tasks.ExtractBugChangelogMeta,
-		tasks.CollectStoryChangelogMeta,
-		tasks.ExtractStoryChangelogMeta,
-		tasks.CollectTaskChangelogMeta,
-		tasks.ExtractTaskChangelogMeta,
-		tasks.CollectWorklogMeta,
-		tasks.ExtractWorklogMeta,
-		tasks.CollectBugCommitMeta,
-		tasks.ExtractBugCommitMeta,
-		tasks.CollectStoryCommitMeta,
-		tasks.ExtractStoryCommitMeta,
-		tasks.CollectTaskCommitMeta,
-		tasks.ExtractTaskCommitMeta,
-		tasks.ConvertWorkspaceMeta,
-		tasks.ConvertUserMeta,
-		tasks.ConvertIterationMeta,
-		tasks.ConvertStoryMeta,
-		tasks.ConvertBugMeta,
-		tasks.ConvertTaskMeta,
-		tasks.ConvertWorklogMeta,
-		tasks.ConvertBugChangelogMeta,
-		tasks.ConvertStoryChangelogMeta,
-		tasks.ConvertTaskChangelogMeta,
-		tasks.ConvertBugCommitMeta,
-		tasks.ConvertStoryCommitMeta,
-		tasks.ConvertTaskCommitMeta,
-		tasks.ConvertStoryLabelsMeta,
-		tasks.ConvertTaskLabelsMeta,
-		tasks.ConvertBugLabelsMeta,
+		//tasks.CollectCompanyMeta,
+		//tasks.ExtractCompanyMeta,
+		//tasks.CollectWorkspaceMeta,
+		//tasks.ExtractWorkspaceMeta,
+		tasks.CollectStoryCustomFieldsMeta,
+		tasks.ExtractStoryCustomFieldsMeta,
+		//tasks.CollectBugStatusMeta,
+		//tasks.ExtractBugStatusMeta,
+		//tasks.CollectUserMeta,
+		//tasks.ExtractUserMeta,
+		//tasks.CollectIterationMeta,
+		//tasks.ExtractIterationMeta,
+		//tasks.CollectStoryMeta,
+		//tasks.CollectBugMeta,
+		//tasks.CollectTaskMeta,
+		//tasks.ExtractStoryMeta,
+		//tasks.ExtractBugMeta,
+		//tasks.ExtractTaskMeta,
+		//tasks.CollectBugChangelogMeta,
+		//tasks.ExtractBugChangelogMeta,
+		//tasks.CollectStoryChangelogMeta,
+		//tasks.ExtractStoryChangelogMeta,
+		//tasks.CollectTaskChangelogMeta,
+		//tasks.ExtractTaskChangelogMeta,
+		//tasks.CollectWorklogMeta,
+		//tasks.ExtractWorklogMeta,
+		//tasks.CollectBugCommitMeta,
+		//tasks.ExtractBugCommitMeta,
+		//tasks.CollectStoryCommitMeta,
+		//tasks.ExtractStoryCommitMeta,
+		//tasks.CollectTaskCommitMeta,
+		//tasks.ExtractTaskCommitMeta,
+		//tasks.ConvertWorkspaceMeta,
+		//tasks.ConvertUserMeta,
+		//tasks.ConvertIterationMeta,
+		//tasks.ConvertStoryMeta,
+		//tasks.ConvertBugMeta,
+		//tasks.ConvertTaskMeta,
+		//tasks.ConvertWorklogMeta,
+		//tasks.ConvertBugChangelogMeta,
+		//tasks.ConvertStoryChangelogMeta,
+		//tasks.ConvertTaskChangelogMeta,
+		//tasks.ConvertBugCommitMeta,
+		//tasks.ConvertStoryCommitMeta,
+		//tasks.ConvertTaskCommitMeta,
+		//tasks.ConvertStoryLabelsMeta,
+		//tasks.ConvertTaskLabelsMeta,
+		//tasks.ConvertBugLabelsMeta,
 	}
 }
 
@@ -182,14 +186,11 @@ func main() {
 	cmd := &cobra.Command{Use: "tapd"}
 	connectionId := cmd.Flags().Uint64P("connection", "c", 0, "tapd connection id")
 	workspaceId := cmd.Flags().Uint64P("workspace", "w", 0, "tapd workspace id")
+	companyId := cmd.Flags().Uint64P("company", "o", 0, "tapd company id")
 	err := cmd.MarkFlagRequired("connection")
 	if err != nil {
 		panic(err)
 	}
-	//err = cmd.MarkFlagRequired("company")
-	//if err != nil {
-	//	panic(err)
-	//}
 	err = cmd.MarkFlagRequired("workspace")
 	if err != nil {
 		panic(err)
@@ -198,6 +199,7 @@ func main() {
 		runner.DirectRun(c, args, PluginEntry, map[string]interface{}{
 			"connectionId": *connectionId,
 			"workspaceId":  *workspaceId,
+			"companyId":    *companyId,
 		})
 	}
 	runner.RunCmd(cmd)
