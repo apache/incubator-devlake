@@ -17,13 +17,35 @@ limitations under the License.
 
 package migrationscripts
 
-import "github.com/apache/incubator-devlake/migration"
+import (
+	"context"
+	"github.com/apache/incubator-devlake/models/migrationscripts/archived"
+	"gorm.io/gorm"
+)
 
-// RegisterAll register all the migration scripts of framework
-func RegisterAll() {
-	migration.Register([]migration.Script{
-		new(initSchemas),
-		new(updateSchemas20220505), new(updateSchemas20220507), new(updateSchemas20220510),
-		new(updateSchemas20220513), new(updateSchemas20220524),
-	}, "Framework")
+type Issue20220524 struct {
+	archived.DomainEntity
+	CreatorName string `gorm:"type:varchar(255)"`
+}
+
+func (Issue20220524) TableName() string {
+	return "issues"
+}
+
+type updateSchemas20220524 struct{}
+
+func (*updateSchemas20220524) Up(ctx context.Context, db *gorm.DB) error {
+	err := db.Migrator().AddColumn(&Issue20220524{}, "creator_name")
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (*updateSchemas20220524) Version() uint64 {
+	return 20220524000005
+}
+
+func (*updateSchemas20220524) Name() string {
+	return "Add creator_name column to Issue"
 }

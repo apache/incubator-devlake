@@ -69,6 +69,7 @@ func ConvertBug(taskCtx core.SubTaskContext) error {
 				ParentIssueId:  IssueIdGen.Generate(toolL.ConnectionId, toolL.IssueID),
 				Priority:       toolL.Priority,
 				CreatorId:      UserIdGen.Generate(data.Connection.ID, toolL.WorkspaceID, toolL.Reporter),
+				CreatorName:    toolL.Reporter,
 				AssigneeId:     UserIdGen.Generate(data.Connection.ID, toolL.WorkspaceID, toolL.CurrentOwner),
 				AssigneeName:   toolL.CurrentOwner,
 				Severity:       toolL.Severity,
