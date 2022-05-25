@@ -27,6 +27,7 @@ import (
 	"net/http"
 	"net/url"
 	"reflect"
+	"runtime/debug"
 	"sync/atomic"
 	"testing"
 	"time"
@@ -92,6 +93,7 @@ var TestDataCountNotFull int = 50
 var TestPage int = 110
 var TestSkip int = 100100
 var TestSize int = 116102
+var TestTimeOut time.Duration = time.Duration(10) * time.Second
 
 var Cancel context.CancelFunc
 
@@ -118,6 +120,35 @@ func AssertBaseResponse(t *testing.T, A *http.Response, B *http.Response) {
 	assert.Equal(t, A.Proto, B.Proto)
 	assert.Equal(t, A.ProtoMajor, B.ProtoMajor)
 	assert.Equal(t, A.ProtoMinor, B.ProtoMinor)
+}
+
+func SetTimeOut(timeout time.Duration, handleer func()) error {
+	stack := string(debug.Stack())
+	t := time.After(timeout)
+	done := make(chan bool)
+	go func() {
+		defer func() {
+			if r := recover(); r != nil {
+				fmt.Printf("%s\r\n", stack)
+				fmt.Printf("%v\r\n", r)
+			}
+		}()
+
+		if handleer != nil {
+			handleer()
+		}
+		done <- true
+	}()
+
+	select {
+	case <-t:
+		return fmt.Errorf("[time:%s]\r\n[Time limit for %f seconed]\r\n[stack]\r\n%s\r\n",
+			time.Now().String(),
+			float64(timeout)/float64(time.Second),
+			stack)
+	case <-done:
+		return nil
+	}
 }
 
 func AddBodyData(res *http.Response, count int) {
@@ -780,9 +811,12 @@ func TestStepFetch_Cancel(t *testing.T) {
 		Cancel()
 	}()
 
-	err := apiCollector.stepFetch(ctx, cancel, *reqData)
+	err := SetTimeOut(TestTimeOut, func() {
+		err := apiCollector.stepFetch(ctx, cancel, *reqData)
+		assert.Equal(t, err, fmt.Errorf("context canceled"))
+	})
+	assert.Equal(t, err, nil)
 
-	assert.Equal(t, err, fmt.Errorf("context canceled"))
 }
 
 func TestExecWithOutPageSize(t *testing.T) {
@@ -897,13 +931,15 @@ func TestExec_Cancel(t *testing.T) {
 		Cancel()
 	}()
 
-	// run testing
-	err := apiCollector.exec(TestTableData)
+	err := SetTimeOut(TestTimeOut, func() {
+		// run testing
+		err := apiCollector.exec(TestTableData)
+		assert.Equal(t, err, nil)
+		for i := 2; i <= TestTotalPage; i++ {
+			assert.True(t, pages[i], i)
+		}
+	})
 	assert.Equal(t, err, nil)
-
-	for i := 2; i <= TestTotalPage; i++ {
-		assert.True(t, pages[i], i)
-	}
 }
 
 func TestExecute(t *testing.T) {
@@ -1008,13 +1044,16 @@ func TestExecute_Cancel(t *testing.T) {
 		Cancel()
 	}()
 
-	// run testing
-	err := apiCollector.Execute()
-	assert.Equal(t, err, fmt.Errorf("context canceled"))
+	err := SetTimeOut(TestTimeOut, func() {
+		// run testing
+		err := apiCollector.Execute()
+		assert.Equal(t, err, fmt.Errorf("context canceled"))
 
-	input := apiCollector.args.Input.(*TestIterator)
-	assert.Equal(t, input.hasNextTimes >= input.fetchTimes, true)
-	assert.Equal(t, input.closeTimes > 0, true)
+		input := apiCollector.args.Input.(*TestIterator)
+		assert.Equal(t, input.hasNextTimes >= input.fetchTimes, true)
+		assert.Equal(t, input.closeTimes > 0, true)
+	})
+	assert.Equal(t, err, nil)
 }
 
 func TestExecute_Total(t *testing.T) {
@@ -1093,12 +1132,14 @@ func TestExecute_Total(t *testing.T) {
 
 	apiCollector.args.ApiClient, _ = CreateTestAsyncApiClientWithRateLimitAndCtx(t, rateLimiter, apiCollector.args.Ctx.GetContext())
 
-	// run testing
-	err := apiCollector.Execute()
-	assert.Equal(t, err, nil)
+	err := SetTimeOut(TestTimeOut, func() {
+		err := apiCollector.Execute()
+		assert.Equal(t, err, nil)
 
-	input := apiCollector.args.Input.(*TestIterator)
-	assert.Equal(t, input.fetchTimes, TestDataCount)
-	assert.Equal(t, input.hasNextTimes >= input.fetchTimes, true)
-	assert.Equal(t, input.closeTimes > 0, true)
+		input := apiCollector.args.Input.(*TestIterator)
+		assert.Equal(t, input.fetchTimes, TestDataCount)
+		assert.Equal(t, input.hasNextTimes >= input.fetchTimes, true)
+		assert.Equal(t, input.closeTimes > 0, true)
+	})
+	assert.Equal(t, err, nil)
 }
