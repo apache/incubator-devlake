@@ -53,6 +53,10 @@ type IssuesResponse struct {
 		Login string
 		Id    int
 	}
+	User *struct {
+		Login string
+		Id    int
+	}
 	ClosedAt        *helper.Iso8601Time `json:"closed_at"`
 	GithubCreatedAt helper.Iso8601Time  `json:"created_at"`
 	GithubUpdatedAt helper.Iso8601Time  `json:"updated_at"`
@@ -218,6 +222,10 @@ func convertGithubIssue(issue *IssuesResponse, repositoryId int) (*models.Github
 	if issue.Assignee != nil {
 		githubIssue.AssigneeId = issue.Assignee.Id
 		githubIssue.AssigneeName = issue.Assignee.Login
+	}
+	if issue.User != nil {
+		githubIssue.AuthorId = issue.User.Id
+		githubIssue.AuthorName = issue.User.Login
 	}
 	if issue.ClosedAt != nil {
 		githubIssue.LeadTimeMinutes = uint(issue.ClosedAt.ToTime().Sub(issue.GithubCreatedAt.ToTime()).Minutes())

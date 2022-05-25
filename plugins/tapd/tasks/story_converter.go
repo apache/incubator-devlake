@@ -71,6 +71,7 @@ func ConvertStory(taskCtx core.SubTaskContext) error {
 				Priority:             toolL.Priority,
 				TimeRemainingMinutes: int64(toolL.Remain),
 				CreatorId:            UserIdGen.Generate(data.Connection.ID, toolL.WorkspaceID, toolL.Creator),
+				CreatorName:          toolL.Creator,
 				AssigneeId:           UserIdGen.Generate(data.Connection.ID, toolL.WorkspaceID, toolL.Owner),
 				AssigneeName:         toolL.Owner,
 				Severity:             "",
