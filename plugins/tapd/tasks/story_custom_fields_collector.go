@@ -26,7 +26,7 @@ import (
 	"net/url"
 )
 
-const RAW_STORY_CUSTOM_FIELDS_TABLE = "tapd_api_story_story_custom_fields"
+const RAW_STORY_CUSTOM_FIELDS_TABLE = "tapd_api_story_custom_fields"
 
 var _ core.SubTaskEntryPoint = CollectStoryCustomFields
 

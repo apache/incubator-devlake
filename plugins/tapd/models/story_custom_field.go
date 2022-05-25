@@ -6,13 +6,13 @@ type TapdStoryCustomFields struct {
 	ConnectionId uint64 `gorm:"primaryKey;type:BIGINT  NOT NULL"`
 	ID           uint64 `gorm:"primaryKey;type:BIGINT  NOT NULL" json:"id,string"`
 	WorkspaceID  uint64 `json:"workspace_id,string"`
-	EntryType    string `json:"entry_type"`
-	CustomField  string `json:"custom_field"`
-	Type         string `json:"type"`
-	Name         string `json:"name"`
+	EntryType    string `json:"entry_type" gorm:"type:varchar(255)"`
+	CustomField  string `json:"custom_field" gorm:"type:varchar(255)"`
+	Type         string `json:"type" gorm:"type:varchar(255)"`
+	Name         string `json:"name" gorm:"type:varchar(255)"`
 	Options      string `json:"options"`
-	Enabled      string `json:"enabled"`
-	Sort         string `json:"sort"`
+	Enabled      string `json:"enabled" gorm:"type:varchar(255)"`
+	Sort         string `json:"sort" gorm:"type:varchar(255)"`
 	common.NoPKModel
 }
 

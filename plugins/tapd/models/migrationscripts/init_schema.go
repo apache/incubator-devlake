@@ -60,6 +60,7 @@ func (*InitSchemas) Up(ctx context.Context, db *gorm.DB) error {
 		&archived.TapdStoryCustomFields{},
 		&archived.TapdBugCustomFields{},
 		&archived.TapdTaskCustomFields{},
+		&archived.TapdStoryCategory{},
 	)
 }
 
