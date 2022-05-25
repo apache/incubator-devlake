@@ -71,6 +71,6 @@ func CollectCompanies(taskCtx core.SubTaskContext) error {
 var CollectCompanyMeta = core.SubTaskMeta{
 	Name:        "collectCompanies",
 	EntryPoint:  CollectCompanies,
-	Required:    true,
+	Required:    false,
 	Description: "collect Tapd companies",
 }

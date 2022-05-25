@@ -26,7 +26,7 @@ import (
 	"net/url"
 )
 
-const RAW_BUG_CUSTOM_FIELDS_TABLE = "tapd_api_bug_bug_custom_fields"
+const RAW_BUG_CUSTOM_FIELDS_TABLE = "tapd_api_bug_custom_fields"
 
 var _ core.SubTaskEntryPoint = CollectBugCustomFields
 

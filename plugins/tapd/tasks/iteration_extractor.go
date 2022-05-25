@@ -33,7 +33,7 @@ var ExtractIterationMeta = core.SubTaskMeta{
 	Description:      "Extract raw workspace data into tool layer table _tool_tapd_iterations",
 }
 
-type TapdIterationRes struct {
+var iterBody struct {
 	Iteration models.TapdIteration
 }
 
@@ -50,7 +50,7 @@ func ExtractIterations(taskCtx core.SubTaskContext) error {
 			Table: RAW_ITERATION_TABLE,
 		},
 		Extract: func(row *helper.RawData) ([]interface{}, error) {
-			var iterBody TapdIterationRes
+
 			err := json.Unmarshal(row.Data, &iterBody)
 			if err != nil {
 				return nil, err
