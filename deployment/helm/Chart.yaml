@@ -1,0 +1,10 @@
+apiVersion: v2
+name: devlake
+description: A Helm chart for devlake
+type: application
+
+# Chart version
+version: 0.1.0
+
+# devlake version
+appVersion: "0.11.0"

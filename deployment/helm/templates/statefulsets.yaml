@@ -1,0 +1,127 @@
+---
+# mysql statefulset
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: {{ include "devlake.fullname" . }}-mysql
+  labels:
+    {{- include "devlake.labels" . | nindent 4 }}
+spec:
+  replicas: 1
+  serviceName: {{ include "devlake.fullname" . }}-mysql
+  selector:
+    matchLabels:
+      {{- include "devlake.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "devlake.selectorLabels" . | nindent 8 }}
+        devlakeComponent: mysql
+    spec:
+      containers:
+        - name: {{ .Chart.Name }}-mysql
+          image: "{{ .Values.mysql.image.repository }}:{{ .Values.mysql.image.tag }}"
+          imagePullPolicy: {{ .Values.mysql.image.pullPolicy }}
+          ports:
+            - name: mysql
+              containerPort: 3306
+              protocol: TCP
+          livenessProbe:
+            exec:
+              command:
+                - "sh"
+                - "-c"
+                - "mysqladmin ping -u root -p{{ .Values.mysql.rootPassword }}"
+            initialDelaySeconds: 60
+            timeoutSeconds: 30
+          {{- with .Values.mysql.resources }}
+          resources:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          envFrom:
+            - configMapRef:
+                name: {{ include "devlake.fullname" . }}-config
+          volumeMounts:
+            - mountPath: /var/lib/mysql
+              name: {{ include "devlake.fullname" . }}-mysql-data
+      {{- with .Values.mysql.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.mysql.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.mysql.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+  volumeClaimTemplates:
+    - metadata:
+        name: {{ include "devlake.fullname" . }}-mysql-data
+      spec:
+        accessModes: [ "ReadWriteOnce" ]
+        {{- with .Values.mysql.storage.class }}
+        storageClassName: "{{ . }}"
+        {{- end }}
+        resources:
+          requests:
+            storage: "{{ .Values.mysql.storage.size }}"
+
+
+---
+# devlake
+# TODO: graceful startup: init container for waiting mysql ready
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: {{ include "devlake.fullname" . }}-lake
+  labels:
+    {{- include "devlake.labels" . | nindent 4 }}
+spec:
+  replicas: 1
+  serviceName: {{ include "devlake.fullname" . }}-lake
+  selector:
+    matchLabels:
+      {{- include "devlake.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "devlake.selectorLabels" . | nindent 8 }}
+        devlakeComponent: lake
+    spec:
+      containers:
+        - name: {{ .Chart.Name }}-lake
+          image: "{{ .Values.lake.image.repository }}:{{ .Values.lake.image.tag }}"
+          imagePullPolicy: {{ .Values.lake.image.pullPolicy }}
+          ports:
+            - containerPort: 8080
+          livenessProbe:
+            httpGet:
+              path: /blueprints
+              port: 8080
+              scheme: HTTP
+            initialDelaySeconds: 60
+            timeoutSeconds: 30
+          envFrom:
+            - configMapRef:
+                name: {{ include "devlake.fullname" . }}-config
+          env:
+            - name: DB_URL
+              value: mysql://{{ .Values.mysql.username }}:{{ .Values.mysql.password }}@{{ include "devlake.fullname" . }}-mysql:3306/{{ .Values.mysql.database }}?charset=utf8mb4&parseTime=True
+            - name: ENV_PATH
+              value: /app/config/.env
+          volumeMounts:
+            - mountPath: /app/config
+              name: {{ include "devlake.fullname" . }}-lake-config
+  volumeClaimTemplates:
+    - metadata:
+        name: {{ include "devlake.fullname" . }}-lake-config
+      spec:
+        accessModes: [ "ReadWriteOnce" ]
+        {{- with .Values.lake.storage.class }}
+        storageClassName: "{{ . }}"
+        {{- end }}
+        resources:
+          requests:
+            storage: "{{ .Values.lake.storage.size }}"

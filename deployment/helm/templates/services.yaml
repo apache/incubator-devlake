@@ -1,0 +1,81 @@
+# mysql services
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "devlake.fullname" . }}-mysql
+  labels:
+    {{- include "devlake.labels" . | nindent 4 }}
+spec:
+  selector:
+    {{- include "devlake.selectorLabels" . | nindent 4 }}
+    devlakeComponent: mysql
+  ports:
+    - protocol: TCP
+      name: mysql
+      port: 3306
+      targetPort: 3306
+
+# grafana services
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "devlake.fullname" . }}-grafana
+  labels:
+    {{- include "devlake.labels" . | nindent 4 }}
+spec:
+  type: {{ .Values.service.type }}
+  selector:
+    {{- include "devlake.selectorLabels" . | nindent 4 }}
+    devlakeComponent: grafana
+  ports:
+    - protocol: TCP
+      name: grafana
+      port: {{ .Values.service.grafanaPort }}
+      targetPort: 3000
+      {{- if eq .Values.service.type "NodePort" }}
+      nodePort: {{ .Values.service.grafanaPort }}
+      {{- end }}
+
+
+
+# devlake services
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "devlake.fullname" . }}-lake
+  labels:
+    {{- include "devlake.labels" . | nindent 4 }}
+spec:
+  selector:
+    {{- include "devlake.selectorLabels" . | nindent 4 }}
+    devlakeComponent: lake
+  ports:
+    - protocol: TCP
+      name: devlake
+      port: 8080
+      targetPort: 8080
+
+---
+# ui
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "devlake.fullname" . }}-ui
+  labels:
+    {{- include "devlake.labels" . | nindent 4 }}
+spec:
+  type: {{ .Values.service.type }}
+  selector:
+    {{- include "devlake.selectorLabels" . | nindent 4 }}
+    devlakeComponent: ui
+  ports:
+    - protocol: TCP
+      name: ui
+      port: {{ .Values.service.uiPort }}
+      targetPort: 80
+      {{- if eq .Values.service.type "NodePort" }}
+      nodePort: {{ .Values.service.uiPort }}
+      {{- end }}
