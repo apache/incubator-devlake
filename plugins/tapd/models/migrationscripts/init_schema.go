@@ -57,6 +57,9 @@ func (*InitSchemas) Up(ctx context.Context, db *gorm.DB) error {
 		&archived.TapdIterationBug{},
 		&archived.TapdIterationStory{},
 		&archived.TapdIterationTask{},
+		&archived.TapdStoryCustomFields{},
+		&archived.TapdBugCustomFields{},
+		&archived.TapdTaskCustomFields{},
 	)
 }
 
