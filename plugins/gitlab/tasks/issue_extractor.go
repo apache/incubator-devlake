@@ -82,8 +82,8 @@ type IssuesResponse struct {
 		Full 		string
 	}
 	TimeStats struct {
-		TimeEstimate 		int
-		TotalTimeSpent 		int
+		TimeEstimate 		int64
+		TotalTimeSpent 		int64
 		HumanTimeEstimate 	string
 		HumanTotalTimeSpent string
 	}
@@ -179,6 +179,8 @@ func convertGitlabIssue(issue *IssuesResponse, projectId int) (*models.GitlabIss
 		ClosedAt:        helper.Iso8601TimeToTime(issue.GitlabClosedAt),
 		GitlabCreatedAt: issue.GitlabCreatedAt.ToTime(),
 		GitlabUpdatedAt: issue.GitlabUpdatedAt.ToTime(),
+		TimeEstimate: issue.TimeStats.TimeEstimate,
+		TotalTimeSpent: issue.TimeStats.TotalTimeSpent,
 	}
 
 	if issue.Assignee != nil {

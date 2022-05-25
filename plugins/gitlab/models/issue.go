@@ -24,6 +24,8 @@ type GitlabIssue struct {
 	GitlabUpdatedAt time.Time `gorm:"index"`
 	Severity        string    `gorm:"type:varchar(255)"`
 	Component       string    `gorm:"type:varchar(255)"`
+	TimeEstimate 	int64
+	TotalTimeSpent 	int64
 	common.NoPKModel
 }
 func (GitlabIssue) TableName() string {
