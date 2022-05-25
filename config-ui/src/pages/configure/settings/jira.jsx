@@ -88,25 +88,6 @@ export default function JiraSettings (props) {
       : null
   }
 
-  const parseTypeMappings = useCallback((mappings = []) => {
-    const GroupedMappings = {
-      [MAPPING_TYPES.Requirement]: [],
-      [MAPPING_TYPES.Incident]: [],
-      [MAPPING_TYPES.Bug]: [],
-    }
-    Object.entries(mappings).forEach(([tag, typeObj]) => {
-      GroupedMappings[typeObj.standardType].push(tag)
-    })
-    console.log('>>>> PARSED TYPE MAPPINGS ....', GroupedMappings)
-    setTypeMappingRequirement(GroupedMappings[MAPPING_TYPES.Requirement])
-    setTypeMappingBug(GroupedMappings[MAPPING_TYPES.Bug])
-    setTypeMappingIncident(GroupedMappings[MAPPING_TYPES.Incident])
-    setRequirementTags(requirementTagsList?.filter(t => GroupedMappings[MAPPING_TYPES.Requirement].includes(t.value)))
-    setBugTags(bugTagsList?.filter(t => GroupedMappings[MAPPING_TYPES.Bug].includes(t.value)))
-    setIncidentTags(incidentTagsList?.filter(t => GroupedMappings[MAPPING_TYPES.Incident].includes(t.value)))
-    return GroupedMappings
-  }, [requirementTagsList, bugTagsList, incidentTagsList])
-
   useEffect(() => {
     const settings = {
       epicKeyField: jiraIssueEpicKeyField?.value || '',
@@ -164,13 +145,12 @@ export default function JiraSettings (props) {
     console.log('>> CONN SETTINGS OBJECT ', connection)
     if (connection && connection.ID) {
       // Parse Type Mappings (V2)
-      parseTypeMappings(connection.typeMappings)
       setStatusMappings([])
       setRemoteLinkCommitSha(connection.remotelinkCommitShaPattern)
       // setJiraIssueEpicKeyField(fieldsList.find(f => f.value === connection.epicKeyField))
       // setJiraIssueStoryPointField(fieldsList.find(f => f.value === connection.storyPointField))
     }
-  }, [connection, parseTypeMappings])
+  }, [connection])
 
   useEffect(() => {
     setTypeMappingRequirement(requirementTags)
@@ -207,10 +187,6 @@ export default function JiraSettings (props) {
     setJiraIssueEpicKeyField(fieldsList.find(f => f.value === connection.epicKeyField))
     setJiraIssueStoryPointField(fieldsList.find(f => f.value === connection.storyPointField))
   }, [fieldsList, connection.epicKeyField, connection.storyPointField])
-
-  useEffect(() => {
-    parseTypeMappings(connection.typeMappings)
-  }, [requirementTagsList, bugTagsList, incidentTagsList, connection.typeMappings, parseTypeMappings])
 
   return (
     <>

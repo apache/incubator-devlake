@@ -25,9 +25,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/apache/incubator-devlake/config"
-	"github.com/apache/incubator-devlake/models/common"
-
 	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/helper"
@@ -52,11 +49,12 @@ func TestConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, erro
 	if err != nil {
 		return nil, err
 	}
+
 	// test connection
 	apiClient, err := helper.NewApiClient(
 		connection.Endpoint,
 		map[string]string{
-			"Authorization": fmt.Sprintf("Basic %v", connection.Auth),
+			"Authorization": fmt.Sprintf("Basic %v", connection.GetEncodedToken()),
 		},
 		3*time.Second,
 		connection.Proxy,
@@ -100,111 +98,6 @@ func TestConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, erro
 	return nil, nil
 }
 
-func findConnectionByInputParam(input *core.ApiResourceInput) (*models.JiraConnection, error) {
-	jiraConnectionId, err := getJiraConnectionIdByInputParam(input)
-	if err != nil {
-		return nil, fmt.Errorf("invalid connectionId")
-	}
-	return getJiraConnectionById(jiraConnectionId)
-}
-
-func getJiraConnectionIdByInputParam(input *core.ApiResourceInput) (uint64, error) {
-	connectionId := input.Params["connectionId"]
-	if connectionId == "" {
-		return 0, fmt.Errorf("missing connectionId")
-	}
-	return strconv.ParseUint(connectionId, 10, 64)
-}
-
-func getJiraConnectionById(id uint64) (*models.JiraConnection, error) {
-	jiraConnection := &models.JiraConnection{}
-	err := db.First(jiraConnection, id).Error
-	if err != nil {
-		return nil, err
-	}
-
-	// decrypt
-	v := config.GetConfig()
-	encKey := v.GetString(core.EncodeKeyEnvStr)
-	jiraConnection.BasicAuthEncoded, err = core.Decrypt(encKey, jiraConnection.BasicAuthEncoded)
-	if err != nil {
-		log.Error("failed to decrypt basic auth: %s", err)
-	}
-
-	return jiraConnection, nil
-}
-func mergeFieldsToJiraConnection(jiraConnection *models.JiraConnection, connections ...map[string]interface{}) error {
-	// decode
-	for _, connection := range connections {
-		err := mapstructure.Decode(connection, jiraConnection)
-		if err != nil {
-			return err
-		}
-	}
-
-	// validate
-	vld := validator.New()
-	err := vld.Struct(jiraConnection)
-	if err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func refreshAndSaveJiraConnection(jiraConnection *models.JiraConnection, data map[string]interface{}) error {
-	var err error
-	// update fields from request body
-	err = mergeFieldsToJiraConnection(jiraConnection, data)
-	if err != nil {
-		return err
-	}
-
-	encKey, err := getEncKey()
-	if err != nil {
-		return err
-	}
-	jiraConnection.BasicAuthEncoded, err = core.Encrypt(encKey, jiraConnection.BasicAuthEncoded)
-	if err != nil {
-		return err
-	}
-
-	// transaction for nested operations
-	tx := db.Begin()
-	defer func() {
-		if err != nil {
-			tx.Rollback()
-		} else {
-			tx.Commit()
-		}
-	}()
-	if jiraConnection.ID > 0 {
-		err = tx.Save(jiraConnection).Error
-	} else {
-		err = tx.Create(jiraConnection).Error
-	}
-	if err != nil {
-		if common.IsDuplicateError(err) {
-			return fmt.Errorf("jira connection with name %s already exists", jiraConnection.Name)
-		}
-		return err
-	}
-	// perform optional operation
-	typeMappings := data["typeMappings"]
-	if typeMappings != nil {
-		err = saveTypeMappings(tx, jiraConnection.ID, typeMappings)
-		if err != nil {
-			return err
-		}
-	}
-
-	jiraConnection.BasicAuthEncoded, err = core.Decrypt(encKey, jiraConnection.BasicAuthEncoded)
-	if err != nil {
-		log.Error("failed to decrypt basic auth: %s", err)
-	}
-	return nil
-}
-
 /*
 POST /plugins/jira/connections
 {
@@ -230,7 +123,7 @@ func PostConnections(input *core.ApiResourceInput) (*core.ApiResourceOutput, err
 	jiraConnection := &models.JiraConnection{}
 
 	// update from request and save to database
-	err := refreshAndSaveJiraConnection(jiraConnection, input.Body)
+	err := helper.RefreshAndSaveConnection(jiraConnection, input.Body, db)
 	if err != nil {
 		return nil, err
 	}
@@ -259,14 +152,15 @@ PATCH /plugins/jira/connections/:connectionId
 }
 */
 func PatchConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, error) {
+	jiraConnection := &models.JiraConnection{}
 	// load from db
-	jiraConnection, err := findConnectionByInputParam(input)
+	err := helper.FindConnectionByInput(input, jiraConnection, db)
 	if err != nil {
 		return nil, err
 	}
 
 	// update from request and save to database
-	err = refreshAndSaveJiraConnection(jiraConnection, input.Body)
+	err = helper.RefreshAndSaveConnection(jiraConnection, input.Body, db)
 	if err != nil {
 		return nil, err
 	}
@@ -279,7 +173,7 @@ DELETE /plugins/jira/connections/:connectionId
 */
 func DeleteConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, error) {
 	// load from db
-	jiraConnectionID, err := getJiraConnectionIdByInputParam(input)
+	jiraConnectionID, err := helper.GetConnectionIdByInputParam(input)
 	if err != nil {
 		return nil, err
 	}
@@ -304,22 +198,19 @@ func DeleteConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, er
 GET /plugins/jira/connections
 */
 func ListConnections(input *core.ApiResourceInput) (*core.ApiResourceOutput, error) {
-	jiraConnections := make([]models.JiraConnection, 0)
+	jiraConnections := make([]*models.JiraConnection, 0)
 	err := db.Find(&jiraConnections).Error
 	if err != nil {
 		return nil, err
 	}
-	encKey, err := getEncKey()
-	if err != nil {
-		return nil, err
-	}
-	for i := range jiraConnections {
-		jiraConnections[i].BasicAuthEncoded, err = core.Decrypt(encKey, jiraConnections[i].BasicAuthEncoded)
+	for i, _ := range jiraConnections {
+		err = helper.DecryptConnection(jiraConnections[i], "Password")
 		if err != nil {
-			log.Error("failed to decrypt basic auth: %s", err)
+			return nil, err
 		}
 	}
-	return &core.ApiResourceOutput{Body: jiraConnections}, nil
+
+	return &core.ApiResourceOutput{Body: jiraConnections, Status: http.StatusOK}, nil
 }
 
 /*
@@ -345,45 +236,18 @@ GET /plugins/jira/connections/:connectionId
 }
 */
 func GetConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, error) {
-	jiraConnection, err := findConnectionByInputParam(input)
+	jiraConnection := &models.JiraConnection{}
+	err := helper.FindConnectionByInput(input, jiraConnection, db)
 	if err != nil {
 		return nil, err
 	}
 
 	detail := &models.JiraConnectionDetail{
 		JiraConnection: *jiraConnection,
-		TypeMappings:   make(map[string]map[string]interface{}),
 	}
 
-	typeMappings, err := findIssueTypeMappingByConnectionId(jiraConnection.ID)
 	if err != nil {
 		return nil, err
-	}
-	for _, jiraTypeMapping := range typeMappings {
-		// type mapping
-		typeMappingDict := map[string]interface{}{
-			"standardType": jiraTypeMapping.StandardType,
-		}
-		detail.TypeMappings[jiraTypeMapping.UserType] = typeMappingDict
-
-		// status mapping
-		statusMappings, err := findIssueStatusMappingByConnectionIdAndUserType(
-			jiraConnection.ID,
-			jiraTypeMapping.UserType,
-		)
-		if err != nil {
-			return nil, err
-		}
-		if len(statusMappings) == 0 {
-			continue
-		}
-		statusMappingsDict := make(map[string]interface{})
-		for _, jiraStatusMapping := range statusMappings {
-			statusMappingsDict[jiraStatusMapping.UserStatus] = map[string]interface{}{
-				"standardStatus": jiraStatusMapping.StandardStatus,
-			}
-		}
-		typeMappingDict["statusMappings"] = statusMappingsDict
 	}
 
 	return &core.ApiResourceOutput{Body: detail}, nil
@@ -391,7 +255,8 @@ func GetConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, error
 
 // GET /plugins/jira/connections/:connectionId/epics
 func GetEpicsByConnectionId(input *core.ApiResourceInput) (*core.ApiResourceOutput, error) {
-	jiraConnection, err := findConnectionByInputParam(input)
+	jiraConnection := &models.JiraConnection{}
+	err := helper.FindConnectionByInput(input, jiraConnection, db)
 	if err != nil {
 		return nil, err
 	}
@@ -410,7 +275,11 @@ type GranularitiesResponse struct {
 }
 
 func GetGranularitiesByConnectionId(input *core.ApiResourceInput) (*core.ApiResourceOutput, error) {
-	jiraConnection, err := findConnectionByInputParam(input)
+	jiraConnection := &models.JiraConnection{}
+	err := helper.FindConnectionByInput(input, jiraConnection, db)
+	if err != nil {
+		return nil, err
+	}
 	if err != nil {
 		return nil, err
 	}
@@ -447,20 +316,4 @@ func GetBoardsByConnectionId(input *core.ApiResourceInput) (*core.ApiResourceOut
 		})
 	}
 	return &core.ApiResourceOutput{Body: boardResponses}, nil
-}
-
-func getEncKey() (string, error) {
-	// encrypt
-	v := config.GetConfig()
-	encKey := v.GetString(core.EncodeKeyEnvStr)
-	if encKey == "" {
-		// Randomly generate a bunch of encryption keys and set them to config
-		encKey = core.RandomEncKey()
-		v.Set(core.EncodeKeyEnvStr, encKey)
-		err := config.WriteConfig(v)
-		if err != nil {
-			return encKey, err
-		}
-	}
-	return encKey, nil
 }

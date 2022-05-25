@@ -35,7 +35,7 @@ func ApiOutputError(c *gin.Context, err error, status int) {
 			Message: err.Error(),
 		})
 	} else {
-		logger.Global.Error("Server Internal Error: %w", err)
+		logger.Global.Error("Server Internal Error: %s", err.Error())
 		c.JSON(status, &ApiBody{
 			Success: false,
 			Message: err.Error(),

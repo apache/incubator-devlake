@@ -83,7 +83,7 @@ function useConnectionManager ({
       let connectionPayload
       switch (activeProvider.id) {
         case Providers.JIRA:
-          connectionPayload = { endpoint: endpointUrl, auth: token, proxy: proxy }
+          connectionPayload = { endpoint: endpointUrl, username: username, password: password, proxy: proxy }
           break
         case Providers.GITHUB:
           connectionPayload = { endpoint: endpointUrl, auth: token, proxy: proxy }

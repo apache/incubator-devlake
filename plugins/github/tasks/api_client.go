@@ -60,7 +60,7 @@ func CreateApiClient(taskCtx core.TaskContext) (*helper.ApiAsyncClient, error) {
 	})
 	apiClient.SetAfterFunction(func(res *http.Response) error {
 		if res.StatusCode == http.StatusUnauthorized {
-			return fmt.Errorf("authentication failed, please check your Token configuration")
+			return fmt.Errorf("authentication failed, please check your AccessToken configuration")
 		}
 		return nil
 	})

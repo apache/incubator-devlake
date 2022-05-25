@@ -19,16 +19,32 @@ package migrationscripts
 
 import (
 	"context"
-	"github.com/apache/incubator-devlake/plugins/jira/models"
+	"github.com/apache/incubator-devlake/models/common"
 	"github.com/apache/incubator-devlake/plugins/jira/models/migrationscripts/archived"
 
 	"gorm.io/gorm"
 )
 
+type JiraConnection20220505 struct {
+	common.Model
+	Name                       string `gorm:"type:varchar(100);uniqueIndex" json:"name" validate:"required"`
+	Endpoint                   string `json:"endpoint" validate:"required"`
+	BasicAuthEncoded           string `json:"basicAuthEncoded" validate:"required"`
+	EpicKeyField               string `gorm:"type:varchar(50);" json:"epicKeyField"`
+	StoryPointField            string `gorm:"type:varchar(50);" json:"storyPointField"`
+	RemotelinkCommitShaPattern string `gorm:"type:varchar(255);comment='golang regexp, the first group will be recognized as commit sha, ref https://github.com/google/re2/wiki/Syntax'" json:"remotelinkCommitShaPattern"`
+	Proxy                      string `json:"proxy"`
+	RateLimit                  int    `comment:"api request rate limt per hour" json:"rateLimit"`
+}
+
+func (JiraConnection20220505) TableName() string {
+	return "_tool_jira_connections"
+}
+
 type UpdateSchemas20220505 struct{}
 
 func (*UpdateSchemas20220505) Up(ctx context.Context, db *gorm.DB) error {
-	err := db.Migrator().RenameTable(archived.JiraSource{}, models.JiraConnection{})
+	err := db.Migrator().RenameTable(archived.JiraSource{}, JiraConnection20220505{})
 	if err != nil {
 		return err
 	}
