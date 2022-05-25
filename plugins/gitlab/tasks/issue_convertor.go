@@ -65,6 +65,9 @@ func ConvertIssues(taskCtx core.SubTaskContext) error {
 				ResolutionDate:  issue.ClosedAt,
 				Severity:        issue.Severity,
 				Component:       issue.Component,
+				OriginalStatus:  issue.Status,
+				OriginalEstimateMinutes: issue.TimeEstimate,
+				TimeSpentMinutes: issue.TotalTimeSpent,
 			}
 			if issue.State == "closed" {
 				domainIssue.Status = ticket.DONE
