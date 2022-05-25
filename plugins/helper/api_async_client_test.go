@@ -89,13 +89,7 @@ func GetConfigForTest(basepath string) *viper.Viper {
 	return v
 }
 
-// Create an AsyncApiClient object for test
-func CreateTestAsyncApiClient(t *testing.T) (*ApiAsyncClient, error) {
-	// create rate limit calculator
-	rateLimiter := &ApiRateLimitCalculator{
-		UserRateLimitPerHour: 36000, // ten times each seconed
-	}
-
+func CreateTestAsyncApiClientWithRateLimitAndCtx(t *testing.T, rateLimiter *ApiRateLimitCalculator, ctx context.Context) (*ApiAsyncClient, error) {
 	// set the function of create new default taskcontext for the AsyncApiClient
 	gm := gomonkey.ApplyFunc(NewDefaultTaskContext, func(
 		cfg *viper.Viper,
@@ -111,7 +105,7 @@ func CreateTestAsyncApiClient(t *testing.T) (*ApiAsyncClient, error) {
 				cfg:      cfg,
 				logger:   &DefaultLogger{},
 				db:       db,
-				ctx:      context.Background(),
+				ctx:      ctx,
 				name:     "Test",
 				data:     nil,
 				progress: progress,
@@ -129,6 +123,15 @@ func CreateTestAsyncApiClient(t *testing.T) (*ApiAsyncClient, error) {
 	apiClient.SetContext(taskCtx.GetContext())
 
 	return CreateAsyncApiClient(taskCtx, apiClient, rateLimiter)
+}
+
+// Create an AsyncApiClient object for test
+func CreateTestAsyncApiClient(t *testing.T) (*ApiAsyncClient, error) {
+	// create rate limit calculator
+	rateLimiter := &ApiRateLimitCalculator{
+		UserRateLimitPerHour: 36000, // ten times each seconed
+	}
+	return CreateTestAsyncApiClientWithRateLimitAndCtx(t, rateLimiter, context.Background())
 }
 
 // go test -gcflags=all=-l -run ^TestWaitAsync_EmptyWork

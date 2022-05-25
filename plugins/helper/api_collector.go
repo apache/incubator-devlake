@@ -412,20 +412,24 @@ func (collector *ApiCollector) handleResponseWithPages(reqData *RequestData) Api
 			collector.args.Ctx.SetProgress(1, totalPages)
 		}
 		// fetch other pages in parallel
-		for page := 2; page <= totalPages; page++ {
-			reqDataTemp := &RequestData{
-				Pager: &Pager{
-					Page: page,
-					Size: collector.args.PageSize,
-					Skip: collector.args.PageSize * (page - 1),
-				},
-				Input: reqData.Input,
+		collector.args.ApiClient.Add(1)
+		go func() {
+			defer func() {
+				collector.args.ApiClient.Done()
+				recover()
+			}()
+			for page := 2; page <= totalPages; page++ {
+				reqDataTemp := &RequestData{
+					Pager: &Pager{
+						Page: page,
+						Size: collector.args.PageSize,
+						Skip: collector.args.PageSize * (page - 1),
+					},
+					Input: reqData.Input,
+				}
+				_ = collector.fetchAsync(reqDataTemp, collector.handleResponse(reqDataTemp))
 			}
-			e = collector.fetchAsync(reqDataTemp, collector.handleResponse(reqDataTemp))
-			if e != nil {
-				return e
-			}
-		}
+		}()
 		return nil
 	}
 }

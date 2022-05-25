@@ -54,13 +54,13 @@ commit:
 test: unit-test e2e-test
 
 unit-test: build
-	set -e; for m in $$(go list ./... | egrep -v 'test|models|e2e'); do echo $$m; go test -gcflags=all=-l -v $$m; done
+	set -e; for m in $$(go list ./... | egrep -v 'test|models|e2e'); do echo $$m; go test -timeout 60s -gcflags=all=-l -v $$m; done
 
 e2e-test: build
-	PLUGIN_DIR=$(shell readlink -f bin/plugins) go test -v ./test/...
+	PLUGIN_DIR=$(shell readlink -f bin/plugins) go test -timeout 300s -v ./test/...
 
 e2e-plugins:
-	export ENV_PATH=$(shell readlink -f .env); set -e; for m in $$(go list ./plugins/... | egrep 'e2e'); do echo $$m; go test -gcflags=all=-l -v $$m; done
+	export ENV_PATH=$(shell readlink -f .env); set -e; for m in $$(go list ./plugins/... | egrep 'e2e'); do echo $$m; go test -timeout 300s -gcflags=all=-l -v $$m; done
 
 real-e2e-test:
 	PLUGIN_DIR=$(shell readlink -f bin/plugins) go test -v ./e2e/...

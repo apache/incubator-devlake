@@ -27,6 +27,7 @@ import (
 	"net/http"
 	"net/url"
 	"reflect"
+	"runtime/debug"
 	"sync/atomic"
 	"testing"
 	"time"
@@ -92,6 +93,7 @@ var TestDataCountNotFull int = 50
 var TestPage int = 110
 var TestSkip int = 100100
 var TestSize int = 116102
+var TestTimeOut time.Duration = time.Duration(10) * time.Second
 
 var Cancel context.CancelFunc
 
@@ -118,6 +120,35 @@ func AssertBaseResponse(t *testing.T, A *http.Response, B *http.Response) {
 	assert.Equal(t, A.Proto, B.Proto)
 	assert.Equal(t, A.ProtoMajor, B.ProtoMajor)
 	assert.Equal(t, A.ProtoMinor, B.ProtoMinor)
+}
+
+func SetTimeOut(timeout time.Duration, handleer func()) error {
+	stack := string(debug.Stack())
+	t := time.After(timeout)
+	done := make(chan bool)
+	go func() {
+		defer func() {
+			if r := recover(); r != nil {
+				fmt.Printf("%s\r\n", stack)
+				fmt.Printf("%v\r\n", r)
+			}
+		}()
+
+		if handleer != nil {
+			handleer()
+		}
+		done <- true
+	}()
+
+	select {
+	case <-t:
+		return fmt.Errorf("[time:%s]\r\n[Time limit for %f seconed]\r\n[stack]\r\n%s\r\n",
+			time.Now().String(),
+			float64(timeout)/float64(time.Second),
+			stack)
+	case <-done:
+		return nil
+	}
 }
 
 func AddBodyData(res *http.Response, count int) {
@@ -531,6 +562,17 @@ func TestHandleResponseWithPages(t *testing.T) {
 	})
 	defer gs.Reset()
 
+	NeedWait := int64(0)
+	gad := gomonkey.ApplyMethod(reflect.TypeOf(&ApiAsyncClient{}), "Add", func(apiClient *ApiAsyncClient, delta int) {
+		atomic.AddInt64(&NeedWait, int64(delta))
+	})
+	defer gad.Reset()
+
+	gdo := gomonkey.ApplyMethod(reflect.TypeOf(&ApiAsyncClient{}), "Done", func(apiClient *ApiAsyncClient) {
+		atomic.AddInt64(&NeedWait, -1)
+	})
+	defer gdo.Reset()
+
 	// build request Input
 	reqData := new(RequestData)
 	reqData.Input = TestTableData
@@ -545,6 +587,12 @@ func TestHandleResponseWithPages(t *testing.T) {
 
 	// run testing
 	err := handle(res, nil)
+
+	// wait run finished
+	for atomic.LoadInt64(&NeedWait) > 0 {
+		time.Sleep(time.Millisecond)
+	}
+
 	assert.Equal(t, err, nil)
 	for i := 2; i <= TestTotalPage; i++ {
 		assert.True(t, pages[i], i)
@@ -763,9 +811,12 @@ func TestStepFetch_Cancel(t *testing.T) {
 		Cancel()
 	}()
 
-	err := apiCollector.stepFetch(ctx, cancel, *reqData)
+	err := SetTimeOut(TestTimeOut, func() {
+		err := apiCollector.stepFetch(ctx, cancel, *reqData)
+		assert.Equal(t, err, fmt.Errorf("context canceled"))
+	})
+	assert.Equal(t, err, nil)
 
-	assert.Equal(t, err, fmt.Errorf("context canceled"))
 }
 
 func TestExecWithOutPageSize(t *testing.T) {
@@ -880,13 +931,15 @@ func TestExec_Cancel(t *testing.T) {
 		Cancel()
 	}()
 
-	// run testing
-	err := apiCollector.exec(TestTableData)
+	err := SetTimeOut(TestTimeOut, func() {
+		// run testing
+		err := apiCollector.exec(TestTableData)
+		assert.Equal(t, err, nil)
+		for i := 2; i <= TestTotalPage; i++ {
+			assert.True(t, pages[i], i)
+		}
+	})
 	assert.Equal(t, err, nil)
-
-	for i := 2; i <= TestTotalPage; i++ {
-		assert.True(t, pages[i], i)
-	}
 }
 
 func TestExecute(t *testing.T) {
@@ -991,11 +1044,102 @@ func TestExecute_Cancel(t *testing.T) {
 		Cancel()
 	}()
 
-	// run testing
-	err := apiCollector.Execute()
-	assert.Equal(t, err, fmt.Errorf("context canceled"))
+	err := SetTimeOut(TestTimeOut, func() {
+		// run testing
+		err := apiCollector.Execute()
+		assert.Equal(t, err, fmt.Errorf("context canceled"))
 
-	input := apiCollector.args.Input.(*TestIterator)
-	assert.Equal(t, input.hasNextTimes >= input.fetchTimes, true)
-	assert.Equal(t, input.closeTimes > 0, true)
+		input := apiCollector.args.Input.(*TestIterator)
+		assert.Equal(t, input.hasNextTimes >= input.fetchTimes, true)
+		assert.Equal(t, input.closeTimes > 0, true)
+	})
+	assert.Equal(t, err, nil)
+}
+
+func TestExecute_Total(t *testing.T) {
+	MockDB(t)
+	defer UnMockDB()
+	apiCollector, _ := CreateTestApiCollector()
+	// less count for more quick test
+	TestDataCount = 10
+	// ReLimit the workNum to test the block
+	reWorkNum := 1
+
+	apiCollector.args.Input = &TestIterator{
+		data:         *TestTableData,
+		count:        TestDataCount,
+		hasNextTimes: 0,
+		fetchTimes:   0,
+		closeTimes:   0,
+		unlimit:      false,
+	}
+
+	gt.Reset()
+	gt = gomonkey.ApplyMethod(reflect.TypeOf(&gorm.DB{}), "Table", func(db *gorm.DB, name string, args ...interface{}) *gorm.DB {
+		assert.Equal(t, name, "_raw_"+TestTableData.TableName())
+		return db
+	},
+	)
+	defer gw.Reset()
+
+	gs := gomonkey.ApplyPrivateMethod(reflect.TypeOf(apiCollector), "saveRawData", func(collector *ApiCollector, res *http.Response, input interface{}) (int, error) {
+		items, err := collector.args.ResponseParser(res)
+		assert.Equal(t, err, nil)
+		for _, v := range items {
+			jsondata, err := json.Marshal(v)
+			assert.Equal(t, err, nil)
+			assert.Equal(t, string(jsondata), TestRawMessage)
+		}
+		assert.Equal(t, input, TestTableData)
+		AssertBaseResponse(t, res, &TestHttpResponse_Suc)
+		return len(items), nil
+	})
+	defer gs.Reset()
+
+	gin := gomonkey.ApplyMethod(reflect.TypeOf(&DefaultLogger{}), "Info", func(_ *DefaultLogger, _ string, _ ...interface{}) {
+	})
+	defer gin.Reset()
+
+	gdo := gomonkey.ApplyMethod(reflect.TypeOf(&ApiClient{}), "Do", func(
+		apiClient *ApiClient,
+		method string,
+		path string,
+		query url.Values,
+		body interface{},
+		headers http.Header,
+	) (*http.Response, error) {
+		res := TestHttpResponse_Suc
+
+		AddBodyData(&res, TestDataCount)
+		SetUrl(&res, TestUrl)
+
+		return &res, nil
+	})
+	defer gdo.Reset()
+
+	var gse *gomonkey.Patches
+	gse = gomonkey.ApplyFunc(NewWorkerScheduler, func(workerNum int, maxWork int, maxWorkDuration time.Duration, ctx context.Context, maxRetry int) (*WorkerScheduler, error) {
+		gse.Reset()
+		workerNum = reWorkNum
+		return NewWorkerScheduler(workerNum, maxWork, maxWorkDuration, ctx, maxRetry)
+	})
+	defer gse.Reset()
+
+	// create rate limit calculator
+	rateLimiter := &ApiRateLimitCalculator{
+		UserRateLimitPerHour: 360000000, // 100000 times each seconed
+	}
+
+	apiCollector.args.ApiClient, _ = CreateTestAsyncApiClientWithRateLimitAndCtx(t, rateLimiter, apiCollector.args.Ctx.GetContext())
+
+	err := SetTimeOut(TestTimeOut, func() {
+		err := apiCollector.Execute()
+		assert.Equal(t, err, nil)
+
+		input := apiCollector.args.Input.(*TestIterator)
+		assert.Equal(t, input.fetchTimes, TestDataCount)
+		assert.Equal(t, input.hasNextTimes >= input.fetchTimes, true)
+		assert.Equal(t, input.closeTimes > 0, true)
+	})
+	assert.Equal(t, err, nil)
 }

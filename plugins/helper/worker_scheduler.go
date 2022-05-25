@@ -144,3 +144,11 @@ func (s *WorkerScheduler) Release() {
 		s.ticker.Stop()
 	}
 }
+
+func (s *WorkerScheduler) Add(delta int) {
+	s.waitGroup.Add(delta)
+}
+
+func (s *WorkerScheduler) Done() {
+	s.waitGroup.Done()
+}
