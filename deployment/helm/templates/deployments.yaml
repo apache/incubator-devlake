@@ -1,0 +1,82 @@
+---
+# grafana
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "devlake.fullname" . }}-grafana
+  labels:
+    {{- include "devlake.labels" . | nindent 4 }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      {{- include "devlake.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "devlake.selectorLabels" . | nindent 8 }}
+        devlakeComponent: grafana
+    spec:
+      containers:
+        - name: {{ .Chart.Name }}-grafana
+          image: "{{ .Values.grafana.image.repository }}:{{ .Values.grafana.image.tag }}"
+          imagePullPolicy: {{ .Values.grafana.image.pullPolicy }}
+          ports:
+            - containerPort: 3000
+          livenessProbe:
+            httpGet:
+              path: /api/health
+              port: 3000
+            initialDelaySeconds: 30
+            timeoutSeconds: 30
+          envFrom:
+            - configMapRef:
+                name: {{ include "devlake.fullname" . }}-config
+          env:
+            - name: GF_USERS_ALLOW_SIGN_UP
+              value: 'false'
+            - name: GF_DASHBOARDS_JSON_ENABLED
+              value: 'true'
+            - name: GF_LIVE_ALLOWED_ORIGINS
+              value: '*'
+            - name: MYSQL_URL
+              value: {{ include "devlake.fullname" . }}-mysql:3306
+
+---
+# devlake-ui
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "devlake.fullname" . }}-ui
+  labels:
+    {{- include "devlake.labels" . | nindent 4 }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      {{- include "devlake.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "devlake.selectorLabels" . | nindent 8 }}
+        devlakeComponent: ui
+    spec:
+      containers:
+        - name: {{ .Chart.Name }}-ui
+          image: "{{ .Values.ui.image.repository }}:{{ .Values.ui.image.tag }}"
+          imagePullPolicy: {{ .Values.ui.image.pullPolicy }}
+          ports:
+            - containerPort: 80
+          envFrom:
+            - configMapRef:
+                name: {{ include "devlake.fullname" . }}-config
+          env:
+            - name: DEVLAKE_ENDPOINT
+              # TODO: remove hardcoded `cluster.local`
+              value: {{ include "devlake.fullname" . }}-lake.{{ .Release.Namespace }}.svc.cluster.local:8080
+            - name: GRAFANA_ENDPOINT
+              value: "{{ .Values.service.grafanaEndpoint }}"
+            # - name: ADMIN_USER
+            #   value: "admin"
+            # - name: ADMIN_PASS
+            #   value: "admin"
