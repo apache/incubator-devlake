@@ -53,7 +53,6 @@ func ExtractStoryCategories(taskCtx core.SubTaskContext) error {
 			if err != nil {
 				return nil, err
 			}
-
 			toolL := storyCategory.Category
 
 			toolL.ConnectionId = data.Connection.ID
