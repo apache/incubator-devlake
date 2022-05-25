@@ -265,7 +265,7 @@ export default function ConfigureConnection () {
                             testStatus={testStatus}
                             errors={errors}
                             showError={showConnectionError}
-                            authType={activeProvider.id === Providers.JENKINS ? 'plain' : 'token'}
+                            authType={[Providers.JENKINS, Providers.JIRA].includes(activeProvider.id) ? 'plain' : 'token'}
                             showLimitWarning={false}
                             sourceLimits={ProviderConnectionLimits}
                             labels={ProviderFormLabels[activeProvider.id]}
