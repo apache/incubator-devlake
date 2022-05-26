@@ -52,6 +52,8 @@ func (plugin Gitlab) SubTaskMetas() []core.SubTaskMeta {
 		tasks.ExtractCommitsMeta,
 		tasks.CollectTagMeta,
 		tasks.ExtractTagMeta,
+		tasks.CollectApiIssuesMeta,
+		tasks.ExtractApiIssuesMeta,
 		tasks.CollectApiMergeRequestsMeta,
 		tasks.ExtractApiMergeRequestsMeta,
 		tasks.CollectApiMergeRequestsNotesMeta,
@@ -64,6 +66,7 @@ func (plugin Gitlab) SubTaskMetas() []core.SubTaskMeta {
 		tasks.ExtractApiChildrenOnPipelinesMeta,
 		tasks.EnrichMergeRequestsMeta,
 		tasks.ConvertProjectMeta,
+		tasks.ConvertIssuesMeta,
 		tasks.ConvertApiMergeRequestsMeta,
 		tasks.ConvertApiCommitsMeta,
 		tasks.ConvertApiNotesMeta,
@@ -96,7 +99,11 @@ func (plugin Gitlab) RootPkgPath() string {
 }
 
 func (plugin Gitlab) MigrationScripts() []migration.Script {
-	return []migration.Script{new(migrationscripts.InitSchemas), new(migrationscripts.UpdateSchemas20220510)}
+	return []migration.Script{
+		new(migrationscripts.InitSchemas),
+		new(migrationscripts.UpdateSchemas20220510),
+		new(migrationscripts.UpdateSchemas20220525),
+	}
 }
 
 func (plugin Gitlab) ApiResources() map[string]map[string]core.ApiResourceHandler {
