@@ -16,7 +16,7 @@ var ExtractApiIssuesMeta = core.SubTaskMeta{
 }
 
 type IssuesResponse struct {
-	ProjectId    int `json:"id"`
+	ProjectId    int `json:"project_id"`
 	Milestone    struct {
 		Due_date 	string
 		Project_id 	int
@@ -44,7 +44,7 @@ type IssuesResponse struct {
 		WebUrl 		string
 		State 		string
 		Username 	string
-		Id 			int
+		Id 			string
 		Name 		string
 	}
 	Assignee *struct {
@@ -52,7 +52,7 @@ type IssuesResponse struct {
 		WebUrl 		string
 		State 		string
 		Username 	string
-		Id 			int
+		Id 			string
 		Name 		string
 	}
 	Type 				string
@@ -60,7 +60,7 @@ type IssuesResponse struct {
 	UpVotes 			int
 	DownVotes 			int
 	MergeRequestsCount 	int
-	Id 					int
+	Id 					int	`json:"id"`
 	Title       		string
 	GitlabUpdatedAt helper.Iso8601Time  `json:"updated_at"`
 	GitlabCreatedAt helper.Iso8601Time  `json:"created_at"`
@@ -134,12 +134,8 @@ func ExtractApiIssues(taskCtx core.SubTaskContext) error {
 			if body.ProjectId == 0 {
 				return nil, nil
 			}
-			////If this is a pr, ignore
-			//if body.PullRequest.Url != "" {
-			//	return nil, nil
-			//}
 			//If this is not Issue, ignore
-			if body.IssueType != "ISSUE" {
+			if body.IssueType != "ISSUE" && body.Type != "ISSUE"{
 				return nil, nil
 			}
 			results := make([]interface{}, 0, 2)
