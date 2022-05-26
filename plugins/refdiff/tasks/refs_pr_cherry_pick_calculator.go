@@ -92,7 +92,7 @@ func CalculatePrCherryPick(taskCtx core.SubTaskContext) error {
 
 		var parentPrId string
 		err = db.Model(&code.PullRequest{}).
-			Where("key = ? and base_repo_id = ?", parentPrKeyInt, repoId).
+			Where("`key` = ? and base_repo_id = ?", parentPrKeyInt, repoId).
 			Pluck("id", &parentPrId).Error
 		if err != nil {
 			return err
