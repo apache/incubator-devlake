@@ -34,7 +34,6 @@ func ConvertIssues(taskCtx core.SubTaskContext) error {
 	defer cursor.Close()
 
 	issueIdGen := didgen.NewDomainIdGenerator(&gitlabModels.GitlabIssue{})
-	userIdGen := didgen.NewDomainIdGenerator(&gitlabModels.GitlabUser{})
 	boardIdGen := didgen.NewDomainIdGenerator(&gitlabModels.GitlabProject{})
 
 	converter, err := helper.NewDataConverter(helper.DataConverterArgs{
@@ -56,7 +55,7 @@ func ConvertIssues(taskCtx core.SubTaskContext) error {
 				Description:     issue.Body,
 				Priority:        issue.Priority,
 				Type:            issue.Type,
-				AssigneeId:      userIdGen.Generate(issue.AssigneeId),
+				AssigneeId:      issue.AssigneeId,
 				AssigneeName:    issue.AssigneeName,
 				LeadTimeMinutes: issue.LeadTimeMinutes,
 				Url:             issue.Url,
@@ -69,10 +68,10 @@ func ConvertIssues(taskCtx core.SubTaskContext) error {
 				OriginalEstimateMinutes: issue.TimeEstimate,
 				TimeSpentMinutes: issue.TotalTimeSpent,
 			}
-			if issue.State == "closed" {
-				domainIssue.Status = ticket.DONE
-			} else {
+			if issue.State == "opened" {
 				domainIssue.Status = ticket.TODO
+			} else {
+				domainIssue.Status = ticket.DONE
 			}
 			boardIssue := &ticket.BoardIssue{
 				BoardId: boardIdGen.Generate(projectId),

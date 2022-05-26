@@ -15,7 +15,7 @@ type GitlabIssue struct {
 	Priority        string `gorm:"type:varchar(255)"`
 	Type            string `gorm:"type:varchar(100)"`
 	Status          string `gorm:"type:varchar(255)"`
-	AssigneeId      int
+	AssigneeId      string
 	AssigneeName    string `gorm:"type:varchar(255)"`
 	LeadTimeMinutes uint
 	Url             string `gorm:"type:varchar(255)"`
