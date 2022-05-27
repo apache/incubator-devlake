@@ -167,7 +167,7 @@ func (l *LibGit2) run(repo *git.Repository, repoId string) error {
 			return nil
 		}
 		commitSha := commit.Id().String()
-		l.logger.Info("process commit: %s", commitSha)
+		l.logger.Debug("process commit: %s", commitSha)
 		c := &code.Commit{
 			Sha:     commitSha,
 			Message: commit.Message(),

@@ -18,7 +18,6 @@ limitations under the License.
 package tasks
 
 import (
-	"fmt"
 	"regexp"
 	"strconv"
 	"strings"
@@ -45,10 +44,9 @@ func CalculatePrCherryPick(taskCtx core.SubTaskContext) error {
 	ctx := taskCtx.GetContext()
 	db := taskCtx.GetDb()
 	var prTitleRegex *regexp.Regexp
+	
 	prTitlePattern := taskCtx.GetConfig("GITHUB_PR_TITLE_PATTERN")
-
 	if len(prTitlePattern) > 0 {
-		fmt.Println(prTitlePattern)
 		prTitleRegex = regexp.MustCompile(prTitlePattern)
 	}
 
