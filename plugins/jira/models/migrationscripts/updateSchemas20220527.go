@@ -15,28 +15,17 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package archived
+package migrationscripts
 
 import (
-	"time"
+	"context"
 
 	"github.com/apache/incubator-devlake/models/migrationscripts/archived"
+	jiraArchived "github.com/apache/incubator-devlake/plugins/jira/models/migrationscripts/archived"
+	"gorm.io/gorm"
 )
 
-type JiraChangelog struct {
-	archived.NoPKModel
-
-	// collected fields
-	SourceId          uint64 `gorm:"primaryKey"`
-	ChangelogId       uint64 `gorm:"primarykey"`
-	IssueId           uint64 `gorm:"index"`
-	AuthorAccountId   string `gorm:"type:varchar(255)"`
-	AuthorDisplayName string `gorm:"type:varchar(255)"`
-	AuthorActive      bool
-	Created           time.Time `gorm:"index"`
-}
-
-type JiraChangelogItem struct {
+type JiraChangelogItem20220527 struct {
 	archived.NoPKModel
 
 	// collected fields
@@ -45,16 +34,35 @@ type JiraChangelogItem struct {
 	Field       string `gorm:"primaryKey"`
 	FieldType   string
 	FieldId     string
-	From         string
-	FromString   string
-	To           string
-	ToString     string
+	FromValue   string
+	FromString  string
+	ToValue     string
+	ToString    string
 }
 
-func (JiraChangelog) TableName() string {
-	return "_tool_jira_changelogs"
-}
-
-func (JiraChangelogItem) TableName() string {
+func (JiraChangelogItem20220527) TableName() string {
 	return "_tool_jira_changelog_items"
+}
+
+type UpdateSchemas20220527 struct{}
+
+func (*UpdateSchemas20220527) Up(ctx context.Context, db *gorm.DB) error {
+	
+	err := db.Migrator().RenameColumn(jiraArchived.JiraChangelogItem{}, "from", "from_value")
+	if err != nil {
+		return err
+	}
+	err = db.Migrator().RenameColumn(jiraArchived.JiraChangelogItem{}, "to", "to_value")
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (*UpdateSchemas20220527) Version() uint64 {
+	return 20220527154646
+}
+
+func (*UpdateSchemas20220527) Name() string {
+	return "update `from` and `to` columns to `from_value` and `to_value` at _tool_jira_changelog_items"
 }

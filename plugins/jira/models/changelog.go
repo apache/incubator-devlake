@@ -45,9 +45,9 @@ type JiraChangelogItem struct {
 	Field        string `gorm:"primaryKey"`
 	FieldType    string
 	FieldId      string
-	From         string
+	FromValue    string
 	FromString   string
-	To           string
+	ToValue      string
 	ToString     string
 }
 

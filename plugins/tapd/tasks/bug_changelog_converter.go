@@ -87,8 +87,8 @@ func ConvertBugChangelog(taskCtx core.SubTaskContext) error {
 				AuthorName:  cl.Author,
 				FieldId:     cl.Field,
 				FieldName:   cl.Field,
-				From:        cl.ValueBeforeParsed,
-				To:          cl.ValueAfterParsed,
+				FromValue:        cl.ValueBeforeParsed,
+				ToValue:          cl.ValueAfterParsed,
 				CreatedDate: cl.Created,
 			}
 

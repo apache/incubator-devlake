@@ -15,46 +15,47 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package archived
+package migrationscripts
 
 import (
-	"time"
+	"context"
 
 	"github.com/apache/incubator-devlake/models/migrationscripts/archived"
+	jiraArchived "github.com/apache/incubator-devlake/plugins/jira/models/migrationscripts/archived"
+
+	"gorm.io/gorm"
 )
 
-type JiraChangelog struct {
+type JiraProject20220525 struct {
 	archived.NoPKModel
 
 	// collected fields
-	SourceId          uint64 `gorm:"primaryKey"`
-	ChangelogId       uint64 `gorm:"primarykey"`
-	IssueId           uint64 `gorm:"index"`
-	AuthorAccountId   string `gorm:"type:varchar(255)"`
-	AuthorDisplayName string `gorm:"type:varchar(255)"`
-	AuthorActive      bool
-	Created           time.Time `gorm:"index"`
+	ConnectionId uint64 `gorm:"primarykey"`
+	Id           string `gorm:"primaryKey;type:varchar(255)"`
+	ProjectKey   string `gorm:"type:varchar(255)"`
+	Name         string `gorm:"type:varchar(255)"`
 }
 
-type JiraChangelogItem struct {
-	archived.NoPKModel
-
-	// collected fields
-	SourceId    uint64 `gorm:"primaryKey"`
-	ChangelogId uint64 `gorm:"primaryKey"`
-	Field       string `gorm:"primaryKey"`
-	FieldType   string
-	FieldId     string
-	From         string
-	FromString   string
-	To           string
-	ToString     string
+func (JiraProject20220525) TableName() string {
+	return "_tool_jira_projects"
 }
 
-func (JiraChangelog) TableName() string {
-	return "_tool_jira_changelogs"
+type UpdateSchemas20220525 struct{}
+
+func (*UpdateSchemas20220525) Up(ctx context.Context, db *gorm.DB) error {
+
+	err := db.Migrator().RenameColumn(jiraArchived.JiraProject{}, "key", "project_key")
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
-func (JiraChangelogItem) TableName() string {
-	return "_tool_jira_changelog_items"
+func (*UpdateSchemas20220525) Version() uint64 {
+	return 20220525154646
+}
+
+func (*UpdateSchemas20220525) Name() string {
+	return "update `key` columns to `project_key` at _tool_jira_projects"
 }

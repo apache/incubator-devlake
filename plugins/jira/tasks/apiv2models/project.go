@@ -32,7 +32,7 @@ func (p Project) ToToolLayer(connectionId uint64) *models.JiraProject {
 	return &models.JiraProject{
 		ConnectionId: connectionId,
 		Id:           p.ID,
-		Key:          p.Key,
+		ProjectKey:   p.Key,
 		Name:         p.Name,
 	}
 }
