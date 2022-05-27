@@ -81,7 +81,7 @@ func CalculatePrCherryPick(taskCtx core.SubTaskContext) error {
 		parentPrKey := ""
 		if prTitleRegex != nil {
 			groups := prTitleRegex.FindStringSubmatch(pr.Title)
-			if len(groups) > 0 {
+			if len(groups) > 1 {
 				parentPrKey = groups[1]
 			}
 		}
@@ -111,12 +111,12 @@ func CalculatePrCherryPick(taskCtx core.SubTaskContext) error {
 
 	cursor2, err := db.Raw(
 		`
-			SELECT pr2.KEY                              AS parent_pr_key,
+			SELECT pr2.pull_request_key                 AS parent_pr_key,
 			       pr1.parent_pr_id                     AS parent_pr_id,
 			       pr1.base_ref                         AS cherrypick_base_branch,
-			       pr1.KEY                              AS cherrypick_pr_key,
+			       pr1.pull_request_key                 AS cherrypick_pr_key,
 			       repos.NAME                           AS repo_name,
-			       Concat(repos.url, '/pull/', pr2.KEY) AS parent_pr_url,
+			       Concat(repos.url, '/pull/', pr2.pull_request_key) AS parent_pr_url,
  				   pr2.created_date
 			FROM   pull_requests pr1
 			       LEFT JOIN pull_requests pr2
