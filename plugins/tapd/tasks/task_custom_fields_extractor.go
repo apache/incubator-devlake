@@ -33,10 +33,6 @@ var ExtractTaskCustomFieldsMeta = core.SubTaskMeta{
 	Description:      "Extract raw company data into tool layer table _tool_tapd_task_custom_fields",
 }
 
-var taskCustomFieldsRes struct {
-	CustomFieldConfig models.TapdTaskCustomFields
-}
-
 func ExtractTaskCustomFields(taskCtx core.SubTaskContext) error {
 	data := taskCtx.GetData().(*TapdTaskData)
 	extractor, err := helper.NewApiExtractor(helper.ApiExtractorArgs{
@@ -49,6 +45,9 @@ func ExtractTaskCustomFields(taskCtx core.SubTaskContext) error {
 			Table: RAW_TASK_CUSTOM_FIELDS_TABLE,
 		},
 		Extract: func(row *helper.RawData) ([]interface{}, error) {
+			var taskCustomFieldsRes struct {
+				CustomFieldConfig models.TapdTaskCustomFields
+			}
 			err := json.Unmarshal(row.Data, &taskCustomFieldsRes)
 			if err != nil {
 				return nil, err

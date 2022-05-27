@@ -28,8 +28,8 @@ type TapdIterationBug struct {
 	IterationId    uint64 `gorm:"primaryKey"`
 	WorkspaceID    uint64 `gorm:"primaryKey"`
 	BugId          uint64 `gorm:"primaryKey"`
-	ResolutionDate *helper.CSTTime
-	BugCreatedDate *helper.CSTTime
+	ResolutionDate helper.CSTTime
+	BugCreatedDate helper.CSTTime
 }
 
 func (TapdIterationBug) TableName() string {

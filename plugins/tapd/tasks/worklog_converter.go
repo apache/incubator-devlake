@@ -60,7 +60,7 @@ func ConvertWorklog(taskCtx core.SubTaskContext) error {
 				AuthorId:         UserIdGen.Generate(data.Connection.ID, toolL.WorkspaceID, toolL.Owner),
 				Comment:          toolL.Memo,
 				TimeSpentMinutes: int(toolL.Timespent),
-				LoggedDate:       (*time.Time)(toolL.Created),
+				LoggedDate:       (*time.Time)(&toolL.Created),
 				//IssueId:          toolL.EntityID,
 			}
 			switch toolL.EntityType {

@@ -19,6 +19,8 @@ package main
 
 import (
 	"fmt"
+	"github.com/apache/incubator-devlake/config"
+	"github.com/apache/incubator-devlake/logger"
 	"time"
 
 	"github.com/apache/incubator-devlake/migration"
@@ -66,6 +68,8 @@ func (plugin Tapd) SubTaskMetas() []core.SubTaskMeta {
 		tasks.ExtractBugCustomFieldsMeta,
 		tasks.CollectStoryCategoriesMeta,
 		tasks.ExtractStoryCategoriesMeta,
+		tasks.CollectStoryStatusMeta,
+		tasks.ExtractStoryStatusMeta,
 		tasks.CollectBugStatusMeta,
 		tasks.ExtractBugStatusMeta,
 		tasks.CollectUserMeta,
@@ -201,12 +205,29 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
+
 	cmd.Run = func(c *cobra.Command, args []string) {
-		runner.DirectRun(c, args, PluginEntry, map[string]interface{}{
-			"connectionId": *connectionId,
-			"workspaceId":  *workspaceId,
-			"companyId":    *companyId,
-		})
+		//runner.DirectRun(c, args, PluginEntry, map[string]interface{}{
+		//	"connectionId": *connectionId,
+		//	"workspaceId":  *workspaceId,
+		//	"companyId":    *companyId,
+		//})
+		cfg := config.GetConfig()
+		log := logger.Global.Nested(cmd.Use)
+		db, err := runner.NewGormDb(cfg, log)
+		if err != nil {
+			panic(err)
+		}
+		wsList := make([]*models.TapdWorkspace, 0)
+		err = db.Find(&wsList, "parent_id = ?", 59169984).Error
+		for _, v := range wsList {
+			*workspaceId = v.ID
+			runner.DirectRun(c, args, PluginEntry, map[string]interface{}{
+				"connectionId": *connectionId,
+				"workspaceId":  *workspaceId,
+				"companyId":    *companyId,
+			})
+		}
 	}
 	runner.RunCmd(cmd)
 }

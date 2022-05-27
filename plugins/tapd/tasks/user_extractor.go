@@ -33,10 +33,6 @@ var ExtractUserMeta = core.SubTaskMeta{
 	Description:      "Extract raw workspace data into tool layer table _tool_tapd_users",
 }
 
-var userRes struct {
-	UserWorkspace models.TapdUser
-}
-
 func ExtractUsers(taskCtx core.SubTaskContext) error {
 	data := taskCtx.GetData().(*TapdTaskData)
 	extractor, err := helper.NewApiExtractor(helper.ApiExtractorArgs{
@@ -50,6 +46,9 @@ func ExtractUsers(taskCtx core.SubTaskContext) error {
 			Table: RAW_USER_TABLE,
 		},
 		Extract: func(row *helper.RawData) ([]interface{}, error) {
+			var userRes struct {
+				UserWorkspace models.TapdUser
+			}
 			err := json.Unmarshal(row.Data, &userRes)
 			if err != nil {
 				return nil, err

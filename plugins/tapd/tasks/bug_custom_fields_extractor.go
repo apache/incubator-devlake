@@ -33,10 +33,6 @@ var ExtractBugCustomFieldsMeta = core.SubTaskMeta{
 	Description:      "Extract raw company data into tool layer table _tool_tapd_bug_custom_fields",
 }
 
-var bugCustomFields struct {
-	CustomFieldConfig models.TapdBugCustomFields
-}
-
 func ExtractBugCustomFields(taskCtx core.SubTaskContext) error {
 	data := taskCtx.GetData().(*TapdTaskData)
 	extractor, err := helper.NewApiExtractor(helper.ApiExtractorArgs{
@@ -49,6 +45,9 @@ func ExtractBugCustomFields(taskCtx core.SubTaskContext) error {
 			Table: RAW_BUG_CUSTOM_FIELDS_TABLE,
 		},
 		Extract: func(row *helper.RawData) ([]interface{}, error) {
+			var bugCustomFields struct {
+				CustomFieldConfig models.TapdBugCustomFields
+			}
 			err := json.Unmarshal(row.Data, &bugCustomFields)
 			if err != nil {
 				return nil, err

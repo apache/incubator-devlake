@@ -23,16 +23,16 @@ import (
 )
 
 type TapdWorklog struct {
-	ConnectionId uint64          `gorm:"primaryKey;type:BIGINT  NOT NULL"`
-	ID           uint64          `gorm:"primaryKey;type:BIGINT  NOT NULL" json:"id,string"`
-	WorkspaceID  uint64          `json:"workspace_id,string"`
-	EntityType   string          `gorm:"type:varchar(255)" json:"entity_type"`
-	EntityID     uint64          `json:"entity_id,string"`
-	Timespent    float32         `json:"timespent,string"`
-	Spentdate    *helper.CSTTime `json:"spentdate"`
-	Owner        string          `gorm:"type:varchar(255)" json:"owner"`
-	Created      *helper.CSTTime `json:"created"`
-	Memo         string          `gorm:"type:varchar(255)" json:"memo"`
+	ConnectionId uint64         `gorm:"primaryKey;type:BIGINT  NOT NULL"`
+	ID           uint64         `gorm:"primaryKey;type:BIGINT  NOT NULL" json:"id,string"`
+	WorkspaceID  uint64         `json:"workspace_id,string"`
+	EntityType   string         `gorm:"type:varchar(255)" json:"entity_type"`
+	EntityID     uint64         `json:"entity_id,string"`
+	Timespent    float32        `json:"timespent,string"`
+	Spentdate    helper.CSTTime `json:"spentdate"`
+	Owner        string         `gorm:"type:varchar(255)" json:"owner"`
+	Created      helper.CSTTime `json:"created"`
+	Memo         string         `json:"memo" gorm:"type:text"`
 	common.NoPKModel
 }
 

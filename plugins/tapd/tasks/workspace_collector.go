@@ -26,7 +26,7 @@ import (
 	"net/url"
 )
 
-const RAW_WORKSPACE_TABLE = "tapd_api_workspaces"
+const RAW_WORKSPACE_TABLE = "tapd_api_sub_workspaces"
 
 var _ core.SubTaskEntryPoint = CollectWorkspaces
 

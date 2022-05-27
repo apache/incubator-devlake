@@ -33,10 +33,6 @@ var ExtractStoryCategoriesMeta = core.SubTaskMeta{
 	Description:      "Extract raw company data into tool layer table _tool_tapd_story_category",
 }
 
-var storyCategory struct {
-	Category models.TapdStoryCategory
-}
-
 func ExtractStoryCategories(taskCtx core.SubTaskContext) error {
 	data := taskCtx.GetData().(*TapdTaskData)
 	extractor, err := helper.NewApiExtractor(helper.ApiExtractorArgs{
@@ -49,6 +45,9 @@ func ExtractStoryCategories(taskCtx core.SubTaskContext) error {
 			Table: RAW_STORY_CATEGORY_TABLE,
 		},
 		Extract: func(row *helper.RawData) ([]interface{}, error) {
+			var storyCategory struct {
+				Category models.TapdStoryCategory
+			}
 			err := json.Unmarshal(row.Data, &storyCategory)
 			if err != nil {
 				return nil, err

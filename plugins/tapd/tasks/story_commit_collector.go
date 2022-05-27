@@ -42,25 +42,27 @@ func CollectStoryCommits(taskCtx core.SubTaskContext) error {
 	db := taskCtx.GetDb()
 	logger := taskCtx.GetLogger()
 	logger.Info("collect issueCommits")
-
+	num := 0
 	since := data.Since
 	incremental := false
 	if since == nil {
 		// user didn't specify a time range to sync, try load from database
 		var latestUpdated models.TapdStoryCommit
-		err := db.Where("connection_id = ?", data.Connection.ID).Order("created DESC").Limit(1).Find(&latestUpdated).Error
+		err := db.Where("connection_id = ? and workspace_id = ?", data.Connection.ID, data.Options.WorkspaceID).Order("created DESC").Limit(1).Find(&latestUpdated).Error
 		if err != nil {
 			return fmt.Errorf("failed to get latest tapd changelog record: %w", err)
 		}
 		if latestUpdated.ID > 0 {
-			since = (*time.Time)(latestUpdated.Created)
+			since = (*time.Time)(&latestUpdated.Created)
 			incremental = true
 		}
 	}
 
 	tx := db.Model(&models.TapdStory{})
+	tx = tx.Where("connection_id = ? and workspace_id = ?", data.Options.ConnectionId, data.Options.WorkspaceID)
+
 	if since != nil {
-		tx = tx.Where("modified > ? and connection_id = ? and workspace_id = ?", since, data.Options.ConnectionId, data.Options.WorkspaceID)
+		tx = tx.Where("modified > ?", since)
 	}
 	cursor, err := tx.Select("id").Rows()
 	if err != nil {
@@ -98,6 +100,13 @@ func CollectStoryCommits(taskCtx core.SubTaskContext) error {
 			var data struct {
 				Stories []json.RawMessage `json:"data"`
 			}
+			if len(data.Stories) > 0 {
+				fmt.Println(len(data.Stories))
+				num += len(data.Stories)
+				fmt.Printf("num is %d", num)
+
+			}
+
 			err := helper.UnmarshalResponse(res, &data)
 			return data.Stories, err
 		},

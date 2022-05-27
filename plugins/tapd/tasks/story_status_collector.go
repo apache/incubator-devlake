@@ -24,7 +24,7 @@ import (
 	"net/url"
 )
 
-const RAW_STORY_STATUS_TABLE = "tapd_api_bug_status"
+const RAW_STORY_STATUS_TABLE = "tapd_api_story_status"
 
 var _ core.SubTaskEntryPoint = CollectStoryStatus
 
@@ -49,7 +49,7 @@ func CollectStoryStatus(taskCtx core.SubTaskContext) error {
 		Query: func(reqData *helper.RequestData) (url.Values, error) {
 			query := url.Values{}
 			query.Set("workspace_id", fmt.Sprintf("%v", data.Options.WorkspaceID))
-			query.Set("system", "bug")
+			query.Set("system", "story")
 			return query, nil
 		},
 		ResponseParser: GetRawMessageDirectFromResponse,

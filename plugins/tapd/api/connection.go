@@ -163,7 +163,7 @@ func refreshAndSaveTapdConnection(tapdConnection *models.TapdConnection, data ma
 		}
 	}()
 	if tapdConnection.RateLimit == 0 {
-		tapdConnection.RateLimit = 10800
+		tapdConnection.RateLimit = 6480
 	}
 	if tapdConnection.ID > 0 {
 		err = tx.Save(tapdConnection).Error

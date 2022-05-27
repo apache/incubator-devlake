@@ -34,10 +34,6 @@ var ExtractTaskChangelogMeta = core.SubTaskMeta{
 	Description:      "Extract raw workspace data into tool layer table _tool_tapd_iterations",
 }
 
-var taskChangelogBody struct {
-	WorkitemChange models.TapdTaskChangelog
-}
-
 func ExtractTaskChangelog(taskCtx core.SubTaskContext) error {
 	data := taskCtx.GetData().(*TapdTaskData)
 	extractor, err := helper.NewApiExtractor(helper.ApiExtractorArgs{
@@ -51,7 +47,9 @@ func ExtractTaskChangelog(taskCtx core.SubTaskContext) error {
 			Table: RAW_TASK_CHANGELOG_TABLE,
 		},
 		Extract: func(row *helper.RawData) ([]interface{}, error) {
-
+			var taskChangelogBody struct {
+				WorkitemChange models.TapdTaskChangelog
+			}
 			results := make([]interface{}, 0, 2)
 
 			err := json.Unmarshal(row.Data, &taskChangelogBody)

@@ -23,10 +23,45 @@ import (
 	"gorm.io/gorm"
 )
 
-type InitSchemas struct{}
+type UpdateSchemas20220531 struct{}
 
-func (*InitSchemas) Up(ctx context.Context, db *gorm.DB) error {
-	return db.Migrator().AutoMigrate(
+func (*UpdateSchemas20220531) Up(ctx context.Context, db *gorm.DB) error {
+	//err := db.Migrator().DropTable(
+	//	&archived.TapdWorkspace{},
+	//	&archived.TapdWorklog{},
+	//	&archived.TapdWorkspaceIteration{},
+	//	&archived.TapdUser{},
+	//	&archived.TapdBugChangelog{},
+	//	&archived.TapdBugChangelogItem{},
+	//	&archived.TapdStoryChangelog{},
+	//	&archived.TapdStoryChangelogItem{},
+	//	&archived.TapdTaskChangelog{},
+	//	&archived.TapdTaskChangelogItem{},
+	//	&archived.TapdIssue{},
+	//	&archived.TapdIteration{},
+	//	&archived.TapdConnection{},
+	//	&archived.TapdBug{},
+	//	&archived.TapdStory{},
+	//	&archived.TapdTask{},
+	//	&archived.TapdTaskLabel{},
+	//	&archived.TapdBugLabel{},
+	//	&archived.TapdStoryLabel{},
+	//	&archived.TapdBugStatus{},
+	//	&archived.TapdStoryStatus{},
+	//	&archived.TapdBugCommit{},
+	//	&archived.TapdStoryCommit{},
+	//	&archived.TapdTaskCommit{},
+	//	&archived.TapdWorkSpaceBug{},
+	//	&archived.TapdWorkSpaceStory{},
+	//	&archived.TapdWorkSpaceTask{},
+	//	&archived.TapdIterationBug{},
+	//	&archived.TapdIterationStory{},
+	//	&archived.TapdIterationTask{},
+	//)
+	//if err != nil {
+	//	return err
+	//}
+	err := db.Migrator().AutoMigrate(
 		&archived.TapdWorkspace{},
 		&archived.TapdWorklog{},
 		&archived.TapdWorkspaceIteration{},
@@ -57,13 +92,22 @@ func (*InitSchemas) Up(ctx context.Context, db *gorm.DB) error {
 		&archived.TapdIterationBug{},
 		&archived.TapdIterationStory{},
 		&archived.TapdIterationTask{},
+		&archived.TapdStoryCustomFields{},
+		&archived.TapdBugCustomFields{},
+		&archived.TapdTaskCustomFields{},
+		&archived.TapdStoryCategory{},
 	)
+	return err
 }
 
-func (*InitSchemas) Version() uint64 {
-	return 20220420231138
+func (*UpdateSchemas20220531) Version() uint64 {
+	return 20220531132510
 }
 
-func (*InitSchemas) Name() string {
-	return "Tapd init schemas"
+func (*UpdateSchemas20220531) Name() string {
+	return "rebuild tapd tables"
+}
+
+func (*UpdateSchemas20220531) Owner() string {
+	return "tapd"
 }
