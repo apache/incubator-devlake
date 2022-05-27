@@ -87,7 +87,7 @@ func (c *SprintIssuesConverter) FeedIn(connectionId uint64, cl ChangelogItemResu
 	if cl.Field != "Sprint" {
 		return
 	}
-	from, to, err := c.parseFromTo(cl.From, cl.To)
+	from, to, err := c.parseFromTo(cl.FromValue, cl.ToValue)
 	if err != nil {
 		return
 	}
@@ -403,8 +403,8 @@ func (c *SprintIssuesConverter) handleAssignee(connectionId uint64, cl Changelog
 		}
 	}
 	var assignee string
-	if cl.To != "" {
-		assignee = c.userIdGen.Generate(connectionId, cl.To)
+	if cl.ToValue != "" {
+		assignee = c.userIdGen.Generate(connectionId, cl.ToValue)
 	}
 	now := time.Now()
 	c.assignee[issueId] = &ticket.IssueAssigneeHistory{

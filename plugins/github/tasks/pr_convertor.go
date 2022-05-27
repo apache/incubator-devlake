@@ -77,7 +77,7 @@ func ConvertPullRequests(taskCtx core.SubTaskContext) error {
 				CreatedDate:    pr.GithubCreatedAt,
 				MergedDate:     pr.MergedAt,
 				ClosedDate:     pr.ClosedAt,
-				Key:            pr.Number,
+				PullRequestKey: pr.Number,
 				Type:           pr.Type,
 				Component:      pr.Component,
 				MergeCommitSha: pr.MergeCommitSha,

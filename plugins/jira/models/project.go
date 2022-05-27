@@ -27,7 +27,7 @@ type JiraProject struct {
 	// collected fields
 	ConnectionId uint64 `gorm:"primarykey"`
 	Id           string `gorm:"primaryKey;type:varchar(255)"`
-	Key          string `gorm:"type:varchar(255)"`
+	ProjectKey   string `gorm:"type:varchar(255)"`
 	Name         string `gorm:"type:varchar(255)"`
 }
 

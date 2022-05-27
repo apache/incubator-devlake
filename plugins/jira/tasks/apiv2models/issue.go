@@ -162,7 +162,7 @@ func (i Issue) toToolLayer(connectionId uint64, epicField, storyPointField strin
 		ProjectId:          i.Fields.Project.ID,
 		Self:               i.Self,
 		IconURL:            i.Fields.Issuetype.IconURL,
-		Key:                i.Key,
+		IssueKey:           i.Key,
 		StoryPoint:         workload,
 		Summary:            i.Fields.Summary,
 		Type:               i.Fields.Issuetype.Name,

@@ -72,9 +72,9 @@ func ConvertIssues(taskCtx core.SubTaskContext) error {
 				DomainEntity: domainlayer.DomainEntity{
 					Id: issueIdGen.Generate(jiraIssue.ConnectionId, jiraIssue.IssueId),
 				},
-				Url:                     convertURL(jiraIssue.Self, jiraIssue.Key),
+				Url:                     convertURL(jiraIssue.Self, jiraIssue.IssueKey),
 				IconURL:                 jiraIssue.IconURL,
-				Number:                  jiraIssue.Key,
+				Number:                  jiraIssue.IssueKey,
 				Title:                   jiraIssue.Summary,
 				EpicKey:                 jiraIssue.EpicKey,
 				Type:                    jiraIssue.StdType,

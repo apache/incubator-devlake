@@ -44,9 +44,9 @@ func (c Changelog) ToToolLayer(connectionId, issueId uint64) (*models.JiraChange
 type ChangelogItem struct {
 	Field      string `json:"field"`
 	Fieldtype  string `json:"fieldtype"`
-	From       string `json:"from"`
+	FromValue  string `json:"from_value"`
 	FromString string `json:"fromString"`
-	To         string `json:"to"`
+	ToValue    string `json:"to_value"`
 	ToString   string `json:"toString"`
 }
 
@@ -56,9 +56,9 @@ func (c ChangelogItem) ToToolLayer(connectionId, changelogId uint64) *models.Jir
 		ChangelogId:  changelogId,
 		Field:        c.Field,
 		FieldType:    c.Fieldtype,
-		From:         c.From,
+		FromValue:    c.FromValue,
 		FromString:   c.FromString,
-		To:           c.To,
+		ToValue:      c.ToValue,
 		ToString:     c.ToString,
 	}
 }
@@ -68,11 +68,11 @@ func (c ChangelogItem) ExtractUser(connectionId uint64) []*models.JiraUser {
 		return nil
 	}
 	var result []*models.JiraUser
-	if c.From != "" {
-		result = append(result, &models.JiraUser{ConnectionId: connectionId, AccountId: c.From})
+	if c.FromValue != "" {
+		result = append(result, &models.JiraUser{ConnectionId: connectionId, AccountId: c.FromValue})
 	}
-	if c.To != "" {
-		result = append(result, &models.JiraUser{ConnectionId: connectionId, AccountId: c.To})
+	if c.ToValue != "" {
+		result = append(result, &models.JiraUser{ConnectionId: connectionId, AccountId: c.ToValue})
 	}
 	return result
 }

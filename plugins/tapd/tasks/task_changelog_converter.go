@@ -19,6 +19,9 @@ package tasks
 
 import (
 	"fmt"
+	"reflect"
+	"time"
+
 	"github.com/apache/incubator-devlake/models/common"
 	"github.com/apache/incubator-devlake/models/domainlayer"
 	"github.com/apache/incubator-devlake/models/domainlayer/didgen"
@@ -26,8 +29,6 @@ import (
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/helper"
 	"github.com/apache/incubator-devlake/plugins/tapd/models"
-	"reflect"
-	"time"
 )
 
 type TaskChangelogItemResult struct {
@@ -91,8 +92,8 @@ func ConvertTaskChangelog(taskCtx core.SubTaskContext) error {
 				AuthorName:  cl.Creator,
 				FieldId:     cl.Field,
 				FieldName:   cl.Field,
-				From:        cl.ValueBeforeParsed,
-				To:          cl.ValueAfterParsed,
+				FromValue:   cl.ValueBeforeParsed,
+				ToValue:     cl.ValueAfterParsed,
 				CreatedDate: cl.Created,
 			}
 

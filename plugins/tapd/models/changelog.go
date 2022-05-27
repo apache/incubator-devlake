@@ -18,8 +18,9 @@ limitations under the License.
 package models
 
 import (
-	"github.com/apache/incubator-devlake/models/common"
 	"time"
+
+	"github.com/apache/incubator-devlake/models/common"
 )
 
 type ChangelogTmp struct {
@@ -29,8 +30,8 @@ type ChangelogTmp struct {
 	AuthorName      string
 	FieldId         string
 	FieldName       string
-	From            string
-	To              string
+	FromValue       string
+	ToValue         string
 	IterationIdFrom uint64
 	IterationIdTo   uint64
 	CreatedDate     time.Time

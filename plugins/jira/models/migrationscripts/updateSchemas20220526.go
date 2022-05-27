@@ -15,16 +15,20 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package models
+package migrationscripts
 
 import (
+	"context"
 	"time"
 
-	"github.com/apache/incubator-devlake/models/common"
+	"github.com/apache/incubator-devlake/models/migrationscripts/archived"
+	jiraArchived "github.com/apache/incubator-devlake/plugins/jira/models/migrationscripts/archived"
+
 	"gorm.io/datatypes"
+	"gorm.io/gorm"
 )
 
-type JiraIssue struct {
+type JiraIssue20220526 struct {
 	// collected fields
 	ConnectionId             uint64 `gorm:"primaryKey"`
 	IssueId                  uint64 `gorm:"primarykey"`
@@ -67,9 +71,29 @@ type JiraIssue struct {
 	ChangelogUpdated  *time.Time
 	RemotelinkUpdated *time.Time
 	WorklogUpdated    *time.Time
-	common.NoPKModel
+	archived.NoPKModel
 }
 
-func (JiraIssue) TableName() string {
+func (JiraIssue20220526) TableName() string {
 	return "_tool_jira_issues"
+}
+
+type UpdateSchemas20220526 struct{}
+
+func (*UpdateSchemas20220526) Up(ctx context.Context, db *gorm.DB) error {
+
+	err := db.Migrator().RenameColumn(jiraArchived.JiraIssue{}, "key", "issue_key")
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (*UpdateSchemas20220526) Version() uint64 {
+	return 20220526154646
+}
+
+func (*UpdateSchemas20220526) Name() string {
+	return "update `key` columns to `issue_key` at _tool_jira_issues"
 }

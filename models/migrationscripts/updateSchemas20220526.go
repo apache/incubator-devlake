@@ -15,15 +15,18 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package code
+package migrationscripts
 
 import (
+	"context"
 	"time"
 
 	"github.com/apache/incubator-devlake/models/domainlayer"
+	"github.com/apache/incubator-devlake/models/migrationscripts/archived"
+	"gorm.io/gorm"
 )
 
-type PullRequest struct {
+type PullRequest20220526 struct {
 	domainlayer.DomainEntity
 	BaseRepoId     string `gorm:"index"`
 	HeadRepoId     string `gorm:"index"`
@@ -46,4 +49,27 @@ type PullRequest struct {
 	BaseRef        string `gorm:"type:varchar(255)"`
 	BaseCommitSha  string `gorm:"type:varchar(40)"`
 	HeadCommitSha  string `gorm:"type:varchar(40)"`
+}
+
+func (PullRequest20220526) TableName() string {
+	return "pull_requests"
+}
+
+type updateSchemas20220526 struct{}
+
+func (*updateSchemas20220526) Up(ctx context.Context, db *gorm.DB) error {
+
+	err := db.Migrator().RenameColumn(archived.PullRequest{}, "key", "pull_request_key")
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (*updateSchemas20220526) Version() uint64 {
+	return 20220526000005
+}
+
+func (*updateSchemas20220526) Name() string {
+	return "update `key` columns to `pull_request_key` at pull_requests"
 }

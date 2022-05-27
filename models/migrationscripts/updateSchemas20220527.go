@@ -15,15 +15,18 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package ticket
+package migrationscripts
 
 import (
+	"context"
 	"time"
 
 	"github.com/apache/incubator-devlake/models/domainlayer"
+	"github.com/apache/incubator-devlake/models/migrationscripts/archived"
+	"gorm.io/gorm"
 )
 
-type Changelog struct {
+type Changelog20220527 struct {
 	domainlayer.DomainEntity
 
 	// collected fields
@@ -35,4 +38,31 @@ type Changelog struct {
 	FromValue   string
 	ToValue     string
 	CreatedDate time.Time
+}
+
+func (Changelog20220527) TableName() string {
+	return "changelogs"
+}
+
+type updateSchemas20220527 struct{}
+
+func (*updateSchemas20220527) Up(ctx context.Context, db *gorm.DB) error {
+
+	err := db.Migrator().RenameColumn(archived.Changelog{}, "from", "from_value")
+	if err != nil {
+		return err
+	}
+	err = db.Migrator().RenameColumn(archived.Changelog{}, "to", "to_value")
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (*updateSchemas20220527) Version() uint64 {
+	return 20220527000005
+}
+
+func (*updateSchemas20220527) Name() string {
+	return "update `from` and `to` columns to `from_value` and `to_value` at changelogs"
 }

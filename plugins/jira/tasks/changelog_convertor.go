@@ -94,8 +94,8 @@ func ConvertChangelogs(taskCtx core.SubTaskContext) error {
 				AuthorName:  row.AuthorDisplayName,
 				FieldId:     row.FieldId,
 				FieldName:   row.Field,
-				From:        row.FromString,
-				To:          row.ToString,
+				FromValue:   row.FromString,
+				ToValue:     row.ToString,
 				CreatedDate: row.Created,
 			}
 			sprintIssueConverter.FeedIn(connectionId, *row)
