@@ -33,10 +33,6 @@ var ExtractWorklogMeta = core.SubTaskMeta{
 	Description:      "Extract raw workspace data into tool layer table _tool_tapd_iterations",
 }
 
-var worklogBody struct {
-	Timesheet models.TapdWorklog
-}
-
 func ExtractWorklogs(taskCtx core.SubTaskContext) error {
 	data := taskCtx.GetData().(*TapdTaskData)
 	extractor, err := helper.NewApiExtractor(helper.ApiExtractorArgs{
@@ -50,6 +46,9 @@ func ExtractWorklogs(taskCtx core.SubTaskContext) error {
 			Table: RAW_WORKLOG_TABLE,
 		},
 		Extract: func(row *helper.RawData) ([]interface{}, error) {
+			var worklogBody struct {
+				Timesheet models.TapdWorklog
+			}
 
 			err := json.Unmarshal(row.Data, &worklogBody)
 			if err != nil {
