@@ -33,6 +33,7 @@ type TapdWorkspace struct {
 	BeginDate    *helper.CSTTime `json:"begin_date"`
 	EndDate      *helper.CSTTime `json:"end_date"`
 	ExternalOn   string          `gorm:"type:varchar(255)" json:"external_on"`
+	ParentId     uint64          `gorm:"type:BIGINT" json:"parent_id,string"`
 	Creator      string          `gorm:"type:varchar(255)" json:"creator"`
 	Created      *helper.CSTTime `json:"created"`
 	common.NoPKModel

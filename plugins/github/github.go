@@ -111,7 +111,10 @@ func (plugin Github) RootPkgPath() string {
 }
 
 func (plugin Github) MigrationScripts() []migration.Script {
-	return []migration.Script{new(migrationscripts.InitSchemas), new(migrationscripts.UpdateSchemas20220509)}
+	return []migration.Script{
+		new(migrationscripts.InitSchemas), new(migrationscripts.UpdateSchemas20220509),
+		new(migrationscripts.UpdateSchemas20220524),
+	}
 }
 
 func (plugin Github) ApiResources() map[string]map[string]core.ApiResourceHandler {

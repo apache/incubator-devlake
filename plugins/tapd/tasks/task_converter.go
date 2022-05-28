@@ -70,6 +70,7 @@ func ConvertTask(taskCtx core.SubTaskContext) error {
 				ParentIssueId:  IssueIdGen.Generate(toolL.ConnectionId, toolL.StoryID),
 				Priority:       toolL.Priority,
 				CreatorId:      UserIdGen.Generate(data.Connection.ID, toolL.WorkspaceID, toolL.Creator),
+				CreatorName:    toolL.Creator,
 				AssigneeId:     UserIdGen.Generate(data.Connection.ID, toolL.WorkspaceID, toolL.Owner),
 				AssigneeName:   toolL.Owner,
 			}

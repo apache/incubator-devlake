@@ -33,7 +33,7 @@ var ExtractStoryStatusMeta = core.SubTaskMeta{
 	Description:      "Extract raw workspace data into tool layer table _tool_tapd_bugStatus",
 }
 
-type TapdStoryStatusRes struct {
+var storyStatusRes struct {
 	Data map[string]string
 }
 
@@ -50,13 +50,12 @@ func ExtractStoryStatus(taskCtx core.SubTaskContext) error {
 			Table: RAW_STORY_STATUS_TABLE,
 		},
 		Extract: func(row *helper.RawData) ([]interface{}, error) {
-			var statusRes TapdStoryStatusRes
-			err := json.Unmarshal(row.Data, &statusRes)
+			err := json.Unmarshal(row.Data, &storyStatusRes)
 			if err != nil {
 				return nil, err
 			}
 			results := make([]interface{}, 0)
-			for k, v := range statusRes.Data {
+			for k, v := range storyStatusRes.Data {
 				toolL := &models.TapdStoryStatus{
 					ConnectionId: data.Connection.ID,
 					WorkspaceID:  data.Options.WorkspaceID,

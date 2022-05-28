@@ -74,6 +74,7 @@ machine.
 ```
 apt install cmake
 git clone https://github.com/libgit2/libgit2.git
+cd libgit2
 git checkout v1.3.0
 mkdir build
 cd build

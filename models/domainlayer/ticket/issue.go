@@ -45,6 +45,7 @@ type Issue struct {
 	TimeSpentMinutes        int64
 	TimeRemainingMinutes    int64
 	CreatorId               string `gorm:"type:varchar(255)"`
+	CreatorName             string `gorm:"type:varchar(255)"`
 	AssigneeId              string `gorm:"type:varchar(255)"`
 	AssigneeName            string `gorm:"type:varchar(255)"`
 	Severity                string `gorm:"type:varchar(255)"`

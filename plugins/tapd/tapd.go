@@ -54,8 +54,18 @@ func (plugin Tapd) Description() string {
 
 func (plugin Tapd) SubTaskMetas() []core.SubTaskMeta {
 	return []core.SubTaskMeta{
+		tasks.CollectCompanyMeta,
+		tasks.ExtractCompanyMeta,
 		tasks.CollectWorkspaceMeta,
 		tasks.ExtractWorkspaceMeta,
+		tasks.CollectStoryCustomFieldsMeta,
+		tasks.ExtractStoryCustomFieldsMeta,
+		tasks.CollectTaskCustomFieldsMeta,
+		tasks.ExtractTaskCustomFieldsMeta,
+		tasks.CollectBugCustomFieldsMeta,
+		tasks.ExtractBugCustomFieldsMeta,
+		tasks.CollectStoryCategoriesMeta,
+		tasks.ExtractStoryCategoriesMeta,
 		tasks.CollectBugStatusMeta,
 		tasks.ExtractBugStatusMeta,
 		tasks.CollectUserMeta,
@@ -182,14 +192,11 @@ func main() {
 	cmd := &cobra.Command{Use: "tapd"}
 	connectionId := cmd.Flags().Uint64P("connection", "c", 0, "tapd connection id")
 	workspaceId := cmd.Flags().Uint64P("workspace", "w", 0, "tapd workspace id")
+	companyId := cmd.Flags().Uint64P("company", "o", 0, "tapd company id")
 	err := cmd.MarkFlagRequired("connection")
 	if err != nil {
 		panic(err)
 	}
-	//err = cmd.MarkFlagRequired("company")
-	//if err != nil {
-	//	panic(err)
-	//}
 	err = cmd.MarkFlagRequired("workspace")
 	if err != nil {
 		panic(err)
@@ -198,6 +205,7 @@ func main() {
 		runner.DirectRun(c, args, PluginEntry, map[string]interface{}{
 			"connectionId": *connectionId,
 			"workspaceId":  *workspaceId,
+			"companyId":    *companyId,
 		})
 	}
 	runner.RunCmd(cmd)

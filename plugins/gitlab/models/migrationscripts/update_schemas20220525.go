@@ -15,16 +15,20 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package models
+package migrationscripts
 
 import (
-	"github.com/apache/incubator-devlake/models/common"
+	"context"
+	"github.com/apache/incubator-devlake/models/migrationscripts/archived"
+	"gorm.io/gorm"
 	"time"
 )
 
-type GithubIssue struct {
-	GithubId        int    `gorm:"primaryKey"`
-	RepoId          int    `gorm:"index"`
+type UpdateSchemas20220525 struct{}
+
+type GitlabIssue20220525 struct {
+	GitlabId        int    `gorm:"primaryKey"`
+	ProjectId       int    `gorm:"index"`
 	Number          int    `gorm:"index;comment:Used in API requests ex. api/repo/1/issue/<THIS_NUMBER>"`
 	State           string `gorm:"type:varchar(255)"`
 	Title           string
@@ -32,20 +36,51 @@ type GithubIssue struct {
 	Priority        string `gorm:"type:varchar(255)"`
 	Type            string `gorm:"type:varchar(100)"`
 	Status          string `gorm:"type:varchar(255)"`
-	AuthorId        int
-	AuthorName      string `gorm:"type:varchar(255)"`
 	AssigneeId      int
 	AssigneeName    string `gorm:"type:varchar(255)"`
 	LeadTimeMinutes uint
 	Url             string `gorm:"type:varchar(255)"`
 	ClosedAt        *time.Time
-	GithubCreatedAt time.Time
-	GithubUpdatedAt time.Time `gorm:"index"`
+	GitlabCreatedAt time.Time
+	GitlabUpdatedAt time.Time `gorm:"index"`
 	Severity        string    `gorm:"type:varchar(255)"`
 	Component       string    `gorm:"type:varchar(255)"`
-	common.NoPKModel
+	TimeEstimate 	int64
+	TotalTimeSpent 	int64
+	archived.NoPKModel
+}
+func (GitlabIssue20220525) TableName() string {
+	return "_tool_gitlab_issues"
 }
 
-func (GithubIssue) TableName() string {
-	return "_tool_github_issues"
+
+type GitlabIssueLabel20220525 struct {
+	IssueId   int    `gorm:"primaryKey;autoIncrement:false"`
+	LabelName string `gorm:"primaryKey;type:varchar(255)"`
+	archived.NoPKModel
+}
+
+func (GitlabIssueLabel20220525) TableName() string{
+	return "_tool_gitlab_issue_labels"
+}
+
+func (*UpdateSchemas20220525) Up(ctx context.Context, db *gorm.DB) error {
+	err := db.Migrator().AutoMigrate(GitlabIssue20220525{},GitlabIssueLabel20220525{})
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (*UpdateSchemas20220525) Version() uint64 {
+	return 20220510212344
+}
+
+func (*UpdateSchemas20220525) Owner() string {
+	return "Gitlab"
+}
+
+func (*UpdateSchemas20220525) Name() string {
+	return "add gitlab issue"
 }

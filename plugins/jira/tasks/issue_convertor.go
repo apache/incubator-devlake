@@ -82,13 +82,18 @@ func ConvertIssues(taskCtx core.SubTaskContext) error {
 				OriginalStatus:          jiraIssue.StatusKey,
 				StoryPoint:              jiraIssue.StdStoryPoint,
 				OriginalEstimateMinutes: jiraIssue.OriginalEstimateMinutes,
-				CreatorId:               userIdGen.Generate(data.Options.ConnectionId, jiraIssue.CreatorAccountId),
 				ResolutionDate:          jiraIssue.ResolutionDate,
 				Priority:                jiraIssue.PriorityName,
 				CreatedDate:             &jiraIssue.Created,
 				UpdatedDate:             &jiraIssue.Updated,
 				LeadTimeMinutes:         jiraIssue.LeadTimeMinutes,
 				TimeSpentMinutes:        jiraIssue.SpentMinutes,
+			}
+			if jiraIssue.CreatorAccountId != "" {
+				issue.CreatorId = userIdGen.Generate(data.Options.ConnectionId, jiraIssue.CreatorAccountId)
+			}
+			if jiraIssue.CreatorDisplayName != "" {
+				issue.CreatorName = jiraIssue.CreatorDisplayName
 			}
 			if jiraIssue.AssigneeAccountId != "" {
 				issue.AssigneeId = userIdGen.Generate(data.Options.ConnectionId, jiraIssue.AssigneeAccountId)

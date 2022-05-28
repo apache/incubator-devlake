@@ -19,13 +19,13 @@ package runner
 
 import (
 	"context"
-	"os"
-	"os/exec"
-
 	"github.com/apache/incubator-devlake/config"
 	"github.com/apache/incubator-devlake/logger"
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/spf13/cobra"
+	"os"
+	"os/signal"
+	"syscall"
 )
 
 func RunCmd(cmd *cobra.Command) {
@@ -64,9 +64,14 @@ func DirectRun(cmd *cobra.Command, args []string, pluginTask core.PluginTask, op
 		panic(err)
 	}
 
-	exec.Command("stty", "-F", "/dev/tty", "cbreak", "min", "1").Run()
-
 	ctx, cancel := context.WithCancel(context.Background())
+	sigc := make(chan os.Signal, 1)
+	signal.Notify(sigc, syscall.SIGTSTP)
+	go func() {
+		<-sigc
+		cancel()
+	}()
+
 	go func() {
 		buf := make([]byte, 1)
 		n, err := os.Stdin.Read(buf)

@@ -21,47 +21,40 @@ import (
 	"encoding/json"
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/helper"
-	"github.com/apache/incubator-devlake/plugins/tapd/models"
 )
 
-var _ core.SubTaskEntryPoint = ExtractWorklogs
+var _ core.SubTaskEntryPoint = ExtractCompanies
 
-var ExtractWorklogMeta = core.SubTaskMeta{
-	Name:             "extractWorklogs",
-	EntryPoint:       ExtractWorklogs,
-	EnabledByDefault: true,
-	Description:      "Extract raw workspace data into tool layer table _tool_tapd_iterations",
+var ExtractCompanyMeta = core.SubTaskMeta{
+	Name:             "extractCompanies",
+	EntryPoint:       ExtractCompanies,
+	EnabledByDefault: false,
+	Description:      "Extract raw company data into tool layer table _tool_tapd_workspaces",
 }
 
-var worklogBody struct {
-	Timesheet models.TapdWorklog
-}
-
-func ExtractWorklogs(taskCtx core.SubTaskContext) error {
+func ExtractCompanies(taskCtx core.SubTaskContext) error {
 	data := taskCtx.GetData().(*TapdTaskData)
 	extractor, err := helper.NewApiExtractor(helper.ApiExtractorArgs{
 		RawDataSubTaskArgs: helper.RawDataSubTaskArgs{
 			Ctx: taskCtx,
 			Params: TapdApiParams{
 				ConnectionId: data.Connection.ID,
-				//CompanyId: data.Options.CompanyId,
-				WorkspaceID: data.Options.WorkspaceID,
+				CompanyId:    data.Options.CompanyId,
 			},
-			Table: RAW_WORKLOG_TABLE,
+			Table: RAW_COMPANY_TABLE,
 		},
 		Extract: func(row *helper.RawData) ([]interface{}, error) {
-
-			err := json.Unmarshal(row.Data, &worklogBody)
+			err := json.Unmarshal(row.Data, &workspaceRes)
 			if err != nil {
 				return nil, err
 			}
-			toolL := worklogBody.Timesheet
 
-			toolL.ConnectionId = data.Connection.ID
-			results := make([]interface{}, 0, 1)
-			results = append(results, &toolL)
+			ws := workspaceRes.Workspace
 
-			return results, nil
+			ws.ConnectionId = data.Connection.ID
+			return []interface{}{
+				&ws,
+			}, nil
 		},
 	})
 

@@ -81,10 +81,6 @@ func (*UpdateSchemas20220509) Version() uint64 {
 	return 20220509212344
 }
 
-func (*UpdateSchemas20220509) Owner() string {
-	return "Github"
-}
-
 func (*UpdateSchemas20220509) Name() string {
 	return "Alter pr column `author_id` to int"
 }

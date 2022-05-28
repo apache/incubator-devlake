@@ -1,0 +1,21 @@
+package archived
+
+import "github.com/apache/incubator-devlake/models/common"
+
+type TapdTaskCustomFields struct {
+	ConnectionId uint64 `gorm:"primaryKey;type:BIGINT  NOT NULL"`
+	ID           uint64 `gorm:"primaryKey;type:BIGINT  NOT NULL" json:"id,string"`
+	WorkspaceID  uint64 `json:"workspace_id,string"`
+	EntryType    string `json:"entry_type" gorm:"type:varchar(255)"`
+	CustomField  string `json:"custom_field" gorm:"type:varchar(255)"`
+	Type         string `json:"type" gorm:"type:varchar(255)"`
+	Name         string `json:"name" gorm:"type:varchar(255)"`
+	Options      string `json:"options"`
+	Enabled      string `json:"enabled" gorm:"type:varchar(255)"`
+	Sort         string `json:"sort" gorm:"type:varchar(255)"`
+	common.NoPKModel
+}
+
+func (TapdTaskCustomFields) TableName() string {
+	return "_tool_tapd_task_custom_fields"
+}
