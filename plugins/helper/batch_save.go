@@ -44,7 +44,7 @@ func NewBatchSave(db *gorm.DB, slotType reflect.Type, size int) (*BatchSave, err
 	if slotType.Kind() != reflect.Ptr {
 		return nil, fmt.Errorf("slotType must be a pointer")
 	}
-	if !hasPrimaryKey(slotType) {
+	if !hasPrimaryKey(slotType, false) {
 		return nil, fmt.Errorf("no primary key")
 	}
 	return &BatchSave{
@@ -65,7 +65,7 @@ func (c *BatchSave) Add(slot interface{}) error {
 		return fmt.Errorf("slot is not a pointer")
 	}
 	// deduplication
-	key := getPrimaryKeyValue(slot)
+	key := getPrimaryKeyValue(slot, false)
 
 	if key != "" {
 		if index, ok := c.valueIndex[key]; !ok {
@@ -106,20 +106,16 @@ func isPrimaryKey(f reflect.StructField) bool {
 	return strings.HasPrefix(strings.ToLower(tag), "primarykey")
 }
 
-func hasPrimaryKey(ifv reflect.Type) bool {
+func hasPrimaryKey(ifv reflect.Type, needRecursion bool) bool {
 	if ifv.Kind() == reflect.Ptr {
 		ifv = ifv.Elem()
 	}
 	for i := 0; i < ifv.NumField(); i++ {
 		v := ifv.Field(i)
-		switch v.Type.Kind() {
-		case reflect.Struct:
-			ok := hasPrimaryKey(v.Type)
-			if ok {
-				return true
-			}
-		default:
-			if ok := isPrimaryKey(v); ok {
+		if ok := isPrimaryKey(v); ok {
+			return true
+		} else if needRecursion && v.Type.Kind() == reflect.Struct {
+			if ok := hasPrimaryKey(v.Type, needRecursion); ok {
 				return true
 			}
 		}
@@ -127,7 +123,7 @@ func hasPrimaryKey(ifv reflect.Type) bool {
 	return false
 }
 
-func getPrimaryKeyValue(iface interface{}) string {
+func getPrimaryKeyValue(iface interface{}, needRecursion bool) string {
 	var ss []string
 	ifv := reflect.ValueOf(iface)
 	if ifv.Kind() == reflect.Ptr {
@@ -135,18 +131,15 @@ func getPrimaryKeyValue(iface interface{}) string {
 	}
 	for i := 0; i < ifv.NumField(); i++ {
 		v := ifv.Field(i)
-		switch v.Kind() {
-		case reflect.Struct:
-			s := getPrimaryKeyValue(v.Interface())
+		if isPrimaryKey(ifv.Type().Field(i)) {
+			s := fmt.Sprintf("%v", v.Interface())
 			if s != "" {
 				ss = append(ss, s)
 			}
-		default:
-			if isPrimaryKey(ifv.Type().Field(i)) {
-				s := fmt.Sprintf("%v", v.Interface())
-				if s != "" {
-					ss = append(ss, s)
-				}
+		} else if needRecursion && v.Kind() == reflect.Struct {
+			s := getPrimaryKeyValue(v.Interface(), needRecursion)
+			if s != "" {
+				ss = append(ss, s)
 			}
 		}
 	}
