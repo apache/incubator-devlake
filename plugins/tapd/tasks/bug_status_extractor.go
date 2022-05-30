@@ -33,7 +33,7 @@ var ExtractBugStatusMeta = core.SubTaskMeta{
 	Description:      "Extract raw workspace data into tool layer table _tool_tapd_bugStatus",
 }
 
-type TapdBugStatusRes struct {
+var statusRes struct {
 	Data map[string]string
 }
 
@@ -50,7 +50,6 @@ func ExtractBugStatus(taskCtx core.SubTaskContext) error {
 			Table: RAW_BUG_STATUS_TABLE,
 		},
 		Extract: func(row *helper.RawData) ([]interface{}, error) {
-			var statusRes TapdBugStatusRes
 			err := json.Unmarshal(row.Data, &statusRes)
 			if err != nil {
 				return nil, err

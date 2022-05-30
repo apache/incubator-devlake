@@ -34,7 +34,7 @@ var ExtractStoryChangelogMeta = core.SubTaskMeta{
 	Description:      "Extract raw workspace data into tool layer table _tool_tapd_iterations",
 }
 
-type TapdStoryChangelogRes struct {
+var storyChangelogBody struct {
 	WorkitemChange models.TapdStoryChangelog
 }
 
@@ -54,7 +54,6 @@ func ExtractStoryChangelog(taskCtx core.SubTaskContext) error {
 
 			results := make([]interface{}, 0, 2)
 
-			var storyChangelogBody TapdStoryChangelogRes
 			err := json.Unmarshal(row.Data, &storyChangelogBody)
 			if err != nil {
 				return nil, err
