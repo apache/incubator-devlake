@@ -25,8 +25,10 @@ import (
 
 var db *gorm.DB
 var cfg *viper.Viper
+var log core.Logger
 
 func Init(config *viper.Viper, logger core.Logger, database *gorm.DB) {
 	db = database
 	cfg = config
+	log = logger
 }
