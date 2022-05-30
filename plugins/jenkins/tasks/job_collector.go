@@ -19,7 +19,9 @@ package tasks
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
+	"net/url"
 
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/helper"
@@ -59,6 +61,14 @@ func CollectApiJobs(taskCtx core.SubTaskContext) error {
 		Incremental: incremental,
 
 		UrlTemplate: "api/json",
+		Query: func(reqData *helper.RequestData) (url.Values, error) {
+			query := url.Values{}
+			treeValue := fmt.Sprintf(
+				"jobs[name,class,color,base]{%d,%d}",
+				reqData.Pager.Skip, reqData.Pager.Skip+reqData.Pager.Size)
+			query.Set("tree", treeValue)
+			return query, nil
+		},
 
 		ResponseParser: func(res *http.Response) ([]json.RawMessage, error) {
 			var data struct {
