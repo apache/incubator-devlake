@@ -115,7 +115,7 @@ func (converter *DataConverter) Execute() error {
 
 		for _, result := range results {
 			// get the batch operator for the specific type
-			batch, err := divider.ForType(reflect.TypeOf(result))
+			batch, err := divider.ForType(reflect.TypeOf(result), converter.args.Ctx.GetLogger())
 			if err != nil {
 				return err
 			}

@@ -25,6 +25,7 @@ import (
 	"github.com/sirupsen/logrus"
 	prefixed "github.com/x-cray/logrus-prefixed-formatter"
 	"os"
+	"strings"
 )
 
 var inner *logrus.Logger
@@ -33,14 +34,14 @@ var Global core.Logger
 func init() {
 	inner = logrus.New()
 	logLevel := logrus.InfoLevel
-	switch config.GetConfig().GetString("LOGGING_LEVEL") {
-	case "Debug":
+	switch strings.ToLower(config.GetConfig().GetString("LOGGING_LEVEL")) {
+	case "debug":
 		logLevel = logrus.DebugLevel
-	case "Info":
+	case "info":
 		logLevel = logrus.InfoLevel
-	case "Warn":
+	case "warn":
 		logLevel = logrus.WarnLevel
-	case "Error":
+	case "error":
 		logLevel = logrus.ErrorLevel
 	}
 	inner.SetLevel(logLevel)

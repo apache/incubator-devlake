@@ -19,6 +19,7 @@ package store
 
 import (
 	"github.com/apache/incubator-devlake/models/domainlayer/code"
+	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/helper"
 	"gorm.io/gorm"
 	"reflect"
@@ -29,16 +30,18 @@ const BathSize = 100
 type Database struct {
 	//db     *gorm.DB
 	driver *helper.BatchSaveDivider
+	log    core.Logger
 }
 
-func NewDatabase(db *gorm.DB) *Database {
+func NewDatabase(db *gorm.DB, log core.Logger) *Database {
 	database := new(Database)
 	database.driver = helper.NewBatchSaveDivider(db, BathSize)
+	database.log = log
 	return database
 }
 
 func (d *Database) RepoCommits(repoCommit *code.RepoCommit) error {
-	batch, err := d.driver.ForType(reflect.TypeOf(repoCommit))
+	batch, err := d.driver.ForType(reflect.TypeOf(repoCommit), d.log)
 	if err != nil {
 		return err
 	}
@@ -46,7 +49,7 @@ func (d *Database) RepoCommits(repoCommit *code.RepoCommit) error {
 }
 
 func (d *Database) Commits(commit *code.Commit) error {
-	batch, err := d.driver.ForType(reflect.TypeOf(commit))
+	batch, err := d.driver.ForType(reflect.TypeOf(commit), d.log)
 	if err != nil {
 		return err
 	}
@@ -54,7 +57,7 @@ func (d *Database) Commits(commit *code.Commit) error {
 }
 
 func (d *Database) Refs(ref *code.Ref) error {
-	batch, err := d.driver.ForType(reflect.TypeOf(ref))
+	batch, err := d.driver.ForType(reflect.TypeOf(ref), d.log)
 	if err != nil {
 		return err
 	}
@@ -62,7 +65,7 @@ func (d *Database) Refs(ref *code.Ref) error {
 }
 
 func (d *Database) CommitFiles(file *code.CommitFile) error {
-	batch, err := d.driver.ForType(reflect.TypeOf(file))
+	batch, err := d.driver.ForType(reflect.TypeOf(file), d.log)
 	if err != nil {
 		return err
 	}
@@ -73,7 +76,7 @@ func (d *Database) CommitParents(pp []*code.CommitParent) error {
 	if len(pp) == 0 {
 		return nil
 	}
-	batch, err := d.driver.ForType(reflect.TypeOf(pp[0]))
+	batch, err := d.driver.ForType(reflect.TypeOf(pp[0]), d.log)
 	if err != nil {
 		return err
 	}

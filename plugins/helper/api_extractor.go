@@ -64,10 +64,18 @@ func NewApiExtractor(args ApiExtractorArgs) (*ApiExtractor, error) {
 func (extractor *ApiExtractor) Execute() error {
 	// load data from database
 	db := extractor.args.Ctx.GetDb()
-	cursor, err := db.Table(extractor.table).Order("id ASC").Where("params = ?", extractor.params).Rows()
+	log := extractor.args.Ctx.GetLogger()
+	count := int64(0)
+	cursor, err := db.
+		Table(extractor.table).
+		Order("id ASC").
+		Where("params = ?", extractor.params).
+		Count(&count).
+		Rows()
 	if err != nil {
 		return err
 	}
+	log.Info("get data from %s where params=%s and got %d", extractor.table, extractor.params, count)
 	defer cursor.Close()
 	row := &RawData{}
 
@@ -113,7 +121,7 @@ func (extractor *ApiExtractor) Execute() error {
 
 		for _, result := range results {
 			// get the batch operator for the specific type
-			batch, err := divider.ForType(reflect.TypeOf(result))
+			batch, err := divider.ForType(reflect.TypeOf(result), log)
 			if err != nil {
 				return err
 			}

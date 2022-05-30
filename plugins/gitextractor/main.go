@@ -42,6 +42,7 @@ func main() {
 	output := flag.String("output", "", "-output")
 	db := flag.String("db", "", "-db")
 	flag.Parse()
+	log := logger.Global.Nested("git extractor")
 	var storage models.Store
 	var err error
 	if *url == "" {
@@ -60,13 +61,12 @@ func main() {
 		if err != nil {
 			panic(err)
 		}
-		storage = store.NewDatabase(database)
+		storage = store.NewDatabase(database, log)
 	} else {
 		panic("either specify `-output` or `-db` argument as destination")
 	}
 	defer storage.Close()
 	ctx := context.Background()
-	log := logger.Global.Nested("git extractor")
 	subTaskCtx := helper.NewStandaloneSubTaskContext(
 		config.GetConfig(),
 		log,
