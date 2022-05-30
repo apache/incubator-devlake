@@ -128,7 +128,7 @@ func getJiraConnectionById(id uint64) (*models.JiraConnection, error) {
 	encKey := v.GetString(core.EncodeKeyEnvStr)
 	jiraConnection.BasicAuthEncoded, err = core.Decrypt(encKey, jiraConnection.BasicAuthEncoded)
 	if err != nil {
-		return nil, err
+		log.Error("failed to decrypt basic auth: %s", err)
 	}
 
 	return jiraConnection, nil
@@ -200,7 +200,7 @@ func refreshAndSaveJiraConnection(jiraConnection *models.JiraConnection, data ma
 
 	jiraConnection.BasicAuthEncoded, err = core.Decrypt(encKey, jiraConnection.BasicAuthEncoded)
 	if err != nil {
-		return err
+		log.Error("failed to decrypt basic auth: %s", err)
 	}
 	return nil
 }
@@ -316,7 +316,7 @@ func ListConnections(input *core.ApiResourceInput) (*core.ApiResourceOutput, err
 	for i := range jiraConnections {
 		jiraConnections[i].BasicAuthEncoded, err = core.Decrypt(encKey, jiraConnections[i].BasicAuthEncoded)
 		if err != nil {
-			return nil, err
+			log.Error("failed to decrypt basic auth: %s", err)
 		}
 	}
 	return &core.ApiResourceOutput{Body: jiraConnections}, nil
