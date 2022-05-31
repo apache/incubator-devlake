@@ -86,6 +86,7 @@ func (plugin Jira) SubTaskMetas() []core.SubTaskMeta {
 		{Name: "convertChangelogs", EntryPoint: tasks.ConvertChangelogs, EnabledByDefault: true, Description: "convert Jira change logs"},
 
 		{Name: "convertSprints", EntryPoint: tasks.ConvertSprints, EnabledByDefault: true, Description: "convert Jira sprints"},
+		{Name: "convertSprintIssues", EntryPoint: tasks.ConvertSprintIssues, EnabledByDefault: true, Description: "convert Jira sprint_issues"},
 
 		{Name: "convertIssueCommits", EntryPoint: tasks.ConvertIssueCommits, EnabledByDefault: true, Description: "convert Jira issue commits"},
 		{Name: "convertIssueRepoCommits", EntryPoint: tasks.ConvertIssueRepoCommits, EnabledByDefault: false, Description: "convert Jira issue repo commits"},

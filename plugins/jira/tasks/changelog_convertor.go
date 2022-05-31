@@ -42,11 +42,6 @@ func ConvertChangelogs(taskCtx core.SubTaskContext) error {
 	connectionId := data.Connection.ID
 	boardId := data.Options.BoardId
 	logger := taskCtx.GetLogger()
-	sprintIssueConverter, err := NewSprintIssueConverter(taskCtx)
-	if err != nil {
-		logger.Info(err.Error())
-		return err
-	}
 	db := taskCtx.GetDb()
 	logger.Info("covert changelog")
 	// select all changelogs belongs to the board
@@ -98,7 +93,6 @@ func ConvertChangelogs(taskCtx core.SubTaskContext) error {
 				ToValue:     row.ToString,
 				CreatedDate: row.Created,
 			}
-			sprintIssueConverter.FeedIn(connectionId, *row)
 			return []interface{}{changelog}, nil
 		},
 	})
@@ -107,13 +101,5 @@ func ConvertChangelogs(taskCtx core.SubTaskContext) error {
 		return err
 	}
 
-	err = converter.Execute()
-	if err != nil {
-		return err
-	}
-	err = sprintIssueConverter.CreateSprintIssue()
-	if err != nil {
-		return err
-	}
-	return sprintIssueConverter.SaveAssigneeHistory()
+	return converter.Execute()
 }
