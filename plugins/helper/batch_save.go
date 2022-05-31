@@ -44,7 +44,7 @@ func NewBatchSave(db *gorm.DB, slotType reflect.Type, size int) (*BatchSave, err
 	if slotType.Kind() != reflect.Ptr {
 		return nil, fmt.Errorf("slotType must be a pointer")
 	}
-	if !hasPrimaryKey(slotType, true) {
+	if !hasPrimaryKey(slotType) {
 		return nil, fmt.Errorf("no primary key")
 	}
 	return &BatchSave{
@@ -65,7 +65,7 @@ func (c *BatchSave) Add(slot interface{}) error {
 		return fmt.Errorf("slot is not a pointer")
 	}
 	// deduplication
-	key := getPrimaryKeyValue(slot, true)
+	key := getPrimaryKeyValue(slot)
 
 	if key != "" {
 		if index, ok := c.valueIndex[key]; !ok {
@@ -106,7 +106,7 @@ func isPrimaryKey(f reflect.StructField) bool {
 	return strings.HasPrefix(strings.ToLower(tag), "primarykey")
 }
 
-func hasPrimaryKey(ifv reflect.Type, needRecursion bool) bool {
+func hasPrimaryKey(ifv reflect.Type) bool {
 	if ifv.Kind() == reflect.Ptr {
 		ifv = ifv.Elem()
 	}
@@ -114,8 +114,8 @@ func hasPrimaryKey(ifv reflect.Type, needRecursion bool) bool {
 		v := ifv.Field(i)
 		if ok := isPrimaryKey(v); ok {
 			return true
-		} else if needRecursion && v.Type.Kind() == reflect.Struct {
-			if ok := hasPrimaryKey(v.Type, needRecursion); ok {
+		} else if v.Type.Kind() == reflect.Struct {
+			if ok := hasPrimaryKey(v.Type); ok {
 				return true
 			}
 		}
@@ -123,7 +123,7 @@ func hasPrimaryKey(ifv reflect.Type, needRecursion bool) bool {
 	return false
 }
 
-func getPrimaryKeyValue(iface interface{}, needRecursion bool) string {
+func getPrimaryKeyValue(iface interface{}) string {
 	var ss []string
 	ifv := reflect.ValueOf(iface)
 	if ifv.Kind() == reflect.Ptr {
@@ -136,8 +136,8 @@ func getPrimaryKeyValue(iface interface{}, needRecursion bool) string {
 			if s != "" {
 				ss = append(ss, s)
 			}
-		} else if needRecursion && v.Kind() == reflect.Struct {
-			s := getPrimaryKeyValue(v.Interface(), needRecursion)
+		} else if v.Kind() == reflect.Struct {
+			s := getPrimaryKeyValue(v.Interface())
 			if s != "" {
 				ss = append(ss, s)
 			}

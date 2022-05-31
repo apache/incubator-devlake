@@ -85,7 +85,7 @@ func Test_getPrimaryKeyValue(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			assert.Equalf(t, tt.want, getPrimaryKeyValue(tt.args.iface, true), "getPrimaryKeyValue(%v)", tt.args.iface)
+			assert.Equalf(t, tt.want, getPrimaryKeyValue(tt.args.iface), "getPrimaryKeyValue(%v)", tt.args.iface)
 		})
 	}
 }
@@ -131,7 +131,7 @@ func Test_hasPrimaryKey(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			assert.Equalf(t, tt.want, hasPrimaryKey(reflect.TypeOf(tt.args.iface), true), "hasPrimaryKey(%v)", tt.args.iface)
+			assert.Equalf(t, tt.want, hasPrimaryKey(reflect.TypeOf(tt.args.iface)), "hasPrimaryKey(%v)", tt.args.iface)
 		})
 	}
 }
