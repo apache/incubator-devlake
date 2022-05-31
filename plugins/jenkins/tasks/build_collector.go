@@ -45,7 +45,7 @@ type SimpleJob struct {
 func CollectApiBuilds(taskCtx core.SubTaskContext) error {
 	db := taskCtx.GetDb()
 	data := taskCtx.GetData().(*JenkinsTaskData)
-	cursor, err := db.Model(&models.JenkinsJob{}).Rows()
+	cursor, err := db.Model(&models.JenkinsJob{}).Select("name").Rows()
 	if err != nil {
 		return err
 	}

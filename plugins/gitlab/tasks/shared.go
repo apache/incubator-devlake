@@ -96,7 +96,8 @@ func CreateRawDataSubTaskArgs(taskCtx core.SubTaskContext, Table string) (*helpe
 func GetMergeRequestsIterator(taskCtx core.SubTaskContext) (*helper.CursorIterator, error) {
 	db := taskCtx.GetDb()
 	data := taskCtx.GetData().(*GitlabTaskData)
-	cursor, err := db.Model(&models.GitlabMergeRequest{}).Where("project_id = ?", data.Options.ProjectId).Select("gitlab_id,iid").Rows()
+	cursor, err := db.Model(&models.GitlabMergeRequest{}).Select("gitlab_id, iid").
+	Where("project_id = ?", data.Options.ProjectId).Select("gitlab_id,iid").Rows()
 	if err != nil {
 		return nil, err
 	}
