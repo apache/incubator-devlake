@@ -62,7 +62,7 @@ func CollectStoryCommits(taskCtx core.SubTaskContext) error {
 	if since != nil {
 		tx = tx.Where("modified > ? and connection_id = ? and workspace_id = ?", since, data.Options.ConnectionId, data.Options.WorkspaceID)
 	}
-	cursor, err := tx.Rows()
+	cursor, err := tx.Select("id").Rows()
 	if err != nil {
 		return err
 	}
