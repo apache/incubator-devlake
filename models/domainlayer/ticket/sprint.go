@@ -43,11 +43,6 @@ type Sprint struct {
 
 type SprintIssue struct {
 	common.NoPKModel
-	SprintId      string `gorm:"primaryKey;type:varchar(255)"`
-	IssueId       string `gorm:"primaryKey;type:varchar(255)"`
-	IsRemoved     bool
-	AddedDate     *time.Time
-	RemovedDate   *time.Time
-	AddedStage    *string `gorm:"type:varchar(255)"`
-	ResolvedStage *string `gorm:"type:varchar(255)"`
+	SprintId string `gorm:"primaryKey;type:varchar(255)"`
+	IssueId  string `gorm:"primaryKey;type:varchar(255)"`
 }
