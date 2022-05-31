@@ -38,7 +38,7 @@ func GetConfig() *viper.Viper {
 }
 
 // Set default value for no .env or .env not set it
-func setDefaultValue() {
+func setDefaultValue(v *viper.Viper) {
 	v.SetDefault("DB_URL", "mysql://merico:merico@mysql:3306/lake?charset=utf8mb4&parseTime=True")
 	v.SetDefault("PORT", ":8080")
 	v.SetDefault("PLUGIN_DIR", "bin/plugins")
@@ -134,18 +134,23 @@ func WriteConfigAs(v *viper.Viper, filename string) error {
 func init() {
 	// create the object and load the .env file
 	v = viper.New()
+	v.SetConfigName(".env")
+	v.SetConfigType("env")
 	envPath := os.Getenv("ENV_PATH")
 	if envPath == "" {
-		envPath = ".env"
+		//add project root directory path
+		v.AddConfigPath("$PWD/../..")
+	} else {
+		v.AddConfigPath(envPath)
 	}
-	v.SetConfigFile(envPath)
 	err := v.ReadInConfig()
 	if err != nil {
-		logrus.Warn("Failed to read [.env] file:", err)
+		logrus.Errorf("Failed to read [.env] file: %s", err)
 	}
+
 	v.AutomaticEnv()
 
-	setDefaultValue()
+	setDefaultValue(v)
 	// This line is essential for reading and writing
 	v.WatchConfig()
 }
