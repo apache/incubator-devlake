@@ -19,8 +19,12 @@ package main
 
 import (
 	"github.com/apache/incubator-devlake/plugins/core"
+	"github.com/apache/incubator-devlake/plugins/gitextractor/models"
+	"github.com/apache/incubator-devlake/plugins/gitextractor/parser"
+	"github.com/apache/incubator-devlake/plugins/gitextractor/store"
 	"github.com/apache/incubator-devlake/plugins/gitextractor/tasks"
 	"github.com/mitchellh/mapstructure"
+	"strings"
 )
 
 var _ core.PluginMeta = (*GitExtractor)(nil)
@@ -35,7 +39,9 @@ func (plugin GitExtractor) Description() string {
 // return all available subtasks, framework will run them for you in order
 func (plugin GitExtractor) SubTaskMetas() []core.SubTaskMeta {
 	return []core.SubTaskMeta{
-		tasks.CollectGitRepoMeta,
+		tasks.CollectGitCommitMeta,
+		tasks.CollectGitBranchMeta,
+		tasks.CollectGitTagMeta,
 	}
 }
 
@@ -50,11 +56,39 @@ func (plugin GitExtractor) PrepareTaskData(taskCtx core.TaskContext, options map
 	if err != nil {
 		return nil, err
 	}
-	return op, nil
+	storage := store.NewDatabase(taskCtx, op.Url)
+	repo, err := newGitRepo(taskCtx, storage, op)
+	if err != nil {
+		return nil, err
+	}
+	return repo, nil
+}
+
+func (plugin GitExtractor) Close(taskCtx core.TaskContext) error {
+	if repo, ok := taskCtx.GetData().(*parser.GitRepo); ok {
+		if err := repo.Close(); err != nil {
+			return err
+		}
+	}
+	return nil
 }
 
 func (plugin GitExtractor) RootPkgPath() string {
 	return "github.com/apache/incubator-devlake/plugins/gitextractor"
+}
+
+func newGitRepo(ctx core.TaskContext, storage models.Store, op tasks.GitExtractorOptions) (*parser.GitRepo, error) {
+	var err error
+	var repo *parser.GitRepo
+	p := parser.NewGitRepoCreator(storage, ctx)
+	if strings.HasPrefix(op.Url, "http") {
+		repo, err = p.CloneOverHTTP(op.RepoId, op.Url, op.User, op.Password, op.Proxy)
+	} else if url := strings.TrimPrefix(op.Url, "ssh://"); strings.HasPrefix(url, "git@") {
+		repo, err = p.CloneOverSSH(op.RepoId, url, op.PrivateKey, op.Passphrase)
+	} else if strings.HasPrefix(op.Url, "/") {
+		repo, err = p.LocalRepo(op.Url, op.RepoId)
+	}
+	return repo, err
 }
 
 // Export a variable named PluginEntry for Framework to search and load

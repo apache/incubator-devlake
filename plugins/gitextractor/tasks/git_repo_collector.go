@@ -19,11 +19,10 @@ package tasks
 
 import (
 	"errors"
+	"github.com/apache/incubator-devlake/plugins/gitextractor/parser"
 	"strings"
 
 	"github.com/apache/incubator-devlake/plugins/core"
-	"github.com/apache/incubator-devlake/plugins/gitextractor/parser"
-	"github.com/apache/incubator-devlake/plugins/gitextractor/store"
 )
 
 type GitExtractorOptions struct {
@@ -53,27 +52,64 @@ func (o GitExtractorOptions) Valid() error {
 	return nil
 }
 
-func CollectGitRepo(subTaskCtx core.SubTaskContext) error {
-	var err error
-	op := subTaskCtx.GetData().(GitExtractorOptions)
-	storage := store.NewDatabase(subTaskCtx, op.Url)
-	p := parser.NewLibGit2(storage, subTaskCtx)
-	if strings.HasPrefix(op.Url, "http") {
-		err = p.CloneOverHTTP(op.RepoId, op.Url, op.User, op.Password, op.Proxy)
-	} else if url := strings.TrimPrefix(op.Url, "ssh://"); strings.HasPrefix(url, "git@") {
-		err = p.CloneOverSSH(op.RepoId, url, op.PrivateKey, op.Passphrase)
-	} else if strings.HasPrefix(op.Url, "/") {
-		err = p.LocalRepo(op.Url, op.RepoId)
+func CollectGitCommits(subTaskCtx core.SubTaskContext) error {
+	repo := getGitRepo(subTaskCtx)
+	if count, err := repo.CountCommits(); err != nil {
+		subTaskCtx.GetLogger().Error("unable to get commit count: %v", err)
+		subTaskCtx.SetProgress(0, -1)
+	} else {
+		subTaskCtx.SetProgress(0, count)
 	}
-	if err != nil {
-		return err
-	}
-	return nil
+	return repo.CollectCommits(subTaskCtx)
 }
 
-var CollectGitRepoMeta = core.SubTaskMeta{
-	Name:             "collectGitRepo",
-	EntryPoint:       CollectGitRepo,
+func CollectGitBranches(subTaskCtx core.SubTaskContext) error {
+	repo := getGitRepo(subTaskCtx)
+	if count, err := repo.CountBranches(); err != nil {
+		subTaskCtx.GetLogger().Error("unable to get branch count: %v", err)
+		subTaskCtx.SetProgress(0, -1)
+	} else {
+		subTaskCtx.SetProgress(0, count)
+	}
+	return repo.CollectBranches(subTaskCtx)
+}
+
+func CollectGitTags(subTaskCtx core.SubTaskContext) error {
+	repo := getGitRepo(subTaskCtx)
+	if count, err := repo.CountTags(); err != nil {
+		subTaskCtx.GetLogger().Error("unable to get tag count: %v", err)
+		subTaskCtx.SetProgress(0, -1)
+	} else {
+		subTaskCtx.SetProgress(0, count)
+	}
+	return repo.CollectTags(subTaskCtx)
+}
+
+func getGitRepo(subTaskCtx core.SubTaskContext) *parser.GitRepo {
+	repo, ok := subTaskCtx.GetData().(*parser.GitRepo)
+	if !ok {
+		panic("git repo reference not found on context")
+	}
+	return repo
+}
+
+var CollectGitCommitMeta = core.SubTaskMeta{
+	Name:             "collectGitCommits",
+	EntryPoint:       CollectGitCommits,
 	EnabledByDefault: true,
-	Description:      "collect git commits/branches/tags int Domain Layer Tables",
+	Description:      "collect git commits into Domain Layer Tables",
+}
+
+var CollectGitBranchMeta = core.SubTaskMeta{
+	Name:             "collectGitBranches",
+	EntryPoint:       CollectGitBranches,
+	EnabledByDefault: true,
+	Description:      "collect git branch into Domain Layer Tables",
+}
+
+var CollectGitTagMeta = core.SubTaskMeta{
+	Name:             "collectGitTags",
+	EntryPoint:       CollectGitTags,
+	EnabledByDefault: true,
+	Description:      "collect git tag into Domain Layer Tables",
 }

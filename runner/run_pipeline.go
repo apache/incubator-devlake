@@ -33,6 +33,7 @@ func RunPipeline(
 	pipelineId uint64,
 	runTasks func([]uint64) error,
 ) error {
+	startTime := time.Now()
 	// load pipeline from db
 	pipeline := &models.Pipeline{}
 	err := db.Find(pipeline, pipelineId).Error
@@ -93,7 +94,7 @@ func RunPipeline(
 			return err
 		}
 	}
-
-	log.Info("pipeline finished: %w", err)
+	endTime := time.Now()
+	log.Info("pipeline finished in %d ms: %w", endTime.UnixMilli()-startTime.UnixMilli(), err)
 	return err
 }

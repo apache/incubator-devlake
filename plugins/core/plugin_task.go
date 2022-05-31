@@ -97,3 +97,9 @@ type PluginTask interface {
 	// based on task context and user input options, return data that shared among all subtasks
 	PrepareTaskData(taskCtx TaskContext, options map[string]interface{}) (interface{}, error)
 }
+
+// Extends PluginTask, and invokes a Close method after all subtasks are done
+type CloseablePluginTask interface {
+	PluginTask
+	Close(taskCtx TaskContext) error
+}
