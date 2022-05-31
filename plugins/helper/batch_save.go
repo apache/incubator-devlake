@@ -44,7 +44,7 @@ func NewBatchSave(db *gorm.DB, slotType reflect.Type, size int) (*BatchSave, err
 	if slotType.Kind() != reflect.Ptr {
 		return nil, fmt.Errorf("slotType must be a pointer")
 	}
-	if !hasPrimaryKey(slotType, false) {
+	if !hasPrimaryKey(slotType, true) {
 		return nil, fmt.Errorf("no primary key")
 	}
 	return &BatchSave{
@@ -65,7 +65,7 @@ func (c *BatchSave) Add(slot interface{}) error {
 		return fmt.Errorf("slot is not a pointer")
 	}
 	// deduplication
-	key := getPrimaryKeyValue(slot, false)
+	key := getPrimaryKeyValue(slot, true)
 
 	if key != "" {
 		if index, ok := c.valueIndex[key]; !ok {
