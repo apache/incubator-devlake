@@ -21,7 +21,7 @@ type BaseConnection struct {
 
 type BasicAuth struct {
 	Username string `mapstructure:"username" validate:"required" json:"username"`
-	Password string `mapstructure:"password" validate:"required" json:"password" encrypt:"yes"`
+	Password string `mapstructure:"password" validate:"required" json:"password" encryptField:"yes"`
 }
 
 func (ba BasicAuth) GetEncodedToken() string {
@@ -29,7 +29,7 @@ func (ba BasicAuth) GetEncodedToken() string {
 }
 
 type AccessToken struct {
-	Token string `mapstructure:"token" validate:"required" json:"token" encrypt:"yes"`
+	Token string `mapstructure:"token" validate:"required" json:"token" encryptField:"yes"`
 }
 
 type RestConnection struct {
@@ -65,11 +65,14 @@ func saveToDb(connection interface{}, db *gorm.DB) error {
 	if dataVal.Kind() != reflect.Ptr {
 		panic("entityPtr is not a pointer")
 	}
-
+	encKey, err := getEncKey()
+	if err != nil {
+		return err
+	}
 	dataType := reflect.Indirect(dataVal).Type()
-	fieldName := getEncryptField(dataType, "encrypt")
+	fieldName := firstFieldNameWithTag(dataType, "encryptField")
 	plainPwd := ""
-	err := doEncrypt(dataVal, fieldName)
+	err = encryptField(dataVal, fieldName, encKey)
 	if err != nil {
 		return err
 	}
@@ -78,7 +81,7 @@ func saveToDb(connection interface{}, db *gorm.DB) error {
 		return err
 	}
 
-	err = doDecrypt(dataVal, fieldName)
+	err = decryptField(dataVal, fieldName, encKey)
 	if err != nil {
 		return err
 	}
@@ -107,7 +110,7 @@ func mergeFieldsToConnection(specificConnection interface{}, connections ...map[
 }
 
 func getEncKey() (string, error) {
-	// encrypt
+	// encryptField
 	v := config.GetConfig()
 	encKey := v.GetString(core.EncodeKeyEnvStr)
 	if encKey == "" {
@@ -142,8 +145,8 @@ func FindConnectionByInput(input *core.ApiResourceInput, connection interface{},
 
 	dataType := reflect.Indirect(dataVal).Type()
 
-	fieldName := getEncryptField(dataType, "encrypt")
-	return doDecrypt(dataVal, fieldName)
+	fieldName := firstFieldNameWithTag(dataType, "encryptField")
+	return decryptField(dataVal, fieldName, "")
 
 }
 
@@ -156,12 +159,12 @@ func GetConnectionIdByInputParam(input *core.ApiResourceInput) (uint64, error) {
 	return strconv.ParseUint(connectionId, 10, 64)
 }
 
-func getEncryptField(t reflect.Type, tag string) string {
+func firstFieldNameWithTag(t reflect.Type, tag string) string {
 	fieldName := ""
 	for i := 0; i < t.NumField(); i++ {
 		field := t.Field(i)
 		if field.Type.Kind() == reflect.Struct {
-			fieldName = getEncryptField(field.Type, tag)
+			fieldName = firstFieldNameWithTag(field.Type, tag)
 		} else {
 			if field.Tag.Get(tag) == "yes" {
 				fieldName = field.Name
@@ -177,34 +180,30 @@ func DecryptConnection(connection interface{}, fieldName string) error {
 	if dataVal.Kind() != reflect.Ptr {
 		panic("connection is not a pointer")
 	}
+	encKey, err := getEncKey()
+	if err != nil {
+		return nil
+	}
 	if len(fieldName) == 0 {
 		dataType := reflect.Indirect(dataVal).Type()
-		fieldName = getEncryptField(dataType, "encrypt")
+		fieldName = firstFieldNameWithTag(dataType, "encryptField")
 	}
-	return doDecrypt(dataVal, fieldName)
+	return decryptField(dataVal, fieldName, encKey)
 }
 
-func doDecrypt(dataVal reflect.Value, fieldName string) error {
-	encryptCode, err := getEncKey()
-	if err != nil {
-		return err
-	}
+func decryptField(dataVal reflect.Value, fieldName string, encKey string) error {
 	if len(fieldName) > 0 {
-		decryptStr, _ := core.Decrypt(encryptCode, dataVal.Elem().FieldByName(fieldName).String())
+		decryptStr, _ := core.Decrypt(encKey, dataVal.Elem().FieldByName(fieldName).String())
 
 		dataVal.Elem().FieldByName(fieldName).Set(reflect.ValueOf(decryptStr))
 	}
 	return nil
 }
 
-func doEncrypt(dataVal reflect.Value, fieldName string) error {
-	encryptCode, err := getEncKey()
-	if err != nil {
-		return err
-	}
+func encryptField(dataVal reflect.Value, fieldName string, encKey string) error {
 	if len(fieldName) > 0 {
 		plainPwd := dataVal.Elem().FieldByName(fieldName).String()
-		encyptedStr, err := core.Encrypt(encryptCode, plainPwd)
+		encyptedStr, err := core.Encrypt(encKey, plainPwd)
 
 		if err != nil {
 			return err

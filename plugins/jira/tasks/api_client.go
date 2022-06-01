@@ -27,18 +27,15 @@ import (
 )
 
 func NewJiraApiClient(taskCtx core.TaskContext, connection *models.JiraConnection) (*helper.ApiAsyncClient, error) {
-	// load configuration
-	encKey := taskCtx.GetConfig(core.EncodeKeyEnvStr)
-	decodedPassword, err := core.Decrypt(encKey, connection.Password)
+	// decrypt connection first
+	err := helper.DecryptConnection(connection, "Password")
 	if err != nil {
 		return nil, fmt.Errorf("Failed to decrypt Auth AccessToken: %w", err)
 	}
-	connection.Password = decodedPassword
-	auth := connection.GetEncodedToken()
 
 	// create synchronize api client so we can calculate api rate limit dynamically
 	headers := map[string]string{
-		"Authorization": fmt.Sprintf("Basic %v", auth),
+		"Authorization": fmt.Sprintf("Basic %v", connection.GetEncodedToken()),
 	}
 	apiClient, err := helper.NewApiClient(connection.Endpoint, headers, 0, connection.Proxy, taskCtx.GetContext())
 	if err != nil {
