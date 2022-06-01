@@ -20,6 +20,7 @@ package core
 import (
 	"context"
 
+	"github.com/apache/incubator-devlake/plugins/core/dal"
 	"gorm.io/gorm"
 )
 
@@ -45,7 +46,9 @@ type RunningProgress struct {
 type ExecContext interface {
 	GetName() string
 	GetConfig(name string) string
+	// Deprecated: use dal instead
 	GetDb() *gorm.DB
+	GetDal() dal.Dal
 	GetContext() context.Context
 	GetLogger() Logger
 	GetData() interface{}

@@ -19,17 +19,15 @@ package helper
 
 import (
 	"bytes"
-	"context"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
-	"math"
 	"net/http"
 	"net/url"
-	"sync"
 	"text/template"
 
 	"github.com/apache/incubator-devlake/plugins/core"
+	"github.com/apache/incubator-devlake/plugins/core/dal"
 )
 
 type Pager struct {
@@ -39,9 +37,10 @@ type Pager struct {
 }
 
 type RequestData struct {
-	Pager  *Pager
-	Params interface{}
-	Input  interface{}
+	Pager     *Pager
+	Params    interface{}
+	Input     interface{}
+	InputJSON []byte
 }
 
 type AsyncResponseHandler func(res *http.Response) error
@@ -78,7 +77,8 @@ type ApiCollectorArgs struct {
 		For api endpoint that returns number of total pages, ApiCollector can collect pages in parallel with ease,
 		or other techniques are required if this information was missing.
 	*/
-	GetTotalPages  func(res *http.Response, args *ApiCollectorArgs) (int, error)
+	GetTotalPages func(res *http.Response, args *ApiCollectorArgs) (int, error)
+	// Deprecated: should be same as numOfWorkers from WorkerScheduler
 	Concurrency    int
 	ResponseParser func(res *http.Response) ([]json.RawMessage, error)
 }
@@ -131,81 +131,35 @@ func (collector *ApiCollector) Execute() error {
 	logger.Info("start api collection")
 
 	// make sure table is created
-	db := collector.args.Ctx.GetDb()
-	err := db.Table(collector.table).AutoMigrate(&RawData{})
+	db := collector.args.Ctx.GetDal()
+	err := db.AutoMigrate(&RawData{}, dal.Table(collector.table))
 	if err != nil {
 		return err
 	}
 
 	// flush data if not incremental collection
 	if !collector.args.Incremental {
-		err = db.Table(collector.table).Delete(&RawData{}, "params = ?", collector.params).Error
+		err = db.Delete(&RawData{}, "params = ?", collector.params)
 		if err != nil {
 			return err
 		}
 	}
 
+	collector.args.Ctx.SetProgress(0, -1)
 	if collector.args.Input != nil {
-		collector.args.Ctx.SetProgress(0, -1)
-		// load all rows from iterator, and do multiple `exec` accordingly
-		// TODO: this loads all records into memory, we need lazy-load
 		iterator := collector.args.Input
+		apiClient := collector.args.ApiClient
 		defer iterator.Close()
-		// throttle input process speed so it can be canceled, create a channel to represent available slots
-		slots := int(math.Ceil(collector.args.ApiClient.GetQps())) * 2
-		if slots <= 0 {
-			return fmt.Errorf("RateLimit can't use the 0 Qps")
-		}
-		slotsChan := make(chan bool, slots)
-		defer close(slotsChan)
-		for i := 0; i < slots; i++ {
-			slotsChan <- true
-		}
-
-		errors := make(chan error, slots)
-		defer close(errors)
-
-		var wg sync.WaitGroup
-		ctx := collector.args.Ctx.GetContext()
-
-	out:
-		for iterator.HasNext() {
-			select {
-			// canceled by user, stop
-			case <-ctx.Done():
-				err = ctx.Err()
-				break out
-			// obtain a slot
-			case <-slotsChan:
-				input, err := iterator.Fetch()
-				if err != nil {
-					break out
-				}
-				wg.Add(1)
-				go func() {
-					defer func() {
-						wg.Done()
-						recover()
-					}()
-					e := collector.exec(input)
-					// propagate error
-					if e != nil {
-						errors <- e
-					} else {
-						// release 1 slot
-						slotsChan <- true
-					}
-				}()
-			case err = <-errors:
-				break out
+		for iterator.HasNext() && !apiClient.HasError() {
+			input, err := iterator.Fetch()
+			if err != nil {
+				break
 			}
-		}
-		if err == nil {
-			wg.Wait()
+			collector.exec(input)
 		}
 	} else {
 		// or we just did it once
-		err = collector.exec(nil)
+		collector.exec(nil)
 	}
 
 	if err != nil {
@@ -213,62 +167,104 @@ func (collector *ApiCollector) Execute() error {
 	}
 	logger.Debug("wait for all async api to finished")
 	err = collector.args.ApiClient.WaitAsync()
-	logger.Info("end api collection")
+	logger.Info("end api collection error: %w", err)
 	return err
 }
 
-func (collector *ApiCollector) exec(input interface{}) error {
+func (collector *ApiCollector) exec(input interface{}) {
+	inputJson, err := json.Marshal(input)
+	if err != nil {
+		panic(err)
+	}
 	reqData := new(RequestData)
 	reqData.Input = input
+	reqData.InputJSON = inputJson
+	reqData.Pager = &Pager{
+		Page: 1,
+		Size: collector.args.PageSize,
+	}
 	if collector.args.PageSize <= 0 {
-		// collect detail of a record
-		return collector.fetchAsync(reqData, collector.handleResponse(reqData))
-	}
-	// collect multiple pages
-	var err error
-	if collector.args.GetTotalPages != nil {
-		/* when total pages is available from api*/
-		// fetch the very first page
-		err = collector.fetchAsync(reqData, collector.handleResponseWithPages(reqData))
+		collector.fetchAsync(reqData, nil)
+	} else if collector.args.GetTotalPages != nil {
+		collector.fetchPagesDetermined(reqData)
 	} else {
-		// if api doesn't return total number of pages, employ a step concurrent technique
-		// when `Concurrency` was set to 3:
-		// goroutine #1 fetches pages 1/4/7..
-		// goroutine #2 fetches pages 2/5/8...
-		// goroutine #3 fetches pages 3/6/9...
-		errs := make(chan error, collector.args.Concurrency)
-		var errCount int
-		// cancel can only be called when error occurs, because we are doomed anyway.
-		ctx, cancel := context.WithCancel(collector.args.Ctx.GetContext())
-		defer cancel()
-		for i := 0; i < collector.args.Concurrency; i++ {
-			reqDataTemp := RequestData{
-				Pager: &Pager{
-					Page: i + 1,
-					Size: collector.args.PageSize,
-					Skip: collector.args.PageSize * (i),
-				},
-				Input: reqData.Input,
-			}
-			go func() {
-				errs <- collector.stepFetch(ctx, cancel, reqDataTemp)
-			}()
+		collector.fetchPagesUndetermined(reqData)
+	}
+}
+
+// fetchPagesDetermined fetches data of all pages for APIs that return paging information
+func (collector *ApiCollector) fetchPagesDetermined(reqData *RequestData) {
+	// fetch first page
+	collector.fetchAsync(reqData, func(count int, body []byte, res *http.Response) error {
+		totalPages, err := collector.args.GetTotalPages(res, collector.args)
+		if err != nil {
+			return fmt.Errorf("fetchPagesDetermined get totalPages faileds: %s", err.Error())
 		}
-		for e := range errs {
-			errCount++
-			if err != nil || errCount == collector.args.Concurrency {
-				err = e
-				break
+		// spawn a none blocking go routine to fetch other pages
+		collector.args.ApiClient.NextTick(func() error {
+			for page := 2; page <= totalPages; page++ {
+				reqDataTemp := &RequestData{
+					Pager: &Pager{
+						Page: page,
+						Skip: collector.args.PageSize * (page - 1),
+						Size: collector.args.PageSize,
+					},
+					Input: reqData.Input,
+				}
+				collector.fetchAsync(reqDataTemp, nil)
 			}
+			return nil
+		})
+		return nil
+	})
+}
+
+// fetchPagesUndetermined fetches data of all pages for APIs that do NOT return paging information
+func (collector *ApiCollector) fetchPagesUndetermined(reqData *RequestData) {
+	//logger := collector.args.Ctx.GetLogger()
+	//logger.Debug("fetch all pages in parallel with specified concurrency: %d", collector.args.Concurrency)
+	// if api doesn't return total number of pages, employ a step concurrent technique
+	// when `Concurrency` was set to 3:
+	// goroutine #1 fetches pages 1/4/7..
+	// goroutine #2 fetches pages 2/5/8...
+	// goroutine #3 fetches pages 3/6/9...
+	apiClient := collector.args.ApiClient
+	concurrency := collector.args.Concurrency
+	if concurrency == 0 {
+		// normally when a multi-pages api depends on a another resource, like jira changelogs depend on issue ids
+		// it tend to have less page, like 1 or 2 pages in total
+		if collector.args.Input != nil {
+			concurrency = 2
+		} else {
+			concurrency = apiClient.GetNumOfWorkers()
 		}
 	}
-	if err != nil {
-		return err
+	for i := 0; i < concurrency; i++ {
+		reqDataCopy := RequestData{
+			Pager: &Pager{
+				Page: i + 1,
+				Size: collector.args.PageSize,
+				Skip: collector.args.PageSize * (i),
+			},
+			Input: reqData.Input,
+		}
+		var collect func() error
+		collect = func() error {
+			collector.fetchAsync(&reqDataCopy, func(count int, body []byte, res *http.Response) error {
+				if count < collector.args.PageSize {
+					return nil
+				}
+				apiClient.NextTick(func() error {
+					reqDataCopy.Pager.Skip += collector.args.PageSize
+					reqDataCopy.Pager.Page += concurrency
+					return collect()
+				})
+				return nil
+			})
+			return nil
+		}
+		apiClient.NextTick(collect)
 	}
-	if collector.args.Input != nil {
-		collector.args.Ctx.IncProgress(1)
-	}
-	return nil
 }
 
 func (collector *ApiCollector) generateUrl(pager *Pager, input interface{}) (string, error) {
@@ -284,61 +280,7 @@ func (collector *ApiCollector) generateUrl(pager *Pager, input interface{}) (str
 	return buf.String(), nil
 }
 
-// stepFetch collect pages synchronously. In practice, several stepFetch running concurrently, we could stop all of them by calling `cancel`.
-func (collector *ApiCollector) stepFetch(ctx context.Context, cancel func(), reqData RequestData) error {
-	// channel `c` is used to make sure fetchAsync is called serially
-	c := make(chan struct{})
-	var err1 error
-	handler := func(res *http.Response, err error) error {
-		select {
-		case <-ctx.Done():
-			err = ctx.Err()
-		default:
-
-		}
-		if err != nil {
-			err1 = err
-			close(c)
-			return err
-		}
-		count, err := collector.saveRawData(res, reqData.Input)
-		if err != nil {
-			err1 = err
-			close(c)
-			cancel()
-			return err
-		}
-		if count < collector.args.PageSize {
-			close(c)
-			return nil
-		}
-		reqData.Pager.Skip += collector.args.PageSize
-		reqData.Pager.Page += collector.args.Concurrency
-		c <- struct{}{}
-		return nil
-	}
-	// kick off
-	go func() { c <- struct{}{} }()
-	for {
-		select {
-		case <-ctx.Done():
-			return ctx.Err()
-		case _, ok := <-c:
-			if !ok || err1 != nil {
-				return err1
-			} else {
-				err := collector.fetchAsync(&reqData, handler)
-				if err != nil {
-					close(c)
-					cancel()
-					return err
-				}
-			}
-		}
-	}
-}
-
-func (collector *ApiCollector) fetchAsync(reqData *RequestData, handler ApiAsyncCallback) error {
+func (collector *ApiCollector) fetchAsync(reqData *RequestData, handler func(int, []byte, *http.Response) error) {
 	if reqData.Pager == nil {
 		reqData.Pager = &Pager{
 			Page: 1,
@@ -346,22 +288,15 @@ func (collector *ApiCollector) fetchAsync(reqData *RequestData, handler ApiAsync
 			Skip: 0,
 		}
 	}
-	ctx := collector.args.Ctx.GetContext()
-	select {
-	case <-ctx.Done():
-		return ctx.Err()
-	default:
-
-	}
 	apiUrl, err := collector.generateUrl(reqData.Pager, reqData.Input)
 	if err != nil {
-		return err
+		panic(err)
 	}
 	var apiQuery url.Values
 	if collector.args.Query != nil {
 		apiQuery, err = collector.args.Query(reqData)
 		if err != nil {
-			return err
+			panic(err)
 		}
 	}
 
@@ -369,129 +304,56 @@ func (collector *ApiCollector) fetchAsync(reqData *RequestData, handler ApiAsync
 	if collector.args.Header != nil {
 		apiHeader, err = collector.args.Header(reqData)
 		if err != nil {
-			return err
+			panic(err)
 		}
 	}
-	return collector.args.ApiClient.GetAsync(apiUrl, apiQuery, apiHeader, handler)
-}
-
-func (collector *ApiCollector) handleResponse(reqData *RequestData) ApiAsyncCallback {
-	return func(res *http.Response, err error) error {
+	logger := collector.args.Ctx.GetLogger()
+	logger.Debug("fetchAsync <<< enqueueing for %s %v", apiUrl, apiQuery)
+	collector.args.ApiClient.GetAsync(apiUrl, apiQuery, apiHeader, func(res *http.Response) error {
+		defer logger.Debug("fetchAsync >>> done for %s %v", apiUrl, apiQuery)
+		logger := collector.args.Ctx.GetLogger()
+		// read body to buffer
+		body, err := ioutil.ReadAll(res.Body)
 		if err != nil {
 			return err
 		}
-		_, err = collector.saveRawData(res, reqData.Input)
-		collector.args.Ctx.IncProgress(1)
-		return err
-	}
-}
-
-func (collector *ApiCollector) handleResponseWithPages(reqData *RequestData) ApiAsyncCallback {
-	return func(res *http.Response, e error) error {
-		if e != nil {
-			return e
-		}
-		// gather total pages
-		body, e := ioutil.ReadAll(res.Body)
-		if e != nil {
-			return e
-		}
 		res.Body.Close()
 		res.Body = ioutil.NopCloser(bytes.NewBuffer(body))
-		totalPages, e := collector.args.GetTotalPages(res, collector.args)
-		if e != nil {
-			return e
+		// convert body to array of RawJSON
+		items, err := collector.args.ResponseParser(res)
+		if err != nil {
+			return err
 		}
-		// save response body of first page
-		res.Body = ioutil.NopCloser(bytes.NewBuffer(body))
-		_, e = collector.saveRawData(res, reqData.Input)
-		if e != nil {
-			return e
+		// save to db
+		count := len(items)
+		if count == 0 {
+			return nil
 		}
-		if collector.args.Input == nil {
-			collector.args.Ctx.SetProgress(1, totalPages)
-		}
-		// fetch other pages in parallel
-		collector.args.ApiClient.Add(1)
-		go func() {
-			defer func() {
-				collector.args.ApiClient.Done()
-				recover()
-			}()
-			for page := 2; page <= totalPages; page++ {
-				reqDataTemp := &RequestData{
-					Pager: &Pager{
-						Page: page,
-						Size: collector.args.PageSize,
-						Skip: collector.args.PageSize * (page - 1),
-					},
-					Input: reqData.Input,
-				}
-				_ = collector.fetchAsync(reqDataTemp, collector.handleResponse(reqDataTemp))
+		db := collector.args.Ctx.GetDal()
+		url := res.Request.URL.String()
+		rows := make([]*RawData, count)
+		for i, msg := range items {
+			rows[i] = &RawData{
+				Params: collector.params,
+				Data:   msg,
+				Url:    url,
+				Input:  reqData.InputJSON,
 			}
-		}()
-		return nil
-	}
-}
-
-func (collector *ApiCollector) saveRawData(res *http.Response, input interface{}) (int, error) {
-	items, err := collector.args.ResponseParser(res)
-	logger := collector.args.Ctx.GetLogger()
-	if err != nil {
-		return 0, err
-	}
-	res.Body.Close()
-
-	inputJson, _ := json.Marshal(input)
-
-	if len(items) == 0 {
-		return 0, nil
-	}
-	db := collector.args.Ctx.GetDb()
-	u := res.Request.URL.String()
-	dd := make([]*RawData, len(items))
-	for i, msg := range items {
-		dd[i] = &RawData{
-			Params: collector.params,
-			Data:   msg,
-			Url:    u,
-			Input:  inputJson,
 		}
-	}
-	err = db.Table(collector.table).Create(dd).Error
-	if err != nil {
-		logger.Error("failed to save raw data: %s", err)
-	}
-	return len(dd), err
-}
-
-func GetRawMessageDirectFromResponse(res *http.Response) ([]json.RawMessage, error) {
-	body, err := ioutil.ReadAll(res.Body)
-	res.Body.Close()
-	if err != nil {
-		return nil, err
-	}
-	return []json.RawMessage{body}, nil
-}
-
-func GetRawMessageArrayFromResponse(res *http.Response) ([]json.RawMessage, error) {
-	rawMessages := []json.RawMessage{}
-
-	if res == nil {
-		return nil, fmt.Errorf("res is nil")
-	}
-	defer res.Body.Close()
-	resBody, err := ioutil.ReadAll(res.Body)
-	if err != nil {
-		return nil, fmt.Errorf("%w %s", err, res.Request.URL.String())
-	}
-
-	err = json.Unmarshal(resBody, &rawMessages)
-	if err != nil {
-		return nil, fmt.Errorf("%w %s %s", err, res.Request.URL.String(), string(resBody))
-	}
-
-	return rawMessages, nil
+		err = db.Create(rows, dal.Table(collector.table))
+		if err != nil {
+			return err
+		}
+		logger.Debug("fetchAsync === total %d rows were saved into database", count)
+		// increase progress only when it was not nested
+		collector.args.Ctx.IncProgress(1)
+		if handler != nil {
+			res.Body = ioutil.NopCloser(bytes.NewBuffer(body))
+			return handler(count, body, res)
+		}
+		return nil
+	})
+	logger.Debug("fetchAsync === enqueued for %s %v", apiUrl, apiQuery)
 }
 
 var _ core.SubTask = (*ApiCollector)(nil)

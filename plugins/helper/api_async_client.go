@@ -28,10 +28,9 @@ import (
 	"time"
 
 	"github.com/apache/incubator-devlake/plugins/core"
+	"github.com/apache/incubator-devlake/plugins/helper/common"
 	"github.com/apache/incubator-devlake/utils"
 )
-
-type ApiAsyncCallback func(*http.Response, error) error
 
 var HttpMinStatusRetryCode = http.StatusBadRequest
 
@@ -40,11 +39,13 @@ var HttpMinStatusRetryCode = http.StatusBadRequest
 // will be performed in parallel with rate-limit support
 type ApiAsyncClient struct {
 	*ApiClient
-	maxRetry  int
-	scheduler *WorkerScheduler
-	qps       float64
+	maxRetry     int
+	scheduler    *WorkerScheduler
+	hasError     bool
+	numOfWorkers int
 }
 
+// CreateAsyncApiClient creates a new ApiAsyncClient
 func CreateAsyncApiClient(
 	taskCtx core.TaskContext,
 	apiClient *ApiClient,
@@ -85,55 +86,69 @@ func CreateAsyncApiClient(
 	d := duration / RESPONSE_TIME
 	numOfWorkers := requests / int(d)
 
-	taskCtx.GetLogger().Info(
+	logger := taskCtx.GetLogger()
+	logger.Info(
 		"scheduler for api %s worker: %d, request: %d, duration: %v",
 		apiClient.GetEndpoint(),
 		numOfWorkers,
 		requests,
 		duration,
 	)
-	scheduler, err := NewWorkerScheduler(numOfWorkers, requests, duration, taskCtx.GetContext(), retry)
+	scheduler, err := NewWorkerScheduler(
+		numOfWorkers,
+		requests,
+		duration,
+		taskCtx.GetContext(),
+		retry,
+		logger,
+	)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create scheduler: %w", err)
 	}
-	qps := float64(requests) / duration.Seconds()
 
 	// finally, wrap around api client with async sematic
 	return &ApiAsyncClient{
 		apiClient,
 		retry,
 		scheduler,
-		qps,
+		false,
+		numOfWorkers,
 	}, nil
 }
 
+// GetMaxRetry returns the maximum retry attempts for a request
 func (apiClient *ApiAsyncClient) GetMaxRetry() int {
 	return apiClient.maxRetry
 }
 
+// SetMaxRetry sets the maximum retry attempts for a request
 func (apiClient *ApiAsyncClient) SetMaxRetry(
 	maxRetry int,
 ) {
 	apiClient.maxRetry = maxRetry
 }
 
+// DoAsync would carry out a asynchronous request
 func (apiClient *ApiAsyncClient) DoAsync(
 	method string,
 	path string,
 	query url.Values,
 	body interface{},
 	header http.Header,
-	handler ApiAsyncCallback,
+	handler common.ApiAsyncCallback,
 	retry int,
-) error {
-	var subFunc func() error
-	subFunc = func() error {
+) {
+	var request func() error
+	request = func() error {
 		var err error
 		var res *http.Response
 		var body []byte
 		res, err = apiClient.Do(method, path, query, body, header)
+		// make sure response body is read successfully, or we might have to retry
 		if err == nil {
+			// make sure response.Body stream will be closed to avoid running out of file handle
 			defer func(body io.ReadCloser) { body.Close() }(res.Body)
+			// replace NetworkStream with MemoryBuffer
 			body, err = ioutil.ReadAll(res.Body)
 			if err == nil {
 				res.Body = io.NopCloser(bytes.NewBuffer(body))
@@ -153,18 +168,23 @@ func (apiClient *ApiAsyncClient) DoAsync(
 		if needRetry {
 			// check weather we still have retry times and not error from handler and canceled error
 			if retry < apiClient.maxRetry && err != context.Canceled {
-				apiClient.logError("retry #%d for %s", retry, err.Error())
+				apiClient.logger.Warn("retry #%d for %s", retry, err.Error())
 				retry++
-				return apiClient.scheduler.Submit(subFunc, apiClient.scheduler.subPool)
+				apiClient.scheduler.NextTick(request)
+				return nil
 			}
+		}
+
+		if err != nil {
+			apiClient.hasError = true
 			return err
 		}
 
 		// it is important to let handler have a chance to handle error, or it can hang indefinitely
 		// when error occurs
-		return handler(res, err)
+		return handler(res)
 	}
-	return apiClient.scheduler.Submit(subFunc)
+	apiClient.scheduler.SubmitBlocking(request)
 }
 
 // Enqueue an api get request, the request may be sent sometime in future in parallel with other api requests
@@ -172,32 +192,34 @@ func (apiClient *ApiAsyncClient) GetAsync(
 	path string,
 	query url.Values,
 	header http.Header,
-	handler ApiAsyncCallback,
-) error {
-	return apiClient.DoAsync(http.MethodGet, path, query, nil, header, handler, 0)
+	handler common.ApiAsyncCallback,
+) {
+	apiClient.DoAsync(http.MethodGet, path, query, nil, header, handler, 0)
 }
 
-// Wait until all async requests were done
+// WaitAsync blocks until all async requests were done
 func (apiClient *ApiAsyncClient) WaitAsync() error {
-	return apiClient.scheduler.WaitUntilFinish()
+	return apiClient.scheduler.Wait()
 }
 
-func (apiClient *ApiAsyncClient) GetQps() float64 {
-	return apiClient.qps
+func (apiClient *ApiAsyncClient) HasError() bool {
+	return apiClient.hasError
 }
-func (apiClient *ApiAsyncClient) Add(delta int) {
-	apiClient.scheduler.Add(delta)
+
+func (apiClient *ApiAsyncClient) NextTick(task func() error) {
+	apiClient.scheduler.NextTick(task)
 }
-func (apiClient *ApiAsyncClient) Done() {
-	apiClient.scheduler.Done()
+
+func (apiClient *ApiAsyncClient) GetNumOfWorkers() int {
+	return apiClient.numOfWorkers
 }
 
 type RateLimitedApiClient interface {
-	GetAsync(path string, query url.Values, header http.Header, handler ApiAsyncCallback) error
+	GetAsync(path string, query url.Values, header http.Header, handler common.ApiAsyncCallback)
 	WaitAsync() error
-	GetQps() float64
-	Add(delta int)
-	Done()
+	HasError() bool
+	NextTick(task func() error)
+	GetNumOfWorkers() int
 }
 
 var _ RateLimitedApiClient = (*ApiAsyncClient)(nil)
