@@ -138,8 +138,10 @@ func init() {
 	v.SetConfigType("env")
 	envPath := os.Getenv("ENV_PATH")
 	if envPath == "" {
-		//add project root directory path
+		//add env configuration file retrieval path
 		v.AddConfigPath("$PWD/../..")
+		v.AddConfigPath("..")
+		v.AddConfigPath(".")
 	} else {
 		v.AddConfigPath(envPath)
 	}

@@ -1,25 +1,38 @@
 package config
 
 import (
-	"testing"
-
+	"github.com/sirupsen/logrus"
+	"github.com/spf13/afero"
 	"github.com/stretchr/testify/assert"
+	"testing"
 )
 
-func TestReadAndWriteToConfig(t *testing.T) {
+func TestReadConfig(t *testing.T) {
+	DbUrl := "mysql://merico:merico@mysql:3306/lake?charset=utf8mb4&parseTime=True"
 	v := GetConfig()
 	currentDbUrl := v.GetString("DB_URL")
-	newDbUrl := "ThisIsATest"
-	assert.Equal(t, currentDbUrl != newDbUrl, true)
+	logrus.Infof("current db url: %s\n", currentDbUrl)
+	assert.Equal(t, currentDbUrl == DbUrl, true)
+}
+
+func TestWriteConfig(t *testing.T) {
+	v := GetConfig()
+	newDbUrl := "mysql://merico:merico@mysql:3307/lake?charset=utf8mb4&parseTime=True"
 	v.Set("DB_URL", newDbUrl)
-	err := v.WriteConfig()
+	fs := afero.NewOsFs()
+	err := WriteConfigAs(v, ".env")
 	assert.Equal(t, err == nil, true)
-	nowDbUrl := v.GetString("DB_URL")
-	assert.Equal(t, nowDbUrl == newDbUrl, true)
-	// Reset back to current
-	v.Set("DB_URL", currentDbUrl)
-	err = v.WriteConfig()
-	assert.Equal(t, err == nil, true)
+	err = fs.Remove(".env")
+	assert.Equal(t, err == nil, t, true)
+}
+
+func TestSetConfigVariate(t *testing.T) {
+	v := GetConfig()
+	newDbUrl := "mysql://merico:merico@mysql:3307/lake?charset=utf8mb4&parseTime=True"
+	v.Set("DB_URL", newDbUrl)
+	currentDbUrl := v.GetString("DB_URL")
+	logrus.Infof("current db url: %s\n", currentDbUrl)
+	assert.Equal(t, currentDbUrl == newDbUrl, true)
 }
 
 func TestReplaceNewEnvItemInOldContent(t *testing.T) {
