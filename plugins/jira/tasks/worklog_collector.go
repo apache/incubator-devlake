@@ -23,6 +23,7 @@ import (
 	"reflect"
 
 	"github.com/apache/incubator-devlake/plugins/core"
+	. "github.com/apache/incubator-devlake/plugins/core/dal"
 	"github.com/apache/incubator-devlake/plugins/helper"
 	"github.com/apache/incubator-devlake/plugins/jira/tasks/apiv2models"
 )
@@ -30,22 +31,32 @@ import (
 const RAW_WORKLOGS_TABLE = "jira_api_worklogs"
 
 func CollectWorklogs(taskCtx core.SubTaskContext) error {
-	db := taskCtx.GetDb()
+	db := taskCtx.GetDal()
 	data := taskCtx.GetData().(*JiraTaskData)
 	since := data.Since
 
 	logger := taskCtx.GetLogger()
-	connectionId := data.Connection.ID
-	boardId := data.Options.BoardId
-	tx := db.Table("_tool_jira_board_issues bi").
-		Select("bi.issue_id, NOW() AS update_time").
-		Joins("LEFT JOIN _tool_jira_issues i ON (bi.connection_id = i.connection_id AND bi.issue_id = i.issue_id)").
-		Where("bi.connection_id = ? AND bi.board_id = ? AND (i.worklog_updated IS NULL OR i.worklog_updated < i.updated)", connectionId, boardId)
 
-	if since != nil {
-		tx = tx.Where("i.updated > ?", since)
+	// filter out issue_ids that needed collection
+	clauses := []interface{}{
+		Select("bi.issue_id, NOW() AS update_time"),
+		From("_tool_jira_board_issues bi"),
+		Join("LEFT JOIN _tool_jira_issues i ON (bi.connection_id = i.connection_id AND bi.issue_id = i.issue_id)"),
+		Where(
+			`bi.connection_id = ?
+			   AND bi.board_id = ?
+			   AND (i.worklog_updated IS NULL OR i.worklog_updated < i.updated)`,
+			data.Options.ConnectionId,
+			data.Options.BoardId,
+		),
 	}
-	cursor, err := tx.Rows()
+	// apply time range if any
+	if since != nil {
+		clauses = append(clauses, Where("i.updated > ?", *since))
+	}
+
+	// construct the input iterator
+	cursor, err := db.Cursor(clauses...)
 	if err != nil {
 		return err
 	}

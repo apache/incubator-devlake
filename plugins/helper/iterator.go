@@ -18,11 +18,10 @@ limitations under the License.
 package helper
 
 import (
-	"database/sql"
 	"reflect"
 	"time"
 
-	"gorm.io/gorm"
+	"github.com/apache/incubator-devlake/plugins/core/dal"
 )
 
 type Iterator interface {
@@ -32,12 +31,12 @@ type Iterator interface {
 }
 
 type CursorIterator struct {
-	db       *gorm.DB
-	cursor   *sql.Rows
+	db       dal.Dal
+	cursor   dal.Cursor
 	elemType reflect.Type
 }
 
-func NewCursorIterator(db *gorm.DB, cursor *sql.Rows, elemType reflect.Type) (*CursorIterator, error) {
+func NewCursorIterator(db dal.Dal, cursor dal.Cursor, elemType reflect.Type) (*CursorIterator, error) {
 	return &CursorIterator{
 		db:       db,
 		cursor:   cursor,
@@ -51,7 +50,7 @@ func (c *CursorIterator) HasNext() bool {
 
 func (c *CursorIterator) Fetch() (interface{}, error) {
 	elem := reflect.New(c.elemType).Interface()
-	err := c.db.ScanRows(c.cursor, elem)
+	err := c.db.Fetch(c.cursor, elem)
 	if err != nil {
 		return nil, err
 	}

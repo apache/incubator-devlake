@@ -86,12 +86,20 @@ func Offset(offset int) OffsetClause {
 	return OffsetClause(offset)
 }
 
-// TableClause represents a SQL `OFFSET` clause
-type TableClause string
+// FromClause represents a SQL `OFFSET` clause
+type FromClause string
 
-// Table creates a new TableClause
-func Table(table string) TableClause {
-	return TableClause(table)
+// From creates a new TableClause
+func From(table string) FromClause {
+	return FromClause(table)
+}
+
+// SelectClause represents a SQL `OFFSET` clause
+type SelectClause string
+
+// Select creates a new TableClause
+func Select(fields string) SelectClause {
+	return SelectClause(fields)
 }
 
 // OrderbyClause represents a SQL `ORDER BY` clause

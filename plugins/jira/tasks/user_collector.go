@@ -24,6 +24,7 @@ import (
 	"reflect"
 
 	"github.com/apache/incubator-devlake/plugins/core"
+	. "github.com/apache/incubator-devlake/plugins/core/dal"
 	"github.com/apache/incubator-devlake/plugins/helper"
 	"github.com/apache/incubator-devlake/plugins/jira/models"
 )
@@ -32,10 +33,23 @@ const RAW_USERS_TABLE = "jira_api_users"
 
 func CollectUsers(taskCtx core.SubTaskContext) error {
 	data := taskCtx.GetData().(*JiraTaskData)
-	db := taskCtx.GetDb()
+	db := taskCtx.GetDal()
 	logger := taskCtx.GetLogger()
 	logger.Info("collect user")
-	cursor, err := db.Model(&models.JiraUser{}).Where("connection_id = ?", data.Options.ConnectionId).Rows()
+	cursor, err := db.Cursor(
+		Select("i.issue_id, NOW() AS update_time"),
+		Join(`LEFT JOIN _tool_jira_board_issues bi ON (
+			bi.connection_id = i.connection_id AND
+			bi.issue_id = i.issue_id
+		)`),
+		Where(`
+			bi.connection_id = ? AND
+			bi.board_id = ?
+			`,
+			data.Options.ConnectionId,
+			data.Options.BoardId,
+		),
+	)
 	if err != nil {
 		return err
 	}
