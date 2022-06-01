@@ -190,10 +190,8 @@ func doDecrypt(dataVal reflect.Value, fieldName string) error {
 		return err
 	}
 	if len(fieldName) > 0 {
-		decryptStr, err := core.Decrypt(encryptCode, dataVal.Elem().FieldByName(fieldName).String())
-		if err != nil {
-			return err
-		}
+		decryptStr, _ := core.Decrypt(encryptCode, dataVal.Elem().FieldByName(fieldName).String())
+
 		dataVal.Elem().FieldByName(fieldName).Set(reflect.ValueOf(decryptStr))
 	}
 	return nil
