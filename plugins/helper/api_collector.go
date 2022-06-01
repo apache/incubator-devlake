@@ -132,7 +132,7 @@ func (collector *ApiCollector) Execute() error {
 
 	// make sure table is created
 	db := collector.args.Ctx.GetDal()
-	err := db.AutoMigrate(&RawData{}, dal.Table(collector.table))
+	err := db.AutoMigrate(&RawData{}, dal.From(collector.table))
 	if err != nil {
 		return err
 	}
@@ -340,7 +340,7 @@ func (collector *ApiCollector) fetchAsync(reqData *RequestData, handler func(int
 				Input:  reqData.InputJSON,
 			}
 		}
-		err = db.Create(rows, dal.Table(collector.table))
+		err = db.Create(rows, dal.From(collector.table))
 		if err != nil {
 			return err
 		}
