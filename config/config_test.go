@@ -16,14 +16,18 @@ func TestReadConfig(t *testing.T) {
 }
 
 func TestWriteConfig(t *testing.T) {
+	filename := ".env"
 	v := GetConfig()
 	newDbUrl := "mysql://merico:merico@mysql:3307/lake?charset=utf8mb4&parseTime=True"
 	v.Set("DB_URL", newDbUrl)
 	fs := afero.NewOsFs()
-	err := WriteConfigAs(v, ".env")
+	file, _ := fs.Create(filename)
+	defer file.Close()
+	_ = WriteConfigAs(v, filename)
+	isEmpty, _ := afero.IsEmpty(fs, filename)
+	assert.False(t, isEmpty)
+	err := fs.Remove(filename)
 	assert.Equal(t, err == nil, true)
-	err = fs.Remove(".env")
-	assert.Equal(t, err == nil, t, true)
 }
 
 func TestSetConfigVariate(t *testing.T) {
