@@ -44,10 +44,8 @@ The connection aspect of the configuration screen requires the following key fie
 Click Save Connection to update connection settings.
 
 ## Collect Data From Jenkins
-
-In order to collect data from Jenkins, you have to compose a JSON looks like following one, and send it via `Triggers` page on `config-ui`:
-
-
+In order to collect data, you have to compose a JSON looks like following one, and send it by selecting `Advanced Mode` on `Create Pipeline Run` page:
+1. Configure-UI Mode
 ```json
 [
   [
@@ -58,6 +56,50 @@ In order to collect data from Jenkins, you have to compose a JSON looks like fol
   ]
 ]
 ```
+and if you want to perform certain subtasks.
+```json
+[
+  [
+    {
+      "plugin": "jenkins",
+      "subtasks": ["collectXXX", "extractXXX", "convertXXX"],
+      "options": {}
+    }
+  ]
+]
+```
+
+2. Curl Mode:
+You can also trigger data collection by making a POST request to `/pipelines`.
+```
+curl --location --request POST 'localhost:8080/pipelines' \
+--header 'Content-Type: application/json' \
+--data-raw '
+{
+    "name": "jenkins 20211126",
+    "tasks": [[{
+        "plugin": "jenkins",
+        "options": {}
+    }]]
+}
+'
+```
+and if you want to perform certain subtasks.
+```
+curl --location --request POST 'localhost:8080/pipelines' \
+--header 'Content-Type: application/json' \
+--data-raw '
+{
+    "name": "jenkins 20211126",
+    "tasks": [[{
+        "plugin": "jenkins",
+        "subtasks": ["collectXXX", "extractXXX", "convertXXX"],
+        "options": {}
+    }]]
+}
+'
+```
+
 
 ## Relationship between job and build
 

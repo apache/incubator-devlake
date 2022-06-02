@@ -67,10 +67,11 @@ Please follow this guide: [How to find Jira the custom field ID in Jira? · meri
 
 ## Collect Data From JIRA
 
-In order to collect data from JIRA, you have to compose a JSON looks like following one, and send it via `Triggers` page on `config-ui`:
+In order to collect data, you have to compose a JSON looks like following one, and send it by selecting `Advanced Mode` on `Create Pipeline Run` page:
 <font color=“red”>Warning: Data collection only supports single-task execution, and the results of concurrent multi-task execution may not meet expectations.</font>
 
-```
+1. Configure-UI Mode:
+```json
 [
   [
     {
@@ -84,6 +85,69 @@ In order to collect data from JIRA, you have to compose a JSON looks like follow
   ]
 ]
 ```
+and if you want to perform certain subtasks.
+```json
+[
+  [
+    {
+      "plugin": "jira",
+      "subtasks": ["collectXXX", "extractXXX", "convertXXX"],
+      "options": {
+          "connectionId": 1,
+          "boardId": 8,
+          "since": "2006-01-02T15:04:05Z"
+      }
+    }
+  ]
+]
+```
+
+2. Curl Mode:
+```
+curl --location --request POST 'localhost:8080/pipelines' \
+--header 'Content-Type: application/json' \
+--data-raw '
+{
+    "name": "jenkins 20211126",
+    "tasks": [
+  [
+    {
+      "plugin": "jira",
+      "options": {
+          "connectionId": 1,
+          "boardId": 8,
+          "since": "2006-01-02T15:04:05Z"
+      }
+    }
+  ]
+]
+}
+'
+```
+and if you want to perform certain subtasks.
+```
+curl --location --request POST 'localhost:8080/pipelines' \
+--header 'Content-Type: application/json' \
+--data-raw '
+{
+    "name": "jenkins 20211126",
+    "tasks": [
+  [
+    {
+      "plugin": "jira",
+      "subtasks": ["collectXXX", "extractXXX", "convertXXX"],
+      "options": {
+          "connectionId": 1,
+          "boardId": 8,
+          "since": "2006-01-02T15:04:05Z"
+      }
+    }
+  ]
+]
+}
+'
+```
+
 
 - `connectionId`: The `ID` field from **JIRA Integration** page.
 - `boardId`: JIRA board id, see [Find Board Id](#find-board-id) for detail.
