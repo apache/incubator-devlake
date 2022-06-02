@@ -17,15 +17,23 @@ limitations under the License.
 
 package migrationscripts
 
-import "github.com/apache/incubator-devlake/migration"
+import (
+	"context"
 
-// RegisterAll register all the migration scripts of framework
-func RegisterAll() {
-	migration.Register([]migration.Script{
-		new(initSchemas),
-		new(updateSchemas20220505), new(updateSchemas20220507), new(updateSchemas20220510),
-		new(updateSchemas20220513), new(updateSchemas20220524), new(updateSchemas20220526),
-		new(updateSchemas20220527), new(updateSchemas20220528), new(updateSchemas20220601),
-		new(updateSchemas20220602),
-	}, "Framework")
+	"github.com/apache/incubator-devlake/models/migrationscripts/archived"
+	"gorm.io/gorm"
+)
+
+type updateSchemas20220602 struct{}
+
+func (*updateSchemas20220602) Up(ctx context.Context, db *gorm.DB) error {
+	return db.Migrator().DropTable(&archived.IssueAssigneeHistory{}, &archived.IssueStatusHistory{}, &archived.IssueSprintsHistory{})
+}
+
+func (*updateSchemas20220602) Version() uint64 {
+	return 20220602154333
+}
+
+func (*updateSchemas20220602) Name() string {
+	return "drop tables: issue_assignee_history, issue_status_history, issue_sprints_history"
 }
