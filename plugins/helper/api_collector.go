@@ -30,12 +30,14 @@ import (
 	"github.com/apache/incubator-devlake/plugins/core/dal"
 )
 
+// Pager contains pagination information for a api request
 type Pager struct {
 	Page int
 	Skip int
 	Size int
 }
 
+// RequestData is the input of `UrlTemplate` `Query` and `Header`, so we can generate them dynamically
 type RequestData struct {
 	Pager     *Pager
 	Params    interface{}
@@ -47,38 +49,28 @@ type AsyncResponseHandler func(res *http.Response) error
 
 type ApiCollectorArgs struct {
 	RawDataSubTaskArgs
-	/*
-		url may use arbitrary variables from different source in any order, we need GoTemplate to allow more
-		flexible for all kinds of possibility.
-		Pager contains information for a particular page, calculated by ApiCollector, and will be passed into
-		GoTemplate to generate a url for that page.
-		We want to do page-fetching in ApiCollector, because the logic are highly similar, by doing so, we can
-		avoid duplicate logic for every tasks, and when we have a better idea like improving performance, we can
-		do it in one place
-	*/
+	// UrlTemplate is used to generate the final URL for Api Collector to request
+	// i.e. `api/3/issue/{{ .Input.IssueId }}/changelog`
+	// For detail of what variables can be used, please check `RequestData`
 	UrlTemplate string `comment:"GoTemplate for API url"`
-	// (Optional) Return query string for request, or you can plug them into UrlTemplate directly
-	Query func(reqData *RequestData) (url.Values, error) `comment:"Extra query string when requesting API, like 'Since' option for jira issues collection"`
-	// Some api might do pagination by http headers
-	Header      func(reqData *RequestData) (http.Header, error)
-	PageSize    int
-	Incremental bool `comment:"Indicate this is a incremental collection, so the existing data won't get flushed"`
-	ApiClient   RateLimitedApiClient
-	/*
-		Sometimes, we need to collect data based on previous collected data, like jira changelog, it requires
-		issue_id as part of the url.
-		We can mimic `stdin` design, to accept a `Input` function which produces a `Iterator`, collector
-		should iterate all records, and do data-fetching for each on, either in parallel or sequential order
-		UrlTemplate: "api/3/issue/{{ Input.ID }}/changelog"
-	*/
-	Input          Iterator
-	InputRateLimit int
-	/*
-		For api endpoint that returns number of total pages, ApiCollector can collect pages in parallel with ease,
-		or other techniques are required if this information was missing.
-	*/
+	// Query would be sent out as part of the request URL
+	Query func(reqData *RequestData) (url.Values, error) ``
+	// Header would be sent out along with request
+	Header func(reqData *RequestData) (http.Header, error)
+	// PageSize tells ApiCollector the page size
+	PageSize int
+	// Incremental indicate if this is a incremental collection, the existing data won't get deleted if it was true
+	Incremental bool `comment:""`
+	// ApiClient is a asynchronize api request client with qps
+	ApiClient RateLimitedApiClient
+	// Input helps us collect data based on previous collected data, like collecting changelogs based on jira
+	// issue ids
+	Input Iterator
+	// GetTotalPages is to tell `ApiCollector` total number of pages based on response of the first page.
+	// so `ApiCollector` could collect those pages in parallel for us
 	GetTotalPages func(res *http.Response, args *ApiCollectorArgs) (int, error)
-	// Deprecated: should be same as numOfWorkers from WorkerScheduler
+	// Concurrency specify qps for api that doesn't return total number of pages/records
+	// NORMALLY, DO NOT SPECIFY THIS PARAMETER, unless you know what it means
 	Concurrency    int
 	ResponseParser func(res *http.Response) ([]json.RawMessage, error)
 }
@@ -89,9 +81,9 @@ type ApiCollector struct {
 	urlTemplate *template.Template
 }
 
-// NewApiCollector allocates a new ApiCollector  with the given args.
-// ApiCollector can help you collecting data from some api with ease, pass in a AsyncApiClient and tell it which part
-// of response you want to save, ApiCollector will collect them from remote server and store them into database.
+// NewApiCollector allocates a new ApiCollector with the given args.
+// ApiCollector can help us collecting data from api with ease, pass in a AsyncApiClient and tell it which part
+// of response we want to save, ApiCollector will collect them from remote server and store them into database.
 func NewApiCollector(args ApiCollectorArgs) (*ApiCollector, error) {
 	// process args
 	rawDataSubTask, err := newRawDataSubTask(args.RawDataSubTaskArgs)
@@ -111,12 +103,6 @@ func NewApiCollector(args ApiCollectorArgs) (*ApiCollector, error) {
 	}
 	if args.ResponseParser == nil {
 		return nil, fmt.Errorf("ResponseParser is required")
-	}
-	if args.InputRateLimit == 0 {
-		args.InputRateLimit = 50
-	}
-	if args.Concurrency < 1 {
-		args.Concurrency = 1
 	}
 	return &ApiCollector{
 		RawDataSubTask: rawDataSubTask,
@@ -139,7 +125,7 @@ func (collector *ApiCollector) Execute() error {
 
 	// flush data if not incremental collection
 	if !collector.args.Incremental {
-		err = db.Delete(&RawData{}, "params = ?", collector.params)
+		err = db.Delete(&RawData{}, dal.From(collector.table), dal.Where("params = ?", collector.params))
 		if err != nil {
 			return err
 		}
