@@ -33,7 +33,7 @@ func main() {
 
 	_ = gitlabCmd.MarkFlagRequired("project-id")
 	gitlabCmd.Run = func(cmd *cobra.Command, args []string) {
-		runner.DirectRun(cmd, args, PluginEntry, map[string]interface{}{
+		runner.DirectRun(cmd, args, PluginEntry, []string{}, map[string]interface{}{
 			"projectId": *projectId,
 		})
 	}

@@ -101,6 +101,11 @@ func RunTask(
 	if err != nil {
 		return err
 	}
+	var subtasks []string
+	err = json.Unmarshal(task.Subtasks, &subtasks)
+	if err != nil {
+		return err
+	}
 
 	err = RunPluginTask(
 		config.GetConfig(),
@@ -108,6 +113,7 @@ func RunTask(
 		db,
 		ctx,
 		task.Plugin,
+		subtasks,
 		options,
 		progress,
 	)
@@ -120,6 +126,7 @@ func RunPluginTask(
 	db *gorm.DB,
 	ctx context.Context,
 	name string,
+	subtasks []string,
 	options map[string]interface{},
 	progress chan core.RunningProgress,
 ) error {
@@ -138,6 +145,7 @@ func RunPluginTask(
 		db,
 		ctx,
 		name,
+		subtasks,
 		options,
 		pluginTask,
 		progress,
@@ -150,6 +158,7 @@ func RunPluginSubTasks(
 	db *gorm.DB,
 	ctx context.Context,
 	name string,
+	subtasks []string,
 	options map[string]interface{},
 	pluginTask core.PluginTask,
 	progress chan core.RunningProgress,
@@ -158,36 +167,35 @@ func RunPluginSubTasks(
 
 	// find out all possible subtasks this plugin can offer
 	subtaskMetas := pluginTask.SubTaskMetas()
-	subtasks := make(map[string]bool)
+	subtasksFlag := make(map[string]bool)
 	for _, subtaskMeta := range subtaskMetas {
-		subtasks[subtaskMeta.Name] = subtaskMeta.EnabledByDefault
+		subtasksFlag[subtaskMeta.Name] = subtaskMeta.EnabledByDefault
 	}
-	/* subtasks example
-	subtasks := map[string]bool{
+	/* subtasksFlag example
+	subtasksFlag := map[string]bool{
 		"collectProject": true,
 		"convertCommits": true,
 		...
 	}
 	*/
 
-	// if user specified what subtasks to run, obey
-	// TODO: move tasks field to outer level, and rename it to subtasks
-	if _, ok := options["tasks"]; ok {
+	// user specifies what subtasks to run
+	if len(subtasks) != 0 {
 		// decode user specified subtasks
 		var specifiedTasks []string
-		err := mapstructure.Decode(options["tasks"], &specifiedTasks)
+		err := mapstructure.Decode(subtasks, &specifiedTasks)
 		if err != nil {
 			return err
 		}
 		if len(specifiedTasks) > 0 {
 			// first, disable all subtasks
-			for task := range subtasks {
-				subtasks[task] = false
+			for task := range subtasksFlag {
+				subtasksFlag[task] = false
 			}
 			// second, check specified subtasks is valid and enable them if so
 			for _, task := range specifiedTasks {
-				if _, ok := subtasks[task]; ok {
-					subtasks[task] = true
+				if _, ok := subtasksFlag[task]; ok {
+					subtasksFlag[task] = true
 				} else {
 					return fmt.Errorf("subtask %s does not exist", task)
 				}
@@ -197,18 +205,18 @@ func RunPluginSubTasks(
 	// make sure `Required` subtasks are always enabled
 	for _, subtaskMeta := range subtaskMetas {
 		if subtaskMeta.Required {
-			subtasks[subtaskMeta.Name] = true
+			subtasksFlag[subtaskMeta.Name] = true
 		}
 	}
 	// calculate total step(number of task to run)
 	steps := 0
-	for _, enabled := range subtasks {
+	for _, enabled := range subtasksFlag {
 		if enabled {
 			steps++
 		}
 	}
 
-	taskCtx := helper.NewDefaultTaskContext(cfg, logger, db, ctx, name, subtasks, progress)
+	taskCtx := helper.NewDefaultTaskContext(cfg, logger, db, ctx, name, subtasksFlag, progress)
 	taskData, err := pluginTask.PrepareTaskData(taskCtx, options)
 	if err != nil {
 		return err

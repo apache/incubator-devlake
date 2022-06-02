@@ -202,7 +202,7 @@ func main() {
 		panic(err)
 	}
 	cmd.Run = func(c *cobra.Command, args []string) {
-		runner.DirectRun(c, args, PluginEntry, map[string]interface{}{
+		runner.DirectRun(c, args, PluginEntry, []string{}, map[string]interface{}{
 			"connectionId": *connectionId,
 			"workspaceId":  *workspaceId,
 			"companyId":    *companyId,

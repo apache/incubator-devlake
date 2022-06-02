@@ -97,7 +97,7 @@ func main() {
 		for k, v := range projectVars {
 			projectVarsConvert[k] = v
 		}
-		runner.DirectRun(cmd, args, PluginEntry, map[string]interface{}{
+		runner.DirectRun(cmd, args, PluginEntry, []string{}, map[string]interface{}{
 			"projectPath":    *projectPath,
 			"projectName":    *projectName,
 			"projectTarget":  *projectTarget,

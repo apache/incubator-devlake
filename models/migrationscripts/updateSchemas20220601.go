@@ -15,20 +15,15 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package models
+package migrationscripts
 
 import (
+	"context"
 	"time"
 
 	"github.com/apache/incubator-devlake/models/common"
 	"gorm.io/datatypes"
-)
-
-const (
-	TASK_CREATED   = "TASK_CREATED"
-	TASK_RUNNING   = "TASK_RUNNING"
-	TASK_COMPLETED = "TASK_COMPLETED"
-	TASK_FAILED    = "TASK_FAILED"
+	"gorm.io/gorm"
 )
 
 type TaskProgressDetail struct {
@@ -40,7 +35,7 @@ type TaskProgressDetail struct {
 	SubTaskNumber    int    `json:"subTaskNumber"`
 }
 
-type Task struct {
+type Task20220601 struct {
 	common.Model
 	Plugin         string              `json:"plugin" gorm:"index"`
 	Subtasks       datatypes.JSON      `json:"subtasks"`
@@ -59,16 +54,26 @@ type Task struct {
 	SpentSeconds  int        `json:"spentSeconds"`
 }
 
-type NewTask struct {
-	// Plugin name
-	Plugin      string                 `json:"plugin" binding:"required"`
-	Subtasks    []string               `json:"subtasks"`
-	Options     map[string]interface{} `json:"options"`
-	PipelineId  uint64                 `json:"-"`
-	PipelineRow int                    `json:"-"`
-	PipelineCol int                    `json:"-"`
+func (Task20220601) TableName() string {
+	return "_devlake_tasks"
 }
 
-func (Task) TableName() string {
-	return "_devlake_tasks"
+type updateSchemas20220601 struct{}
+
+func (*updateSchemas20220601) Up(ctx context.Context, db *gorm.DB) error {
+
+	err := db.Migrator().AddColumn(Task20220601{}, "subtasks")
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (*updateSchemas20220601) Version() uint64 {
+	return 20220601000005
+}
+
+func (*updateSchemas20220601) Name() string {
+	return "add column `subtasks` at _devlake_tasks"
 }

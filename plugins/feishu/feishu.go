@@ -88,7 +88,7 @@ func main() {
 	numOfDaysToCollect := feishuCmd.Flags().IntP("numOfDaysToCollect", "n", 8, "feishu collect days")
 	_ = feishuCmd.MarkFlagRequired("numOfDaysToCollect")
 	feishuCmd.Run = func(cmd *cobra.Command, args []string) {
-		runner.DirectRun(cmd, args, PluginEntry, map[string]interface{}{
+		runner.DirectRun(cmd, args, PluginEntry, []string{}, map[string]interface{}{
 			"numOfDaysToCollect": *numOfDaysToCollect,
 		})
 	}
