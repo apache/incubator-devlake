@@ -34,7 +34,7 @@ type BugChangelogItemResult struct {
 	WorkspaceID       uint64    `gorm:"primaryKey;type:BIGINT  NOT NULL"`
 	ID                uint64    `gorm:"primaryKey;type:BIGINT  NOT NULL" json:"id"`
 	BugID             uint64    `json:"bug_id"`
-	Author            string    `json:"author"`
+	Author            string    `json:"author" gorm:"type:varchar(255)"`
 	Field             string    `json:"field"`
 	OldValue          string    `json:"old_value"`
 	NewValue          string    `json:"new_value"`

@@ -42,12 +42,12 @@ func CollectStorys(taskCtx core.SubTaskContext) error {
 	if since == nil {
 		// user didn't specify a time range to sync, try load from database
 		var latestUpdated models.TapdStory
-		err := db.Where("connection_id = ?", data.Connection.ID).Order("modified DESC").Limit(1).Find(&latestUpdated).Error
+		err := db.Where("connection_id = ? and workspace_id = ?", data.Connection.ID, data.Options.WorkspaceID).Order("modified DESC").Limit(1).Find(&latestUpdated).Error
 		if err != nil {
 			return fmt.Errorf("failed to get latest tapd changelog record: %w", err)
 		}
 		if latestUpdated.ID > 0 {
-			since = (*time.Time)(latestUpdated.Modified)
+			since = (*time.Time)(&latestUpdated.Modified)
 			incremental = true
 		}
 	}

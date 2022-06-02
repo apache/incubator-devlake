@@ -36,10 +36,6 @@ var ExtractBugMeta = core.SubTaskMeta{
 	Description:      "Extract raw workspace data into tool layer table _tool_tapd_iterations",
 }
 
-var bugBody struct {
-	Bug models.TapdBug
-}
-
 func ExtractBugs(taskCtx core.SubTaskContext) error {
 	data := taskCtx.GetData().(*TapdTaskData)
 	db := taskCtx.GetDb()
@@ -76,9 +72,12 @@ func ExtractBugs(taskCtx core.SubTaskContext) error {
 			},
 			Table: RAW_BUG_TABLE,
 		},
+		BatchSize: 100,
 		Extract: func(row *helper.RawData) ([]interface{}, error) {
-
-			err := json.Unmarshal(row.Data, &bugBody)
+			var bugBody struct {
+				Bug models.TapdBug
+			}
+			err = json.Unmarshal(row.Data, &bugBody)
 			if err != nil {
 				return nil, err
 			}

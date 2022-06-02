@@ -58,6 +58,7 @@ func (jt CSTTime) Value() (driver.Value, error) {
 	}
 	return t, nil
 }
+
 func (jt *CSTTime) Scan(v interface{}) error {
 	value, ok := v.(time.Time)
 	if ok {

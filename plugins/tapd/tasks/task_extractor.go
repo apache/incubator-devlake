@@ -36,10 +36,6 @@ var ExtractTaskMeta = core.SubTaskMeta{
 	Description:      "Extract raw workspace data into tool layer table _tool_tapd_iterations",
 }
 
-var taskBody struct {
-	Task models.TapdTask
-}
-
 func ExtractTasks(taskCtx core.SubTaskContext) error {
 	data := taskCtx.GetData().(*TapdTaskData)
 	getStdStatus := func(statusKey string) string {
@@ -61,7 +57,11 @@ func ExtractTasks(taskCtx core.SubTaskContext) error {
 			},
 			Table: RAW_TASK_TABLE,
 		},
+		BatchSize: 100,
 		Extract: func(row *helper.RawData) ([]interface{}, error) {
+			var taskBody struct {
+				Task models.TapdTask
+			}
 
 			err := json.Unmarshal(row.Data, &taskBody)
 			if err != nil {

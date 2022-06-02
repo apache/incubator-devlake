@@ -23,23 +23,23 @@ import (
 )
 
 type TapdIteration struct {
-	ConnectionId uint64          `gorm:"primaryKey;type:BIGINT  NOT NULL"`
-	ID           uint64          `gorm:"primaryKey;type:BIGINT  NOT NULL" json:"id,string"`
-	Name         string          `gorm:"type:varchar(255)" json:"name"`
-	WorkspaceID  uint64          `json:"workspace_id,string"`
-	Startdate    *helper.CSTTime `json:"startdate"`
-	Enddate      *helper.CSTTime `json:"enddate"`
-	Status       string          `gorm:"type:varchar(255)" json:"status"`
-	ReleaseID    uint64          `gorm:"type:varchar(255)" json:"release_id,string"`
-	Description  string          `json:"description"`
-	Creator      string          `gorm:"type:varchar(255)" json:"creator"`
-	Created      *helper.CSTTime `json:"created"`
-	Modified     *helper.CSTTime `json:"modified"`
-	Completed    *helper.CSTTime `json:"completed"`
-	Releaseowner string          `gorm:"type:varchar(255)" json:"releaseowner"`
-	Launchdate   *helper.CSTTime `json:"launchdate"`
-	Notice       string          `gorm:"type:varchar(255)" json:"notice"`
-	Releasename  string          `gorm:"type:varchar(255)" json:"releasename"`
+	ConnectionId uint64         `gorm:"primaryKey;type:BIGINT  NOT NULL"`
+	ID           uint64         `gorm:"primaryKey;type:BIGINT  NOT NULL" json:"id,string"`
+	Name         string         `gorm:"type:varchar(255)" json:"name"`
+	WorkspaceID  uint64         `json:"workspace_id,string"`
+	Startdate    helper.CSTTime `json:"startdate"`
+	Enddate      helper.CSTTime `json:"enddate"`
+	Status       string         `gorm:"type:varchar(255)" json:"status"`
+	ReleaseID    uint64         `gorm:"type:BIGINT" json:"release_id,string"`
+	Description  string         `json:"description"`
+	Creator      string         `gorm:"type:varchar(255)" json:"creator"`
+	Created      helper.CSTTime `json:"created"`
+	Modified     helper.CSTTime `json:"modified"`
+	Completed    helper.CSTTime `json:"completed"`
+	Releaseowner string         `gorm:"type:varchar(255)" json:"releaseowner"`
+	Launchdate   helper.CSTTime `json:"launchdate"`
+	Notice       string         `gorm:"type:varchar(255)" json:"notice"`
+	Releasename  string         `gorm:"type:varchar(255)" json:"releasename"`
 	common.NoPKModel
 }
 
@@ -55,8 +55,8 @@ type TapdIterationIssue struct {
 	ConnectionId     uint64 `gorm:"primaryKey"`
 	IterationId      uint64 `gorm:"primaryKey"`
 	IssueId          uint64 `gorm:"primaryKey"`
-	ResolutionDate   *helper.CSTTime
-	IssueCreatedDate *helper.CSTTime
+	ResolutionDate   helper.CSTTime
+	IssueCreatedDate helper.CSTTime
 }
 
 func (TapdIteration) TableName() string {

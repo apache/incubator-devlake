@@ -60,10 +60,10 @@ func ConvertIteration(taskCtx core.SubTaskContext) error {
 				Url:             fmt.Sprintf("https://www.tapd.cn/%d/prong/iterations/view/%d", iter.WorkspaceID, iter.ID),
 				Status:          strings.ToUpper(iter.Status),
 				Name:            iter.Name,
-				StartedDate:     (*time.Time)(iter.Startdate),
-				EndedDate:       (*time.Time)(iter.Enddate),
+				StartedDate:     (*time.Time)(&iter.Startdate),
+				EndedDate:       (*time.Time)(&iter.Enddate),
 				OriginalBoardID: WorkspaceIdGen.Generate(iter.ConnectionId, iter.WorkspaceID),
-				CompletedDate:   (*time.Time)(iter.Completed),
+				CompletedDate:   (*time.Time)(&iter.Completed),
 			}
 			results := make([]interface{}, 0)
 			results = append(results, domainIter)

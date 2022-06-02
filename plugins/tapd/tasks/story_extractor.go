@@ -36,15 +36,11 @@ var ExtractStoryMeta = core.SubTaskMeta{
 	Description:      "Extract raw workspace data into tool layer table _tool_tapd_iterations",
 }
 
-var storyBody struct {
-	Story models.TapdStory
-}
-
 func ExtractStories(taskCtx core.SubTaskContext) error {
 	data := taskCtx.GetData().(*TapdTaskData)
 	db := taskCtx.GetDb()
-	statusList := make([]*models.TapdBugStatus, 0)
-	err := db.Model(&models.TapdBugStatus{}).
+	statusList := make([]*models.TapdStoryStatus, 0)
+	err := db.Model(&models.TapdStoryStatus{}).
 		Find(&statusList, "connection_id = ? and workspace_id = ?", data.Options.ConnectionId, data.Options.WorkspaceID).
 		Error
 	if err != nil {
@@ -56,7 +52,7 @@ func ExtractStories(taskCtx core.SubTaskContext) error {
 		statusMap[v.EnglishName] = v.ChineseName
 	}
 	getStdStatus := func(statusKey string) string {
-		if statusKey == "已实现" || statusKey == "已拒绝" || statusKey == "关闭" || statusKey == "已取消" {
+		if statusKey == "已实现" || statusKey == "已拒绝" || statusKey == "关闭" || statusKey == "已取消" || statusKey == "已解决" {
 			return ticket.DONE
 		} else if statusKey == "草稿" {
 			return ticket.TODO
@@ -74,8 +70,11 @@ func ExtractStories(taskCtx core.SubTaskContext) error {
 			},
 			Table: RAW_STORY_TABLE,
 		},
+		BatchSize: 100,
 		Extract: func(row *helper.RawData) ([]interface{}, error) {
-
+			var storyBody struct {
+				Story models.TapdStory
+			}
 			err := json.Unmarshal(row.Data, &storyBody)
 			if err != nil {
 				return nil, err

@@ -33,10 +33,6 @@ var ExtractStoryStatusMeta = core.SubTaskMeta{
 	Description:      "Extract raw workspace data into tool layer table _tool_tapd_bugStatus",
 }
 
-var storyStatusRes struct {
-	Data map[string]string
-}
-
 func ExtractStoryStatus(taskCtx core.SubTaskContext) error {
 	data := taskCtx.GetData().(*TapdTaskData)
 	extractor, err := helper.NewApiExtractor(helper.ApiExtractorArgs{
@@ -50,6 +46,9 @@ func ExtractStoryStatus(taskCtx core.SubTaskContext) error {
 			Table: RAW_STORY_STATUS_TABLE,
 		},
 		Extract: func(row *helper.RawData) ([]interface{}, error) {
+			var storyStatusRes struct {
+				Data map[string]string
+			}
 			err := json.Unmarshal(row.Data, &storyStatusRes)
 			if err != nil {
 				return nil, err
