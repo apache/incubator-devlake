@@ -58,9 +58,12 @@ func (*UpdateSchemas20220601) Up(ctx context.Context, db *gorm.DB) error {
 
 	if db.Migrator().HasColumn(&JiraConnection20220505{}, "basic_auth_encoded") {
 		connections := make([]*JiraConnection20220505, 0)
-		db.Find(&connections)
+		err = db.Find(&connections).Error
+		if err != nil {
+			return err
+		}
 		for i, _ := range connections {
-			err = helper.DecryptConnection(connections[i], "BasicAuthEncoded")
+			err = helper.DecryptConnection(connections[i])
 			if err != nil {
 				return err
 			}

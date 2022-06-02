@@ -176,15 +176,6 @@ func (plugin Jira) ApiResources() map[string]map[string]core.ApiResourceHandler 
 			"DELETE": api.DeleteConnection,
 			"GET":    api.GetConnection,
 		},
-		"connections/:connectionId/epics": {
-			"GET": api.GetEpicsByConnectionId,
-		},
-		"connections/:connectionId/granularities": {
-			"GET": api.GetGranularitiesByConnectionId,
-		},
-		"connections/:connectionId/boards": {
-			"GET": api.GetBoardsByConnectionId,
-		},
 		"connections/:connectionId/proxy/rest/*path": {
 			"GET": api.Proxy,
 		},

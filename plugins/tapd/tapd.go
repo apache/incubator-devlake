@@ -180,9 +180,6 @@ func (plugin Tapd) ApiResources() map[string]map[string]core.ApiResourceHandler 
 			"DELETE": api.DeleteConnection,
 			"GET":    api.GetConnection,
 		},
-		"connections/:connectionId/boards": {
-			"GET": api.GetBoardsByConnectionId,
-		},
 		"connections/:connectionId/proxy/rest/*path": {
 			"GET": api.Proxy,
 		},
@@ -220,7 +217,10 @@ func main() {
 			panic(err)
 		}
 		wsList := make([]*models.TapdWorkspace, 0)
-		err = db.Find(&wsList, "parent_id = ?", 59169984).Error //nolint TODO: fix the unused err
+		err = db.Find(&wsList, "parent_id = ?", 59169984).Error
+		if err != nil {
+			panic(err)
+		}
 		for _, v := range wsList {
 			*workspaceId = v.ID
 			runner.DirectRun(c, args, PluginEntry, []string{}, map[string]interface{}{

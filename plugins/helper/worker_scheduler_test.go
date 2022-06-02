@@ -88,7 +88,7 @@ func TestNewWorkerSchedulerWithoutSecond(t *testing.T) {
 func TestNewWorkerSchedulerWithPanic(t *testing.T) {
 	testChannel := make(chan int, 100)
 	ctx, cancel := context.WithCancel(context.Background())
-	s, _ := NewWorkerScheduler(1, 1, ctx)
+	s,_ := NewWorkerScheduler(1, 1, ctx)
 	defer s.Release()
 	_ = s.Submit(func() error {
 		testChannel <- 1

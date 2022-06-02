@@ -18,24 +18,24 @@ limitations under the License.
 package helper
 
 import (
-	"github.com/apache/incubator-devlake/config"
-	"github.com/apache/incubator-devlake/plugins/core"
+	"github.com/stretchr/testify/assert"
 	"reflect"
 	"testing"
-
-	"github.com/stretchr/testify/assert"
 )
 
-type TestConnection struct {
+type MockConnection struct {
 	RestConnection             `mapstructure:",squash"`
 	BasicAuth                  `mapstructure:",squash"`
-	EpicKeyField               string `gorm:"type:varchar(50);" json:"epicKeyField"`
 	StoryPointField            string `gorm:"type:varchar(50);" json:"storyPointField"`
 	RemotelinkCommitShaPattern string `gorm:"type:varchar(255);comment='golang regexp, the first group will be recognized as commit sha, ref https://github.com/google/re2/wiki/Syntax'" json:"remotelinkCommitShaPattern"`
 }
 
+func (MockConnection) TableName() string {
+	return "_tool_jira_connections"
+}
+
 func TestMergeFieldsToConnection(t *testing.T) {
-	v := &TestConnection{
+	v := &MockConnection{
 		RestConnection: RestConnection{
 			BaseConnection: BaseConnection{
 				Name: "1",
@@ -48,8 +48,6 @@ func TestMergeFieldsToConnection(t *testing.T) {
 			Username: "4",
 			Password: "5",
 		},
-		EpicKeyField:               "6",
-		StoryPointField:            "7",
 		RemotelinkCommitShaPattern: "8",
 	}
 	data := make(map[string]interface{})
@@ -58,9 +56,7 @@ func TestMergeFieldsToConnection(t *testing.T) {
 	data["Password"] = "5-5"
 
 	err := mergeFieldsToConnection(v, data)
-	if err != nil {
-		return
-	}
+	assert.Nil(t, err)
 
 	assert.Equal(t, "4-4", v.Username)
 	assert.Equal(t, "2-2", v.Endpoint)
@@ -68,7 +64,7 @@ func TestMergeFieldsToConnection(t *testing.T) {
 }
 
 func TestDecryptAndEncrypt(t *testing.T) {
-	v := &TestConnection{
+	v := &MockConnection{
 		RestConnection: RestConnection{
 			BaseConnection: BaseConnection{
 				Name: "1",
@@ -81,28 +77,21 @@ func TestDecryptAndEncrypt(t *testing.T) {
 			Username: "4",
 			Password: "5",
 		},
-		EpicKeyField:               "6",
-		StoryPointField:            "7",
 		RemotelinkCommitShaPattern: "8",
 	}
-	dataVal := reflect.ValueOf(v)
-	encKey := "test"
-	err := encryptField(dataVal, "Password", encKey)
-	if err != nil {
-		return
-	}
+	err := EncryptConnection(v)
+	assert.Nil(t, err)
+
 	assert.NotEqual(t, "5", v.Password)
-	err = decryptField(dataVal, "Password", encKey)
-	if err != nil {
-		return
-	}
+	err = DecryptConnection(v)
+	assert.Nil(t, err)
 
 	assert.Equal(t, "5", v.Password)
 
 }
 
 func TestDecryptConnection(t *testing.T) {
-	v := &TestConnection{
+	v := &MockConnection{
 		RestConnection: RestConnection{
 			BaseConnection: BaseConnection{
 				Name: "1",
@@ -115,46 +104,20 @@ func TestDecryptConnection(t *testing.T) {
 			Username: "4",
 			Password: "5",
 		},
-		EpicKeyField:               "6",
-		StoryPointField:            "7",
 		RemotelinkCommitShaPattern: "8",
 	}
-	encKey, err := getEncKey()
-	if err != nil {
-		return
-	}
-	dataVal := reflect.ValueOf(v)
-	err = encryptField(dataVal, "Password", encKey)
-	if err != nil {
-		return
-	}
+	err := EncryptConnection(v)
+	assert.Nil(t, err)
+
 	encryptedPwd := v.Password
-	err = DecryptConnection(v, "Password")
-	if err != nil {
-		return
-	}
+	err = DecryptConnection(v)
+	assert.Nil(t, err)
 	assert.NotEqual(t, encryptedPwd, v.Password)
 	assert.Equal(t, "5", v.Password)
 }
 
-func TestGetEncKey(t *testing.T) {
-	// encryptField
-	v := config.GetConfig()
-	encKey := v.GetString(core.EncodeKeyEnvStr)
-	str, err := getEncKey()
-	if err != nil {
-		return
-	}
-	if len(encKey) > 0 {
-		assert.Equal(t, encKey, str)
-	} else {
-		assert.NotEqual(t, 0, len(str))
-	}
-
-}
-
 func TestFirstFieldNameWithTag(t *testing.T) {
-	v := &TestConnection{
+	v := &MockConnection{
 		RestConnection: RestConnection{
 			BaseConnection: BaseConnection{
 				Name: "1",
@@ -167,12 +130,37 @@ func TestFirstFieldNameWithTag(t *testing.T) {
 			Username: "4",
 			Password: "5",
 		},
-		EpicKeyField:               "6",
 		StoryPointField:            "7",
 		RemotelinkCommitShaPattern: "8",
 	}
 	dataVal := reflect.ValueOf(v)
 	dataType := reflect.Indirect(dataVal).Type()
-	fieldName := firstFieldNameWithTag(dataType, "encryptField")
+	fieldName := firstFieldNameWithTag(dataType, "encrypt")
 	assert.Equal(t, "Password", fieldName)
 }
+
+//func TestListConnections(t *testing.T) {
+//	jiraConnections := make([]*MockConnection, 0)
+//	cfg := config.GetConfig()
+//	dbUrl := cfg.GetString("DB_URL")
+//	u, err := url.Parse(dbUrl)
+//	dbUrl = fmt.Sprintf("%s@tcp(%s)%s?%s", u.User.String(), u.Host, u.Path, u.RawQuery)
+//	dbConfig := &gorm.Config{
+//		Logger: gormLogger.New(
+//			log.Default(),
+//			gormLogger.Config{
+//				SlowThreshold:             time.Second,      // Slow SQL threshold
+//				LogLevel:                  gormLogger.Error, // Log level
+//				IgnoreRecordNotFoundError: true,             // Ignore ErrRecordNotFound error for logger
+//				Colorful:                  true,             // Disable color
+//			},
+//		),
+//		// most of our operation are in batch, this can improve performance
+//		PrepareStmt: true,
+//	}
+//	db, err := gorm.Open(mysql.Open(dbUrl), dbConfig)
+//
+//	err = ListConnections(&jiraConnections, db)
+//
+//	assert.Nil(t, err)
+//}
