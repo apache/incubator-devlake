@@ -413,7 +413,7 @@ export default function ConnectionForm (props) {
                     ? labels.username
                     : (
                       <>Username</>
-                    )}
+                      )}
                   <span className='requiredStar'>*</span>
                 </Label>
                 <InputGroup
@@ -456,7 +456,7 @@ export default function ConnectionForm (props) {
                     ? labels.password
                     : (
                       <>Password</>
-                    )}
+                      )}
                   <span className='requiredStar'>*</span>
                 </Label>
                 <InputGroup

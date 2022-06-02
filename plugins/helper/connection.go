@@ -1,3 +1,20 @@
+/*
+Licensed to the Apache Software Foundation (ASF) under one or more
+contributor license agreements.  See the NOTICE file distributed with
+this work for additional information regarding copyright ownership.
+The ASF licenses this file to You under the Apache License, Version 2.0
+(the "License"); you may not use this file except in compliance with
+the License.  You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+*/
+
 package helper
 
 import (
@@ -21,7 +38,7 @@ type BaseConnection struct {
 
 type BasicAuth struct {
 	Username string `mapstructure:"username" validate:"required" json:"username"`
-	Password string `mapstructure:"password" validate:"required" json:"password" encryptField:"yes"`
+	Password string `mapstructure:"password" validate:"required" json:"password" encrypt:"yes"`
 }
 
 func (ba BasicAuth) GetEncodedToken() string {
@@ -29,7 +46,7 @@ func (ba BasicAuth) GetEncodedToken() string {
 }
 
 type AccessToken struct {
-	Token string `mapstructure:"token" validate:"required" json:"token" encryptField:"yes"`
+	Token string `mapstructure:"token" validate:"required" json:"token" encrypt:"yes"`
 }
 
 type RestConnection struct {
@@ -39,40 +56,41 @@ type RestConnection struct {
 	RateLimit      int    `comment:"api request rate limt per hour" json:"rateLimit"`
 }
 
-// RefreshAndSaveConnection populate from request input into connection which come from REST functions to connection struct and save to DB
+// CreateConnection populate from request input into connection which come from REST functions to connection struct and save to DB
 // and only change value which `data` has
 // mergeFieldsToConnection merges fields from data
 // `connection` is the pointer of a plugin connection
 // `data` is http request input param
-func RefreshAndSaveConnection(connection interface{}, data map[string]interface{}, db *gorm.DB) error {
+func CreateConnection(data map[string]interface{}, connection interface{}, db *gorm.DB) error {
 	var err error
 	// update fields from request body
 	err = mergeFieldsToConnection(connection, data)
 	if err != nil {
 		return err
 	}
-
 	err = saveToDb(connection, db)
-
 	if err != nil {
 		return err
 	}
 	return nil
 }
 
-func saveToDb(connection interface{}, db *gorm.DB) error {
-	dataVal := reflect.ValueOf(connection)
-	if dataVal.Kind() != reflect.Ptr {
-		panic("entityPtr is not a pointer")
-	}
-	encKey, err := getEncKey()
+func PatchConnection(input *core.ApiResourceInput, connection interface{}, db *gorm.DB) error {
+	err := GetConnection(input.Params, connection, db)
 	if err != nil {
 		return err
 	}
-	dataType := reflect.Indirect(dataVal).Type()
-	fieldName := firstFieldNameWithTag(dataType, "encryptField")
-	plainPwd := ""
-	err = encryptField(dataVal, fieldName, encKey)
+
+	err = CreateConnection(input.Body, connection, db)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func saveToDb(connection interface{}, db *gorm.DB) error {
+	err := EncryptConnection(connection)
 	if err != nil {
 		return err
 	}
@@ -81,13 +99,7 @@ func saveToDb(connection interface{}, db *gorm.DB) error {
 		return err
 	}
 
-	err = decryptField(dataVal, fieldName, encKey)
-	if err != nil {
-		return err
-	}
-	dataVal.Elem().FieldByName(fieldName).Set(reflect.ValueOf(plainPwd))
-
-	return err
+	return DecryptConnection(connection)
 }
 
 // mergeFieldsToConnection will populate all value in map to connection struct and validate the struct
@@ -110,7 +122,6 @@ func mergeFieldsToConnection(specificConnection interface{}, connections ...map[
 }
 
 func getEncKey() (string, error) {
-	// encryptField
 	v := config.GetConfig()
 	encKey := v.GetString(core.EncodeKeyEnvStr)
 	if encKey == "" {
@@ -125,34 +136,44 @@ func getEncKey() (string, error) {
 	return encKey, nil
 }
 
-// FindConnectionByInput finds connection from db  by parsing request input and decrypt it
-func FindConnectionByInput(input *core.ApiResourceInput, connection interface{}, db *gorm.DB) error {
-	dataVal := reflect.ValueOf(connection)
-	if dataVal.Kind() != reflect.Ptr {
-		return fmt.Errorf("connection is not a pointer")
-	}
-
-	id, err := GetConnectionIdByInputParam(input)
+// GetConnection finds connection from db  by parsing request input and decrypt it
+func GetConnection(data map[string]string, connection interface{}, db *gorm.DB) error {
+	id, err := GetConnectionIdByInputParam(data)
 	if err != nil {
 		return fmt.Errorf("invalid connectionId")
 	}
 
 	err = db.First(connection, id).Error
 	if err != nil {
-		fmt.Printf("--- %s", err.Error())
 		return err
 	}
 
-	dataType := reflect.Indirect(dataVal).Type()
-
-	fieldName := firstFieldNameWithTag(dataType, "encryptField")
-	return decryptField(dataVal, fieldName, "")
+	return DecryptConnection(connection)
 
 }
 
+// ListConnections returns all connections with password/token decrypted
+func ListConnections(connections interface{}, db *gorm.DB) error {
+	err := db.Find(connections).Error
+	connPtr := reflect.ValueOf(connections)
+	connVal := reflect.Indirect(connPtr)
+	if err != nil {
+		return err
+	}
+	for i := 0; i < connVal.Len(); i++ {
+		//connVal.Index(i) returns value of ith elem in connections, .Elem() reutrns the original elem
+		tmp := connVal.Index(i).Elem()
+		err = DecryptConnection(tmp.Addr().Interface())
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
 // GetConnectionIdByInputParam gets connectionId by parsing request input
-func GetConnectionIdByInputParam(input *core.ApiResourceInput) (uint64, error) {
-	connectionId := input.Params["connectionId"]
+func GetConnectionIdByInputParam(data map[string]string) (uint64, error) {
+	connectionId := data["connectionId"]
 	if connectionId == "" {
 		return 0, fmt.Errorf("missing connectionId")
 	}
@@ -175,7 +196,7 @@ func firstFieldNameWithTag(t reflect.Type, tag string) string {
 }
 
 // DecryptConnection decrypts password/token field for connection
-func DecryptConnection(connection interface{}, fieldName string) error {
+func DecryptConnection(connection interface{}) error {
 	dataVal := reflect.ValueOf(connection)
 	if dataVal.Kind() != reflect.Ptr {
 		panic("connection is not a pointer")
@@ -184,23 +205,26 @@ func DecryptConnection(connection interface{}, fieldName string) error {
 	if err != nil {
 		return nil
 	}
-	if len(fieldName) == 0 {
-		dataType := reflect.Indirect(dataVal).Type()
-		fieldName = firstFieldNameWithTag(dataType, "encryptField")
-	}
-	return decryptField(dataVal, fieldName, encKey)
-}
-
-func decryptField(dataVal reflect.Value, fieldName string, encKey string) error {
+	dataType := reflect.Indirect(dataVal).Type()
+	fieldName := firstFieldNameWithTag(dataType, "encrypt")
 	if len(fieldName) > 0 {
 		decryptStr, _ := core.Decrypt(encKey, dataVal.Elem().FieldByName(fieldName).String())
-
 		dataVal.Elem().FieldByName(fieldName).Set(reflect.ValueOf(decryptStr))
 	}
 	return nil
 }
 
-func encryptField(dataVal reflect.Value, fieldName string, encKey string) error {
+func EncryptConnection(connection interface{}) error {
+	dataVal := reflect.ValueOf(connection)
+	if dataVal.Kind() != reflect.Ptr {
+		panic("connection is not a pointer")
+	}
+	encKey, err := getEncKey()
+	if err != nil {
+		return err
+	}
+	dataType := reflect.Indirect(dataVal).Type()
+	fieldName := firstFieldNameWithTag(dataType, "encrypt")
 	if len(fieldName) > 0 {
 		plainPwd := dataVal.Elem().FieldByName(fieldName).String()
 		encyptedStr, err := core.Encrypt(encKey, plainPwd)

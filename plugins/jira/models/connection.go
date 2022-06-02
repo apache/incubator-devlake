@@ -42,8 +42,6 @@ type BoardResponse struct {
 type JiraConnection struct {
 	helper.RestConnection      `mapstructure:",squash"`
 	helper.BasicAuth           `mapstructure:",squash"`
-	EpicKeyField               string `gorm:"type:varchar(50);" json:"epicKeyField"`
-	StoryPointField            string `gorm:"type:varchar(50);" json:"storyPointField"`
 	RemotelinkCommitShaPattern string `gorm:"type:varchar(255);comment='golang regexp, the first group will be recognized as commit sha, ref https://github.com/google/re2/wiki/Syntax'" json:"remotelinkCommitShaPattern"`
 }
 
@@ -60,19 +58,6 @@ type JiraIssueStatusMapping struct {
 	StandardStatus string `gorm:"type:varchar(50)" json:"standardStatus" validate:"required"`
 }
 
-type JiraConnectionDetail struct {
-	JiraConnection
-	TypeMappings map[string]map[string]interface{} `json:"typeMappings"`
-}
-
 func (JiraConnection) TableName() string {
 	return "_tool_jira_connections"
-}
-
-func (JiraIssueTypeMapping) TableName() string {
-	return "_tool_jira_issue_type_mappings"
-}
-
-func (JiraIssueStatusMapping) TableName() string {
-	return "_tool_jira_issue_status_mappings"
 }

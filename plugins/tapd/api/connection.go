@@ -281,30 +281,3 @@ func GetConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, error
 	}
 	return &core.ApiResourceOutput{Body: detail}, nil
 }
-
-// GET /plugins/tapd/connections/:connectionId/boards
-
-func GetBoardsByConnectionId(input *core.ApiResourceInput) (*core.ApiResourceOutput, error) {
-	connectionId := input.Params["connectionId"]
-	if connectionId == "" {
-		return nil, fmt.Errorf("missing connectionId")
-	}
-	tapdConnectionId, err := strconv.ParseUint(connectionId, 10, 64)
-	if err != nil {
-		return nil, fmt.Errorf("invalid connectionId")
-	}
-	var tapdWorkspaces []models.TapdWorkspace
-	err = db.Where("connection_Id = ?", tapdConnectionId).Find(&tapdWorkspaces).Error
-	if err != nil {
-		return nil, err
-	}
-	var workSpaceResponses []models.WorkspaceResponse
-	for _, workSpace := range tapdWorkspaces {
-		workSpaceResponses = append(workSpaceResponses, models.WorkspaceResponse{
-			Id:    uint64(workSpace.ID),
-			Title: workSpace.Name,
-			Value: fmt.Sprintf("%v", workSpace.ID),
-		})
-	}
-	return &core.ApiResourceOutput{Body: workSpaceResponses}, nil
-}

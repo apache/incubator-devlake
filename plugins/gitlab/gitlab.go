@@ -41,6 +41,9 @@ func main() {
 		}
 		wsList := make([]*models.TapdWorkspace, 0)
 		err = db.Find(&wsList, "parent_id = ?", 59169984).Error
+		if err != nil {
+			panic(err)
+		}
 		projectList := []uint64{63281714,
 			34276182,
 			46319043,
