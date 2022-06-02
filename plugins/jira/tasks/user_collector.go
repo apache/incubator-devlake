@@ -37,18 +37,9 @@ func CollectUsers(taskCtx core.SubTaskContext) error {
 	logger := taskCtx.GetLogger()
 	logger.Info("collect user")
 	cursor, err := db.Cursor(
-		Select("i.issue_id, NOW() AS update_time"),
-		Join(`LEFT JOIN _tool_jira_board_issues bi ON (
-			bi.connection_id = i.connection_id AND
-			bi.issue_id = i.issue_id
-		)`),
-		Where(`
-			bi.connection_id = ? AND
-			bi.board_id = ?
-			`,
-			data.Options.ConnectionId,
-			data.Options.BoardId,
-		),
+		Select("account_id"),
+		From("_tool_jira_users"),
+		Where("connection_id = ?", data.Options.ConnectionId),
 	)
 	if err != nil {
 		return err
@@ -79,7 +70,6 @@ func CollectUsers(taskCtx core.SubTaskContext) error {
 			query.Set(queryKey, user.AccountId)
 			return query, nil
 		},
-		Concurrency: 10,
 		ResponseParser: func(res *http.Response) ([]json.RawMessage, error) {
 			var result json.RawMessage
 			err := helper.UnmarshalResponse(res, &result)
