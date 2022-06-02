@@ -44,9 +44,9 @@ func (c Changelog) ToToolLayer(connectionId, issueId uint64) (*models.JiraChange
 type ChangelogItem struct {
 	Field      string `json:"field"`
 	Fieldtype  string `json:"fieldtype"`
-	FromValue  string `json:"from_value"`
+	FromValue  string `json:"from"`
 	FromString string `json:"fromString"`
-	ToValue    string `json:"to_value"`
+	ToValue    string `json:"to"`
 	ToString   string `json:"toString"`
 }
 
