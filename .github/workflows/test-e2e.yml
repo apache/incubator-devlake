@@ -24,7 +24,7 @@ jobs:
           MYSQL_USER: merico
           MYSQL_PASSWORD: merico
           MYSQL_ROOT_PASSWORD: root
-    container: mericodev/lake-builder:0.0.4
+    container: mericodev/lake-builder:v0.0.5
     steps:
       - run: |
           apk add --no-cache tar
