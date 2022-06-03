@@ -22,21 +22,24 @@ import (
 	"testing"
 	"time"
 
+	"github.com/apache/incubator-devlake/helpers/unithelper"
 	"github.com/stretchr/testify/assert"
 )
 
-func TestNewWorkerScheduler(t *testing.T) {
+func TestWorkerSchedulerQpsControl(t *testing.T) {
+	// assuming we want 2 requests per second
 	testChannel := make(chan int, 100)
 	ctx, cancel := context.WithCancel(context.Background())
-	s, _ := NewWorkerScheduler(5, 2, 1*time.Second, ctx, 0)
+	s, _ := NewWorkerScheduler(5, 2, 1*time.Second, ctx, 0, unithelper.DummyLogger())
 	defer s.Release()
 	for i := 1; i <= 5; i++ {
 		t := i
-		_ = s.Submit(func() error {
+		s.SubmitBlocking(func() error {
 			testChannel <- t
 			return nil
 		})
 	}
+	// after 1 second, 2 requerts should be issued
 	time.Sleep(1200 * time.Millisecond)
 	if len(testChannel) < 2 {
 		t.Fatal(`worker not start`)
@@ -44,6 +47,7 @@ func TestNewWorkerScheduler(t *testing.T) {
 	if len(testChannel) > 2 {
 		t.Fatal(`worker run too fast`)
 	}
+	// after 2 seconds, 4 requests should be issued
 	time.Sleep(time.Second)
 	if len(testChannel) < 4 {
 		t.Fatal(`worker not run after a second`)
@@ -51,53 +55,9 @@ func TestNewWorkerScheduler(t *testing.T) {
 	if len(testChannel) > 4 {
 		t.Fatal(`worker run too fast after a second`)
 	}
-	assert.Nil(t, s.WaitUntilFinish())
-	if len(*s.workerErrors) != 0 {
-		t.Fatal(`worker got panic`)
-	}
+	assert.Nil(t, s.Wait())
 	if len(testChannel) != 5 {
 		t.Fatal(`worker not wait until finish`)
 	}
 	cancel()
 }
-
-func TestNewWorkerSchedulerWithoutSecond(t *testing.T) {
-	testChannel := make(chan int, 100)
-	ctx, cancel := context.WithCancel(context.Background())
-	s, _ := NewWorkerScheduler(5, 0, 1*time.Second, ctx, 0)
-	defer s.Release()
-	for i := 1; i <= 5; i++ {
-		t := i
-		_ = s.Submit(func() error {
-			testChannel <- t
-			return nil
-		})
-	}
-	time.Sleep(5 * time.Millisecond)
-	if len(testChannel) != 5 {
-		t.Fatal(`worker not finish`)
-	}
-	assert.Nil(t, s.WaitUntilFinish())
-	if len(testChannel) != 5 {
-		t.Fatal(`worker not finish`)
-	}
-	cancel()
-}
-
-/*
-func TestNewWorkerSchedulerWithPanic(t *testing.T) {
-	testChannel := make(chan int, 100)
-	ctx, cancel := context.WithCancel(context.Background())
-	s, _ := NewWorkerScheduler(1, 1, ctx)
-	defer s.Release()
-	_ = s.Submit(func() error {
-		testChannel <- 1
-		return errors.New(`error message`)
-	})
-	s.WaitUntilFinish()
-	if len(*s.workerErrors) != 1 {
-		t.Fatal(`worker not got panic`)
-	}
-	cancel()
-}
-*/

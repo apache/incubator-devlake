@@ -7,6 +7,7 @@ import (
 	"net/url"
 	"testing"
 
+	"github.com/apache/incubator-devlake/helpers/unithelper"
 	"github.com/apache/incubator-devlake/mocks"
 	"github.com/apache/incubator-devlake/plugins/helper/common"
 	"github.com/stretchr/testify/assert"
@@ -19,17 +20,7 @@ func TestFetchPageUndetermined(t *testing.T) {
 	mockDal.On("Delete", mock.Anything, mock.Anything, mock.Anything).Return(nil).Once()
 	mockDal.On("Create", mock.Anything, mock.Anything).Return(nil).Once()
 
-	mockLog := new(mocks.Logger)
-	mockLog.On("Info", mock.Anything, mock.Anything)
-	mockLog.On("Debug", mock.Anything, mock.Anything).Maybe()
-	mockLog.On("Debug", mock.Anything, mock.Anything, mock.Anything).Maybe()
-
-	mockCtx := new(mocks.SubTaskContext)
-	mockCtx.On("GetDal").Return(mockDal)
-	mockCtx.On("GetLogger").Return(mockLog)
-	mockCtx.On("SetProgress", mock.Anything, mock.Anything)
-	mockCtx.On("IncProgress", mock.Anything, mock.Anything)
-	mockCtx.On("GetName").Return("test")
+	mockCtx := unithelper.DummySubTaskContext(mockDal)
 
 	mockInput := new(mocks.Iterator)
 	mockInput.On("HasNext").Return(true).Once()

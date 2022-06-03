@@ -20,15 +20,15 @@ package e2e
 import (
 	"testing"
 
+	"github.com/apache/incubator-devlake/helpers/e2ehelper"
 	"github.com/apache/incubator-devlake/plugins/gitlab/impl"
 	"github.com/apache/incubator-devlake/plugins/gitlab/tasks"
-	"github.com/apache/incubator-devlake/testhelper"
 )
 
 func TestGitlabDataFlow(t *testing.T) {
 
 	var gitlab impl.Gitlab
-	dataflowTester := testhelper.NewDataFlowTester(t, "gitlab", gitlab)
+	dataflowTester := e2ehelper.NewDataFlowTester(t, "gitlab", gitlab)
 
 	taskData := &tasks.GitlabTaskData{
 		Options: &tasks.GitlabOptions{
