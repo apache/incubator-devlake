@@ -15,7 +15,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package testhelper
+package e2ehelper
 
 import (
 	"context"
@@ -24,6 +24,7 @@ import (
 	"time"
 
 	"github.com/apache/incubator-devlake/config"
+	"github.com/apache/incubator-devlake/helpers/pluginhelper"
 	"github.com/apache/incubator-devlake/logger"
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/helper"
@@ -86,7 +87,7 @@ func NewDataFlowTester(t *testing.T, pluginName string, pluginMeta core.PluginMe
 
 // ImportCsv imports records from specified csv file into target table, note that existing data would be deleted first.
 func (t *DataFlowTester) ImportCsv(csvRelPath string, tableName string) {
-	csvIter := NewCsvFileIterator(csvRelPath)
+	csvIter := pluginhelper.NewCsvFileIterator(csvRelPath)
 	defer csvIter.Close()
 	// create table if not exists
 	err := t.Db.Table(tableName).AutoMigrate(&helper.RawData{})
@@ -127,7 +128,7 @@ func (t *DataFlowTester) Subtask(subtaskMeta core.SubTaskMeta, taskData interfac
 // Primary Key Fields with `pkfields` so DataFlowTester could select the exact record from database, as well as which
 // fields to compare with by specifying `targetfields` parameter.
 func (t *DataFlowTester) VerifyTable(tableName string, csvRelPath string, pkfields []string, targetfields []string) {
-	csvIter := NewCsvFileIterator(csvRelPath)
+	csvIter := pluginhelper.NewCsvFileIterator(csvRelPath)
 	defer csvIter.Close()
 
 	var expectedTotal int64

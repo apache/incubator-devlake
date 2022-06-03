@@ -15,4 +15,14 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package helper
+package pluginhelper
+
+func ExampleCsvFileIterator() {
+	iter := NewCsvFileIterator("/path/to/foobar.csv")
+	defer iter.Close()
+	for iter.HasNext() {
+		row := iter.Fetch()
+		println(row["name"]) // foobar
+		println(row["json"]) // {"url": "https://example.com"}
+	}
+}
