@@ -19,6 +19,8 @@ package tasks
 
 import (
 	"reflect"
+	"strconv"
+	"strings"
 	"time"
 
 	"github.com/apache/incubator-devlake/models/domainlayer"
@@ -63,8 +65,9 @@ func ConvertChangelogs(taskCtx core.SubTaskContext) error {
 	}
 	defer cursor.Close()
 	issueIdGenerator := didgen.NewDomainIdGenerator(&models.JiraIssue{})
+	sprintIdGenerator := didgen.NewDomainIdGenerator(&models.JiraSprint{})
 	changelogIdGenerator := didgen.NewDomainIdGenerator(&models.JiraChangelogItem{})
-
+	userIdGen := didgen.NewDomainIdGenerator(&models.JiraUser{})
 	converter, err := helper.NewDataConverter(helper.DataConverterArgs{
 		RawDataSubTaskArgs: helper.RawDataSubTaskArgs{
 			Ctx: taskCtx,
@@ -85,13 +88,31 @@ func ConvertChangelogs(taskCtx core.SubTaskContext) error {
 					row.Field,
 				)},
 				IssueId:     issueIdGenerator.Generate(row.ConnectionId, row.IssueId),
-				AuthorId:    row.AuthorAccountId,
+				AuthorId:    userIdGen.Generate(connectionId, row.AuthorAccountId),
 				AuthorName:  row.AuthorDisplayName,
 				FieldId:     row.FieldId,
 				FieldName:   row.Field,
 				FromValue:   row.FromString,
 				ToValue:     row.ToString,
 				CreatedDate: row.Created,
+			}
+			if row.Field == "assignee" {
+				if row.ToValue != "" {
+					changelog.ToValue = userIdGen.Generate(connectionId, row.ToValue)
+				}
+				if row.FromValue != "" {
+					changelog.FromValue = userIdGen.Generate(connectionId, row.FromValue)
+				}
+			}
+			if row.Field == "Sprint" {
+				changelog.FromValue, err = convertIds(row.FromValue, connectionId, sprintIdGenerator)
+				if err != nil {
+					return nil, err
+				}
+				changelog.ToValue, err = convertIds(row.ToValue, connectionId, sprintIdGenerator)
+				if err != nil {
+					return nil, err
+				}
 			}
 			return []interface{}{changelog}, nil
 		},
@@ -102,4 +123,20 @@ func ConvertChangelogs(taskCtx core.SubTaskContext) error {
 	}
 
 	return converter.Execute()
+}
+
+func convertIds(ids string, connectionId uint64, sprintIdGenerator *didgen.DomainIdGenerator) (string, error) {
+	ss := strings.Split(ids, ",")
+	var resultSlice []string
+	for _, item := range ss {
+		item = strings.TrimSpace(item)
+		if item != "" {
+			id, err := strconv.ParseUint(item, 10, 64)
+			if err != nil {
+				return "", err
+			}
+			resultSlice = append(resultSlice, sprintIdGenerator.Generate(connectionId, id))
+		}
+	}
+	return strings.Join(resultSlice, ","), nil
 }
