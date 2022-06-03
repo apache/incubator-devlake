@@ -26,13 +26,10 @@ import (
 	"github.com/apache/incubator-devlake/plugins/core"
 )
 
-// Accept raw json body and params, return list of entities that need to be stored
-type RawDataExtractor func(row *RawData) ([]interface{}, error)
-
 type ApiExtractorArgs struct {
 	RawDataSubTaskArgs
 	Params    interface{}
-	Extract   RawDataExtractor
+	Extract   func(row *RawData) ([]interface{}, error)
 	BatchSize int
 }
 

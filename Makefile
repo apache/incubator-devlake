@@ -51,9 +51,12 @@ configure-dev:
 commit:
 	git cz
 
+mocks:
+	mockery --all
+
 test: unit-test e2e-test
 
-unit-test: build
+unit-test: mocks build
 	set -e; for m in $$(go list ./... | egrep -v 'test|models|e2e'); do echo $$m; go test -timeout 60s -gcflags=all=-l -v $$m; done
 
 e2e-test: build

@@ -7,33 +7,31 @@ import (
 	"net/url"
 	"testing"
 
-	dalMocks "github.com/apache/incubator-devlake/plugins/core/dal/mocks"
-	coreMocks "github.com/apache/incubator-devlake/plugins/core/mocks"
+	"github.com/apache/incubator-devlake/mocks"
 	"github.com/apache/incubator-devlake/plugins/helper/common"
-	helperMocks "github.com/apache/incubator-devlake/plugins/helper/mocks"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
 
 func TestFetchPageUndetermined(t *testing.T) {
-	mockDal := new(dalMocks.Dal)
+	mockDal := new(mocks.Dal)
 	mockDal.On("AutoMigrate", mock.Anything, mock.Anything).Return(nil).Once()
 	mockDal.On("Delete", mock.Anything, mock.Anything, mock.Anything).Return(nil).Once()
 	mockDal.On("Create", mock.Anything, mock.Anything).Return(nil).Once()
 
-	mockLog := new(coreMocks.Logger)
+	mockLog := new(mocks.Logger)
 	mockLog.On("Info", mock.Anything, mock.Anything)
 	mockLog.On("Debug", mock.Anything, mock.Anything).Maybe()
 	mockLog.On("Debug", mock.Anything, mock.Anything, mock.Anything).Maybe()
 
-	mockCtx := new(coreMocks.SubTaskContext)
+	mockCtx := new(mocks.SubTaskContext)
 	mockCtx.On("GetDal").Return(mockDal)
 	mockCtx.On("GetLogger").Return(mockLog)
 	mockCtx.On("SetProgress", mock.Anything, mock.Anything)
 	mockCtx.On("IncProgress", mock.Anything, mock.Anything)
 	mockCtx.On("GetName").Return("test")
 
-	mockInput := new(helperMocks.Iterator)
+	mockInput := new(mocks.Iterator)
 	mockInput.On("HasNext").Return(true).Once()
 	mockInput.On("HasNext").Return(false).Once()
 	mockInput.On("Fetch").Return(nil, nil).Once()
@@ -43,7 +41,7 @@ func TestFetchPageUndetermined(t *testing.T) {
 	// assuming api doesn't return total number of pages.
 	// then, we are expecting 2 calls for GetAsync and NextTick each, otherwise, deadlock happens
 	getAsyncCounter := 0
-	mockApi := new(helperMocks.RateLimitedApiClient)
+	mockApi := new(mocks.RateLimitedApiClient)
 	mockApi.On("GetAsync", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Run(func(args mock.Arguments) {
 		// fake records for first page, no records for second page
 		body := "[1,2,3]"
