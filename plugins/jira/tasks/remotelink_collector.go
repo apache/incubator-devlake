@@ -46,6 +46,7 @@ func CollectRemotelinks(taskCtx core.SubTaskContext) error {
 	*/
 	cursor, err := db.Cursor(
 		Select("i.issue_id, NOW() AS update_time"),
+		From("_tool_jira_remotelinks"),
 		Join(`LEFT JOIN bi ON (
 			bi.connection_id = i.connection_id AND
 			bi.issue_id = i.issue_id
@@ -65,7 +66,7 @@ func CollectRemotelinks(taskCtx core.SubTaskContext) error {
 	}
 
 	// smaller struct can reduce memory footprint, we should try to avoid using big struct
-	iterator, err := helper.NewCursorIterator(db, cursor, reflect.TypeOf(apiv2models.Input{}))
+	iterator, err := helper.NewDalCursorIterator(db, cursor, reflect.TypeOf(apiv2models.Input{}))
 	if err != nil {
 		return err
 	}

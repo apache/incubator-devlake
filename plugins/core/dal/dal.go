@@ -17,6 +17,8 @@ limitations under the License.
 
 package dal
 
+import "database/sql"
+
 // Dal aims to facilitate an isolation of Database Access Layer by defining a set of operations should a
 // Database Access Layer provide
 // This is inroduced by the fact that mocking *gorm.DB is hard, and `gomonkey` is not working on macOS
@@ -26,9 +28,9 @@ type Dal interface {
 	// CreateTable creates a table with gorm definition from `entity`
 	AutoMigrate(entity interface{}, clauses ...interface{}) error
 	// Cursor returns a database cursor, cursor is especially useful when handling big amount of rows of data
-	Cursor(clauses ...interface{}) (Cursor, error)
+	Cursor(clauses ...interface{}) (*sql.Rows, error)
 	// Fetch loads row data from `cursor` into `dst`
-	Fetch(cursor Cursor, dst interface{}) error
+	Fetch(cursor *sql.Rows, dst interface{}) error
 	// All loads matched rows from database to `dst`, USE IT WITH COUTIOUS!!
 	All(dst interface{}, clauses ...interface{}) error
 	// First loads first matched row from database to `dst`, error will be returned if no records were found
@@ -41,12 +43,6 @@ type Dal interface {
 	CreateOrUpdate(entity interface{}, clauses ...interface{}) error
 	// Delete records from database
 	Delete(entity interface{}, clauses ...interface{}) error
-}
-
-// Cursor represents a database cursor
-type Cursor interface {
-	Close() error
-	Next() bool
 }
 
 type dalClause struct {
