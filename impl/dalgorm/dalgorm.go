@@ -71,13 +71,13 @@ func (d *Dalgorm) AutoMigrate(entity interface{}, clauses ...interface{}) error 
 }
 
 // Cursor returns a database cursor, cursor is especially useful when handling big amount of rows of data
-func (d *Dalgorm) Cursor(clauses ...interface{}) (dal.Cursor, error) {
+func (d *Dalgorm) Cursor(clauses ...interface{}) (*sql.Rows, error) {
 	return buildTx(d.db, clauses).Rows()
 }
 
 // Fetch loads row data from `cursor` into `dst`
-func (d *Dalgorm) Fetch(cursor dal.Cursor, dst interface{}) error {
-	return d.db.ScanRows(cursor.(*sql.Rows), dst)
+func (d *Dalgorm) Fetch(cursor *sql.Rows, dst interface{}) error {
+	return d.db.ScanRows(cursor, dst)
 }
 
 // All loads matched rows from database to `dst`, USE IT WITH COUTIOUS!!

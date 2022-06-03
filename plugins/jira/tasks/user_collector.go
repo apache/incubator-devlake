@@ -44,7 +44,7 @@ func CollectUsers(taskCtx core.SubTaskContext) error {
 	if err != nil {
 		return err
 	}
-	iterator, err := helper.NewCursorIterator(db, cursor, reflect.TypeOf(models.JiraUser{}))
+	iterator, err := helper.NewDalCursorIterator(db, cursor, reflect.TypeOf(models.JiraUser{}))
 	if err != nil {
 		return err
 	}

@@ -18,10 +18,12 @@ limitations under the License.
 package helper
 
 import (
+	"database/sql"
 	"reflect"
 	"time"
 
 	"github.com/apache/incubator-devlake/plugins/core/dal"
+	"gorm.io/gorm"
 )
 
 type Iterator interface {
@@ -30,13 +32,15 @@ type Iterator interface {
 	Close() error
 }
 
+// Deprecated: use DalCursorIterator instead
 type CursorIterator struct {
-	db       dal.Dal
-	cursor   dal.Cursor
+	db       *gorm.DB
+	cursor   *sql.Rows
 	elemType reflect.Type
 }
 
-func NewCursorIterator(db dal.Dal, cursor dal.Cursor, elemType reflect.Type) (*CursorIterator, error) {
+// Deprecated: use NewDalCursorIterator instead
+func NewCursorIterator(db *gorm.DB, cursor *sql.Rows, elemType reflect.Type) (*CursorIterator, error) {
 	return &CursorIterator{
 		db:       db,
 		cursor:   cursor,
@@ -50,7 +54,7 @@ func (c *CursorIterator) HasNext() bool {
 
 func (c *CursorIterator) Fetch() (interface{}, error) {
 	elem := reflect.New(c.elemType).Interface()
-	err := c.db.Fetch(c.cursor, elem)
+	err := c.db.ScanRows(c.cursor, elem)
 	if err != nil {
 		return nil, err
 	}
@@ -63,6 +67,41 @@ func (c *CursorIterator) Close() error {
 
 var _ Iterator = (*CursorIterator)(nil)
 
+// DalCursorIterator
+type DalCursorIterator struct {
+	db       dal.Dal
+	cursor   *sql.Rows
+	elemType reflect.Type
+}
+
+func NewDalCursorIterator(db dal.Dal, cursor *sql.Rows, elemType reflect.Type) (*DalCursorIterator, error) {
+	return &DalCursorIterator{
+		db:       db,
+		cursor:   cursor,
+		elemType: elemType,
+	}, nil
+}
+
+func (c *DalCursorIterator) HasNext() bool {
+	return c.cursor.Next()
+}
+
+func (c *DalCursorIterator) Fetch() (interface{}, error) {
+	elem := reflect.New(c.elemType).Interface()
+	err := c.db.Fetch(c.cursor, elem)
+	if err != nil {
+		return nil, err
+	}
+	return elem, nil
+}
+
+func (c *DalCursorIterator) Close() error {
+	return c.cursor.Close()
+}
+
+var _ Iterator = (*DalCursorIterator)(nil)
+
+// DateIterator
 type DateIterator struct {
 	startTime time.Time
 	endTime   time.Time

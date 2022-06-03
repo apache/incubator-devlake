@@ -68,7 +68,7 @@ func CollectChangelogs(taskCtx core.SubTaskContext) error {
 		return err
 	}
 	// smaller struct can reduce memory footprint, we should try to avoid using big struct
-	iterator, err := helper.NewCursorIterator(db, cursor, reflect.TypeOf(apiv2models.Input{}))
+	iterator, err := helper.NewDalCursorIterator(db, cursor, reflect.TypeOf(apiv2models.Input{}))
 	if err != nil {
 		return err
 	}
