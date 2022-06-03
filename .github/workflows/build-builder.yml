@@ -1,0 +1,24 @@
+name: Build-BuilderImage-Push-Docker
+on:
+  push:
+    tags:
+    - 'builder-*'
+jobs:
+  build-lake:
+    name: Build lake-builder image
+    runs-on: ubuntu-20.04
+    steps:
+    - uses: actions/checkout@v2
+    - uses: docker/login-action@f054a8b539a109f9f41c372932f1ae047eff08c9
+      with:
+        username: ${{ secrets.DOCKER_REGISTRY_USERNAME }}
+        password: ${{ secrets.DOCKER_REGISTRY_PASSWORD }}
+    - name: Build lake image
+      run: |
+        cd devops/lake-builder/
+        export IMAGE_LAKE=mericodev/lake-builder
+        export IMAGE_VER=${GITHUB_REF:18}
+        docker build -t $IMAGE_LAKE:latest --file ./Dockerfile .
+        docker tag $IMAGE_LAKE:latest $IMAGE_LAKE:$IMAGE_VER
+        docker push $IMAGE_LAKE:$IMAGE_VER
+        docker push $IMAGE_LAKE:latest

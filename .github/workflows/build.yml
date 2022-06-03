@@ -2,7 +2,7 @@ name: Build-Images-Push-Docker
 on:
   push:
     tags:
-    - '*'
+    - 'v*'
 jobs:
   build-lake:
     name: Build lake image
