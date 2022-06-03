@@ -74,6 +74,9 @@ func replaceNewEnvItemInOldContent(v *viper.Viper, envFileContent string) (error
 				ret = strings.Replace(ret, `"`, `\"`, -1)
 				return fmt.Sprintf(`%v="%v"`, envName, ret)
 			default:
+				if val == nil {
+					return fmt.Sprintf(`%v=`, envName)
+				}
 				return fmt.Sprintf(`%v="%v"`, envName, ret)
 			}
 		})
