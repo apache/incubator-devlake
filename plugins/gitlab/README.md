@@ -100,12 +100,8 @@ Usage:
 
 Flags:
   -h, --help             help for gitlab
-  -p, --project-id int   gitlab project id
   -t, --tasks strings    specify what tasks to run, --tasks=collectIssues,extractIssues
 
 ```
 
-```shell
-go run gitlab.go -p project-id
-```
 
