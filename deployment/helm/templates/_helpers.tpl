@@ -61,3 +61,59 @@ Create the name of the service account to use
 {{- end }}
 {{- end }}
 
+
+{{/*
+The ui endpoint prefix
+*/}}
+{{- define "devlake.grafanaEndpointPrefix" -}}
+{{- print .Values.ingress.prefix  "/grafana" | replace "//" "/" | trimAll "/" -}}
+{{- end }}
+
+{{/*
+The ui endpoint prefix
+*/}}
+{{- define "devlake.uiEndpointPrefix" -}}
+{{- print .Values.ingress.prefix  "/" | replace "//" "/" | trimAll "/" -}}
+{{- end }}
+
+{{/*
+The grafana endpoint
+*/}}
+{{- define "devlake.grafanaEndpoint" -}}
+{{- if .Values.ingress.enabled }}
+{{- $grafanaPortString := "" }}
+{{- if .Values.ingress.enableHttps }}
+{{- if ne 443 ( .Values.ingress.httpsPort | int) }}
+{{- $grafanaPortString = printf ":%d" ( .Values.ingress.httpsPort | int) }}
+{{- end }}
+{{- printf "https://%s%s/%s" .Values.ingress.hostname $grafanaPortString (include "devlake.grafanaEndpointPrefix" .) }}
+{{- else }}
+{{- if ne 80 ( .Values.ingress.httpPort | int) }}
+{{- $grafanaPortString = printf ":%d" ( .Values.ingress.httpPort | int) }}
+{{- end }}
+{{- printf "http://%s%s/%s" .Values.ingress.hostname $grafanaPortString (include "devlake.grafanaEndpointPrefix" .) }}
+{{- end }}
+{{- else }}
+{{ .Values.service.grafanaEndpoint }}
+{{- end }}
+{{- end }}
+
+{{/*
+The ui endpoint
+*/}}
+{{- define "devlake.uiEndpoint" -}}
+{{- if .Values.ingress.enabled }}
+{{- $uiPortString := "" }}
+{{- if .Values.ingress.enableHttps }}
+{{- if ne 443 ( .Values.ingress.httpsPort | int) }}
+{{- $uiPortString = printf ":%d" ( .Values.ingress.httpsPort | int) }}
+{{- end }}
+{{- printf "https://%s%s/%s" .Values.ingress.hostname $uiPortString (include "devlake.uiEndpointPrefix" .) }}
+{{- else }}
+{{- if ne 80 ( .Values.ingress.httpPort | int) }}
+{{- $uiPortString = printf ":%d" ( .Values.ingress.httpPort | int) }}
+{{- end }}
+{{- printf "http://%s%s/%s" .Values.ingress.hostname $uiPortString (include "devlake.uiEndpointPrefix" .) }}
+{{- end }}
+{{- end }}
+{{- end }}

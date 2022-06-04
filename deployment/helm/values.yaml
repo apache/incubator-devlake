@@ -108,19 +108,20 @@ service:
   # the external endpoint for grafana, only used when ingress not enabled
   grafanaEndpoint: http://127.0.0.1:32000
 
-# TODO(matrixji) support ingress.
 ingress:
   enabled: false
+  enableHttps: false
   className: ""
   annotations: {}
     # kubernetes.io/ingress.class: nginx
     # kubernetes.io/tls-acme: "true"
-  hosts:
-    - host: chart-example.local
-      paths:
-        - path: /
-          pathType: ImplementationSpecific
-  tls: []
-  #  - secretName: chart-example-tls
-  #    hosts:
-  #      - chart-example.local
+  # domain name for hosting devlake
+  hostname: localhost
+  # url prefix, not works right now, keep "/"
+  prefix: /
+  # if using https provides the certificates secret name
+  tlsSecretName: ""
+  # ingress http port
+  httpPort: 80
+  # ingress https port
+  httpsPort: 443
