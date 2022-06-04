@@ -76,11 +76,11 @@ some unuseful message
 a blank
 AA="aaaa"
 BB="1#1"
-CC="1\"\'1"
+CC="1\"'1"
 DD="1\\\"1"
 
 # some comment
-EE="\="
+EE="="
 FF="1.01"
 GGG="gggg"
 H.278="278"
