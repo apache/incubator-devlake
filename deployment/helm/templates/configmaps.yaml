@@ -1,3 +1,4 @@
+---
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -7,3 +8,17 @@ data:
   MYSQL_PASSWORD: "{{ .Values.mysql.password }}"
   MYSQL_DATABASE: "{{ .Values.mysql.database }}"
   MYSQL_ROOT_PASSWORD: "{{ .Values.mysql.rootPassword }}"
+
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "devlake.fullname" . }}-grafana-config
+data:
+  grafana.ini: |
+    [server]
+    {{- if .Values.ingress.enabled }}
+    domain = {{ .Values.ingress.hostname }}
+    root_url = {{ include "devlake.grafanaEndpoint" . }}
+    serve_from_sub_path = true
+    {{- end }}

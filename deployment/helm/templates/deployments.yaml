@@ -29,6 +29,10 @@ spec:
               port: 3000
             initialDelaySeconds: 30
             timeoutSeconds: 30
+          volumeMounts:
+            - mountPath: /etc/grafana/grafana.ini
+              name: {{ include "devlake.fullname" . }}-grafana-config
+              subPath: grafana.ini
           envFrom:
             - configMapRef:
                 name: {{ include "devlake.fullname" . }}-config
@@ -41,6 +45,11 @@ spec:
               value: '*'
             - name: MYSQL_URL
               value: {{ include "devlake.fullname" . }}-mysql:3306
+      volumes:
+        - configMap:
+            defaultMode: 420
+            name: {{ include "devlake.fullname" . }}-grafana-config
+          name: {{ include "devlake.fullname" . }}-grafana-config
 
 ---
 # devlake-ui
@@ -75,7 +84,7 @@ spec:
               # TODO: remove hardcoded `cluster.local`
               value: {{ include "devlake.fullname" . }}-lake.{{ .Release.Namespace }}.svc.cluster.local:8080
             - name: GRAFANA_ENDPOINT
-              value: "{{ .Values.service.grafanaEndpoint }}"
+              value: "{{ include "devlake.grafanaEndpoint" . }}"
             # - name: ADMIN_USER
             #   value: "admin"
             # - name: ADMIN_PASS
