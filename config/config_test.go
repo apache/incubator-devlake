@@ -18,8 +18,10 @@ limitations under the License.
 package config
 
 import (
+	"os"
 	"testing"
 
+	"github.com/spf13/viper"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -37,6 +39,36 @@ func TestReadAndWriteToConfig(t *testing.T) {
 	v.Set("DB_URL", currentDbUrl)
 	err = v.WriteConfig()
 	assert.Equal(t, err == nil, true)
+}
+
+func TestGetEnvPath(t *testing.T) {
+	os.Unsetenv("ENV_PATH")
+	assert.Equal(t, getEnvPath(), ".env")
+	os.Setenv("ENV_PATH", "/foo/bar/config.env")
+	assert.Equal(t, getEnvPath(), "/foo/bar/config.env")
+}
+
+func TestWriteConfigToEnvPath(t *testing.T) {
+	cwd, _ := os.Getwd()
+	envFilePath := cwd + string(os.PathSeparator) + "test.env"
+	os.Setenv("ENV_PATH", envFilePath)
+	// remove it, and WriteConfig should create it.
+	os.Remove(envFilePath)
+	defer os.Remove(envFilePath)
+
+	config := GetConfig()
+	config.Set("FOO", "bar")
+
+	err := WriteConfig(config)
+	assert.Equal(t, nil, err)
+
+	configNew := viper.New()
+	configNew.SetConfigFile(envFilePath)
+	err = configNew.ReadInConfig()
+	assert.Equal(t, nil, err)
+
+	bar := configNew.GetString("FOO")
+	assert.Equal(t, "bar", bar)
 }
 
 func TestReplaceNewEnvItemInOldContent(t *testing.T) {

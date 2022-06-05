@@ -18,6 +18,7 @@ limitations under the License.
 package config
 
 import (
+	"errors"
 	"fmt"
 	"os"
 
@@ -81,9 +82,18 @@ func replaceNewEnvItemInOldContent(v *viper.Viper, envFileContent string) (error
 	return nil, envFileContent
 }
 
+// return the env path
+func getEnvPath() string {
+	envPath := os.Getenv("ENV_PATH")
+	if envPath == "" {
+		envPath = ".env"
+	}
+	return envPath
+}
+
 // WriteConfig save viper to .env file
 func WriteConfig(v *viper.Viper) error {
-	return WriteConfigAs(v, `.env`)
+	return WriteConfigAs(v, getEnvPath())
 }
 
 // WriteConfigAs save viper to custom filename
@@ -104,7 +114,7 @@ func WriteConfigAs(v *viper.Viper, filename string) error {
 	flags := os.O_CREATE | os.O_TRUNC | os.O_WRONLY
 	configPermissions := os.FileMode(0644)
 	file, err := afero.ReadFile(aferoFile, filename)
-	if err != nil {
+	if err != nil && !errors.Is(err, os.ErrNotExist) {
 		return err
 	}
 
@@ -134,11 +144,7 @@ func WriteConfigAs(v *viper.Viper, filename string) error {
 func init() {
 	// create the object and load the .env file
 	v = viper.New()
-	envPath := os.Getenv("ENV_PATH")
-	if envPath == "" {
-		envPath = ".env"
-	}
-	v.SetConfigFile(envPath)
+	v.SetConfigFile(getEnvPath())
 	err := v.ReadInConfig()
 	if err != nil {
 		logrus.Warn("Failed to read [.env] file:", err)
