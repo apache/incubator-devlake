@@ -46,7 +46,7 @@ func NewBatchSave(db *gorm.DB, log core.Logger, slotType reflect.Type, size int)
 		return nil, fmt.Errorf("slotType must be a pointer")
 	}
 	if !hasPrimaryKey(slotType) {
-		return nil, fmt.Errorf("no primary key")
+		return nil, fmt.Errorf("%s no primary key", slotType.String())
 	}
 	log = log.Nested(slotType.String())
 	log.Info("create batch save success")
