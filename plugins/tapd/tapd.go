@@ -207,6 +207,11 @@ func main() {
 	}
 
 	cmd.Run = func(c *cobra.Command, args []string) {
+		//runner.DirectRun(c, args, PluginEntry, map[string]interface{}{
+		//	"connectionId": *connectionId,
+		//	"workspaceId":  *workspaceId,
+		//	"companyId":    *companyId,
+		//})
 		cfg := config.GetConfig()
 		log := logger.Global.Nested(cmd.Use)
 		db, err := runner.NewGormDb(cfg, log)
