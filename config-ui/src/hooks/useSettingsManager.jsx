@@ -39,7 +39,8 @@ function useSettingsManager ({
           ...connectionPayload,
           name: connection.name,
           endpoint: connection.endpoint,
-          basicAuthEncoded: connection.basicAuthEncoded,
+          username: connection.username,
+          password: connection.password,
           proxy: connection.proxy || connection.Proxy
         }
         break
