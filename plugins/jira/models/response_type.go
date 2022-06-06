@@ -41,11 +41,10 @@ type ApiMyselfResponse struct {
 	DisplayName string
 }
 
-func (JiraServerInfo) TableName() string{
+func (JiraServerInfo) TableName() string {
 	return "_tool_jira_server_infos"
 }
 
-func (ApiMyselfResponse) TableName() string{
+func (ApiMyselfResponse) TableName() string {
 	return "_tool_api_myself_responses"
 }
-
