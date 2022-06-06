@@ -22,6 +22,7 @@ import (
 	"fmt"
 	"sync"
 	"sync/atomic"
+	"time"
 
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/spf13/viper"
@@ -152,7 +153,8 @@ func (c *DefaultTaskContext) IncProgress(quantity int) {
 // SubTaskContext default implementation
 type DefaultSubTaskContext struct {
 	*defaultExecContext
-	taskCtx *DefaultTaskContext
+	taskCtx          *DefaultTaskContext
+	LastProgressTime time.Time
 }
 
 func (c *DefaultSubTaskContext) SetProgress(current int, total int) {
@@ -164,7 +166,12 @@ func (c *DefaultSubTaskContext) SetProgress(current int, total int) {
 
 func (c *DefaultSubTaskContext) IncProgress(quantity int) {
 	c.defaultExecContext.IncProgress(core.SubTaskIncProgress, quantity)
-	c.logger.Info("finished records: %d", c.current)
+	if c.LastProgressTime.IsZero() || c.LastProgressTime.Add(3*time.Second).Before(time.Now()) || c.current%1000 == 0 {
+		c.LastProgressTime = time.Now()
+		c.logger.Info("finished records: %d", c.current)
+	} else {
+		c.logger.Debug("finished records: %d", c.current)
+	}
 }
 
 func NewDefaultTaskContext(
@@ -193,6 +200,7 @@ func (c *DefaultTaskContext) SubTaskContext(subtask string) (core.SubTaskContext
 				c.subtaskCtxs[subtask] = &DefaultSubTaskContext{
 					c.defaultExecContext.fork(subtask),
 					c,
+					time.Time{},
 				}
 			}
 			c.defaultExecContext.mu.Unlock()
@@ -220,6 +228,7 @@ func NewStandaloneSubTaskContext(
 	return &DefaultSubTaskContext{
 		newDefaultExecContext(cfg, logger, db, ctx, name, data, nil),
 		nil,
+		time.Time{},
 	}
 }
 

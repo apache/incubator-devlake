@@ -21,10 +21,10 @@ import (
 	"fmt"
 	"github.com/apache/incubator-devlake/config"
 	"github.com/apache/incubator-devlake/plugins/core"
-	"github.com/apache/incubator-devlake/plugins/helper"
 	"github.com/sirupsen/logrus"
 	prefixed "github.com/x-cray/logrus-prefixed-formatter"
 	"os"
+	"strings"
 )
 
 var inner *logrus.Logger
@@ -33,14 +33,14 @@ var Global core.Logger
 func init() {
 	inner = logrus.New()
 	logLevel := logrus.InfoLevel
-	switch config.GetConfig().GetString("LOGGING_LEVEL") {
-	case "Debug":
+	switch strings.ToLower(config.GetConfig().GetString("LOGGING_LEVEL")) {
+	case "debug":
 		logLevel = logrus.DebugLevel
-	case "Info":
+	case "info":
 		logLevel = logrus.InfoLevel
-	case "Warn":
+	case "warn":
 		logLevel = logrus.WarnLevel
-	case "Error":
+	case "error":
 		logLevel = logrus.ErrorLevel
 	}
 	inner.SetLevel(logLevel)
@@ -53,5 +53,5 @@ func init() {
 		inner.Info(fmt.Sprintf("failed to create dir logs: %s", err))
 	}
 	loggerPool := make(map[string]*logrus.Logger)
-	Global = helper.NewDefaultLogger(inner, "", loggerPool)
+	Global = NewDefaultLogger(inner, "", loggerPool)
 }

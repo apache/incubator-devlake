@@ -18,6 +18,7 @@ limitations under the License.
 package helper
 
 import (
+	"github.com/apache/incubator-devlake/logger"
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/sirupsen/logrus"
 )
@@ -26,5 +27,5 @@ import (
 // TODO: implement another TaskLogger for distributed runner/worker
 
 func NewDefaultTaskLogger(log *logrus.Logger, prefix string, loggerPool map[string]*logrus.Logger) core.Logger {
-	return NewDefaultLogger(log, prefix, loggerPool)
+	return logger.NewDefaultLogger(log, prefix, loggerPool)
 }

@@ -22,6 +22,7 @@ import (
 	"testing"
 
 	"github.com/agiledragon/gomonkey/v2"
+	"github.com/apache/incubator-devlake/logger"
 	"github.com/apache/incubator-devlake/models/domainlayer"
 	"github.com/apache/incubator-devlake/models/domainlayer/ticket"
 	"github.com/stretchr/testify/assert"
@@ -157,7 +158,7 @@ func TestBatchSave(t *testing.T) {
 
 	TestBatchSize = 1
 	rowType := reflect.TypeOf(TestTableData)
-	batch, err := NewBatchSave(db, rowType, TestBatchSize)
+	batch, err := NewBatchSave(db, logger.Global, rowType, TestBatchSize)
 
 	// test diff type
 	assert.Equal(t, err, nil)

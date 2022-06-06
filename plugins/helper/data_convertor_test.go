@@ -26,6 +26,8 @@ import (
 	"time"
 
 	"github.com/agiledragon/gomonkey/v2"
+	"github.com/apache/incubator-devlake/logger"
+	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/magiconair/properties/assert"
 	"github.com/sirupsen/logrus"
 	"gorm.io/gorm"
@@ -38,7 +40,7 @@ func CreateTestDataConverter(t *testing.T) (*DataConverter, error) {
 	return NewDataConverter(DataConverterArgs{
 		RawDataSubTaskArgs: RawDataSubTaskArgs{
 			Ctx: &DefaultSubTaskContext{
-				defaultExecContext: newDefaultExecContext(GetConfigForTest("../../"), NewDefaultLogger(logrus.New(), "Test", make(map[string]*logrus.Logger)), &gorm.DB{}, ctx, "Test", nil, nil),
+				defaultExecContext: newDefaultExecContext(GetConfigForTest("../../"), logger.NewDefaultLogger(logrus.New(), "Test", make(map[string]*logrus.Logger)), &gorm.DB{}, ctx, "Test", nil, nil),
 			},
 			Table: TestTable{}.TableName(),
 			Params: &TestParam{
@@ -99,7 +101,7 @@ func TestDataConvertorExecute(t *testing.T) {
 	)
 
 	fortypeTimes := 0
-	gf := gomonkey.ApplyMethod(reflect.TypeOf(&BatchSaveDivider{}), "ForType", func(d *BatchSaveDivider, rowType reflect.Type) (*BatchSave, error) {
+	gf := gomonkey.ApplyMethod(reflect.TypeOf(&BatchSaveDivider{}), "ForType", func(d *BatchSaveDivider, rowType reflect.Type, log core.Logger) (*BatchSave, error) {
 		fortypeTimes++
 		assert.Equal(t, rowType, reflect.TypeOf(TestTableData))
 		err := d.onNewBatchSave(rowType)
@@ -160,7 +162,7 @@ func TestDataConvertorExecute_Cancel(t *testing.T) {
 	)
 
 	fortypeTimes := 0
-	gf := gomonkey.ApplyMethod(reflect.TypeOf(&BatchSaveDivider{}), "ForType", func(d *BatchSaveDivider, rowType reflect.Type) (*BatchSave, error) {
+	gf := gomonkey.ApplyMethod(reflect.TypeOf(&BatchSaveDivider{}), "ForType", func(d *BatchSaveDivider, rowType reflect.Type, log core.Logger) (*BatchSave, error) {
 		fortypeTimes++
 		assert.Equal(t, rowType, reflect.TypeOf(TestTableData))
 		err := d.onNewBatchSave(rowType)

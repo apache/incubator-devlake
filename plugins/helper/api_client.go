@@ -217,7 +217,7 @@ func (apiClient *ApiClient) Do(
 		return nil, err
 	}
 
-	// after recieve
+	// after receive
 	if apiClient.afterReponse != nil {
 		err = apiClient.afterReponse(res)
 		if err != nil {

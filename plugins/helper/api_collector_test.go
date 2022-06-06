@@ -33,6 +33,7 @@ import (
 	"time"
 
 	"github.com/agiledragon/gomonkey/v2"
+	"github.com/apache/incubator-devlake/logger"
 	"github.com/apache/incubator-devlake/models/common"
 	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/assert"
@@ -176,45 +177,41 @@ func MockDB(t *testing.T) {
 	gt = gomonkey.ApplyMethod(reflect.TypeOf(&gorm.DB{}), "Table", func(db *gorm.DB, name string, args ...interface{}) *gorm.DB {
 		assert.Equal(t, name, TestTableData.TableName())
 		return db
-	},
-	)
+	})
 
 	gc = gomonkey.ApplyMethod(reflect.TypeOf(&gorm.DB{}), "Create", func(db *gorm.DB, value interface{}) *gorm.DB {
 		assert.Equal(t, TestTableData, value.(*TestTable))
 		return db
-	},
-	)
+	})
 
 	gd = gomonkey.ApplyMethod(reflect.TypeOf(&gorm.DB{}), "Delete", func(db *gorm.DB, value interface{}, conds ...interface{}) (tx *gorm.DB) {
 		return db
-	},
-	)
+	})
 
 	ga = gomonkey.ApplyMethod(reflect.TypeOf(&gorm.DB{}), "AutoMigrate", func(db *gorm.DB, dst ...interface{}) error {
 		return nil
-	},
-	)
+	})
 
 	god = gomonkey.ApplyMethod(reflect.TypeOf(&gorm.DB{}), "Order", func(db *gorm.DB, value interface{}) (tx *gorm.DB) {
 		return db
-	},
-	)
+	})
 
 	gw = gomonkey.ApplyMethod(reflect.TypeOf(&gorm.DB{}), "Where", func(db *gorm.DB, query interface{}, args ...interface{}) (tx *gorm.DB) {
 		return db
-	},
-	)
+	})
+
+	gr = gomonkey.ApplyMethod(reflect.TypeOf(&gorm.DB{}), "Count", func(db *gorm.DB, count *int64) (tx *gorm.DB) {
+		return db
+	})
 
 	gr = gomonkey.ApplyMethod(reflect.TypeOf(&gorm.DB{}), "Rows", func(db *gorm.DB) (*sql.Rows, error) {
 		return &sql.Rows{}, nil
-	},
-	)
+	})
 
 	gs = gomonkey.ApplyMethod(reflect.TypeOf(&gorm.DB{}), "ScanRows", func(db *gorm.DB, rows *sql.Rows, dest interface{}) error {
 		dest = TestRawMessage
 		return nil
-	},
-	)
+	})
 
 }
 
@@ -268,7 +265,7 @@ func CreateTestApiCollector() (*ApiCollector, error) {
 	return NewApiCollector(ApiCollectorArgs{
 		RawDataSubTaskArgs: RawDataSubTaskArgs{
 			Ctx: &DefaultSubTaskContext{
-				defaultExecContext: newDefaultExecContext(GetConfigForTest("../../"), NewDefaultLogger(logrus.New(), "Test", make(map[string]*logrus.Logger)), db, ctx, "Test", nil, nil),
+				defaultExecContext: newDefaultExecContext(GetConfigForTest("../../"), logger.NewDefaultLogger(logrus.New(), "Test", make(map[string]*logrus.Logger)), db, ctx, "Test", nil, nil),
 			},
 			Table: TestTable{}.TableName(),
 			Params: &TestParam{
@@ -1096,7 +1093,7 @@ func TestExecute_Total(t *testing.T) {
 	})
 	defer gs.Reset()
 
-	gin := gomonkey.ApplyMethod(reflect.TypeOf(&DefaultLogger{}), "Info", func(_ *DefaultLogger, _ string, _ ...interface{}) {
+	gin := gomonkey.ApplyMethod(reflect.TypeOf(&logger.DefaultLogger{}), "Info", func(_ *logger.DefaultLogger, _ string, _ ...interface{}) {
 	})
 	defer gin.Reset()
 

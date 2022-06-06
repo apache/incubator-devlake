@@ -19,11 +19,11 @@ package helper
 
 import (
 	"fmt"
-	"reflect"
-	"strings"
-
+	"github.com/apache/incubator-devlake/plugins/core"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
+	"reflect"
+	"strings"
 )
 
 // Insert data by batch can increase database performance drastically, this class aim to make batch-save easier,
@@ -35,20 +35,24 @@ type BatchSave struct {
 	// I'm guessing the reason is the type information lost when converted to interface{}
 	slots      reflect.Value
 	db         *gorm.DB
+	logger     core.Logger
 	current    int
 	size       int
 	valueIndex map[string]int
 }
 
-func NewBatchSave(db *gorm.DB, slotType reflect.Type, size int) (*BatchSave, error) {
+func NewBatchSave(db *gorm.DB, log core.Logger, slotType reflect.Type, size int) (*BatchSave, error) {
 	if slotType.Kind() != reflect.Ptr {
 		return nil, fmt.Errorf("slotType must be a pointer")
 	}
 	if !hasPrimaryKey(slotType) {
-		return nil, fmt.Errorf("no primary key")
+		return nil, fmt.Errorf("%s no primary key", slotType.String())
 	}
+	log = log.Nested(slotType.String())
+	log.Info("create batch save success")
 	return &BatchSave{
 		slotType:   slotType,
+		logger:     log,
 		slots:      reflect.MakeSlice(reflect.SliceOf(slotType), size, size),
 		db:         db,
 		size:       size,
@@ -80,15 +84,19 @@ func (c *BatchSave) Add(slot interface{}) error {
 	// flush out into database if max outed
 	if c.current == c.size {
 		return c.Flush()
+	} else if c.current%100 == 0 {
+		c.logger.Debug("batch save current: %d", c.current)
 	}
 	return nil
 }
 
 func (c *BatchSave) Flush() error {
-	err := c.db.Clauses(clause.OnConflict{UpdateAll: true}).Create(c.slots.Slice(0, c.current).Interface()).Error
+	result := c.db.Clauses(clause.OnConflict{UpdateAll: true}).Create(c.slots.Slice(0, c.current).Interface())
+	err := result.Error
 	if err != nil {
 		return err
 	}
+	c.logger.Info("batch save flush %d and %d success", c.slots.Slice(0, c.current).Len(), result.RowsAffected)
 	c.current = 0
 	c.valueIndex = make(map[string]int)
 	return nil

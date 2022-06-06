@@ -33,12 +33,12 @@ import (
 
 func NewGormDb(config *viper.Viper, logger core.Logger) (*gorm.DB, error) {
 	dbLoggingLevel := gormLogger.Error
-	switch config.GetString("DB_LOGGING_LEVEL") {
-	case "Silent":
+	switch strings.ToLower(config.GetString("DB_LOGGING_LEVEL")) {
+	case "silent":
 		dbLoggingLevel = gormLogger.Silent
-	case "Warn":
+	case "warn":
 		dbLoggingLevel = gormLogger.Warn
-	case "Info":
+	case "info":
 		dbLoggingLevel = gormLogger.Info
 	}
 
