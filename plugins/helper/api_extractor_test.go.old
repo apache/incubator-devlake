@@ -21,6 +21,8 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
+	"github.com/apache/incubator-devlake/logger"
+	"github.com/apache/incubator-devlake/plugins/core"
 	"reflect"
 	"testing"
 	"time"
@@ -48,7 +50,7 @@ func CreateTestApiExtractor(t *testing.T) (*ApiExtractor, error) {
 	return NewApiExtractor(ApiExtractorArgs{
 		RawDataSubTaskArgs: RawDataSubTaskArgs{
 			Ctx: &DefaultSubTaskContext{
-				defaultExecContext: newDefaultExecContext(GetConfigForTest("../../"), NewDefaultLogger(logrus.New(), "Test", make(map[string]*logrus.Logger)), &gorm.DB{}, ctx, "Test", nil, nil),
+				defaultExecContext: newDefaultExecContext(GetConfigForTest("../../"), logger.NewDefaultLogger(logrus.New(), "Test", make(map[string]*logrus.Logger)), &gorm.DB{}, ctx, "Test", nil, nil),
 			},
 			Table: TestTable{}.TableName(),
 			Params: &TestParam{
@@ -107,7 +109,7 @@ func TestApiExtractorExecute(t *testing.T) {
 	)
 
 	fortypeTimes := 0
-	gf := gomonkey.ApplyMethod(reflect.TypeOf(&BatchSaveDivider{}), "ForType", func(d *BatchSaveDivider, rowType reflect.Type) (*BatchSave, error) {
+	gf := gomonkey.ApplyMethod(reflect.TypeOf(&BatchSaveDivider{}), "ForType", func(d *BatchSaveDivider, rowType reflect.Type, log core.Logger) (*BatchSave, error) {
 		fortypeTimes++
 		assert.Equal(t, rowType, reflect.TypeOf(TestTableData))
 		err := d.onNewBatchSave(rowType)
@@ -168,7 +170,7 @@ func TestApiExtractorExecute_Cancel(t *testing.T) {
 	)
 
 	fortypeTimes := 0
-	gf := gomonkey.ApplyMethod(reflect.TypeOf(&BatchSaveDivider{}), "ForType", func(d *BatchSaveDivider, rowType reflect.Type) (*BatchSave, error) {
+	gf := gomonkey.ApplyMethod(reflect.TypeOf(&BatchSaveDivider{}), "ForType", func(d *BatchSaveDivider, rowType reflect.Type, log core.Logger) (*BatchSave, error) {
 		fortypeTimes++
 		assert.Equal(t, rowType, reflect.TypeOf(TestTableData))
 		err := d.onNewBatchSave(rowType)

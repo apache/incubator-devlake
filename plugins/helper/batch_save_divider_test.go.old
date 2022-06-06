@@ -18,6 +18,7 @@ limitations under the License.
 package helper
 
 import (
+	"github.com/apache/incubator-devlake/logger"
 	"reflect"
 	"testing"
 
@@ -50,13 +51,13 @@ func TestBatchSaveDivider(t *testing.T) {
 	var b3 *BatchSave
 
 	// test if it saved and only saved once for one Type
-	b1, err = batchSaveDivider.ForType(reflect.TypeOf(TestTableData))
+	b1, err = batchSaveDivider.ForType(reflect.TypeOf(TestTableData), logger.Global)
 	assert.Equal(t, initTimes, 1)
 	assert.Equal(t, err, nil)
-	b2, err = batchSaveDivider.ForType(reflect.TypeOf(&TestTable2{}))
+	b2, err = batchSaveDivider.ForType(reflect.TypeOf(&TestTable2{}), logger.Global)
 	assert.Equal(t, initTimes, 2)
 	assert.Equal(t, err, nil)
-	b3, err = batchSaveDivider.ForType(reflect.TypeOf(TestTableData))
+	b3, err = batchSaveDivider.ForType(reflect.TypeOf(TestTableData), logger.Global)
 	assert.Equal(t, initTimes, 2)
 	assert.Equal(t, err, nil)
 

@@ -73,4 +73,9 @@ func TestFetchPageUndetermined(t *testing.T) {
 		PageSize:       3,
 		ResponseParser: GetRawMessageArrayFromResponse,
 	})
+
+	assert.Nil(t, err)
+	assert.Nil(t, collector.Execute())
+
+	mockDal.AssertExpectations(t)
 }

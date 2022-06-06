@@ -31,6 +31,7 @@ import (
 	"time"
 
 	"github.com/agiledragon/gomonkey/v2"
+	"github.com/apache/incubator-devlake/logger"
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
@@ -103,7 +104,7 @@ func CreateTestAsyncApiClientWithRateLimitAndCtx(t *testing.T, rateLimiter *ApiR
 		return &DefaultTaskContext{
 			&defaultExecContext{
 				cfg:      cfg,
-				logger:   &DefaultLogger{},
+				logger:   &logger.DefaultLogger{},
 				db:       db,
 				ctx:      ctx,
 				name:     "Test",
@@ -146,7 +147,7 @@ func TestWaitAsync_EmptyWork(t *testing.T) {
 func TestWaitAsync_WithWork(t *testing.T) {
 	asyncApiClient, _ := CreateTestAsyncApiClient(t)
 
-	gm_info := gomonkey.ApplyMethod(reflect.TypeOf(&DefaultLogger{}), "Info", func(_ *DefaultLogger, _ string, _ ...interface{}) {
+	gm_info := gomonkey.ApplyMethod(reflect.TypeOf(&logger.DefaultLogger{}), "Info", func(_ *logger.DefaultLogger, _ string, _ ...interface{}) {
 	})
 	defer gm_info.Reset()
 
@@ -187,7 +188,7 @@ func TestWaitAsync_WithWork(t *testing.T) {
 func TestWaitAsync_MutiWork(t *testing.T) {
 	asyncApiClient, _ := CreateTestAsyncApiClient(t)
 
-	gm_info := gomonkey.ApplyMethod(reflect.TypeOf(&DefaultLogger{}), "Info", func(_ *DefaultLogger, _ string, _ ...interface{}) {
+	gm_info := gomonkey.ApplyMethod(reflect.TypeOf(&logger.DefaultLogger{}), "Info", func(_ *logger.DefaultLogger, _ string, _ ...interface{}) {
 	})
 	defer gm_info.Reset()
 
@@ -231,7 +232,7 @@ func TestWaitAsync_MutiWork(t *testing.T) {
 // go test -gcflags=all=-l -run ^TestDoAsync_OnceSuceess
 func TestDoAsync_OnceSuceess(t *testing.T) {
 	asyncApiClient, _ := CreateTestAsyncApiClient(t)
-	gm_info := gomonkey.ApplyMethod(reflect.TypeOf(&DefaultLogger{}), "Info", func(_ *DefaultLogger, _ string, _ ...interface{}) {
+	gm_info := gomonkey.ApplyMethod(reflect.TypeOf(&logger.DefaultLogger{}), "Info", func(_ *logger.DefaultLogger, _ string, _ ...interface{}) {
 	})
 	defer gm_info.Reset()
 
@@ -261,7 +262,7 @@ func TestDoAsync_OnceSuceess(t *testing.T) {
 // go test -gcflags=all=-l -run ^TestDoAsync_TryAndFail
 func TestDoAsync_TryAndFail(t *testing.T) {
 	asyncApiClient, _ := CreateTestAsyncApiClient(t)
-	gm_info := gomonkey.ApplyMethod(reflect.TypeOf(&DefaultLogger{}), "Info", func(_ *DefaultLogger, _ string, _ ...interface{}) {
+	gm_info := gomonkey.ApplyMethod(reflect.TypeOf(&logger.DefaultLogger{}), "Info", func(_ *logger.DefaultLogger, _ string, _ ...interface{}) {
 	})
 	defer gm_info.Reset()
 
@@ -294,7 +295,7 @@ func TestDoAsync_TryAndFail(t *testing.T) {
 // go test -gcflags=all=-l -run ^TestDoAsync_TryAndSuceess
 func TestDoAsync_TryAndSuceess(t *testing.T) {
 	asyncApiClient, _ := CreateTestAsyncApiClient(t)
-	gm_info := gomonkey.ApplyMethod(reflect.TypeOf(&DefaultLogger{}), "Info", func(_ *DefaultLogger, _ string, _ ...interface{}) {
+	gm_info := gomonkey.ApplyMethod(reflect.TypeOf(&logger.DefaultLogger{}), "Info", func(_ *logger.DefaultLogger, _ string, _ ...interface{}) {
 	})
 	defer gm_info.Reset()
 
