@@ -1,0 +1,124 @@
+/*
+Licensed to the Apache Software Foundation (ASF) under one or more
+contributor license agreements.  See the NOTICE file distributed with
+this work for additional information regarding copyright ownership.
+The ASF licenses this file to You under the Apache License, Version 2.0
+(the "License"); you may not use this file except in compliance with
+the License.  You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+*/
+
+package main
+
+import (
+	"context"
+	"github.com/apache/incubator-devlake/migration"
+	"github.com/apache/incubator-devlake/plugins/core"
+	"github.com/apache/incubator-devlake/plugins/{{ .pluginName }}/tasks"
+	"github.com/apache/incubator-devlake/runner"
+	"github.com/mitchellh/mapstructure"
+	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
+	"gorm.io/gorm"
+	"time"
+)
+
+// make sure interface is implemented
+var _ core.PluginMeta = (*{{ .PluginName }})(nil)
+var _ core.PluginInit = (*{{ .PluginName }})(nil)
+var _ core.PluginTask = (*{{ .PluginName }})(nil)
+var _ core.PluginApi = (*{{ .PluginName }})(nil)
+
+// Export a variable named PluginEntry for Framework to search and load
+var PluginEntry {{ .PluginName }} //nolint
+
+type {{ .PluginName }} struct{}
+
+func (plugin {{ .PluginName }}) Description() string {
+	return "collect some {{ .PluginName }} data"
+}
+
+func (plugin {{ .PluginName }}) Init(config *viper.Viper, logger core.Logger, db *gorm.DB) error {
+	return nil
+}
+
+func (plugin {{ .PluginName }}) SubTaskMetas() []core.SubTaskMeta {
+	return []core.SubTaskMeta{
+		// TODO add your sub task here
+	}
+}
+
+func (plugin {{ .PluginName }}) PrepareTaskData(taskCtx core.TaskContext, options map[string]interface{}) (interface{}, error) {
+	var op tasks.{{ .PluginName }}Options
+	err := mapstructure.Decode(options, &op)
+	if err != nil {
+		return nil, err
+	}
+
+	// apiClient, err := tasks.New{{ .PluginName }}ApiClient(taskCtx)
+	// if err != nil {
+	// 	return nil, err
+	// }
+
+	return &tasks.{{ .PluginName }}TaskData{
+		Options: &op,
+		// TODO you can init and stash some handler to deal data at all subtasks, Such as apiClient as below.
+		// NOTES: In task_data.go/TaskData should declare `ApiClient`
+        // ApiClient: apiClient,
+	}, nil
+}
+
+// PkgPath information lost when compiled as plugin(.so)
+func (plugin {{ .PluginName }}) RootPkgPath() string {
+	return "github.com/apache/incubator-devlake/plugins/{{ .pluginName }}"
+}
+
+// AutoSchemas is a **develop** script to auto migrate models easily.
+// FIXME Don't submit it as a open source plugin
+type AutoSchemas struct{}
+
+func (*AutoSchemas) Up(ctx context.Context, db *gorm.DB) error {
+	return db.Migrator().AutoMigrate(
+		// TODO add your models in here
+	)
+}
+
+func (*AutoSchemas) Version() uint64 {
+	now := time.Now()
+	return uint64(now.Unix())
+}
+
+func (*AutoSchemas) Name() string {
+	return "{{ .PluginName }} auto schemas"
+}
+
+func (plugin {{ .PluginName }}) MigrationScripts() []migration.Script {
+	return []migration.Script{new(AutoSchemas)}
+}
+
+func (plugin {{ .PluginName }}) ApiResources() map[string]map[string]core.ApiResourceHandler {
+	return nil
+}
+
+// standalone mode for debugging
+func main() {
+	cmd := &cobra.Command{Use: "{{ .pluginName }}"}
+
+	// TODO add your cmd flag if necessary
+	// yourFlag := cmd.Flags().IntP("yourFlag", "y", 8, "TODO add description here")
+	// _ = cmd.MarkFlagRequired("yourFlag")
+
+	cmd.Run = func(cmd *cobra.Command, args []string) {
+		runner.DirectRun(cmd, args, PluginEntry, map[string]interface{}{
+			// TODO add more custom params here
+		})
+	}
+	runner.RunCmd(cmd)
+}
