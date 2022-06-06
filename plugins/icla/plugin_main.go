@@ -18,79 +18,77 @@ limitations under the License.
 package main
 
 import (
-	"context"
-	"github.com/apache/incubator-devlake/migration"
 	"github.com/apache/incubator-devlake/plugins/core"
-	"github.com/apache/incubator-devlake/plugins/{{ .pluginName }}/tasks"
+	"github.com/apache/incubator-devlake/plugins/icla/models"
+	"github.com/apache/incubator-devlake/plugins/icla/tasks"
 	"github.com/apache/incubator-devlake/runner"
 	"github.com/mitchellh/mapstructure"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 	"gorm.io/gorm"
-	"time"
 )
 
 // make sure interface is implemented
-var _ core.PluginMeta = (*{{ .PluginName }})(nil)
-var _ core.PluginInit = (*{{ .PluginName }})(nil)
-var _ core.PluginTask = (*{{ .PluginName }})(nil)
-var _ core.PluginApi = (*{{ .PluginName }})(nil)
+var _ core.PluginMeta = (*Icla)(nil)
+var _ core.PluginInit = (*Icla)(nil)
+var _ core.PluginTask = (*Icla)(nil)
+var _ core.PluginApi = (*Icla)(nil)
 
 // Export a variable named PluginEntry for Framework to search and load
-var PluginEntry {{ .PluginName }} //nolint
+var PluginEntry Icla //nolint
 
-type {{ .PluginName }} struct{}
+type Icla struct{}
 
-func (plugin {{ .PluginName }}) Description() string {
-	return "collect some {{ .PluginName }} data"
+func (plugin Icla) Description() string {
+	return "collect some Icla data"
 }
 
-func (plugin {{ .PluginName }}) Init(config *viper.Viper, logger core.Logger, db *gorm.DB) error {
+func (plugin Icla) Init(config *viper.Viper, logger core.Logger, db *gorm.DB) error {
 	// AutoSchemas is a **develop** script to auto migrate models easily.
 	// FIXME Don't submit it as a open source plugin
 	return db.Migrator().AutoMigrate(
 		// TODO add your models in here
+		&models.IclaCommitter{},
 	)
 }
 
-func (plugin {{ .PluginName }}) SubTaskMetas() []core.SubTaskMeta {
+func (plugin Icla) SubTaskMetas() []core.SubTaskMeta {
 	return []core.SubTaskMeta{
-		// TODO add your sub task here
+		tasks.CollectCommitterMeta,
+		tasks.ExtractCommitterMeta,
 	}
 }
 
-func (plugin {{ .PluginName }}) PrepareTaskData(taskCtx core.TaskContext, options map[string]interface{}) (interface{}, error) {
-	var op tasks.{{ .PluginName }}Options
+func (plugin Icla) PrepareTaskData(taskCtx core.TaskContext, options map[string]interface{}) (interface{}, error) {
+	var op tasks.IclaOptions
 	err := mapstructure.Decode(options, &op)
 	if err != nil {
 		return nil, err
 	}
 
-	// apiClient, err := tasks.New{{ .PluginName }}ApiClient(taskCtx)
-	// if err != nil {
-	// 	return nil, err
-	// }
+	apiClient, err := tasks.NewIclaApiClient(taskCtx)
+	if err != nil {
+		return nil, err
+	}
 
-	return &tasks.{{ .PluginName }}TaskData{
-		Options: &op,
-		// TODO you can init and stash some handler to deal data at all subtasks, Such as apiClient as below.
-		// NOTES: In task_data.go/TaskData should declare `ApiClient`
-        // ApiClient: apiClient,
+	return &tasks.IclaTaskData{
+		Options:   &op,
+		ApiClient: apiClient,
 	}, nil
 }
 
 // PkgPath information lost when compiled as plugin(.so)
-func (plugin {{ .PluginName }}) RootPkgPath() string {
-	return "github.com/apache/incubator-devlake/plugins/{{ .pluginName }}"
+func (plugin Icla) RootPkgPath() string {
+	return "github.com/apache/incubator-devlake/plugins/icla"
 }
 
-func (plugin {{ .PluginName }}) ApiResources() map[string]map[string]core.ApiResourceHandler {
+func (plugin Icla) ApiResources() map[string]map[string]core.ApiResourceHandler {
 	return nil
 }
 
 // standalone mode for debugging
 func main() {
-	cmd := &cobra.Command{Use: "{{ .pluginName }}"}
+	cmd := &cobra.Command{Use: "icla"}
 
 	// TODO add your cmd flag if necessary
 	// yourFlag := cmd.Flags().IntP("yourFlag", "y", 8, "TODO add description here")
