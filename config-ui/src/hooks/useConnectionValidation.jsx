@@ -79,12 +79,12 @@ function useConnectionValidation ({
 
     switch (activeProvider.id) {
       case Providers.GITHUB:
-      case Providers.JIRA:
       case Providers.GITLAB:
         if (!token || token.length <= 2) {
           errs.push('Authentication token(s) are required')
         }
         break
+      case Providers.JIRA:
       case Providers.JENKINS:
         if (!username || username.length <= 2) {
           errs.push('Username is required')

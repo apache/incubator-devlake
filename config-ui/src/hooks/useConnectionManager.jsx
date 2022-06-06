@@ -83,7 +83,7 @@ function useConnectionManager ({
       let connectionPayload
       switch (activeProvider.id) {
         case Providers.JIRA:
-          connectionPayload = { endpoint: endpointUrl, auth: token, proxy: proxy }
+          connectionPayload = { endpoint: endpointUrl, username: username, password: password, proxy: proxy }
           break
         case Providers.GITHUB:
           connectionPayload = { endpoint: endpointUrl, auth: token, proxy: proxy }
@@ -125,7 +125,7 @@ function useConnectionManager ({
     let connectionPayload = { ...configurationSettings }
     switch (activeProvider.id) {
       case Providers.JIRA:
-        connectionPayload = { name: name, endpoint: endpointUrl, basicAuthEncoded: token, proxy: proxy, ...connectionPayload }
+        connectionPayload = { name: name, endpoint: endpointUrl, username: username, password: password, proxy: proxy, ...connectionPayload }
         break
       case Providers.GITHUB:
         connectionPayload = { name: name, endpoint: endpointUrl, auth: token, proxy: proxy, ...connectionPayload }
@@ -384,7 +384,8 @@ function useConnectionManager ({
           setProxy(activeConnection.Proxy || activeConnection.proxy)
           break
         case Providers.JIRA:
-          setToken(activeConnection.basicAuthEncoded || activeConnection.auth)
+          setUsername(activeConnection.username)
+          setPassword(activeConnection.password)
           setProxy(activeConnection.Proxy || activeConnection.proxy)
           break
       }

@@ -75,6 +75,8 @@ export default function ConnectionForm (props) {
   const connectionNameRef = useRef()
   const connectionEndpointRef = useRef()
   const connectionTokenRef = useRef()
+  const connectionUsernameRef = useRef()
+  const connectionPasswordRef = useRef()
 
   // const [isValidForm, setIsValidForm] = useState(true)
   const [allowedAuthTypes, setAllowedAuthTypes] = useState(['token', 'plain'])
@@ -353,115 +355,9 @@ export default function ConnectionForm (props) {
                 )}
                   />
                   )}
-              {
-                activeProvider.id === Providers.JIRA &&
-                  <Popover
-                    className='popover-generate-token'
-                    position={Position.RIGHT}
-                    autoFocus={false}
-                    enforceFocus={false}
-                    isOpen={showTokenCreator}
-                    onInteraction={handleTokenInteraction}
-                    onClosed={() => setShowTokenCreator(false)}
-                    usePortal={false}
-                  >
-                    <Button
-                      disabled={isTesting || isSaving || isLocked}
-                      type='button' icon='key' intent={Intent.PRIMARY} style={{ marginLeft: '5px' }}
-                    />
-                    <>
-                      <div style={{ padding: '15px 20px 15px 15px' }}>
-                        <GenerateTokenForm
-                          isTesting={isTesting}
-                          isSaving={isSaving}
-                          isLocked={isLocked}
-                          onTokenChange={onTokenChange}
-                          setShowTokenCreator={setShowTokenCreator}
-                        />
-                      </div>
-                    </>
-                  </Popover>
-              }
               {/* <a href='#' style={{ margin: '5px 0 5px 5px' }}><Icon icon='info-sign' size='16' /></a> */}
             </FormGroup>
           </div>
-        )}
-        {authType === 'plain' && (
-          <>
-            <div style={{ marginTop: '20px', marginBottom: '20px' }}>
-              <h3 style={{ margin: 0 }}>Username & Password</h3>
-              <span className='description' style={{ margin: 0, color: Colors.GRAY2 }}>
-                If this connection uses login credentials to generate a token or uses PLAIN Auth, specify it here.
-              </span>
-            </div>
-            <div className='formContainer'>
-              <FormGroup
-                label=''
-                disabled={isTesting || isSaving || isLocked}
-                inline={true}
-                labelFor='connection-username'
-                className='formGroup'
-                contentClassName='formGroupContent'
-              >
-                <Label style={{ display: 'inline' }}>
-                  {labels
-                    ? labels.username
-                    : (
-                      <>Username</>
-                      )}
-                  <span className='requiredStar'>*</span>
-                </Label>
-                <InputGroup
-                  id='connection-username'
-                  disabled={isTesting || isSaving || isLocked}
-                  placeholder='Enter Username'
-                  defaultValue={username}
-                  onChange={(e) => onUsernameChange(e.target.value)}
-                  className={`input username-input ${fieldHasError('Username') ? 'invalid-field' : ''}`}
-                  // style={{ maxWidth: '300px' }}
-                  rightElement={(
-                    <InputValidationError
-                      error={getFieldError('Username')}
-                    />
-                  )}
-                />
-              </FormGroup>
-            </div>
-            <div className='formContainer'>
-              <FormGroup
-                disabled={isTesting || isSaving || isLocked}
-                label=''
-                inline={true}
-                labelFor='connection-password'
-                className='formGroup'
-                contentClassName='formGroupContent'
-              >
-                <Label style={{ display: 'inline' }}>
-                  {labels
-                    ? labels.password
-                    : (
-                      <>Password</>
-                      )}
-                  <span className='requiredStar'>*</span>
-                </Label>
-                <InputGroup
-                  id='connection-password'
-                  type='password'
-                  disabled={isTesting || isSaving || isLocked}
-                  placeholder='Enter Password'
-                  defaultValue={password}
-                  onChange={(e) => onPasswordChange(e.target.value)}
-                  className={`input password-input ${fieldHasError('Password') ? 'invalid-field' : ''}`}
-                  // style={{ maxWidth: '300px' }}
-                  rightElement={(
-                    <InputValidationError
-                      error={getFieldError('Password')}
-                    />
-                  )}
-                />
-              </FormGroup>
-            </div>
-          </>
         )}
         {[Providers.GITHUB, Providers.GITLAB, Providers.JIRA].includes(activeProvider.id) && (
           <div className='formContainer'>
@@ -494,6 +390,98 @@ export default function ConnectionForm (props) {
               />
             </FormGroup>
           </div>
+        )}
+        {authType === 'plain' && (
+          <>
+            <div style={{ marginTop: '20px', marginBottom: '20px' }}>
+              <h3 style={{ margin: 0 }}>Username & Password</h3>
+              <span className='description' style={{ margin: 0, color: Colors.GRAY2 }}>
+                If this connection uses login credentials to generate a token or uses PLAIN Auth, specify it here.
+              </span>
+            </div>
+            <div className='formContainer'>
+              <FormGroup
+                label=''
+                disabled={isTesting || isSaving || isLocked}
+                inline={true}
+                labelFor='connection-username'
+                className='formGroup'
+                contentClassName='formGroupContent'
+              >
+                <Label style={{ display: 'inline' }}>
+                  {labels
+                    ? labels.username
+                    : (
+                      <>Username</>
+                      )}
+                  <span className='requiredStar'>*</span>
+                </Label>
+                <InputGroup
+                  id='connection-username'
+                  inputRef={connectionUsernameRef}
+                  disabled={isTesting || isSaving || isLocked}
+                  placeholder='Enter Username'
+                  defaultValue={username}
+                  onChange={(e) => onUsernameChange(e.target.value)}
+                  className={`input username-input  ${stateErrored === 'Username' ? 'invalid-field' : ''}`}
+                  // style={{ maxWidth: '300px' }}
+                  // rightElement={(
+                  //   <InputValidationError
+                  //     error={getFieldError('Username')}
+                  //   />
+                  // )}
+                  rightElement={(
+                    <InputValidationError
+                      error={getFieldError('Username')}
+                      elementRef={connectionUsernameRef}
+                      onError={activateErrorStates}
+                      onSuccess={() => setStateErrored(null)}
+                      validateOnFocus
+                    />
+                  )}
+                />
+              </FormGroup>
+            </div>
+            <div className='formContainer'>
+              <FormGroup
+                disabled={isTesting || isSaving || isLocked}
+                label=''
+                inline={true}
+                labelFor='connection-password'
+                className='formGroup'
+                contentClassName='formGroupContent'
+              >
+                <Label style={{ display: 'inline' }}>
+                  {labels
+                    ? labels.password
+                    : (
+                      <>Password</>
+                      )}
+                  <span className='requiredStar'>*</span>
+                </Label>
+                <InputGroup
+                  id='connection-password'
+                  inputRef={connectionPasswordRef}
+                  type='password'
+                  disabled={isTesting || isSaving || isLocked}
+                  placeholder='Enter Password'
+                  defaultValue={password}
+                  onChange={(e) => onPasswordChange(e.target.value)}
+                  className={`input password-input  ${stateErrored === 'Password' ? 'invalid-field' : ''}`}
+                  // style={{ maxWidth: '300px' }}
+                  rightElement={(
+                    <InputValidationError
+                      error={getFieldError('Password')}
+                      elementRef={connectionPasswordRef}
+                      onError={activateErrorStates}
+                      onSuccess={() => setStateErrored(null)}
+                      validateOnFocus
+                    />
+                    )}
+                />
+              </FormGroup>
+            </div>
+          </>
         )}
         <div
           className='form-actions-block'

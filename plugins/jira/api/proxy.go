@@ -20,8 +20,8 @@ package api
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/apache/incubator-devlake/utils"
 	"io/ioutil"
-	"strconv"
 	"time"
 
 	"github.com/apache/incubator-devlake/plugins/core"
@@ -34,21 +34,13 @@ const (
 )
 
 func Proxy(input *core.ApiResourceInput) (*core.ApiResourceOutput, error) {
-	connectionId := input.Params["connectionId"]
-	if connectionId == "" {
-		return nil, fmt.Errorf("missing connectionid")
-	}
-	jiraConnectionId, err := strconv.ParseUint(connectionId, 10, 64)
-	if err != nil {
-		return nil, err
-	}
 	jiraConnection := &models.JiraConnection{}
-	err = db.First(jiraConnection, jiraConnectionId).Error
+	err := helper.GetConnection(input.Params, jiraConnection, db)
 	if err != nil {
 		return nil, err
 	}
-	encKey := cfg.GetString(core.EncodeKeyEnvStr)
-	basicAuth, err := core.Decrypt(encKey, jiraConnection.BasicAuthEncoded)
+	basicAuth := utils.GetEncodedToken(jiraConnection.Username, jiraConnection.Password)
+
 	if err != nil {
 		return nil, err
 	}

@@ -47,7 +47,6 @@ func DirectRun(cmd *cobra.Command, args []string, pluginTask core.PluginTask, su
 	if err != nil {
 		panic(err)
 	}
-	subtasks = tasks
 	cfg := config.GetConfig()
 	log := logger.Global.Nested(cmd.Use)
 	db, err := NewGormDb(cfg, log)
@@ -102,7 +101,7 @@ func DirectRun(cmd *cobra.Command, args []string, pluginTask core.PluginTask, su
 		db,
 		ctx,
 		cmd.Use,
-		subtasks,
+		tasks,
 		options,
 		pluginTask,
 		nil,

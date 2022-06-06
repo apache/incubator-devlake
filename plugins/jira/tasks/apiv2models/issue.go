@@ -151,11 +151,8 @@ type Issue struct {
 	} `json:"changelog"`
 }
 
-func (i Issue) toToolLayer(connectionId uint64, epicField, storyPointField string) *models.JiraIssue {
+func (i Issue) toToolLayer(connectionId uint64) *models.JiraIssue {
 	var workload float64
-	if storyPointField != "" {
-		workload, _ = i.Fields.AllFields[storyPointField].(float64)
-	}
 	result := &models.JiraIssue{
 		ConnectionId:       connectionId,
 		IssueId:            i.ID,
@@ -176,9 +173,6 @@ func (i Issue) toToolLayer(connectionId uint64, epicField, storyPointField strin
 	}
 	if i.Fields.Epic != nil {
 		result.EpicKey = i.Fields.Epic.Key
-	}
-	if epicField != "" {
-		result.EpicKey, _ = i.Fields.AllFields[epicField].(string)
 	}
 	if i.Fields.Assignee != nil {
 		result.AssigneeAccountId = i.Fields.Assignee.getAccountId()
@@ -227,8 +221,8 @@ func (i *Issue) SetAllFields(raw datatypes.JSON) error {
 	return nil
 }
 
-func (i Issue) ExtractEntities(connectionId uint64, epicField, storyPointField string) ([]uint64, *models.JiraIssue, bool, []*models.JiraWorklog, []*models.JiraChangelog, []*models.JiraChangelogItem, []*models.JiraUser) {
-	issue := i.toToolLayer(connectionId, epicField, storyPointField)
+func (i Issue) ExtractEntities(connectionId uint64) ([]uint64, *models.JiraIssue, bool, []*models.JiraWorklog, []*models.JiraChangelog, []*models.JiraChangelogItem, []*models.JiraUser) {
+	issue := i.toToolLayer(connectionId)
 	var worklogs []*models.JiraWorklog
 	var changelogs []*models.JiraChangelog
 	var changelogItems []*models.JiraChangelogItem

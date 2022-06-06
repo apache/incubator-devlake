@@ -31,7 +31,7 @@ func NewTapdApiClient(taskCtx core.TaskContext, connection *models.TapdConnectio
 	encKey := taskCtx.GetConfig(core.EncodeKeyEnvStr)
 	auth, err := core.Decrypt(encKey, connection.BasicAuthEncoded)
 	if err != nil {
-		return nil, fmt.Errorf("Failed to decrypt Auth Token: %w", err)
+		return nil, fmt.Errorf("Failed to decrypt Auth AccessToken: %w", err)
 	}
 
 	// create synchronize api client so we can calculate api rate limit dynamically
@@ -44,7 +44,7 @@ func NewTapdApiClient(taskCtx core.TaskContext, connection *models.TapdConnectio
 	}
 	apiClient.SetAfterFunction(func(res *http.Response) error {
 		if res.StatusCode == http.StatusUnprocessableEntity {
-			return fmt.Errorf("authentication failed, please check your Basic Auth Token")
+			return fmt.Errorf("authentication failed, please check your AccessToken")
 		}
 		return nil
 	})

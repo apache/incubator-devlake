@@ -156,6 +156,7 @@ func (plugin Jira) MigrationScripts() []migration.Script {
 		new(migrationscripts.UpdateSchemas20220525),
 		new(migrationscripts.UpdateSchemas20220526),
 		new(migrationscripts.UpdateSchemas20220527),
+		new(migrationscripts.UpdateSchemas20220601),
 	}
 }
 
@@ -177,31 +178,6 @@ func (plugin Jira) ApiResources() map[string]map[string]core.ApiResourceHandler 
 			"PATCH":  api.PatchConnection,
 			"DELETE": api.DeleteConnection,
 			"GET":    api.GetConnection,
-		},
-		"connections/:connectionId/epics": {
-			"GET": api.GetEpicsByConnectionId,
-		},
-		"connections/:connectionId/granularities": {
-			"GET": api.GetGranularitiesByConnectionId,
-		},
-		"connections/:connectionId/boards": {
-			"GET": api.GetBoardsByConnectionId,
-		},
-		"connections/:connectionId/type-mappings": {
-			"POST": api.PostIssueTypeMappings,
-			"GET":  api.ListIssueTypeMappings,
-		},
-		"connections/:connectionId/type-mappings/:userType": {
-			"PUT":    api.PutIssueTypeMapping,
-			"DELETE": api.DeleteIssueTypeMapping,
-		},
-		"connections/:connectionId/type-mappings/:userType/status-mappings": {
-			"POST": api.PostIssueStatusMappings,
-			"GET":  api.ListIssueStatusMappings,
-		},
-		"connections/:connectionId/type-mappings/:userType/status-mappings/:userStatus": {
-			"PUT":    api.PutIssueStatusMapping,
-			"DELETE": api.DeleteIssueStatusMapping,
 		},
 		"connections/:connectionId/proxy/rest/*path": {
 			"GET": api.Proxy,
