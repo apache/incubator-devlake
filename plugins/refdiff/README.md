@@ -125,16 +125,16 @@ curl --location --request POST 'localhost:8080/pipelines' \
         [
             {
                 "plugin": "refdiff",
+                "subtasks": [
+                    "calculateCommitsDiff",
+                    "calculateIssuesDiff",
+                    "calculatePrCherryPick"
+                ],
                 "options": {
                     "repoId": "github:GithubRepo:384111310",
                     "pairs": [
                        { "newRef": "refs/tags/v0.6.0", "oldRef": "refs/tags/0.5.0" },
                        { "newRef": "refs/tags/0.5.0", "oldRef": "refs/tags/0.4.0" }
-                    ],
-                    "subtasks": [
-                        "calculateCommitsDiff",
-                        "calculateIssuesDiff",
-                        "calculatePrCherryPick"
                     ]
                 }
             }

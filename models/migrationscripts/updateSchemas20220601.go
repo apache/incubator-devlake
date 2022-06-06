@@ -26,32 +26,21 @@ import (
 	"gorm.io/gorm"
 )
 
-type TaskProgressDetail struct {
-	TotalSubTasks    int    `json:"totalSubTasks"`
-	FinishedSubTasks int    `json:"finishedSubTasks"`
-	TotalRecords     int    `json:"totalRecords"`
-	FinishedRecords  int    `json:"finishedRecords"`
-	SubTaskName      string `json:"subTaskName"`
-	SubTaskNumber    int    `json:"subTaskNumber"`
-}
-
 type Task20220601 struct {
 	common.Model
-	Plugin         string              `json:"plugin" gorm:"index"`
-	Subtasks       datatypes.JSON      `json:"subtasks"`
-	Options        datatypes.JSON      `json:"options"`
-	Status         string              `json:"status"`
-	Message        string              `json:"message"`
-	Progress       float32             `json:"progress"`
-	ProgressDetail *TaskProgressDetail `json:"progressDetail" gorm:"-"`
-
-	FailedSubTask string     `json:"failedSubTask"`
-	PipelineId    uint64     `json:"pipelineId" gorm:"index"`
-	PipelineRow   int        `json:"pipelineRow"`
-	PipelineCol   int        `json:"pipelineCol"`
-	BeganAt       *time.Time `json:"beganAt"`
-	FinishedAt    *time.Time `json:"finishedAt" gorm:"index"`
-	SpentSeconds  int        `json:"spentSeconds"`
+	Plugin        string         `json:"plugin" gorm:"index"`
+	Subtasks      datatypes.JSON `json:"subtasks"`
+	Options       datatypes.JSON `json:"options"`
+	Status        string         `json:"status"`
+	Message       string         `json:"message"`
+	Progress      float32        `json:"progress"`
+	FailedSubTask string         `json:"failedSubTask"`
+	PipelineId    uint64         `json:"pipelineId" gorm:"index"`
+	PipelineRow   int            `json:"pipelineRow"`
+	PipelineCol   int            `json:"pipelineCol"`
+	BeganAt       *time.Time     `json:"beganAt"`
+	FinishedAt    *time.Time     `json:"finishedAt" gorm:"index"`
+	SpentSeconds  int            `json:"spentSeconds"`
 }
 
 func (Task20220601) TableName() string {
