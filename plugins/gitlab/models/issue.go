@@ -15,7 +15,7 @@ type GitlabIssue struct {
 	Priority        string `gorm:"type:varchar(255)"`
 	Type            string `gorm:"type:varchar(100)"`
 	Status          string `gorm:"type:varchar(255)"`
-	AssigneeId      string
+	AssigneeId      int
 	AssigneeName    string `gorm:"type:varchar(255)"`
 	LeadTimeMinutes uint
 	Url             string `gorm:"type:varchar(255)"`
@@ -24,11 +24,11 @@ type GitlabIssue struct {
 	GitlabUpdatedAt time.Time `gorm:"index"`
 	Severity        string    `gorm:"type:varchar(255)"`
 	Component       string    `gorm:"type:varchar(255)"`
-	TimeEstimate 	int64
-	TotalTimeSpent 	int64
+	TimeEstimate    int64
+	TotalTimeSpent  int64
 	common.NoPKModel
 }
+
 func (GitlabIssue) TableName() string {
 	return "_tool_gitlab_issues"
 }
-

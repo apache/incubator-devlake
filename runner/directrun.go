@@ -21,6 +21,7 @@ import (
 	"context"
 	"github.com/apache/incubator-devlake/config"
 	"github.com/apache/incubator-devlake/logger"
+	"github.com/apache/incubator-devlake/migration"
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/spf13/cobra"
 	"os"
@@ -60,6 +61,16 @@ func DirectRun(cmd *cobra.Command, args []string, pluginTask core.PluginTask, su
 		}
 	}
 	err = core.RegisterPlugin(cmd.Use, pluginTask.(core.PluginMeta))
+	if err != nil {
+		panic(err)
+	}
+
+	// collect migration and run
+	migration.Init(db)
+	if migratable, ok := pluginTask.(core.Migratable); ok {
+		migration.Register(migratable.MigrationScripts(), cmd.Use)
+	}
+	err = migration.Execute(context.Background())
 	if err != nil {
 		panic(err)
 	}

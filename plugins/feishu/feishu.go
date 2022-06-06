@@ -73,7 +73,9 @@ func (plugin Feishu) RootPkgPath() string {
 }
 
 func (plugin Feishu) MigrationScripts() []migration.Script {
-	return []migration.Script{new(migrationscripts.InitSchemas)}
+	return []migration.Script{
+		new(migrationscripts.InitSchemas), new(migrationscripts.UpdateSchemas20220524),
+	}
 }
 
 func (plugin Feishu) ApiResources() map[string]map[string]core.ApiResourceHandler {
