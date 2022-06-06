@@ -18,6 +18,8 @@ limitations under the License.
 package main
 
 import (
+	"strconv"
+
 	"github.com/apache/incubator-devlake/plugins/refdiff/tasks"
 	"github.com/apache/incubator-devlake/runner"
 	"github.com/mitchellh/mapstructure"
@@ -83,19 +85,34 @@ func main() {
 	newRef := refdiffCmd.Flags().StringP("new-ref", "n", "", "new ref")
 	oldRef := refdiffCmd.Flags().StringP("old-ref", "o", "", "old ref")
 
+	tagsPattern := refdiffCmd.Flags().StringP("tags-pattern", "p", "", "tags pattern")
+	tagsLimit := refdiffCmd.Flags().StringP("tags-limit", "l", "", "tags limit")
+	tagsOrder := refdiffCmd.Flags().StringP("tags-order", "d", "", "tags order")
+
 	_ = refdiffCmd.MarkFlagRequired("repo-id")
-	_ = refdiffCmd.MarkFlagRequired("new-ref")
-	_ = refdiffCmd.MarkFlagRequired("old-ref")
+	//_ = refdiffCmd.MarkFlagRequired("new-ref")
+	//_ = refdiffCmd.MarkFlagRequired("old-ref")
 
 	refdiffCmd.Run = func(cmd *cobra.Command, args []string) {
+		tl, _ := strconv.Atoi(*tagsLimit)
+		pairs := make([]map[string]string, 0, 1)
+		if *newRef == "" && *oldRef == "" {
+			if *tagsPattern == "" {
+				panic("You must set at least one part of '-p' or '-n -o' for tagsPattern or newRef,oldRef")
+			}
+		} else {
+			pairs = append(pairs, map[string]string{
+				"NewRef": *newRef,
+				"OldRef": *oldRef,
+			})
+		}
+
 		runner.DirectRun(cmd, args, PluginEntry, map[string]interface{}{
-			"repoId": repoId,
-			"pairs": []map[string]string{
-				{
-					"NewRef": *newRef,
-					"OldRef": *oldRef,
-				},
-			},
+			"repoId":      repoId,
+			"pairs":       pairs,
+			"tagsPattern": *tagsPattern,
+			"tagsLimit":   tl,
+			"tagsOrder":   *tagsOrder,
 		})
 	}
 	runner.RunCmd(refdiffCmd)

@@ -27,14 +27,27 @@ import (
 	"gorm.io/gorm/clause"
 )
 
-func CalculateCommitsDiff(taskCtx core.SubTaskContext) error {
+func CalculateCommitsPairs(taskCtx core.SubTaskContext) ([][4]string, error) {
 	data := taskCtx.GetData().(*RefdiffTaskData)
 	repoId := data.Options.RepoId
 	pairs := data.Options.Pairs
+	tagsLimit := data.Options.TagsLimit
 	db := taskCtx.GetDb()
-	ctx := taskCtx.GetContext()
-	logger := taskCtx.GetLogger()
-	insertCountLimitOfRefsCommitsDiff := int(65535 / reflect.ValueOf(code.RefsCommitsDiff{}).NumField())
+
+	rs, err := CaculateTagPattern(taskCtx)
+	if err != nil {
+		return [][4]string{}, err
+	}
+	if tagsLimit > rs.Len() {
+		tagsLimit = rs.Len()
+	}
+
+	commitPairs := make([][4]string, 0, tagsLimit+len(pairs))
+	for i := 1; i < tagsLimit; i++ {
+		commitPairs = append(commitPairs, [4]string{rs[i-1].CommitSha, rs[i].CommitSha, rs[i-1].Name, rs[i].Name})
+	}
+
+	// caculate pairs part
 	// convert ref pairs into commit pairs
 	ref2sha := func(refName string) (string, error) {
 		ref := &code.Ref{}
@@ -48,19 +61,35 @@ func CalculateCommitsDiff(taskCtx core.SubTaskContext) error {
 		}
 		return ref.CommitSha, nil
 	}
-	commitPairs := make([][4]string, 0, len(pairs))
+
 	for i, refPair := range pairs {
 		// get new ref's commit sha
 		newCommit, err := ref2sha(refPair.NewRef)
 		if err != nil {
-			return fmt.Errorf("failed to load commit sha for NewRef on pair #%d: %w", i, err)
+			return [][4]string{}, fmt.Errorf("failed to load commit sha for NewRef on pair #%d: %w", i, err)
 		}
 		// get old ref's commit sha
 		oldCommit, err := ref2sha(refPair.OldRef)
 		if err != nil {
-			return fmt.Errorf("failed to load commit sha for OleRef on pair #%d: %w", i, err)
+			return [][4]string{}, fmt.Errorf("failed to load commit sha for OleRef on pair #%d: %w", i, err)
 		}
 		commitPairs = append(commitPairs, [4]string{newCommit, oldCommit, refPair.NewRef, refPair.OldRef})
+	}
+
+	return commitPairs, nil
+}
+
+func CalculateCommitsDiff(taskCtx core.SubTaskContext) error {
+	data := taskCtx.GetData().(*RefdiffTaskData)
+	repoId := data.Options.RepoId
+	db := taskCtx.GetDb()
+	ctx := taskCtx.GetContext()
+	logger := taskCtx.GetLogger()
+	insertCountLimitOfRefsCommitsDiff := int(65535 / reflect.ValueOf(code.RefsCommitsDiff{}).NumField())
+
+	commitPairs, err := CalculateCommitsPairs(taskCtx)
+	if err != nil {
+		return err
 	}
 
 	commitNodeGraph := utils.NewCommitNodeGraph()
@@ -90,7 +119,7 @@ func CalculateCommitsDiff(taskCtx core.SubTaskContext) error {
 		commitNodeGraph.AddParent(commitParent.CommitSha, commitParent.ParentCommitSha)
 	}
 
-	logger.Info("refdiff", fmt.Sprintf("Create a commit node graph with node count[%d]", commitNodeGraph.Size()))
+	logger.Info("Create a commit node graph with node count[%d]", commitNodeGraph.Size())
 
 	// calculate diffs for commits pairs and store them into database
 	commitsDiff := &code.RefsCommitsDiff{}
@@ -118,13 +147,10 @@ func CalculateCommitsDiff(taskCtx core.SubTaskContext) error {
 		if commitsDiff.NewRefCommitSha == commitsDiff.OldRefCommitSha {
 			// different refs might point to a same commit, it is ok
 			logger.Info(
-				"refdiff",
-				fmt.Sprintf(
-					"skipping ref pair due to they are the same %s %s => %s",
-					commitsDiff.NewRefId,
-					commitsDiff.OldRefId,
-					commitsDiff.NewRefCommitSha,
-				),
+				"skipping ref pair due to they are the same %s %s => %s",
+				commitsDiff.NewRefId,
+				commitsDiff.OldRefId,
+				commitsDiff.NewRefCommitSha,
 			)
 			continue
 		}
@@ -140,7 +166,7 @@ func CalculateCommitsDiff(taskCtx core.SubTaskContext) error {
 
 			// sql limit placeholders count only 65535
 			if commitsDiff.SortingIndex%insertCountLimitOfRefsCommitsDiff == 0 {
-				logger.Info("refdiff", fmt.Sprintf("commitsDiffs count in limited[%d] index[%d]--exec and clean", len(commitsDiffs), commitsDiff.SortingIndex))
+				logger.Info("commitsDiffs count in limited[%d] index[%d]--exec and clean", len(commitsDiffs), commitsDiff.SortingIndex)
 				err = db.Clauses(clause.OnConflict{DoNothing: true}).Create(commitsDiffs).Error
 				if err != nil {
 					return err
@@ -152,20 +178,20 @@ func CalculateCommitsDiff(taskCtx core.SubTaskContext) error {
 		}
 
 		if len(commitsDiffs) > 0 {
-			logger.Info("refdiff", fmt.Sprintf("insert data count [%d]", len(commitsDiffs)))
+			logger.Info("insert data count [%d]", len(commitsDiffs))
 			err = db.Clauses(clause.OnConflict{DoNothing: true}).Create(commitsDiffs).Error
 			if err != nil {
 				return err
 			}
 		}
 
-		logger.Info("refdiff", fmt.Sprintf(
-			"total %d commits of difference found between %s and %s(total:%d)",
+		logger.Info(
+			"total %d commits of difference found between [new][%s] and [old][%s(total:%d)]",
 			newCount,
-			commitsDiff.NewRefCommitSha,
-			commitsDiff.OldRefCommitSha,
+			commitsDiff.NewRefId,
+			commitsDiff.OldRefId,
 			oldCount,
-		))
+		)
 		taskCtx.IncProgress(1)
 	}
 	return nil
