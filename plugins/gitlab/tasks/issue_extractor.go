@@ -16,94 +16,93 @@ var ExtractApiIssuesMeta = core.SubTaskMeta{
 }
 
 type IssuesResponse struct {
-	ProjectId    int `json:"project_id"`
-	Milestone    struct {
-		Due_date 	string
-		Project_id 	int
-		State 		string
+	ProjectId int `json:"project_id"`
+	Milestone struct {
+		Due_date    string
+		Project_id  int
+		State       string
 		Description string
-		Iid 		int
-		Id 			int
-		Title 		string
-		CreatedAt helper.Iso8601Time
-		UpdatedAt helper.Iso8601Time
+		Iid         int
+		Id          int
+		Title       string
+		CreatedAt   helper.Iso8601Time
+		UpdatedAt   helper.Iso8601Time
 	}
-	Author struct{
-		State 		string
-		WebUrl 		string
-		AvatarUrl 	string
-		Username 	string
-		Id 			int
-		Name 		string
+	Author struct {
+		State     string
+		WebUrl    string
+		AvatarUrl string
+		Username  string
+		Id        int
+		Name      string
 	}
-	Description 	string
-	State      		string
-	Iid 			int
-	Assignees []struct {
-		AvatarUrl 	string
-		WebUrl 		string
-		State 		string
-		Username 	string
-		Id 			string
-		Name 		string
+	Description string
+	State       string
+	Iid         int
+	Assignees   []struct {
+		AvatarUrl string
+		WebUrl    string
+		State     string
+		Username  string
+		Id        int
+		Name      string
 	}
 	Assignee *struct {
-		AvatarUrl 	string
-		WebUrl 		string
-		State 		string
-		Username 	string
-		Id 			string
-		Name 		string
+		AvatarUrl string
+		WebUrl    string
+		State     string
+		Username  string
+		Id        int
+		Name      string
 	}
-	Type 				string
-	Labels 				[]string `json:"labels"`
-	UpVotes 			int
-	DownVotes 			int
-	MergeRequestsCount 	int
-	Id 					int	`json:"id"`
-	Title       		string
-	GitlabUpdatedAt helper.Iso8601Time  `json:"updated_at"`
-	GitlabCreatedAt helper.Iso8601Time  `json:"created_at"`
-	GitlabClosedAt  *helper.Iso8601Time `json:"closed_at"`
-	ClosedBy struct{
-		State 		string
-		WebUrl 		string
-		AvatarUrl	string
-		Username 	string
-		Id 			int
-		Name 		string
+	Type               string
+	Labels             []string `json:"labels"`
+	UpVotes            int
+	DownVotes          int
+	MergeRequestsCount int
+	Id                 int `json:"id"`
+	Title              string
+	GitlabUpdatedAt    helper.Iso8601Time  `json:"updated_at"`
+	GitlabCreatedAt    helper.Iso8601Time  `json:"created_at"`
+	GitlabClosedAt     *helper.Iso8601Time `json:"closed_at"`
+	ClosedBy           struct {
+		State     string
+		WebUrl    string
+		AvatarUrl string
+		Username  string
+		Id        int
+		Name      string
 	}
 	UserNotesCount int
-	DueDate helper.Iso8601Time
-	WebUrl string	`json:"web_url"`
-	References struct {
-		Short 		string
-		Relative 	string
-		Full 		string
+	DueDate        helper.Iso8601Time
+	WebUrl         string `json:"web_url"`
+	References     struct {
+		Short    string
+		Relative string
+		Full     string
 	}
 	TimeStats struct {
-		TimeEstimate 		int64
-		TotalTimeSpent 		int64
-		HumanTimeEstimate 	string
+		TimeEstimate        int64
+		TotalTimeSpent      int64
+		HumanTimeEstimate   string
 		HumanTotalTimeSpent string
 	}
-	HasTasks 		bool
-	TaskStatus 		string
-	Confidential 	bool
+	HasTasks         bool
+	TaskStatus       string
+	Confidential     bool
 	DiscussionLocked bool
-	IssueType 		string
-	Serverity 		string
-	Links struct {
-		Self 		string 	`json:"url"`
-		Notes 		string
-		AwardEmoji 	string
-		Project 	string
+	IssueType        string
+	Serverity        string
+	Links            struct {
+		Self       string `json:"url"`
+		Notes      string
+		AwardEmoji string
+		Project    string
 	}
 	TaskCompletionStatus struct {
-		Count 			int
-		CompletedCount 	int
+		Count          int
+		CompletedCount int
 	}
-
 }
 
 func ExtractApiIssues(taskCtx core.SubTaskContext) error {
@@ -135,7 +134,7 @@ func ExtractApiIssues(taskCtx core.SubTaskContext) error {
 				return nil, nil
 			}
 			//If this is not Issue, ignore
-			if body.IssueType != "ISSUE" && body.Type != "ISSUE"{
+			if body.IssueType != "ISSUE" && body.Type != "ISSUE" {
 				return nil, nil
 			}
 			results := make([]interface{}, 0, 2)
@@ -175,8 +174,8 @@ func convertGitlabIssue(issue *IssuesResponse, projectId int) (*models.GitlabIss
 		ClosedAt:        helper.Iso8601TimeToTime(issue.GitlabClosedAt),
 		GitlabCreatedAt: issue.GitlabCreatedAt.ToTime(),
 		GitlabUpdatedAt: issue.GitlabUpdatedAt.ToTime(),
-		TimeEstimate: issue.TimeStats.TimeEstimate,
-		TotalTimeSpent: issue.TimeStats.TotalTimeSpent,
+		TimeEstimate:    issue.TimeStats.TimeEstimate,
+		TotalTimeSpent:  issue.TimeStats.TotalTimeSpent,
 	}
 
 	if issue.Assignee != nil {
