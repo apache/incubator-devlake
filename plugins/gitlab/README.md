@@ -54,9 +54,37 @@ There are no additional settings for the GitLab Datasource Provider at this time
 NOTE: `GitLab Project ID` Mappings feature has been deprecated.
 
 ## Gathering Data with Gitlab
+In order to collect data, you have to compose a JSON looks like following one, and send it by selecting `Advanced Mode` on `Create Pipeline Run` page:
+1. Configure-UI Mode
+```json
+[
+  [
+    {
+      "plugin": "gitlab",
+      "options": {
+        "projectId": <Your gitlab project id>
+      }
+    }
+  ]
+]
+```
+and if you want to perform certain subtasks.
+```json
+[
+  [
+    {
+      "plugin": "gitlab",
+      "subtasks": ["collectXXX", "extractXXX", "convertXXX"],
+      "options": {
+        "projectId": <Your gitlab project id>
+      }
+    }
+  ]
+]
+```
 
-To collect data, you can make a POST request to `/pipelines`
-
+2. Curl Mode:
+You can also trigger data collection by making a POST request to `/pipelines`.
 ```
 curl --location --request POST 'localhost:8080/pipelines' \
 --header 'Content-Type: application/json' \
@@ -72,6 +100,24 @@ curl --location --request POST 'localhost:8080/pipelines' \
 }
 '
 ```
+and if you want to perform certain subtasks.`
+```
+curl --location --request POST 'localhost:8080/pipelines' \
+--header 'Content-Type: application/json' \
+--data-raw '
+{
+    "name": "gitlab 20211126",
+    "tasks": [[{
+        "plugin": "gitlab",
+        "subtasks": ["collectXXX", "extractXXX", "convertXXX"],
+        "options": {
+            "projectId": <Your gitlab project id>
+        }
+    }]]
+}
+'
+```
+
 
 ## Finding Project Id
 

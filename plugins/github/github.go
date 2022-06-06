@@ -144,7 +144,7 @@ func main() {
 	_ = githubCmd.MarkFlagRequired("repo")
 
 	githubCmd.Run = func(cmd *cobra.Command, args []string) {
-		runner.DirectRun(cmd, args, PluginEntry, map[string]interface{}{
+		runner.DirectRun(cmd, args, PluginEntry, []string{}, map[string]interface{}{
 			"owner": *owner,
 			"repo":  *repo,
 		})

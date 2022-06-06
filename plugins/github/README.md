@@ -70,6 +70,7 @@ Define regex pattern in .env
 
 ## Sample Request
 In order to collect data, you have to compose a JSON looks like following one, and send it by selecting `Advanced Mode` on `Create Pipeline Run` page:
+1. Configure-UI Mode
 ```json
 [
   [
@@ -83,7 +84,23 @@ In order to collect data, you have to compose a JSON looks like following one, a
   ]
 ]
 ```
+and if you want to perform certain subtasks.
+```json
+[
+  [
+    {
+      "plugin": "github",
+      "subtasks": ["collectXXX", "extractXXX", "convertXXX"],
+      "options": {
+        "repo": "lake",
+        "owner": "merico-dev"
+      }
+    }
+  ]
+]
+```
 
+2. Curl Mode:
 You can also trigger data collection by making a POST request to `/pipelines`.
 ```
 curl --location --request POST 'localhost:8080/pipelines' \
@@ -93,6 +110,24 @@ curl --location --request POST 'localhost:8080/pipelines' \
     "name": "github 20211126",
     "tasks": [[{
         "plugin": "github",
+        "options": {
+            "repo": "lake",
+            "owner": "merico-dev"
+        }
+    }]]
+}
+'
+```
+and if you want to perform certain subtasks.
+```
+curl --location --request POST 'localhost:8080/pipelines' \
+--header 'Content-Type: application/json' \
+--data-raw '
+{
+    "name": "github 20211126",
+    "tasks": [[{
+        "plugin": "github",
+        "subtasks": ["collectXXX", "extractXXX", "convertXXX"],
         "options": {
             "repo": "lake",
             "owner": "merico-dev"

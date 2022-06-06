@@ -222,7 +222,7 @@ func main() {
 		err = db.Find(&wsList, "parent_id = ?", 59169984).Error
 		for _, v := range wsList {
 			*workspaceId = v.ID
-			runner.DirectRun(c, args, PluginEntry, map[string]interface{}{
+			runner.DirectRun(c, args, PluginEntry, []string{}, map[string]interface{}{
 				"connectionId": *connectionId,
 				"workspaceId":  *workspaceId,
 				"companyId":    *companyId,

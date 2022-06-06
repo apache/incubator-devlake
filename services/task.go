@@ -131,8 +131,14 @@ func CreateTask(newTask *models.NewTask) (*models.Task, error) {
 	if err != nil {
 		return nil, err
 	}
+	s, err := json.Marshal(newTask.Subtasks)
+	if err != nil {
+		return nil, err
+	}
+
 	task := models.Task{
 		Plugin:      newTask.Plugin,
+		Subtasks:    s,
 		Options:     b,
 		Status:      models.TASK_CREATED,
 		Message:     "",

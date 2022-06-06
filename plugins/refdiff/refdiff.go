@@ -88,7 +88,7 @@ func main() {
 	_ = refdiffCmd.MarkFlagRequired("old-ref")
 
 	refdiffCmd.Run = func(cmd *cobra.Command, args []string) {
-		runner.DirectRun(cmd, args, PluginEntry, map[string]interface{}{
+		runner.DirectRun(cmd, args, PluginEntry, []string{}, map[string]interface{}{
 			"repoId": repoId,
 			"pairs": []map[string]string{
 				{

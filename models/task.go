@@ -43,6 +43,7 @@ type TaskProgressDetail struct {
 type Task struct {
 	common.Model
 	Plugin         string              `json:"plugin" gorm:"index"`
+	Subtasks       datatypes.JSON      `json:"subtasks"`
 	Options        datatypes.JSON      `json:"options"`
 	Status         string              `json:"status"`
 	Message        string              `json:"message"`
@@ -60,8 +61,8 @@ type Task struct {
 
 type NewTask struct {
 	// Plugin name
-	Plugin string `json:"plugin" binding:"required"`
-	// Options for the plugin task to be triggered
+	Plugin      string                 `json:"plugin" binding:"required"`
+	Subtasks    []string               `json:"subtasks"`
 	Options     map[string]interface{} `json:"options"`
 	PipelineId  uint64                 `json:"-"`
 	PipelineRow int                    `json:"-"`

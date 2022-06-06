@@ -10,7 +10,39 @@ This plugin extract commits and references from a remote or local git repository
 3. Use the [RefDiff](../refdiff) plugin to calculate version diff, which will be stored in `refs_commits_diffs` table.
 
 ## Sample Request
+1. Configure-UI Mode
+In order to collect data, you have to compose a JSON looks like following one, and send it by selecting `Advanced Mode` on `Create Pipeline Run` page:
+```
+[
+  [
+    {
+      "Plugin": "gitextractor",
+      "Options": {
+        "url": "https://github.com/apache/incubator-devlake.git",
+        "repoId": "github:GithubRepo:384111310"
+      }
+    }
+  ]
+]
+```
+and if you want to perform certain subtasks.
+```
+[
+  [
+    {
+      "plugin": "gitextractor",
+      "subtasks": ["collectXXX", "extractXXX", "convertXXX"],
+      "options": {
+        "url": "https://github.com/apache/incubator-devlake.git",
+        "repoId": "github:GithubRepo:384111310"
+      }
+    }
+  ]
+]
+```
 
+2. Curl Mode:
+You can also trigger data collection by making a POST request to `/pipelines`.
 ```
 curl --location --request POST 'localhost:8080/pipelines' \
 --header 'Content-Type: application/json' \
@@ -20,8 +52,30 @@ curl --location --request POST 'localhost:8080/pipelines' \
     "tasks": [
         [
             {
-                "Plugin": "gitextractor",
-                "Options": {
+                "plugin": "gitextractor",
+                "options": {
+                    "url": "https://github.com/apache/incubator-devlake.git",
+                    "repoId": "github:GithubRepo:384111310"
+                }
+            }
+        ]
+    ]
+}
+'
+```
+and if you want to perform certain subtasks.
+```
+curl --location --request POST 'localhost:8080/pipelines' \
+--header 'Content-Type: application/json' \
+--data-raw '
+{
+    "name": "git repo extractor",
+    "tasks": [
+        [
+            {
+                "plugin": "gitextractor",
+                "subtasks": ["collectXXX", "extractXXX", "convertXXX"],
+                "options": {
                     "url": "https://github.com/apache/incubator-devlake.git",
                     "repoId": "github:GithubRepo:384111310"
                 }

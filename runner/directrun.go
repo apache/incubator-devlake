@@ -30,7 +30,7 @@ import (
 )
 
 func RunCmd(cmd *cobra.Command) {
-	cmd.Flags().StringSliceP("tasks", "t", nil, "specify what tasks to run, --tasks=collectIssues,extractIssues")
+	cmd.Flags().StringSliceP("subtasks", "t", nil, "specify what tasks to run, --subtasks=collectIssues,extractIssues")
 	err := cmd.Execute()
 	if err != nil {
 		panic(err)
@@ -42,12 +42,12 @@ func RunCmd(cmd *cobra.Command) {
 // args: command line arguments
 // pluginTask: specific built-in plugin, for example: feishu, jira...
 // options: plugin config
-func DirectRun(cmd *cobra.Command, args []string, pluginTask core.PluginTask, options map[string]interface{}) {
-	tasks, err := cmd.Flags().GetStringSlice("tasks")
+func DirectRun(cmd *cobra.Command, args []string, pluginTask core.PluginTask, subtasks []string, options map[string]interface{}) {
+	tasks, err := cmd.Flags().GetStringSlice("subtasks")
 	if err != nil {
 		panic(err)
 	}
-	options["tasks"] = tasks
+	subtasks = tasks
 	cfg := config.GetConfig()
 	log := logger.Global.Nested(cmd.Use)
 	db, err := NewGormDb(cfg, log)
@@ -102,6 +102,7 @@ func DirectRun(cmd *cobra.Command, args []string, pluginTask core.PluginTask, op
 		db,
 		ctx,
 		cmd.Use,
+		subtasks,
 		options,
 		pluginTask,
 		nil,
