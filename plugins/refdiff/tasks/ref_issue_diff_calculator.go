@@ -26,15 +26,40 @@ import (
 	"github.com/apache/incubator-devlake/plugins/helper"
 )
 
-func CalculateIssuesDiff(taskCtx core.SubTaskContext) error {
+func CaculatePairList(taskCtx core.SubTaskContext) ([][2]string, error) {
 	data := taskCtx.GetData().(*RefdiffTaskData)
 	repoId := data.Options.RepoId
 	pairs := data.Options.Pairs
+	tagsLimit := data.Options.TagsLimit
+
+	rs, err := CaculateTagPattern(taskCtx)
+	if err != nil {
+		return [][2]string{}, err
+	}
+	if tagsLimit > rs.Len() {
+		tagsLimit = rs.Len()
+	}
+
+	pairList := make([][2]string, 0, tagsLimit+len(pairs))
+	for i := 1; i < tagsLimit; i++ {
+		pairList = append(pairList, [2]string{fmt.Sprintf("%s:%s", repoId, rs[i-1].Id), fmt.Sprintf("%s:%s", repoId, rs[i].Id)})
+	}
+
+	for _, pair := range pairs {
+		pairList = append(pairList, [2]string{fmt.Sprintf("%s:%s", repoId, pair.NewRef), fmt.Sprintf("%s:%s", repoId, pair.OldRef)})
+	}
+
+	return pairList, nil
+}
+
+func CalculateIssuesDiff(taskCtx core.SubTaskContext) error {
+	data := taskCtx.GetData().(*RefdiffTaskData)
+	repoId := data.Options.RepoId
 	db := taskCtx.GetDb()
 	// use to calculate progress
-	pairList := make([][2]string, len(pairs))
-	for i, pair := range pairs {
-		pairList[i] = [2]string{fmt.Sprintf("%s:%s", repoId, pair.NewRef), fmt.Sprintf("%s:%s", repoId, pair.OldRef)}
+	pairList, err := CaculatePairList(taskCtx)
+	if err != nil {
+		return err
 	}
 	cursor, err := db.Table("refs_commits_diffs").
 		Joins(
