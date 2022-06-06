@@ -116,7 +116,7 @@ func (plugin Gitlab) ApiResources() map[string]map[string]core.ApiResourceHandle
 			"GET": api.ListConnections,
 		},
 		"connections/:connectionId": {
-			"GET": api.GetConnection,
+			"GET":   api.GetConnection,
 			"PATCH": api.PatchConnection,
 		},
 	}
