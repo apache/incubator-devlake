@@ -24,7 +24,9 @@ import (
 	"sync/atomic"
 	"time"
 
+	"github.com/apache/incubator-devlake/impl/dalgorm"
 	"github.com/apache/incubator-devlake/plugins/core"
+	"github.com/apache/incubator-devlake/plugins/core/dal"
 	"github.com/spf13/viper"
 	"gorm.io/gorm"
 )
@@ -37,6 +39,7 @@ type defaultExecContext struct {
 	cfg      *viper.Viper
 	logger   core.Logger
 	db       *gorm.DB
+	dal      dal.Dal
 	ctx      context.Context
 	name     string
 	data     interface{}
@@ -59,6 +62,7 @@ func newDefaultExecContext(
 		cfg:      cfg,
 		logger:   logger,
 		db:       db,
+		dal:      dalgorm.NewDalgorm(db),
 		ctx:      ctx,
 		name:     name,
 		data:     data,
@@ -76,6 +80,10 @@ func (c *defaultExecContext) GetConfig(name string) string {
 
 func (c *defaultExecContext) GetDb() *gorm.DB {
 	return c.db
+}
+
+func (c *defaultExecContext) GetDal() dal.Dal {
+	return c.dal
 }
 
 func (c *defaultExecContext) GetContext() context.Context {
@@ -160,7 +168,7 @@ type DefaultSubTaskContext struct {
 func (c *DefaultSubTaskContext) SetProgress(current int, total int) {
 	c.defaultExecContext.SetProgress(core.SubTaskSetProgress, current, total)
 	if total > -1 {
-		c.logger.Info("total records: %d", c.total)
+		c.logger.Info("total jobs: %d", c.total)
 	}
 }
 

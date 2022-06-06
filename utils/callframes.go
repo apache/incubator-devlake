@@ -23,12 +23,12 @@ import (
 	"strings"
 )
 
-func GatherCallFrames() string {
+func GatherCallFrames(delta int) string {
 	var name, file string
 	var line int
 	var pc [16]uintptr
 
-	n := runtime.Callers(3, pc[:])
+	n := runtime.Callers(3+delta, pc[:])
 	for _, pc := range pc[:n] {
 		fn := runtime.FuncForPC(pc)
 		if fn == nil {
