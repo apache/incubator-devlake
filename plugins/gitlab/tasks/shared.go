@@ -97,7 +97,7 @@ func GetMergeRequestsIterator(taskCtx core.SubTaskContext) (*helper.CursorIterat
 	db := taskCtx.GetDb()
 	data := taskCtx.GetData().(*GitlabTaskData)
 	cursor, err := db.Model(&models.GitlabMergeRequest{}).Select("gitlab_id, iid").
-	Where("project_id = ?", data.Options.ProjectId).Select("gitlab_id,iid").Rows()
+		Where("project_id = ?", data.Options.ProjectId).Select("gitlab_id,iid").Rows()
 	if err != nil {
 		return nil, err
 	}

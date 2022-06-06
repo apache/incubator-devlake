@@ -68,6 +68,9 @@ real-e2e-test:
 lint:
 	golangci-lint run
 
+fmt:
+	find -name \*.go | xargs gofmt -w -l
+
 clean:
 	@rm -rf bin
 
