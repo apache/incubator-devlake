@@ -27,8 +27,7 @@ import (
 var _ core.SubTaskEntryPoint = ExtractMeetingTopUserItem
 
 func ExtractMeetingTopUserItem(taskCtx core.SubTaskContext) error {
-
-	exetractor, err := helper.NewApiExtractor(helper.ApiExtractorArgs{
+	extractor, err := helper.NewApiExtractor(helper.ApiExtractorArgs{
 		RawDataSubTaskArgs: helper.RawDataSubTaskArgs{
 			Ctx: taskCtx,
 			Params: FeishuApiParams{
@@ -62,12 +61,12 @@ func ExtractMeetingTopUserItem(taskCtx core.SubTaskContext) error {
 		return err
 	}
 
-	return exetractor.Execute()
+	return extractor.Execute()
 }
 
 var ExtractMeetingTopUserItemMeta = core.SubTaskMeta{
 	Name:             "extractMeetingTopUserItem",
 	EntryPoint:       ExtractMeetingTopUserItem,
 	EnabledByDefault: true,
-	Description:      "Extrat raw top user meeting data into tool layer table feishu_meeting_top_user_item",
+	Description:      "Extract raw top user meeting data into tool layer table feishu_meeting_top_user_item",
 }

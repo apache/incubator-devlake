@@ -23,13 +23,12 @@ import (
 )
 
 type FeishuMeetingTopUserItem struct {
-	common.Model    `json:"-"`
-	StartTime       time.Time
-	MeetingCount    string `json:"meeting_count" gorm:"type:varchar(255)"`
-	MeetingDuration string `json:"meeting_duration" gorm:"type:varchar(255)"`
-	Name            string `json:"name" gorm:"type:varchar(255)"`
-	UserType        int64  `json:"user_type"`
-	common.RawDataOrigin
+	common.NoPKModel `json:"-"`
+	StartTime        time.Time `gorm:"primaryKey"`
+	Name             string    `json:"name" gorm:"primaryKey;type:varchar(255)"`
+	MeetingCount     string    `json:"meeting_count" gorm:"type:varchar(255)"`
+	MeetingDuration  string    `json:"meeting_duration" gorm:"type:varchar(255)"`
+	UserType         int64     `json:"user_type"`
 }
 
 func (FeishuMeetingTopUserItem) TableName() string {

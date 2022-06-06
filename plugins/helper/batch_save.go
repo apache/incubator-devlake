@@ -112,14 +112,10 @@ func hasPrimaryKey(ifv reflect.Type) bool {
 	}
 	for i := 0; i < ifv.NumField(); i++ {
 		v := ifv.Field(i)
-		switch v.Type.Kind() {
-		case reflect.Struct:
-			ok := hasPrimaryKey(v.Type)
-			if ok {
-				return true
-			}
-		default:
-			if ok := isPrimaryKey(v); ok {
+		if ok := isPrimaryKey(v); ok {
+			return true
+		} else if v.Type.Kind() == reflect.Struct {
+			if ok := hasPrimaryKey(v.Type); ok {
 				return true
 			}
 		}
@@ -135,18 +131,15 @@ func getPrimaryKeyValue(iface interface{}) string {
 	}
 	for i := 0; i < ifv.NumField(); i++ {
 		v := ifv.Field(i)
-		switch v.Kind() {
-		case reflect.Struct:
-			s := getPrimaryKeyValue(v.Interface())
+		if isPrimaryKey(ifv.Type().Field(i)) {
+			s := fmt.Sprintf("%v", v.Interface())
 			if s != "" {
 				ss = append(ss, s)
 			}
-		default:
-			if isPrimaryKey(ifv.Type().Field(i)) {
-				s := fmt.Sprintf("%v", v.Interface())
-				if s != "" {
-					ss = append(ss, s)
-				}
+		} else if v.Kind() == reflect.Struct {
+			s := getPrimaryKeyValue(v.Interface())
+			if s != "" {
+				ss = append(ss, s)
 			}
 		}
 	}
