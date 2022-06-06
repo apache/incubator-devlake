@@ -39,7 +39,7 @@ func New{{ .PluginName }}ApiClient(taskCtx core.TaskContext) (*helper.ApiAsyncCl
 	if err != nil {
 		return nil, err
 	}
-	proxy := taskCtx.GetConfig("{{ .PluginName }}_PROXY")
+	proxy := taskCtx.GetConfig("{{ .PLUGIN_NAME }}_PROXY")
 
 	// real request apiClient
 	apiClient, err := helper.NewApiClient(ENDPOINT, nil, 0, proxy, taskCtx.GetContext())
