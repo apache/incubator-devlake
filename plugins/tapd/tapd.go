@@ -19,9 +19,10 @@ package main
 
 import (
 	"fmt"
+	"time"
+
 	"github.com/apache/incubator-devlake/config"
 	"github.com/apache/incubator-devlake/logger"
-	"time"
 
 	"github.com/apache/incubator-devlake/migration"
 	"github.com/apache/incubator-devlake/models/domainlayer/didgen"
@@ -219,7 +220,7 @@ func main() {
 			panic(err)
 		}
 		wsList := make([]*models.TapdWorkspace, 0)
-		err = db.Find(&wsList, "parent_id = ?", 59169984).Error
+		err = db.Find(&wsList, "parent_id = ?", 59169984).Error //nolint TODO: fix the unused err
 		for _, v := range wsList {
 			*workspaceId = v.ID
 			runner.DirectRun(c, args, PluginEntry, map[string]interface{}{

@@ -188,14 +188,14 @@ func (c *DefaultTaskContext) SubTaskContext(subtask string) (core.SubTaskContext
 	if run, ok := c.subtasks[subtask]; ok {
 		if run {
 			// now, create a sub task context if it didn't exist
-			c.mu.Lock()
+			c.defaultExecContext.mu.Lock()
 			if c.subtaskCtxs[subtask] == nil {
 				c.subtaskCtxs[subtask] = &DefaultSubTaskContext{
 					c.defaultExecContext.fork(subtask),
 					c,
 				}
 			}
-			c.mu.Unlock()
+			c.defaultExecContext.mu.Unlock()
 			return c.subtaskCtxs[subtask], nil
 		}
 		// subtasks is skipped

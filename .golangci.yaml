@@ -31,6 +31,7 @@ linters:
 #    - exhaustive
 #    - funlen
 #    - goconst
+    - gofmt
     - goheader
 #    - goimports
 #    - gomnd

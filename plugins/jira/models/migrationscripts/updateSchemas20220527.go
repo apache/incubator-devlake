@@ -47,7 +47,7 @@ func (JiraChangelogItem20220527) TableName() string {
 type UpdateSchemas20220527 struct{}
 
 func (*UpdateSchemas20220527) Up(ctx context.Context, db *gorm.DB) error {
-	
+
 	err := db.Migrator().RenameColumn(jiraArchived.JiraChangelogItem{}, "from", "from_value")
 	if err != nil {
 		return err

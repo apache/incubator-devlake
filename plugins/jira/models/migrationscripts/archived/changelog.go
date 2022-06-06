@@ -45,10 +45,10 @@ type JiraChangelogItem struct {
 	Field       string `gorm:"primaryKey"`
 	FieldType   string
 	FieldId     string
-	From         string
-	FromString   string
-	To           string
-	ToString     string
+	From        string
+	FromString  string
+	To          string
+	ToString    string
 }
 
 func (JiraChangelog) TableName() string {

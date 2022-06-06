@@ -45,14 +45,14 @@ type GitlabIssue20220525 struct {
 	GitlabUpdatedAt time.Time `gorm:"index"`
 	Severity        string    `gorm:"type:varchar(255)"`
 	Component       string    `gorm:"type:varchar(255)"`
-	TimeEstimate 	int64
-	TotalTimeSpent 	int64
+	TimeEstimate    int64
+	TotalTimeSpent  int64
 	archived.NoPKModel
 }
+
 func (GitlabIssue20220525) TableName() string {
 	return "_tool_gitlab_issues"
 }
-
 
 type GitlabIssueLabel20220525 struct {
 	IssueId   int    `gorm:"primaryKey;autoIncrement:false"`
@@ -60,12 +60,12 @@ type GitlabIssueLabel20220525 struct {
 	archived.NoPKModel
 }
 
-func (GitlabIssueLabel20220525) TableName() string{
+func (GitlabIssueLabel20220525) TableName() string {
 	return "_tool_gitlab_issue_labels"
 }
 
 func (*UpdateSchemas20220525) Up(ctx context.Context, db *gorm.DB) error {
-	err := db.Migrator().AutoMigrate(GitlabIssue20220525{},GitlabIssueLabel20220525{})
+	err := db.Migrator().AutoMigrate(GitlabIssue20220525{}, GitlabIssueLabel20220525{})
 	if err != nil {
 		return err
 	}

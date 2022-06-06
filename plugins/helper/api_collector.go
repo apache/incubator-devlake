@@ -185,7 +185,7 @@ func (collector *ApiCollector) Execute() error {
 				go func() {
 					defer func() {
 						wg.Done()
-						recover()
+						recover() //nolint TODO: check the return and do log if not nil
 					}()
 					e := collector.exec(input)
 					// propagate error
@@ -416,7 +416,7 @@ func (collector *ApiCollector) handleResponseWithPages(reqData *RequestData) Api
 		go func() {
 			defer func() {
 				collector.args.ApiClient.Done()
-				recover()
+				recover() //nolint TODO: check the return and do log if not nil
 			}()
 			for page := 2; page <= totalPages; page++ {
 				reqDataTemp := &RequestData{
