@@ -19,6 +19,7 @@ package api
 
 import (
 	_ "github.com/apache/incubator-devlake/api/docs"
+	"log"
 	"time"
 
 	"github.com/apache/incubator-devlake/config"
@@ -41,6 +42,12 @@ func CreateApiService() {
 	router := gin.Default()
 
 	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
+
+	//endpoint debug log
+	gin.DebugPrintRouteFunc = func(httpMethod, absolutePath, handlerName string, nuHandlers int) {
+		log.Printf("endpoint %v %v %v %v\n", httpMethod, absolutePath, handlerName, nuHandlers)
+	}
+
 	// CORS CONFIG
 	router.Use(cors.New(cors.Config{
 		AllowOrigins:     []string{"*"},
