@@ -53,7 +53,9 @@ commit:
 
 mock:
 	rm -rf mocks
-	mockery --all --unroll-variadic=false
+	mockery --dir=./plugins/core --unroll-variadic=false --name='.*'
+	mockery --dir=./plugins/core/dal --unroll-variadic=false --name='.*'
+	mockery --dir=./plugins/helper --unroll-variadic=false --name='.*'
 
 test: unit-test e2e-test
 
