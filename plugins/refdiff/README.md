@@ -1,10 +1,4 @@
 # RefDiff
-
-
-| [English](README.md) | [中文](README-zh-CN.md) |
-| --- | --- |
-
-
 ## Summary
 
 For development workload analysis, we often need to know how many commits have been created between 2 releases. This plugin offers the ability to calculate the commits of difference between 2 Ref(branch/tag), and the result will be stored back into database for further analysis.
@@ -85,6 +79,28 @@ and if you want to perform certain subtasks.
             "oldRef": "refs/tags/0.4.0"
           }
         ]
+      }
+    }
+  ]
+]
+```
+Or you can use tagsPattern to match the tags you want
+And you can use tagOrder (support `alphabetically` and `reverse alphabetically`) to set the order rule with tagLimit to limit the count of matching.
+This is support to calculateCommitsDiff and calculateIssuesDiff
+```json
+[
+  [
+    {
+      "plugin": "refdiff",
+      "subtasks": [
+        "calculateCommitsDiff",
+        "calculateIssuesDiff",
+      ],
+      "options": {
+        "repoId": "github:GithubRepo:384111310",
+        "tagsPattern":".*\\.11\\..*",
+        "tagLimit":3,
+        "tagOrder":"reverse alphabetically",
       }
     }
   ]

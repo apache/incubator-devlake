@@ -94,7 +94,10 @@ func main() {
 	//_ = refdiffCmd.MarkFlagRequired("old-ref")
 
 	refdiffCmd.Run = func(cmd *cobra.Command, args []string) {
-		tl, _ := strconv.Atoi(*tagsLimit)
+		tl, err := strconv.Atoi(*tagsLimit)
+		if err != nil {
+			panic(err)
+		}
 		pairs := make([]map[string]string, 0, 1)
 		if *newRef == "" && *oldRef == "" {
 			if *tagsPattern == "" {
