@@ -31,6 +31,8 @@ import (
 	"github.com/spf13/viper"
 )
 
+const CONFIG_NAME = ".env"
+
 // Lowcase V for private this. You can use it by call GetConfig.
 var v *viper.Viper = nil
 
@@ -38,8 +40,12 @@ func GetConfig() *viper.Viper {
 	return v
 }
 
+func getConfigName() string {
+	return CONFIG_NAME
+}
+
 // Set default value for no .env or .env not set it
-func setDefaultValue() {
+func setDefaultValue(v *viper.Viper) {
 	v.SetDefault("DB_URL", "mysql://merico:merico@mysql:3306/lake?charset=utf8mb4&parseTime=True")
 	v.SetDefault("PORT", ":8080")
 	v.SetDefault("PLUGIN_DIR", "bin/plugins")
@@ -85,18 +91,9 @@ func replaceNewEnvItemInOldContent(v *viper.Viper, envFileContent string) (error
 	return nil, envFileContent
 }
 
-// return the env path
-func getEnvPath() string {
-	envPath := os.Getenv("ENV_PATH")
-	if envPath == "" {
-		envPath = ".env"
-	}
-	return envPath
-}
-
 // WriteConfig save viper to .env file
 func WriteConfig(v *viper.Viper) error {
-	return WriteConfigAs(v, getEnvPath())
+	return WriteConfigAs(v, getConfigName())
 }
 
 // WriteConfigAs save viper to custom filename
@@ -147,14 +144,24 @@ func WriteConfigAs(v *viper.Viper, filename string) error {
 func init() {
 	// create the object and load the .env file
 	v = viper.New()
-	v.SetConfigFile(getEnvPath())
+	v.SetConfigName(getConfigName())
+	v.SetConfigType("env")
+	envPath := os.Getenv("ENV_PATH")
+	// AddConfigPath adds a path for Viper to search for the config file in.
+	if envPath == "" {
+		v.AddConfigPath("$PWD/../..")
+		v.AddConfigPath("..")
+		v.AddConfigPath(".")
+	} else {
+		v.AddConfigPath(envPath)
+	}
 	err := v.ReadInConfig()
 	if err != nil {
 		logrus.Warn("Failed to read [.env] file:", err)
 	}
 	v.AutomaticEnv()
 
-	setDefaultValue()
+	setDefaultValue(v)
 	// This line is essential for reading and writing
 	v.WatchConfig()
 }

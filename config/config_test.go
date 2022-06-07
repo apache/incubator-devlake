@@ -18,57 +18,42 @@ limitations under the License.
 package config
 
 import (
-	"os"
-	"testing"
-
-	"github.com/spf13/viper"
+	"github.com/sirupsen/logrus"
+	"github.com/spf13/afero"
 	"github.com/stretchr/testify/assert"
+	"testing"
 )
 
-func TestReadAndWriteToConfig(t *testing.T) {
+func TestReadConfig(t *testing.T) {
+	DbUrl := "mysql://merico:merico@mysql:3306/lake?charset=utf8mb4&parseTime=True"
 	v := GetConfig()
 	currentDbUrl := v.GetString("DB_URL")
-	newDbUrl := "ThisIsATest"
-	assert.Equal(t, currentDbUrl != newDbUrl, true)
+	logrus.Infof("current db url: %s\n", currentDbUrl)
+	assert.Equal(t, currentDbUrl == DbUrl, true)
+}
+
+func TestWriteConfig(t *testing.T) {
+	filename := ".env"
+	v := GetConfig()
+	newDbUrl := "mysql://merico:merico@mysql:3307/lake?charset=utf8mb4&parseTime=True"
 	v.Set("DB_URL", newDbUrl)
-	err := v.WriteConfig()
-	assert.Equal(t, err == nil, true)
-	nowDbUrl := v.GetString("DB_URL")
-	assert.Equal(t, nowDbUrl == newDbUrl, true)
-	// Reset back to current
-	v.Set("DB_URL", currentDbUrl)
-	err = v.WriteConfig()
+	fs := afero.NewOsFs()
+	file, _ := fs.Create(filename)
+	defer file.Close()
+	_ = WriteConfigAs(v, filename)
+	isEmpty, _ := afero.IsEmpty(fs, filename)
+	assert.False(t, isEmpty)
+	err := fs.Remove(filename)
 	assert.Equal(t, err == nil, true)
 }
 
-func TestGetEnvPath(t *testing.T) {
-	os.Unsetenv("ENV_PATH")
-	assert.Equal(t, getEnvPath(), ".env")
-	os.Setenv("ENV_PATH", "/foo/bar/config.env")
-	assert.Equal(t, getEnvPath(), "/foo/bar/config.env")
-}
-
-func TestWriteConfigToEnvPath(t *testing.T) {
-	cwd, _ := os.Getwd()
-	envFilePath := cwd + string(os.PathSeparator) + "test.env"
-	os.Setenv("ENV_PATH", envFilePath)
-	// remove it, and WriteConfig should create it.
-	os.Remove(envFilePath)
-	defer os.Remove(envFilePath)
-
-	config := GetConfig()
-	config.Set("FOO", "bar")
-
-	err := WriteConfig(config)
-	assert.Equal(t, nil, err)
-
-	configNew := viper.New()
-	configNew.SetConfigFile(envFilePath)
-	err = configNew.ReadInConfig()
-	assert.Equal(t, nil, err)
-
-	bar := configNew.GetString("FOO")
-	assert.Equal(t, "bar", bar)
+func TestSetConfigVariate(t *testing.T) {
+	v := GetConfig()
+	newDbUrl := "mysql://merico:merico@mysql:3307/lake?charset=utf8mb4&parseTime=True"
+	v.Set("DB_URL", newDbUrl)
+	currentDbUrl := v.GetString("DB_URL")
+	logrus.Infof("current db url: %s\n", currentDbUrl)
+	assert.Equal(t, currentDbUrl == newDbUrl, true)
 }
 
 func TestReplaceNewEnvItemInOldContent(t *testing.T) {
@@ -84,19 +69,16 @@ func TestReplaceNewEnvItemInOldContent(t *testing.T) {
 	err, s := replaceNewEnvItemInOldContent(v, `
 some unuseful message
 # comment
-
 a blank
  AA =123
 bB=
   cc	=
   dd	 =
-
 # some comment
 eE=
 ff="some content" and some comment
 Ggg=132
 h.278=1
-
 `)
 	if err != nil {
 		panic(err)
@@ -104,18 +86,15 @@ h.278=1
 	assert.Equal(t, `
 some unuseful message
 # comment
-
 a blank
 AA="aaaa"
 BB="1#1"
 CC="1\"'1"
 DD="1\\\"1"
-
 # some comment
 EE="="
 FF="1.01"
 GGG="gggg"
 H.278="278"
-
 `, s)
 }
