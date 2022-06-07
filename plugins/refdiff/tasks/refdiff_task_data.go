@@ -32,9 +32,9 @@ type RefdiffOptions struct {
 	Tasks  []string `json:"tasks,omitempty"`
 	Pairs  []RefPair
 
-	TagsPattern string
-	TagsLimit   int
-	TagsOrder   string
+	TagsPattern string // The Pattern to match from all tags
+	TagsLimit   int    // How many tags be matched should be used.
+	TagsOrder   string // The Rule to Order the tag list
 }
 
 type RefdiffTaskData struct {
@@ -79,6 +79,7 @@ func (rs RefsReverseAlphabetically) Swap(i, j int) {
 	rs[i], rs[j] = rs[j], rs[i]
 }
 
+// Calculate the TagPattern order by tagsOrder and return the Refs
 func CaculateTagPattern(taskCtx core.SubTaskContext) (Refs, error) {
 	rs := Refs{}
 	data := taskCtx.GetData().(*RefdiffTaskData)

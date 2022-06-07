@@ -27,6 +27,7 @@ import (
 	"gorm.io/gorm/clause"
 )
 
+// Calculate the commits pairs both from Options.Pairs and TagPattern
 func CalculateCommitsPairs(taskCtx core.SubTaskContext) ([][4]string, error) {
 	data := taskCtx.GetData().(*RefdiffTaskData)
 	repoId := data.Options.RepoId

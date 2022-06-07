@@ -26,6 +26,7 @@ import (
 	"github.com/apache/incubator-devlake/plugins/helper"
 )
 
+// Calculate the pair list both from Options.Pairs and TagPattern
 func CaculatePairList(taskCtx core.SubTaskContext) ([][2]string, error) {
 	data := taskCtx.GetData().(*RefdiffTaskData)
 	repoId := data.Options.RepoId
