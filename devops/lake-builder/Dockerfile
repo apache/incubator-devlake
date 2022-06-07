@@ -14,7 +14,7 @@
 # limitations under the License.
 #
 
-# current tag: mericodev/lake-builder:0.0.4
+# current tag: mericodev/lake-builder:0.0.5
 FROM golang:1.17-alpine3.15 as builder
 #RUN apk add --update gcc=130.2.1_pre1-r3 g++=10.2.1_pre1-r3
 RUN apk update && apk upgrade && apk add --no-cache tzdata libgit2-dev gcc g++ make

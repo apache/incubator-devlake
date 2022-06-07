@@ -204,7 +204,7 @@ func main() {
 	_ = cmd.MarkFlagRequired("board")
 	since := cmd.Flags().StringP("since", "s", "", "collect data that are updated after specified time, ie 2006-05-06T07:08:09Z")
 	cmd.Run = func(c *cobra.Command, args []string) {
-		runner.DirectRun(c, args, PluginEntry, []string{}, map[string]interface{}{
+		runner.DirectRun(c, args, PluginEntry, map[string]interface{}{
 			"connectionId": *connectionId,
 			"boardId":      *boardId,
 			"since":        *since,

@@ -13,7 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-FROM mericodev/lake-builder:0.0.4 as builder
+FROM mericodev/lake-builder:0.0.5 as builder
 
 # docker build --build-arg GOPROXY=https://goproxy.io,direct -t mericodev/lake .
 ARG GOPROXY=
@@ -27,16 +27,7 @@ ENV GOBIN=/app/bin
 
 RUN make clean && make all
 
-FROM --platform=linux/amd64 alpine:3.15
-RUN apk add --no-cache musl-dev libgit2-dev libffi-dev \
-    && apk add --no-cache gcc
-
-ENV PYTHONUNBUFFERED=1
-RUN apk add --update --no-cache python3-dev && ln -sf python3 /usr/bin/python
-RUN python3 -m ensurepip
-RUN pip3 install --no-cache --upgrade pip setuptools
-RUN pip3 install dbt-mysql
-RUN apk add --no-cache tar
+FROM --platform=linux/amd64 mericodev/alpine-dbt-mysql:0.0.1
 
 EXPOSE 8080
 

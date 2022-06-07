@@ -1,4 +1,3 @@
-#
 # Licensed to the Apache Software Foundation (ASF) under one or more
 # contributor license agreements.  See the NOTICE file distributed with
 # this work for additional information regarding copyright ownership.
@@ -15,8 +14,14 @@
 # limitations under the License.
 #
 
-blank_issues_enabled: false
-contact_links:
-  - name: Ask a question or get support
-    url: https://github.com/apache/incubator-devlake/discussions/
-    about: Ask a question or request support for using Apache DevLake
+# current tag: mericodev/alpine-dbt-mysql:0.0.1
+FROM --platform=linux/amd64 alpine:3.15
+RUN apk add --no-cache musl-dev libgit2-dev libffi-dev \
+    && apk add --no-cache gcc
+
+ENV PYTHONUNBUFFERED=1
+RUN apk add --update --no-cache python3-dev && ln -sf python3 /usr/bin/python
+RUN python3 -m ensurepip
+RUN pip3 install --no-cache --upgrade pip setuptools
+RUN pip3 install dbt-mysql
+RUN apk add --no-cache tar

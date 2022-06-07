@@ -19,8 +19,6 @@ jobs:
     container:
       image: mericodev/lake-builder:v0.0.5
     steps:
-    - run: |
-        apk add --no-cache tar
     - name: Checkout code
       uses: actions/checkout@v3
     - name: Setup Golang env

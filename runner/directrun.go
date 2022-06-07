@@ -43,7 +43,7 @@ func RunCmd(cmd *cobra.Command) {
 // args: command line arguments
 // pluginTask: specific built-in plugin, for example: feishu, jira...
 // options: plugin config
-func DirectRun(cmd *cobra.Command, args []string, pluginTask core.PluginTask, subtasks []string, options map[string]interface{}) {
+func DirectRun(cmd *cobra.Command, args []string, pluginTask core.PluginTask, options map[string]interface{}) {
 	tasks, err := cmd.Flags().GetStringSlice("subtasks")
 	if err != nil {
 		panic(err)

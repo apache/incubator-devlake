@@ -40,7 +40,7 @@ func main() {
 			panic(err)
 		}
 		wsList := make([]*models.TapdWorkspace, 0)
-		err = db.Find(&wsList, "parent_id = ?", 59169984).Error
+		err = db.First(&wsList, "parent_id = ?", 59169984).Error
 		if err != nil {
 			panic(err)
 		}
@@ -53,7 +53,7 @@ func main() {
 			38496185,
 		}
 		for _, v := range projectList {
-			runner.DirectRun(gitlabCmd, args, PluginEntry, []string{}, map[string]interface{}{
+			runner.DirectRun(gitlabCmd, args, PluginEntry, map[string]interface{}{
 				"projectId": v,
 			})
 		}
