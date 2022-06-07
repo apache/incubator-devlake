@@ -193,7 +193,7 @@ func main() {
 	_ = cmd.MarkFlagRequired("connection")
 	_ = cmd.MarkFlagRequired("board")
 	cmd.Run = func(c *cobra.Command, args []string) {
-		runner.DirectRun(c, args, PluginEntry, []string{}, map[string]interface{}{
+		runner.DirectRun(c, args, PluginEntry, map[string]interface{}{
 			"connectionId": *connectionId,
 			"boardId":      *boardId,
 		})
