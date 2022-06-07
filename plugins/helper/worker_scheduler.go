@@ -168,7 +168,7 @@ func (s *WorkerScheduler) Wait() error {
 
 // Release resources
 func (s *WorkerScheduler) Release() {
-	s.Wait()
+	s.waitGroup.Wait()
 	s.pool.Release()
 	if s.ticker != nil {
 		s.ticker.Stop()
