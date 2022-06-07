@@ -99,19 +99,19 @@ func (s *WorkerScheduler) SubmitBlocking(task func() error) {
 		s.logger.Debug("schedulerJob >>> %d started", id)
 		defer s.logger.Debug("schedulerJob <<< %d ended", id)
 
-		var err error
-		defer s.gatherError(err, cf)
-
 		if len(s.workerErrors) > 0 {
 			// not point to continue
 			return
 		}
 		// wait for rate limit throttling
+
+		var err error
+		defer s.gatherError(err, cf)
 		select {
 		case <-s.ctx.Done():
 			err = s.ctx.Err()
 		case <-s.ticker.C:
-			err = task()
+			err = task() // nolint
 		}
 	})
 	// failed to submit, note that this is not task erro
@@ -153,7 +153,7 @@ func (s *WorkerScheduler) NextTick(task func() error) {
 		var err error
 		defer s.waitGroup.Done()
 		defer s.gatherError(err, cf)
-		err = task()
+		err = task() // nolint
 	}()
 }
 
