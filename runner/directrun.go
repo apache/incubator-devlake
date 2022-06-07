@@ -19,14 +19,15 @@ package runner
 
 import (
 	"context"
+	"os"
+	"os/signal"
+	"syscall"
+
 	"github.com/apache/incubator-devlake/config"
 	"github.com/apache/incubator-devlake/logger"
 	"github.com/apache/incubator-devlake/migration"
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/spf13/cobra"
-	"os"
-	"os/signal"
-	"syscall"
 )
 
 func RunCmd(cmd *cobra.Command) {
@@ -42,7 +43,7 @@ func RunCmd(cmd *cobra.Command) {
 // args: command line arguments
 // pluginTask: specific built-in plugin, for example: feishu, jira...
 // options: plugin config
-func DirectRun(cmd *cobra.Command, args []string, pluginTask core.PluginTask, subtasks []string, options map[string]interface{}) {
+func DirectRun(cmd *cobra.Command, args []string, pluginTask core.PluginTask, options map[string]interface{}) {
 	tasks, err := cmd.Flags().GetStringSlice("subtasks")
 	if err != nil {
 		panic(err)
