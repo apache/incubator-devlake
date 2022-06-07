@@ -42,15 +42,19 @@ type RunningProgress struct {
 	SubTaskNumber int
 }
 
-// This interface define all resources that needed for task/subtask execution
-type ExecContext interface {
-	GetName() string
+type BasicRes interface {
 	GetConfig(name string) string
+	GetLogger() Logger
 	// Deprecated: use dal instead
 	GetDb() *gorm.DB
 	GetDal() dal.Dal
+}
+
+// This interface define all resources that needed for task/subtask execution
+type ExecContext interface {
+	BasicRes
+	GetName() string
 	GetContext() context.Context
-	GetLogger() Logger
 	GetData() interface{}
 	SetProgress(current int, total int)
 	IncProgress(quantity int)

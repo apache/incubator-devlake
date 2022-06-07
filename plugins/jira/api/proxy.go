@@ -20,7 +20,6 @@ package api
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/apache/incubator-devlake/utils"
 	"io/ioutil"
 	"time"
 
@@ -34,23 +33,18 @@ const (
 )
 
 func Proxy(input *core.ApiResourceInput) (*core.ApiResourceOutput, error) {
-	jiraConnection := &models.JiraConnection{}
-	err := helper.GetConnection(input.Params, jiraConnection, db)
-	if err != nil {
-		return nil, err
-	}
-	basicAuth := utils.GetEncodedToken(jiraConnection.Username, jiraConnection.Password)
-
+	connection := &models.JiraConnection{}
+	err := connectionHelper.First(connection, input.Params)
 	if err != nil {
 		return nil, err
 	}
 	apiClient, err := helper.NewApiClient(
-		jiraConnection.Endpoint,
+		connection.Endpoint,
 		map[string]string{
-			"Authorization": fmt.Sprintf("Basic %v", basicAuth),
+			"Authorization": fmt.Sprintf("Basic %v", connection.GetEncodedToken()),
 		},
 		30*time.Second,
-		jiraConnection.Proxy,
+		connection.Proxy,
 		nil,
 	)
 	if err != nil {

@@ -19,7 +19,10 @@ package services
 
 import (
 	"context"
+
 	"github.com/apache/incubator-devlake/models/migrationscripts"
+
+	"time"
 
 	"github.com/apache/incubator-devlake/config"
 	"github.com/apache/incubator-devlake/logger"
@@ -28,7 +31,6 @@ import (
 	"github.com/robfig/cron/v3"
 	"github.com/spf13/viper"
 	"gorm.io/gorm"
-	"time"
 )
 
 var cfg *viper.Viper
@@ -45,7 +47,7 @@ func init() {
 		panic(err)
 	}
 	migration.Init(db)
-	migrationscripts.RegisterAll()
+	runner.RegisterMigrationScripts(migrationscripts.All(), "Framework", cfg, logger.Global)
 	// load plugins
 	err = runner.LoadPlugins(
 		cfg.GetString("PLUGIN_DIR"),

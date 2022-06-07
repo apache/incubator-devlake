@@ -18,149 +18,92 @@ limitations under the License.
 package helper
 
 import (
-	"github.com/stretchr/testify/assert"
-	"reflect"
+	"fmt"
 	"testing"
+	"time"
+
+	"github.com/stretchr/testify/assert"
 )
 
+type MockAuth struct {
+	Username string
+	Password string `encrypt:"yes"`
+}
+
 type MockConnection struct {
-	RestConnection             `mapstructure:",squash"`
-	BasicAuth                  `mapstructure:",squash"`
-	StoryPointField            string `gorm:"type:varchar(50);" json:"storyPointField"`
-	RemotelinkCommitShaPattern string `gorm:"type:varchar(255);comment='golang regexp, the first group will be recognized as commit sha, ref https://github.com/google/re2/wiki/Syntax'" json:"remotelinkCommitShaPattern"`
+	MockAuth
+	Name      string `mapstructure:"name"`
+	BasicAuth string `encrypt:"true"`
+	BearToken struct {
+		AccessToken string `encrypt:"true"`
+	}
+	MockAuth2 *MockAuth
+	Age       int
+	Since     *time.Time
 }
 
-func (MockConnection) TableName() string {
-	return "_tool_jira_connections"
-}
-
+/*
 func TestMergeFieldsToConnection(t *testing.T) {
 	v := &MockConnection{
-		RestConnection: RestConnection{
-			BaseConnection: BaseConnection{
-				Name: "1",
-			},
-			Endpoint:  "2",
-			Proxy:     "3",
-			RateLimit: 0,
+		Name: "1",
+		BearToken: struct {
+			AccessToken string "encrypt:\"true\""
+		}{
+			AccessToken: "2",
 		},
-		BasicAuth: BasicAuth{
-			Username: "4",
-			Password: "5",
+		MockAuth: &MockAuth{
+			Username: "3",
+			Password: "4",
 		},
-		RemotelinkCommitShaPattern: "8",
+		Age: 5,
 	}
 	data := make(map[string]interface{})
-	data["Endpoint"] = "2-2"
-	data["Username"] = "4-4"
-	data["Password"] = "5-5"
+	data["name"] = "1a"
+	data["BasicAuth"] = map[string]interface{}{
+		"AccessToken": "2a",
+	}
+	data["Username"] = "3a"
 
 	err := mergeFieldsToConnection(v, data)
 	assert.Nil(t, err)
 
-	assert.Equal(t, "4-4", v.Username)
-	assert.Equal(t, "2-2", v.Endpoint)
-	assert.Equal(t, "5-5", v.Password)
+	assert.Equal(t, "1a", v.Name)
+	assert.Equal(t, "2a", v.BearToken.AccessToken)
+	assert.Equal(t, "3a", v.Username)
+	assert.Equal(t, "4", v.Password)
+	assert.Equal(t, 5, v.Age)
 }
+*/
 
-func TestDecryptAndEncrypt(t *testing.T) {
+func TestUpdateEncryptFields(t *testing.T) {
+	sinc := time.Now()
 	v := &MockConnection{
-		RestConnection: RestConnection{
-			BaseConnection: BaseConnection{
-				Name: "1",
-			},
-			Endpoint:  "2",
-			Proxy:     "3",
-			RateLimit: 0,
+		MockAuth: MockAuth{
+			Username: "1",
+			Password: "2",
 		},
-		BasicAuth: BasicAuth{
-			Username: "4",
-			Password: "5",
+		Name: "3",
+		BearToken: struct {
+			AccessToken string `encrypt:"true"`
+		}{
+			AccessToken: "4",
 		},
-		RemotelinkCommitShaPattern: "8",
+		MockAuth2: &MockAuth{
+			Username: "5",
+			Password: "6",
+		},
+		Age:   7,
+		Since: &sinc,
 	}
-	err := EncryptConnection(v)
+	err := UpdateEncryptFields(v, func(in string) (string, error) {
+		return fmt.Sprintf("%s-asdf", in), nil
+	})
 	assert.Nil(t, err)
-
-	assert.NotEqual(t, "5", v.Password)
-	err = DecryptConnection(v)
-	assert.Nil(t, err)
-
-	assert.Equal(t, "5", v.Password)
-
+	assert.Equal(t, "1", v.Username)
+	assert.Equal(t, "2-asdf", v.Password)
+	assert.Equal(t, "3", v.Name)
+	assert.Equal(t, "4-asdf", v.BearToken.AccessToken)
+	assert.Equal(t, "5", v.MockAuth2.Username)
+	assert.Equal(t, "6-asdf", v.MockAuth2.Password)
+	assert.Equal(t, 7, v.Age)
 }
-
-func TestDecryptConnection(t *testing.T) {
-	v := &MockConnection{
-		RestConnection: RestConnection{
-			BaseConnection: BaseConnection{
-				Name: "1",
-			},
-			Endpoint:  "2",
-			Proxy:     "3",
-			RateLimit: 0,
-		},
-		BasicAuth: BasicAuth{
-			Username: "4",
-			Password: "5",
-		},
-		RemotelinkCommitShaPattern: "8",
-	}
-	err := EncryptConnection(v)
-	assert.Nil(t, err)
-
-	encryptedPwd := v.Password
-	err = DecryptConnection(v)
-	assert.Nil(t, err)
-	assert.NotEqual(t, encryptedPwd, v.Password)
-	assert.Equal(t, "5", v.Password)
-}
-
-func TestFirstFieldNameWithTag(t *testing.T) {
-	v := &MockConnection{
-		RestConnection: RestConnection{
-			BaseConnection: BaseConnection{
-				Name: "1",
-			},
-			Endpoint:  "2",
-			Proxy:     "3",
-			RateLimit: 0,
-		},
-		BasicAuth: BasicAuth{
-			Username: "4",
-			Password: "5",
-		},
-		StoryPointField:            "7",
-		RemotelinkCommitShaPattern: "8",
-	}
-	dataVal := reflect.ValueOf(v)
-	dataType := reflect.Indirect(dataVal).Type()
-	fieldName := firstFieldNameWithTag(dataType, "encrypt")
-	assert.Equal(t, "Password", fieldName)
-}
-
-//func TestListConnections(t *testing.T) {
-//	jiraConnections := make([]*MockConnection, 0)
-//	cfg := config.GetConfig()
-//	dbUrl := cfg.GetString("DB_URL")
-//	u, err := url.Parse(dbUrl)
-//	dbUrl = fmt.Sprintf("%s@tcp(%s)%s?%s", u.User.String(), u.Host, u.Path, u.RawQuery)
-//	dbConfig := &gorm.Config{
-//		Logger: gormLogger.New(
-//			log.Default(),
-//			gormLogger.Config{
-//				SlowThreshold:             time.Second,      // Slow SQL threshold
-//				LogLevel:                  gormLogger.Error, // Log level
-//				IgnoreRecordNotFoundError: true,             // Ignore ErrRecordNotFound error for logger
-//				Colorful:                  true,             // Disable color
-//			},
-//		),
-//		// most of our operation are in batch, this can improve performance
-//		PrepareStmt: true,
-//	}
-//	db, err := gorm.Open(mysql.Open(dbUrl), dbConfig)
-//
-//	err = ListConnections(&jiraConnections, db)
-//
-//	assert.Nil(t, err)
-//}

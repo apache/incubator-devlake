@@ -19,14 +19,15 @@ package runner
 
 import (
 	"context"
+	"os"
+	"os/signal"
+	"syscall"
+
 	"github.com/apache/incubator-devlake/config"
 	"github.com/apache/incubator-devlake/logger"
 	"github.com/apache/incubator-devlake/migration"
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/spf13/cobra"
-	"os"
-	"os/signal"
-	"syscall"
 )
 
 func RunCmd(cmd *cobra.Command) {
@@ -67,7 +68,7 @@ func DirectRun(cmd *cobra.Command, args []string, pluginTask core.PluginTask, su
 	// collect migration and run
 	migration.Init(db)
 	if migratable, ok := pluginTask.(core.Migratable); ok {
-		migration.Register(migratable.MigrationScripts(), cmd.Use)
+		RegisterMigrationScripts(migratable.MigrationScripts(), cmd.Use, cfg, log)
 	}
 	err = migration.Execute(context.Background())
 	if err != nil {

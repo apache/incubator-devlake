@@ -19,7 +19,6 @@ package runner
 
 import (
 	"fmt"
-	"github.com/apache/incubator-devlake/migration"
 	"io/fs"
 	"path/filepath"
 	"plugin"
@@ -58,7 +57,7 @@ func LoadPlugins(pluginsDir string, config *viper.Viper, logger core.Logger, db 
 				}
 			}
 			if migratable, ok := symPluginEntry.(core.Migratable); ok {
-				migration.Register(migratable.MigrationScripts(), pluginName)
+				RegisterMigrationScripts(migratable.MigrationScripts(), pluginName, config, logger)
 			}
 			err = core.RegisterPlugin(pluginName, pluginMeta)
 			if err != nil {

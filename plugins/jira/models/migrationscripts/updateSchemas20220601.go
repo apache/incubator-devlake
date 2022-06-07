@@ -20,10 +20,11 @@ package migrationscripts
 import (
 	"context"
 	"encoding/base64"
+	"strings"
+
+	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/helper"
 	"gorm.io/gorm"
-	"gorm.io/gorm/clause"
-	"strings"
 )
 
 type JiraConnection20220601 struct {
@@ -38,9 +39,20 @@ func (JiraConnection20220601) TableName() string {
 	return "_tool_jira_connections"
 }
 
-type UpdateSchemas20220601 struct{}
+type UpdateSchemas20220601 struct {
+	config core.ConfigGetter
+	logger core.Logger
+}
 
-func (*UpdateSchemas20220601) Up(ctx context.Context, db *gorm.DB) error {
+func (u *UpdateSchemas20220601) SetConfigGetter(getter core.ConfigGetter) {
+	u.config = getter
+}
+
+func (u *UpdateSchemas20220601) SetLogger(logger core.Logger) {
+	u.logger = logger
+}
+
+func (u *UpdateSchemas20220601) Up(ctx context.Context, db *gorm.DB) error {
 	var err error
 	if !db.Migrator().HasColumn(&JiraConnection20220505{}, "password") {
 		err = db.Migrator().AddColumn(&JiraConnection20220601{}, "password")
@@ -62,39 +74,42 @@ func (*UpdateSchemas20220601) Up(ctx context.Context, db *gorm.DB) error {
 		if err != nil {
 			return err
 		}
-		for i, _ := range connections {
-			err = helper.DecryptConnection(connections[i])
+		encKey := u.config.GetString(core.EncodeKeyEnvStr)
+		for _, connection := range connections {
+			basicAuthEncoded, err := core.Decrypt(encKey, connection.BasicAuthEncoded)
+			if err != nil {
+				u.logger.Warn("failed to decrypt basicAuth for connection %d", connection.ID)
+				continue
+			}
+			basicAuth, err := base64.StdEncoding.DecodeString(basicAuthEncoded)
 			if err != nil {
 				return err
 			}
-			decodedStr, err := base64.StdEncoding.DecodeString(connections[i].BasicAuthEncoded)
-			if err != nil {
-				return err
-			}
-			strList := strings.Split(string(decodedStr), ":")
+			strList := strings.Split(string(basicAuth), ":")
 			if len(strList) > 1 {
 				newConnection := JiraConnection20220601{
 					RestConnection: helper.RestConnection{
 						BaseConnection: helper.BaseConnection{
-							Name:  connections[i].Name,
-							Model: connections[i].Model,
+							Name:  connection.Name,
+							Model: connection.Model,
 						},
-						Endpoint:  connections[i].Endpoint,
-						Proxy:     connections[i].Proxy,
-						RateLimit: connections[i].RateLimit,
+						Endpoint:  connection.Endpoint,
+						Proxy:     connection.Proxy,
+						RateLimit: connection.RateLimit,
 					},
 					BasicAuth: helper.BasicAuth{
 						Username: strList[0],
 						Password: strList[1],
 					},
-					EpicKeyField:               connections[i].EpicKeyField,
-					StoryPointField:            connections[i].StoryPointField,
-					RemotelinkCommitShaPattern: connections[i].RemotelinkCommitShaPattern,
+					EpicKeyField:               connection.EpicKeyField,
+					StoryPointField:            connection.StoryPointField,
+					RemotelinkCommitShaPattern: connection.RemotelinkCommitShaPattern,
 				}
-				db.Clauses(clause.OnConflict{UpdateAll: true}).Create(newConnection)
-
+				err := db.Save(newConnection).Error
+				if err != nil {
+					return err
+				}
 			}
-			connections[i].Name = strList[0]
 		}
 		err = db.Migrator().DropColumn(&JiraConnection20220505{}, "basic_auth_encoded")
 		if err != nil {
