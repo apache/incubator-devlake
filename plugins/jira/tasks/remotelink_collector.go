@@ -53,8 +53,7 @@ func CollectRemotelinks(taskCtx core.SubTaskContext) error {
 		)`).
 		Where(`
 			_tool_jira_board_issues.connection_id = ? AND
-			_tool_jira_board_issues.board_id = ? AND
-			(_tool_jira_issues.remotelink_updated IS NULL OR _tool_jira_issues.remotelink_updated < _tool_jira_issues.updated)
+			_tool_jira_board_issues.board_id = ?
 			`,
 			data.Options.ConnectionId,
 			data.Options.BoardId,

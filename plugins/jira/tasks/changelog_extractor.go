@@ -33,7 +33,6 @@ func ExtractChangelogs(taskCtx core.SubTaskContext) error {
 	if data.JiraServerInfo.DeploymentType == models.DeploymentServer {
 		return nil
 	}
-	db := taskCtx.GetDb()
 	connectionId := data.Connection.ID
 	extractor, err := helper.NewApiExtractor(helper.ApiExtractorArgs{
 		RawDataSubTaskArgs: helper.RawDataSubTaskArgs{
@@ -53,11 +52,6 @@ func ExtractChangelogs(taskCtx core.SubTaskContext) error {
 			var result []interface{}
 			var changelog apiv2models.Changelog
 			err = json.Unmarshal(row.Data, &changelog)
-			if err != nil {
-				return nil, err
-			}
-			issue := &models.JiraIssue{ConnectionId: connectionId, IssueId: input.IssueId}
-			err = db.Model(issue).Update("changelog_updated", input.UpdateTime).Error
 			if err != nil {
 				return nil, err
 			}

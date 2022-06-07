@@ -15,16 +15,19 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package models
+package migrationscripts
 
 import (
+	"context"
+	"github.com/apache/incubator-devlake/models/common"
+	jiraArchived "github.com/apache/incubator-devlake/plugins/jira/models/migrationscripts/archived"
+	"gorm.io/datatypes"
 	"time"
 
-	"github.com/apache/incubator-devlake/models/common"
-	"gorm.io/datatypes"
+	"gorm.io/gorm"
 )
 
-type JiraIssue struct {
+type JiraIssue20220607 struct {
 	// collected fields
 	ConnectionId             uint64 `gorm:"primaryKey"`
 	IssueId                  uint64 `gorm:"primarykey"`
@@ -68,6 +71,28 @@ type JiraIssue struct {
 	common.NoPKModel
 }
 
-func (JiraIssue) TableName() string {
+func (JiraIssue20220607) TableName() string {
 	return "_tool_jira_issues"
+}
+
+type UpdateSchemas20220607 struct{}
+
+func (*UpdateSchemas20220607) Up(ctx context.Context, db *gorm.DB) error {
+	err := db.Migrator().DropColumn(jiraArchived.JiraIssue{}, "changelog_updated")
+	if err != nil {
+		return err
+	}
+	err = db.Migrator().DropColumn(jiraArchived.JiraIssue{}, "remotelink_updated")
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (*UpdateSchemas20220607) Version() uint64 {
+	return 20220526154646
+}
+
+func (*UpdateSchemas20220607) Name() string {
+	return "remove `key` changelog_updated and remotelink_updated from _tool_jira_issues"
 }
