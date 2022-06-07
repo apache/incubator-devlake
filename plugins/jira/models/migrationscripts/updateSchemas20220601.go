@@ -62,7 +62,7 @@ func (*UpdateSchemas20220601) Up(ctx context.Context, db *gorm.DB) error {
 		if err != nil {
 			return err
 		}
-		for i, _ := range connections {
+		for i := range connections {
 			err = helper.DecryptConnection(connections[i])
 			if err != nil {
 				return err

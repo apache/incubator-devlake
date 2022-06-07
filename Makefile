@@ -69,7 +69,7 @@ lint:
 	golangci-lint run
 
 fmt:
-	find -name \*.go | xargs gofmt -w -l
+	find . -name \*.go | xargs gofmt -s -w -l
 
 clean:
 	@rm -rf bin
