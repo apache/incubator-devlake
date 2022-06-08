@@ -1,0 +1,78 @@
+name: Deployment Test
+on:
+  push:
+    tags:
+      - v*
+    branches:
+      - main
+    paths:
+      - deployment/helm/**
+      - .github/workflows/deploy-test.yml
+  pull_request:
+    paths:
+      - deployment/helm/**
+      - .github/workflows/deploy-test.yml
+
+jobs:
+  deploy-with-helm:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+    steps:
+      - name: Creating kind cluster
+        uses: container-tools/kind-action@v1
+
+      - name: Cluster information
+        run: |
+          kubectl cluster-info
+          kubectl get nodes
+          kubectl get pods -n kube-system
+          helm version
+          kubectl version
+          kubectl get storageclasses
+
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      # Currently needs 6mins to build all images, so maybe enabled later in scheduled jobs.
+      # - name: Build container images
+      #   run: |
+      #     docker build -t kind-registry:5000/deploy-test-lake:latest .
+      #     docker build -t kind-registry:5000/deploy-test-grafana:latest grafana
+      #     docker build -t kind-registry:5000/deploy-test-ui:latest config-ui
+      #     docker push kind-registry:5000/deploy-test-lake:latest
+      #     docker push kind-registry:5000/deploy-test-grafana:latest
+      #     docker push kind-registry:5000/deploy-test-ui:latest
+
+      - name: Helm install devlake
+        run: |
+          export NODE_IP=$(kubectl get nodes --namespace default -o jsonpath="{.items[0].status.addresses[0].address}")
+          echo Node IP: ${NODE_IP}
+          helm install --wait --timeout 600s deploy-test deployment/helm \
+            --set service.uiPort=30000 \
+            --set service.grafanaPort=30001 \
+            --set service.grafanaEndpoint=http://${NODE_IP}:30001
+          kubectl get pods -o wide
+          kubectl get services -o wide
+
+      # TODO: using some e2e test code to replace it
+      - name: Curl with endpoints
+        run: |
+          export NODE_IP=$(kubectl get nodes --namespace default -o jsonpath="{.items[0].status.addresses[0].address}")
+          # home
+          curl --fail http://${NODE_IP}:30000
+          # API for devlake
+          curl --fail --silent --retry 10 --retry-delay 5 \
+            http://${NODE_IP}:30000/api/blueprints
+          # API for grafana
+          curl --fail --silent --retry 10 --retry-delay 5 \
+            http://${NODE_IP}:30001/api/health
+      
+      - name: Show logs for pods
+        if: ${{ always() }}
+        run: |
+          for pod in $(kubectl get pods -o jsonpath='{.items[*].metadata.name}') ; do
+            echo logs for $pod
+            kubectl logs $pod
+          done
+
