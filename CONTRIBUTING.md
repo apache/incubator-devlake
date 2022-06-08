@@ -5,7 +5,6 @@
 The following is a set of guidelines for contributing to Lake. These are mostly guidelines, not rules. 
 Use your best judgment, and feel free to propose changes to this document in a pull request.
 
-
 ## How Can I Contribute?
 
 1. Reporting bugs by filling out the required issue template and labeling the new issue as 'bug'.
@@ -17,6 +16,97 @@ This lets us reach an agreement on your proposal before you put significant effo
 
 If you’re only fixing a bug, it’s fine to submit a pull request right away but we still recommend to file an issue detailing what you’re fixing. 
 This is helpful in case we don’t accept that specific fix but want to keep track of the issue.
+
+## How to run this project with docker-compose
+
+1. Install docker
+
+https://docs.docker.com/get-docker/
+
+2. Run docker-compose
+
+`docker-compose up -d`
+
+3. Stop all containers
+
+`docker-compose down`
+
+## How to run the project in dev mode if you want to work on the backend (Frontend excluded)
+
+1. Clone the repository
+
+```
+git clone https://github.com/apache/incubator-devlake
+```
+
+2. Init your config file
+
+`cp .env.example .env`
+
+3. Install the correct version of go 
+
+here: https://go.dev/dl/
+
+4. Install all dependencies
+
+```
+go version
+go get
+brew install pkg-config
+brew install cmake
+git clone https://github.com/libgit2/libgit2.git
+cd libgit2
+git checkout v1.3.0
+mkdir build
+cd build
+cmake ..
+make
+make install
+cd ../..
+```
+
+5. Install and configure mysql
+
+```
+brew install mysql
+mysql -uroot -p # password is "root" by default
+```
+
+Then from the mysql terminal interface:
+
+```
+CREATE USER 'merico'@'%' IDENTIFIED BY 'merico';
+GRANT ALL PRIVILEGES ON *.* TO 'merico'@'%';
+CREATE DATABASE IF NOT EXISTS lake;
+```
+
+Note: You can set anything you want for user/pass/dbname in your .env file
+
+6. Build all plugins
+
+`make all`
+
+You should see an output similar to this: 
+
+```
+➜  lake git:(main) ✗ make all
+Building plugin ae to bin/plugins/ae/ae.so
+Building plugin dbt to bin/plugins/dbt/dbt.so
+Building plugin feishu to bin/plugins/feishu/feishu.so
+Building plugin gitextractor to bin/plugins/gitextractor/gitextractor.so
+Building plugin github to bin/plugins/github/github.so
+Building plugin gitlab to bin/plugins/gitlab/gitlab.so
+Building plugin jenkins to bin/plugins/jenkins/jenkins.so
+Building plugin jira to bin/plugins/jira/jira.so
+Building plugin refdiff to bin/plugins/refdiff/refdiff.so
+Building plugin tapd to bin/plugins/tapd/tapd.so
+go build -ldflags "-X 'github.com/apache/incubator-devlake/version.Version=@5ed73bdb'" -o bin/lake
+go build -ldflags "-X 'github.com/apache/incubator-devlake/version.Version=@5ed73bdb'" -o bin/lake-worker ./worker/
+```
+
+7. Run the backend
+
+`make run`
 
 ## Style guides
 

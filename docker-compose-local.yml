@@ -1,0 +1,78 @@
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+version: "3"
+services:
+  mysql:
+    image: mysql:8.0.26
+    volumes:
+      - mysql-storage:/var/lib/mysql
+    restart: always
+    ports:
+      - 127.0.0.1:3306:3306
+    environment:
+      MYSQL_ROOT_PASSWORD: admin
+      MYSQL_DATABASE: lake
+      MYSQL_USER: merico
+      MYSQL_PASSWORD: merico
+
+  postgres:
+    image: postgres:14.2
+    volumes:
+      - postgres-storage:/var/lib/postgresql
+    restart: always
+    ports:
+      - 127.0.0.1:5432:5432
+    environment:
+      POSTGRES_DB: lake
+      POSTGRES_USER: merico
+      POSTGRES_PASSWORD: merico
+
+  grafana:
+    image: mericodev/grafana:latest
+    build:
+      context: grafana/
+    ports:
+      - 3002:3000
+    volumes:
+      - grafana-storage:/var/lib/grafana
+    environment:
+      GF_USERS_ALLOW_SIGN_UP: 'false'
+      GF_DASHBOARDS_JSON_ENABLED: 'true'
+      GF_LIVE_ALLOWED_ORIGINS: '*'
+      MYSQL_URL: mysql:3306
+      MYSQL_DATABASE: lake
+      MYSQL_USER: merico
+      MYSQL_PASSWORD: merico
+    restart: always
+    depends_on:
+      - mysql
+
+  config-ui:
+    image: mericodev/config-ui:latest
+    build:
+      context: "config-ui"
+    ports:
+      - 127.0.0.1:4000:80
+    env_file:
+      - ./.env
+    environment:
+      DEVLAKE_ENDPOINT: localhost:8080
+      GRAFANA_ENDPOINT: http://localhost:3002
+
+volumes:
+  mysql-storage:
+  grafana-storage:
+  postgres-storage:
