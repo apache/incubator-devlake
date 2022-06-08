@@ -33,8 +33,9 @@ mysql:
 
   # image for mysql
   image:
+    platform: arm64v8/mysql
     repository: mysql
-    tag: 8.0.26
+    tag: 8.0.28-oracle
     pullPolicy: IfNotPresent
   
   # resources config for mysql if have
