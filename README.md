@@ -67,8 +67,8 @@ This section lists all the documents to help you contribute to the repo.
 - [Architecture](https://devlake.apache.org/docs/Overview/Architecture): Architecture of Apache DevLake
 - [Data Model](https://devlake.apache.org/docs/DataModels/DevLakeDomainLayerSchema): Domain Layer Schema
 - [Add a Plugin](/plugins/README.md): Guide to add a plugin
-- [Add metrics](/plugins/HOW-TO-ADD-METRICS.md): Guide to add metrics in a plugin
-- [Contribution guidelines](CONTRIBUTING.md): Start from here if you want to make contribution
+- [Add Metrics](/plugins/HOW-TO-ADD-METRICS.md): Guide to add metrics in a plugin
+- [Contribution Guidelines](https://devlake.apache.org/community): Start from here if you want to make contribution
 
 
 ## Community
