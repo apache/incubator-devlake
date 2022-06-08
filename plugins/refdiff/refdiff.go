@@ -64,6 +64,16 @@ func (plugin RefDiff) PrepareTaskData(taskCtx core.TaskContext, options map[stri
 		return nil, err
 	}
 
+	db := taskCtx.GetDb()
+	tagsPattern := op.TagsPattern
+	tagsLimit := op.TagsLimit
+	tagsOrder := op.TagsOrder
+
+	op.TagsRefs, err = tasks.CaculateTagPattern(db, tagsPattern, tagsLimit, tagsOrder)
+	if err != nil {
+		return nil, err
+	}
+
 	return &tasks.RefdiffTaskData{
 		Options: &op,
 	}, nil

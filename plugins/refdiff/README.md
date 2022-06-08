@@ -85,7 +85,7 @@ and if you want to perform certain subtasks.
 ]
 ```
 Or you can use tagsPattern to match the tags you want
-And you can use tagOrder (support `alphabetically` and `reverse alphabetically`) to set the order rule with tagLimit to limit the count of matching.
+And you can use tagOrder (support `alphabetically`,`reverse alphabetically`,`semver`,`reverse semver`) to set the order rule with tagLimit to limit the count of matching.
 This is support to calculateCommitsDiff and calculateIssuesDiff
 ```json
 [
@@ -100,7 +100,7 @@ This is support to calculateCommitsDiff and calculateIssuesDiff
         "repoId": "github:GithubRepo:384111310",
         "tagsPattern":".*\\.11\\..*",
         "tagLimit":3,
-        "tagOrder":"reverse alphabetically",
+        "tagOrder":"reverse semver",
       }
     }
   ]

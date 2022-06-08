@@ -31,18 +31,10 @@ func CaculatePairList(taskCtx core.SubTaskContext) (RefPairLists, error) {
 	data := taskCtx.GetData().(*RefdiffTaskData)
 	repoId := data.Options.RepoId
 	pairs := data.Options.Pairs
-	tagsLimit := data.Options.TagsLimit
+	rs := data.Options.TagsRefs
 
-	rs, err := CaculateTagPattern(taskCtx)
-	if err != nil {
-		return RefPairLists{}, err
-	}
-	if tagsLimit > rs.Len() {
-		tagsLimit = rs.Len()
-	}
-
-	pairList := make(RefPairLists, 0, tagsLimit+len(pairs))
-	for i := 1; i < tagsLimit; i++ {
+	pairList := make(RefPairLists, 0, len(rs)+len(pairs))
+	for i := 1; i < len(rs); i++ {
 		pairList = append(pairList, RefPairList{fmt.Sprintf("%s:%s", repoId, rs[i-1].Id), fmt.Sprintf("%s:%s", repoId, rs[i].Id)})
 	}
 
