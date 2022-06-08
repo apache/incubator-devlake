@@ -81,7 +81,7 @@ func CollectApiPullRequestReviews(taskCtx core.SubTaskContext) error {
 
 		UrlTemplate: "repos/{{ .Params.Owner }}/{{ .Params.Repo }}/pulls/{{ .Input.Number }}/reviews",
 
-		Query: func(reqData *helper.RequestData) (url.Values, error) {
+		Query: func(reqData *helper.RequestData, taskCtx core.SubTaskContext) (url.Values, error) {
 			query := url.Values{}
 			query.Set("state", "all")
 			query.Set("page", fmt.Sprintf("%v", reqData.Pager.Page))

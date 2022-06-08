@@ -54,7 +54,7 @@ func CollectMeetingTopUserItem(taskCtx core.SubTaskContext) error {
 		Incremental: incremental,
 		Input:       iterator,
 		UrlTemplate: "/reports/get_top_user",
-		Query: func(reqData *helper.RequestData) (url.Values, error) {
+		Query: func(reqData *helper.RequestData, taskCtx core.SubTaskContext) (url.Values, error) {
 			query := url.Values{}
 			input := reqData.Input.(*helper.DatePair)
 			query.Set("start_time", strconv.FormatInt(input.PairStartTime.Unix(), 10))
