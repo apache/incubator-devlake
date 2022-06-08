@@ -21,10 +21,11 @@ import (
 	"fmt"
 	"regexp"
 	"sort"
+	"strings"
 	"time"
 
 	"github.com/apache/incubator-devlake/models/domainlayer/code"
-	"github.com/apache/incubator-devlake/plugins/core"
+	"gorm.io/gorm"
 )
 
 type RefdiffOptions struct {
@@ -32,9 +33,10 @@ type RefdiffOptions struct {
 	Tasks  []string `json:"tasks,omitempty"`
 	Pairs  []RefPair
 
-	TagsPattern string // The Pattern to match from all tags
-	TagsLimit   int    // How many tags be matched should be used.
-	TagsOrder   string // The Rule to Order the tag list
+	TagsPattern string     // The Pattern to match from all tags
+	TagsLimit   int        // How many tags be matched should be used.
+	TagsOrder   string     // The Rule to Order the tag list
+	TagsRefs    []code.Ref // Caculate out by TagsPattern TagsLimit TagsOrder from db
 }
 
 type RefdiffTaskData struct {
@@ -54,6 +56,8 @@ type RefPairLists []RefPairList
 type Refs []code.Ref
 type RefsAlphabetically Refs
 type RefsReverseAlphabetically Refs
+type RefsSemver Refs
+type RefsReverseSemver Refs
 
 func (rs Refs) Len() int {
 	return len(rs)
@@ -83,16 +87,58 @@ func (rs RefsReverseAlphabetically) Swap(i, j int) {
 	rs[i], rs[j] = rs[j], rs[i]
 }
 
+func (rs RefsSemver) Len() int {
+	return len(rs)
+}
+
+func (rs RefsSemver) Less(i, j int) bool {
+	parti := strings.Split(rs[i].Name, ".")
+	partj := strings.Split(rs[j].Name, ".")
+
+	for k := 0; k < len(partj); k++ {
+		if k >= len(parti) {
+			return true
+		}
+
+		if len(parti[k]) < len(partj[k]) {
+			return true
+		}
+		if len(parti[k]) > len(partj[k]) {
+			return false
+		}
+
+		if parti[k] < partj[k] {
+			return true
+		}
+		if parti[k] > partj[k] {
+			return false
+		}
+	}
+	return false
+}
+
+func (rs RefsSemver) Swap(i, j int) {
+	rs[i], rs[j] = rs[j], rs[i]
+}
+
+func (rs RefsReverseSemver) Len() int {
+	return len(rs)
+}
+
+func (rs RefsReverseSemver) Less(i, j int) bool {
+	return RefsSemver(rs).Less(j, i)
+}
+
+func (rs RefsReverseSemver) Swap(i, j int) {
+	rs[i], rs[j] = rs[j], rs[i]
+}
+
 // Calculate the TagPattern order by tagsOrder and return the Refs
-func CaculateTagPattern(taskCtx core.SubTaskContext) (Refs, error) {
+func CaculateTagPattern(db *gorm.DB, tagsPattern string, tagsLimit int, tagsOrder string) (Refs, error) {
 	rs := Refs{}
-	data := taskCtx.GetData().(*RefdiffTaskData)
-	tagsPattern := data.Options.TagsPattern
-	tagsOrder := data.Options.TagsOrder
-	db := taskCtx.GetDb()
 
 	// caculate Pattern part
-	if data.Options.TagsPattern == "" || data.Options.TagsLimit <= 1 {
+	if tagsPattern == "" || tagsLimit <= 1 {
 		return rs, nil
 	}
 	rows, err := db.Model(&code.Ref{}).Order("created_date desc").Rows()
@@ -111,7 +157,7 @@ func CaculateTagPattern(taskCtx core.SubTaskContext) (Refs, error) {
 			return rs, err
 		}
 
-		if ok := r.Match([]byte(ref.Id)); ok {
+		if ok := r.Match([]byte(ref.Name)); ok {
 			rs = append(rs, ref)
 		}
 	}
@@ -120,8 +166,17 @@ func CaculateTagPattern(taskCtx core.SubTaskContext) (Refs, error) {
 		sort.Sort(RefsAlphabetically(rs))
 	case "reverse alphabetically":
 		sort.Sort(RefsReverseAlphabetically(rs))
+	case "semver":
+		sort.Sort(RefsSemver(rs))
+	case "reverse semver":
+		sort.Sort(RefsReverseSemver(rs))
 	default:
 		break
 	}
+
+	if tagsLimit < rs.Len() {
+		rs = rs[:tagsLimit]
+	}
+
 	return rs, nil
 }

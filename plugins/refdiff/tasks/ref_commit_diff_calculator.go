@@ -32,19 +32,11 @@ func CalculateCommitsPairs(taskCtx core.SubTaskContext) (RefCommitPairs, error) 
 	data := taskCtx.GetData().(*RefdiffTaskData)
 	repoId := data.Options.RepoId
 	pairs := data.Options.Pairs
-	tagsLimit := data.Options.TagsLimit
+	rs := data.Options.TagsRefs
 	db := taskCtx.GetDb()
 
-	rs, err := CaculateTagPattern(taskCtx)
-	if err != nil {
-		return RefCommitPairs{}, err
-	}
-	if tagsLimit > rs.Len() {
-		tagsLimit = rs.Len()
-	}
-
-	commitPairs := make(RefCommitPairs, 0, tagsLimit+len(pairs))
-	for i := 1; i < tagsLimit; i++ {
+	commitPairs := make(RefCommitPairs, 0, len(rs)+len(pairs))
+	for i := 1; i < len(rs); i++ {
 		commitPairs = append(commitPairs, [4]string{rs[i-1].CommitSha, rs[i].CommitSha, rs[i-1].Name, rs[i].Name})
 	}
 
