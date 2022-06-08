@@ -18,11 +18,6 @@ This lets us reach an agreement on your proposal before you put significant effo
 If you’re only fixing a bug, it’s fine to submit a pull request right away but we still recommend to file an issue detailing what you’re fixing. 
 This is helpful in case we don’t accept that specific fix but want to keep track of the issue.
 
-## Maintainer team @ Merico
-
-Dev Lake is maintained by a group of engineers at Merico, led by [@hezyin](https://github.com/hezyin). 
-We aim to achieve an SLA of 24 hrs for replying to issues.
-
 ## Style guides
 
 ### Git Commit message
