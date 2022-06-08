@@ -24,7 +24,9 @@ import (
 	"sync/atomic"
 	"time"
 
+	"github.com/apache/incubator-devlake/impl/dalgorm"
 	"github.com/apache/incubator-devlake/plugins/core"
+	"github.com/apache/incubator-devlake/plugins/core/dal"
 	"github.com/spf13/viper"
 	"gorm.io/gorm"
 )
@@ -32,11 +34,45 @@ import (
 // bridge to current implementation at this point
 // TODO: implement another TaskContext for distributed runner/worker
 
+type DefaultBasicRes struct {
+	cfg    *viper.Viper
+	logger core.Logger
+	db     *gorm.DB
+	dal    dal.Dal
+}
+
+func (c *DefaultBasicRes) GetConfig(name string) string {
+	return c.cfg.GetString(name)
+}
+
+func (c *DefaultBasicRes) GetDb() *gorm.DB {
+	return c.db
+}
+
+func (c *DefaultBasicRes) GetDal() dal.Dal {
+	return c.dal
+}
+
+func (c *DefaultBasicRes) GetLogger() core.Logger {
+	return c.logger
+}
+
+func NewDefaultBasicRes(
+	cfg *viper.Viper,
+	logger core.Logger,
+	db *gorm.DB,
+) *DefaultBasicRes {
+	return &DefaultBasicRes{
+		cfg:    cfg,
+		logger: logger,
+		db:     db,
+		dal:    dalgorm.NewDalgorm(db),
+	}
+}
+
 // shared by TasContext and SubTaskContext
 type defaultExecContext struct {
-	cfg      *viper.Viper
-	logger   core.Logger
-	db       *gorm.DB
+	*DefaultBasicRes
 	ctx      context.Context
 	name     string
 	data     interface{}
@@ -56,9 +92,11 @@ func newDefaultExecContext(
 	progress chan core.RunningProgress,
 ) *defaultExecContext {
 	return &defaultExecContext{
-		cfg:      cfg,
-		logger:   logger,
-		db:       db,
+		DefaultBasicRes: NewDefaultBasicRes(
+			cfg,
+			logger,
+			db,
+		),
 		ctx:      ctx,
 		name:     name,
 		data:     data,
@@ -70,24 +108,12 @@ func (c *defaultExecContext) GetName() string {
 	return c.name
 }
 
-func (c *defaultExecContext) GetConfig(name string) string {
-	return c.cfg.GetString(name)
-}
-
-func (c *defaultExecContext) GetDb() *gorm.DB {
-	return c.db
-}
-
 func (c *defaultExecContext) GetContext() context.Context {
 	return c.ctx
 }
 
 func (c *defaultExecContext) GetData() interface{} {
 	return c.data
-}
-
-func (c *defaultExecContext) GetLogger() core.Logger {
-	return c.logger
 }
 
 func (c *defaultExecContext) SetProgress(progressType core.ProgressType, current int, total int) {
@@ -160,7 +186,7 @@ type DefaultSubTaskContext struct {
 func (c *DefaultSubTaskContext) SetProgress(current int, total int) {
 	c.defaultExecContext.SetProgress(core.SubTaskSetProgress, current, total)
 	if total > -1 {
-		c.logger.Info("total records: %d", c.total)
+		c.logger.Info("total jobs: %d", c.total)
 	}
 }
 

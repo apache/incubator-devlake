@@ -28,11 +28,8 @@ import (
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/helper"
 	"github.com/apache/incubator-devlake/plugins/jira/models"
-	"github.com/go-playground/validator/v10"
 	"github.com/mitchellh/mapstructure"
 )
-
-var vld = validator.New()
 
 func TestConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, error) {
 
@@ -107,16 +104,13 @@ POST /plugins/jira/connections
 }
 */
 func PostConnections(input *core.ApiResourceInput) (*core.ApiResourceOutput, error) {
-	// create a new connection
-	jiraConnection := &models.JiraConnection{}
-
 	// update from request and save to database
-	err := helper.CreateConnection(input.Body, jiraConnection, db)
+	connection := &models.JiraConnection{}
+	err := connectionHelper.Create(connection, input)
 	if err != nil {
 		return nil, err
 	}
-
-	return &core.ApiResourceOutput{Body: jiraConnection, Status: http.StatusOK}, nil
+	return &core.ApiResourceOutput{Body: connection, Status: http.StatusOK}, nil
 }
 
 /*
@@ -129,43 +123,37 @@ PATCH /plugins/jira/connections/:connectionId
 }
 */
 func PatchConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, error) {
-	jiraConnection := &models.JiraConnection{}
-	err := helper.PatchConnection(input, jiraConnection, db)
+	connection := &models.JiraConnection{}
+	err := connectionHelper.Patch(connection, input)
 	if err != nil {
 		return nil, err
 	}
-
-	return &core.ApiResourceOutput{Body: jiraConnection}, nil
+	return &core.ApiResourceOutput{Body: connection}, nil
 }
 
 /*
 DELETE /plugins/jira/connections/:connectionId
 */
 func DeleteConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, error) {
-	// load from db
-	jiraConnectionID, err := helper.GetConnectionIdByInputParam(input.Params)
+	connection := &models.JiraConnection{}
+	err := connectionHelper.First(connection, input.Params)
 	if err != nil {
 		return nil, err
 	}
-	// cascading delete
-	err = db.Where("id = ?", jiraConnectionID).Delete(&models.JiraConnection{}).Error
-	if err != nil {
-		return nil, err
-	}
-	return &core.ApiResourceOutput{Body: jiraConnectionID}, nil
+	err = connectionHelper.Delete(connection)
+	return &core.ApiResourceOutput{Body: connection}, err
 }
 
 /*
 GET /plugins/jira/connections
 */
 func ListConnections(input *core.ApiResourceInput) (*core.ApiResourceOutput, error) {
-	jiraConnections := make([]*models.JiraConnection, 0)
-
-	err := helper.ListConnections(&jiraConnections, db)
+	var connections []models.JiraConnection
+	err := connectionHelper.List(&connections)
 	if err != nil {
 		return nil, err
 	}
-	return &core.ApiResourceOutput{Body: jiraConnections, Status: http.StatusOK}, nil
+	return &core.ApiResourceOutput{Body: connections, Status: http.StatusOK}, nil
 }
 
 /*
@@ -180,11 +168,7 @@ GET /plugins/jira/connections/:connectionId
 }
 */
 func GetConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, error) {
-	jiraConnection := &models.JiraConnection{}
-	err := helper.GetConnection(input.Params, jiraConnection, db)
-	if err != nil {
-		return nil, err
-	}
-
-	return &core.ApiResourceOutput{Body: jiraConnection}, nil
+	connection := &models.JiraConnection{}
+	err := connectionHelper.First(connection, input.Params)
+	return &core.ApiResourceOutput{Body: connection}, err
 }

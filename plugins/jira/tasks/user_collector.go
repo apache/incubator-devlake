@@ -24,6 +24,7 @@ import (
 	"reflect"
 
 	"github.com/apache/incubator-devlake/plugins/core"
+	. "github.com/apache/incubator-devlake/plugins/core/dal"
 	"github.com/apache/incubator-devlake/plugins/helper"
 	"github.com/apache/incubator-devlake/plugins/jira/models"
 )
@@ -32,14 +33,18 @@ const RAW_USERS_TABLE = "jira_api_users"
 
 func CollectUsers(taskCtx core.SubTaskContext) error {
 	data := taskCtx.GetData().(*JiraTaskData)
-	db := taskCtx.GetDb()
+	db := taskCtx.GetDal()
 	logger := taskCtx.GetLogger()
 	logger.Info("collect user")
-	cursor, err := db.Model(&models.JiraUser{}).Where("connection_id = ?", data.Options.ConnectionId).Rows()
+	cursor, err := db.Cursor(
+		Select("account_id"),
+		From("_tool_jira_users"),
+		Where("connection_id = ?", data.Options.ConnectionId),
+	)
 	if err != nil {
 		return err
 	}
-	iterator, err := helper.NewCursorIterator(db, cursor, reflect.TypeOf(models.JiraUser{}))
+	iterator, err := helper.NewDalCursorIterator(db, cursor, reflect.TypeOf(models.JiraUser{}))
 	if err != nil {
 		return err
 	}
@@ -65,7 +70,6 @@ func CollectUsers(taskCtx core.SubTaskContext) error {
 			query.Set(queryKey, user.AccountId)
 			return query, nil
 		},
-		Concurrency: 10,
 		ResponseParser: func(res *http.Response) ([]json.RawMessage, error) {
 			var result json.RawMessage
 			err := helper.UnmarshalResponse(res, &result)

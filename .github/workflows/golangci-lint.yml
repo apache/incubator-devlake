@@ -19,6 +19,8 @@ jobs:
         with:
           path: golangci-lint
           key: ${{ runner.os }}-golangci-lint
+      - name: generate mock
+        run: make mock
       - name: golangci-lint
         uses: golangci/golangci-lint-action@v3
         with:

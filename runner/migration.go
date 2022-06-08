@@ -15,38 +15,21 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package utils
+package runner
 
 import (
-	"fmt"
-	"runtime"
-	"strings"
+	"github.com/apache/incubator-devlake/migration"
+	"github.com/apache/incubator-devlake/plugins/core"
 )
 
-func GatherCallFrames(delta int) string {
-	var name, file string
-	var line int
-	var pc [16]uintptr
-
-	n := runtime.Callers(3+delta, pc[:])
-	for _, pc := range pc[:n] {
-		fn := runtime.FuncForPC(pc)
-		if fn == nil {
-			continue
+func RegisterMigrationScripts(scripts []migration.Script, comment string, config core.ConfigGetter, logger core.Logger) {
+	for _, script := range scripts {
+		if s, ok := script.(core.InjectConfigGetter); ok {
+			s.SetConfigGetter(config)
 		}
-		file, line = fn.FileLine(pc)
-		name = fn.Name()
-		if !strings.HasPrefix(name, "runtime.") {
-			break
+		if s, ok := script.(core.InjectLogger); ok {
+			s.SetLogger(logger)
 		}
 	}
-
-	switch {
-	case name != "":
-		return fmt.Sprintf("%v:%v", name, line)
-	case file != "":
-		return fmt.Sprintf("%v:%v", file, line)
-	}
-
-	return fmt.Sprintf("pc:%x", pc)
+	migration.Register(scripts, comment)
 }

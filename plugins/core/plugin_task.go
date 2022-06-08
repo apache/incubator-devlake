@@ -20,6 +20,7 @@ package core
 import (
 	"context"
 
+	"github.com/apache/incubator-devlake/plugins/core/dal"
 	"gorm.io/gorm"
 )
 
@@ -41,13 +42,19 @@ type RunningProgress struct {
 	SubTaskNumber int
 }
 
+type BasicRes interface {
+	GetConfig(name string) string
+	GetLogger() Logger
+	// Deprecated: use dal instead
+	GetDb() *gorm.DB
+	GetDal() dal.Dal
+}
+
 // This interface define all resources that needed for task/subtask execution
 type ExecContext interface {
+	BasicRes
 	GetName() string
-	GetConfig(name string) string
-	GetDb() *gorm.DB
 	GetContext() context.Context
-	GetLogger() Logger
 	GetData() interface{}
 	SetProgress(current int, total int)
 	IncProgress(quantity int)

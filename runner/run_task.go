@@ -56,7 +56,7 @@ func RunTask(
 	// make sure task status always correct even if it panicked
 	defer func() {
 		if r := recover(); r != nil {
-			err = fmt.Errorf("run task failed with panic (%s): %v", utils.GatherCallFrames(), r)
+			err = fmt.Errorf("run task failed with panic (%s): %v", utils.GatherCallFrames(0), r)
 		}
 		finishedAt := time.Now()
 		spentSeconds := finishedAt.Unix() - beganAt.Unix()

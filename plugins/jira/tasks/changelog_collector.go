@@ -25,6 +25,7 @@ import (
 	"reflect"
 
 	"github.com/apache/incubator-devlake/plugins/core"
+	. "github.com/apache/incubator-devlake/plugins/core/dal"
 	"github.com/apache/incubator-devlake/plugins/helper"
 	"github.com/apache/incubator-devlake/plugins/jira/models"
 	"github.com/apache/incubator-devlake/plugins/jira/tasks/apiv2models"
@@ -39,28 +40,35 @@ func CollectChangelogs(taskCtx core.SubTaskContext) error {
 	if data.JiraServerInfo.DeploymentType == models.DeploymentServer {
 		return nil
 	}
-	db := taskCtx.GetDb()
+	db := taskCtx.GetDal()
 	// figure out the time range
 	since := data.Since
 
 	// filter out issue_ids that needed collection
-	tx := db.Table("_tool_jira_board_issues bi").
-		Select("bi.issue_id, NOW() AS update_time").
-		Joins("LEFT JOIN _tool_jira_issues i ON (bi.connection_id = i.connection_id AND bi.issue_id = i.issue_id)").
-		Where("bi.connection_id = ? AND bi.board_id = ? AND (i.changelog_updated IS NULL OR i.changelog_updated < i.updated)", data.Options.ConnectionId, data.Options.BoardId)
-
+	clauses := []interface{}{
+		Select("bi.issue_id, NOW() AS update_time"),
+		From("_tool_jira_board_issues bi"),
+		Join("LEFT JOIN _tool_jira_issues i ON (bi.connection_id = i.connection_id AND bi.issue_id = i.issue_id)"),
+		Where(
+			`bi.connection_id = ?
+			   AND bi.board_id = ?
+			   AND (i.changelog_updated IS NULL OR i.changelog_updated < i.updated)`,
+			data.Options.ConnectionId,
+			data.Options.BoardId,
+		),
+	}
 	// apply time range if any
 	if since != nil {
-		tx = tx.Where("i.updated > ?", *since)
+		clauses = append(clauses, Where("i.updated > ?", *since))
 	}
 
 	// construct the input iterator
-	cursor, err := tx.Rows()
+	cursor, err := db.Cursor(clauses...)
 	if err != nil {
 		return err
 	}
 	// smaller struct can reduce memory footprint, we should try to avoid using big struct
-	iterator, err := helper.NewCursorIterator(db, cursor, reflect.TypeOf(apiv2models.Input{}))
+	iterator, err := helper.NewDalCursorIterator(db, cursor, reflect.TypeOf(apiv2models.Input{}))
 	if err != nil {
 		return err
 	}
@@ -76,7 +84,7 @@ func CollectChangelogs(taskCtx core.SubTaskContext) error {
 			Table: RAW_CHANGELOG_TABLE,
 		},
 		ApiClient:     data.ApiClient,
-		PageSize:      50,
+		PageSize:      100,
 		Incremental:   true,
 		GetTotalPages: GetTotalPagesFromResponse,
 		Input:         iterator,

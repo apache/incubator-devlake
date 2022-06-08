@@ -24,6 +24,7 @@ import (
 
 	"github.com/apache/incubator-devlake/migration"
 	"github.com/apache/incubator-devlake/plugins/core"
+	"github.com/apache/incubator-devlake/plugins/helper"
 	"github.com/apache/incubator-devlake/plugins/jira/api"
 	"github.com/apache/incubator-devlake/plugins/jira/models"
 	"github.com/apache/incubator-devlake/plugins/jira/models/migrationscripts"
@@ -99,7 +100,8 @@ func (plugin Jira) SubTaskMetas() []core.SubTaskMeta {
 func (plugin Jira) PrepareTaskData(taskCtx core.TaskContext, options map[string]interface{}) (interface{}, error) {
 	var op tasks.JiraOptions
 	var err error
-	db := taskCtx.GetDb()
+	logger := taskCtx.GetLogger()
+	logger.Debug("%v", options)
 	err = mapstructure.Decode(options, &op)
 	if err != nil {
 		return nil, err
@@ -108,7 +110,14 @@ func (plugin Jira) PrepareTaskData(taskCtx core.TaskContext, options map[string]
 		return nil, fmt.Errorf("connectionId is invalid")
 	}
 	connection := &models.JiraConnection{}
-	err = db.First(connection, op.ConnectionId).Error
+	connectionHelper := helper.NewConnectionHelper(
+		taskCtx,
+		nil,
+	)
+	if err != nil {
+		return nil, err
+	}
+	err = connectionHelper.FirstById(connection, op.ConnectionId)
 	if err != nil {
 		return nil, err
 	}
@@ -136,6 +145,7 @@ func (plugin Jira) PrepareTaskData(taskCtx core.TaskContext, options map[string]
 	}
 	if !since.IsZero() {
 		taskData.Since = &since
+		logger.Debug("collect data updated since %s", since)
 	}
 	return taskData, nil
 }
@@ -188,14 +198,16 @@ var PluginEntry Jira //nolint
 // standalone mode for debugging
 func main() {
 	cmd := &cobra.Command{Use: "jira"}
-	connectionId := cmd.Flags().Uint64P("connection", "s", 0, "jira connection id")
+	connectionId := cmd.Flags().Uint64P("connection", "c", 0, "jira connection id")
 	boardId := cmd.Flags().Uint64P("board", "b", 0, "jira board id")
 	_ = cmd.MarkFlagRequired("connection")
 	_ = cmd.MarkFlagRequired("board")
+	since := cmd.Flags().StringP("since", "s", "", "collect data that are updated after specified time, ie 2006-05-06T07:08:09Z")
 	cmd.Run = func(c *cobra.Command, args []string) {
 		runner.DirectRun(c, args, PluginEntry, map[string]interface{}{
 			"connectionId": *connectionId,
 			"boardId":      *boardId,
+			"since":        *since,
 		})
 	}
 	runner.RunCmd(cmd)

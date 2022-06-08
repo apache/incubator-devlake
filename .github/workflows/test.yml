@@ -17,7 +17,7 @@ jobs:
         os: [ubuntu-latest]
     runs-on: ${{ matrix.os }}
     container:
-      image: mericodev/lake-builder:0.0.5
+      image: mericodev/lake-builder:v0.0.5
     steps:
     - name: Checkout code
       uses: actions/checkout@v3

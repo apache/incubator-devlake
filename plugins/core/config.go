@@ -15,14 +15,12 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package testhelper
+package core
 
-func ExampleCsvFileIterator() {
-	iter := NewCsvFileIterator("/path/to/foobar.csv")
-	defer iter.Close()
-	for iter.HasNext() {
-		row := iter.Fetch()
-		println(row["name"]) // foobar
-		println(row["json"]) // {"url": "https://example.com"}
-	}
+type ConfigGetter interface {
+	GetString(name string) string
+}
+
+type InjectConfigGetter interface {
+	SetConfigGetter(getter ConfigGetter)
 }

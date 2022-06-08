@@ -40,3 +40,7 @@ type Logger interface {
 	// return a new logger which output nested log
 	Nested(name string) Logger
 }
+
+type InjectLogger interface {
+	SetLogger(logger Logger)
+}

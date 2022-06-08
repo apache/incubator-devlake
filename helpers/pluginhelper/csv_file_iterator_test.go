@@ -15,38 +15,14 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package utils
+package pluginhelper
 
-import (
-	"fmt"
-	"runtime"
-	"strings"
-)
-
-func GatherCallFrames(delta int) string {
-	var name, file string
-	var line int
-	var pc [16]uintptr
-
-	n := runtime.Callers(3+delta, pc[:])
-	for _, pc := range pc[:n] {
-		fn := runtime.FuncForPC(pc)
-		if fn == nil {
-			continue
-		}
-		file, line = fn.FileLine(pc)
-		name = fn.Name()
-		if !strings.HasPrefix(name, "runtime.") {
-			break
-		}
+func ExampleCsvFileIterator() {
+	iter := NewCsvFileIterator("/path/to/foobar.csv")
+	defer iter.Close()
+	for iter.HasNext() {
+		row := iter.Fetch()
+		println(row["name"]) // foobar
+		println(row["json"]) // {"url": "https://example.com"}
 	}
-
-	switch {
-	case name != "":
-		return fmt.Sprintf("%v:%v", name, line)
-	case file != "":
-		return fmt.Sprintf("%v:%v", file, line)
-	}
-
-	return fmt.Sprintf("pc:%x", pc)
 }

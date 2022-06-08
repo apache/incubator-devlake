@@ -15,38 +15,40 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package utils
+package helper
 
 import (
+	"encoding/json"
 	"fmt"
-	"runtime"
-	"strings"
+	"io/ioutil"
+	"net/http"
 )
 
-func GatherCallFrames(delta int) string {
-	var name, file string
-	var line int
-	var pc [16]uintptr
+func GetRawMessageDirectFromResponse(res *http.Response) ([]json.RawMessage, error) {
+	body, err := ioutil.ReadAll(res.Body)
+	res.Body.Close()
+	if err != nil {
+		return nil, err
+	}
+	return []json.RawMessage{body}, nil
+}
 
-	n := runtime.Callers(3+delta, pc[:])
-	for _, pc := range pc[:n] {
-		fn := runtime.FuncForPC(pc)
-		if fn == nil {
-			continue
-		}
-		file, line = fn.FileLine(pc)
-		name = fn.Name()
-		if !strings.HasPrefix(name, "runtime.") {
-			break
-		}
+func GetRawMessageArrayFromResponse(res *http.Response) ([]json.RawMessage, error) {
+	rawMessages := []json.RawMessage{}
+
+	if res == nil {
+		return nil, fmt.Errorf("res is nil")
+	}
+	defer res.Body.Close()
+	resBody, err := ioutil.ReadAll(res.Body)
+	if err != nil {
+		return nil, fmt.Errorf("%w %s", err, res.Request.URL.String())
 	}
 
-	switch {
-	case name != "":
-		return fmt.Sprintf("%v:%v", name, line)
-	case file != "":
-		return fmt.Sprintf("%v:%v", file, line)
+	err = json.Unmarshal(resBody, &rawMessages)
+	if err != nil {
+		return nil, fmt.Errorf("%w %s %s", err, res.Request.URL.String(), string(resBody))
 	}
 
-	return fmt.Sprintf("pc:%x", pc)
+	return rawMessages, nil
 }

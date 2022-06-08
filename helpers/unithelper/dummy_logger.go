@@ -15,38 +15,21 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package utils
+package unithelper
 
 import (
-	"fmt"
-	"runtime"
-	"strings"
+	"github.com/apache/incubator-devlake/mocks"
+	"github.com/stretchr/testify/mock"
 )
 
-func GatherCallFrames(delta int) string {
-	var name, file string
-	var line int
-	var pc [16]uintptr
-
-	n := runtime.Callers(3+delta, pc[:])
-	for _, pc := range pc[:n] {
-		fn := runtime.FuncForPC(pc)
-		if fn == nil {
-			continue
-		}
-		file, line = fn.FileLine(pc)
-		name = fn.Name()
-		if !strings.HasPrefix(name, "runtime.") {
-			break
-		}
-	}
-
-	switch {
-	case name != "":
-		return fmt.Sprintf("%v:%v", name, line)
-	case file != "":
-		return fmt.Sprintf("%v:%v", file, line)
-	}
-
-	return fmt.Sprintf("pc:%x", pc)
+func DummyLogger() *mocks.Logger {
+	logger := new(mocks.Logger)
+	logger.On("IsLevelEnabled", mock.Anything).Return(false).Maybe()
+	logger.On("Printf", mock.Anything, mock.Anything).Maybe()
+	logger.On("Log", mock.Anything, mock.Anything, mock.Anything).Maybe()
+	logger.On("Debug", mock.Anything, mock.Anything).Maybe()
+	logger.On("Info", mock.Anything, mock.Anything).Maybe()
+	logger.On("Warn", mock.Anything, mock.Anything).Maybe()
+	logger.On("Error", mock.Anything, mock.Anything).Maybe()
+	return logger
 }
