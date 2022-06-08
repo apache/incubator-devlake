@@ -27,7 +27,7 @@ import (
 )
 
 // Calculate the pair list both from Options.Pairs and TagPattern
-func CaculatePairList(taskCtx core.SubTaskContext) ([][2]string, error) {
+func CaculatePairList(taskCtx core.SubTaskContext) (RefPairLists, error) {
 	data := taskCtx.GetData().(*RefdiffTaskData)
 	repoId := data.Options.RepoId
 	pairs := data.Options.Pairs
@@ -35,19 +35,19 @@ func CaculatePairList(taskCtx core.SubTaskContext) ([][2]string, error) {
 
 	rs, err := CaculateTagPattern(taskCtx)
 	if err != nil {
-		return [][2]string{}, err
+		return RefPairLists{}, err
 	}
 	if tagsLimit > rs.Len() {
 		tagsLimit = rs.Len()
 	}
 
-	pairList := make([][2]string, 0, tagsLimit+len(pairs))
+	pairList := make(RefPairLists, 0, tagsLimit+len(pairs))
 	for i := 1; i < tagsLimit; i++ {
-		pairList = append(pairList, [2]string{fmt.Sprintf("%s:%s", repoId, rs[i-1].Id), fmt.Sprintf("%s:%s", repoId, rs[i].Id)})
+		pairList = append(pairList, RefPairList{fmt.Sprintf("%s:%s", repoId, rs[i-1].Id), fmt.Sprintf("%s:%s", repoId, rs[i].Id)})
 	}
 
 	for _, pair := range pairs {
-		pairList = append(pairList, [2]string{fmt.Sprintf("%s:%s", repoId, pair.NewRef), fmt.Sprintf("%s:%s", repoId, pair.OldRef)})
+		pairList = append(pairList, RefPairList{fmt.Sprintf("%s:%s", repoId, pair.NewRef), fmt.Sprintf("%s:%s", repoId, pair.OldRef)})
 	}
 
 	return pairList, nil

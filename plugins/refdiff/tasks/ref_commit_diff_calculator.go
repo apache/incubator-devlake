@@ -28,7 +28,7 @@ import (
 )
 
 // Calculate the commits pairs both from Options.Pairs and TagPattern
-func CalculateCommitsPairs(taskCtx core.SubTaskContext) ([][4]string, error) {
+func CalculateCommitsPairs(taskCtx core.SubTaskContext) (RefCommitPairs, error) {
 	data := taskCtx.GetData().(*RefdiffTaskData)
 	repoId := data.Options.RepoId
 	pairs := data.Options.Pairs
@@ -37,13 +37,13 @@ func CalculateCommitsPairs(taskCtx core.SubTaskContext) ([][4]string, error) {
 
 	rs, err := CaculateTagPattern(taskCtx)
 	if err != nil {
-		return [][4]string{}, err
+		return RefCommitPairs{}, err
 	}
 	if tagsLimit > rs.Len() {
 		tagsLimit = rs.Len()
 	}
 
-	commitPairs := make([][4]string, 0, tagsLimit+len(pairs))
+	commitPairs := make(RefCommitPairs, 0, tagsLimit+len(pairs))
 	for i := 1; i < tagsLimit; i++ {
 		commitPairs = append(commitPairs, [4]string{rs[i-1].CommitSha, rs[i].CommitSha, rs[i-1].Name, rs[i].Name})
 	}
@@ -67,14 +67,14 @@ func CalculateCommitsPairs(taskCtx core.SubTaskContext) ([][4]string, error) {
 		// get new ref's commit sha
 		newCommit, err := ref2sha(refPair.NewRef)
 		if err != nil {
-			return [][4]string{}, fmt.Errorf("failed to load commit sha for NewRef on pair #%d: %w", i, err)
+			return RefCommitPairs{}, fmt.Errorf("failed to load commit sha for NewRef on pair #%d: %w", i, err)
 		}
 		// get old ref's commit sha
 		oldCommit, err := ref2sha(refPair.OldRef)
 		if err != nil {
-			return [][4]string{}, fmt.Errorf("failed to load commit sha for OleRef on pair #%d: %w", i, err)
+			return RefCommitPairs{}, fmt.Errorf("failed to load commit sha for OleRef on pair #%d: %w", i, err)
 		}
-		commitPairs = append(commitPairs, [4]string{newCommit, oldCommit, refPair.NewRef, refPair.OldRef})
+		commitPairs = append(commitPairs, RefCommitPair{newCommit, oldCommit, refPair.NewRef, refPair.OldRef})
 	}
 
 	return commitPairs, nil

@@ -46,6 +46,10 @@ type RefPair struct {
 	NewRef string
 	OldRef string
 }
+type RefCommitPair [4]string
+type RefPairList [2]string
+type RefCommitPairs []RefCommitPair
+type RefPairLists []RefPairList
 
 type Refs []code.Ref
 type RefsAlphabetically Refs
