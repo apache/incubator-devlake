@@ -47,7 +47,7 @@ func CollectUsers(taskCtx core.SubTaskContext) error {
 		ApiClient:   data.ApiClient,
 		UrlTemplate: "workspaces/users",
 		//PageSize:    100,
-		Query: func(reqData *helper.RequestData) (url.Values, error) {
+		Query: func(reqData *helper.RequestData, taskCtx core.SubTaskContext) (url.Values, error) {
 			query := url.Values{}
 			query.Set("workspace_id", fmt.Sprintf("%v", data.Options.WorkspaceID))
 			//query.Set("page", fmt.Sprintf("%v", reqData.Pager.Page))

@@ -87,7 +87,7 @@ func CollectStoryCommits(taskCtx core.SubTaskContext) error {
 		//PageSize:    100,
 		Input:       iterator,
 		UrlTemplate: "code_commit_infos",
-		Query: func(reqData *helper.RequestData) (url.Values, error) {
+		Query: func(reqData *helper.RequestData, taskCtx core.SubTaskContext) (url.Values, error) {
 			input := reqData.Input.(*SimpleStory)
 			query := url.Values{}
 			query.Set("workspace_id", fmt.Sprintf("%v", data.Options.WorkspaceID))
