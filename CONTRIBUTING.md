@@ -17,21 +17,11 @@ This lets us reach an agreement on your proposal before you put significant effo
 If you’re only fixing a bug, it’s fine to submit a pull request right away but we still recommend to file an issue detailing what you’re fixing. 
 This is helpful in case we don’t accept that specific fix but want to keep track of the issue.
 
-## How to run this project with docker-compose
+## Prerequests for development
 
 1. Install docker
 
 https://docs.docker.com/get-docker/
-
-2. Run docker-compose
-
-`docker-compose up -d`
-
-3. Stop all containers
-
-`docker-compose down`
-
-## How to run the project in dev mode if you want to work on the backend (Frontend excluded)
 
 1. Clone the repository
 
@@ -47,74 +37,54 @@ git clone https://github.com/apache/incubator-devlake
 
 here: https://go.dev/dl/
 
-4. Install all dependencies
+4. Install all go dependencies
 
 ```
 go version
 go get
-brew install pkg-config
-brew install cmake
-git clone https://github.com/libgit2/libgit2.git
-cd libgit2
-git checkout v1.3.0
-mkdir build
-cd build
-cmake ..
-make
-make install
-cd ../..
 ```
+# Development Use Cases
 
-5. Install and configure mysql
+## Use Case 1: I want to run this project just to see what it does
+
+1. Run docker-compose
+
+`docker-compose up -d`
+
+## Use Case 2: I want to work on an existing plugin
+
+In this case, you will need to run a few docker containers manually: 
 
 ```
-brew install mysql
-mysql -uroot -p # password is "root" by default
+docker-compose up -d mysql
+docker-compose up -d grafana
+docker-compose up -d config-ui
+docker-compose up -d postgres
 ```
 
-Then from the mysql terminal interface:
+These are dependencies for most plugins.
 
-```
-CREATE USER 'merico'@'%' IDENTIFIED BY 'merico';
-GRANT ALL PRIVILEGES ON *.* TO 'merico'@'%';
-CREATE DATABASE IF NOT EXISTS lake;
-```
+Then you will need to run the plugin you want directly:
 
-Note: You can set anything you want for user/pass/dbname in your .env file
+`go run ./plugin/xxx/xxx.go`
 
-6. Build all plugins
+> Note: each plugin has it's own README file with more detailed instructions for you to use.
 
-`make all`
+## Use Case 3: I want to work on the API
 
-You should see an output similar to this: 
+`make dev`
 
-```
-➜  lake git:(main) ✗ make all
-Building plugin ae to bin/plugins/ae/ae.so
-Building plugin dbt to bin/plugins/dbt/dbt.so
-Building plugin feishu to bin/plugins/feishu/feishu.so
-Building plugin gitextractor to bin/plugins/gitextractor/gitextractor.so
-Building plugin github to bin/plugins/github/github.so
-Building plugin gitlab to bin/plugins/gitlab/gitlab.so
-Building plugin jenkins to bin/plugins/jenkins/jenkins.so
-Building plugin jira to bin/plugins/jira/jira.so
-Building plugin refdiff to bin/plugins/refdiff/refdiff.so
-Building plugin tapd to bin/plugins/tapd/tapd.so
-go build -ldflags "-X 'github.com/apache/incubator-devlake/version.Version=@5ed73bdb'" -o bin/lake
-go build -ldflags "-X 'github.com/apache/incubator-devlake/version.Version=@5ed73bdb'" -o bin/lake-worker ./worker/
-```
+## Use Case 4: I want to work on the frontend
 
-7. Run the backend
+TBD
 
-`make run`
+# Style guides
 
-## Style guides
-
-### Git Commit message
+## Git Commit message
 
 We follow the [conventional commits](https://www.conventionalcommits.org/en/v1.0.0/#summary) guidelines.
 
-#### Commit tool
+### Commit tool
 
 We use https://github.com/lintingzhen/commitizen-go to author our commits.
 
