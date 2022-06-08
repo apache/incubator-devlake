@@ -40,6 +40,20 @@ func GetConfig() *viper.Viper {
 	return v
 }
 
+func initConfig(v *viper.Viper) {
+	v.SetConfigName(getConfigName())
+	v.SetConfigType("env")
+	envPath := os.Getenv("ENV_PATH")
+	// AddConfigPath adds a path for Viper to search for the config file in.
+	if envPath == "" {
+		v.AddConfigPath("$PWD/../..")
+		v.AddConfigPath("..")
+		v.AddConfigPath(".")
+	} else {
+		v.AddConfigPath(envPath)
+	}
+}
+
 func getConfigName() string {
 	return CONFIG_NAME
 }
@@ -93,6 +107,7 @@ func replaceNewEnvItemInOldContent(v *viper.Viper, envFileContent string) (error
 
 // WriteConfig save viper to .env file
 func WriteConfig(v *viper.Viper) error {
+	initConfig(v)
 	return WriteConfigAs(v, getConfigName())
 }
 
@@ -144,17 +159,7 @@ func WriteConfigAs(v *viper.Viper, filename string) error {
 func init() {
 	// create the object and load the .env file
 	v = viper.New()
-	v.SetConfigName(getConfigName())
-	v.SetConfigType("env")
-	envPath := os.Getenv("ENV_PATH")
-	// AddConfigPath adds a path for Viper to search for the config file in.
-	if envPath == "" {
-		v.AddConfigPath("$PWD/../..")
-		v.AddConfigPath("..")
-		v.AddConfigPath(".")
-	} else {
-		v.AddConfigPath(envPath)
-	}
+	initConfig(v)
 	err := v.ReadInConfig()
 	if err != nil {
 		logrus.Warn("Failed to read [.env] file:", err)

@@ -20,7 +20,9 @@ package config
 import (
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/afero"
+	"github.com/spf13/viper"
 	"github.com/stretchr/testify/assert"
+	"os"
 	"testing"
 )
 
@@ -33,6 +35,31 @@ func TestReadConfig(t *testing.T) {
 }
 
 func TestWriteConfig(t *testing.T) {
+	filename := ".env"
+	cwd, _ := os.Getwd()
+	envFilePath := cwd + string(os.PathSeparator) + filename
+	os.Setenv("ENV_PATH", envFilePath)
+	v := GetConfig()
+	newDbUrl := "mysql://merico:merico@mysql:3307/lake?charset=utf8mb4&parseTime=True"
+	v.Set("DB_URL", newDbUrl)
+	fs := afero.NewOsFs()
+	file, _ := fs.Create(filename)
+	defer file.Close()
+	_ = WriteConfig(v)
+	isEmpty, _ := afero.IsEmpty(fs, filename)
+	assert.False(t, isEmpty)
+	configNew := viper.New()
+	configNew.SetConfigFile(envFilePath)
+	err := configNew.ReadInConfig()
+	assert.Equal(t, nil, err)
+
+	bar := configNew.GetString("DB_URL")
+	assert.Equal(t, newDbUrl, bar)
+	err = fs.Remove(filename)
+	assert.Equal(t, err == nil, true)
+}
+
+func TestWriteConfigAs(t *testing.T) {
 	filename := ".env"
 	v := GetConfig()
 	newDbUrl := "mysql://merico:merico@mysql:3307/lake?charset=utf8mb4&parseTime=True"
