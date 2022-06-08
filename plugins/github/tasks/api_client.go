@@ -19,6 +19,7 @@ package tasks
 
 import (
 	"fmt"
+	"github.com/apache/incubator-devlake/plugins/github/models"
 	"net/http"
 	"strconv"
 	"strings"
@@ -26,28 +27,14 @@ import (
 
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/helper"
-	"github.com/apache/incubator-devlake/utils"
 )
 
-func CreateApiClient(taskCtx core.TaskContext) (*helper.ApiAsyncClient, error) {
+func CreateApiClient(taskCtx core.TaskContext, connection *models.GithubConnection) (*helper.ApiAsyncClient, error) {
 	// load configuration
-	endpoint := taskCtx.GetConfig("GITHUB_ENDPOINT")
-	if endpoint == "" {
-		return nil, fmt.Errorf("endpint is required")
-	}
-	proxy := taskCtx.GetConfig("GITHUB_PROXY")
-	userRateLimit, err := utils.StrToIntOr(taskCtx.GetConfig("GITHUB_API_REQUESTS_PER_HOUR"), 0)
-	if err != nil {
-		return nil, err
-	}
-	auth := taskCtx.GetConfig("GITHUB_AUTH")
-	if auth == "" {
-		return nil, fmt.Errorf("GITHUB_AUTH is required")
-	}
-	tokens := strings.Split(auth, ",")
+	tokens := strings.Split(connection.Auth, ",")
 	tokenIndex := 0
 	// create synchronize api client so we can calculate api rate limit dynamically
-	apiClient, err := helper.NewApiClient(endpoint, nil, 0, proxy, taskCtx.GetContext())
+	apiClient, err := helper.NewApiClient(connection.Endpoint, nil, 0, connection.Proxy, taskCtx.GetContext())
 	if err != nil {
 		return nil, err
 	}
@@ -67,7 +54,7 @@ func CreateApiClient(taskCtx core.TaskContext) (*helper.ApiAsyncClient, error) {
 
 	// create rate limit calculator
 	rateLimiter := &helper.ApiRateLimitCalculator{
-		UserRateLimitPerHour: userRateLimit,
+		UserRateLimitPerHour: connection.RateLimit,
 		Method:               http.MethodGet,
 		DynamicRateLimit: func(res *http.Response) (int, time.Duration, error) {
 			/* calculate by number of remaining requests

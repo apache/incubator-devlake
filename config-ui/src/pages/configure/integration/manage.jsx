@@ -278,7 +278,7 @@ export default function ManageIntegration () {
                             // eslint-disable-next-line max-len
                             className={getTestedConnection(connection) && getTestedConnection(connection).status !== 1 ? 'connection-offline' : 'connection-online'}
                           >
-                            {activeProvider.id === Providers.JIRA && (
+                            {!sourceLimits[activeProvider.id] && (
                               <td
                                 style={{ cursor: 'pointer' }}
                                 className='cell-name'
