@@ -43,7 +43,7 @@ func GetConfig() *viper.Viper {
 func initConfig(v *viper.Viper) {
 	v.SetConfigName(getConfigName())
 	v.SetConfigType("env")
-	envPath := os.Getenv("ENV_PATH")
+	envPath := getEnvPath()
 	// AddConfigPath adds a path for Viper to search for the config file in.
 	if envPath == "" {
 		v.AddConfigPath("$PWD/../..")
@@ -56,6 +56,12 @@ func initConfig(v *viper.Viper) {
 
 func getConfigName() string {
 	return CONFIG_NAME
+}
+
+// return the env path
+func getEnvPath() string {
+	envPath := os.Getenv("ENV_PATH")
+	return filepath.Dir(envPath)
 }
 
 // Set default value for no .env or .env not set it
@@ -107,8 +113,14 @@ func replaceNewEnvItemInOldContent(v *viper.Viper, envFileContent string) (error
 
 // WriteConfig save viper to .env file
 func WriteConfig(v *viper.Viper) error {
-	initConfig(v)
-	return WriteConfigAs(v, getConfigName())
+	envPath := getEnvPath()
+	fileName := getConfigName()
+
+	if envPath != "" {
+		fileName = envPath + string(os.PathSeparator) + fileName
+	}
+
+	return WriteConfigAs(v, fileName)
 }
 
 // WriteConfigAs save viper to custom filename
