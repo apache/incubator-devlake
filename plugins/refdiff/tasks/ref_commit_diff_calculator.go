@@ -27,51 +27,6 @@ import (
 	"gorm.io/gorm/clause"
 )
 
-// Calculate the commits pairs both from Options.Pairs and TagPattern
-func CalculateCommitsPairs(taskCtx core.SubTaskContext) (RefCommitPairs, error) {
-	data := taskCtx.GetData().(*RefdiffTaskData)
-	repoId := data.Options.RepoId
-	pairs := data.Options.Pairs
-	rs := data.Options.TagsRefs
-	db := taskCtx.GetDb()
-
-	commitPairs := make(RefCommitPairs, 0, len(rs)+len(pairs))
-	for i := 1; i < len(rs); i++ {
-		commitPairs = append(commitPairs, [4]string{rs[i-1].CommitSha, rs[i].CommitSha, rs[i-1].Name, rs[i].Name})
-	}
-
-	// caculate pairs part
-	// convert ref pairs into commit pairs
-	ref2sha := func(refName string) (string, error) {
-		ref := &code.Ref{}
-		if refName == "" {
-			return "", fmt.Errorf("ref name is empty")
-		}
-		ref.Id = fmt.Sprintf("%s:%s", repoId, refName)
-		err := db.First(ref).Error
-		if err != nil {
-			return "", fmt.Errorf("faild to load Ref info for repoId:%s, refName:%s", repoId, refName)
-		}
-		return ref.CommitSha, nil
-	}
-
-	for i, refPair := range pairs {
-		// get new ref's commit sha
-		newCommit, err := ref2sha(refPair.NewRef)
-		if err != nil {
-			return RefCommitPairs{}, fmt.Errorf("failed to load commit sha for NewRef on pair #%d: %w", i, err)
-		}
-		// get old ref's commit sha
-		oldCommit, err := ref2sha(refPair.OldRef)
-		if err != nil {
-			return RefCommitPairs{}, fmt.Errorf("failed to load commit sha for OleRef on pair #%d: %w", i, err)
-		}
-		commitPairs = append(commitPairs, RefCommitPair{newCommit, oldCommit, refPair.NewRef, refPair.OldRef})
-	}
-
-	return commitPairs, nil
-}
-
 func CalculateCommitsDiff(taskCtx core.SubTaskContext) error {
 	data := taskCtx.GetData().(*RefdiffTaskData)
 	repoId := data.Options.RepoId
@@ -80,10 +35,7 @@ func CalculateCommitsDiff(taskCtx core.SubTaskContext) error {
 	logger := taskCtx.GetLogger()
 	insertCountLimitOfRefsCommitsDiff := int(65535 / reflect.ValueOf(code.RefsCommitsDiff{}).NumField())
 
-	commitPairs, err := CalculateCommitsPairs(taskCtx)
-	if err != nil {
-		return err
-	}
+	commitPairs := data.Options.AllPairs
 
 	commitNodeGraph := utils.NewCommitNodeGraph()
 

@@ -26,20 +26,16 @@ import (
 	"github.com/apache/incubator-devlake/plugins/helper"
 )
 
-// Calculate the pair list both from Options.Pairs and TagPattern
+// CaculatePairList Calculate the pair list both from Options.Pairs and TagPattern
 func CaculatePairList(taskCtx core.SubTaskContext) (RefPairLists, error) {
 	data := taskCtx.GetData().(*RefdiffTaskData)
 	repoId := data.Options.RepoId
-	pairs := data.Options.Pairs
-	rs := data.Options.TagsRefs
+	pairs := data.Options.AllPairs
 
-	pairList := make(RefPairLists, 0, len(rs)+len(pairs))
-	for i := 1; i < len(rs); i++ {
-		pairList = append(pairList, RefPairList{fmt.Sprintf("%s:%s", repoId, rs[i-1].Id), fmt.Sprintf("%s:%s", repoId, rs[i].Id)})
-	}
+	pairList := make(RefPairLists, 0, len(pairs))
 
 	for _, pair := range pairs {
-		pairList = append(pairList, RefPairList{fmt.Sprintf("%s:%s", repoId, pair.NewRef), fmt.Sprintf("%s:%s", repoId, pair.OldRef)})
+		pairList = append(pairList, RefPairList{fmt.Sprintf("%s:%s", repoId, pair[2]), fmt.Sprintf("%s:%s", repoId, pair[3])})
 	}
 
 	return pairList, nil
