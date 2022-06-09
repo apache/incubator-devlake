@@ -54,7 +54,7 @@ type ApiCollectorArgs struct {
 	// For detail of what variables can be used, please check `RequestData`
 	UrlTemplate string `comment:"GoTemplate for API url"`
 	// Query would be sent out as part of the request URL
-	Query func(reqData *RequestData) (url.Values, error) ``
+	Query func(reqData *RequestData, options interface{}) (url.Values, error) ``
 	// Header would be sent out along with request
 	Header func(reqData *RequestData) (http.Header, error)
 	// PageSize tells ApiCollector the page size
@@ -280,7 +280,7 @@ func (collector *ApiCollector) fetchAsync(reqData *RequestData, handler func(int
 	}
 	var apiQuery url.Values
 	if collector.args.Query != nil {
-		apiQuery, err = collector.args.Query(reqData)
+		apiQuery, err = collector.args.Query(reqData, collector.args.Params)
 		if err != nil {
 			panic(err)
 		}
