@@ -143,6 +143,8 @@ func (apiClient *ApiAsyncClient) DoAsync(
 		var err error
 		var res *http.Response
 		var body []byte
+
+		apiClient.logger.Debug("endpoint: %s  method: %s  header: %s  body: %s query: %s", path, method, header, body, query)
 		res, err = apiClient.Do(method, path, query, body, header)
 		// make sure response body is read successfully, or we might have to retry
 		if err == nil {
