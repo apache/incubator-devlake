@@ -25,7 +25,7 @@ import (
 	"time"
 
 	"github.com/apache/incubator-devlake/models/domainlayer/code"
-	"gorm.io/gorm"
+	"github.com/apache/incubator-devlake/plugins/core/dal"
 )
 
 type RefdiffOptions struct {
@@ -33,10 +33,11 @@ type RefdiffOptions struct {
 	Tasks  []string `json:"tasks,omitempty"`
 	Pairs  []RefPair
 
-	TagsPattern string     // The Pattern to match from all tags
-	TagsLimit   int        // How many tags be matched should be used.
-	TagsOrder   string     // The Rule to Order the tag list
-	TagsRefs    []code.Ref // Caculate out by TagsPattern TagsLimit TagsOrder from db
+	TagsPattern string // The Pattern to match from all tags
+	TagsLimit   int    // How many tags be matched should be used.
+	TagsOrder   string // The Rule to Order the tag list
+
+	AllPairs RefCommitPairs // Pairs and TagsPattern Pairs
 }
 
 type RefdiffTaskData struct {
@@ -133,15 +134,20 @@ func (rs RefsReverseSemver) Swap(i, j int) {
 	rs[i], rs[j] = rs[j], rs[i]
 }
 
-// Calculate the TagPattern order by tagsOrder and return the Refs
-func CaculateTagPattern(db *gorm.DB, tagsPattern string, tagsLimit int, tagsOrder string) (Refs, error) {
+// CaculateTagPattern Calculate the TagPattern order by tagsOrder and return the Refs
+func CaculateTagPattern(db dal.Dal, tagsPattern string, tagsLimit int, tagsOrder string) (Refs, error) {
 	rs := Refs{}
 
 	// caculate Pattern part
 	if tagsPattern == "" || tagsLimit <= 1 {
 		return rs, nil
 	}
-	rows, err := db.Model(&code.Ref{}).Order("created_date desc").Rows()
+	rows, err := db.Cursor(
+		dal.From("refs"),
+		dal.Where(""),
+		dal.Orderby("created_date desc"),
+	)
+
 	if err != nil {
 		return rs, err
 	}
@@ -152,7 +158,7 @@ func CaculateTagPattern(db *gorm.DB, tagsPattern string, tagsLimit int, tagsOrde
 	}
 	for rows.Next() {
 		var ref code.Ref
-		err = db.ScanRows(rows, &ref)
+		err = db.Fetch(rows, &ref)
 		if err != nil {
 			return rs, err
 		}
@@ -179,4 +185,53 @@ func CaculateTagPattern(db *gorm.DB, tagsPattern string, tagsLimit int, tagsOrde
 	}
 
 	return rs, nil
+}
+
+// CalculateCommitPairs Calculate the commits pairs both from Options.Pairs and TagPattern
+func CalculateCommitPairs(db dal.Dal, repoId string, pairs []RefPair, rs Refs) (RefCommitPairs, error) {
+	commitPairs := make(RefCommitPairs, 0, len(rs)+len(pairs))
+	for i := 1; i < len(rs); i++ {
+		commitPairs = append(commitPairs, [4]string{rs[i-1].CommitSha, rs[i].CommitSha, rs[i-1].Name, rs[i].Name})
+	}
+
+	// caculate pairs part
+	// convert ref pairs into commit pairs
+	ref2sha := func(refName string) (string, error) {
+		ref := &code.Ref{}
+		if refName == "" {
+			return "", fmt.Errorf("ref name is empty")
+		}
+		ref.Id = fmt.Sprintf("%s:%s", repoId, refName)
+		err := db.First(ref)
+		if err != nil {
+			return "", fmt.Errorf("faild to load Ref info for repoId:%s, refName:%s", repoId, refName)
+		}
+		return ref.CommitSha, nil
+	}
+
+	for i, refPair := range pairs {
+		// get new ref's commit sha
+		newCommit, err := ref2sha(refPair.NewRef)
+		if err != nil {
+			return RefCommitPairs{}, fmt.Errorf("failed to load commit sha for NewRef on pair #%d: %w", i, err)
+		}
+		// get old ref's commit sha
+		oldCommit, err := ref2sha(refPair.OldRef)
+		if err != nil {
+			return RefCommitPairs{}, fmt.Errorf("failed to load commit sha for OleRef on pair #%d: %w", i, err)
+		}
+
+		have := false
+		for _, cp := range commitPairs {
+			if cp[0] == newCommit && cp[1] == oldCommit {
+				have = true
+				break
+			}
+		}
+		if !have {
+			commitPairs = append(commitPairs, RefCommitPair{newCommit, oldCommit, refPair.NewRef, refPair.OldRef})
+		}
+	}
+
+	return commitPairs, nil
 }
