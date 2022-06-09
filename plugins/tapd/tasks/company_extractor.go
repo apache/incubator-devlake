@@ -26,10 +26,10 @@ import (
 var _ core.SubTaskEntryPoint = ExtractCompanies
 
 var ExtractCompanyMeta = core.SubTaskMeta{
-	Name:             "extractCompanies",
-	EntryPoint:       ExtractCompanies,
-	EnabledByDefault: false,
-	Description:      "Extract raw company data into tool layer table _tool_tapd_workspaces",
+	Name:        "extractCompanies",
+	EntryPoint:  ExtractCompanies,
+	Required:    false,
+	Description: "Extract raw company data into tool layer table _tool_tapd_workspaces",
 }
 
 func ExtractCompanies(taskCtx core.SubTaskContext) error {

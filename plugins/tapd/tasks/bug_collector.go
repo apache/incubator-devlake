@@ -72,7 +72,7 @@ func CollectBugs(taskCtx core.SubTaskContext) error {
 			query.Set("workspace_id", fmt.Sprintf("%v", data.Options.WorkspaceID))
 			query.Set("page", fmt.Sprintf("%v", reqData.Pager.Page))
 			query.Set("limit", fmt.Sprintf("%v", reqData.Pager.Size))
-			query.Set("fields", "label")
+			query.Set("fields", "labels")
 			query.Set("order", "created asc")
 			if since != nil {
 				query.Set("modified", fmt.Sprintf(">%v", since.Format("YYYY-MM-DD")))
