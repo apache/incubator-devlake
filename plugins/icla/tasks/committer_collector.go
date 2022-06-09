@@ -41,7 +41,7 @@ func CollectCommitter(taskCtx core.SubTaskContext) error {
 		ApiClient:   data.ApiClient,
 		Incremental: false,
 		UrlTemplate: "public/icla-info.json",
-		Query: func(reqData *helper.RequestData, taskCtx core.SubTaskContext) (url.Values, error) {
+		Query: func(reqData *helper.RequestData, options interface{}) (url.Values, error) {
 			query := url.Values{}
 			return query, nil
 		},

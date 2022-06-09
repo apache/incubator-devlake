@@ -72,7 +72,7 @@ func GetRawMessageFromResponse(res *http.Response) ([]json.RawMessage, error) {
 	return rawMessages, nil
 }
 
-func GetQuery(reqData *helper.RequestData, taskCtx core.SubTaskContext) (url.Values, error) {
+func GetQuery(reqData *helper.RequestData, options interface{}) (url.Values, error) {
 	query := url.Values{}
 	query.Set("with_stats", "true")
 	query.Set("sort", "asc")

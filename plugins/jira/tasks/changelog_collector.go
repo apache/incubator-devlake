@@ -89,7 +89,7 @@ func CollectChangelogs(taskCtx core.SubTaskContext) error {
 		GetTotalPages: GetTotalPagesFromResponse,
 		Input:         iterator,
 		UrlTemplate:   "api/3/issue/{{ .Input.IssueId }}/changelog",
-		Query: func(reqData *helper.RequestData, taskCtx core.SubTaskContext) (url.Values, error) {
+		Query: func(reqData *helper.RequestData, options interface{}) (url.Values, error) {
 			query := url.Values{}
 			query.Set("startAt", fmt.Sprintf("%v", reqData.Pager.Skip))
 			query.Set("maxResults", fmt.Sprintf("%v", reqData.Pager.Size))

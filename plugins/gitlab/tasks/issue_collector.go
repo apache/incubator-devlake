@@ -96,7 +96,7 @@ func CollectApiIssues(taskCtx core.SubTaskContext) error {
 		/*
 			(Optional) Return query string for request, or you can plug them into UrlTemplate directly
 		*/
-		Query: func(reqData *helper.RequestData, taskCtx core.SubTaskContext) (url.Values, error) {
+		Query: func(reqData *helper.RequestData, options interface{}) (url.Values, error) {
 			query := url.Values{}
 			if since != nil {
 				query.Set("created_after", since.String())

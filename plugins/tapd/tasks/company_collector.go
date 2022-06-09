@@ -46,7 +46,7 @@ func CollectCompanies(taskCtx core.SubTaskContext) error {
 		ApiClient: data.ApiClient,
 		//PageSize:    100,
 		UrlTemplate: "workspaces/projects",
-		Query: func(reqData *helper.RequestData, taskCtx core.SubTaskContext) (url.Values, error) {
+		Query: func(reqData *helper.RequestData, options interface{}) (url.Values, error) {
 			query := url.Values{}
 			query.Set("company_id", fmt.Sprintf("%v", data.Options.CompanyId))
 			//query.Set("page", fmt.Sprintf("%v", reqData.Pager.Page))

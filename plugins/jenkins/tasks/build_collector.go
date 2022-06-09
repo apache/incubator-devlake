@@ -66,7 +66,7 @@ func CollectApiBuilds(taskCtx core.SubTaskContext) error {
 		/*
 			(Optional) Return query string for request, or you can plug them into UrlTemplate directly
 		*/
-		Query: func(reqData *helper.RequestData, taskCtx core.SubTaskContext) (url.Values, error) {
+		Query: func(reqData *helper.RequestData, options interface{}) (url.Values, error) {
 			query := url.Values{}
 			treeValue := fmt.Sprintf(
 				"allBuilds[number,timestamp,duration,estimatedDuration,displayName,result,actions[lastBuiltRevision[SHA1],mercurialRevisionNumber],changeSet[kind,revisions[revision]]]{%d,%d}",

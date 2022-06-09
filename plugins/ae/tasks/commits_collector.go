@@ -43,7 +43,7 @@ func CollectCommits(taskCtx core.SubTaskContext) error {
 		ApiClient:   data.ApiClient,
 		PageSize:    2000,
 		UrlTemplate: "projects/{{ .Params.ProjectId }}/commits",
-		Query: func(reqData *helper.RequestData, taskCtx core.SubTaskContext) (url.Values, error) {
+		Query: func(reqData *helper.RequestData, options interface{}) (url.Values, error) {
 			query := url.Values{}
 			query.Set("page", fmt.Sprintf("%v", reqData.Pager.Page))
 			query.Set("per_page", fmt.Sprintf("%v", reqData.Pager.Size))

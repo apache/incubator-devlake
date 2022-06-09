@@ -89,7 +89,7 @@ func CollectApiComments(taskCtx core.SubTaskContext) error {
 		Incremental: incremental,
 
 		UrlTemplate: "repos/{{ .Params.Owner }}/{{ .Params.Repo }}/issues/comments",
-		Query: func(reqData *helper.RequestData, taskCtx core.SubTaskContext) (url.Values, error) {
+		Query: func(reqData *helper.RequestData, options interface{}) (url.Values, error) {
 			query := url.Values{}
 			query.Set("state", "all")
 			if since != nil {

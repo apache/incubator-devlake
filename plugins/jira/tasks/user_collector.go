@@ -64,7 +64,7 @@ func CollectUsers(taskCtx core.SubTaskContext) error {
 		ApiClient:   data.ApiClient,
 		Input:       iterator,
 		UrlTemplate: "api/2/user",
-		Query: func(reqData *helper.RequestData, taskCtx core.SubTaskContext) (url.Values, error) {
+		Query: func(reqData *helper.RequestData, options interface{}) (url.Values, error) {
 			user := reqData.Input.(*models.JiraUser)
 			query := url.Values{}
 			query.Set(queryKey, user.AccountId)

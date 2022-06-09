@@ -65,7 +65,7 @@ func CollectStorys(taskCtx core.SubTaskContext) error {
 		ApiClient:   data.ApiClient,
 		PageSize:    100,
 		UrlTemplate: "stories",
-		Query: func(reqData *helper.RequestData, taskCtx core.SubTaskContext) (url.Values, error) {
+		Query: func(reqData *helper.RequestData, options interface{}) (url.Values, error) {
 			query := url.Values{}
 			query.Set("workspace_id", fmt.Sprintf("%v", data.Options.WorkspaceID))
 			query.Set("page", fmt.Sprintf("%v", reqData.Pager.Page))
