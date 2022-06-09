@@ -20,8 +20,9 @@ package tasks
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/apache/incubator-devlake/models/domainlayer/ticket"
 	"strings"
+
+	"github.com/apache/incubator-devlake/models/domainlayer/ticket"
 
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/helper"
@@ -123,7 +124,6 @@ func ExtractIssues(taskCtx core.SubTaskContext) error {
 			issue.StdStoryPoint = uint(issue.StoryPoint)
 			issue.StdType = getStdType(issue.Type)
 			issue.StdStatus = getStdStatus(issue.StatusKey)
-			issue.SpentMinutes = issue.AggregateEstimateMinutes - issue.RemainingEstimateMinutes
 			if len(changelogs) < 100 {
 				issue.ChangelogUpdated = &row.CreatedAt
 			}

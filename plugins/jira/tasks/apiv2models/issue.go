@@ -46,9 +46,9 @@ type Issue struct {
 			ID  uint64 `json:"id,string"`
 			Key string `json:"key"`
 		} `json:"parent"`
-		Timespent     interface{} `json:"timespent"`
-		Sprint        *Sprint     `json:"sprint"`
-		ClosedSprints []Sprint    `json:"closedSprints"`
+		Timespent     *int64   `json:"timespent"`
+		Sprint        *Sprint  `json:"sprint"`
+		ClosedSprints []Sprint `json:"closedSprints"`
 		Project       struct {
 			Self           string `json:"self"`
 			ID             uint64 `json:"id,string"`
@@ -198,6 +198,9 @@ func (i Issue) toToolLayer(connectionId uint64) *models.JiraIssue {
 	if i.Fields.Sprint != nil {
 		result.SprintId = i.Fields.Sprint.ID
 		result.SprintName = i.Fields.Sprint.Name
+	}
+	if i.Fields.Timespent != nil {
+		result.SpentMinutes = *i.Fields.Timespent / 60
 	}
 	return result
 }
