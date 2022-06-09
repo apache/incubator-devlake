@@ -53,7 +53,7 @@ func CollectApiRepositories(taskCtx core.SubTaskContext) error {
 		ApiClient: data.ApiClient,
 
 		UrlTemplate: "repos/{{ .Params.Owner }}/{{ .Params.Repo }}",
-		Query: func(reqData *helper.RequestData) (url.Values, error) {
+		Query: func(reqData *helper.RequestData, taskCtx core.SubTaskContext) (url.Values, error) {
 			query := url.Values{}
 			query.Set("state", "all")
 			query.Set("page", fmt.Sprintf("%v", reqData.Pager.Page))

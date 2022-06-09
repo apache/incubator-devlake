@@ -79,7 +79,7 @@ func CollectApiEvents(taskCtx core.SubTaskContext) error {
 		Incremental: incremental,
 
 		UrlTemplate: "repos/{{ .Params.Owner }}/{{ .Params.Repo }}/issues/events",
-		Query: func(reqData *helper.RequestData) (url.Values, error) {
+		Query: func(reqData *helper.RequestData, taskCtx core.SubTaskContext) (url.Values, error) {
 			query := url.Values{}
 			query.Set("state", "all")
 			if since != nil {

@@ -48,7 +48,7 @@ func CollectSprints(taskCtx core.SubTaskContext) error {
 		ApiClient:   data.ApiClient,
 		PageSize:    50,
 		UrlTemplate: "agile/1.0/board/{{ .Params.BoardId }}/sprint",
-		Query: func(reqData *helper.RequestData) (url.Values, error) {
+		Query: func(reqData *helper.RequestData, taskCtx core.SubTaskContext) (url.Values, error) {
 			query := url.Values{}
 			query.Set("jql", jql)
 			query.Set("startAt", fmt.Sprintf("%v", reqData.Pager.Skip))

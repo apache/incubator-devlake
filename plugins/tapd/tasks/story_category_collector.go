@@ -46,7 +46,7 @@ func CollectStoryCategories(taskCtx core.SubTaskContext) error {
 		ApiClient: data.ApiClient,
 		//PageSize:    100,
 		UrlTemplate: "story_categories",
-		Query: func(reqData *helper.RequestData) (url.Values, error) {
+		Query: func(reqData *helper.RequestData, taskCtx core.SubTaskContext) (url.Values, error) {
 			query := url.Values{}
 			query.Set("workspace_id", fmt.Sprintf("%v", data.Options.WorkspaceID))
 			return query, nil

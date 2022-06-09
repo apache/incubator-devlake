@@ -61,7 +61,7 @@ func CollectApiJobs(taskCtx core.SubTaskContext) error {
 		Incremental: incremental,
 
 		UrlTemplate: "api/json",
-		Query: func(reqData *helper.RequestData) (url.Values, error) {
+		Query: func(reqData *helper.RequestData, taskCtx core.SubTaskContext) (url.Values, error) {
 			query := url.Values{}
 			treeValue := fmt.Sprintf(
 				"jobs[name,class,color,base]{%d,%d}",
