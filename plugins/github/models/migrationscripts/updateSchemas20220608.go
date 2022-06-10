@@ -28,10 +28,10 @@ import (
 type GithubConnection20220608 struct {
 	archived.Model
 	Name      string `gorm:"type:varchar(100);uniqueIndex" json:"name" validate:"required"`
-	Endpoint  string `mapstructure:"endpoint" env:"GITHUB_ENDPOINT" validate:"required" json:"endpoint"`
-	Proxy     string `mapstructure:"proxy" env:"GITHUB_PROXY" json:"proxy"`
-	RateLimit int    `comment:"api request rate limit per hour" json:"rateLimit"`
-	Auth      string `mapstructure:"auth" validate:"required" env:"GITHUB_AUTH" json:"auth"`
+	Endpoint  string `mapstructure:"endpoint" env:"GITHUB_ENDPOINT" validate:"required"`
+	Proxy     string `mapstructure:"proxy" env:"GITHUB_PROXY"`
+	RateLimit int    `comment:"api request rate limit per hour"`
+	Token     string `mapstructure:"token" validate:"required" env:"GITHUB_AUTH"`
 
 	Config20220608 `mapstructure:",squash"`
 }
@@ -66,7 +66,7 @@ func (*UpdateSchemas20220608) Up(ctx context.Context, db *gorm.DB) error {
 		return err
 	}
 	// update from .env and save to db
-	if connection.Endpoint != `` && connection.Auth != `` {
+	if connection.Endpoint != `` && connection.Token != `` {
 		db.Create(connection)
 	}
 	return nil

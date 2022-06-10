@@ -31,7 +31,7 @@ import (
 
 func CreateApiClient(taskCtx core.TaskContext, connection *models.GithubConnection) (*helper.ApiAsyncClient, error) {
 	// load configuration
-	tokens := strings.Split(connection.Auth, ",")
+	tokens := strings.Split(connection.Token, ",")
 	tokenIndex := 0
 	// create synchronize api client so we can calculate api rate limit dynamically
 	apiClient, err := helper.NewApiClient(connection.Endpoint, nil, 0, connection.Proxy, taskCtx.GetContext())

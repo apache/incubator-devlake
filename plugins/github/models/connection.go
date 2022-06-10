@@ -27,7 +27,7 @@ type TestConnectionRequest struct {
 
 type GithubConnection struct {
 	helper.RestConnection `mapstructure:",squash"`
-	Auth                  string `mapstructure:"auth" validate:"required" json:"auth"`
+	helper.AccessToken    `mapstructure:",squash"`
 	Config                `mapstructure:",squash"`
 }
 
