@@ -23,6 +23,7 @@ import (
 
 	"github.com/apache/incubator-devlake/models/domainlayer/crossdomain"
 	"github.com/apache/incubator-devlake/plugins/core"
+	"github.com/apache/incubator-devlake/plugins/core/dal"
 	"github.com/apache/incubator-devlake/plugins/helper"
 )
 
@@ -44,29 +45,31 @@ func CaculatePairList(taskCtx core.SubTaskContext) (RefPairLists, error) {
 func CalculateIssuesDiff(taskCtx core.SubTaskContext) error {
 	data := taskCtx.GetData().(*RefdiffTaskData)
 	repoId := data.Options.RepoId
-	db := taskCtx.GetDb()
+	db := taskCtx.GetDal()
 	// use to calculate progress
 	pairList, err := CaculatePairList(taskCtx)
 	if err != nil {
 		return err
 	}
-	cursor, err := db.Table("refs_commits_diffs").
-		Joins(
+	cursor, err := db.Cursor(
+		dal.From("refs_commits_diffs"),
+		dal.Join(
 			`left join (  
         select pull_request_id as id, commit_sha from pull_request_commits 
 			left join pull_requests p on pull_request_commits.pull_request_id = p.id
 			where p.base_repo_id = ?
 			 union  
 			select id, merge_commit_sha as commit_sha from pull_requests where base_repo_id = ?) _combine_pr 
-			on _combine_pr.commit_sha = refs_commits_diffs.commit_sha`, repoId, repoId).
-		Joins("left join pull_request_issues on pull_request_issues.pull_request_id = _combine_pr.id").
-		Joins("left join refs on refs.commit_sha = refs_commits_diffs.new_ref_commit_sha").
-		Order("refs_commits_diffs.new_ref_id ASC").
-		Where("refs.repo_id = ? and pull_request_issues.issue_number > 0 and (refs_commits_diffs.new_ref_id, refs_commits_diffs.old_ref_id) in ?",
-			repoId, pairList).
-		Select(`refs_commits_diffs.new_ref_commit_sha as new_ref_commit_sha, refs_commits_diffs.old_ref_commit_sha as old_ref_commit_sha, 
+			on _combine_pr.commit_sha = refs_commits_diffs.commit_sha`, repoId, repoId),
+		dal.Join("left join pull_request_issues on pull_request_issues.pull_request_id = _combine_pr.id"),
+		dal.Join("left join refs on refs.commit_sha = refs_commits_diffs.new_ref_commit_sha"),
+		dal.Orderby("refs_commits_diffs.new_ref_id ASC"),
+		dal.Where("refs.repo_id = ? and pull_request_issues.issue_number > 0 and (refs_commits_diffs.new_ref_id, refs_commits_diffs.old_ref_id) in ?",
+			repoId, pairList),
+		dal.Select(`refs_commits_diffs.new_ref_commit_sha as new_ref_commit_sha, refs_commits_diffs.old_ref_commit_sha as old_ref_commit_sha, 
 			pull_request_issues.issue_id as issue_id, pull_request_issues.issue_number as issue_number, 
-			refs_commits_diffs.new_ref_id as new_ref_id, refs_commits_diffs.old_ref_id as old_ref_id`).Rows()
+			refs_commits_diffs.new_ref_id as new_ref_id, refs_commits_diffs.old_ref_id as old_ref_id`),
+	)
 	if err != nil {
 		return err
 	}

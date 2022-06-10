@@ -23,14 +23,14 @@ import (
 
 	"github.com/apache/incubator-devlake/models/domainlayer/code"
 	"github.com/apache/incubator-devlake/plugins/core"
+	"github.com/apache/incubator-devlake/plugins/core/dal"
 	"github.com/apache/incubator-devlake/plugins/refdiff/utils"
-	"gorm.io/gorm/clause"
 )
 
 func CalculateCommitsDiff(taskCtx core.SubTaskContext) error {
 	data := taskCtx.GetData().(*RefdiffTaskData)
 	repoId := data.Options.RepoId
-	db := taskCtx.GetDb()
+	db := taskCtx.GetDal()
 	ctx := taskCtx.GetContext()
 	logger := taskCtx.GetLogger()
 	insertCountLimitOfRefsCommitsDiff := int(65535 / reflect.ValueOf(code.RefsCommitsDiff{}).NumField())
@@ -41,11 +41,12 @@ func CalculateCommitsDiff(taskCtx core.SubTaskContext) error {
 
 	// load commits from db
 	commitParent := &code.CommitParent{}
-	cursor, err := db.Table("commit_parents cp").
-		Select("cp.*").
-		Joins("LEFT JOIN repo_commits rc ON (rc.commit_sha = cp.commit_sha)").
-		Where("rc.repo_id = ?", repoId).
-		Rows()
+	cursor, err := db.Cursor(
+		dal.Select("cp.*"),
+		dal.Join("LEFT JOIN repo_commits rc ON (rc.commit_sha = cp.commit_sha)"),
+		dal.From("commit_parents cp"),
+		dal.Where("rc.repo_id = ?", repoId),
+	)
 	if err != nil {
 		panic(err)
 	}
@@ -57,7 +58,7 @@ func CalculateCommitsDiff(taskCtx core.SubTaskContext) error {
 			return ctx.Err()
 		default:
 		}
-		err = db.ScanRows(cursor, commitParent)
+		err = db.Fetch(cursor, commitParent)
 		if err != nil {
 			return fmt.Errorf("failed to read commit from database: %v", err)
 		}
@@ -84,7 +85,7 @@ func CalculateCommitsDiff(taskCtx core.SubTaskContext) error {
 		commitsDiff.OldRefId = fmt.Sprintf("%s:%s", repoId, pair[3])
 
 		// delete records before creation
-		err = db.Delete(&code.RefsCommitsDiff{NewRefId: commitsDiff.NewRefId, OldRefId: commitsDiff.OldRefId}).Error
+		err = db.Delete(&code.RefsCommitsDiff{NewRefId: commitsDiff.NewRefId, OldRefId: commitsDiff.OldRefId})
 		if err != nil {
 			return err
 		}
@@ -112,7 +113,7 @@ func CalculateCommitsDiff(taskCtx core.SubTaskContext) error {
 			// sql limit placeholders count only 65535
 			if commitsDiff.SortingIndex%insertCountLimitOfRefsCommitsDiff == 0 {
 				logger.Info("commitsDiffs count in limited[%d] index[%d]--exec and clean", len(commitsDiffs), commitsDiff.SortingIndex)
-				err = db.Clauses(clause.OnConflict{DoNothing: true}).Create(commitsDiffs).Error
+				err = db.CreateIfNotExist(commitsDiffs)
 				if err != nil {
 					return err
 				}
@@ -124,7 +125,7 @@ func CalculateCommitsDiff(taskCtx core.SubTaskContext) error {
 
 		if len(commitsDiffs) > 0 {
 			logger.Info("insert data count [%d]", len(commitsDiffs))
-			err = db.Clauses(clause.OnConflict{DoNothing: true}).Create(commitsDiffs).Error
+			err = db.CreateIfNotExist(commitsDiffs)
 			if err != nil {
 				return err
 			}
