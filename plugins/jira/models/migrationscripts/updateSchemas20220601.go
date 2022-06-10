@@ -78,8 +78,7 @@ func (u *UpdateSchemas20220601) Up(ctx context.Context, db *gorm.DB) error {
 		for _, connection := range connections {
 			basicAuthEncoded, err := core.Decrypt(encKey, connection.BasicAuthEncoded)
 			if err != nil {
-				u.logger.Warn("failed to decrypt basicAuth for connection %d", connection.ID)
-				continue
+				return err
 			}
 			basicAuth, err := base64.StdEncoding.DecodeString(basicAuthEncoded)
 			if err != nil {
@@ -87,6 +86,10 @@ func (u *UpdateSchemas20220601) Up(ctx context.Context, db *gorm.DB) error {
 			}
 			strList := strings.Split(string(basicAuth), ":")
 			if len(strList) > 1 {
+				encPass, err := core.Encrypt(encKey, strList[1])
+				if err != nil {
+					return err
+				}
 				newConnection := JiraConnection20220601{
 					RestConnection: helper.RestConnection{
 						BaseConnection: helper.BaseConnection{
@@ -99,13 +102,13 @@ func (u *UpdateSchemas20220601) Up(ctx context.Context, db *gorm.DB) error {
 					},
 					BasicAuth: helper.BasicAuth{
 						Username: strList[0],
-						Password: strList[1],
+						Password: encPass,
 					},
 					EpicKeyField:               connection.EpicKeyField,
 					StoryPointField:            connection.StoryPointField,
 					RemotelinkCommitShaPattern: connection.RemotelinkCommitShaPattern,
 				}
-				err := db.Save(newConnection).Error
+				err = db.Save(newConnection).Error
 				if err != nil {
 					return err
 				}
