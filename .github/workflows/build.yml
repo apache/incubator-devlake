@@ -1,75 +1,79 @@
 name: Build-Images-Push-Docker
+env:
+  IMAGE_LAKE: ${{ secrets.DOCKERHUB_OWNER }}/devlake
+  IMAGE_CONFIG_UI: ${{ secrets.DOCKERHUB_OWNER }}/devlake-config-ui
+  IMAGE_GRAFANA: ${{ secrets.DOCKERHUB_OWNER }}/devlake-dashboard
 on:
   push:
     tags:
-    - '*'
+      - 'v*'
 jobs:
   build-lake:
     name: Build lake image
     runs-on: ubuntu-20.04
     steps:
-    - uses: actions/checkout@v2
-    - name: Cache Build-Images-Push-Docker
-      id: cache-Build-Images-Push-Docker
-      uses: actions/cache@v3
-      with:
-        path: Build-Images-Push-Docker
-        key: ${{ runner.os }}-Build-Images-Push-Docker
+      - uses: actions/checkout@v2
+      - name: Cache Build-Images-Push-Docker
+        id: cache-Build-Images-Push-Docker
+        uses: actions/cache@v3
+        with:
+          path: Build-Images-Push-Docker
+          key: ${{ runner.os }}-Build-Images-Push-Docker
 
-    - uses: docker/login-action@f054a8b539a109f9f41c372932f1ae047eff08c9
-      with:
-        username: ${{ secrets.DOCKER_REGISTRY_USERNAME }}
-        password: ${{ secrets.DOCKER_REGISTRY_PASSWORD }}
-    - name: Build lake image
-      run: |
-        export IMAGE_LAKE=mericodev/lake
-        docker build -t $IMAGE_LAKE:latest --file ./Dockerfile .
-        docker tag $IMAGE_LAKE:latest $IMAGE_LAKE:$(echo ${GITHUB_REF:10})
-        docker push $IMAGE_LAKE:$(echo ${GITHUB_REF:10})
-        docker push $IMAGE_LAKE:latest
+      - name: Login to DockerHub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+      - name: Build lake image
+        run: |
+          docker build -t ${{ env.IMAGE_LAKE }}:latest --file ./Dockerfile .
+          docker tag ${{ env.IMAGE_LAKE }}:latest ${{ env.IMAGE_LAKE }}:$(echo ${GITHUB_REF:10})
+          docker push ${{ env.IMAGE_LAKE }}:$(echo ${GITHUB_REF:10})
+          docker push ${{ env.IMAGE_LAKE }}:latest
   build-configui:
     name: Build config-ui image
     runs-on: ubuntu-20.04
     steps:
-    - uses: actions/checkout@v2
-    - name: Cache config-ui
-      id: cache-config-ui
-      uses: actions/cache@v3
-      with:
-        path: config-ui
-        key: ${{ runner.os }}-config-ui
-    - uses: docker/login-action@f054a8b539a109f9f41c372932f1ae047eff08c9
-      with:
-        username: ${{ secrets.DOCKER_REGISTRY_USERNAME }}
-        password: ${{ secrets.DOCKER_REGISTRY_PASSWORD }}
-    - name: Build config ui image
-      run: |
-        export IMAGE_CONFIG_UI=mericodev/config-ui
-        cd config-ui
-        docker build -t $IMAGE_CONFIG_UI:latest --file ./Dockerfile .
-        docker tag $IMAGE_CONFIG_UI:latest $IMAGE_CONFIG_UI:$(echo ${GITHUB_REF:10})
-        docker push $IMAGE_CONFIG_UI:$(echo ${GITHUB_REF:10})
-        docker push $IMAGE_CONFIG_UI:latest
+      - uses: actions/checkout@v2
+      - name: Cache config-ui
+        id: cache-config-ui
+        uses: actions/cache@v3
+        with:
+          path: config-ui
+          key: ${{ runner.os }}-config-ui
+      - name: Login to DockerHub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+      - name: Build config ui image
+        run: |
+          cd config-ui
+          docker build -t ${{ env.IMAGE_CONFIG_UI }}:latest --file ./Dockerfile .
+          docker tag ${{ env.IMAGE_CONFIG_UI }}:latest ${{ env.IMAGE_CONFIG_UI }}:$(echo ${GITHUB_REF:10})
+          docker push ${{ env.IMAGE_CONFIG_UI }}:$(echo ${GITHUB_REF:10})
+          docker push ${{ env.IMAGE_CONFIG_UI }}:latest
   build-grafana:
     name: Build grafana image
     runs-on: ubuntu-20.04
     steps:
-    - uses: actions/checkout@v2
-    - name: Cache grafana
-      id: cache-grafana
-      uses: actions/cache@v3
-      with:
-        path: grafana
-        key: ${{ runner.os }}-grafana
-    - uses: docker/login-action@f054a8b539a109f9f41c372932f1ae047eff08c9
-      with:
-        username: ${{ secrets.DOCKER_REGISTRY_USERNAME }}
-        password: ${{ secrets.DOCKER_REGISTRY_PASSWORD }}
-    - name: Build grafana
-      run: |
-        export IMAGE_GRAFANA=mericodev/grafana
-        cd grafana
-        docker build -t $IMAGE_GRAFANA:latest --file ./Dockerfile .
-        docker tag $IMAGE_GRAFANA:latest $IMAGE_GRAFANA:$(echo ${GITHUB_REF:10})
-        docker push $IMAGE_GRAFANA:$(echo ${GITHUB_REF:10})
-        docker push $IMAGE_GRAFANA:latest
+      - uses: actions/checkout@v2
+      - name: Cache grafana
+        id: cache-grafana
+        uses: actions/cache@v3
+        with:
+          path: grafana
+          key: ${{ runner.os }}-grafana
+      - name: Login to DockerHub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+      - name: Build grafana
+        run: |
+          cd grafana
+          docker build -t ${{ env.IMAGE_GRAFANA }}:latest --file ./Dockerfile .
+          docker tag ${{ env.IMAGE_GRAFANA }}:latest ${{ env.IMAGE_GRAFANA }}:$(echo ${GITHUB_REF:10})
+          docker push ${{ env.IMAGE_GRAFANA }}:$(echo ${GITHUB_REF:10})
+          docker push ${{ env.IMAGE_GRAFANA }}:latest
