@@ -195,7 +195,8 @@ func (collector *ApiCollector) fetchPagesDetermined(reqData *RequestData) {
 						Skip: collector.args.PageSize * (page - 1),
 						Size: collector.args.PageSize,
 					},
-					Input: reqData.Input,
+					Input:     reqData.Input,
+					InputJSON: reqData.InputJSON,
 				}
 				collector.fetchAsync(reqDataTemp, nil)
 			}
@@ -232,7 +233,8 @@ func (collector *ApiCollector) fetchPagesUndetermined(reqData *RequestData) {
 				Size: collector.args.PageSize,
 				Skip: collector.args.PageSize * (i),
 			},
-			Input: reqData.Input,
+			Input:     reqData.Input,
+			InputJSON: reqData.InputJSON,
 		}
 		var collect func() error
 		collect = func() error {
