@@ -28,7 +28,6 @@ type TestConnectionRequest struct {
 type GithubConnection struct {
 	helper.RestConnection `mapstructure:",squash"`
 	helper.AccessToken    `mapstructure:",squash"`
-	Config                `mapstructure:",squash"`
 }
 
 type Config struct {

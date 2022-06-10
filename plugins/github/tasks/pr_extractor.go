@@ -72,16 +72,10 @@ func ExtractApiPullRequests(taskCtx core.SubTaskContext) error {
 	var labelTypeRegex *regexp.Regexp
 	var labelComponentRegex *regexp.Regexp
 	var prType = config.PrType
-	if prType == "" {
-		prType = taskCtx.GetConfig("GITHUB_PR_TYPE")
-	}
-	var prComponent = config.PrComponent
-	if prComponent == "" {
-		prComponent = taskCtx.GetConfig("GITHUB_PR_COMPONENT")
-	}
 	if len(prType) > 0 {
 		labelTypeRegex = regexp.MustCompile(prType)
 	}
+	var prComponent = config.PrComponent
 	if len(prComponent) > 0 {
 		labelComponentRegex = regexp.MustCompile(prComponent)
 	}
