@@ -92,7 +92,7 @@ function useConnectionManager ({
           connectionPayload = { endpoint: endpointUrl, username: username, password: password }
           break
         case Providers.GITLAB:
-          connectionPayload = { endpoint: endpointUrl, auth: token, proxy: proxy }
+          connectionPayload = { endpoint: endpointUrl, token: token, proxy: proxy }
           break
       }
       connectionPayload = { ...connectionPayload, ...manualPayload }
@@ -135,7 +135,7 @@ function useConnectionManager ({
         connectionPayload = { name: name, endpoint: endpointUrl, username: username, password: password, ...connectionPayload }
         break
       case Providers.GITLAB:
-        connectionPayload = { name: name, endpoint: endpointUrl, auth: token, proxy: proxy, ...connectionPayload }
+        connectionPayload = { name: name, endpoint: endpointUrl, token: token, proxy: proxy, ...connectionPayload }
         break
     }
 
@@ -202,7 +202,7 @@ function useConnectionManager ({
         setShowError(false)
         setIsSaving(false)
         setSaveComplete(saveResponse.connection)
-        if ([Providers.GITHUB, Providers.JIRA].includes(activeProvider.id) && token !== '' && token?.toString().split(',').length > 1) {
+        if ([Providers.GITHUB, Providers.JIRA, Providers.GITLAB].includes(activeProvider.id) && token !== '' && token?.toString().split(',').length > 1) {
           testConnection()
         }
         if (!updateMode) {
@@ -242,7 +242,8 @@ function useConnectionManager ({
           endpoint: connectionData.endpoint || connectionData.Endpoint,
           proxy: connectionData.proxy || connectionData.Proxy,
           username: connectionData.username || connectionData.Username,
-          password: connectionData.password || connectionData.Password
+          password: connectionData.password || connectionData.Password,
+          token: connectionData.token,
         })
         setTimeout(() => {
           setIsFetching(false)
@@ -329,7 +330,8 @@ function useConnectionManager ({
         endpoint: c.Endpoint || c.endpoint,
         username: c.username,
         password: c.password,
-        auth: c.basicAuthEncoded || c.token,
+        auth: c.basicAuthEncoded || c.auth,
+        token: c.token,
         proxy: c.Proxy || c.Proxy
       }
       const onSuccess = (res) => {
@@ -376,7 +378,7 @@ function useConnectionManager ({
           setPassword(activeConnection.password)
           break
         case Providers.GITLAB:
-          setToken(activeConnection.basicAuthEncoded || activeConnection.auth)
+          setToken(activeConnection.basicAuthEncoded || activeConnection.token)
           setProxy(activeConnection.Proxy || activeConnection.proxy)
           break
         case Providers.GITHUB:

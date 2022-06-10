@@ -212,7 +212,7 @@ export default function ConfigureConnection () {
                     </div>
                     {activeConnection && (
                       <>
-                        {activeProvider.id === Providers.JIRA &&
+                        {[Providers.GITLAB, Providers.JIRA].includes(activeProvider.id) &&
                         (<h2 style={{ margin: 0 }}>#{activeConnection.ID} {activeConnection.name}</h2>)}
                         <p className='page-description'>Manage settings and options for this connection.</p>
                       </>
@@ -249,8 +249,8 @@ export default function ConfigureConnection () {
                             token={token}
                             username={username}
                             password={password}
-                            // JIRA is a multi-connection plugin, for now we intentially won't include additional settings during save...
-                            onSave={() => saveConnection(activeProvider.id !== Providers.JIRA ? settings : {})}
+                            // JIRA and GITLAB are multi-connection plugins, for now we intentially won't include additional settings during save...
+                            onSave={() => saveConnection(![Providers.GITLAB, Providers.JIRA].includes(activeProvider.id) ? settings : {})}
                             onTest={testConnection}
                             onCancel={cancel}
                             onValidate={validate}
@@ -305,7 +305,7 @@ export default function ConfigureConnection () {
                         intent={Intent.PRIMARY}
                         text='Save Settings'
                         loading={isSaving}
-                        disabled={isSaving || providerId === Providers.JENKINS || providerId === Providers.GITLAB}
+                        disabled={isSaving || providerId === Providers.JENKINS}
                         onClick={saveSettings}
                         style={{ marginLeft: '10px' }}
                       />

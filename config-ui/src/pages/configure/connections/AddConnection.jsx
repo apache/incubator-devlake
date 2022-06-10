@@ -102,13 +102,11 @@ export default function AddConnection () {
     if (activeProvider && activeProvider.id) {
       fetchAllConnections()
       switch (activeProvider.id) {
-        case Providers.GITLAB:
-          setName(ProviderLabels.GITLAB)
-          break
         case Providers.JENKINS:
           setName(ProviderLabels.JENKINS)
           break
         case Providers.GITHUB:
+        case Providers.GITLAB:
         case Providers.JIRA:
         default:
           setName('')
