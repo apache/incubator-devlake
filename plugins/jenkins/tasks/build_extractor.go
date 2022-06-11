@@ -85,7 +85,9 @@ func ExtractApiBuilds(taskCtx core.SubTaskContext) error {
 					}
 				}
 			} else if vcs == "svn" {
-				build.CommitSha = strconv.Itoa(body.ChangeSet.Revisions[0].Revision)
+				if len(body.ChangeSet.Revisions) > 0 {
+					build.CommitSha = strconv.Itoa(body.ChangeSet.Revisions[0].Revision)
+				}
 			}
 
 			results = append(results, build)
