@@ -20,13 +20,11 @@ package helper
 import (
 	"context"
 	"fmt"
-	"os"
 	"sync"
 	"sync/atomic"
 	"time"
 
 	"github.com/apache/incubator-devlake/plugins/core"
-	"github.com/apache/incubator-devlake/utils"
 	ants "github.com/panjf2000/ants/v2"
 )
 
@@ -42,7 +40,7 @@ type WorkerScheduler struct {
 	logger       core.Logger
 }
 
-var callframeEnabled = os.Getenv("ASYNC_CF") == "true"
+//var callframeEnabled = os.Getenv("ASYNC_CF") == "true"
 
 // NewWorkerScheduler creates a WorkerScheduler
 func NewWorkerScheduler(
@@ -65,9 +63,7 @@ func NewWorkerScheduler(
 		logger: logger,
 	}
 	pool, err := ants.NewPool(workerNum, ants.WithPanicHandler(func(i interface{}) {
-		s.mu.Lock()
-		defer s.mu.Unlock()
-		s.workerErrors = append(s.workerErrors, i.(error))
+		s.checkError(i)
 	}))
 	if err != nil {
 		return nil, err
@@ -84,53 +80,35 @@ func NewWorkerScheduler(
 // IMPORTANT: do NOT call SubmitBlocking inside the async task, it is likely to cause a deadlock, call
 // SubmitNonBlocking instead when number of tasks is relatively small.
 func (s *WorkerScheduler) SubmitBlocking(task func() error) {
-	// this is expensive, enable by EnvVar
-	cf := s.gatherCallFrames()
-	// to make sure task is done
-	if len(s.workerErrors) > 0 {
-		// not point to continue
+	if s.HasError() {
 		return
 	}
 	s.waitGroup.Add(1)
-	err := s.pool.Submit(func() {
+	s.checkError(s.pool.Submit(func() {
 		defer s.waitGroup.Done()
 
 		id := atomic.AddInt32(&s.counter, 1)
 		s.logger.Debug("schedulerJob >>> %d started", id)
 		defer s.logger.Debug("schedulerJob <<< %d ended", id)
 
-		if len(s.workerErrors) > 0 {
-			// not point to continue
+		if s.HasError() {
 			return
 		}
-		// wait for rate limit throttling
-
-		// try recover
-		defer func() {
-			r := recover()
-			if r != nil {
-				s.appendError(fmt.Errorf("%s\n%s", r, cf))
-			}
-		}()
 
 		// normal error
-		var err error
 		select {
 		case <-s.ctx.Done():
-			err = s.ctx.Err()
+			panic(s.ctx.Err())
 		case <-s.ticker.C:
-			err = task()
+			err := task()
+			if err != nil {
+				panic(err)
+			}
 		}
-		if err != nil {
-			s.appendError(err)
-		}
-	})
-	// failed to submit, note that this is not task erro
-	if err != nil {
-		s.appendError(fmt.Errorf("%s\n%s", err, cf))
-	}
+	}))
 }
 
+/*
 func (s *WorkerScheduler) gatherCallFrames() string {
 	cf := "set Environment Varaible ASYNC_CF=true to enable callframes capturing"
 	if callframeEnabled {
@@ -138,11 +116,24 @@ func (s *WorkerScheduler) gatherCallFrames() string {
 	}
 	return cf
 }
+*/
 
 func (s *WorkerScheduler) appendError(err error) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 	s.workerErrors = append(s.workerErrors, err)
+}
+
+func (s *WorkerScheduler) checkError(err interface{}) {
+	if err == nil {
+		return
+	}
+	s.appendError(err.(error))
+}
+
+// HasError return if any error occurred
+func (s *WorkerScheduler) HasError() bool {
+	return len(s.workerErrors) > 0
 }
 
 // NextTick enqueues task in a NonBlocking manner, you should only call this method within task submitted by
@@ -153,7 +144,7 @@ func (s *WorkerScheduler) NextTick(task func() error) {
 	s.waitGroup.Add(1)
 	go func() {
 		defer s.waitGroup.Done()
-		task() // nolint
+		s.checkError(task())
 	}()
 }
 
