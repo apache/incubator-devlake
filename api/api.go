@@ -18,9 +18,10 @@ limitations under the License.
 package api
 
 import (
-	_ "github.com/apache/incubator-devlake/api/docs"
-	"log"
 	"time"
+
+	_ "github.com/apache/incubator-devlake/api/docs"
+	"github.com/apache/incubator-devlake/logger"
 
 	"github.com/apache/incubator-devlake/config"
 	"github.com/gin-contrib/cors"
@@ -45,7 +46,7 @@ func CreateApiService() {
 
 	//endpoint debug log
 	gin.DebugPrintRouteFunc = func(httpMethod, absolutePath, handlerName string, nuHandlers int) {
-		log.Printf("endpoint %v %v %v %v\n", httpMethod, absolutePath, handlerName, nuHandlers)
+		logger.Global.Printf("endpoint %v %v %v %v", httpMethod, absolutePath, handlerName, nuHandlers)
 	}
 
 	// CORS CONFIG
