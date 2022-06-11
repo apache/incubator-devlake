@@ -17,91 +17,97 @@ limitations under the License.
 
 package dal
 
-import "database/sql"
+import (
+	"database/sql"
+)
+
+type Clause struct {
+	Type string
+	Data interface{}
+}
 
 // Dal aims to facilitate an isolation of Database Access Layer by defining a set of operations should a
 // Database Access Layer provide
 // This is inroduced by the fact that mocking *gorm.DB is hard, and `gomonkey` is not working on macOS
 type Dal interface {
+	// Raw executes raw sql query with sql.Rows and error return
+	Raw(query string, params ...interface{}) (*sql.Rows, error)
 	// Exec executes raw sql query
 	Exec(query string, params ...interface{}) error
-	// CreateTable creates a table with gorm definition from `entity`
-	AutoMigrate(entity interface{}, clauses ...interface{}) error
+	// CreateTable creates a table with gorm definition from `entity`R
+	AutoMigrate(entity interface{}, clauses ...Clause) error
 	// Cursor returns a database cursor, cursor is especially useful when handling big amount of rows of data
-	Cursor(clauses ...interface{}) (*sql.Rows, error)
+	Cursor(clauses ...Clause) (*sql.Rows, error)
 	// Fetch loads row data from `cursor` into `dst`
 	Fetch(cursor *sql.Rows, dst interface{}) error
 	// All loads matched rows from database to `dst`, USE IT WITH COUTIOUS!!
-	All(dst interface{}, clauses ...interface{}) error
+	All(dst interface{}, clauses ...Clause) error
 	// First loads first matched row from database to `dst`, error will be returned if no records were found
-	First(dst interface{}, clauses ...interface{}) error
+	First(dst interface{}, clauses ...Clause) error
+	// Pluck used to query single column
+	Pluck(column string, dest interface{}, clauses ...Clause) error
 	// Create insert record to database
-	Create(entity interface{}, clauses ...interface{}) error
+	Create(entity interface{}, clauses ...Clause) error
 	// Update updates record
-	Update(entity interface{}, clauses ...interface{}) error
+	Update(entity interface{}, clauses ...Clause) error
 	// CreateOrUpdate tries to create the record, or fallback to update all if failed
-	CreateOrUpdate(entity interface{}, clauses ...interface{}) error
+	CreateOrUpdate(entity interface{}, clauses ...Clause) error
+	// CreateIfNotExist tries to create the record if not exist
+	CreateIfNotExist(entity interface{}, clauses ...Clause) error
 	// Delete records from database
-	Delete(entity interface{}, clauses ...interface{}) error
+	Delete(entity interface{}, clauses ...Clause) error
 }
 
-type dalClause struct {
+type DalClause struct {
 	Expr   string
 	Params []interface{}
 }
 
-// JoinClause represents a SQL `JOIN` clause
-type JoinClause dalClause
+const JoinClause string = "Join"
 
 // Join creates a new JoinClause
-func Join(clause string, params ...interface{}) *JoinClause {
-	return &JoinClause{clause, params}
+func Join(clause string, params ...interface{}) Clause {
+	return Clause{Type: JoinClause, Data: DalClause{clause, params}}
 }
 
-// WhereClause represents a SQL `WHERE` clause
-type WhereClause dalClause
+const WhereClause string = "Where"
 
 // Where creates a new WhereClause
-func Where(clause string, params ...interface{}) *WhereClause {
-	return &WhereClause{clause, params}
+func Where(clause string, params ...interface{}) Clause {
+	return Clause{Type: WhereClause, Data: DalClause{clause, params}}
 }
 
-// LimitClause represents a SQL `LIMIT` clause
-type LimitClause int
+const LimitClause string = "Limit"
 
 // Limit creates a new LimitClause
-func Limit(limit int) LimitClause {
-	return LimitClause(limit)
+func Limit(limit int) Clause {
+	return Clause{Type: LimitClause, Data: limit}
 }
 
-// OffsetClause represents a SQL `OFFSET` clause
-type OffsetClause int
+const OffsetClause string = "Offset"
 
 // Offset creates a new OffsetClause
-func Offset(offset int) OffsetClause {
-	return OffsetClause(offset)
+func Offset(offset int) Clause {
+	return Clause{Type: OffsetClause, Data: offset}
 }
 
-// FromClause represents a SQL `OFFSET` clause
-type FromClause string
+const FromClause string = "From"
 
 // From creates a new TableClause
-func From(table string) FromClause {
-	return FromClause(table)
+func From(table interface{}) Clause {
+	return Clause{Type: FromClause, Data: table}
 }
 
-// SelectClause represents a SQL `OFFSET` clause
-type SelectClause string
+const SelectClause string = "Select"
 
 // Select creates a new TableClause
-func Select(fields string) SelectClause {
-	return SelectClause(fields)
+func Select(fields string) Clause {
+	return Clause{Type: SelectClause, Data: fields}
 }
 
-// OrderbyClause represents a SQL `ORDER BY` clause
-type OrderbyClause string
+const OrderbyClause string = "OrderBy"
 
 // Orderby creates a new Orderby
-func Orderby(expr string) OrderbyClause {
-	return OrderbyClause(expr)
+func Orderby(expr string) Clause {
+	return Clause{Type: OrderbyClause, Data: expr}
 }

@@ -38,23 +38,29 @@ type Dalgorm struct {
 //return s.name
 //}
 
-func buildTx(tx *gorm.DB, clauses []interface{}) *gorm.DB {
+func buildTx(tx *gorm.DB, clauses []dal.Clause) *gorm.DB {
 	for _, clause := range clauses {
-		switch clause := clause.(type) {
-		case *dal.JoinClause:
-			tx = tx.Joins(clause.Expr, clause.Params...)
-		case *dal.WhereClause:
-			tx = tx.Where(clause.Expr, clause.Params...)
+		t := clause.Type
+		d := clause.Data
+		switch t {
+		case dal.JoinClause:
+			tx = tx.Joins(d.(dal.DalClause).Expr, d.(dal.DalClause).Params...)
+		case dal.WhereClause:
+			tx = tx.Where(d.(dal.DalClause).Expr, d.(dal.DalClause).Params...)
 		case dal.OrderbyClause:
-			tx = tx.Order(string(clause))
+			tx = tx.Order(d.(string))
 		case dal.LimitClause:
-			tx = tx.Limit(int(clause))
+			tx = tx.Limit(d.(int))
 		case dal.OffsetClause:
-			tx = tx.Offset(int(clause))
+			tx = tx.Offset(d.(int))
 		case dal.FromClause:
-			tx = tx.Table(string(clause))
+			if str, ok := d.(string); ok {
+				tx = tx.Table(str)
+			} else {
+				tx = tx.Model(d)
+			}
 		case dal.SelectClause:
-			tx = tx.Select(string(clause))
+			tx = tx.Select(d.(string))
 		}
 	}
 	return tx
@@ -63,18 +69,27 @@ func buildTx(tx *gorm.DB, clauses []interface{}) *gorm.DB {
 var _ dal.Dal = (*Dalgorm)(nil)
 
 // Exec executes raw sql query
+func (d *Dalgorm) Raw(query string, params ...interface{}) (*sql.Rows, error) {
+	return d.db.Raw(query, params...).Rows()
+}
+
+// Exec executes raw sql query
 func (d *Dalgorm) Exec(query string, params ...interface{}) error {
 	return d.db.Exec(query, params...).Error
 }
 
 // CreateTable creates a table with gorm definition from `entity`
-func (d *Dalgorm) AutoMigrate(entity interface{}, clauses ...interface{}) error {
+func (d *Dalgorm) AutoMigrate(entity interface{}, clauses ...dal.Clause) error {
 	return buildTx(d.db, clauses).AutoMigrate(entity)
 }
 
 // Cursor returns a database cursor, cursor is especially useful when handling big amount of rows of data
-func (d *Dalgorm) Cursor(clauses ...interface{}) (*sql.Rows, error) {
+func (d *Dalgorm) Cursor(clauses ...dal.Clause) (*sql.Rows, error) {
 	return buildTx(d.db, clauses).Rows()
+}
+
+func (d *Dalgorm) CursorTx(clauses ...dal.Clause) *gorm.DB {
+	return buildTx(d.db, clauses)
 }
 
 // Fetch loads row data from `cursor` into `dst`
@@ -83,32 +98,42 @@ func (d *Dalgorm) Fetch(cursor *sql.Rows, dst interface{}) error {
 }
 
 // All loads matched rows from database to `dst`, USE IT WITH COUTIOUS!!
-func (d *Dalgorm) All(dst interface{}, clauses ...interface{}) error {
+func (d *Dalgorm) All(dst interface{}, clauses ...dal.Clause) error {
 	return buildTx(d.db, clauses).Find(dst).Error
 }
 
 // First loads first matched row from database to `dst`, error will be returned if no records were found
-func (d *Dalgorm) First(dst interface{}, clauses ...interface{}) error {
+func (d *Dalgorm) First(dst interface{}, clauses ...dal.Clause) error {
 	return buildTx(d.db, clauses).First(dst).Error
 }
 
+// Pluck used to query single column
+func (d *Dalgorm) Pluck(column string, dest interface{}, clauses ...dal.Clause) error {
+	return buildTx(d.db, clauses).Pluck(column, dest).Error
+}
+
 // Create insert record to database
-func (d *Dalgorm) Create(entity interface{}, clauses ...interface{}) error {
+func (d *Dalgorm) Create(entity interface{}, clauses ...dal.Clause) error {
 	return buildTx(d.db, clauses).Create(entity).Error
 }
 
 // Update updates record
-func (d *Dalgorm) Update(entity interface{}, clauses ...interface{}) error {
+func (d *Dalgorm) Update(entity interface{}, clauses ...dal.Clause) error {
 	return buildTx(d.db, clauses).Save(entity).Error
 }
 
 // CreateOrUpdate tries to create the record, or fallback to update all if failed
-func (d *Dalgorm) CreateOrUpdate(entity interface{}, clauses ...interface{}) error {
+func (d *Dalgorm) CreateOrUpdate(entity interface{}, clauses ...dal.Clause) error {
 	return buildTx(d.db, clauses).Clauses(clause.OnConflict{UpdateAll: true}).Create(entity).Error
 }
 
+// CreateIfNotExist tries to create the record if not exist
+func (d *Dalgorm) CreateIfNotExist(entity interface{}, clauses ...dal.Clause) error {
+	return buildTx(d.db, clauses).Clauses(clause.OnConflict{DoNothing: true}).Create(entity).Error
+}
+
 // Delete records from database
-func (d *Dalgorm) Delete(entity interface{}, clauses ...interface{}) error {
+func (d *Dalgorm) Delete(entity interface{}, clauses ...dal.Clause) error {
 	return buildTx(d.db, clauses).Delete(entity).Error
 }
 

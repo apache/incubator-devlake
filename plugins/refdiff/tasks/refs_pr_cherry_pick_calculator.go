@@ -25,7 +25,7 @@ import (
 
 	"github.com/apache/incubator-devlake/models/domainlayer/code"
 	"github.com/apache/incubator-devlake/plugins/core"
-	"gorm.io/gorm/clause"
+	"github.com/apache/incubator-devlake/plugins/core/dal"
 )
 
 type cherryPick struct {
@@ -42,7 +42,7 @@ func CalculatePrCherryPick(taskCtx core.SubTaskContext) error {
 	data := taskCtx.GetData().(*RefdiffTaskData)
 	repoId := data.Options.RepoId
 	ctx := taskCtx.GetContext()
-	db := taskCtx.GetDb()
+	db := taskCtx.GetDal()
 	var prTitleRegex *regexp.Regexp
 
 	prTitlePattern := taskCtx.GetConfig("GITHUB_PR_TITLE_PATTERN")
@@ -50,9 +50,11 @@ func CalculatePrCherryPick(taskCtx core.SubTaskContext) error {
 		prTitleRegex = regexp.MustCompile(prTitlePattern)
 	}
 
-	cursor, err := db.Model(&code.PullRequest{}).
-		Joins("left join repos on pull_requests.base_repo_id = repos.id").
-		Where("repos.id = ?", repoId).Rows()
+	cursor, err := db.Cursor(
+		dal.From(&code.PullRequest{}),
+		dal.Join("left join repos on pull_requests.base_repo_id = repos.id"),
+		dal.Where("repos.id = ?", repoId),
+	)
 	if err != nil {
 		return err
 	}
@@ -71,7 +73,7 @@ func CalculatePrCherryPick(taskCtx core.SubTaskContext) error {
 		default:
 		}
 
-		err = db.ScanRows(cursor, pr)
+		err = db.Fetch(cursor, pr)
 		if err != nil {
 			return err
 		}
@@ -89,9 +91,10 @@ func CalculatePrCherryPick(taskCtx core.SubTaskContext) error {
 		}
 
 		var parentPrId string
-		err = db.Model(&code.PullRequest{}).
-			Where("pull_request_key = ? and base_repo_id = ?", parentPrKeyInt, repoId).
-			Pluck("id", &parentPrId).Error
+		err = db.Pluck("id", &parentPrId,
+			dal.Where("pull_request_key = ? and base_repo_id = ?", parentPrKeyInt, repoId),
+			dal.From("pull_requests"),
+		)
 		if err != nil {
 			return err
 		}
@@ -100,7 +103,7 @@ func CalculatePrCherryPick(taskCtx core.SubTaskContext) error {
 		}
 		pr.ParentPrId = parentPrId
 
-		err = db.Save(pr).Error
+		err = db.Update(pr)
 		if err != nil {
 			return err
 		}
@@ -125,7 +128,7 @@ func CalculatePrCherryPick(taskCtx core.SubTaskContext) error {
 			ORDER  BY pr1.parent_pr_id,
 			          pr2.created_date,
 					  pr1.base_ref ASC
-			`).Rows()
+			`)
 	if err != nil {
 		return err
 	}
@@ -138,7 +141,7 @@ func CalculatePrCherryPick(taskCtx core.SubTaskContext) error {
 	var cherrypickPrKeys []string
 	for cursor2.Next() {
 		var item cherryPick
-		err = db.ScanRows(cursor2, &item)
+		err = db.Fetch(cursor2, &item)
 		if err != nil {
 			return err
 		}
@@ -149,9 +152,7 @@ func CalculatePrCherryPick(taskCtx core.SubTaskContext) error {
 			if refsPrCherryPick != nil {
 				refsPrCherryPick.CherrypickBaseBranches = strings.Join(cherrypickBaseBranches, ",")
 				refsPrCherryPick.CherrypickPrKeys = strings.Join(cherrypickPrKeys, ",")
-				err = db.Clauses(clause.OnConflict{
-					UpdateAll: true,
-				}).Create(refsPrCherryPick).Error
+				err = db.CreateOrUpdate(refsPrCherryPick)
 				if err != nil {
 					return err
 				}
@@ -170,9 +171,7 @@ func CalculatePrCherryPick(taskCtx core.SubTaskContext) error {
 	}
 
 	if refsPrCherryPick != nil {
-		err = db.Clauses(clause.OnConflict{
-			UpdateAll: true,
-		}).Create(refsPrCherryPick).Error
+		err = db.CreateOrUpdate(refsPrCherryPick)
 		if err != nil {
 			return err
 		}

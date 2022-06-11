@@ -45,7 +45,7 @@ func CollectChangelogs(taskCtx core.SubTaskContext) error {
 	since := data.Since
 
 	// filter out issue_ids that needed collection
-	clauses := []interface{}{
+	clauses := []Clause{
 		Select("bi.issue_id, NOW() AS update_time"),
 		From("_tool_jira_board_issues bi"),
 		Join("LEFT JOIN _tool_jira_issues i ON (bi.connection_id = i.connection_id AND bi.issue_id = i.issue_id)"),
