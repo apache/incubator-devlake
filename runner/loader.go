@@ -36,7 +36,7 @@ func LoadPlugins(pluginsDir string, config *viper.Viper, logger core.Logger, db 
 			return err
 		}
 		fileName := d.Name()
-		if strings.HasSuffix(fileName, ".so") {
+		if strings.HasSuffix(fileName, ".so") && fileName != ".so" {
 			pluginName := fileName[0 : len(d.Name())-3]
 			plug, loadErr := plugin.Open(path)
 			if loadErr != nil {
