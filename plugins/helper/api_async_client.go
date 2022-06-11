@@ -41,7 +41,6 @@ type ApiAsyncClient struct {
 	*ApiClient
 	maxRetry     int
 	scheduler    *WorkerScheduler
-	hasError     bool
 	numOfWorkers int
 }
 
@@ -111,7 +110,6 @@ func CreateAsyncApiClient(
 		apiClient,
 		retry,
 		scheduler,
-		false,
 		numOfWorkers,
 	}, nil
 }
@@ -178,7 +176,7 @@ func (apiClient *ApiAsyncClient) DoAsync(
 		}
 
 		if err != nil {
-			apiClient.hasError = true
+			apiClient.logger.Error("retry exceeded times: %d, err: %s", retry, err.Error())
 			return err
 		}
 
@@ -205,7 +203,7 @@ func (apiClient *ApiAsyncClient) WaitAsync() error {
 }
 
 func (apiClient *ApiAsyncClient) HasError() bool {
-	return apiClient.hasError
+	return apiClient.scheduler.HasError()
 }
 
 func (apiClient *ApiAsyncClient) NextTick(task func() error) {
