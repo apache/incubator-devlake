@@ -16,11 +16,21 @@
 #
 apiVersion: v2
 name: devlake
-description: A Helm chart for devlake
+description: Apache DevLake is an open-source dev data platform that ingests, analyzes, and visualizes the fragmented data from DevOps tools to distill insights for engineering productivity.
+home: https://devlake.apache.org/
+icon: https://devlake.apache.org/img/logo.svg
+sources:
+    - https://github.com/apache/incubator-devlake
+    - https://github.com/apache/incubator-devlake-website
+keywords:
+    - devlake
+
 type: application
+
 
 # Chart version
 version: 0.1.0
 
 # devlake version
 appVersion: "0.11.0"
+
