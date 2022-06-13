@@ -18,6 +18,7 @@ limitations under the License.
 package e2e
 
 import (
+	"fmt"
 	"github.com/apache/incubator-devlake/plugins/github/models"
 	"testing"
 
@@ -26,7 +27,7 @@ import (
 	"github.com/apache/incubator-devlake/plugins/github/tasks"
 )
 
-func TestDataFlow(t *testing.T) {
+func TestRepoDataFlow(t *testing.T) {
 	var plugin impl.Github
 	dataflowTester := e2ehelper.NewDataFlowTester(t, "gitlab", plugin)
 
@@ -45,7 +46,7 @@ func TestDataFlow(t *testing.T) {
 	dataflowTester.Subtask(tasks.ExtractApiRepoMeta, taskData)
 	dataflowTester.CreateSnapshotOrVerify(
 		models.GithubRepo{}.TableName(),
-		"./snapshot_tables/_tool_github_repos.csv",
+		fmt.Sprintf("./snapshot_tables/%s.csv", models.GithubRepo{}.TableName()),
 		[]string{"github_id"},
 		[]string{
 			"name",
@@ -56,6 +57,42 @@ func TestDataFlow(t *testing.T) {
 			"language",
 			"created_date",
 			"updated_date",
+			"_raw_data_params",
+			"_raw_data_table",
+			"_raw_data_id",
+			"_raw_data_remark",
+		},
+	)
+
+	// import raw data table
+	dataflowTester.ImportCsv("./raw_tables/_raw_github_api_issues.csv", "_raw_github_api_issues")
+
+	// verify extraction
+	dataflowTester.MigrateTableAndFlush(&models.GithubIssue{})
+	dataflowTester.Subtask(tasks.ExtractApiIssuesMeta, taskData)
+	dataflowTester.CreateSnapshotOrVerify(
+		models.GithubIssue{}.TableName(),
+		fmt.Sprintf("./snapshot_tables/%s.csv", models.GithubIssue{}.TableName()),
+		[]string{"github_id", "repo_id"},
+		[]string{
+			"number",
+			"state",
+			"title",
+			"body",
+			"priority",
+			"type",
+			"status",
+			"author_id",
+			"author_name",
+			"assignee_id",
+			"assignee_name",
+			"lead_time_minutes",
+			"url",
+			"closed_at",
+			"github_created_at",
+			"github_updated_at",
+			"severity",
+			"component",
 			"_raw_data_params",
 			"_raw_data_table",
 			"_raw_data_id",

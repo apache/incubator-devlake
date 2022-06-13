@@ -19,6 +19,7 @@ package e2ehelper
 
 import (
 	"context"
+	"database/sql"
 	"fmt"
 	"github.com/apache/incubator-devlake/config"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper"
@@ -188,7 +189,7 @@ func (t *DataFlowTester) CreateSnapshotOrVerify(tableName string, csvRelPath str
 	forScanValues := make([]interface{}, len(allFields))
 	for i, columnType := range columnTypes {
 		if columnType.ScanType().Name() == `Time` {
-			forScanValues[i] = new(time.Time)
+			forScanValues[i] = new(sql.NullTime)
 		} else {
 			forScanValues[i] = new(string)
 		}
@@ -202,8 +203,13 @@ func (t *DataFlowTester) CreateSnapshotOrVerify(tableName string, csvRelPath str
 		values := make([]string, len(allFields))
 		for i := range forScanValues {
 			switch forScanValues[i].(type) {
-			case *time.Time:
-				values[i] = forScanValues[i].(*time.Time).Format("2006-01-02T15:04:05.000-07:00")
+			case *sql.NullTime:
+				value := forScanValues[i].(*sql.NullTime)
+				if value.Valid {
+					values[i] = value.Time.Format("2006-01-02T15:04:05.000-07:00")
+				} else {
+					values[i] = ``
+				}
 			default:
 				values[i] = fmt.Sprint(*forScanValues[i].(*string))
 			}
@@ -227,11 +233,11 @@ func (t *DataFlowTester) VerifyTable(tableName string, csvRelPath string, pkfiel
 			pkvalues = append(pkvalues, expected[pkf])
 		}
 		actual := make(map[string]interface{})
-		where := ""
+		where := []string{}
 		for _, field := range pkfields {
-			where += fmt.Sprintf(" %s = ?", field)
+			where = append(where, fmt.Sprintf(" %s = ?", field))
 		}
-		err := t.Db.Table(tableName).Where(where, pkvalues...).Find(actual).Error
+		err := t.Db.Table(tableName).Where(strings.Join(where, ` AND `), pkvalues...).Find(actual).Error
 		if err != nil {
 			panic(err)
 		}
