@@ -38,6 +38,6 @@ type TestConnectionRequest struct {
 	Proxy    string `json:"proxy"`
 }
 
-func (JenkinsConnection) TableName() string{
+func (JenkinsConnection) TableName() string {
 	return "_tool_jenkins_connections"
 }

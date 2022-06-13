@@ -88,7 +88,10 @@ func (*UpdateSchemas20220610) Up(ctx context.Context, db *gorm.DB) error {
 		return err
 	}
 	// 4. rename the temporary table to the old table
-	db.Migrator().RenameTable(JenkinsJob20220610{}, JenkinsJobNew{})
+	err = db.Migrator().RenameTable(JenkinsJob20220610{}, JenkinsJobNew{})
+	if err != nil {
+		return err
+	}
 
 	return nil
 }

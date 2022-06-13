@@ -37,7 +37,7 @@ var CollectApiJobsMeta = core.SubTaskMeta{
 }
 
 func CollectApiJobs(taskCtx core.SubTaskContext) error {
-	
+
 	data := taskCtx.GetData().(*JenkinsTaskData)
 	incremental := false
 	collector, err := helper.NewApiCollector(helper.ApiCollectorArgs{
