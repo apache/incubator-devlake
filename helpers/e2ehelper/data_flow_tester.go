@@ -20,6 +20,11 @@ package e2ehelper
 import (
 	"context"
 	"fmt"
+	"github.com/apache/incubator-devlake/impl/dalgorm"
+	"github.com/apache/incubator-devlake/plugins/core/dal"
+	"gorm.io/gorm/schema"
+	"os"
+	"strings"
 	"testing"
 	"time"
 
@@ -58,6 +63,7 @@ import (
 type DataFlowTester struct {
 	Cfg    *viper.Viper
 	Db     *gorm.DB
+	Dal    dal.Dal
 	T      *testing.T
 	Name   string
 	Plugin core.PluginMeta
@@ -78,6 +84,7 @@ func NewDataFlowTester(t *testing.T, pluginName string, pluginMeta core.PluginMe
 	return &DataFlowTester{
 		Cfg:    cfg,
 		Db:     db,
+		Dal:    dalgorm.NewDalgorm(db),
 		T:      t,
 		Name:   pluginName,
 		Plugin: pluginMeta,
@@ -106,6 +113,32 @@ func (t *DataFlowTester) ImportCsv(csvRelPath string, tableName string) {
 	}
 }
 
+// MigrateTableAndFlush migrate table and deletes all records from specified table
+func (t *DataFlowTester) MigrateRawTableAndFlush(rawRableName string) {
+	// flush target table
+	err := t.Db.Table(rawRableName).AutoMigrate(&helper.RawData{})
+	if err != nil {
+		panic(err)
+	}
+	err = t.Db.Exec(fmt.Sprintf("DELETE FROM %s", rawRableName)).Error
+	if err != nil {
+		panic(err)
+	}
+}
+
+// MigrateTableAndFlush migrate table and deletes all records from specified table
+func (t *DataFlowTester) MigrateTableAndFlush(dst schema.Tabler) {
+	// flush target table
+	err := t.Db.AutoMigrate(dst)
+	if err != nil {
+		panic(err)
+	}
+	err = t.Db.Exec(fmt.Sprintf("DELETE FROM %s", dst.TableName())).Error
+	if err != nil {
+		panic(err)
+	}
+}
+
 // FlushTable deletes all records from specified table
 func (t *DataFlowTester) FlushTable(tableName string) {
 	// flush target table
@@ -121,6 +154,51 @@ func (t *DataFlowTester) Subtask(subtaskMeta core.SubTaskMeta, taskData interfac
 	err := subtaskMeta.EntryPoint(subtaskCtx)
 	if err != nil {
 		panic(err)
+	}
+}
+
+// VerifyTable reads rows from csv file and compare with records from database one by one. You must specified the
+// Primary Key Fields with `pkfields` so DataFlowTester could select the exact record from database, as well as which
+// fields to compare with by specifying `targetfields` parameter.
+func (t *DataFlowTester) CreateSnapshotOrVerify(tableName string, csvRelPath string, pkfields []string, targetfields []string) {
+	_, err := os.Stat(csvRelPath)
+	if err == nil {
+		t.VerifyTable(tableName, csvRelPath, pkfields, targetfields)
+		return
+	}
+
+	allFields := []string{}
+	allFields = append(pkfields, targetfields...)
+	dbCursor, err := t.Dal.Cursor(
+		dal.Select(strings.Join(allFields, `,`)),
+		dal.From(tableName),
+	)
+	if err != nil {
+		panic(err)
+	}
+
+	columns, err := dbCursor.Columns()
+	if err != nil {
+		panic(err)
+	}
+	csvWriter := pluginhelper.NewCsvFileWriter(csvRelPath, columns)
+	defer csvWriter.Close()
+
+	for dbCursor.Next() {
+		forScanValues := make([]interface{}, len(allFields))
+		for i := range forScanValues {
+			forScanValues[i] = new(string)
+		}
+		err = dbCursor.Scan(forScanValues...)
+		if err != nil {
+			panic(err)
+		}
+		values := make([]string, len(allFields))
+		for i := range forScanValues {
+			value, _ := forScanValues[i].(*string)
+			values[i] = *value
+		}
+		csvWriter.Write(values)
 	}
 }
 
@@ -152,7 +230,7 @@ func (t *DataFlowTester) VerifyTable(tableName string, csvRelPath string, pkfiel
 			switch actual[field].(type) {
 			// TODO: ensure testing database is in UTC timezone
 			case time.Time:
-				actualValue = actual[field].(time.Time).Format("2006-01-02 15:04:05.000000000")
+				actualValue = actual[field].(time.Time).Format("2006-01-02T15:04:05.000-07:00")
 			default:
 				actualValue = fmt.Sprint(actual[field])
 			}
