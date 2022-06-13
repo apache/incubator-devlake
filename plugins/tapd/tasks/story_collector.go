@@ -18,12 +18,10 @@ limitations under the License.
 package tasks
 
 import (
-	"encoding/json"
 	"fmt"
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/helper"
 	"github.com/apache/incubator-devlake/plugins/tapd/models"
-	"net/http"
 	"net/url"
 	"time"
 )
@@ -77,13 +75,7 @@ func CollectStorys(taskCtx core.SubTaskContext) error {
 			}
 			return query, nil
 		},
-		ResponseParser: func(res *http.Response) ([]json.RawMessage, error) {
-			var data struct {
-				Stories []json.RawMessage `json:"data"`
-			}
-			err := helper.UnmarshalResponse(res, &data)
-			return data.Stories, err
-		},
+		ResponseParser: GetRawMessageArrayFromResponse,
 	})
 	if err != nil {
 		logger.Error("collect story error:", err)
