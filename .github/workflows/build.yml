@@ -28,8 +28,11 @@ jobs:
       - name: Build lake image
         run: |
           docker build -t ${{ env.IMAGE_LAKE }}:latest --file ./Dockerfile .
-          docker tag ${{ env.IMAGE_LAKE }}:latest ${{ env.IMAGE_LAKE }}:$(echo ${GITHUB_REF:10})
-          docker push ${{ env.IMAGE_LAKE }}:$(echo ${GITHUB_REF:10})
+          docker tag ${{ env.IMAGE_LAKE }}:latest ${{ env.IMAGE_LAKE }}:${{ github.ref_name }}
+          docker push ${{ env.IMAGE_LAKE }}:${{ github.ref_name }}
+      - name: Push latest
+        if: ${{ !contains( github.ref_name, 'rc') && !contains( github.ref_name, 'test')}}
+        run: |
           docker push ${{ env.IMAGE_LAKE }}:latest
   build-configui:
     name: Build config-ui image
@@ -51,8 +54,11 @@ jobs:
         run: |
           cd config-ui
           docker build -t ${{ env.IMAGE_CONFIG_UI }}:latest --file ./Dockerfile .
-          docker tag ${{ env.IMAGE_CONFIG_UI }}:latest ${{ env.IMAGE_CONFIG_UI }}:$(echo ${GITHUB_REF:10})
-          docker push ${{ env.IMAGE_CONFIG_UI }}:$(echo ${GITHUB_REF:10})
+          docker tag ${{ env.IMAGE_CONFIG_UI }}:latest ${{ env.IMAGE_CONFIG_UI }}:${{ github.ref_name }}
+          docker push ${{ env.IMAGE_CONFIG_UI }}:${{ github.ref_name }}
+      - name: Push latest
+        if: ${{ !contains( github.ref_name, 'rc') && !contains( github.ref_name, 'test')}}
+        run: |
           docker push ${{ env.IMAGE_CONFIG_UI }}:latest
   build-grafana:
     name: Build grafana image
@@ -74,6 +80,9 @@ jobs:
         run: |
           cd grafana
           docker build -t ${{ env.IMAGE_GRAFANA }}:latest --file ./Dockerfile .
-          docker tag ${{ env.IMAGE_GRAFANA }}:latest ${{ env.IMAGE_GRAFANA }}:$(echo ${GITHUB_REF:10})
-          docker push ${{ env.IMAGE_GRAFANA }}:$(echo ${GITHUB_REF:10})
-          docker push ${{ env.IMAGE_GRAFANA }}:latest
+          docker tag ${{ env.IMAGE_GRAFANA }}:latest ${{ env.IMAGE_GRAFANA }}:${{ github.ref_name }}
+          docker push ${{ env.IMAGE_GRAFANA }}:${{ github.ref_name }}
+      - name: Push latest
+        if: ${{ !contains( github.ref_name, 'rc') && !contains( github.ref_name, 'test')}}
+        run: |
+          docker push ${{ env.IMAGE_DASHBOARD }}:latest
