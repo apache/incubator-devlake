@@ -18,15 +18,15 @@ limitations under the License.
 package archived
 
 import (
-	"time"
-
 	"github.com/apache/incubator-devlake/models/migrationscripts/archived"
+	"time"
 )
 
 type GitlabMergeRequest struct {
-	GitlabId         int `gorm:"primaryKey"`
-	Iid              int `gorm:"index"`
-	ProjectId        int `gorm:"index"`
+	ConnectionId     uint64 `gorm:"primaryKey"`
+	GitlabId         int    `gorm:"primaryKey"`
+	Iid              int    `gorm:"index"`
+	ProjectId        int    `gorm:"index"`
 	SourceProjectId  int
 	TargetProjectId  int
 	State            string `gorm:"type:varchar(255)"`
@@ -46,7 +46,7 @@ type GitlabMergeRequest struct {
 	AuthorUserId     int
 	Component        string     `gorm:"type:varchar(255)"`
 	FirstCommentTime *time.Time `gorm:"comment:Time when the first comment occurred"`
-	ReviewRounds     int
+	ReviewRounds     int        `gorm:"comment:How many rounds of review this MR went through"`
 	archived.NoPKModel
 }
 

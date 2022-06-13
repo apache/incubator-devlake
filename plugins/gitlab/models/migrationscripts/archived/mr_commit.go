@@ -17,24 +17,21 @@ limitations under the License.
 
 package archived
 
-import (
-	"time"
+import "github.com/apache/incubator-devlake/models/migrationscripts/archived"
 
-	"github.com/apache/incubator-devlake/models/migrationscripts/archived"
-)
+// This Model is intended to save commits that are associated to a merge request
+// for the purpose of calculating PR Review Rounds and other metrics that
+// rely on associating commits to merge requests that may or may not
+// exist on the main branch of a project.
+// Thus a "Merge Request Commit" needs to be considered as distinct from a "Commit"
 
-type GitlabMergeRequestComment struct {
-	GitlabId        int `gorm:"primaryKey"`
-	MergeRequestId  int `gorm:"index"`
-	MergeRequestIid int `gorm:"comment:Used in API requests ex. /api/merge_requests/<THIS_IID>"`
-	Body            string
-	AuthorUsername  string `gorm:"type:varchar(255)"`
-	AuthorUserId    int
-	GitlabCreatedAt time.Time
-	Resolvable      bool `gorm:"comment:Is or is not review comment"`
+type GitlabMergeRequestCommit struct {
+	ConnectionId   uint64 `gorm:"primaryKey"`
+	CommitSha      string `gorm:"primaryKey;type:varchar(40)"`
+	MergeRequestId int    `gorm:"primaryKey;autoIncrement:false"`
 	archived.NoPKModel
 }
 
-func (GitlabMergeRequestComment) TableName() string {
-	return "_tool_gitlab_merge_request_comments"
+func (GitlabMergeRequestCommit) TableName() string {
+	return "_tool_gitlab_merge_request_commits"
 }

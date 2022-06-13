@@ -17,11 +17,11 @@ limitations under the License.
 
 package archived
 
-import (
-	"github.com/apache/incubator-devlake/models/migrationscripts/archived"
-)
+import "github.com/apache/incubator-devlake/models/migrationscripts/archived"
 
 type GitlabProjectCommit struct {
+	ConnectionId uint64 `gorm:"primaryKey"`
+
 	GitlabProjectId int    `gorm:"primaryKey"`
 	CommitSha       string `gorm:"primaryKey;type:varchar(40)"`
 	archived.NoPKModel

@@ -37,6 +37,7 @@ var _ core.Migratable = (*Gitlab)(nil)
 type Gitlab string
 
 func (plugin Gitlab) Init(config *viper.Viper, logger core.Logger, db *gorm.DB) error {
+	api.Init(config, logger, db)
 	return nil
 }
 
@@ -100,8 +101,6 @@ func (plugin Gitlab) RootPkgPath() string {
 func (plugin Gitlab) MigrationScripts() []migration.Script {
 	return []migration.Script{
 		new(migrationscripts.InitSchemas),
-		new(migrationscripts.UpdateSchemas20220510),
-		new(migrationscripts.UpdateSchemas20220525),
 	}
 }
 
@@ -111,11 +110,13 @@ func (plugin Gitlab) ApiResources() map[string]map[string]core.ApiResourceHandle
 			"POST": api.TestConnection,
 		},
 		"connections": {
-			"GET": api.ListConnections,
+			"POST": api.PostConnections,
+			"GET":  api.ListConnections,
 		},
 		"connections/:connectionId": {
-			"GET":   api.GetConnection,
-			"PATCH": api.PatchConnection,
+			"PATCH":  api.PatchConnection,
+			"DELETE": api.DeleteConnection,
+			"GET":    api.GetConnection,
 		},
 	}
 }

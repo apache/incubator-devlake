@@ -23,6 +23,7 @@ import (
 )
 
 type GitlabIssue struct {
+	ConnectionId    uint64 `gorm:"primaryKey"`
 	GitlabId        int    `gorm:"primaryKey"`
 	ProjectId       int    `gorm:"index"`
 	Number          int    `gorm:"index;comment:Used in API requests ex. api/repo/1/issue/<THIS_NUMBER>"`

@@ -23,6 +23,8 @@ import (
 )
 
 type GitlabMergeRequestComment struct {
+	ConnectionId uint64 `gorm:"primaryKey"`
+
 	GitlabId        int `gorm:"primaryKey"`
 	MergeRequestId  int `gorm:"index"`
 	MergeRequestIid int `gorm:"comment:Used in API requests ex. /api/merge_requests/<THIS_IID>"`
