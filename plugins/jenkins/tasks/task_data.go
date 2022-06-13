@@ -28,17 +28,9 @@ type JenkinsApiParams struct {
 	ConnectionId uint64
 }
 
-// type JenkinsOptions struct {
-// 	ConnectionId uint64 `json:"connectionId"`
-// 	Host         string
-// 	Username     string
-// 	Password     string
-// 	Since        string
-// 	Tasks        []string `json:"tasks,omitempty"`
-// }
-
 type JenkinsOptions struct {
-	ConnectionId uint64   `json:"connectionId"`
+	ConnectionId uint64 `json:"connectionId"`
+	Since        string
 	Tasks        []string `json:"tasks,omitempty"`
 }
 

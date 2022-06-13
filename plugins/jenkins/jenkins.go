@@ -125,7 +125,7 @@ func (plugin Jenkins) ApiResources() map[string]map[string]core.ApiResourceHandl
 	}
 }
 
-var PluginEntry Jenkins //nolint
+var PluginEntry Jenkins
 
 func main() {
 	jenkinsCmd := &cobra.Command{Use: "jenkins"}
