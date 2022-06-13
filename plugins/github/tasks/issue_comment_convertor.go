@@ -22,6 +22,7 @@ import (
 	"github.com/apache/incubator-devlake/models/domainlayer/didgen"
 	"github.com/apache/incubator-devlake/models/domainlayer/ticket"
 	"github.com/apache/incubator-devlake/plugins/core"
+	"github.com/apache/incubator-devlake/plugins/core/dal"
 	githubModels "github.com/apache/incubator-devlake/plugins/github/models"
 	"github.com/apache/incubator-devlake/plugins/helper"
 	"reflect"
@@ -35,14 +36,16 @@ var ConvertIssueCommentsMeta = core.SubTaskMeta{
 }
 
 func ConvertIssueComments(taskCtx core.SubTaskContext) error {
-	db := taskCtx.GetDb()
+	db := taskCtx.GetDal()
 	data := taskCtx.GetData().(*GithubTaskData)
 	repoId := data.Repo.GithubId
 
-	cursor, err := db.Model(&githubModels.GithubIssueComment{}).
-		Joins("left join _tool_github_issues "+
-			"on _tool_github_issues.github_id = _tool_github_issue_comments.issue_id").
-		Where("repo_id = ?", repoId).Rows()
+	cursor, err := db.Cursor(
+		dal.From(&githubModels.GithubIssueComment{}),
+		dal.Join("left join _tool_github_issues "+
+			"on _tool_github_issues.github_id = _tool_github_issue_comments.issue_id"),
+		dal.Where("repo_id = ?", repoId),
+	)
 	if err != nil {
 		return err
 	}
