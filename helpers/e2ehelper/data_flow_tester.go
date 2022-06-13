@@ -20,23 +20,22 @@ package e2ehelper
 import (
 	"context"
 	"fmt"
-	"github.com/apache/incubator-devlake/impl/dalgorm"
-	"github.com/apache/incubator-devlake/plugins/core/dal"
-	"gorm.io/gorm/schema"
-	"os"
-	"strings"
-	"testing"
-	"time"
-
 	"github.com/apache/incubator-devlake/config"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper"
+	"github.com/apache/incubator-devlake/impl/dalgorm"
 	"github.com/apache/incubator-devlake/logger"
 	"github.com/apache/incubator-devlake/plugins/core"
+	"github.com/apache/incubator-devlake/plugins/core/dal"
 	"github.com/apache/incubator-devlake/plugins/helper"
 	"github.com/apache/incubator-devlake/runner"
 	"github.com/spf13/viper"
 	"github.com/stretchr/testify/assert"
 	"gorm.io/gorm"
+	"gorm.io/gorm/schema"
+	"os"
+	"strings"
+	"testing"
+	"time"
 )
 
 // DataFlowTester provides a universal data integrity validation facility to help `Plugin` verifying records between
@@ -101,7 +100,7 @@ func (t *DataFlowTester) ImportCsv(csvRelPath string, tableName string) {
 	if err != nil {
 		panic(err)
 	}
-	t.FlushTable(tableName)
+	t.MigrateRawTableAndFlush(tableName)
 	// load rows and insert into target table
 	for csvIter.HasNext() {
 		// make sure
@@ -184,19 +183,30 @@ func (t *DataFlowTester) CreateSnapshotOrVerify(tableName string, csvRelPath str
 	csvWriter := pluginhelper.NewCsvFileWriter(csvRelPath, columns)
 	defer csvWriter.Close()
 
-	for dbCursor.Next() {
-		forScanValues := make([]interface{}, len(allFields))
-		for i := range forScanValues {
+	// define how to scan value
+	columnTypes, _ := dbCursor.ColumnTypes()
+	forScanValues := make([]interface{}, len(allFields))
+	for i, columnType := range columnTypes {
+		if columnType.ScanType().Name() == `Time` {
+			forScanValues[i] = new(time.Time)
+		} else {
 			forScanValues[i] = new(string)
 		}
+	}
+
+	for dbCursor.Next() {
 		err = dbCursor.Scan(forScanValues...)
 		if err != nil {
 			panic(err)
 		}
 		values := make([]string, len(allFields))
 		for i := range forScanValues {
-			value, _ := forScanValues[i].(*string)
-			values[i] = *value
+			switch forScanValues[i].(type) {
+			case *time.Time:
+				values[i] = forScanValues[i].(*time.Time).Format("2006-01-02T15:04:05.000-07:00")
+			default:
+				values[i] = fmt.Sprint(*forScanValues[i].(*string))
+			}
 		}
 		csvWriter.Write(values)
 	}
