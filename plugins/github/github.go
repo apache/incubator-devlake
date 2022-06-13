@@ -157,7 +157,7 @@ func (plugin Github) RootPkgPath() string {
 func (plugin Github) MigrationScripts() []migration.Script {
 	return []migration.Script{
 		new(migrationscripts.InitSchemas), new(migrationscripts.UpdateSchemas20220509),
-		new(migrationscripts.UpdateSchemas20220524), new(migrationscripts.UpdateSchemas20220608),
+		new(migrationscripts.UpdateSchemas20220524), new(migrationscripts.UpdateSchemas20220609),
 	}
 }
 
