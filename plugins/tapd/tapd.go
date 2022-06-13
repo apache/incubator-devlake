@@ -97,6 +97,8 @@ func (plugin Tapd) SubTaskMetas() []core.SubTaskMeta {
 		tasks.ExtractStoryCommitMeta,
 		tasks.CollectTaskCommitMeta,
 		tasks.ExtractTaskCommitMeta,
+		tasks.CollectStoryBugMeta,
+		tasks.ExtractStoryBugsMeta,
 		tasks.ConvertWorkspaceMeta,
 		tasks.ConvertUserMeta,
 		tasks.ConvertIterationMeta,
@@ -163,7 +165,9 @@ func (plugin Tapd) RootPkgPath() string {
 }
 
 func (plugin Tapd) MigrationScripts() []migration.Script {
-	return []migration.Script{new(migrationscripts.InitSchemas)}
+	return []migration.Script{new(migrationscripts.InitSchemas),
+		new(migrationscripts.UpdateSchemas20220531),
+		new(migrationscripts.UpdateSchemas20220613)}
 }
 
 func (plugin Tapd) ApiResources() map[string]map[string]core.ApiResourceHandler {
@@ -217,7 +221,7 @@ func main() {
 			panic(err)
 		}
 		wsList := make([]*models.TapdWorkspace, 0)
-		err = db.First(&wsList, "parent_id = ?", 59169984).Error //nolint TODO: fix the unused err
+		err = db.Find(&wsList, "parent_id = ?", 59169984).Error //nolint TODO: fix the unused err
 		if err != nil {
 			panic(err)
 		}

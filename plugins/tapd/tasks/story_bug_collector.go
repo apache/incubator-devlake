@@ -20,36 +20,36 @@ package tasks
 import (
 	"fmt"
 	"github.com/apache/incubator-devlake/plugins/core"
+	"github.com/apache/incubator-devlake/plugins/core/dal"
 	"github.com/apache/incubator-devlake/plugins/helper"
 	"github.com/apache/incubator-devlake/plugins/tapd/models"
 	"net/url"
-	"time"
+	"reflect"
 )
 
-const RAW_TASK_CHANGELOG_TABLE = "tapd_api_task_changelogs"
+const RAW_STORY_BUG_TABLE = "tapd_api_story_bugs"
 
-var _ core.SubTaskEntryPoint = CollectTaskChangelogs
+var _ core.SubTaskEntryPoint = CollectStoryBugs
 
-func CollectTaskChangelogs(taskCtx core.SubTaskContext) error {
+func CollectStoryBugs(taskCtx core.SubTaskContext) error {
 	data := taskCtx.GetData().(*TapdTaskData)
-	db := taskCtx.GetDb()
+	db := taskCtx.GetDal()
 	logger := taskCtx.GetLogger()
-	logger.Info("collect taskChangelogs")
-	since := data.Since
-	incremental := false
-	if since == nil {
-		// user didn't specify a time range to sync, try load from database
-		var latestUpdated models.TapdTaskChangelog
-		err := db.Where("connection_id = ? and workspace_id = ?", data.Connection.ID, data.Options.WorkspaceID).Order("created DESC").Limit(1).Find(&latestUpdated).Error
-		if err != nil {
-			return fmt.Errorf("failed to get latest tapd changelog record: %w", err)
-		}
-		if latestUpdated.ID > 0 {
-			since = (*time.Time)(&latestUpdated.Created)
-			incremental = true
-		}
+	logger.Info("collect storyBugs")
+
+	clauses := []dal.Clause{
+		dal.From(&models.TapdStory{}),
+		dal.Where("connection_id = ? and workspace_id = ?", data.Options.ConnectionId, data.Options.WorkspaceID),
 	}
 
+	cursor, err := db.Cursor(clauses...)
+	if err != nil {
+		return err
+	}
+	iterator, err := helper.NewDalCursorIterator(db, cursor, reflect.TypeOf(SimpleStory{}))
+	if err != nil {
+		return err
+	}
 	collector, err := helper.NewApiCollector(helper.ApiCollectorArgs{
 		RawDataSubTaskArgs: helper.RawDataSubTaskArgs{
 			Ctx: taskCtx,
@@ -58,35 +58,30 @@ func CollectTaskChangelogs(taskCtx core.SubTaskContext) error {
 				//CompanyId: data.Options.CompanyId,
 				WorkspaceID: data.Options.WorkspaceID,
 			},
-			Table: RAW_TASK_CHANGELOG_TABLE,
+			Table: RAW_STORY_BUG_TABLE,
 		},
-		Incremental: incremental,
 		ApiClient:   data.ApiClient,
-		PageSize:    100,
-		UrlTemplate: "task_changes",
+		Input:       iterator,
+		UrlTemplate: "stories/get_related_bugs",
 		Query: func(reqData *helper.RequestData) (url.Values, error) {
+			input := reqData.Input.(*SimpleStory)
 			query := url.Values{}
 			query.Set("workspace_id", fmt.Sprintf("%v", data.Options.WorkspaceID))
-			query.Set("page", fmt.Sprintf("%v", reqData.Pager.Page))
-			query.Set("limit", fmt.Sprintf("%v", reqData.Pager.Size))
-			query.Set("order", "created asc")
-			if since != nil {
-				query.Set("created", fmt.Sprintf(">%v", since.Format("YYYY-MM-DD")))
-			}
+			query.Set("story_id", fmt.Sprintf("%v", input.Id))
 			return query, nil
 		},
 		ResponseParser: GetRawMessageArrayFromResponse,
 	})
 	if err != nil {
-		logger.Error("collect task changelog error:", err)
+		logger.Error("collect storyBug error:", err)
 		return err
 	}
 	return collector.Execute()
 }
 
-var CollectTaskChangelogMeta = core.SubTaskMeta{
-	Name:        "collectTaskChangelogs",
-	EntryPoint:  CollectTaskChangelogs,
+var CollectStoryBugMeta = core.SubTaskMeta{
+	Name:        "collectStoryBugs",
+	EntryPoint:  CollectStoryBugs,
 	Required:    true,
-	Description: "collect Tapd taskChangelogs",
+	Description: "collect Tapd storyBugs",
 }
