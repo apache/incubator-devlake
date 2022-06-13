@@ -17,13 +17,20 @@ limitations under the License.
 
 package models
 
+import "github.com/apache/incubator-devlake/plugins/helper"
+
 // This object conforms to what the frontend currently sends.
 type JenkinsConnection struct {
-	Endpoint string `mapstructure:"endpoint" validate:"required" env:"JENKINS_ENDPOINT" json:"endpoint"`
-	Username string `mapstructure:"username" validate:"required" env:"JENKINS_USERNAME" json:"username"`
-	Password string `mapstructure:"password" validate:"required" env:"JENKINS_PASSWORD" json:"password"`
-	Proxy    string `mapstructure:"proxy" env:"JENKINS_PROXY" json:"proxy"`
+	helper.RestConnection `mapstructure:",squash"`
+	helper.BasicAuth      `mapstructure:",squash"`
 }
+
+// type JenkinsConnection struct {
+// 	Endpoint string `mapstructure:"endpoint" validate:"required" env:"JENKINS_ENDPOINT" json:"endpoint"`
+// 	Username string `mapstructure:"username" validate:"required" env:"JENKINS_USERNAME" json:"username"`
+// 	Password string `mapstructure:"password" validate:"required" env:"JENKINS_PASSWORD" json:"password"`
+// 	Proxy    string `mapstructure:"proxy" env:"JENKINS_PROXY" json:"proxy"`
+// }
 
 type JenkinsResponse struct {
 	ID   int    `json:"id"`
@@ -36,4 +43,8 @@ type TestConnectionRequest struct {
 	Username string `json:"username" validate:"required"`
 	Password string `json:"password" validate:"required"`
 	Proxy    string `json:"proxy"`
+}
+
+func (JenkinsConnection) TableName() string{
+	return "_tool_jenkins_connections"
 }

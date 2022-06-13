@@ -21,18 +21,30 @@ import (
 	"time"
 
 	"github.com/apache/incubator-devlake/plugins/helper"
+	"github.com/apache/incubator-devlake/plugins/jenkins/models"
 )
 
+type JenkinsApiParams struct {
+	ConnectionId uint64
+}
+
+// type JenkinsOptions struct {
+// 	ConnectionId uint64 `json:"connectionId"`
+// 	Host         string
+// 	Username     string
+// 	Password     string
+// 	Since        string
+// 	Tasks        []string `json:"tasks,omitempty"`
+// }
+
 type JenkinsOptions struct {
-	Host     string
-	Username string
-	Password string
-	Since    string
-	Tasks    []string `json:"tasks,omitempty"`
+	ConnectionId uint64   `json:"connectionId"`
+	Tasks        []string `json:"tasks,omitempty"`
 }
 
 type JenkinsTaskData struct {
-	Options   *JenkinsOptions
-	ApiClient *helper.ApiAsyncClient
-	Since     *time.Time
+	Options    *JenkinsOptions
+	ApiClient  *helper.ApiAsyncClient
+	Connection *models.JenkinsConnection
+	Since      *time.Time
 }

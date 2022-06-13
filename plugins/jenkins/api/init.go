@@ -15,31 +15,25 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package models
+package api
 
 import (
-	"time"
-
-	"github.com/apache/incubator-devlake/models/common"
+	"github.com/apache/incubator-devlake/plugins/core"
+	"github.com/apache/incubator-devlake/plugins/helper"
+	"github.com/go-playground/validator/v10"
+	"github.com/spf13/viper"
+	"gorm.io/gorm"
 )
 
-// JenkinsBuild db entity for jenkins build
-type JenkinsBuild struct {
-	common.NoPKModel
+var vld *validator.Validate
+var connectionHelper *helper.ConnectionApiHelper
+var basicRes core.BasicRes
 
-	// collected fields
-	ConnectionId      uint64    `gorm:"primaryKey"`
-	JobName           string    `gorm:"primaryKey;type:varchar(255)"`
-	Duration          float64   // build time
-	DisplayName       string    `gorm:"type:varchar(255)"` // "#7"
-	EstimatedDuration float64   // EstimatedDuration
-	Number            int64     `gorm:"primaryKey"`
-	Result            string    // Result
-	Timestamp         int64     // start time
-	StartTime         time.Time // convered by timestamp
-	CommitSha         string    `gorm:"type:varchar(255)"`
-}
-
-func (JenkinsBuild) TableName() string {
-	return "_tool_jenkins_builds"
+func Init(config *viper.Viper, logger core.Logger, database *gorm.DB) {
+	basicRes = helper.NewDefaultBasicRes(config, logger, database)
+	vld = validator.New()
+	connectionHelper = helper.NewConnectionHelper(
+		basicRes,
+		vld,
+	)
 }

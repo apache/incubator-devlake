@@ -15,31 +15,38 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package models
+package migrationscripts
 
 import (
-	"time"
+	"context"
 
-	"github.com/apache/incubator-devlake/models/common"
+	"github.com/apache/incubator-devlake/plugins/helper"
+	"gorm.io/gorm"
 )
 
-// JenkinsBuild db entity for jenkins build
-type JenkinsBuild struct {
-	common.NoPKModel
-
-	// collected fields
-	ConnectionId      uint64    `gorm:"primaryKey"`
-	JobName           string    `gorm:"primaryKey;type:varchar(255)"`
-	Duration          float64   // build time
-	DisplayName       string    `gorm:"type:varchar(255)"` // "#7"
-	EstimatedDuration float64   // EstimatedDuration
-	Number            int64     `gorm:"primaryKey"`
-	Result            string    // Result
-	Timestamp         int64     // start time
-	StartTime         time.Time // convered by timestamp
-	CommitSha         string    `gorm:"type:varchar(255)"`
+type JenkinsConnection20220607 struct {
+	helper.RestConnection
+	helper.BasicAuth
 }
 
-func (JenkinsBuild) TableName() string {
-	return "_tool_jenkins_builds"
+func (JenkinsConnection20220607) TableName() string {
+	return "_tool_jenkins_connections"
+}
+
+type UpdateSchemas20220607 struct{}
+
+func (*UpdateSchemas20220607) Up(ctx context.Context, db *gorm.DB) error {
+	err := db.Migrator().CreateTable(&JenkinsConnection20220607{})
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (*UpdateSchemas20220607) Version() uint64 {
+	return 20220607154646
+}
+
+func (*UpdateSchemas20220607) Name() string {
+	return "add table _tool_jenkins_connections"
 }

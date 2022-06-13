@@ -22,7 +22,9 @@ import (
 
 	"github.com/apache/incubator-devlake/migration"
 	"github.com/apache/incubator-devlake/plugins/core"
+	"github.com/apache/incubator-devlake/plugins/helper"
 	"github.com/apache/incubator-devlake/plugins/jenkins/api"
+	"github.com/apache/incubator-devlake/plugins/jenkins/models"
 	"github.com/apache/incubator-devlake/plugins/jenkins/models/migrationscripts"
 	"github.com/apache/incubator-devlake/plugins/jenkins/tasks"
 	"github.com/apache/incubator-devlake/runner"
@@ -41,6 +43,7 @@ var _ core.Migratable = (*Jenkins)(nil)
 type Jenkins struct{}
 
 func (plugin Jenkins) Init(config *viper.Viper, logger core.Logger, db *gorm.DB) error {
+	api.Init(config, logger, db)
 	return nil
 }
 
@@ -64,13 +67,31 @@ func (plugin Jenkins) PrepareTaskData(taskCtx core.TaskContext, options map[stri
 	if err != nil {
 		return nil, fmt.Errorf("Failed to decode options: %v", err)
 	}
-	apiClient, err := tasks.CreateApiClient(taskCtx)
+	if op.ConnectionId == 0 {
+		return nil, fmt.Errorf("connectionId is invalid")
+	}
+
+	connection := &models.JenkinsConnection{}
+	connectionHelper := helper.NewConnectionHelper(
+		taskCtx,
+		nil,
+	)
+	if err != nil {
+		return nil, err
+	}
+	err = connectionHelper.FirstById(connection, op.ConnectionId)
+	if err != nil {
+		return nil, err
+	}
+
+	apiClient, err := tasks.CreateApiClient(taskCtx, connection)
 	if err != nil {
 		return nil, err
 	}
 	return &tasks.JenkinsTaskData{
-		Options:   &op,
-		ApiClient: apiClient,
+		Options:    &op,
+		ApiClient:  apiClient,
+		Connection: connection,
 	}, nil
 }
 
@@ -79,7 +100,12 @@ func (plugin Jenkins) RootPkgPath() string {
 }
 
 func (plugin Jenkins) MigrationScripts() []migration.Script {
-	return []migration.Script{new(migrationscripts.InitSchemas)}
+	return []migration.Script{
+		new(migrationscripts.InitSchemas),
+		new(migrationscripts.UpdateSchemas20220607),
+		new(migrationscripts.UpdateSchemas20220609),
+		new(migrationscripts.UpdateSchemas20220610),
+	}
 }
 
 func (plugin Jenkins) ApiResources() map[string]map[string]core.ApiResourceHandler {
@@ -88,11 +114,13 @@ func (plugin Jenkins) ApiResources() map[string]map[string]core.ApiResourceHandl
 			"POST": api.TestConnection,
 		},
 		"connections": {
-			"GET": api.ListConnections,
+			"POST": api.PostConnections,
+			"GET":  api.ListConnections,
 		},
 		"connections/:connectionId": {
-			"GET":   api.GetConnection,
-			"PATCH": api.PatchConnection,
+			"PATCH":  api.PatchConnection,
+			"DELETE": api.DeleteConnection,
+			"GET":    api.GetConnection,
 		},
 	}
 }
@@ -101,8 +129,11 @@ var PluginEntry Jenkins //nolint
 
 func main() {
 	jenkinsCmd := &cobra.Command{Use: "jenkins"}
+	connectionId := jenkinsCmd.Flags().Uint64P("connection", "c", 0, "jenkins connection id")
 	jenkinsCmd.Run = func(cmd *cobra.Command, args []string) {
-		runner.DirectRun(cmd, args, PluginEntry, map[string]interface{}{})
+		runner.DirectRun(cmd, args, PluginEntry, map[string]interface{}{
+			"connectionId": *connectionId,
+		})
 	}
 	runner.RunCmd(jenkinsCmd)
 }
