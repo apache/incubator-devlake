@@ -19,6 +19,7 @@ package tasks
 
 import (
 	"encoding/json"
+	"github.com/apache/incubator-devlake/plugins/core/dal"
 
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/github/models"
@@ -75,14 +76,14 @@ func ExtractApiComments(taskCtx core.SubTaskContext) error {
 				return nil, err
 			}
 			issue := &models.GithubIssue{}
-			err = taskCtx.GetDb().Where("number = ? and repo_id = ?", issueINumber, data.Repo.GithubId).Limit(1).Find(issue).Error
+			err = taskCtx.GetDal().All(issue, dal.Where("number = ? and repo_id = ?", issueINumber, data.Repo.GithubId))
 			if err != nil {
 				return nil, err
 			}
 			//if we can not find issues with issue number above, move the comments to github_pull_request_comments
 			if issue.GithubId == 0 {
 				pr := &models.GithubPullRequest{}
-				err = taskCtx.GetDb().Where("number = ? and repo_id = ?", issueINumber, data.Repo.GithubId).Limit(1).Find(pr).Error
+				err = taskCtx.GetDal().First(pr, dal.Where("number = ? and repo_id = ?", issueINumber, data.Repo.GithubId))
 				if err != nil {
 					return nil, err
 				}

@@ -21,6 +21,7 @@ import (
 	"fmt"
 	"github.com/apache/incubator-devlake/migration"
 	"github.com/apache/incubator-devlake/plugins/core"
+	"github.com/apache/incubator-devlake/plugins/core/dal"
 	"github.com/apache/incubator-devlake/plugins/github/api"
 	"github.com/apache/incubator-devlake/plugins/github/models"
 	"github.com/apache/incubator-devlake/plugins/github/models/migrationscripts"
@@ -96,11 +97,40 @@ func (plugin Github) PrepareTaskData(taskCtx core.TaskContext, options map[strin
 	if op.Repo == "" {
 		return nil, fmt.Errorf("repo is required for GitHub execution")
 	}
+	if op.PrType == "" {
+		op.PrType = "type/(.*)$"
+	}
+	if op.PrComponent == "" {
+		op.PrComponent = "component/(.*)$"
+	}
+	if op.PrBodyClosePattern == "" {
+		op.PrBodyClosePattern = "(?mi)(fix|close|resolve|fixes|closes|resolves|fixed|closed|resolved)[\\s]*.*(((and )?(#|https:\\/\\/github.com\\/%s\\/%s\\/issues\\/)\\d+[ ]*)+)"
+	}
+	if op.IssueSeverity == "" {
+		op.IssueSeverity = "severity/(.*)$"
+	}
+	if op.IssuePriority == "" {
+		op.IssuePriority = "^(highest|high|medium|low)$"
+	}
+	if op.IssueComponent == "" {
+		op.IssueComponent = "component/(.*)$"
+	}
+	if op.IssueTypeBug == "" {
+		op.IssueTypeBug = "^(bug|failure|error)$"
+	}
+	if op.IssueTypeIncident == "" {
+		op.IssueTypeIncident = ""
+	}
+	if op.IssueTypeRequirement == "" {
+		op.IssueTypeRequirement = "^(feat|feature|proposal|requirement)$"
+	}
 
-	// find the only github now
-	// FIXME to query by connection id when multi connection support
+	// find the needed GitHub now
+	if op.ConnectionId == 0 {
+		return nil, fmt.Errorf("connectionId is invalid")
+	}
 	connection := &models.GithubConnection{}
-	err = taskCtx.GetDb().First(connection, "name = ?", `GitHub`).Error
+	err = taskCtx.GetDal().First(connection, dal.Where("id = ?", op.ConnectionId))
 	if err != nil {
 		return err, nil
 	}
@@ -149,17 +179,39 @@ var PluginEntry Github //nolint
 
 // standalone mode for debugging
 func main() {
-	githubCmd := &cobra.Command{Use: "github"}
-	owner := githubCmd.Flags().StringP("owner", "o", "", "github owner")
-	repo := githubCmd.Flags().StringP("repo", "r", "", "github repo")
-	_ = githubCmd.MarkFlagRequired("owner")
-	_ = githubCmd.MarkFlagRequired("repo")
+	cmd := &cobra.Command{Use: "github"}
+	connectionId := cmd.Flags().Uint64P("connection", "c", 0, "github connection id")
+	owner := cmd.Flags().StringP("owner", "o", "", "github owner")
+	repo := cmd.Flags().StringP("repo", "r", "", "github repo")
+	_ = cmd.MarkFlagRequired("connection")
+	_ = cmd.MarkFlagRequired("owner")
+	_ = cmd.MarkFlagRequired("repo")
 
-	githubCmd.Run = func(cmd *cobra.Command, args []string) {
+	prType := cmd.Flags().String("prType", "type/(.*)$", "pr type")
+	prComponent := cmd.Flags().String("prComponent", "component/(.*)$", "pr component")
+	prBodyClosePattern := cmd.Flags().String("prBodyClosePattern", "(?mi)(fix|close|resolve|fixes|closes|resolves|fixed|closed|resolved)[\\s]*.*(((and )?(#|https:\\/\\/github.com\\/%s\\/%s\\/issues\\/)\\d+[ ]*)+)", "pr body close pattern")
+	issueSeverity := cmd.Flags().String("issueSeverity", "severity/(.*)$", "issue severity")
+	issuePriority := cmd.Flags().String("issuePriority", "^(highest|high|medium|low)$", "issue priority")
+	issueComponent := cmd.Flags().String("issueComponent", "component/(.*)$", "issue component")
+	issueTypeBug := cmd.Flags().String("issueTypeBug", "^(bug|failure|error)$", "issue type bug")
+	issueTypeIncident := cmd.Flags().String("issueTypeIncident", "", "issue type incident")
+	issueTypeRequirement := cmd.Flags().String("issueTypeRequirement", "^(feat|feature|proposal|requirement)$", "issue type requirement")
+
+	cmd.Run = func(cmd *cobra.Command, args []string) {
 		runner.DirectRun(cmd, args, PluginEntry, map[string]interface{}{
-			"owner": *owner,
-			"repo":  *repo,
+			"connectionId":         *connectionId,
+			"owner":                *owner,
+			"repo":                 *repo,
+			"prType":               *prType,
+			"prComponent":          *prComponent,
+			"prBodyClosePattern":   *prBodyClosePattern,
+			"issueSeverity":        *issueSeverity,
+			"issuePriority":        *issuePriority,
+			"issueComponent":       *issueComponent,
+			"issueTypeBug":         *issueTypeBug,
+			"issueTypeIncident":    *issueTypeIncident,
+			"issueTypeRequirement": *issueTypeRequirement,
 		})
 	}
-	runner.RunCmd(githubCmd)
+	runner.RunCmd(cmd)
 }

@@ -20,6 +20,7 @@ package tasks
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/apache/incubator-devlake/plugins/core/dal"
 	"github.com/apache/incubator-devlake/plugins/helper"
 	"io/ioutil"
 	"net/http"
@@ -40,26 +41,31 @@ var CollectApiCommitStatsMeta = core.SubTaskMeta{
 }
 
 func CollectApiCommitStats(taskCtx core.SubTaskContext) error {
-	db := taskCtx.GetDb()
+	db := taskCtx.GetDal()
 	data := taskCtx.GetData().(*GithubTaskData)
 
 	var latestUpdated models.GithubCommitStat
-	err := db.Model(&latestUpdated).Joins("left join _tool_github_repo_commits on _tool_github_commit_stats.sha = _tool_github_repo_commits.commit_sha").
-		Where("_tool_github_repo_commits.repo_id = ?", data.Repo.GithubId).
-		Order("committed_date DESC").Limit(1).Find(&latestUpdated).Error
+	err := db.First(
+		&latestUpdated,
+		dal.Join("left join _tool_github_repo_commits on _tool_github_commit_stats.sha = _tool_github_repo_commits.commit_sha"),
+		dal.Where("_tool_github_repo_commits.repo_id = ?", data.Repo.GithubId),
+		dal.Orderby("committed_date DESC"),
+		dal.Limit(1),
+	)
 	if err != nil {
 		return fmt.Errorf("failed to get latest github commit record: %w", err)
 	}
 
-	cursor, err := db.Model(&models.GithubCommit{}).
-		Joins("left join _tool_github_repo_commits on _tool_github_commits.sha = _tool_github_repo_commits.commit_sha").
-		Where("_tool_github_repo_commits.repo_id = ? and _tool_github_commits.committed_date >= ?",
-			data.Repo.GithubId, latestUpdated.CommittedDate.String()).
-		Rows()
+	cursor, err := db.Cursor(
+		dal.Join("left join _tool_github_repo_commits on _tool_github_commits.sha = _tool_github_repo_commits.commit_sha"),
+		dal.From(models.GithubCommit{}.TableName()),
+		dal.Where("_tool_github_repo_commits.repo_id = ? and _tool_github_commits.committed_date >= ?",
+			data.Repo.GithubId, latestUpdated.CommittedDate.String()),
+	)
 	if err != nil {
 		return err
 	}
-	iterator, err := helper.NewCursorIterator(db, cursor, reflect.TypeOf(models.GithubCommit{}))
+	iterator, err := helper.NewDalCursorIterator(db, cursor, reflect.TypeOf(models.GithubCommit{}))
 	if err != nil {
 		return err
 	}
