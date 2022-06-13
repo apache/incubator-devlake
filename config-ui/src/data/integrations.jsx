@@ -91,7 +91,7 @@ const integrationsData = [
     id: Providers.GITHUB,
     type: ProviderTypes.INTEGRATION,
     enabled: true,
-    multiConnection: false,
+    multiConnection: true,
     name: ProviderLabels.GITHUB,
     icon: <GitHubProvider className='providerIconSvg' width='30' height='30' style={{ float: 'left', marginTop: '5px' }} />,
     iconDashboard: <GitHubProvider className='providerIconSvg' width='48' height='48' />,

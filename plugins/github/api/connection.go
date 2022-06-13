@@ -19,22 +19,16 @@ package api
 
 import (
 	"fmt"
-	"github.com/apache/incubator-devlake/config"
 	"github.com/apache/incubator-devlake/plugins/github/models"
 	"net/http"
 	"strings"
 	"time"
 
 	"github.com/apache/incubator-devlake/plugins/helper"
-	"github.com/go-playground/validator/v10"
 	"github.com/mitchellh/mapstructure"
 
 	"github.com/apache/incubator-devlake/plugins/core"
 )
-
-type ApiUserPublicEmailResponse []models.PublicEmail
-
-var vld = validator.New()
 
 /*
 POST /plugins/github/test
@@ -109,68 +103,63 @@ func TestConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, erro
 }
 
 /*
+POST /plugins/github/connections
+*/
+func PostConnections(input *core.ApiResourceInput) (*core.ApiResourceOutput, error) {
+	connection := &models.GithubConnection{}
+	err := connectionHelper.Create(connection, input)
+	if err != nil {
+		return nil, err
+	}
+	return &core.ApiResourceOutput{Body: connection, Status: http.StatusOK}, nil
+}
+
+/*
 PATCH /plugins/github/connections/:connectionId
 */
 func PatchConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, error) {
-	v := config.GetConfig()
 	connection := &models.GithubConnection{}
-	err := helper.EncodeStruct(v, connection, "env")
+	err := connectionHelper.Patch(connection, input)
 	if err != nil {
 		return nil, err
 	}
-	// update from request and save to .env
-	err = helper.DecodeStruct(v, connection, input.Body, "env")
+	return &core.ApiResourceOutput{Body: connection, Status: http.StatusOK}, nil
+}
+
+/*
+DELETE /plugins/github/connections/:connectionId
+*/
+func DeleteConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, error) {
+	connection := &models.GithubConnection{}
+	err := connectionHelper.First(connection, input.Params)
 	if err != nil {
 		return nil, err
 	}
-	err = config.WriteConfig(v)
-	if err != nil {
-		return nil, err
-	}
-	response := models.GithubResponse{
-		GithubConnection: *connection,
-		Name:             "Github",
-		ID:               1,
-	}
-	return &core.ApiResourceOutput{Body: response, Status: http.StatusOK}, nil
+	err = connectionHelper.Delete(connection)
+	return &core.ApiResourceOutput{Body: connection}, err
 }
 
 /*
 GET /plugins/github/connections
 */
 func ListConnections(input *core.ApiResourceInput) (*core.ApiResourceOutput, error) {
-	// RETURN ONLY 1 SOURCE (FROM ENV) until multi-connection is developed.
-	v := config.GetConfig()
-	connection := &models.GithubConnection{}
-
-	err := helper.EncodeStruct(v, connection, "env")
+	var connections []models.GithubConnection
+	err := connectionHelper.List(&connections)
 	if err != nil {
 		return nil, err
 	}
-	response := models.GithubResponse{
-		GithubConnection: *connection,
-		Name:             "Github",
-		ID:               1,
-	}
 
-	return &core.ApiResourceOutput{Body: []models.GithubResponse{response}}, nil
+	return &core.ApiResourceOutput{Body: connections}, nil
 }
 
 /*
 GET /plugins/github/connections/:connectionId
 */
 func GetConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, error) {
-	//  RETURN ONLY 1 SOURCE FROM ENV (Ignore ID until multi-connection is developed.)
-	v := config.GetConfig()
 	connection := &models.GithubConnection{}
-	err := helper.EncodeStruct(v, connection, "env")
+	err := connectionHelper.First(connection, input.Params)
 	if err != nil {
 		return nil, err
 	}
-	response := &models.GithubResponse{
-		GithubConnection: *connection,
-		Name:             "Github",
-		ID:               1,
-	}
-	return &core.ApiResourceOutput{Body: response}, nil
+	return &core.ApiResourceOutput{Body: connection}, err
 }
