@@ -21,11 +21,11 @@ import (
 	"fmt"
 	"github.com/apache/incubator-devlake/migration"
 	"github.com/apache/incubator-devlake/plugins/core"
-	"github.com/apache/incubator-devlake/plugins/core/dal"
 	"github.com/apache/incubator-devlake/plugins/github/api"
 	"github.com/apache/incubator-devlake/plugins/github/models"
 	"github.com/apache/incubator-devlake/plugins/github/models/migrationscripts"
 	"github.com/apache/incubator-devlake/plugins/github/tasks"
+	"github.com/apache/incubator-devlake/plugins/helper"
 	"github.com/apache/incubator-devlake/runner"
 	"github.com/mitchellh/mapstructure"
 	"github.com/spf13/cobra"
@@ -129,8 +129,12 @@ func (plugin Github) PrepareTaskData(taskCtx core.TaskContext, options map[strin
 	if op.ConnectionId == 0 {
 		return nil, fmt.Errorf("connectionId is invalid")
 	}
+	connectionHelper := helper.NewConnectionHelper(
+		taskCtx,
+		nil,
+	)
 	connection := &models.GithubConnection{}
-	err = taskCtx.GetDal().First(connection, dal.Where("id = ?", op.ConnectionId))
+	err = connectionHelper.FirstById(connection, op.ConnectionId)
 	if err != nil {
 		return err, nil
 	}
