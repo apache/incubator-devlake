@@ -1,18 +1,2 @@
-#
-# Licensed to the Apache Software Foundation (ASF) under one or more
-# contributor license agreements.  See the NOTICE file distributed with
-# this work for additional information regarding copyright ownership.
-# The ASF licenses this file to You under the Apache License, Version 2.0
-# (the "License"); you may not use this file except in compliance with
-# the License.  You may obtain a copy of the License at
-#
-#     http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
-#
-"id","created_at","updated_at","_raw_data_params","_raw_data_table","_raw_data_id","_raw_data_remark","name","url","description","owner_id","language","forked_from","created_date","updated_date","deleted"
-gitlab:GitlabProject:3472737,"2022-05-05 09:56:43.438000000","2022-05-05 09:56:43.438000000","{""ProjectId"":3472737}",_raw_gitlab_api_project,2,"",inkscape,https://gitlab.com/inkscape/inkscape,Inkscape vector image editor,"","","","2017-06-09 14:16:35.615000000","2022-05-05 08:26:20.527000000",0
+id,_raw_data_params,_raw_data_table,_raw_data_id,_raw_data_remark,name,url,description,owner_id,language,forked_from,created_date,updated_date,deleted
+gitlab:GitlabProject:0:3472737,"{""ProjectId"":3472737}",_raw_gitlab_api_project,2,,inkscape,https://gitlab.com/inkscape/inkscape,Inkscape vector image editor,,,,2017-06-09T14:16:35.615+00:00,2022-05-05T08:26:20.527+00:00,0

@@ -98,7 +98,7 @@ func convertProject(gitlabApiProject *GitlabApiProject) *models.GitlabProject {
 func convertToRepositoryModel(project *models.GitlabProject) *code.Repo {
 	domainRepository := &code.Repo{
 		DomainEntity: domainlayer.DomainEntity{
-			Id: didgen.NewDomainIdGenerator(project).Generate(project.GitlabId),
+			Id: didgen.NewDomainIdGenerator(project).Generate(project.ConnectionId, project.GitlabId),
 		},
 		Name:        project.Name,
 		Url:         project.WebUrl,

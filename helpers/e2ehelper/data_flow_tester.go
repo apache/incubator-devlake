@@ -246,7 +246,6 @@ func (t *DataFlowTester) VerifyTable(dst schema.Tabler, csvRelPath string, pkfie
 		for _, field := range targetfields {
 			actualValue := ""
 			switch actual[field].(type) {
-			// TODO: ensure testing database is in UTC timezone
 			case time.Time:
 				if actual[field] != nil {
 					actualValue = actual[field].(time.Time).In(location).Format("2006-01-02T15:04:05.000-07:00")
