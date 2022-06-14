@@ -52,6 +52,10 @@ type Issue struct {
 	Component               string `gorm:"type:varchar(255)"`
 }
 
+func (Issue) TableName() string {
+	return "issues"
+}
+
 const (
 	BUG         = "BUG"
 	REQUIREMENT = "REQUIREMENT"

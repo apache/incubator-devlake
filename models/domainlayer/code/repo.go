@@ -36,8 +36,16 @@ type Repo struct {
 	Deleted     bool       `json:"deleted"`
 }
 
+func (Repo) TableName() string {
+	return "repos"
+}
+
 type RepoLanguage struct {
 	RepoId   string `json:"repoId" gorm:"index;type:varchar(255)"`
 	Language string `json:"language" gorm:"type:varchar(255)"`
 	Bytes    int
+}
+
+func (RepoLanguage) TableName() string {
+	return "repo_languages"
 }

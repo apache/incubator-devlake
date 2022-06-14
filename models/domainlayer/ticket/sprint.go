@@ -41,8 +41,16 @@ type Sprint struct {
 	OriginalBoardID string `gorm:"type:varchar(255)"`
 }
 
+func (Sprint) TableName() string {
+	return "sprints"
+}
+
 type SprintIssue struct {
 	common.NoPKModel
 	SprintId string `gorm:"primaryKey;type:varchar(255)"`
 	IssueId  string `gorm:"primaryKey;type:varchar(255)"`
+}
+
+func (SprintIssue) TableName() string {
+	return "sprint_issues"
 }

@@ -24,3 +24,7 @@ type BoardIssue struct {
 	IssueId string `gorm:"primaryKey;type:varchar(255)"`
 	common.NoPKModel
 }
+
+func (BoardIssue) TableName() string {
+	return "board_issues"
+}
