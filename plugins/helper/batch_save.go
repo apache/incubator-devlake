@@ -19,47 +19,50 @@ package helper
 
 import (
 	"fmt"
-	"github.com/apache/incubator-devlake/plugins/core"
-	"gorm.io/gorm"
-	"gorm.io/gorm/clause"
 	"reflect"
 	"strings"
+
+	"github.com/apache/incubator-devlake/plugins/core"
+	"github.com/apache/incubator-devlake/plugins/core/dal"
 )
 
-// Insert data by batch can increase database performance drastically, this class aim to make batch-save easier,
-// It takes care the database operation for specified `slotType`, records got saved into database whenever cache hits
-// The `size` limit, remember to call the `Close` method to save the last batch
+// BatchSave performs mulitple records persistence of a specific type in one sql query to improve the performance
 type BatchSave struct {
+	basicRes core.BasicRes
+	log      core.Logger
+	db       dal.Dal
 	slotType reflect.Type
 	// slots can not be []interface{}, because gorm wouldn't take it
 	// I'm guessing the reason is the type information lost when converted to interface{}
 	slots      reflect.Value
-	db         *gorm.DB
-	logger     core.Logger
 	current    int
 	size       int
 	valueIndex map[string]int
 }
 
-func NewBatchSave(db *gorm.DB, log core.Logger, slotType reflect.Type, size int) (*BatchSave, error) {
+const BATCH_SAVE_UPDATE_ONLY = 0
+
+// NewBatchSave creates a new BatchSave instance
+func NewBatchSave(basicRes core.BasicRes, slotType reflect.Type, size int) (*BatchSave, error) {
 	if slotType.Kind() != reflect.Ptr {
 		return nil, fmt.Errorf("slotType must be a pointer")
 	}
 	if !hasPrimaryKey(slotType) {
 		return nil, fmt.Errorf("%s no primary key", slotType.String())
 	}
-	log = log.Nested(slotType.String())
-	log.Info("create batch save success")
+	log := basicRes.GetLogger().Nested(slotType.String())
 	return &BatchSave{
+		basicRes:   basicRes,
+		log:        log,
+		db:         basicRes.GetDal(),
 		slotType:   slotType,
-		logger:     log,
 		slots:      reflect.MakeSlice(reflect.SliceOf(slotType), size, size),
-		db:         db,
 		size:       size,
 		valueIndex: make(map[string]int),
 	}, nil
 }
 
+// Add record to cache. BatchSave would flush them into Database when cache is max out
 func (c *BatchSave) Add(slot interface{}) error {
 	// type checking
 	if reflect.TypeOf(slot) != c.slotType {
@@ -85,23 +88,24 @@ func (c *BatchSave) Add(slot interface{}) error {
 	if c.current == c.size {
 		return c.Flush()
 	} else if c.current%100 == 0 {
-		c.logger.Debug("batch save current: %d", c.current)
+		c.log.Debug("batch save current: %d", c.current)
 	}
 	return nil
 }
 
+// Flush save cached records into database
 func (c *BatchSave) Flush() error {
-	result := c.db.Clauses(clause.OnConflict{UpdateAll: true}).Create(c.slots.Slice(0, c.current).Interface())
-	err := result.Error
+	err := c.db.CreateOrUpdate(c.slots.Slice(0, c.current).Interface())
 	if err != nil {
 		return err
 	}
-	c.logger.Info("batch save flush %d and %d success", c.slots.Slice(0, c.current).Len(), result.RowsAffected)
+	c.log.Debug("batch save flush total %d records to database", c.current)
 	c.current = 0
 	c.valueIndex = make(map[string]int)
 	return nil
 }
 
+// Close would flash the cache and release resources
 func (c *BatchSave) Close() error {
 	if c.current > 0 {
 		return c.Flush()

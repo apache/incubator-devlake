@@ -44,6 +44,8 @@ type Dal interface {
 	All(dst interface{}, clauses ...Clause) error
 	// First loads first matched row from database to `dst`, error will be returned if no records were found
 	First(dst interface{}, clauses ...Clause) error
+	// All loads matched rows from database to `dst`, USE IT WITH COUTIOUS!!
+	Count(clauses ...Clause) (int64, error)
 	// Pluck used to query single column
 	Pluck(column string, dest interface{}, clauses ...Clause) error
 	// Create insert record to database

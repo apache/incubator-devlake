@@ -18,58 +18,76 @@ limitations under the License.
 package helper
 
 import (
-	"github.com/apache/incubator-devlake/plugins/core"
+	"fmt"
 	"reflect"
 
-	"gorm.io/gorm"
+	"github.com/apache/incubator-devlake/models/common"
+	"github.com/apache/incubator-devlake/plugins/core"
+	"github.com/apache/incubator-devlake/plugins/core/dal"
 )
 
-type OnNewBatchSave func(rowType reflect.Type) error
-
-// Holds a map of BatchInsert, return `*BatchInsert` for a specific records, so caller can do batch operation for it
+// BatchSaveDivider creates and caches BatchSave, this is helpful when dealing with massive amount of data records
+// with arbitrary types.
 type BatchSaveDivider struct {
-	db             *gorm.DB
-	batches        map[reflect.Type]*BatchSave
-	batchSize      int
-	onNewBatchSave OnNewBatchSave
+	basicRes  core.BasicRes
+	log       core.Logger
+	db        dal.Dal
+	batches   map[reflect.Type]*BatchSave
+	batchSize int
+	table     string
+	params    string
 }
 
-// Return a new BatchInsertDivider instance
-func NewBatchSaveDivider(db *gorm.DB, batchSize int) *BatchSaveDivider {
+// NewBatchSaveDivider create a new BatchInsertDivider instance
+func NewBatchSaveDivider(basicRes core.BasicRes, batchSize int, table string, params string) *BatchSaveDivider {
+	log := basicRes.GetLogger().Nested("batch divider")
 	return &BatchSaveDivider{
-		db:        db,
+		basicRes:  basicRes,
+		log:       log,
+		db:        basicRes.GetDal(),
 		batches:   make(map[reflect.Type]*BatchSave),
 		batchSize: batchSize,
+		table:     table,
+		params:    params,
 	}
 }
 
-func (d *BatchSaveDivider) OnNewBatchSave(cb OnNewBatchSave) {
-	d.onNewBatchSave = cb
-}
-
-// return *BatchSave for specified type
-func (d *BatchSaveDivider) ForType(rowType reflect.Type, log core.Logger) (*BatchSave, error) {
+// ForType returns a `BatchSave` instance for specific type
+func (d *BatchSaveDivider) ForType(rowType reflect.Type) (*BatchSave, error) {
 	// get the cache for the specific type
 	batch := d.batches[rowType]
 	var err error
 	// create one if not exists
 	if batch == nil {
-		batch, err = NewBatchSave(d.db, log, rowType, d.batchSize)
+		batch, err = NewBatchSave(d.basicRes, rowType, d.batchSize)
 		if err != nil {
 			return nil, err
 		}
-		if d.onNewBatchSave != nil {
-			err = d.onNewBatchSave(rowType)
-			if err != nil {
-				return nil, err
-			}
-		}
 		d.batches[rowType] = batch
+		// delete outdated records if rowType was not PartialUpdate
+		rowElemType := rowType.Elem()
+		d.log.Debug("missing BatchSave for type %s", rowElemType.Name())
+		row := reflect.New(rowElemType).Interface()
+		// check if rowType had RawDataOrigin embeded
+		field, hasField := rowElemType.FieldByName("RawDataOrigin")
+		if !hasField || field.Type != reflect.TypeOf(common.RawDataOrigin{}) {
+			return nil, fmt.Errorf("type %s must have RawDataOrigin embeded", rowElemType.Name())
+		}
+		// all good, delete outdated records before we insertion
+		d.log.Debug("deleting outdate records for %s", rowElemType.Name())
+		d.db.Delete(
+			row,
+			dal.Where("_raw_data_table = ? AND _raw_data_params = ?", d.table, d.params),
+		)
 	}
 	return batch, nil
 }
 
-// close all batches so all rest records get saved into db as well
+func (d *BatchSaveDivider) flushBatch() {
+
+}
+
+// Close all batches so the rest records get saved into db
 func (d *BatchSaveDivider) Close() error {
 	for _, batch := range d.batches {
 		err := batch.Close()
