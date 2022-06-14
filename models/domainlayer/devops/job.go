@@ -25,3 +25,7 @@ type Job struct {
 	Name string `gorm:"type:varchar(255)"`
 	domainlayer.DomainEntity
 }
+
+func (Job) TableName() string {
+	return "jobs"
+}

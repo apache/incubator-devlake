@@ -28,3 +28,7 @@ type RefsIssuesDiffs struct {
 	IssueId         string `gorm:"primaryKey;type:varchar(255)"`
 	common.NoPKModel
 }
+
+func (RefsIssuesDiffs) TableName() string {
+	return "refs_issues_diffs"
+}

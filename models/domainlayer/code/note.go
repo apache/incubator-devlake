@@ -33,3 +33,7 @@ type Note struct {
 	IsSystem    bool `gorm:"comment:Is or is not auto-generated vs. human generated"`
 	CreatedDate time.Time
 }
+
+func (Note) TableName() string {
+	return "notes"
+}
