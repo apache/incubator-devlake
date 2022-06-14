@@ -44,5 +44,5 @@ func (*updateSchemas20220612) Version() uint64 {
 }
 
 func (*updateSchemas20220612) Name() string {
-	return "drop tables jobs and builds"
+	return "Regenerate tables jobs and builds and "
 }
