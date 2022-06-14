@@ -25,7 +25,7 @@ import (
 	"reflect"
 
 	"github.com/apache/incubator-devlake/plugins/core"
-	. "github.com/apache/incubator-devlake/plugins/core/dal"
+	"github.com/apache/incubator-devlake/plugins/core/dal"
 	"github.com/apache/incubator-devlake/plugins/helper"
 	"github.com/apache/incubator-devlake/plugins/jira/models"
 	"github.com/apache/incubator-devlake/plugins/jira/tasks/apiv2models"
@@ -40,26 +40,31 @@ func CollectChangelogs(taskCtx core.SubTaskContext) error {
 	if data.JiraServerInfo.DeploymentType == models.DeploymentServer {
 		return nil
 	}
+	log := taskCtx.GetLogger()
 	db := taskCtx.GetDal()
-	// figure out the time range
-	since := data.Since
 
-	// filter out issue_ids that needed collection
-	clauses := []Clause{
-		Select("bi.issue_id, NOW() AS update_time"),
-		From("_tool_jira_board_issues bi"),
-		Join("LEFT JOIN _tool_jira_issues i ON (bi.connection_id = i.connection_id AND bi.issue_id = i.issue_id)"),
-		Where(
-			`bi.connection_id = ?
-			   AND bi.board_id = ?
-			   AND (i.changelog_updated IS NULL OR i.changelog_updated < i.updated)`,
-			data.Options.ConnectionId,
-			data.Options.BoardId,
-		),
+	// query for issue_ids that needed changelog collection
+	clauses := []dal.Clause{
+		dal.Select("i.issue_id, NOW() AS update_time"),
+		dal.From("_tool_jira_board_issues bi"),
+		dal.Join("LEFT JOIN _tool_jira_issues i ON (bi.connection_id = i.connection_id AND bi.issue_id = i.issue_id)"),
+		dal.Join("LEFT JOIN _tool_jira_changelogs c ON (c.connection_id = i.connection_id AND c.issue_id = i.issue_id)"),
+		dal.Where(`i.updated > i.created AND bi.connection_id = ?  AND bi.board_id = ?  `, data.Options.ConnectionId, data.Options.BoardId),
+		dal.Groupby("i.issue_id, i.updated"),
+		dal.Having("i.updated > max(c.issue_updated) OR  max(c.issue_updated) IS NULL"),
 	}
 	// apply time range if any
+	since := data.Since
 	if since != nil {
-		clauses = append(clauses, Where("i.updated > ?", *since))
+		clauses = append(clauses, dal.Where("i.updated > ?", *since))
+	}
+
+	if log.IsLevelEnabled(core.LOG_DEBUG) {
+		count, err := db.Count(clauses...)
+		if err != nil {
+			return err
+		}
+		log.Debug("total number of issues to collect for: %d", count)
 	}
 
 	// construct the input iterator
@@ -85,7 +90,7 @@ func CollectChangelogs(taskCtx core.SubTaskContext) error {
 		},
 		ApiClient:     data.ApiClient,
 		PageSize:      100,
-		Incremental:   true,
+		Incremental:   since == nil,
 		GetTotalPages: GetTotalPagesFromResponse,
 		Input:         iterator,
 		UrlTemplate:   "api/3/issue/{{ .Input.IssueId }}/changelog",

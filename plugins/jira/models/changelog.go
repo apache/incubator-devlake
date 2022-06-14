@@ -33,7 +33,8 @@ type JiraChangelog struct {
 	AuthorAccountId   string `gorm:"type:varchar(255)"`
 	AuthorDisplayName string `gorm:"type:varchar(255)"`
 	AuthorActive      bool
-	Created           time.Time `gorm:"index"`
+	Created           time.Time  `gorm:"index"`
+	IssueUpdated      *time.Time `comment:"corresponding issue.updated time, changelog might need update IFF changelog.issue_updated < issue.updated"`
 }
 
 type JiraChangelogItem struct {

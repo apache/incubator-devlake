@@ -45,19 +45,6 @@ type JiraConnection struct {
 	RemotelinkCommitShaPattern string `gorm:"type:varchar(255);comment='golang regexp, the first group will be recognized as commit sha, ref https://github.com/google/re2/wiki/Syntax'" json:"remotelinkCommitShaPattern"`
 }
 
-type JiraIssueTypeMapping struct {
-	ConnectionID uint64 `gorm:"primaryKey" json:"jiraConnectionId" validate:"required"`
-	UserType     string `gorm:"type:varchar(50);primaryKey" json:"userType" validate:"required"`
-	StandardType string `gorm:"type:varchar(50)" json:"standardType" validate:"required"`
-}
-
-type JiraIssueStatusMapping struct {
-	ConnectionID   uint64 `gorm:"primaryKey" json:"jiraConnectionId" validate:"required"`
-	UserType       string `gorm:"type:varchar(50);primaryKey" json:"userType" validate:"required"`
-	UserStatus     string `gorm:"type:varchar(50);primaryKey" json:"userStatus" validate:"required"`
-	StandardStatus string `gorm:"type:varchar(50)" json:"standardStatus" validate:"required"`
-}
-
 func (JiraConnection) TableName() string {
 	return "_tool_jira_connections"
 }

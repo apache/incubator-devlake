@@ -64,7 +64,6 @@ type JiraIssue struct {
 	AllFields                datatypes.JSONMap
 
 	// internal status tracking
-	ChangelogUpdated  *time.Time
 	RemotelinkUpdated *time.Time
 	WorklogUpdated    *time.Time
 	common.NoPKModel
