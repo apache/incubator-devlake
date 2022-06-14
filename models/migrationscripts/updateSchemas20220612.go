@@ -24,9 +24,9 @@ import (
 	"gorm.io/gorm"
 )
 
-type updateSchemas20220614 struct{}
+type updateSchemas20220612 struct{}
 
-func (*updateSchemas20220614) Up(ctx context.Context, db *gorm.DB) error {
+func (*updateSchemas20220612) Up(ctx context.Context, db *gorm.DB) error {
 	err := db.Migrator().DropTable(&archived.Job{}, &archived.Build{})
 	if err != nil {
 		return err
@@ -39,10 +39,10 @@ func (*updateSchemas20220614) Up(ctx context.Context, db *gorm.DB) error {
 	return nil
 }
 
-func (*updateSchemas20220614) Version() uint64 {
+func (*updateSchemas20220612) Version() uint64 {
 	return 20220614154333
 }
 
-func (*updateSchemas20220614) Name() string {
+func (*updateSchemas20220612) Name() string {
 	return "drop tables jobs and builds"
 }
