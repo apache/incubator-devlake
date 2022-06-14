@@ -61,7 +61,8 @@ func main() {
 		if err != nil {
 			panic(err)
 		}
-		storage = store.NewDatabase(database, log)
+		basicRes := helper.NewDefaultBasicRes(nil, log, database)
+		storage = store.NewDatabase(basicRes, *url)
 	} else {
 		panic("either specify `-output` or `-db` argument as destination")
 	}
