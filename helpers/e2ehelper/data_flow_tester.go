@@ -167,6 +167,7 @@ func (t *DataFlowTester) CreateSnapshotOrVerify(dst schema.Tabler, csvRelPath st
 		return
 	}
 
+	location, _ := time.LoadLocation(`UTC`)
 	allFields := []string{}
 	allFields = append(pkfields, targetfields...)
 	dbCursor, err := t.Dal.Cursor(
@@ -188,7 +189,7 @@ func (t *DataFlowTester) CreateSnapshotOrVerify(dst schema.Tabler, csvRelPath st
 	columnTypes, _ := dbCursor.ColumnTypes()
 	forScanValues := make([]interface{}, len(allFields))
 	for i, columnType := range columnTypes {
-		if columnType.ScanType().Name() == `Time` {
+		if columnType.ScanType().Name() == `Time` || columnType.ScanType().Name() == `NullTime` {
 			forScanValues[i] = new(sql.NullTime)
 		} else {
 			forScanValues[i] = new(string)
@@ -206,7 +207,7 @@ func (t *DataFlowTester) CreateSnapshotOrVerify(dst schema.Tabler, csvRelPath st
 			case *sql.NullTime:
 				value := forScanValues[i].(*sql.NullTime)
 				if value.Valid {
-					values[i] = value.Time.Format("2006-01-02T15:04:05.000-07:00")
+					values[i] = value.Time.In(location).Format("2006-01-02T15:04:05.000-07:00")
 				} else {
 					values[i] = ``
 				}
@@ -223,6 +224,7 @@ func (t *DataFlowTester) CreateSnapshotOrVerify(dst schema.Tabler, csvRelPath st
 // fields to compare with by specifying `targetfields` parameter.
 func (t *DataFlowTester) VerifyTable(dst schema.Tabler, csvRelPath string, pkfields []string, targetfields []string) {
 	csvIter := pluginhelper.NewCsvFileIterator(csvRelPath)
+	location, _ := time.LoadLocation(`UTC`)
 	defer csvIter.Close()
 
 	var expectedTotal int64
@@ -247,7 +249,7 @@ func (t *DataFlowTester) VerifyTable(dst schema.Tabler, csvRelPath string, pkfie
 			// TODO: ensure testing database is in UTC timezone
 			case time.Time:
 				if actual[field] != nil {
-					actualValue = actual[field].(time.Time).Format("2006-01-02T15:04:05.000-07:00")
+					actualValue = actual[field].(time.Time).In(location).Format("2006-01-02T15:04:05.000-07:00")
 				}
 			default:
 				if actual[field] != nil {
