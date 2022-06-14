@@ -20,6 +20,7 @@ package tasks
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/apache/incubator-devlake/plugins/core/dal"
 	"net/http"
 	"net/url"
 
@@ -39,7 +40,7 @@ var CollectApiCommitsMeta = core.SubTaskMeta{
 }
 
 func CollectApiCommits(taskCtx core.SubTaskContext) error {
-	db := taskCtx.GetDb()
+	db := taskCtx.GetDal()
 	data := taskCtx.GetData().(*GithubTaskData)
 
 	since := data.Since
@@ -47,10 +48,14 @@ func CollectApiCommits(taskCtx core.SubTaskContext) error {
 	// user didn't specify a time range to sync, try load from database
 	if since == nil {
 		latestUpdated := &models.GithubCommit{}
-		err := db.Model(&latestUpdated).Joins("left join _tool_github_repo_commits on _tool_github_commits.sha = _tool_github_repo_commits.commit_sha").
-			Joins("left join _tool_github_repos on _tool_github_repo_commits.repo_id = _tool_github_repos.github_id").
-			Where("_tool_github_repo_commits.repo_id = ?", data.Repo.GithubId).
-			Order("committed_date DESC").Limit(1).Find(latestUpdated).Error
+		err := db.All(
+			&latestUpdated,
+			dal.Join("left join _tool_github_repo_commits on _tool_github_commits.sha = _tool_github_repo_commits.commit_sha"),
+			dal.Join("left join _tool_github_repos on _tool_github_repo_commits.repo_id = _tool_github_repos.github_id"),
+			dal.Where("_tool_github_repo_commits.repo_id = ?", data.Repo.GithubId),
+			dal.Orderby("committed_date DESC"),
+			dal.Limit(1),
+		)
 		if err != nil {
 			return fmt.Errorf("failed to get latest github commit record: %w", err)
 		}

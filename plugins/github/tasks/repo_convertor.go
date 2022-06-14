@@ -19,6 +19,7 @@ package tasks
 
 import (
 	"fmt"
+	"github.com/apache/incubator-devlake/plugins/core/dal"
 	"reflect"
 
 	"github.com/apache/incubator-devlake/models/domainlayer"
@@ -38,13 +39,14 @@ var ConvertRepoMeta = core.SubTaskMeta{
 }
 
 func ConvertRepo(taskCtx core.SubTaskContext) error {
-	db := taskCtx.GetDb()
+	db := taskCtx.GetDal()
 	data := taskCtx.GetData().(*GithubTaskData)
 	repoId := data.Repo.GithubId
 
-	cursor, err := db.Model(&models.GithubRepo{}).
-		Where("github_id = ?", repoId).
-		Rows()
+	cursor, err := db.Cursor(
+		dal.From(&models.GithubRepo{}),
+		dal.Where("github_id = ?", repoId),
+	)
 	if err != nil {
 		return err
 	}

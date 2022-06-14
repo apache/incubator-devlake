@@ -20,6 +20,7 @@ package tasks
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/apache/incubator-devlake/plugins/core/dal"
 	"net/http"
 	"net/url"
 
@@ -41,7 +42,7 @@ var CollectApiPullRequestsMeta = core.SubTaskMeta{
 }
 
 func CollectApiPullRequests(taskCtx core.SubTaskContext) error {
-	db := taskCtx.GetDb()
+	db := taskCtx.GetDal()
 	data := taskCtx.GetData().(*GithubTaskData)
 
 	since := data.Since
@@ -50,9 +51,12 @@ func CollectApiPullRequests(taskCtx core.SubTaskContext) error {
 	// actually, for github pull, since doesn't make any sense, github pull api doesn't support it
 	if since == nil {
 		var latestUpdated models.GithubPullRequest
-		err := db.Model(&latestUpdated).
-			Where("repo_id = ?", data.Repo.GithubId).
-			Order("github_updated_at DESC").Limit(1).Find(&latestUpdated).Error
+		err := db.All(
+			&latestUpdated,
+			dal.Where("repo_id = ?", data.Repo.GithubId),
+			dal.Orderby("github_updated_at DESC"),
+			dal.Limit(1),
+		)
 		if err != nil {
 			return fmt.Errorf("failed to get latest github issue record: %w", err)
 		}
