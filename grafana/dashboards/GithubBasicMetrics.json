@@ -792,7 +792,7 @@
           "metricColumn": "none",
           "queryType": "randomWalk",
           "rawQuery": true,
-          "rawSql": "-- Get the queue time of all backlog bugs\nwith _outstanding_issues as(\n  select \n    b.name as repo_name,\n    i.number as issue_key,\n    i.title,\n    i.created_date,\n    (TIMESTAMPDIFF(MINUTE, i.created_date,NOW()))/1440 as queue_time_in_days,\n    concat(b.url,'/',i.number) as url\n  from \n    issues i\n    left join board_issues bi on i.id = bi.issue_id\n    left join boards b on bi.board_id = b.id\n  where\n    b.id in ($repo_id)\n    and $__timeFilter(i.created_date)\n    and i.status != 'DONE'\n)\n\nselect title, queue_time_in_days from _outstanding_issues\norder by 2 desc",
+          "rawSql": "-- Get the queue time of all backlog bugs\nwith _outstanding_issues as(\n  select \n    b.name as repo_name,\n    i.issue_key as issue_key,\n    i.title,\n    i.created_date,\n    (TIMESTAMPDIFF(MINUTE, i.created_date,NOW()))/1440 as queue_time_in_days,\n    concat(b.url,'/',i.issue_key) as url\n  from \n    issues i\n    left join board_issues bi on i.id = bi.issue_id\n    left join boards b on bi.board_id = b.id\n  where\n    b.id in ($repo_id)\n    and $__timeFilter(i.created_date)\n    and i.status != 'DONE'\n)\n\nselect title, queue_time_in_days from _outstanding_issues\norder by 2 desc",
           "refId": "A",
           "select": [
             [
@@ -959,7 +959,7 @@
           "metricColumn": "none",
           "queryType": "randomWalk",
           "rawQuery": true,
-          "rawSql": "-- Get the queue time of all backlog bugs\nselect \n  b.name as repo_name,\n  i.number as issue_key,\n  i.title,\n  i.created_date,\n  (TIMESTAMPDIFF(MINUTE, i.created_date,NOW()))/1440 as queue_time_in_days,\n  concat(b.url,'/',i.number) as url\nfrom \n  issues i\n  left join board_issues bi on i.id = bi.issue_id\n  left join boards b on bi.board_id = b.id\nwhere\n  b.id in ($repo_id)\n  and $__timeFilter(i.created_date)\n  and i.status != 'DONE'\norder by queue_time_in_days desc",
+          "rawSql": "-- Get the queue time of all backlog bugs\nselect \n  b.name as repo_name,\n  i.issue_key as issue_key,\n  i.title,\n  i.created_date,\n  (TIMESTAMPDIFF(MINUTE, i.created_date,NOW()))/1440 as queue_time_in_days,\n  concat(b.url,'/',i.issue_key) as url\nfrom \n  issues i\n  left join board_issues bi on i.id = bi.issue_id\n  left join boards b on bi.board_id = b.id\nwhere\n  b.id in ($repo_id)\n  and $__timeFilter(i.created_date)\n  and i.status != 'DONE'\norder by queue_time_in_days desc",
           "refId": "A",
           "select": [
             [

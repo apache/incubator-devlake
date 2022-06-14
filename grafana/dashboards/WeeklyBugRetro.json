@@ -201,7 +201,7 @@
           "metricColumn": "none",
           "queryType": "randomWalk",
           "rawQuery": true,
-          "rawSql": "select\n  i.number,\n  i.title,\n  i.url\nfrom\n  lake.issues as i\n\tjoin lake.board_issues bi on i.id = bi.issue_id\n\tjoin lake.boards b on bi.board_id = b.id\nwhere\n  type = 'BUG' \n  and date(i.created_date) BETWEEN curdate() - INTERVAL WEEKDAY(curdate())+7 DAY AND curdate() - INTERVAL WEEKDAY(curdate())+1 DAY\n  and b.id in ($repo_id)",
+          "rawSql": "select\n  i.issue_key,\n  i.title,\n  i.url\nfrom\n  lake.issues as i\n\tjoin lake.board_issues bi on i.id = bi.issue_id\n\tjoin lake.boards b on bi.board_id = b.id\nwhere\n  type = 'BUG' \n  and date(i.created_date) BETWEEN curdate() - INTERVAL WEEKDAY(curdate())+7 DAY AND curdate() - INTERVAL WEEKDAY(curdate())+1 DAY\n  and b.id in ($repo_id)",
           "refId": "A",
           "select": [
             [
@@ -481,7 +481,7 @@
           "metricColumn": "none",
           "queryType": "randomWalk",
           "rawQuery": true,
-          "rawSql": "select\n  i.number,\n  i.title,\n  i.url\nfrom\n  lake.issues as i\n\tjoin board_issues bi on i.id = bi.issue_id\n\tjoin boards b on bi.board_id = b.id\nwhere\n  type = 'BUG'\n  and status = 'DONE'\n  and date(i.resolution_date) BETWEEN curdate() - INTERVAL WEEKDAY(curdate())+7 DAY AND curdate() - INTERVAL WEEKDAY(curdate())+1 DAY\n  and b.id in ($repo_id)",
+          "rawSql": "select\n  i.issue_key,\n  i.title,\n  i.url\nfrom\n  lake.issues as i\n\tjoin board_issues bi on i.id = bi.issue_id\n\tjoin boards b on bi.board_id = b.id\nwhere\n  type = 'BUG'\n  and status = 'DONE'\n  and date(i.resolution_date) BETWEEN curdate() - INTERVAL WEEKDAY(curdate())+7 DAY AND curdate() - INTERVAL WEEKDAY(curdate())+1 DAY\n  and b.id in ($repo_id)",
           "refId": "A",
           "select": [
             [
@@ -808,7 +808,7 @@
           "metricColumn": "none",
           "queryType": "randomWalk",
           "rawQuery": true,
-          "rawSql": "select \n  i.number as 'Issue Number',\n  i.title as 'Title',\n  (TIMESTAMPDIFF(MINUTE, i.created_date,NOW()))/1440 as 'Queue Time in Days',\n  i.url\nfrom \n  lake.issues i\n\tjoin board_issues bi on i.id = bi.issue_id\n\tjoin boards b on bi.board_id = b.id\nwhere\n  i.type = 'BUG'\n  and i.status != 'DONE'\n  and b.id in ($repo_id)\norder by 'Queue Time' desc",
+          "rawSql": "select \n  i.issue_key as 'Issue Number',\n  i.title as 'Title',\n  (TIMESTAMPDIFF(MINUTE, i.created_date,NOW()))/1440 as 'Queue Time in Days',\n  i.url\nfrom \n  lake.issues i\n\tjoin board_issues bi on i.id = bi.issue_id\n\tjoin boards b on bi.board_id = b.id\nwhere\n  i.type = 'BUG'\n  and i.status != 'DONE'\n  and b.id in ($repo_id)\norder by 'Queue Time' desc",
           "refId": "A",
           "select": [
             [

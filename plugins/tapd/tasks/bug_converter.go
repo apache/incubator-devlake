@@ -18,13 +18,14 @@ limitations under the License.
 package tasks
 
 import (
+	"reflect"
+	"strconv"
+
 	"github.com/apache/incubator-devlake/models/domainlayer"
 	"github.com/apache/incubator-devlake/models/domainlayer/ticket"
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/helper"
 	"github.com/apache/incubator-devlake/plugins/tapd/models"
-	"reflect"
-	"strconv"
 )
 
 func ConvertBug(taskCtx core.SubTaskContext) error {
@@ -56,12 +57,12 @@ func ConvertBug(taskCtx core.SubTaskContext) error {
 				DomainEntity: domainlayer.DomainEntity{
 					Id: IssueIdGen.Generate(toolL.ConnectionId, toolL.ID),
 				},
-				Url:     toolL.Url,
-				Number:  strconv.FormatUint(toolL.ID, 10),
-				Title:   toolL.Title,
-				EpicKey: toolL.EpicKey,
-				Type:    "BUG",
-				Status:  toolL.StdStatus,
+				Url:      toolL.Url,
+				IssueKey: strconv.FormatUint(toolL.ID, 10),
+				Title:    toolL.Title,
+				EpicKey:  toolL.EpicKey,
+				Type:     "BUG",
+				Status:   toolL.StdStatus,
 				//ResolutionDate: (*time.Time)(&toolL.Resolved),
 				//CreatedDate:    (*time.Time)(&toolL.Created),
 				//UpdatedDate:    (*time.Time)(&toolL.Modified),
