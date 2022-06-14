@@ -51,7 +51,7 @@ func ExtractStatus(taskCtx core.SubTaskContext) error {
 				// FIXME: skip scope status
 				return nil, nil
 			}
-			var jiraStatus = models.JiraStatus{
+			var jiraStatus = &models.JiraStatus{
 				ConnectionId:   connectionId,
 				ID:             apiStatus.ID,
 				Name:           apiStatus.Name,

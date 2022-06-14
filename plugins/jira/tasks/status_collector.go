@@ -19,7 +19,6 @@ package tasks
 
 import (
 	"encoding/json"
-	"io/ioutil"
 	"net/http"
 
 	"github.com/apache/incubator-devlake/plugins/core"
@@ -41,21 +40,12 @@ func CollectStatus(taskCtx core.SubTaskContext) error {
 			Table: RAW_STATUS_TABLE,
 		},
 		ApiClient:     data.ApiClient,
-		PageSize:      100,
-		Incremental:   false,
-		UrlTemplate:   "rest/api/2/status",
+		UrlTemplate:   "api/2/status",
 		GetTotalPages: GetTotalPagesFromResponse,
 		ResponseParser: func(res *http.Response) ([]json.RawMessage, error) {
 			var data []json.RawMessage
-			blob, err := ioutil.ReadAll(res.Body)
-			if err != nil {
-				return nil, err
-			}
-			err = json.Unmarshal(blob, &data)
-			if err != nil {
-				return nil, err
-			}
-			return data, nil
+			err := helper.UnmarshalResponse(res, &data)
+			return data, err
 		},
 	})
 
