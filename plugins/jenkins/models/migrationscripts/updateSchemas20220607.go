@@ -20,13 +20,12 @@ package migrationscripts
 import (
 	"context"
 
-	"github.com/apache/incubator-devlake/plugins/helper"
+	jenkinsArchived "github.com/apache/incubator-devlake/plugins/jenkins/models/migrationscripts/archived"
 	"gorm.io/gorm"
 )
 
 type JenkinsConnection20220607 struct {
-	helper.RestConnection
-	helper.BasicAuth
+	jenkinsArchived.JenkinsConnection
 }
 
 func (JenkinsConnection20220607) TableName() string {
