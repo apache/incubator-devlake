@@ -17,11 +17,11 @@ limitations under the License.
 
 package archived
 
-import (
-	"github.com/apache/incubator-devlake/models/migrationscripts/archived"
-)
+import "github.com/apache/incubator-devlake/models/migrationscripts/archived"
 
 type GitlabReviewer struct {
+	ConnectionId uint64 `gorm:"primaryKey"`
+
 	GitlabId       int    `gorm:"primaryKey"`
 	MergeRequestId int    `gorm:"index"`
 	ProjectId      int    `gorm:"index"`

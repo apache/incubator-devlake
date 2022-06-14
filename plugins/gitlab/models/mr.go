@@ -24,9 +24,10 @@ import (
 )
 
 type GitlabMergeRequest struct {
-	GitlabId         int `gorm:"primaryKey"`
-	Iid              int `gorm:"index"`
-	ProjectId        int `gorm:"index"`
+	ConnectionId     uint64 `gorm:"primaryKey"`
+	GitlabId         int    `gorm:"primaryKey"`
+	Iid              int    `gorm:"index"`
+	ProjectId        int    `gorm:"index"`
 	SourceProjectId  int
 	TargetProjectId  int
 	State            string `gorm:"type:varchar(255)"`

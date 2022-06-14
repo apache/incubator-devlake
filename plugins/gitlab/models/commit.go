@@ -27,6 +27,7 @@ type GitlabCommit struct {
 	Sha            string `gorm:"primaryKey;type:varchar(40)"`
 	Title          string
 	Message        string
+	ConnectionId   uint64 `gorm:"primaryKey"`
 	ShortId        string `gorm:"type:varchar(255)"`
 	AuthorName     string `gorm:"type:varchar(255)"`
 	AuthorEmail    string `gorm:"type:varchar(255)"`
