@@ -239,7 +239,7 @@ func (c *DefaultTaskContext) SubTaskContext(subtask string) (core.SubTaskContext
 	return nil, fmt.Errorf("subtask %s doesn't exist", subtask)
 }
 
-// This returns a stand-alone core.SubTaskContext,
+// NewStandaloneSubTaskContext returns a stand-alone core.SubTaskContext,
 // not attached to any core.TaskContext.
 // Use this if you need to run/debug a subtask without
 // going through the usual workflow.
@@ -265,6 +265,9 @@ func (c *DefaultTaskContext) SetData(data interface{}) {
 var _ core.TaskContext = (*DefaultTaskContext)(nil)
 
 func (c *DefaultSubTaskContext) TaskContext() core.TaskContext {
+	if c.taskCtx == nil {
+		return nil
+	}
 	return c.taskCtx
 }
 

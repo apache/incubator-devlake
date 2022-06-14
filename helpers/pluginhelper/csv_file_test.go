@@ -17,12 +17,26 @@ limitations under the License.
 
 package pluginhelper
 
-func ExampleCsvFileIterator() {
-	iter := NewCsvFileIterator("/path/to/foobar.csv")
+import (
+	"fmt"
+	"github.com/magiconair/properties/assert"
+	"testing"
+)
+
+func TestExampleCsvFile(t *testing.T) {
+	tmpPath := t.TempDir()
+	filename := fmt.Sprintf(`%s/foobar.csv`, tmpPath)
+	println(filename)
+
+	writer := NewCsvFileWriter(filename, []string{"id", "name", "json", "created_at"})
+	writer.Write([]string{"123", "foobar", `{"url": "https://example.com"}`, "2022-05-05 09:56:43.438000000"})
+	writer.Close()
+
+	iter := NewCsvFileIterator(filename)
 	defer iter.Close()
 	for iter.HasNext() {
 		row := iter.Fetch()
-		println(row["name"]) // foobar
-		println(row["json"]) // {"url": "https://example.com"}
+		assert.Equal(t, row["name"], "foobar", "name not euqal")
+		assert.Equal(t, row["json"], `{"url": "https://example.com"}`, "json not euqal")
 	}
 }

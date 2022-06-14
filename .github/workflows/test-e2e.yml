@@ -43,3 +43,4 @@ jobs:
         run: |
           cp .env.example .env
           make e2e-test
+          make e2e-plugins
