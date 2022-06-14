@@ -60,6 +60,7 @@ func TestIssueDataFlow(t *testing.T) {
 
 	// verify extraction
 	dataflowTester.MigrateTableAndFlush(&models.GithubIssue{})
+	dataflowTester.MigrateTableAndFlush(&models.GithubIssueLabel{})
 	dataflowTester.Subtask(tasks.ExtractApiIssuesMeta, taskData)
 	dataflowTester.CreateSnapshotOrVerify(
 		models.GithubIssue{},
@@ -92,8 +93,6 @@ func TestIssueDataFlow(t *testing.T) {
 	)
 
 	// verify extraction
-	dataflowTester.MigrateTableAndFlush(&models.GithubIssueLabel{})
-	dataflowTester.Subtask(tasks.ExtractApiIssuesMeta, taskData)
 	dataflowTester.CreateSnapshotOrVerify(
 		models.GithubIssueLabel{},
 		fmt.Sprintf("./snapshot_tables/%s.csv", models.GithubIssueLabel{}.TableName()),
@@ -111,6 +110,7 @@ func TestIssueDataFlow(t *testing.T) {
 
 	// verify extraction
 	dataflowTester.MigrateTableAndFlush(&models.GithubPullRequest{})
+	dataflowTester.MigrateTableAndFlush(&models.GithubPullRequestLabel{})
 	dataflowTester.Subtask(tasks.ExtractApiPullRequestsMeta, taskData)
 	dataflowTester.CreateSnapshotOrVerify(
 		models.GithubPullRequest{},
@@ -202,7 +202,7 @@ func TestIssueDataFlow(t *testing.T) {
 		[]string{
 			"url",
 			"icon_url",
-			"number",
+			"issue_key",
 			"title",
 			"description",
 			"epic_key",

@@ -111,6 +111,7 @@ func TestPrDataFlow(t *testing.T) {
 
 	// verify extraction
 	dataflowTester.MigrateTableAndFlush(&models.GithubCommit{})
+	dataflowTester.MigrateTableAndFlush(&models.GithubPullRequestCommit{})
 	dataflowTester.Subtask(tasks.ExtractApiPullRequestCommitsMeta, taskData)
 	dataflowTester.CreateSnapshotOrVerify(
 		models.GithubCommit{},
@@ -175,7 +176,6 @@ func TestPrDataFlow(t *testing.T) {
 			"base_repo_id",
 			"head_repo_id",
 			"status",
-			"number",
 			"title",
 			"description",
 			"url",
