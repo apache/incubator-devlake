@@ -27,3 +27,7 @@ type IssueLabel struct {
 	LabelName string `gorm:"primaryKey;type:varchar(255)"`
 	common.NoPKModel
 }
+
+func (IssueLabel) TableName() string {
+	return "issue_labels"
+}

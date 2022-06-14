@@ -31,3 +31,7 @@ type PullRequestComment struct {
 	CommitSha     string `gorm:"type:varchar(255)"`
 	Position      int
 }
+
+func (PullRequestComment) TableName() string {
+	return "pull_request_comments"
+}

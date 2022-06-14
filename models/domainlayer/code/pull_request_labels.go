@@ -29,3 +29,7 @@ type PullRequestLabel struct {
 	LabelName     string `gorm:"primaryKey;type:varchar(255)"`
 	common.NoPKModel
 }
+
+func (PullRequestLabel) TableName() string {
+	return "pull_request_labels"
+}

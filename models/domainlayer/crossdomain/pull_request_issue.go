@@ -26,3 +26,7 @@ type PullRequestIssue struct {
 	IssueNumber       int
 	common.NoPKModel
 }
+
+func (PullRequestIssue) TableName() string {
+	return "pull_request_issues"
+}

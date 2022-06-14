@@ -24,3 +24,7 @@ type RepoCommit struct {
 	CommitSha string `json:"commitSha" gorm:"primaryKey;type:varchar(40)"`
 	common.NoPKModel
 }
+
+func (RepoCommit) TableName() string {
+	return "repo_commits"
+}

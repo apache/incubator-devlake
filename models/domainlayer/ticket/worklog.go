@@ -32,3 +32,7 @@ type IssueWorklog struct {
 	StartedDate      *time.Time
 	IssueId          string `gorm:"index;type:varchar(255)"`
 }
+
+func (IssueWorklog) TableName() string {
+	return "issue_worklogs"
+}

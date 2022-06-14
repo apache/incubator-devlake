@@ -32,3 +32,7 @@ type Ref struct {
 	RefType     string `gorm:"type:varchar(255)"`
 	CreatedDate *time.Time
 }
+
+func (Ref) TableName() string {
+	return "refs"
+}
