@@ -246,9 +246,13 @@ func (t *DataFlowTester) VerifyTable(tableName string, csvRelPath string, pkfiel
 			switch actual[field].(type) {
 			// TODO: ensure testing database is in UTC timezone
 			case time.Time:
-				actualValue = actual[field].(time.Time).Format("2006-01-02T15:04:05.000-07:00")
+				if actual[field] != nil {
+					actualValue = actual[field].(time.Time).Format("2006-01-02T15:04:05.000-07:00")
+				}
 			default:
-				actualValue = fmt.Sprint(actual[field])
+				if actual[field] != nil {
+					actualValue = fmt.Sprint(actual[field])
+				}
 			}
 			assert.Equal(t.T, expected[field], actualValue)
 		}

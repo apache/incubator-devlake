@@ -27,7 +27,7 @@ import (
 	"github.com/apache/incubator-devlake/plugins/github/tasks"
 )
 
-func TestRepoDataFlow(t *testing.T) {
+func TestPrDataFlow(t *testing.T) {
 	var plugin impl.Github
 	dataflowTester := e2ehelper.NewDataFlowTester(t, "gitlab", plugin)
 
@@ -45,68 +45,6 @@ func TestRepoDataFlow(t *testing.T) {
 		},
 		Repo: githubRepository,
 	}
-
-	// import raw data table
-	dataflowTester.ImportCsv("./raw_tables/_raw_github_api_repositories.csv", "_raw_github_api_repositories")
-
-	// verify extraction
-	dataflowTester.MigrateTableAndFlush(&models.GithubRepo{})
-	dataflowTester.Subtask(tasks.ExtractApiRepoMeta, taskData)
-	dataflowTester.CreateSnapshotOrVerify(
-		models.GithubRepo{}.TableName(),
-		fmt.Sprintf("./snapshot_tables/%s.csv", models.GithubRepo{}.TableName()),
-		[]string{"github_id"},
-		[]string{
-			"name",
-			"html_url",
-			"description",
-			"owner_id",
-			"owner_login",
-			"language",
-			"created_date",
-			"updated_date",
-			"_raw_data_params",
-			"_raw_data_table",
-			"_raw_data_id",
-			"_raw_data_remark",
-		},
-	)
-
-	// import raw data table
-	dataflowTester.ImportCsv("./raw_tables/_raw_github_api_issues.csv", "_raw_github_api_issues")
-
-	// verify extraction
-	dataflowTester.MigrateTableAndFlush(&models.GithubIssue{})
-	dataflowTester.Subtask(tasks.ExtractApiIssuesMeta, taskData)
-	dataflowTester.CreateSnapshotOrVerify(
-		models.GithubIssue{}.TableName(),
-		fmt.Sprintf("./snapshot_tables/%s.csv", models.GithubIssue{}.TableName()),
-		[]string{"github_id", "repo_id"},
-		[]string{
-			"number",
-			"state",
-			"title",
-			"body",
-			"priority",
-			"type",
-			"status",
-			"author_id",
-			"author_name",
-			"assignee_id",
-			"assignee_name",
-			"lead_time_minutes",
-			"url",
-			"closed_at",
-			"github_created_at",
-			"github_updated_at",
-			"severity",
-			"component",
-			"_raw_data_params",
-			"_raw_data_table",
-			"_raw_data_id",
-			"_raw_data_remark",
-		},
-	)
 
 	// import raw data table
 	dataflowTester.ImportCsv("./raw_tables/_raw_github_api_pull_requests.csv", "_raw_github_api_pull_requests")
@@ -143,8 +81,6 @@ func TestRepoDataFlow(t *testing.T) {
 			"url",
 			"author_name",
 			"author_id",
-			"created_at",
-			"updated_at",
 			"_raw_data_params",
 			"_raw_data_table",
 			"_raw_data_id",

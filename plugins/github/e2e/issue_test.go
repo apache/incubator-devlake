@@ -27,7 +27,7 @@ import (
 	"github.com/apache/incubator-devlake/plugins/github/tasks"
 )
 
-func TestRepoDataFlow(t *testing.T) {
+func TestIssueDataFlow(t *testing.T) {
 	var plugin impl.Github
 	dataflowTester := e2ehelper.NewDataFlowTester(t, "gitlab", plugin)
 
@@ -39,38 +39,16 @@ func TestRepoDataFlow(t *testing.T) {
 			Owner: "panjf2000",
 			Repo:  "ants",
 			Config: models.Config{
-				PrType:      "type/(.*)$",
-				PrComponent: "component/(.*)$",
+				IssueSeverity:        "severity/(.*)$",
+				IssuePriority:        "^(highest|high|medium|low)$",
+				IssueComponent:       "component/(.*)$",
+				IssueTypeBug:         "^(bug|failure|error)$",
+				IssueTypeIncident:    "",
+				IssueTypeRequirement: "^(feat|feature|proposal|requirement)$",
 			},
 		},
 		Repo: githubRepository,
 	}
-
-	// import raw data table
-	dataflowTester.ImportCsv("./raw_tables/_raw_github_api_repositories.csv", "_raw_github_api_repositories")
-
-	// verify extraction
-	dataflowTester.MigrateTableAndFlush(&models.GithubRepo{})
-	dataflowTester.Subtask(tasks.ExtractApiRepoMeta, taskData)
-	dataflowTester.CreateSnapshotOrVerify(
-		models.GithubRepo{}.TableName(),
-		fmt.Sprintf("./snapshot_tables/%s.csv", models.GithubRepo{}.TableName()),
-		[]string{"github_id"},
-		[]string{
-			"name",
-			"html_url",
-			"description",
-			"owner_id",
-			"owner_login",
-			"language",
-			"created_date",
-			"updated_date",
-			"_raw_data_params",
-			"_raw_data_table",
-			"_raw_data_id",
-			"_raw_data_remark",
-		},
-	)
 
 	// import raw data table
 	dataflowTester.ImportCsv("./raw_tables/_raw_github_api_issues.csv", "_raw_github_api_issues")
@@ -143,8 +121,6 @@ func TestRepoDataFlow(t *testing.T) {
 			"url",
 			"author_name",
 			"author_id",
-			"created_at",
-			"updated_at",
 			"_raw_data_params",
 			"_raw_data_table",
 			"_raw_data_id",
