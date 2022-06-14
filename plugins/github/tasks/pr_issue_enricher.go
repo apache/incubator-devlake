@@ -40,7 +40,7 @@ func EnrichPullRequestIssues(taskCtx core.SubTaskContext) (err error) {
 	repoId := data.Repo.GithubId
 
 	var prBodyCloseRegex *regexp.Regexp
-	prBodyClosePattern := taskCtx.GetConfig("GITHUB_PR_BODY_CLOSE_PATTERN")
+	prBodyClosePattern := data.Options.PrBodyClosePattern
 	//the pattern before the issue number, sometimes, the issue number is #1098, sometimes it is https://xxx/#1098
 	prBodyClosePattern = strings.Replace(prBodyClosePattern, "%s", data.Options.Owner, 1)
 	prBodyClosePattern = strings.Replace(prBodyClosePattern, "%s", data.Options.Repo, 1)
