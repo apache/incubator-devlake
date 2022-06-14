@@ -104,8 +104,12 @@ func (t *DataFlowTester) ImportCsv(csvRelPath string, tableName string) {
 	t.MigrateRawTableAndFlush(tableName)
 	// load rows and insert into target table
 	for csvIter.HasNext() {
-		// make sure
-		result := t.Db.Table(tableName).Create(csvIter.Fetch())
+		toInsertValues := csvIter.Fetch()
+		// FIXME Hack code
+		if t.Db.Dialector.Name() == `postgres` {
+			toInsertValues[`data`] = strings.Replace(toInsertValues[`data`].(string), `\`, `\\`, -1)
+		}
+		result := t.Db.Table(tableName).Create(toInsertValues)
 		if result.Error != nil {
 			panic(result.Error)
 		}
@@ -173,6 +177,7 @@ func (t *DataFlowTester) CreateSnapshotOrVerify(dst schema.Tabler, csvRelPath st
 	dbCursor, err := t.Dal.Cursor(
 		dal.Select(strings.Join(allFields, `,`)),
 		dal.From(dst.TableName()),
+		dal.Orderby(strings.Join(pkfields, `,`)),
 	)
 	if err != nil {
 		panic(err)
@@ -191,6 +196,8 @@ func (t *DataFlowTester) CreateSnapshotOrVerify(dst schema.Tabler, csvRelPath st
 	for i, columnType := range columnTypes {
 		if columnType.ScanType().Name() == `Time` || columnType.ScanType().Name() == `NullTime` {
 			forScanValues[i] = new(sql.NullTime)
+		} else if columnType.ScanType().Name() == `bool` {
+			forScanValues[i] = new(bool)
 		} else {
 			forScanValues[i] = new(string)
 		}
@@ -211,7 +218,13 @@ func (t *DataFlowTester) CreateSnapshotOrVerify(dst schema.Tabler, csvRelPath st
 				} else {
 					values[i] = ``
 				}
-			default:
+			case *bool:
+				if *forScanValues[i].(*bool) {
+					values[i] = `1`
+				} else {
+					values[i] = `0`
+				}
+			case *string:
 				values[i] = fmt.Sprint(*forScanValues[i].(*string))
 			}
 		}
@@ -250,6 +263,12 @@ func (t *DataFlowTester) VerifyTable(dst schema.Tabler, csvRelPath string, pkfie
 				if actual[field] != nil {
 					actualValue = actual[field].(time.Time).In(location).Format("2006-01-02T15:04:05.000-07:00")
 				}
+			case bool:
+				if actual[field].(bool) {
+					actualValue = `1`
+				} else {
+					actualValue = `0`
+				}
 			default:
 				if actual[field] != nil {
 					actualValue = fmt.Sprint(actual[field])
@@ -265,5 +284,5 @@ func (t *DataFlowTester) VerifyTable(dst schema.Tabler, csvRelPath string, pkfie
 	if err != nil {
 		panic(err)
 	}
-	assert.Equal(t.T, expectedTotal, actualTotal)
+	assert.Equal(t.T, expectedTotal, actualTotal, fmt.Sprintf(`%s count not match`, dst.TableName()))
 }
