@@ -18,6 +18,7 @@ limitations under the License.
 package tasks
 
 import (
+	"github.com/apache/incubator-devlake/plugins/core/dal"
 	"reflect"
 
 	"github.com/apache/incubator-devlake/models/domainlayer"
@@ -38,15 +39,21 @@ var ConvertApiNotesMeta = core.SubTaskMeta{
 func ConvertApiNotes(taskCtx core.SubTaskContext) error {
 
 	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_PROJECT_TABLE)
-	db := taskCtx.GetDb()
+	db := taskCtx.GetDal()
+	clauses := []dal.Clause{
+		dal.From(&models.GitlabMergeRequestNote{}),
+		dal.Join(`left join _tool_gitlab_merge_requests 
+			on _tool_gitlab_merge_requests.gitlab_id = 
+			_tool_gitlab_merge_request_notes.merge_request_id`),
+		dal.Where("_tool_gitlab_merge_requests.project_id = ?", data.Options.ProjectId),
+	}
 
-	cursor, err := db.Model(&models.GitlabMergeRequestNote{}).
-		Joins("left join _tool_gitlab_merge_requests on _tool_gitlab_merge_requests.gitlab_id = _tool_gitlab_merge_request_notes.merge_request_id").
-		Where("_tool_gitlab_merge_requests.project_id = ?", data.Options.ProjectId).Rows()
+	cursor, err := db.Cursor(clauses...)
 	if err != nil {
 		return err
 	}
 	defer cursor.Close()
+
 	domainIdGeneratorNote := didgen.NewDomainIdGenerator(&models.GitlabMergeRequestNote{})
 	prIdGen := didgen.NewDomainIdGenerator(&models.GitlabMergeRequest{})
 	userIdGen := didgen.NewDomainIdGenerator(&models.GitlabUser{})

@@ -18,6 +18,7 @@ limitations under the License.
 package tasks
 
 import (
+	"github.com/apache/incubator-devlake/plugins/core/dal"
 	"reflect"
 
 	"github.com/apache/incubator-devlake/models/domainlayer/code"
@@ -35,18 +36,19 @@ var ConvertApiCommitsMeta = core.SubTaskMeta{
 }
 
 func ConvertApiCommits(taskCtx core.SubTaskContext) error {
-
 	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_COMMIT_TABLE)
-	db := taskCtx.GetDb()
+	db := taskCtx.GetDal()
 
 	// select all commits belongs to the project
-	cursor, err := db.Table("_tool_gitlab_commits gc").
-		Joins(`left join _tool_gitlab_project_commits gpc on (
+	clauses := []dal.Clause{
+		dal.Select("gc.*"),
+		dal.From("_tool_gitlab_commits gc"),
+		dal.Join(`left join _tool_gitlab_project_commits gpc on (
 			gpc.commit_sha = gc.sha
-		)`).
-		Select("gc.*").
-		Where("gpc.gitlab_project_id = ?", data.Options.ProjectId).
-		Rows()
+		)`),
+		dal.Where("gpc.gitlab_project_id = ?", data.Options.ProjectId),
+	}
+	cursor, err := db.Cursor(clauses...)
 	if err != nil {
 		return err
 	}
