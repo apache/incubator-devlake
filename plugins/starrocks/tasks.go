@@ -5,7 +5,7 @@ import (
 	"database/sql"
 	"encoding/json"
 	"fmt"
-	"github.com/merico-dev/lake/plugins/core"
+	"github.com/apache/incubator-devlake/plugins/core"
 	"gorm.io/gorm"
 	"io/ioutil"
 	"net/http"

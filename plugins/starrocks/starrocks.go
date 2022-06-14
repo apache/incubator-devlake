@@ -1,8 +1,8 @@
 package main
 
 import (
-	"github.com/merico-dev/lake/plugins/core"
-	"github.com/merico-dev/lake/runner"
+	"github.com/apache/incubator-devlake/plugins/core"
+	"github.com/apache/incubator-devlake/runner"
 	"github.com/mitchellh/mapstructure"
 	"github.com/spf13/cobra"
 )
