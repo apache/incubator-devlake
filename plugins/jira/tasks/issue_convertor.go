@@ -74,7 +74,7 @@ func ConvertIssues(taskCtx core.SubTaskContext) error {
 				},
 				Url:                     convertURL(jiraIssue.Self, jiraIssue.IssueKey),
 				IconURL:                 jiraIssue.IconURL,
-				Number:                  jiraIssue.IssueKey,
+				IssueKey:                jiraIssue.IssueKey,
 				Title:                   jiraIssue.Summary,
 				EpicKey:                 jiraIssue.EpicKey,
 				Type:                    jiraIssue.StdType,

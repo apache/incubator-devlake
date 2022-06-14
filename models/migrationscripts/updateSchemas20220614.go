@@ -15,19 +15,22 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package code
+package migrationscripts
 
 import (
+	"context"
 	"time"
 
 	"github.com/apache/incubator-devlake/models/domainlayer"
+	"gorm.io/gorm"
 )
 
-type PullRequest struct {
+type PullRequest20220614 struct {
 	domainlayer.DomainEntity
 	BaseRepoId     string `gorm:"index"`
 	HeadRepoId     string `gorm:"index"`
 	Status         string `gorm:"type:varchar(100);comment:open/closed or other"`
+	Number         int
 	Title          string
 	Description    string
 	Url            string `gorm:"type:varchar(255)"`
@@ -45,4 +48,26 @@ type PullRequest struct {
 	BaseRef        string `gorm:"type:varchar(255)"`
 	BaseCommitSha  string `gorm:"type:varchar(40)"`
 	HeadCommitSha  string `gorm:"type:varchar(40)"`
+}
+
+func (PullRequest20220614) TableName() string {
+	return "pull_requests"
+}
+
+type updateSchemas20220614 struct{}
+
+func (*updateSchemas20220614) Up(ctx context.Context, db *gorm.DB) error {
+	err := db.Migrator().DropColumn(&PullRequest20220614{}, "number")
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (*updateSchemas20220614) Version() uint64 {
+	return 20220614110537
+}
+
+func (*updateSchemas20220614) Name() string {
+	return "remove columns number at pull_requests"
 }
