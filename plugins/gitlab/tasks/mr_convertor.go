@@ -63,7 +63,7 @@ func ConvertApiMergeRequests(taskCtx core.SubTaskContext) error {
 				BaseRepoId:     domainRepoIdGenerator.Generate(gitlabMr.SourceProjectId),
 				HeadRepoId:     domainRepoIdGenerator.Generate(gitlabMr.TargetProjectId),
 				Status:         gitlabMr.State,
-				Number:         gitlabMr.Iid,
+				PullRequestKey: gitlabMr.Iid,
 				Title:          gitlabMr.Title,
 				Description:    gitlabMr.Description,
 				Url:            gitlabMr.WebUrl,

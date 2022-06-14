@@ -18,11 +18,12 @@ limitations under the License.
 package store
 
 import (
+	"fmt"
+	"reflect"
+
 	"github.com/apache/incubator-devlake/models/domainlayer/code"
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/helper"
-	"gorm.io/gorm"
-	"reflect"
 )
 
 const BathSize = 100
@@ -33,15 +34,19 @@ type Database struct {
 	log    core.Logger
 }
 
-func NewDatabase(db *gorm.DB, log core.Logger) *Database {
+func NewDatabase(basicRes core.BasicRes, repoUrl string) *Database {
 	database := new(Database)
-	database.driver = helper.NewBatchSaveDivider(db, BathSize)
-	database.log = log
+	database.driver = helper.NewBatchSaveDivider(
+		basicRes,
+		BathSize,
+		"gitextractor",
+		fmt.Sprintf(`{"RepoUrl": "%s"}`, repoUrl),
+	)
 	return database
 }
 
 func (d *Database) RepoCommits(repoCommit *code.RepoCommit) error {
-	batch, err := d.driver.ForType(reflect.TypeOf(repoCommit), d.log)
+	batch, err := d.driver.ForType(reflect.TypeOf(repoCommit))
 	if err != nil {
 		return err
 	}
@@ -49,7 +54,7 @@ func (d *Database) RepoCommits(repoCommit *code.RepoCommit) error {
 }
 
 func (d *Database) Commits(commit *code.Commit) error {
-	batch, err := d.driver.ForType(reflect.TypeOf(commit), d.log)
+	batch, err := d.driver.ForType(reflect.TypeOf(commit))
 	if err != nil {
 		return err
 	}
@@ -57,7 +62,7 @@ func (d *Database) Commits(commit *code.Commit) error {
 }
 
 func (d *Database) Refs(ref *code.Ref) error {
-	batch, err := d.driver.ForType(reflect.TypeOf(ref), d.log)
+	batch, err := d.driver.ForType(reflect.TypeOf(ref))
 	if err != nil {
 		return err
 	}
@@ -65,7 +70,7 @@ func (d *Database) Refs(ref *code.Ref) error {
 }
 
 func (d *Database) CommitFiles(file *code.CommitFile) error {
-	batch, err := d.driver.ForType(reflect.TypeOf(file), d.log)
+	batch, err := d.driver.ForType(reflect.TypeOf(file))
 	if err != nil {
 		return err
 	}
@@ -76,7 +81,7 @@ func (d *Database) CommitParents(pp []*code.CommitParent) error {
 	if len(pp) == 0 {
 		return nil
 	}
-	batch, err := d.driver.ForType(reflect.TypeOf(pp[0]), d.log)
+	batch, err := d.driver.ForType(reflect.TypeOf(pp[0]))
 	if err != nil {
 		return err
 	}

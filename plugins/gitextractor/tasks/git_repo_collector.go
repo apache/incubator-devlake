@@ -55,9 +55,8 @@ func (o GitExtractorOptions) Valid() error {
 
 func CollectGitRepo(subTaskCtx core.SubTaskContext) error {
 	var err error
-	db := subTaskCtx.GetDb()
-	storage := store.NewDatabase(db, subTaskCtx.GetLogger())
 	op := subTaskCtx.GetData().(GitExtractorOptions)
+	storage := store.NewDatabase(subTaskCtx, op.Url)
 	p := parser.NewLibGit2(storage, subTaskCtx)
 	if strings.HasPrefix(op.Url, "http") {
 		err = p.CloneOverHTTP(op.RepoId, op.Url, op.User, op.Password, op.Proxy)

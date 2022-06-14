@@ -28,22 +28,8 @@ services:
       MYSQL_USER: merico
       MYSQL_PASSWORD: merico
 
-  postgres:
-    image: postgres:14.2
-    volumes:
-      - postgres-storage:/var/lib/postgresql
-    restart: always
-    ports:
-      - 127.0.0.1:5432:5432
-    environment:
-      POSTGRES_DB: lake
-      POSTGRES_USER: merico
-      POSTGRES_PASSWORD: merico
-
   grafana:
     image: apache/devlake-dashboard:v0.11.0
-    build:
-      context: grafana/
     ports:
       - 3002:3000
     volumes:
@@ -62,11 +48,6 @@ services:
 
   devlake:
     image: apache/devlake:v0.11.0
-    build:
-      context: "."
-      args:
-        HTTPS_PROXY: "${HTTPS_PROXY}"
-        GOPROXY: "${GOPROXY}"
     ports:
       - 127.0.0.1:8080:8080
     restart: always
@@ -77,8 +58,6 @@ services:
 
   config-ui:
     image: apache/devlake-config-ui:v0.11.0
-    build:
-      context: "config-ui"
     ports:
       - 127.0.0.1:4000:80
     env_file:
@@ -94,4 +73,4 @@ services:
 volumes:
   mysql-storage:
   grafana-storage:
-  postgres-storage:
+

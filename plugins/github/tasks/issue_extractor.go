@@ -72,44 +72,26 @@ func ExtractApiIssues(taskCtx core.SubTaskContext) error {
 	var issueTypeRequirementRegex *regexp.Regexp
 	var issueTypeIncidentRegex *regexp.Regexp
 	var issueSeverity = config.IssueSeverity
-	if issueSeverity == "" {
-		issueSeverity = taskCtx.GetConfig("GITHUB_ISSUE_SEVERITY")
-	}
-	var issueComponent = config.IssueComponent
-	if issueComponent == "" {
-		issueComponent = taskCtx.GetConfig("GITHUB_ISSUE_COMPONENT")
-	}
-	var issuePriority = config.IssuePriority
-	if issuePriority == "" {
-		issuePriority = taskCtx.GetConfig("GITHUB_ISSUE_PRIORITY")
-	}
-	var issueTypeBug = config.IssueTypeBug
-	if issueTypeBug == "" {
-		issueTypeBug = taskCtx.GetConfig("GITHUB_ISSUE_TYPE_BUG")
-	}
-	var issueTypeRequirement = config.IssueTypeRequirement
-	if issueTypeRequirement == "" {
-		issueTypeRequirement = taskCtx.GetConfig("GITHUB_ISSUE_TYPE_REQUIREMENT")
-	}
-	var issueTypeIncident = config.IssueTypeIncident
-	if issueTypeIncident == "" {
-		issueTypeIncident = taskCtx.GetConfig("GITHUB_ISSUE_TYPE_INCIDENT")
-	}
 	if len(issueSeverity) > 0 {
 		issueSeverityRegex = regexp.MustCompile(issueSeverity)
 	}
+	var issueComponent = config.IssueComponent
 	if len(issueComponent) > 0 {
 		issueComponentRegex = regexp.MustCompile(issueComponent)
 	}
+	var issuePriority = config.IssuePriority
 	if len(issuePriority) > 0 {
 		issuePriorityRegex = regexp.MustCompile(issuePriority)
 	}
+	var issueTypeBug = config.IssueTypeBug
 	if len(issueTypeBug) > 0 {
 		issueTypeBugRegex = regexp.MustCompile(issueTypeBug)
 	}
+	var issueTypeRequirement = config.IssueTypeRequirement
 	if len(issueTypeRequirement) > 0 {
 		issueTypeRequirementRegex = regexp.MustCompile(issueTypeRequirement)
 	}
+	var issueTypeIncident = config.IssueTypeIncident
 	if len(issueTypeIncident) > 0 {
 		issueTypeIncidentRegex = regexp.MustCompile(issueTypeIncident)
 	}

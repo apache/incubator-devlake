@@ -128,7 +128,7 @@ function useConnectionManager ({
         connectionPayload = { name: name, endpoint: endpointUrl, username: username, password: password, proxy: proxy, ...connectionPayload }
         break
       case Providers.GITHUB:
-        connectionPayload = { name: name, endpoint: endpointUrl, auth: token, proxy: proxy, ...connectionPayload }
+        connectionPayload = { name: name, endpoint: endpointUrl, token, proxy: proxy, ...connectionPayload }
         break
       case Providers.JENKINS:
         // eslint-disable-next-line max-len
@@ -329,7 +329,7 @@ function useConnectionManager ({
         endpoint: c.Endpoint || c.endpoint,
         username: c.username,
         password: c.password,
-        auth: c.basicAuthEncoded || c.auth,
+        auth: c.basicAuthEncoded || c.token,
         proxy: c.Proxy || c.Proxy
       }
       const onSuccess = (res) => {
@@ -380,7 +380,7 @@ function useConnectionManager ({
           setProxy(activeConnection.Proxy || activeConnection.proxy)
           break
         case Providers.GITHUB:
-          setToken(activeConnection.basicAuthEncoded || activeConnection.auth)
+          setToken(activeConnection.basicAuthEncoded || activeConnection.token)
           setProxy(activeConnection.Proxy || activeConnection.proxy)
           break
         case Providers.JIRA:

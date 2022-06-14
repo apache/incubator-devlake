@@ -45,7 +45,8 @@ export default function AddConnection () {
   const [activeProvider, setActiveProvider] = useState(integrationsData.find(p => p.id === providerId))
 
   const {
-    testConnection, saveConnection,
+    testConnection,
+    saveConnection,
     errors,
     isSaving,
     isTesting,
@@ -101,15 +102,13 @@ export default function AddConnection () {
     if (activeProvider && activeProvider.id) {
       fetchAllConnections()
       switch (activeProvider.id) {
-        case Providers.GITHUB:
-          setName(ProviderLabels.GITHUB)
-          break
         case Providers.GITLAB:
           setName(ProviderLabels.GITLAB)
           break
         case Providers.JENKINS:
           setName(ProviderLabels.JENKINS)
           break
+        case Providers.GITHUB:
         case Providers.JIRA:
         default:
           setName('')

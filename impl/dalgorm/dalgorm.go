@@ -107,6 +107,13 @@ func (d *Dalgorm) First(dst interface{}, clauses ...dal.Clause) error {
 	return buildTx(d.db, clauses).First(dst).Error
 }
 
+// Count total records
+func (d *Dalgorm) Count(clauses ...dal.Clause) (int64, error) {
+	var count int64
+	err := buildTx(d.db, clauses).Count(&count).Error
+	return count, err
+}
+
 // Pluck used to query single column
 func (d *Dalgorm) Pluck(column string, dest interface{}, clauses ...dal.Clause) error {
 	return buildTx(d.db, clauses).Pluck(column, dest).Error

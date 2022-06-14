@@ -15,19 +15,21 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package ticket
+package migrationscripts
 
 import (
+	"context"
 	"time"
 
 	"github.com/apache/incubator-devlake/models/domainlayer"
+	"gorm.io/gorm"
 )
 
-type Issue struct {
+type Issue20220613 struct {
 	domainlayer.DomainEntity
 	Url                     string `gorm:"type:varchar(255)"`
 	IconURL                 string `gorm:"type:varchar(255);column:icon_url"`
-	IssueKey                string `gorm:"type:varchar(255)"`
+	Number                  string `gorm:"type:varchar(255)"`
 	Title                   string
 	Description             string
 	EpicKey                 string `gorm:"type:varchar(255)"`
@@ -52,12 +54,25 @@ type Issue struct {
 	Component               string `gorm:"type:varchar(255)"`
 }
 
-const (
-	BUG         = "BUG"
-	REQUIREMENT = "REQUIREMENT"
-	INCIDENT    = "INCIDENT"
+func (Issue20220613) TableName() string {
+	return "issues"
+}
 
-	TODO        = "TODO"
-	DONE        = "DONE"
-	IN_PROGRESS = "IN_PROGRESS"
-)
+type updateSchemas20220613 struct{}
+
+func (*updateSchemas20220613) Up(ctx context.Context, db *gorm.DB) error {
+
+	err := db.Migrator().RenameColumn(Issue20220613{}, "number", "issue_key")
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (*updateSchemas20220613) Version() uint64 {
+	return 20220613000005
+}
+
+func (*updateSchemas20220613) Name() string {
+	return "update `number` column to `issue_key` at issues"
+}

@@ -23,6 +23,8 @@ import (
 )
 
 type GitlabPipeline struct {
+	ConnectionId uint64 `gorm:"primaryKey"`
+
 	GitlabId        int `gorm:"primaryKey"`
 	ProjectId       int `gorm:"index"`
 	GitlabCreatedAt time.Time

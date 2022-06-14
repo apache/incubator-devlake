@@ -53,7 +53,7 @@ type RestConnection struct {
 	BaseConnection `mapstructure:",squash"`
 	Endpoint       string `mapstructure:"endpoint" validate:"required" json:"endpoint"`
 	Proxy          string `mapstructure:"proxy" json:"proxy"`
-	RateLimit      int    `comment:"api request rate limt per hour" json:"rateLimit"`
+	RateLimit      int    `comment:"api request rate limit per hour" json:"rateLimit"`
 }
 
 type ConnectionApiHelper struct {

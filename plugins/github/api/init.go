@@ -15,21 +15,28 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package archived
+package api
 
-import "github.com/apache/incubator-devlake/models/migrationscripts/archived"
+import (
+	"github.com/apache/incubator-devlake/plugins/core"
+	"github.com/apache/incubator-devlake/plugins/github/models"
+	"github.com/apache/incubator-devlake/plugins/helper"
+	"github.com/go-playground/validator/v10"
+	"github.com/spf13/viper"
+	"gorm.io/gorm"
+)
 
-type GitlabTag struct {
-	ConnectionId uint64 `gorm:"primaryKey"`
+type ApiUserPublicEmailResponse []models.PublicEmail
 
-	Name               string `gorm:"primaryKey;type:varchar(60)"`
-	Message            string
-	Target             string `gorm:"type:varchar(255)"`
-	Protected          bool
-	ReleaseDescription string
-	archived.NoPKModel
-}
+var vld *validator.Validate
+var connectionHelper *helper.ConnectionApiHelper
+var basicRes core.BasicRes
 
-func (GitlabTag) TableName() string {
-	return "_tool_gitlab_tags"
+func Init(config *viper.Viper, logger core.Logger, database *gorm.DB) {
+	basicRes = helper.NewDefaultBasicRes(config, logger, database)
+	vld = validator.New()
+	connectionHelper = helper.NewConnectionHelper(
+		basicRes,
+		vld,
+	)
 }

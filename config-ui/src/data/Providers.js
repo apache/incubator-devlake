@@ -63,7 +63,7 @@ const ProviderConnectionLimits = {
   gitlab: 1,
   jenkins: 1,
   // jira: null, // (Multi-connection, no-limit)
-  github: 1
+  // github: null
 }
 
 // NOTE: Not all fields may be referenced/displayed for a provider,

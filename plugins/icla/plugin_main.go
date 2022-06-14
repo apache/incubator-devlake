@@ -89,15 +89,8 @@ func (plugin Icla) ApiResources() map[string]map[string]core.ApiResourceHandler 
 // standalone mode for debugging
 func main() {
 	cmd := &cobra.Command{Use: "icla"}
-
-	// TODO add your cmd flag if necessary
-	// yourFlag := cmd.Flags().IntP("yourFlag", "y", 8, "TODO add description here")
-	// _ = cmd.MarkFlagRequired("yourFlag")
-
 	cmd.Run = func(cmd *cobra.Command, args []string) {
-		runner.DirectRun(cmd, args, PluginEntry, map[string]interface{}{
-			// TODO add more custom params here
-		})
+		runner.DirectRun(cmd, args, PluginEntry, map[string]interface{}{})
 	}
 	runner.RunCmd(cmd)
 }

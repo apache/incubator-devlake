@@ -15,34 +15,20 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package migrationscripts
+package archived
 
-import (
-	"context"
-	"github.com/apache/incubator-devlake/plugins/gitlab/models/migrationscripts/archived"
+import "github.com/apache/incubator-devlake/models/migrationscripts/archived"
 
-	"gorm.io/gorm"
-)
+// Please note that Issue Labels can also apply to Pull Requests.
+// Pull Requests are considered Issues in GitHub.
 
-type UpdateSchemas20220510 struct{}
-
-func (*UpdateSchemas20220510) Up(ctx context.Context, db *gorm.DB) error {
-	err := db.Migrator().RenameColumn(archived.GitlabMergeRequestNote{}, "system", "is_system")
-	if err != nil {
-		return err
-	}
-
-	return nil
+type GitlabIssueLabel struct {
+	ConnectionId uint64 `gorm:"primaryKey"`
+	IssueId      int    `gorm:"primaryKey;autoIncrement:false"`
+	LabelName    string `gorm:"primaryKey;type:varchar(255)"`
+	archived.NoPKModel
 }
 
-func (*UpdateSchemas20220510) Version() uint64 {
-	return 20220510212344
-}
-
-func (*UpdateSchemas20220510) Owner() string {
-	return "Gitlab"
-}
-
-func (*UpdateSchemas20220510) Name() string {
-	return "Change key word system to is_system"
+func (GitlabIssueLabel) TableName() string {
+	return "_tool_gitlab_issue_labels"
 }

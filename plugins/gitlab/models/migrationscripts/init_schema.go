@@ -19,15 +19,36 @@ package migrationscripts
 
 import (
 	"context"
-
+	"fmt"
+	"github.com/apache/incubator-devlake/config"
+	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/gitlab/models/migrationscripts/archived"
 	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
 )
 
 type InitSchemas struct{}
 
 func (*InitSchemas) Up(ctx context.Context, db *gorm.DB) error {
-	return db.Migrator().AutoMigrate(
+	rawTableList := []string{
+		"_raw_gitlab_api_children_on_pipeline",
+		"_raw_gitlab_api_commit",
+		"_raw_gitlab_api_issues",
+		"_raw_gitlab_api_merge_request_commits",
+		"_raw_gitlab_api_merge_request_notes",
+		"_raw_gitlab_api_merge_requests",
+		"_raw_gitlab_api_pipeline",
+		"_raw_gitlab_api_project",
+		"_raw_gitlab_api_tag",
+	}
+	for _, v := range rawTableList {
+		err := db.Exec(fmt.Sprintf("DROP TABLE IF EXISTS %s CASCADE", v)).Error
+		if err != nil {
+			return err
+		}
+	}
+
+	err := db.Migrator().DropTable(
 		&archived.GitlabProject{},
 		&archived.GitlabMergeRequest{},
 		&archived.GitlabCommit{},
@@ -39,11 +60,60 @@ func (*InitSchemas) Up(ctx context.Context, db *gorm.DB) error {
 		&archived.GitlabMergeRequestCommit{},
 		&archived.GitlabMergeRequestComment{},
 		&archived.GitlabUser{},
+		&archived.GitlabConnection{},
+		&archived.GitlabIssue{},
+		&archived.GitlabIssueLabel{},
 	)
+
+	if err != nil {
+		return err
+	}
+
+	err = db.Migrator().AutoMigrate(
+		&archived.GitlabProject{},
+		&archived.GitlabMergeRequest{},
+		&archived.GitlabCommit{},
+		&archived.GitlabTag{},
+		&archived.GitlabProjectCommit{},
+		&archived.GitlabPipeline{},
+		&archived.GitlabReviewer{},
+		&archived.GitlabMergeRequestNote{},
+		&archived.GitlabMergeRequestCommit{},
+		&archived.GitlabMergeRequestComment{},
+		&archived.GitlabUser{},
+		&archived.GitlabConnection{},
+		&archived.GitlabIssue{},
+		&archived.GitlabIssueLabel{},
+	)
+
+	if err != nil {
+		return err
+	}
+
+	conn := &archived.GitlabConnection{}
+	v := config.GetConfig()
+	encKey := v.GetString(core.EncodeKeyEnvStr)
+
+	conn.Name = "init gitlab connection"
+	conn.ID = 1
+	conn.Endpoint = v.GetString("GITLAB_ENDPOINT")
+	conn.Token, err = core.Encrypt(encKey, v.GetString("GITLAB_AUTH"))
+	if err != nil {
+		return err
+	}
+	conn.Proxy = v.GetString("GITLAB_PROXY")
+	conn.RateLimit = v.GetInt("GITLAB_API_REQUESTS_PER_HOUR")
+	fmt.Println(conn.Endpoint)
+	err = db.Clauses(clause.OnConflict{DoNothing: true}).Create(conn).Error
+
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 func (*InitSchemas) Version() uint64 {
-	return 20220407201136
+	return 20220614231236
 }
 
 func (*InitSchemas) Name() string {

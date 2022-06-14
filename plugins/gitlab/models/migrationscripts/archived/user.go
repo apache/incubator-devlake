@@ -17,13 +17,12 @@ limitations under the License.
 
 package archived
 
-import (
-	"github.com/apache/incubator-devlake/models/migrationscripts/archived"
-)
+import "github.com/apache/incubator-devlake/models/migrationscripts/archived"
 
 type GitlabUser struct {
-	Email string `gorm:"primaryKey;type:varchar(255)"`
-	Name  string `gorm:"type:varchar(255)"`
+	ConnectionId uint64 `gorm:"primaryKey"`
+	Email        string `gorm:"primaryKey;type:varchar(255)"`
+	Name         string `gorm:"type:varchar(255)"`
 	archived.NoPKModel
 }
 

@@ -18,12 +18,13 @@ limitations under the License.
 package archived
 
 import (
-	"time"
-
 	"github.com/apache/incubator-devlake/models/migrationscripts/archived"
+	"time"
 )
 
 type GitlabProject struct {
+	ConnectionId uint64 `gorm:"primaryKey"`
+
 	GitlabId                int    `gorm:"primaryKey"`
 	Name                    string `gorm:"type:varchar(255)"`
 	Description             string

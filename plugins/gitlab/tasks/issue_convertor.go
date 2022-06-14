@@ -67,7 +67,7 @@ func ConvertIssues(taskCtx core.SubTaskContext) error {
 			issue := inputRow.(*gitlabModels.GitlabIssue)
 			domainIssue := &ticket.Issue{
 				DomainEntity:            domainlayer.DomainEntity{Id: issueIdGen.Generate(issue.GitlabId)},
-				Number:                  strconv.Itoa(issue.Number),
+				IssueKey:                strconv.Itoa(issue.Number),
 				Title:                   issue.Title,
 				Description:             issue.Body,
 				Priority:                issue.Priority,
