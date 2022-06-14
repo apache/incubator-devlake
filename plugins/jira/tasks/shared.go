@@ -51,7 +51,7 @@ func GetStdStatus(statusKey string) string {
 
 func GetStatusInfo(db *gorm.DB) (map[string]models.JiraStatus, error) {
 	data := make([]models.JiraStatus, 0)
-	err := db.Table("_tool_jira_statuses").Scan(&data).Error
+	err := db.Model(&models.JiraStatus{}).Scan(&data).Error
 	if err != nil {
 		return nil, err
 	}

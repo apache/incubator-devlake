@@ -20,15 +20,28 @@ package migrationscripts
 import (
 	"context"
 
-	"github.com/apache/incubator-devlake/plugins/jira/models"
+	"github.com/apache/incubator-devlake/models/common"
 	"gorm.io/gorm"
 )
+
+type JiraStatus struct {
+	common.NoPKModel
+	ConnectionId   uint64 `gorm:"primaryKey"`
+	ID             string `gorm:"primaryKey"`
+	Name           string
+	Self           string
+	StatusCategory string
+}
+
+func (JiraStatus) TableName() string {
+	return "_tool_jira_statuses"
+}
 
 type UpdateSchemas20220614 struct{}
 
 func (*UpdateSchemas20220614) Up(ctx context.Context, db *gorm.DB) error {
 	return db.Migrator().AutoMigrate(
-		&models.JiraStatus{},
+		&JiraStatus{},
 	)
 }
 

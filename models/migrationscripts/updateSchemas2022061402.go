@@ -17,15 +17,32 @@ package migrationscripts
 
 import (
 	"context"
+	"time"
 
-	"github.com/apache/incubator-devlake/models/domainlayer/ticket"
+	"github.com/apache/incubator-devlake/models/domainlayer"
 	"gorm.io/gorm"
 )
+
+type Changelog struct {
+	domainlayer.DomainEntity
+
+	// collected fields
+	IssueId      string `gorm:"index;type:varchar(255)"`
+	AuthorId     string `gorm:"type:varchar(255)"`
+	AuthorName   string `gorm:"type:varchar(255)"`
+	FieldId      string `gorm:"type:varchar(255)"`
+	FieldName    string `gorm:"type:varchar(255)"`
+	FromValue    string
+	StandardFrom string
+	StandardTo   string
+	ToValue      string
+	CreatedDate  time.Time
+}
 
 type updateSchemas2022061402 struct{}
 
 func (*updateSchemas2022061402) Up(ctx context.Context, db *gorm.DB) error {
-	return db.Migrator().AutoMigrate(&ticket.Changelog{})
+	return db.Migrator().AutoMigrate(&Changelog{})
 }
 
 func (*updateSchemas2022061402) Version() uint64 {
