@@ -49,6 +49,15 @@ func GetStdStatus(statusKey string) string {
 	}
 }
 
-func GetStatusInfo(db *gorm.DB) ([]models.JiraStatus, error) {
-	return nil, nil
+func GetStatusInfo(db *gorm.DB) (map[string]models.JiraStatus, error) {
+	data := make([]models.JiraStatus, 0)
+	err := db.Table("_tool_jira_statuses").Scan(&data).Error
+	if err != nil {
+		return nil, err
+	}
+	statusMap := make(map[string]models.JiraStatus)
+	for _, v := range data {
+		statusMap[v.Name] = v
+	}
+	return statusMap, nil
 }

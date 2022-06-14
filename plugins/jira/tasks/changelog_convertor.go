@@ -46,6 +46,11 @@ func ConvertChangelogs(taskCtx core.SubTaskContext) error {
 	logger := taskCtx.GetLogger()
 	db := taskCtx.GetDb()
 	logger.Info("covert changelog")
+	statusMap, err := GetStatusInfo(db)
+	if err != nil {
+		logger.Error(err.Error())
+		return err
+	}
 	// select all changelogs belongs to the board
 	cursor, err := db.Table("_tool_jira_changelog_items").
 		Joins(`left join _tool_jira_changelogs on (
@@ -60,7 +65,7 @@ func ConvertChangelogs(taskCtx core.SubTaskContext) error {
 		Where("_tool_jira_changelog_items.connection_id = ? AND _tool_jira_board_issues.board_id = ?", connectionId, boardId).
 		Rows()
 	if err != nil {
-		logger.Info(err.Error())
+		logger.Error(err.Error())
 		return err
 	}
 	defer cursor.Close()
@@ -115,7 +120,14 @@ func ConvertChangelogs(taskCtx core.SubTaskContext) error {
 				}
 			}
 			if row.Field == "status" {
-
+				fromStatus, ok := statusMap[changelog.FromValue]
+				if ok {
+					changelog.StandardFrom = GetStdStatus(fromStatus.StatusCategory)
+				}
+				toStatus, ok := statusMap[changelog.ToValue]
+				if ok {
+					changelog.StandardTo = GetStdStatus(toStatus.StatusCategory)
+				}
 			}
 			return []interface{}{changelog}, nil
 		},
