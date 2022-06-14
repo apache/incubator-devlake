@@ -36,3 +36,7 @@ type Changelog struct {
 	ToValue     string
 	CreatedDate time.Time
 }
+
+func (Changelog) TableName() string {
+	return "changelogs"
+}

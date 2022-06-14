@@ -18,11 +18,12 @@ limitations under the License.
 package e2e
 
 import (
-	"github.com/apache/incubator-devlake/plugins/github/models"
 	"testing"
 
 	"github.com/apache/incubator-devlake/helpers/e2ehelper"
+	"github.com/apache/incubator-devlake/models/domainlayer/code"
 	"github.com/apache/incubator-devlake/plugins/gitlab/impl"
+	"github.com/apache/incubator-devlake/plugins/gitlab/models"
 	"github.com/apache/incubator-devlake/plugins/gitlab/tasks"
 )
 
@@ -42,10 +43,10 @@ func TestGitlabDataFlow(t *testing.T) {
 	dataflowTester.ImportCsv("./tables/_raw_gitlab_api_projects.csv", "_raw_gitlab_api_project")
 
 	// verify extraction
-	dataflowTester.MigrateTableAndFlush(&models.GithubIssue{})
+	dataflowTester.MigrateTableAndFlush(&models.GitlabProject{})
 	dataflowTester.Subtask(tasks.ExtractProjectMeta, taskData)
 	dataflowTester.CreateSnapshotOrVerify(
-		"_tool_gitlab_projects",
+		models.GitlabProject{},
 		"tables/_tool_gitlab_projects.csv",
 		[]string{"gitlab_id"},
 		[]string{
@@ -70,10 +71,10 @@ func TestGitlabDataFlow(t *testing.T) {
 	)
 
 	// verify conversion
-	dataflowTester.FlushTable("repos")
+	dataflowTester.MigrateTableAndFlush(&code.Repo{})
 	dataflowTester.Subtask(tasks.ConvertProjectMeta, taskData)
 	dataflowTester.CreateSnapshotOrVerify(
-		"repos",
+		code.Repo{},
 		"tables/repos.csv",
 		[]string{"id"},
 		[]string{

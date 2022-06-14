@@ -29,3 +29,7 @@ type IssueComment struct {
 	UserId      string `gorm:"type:varchar(255)"`
 	CreatedDate time.Time
 }
+
+func (IssueComment) TableName() string {
+	return "issue_comments"
+}

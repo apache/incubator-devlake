@@ -19,6 +19,7 @@ package e2e
 
 import (
 	"fmt"
+	"github.com/apache/incubator-devlake/models/domainlayer/crossdomain"
 	"github.com/apache/incubator-devlake/plugins/github/models"
 	"testing"
 
@@ -27,7 +28,7 @@ import (
 	"github.com/apache/incubator-devlake/plugins/github/tasks"
 )
 
-func TestIssueDataFlow(t *testing.T) {
+func TestPrEnrichIssueDataFlow(t *testing.T) {
 	var plugin impl.Github
 	dataflowTester := e2ehelper.NewDataFlowTester(t, "gitlab", plugin)
 
@@ -54,119 +55,46 @@ func TestIssueDataFlow(t *testing.T) {
 	}
 
 	// import raw data table
-	dataflowTester.ImportCsv("./raw_tables/_raw_github_api_issues.csv", "_raw_github_api_issues")
-
-	// verify extraction
-	dataflowTester.MigrateTableAndFlush(&models.GithubIssue{})
-	dataflowTester.Subtask(tasks.ExtractApiIssuesMeta, taskData)
-	dataflowTester.CreateSnapshotOrVerify(
-		models.GithubIssue{}.TableName(),
-		fmt.Sprintf("./snapshot_tables/%s.csv", models.GithubIssue{}.TableName()),
-		[]string{"github_id", "repo_id"},
-		[]string{
-			"number",
-			"state",
-			"title",
-			"body",
-			"priority",
-			"type",
-			"status",
-			"author_id",
-			"author_name",
-			"assignee_id",
-			"assignee_name",
-			"lead_time_minutes",
-			"url",
-			"closed_at",
-			"github_created_at",
-			"github_updated_at",
-			"severity",
-			"component",
-			"_raw_data_params",
-			"_raw_data_table",
-			"_raw_data_id",
-			"_raw_data_remark",
-		},
-	)
-
-	// import raw data table
 	dataflowTester.ImportCsv("./raw_tables/_raw_github_api_pull_requests.csv", "_raw_github_api_pull_requests")
 
 	// verify extraction
 	dataflowTester.MigrateTableAndFlush(&models.GithubPullRequest{})
 	dataflowTester.Subtask(tasks.ExtractApiPullRequestsMeta, taskData)
-	dataflowTester.CreateSnapshotOrVerify(
-		models.GithubPullRequest{}.TableName(),
-		fmt.Sprintf("./snapshot_tables/%s.csv", models.GithubPullRequest{}.TableName()),
-		[]string{"github_id", "repo_id"},
-		[]string{
-			"number",
-			"state",
-			"title",
-			"github_created_at",
-			"github_updated_at",
-			"closed_at",
-			"additions",
-			"deletions",
-			"comments",
-			"commits",
-			"review_comments",
-			"merged",
-			"merged_at",
-			"body",
-			"type",
-			"component",
-			"merge_commit_sha",
-			"head_ref",
-			"base_ref",
-			"base_commit_sha",
-			"head_commit_sha",
-			"url",
-			"author_name",
-			"author_id",
-			"_raw_data_params",
-			"_raw_data_table",
-			"_raw_data_id",
-			"_raw_data_remark",
-		},
-	)
 
 	// import raw data table
-	dataflowTester.ImportCsv("./raw_tables/_raw_github_api_comments.csv", "_raw_github_api_comments")
+	dataflowTester.ImportCsv("./raw_tables/_raw_github_api_issues.csv", "_raw_github_api_issues")
 
 	// verify extraction
-	dataflowTester.MigrateTableAndFlush(&models.GithubIssueComment{})
-	dataflowTester.MigrateTableAndFlush(&models.GithubPullRequestComment{})
-	dataflowTester.Subtask(tasks.ExtractApiCommentsMeta, taskData)
+	dataflowTester.MigrateTableAndFlush(&models.GithubIssue{})
+	dataflowTester.Subtask(tasks.ExtractApiIssuesMeta, taskData)
 
+	// verify extraction
+	dataflowTester.MigrateTableAndFlush(&models.GithubPullRequestIssue{})
+	dataflowTester.Subtask(tasks.EnrichPullRequestIssuesMeta, taskData)
 	dataflowTester.CreateSnapshotOrVerify(
-		models.GithubIssueComment{}.TableName(),
-		fmt.Sprintf("./snapshot_tables/%s.csv", models.GithubIssueComment{}.TableName()),
-		[]string{"github_id"},
+		models.GithubPullRequestIssue{},
+		fmt.Sprintf("./snapshot_tables/%s.csv", models.GithubPullRequestIssue{}.TableName()),
+		[]string{"pull_request_id", "issue_id"},
 		[]string{
-			"issue_id",
-			"body",
-			"author_username",
-			"author_user_id",
-			"github_created_at",
-			"github_updated_at",
+			"pull_request_number",
+			"issue_number",
 			"_raw_data_params",
 			"_raw_data_table",
 			"_raw_data_id",
 			"_raw_data_remark",
 		},
 	)
+
+	// verify extraction
+	dataflowTester.MigrateTableAndFlush(&crossdomain.PullRequestIssue{})
+	dataflowTester.Subtask(tasks.ConvertPullRequestIssuesMeta, taskData)
 	dataflowTester.CreateSnapshotOrVerify(
-		models.GithubPullRequestComment{}.TableName(),
-		fmt.Sprintf("./snapshot_tables/%s.csv", models.GithubPullRequestComment{}.TableName()),
-		[]string{"github_id"},
+		crossdomain.PullRequestIssue{},
+		fmt.Sprintf("./snapshot_tables/%s.csv", crossdomain.PullRequestIssue{}.TableName()),
+		[]string{"pull_request_id", "issue_id"},
 		[]string{
-			"pull_request_id",
-			"body",
-			"author_username",
-			"author_user_id",
-			"github_created_at",
-			"github_updated_at",
+			"pull_request_number",
+			"issue_number",
 			"_raw_data_params",
 			"_raw_data_table",
 			"_raw_data_id",

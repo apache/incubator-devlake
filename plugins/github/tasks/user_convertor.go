@@ -31,7 +31,7 @@ import (
 var ConvertUsersMeta = core.SubTaskMeta{
 	Name:             "convertUsers",
 	EntryPoint:       ConvertUsers,
-	EnabledByDefault: true,
+	EnabledByDefault: false,
 	Description:      "Convert tool layer table github_users into  domain layer table users",
 }
 

@@ -19,6 +19,8 @@ package e2e
 
 import (
 	"fmt"
+	"github.com/apache/incubator-devlake/models/domainlayer/code"
+	"github.com/apache/incubator-devlake/models/domainlayer/ticket"
 	"github.com/apache/incubator-devlake/plugins/github/models"
 	"testing"
 
@@ -53,7 +55,7 @@ func TestRepoDataFlow(t *testing.T) {
 	dataflowTester.MigrateTableAndFlush(&models.GithubRepo{})
 	dataflowTester.Subtask(tasks.ExtractApiRepoMeta, taskData)
 	dataflowTester.CreateSnapshotOrVerify(
-		models.GithubRepo{}.TableName(),
+		models.GithubRepo{},
 		fmt.Sprintf("./snapshot_tables/%s.csv", models.GithubRepo{}.TableName()),
 		[]string{"github_id"},
 		[]string{
@@ -69,6 +71,38 @@ func TestRepoDataFlow(t *testing.T) {
 			"_raw_data_table",
 			"_raw_data_id",
 			"_raw_data_remark",
+		},
+	)
+
+	// verify extraction
+	dataflowTester.MigrateTableAndFlush(&code.Repo{})
+	dataflowTester.MigrateTableAndFlush(&ticket.Board{})
+	dataflowTester.Subtask(tasks.ConvertRepoMeta, taskData)
+	dataflowTester.CreateSnapshotOrVerify(
+		code.Repo{},
+		fmt.Sprintf("./snapshot_tables/%s.csv", code.Repo{}.TableName()),
+		[]string{"id"},
+		[]string{
+			"name",
+			"url",
+			"description",
+			"owner_id",
+			"language",
+			"forked_from",
+			"created_date",
+			"updated_date",
+			"deleted",
+		},
+	)
+	dataflowTester.CreateSnapshotOrVerify(
+		ticket.Board{},
+		fmt.Sprintf("./snapshot_tables/%s.csv", ticket.Board{}.TableName()),
+		[]string{"id"},
+		[]string{
+			"name",
+			"description",
+			"url",
+			"created_date",
 		},
 	)
 }

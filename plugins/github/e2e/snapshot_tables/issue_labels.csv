@@ -1,0 +1,326 @@
+issue_id,label_name
+gitlab:GithubIssue:344278000,question
+gitlab:GithubIssue:346842831,question
+gitlab:GithubIssue:347255859,bug
+gitlab:GithubIssue:348630179,bug
+gitlab:GithubIssue:356703393,question
+gitlab:GithubIssue:381941219,enhancement
+gitlab:GithubIssue:382039050,question
+gitlab:GithubIssue:382574800,enhancement
+gitlab:GithubIssue:401277739,enhancement
+gitlab:GithubIssue:402513849,enhancement
+gitlab:GithubIssue:433564955,enhancement
+gitlab:GithubIssue:434069015,enhancement
+gitlab:GithubIssue:484923460,good first issue
+gitlab:GithubIssue:484923460,question
+gitlab:GithubIssue:491601411,help wanted
+gitlab:GithubIssue:491601411,good first issue
+gitlab:GithubIssue:492083734,bug
+gitlab:GithubIssue:492130196,question
+gitlab:GithubIssue:509545524,wontfix
+gitlab:GithubIssue:509545524,invalid
+gitlab:GithubIssue:513276141,help wanted
+gitlab:GithubIssue:513276141,proposal
+gitlab:GithubIssue:513276141,waiting for response
+gitlab:GithubIssue:515876300,question
+gitlab:GithubIssue:519634014,help wanted
+gitlab:GithubIssue:519634014,invalid
+gitlab:GithubIssue:519634014,waiting for response
+gitlab:GithubIssue:524118492,proposal
+gitlab:GithubIssue:524118492,waiting for response
+gitlab:GithubIssue:524800426,good first issue
+gitlab:GithubIssue:524800426,question
+gitlab:GithubIssue:524800426,proposal
+gitlab:GithubIssue:524906588,bug
+gitlab:GithubIssue:524907361,question
+gitlab:GithubIssue:524907361,waiting for response
+gitlab:GithubIssue:529767734,invalid
+gitlab:GithubIssue:529770094,question
+gitlab:GithubIssue:529770094,waiting for response
+gitlab:GithubIssue:530708513,waiting for response
+gitlab:GithubIssue:530708513,proposal
+gitlab:GithubIssue:537859668,question
+gitlab:GithubIssue:537859668,waiting for response
+gitlab:GithubIssue:538994753,proposal
+gitlab:GithubIssue:538994753,waiting for response
+gitlab:GithubIssue:542347075,help wanted
+gitlab:GithubIssue:542347075,question
+gitlab:GithubIssue:542347075,waiting for response
+gitlab:GithubIssue:543230040,help wanted
+gitlab:GithubIssue:543230040,question
+gitlab:GithubIssue:543230040,waiting for response
+gitlab:GithubIssue:543871027,help wanted
+gitlab:GithubIssue:543871027,question
+gitlab:GithubIssue:543871027,waiting for response
+gitlab:GithubIssue:548918163,help wanted
+gitlab:GithubIssue:548918163,question
+gitlab:GithubIssue:548918163,proposal
+gitlab:GithubIssue:548918163,waiting for response
+gitlab:GithubIssue:550305777,help wanted
+gitlab:GithubIssue:550305777,question
+gitlab:GithubIssue:550555088,help wanted
+gitlab:GithubIssue:550555088,question
+gitlab:GithubIssue:551948830,duplicate
+gitlab:GithubIssue:551948830,help wanted
+gitlab:GithubIssue:551948830,invalid
+gitlab:GithubIssue:551948830,question
+gitlab:GithubIssue:551948830,waiting for response
+gitlab:GithubIssue:553711776,help wanted
+gitlab:GithubIssue:553711776,question
+gitlab:GithubIssue:557507246,help wanted
+gitlab:GithubIssue:557507246,question
+gitlab:GithubIssue:576944665,bug
+gitlab:GithubIssue:583444295,help wanted
+gitlab:GithubIssue:583444295,question
+gitlab:GithubIssue:583444295,waiting for response
+gitlab:GithubIssue:590876739,help wanted
+gitlab:GithubIssue:590876739,question
+gitlab:GithubIssue:590876739,waiting for response
+gitlab:GithubIssue:598490848,help wanted
+gitlab:GithubIssue:598490848,question
+gitlab:GithubIssue:598491535,waiting for response
+gitlab:GithubIssue:598491535,help wanted
+gitlab:GithubIssue:598491535,question
+gitlab:GithubIssue:598516739,help wanted
+gitlab:GithubIssue:598516739,question
+gitlab:GithubIssue:599450188,waiting for response
+gitlab:GithubIssue:599450188,bug
+gitlab:GithubIssue:599450188,invalid
+gitlab:GithubIssue:607208427,duplicate
+gitlab:GithubIssue:607208427,help wanted
+gitlab:GithubIssue:607208427,question
+gitlab:GithubIssue:613752194,pending development
+gitlab:GithubIssue:613752194,proposal
+gitlab:GithubIssue:613752194,waiting for response
+gitlab:GithubIssue:624852492,proposal
+gitlab:GithubIssue:624852492,waiting for response
+gitlab:GithubIssue:624854806,invalid
+gitlab:GithubIssue:624854806,wontfix
+gitlab:GithubIssue:624854806,proposal
+gitlab:GithubIssue:624854806,waiting for response
+gitlab:GithubIssue:629156928,help wanted
+gitlab:GithubIssue:629156928,question
+gitlab:GithubIssue:629156928,waiting for response
+gitlab:GithubIssue:630445612,waiting for response
+gitlab:GithubIssue:630445612,help wanted
+gitlab:GithubIssue:630445612,invalid
+gitlab:GithubIssue:630445612,question
+gitlab:GithubIssue:638116396,duplicate
+gitlab:GithubIssue:638116396,bug
+gitlab:GithubIssue:638116396,help wanted
+gitlab:GithubIssue:638116396,waiting for response
+gitlab:GithubIssue:638596333,help wanted
+gitlab:GithubIssue:638596333,question
+gitlab:GithubIssue:638596333,waiting for response
+gitlab:GithubIssue:656493889,help wanted
+gitlab:GithubIssue:656493889,question
+gitlab:GithubIssue:656493889,waiting for response
+gitlab:GithubIssue:662892614,proposal
+gitlab:GithubIssue:662892614,wontfix
+gitlab:GithubIssue:662892614,waiting for response
+gitlab:GithubIssue:671575307,help wanted
+gitlab:GithubIssue:671575307,waiting for response
+gitlab:GithubIssue:671575307,question
+gitlab:GithubIssue:671575307,invalid
+gitlab:GithubIssue:675830456,question
+gitlab:GithubIssue:675830456,help wanted
+gitlab:GithubIssue:675845276,question
+gitlab:GithubIssue:675845276,help wanted
+gitlab:GithubIssue:675845276,duplicate
+gitlab:GithubIssue:683789291,waiting for response
+gitlab:GithubIssue:683789291,question
+gitlab:GithubIssue:683789291,help wanted
+gitlab:GithubIssue:692140116,question
+gitlab:GithubIssue:692140116,help wanted
+gitlab:GithubIssue:700343813,waiting for response
+gitlab:GithubIssue:719788673,help wanted
+gitlab:GithubIssue:719788673,question
+gitlab:GithubIssue:719993557,bug
+gitlab:GithubIssue:722994544,help wanted
+gitlab:GithubIssue:722994544,question
+gitlab:GithubIssue:724008505,question
+gitlab:GithubIssue:724008505,help wanted
+gitlab:GithubIssue:728597070,help wanted
+gitlab:GithubIssue:728597070,question
+gitlab:GithubIssue:729205618,help wanted
+gitlab:GithubIssue:729205618,question
+gitlab:GithubIssue:729205618,waiting for response
+gitlab:GithubIssue:730161470,question
+gitlab:GithubIssue:730161470,help wanted
+gitlab:GithubIssue:731239827,proposal
+gitlab:GithubIssue:736200176,waiting for response
+gitlab:GithubIssue:736200176,question
+gitlab:GithubIssue:736200176,help wanted
+gitlab:GithubIssue:737043014,help wanted
+gitlab:GithubIssue:737043014,question
+gitlab:GithubIssue:737434903,waiting for response
+gitlab:GithubIssue:737434903,help wanted
+gitlab:GithubIssue:737434903,question
+gitlab:GithubIssue:738170151,help wanted
+gitlab:GithubIssue:738170151,question
+gitlab:GithubIssue:738173237,help wanted
+gitlab:GithubIssue:738173237,question
+gitlab:GithubIssue:738174165,question
+gitlab:GithubIssue:738174165,help wanted
+gitlab:GithubIssue:741209727,question
+gitlab:GithubIssue:741209727,help wanted
+gitlab:GithubIssue:741209727,waiting for response
+gitlab:GithubIssue:755047477,question
+gitlab:GithubIssue:755047477,help wanted
+gitlab:GithubIssue:772339531,duplicate
+gitlab:GithubIssue:772339531,question
+gitlab:GithubIssue:772339531,help wanted
+gitlab:GithubIssue:802177721,proposal
+gitlab:GithubIssue:807765048,waiting for response
+gitlab:GithubIssue:807765048,question
+gitlab:GithubIssue:807765048,help wanted
+gitlab:GithubIssue:818082145,question
+gitlab:GithubIssue:818082145,help wanted
+gitlab:GithubIssue:818082145,waiting for response
+gitlab:GithubIssue:818372401,help wanted
+gitlab:GithubIssue:818372401,question
+gitlab:GithubIssue:818372401,waiting for response
+gitlab:GithubIssue:821650908,proposal
+gitlab:GithubIssue:823817947,help wanted
+gitlab:GithubIssue:823817947,question
+gitlab:GithubIssue:824927472,enhancement
+gitlab:GithubIssue:824927472,help wanted
+gitlab:GithubIssue:824927472,proposal
+gitlab:GithubIssue:824927472,waiting for response
+gitlab:GithubIssue:830099075,pending development
+gitlab:GithubIssue:830099075,waiting for response
+gitlab:GithubIssue:830099075,bug
+gitlab:GithubIssue:830908542,help wanted
+gitlab:GithubIssue:830908542,question
+gitlab:GithubIssue:830908542,waiting for response
+gitlab:GithubIssue:834309657,proposal
+gitlab:GithubIssue:834309657,needs investigation
+gitlab:GithubIssue:837779470,help wanted
+gitlab:GithubIssue:837779470,question
+gitlab:GithubIssue:838523489,help wanted
+gitlab:GithubIssue:838523489,waiting for response
+gitlab:GithubIssue:840918413,bug
+gitlab:GithubIssue:841138037,bug
+gitlab:GithubIssue:851256703,help wanted
+gitlab:GithubIssue:851256703,question
+gitlab:GithubIssue:857977427,help wanted
+gitlab:GithubIssue:857977427,question
+gitlab:GithubIssue:863400810,help wanted
+gitlab:GithubIssue:863400810,question
+gitlab:GithubIssue:864353725,help wanted
+gitlab:GithubIssue:864353725,question
+gitlab:GithubIssue:869939645,help wanted
+gitlab:GithubIssue:869939645,question
+gitlab:GithubIssue:890078421,invalid
+gitlab:GithubIssue:890078421,wontfix
+gitlab:GithubIssue:892678963,question
+gitlab:GithubIssue:892678963,help wanted
+gitlab:GithubIssue:898973379,proposal
+gitlab:GithubIssue:898973379,needs investigation
+gitlab:GithubIssue:898973379,waiting for response
+gitlab:GithubIssue:907118378,question
+gitlab:GithubIssue:907118378,help wanted
+gitlab:GithubIssue:907293042,help wanted
+gitlab:GithubIssue:907293042,question
+gitlab:GithubIssue:907817424,bug
+gitlab:GithubIssue:913065024,bug
+gitlab:GithubIssue:913065024,waiting for response
+gitlab:GithubIssue:918864340,question
+gitlab:GithubIssue:918864340,help wanted
+gitlab:GithubIssue:930705346,question
+gitlab:GithubIssue:930705346,help wanted
+gitlab:GithubIssue:931106727,help wanted
+gitlab:GithubIssue:931106727,question
+gitlab:GithubIssue:931106727,waiting for response
+gitlab:GithubIssue:932236472,question
+gitlab:GithubIssue:932236472,help wanted
+gitlab:GithubIssue:938708991,question
+gitlab:GithubIssue:938708991,help wanted
+gitlab:GithubIssue:938708991,waiting for response
+gitlab:GithubIssue:946771746,help wanted
+gitlab:GithubIssue:946771746,question
+gitlab:GithubIssue:951582378,question
+gitlab:GithubIssue:951582378,proposal
+gitlab:GithubIssue:951582378,waiting for response
+gitlab:GithubIssue:953856676,bug
+gitlab:GithubIssue:953963592,bug
+gitlab:GithubIssue:953963592,waiting for response
+gitlab:GithubIssue:959089879,proposal
+gitlab:GithubIssue:959089879,waiting for response
+gitlab:GithubIssue:971116711,bug
+gitlab:GithubIssue:971116711,waiting for response
+gitlab:GithubIssue:971511276,question
+gitlab:GithubIssue:971511276,help wanted
+gitlab:GithubIssue:984782442,proposal
+gitlab:GithubIssue:984782442,invalid
+gitlab:GithubIssue:984782442,waiting for response
+gitlab:GithubIssue:987520012,proposal
+gitlab:GithubIssue:1022229785,help wanted
+gitlab:GithubIssue:1022229785,question
+gitlab:GithubIssue:1024790716,question
+gitlab:GithubIssue:1024790716,waiting for response
+gitlab:GithubIssue:1024790716,help wanted
+gitlab:GithubIssue:1025263959,proposal
+gitlab:GithubIssue:1025263959,waiting for response
+gitlab:GithubIssue:1028877423,help wanted
+gitlab:GithubIssue:1028877423,question
+gitlab:GithubIssue:1028877423,waiting for response
+gitlab:GithubIssue:1047896477,question
+gitlab:GithubIssue:1047896477,help wanted
+gitlab:GithubIssue:1054484973,help wanted
+gitlab:GithubIssue:1054484973,question
+gitlab:GithubIssue:1058613251,help wanted
+gitlab:GithubIssue:1058613251,question
+gitlab:GithubIssue:1060770678,bug
+gitlab:GithubIssue:1074045507,help wanted
+gitlab:GithubIssue:1074045507,question
+gitlab:GithubIssue:1074084207,question
+gitlab:GithubIssue:1074084207,help wanted
+gitlab:GithubIssue:1076267066,question
+gitlab:GithubIssue:1076267066,help wanted
+gitlab:GithubIssue:1078047238,bug
+gitlab:GithubIssue:1080729448,question
+gitlab:GithubIssue:1080729448,help wanted
+gitlab:GithubIssue:1083013181,help wanted
+gitlab:GithubIssue:1083013181,question
+gitlab:GithubIssue:1094905000,question
+gitlab:GithubIssue:1094905000,pending development
+gitlab:GithubIssue:1094905000,help wanted
+gitlab:GithubIssue:1101114607,question
+gitlab:GithubIssue:1101114607,help wanted
+gitlab:GithubIssue:1103820475,help wanted
+gitlab:GithubIssue:1103820475,question
+gitlab:GithubIssue:1103820475,invalid
+gitlab:GithubIssue:1108986026,question
+gitlab:GithubIssue:1108986026,help wanted
+gitlab:GithubIssue:1108986026,waiting for response
+gitlab:GithubIssue:1127816236,bug
+gitlab:GithubIssue:1127816236,pending development
+gitlab:GithubIssue:1142268611,bug
+gitlab:GithubIssue:1142268611,needs investigation
+gitlab:GithubIssue:1174810786,question
+gitlab:GithubIssue:1174810786,help wanted
+gitlab:GithubIssue:1174907155,help wanted
+gitlab:GithubIssue:1174907155,question
+gitlab:GithubIssue:1196996550,bug
+gitlab:GithubIssue:1196996550,invalid
+gitlab:GithubIssue:1201065478,question
+gitlab:GithubIssue:1201065478,help wanted
+gitlab:GithubIssue:1201065478,waiting for response
+gitlab:GithubIssue:1206125988,proposal
+gitlab:GithubIssue:1210377843,help wanted
+gitlab:GithubIssue:1210377843,question
+gitlab:GithubIssue:1210377843,waiting for response
+gitlab:GithubIssue:1215362122,question
+gitlab:GithubIssue:1215362122,help wanted
+gitlab:GithubIssue:1243368453,help wanted
+gitlab:GithubIssue:1243368453,question
+gitlab:GithubIssue:1244030382,proposal
+gitlab:GithubIssue:1253913230,question
+gitlab:GithubIssue:1253913230,help wanted
+gitlab:GithubIssue:1257847610,question
+gitlab:GithubIssue:1257847610,help wanted
+gitlab:GithubIssue:1262980710,help wanted
+gitlab:GithubIssue:1262980710,question
+gitlab:GithubIssue:1264107782,question
+gitlab:GithubIssue:1264107782,help wanted

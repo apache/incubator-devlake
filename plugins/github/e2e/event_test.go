@@ -49,7 +49,7 @@ func TestEventDataFlow(t *testing.T) {
 	dataflowTester.MigrateTableAndFlush(&models.GithubIssueEvent{})
 	dataflowTester.Subtask(tasks.ExtractApiEventsMeta, taskData)
 	dataflowTester.CreateSnapshotOrVerify(
-		models.GithubIssueEvent{}.TableName(),
+		models.GithubIssueEvent{},
 		fmt.Sprintf("./snapshot_tables/%s.csv", models.GithubIssueEvent{}.TableName()),
 		[]string{"github_id"},
 		[]string{

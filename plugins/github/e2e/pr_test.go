@@ -19,6 +19,7 @@ package e2e
 
 import (
 	"fmt"
+	"github.com/apache/incubator-devlake/models/domainlayer/code"
 	"github.com/apache/incubator-devlake/plugins/github/models"
 	"testing"
 
@@ -60,7 +61,7 @@ func TestPrDataFlow(t *testing.T) {
 	dataflowTester.MigrateTableAndFlush(&models.GithubPullRequest{})
 	dataflowTester.Subtask(tasks.ExtractApiPullRequestsMeta, taskData)
 	dataflowTester.CreateSnapshotOrVerify(
-		models.GithubPullRequest{}.TableName(),
+		models.GithubPullRequest{},
 		fmt.Sprintf("./snapshot_tables/%s.csv", models.GithubPullRequest{}.TableName()),
 		[]string{"github_id", "repo_id"},
 		[]string{
@@ -95,6 +96,16 @@ func TestPrDataFlow(t *testing.T) {
 		},
 	)
 
+	// verify extraction
+	dataflowTester.MigrateTableAndFlush(&models.GithubPullRequestLabel{})
+	dataflowTester.Subtask(tasks.ExtractApiPullRequestsMeta, taskData)
+	dataflowTester.CreateSnapshotOrVerify(
+		models.GithubPullRequestLabel{},
+		fmt.Sprintf("./snapshot_tables/%s.csv", models.GithubPullRequestLabel{}.TableName()),
+		[]string{"pull_id", "label_name"},
+		[]string{},
+	)
+
 	// import raw data table
 	dataflowTester.ImportCsv("./raw_tables/_raw_github_api_pull_request_commits.csv", "_raw_github_api_pull_request_commits")
 
@@ -102,7 +113,7 @@ func TestPrDataFlow(t *testing.T) {
 	dataflowTester.MigrateTableAndFlush(&models.GithubCommit{})
 	dataflowTester.Subtask(tasks.ExtractApiPullRequestCommitsMeta, taskData)
 	dataflowTester.CreateSnapshotOrVerify(
-		models.GithubCommit{}.TableName(),
+		models.GithubCommit{},
 		fmt.Sprintf("./snapshot_tables/%s.csv", models.GithubCommit{}.TableName()),
 		[]string{"sha"},
 		[]string{
@@ -132,7 +143,7 @@ func TestPrDataFlow(t *testing.T) {
 	dataflowTester.MigrateTableAndFlush(&models.GithubReviewer{})
 	dataflowTester.Subtask(tasks.ExtractApiPullRequestReviewsMeta, taskData)
 	dataflowTester.CreateSnapshotOrVerify(
-		models.GithubReviewer{}.TableName(),
+		models.GithubReviewer{},
 		fmt.Sprintf("./snapshot_tables/%s.csv", models.GithubReviewer{}.TableName()),
 		[]string{"github_id", "login", "pull_request_id"},
 		[]string{
@@ -141,5 +152,57 @@ func TestPrDataFlow(t *testing.T) {
 			"_raw_data_id",
 			"_raw_data_remark",
 		},
+	)
+
+	// verify extraction
+	dataflowTester.MigrateTableAndFlush(&code.PullRequestCommit{})
+	dataflowTester.Subtask(tasks.ConvertPullRequestCommitsMeta, taskData)
+	dataflowTester.CreateSnapshotOrVerify(
+		code.PullRequestCommit{},
+		fmt.Sprintf("./snapshot_tables/%s.csv", code.PullRequestCommit{}.TableName()),
+		[]string{"commit_sha", "pull_request_id"},
+		[]string{},
+	)
+
+	// verify extraction
+	dataflowTester.MigrateTableAndFlush(&code.PullRequest{})
+	dataflowTester.Subtask(tasks.ConvertPullRequestsMeta, taskData)
+	dataflowTester.CreateSnapshotOrVerify(
+		code.PullRequest{},
+		fmt.Sprintf("./snapshot_tables/%s.csv", code.PullRequest{}.TableName()),
+		[]string{"id"},
+		[]string{
+			"base_repo_id",
+			"head_repo_id",
+			"status",
+			"number",
+			"title",
+			"description",
+			"url",
+			"author_name",
+			"author_id",
+			"parent_pr_id",
+			"pull_request_key",
+			"created_date",
+			"merged_date",
+			"closed_date",
+			"type",
+			"component",
+			"merge_commit_sha",
+			"head_ref",
+			"base_ref",
+			"base_commit_sha",
+			"head_commit_sha",
+		},
+	)
+
+	// verify extraction
+	dataflowTester.MigrateTableAndFlush(&code.PullRequestLabel{})
+	dataflowTester.Subtask(tasks.ConvertPullRequestLabelsMeta, taskData)
+	dataflowTester.CreateSnapshotOrVerify(
+		code.PullRequestLabel{},
+		fmt.Sprintf("./snapshot_tables/%s.csv", code.PullRequestLabel{}.TableName()),
+		[]string{"pull_request_id", "label_name"},
+		[]string{},
 	)
 }

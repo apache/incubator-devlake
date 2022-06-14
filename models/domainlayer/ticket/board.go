@@ -32,8 +32,16 @@ type Board struct {
 	CreatedDate *time.Time
 }
 
+func (Board) TableName() string {
+	return "boards"
+}
+
 type BoardSprint struct {
 	common.NoPKModel
 	BoardId  string `gorm:"primaryKey;type:varchar(255)"`
 	SprintId string `gorm:"primaryKey;type:varchar(255)"`
+}
+
+func (BoardSprint) TableName() string {
+	return "board_sprints"
 }

@@ -40,10 +40,18 @@ type Commit struct {
 	CommitterId    string `gorm:"index;type:varchar(255)"`
 }
 
+func (Commit) TableName() string {
+	return "commits"
+}
+
 type CommitFile struct {
 	common.NoPKModel
 	CommitSha string `gorm:"primaryKey;type:varchar(40)"`
 	FilePath  string `gorm:"primaryKey;type:varchar(255)"`
 	Additions int
 	Deletions int
+}
+
+func (CommitFile) TableName() string {
+	return "commit_files"
 }

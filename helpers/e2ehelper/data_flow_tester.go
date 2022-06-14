@@ -133,7 +133,7 @@ func (t *DataFlowTester) MigrateTableAndFlush(dst schema.Tabler) {
 	if err != nil {
 		panic(err)
 	}
-	err = t.Db.Exec(fmt.Sprintf("DELETE FROM %s", dst.TableName())).Error
+	err = t.Db.Delete(dst, `true`).Error
 	if err != nil {
 		panic(err)
 	}
@@ -160,10 +160,10 @@ func (t *DataFlowTester) Subtask(subtaskMeta core.SubTaskMeta, taskData interfac
 // VerifyTable reads rows from csv file and compare with records from database one by one. You must specified the
 // Primary Key Fields with `pkfields` so DataFlowTester could select the exact record from database, as well as which
 // fields to compare with by specifying `targetfields` parameter.
-func (t *DataFlowTester) CreateSnapshotOrVerify(tableName string, csvRelPath string, pkfields []string, targetfields []string) {
+func (t *DataFlowTester) CreateSnapshotOrVerify(dst schema.Tabler, csvRelPath string, pkfields []string, targetfields []string) {
 	_, err := os.Stat(csvRelPath)
 	if err == nil {
-		t.VerifyTable(tableName, csvRelPath, pkfields, targetfields)
+		t.VerifyTable(dst, csvRelPath, pkfields, targetfields)
 		return
 	}
 
@@ -171,7 +171,7 @@ func (t *DataFlowTester) CreateSnapshotOrVerify(tableName string, csvRelPath str
 	allFields = append(pkfields, targetfields...)
 	dbCursor, err := t.Dal.Cursor(
 		dal.Select(strings.Join(allFields, `,`)),
-		dal.From(tableName),
+		dal.From(dst.TableName()),
 	)
 	if err != nil {
 		panic(err)
@@ -221,7 +221,7 @@ func (t *DataFlowTester) CreateSnapshotOrVerify(tableName string, csvRelPath str
 // VerifyTable reads rows from csv file and compare with records from database one by one. You must specified the
 // Primary Key Fields with `pkfields` so DataFlowTester could select the exact record from database, as well as which
 // fields to compare with by specifying `targetfields` parameter.
-func (t *DataFlowTester) VerifyTable(tableName string, csvRelPath string, pkfields []string, targetfields []string) {
+func (t *DataFlowTester) VerifyTable(dst schema.Tabler, csvRelPath string, pkfields []string, targetfields []string) {
 	csvIter := pluginhelper.NewCsvFileIterator(csvRelPath)
 	defer csvIter.Close()
 
@@ -237,7 +237,7 @@ func (t *DataFlowTester) VerifyTable(tableName string, csvRelPath string, pkfiel
 		for _, field := range pkfields {
 			where = append(where, fmt.Sprintf(" %s = ?", field))
 		}
-		err := t.Db.Table(tableName).Where(strings.Join(where, ` AND `), pkvalues...).Find(actual).Error
+		err := t.Db.Table(dst.TableName()).Where(strings.Join(where, ` AND `), pkvalues...).Find(actual).Error
 		if err != nil {
 			panic(err)
 		}
@@ -254,13 +254,13 @@ func (t *DataFlowTester) VerifyTable(tableName string, csvRelPath string, pkfiel
 					actualValue = fmt.Sprint(actual[field])
 				}
 			}
-			assert.Equal(t.T, expected[field], actualValue, fmt.Sprintf(`%s.%s not match`, tableName, field))
+			assert.Equal(t.T, expected[field], actualValue, fmt.Sprintf(`%s.%s not match`, dst.TableName(), field))
 		}
 		expectedTotal++
 	}
 
 	var actualTotal int64
-	err := t.Db.Table(tableName).Count(&actualTotal).Error
+	err := t.Db.Table(dst.TableName()).Count(&actualTotal).Error
 	if err != nil {
 		panic(err)
 	}
