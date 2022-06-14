@@ -15,34 +15,19 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package tasks
+package models
 
-import (
-	"net/http"
+import "github.com/apache/incubator-devlake/models/common"
 
-	"github.com/apache/incubator-devlake/models/domainlayer/ticket"
-	"github.com/apache/incubator-devlake/plugins/helper"
-)
-
-func GetTotalPagesFromResponse(res *http.Response, args *helper.ApiCollectorArgs) (int, error) {
-	body := &JiraPagination{}
-	err := helper.UnmarshalResponse(res, body)
-	if err != nil {
-		return 0, err
-	}
-	pages := body.Total / args.PageSize
-	if body.Total%args.PageSize > 0 {
-		pages++
-	}
-	return pages, nil
+type JiraStatus struct {
+	common.NoPKModel
+	ConnectionId   uint64 `gorm:"primaryKey"`
+	ID             string `gorm:"primaryKey"`
+	Name           string
+	Self           string
+	StatusCategory string
 }
 
-func GetStdStatus(statusKey string) string {
-	if statusKey == "done" {
-		return ticket.DONE
-	} else if statusKey == "new" {
-		return ticket.TODO
-	} else {
-		return ticket.IN_PROGRESS
-	}
+func (JiraStatus) TableName() string {
+	return "_tool_jira_statuses"
 }

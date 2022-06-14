@@ -15,34 +15,27 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package tasks
+package migrationscripts
 
 import (
-	"net/http"
+	"context"
 
-	"github.com/apache/incubator-devlake/models/domainlayer/ticket"
-	"github.com/apache/incubator-devlake/plugins/helper"
+	"github.com/apache/incubator-devlake/plugins/jira/models"
+	"gorm.io/gorm"
 )
 
-func GetTotalPagesFromResponse(res *http.Response, args *helper.ApiCollectorArgs) (int, error) {
-	body := &JiraPagination{}
-	err := helper.UnmarshalResponse(res, body)
-	if err != nil {
-		return 0, err
-	}
-	pages := body.Total / args.PageSize
-	if body.Total%args.PageSize > 0 {
-		pages++
-	}
-	return pages, nil
+type UpdateSchemas20220614 struct{}
+
+func (*UpdateSchemas20220614) Up(ctx context.Context, db *gorm.DB) error {
+	return db.Migrator().AutoMigrate(
+		&models.JiraStatus{},
+	)
 }
 
-func GetStdStatus(statusKey string) string {
-	if statusKey == "done" {
-		return ticket.DONE
-	} else if statusKey == "new" {
-		return ticket.TODO
-	} else {
-		return ticket.IN_PROGRESS
-	}
+func (*UpdateSchemas20220614) Version() uint64 {
+	return 20220614112900
+}
+
+func (*UpdateSchemas20220614) Name() string {
+	return "add jira status"
 }
