@@ -51,7 +51,7 @@ type PullRequestCommit struct {
 		Email string
 		Date  helper.Iso8601Time
 	}
-	Message string
+	Message json.RawMessage
 }
 
 func ExtractApiPullRequestCommits(taskCtx core.SubTaskContext) error {
@@ -117,7 +117,7 @@ func ExtractApiPullRequestCommits(taskCtx core.SubTaskContext) error {
 func convertPullRequestCommit(prCommit *PrCommitsResponse) (*models.GithubCommit, error) {
 	githubCommit := &models.GithubCommit{
 		Sha:            prCommit.Sha,
-		Message:        prCommit.Commit.Message,
+		Message:        string(prCommit.Commit.Message),
 		AuthorId:       prCommit.Commit.Author.Id,
 		AuthorName:     prCommit.Commit.Author.Name,
 		AuthorEmail:    prCommit.Commit.Author.Email,
