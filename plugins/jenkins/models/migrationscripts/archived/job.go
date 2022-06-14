@@ -23,10 +23,12 @@ import (
 
 // JenkinsJobProps current used jenkins job props
 type JenkinsJobProps struct {
-	Name  string `gorm:"primaryKey;type:varchar(255)"`
-	Class string `gorm:"type:varchar(255)"`
-	Color string `gorm:"type:varchar(255)"`
-	Base  string `gorm:"type:varchar(255)"`
+	// collected fields
+	ConnectionId uint64 `gorm:"primaryKey"`
+	Name         string `gorm:"primaryKey;type:varchar(255)"`
+	Class        string `gorm:"type:varchar(255)"`
+	Color        string `gorm:"type:varchar(255)"`
+	Base         string `gorm:"type:varchar(255)"`
 }
 
 // JenkinsJob db entity for jenkins job

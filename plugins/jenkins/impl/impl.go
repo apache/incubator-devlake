@@ -100,9 +100,6 @@ func (plugin Jenkins) RootPkgPath() string {
 func (plugin Jenkins) MigrationScripts() []migration.Script {
 	return []migration.Script{
 		new(migrationscripts.InitSchemas),
-		new(migrationscripts.UpdateSchemas20220607),
-		new(migrationscripts.UpdateSchemas20220609),
-		new(migrationscripts.UpdateSchemas20220610),
 	}
 }
 

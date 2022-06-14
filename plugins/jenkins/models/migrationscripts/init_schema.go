@@ -19,22 +19,73 @@ package migrationscripts
 
 import (
 	"context"
+	"fmt"
 
+	"github.com/apache/incubator-devlake/config"
+	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/jenkins/models/migrationscripts/archived"
 	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
 )
 
 type InitSchemas struct{}
 
 func (*InitSchemas) Up(ctx context.Context, db *gorm.DB) error {
-	return db.Migrator().AutoMigrate(
+
+	rawTableList := []string{
+		"_raw_jenkins_api_jobs",
+		"_raw_jenkins_api_builds",
+	}
+	for _, v := range rawTableList {
+		err := db.Exec(fmt.Sprintf("DROP TABLE IF EXISTS %s CASCADE", v)).Error
+		if err != nil {
+			return err
+		}
+	}
+
+	err := db.Migrator().DropTable(
 		&archived.JenkinsJob{},
 		&archived.JenkinsBuild{},
 	)
+	if err != nil {
+		return err
+	}
+
+	err = db.Migrator().AutoMigrate(
+		&archived.JenkinsJob{},
+		&archived.JenkinsBuild{},
+		&archived.JenkinsConnection{},
+	)
+	if err != nil {
+		return err
+	}
+
+	conn := &archived.JenkinsConnection{}
+	v := config.GetConfig()
+
+	conn.Name = "init jenkins connection"
+	conn.ID = 1
+	conn.Endpoint = v.GetString("JENKINS_ENDPOINT")
+	conn.Proxy = v.GetString("JENKINS_PROXY")
+	conn.RateLimit = v.GetInt("JENKINS_API_REQUESTS_PER_HOUR")
+	conn.Username = v.GetString("JENKINS_USERNAME")
+	encKey := v.GetString(core.EncodeKeyEnvStr)
+	conn.Password, err = core.Encrypt(encKey, v.GetString("JENKINS_PASSWORD"))
+	if err != nil {
+		return err
+	}
+	err = db.Clauses(clause.OnConflict{DoNothing: true}).Create(conn).Error
+
+	if err != nil {
+		return err
+	}
+
+	return nil
+
 }
 
 func (*InitSchemas) Version() uint64 {
-	return 20220407201137
+	return 20220614201236
 }
 
 func (*InitSchemas) Name() string {

@@ -20,32 +20,29 @@ package migrationscripts
 import (
 	"context"
 
-	jenkinsArchived "github.com/apache/incubator-devlake/plugins/jenkins/models/migrationscripts/archived"
+	"github.com/apache/incubator-devlake/models/migrationscripts/archived"
 	"gorm.io/gorm"
 )
 
-type JenkinsConnection20220607 struct {
-	jenkinsArchived.JenkinsConnection
-}
+type updateSchemas20220614 struct{}
 
-func (JenkinsConnection20220607) TableName() string {
-	return "_tool_jenkins_connections"
-}
-
-type UpdateSchemas20220607 struct{}
-
-func (*UpdateSchemas20220607) Up(ctx context.Context, db *gorm.DB) error {
-	err := db.Migrator().CreateTable(&JenkinsConnection20220607{})
+func (*updateSchemas20220614) Up(ctx context.Context, db *gorm.DB) error {
+	err := db.Migrator().DropTable(&archived.Job{}, &archived.Build{})
 	if err != nil {
 		return err
 	}
+	err = db.Migrator().CreateTable(&archived.Job{}, &archived.Build{})
+	if err != nil {
+		return err
+	}
+
 	return nil
 }
 
-func (*UpdateSchemas20220607) Version() uint64 {
-	return 20220607154646
+func (*updateSchemas20220614) Version() uint64 {
+	return 20220614154333
 }
 
-func (*UpdateSchemas20220607) Name() string {
-	return "add table _tool_jenkins_connections"
+func (*updateSchemas20220614) Name() string {
+	return "drop tables jobs and builds"
 }

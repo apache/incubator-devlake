@@ -43,3 +43,20 @@ type JenkinsConnection struct {
 	RestConnection `mapstructure:",squash"`
 	BasicAuth      `mapstructure:",squash"`
 }
+
+type JenkinsResponse struct {
+	ID   int    `json:"id"`
+	Name string `json:"name"`
+	JenkinsConnection
+}
+
+type TestConnectionRequest struct {
+	Endpoint string `json:"endpoint" validate:"required"`
+	Username string `json:"username" validate:"required"`
+	Password string `json:"password" validate:"required"`
+	Proxy    string `json:"proxy"`
+}
+
+func (JenkinsConnection) TableName() string {
+	return "_tool_jenkins_connections"
+}

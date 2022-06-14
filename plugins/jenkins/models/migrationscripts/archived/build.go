@@ -26,12 +26,15 @@ import (
 // JenkinsBuild db entity for jenkins build
 type JenkinsBuild struct {
 	archived.NoPKModel
-	JobName           string  `gorm:"primaryKey;type:varchar(255)"`
-	Duration          float64 // build time
-	DisplayName       string  `gorm:"type:varchar(255)"` // "#7"
-	EstimatedDuration float64
-	Number            int64 `gorm:"primaryKey"`
-	Result            string
+
+	// collected fields
+	ConnectionId      uint64    `gorm:"primaryKey"`
+	JobName           string    `gorm:"primaryKey;type:varchar(255)"`
+	Duration          float64   // build time
+	DisplayName       string    `gorm:"type:varchar(255)"`
+	EstimatedDuration float64   // EstimatedDuration
+	Number            int64     `gorm:"primaryKey"`
+	Result            string    // Result
 	Timestamp         int64     // start time
 	StartTime         time.Time // convered by timestamp
 	CommitSha         string    `gorm:"type:varchar(255)"`
