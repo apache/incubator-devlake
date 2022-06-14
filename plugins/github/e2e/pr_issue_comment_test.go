@@ -39,6 +39,9 @@ func TestIssueDataFlow(t *testing.T) {
 			Owner: "panjf2000",
 			Repo:  "ants",
 			Config: models.Config{
+				PrType:               "type/(.*)$",
+				PrComponent:          "component/(.*)$",
+				PrBodyClosePattern:   "(?mi)(fix|close|resolve|fixes|closes|resolves|fixed|closed|resolved)[\\s]*.*(((and )?(#|https:\\/\\/github.com\\/%s\\/%s\\/issues\\/)\\d+[ ]*)+)",
 				IssueSeverity:        "severity/(.*)$",
 				IssuePriority:        "^(highest|high|medium|low)$",
 				IssueComponent:       "component/(.*)$",
@@ -121,6 +124,49 @@ func TestIssueDataFlow(t *testing.T) {
 			"url",
 			"author_name",
 			"author_id",
+			"_raw_data_params",
+			"_raw_data_table",
+			"_raw_data_id",
+			"_raw_data_remark",
+		},
+	)
+
+	// import raw data table
+	dataflowTester.ImportCsv("./raw_tables/_raw_github_api_comments.csv", "_raw_github_api_comments")
+
+	// verify extraction
+	dataflowTester.MigrateTableAndFlush(&models.GithubIssueComment{})
+	dataflowTester.MigrateTableAndFlush(&models.GithubPullRequestComment{})
+	dataflowTester.Subtask(tasks.ExtractApiCommentsMeta, taskData)
+
+	dataflowTester.CreateSnapshotOrVerify(
+		models.GithubIssueComment{}.TableName(),
+		fmt.Sprintf("./snapshot_tables/%s.csv", models.GithubIssueComment{}.TableName()),
+		[]string{"github_id"},
+		[]string{
+			"issue_id",
+			"body",
+			"author_username",
+			"author_user_id",
+			"github_created_at",
+			"github_updated_at",
+			"_raw_data_params",
+			"_raw_data_table",
+			"_raw_data_id",
+			"_raw_data_remark",
+		},
+	)
+	dataflowTester.CreateSnapshotOrVerify(
+		models.GithubPullRequestComment{}.TableName(),
+		fmt.Sprintf("./snapshot_tables/%s.csv", models.GithubPullRequestComment{}.TableName()),
+		[]string{"github_id"},
+		[]string{
+			"pull_request_id",
+			"body",
+			"author_username",
+			"author_user_id",
+			"github_created_at",
+			"github_updated_at",
 			"_raw_data_params",
 			"_raw_data_table",
 			"_raw_data_id",

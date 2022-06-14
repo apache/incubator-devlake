@@ -254,7 +254,7 @@ func (t *DataFlowTester) VerifyTable(tableName string, csvRelPath string, pkfiel
 					actualValue = fmt.Sprint(actual[field])
 				}
 			}
-			assert.Equal(t.T, expected[field], actualValue)
+			assert.Equal(t.T, expected[field], actualValue, fmt.Sprintf(`%s.%s not match`, tableName, field))
 		}
 		expectedTotal++
 	}

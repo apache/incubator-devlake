@@ -27,7 +27,7 @@ import (
 	"github.com/apache/incubator-devlake/plugins/github/tasks"
 )
 
-func TestPrDataFlow(t *testing.T) {
+func TestEventDataFlow(t *testing.T) {
 	var plugin impl.Github
 	dataflowTester := e2ehelper.NewDataFlowTester(t, "gitlab", plugin)
 
@@ -38,49 +38,25 @@ func TestPrDataFlow(t *testing.T) {
 		Options: &tasks.GithubOptions{
 			Owner: "panjf2000",
 			Repo:  "ants",
-			Config: models.Config{
-				PrType:      "type/(.*)$",
-				PrComponent: "component/(.*)$",
-			},
 		},
 		Repo: githubRepository,
 	}
 
 	// import raw data table
-	dataflowTester.ImportCsv("./raw_tables/_raw_github_api_pull_requests.csv", "_raw_github_api_pull_requests")
+	dataflowTester.ImportCsv("./raw_tables/_raw_github_api_events.csv", "_raw_github_api_events")
 
 	// verify extraction
-	dataflowTester.MigrateTableAndFlush(&models.GithubPullRequest{})
-	dataflowTester.Subtask(tasks.ExtractApiPullRequestsMeta, taskData)
+	dataflowTester.MigrateTableAndFlush(&models.GithubIssueEvent{})
+	dataflowTester.Subtask(tasks.ExtractApiEventsMeta, taskData)
 	dataflowTester.CreateSnapshotOrVerify(
-		models.GithubPullRequest{}.TableName(),
-		fmt.Sprintf("./snapshot_tables/%s.csv", models.GithubPullRequest{}.TableName()),
-		[]string{"github_id", "repo_id"},
+		models.GithubIssueEvent{}.TableName(),
+		fmt.Sprintf("./snapshot_tables/%s.csv", models.GithubIssueEvent{}.TableName()),
+		[]string{"github_id"},
 		[]string{
-			"number",
-			"state",
-			"title",
-			"github_created_at",
-			"github_updated_at",
-			"closed_at",
-			"additions",
-			"deletions",
-			"comments",
-			"commits",
-			"review_comments",
-			"merged",
-			"merged_at",
-			"body",
+			"issue_id",
 			"type",
-			"component",
-			"merge_commit_sha",
-			"head_ref",
-			"base_ref",
-			"base_commit_sha",
-			"head_commit_sha",
-			"url",
-			"author_name",
-			"author_id",
+			"author_username",
+			"github_created_at",
 			"_raw_data_params",
 			"_raw_data_table",
 			"_raw_data_id",
