@@ -36,7 +36,7 @@ var ExtractApiCommentsMeta = core.SubTaskMeta{
 
 type IssueComment struct {
 	GithubId int `json:"id"`
-	Body     string
+	Body     json.RawMessage
 	User     struct {
 		Login string
 		Id    int
@@ -89,7 +89,7 @@ func ExtractApiComments(taskCtx core.SubTaskContext) error {
 				githubPrComment := &models.GithubPullRequestComment{
 					GithubId:        apiComment.GithubId,
 					PullRequestId:   pr.GithubId,
-					Body:            apiComment.Body,
+					Body:            string(apiComment.Body),
 					AuthorUsername:  apiComment.User.Login,
 					AuthorUserId:    apiComment.User.Id,
 					GithubCreatedAt: apiComment.GithubCreatedAt.ToTime(),
@@ -100,7 +100,7 @@ func ExtractApiComments(taskCtx core.SubTaskContext) error {
 				githubIssueComment := &models.GithubIssueComment{
 					GithubId:        apiComment.GithubId,
 					IssueId:         issue.GithubId,
-					Body:            apiComment.Body,
+					Body:            string(apiComment.Body),
 					AuthorUsername:  apiComment.User.Login,
 					AuthorUserId:    apiComment.User.Id,
 					GithubCreatedAt: apiComment.GithubCreatedAt.ToTime(),
