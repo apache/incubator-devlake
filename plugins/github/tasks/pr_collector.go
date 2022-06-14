@@ -52,7 +52,7 @@ func CollectApiPullRequests(taskCtx core.SubTaskContext) error {
 	if since == nil {
 		var latestUpdated models.GithubPullRequest
 		err := db.All(
-			latestUpdated,
+			&latestUpdated,
 			dal.Where("repo_id = ?", data.Repo.GithubId),
 			dal.Orderby("github_updated_at DESC"),
 			dal.Limit(1),
