@@ -112,7 +112,7 @@ func (l *LibGit2) run(repo *git.Repository, repoId string) error {
 		default:
 			break
 		}
-		if branch.IsBranch() {
+		if branch.IsBranch() || branch.IsRemote() {
 			name, err1 := branch.Name()
 			if err1 != nil {
 				return err1
