@@ -40,9 +40,9 @@ func (*updateSchemas20220612) Up(ctx context.Context, db *gorm.DB) error {
 }
 
 func (*updateSchemas20220612) Version() uint64 {
-	return 20220614154333
+	return 20220612154333
 }
 
 func (*updateSchemas20220612) Name() string {
-	return "Regenerate tables jobs and builds and "
+	return "Regenerate tables jobs and builds"
 }
