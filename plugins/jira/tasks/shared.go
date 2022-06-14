@@ -22,6 +22,8 @@ import (
 
 	"github.com/apache/incubator-devlake/models/domainlayer/ticket"
 	"github.com/apache/incubator-devlake/plugins/helper"
+	"github.com/apache/incubator-devlake/plugins/jira/models"
+	"gorm.io/gorm"
 )
 
 func GetTotalPagesFromResponse(res *http.Response, args *helper.ApiCollectorArgs) (int, error) {
@@ -45,4 +47,8 @@ func GetStdStatus(statusKey string) string {
 	} else {
 		return ticket.IN_PROGRESS
 	}
+}
+
+func GetStatusInfo(db *gorm.DB) ([]models.JiraStatus, error) {
+	return nil, nil
 }

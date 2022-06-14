@@ -114,6 +114,9 @@ func ConvertChangelogs(taskCtx core.SubTaskContext) error {
 					return nil, err
 				}
 			}
+			if row.Field == "status" {
+
+			}
 			return []interface{}{changelog}, nil
 		},
 	})
