@@ -21,47 +21,47 @@ import (
 	"context"
 	"github.com/apache/incubator-devlake/config"
 	"github.com/apache/incubator-devlake/models/migrationscripts/archived"
+	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/helper"
 	"gorm.io/gorm"
 )
 
-type GithubConnection20220608 struct {
+type GithubConnection20220609 struct {
 	archived.Model
 	Name      string `gorm:"type:varchar(100);uniqueIndex" json:"name" validate:"required"`
 	Endpoint  string `mapstructure:"endpoint" env:"GITHUB_ENDPOINT" validate:"required"`
 	Proxy     string `mapstructure:"proxy" env:"GITHUB_PROXY"`
 	RateLimit int    `comment:"api request rate limit per hour"`
-	Token     string `mapstructure:"token" validate:"required" env:"GITHUB_AUTH"`
-
-	Config20220608 `mapstructure:",squash"`
+	Token     string `mapstructure:"token" env:"GITHUB_AUTH" validate:"required" encrypt:"yes"`
 }
 
-type Config20220608 struct {
-	PrType               string `mapstructure:"prType" env:"GITHUB_PR_TYPE" json:"prType"`
-	PrComponent          string `mapstructure:"prComponent" env:"GITHUB_PR_COMPONENT" json:"prComponent"`
-	IssueSeverity        string `mapstructure:"issueSeverity" env:"GITHUB_ISSUE_SEVERITY" json:"issueSeverity"`
-	IssuePriority        string `mapstructure:"issuePriority" env:"GITHUB_ISSUE_PRIORITY" json:"issuePriority"`
-	IssueComponent       string `mapstructure:"issueComponent" env:"GITHUB_ISSUE_COMPONENT" json:"issueComponent"`
-	IssueTypeBug         string `mapstructure:"issueTypeBug" env:"GITHUB_ISSUE_TYPE_BUG" json:"issueTypeBug"`
-	IssueTypeIncident    string `mapstructure:"issueTypeIncident" env:"GITHUB_ISSUE_TYPE_INCIDENT" json:"issueTypeIncident"`
-	IssueTypeRequirement string `mapstructure:"issueTypeRequirement" env:"GITHUB_ISSUE_TYPE_REQUIREMENT" json:"issueTypeRequirement"`
-}
-
-func (GithubConnection20220608) TableName() string {
+func (GithubConnection20220609) TableName() string {
 	return "_tool_github_connections"
 }
 
-type UpdateSchemas20220608 struct{}
+type UpdateSchemas20220609 struct{}
 
-func (*UpdateSchemas20220608) Up(ctx context.Context, db *gorm.DB) error {
-	err := db.Migrator().CreateTable(GithubConnection20220608{})
+func (*UpdateSchemas20220609) Up(ctx context.Context, db *gorm.DB) error {
+	if db.Migrator().HasTable(GithubConnection20220609{}) {
+		err := db.Migrator().DropTable(GithubConnection20220609{})
+		if err != nil {
+			return err
+		}
+	}
+	err := db.Migrator().CreateTable(GithubConnection20220609{})
 	if err != nil {
 		return err
 	}
 	v := config.GetConfig()
-	connection := &GithubConnection20220608{}
+	connection := &GithubConnection20220609{}
 	err = helper.EncodeStruct(v, connection, "env")
 	connection.Name = `GitHub`
+	if err != nil {
+		return err
+	}
+	err = helper.UpdateEncryptFields(connection, func(plaintext string) (string, error) {
+		return core.Encrypt(v.GetString(core.EncodeKeyEnvStr), plaintext)
+	})
 	if err != nil {
 		return err
 	}
@@ -72,10 +72,10 @@ func (*UpdateSchemas20220608) Up(ctx context.Context, db *gorm.DB) error {
 	return nil
 }
 
-func (*UpdateSchemas20220608) Version() uint64 {
-	return 20220608000003
+func (*UpdateSchemas20220609) Version() uint64 {
+	return 20220609000004
 }
 
-func (*UpdateSchemas20220608) Name() string {
+func (*UpdateSchemas20220609) Name() string {
 	return "Add connection for github"
 }
