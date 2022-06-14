@@ -19,10 +19,7 @@ package helper
 
 import (
 	"database/sql"
-	"fmt"
 	"reflect"
-
-	"github.com/apache/incubator-devlake/models/common"
 
 	"github.com/apache/incubator-devlake/plugins/core"
 )
@@ -69,25 +66,9 @@ func (converter *DataConverter) Execute() error {
 	// load data from database
 	db := converter.args.Ctx.GetDb()
 
-	// batch insertion divider
+	// batch save divider
 	RAW_DATA_ORIGIN := "RawDataOrigin"
-	divider := NewBatchSaveDivider(db, converter.args.BatchSize)
-	divider.OnNewBatchSave(func(rowType reflect.Type) error {
-		// check if row type has RawDataOrigin
-		if rawDataOrigin, ok := rowType.Elem().FieldByName(RAW_DATA_ORIGIN); ok {
-			if (rawDataOrigin.Type != reflect.TypeOf(common.RawDataOrigin{})) {
-				return fmt.Errorf("type %s must nested RawDataOrigin struct", rowType.Name())
-			}
-		} else {
-			return fmt.Errorf("type %s must nested RawDataOrigin struct", rowType.Name())
-		}
-		// delete old data
-		return db.Delete(
-			reflect.New(rowType).Interface(),
-			"_raw_data_table = ? AND _raw_data_params = ?",
-			converter.table, converter.params,
-		).Error
-	})
+	divider := NewBatchSaveDivider(converter.args.Ctx, converter.args.BatchSize, converter.table, converter.params)
 
 	// prgress
 	converter.args.Ctx.SetProgress(0, -1)
@@ -115,13 +96,15 @@ func (converter *DataConverter) Execute() error {
 
 		for _, result := range results {
 			// get the batch operator for the specific type
-			batch, err := divider.ForType(reflect.TypeOf(result), converter.args.Ctx.GetLogger())
+			batch, err := divider.ForType(reflect.TypeOf(result))
 			if err != nil {
 				return err
 			}
 			// set raw data origin field
-			reflect.ValueOf(result).Elem().FieldByName(RAW_DATA_ORIGIN).
-				Set(reflect.ValueOf(inputRow).Elem().FieldByName(RAW_DATA_ORIGIN))
+			origin := reflect.ValueOf(result).Elem().FieldByName(RAW_DATA_ORIGIN)
+			if origin.IsValid() {
+				origin.Set(reflect.ValueOf(inputRow).Elem().FieldByName(RAW_DATA_ORIGIN))
+			}
 			// records get saved into db when slots were max outed
 			err = batch.Add(result)
 			if err != nil {
