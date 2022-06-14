@@ -90,3 +90,11 @@ func GetRawMessageDirectFromResponse(res *http.Response) ([]json.RawMessage, err
 	}
 	return []json.RawMessage{body}, nil
 }
+
+func GetRawMessageArrayFromResponse(res *http.Response) ([]json.RawMessage, error) {
+	var data struct {
+		Data []json.RawMessage `json:"data"`
+	}
+	err := helper.UnmarshalResponse(res, &data)
+	return data.Data, err
+}

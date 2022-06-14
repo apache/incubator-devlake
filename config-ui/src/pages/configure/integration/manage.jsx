@@ -264,7 +264,7 @@ export default function ManageIntegration () {
                     <table className='bp3-html-table bp3-html-table-bordered connections-table' style={{ width: '100%' }}>
                       <thead>
                         <tr>
-                          {activeProvider.id === Providers.JIRA && (<th>ID</th>)}
+                          {!sourceLimits[activeProvider.id] && (<th>ID</th>)}
                           <th>Connection Name</th>
                           <th>Endpoint</th>
                           <th>Status</th>
@@ -278,7 +278,7 @@ export default function ManageIntegration () {
                             // eslint-disable-next-line max-len
                             className={getTestedConnection(connection) && getTestedConnection(connection).status !== 1 ? 'connection-offline' : 'connection-online'}
                           >
-                            {activeProvider.id === Providers.JIRA && (
+                            {!sourceLimits[activeProvider.id] && (
                               <td
                                 style={{ cursor: 'pointer' }}
                                 className='cell-name'

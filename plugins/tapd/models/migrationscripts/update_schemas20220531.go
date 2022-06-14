@@ -26,41 +26,6 @@ import (
 type UpdateSchemas20220531 struct{}
 
 func (*UpdateSchemas20220531) Up(ctx context.Context, db *gorm.DB) error {
-	//err := db.Migrator().DropTable(
-	//	&archived.TapdWorkspace{},
-	//	&archived.TapdWorklog{},
-	//	&archived.TapdWorkspaceIteration{},
-	//	&archived.TapdUser{},
-	//	&archived.TapdBugChangelog{},
-	//	&archived.TapdBugChangelogItem{},
-	//	&archived.TapdStoryChangelog{},
-	//	&archived.TapdStoryChangelogItem{},
-	//	&archived.TapdTaskChangelog{},
-	//	&archived.TapdTaskChangelogItem{},
-	//	&archived.TapdIssue{},
-	//	&archived.TapdIteration{},
-	//	&archived.TapdConnection{},
-	//	&archived.TapdBug{},
-	//	&archived.TapdStory{},
-	//	&archived.TapdTask{},
-	//	&archived.TapdTaskLabel{},
-	//	&archived.TapdBugLabel{},
-	//	&archived.TapdStoryLabel{},
-	//	&archived.TapdBugStatus{},
-	//	&archived.TapdStoryStatus{},
-	//	&archived.TapdBugCommit{},
-	//	&archived.TapdStoryCommit{},
-	//	&archived.TapdTaskCommit{},
-	//	&archived.TapdWorkSpaceBug{},
-	//	&archived.TapdWorkSpaceStory{},
-	//	&archived.TapdWorkSpaceTask{},
-	//	&archived.TapdIterationBug{},
-	//	&archived.TapdIterationStory{},
-	//	&archived.TapdIterationTask{},
-	//)
-	//if err != nil {
-	//	return err
-	//}
 	err := db.Migrator().AutoMigrate(
 		&archived.TapdWorkspace{},
 		&archived.TapdWorklog{},

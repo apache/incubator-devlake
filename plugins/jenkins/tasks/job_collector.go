@@ -59,6 +59,7 @@ func CollectApiJobs(taskCtx core.SubTaskContext) error {
 		ApiClient:   data.ApiClient,
 		PageSize:    100,
 		Incremental: incremental,
+		Concurrency: 1,
 
 		UrlTemplate: "api/json",
 		Query: func(reqData *helper.RequestData) (url.Values, error) {

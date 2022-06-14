@@ -159,7 +159,7 @@ export default function ConnectionForm (props) {
                 backgroundColor: '#f0f0f0'
               }}
             >
-              <p className='warning-message' intent={Intent.WARNING}>
+              <p className='warning-message'>
                 <Icon icon='warning-sign' size='16' color={Colors.GRAY1} style={{ marginRight: '5px' }} />
                 <strong>CONNECTION SOURCES LIMITED</strong><br />
                 You may only add <Tag intent={Intent.PRIMARY}>{sourceLimits[activeProvider.id]}</Tag> instance(s) at this time,
@@ -181,7 +181,7 @@ export default function ConnectionForm (props) {
               border: showLimitWarning ? 'inherit' : 0
             }}
           >
-            <p className='warning-message' intent={Intent.WARNING}>
+            <p className='warning-message'>
               <Icon icon='error' size='16' color={Colors.RED4} style={{ marginRight: '5px' }} />
               <strong>UNABLE TO SAVE CONNECTION ({name !== '' ? name : 'BLANK'})</strong><br />
             </p>
@@ -197,7 +197,7 @@ export default function ConnectionForm (props) {
         <div className='formContainer'>
           <FormGroup
             disabled={isTesting || isSaving || isLocked}
-            readOnly={[Providers.GITHUB, Providers.GITLAB, Providers.JENKINS].includes(activeProvider.id)}
+            readOnly={[Providers.GITLAB, Providers.JENKINS].includes(activeProvider.id)}
             label=''
             inline={true}
             labelFor='connection-name'
@@ -216,14 +216,14 @@ export default function ConnectionForm (props) {
               id='connection-name'
               inputRef={connectionNameRef}
               disabled={isTesting || isSaving || isLocked}
-              readOnly={[Providers.GITHUB, Providers.GITLAB, Providers.JENKINS].includes(activeProvider.id)}
+              readOnly={[Providers.GITLAB, Providers.JENKINS].includes(activeProvider.id)}
               placeholder={placeholders ? placeholders.name : 'Enter Instance Name'}
               value={name}
               onChange={(e) => onNameChange(e.target.value)}
               // className={`input connection-name-input ${fieldHasError('Connection') ? 'invalid-field' : ''}`}
               // className='input connection-name-input'
               className={`input connection-name-input ${stateErrored === 'connection-name' ? 'invalid-field' : ''}`}
-              leftIcon={[Providers.GITHUB, Providers.GITLAB, Providers.JENKINS].includes(activeProvider.id) ? 'lock' : null}
+              leftIcon={[Providers.GITLAB, Providers.JENKINS].includes(activeProvider.id) ? 'lock' : null}
               inline={true}
               rightElement={(
                 <InputValidationError

@@ -19,10 +19,10 @@ package main // must be main for plugin entry point
 
 import (
 	"fmt"
-
 	"github.com/apache/incubator-devlake/migration"
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/github/api"
+	"github.com/apache/incubator-devlake/plugins/github/models"
 	"github.com/apache/incubator-devlake/plugins/github/models/migrationscripts"
 	"github.com/apache/incubator-devlake/plugins/github/tasks"
 	"github.com/apache/incubator-devlake/runner"
@@ -41,6 +41,7 @@ var _ core.Migratable = (*Github)(nil)
 type Github struct{}
 
 func (plugin Github) Init(config *viper.Viper, logger core.Logger, db *gorm.DB) error {
+	api.Init(config, logger, db)
 	return nil
 }
 
@@ -95,7 +96,16 @@ func (plugin Github) PrepareTaskData(taskCtx core.TaskContext, options map[strin
 	if op.Repo == "" {
 		return nil, fmt.Errorf("repo is required for GitHub execution")
 	}
-	apiClient, err := tasks.CreateApiClient(taskCtx)
+
+	// find the only github now
+	// FIXME to query by connection id when multi connection support
+	connection := &models.GithubConnection{}
+	err = taskCtx.GetDb().First(connection, "name = ?", `GitHub`).Error
+	if err != nil {
+		return err, nil
+	}
+
+	apiClient, err := tasks.CreateApiClient(taskCtx, connection)
 	if err != nil {
 		return nil, err
 	}
@@ -113,7 +123,7 @@ func (plugin Github) RootPkgPath() string {
 func (plugin Github) MigrationScripts() []migration.Script {
 	return []migration.Script{
 		new(migrationscripts.InitSchemas), new(migrationscripts.UpdateSchemas20220509),
-		new(migrationscripts.UpdateSchemas20220524),
+		new(migrationscripts.UpdateSchemas20220524), new(migrationscripts.UpdateSchemas20220608),
 	}
 }
 
@@ -123,11 +133,13 @@ func (plugin Github) ApiResources() map[string]map[string]core.ApiResourceHandle
 			"POST": api.TestConnection,
 		},
 		"connections": {
-			"GET": api.ListConnections,
+			"POST": api.PostConnections,
+			"GET":  api.ListConnections,
 		},
 		"connections/:connectionId": {
-			"GET":   api.GetConnection,
-			"PATCH": api.PatchConnection,
+			"GET":    api.GetConnection,
+			"PATCH":  api.PatchConnection,
+			"DELETE": api.DeleteConnection,
 		},
 	}
 }
