@@ -19,23 +19,17 @@ package api
 
 import (
 	"fmt"
-	"github.com/apache/incubator-devlake/config"
-	"github.com/apache/incubator-devlake/plugins/gitlab/models"
 	"net/http"
 	"time"
 
 	"github.com/apache/incubator-devlake/plugins/core"
+	"github.com/apache/incubator-devlake/plugins/gitlab/models"
 	"github.com/apache/incubator-devlake/plugins/helper"
-	"github.com/go-playground/validator/v10"
 	"github.com/mitchellh/mapstructure"
 )
 
-var vld = validator.New()
-
-/*
-POST /plugins/gitlab/test
-*/
 func TestConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, error) {
+
 	// decode
 	var err error
 	var connection models.TestConnectionRequest
@@ -48,11 +42,12 @@ func TestConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, erro
 	if err != nil {
 		return nil, err
 	}
+
 	// test connection
 	apiClient, err := helper.NewApiClient(
 		connection.Endpoint,
 		map[string]string{
-			"Authorization": fmt.Sprintf("Bearer %v", connection.Auth),
+			"Authorization": fmt.Sprintf("Bearer %v", connection.Token),
 		},
 		3*time.Second,
 		connection.Proxy,
@@ -61,6 +56,7 @@ func TestConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, erro
 	if err != nil {
 		return nil, err
 	}
+
 	res, err := apiClient.Get("user", nil, nil)
 	if err != nil {
 		return nil, err
@@ -78,68 +74,77 @@ func TestConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, erro
 }
 
 /*
+POST /plugins/gitlab/connections
+{
+	"name": "gitlab data connection name",
+	"endpoint": "gitlab api endpoint, i.e. https://gitlab.com/api/v4/",
+	"token": "gitlab api access token"
+}
+*/
+func PostConnections(input *core.ApiResourceInput) (*core.ApiResourceOutput, error) {
+	// update from request and save to database
+	connection := &models.GitlabConnection{}
+	err := connectionHelper.Create(connection, input)
+	if err != nil {
+		return nil, err
+	}
+	return &core.ApiResourceOutput{Body: connection, Status: http.StatusOK}, nil
+}
+
+/*
 PATCH /plugins/gitlab/connections/:connectionId
+{
+	"name": "gitlab data connection name",
+	"endpoint": "gitlab api endpoint, i.e. https://gitlab.com/api/v4/",
+	"token": "gitlab api access token"
+}
 */
 func PatchConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, error) {
-	v := config.GetConfig()
 	connection := &models.GitlabConnection{}
-	err := helper.EncodeStruct(v, connection, "env")
+	err := connectionHelper.Patch(connection, input)
 	if err != nil {
 		return nil, err
 	}
-	// update from request and save to .env
-	err = helper.DecodeStruct(v, connection, input.Body, "env")
+	return &core.ApiResourceOutput{Body: connection}, nil
+}
+
+/*
+DELETE /plugins/gitlab/connections/:connectionId
+*/
+func DeleteConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, error) {
+	connection := &models.GitlabConnection{}
+	err := connectionHelper.First(connection, input.Params)
 	if err != nil {
 		return nil, err
 	}
-	err = config.WriteConfig(v)
-	if err != nil {
-		return nil, err
-	}
-	response := models.GitlabResponse{
-		GitlabConnection: *connection,
-		Name:             "Gitlab",
-		ID:               1,
-	}
-	return &core.ApiResourceOutput{Body: response, Status: http.StatusOK}, nil
+	err = connectionHelper.Delete(connection)
+	return &core.ApiResourceOutput{Body: connection}, err
 }
 
 /*
 GET /plugins/gitlab/connections
 */
 func ListConnections(input *core.ApiResourceInput) (*core.ApiResourceOutput, error) {
-	// RETURN ONLY 1 SOURCE (FROM ENV) until multi-connection is developed.
-	v := config.GetConfig()
-	connection := &models.GitlabConnection{}
-
-	err := helper.EncodeStruct(v, connection, "env")
+	var connections []models.GitlabConnection
+	err := connectionHelper.List(&connections)
 	if err != nil {
 		return nil, err
 	}
-	response := models.GitlabResponse{
-		GitlabConnection: *connection,
-		Name:             "Gitlab",
-		ID:               1,
-	}
-
-	return &core.ApiResourceOutput{Body: []models.GitlabResponse{response}}, nil
+	return &core.ApiResourceOutput{Body: connections, Status: http.StatusOK}, nil
 }
 
 /*
 GET /plugins/gitlab/connections/:connectionId
+
+
+{
+	"name": "gitlab data connection name",
+	"endpoint": "gitlab api endpoint, i.e. https://gitlab.com/api/v4/",
+	"token": "gitlab api access token"
+}
 */
 func GetConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, error) {
-	//  RETURN ONLY 1 SOURCE FROM ENV (Ignore ID until multi-connection is developed.)
-	v := config.GetConfig()
 	connection := &models.GitlabConnection{}
-	err := helper.EncodeStruct(v, connection, "env")
-	if err != nil {
-		return nil, err
-	}
-	response := &models.GitlabResponse{
-		GitlabConnection: *connection,
-		Name:             "Gitlab",
-		ID:               1,
-	}
-	return &core.ApiResourceOutput{Body: response}, nil
+	err := connectionHelper.First(connection, input.Params)
+	return &core.ApiResourceOutput{Body: connection}, err
 }

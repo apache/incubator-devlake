@@ -18,14 +18,15 @@ limitations under the License.
 package tasks
 
 import (
+	"reflect"
+	"strconv"
+	"time"
+
 	"github.com/apache/incubator-devlake/models/domainlayer"
 	"github.com/apache/incubator-devlake/models/domainlayer/ticket"
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/helper"
 	"github.com/apache/incubator-devlake/plugins/tapd/models"
-	"reflect"
-	"strconv"
-	"time"
 )
 
 func ConvertStory(taskCtx core.SubTaskContext) error {
@@ -58,7 +59,7 @@ func ConvertStory(taskCtx core.SubTaskContext) error {
 					Id: IssueIdGen.Generate(toolL.ConnectionId, toolL.ID),
 				},
 				Url:                  toolL.Url,
-				Number:               strconv.FormatUint(toolL.ID, 10),
+				IssueKey:             strconv.FormatUint(toolL.ID, 10),
 				Title:                toolL.Name,
 				Type:                 toolL.StdType,
 				Status:               toolL.StdStatus,

@@ -20,6 +20,8 @@ package models
 import "github.com/apache/incubator-devlake/models/common"
 
 type GitlabProjectCommit struct {
+	ConnectionId uint64 `gorm:"primaryKey"`
+
 	GitlabProjectId int    `gorm:"primaryKey"`
 	CommitSha       string `gorm:"primaryKey;type:varchar(40)"`
 	common.NoPKModel

@@ -18,26 +18,35 @@ limitations under the License.
 package archived
 
 import (
-	"time"
-
 	"github.com/apache/incubator-devlake/models/migrationscripts/archived"
+	"time"
 )
 
-type GitlabMergeRequestNote struct {
+type GitlabIssue struct {
+	ConnectionId    uint64 `gorm:"primaryKey"`
 	GitlabId        int    `gorm:"primaryKey"`
-	MergeRequestId  int    `gorm:"index"`
-	MergeRequestIid int    `gorm:"comment:Used in API requests ex. /api/merge_requests/<THIS_IID>"`
-	NoteableType    string `gorm:"type:varchar(100)"`
-	AuthorUsername  string `gorm:"type:varchar(255)"`
+	ProjectId       int    `gorm:"index"`
+	Number          int    `gorm:"index;comment:Used in API requests ex. api/repo/1/issue/<THIS_NUMBER>"`
+	State           string `gorm:"type:varchar(255)"`
+	Title           string
 	Body            string
+	Priority        string `gorm:"type:varchar(255)"`
+	Type            string `gorm:"type:varchar(100)"`
+	Status          string `gorm:"type:varchar(255)"`
+	AssigneeId      int
+	AssigneeName    string `gorm:"type:varchar(255)"`
+	LeadTimeMinutes uint
+	Url             string `gorm:"type:varchar(255)"`
+	ClosedAt        *time.Time
 	GitlabCreatedAt time.Time
-	Confidential    bool
-	Resolvable      bool `gorm:"comment:Is or is not review comment"`
-	System          bool `gorm:"comment:Is or is not auto-generated vs. human generated"`
-
+	GitlabUpdatedAt time.Time `gorm:"index"`
+	Severity        string    `gorm:"type:varchar(255)"`
+	Component       string    `gorm:"type:varchar(255)"`
+	TimeEstimate    int64
+	TotalTimeSpent  int64
 	archived.NoPKModel
 }
 
-func (GitlabMergeRequestNote) TableName() string {
-	return "_tool_gitlab_merge_request_notes"
+func (GitlabIssue) TableName() string {
+	return "_tool_gitlab_issues"
 }

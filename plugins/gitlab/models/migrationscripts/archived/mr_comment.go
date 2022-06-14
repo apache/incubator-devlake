@@ -17,19 +17,25 @@ limitations under the License.
 
 package archived
 
-import "github.com/apache/incubator-devlake/models/migrationscripts/archived"
+import (
+	"github.com/apache/incubator-devlake/models/migrationscripts/archived"
+	"time"
+)
 
-type GitlabTag struct {
+type GitlabMergeRequestComment struct {
 	ConnectionId uint64 `gorm:"primaryKey"`
 
-	Name               string `gorm:"primaryKey;type:varchar(60)"`
-	Message            string
-	Target             string `gorm:"type:varchar(255)"`
-	Protected          bool
-	ReleaseDescription string
+	GitlabId        int `gorm:"primaryKey"`
+	MergeRequestId  int `gorm:"index"`
+	MergeRequestIid int `gorm:"comment:Used in API requests ex. /api/merge_requests/<THIS_IID>"`
+	Body            string
+	AuthorUsername  string `gorm:"type:varchar(255)"`
+	AuthorUserId    int
+	GitlabCreatedAt time.Time
+	Resolvable      bool `gorm:"comment:Is or is not review comment"`
 	archived.NoPKModel
 }
 
-func (GitlabTag) TableName() string {
-	return "_tool_gitlab_tags"
+func (GitlabMergeRequestComment) TableName() string {
+	return "_tool_gitlab_merge_request_comments"
 }
