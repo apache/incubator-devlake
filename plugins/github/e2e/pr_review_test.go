@@ -49,7 +49,7 @@ func TestPrReviewDataFlow(t *testing.T) {
 
 	// verify extraction
 	dataflowTester.FlushTabler(&models.GithubReviewer{})
-	dataflowTester.Subtask(tasks.ExtractApiPullRequestReviewsMeta, taskData)
+	dataflowTester.Subtask(tasks.ExtractApiPullRequestReviewersMeta, taskData)
 	dataflowTester.VerifyTable(
 		models.GithubReviewer{},
 		fmt.Sprintf("./snapshot_tables/%s.csv", models.GithubReviewer{}.TableName()),
