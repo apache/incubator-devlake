@@ -45,13 +45,12 @@ func initConfig(v *viper.Viper) {
 	v.SetConfigType("env")
 	envPath := getEnvPath()
 	// AddConfigPath adds a path for Viper to search for the config file in.
-	if envPath == "" {
-		v.AddConfigPath("$PWD/../..")
-		v.AddConfigPath("..")
-		v.AddConfigPath(".")
-	} else {
-		v.AddConfigPath(envPath)
-	}
+	v.AddConfigPath("$PWD/../..")
+	v.AddConfigPath("$PWD/../../..")
+	v.AddConfigPath("..")
+	v.AddConfigPath(".")
+	v.AddConfigPath(envPath)
+
 }
 
 func getConfigName() string {

@@ -32,7 +32,8 @@ import (
 )
 
 type GitlabApiParams struct {
-	ProjectId int
+	ConnectionId uint64
+	ProjectId    int
 }
 
 type GitlabInput struct {
@@ -86,7 +87,8 @@ func CreateRawDataSubTaskArgs(taskCtx core.SubTaskContext, Table string) (*helpe
 	RawDataSubTaskArgs := &helper.RawDataSubTaskArgs{
 		Ctx: taskCtx,
 		Params: GitlabApiParams{
-			ProjectId: data.Options.ProjectId,
+			ProjectId:    data.Options.ProjectId,
+			ConnectionId: data.Options.ConnectionId,
 		},
 		Table: Table,
 	}
@@ -100,8 +102,8 @@ func GetMergeRequestsIterator(taskCtx core.SubTaskContext) (*helper.DalCursorIte
 		dal.Select("gmr.gitlab_id, gmr.iid"),
 		dal.From("_tool_gitlab_merge_requests gmr"),
 		dal.Where(
-			`gmr.project_id = ?`,
-			data.Options.ProjectId,
+			`gmr.project_id = ? and gmr.connection_id = ?`,
+			data.Options.ProjectId, data.Options.ConnectionId,
 		),
 	}
 	// construct the input iterator

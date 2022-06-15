@@ -17,9 +17,7 @@ limitations under the License.
 
 package models
 
-import (
-	"github.com/apache/incubator-devlake/plugins/helper"
-)
+import "github.com/apache/incubator-devlake/plugins/helper"
 
 // This object conforms to what the frontend currently sends.
 type GitlabConnection struct {
