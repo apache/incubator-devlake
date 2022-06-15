@@ -21,6 +21,7 @@ import (
 	"encoding/json"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/apache/incubator-devlake/models/domainlayer/ticket"
 	"github.com/apache/incubator-devlake/plugins/core"
@@ -118,8 +119,15 @@ func ExtractIssues(taskCtx core.SubTaskContext) error {
 			for _, worklog := range worklogs {
 				results = append(results, worklog)
 			}
+			var issueUpdated *time.Time
+			// likely this issue has more changelogs to be collected
+			if len(changelogs) == 100 {
+				issueUpdated = nil
+			} else {
+				issueUpdated = &issue.Updated
+			}
 			for _, changelog := range changelogs {
-				changelog.IssueUpdated = &issue.Updated
+				changelog.IssueUpdated = issueUpdated
 				results = append(results, changelog)
 			}
 			for _, changelogItem := range changelogItems {

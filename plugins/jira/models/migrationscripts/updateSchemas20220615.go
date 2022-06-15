@@ -32,7 +32,7 @@ func (JiraIssue20220615) TableName() string {
 }
 
 type JiraChangelog20220615 struct {
-	IssueUpdated time.Time
+	IssueUpdated *time.Time
 }
 
 func (JiraChangelog20220615) TableName() string {
