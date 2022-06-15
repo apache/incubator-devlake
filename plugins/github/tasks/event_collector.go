@@ -54,7 +54,7 @@ func CollectApiEvents(taskCtx core.SubTaskContext) error {
 		err := db.All(
 			&latestUpdatedIssueEvent,
 			dal.Join("left join _tool_github_issues on _tool_github_issues.github_id = _tool_github_issue_events.issue_id"),
-			dal.Where("_tool_github_issues.repo_id = ?", data.Repo.GithubId),
+			dal.Where("_tool_github_issues.repo_id = ? and _tool_github_issues.repo_id = ?", data.Repo.GithubId, data.Repo.ConnectionId),
 			dal.Orderby("github_created_at DESC"),
 			dal.Limit(1),
 		)
@@ -73,8 +73,9 @@ func CollectApiEvents(taskCtx core.SubTaskContext) error {
 		RawDataSubTaskArgs: helper.RawDataSubTaskArgs{
 			Ctx: taskCtx,
 			Params: GithubApiParams{
-				Owner: data.Options.Owner,
-				Repo:  data.Options.Repo,
+				ConnectionId: data.Options.ConnectionId,
+				Owner:        data.Options.Owner,
+				Repo:         data.Options.Repo,
 			},
 			Table: RAW_EVENTS_TABLE,
 		},

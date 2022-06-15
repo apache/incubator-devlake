@@ -97,7 +97,7 @@ func EnrichPullRequestIssues(taskCtx core.SubTaskContext) (err error) {
 				}
 				err = db.All(
 					issue,
-					dal.Where("number = ? and repo_id = ?", issueNumber, repoId),
+					dal.Where("number = ? and repo_id = ? and connection_id = ?", issueNumber, repoId, data.Options.ConnectionId),
 					dal.Limit(1),
 				)
 				if err != nil {

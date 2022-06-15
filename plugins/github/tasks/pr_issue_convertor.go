@@ -43,7 +43,7 @@ func ConvertPullRequestIssues(taskCtx core.SubTaskContext) error {
 	cursor, err := db.Cursor(
 		dal.From(&githubModels.GithubPullRequestIssue{}),
 		dal.Join(`left join _tool_github_pull_requests on _tool_github_pull_requests.github_id = _tool_github_pull_request_issues.pull_request_id`),
-		dal.Where("_tool_github_pull_requests.repo_id = ?", repoId),
+		dal.Where("_tool_github_pull_requests.repo_id = ? and _tool_github_pull_requests.connection_id = ?", repoId, data.Options.ConnectionId),
 		dal.Orderby("pull_request_id ASC"),
 	)
 	if err != nil {
