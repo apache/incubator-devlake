@@ -24,6 +24,7 @@ import (
 )
 
 type GithubPullRequest struct {
+	ConnectionId    uint64 `gorm:"primaryKey"`
 	GithubId        int    `gorm:"primaryKey"`
 	RepoId          int    `gorm:"index"`
 	Number          int    `gorm:"index"` // This number is used in GET requests to the API associated to reviewers / comments / etc.

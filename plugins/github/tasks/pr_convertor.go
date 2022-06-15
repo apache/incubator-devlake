@@ -18,6 +18,7 @@ limitations under the License.
 package tasks
 
 import (
+	"github.com/apache/incubator-devlake/plugins/core/dal"
 	"reflect"
 
 	"github.com/apache/incubator-devlake/models/domainlayer"
@@ -36,11 +37,14 @@ var ConvertPullRequestsMeta = core.SubTaskMeta{
 }
 
 func ConvertPullRequests(taskCtx core.SubTaskContext) error {
-	db := taskCtx.GetDb()
+	db := taskCtx.GetDal()
 	data := taskCtx.GetData().(*GithubTaskData)
 	repoId := data.Repo.GithubId
 
-	cursor, err := db.Model(&models.GithubPullRequest{}).Where("repo_id = ?", repoId).Rows()
+	cursor, err := db.Cursor(
+		dal.From(&models.GithubPullRequest{}),
+		dal.Where("repo_id = ?", repoId),
+	)
 	if err != nil {
 		return err
 	}

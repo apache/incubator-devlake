@@ -18,6 +18,7 @@ limitations under the License.
 package tasks
 
 import (
+	"github.com/apache/incubator-devlake/plugins/core/dal"
 	"reflect"
 
 	"github.com/apache/incubator-devlake/models/domainlayer/code"
@@ -35,15 +36,16 @@ var ConvertPullRequestLabelsMeta = core.SubTaskMeta{
 }
 
 func ConvertPullRequestLabels(taskCtx core.SubTaskContext) error {
-	db := taskCtx.GetDb()
+	db := taskCtx.GetDal()
 	data := taskCtx.GetData().(*GithubTaskData)
 	repoId := data.Repo.GithubId
 
-	cursor, err := db.Model(&githubModels.GithubPullRequestLabel{}).
-		Joins(`left join _tool_github_pull_requests on _tool_github_pull_requests.github_id = _tool_github_pull_request_labels.pull_id`).
-		Where("_tool_github_pull_requests.repo_id = ?", repoId).
-		Order("pull_id ASC").
-		Rows()
+	cursor, err := db.Cursor(
+		dal.From(&githubModels.GithubPullRequestLabel{}),
+		dal.Join(`left join _tool_github_pull_requests on _tool_github_pull_requests.github_id = _tool_github_pull_request_labels.pull_id`),
+		dal.Where("_tool_github_pull_requests.repo_id = ?", repoId),
+		dal.Orderby("pull_id ASC"),
+	)
 	if err != nil {
 		return err
 	}
