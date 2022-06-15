@@ -20,6 +20,7 @@ package e2ehelper
 import (
 	"context"
 	"database/sql"
+	"encoding/json"
 	"fmt"
 	"github.com/apache/incubator-devlake/config"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper"
@@ -105,10 +106,7 @@ func (t *DataFlowTester) ImportCsvIntoRawTable(csvRelPath string, tableName stri
 	// load rows and insert into target table
 	for csvIter.HasNext() {
 		toInsertValues := csvIter.Fetch()
-		// FIXME Hack code
-		if t.Db.Dialector.Name() == `postgres` {
-			toInsertValues[`data`] = strings.Replace(toInsertValues[`data`].(string), `\`, `\\`, -1)
-		}
+		toInsertValues[`data`] = json.RawMessage(toInsertValues[`data`].(string))
 		result := t.Db.Table(tableName).Create(toInsertValues)
 		if result.Error != nil {
 			panic(result.Error)
