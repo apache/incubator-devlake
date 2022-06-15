@@ -18,91 +18,20 @@ limitations under the License.
 package main
 
 import (
-	"fmt"
-
-	"github.com/apache/incubator-devlake/migration"
-	"github.com/apache/incubator-devlake/plugins/core"
-	"github.com/apache/incubator-devlake/plugins/jenkins/api"
-	"github.com/apache/incubator-devlake/plugins/jenkins/models/migrationscripts"
-	"github.com/apache/incubator-devlake/plugins/jenkins/tasks"
+	"github.com/apache/incubator-devlake/plugins/jenkins/impl"
 	"github.com/apache/incubator-devlake/runner"
-	"github.com/mitchellh/mapstructure"
 	"github.com/spf13/cobra"
-	"github.com/spf13/viper"
-	"gorm.io/gorm"
 )
 
-var _ core.PluginMeta = (*Jenkins)(nil)
-var _ core.PluginInit = (*Jenkins)(nil)
-var _ core.PluginTask = (*Jenkins)(nil)
-var _ core.PluginApi = (*Jenkins)(nil)
-var _ core.Migratable = (*Jenkins)(nil)
-
-type Jenkins struct{}
-
-func (plugin Jenkins) Init(config *viper.Viper, logger core.Logger, db *gorm.DB) error {
-	return nil
-}
-
-func (plugin Jenkins) Description() string {
-	return "To collect and enrich data from Jenkins"
-}
-
-func (plugin Jenkins) SubTaskMetas() []core.SubTaskMeta {
-	return []core.SubTaskMeta{
-		tasks.CollectApiJobsMeta,
-		tasks.ExtractApiJobsMeta,
-		tasks.CollectApiBuildsMeta,
-		tasks.ExtractApiBuildsMeta,
-		tasks.ConvertJobsMeta,
-		tasks.ConvertBuildsMeta,
-	}
-}
-func (plugin Jenkins) PrepareTaskData(taskCtx core.TaskContext, options map[string]interface{}) (interface{}, error) {
-	var op tasks.JenkinsOptions
-	err := mapstructure.Decode(options, &op)
-	if err != nil {
-		return nil, fmt.Errorf("Failed to decode options: %v", err)
-	}
-	apiClient, err := tasks.CreateApiClient(taskCtx)
-	if err != nil {
-		return nil, err
-	}
-	return &tasks.JenkinsTaskData{
-		Options:   &op,
-		ApiClient: apiClient,
-	}, nil
-}
-
-func (plugin Jenkins) RootPkgPath() string {
-	return "github.com/apache/incubator-devlake/plugins/jenkins"
-}
-
-func (plugin Jenkins) MigrationScripts() []migration.Script {
-	return []migration.Script{new(migrationscripts.InitSchemas)}
-}
-
-func (plugin Jenkins) ApiResources() map[string]map[string]core.ApiResourceHandler {
-	return map[string]map[string]core.ApiResourceHandler{
-		"test": {
-			"POST": api.TestConnection,
-		},
-		"connections": {
-			"GET": api.ListConnections,
-		},
-		"connections/:connectionId": {
-			"GET":   api.GetConnection,
-			"PATCH": api.PatchConnection,
-		},
-	}
-}
-
-var PluginEntry Jenkins //nolint
+var PluginEntry impl.Jenkins
 
 func main() {
 	jenkinsCmd := &cobra.Command{Use: "jenkins"}
+	connectionId := jenkinsCmd.Flags().Uint64P("connection", "c", 0, "jenkins connection id")
 	jenkinsCmd.Run = func(cmd *cobra.Command, args []string) {
-		runner.DirectRun(cmd, args, PluginEntry, map[string]interface{}{})
+		runner.DirectRun(cmd, args, PluginEntry, map[string]interface{}{
+			"connectionId": *connectionId,
+		})
 	}
 	runner.RunCmd(jenkinsCmd)
 }

@@ -19,11 +19,12 @@ package tasks
 
 import (
 	"encoding/json"
+	"strconv"
+	"time"
+
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/helper"
 	"github.com/apache/incubator-devlake/plugins/jenkins/models"
-	"strconv"
-	"time"
 )
 
 // this struct should be moved to `gitub_api_common.go`
@@ -36,8 +37,12 @@ var ExtractApiBuildsMeta = core.SubTaskMeta{
 }
 
 func ExtractApiBuilds(taskCtx core.SubTaskContext) error {
+	data := taskCtx.GetData().(*JenkinsTaskData)
 	extractor, err := helper.NewApiExtractor(helper.ApiExtractorArgs{
 		RawDataSubTaskArgs: helper.RawDataSubTaskArgs{
+			Params: JenkinsApiParams{
+				ConnectionId: data.Connection.ID,
+			},
 			Ctx: taskCtx,
 			/*
 				This struct will be JSONEncoded and stored into database along with raw data itself, to identity minimal
@@ -54,7 +59,6 @@ func ExtractApiBuilds(taskCtx core.SubTaskContext) error {
 			if err != nil {
 				return nil, err
 			}
-
 			input := &SimpleJob{}
 			err = json.Unmarshal(row.Input, input)
 			if err != nil {
@@ -64,6 +68,7 @@ func ExtractApiBuilds(taskCtx core.SubTaskContext) error {
 			results := make([]interface{}, 0, 1)
 
 			build := &models.JenkinsBuild{
+				ConnectionId:      data.Connection.ID,
 				JobName:           input.Name,
 				Duration:          body.Duration,
 				DisplayName:       body.DisplayName,
@@ -73,7 +78,6 @@ func ExtractApiBuilds(taskCtx core.SubTaskContext) error {
 				Timestamp:         body.Timestamp,
 				StartTime:         time.Unix(body.Timestamp/1000, 0),
 			}
-
 			vcs := body.ChangeSet.Kind
 			if vcs == "git" || vcs == "hg" {
 				for _, a := range body.Actions {
