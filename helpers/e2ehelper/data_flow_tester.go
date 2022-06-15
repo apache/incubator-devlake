@@ -77,6 +77,11 @@ func NewDataFlowTester(t *testing.T, pluginName string, pluginMeta core.PluginMe
 		panic(err)
 	}
 	cfg := config.GetConfig()
+	e2eDbUrl := cfg.GetString(`E2E_DB_URL`)
+	if e2eDbUrl == `` {
+		panic(fmt.Errorf(`e2e can only run with E2E_DB_URL, please set it in .env`))
+	}
+	cfg.Set(`DB_URL`, cfg.GetString(`E2E_DB_URL`))
 	db, err := runner.NewGormDb(cfg, logger.Global)
 	if err != nil {
 		panic(err)
