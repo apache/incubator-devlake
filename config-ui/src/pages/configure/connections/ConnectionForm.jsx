@@ -197,7 +197,7 @@ export default function ConnectionForm (props) {
         <div className='formContainer'>
           <FormGroup
             disabled={isTesting || isSaving || isLocked}
-            readOnly={[Providers.GITLAB, Providers.JENKINS].includes(activeProvider.id)}
+            readOnly={[Providers.GITHUB, Providers.GITLAB, Providers.JENKINS].includes(activeProvider.id)}
             label=''
             inline={true}
             labelFor='connection-name'
@@ -216,14 +216,14 @@ export default function ConnectionForm (props) {
               id='connection-name'
               inputRef={connectionNameRef}
               disabled={isTesting || isSaving || isLocked}
-              readOnly={[Providers.GITLAB, Providers.JENKINS].includes(activeProvider.id)}
+              readOnly={[Providers.JENKINS].includes(activeProvider.id)}
               placeholder={placeholders ? placeholders.name : 'Enter Instance Name'}
               value={name}
               onChange={(e) => onNameChange(e.target.value)}
               // className={`input connection-name-input ${fieldHasError('Connection') ? 'invalid-field' : ''}`}
               // className='input connection-name-input'
               className={`input connection-name-input ${stateErrored === 'connection-name' ? 'invalid-field' : ''}`}
-              leftIcon={[Providers.GITLAB, Providers.JENKINS].includes(activeProvider.id) ? 'lock' : null}
+              leftIcon={[Providers.JENKINS].includes(activeProvider.id) ? 'lock' : null}
               inline={true}
               rightElement={(
                 <InputValidationError

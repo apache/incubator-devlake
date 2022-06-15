@@ -15,26 +15,40 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package ticket
+package migrationscripts
 
 import (
-	"time"
+	"context"
 
-	"github.com/apache/incubator-devlake/models/domainlayer"
+	"github.com/apache/incubator-devlake/models/migrationscripts/archived"
+	"gorm.io/gorm"
 )
 
-type Changelog struct {
-	domainlayer.DomainEntity
+type JiraStatus struct {
+	archived.NoPKModel
+	ConnectionId   uint64 `gorm:"primaryKey"`
+	ID             string `gorm:"primaryKey"`
+	Name           string
+	Self           string
+	StatusCategory string
+}
 
-	// collected fields
-	IssueId           string `gorm:"index;type:varchar(255)"`
-	AuthorId          string `gorm:"type:varchar(255)"`
-	AuthorName        string `gorm:"type:varchar(255)"`
-	FieldId           string `gorm:"type:varchar(255)"`
-	FieldName         string `gorm:"type:varchar(255)"`
-	OriginalFromValue string
-	OriginalToValue   string
-	FromValue         string
-	ToValue           string
-	CreatedDate       time.Time
+func (JiraStatus) TableName() string {
+	return "_tool_jira_statuses"
+}
+
+type UpdateSchemas20220614 struct{}
+
+func (*UpdateSchemas20220614) Up(ctx context.Context, db *gorm.DB) error {
+	return db.Migrator().AutoMigrate(
+		&JiraStatus{},
+	)
+}
+
+func (*UpdateSchemas20220614) Version() uint64 {
+	return 20220614112900
+}
+
+func (*UpdateSchemas20220614) Name() string {
+	return "add jira status"
 }

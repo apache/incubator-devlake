@@ -216,6 +216,59 @@ const ProviderSettings = (props) => {
         <>
           <FormGroup
             disabled={isRunning || !isEnabled(providerId)}
+            label={<strong>Connection ID<span className='requiredStar'>*</span></strong>}
+            labelInfo={<span style={{ display: 'block' }}>Choose Connection Instance ID</span>}
+            inline={false}
+            labelFor='source-id'
+            className=''
+            contentClassName=''
+            fill
+            style={{ marginRight: '12px' }}
+          >
+            <ButtonGroup>
+              <Select
+                disabled={isRunning || !isEnabled(providerId)}
+                className='selector-connection-id'
+                popoverProps={{ popoverClassName: 'source-id-popover' }}
+                multiple
+                inline={true}
+                fill={true}
+                items={connections}
+                activeItem={selectedConnection}
+                itemPredicate={(query, item) => item?.title?.toLowerCase().indexOf(query.toLowerCase()) >= 0}
+                itemRenderer={(item, { handleClick, modifiers }) => (
+                  <MenuItem
+                    active={modifiers.active}
+                    key={item.value}
+                    label={item.value}
+                    onClick={handleClick}
+                    text={item.title}
+                  />
+                )}
+                noResults={<MenuItem disabled={true} text='No Connections.' />}
+                onItemSelect={(item) => {
+                  setSelectedConnection(item)
+                }}
+              >
+                <Button
+                  className='btn-connection-id-selector'
+                  disabled={isRunning || !isEnabled(providerId)}
+                  style={{ justifyContent: 'space-between', minWidth: '206px', maxWidth: '290px', whiteSpace: 'nowrap' }}
+                  text={selectedConnection ? `${selectedConnection.title} [${selectedConnection.value}]` : 'Select Instance'}
+                  rightIcon='double-caret-vertical'
+                  fill
+                />
+              </Select>
+              <Button
+                icon='eraser'
+                intent={Intent.WARNING}
+                disabled={isRunning || !isEnabled(providerId)}
+                onClick={() => setSelectedConnection(null)}
+              />
+            </ButtonGroup>
+          </FormGroup>
+          <FormGroup
+            disabled={isRunning || !isEnabled(providerId)}
             label={
               <strong>Project ID<span className='requiredStar'>*</span>
                 <span
