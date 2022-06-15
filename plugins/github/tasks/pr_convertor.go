@@ -43,7 +43,7 @@ func ConvertPullRequests(taskCtx core.SubTaskContext) error {
 
 	cursor, err := db.Cursor(
 		dal.From(&models.GithubPullRequest{}),
-		dal.Where("repo_id = ?", repoId),
+		dal.Where("repo_id = ? and connection_id = ?", repoId, data.Options.ConnectionId),
 	)
 	if err != nil {
 		return err
@@ -60,8 +60,9 @@ func ConvertPullRequests(taskCtx core.SubTaskContext) error {
 		RawDataSubTaskArgs: helper.RawDataSubTaskArgs{
 			Ctx: taskCtx,
 			Params: GithubApiParams{
-				Owner: data.Options.Owner,
-				Repo:  data.Options.Repo,
+				ConnectionId: data.Options.ConnectionId,
+				Owner:        data.Options.Owner,
+				Repo:         data.Options.Repo,
 			},
 			Table: RAW_PULL_REQUEST_TABLE,
 		},
