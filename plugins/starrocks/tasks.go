@@ -15,7 +15,7 @@ import (
 func getAllTables(database string, db *gorm.DB) ([]string, error) {
 	var tableSql string
 	if db.Dialector.Name() == "mysql" {
-		tableSql = fmt.Sprintf("select table_name from information_schema.tables where table_schema = '%s'", database)
+		tableSql = fmt.Sprintf("select table_name from information_schema.tables where table_schema = '%s' and table_name not like '_devlake%%'", database)
 	} else {
 		tableSql = "select table_name from information_schema.tables where table_schema = 'public' and table_name not like '_devlake%'"
 	}
