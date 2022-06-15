@@ -150,7 +150,7 @@ func (t *DataFlowTester) Subtask(subtaskMeta core.SubTaskMeta, taskData interfac
 // CreateSnapshot reads rows from database and write them into .csv file.
 func (t *DataFlowTester) CreateSnapshot(dst schema.Tabler, csvRelPath string, pkfields []string, targetfields []string) {
 	location, _ := time.LoadLocation(`UTC`)
-	allFields := []string{}
+	var allFields []string
 	allFields = append(pkfields, targetfields...)
 	dbCursor, err := t.Dal.Cursor(
 		dal.Select(strings.Join(allFields, `,`)),
