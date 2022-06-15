@@ -15,28 +15,25 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package tasks
+package api
 
 import (
-	"time"
-
+	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/helper"
-	"github.com/apache/incubator-devlake/plugins/jenkins/models"
+	"github.com/go-playground/validator/v10"
+	"github.com/spf13/viper"
+	"gorm.io/gorm"
 )
 
-type JenkinsApiParams struct {
-	ConnectionId uint64
-}
+var vld *validator.Validate
+var connectionHelper *helper.ConnectionApiHelper
+var basicRes core.BasicRes
 
-type JenkinsOptions struct {
-	ConnectionId uint64 `json:"connectionId"`
-	Since        string
-	Tasks        []string `json:"tasks,omitempty"`
-}
-
-type JenkinsTaskData struct {
-	Options    *JenkinsOptions
-	ApiClient  *helper.ApiAsyncClient
-	Connection *models.JenkinsConnection
-	Since      *time.Time
+func Init(config *viper.Viper, logger core.Logger, database *gorm.DB) {
+	basicRes = helper.NewDefaultBasicRes(config, logger, database)
+	vld = validator.New()
+	connectionHelper = helper.NewConnectionHelper(
+		basicRes,
+		vld,
+	)
 }

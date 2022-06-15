@@ -19,6 +19,7 @@ package tasks
 
 import (
 	"encoding/json"
+
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/helper"
 	"github.com/apache/incubator-devlake/plugins/jenkins/models"
@@ -34,8 +35,12 @@ var ExtractApiJobsMeta = core.SubTaskMeta{
 }
 
 func ExtractApiJobs(taskCtx core.SubTaskContext) error {
+	data := taskCtx.GetData().(*JenkinsTaskData)
 	extractor, err := helper.NewApiExtractor(helper.ApiExtractorArgs{
 		RawDataSubTaskArgs: helper.RawDataSubTaskArgs{
+			Params: JenkinsApiParams{
+				ConnectionId: data.Connection.ID,
+			},
 			Ctx: taskCtx,
 			/*
 				This struct will be JSONEncoded and stored into database along with raw data itself, to identity minimal
@@ -56,9 +61,10 @@ func ExtractApiJobs(taskCtx core.SubTaskContext) error {
 
 			job := &models.JenkinsJob{
 				JenkinsJobProps: models.JenkinsJobProps{
-					Name:  body.Name,
-					Class: body.Class,
-					Color: body.Color,
+					ConnectionId: data.Connection.ID,
+					Name:         body.Name,
+					Class:        body.Class,
+					Color:        body.Color,
 				},
 			}
 			results = append(results, job)

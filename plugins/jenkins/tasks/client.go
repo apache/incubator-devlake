@@ -23,47 +23,31 @@ import (
 
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/helper"
-	"github.com/apache/incubator-devlake/utils"
+	"github.com/apache/incubator-devlake/plugins/jenkins/models"
 )
 
-func CreateApiClient(taskCtx core.TaskContext) (*helper.ApiAsyncClient, error) {
-	// load configuration
-	endpoint := taskCtx.GetConfig("JENKINS_ENDPOINT")
-	if endpoint == "" {
-		return nil, fmt.Errorf("JENKINS_ENDPOINT is required")
-	}
-	userRateLimit, err := utils.StrToIntOr(taskCtx.GetConfig("JENKINS_API_REQUESTS_PER_HOUR"), 0)
-	if err != nil {
-		return nil, err
-	}
-	username := taskCtx.GetConfig("JENKINS_USERNAME")
-	if username == "" {
-		return nil, fmt.Errorf("JENKINS_USERNAME is required")
-	}
-	password := taskCtx.GetConfig("JENKINS_PASSWORD")
-	if password == "" {
-		return nil, fmt.Errorf("JENKINS_PASSWORD is required")
-	}
-	encodedToken := utils.GetEncodedToken(username, password)
-	proxy := taskCtx.GetConfig("JENKINS_PROXY")
+func CreateApiClient(taskCtx core.TaskContext, connection *models.JenkinsConnection) (*helper.ApiAsyncClient, error) {
 
 	// create synchronize api client so we can calculate api rate limit dynamically
 	headers := map[string]string{
-		"Authorization": fmt.Sprintf("Basic %v", encodedToken),
+		"Authorization": fmt.Sprintf("Basic %v", connection.GetEncodedToken()),
 	}
-	apiClient, err := helper.NewApiClient(endpoint, headers, 0, proxy, taskCtx.GetContext())
+
+	apiClient, err := helper.NewApiClient(connection.Endpoint, headers, 0, connection.Proxy, taskCtx.GetContext())
 	if err != nil {
 		return nil, err
 	}
+
 	apiClient.SetAfterFunction(func(res *http.Response) error {
 		if res.StatusCode == http.StatusUnauthorized {
 			return fmt.Errorf("authentication failed, please check your Username/Password")
 		}
 		return nil
 	})
+
 	// create rate limit calculator
 	rateLimiter := &helper.ApiRateLimitCalculator{
-		UserRateLimitPerHour: userRateLimit,
+		UserRateLimitPerHour: connection.RateLimit,
 	}
 	asyncApiClient, err := helper.CreateAsyncApiClient(
 		taskCtx,

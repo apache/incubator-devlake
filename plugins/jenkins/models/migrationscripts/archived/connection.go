@@ -15,14 +15,33 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package models
+package archived
 
-import "github.com/apache/incubator-devlake/plugins/helper"
+import (
+	"github.com/apache/incubator-devlake/models/migrationscripts/archived"
+)
+
+type BaseConnection struct {
+	Name string `gorm:"type:varchar(100);uniqueIndex" json:"name" validate:"required"`
+	archived.Model
+}
+
+type BasicAuth struct {
+	Username string `mapstructure:"username" validate:"required" json:"username"`
+	Password string `mapstructure:"password" validate:"required" json:"password" encrypt:"yes"`
+}
+
+type RestConnection struct {
+	BaseConnection `mapstructure:",squash"`
+	Endpoint       string `mapstructure:"endpoint" validate:"required" json:"endpoint"`
+	Proxy          string `mapstructure:"proxy" json:"proxy"`
+	RateLimit      int    `comment:"api request rate limt per hour" json:"rateLimit"`
+}
 
 // This object conforms to what the frontend currently sends.
 type JenkinsConnection struct {
-	helper.RestConnection `mapstructure:",squash"`
-	helper.BasicAuth      `mapstructure:",squash"`
+	RestConnection `mapstructure:",squash"`
+	BasicAuth      `mapstructure:",squash"`
 }
 
 type JenkinsResponse struct {

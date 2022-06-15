@@ -19,19 +19,16 @@ package api
 
 import (
 	"fmt"
-	"github.com/apache/incubator-devlake/config"
-	"github.com/apache/incubator-devlake/plugins/jenkins/models"
 	"net/http"
 	"time"
+
+	"github.com/apache/incubator-devlake/plugins/jenkins/models"
 
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/helper"
 	"github.com/apache/incubator-devlake/utils"
-	"github.com/go-playground/validator/v10"
 	"github.com/mitchellh/mapstructure"
 )
-
-var vld = validator.New()
 
 func TestConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, error) {
 	// decode
@@ -41,7 +38,7 @@ func TestConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, erro
 	if err != nil {
 		return nil, err
 	}
-	// validate
+	// validateplugins/jenkins/tasks/job_collector.go
 	err = vld.Struct(connection)
 	if err != nil {
 		return nil, err
@@ -72,73 +69,77 @@ func TestConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, erro
 }
 
 /*
-PATCH /plugins/jenkins/connections/:connectionId
+POST /plugins/jenkins/connections
 {
-	"Endpoint": "your-endpoint",
-	"Username": "your-username",
-	"Password": "your-password",
+	"name": "jenkins data connection name",
+	"endpoint": "jenkins api endpoint, i.e. https://ci.jenkins.io/",
+	"username": "username, usually should be email address",
+	"password": "jenkins api access token"
 }
 */
-func PatchConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, error) {
-	v := config.GetConfig()
+func PostConnections(input *core.ApiResourceInput) (*core.ApiResourceOutput, error) {
+	// create a new connection
 	connection := &models.JenkinsConnection{}
-	err := helper.EncodeStruct(v, connection, "env")
+
+	// update from request and save to database
+	err := connectionHelper.Create(connection, input)
 	if err != nil {
 		return nil, err
 	}
-	// update from request and save to .env
-	err = helper.DecodeStruct(v, connection, input.Body, "env")
+	return &core.ApiResourceOutput{Body: connection, Status: http.StatusOK}, nil
+}
+
+/*
+PATCH /plugins/jenkins/connections/connectionId
+{
+	"name": "jenkins data connection name",
+	"endpoint": "jenkins api endpoint, i.e. https://ci.jenkins.io/",
+	"username": "username, usually should be email address",
+	"password": "jenkins api access token"
+}
+*/
+
+func PatchConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, error) {
+	connection := &models.JenkinsConnection{}
+	err := connectionHelper.Patch(connection, input)
 	if err != nil {
 		return nil, err
 	}
-	err = config.WriteConfig(v)
+
+	return &core.ApiResourceOutput{Body: connection}, nil
+}
+
+/*
+DELETE /plugins/jenkins/connections/connectionId
+*/
+func DeleteConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, error) {
+	connection := &models.JenkinsConnection{}
+	err := connectionHelper.First(connection, input.Params)
 	if err != nil {
 		return nil, err
 	}
-	response := models.JenkinsResponse{
-		JenkinsConnection: *connection,
-		Name:              "Jenkins",
-		ID:                1,
-	}
-	return &core.ApiResourceOutput{Body: response, Status: http.StatusOK}, nil
+	err = connectionHelper.Delete(connection)
+	return &core.ApiResourceOutput{Body: connection}, err
 }
 
 /*
 GET /plugins/jenkins/connections
 */
 func ListConnections(input *core.ApiResourceInput) (*core.ApiResourceOutput, error) {
-	// RETURN ONLY 1 SOURCE (FROM ENV) until multi-connection is developed.
-	v := config.GetConfig()
-	connection := &models.JenkinsConnection{}
-
-	err := helper.EncodeStruct(v, connection, "env")
+	var connections []models.JenkinsConnection
+	err := connectionHelper.List(&connections)
 	if err != nil {
 		return nil, err
 	}
-	response := models.JenkinsResponse{
-		JenkinsConnection: *connection,
-		Name:              "Jenkins",
-		ID:                1,
-	}
 
-	return &core.ApiResourceOutput{Body: []models.JenkinsResponse{response}}, nil
+	return &core.ApiResourceOutput{Body: connections, Status: http.StatusOK}, nil
 }
 
 /*
-GET /plugins/jenkins/connections/:connectionId
+GET /plugins/jenkins/connections/connectionId
 */
 func GetConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, error) {
-	//  RETURN ONLY 1 SOURCE FROM ENV (Ignore ID until multi-connection is developed.)
-	v := config.GetConfig()
 	connection := &models.JenkinsConnection{}
-	err := helper.EncodeStruct(v, connection, "env")
-	if err != nil {
-		return nil, err
-	}
-	response := &models.JenkinsResponse{
-		JenkinsConnection: *connection,
-		Name:              "Jenkins",
-		ID:                1,
-	}
-	return &core.ApiResourceOutput{Body: response}, nil
+	err := connectionHelper.First(connection, input.Params)
+	return &core.ApiResourceOutput{Body: connection}, err
 }
