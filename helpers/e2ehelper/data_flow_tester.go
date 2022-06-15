@@ -92,16 +92,11 @@ func NewDataFlowTester(t *testing.T, pluginName string, pluginMeta core.PluginMe
 	}
 }
 
-// ImportCsv imports records from specified csv file into target table, note that existing data would be deleted first.
-func (t *DataFlowTester) ImportCsv(csvRelPath string, tableName string) {
+// ImportCsvIntoRawTable imports records from specified csv file into target table, note that existing data would be deleted first.
+func (t *DataFlowTester) ImportCsvIntoRawTable(csvRelPath string, tableName string) {
 	csvIter := pluginhelper.NewCsvFileIterator(csvRelPath)
 	defer csvIter.Close()
-	// create table if not exists
-	err := t.Db.Table(tableName).AutoMigrate(&helper.RawData{})
-	if err != nil {
-		panic(err)
-	}
-	t.MigrateRawTableAndFlush(tableName)
+	t.FlushRawTable(tableName)
 	// load rows and insert into target table
 	for csvIter.HasNext() {
 		toInsertValues := csvIter.Fetch()
@@ -117,36 +112,35 @@ func (t *DataFlowTester) ImportCsv(csvRelPath string, tableName string) {
 	}
 }
 
-// MigrateTableAndFlush migrate table and deletes all records from specified table
-func (t *DataFlowTester) MigrateRawTableAndFlush(rawRableName string) {
+// MigrateRawTableAndFlush migrate table and deletes all records from specified table
+func (t *DataFlowTester) FlushRawTable(rawTableName string) {
 	// flush target table
-	err := t.Db.Table(rawRableName).AutoMigrate(&helper.RawData{})
+	err := t.Db.Migrator().DropTable(rawTableName)
 	if err != nil {
 		panic(err)
 	}
-	err = t.Db.Exec(fmt.Sprintf("DELETE FROM %s", rawRableName)).Error
+	err = t.Db.Table(rawTableName).AutoMigrate(&helper.RawData{})
+	if err != nil {
+		panic(err)
+	}
+	err = t.Db.Exec(fmt.Sprintf("DELETE FROM %s", rawTableName)).Error
 	if err != nil {
 		panic(err)
 	}
 }
 
-// MigrateTableAndFlush migrate table and deletes all records from specified table
-func (t *DataFlowTester) MigrateTableAndFlush(dst schema.Tabler) {
+// FlushTabler migrate table and deletes all records from specified table
+func (t *DataFlowTester) FlushTabler(dst schema.Tabler) {
 	// flush target table
-	err := t.Db.AutoMigrate(dst)
+	err := t.Db.Migrator().DropTable(dst)
+	if err != nil {
+		panic(err)
+	}
+	err = t.Db.AutoMigrate(dst)
 	if err != nil {
 		panic(err)
 	}
 	err = t.Db.Delete(dst, `true`).Error
-	if err != nil {
-		panic(err)
-	}
-}
-
-// FlushTable deletes all records from specified table
-func (t *DataFlowTester) FlushTable(tableName string) {
-	// flush target table
-	err := t.Db.Exec(fmt.Sprintf("DELETE FROM %s", tableName)).Error
 	if err != nil {
 		panic(err)
 	}

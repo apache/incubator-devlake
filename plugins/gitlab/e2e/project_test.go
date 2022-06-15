@@ -40,11 +40,10 @@ func TestGitlabDataFlow(t *testing.T) {
 	}
 
 	// import raw data table
-	dataflowTester.MigrateRawTableAndFlush("_raw_gitlab_api_project")
-	dataflowTester.ImportCsv("./tables/_raw_gitlab_api_projects.csv", "_raw_gitlab_api_project")
+	dataflowTester.ImportCsvIntoRawTable("./tables/_raw_gitlab_api_projects.csv", "_raw_gitlab_api_project")
 
 	// verify extraction
-	dataflowTester.MigrateTableAndFlush(&models.GitlabProject{})
+	dataflowTester.FlushTabler(&models.GitlabProject{})
 	dataflowTester.Subtask(tasks.ExtractProjectMeta, taskData)
 	dataflowTester.CreateSnapshotOrVerify(
 		models.GitlabProject{},
@@ -72,7 +71,7 @@ func TestGitlabDataFlow(t *testing.T) {
 	)
 
 	// verify conversion
-	dataflowTester.MigrateTableAndFlush(&code.Repo{})
+	dataflowTester.FlushTabler(&code.Repo{})
 	dataflowTester.Subtask(tasks.ConvertProjectMeta, taskData)
 	dataflowTester.CreateSnapshotOrVerify(
 		code.Repo{},
