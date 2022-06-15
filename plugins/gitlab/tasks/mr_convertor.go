@@ -41,7 +41,7 @@ func ConvertApiMergeRequests(taskCtx core.SubTaskContext) error {
 	db := taskCtx.GetDal()
 	clauses := []dal.Clause{
 		dal.From(&models.GitlabMergeRequest{}),
-		dal.Where("project_id=?", data.Options.ProjectId),
+		dal.Where("project_id=? and connection_id = ?", data.Options.ProjectId, data.Options.ConnectionId),
 	}
 
 	cursor, err := db.Cursor(clauses...)
@@ -63,10 +63,10 @@ func ConvertApiMergeRequests(taskCtx core.SubTaskContext) error {
 
 			domainPr := &code.PullRequest{
 				DomainEntity: domainlayer.DomainEntity{
-					Id: domainMrIdGenerator.Generate(gitlabMr.GitlabId),
+					Id: domainMrIdGenerator.Generate(data.Options.ConnectionId, gitlabMr.GitlabId),
 				},
-				BaseRepoId:     domainRepoIdGenerator.Generate(gitlabMr.SourceProjectId),
-				HeadRepoId:     domainRepoIdGenerator.Generate(gitlabMr.TargetProjectId),
+				BaseRepoId:     domainRepoIdGenerator.Generate(data.Options.ConnectionId, gitlabMr.SourceProjectId),
+				HeadRepoId:     domainRepoIdGenerator.Generate(data.Options.ConnectionId, gitlabMr.TargetProjectId),
 				Status:         gitlabMr.State,
 				PullRequestKey: gitlabMr.Iid,
 				Title:          gitlabMr.Title,
