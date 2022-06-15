@@ -51,7 +51,7 @@ type PullRequestCommit struct {
 		Email string
 		Date  helper.Iso8601Time
 	}
-	Message string
+	Message json.RawMessage
 }
 
 func ExtractApiPullRequestCommits(taskCtx core.SubTaskContext) error {
@@ -64,8 +64,9 @@ func ExtractApiPullRequestCommits(taskCtx core.SubTaskContext) error {
 				set of data to be process, for example, we process JiraIssues by Board
 			*/
 			Params: GithubApiParams{
-				Owner: data.Options.Owner,
-				Repo:  data.Options.Repo,
+				ConnectionId: data.Options.ConnectionId,
+				Owner:        data.Options.Owner,
+				Repo:         data.Options.Repo,
 			},
 			/*
 				Table store raw data
@@ -89,13 +90,14 @@ func ExtractApiPullRequestCommits(taskCtx core.SubTaskContext) error {
 			// need to extract 2 kinds of entities here
 			results := make([]interface{}, 0, 2)
 
-			githubCommit, err := convertPullRequestCommit(apiPullRequestCommit)
+			githubCommit, err := convertPullRequestCommit(apiPullRequestCommit, data.Options.ConnectionId)
 			if err != nil {
 				return nil, err
 			}
 			results = append(results, githubCommit)
 
 			githubPullRequestCommit := &models.GithubPullRequestCommit{
+				ConnectionId:  data.Options.ConnectionId,
 				CommitSha:     apiPullRequestCommit.Sha,
 				PullRequestId: pull.GithubId,
 			}
@@ -114,10 +116,11 @@ func ExtractApiPullRequestCommits(taskCtx core.SubTaskContext) error {
 	return extractor.Execute()
 }
 
-func convertPullRequestCommit(prCommit *PrCommitsResponse) (*models.GithubCommit, error) {
+func convertPullRequestCommit(prCommit *PrCommitsResponse, connId uint64) (*models.GithubCommit, error) {
 	githubCommit := &models.GithubCommit{
+		ConnectionId:   connId,
 		Sha:            prCommit.Sha,
-		Message:        prCommit.Commit.Message,
+		Message:        string(prCommit.Commit.Message),
 		AuthorId:       prCommit.Commit.Author.Id,
 		AuthorName:     prCommit.Commit.Author.Name,
 		AuthorEmail:    prCommit.Commit.Author.Email,

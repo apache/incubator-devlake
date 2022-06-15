@@ -22,6 +22,7 @@ import (
 )
 
 type GithubPullRequestCommit struct {
+	ConnectionId  uint64 `gorm:"primaryKey"`
 	CommitSha     string `gorm:"primaryKey;type:varchar(40)"`
 	PullRequestId int    `gorm:"primaryKey;autoIncrement:false"`
 	common.NoPKModel

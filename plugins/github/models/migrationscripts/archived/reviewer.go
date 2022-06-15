@@ -20,6 +20,7 @@ package archived
 import "github.com/apache/incubator-devlake/models/migrationscripts/archived"
 
 type GithubReviewer struct {
+	ConnectionId  uint64 `gorm:"primaryKey"`
 	GithubId      int    `gorm:"primaryKey"`
 	Login         string `gorm:"type:varchar(255)"`
 	PullRequestId int    `gorm:"primaryKey"`

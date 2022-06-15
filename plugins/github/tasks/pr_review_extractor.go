@@ -26,11 +26,11 @@ import (
 	"github.com/apache/incubator-devlake/plugins/helper"
 )
 
-var ExtractApiPullRequestReviewsMeta = core.SubTaskMeta{
-	Name:             "extractApiPullRequestReviews",
-	EntryPoint:       ExtractApiPullRequestReviews,
+var ExtractApiPullRequestReviewersMeta = core.SubTaskMeta{
+	Name:             "extractApiPullRequestReviewers",
+	EntryPoint:       ExtractApiPullRequestReviewers,
 	EnabledByDefault: true,
-	Description:      "Extract raw PullRequestReviews data into tool layer table github_reviewers",
+	Description:      "Extract raw PullRequestReviewers data into tool layer table github_reviewers",
 }
 
 type PullRequestReview struct {
@@ -44,7 +44,7 @@ type PullRequestReview struct {
 	SubmittedAt helper.Iso8601Time `json:"submitted_at"`
 }
 
-func ExtractApiPullRequestReviews(taskCtx core.SubTaskContext) error {
+func ExtractApiPullRequestReviewers(taskCtx core.SubTaskContext) error {
 	data := taskCtx.GetData().(*GithubTaskData)
 	extractor, err := helper.NewApiExtractor(helper.ApiExtractorArgs{
 		RawDataSubTaskArgs: helper.RawDataSubTaskArgs{
@@ -54,8 +54,9 @@ func ExtractApiPullRequestReviews(taskCtx core.SubTaskContext) error {
 				set of data to be process, for example, we process JiraIssues by Board
 			*/
 			Params: GithubApiParams{
-				Owner: data.Options.Owner,
-				Repo:  data.Options.Repo,
+				ConnectionId: data.Options.ConnectionId,
+				Owner:        data.Options.Owner,
+				Repo:         data.Options.Repo,
 			},
 			/*
 				Table store raw data
@@ -80,6 +81,7 @@ func ExtractApiPullRequestReviews(taskCtx core.SubTaskContext) error {
 			results := make([]interface{}, 0, 1)
 
 			githubReviewer := &models.GithubReviewer{
+				ConnectionId:  data.Options.ConnectionId,
 				GithubId:      apiPullRequestReview.User.Id,
 				Login:         apiPullRequestReview.User.Login,
 				PullRequestId: pull.GithubId,
