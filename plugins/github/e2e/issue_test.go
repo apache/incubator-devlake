@@ -19,6 +19,7 @@ package e2e
 
 import (
 	"fmt"
+	"github.com/apache/incubator-devlake/models/domainlayer/ticket"
 	"github.com/apache/incubator-devlake/plugins/github/models"
 	"testing"
 
@@ -91,69 +92,69 @@ func TestIssueDataFlow(t *testing.T) {
 		},
 	)
 
-	//// verify extraction
-	//dataflowTester.VerifyTable(
-	//	models.GithubIssueLabel{},
-	//	fmt.Sprintf("./snapshot_tables/%s.csv", models.GithubIssueLabel{}.TableName()),
-	//	[]string{"issue_id", "label_name"},
-	//	[]string{
-	//		"_raw_data_params",
-	//		"_raw_data_table",
-	//		"_raw_data_id",
-	//		"_raw_data_remark",
-	//	},
-	//)
-	//
-	//// verify extraction
-	//dataflowTester.FlushTabler(&ticket.Issue{})
-	//dataflowTester.FlushTabler(&ticket.BoardIssue{})
-	//dataflowTester.Subtask(tasks.ConvertIssuesMeta, taskData)
-	//dataflowTester.VerifyTable(
-	//	ticket.Issue{},
-	//	fmt.Sprintf("./snapshot_tables/%s.csv", ticket.Issue{}.TableName()),
-	//	[]string{"id"},
-	//	[]string{
-	//		"url",
-	//		"icon_url",
-	//		"issue_key",
-	//		"title",
-	//		"description",
-	//		"epic_key",
-	//		"type",
-	//		"status",
-	//		"original_status",
-	//		"story_point",
-	//		"resolution_date",
-	//		"created_date",
-	//		"updated_date",
-	//		"lead_time_minutes",
-	//		"parent_issue_id",
-	//		"priority",
-	//		"original_estimate_minutes",
-	//		"time_spent_minutes",
-	//		"time_remaining_minutes",
-	//		"creator_id",
-	//		"creator_name",
-	//		"assignee_id",
-	//		"assignee_name",
-	//		"severity",
-	//		"component",
-	//	},
-	//)
-	//dataflowTester.VerifyTable(
-	//	ticket.BoardIssue{},
-	//	fmt.Sprintf("./snapshot_tables/%s.csv", ticket.BoardIssue{}.TableName()),
-	//	[]string{"board_id", "issue_id"},
-	//	[]string{},
-	//)
-	//
-	//// verify extraction
-	//dataflowTester.FlushTabler(&ticket.IssueLabel{})
-	//dataflowTester.Subtask(tasks.ConvertIssueLabelsMeta, taskData)
-	//dataflowTester.VerifyTable(
-	//	ticket.IssueLabel{},
-	//	fmt.Sprintf("./snapshot_tables/%s.csv", ticket.IssueLabel{}.TableName()),
-	//	[]string{"issue_id", "label_name"},
-	//	[]string{},
-	//)
+	// verify extraction
+	dataflowTester.VerifyTable(
+		models.GithubIssueLabel{},
+		fmt.Sprintf("./snapshot_tables/%s.csv", models.GithubIssueLabel{}.TableName()),
+		[]string{"connection_id", "issue_id", "label_name"},
+		[]string{
+			"_raw_data_params",
+			"_raw_data_table",
+			"_raw_data_id",
+			"_raw_data_remark",
+		},
+	)
+
+	// verify extraction
+	dataflowTester.FlushTabler(&ticket.Issue{})
+	dataflowTester.FlushTabler(&ticket.BoardIssue{})
+	dataflowTester.Subtask(tasks.ConvertIssuesMeta, taskData)
+	dataflowTester.VerifyTable(
+		ticket.Issue{},
+		fmt.Sprintf("./snapshot_tables/%s.csv", ticket.Issue{}.TableName()),
+		[]string{"id"},
+		[]string{
+			"url",
+			"icon_url",
+			"issue_key",
+			"title",
+			"description",
+			"epic_key",
+			"type",
+			"status",
+			"original_status",
+			"story_point",
+			"resolution_date",
+			"created_date",
+			"updated_date",
+			"lead_time_minutes",
+			"parent_issue_id",
+			"priority",
+			"original_estimate_minutes",
+			"time_spent_minutes",
+			"time_remaining_minutes",
+			"creator_id",
+			"creator_name",
+			"assignee_id",
+			"assignee_name",
+			"severity",
+			"component",
+		},
+	)
+	dataflowTester.VerifyTable(
+		ticket.BoardIssue{},
+		fmt.Sprintf("./snapshot_tables/%s.csv", ticket.BoardIssue{}.TableName()),
+		[]string{"board_id", "issue_id"},
+		[]string{},
+	)
+
+	// verify extraction
+	dataflowTester.FlushTabler(&ticket.IssueLabel{})
+	dataflowTester.Subtask(tasks.ConvertIssueLabelsMeta, taskData)
+	dataflowTester.VerifyTable(
+		ticket.IssueLabel{},
+		fmt.Sprintf("./snapshot_tables/%s.csv", ticket.IssueLabel{}.TableName()),
+		[]string{"issue_id", "label_name"},
+		[]string{},
+	)
 }

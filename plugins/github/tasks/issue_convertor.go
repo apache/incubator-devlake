@@ -71,7 +71,7 @@ func ConvertIssues(taskCtx core.SubTaskContext) error {
 		Convert: func(inputRow interface{}) ([]interface{}, error) {
 			issue := inputRow.(*githubModels.GithubIssue)
 			domainIssue := &ticket.Issue{
-				DomainEntity:    domainlayer.DomainEntity{Id: issueIdGen.Generate(issue.GithubId)},
+				DomainEntity:    domainlayer.DomainEntity{Id: issueIdGen.Generate(data.Options.ConnectionId, issue.GithubId)},
 				IssueKey:        strconv.Itoa(issue.Number),
 				Title:           issue.Title,
 				Description:     issue.Body,
@@ -95,7 +95,7 @@ func ConvertIssues(taskCtx core.SubTaskContext) error {
 				domainIssue.Status = ticket.TODO
 			}
 			boardIssue := &ticket.BoardIssue{
-				BoardId: boardIdGen.Generate(repoId),
+				BoardId: boardIdGen.Generate(data.Options.ConnectionId, repoId),
 				IssueId: domainIssue.Id,
 			}
 			return []interface{}{

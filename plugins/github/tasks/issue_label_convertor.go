@@ -66,7 +66,7 @@ func ConvertIssueLabels(taskCtx core.SubTaskContext) error {
 		Convert: func(inputRow interface{}) ([]interface{}, error) {
 			issueLabel := inputRow.(*githubModels.GithubIssueLabel)
 			domainIssueLabel := &ticket.IssueLabel{
-				IssueId:   issueIdGen.Generate(issueLabel.IssueId),
+				IssueId:   issueIdGen.Generate(data.Options.ConnectionId, issueLabel.IssueId),
 				LabelName: issueLabel.LabelName,
 			}
 			return []interface{}{
