@@ -45,7 +45,7 @@ func TestGitlabDataFlow(t *testing.T) {
 	// verify extraction
 	dataflowTester.FlushTabler(&models.GitlabProject{})
 	dataflowTester.Subtask(tasks.ExtractProjectMeta, taskData)
-	dataflowTester.CreateSnapshotOrVerify(
+	dataflowTester.VerifyTable(
 		models.GitlabProject{},
 		"tables/_tool_gitlab_projects.csv",
 		[]string{"connection_id", "gitlab_id"},
@@ -73,7 +73,7 @@ func TestGitlabDataFlow(t *testing.T) {
 	// verify conversion
 	dataflowTester.FlushTabler(&code.Repo{})
 	dataflowTester.Subtask(tasks.ConvertProjectMeta, taskData)
-	dataflowTester.CreateSnapshotOrVerify(
+	dataflowTester.VerifyTable(
 		code.Repo{},
 		"tables/repos.csv",
 		[]string{"id"},
