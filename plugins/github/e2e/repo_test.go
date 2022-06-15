@@ -38,8 +38,9 @@ func TestRepoDataFlow(t *testing.T) {
 	}
 	taskData := &tasks.GithubTaskData{
 		Options: &tasks.GithubOptions{
-			Owner: "panjf2000",
-			Repo:  "ants",
+			ConnectionId: 1,
+			Owner:        "panjf2000",
+			Repo:         "ants",
 			Config: models.Config{
 				PrType:      "type/(.*)$",
 				PrComponent: "component/(.*)$",
@@ -57,7 +58,7 @@ func TestRepoDataFlow(t *testing.T) {
 	dataflowTester.VerifyTable(
 		models.GithubRepo{},
 		fmt.Sprintf("./snapshot_tables/%s.csv", models.GithubRepo{}.TableName()),
-		[]string{"github_id"},
+		[]string{"connection_id", "github_id"},
 		[]string{
 			"name",
 			"html_url",
