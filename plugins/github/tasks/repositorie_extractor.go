@@ -93,7 +93,11 @@ func ExtractApiRepositories(taskCtx core.SubTaskContext) error {
 				githubRepository.ParentHTMLUrl = body.Parent.HTMLUrl
 			}
 			results = append(results, githubRepository)
-			taskCtx.TaskContext().GetData().(*GithubTaskData).Repo = githubRepository
+
+			parentTaskContext := taskCtx.TaskContext()
+			if parentTaskContext != nil {
+				parentTaskContext.GetData().(*GithubTaskData).Repo = githubRepository
+			}
 			return results, nil
 		},
 	})
