@@ -57,7 +57,6 @@ func TestCommentDataFlow(t *testing.T) {
 	}
 
 	// import raw data table
-	dataflowTester.ImportCsvIntoRawTable("./raw_tables/_raw_github_api_issues.csv", "_raw_github_api_issues")
 	dataflowTester.ImportCsvIntoTabler(fmt.Sprintf("./snapshot_tables/%s.csv", models.GithubIssue{}.TableName()), &models.GithubIssue{})
 	dataflowTester.ImportCsvIntoTabler(fmt.Sprintf("./snapshot_tables/%s.csv", models.GithubIssueLabel{}.TableName()), &models.GithubIssueLabel{})
 
@@ -65,7 +64,7 @@ func TestCommentDataFlow(t *testing.T) {
 	dataflowTester.VerifyTable(
 		models.GithubIssue{},
 		fmt.Sprintf("./snapshot_tables/%s.csv", models.GithubIssue{}.TableName()),
-		[]string{"github_id", "repo_id"},
+		[]string{"connection_id", "github_id", "repo_id"},
 		[]string{
 			"number",
 			"state",
@@ -96,7 +95,7 @@ func TestCommentDataFlow(t *testing.T) {
 	dataflowTester.VerifyTable(
 		models.GithubIssueLabel{},
 		fmt.Sprintf("./snapshot_tables/%s.csv", models.GithubIssueLabel{}.TableName()),
-		[]string{"issue_id", "label_name"},
+		[]string{"connection_id", "issue_id", "label_name"},
 		[]string{
 			"_raw_data_params",
 			"_raw_data_table",
@@ -110,7 +109,7 @@ func TestCommentDataFlow(t *testing.T) {
 	dataflowTester.VerifyTable(
 		models.GithubPullRequest{},
 		fmt.Sprintf("./snapshot_tables/%s.csv", models.GithubPullRequest{}.TableName()),
-		[]string{"github_id", "repo_id"},
+		[]string{"connection_id", "github_id", "repo_id"},
 		[]string{
 			"number",
 			"state",
@@ -143,48 +142,47 @@ func TestCommentDataFlow(t *testing.T) {
 		},
 	)
 
-	//// import raw data table
-	//dataflowTester.ImportCsvIntoRawTable("./raw_tables/_raw_github_api_comments.csv", "_raw_github_api_comments")
-	//
-	//// verify extraction
-	//dataflowTester.FlushTabler(&models.GithubIssueComment{})
-	//dataflowTester.FlushTabler(&models.GithubPullRequestComment{})
-	//dataflowTester.Subtask(tasks.ExtractApiCommentsMeta, taskData)
-	//
-	//dataflowTester.VerifyTable(
-	//	models.GithubIssueComment{},
-	//	fmt.Sprintf("./snapshot_tables/%s.csv", models.GithubIssueComment{}.TableName()),
-	//	[]string{"github_id"},
-	//	[]string{
-	//		"issue_id",
-	//		"body",
-	//		"author_username",
-	//		"author_user_id",
-	//		"github_created_at",
-	//		"github_updated_at",
-	//		"_raw_data_params",
-	//		"_raw_data_table",
-	//		"_raw_data_id",
-	//		"_raw_data_remark",
-	//	},
-	//)
-	//dataflowTester.VerifyTable(
-	//	models.GithubPullRequestComment{},
-	//	fmt.Sprintf("./snapshot_tables/%s.csv", models.GithubPullRequestComment{}.TableName()),
-	//	[]string{"github_id"},
-	//	[]string{
-	//		"pull_request_id",
-	//		"body",
-	//		"author_username",
-	//		"author_user_id",
-	//		"github_created_at",
-	//		"github_updated_at",
-	//		"_raw_data_params",
-	//		"_raw_data_table",
-	//		"_raw_data_id",
-	//		"_raw_data_remark",
-	//	},
-	//)
+	dataflowTester.ImportCsvIntoRawTable("./raw_tables/_raw_github_api_comments.csv", "_raw_github_api_comments")
+
+	// verify extraction
+	dataflowTester.FlushTabler(&models.GithubIssueComment{})
+	dataflowTester.FlushTabler(&models.GithubPullRequestComment{})
+	dataflowTester.Subtask(tasks.ExtractApiCommentsMeta, taskData)
+
+	dataflowTester.VerifyTable(
+		models.GithubIssueComment{},
+		fmt.Sprintf("./snapshot_tables/%s.csv", models.GithubIssueComment{}.TableName()),
+		[]string{"connection_id", "github_id"},
+		[]string{
+			"issue_id",
+			"body",
+			"author_username",
+			"author_user_id",
+			"github_created_at",
+			"github_updated_at",
+			"_raw_data_params",
+			"_raw_data_table",
+			"_raw_data_id",
+			"_raw_data_remark",
+		},
+	)
+	dataflowTester.VerifyTable(
+		models.GithubPullRequestComment{},
+		fmt.Sprintf("./snapshot_tables/%s.csv", models.GithubPullRequestComment{}.TableName()),
+		[]string{"connection_id", "github_id"},
+		[]string{
+			"pull_request_id",
+			"body",
+			"author_username",
+			"author_user_id",
+			"github_created_at",
+			"github_updated_at",
+			"_raw_data_params",
+			"_raw_data_table",
+			"_raw_data_id",
+			"_raw_data_remark",
+		},
+	)
 
 	// verify extraction
 	dataflowTester.FlushTabler(&ticket.IssueComment{})
