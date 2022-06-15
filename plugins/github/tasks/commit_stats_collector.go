@@ -48,7 +48,7 @@ func CollectApiCommitStats(taskCtx core.SubTaskContext) error {
 	err := db.First(
 		&latestUpdated,
 		dal.Join("left join _tool_github_repo_commits on _tool_github_commit_stats.sha = _tool_github_repo_commits.commit_sha"),
-		dal.Where("_tool_github_repo_commits.repo_id = ?", data.Repo.GithubId),
+		dal.Where("_tool_github_repo_commits.repo_id = ? and _tool_github_repo_commits.connection_id = ?", data.Repo.GithubId, data.Repo.ConnectionId),
 		dal.Orderby("committed_date DESC"),
 		dal.Limit(1),
 	)
@@ -59,8 +59,8 @@ func CollectApiCommitStats(taskCtx core.SubTaskContext) error {
 	cursor, err := db.Cursor(
 		dal.Join("left join _tool_github_repo_commits on _tool_github_commits.sha = _tool_github_repo_commits.commit_sha"),
 		dal.From(models.GithubCommit{}.TableName()),
-		dal.Where("_tool_github_repo_commits.repo_id = ? and _tool_github_commits.committed_date >= ?",
-			data.Repo.GithubId, latestUpdated.CommittedDate.String()),
+		dal.Where("_tool_github_repo_commits.repo_id = ? and _tool_github_repo_commits.connection_id = ? and _tool_github_commits.committed_date >= ?",
+			data.Repo.GithubId, data.Repo.ConnectionId, latestUpdated.CommittedDate.String()),
 	)
 	if err != nil {
 		return err
@@ -78,8 +78,9 @@ func CollectApiCommitStats(taskCtx core.SubTaskContext) error {
 				set of data to be process, for example, we process JiraCommits by Board
 			*/
 			Params: GithubApiParams{
-				Owner: data.Options.Owner,
-				Repo:  data.Options.Repo,
+				ConnectionId: data.Options.ConnectionId,
+				Owner:        data.Options.Owner,
+				Repo:         data.Options.Repo,
 			},
 			/*
 				Table store raw data

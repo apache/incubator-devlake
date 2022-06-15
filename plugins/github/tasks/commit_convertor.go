@@ -46,7 +46,7 @@ func ConvertCommits(taskCtx core.SubTaskContext) error {
 			grc.commit_sha = gc.sha
 		)`),
 		dal.Select("gc.*"),
-		dal.Where("grc.repo_id = ?", repoId),
+		dal.Where("grc.repo_id = ? AND grc.connection_id = ?", repoId, data.Options.ConnectionId),
 	)
 	if err != nil {
 		return err
@@ -61,8 +61,9 @@ func ConvertCommits(taskCtx core.SubTaskContext) error {
 		RawDataSubTaskArgs: helper.RawDataSubTaskArgs{
 			Ctx: taskCtx,
 			Params: GithubApiParams{
-				Owner: data.Options.Owner,
-				Repo:  data.Options.Repo,
+				ConnectionId: data.Options.ConnectionId,
+				Owner:        data.Options.Owner,
+				Repo:         data.Options.Repo,
 			},
 			Table: RAW_COMMENTS_TABLE,
 		},

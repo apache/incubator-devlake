@@ -52,7 +52,7 @@ func CollectApiCommits(taskCtx core.SubTaskContext) error {
 			&latestUpdated,
 			dal.Join("left join _tool_github_repo_commits on _tool_github_commits.sha = _tool_github_repo_commits.commit_sha"),
 			dal.Join("left join _tool_github_repos on _tool_github_repo_commits.repo_id = _tool_github_repos.github_id"),
-			dal.Where("_tool_github_repo_commits.repo_id = ?", data.Repo.GithubId),
+			dal.Where("_tool_github_repo_commits.repo_id = ? AND _tool_github_repo_commits.connection_id = ?", data.Repo.GithubId, data.Repo.ConnectionId),
 			dal.Orderby("committed_date DESC"),
 			dal.Limit(1),
 		)
@@ -73,8 +73,9 @@ func CollectApiCommits(taskCtx core.SubTaskContext) error {
 				set of data to be process, for example, we process JiraCommits by Board
 			*/
 			Params: GithubApiParams{
-				Owner: data.Options.Owner,
-				Repo:  data.Options.Repo,
+				ConnectionId: data.Options.ConnectionId,
+				Owner:        data.Options.Owner,
+				Repo:         data.Options.Repo,
 			},
 			/*
 				Table store raw data

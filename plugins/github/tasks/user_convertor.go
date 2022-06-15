@@ -54,15 +54,16 @@ func ConvertUsers(taskCtx core.SubTaskContext) error {
 		RawDataSubTaskArgs: helper.RawDataSubTaskArgs{
 			Ctx: taskCtx,
 			Params: GithubApiParams{
-				Owner: data.Options.Owner,
-				Repo:  data.Options.Repo,
+				ConnectionId: data.Options.ConnectionId,
+				Owner:        data.Options.Owner,
+				Repo:         data.Options.Repo,
 			},
 			Table: RAW_COMMIT_TABLE,
 		},
 		Convert: func(inputRow interface{}) ([]interface{}, error) {
 			githubUser := inputRow.(*githubModels.GithubUser)
 			domainUser := &user.User{
-				DomainEntity: domainlayer.DomainEntity{Id: userIdGen.Generate(githubUser.Id)},
+				DomainEntity: domainlayer.DomainEntity{Id: userIdGen.Generate(data.Options.ConnectionId, githubUser.Id)},
 				Name:         githubUser.Login,
 				AvatarUrl:    githubUser.AvatarUrl,
 			}
