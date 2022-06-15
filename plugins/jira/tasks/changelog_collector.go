@@ -45,7 +45,7 @@ func CollectChangelogs(taskCtx core.SubTaskContext) error {
 
 	// query for issue_ids that needed changelog collection
 	clauses := []dal.Clause{
-		dal.Select("i.issue_id, NOW() AS update_time"),
+		dal.Select("i.issue_id, i.updated AS update_time"),
 		dal.From("_tool_jira_board_issues bi"),
 		dal.Join("LEFT JOIN _tool_jira_issues i ON (bi.connection_id = i.connection_id AND bi.issue_id = i.issue_id)"),
 		dal.Join("LEFT JOIN _tool_jira_changelogs c ON (c.connection_id = i.connection_id AND c.issue_id = i.issue_id)"),
