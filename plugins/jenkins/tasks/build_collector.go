@@ -55,6 +55,7 @@ func CollectApiBuilds(taskCtx core.SubTaskContext) error {
 	if err != nil {
 		return err
 	}
+	defer cursor.Close()
 
 	iterator, err := helper.NewDalCursorIterator(db, cursor, reflect.TypeOf(SimpleJob{}))
 	if err != nil {

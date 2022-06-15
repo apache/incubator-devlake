@@ -48,6 +48,7 @@ func ConvertBuilds(taskCtx core.SubTaskContext) error {
 	if err != nil {
 		return err
 	}
+	defer cursor.Close()
 
 	jobIdGen := didgen.NewDomainIdGenerator(&models.JenkinsJob{})
 	buildIdGen := didgen.NewDomainIdGenerator(&models.JenkinsBuild{})
