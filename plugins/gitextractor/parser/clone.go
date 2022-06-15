@@ -52,41 +52,56 @@ func cloneOverSSH(url, dir, passphrase string, pk []byte) error {
 	return nil
 }
 
-func (l *LibGit2) CloneOverHTTP(repoId, url, user, password, proxy string) error {
-	cloneOptions := &git.CloneOptions{Bare: true}
-	if proxy != "" {
-		cloneOptions.FetchOptions.ProxyOptions.Type = git.ProxyTypeSpecified
-		cloneOptions.FetchOptions.ProxyOptions.Url = proxy
-	}
-	if user != "" {
-		auth := fmt.Sprintf("Authorization: Basic %s", base64.StdEncoding.EncodeToString([]byte(user+":"+password)))
-		cloneOptions.FetchOptions.Headers = []string{auth}
-	}
-	dir, err := ioutil.TempDir("", "gitextractor")
-	if err != nil {
-		return err
-	}
-	defer os.RemoveAll(dir)
-	repo, err := git.Clone(url, dir, cloneOptions)
-	if err != nil {
-		return err
-	}
-	return l.run(repo, repoId)
+func (l *GitRepoCreator) CloneOverHTTP(repoId, url, user, password, proxy string) (*GitRepo, error) {
+	return withTempDirectory(func(dir string) (*GitRepo, error) {
+		cloneOptions := &git.CloneOptions{Bare: true}
+		if proxy != "" {
+			cloneOptions.FetchOptions.ProxyOptions.Type = git.ProxyTypeSpecified
+			cloneOptions.FetchOptions.ProxyOptions.Url = proxy
+		}
+		if user != "" {
+			auth := fmt.Sprintf("Authorization: Basic %s", base64.StdEncoding.EncodeToString([]byte(user+":"+password)))
+			cloneOptions.FetchOptions.Headers = []string{auth}
+		}
+		clonedRepo, err := git.Clone(url, dir, cloneOptions)
+		if err != nil {
+			return nil, err
+		}
+		return l.newGitRepo(repoId, clonedRepo), nil
+	})
 }
 
-func (l *LibGit2) CloneOverSSH(repoId, url, privateKey, passphrase string) error {
+func (l *GitRepoCreator) CloneOverSSH(repoId, url, privateKey, passphrase string) (*GitRepo, error) {
+	return withTempDirectory(func(dir string) (*GitRepo, error) {
+		pk, err := base64.StdEncoding.DecodeString(privateKey)
+		if err != nil {
+			return nil, err
+		}
+		err = cloneOverSSH(url, dir, passphrase, pk)
+		if err != nil {
+			return nil, err
+		}
+		return l.LocalRepo(dir, repoId)
+	})
+}
+
+func withTempDirectory(f func(tempDir string) (*GitRepo, error)) (*GitRepo, error) {
 	dir, err := ioutil.TempDir("", "gitextractor")
 	if err != nil {
-		return err
+		return nil, err
 	}
-	defer os.RemoveAll(dir)
-	pk, err := base64.StdEncoding.DecodeString(privateKey)
+	cleanup := func() {
+		_ = os.RemoveAll(dir)
+	}
+	defer func() {
+		if err != nil {
+			cleanup()
+		}
+	}()
+	repo, err := f(dir)
 	if err != nil {
-		return err
+		return nil, err
 	}
-	err = cloneOverSSH(url, dir, passphrase, pk)
-	if err != nil {
-		return err
-	}
-	return l.LocalRepo(dir, repoId)
+	repo.cleanup = cleanup
+	return repo, err
 }

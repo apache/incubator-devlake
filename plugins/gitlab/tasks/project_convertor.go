@@ -18,6 +18,7 @@ limitations under the License.
 package tasks
 
 import (
+	"github.com/apache/incubator-devlake/plugins/core/dal"
 	"reflect"
 
 	"github.com/apache/incubator-devlake/models/domainlayer"
@@ -38,14 +39,16 @@ var ConvertProjectMeta = core.SubTaskMeta{
 func ConvertApiProjects(taskCtx core.SubTaskContext) error {
 
 	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_PROJECT_TABLE)
-	db := taskCtx.GetDb()
+	db := taskCtx.GetDal()
+	clauses := []dal.Clause{
+		dal.From(&models.GitlabProject{}),
+		dal.Where("gitlab_id=?", data.Options.ProjectId),
+	}
 
-	//Find all piplines associated with the current projectid
-	cursor, err := db.Model(&models.GitlabProject{}).Where("gitlab_id=?", data.Options.ProjectId).Rows()
+	cursor, err := db.Cursor(clauses...)
 	if err != nil {
 		return err
 	}
-	defer cursor.Close()
 
 	converter, err := helper.NewDataConverter(helper.DataConverterArgs{
 		RawDataSubTaskArgs: *rawDataSubTaskArgs,
@@ -95,7 +98,7 @@ func convertProject(gitlabApiProject *GitlabApiProject) *models.GitlabProject {
 func convertToRepositoryModel(project *models.GitlabProject) *code.Repo {
 	domainRepository := &code.Repo{
 		DomainEntity: domainlayer.DomainEntity{
-			Id: didgen.NewDomainIdGenerator(project).Generate(project.GitlabId),
+			Id: didgen.NewDomainIdGenerator(project).Generate(project.ConnectionId, project.GitlabId),
 		},
 		Name:        project.Name,
 		Url:         project.WebUrl,

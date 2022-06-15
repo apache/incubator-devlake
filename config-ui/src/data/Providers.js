@@ -60,7 +60,6 @@ const ProviderLabels = {
 }
 
 const ProviderConnectionLimits = {
-  gitlab: 1,
   jenkins: 1,
   // jira: null, // (Multi-connection, no-limit)
   // github: null
@@ -81,7 +80,7 @@ const ProviderFormLabels = {
     name: 'Connection Name',
     endpoint: 'Endpoint URL',
     proxy: 'Proxy URL',
-    token: 'Basic Auth Token',
+    token: 'Access Token',
     username: 'Username',
     password: 'Password'
   },

@@ -19,19 +19,25 @@ package e2ehelper
 
 import (
 	"context"
+	"database/sql"
+	"encoding/json"
 	"fmt"
-	"testing"
-	"time"
-
 	"github.com/apache/incubator-devlake/config"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper"
+	"github.com/apache/incubator-devlake/impl/dalgorm"
 	"github.com/apache/incubator-devlake/logger"
 	"github.com/apache/incubator-devlake/plugins/core"
+	"github.com/apache/incubator-devlake/plugins/core/dal"
 	"github.com/apache/incubator-devlake/plugins/helper"
 	"github.com/apache/incubator-devlake/runner"
 	"github.com/spf13/viper"
 	"github.com/stretchr/testify/assert"
 	"gorm.io/gorm"
+	"gorm.io/gorm/schema"
+	"os"
+	"strings"
+	"testing"
+	"time"
 )
 
 // DataFlowTester provides a universal data integrity validation facility to help `Plugin` verifying records between
@@ -58,6 +64,7 @@ import (
 type DataFlowTester struct {
 	Cfg    *viper.Viper
 	Db     *gorm.DB
+	Dal    dal.Dal
 	T      *testing.T
 	Name   string
 	Plugin core.PluginMeta
@@ -71,6 +78,11 @@ func NewDataFlowTester(t *testing.T, pluginName string, pluginMeta core.PluginMe
 		panic(err)
 	}
 	cfg := config.GetConfig()
+	e2eDbUrl := cfg.GetString(`E2E_DB_URL`)
+	if e2eDbUrl == `` {
+		panic(fmt.Errorf(`e2e can only run with E2E_DB_URL, please set it in .env`))
+	}
+	cfg.Set(`DB_URL`, cfg.GetString(`E2E_DB_URL`))
 	db, err := runner.NewGormDb(cfg, logger.Global)
 	if err != nil {
 		panic(err)
@@ -78,6 +90,7 @@ func NewDataFlowTester(t *testing.T, pluginName string, pluginMeta core.PluginMe
 	return &DataFlowTester{
 		Cfg:    cfg,
 		Db:     db,
+		Dal:    dalgorm.NewDalgorm(db),
 		T:      t,
 		Name:   pluginName,
 		Plugin: pluginMeta,
@@ -85,20 +98,16 @@ func NewDataFlowTester(t *testing.T, pluginName string, pluginMeta core.PluginMe
 	}
 }
 
-// ImportCsv imports records from specified csv file into target table, note that existing data would be deleted first.
-func (t *DataFlowTester) ImportCsv(csvRelPath string, tableName string) {
+// ImportCsvIntoRawTable imports records from specified csv file into target table, note that existing data would be deleted first.
+func (t *DataFlowTester) ImportCsvIntoRawTable(csvRelPath string, tableName string) {
 	csvIter := pluginhelper.NewCsvFileIterator(csvRelPath)
 	defer csvIter.Close()
-	// create table if not exists
-	err := t.Db.Table(tableName).AutoMigrate(&helper.RawData{})
-	if err != nil {
-		panic(err)
-	}
-	t.FlushTable(tableName)
+	t.FlushRawTable(tableName)
 	// load rows and insert into target table
 	for csvIter.HasNext() {
-		// make sure
-		result := t.Db.Table(tableName).Create(csvIter.Fetch())
+		toInsertValues := csvIter.Fetch()
+		toInsertValues[`data`] = json.RawMessage(toInsertValues[`data`].(string))
+		result := t.Db.Table(tableName).Create(toInsertValues)
 		if result.Error != nil {
 			panic(result.Error)
 		}
@@ -106,10 +115,27 @@ func (t *DataFlowTester) ImportCsv(csvRelPath string, tableName string) {
 	}
 }
 
-// FlushTable deletes all records from specified table
-func (t *DataFlowTester) FlushTable(tableName string) {
+// MigrateRawTableAndFlush migrate table and deletes all records from specified table
+func (t *DataFlowTester) FlushRawTable(rawTableName string) {
 	// flush target table
-	err := t.Db.Exec(fmt.Sprintf("DELETE FROM %s", tableName)).Error
+	err := t.Db.Migrator().DropTable(rawTableName)
+	if err != nil {
+		panic(err)
+	}
+	err = t.Db.Table(rawTableName).AutoMigrate(&helper.RawData{})
+	if err != nil {
+		panic(err)
+	}
+}
+
+// FlushTabler migrate table and deletes all records from specified table
+func (t *DataFlowTester) FlushTabler(dst schema.Tabler) {
+	// flush target table
+	err := t.Db.Migrator().DropTable(dst)
+	if err != nil {
+		panic(err)
+	}
+	err = t.Db.AutoMigrate(dst)
 	if err != nil {
 		panic(err)
 	}
@@ -124,11 +150,80 @@ func (t *DataFlowTester) Subtask(subtaskMeta core.SubTaskMeta, taskData interfac
 	}
 }
 
+// CreateSnapshot reads rows from database and write them into .csv file.
+func (t *DataFlowTester) CreateSnapshot(dst schema.Tabler, csvRelPath string, pkfields []string, targetfields []string) {
+	location, _ := time.LoadLocation(`UTC`)
+	allFields := append(pkfields, targetfields...)
+	dbCursor, err := t.Dal.Cursor(
+		dal.Select(strings.Join(allFields, `,`)),
+		dal.From(dst.TableName()),
+		dal.Orderby(strings.Join(pkfields, `,`)),
+	)
+	if err != nil {
+		panic(err)
+	}
+
+	columns, err := dbCursor.Columns()
+	if err != nil {
+		panic(err)
+	}
+	csvWriter := pluginhelper.NewCsvFileWriter(csvRelPath, columns)
+	defer csvWriter.Close()
+
+	// define how to scan value
+	columnTypes, _ := dbCursor.ColumnTypes()
+	forScanValues := make([]interface{}, len(allFields))
+	for i, columnType := range columnTypes {
+		if columnType.ScanType().Name() == `Time` || columnType.ScanType().Name() == `NullTime` {
+			forScanValues[i] = new(sql.NullTime)
+		} else if columnType.ScanType().Name() == `bool` {
+			forScanValues[i] = new(bool)
+		} else {
+			forScanValues[i] = new(string)
+		}
+	}
+
+	for dbCursor.Next() {
+		err = dbCursor.Scan(forScanValues...)
+		if err != nil {
+			panic(err)
+		}
+		values := make([]string, len(allFields))
+		for i := range forScanValues {
+			switch forScanValues[i].(type) {
+			case *sql.NullTime:
+				value := forScanValues[i].(*sql.NullTime)
+				if value.Valid {
+					values[i] = value.Time.In(location).Format("2006-01-02T15:04:05.000-07:00")
+				} else {
+					values[i] = ``
+				}
+			case *bool:
+				if *forScanValues[i].(*bool) {
+					values[i] = `1`
+				} else {
+					values[i] = `0`
+				}
+			case *string:
+				values[i] = fmt.Sprint(*forScanValues[i].(*string))
+			}
+		}
+		csvWriter.Write(values)
+	}
+}
+
 // VerifyTable reads rows from csv file and compare with records from database one by one. You must specified the
 // Primary Key Fields with `pkfields` so DataFlowTester could select the exact record from database, as well as which
 // fields to compare with by specifying `targetfields` parameter.
-func (t *DataFlowTester) VerifyTable(tableName string, csvRelPath string, pkfields []string, targetfields []string) {
+func (t *DataFlowTester) VerifyTable(dst schema.Tabler, csvRelPath string, pkfields []string, targetfields []string) {
+	_, err := os.Stat(csvRelPath)
+	if os.IsNotExist(err) {
+		t.CreateSnapshot(dst, csvRelPath, pkfields, targetfields)
+		return
+	}
+
 	csvIter := pluginhelper.NewCsvFileIterator(csvRelPath)
+	location, _ := time.LoadLocation(`UTC`)
 	defer csvIter.Close()
 
 	var expectedTotal int64
@@ -139,32 +234,41 @@ func (t *DataFlowTester) VerifyTable(tableName string, csvRelPath string, pkfiel
 			pkvalues = append(pkvalues, expected[pkf])
 		}
 		actual := make(map[string]interface{})
-		where := ""
+		where := []string{}
 		for _, field := range pkfields {
-			where += fmt.Sprintf(" %s = ?", field)
+			where = append(where, fmt.Sprintf(" %s = ?", field))
 		}
-		err := t.Db.Table(tableName).Where(where, pkvalues...).Find(actual).Error
+		err := t.Db.Table(dst.TableName()).Where(strings.Join(where, ` AND `), pkvalues...).Find(actual).Error
 		if err != nil {
 			panic(err)
 		}
 		for _, field := range targetfields {
 			actualValue := ""
 			switch actual[field].(type) {
-			// TODO: ensure testing database is in UTC timezone
 			case time.Time:
-				actualValue = actual[field].(time.Time).Format("2006-01-02 15:04:05.000000000")
+				if actual[field] != nil {
+					actualValue = actual[field].(time.Time).In(location).Format("2006-01-02T15:04:05.000-07:00")
+				}
+			case bool:
+				if actual[field].(bool) {
+					actualValue = `1`
+				} else {
+					actualValue = `0`
+				}
 			default:
-				actualValue = fmt.Sprint(actual[field])
+				if actual[field] != nil {
+					actualValue = fmt.Sprint(actual[field])
+				}
 			}
-			assert.Equal(t.T, expected[field], actualValue)
+			assert.Equal(t.T, expected[field], actualValue, fmt.Sprintf(`%s.%s not match`, dst.TableName(), field))
 		}
 		expectedTotal++
 	}
 
 	var actualTotal int64
-	err := t.Db.Table(tableName).Count(&actualTotal).Error
+	err = t.Db.Table(dst.TableName()).Count(&actualTotal).Error
 	if err != nil {
 		panic(err)
 	}
-	assert.Equal(t.T, expectedTotal, actualTotal)
+	assert.Equal(t.T, expectedTotal, actualTotal, fmt.Sprintf(`%s count not match`, dst.TableName()))
 }

@@ -25,3 +25,7 @@ type IssueRepoCommit struct {
 	RepoUrl   string `gorm:"primaryKey;type:varchar(255)"`
 	CommitSha string `gorm:"primaryKey;type:varchar(255)"`
 }
+
+func (IssueRepoCommit) TableName() string {
+	return "issue_repo_commits"
+}

@@ -37,7 +37,7 @@ const integrationsData = [
     id: Providers.GITLAB,
     type: ProviderTypes.INTEGRATION,
     enabled: true,
-    multiConnection: false,
+    multiConnection: true,
     name: ProviderLabels.GITLAB,
     icon: <GitlabProvider className='providerIconSvg' width='30' height='30' style={{ float: 'left', marginTop: '5px' }} />,
     iconDashboard: <GitlabProvider className='providerIconSvg' width='48' height='48' />,

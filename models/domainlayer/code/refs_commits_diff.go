@@ -25,3 +25,7 @@ type RefsCommitsDiff struct {
 	OldRefCommitSha string `gorm:"type:varchar(40)"`
 	SortingIndex    int
 }
+
+func (RefsCommitsDiff) TableName() string {
+	return "refs_commits_diffs"
+}

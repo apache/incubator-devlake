@@ -46,8 +46,8 @@ func CollectRemotelinks(taskCtx core.SubTaskContext) error {
 	*/
 	cursor, err := db.Cursor(
 		Select("i.issue_id, NOW() AS update_time"),
-		From("_tool_jira_remotelinks"),
-		Join(`LEFT JOIN bi ON (
+		From("_tool_jira_remotelinks i"),
+		Join(`LEFT JOIN _tool_jira_board_issues bi ON (
 			bi.connection_id = i.connection_id AND
 			bi.issue_id = i.issue_id
 		)`),

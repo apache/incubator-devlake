@@ -39,9 +39,9 @@ type Dalgorm struct {
 //}
 
 func buildTx(tx *gorm.DB, clauses []dal.Clause) *gorm.DB {
-	for _, clause := range clauses {
-		t := clause.Type
-		d := clause.Data
+	for _, c := range clauses {
+		t := c.Type
+		d := c.Data
 		switch t {
 		case dal.JoinClause:
 			tx = tx.Joins(d.(dal.DalClause).Expr, d.(dal.DalClause).Params...)

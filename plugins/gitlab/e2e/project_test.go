@@ -21,7 +21,9 @@ import (
 	"testing"
 
 	"github.com/apache/incubator-devlake/helpers/e2ehelper"
+	"github.com/apache/incubator-devlake/models/domainlayer/code"
 	"github.com/apache/incubator-devlake/plugins/gitlab/impl"
+	"github.com/apache/incubator-devlake/plugins/gitlab/models"
 	"github.com/apache/incubator-devlake/plugins/gitlab/tasks"
 )
 
@@ -32,20 +34,21 @@ func TestGitlabDataFlow(t *testing.T) {
 
 	taskData := &tasks.GitlabTaskData{
 		Options: &tasks.GitlabOptions{
-			ProjectId: 3472737,
+			ConnectionId: 1,
+			ProjectId:    3472737,
 		},
 	}
 
 	// import raw data table
-	dataflowTester.ImportCsv("./tables/_raw_gitlab_api_projects.csv", "_raw_gitlab_api_project")
+	dataflowTester.ImportCsvIntoRawTable("./tables/_raw_gitlab_api_projects.csv", "_raw_gitlab_api_project")
 
 	// verify extraction
-	dataflowTester.FlushTable("_tool_gitlab_projects")
+	dataflowTester.FlushTabler(&models.GitlabProject{})
 	dataflowTester.Subtask(tasks.ExtractProjectMeta, taskData)
 	dataflowTester.VerifyTable(
-		"_tool_gitlab_projects",
+		models.GitlabProject{},
 		"tables/_tool_gitlab_projects.csv",
-		[]string{"gitlab_id"},
+		[]string{"connection_id", "gitlab_id"},
 		[]string{
 			"name",
 			"description",
@@ -68,10 +71,10 @@ func TestGitlabDataFlow(t *testing.T) {
 	)
 
 	// verify conversion
-	dataflowTester.FlushTable("repos")
+	dataflowTester.FlushTabler(&code.Repo{})
 	dataflowTester.Subtask(tasks.ConvertProjectMeta, taskData)
 	dataflowTester.VerifyTable(
-		"repos",
+		code.Repo{},
 		"tables/repos.csv",
 		[]string{"id"},
 		[]string{

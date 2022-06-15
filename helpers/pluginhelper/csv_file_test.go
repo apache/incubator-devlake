@@ -15,13 +15,28 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package crossdomain
+package pluginhelper
 
-type BoardRepo struct {
-	BoardId string `gorm:"primaryKey;type:varchar(255)"`
-	RepoId  string `gorm:"primaryKey;type:varchar(255)"`
-}
+import (
+	"fmt"
+	"github.com/magiconair/properties/assert"
+	"testing"
+)
 
-func (BoardRepo) TableName() string {
-	return "board_repos"
+func TestExampleCsvFile(t *testing.T) {
+	tmpPath := t.TempDir()
+	filename := fmt.Sprintf(`%s/foobar.csv`, tmpPath)
+	println(filename)
+
+	writer := NewCsvFileWriter(filename, []string{"id", "name", "json", "created_at"})
+	writer.Write([]string{"123", "foobar", `{"url": "https://example.com"}`, "2022-05-05 09:56:43.438000000"})
+	writer.Close()
+
+	iter := NewCsvFileIterator(filename)
+	defer iter.Close()
+	for iter.HasNext() {
+		row := iter.Fetch()
+		assert.Equal(t, row["name"], "foobar", "name not euqal")
+		assert.Equal(t, row["json"], `{"url": "https://example.com"}`, "json not euqal")
+	}
 }

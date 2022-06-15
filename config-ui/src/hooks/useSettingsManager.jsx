@@ -67,7 +67,7 @@ function useSettingsManager ({
           ...connectionPayload,
           name: connection.name,
           endpoint: connection.endpoint,
-          auth: connection.auth,
+          token: connection.token,
           proxy: connection.proxy || connection.Proxy
         }
         break

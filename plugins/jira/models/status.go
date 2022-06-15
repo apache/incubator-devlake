@@ -15,14 +15,19 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package pluginhelper
+package models
 
-func ExampleCsvFileIterator() {
-	iter := NewCsvFileIterator("/path/to/foobar.csv")
-	defer iter.Close()
-	for iter.HasNext() {
-		row := iter.Fetch()
-		println(row["name"]) // foobar
-		println(row["json"]) // {"url": "https://example.com"}
-	}
+import "github.com/apache/incubator-devlake/models/common"
+
+type JiraStatus struct {
+	common.NoPKModel
+	ConnectionId   uint64 `gorm:"primaryKey"`
+	ID             string `gorm:"primaryKey"`
+	Name           string
+	Self           string
+	StatusCategory string
+}
+
+func (JiraStatus) TableName() string {
+	return "_tool_jira_statuses"
 }

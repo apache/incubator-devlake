@@ -23,7 +23,6 @@ import (
 	"strings"
 
 	"github.com/apache/incubator-devlake/models/domainlayer/ticket"
-
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/helper"
 	"github.com/apache/incubator-devlake/plugins/jira/models"

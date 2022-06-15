@@ -22,8 +22,10 @@ import (
 	"fmt"
 	"log"
 	"net/url"
+	"strings"
 
 	mysqlGorm "gorm.io/driver/mysql"
+	postgresGorm "gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
 
@@ -34,10 +36,17 @@ func InitializeDb() (*sql.DB, error) {
 	if err != nil {
 		return nil, err
 	}
-	if u.Scheme == "mysql" {
+
+	var db *sql.DB
+	switch strings.ToLower(u.Scheme) {
+	case "mysql":
 		dbUrl = fmt.Sprintf(("%s@tcp(%s)%s?%s"), u.User.String(), u.Host, u.Path, u.RawQuery)
+		db, err = sql.Open(u.Scheme, dbUrl)
+	case "postgresql", "postgres", "pg":
+		db, err = sql.Open(`pgx`, dbUrl)
+	default:
+		return nil, fmt.Errorf("invalid DB_URL:%s", dbUrl)
 	}
-	db, err := sql.Open("mysql", dbUrl)
 	if err != nil {
 		return nil, err
 	}
@@ -53,6 +62,15 @@ func InitializeDb() (*sql.DB, error) {
 func InitializeGormDb() (*gorm.DB, error) {
 	connectionString := "merico:merico@tcp(localhost:3306)/lake"
 	db, err := gorm.Open(mysqlGorm.Open(connectionString))
+	if err != nil {
+		return nil, err
+	}
+	return db, nil
+}
+
+func InitializeGormDb2() (*gorm.DB, error) {
+	connectionString := "merico:merico@tcp(localhost:3306)/lake"
+	db, err := gorm.Open(postgresGorm.Open(connectionString))
 	if err != nil {
 		return nil, err
 	}

@@ -46,3 +46,7 @@ type PullRequest struct {
 	BaseCommitSha  string `gorm:"type:varchar(40)"`
 	HeadCommitSha  string `gorm:"type:varchar(40)"`
 }
+
+func (PullRequest) TableName() string {
+	return "pull_requests"
+}

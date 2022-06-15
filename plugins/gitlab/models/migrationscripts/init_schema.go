@@ -103,7 +103,7 @@ func (*InitSchemas) Up(ctx context.Context, db *gorm.DB) error {
 	}
 	conn.Proxy = v.GetString("GITLAB_PROXY")
 	conn.RateLimit = v.GetInt("GITLAB_API_REQUESTS_PER_HOUR")
-	fmt.Println(conn.Endpoint)
+
 	err = db.Clauses(clause.OnConflict{DoNothing: true}).Create(conn).Error
 
 	if err != nil {

@@ -15,13 +15,26 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package crossdomain
+package apiv2models
 
-type BoardRepo struct {
-	BoardId string `gorm:"primaryKey;type:varchar(255)"`
-	RepoId  string `gorm:"primaryKey;type:varchar(255)"`
-}
-
-func (BoardRepo) TableName() string {
-	return "board_repos"
+type Status struct {
+	Description string `json:"description"`
+	IconURL     string `json:"iconUrl"`
+	ID          string `json:"id"`
+	Name        string `json:"name"`
+	Scope       *struct {
+		Type    string `json:"type"`
+		Project struct {
+			ID string `json:"id"`
+		} `json:"project"`
+	} `json:"scope"`
+	Self           string `json:"self"`
+	StatusCategory struct {
+		ColorName string `json:"colorName"`
+		ID        int    `json:"id"`
+		Key       string `json:"key"`
+		Name      string `json:"name"`
+		Self      string `json:"self"`
+	} `json:"statusCategory"`
+	UntranslatedName string `json:"untranslatedName"`
 }
