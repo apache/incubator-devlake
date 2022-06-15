@@ -25,10 +25,17 @@ import (
 )
 
 type JiraOptions struct {
-	ConnectionId uint64   `json:"connectionId"`
-	BoardId      uint64   `json:"boardId"`
-	Tasks        []string `json:"tasks,omitempty"`
-	Since        string
+	ConnectionId    uint64   `json:"connectionId"`
+	BoardId         uint64   `json:"boardId"`
+	Tasks           []string `json:"tasks,omitempty"`
+	Since           string
+	IssueExtraction struct {
+		RequirementTypeMapping []string
+		BugTypeMapping         []string
+		IncidentTypeMapping    []string
+		//EpicKeyField           string
+		StoryPointField string
+	}
 }
 
 type JiraTaskData struct {

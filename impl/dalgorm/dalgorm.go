@@ -61,6 +61,10 @@ func buildTx(tx *gorm.DB, clauses []dal.Clause) *gorm.DB {
 			}
 		case dal.SelectClause:
 			tx = tx.Select(d.(string))
+		case dal.GroupbyClause:
+			tx = tx.Group(d.(string))
+		case dal.HavingClause:
+			tx = tx.Having(d.(dal.DalClause).Expr, d.(dal.DalClause).Params...)
 		}
 	}
 	return tx

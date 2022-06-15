@@ -19,9 +19,11 @@ package tasks
 
 import (
 	"encoding/json"
-	"fmt"
+	"strconv"
 	"strings"
+	"time"
 
+	"github.com/apache/incubator-devlake/models/domainlayer/ticket"
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/helper"
 	"github.com/apache/incubator-devlake/plugins/jira/models"
@@ -34,18 +36,19 @@ func ExtractIssues(taskCtx core.SubTaskContext) error {
 	data := taskCtx.GetData().(*JiraTaskData)
 	connectionId := data.Connection.ID
 	boardId := data.Options.BoardId
-	db := taskCtx.GetDb()
 	logger := taskCtx.GetLogger()
 	logger.Info("extract Issues, connection_id=%d, board_id=%d", connectionId, boardId)
 	// prepare getStdType function
-	var typeMappingRows []*models.JiraIssueTypeMapping
-	err := db.Find(&typeMappingRows, "connection_id = ?", connectionId).Error
-	if err != nil {
-		return err
-	}
+	// TODO: implement type mapping
 	typeMappings := make(map[string]string)
-	for _, typeMappingRow := range typeMappingRows {
-		typeMappings[typeMappingRow.UserType] = typeMappingRow.StandardType
+	for _, userType := range data.Options.IssueExtraction.RequirementTypeMapping {
+		typeMappings[userType] = "REQUIREMENT"
+	}
+	for _, userType := range data.Options.IssueExtraction.BugTypeMapping {
+		typeMappings[userType] = "BUG"
+	}
+	for _, userType := range data.Options.IssueExtraction.IncidentTypeMapping {
+		typeMappings[userType] = "INCIDENT"
 	}
 	getStdType := func(userType string) string {
 		stdType := typeMappings[userType]
@@ -54,20 +57,14 @@ func ExtractIssues(taskCtx core.SubTaskContext) error {
 		}
 		return strings.ToUpper(stdType)
 	}
-	// prepare getStdStatus function
-	// TODO: status mapping is now not used
-	var statusMappingRows []*models.JiraIssueStatusMapping
-	err = db.Find(&statusMappingRows, "connection_id = ?", connectionId).Error
-	if err != nil {
-		return err
-	}
-	statusMappings := make(map[string]string)
-	makeStatusMappingKey := func(userType string, userStatus string) string {
-		return fmt.Sprintf("%v:%v", userType, userStatus)
-	}
-	for _, statusMappingRow := range statusMappingRows {
-		k := makeStatusMappingKey(statusMappingRow.UserType, statusMappingRow.UserStatus)
-		statusMappings[k] = statusMappingRow.StandardStatus
+	getStdStatus := func(statusKey string) string {
+		if statusKey == "done" {
+			return ticket.DONE
+		} else if statusKey == "new" {
+			return ticket.TODO
+		} else {
+			return ticket.IN_PROGRESS
+		}
 	}
 
 	extractor, err := helper.NewApiExtractor(helper.ApiExtractorArgs{
@@ -111,17 +108,26 @@ func ExtractIssues(taskCtx core.SubTaskContext) error {
 			if issue.ResolutionDate != nil {
 				issue.LeadTimeMinutes = uint(issue.ResolutionDate.Unix()-issue.Created.Unix()) / 60
 			}
+			if data.Options.IssueExtraction.StoryPointField != "" {
+				strStoryPoint := apiIssue.Fields.AllFields[data.Options.IssueExtraction.StoryPointField].(string)
+				issue.StoryPoint, _ = strconv.ParseFloat(strStoryPoint, 32)
+			}
 			issue.StdStoryPoint = uint(issue.StoryPoint)
 			issue.StdType = getStdType(issue.Type)
-			issue.StdStatus = GetStdStatus(issue.StatusKey)
-			if len(changelogs) < 100 {
-				issue.ChangelogUpdated = &row.CreatedAt
-			}
+			issue.StdStatus = getStdStatus(issue.StatusKey)
 			results = append(results, issue)
 			for _, worklog := range worklogs {
 				results = append(results, worklog)
 			}
+			var issueUpdated *time.Time
+			// likely this issue has more changelogs to be collected
+			if len(changelogs) == 100 {
+				issueUpdated = nil
+			} else {
+				issueUpdated = &issue.Updated
+			}
 			for _, changelog := range changelogs {
+				changelog.IssueUpdated = issueUpdated
 				results = append(results, changelog)
 			}
 			for _, changelogItem := range changelogItems {

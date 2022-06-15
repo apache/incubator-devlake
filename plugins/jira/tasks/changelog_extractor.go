@@ -33,7 +33,6 @@ func ExtractChangelogs(taskCtx core.SubTaskContext) error {
 	if data.JiraServerInfo.DeploymentType == models.DeploymentServer {
 		return nil
 	}
-	db := taskCtx.GetDb()
 	connectionId := data.Connection.ID
 	extractor, err := helper.NewApiExtractor(helper.ApiExtractorArgs{
 		RawDataSubTaskArgs: helper.RawDataSubTaskArgs{
@@ -45,24 +44,25 @@ func ExtractChangelogs(taskCtx core.SubTaskContext) error {
 			Table: RAW_CHANGELOG_TABLE,
 		},
 		Extract: func(row *helper.RawData) ([]interface{}, error) {
+			// process input
 			var input apiv2models.Input
 			err := json.Unmarshal(row.Input, &input)
 			if err != nil {
 				return nil, err
 			}
-			var result []interface{}
 			var changelog apiv2models.Changelog
 			err = json.Unmarshal(row.Data, &changelog)
 			if err != nil {
 				return nil, err
 			}
-			issue := &models.JiraIssue{ConnectionId: connectionId, IssueId: input.IssueId}
-			err = db.Model(issue).Update("changelog_updated", input.UpdateTime).Error
-			if err != nil {
-				return nil, err
-			}
+			// prepare output
+			var result []interface{}
 			cl, user := changelog.ToToolLayer(connectionId, input.IssueId)
+			// this is crucial for incremental update
+			cl.IssueUpdated = &input.UpdateTime
+			// collect changelog / user inforation
 			result = append(result, cl, user)
+			// collect changelog_items
 			for _, item := range changelog.Items {
 				result = append(result, item.ToToolLayer(connectionId, changelog.ID))
 				for _, u := range item.ExtractUser(connectionId) {

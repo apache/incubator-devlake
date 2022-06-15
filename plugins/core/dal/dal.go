@@ -109,7 +109,21 @@ func Select(fields string) Clause {
 
 const OrderbyClause string = "OrderBy"
 
-// Orderby creates a new Orderby
+// Orderby creates a new Orderby clause
 func Orderby(expr string) Clause {
 	return Clause{Type: OrderbyClause, Data: expr}
+}
+
+const GroupbyClause string = "GroupBy"
+
+// Groupby creates a new Groupby clause
+func Groupby(expr string) Clause {
+	return Clause{Type: GroupbyClause, Data: expr}
+}
+
+const HavingClause string = "Having"
+
+// Groupby creates a new Groupby clause
+func Having(clause string, params ...interface{}) Clause {
+	return Clause{Type: HavingClause, Data: DalClause{clause, params}}
 }
