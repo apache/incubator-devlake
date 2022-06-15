@@ -69,9 +69,9 @@ func ConvertPullRequests(taskCtx core.SubTaskContext) error {
 			pr := inputRow.(*models.GithubPullRequest)
 			domainPr := &code.PullRequest{
 				DomainEntity: domainlayer.DomainEntity{
-					Id: prIdGen.Generate(pr.GithubId),
+					Id: prIdGen.Generate(data.Options.ConnectionId, pr.GithubId),
 				},
-				BaseRepoId:     repoIdGen.Generate(pr.RepoId),
+				BaseRepoId:     repoIdGen.Generate(data.Options.ConnectionId, pr.RepoId),
 				Status:         pr.State,
 				Title:          pr.Title,
 				Url:            pr.Url,

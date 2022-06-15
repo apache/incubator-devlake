@@ -59,7 +59,7 @@ func TestPrDataFlow(t *testing.T) {
 	dataflowTester.VerifyTable(
 		models.GithubPullRequest{},
 		fmt.Sprintf("./snapshot_tables/%s.csv", models.GithubPullRequest{}.TableName()),
-		[]string{"github_id", "repo_id"},
+		[]string{"connection_id", "github_id", "repo_id"},
 		[]string{
 			"number",
 			"state",
@@ -95,7 +95,7 @@ func TestPrDataFlow(t *testing.T) {
 	dataflowTester.VerifyTable(
 		models.GithubPullRequestLabel{},
 		fmt.Sprintf("./snapshot_tables/%s.csv", models.GithubPullRequestLabel{}.TableName()),
-		[]string{"pull_id", "label_name"},
+		[]string{"connection_id", "pull_id", "label_name"},
 		[]string{},
 	)
 

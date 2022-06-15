@@ -66,7 +66,7 @@ func ConvertPullRequestLabels(taskCtx core.SubTaskContext) error {
 		Convert: func(inputRow interface{}) ([]interface{}, error) {
 			prLabel := inputRow.(*githubModels.GithubPullRequestLabel)
 			domainPrLabel := &code.PullRequestLabel{
-				PullRequestId: prIdGen.Generate(prLabel.PullId),
+				PullRequestId: prIdGen.Generate(data.Options.ConnectionId, prLabel.PullId),
 				LabelName:     prLabel.LabelName,
 			}
 			return []interface{}{
