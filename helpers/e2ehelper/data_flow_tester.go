@@ -147,16 +147,8 @@ func (t *DataFlowTester) Subtask(subtaskMeta core.SubTaskMeta, taskData interfac
 	}
 }
 
-// VerifyTable reads rows from csv file and compare with records from database one by one. You must specified the
-// Primary Key Fields with `pkfields` so DataFlowTester could select the exact record from database, as well as which
-// fields to compare with by specifying `targetfields` parameter.
-func (t *DataFlowTester) CreateSnapshotOrVerify(dst schema.Tabler, csvRelPath string, pkfields []string, targetfields []string) {
-	_, err := os.Stat(csvRelPath)
-	if err == nil {
-		t.VerifyTable(dst, csvRelPath, pkfields, targetfields)
-		return
-	}
-
+// CreateSnapshot reads rows from database and write them into .csv file.
+func (t *DataFlowTester) CreateSnapshot(dst schema.Tabler, csvRelPath string, pkfields []string, targetfields []string) {
 	location, _ := time.LoadLocation(`UTC`)
 	allFields := []string{}
 	allFields = append(pkfields, targetfields...)
@@ -222,6 +214,12 @@ func (t *DataFlowTester) CreateSnapshotOrVerify(dst schema.Tabler, csvRelPath st
 // Primary Key Fields with `pkfields` so DataFlowTester could select the exact record from database, as well as which
 // fields to compare with by specifying `targetfields` parameter.
 func (t *DataFlowTester) VerifyTable(dst schema.Tabler, csvRelPath string, pkfields []string, targetfields []string) {
+	_, err := os.Stat(csvRelPath)
+	if os.IsNotExist(err) {
+		t.CreateSnapshot(dst, csvRelPath, pkfields, targetfields)
+		return
+	}
+
 	csvIter := pluginhelper.NewCsvFileIterator(csvRelPath)
 	location, _ := time.LoadLocation(`UTC`)
 	defer csvIter.Close()
@@ -266,7 +264,7 @@ func (t *DataFlowTester) VerifyTable(dst schema.Tabler, csvRelPath string, pkfie
 	}
 
 	var actualTotal int64
-	err := t.Db.Table(dst.TableName()).Count(&actualTotal).Error
+	err = t.Db.Table(dst.TableName()).Count(&actualTotal).Error
 	if err != nil {
 		panic(err)
 	}
