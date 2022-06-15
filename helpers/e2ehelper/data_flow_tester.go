@@ -123,10 +123,6 @@ func (t *DataFlowTester) FlushRawTable(rawTableName string) {
 	if err != nil {
 		panic(err)
 	}
-	err = t.Db.Exec(fmt.Sprintf("DELETE FROM %s", rawTableName)).Error
-	if err != nil {
-		panic(err)
-	}
 }
 
 // FlushTabler migrate table and deletes all records from specified table
@@ -137,10 +133,6 @@ func (t *DataFlowTester) FlushTabler(dst schema.Tabler) {
 		panic(err)
 	}
 	err = t.Db.AutoMigrate(dst)
-	if err != nil {
-		panic(err)
-	}
-	err = t.Db.Delete(dst, `true`).Error
 	if err != nil {
 		panic(err)
 	}
