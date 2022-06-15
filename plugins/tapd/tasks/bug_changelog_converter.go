@@ -18,6 +18,9 @@ limitations under the License.
 package tasks
 
 import (
+	"reflect"
+	"time"
+
 	"github.com/apache/incubator-devlake/models/common"
 	"github.com/apache/incubator-devlake/models/domainlayer"
 	"github.com/apache/incubator-devlake/models/domainlayer/didgen"
@@ -25,8 +28,6 @@ import (
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/helper"
 	"github.com/apache/incubator-devlake/plugins/tapd/models"
-	"reflect"
-	"time"
 )
 
 type BugChangelogItemResult struct {
@@ -82,14 +83,14 @@ func ConvertBugChangelog(taskCtx core.SubTaskContext) error {
 				DomainEntity: domainlayer.DomainEntity{
 					Id: clIdGen.Generate(data.Connection.ID, cl.ID, cl.Field),
 				},
-				IssueId:     IssueIdGen.Generate(data.Connection.ID, cl.BugID),
-				AuthorId:    UserIdGen.Generate(data.Connection.ID, data.Options.WorkspaceID, cl.Author),
-				AuthorName:  cl.Author,
-				FieldId:     cl.Field,
-				FieldName:   cl.Field,
-				FromValue:   cl.ValueBeforeParsed,
-				ToValue:     cl.ValueAfterParsed,
-				CreatedDate: cl.Created,
+				IssueId:           IssueIdGen.Generate(data.Connection.ID, cl.BugID),
+				AuthorId:          UserIdGen.Generate(data.Connection.ID, data.Options.WorkspaceID, cl.Author),
+				AuthorName:        cl.Author,
+				FieldId:           cl.Field,
+				FieldName:         cl.Field,
+				OriginalFromValue: cl.ValueBeforeParsed,
+				OriginalToValue:   cl.ValueAfterParsed,
+				CreatedDate:       cl.Created,
 			}
 
 			return []interface{}{

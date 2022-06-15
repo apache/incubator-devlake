@@ -27,7 +27,6 @@ import (
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/helper"
 	"github.com/apache/incubator-devlake/plugins/jira/models"
-	"github.com/apache/incubator-devlake/plugins/jira/tasks/apiv2models"
 )
 
 const RAW_ISSUE_TABLE = "jira_api_issues"
@@ -135,11 +134,6 @@ func CollectIssues(taskCtx core.SubTaskContext) error {
 				return nil, err
 			}
 			err = json.Unmarshal(blob, &data)
-			if err != nil {
-				return nil, err
-			}
-			var issue apiv2models.Issue
-			err = json.Unmarshal(blob, &issue)
 			if err != nil {
 				return nil, err
 			}

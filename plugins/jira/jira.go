@@ -54,6 +54,9 @@ func (plugin Jira) Description() string {
 
 func (plugin Jira) SubTaskMetas() []core.SubTaskMeta {
 	return []core.SubTaskMeta{
+		{Name: "collectStatus", EntryPoint: tasks.CollectStatus, EnabledByDefault: true, Description: "collect Jira status"},
+		{Name: "extractStatus", EntryPoint: tasks.ExtractStatus, EnabledByDefault: true, Description: "extract Jira status"},
+
 		{Name: "collectProjects", EntryPoint: tasks.CollectProjects, EnabledByDefault: true, Description: "collect Jira projects"},
 		{Name: "extractProjects", EntryPoint: tasks.ExtractProjects, EnabledByDefault: true, Description: "extract Jira projects"},
 
@@ -153,6 +156,7 @@ func (plugin Jira) MigrationScripts() []migration.Script {
 		new(migrationscripts.UpdateSchemas20220525),
 		new(migrationscripts.UpdateSchemas20220526),
 		new(migrationscripts.UpdateSchemas20220527),
+		new(migrationscripts.UpdateSchemas20220614),
 	}
 }
 

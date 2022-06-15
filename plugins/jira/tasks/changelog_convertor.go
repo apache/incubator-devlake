@@ -46,6 +46,11 @@ func ConvertChangelogs(taskCtx core.SubTaskContext) error {
 	logger := taskCtx.GetLogger()
 	db := taskCtx.GetDb()
 	logger.Info("covert changelog")
+	statusMap, err := GetStatusInfo(db)
+	if err != nil {
+		logger.Error(err.Error())
+		return err
+	}
 	// select all changelogs belongs to the board
 	cursor, err := db.Table("_tool_jira_changelog_items").
 		Joins(`left join _tool_jira_changelogs on (
@@ -60,7 +65,7 @@ func ConvertChangelogs(taskCtx core.SubTaskContext) error {
 		Where("_tool_jira_changelog_items.connection_id = ? AND _tool_jira_board_issues.board_id = ?", connectionId, boardId).
 		Rows()
 	if err != nil {
-		logger.Info(err.Error())
+		logger.Error(err.Error())
 		return err
 	}
 	defer cursor.Close()
@@ -87,31 +92,41 @@ func ConvertChangelogs(taskCtx core.SubTaskContext) error {
 					row.ChangelogId,
 					row.Field,
 				)},
-				IssueId:     issueIdGenerator.Generate(row.ConnectionId, row.IssueId),
-				AuthorId:    userIdGen.Generate(connectionId, row.AuthorAccountId),
-				AuthorName:  row.AuthorDisplayName,
-				FieldId:     row.FieldId,
-				FieldName:   row.Field,
-				FromValue:   row.FromString,
-				ToValue:     row.ToString,
-				CreatedDate: row.Created,
+				IssueId:           issueIdGenerator.Generate(row.ConnectionId, row.IssueId),
+				AuthorId:          userIdGen.Generate(connectionId, row.AuthorAccountId),
+				AuthorName:        row.AuthorDisplayName,
+				FieldId:           row.FieldId,
+				FieldName:         row.Field,
+				OriginalFromValue: row.FromString,
+				OriginalToValue:   row.ToString,
+				CreatedDate:       row.Created,
 			}
 			if row.Field == "assignee" {
 				if row.ToValue != "" {
-					changelog.ToValue = userIdGen.Generate(connectionId, row.ToValue)
+					changelog.OriginalToValue = userIdGen.Generate(connectionId, row.ToValue)
 				}
 				if row.FromValue != "" {
-					changelog.FromValue = userIdGen.Generate(connectionId, row.FromValue)
+					changelog.OriginalFromValue = userIdGen.Generate(connectionId, row.FromValue)
 				}
 			}
 			if row.Field == "Sprint" {
-				changelog.FromValue, err = convertIds(row.FromValue, connectionId, sprintIdGenerator)
+				changelog.OriginalFromValue, err = convertIds(row.FromValue, connectionId, sprintIdGenerator)
 				if err != nil {
 					return nil, err
 				}
-				changelog.ToValue, err = convertIds(row.ToValue, connectionId, sprintIdGenerator)
+				changelog.OriginalToValue, err = convertIds(row.ToValue, connectionId, sprintIdGenerator)
 				if err != nil {
 					return nil, err
+				}
+			}
+			if row.Field == "status" {
+				fromStatus, ok := statusMap[row.FromString]
+				if ok {
+					changelog.FromValue = GetStdStatus(fromStatus.StatusCategory)
+				}
+				toStatus, ok := statusMap[row.ToString]
+				if ok {
+					changelog.ToValue = GetStdStatus(toStatus.StatusCategory)
 				}
 			}
 			return []interface{}{changelog}, nil

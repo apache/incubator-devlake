@@ -22,8 +22,6 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/apache/incubator-devlake/models/domainlayer/ticket"
-
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/helper"
 	"github.com/apache/incubator-devlake/plugins/jira/models"
@@ -57,6 +55,7 @@ func ExtractIssues(taskCtx core.SubTaskContext) error {
 		return strings.ToUpper(stdType)
 	}
 	// prepare getStdStatus function
+	// TODO: status mapping is now not used
 	var statusMappingRows []*models.JiraIssueStatusMapping
 	err = db.Find(&statusMappingRows, "connection_id = ?", connectionId).Error
 	if err != nil {
@@ -69,15 +68,6 @@ func ExtractIssues(taskCtx core.SubTaskContext) error {
 	for _, statusMappingRow := range statusMappingRows {
 		k := makeStatusMappingKey(statusMappingRow.UserType, statusMappingRow.UserStatus)
 		statusMappings[k] = statusMappingRow.StandardStatus
-	}
-	getStdStatus := func(statusKey string) string {
-		if statusKey == "done" {
-			return ticket.DONE
-		} else if statusKey == "new" {
-			return ticket.TODO
-		} else {
-			return ticket.IN_PROGRESS
-		}
 	}
 
 	extractor, err := helper.NewApiExtractor(helper.ApiExtractorArgs{
@@ -123,7 +113,7 @@ func ExtractIssues(taskCtx core.SubTaskContext) error {
 			}
 			issue.StdStoryPoint = uint(issue.StoryPoint)
 			issue.StdType = getStdType(issue.Type)
-			issue.StdStatus = getStdStatus(issue.StatusKey)
+			issue.StdStatus = GetStdStatus(issue.StatusKey)
 			if len(changelogs) < 100 {
 				issue.ChangelogUpdated = &row.CreatedAt
 			}

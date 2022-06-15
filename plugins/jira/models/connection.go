@@ -51,10 +51,18 @@ type JiraConnection struct {
 	RateLimit                  int    `comment:"api request rate limt per hour" json:"rateLimit"`
 }
 
+func (JiraConnection) TableName() string {
+	return "_tool_jira_connections"
+}
+
 type JiraIssueTypeMapping struct {
 	ConnectionID uint64 `gorm:"primaryKey" json:"jiraConnectionId" validate:"required"`
 	UserType     string `gorm:"type:varchar(50);primaryKey" json:"userType" validate:"required"`
 	StandardType string `gorm:"type:varchar(50)" json:"standardType" validate:"required"`
+}
+
+func (JiraIssueTypeMapping) TableName() string {
+	return "_tool_jira_issue_type_mappings"
 }
 
 type JiraIssueStatusMapping struct {
@@ -67,14 +75,6 @@ type JiraIssueStatusMapping struct {
 type JiraConnectionDetail struct {
 	JiraConnection
 	TypeMappings map[string]map[string]interface{} `json:"typeMappings"`
-}
-
-func (JiraConnection) TableName() string {
-	return "_tool_jira_connections"
-}
-
-func (JiraIssueTypeMapping) TableName() string {
-	return "_tool_jira_issue_type_mappings"
 }
 
 func (JiraIssueStatusMapping) TableName() string {
