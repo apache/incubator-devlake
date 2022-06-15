@@ -41,6 +41,10 @@ type Changelog20220614 struct {
 	CreatedDate       time.Time
 }
 
+func (Changelog20220614) TableName() string {
+	return "changelogs"
+}
+
 type updateSchemas2022061402 struct{}
 
 func (*updateSchemas2022061402) Up(ctx context.Context, db *gorm.DB) error {
