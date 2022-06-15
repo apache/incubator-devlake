@@ -70,7 +70,7 @@ func ConvertRepo(taskCtx core.SubTaskContext) error {
 			repository := inputRow.(*models.GithubRepo)
 			domainRepository := &code.Repo{
 				DomainEntity: domainlayer.DomainEntity{
-					Id: repoIdGen.Generate(repository.GithubId),
+					Id: repoIdGen.Generate(data.Options.ConnectionId, repository.GithubId),
 				},
 				Name:        fmt.Sprintf("%s/%s", repository.OwnerLogin, repository.Name),
 				Url:         repository.HTMLUrl,
@@ -83,7 +83,7 @@ func ConvertRepo(taskCtx core.SubTaskContext) error {
 
 			domainBoard := &ticket.Board{
 				DomainEntity: domainlayer.DomainEntity{
-					Id: repoIdGen.Generate(repository.GithubId),
+					Id: repoIdGen.Generate(data.Options.ConnectionId, repository.GithubId),
 				},
 				Name:        fmt.Sprintf("%s/%s", repository.OwnerLogin, repository.Name),
 				Url:         fmt.Sprintf("%s/%s", repository.HTMLUrl, "issues"),
