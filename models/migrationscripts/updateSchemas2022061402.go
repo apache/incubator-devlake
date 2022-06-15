@@ -15,16 +15,18 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package ticket
+package migrationscripts
 
 import (
+	"context"
 	"time"
 
-	"github.com/apache/incubator-devlake/models/domainlayer"
+	"github.com/apache/incubator-devlake/models/migrationscripts/archived"
+	"gorm.io/gorm"
 )
 
-type Changelog struct {
-	domainlayer.DomainEntity
+type Changelog20220614 struct {
+	archived.DomainEntity
 
 	// collected fields
 	IssueId           string `gorm:"index;type:varchar(255)"`
@@ -37,4 +39,18 @@ type Changelog struct {
 	FromValue         string
 	ToValue           string
 	CreatedDate       time.Time
+}
+
+type updateSchemas2022061402 struct{}
+
+func (*updateSchemas2022061402) Up(ctx context.Context, db *gorm.DB) error {
+	return db.Migrator().AutoMigrate(&Changelog20220614{})
+}
+
+func (*updateSchemas2022061402) Version() uint64 {
+	return 20220614091600
+}
+
+func (*updateSchemas2022061402) Name() string {
+	return "update table: changelogs, add standard_from, standard_to"
 }

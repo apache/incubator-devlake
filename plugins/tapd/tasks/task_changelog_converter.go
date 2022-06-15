@@ -87,14 +87,14 @@ func ConvertTaskChangelog(taskCtx core.SubTaskContext) error {
 				DomainEntity: domainlayer.DomainEntity{
 					Id: fmt.Sprintf("%s:%s", clIdGen.Generate(data.Connection.ID, cl.ID), cl.Field),
 				},
-				IssueId:     IssueIdGen.Generate(data.Connection.ID, cl.TaskID),
-				AuthorId:    UserIdGen.Generate(data.Connection.ID, data.Options.WorkspaceID, cl.Creator),
-				AuthorName:  cl.Creator,
-				FieldId:     cl.Field,
-				FieldName:   cl.Field,
-				FromValue:   cl.ValueBeforeParsed,
-				ToValue:     cl.ValueAfterParsed,
-				CreatedDate: cl.Created,
+				IssueId:           IssueIdGen.Generate(data.Connection.ID, cl.TaskID),
+				AuthorId:          UserIdGen.Generate(data.Connection.ID, data.Options.WorkspaceID, cl.Creator),
+				AuthorName:        cl.Creator,
+				FieldId:           cl.Field,
+				FieldName:         cl.Field,
+				OriginalFromValue: cl.ValueBeforeParsed,
+				OriginalToValue:   cl.ValueAfterParsed,
+				CreatedDate:       cl.Created,
 			}
 
 			return []interface{}{

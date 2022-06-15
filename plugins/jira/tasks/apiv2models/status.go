@@ -15,26 +15,26 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package ticket
+package apiv2models
 
-import (
-	"time"
-
-	"github.com/apache/incubator-devlake/models/domainlayer"
-)
-
-type Changelog struct {
-	domainlayer.DomainEntity
-
-	// collected fields
-	IssueId           string `gorm:"index;type:varchar(255)"`
-	AuthorId          string `gorm:"type:varchar(255)"`
-	AuthorName        string `gorm:"type:varchar(255)"`
-	FieldId           string `gorm:"type:varchar(255)"`
-	FieldName         string `gorm:"type:varchar(255)"`
-	OriginalFromValue string
-	OriginalToValue   string
-	FromValue         string
-	ToValue           string
-	CreatedDate       time.Time
+type Status struct {
+	Description string `json:"description"`
+	IconURL     string `json:"iconUrl"`
+	ID          string `json:"id"`
+	Name        string `json:"name"`
+	Scope       *struct {
+		Type    string `json:"type"`
+		Project struct {
+			ID string `json:"id"`
+		} `json:"project"`
+	} `json:"scope"`
+	Self           string `json:"self"`
+	StatusCategory struct {
+		ColorName string `json:"colorName"`
+		ID        int    `json:"id"`
+		Key       string `json:"key"`
+		Name      string `json:"name"`
+		Self      string `json:"self"`
+	} `json:"statusCategory"`
+	UntranslatedName string `json:"untranslatedName"`
 }

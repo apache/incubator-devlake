@@ -15,26 +15,19 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package ticket
+package models
 
-import (
-	"time"
+import "github.com/apache/incubator-devlake/models/common"
 
-	"github.com/apache/incubator-devlake/models/domainlayer"
-)
+type JiraStatus struct {
+	common.NoPKModel
+	ConnectionId   uint64 `gorm:"primaryKey"`
+	ID             string `gorm:"primaryKey"`
+	Name           string
+	Self           string
+	StatusCategory string
+}
 
-type Changelog struct {
-	domainlayer.DomainEntity
-
-	// collected fields
-	IssueId           string `gorm:"index;type:varchar(255)"`
-	AuthorId          string `gorm:"type:varchar(255)"`
-	AuthorName        string `gorm:"type:varchar(255)"`
-	FieldId           string `gorm:"type:varchar(255)"`
-	FieldName         string `gorm:"type:varchar(255)"`
-	OriginalFromValue string
-	OriginalToValue   string
-	FromValue         string
-	ToValue           string
-	CreatedDate       time.Time
+func (JiraStatus) TableName() string {
+	return "_tool_jira_statuses"
 }
