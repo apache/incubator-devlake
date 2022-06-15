@@ -19,7 +19,6 @@ package migrationscripts
 
 import (
 	"context"
-	"github.com/apache/incubator-devlake/config"
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/helper"
 
@@ -41,9 +40,15 @@ func (GithubConnection20220609) TableName() string {
 	return "_tool_github_connections"
 }
 
-type InitSchemas struct{}
+type InitSchemas struct {
+	config core.ConfigGetter
+}
 
-func (*InitSchemas) Up(ctx context.Context, db *gorm.DB) error {
+func (u *InitSchemas) SetConfigGetter(config core.ConfigGetter) {
+	u.config = config
+}
+
+func (u *InitSchemas) Up(ctx context.Context, db *gorm.DB) error {
 	if db.Migrator().HasTable(GithubConnection20220609{}) {
 		err := db.Migrator().DropTable(GithubConnection20220609{})
 		if err != nil {
@@ -86,15 +91,16 @@ func (*InitSchemas) Up(ctx context.Context, db *gorm.DB) error {
 	if err != nil {
 		return err
 	}
-	v := config.GetConfig()
 	connection := &GithubConnection20220609{}
-	err = helper.EncodeStruct(v, connection, "env")
+	connection.Endpoint = u.config.GetString(`GITHUB_ENDPOINT`)
+	connection.Proxy = u.config.GetString(`GITHUB_PROXY`)
+	connection.Token = u.config.GetString(`GITHUB_AUTH`)
 	connection.Name = `GitHub`
 	if err != nil {
 		return err
 	}
 	err = helper.UpdateEncryptFields(connection, func(plaintext string) (string, error) {
-		return core.Encrypt(v.GetString(core.EncodeKeyEnvStr), plaintext)
+		return core.Encrypt(u.config.GetString(core.EncodeKeyEnvStr), plaintext)
 	})
 	if err != nil {
 		return err
