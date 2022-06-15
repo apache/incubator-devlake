@@ -18,6 +18,7 @@ limitations under the License.
 package tasks
 
 import (
+	"github.com/apache/incubator-devlake/plugins/core/dal"
 	"reflect"
 	"strconv"
 
@@ -38,13 +39,16 @@ var ConvertIssuesMeta = core.SubTaskMeta{
 }
 
 func ConvertIssues(taskCtx core.SubTaskContext) error {
-	db := taskCtx.GetDb()
+	db := taskCtx.GetDal()
 	data := taskCtx.GetData().(*GitlabTaskData)
 	projectId := data.Options.ProjectId
 
-	issue := &gitlabModels.GitlabIssue{}
-	cursor, err := db.Model(issue).Where("project_id = ?", projectId).Rows()
-
+	clauses := []dal.Clause{
+		dal.Select("issues.*"),
+		dal.From("_tool_gitlab_issues issues"),
+		dal.Where("project_id = ?", projectId),
+	}
+	cursor, err := db.Cursor(clauses...)
 	if err != nil {
 		return err
 	}

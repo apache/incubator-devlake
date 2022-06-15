@@ -20,6 +20,7 @@ package tasks
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/apache/incubator-devlake/plugins/core/dal"
 	"io/ioutil"
 	"net/http"
 	"net/url"
@@ -27,7 +28,6 @@ import (
 	"strconv"
 
 	"github.com/apache/incubator-devlake/plugins/core"
-	"github.com/apache/incubator-devlake/plugins/gitlab/models"
 	"github.com/apache/incubator-devlake/plugins/helper"
 )
 
@@ -93,25 +93,23 @@ func CreateRawDataSubTaskArgs(taskCtx core.SubTaskContext, Table string) (*helpe
 	return RawDataSubTaskArgs, data
 }
 
-func GetMergeRequestsIterator(taskCtx core.SubTaskContext) (*helper.CursorIterator, error) {
-	db := taskCtx.GetDb()
+func GetMergeRequestsIterator(taskCtx core.SubTaskContext) (*helper.DalCursorIterator, error) {
+	db := taskCtx.GetDal()
 	data := taskCtx.GetData().(*GitlabTaskData)
-	cursor, err := db.Model(&models.GitlabMergeRequest{}).Select("gitlab_id, iid").
-		Where("project_id = ?", data.Options.ProjectId).Select("gitlab_id,iid").Rows()
+	clauses := []dal.Clause{
+		dal.Select("gmr.gitlab_id, gmr.iid"),
+		dal.From("_tool_gitlab_merge_requests gmr"),
+		dal.Where(
+			`gmr.project_id = ?`,
+			data.Options.ProjectId,
+		),
+	}
+	// construct the input iterator
+	cursor, err := db.Cursor(clauses...)
 	if err != nil {
 		return nil, err
 	}
+	defer cursor.Close()
 
-	return helper.NewCursorIterator(db, cursor, reflect.TypeOf(GitlabInput{}))
-}
-
-func GetPipelinesIterator(taskCtx core.SubTaskContext) (*helper.CursorIterator, error) {
-	db := taskCtx.GetDb()
-	data := taskCtx.GetData().(*GitlabTaskData)
-	cursor, err := db.Model(&models.GitlabPipeline{}).Where("project_id = ?", data.Options.ProjectId).Select("gitlab_id").Rows()
-	if err != nil {
-		return nil, err
-	}
-
-	return helper.NewCursorIterator(db, cursor, reflect.TypeOf(GitlabInput{}))
+	return helper.NewDalCursorIterator(db, cursor, reflect.TypeOf(GitlabInput{}))
 }

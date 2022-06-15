@@ -18,6 +18,7 @@ limitations under the License.
 package tasks
 
 import (
+	"github.com/apache/incubator-devlake/plugins/core/dal"
 	"reflect"
 
 	"github.com/apache/incubator-devlake/models/domainlayer/didgen"
@@ -35,19 +36,24 @@ var ConvertIssueLabelsMeta = core.SubTaskMeta{
 }
 
 func ConvertIssueLabels(taskCtx core.SubTaskContext) error {
-	db := taskCtx.GetDb()
+	db := taskCtx.GetDal()
 	data := taskCtx.GetData().(*GitlabTaskData)
 	projectId := data.Options.ProjectId
+	clauses := []dal.Clause{
+		dal.Select("*"),
+		dal.From(&gitlabModels.GitlabIssueLabel{}),
+		dal.Join(`left join _tool_gitlab_issues on 
+			_tool_gitlab_issues.gitlab_id = _tool_gitlab_issue_labels.issue_id`),
+		dal.Where("_tool_gitlab_issues.project_id = ?", projectId),
+		dal.Orderby("issue_id ASC"),
+	}
 
-	cursor, err := db.Model(&gitlabModels.GitlabIssueLabel{}).
-		Joins(`left join _tool_gitlab_issues on _tool_gitlab_issues.gitlab_id = _tool_gitlab_issue_labels.issue_id`).
-		Where("_tool_gitlab_issues.project_id = ?", projectId).
-		Order("issue_id ASC").
-		Rows()
+	cursor, err := db.Cursor(clauses...)
 	if err != nil {
 		return err
 	}
 	defer cursor.Close()
+
 	issueIdGen := didgen.NewDomainIdGenerator(&gitlabModels.GitlabIssue{})
 
 	converter, err := helper.NewDataConverter(helper.DataConverterArgs{

@@ -18,11 +18,13 @@ limitations under the License.
 package tasks
 
 import (
+	"github.com/apache/incubator-devlake/plugins/core/dal"
+	"github.com/apache/incubator-devlake/plugins/helper"
+	"reflect"
 	"time"
 
 	"github.com/apache/incubator-devlake/plugins/core"
-	gitlabModels "github.com/apache/incubator-devlake/plugins/gitlab/models"
-	"gorm.io/gorm/clause"
+	"github.com/apache/incubator-devlake/plugins/gitlab/models"
 )
 
 var EnrichMergeRequestsMeta = core.SubTaskMeta{
@@ -33,55 +35,80 @@ var EnrichMergeRequestsMeta = core.SubTaskMeta{
 }
 
 func EnrichMergeRequests(taskCtx core.SubTaskContext) error {
-	data := taskCtx.GetData().(*GitlabTaskData)
-	db := taskCtx.GetDb()
-	// get mrs from theDB
-	cursor, err := db.Model(&gitlabModels.GitlabMergeRequest{}).Where("project_id = ?", data.Options.ProjectId).Rows()
+	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_MERGE_REQUEST_TABLE)
+
+	db := taskCtx.GetDal()
+	clauses := []dal.Clause{
+		dal.From(&models.GitlabMergeRequest{}),
+		dal.Where("project_id=?", data.Options.ProjectId),
+	}
+
+	cursor, err := db.Cursor(clauses...)
+	if err != nil {
+		return err
+	} // get mrs from theDB
+	defer cursor.Close()
+
+	converter, err := helper.NewDataConverter(helper.DataConverterArgs{
+		RawDataSubTaskArgs: *rawDataSubTaskArgs,
+		InputRowType:       reflect.TypeOf(models.GitlabMergeRequest{}),
+		Input:              cursor,
+
+		Convert: func(inputRow interface{}) ([]interface{}, error) {
+			gitlabMr := inputRow.(*models.GitlabMergeRequest)
+			// enrich first_comment_time field
+			notes := make([]models.GitlabMergeRequestNote, 0)
+			// `system` = 0 is needed since we only care about human comments
+			noteClauses := []dal.Clause{
+				dal.From(&models.GitlabMergeRequestNote{}),
+				dal.Where("merge_request_id = ? AND is_system = ?", gitlabMr.GitlabId, false),
+				dal.Orderby("gitlab_created_at asc"),
+			}
+			err = db.All(&notes, noteClauses...)
+			if err != nil {
+				return nil, err
+			}
+
+			commits := make([]models.GitlabCommit, 0)
+			commitClauses := []dal.Clause{
+				dal.From(&models.GitlabCommit{}),
+				dal.Join(`join _tool_gitlab_merge_request_commits gmrc 
+					on gmrc.commit_sha = _tool_gitlab_commits.sha`),
+				dal.Where("merge_request_id = ?", gitlabMr.GitlabId),
+				dal.Orderby("authored_date asc"),
+			}
+			err = db.All(&commits, commitClauses...)
+			if err != nil {
+				return nil, err
+			}
+
+			// calculate reviewRounds from commits and notes
+			reviewRounds := getReviewRounds(commits, notes)
+			gitlabMr.ReviewRounds = reviewRounds
+
+			if len(notes) > 0 {
+				earliestNote, err := findEarliestNote(notes)
+				if err != nil {
+					return nil, err
+				}
+				if earliestNote != nil {
+					gitlabMr.FirstCommentTime = &earliestNote.GitlabCreatedAt
+				}
+			}
+			return []interface{}{
+				gitlabMr,
+			}, nil
+		},
+	})
 	if err != nil {
 		return err
 	}
-	defer cursor.Close()
 
-	gitlabMr := &gitlabModels.GitlabMergeRequest{}
-	for cursor.Next() {
-		err = db.ScanRows(cursor, gitlabMr)
-		if err != nil {
-			return err
-		}
-		// enrich first_comment_time field
-		notes := make([]gitlabModels.GitlabMergeRequestNote, 0)
-		// `system` = 0 is needed since we only care about human comments
-		db.Where("merge_request_id = ? AND is_system = ?", gitlabMr.GitlabId, false).
-			Order("gitlab_created_at asc").Find(&notes)
-		commits := make([]gitlabModels.GitlabCommit, 0)
-		db.Joins("join _tool_gitlab_merge_request_commits gmrc on gmrc.commit_sha = _tool_gitlab_commits.sha").
-			Where("merge_request_id = ?", gitlabMr.GitlabId).Order("authored_date asc").Find(&commits)
-		// calculate reviewRounds from commits and notes
-		reviewRounds := getReviewRounds(commits, notes)
-		gitlabMr.ReviewRounds = reviewRounds
-
-		if len(notes) > 0 {
-			earliestNote, err := findEarliestNote(notes)
-			if err != nil {
-				return err
-			}
-			if earliestNote != nil {
-				gitlabMr.FirstCommentTime = &earliestNote.GitlabCreatedAt
-			}
-		}
-
-		err = db.Clauses(clause.OnConflict{
-			UpdateAll: true,
-		}).Create(gitlabMr).Error
-		if err != nil {
-			return err
-		}
-	}
-	return nil
+	return converter.Execute()
 }
 
-func findEarliestNote(notes []gitlabModels.GitlabMergeRequestNote) (*gitlabModels.GitlabMergeRequestNote, error) {
-	var earliestNote *gitlabModels.GitlabMergeRequestNote
+func findEarliestNote(notes []models.GitlabMergeRequestNote) (*models.GitlabMergeRequestNote, error) {
+	var earliestNote *models.GitlabMergeRequestNote
 	earliestTime := time.Now()
 	for i := range notes {
 		if !notes[i].Resolvable {
@@ -96,7 +123,7 @@ func findEarliestNote(notes []gitlabModels.GitlabMergeRequestNote) (*gitlabModel
 	return earliestNote, nil
 }
 
-func getReviewRounds(commits []gitlabModels.GitlabCommit, notes []gitlabModels.GitlabMergeRequestNote) int {
+func getReviewRounds(commits []models.GitlabCommit, notes []models.GitlabMergeRequestNote) int {
 	i := 0
 	j := 0
 	reviewRounds := 0

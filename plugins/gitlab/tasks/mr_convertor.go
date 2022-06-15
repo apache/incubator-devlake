@@ -18,6 +18,7 @@ limitations under the License.
 package tasks
 
 import (
+	"github.com/apache/incubator-devlake/plugins/core/dal"
 	"reflect"
 
 	"github.com/apache/incubator-devlake/models/domainlayer"
@@ -37,16 +38,20 @@ var ConvertApiMergeRequestsMeta = core.SubTaskMeta{
 
 func ConvertApiMergeRequests(taskCtx core.SubTaskContext) error {
 	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_MERGE_REQUEST_TABLE)
-	db := taskCtx.GetDb()
+	db := taskCtx.GetDal()
+	clauses := []dal.Clause{
+		dal.From(&models.GitlabMergeRequest{}),
+		dal.Where("project_id=?", data.Options.ProjectId),
+	}
 
-	domainMrIdGenerator := didgen.NewDomainIdGenerator(&models.GitlabMergeRequest{})
-	domainRepoIdGenerator := didgen.NewDomainIdGenerator(&models.GitlabProject{})
-	//Find all piplines associated with the current projectid
-	cursor, err := db.Model(&models.GitlabMergeRequest{}).Where("project_id=?", data.Options.ProjectId).Rows()
+	cursor, err := db.Cursor(clauses...)
 	if err != nil {
 		return err
 	}
 	defer cursor.Close()
+
+	domainMrIdGenerator := didgen.NewDomainIdGenerator(&models.GitlabMergeRequest{})
+	domainRepoIdGenerator := didgen.NewDomainIdGenerator(&models.GitlabProject{})
 
 	converter, err := helper.NewDataConverter(helper.DataConverterArgs{
 		RawDataSubTaskArgs: *rawDataSubTaskArgs,
