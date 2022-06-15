@@ -20,13 +20,11 @@ package main
 import (
 	"context"
 	"flag"
-	"strings"
-
 	"github.com/apache/incubator-devlake/logger"
+	"github.com/apache/incubator-devlake/plugins/gitextractor/tasks"
 
 	"github.com/apache/incubator-devlake/config"
 	"github.com/apache/incubator-devlake/plugins/gitextractor/models"
-	"github.com/apache/incubator-devlake/plugins/gitextractor/parser"
 	"github.com/apache/incubator-devlake/plugins/gitextractor/store"
 	"github.com/apache/incubator-devlake/plugins/helper"
 	"gorm.io/driver/mysql"
@@ -76,17 +74,18 @@ func main() {
 		"git extractor",
 		nil,
 	)
-	p := parser.NewLibGit2(storage, subTaskCtx)
-	if strings.HasPrefix(*url, "http") {
-		err = p.CloneOverHTTP(*id, *url, *user, *password, *proxy)
-		if err != nil {
-			panic(err)
-		}
+	repo, err := newGitRepo(subTaskCtx.TaskContext(), storage, tasks.GitExtractorOptions{
+		RepoId:   *id,
+		Url:      *url,
+		User:     *user,
+		Password: *password,
+		Proxy:    *proxy,
+	})
+	if err != nil {
+		panic(err)
 	}
-	if strings.HasPrefix(*url, "/") {
-		err = p.LocalRepo(*url, *id)
-		if err != nil {
-			panic(err)
-		}
+	defer repo.Close()
+	if err = repo.CollectAll(subTaskCtx); err != nil {
+		panic(err)
 	}
 }

@@ -217,6 +217,9 @@ func RunPluginSubTasks(
 	}
 
 	taskCtx := helper.NewDefaultTaskContext(cfg, logger, db, ctx, name, subtasksFlag, progress)
+	if closeablePlugin, ok := pluginTask.(core.CloseablePluginTask); ok {
+		defer closeablePlugin.Close(taskCtx)
+	}
 	taskData, err := pluginTask.PrepareTaskData(taskCtx, options)
 	if err != nil {
 		return err
