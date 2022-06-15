@@ -39,7 +39,7 @@ type IssuesResponse struct {
 	Number      int
 	State       string
 	Title       string
-	Body        string
+	Body        json.RawMessage
 	HtmlUrl     string `json:"html_url"`
 	PullRequest struct {
 		Url     string `json:"url"`
@@ -104,8 +104,9 @@ func ExtractApiIssues(taskCtx core.SubTaskContext) error {
 				set of data to be process, for example, we process JiraIssues by Board
 			*/
 			Params: GithubApiParams{
-				Owner: data.Options.Owner,
-				Repo:  data.Options.Repo,
+				ConnectionId: data.Options.ConnectionId,
+				Owner:        data.Options.Owner,
+				Repo:         data.Options.Repo,
 			},
 			/*
 				Table store raw data
@@ -194,7 +195,7 @@ func convertGithubIssue(issue *IssuesResponse, repositoryId int) (*models.Github
 		Number:          issue.Number,
 		State:           issue.State,
 		Title:           issue.Title,
-		Body:            issue.Body,
+		Body:            string(issue.Body),
 		Url:             issue.HtmlUrl,
 		ClosedAt:        helper.Iso8601TimeToTime(issue.ClosedAt),
 		GithubCreatedAt: issue.GithubCreatedAt.ToTime(),

@@ -226,7 +226,7 @@ func (t *DataFlowTester) VerifyTable(dst schema.Tabler, csvRelPath string, pkfie
 	location, _ := time.LoadLocation(`UTC`)
 	defer csvIter.Close()
 
-	var expectedTotal int64
+	expectedTotal := int64(0)
 	for csvIter.HasNext() {
 		expected := csvIter.Fetch()
 		pkvalues := make([]interface{}, 0, len(pkfields))
@@ -238,7 +238,18 @@ func (t *DataFlowTester) VerifyTable(dst schema.Tabler, csvRelPath string, pkfie
 		for _, field := range pkfields {
 			where = append(where, fmt.Sprintf(" %s = ?", field))
 		}
-		err := t.Db.Table(dst.TableName()).Where(strings.Join(where, ` AND `), pkvalues...).Find(actual).Error
+
+		var actualCount int64
+		err := t.Db.Table(dst.TableName()).Where(strings.Join(where, ` AND `), pkvalues...).Count(&actualCount).Error
+		assert.Equal(t.T, 1, actualCount, fmt.Sprintf(`%s found not eq 1 but %d (with params from csv %s)`, dst.TableName(), actualCount, pkvalues))
+		if actualCount != 1 {
+			continue
+		}
+
+		if err != nil {
+			panic(err)
+		}
+		err = t.Db.Table(dst.TableName()).Where(strings.Join(where, ` AND `), pkvalues...).Find(actual).Error
 		if err != nil {
 			panic(err)
 		}
@@ -260,7 +271,7 @@ func (t *DataFlowTester) VerifyTable(dst schema.Tabler, csvRelPath string, pkfie
 					actualValue = fmt.Sprint(actual[field])
 				}
 			}
-			assert.Equal(t.T, expected[field], actualValue, fmt.Sprintf(`%s.%s not match`, dst.TableName(), field))
+			assert.Equal(t.T, expected[field], actualValue, fmt.Sprintf(`%s.%s not match (with params from csv %s)`, dst.TableName(), field, pkvalues))
 		}
 		expectedTotal++
 	}
