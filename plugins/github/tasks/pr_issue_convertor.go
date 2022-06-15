@@ -59,16 +59,17 @@ func ConvertPullRequestIssues(taskCtx core.SubTaskContext) error {
 		RawDataSubTaskArgs: helper.RawDataSubTaskArgs{
 			Ctx: taskCtx,
 			Params: GithubApiParams{
-				Owner: data.Options.Owner,
-				Repo:  data.Options.Repo,
+				ConnectionId: data.Options.ConnectionId,
+				Owner:        data.Options.Owner,
+				Repo:         data.Options.Repo,
 			},
 			Table: RAW_PULL_REQUEST_TABLE,
 		},
 		Convert: func(inputRow interface{}) ([]interface{}, error) {
 			githubPrIssue := inputRow.(*githubModels.GithubPullRequestIssue)
 			pullRequestIssue := &crossdomain.PullRequestIssue{
-				PullRequestId:     prIdGen.Generate(githubPrIssue.PullRequestId),
-				IssueId:           issueIdGen.Generate(githubPrIssue.IssueId),
+				PullRequestId:     prIdGen.Generate(data.Options.ConnectionId, githubPrIssue.PullRequestId),
+				IssueId:           issueIdGen.Generate(data.Options.ConnectionId, githubPrIssue.IssueId),
 				IssueNumber:       githubPrIssue.IssueNumber,
 				PullRequestNumber: githubPrIssue.PullRequestNumber,
 			}

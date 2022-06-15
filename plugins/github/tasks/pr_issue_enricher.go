@@ -62,8 +62,9 @@ func EnrichPullRequestIssues(taskCtx core.SubTaskContext) (err error) {
 		RawDataSubTaskArgs: helper.RawDataSubTaskArgs{
 			Ctx: taskCtx,
 			Params: GithubApiParams{
-				Owner: data.Options.Owner,
-				Repo:  data.Options.Repo,
+				ConnectionId: data.Options.ConnectionId,
+				Owner:        data.Options.Owner,
+				Repo:         data.Options.Repo,
 			},
 			Table: RAW_PULL_REQUEST_TABLE,
 		},
@@ -106,6 +107,7 @@ func EnrichPullRequestIssues(taskCtx core.SubTaskContext) (err error) {
 					continue
 				}
 				githubPullRequstIssue := &githubModels.GithubPullRequestIssue{
+					ConnectionId:      data.Options.ConnectionId,
 					PullRequestId:     githubPullRequst.GithubId,
 					IssueId:           issue.GithubId,
 					PullRequestNumber: githubPullRequst.Number,
