@@ -57,92 +57,10 @@ func TestCommentDataFlow(t *testing.T) {
 	}
 
 	// import raw data table
+	dataflowTester.ImportCsvIntoRawTable("./raw_tables/_raw_github_api_comments.csv", "_raw_github_api_comments")
 	dataflowTester.ImportCsvIntoTabler(fmt.Sprintf("./snapshot_tables/%s.csv", models.GithubIssue{}.TableName()), &models.GithubIssue{})
 	dataflowTester.ImportCsvIntoTabler(fmt.Sprintf("./snapshot_tables/%s.csv", models.GithubIssueLabel{}.TableName()), &models.GithubIssueLabel{})
-
-	// verify extraction
-	dataflowTester.VerifyTable(
-		models.GithubIssue{},
-		fmt.Sprintf("./snapshot_tables/%s.csv", models.GithubIssue{}.TableName()),
-		[]string{"connection_id", "github_id", "repo_id"},
-		[]string{
-			"number",
-			"state",
-			"title",
-			"body",
-			"priority",
-			"type",
-			"status",
-			"author_id",
-			"author_name",
-			"assignee_id",
-			"assignee_name",
-			"lead_time_minutes",
-			"url",
-			"closed_at",
-			"github_created_at",
-			"github_updated_at",
-			"severity",
-			"component",
-			"_raw_data_params",
-			"_raw_data_table",
-			"_raw_data_id",
-			"_raw_data_remark",
-		},
-	)
-
-	// verify extraction
-	dataflowTester.VerifyTable(
-		models.GithubIssueLabel{},
-		fmt.Sprintf("./snapshot_tables/%s.csv", models.GithubIssueLabel{}.TableName()),
-		[]string{"connection_id", "issue_id", "label_name"},
-		[]string{
-			"_raw_data_params",
-			"_raw_data_table",
-			"_raw_data_id",
-			"_raw_data_remark",
-		},
-	)
-
-	// import raw data table
 	dataflowTester.ImportCsvIntoTabler(fmt.Sprintf("./snapshot_tables/%s.csv", models.GithubPullRequest{}.TableName()), models.GithubPullRequest{})
-	dataflowTester.VerifyTable(
-		models.GithubPullRequest{},
-		fmt.Sprintf("./snapshot_tables/%s.csv", models.GithubPullRequest{}.TableName()),
-		[]string{"connection_id", "github_id", "repo_id"},
-		[]string{
-			"number",
-			"state",
-			"title",
-			"github_created_at",
-			"github_updated_at",
-			"closed_at",
-			"additions",
-			"deletions",
-			"comments",
-			"commits",
-			"review_comments",
-			"merged",
-			"merged_at",
-			"body",
-			"type",
-			"component",
-			"merge_commit_sha",
-			"head_ref",
-			"base_ref",
-			"base_commit_sha",
-			"head_commit_sha",
-			"url",
-			"author_name",
-			"author_id",
-			"_raw_data_params",
-			"_raw_data_table",
-			"_raw_data_id",
-			"_raw_data_remark",
-		},
-	)
-
-	dataflowTester.ImportCsvIntoRawTable("./raw_tables/_raw_github_api_comments.csv", "_raw_github_api_comments")
 
 	// verify extraction
 	dataflowTester.FlushTabler(&models.GithubIssueComment{})
