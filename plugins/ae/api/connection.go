@@ -18,88 +18,165 @@ limitations under the License.
 package api
 
 import (
-	"github.com/apache/incubator-devlake/config"
+	"crypto/md5"
+	"encoding/hex"
+	"fmt"
+	"net/http"
+	"net/url"
+	"sort"
+	"strings"
+	"time"
+
 	"github.com/apache/incubator-devlake/plugins/ae/models"
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/helper"
-	"net/http"
+	"github.com/go-playground/validator/v10"
+	"github.com/spf13/viper"
+	"gorm.io/gorm"
 )
 
 type ApiMeResponse struct {
 	Name string `json:"name"`
 }
 
-/*
-GET /plugins/ae/test
-*/
-func TestConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, error) {
-	// TODO: implement test connection
-	return &core.ApiResourceOutput{Body: true}, nil
+var connectionHelper *helper.ConnectionApiHelper
+
+func Init(config *viper.Viper, logger core.Logger, database *gorm.DB) {
+	basicRes := helper.NewDefaultBasicRes(config, logger, database)
+	vld := validator.New()
+	connectionHelper = helper.NewConnectionHelper(
+		basicRes,
+		vld,
+	)
+}
+
+func GetSign(query url.Values, appId, secretKey, nonceStr, timestamp string) string {
+	// clone query because we need to add items
+	kvs := make([]string, 0, len(query)+3)
+	kvs = append(kvs, fmt.Sprintf("app_id=%s", appId))
+	kvs = append(kvs, fmt.Sprintf("timestamp=%s", timestamp))
+	kvs = append(kvs, fmt.Sprintf("nonce_str=%s", nonceStr))
+	for key, values := range query {
+		for _, value := range values {
+			kvs = append(kvs, fmt.Sprintf("%s=%s", url.QueryEscape(key), url.QueryEscape(value)))
+		}
+	}
+
+	// sort by alphabetical order
+	sort.Strings(kvs)
+
+	// generate text for signature
+	querystring := fmt.Sprintf("%s&key=%s", strings.Join(kvs, "&"), url.QueryEscape(secretKey))
+
+	// sign it
+	hasher := md5.New()
+	_, err := hasher.Write([]byte(querystring))
+	if err != nil {
+		return ""
+	}
+	return strings.ToUpper(hex.EncodeToString(hasher.Sum(nil)))
 }
 
 /*
-PATCH /plugins/ae/connections/:connectionId
+GET /plugins/ae/test/:connectionId
 */
-func PatchConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, error) {
-	v := config.GetConfig()
+func TestConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, error) {
 	connection := &models.AeConnection{}
-	err := helper.EncodeStruct(v, connection, "env")
+	err := connectionHelper.First(connection, input.Params)
 	if err != nil {
 		return nil, err
 	}
-	// update from request and save to .env
-	err = helper.DecodeStruct(v, connection, input.Body, "env")
+
+	// load and process cconfiguration
+	endpoint := connection.Endpoint
+	appId := connection.AppId
+	secretKey := connection.SecretKey
+	proxy := connection.Proxy
+
+	apiClient, err := helper.NewApiClient(endpoint, nil, 3*time.Second, proxy, nil)
 	if err != nil {
 		return nil, err
 	}
-	err = config.WriteConfig(v)
+	apiClient.SetBeforeFunction(func(req *http.Request) error {
+		nonceStr := core.RandLetterBytes(8)
+		timestamp := fmt.Sprintf("%v", time.Now().Unix())
+		sign := GetSign(req.URL.Query(), appId, secretKey, nonceStr, timestamp)
+		req.Header.Set("x-ae-app-id", appId)
+		req.Header.Set("x-ae-timestamp", timestamp)
+		req.Header.Set("x-ae-nonce-str", nonceStr)
+		req.Header.Set("x-ae-sign", sign)
+		return nil
+	})
+	res, err := apiClient.Get("projects/", nil, nil)
 	if err != nil {
 		return nil, err
 	}
-	response := models.AeResponse{
-		AeConnection: *connection,
-		Name:         "Ae",
-		ID:           1,
+
+	switch res.StatusCode {
+	case 401: // error secretKey or nonceStr
+		return &core.ApiResourceOutput{Body: false, Status: res.StatusCode}, nil
+	case 404: // right StatusCode
+		return &core.ApiResourceOutput{Body: true, Status: 200}, nil
+	default: // unknow what happen , back to user
+		return &core.ApiResourceOutput{Body: res.Body, Status: res.StatusCode}, nil
 	}
-	return &core.ApiResourceOutput{Body: response, Status: http.StatusOK}, nil
+}
+
+/*
+POST /plugins/ae/connections
+*/
+func PostConnections(input *core.ApiResourceInput) (*core.ApiResourceOutput, error) {
+	connection := &models.AeConnection{}
+	fmt.Printf("%+v\r\n", connectionHelper)
+	err := connectionHelper.Create(connection, input)
+	if err != nil {
+		return nil, err
+	}
+	return &core.ApiResourceOutput{Body: connection, Status: http.StatusOK}, nil
 }
 
 /*
 GET /plugins/ae/connections
 */
 func ListConnections(input *core.ApiResourceInput) (*core.ApiResourceOutput, error) {
-	// RETURN ONLY 1 SOURCE (FROM ENV) until multi-connection is developed.
-	v := config.GetConfig()
-	connection := &models.AeConnection{}
-
-	err := helper.EncodeStruct(v, connection, "env")
+	var connections []models.AeConnection
+	err := connectionHelper.List(&connections)
 	if err != nil {
 		return nil, err
 	}
-	response := models.AeResponse{
-		AeConnection: *connection,
-		Name:         "Ae",
-		ID:           1,
-	}
-
-	return &core.ApiResourceOutput{Body: []models.AeResponse{response}}, nil
+	return &core.ApiResourceOutput{Body: connections, Status: http.StatusOK}, nil
 }
 
 /*
 GET /plugins/ae/connections/:connectionId
 */
 func GetConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, error) {
-	//  RETURN ONLY 1 SOURCE FROM ENV (Ignore ID until multi-connection is developed.)
-	v := config.GetConfig()
 	connection := &models.AeConnection{}
-	err := helper.EncodeStruct(v, connection, "env")
+	err := connectionHelper.First(connection, input.Params)
+	return &core.ApiResourceOutput{Body: connection}, err
+}
+
+/*
+PATCH /plugins/ae/connections/:connectionId
+*/
+func PatchConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, error) {
+	connection := &models.AeConnection{}
+	err := connectionHelper.Patch(connection, input)
 	if err != nil {
 		return nil, err
 	}
-	response := &models.AeResponse{
-		AeConnection: *connection,
-		Name:         "Ae",
-		ID:           1,
+	return &core.ApiResourceOutput{Body: connection, Status: http.StatusOK}, nil
+}
+
+/*
+DELETE /plugins/ae/connections/:connectionId
+*/
+func DeleteConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, error) {
+	connection := &models.AeConnection{}
+	err := connectionHelper.First(connection, input.Params)
+	if err != nil {
+		return nil, err
 	}
-	return &core.ApiResourceOutput{Body: response}, nil
+	err = connectionHelper.Delete(connection)
+	return &core.ApiResourceOutput{Body: connection}, err
 }

@@ -15,20 +15,15 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package tasks
+package archived
 
 import "github.com/apache/incubator-devlake/plugins/helper"
 
-type AeOptions struct {
-	ConnectionId uint64 `json:"connectionId"`
-	ProjectId    int
-	Tasks        []string `json:"tasks,omitempty"`
+type AeConnection struct {
+	helper.RestConnection `mapstructure:",squash"`
+	helper.AppKey         `mapstructure:",squash"`
 }
 
-type AeTaskData struct {
-	Options   *AeOptions
-	ApiClient *helper.ApiAsyncClient
-}
-type AeApiParams struct {
-	ProjectId int
+func (AeConnection) TableName() string {
+	return "_tool_ae_connections"
 }

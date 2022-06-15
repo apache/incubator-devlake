@@ -30,6 +30,10 @@ import (
 
 const EncodeKeyEnvStr = "ENCODE_KEY"
 
+func init() {
+	rand.Seed(time.Now().UnixNano())
+}
+
 // TODO: maybe move encryption/decryption into helper?
 // AES + Base64 encryption using ENCODE_KEY in .env as key
 func Encrypt(encKey, plainText string) (string, error) {
@@ -151,4 +155,14 @@ func RandomCapsStr(len int) string {
 
 func RandomEncKey() string {
 	return RandomCapsStr(128)
+}
+
+const letterBytes = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+
+func RandLetterBytes(n int) string {
+	b := make([]byte, n)
+	for i := range b {
+		b[i] = letterBytes[rand.Intn(len(letterBytes))]
+	}
+	return string(b)
 }

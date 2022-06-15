@@ -49,6 +49,11 @@ type AccessToken struct {
 	Token string `mapstructure:"token" validate:"required" json:"token" encrypt:"yes"`
 }
 
+type AppKey struct {
+	AppId     string `mapstructure:"app_id" validate:"required" json:"app_id"`
+	SecretKey string `mapstructure:"secret_key" validate:"required" json:"secret_key" encrypt:"yes"`
+}
+
 type RestConnection struct {
 	BaseConnection `mapstructure:",squash"`
 	Endpoint       string `mapstructure:"endpoint" validate:"required" json:"endpoint"`
