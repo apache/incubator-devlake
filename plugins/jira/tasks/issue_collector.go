@@ -48,7 +48,7 @@ func CollectIssues(taskCtx core.SubTaskContext) error {
 	// user didn't specify a time range to sync, try load from database
 	if since == nil {
 		var latestUpdated models.JiraIssue
-		err := db.Where("connection_id = ?", data.Connection.ID).Order("updated DESC").Limit(1).Find(&latestUpdated).Error
+		err := db.Where("connection_id = ? and board_id = ?", data.Connection.ID, data.Options.BoardId).Order("updated DESC").Limit(1).Find(&latestUpdated).Error
 		if err != nil {
 			return fmt.Errorf("failed to get latest jira issue record: %w", err)
 		}
