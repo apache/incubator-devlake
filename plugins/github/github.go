@@ -29,10 +29,10 @@ var PluginEntry impl.Github //nolint
 // standalone mode for debugging
 func main() {
 	cmd := &cobra.Command{Use: "github"}
-	connectionId := cmd.Flags().Uint64P("connection", "c", 0, "github connection id")
+	connectionId := cmd.Flags().Uint64P("connectionId", "c", 0, "github connection id")
 	owner := cmd.Flags().StringP("owner", "o", "", "github owner")
 	repo := cmd.Flags().StringP("repo", "r", "", "github repo")
-	_ = cmd.MarkFlagRequired("connection")
+	_ = cmd.MarkFlagRequired("connectionId")
 	_ = cmd.MarkFlagRequired("owner")
 	_ = cmd.MarkFlagRequired("repo")
 

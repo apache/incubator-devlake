@@ -20,14 +20,16 @@ package migrationscripts
 import (
 	"context"
 	"github.com/apache/incubator-devlake/config"
-	"github.com/apache/incubator-devlake/models/migrationscripts/archived"
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/helper"
+
+	commonArchived "github.com/apache/incubator-devlake/models/migrationscripts/archived"
+	"github.com/apache/incubator-devlake/plugins/github/models/migrationscripts/archived"
 	"gorm.io/gorm"
 )
 
 type GithubConnection20220609 struct {
-	archived.Model
+	commonArchived.Model
 	Name      string `gorm:"type:varchar(100);uniqueIndex" json:"name" validate:"required"`
 	Endpoint  string `mapstructure:"endpoint" env:"GITHUB_ENDPOINT" validate:"required"`
 	Proxy     string `mapstructure:"proxy" env:"GITHUB_PROXY"`
@@ -39,16 +41,48 @@ func (GithubConnection20220609) TableName() string {
 	return "_tool_github_connections"
 }
 
-type UpdateSchemas20220609 struct{}
+type InitSchemas struct{}
 
-func (*UpdateSchemas20220609) Up(ctx context.Context, db *gorm.DB) error {
+func (*InitSchemas) Up(ctx context.Context, db *gorm.DB) error {
 	if db.Migrator().HasTable(GithubConnection20220609{}) {
 		err := db.Migrator().DropTable(GithubConnection20220609{})
 		if err != nil {
 			return err
 		}
 	}
-	err := db.Migrator().CreateTable(GithubConnection20220609{})
+	err := db.Migrator().DropTable(
+		&archived.GithubRepo{},
+		&archived.GithubCommit{},
+		&archived.GithubRepoCommit{},
+		&archived.GithubPullRequest{},
+		&archived.GithubReviewer{},
+		&archived.GithubPullRequestComment{},
+		&archived.GithubPullRequestCommit{},
+		&archived.GithubPullRequestLabel{},
+		&archived.GithubIssue{},
+		&archived.GithubIssueComment{},
+		&archived.GithubIssueEvent{},
+		&archived.GithubIssueLabel{},
+		&archived.GithubUser{},
+		&archived.GithubPullRequestIssue{},
+		&archived.GithubCommitStat{},
+		"_raw_github_api_issues",
+		"_raw_github_api_comments",
+		"_raw_github_api_commits",
+		"_raw_github_api_commit_stats",
+		"_raw_github_api_events",
+		"_raw_github_api_issues",
+		"_raw_github_api_pull_requests",
+		"_raw_github_api_pull_request_commits",
+		"_raw_github_api_pull_request_reviews",
+		"_raw_github_api_repositories",
+	)
+
+	// create connection
+	if err != nil {
+		return err
+	}
+	err = db.Migrator().CreateTable(GithubConnection20220609{})
 	if err != nil {
 		return err
 	}
@@ -69,13 +103,31 @@ func (*UpdateSchemas20220609) Up(ctx context.Context, db *gorm.DB) error {
 	if connection.Endpoint != `` && connection.Token != `` {
 		db.Create(connection)
 	}
-	return nil
+
+	// create other table with connection id
+	return db.Migrator().AutoMigrate(
+		&archived.GithubRepo{},
+		&archived.GithubCommit{},
+		&archived.GithubRepoCommit{},
+		&archived.GithubPullRequest{},
+		&archived.GithubReviewer{},
+		&archived.GithubPullRequestComment{},
+		&archived.GithubPullRequestCommit{},
+		&archived.GithubPullRequestLabel{},
+		&archived.GithubIssue{},
+		&archived.GithubIssueComment{},
+		&archived.GithubIssueEvent{},
+		&archived.GithubIssueLabel{},
+		&archived.GithubUser{},
+		&archived.GithubPullRequestIssue{},
+		&archived.GithubCommitStat{},
+	)
 }
 
-func (*UpdateSchemas20220609) Version() uint64 {
-	return 20220609000004
+func (*InitSchemas) Version() uint64 {
+	return 20220610000001
 }
 
-func (*UpdateSchemas20220609) Name() string {
-	return "Add connection for github"
+func (*InitSchemas) Name() string {
+	return "Github init schemas 20220610"
 }
