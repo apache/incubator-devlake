@@ -120,11 +120,11 @@ func ConvertChangelogs(taskCtx core.SubTaskContext) error {
 				}
 			}
 			if row.Field == "status" {
-				fromStatus, ok := statusMap[changelog.FromValue]
+				fromStatus, ok := statusMap[row.FromString]
 				if ok {
 					changelog.FromValue = GetStdStatus(fromStatus.StatusCategory)
 				}
-				toStatus, ok := statusMap[changelog.ToValue]
+				toStatus, ok := statusMap[row.ToString]
 				if ok {
 					changelog.ToValue = GetStdStatus(toStatus.StatusCategory)
 				}
