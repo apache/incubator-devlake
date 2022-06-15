@@ -48,7 +48,7 @@ func CollectApiComments(taskCtx core.SubTaskContext) error {
 			&latestUpdatedIssueComt,
 			Join("left join _tool_github_issues on _tool_github_issues.github_id = _tool_github_issue_comments.issue_id"),
 			Where(
-				"_tool_github_issues.repo_id = ?", data.Repo.GithubId,
+				"_tool_github_issues.repo_id = ? AND _tool_github_issues.connection_id = ?", data.Repo.GithubId, data.Repo.ConnectionId,
 			),
 			Orderby("github_updated_at DESC"),
 			Limit(1),
@@ -60,7 +60,7 @@ func CollectApiComments(taskCtx core.SubTaskContext) error {
 		err = db.All(
 			&latestUpdatedPrComt,
 			Join("left join _tool_github_pull_requests on _tool_github_pull_requests.github_id = _tool_github_pull_request_comments.pull_request_id"),
-			Where("_tool_github_pull_requests.repo_id = ?", data.Repo.GithubId),
+			Where("_tool_github_pull_requests.repo_id = ? AND _tool_github_pull_requests.connection_id = ?", data.Repo.GithubId, data.Repo.ConnectionId),
 			Orderby("github_updated_at DESC"),
 			Limit(1),
 		)

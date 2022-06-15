@@ -44,7 +44,7 @@ func ConvertPullRequestComments(taskCtx core.SubTaskContext) error {
 		dal.From(&githubModels.GithubPullRequestComment{}),
 		dal.Join("left join _tool_github_pull_requests "+
 			"on _tool_github_pull_requests.github_id = _tool_github_pull_request_comments.pull_request_id"),
-		dal.Where("repo_id = ?", repoId),
+		dal.Where("repo_id = ? and _tool_github_pull_requests.connection_id = ?", repoId, data.Options.ConnectionId),
 	)
 	if err != nil {
 		return err
@@ -60,8 +60,9 @@ func ConvertPullRequestComments(taskCtx core.SubTaskContext) error {
 		RawDataSubTaskArgs: helper.RawDataSubTaskArgs{
 			Ctx: taskCtx,
 			Params: GithubApiParams{
-				Owner: data.Options.Owner,
-				Repo:  data.Options.Repo,
+				ConnectionId: data.Options.ConnectionId,
+				Owner:        data.Options.Owner,
+				Repo:         data.Options.Repo,
 			},
 			Table: RAW_COMMENTS_TABLE,
 		},

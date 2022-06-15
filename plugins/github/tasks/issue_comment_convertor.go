@@ -44,7 +44,7 @@ func ConvertIssueComments(taskCtx core.SubTaskContext) error {
 		dal.From(&githubModels.GithubIssueComment{}),
 		dal.Join("left join _tool_github_issues "+
 			"on _tool_github_issues.github_id = _tool_github_issue_comments.issue_id"),
-		dal.Where("repo_id = ?", repoId),
+		dal.Where("repo_id = ? and _tool_github_issues.connection_id = ?", repoId, data.Options.ConnectionId),
 	)
 	if err != nil {
 		return err
@@ -60,8 +60,9 @@ func ConvertIssueComments(taskCtx core.SubTaskContext) error {
 		RawDataSubTaskArgs: helper.RawDataSubTaskArgs{
 			Ctx: taskCtx,
 			Params: GithubApiParams{
-				Owner: data.Options.Owner,
-				Repo:  data.Options.Repo,
+				ConnectionId: data.Options.ConnectionId,
+				Owner:        data.Options.Owner,
+				Repo:         data.Options.Repo,
 			},
 			Table: RAW_COMMENTS_TABLE,
 		},
