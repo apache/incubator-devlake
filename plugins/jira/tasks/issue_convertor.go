@@ -79,7 +79,7 @@ func ConvertIssues(taskCtx core.SubTaskContext) error {
 				EpicKey:                 jiraIssue.EpicKey,
 				Type:                    jiraIssue.StdType,
 				Status:                  jiraIssue.StdStatus,
-				OriginalStatus:          jiraIssue.StatusKey,
+				OriginalStatus:          jiraIssue.StatusName,
 				StoryPoint:              jiraIssue.StdStoryPoint,
 				OriginalEstimateMinutes: jiraIssue.OriginalEstimateMinutes,
 				ResolutionDate:          jiraIssue.ResolutionDate,

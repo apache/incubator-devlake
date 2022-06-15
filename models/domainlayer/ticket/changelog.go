@@ -27,14 +27,14 @@ type Changelog struct {
 	domainlayer.DomainEntity
 
 	// collected fields
-	IssueId      string `gorm:"index;type:varchar(255)"`
-	AuthorId     string `gorm:"type:varchar(255)"`
-	AuthorName   string `gorm:"type:varchar(255)"`
-	FieldId      string `gorm:"type:varchar(255)"`
-	FieldName    string `gorm:"type:varchar(255)"`
-	FromValue    string
-	StandardFrom string
-	StandardTo   string
-	ToValue      string
-	CreatedDate  time.Time
+	IssueId           string `gorm:"index;type:varchar(255)"`
+	AuthorId          string `gorm:"type:varchar(255)"`
+	AuthorName        string `gorm:"type:varchar(255)"`
+	FieldId           string `gorm:"type:varchar(255)"`
+	FieldName         string `gorm:"type:varchar(255)"`
+	OriginalFromValue string
+	OriginalToValue   string
+	FromValue         string
+	ToValue           string
+	CreatedDate       time.Time
 }

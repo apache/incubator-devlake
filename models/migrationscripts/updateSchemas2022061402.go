@@ -21,12 +21,12 @@ import (
 	"context"
 	"time"
 
-	"github.com/apache/incubator-devlake/models/domainlayer"
+	"github.com/apache/incubator-devlake/models/migrationscripts/archived"
 	"gorm.io/gorm"
 )
 
 type Changelog struct {
-	domainlayer.DomainEntity
+	archived.DomainEntity
 
 	// collected fields
 	IssueId      string `gorm:"index;type:varchar(255)"`

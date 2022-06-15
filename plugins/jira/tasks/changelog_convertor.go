@@ -92,29 +92,29 @@ func ConvertChangelogs(taskCtx core.SubTaskContext) error {
 					row.ChangelogId,
 					row.Field,
 				)},
-				IssueId:     issueIdGenerator.Generate(row.ConnectionId, row.IssueId),
-				AuthorId:    userIdGen.Generate(connectionId, row.AuthorAccountId),
-				AuthorName:  row.AuthorDisplayName,
-				FieldId:     row.FieldId,
-				FieldName:   row.Field,
-				FromValue:   row.FromString,
-				ToValue:     row.ToString,
-				CreatedDate: row.Created,
+				IssueId:           issueIdGenerator.Generate(row.ConnectionId, row.IssueId),
+				AuthorId:          userIdGen.Generate(connectionId, row.AuthorAccountId),
+				AuthorName:        row.AuthorDisplayName,
+				FieldId:           row.FieldId,
+				FieldName:         row.Field,
+				OriginalFromValue: row.FromString,
+				OriginalToValue:   row.ToString,
+				CreatedDate:       row.Created,
 			}
 			if row.Field == "assignee" {
 				if row.ToValue != "" {
-					changelog.ToValue = userIdGen.Generate(connectionId, row.ToValue)
+					changelog.OriginalToValue = userIdGen.Generate(connectionId, row.ToValue)
 				}
 				if row.FromValue != "" {
-					changelog.FromValue = userIdGen.Generate(connectionId, row.FromValue)
+					changelog.OriginalFromValue = userIdGen.Generate(connectionId, row.FromValue)
 				}
 			}
 			if row.Field == "Sprint" {
-				changelog.FromValue, err = convertIds(row.FromValue, connectionId, sprintIdGenerator)
+				changelog.OriginalFromValue, err = convertIds(row.FromValue, connectionId, sprintIdGenerator)
 				if err != nil {
 					return nil, err
 				}
-				changelog.ToValue, err = convertIds(row.ToValue, connectionId, sprintIdGenerator)
+				changelog.OriginalToValue, err = convertIds(row.ToValue, connectionId, sprintIdGenerator)
 				if err != nil {
 					return nil, err
 				}
@@ -122,11 +122,11 @@ func ConvertChangelogs(taskCtx core.SubTaskContext) error {
 			if row.Field == "status" {
 				fromStatus, ok := statusMap[changelog.FromValue]
 				if ok {
-					changelog.StandardFrom = GetStdStatus(fromStatus.StatusCategory)
+					changelog.FromValue = GetStdStatus(fromStatus.StatusCategory)
 				}
 				toStatus, ok := statusMap[changelog.ToValue]
 				if ok {
-					changelog.StandardTo = GetStdStatus(toStatus.StatusCategory)
+					changelog.ToValue = GetStdStatus(toStatus.StatusCategory)
 				}
 			}
 			return []interface{}{changelog}, nil

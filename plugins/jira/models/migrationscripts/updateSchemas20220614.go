@@ -20,12 +20,12 @@ package migrationscripts
 import (
 	"context"
 
-	"github.com/apache/incubator-devlake/models/common"
+	"github.com/apache/incubator-devlake/models/migrationscripts/archived"
 	"gorm.io/gorm"
 )
 
 type JiraStatus struct {
-	common.NoPKModel
+	archived.NoPKModel
 	ConnectionId   uint64 `gorm:"primaryKey"`
 	ID             string `gorm:"primaryKey"`
 	Name           string
