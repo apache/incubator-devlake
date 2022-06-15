@@ -46,7 +46,7 @@ func ConvertIssues(taskCtx core.SubTaskContext) error {
 	issue := &githubModels.GithubIssue{}
 	cursor, err := db.Cursor(
 		dal.From(issue),
-		dal.Where("repo_id = ?", repoId),
+		dal.Where("repo_id = ? and connection_id=?", repoId, data.Options.ConnectionId),
 	)
 	if err != nil {
 		return err
@@ -61,8 +61,9 @@ func ConvertIssues(taskCtx core.SubTaskContext) error {
 		RawDataSubTaskArgs: helper.RawDataSubTaskArgs{
 			Ctx: taskCtx,
 			Params: GithubApiParams{
-				Owner: data.Options.Owner,
-				Repo:  data.Options.Repo,
+				ConnectionId: data.Options.ConnectionId,
+				Owner:        data.Options.Owner,
+				Repo:         data.Options.Repo,
 			},
 			Table: RAW_ISSUE_TABLE,
 		},

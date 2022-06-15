@@ -43,7 +43,7 @@ func ConvertIssueLabels(taskCtx core.SubTaskContext) error {
 	cursor, err := db.Cursor(
 		dal.From(&githubModels.GithubIssueLabel{}),
 		dal.Join(`left join _tool_github_issues on _tool_github_issues.github_id = _tool_github_issue_labels.issue_id`),
-		dal.Where("_tool_github_issues.repo_id = ?", repoId),
+		dal.Where("_tool_github_issues.repo_id = ? and _tool_github_issues.connection_id = ?", repoId, data.Options.ConnectionId),
 		dal.Orderby("issue_id ASC"),
 	)
 	if err != nil {
@@ -56,8 +56,9 @@ func ConvertIssueLabels(taskCtx core.SubTaskContext) error {
 		RawDataSubTaskArgs: helper.RawDataSubTaskArgs{
 			Ctx: taskCtx,
 			Params: GithubApiParams{
-				Owner: data.Options.Owner,
-				Repo:  data.Options.Repo,
+				ConnectionId: data.Options.ConnectionId,
+				Owner:        data.Options.Owner,
+				Repo:         data.Options.Repo,
 			},
 			Table: RAW_ISSUE_TABLE,
 		},

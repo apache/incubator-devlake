@@ -55,9 +55,9 @@ func CollectApiIssues(taskCtx core.SubTaskContext) error {
 	// user didn't specify a time range to sync, try load from database
 	if since == nil {
 		var latestUpdated models.GithubIssue
-		err := db.First(
+		err := db.All(
 			&latestUpdated,
-			dal.Where("repo_id = ?", data.Repo.GithubId),
+			dal.Where("repo_id = ? and connection_id = ?", data.Repo.GithubId, data.Repo.ConnectionId),
 			dal.Orderby("github_updated_at DESC"),
 			dal.Limit(1),
 		)
@@ -78,8 +78,9 @@ func CollectApiIssues(taskCtx core.SubTaskContext) error {
 				set of data to be process, for example, we process JiraIssues by Board
 			*/
 			Params: GithubApiParams{
-				Owner: data.Options.Owner,
-				Repo:  data.Options.Repo,
+				ConnectionId: data.Options.ConnectionId,
+				Owner:        data.Options.Owner,
+				Repo:         data.Options.Repo,
 			},
 			/*
 				Table store raw data
