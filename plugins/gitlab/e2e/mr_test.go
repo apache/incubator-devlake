@@ -19,16 +19,16 @@ package e2e
 
 import (
 	"fmt"
+	"github.com/apache/incubator-devlake/models/domainlayer/code"
 	"testing"
 
 	"github.com/apache/incubator-devlake/helpers/e2ehelper"
-	"github.com/apache/incubator-devlake/models/domainlayer/code"
 	"github.com/apache/incubator-devlake/plugins/gitlab/impl"
 	"github.com/apache/incubator-devlake/plugins/gitlab/models"
 	"github.com/apache/incubator-devlake/plugins/gitlab/tasks"
 )
 
-func TestGitlabProjectDataFlow(t *testing.T) {
+func TestGitlabMrDataFlow(t *testing.T) {
 
 	var gitlab impl.Gitlab
 	dataflowTester := e2ehelper.NewDataFlowTester(t, "gitlab", gitlab)
@@ -36,35 +36,44 @@ func TestGitlabProjectDataFlow(t *testing.T) {
 	taskData := &tasks.GitlabTaskData{
 		Options: &tasks.GitlabOptions{
 			ConnectionId: 1,
-			ProjectId:    3472737,
+			ProjectId:    18524154,
 		},
 	}
 
 	// import raw data table
-	dataflowTester.ImportCsvIntoRawTable("./tables/_raw_gitlab_api_projects.csv",
-		"_raw_gitlab_api_project")
+	dataflowTester.ImportCsvIntoRawTable("./tables/_raw_gitlab_api_merge_requests.csv",
+		"_raw_gitlab_api_merge_requests")
 
 	// verify extraction
-	dataflowTester.FlushTabler(&models.GitlabProject{})
-	dataflowTester.Subtask(tasks.ExtractProjectMeta, taskData)
+	dataflowTester.FlushTabler(&models.GitlabMergeRequest{})
+	dataflowTester.Subtask(tasks.ExtractApiMergeRequestsMeta, taskData)
 	dataflowTester.VerifyTable(
-		models.GitlabProject{},
-		fmt.Sprintf("./snapshot_tables/%s.csv", models.GitlabProject{}.TableName()),
+		models.GitlabMergeRequest{},
+		fmt.Sprintf("./snapshot_tables/%s.csv", models.GitlabMergeRequest{}.TableName()),
 		[]string{"connection_id", "gitlab_id"},
 		[]string{
-			"name",
-			"description",
-			"default_branch",
-			"path_with_namespace",
+			"iid",
+			"project_id",
+			"source_project_id",
+			"target_project_id",
+			"state",
+			"title",
 			"web_url",
-			"creator_id",
-			"visibility",
-			"open_issues_count",
-			"star_count",
-			"forked_from_project_id",
-			"forked_from_project_web_url",
-			"created_date",
-			"updated_date",
+			"user_notes_count",
+			"work_in_progress",
+			"source_branch",
+			"target_branch",
+			"merge_commit_sha",
+			"merged_at",
+			"gitlab_created_at",
+			"closed_at",
+			"merged_by_username",
+			"description",
+			"author_username",
+			"author_user_id",
+			"component",
+			"first_comment_time",
+			"review_rounds",
 			"_raw_data_params",
 			"_raw_data_table",
 			"_raw_data_id",
@@ -73,26 +82,37 @@ func TestGitlabProjectDataFlow(t *testing.T) {
 	)
 
 	// verify conversion
-	dataflowTester.FlushTabler(&code.Repo{})
-	dataflowTester.Subtask(tasks.ConvertProjectMeta, taskData)
+	dataflowTester.FlushTabler(&code.PullRequest{})
+	dataflowTester.Subtask(tasks.ConvertApiMergeRequestsMeta, taskData)
 	dataflowTester.VerifyTable(
-		code.Repo{},
-		fmt.Sprintf("./snapshot_tables/%s.csv", code.Repo{}.TableName()),
+		code.PullRequest{},
+		fmt.Sprintf("./snapshot_tables/%s.csv", code.PullRequest{}.TableName()),
 		[]string{"id"},
 		[]string{
 			"_raw_data_params",
 			"_raw_data_table",
 			"_raw_data_id",
 			"_raw_data_remark",
-			"name",
-			"url",
+			"base_repo_id",
+			"head_repo_id",
+			"status",
+			"title",
 			"description",
-			"owner_id",
-			"language",
-			"forked_from",
+			"url",
+			"author_name",
+			"author_id",
+			"parent_pr_id",
+			"pull_request_key",
 			"created_date",
-			"updated_date",
-			"deleted",
+			"merged_date",
+			"closed_date",
+			"type",
+			"component",
+			"merge_commit_sha",
+			"head_ref",
+			"base_ref",
+			"base_commit_sha",
+			"head_commit_sha",
 		},
 	)
 }

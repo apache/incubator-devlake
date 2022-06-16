@@ -88,11 +88,12 @@ func ExtractApiMergeRequests(taskCtx core.SubTaskContext) error {
 				return nil, err
 			}
 			results := make([]interface{}, 0, len(mr.Reviewers)+1)
-
+			gitlabMergeRequest.ConnectionId = data.Options.ConnectionId
 			results = append(results, gitlabMergeRequest)
 
 			for _, reviewer := range mr.Reviewers {
 				gitlabReviewer := &models.GitlabReviewer{
+					ConnectionId:   data.Options.ConnectionId,
 					GitlabId:       reviewer.GitlabId,
 					MergeRequestId: mr.GitlabId,
 					ProjectId:      data.Options.ProjectId,

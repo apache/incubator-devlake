@@ -40,7 +40,7 @@ func EnrichMergeRequests(taskCtx core.SubTaskContext) error {
 	db := taskCtx.GetDal()
 	clauses := []dal.Clause{
 		dal.From(&models.GitlabMergeRequest{}),
-		dal.Where("project_id=?", data.Options.ProjectId),
+		dal.Where("project_id=? and connection_id = ?", data.Options.ProjectId, data.Options.ConnectionId),
 	}
 
 	cursor, err := db.Cursor(clauses...)
@@ -61,7 +61,8 @@ func EnrichMergeRequests(taskCtx core.SubTaskContext) error {
 			// `system` = 0 is needed since we only care about human comments
 			noteClauses := []dal.Clause{
 				dal.From(&models.GitlabMergeRequestNote{}),
-				dal.Where("merge_request_id = ? AND is_system = ?", gitlabMr.GitlabId, false),
+				dal.Where("merge_request_id = ? AND is_system = ? AND connection_id = ? ",
+					gitlabMr.GitlabId, false, data.Options.ConnectionId),
 				dal.Orderby("gitlab_created_at asc"),
 			}
 			err = db.All(&notes, noteClauses...)
@@ -74,7 +75,8 @@ func EnrichMergeRequests(taskCtx core.SubTaskContext) error {
 				dal.From(&models.GitlabCommit{}),
 				dal.Join(`join _tool_gitlab_merge_request_commits gmrc 
 					on gmrc.commit_sha = _tool_gitlab_commits.sha`),
-				dal.Where("merge_request_id = ?", gitlabMr.GitlabId),
+				dal.Where("merge_request_id = ? AND connection_id = ?",
+					gitlabMr.GitlabId, data.Options.ConnectionId),
 				dal.Orderby("authored_date asc"),
 			}
 			err = db.All(&commits, commitClauses...)

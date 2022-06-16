@@ -57,7 +57,7 @@ func CollectApiIssues(taskCtx core.SubTaskContext) error {
 			dal.Orderby("gitlab_updated_at DESC"),
 		}
 		err := db.First(&latestUpdated, clause...)
-		if err != nil {
+		if err != nil && err.Error() != "record not found" {
 			return fmt.Errorf("failed to get latest gitlab issue record: %w", err)
 		}
 		if latestUpdated.GitlabId > 0 {
