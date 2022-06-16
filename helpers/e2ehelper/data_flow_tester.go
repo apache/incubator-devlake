@@ -241,14 +241,14 @@ func (t *DataFlowTester) VerifyTable(dst schema.Tabler, csvRelPath string, pkfie
 
 		var actualCount int64
 		err := t.Db.Table(dst.TableName()).Where(strings.Join(where, ` AND `), pkvalues...).Count(&actualCount).Error
+		if err != nil {
+			panic(err)
+		}
 		assert.Equal(t.T, int64(1), actualCount, fmt.Sprintf(`%s found not eq 1 but %d (with params from csv %s)`, dst.TableName(), actualCount, pkvalues))
 		if actualCount != 1 {
 			continue
 		}
 
-		if err != nil {
-			panic(err)
-		}
 		err = t.Db.Table(dst.TableName()).Where(strings.Join(where, ` AND `), pkvalues...).Find(actual).Error
 		if err != nil {
 			panic(err)
