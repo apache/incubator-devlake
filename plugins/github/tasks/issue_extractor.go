@@ -39,7 +39,7 @@ type IssuesResponse struct {
 	Number      int
 	State       string
 	Title       string
-	Body        string
+	Body        json.RawMessage
 	HtmlUrl     string `json:"html_url"`
 	PullRequest struct {
 		Url     string `json:"url"`
@@ -104,8 +104,9 @@ func ExtractApiIssues(taskCtx core.SubTaskContext) error {
 				set of data to be process, for example, we process JiraIssues by Board
 			*/
 			Params: GithubApiParams{
-				Owner: data.Options.Owner,
-				Repo:  data.Options.Repo,
+				ConnectionId: data.Options.ConnectionId,
+				Owner:        data.Options.Owner,
+				Repo:         data.Options.Repo,
 			},
 			/*
 				Table store raw data
@@ -127,14 +128,15 @@ func ExtractApiIssues(taskCtx core.SubTaskContext) error {
 				return nil, nil
 			}
 			results := make([]interface{}, 0, 2)
-			githubIssue, err := convertGithubIssue(body, data.Repo.GithubId)
+			githubIssue, err := convertGithubIssue(body, data.Options.ConnectionId, data.Repo.GithubId)
 			if err != nil {
 				return nil, err
 			}
 			for _, label := range body.Labels {
 				results = append(results, &models.GithubIssueLabel{
-					IssueId:   githubIssue.GithubId,
-					LabelName: label.Name,
+					ConnectionId: data.Options.ConnectionId,
+					IssueId:      githubIssue.GithubId,
+					LabelName:    label.Name,
 				})
 				if issueSeverityRegex != nil {
 					groups := issueSeverityRegex.FindStringSubmatch(label.Name)
@@ -187,14 +189,15 @@ func ExtractApiIssues(taskCtx core.SubTaskContext) error {
 
 	return extractor.Execute()
 }
-func convertGithubIssue(issue *IssuesResponse, repositoryId int) (*models.GithubIssue, error) {
+func convertGithubIssue(issue *IssuesResponse, connectionId uint64, repositoryId int) (*models.GithubIssue, error) {
 	githubIssue := &models.GithubIssue{
+		ConnectionId:    connectionId,
 		GithubId:        issue.GithubId,
 		RepoId:          repositoryId,
 		Number:          issue.Number,
 		State:           issue.State,
 		Title:           issue.Title,
-		Body:            issue.Body,
+		Body:            string(issue.Body),
 		Url:             issue.HtmlUrl,
 		ClosedAt:        helper.Iso8601TimeToTime(issue.ClosedAt),
 		GithubCreatedAt: issue.GithubCreatedAt.ToTime(),

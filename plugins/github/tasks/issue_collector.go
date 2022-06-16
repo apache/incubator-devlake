@@ -20,6 +20,7 @@ package tasks
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/apache/incubator-devlake/plugins/core/dal"
 	"net/http"
 	"net/url"
 
@@ -46,7 +47,7 @@ var CollectApiIssuesMeta = core.SubTaskMeta{
 }
 
 func CollectApiIssues(taskCtx core.SubTaskContext) error {
-	db := taskCtx.GetDb()
+	db := taskCtx.GetDal()
 	data := taskCtx.GetData().(*GithubTaskData)
 
 	since := data.Since
@@ -54,9 +55,12 @@ func CollectApiIssues(taskCtx core.SubTaskContext) error {
 	// user didn't specify a time range to sync, try load from database
 	if since == nil {
 		var latestUpdated models.GithubIssue
-		err := db.Model(&latestUpdated).
-			Where("repo_id = ?", data.Repo.GithubId).
-			Order("github_updated_at DESC").Limit(1).Find(&latestUpdated).Error
+		err := db.All(
+			&latestUpdated,
+			dal.Where("repo_id = ? and connection_id = ?", data.Repo.GithubId, data.Repo.ConnectionId),
+			dal.Orderby("github_updated_at DESC"),
+			dal.Limit(1),
+		)
 		if err != nil {
 			return fmt.Errorf("failed to get latest github issue record: %w", err)
 		}
@@ -74,8 +78,9 @@ func CollectApiIssues(taskCtx core.SubTaskContext) error {
 				set of data to be process, for example, we process JiraIssues by Board
 			*/
 			Params: GithubApiParams{
-				Owner: data.Options.Owner,
-				Repo:  data.Options.Repo,
+				ConnectionId: data.Options.ConnectionId,
+				Owner:        data.Options.Owner,
+				Repo:         data.Options.Repo,
 			},
 			/*
 				Table store raw data
