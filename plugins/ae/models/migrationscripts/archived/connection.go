@@ -17,11 +17,23 @@ limitations under the License.
 
 package archived
 
-import "github.com/apache/incubator-devlake/plugins/helper"
+import (
+	"time"
+)
 
 type AeConnection struct {
-	helper.RestConnection `mapstructure:",squash"`
-	helper.AppKey         `mapstructure:",squash"`
+	Name string `gorm:"type:varchar(100);uniqueIndex" json:"name" validate:"required"`
+
+	ID        uint64    `gorm:"primaryKey" json:"id"`
+	CreatedAt time.Time `json:"createdAt"`
+	UpdatedAt time.Time `json:"updatedAt"`
+
+	Endpoint  string `mapstructure:"endpoint" validate:"required" json:"endpoint"`
+	Proxy     string `mapstructure:"proxy" json:"proxy"`
+	RateLimit int    `comment:"api request rate limit per hour" json:"rateLimit"`
+
+	AppId     string `mapstructure:"app_id" validate:"required" json:"app_id"`
+	SecretKey string `mapstructure:"secret_key" validate:"required" json:"secret_key" encrypt:"yes"`
 }
 
 func (AeConnection) TableName() string {
