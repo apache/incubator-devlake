@@ -1,3 +1,19 @@
+/*
+Licensed to the Apache Software Foundation (ASF) under one or more
+contributor license agreements.  See the NOTICE file distributed with
+this work for additional information regarding copyright ownership.
+The ASF licenses this file to You under the Apache License, Version 2.0
+(the "License"); you may not use this file except in compliance with
+the License.  You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+*/
 package main
 
 import (
@@ -6,33 +22,19 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/apache/incubator-devlake/plugins/core"
-	"gorm.io/gorm"
+	"github.com/apache/incubator-devlake/plugins/core/dal"
 	"io/ioutil"
 	"net/http"
 	"strings"
 )
 
-func getAllTables(database string, db *gorm.DB) ([]string, error) {
-	var tableSql string
-	if db.Dialector.Name() == "mysql" {
-		tableSql = fmt.Sprintf("select table_name from information_schema.tables where table_schema = '%s' and table_name not like '_devlake%%'", database)
-	} else {
-		tableSql = "select table_name from information_schema.tables where table_schema = 'public' and table_name not like '_devlake%'"
-	}
-	var tables []string
-	err := db.Raw(tableSql).Scan(&tables).Error
-	if err != nil {
-		return nil, err
-	}
-	return tables, nil
-}
 func LoadData(c core.SubTaskContext) error {
 	config := c.GetData().(*StarRocksConfig)
-	db := c.GetDb()
+	db := c.GetDal()
 	tables := config.Tables
 	var err error
 	if len(tables) == 0 {
-		tables, err = getAllTables(config.Database, db)
+		tables, err = db.AllTables()
 		if err != nil {
 			return err
 		}
@@ -50,12 +52,32 @@ func LoadData(c core.SubTaskContext) error {
 	}
 	return nil
 }
-func loadData(starrocks *sql.DB, c core.SubTaskContext, table string, db *gorm.DB, config *StarRocksConfig) error {
+func loadData(starrocks *sql.DB, c core.SubTaskContext, table string, db dal.Dal, config *StarRocksConfig) error {
 	var data []map[string]interface{}
 	// select data from db
-	err := db.Raw(fmt.Sprintf("select * from %s", table)).Scan(&data).Error
+	rows, err := db.Raw(fmt.Sprintf("select * from %s", table))
 	if err != nil {
 		return err
+	}
+	cols, err := rows.Columns()
+	if err != nil {
+		return err
+	}
+	for rows.Next() {
+		row := make(map[string]interface{})
+		columns := make([]string, len(cols))
+		columnPointers := make([]interface{}, len(cols))
+		for i, _ := range columns {
+			columnPointers[i] = &columns[i]
+		}
+		err = rows.Scan(columnPointers...)
+		if err != nil {
+			return err
+		}
+		for i, colName := range cols {
+			row[colName] = columns[i]
+		}
+		data = append(data, row)
 	}
 	if len(data) == 0 {
 		c.GetLogger().Warn("table %s is empty, so skip", table)
