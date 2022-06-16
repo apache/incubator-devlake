@@ -66,7 +66,6 @@ func TestCommentDataFlow(t *testing.T) {
 	dataflowTester.FlushTabler(&models.GithubIssueComment{})
 	dataflowTester.FlushTabler(&models.GithubPullRequestComment{})
 	dataflowTester.Subtask(tasks.ExtractApiCommentsMeta, taskData)
-
 	dataflowTester.VerifyTable(
 		models.GithubIssueComment{},
 		fmt.Sprintf("./snapshot_tables/%s.csv", models.GithubIssueComment{}.TableName()),
@@ -102,7 +101,7 @@ func TestCommentDataFlow(t *testing.T) {
 		},
 	)
 
-	// verify extraction
+	// verify comment conversion
 	dataflowTester.FlushTabler(&ticket.IssueComment{})
 	dataflowTester.Subtask(tasks.ConvertIssueCommentsMeta, taskData)
 	dataflowTester.VerifyTable(
@@ -117,7 +116,7 @@ func TestCommentDataFlow(t *testing.T) {
 		},
 	)
 
-	// verify extraction
+	// verify relation in pr and comment conversion
 	dataflowTester.FlushTabler(&code.PullRequestComment{})
 	dataflowTester.Subtask(tasks.ConvertPullRequestCommentsMeta, taskData)
 	dataflowTester.VerifyTable(
