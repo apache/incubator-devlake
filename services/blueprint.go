@@ -91,6 +91,10 @@ func GetBlueprint(blueprintId uint64) (*models.Blueprint, error) {
 }
 
 func validateBlueprint(blueprint *models.Blueprint) error {
+	// TODO: implement NORMAL mode
+	if blueprint.Mode == models.BLUEPRINT_MODE_NORMAL {
+		return fmt.Errorf("NORMAL mode is yet to be implemented")
+	}
 	// validation
 	err := vld.Struct(blueprint)
 	if err != nil {
