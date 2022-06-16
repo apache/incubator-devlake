@@ -57,8 +57,9 @@ func ExtractApiRepositories(taskCtx core.SubTaskContext) error {
 				set of data to be process, for example, we process JiraIssues by Board
 			*/
 			Params: GithubApiParams{
-				Owner: data.Options.Owner,
-				Repo:  data.Options.Repo,
+				ConnectionId: data.Options.ConnectionId,
+				Owner:        data.Options.Owner,
+				Repo:         data.Options.Repo,
 			},
 			/*
 				Table store raw data
@@ -76,15 +77,16 @@ func ExtractApiRepositories(taskCtx core.SubTaskContext) error {
 			}
 			results := make([]interface{}, 0, 1)
 			githubRepository := &models.GithubRepo{
-				GithubId:    body.GithubId,
-				Name:        body.Name,
-				HTMLUrl:     body.HTMLUrl,
-				Description: body.Description,
-				OwnerId:     body.Owner.Id,
-				OwnerLogin:  body.Owner.Login,
-				Language:    body.Language,
-				CreatedDate: body.CreatedAt.ToTime(),
-				UpdatedDate: helper.Iso8601TimeToTime(body.UpdatedAt),
+				ConnectionId: data.Options.ConnectionId,
+				GithubId:     body.GithubId,
+				Name:         body.Name,
+				HTMLUrl:      body.HTMLUrl,
+				Description:  body.Description,
+				OwnerId:      body.Owner.Id,
+				OwnerLogin:   body.Owner.Login,
+				Language:     body.Language,
+				CreatedDate:  body.CreatedAt.ToTime(),
+				UpdatedDate:  helper.Iso8601TimeToTime(body.UpdatedAt),
 			}
 			data.Repo = githubRepository
 
@@ -93,7 +95,11 @@ func ExtractApiRepositories(taskCtx core.SubTaskContext) error {
 				githubRepository.ParentHTMLUrl = body.Parent.HTMLUrl
 			}
 			results = append(results, githubRepository)
-			taskCtx.TaskContext().GetData().(*GithubTaskData).Repo = githubRepository
+
+			parentTaskContext := taskCtx.TaskContext()
+			if parentTaskContext != nil {
+				parentTaskContext.GetData().(*GithubTaskData).Repo = githubRepository
+			}
 			return results, nil
 		},
 	})

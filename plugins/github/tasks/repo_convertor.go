@@ -19,6 +19,7 @@ package tasks
 
 import (
 	"fmt"
+	"github.com/apache/incubator-devlake/plugins/core/dal"
 	"reflect"
 
 	"github.com/apache/incubator-devlake/models/domainlayer"
@@ -38,13 +39,14 @@ var ConvertRepoMeta = core.SubTaskMeta{
 }
 
 func ConvertRepo(taskCtx core.SubTaskContext) error {
-	db := taskCtx.GetDb()
+	db := taskCtx.GetDal()
 	data := taskCtx.GetData().(*GithubTaskData)
 	repoId := data.Repo.GithubId
 
-	cursor, err := db.Model(&models.GithubRepo{}).
-		Where("github_id = ?", repoId).
-		Rows()
+	cursor, err := db.Cursor(
+		dal.From(&models.GithubRepo{}),
+		dal.Where("github_id = ?", repoId),
+	)
 	if err != nil {
 		return err
 	}
@@ -58,8 +60,9 @@ func ConvertRepo(taskCtx core.SubTaskContext) error {
 		RawDataSubTaskArgs: helper.RawDataSubTaskArgs{
 			Ctx: taskCtx,
 			Params: GithubApiParams{
-				Owner: data.Options.Owner,
-				Repo:  data.Options.Repo,
+				ConnectionId: data.Options.ConnectionId,
+				Owner:        data.Options.Owner,
+				Repo:         data.Options.Repo,
 			},
 			Table: RAW_REPOSITORIES_TABLE,
 		},
@@ -67,7 +70,7 @@ func ConvertRepo(taskCtx core.SubTaskContext) error {
 			repository := inputRow.(*models.GithubRepo)
 			domainRepository := &code.Repo{
 				DomainEntity: domainlayer.DomainEntity{
-					Id: repoIdGen.Generate(repository.GithubId),
+					Id: repoIdGen.Generate(data.Options.ConnectionId, repository.GithubId),
 				},
 				Name:        fmt.Sprintf("%s/%s", repository.OwnerLogin, repository.Name),
 				Url:         repository.HTMLUrl,
@@ -80,7 +83,7 @@ func ConvertRepo(taskCtx core.SubTaskContext) error {
 
 			domainBoard := &ticket.Board{
 				DomainEntity: domainlayer.DomainEntity{
-					Id: repoIdGen.Generate(repository.GithubId),
+					Id: repoIdGen.Generate(data.Options.ConnectionId, repository.GithubId),
 				},
 				Name:        fmt.Sprintf("%s/%s", repository.OwnerLogin, repository.Name),
 				Url:         fmt.Sprintf("%s/%s", repository.HTMLUrl, "issues"),
