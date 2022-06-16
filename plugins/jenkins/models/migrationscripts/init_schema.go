@@ -19,7 +19,6 @@ package migrationscripts
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/apache/incubator-devlake/config"
 	"github.com/apache/incubator-devlake/plugins/core"
@@ -32,18 +31,9 @@ type InitSchemas struct{}
 
 func (*InitSchemas) Up(ctx context.Context, db *gorm.DB) error {
 
-	rawTableList := []string{
+	err := db.Migrator().DropTable(
 		"_raw_jenkins_api_jobs",
 		"_raw_jenkins_api_builds",
-	}
-	for _, v := range rawTableList {
-		err := db.Exec(fmt.Sprintf("DROP TABLE IF EXISTS %s CASCADE", v)).Error
-		if err != nil {
-			return err
-		}
-	}
-
-	err := db.Migrator().DropTable(
 		&archived.JenkinsJob{},
 		&archived.JenkinsBuild{},
 	)
