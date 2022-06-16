@@ -91,7 +91,7 @@ type Issue struct {
 			Name    string `json:"name"`
 			ID      uint64 `json:"id,string"`
 		} `json:"priority"`
-		Labels                        []interface{}      `json:"labels"`
+		Labels                        []string           `json:"labels"`
 		Timeestimate                  interface{}        `json:"timeestimate"`
 		Aggregatetimeoriginalestimate interface{}        `json:"aggregatetimeoriginalestimate"`
 		Versions                      []interface{}      `json:"versions"`
