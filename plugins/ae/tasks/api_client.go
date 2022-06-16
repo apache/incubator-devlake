@@ -22,7 +22,6 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/apache/incubator-devlake/plugins/ae/api"
 	"github.com/apache/incubator-devlake/plugins/ae/models"
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/helper"
@@ -42,7 +41,7 @@ func CreateApiClient(taskCtx core.TaskContext, connection *models.AeConnection) 
 	apiClient.SetBeforeFunction(func(req *http.Request) error {
 		nonceStr := core.RandLetterBytes(8)
 		timestamp := fmt.Sprintf("%v", time.Now().Unix())
-		sign := api.GetSign(req.URL.Query(), appId, secretKey, nonceStr, timestamp)
+		sign := models.GetSign(req.URL.Query(), appId, secretKey, nonceStr, timestamp)
 		req.Header.Set("x-ae-app-id", appId)
 		req.Header.Set("x-ae-timestamp", timestamp)
 		req.Header.Set("x-ae-nonce-str", nonceStr)

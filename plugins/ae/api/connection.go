@@ -18,13 +18,8 @@ limitations under the License.
 package api
 
 import (
-	"crypto/md5"
-	"encoding/hex"
 	"fmt"
 	"net/http"
-	"net/url"
-	"sort"
-	"strings"
 	"time"
 
 	"github.com/apache/incubator-devlake/plugins/ae/models"
@@ -50,33 +45,6 @@ func Init(config *viper.Viper, logger core.Logger, database *gorm.DB) {
 	)
 }
 
-func GetSign(query url.Values, appId, secretKey, nonceStr, timestamp string) string {
-	// clone query because we need to add items
-	kvs := make([]string, 0, len(query)+3)
-	kvs = append(kvs, fmt.Sprintf("app_id=%s", appId))
-	kvs = append(kvs, fmt.Sprintf("timestamp=%s", timestamp))
-	kvs = append(kvs, fmt.Sprintf("nonce_str=%s", nonceStr))
-	for key, values := range query {
-		for _, value := range values {
-			kvs = append(kvs, fmt.Sprintf("%s=%s", url.QueryEscape(key), url.QueryEscape(value)))
-		}
-	}
-
-	// sort by alphabetical order
-	sort.Strings(kvs)
-
-	// generate text for signature
-	querystring := fmt.Sprintf("%s&key=%s", strings.Join(kvs, "&"), url.QueryEscape(secretKey))
-
-	// sign it
-	hasher := md5.New()
-	_, err := hasher.Write([]byte(querystring))
-	if err != nil {
-		return ""
-	}
-	return strings.ToUpper(hex.EncodeToString(hasher.Sum(nil)))
-}
-
 /*
 GET /plugins/ae/test/:connectionId
 */
@@ -100,23 +68,23 @@ func TestConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, erro
 	apiClient.SetBeforeFunction(func(req *http.Request) error {
 		nonceStr := core.RandLetterBytes(8)
 		timestamp := fmt.Sprintf("%v", time.Now().Unix())
-		sign := GetSign(req.URL.Query(), appId, secretKey, nonceStr, timestamp)
+		sign := models.GetSign(req.URL.Query(), appId, secretKey, nonceStr, timestamp)
 		req.Header.Set("x-ae-app-id", appId)
 		req.Header.Set("x-ae-timestamp", timestamp)
 		req.Header.Set("x-ae-nonce-str", nonceStr)
 		req.Header.Set("x-ae-sign", sign)
 		return nil
 	})
-	res, err := apiClient.Get("projects/", nil, nil)
+	res, err := apiClient.Get("projects", nil, nil)
 	if err != nil {
 		return nil, err
 	}
 
 	switch res.StatusCode {
+	case 200: // right StatusCode
+		return &core.ApiResourceOutput{Body: true, Status: 200}, nil
 	case 401: // error secretKey or nonceStr
 		return &core.ApiResourceOutput{Body: false, Status: res.StatusCode}, nil
-	case 404: // right StatusCode
-		return &core.ApiResourceOutput{Body: true, Status: 200}, nil
 	default: // unknow what happen , back to user
 		return &core.ApiResourceOutput{Body: res.Body, Status: res.StatusCode}, nil
 	}

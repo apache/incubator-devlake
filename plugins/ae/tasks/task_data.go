@@ -22,7 +22,6 @@ import "github.com/apache/incubator-devlake/plugins/helper"
 type AeOptions struct {
 	ConnectionId uint64 `json:"connectionId"`
 	ProjectId    int
-	Tasks        []string `json:"tasks,omitempty"`
 }
 
 type AeTaskData struct {
