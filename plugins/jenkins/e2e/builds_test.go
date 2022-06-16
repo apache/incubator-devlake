@@ -71,7 +71,7 @@ func TestJenkinsBuildsDataFlow(t *testing.T) {
 	dataflowTester.FlushTabler(&devops.Build{})
 	dataflowTester.Subtask(tasks.ConvertBuildsMeta, taskData)
 	dataflowTester.VerifyTable(
-		devops.Job{},
+		devops.Build{},
 		"tables/builds.csv",
 		[]string{"id"},
 		[]string{
@@ -80,7 +80,12 @@ func TestJenkinsBuildsDataFlow(t *testing.T) {
 			"_raw_data_table",
 			"_raw_data_id",
 			"_raw_data_remark",
+			"job_id",
 			"name",
+			"commit_sha",
+			"duration_sec",
+			"status",
+			"started_date",
 		},
 	)
 }
