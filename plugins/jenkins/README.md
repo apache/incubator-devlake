@@ -1,14 +1,5 @@
 # Jenkins
 
-<div align="center">
-
-| [English](README.md) | [中文](README-zh-CN.md) |
-| --- | --- |
-
-</div>
-
-<br>
-
 ## Summary
 
 This plugin collects Jenkins data through [Remote Access API](https://www.jenkins.io/doc/book/using/remote-access-api/). It then computes and visualizes various devops metrics from the Jenkins data.
@@ -17,10 +8,10 @@ This plugin collects Jenkins data through [Remote Access API](https://www.jenkin
 
 ## Metrics
 
-Metric Name | Description
-:------------ | :-------------
-Build Count | The number of builds created
-Build Success Rate | The percentage of successful builds
+| Metric Name        | Description                         |
+| :----------------- | :---------------------------------- |
+| Build Count        | The number of builds created        |
+| Build Success Rate | The percentage of successful builds |
 
 ## Configuration
 
@@ -51,7 +42,9 @@ In order to collect data, you have to compose a JSON looks like following one, a
   [
     {
       "plugin": "jenkins",
-      "options": {}
+      "options": {
+         "connectionId": 1
+      }
     }
   ]
 ]
@@ -63,7 +56,9 @@ and if you want to perform certain subtasks.
     {
       "plugin": "jenkins",
       "subtasks": ["collectXXX", "extractXXX", "convertXXX"],
-      "options": {}
+      "options": {
+        "connectionId": 1
+      }
     }
   ]
 ]
@@ -79,7 +74,9 @@ curl --location --request POST 'localhost:8080/pipelines' \
     "name": "jenkins 20211126",
     "tasks": [[{
         "plugin": "jenkins",
-        "options": {}
+        "options": {
+          "connectionId": 1
+        }
     }]]
 }
 '
@@ -94,7 +91,9 @@ curl --location --request POST 'localhost:8080/pipelines' \
     "tasks": [[{
         "plugin": "jenkins",
         "subtasks": ["collectXXX", "extractXXX", "convertXXX"],
-        "options": {}
+        "options": {
+          "connectionId": 1
+        }
     }]]
 }
 '
