@@ -39,6 +39,7 @@ func CollectApiPipelines(taskCtx core.SubTaskContext) error {
 		ApiClient:          data.ApiClient,
 		PageSize:           100,
 		Incremental:        false,
+		Concurrency:        10,
 		UrlTemplate:        "projects/{{ .Params.ProjectId }}/pipelines",
 		Query:              GetQuery,
 		ResponseParser:     GetRawMessageFromResponse,

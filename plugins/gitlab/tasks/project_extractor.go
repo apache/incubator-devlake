@@ -32,7 +32,7 @@ var ExtractProjectMeta = core.SubTaskMeta{
 }
 
 func ExtractApiProject(taskCtx core.SubTaskContext) error {
-	rawDataSubTaskArgs, _ := CreateRawDataSubTaskArgs(taskCtx, RAW_PROJECT_TABLE)
+	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_PROJECT_TABLE)
 
 	extractor, err := helper.NewApiExtractor(helper.ApiExtractorArgs{
 		RawDataSubTaskArgs: *rawDataSubTaskArgs,
@@ -44,7 +44,7 @@ func ExtractApiProject(taskCtx core.SubTaskContext) error {
 				return nil, err
 			}
 			gitlabProject := convertProject(gitlabApiProject)
-
+			gitlabProject.ConnectionId = data.Options.ConnectionId
 			results := make([]interface{}, 0, 1)
 			results = append(results, gitlabProject)
 

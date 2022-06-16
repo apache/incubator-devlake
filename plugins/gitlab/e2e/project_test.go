@@ -27,7 +27,7 @@ import (
 	"github.com/apache/incubator-devlake/plugins/gitlab/tasks"
 )
 
-func TestGitlabDataFlow(t *testing.T) {
+func TestGitlabProjectDataFlow(t *testing.T) {
 
 	var gitlab impl.Gitlab
 	dataflowTester := e2ehelper.NewDataFlowTester(t, "gitlab", gitlab)
@@ -40,7 +40,8 @@ func TestGitlabDataFlow(t *testing.T) {
 	}
 
 	// import raw data table
-	dataflowTester.ImportCsvIntoRawTable("./tables/_raw_gitlab_api_projects.csv", "_raw_gitlab_api_project")
+	dataflowTester.ImportCsvIntoRawTable("./tables/_raw_gitlab_api_projects.csv",
+		"_raw_gitlab_api_project")
 
 	// verify extraction
 	dataflowTester.FlushTabler(&models.GitlabProject{})
