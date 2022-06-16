@@ -52,7 +52,7 @@ func TestPrDataFlow(t *testing.T) {
 	// import raw data table
 	dataflowTester.ImportCsvIntoRawTable("./raw_tables/_raw_github_api_pull_requests.csv", "_raw_github_api_pull_requests")
 
-	// verify extraction
+	// verify pr extraction
 	dataflowTester.FlushTabler(&models.GithubPullRequest{})
 	dataflowTester.FlushTabler(&models.GithubPullRequestLabel{})
 	dataflowTester.Subtask(tasks.ExtractApiPullRequestsMeta, taskData)
@@ -99,7 +99,7 @@ func TestPrDataFlow(t *testing.T) {
 		[]string{},
 	)
 
-	// verify extraction
+	// verify pr conversion
 	dataflowTester.FlushTabler(&code.PullRequest{})
 	dataflowTester.Subtask(tasks.ConvertPullRequestsMeta, taskData)
 	dataflowTester.VerifyTable(
@@ -130,7 +130,7 @@ func TestPrDataFlow(t *testing.T) {
 		},
 	)
 
-	// verify extraction
+	// verify label conversion
 	dataflowTester.FlushTabler(&code.PullRequestLabel{})
 	dataflowTester.Subtask(tasks.ConvertPullRequestLabelsMeta, taskData)
 	dataflowTester.VerifyTable(
