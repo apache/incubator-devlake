@@ -88,8 +88,9 @@ func ExtractApiPullRequests(taskCtx core.SubTaskContext) error {
 				set of data to be process, for example, we process JiraIssues by Board
 			*/
 			Params: GithubApiParams{
-				Owner: data.Options.Owner,
-				Repo:  data.Options.Repo,
+				ConnectionId: data.Options.ConnectionId,
+				Owner:        data.Options.Owner,
+				Repo:         data.Options.Repo,
 			},
 			/*
 				Table store raw data
@@ -108,14 +109,15 @@ func ExtractApiPullRequests(taskCtx core.SubTaskContext) error {
 				return nil, nil
 			}
 			//If this is a pr, ignore
-			githubPr, err := convertGithubPullRequest(rawL, data.Repo.GithubId)
+			githubPr, err := convertGithubPullRequest(rawL, data.Options.ConnectionId, data.Repo.GithubId)
 			if err != nil {
 				return nil, err
 			}
 			for _, label := range rawL.Labels {
 				results = append(results, &models.GithubPullRequestLabel{
-					PullId:    githubPr.GithubId,
-					LabelName: label.Name,
+					ConnectionId: data.Options.ConnectionId,
+					PullId:       githubPr.GithubId,
+					LabelName:    label.Name,
 				})
 				// if pr.Type has not been set and prType is set in .env, process the below
 				if labelTypeRegex != nil {
@@ -145,8 +147,9 @@ func ExtractApiPullRequests(taskCtx core.SubTaskContext) error {
 
 	return extractor.Execute()
 }
-func convertGithubPullRequest(pull *GithubApiPullRequest, repoId int) (*models.GithubPullRequest, error) {
+func convertGithubPullRequest(pull *GithubApiPullRequest, connId uint64, repoId int) (*models.GithubPullRequest, error) {
 	githubPull := &models.GithubPullRequest{
+		ConnectionId:    connId,
 		GithubId:        pull.GithubId,
 		RepoId:          repoId,
 		Number:          pull.Number,

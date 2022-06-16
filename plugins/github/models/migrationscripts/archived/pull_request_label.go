@@ -23,8 +23,9 @@ import "github.com/apache/incubator-devlake/models/migrationscripts/archived"
 // Pull Requests are considered Issues in GitHub.
 
 type GithubPullRequestLabel struct {
-	PullId    int    `gorm:"primaryKey;autoIncrement:false"`
-	LabelName string `gorm:"primaryKey;type:varchar(255)"`
+	ConnectionId uint64 `gorm:"primaryKey"`
+	PullId       int    `gorm:"primaryKey;autoIncrement:false"`
+	LabelName    string `gorm:"primaryKey;type:varchar(255)"`
 	archived.NoPKModel
 }
 

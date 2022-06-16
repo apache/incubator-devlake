@@ -18,6 +18,7 @@ limitations under the License.
 package tasks
 
 import (
+	"github.com/apache/incubator-devlake/plugins/core/dal"
 	"reflect"
 
 	"github.com/apache/incubator-devlake/models/domainlayer/code"
@@ -35,15 +36,16 @@ var ConvertPullRequestLabelsMeta = core.SubTaskMeta{
 }
 
 func ConvertPullRequestLabels(taskCtx core.SubTaskContext) error {
-	db := taskCtx.GetDb()
+	db := taskCtx.GetDal()
 	data := taskCtx.GetData().(*GithubTaskData)
 	repoId := data.Repo.GithubId
 
-	cursor, err := db.Model(&githubModels.GithubPullRequestLabel{}).
-		Joins(`left join _tool_github_pull_requests on _tool_github_pull_requests.github_id = _tool_github_pull_request_labels.pull_id`).
-		Where("_tool_github_pull_requests.repo_id = ?", repoId).
-		Order("pull_id ASC").
-		Rows()
+	cursor, err := db.Cursor(
+		dal.From(&githubModels.GithubPullRequestLabel{}),
+		dal.Join(`left join _tool_github_pull_requests on _tool_github_pull_requests.github_id = _tool_github_pull_request_labels.pull_id`),
+		dal.Where("_tool_github_pull_requests.repo_id = ? and _tool_github_pull_requests.connection_id = ?", repoId, data.Options.ConnectionId),
+		dal.Orderby("pull_id ASC"),
+	)
 	if err != nil {
 		return err
 	}
@@ -56,15 +58,16 @@ func ConvertPullRequestLabels(taskCtx core.SubTaskContext) error {
 		RawDataSubTaskArgs: helper.RawDataSubTaskArgs{
 			Ctx: taskCtx,
 			Params: GithubApiParams{
-				Owner: data.Options.Owner,
-				Repo:  data.Options.Repo,
+				ConnectionId: data.Options.ConnectionId,
+				Owner:        data.Options.Owner,
+				Repo:         data.Options.Repo,
 			},
 			Table: RAW_PULL_REQUEST_TABLE,
 		},
 		Convert: func(inputRow interface{}) ([]interface{}, error) {
 			prLabel := inputRow.(*githubModels.GithubPullRequestLabel)
 			domainPrLabel := &code.PullRequestLabel{
-				PullRequestId: prIdGen.Generate(prLabel.PullId),
+				PullRequestId: prIdGen.Generate(data.Options.ConnectionId, prLabel.PullId),
 				LabelName:     prLabel.LabelName,
 			}
 			return []interface{}{

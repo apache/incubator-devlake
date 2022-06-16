@@ -58,7 +58,7 @@ func TestIssueDataFlow(t *testing.T) {
 	// import raw data table
 	dataflowTester.ImportCsvIntoRawTable("./raw_tables/_raw_github_api_issues.csv", "_raw_github_api_issues")
 
-	// verify extraction
+	// verify issue extraction
 	dataflowTester.FlushTabler(&models.GithubIssue{})
 	dataflowTester.FlushTabler(&models.GithubIssueLabel{})
 	dataflowTester.Subtask(tasks.ExtractApiIssuesMeta, taskData)
@@ -91,8 +91,6 @@ func TestIssueDataFlow(t *testing.T) {
 			"_raw_data_remark",
 		},
 	)
-
-	// verify extraction
 	dataflowTester.VerifyTable(
 		models.GithubIssueLabel{},
 		fmt.Sprintf("./snapshot_tables/%s.csv", models.GithubIssueLabel{}.TableName()),
@@ -105,7 +103,7 @@ func TestIssueDataFlow(t *testing.T) {
 		},
 	)
 
-	// verify extraction
+	// verify issue conversion
 	dataflowTester.FlushTabler(&ticket.Issue{})
 	dataflowTester.FlushTabler(&ticket.BoardIssue{})
 	dataflowTester.Subtask(tasks.ConvertIssuesMeta, taskData)
@@ -148,7 +146,7 @@ func TestIssueDataFlow(t *testing.T) {
 		[]string{},
 	)
 
-	// verify extraction
+	// verify issue labels conversion
 	dataflowTester.FlushTabler(&ticket.IssueLabel{})
 	dataflowTester.Subtask(tasks.ConvertIssueLabelsMeta, taskData)
 	dataflowTester.VerifyTable(

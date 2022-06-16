@@ -18,6 +18,7 @@ limitations under the License.
 package tasks
 
 import (
+	"github.com/apache/incubator-devlake/plugins/core/dal"
 	"reflect"
 
 	"github.com/apache/incubator-devlake/models/domainlayer"
@@ -36,11 +37,14 @@ var ConvertPullRequestsMeta = core.SubTaskMeta{
 }
 
 func ConvertPullRequests(taskCtx core.SubTaskContext) error {
-	db := taskCtx.GetDb()
+	db := taskCtx.GetDal()
 	data := taskCtx.GetData().(*GithubTaskData)
 	repoId := data.Repo.GithubId
 
-	cursor, err := db.Model(&models.GithubPullRequest{}).Where("repo_id = ?", repoId).Rows()
+	cursor, err := db.Cursor(
+		dal.From(&models.GithubPullRequest{}),
+		dal.Where("repo_id = ? and connection_id = ?", repoId, data.Options.ConnectionId),
+	)
 	if err != nil {
 		return err
 	}
@@ -56,8 +60,9 @@ func ConvertPullRequests(taskCtx core.SubTaskContext) error {
 		RawDataSubTaskArgs: helper.RawDataSubTaskArgs{
 			Ctx: taskCtx,
 			Params: GithubApiParams{
-				Owner: data.Options.Owner,
-				Repo:  data.Options.Repo,
+				ConnectionId: data.Options.ConnectionId,
+				Owner:        data.Options.Owner,
+				Repo:         data.Options.Repo,
 			},
 			Table: RAW_PULL_REQUEST_TABLE,
 		},
@@ -65,9 +70,9 @@ func ConvertPullRequests(taskCtx core.SubTaskContext) error {
 			pr := inputRow.(*models.GithubPullRequest)
 			domainPr := &code.PullRequest{
 				DomainEntity: domainlayer.DomainEntity{
-					Id: prIdGen.Generate(pr.GithubId),
+					Id: prIdGen.Generate(data.Options.ConnectionId, pr.GithubId),
 				},
-				BaseRepoId:     repoIdGen.Generate(pr.RepoId),
+				BaseRepoId:     repoIdGen.Generate(data.Options.ConnectionId, pr.RepoId),
 				Status:         pr.State,
 				Title:          pr.Title,
 				Url:            pr.Url,
