@@ -165,7 +165,9 @@ func DeleteBlueprint(id uint64) error {
 
 func ReloadBlueprints(c *cron.Cron) error {
 	blueprints := make([]*models.Blueprint, 0)
-	err := db.Model(&models.Blueprint{}).Where("enable = ?", true).Find(&blueprints).Error
+	err := db.Model(&models.Blueprint{}).
+		Where("enable = ? AND cron_config <> ?", true, models.BLUEPRINT_CRON_MANUAL).
+		Find(&blueprints).Error
 	if err != nil {
 		panic(err)
 	}
@@ -207,5 +209,6 @@ func ReloadBlueprints(c *cron.Cron) error {
 	if len(blueprints) > 0 {
 		c.Start()
 	}
+	log.Info("total %d blueprints were scheduled", len(blueprints))
 	return nil
 }
