@@ -18,6 +18,7 @@ limitations under the License.
 package tasks
 
 import (
+	"github.com/apache/incubator-devlake/plugins/core/dal"
 	"reflect"
 	"strconv"
 
@@ -38,13 +39,15 @@ var ConvertIssuesMeta = core.SubTaskMeta{
 }
 
 func ConvertIssues(taskCtx core.SubTaskContext) error {
-	db := taskCtx.GetDb()
+	db := taskCtx.GetDal()
 	data := taskCtx.GetData().(*GithubTaskData)
 	repoId := data.Repo.GithubId
 
 	issue := &githubModels.GithubIssue{}
-	cursor, err := db.Model(issue).Where("repo_id = ?", repoId).Rows()
-
+	cursor, err := db.Cursor(
+		dal.From(issue),
+		dal.Where("repo_id = ? and connection_id=?", repoId, data.Options.ConnectionId),
+	)
 	if err != nil {
 		return err
 	}
@@ -58,8 +61,9 @@ func ConvertIssues(taskCtx core.SubTaskContext) error {
 		RawDataSubTaskArgs: helper.RawDataSubTaskArgs{
 			Ctx: taskCtx,
 			Params: GithubApiParams{
-				Owner: data.Options.Owner,
-				Repo:  data.Options.Repo,
+				ConnectionId: data.Options.ConnectionId,
+				Owner:        data.Options.Owner,
+				Repo:         data.Options.Repo,
 			},
 			Table: RAW_ISSUE_TABLE,
 		},
@@ -68,7 +72,7 @@ func ConvertIssues(taskCtx core.SubTaskContext) error {
 		Convert: func(inputRow interface{}) ([]interface{}, error) {
 			issue := inputRow.(*githubModels.GithubIssue)
 			domainIssue := &ticket.Issue{
-				DomainEntity:    domainlayer.DomainEntity{Id: issueIdGen.Generate(issue.GithubId)},
+				DomainEntity:    domainlayer.DomainEntity{Id: issueIdGen.Generate(data.Options.ConnectionId, issue.GithubId)},
 				IssueKey:        strconv.Itoa(issue.Number),
 				Title:           issue.Title,
 				Description:     issue.Body,
@@ -92,7 +96,7 @@ func ConvertIssues(taskCtx core.SubTaskContext) error {
 				domainIssue.Status = ticket.TODO
 			}
 			boardIssue := &ticket.BoardIssue{
-				BoardId: boardIdGen.Generate(repoId),
+				BoardId: boardIdGen.Generate(data.Options.ConnectionId, repoId),
 				IssueId: domainIssue.Id,
 			}
 			return []interface{}{

@@ -18,6 +18,7 @@ limitations under the License.
 package tasks
 
 import (
+	"github.com/apache/incubator-devlake/plugins/core/dal"
 	"reflect"
 
 	"github.com/apache/incubator-devlake/models/domainlayer/didgen"
@@ -35,15 +36,16 @@ var ConvertIssueLabelsMeta = core.SubTaskMeta{
 }
 
 func ConvertIssueLabels(taskCtx core.SubTaskContext) error {
-	db := taskCtx.GetDb()
+	db := taskCtx.GetDal()
 	data := taskCtx.GetData().(*GithubTaskData)
 	repoId := data.Repo.GithubId
 
-	cursor, err := db.Model(&githubModels.GithubIssueLabel{}).
-		Joins(`left join _tool_github_issues on _tool_github_issues.github_id = _tool_github_issue_labels.issue_id`).
-		Where("_tool_github_issues.repo_id = ?", repoId).
-		Order("issue_id ASC").
-		Rows()
+	cursor, err := db.Cursor(
+		dal.From(&githubModels.GithubIssueLabel{}),
+		dal.Join(`left join _tool_github_issues on _tool_github_issues.github_id = _tool_github_issue_labels.issue_id`),
+		dal.Where("_tool_github_issues.repo_id = ? and _tool_github_issues.connection_id = ?", repoId, data.Options.ConnectionId),
+		dal.Orderby("issue_id ASC"),
+	)
 	if err != nil {
 		return err
 	}
@@ -54,8 +56,9 @@ func ConvertIssueLabels(taskCtx core.SubTaskContext) error {
 		RawDataSubTaskArgs: helper.RawDataSubTaskArgs{
 			Ctx: taskCtx,
 			Params: GithubApiParams{
-				Owner: data.Options.Owner,
-				Repo:  data.Options.Repo,
+				ConnectionId: data.Options.ConnectionId,
+				Owner:        data.Options.Owner,
+				Repo:         data.Options.Repo,
 			},
 			Table: RAW_ISSUE_TABLE,
 		},
@@ -64,7 +67,7 @@ func ConvertIssueLabels(taskCtx core.SubTaskContext) error {
 		Convert: func(inputRow interface{}) ([]interface{}, error) {
 			issueLabel := inputRow.(*githubModels.GithubIssueLabel)
 			domainIssueLabel := &ticket.IssueLabel{
-				IssueId:   issueIdGen.Generate(issueLabel.IssueId),
+				IssueId:   issueIdGen.Generate(data.Options.ConnectionId, issueLabel.IssueId),
 				LabelName: issueLabel.LabelName,
 			}
 			return []interface{}{

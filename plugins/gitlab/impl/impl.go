@@ -18,11 +18,14 @@ limitations under the License.
 package impl
 
 import (
+	"fmt"
 	"github.com/apache/incubator-devlake/migration"
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/gitlab/api"
+	"github.com/apache/incubator-devlake/plugins/gitlab/models"
 	"github.com/apache/incubator-devlake/plugins/gitlab/models/migrationscripts"
 	"github.com/apache/incubator-devlake/plugins/gitlab/tasks"
+	"github.com/apache/incubator-devlake/plugins/helper"
 	"github.com/mitchellh/mapstructure"
 	"github.com/spf13/viper"
 	"gorm.io/gorm"
@@ -82,8 +85,23 @@ func (plugin Gitlab) PrepareTaskData(taskCtx core.TaskContext, options map[strin
 	if err != nil {
 		return nil, err
 	}
-
+	if op.ConnectionId == 0 {
+		return nil, fmt.Errorf("connectionId is invalid")
+	}
+	connection := &models.GitlabConnection{}
+	connectionHelper := helper.NewConnectionHelper(
+		taskCtx,
+		nil,
+	)
+	if err != nil {
+		return nil, err
+	}
+	err = connectionHelper.FirstById(connection, op.ConnectionId)
+	if err != nil {
+		return nil, err
+	}
 	apiClient, err := tasks.NewGitlabApiClient(taskCtx)
+
 	if err != nil {
 		return nil, err
 	}

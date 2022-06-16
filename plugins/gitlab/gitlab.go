@@ -30,11 +30,14 @@ var PluginEntry impl.Gitlab //nolint
 func main() {
 	gitlabCmd := &cobra.Command{Use: "gitlab"}
 	projectId := gitlabCmd.Flags().IntP("project-id", "p", 0, "gitlab project id")
+	connectionId := gitlabCmd.Flags().Uint64P("connection-id", "c", 0, "gitlab connection id")
 
 	_ = gitlabCmd.MarkFlagRequired("project-id")
+	_ = gitlabCmd.MarkFlagRequired("connection-id")
 	gitlabCmd.Run = func(cmd *cobra.Command, args []string) {
 		runner.DirectRun(cmd, args, PluginEntry, map[string]interface{}{
-			"projectId": *projectId,
+			"projectId":    *projectId,
+			"connectionId": *connectionId,
 		})
 	}
 
