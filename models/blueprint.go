@@ -22,9 +22,14 @@ import (
 	"gorm.io/datatypes"
 )
 
+const BLUEPRINT_CRON_MANUAL = "MANUAL"
+const BLUEPRINT_MODE_NORMAL = "NORMAL"
+const BLUEPRINT_MODE_ADVANCED = "ADVANCED"
+
 type Blueprint struct {
 	Name       string         `json:"name" validate:"required"`
-	Tasks      datatypes.JSON `json:"tasks" validate:"required"`
+	Mode       string         `json:"mode" gorm:"varchar(20)" validate:"required,oneof=NORMAL ADVANCED"`
+	Tasks      datatypes.JSON `json:"tasks"`
 	Enable     bool           `json:"enable"`
 	CronConfig string         `json:"cronConfig" validate:"required"`
 	common.Model
