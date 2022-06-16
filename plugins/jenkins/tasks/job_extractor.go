@@ -39,7 +39,7 @@ func ExtractApiJobs(taskCtx core.SubTaskContext) error {
 	extractor, err := helper.NewApiExtractor(helper.ApiExtractorArgs{
 		RawDataSubTaskArgs: helper.RawDataSubTaskArgs{
 			Params: JenkinsApiParams{
-				ConnectionId: data.Connection.ID,
+				ConnectionId: data.Options.ConnectionId,
 			},
 			Ctx: taskCtx,
 			/*
@@ -61,7 +61,7 @@ func ExtractApiJobs(taskCtx core.SubTaskContext) error {
 
 			job := &models.JenkinsJob{
 				JenkinsJobProps: models.JenkinsJobProps{
-					ConnectionId: data.Connection.ID,
+					ConnectionId: data.Options.ConnectionId,
 					Name:         body.Name,
 					Class:        body.Class,
 					Color:        body.Color,

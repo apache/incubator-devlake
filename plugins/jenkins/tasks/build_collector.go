@@ -65,7 +65,7 @@ func CollectApiBuilds(taskCtx core.SubTaskContext) error {
 	collector, err := helper.NewApiCollector(helper.ApiCollectorArgs{
 		RawDataSubTaskArgs: helper.RawDataSubTaskArgs{
 			Params: JenkinsApiParams{
-				ConnectionId: data.Connection.ID,
+				ConnectionId: data.Options.ConnectionId,
 			},
 			Ctx:   taskCtx,
 			Table: RAW_BUILD_TABLE,

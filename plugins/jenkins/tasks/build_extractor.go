@@ -41,7 +41,7 @@ func ExtractApiBuilds(taskCtx core.SubTaskContext) error {
 	extractor, err := helper.NewApiExtractor(helper.ApiExtractorArgs{
 		RawDataSubTaskArgs: helper.RawDataSubTaskArgs{
 			Params: JenkinsApiParams{
-				ConnectionId: data.Connection.ID,
+				ConnectionId: data.Options.ConnectionId,
 			},
 			Ctx: taskCtx,
 			/*
@@ -68,7 +68,7 @@ func ExtractApiBuilds(taskCtx core.SubTaskContext) error {
 			results := make([]interface{}, 0, 1)
 
 			build := &models.JenkinsBuild{
-				ConnectionId:      data.Connection.ID,
+				ConnectionId:      data.Options.ConnectionId,
 				JobName:           input.Name,
 				Duration:          body.Duration,
 				DisplayName:       body.DisplayName,

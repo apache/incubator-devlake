@@ -57,7 +57,7 @@ func ConvertJobs(taskCtx core.SubTaskContext) error {
 		Input:        cursor,
 		RawDataSubTaskArgs: helper.RawDataSubTaskArgs{
 			Params: JenkinsApiParams{
-				ConnectionId: data.Connection.ID,
+				ConnectionId: data.Options.ConnectionId,
 			},
 			Ctx:   taskCtx,
 			Table: RAW_JOB_TABLE,

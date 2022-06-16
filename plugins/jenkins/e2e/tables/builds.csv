@@ -1,0 +1,12 @@
+id,id,_raw_data_params,_raw_data_table,_raw_data_id,_raw_data_remark,name
+jenkins:JenkinsJob:1:auto_test,jenkins:JenkinsJob:1:auto_test,"{""ConnectionId"":1}",_raw_jenkins_api_jobs,1,,auto_test
+jenkins:JenkinsJob:1:auto_test_framework,jenkins:JenkinsJob:1:auto_test_framework,"{""ConnectionId"":1}",_raw_jenkins_api_jobs,2,,auto_test_framework
+jenkins:JenkinsJob:1:build_devlake,jenkins:JenkinsJob:1:build_devlake,"{""ConnectionId"":1}",_raw_jenkins_api_jobs,3,,build_devlake
+jenkins:JenkinsJob:1:Create_License,jenkins:JenkinsJob:1:Create_License,"{""ConnectionId"":1}",_raw_jenkins_api_jobs,4,,Create_License
+jenkins:JenkinsJob:1:Create_License_new,jenkins:JenkinsJob:1:Create_License_new,"{""ConnectionId"":1}",_raw_jenkins_api_jobs,5,,Create_License_new
+jenkins:JenkinsJob:1:Deploy k8s single_data,jenkins:JenkinsJob:1:Deploy k8s single_data,"{""ConnectionId"":1}",_raw_jenkins_api_jobs,6,,Deploy k8s single_data
+jenkins:JenkinsJob:1:Deploy k8s single_new,jenkins:JenkinsJob:1:Deploy k8s single_new,"{""ConnectionId"":1}",_raw_jenkins_api_jobs,7,,Deploy k8s single_new
+jenkins:JenkinsJob:1:Deploy k8s test,jenkins:JenkinsJob:1:Deploy k8s test,"{""ConnectionId"":1}",_raw_jenkins_api_jobs,8,,Deploy k8s test
+jenkins:JenkinsJob:1:devlake_empty_build,jenkins:JenkinsJob:1:devlake_empty_build,"{""ConnectionId"":1}",_raw_jenkins_api_jobs,9,,devlake_empty_build
+jenkins:JenkinsJob:1:test-platform-backend,jenkins:JenkinsJob:1:test-platform-backend,"{""ConnectionId"":1}",_raw_jenkins_api_jobs,10,,test-platform-backend
+jenkins:JenkinsJob:1:test-platform-frontend,jenkins:JenkinsJob:1:test-platform-frontend,"{""ConnectionId"":1}",_raw_jenkins_api_jobs,11,,test-platform-frontend
