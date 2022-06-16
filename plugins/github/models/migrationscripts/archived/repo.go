@@ -24,9 +24,9 @@ import (
 )
 
 type GithubRepo struct {
-	GithubId       int `gorm:"primaryKey"`
-	Name           string
-	HTMLUrl        string
+	GithubId       int    `gorm:"primaryKey"`
+	Name           string `gorm:"type:varchar(255)"`
+	HTMLUrl        string `gorm:"type:varchar(255)"`
 	Description    string
 	OwnerId        int        `json:"ownerId"`
 	OwnerLogin     string     `json:"ownerLogin" gorm:"type:varchar(255)"`
