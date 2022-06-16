@@ -33,8 +33,9 @@ const RAW_ISSUE_TABLE = "github_api_issues"
 
 // this struct should be moved to `gitub_api_common.go`
 type GithubApiParams struct {
-	Owner string
-	Repo  string
+	ConnectionId uint64
+	Owner        string
+	Repo         string
 }
 
 var CollectApiIssuesMeta = core.SubTaskMeta{

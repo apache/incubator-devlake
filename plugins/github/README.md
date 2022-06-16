@@ -65,8 +65,16 @@ Enter a valid proxy server address on your Network, e.g. `http://your-proxy-serv
 Click **Save Settings** to update additional settings.
 
 ### Regular Expression Configuration
-Define regex pattern in .env
-- GITHUB_PR_BODY_CLOSE_PATTERN: Define key word to associate issue in pr body, please check the example in .env.example
+Define regex pattern in request options
+- prType: Define key word to associate issue in pr body
+- prComponent: Define key word to associate issue in pr body
+- prBodyClosePattern: Define key word to associate issue in pr body
+- issueSeverity: Define key word to associate issue in pr body
+- issuePriority: Define key word to associate issue in pr body
+- issueComponent: Define key word to associate issue in pr body
+- issueTypeBug: Define key word to associate issue in pr body
+- issueTypeIncident: Define key word to associate issue in pr body
+- issueTypeRequirement: Define key word to associate issue in pr body
 
 ## Sample Request
 In order to collect data, you have to compose a JSON looks like following one, and send it by selecting `Advanced Mode` on `Create Pipeline Run` page:
@@ -79,6 +87,7 @@ In order to collect data, you have to compose a JSON looks like following one, a
       "options": {
         "repo": "lake",
         "owner": "merico-dev"
+        // add more config such as prType if necessary.
       }
     }
   ]

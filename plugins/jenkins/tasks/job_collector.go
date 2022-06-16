@@ -37,15 +37,13 @@ var CollectApiJobsMeta = core.SubTaskMeta{
 }
 
 func CollectApiJobs(taskCtx core.SubTaskContext) error {
-	//db := taskCtx.GetDb()
 	data := taskCtx.GetData().(*JenkinsTaskData)
-
-	//since := data.Since
 	incremental := false
-	// user didn't specify a time range to sync, try load from database
-
 	collector, err := helper.NewApiCollector(helper.ApiCollectorArgs{
 		RawDataSubTaskArgs: helper.RawDataSubTaskArgs{
+			Params: JenkinsApiParams{
+				ConnectionId: data.Options.ConnectionId,
+			},
 			Ctx: taskCtx,
 			/*
 				This struct will be JSONEncoded and stored into database along with raw data itself, to identity minimal
@@ -59,6 +57,7 @@ func CollectApiJobs(taskCtx core.SubTaskContext) error {
 		ApiClient:   data.ApiClient,
 		PageSize:    100,
 		Incremental: incremental,
+		// jenkins api is special, 1. If the concurrency is larger than 1, then it will report 500.
 		Concurrency: 1,
 
 		UrlTemplate: "api/json",

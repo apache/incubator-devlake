@@ -33,6 +33,7 @@ type GithubConnection struct {
 type Config struct {
 	PrType               string `mapstructure:"prType" json:"prType"`
 	PrComponent          string `mapstructure:"prComponent" json:"prComponent"`
+	PrBodyClosePattern   string `mapstructure:"prBodyClosePattern" json:"prBodyClosePattern"`
 	IssueSeverity        string `mapstructure:"issueSeverity" json:"issueSeverity"`
 	IssuePriority        string `mapstructure:"issuePriority" json:"issuePriority"`
 	IssueComponent       string `mapstructure:"issueComponent" json:"issueComponent"`

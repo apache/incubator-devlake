@@ -31,7 +31,7 @@ import (
 
 const RAW_COMMENTS_TABLE = "github_api_comments"
 
-// this struct should be moved to `gitub_api_common.go`
+// this struct should be moved to `github_api_common.go`
 
 func CollectApiComments(taskCtx core.SubTaskContext) error {
 	db := taskCtx.GetDb()
@@ -72,7 +72,6 @@ func CollectApiComments(taskCtx core.SubTaskContext) error {
 			since = &latestUpdatedPrComt.GithubUpdatedAt
 			incremental = true
 		}
-
 	}
 
 	collector, err := helper.NewApiCollector(helper.ApiCollectorArgs{

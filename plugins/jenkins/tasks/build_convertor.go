@@ -18,13 +18,15 @@ limitations under the License.
 package tasks
 
 import (
+	"reflect"
+
 	"github.com/apache/incubator-devlake/models/domainlayer"
 	"github.com/apache/incubator-devlake/models/domainlayer/devops"
 	"github.com/apache/incubator-devlake/models/domainlayer/didgen"
 	"github.com/apache/incubator-devlake/plugins/core"
+	. "github.com/apache/incubator-devlake/plugins/core/dal"
 	"github.com/apache/incubator-devlake/plugins/helper"
 	models "github.com/apache/incubator-devlake/plugins/jenkins/models"
-	"reflect"
 )
 
 var ConvertBuildsMeta = core.SubTaskMeta{
@@ -35,11 +37,15 @@ var ConvertBuildsMeta = core.SubTaskMeta{
 }
 
 func ConvertBuilds(taskCtx core.SubTaskContext) error {
-	db := taskCtx.GetDb()
+	db := taskCtx.GetDal()
+	data := taskCtx.GetData().(*JenkinsTaskData)
 
-	jenkinsBuild := &models.JenkinsBuild{}
-
-	cursor, err := db.Model(jenkinsBuild).Rows()
+	clauses := []Clause{
+		Select("*"),
+		From("_tool_jenkins_builds"),
+		Where("connection_id = ?", data.Options.ConnectionId),
+	}
+	cursor, err := db.Cursor(clauses...)
 	if err != nil {
 		return err
 	}
@@ -52,6 +58,9 @@ func ConvertBuilds(taskCtx core.SubTaskContext) error {
 		InputRowType: reflect.TypeOf(models.JenkinsBuild{}),
 		Input:        cursor,
 		RawDataSubTaskArgs: helper.RawDataSubTaskArgs{
+			Params: JenkinsApiParams{
+				ConnectionId: data.Options.ConnectionId,
+			},
 			Ctx:   taskCtx,
 			Table: RAW_BUILD_TABLE,
 		},
@@ -59,9 +68,9 @@ func ConvertBuilds(taskCtx core.SubTaskContext) error {
 			jenkinsBuild := inputRow.(*models.JenkinsBuild)
 			build := &devops.Build{
 				DomainEntity: domainlayer.DomainEntity{
-					Id: buildIdGen.Generate(jenkinsBuild.JobName, jenkinsBuild.Number),
+					Id: buildIdGen.Generate(jenkinsBuild.ConnectionId, jenkinsBuild.JobName, jenkinsBuild.Number),
 				},
-				JobId:       jobIdGen.Generate(jenkinsBuild.JobName),
+				JobId:       jobIdGen.Generate(jenkinsBuild.ConnectionId, jenkinsBuild.JobName),
 				Name:        jenkinsBuild.DisplayName,
 				DurationSec: uint64(jenkinsBuild.Duration / 1000),
 				Status:      jenkinsBuild.Result,

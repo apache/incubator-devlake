@@ -25,8 +25,8 @@ import (
 	"reflect"
 
 	"github.com/apache/incubator-devlake/plugins/core"
+	. "github.com/apache/incubator-devlake/plugins/core/dal"
 	"github.com/apache/incubator-devlake/plugins/helper"
-	"github.com/apache/incubator-devlake/plugins/jenkins/models"
 )
 
 const RAW_BUILD_TABLE = "jenkins_api_builds"
@@ -43,19 +43,30 @@ type SimpleJob struct {
 }
 
 func CollectApiBuilds(taskCtx core.SubTaskContext) error {
-	db := taskCtx.GetDb()
+	db := taskCtx.GetDal()
 	data := taskCtx.GetData().(*JenkinsTaskData)
-	cursor, err := db.Model(&models.JenkinsJob{}).Select("name").Rows()
+	clauses := []Clause{
+		Select("tjj.name"),
+		From("_tool_jenkins_jobs tjj"),
+		Where(`tjj.connection_id = ?`, data.Options.ConnectionId),
+	}
+
+	cursor, err := db.Cursor(clauses...)
 	if err != nil {
 		return err
 	}
-	iterator, err := helper.NewCursorIterator(db, cursor, reflect.TypeOf(SimpleJob{}))
+	defer cursor.Close()
+
+	iterator, err := helper.NewDalCursorIterator(db, cursor, reflect.TypeOf(SimpleJob{}))
 	if err != nil {
 		return err
 	}
 
 	collector, err := helper.NewApiCollector(helper.ApiCollectorArgs{
 		RawDataSubTaskArgs: helper.RawDataSubTaskArgs{
+			Params: JenkinsApiParams{
+				ConnectionId: data.Options.ConnectionId,
+			},
 			Ctx:   taskCtx,
 			Table: RAW_BUILD_TABLE,
 		},

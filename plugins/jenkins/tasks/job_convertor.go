@@ -18,13 +18,15 @@ limitations under the License.
 package tasks
 
 import (
+	"reflect"
+
 	"github.com/apache/incubator-devlake/models/domainlayer"
 	"github.com/apache/incubator-devlake/models/domainlayer/devops"
 	"github.com/apache/incubator-devlake/models/domainlayer/didgen"
 	"github.com/apache/incubator-devlake/plugins/core"
+	. "github.com/apache/incubator-devlake/plugins/core/dal"
 	"github.com/apache/incubator-devlake/plugins/helper"
 	"github.com/apache/incubator-devlake/plugins/jenkins/models"
-	"reflect"
 )
 
 var ConvertJobsMeta = core.SubTaskMeta{
@@ -35,22 +37,29 @@ var ConvertJobsMeta = core.SubTaskMeta{
 }
 
 func ConvertJobs(taskCtx core.SubTaskContext) error {
-	db := taskCtx.GetDb()
+	db := taskCtx.GetDal()
+	data := taskCtx.GetData().(*JenkinsTaskData)
 
-	jenkinsJob := &models.JenkinsJob{}
-
-	jobIdGen := didgen.NewDomainIdGenerator(jenkinsJob)
-
-	cursor, err := db.Model(jenkinsJob).Rows()
+	clauses := []Clause{
+		Select("*"),
+		From("_tool_jenkins_jobs"),
+		Where("connection_id = ?", data.Options.ConnectionId),
+	}
+	cursor, err := db.Cursor(clauses...)
 	if err != nil {
 		return err
 	}
 	defer cursor.Close()
 
+	jobIdGen := didgen.NewDomainIdGenerator(&models.JenkinsJob{})
+
 	converter, err := helper.NewDataConverter(helper.DataConverterArgs{
 		InputRowType: reflect.TypeOf(models.JenkinsJob{}),
 		Input:        cursor,
 		RawDataSubTaskArgs: helper.RawDataSubTaskArgs{
+			Params: JenkinsApiParams{
+				ConnectionId: data.Options.ConnectionId,
+			},
 			Ctx:   taskCtx,
 			Table: RAW_JOB_TABLE,
 		},
@@ -58,7 +67,7 @@ func ConvertJobs(taskCtx core.SubTaskContext) error {
 			jenkinsJob := inputRow.(*models.JenkinsJob)
 			job := &devops.Job{
 				DomainEntity: domainlayer.DomainEntity{
-					Id: jobIdGen.Generate(jenkinsJob.Name),
+					Id: jobIdGen.Generate(jenkinsJob.ConnectionId, jenkinsJob.Name),
 				},
 				Name: jenkinsJob.Name,
 			}
