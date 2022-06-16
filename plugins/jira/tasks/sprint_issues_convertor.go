@@ -18,6 +18,7 @@ limitations under the License.
 package tasks
 
 import (
+	"github.com/apache/incubator-devlake/plugins/core/dal"
 	"reflect"
 
 	"github.com/apache/incubator-devlake/models/domainlayer/didgen"
@@ -28,14 +29,17 @@ import (
 )
 
 func ConvertSprintIssues(taskCtx core.SubTaskContext) error {
-	db := taskCtx.GetDb()
+	db := taskCtx.GetDal()
 	data := taskCtx.GetData().(*JiraTaskData)
 
 	jiraSprintIssue := &models.JiraSprintIssue{}
 	// select all issues belongs to the board
-	cursor, err := db.Model(jiraSprintIssue).
-		Where("_tool_jira_sprint_issues.connection_id = ? ", data.Options.ConnectionId).
-		Rows()
+	clauses := []dal.Clause{
+		dal.Select("*"),
+		dal.From(jiraSprintIssue),
+		dal.Where("_tool_jira_sprint_issues.connection_id = ? ", data.Options.ConnectionId),
+	}
+	cursor, err := db.Cursor(clauses...)
 	if err != nil {
 		return err
 	}
