@@ -145,7 +145,6 @@ func ExtractIssues(taskCtx core.SubTaskContext) error {
 				results = append(results, issueLabel)
 			}
 			return results, nil
-			return results, nil
 		},
 	})
 
