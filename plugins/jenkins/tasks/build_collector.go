@@ -81,7 +81,7 @@ func CollectApiBuilds(taskCtx core.SubTaskContext) error {
 			query := url.Values{}
 			treeValue := fmt.Sprintf(
 				"allBuilds[number,timestamp,duration,estimatedDuration,displayName,result,actions[lastBuiltRevision[SHA1],mercurialRevisionNumber],changeSet[kind,revisions[revision]]]{%d,%d}",
-				reqData.Pager.Skip+1, reqData.Pager.Skip+reqData.Pager.Size)
+				reqData.Pager.Skip, reqData.Pager.Skip+reqData.Pager.Size)
 			query.Set("tree", treeValue)
 			return query, nil
 		},

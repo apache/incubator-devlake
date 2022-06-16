@@ -38,7 +38,7 @@ func TestConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, erro
 	if err != nil {
 		return nil, err
 	}
-	// validateplugins/jenkins/tasks/job_collector.go
+	// validate
 	err = vld.Struct(connection)
 	if err != nil {
 		return nil, err

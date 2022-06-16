@@ -43,6 +43,7 @@ func ConvertJobs(taskCtx core.SubTaskContext) error {
 	clauses := []Clause{
 		Select("*"),
 		From("_tool_jenkins_jobs"),
+		Where("connection_id = ?", data.Options.ConnectionId),
 	}
 	cursor, err := db.Cursor(clauses...)
 	if err != nil {
