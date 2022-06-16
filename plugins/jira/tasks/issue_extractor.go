@@ -135,6 +135,16 @@ func ExtractIssues(taskCtx core.SubTaskContext) error {
 				BoardId:      boardId,
 				IssueId:      issue.IssueId,
 			})
+			labels := apiIssue.Fields.Labels
+			for _, v := range labels {
+				issueLabel := &models.JiraIssueLabel{
+					IssueId:      issue.IssueId,
+					LabelName:    v,
+					ConnectionId: data.Options.ConnectionId,
+				}
+				results = append(results, issueLabel)
+			}
+			return results, nil
 			return results, nil
 		},
 	})
