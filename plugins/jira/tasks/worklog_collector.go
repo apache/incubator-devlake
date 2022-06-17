@@ -19,7 +19,6 @@ package tasks
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/http"
 	"reflect"
 
@@ -91,15 +90,7 @@ func CollectWorklogs(taskCtx core.SubTaskContext) error {
 			}
 			return data.Worklogs, nil
 		},
-		AfterResponse: func(res *http.Response) error {
-			if res.StatusCode == http.StatusUnauthorized {
-				return fmt.Errorf("authentication failed, please check your AccessToken")
-			}
-			if res.StatusCode == http.StatusNotFound {
-				return helper.ErrIgnoreAndContinue
-			}
-			return nil
-		},
+		AfterResponse: ignoreHTTPStatus404,
 	})
 	if err != nil {
 		logger.Error("collect board error:", err)
