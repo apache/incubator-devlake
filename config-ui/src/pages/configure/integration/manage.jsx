@@ -56,7 +56,6 @@ export default function ManageIntegration () {
 
   const {
     sourceLimits,
-    Providers,
     allConnections: connections,
     testedConnections,
     isFetching: isLoading,

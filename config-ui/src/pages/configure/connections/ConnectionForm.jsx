@@ -26,12 +26,10 @@ import {
   Elevation,
   Popover,
   // PopoverInteractionKind,
-  Position,
   Intent,
   PopoverInteractionKind
 } from '@blueprintjs/core'
 import { Providers } from '@/data/Providers'
-import GenerateTokenForm from '@/pages/configure/connections/GenerateTokenForm'
 import FormValidationErrors from '@/components/messages/FormValidationErrors'
 import InputValidationError from '@/components/validation/InputValidationError'
 
@@ -80,7 +78,6 @@ export default function ConnectionForm (props) {
 
   // const [isValidForm, setIsValidForm] = useState(true)
   const [allowedAuthTypes, setAllowedAuthTypes] = useState(['token', 'plain'])
-  const [showTokenCreator, setShowTokenCreator] = useState(false)
   const [stateErrored, setStateErrored] = useState(false)
 
   const getConnectionStatusIcon = () => {
@@ -109,11 +106,6 @@ export default function ConnectionForm (props) {
       password
     })
   }, [name, endpointUrl, token, username, password, onValidate])
-
-  const handleTokenInteraction = (isOpen) => {
-    setShowTokenCreator(isOpen)
-  }
-
   const fieldHasError = (fieldId) => {
     return validationErrors.some(e => e.includes(fieldId))
   }

@@ -901,9 +901,9 @@ const CreatePipeline = (props) => {
                         >
                           <ButtonGroup
                             className='code-editor-controls' style={{
-                            borderRadius: '3px',
-                            boxShadow: '0px 0px 2px rgba(0, 0, 0, 0.30)'
-                          }}
+                              borderRadius: '3px',
+                              boxShadow: '0px 0px 2px rgba(0, 0, 0, 0.30)'
+                            }}
                           >
                             <Popover
                               className='popover-options-menu-trigger'
@@ -975,11 +975,11 @@ const CreatePipeline = (props) => {
                                           <>
                                             <div
                                               className='bp3-elevation-1' style={{
-                                              backgroundColor: '#f6f6f6',
-                                              padding: '4px 6px',
-                                              borderRadius: '3px',
-                                              marginBottom: '10px'
-                                            }}
+                                                backgroundColor: '#f6f6f6',
+                                                padding: '4px 6px',
+                                                borderRadius: '3px',
+                                                marginBottom: '10px'
+                                              }}
                                             >
                                               <Icon icon='layers' color={Colors.GRAY4} size={14} style={{ marginRight: '5px' }} />
                                               <span style={{
@@ -998,7 +998,7 @@ const CreatePipeline = (props) => {
                                           </>
                                         )}
                                       </>
-                                    )
+                                      )
                                     : (
                                       <>
                                         <Icon
@@ -1010,7 +1010,7 @@ const CreatePipeline = (props) => {
                                         </div>
                                         {validationError}
                                       </>
-                                    )}
+                                      )}
                                 </div>
                               </>
                             </Popover>
