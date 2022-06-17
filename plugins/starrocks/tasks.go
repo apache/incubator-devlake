@@ -67,7 +67,7 @@ func loadData(starrocks *sql.DB, c core.SubTaskContext, table string, db dal.Dal
 		row := make(map[string]interface{})
 		columns := make([]string, len(cols))
 		columnPointers := make([]interface{}, len(cols))
-		for i, _ := range columns {
+		for i := range columns {
 			columnPointers[i] = &columns[i]
 		}
 		err = rows.Scan(columnPointers...)
