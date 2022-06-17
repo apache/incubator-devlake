@@ -100,11 +100,13 @@ func validateBlueprint(blueprint *models.Blueprint) error {
 	if err != nil {
 		return err
 	}
-	if blueprint.CronConfig != models.BLUEPRINT_CRON_MANUAL {
+	if blueprint.CronConfig != "" {
 		_, err = cron.ParseStandard(blueprint.CronConfig)
 		if err != nil {
 			return fmt.Errorf("invalid cronConfig: %w", err)
 		}
+	} else if blueprint.IsManual == false {
+		return fmt.Errorf("cronConfig is required for Automated blueprint")
 	}
 	if blueprint.Mode == models.BLUEPRINT_MODE_ADVANCED {
 		tasks := make([][]models.NewTask, 0)
@@ -170,7 +172,7 @@ func DeleteBlueprint(id uint64) error {
 func ReloadBlueprints(c *cron.Cron) error {
 	blueprints := make([]*models.Blueprint, 0)
 	err := db.Model(&models.Blueprint{}).
-		Where("enable = ? AND cron_config <> ?", true, models.BLUEPRINT_CRON_MANUAL).
+		Where("enable = ? AND is_manual = ?", true, false).
 		Find(&blueprints).Error
 	if err != nil {
 		panic(err)

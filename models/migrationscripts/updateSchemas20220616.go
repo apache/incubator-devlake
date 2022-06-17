@@ -24,7 +24,8 @@ import (
 )
 
 type Blueprint20220616 struct {
-	Mode string `json:"mode" gorm:"varchar(20)" validate:"required,oneof=NORMAL ADVANCED"`
+	Mode     string `json:"mode" gorm:"varchar(20)" validate:"required,oneof=NORMAL ADVANCED"`
+	IsManual bool   `json:"isManual"`
 }
 
 func (Blueprint20220616) TableName() string {
