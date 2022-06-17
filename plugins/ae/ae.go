@@ -109,7 +109,7 @@ func (plugin AE) MigrationScripts() []migration.Script {
 
 func (plugin AE) ApiResources() map[string]map[string]core.ApiResourceHandler {
 	return map[string]map[string]core.ApiResourceHandler{
-		"test/:connectionId": {
+		"test": {
 			"GET": api.TestConnection,
 		},
 		"connections": {

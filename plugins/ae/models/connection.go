@@ -33,6 +33,12 @@ type AeConnection struct {
 	helper.AppKey         `mapstructure:",squash"`
 }
 
+type TestConnectionRequest struct {
+	Endpoint      string `json:"endpoint"`
+	Proxy         string `json:"proxy"`
+	helper.AppKey `mapstructure:",squash"`
+}
+
 // This object conforms to what the frontend currently expects.
 type AeResponse struct {
 	AeConnection

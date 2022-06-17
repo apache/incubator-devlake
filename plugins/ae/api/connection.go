@@ -26,6 +26,7 @@ import (
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/helper"
 	"github.com/go-playground/validator/v10"
+	"github.com/mitchellh/mapstructure"
 	"github.com/spf13/viper"
 	"gorm.io/gorm"
 )
@@ -34,11 +35,12 @@ type ApiMeResponse struct {
 	Name string `json:"name"`
 }
 
+var vld *validator.Validate
 var connectionHelper *helper.ConnectionApiHelper
 
 func Init(config *viper.Viper, logger core.Logger, database *gorm.DB) {
 	basicRes := helper.NewDefaultBasicRes(config, logger, database)
-	vld := validator.New()
+	vld = validator.New()
 	connectionHelper = helper.NewConnectionHelper(
 		basicRes,
 		vld,
@@ -49,8 +51,15 @@ func Init(config *viper.Viper, logger core.Logger, database *gorm.DB) {
 GET /plugins/ae/test/:connectionId
 */
 func TestConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, error) {
-	connection := &models.AeConnection{}
-	err := connectionHelper.First(connection, input.Params)
+	// decode
+	var err error
+	var connection models.TestConnectionRequest
+	err = mapstructure.Decode(input.Body, &connection)
+	if err != nil {
+		return nil, err
+	}
+	// validate
+	err = vld.Struct(connection)
 	if err != nil {
 		return nil, err
 	}
@@ -95,7 +104,6 @@ POST /plugins/ae/connections
 */
 func PostConnections(input *core.ApiResourceInput) (*core.ApiResourceOutput, error) {
 	connection := &models.AeConnection{}
-	fmt.Printf("%+v\r\n", connectionHelper)
 	err := connectionHelper.Create(connection, input)
 	if err != nil {
 		return nil, err
