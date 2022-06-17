@@ -73,6 +73,7 @@ type ApiCollectorArgs struct {
 	// NORMALLY, DO NOT SPECIFY THIS PARAMETER, unless you know what it means
 	Concurrency    int
 	ResponseParser func(res *http.Response) ([]json.RawMessage, error)
+	AfterResponse  ApiClientAfterResponse
 }
 
 type ApiCollector struct {
@@ -104,11 +105,22 @@ func NewApiCollector(args ApiCollectorArgs) (*ApiCollector, error) {
 	if args.ResponseParser == nil {
 		return nil, fmt.Errorf("ResponseParser is required")
 	}
-	return &ApiCollector{
+	apicllector := &ApiCollector{
 		RawDataSubTask: rawDataSubTask,
 		args:           &args,
 		urlTemplate:    tpl,
-	}, nil
+	}
+	if args.AfterResponse != nil {
+		apicllector.SetAfterResponse(args.AfterResponse)
+	} else {
+		apicllector.SetAfterResponse(func(res *http.Response) error {
+			if res.StatusCode == http.StatusUnauthorized {
+				return fmt.Errorf("authentication failed, please check your AccessToken")
+			}
+			return nil
+		})
+	}
+	return apicllector, nil
 }
 
 // Start collection
@@ -271,6 +283,10 @@ func (collector *ApiCollector) generateUrl(pager *Pager, input interface{}) (str
 		return "", err
 	}
 	return buf.String(), nil
+}
+
+func (collector *ApiCollector) SetAfterResponse(f ApiClientAfterResponse) {
+	collector.args.ApiClient.SetAfterFunction(f)
 }
 
 func (collector *ApiCollector) fetchAsync(reqData *RequestData, handler func(int, []byte, *http.Response) error) {

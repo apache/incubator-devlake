@@ -19,6 +19,7 @@ package tasks
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"reflect"
 
@@ -89,6 +90,15 @@ func CollectWorklogs(taskCtx core.SubTaskContext) error {
 				return nil, err
 			}
 			return data.Worklogs, nil
+		},
+		AfterResponse: func(res *http.Response) error {
+			if res.StatusCode == http.StatusUnauthorized {
+				return fmt.Errorf("authentication failed, please check your AccessToken")
+			}
+			if res.StatusCode == http.StatusNotFound {
+				return helper.ErrIgnoreAndContinue
+			}
+			return nil
 		},
 	})
 	if err != nil {
