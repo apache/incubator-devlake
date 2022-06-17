@@ -1,7 +1,7 @@
 ---
 name: Question
 about: Ask a question
-title: ''
+title: '[Question][Module Name] Question title'
 labels: type/question
 assignees: ''
 

@@ -1,7 +1,7 @@
 ---
 name: Documentation Issue
 about: Help improve our documentation
-title: ''
+title: '[Documentation][Module Name] Documentation title'
 labels: type/docs
 assignees: ''
 

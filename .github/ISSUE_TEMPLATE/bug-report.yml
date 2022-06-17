@@ -16,9 +16,9 @@
 #
 
 name: Bug report
-title: "[Bug] [Module Name] Bug title "
+title: "[Bug][Module Name] Bug title "
 description: Problems and issues with code of Apache DevLake
-labels: type/bug
+labels: ["type/bug"]
 body:
   - type: markdown
     attributes:

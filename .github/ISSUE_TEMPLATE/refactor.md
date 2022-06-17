@@ -1,7 +1,7 @@
 ---
 name: Refactor
 about: Improve operation without altering functionality
-title: ''
+title: '[Refactor][Module Name] Refactor title'
 labels: type/refactor
 assignees: ''
 
