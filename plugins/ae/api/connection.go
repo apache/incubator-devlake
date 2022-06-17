@@ -48,7 +48,7 @@ func Init(config *viper.Viper, logger core.Logger, database *gorm.DB) {
 }
 
 /*
-GET /plugins/ae/test/:connectionId
+GET /plugins/ae/test/
 */
 func TestConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, error) {
 	// decode
