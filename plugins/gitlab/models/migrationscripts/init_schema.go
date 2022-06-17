@@ -20,6 +20,7 @@ package migrationscripts
 import (
 	"context"
 	"fmt"
+
 	"github.com/apache/incubator-devlake/config"
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/gitlab/models/migrationscripts/archived"
@@ -90,25 +91,32 @@ func (*InitSchemas) Up(ctx context.Context, db *gorm.DB) error {
 		return err
 	}
 
-	conn := &archived.GitlabConnection{}
 	v := config.GetConfig()
-	encKey := v.GetString(core.EncodeKeyEnvStr)
+	encKey := v.GetString("ENCODE_KEY")
+	endPoint := v.GetString("GITLAB_ENDPOINT")
+	gitlabAuth := v.GetString("GITLAB_AUTH")
 
-	conn.Name = "init gitlab connection"
-	conn.ID = 1
-	conn.Endpoint = v.GetString("GITLAB_ENDPOINT")
-	conn.Token, err = core.Encrypt(encKey, v.GetString("GITLAB_AUTH"))
-	if err != nil {
-		return err
+	if encKey == "" || endPoint == "" || gitlabAuth == "" {
+		return nil
+	} else {
+		conn := &archived.GitlabConnection{}
+		conn.Name = "init gitlab connection"
+		conn.ID = 1
+		conn.Endpoint = endPoint
+		conn.Token, err = core.Encrypt(encKey, gitlabAuth)
+		if err != nil {
+			return err
+		}
+		conn.Proxy = v.GetString("GITLAB_PROXY")
+		conn.RateLimit = v.GetInt("GITLAB_API_REQUESTS_PER_HOUR")
+
+		err = db.Clauses(clause.OnConflict{DoNothing: true}).Create(conn).Error
+
+		if err != nil {
+			return err
+		}
 	}
-	conn.Proxy = v.GetString("GITLAB_PROXY")
-	conn.RateLimit = v.GetInt("GITLAB_API_REQUESTS_PER_HOUR")
 
-	err = db.Clauses(clause.OnConflict{DoNothing: true}).Create(conn).Error
-
-	if err != nil {
-		return err
-	}
 	return nil
 }
 

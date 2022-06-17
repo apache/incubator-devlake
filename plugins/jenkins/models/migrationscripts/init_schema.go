@@ -50,24 +50,31 @@ func (*InitSchemas) Up(ctx context.Context, db *gorm.DB) error {
 		return err
 	}
 
-	conn := &archived.JenkinsConnection{}
 	v := config.GetConfig()
 
-	conn.Name = "init jenkins connection"
-	conn.ID = 1
-	conn.Endpoint = v.GetString("JENKINS_ENDPOINT")
-	conn.Proxy = v.GetString("JENKINS_PROXY")
-	conn.RateLimit = v.GetInt("JENKINS_API_REQUESTS_PER_HOUR")
-	conn.Username = v.GetString("JENKINS_USERNAME")
-	encKey := v.GetString(core.EncodeKeyEnvStr)
-	conn.Password, err = core.Encrypt(encKey, v.GetString("JENKINS_PASSWORD"))
-	if err != nil {
-		return err
-	}
-	err = db.Clauses(clause.OnConflict{DoNothing: true}).Create(conn).Error
+	encKey := v.GetString("ENCODE_KEY")
+	endPoint := v.GetString("JENKINS_ENDPOINT")
+	useName := v.GetString("JENKINS_USERNAME")
+	passWord := v.GetString("JENKINS_PASSWORD")
+	if encKey == "" || endPoint == "" || useName == "" || passWord == "" {
+		return nil
+	} else {
+		conn := &archived.JenkinsConnection{}
+		conn.Name = "init jenkins connection"
+		conn.ID = 1
+		conn.Endpoint = endPoint
+		conn.Proxy = v.GetString("JENKINS_PROXY")
+		conn.RateLimit = v.GetInt("JENKINS_API_REQUESTS_PER_HOUR")
+		conn.Username = useName
+		conn.Password, err = core.Encrypt(encKey, passWord)
+		if err != nil {
+			return err
+		}
+		err = db.Clauses(clause.OnConflict{DoNothing: true}).Create(conn).Error
 
-	if err != nil {
-		return err
+		if err != nil {
+			return err
+		}
 	}
 
 	return nil
