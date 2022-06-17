@@ -39,7 +39,7 @@ var db *gorm.DB
 var cronManager *cron.Cron
 var log core.Logger
 
-func init() {
+func Init() {
 	var err error
 	cfg = config.GetConfig()
 	log = logger.Global

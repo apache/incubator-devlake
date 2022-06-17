@@ -21,6 +21,7 @@ import (
 	"github.com/apache/incubator-devlake/api"
 	"github.com/apache/incubator-devlake/config"
 	"github.com/apache/incubator-devlake/plugins/core"
+	"github.com/apache/incubator-devlake/services"
 	_ "github.com/apache/incubator-devlake/version"
 )
 
@@ -36,5 +37,6 @@ func main() {
 			panic(err)
 		}
 	}
+	services.Init()
 	api.CreateApiService()
 }
