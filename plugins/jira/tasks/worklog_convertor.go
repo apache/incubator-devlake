@@ -18,6 +18,7 @@ limitations under the License.
 package tasks
 
 import (
+	"github.com/apache/incubator-devlake/plugins/core/dal"
 	"reflect"
 
 	"github.com/apache/incubator-devlake/models/domainlayer"
@@ -30,17 +31,19 @@ import (
 
 func ConvertWorklogs(taskCtx core.SubTaskContext) error {
 	data := taskCtx.GetData().(*JiraTaskData)
-	db := taskCtx.GetDb()
+	db := taskCtx.GetDal()
 	connectionId := data.Connection.ID
 	boardId := data.Options.BoardId
 	logger := taskCtx.GetLogger()
 	logger.Info("convert worklog")
 	// select all worklogs belongs to the board
-	cursor, err := db.Model(&models.JiraWorklog{}).
-		Select("_tool_jira_worklogs.*").
-		Joins(`left join _tool_jira_board_issues on (_tool_jira_board_issues.issue_id = _tool_jira_worklogs.issue_id)`).
-		Where("_tool_jira_board_issues.connection_id = ? AND _tool_jira_board_issues.board_id = ?", connectionId, boardId).
-		Rows()
+	clauses := []dal.Clause{
+		dal.From(&models.JiraWorklog{}),
+		dal.Select("_tool_jira_worklogs.*"),
+		dal.Join(`left join _tool_jira_board_issues on (_tool_jira_board_issues.issue_id = _tool_jira_worklogs.issue_id)`),
+		dal.Where("_tool_jira_board_issues.connection_id = ? AND _tool_jira_board_issues.board_id = ?", connectionId, boardId),
+	}
+	cursor, err := db.Cursor(clauses...)
 	if err != nil {
 		logger.Error("convert worklog error:", err)
 		return err
