@@ -27,7 +27,7 @@ const RAW_TAG_TABLE = "gitlab_api_tag"
 var CollectTagMeta = core.SubTaskMeta{
 	Name:             "collectApiTag",
 	EntryPoint:       CollectApiTag,
-	EnabledByDefault: true,
+	EnabledByDefault: false,
 	Description:      "Collect tag data from gitlab api",
 }
 

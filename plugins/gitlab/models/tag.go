@@ -22,8 +22,7 @@ import (
 )
 
 type GitlabTag struct {
-	ConnectionId uint64 `gorm:"primaryKey"`
-
+	ConnectionId       uint64 `gorm:"primaryKey"`
 	Name               string `gorm:"primaryKey;type:varchar(60)"`
 	Message            string
 	Target             string `gorm:"type:varchar(255)"`
