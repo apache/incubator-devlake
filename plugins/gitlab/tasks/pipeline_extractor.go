@@ -78,7 +78,7 @@ func ExtractApiPipelines(taskCtx core.SubTaskContext) error {
 
 			// use data.Options.ProjectId to set the value of ProjectId for it
 			gitlabPipeline.ProjectId = data.Options.ProjectId
-
+			gitlabPipeline.ConnectionId = data.Options.ConnectionId
 			results := make([]interface{}, 0, 1)
 			results = append(results, gitlabPipeline)
 
