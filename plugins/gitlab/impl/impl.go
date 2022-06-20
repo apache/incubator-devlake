@@ -52,8 +52,8 @@ func (plugin Gitlab) SubTaskMetas() []core.SubTaskMeta {
 	return []core.SubTaskMeta{
 		tasks.CollectProjectMeta,
 		tasks.ExtractProjectMeta,
-		tasks.CollectCommitsMeta,
-		tasks.ExtractCommitsMeta,
+		tasks.CollectApiCommitsMeta,
+		tasks.ExtractApiCommitsMeta,
 		tasks.CollectTagMeta,
 		tasks.ExtractTagMeta,
 		tasks.CollectApiIssuesMeta,
@@ -68,13 +68,13 @@ func (plugin Gitlab) SubTaskMetas() []core.SubTaskMeta {
 		tasks.ExtractApiPipelinesMeta,
 		tasks.EnrichMergeRequestsMeta,
 		tasks.ConvertProjectMeta,
-		tasks.ConvertIssuesMeta,
-		tasks.ConvertIssueLabelsMeta,
 		tasks.ConvertApiMergeRequestsMeta,
-		tasks.ConvertApiCommitsMeta,
 		tasks.ConvertApiNotesMeta,
 		tasks.ConvertMergeRequestCommentMeta,
 		tasks.ConvertApiMergeRequestsCommitsMeta,
+		tasks.ConvertIssuesMeta,
+		tasks.ConvertIssueLabelsMeta,
+		tasks.ConvertCommitsMeta,
 	}
 }
 
@@ -100,7 +100,7 @@ func (plugin Gitlab) PrepareTaskData(taskCtx core.TaskContext, options map[strin
 	if err != nil {
 		return nil, err
 	}
-	apiClient, err := tasks.NewGitlabApiClient(taskCtx)
+	apiClient, err := tasks.NewGitlabApiClient(taskCtx, connection)
 
 	if err != nil {
 		return nil, err

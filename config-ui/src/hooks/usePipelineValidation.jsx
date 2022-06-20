@@ -47,7 +47,8 @@ function usePipelineValidation ({
     Providers.GITEXTRACTOR,
     Providers.FEISHU,
     Providers.AE,
-    Providers.DBT
+    Providers.DBT,
+    Providers.STARROCKS
   ])
 
   const clear = () => {

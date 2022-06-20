@@ -26,6 +26,7 @@ import { jiraConfig as sampleJiraPipelineConfig } from '@/data/pipeline-config-s
 import { jenkinsConfig as sampleJenkinsPipelineConfig } from '@/data/pipeline-config-samples/jenkins'
 import { feishuConfig as sampleFeishuPipelineConfig } from '@/data/pipeline-config-samples/feishu'
 import { dbtConfig as sampleDbtPipelineConfig } from '@/data/pipeline-config-samples/dbt'
+import { starRocksConfig as sampleStarRocksConfigPipelineConfig } from '@/data/pipeline-config-samples/starrocks'
 
 const PipelineConfigsMenu = (props) => {
   const {
@@ -80,6 +81,10 @@ const PipelineConfigsMenu = (props) => {
       <Menu.Item
         icon='group-objects' text='Load DBT Configuration'
         onClick={() => setRawConfiguration(JSON.stringify(sampleDbtPipelineConfig, null, '  '))}
+      />
+      <Menu.Item
+        icon='group-objects' text='Load StarRocks Configuration'
+        onClick={() => setRawConfiguration(JSON.stringify(sampleStarRocksConfigPipelineConfig, null, '  '))}
       />
     </Menu>
   )

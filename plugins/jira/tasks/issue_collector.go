@@ -20,6 +20,7 @@ package tasks
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/apache/incubator-devlake/plugins/core/dal"
 	"io/ioutil"
 	"net/http"
 	"net/url"
@@ -40,7 +41,7 @@ type JiraApiParams struct {
 var _ core.SubTaskEntryPoint = CollectIssues
 
 func CollectIssues(taskCtx core.SubTaskContext) error {
-	db := taskCtx.GetDb()
+	db := taskCtx.GetDal()
 	data := taskCtx.GetData().(*JiraTaskData)
 
 	since := data.Since
@@ -48,7 +49,13 @@ func CollectIssues(taskCtx core.SubTaskContext) error {
 	// user didn't specify a time range to sync, try load from database
 	if since == nil {
 		var latestUpdated models.JiraIssue
-		err := db.Where("connection_id = ? and board_id = ?", data.Connection.ID, data.Options.BoardId).Order("updated DESC").Limit(1).Find(&latestUpdated).Error
+		clauses := []dal.Clause{
+			dal.Select("*"),
+			dal.From(&latestUpdated),
+			dal.Where("connection_id = ? and board_id = ?", data.Connection.ID, data.Options.BoardId),
+			dal.Orderby("updated DESC"),
+		}
+		err := db.First(&latestUpdated, clauses...)
 		if err != nil {
 			return fmt.Errorf("failed to get latest jira issue record: %w", err)
 		}

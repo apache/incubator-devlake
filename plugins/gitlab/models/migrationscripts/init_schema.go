@@ -19,7 +19,6 @@ package migrationscripts
 
 import (
 	"context"
-	"fmt"
 	"github.com/apache/incubator-devlake/config"
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/gitlab/models/migrationscripts/archived"
@@ -30,24 +29,6 @@ import (
 type InitSchemas struct{}
 
 func (*InitSchemas) Up(ctx context.Context, db *gorm.DB) error {
-	rawTableList := []string{
-		"_raw_gitlab_api_children_on_pipeline",
-		"_raw_gitlab_api_commit",
-		"_raw_gitlab_api_issues",
-		"_raw_gitlab_api_merge_request_commits",
-		"_raw_gitlab_api_merge_request_notes",
-		"_raw_gitlab_api_merge_requests",
-		"_raw_gitlab_api_pipeline",
-		"_raw_gitlab_api_project",
-		"_raw_gitlab_api_tag",
-	}
-	for _, v := range rawTableList {
-		err := db.Exec(fmt.Sprintf("DROP TABLE IF EXISTS %s CASCADE", v)).Error
-		if err != nil {
-			return err
-		}
-	}
-
 	err := db.Migrator().DropTable(
 		&archived.GitlabProject{},
 		&archived.GitlabMergeRequest{},
@@ -63,6 +44,15 @@ func (*InitSchemas) Up(ctx context.Context, db *gorm.DB) error {
 		&archived.GitlabConnection{},
 		&archived.GitlabIssue{},
 		&archived.GitlabIssueLabel{},
+		"_raw_gitlab_api_children_on_pipeline",
+		"_raw_gitlab_api_commit",
+		"_raw_gitlab_api_issues",
+		"_raw_gitlab_api_merge_request_commits",
+		"_raw_gitlab_api_merge_request_notes",
+		"_raw_gitlab_api_merge_requests",
+		"_raw_gitlab_api_pipeline",
+		"_raw_gitlab_api_project",
+		"_raw_gitlab_api_tag",
 	)
 
 	if err != nil {
@@ -90,25 +80,32 @@ func (*InitSchemas) Up(ctx context.Context, db *gorm.DB) error {
 		return err
 	}
 
-	conn := &archived.GitlabConnection{}
 	v := config.GetConfig()
-	encKey := v.GetString(core.EncodeKeyEnvStr)
+	encKey := v.GetString("ENCODE_KEY")
+	endPoint := v.GetString("GITLAB_ENDPOINT")
+	gitlabAuth := v.GetString("GITLAB_AUTH")
 
-	conn.Name = "init gitlab connection"
-	conn.ID = 1
-	conn.Endpoint = v.GetString("GITLAB_ENDPOINT")
-	conn.Token, err = core.Encrypt(encKey, v.GetString("GITLAB_AUTH"))
-	if err != nil {
-		return err
+	if encKey == "" || endPoint == "" || gitlabAuth == "" {
+		return nil
+	} else {
+		conn := &archived.GitlabConnection{}
+		conn.Name = "init gitlab connection"
+		conn.ID = 1
+		conn.Endpoint = endPoint
+		conn.Token, err = core.Encrypt(encKey, gitlabAuth)
+		if err != nil {
+			return err
+		}
+		conn.Proxy = v.GetString("GITLAB_PROXY")
+		conn.RateLimit = v.GetInt("GITLAB_API_REQUESTS_PER_HOUR")
+
+		err = db.Clauses(clause.OnConflict{DoNothing: true}).Create(conn).Error
+
+		if err != nil {
+			return err
+		}
 	}
-	conn.Proxy = v.GetString("GITLAB_PROXY")
-	conn.RateLimit = v.GetInt("GITLAB_API_REQUESTS_PER_HOUR")
 
-	err = db.Clauses(clause.OnConflict{DoNothing: true}).Create(conn).Error
-
-	if err != nil {
-		return err
-	}
 	return nil
 }
 

@@ -18,6 +18,7 @@ limitations under the License.
 package tasks
 
 import (
+	"github.com/apache/incubator-devlake/plugins/core/dal"
 	"reflect"
 
 	"github.com/apache/incubator-devlake/models/domainlayer"
@@ -31,10 +32,15 @@ import (
 func ConvertBoard(taskCtx core.SubTaskContext) error {
 	data := taskCtx.GetData().(*JiraTaskData)
 	logger := taskCtx.GetLogger()
-	db := taskCtx.GetDb()
+	db := taskCtx.GetDal()
 	logger.Info("collect board:%d", data.Options.BoardId)
 	idGen := didgen.NewDomainIdGenerator(&models.JiraBoard{})
-	cursor, err := db.Model(&models.JiraBoard{}).Where("connection_id = ? AND board_id = ?", data.Connection.ID, data.Options.BoardId).Rows()
+	clauses := []dal.Clause{
+		dal.Select("*"),
+		dal.From(&models.JiraBoard{}),
+		dal.Where("connection_id = ? AND board_id = ?", data.Connection.ID, data.Options.BoardId),
+	}
+	cursor, err := db.Cursor(clauses...)
 	if err != nil {
 		return err
 	}

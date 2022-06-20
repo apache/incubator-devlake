@@ -22,6 +22,7 @@ import (
 	"github.com/apache/incubator-devlake/models/domainlayer/didgen"
 	"github.com/apache/incubator-devlake/models/domainlayer/user"
 	"github.com/apache/incubator-devlake/plugins/core"
+	"github.com/apache/incubator-devlake/plugins/core/dal"
 	"github.com/apache/incubator-devlake/plugins/helper"
 	"github.com/apache/incubator-devlake/plugins/jira/models"
 	"reflect"
@@ -32,9 +33,14 @@ func ConvertUsers(taskCtx core.SubTaskContext) error {
 	connectionId := data.Connection.ID
 	boardId := data.Options.BoardId
 	logger := taskCtx.GetLogger()
-	db := taskCtx.GetDb()
+	db := taskCtx.GetDal()
 	logger.Info("convert user")
-	cursor, err := db.Model(&models.JiraUser{}).Where("connection_id = ?", connectionId).Rows()
+	clauses := []dal.Clause{
+		dal.Select("*"),
+		dal.From(&models.JiraUser{}),
+		dal.Where("connection_id = ?", connectionId),
+	}
+	cursor, err := db.Cursor(clauses...)
 	if err != nil {
 		return err
 	}

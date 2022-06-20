@@ -19,6 +19,8 @@ package dalgorm
 
 import (
 	"database/sql"
+	"fmt"
+	"strings"
 
 	"github.com/apache/incubator-devlake/plugins/core/dal"
 	"gorm.io/gorm"
@@ -148,6 +150,27 @@ func (d *Dalgorm) Delete(entity interface{}, clauses ...dal.Clause) error {
 	return buildTx(d.db, clauses).Delete(entity).Error
 }
 
+// AllTables returns all tables in the database
+func (d *Dalgorm) AllTables() ([]string, error) {
+	var tableSql string
+	if d.db.Dialector.Name() == "mysql" {
+		tableSql = fmt.Sprintf("show tables")
+	} else {
+		tableSql = "select table_name from information_schema.tables where table_schema = 'public' and table_name not like '_devlake%'"
+	}
+	var tables []string
+	err := d.db.Raw(tableSql).Scan(&tables).Error
+	if err != nil {
+		return nil, err
+	}
+	var filteredTables []string
+	for _, table := range tables {
+		if !strings.HasPrefix(table, "_devlake") {
+			filteredTables = append(filteredTables, table)
+		}
+	}
+	return filteredTables, nil
+}
 func NewDalgorm(db *gorm.DB) *Dalgorm {
 	return &Dalgorm{db}
 }

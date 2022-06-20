@@ -18,6 +18,7 @@ limitations under the License.
 package tasks
 
 import (
+	"github.com/apache/incubator-devlake/plugins/core/dal"
 	"reflect"
 	"regexp"
 
@@ -32,7 +33,7 @@ import (
 // issue_commits but added a RepoUrl. This task is needed by EE group.
 func ConvertIssueRepoCommits(taskCtx core.SubTaskContext) error {
 	data := taskCtx.GetData().(*JiraTaskData)
-	db := taskCtx.GetDb()
+	db := taskCtx.GetDal()
 	connectionId := data.Connection.ID
 	boardId := data.Options.BoardId
 	logger := taskCtx.GetLogger()
@@ -41,15 +42,17 @@ func ConvertIssueRepoCommits(taskCtx core.SubTaskContext) error {
 	commitRepoUrlPattern := `(.*)\-\/commit`
 	commitRepoUrlRegex = regexp.MustCompile(commitRepoUrlPattern)
 
-	cursor, err := db.Table("_tool_jira_issue_commits jic").
-		Joins(`left join _tool_jira_board_issues jbi on (
+	clause := []dal.Clause{
+		dal.From("_tool_jira_issue_commits jic"),
+		dal.Join(`left join _tool_jira_board_issues jbi on (
 			jbi.connection_id = jic.connection_id
 			AND jbi.issue_id = jic.issue_id
-		)`).
-		Select("jic.*").
-		Where("jbi.connection_id = ? AND jbi.board_id = ?", connectionId, boardId).
-		Order("jbi.connection_id, jbi.issue_id").
-		Rows()
+		)`),
+		dal.Select("jic.*"),
+		dal.Where("jbi.connection_id = ? AND jbi.board_id = ?", connectionId, boardId),
+		dal.Orderby("jbi.connection_id, jbi.issue_id"),
+	}
+	cursor, err := db.Cursor(clause...)
 	if err != nil {
 		return err
 	}

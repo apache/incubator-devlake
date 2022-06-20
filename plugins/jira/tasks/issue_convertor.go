@@ -18,6 +18,7 @@ limitations under the License.
 package tasks
 
 import (
+	"github.com/apache/incubator-devlake/plugins/core/dal"
 	"net/url"
 	"path/filepath"
 	"reflect"
@@ -31,20 +32,22 @@ import (
 )
 
 func ConvertIssues(taskCtx core.SubTaskContext) error {
-	db := taskCtx.GetDb()
+	db := taskCtx.GetDal()
 	data := taskCtx.GetData().(*JiraTaskData)
 
 	jiraIssue := &jiraModels.JiraIssue{}
 	// select all issues belongs to the board
-	cursor, err := db.Model(jiraIssue).
-		Select("_tool_jira_issues.*").
-		Joins("left join _tool_jira_board_issues on _tool_jira_board_issues.issue_id = _tool_jira_issues.issue_id").
-		Where(
+	clauses := []dal.Clause{
+		dal.Select("_tool_jira_issues.*"),
+		dal.From(jiraIssue),
+		dal.Join("left join _tool_jira_board_issues on _tool_jira_board_issues.issue_id = _tool_jira_issues.issue_id"),
+		dal.Where(
 			"_tool_jira_board_issues.connection_id = ? AND _tool_jira_board_issues.board_id = ?",
 			data.Options.ConnectionId,
 			data.Options.BoardId,
-		).
-		Rows()
+		),
+	}
+	cursor, err := db.Cursor(clauses...)
 	if err != nil {
 		return err
 	}

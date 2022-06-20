@@ -18,6 +18,7 @@ limitations under the License.
 package tasks
 
 import (
+	"github.com/apache/incubator-devlake/plugins/core/dal"
 	"reflect"
 	"strconv"
 	"strings"
@@ -44,26 +45,28 @@ func ConvertChangelogs(taskCtx core.SubTaskContext) error {
 	connectionId := data.Connection.ID
 	boardId := data.Options.BoardId
 	logger := taskCtx.GetLogger()
-	db := taskCtx.GetDb()
+	db := taskCtx.GetDal()
 	logger.Info("covert changelog")
-	statusMap, err := GetStatusInfo(db)
+	statusMap, err := GetStatusInfo(taskCtx.GetDb())
 	if err != nil {
 		logger.Error(err.Error())
 		return err
 	}
 	// select all changelogs belongs to the board
-	cursor, err := db.Table("_tool_jira_changelog_items").
-		Joins(`left join _tool_jira_changelogs on (
+	clauses := []dal.Clause{
+		dal.Select("_tool_jira_changelog_items.*, _tool_jira_changelogs.issue_id, author_account_id, author_display_name, created"),
+		dal.From("_tool_jira_changelog_items"),
+		dal.Join(`left join _tool_jira_changelogs on (
 			_tool_jira_changelogs.connection_id = _tool_jira_changelog_items.connection_id
 			AND _tool_jira_changelogs.changelog_id = _tool_jira_changelog_items.changelog_id
-		)`).
-		Joins(`left join _tool_jira_board_issues on (
+		)`),
+		dal.Join(`left join _tool_jira_board_issues on (
 			_tool_jira_board_issues.connection_id = _tool_jira_changelogs.connection_id
 			AND _tool_jira_board_issues.issue_id = _tool_jira_changelogs.issue_id
-		)`).
-		Select("_tool_jira_changelog_items.*, _tool_jira_changelogs.issue_id, author_account_id, author_display_name, created").
-		Where("_tool_jira_changelog_items.connection_id = ? AND _tool_jira_board_issues.board_id = ?", connectionId, boardId).
-		Rows()
+		)`),
+		dal.Where("_tool_jira_changelog_items.connection_id = ? AND _tool_jira_board_issues.board_id = ?", connectionId, boardId),
+	}
+	cursor, err := db.Cursor(clauses...)
 	if err != nil {
 		logger.Error(err.Error())
 		return err

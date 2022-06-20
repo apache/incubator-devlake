@@ -15,24 +15,18 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package plugin
+package archived
 
-import (
-	"github.com/apache/incubator-devlake/plugins/helper"
-)
+import "github.com/apache/incubator-devlake/models/migrationscripts/archived"
 
-type {{ .PluginName }}ApiParams struct {
+type GiteePullRequestIssue struct {
+	PullRequestId     int `gorm:"primaryKey"`
+	IssueId           int `gorm:"primaryKey"`
+	PullRequestNumber int
+	IssueNumber       int
+	archived.NoPKModel
 }
 
-type {{ .PluginName }}Options struct {
-	// TODO add some custom options here if necessary
-	// options means some custom params required by plugin running.
-	// Such As How many rows do your want
-	// You can use it in sub tasks and you need pass it in main.go and pipelines.
-	Tasks []string `json:"tasks,omitempty"`
-}
-
-type {{ .PluginName }}TaskData struct {
-	Options   *{{ .PluginName }}Options
-	// ApiClient *helper.ApiAsyncClient
+func (GiteePullRequestIssue) TableName() string {
+	return "_tool_gitee_pull_request_issues"
 }

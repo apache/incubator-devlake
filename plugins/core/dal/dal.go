@@ -58,6 +58,8 @@ type Dal interface {
 	CreateIfNotExist(entity interface{}, clauses ...Clause) error
 	// Delete records from database
 	Delete(entity interface{}, clauses ...Clause) error
+	// AllTables returns all tables in database
+	AllTables() ([]string, error)
 }
 
 type DalClause struct {

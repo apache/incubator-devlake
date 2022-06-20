@@ -37,7 +37,8 @@ const Providers = {
   GITEXTRACTOR: 'gitextractor',
   FEISHU: 'feishu',
   AE: 'ae',
-  DBT: 'dbt'
+  DBT: 'dbt',
+  STARROCKS: 'starrocks',
 }
 
 const ProviderTypes = {
@@ -56,7 +57,8 @@ const ProviderLabels = {
   GITEXTRACTOR: 'GitExtractor',
   FEISHU: 'Feishu',
   AE: 'Analysis Engine (AE)',
-  DBT: 'Data Build Tool (DBT)'
+  DBT: 'Data Build Tool (DBT)',
+  STARROCKS: 'StarRocks',
 }
 
 const ProviderConnectionLimits = {
