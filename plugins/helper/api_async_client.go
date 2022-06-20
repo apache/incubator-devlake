@@ -154,6 +154,11 @@ func (apiClient *ApiAsyncClient) DoAsync(
 				res.Body = io.NopCloser(bytes.NewBuffer(body))
 			}
 		}
+		if err == ErrIgnoreAndContinue {
+			// make sure defer func got be executed
+			err = nil
+			return nil
+		}
 
 		// check
 		needRetry := false
@@ -220,6 +225,7 @@ type RateLimitedApiClient interface {
 	HasError() bool
 	NextTick(task func() error)
 	GetNumOfWorkers() int
+	SetAfterFunction(callback common.ApiClientAfterResponse)
 }
 
 var _ RateLimitedApiClient = (*ApiAsyncClient)(nil)

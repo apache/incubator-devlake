@@ -111,6 +111,7 @@ func CollectChangelogs(taskCtx core.SubTaskContext) error {
 			}
 			return data.Values, nil
 		},
+		AfterResponse: ignoreHTTPStatus404,
 	})
 
 	if err != nil {

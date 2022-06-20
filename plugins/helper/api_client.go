@@ -21,6 +21,7 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"io/ioutil"
@@ -32,19 +33,19 @@ import (
 	"unicode/utf8"
 
 	"github.com/apache/incubator-devlake/plugins/core"
+	"github.com/apache/incubator-devlake/plugins/helper/common"
 	"github.com/apache/incubator-devlake/utils"
 )
 
-type ApiClientBeforeRequest func(req *http.Request) error
-type ApiClientAfterResponse func(res *http.Response) error
+var ErrIgnoreAndContinue = errors.New("ignore and continue")
 
 // ApiClient is designed for simple api requests
 type ApiClient struct {
 	client        *http.Client
 	endpoint      string
 	headers       map[string]string
-	beforeRequest ApiClientBeforeRequest
-	afterReponse  ApiClientAfterResponse
+	beforeRequest common.ApiClientBeforeRequest
+	afterReponse  common.ApiClientAfterResponse
 	ctx           context.Context
 	logger        core.Logger
 }
@@ -120,11 +121,11 @@ func (apiClient *ApiClient) GetHeaders() map[string]string {
 	return apiClient.headers
 }
 
-func (apiClient *ApiClient) SetBeforeFunction(callback ApiClientBeforeRequest) {
+func (apiClient *ApiClient) SetBeforeFunction(callback common.ApiClientBeforeRequest) {
 	apiClient.beforeRequest = callback
 }
 
-func (apiClient *ApiClient) SetAfterFunction(callback ApiClientAfterResponse) {
+func (apiClient *ApiClient) SetAfterFunction(callback common.ApiClientAfterResponse) {
 	apiClient.afterReponse = callback
 }
 
@@ -220,6 +221,9 @@ func (apiClient *ApiClient) Do(
 	// after receive
 	if apiClient.afterReponse != nil {
 		err = apiClient.afterReponse(res)
+		if err == ErrIgnoreAndContinue {
+			return res, err
+		}
 		if err != nil {
 			res.Body.Close()
 			return nil, err
