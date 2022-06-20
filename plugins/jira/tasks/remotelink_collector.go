@@ -96,6 +96,7 @@ func CollectRemotelinks(taskCtx core.SubTaskContext) error {
 			}
 			return result, nil
 		},
+		AfterResponse: ignoreHTTPStatus404,
 	})
 	if err != nil {
 		return err

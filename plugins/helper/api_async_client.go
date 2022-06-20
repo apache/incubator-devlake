@@ -139,7 +139,11 @@ func (apiClient *ApiAsyncClient) DoAsync(
 				res.Body = io.NopCloser(bytes.NewBuffer(body))
 			}
 		}
-
+		if err == ErrIgnoreAndContinue {
+			// make sure defer func got be executed
+			err = nil
+			return nil
+		}
 		// check
 		needRetry := false
 		if err != nil {
@@ -198,6 +202,7 @@ type RateLimitedApiClient interface {
 	GetQps() float64
 	Add(delta int)
 	Done()
+	SetAfterFunction(callback ApiClientAfterResponse)
 }
 
 var _ RateLimitedApiClient = (*ApiAsyncClient)(nil)

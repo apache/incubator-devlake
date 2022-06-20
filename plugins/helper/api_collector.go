@@ -81,6 +81,7 @@ type ApiCollectorArgs struct {
 	GetTotalPages  func(res *http.Response, args *ApiCollectorArgs) (int, error)
 	Concurrency    int
 	ResponseParser func(res *http.Response) ([]json.RawMessage, error)
+	AfterResponse  ApiClientAfterResponse
 }
 
 type ApiCollector struct {
@@ -118,11 +119,22 @@ func NewApiCollector(args ApiCollectorArgs) (*ApiCollector, error) {
 	if args.Concurrency < 1 {
 		args.Concurrency = 1
 	}
-	return &ApiCollector{
+	apicllector := &ApiCollector{
 		RawDataSubTask: rawDataSubTask,
 		args:           &args,
 		urlTemplate:    tpl,
-	}, nil
+	}
+	if args.AfterResponse != nil {
+		apicllector.SetAfterResponse(args.AfterResponse)
+	} else {
+		apicllector.SetAfterResponse(func(res *http.Response) error {
+			if res.StatusCode == http.StatusUnauthorized {
+				return fmt.Errorf("authentication failed, please check your AccessToken")
+			}
+			return nil
+		})
+	}
+	return apicllector, nil
 }
 
 // Start collection
@@ -282,6 +294,10 @@ func (collector *ApiCollector) generateUrl(pager *Pager, input interface{}) (str
 		return "", err
 	}
 	return buf.String(), nil
+}
+
+func (collector *ApiCollector) SetAfterResponse(f ApiClientAfterResponse) {
+	collector.args.ApiClient.SetAfterFunction(f)
 }
 
 // stepFetch collect pages synchronously. In practice, several stepFetch running concurrently, we could stop all of them by calling `cancel`.

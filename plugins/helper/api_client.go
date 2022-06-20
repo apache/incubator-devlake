@@ -21,6 +21,7 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"io/ioutil"
@@ -37,6 +38,8 @@ import (
 
 type ApiClientBeforeRequest func(req *http.Request) error
 type ApiClientAfterResponse func(res *http.Response) error
+
+var ErrIgnoreAndContinue = errors.New("ignore and continue")
 
 // ApiClient is designed for simple api requests
 type ApiClient struct {
@@ -220,6 +223,9 @@ func (apiClient *ApiClient) Do(
 	// after recieve
 	if apiClient.afterReponse != nil {
 		err = apiClient.afterReponse(res)
+		if err == ErrIgnoreAndContinue {
+			return res, err
+		}
 		if err != nil {
 			res.Body.Close()
 			return nil, err

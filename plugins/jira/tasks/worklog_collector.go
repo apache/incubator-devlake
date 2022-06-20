@@ -79,6 +79,7 @@ func CollectWorklogs(taskCtx core.SubTaskContext) error {
 			}
 			return data.Worklogs, nil
 		},
+		AfterResponse: ignoreHTTPStatus404,
 	})
 	if err != nil {
 		logger.Error("collect board error:", err)
