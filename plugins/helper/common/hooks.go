@@ -20,4 +20,6 @@ package common
 import "net/http"
 
 type ApiAsyncCallback func(*http.Response) error
+
+type ApiClientBeforeRequest func(req *http.Request) error
 type ApiClientAfterResponse func(res *http.Response) error

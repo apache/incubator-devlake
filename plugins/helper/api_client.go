@@ -37,8 +37,6 @@ import (
 	"github.com/apache/incubator-devlake/utils"
 )
 
-type ApiClientBeforeRequest func(req *http.Request) error
-
 var ErrIgnoreAndContinue = errors.New("ignore and continue")
 
 // ApiClient is designed for simple api requests
@@ -46,7 +44,7 @@ type ApiClient struct {
 	client        *http.Client
 	endpoint      string
 	headers       map[string]string
-	beforeRequest ApiClientBeforeRequest
+	beforeRequest common.ApiClientBeforeRequest
 	afterReponse  common.ApiClientAfterResponse
 	ctx           context.Context
 	logger        core.Logger
@@ -123,7 +121,7 @@ func (apiClient *ApiClient) GetHeaders() map[string]string {
 	return apiClient.headers
 }
 
-func (apiClient *ApiClient) SetBeforeFunction(callback ApiClientBeforeRequest) {
+func (apiClient *ApiClient) SetBeforeFunction(callback common.ApiClientBeforeRequest) {
 	apiClient.beforeRequest = callback
 }
 
