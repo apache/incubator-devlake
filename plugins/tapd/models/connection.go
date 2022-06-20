@@ -17,7 +17,12 @@ limitations under the License.
 
 package models
 
-import "github.com/apache/incubator-devlake/plugins/helper"
+import (
+	"encoding/base64"
+	"fmt"
+
+	"github.com/apache/incubator-devlake/plugins/helper"
+)
 
 type TestConnectionRequest struct {
 	Endpoint string `json:"endpoint" validate:"required,url"`
@@ -31,13 +36,18 @@ type WorkspaceResponse struct {
 	Value string
 }
 
-type AccessToken struct {
-	Token string `mapstructure:"token" validate:"required" json:"token"`
+type BasicAuth struct {
+	Username string `mapstructure:"username" validate:"required" json:"username"`
+	Password string `mapstructure:"password" validate:"required" json:"password"`
+}
+
+func (ba BasicAuth) GetEncodedToken() string {
+	return base64.StdEncoding.EncodeToString([]byte(fmt.Sprintf("%v:%v", ba.Username, ba.Password)))
 }
 
 type TapdConnection struct {
 	helper.RestConnection `mapstructure:",squash"`
-	AccessToken           `mapstructure:",squash"`
+	BasicAuth             `mapstructure:",squash"`
 }
 
 type TapdConnectionDetail struct {
