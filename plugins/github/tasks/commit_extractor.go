@@ -65,8 +65,9 @@ func ExtractApiCommits(taskCtx core.SubTaskContext) error {
 				set of data to be process, for example, we process JiraCommits by Board
 			*/
 			Params: GithubApiParams{
-				Owner: data.Options.Owner,
-				Repo:  data.Options.Repo,
+				ConnectionId: data.Options.ConnectionId,
+				Owner:        data.Options.Owner,
+				Repo:         data.Options.Repo,
 			},
 			/*
 				Table store raw data
@@ -107,8 +108,9 @@ func ExtractApiCommits(taskCtx core.SubTaskContext) error {
 			}
 
 			githubRepoCommit := &models.GithubRepoCommit{
-				RepoId:    data.Repo.GithubId,
-				CommitSha: commit.Sha,
+				ConnectionId: data.Options.ConnectionId,
+				RepoId:       data.Repo.GithubId,
+				CommitSha:    commit.Sha,
 			}
 
 			results = append(results, githubCommit)

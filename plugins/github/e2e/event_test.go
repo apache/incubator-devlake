@@ -18,7 +18,6 @@ limitations under the License.
 package e2e
 
 import (
-	"fmt"
 	"github.com/apache/incubator-devlake/plugins/github/models"
 	"testing"
 
@@ -51,7 +50,7 @@ func TestEventDataFlow(t *testing.T) {
 	dataflowTester.Subtask(tasks.ExtractApiEventsMeta, taskData)
 	dataflowTester.VerifyTable(
 		models.GithubIssueEvent{},
-		fmt.Sprintf("./snapshot_tables/%s.csv", models.GithubIssueEvent{}.TableName()),
+		"./snapshot_tables/_tool_github_issue_events.csv",
 		[]string{"connection_id", "github_id"},
 		[]string{
 			"issue_id",

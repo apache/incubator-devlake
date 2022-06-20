@@ -20,8 +20,9 @@ package archived
 import "github.com/apache/incubator-devlake/models/migrationscripts/archived"
 
 type GithubRepoCommit struct {
-	RepoId    int    `gorm:"primaryKey"`
-	CommitSha string `gorm:"primaryKey;type:varchar(40)"`
+	ConnectionId uint64 `gorm:"primaryKey"`
+	RepoId       int    `gorm:"primaryKey"`
+	CommitSha    string `gorm:"primaryKey;type:varchar(40)"`
 	archived.NoPKModel
 }
 

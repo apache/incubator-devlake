@@ -18,7 +18,6 @@ limitations under the License.
 package e2e
 
 import (
-	"fmt"
 	"github.com/apache/incubator-devlake/models/domainlayer/code"
 	"github.com/apache/incubator-devlake/plugins/github/models"
 	"testing"
@@ -45,7 +44,7 @@ func TestPrCommitDataFlow(t *testing.T) {
 	}
 
 	// import raw data table
-	dataflowTester.ImportCsvIntoTabler(fmt.Sprintf("./snapshot_tables/%s.csv", models.GithubPullRequest{}.TableName()), models.GithubPullRequest{})
+	dataflowTester.ImportCsvIntoTabler("./snapshot_tables/_tool_github_pull_requests.csv", models.GithubPullRequest{})
 	dataflowTester.ImportCsvIntoRawTable("./raw_tables/_raw_github_api_pull_request_commits.csv", "_raw_github_api_pull_request_commits")
 
 	// verify extraction
@@ -54,7 +53,7 @@ func TestPrCommitDataFlow(t *testing.T) {
 	dataflowTester.Subtask(tasks.ExtractApiPullRequestCommitsMeta, taskData)
 	dataflowTester.VerifyTable(
 		models.GithubCommit{},
-		fmt.Sprintf("./snapshot_tables/%s.csv", models.GithubCommit{}.TableName()),
+		"./snapshot_tables/_tool_github_commits.csv",
 		[]string{"connection_id", "sha"},
 		[]string{
 			"author_id",
@@ -78,7 +77,7 @@ func TestPrCommitDataFlow(t *testing.T) {
 
 	dataflowTester.VerifyTable(
 		models.GithubPullRequestCommit{},
-		fmt.Sprintf("./snapshot_tables/%s.csv", models.GithubPullRequestCommit{}.TableName()),
+		"./snapshot_tables/_tool_github_pull_request_commits.csv",
 		[]string{"connection_id", "commit_sha"},
 		[]string{
 			"pull_request_id",
@@ -94,7 +93,7 @@ func TestPrCommitDataFlow(t *testing.T) {
 	dataflowTester.Subtask(tasks.ConvertPullRequestCommitsMeta, taskData)
 	dataflowTester.VerifyTable(
 		code.PullRequestCommit{},
-		fmt.Sprintf("./snapshot_tables/%s.csv", code.PullRequestCommit{}.TableName()),
+		"./snapshot_tables/pull_request_commits.csv",
 		[]string{"commit_sha", "pull_request_id"},
 		[]string{},
 	)

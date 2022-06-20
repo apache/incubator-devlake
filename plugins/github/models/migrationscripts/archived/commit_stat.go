@@ -24,9 +24,10 @@ import (
 )
 
 type GithubCommitStat struct {
-	Sha       string `gorm:"primaryKey;type:varchar(40)"`
-	Additions int    `gorm:"comment:Added lines of code"`
-	Deletions int    `gorm:"comment:Deleted lines of code"`
+	ConnectionId uint64 `gorm:"primaryKey"`
+	Sha          string `gorm:"primaryKey;type:varchar(40)"`
+	Additions    int    `gorm:"comment:Added lines of code"`
+	Deletions    int    `gorm:"comment:Deleted lines of code"`
 
 	CommittedDate time.Time `gorm:"index"`
 	archived.NoPKModel

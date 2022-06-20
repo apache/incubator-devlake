@@ -18,7 +18,6 @@ limitations under the License.
 package e2e
 
 import (
-	"fmt"
 	"github.com/apache/incubator-devlake/models/domainlayer/code"
 	"github.com/apache/incubator-devlake/plugins/github/models"
 	"testing"
@@ -40,7 +39,7 @@ func TestPrDataFlow(t *testing.T) {
 			ConnectionId: 1,
 			Owner:        "panjf2000",
 			Repo:         "ants",
-			Config: models.Config{
+			TransformationRules: models.TransformationRules{
 				PrType:             "type/(.*)$",
 				PrComponent:        "component/(.*)$",
 				PrBodyClosePattern: "(?mi)(fix|close|resolve|fixes|closes|resolves|fixed|closed|resolved)[\\s]*.*(((and )?(#|https:\\/\\/github.com\\/%s\\/%s\\/issues\\/)\\d+[ ]*)+)",
@@ -58,7 +57,7 @@ func TestPrDataFlow(t *testing.T) {
 	dataflowTester.Subtask(tasks.ExtractApiPullRequestsMeta, taskData)
 	dataflowTester.VerifyTable(
 		models.GithubPullRequest{},
-		fmt.Sprintf("./snapshot_tables/%s.csv", models.GithubPullRequest{}.TableName()),
+		"./snapshot_tables/_tool_github_pull_requests.csv",
 		[]string{"connection_id", "github_id", "repo_id"},
 		[]string{
 			"number",
@@ -94,7 +93,7 @@ func TestPrDataFlow(t *testing.T) {
 
 	dataflowTester.VerifyTable(
 		models.GithubPullRequestLabel{},
-		fmt.Sprintf("./snapshot_tables/%s.csv", models.GithubPullRequestLabel{}.TableName()),
+		"./snapshot_tables/_tool_github_pull_request_labels.csv",
 		[]string{"connection_id", "pull_id", "label_name"},
 		[]string{},
 	)
@@ -104,7 +103,7 @@ func TestPrDataFlow(t *testing.T) {
 	dataflowTester.Subtask(tasks.ConvertPullRequestsMeta, taskData)
 	dataflowTester.VerifyTable(
 		code.PullRequest{},
-		fmt.Sprintf("./snapshot_tables/%s.csv", code.PullRequest{}.TableName()),
+		"./snapshot_tables/pull_requests.csv",
 		[]string{"id"},
 		[]string{
 			"base_repo_id",
@@ -135,7 +134,7 @@ func TestPrDataFlow(t *testing.T) {
 	dataflowTester.Subtask(tasks.ConvertPullRequestLabelsMeta, taskData)
 	dataflowTester.VerifyTable(
 		code.PullRequestLabel{},
-		fmt.Sprintf("./snapshot_tables/%s.csv", code.PullRequestLabel{}.TableName()),
+		"./snapshot_tables/pull_request_labels.csv",
 		[]string{"pull_request_id", "label_name"},
 		[]string{},
 	)

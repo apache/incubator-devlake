@@ -118,7 +118,6 @@ func ExtractApiPullRequestCommits(taskCtx core.SubTaskContext) error {
 
 func convertPullRequestCommit(prCommit *PrCommitsResponse, connId uint64) (*models.GithubCommit, error) {
 	githubCommit := &models.GithubCommit{
-		ConnectionId:   connId,
 		Sha:            prCommit.Sha,
 		Message:        string(prCommit.Commit.Message),
 		AuthorId:       prCommit.Commit.Author.Id,

@@ -27,7 +27,7 @@ import (
 	"gorm.io/gorm"
 )
 
-type GithubConnection20220609 struct {
+type GithubConnection20220615 struct {
 	commonArchived.Model
 	Name      string `gorm:"type:varchar(100);uniqueIndex" json:"name" validate:"required"`
 	Endpoint  string `mapstructure:"endpoint" env:"GITHUB_ENDPOINT" validate:"required"`
@@ -36,7 +36,7 @@ type GithubConnection20220609 struct {
 	Token     string `mapstructure:"token" env:"GITHUB_AUTH" validate:"required" encrypt:"yes"`
 }
 
-func (GithubConnection20220609) TableName() string {
+func (GithubConnection20220615) TableName() string {
 	return "_tool_github_connections"
 }
 
@@ -49,8 +49,8 @@ func (u *InitSchemas) SetConfigGetter(config core.ConfigGetter) {
 }
 
 func (u *InitSchemas) Up(ctx context.Context, db *gorm.DB) error {
-	if db.Migrator().HasTable(GithubConnection20220609{}) {
-		err := db.Migrator().DropTable(GithubConnection20220609{})
+	if db.Migrator().HasTable(GithubConnection20220615{}) {
+		err := db.Migrator().DropTable(GithubConnection20220615{})
 		if err != nil {
 			return err
 		}
@@ -87,26 +87,24 @@ func (u *InitSchemas) Up(ctx context.Context, db *gorm.DB) error {
 	if err != nil {
 		return err
 	}
-	err = db.Migrator().CreateTable(GithubConnection20220609{})
+	err = db.Migrator().CreateTable(GithubConnection20220615{})
 	if err != nil {
 		return err
 	}
-	connection := &GithubConnection20220609{}
+	encodeKey := u.config.GetString(core.EncodeKeyEnvStr)
+	connection := &GithubConnection20220615{}
 	connection.Endpoint = u.config.GetString(`GITHUB_ENDPOINT`)
 	connection.Proxy = u.config.GetString(`GITHUB_PROXY`)
 	connection.Token = u.config.GetString(`GITHUB_AUTH`)
 	connection.Name = `GitHub`
-	if err != nil {
-		return err
-	}
-	err = helper.UpdateEncryptFields(connection, func(plaintext string) (string, error) {
-		return core.Encrypt(u.config.GetString(core.EncodeKeyEnvStr), plaintext)
-	})
-	if err != nil {
-		return err
-	}
-	// update from .env and save to db
-	if connection.Endpoint != `` && connection.Token != `` {
+	if connection.Endpoint != `` && connection.Token != `` && encodeKey != `` {
+		err = helper.UpdateEncryptFields(connection, func(plaintext string) (string, error) {
+			return core.Encrypt(encodeKey, plaintext)
+		})
+		if err != nil {
+			return err
+		}
+		// update from .env and save to db
 		db.Create(connection)
 	}
 
@@ -131,7 +129,7 @@ func (u *InitSchemas) Up(ctx context.Context, db *gorm.DB) error {
 }
 
 func (*InitSchemas) Version() uint64 {
-	return 20220614000001
+	return 20220615000001
 }
 
 func (*InitSchemas) Name() string {

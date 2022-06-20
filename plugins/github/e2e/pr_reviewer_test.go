@@ -18,7 +18,6 @@ limitations under the License.
 package e2e
 
 import (
-	"fmt"
 	"github.com/apache/incubator-devlake/plugins/github/models"
 	"testing"
 
@@ -27,7 +26,7 @@ import (
 	"github.com/apache/incubator-devlake/plugins/github/tasks"
 )
 
-func TestPrReviewDataFlow(t *testing.T) {
+func TestPrReviewerDataFlow(t *testing.T) {
 	var plugin impl.Github
 	dataflowTester := e2ehelper.NewDataFlowTester(t, "gitlab", plugin)
 
@@ -44,7 +43,7 @@ func TestPrReviewDataFlow(t *testing.T) {
 	}
 
 	// import raw data table
-	dataflowTester.ImportCsvIntoTabler(fmt.Sprintf("./snapshot_tables/%s.csv", models.GithubPullRequest{}.TableName()), models.GithubPullRequest{})
+	dataflowTester.ImportCsvIntoTabler("./snapshot_tables/_tool_github_pull_requests.csv", models.GithubPullRequest{})
 	dataflowTester.ImportCsvIntoRawTable("./raw_tables/_raw_github_api_pull_request_reviews.csv", "_raw_github_api_pull_request_reviews")
 
 	// verify extraction
@@ -52,7 +51,7 @@ func TestPrReviewDataFlow(t *testing.T) {
 	dataflowTester.Subtask(tasks.ExtractApiPullRequestReviewersMeta, taskData)
 	dataflowTester.VerifyTable(
 		models.GithubReviewer{},
-		fmt.Sprintf("./snapshot_tables/%s.csv", models.GithubReviewer{}.TableName()),
+		"./snapshot_tables/_tool_github_reviewers.csv",
 		[]string{"connection_id", "github_id", "pull_request_id"},
 		[]string{
 			"login",

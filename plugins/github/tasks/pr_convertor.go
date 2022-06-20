@@ -76,7 +76,7 @@ func ConvertPullRequests(taskCtx core.SubTaskContext) error {
 				Status:         pr.State,
 				Title:          pr.Title,
 				Url:            pr.Url,
-				AuthorId:       userIdGen.Generate(pr.AuthorId),
+				AuthorId:       userIdGen.Generate(data.Options.ConnectionId, pr.AuthorId),
 				AuthorName:     pr.AuthorName,
 				Description:    pr.Body,
 				CreatedDate:    pr.GithubCreatedAt,

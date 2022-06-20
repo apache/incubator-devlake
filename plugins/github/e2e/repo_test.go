@@ -18,7 +18,6 @@ limitations under the License.
 package e2e
 
 import (
-	"fmt"
 	"github.com/apache/incubator-devlake/models/domainlayer/code"
 	"github.com/apache/incubator-devlake/models/domainlayer/ticket"
 	"github.com/apache/incubator-devlake/plugins/github/models"
@@ -41,7 +40,7 @@ func TestRepoDataFlow(t *testing.T) {
 			ConnectionId: 1,
 			Owner:        "panjf2000",
 			Repo:         "ants",
-			Config: models.Config{
+			TransformationRules: models.TransformationRules{
 				PrType:      "type/(.*)$",
 				PrComponent: "component/(.*)$",
 			},
@@ -57,7 +56,7 @@ func TestRepoDataFlow(t *testing.T) {
 	dataflowTester.Subtask(tasks.ExtractApiRepoMeta, taskData)
 	dataflowTester.VerifyTable(
 		models.GithubRepo{},
-		fmt.Sprintf("./snapshot_tables/%s.csv", models.GithubRepo{}.TableName()),
+		"./snapshot_tables/_tool_github_repos.csv",
 		[]string{"connection_id", "github_id"},
 		[]string{
 			"name",
@@ -81,7 +80,7 @@ func TestRepoDataFlow(t *testing.T) {
 	dataflowTester.Subtask(tasks.ConvertRepoMeta, taskData)
 	dataflowTester.VerifyTable(
 		code.Repo{},
-		fmt.Sprintf("./snapshot_tables/%s.csv", code.Repo{}.TableName()),
+		"./snapshot_tables/repos.csv",
 		[]string{"id"},
 		[]string{
 			"name",
@@ -97,7 +96,7 @@ func TestRepoDataFlow(t *testing.T) {
 	)
 	dataflowTester.VerifyTable(
 		ticket.Board{},
-		fmt.Sprintf("./snapshot_tables/%s.csv", ticket.Board{}.TableName()),
+		"./snapshot_tables/boards.csv",
 		[]string{"id"},
 		[]string{
 			"name",

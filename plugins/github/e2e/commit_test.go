@@ -15,23 +15,20 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package models
+package e2e
 
 import (
-	"github.com/apache/incubator-devlake/models/common"
+	"github.com/stretchr/testify/assert"
+	"testing"
+
+	"github.com/apache/incubator-devlake/plugins/github/tasks"
 )
 
-type GithubUser struct {
-	ConnectionId uint64 `gorm:"primaryKey"`
-	Id           int    `json:"id" gorm:"primaryKey"`
-	Login        string `json:"login" gorm:"type:varchar(255)"`
-	AvatarUrl    string `json:"avatar_url" gorm:"type:varchar(255)"`
-	Url          string `json:"url" gorm:"type:varchar(255)"`
-	HtmlUrl      string `json:"html_url" gorm:"type:varchar(255)"`
-	Type         string `json:"type" gorm:"type:varchar(255)"`
-	common.NoPKModel
-}
-
-func (GithubUser) TableName() string {
-	return "_tool_github_users"
+func TestCommitDataFlow(t *testing.T) {
+	assert.False(t, tasks.CollectApiCommitsMeta.EnabledByDefault)
+	assert.False(t, tasks.ExtractApiCommitsMeta.EnabledByDefault)
+	assert.False(t, tasks.CollectApiCommitStatsMeta.EnabledByDefault)
+	assert.False(t, tasks.ExtractApiCommitStatsMeta.EnabledByDefault)
+	assert.False(t, tasks.ConvertCommitsMeta.EnabledByDefault)
+	assert.False(t, tasks.ConvertUsersMeta.EnabledByDefault)
 }
