@@ -30,7 +30,7 @@ type GithubConnection struct {
 	helper.AccessToken    `mapstructure:",squash"`
 }
 
-type Config struct {
+type TransformationRules struct {
 	PrType               string `mapstructure:"prType" json:"prType"`
 	PrComponent          string `mapstructure:"prComponent" json:"prComponent"`
 	PrBodyClosePattern   string `mapstructure:"prBodyClosePattern" json:"prBodyClosePattern"`

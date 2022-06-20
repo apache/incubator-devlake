@@ -41,7 +41,7 @@ func TestRepoDataFlow(t *testing.T) {
 			ConnectionId: 1,
 			Owner:        "panjf2000",
 			Repo:         "ants",
-			Config: models.Config{
+			TransformationRules: models.TransformationRules{
 				PrType:      "type/(.*)$",
 				PrComponent: "component/(.*)$",
 			},

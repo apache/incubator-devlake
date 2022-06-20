@@ -25,12 +25,12 @@ import (
 )
 
 type GithubOptions struct {
-	ConnectionId  uint64   `json:"connectionId"`
-	Tasks         []string `json:"tasks,omitempty"`
-	Since         string
-	Owner         string
-	Repo          string
-	models.Config `mapstructure:",squash"`
+	ConnectionId               uint64   `json:"connectionId"`
+	Tasks                      []string `json:"tasks,omitempty"`
+	Since                      string
+	Owner                      string
+	Repo                       string
+	models.TransformationRules `mapstructure:"transformationRules" json:"transformationRules"`
 }
 
 type GithubTaskData struct {

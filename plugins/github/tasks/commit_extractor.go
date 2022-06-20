@@ -87,7 +87,6 @@ func ExtractApiCommits(taskCtx core.SubTaskContext) error {
 			results := make([]interface{}, 0, 4)
 
 			githubCommit := &models.GithubCommit{
-				ConnectionId:   data.Options.ConnectionId,
 				Sha:            commit.Sha,
 				Message:        commit.Commit.Message,
 				AuthorName:     commit.Commit.Author.Name,
