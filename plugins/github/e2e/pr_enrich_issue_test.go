@@ -18,7 +18,6 @@ limitations under the License.
 package e2e
 
 import (
-	"fmt"
 	"github.com/apache/incubator-devlake/models/domainlayer/crossdomain"
 	"github.com/apache/incubator-devlake/plugins/github/models"
 	"testing"
@@ -56,15 +55,15 @@ func TestPrEnrichIssueDataFlow(t *testing.T) {
 	}
 
 	// import raw data table
-	dataflowTester.ImportCsvIntoTabler(fmt.Sprintf("./snapshot_tables/%s.csv", models.GithubIssue{}.TableName()), &models.GithubIssue{})
-	dataflowTester.ImportCsvIntoTabler(fmt.Sprintf("./snapshot_tables/%s.csv", models.GithubPullRequest{}.TableName()), models.GithubPullRequest{})
+	dataflowTester.ImportCsvIntoTabler("./snapshot_tables/_tool_github_issues.csv", &models.GithubIssue{})
+	dataflowTester.ImportCsvIntoTabler("./snapshot_tables/_tool_github_pull_requests.csv", models.GithubPullRequest{})
 
 	// verify extraction
 	dataflowTester.FlushTabler(&models.GithubPullRequestIssue{})
 	dataflowTester.Subtask(tasks.EnrichPullRequestIssuesMeta, taskData)
 	dataflowTester.VerifyTable(
 		models.GithubPullRequestIssue{},
-		fmt.Sprintf("./snapshot_tables/%s.csv", models.GithubPullRequestIssue{}.TableName()),
+		"./snapshot_tables/_tool_github_pull_request_issues.csv",
 		[]string{"connection_id", "pull_request_id", "issue_id"},
 		[]string{
 			"pull_request_number",
@@ -81,7 +80,7 @@ func TestPrEnrichIssueDataFlow(t *testing.T) {
 	dataflowTester.Subtask(tasks.ConvertPullRequestIssuesMeta, taskData)
 	dataflowTester.VerifyTable(
 		crossdomain.PullRequestIssue{},
-		fmt.Sprintf("./snapshot_tables/%s.csv", crossdomain.PullRequestIssue{}.TableName()),
+		"./snapshot_tables/pull_request_issues.csv",
 		[]string{"pull_request_id", "issue_id"},
 		[]string{
 			"pull_request_number",
