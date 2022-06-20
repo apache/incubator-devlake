@@ -17,9 +17,7 @@ limitations under the License.
 
 package models
 
-import (
-	"github.com/apache/incubator-devlake/models/common"
-)
+import "github.com/apache/incubator-devlake/plugins/helper"
 
 type TestConnectionRequest struct {
 	Endpoint string `json:"endpoint" validate:"required,url"`
@@ -33,12 +31,13 @@ type WorkspaceResponse struct {
 	Value string
 }
 
+type AccessToken struct {
+	Token string `mapstructure:"token" validate:"required" json:"token"`
+}
+
 type TapdConnection struct {
-	common.Model
-	Name             string `gorm:"type:varchar(100);uniqueIndex" json:"name" validate:"required"`
-	Endpoint         string `gorm:"type:varchar(255)" json:"endpoint"`
-	BasicAuthEncoded string `gorm:"type:varchar(255)" json:"basicAuthEncoded"`
-	RateLimit        int    `comment:"api request rate limt per hour" json:"rateLimit"`
+	helper.RestConnection `mapstructure:",squash"`
+	AccessToken           `mapstructure:",squash"`
 }
 
 type TapdConnectionDetail struct {

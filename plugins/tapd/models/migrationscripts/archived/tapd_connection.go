@@ -18,15 +18,33 @@ limitations under the License.
 package archived
 
 import (
-	"github.com/apache/incubator-devlake/models/common"
+	"github.com/apache/incubator-devlake/models/migrationscripts/archived"
 )
 
+type BaseConnection struct {
+	Name string `gorm:"type:varchar(100);uniqueIndex" json:"name" validate:"required"`
+	archived.Model
+}
+
+type AccessToken struct {
+	Token string `mapstructure:"token" validate:"required" json:"token" encrypt:"yes"`
+}
+
+type BasicAuth struct {
+	Username string `mapstructure:"username" validate:"required" json:"username"`
+	Password string `mapstructure:"password" validate:"required" json:"password" encrypt:"yes"`
+}
+
+type RestConnection struct {
+	BaseConnection `mapstructure:",squash"`
+	Endpoint       string `mapstructure:"endpoint" validate:"required" json:"endpoint"`
+	Proxy          string `mapstructure:"proxy" json:"proxy"`
+	RateLimit      int    `comment:"api request rate limt per hour" json:"rateLimit"`
+}
+
 type TapdConnection struct {
-	common.Model
-	Name             string `gorm:"type:varchar(100);uniqueIndex" json:"name" validate:"required"`
-	Endpoint         string `gorm:"type:varchar(255)"`
-	BasicAuthEncoded string `gorm:"type:varchar(255)"`
-	RateLimit        int    `comment:"api request rate limt per second"`
+	RestConnection `mapstructure:",squash"`
+	AccessToken    `mapstructure:",squash"`
 }
 
 type TapdConnectionDetail struct {
