@@ -20,6 +20,7 @@ package models
 import (
 	"github.com/apache/incubator-devlake/models/common"
 	"gorm.io/datatypes"
+	"time"
 )
 
 type JiraRemotelink struct {
@@ -33,6 +34,7 @@ type JiraRemotelink struct {
 	Self         string `gorm:"type:varchar(255)"`
 	Title        string
 	Url          string `gorm:"type:varchar(255)"`
+	IssueUpdated *time.Time
 }
 
 func (JiraRemotelink) TableName() string {

@@ -22,6 +22,7 @@ import (
 	"regexp"
 
 	"github.com/apache/incubator-devlake/plugins/core"
+	"github.com/apache/incubator-devlake/plugins/core/dal"
 	"github.com/apache/incubator-devlake/plugins/helper"
 	"github.com/apache/incubator-devlake/plugins/jira/models"
 	"github.com/apache/incubator-devlake/plugins/jira/tasks/apiv2models"
@@ -32,7 +33,7 @@ func ExtractRemotelinks(taskCtx core.SubTaskContext) error {
 	connectionId := data.Connection.ID
 	boardId := data.Options.BoardId
 	logger := taskCtx.GetLogger()
-	db := taskCtx.GetDb()
+	db := taskCtx.GetDal()
 	logger.Info("extract remote links")
 	var commitShaRegex *regexp.Regexp
 	if pattern := data.Connection.RemotelinkCommitShaPattern; pattern != "" {
@@ -40,11 +41,13 @@ func ExtractRemotelinks(taskCtx core.SubTaskContext) error {
 	}
 
 	// select all remotelinks belongs to the board, cursor is important for low memory footprint
-	cursor, err := db.Model(&models.JiraRemotelink{}).
-		Select("_tool_jira_remotelinks.*").
-		Joins("left join _tool_jira_board_issues on _tool_jira_board_issues.issue_id = _tool_jira_remotelinks.issue_id").
-		Where("_tool_jira_board_issues.board_id = ? AND _tool_jira_board_issues.connection_id = ?", boardId, connectionId).
-		Rows()
+	clauses := []dal.Clause{
+		dal.From(&models.JiraRemotelink{}),
+		dal.Select("*"),
+		dal.Join("left join _tool_jira_board_issues on _tool_jira_board_issues.issue_id = _tool_jira_remotelinks.issue_id"),
+		dal.Where("_tool_jira_board_issues.board_id = ? AND _tool_jira_board_issues.connection_id = ?", boardId, connectionId),
+	}
+	cursor, err := db.Cursor(clauses...)
 	if err != nil {
 		return err
 	}
@@ -71,11 +74,6 @@ func ExtractRemotelinks(taskCtx core.SubTaskContext) error {
 			if err != nil {
 				return nil, err
 			}
-			issue := &models.JiraIssue{ConnectionId: connectionId, IssueId: input.IssueId}
-			err = db.Model(issue).Update("remotelink_updated", input.UpdateTime).Error
-			if err != nil {
-				return nil, err
-			}
 			remotelink := &models.JiraRemotelink{
 				ConnectionId: connectionId,
 				RemotelinkId: raw.ID,
@@ -83,6 +81,7 @@ func ExtractRemotelinks(taskCtx core.SubTaskContext) error {
 				Self:         raw.Self,
 				Title:        raw.Object.Title,
 				Url:          raw.Object.URL,
+				IssueUpdated: &input.UpdateTime,
 			}
 			result = append(result, remotelink)
 			if commitShaRegex != nil {

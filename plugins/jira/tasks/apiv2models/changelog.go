@@ -20,6 +20,7 @@ package apiv2models
 import (
 	"github.com/apache/incubator-devlake/plugins/helper"
 	"github.com/apache/incubator-devlake/plugins/jira/models"
+	"time"
 )
 
 type Changelog struct {
@@ -29,7 +30,7 @@ type Changelog struct {
 	Items   []ChangelogItem    `json:"items"`
 }
 
-func (c Changelog) ToToolLayer(connectionId, issueId uint64) (*models.JiraChangelog, *models.JiraUser) {
+func (c Changelog) ToToolLayer(connectionId, issueId uint64, issueUpdated *time.Time) (*models.JiraChangelog, *models.JiraUser) {
 	return &models.JiraChangelog{
 		ConnectionId:      connectionId,
 		ChangelogId:       c.ID,
@@ -38,6 +39,7 @@ func (c Changelog) ToToolLayer(connectionId, issueId uint64) (*models.JiraChange
 		AuthorDisplayName: c.Author.DisplayName,
 		AuthorActive:      c.Author.Active,
 		Created:           c.Created.ToTime(),
+		IssueUpdated:      issueUpdated,
 	}, c.Author.ToToolLayer(connectionId)
 }
 

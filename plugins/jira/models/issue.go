@@ -62,10 +62,6 @@ type JiraIssue struct {
 	StdType                  string `gorm:"type:varchar(255)"`
 	StdStatus                string `gorm:"type:varchar(255)"`
 	AllFields                datatypes.JSONMap
-
-	// internal status tracking
-	RemotelinkUpdated *time.Time
-	WorklogUpdated    *time.Time
 	common.NoPKModel
 }
 

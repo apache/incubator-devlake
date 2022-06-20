@@ -77,7 +77,7 @@ func ExtractIssues(taskCtx core.SubTaskContext) error {
 				return nil, err
 			}
 			var results []interface{}
-			sprints, issue, _, worklogs, changelogs, changelogItems, users := apiIssue.ExtractEntities(data.Connection.ID)
+			sprints, issue, worklogs, changelogs, changelogItems, users := apiIssue.ExtractEntities(data.Connection.ID)
 			for _, sprintId := range sprints {
 				sprintIssue := &models.JiraSprintIssue{
 					ConnectionId:     data.Connection.ID,
