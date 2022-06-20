@@ -29,8 +29,8 @@ import (
 
 func NewTapdApiClient(taskCtx core.TaskContext, connection *models.TapdConnection) (*helper.ApiAsyncClient, error) {
 
-	auth := base64.StdEncoding.EncodeToString([]byte(connection.Token))
 	// create synchronize api client so we can calculate api rate limit dynamically
+	auth := base64.StdEncoding.EncodeToString([]byte(fmt.Sprintf("%v:%v", connection.Username, connection.Password)))
 	headers := map[string]string{
 		"Authorization": fmt.Sprintf("Basic %v", auth),
 	}
