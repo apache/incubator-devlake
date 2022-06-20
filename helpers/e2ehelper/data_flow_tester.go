@@ -128,7 +128,7 @@ func (t *DataFlowTester) ImportCsvIntoTabler(csvRelPath string, dst schema.Table
 				toInsertValues[i] = nil
 			}
 		}
-		result := t.Db.Model(dst).Create(csvIter.Fetch())
+		result := t.Db.Model(dst).Create(toInsertValues)
 		if result.Error != nil {
 			panic(result.Error)
 		}

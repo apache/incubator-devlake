@@ -40,8 +40,6 @@ func CollectApiComments(taskCtx core.SubTaskContext) error {
 
 	since := data.Since
 	incremental := false
-	// user didn't specify a time range to sync, try load from database
-	// actually, for github pull, since doesn't make any sense, github pull api doesn't support it
 	if since == nil {
 		var latestUpdatedIssueComt models.GithubIssueComment
 		err := db.All(
