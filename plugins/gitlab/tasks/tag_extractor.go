@@ -39,12 +39,12 @@ type GitlabApiTag struct {
 var ExtractTagMeta = core.SubTaskMeta{
 	Name:             "extractApiTag",
 	EntryPoint:       ExtractApiTag,
-	EnabledByDefault: true,
+	EnabledByDefault: false,
 	Description:      "Extract raw tag data into tool layer table GitlabTag",
 }
 
 func ExtractApiTag(taskCtx core.SubTaskContext) error {
-	rawDataSubTaskArgs, _ := CreateRawDataSubTaskArgs(taskCtx, RAW_TAG_TABLE)
+	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_TAG_TABLE)
 
 	extractor, err := helper.NewApiExtractor(helper.ApiExtractorArgs{
 		RawDataSubTaskArgs: *rawDataSubTaskArgs,
@@ -62,6 +62,7 @@ func ExtractApiTag(taskCtx core.SubTaskContext) error {
 			if err != nil {
 				return nil, err
 			}
+			gitlabTag.ConnectionId = data.Options.ConnectionId
 			results = append(results, gitlabTag)
 
 			return results, nil
