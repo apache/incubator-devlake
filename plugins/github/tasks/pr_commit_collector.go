@@ -20,6 +20,7 @@ package tasks
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/apache/incubator-devlake/plugins/core/dal"
 	"net/http"
 	"net/url"
 	"reflect"
@@ -47,18 +48,20 @@ type SimplePr struct {
 }
 
 func CollectApiPullRequestCommits(taskCtx core.SubTaskContext) error {
-	db := taskCtx.GetDb()
+	db := taskCtx.GetDal()
 	data := taskCtx.GetData().(*GithubTaskData)
 
 	incremental := false
 
-	cursor, err := db.Model(&models.GithubPullRequest{}).Select("number, github_id").
-		Where("repo_id = ?", data.Repo.GithubId).
-		Rows()
+	cursor, err := db.Cursor(
+		dal.Select("number, github_id"),
+		dal.From(models.GithubPullRequest{}.TableName()),
+		dal.Where("repo_id = ? and connection_id=?", data.Repo.GithubId, data.Options.ConnectionId),
+	)
 	if err != nil {
 		return err
 	}
-	iterator, err := helper.NewCursorIterator(db, cursor, reflect.TypeOf(SimplePr{}))
+	iterator, err := helper.NewDalCursorIterator(db, cursor, reflect.TypeOf(SimplePr{}))
 	if err != nil {
 		return err
 	}
@@ -70,8 +73,9 @@ func CollectApiPullRequestCommits(taskCtx core.SubTaskContext) error {
 				set of data to be process, for example, we process JiraIssues by Board
 			*/
 			Params: GithubApiParams{
-				Owner: data.Options.Owner,
-				Repo:  data.Options.Repo,
+				ConnectionId: data.Options.ConnectionId,
+				Owner:        data.Options.Owner,
+				Repo:         data.Options.Repo,
 			},
 
 			/*

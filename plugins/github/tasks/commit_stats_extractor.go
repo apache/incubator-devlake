@@ -19,6 +19,7 @@ package tasks
 
 import (
 	"encoding/json"
+	"github.com/apache/incubator-devlake/plugins/core/dal"
 
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/github/models"
@@ -76,9 +77,9 @@ func ExtractApiCommitStats(taskCtx core.SubTaskContext) error {
 				return nil, nil
 			}
 
-			db := taskCtx.GetDb()
+			db := taskCtx.GetDal()
 			commit := &models.GithubCommit{}
-			err = db.Model(commit).Where("sha = ?", body.Sha).Limit(1).Find(commit).Error
+			err = db.First(commit, dal.Where("sha = ?", body.Sha), dal.Limit(1))
 			if err != nil {
 				return nil, err
 			}

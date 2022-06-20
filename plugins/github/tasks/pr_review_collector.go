@@ -20,6 +20,8 @@ package tasks
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/apache/incubator-devlake/plugins/core/dal"
+	"github.com/apache/incubator-devlake/plugins/github/models"
 	"net/http"
 	"net/url"
 	"reflect"
@@ -27,7 +29,6 @@ import (
 	"github.com/apache/incubator-devlake/plugins/helper"
 
 	"github.com/apache/incubator-devlake/plugins/core"
-	"github.com/apache/incubator-devlake/plugins/github/models"
 )
 
 const RAW_PULL_REQUEST_REVIEW_TABLE = "github_api_pull_request_reviews"
@@ -42,18 +43,18 @@ var CollectApiPullRequestReviewsMeta = core.SubTaskMeta{
 }
 
 func CollectApiPullRequestReviews(taskCtx core.SubTaskContext) error {
-	db := taskCtx.GetDb()
+	db := taskCtx.GetDal()
 	data := taskCtx.GetData().(*GithubTaskData)
 
-	incremental := false
-
-	cursor, err := db.Model(&models.GithubPullRequest{}).Select("number, github_id").
-		Where("repo_id = ?", data.Repo.GithubId).
-		Rows()
+	cursor, err := db.Cursor(
+		dal.Select("number, github_id"),
+		dal.From(models.GithubPullRequest{}.TableName()),
+		dal.Where("repo_id = ? and connection_id=?", data.Repo.GithubId, data.Options.ConnectionId),
+	)
 	if err != nil {
 		return err
 	}
-	iterator, err := helper.NewCursorIterator(db, cursor, reflect.TypeOf(SimplePr{}))
+	iterator, err := helper.NewDalCursorIterator(db, cursor, reflect.TypeOf(SimplePr{}))
 	if err != nil {
 		return err
 	}
@@ -65,8 +66,9 @@ func CollectApiPullRequestReviews(taskCtx core.SubTaskContext) error {
 				set of data to be process, for example, we process JiraIssues by Board
 			*/
 			Params: GithubApiParams{
-				Owner: data.Options.Owner,
-				Repo:  data.Options.Repo,
+				ConnectionId: data.Options.ConnectionId,
+				Owner:        data.Options.Owner,
+				Repo:         data.Options.Repo,
 			},
 
 			/*
@@ -76,7 +78,7 @@ func CollectApiPullRequestReviews(taskCtx core.SubTaskContext) error {
 		},
 		ApiClient:   data.ApiClient,
 		PageSize:    100,
-		Incremental: incremental,
+		Incremental: false,
 		Input:       iterator,
 
 		UrlTemplate: "repos/{{ .Params.Owner }}/{{ .Params.Repo }}/pulls/{{ .Input.Number }}/reviews",

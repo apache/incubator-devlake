@@ -24,6 +24,7 @@ import (
 )
 
 type GithubCommit struct {
+	ConnectionId   uint64 `gorm:"primaryKey"`
 	Sha            string `gorm:"primaryKey;type:varchar(40)"`
 	AuthorId       int
 	AuthorName     string `gorm:"type:varchar(255)"`
