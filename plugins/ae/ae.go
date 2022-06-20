@@ -22,9 +22,11 @@ import (
 
 	"github.com/apache/incubator-devlake/migration"
 	"github.com/apache/incubator-devlake/plugins/ae/api"
+	"github.com/apache/incubator-devlake/plugins/ae/models"
 	"github.com/apache/incubator-devlake/plugins/ae/models/migrationscripts"
 	"github.com/apache/incubator-devlake/plugins/ae/tasks"
 	"github.com/apache/incubator-devlake/plugins/core"
+	"github.com/apache/incubator-devlake/plugins/helper"
 	"github.com/apache/incubator-devlake/runner"
 	"github.com/mitchellh/mapstructure"
 	"github.com/spf13/cobra"
@@ -41,6 +43,7 @@ var _ core.Migratable = (*AE)(nil)
 type AE struct{}
 
 func (plugin AE) Init(config *viper.Viper, logger core.Logger, db *gorm.DB) error {
+	api.Init(config, logger, db)
 	return nil
 }
 
@@ -67,10 +70,26 @@ func (plugin AE) PrepareTaskData(taskCtx core.TaskContext, options map[string]in
 	if op.ProjectId <= 0 {
 		return nil, fmt.Errorf("projectId is required")
 	}
-	apiClient, err := tasks.CreateApiClient(taskCtx)
+
+	connection := &models.AeConnection{}
+	connectionHelper := helper.NewConnectionHelper(
+		taskCtx,
+		nil,
+	)
 	if err != nil {
 		return nil, err
 	}
+
+	err = connectionHelper.FirstById(connection, op.ConnectionId)
+	if err != nil {
+		return nil, err
+	}
+
+	apiClient, err := tasks.CreateApiClient(taskCtx, connection)
+	if err != nil {
+		return nil, err
+	}
+
 	return &tasks.AeTaskData{
 		Options:   &op,
 		ApiClient: apiClient,
@@ -82,7 +101,10 @@ func (plugin AE) RootPkgPath() string {
 }
 
 func (plugin AE) MigrationScripts() []migration.Script {
-	return []migration.Script{new(migrationscripts.InitSchemas)}
+	return []migration.Script{
+		new(migrationscripts.InitSchemas),
+		new(migrationscripts.UpdateSchemas20220615),
+	}
 }
 
 func (plugin AE) ApiResources() map[string]map[string]core.ApiResourceHandler {
@@ -91,11 +113,13 @@ func (plugin AE) ApiResources() map[string]map[string]core.ApiResourceHandler {
 			"GET": api.TestConnection,
 		},
 		"connections": {
-			"GET": api.ListConnections,
+			"GET":  api.ListConnections,
+			"POST": api.PostConnections,
 		},
 		"connections/:connectionId": {
-			"GET":   api.GetConnection,
-			"PATCH": api.PatchConnection,
+			"GET":    api.GetConnection,
+			"PATCH":  api.PatchConnection,
+			"DELETE": api.DeleteConnection,
 		},
 	}
 }
@@ -105,11 +129,13 @@ var PluginEntry AE //nolint
 
 func main() {
 	aeCmd := &cobra.Command{Use: "ae"}
+	connectionId := aeCmd.Flags().Uint64P("Connection-id", "c", 0, "ae connection id")
 	projectId := aeCmd.Flags().IntP("project-id", "p", 0, "ae project id")
 	_ = aeCmd.MarkFlagRequired("project-id")
 	aeCmd.Run = func(cmd *cobra.Command, args []string) {
 		runner.DirectRun(cmd, args, PluginEntry, map[string]interface{}{
-			"projectId": *projectId,
+			"connectionId": *connectionId,
+			"projectId":    *projectId,
 		})
 	}
 	runner.RunCmd(aeCmd)

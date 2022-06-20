@@ -17,11 +17,26 @@ limitations under the License.
 
 package models
 
+import (
+	"crypto/md5"
+	"encoding/hex"
+	"fmt"
+	"net/url"
+	"sort"
+	"strings"
+
+	"github.com/apache/incubator-devlake/plugins/helper"
+)
+
 type AeConnection struct {
-	AppId    string `mapstructure:"appId" env:"AE_APP_ID" json:"appId"`
-	Sign     string `mapstructure:"sign" env:"AE_SIGN" json:"sign"`
-	NonceStr string `mapstructure:"nonceStr" env:"AE_NONCE_STR" json:"nonceStr"`
-	Endpoint string `mapstructure:"endpoint" env:"AE_ENDPOINT" json:"endpoint"`
+	helper.RestConnection `mapstructure:",squash"`
+	helper.AppKey         `mapstructure:",squash"`
+}
+
+type TestConnectionRequest struct {
+	Endpoint      string `json:"endpoint"`
+	Proxy         string `json:"proxy"`
+	helper.AppKey `mapstructure:",squash"`
 }
 
 // This object conforms to what the frontend currently expects.
@@ -29,4 +44,35 @@ type AeResponse struct {
 	AeConnection
 	Name string `json:"name"`
 	ID   int    `json:"id"`
+}
+
+func (AeConnection) TableName() string {
+	return "_tool_ae_connections"
+}
+
+func GetSign(query url.Values, appId, secretKey, nonceStr, timestamp string) string {
+	// clone query because we need to add items
+	kvs := make([]string, 0, len(query)+3)
+	kvs = append(kvs, fmt.Sprintf("app_id=%s", appId))
+	kvs = append(kvs, fmt.Sprintf("timestamp=%s", timestamp))
+	kvs = append(kvs, fmt.Sprintf("nonce_str=%s", nonceStr))
+	for key, values := range query {
+		for _, value := range values {
+			kvs = append(kvs, fmt.Sprintf("%s=%s", url.QueryEscape(key), url.QueryEscape(value)))
+		}
+	}
+
+	// sort by alphabetical order
+	sort.Strings(kvs)
+
+	// generate text for signature
+	querystring := fmt.Sprintf("%s&key=%s", strings.Join(kvs, "&"), url.QueryEscape(secretKey))
+
+	// sign it
+	hasher := md5.New()
+	_, err := hasher.Write([]byte(querystring))
+	if err != nil {
+		return ""
+	}
+	return strings.ToUpper(hex.EncodeToString(hasher.Sum(nil)))
 }

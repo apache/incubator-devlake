@@ -15,19 +15,27 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package tasks
+package migrationscripts
 
-import "github.com/apache/incubator-devlake/plugins/helper"
+import (
+	"context"
 
-type AeOptions struct {
-	ConnectionId uint64 `json:"connectionId"`
-	ProjectId    int
+	"github.com/apache/incubator-devlake/plugins/ae/models/migrationscripts/archived"
+	"gorm.io/gorm"
+)
+
+type UpdateSchemas20220615 struct{}
+
+func (*UpdateSchemas20220615) Up(ctx context.Context, db *gorm.DB) error {
+	return db.Migrator().AutoMigrate(
+		&archived.AeConnection{},
+	)
 }
 
-type AeTaskData struct {
-	Options   *AeOptions
-	ApiClient *helper.ApiAsyncClient
+func (*UpdateSchemas20220615) Version() uint64 {
+	return 20220615181010
 }
-type AeApiParams struct {
-	ProjectId int
+
+func (*UpdateSchemas20220615) Name() string {
+	return "create tables:" + archived.AeConnection{}.TableName()
 }

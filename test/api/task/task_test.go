@@ -25,23 +25,32 @@ import (
 	"testing"
 
 	"github.com/apache/incubator-devlake/api"
+	"github.com/apache/incubator-devlake/config"
 	"github.com/apache/incubator-devlake/models"
+	"github.com/apache/incubator-devlake/plugins/core"
+	"github.com/apache/incubator-devlake/services"
 	"github.com/gin-gonic/gin"
 	"github.com/magiconair/properties/assert"
-	"github.com/stretchr/testify/mock"
 )
+
+func init() {
+	v := config.GetConfig()
+	encKey := v.GetString(core.EncodeKeyEnvStr)
+	if encKey == "" {
+		// Randomly generate a bunch of encryption keys and set them to config
+		encKey = core.RandomEncKey()
+		v.Set(core.EncodeKeyEnvStr, encKey)
+		err := config.WriteConfig(v)
+		if err != nil {
+			panic(err)
+		}
+	}
+	services.Init()
+}
 
 func TestNewTask(t *testing.T) {
 	r := gin.Default()
 	api.RegisterRouter(r)
-
-	type services struct {
-		mock.Mock
-	}
-
-	// fakeTask := models.Task{}
-	testObj := new(services)
-	testObj.On("CreateTask").Return(true, nil)
 
 	w := httptest.NewRecorder()
 	params := strings.NewReader(`{"name": "hello", "tasks": [[{ "plugin": "jira", "options": { "host": "www.jira.com" } }]]}`)

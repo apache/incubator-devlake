@@ -15,19 +15,27 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package tasks
+package archived
 
-import "github.com/apache/incubator-devlake/plugins/helper"
+import (
+	"time"
+)
 
-type AeOptions struct {
-	ConnectionId uint64 `json:"connectionId"`
-	ProjectId    int
+type AeConnection struct {
+	Name string `gorm:"type:varchar(100);uniqueIndex" json:"name" validate:"required"`
+
+	ID        uint64    `gorm:"primaryKey" json:"id"`
+	CreatedAt time.Time `json:"createdAt"`
+	UpdatedAt time.Time `json:"updatedAt"`
+
+	Endpoint  string `mapstructure:"endpoint" validate:"required" json:"endpoint"`
+	Proxy     string `mapstructure:"proxy" json:"proxy"`
+	RateLimit int    `comment:"api request rate limit per hour" json:"rateLimit"`
+
+	AppId     string `mapstructure:"app_id" validate:"required" json:"app_id"`
+	SecretKey string `mapstructure:"secret_key" validate:"required" json:"secret_key" encrypt:"yes"`
 }
 
-type AeTaskData struct {
-	Options   *AeOptions
-	ApiClient *helper.ApiAsyncClient
-}
-type AeApiParams struct {
-	ProjectId int
+func (AeConnection) TableName() string {
+	return "_tool_ae_connections"
 }
