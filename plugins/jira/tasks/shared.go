@@ -22,8 +22,6 @@ import (
 
 	"github.com/apache/incubator-devlake/models/domainlayer/ticket"
 	"github.com/apache/incubator-devlake/plugins/helper"
-	"github.com/apache/incubator-devlake/plugins/jira/models"
-	"gorm.io/gorm"
 )
 
 func GetTotalPagesFromResponse(res *http.Response, args *helper.ApiCollectorArgs) (int, error) {
@@ -39,7 +37,7 @@ func GetTotalPagesFromResponse(res *http.Response, args *helper.ApiCollectorArgs
 	return pages, nil
 }
 
-func GetStdStatus(statusKey string) string {
+func getStdStatus(statusKey string) string {
 	if statusKey == "done" {
 		return ticket.DONE
 	} else if statusKey == "new" {
@@ -47,17 +45,4 @@ func GetStdStatus(statusKey string) string {
 	} else {
 		return ticket.IN_PROGRESS
 	}
-}
-
-func GetStatusInfo(db *gorm.DB) (map[string]models.JiraStatus, error) {
-	data := make([]models.JiraStatus, 0)
-	err := db.Model(&models.JiraStatus{}).Scan(&data).Error
-	if err != nil {
-		return nil, err
-	}
-	statusMap := make(map[string]models.JiraStatus)
-	for _, v := range data {
-		statusMap[v.Name] = v
-	}
-	return statusMap, nil
 }
