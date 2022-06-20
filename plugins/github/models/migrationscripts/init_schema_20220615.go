@@ -91,22 +91,20 @@ func (u *InitSchemas) Up(ctx context.Context, db *gorm.DB) error {
 	if err != nil {
 		return err
 	}
+	encodeKey := u.config.GetString(core.EncodeKeyEnvStr)
 	connection := &GithubConnection20220615{}
 	connection.Endpoint = u.config.GetString(`GITHUB_ENDPOINT`)
 	connection.Proxy = u.config.GetString(`GITHUB_PROXY`)
 	connection.Token = u.config.GetString(`GITHUB_AUTH`)
 	connection.Name = `GitHub`
-	if err != nil {
-		return err
-	}
-	err = helper.UpdateEncryptFields(connection, func(plaintext string) (string, error) {
-		return core.Encrypt(u.config.GetString(core.EncodeKeyEnvStr), plaintext)
-	})
-	if err != nil {
-		return err
-	}
-	// update from .env and save to db
-	if connection.Endpoint != `` && connection.Token != `` {
+	if connection.Endpoint != `` && connection.Token != `` && encodeKey != `` {
+		err = helper.UpdateEncryptFields(connection, func(plaintext string) (string, error) {
+			return core.Encrypt(encodeKey, plaintext)
+		})
+		if err != nil {
+			return err
+		}
+		// update from .env and save to db
 		db.Create(connection)
 	}
 
