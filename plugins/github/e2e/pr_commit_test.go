@@ -54,7 +54,7 @@ func TestPrCommitDataFlow(t *testing.T) {
 	dataflowTester.VerifyTable(
 		models.GithubCommit{},
 		"./snapshot_tables/_tool_github_commits.csv",
-		[]string{"connection_id", "sha"},
+		[]string{"sha"},
 		[]string{
 			"author_id",
 			"author_name",
