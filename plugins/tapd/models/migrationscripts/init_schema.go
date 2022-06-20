@@ -19,6 +19,7 @@ package migrationscripts
 
 import (
 	"context"
+
 	"github.com/apache/incubator-devlake/plugins/tapd/models/migrationscripts/archived"
 	"gorm.io/gorm"
 )
@@ -57,11 +58,16 @@ func (*InitSchemas) Up(ctx context.Context, db *gorm.DB) error {
 		&archived.TapdIterationBug{},
 		&archived.TapdIterationStory{},
 		&archived.TapdIterationTask{},
+		&archived.TapdStoryCustomFields{},
+		&archived.TapdBugCustomFields{},
+		&archived.TapdTaskCustomFields{},
+		&archived.TapdStoryCategory{},
+		&archived.TapdStoryBug{},
 	)
 }
 
 func (*InitSchemas) Version() uint64 {
-	return 20220420231138
+	return 20220620231138
 }
 
 func (*InitSchemas) Name() string {

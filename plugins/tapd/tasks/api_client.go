@@ -18,6 +18,7 @@ limitations under the License.
 package tasks
 
 import (
+	"encoding/base64"
 	"fmt"
 	"net/http"
 
@@ -27,13 +28,8 @@ import (
 )
 
 func NewTapdApiClient(taskCtx core.TaskContext, connection *models.TapdConnection) (*helper.ApiAsyncClient, error) {
-	// load configuration
-	encKey := taskCtx.GetConfig(core.EncodeKeyEnvStr)
-	auth, err := core.Decrypt(encKey, connection.BasicAuthEncoded)
-	if err != nil {
-		return nil, fmt.Errorf("Failed to decrypt Auth AccessToken: %w", err)
-	}
-
+	
+	auth := base64.StdEncoding.EncodeToString([]byte(connection.Token))
 	// create synchronize api client so we can calculate api rate limit dynamically
 	headers := map[string]string{
 		"Authorization": fmt.Sprintf("Basic %v", auth),
