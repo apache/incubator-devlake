@@ -33,11 +33,11 @@ import (
 	"unicode/utf8"
 
 	"github.com/apache/incubator-devlake/plugins/core"
+	"github.com/apache/incubator-devlake/plugins/helper/common"
 	"github.com/apache/incubator-devlake/utils"
 )
 
 type ApiClientBeforeRequest func(req *http.Request) error
-type ApiClientAfterResponse func(res *http.Response) error
 
 var ErrIgnoreAndContinue = errors.New("ignore and continue")
 
@@ -47,7 +47,7 @@ type ApiClient struct {
 	endpoint      string
 	headers       map[string]string
 	beforeRequest ApiClientBeforeRequest
-	afterReponse  ApiClientAfterResponse
+	afterReponse  common.ApiClientAfterResponse
 	ctx           context.Context
 	logger        core.Logger
 }
@@ -127,7 +127,7 @@ func (apiClient *ApiClient) SetBeforeFunction(callback ApiClientBeforeRequest) {
 	apiClient.beforeRequest = callback
 }
 
-func (apiClient *ApiClient) SetAfterFunction(callback ApiClientAfterResponse) {
+func (apiClient *ApiClient) SetAfterFunction(callback common.ApiClientAfterResponse) {
 	apiClient.afterReponse = callback
 }
 

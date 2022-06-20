@@ -28,6 +28,7 @@ import (
 
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/core/dal"
+	"github.com/apache/incubator-devlake/plugins/helper/common"
 )
 
 // Pager contains pagination information for a api request
@@ -73,7 +74,7 @@ type ApiCollectorArgs struct {
 	// NORMALLY, DO NOT SPECIFY THIS PARAMETER, unless you know what it means
 	Concurrency    int
 	ResponseParser func(res *http.Response) ([]json.RawMessage, error)
-	AfterResponse  ApiClientAfterResponse
+	AfterResponse  common.ApiClientAfterResponse
 }
 
 type ApiCollector struct {
@@ -285,7 +286,7 @@ func (collector *ApiCollector) generateUrl(pager *Pager, input interface{}) (str
 	return buf.String(), nil
 }
 
-func (collector *ApiCollector) SetAfterResponse(f ApiClientAfterResponse) {
+func (collector *ApiCollector) SetAfterResponse(f common.ApiClientAfterResponse) {
 	collector.args.ApiClient.SetAfterFunction(f)
 }
 
