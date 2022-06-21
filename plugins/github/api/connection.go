@@ -44,7 +44,7 @@ func TestConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, erro
 	if err != nil {
 		return nil, err
 	}
-	tokens := strings.Split(params.Auth, ",")
+	tokens := strings.Split(params.Token, ",")
 
 	// verify multiple token in parallel
 	// PLEASE NOTE: This works because GitHub API Client rotates tokens on each request

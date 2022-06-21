@@ -21,7 +21,7 @@ import "github.com/apache/incubator-devlake/plugins/helper"
 
 type TestConnectionRequest struct {
 	Endpoint string `json:"endpoint" validate:"required,url"`
-	Auth     string `json:"auth" validate:"required"`
+	Token    string `json:"token" validate:"required"`
 	Proxy    string `json:"proxy"`
 }
 
