@@ -18,9 +18,10 @@ limitations under the License.
 package tasks
 
 import (
-	"github.com/apache/incubator-devlake/plugins/core/dal"
 	"reflect"
 	"time"
+
+	"github.com/apache/incubator-devlake/plugins/core/dal"
 
 	"github.com/apache/incubator-devlake/models/common"
 	"github.com/apache/incubator-devlake/models/domainlayer"
@@ -32,19 +33,19 @@ import (
 )
 
 type BugChangelogItemResult struct {
-	ConnectionId      uint64    `gorm:"primaryKey;type:BIGINT  NOT NULL"`
-	WorkspaceId       uint64    `gorm:"primaryKey;type:BIGINT  NOT NULL"`
-	Id                uint64    `gorm:"primaryKey;type:BIGINT  NOT NULL" json:"id"`
-	BugId             uint64    `json:"bug_id"`
-	Author            string    `json:"author" gorm:"type:varchar(255)"`
-	Field             string    `json:"field"`
-	OldValue          string    `json:"old_value"`
-	NewValue          string    `json:"new_value"`
-	Memo              string    `json:"memo"`
-	Created           time.Time `json:"created"`
-	ChangelogId       uint64    `gorm:"primaryKey;type:BIGINT  NOT NULL"`
-	ValueBeforeParsed string    `json:"value_before"`
-	ValueAfterParsed  string    `json:"value_after"`
+	ConnectionId      uint64     `gorm:"primaryKey;type:BIGINT  NOT NULL"`
+	WorkspaceId       uint64     `gorm:"primaryKey;type:BIGINT  NOT NULL"`
+	Id                uint64     `gorm:"primaryKey;type:BIGINT  NOT NULL" json:"id"`
+	BugId             uint64     `json:"bug_id"`
+	Author            string     `json:"author" gorm:"type:varchar(255)"`
+	Field             string     `json:"field"`
+	OldValue          string     `json:"old_value"`
+	NewValue          string     `json:"new_value"`
+	Memo              string     `json:"memo"`
+	Created           *time.Time `json:"created"`
+	ChangelogId       uint64     `gorm:"primaryKey;type:BIGINT  NOT NULL"`
+	ValueBeforeParsed string     `json:"value_before"`
+	ValueAfterParsed  string     `json:"value_after"`
 	IterationIdFrom   uint64
 	IterationIdTo     uint64
 	common.NoPKModel
@@ -87,7 +88,7 @@ func ConvertBugChangelog(taskCtx core.SubTaskContext) error {
 				FieldName:         cl.Field,
 				OriginalFromValue: cl.ValueBeforeParsed,
 				OriginalToValue:   cl.ValueAfterParsed,
-				CreatedDate:       cl.Created,
+				CreatedDate:       *cl.Created,
 			}
 
 			return []interface{}{

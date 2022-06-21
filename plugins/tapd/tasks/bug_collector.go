@@ -19,12 +19,13 @@ package tasks
 
 import (
 	"fmt"
+	"net/url"
+	"time"
+
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/core/dal"
 	"github.com/apache/incubator-devlake/plugins/helper"
 	"github.com/apache/incubator-devlake/plugins/tapd/models"
-	"net/url"
-	"time"
 )
 
 const RAW_BUG_TABLE = "tapd_api_bugs"
@@ -51,7 +52,7 @@ func CollectBugs(taskCtx core.SubTaskContext) error {
 			return fmt.Errorf("failed to get latest tapd changelog record: %w", err)
 		}
 		if latestUpdated.Id > 0 {
-			since = (*time.Time)(&latestUpdated.Modified)
+			since = (*time.Time)(latestUpdated.Modified)
 			incremental = true
 		}
 	}

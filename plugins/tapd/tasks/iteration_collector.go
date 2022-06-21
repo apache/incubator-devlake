@@ -20,13 +20,14 @@ package tasks
 import (
 	"encoding/json"
 	"fmt"
+	"net/http"
+	"net/url"
+	"time"
+
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/core/dal"
 	"github.com/apache/incubator-devlake/plugins/helper"
 	"github.com/apache/incubator-devlake/plugins/tapd/models"
-	"net/http"
-	"net/url"
-	"time"
 )
 
 const RAW_ITERATION_TABLE = "tapd_api_iterations"
@@ -52,7 +53,7 @@ func CollectIterations(taskCtx core.SubTaskContext) error {
 			return fmt.Errorf("failed to get latest tapd changelog record: %w", err)
 		}
 		if latestUpdated.Id > 0 {
-			since = (*time.Time)(&latestUpdated.Modified)
+			since = (*time.Time)(latestUpdated.Modified)
 			incremental = true
 		}
 	}

@@ -19,8 +19,9 @@ package impl
 
 import (
 	"fmt"
-	"github.com/apache/incubator-devlake/plugins/helper"
 	"time"
+
+	"github.com/apache/incubator-devlake/plugins/helper"
 
 	"github.com/apache/incubator-devlake/migration"
 	"github.com/apache/incubator-devlake/models/domainlayer/didgen"
@@ -141,7 +142,7 @@ func (plugin Tapd) PrepareTaskData(taskCtx core.TaskContext, options map[string]
 		}
 	}
 	if connection.RateLimit == 0 {
-		connection.RateLimit = 6000
+		connection.RateLimit = 2000
 	}
 	tapdApiClient, err := tasks.NewTapdApiClient(taskCtx, connection)
 	if err != nil {

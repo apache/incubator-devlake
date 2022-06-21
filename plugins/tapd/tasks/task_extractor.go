@@ -20,11 +20,12 @@ package tasks
 import (
 	"encoding/json"
 	"fmt"
+	"strings"
+
 	"github.com/apache/incubator-devlake/models/domainlayer/ticket"
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/helper"
 	"github.com/apache/incubator-devlake/plugins/tapd/models"
-	"strings"
 )
 
 var _ core.SubTaskEntryPoint = ExtractTasks
@@ -83,8 +84,8 @@ func ExtractTasks(taskCtx core.SubTaskContext) error {
 					IterationId:     toolL.IterationId,
 					TaskId:          toolL.Id,
 					WorkspaceId:     toolL.WorkspaceId,
-					ResolutionDate:  toolL.Completed,
-					TaskCreatedDate: toolL.Created,
+					ResolutionDate:  *toolL.Completed,
+					TaskCreatedDate: *toolL.Created,
 				}
 				results = append(results, iterationTask)
 			}

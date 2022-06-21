@@ -20,14 +20,15 @@ package tasks
 import (
 	"encoding/json"
 	"fmt"
+	"io/ioutil"
+	"net/http"
+	"net/url"
+
 	"github.com/apache/incubator-devlake/models/domainlayer/didgen"
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/core/dal"
 	"github.com/apache/incubator-devlake/plugins/helper"
 	"github.com/apache/incubator-devlake/plugins/tapd/models"
-	"io/ioutil"
-	"net/http"
-	"net/url"
 )
 
 type Page struct {
@@ -74,7 +75,7 @@ func parseIterationChangelog(taskCtx core.SubTaskContext, old string, new string
 			data.Connection.ID, data.Options.WorkspaceId, old),
 	}
 	err := db.First(iterationFrom, clauses...)
-	if err != nil {
+	if err != nil && err.Error() != "record not found" {
 		return 0, 0, err
 	}
 
@@ -85,7 +86,7 @@ func parseIterationChangelog(taskCtx core.SubTaskContext, old string, new string
 			data.Connection.ID, data.Options.WorkspaceId, new),
 	}
 	err = db.First(iterationTo, clauses...)
-	if err != nil {
+	if err != nil && err.Error() != "record not found" {
 		return 0, 0, err
 	}
 	return iterationFrom.Id, iterationTo.Id, nil

@@ -19,9 +19,10 @@ package tasks
 
 import (
 	"fmt"
-	"github.com/apache/incubator-devlake/plugins/core/dal"
 	"reflect"
 	"time"
+
+	"github.com/apache/incubator-devlake/plugins/core/dal"
 
 	"github.com/apache/incubator-devlake/models/common"
 	"github.com/apache/incubator-devlake/models/domainlayer"
@@ -33,22 +34,22 @@ import (
 )
 
 type TaskChangelogItemResult struct {
-	ConnectionId      uint64    `gorm:"primaryKey;type:BIGINT  NOT NULL"`
-	Id                uint64    `gorm:"primaryKey;type:BIGINT  NOT NULL" json:"id"`
-	WorkspaceId       uint64    `json:"workspace_id"`
-	WorkitemTypeId    uint64    `json:"workitem_type_id"`
-	Creator           string    `json:"creator"`
-	Created           time.Time `json:"created"`
-	ChangeSummary     string    `json:"change_summary"`
-	Comment           string    `json:"comment"`
-	EntityType        string    `json:"entity_type"`
-	ChangeType        string    `json:"change_type"`
-	ChangeTypeText    string    `json:"change_type_text"`
-	TaskId            uint64    `json:"task_id"`
-	ChangelogId       uint64    `gorm:"primaryKey;type:BIGINT  NOT NULL"`
-	Field             string    `json:"field" gorm:"primaryKey;type:varchar(255)"`
-	ValueBeforeParsed string    `json:"value_before"`
-	ValueAfterParsed  string    `json:"value_after"`
+	ConnectionId      uint64     `gorm:"primaryKey;type:BIGINT  NOT NULL"`
+	Id                uint64     `gorm:"primaryKey;type:BIGINT  NOT NULL" json:"id"`
+	WorkspaceId       uint64     `json:"workspace_id"`
+	WorkitemTypeId    uint64     `json:"workitem_type_id"`
+	Creator           string     `json:"creator"`
+	Created           *time.Time `json:"created"`
+	ChangeSummary     string     `json:"change_summary"`
+	Comment           string     `json:"comment"`
+	EntityType        string     `json:"entity_type"`
+	ChangeType        string     `json:"change_type"`
+	ChangeTypeText    string     `json:"change_type_text"`
+	TaskId            uint64     `json:"task_id"`
+	ChangelogId       uint64     `gorm:"primaryKey;type:BIGINT  NOT NULL"`
+	Field             string     `json:"field" gorm:"primaryKey;type:varchar(255)"`
+	ValueBeforeParsed string     `json:"value_before"`
+	ValueAfterParsed  string     `json:"value_after"`
 	IterationIdFrom   uint64
 	IterationIdTo     uint64
 	common.NoPKModel
@@ -62,7 +63,7 @@ func ConvertTaskChangelog(taskCtx core.SubTaskContext) error {
 	clIdGen := didgen.NewDomainIdGenerator(&models.TapdTaskChangelog{})
 
 	clauses := []dal.Clause{
-		dal.Select("tc.created, tc.id, tc.workspace_id, tc.task_id, tc.author, _tool_tapd_task_changelog_items.*"),
+		dal.Select("tc.created, tc.id, tc.workspace_id, tc.task_id, tc.creator, _tool_tapd_task_changelog_items.*"),
 		dal.From(&models.TapdTaskChangelogItem{}),
 		dal.Join("left join _tool_tapd_task_changelogs tc on tc.id = _tool_tapd_task_changelog_items.changelog_id "),
 		dal.Where("tc.connection_id = ? AND tc.workspace_id = ?", data.Connection.ID, data.Options.WorkspaceId),
@@ -90,7 +91,7 @@ func ConvertTaskChangelog(taskCtx core.SubTaskContext) error {
 				FieldName:         cl.Field,
 				OriginalFromValue: cl.ValueBeforeParsed,
 				OriginalToValue:   cl.ValueAfterParsed,
-				CreatedDate:       cl.Created,
+				CreatedDate:       *cl.Created,
 			}
 
 			return []interface{}{

@@ -19,6 +19,10 @@ package tasks
 
 import (
 	"fmt"
+	"reflect"
+	"strings"
+	"time"
+
 	"github.com/apache/incubator-devlake/models/domainlayer"
 	"github.com/apache/incubator-devlake/models/domainlayer/didgen"
 	"github.com/apache/incubator-devlake/models/domainlayer/ticket"
@@ -26,9 +30,6 @@ import (
 	"github.com/apache/incubator-devlake/plugins/core/dal"
 	"github.com/apache/incubator-devlake/plugins/helper"
 	"github.com/apache/incubator-devlake/plugins/tapd/models"
-	"reflect"
-	"strings"
-	"time"
 )
 
 func ConvertIteration(taskCtx core.SubTaskContext) error {
@@ -39,7 +40,7 @@ func ConvertIteration(taskCtx core.SubTaskContext) error {
 	iterIdGen := didgen.NewDomainIdGenerator(&models.TapdIteration{})
 	clauses := []dal.Clause{
 		dal.From(&models.TapdIteration{}),
-		dal.Where("tc.connection_id = ? AND tc.workspace_id = ?", data.Connection.ID, data.Options.WorkspaceId),
+		dal.Where("connection_id = ? AND workspace_id = ?", data.Connection.ID, data.Options.WorkspaceId),
 	}
 
 	cursor, err := db.Cursor(clauses...)
@@ -58,10 +59,10 @@ func ConvertIteration(taskCtx core.SubTaskContext) error {
 				Url:             fmt.Sprintf("https://www.tapd.cn/%d/prong/iterations/view/%d", iter.WorkspaceId, iter.Id),
 				Status:          strings.ToUpper(iter.Status),
 				Name:            iter.Name,
-				StartedDate:     (*time.Time)(&iter.Startdate),
-				EndedDate:       (*time.Time)(&iter.Enddate),
+				StartedDate:     (*time.Time)(iter.Startdate),
+				EndedDate:       (*time.Time)(iter.Enddate),
 				OriginalBoardID: WorkspaceIdGen.Generate(iter.ConnectionId, iter.WorkspaceId),
-				CompletedDate:   (*time.Time)(&iter.Completed),
+				CompletedDate:   (*time.Time)(iter.Completed),
 			}
 			results := make([]interface{}, 0)
 			results = append(results, domainIter)

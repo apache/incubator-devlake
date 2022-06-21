@@ -19,10 +19,11 @@ package tasks
 
 import (
 	"encoding/json"
+	"strings"
+
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/helper"
 	"github.com/apache/incubator-devlake/plugins/tapd/models"
-	"strings"
 )
 
 var _ core.SubTaskEntryPoint = ExtractTaskChangelog

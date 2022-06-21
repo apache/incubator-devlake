@@ -18,9 +18,10 @@ limitations under the License.
 package tasks
 
 import (
+	"reflect"
+
 	"github.com/apache/incubator-devlake/plugins/core/dal"
 	"github.com/apache/incubator-devlake/plugins/tapd/models"
-	"reflect"
 
 	"github.com/apache/incubator-devlake/models/domainlayer/ticket"
 	"github.com/apache/incubator-devlake/plugins/core"
@@ -39,7 +40,8 @@ func ConvertStoryLabels(taskCtx core.SubTaskContext) error {
 	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_STORY_TABLE)
 
 	clauses := []dal.Clause{
-		dal.Join(`left join _tool_tapd_workspace_stories on _tool_tapd_workspace_stories.story_id = _tool_tapd_story_labels.story_id`),
+		dal.From(&models.TapdStoryLabel{}),
+		dal.Join("left join _tool_tapd_workspace_stories on _tool_tapd_workspace_stories.story_id = _tool_tapd_story_labels.story_id"),
 		dal.Where("_tool_tapd_workspace_stories.workspace_id = ? and _tool_tapd_workspace_stories.connection_id = ?",
 			data.Options.WorkspaceId, data.Options.ConnectionId),
 		dal.Orderby("story_id ASC"),

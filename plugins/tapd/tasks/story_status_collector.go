@@ -19,9 +19,10 @@ package tasks
 
 import (
 	"fmt"
+	"net/url"
+
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/helper"
-	"net/url"
 )
 
 const RAW_STORY_STATUS_TABLE = "tapd_api_story_status"
