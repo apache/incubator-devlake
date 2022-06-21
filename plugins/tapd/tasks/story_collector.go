@@ -43,7 +43,7 @@ func CollectStorys(taskCtx core.SubTaskContext) error {
 		// user didn't specify a time range to sync, try load from database
 		var latestUpdated models.TapdStory
 		clauses := []dal.Clause{
-			dal.Where("connection_id = ? and workspace_id = ?", data.Connection.ID, data.Options.WorkspaceId),
+			dal.Where("connection_id = ? and workspace_id = ?", data.Options.ConnectionId, data.Options.WorkspaceId),
 			dal.Orderby("modified DESC"),
 		}
 		err := db.First(&latestUpdated, clauses...)

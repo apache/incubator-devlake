@@ -38,7 +38,7 @@ func ConvertWorklog(taskCtx core.SubTaskContext) error {
 	worklogIdGen := didgen.NewDomainIdGenerator(&models.TapdWorklog{})
 	clauses := []dal.Clause{
 		dal.From(&models.TapdWorklog{}),
-		dal.Where("connection_id = ? AND workspace_id = ?", data.Connection.ID, data.Options.WorkspaceId),
+		dal.Where("connection_id = ? AND workspace_id = ?", data.Options.ConnectionId, data.Options.WorkspaceId),
 	}
 
 	cursor, err := db.Cursor(clauses...)
@@ -54,9 +54,9 @@ func ConvertWorklog(taskCtx core.SubTaskContext) error {
 			toolL := inputRow.(*models.TapdWorklog)
 			domainL := &ticket.IssueWorklog{
 				DomainEntity: domainlayer.DomainEntity{
-					Id: worklogIdGen.Generate(data.Connection.ID, toolL.Id),
+					Id: worklogIdGen.Generate(data.Options.ConnectionId, toolL.Id),
 				},
-				AuthorId:         UserIdGen.Generate(data.Connection.ID, toolL.WorkspaceId, toolL.Owner),
+				AuthorId:         UserIdGen.Generate(data.Options.ConnectionId, toolL.WorkspaceId, toolL.Owner),
 				Comment:          toolL.Memo,
 				TimeSpentMinutes: int(toolL.Timespent),
 				LoggedDate:       (*time.Time)(toolL.Created),

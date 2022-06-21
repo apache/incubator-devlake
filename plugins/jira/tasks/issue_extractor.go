@@ -33,7 +33,7 @@ var _ core.SubTaskEntryPoint = ExtractIssues
 
 func ExtractIssues(taskCtx core.SubTaskContext) error {
 	data := taskCtx.GetData().(*JiraTaskData)
-	connectionId := data.Connection.ID
+	connectionId := data.Options.ConnectionId
 	boardId := data.Options.BoardId
 	logger := taskCtx.GetLogger()
 	logger.Info("extract Issues, connection_id=%d, board_id=%d", connectionId, boardId)
@@ -58,7 +58,7 @@ func ExtractIssues(taskCtx core.SubTaskContext) error {
 				set of data to be process, for example, we process JiraIssues by Board
 			*/
 			Params: JiraApiParams{
-				ConnectionId: data.Connection.ID,
+				ConnectionId: data.Options.ConnectionId,
 				BoardId:      data.Options.BoardId,
 			},
 			/*
@@ -77,10 +77,10 @@ func ExtractIssues(taskCtx core.SubTaskContext) error {
 				return nil, err
 			}
 			var results []interface{}
-			sprints, issue, worklogs, changelogs, changelogItems, users := apiIssue.ExtractEntities(data.Connection.ID)
+			sprints, issue, worklogs, changelogs, changelogItems, users := apiIssue.ExtractEntities(data.Options.ConnectionId)
 			for _, sprintId := range sprints {
 				sprintIssue := &models.JiraSprintIssue{
-					ConnectionId:     data.Connection.ID,
+					ConnectionId:     data.Options.ConnectionId,
 					SprintId:         sprintId,
 					IssueId:          issue.IssueId,
 					IssueCreatedDate: &issue.Created,

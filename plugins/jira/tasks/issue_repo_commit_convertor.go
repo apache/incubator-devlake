@@ -34,7 +34,7 @@ import (
 func ConvertIssueRepoCommits(taskCtx core.SubTaskContext) error {
 	data := taskCtx.GetData().(*JiraTaskData)
 	db := taskCtx.GetDal()
-	connectionId := data.Connection.ID
+	connectionId := data.Options.ConnectionId
 	boardId := data.Options.BoardId
 	logger := taskCtx.GetLogger()
 	logger.Info("convert issue repo commits")

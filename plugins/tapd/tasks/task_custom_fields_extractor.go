@@ -49,7 +49,7 @@ func ExtractTaskCustomFields(taskCtx core.SubTaskContext) error {
 
 			toolL := taskCustomFieldsRes.CustomFieldConfig
 
-			toolL.ConnectionId = data.Connection.ID
+			toolL.ConnectionId = data.Options.ConnectionId
 			return []interface{}{
 				&toolL,
 			}, nil

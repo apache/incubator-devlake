@@ -49,10 +49,10 @@ func ExtractBugChangelog(taskCtx core.SubTaskContext) error {
 			}
 			bugChangelog := bugChangelogBody.BugChange
 
-			bugChangelog.ConnectionId = data.Connection.ID
+			bugChangelog.ConnectionId = data.Options.ConnectionId
 			bugChangelog.WorkspaceId = data.Options.WorkspaceId
 			item := &models.TapdBugChangelogItem{
-				ConnectionId:      data.Connection.ID,
+				ConnectionId:      data.Options.ConnectionId,
 				ChangelogId:       bugChangelog.Id,
 				Field:             bugChangelog.Field,
 				ValueBeforeParsed: bugChangelog.OldValue,

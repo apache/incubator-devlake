@@ -65,7 +65,7 @@ func ConvertStoryChangelog(taskCtx core.SubTaskContext) error {
 		dal.Select("tc.created, tc.id, tc.workspace_id, tc.story_id, tc.creator, _tool_tapd_story_changelog_items.*"),
 		dal.From(&models.TapdStoryChangelogItem{}),
 		dal.Join("left join _tool_tapd_story_changelogs tc on tc.id = _tool_tapd_story_changelog_items.changelog_id "),
-		dal.Where("tc.connection_id = ? AND tc.workspace_id = ?", data.Connection.ID, data.Options.WorkspaceId),
+		dal.Where("tc.connection_id = ? AND tc.workspace_id = ?", data.Options.ConnectionId, data.Options.WorkspaceId),
 		dal.Orderby("created DESC"),
 	}
 
@@ -82,10 +82,10 @@ func ConvertStoryChangelog(taskCtx core.SubTaskContext) error {
 			cl := inputRow.(*StoryChangelogItemResult)
 			domainCl := &ticket.Changelog{
 				DomainEntity: domainlayer.DomainEntity{
-					Id: fmt.Sprintf("%s:%s", clIdGen.Generate(data.Connection.ID, cl.Id), cl.Field),
+					Id: fmt.Sprintf("%s:%s", clIdGen.Generate(data.Options.ConnectionId, cl.Id), cl.Field),
 				},
-				IssueId:           IssueIdGen.Generate(data.Connection.ID, cl.StoryId),
-				AuthorId:          UserIdGen.Generate(data.Connection.ID, data.Options.WorkspaceId, cl.Creator),
+				IssueId:           IssueIdGen.Generate(data.Options.ConnectionId, cl.StoryId),
+				AuthorId:          UserIdGen.Generate(data.Options.ConnectionId, data.Options.WorkspaceId, cl.Creator),
 				AuthorName:        cl.Creator,
 				FieldId:           cl.Field,
 				FieldName:         cl.Field,

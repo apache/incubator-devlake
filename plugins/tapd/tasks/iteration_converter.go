@@ -40,7 +40,7 @@ func ConvertIteration(taskCtx core.SubTaskContext) error {
 	iterIdGen := didgen.NewDomainIdGenerator(&models.TapdIteration{})
 	clauses := []dal.Clause{
 		dal.From(&models.TapdIteration{}),
-		dal.Where("connection_id = ? AND workspace_id = ?", data.Connection.ID, data.Options.WorkspaceId),
+		dal.Where("connection_id = ? AND workspace_id = ?", data.Options.ConnectionId, data.Options.WorkspaceId),
 	}
 
 	cursor, err := db.Cursor(clauses...)
@@ -55,7 +55,7 @@ func ConvertIteration(taskCtx core.SubTaskContext) error {
 		Convert: func(inputRow interface{}) ([]interface{}, error) {
 			iter := inputRow.(*models.TapdIteration)
 			domainIter := &ticket.Sprint{
-				DomainEntity:    domainlayer.DomainEntity{Id: iterIdGen.Generate(data.Connection.ID, iter.Id)},
+				DomainEntity:    domainlayer.DomainEntity{Id: iterIdGen.Generate(data.Options.ConnectionId, iter.Id)},
 				Url:             fmt.Sprintf("https://www.tapd.cn/%d/prong/iterations/view/%d", iter.WorkspaceId, iter.Id),
 				Status:          strings.ToUpper(iter.Status),
 				Name:            iter.Name,

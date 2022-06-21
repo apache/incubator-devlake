@@ -78,7 +78,7 @@ func ExtractBugs(taskCtx core.SubTaskContext) error {
 			toolL := bugBody.Bug
 
 			toolL.Status = statusMap[toolL.Status]
-			toolL.ConnectionId = data.Connection.ID
+			toolL.ConnectionId = data.Options.ConnectionId
 			toolL.Type = "BUG"
 			toolL.StdType = "BUG"
 			toolL.StdStatus = getStdStatus(toolL.Status)
@@ -87,7 +87,7 @@ func ExtractBugs(taskCtx core.SubTaskContext) error {
 				toolL.CurrentOwner = strings.Split(toolL.CurrentOwner, ";")[0]
 			}
 			workSpaceBug := &models.TapdWorkSpaceBug{
-				ConnectionId: data.Connection.ID,
+				ConnectionId: data.Options.ConnectionId,
 				WorkspaceId:  toolL.WorkspaceId,
 				BugId:        toolL.Id,
 			}
@@ -95,7 +95,7 @@ func ExtractBugs(taskCtx core.SubTaskContext) error {
 			results = append(results, &toolL, workSpaceBug)
 			if toolL.IterationId != 0 {
 				iterationBug := &models.TapdIterationBug{
-					ConnectionId:   data.Connection.ID,
+					ConnectionId:   data.Options.ConnectionId,
 					IterationId:    toolL.IterationId,
 					WorkspaceId:    toolL.WorkspaceId,
 					BugId:          toolL.Id,

@@ -35,7 +35,7 @@ func ConvertStoryCommit(taskCtx core.SubTaskContext) error {
 
 	clauses := []dal.Clause{
 		dal.From(&models.TapdStoryCommit{}),
-		dal.Where("connection_id = ? AND workspace_id = ?", data.Connection.ID, data.Options.WorkspaceId),
+		dal.Where("connection_id = ? AND workspace_id = ?", data.Options.ConnectionId, data.Options.WorkspaceId),
 	}
 	cursor, err := db.Cursor(clauses...)
 	if err != nil {
@@ -49,7 +49,7 @@ func ConvertStoryCommit(taskCtx core.SubTaskContext) error {
 		Convert: func(inputRow interface{}) ([]interface{}, error) {
 			toolL := inputRow.(*models.TapdStoryCommit)
 			domainL := &crossdomain.IssueCommit{
-				IssueId:   IssueIdGen.Generate(data.Connection.ID, toolL.StoryId),
+				IssueId:   IssueIdGen.Generate(data.Options.ConnectionId, toolL.StoryId),
 				CommitSha: toolL.CommitId,
 			}
 

@@ -62,7 +62,7 @@ func ExtractTasks(taskCtx core.SubTaskContext) error {
 			}
 			toolL := taskBody.Task
 
-			toolL.ConnectionId = data.Connection.ID
+			toolL.ConnectionId = data.Options.ConnectionId
 			toolL.Type = "TASK"
 			toolL.StdType = "TASK"
 			toolL.StdStatus = getStdStatus(toolL.Status)
@@ -72,7 +72,7 @@ func ExtractTasks(taskCtx core.SubTaskContext) error {
 			toolL.Url = fmt.Sprintf("https://www.tapd.cn/%d/prong/stories/view/%d", toolL.WorkspaceId, toolL.Id)
 
 			workSpaceTask := &models.TapdWorkSpaceTask{
-				ConnectionId: data.Connection.ID,
+				ConnectionId: data.Options.ConnectionId,
 				WorkspaceId:  toolL.WorkspaceId,
 				TaskId:       toolL.Id,
 			}
@@ -80,7 +80,7 @@ func ExtractTasks(taskCtx core.SubTaskContext) error {
 			results = append(results, &toolL, workSpaceTask)
 			if toolL.IterationId != 0 {
 				iterationTask := &models.TapdIterationTask{
-					ConnectionId:    data.Connection.ID,
+					ConnectionId:    data.Options.ConnectionId,
 					IterationId:     toolL.IterationId,
 					TaskId:          toolL.Id,
 					WorkspaceId:     toolL.WorkspaceId,

@@ -76,7 +76,7 @@ func ExtractStories(taskCtx core.SubTaskContext) error {
 			}
 			toolL := storyBody.Story
 			toolL.Status = statusMap[toolL.Status]
-			toolL.ConnectionId = data.Connection.ID
+			toolL.ConnectionId = data.Options.ConnectionId
 			toolL.StdType = "REQUIREMENT"
 			toolL.StdStatus = getStdStatus(toolL.Status)
 			toolL.Url = fmt.Sprintf("https://www.tapd.cn/%d/prong/stories/view/%d", toolL.WorkspaceId, toolL.Id)
@@ -84,7 +84,7 @@ func ExtractStories(taskCtx core.SubTaskContext) error {
 				toolL.Owner = strings.Split(toolL.Owner, ";")[0]
 			}
 			workSpaceStory := &models.TapdWorkSpaceStory{
-				ConnectionId: data.Connection.ID,
+				ConnectionId: data.Options.ConnectionId,
 				WorkspaceId:  toolL.WorkspaceId,
 				StoryId:      toolL.Id,
 			}
@@ -92,7 +92,7 @@ func ExtractStories(taskCtx core.SubTaskContext) error {
 			results = append(results, &toolL, workSpaceStory)
 			if toolL.IterationId != 0 {
 				iterationStory := &models.TapdIterationStory{
-					ConnectionId:     data.Connection.ID,
+					ConnectionId:     data.Options.ConnectionId,
 					IterationId:      toolL.IterationId,
 					StoryId:          toolL.Id,
 					WorkspaceId:      toolL.WorkspaceId,

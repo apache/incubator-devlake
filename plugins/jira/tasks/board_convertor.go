@@ -38,7 +38,7 @@ func ConvertBoard(taskCtx core.SubTaskContext) error {
 	clauses := []dal.Clause{
 		dal.Select("*"),
 		dal.From(&models.JiraBoard{}),
-		dal.Where("connection_id = ? AND board_id = ?", data.Connection.ID, data.Options.BoardId),
+		dal.Where("connection_id = ? AND board_id = ?", data.Options.ConnectionId, data.Options.BoardId),
 	}
 	cursor, err := db.Cursor(clauses...)
 	if err != nil {
@@ -49,7 +49,7 @@ func ConvertBoard(taskCtx core.SubTaskContext) error {
 		RawDataSubTaskArgs: helper.RawDataSubTaskArgs{
 			Ctx: taskCtx,
 			Params: JiraApiParams{
-				ConnectionId: data.Connection.ID,
+				ConnectionId: data.Options.ConnectionId,
 				BoardId:      data.Options.BoardId,
 			},
 			Table: RAW_BOARD_TABLE,
@@ -59,7 +59,7 @@ func ConvertBoard(taskCtx core.SubTaskContext) error {
 		Convert: func(inputRow interface{}) ([]interface{}, error) {
 			board := inputRow.(*models.JiraBoard)
 			domainBoard := &ticket.Board{
-				DomainEntity: domainlayer.DomainEntity{Id: idGen.Generate(data.Connection.ID, data.Options.BoardId)},
+				DomainEntity: domainlayer.DomainEntity{Id: idGen.Generate(data.Options.ConnectionId, data.Options.BoardId)},
 				Name:         board.Name,
 				Url:          board.Self,
 			}

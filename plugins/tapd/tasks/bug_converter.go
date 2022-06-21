@@ -37,7 +37,7 @@ func ConvertBug(taskCtx core.SubTaskContext) error {
 	logger.Info("convert board:%d", data.Options.WorkspaceId)
 	clauses := []dal.Clause{
 		dal.From(&models.TapdBug{}),
-		dal.Where("connection_id = ? AND workspace_id = ?", data.Connection.ID, data.Options.WorkspaceId),
+		dal.Where("connection_id = ? AND workspace_id = ?", data.Options.ConnectionId, data.Options.WorkspaceId),
 	}
 
 	cursor, err := db.Cursor(clauses...)
@@ -66,9 +66,9 @@ func ConvertBug(taskCtx core.SubTaskContext) error {
 				//UpdatedDate:    (*time.Time)(toolL.Modified),
 				ParentIssueId:  IssueIdGen.Generate(toolL.ConnectionId, toolL.IssueId),
 				Priority:       toolL.Priority,
-				CreatorId:      UserIdGen.Generate(data.Connection.ID, toolL.WorkspaceId, toolL.Reporter),
+				CreatorId:      UserIdGen.Generate(data.Options.ConnectionId, toolL.WorkspaceId, toolL.Reporter),
 				CreatorName:    toolL.Reporter,
-				AssigneeId:     UserIdGen.Generate(data.Connection.ID, toolL.WorkspaceId, toolL.CurrentOwner),
+				AssigneeId:     UserIdGen.Generate(data.Options.ConnectionId, toolL.WorkspaceId, toolL.CurrentOwner),
 				AssigneeName:   toolL.CurrentOwner,
 				Severity:       toolL.Severity,
 				Component:      toolL.Feature, // todo not sure about this
@@ -83,7 +83,7 @@ func ConvertBug(taskCtx core.SubTaskContext) error {
 				IssueId: domainL.Id,
 			}
 			sprintIssue := &ticket.SprintIssue{
-				SprintId: IterIdGen.Generate(data.Connection.ID, toolL.IterationId),
+				SprintId: IterIdGen.Generate(data.Options.ConnectionId, toolL.IterationId),
 				IssueId:  domainL.Id,
 			}
 			results = append(results, domainL, boardIssue, sprintIssue)

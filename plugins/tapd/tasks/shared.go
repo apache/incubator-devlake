@@ -72,7 +72,7 @@ func parseIterationChangelog(taskCtx core.SubTaskContext, old string, new string
 	clauses := []dal.Clause{
 		dal.From(&models.TapdIteration{}),
 		dal.Where("connection_id = ? and workspace_id = ? and name = ?",
-			data.Connection.ID, data.Options.WorkspaceId, old),
+			data.Options.ConnectionId, data.Options.WorkspaceId, old),
 	}
 	err := db.First(iterationFrom, clauses...)
 	if err != nil && err.Error() != "record not found" {
@@ -83,7 +83,7 @@ func parseIterationChangelog(taskCtx core.SubTaskContext, old string, new string
 	clauses = []dal.Clause{
 		dal.From(&models.TapdIteration{}),
 		dal.Where("connection_id = ? and workspace_id = ? and name = ?",
-			data.Connection.ID, data.Options.WorkspaceId, new),
+			data.Options.ConnectionId, data.Options.WorkspaceId, new),
 	}
 	err = db.First(iterationTo, clauses...)
 	if err != nil && err.Error() != "record not found" {

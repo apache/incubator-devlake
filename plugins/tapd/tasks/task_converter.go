@@ -39,7 +39,7 @@ func ConvertTask(taskCtx core.SubTaskContext) error {
 
 	clauses := []dal.Clause{
 		dal.From(&models.TapdTask{}),
-		dal.Where("connection_id = ? AND workspace_id = ?", data.Connection.ID, data.Options.WorkspaceId),
+		dal.Where("connection_id = ? AND workspace_id = ?", data.Options.ConnectionId, data.Options.WorkspaceId),
 	}
 
 	cursor, err := db.Cursor(clauses...)
@@ -69,9 +69,9 @@ func ConvertTask(taskCtx core.SubTaskContext) error {
 				UpdatedDate:    (*time.Time)(toolL.Modified),
 				ParentIssueId:  IssueIdGen.Generate(toolL.ConnectionId, toolL.StoryId),
 				Priority:       toolL.Priority,
-				CreatorId:      UserIdGen.Generate(data.Connection.ID, toolL.WorkspaceId, toolL.Creator),
+				CreatorId:      UserIdGen.Generate(data.Options.ConnectionId, toolL.WorkspaceId, toolL.Creator),
 				CreatorName:    toolL.Creator,
-				AssigneeId:     UserIdGen.Generate(data.Connection.ID, toolL.WorkspaceId, toolL.Owner),
+				AssigneeId:     UserIdGen.Generate(data.Options.ConnectionId, toolL.WorkspaceId, toolL.Owner),
 				AssigneeName:   toolL.Owner,
 			}
 			if domainL.ResolutionDate != nil && domainL.CreatedDate != nil {
@@ -83,7 +83,7 @@ func ConvertTask(taskCtx core.SubTaskContext) error {
 				IssueId: domainL.Id,
 			}
 			sprintIssue := &ticket.SprintIssue{
-				SprintId: IterIdGen.Generate(data.Connection.ID, toolL.IterationId),
+				SprintId: IterIdGen.Generate(data.Options.ConnectionId, toolL.IterationId),
 				IssueId:  domainL.Id,
 			}
 			results = append(results, domainL, boardIssue, sprintIssue)
