@@ -17,7 +17,7 @@ limitations under the License.
 
 package archived
 
-import "github.com/apache/incubator-devlake/models/common"
+import "github.com/apache/incubator-devlake/models/migrationscripts/archived"
 
 type TapdStoryCustomFields struct {
 	ConnectionId uint64 `gorm:"primaryKey;type:BIGINT  NOT NULL"`
@@ -30,7 +30,7 @@ type TapdStoryCustomFields struct {
 	Options      string `json:"options" gorm:"type:text"`
 	Enabled      string `json:"enabled" gorm:"type:varchar(255)"`
 	Sort         string `json:"sort" gorm:"type:varchar(255)"`
-	common.NoPKModel
+	archived.NoPKModel
 }
 
 func (TapdStoryCustomFields) TableName() string {

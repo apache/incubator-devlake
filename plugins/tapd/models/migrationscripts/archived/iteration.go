@@ -18,7 +18,7 @@ limitations under the License.
 package archived
 
 import (
-	"github.com/apache/incubator-devlake/models/common"
+	"github.com/apache/incubator-devlake/models/migrationscripts/archived"
 	"github.com/apache/incubator-devlake/plugins/helper"
 )
 
@@ -40,11 +40,11 @@ type TapdIteration struct {
 	Launchdate   *helper.CSTTime `json:"launchdate"`
 	Notice       string          `gorm:"type:varchar(255)" json:"notice"`
 	Releasename  string          `gorm:"type:varchar(255)" json:"releasename"`
-	common.NoPKModel
+	archived.NoPKModel
 }
 
 type TapdWorkspaceIteration struct {
-	common.NoPKModel
+	archived.NoPKModel
 	ConnectionId uint64 `gorm:"primaryKey"`
 	WorkspaceId  uint64 `gorm:"primaryKey"`
 	IterationId  uint64 `gorm:"primaryKey"`

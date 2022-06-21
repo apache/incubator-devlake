@@ -18,7 +18,7 @@ limitations under the License.
 package archived
 
 import (
-	"github.com/apache/incubator-devlake/models/common"
+	"github.com/apache/incubator-devlake/models/migrationscripts/archived"
 	"github.com/apache/incubator-devlake/plugins/helper"
 )
 
@@ -30,7 +30,7 @@ type TapdStoryCategory struct {
 	ParentId     uint64         `json:"parent_id,string"`
 	Created      helper.CSTTime `json:"created"`
 	Modified     helper.CSTTime `json:"modified"`
-	common.NoPKModel
+	archived.NoPKModel
 }
 
 func (TapdStoryCategory) TableName() string {

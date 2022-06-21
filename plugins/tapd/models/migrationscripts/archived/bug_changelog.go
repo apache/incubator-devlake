@@ -18,7 +18,7 @@ limitations under the License.
 package archived
 
 import (
-	"github.com/apache/incubator-devlake/models/common"
+	"github.com/apache/incubator-devlake/models/migrationscripts/archived"
 	"github.com/apache/incubator-devlake/plugins/helper"
 )
 
@@ -33,7 +33,7 @@ type TapdBugChangelog struct {
 	NewValue     string         `json:"new_value"`
 	Memo         string         `json:"memo" gorm:"type:text"`
 	Created      helper.CSTTime `json:"created"`
-	common.NoPKModel
+	archived.NoPKModel
 }
 
 type TapdBugChangelogItem struct {
@@ -44,7 +44,7 @@ type TapdBugChangelogItem struct {
 	ValueAfterParsed  string `json:"value_after_parsed"`
 	IterationIdFrom   uint64
 	IterationIdTo     uint64
-	common.NoPKModel
+	archived.NoPKModel
 }
 
 func (TapdBugChangelog) TableName() string {

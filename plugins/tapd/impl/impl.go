@@ -142,7 +142,7 @@ func (plugin Tapd) PrepareTaskData(taskCtx core.TaskContext, options map[string]
 		}
 	}
 	if connection.RateLimit == 0 {
-		connection.RateLimit = 2000
+		connection.RateLimit = 6000
 	}
 	tapdApiClient, err := tasks.NewTapdApiClient(taskCtx, connection)
 	if err != nil {

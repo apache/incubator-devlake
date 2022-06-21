@@ -18,12 +18,12 @@ limitations under the License.
 package archived
 
 import (
-	"github.com/apache/incubator-devlake/models/common"
+	"github.com/apache/incubator-devlake/models/migrationscripts/archived"
 	"github.com/apache/incubator-devlake/plugins/helper"
 )
 
 type TapdIterationTask struct {
-	common.NoPKModel
+	archived.NoPKModel
 	ConnectionId    uint64 `gorm:"primaryKey"`
 	IterationId     uint64 `gorm:"primaryKey"`
 	TaskId          uint64 `gorm:"primaryKey"`

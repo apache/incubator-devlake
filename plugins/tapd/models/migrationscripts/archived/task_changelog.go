@@ -18,7 +18,7 @@ limitations under the License.
 package archived
 
 import (
-	"github.com/apache/incubator-devlake/models/common"
+	"github.com/apache/incubator-devlake/models/migrationscripts/archived"
 	"github.com/apache/incubator-devlake/plugins/helper"
 )
 
@@ -35,7 +35,7 @@ type TapdTaskChangelog struct {
 	ChangeType     string         `json:"change_type" gorm:"type:varchar(255)"`
 	ChangeTypeText string         `json:"change_type_text" gorm:"type:varchar(255)"`
 	TaskId         uint64         `json:"task_id,string"`
-	common.NoPKModel
+	archived.NoPKModel
 	FieldChanges []TapdTaskChangelogItem `json:"field_changes" gorm:"-"`
 }
 
@@ -47,7 +47,7 @@ type TapdTaskChangelogItem struct {
 	ValueAfterParsed  string `json:"value_after_parsed"`
 	IterationIdFrom   uint64
 	IterationIdTo     uint64
-	common.NoPKModel
+	archived.NoPKModel
 }
 
 func (TapdTaskChangelog) TableName() string {

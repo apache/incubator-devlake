@@ -18,7 +18,7 @@ limitations under the License.
 package archived
 
 import (
-	"github.com/apache/incubator-devlake/models/common"
+	"github.com/apache/incubator-devlake/models/migrationscripts/archived"
 	"github.com/apache/incubator-devlake/plugins/helper"
 )
 
@@ -33,7 +33,7 @@ type TapdWorklog struct {
 	Owner        string          `gorm:"type:varchar(255)" json:"owner"`
 	Created      *helper.CSTTime `json:"created"`
 	Memo         string          `json:"memo" gorm:"type:text"`
-	common.NoPKModel
+	archived.NoPKModel
 }
 
 func (TapdWorklog) TableName() string {

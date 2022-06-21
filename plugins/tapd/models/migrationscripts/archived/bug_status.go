@@ -17,9 +17,7 @@ limitations under the License.
 
 package archived
 
-import (
-	"github.com/apache/incubator-devlake/models/common"
-)
+import "github.com/apache/incubator-devlake/models/migrationscripts/archived"
 
 type TapdBugStatus struct {
 	ConnectionId uint64 `gorm:"primaryKey"`
@@ -27,7 +25,7 @@ type TapdBugStatus struct {
 	EnglishName  string `gorm:"primaryKey;type:varchar(255)"`
 	ChineseName  string
 	IsLastStep   bool
-	common.NoPKModel
+	archived.NoPKModel
 }
 
 func (TapdBugStatus) TableName() string {
