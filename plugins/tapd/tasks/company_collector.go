@@ -31,19 +31,12 @@ const RAW_COMPANY_TABLE = "tapd_api_companies"
 var _ core.SubTaskEntryPoint = CollectCompanies
 
 func CollectCompanies(taskCtx core.SubTaskContext) error {
-	data := taskCtx.GetData().(*TapdTaskData)
+	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_COMPANY_TABLE)
 	logger := taskCtx.GetLogger()
 	logger.Info("collect companies")
 	collector, err := helper.NewApiCollector(helper.ApiCollectorArgs{
-		RawDataSubTaskArgs: helper.RawDataSubTaskArgs{
-			Ctx: taskCtx,
-			Params: TapdApiParams{
-				ConnectionId: data.Connection.ID,
-				CompanyId:    data.Options.CompanyId,
-			},
-			Table: RAW_COMPANY_TABLE,
-		},
-		ApiClient: data.ApiClient,
+		RawDataSubTaskArgs: *rawDataSubTaskArgs,
+		ApiClient:          data.ApiClient,
 		//PageSize:    100,
 		UrlTemplate: "workspaces/projects",
 		Query: func(reqData *helper.RequestData) (url.Values, error) {

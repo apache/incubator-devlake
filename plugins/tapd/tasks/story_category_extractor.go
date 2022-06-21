@@ -34,16 +34,9 @@ var ExtractStoryCategoriesMeta = core.SubTaskMeta{
 }
 
 func ExtractStoryCategories(taskCtx core.SubTaskContext) error {
-	data := taskCtx.GetData().(*TapdTaskData)
+	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_STORY_CATEGORY_TABLE)
 	extractor, err := helper.NewApiExtractor(helper.ApiExtractorArgs{
-		RawDataSubTaskArgs: helper.RawDataSubTaskArgs{
-			Ctx: taskCtx,
-			Params: TapdApiParams{
-				ConnectionId: data.Connection.ID,
-				WorkspaceID:  data.Options.WorkspaceID,
-			},
-			Table: RAW_STORY_CATEGORY_TABLE,
-		},
+		RawDataSubTaskArgs: *rawDataSubTaskArgs,
 		Extract: func(row *helper.RawData) ([]interface{}, error) {
 			var storyCategory struct {
 				Category models.TapdStoryCategory

@@ -18,6 +18,7 @@ limitations under the License.
 package tasks
 
 import (
+	"github.com/apache/incubator-devlake/plugins/core/dal"
 	"reflect"
 	"strconv"
 
@@ -29,28 +30,24 @@ import (
 )
 
 func ConvertBug(taskCtx core.SubTaskContext) error {
-	data := taskCtx.GetData().(*TapdTaskData)
+	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_BUG_TABLE)
 	logger := taskCtx.GetLogger()
-	db := taskCtx.GetDb()
+	db := taskCtx.GetDal()
 	logger.Info("convert board:%d", data.Options.WorkspaceID)
+	clauses := []dal.Clause{
+		dal.From(&models.TapdBug{}),
+		dal.Where("connection_id = ? AND workspace_id = ?", data.Connection.ID, data.Options.WorkspaceID),
+	}
 
-	cursor, err := db.Model(&models.TapdBug{}).Where("connection_id = ? AND workspace_id = ?", data.Connection.ID, data.Options.WorkspaceID).Rows()
+	cursor, err := db.Cursor(clauses...)
 	if err != nil {
 		return err
 	}
 	defer cursor.Close()
 	converter, err := helper.NewDataConverter(helper.DataConverterArgs{
-		RawDataSubTaskArgs: helper.RawDataSubTaskArgs{
-			Ctx: taskCtx,
-			Params: TapdApiParams{
-				ConnectionId: data.Connection.ID,
-
-				WorkspaceID: data.Options.WorkspaceID,
-			},
-			Table: RAW_BUG_TABLE,
-		},
-		InputRowType: reflect.TypeOf(models.TapdBug{}),
-		Input:        cursor,
+		RawDataSubTaskArgs: *rawDataSubTaskArgs,
+		InputRowType:       reflect.TypeOf(models.TapdBug{}),
+		Input:              cursor,
 		Convert: func(inputRow interface{}) ([]interface{}, error) {
 			toolL := inputRow.(*models.TapdBug)
 			domainL := &ticket.Issue{

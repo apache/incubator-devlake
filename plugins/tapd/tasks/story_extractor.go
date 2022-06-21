@@ -22,6 +22,7 @@ import (
 	"fmt"
 	"github.com/apache/incubator-devlake/models/domainlayer/ticket"
 	"github.com/apache/incubator-devlake/plugins/core"
+	"github.com/apache/incubator-devlake/plugins/core/dal"
 	"github.com/apache/incubator-devlake/plugins/helper"
 	"github.com/apache/incubator-devlake/plugins/tapd/models"
 	"strings"
@@ -37,12 +38,14 @@ var ExtractStoryMeta = core.SubTaskMeta{
 }
 
 func ExtractStories(taskCtx core.SubTaskContext) error {
-	data := taskCtx.GetData().(*TapdTaskData)
-	db := taskCtx.GetDb()
+	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_STORY_TABLE)
+	db := taskCtx.GetDal()
 	statusList := make([]*models.TapdStoryStatus, 0)
-	err := db.Model(&models.TapdStoryStatus{}).
-		Find(&statusList, "connection_id = ? and workspace_id = ?", data.Options.ConnectionId, data.Options.WorkspaceID).
-		Error
+	clauses := []dal.Clause{
+		dal.Where("connection_id = ? and workspace_id = ?", data.Options.ConnectionId, data.Options.WorkspaceID),
+		dal.Orderby("created DESC"),
+	}
+	err := db.All(&statusList, clauses...)
 	if err != nil {
 		return err
 	}
@@ -61,16 +64,8 @@ func ExtractStories(taskCtx core.SubTaskContext) error {
 		}
 	}
 	extractor, err := helper.NewApiExtractor(helper.ApiExtractorArgs{
-		RawDataSubTaskArgs: helper.RawDataSubTaskArgs{
-			Ctx: taskCtx,
-			Params: TapdApiParams{
-				ConnectionId: data.Connection.ID,
-				//CompanyId: data.Options.CompanyId,
-				WorkspaceID: data.Options.WorkspaceID,
-			},
-			Table: RAW_STORY_TABLE,
-		},
-		BatchSize: 100,
+		RawDataSubTaskArgs: *rawDataSubTaskArgs,
+		BatchSize:          100,
 		Extract: func(row *helper.RawData) ([]interface{}, error) {
 			var storyBody struct {
 				Story models.TapdStory

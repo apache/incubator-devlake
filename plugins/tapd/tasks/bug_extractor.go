@@ -22,6 +22,7 @@ import (
 	"fmt"
 	"github.com/apache/incubator-devlake/models/domainlayer/ticket"
 	"github.com/apache/incubator-devlake/plugins/core"
+	"github.com/apache/incubator-devlake/plugins/core/dal"
 	"github.com/apache/incubator-devlake/plugins/helper"
 	"github.com/apache/incubator-devlake/plugins/tapd/models"
 	"strings"
@@ -37,13 +38,14 @@ var ExtractBugMeta = core.SubTaskMeta{
 }
 
 func ExtractBugs(taskCtx core.SubTaskContext) error {
-	data := taskCtx.GetData().(*TapdTaskData)
-	db := taskCtx.GetDb()
+	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_BUG_TABLE)
+	db := taskCtx.GetDal()
 	statusList := make([]*models.TapdBugStatus, 0)
-
-	err := db.Model(&models.TapdBugStatus{}).
-		Find(&statusList, "connection_id = ? and workspace_id = ?", data.Options.ConnectionId, data.Options.WorkspaceID).
-		Error
+	clauses := []dal.Clause{
+		dal.Where("connection_id = ? and workspace_id = ?", data.Options.ConnectionId, data.Options.WorkspaceID),
+		dal.Orderby("created DESC"),
+	}
+	err := db.All(&statusList, clauses...)
 	if err != nil {
 		return err
 	}
@@ -63,16 +65,8 @@ func ExtractBugs(taskCtx core.SubTaskContext) error {
 		}
 	}
 	extractor, err := helper.NewApiExtractor(helper.ApiExtractorArgs{
-		RawDataSubTaskArgs: helper.RawDataSubTaskArgs{
-			Ctx: taskCtx,
-			Params: TapdApiParams{
-				ConnectionId: data.Connection.ID,
-				//CompanyId: data.Options.CompanyId,
-				WorkspaceID: data.Options.WorkspaceID,
-			},
-			Table: RAW_BUG_TABLE,
-		},
-		BatchSize: 100,
+		RawDataSubTaskArgs: *rawDataSubTaskArgs,
+		BatchSize:          100,
 		Extract: func(row *helper.RawData) ([]interface{}, error) {
 			var bugBody struct {
 				Bug models.TapdBug

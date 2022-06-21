@@ -33,16 +33,9 @@ var ExtractCompanyMeta = core.SubTaskMeta{
 }
 
 func ExtractCompanies(taskCtx core.SubTaskContext) error {
-	data := taskCtx.GetData().(*TapdTaskData)
+	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_COMPANY_TABLE)
 	extractor, err := helper.NewApiExtractor(helper.ApiExtractorArgs{
-		RawDataSubTaskArgs: helper.RawDataSubTaskArgs{
-			Ctx: taskCtx,
-			Params: TapdApiParams{
-				ConnectionId: data.Connection.ID,
-				CompanyId:    data.Options.CompanyId,
-			},
-			Table: RAW_COMPANY_TABLE,
-		},
+		RawDataSubTaskArgs: *rawDataSubTaskArgs,
 		Extract: func(row *helper.RawData) ([]interface{}, error) {
 			err := json.Unmarshal(row.Data, &workspaceRes)
 			if err != nil {

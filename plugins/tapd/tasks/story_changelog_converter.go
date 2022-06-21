@@ -19,6 +19,7 @@ package tasks
 
 import (
 	"fmt"
+	"github.com/apache/incubator-devlake/plugins/core/dal"
 	"reflect"
 	"time"
 
@@ -53,33 +54,29 @@ type StoryChangelogItemResult struct {
 }
 
 func ConvertStoryChangelog(taskCtx core.SubTaskContext) error {
-	data := taskCtx.GetData().(*TapdTaskData)
+	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_STORY_CHANGELOG_TABLE)
 	logger := taskCtx.GetLogger()
-	db := taskCtx.GetDb()
+	db := taskCtx.GetDal()
 	logger.Info("convert changelog :%d", data.Options.WorkspaceID)
 	clIdGen := didgen.NewDomainIdGenerator(&models.TapdStoryChangelog{})
 
-	cursor, err := db.Table("_tool_tapd_story_changelog_items").
-		Joins("left join _tool_tapd_story_changelogs tc on tc.id = _tool_tapd_story_changelog_items.changelog_id ").
-		Where("tc.connection_id = ? AND tc.workspace_id = ?", data.Connection.ID, data.Options.WorkspaceID).
-		Select("tc.*, _tool_tapd_story_changelog_items.*").
-		Rows()
+	clauses := []dal.Clause{
+		dal.Select("tc.created, tc.id, tc.workspace_id, tc.story_id, tc.author, _tool_tapd_story_changelog_items.*"),
+		dal.From(&models.TapdStoryChangelogItem{}),
+		dal.Join("left join _tool_tapd_story_changelogs tc on tc.id = _tool_tapd_story_changelog_items.changelog_id "),
+		dal.Where("tc.connection_id = ? AND tc.workspace_id = ?", data.Connection.ID, data.Options.WorkspaceID),
+		dal.Orderby("created DESC"),
+	}
+
+	cursor, err := db.Cursor(clauses...)
 	if err != nil {
 		return err
 	}
 	defer cursor.Close()
 	converter, err := helper.NewDataConverter(helper.DataConverterArgs{
-		RawDataSubTaskArgs: helper.RawDataSubTaskArgs{
-			Ctx: taskCtx,
-			Params: TapdApiParams{
-				ConnectionId: data.Connection.ID,
-
-				WorkspaceID: data.Options.WorkspaceID,
-			},
-			Table: RAW_STORY_CHANGELOG_TABLE,
-		},
-		InputRowType: reflect.TypeOf(StoryChangelogItemResult{}),
-		Input:        cursor,
+		RawDataSubTaskArgs: *rawDataSubTaskArgs,
+		InputRowType:       reflect.TypeOf(StoryChangelogItemResult{}),
+		Input:              cursor,
 		Convert: func(inputRow interface{}) ([]interface{}, error) {
 			cl := inputRow.(*StoryChangelogItemResult)
 			domainCl := &ticket.Changelog{

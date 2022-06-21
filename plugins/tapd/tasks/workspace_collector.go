@@ -30,27 +30,13 @@ const RAW_WORKSPACE_TABLE = "tapd_api_sub_workspaces"
 
 var _ core.SubTaskEntryPoint = CollectWorkspaces
 
-type TapdApiParams struct {
-	ConnectionId uint64
-	CompanyId    uint64
-	WorkspaceID  uint64
-}
-
 func CollectWorkspaces(taskCtx core.SubTaskContext) error {
-	data := taskCtx.GetData().(*TapdTaskData)
+	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_WORKSPACE_TABLE)
 	logger := taskCtx.GetLogger()
 	logger.Info("collect workspaces")
 	collector, err := helper.NewApiCollector(helper.ApiCollectorArgs{
-		RawDataSubTaskArgs: helper.RawDataSubTaskArgs{
-			Ctx: taskCtx,
-			Params: TapdApiParams{
-				ConnectionId: data.Connection.ID,
-				//CompanyId: data.Options.CompanyId,
-				WorkspaceID: data.Options.WorkspaceID,
-			},
-			Table: RAW_WORKSPACE_TABLE,
-		},
-		ApiClient: data.ApiClient,
+		RawDataSubTaskArgs: *rawDataSubTaskArgs,
+		ApiClient:          data.ApiClient,
 		//PageSize:    100,
 		UrlTemplate: "workspaces/sub_workspaces",
 		Query: func(reqData *helper.RequestData) (url.Values, error) {

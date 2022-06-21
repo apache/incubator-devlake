@@ -20,6 +20,7 @@ package tasks
 import (
 	"fmt"
 	"github.com/apache/incubator-devlake/plugins/core"
+	"github.com/apache/incubator-devlake/plugins/core/dal"
 	"github.com/apache/incubator-devlake/plugins/helper"
 	"github.com/apache/incubator-devlake/plugins/tapd/models"
 	"net/url"
@@ -31,8 +32,8 @@ const RAW_BUG_TABLE = "tapd_api_bugs"
 var _ core.SubTaskEntryPoint = CollectBugs
 
 func CollectBugs(taskCtx core.SubTaskContext) error {
-	data := taskCtx.GetData().(*TapdTaskData)
-	db := taskCtx.GetDb()
+	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_BUG_TABLE)
+	db := taskCtx.GetDal()
 	logger := taskCtx.GetLogger()
 	logger.Info("collect bugs")
 
@@ -41,7 +42,11 @@ func CollectBugs(taskCtx core.SubTaskContext) error {
 	if since == nil {
 		// user didn't specify a time range to sync, try load from database
 		var latestUpdated models.TapdBug
-		err := db.Where("connection_id = ? and workspace_id = ?", data.Connection.ID, data.Options.WorkspaceID).Order("modified DESC").Limit(1).Find(&latestUpdated).Error
+		clauses := []dal.Clause{
+			dal.Where("connection_id = ? and workspace_id = ?", data.Connection.ID, data.Options.WorkspaceID),
+			dal.Orderby("modified DESC"),
+		}
+		err := db.First(&latestUpdated, clauses...)
 		if err != nil {
 			return fmt.Errorf("failed to get latest tapd changelog record: %w", err)
 		}
@@ -52,19 +57,11 @@ func CollectBugs(taskCtx core.SubTaskContext) error {
 	}
 
 	collector, err := helper.NewApiCollector(helper.ApiCollectorArgs{
-		RawDataSubTaskArgs: helper.RawDataSubTaskArgs{
-			Ctx: taskCtx,
-			Params: TapdApiParams{
-				ConnectionId: data.Connection.ID,
-				//CompanyId: data.Options.CompanyId,
-				WorkspaceID: data.Options.WorkspaceID,
-			},
-			Table: RAW_BUG_TABLE,
-		},
-		Incremental: incremental,
-		ApiClient:   data.ApiClient,
-		PageSize:    100,
-		UrlTemplate: "bugs",
+		RawDataSubTaskArgs: *rawDataSubTaskArgs,
+		Incremental:        incremental,
+		ApiClient:          data.ApiClient,
+		PageSize:           100,
+		UrlTemplate:        "bugs",
 		Query: func(reqData *helper.RequestData) (url.Values, error) {
 			query := url.Values{}
 			query.Set("workspace_id", fmt.Sprintf("%v", data.Options.WorkspaceID))
