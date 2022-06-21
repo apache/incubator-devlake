@@ -34,16 +34,9 @@ var ExtractTaskCustomFieldsMeta = core.SubTaskMeta{
 }
 
 func ExtractTaskCustomFields(taskCtx core.SubTaskContext) error {
-	data := taskCtx.GetData().(*TapdTaskData)
+	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_TASK_CUSTOM_FIELDS_TABLE)
 	extractor, err := helper.NewApiExtractor(helper.ApiExtractorArgs{
-		RawDataSubTaskArgs: helper.RawDataSubTaskArgs{
-			Ctx: taskCtx,
-			Params: TapdApiParams{
-				ConnectionId: data.Connection.ID,
-				WorkspaceID:  data.Options.WorkspaceID,
-			},
-			Table: RAW_TASK_CUSTOM_FIELDS_TABLE,
-		},
+		RawDataSubTaskArgs: *rawDataSubTaskArgs,
 		Extract: func(row *helper.RawData) ([]interface{}, error) {
 			var taskCustomFieldsRes struct {
 				CustomFieldConfig models.TapdTaskCustomFields

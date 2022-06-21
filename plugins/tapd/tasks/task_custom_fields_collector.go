@@ -31,19 +31,12 @@ const RAW_TASK_CUSTOM_FIELDS_TABLE = "tapd_api_task_custom_fields"
 var _ core.SubTaskEntryPoint = CollectTaskCustomFields
 
 func CollectTaskCustomFields(taskCtx core.SubTaskContext) error {
-	data := taskCtx.GetData().(*TapdTaskData)
+	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_TASK_CUSTOM_FIELDS_TABLE)
 	logger := taskCtx.GetLogger()
 	logger.Info("collect task_custom_fields")
 	collector, err := helper.NewApiCollector(helper.ApiCollectorArgs{
-		RawDataSubTaskArgs: helper.RawDataSubTaskArgs{
-			Ctx: taskCtx,
-			Params: TapdApiParams{
-				ConnectionId: data.Connection.ID,
-				WorkspaceID:  data.Options.WorkspaceID,
-			},
-			Table: RAW_TASK_CUSTOM_FIELDS_TABLE,
-		},
-		ApiClient: data.ApiClient,
+		RawDataSubTaskArgs: *rawDataSubTaskArgs,
+		ApiClient:          data.ApiClient,
 		//PageSize:    100,
 		UrlTemplate: "tasks/custom_fields_settings",
 		Query: func(reqData *helper.RequestData) (url.Values, error) {

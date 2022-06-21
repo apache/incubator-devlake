@@ -31,19 +31,12 @@ const RAW_STORY_CATEGORY_TABLE = "tapd_api_story_categories"
 var _ core.SubTaskEntryPoint = CollectStoryCategories
 
 func CollectStoryCategories(taskCtx core.SubTaskContext) error {
-	data := taskCtx.GetData().(*TapdTaskData)
+	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_STORY_CATEGORY_TABLE)
 	logger := taskCtx.GetLogger()
 	logger.Info("collect story_category")
 	collector, err := helper.NewApiCollector(helper.ApiCollectorArgs{
-		RawDataSubTaskArgs: helper.RawDataSubTaskArgs{
-			Ctx: taskCtx,
-			Params: TapdApiParams{
-				ConnectionId: data.Connection.ID,
-				WorkspaceID:  data.Options.WorkspaceID,
-			},
-			Table: RAW_STORY_CATEGORY_TABLE,
-		},
-		ApiClient: data.ApiClient,
+		RawDataSubTaskArgs: *rawDataSubTaskArgs,
+		ApiClient:          data.ApiClient,
 		//PageSize:    100,
 		UrlTemplate: "story_categories",
 		Query: func(reqData *helper.RequestData) (url.Values, error) {

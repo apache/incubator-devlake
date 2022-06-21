@@ -37,7 +37,7 @@ var ExtractTaskMeta = core.SubTaskMeta{
 }
 
 func ExtractTasks(taskCtx core.SubTaskContext) error {
-	data := taskCtx.GetData().(*TapdTaskData)
+	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_TASK_TABLE)
 	getStdStatus := func(statusKey string) string {
 		if statusKey == "done" {
 			return ticket.DONE
@@ -48,16 +48,8 @@ func ExtractTasks(taskCtx core.SubTaskContext) error {
 		}
 	}
 	extractor, err := helper.NewApiExtractor(helper.ApiExtractorArgs{
-		RawDataSubTaskArgs: helper.RawDataSubTaskArgs{
-			Ctx: taskCtx,
-			Params: TapdApiParams{
-				ConnectionId: data.Connection.ID,
-				//CompanyId: data.Options.CompanyId,
-				WorkspaceID: data.Options.WorkspaceID,
-			},
-			Table: RAW_TASK_TABLE,
-		},
-		BatchSize: 100,
+		RawDataSubTaskArgs: *rawDataSubTaskArgs,
+		BatchSize:          100,
 		Extract: func(row *helper.RawData) ([]interface{}, error) {
 			var taskBody struct {
 				Task models.TapdTask

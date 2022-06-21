@@ -31,21 +31,13 @@ const RAW_USER_TABLE = "tapd_api_users"
 var _ core.SubTaskEntryPoint = CollectUsers
 
 func CollectUsers(taskCtx core.SubTaskContext) error {
-	data := taskCtx.GetData().(*TapdTaskData)
+	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_USER_TABLE)
 	logger := taskCtx.GetLogger()
 	logger.Info("collect users")
 	collector, err := helper.NewApiCollector(helper.ApiCollectorArgs{
-		RawDataSubTaskArgs: helper.RawDataSubTaskArgs{
-			Ctx: taskCtx,
-			Params: TapdApiParams{
-				ConnectionId: data.Connection.ID,
-				//CompanyId: data.Options.CompanyId,
-				WorkspaceID: data.Options.WorkspaceID,
-			},
-			Table: RAW_USER_TABLE,
-		},
-		ApiClient:   data.ApiClient,
-		UrlTemplate: "workspaces/users",
+		RawDataSubTaskArgs: *rawDataSubTaskArgs,
+		ApiClient:          data.ApiClient,
+		UrlTemplate:        "workspaces/users",
 		//PageSize:    100,
 		Query: func(reqData *helper.RequestData) (url.Values, error) {
 			query := url.Values{}

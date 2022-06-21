@@ -18,6 +18,7 @@ limitations under the License.
 package tasks
 
 import (
+	"github.com/apache/incubator-devlake/plugins/core/dal"
 	"github.com/apache/incubator-devlake/plugins/tapd/models"
 	"reflect"
 
@@ -34,31 +35,26 @@ var ConvertTaskLabelsMeta = core.SubTaskMeta{
 }
 
 func ConvertTaskLabels(taskCtx core.SubTaskContext) error {
-	db := taskCtx.GetDb()
-	data := taskCtx.GetData().(*TapdTaskData)
+	db := taskCtx.GetDal()
+	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_TASK_TABLE)
 
-	cursor, err := db.Model(&models.TapdTaskLabel{}).
-		Joins(`left join _tool_tapd_workspace_tasks on _tool_tapd_workspace_tasks.task_id = _tool_tapd_task_labels.task_id`).
-		Where("_tool_tapd_workspace_tasks.workspace_id = ?", data.Options.WorkspaceID).
-		Order("task_id ASC").
-		Rows()
+	clauses := []dal.Clause{
+		dal.Join(`left join _tool_tapd_workspace_tasks on _tool_tapd_workspace_tasks.task_id = _tool_tapd_task_labels.task_id`),
+		dal.Where("_tool_tapd_workspace_tasks.workspace_id = ? and _tool_tapd_workspace_tasks.connection_id = ?",
+			data.Options.WorkspaceID, data.Options.ConnectionId),
+		dal.Orderby("task_id ASC"),
+	}
+
+	cursor, err := db.Cursor(clauses...)
 	if err != nil {
 		return err
 	}
 	defer cursor.Close()
 
 	converter, err := helper.NewDataConverter(helper.DataConverterArgs{
-		RawDataSubTaskArgs: helper.RawDataSubTaskArgs{
-			Ctx: taskCtx,
-			Params: TapdApiParams{
-				ConnectionId: data.Connection.ID,
-
-				WorkspaceID: data.Options.WorkspaceID,
-			},
-			Table: RAW_BUG_TABLE,
-		},
-		InputRowType: reflect.TypeOf(models.TapdTaskLabel{}),
-		Input:        cursor,
+		RawDataSubTaskArgs: *rawDataSubTaskArgs,
+		InputRowType:       reflect.TypeOf(models.TapdTaskLabel{}),
+		Input:              cursor,
 		Convert: func(inputRow interface{}) ([]interface{}, error) {
 			issueLabel := inputRow.(*models.TapdTaskLabel)
 			domainTaskLabel := &ticket.IssueLabel{

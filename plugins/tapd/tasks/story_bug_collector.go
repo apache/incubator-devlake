@@ -32,7 +32,7 @@ const RAW_STORY_BUG_TABLE = "tapd_api_story_bugs"
 var _ core.SubTaskEntryPoint = CollectStoryBugs
 
 func CollectStoryBugs(taskCtx core.SubTaskContext) error {
-	data := taskCtx.GetData().(*TapdTaskData)
+	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_STORY_BUG_TABLE)
 	db := taskCtx.GetDal()
 	logger := taskCtx.GetLogger()
 	logger.Info("collect storyBugs")
@@ -51,18 +51,10 @@ func CollectStoryBugs(taskCtx core.SubTaskContext) error {
 		return err
 	}
 	collector, err := helper.NewApiCollector(helper.ApiCollectorArgs{
-		RawDataSubTaskArgs: helper.RawDataSubTaskArgs{
-			Ctx: taskCtx,
-			Params: TapdApiParams{
-				ConnectionId: data.Connection.ID,
-				//CompanyId: data.Options.CompanyId,
-				WorkspaceID: data.Options.WorkspaceID,
-			},
-			Table: RAW_STORY_BUG_TABLE,
-		},
-		ApiClient:   data.ApiClient,
-		Input:       iterator,
-		UrlTemplate: "stories/get_related_bugs",
+		RawDataSubTaskArgs: *rawDataSubTaskArgs,
+		ApiClient:          data.ApiClient,
+		Input:              iterator,
+		UrlTemplate:        "stories/get_related_bugs",
 		Query: func(reqData *helper.RequestData) (url.Values, error) {
 			input := reqData.Input.(*SimpleStory)
 			query := url.Values{}

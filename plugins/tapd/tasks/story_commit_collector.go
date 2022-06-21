@@ -21,6 +21,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/apache/incubator-devlake/plugins/core"
+	"github.com/apache/incubator-devlake/plugins/core/dal"
 	"github.com/apache/incubator-devlake/plugins/helper"
 	"github.com/apache/incubator-devlake/plugins/tapd/models"
 	"net/http"
@@ -38,8 +39,8 @@ type SimpleStory struct {
 }
 
 func CollectStoryCommits(taskCtx core.SubTaskContext) error {
-	data := taskCtx.GetData().(*TapdTaskData)
-	db := taskCtx.GetDb()
+	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_STORY_COMMIT_TABLE)
+	db := taskCtx.GetDal()
 	logger := taskCtx.GetLogger()
 	logger.Info("collect issueCommits")
 	num := 0
@@ -48,7 +49,11 @@ func CollectStoryCommits(taskCtx core.SubTaskContext) error {
 	if since == nil {
 		// user didn't specify a time range to sync, try load from database
 		var latestUpdated models.TapdStoryCommit
-		err := db.Where("connection_id = ? and workspace_id = ?", data.Connection.ID, data.Options.WorkspaceID).Order("created DESC").Limit(1).Find(&latestUpdated).Error
+		clauses := []dal.Clause{
+			dal.Where("connection_id = ? and workspace_id = ?", data.Connection.ID, data.Options.WorkspaceID),
+			dal.Orderby("created DESC"),
+		}
+		err := db.First(&latestUpdated, clauses...)
 		if err != nil {
 			return fmt.Errorf("failed to get latest tapd changelog record: %w", err)
 		}
@@ -58,32 +63,26 @@ func CollectStoryCommits(taskCtx core.SubTaskContext) error {
 		}
 	}
 
-	tx := db.Model(&models.TapdStory{})
-	tx = tx.Where("connection_id = ? and workspace_id = ?", data.Options.ConnectionId, data.Options.WorkspaceID)
-
-	if since != nil {
-		tx = tx.Where("modified > ?", since)
+	clauses := []dal.Clause{
+		dal.Select("id"),
+		dal.From(&models.TapdStory{}),
+		dal.Where("connection_id = ? and workspace_id = ?", data.Options.ConnectionId, data.Options.WorkspaceID),
 	}
-	cursor, err := tx.Select("id").Rows()
+	if since != nil {
+		clauses = append(clauses, dal.Where("modified > ?", since))
+	}
+	cursor, err := db.Cursor(clauses...)
 	if err != nil {
 		return err
 	}
-	iterator, err := helper.NewCursorIterator(db, cursor, reflect.TypeOf(SimpleStory{}))
+	iterator, err := helper.NewDalCursorIterator(db, cursor, reflect.TypeOf(SimpleStory{}))
 	if err != nil {
 		return err
 	}
 	collector, err := helper.NewApiCollector(helper.ApiCollectorArgs{
-		RawDataSubTaskArgs: helper.RawDataSubTaskArgs{
-			Ctx: taskCtx,
-			Params: TapdApiParams{
-				ConnectionId: data.Connection.ID,
-				//CompanyId: data.Options.CompanyId,
-				WorkspaceID: data.Options.WorkspaceID,
-			},
-			Table: RAW_STORY_COMMIT_TABLE,
-		},
-		Incremental: incremental,
-		ApiClient:   data.ApiClient,
+		RawDataSubTaskArgs: *rawDataSubTaskArgs,
+		Incremental:        incremental,
+		ApiClient:          data.ApiClient,
 		//PageSize:    100,
 		Input:       iterator,
 		UrlTemplate: "code_commit_infos",

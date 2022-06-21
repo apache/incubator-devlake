@@ -18,6 +18,7 @@ limitations under the License.
 package tasks
 
 import (
+	"github.com/apache/incubator-devlake/plugins/core/dal"
 	"reflect"
 	"time"
 
@@ -50,33 +51,29 @@ type BugChangelogItemResult struct {
 }
 
 func ConvertBugChangelog(taskCtx core.SubTaskContext) error {
-	data := taskCtx.GetData().(*TapdTaskData)
+	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_BUG_CHANGELOG_TABLE)
 	logger := taskCtx.GetLogger()
-	db := taskCtx.GetDb()
+	db := taskCtx.GetDal()
 	logger.Info("convert changelog :%d", data.Options.WorkspaceID)
 	clIdGen := didgen.NewDomainIdGenerator(&models.TapdBugChangelog{})
+	clauses := []dal.Clause{
+		dal.Select("tc.created, tc.id, tc.workspace_id, tc.bug_id, tc.author, _tool_tapd_bug_changelog_items.*"),
+		dal.From(&models.TapdBugChangelogItem{}),
+		dal.Join("left join _tool_tapd_bug_changelogs tc on tc.id = _tool_tapd_bug_changelog_items.changelog_id "),
+		dal.Where("tc.connection_id = ? AND tc.workspace_id = ?", data.Connection.ID, data.Options.WorkspaceID),
+		dal.Orderby("created DESC"),
+	}
 
-	cursor, err := db.Table("_tool_tapd_bug_changelog_items").
-		Joins("left join _tool_tapd_bug_changelogs tc on tc.id = _tool_tapd_bug_changelog_items.changelog_id ").
-		Where("tc.connection_id = ? AND tc.workspace_id = ?", data.Connection.ID, data.Options.WorkspaceID).
-		Select("tc.created, tc.id, tc.workspace_id, tc.bug_id, tc.author, _tool_tapd_bug_changelog_items.*").
-		Rows()
+	cursor, err := db.Cursor(clauses...)
 	if err != nil {
 		return err
 	}
 	defer cursor.Close()
-	converter, err := helper.NewDataConverter(helper.DataConverterArgs{
-		RawDataSubTaskArgs: helper.RawDataSubTaskArgs{
-			Ctx: taskCtx,
-			Params: TapdApiParams{
-				ConnectionId: data.Connection.ID,
 
-				WorkspaceID: data.Options.WorkspaceID,
-			},
-			Table: RAW_BUG_CHANGELOG_TABLE,
-		},
-		InputRowType: reflect.TypeOf(BugChangelogItemResult{}),
-		Input:        cursor,
+	converter, err := helper.NewDataConverter(helper.DataConverterArgs{
+		RawDataSubTaskArgs: *rawDataSubTaskArgs,
+		InputRowType:       reflect.TypeOf(BugChangelogItemResult{}),
+		Input:              cursor,
 		Convert: func(inputRow interface{}) ([]interface{}, error) {
 			cl := inputRow.(*BugChangelogItemResult)
 			domainCl := &ticket.Changelog{

@@ -23,6 +23,7 @@ import (
 	"github.com/apache/incubator-devlake/models/domainlayer/didgen"
 	"github.com/apache/incubator-devlake/models/domainlayer/ticket"
 	"github.com/apache/incubator-devlake/plugins/core"
+	"github.com/apache/incubator-devlake/plugins/core/dal"
 	"github.com/apache/incubator-devlake/plugins/helper"
 	"github.com/apache/incubator-devlake/plugins/tapd/models"
 	"reflect"
@@ -31,28 +32,25 @@ import (
 )
 
 func ConvertIteration(taskCtx core.SubTaskContext) error {
-	data := taskCtx.GetData().(*TapdTaskData)
+	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_ITERATION_TABLE)
 	logger := taskCtx.GetLogger()
-	db := taskCtx.GetDb()
+	db := taskCtx.GetDal()
 	logger.Info("collect board:%d", data.Options.WorkspaceID)
 	iterIdGen := didgen.NewDomainIdGenerator(&models.TapdIteration{})
-	cursor, err := db.Model(&models.TapdIteration{}).Where("connection_id = ? AND workspace_id = ?", data.Connection.ID, data.Options.WorkspaceID).Rows()
+	clauses := []dal.Clause{
+		dal.From(&models.TapdIteration{}),
+		dal.Where("tc.connection_id = ? AND tc.workspace_id = ?", data.Connection.ID, data.Options.WorkspaceID),
+	}
+
+	cursor, err := db.Cursor(clauses...)
 	if err != nil {
 		return err
 	}
 	defer cursor.Close()
 	converter, err := helper.NewDataConverter(helper.DataConverterArgs{
-		RawDataSubTaskArgs: helper.RawDataSubTaskArgs{
-			Ctx: taskCtx,
-			Params: TapdApiParams{
-				ConnectionId: data.Connection.ID,
-
-				WorkspaceID: data.Options.WorkspaceID,
-			},
-			Table: RAW_ITERATION_TABLE,
-		},
-		InputRowType: reflect.TypeOf(models.TapdIteration{}),
-		Input:        cursor,
+		RawDataSubTaskArgs: *rawDataSubTaskArgs,
+		InputRowType:       reflect.TypeOf(models.TapdIteration{}),
+		Input:              cursor,
 		Convert: func(inputRow interface{}) ([]interface{}, error) {
 			iter := inputRow.(*models.TapdIteration)
 			domainIter := &ticket.Sprint{

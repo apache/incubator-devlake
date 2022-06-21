@@ -22,6 +22,7 @@ import (
 	"fmt"
 	"github.com/apache/incubator-devlake/models/domainlayer/didgen"
 	"github.com/apache/incubator-devlake/plugins/core"
+	"github.com/apache/incubator-devlake/plugins/core/dal"
 	"github.com/apache/incubator-devlake/plugins/helper"
 	"github.com/apache/incubator-devlake/plugins/tapd/models"
 	"io/ioutil"
@@ -65,18 +66,25 @@ func GetTotalPagesFromResponse(r *http.Response, args *helper.ApiCollectorArgs) 
 
 func parseIterationChangelog(taskCtx core.SubTaskContext, old string, new string) (uint64, uint64, error) {
 	data := taskCtx.GetData().(*TapdTaskData)
-	db := taskCtx.GetDb()
+	db := taskCtx.GetDal()
 	iterationFrom := &models.TapdIteration{}
-	err := db.Model(&models.TapdIteration{}).
-		Where("connection_id = ? and workspace_id = ? and name = ?",
-			data.Connection.ID, data.Options.WorkspaceID, old).Limit(1).Find(iterationFrom).Error
+	clauses := []dal.Clause{
+		dal.From(&models.TapdIteration{}),
+		dal.Where("connection_id = ? and workspace_id = ? and name = ?",
+			data.Connection.ID, data.Options.WorkspaceID, old),
+	}
+	err := db.First(iterationFrom, clauses...)
 	if err != nil {
 		return 0, 0, err
 	}
+
 	iterationTo := &models.TapdIteration{}
-	err = db.Model(&models.TapdIteration{}).
-		Where("connection_id = ? and workspace_id = ? and name = ?",
-			data.Connection.ID, data.Options.WorkspaceID, new).Limit(1).Find(iterationTo).Error
+	clauses = []dal.Clause{
+		dal.From(&models.TapdIteration{}),
+		dal.Where("connection_id = ? and workspace_id = ? and name = ?",
+			data.Connection.ID, data.Options.WorkspaceID, new),
+	}
+	err = db.First(iterationTo, clauses...)
 	if err != nil {
 		return 0, 0, err
 	}
@@ -97,4 +105,27 @@ func GetRawMessageArrayFromResponse(res *http.Response) ([]json.RawMessage, erro
 	}
 	err := helper.UnmarshalResponse(res, &data)
 	return data.Data, err
+}
+
+type TapdApiParams struct {
+	ConnectionId uint64
+	CompanyId    uint64
+	WorkspaceID  uint64
+}
+
+func CreateRawDataSubTaskArgs(taskCtx core.SubTaskContext, rawTable string) (*helper.RawDataSubTaskArgs, *TapdTaskData) {
+	data := taskCtx.GetData().(*TapdTaskData)
+	var params = TapdApiParams{
+		ConnectionId: data.Connection.ID,
+		WorkspaceID:  data.Options.WorkspaceID,
+	}
+	if data.Options.CompanyId != 0 {
+		params.CompanyId = data.Options.CompanyId
+	}
+	RawDataSubTaskArgs := &helper.RawDataSubTaskArgs{
+		Ctx:    taskCtx,
+		Params: params,
+		Table:  rawTable,
+	}
+	return RawDataSubTaskArgs, data
 }
