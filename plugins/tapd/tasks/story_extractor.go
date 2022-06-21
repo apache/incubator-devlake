@@ -96,8 +96,8 @@ func ExtractStories(taskCtx core.SubTaskContext) error {
 					IterationId:      toolL.IterationId,
 					StoryId:          toolL.Id,
 					WorkspaceId:      toolL.WorkspaceId,
-					ResolutionDate:   *toolL.Completed,
-					StoryCreatedDate: *toolL.Created,
+					ResolutionDate:   toolL.Completed,
+					StoryCreatedDate: toolL.Created,
 				}
 				results = append(results, iterationStory)
 			}

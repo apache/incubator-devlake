@@ -51,7 +51,7 @@ func CollectTaskChangelogs(taskCtx core.SubTaskContext) error {
 			return fmt.Errorf("failed to get latest tapd changelog record: %w", err)
 		}
 		if latestUpdated.Id > 0 {
-			since = (*time.Time)(&latestUpdated.Created)
+			since = (*time.Time)(latestUpdated.Created)
 			incremental = true
 		}
 	}
