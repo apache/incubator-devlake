@@ -20,12 +20,13 @@ package tasks
 import (
 	"encoding/json"
 	"fmt"
+	"strings"
+
 	"github.com/apache/incubator-devlake/models/domainlayer/ticket"
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/core/dal"
 	"github.com/apache/incubator-devlake/plugins/helper"
 	"github.com/apache/incubator-devlake/plugins/tapd/models"
-	"strings"
 )
 
 var _ core.SubTaskEntryPoint = ExtractStories
@@ -43,7 +44,6 @@ func ExtractStories(taskCtx core.SubTaskContext) error {
 	statusList := make([]*models.TapdStoryStatus, 0)
 	clauses := []dal.Clause{
 		dal.Where("connection_id = ? and workspace_id = ?", data.Options.ConnectionId, data.Options.WorkspaceId),
-		dal.Orderby("created DESC"),
 	}
 	err := db.All(&statusList, clauses...)
 	if err != nil {
@@ -96,8 +96,8 @@ func ExtractStories(taskCtx core.SubTaskContext) error {
 					IterationId:      toolL.IterationId,
 					StoryId:          toolL.Id,
 					WorkspaceId:      toolL.WorkspaceId,
-					ResolutionDate:   toolL.Completed,
-					StoryCreatedDate: toolL.Created,
+					ResolutionDate:   *toolL.Completed,
+					StoryCreatedDate: *toolL.Created,
 				}
 				results = append(results, iterationStory)
 			}

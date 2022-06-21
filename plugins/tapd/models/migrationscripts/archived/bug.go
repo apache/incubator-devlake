@@ -26,71 +26,71 @@ type TapdBug struct {
 	ConnectionId uint64 `gorm:"primaryKey"`
 	Id           uint64 `gorm:"primaryKey;type:BIGINT" json:"id,string"`
 	EpicKey      string
-	Title        string         `json:"name" gorm:"type:varchar(255)"`
-	Description  string         `json:"description"`
-	WorkspaceId  uint64         `json:"workspace_id,string"`
-	Created      helper.CSTTime `json:"created"`
-	Modified     helper.CSTTime `json:"modified" gorm:"index"`
-	Status       string         `json:"status" gorm:"type:varchar(255)"`
-	Cc           string         `json:"cc" gorm:"type:varchar(255)"`
-	Begin        helper.CSTTime `json:"begin"`
-	Due          helper.CSTTime `json:"due"`
-	Priority     string         `json:"priority" gorm:"type:varchar(255)"`
-	IterationId  uint64         `json:"iteration_id,string"`
-	Source       string         `json:"source" gorm:"type:varchar(255)"`
-	Module       string         `json:"module" gorm:"type:varchar(255)"`
-	ReleaseId    uint64         `json:"release_id,string"`
-	CreatedFrom  string         `json:"created_from" gorm:"type:varchar(255)"`
-	Feature      string         `json:"feature" gorm:"type:varchar(255)"`
+	Title        string          `json:"name" gorm:"type:varchar(255)"`
+	Description  string          `json:"description"`
+	WorkspaceId  uint64          `json:"workspace_id,string"`
+	Created      *helper.CSTTime `json:"created"`
+	Modified     *helper.CSTTime `json:"modified" gorm:"index"`
+	Status       string          `json:"status" gorm:"type:varchar(255)"`
+	Cc           string          `json:"cc" gorm:"type:varchar(255)"`
+	Begin        *helper.CSTTime `json:"begin"`
+	Due          *helper.CSTTime `json:"due"`
+	Priority     string          `json:"priority" gorm:"type:varchar(255)"`
+	IterationId  uint64          `json:"iteration_id,string"`
+	Source       string          `json:"source" gorm:"type:varchar(255)"`
+	Module       string          `json:"module" gorm:"type:varchar(255)"`
+	ReleaseId    uint64          `json:"release_id,string"`
+	CreatedFrom  string          `json:"created_from" gorm:"type:varchar(255)"`
+	Feature      string          `json:"feature" gorm:"type:varchar(255)"`
 	common.NoPKModel
 
-	Severity         string         `json:"severity" gorm:"type:varchar(255)"`
-	Reporter         string         `json:"reporter" gorm:"type:varchar(255)"`
-	Resolved         helper.CSTTime `json:"resolved"`
-	Closed           helper.CSTTime `json:"closed"`
-	Lastmodify       string         `json:"lastmodify" gorm:"type:varchar(255)"`
-	Auditer          string         `json:"auditer" gorm:"type:varchar(255)"`
-	De               string         `json:"De" gorm:"comment:developer"`
-	Fixer            string         `json:"fixer" gorm:"type:varchar(255)"`
-	VersionTest      string         `json:"version_test" gorm:"type:varchar(255)"`
-	VersionReport    string         `json:"version_report" gorm:"type:varchar(255)"`
-	VersionClose     string         `json:"version_close" gorm:"type:varchar(255)"`
-	VersionFix       string         `json:"version_fix" gorm:"type:varchar(255)"`
-	BaselineFind     string         `json:"baseline_find" gorm:"type:varchar(255)"`
-	BaselineJoin     string         `json:"baseline_join" gorm:"type:varchar(255)"`
-	BaselineClose    string         `json:"baseline_close" gorm:"type:varchar(255)"`
-	BaselineTest     string         `json:"baseline_test" gorm:"type:varchar(255)"`
-	Sourcephase      string         `json:"sourcephase" gorm:"type:varchar(255)"`
-	Te               string         `json:"te" gorm:"type:varchar(255)"`
-	CurrentOwner     string         `json:"current_owner" gorm:"type:varchar(255)"`
-	Resolution       string         `json:"resolution" gorm:"type:varchar(255)"`
-	Originphase      string         `json:"originphase" gorm:"type:varchar(255)"`
-	Confirmer        string         `json:"confirmer" gorm:"type:varchar(255)"`
-	Participator     string         `json:"participator" gorm:"type:varchar(255)"`
-	Closer           string         `json:"closer" gorm:"type:varchar(50)"`
-	Platform         string         `json:"platform" gorm:"type:varchar(50)"`
-	Os               string         `json:"os" gorm:"type:varchar(50)"`
-	Testtype         string         `json:"testtype" gorm:"type:varchar(20)"`
-	Testphase        string         `json:"testphase" gorm:"type:varchar(255)"`
-	Frequency        string         `json:"frequency" gorm:"type:varchar(255)"`
-	RegressionNumber string         `json:"regression_number" gorm:"type:varchar(20)"`
-	Flows            string         `json:"flows" gorm:"type:varchar(255)"`
-	Testmode         string         `json:"testmode" gorm:"type:varchar(50)"`
-	IssueId          uint64         `json:"issue_id,string"`
-	VerifyTime       helper.CSTTime `json:"verify_time"`
-	RejectTime       helper.CSTTime `json:"reject_time"`
-	ReopenTime       helper.CSTTime `json:"reopen_time"`
-	AuditTime        helper.CSTTime `json:"audit_time"`
-	SuspendTime      helper.CSTTime `json:"suspend_time"`
-	Deadline         helper.CSTTime `json:"deadline"`
-	InProgressTime   helper.CSTTime `json:"in_progress_time"`
-	AssignedTime     helper.CSTTime `json:"assigned_time"`
-	TemplateId       uint64         `json:"template_id,string"`
-	StoryId          uint64         `json:"story_id,string"`
-	StdStatus        string         `gorm:"type:varchar(20)"`
-	StdType          string         `gorm:"type:varchar(20)"`
-	Type             string         `gorm:"type:varchar(20)"`
-	Url              string         `gorm:"type:varchar(255)"`
+	Severity         string          `json:"severity" gorm:"type:varchar(255)"`
+	Reporter         string          `json:"reporter" gorm:"type:varchar(255)"`
+	Resolved         *helper.CSTTime `json:"resolved"`
+	Closed           *helper.CSTTime `json:"closed"`
+	Lastmodify       string          `json:"lastmodify" gorm:"type:varchar(255)"`
+	Auditer          string          `json:"auditer" gorm:"type:varchar(255)"`
+	De               string          `json:"De" gorm:"comment:developer;type:varchar(255)"`
+	Fixer            string          `json:"fixer" gorm:"type:varchar(255)"`
+	VersionTest      string          `json:"version_test" gorm:"type:varchar(255)"`
+	VersionReport    string          `json:"version_report" gorm:"type:varchar(255)"`
+	VersionClose     string          `json:"version_close" gorm:"type:varchar(255)"`
+	VersionFix       string          `json:"version_fix" gorm:"type:varchar(255)"`
+	BaselineFind     string          `json:"baseline_find" gorm:"type:varchar(255)"`
+	BaselineJoin     string          `json:"baseline_join" gorm:"type:varchar(255)"`
+	BaselineClose    string          `json:"baseline_close" gorm:"type:varchar(255)"`
+	BaselineTest     string          `json:"baseline_test" gorm:"type:varchar(255)"`
+	Sourcephase      string          `json:"sourcephase" gorm:"type:varchar(255)"`
+	Te               string          `json:"te" gorm:"type:varchar(255)"`
+	CurrentOwner     string          `json:"current_owner" gorm:"type:varchar(255)"`
+	Resolution       string          `json:"resolution" gorm:"type:varchar(255)"`
+	Originphase      string          `json:"originphase" gorm:"type:varchar(255)"`
+	Confirmer        string          `json:"confirmer" gorm:"type:varchar(255)"`
+	Participator     string          `json:"participator" gorm:"type:varchar(255)"`
+	Closer           string          `json:"closer" gorm:"type:varchar(50)"`
+	Platform         string          `json:"platform" gorm:"type:varchar(50)"`
+	Os               string          `json:"os" gorm:"type:varchar(50)"`
+	Testtype         string          `json:"testtype" gorm:"type:varchar(20)"`
+	Testphase        string          `json:"testphase" gorm:"type:varchar(255)"`
+	Frequency        string          `json:"frequency" gorm:"type:varchar(255)"`
+	RegressionNumber string          `json:"regression_number" gorm:"type:varchar(20)"`
+	Flows            string          `json:"flows" gorm:"type:varchar(255)"`
+	Testmode         string          `json:"testmode" gorm:"type:varchar(50)"`
+	IssueId          uint64          `json:"issue_id,string"`
+	VerifyTime       *helper.CSTTime `json:"verify_time"`
+	RejectTime       *helper.CSTTime `json:"reject_time"`
+	ReopenTime       *helper.CSTTime `json:"reopen_time"`
+	AuditTime        *helper.CSTTime `json:"audit_time"`
+	SuspendTime      *helper.CSTTime `json:"suspend_time"`
+	Deadline         *helper.CSTTime `json:"deadline"`
+	InProgressTime   *helper.CSTTime `json:"in_progress_time"`
+	AssignedTime     *helper.CSTTime `json:"assigned_time"`
+	TemplateId       uint64          `json:"template_id,string"`
+	StoryId          uint64          `json:"story_id,string"`
+	StdStatus        string          `gorm:"type:varchar(20)"`
+	StdType          string          `gorm:"type:varchar(20)"`
+	Type             string          `gorm:"type:varchar(20)"`
+	Url              string          `gorm:"type:varchar(255)"`
 
 	SupportId       uint64  `json:"support_id,string"`
 	SupportForumId  uint64  `json:"support_forum_id,string"`
@@ -104,8 +104,7 @@ type TapdBug struct {
 	Remain          float32 `json:"remain,string"`
 	Progress        string  `json:"progress" gorm:"type:varchar(255)"`
 	Estimate        float32 `json:"estimate,string"`
-
-	Bugtype string `json:"bugtype" gorm:"type:varchar(20)"`
+	Bugtype         string  `json:"bugtype" gorm:"type:varchar(20)"`
 
 	Milestone        string `json:"milestone" gorm:"type:varchar(255)"`
 	CustomFieldOne   string `json:"custom_field_one" gorm:"type:text"`

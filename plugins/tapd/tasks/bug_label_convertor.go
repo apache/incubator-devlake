@@ -18,9 +18,10 @@ limitations under the License.
 package tasks
 
 import (
+	"reflect"
+
 	"github.com/apache/incubator-devlake/plugins/core/dal"
 	"github.com/apache/incubator-devlake/plugins/tapd/models"
-	"reflect"
 
 	"github.com/apache/incubator-devlake/models/domainlayer/ticket"
 	"github.com/apache/incubator-devlake/plugins/core"
@@ -38,7 +39,8 @@ func ConvertBugLabels(taskCtx core.SubTaskContext) error {
 	db := taskCtx.GetDal()
 	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_BUG_TABLE)
 	clauses := []dal.Clause{
-		dal.Join(`left join _tool_tapd_workspace_bugs on _tool_tapd_workspace_bugs.bug_id = _tool_tapd_bug_labels.bug_id`),
+		dal.From(&models.TapdBugLabel{}),
+		dal.Join("left join _tool_tapd_workspace_bugs on _tool_tapd_workspace_bugs.bug_id = _tool_tapd_bug_labels.bug_id"),
 		dal.Where("_tool_tapd_workspace_bugs.workspace_id = ? and _tool_tapd_workspace_bugs.connection_id = ?",
 			data.Options.WorkspaceId, data.Options.ConnectionId),
 		dal.Orderby("bug_id ASC"),

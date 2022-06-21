@@ -19,12 +19,13 @@ package tasks
 
 import (
 	"fmt"
+	"net/url"
+	"time"
+
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/core/dal"
 	"github.com/apache/incubator-devlake/plugins/helper"
 	"github.com/apache/incubator-devlake/plugins/tapd/models"
-	"net/url"
-	"time"
 )
 
 const RAW_STORY_CHANGELOG_TABLE = "tapd_api_story_changelogs"

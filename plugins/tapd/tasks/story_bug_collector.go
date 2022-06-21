@@ -19,12 +19,13 @@ package tasks
 
 import (
 	"fmt"
+	"net/url"
+	"reflect"
+
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/core/dal"
 	"github.com/apache/incubator-devlake/plugins/helper"
 	"github.com/apache/incubator-devlake/plugins/tapd/models"
-	"net/url"
-	"reflect"
 )
 
 const RAW_STORY_BUG_TABLE = "tapd_api_story_bugs"

@@ -18,6 +18,9 @@ limitations under the License.
 package tasks
 
 import (
+	"reflect"
+	"time"
+
 	"github.com/apache/incubator-devlake/models/domainlayer"
 	"github.com/apache/incubator-devlake/models/domainlayer/didgen"
 	"github.com/apache/incubator-devlake/models/domainlayer/ticket"
@@ -25,8 +28,6 @@ import (
 	"github.com/apache/incubator-devlake/plugins/core/dal"
 	"github.com/apache/incubator-devlake/plugins/helper"
 	"github.com/apache/incubator-devlake/plugins/tapd/models"
-	"reflect"
-	"time"
 )
 
 func ConvertWorklog(taskCtx core.SubTaskContext) error {
@@ -58,7 +59,7 @@ func ConvertWorklog(taskCtx core.SubTaskContext) error {
 				AuthorId:         UserIdGen.Generate(data.Connection.ID, toolL.WorkspaceId, toolL.Owner),
 				Comment:          toolL.Memo,
 				TimeSpentMinutes: int(toolL.Timespent),
-				LoggedDate:       (*time.Time)(&toolL.Created),
+				LoggedDate:       (*time.Time)(toolL.Created),
 				//IssueId:          toolL.EntityId,
 			}
 			switch toolL.EntityType {

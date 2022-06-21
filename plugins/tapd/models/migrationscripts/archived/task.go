@@ -23,33 +23,33 @@ import (
 )
 
 type TapdTask struct {
-	ConnectionId    uint64         `gorm:"primaryKey"`
-	Id              uint64         `gorm:"primaryKey;type:BIGINT" json:"id,string"`
-	Name            string         `gorm:"type:varchar(255)" json:"name"`
-	Description     string         `json:"description"`
-	WorkspaceId     uint64         `json:"workspace_id,string"`
-	Creator         string         `gorm:"type:varchar(255)" json:"creator"`
-	Created         helper.CSTTime `json:"created"`
-	Modified        helper.CSTTime `json:"modified" gorm:"index"`
-	Status          string         `json:"status" gorm:"type:varchar(255)"`
-	Owner           string         `json:"owner" gorm:"type:varchar(255)"`
-	Cc              string         `json:"cc" gorm:"type:varchar(255)"`
-	Begin           helper.CSTTime `json:"begin"`
-	Due             helper.CSTTime `json:"due"`
-	Priority        string         `gorm:"type:varchar(255)" json:"priority"`
-	IterationId     uint64         `json:"iteration_id,string"`
-	Completed       helper.CSTTime `json:"completed"`
-	Effort          float32        `json:"effort,string"`
-	EffortCompleted float32        `json:"effort_completed,string"`
-	Exceed          float32        `json:"exceed,string"`
-	Remain          float32        `json:"remain,string"`
-	StdStatus       string         `gorm:"type:varchar(20)"`
-	StdType         string         `gorm:"type:varchar(20)"`
-	Type            string         `gorm:"type:varchar(20)"`
-	StoryId         uint64         `json:"story_id,string"`
-	Progress        int16          `json:"progress,string"`
-	HasAttachment   string         `gorm:"type:varchar(255)"`
-	Url             string         `gorm:"type:varchar(255)"`
+	ConnectionId    uint64          `gorm:"primaryKey"`
+	Id              uint64          `gorm:"primaryKey;type:BIGINT" json:"id,string"`
+	Name            string          `gorm:"type:varchar(255)" json:"name"`
+	Description     string          `json:"description"`
+	WorkspaceId     uint64          `json:"workspace_id,string"`
+	Creator         string          `gorm:"type:varchar(255)" json:"creator"`
+	Created         *helper.CSTTime `json:"created"`
+	Modified        *helper.CSTTime `json:"modified" gorm:"index"`
+	Status          string          `json:"status" gorm:"type:varchar(255)"`
+	Owner           string          `json:"owner" gorm:"type:varchar(255)"`
+	Cc              string          `json:"cc" gorm:"type:varchar(255)"`
+	Begin           *helper.CSTTime `json:"begin"`
+	Due             *helper.CSTTime `json:"due"`
+	Priority        string          `gorm:"type:varchar(255)" json:"priority"`
+	IterationId     uint64          `json:"iteration_id,string"`
+	Completed       *helper.CSTTime `json:"completed"`
+	Effort          float32         `json:"effort,string"`
+	EffortCompleted float32         `json:"effort_completed,string"`
+	Exceed          float32         `json:"exceed,string"`
+	Remain          float32         `json:"remain,string"`
+	StdStatus       string          `gorm:"type:varchar(20)"`
+	StdType         string          `gorm:"type:varchar(20)"`
+	Type            string          `gorm:"type:varchar(20)"`
+	StoryId         uint64          `json:"story_id,string"`
+	Progress        int16           `json:"progress,string"`
+	HasAttachment   string          `gorm:"type:varchar(255)"`
+	Url             string          `gorm:"type:varchar(255)"`
 
 	AttachmentCount  int16  `json:"attachment_count,string"`
 	Follower         string `json:"follower" gorm:"type:varchar(255)"`

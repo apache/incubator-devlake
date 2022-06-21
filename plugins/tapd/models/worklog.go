@@ -29,9 +29,9 @@ type TapdWorklog struct {
 	EntityType   string         `gorm:"type:varchar(255)" json:"entity_type"`
 	EntityId     uint64         `json:"entity_id,string"`
 	Timespent    float32        `json:"timespent,string"`
-	Spentdate    helper.CSTTime `json:"spentdate"`
+	Spentdate    *helper.CSTTime `json:"spentdate"`
 	Owner        string         `gorm:"type:varchar(255)" json:"owner"`
-	Created      helper.CSTTime `json:"created"`
+	Created      *helper.CSTTime `json:"created"`
 	Memo         string         `json:"memo" gorm:"type:text"`
 	common.NoPKModel
 }

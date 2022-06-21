@@ -20,14 +20,15 @@ package tasks
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/apache/incubator-devlake/plugins/core"
-	"github.com/apache/incubator-devlake/plugins/core/dal"
-	"github.com/apache/incubator-devlake/plugins/helper"
-	"github.com/apache/incubator-devlake/plugins/tapd/models"
 	"net/http"
 	"net/url"
 	"reflect"
 	"time"
+
+	"github.com/apache/incubator-devlake/plugins/core"
+	"github.com/apache/incubator-devlake/plugins/core/dal"
+	"github.com/apache/incubator-devlake/plugins/helper"
+	"github.com/apache/incubator-devlake/plugins/tapd/models"
 )
 
 const RAW_STORY_COMMIT_TABLE = "tapd_api_story_commits"
@@ -58,7 +59,7 @@ func CollectStoryCommits(taskCtx core.SubTaskContext) error {
 			return fmt.Errorf("failed to get latest tapd changelog record: %w", err)
 		}
 		if latestUpdated.Id > 0 {
-			since = (*time.Time)(&latestUpdated.Created)
+			since = (*time.Time)(latestUpdated.Created)
 			incremental = true
 		}
 	}

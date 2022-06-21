@@ -18,10 +18,11 @@ limitations under the License.
 package tasks
 
 import (
-	"github.com/apache/incubator-devlake/plugins/core/dal"
 	"reflect"
 	"strconv"
 	"time"
+
+	"github.com/apache/incubator-devlake/plugins/core/dal"
 
 	"github.com/apache/incubator-devlake/models/domainlayer"
 	"github.com/apache/incubator-devlake/models/domainlayer/ticket"
@@ -63,9 +64,9 @@ func ConvertStory(taskCtx core.SubTaskContext) error {
 				Status:               toolL.StdStatus,
 				StoryPoint:           uint(toolL.Size),
 				OriginalStatus:       toolL.Status,
-				ResolutionDate:       (*time.Time)(&toolL.Completed),
-				CreatedDate:          (*time.Time)(&toolL.Created),
-				UpdatedDate:          (*time.Time)(&toolL.Modified),
+				ResolutionDate:       (*time.Time)(toolL.Completed),
+				CreatedDate:          (*time.Time)(toolL.Created),
+				UpdatedDate:          (*time.Time)(toolL.Modified),
 				ParentIssueId:        IssueIdGen.Generate(toolL.ConnectionId, toolL.ParentId),
 				Priority:             toolL.Priority,
 				TimeRemainingMinutes: int64(toolL.Remain),
