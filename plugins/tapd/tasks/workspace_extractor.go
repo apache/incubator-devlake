@@ -34,15 +34,14 @@ var ExtractWorkspaceMeta = core.SubTaskMeta{
 	Description:      "Extract raw workspace data into tool layer table _tool_tapd_workspaces",
 }
 
-var workspaceRes struct {
-	Workspace models.TapdWorkspace
-}
-
 func ExtractWorkspaces(taskCtx core.SubTaskContext) error {
 	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_WORKSPACE_TABLE)
 	extractor, err := helper.NewApiExtractor(helper.ApiExtractorArgs{
 		RawDataSubTaskArgs: *rawDataSubTaskArgs,
 		Extract: func(row *helper.RawData) ([]interface{}, error) {
+			var workspaceRes struct {
+				Workspace models.TapdWorkspace
+			}
 			err := json.Unmarshal(row.Data, &workspaceRes)
 			if err != nil {
 				return nil, err
@@ -50,7 +49,7 @@ func ExtractWorkspaces(taskCtx core.SubTaskContext) error {
 
 			ws := workspaceRes.Workspace
 
-			ws.ConnectionId = data.Connection.ID
+			ws.ConnectionId = data.Options.ConnectionId
 			return []interface{}{
 				&ws,
 			}, nil

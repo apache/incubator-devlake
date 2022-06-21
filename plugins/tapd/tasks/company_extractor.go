@@ -19,6 +19,7 @@ package tasks
 
 import (
 	"encoding/json"
+	"github.com/apache/incubator-devlake/plugins/tapd/models"
 
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/helper"
@@ -38,6 +39,9 @@ func ExtractCompanies(taskCtx core.SubTaskContext) error {
 	extractor, err := helper.NewApiExtractor(helper.ApiExtractorArgs{
 		RawDataSubTaskArgs: *rawDataSubTaskArgs,
 		Extract: func(row *helper.RawData) ([]interface{}, error) {
+			var workspaceRes struct {
+				Workspace models.TapdWorkspace
+			}
 			err := json.Unmarshal(row.Data, &workspaceRes)
 			if err != nil {
 				return nil, err
