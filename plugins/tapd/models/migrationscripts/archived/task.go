@@ -18,7 +18,7 @@ limitations under the License.
 package archived
 
 import (
-	"github.com/apache/incubator-devlake/models/common"
+	"github.com/apache/incubator-devlake/models/migrationscripts/archived"
 	"github.com/apache/incubator-devlake/plugins/helper"
 )
 
@@ -109,7 +109,8 @@ type TapdTask struct {
 	CustomField48    string `json:"custom_field_48" gorm:"type:text"`
 	CustomField49    string `json:"custom_field_49" gorm:"type:text"`
 	CustomField50    string `json:"custom_field_50" gorm:"type:text"`
-	common.NoPKModel
+
+	archived.NoPKModel
 }
 
 func (TapdTask) TableName() string {

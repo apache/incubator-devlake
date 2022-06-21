@@ -18,7 +18,7 @@ limitations under the License.
 package archived
 
 import (
-	"github.com/apache/incubator-devlake/models/common"
+	"github.com/apache/incubator-devlake/models/migrationscripts/archived"
 	"github.com/apache/incubator-devlake/plugins/helper"
 )
 
@@ -42,7 +42,7 @@ type TapdBugCommit struct {
 	Created         *helper.CSTTime `json:"created"`
 
 	BugId uint64
-	common.NoPKModel
+	archived.NoPKModel
 }
 
 func (TapdBugCommit) TableName() string {

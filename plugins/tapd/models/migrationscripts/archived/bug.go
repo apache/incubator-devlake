@@ -18,7 +18,7 @@ limitations under the License.
 package archived
 
 import (
-	"github.com/apache/incubator-devlake/models/common"
+	"github.com/apache/incubator-devlake/models/migrationscripts/archived"
 	"github.com/apache/incubator-devlake/plugins/helper"
 )
 
@@ -42,7 +42,7 @@ type TapdBug struct {
 	ReleaseId    uint64          `json:"release_id,string"`
 	CreatedFrom  string          `json:"created_from" gorm:"type:varchar(255)"`
 	Feature      string          `json:"feature" gorm:"type:varchar(255)"`
-	common.NoPKModel
+	archived.NoPKModel
 
 	Severity         string          `json:"severity" gorm:"type:varchar(255)"`
 	Reporter         string          `json:"reporter" gorm:"type:varchar(255)"`

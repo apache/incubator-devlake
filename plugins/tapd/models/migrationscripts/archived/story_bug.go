@@ -17,16 +17,14 @@ limitations under the License.
 
 package archived
 
-import (
-	"github.com/apache/incubator-devlake/models/common"
-)
+import "github.com/apache/incubator-devlake/models/migrationscripts/archived"
 
 type TapdStoryBug struct {
 	ConnectionId uint64 `gorm:"primaryKey"`
 	WorkspaceId  uint64 `gorm:"primaryKey" json:"workspace_id,string"`
 	StoryId      uint64 `gorm:"primaryKey" json:"story_id,string"`
 	BugId        uint64 `gorm:"primaryKey" json:"bug_id,string"`
-	common.NoPKModel
+	archived.NoPKModel
 }
 
 func (TapdStoryBug) TableName() string {

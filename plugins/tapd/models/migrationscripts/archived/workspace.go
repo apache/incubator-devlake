@@ -18,7 +18,7 @@ limitations under the License.
 package archived
 
 import (
-	"github.com/apache/incubator-devlake/models/common"
+	"github.com/apache/incubator-devlake/models/migrationscripts/archived"
 	"github.com/apache/incubator-devlake/plugins/helper"
 )
 
@@ -36,14 +36,14 @@ type TapdWorkspace struct {
 	ParentId     uint64         `gorm:"type:BIGINT" json:"parent_id,string"`
 	Creator      string         `gorm:"type:varchar(255)" json:"creator"`
 	Created      helper.CSTTime `json:"created"`
-	common.NoPKModel
+	archived.NoPKModel
 }
 
 type TapdWorkSpaceIssue struct {
 	ConnectionId uint64 `gorm:"primaryKey"`
 	WorkspaceId  uint64 `gorm:"primaryKey"`
 	IssueId      uint64 `gorm:"primaryKey"`
-	common.NoPKModel
+	archived.NoPKModel
 }
 
 func (TapdWorkspace) TableName() string {
