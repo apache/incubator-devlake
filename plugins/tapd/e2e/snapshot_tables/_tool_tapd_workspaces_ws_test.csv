@@ -1,0 +1,11 @@
+connection_id,id,name,pretty_name,category,status,description,begin_date,end_date,external_on,parent_id,creator,created,_raw_data_params,_raw_data_table,_raw_data_id,_raw_data_remark
+1,90,abc0,90,,closed,财道社区委托账户,,,,40907,huadd (huadd@abeizn.com),2020-01-03T02:47:15.000+00:00,"{""ConnectionId"":1,""CompanyId"":99,""WorkspaceId"":991}",_raw_tapd_api_sub_workspaces,10,
+1,91,abc2,91,,normal,财经APP,,,,40908,feiwang (feiwang@abeizn.com),2019-12-12T07:45:04.000+00:00,"{""ConnectionId"":1,""CompanyId"":99,""WorkspaceId"":991}",_raw_tapd_api_sub_workspaces,2,
+1,92,abc3,92,,normal,财道文字直播室,,,,40908,huadd (huadd@abeizn.com),2019-12-13T08:58:09.000+00:00,"{""ConnectionId"":1,""CompanyId"":99,""WorkspaceId"":991}",_raw_tapd_api_sub_workspaces,3,
+1,93,abc4,93,,normal,证券事业部财道社区促销项目,,,,40908,huadd (huadd@abeizn.com),2019-12-23T03:08:30.000+00:00,"{""ConnectionId"":1,""CompanyId"":99,""WorkspaceId"":991}",_raw_tapd_api_sub_workspaces,4,
+1,94,abc5,94,,normal,财道App,,,,40908,chenzj (chenzj@abeizn.com),2019-12-26T10:18:28.000+00:00,"{""ConnectionId"":1,""CompanyId"":99,""WorkspaceId"":991}",_raw_tapd_api_sub_workspaces,5,
+1,95,abc6,95,,closed,,,,,99,chenzj (chenzj@abeizn.com),2019-12-27T01:20:23.000+00:00,"{""ConnectionId"":1,""CompanyId"":99,""WorkspaceId"":991}",_raw_tapd_api_sub_workspaces,6,
+1,96,abc7,96,,normal,财道社区量化精选项目,,,,40908,huadd (huadd@abeizn.com),2020-01-03T00:59:08.000+00:00,"{""ConnectionId"":1,""CompanyId"":99,""WorkspaceId"":991}",_raw_tapd_api_sub_workspaces,7,
+1,97,abc8,97,,normal,包括财道社区频道页、老师工作室、语音课、用户中心等内容,,,,40908,huadd (huadd@abeizn.com),2020-01-03T01:47:24.000+00:00,"{""ConnectionId"":1,""CompanyId"":99,""WorkspaceId"":991}",_raw_tapd_api_sub_workspaces,8,
+1,98,abc9,98,,normal,用户登录、注册、鉴权等,,,,40907,huadd (huadd@abeizn.com),2020-01-03T01:52:45.000+00:00,"{""ConnectionId"":1,""CompanyId"":99,""WorkspaceId"":991}",_raw_tapd_api_sub_workspaces,9,
+1,99,abc1,99,,normal,,,,,1,马畅 (machang@abeizn.com),2019-11-29T07:55:53.000+00:00,"{""ConnectionId"":1,""CompanyId"":99,""WorkspaceId"":991}",_raw_tapd_api_sub_workspaces,1,
