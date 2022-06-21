@@ -47,7 +47,7 @@ func CollectBugs(taskCtx core.SubTaskContext) error {
 			dal.Orderby("modified DESC"),
 		}
 		err := db.First(&latestUpdated, clauses...)
-		if err != nil {
+		if err != nil && err.Error() != "record not found" {
 			return fmt.Errorf("failed to get latest tapd changelog record: %w", err)
 		}
 		if latestUpdated.Id > 0 {

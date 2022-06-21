@@ -19,7 +19,7 @@ package impl
 
 import (
 	"fmt"
-	"github.com/apache/incubator-devlake/plugins/core/dal"
+	"github.com/apache/incubator-devlake/plugins/helper"
 	"time"
 
 	"github.com/apache/incubator-devlake/migration"
@@ -115,23 +115,24 @@ func (plugin Tapd) SubTaskMetas() []core.SubTaskMeta {
 }
 
 func (plugin Tapd) PrepareTaskData(taskCtx core.TaskContext, options map[string]interface{}) (interface{}, error) {
-	db := taskCtx.GetDal()
 	var op tasks.TapdOptions
 	err := mapstructure.Decode(options, &op)
 	if err != nil {
 		return nil, err
 	}
 	if op.ConnectionId == 0 {
-		return nil, fmt.Errorf("ConnectionId is required for Tapd execution")
+		return nil, fmt.Errorf("connectionId is invalid")
 	}
 	connection := &models.TapdConnection{}
-	clauses := []dal.Clause{
-		dal.Where("connection_id = ?", op.ConnectionId),
-	}
-	err = db.First(connection, clauses...)
+	connectionHelper := helper.NewConnectionHelper(
+		taskCtx,
+		nil,
+	)
+	err = connectionHelper.FirstById(connection, op.ConnectionId)
 	if err != nil {
 		return nil, err
 	}
+
 	var since time.Time
 	if op.Since != "" {
 		since, err = time.Parse("2006-01-02T15:04:05Z", op.Since)
