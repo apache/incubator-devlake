@@ -41,7 +41,7 @@ func CollectWorkspaces(taskCtx core.SubTaskContext) error {
 		UrlTemplate: "workspaces/sub_workspaces",
 		Query: func(reqData *helper.RequestData) (url.Values, error) {
 			query := url.Values{}
-			query.Set("workspace_id", fmt.Sprintf("%v", data.Options.WorkspaceID))
+			query.Set("workspace_id", fmt.Sprintf("%v", data.Options.WorkspaceId))
 			//query.Set("page", fmt.Sprintf("%v", reqData.Pager.Page))
 			//query.Set("limit", fmt.Sprintf("%v", reqData.Pager.Size))
 			return query, nil
@@ -62,8 +62,8 @@ func CollectWorkspaces(taskCtx core.SubTaskContext) error {
 }
 
 var CollectWorkspaceMeta = core.SubTaskMeta{
-	Name:        "collectWorkspaces",
-	EntryPoint:  CollectWorkspaces,
-	Required:    true,
-	Description: "collect Tapd workspaces",
+	Name:             "collectWorkspaces",
+	EntryPoint:       CollectWorkspaces,
+	EnabledByDefault: true,
+	Description:      "collect Tapd workspaces",
 }

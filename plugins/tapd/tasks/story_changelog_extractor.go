@@ -66,14 +66,14 @@ func ExtractStoryChangelog(taskCtx core.SubTaskContext) error {
 					}
 					for k, v := range valueAfterMap.(map[string]interface{}) {
 						item.ConnectionId = data.Connection.ID
-						item.ChangelogId = storyChangelog.ID
+						item.ChangelogId = storyChangelog.Id
 						item.Field = k
 						item.ValueAfterParsed = v.(string)
 						item.ValueBeforeParsed = valueBeforeMap[k]
 					}
 				default:
 					item.ConnectionId = data.Connection.ID
-					item.ChangelogId = storyChangelog.ID
+					item.ChangelogId = storyChangelog.Id
 					item.Field = fc.Field
 					item.ValueAfterParsed = strings.Trim(string(fc.ValueAfterParsed), `"`)
 					item.ValueBeforeParsed = strings.Trim(string(fc.ValueBeforeParsed), `"`)

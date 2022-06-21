@@ -35,11 +35,11 @@ func ConvertIteration(taskCtx core.SubTaskContext) error {
 	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_ITERATION_TABLE)
 	logger := taskCtx.GetLogger()
 	db := taskCtx.GetDal()
-	logger.Info("collect board:%d", data.Options.WorkspaceID)
+	logger.Info("collect board:%d", data.Options.WorkspaceId)
 	iterIdGen := didgen.NewDomainIdGenerator(&models.TapdIteration{})
 	clauses := []dal.Clause{
 		dal.From(&models.TapdIteration{}),
-		dal.Where("tc.connection_id = ? AND tc.workspace_id = ?", data.Connection.ID, data.Options.WorkspaceID),
+		dal.Where("tc.connection_id = ? AND tc.workspace_id = ?", data.Connection.ID, data.Options.WorkspaceId),
 	}
 
 	cursor, err := db.Cursor(clauses...)
@@ -54,13 +54,13 @@ func ConvertIteration(taskCtx core.SubTaskContext) error {
 		Convert: func(inputRow interface{}) ([]interface{}, error) {
 			iter := inputRow.(*models.TapdIteration)
 			domainIter := &ticket.Sprint{
-				DomainEntity:    domainlayer.DomainEntity{Id: iterIdGen.Generate(data.Connection.ID, iter.ID)},
-				Url:             fmt.Sprintf("https://www.tapd.cn/%d/prong/iterations/view/%d", iter.WorkspaceID, iter.ID),
+				DomainEntity:    domainlayer.DomainEntity{Id: iterIdGen.Generate(data.Connection.ID, iter.Id)},
+				Url:             fmt.Sprintf("https://www.tapd.cn/%d/prong/iterations/view/%d", iter.WorkspaceId, iter.Id),
 				Status:          strings.ToUpper(iter.Status),
 				Name:            iter.Name,
 				StartedDate:     (*time.Time)(&iter.Startdate),
 				EndedDate:       (*time.Time)(&iter.Enddate),
-				OriginalBoardID: WorkspaceIdGen.Generate(iter.ConnectionId, iter.WorkspaceID),
+				OriginalBoardID: WorkspaceIdGen.Generate(iter.ConnectionId, iter.WorkspaceId),
 				CompletedDate:   (*time.Time)(&iter.Completed),
 			}
 			results := make([]interface{}, 0)

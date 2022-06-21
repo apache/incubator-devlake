@@ -41,7 +41,7 @@ func CollectStoryCategories(taskCtx core.SubTaskContext) error {
 		UrlTemplate: "story_categories",
 		Query: func(reqData *helper.RequestData) (url.Values, error) {
 			query := url.Values{}
-			query.Set("workspace_id", fmt.Sprintf("%v", data.Options.WorkspaceID))
+			query.Set("workspace_id", fmt.Sprintf("%v", data.Options.WorkspaceId))
 			return query, nil
 		},
 		ResponseParser: func(res *http.Response) ([]json.RawMessage, error) {
@@ -60,8 +60,8 @@ func CollectStoryCategories(taskCtx core.SubTaskContext) error {
 }
 
 var CollectStoryCategoriesMeta = core.SubTaskMeta{
-	Name:        "collectStoryCategories",
-	EntryPoint:  CollectStoryCategories,
-	Required:    true,
-	Description: "collect Tapd StoryCategories",
+	Name:             "collectStoryCategories",
+	EntryPoint:       CollectStoryCategories,
+	EnabledByDefault: true,
+	Description:      "collect Tapd StoryCategories",
 }

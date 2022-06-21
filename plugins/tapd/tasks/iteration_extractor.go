@@ -50,8 +50,8 @@ func ExtractIterations(taskCtx core.SubTaskContext) error {
 			iter.ConnectionId = data.Connection.ID
 			workspaceIter := &models.TapdWorkspaceIteration{
 				ConnectionId: data.Connection.ID,
-				WorkspaceID:  iter.WorkspaceID,
-				IterationId:  iter.ID,
+				WorkspaceId:  iter.WorkspaceId,
+				IterationId:  iter.Id,
 			}
 			return []interface{}{
 				&iter, workspaceIter,

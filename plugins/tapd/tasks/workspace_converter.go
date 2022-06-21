@@ -32,10 +32,10 @@ func ConvertWorkspace(taskCtx core.SubTaskContext) error {
 	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_WORKSPACE_TABLE)
 	logger := taskCtx.GetLogger()
 	db := taskCtx.GetDal()
-	logger.Info("collect board:%d", data.Options.WorkspaceID)
+	logger.Info("collect board:%d", data.Options.WorkspaceId)
 	clauses := []dal.Clause{
 		dal.From(&models.TapdWorkspace{}),
-		dal.Where("connection_id = ? AND workspace_id = ?", data.Connection.ID, data.Options.WorkspaceID),
+		dal.Where("connection_id = ? AND workspace_id = ?", data.Connection.ID, data.Options.WorkspaceId),
 	}
 
 	cursor, err := db.Cursor(clauses...)
@@ -51,10 +51,10 @@ func ConvertWorkspace(taskCtx core.SubTaskContext) error {
 			workspace := inputRow.(*models.TapdWorkspace)
 			domainBoard := &ticket.Board{
 				DomainEntity: domainlayer.DomainEntity{
-					Id: WorkspaceIdGen.Generate(workspace.ConnectionId, workspace.ID),
+					Id: WorkspaceIdGen.Generate(workspace.ConnectionId, workspace.Id),
 				},
 				Name: workspace.Name,
-				Url:  fmt.Sprintf("%s/%d", "https://tapd.cn", workspace.ID),
+				Url:  fmt.Sprintf("%s/%d", "https://tapd.cn", workspace.Id),
 			}
 			return []interface{}{
 				domainBoard,

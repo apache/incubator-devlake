@@ -34,9 +34,9 @@ import (
 
 type TaskChangelogItemResult struct {
 	ConnectionId      uint64    `gorm:"primaryKey;type:BIGINT  NOT NULL"`
-	ID                uint64    `gorm:"primaryKey;type:BIGINT  NOT NULL" json:"id"`
-	WorkspaceID       uint64    `json:"workspace_id"`
-	WorkitemTypeID    uint64    `json:"workitem_type_id"`
+	Id                uint64    `gorm:"primaryKey;type:BIGINT  NOT NULL" json:"id"`
+	WorkspaceId       uint64    `json:"workspace_id"`
+	WorkitemTypeId    uint64    `json:"workitem_type_id"`
 	Creator           string    `json:"creator"`
 	Created           time.Time `json:"created"`
 	ChangeSummary     string    `json:"change_summary"`
@@ -44,7 +44,7 @@ type TaskChangelogItemResult struct {
 	EntityType        string    `json:"entity_type"`
 	ChangeType        string    `json:"change_type"`
 	ChangeTypeText    string    `json:"change_type_text"`
-	TaskID            uint64    `json:"task_id"`
+	TaskId            uint64    `json:"task_id"`
 	ChangelogId       uint64    `gorm:"primaryKey;type:BIGINT  NOT NULL"`
 	Field             string    `json:"field" gorm:"primaryKey;type:varchar(255)"`
 	ValueBeforeParsed string    `json:"value_before"`
@@ -58,14 +58,14 @@ func ConvertTaskChangelog(taskCtx core.SubTaskContext) error {
 	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_TASK_CHANGELOG_TABLE)
 	logger := taskCtx.GetLogger()
 	db := taskCtx.GetDal()
-	logger.Info("convert changelog :%d", data.Options.WorkspaceID)
+	logger.Info("convert changelog :%d", data.Options.WorkspaceId)
 	clIdGen := didgen.NewDomainIdGenerator(&models.TapdTaskChangelog{})
 
 	clauses := []dal.Clause{
 		dal.Select("tc.created, tc.id, tc.workspace_id, tc.task_id, tc.author, _tool_tapd_task_changelog_items.*"),
 		dal.From(&models.TapdTaskChangelogItem{}),
 		dal.Join("left join _tool_tapd_task_changelogs tc on tc.id = _tool_tapd_task_changelog_items.changelog_id "),
-		dal.Where("tc.connection_id = ? AND tc.workspace_id = ?", data.Connection.ID, data.Options.WorkspaceID),
+		dal.Where("tc.connection_id = ? AND tc.workspace_id = ?", data.Connection.ID, data.Options.WorkspaceId),
 		dal.Orderby("created DESC"),
 	}
 	cursor, err := db.Cursor(clauses...)
@@ -81,10 +81,10 @@ func ConvertTaskChangelog(taskCtx core.SubTaskContext) error {
 			cl := inputRow.(*TaskChangelogItemResult)
 			domainCl := &ticket.Changelog{
 				DomainEntity: domainlayer.DomainEntity{
-					Id: fmt.Sprintf("%s:%s", clIdGen.Generate(data.Connection.ID, cl.ID), cl.Field),
+					Id: fmt.Sprintf("%s:%s", clIdGen.Generate(data.Connection.ID, cl.Id), cl.Field),
 				},
-				IssueId:           IssueIdGen.Generate(data.Connection.ID, cl.TaskID),
-				AuthorId:          UserIdGen.Generate(data.Connection.ID, data.Options.WorkspaceID, cl.Creator),
+				IssueId:           IssueIdGen.Generate(data.Connection.ID, cl.TaskId),
+				AuthorId:          UserIdGen.Generate(data.Connection.ID, data.Options.WorkspaceId, cl.Creator),
 				AuthorName:        cl.Creator,
 				FieldId:           cl.Field,
 				FieldName:         cl.Field,

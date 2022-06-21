@@ -50,14 +50,14 @@ func CollectStoryCommits(taskCtx core.SubTaskContext) error {
 		// user didn't specify a time range to sync, try load from database
 		var latestUpdated models.TapdStoryCommit
 		clauses := []dal.Clause{
-			dal.Where("connection_id = ? and workspace_id = ?", data.Connection.ID, data.Options.WorkspaceID),
+			dal.Where("connection_id = ? and workspace_id = ?", data.Connection.ID, data.Options.WorkspaceId),
 			dal.Orderby("created DESC"),
 		}
 		err := db.First(&latestUpdated, clauses...)
 		if err != nil {
 			return fmt.Errorf("failed to get latest tapd changelog record: %w", err)
 		}
-		if latestUpdated.ID > 0 {
+		if latestUpdated.Id > 0 {
 			since = (*time.Time)(&latestUpdated.Created)
 			incremental = true
 		}
@@ -66,7 +66,7 @@ func CollectStoryCommits(taskCtx core.SubTaskContext) error {
 	clauses := []dal.Clause{
 		dal.Select("id"),
 		dal.From(&models.TapdStory{}),
-		dal.Where("connection_id = ? and workspace_id = ?", data.Options.ConnectionId, data.Options.WorkspaceID),
+		dal.Where("connection_id = ? and workspace_id = ?", data.Options.ConnectionId, data.Options.WorkspaceId),
 	}
 	if since != nil {
 		clauses = append(clauses, dal.Where("modified > ?", since))
@@ -89,7 +89,7 @@ func CollectStoryCommits(taskCtx core.SubTaskContext) error {
 		Query: func(reqData *helper.RequestData) (url.Values, error) {
 			input := reqData.Input.(*SimpleStory)
 			query := url.Values{}
-			query.Set("workspace_id", fmt.Sprintf("%v", data.Options.WorkspaceID))
+			query.Set("workspace_id", fmt.Sprintf("%v", data.Options.WorkspaceId))
 			query.Set("type", "story")
 			query.Set("object_id", fmt.Sprintf("%v", input.Id))
 			query.Set("order", "created asc")
@@ -118,8 +118,8 @@ func CollectStoryCommits(taskCtx core.SubTaskContext) error {
 }
 
 var CollectStoryCommitMeta = core.SubTaskMeta{
-	Name:        "collectStoryCommits",
-	EntryPoint:  CollectStoryCommits,
-	Required:    true,
-	Description: "collect Tapd issueCommits",
+	Name:             "collectStoryCommits",
+	EntryPoint:       CollectStoryCommits,
+	EnabledByDefault: true,
+	Description:      "collect Tapd issueCommits",
 }

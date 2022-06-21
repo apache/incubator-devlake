@@ -41,7 +41,7 @@ func CollectUsers(taskCtx core.SubTaskContext) error {
 		//PageSize:    100,
 		Query: func(reqData *helper.RequestData) (url.Values, error) {
 			query := url.Values{}
-			query.Set("workspace_id", fmt.Sprintf("%v", data.Options.WorkspaceID))
+			query.Set("workspace_id", fmt.Sprintf("%v", data.Options.WorkspaceId))
 			//query.Set("page", fmt.Sprintf("%v", reqData.Pager.Page))
 			//query.Set("limit", fmt.Sprintf("%v", reqData.Pager.Size))
 			return query, nil
@@ -62,8 +62,8 @@ func CollectUsers(taskCtx core.SubTaskContext) error {
 }
 
 var CollectUserMeta = core.SubTaskMeta{
-	Name:        "collectUsers",
-	EntryPoint:  CollectUsers,
-	Required:    true,
-	Description: "collect Tapd users",
+	Name:             "collectUsers",
+	EntryPoint:       CollectUsers,
+	EnabledByDefault: true,
+	Description:      "collect Tapd users",
 }

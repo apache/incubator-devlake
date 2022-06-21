@@ -50,7 +50,7 @@ func GetTotalPagesFromResponse(r *http.Response, args *helper.ApiCollectorArgs) 
 		return 0, err
 	}
 	query := url.Values{}
-	query.Set("workspace_id", fmt.Sprintf("%v", data.Options.WorkspaceID))
+	query.Set("workspace_id", fmt.Sprintf("%v", data.Options.WorkspaceId))
 	res, err := apiClient.Get(fmt.Sprintf("%s/count", r.Request.URL.Path), query, nil)
 	if err != nil {
 		return 0, err
@@ -71,7 +71,7 @@ func parseIterationChangelog(taskCtx core.SubTaskContext, old string, new string
 	clauses := []dal.Clause{
 		dal.From(&models.TapdIteration{}),
 		dal.Where("connection_id = ? and workspace_id = ? and name = ?",
-			data.Connection.ID, data.Options.WorkspaceID, old),
+			data.Connection.ID, data.Options.WorkspaceId, old),
 	}
 	err := db.First(iterationFrom, clauses...)
 	if err != nil {
@@ -82,13 +82,13 @@ func parseIterationChangelog(taskCtx core.SubTaskContext, old string, new string
 	clauses = []dal.Clause{
 		dal.From(&models.TapdIteration{}),
 		dal.Where("connection_id = ? and workspace_id = ? and name = ?",
-			data.Connection.ID, data.Options.WorkspaceID, new),
+			data.Connection.ID, data.Options.WorkspaceId, new),
 	}
 	err = db.First(iterationTo, clauses...)
 	if err != nil {
 		return 0, 0, err
 	}
-	return iterationFrom.ID, iterationTo.ID, nil
+	return iterationFrom.Id, iterationTo.Id, nil
 }
 func GetRawMessageDirectFromResponse(res *http.Response) ([]json.RawMessage, error) {
 	body, err := ioutil.ReadAll(res.Body)
@@ -110,14 +110,14 @@ func GetRawMessageArrayFromResponse(res *http.Response) ([]json.RawMessage, erro
 type TapdApiParams struct {
 	ConnectionId uint64
 	CompanyId    uint64
-	WorkspaceID  uint64
+	WorkspaceId  uint64
 }
 
 func CreateRawDataSubTaskArgs(taskCtx core.SubTaskContext, rawTable string) (*helper.RawDataSubTaskArgs, *TapdTaskData) {
 	data := taskCtx.GetData().(*TapdTaskData)
 	var params = TapdApiParams{
 		ConnectionId: data.Connection.ID,
-		WorkspaceID:  data.Options.WorkspaceID,
+		WorkspaceId:  data.Options.WorkspaceId,
 	}
 	if data.Options.CompanyId != 0 {
 		params.CompanyId = data.Options.CompanyId

@@ -42,7 +42,7 @@ func ExtractStories(taskCtx core.SubTaskContext) error {
 	db := taskCtx.GetDal()
 	statusList := make([]*models.TapdStoryStatus, 0)
 	clauses := []dal.Clause{
-		dal.Where("connection_id = ? and workspace_id = ?", data.Options.ConnectionId, data.Options.WorkspaceID),
+		dal.Where("connection_id = ? and workspace_id = ?", data.Options.ConnectionId, data.Options.WorkspaceId),
 		dal.Orderby("created DESC"),
 	}
 	err := db.All(&statusList, clauses...)
@@ -79,23 +79,23 @@ func ExtractStories(taskCtx core.SubTaskContext) error {
 			toolL.ConnectionId = data.Connection.ID
 			toolL.StdType = "REQUIREMENT"
 			toolL.StdStatus = getStdStatus(toolL.Status)
-			toolL.Url = fmt.Sprintf("https://www.tapd.cn/%d/prong/stories/view/%d", toolL.WorkspaceID, toolL.ID)
+			toolL.Url = fmt.Sprintf("https://www.tapd.cn/%d/prong/stories/view/%d", toolL.WorkspaceId, toolL.Id)
 			if strings.Contains(toolL.Owner, ";") {
 				toolL.Owner = strings.Split(toolL.Owner, ";")[0]
 			}
 			workSpaceStory := &models.TapdWorkSpaceStory{
 				ConnectionId: data.Connection.ID,
-				WorkspaceID:  toolL.WorkspaceID,
-				StoryId:      toolL.ID,
+				WorkspaceId:  toolL.WorkspaceId,
+				StoryId:      toolL.Id,
 			}
 			results := make([]interface{}, 0, 3)
 			results = append(results, &toolL, workSpaceStory)
-			if toolL.IterationID != 0 {
+			if toolL.IterationId != 0 {
 				iterationStory := &models.TapdIterationStory{
 					ConnectionId:     data.Connection.ID,
-					IterationId:      toolL.IterationID,
-					StoryId:          toolL.ID,
-					WorkspaceID:      toolL.WorkspaceID,
+					IterationId:      toolL.IterationId,
+					StoryId:          toolL.Id,
+					WorkspaceId:      toolL.WorkspaceId,
 					ResolutionDate:   toolL.Completed,
 					StoryCreatedDate: toolL.Created,
 				}
@@ -105,7 +105,7 @@ func ExtractStories(taskCtx core.SubTaskContext) error {
 				labelList := strings.Split(toolL.Label, "|")
 				for _, v := range labelList {
 					toolLIssueLabel := &models.TapdStoryLabel{
-						StoryId:   toolL.ID,
+						StoryId:   toolL.Id,
 						LabelName: v,
 					}
 					results = append(results, toolLIssueLabel)

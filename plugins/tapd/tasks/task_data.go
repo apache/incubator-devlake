@@ -25,10 +25,10 @@ import (
 )
 
 type TapdOptions struct {
-	ConnectionId uint64   `json:"connectionId"`
-	WorkspaceID  uint64   `json:"workspceId"`
-	CompanyId    uint64   `json:"companyId"`
-	Tasks        []string `json:"tasks,omitempty"`
+	ConnectionId uint64   `mapstruct:"connectionId"`
+	WorkspaceId  uint64   `mapstruct:"workspaceId"`
+	CompanyId    uint64   `mapstruct:"companyId"`
+	Tasks        []string `mapstruct:"tasks,omitempty"`
 	Since        string
 }
 

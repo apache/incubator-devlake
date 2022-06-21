@@ -24,13 +24,13 @@ import (
 
 type TapdIteration struct {
 	ConnectionId uint64         `gorm:"primaryKey;type:BIGINT  NOT NULL"`
-	ID           uint64         `gorm:"primaryKey;type:BIGINT  NOT NULL" json:"id,string"`
+	Id           uint64         `gorm:"primaryKey;type:BIGINT  NOT NULL" json:"id,string"`
 	Name         string         `gorm:"type:varchar(255)" json:"name"`
-	WorkspaceID  uint64         `json:"workspace_id,string"`
+	WorkspaceId  uint64         `json:"workspace_id,string"`
 	Startdate    helper.CSTTime `json:"startdate"`
 	Enddate      helper.CSTTime `json:"enddate"`
 	Status       string         `gorm:"type:varchar(255)" json:"status"`
-	ReleaseID    uint64         `gorm:"type:BIGINT" json:"release_id,string"`
+	ReleaseId    uint64         `gorm:"type:BIGINT" json:"release_id,string"`
 	Description  string         `json:"description"`
 	Creator      string         `gorm:"type:varchar(255)" json:"creator"`
 	Created      helper.CSTTime `json:"created"`
@@ -46,7 +46,7 @@ type TapdIteration struct {
 type TapdWorkspaceIteration struct {
 	common.NoPKModel
 	ConnectionId uint64 `gorm:"primaryKey"`
-	WorkspaceID  uint64 `gorm:"primaryKey"`
+	WorkspaceId  uint64 `gorm:"primaryKey"`
 	IterationId  uint64 `gorm:"primaryKey"`
 }
 
