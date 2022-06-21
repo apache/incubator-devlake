@@ -23,6 +23,7 @@ import (
 	"github.com/apache/incubator-devlake/models/common"
 
 	"github.com/apache/incubator-devlake/plugins/core"
+	"github.com/apache/incubator-devlake/plugins/core/dal"
 )
 
 type ApiExtractorArgs struct {
@@ -61,15 +62,20 @@ func NewApiExtractor(args ApiExtractorArgs) (*ApiExtractor, error) {
 // Execute sub-task
 func (extractor *ApiExtractor) Execute() error {
 	// load data from database
-	db := extractor.args.Ctx.GetDb()
+	db := extractor.args.Ctx.GetDal()
 	log := extractor.args.Ctx.GetLogger()
-	count := int64(0)
-	cursor, err := db.
-		Table(extractor.table).
-		Order("id ASC").
-		Where("params = ?", extractor.params).
-		Count(&count).
-		Rows()
+
+	clauses := []dal.Clause{
+		dal.From(extractor.table),
+		dal.Where("params = ?", extractor.params),
+		dal.Orderby("id ASC"),
+	}
+
+	count, err := db.Count(clauses...)
+	if err != nil {
+		return err
+	}
+	cursor, err := db.Cursor(clauses...)
 	if err != nil {
 		return err
 	}
@@ -91,7 +97,7 @@ func (extractor *ApiExtractor) Execute() error {
 			return ctx.Err()
 		default:
 		}
-		err = db.ScanRows(cursor, row)
+		err = db.Fetch(cursor, row)
 		if err != nil {
 			return err
 		}

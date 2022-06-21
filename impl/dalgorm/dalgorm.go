@@ -19,7 +19,6 @@ package dalgorm
 
 import (
 	"database/sql"
-	"fmt"
 	"strings"
 
 	"github.com/apache/incubator-devlake/plugins/core/dal"
@@ -154,7 +153,7 @@ func (d *Dalgorm) Delete(entity interface{}, clauses ...dal.Clause) error {
 func (d *Dalgorm) AllTables() ([]string, error) {
 	var tableSql string
 	if d.db.Dialector.Name() == "mysql" {
-		tableSql = fmt.Sprintf("show tables")
+		tableSql = "show tables"
 	} else {
 		tableSql = "select table_name from information_schema.tables where table_schema = 'public' and table_name not like '_devlake%'"
 	}

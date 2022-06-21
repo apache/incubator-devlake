@@ -20,10 +20,11 @@ package tasks
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/apache/incubator-devlake/plugins/core/dal"
 	"io/ioutil"
 	"net/http"
 	"net/url"
+
+	"github.com/apache/incubator-devlake/plugins/core/dal"
 
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/helper"
@@ -50,10 +51,11 @@ func CollectIssues(taskCtx core.SubTaskContext) error {
 	if since == nil {
 		var latestUpdated models.JiraIssue
 		clauses := []dal.Clause{
-			dal.Select("*"),
-			dal.From(&latestUpdated),
-			dal.Where("connection_id = ? and board_id = ?", data.Connection.ID, data.Options.BoardId),
-			dal.Orderby("updated DESC"),
+			dal.Select("_tool_jira_issues.*"),
+			dal.From("_tool_jira_issues"),
+			dal.Join("LEFT JOIN _tool_jira_board_issues bi ON (bi.connection_id = _tool_jira_issues.connection_id AND bi.issue_id = _tool_jira_issues.issue_id)"),
+			dal.Where("bi.connection_id = ? and bi.board_id = ?", data.Connection.ID, data.Options.BoardId),
+			dal.Orderby("_tool_jira_issues.updated DESC"),
 		}
 		err := db.First(&latestUpdated, clauses...)
 		if err != nil {

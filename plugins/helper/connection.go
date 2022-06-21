@@ -25,10 +25,9 @@ import (
 
 	"github.com/apache/incubator-devlake/models/common"
 	"github.com/apache/incubator-devlake/plugins/core"
+	"github.com/apache/incubator-devlake/plugins/core/dal"
 	"github.com/go-playground/validator/v10"
 	"github.com/mitchellh/mapstructure"
-	"gorm.io/gorm"
-	"gorm.io/gorm/clause"
 )
 
 type BaseConnection struct {
@@ -64,7 +63,7 @@ type RestConnection struct {
 type ConnectionApiHelper struct {
 	encKey    string
 	log       core.Logger
-	db        *gorm.DB
+	db        dal.Dal
 	validator *validator.Validate
 }
 
@@ -78,7 +77,7 @@ func NewConnectionHelper(
 	return &ConnectionApiHelper{
 		encKey:    basicRes.GetConfig(core.EncodeKeyEnvStr),
 		log:       basicRes.GetLogger(),
-		db:        basicRes.GetDb(),
+		db:        basicRes.GetDal(),
 		validator: vld,
 	}
 }
@@ -120,7 +119,7 @@ func (c *ConnectionApiHelper) First(connection interface{}, params map[string]st
 }
 
 func (c *ConnectionApiHelper) FirstById(connection interface{}, id uint64) error {
-	err := c.db.First(connection, "id = ?", id).Error
+	err := c.db.First(connection, dal.Where("id = ?", id))
 	if err != nil {
 		return err
 	}
@@ -130,7 +129,7 @@ func (c *ConnectionApiHelper) FirstById(connection interface{}, id uint64) error
 
 // List returns all connections with password/token decrypted
 func (c *ConnectionApiHelper) List(connections interface{}) error {
-	err := c.db.Find(connections).Error
+	err := c.db.All(connections)
 	if err != nil {
 		return err
 	}
@@ -143,7 +142,7 @@ func (c *ConnectionApiHelper) List(connections interface{}) error {
 
 // Delete connection
 func (c *ConnectionApiHelper) Delete(connection interface{}) error {
-	return c.db.Delete(connection).Error
+	return c.db.Delete(connection)
 }
 
 func (c *ConnectionApiHelper) merge(connection interface{}, body map[string]interface{}) error {
@@ -164,7 +163,7 @@ func (c *ConnectionApiHelper) merge(connection interface{}, body map[string]inte
 func (c *ConnectionApiHelper) save(connection interface{}) error {
 	c.encrypt(connection)
 
-	err := c.db.Clauses(clause.OnConflict{UpdateAll: true}).Create(connection).Error
+	err := c.db.CreateOrUpdate(connection)
 	if err != nil {
 		return err
 	}

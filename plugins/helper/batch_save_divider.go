@@ -75,16 +75,15 @@ func (d *BatchSaveDivider) ForType(rowType reflect.Type) (*BatchSave, error) {
 		}
 		// all good, delete outdated records before we insertion
 		d.log.Debug("deleting outdate records for %s", rowElemType.Name())
-		d.db.Delete(
+		err = d.db.Delete(
 			row,
 			dal.Where("_raw_data_table = ? AND _raw_data_params = ?", d.table, d.params),
 		)
+		if err != nil {
+			return nil, err
+		}
 	}
 	return batch, nil
-}
-
-func (d *BatchSaveDivider) flushBatch() {
-
 }
 
 // Close all batches so the rest records get saved into db

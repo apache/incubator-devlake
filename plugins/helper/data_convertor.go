@@ -64,7 +64,7 @@ func NewDataConverter(args DataConverterArgs) (*DataConverter, error) {
 
 func (converter *DataConverter) Execute() error {
 	// load data from database
-	db := converter.args.Ctx.GetDb()
+	db := converter.args.Ctx.GetDal()
 
 	// batch save divider
 	RAW_DATA_ORIGIN := "RawDataOrigin"
@@ -84,7 +84,7 @@ func (converter *DataConverter) Execute() error {
 		default:
 		}
 		inputRow := reflect.New(converter.args.InputRowType).Interface()
-		err := db.ScanRows(cursor, inputRow)
+		err := db.Fetch(cursor, inputRow)
 		if err != nil {
 			return err
 		}
