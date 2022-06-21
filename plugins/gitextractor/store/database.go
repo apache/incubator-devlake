@@ -31,7 +31,6 @@ const BathSize = 100
 type Database struct {
 	//db     *gorm.DB
 	driver *helper.BatchSaveDivider
-	log    core.Logger
 }
 
 func NewDatabase(basicRes core.BasicRes, repoUrl string) *Database {

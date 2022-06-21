@@ -105,7 +105,7 @@ func validateBlueprint(blueprint *models.Blueprint) error {
 		if err != nil {
 			return fmt.Errorf("invalid cronConfig: %w", err)
 		}
-	} else if blueprint.IsManual == false {
+	} else if !blueprint.IsManual {
 		return fmt.Errorf("cronConfig is required for Automated blueprint")
 	}
 	if blueprint.Mode == models.BLUEPRINT_MODE_ADVANCED {
