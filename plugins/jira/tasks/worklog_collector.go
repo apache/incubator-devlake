@@ -23,7 +23,7 @@ import (
 	"reflect"
 
 	"github.com/apache/incubator-devlake/plugins/core"
-	. "github.com/apache/incubator-devlake/plugins/core/dal"
+	"github.com/apache/incubator-devlake/plugins/core/dal"
 	"github.com/apache/incubator-devlake/plugins/helper"
 	"github.com/apache/incubator-devlake/plugins/jira/tasks/apiv2models"
 )
@@ -38,21 +38,18 @@ func CollectWorklogs(taskCtx core.SubTaskContext) error {
 	logger := taskCtx.GetLogger()
 
 	// filter out issue_ids that needed collection
-	clauses := []Clause{
-		Select("bi.issue_id, NOW() AS update_time"),
-		From("_tool_jira_board_issues bi"),
-		Join("LEFT JOIN _tool_jira_issues i ON (bi.connection_id = i.connection_id AND bi.issue_id = i.issue_id)"),
-		Where(
-			`bi.connection_id = ?
-			   AND bi.board_id = ?
-			   AND (i.worklog_updated IS NULL OR i.worklog_updated < i.updated)`,
-			data.Options.ConnectionId,
-			data.Options.BoardId,
-		),
+	clauses := []dal.Clause{
+		dal.Select("i.issue_id, i.updated AS update_time"),
+		dal.From("_tool_jira_board_issues bi"),
+		dal.Join("LEFT JOIN _tool_jira_issues i ON (bi.connection_id = i.connection_id AND bi.issue_id = i.issue_id)"),
+		dal.Join("LEFT JOIN _tool_jira_worklogs wl ON (wl.connection_id = i.connection_id AND wl.issue_id = i.issue_id)"),
+		dal.Where("i.updated > i.created AND bi.connection_id = ?  AND bi.board_id = ?  ", data.Options.ConnectionId, data.Options.BoardId),
+		dal.Groupby("i.issue_id, i.updated"),
+		dal.Having("i.updated > max(wl.issue_updated) OR  max(wl.issue_updated) IS NULL"),
 	}
 	// apply time range if any
 	if since != nil {
-		clauses = append(clauses, Where("i.updated > ?", *since))
+		clauses = append(clauses, dal.Where("i.updated > ?", *since))
 	}
 
 	// construct the input iterator
@@ -78,7 +75,7 @@ func CollectWorklogs(taskCtx core.SubTaskContext) error {
 		ApiClient:     data.ApiClient,
 		UrlTemplate:   "api/2/issue/{{ .Input.IssueId }}/worklog",
 		PageSize:      50,
-		Incremental:   true,
+		Incremental:   since == nil,
 		GetTotalPages: GetTotalPagesFromResponse,
 		ResponseParser: func(res *http.Response) ([]json.RawMessage, error) {
 			var data struct {

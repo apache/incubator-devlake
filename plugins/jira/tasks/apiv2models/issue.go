@@ -19,8 +19,8 @@ package apiv2models
 
 import (
 	"encoding/json"
-
 	"gorm.io/datatypes"
+	"time"
 
 	"github.com/apache/incubator-devlake/plugins/helper"
 	"github.com/apache/incubator-devlake/plugins/jira/models"
@@ -224,26 +224,30 @@ func (i *Issue) SetAllFields(raw datatypes.JSON) error {
 	return nil
 }
 
-func (i Issue) ExtractEntities(connectionId uint64) ([]uint64, *models.JiraIssue, bool, []*models.JiraWorklog, []*models.JiraChangelog, []*models.JiraChangelogItem, []*models.JiraUser) {
+func (i Issue) ExtractEntities(connectionId uint64) ([]uint64, *models.JiraIssue, []*models.JiraWorklog, []*models.JiraChangelog, []*models.JiraChangelogItem, []*models.JiraUser) {
 	issue := i.toToolLayer(connectionId)
 	var worklogs []*models.JiraWorklog
 	var changelogs []*models.JiraChangelog
 	var changelogItems []*models.JiraChangelogItem
 	var users []*models.JiraUser
-	var needCollectWorklog bool
 	var sprints []uint64
+
 	if i.Fields.Worklog != nil {
-		if i.Fields.Worklog.Total > len(i.Fields.Worklog.Worklogs) {
-			needCollectWorklog = true
-		} else {
-			for _, w := range i.Fields.Worklog.Worklogs {
-				worklogs = append(worklogs, w.ToToolLayer(connectionId))
-			}
+		var issueUpdated *time.Time
+		if len(i.Fields.Worklog.Worklogs) <= i.Fields.Worklog.Total {
+			issueUpdated = i.Fields.Updated.ToNullableTime()
+		}
+		for _, w := range i.Fields.Worklog.Worklogs {
+			worklogs = append(worklogs, w.ToToolLayer(connectionId, issueUpdated))
 		}
 	}
 	if i.Changelog != nil {
+		var issueUpdated *time.Time
+		if len(i.Changelog.Histories) < 100 {
+			issueUpdated = i.Fields.Updated.ToNullableTime()
+		}
 		for _, changelog := range i.Changelog.Histories {
-			cl, user := changelog.ToToolLayer(connectionId, i.ID)
+			cl, user := changelog.ToToolLayer(connectionId, i.ID, issueUpdated)
 			changelogs = append(changelogs, cl)
 			users = append(users, user)
 			for _, item := range changelog.Items {
@@ -262,5 +266,5 @@ func (i Issue) ExtractEntities(connectionId uint64) ([]uint64, *models.JiraIssue
 	if i.Fields.Assignee != nil {
 		users = append(users, i.Fields.Assignee.ToToolLayer(connectionId))
 	}
-	return sprints, issue, needCollectWorklog, worklogs, changelogs, changelogItems, users
+	return sprints, issue, worklogs, changelogs, changelogItems, users
 }

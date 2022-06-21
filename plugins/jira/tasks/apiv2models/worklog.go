@@ -19,6 +19,7 @@ package apiv2models
 
 import (
 	"github.com/apache/incubator-devlake/plugins/helper"
+	"time"
 
 	"github.com/apache/incubator-devlake/plugins/jira/models"
 )
@@ -37,7 +38,7 @@ type Worklog struct {
 	IssueID          uint64             `json:"issueId,string"`
 }
 
-func (w Worklog) ToToolLayer(connectionId uint64) *models.JiraWorklog {
+func (w Worklog) ToToolLayer(connectionId uint64, issueUpdated *time.Time) *models.JiraWorklog {
 	result := &models.JiraWorklog{
 		ConnectionId:     connectionId,
 		IssueId:          w.IssueID,
@@ -46,6 +47,7 @@ func (w Worklog) ToToolLayer(connectionId uint64) *models.JiraWorklog {
 		TimeSpentSeconds: w.TimeSpentSeconds,
 		Updated:          w.Updated.ToTime(),
 		Started:          w.Started.ToTime(),
+		IssueUpdated:     issueUpdated,
 	}
 	if w.Author != nil {
 		result.AuthorId = w.Author.EmailAddress

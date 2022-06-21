@@ -23,7 +23,7 @@ import (
 	"reflect"
 
 	"github.com/apache/incubator-devlake/plugins/core"
-	. "github.com/apache/incubator-devlake/plugins/core/dal"
+	"github.com/apache/incubator-devlake/plugins/core/dal"
 	"github.com/apache/incubator-devlake/plugins/helper"
 	"github.com/apache/incubator-devlake/plugins/jira/tasks/apiv2models"
 )
@@ -38,28 +38,21 @@ func CollectRemotelinks(taskCtx core.SubTaskContext) error {
 	logger := taskCtx.GetLogger()
 	logger.Info("collect remotelink")
 
-	/*
-		`CollectIssues` will take into account of `since` option and set the `updated` field for issues that have
-		updates, So when it comes to collecting remotelinks, we only need to compare an issue's `updated` field with its
-		`remotelink_updated` field. If `remotelink_updated` is older, then we'll collect remotelinks for this issue and
-		set its `remotelink_updated` to `updated` at the end.
-	*/
-	cursor, err := db.Cursor(
-		Select("i.issue_id, NOW() AS update_time"),
-		From("_tool_jira_remotelinks i"),
-		Join(`LEFT JOIN _tool_jira_board_issues bi ON (
-			bi.connection_id = i.connection_id AND
-			bi.issue_id = i.issue_id
-		)`),
-		Where(`
-			bi.connection_id = ? AND
-			bi.board_id = ? AND
-			(i.remotelink_updated IS NULL OR i.remotelink_updated < i.updated)
-			`,
-			data.Options.ConnectionId,
-			data.Options.BoardId,
-		),
-	)
+	clauses := []dal.Clause{
+		dal.Select("i.issue_id, i.updated AS update_time"),
+		dal.From("_tool_jira_board_issues bi"),
+		dal.Join("LEFT JOIN _tool_jira_issues i ON (bi.connection_id = i.connection_id AND bi.issue_id = i.issue_id)"),
+		dal.Join("LEFT JOIN _tool_jira_remotelinks rl ON (rl.connection_id = i.connection_id AND rl.issue_id = i.issue_id)"),
+		dal.Where("i.updated > i.created AND bi.connection_id = ?  AND bi.board_id = ?  ", data.Options.ConnectionId, data.Options.BoardId),
+		dal.Groupby("i.issue_id, i.updated"),
+		dal.Having("i.updated > max(rl.issue_updated) OR  max(rl.issue_updated) IS NULL"),
+	}
+	// apply time range if any
+	since := data.Since
+	if since != nil {
+		clauses = append(clauses, dal.Where("i.updated > ?", *since))
+	}
+	cursor, err := db.Cursor(clauses...)
 	if err != nil {
 		logger.Error("collect remotelink error:%v", err)
 		return err
@@ -82,6 +75,7 @@ func CollectRemotelinks(taskCtx core.SubTaskContext) error {
 		},
 		ApiClient:   data.ApiClient,
 		Input:       iterator,
+		Incremental: since == nil,
 		UrlTemplate: "api/2/issue/{{ .Input.IssueId }}/remotelink",
 		ResponseParser: func(res *http.Response) ([]json.RawMessage, error) {
 			if res.StatusCode == http.StatusNotFound {

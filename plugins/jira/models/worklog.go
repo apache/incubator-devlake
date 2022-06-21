@@ -34,6 +34,7 @@ type JiraWorklog struct {
 	TimeSpentSeconds int
 	Updated          time.Time
 	Started          time.Time
+	IssueUpdated     *time.Time
 }
 
 func (JiraWorklog) TableName() string {

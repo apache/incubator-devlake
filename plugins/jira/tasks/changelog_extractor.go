@@ -57,7 +57,7 @@ func ExtractChangelogs(taskCtx core.SubTaskContext) error {
 			}
 			// prepare output
 			var result []interface{}
-			cl, user := changelog.ToToolLayer(connectionId, input.IssueId)
+			cl, user := changelog.ToToolLayer(connectionId, input.IssueId, &input.UpdateTime)
 			// this is crucial for incremental update
 			cl.IssueUpdated = &input.UpdateTime
 			// collect changelog / user inforation

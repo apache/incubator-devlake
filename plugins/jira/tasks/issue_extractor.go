@@ -23,7 +23,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/apache/incubator-devlake/models/domainlayer/ticket"
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/helper"
 	"github.com/apache/incubator-devlake/plugins/jira/models"
@@ -49,22 +48,6 @@ func ExtractIssues(taskCtx core.SubTaskContext) error {
 	}
 	for _, userType := range data.Options.IssueExtraction.IncidentTypeMapping {
 		typeMappings[userType] = "INCIDENT"
-	}
-	getStdType := func(userType string) string {
-		stdType := typeMappings[userType]
-		if stdType == "" {
-			return strings.ToUpper(userType)
-		}
-		return strings.ToUpper(stdType)
-	}
-	getStdStatus := func(statusKey string) string {
-		if statusKey == "done" {
-			return ticket.DONE
-		} else if statusKey == "new" {
-			return ticket.TODO
-		} else {
-			return ticket.IN_PROGRESS
-		}
 	}
 
 	extractor, err := helper.NewApiExtractor(helper.ApiExtractorArgs{
@@ -94,7 +77,7 @@ func ExtractIssues(taskCtx core.SubTaskContext) error {
 				return nil, err
 			}
 			var results []interface{}
-			sprints, issue, _, worklogs, changelogs, changelogItems, users := apiIssue.ExtractEntities(data.Connection.ID)
+			sprints, issue, worklogs, changelogs, changelogItems, users := apiIssue.ExtractEntities(data.Connection.ID)
 			for _, sprintId := range sprints {
 				sprintIssue := &models.JiraSprintIssue{
 					ConnectionId:     data.Connection.ID,
@@ -113,7 +96,10 @@ func ExtractIssues(taskCtx core.SubTaskContext) error {
 				issue.StoryPoint, _ = strconv.ParseFloat(strStoryPoint, 32)
 			}
 			issue.StdStoryPoint = uint(issue.StoryPoint)
-			issue.StdType = getStdType(issue.Type)
+			issue.StdType = typeMappings[issue.Type]
+			if issue.StdType == "" {
+				issue.StdType = strings.ToUpper(issue.Type)
+			}
 			issue.StdStatus = getStdStatus(issue.StatusKey)
 			results = append(results, issue)
 			for _, worklog := range worklogs {
