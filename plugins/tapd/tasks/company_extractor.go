@@ -45,7 +45,7 @@ func ExtractCompanies(taskCtx core.SubTaskContext) error {
 
 			ws := workspaceRes.Workspace
 
-			ws.ConnectionId = data.Connection.ID
+			ws.ConnectionId = data.Options.ConnectionId
 			return []interface{}{
 				&ws,
 			}, nil

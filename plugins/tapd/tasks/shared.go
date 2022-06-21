@@ -117,7 +117,7 @@ type TapdApiParams struct {
 func CreateRawDataSubTaskArgs(taskCtx core.SubTaskContext, rawTable string) (*helper.RawDataSubTaskArgs, *TapdTaskData) {
 	data := taskCtx.GetData().(*TapdTaskData)
 	var params = TapdApiParams{
-		ConnectionId: data.Connection.ID,
+		ConnectionId: data.Options.ConnectionId,
 		WorkspaceId:  data.Options.WorkspaceId,
 	}
 	if data.Options.CompanyId != 0 {
