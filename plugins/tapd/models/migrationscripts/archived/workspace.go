@@ -24,7 +24,7 @@ import (
 
 type TapdWorkspace struct {
 	ConnectionId uint64         `gorm:"primaryKey;type:BIGINT  NOT NULL"`
-	ID           uint64         `gorm:"primaryKey;type:BIGINT" json:"id,string"`
+	Id           uint64         `gorm:"primaryKey;type:BIGINT" json:"id,string"`
 	Name         string         `gorm:"type:varchar(255)" json:"name"`
 	PrettyName   string         `gorm:"type:varchar(255)" json:"pretty_name"`
 	Category     string         `gorm:"type:varchar(255)" json:"category"`
@@ -41,7 +41,7 @@ type TapdWorkspace struct {
 
 type TapdWorkSpaceIssue struct {
 	ConnectionId uint64 `gorm:"primaryKey"`
-	WorkspaceID  uint64 `gorm:"primaryKey"`
+	WorkspaceId  uint64 `gorm:"primaryKey"`
 	IssueId      uint64 `gorm:"primaryKey"`
 	common.NoPKModel
 }

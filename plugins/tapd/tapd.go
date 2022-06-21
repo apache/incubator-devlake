@@ -59,7 +59,7 @@ func main() {
 		// 	panic(err)
 		// }
 		// for _, v := range wsList {
-		// 	*workspaceId = v.ID
+		// 	*workspaceId = v.Id
 		// 	runner.DirectRun(c, args, PluginEntry, map[string]interface{}{
 		// 		"connectionId": *connectionId,
 		// 		"workspaceId":  *workspaceId,

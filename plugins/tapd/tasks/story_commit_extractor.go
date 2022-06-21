@@ -51,7 +51,7 @@ func ExtractStoryCommits(taskCtx core.SubTaskContext) error {
 				return nil, err
 			}
 			toolL.StoryId = issue.Id
-			toolL.WorkspaceID = data.Options.WorkspaceID
+			toolL.WorkspaceId = data.Options.WorkspaceId
 			results := make([]interface{}, 0, 1)
 			results = append(results, &toolL)
 

@@ -24,12 +24,12 @@ import (
 
 type TapdBugCommit struct {
 	ConnectionId uint64 `gorm:"primaryKey"`
-	ID           uint64 `gorm:"primaryKey;type:BIGINT" json:"id,string"`
+	Id           uint64 `gorm:"primaryKey;type:BIGINT" json:"id,string"`
 
-	UserID          string `json:"user_id" gorm:"type:varchar(255)"`
+	UserId          string `json:"user_id" gorm:"type:varchar(255)"`
 	HookUserName    string `json:"hook_user_name" gorm:"type:varchar(255)"`
-	CommitID        string `json:"commit_id" gorm:"type:varchar(255)"`
-	WorkspaceID     uint64 `json:"workspace_id,string" gorm:"type:BIGINT"`
+	CommitId        string `json:"commit_id" gorm:"type:varchar(255)"`
+	WorkspaceId     uint64 `json:"workspace_id,string" gorm:"type:BIGINT"`
 	Message         string `json:"message" gorm:"type:text"`
 	Path            string `json:"path" gorm:"type:varchar(255)"`
 	WebURL          string `json:"web_url" gorm:"type:varchar(255)"`

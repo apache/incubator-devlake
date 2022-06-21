@@ -33,9 +33,9 @@ import (
 
 type BugChangelogItemResult struct {
 	ConnectionId      uint64    `gorm:"primaryKey;type:BIGINT  NOT NULL"`
-	WorkspaceID       uint64    `gorm:"primaryKey;type:BIGINT  NOT NULL"`
-	ID                uint64    `gorm:"primaryKey;type:BIGINT  NOT NULL" json:"id"`
-	BugID             uint64    `json:"bug_id"`
+	WorkspaceId       uint64    `gorm:"primaryKey;type:BIGINT  NOT NULL"`
+	Id                uint64    `gorm:"primaryKey;type:BIGINT  NOT NULL" json:"id"`
+	BugId             uint64    `json:"bug_id"`
 	Author            string    `json:"author" gorm:"type:varchar(255)"`
 	Field             string    `json:"field"`
 	OldValue          string    `json:"old_value"`
@@ -54,13 +54,13 @@ func ConvertBugChangelog(taskCtx core.SubTaskContext) error {
 	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_BUG_CHANGELOG_TABLE)
 	logger := taskCtx.GetLogger()
 	db := taskCtx.GetDal()
-	logger.Info("convert changelog :%d", data.Options.WorkspaceID)
+	logger.Info("convert changelog :%d", data.Options.WorkspaceId)
 	clIdGen := didgen.NewDomainIdGenerator(&models.TapdBugChangelog{})
 	clauses := []dal.Clause{
 		dal.Select("tc.created, tc.id, tc.workspace_id, tc.bug_id, tc.author, _tool_tapd_bug_changelog_items.*"),
 		dal.From(&models.TapdBugChangelogItem{}),
 		dal.Join("left join _tool_tapd_bug_changelogs tc on tc.id = _tool_tapd_bug_changelog_items.changelog_id "),
-		dal.Where("tc.connection_id = ? AND tc.workspace_id = ?", data.Connection.ID, data.Options.WorkspaceID),
+		dal.Where("tc.connection_id = ? AND tc.workspace_id = ?", data.Connection.ID, data.Options.WorkspaceId),
 		dal.Orderby("created DESC"),
 	}
 
@@ -78,10 +78,10 @@ func ConvertBugChangelog(taskCtx core.SubTaskContext) error {
 			cl := inputRow.(*BugChangelogItemResult)
 			domainCl := &ticket.Changelog{
 				DomainEntity: domainlayer.DomainEntity{
-					Id: clIdGen.Generate(data.Connection.ID, cl.ID, cl.Field),
+					Id: clIdGen.Generate(data.Connection.ID, cl.Id, cl.Field),
 				},
-				IssueId:           IssueIdGen.Generate(data.Connection.ID, cl.BugID),
-				AuthorId:          UserIdGen.Generate(data.Connection.ID, data.Options.WorkspaceID, cl.Author),
+				IssueId:           IssueIdGen.Generate(data.Connection.ID, cl.BugId),
+				AuthorId:          UserIdGen.Generate(data.Connection.ID, data.Options.WorkspaceId, cl.Author),
 				AuthorName:        cl.Author,
 				FieldId:           cl.Field,
 				FieldName:         cl.Field,

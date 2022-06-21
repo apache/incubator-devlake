@@ -27,7 +27,7 @@ type TapdIterationTask struct {
 	ConnectionId    uint64 `gorm:"primaryKey"`
 	IterationId     uint64 `gorm:"primaryKey"`
 	TaskId          uint64 `gorm:"primaryKey"`
-	WorkspaceID     uint64 `gorm:"primaryKey"`
+	WorkspaceId     uint64 `gorm:"primaryKey"`
 	ResolutionDate  helper.CSTTime
 	TaskCreatedDate helper.CSTTime
 }

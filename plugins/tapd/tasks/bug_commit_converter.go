@@ -30,10 +30,10 @@ func ConvertBugCommit(taskCtx core.SubTaskContext) error {
 	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_BUG_COMMIT_TABLE)
 	logger := taskCtx.GetLogger()
 	db := taskCtx.GetDal()
-	logger.Info("convert board:%d", data.Options.WorkspaceID)
+	logger.Info("convert board:%d", data.Options.WorkspaceId)
 	clauses := []dal.Clause{
 		dal.From(&models.TapdBugCommit{}),
-		dal.Where("connection_id = ? AND workspace_id = ?", data.Connection.ID, data.Options.WorkspaceID),
+		dal.Where("connection_id = ? AND workspace_id = ?", data.Connection.ID, data.Options.WorkspaceId),
 	}
 	cursor, err := db.Cursor(clauses...)
 	if err != nil {
@@ -48,7 +48,7 @@ func ConvertBugCommit(taskCtx core.SubTaskContext) error {
 			toolL := inputRow.(*models.TapdBugCommit)
 			domainL := &crossdomain.IssueCommit{
 				IssueId:   IssueIdGen.Generate(data.Connection.ID, toolL.BugId),
-				CommitSha: toolL.CommitID,
+				CommitSha: toolL.CommitId,
 			}
 
 			return []interface{}{

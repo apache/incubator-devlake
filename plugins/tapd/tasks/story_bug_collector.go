@@ -39,7 +39,7 @@ func CollectStoryBugs(taskCtx core.SubTaskContext) error {
 
 	clauses := []dal.Clause{
 		dal.From(&models.TapdStory{}),
-		dal.Where("connection_id = ? and workspace_id = ?", data.Options.ConnectionId, data.Options.WorkspaceID),
+		dal.Where("connection_id = ? and workspace_id = ?", data.Options.ConnectionId, data.Options.WorkspaceId),
 	}
 
 	cursor, err := db.Cursor(clauses...)
@@ -58,7 +58,7 @@ func CollectStoryBugs(taskCtx core.SubTaskContext) error {
 		Query: func(reqData *helper.RequestData) (url.Values, error) {
 			input := reqData.Input.(*SimpleStory)
 			query := url.Values{}
-			query.Set("workspace_id", fmt.Sprintf("%v", data.Options.WorkspaceID))
+			query.Set("workspace_id", fmt.Sprintf("%v", data.Options.WorkspaceId))
 			query.Set("story_id", fmt.Sprintf("%v", input.Id))
 			return query, nil
 		},
@@ -72,8 +72,8 @@ func CollectStoryBugs(taskCtx core.SubTaskContext) error {
 }
 
 var CollectStoryBugMeta = core.SubTaskMeta{
-	Name:        "collectStoryBugs",
-	EntryPoint:  CollectStoryBugs,
-	Required:    true,
-	Description: "collect Tapd storyBugs",
+	Name:             "collectStoryBugs",
+	EntryPoint:       CollectStoryBugs,
+	EnabledByDefault: true,
+	Description:      "collect Tapd storyBugs",
 }

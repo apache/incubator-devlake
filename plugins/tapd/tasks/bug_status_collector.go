@@ -40,7 +40,7 @@ func CollectBugStatus(taskCtx core.SubTaskContext) error {
 		UrlTemplate:        "workflows/status_map",
 		Query: func(reqData *helper.RequestData) (url.Values, error) {
 			query := url.Values{}
-			query.Set("workspace_id", fmt.Sprintf("%v", data.Options.WorkspaceID))
+			query.Set("workspace_id", fmt.Sprintf("%v", data.Options.WorkspaceId))
 			query.Set("system", "bug")
 			return query, nil
 		},
@@ -54,8 +54,8 @@ func CollectBugStatus(taskCtx core.SubTaskContext) error {
 }
 
 var CollectBugStatusMeta = core.SubTaskMeta{
-	Name:        "collectBugStatus",
-	EntryPoint:  CollectBugStatus,
-	Required:    true,
-	Description: "collect Tapd bugStatus",
+	Name:             "collectBugStatus",
+	EntryPoint:       CollectBugStatus,
+	EnabledByDefault: true,
+	Description:      "collect Tapd bugStatus",
 }

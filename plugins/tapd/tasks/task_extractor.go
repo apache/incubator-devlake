@@ -68,21 +68,21 @@ func ExtractTasks(taskCtx core.SubTaskContext) error {
 			if strings.Contains(toolL.Owner, ";") {
 				toolL.Owner = strings.Split(toolL.Owner, ";")[0]
 			}
-			toolL.Url = fmt.Sprintf("https://www.tapd.cn/%d/prong/stories/view/%d", toolL.WorkspaceID, toolL.ID)
+			toolL.Url = fmt.Sprintf("https://www.tapd.cn/%d/prong/stories/view/%d", toolL.WorkspaceId, toolL.Id)
 
 			workSpaceTask := &models.TapdWorkSpaceTask{
 				ConnectionId: data.Connection.ID,
-				WorkspaceID:  toolL.WorkspaceID,
-				TaskId:       toolL.ID,
+				WorkspaceId:  toolL.WorkspaceId,
+				TaskId:       toolL.Id,
 			}
 			results := make([]interface{}, 0, 3)
 			results = append(results, &toolL, workSpaceTask)
-			if toolL.IterationID != 0 {
+			if toolL.IterationId != 0 {
 				iterationTask := &models.TapdIterationTask{
 					ConnectionId:    data.Connection.ID,
-					IterationId:     toolL.IterationID,
-					TaskId:          toolL.ID,
-					WorkspaceID:     toolL.WorkspaceID,
+					IterationId:     toolL.IterationId,
+					TaskId:          toolL.Id,
+					WorkspaceId:     toolL.WorkspaceId,
 					ResolutionDate:  toolL.Completed,
 					TaskCreatedDate: toolL.Created,
 				}
@@ -92,7 +92,7 @@ func ExtractTasks(taskCtx core.SubTaskContext) error {
 				labelList := strings.Split(toolL.Label, "|")
 				for _, v := range labelList {
 					toolLIssueLabel := &models.TapdTaskLabel{
-						TaskId:    toolL.ID,
+						TaskId:    toolL.Id,
 						LabelName: v,
 					}
 					results = append(results, toolLIssueLabel)

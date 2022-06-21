@@ -33,11 +33,11 @@ func ConvertWorklog(taskCtx core.SubTaskContext) error {
 	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_WORKLOG_TABLE)
 	logger := taskCtx.GetLogger()
 	db := taskCtx.GetDal()
-	logger.Info("convert board:%d", data.Options.WorkspaceID)
+	logger.Info("convert board:%d", data.Options.WorkspaceId)
 	worklogIdGen := didgen.NewDomainIdGenerator(&models.TapdWorklog{})
 	clauses := []dal.Clause{
 		dal.From(&models.TapdWorklog{}),
-		dal.Where("connection_id = ? AND workspace_id = ?", data.Connection.ID, data.Options.WorkspaceID),
+		dal.Where("connection_id = ? AND workspace_id = ?", data.Connection.ID, data.Options.WorkspaceId),
 	}
 
 	cursor, err := db.Cursor(clauses...)
@@ -53,24 +53,24 @@ func ConvertWorklog(taskCtx core.SubTaskContext) error {
 			toolL := inputRow.(*models.TapdWorklog)
 			domainL := &ticket.IssueWorklog{
 				DomainEntity: domainlayer.DomainEntity{
-					Id: worklogIdGen.Generate(data.Connection.ID, toolL.ID),
+					Id: worklogIdGen.Generate(data.Connection.ID, toolL.Id),
 				},
-				AuthorId:         UserIdGen.Generate(data.Connection.ID, toolL.WorkspaceID, toolL.Owner),
+				AuthorId:         UserIdGen.Generate(data.Connection.ID, toolL.WorkspaceId, toolL.Owner),
 				Comment:          toolL.Memo,
 				TimeSpentMinutes: int(toolL.Timespent),
 				LoggedDate:       (*time.Time)(&toolL.Created),
-				//IssueId:          toolL.EntityID,
+				//IssueId:          toolL.EntityId,
 			}
 			switch toolL.EntityType {
 			case "TASK":
 				domainL.IssueId = didgen.
-					NewDomainIdGenerator(&models.TapdTask{}).Generate(toolL.EntityID)
+					NewDomainIdGenerator(&models.TapdTask{}).Generate(toolL.EntityId)
 			case "BUG":
 				domainL.IssueId = didgen.
-					NewDomainIdGenerator(&models.TapdBug{}).Generate(toolL.EntityID)
+					NewDomainIdGenerator(&models.TapdBug{}).Generate(toolL.EntityId)
 			case "STORY":
 				domainL.IssueId = didgen.
-					NewDomainIdGenerator(&models.TapdStory{}).Generate(toolL.EntityID)
+					NewDomainIdGenerator(&models.TapdStory{}).Generate(toolL.EntityId)
 			}
 			return []interface{}{
 				domainL,

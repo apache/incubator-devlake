@@ -24,11 +24,11 @@ import (
 
 type TapdBug struct {
 	ConnectionId uint64 `gorm:"primaryKey"`
-	ID           uint64 `gorm:"primaryKey;type:BIGINT" json:"id,string"`
+	Id           uint64 `gorm:"primaryKey;type:BIGINT" json:"id,string"`
 	EpicKey      string
 	Title        string         `json:"name" gorm:"type:varchar(255)"`
 	Description  string         `json:"description"`
-	WorkspaceID  uint64         `json:"workspace_id,string"`
+	WorkspaceId  uint64         `json:"workspace_id,string"`
 	Created      helper.CSTTime `json:"created"`
 	Modified     helper.CSTTime `json:"modified" gorm:"index"`
 	Status       string         `json:"status" gorm:"type:varchar(255)"`
@@ -36,10 +36,10 @@ type TapdBug struct {
 	Begin        helper.CSTTime `json:"begin"`
 	Due          helper.CSTTime `json:"due"`
 	Priority     string         `json:"priority" gorm:"type:varchar(255)"`
-	IterationID  uint64         `json:"iteration_id,string"`
+	IterationId  uint64         `json:"iteration_id,string"`
 	Source       string         `json:"source" gorm:"type:varchar(255)"`
 	Module       string         `json:"module" gorm:"type:varchar(255)"`
-	ReleaseID    uint64         `json:"release_id,string"`
+	ReleaseId    uint64         `json:"release_id,string"`
 	CreatedFrom  string         `json:"created_from" gorm:"type:varchar(255)"`
 	Feature      string         `json:"feature" gorm:"type:varchar(255)"`
 	common.NoPKModel
@@ -76,7 +76,7 @@ type TapdBug struct {
 	RegressionNumber string         `json:"regression_number" gorm:"type:varchar(20)"`
 	Flows            string         `json:"flows" gorm:"type:varchar(255)"`
 	Testmode         string         `json:"testmode" gorm:"type:varchar(50)"`
-	IssueID          uint64         `json:"issue_id,string"`
+	IssueId          uint64         `json:"issue_id,string"`
 	VerifyTime       helper.CSTTime `json:"verify_time"`
 	RejectTime       helper.CSTTime `json:"reject_time"`
 	ReopenTime       helper.CSTTime `json:"reopen_time"`
@@ -85,16 +85,16 @@ type TapdBug struct {
 	Deadline         helper.CSTTime `json:"deadline"`
 	InProgressTime   helper.CSTTime `json:"in_progress_time"`
 	AssignedTime     helper.CSTTime `json:"assigned_time"`
-	TemplateID       uint64         `json:"template_id,string"`
-	StoryID          uint64         `json:"story_id,string"`
+	TemplateId       uint64         `json:"template_id,string"`
+	StoryId          uint64         `json:"story_id,string"`
 	StdStatus        string         `gorm:"type:varchar(20)"`
 	StdType          string         `gorm:"type:varchar(20)"`
 	Type             string         `gorm:"type:varchar(20)"`
 	Url              string         `gorm:"type:varchar(255)"`
 
-	SupportID       uint64  `json:"support_id,string"`
-	SupportForumID  uint64  `json:"support_forum_id,string"`
-	TicketID        uint64  `json:"ticket_id,string"`
+	SupportId       uint64  `json:"support_id,string"`
+	SupportForumId  uint64  `json:"support_forum_id,string"`
+	TicketId        uint64  `json:"ticket_id,string"`
 	Follower        string  `json:"follower" gorm:"type:varchar(255)"`
 	SyncType        string  `json:"sync_type" gorm:"type:text"`
 	Label           string  `json:"label" gorm:"type:varchar(255)"`

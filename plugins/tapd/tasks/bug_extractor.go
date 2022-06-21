@@ -42,7 +42,7 @@ func ExtractBugs(taskCtx core.SubTaskContext) error {
 	db := taskCtx.GetDal()
 	statusList := make([]*models.TapdBugStatus, 0)
 	clauses := []dal.Clause{
-		dal.Where("connection_id = ? and workspace_id = ?", data.Options.ConnectionId, data.Options.WorkspaceID),
+		dal.Where("connection_id = ? and workspace_id = ?", data.Options.ConnectionId, data.Options.WorkspaceId),
 		dal.Orderby("created DESC"),
 	}
 	err := db.All(&statusList, clauses...)
@@ -82,23 +82,23 @@ func ExtractBugs(taskCtx core.SubTaskContext) error {
 			toolL.Type = "BUG"
 			toolL.StdType = "BUG"
 			toolL.StdStatus = getStdStatus(toolL.Status)
-			toolL.Url = fmt.Sprintf("https://www.tapd.cn/%d/prong/stories/view/%d", toolL.WorkspaceID, toolL.ID)
+			toolL.Url = fmt.Sprintf("https://www.tapd.cn/%d/prong/stories/view/%d", toolL.WorkspaceId, toolL.Id)
 			if strings.Contains(toolL.CurrentOwner, ";") {
 				toolL.CurrentOwner = strings.Split(toolL.CurrentOwner, ";")[0]
 			}
 			workSpaceBug := &models.TapdWorkSpaceBug{
 				ConnectionId: data.Connection.ID,
-				WorkspaceID:  toolL.WorkspaceID,
-				BugId:        toolL.ID,
+				WorkspaceId:  toolL.WorkspaceId,
+				BugId:        toolL.Id,
 			}
 			results := make([]interface{}, 0, 3)
 			results = append(results, &toolL, workSpaceBug)
-			if toolL.IterationID != 0 {
+			if toolL.IterationId != 0 {
 				iterationBug := &models.TapdIterationBug{
 					ConnectionId:   data.Connection.ID,
-					IterationId:    toolL.IterationID,
-					WorkspaceID:    toolL.WorkspaceID,
-					BugId:          toolL.ID,
+					IterationId:    toolL.IterationId,
+					WorkspaceId:    toolL.WorkspaceId,
+					BugId:          toolL.Id,
 					ResolutionDate: toolL.Resolved,
 					BugCreatedDate: toolL.Created,
 				}
@@ -108,7 +108,7 @@ func ExtractBugs(taskCtx core.SubTaskContext) error {
 				labelList := strings.Split(toolL.Label, "|")
 				for _, v := range labelList {
 					toolLIssueLabel := &models.TapdBugLabel{
-						BugId:     toolL.ID,
+						BugId:     toolL.Id,
 						LabelName: v,
 					}
 					results = append(results, toolLIssueLabel)

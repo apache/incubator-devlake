@@ -41,7 +41,7 @@ func ConvertTaskLabels(taskCtx core.SubTaskContext) error {
 	clauses := []dal.Clause{
 		dal.Join(`left join _tool_tapd_workspace_tasks on _tool_tapd_workspace_tasks.task_id = _tool_tapd_task_labels.task_id`),
 		dal.Where("_tool_tapd_workspace_tasks.workspace_id = ? and _tool_tapd_workspace_tasks.connection_id = ?",
-			data.Options.WorkspaceID, data.Options.ConnectionId),
+			data.Options.WorkspaceId, data.Options.ConnectionId),
 		dal.Orderby("task_id ASC"),
 	}
 

@@ -42,14 +42,14 @@ func CollectStorys(taskCtx core.SubTaskContext) error {
 		// user didn't specify a time range to sync, try load from database
 		var latestUpdated models.TapdStory
 		clauses := []dal.Clause{
-			dal.Where("connection_id = ? and workspace_id = ?", data.Connection.ID, data.Options.WorkspaceID),
+			dal.Where("connection_id = ? and workspace_id = ?", data.Connection.ID, data.Options.WorkspaceId),
 			dal.Orderby("modified DESC"),
 		}
 		err := db.First(&latestUpdated, clauses...)
 		if err != nil {
 			return fmt.Errorf("failed to get latest tapd changelog record: %w", err)
 		}
-		if latestUpdated.ID > 0 {
+		if latestUpdated.Id > 0 {
 			since = (*time.Time)(&latestUpdated.Modified)
 			incremental = true
 		}
@@ -62,7 +62,7 @@ func CollectStorys(taskCtx core.SubTaskContext) error {
 		UrlTemplate:        "stories",
 		Query: func(reqData *helper.RequestData) (url.Values, error) {
 			query := url.Values{}
-			query.Set("workspace_id", fmt.Sprintf("%v", data.Options.WorkspaceID))
+			query.Set("workspace_id", fmt.Sprintf("%v", data.Options.WorkspaceId))
 			query.Set("page", fmt.Sprintf("%v", reqData.Pager.Page))
 			query.Set("limit", fmt.Sprintf("%v", reqData.Pager.Size))
 			query.Set("fields", "labels")
@@ -82,8 +82,8 @@ func CollectStorys(taskCtx core.SubTaskContext) error {
 }
 
 var CollectStoryMeta = core.SubTaskMeta{
-	Name:        "collectStorys",
-	EntryPoint:  CollectStorys,
-	Required:    true,
-	Description: "collect Tapd stories",
+	Name:             "collectStorys",
+	EntryPoint:       CollectStorys,
+	EnabledByDefault: true,
+	Description:      "collect Tapd stories",
 }

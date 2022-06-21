@@ -49,7 +49,7 @@ func ExtractBugStatus(taskCtx core.SubTaskContext) error {
 			for k, v := range statusRes.Data {
 				toolL := &models.TapdBugStatus{
 					ConnectionId: data.Connection.ID,
-					WorkspaceID:  data.Options.WorkspaceID,
+					WorkspaceId:  data.Options.WorkspaceId,
 					EnglishName:  k,
 					ChineseName:  v,
 					IsLastStep:   false,

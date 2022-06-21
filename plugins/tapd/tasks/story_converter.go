@@ -34,11 +34,11 @@ func ConvertStory(taskCtx core.SubTaskContext) error {
 	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_STORY_TABLE)
 	logger := taskCtx.GetLogger()
 	db := taskCtx.GetDal()
-	logger.Info("convert board:%d", data.Options.WorkspaceID)
+	logger.Info("convert board:%d", data.Options.WorkspaceId)
 
 	clauses := []dal.Clause{
 		dal.From(&models.TapdStory{}),
-		dal.Where("connection_id = ? AND workspace_id = ?", data.Connection.ID, data.Options.WorkspaceID),
+		dal.Where("connection_id = ? AND workspace_id = ?", data.Connection.ID, data.Options.WorkspaceId),
 	}
 
 	cursor, err := db.Cursor(clauses...)
@@ -54,10 +54,10 @@ func ConvertStory(taskCtx core.SubTaskContext) error {
 			toolL := inputRow.(*models.TapdStory)
 			domainL := &ticket.Issue{
 				DomainEntity: domainlayer.DomainEntity{
-					Id: IssueIdGen.Generate(toolL.ConnectionId, toolL.ID),
+					Id: IssueIdGen.Generate(toolL.ConnectionId, toolL.Id),
 				},
 				Url:                  toolL.Url,
-				IssueKey:             strconv.FormatUint(toolL.ID, 10),
+				IssueKey:             strconv.FormatUint(toolL.Id, 10),
 				Title:                toolL.Name,
 				Type:                 toolL.StdType,
 				Status:               toolL.StdStatus,
@@ -66,12 +66,12 @@ func ConvertStory(taskCtx core.SubTaskContext) error {
 				ResolutionDate:       (*time.Time)(&toolL.Completed),
 				CreatedDate:          (*time.Time)(&toolL.Created),
 				UpdatedDate:          (*time.Time)(&toolL.Modified),
-				ParentIssueId:        IssueIdGen.Generate(toolL.ConnectionId, toolL.ParentID),
+				ParentIssueId:        IssueIdGen.Generate(toolL.ConnectionId, toolL.ParentId),
 				Priority:             toolL.Priority,
 				TimeRemainingMinutes: int64(toolL.Remain),
-				CreatorId:            UserIdGen.Generate(data.Connection.ID, toolL.WorkspaceID, toolL.Creator),
+				CreatorId:            UserIdGen.Generate(data.Connection.ID, toolL.WorkspaceId, toolL.Creator),
 				CreatorName:          toolL.Creator,
-				AssigneeId:           UserIdGen.Generate(data.Connection.ID, toolL.WorkspaceID, toolL.Owner),
+				AssigneeId:           UserIdGen.Generate(data.Connection.ID, toolL.WorkspaceId, toolL.Owner),
 				AssigneeName:         toolL.Owner,
 				Severity:             "",
 				Component:            toolL.Feature,
@@ -81,11 +81,11 @@ func ConvertStory(taskCtx core.SubTaskContext) error {
 			}
 			results := make([]interface{}, 0, 2)
 			boardIssue := &ticket.BoardIssue{
-				BoardId: WorkspaceIdGen.Generate(toolL.WorkspaceID),
+				BoardId: WorkspaceIdGen.Generate(toolL.WorkspaceId),
 				IssueId: domainL.Id,
 			}
 			sprintIssue := &ticket.SprintIssue{
-				SprintId: IterIdGen.Generate(data.Connection.ID, toolL.IterationID),
+				SprintId: IterIdGen.Generate(data.Connection.ID, toolL.IterationId),
 				IssueId:  domainL.Id,
 			}
 			results = append(results, domainL, boardIssue, sprintIssue)

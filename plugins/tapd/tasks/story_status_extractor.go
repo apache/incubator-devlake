@@ -49,7 +49,7 @@ func ExtractStoryStatus(taskCtx core.SubTaskContext) error {
 			for k, v := range storyStatusRes.Data {
 				toolL := &models.TapdStoryStatus{
 					ConnectionId: data.Connection.ID,
-					WorkspaceID:  data.Options.WorkspaceID,
+					WorkspaceId:  data.Options.WorkspaceId,
 					EnglishName:  k,
 					ChineseName:  v,
 					IsLastStep:   false,

@@ -40,7 +40,7 @@ func ConvertBugLabels(taskCtx core.SubTaskContext) error {
 	clauses := []dal.Clause{
 		dal.Join(`left join _tool_tapd_workspace_bugs on _tool_tapd_workspace_bugs.bug_id = _tool_tapd_bug_labels.bug_id`),
 		dal.Where("_tool_tapd_workspace_bugs.workspace_id = ? and _tool_tapd_workspace_bugs.connection_id = ?",
-			data.Options.WorkspaceID, data.Options.ConnectionId),
+			data.Options.WorkspaceId, data.Options.ConnectionId),
 		dal.Orderby("bug_id ASC"),
 	}
 

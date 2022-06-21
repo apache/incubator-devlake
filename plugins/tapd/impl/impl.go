@@ -19,6 +19,7 @@ package impl
 
 import (
 	"fmt"
+	"github.com/apache/incubator-devlake/plugins/core/dal"
 	"time"
 
 	"github.com/apache/incubator-devlake/migration"
@@ -114,7 +115,7 @@ func (plugin Tapd) SubTaskMetas() []core.SubTaskMeta {
 }
 
 func (plugin Tapd) PrepareTaskData(taskCtx core.TaskContext, options map[string]interface{}) (interface{}, error) {
-	db := taskCtx.GetDb()
+	db := taskCtx.GetDal()
 	var op tasks.TapdOptions
 	err := mapstructure.Decode(options, &op)
 	if err != nil {
@@ -124,7 +125,10 @@ func (plugin Tapd) PrepareTaskData(taskCtx core.TaskContext, options map[string]
 		return nil, fmt.Errorf("ConnectionId is required for Tapd execution")
 	}
 	connection := &models.TapdConnection{}
-	err = db.First(connection, op.ConnectionId).Error
+	clauses := []dal.Clause{
+		dal.Where("connection_id = ?", op.ConnectionId),
+	}
+	err = db.First(connection, clauses...)
 	if err != nil {
 		return nil, err
 	}
@@ -134,6 +138,9 @@ func (plugin Tapd) PrepareTaskData(taskCtx core.TaskContext, options map[string]
 		if err != nil {
 			return nil, fmt.Errorf("invalid value for `since`: %w", err)
 		}
+	}
+	if connection.RateLimit == 0 {
+		connection.RateLimit = 6000
 	}
 	tapdApiClient, err := tasks.NewTapdApiClient(taskCtx, connection)
 	if err != nil {

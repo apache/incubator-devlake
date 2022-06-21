@@ -24,10 +24,10 @@ import (
 
 type TapdTask struct {
 	ConnectionId    uint64         `gorm:"primaryKey"`
-	ID              uint64         `gorm:"primaryKey;type:BIGINT" json:"id,string"`
+	Id              uint64         `gorm:"primaryKey;type:BIGINT" json:"id,string"`
 	Name            string         `gorm:"type:varchar(255)" json:"name"`
 	Description     string         `json:"description"`
-	WorkspaceID     uint64         `json:"workspace_id,string"`
+	WorkspaceId     uint64         `json:"workspace_id,string"`
 	Creator         string         `gorm:"type:varchar(255)" json:"creator"`
 	Created         helper.CSTTime `json:"created"`
 	Modified        helper.CSTTime `json:"modified" gorm:"index"`
@@ -37,7 +37,7 @@ type TapdTask struct {
 	Begin           helper.CSTTime `json:"begin"`
 	Due             helper.CSTTime `json:"due"`
 	Priority        string         `gorm:"type:varchar(255)" json:"priority"`
-	IterationID     uint64         `json:"iteration_id,string"`
+	IterationId     uint64         `json:"iteration_id,string"`
 	Completed       helper.CSTTime `json:"completed"`
 	Effort          float32        `json:"effort,string"`
 	EffortCompleted float32        `json:"effort_completed,string"`
@@ -46,7 +46,7 @@ type TapdTask struct {
 	StdStatus       string         `gorm:"type:varchar(20)"`
 	StdType         string         `gorm:"type:varchar(20)"`
 	Type            string         `gorm:"type:varchar(20)"`
-	StoryID         uint64         `json:"story_id,string"`
+	StoryId         uint64         `json:"story_id,string"`
 	Progress        int16          `json:"progress,string"`
 	HasAttachment   string         `gorm:"type:varchar(255)"`
 	Url             string         `gorm:"type:varchar(255)"`
