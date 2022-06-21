@@ -28,7 +28,7 @@ import (
 
 func ExtractStatus(taskCtx core.SubTaskContext) error {
 	data := taskCtx.GetData().(*JiraTaskData)
-	connectionId := data.Connection.ID
+	connectionId := data.Options.ConnectionId
 	boardId := data.Options.BoardId
 	logger := taskCtx.GetLogger()
 	logger.Info("extract Status, connection_id=%d, board_id=%d", connectionId, boardId)

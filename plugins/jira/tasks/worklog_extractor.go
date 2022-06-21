@@ -32,7 +32,7 @@ func ExtractWorklogs(taskCtx core.SubTaskContext) error {
 		RawDataSubTaskArgs: helper.RawDataSubTaskArgs{
 			Ctx: taskCtx,
 			Params: JiraApiParams{
-				ConnectionId: data.Connection.ID,
+				ConnectionId: data.Options.ConnectionId,
 				BoardId:      data.Options.BoardId,
 			},
 			Table: RAW_WORKLOGS_TABLE,
@@ -48,7 +48,7 @@ func ExtractWorklogs(taskCtx core.SubTaskContext) error {
 			if err != nil {
 				return nil, err
 			}
-			return []interface{}{worklog.ToToolLayer(data.Connection.ID, &input.UpdateTime)}, nil
+			return []interface{}{worklog.ToToolLayer(data.Options.ConnectionId, &input.UpdateTime)}, nil
 		},
 	})
 

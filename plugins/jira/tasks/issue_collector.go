@@ -54,7 +54,7 @@ func CollectIssues(taskCtx core.SubTaskContext) error {
 			dal.Select("_tool_jira_issues.*"),
 			dal.From("_tool_jira_issues"),
 			dal.Join("LEFT JOIN _tool_jira_board_issues bi ON (bi.connection_id = _tool_jira_issues.connection_id AND bi.issue_id = _tool_jira_issues.issue_id)"),
-			dal.Where("bi.connection_id = ? and bi.board_id = ?", data.Connection.ID, data.Options.BoardId),
+			dal.Where("bi.connection_id = ? and bi.board_id = ?", data.Options.ConnectionId, data.Options.BoardId),
 			dal.Orderby("_tool_jira_issues.updated DESC"),
 		}
 		err := db.First(&latestUpdated, clauses...)
@@ -83,7 +83,7 @@ func CollectIssues(taskCtx core.SubTaskContext) error {
 				set of data to be process, for example, we process JiraIssues by Board
 			*/
 			Params: JiraApiParams{
-				ConnectionId: data.Connection.ID,
+				ConnectionId: data.Options.ConnectionId,
 				BoardId:      data.Options.BoardId,
 			},
 			/*

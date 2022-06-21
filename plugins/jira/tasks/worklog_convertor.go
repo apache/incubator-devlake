@@ -32,7 +32,7 @@ import (
 func ConvertWorklogs(taskCtx core.SubTaskContext) error {
 	data := taskCtx.GetData().(*JiraTaskData)
 	db := taskCtx.GetDal()
-	connectionId := data.Connection.ID
+	connectionId := data.Options.ConnectionId
 	boardId := data.Options.BoardId
 	logger := taskCtx.GetLogger()
 	logger.Info("convert worklog")
@@ -57,7 +57,7 @@ func ConvertWorklogs(taskCtx core.SubTaskContext) error {
 		RawDataSubTaskArgs: helper.RawDataSubTaskArgs{
 			Ctx: taskCtx,
 			Params: JiraApiParams{
-				ConnectionId: data.Connection.ID,
+				ConnectionId: data.Options.ConnectionId,
 				BoardId:      data.Options.BoardId,
 			},
 			Table: RAW_WORKLOGS_TABLE,

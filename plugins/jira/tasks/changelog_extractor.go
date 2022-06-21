@@ -33,12 +33,12 @@ func ExtractChangelogs(taskCtx core.SubTaskContext) error {
 	if data.JiraServerInfo.DeploymentType == models.DeploymentServer {
 		return nil
 	}
-	connectionId := data.Connection.ID
+	connectionId := data.Options.ConnectionId
 	extractor, err := helper.NewApiExtractor(helper.ApiExtractorArgs{
 		RawDataSubTaskArgs: helper.RawDataSubTaskArgs{
 			Ctx: taskCtx,
 			Params: JiraApiParams{
-				ConnectionId: data.Connection.ID,
+				ConnectionId: data.Options.ConnectionId,
 				BoardId:      data.Options.BoardId,
 			},
 			Table: RAW_CHANGELOG_TABLE,

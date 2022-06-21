@@ -61,7 +61,7 @@ func ConvertBugChangelog(taskCtx core.SubTaskContext) error {
 		dal.Select("tc.created, tc.id, tc.workspace_id, tc.bug_id, tc.author, _tool_tapd_bug_changelog_items.*"),
 		dal.From(&models.TapdBugChangelogItem{}),
 		dal.Join("left join _tool_tapd_bug_changelogs tc on tc.id = _tool_tapd_bug_changelog_items.changelog_id "),
-		dal.Where("tc.connection_id = ? AND tc.workspace_id = ?", data.Connection.ID, data.Options.WorkspaceId),
+		dal.Where("tc.connection_id = ? AND tc.workspace_id = ?", data.Options.ConnectionId, data.Options.WorkspaceId),
 		dal.Orderby("created DESC"),
 	}
 
@@ -79,10 +79,10 @@ func ConvertBugChangelog(taskCtx core.SubTaskContext) error {
 			cl := inputRow.(*BugChangelogItemResult)
 			domainCl := &ticket.Changelog{
 				DomainEntity: domainlayer.DomainEntity{
-					Id: clIdGen.Generate(data.Connection.ID, cl.Id, cl.Field),
+					Id: clIdGen.Generate(data.Options.ConnectionId, cl.Id, cl.Field),
 				},
-				IssueId:           IssueIdGen.Generate(data.Connection.ID, cl.BugId),
-				AuthorId:          UserIdGen.Generate(data.Connection.ID, data.Options.WorkspaceId, cl.Author),
+				IssueId:           IssueIdGen.Generate(data.Options.ConnectionId, cl.BugId),
+				AuthorId:          UserIdGen.Generate(data.Options.ConnectionId, data.Options.WorkspaceId, cl.Author),
 				AuthorName:        cl.Author,
 				FieldId:           cl.Field,
 				FieldName:         cl.Field,

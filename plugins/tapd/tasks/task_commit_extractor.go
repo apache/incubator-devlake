@@ -45,7 +45,7 @@ func ExtractTaskCommits(taskCtx core.SubTaskContext) error {
 				return nil, err
 			}
 			toolL := issueCommitBody
-			toolL.ConnectionId = data.Connection.ID
+			toolL.ConnectionId = data.Options.ConnectionId
 			issue := SimpleTask{}
 			err = json.Unmarshal(row.Input, &issue)
 			if err != nil {

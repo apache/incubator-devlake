@@ -44,7 +44,7 @@ func ExtractStoryBugs(taskCtx core.SubTaskContext) error {
 			if err != nil {
 				return nil, err
 			}
-			toolL.ConnectionId = data.Connection.ID
+			toolL.ConnectionId = data.Options.ConnectionId
 			return []interface{}{
 				&toolL,
 			}, nil

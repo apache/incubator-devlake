@@ -35,7 +35,7 @@ func ConvertUser(taskCtx core.SubTaskContext) error {
 	logger.Info("convert board:%d", data.Options.WorkspaceId)
 	clauses := []dal.Clause{
 		dal.From(&models.TapdUser{}),
-		dal.Where("connection_id = ? AND workspace_id = ?", data.Connection.ID, data.Options.WorkspaceId),
+		dal.Where("connection_id = ? AND workspace_id = ?", data.Options.ConnectionId, data.Options.WorkspaceId),
 	}
 
 	cursor, err := db.Cursor(clauses...)

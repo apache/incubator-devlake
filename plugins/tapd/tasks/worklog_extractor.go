@@ -49,7 +49,7 @@ func ExtractWorklogs(taskCtx core.SubTaskContext) error {
 			}
 			toolL := worklogBody.Timesheet
 
-			toolL.ConnectionId = data.Connection.ID
+			toolL.ConnectionId = data.Options.ConnectionId
 			results := make([]interface{}, 0, 1)
 			results = append(results, &toolL)
 

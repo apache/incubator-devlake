@@ -83,7 +83,7 @@ func CollectChangelogs(taskCtx core.SubTaskContext) error {
 		RawDataSubTaskArgs: helper.RawDataSubTaskArgs{
 			Ctx: taskCtx,
 			Params: JiraApiParams{
-				ConnectionId: data.Connection.ID,
+				ConnectionId: data.Options.ConnectionId,
 				BoardId:      data.Options.BoardId,
 			},
 			Table: RAW_CHANGELOG_TABLE,
