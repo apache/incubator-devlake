@@ -29,8 +29,8 @@ type TapdIterationStory struct {
 	WorkspaceId  uint64 `gorm:"primaryKey"`
 
 	StoryId          uint64 `gorm:"primaryKey"`
-	ResolutionDate   helper.CSTTime
-	StoryCreatedDate helper.CSTTime
+	ResolutionDate   *helper.CSTTime
+	StoryCreatedDate *helper.CSTTime
 }
 
 func (TapdIterationStory) TableName() string {

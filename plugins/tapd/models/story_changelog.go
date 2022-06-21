@@ -24,17 +24,17 @@ import (
 )
 
 type TapdStoryChangelog struct {
-	ConnectionId   uint64         `gorm:"primaryKey;type:BIGINT  NOT NULL"`
-	Id             uint64         `gorm:"primaryKey;type:BIGINT  NOT NULL" json:"id,string"`
-	WorkspaceId    uint64         `json:"workspace_id,string"`
-	WorkitemTypeId uint64         `json:"workitem_type_id,string"`
-	Creator        string         `json:"creator" gorm:"type:varchar(255)"`
-	Created        helper.CSTTime `json:"created"`
-	ChangeSummary  string         `json:"change_summary" gorm:"type:varchar(255)"`
-	Comment        string         `json:"comment"`
-	EntityType     string         `json:"entity_type" gorm:"type:varchar(255)"`
-	ChangeType     string         `json:"change_type" gorm:"type:varchar(255)"`
-	StoryId        uint64         `json:"story_id,string"`
+	ConnectionId   uint64          `gorm:"primaryKey;type:BIGINT  NOT NULL"`
+	Id             uint64          `gorm:"primaryKey;type:BIGINT  NOT NULL" json:"id,string"`
+	WorkspaceId    uint64          `json:"workspace_id,string"`
+	WorkitemTypeId uint64          `json:"workitem_type_id,string"`
+	Creator        string          `json:"creator" gorm:"type:varchar(255)"`
+	Created        *helper.CSTTime `json:"created"`
+	ChangeSummary  string          `json:"change_summary" gorm:"type:varchar(255)"`
+	Comment        string          `json:"comment"`
+	EntityType     string          `json:"entity_type" gorm:"type:varchar(255)"`
+	ChangeType     string          `json:"change_type" gorm:"type:varchar(255)"`
+	StoryId        uint64          `json:"story_id,string"`
 	common.NoPKModel
 	FieldChanges []TapdStoryChangelogItemRes `json:"field_changes" gorm:"-"`
 }

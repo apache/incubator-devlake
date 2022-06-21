@@ -99,8 +99,8 @@ func ExtractBugs(taskCtx core.SubTaskContext) error {
 					IterationId:    toolL.IterationId,
 					WorkspaceId:    toolL.WorkspaceId,
 					BugId:          toolL.Id,
-					ResolutionDate: *toolL.Resolved,
-					BugCreatedDate: *toolL.Created,
+					ResolutionDate: toolL.Resolved,
+					BugCreatedDate: toolL.Created,
 				}
 				results = append(results, iterationBug)
 			}

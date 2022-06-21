@@ -84,8 +84,8 @@ func ExtractTasks(taskCtx core.SubTaskContext) error {
 					IterationId:     toolL.IterationId,
 					TaskId:          toolL.Id,
 					WorkspaceId:     toolL.WorkspaceId,
-					ResolutionDate:  *toolL.Completed,
-					TaskCreatedDate: *toolL.Created,
+					ResolutionDate:  toolL.Completed,
+					TaskCreatedDate: toolL.Created,
 				}
 				results = append(results, iterationTask)
 			}
