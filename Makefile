@@ -24,6 +24,9 @@ VERSION = $(TAG)@$(SHA)
 build-plugin:
 	@sh scripts/compile-plugins.sh
 
+build-plugin-debug:
+	@sh scripts/compile-plugins.sh -gcflags='all=-N -l'
+
 build-worker:
 	go build -ldflags "-X 'github.com/apache/incubator-devlake/version.Version=$(VERSION)'" -o bin/lake-worker ./worker/
 
@@ -41,6 +44,9 @@ worker:
 	go run worker/*.go
 
 dev: build-plugin run
+
+debug: build-plugin-debug
+	dlv debug main.go
 
 configure:
 	docker-compose up config-ui
