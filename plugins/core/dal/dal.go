@@ -19,6 +19,7 @@ package dal
 
 import (
 	"database/sql"
+	"errors"
 )
 
 type Clause struct {
@@ -129,3 +130,5 @@ const HavingClause string = "Having"
 func Having(clause string, params ...interface{}) Clause {
 	return Clause{Type: HavingClause, Data: DalClause{clause, params}}
 }
+
+var ErrRecordNotFound = errors.New("record not found")

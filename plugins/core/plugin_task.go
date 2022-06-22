@@ -80,6 +80,18 @@ type SubTask interface {
 // All subtasks from plugins should comply to this prototype, so they could be orchestrated by framework
 type SubTaskEntryPoint func(c SubTaskContext) error
 
+const DOMAIN_TYPE_CODE = "CODE"
+const DOMAIN_TYPE_TICKET = "TICKET"
+const DOMAIN_TYPE_CICD = "CICD"
+const DOMAIN_TYPE_CROSS = "CROSS"
+
+var DOMAIN_TYPES = []string{
+	DOMAIN_TYPE_CODE,
+	DOMAIN_TYPE_TICKET,
+	DOMAIN_TYPE_CICD,
+	DOMAIN_TYPE_CROSS,
+}
+
 // Meta data of a subtask
 type SubTaskMeta struct {
 	Name       string
@@ -88,6 +100,7 @@ type SubTaskMeta struct {
 	Required         bool
 	EnabledByDefault bool
 	Description      string
+	DomainTypes      []string
 }
 
 // Implement this interface to let framework run tasks for you
