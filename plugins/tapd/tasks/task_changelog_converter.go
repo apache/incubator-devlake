@@ -61,6 +61,8 @@ func ConvertTaskChangelog(taskCtx core.SubTaskContext) error {
 	db := taskCtx.GetDal()
 	logger.Info("convert changelog :%d", data.Options.WorkspaceId)
 	clIdGen := didgen.NewDomainIdGenerator(&models.TapdTaskChangelog{})
+	issueIdGen := didgen.NewDomainIdGenerator(&models.TapdIssue{})
+	userIdGen := didgen.NewDomainIdGenerator(&models.TapdUser{})
 
 	clauses := []dal.Clause{
 		dal.Select("tc.created, tc.id, tc.workspace_id, tc.task_id, tc.creator, _tool_tapd_task_changelog_items.*"),
@@ -84,8 +86,8 @@ func ConvertTaskChangelog(taskCtx core.SubTaskContext) error {
 				DomainEntity: domainlayer.DomainEntity{
 					Id: fmt.Sprintf("%s:%s", clIdGen.Generate(data.Options.ConnectionId, cl.Id), cl.Field),
 				},
-				IssueId:           IssueIdGen.Generate(data.Options.ConnectionId, cl.TaskId),
-				AuthorId:          UserIdGen.Generate(data.Options.ConnectionId, data.Options.WorkspaceId, cl.Creator),
+				IssueId:           issueIdGen.Generate(data.Options.ConnectionId, cl.TaskId),
+				AuthorId:          userIdGen.Generate(data.Options.ConnectionId, data.Options.WorkspaceId, cl.Creator),
 				AuthorName:        cl.Creator,
 				FieldId:           cl.Field,
 				FieldName:         cl.Field,
