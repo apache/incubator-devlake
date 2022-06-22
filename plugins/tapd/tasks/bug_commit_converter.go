@@ -18,6 +18,7 @@ limitations under the License.
 package tasks
 
 import (
+	"github.com/apache/incubator-devlake/models/domainlayer/didgen"
 	"reflect"
 
 	"github.com/apache/incubator-devlake/models/domainlayer/crossdomain"
@@ -41,6 +42,7 @@ func ConvertBugCommit(taskCtx core.SubTaskContext) error {
 		return err
 	}
 	defer cursor.Close()
+	issueIdGen := didgen.NewDomainIdGenerator(&models.TapdIssue{})
 	converter, err := helper.NewDataConverter(helper.DataConverterArgs{
 		RawDataSubTaskArgs: *rawDataSubTaskArgs,
 		InputRowType:       reflect.TypeOf(models.TapdBugCommit{}),
@@ -48,7 +50,7 @@ func ConvertBugCommit(taskCtx core.SubTaskContext) error {
 		Convert: func(inputRow interface{}) ([]interface{}, error) {
 			toolL := inputRow.(*models.TapdBugCommit)
 			domainL := &crossdomain.IssueCommit{
-				IssueId:   IssueIdGen.Generate(data.Options.ConnectionId, toolL.BugId),
+				IssueId:   issueIdGen.Generate(data.Options.ConnectionId, toolL.BugId),
 				CommitSha: toolL.CommitId,
 			}
 
