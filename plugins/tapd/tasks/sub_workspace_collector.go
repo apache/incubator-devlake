@@ -27,12 +27,12 @@ import (
 	"github.com/apache/incubator-devlake/plugins/helper"
 )
 
-const RAW_WORKSPACE_TABLE = "tapd_api_sub_workspaces"
+const RAW_SUB_WORKSPACE_TABLE = "tapd_api_sub_workspaces"
 
-var _ core.SubTaskEntryPoint = CollectWorkspaces
+var _ core.SubTaskEntryPoint = CollectSubWorkspaces
 
-func CollectWorkspaces(taskCtx core.SubTaskContext) error {
-	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_WORKSPACE_TABLE)
+func CollectSubWorkspaces(taskCtx core.SubTaskContext) error {
+	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_SUB_WORKSPACE_TABLE)
 	logger := taskCtx.GetLogger()
 	logger.Info("collect workspaces")
 	collector, err := helper.NewApiCollector(helper.ApiCollectorArgs{
@@ -62,9 +62,9 @@ func CollectWorkspaces(taskCtx core.SubTaskContext) error {
 	return collector.Execute()
 }
 
-var CollectWorkspaceMeta = core.SubTaskMeta{
-	Name:             "collectWorkspaces",
-	EntryPoint:       CollectWorkspaces,
+var CollectSubWorkspaceMeta = core.SubTaskMeta{
+	Name:             "collectSubWorkspaces",
+	EntryPoint:       CollectSubWorkspaces,
 	EnabledByDefault: true,
 	Description:      "collect Tapd workspaces",
 }

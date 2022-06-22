@@ -27,7 +27,7 @@ import (
 	"github.com/apache/incubator-devlake/plugins/tapd/tasks"
 )
 
-func TestTapdWorkspaceDataFlow(t *testing.T) {
+func TestTapdStoryAndBugStatusDataFlow(t *testing.T) {
 
 	var tapd impl.Tapd
 	dataflowTester := e2ehelper.NewDataFlowTester(t, "tapd", tapd)
@@ -39,29 +39,23 @@ func TestTapdWorkspaceDataFlow(t *testing.T) {
 			WorkspaceId:  991,
 		},
 	}
+	// story status
 	// import raw data table
-	dataflowTester.ImportCsvIntoRawTable("./raw_tables/_raw_tapd_api_companies.csv",
-		"_raw_tapd_api_sub_workspaces")
+	dataflowTester.ImportCsvIntoRawTable("./raw_tables/_raw_tapd_api_story_status.csv",
+		"_raw_tapd_api_story_status")
 
 	// verify extraction
-	dataflowTester.FlushTabler(&models.TapdWorkspace{})
-	dataflowTester.Subtask(tasks.ExtractWorkspaceMeta, taskData)
+	dataflowTester.FlushTabler(&models.TapdStoryStatus{})
+	dataflowTester.Subtask(tasks.ExtractStoryStatusMeta, taskData)
 	dataflowTester.VerifyTable(
-		models.TapdWorkspace{},
-		fmt.Sprintf("./snapshot_tables/%s_ws_test.csv", models.TapdWorkspace{}.TableName()),
-		[]string{"connection_id", "id"},
+		models.TapdStoryStatus{},
+		fmt.Sprintf("./snapshot_tables/%s.csv", models.TapdStoryStatus{}.TableName()),
+		[]string{"connection_id", "workspace_id", "english_name"},
 		[]string{
-			"name",
-			"pretty_name",
-			"category",
-			"status",
-			"description",
-			"begin_date",
-			"end_date",
-			"external_on",
-			"parent_id",
-			"creator",
-			"created",
+			"chinese_name",
+			"is_last_step",
+			"created_at",
+			"updated_at",
 			"_raw_data_params",
 			"_raw_data_table",
 			"_raw_data_id",
@@ -69,4 +63,27 @@ func TestTapdWorkspaceDataFlow(t *testing.T) {
 		},
 	)
 
+	// bug status
+	// import raw data table
+	dataflowTester.ImportCsvIntoRawTable("./raw_tables/_raw_tapd_api_bug_status.csv",
+		"_raw_tapd_api_bug_status")
+
+	// verify extraction
+	dataflowTester.FlushTabler(&models.TapdBugStatus{})
+	dataflowTester.Subtask(tasks.ExtractStoryStatusMeta, taskData)
+	dataflowTester.VerifyTable(
+		models.TapdBugStatus{},
+		fmt.Sprintf("./snapshot_tables/%s.csv", models.TapdBugStatus{}.TableName()),
+		[]string{"connection_id", "workspace_id", "english_name"},
+		[]string{
+			"chinese_name",
+			"is_last_step",
+			"created_at",
+			"updated_at",
+			"_raw_data_params",
+			"_raw_data_table",
+			"_raw_data_id",
+			"_raw_data_remark",
+		},
+	)
 }

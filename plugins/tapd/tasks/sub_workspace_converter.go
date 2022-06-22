@@ -28,13 +28,13 @@ import (
 	"reflect"
 )
 
-func ConvertWorkspace(taskCtx core.SubTaskContext) error {
-	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_WORKSPACE_TABLE)
+func ConvertSubWorkspace(taskCtx core.SubTaskContext) error {
+	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_SUB_WORKSPACE_TABLE)
 	logger := taskCtx.GetLogger()
 	db := taskCtx.GetDal()
 	logger.Info("collect board:%d", data.Options.WorkspaceId)
 	clauses := []dal.Clause{
-		dal.From(&models.TapdWorkspace{}),
+		dal.From(&models.TapdSubWorkspace{}),
 		dal.Where("connection_id = ? AND id = ?", data.Options.ConnectionId, data.Options.WorkspaceId),
 	}
 
@@ -45,10 +45,10 @@ func ConvertWorkspace(taskCtx core.SubTaskContext) error {
 	defer cursor.Close()
 	converter, err := helper.NewDataConverter(helper.DataConverterArgs{
 		RawDataSubTaskArgs: *rawDataSubTaskArgs,
-		InputRowType:       reflect.TypeOf(models.TapdWorkspace{}),
+		InputRowType:       reflect.TypeOf(models.TapdSubWorkspace{}),
 		Input:              cursor,
 		Convert: func(inputRow interface{}) ([]interface{}, error) {
-			workspace := inputRow.(*models.TapdWorkspace)
+			workspace := inputRow.(*models.TapdSubWorkspace)
 			domainBoard := &ticket.Board{
 				DomainEntity: domainlayer.DomainEntity{
 					Id: WorkspaceIdGen.Generate(workspace.ConnectionId, workspace.Id),
@@ -68,9 +68,9 @@ func ConvertWorkspace(taskCtx core.SubTaskContext) error {
 	return converter.Execute()
 }
 
-var ConvertWorkspaceMeta = core.SubTaskMeta{
-	Name:             "convertWorkspace",
-	EntryPoint:       ConvertWorkspace,
+var ConvertSubWorkspaceMeta = core.SubTaskMeta{
+	Name:             "convertSubWorkspace",
+	EntryPoint:       ConvertSubWorkspace,
 	EnabledByDefault: true,
 	Description:      "convert Tapd workspace",
 }
