@@ -25,30 +25,30 @@ import (
 	"github.com/apache/incubator-devlake/plugins/tapd/models"
 )
 
-var _ core.SubTaskEntryPoint = ExtractWorkspaces
+var _ core.SubTaskEntryPoint = ExtractSubWorkspaces
 
-var ExtractWorkspaceMeta = core.SubTaskMeta{
-	Name:             "extractWorkspaces",
-	EntryPoint:       ExtractWorkspaces,
+var ExtractSubWorkspaceMeta = core.SubTaskMeta{
+	Name:             "extractSubWorkspaces",
+	EntryPoint:       ExtractSubWorkspaces,
 	EnabledByDefault: true,
 	Description:      "Extract raw workspace data into tool layer table _tool_tapd_workspaces",
 }
 
-func ExtractWorkspaces(taskCtx core.SubTaskContext) error {
-	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_WORKSPACE_TABLE)
+func ExtractSubWorkspaces(taskCtx core.SubTaskContext) error {
+	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_SUB_WORKSPACE_TABLE)
 	extractor, err := helper.NewApiExtractor(helper.ApiExtractorArgs{
 		RawDataSubTaskArgs: *rawDataSubTaskArgs,
 		Extract: func(row *helper.RawData) ([]interface{}, error) {
-			var workspaceRes struct {
-				Workspace models.TapdWorkspace
+			var subWorkspaceRes struct {
+				Workspace models.TapdSubWorkspace
 			}
-			err := json.Unmarshal(row.Data, &workspaceRes)
+			err := json.Unmarshal(row.Data, &subWorkspaceRes)
 			if err != nil {
 				return nil, err
 			}
 
-			ws := workspaceRes.Workspace
-
+			ws := subWorkspaceRes.Workspace
+			ws.ParentId = data.Options.WorkspaceId
 			ws.ConnectionId = data.Options.ConnectionId
 			return []interface{}{
 				&ws,
