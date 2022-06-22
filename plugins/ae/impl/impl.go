@@ -101,7 +101,6 @@ func (plugin AE) RootPkgPath() string {
 func (plugin AE) MigrationScripts() []migration.Script {
 	return []migration.Script{
 		new(migrationscripts.InitSchemas),
-		new(migrationscripts.UpdateSchemas20220615),
 	}
 }
 
