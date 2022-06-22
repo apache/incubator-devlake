@@ -156,7 +156,6 @@ func (plugin Tapd) PrepareTaskData(taskCtx core.TaskContext, options map[string]
 	if !since.IsZero() {
 		taskData.Since = &since
 	}
-	tasks.UserIdGen = didgen.NewDomainIdGenerator(&models.TapdUser{})
 	tasks.WorkspaceIdGen = didgen.NewDomainIdGenerator(&models.TapdWorkspace{})
 	tasks.IssueIdGen = didgen.NewDomainIdGenerator(&models.TapdIssue{})
 	tasks.IterIdGen = didgen.NewDomainIdGenerator(&models.TapdIteration{})
