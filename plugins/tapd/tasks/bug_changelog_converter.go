@@ -56,6 +56,8 @@ func ConvertBugChangelog(taskCtx core.SubTaskContext) error {
 	logger := taskCtx.GetLogger()
 	db := taskCtx.GetDal()
 	logger.Info("convert changelog :%d", data.Options.WorkspaceId)
+	issueIdGen := didgen.NewDomainIdGenerator(&models.TapdIssue{})
+	userIdGen := didgen.NewDomainIdGenerator(&models.TapdUser{})
 	clIdGen := didgen.NewDomainIdGenerator(&models.TapdBugChangelog{})
 	clauses := []dal.Clause{
 		dal.Select("tc.created, tc.id, tc.workspace_id, tc.bug_id, tc.author, _tool_tapd_bug_changelog_items.*"),
@@ -81,8 +83,8 @@ func ConvertBugChangelog(taskCtx core.SubTaskContext) error {
 				DomainEntity: domainlayer.DomainEntity{
 					Id: clIdGen.Generate(data.Options.ConnectionId, cl.Id, cl.Field),
 				},
-				IssueId:           IssueIdGen.Generate(data.Options.ConnectionId, cl.BugId),
-				AuthorId:          UserIdGen.Generate(data.Options.ConnectionId, data.Options.WorkspaceId, cl.Author),
+				IssueId:           issueIdGen.Generate(data.Options.ConnectionId, cl.BugId),
+				AuthorId:          userIdGen.Generate(data.Options.ConnectionId, data.Options.WorkspaceId, cl.Author),
 				AuthorName:        cl.Author,
 				FieldId:           cl.Field,
 				FieldName:         cl.Field,
