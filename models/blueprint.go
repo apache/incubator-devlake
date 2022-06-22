@@ -18,6 +18,8 @@ limitations under the License.
 package models
 
 import (
+	"encoding/json"
+
 	"github.com/apache/incubator-devlake/models/common"
 	"gorm.io/datatypes"
 )
@@ -28,13 +30,19 @@ const BLUEPRINT_MODE_ADVANCED = "ADVANCED"
 type Blueprint struct {
 	Name       string         `json:"name" validate:"required"`
 	Mode       string         `json:"mode" gorm:"varchar(20)" validate:"required,oneof=NORMAL ADVANCED"`
-	Tasks      datatypes.JSON `json:"tasks"`
+	Plan       datatypes.JSON `json:"plan"`
 	Enable     bool           `json:"enable"`
 	CronConfig string         `json:"cronConfig"`
 	IsManual   bool           `json:"isManual"`
+	Settings   datatypes.JSON `json:"settings"`
 	common.Model
 }
 
 func (Blueprint) TableName() string {
 	return "_devlake_blueprints"
+}
+
+type BlueprintSettings struct {
+	Version     string          `json:"version" validate:"required,semver,oneof=1.0.0"`
+	Connections json.RawMessage `json:"connections" validate:"required"`
 }

@@ -99,12 +99,15 @@ func CreatePipeline(newPipeline *models.NewPipeline) (*models.Pipeline, error) {
 	}
 
 	// create tasks accordingly
-	for i := range newPipeline.Tasks {
-		for j := range newPipeline.Tasks[i] {
-			newTask := newPipeline.Tasks[i][j]
-			newTask.PipelineId = pipeline.ID
-			newTask.PipelineRow = i + 1
-			newTask.PipelineCol = j + 1
+	for i := range newPipeline.Plan {
+		for j := range newPipeline.Plan[i] {
+			pipelineTask := newPipeline.Plan[i][j]
+			newTask := &models.NewTask{
+				PipelineTask: pipelineTask,
+				PipelineId:   pipeline.ID,
+				PipelineRow:  i + 1,
+				PipelineCol:  j + 1,
+			}
 			_, err := CreateTask(newTask)
 			if err != nil {
 				pipelineLog.Error("create task for pipeline failed: %w", err)
@@ -123,13 +126,13 @@ func CreatePipeline(newPipeline *models.NewPipeline) (*models.Pipeline, error) {
 	}
 
 	// update tasks state
-	pipeline.Tasks, err = json.Marshal(newPipeline.Tasks)
+	pipeline.Plan, err = json.Marshal(newPipeline.Plan)
 	if err != nil {
 		return nil, err
 	}
 	err = db.Model(pipeline).Updates(map[string]interface{}{
 		"total_tasks": pipeline.TotalTasks,
-		"tasks":       pipeline.Tasks,
+		"plan":        pipeline.Plan,
 	}).Error
 	if err != nil {
 		pipelineLog.Error("update pipline state failed: %w", err)

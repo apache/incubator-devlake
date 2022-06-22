@@ -24,9 +24,11 @@ import (
 	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/logger"
 	"github.com/apache/incubator-devlake/models"
+	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/go-playground/validator/v10"
 	"github.com/mitchellh/mapstructure"
 	"github.com/robfig/cron/v3"
+	"gorm.io/datatypes"
 	"gorm.io/gorm"
 )
 
@@ -91,10 +93,6 @@ func GetBlueprint(blueprintId uint64) (*models.Blueprint, error) {
 }
 
 func validateBlueprint(blueprint *models.Blueprint) error {
-	// TODO: implement NORMAL mode
-	if blueprint.Mode == models.BLUEPRINT_MODE_NORMAL {
-		return fmt.Errorf("NORMAL mode is yet to be implemented")
-	}
 	// validation
 	err := vld.Struct(blueprint)
 	if err != nil {
@@ -109,17 +107,21 @@ func validateBlueprint(blueprint *models.Blueprint) error {
 		return fmt.Errorf("cronConfig is required for Automated blueprint")
 	}
 	if blueprint.Mode == models.BLUEPRINT_MODE_ADVANCED {
-		tasks := make([][]models.NewTask, 0)
-		err = json.Unmarshal(blueprint.Tasks, &tasks)
+		plan := make(core.PipelinePlan, 0)
+		err = json.Unmarshal(blueprint.Plan, &plan)
 		if err != nil {
-			return fmt.Errorf("invalid tasks: %w", err)
+			return fmt.Errorf("invalid plan: %w", err)
 		}
 		// tasks should not be empty
-		if len(tasks) == 0 || len(tasks[0]) == 0 {
-			return fmt.Errorf("empty tasks")
+		if len(plan) == 0 || len(plan[0]) == 0 {
+			return fmt.Errorf("empty plan")
+		}
+	} else if blueprint.Mode == models.BLUEPRINT_MODE_NORMAL {
+		blueprint.Plan, err = GeneratePlanJson(blueprint.Settings)
+		if err != nil {
+			return fmt.Errorf("invalid plan: %w", err)
 		}
 	}
-	// TODO: validate each of every task object
 	return nil
 }
 
@@ -182,8 +184,19 @@ func ReloadBlueprints(c *cron.Cron) error {
 	}
 	c.Stop()
 	for _, pp := range blueprints {
-		var tasks [][]*models.NewTask
-		err = json.Unmarshal(pp.Tasks, &tasks)
+		if pp.Mode == models.BLUEPRINT_MODE_NORMAL {
+			// for NORMAL mode, we have to generate the actual pipeline plan beforehand
+			pp.Plan, err = GeneratePlanJson(pp.Settings)
+			if err != nil {
+				return err
+			}
+			err = db.Save(pp).Error
+			if err != nil {
+				return err
+			}
+		}
+		var plan core.PipelinePlan
+		err = json.Unmarshal(pp.Plan, &plan)
 		if err != nil {
 			blueprintLog.Error("created cron job failed: %s", err)
 			return err
@@ -191,7 +204,7 @@ func ReloadBlueprints(c *cron.Cron) error {
 		blueprint := pp
 		_, err := c.AddFunc(pp.CronConfig, func() {
 			newPipeline := models.NewPipeline{}
-			newPipeline.Tasks = tasks
+			newPipeline.Plan = plan
 			newPipeline.Name = blueprint.Name
 			newPipeline.BlueprintId = blueprint.ID
 			pipeline, err := CreatePipeline(&newPipeline)
@@ -217,4 +230,69 @@ func ReloadBlueprints(c *cron.Cron) error {
 	}
 	log.Info("total %d blueprints were scheduled", len(blueprints))
 	return nil
+}
+
+// GeneratePlan generates pipeline plan by version
+func GeneratePlanJson(settings datatypes.JSON) (datatypes.JSON, error) {
+	bpSettings := new(models.BlueprintSettings)
+	err := json.Unmarshal(settings, bpSettings)
+	if err != nil {
+		return nil, err
+	}
+	var plan interface{}
+	switch bpSettings.Version {
+	case "1.0.0":
+		plan, err = GeneratePlanJsonV100(bpSettings)
+	default:
+		return nil, fmt.Errorf("unknown version of blueprint settings: %s", bpSettings.Version)
+	}
+	if err != nil {
+		return nil, err
+	}
+	return json.Marshal(plan)
+}
+
+// GenerateTasksBySettingsV100 generates pipeline plan according v1.0.0 definition
+func GeneratePlanJsonV100(settings *models.BlueprintSettings) (core.PipelinePlan, error) {
+	connections := make([]*core.BlueprintConnectionV100, 0)
+	err := json.Unmarshal(settings.Connections, &connections)
+	if err != nil {
+		return nil, err
+	}
+	plans := make([]core.PipelinePlan, len(connections))
+	for i, connection := range connections {
+		if len(connection.Scope) == 0 {
+			return nil, fmt.Errorf("connections[%d].scope is empty", i)
+		}
+		plugin, err := core.GetPlugin(connection.Plugin)
+		if err != nil {
+			return nil, err
+		}
+		if pluginBp, ok := plugin.(core.PluginBlueprintV100); ok {
+			plans[i], err = pluginBp.MakePipelinePlan(connection.ConnectionId, connection.Scope)
+			if err != nil {
+				return nil, err
+			}
+		} else {
+			return nil, fmt.Errorf("plugin %s does not support blueprint protocol version 1.0.0", connection.Plugin)
+		}
+	}
+	return MergePipelinePlans(plans...), nil
+}
+
+// MergePipelinePlans merges multiple pipelines into one unified pipeline
+func MergePipelinePlans(plans ...core.PipelinePlan) core.PipelinePlan {
+	merged := make(core.PipelinePlan, 0)
+	// iterate all pipelineTasks and try to merge them into `merged`
+	for _, plan := range plans {
+		// add all stages from plan to merged
+		for index, stage := range plan {
+			if index >= len(merged) {
+				merged = append(merged, nil)
+			}
+			// add all tasks from plan to target respectively
+			merged[index] = append(merged[index], stage...)
+		}
+	}
+	return merged
 }
