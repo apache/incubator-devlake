@@ -28,26 +28,28 @@ func (plugin Feishu) Init(config *viper.Viper, logger core.Logger, db *gorm.DB) 
 	// FIXME after config-ui support feishu plugin
 	// save env to db where name=feishu
 	connection := &models.FeishuConnection{}
-	err := db.Find(connection, map[string]string{"name": "Feishu"}).Error
-	if err != nil {
-		return err
-	}
-	if connection.ID != 0 {
-		encodeKey := config.GetString(core.EncodeKeyEnvStr)
-		connection.Endpoint = config.GetString(`FEISHU_ENDPOINT`)
-		connection.AppId = config.GetString(`FEISHU_APPID`)
-		connection.SecretKey = config.GetString(`FEISHU_APPSCRECT`)
-		if connection.Endpoint != `` && connection.AppId != `` && connection.SecretKey != `` && encodeKey != `` {
-			err = helper.UpdateEncryptFields(connection, func(plaintext string) (string, error) {
-				return core.Encrypt(encodeKey, plaintext)
-			})
-			if err != nil {
-				return err
-			}
-			// update from .env and save to db
-			err = db.Updates(connection).Error
-			if err != nil {
-				return err
+	if db.Migrator().HasTable(connection) {
+		err := db.Find(connection, map[string]string{"name": "Feishu"}).Error
+		if err != nil {
+			return err
+		}
+		if connection.ID != 0 {
+			encodeKey := config.GetString(core.EncodeKeyEnvStr)
+			connection.Endpoint = config.GetString(`FEISHU_ENDPOINT`)
+			connection.AppId = config.GetString(`FEISHU_APPID`)
+			connection.SecretKey = config.GetString(`FEISHU_APPSCRECT`)
+			if connection.Endpoint != `` && connection.AppId != `` && connection.SecretKey != `` && encodeKey != `` {
+				err = helper.UpdateEncryptFields(connection, func(plaintext string) (string, error) {
+					return core.Encrypt(encodeKey, plaintext)
+				})
+				if err != nil {
+					return err
+				}
+				// update from .env and save to db
+				err = db.Updates(connection).Error
+				if err != nil {
+					return err
+				}
 			}
 		}
 	}
@@ -79,7 +81,7 @@ func (plugin Feishu) PrepareTaskData(taskCtx core.TaskContext, options map[strin
 	connection := &models.FeishuConnection{}
 	err = connectionHelper.FirstById(connection, op.ConnectionId)
 	if err != nil {
-		return err, nil
+		return nil, err
 	}
 
 	apiClient, err := tasks.NewFeishuApiClient(taskCtx, connection)
