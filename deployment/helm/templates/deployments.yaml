@@ -34,8 +34,19 @@ spec:
         {{- include "devlake.selectorLabels" . | nindent 8 }}
         devlakeComponent: grafana
     spec:
+      initContainers:
+        - name: waiting-mysql-ready
+          image: "{{ .Values.alpine.image.repository }}:{{ .Values.alpine.image.tag }}"
+          imagePullPolicy: {{ .Values.alpine.image.pullPolicy }}
+          command:
+            - 'sh'
+            - '-c'
+            - |
+              until nc -z -w 2 {{ include "devlake.fullname" . }}-mysql 3306 && echo mysql is ready ; do
+                sleep 2
+              done
       containers:
-        - name: {{ .Chart.Name }}-grafana
+        - name: grafana
           image: "{{ .Values.grafana.image.repository }}:{{ .Values.grafana.image.tag }}"
           imagePullPolicy: {{ .Values.grafana.image.pullPolicy }}
           ports:
@@ -88,7 +99,7 @@ spec:
         devlakeComponent: ui
     spec:
       containers:
-        - name: {{ .Chart.Name }}-ui
+        - name: config-ui
           image: "{{ .Values.ui.image.repository }}:{{ .Values.ui.image.tag }}"
           imagePullPolicy: {{ .Values.ui.image.pullPolicy }}
           ports:

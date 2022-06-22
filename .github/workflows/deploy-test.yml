@@ -59,15 +59,26 @@ jobs:
       - name: Curl with endpoints
         run: |
           export NODE_IP=$(kubectl get nodes --namespace default -o jsonpath="{.items[0].status.addresses[0].address}")
-          # home
-          curl --fail http://${NODE_IP}:30000
-          # API for devlake
-          curl --fail --silent --retry 10 --retry-delay 5 \
-            http://${NODE_IP}:30000/api/blueprints
-          # API for grafana
-          curl --fail --silent --retry 10 --retry-delay 5 \
-            http://${NODE_IP}:30001/api/health
-      
+          failed=0
+          for retry in {1..10} ; do
+            failed=0
+            # home
+            curl --fail http://${NODE_IP}:30000 || failed=1
+            # API for devlake
+            curl --fail http://${NODE_IP}:30000/api/blueprints || failed=1
+            # API for grafana
+            curl --fail http://${NODE_IP}:30001/api/health || failed=1
+            if [ $failed -eq 0 ] ; then
+              break
+            else
+              sleep 3
+            fi
+          done
+          if [ $failed -ne 0 ] ; then
+            echo 'Test apis failed, please check logs from the PODS'
+            exit 1
+          fi
+
       - name: Show logs for pods
         if: ${{ always() }}
         run: |
