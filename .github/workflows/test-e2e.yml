@@ -39,8 +39,8 @@ jobs:
             ${{ runner.os }}-go-
       - name: Test
         env:
-          DB_URL: mysql://root:root@db:3306/lake?charset=utf8mb4&loc=Asia%2fShanghai&parseTime=True
-          E2E_DB_URL: mysql://root:root@db:3306/lake?charset=utf8mb4&loc=Asia%2fShanghai&parseTime=True
+          DB_URL: mysql://root:root@db:3306/lake?charset=utf8mb4&parseTime=True
+          E2E_DB_URL: mysql://root:root@db:3306/lake?charset=utf8mb4&parseTime=True
         run: |
           cp .env.example .env
           make e2e-test
