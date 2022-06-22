@@ -88,19 +88,30 @@ func NewDomainIdGenerator(entityPtr interface{}) *DomainIdGenerator {
 
 func (g *DomainIdGenerator) Generate(pkValues ...interface{}) string {
 	id := g.prefix
-	for i, pkValue := range pkValues {
+	isMatch := false
+
+	for _, pkValue := range pkValues {
 		// append pk
 		id += ":" + fmt.Sprintf("%v", pkValue)
 		// type checking
 		pkValueType := reflect.TypeOf(pkValue)
 		if pkValueType == wildcardType {
 			break
-		} else if pkValueType != g.pkTypes[i] {
-			panic(fmt.Errorf("primary key type does not match: %s should be %s",
-				g.pkNames[i],
-				g.pkTypes[i].Name(),
+		}
+
+		for _, pkType := range g.pkTypes {
+			if pkValueType == pkType {
+				isMatch = true
+			}
+		}
+
+		if !isMatch {
+			panic(fmt.Errorf("primary key type [%s] does not match: %s",
+				pkValueType,
+				g.pkTypes,
 			))
 		}
+
 	}
 	return id
 }
