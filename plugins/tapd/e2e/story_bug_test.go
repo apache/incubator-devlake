@@ -19,7 +19,6 @@ package e2e
 
 import (
 	"fmt"
-	"github.com/apache/incubator-devlake/models/domainlayer/crossdomain"
 	"testing"
 
 	"github.com/apache/incubator-devlake/helpers/e2ehelper"
@@ -28,7 +27,7 @@ import (
 	"github.com/apache/incubator-devlake/plugins/tapd/tasks"
 )
 
-func TestTapdTaskCommitDataFlow(t *testing.T) {
+func TestTapdStoryBugDataFlow(t *testing.T) {
 
 	var tapd impl.Tapd
 	dataflowTester := e2ehelper.NewDataFlowTester(t, "tapd", tapd)
@@ -40,34 +39,23 @@ func TestTapdTaskCommitDataFlow(t *testing.T) {
 			WorkspaceId:  991,
 		},
 	}
-
-	// task status
 	// import raw data table
-	dataflowTester.ImportCsvIntoRawTable("./raw_tables/_raw_tapd_api_task_commits.csv",
-		"_raw_tapd_api_task_commits")
+	dataflowTester.ImportCsvIntoRawTable("./raw_tables/_raw_tapd_api_story_bugs.csv",
+		"_raw_tapd_api_story_bugs")
+
 	// verify extraction
-	dataflowTester.FlushTabler(&models.TapdTaskCommit{})
-	dataflowTester.Subtask(tasks.ExtractTaskCommitMeta, taskData)
+	dataflowTester.FlushTabler(&models.TapdStoryBug{})
+	dataflowTester.Subtask(tasks.ExtractStoryBugsMeta, taskData)
 	dataflowTester.VerifyTable(
-		models.TapdTaskCommit{},
-		fmt.Sprintf("./snapshot_tables/%s.csv", models.TapdTaskCommit{}.TableName()),
-		[]string{"connection_id", "id"},
+		models.TapdStoryBug{},
+		fmt.Sprintf("./snapshot_tables/%s.csv", models.TapdStoryBug{}.TableName()),
 		[]string{
-			"user_id",
-			"hook_user_name",
-			"commit_id",
+			"connection_id",
 			"workspace_id",
-			"message",
-			"path",
-			"web_url",
-			"hook_project_name",
-			"ref",
-			"ref_status",
-			"git_env",
-			"file_commit",
-			"commit_time",
-			"created",
-			"task_id",
+			"story_id",
+			"bug_id",
+		},
+		[]string{
 			"_raw_data_params",
 			"_raw_data_table",
 			"_raw_data_id",
@@ -75,20 +63,4 @@ func TestTapdTaskCommitDataFlow(t *testing.T) {
 		},
 	)
 
-	dataflowTester.FlushTabler(&crossdomain.IssueCommit{})
-	dataflowTester.Subtask(tasks.ConvertTaskCommitMeta, taskData)
-	dataflowTester.VerifyTable(
-		crossdomain.IssueCommit{},
-		fmt.Sprintf("./snapshot_tables/%s_task.csv", crossdomain.IssueCommit{}.TableName()),
-		[]string{
-			"issue_id",
-			"commit_sha",
-		},
-		[]string{
-			"_raw_data_params",
-			"_raw_data_table",
-			"_raw_data_id",
-			"_raw_data_remark",
-		},
-	)
 }
