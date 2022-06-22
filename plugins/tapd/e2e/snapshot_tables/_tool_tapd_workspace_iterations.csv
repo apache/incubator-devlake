@@ -1,0 +1,11 @@
+connection_id,workspace_id,iteration_id,_raw_data_params,_raw_data_table,_raw_data_id,_raw_data_remark
+1,991,11991001000077,"{""ConnectionId"":1,""CompanyId"":99,""WorkspaceId"":991}",_raw_tapd_api_iterations,1,
+1,991,11991001000078,"{""ConnectionId"":1,""CompanyId"":99,""WorkspaceId"":991}",_raw_tapd_api_iterations,2,
+1,991,11991001000099,"{""ConnectionId"":1,""CompanyId"":99,""WorkspaceId"":991}",_raw_tapd_api_iterations,3,
+1,991,11991001000205,"{""ConnectionId"":1,""CompanyId"":99,""WorkspaceId"":991}",_raw_tapd_api_iterations,4,
+1,991,11991001000353,"{""ConnectionId"":1,""CompanyId"":99,""WorkspaceId"":991}",_raw_tapd_api_iterations,5,
+1,991,11991001000379,"{""ConnectionId"":1,""CompanyId"":99,""WorkspaceId"":991}",_raw_tapd_api_iterations,6,
+1,991,11991001000381,"{""ConnectionId"":1,""CompanyId"":99,""WorkspaceId"":991}",_raw_tapd_api_iterations,7,
+1,991,11991001000395,"{""ConnectionId"":1,""CompanyId"":99,""WorkspaceId"":991}",_raw_tapd_api_iterations,8,
+1,991,11991001000404,"{""ConnectionId"":1,""CompanyId"":99,""WorkspaceId"":991}",_raw_tapd_api_iterations,9,
+1,991,11991001000406,"{""ConnectionId"":1,""CompanyId"":99,""WorkspaceId"":991}",_raw_tapd_api_iterations,10,

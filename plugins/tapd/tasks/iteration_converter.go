@@ -48,6 +48,9 @@ func ConvertIteration(taskCtx core.SubTaskContext) error {
 		return err
 	}
 	defer cursor.Close()
+
+	workspaceIdGen := didgen.NewDomainIdGenerator(&models.TapdWorkspace{})
+
 	converter, err := helper.NewDataConverter(helper.DataConverterArgs{
 		RawDataSubTaskArgs: *rawDataSubTaskArgs,
 		InputRowType:       reflect.TypeOf(models.TapdIteration{}),
@@ -61,7 +64,7 @@ func ConvertIteration(taskCtx core.SubTaskContext) error {
 				Name:            iter.Name,
 				StartedDate:     (*time.Time)(iter.Startdate),
 				EndedDate:       (*time.Time)(iter.Enddate),
-				OriginalBoardID: WorkspaceIdGen.Generate(iter.ConnectionId, iter.WorkspaceId),
+				OriginalBoardID: workspaceIdGen.Generate(iter.ConnectionId, iter.WorkspaceId),
 				CompletedDate:   (*time.Time)(iter.Completed),
 			}
 			results := make([]interface{}, 0)
