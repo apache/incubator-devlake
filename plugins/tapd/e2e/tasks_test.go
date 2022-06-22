@@ -28,7 +28,7 @@ import (
 	"github.com/apache/incubator-devlake/plugins/tapd/tasks"
 )
 
-func TestTapdBugDataFlow(t *testing.T) {
+func TestTapdTaskDataFlow(t *testing.T) {
 
 	var tapd impl.Tapd
 	dataflowTester := e2ehelper.NewDataFlowTester(t, "tapd", tapd)
@@ -40,126 +40,54 @@ func TestTapdBugDataFlow(t *testing.T) {
 			WorkspaceId:  991,
 		},
 	}
-
-	// bug status
 	// import raw data table
-	dataflowTester.ImportCsvIntoRawTable("./raw_tables/_raw_tapd_api_bug_status.csv",
-		"_raw_tapd_api_bug_status")
+	dataflowTester.ImportCsvIntoRawTable("./raw_tables/_raw_tapd_api_tasks.csv",
+		"_raw_tapd_api_tasks")
 
 	// verify extraction
-	dataflowTester.FlushTabler(&models.TapdBugStatus{})
-	dataflowTester.Subtask(tasks.ExtractBugStatusMeta, taskData)
+	dataflowTester.FlushTabler(&models.TapdTask{})
+	dataflowTester.FlushTabler(&models.TapdWorkSpaceTask{})
+	dataflowTester.FlushTabler(&models.TapdIterationTask{})
+	dataflowTester.FlushTabler(&models.TapdTaskLabel{})
+	dataflowTester.Subtask(tasks.ExtractTaskMeta, taskData)
 	dataflowTester.VerifyTable(
-		models.TapdBugStatus{},
-		fmt.Sprintf("./snapshot_tables/%s.csv", models.TapdBugStatus{}.TableName()),
-		[]string{"connection_id", "workspace_id", "english_name"},
-		[]string{
-			"chinese_name",
-			"is_last_step",
-			"_raw_data_params",
-			"_raw_data_table",
-			"_raw_data_id",
-			"_raw_data_remark",
-		},
-	)
-
-	// import raw data table
-	dataflowTester.ImportCsvIntoRawTable("./raw_tables/_raw_tapd_api_bugs.csv",
-		"_raw_tapd_api_bugs")
-
-	// verify extraction
-	dataflowTester.FlushTabler(&models.TapdBug{})
-	dataflowTester.FlushTabler(&models.TapdWorkSpaceBug{})
-	dataflowTester.FlushTabler(&models.TapdIterationBug{})
-	dataflowTester.FlushTabler(&models.TapdBugLabel{})
-	dataflowTester.Subtask(tasks.ExtractBugMeta, taskData)
-	dataflowTester.VerifyTable(
-		models.TapdBug{},
-		fmt.Sprintf("./snapshot_tables/%s.csv", models.TapdBug{}.TableName()),
+		models.TapdTask{},
+		fmt.Sprintf("./snapshot_tables/%s.csv", models.TapdTask{}.TableName()),
 		[]string{"connection_id", "id"},
 		[]string{
-			"epic_key",
-			"title",
+			"name",
 			"description",
 			"workspace_id",
+			"creator",
 			"created",
 			"modified",
 			"status",
+			"owner",
 			"cc",
 			"begin",
 			"due",
 			"priority",
 			"iteration_id",
-			"source",
-			"module",
-			"release_id",
-			"created_from",
-			"feature",
-			"_raw_data_params",
-			"_raw_data_table",
-			"_raw_data_id",
-			"_raw_data_remark",
-			"severity",
-			"reporter",
-			"resolved",
-			"closed",
-			"lastmodify",
-			"auditer",
-			"de",
-			"fixer",
-			"version_test",
-			"version_report",
-			"version_close",
-			"version_fix",
-			"baseline_find",
-			"baseline_join",
-			"baseline_close",
-			"baseline_test",
-			"sourcephase",
-			"te",
-			"current_owner",
-			"resolution",
-			"originphase",
-			"confirmer",
-			"participator",
-			"closer",
-			"platform",
-			"os",
-			"testtype",
-			"testphase",
-			"frequency",
-			"regression_number",
-			"flows",
-			"testmode",
-			"issue_id",
-			"verify_time",
-			"reject_time",
-			"reopen_time",
-			"audit_time",
-			"suspend_time",
-			"deadline",
-			"in_progress_time",
-			"assigned_time",
-			"template_id",
-			"story_id",
-			"std_status",
-			"std_type",
-			"type",
-			"url",
-			"support_id",
-			"support_forum_id",
-			"ticket_id",
-			"follower",
-			"sync_type",
-			"label",
+			"completed",
 			"effort",
 			"effort_completed",
 			"exceed",
 			"remain",
+			"std_status",
+			"std_type",
+			"type",
+			"story_id",
 			"progress",
-			"estimate",
-			"bugtype",
-			"milestone",
+			"has_attachment",
+			"url",
+			"attachment_count",
+			"follower",
+			"created_from",
+			"predecessor_count",
+			"successor_count",
+			"release_id",
+			"label",
+			"new_story_id",
 			"custom_field_one",
 			"custom_field_two",
 			"custom_field_three",
@@ -210,15 +138,19 @@ func TestTapdBugDataFlow(t *testing.T) {
 			"custom_field48",
 			"custom_field49",
 			"custom_field50",
+			"_raw_data_params",
+			"_raw_data_table",
+			"_raw_data_id",
+			"_raw_data_remark",
 		},
 	)
 	dataflowTester.VerifyTable(
-		models.TapdWorkSpaceBug{},
-		fmt.Sprintf("./snapshot_tables/%s.csv", models.TapdWorkSpaceBug{}.TableName()),
+		models.TapdWorkSpaceTask{},
+		fmt.Sprintf("./snapshot_tables/%s.csv", models.TapdWorkSpaceTask{}.TableName()),
 		[]string{
 			"connection_id",
 			"workspace_id",
-			"bug_id",
+			"task_id",
 		},
 		[]string{
 			"_raw_data_params",
@@ -228,17 +160,17 @@ func TestTapdBugDataFlow(t *testing.T) {
 		},
 	)
 	dataflowTester.VerifyTable(
-		models.TapdIterationBug{},
-		fmt.Sprintf("./snapshot_tables/%s.csv", models.TapdIterationBug{}.TableName()),
+		models.TapdIterationTask{},
+		fmt.Sprintf("./snapshot_tables/%s.csv", models.TapdIterationTask{}.TableName()),
 		[]string{
 			"connection_id",
 			"workspace_id",
 			"iteration_id",
-			"bug_id",
+			"task_id",
 		},
 		[]string{
 			"resolution_date",
-			"bug_created_date",
+			"task_created_date",
 			"_raw_data_params",
 			"_raw_data_table",
 			"_raw_data_id",
@@ -246,11 +178,11 @@ func TestTapdBugDataFlow(t *testing.T) {
 		},
 	)
 	dataflowTester.VerifyTable(
-		models.TapdBugLabel{},
-		fmt.Sprintf("./snapshot_tables/%s.csv", models.TapdBugLabel{}.TableName()),
+		models.TapdTaskLabel{},
+		fmt.Sprintf("./snapshot_tables/%s.csv", models.TapdTaskLabel{}.TableName()),
 		[]string{
 			"label_name",
-			"bug_id",
+			"task_id",
 		},
 		[]string{
 			"_raw_data_params",
@@ -264,10 +196,10 @@ func TestTapdBugDataFlow(t *testing.T) {
 	dataflowTester.FlushTabler(&ticket.BoardIssue{})
 	dataflowTester.FlushTabler(&ticket.SprintIssue{})
 	dataflowTester.FlushTabler(&ticket.IssueLabel{})
-	dataflowTester.Subtask(tasks.ConvertBugMeta, taskData)
+	dataflowTester.Subtask(tasks.ConvertTaskMeta, taskData)
 	dataflowTester.VerifyTable(
 		ticket.Issue{},
-		fmt.Sprintf("./snapshot_tables/%s_bug.csv", ticket.Issue{}.TableName()),
+		fmt.Sprintf("./snapshot_tables/%s_task.csv", ticket.Issue{}.TableName()),
 		[]string{"id"},
 		[]string{
 			"_raw_data_params",
@@ -303,7 +235,7 @@ func TestTapdBugDataFlow(t *testing.T) {
 	)
 	dataflowTester.VerifyTable(
 		ticket.BoardIssue{},
-		fmt.Sprintf("./snapshot_tables/%s_bug.csv", ticket.BoardIssue{}.TableName()),
+		fmt.Sprintf("./snapshot_tables/%s_task.csv", ticket.BoardIssue{}.TableName()),
 		[]string{
 			"board_id",
 			"issue_id",
@@ -317,7 +249,7 @@ func TestTapdBugDataFlow(t *testing.T) {
 	)
 	dataflowTester.VerifyTable(
 		ticket.SprintIssue{},
-		fmt.Sprintf("./snapshot_tables/%s_bug.csv", ticket.SprintIssue{}.TableName()),
+		fmt.Sprintf("./snapshot_tables/%s_task.csv", ticket.SprintIssue{}.TableName()),
 		[]string{
 			"issue_id",
 			"sprint_id",
@@ -329,10 +261,10 @@ func TestTapdBugDataFlow(t *testing.T) {
 			"_raw_data_remark",
 		},
 	)
-	dataflowTester.Subtask(tasks.ConvertBugLabelsMeta, taskData)
+	dataflowTester.Subtask(tasks.ConvertTaskLabelsMeta, taskData)
 	dataflowTester.VerifyTable(
 		ticket.IssueLabel{},
-		fmt.Sprintf("./snapshot_tables/%s_bug.csv", ticket.IssueLabel{}.TableName()),
+		fmt.Sprintf("./snapshot_tables/%s_task.csv", ticket.IssueLabel{}.TableName()),
 		[]string{
 			"issue_id",
 			"label_name",

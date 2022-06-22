@@ -54,8 +54,6 @@ func TestTapdStoryAndBugStatusDataFlow(t *testing.T) {
 		[]string{
 			"chinese_name",
 			"is_last_step",
-			"created_at",
-			"updated_at",
 			"_raw_data_params",
 			"_raw_data_table",
 			"_raw_data_id",
@@ -70,7 +68,7 @@ func TestTapdStoryAndBugStatusDataFlow(t *testing.T) {
 
 	// verify extraction
 	dataflowTester.FlushTabler(&models.TapdBugStatus{})
-	dataflowTester.Subtask(tasks.ExtractStoryStatusMeta, taskData)
+	dataflowTester.Subtask(tasks.ExtractBugStatusMeta, taskData)
 	dataflowTester.VerifyTable(
 		models.TapdBugStatus{},
 		fmt.Sprintf("./snapshot_tables/%s.csv", models.TapdBugStatus{}.TableName()),
@@ -78,8 +76,6 @@ func TestTapdStoryAndBugStatusDataFlow(t *testing.T) {
 		[]string{
 			"chinese_name",
 			"is_last_step",
-			"created_at",
-			"updated_at",
 			"_raw_data_params",
 			"_raw_data_table",
 			"_raw_data_id",

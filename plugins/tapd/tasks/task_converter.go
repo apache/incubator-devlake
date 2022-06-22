@@ -18,6 +18,7 @@ limitations under the License.
 package tasks
 
 import (
+	"github.com/apache/incubator-devlake/models/domainlayer/didgen"
 	"reflect"
 	"strconv"
 	"time"
@@ -47,6 +48,10 @@ func ConvertTask(taskCtx core.SubTaskContext) error {
 		return err
 	}
 	defer cursor.Close()
+	issueIdGen := didgen.NewDomainIdGenerator(&models.TapdIssue{})
+	userIdGen := didgen.NewDomainIdGenerator(&models.TapdUser{})
+	workspaceIdGen := didgen.NewDomainIdGenerator(&models.TapdWorkspace{})
+	iterIdGen := didgen.NewDomainIdGenerator(&models.TapdIteration{})
 	converter, err := helper.NewDataConverter(helper.DataConverterArgs{
 		RawDataSubTaskArgs: *rawDataSubTaskArgs,
 		InputRowType:       reflect.TypeOf(models.TapdTask{}),
@@ -55,7 +60,7 @@ func ConvertTask(taskCtx core.SubTaskContext) error {
 			toolL := inputRow.(*models.TapdTask)
 			domainL := &ticket.Issue{
 				DomainEntity: domainlayer.DomainEntity{
-					Id: IssueIdGen.Generate(toolL.ConnectionId, toolL.Id),
+					Id: issueIdGen.Generate(toolL.ConnectionId, toolL.Id),
 				},
 				Url:            toolL.Url,
 				IssueKey:       strconv.FormatUint(toolL.Id, 10),
@@ -67,23 +72,23 @@ func ConvertTask(taskCtx core.SubTaskContext) error {
 				ResolutionDate: (*time.Time)(toolL.Completed),
 				CreatedDate:    (*time.Time)(toolL.Created),
 				UpdatedDate:    (*time.Time)(toolL.Modified),
-				ParentIssueId:  IssueIdGen.Generate(toolL.ConnectionId, toolL.StoryId),
+				ParentIssueId:  issueIdGen.Generate(toolL.ConnectionId, toolL.StoryId),
 				Priority:       toolL.Priority,
-				CreatorId:      UserIdGen.Generate(data.Options.ConnectionId, toolL.WorkspaceId, toolL.Creator),
+				CreatorId:      userIdGen.Generate(data.Options.ConnectionId, toolL.WorkspaceId, toolL.Creator),
 				CreatorName:    toolL.Creator,
-				AssigneeId:     UserIdGen.Generate(data.Options.ConnectionId, toolL.WorkspaceId, toolL.Owner),
+				AssigneeId:     userIdGen.Generate(data.Options.ConnectionId, toolL.WorkspaceId, toolL.Owner),
 				AssigneeName:   toolL.Owner,
 			}
 			if domainL.ResolutionDate != nil && domainL.CreatedDate != nil {
-				domainL.LeadTimeMinutes = uint(int64(domainL.ResolutionDate.Minute() - domainL.CreatedDate.Minute()))
+				domainL.LeadTimeMinutes = uint(domainL.ResolutionDate.Sub(*domainL.CreatedDate).Minutes())
 			}
 			results := make([]interface{}, 0, 2)
 			boardIssue := &ticket.BoardIssue{
-				BoardId: WorkspaceIdGen.Generate(toolL.WorkspaceId),
+				BoardId: workspaceIdGen.Generate(toolL.WorkspaceId),
 				IssueId: domainL.Id,
 			}
 			sprintIssue := &ticket.SprintIssue{
-				SprintId: IterIdGen.Generate(data.Options.ConnectionId, toolL.IterationId),
+				SprintId: iterIdGen.Generate(data.Options.ConnectionId, toolL.IterationId),
 				IssueId:  domainL.Id,
 			}
 			results = append(results, domainL, boardIssue, sprintIssue)
