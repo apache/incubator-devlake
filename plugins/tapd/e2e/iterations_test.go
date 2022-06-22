@@ -28,7 +28,7 @@ import (
 	"github.com/apache/incubator-devlake/plugins/tapd/tasks"
 )
 
-func TestTapdWorkspaceDataFlow(t *testing.T) {
+func TestTapdIterationDataFlow(t *testing.T) {
 
 	var tapd impl.Tapd
 	dataflowTester := e2ehelper.NewDataFlowTester(t, "tapd", tapd)
@@ -41,39 +41,60 @@ func TestTapdWorkspaceDataFlow(t *testing.T) {
 		},
 	}
 	// import raw data table
-	dataflowTester.ImportCsvIntoRawTable("./raw_tables/_raw_tapd_api_sub_workspaces.csv",
-		"_raw_tapd_api_sub_workspaces")
+	dataflowTester.ImportCsvIntoRawTable("./raw_tables/_raw_tapd_api_iterations.csv",
+		"_raw_tapd_api_iterations")
 
 	// verify extraction
-	dataflowTester.FlushTabler(&models.TapdSubWorkspace{})
-	dataflowTester.Subtask(tasks.ExtractSubWorkspaceMeta, taskData)
+	dataflowTester.FlushTabler(&models.TapdIteration{})
+	dataflowTester.FlushTabler(&models.TapdWorkspaceIteration{})
+	dataflowTester.Subtask(tasks.ExtractIterationMeta, taskData)
 	dataflowTester.VerifyTable(
-		models.TapdSubWorkspace{},
-		fmt.Sprintf("./snapshot_tables/%s.csv", models.TapdSubWorkspace{}.TableName()),
+		models.TapdIteration{},
+		fmt.Sprintf("./snapshot_tables/%s.csv", models.TapdIteration{}.TableName()),
 		[]string{"connection_id", "id"},
 		[]string{
 			"name",
-			"pretty_name",
-			"category",
+			"workspace_id",
+			"startdate",
+			"enddate",
 			"status",
+			"release_id",
 			"description",
-			"begin_date",
-			"end_date",
-			"external_on",
-			"parent_id",
 			"creator",
+			"created",
+			"modified",
+			"completed",
+			"releaseowner",
+			"launchdate",
+			"notice",
+			"releasename",
 			"_raw_data_params",
 			"_raw_data_table",
 			"_raw_data_id",
 			"_raw_data_remark",
 		},
 	)
-
-	dataflowTester.FlushTabler(&ticket.Board{})
-	dataflowTester.Subtask(tasks.ConvertSubWorkspaceMeta, taskData)
 	dataflowTester.VerifyTable(
-		ticket.Board{},
-		fmt.Sprintf("./snapshot_tables/%s.csv", ticket.Board{}.TableName()),
+		models.TapdWorkspaceIteration{},
+		fmt.Sprintf("./snapshot_tables/%s.csv", models.TapdWorkspaceIteration{}.TableName()),
+		[]string{
+			"connection_id",
+			"workspace_id",
+			"iteration_id",
+		},
+		[]string{
+			"_raw_data_params",
+			"_raw_data_table",
+			"_raw_data_id",
+			"_raw_data_remark",
+		},
+	)
+	dataflowTester.FlushTabler(&ticket.Sprint{})
+	dataflowTester.FlushTabler(&ticket.BoardSprint{})
+	dataflowTester.Subtask(tasks.ConvertIterationMeta, taskData)
+	dataflowTester.VerifyTable(
+		ticket.Sprint{},
+		fmt.Sprintf("./snapshot_tables/%s.csv", ticket.Sprint{}.TableName()),
 		[]string{"id"},
 		[]string{
 			"_raw_data_params",
@@ -81,9 +102,26 @@ func TestTapdWorkspaceDataFlow(t *testing.T) {
 			"_raw_data_id",
 			"_raw_data_remark",
 			"name",
-			"description",
 			"url",
-			"created_date",
+			"status",
+			"started_date",
+			"ended_date",
+			"completed_date",
+			"original_board_id",
+		},
+	)
+	dataflowTester.VerifyTable(
+		ticket.BoardSprint{},
+		fmt.Sprintf("./snapshot_tables/%s.csv", ticket.BoardSprint{}.TableName()),
+		[]string{
+			"board_id",
+			"sprint_id",
+		},
+		[]string{
+			"_raw_data_params",
+			"_raw_data_table",
+			"_raw_data_id",
+			"_raw_data_remark",
 		},
 	)
 
