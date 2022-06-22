@@ -51,6 +51,7 @@ func (*InitSchemas) Up(ctx context.Context, db *gorm.DB) error {
 		"_raw_tapd_api_worklogs",
 		"_raw_tapd_api_sub_workspaces",
 		&archived.TapdWorkspace{},
+		&archived.TapdSubWorkspace{},
 		&archived.TapdWorklog{},
 		&archived.TapdWorkspaceIteration{},
 		&archived.TapdUser{},
@@ -92,6 +93,7 @@ func (*InitSchemas) Up(ctx context.Context, db *gorm.DB) error {
 
 	return db.Migrator().AutoMigrate(
 		&archived.TapdWorkspace{},
+		&archived.TapdSubWorkspace{},
 		&archived.TapdWorklog{},
 		&archived.TapdWorkspaceIteration{},
 		&archived.TapdUser{},

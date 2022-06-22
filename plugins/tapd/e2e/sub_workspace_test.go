@@ -40,15 +40,15 @@ func TestTapdWorkspaceDataFlow(t *testing.T) {
 		},
 	}
 	// import raw data table
-	dataflowTester.ImportCsvIntoRawTable("./raw_tables/_raw_tapd_api_companies.csv",
+	dataflowTester.ImportCsvIntoRawTable("./raw_tables/_raw_tapd_api_sub_workspaces.csv",
 		"_raw_tapd_api_sub_workspaces")
 
 	// verify extraction
-	dataflowTester.FlushTabler(&models.TapdWorkspace{})
-	dataflowTester.Subtask(tasks.ExtractWorkspaceMeta, taskData)
+	dataflowTester.FlushTabler(&models.TapdSubWorkspace{})
+	dataflowTester.Subtask(tasks.ExtractSubWorkspaceMeta, taskData)
 	dataflowTester.VerifyTable(
-		models.TapdWorkspace{},
-		fmt.Sprintf("./snapshot_tables/%s_ws_test.csv", models.TapdWorkspace{}.TableName()),
+		models.TapdSubWorkspace{},
+		fmt.Sprintf("./snapshot_tables/%s.csv", models.TapdSubWorkspace{}.TableName()),
 		[]string{"connection_id", "id"},
 		[]string{
 			"name",
@@ -61,7 +61,6 @@ func TestTapdWorkspaceDataFlow(t *testing.T) {
 			"external_on",
 			"parent_id",
 			"creator",
-			"created",
 			"_raw_data_params",
 			"_raw_data_table",
 			"_raw_data_id",
