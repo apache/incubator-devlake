@@ -54,8 +54,6 @@ func TestTapdStoryAndBugStatusDataFlow(t *testing.T) {
 		[]string{
 			"chinese_name",
 			"is_last_step",
-			"created_at",
-			"updated_at",
 			"_raw_data_params",
 			"_raw_data_table",
 			"_raw_data_id",
@@ -78,8 +76,6 @@ func TestTapdStoryAndBugStatusDataFlow(t *testing.T) {
 		[]string{
 			"chinese_name",
 			"is_last_step",
-			"created_at",
-			"updated_at",
 			"_raw_data_params",
 			"_raw_data_table",
 			"_raw_data_id",
