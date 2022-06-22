@@ -28,3 +28,7 @@ type User struct {
 	AvatarUrl string `gorm:"type:varchar(255)"`
 	Timezone  string `gorm:"type:varchar(255)"`
 }
+
+func (User) TableName() string {
+	return "users"
+}

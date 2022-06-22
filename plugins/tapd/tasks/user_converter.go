@@ -21,6 +21,7 @@ import (
 	"reflect"
 
 	"github.com/apache/incubator-devlake/models/domainlayer"
+	"github.com/apache/incubator-devlake/models/domainlayer/didgen"
 	"github.com/apache/incubator-devlake/models/domainlayer/user"
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/core/dal"
@@ -43,6 +44,7 @@ func ConvertUser(taskCtx core.SubTaskContext) error {
 		return err
 	}
 	defer cursor.Close()
+	userIdGen := didgen.NewDomainIdGenerator(&models.TapdUser{})
 	converter, err := helper.NewDataConverter(helper.DataConverterArgs{
 		RawDataSubTaskArgs: *rawDataSubTaskArgs,
 		InputRowType:       reflect.TypeOf(models.TapdUser{}),
@@ -51,7 +53,7 @@ func ConvertUser(taskCtx core.SubTaskContext) error {
 			userTool := inputRow.(*models.TapdUser)
 			issue := &user.User{
 				DomainEntity: domainlayer.DomainEntity{
-					Id: UserIdGen.Generate(userTool.ConnectionId, userTool.WorkspaceId, userTool.User),
+					Id: userIdGen.Generate(data.Options.ConnectionId, userTool.WorkspaceId, userTool.User),
 				},
 				Name: userTool.Name,
 			}
