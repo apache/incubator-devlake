@@ -29,7 +29,7 @@ import (
 	"github.com/apache/incubator-devlake/plugins/tapd/tasks"
 )
 
-func TestTapdBugChangelogDataFlow(t *testing.T) {
+func TestTapdTaskChangelogDataFlow(t *testing.T) {
 
 	var tapd impl.Tapd
 	dataflowTester := e2ehelper.NewDataFlowTester(t, "tapd", tapd)
@@ -42,25 +42,28 @@ func TestTapdBugChangelogDataFlow(t *testing.T) {
 		},
 	}
 	// import raw data table
-	dataflowTester.ImportCsvIntoRawTable("./raw_tables/_raw_tapd_api_bug_changelogs.csv",
-		"_raw_tapd_api_bug_changelogs")
+	dataflowTester.ImportCsvIntoRawTable("./raw_tables/_raw_tapd_api_task_changelogs.csv",
+		"_raw_tapd_api_task_changelogs")
 
 	// verify extraction
-	dataflowTester.FlushTabler(&models.TapdBugChangelog{})
-	dataflowTester.FlushTabler(&models.TapdBugChangelogItem{})
-	dataflowTester.Subtask(tasks.ExtractBugChangelogMeta, taskData)
+	dataflowTester.FlushTabler(&models.TapdTaskChangelog{})
+	dataflowTester.FlushTabler(&models.TapdTaskChangelogItem{})
+	dataflowTester.Subtask(tasks.ExtractTaskChangelogMeta, taskData)
 	dataflowTester.VerifyTable(
-		models.TapdBugChangelog{},
-		fmt.Sprintf("./snapshot_tables/%s.csv", models.TapdBugChangelog{}.TableName()),
-		[]string{"connection_id", "id", "field"},
+		models.TapdTaskChangelog{},
+		fmt.Sprintf("./snapshot_tables/%s.csv", models.TapdTaskChangelog{}.TableName()),
+		[]string{"connection_id", "id"},
 		[]string{
 			"workspace_id",
-			"bug_id",
-			"author",
-			"old_value",
-			"new_value",
-			"memo",
+			"workitem_type_id",
+			"creator",
 			"created",
+			"change_summary",
+			"comment",
+			"entity_type",
+			"change_type",
+			"change_type_text",
+			"task_id",
 			"_raw_data_params",
 			"_raw_data_table",
 			"_raw_data_id",
@@ -68,8 +71,8 @@ func TestTapdBugChangelogDataFlow(t *testing.T) {
 		},
 	)
 	dataflowTester.VerifyTable(
-		models.TapdBugChangelogItem{},
-		fmt.Sprintf("./snapshot_tables/%s.csv", models.TapdBugChangelogItem{}.TableName()),
+		models.TapdTaskChangelogItem{},
+		fmt.Sprintf("./snapshot_tables/%s.csv", models.TapdTaskChangelogItem{}.TableName()),
 		[]string{
 			"connection_id",
 			"changelog_id",
@@ -88,10 +91,10 @@ func TestTapdBugChangelogDataFlow(t *testing.T) {
 	)
 
 	dataflowTester.FlushTabler(&ticket.Changelog{})
-	dataflowTester.Subtask(tasks.ConvertBugChangelogMeta, taskData)
+	dataflowTester.Subtask(tasks.ConvertTaskChangelogMeta, taskData)
 	dataflowTester.VerifyTable(
 		ticket.Changelog{},
-		fmt.Sprintf("./snapshot_tables/%s_bug.csv", ticket.Changelog{}.TableName()),
+		fmt.Sprintf("./snapshot_tables/%s_task.csv", ticket.Changelog{}.TableName()),
 		[]string{"id"},
 		[]string{
 			"_raw_data_params",
