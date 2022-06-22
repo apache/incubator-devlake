@@ -48,7 +48,7 @@ func ConvertStory(taskCtx core.SubTaskContext) error {
 		return err
 	}
 	defer cursor.Close()
-	storyIdGen := didgen.NewDomainIdGenerator(&models.TapdStory{})
+	issueIdGen := didgen.NewDomainIdGenerator(&models.TapdIssue{})
 	userIdGen := didgen.NewDomainIdGenerator(&models.TapdUser{})
 	workspaceIdGen := didgen.NewDomainIdGenerator(&models.TapdWorkspace{})
 	iterIdGen := didgen.NewDomainIdGenerator(&models.TapdIteration{})
@@ -60,7 +60,7 @@ func ConvertStory(taskCtx core.SubTaskContext) error {
 			toolL := inputRow.(*models.TapdStory)
 			domainL := &ticket.Issue{
 				DomainEntity: domainlayer.DomainEntity{
-					Id: storyIdGen.Generate(toolL.ConnectionId, toolL.Id),
+					Id: issueIdGen.Generate(toolL.ConnectionId, toolL.Id),
 				},
 				Url:                  toolL.Url,
 				IssueKey:             strconv.FormatUint(toolL.Id, 10),
@@ -72,7 +72,7 @@ func ConvertStory(taskCtx core.SubTaskContext) error {
 				ResolutionDate:       (*time.Time)(toolL.Completed),
 				CreatedDate:          (*time.Time)(toolL.Created),
 				UpdatedDate:          (*time.Time)(toolL.Modified),
-				ParentIssueId:        storyIdGen.Generate(toolL.ConnectionId, toolL.ParentId),
+				ParentIssueId:        issueIdGen.Generate(toolL.ConnectionId, toolL.ParentId),
 				Priority:             toolL.Priority,
 				TimeRemainingMinutes: int64(toolL.Remain),
 				CreatorId:            userIdGen.Generate(data.Options.ConnectionId, toolL.WorkspaceId, toolL.Creator),
