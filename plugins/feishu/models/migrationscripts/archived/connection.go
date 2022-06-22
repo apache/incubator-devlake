@@ -15,23 +15,22 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package models
+package archived
 
 import (
-	"github.com/apache/incubator-devlake/models/common"
-	"time"
+	commonArchived "github.com/apache/incubator-devlake/models/migrationscripts/archived"
 )
 
-type FeishuMeetingTopUserItem struct {
-	common.NoPKModel `json:"-"`
-	ConnectionId     uint64    `gorm:"primaryKey"`
-	StartTime        time.Time `gorm:"primaryKey"`
-	Name             string    `json:"name" gorm:"primaryKey;type:varchar(255)"`
-	MeetingCount     string    `json:"meeting_count" gorm:"type:varchar(255)"`
-	MeetingDuration  string    `json:"meeting_duration" gorm:"type:varchar(255)"`
-	UserType         int64     `json:"user_type"`
+type FeishuConnection struct {
+	commonArchived.Model
+	Name      string `gorm:"type:varchar(100);uniqueIndex" json:"name" validate:"required"`
+	Endpoint  string `mapstructure:"endpoint" env:"GITHUB_ENDPOINT" validate:"required"`
+	Proxy     string `mapstructure:"proxy" env:"GITHUB_PROXY"`
+	RateLimit int    `comment:"api request rate limit per hour"`
+	AppId     string `mapstructure:"app_id" validate:"required" json:"app_id"`
+	SecretKey string `mapstructure:"secret_key" validate:"required" json:"secret_key" encrypt:"yes"`
 }
 
-func (FeishuMeetingTopUserItem) TableName() string {
-	return "_tool_feishu_meeting_top_user_items"
+func (FeishuConnection) TableName() string {
+	return "_tool_feishu_connections"
 }

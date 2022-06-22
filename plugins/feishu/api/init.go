@@ -15,23 +15,25 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package models
+package api
 
 import (
-	"github.com/apache/incubator-devlake/models/common"
-	"time"
+	"github.com/apache/incubator-devlake/plugins/core"
+	"github.com/apache/incubator-devlake/plugins/helper"
+	"github.com/go-playground/validator/v10"
+	"github.com/spf13/viper"
+	"gorm.io/gorm"
 )
 
-type FeishuMeetingTopUserItem struct {
-	common.NoPKModel `json:"-"`
-	ConnectionId     uint64    `gorm:"primaryKey"`
-	StartTime        time.Time `gorm:"primaryKey"`
-	Name             string    `json:"name" gorm:"primaryKey;type:varchar(255)"`
-	MeetingCount     string    `json:"meeting_count" gorm:"type:varchar(255)"`
-	MeetingDuration  string    `json:"meeting_duration" gorm:"type:varchar(255)"`
-	UserType         int64     `json:"user_type"`
-}
+var vld *validator.Validate
+var connectionHelper *helper.ConnectionApiHelper
+var basicRes core.BasicRes
 
-func (FeishuMeetingTopUserItem) TableName() string {
-	return "_tool_feishu_meeting_top_user_items"
+func Init(config *viper.Viper, logger core.Logger, database *gorm.DB) {
+	basicRes = helper.NewDefaultBasicRes(config, logger, database)
+	vld = validator.New()
+	connectionHelper = helper.NewConnectionHelper(
+		basicRes,
+		vld,
+	)
 }
