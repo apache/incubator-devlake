@@ -3,6 +3,8 @@ env:
   IMAGE_LAKE: ${{ secrets.DOCKERHUB_OWNER }}/devlake
   IMAGE_CONFIG_UI: ${{ secrets.DOCKERHUB_OWNER }}/devlake-config-ui
   IMAGE_GRAFANA: ${{ secrets.DOCKERHUB_OWNER }}/devlake-dashboard
+  DOCKERHUB_USERNAME: ${{ secrets.DOCKER_REGISTRY_USERNAME }}
+  DOCKERHUB_TOKEN: ${{ secrets.DOCKER_REGISTRY_PASSWORD }}
 on:
   push:
     tags:
@@ -23,8 +25,8 @@ jobs:
       - name: Login to DockerHub
         uses: docker/login-action@v2
         with:
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
+          username: ${{ env.DOCKERHUB_USERNAME }}
+          password: ${{ env.DOCKERHUB_TOKEN }}
       - name: Build lake image
         run: |
           docker build -t ${{ env.IMAGE_LAKE }}:latest --file ./Dockerfile .
@@ -47,8 +49,8 @@ jobs:
       - name: Login to DockerHub
         uses: docker/login-action@v2
         with:
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
+          username: ${{ env.DOCKERHUB_USERNAME }}
+          password: ${{ env.DOCKERHUB_TOKEN }}
       - name: Build config ui image
         run: |
           cd config-ui
@@ -72,8 +74,8 @@ jobs:
       - name: Login to DockerHub
         uses: docker/login-action@v2
         with:
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
+          username: ${{ env.DOCKERHUB_USERNAME }}
+          password: ${{ env.DOCKERHUB_TOKEN }}
       - name: Build grafana
         run: |
           cd grafana
