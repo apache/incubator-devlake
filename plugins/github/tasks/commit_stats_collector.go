@@ -20,16 +20,16 @@ package tasks
 import (
 	"encoding/json"
 	"fmt"
+	"gorm.io/gorm"
 	"io/ioutil"
 	"net/http"
 	"net/url"
 	"reflect"
 
-	"github.com/apache/incubator-devlake/plugins/core/dal"
-	"github.com/apache/incubator-devlake/plugins/helper"
-
 	"github.com/apache/incubator-devlake/plugins/core"
+	"github.com/apache/incubator-devlake/plugins/core/dal"
 	"github.com/apache/incubator-devlake/plugins/github/models"
+	"github.com/apache/incubator-devlake/plugins/helper"
 )
 
 const RAW_COMMIT_STATS_TABLE = "github_api_commit_stats"
@@ -54,7 +54,7 @@ func CollectApiCommitStats(taskCtx core.SubTaskContext) error {
 		dal.Orderby("committed_date DESC"),
 		dal.Limit(1),
 	)
-	if err != nil {
+	if err != nil && err != gorm.ErrRecordNotFound {
 		return fmt.Errorf("failed to get latest github commit record: %w", err)
 	}
 

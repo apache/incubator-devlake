@@ -19,6 +19,7 @@ package tasks
 
 import (
 	"fmt"
+	"gorm.io/gorm"
 	"regexp"
 	"sort"
 	"strings"
@@ -203,7 +204,7 @@ func CalculateCommitPairs(db dal.Dal, repoId string, pairs []RefPair, rs Refs) (
 		}
 		ref.Id = fmt.Sprintf("%s:%s", repoId, refName)
 		err := db.First(ref)
-		if err != nil {
+		if err != nil && err != gorm.ErrRecordNotFound {
 			return "", fmt.Errorf("faild to load Ref info for repoId:%s, refName:%s", repoId, refName)
 		}
 		return ref.CommitSha, nil
