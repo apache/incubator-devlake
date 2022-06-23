@@ -23,6 +23,8 @@ import (
 	"net/http"
 	"net/url"
 
+	"github.com/apache/incubator-devlake/plugins/core/dal"
+
 	"github.com/apache/incubator-devlake/plugins/gitee/models"
 
 	"github.com/apache/incubator-devlake/plugins/helper"
@@ -40,15 +42,20 @@ var CollectApiPullRequestsMeta = core.SubTaskMeta{
 }
 
 func CollectApiPullRequests(taskCtx core.SubTaskContext) error {
-	db := taskCtx.GetDb()
+	db := taskCtx.GetDal()
 	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_PULL_REQUEST_TABLE)
 	since := data.Since
 	incremental := false
 	if since == nil {
 		var latestUpdated models.GiteePullRequest
-		err := db.Model(&latestUpdated).
-			Where("repo_id = ?", data.Repo.GiteeId).
-			Order("gitee_updated_at DESC").Limit(1).Find(&latestUpdated).Error
+
+		err := db.All(
+			&latestUpdated,
+			dal.Where("repo_id = ? and connection_id=?", data.Repo.GiteeId, data.Options.ConnectionId),
+			dal.Orderby("gitee_updated_at DESC"),
+			dal.Limit(1),
+		)
+
 		if err != nil {
 			return fmt.Errorf("failed to get latest gitee issue record: %w", err)
 		}
