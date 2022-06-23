@@ -29,11 +29,12 @@ import (
 	"github.com/apache/incubator-devlake/plugins/helper"
 )
 
-var ConvertMergeRequestCommentMeta = core.SubTaskMeta{
+var ConvertMrCommentMeta = core.SubTaskMeta{
 	Name:             "convertMergeRequestComment",
 	EntryPoint:       ConvertMergeRequestComment,
 	EnabledByDefault: true,
-	Description:      "Update domain layer Comment according to GitlabMergeRequestComment",
+	Description:      "Update domain layer Comment according to GitlabMrComment",
+	DomainTypes:      []string{core.DOMAIN_TYPE_CODE},
 }
 
 func ConvertMergeRequestComment(taskCtx core.SubTaskContext) error {
@@ -41,12 +42,12 @@ func ConvertMergeRequestComment(taskCtx core.SubTaskContext) error {
 	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_PROJECT_TABLE)
 	db := taskCtx.GetDal()
 	clauses := []dal.Clause{
-		dal.From(&models.GitlabMergeRequestComment{}),
+		dal.From(&models.GitlabMrComment{}),
 		dal.Join(`left join _tool_gitlab_merge_requests on 
 			_tool_gitlab_merge_requests.gitlab_id = 
-			_tool_gitlab_merge_request_comments.merge_request_id`),
+			_tool_gitlab_mr_comments.merge_request_id`),
 		dal.Where(`_tool_gitlab_merge_requests.project_id = ? 
-			and _tool_gitlab_merge_request_comments.connection_id = ?`,
+			and _tool_gitlab_mr_comments.connection_id = ?`,
 			data.Options.ProjectId, data.Options.ConnectionId),
 	}
 
@@ -56,17 +57,17 @@ func ConvertMergeRequestComment(taskCtx core.SubTaskContext) error {
 	}
 	defer cursor.Close()
 
-	domainIdGeneratorComment := didgen.NewDomainIdGenerator(&models.GitlabMergeRequestComment{})
+	domainIdGeneratorComment := didgen.NewDomainIdGenerator(&models.GitlabMrComment{})
 	prIdGen := didgen.NewDomainIdGenerator(&models.GitlabMergeRequest{})
 	userIdGen := didgen.NewDomainIdGenerator(&models.GitlabUser{})
 
 	converter, err := helper.NewDataConverter(helper.DataConverterArgs{
 		RawDataSubTaskArgs: *rawDataSubTaskArgs,
-		InputRowType:       reflect.TypeOf(models.GitlabMergeRequestComment{}),
+		InputRowType:       reflect.TypeOf(models.GitlabMrComment{}),
 		Input:              cursor,
 
 		Convert: func(inputRow interface{}) ([]interface{}, error) {
-			gitlabComments := inputRow.(*models.GitlabMergeRequestComment)
+			gitlabComments := inputRow.(*models.GitlabMrComment)
 
 			domainComment := &code.PullRequestComment{
 				DomainEntity: domainlayer.DomainEntity{

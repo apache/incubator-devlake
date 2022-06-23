@@ -15,23 +15,22 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package archived
+package models
 
-import "github.com/apache/incubator-devlake/models/migrationscripts/archived"
+import (
+	"github.com/apache/incubator-devlake/models/common"
+)
 
-// This Model is intended to save commits that are associated to a merge request
-// for the purpose of calculating PR Review Rounds and other metrics that
-// rely on associating commits to merge requests that may or may not
-// exist on the main branch of a project.
-// Thus a "Merge Request Commit" needs to be considered as distinct from a "Commit"
+// Please note that Issue Labels can also apply to Pull Requests.
+// Pull Requests are considered Issues in GitHub.
 
-type GitlabMrCommit struct {
-	ConnectionId   uint64 `gorm:"primaryKey"`
-	CommitSha      string `gorm:"primaryKey;type:varchar(40)"`
-	MergeRequestId int    `gorm:"primaryKey;autoIncrement:false"`
-	archived.NoPKModel
+type GitlabMrLabel struct {
+	ConnectionId uint64 `gorm:"primaryKey"`
+	MrId         int    `gorm:"primaryKey;autoIncrement:false"`
+	LabelName    string `gorm:"primaryKey;type:varchar(255)"`
+	common.NoPKModel
 }
 
-func (GitlabMrCommit) TableName() string {
-	return "_tool_gitlab_mr_commits"
+func (GitlabMrLabel) TableName() string {
+	return "_tool_gitlab_mr_labels"
 }

@@ -40,15 +40,16 @@ func TestGitlabMrNoteDataFlow(t *testing.T) {
 		},
 	}
 	// import raw data table
-	dataflowTester.ImportCsvIntoRawTable("./raw_tables/_raw_gitlab_api_merge_requests.csv",
+	dataflowTester.ImportCsvIntoRawTable("./raw_tables/_raw_gitlab_api_merge_requests_for_mr_notes_test.csv",
 		"_raw_gitlab_api_merge_requests")
 
 	// verify extraction
 	dataflowTester.FlushTabler(&models.GitlabMergeRequest{})
+	dataflowTester.FlushTabler(&models.GitlabMrLabel{})
 	dataflowTester.Subtask(tasks.ExtractApiMergeRequestsMeta, taskData)
 	dataflowTester.VerifyTable(
 		models.GitlabMergeRequest{},
-		fmt.Sprintf("./snapshot_tables/%s.csv", models.GitlabMergeRequest{}.TableName()),
+		fmt.Sprintf("./snapshot_tables/%s_for_mr_notes_test.csv", models.GitlabMergeRequest{}.TableName()),
 		[]string{"connection_id", "gitlab_id"},
 		[]string{
 			"iid",
@@ -79,52 +80,17 @@ func TestGitlabMrNoteDataFlow(t *testing.T) {
 			"_raw_data_remark",
 		},
 	)
-
-	// verify conversion
-	dataflowTester.FlushTabler(&code.PullRequest{})
-	dataflowTester.Subtask(tasks.ConvertApiMergeRequestsMeta, taskData)
-	dataflowTester.VerifyTable(
-		code.PullRequest{},
-		fmt.Sprintf("./snapshot_tables/%s.csv", code.PullRequest{}.TableName()),
-		[]string{"id"},
-		[]string{
-			"_raw_data_params",
-			"_raw_data_table",
-			"_raw_data_id",
-			"_raw_data_remark",
-			"base_repo_id",
-			"head_repo_id",
-			"status",
-			"title",
-			"description",
-			"url",
-			"author_name",
-			"author_id",
-			"parent_pr_id",
-			"pull_request_key",
-			"created_date",
-			"merged_date",
-			"closed_date",
-			"type",
-			"component",
-			"merge_commit_sha",
-			"head_ref",
-			"base_ref",
-			"base_commit_sha",
-			"head_commit_sha",
-		},
-	)
 	// import raw data table
 	dataflowTester.ImportCsvIntoRawTable("./raw_tables/_raw_gitlab_api_merge_request_notes.csv",
 		"_raw_gitlab_api_merge_request_notes")
 
 	// verify extraction
-	dataflowTester.FlushTabler(&models.GitlabMergeRequestNote{})
-	dataflowTester.FlushTabler(&models.GitlabMergeRequestComment{})
-	dataflowTester.Subtask(tasks.ExtractApiMergeRequestsNotesMeta, taskData)
+	dataflowTester.FlushTabler(&models.GitlabMrNote{})
+	dataflowTester.FlushTabler(&models.GitlabMrComment{})
+	dataflowTester.Subtask(tasks.ExtractApiMrNotesMeta, taskData)
 	dataflowTester.VerifyTable(
-		models.GitlabMergeRequestNote{},
-		fmt.Sprintf("./snapshot_tables/%s.csv", models.GitlabMergeRequestNote{}.TableName()),
+		models.GitlabMrNote{},
+		fmt.Sprintf("./snapshot_tables/%s.csv", models.GitlabMrNote{}.TableName()),
 		[]string{"connection_id", "gitlab_id"},
 		[]string{
 			"merge_request_id",
@@ -143,8 +109,8 @@ func TestGitlabMrNoteDataFlow(t *testing.T) {
 		},
 	)
 	dataflowTester.VerifyTable(
-		models.GitlabMergeRequestComment{},
-		fmt.Sprintf("./snapshot_tables/%s.csv", models.GitlabMergeRequestComment{}.TableName()),
+		models.GitlabMrComment{},
+		fmt.Sprintf("./snapshot_tables/%s.csv", models.GitlabMrComment{}.TableName()),
 		[]string{"connection_id", "gitlab_id"},
 		[]string{
 			"merge_request_id",
@@ -185,7 +151,7 @@ func TestGitlabMrNoteDataFlow(t *testing.T) {
 
 	// verify conversion
 	dataflowTester.FlushTabler(&code.PullRequestComment{})
-	dataflowTester.Subtask(tasks.ConvertMergeRequestCommentMeta, taskData)
+	dataflowTester.Subtask(tasks.ConvertMrCommentMeta, taskData)
 	dataflowTester.VerifyTable(
 		code.PullRequestComment{},
 		fmt.Sprintf("./snapshot_tables/%s.csv", code.PullRequestComment{}.TableName()),

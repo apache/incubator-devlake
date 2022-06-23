@@ -41,6 +41,7 @@ var ExtractTagMeta = core.SubTaskMeta{
 	EntryPoint:       ExtractApiTag,
 	EnabledByDefault: false,
 	Description:      "Extract raw tag data into tool layer table GitlabTag",
+	DomainTypes:      []string{core.DOMAIN_TYPE_CODE},
 }
 
 func ExtractApiTag(taskCtx core.SubTaskContext) error {

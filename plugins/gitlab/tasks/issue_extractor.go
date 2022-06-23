@@ -19,6 +19,8 @@ package tasks
 
 import (
 	"encoding/json"
+	"github.com/apache/incubator-devlake/models/domainlayer/ticket"
+	"regexp"
 
 	"github.com/apache/incubator-devlake/plugins/core"
 
@@ -31,6 +33,7 @@ var ExtractApiIssuesMeta = core.SubTaskMeta{
 	EntryPoint:       ExtractApiIssues,
 	EnabledByDefault: true,
 	Description:      "Extract raw Issues data into tool layer table gitlab_issues",
+	DomainTypes:      []string{core.DOMAIN_TYPE_TICKET},
 }
 
 type IssuesResponse struct {
@@ -125,7 +128,37 @@ type IssuesResponse struct {
 
 func ExtractApiIssues(taskCtx core.SubTaskContext) error {
 	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_ISSUE_TABLE)
-
+	config := data.Options.TransformationRules
+	var issueSeverityRegex *regexp.Regexp
+	var issueComponentRegex *regexp.Regexp
+	var issuePriorityRegex *regexp.Regexp
+	var issueTypeBugRegex *regexp.Regexp
+	var issueTypeRequirementRegex *regexp.Regexp
+	var issueTypeIncidentRegex *regexp.Regexp
+	var issueSeverity = config.IssueSeverity
+	if len(issueSeverity) > 0 {
+		issueSeverityRegex = regexp.MustCompile(issueSeverity)
+	}
+	var issueComponent = config.IssueComponent
+	if len(issueComponent) > 0 {
+		issueComponentRegex = regexp.MustCompile(issueComponent)
+	}
+	var issuePriority = config.IssuePriority
+	if len(issuePriority) > 0 {
+		issuePriorityRegex = regexp.MustCompile(issuePriority)
+	}
+	var issueTypeBug = config.IssueTypeBug
+	if len(issueTypeBug) > 0 {
+		issueTypeBugRegex = regexp.MustCompile(issueTypeBug)
+	}
+	var issueTypeRequirement = config.IssueTypeRequirement
+	if len(issueTypeRequirement) > 0 {
+		issueTypeRequirementRegex = regexp.MustCompile(issueTypeRequirement)
+	}
+	var issueTypeIncident = config.IssueTypeIncident
+	if len(issueTypeIncident) > 0 {
+		issueTypeIncidentRegex = regexp.MustCompile(issueTypeIncident)
+	}
 	extractor, err := helper.NewApiExtractor(helper.ApiExtractorArgs{
 		RawDataSubTaskArgs: *rawDataSubTaskArgs,
 		Extract: func(row *helper.RawData) ([]interface{}, error) {
@@ -154,6 +187,44 @@ func ExtractApiIssues(taskCtx core.SubTaskContext) error {
 					LabelName:    label,
 					ConnectionId: data.Options.ConnectionId,
 				})
+				if issueSeverityRegex != nil {
+					groups := issueSeverityRegex.FindStringSubmatch(label)
+					if len(groups) > 0 {
+						gitlabIssue.Severity = groups[1]
+					}
+				}
+
+				if issueComponentRegex != nil {
+					groups := issueComponentRegex.FindStringSubmatch(label)
+					if len(groups) > 0 {
+						gitlabIssue.Component = groups[1]
+					}
+				}
+
+				if issuePriorityRegex != nil {
+					groups := issuePriorityRegex.FindStringSubmatch(label)
+					if len(groups) > 0 {
+						gitlabIssue.Priority = groups[1]
+					}
+				}
+
+				if issueTypeBugRegex != nil {
+					if ok := issueTypeBugRegex.MatchString(label); ok {
+						gitlabIssue.Type = ticket.BUG
+					}
+				}
+
+				if issueTypeRequirementRegex != nil {
+					if ok := issueTypeRequirementRegex.MatchString(label); ok {
+						gitlabIssue.Type = ticket.REQUIREMENT
+					}
+				}
+
+				if issueTypeIncidentRegex != nil {
+					if ok := issueTypeIncidentRegex.MatchString(label); ok {
+						gitlabIssue.Type = ticket.INCIDENT
+					}
+				}
 
 			}
 			gitlabIssue.ConnectionId = data.Options.ConnectionId

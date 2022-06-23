@@ -38,6 +38,7 @@ type GitlabApiProject struct {
 	ForkedFromProject *GitlabApiProject   `json:"forked_from_project"`
 	CreatedAt         helper.Iso8601Time  `json:"created_at"`
 	LastActivityAt    *helper.Iso8601Time `json:"last_activity_at"`
+	HttpUrlToRepo     string              `json:"http_url_to_repo"`
 }
 
 var CollectProjectMeta = core.SubTaskMeta{
@@ -45,6 +46,7 @@ var CollectProjectMeta = core.SubTaskMeta{
 	EntryPoint:       CollectApiProject,
 	EnabledByDefault: true,
 	Description:      "Collect project data from gitlab api",
+	DomainTypes:      core.DOMAIN_TYPES,
 }
 
 func CollectApiProject(taskCtx core.SubTaskContext) error {

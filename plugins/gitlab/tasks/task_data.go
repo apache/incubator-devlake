@@ -18,6 +18,8 @@ limitations under the License.
 package tasks
 
 import (
+	"fmt"
+	"github.com/mitchellh/mapstructure"
 	"time"
 
 	"github.com/apache/incubator-devlake/plugins/gitlab/models"
@@ -25,10 +27,11 @@ import (
 )
 
 type GitlabOptions struct {
-	ConnectionId uint64   `json:"connectionId"`
-	ProjectId    int      `json:"projectId"`
-	Tasks        []string `json:"tasks,omitempty"`
-	//Since    string
+	ConnectionId               uint64   `json:"connectionId"`
+	ProjectId                  int      `json:"projectId"`
+	Tasks                      []string `json:"tasks,omitempty"`
+	Since                      string
+	models.TransformationRules `mapstructure:"transformationRules" json:"transformationRules"`
 }
 
 type GitlabTaskData struct {
@@ -36,4 +39,48 @@ type GitlabTaskData struct {
 	ApiClient     *helper.ApiAsyncClient
 	ProjectCommit *models.GitlabProjectCommit
 	Since         *time.Time
+}
+
+func DecodeAndValidateTaskOptions(options map[string]interface{}) (*GitlabOptions, error) {
+	var op GitlabOptions
+	err := mapstructure.Decode(options, &op)
+	if err != nil {
+		return nil, err
+	}
+	if op.ProjectId == 0 {
+		return nil, fmt.Errorf("ProjectId is required for Gitlab execution")
+	}
+	if op.PrType == "" {
+		op.PrType = "type/(.*)$"
+	}
+	if op.PrComponent == "" {
+		op.PrComponent = "component/(.*)$"
+	}
+	if op.PrBodyClosePattern == "" {
+		op.PrBodyClosePattern = "(?mi)(fix|close|resolve|fixes|closes|resolves|fixed|closed|resolved)[\\s]*.*(((and )?(#|https:\\/\\/github.com\\/%s\\/%s\\/issues\\/)\\d+[ ]*)+)"
+	}
+	if op.IssueSeverity == "" {
+		op.IssueSeverity = "severity/(.*)$"
+	}
+	if op.IssuePriority == "" {
+		op.IssuePriority = "^(highest|high|medium|low)$"
+	}
+	if op.IssueComponent == "" {
+		op.IssueComponent = "component/(.*)$"
+	}
+	if op.IssueTypeBug == "" {
+		op.IssueTypeBug = "^(bug|failure|error)$"
+	}
+	if op.IssueTypeIncident == "" {
+		op.IssueTypeIncident = ""
+	}
+	if op.IssueTypeRequirement == "" {
+		op.IssueTypeRequirement = "^(feat|feature|proposal|requirement)$"
+	}
+
+	// find the needed GitHub now
+	if op.ConnectionId == 0 {
+		return nil, fmt.Errorf("connectionId is invalid")
+	}
+	return &op, nil
 }

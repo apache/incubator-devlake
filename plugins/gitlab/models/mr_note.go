@@ -23,7 +23,7 @@ import (
 	"github.com/apache/incubator-devlake/models/common"
 )
 
-type GitlabMergeRequestNote struct {
+type GitlabMrNote struct {
 	ConnectionId uint64 `gorm:"primaryKey"`
 
 	GitlabId        int    `gorm:"primaryKey"`
@@ -40,6 +40,6 @@ type GitlabMergeRequestNote struct {
 	common.NoPKModel
 }
 
-func (GitlabMergeRequestNote) TableName() string {
-	return "_tool_gitlab_merge_request_notes"
+func (GitlabMrNote) TableName() string {
+	return "_tool_gitlab_mr_notes"
 }

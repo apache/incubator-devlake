@@ -18,37 +18,37 @@ limitations under the License.
 package tasks
 
 import (
+	"github.com/apache/incubator-devlake/models/domainlayer/code"
 	"github.com/apache/incubator-devlake/plugins/core/dal"
 	"reflect"
 
 	"github.com/apache/incubator-devlake/models/domainlayer/didgen"
-	"github.com/apache/incubator-devlake/models/domainlayer/ticket"
 	"github.com/apache/incubator-devlake/plugins/core"
 	gitlabModels "github.com/apache/incubator-devlake/plugins/gitlab/models"
 	"github.com/apache/incubator-devlake/plugins/helper"
 )
 
-var ConvertIssueLabelsMeta = core.SubTaskMeta{
+var ConvertMrLabelsMeta = core.SubTaskMeta{
 	Name:             "convertIssueLabels",
-	EntryPoint:       ConvertIssueLabels,
+	EntryPoint:       ConvertMrLabels,
 	EnabledByDefault: true,
-	Description:      "Convert tool layer table gitlab_issue_labels into  domain layer table issue_labels",
-	DomainTypes:      []string{core.DOMAIN_TYPE_TICKET},
+	Description:      "Convert tool layer table gitlab_mr_labels into  domain layer table pull_request_labels",
+	DomainTypes:      []string{core.DOMAIN_TYPE_CODE},
 }
 
-func ConvertIssueLabels(taskCtx core.SubTaskContext) error {
+func ConvertMrLabels(taskCtx core.SubTaskContext) error {
 	db := taskCtx.GetDal()
-	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_ISSUE_TABLE)
+	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_MERGE_REQUEST_TABLE)
 	projectId := data.Options.ProjectId
 	clauses := []dal.Clause{
 		dal.Select("*"),
-		dal.From(&gitlabModels.GitlabIssueLabel{}),
-		dal.Join(`left join _tool_gitlab_issues on 
-			_tool_gitlab_issues.gitlab_id = _tool_gitlab_issue_labels.issue_id`),
-		dal.Where(`_tool_gitlab_issues.project_id = ? 
-			and _tool_gitlab_issues.connection_id = ?`,
+		dal.From(&gitlabModels.GitlabMrLabel{}),
+		dal.Join(`left join _tool_gitlab_merge_requests on 
+			_tool_gitlab_merge_requests.gitlab_id = _tool_gitlab_mr_labels.mr_id`),
+		dal.Where(`_tool_gitlab_merge_requests.project_id = ? 
+			and _tool_gitlab_merge_requests.connection_id = ?`,
 			projectId, data.Options.ConnectionId),
-		dal.Orderby("issue_id ASC"),
+		dal.Orderby("mr_id ASC"),
 	}
 
 	cursor, err := db.Cursor(clauses...)
@@ -57,17 +57,17 @@ func ConvertIssueLabels(taskCtx core.SubTaskContext) error {
 	}
 	defer cursor.Close()
 
-	issueIdGen := didgen.NewDomainIdGenerator(&gitlabModels.GitlabIssue{})
+	mrIdGen := didgen.NewDomainIdGenerator(&gitlabModels.GitlabMergeRequest{})
 
 	converter, err := helper.NewDataConverter(helper.DataConverterArgs{
 		RawDataSubTaskArgs: *rawDataSubTaskArgs,
-		InputRowType:       reflect.TypeOf(gitlabModels.GitlabIssueLabel{}),
+		InputRowType:       reflect.TypeOf(gitlabModels.GitlabMrLabel{}),
 		Input:              cursor,
 		Convert: func(inputRow interface{}) ([]interface{}, error) {
-			issueLabel := inputRow.(*gitlabModels.GitlabIssueLabel)
-			domainIssueLabel := &ticket.IssueLabel{
-				IssueId:   issueIdGen.Generate(data.Options.ConnectionId, issueLabel.IssueId),
-				LabelName: issueLabel.LabelName,
+			mrLabel := inputRow.(*gitlabModels.GitlabMrLabel)
+			domainIssueLabel := &code.PullRequestLabel{
+				PullRequestId: mrIdGen.Generate(data.Options.ConnectionId, mrLabel.MrId),
+				LabelName:     mrLabel.LabelName,
 			}
 			return []interface{}{
 				domainIssueLabel,

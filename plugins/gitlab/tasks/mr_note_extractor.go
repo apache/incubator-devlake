@@ -40,11 +40,12 @@ type MergeRequestNote struct {
 	}
 }
 
-var ExtractApiMergeRequestsNotesMeta = core.SubTaskMeta{
+var ExtractApiMrNotesMeta = core.SubTaskMeta{
 	Name:             "extractApiMergeRequestsNotes",
 	EntryPoint:       ExtractApiMergeRequestsNotes,
 	EnabledByDefault: true,
-	Description:      "Extract raw merge requests notes data into tool layer table GitlabMergeRequestNote",
+	Description:      "Extract raw merge requests notes data into tool layer table GitlabMrNote",
+	DomainTypes:      []string{core.DOMAIN_TYPE_CODE},
 }
 
 func ExtractApiMergeRequestsNotes(taskCtx core.SubTaskContext) error {
@@ -66,7 +67,7 @@ func ExtractApiMergeRequestsNotes(taskCtx core.SubTaskContext) error {
 			}
 			results := make([]interface{}, 0, 2)
 			if !toolMrNote.IsSystem {
-				toolMrComment := &models.GitlabMergeRequestComment{
+				toolMrComment := &models.GitlabMrComment{
 					GitlabId:        toolMrNote.GitlabId,
 					MergeRequestId:  toolMrNote.MergeRequestId,
 					MergeRequestIid: toolMrNote.MergeRequestIid,
@@ -92,8 +93,8 @@ func ExtractApiMergeRequestsNotes(taskCtx core.SubTaskContext) error {
 	return extractor.Execute()
 }
 
-func convertMergeRequestNote(mrNote *MergeRequestNote) (*models.GitlabMergeRequestNote, error) {
-	gitlabMergeRequestNote := &models.GitlabMergeRequestNote{
+func convertMergeRequestNote(mrNote *MergeRequestNote) (*models.GitlabMrNote, error) {
+	GitlabMrNote := &models.GitlabMrNote{
 		GitlabId:        mrNote.GitlabId,
 		MergeRequestId:  mrNote.MergeRequestId,
 		MergeRequestIid: mrNote.MergeRequestIid,
@@ -105,5 +106,5 @@ func convertMergeRequestNote(mrNote *MergeRequestNote) (*models.GitlabMergeReque
 		Resolvable:      mrNote.Resolvable,
 		IsSystem:        mrNote.System,
 	}
-	return gitlabMergeRequestNote, nil
+	return GitlabMrNote, nil
 }

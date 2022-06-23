@@ -26,7 +26,6 @@ import (
 	"github.com/apache/incubator-devlake/plugins/gitlab/models/migrationscripts"
 	"github.com/apache/incubator-devlake/plugins/gitlab/tasks"
 	"github.com/apache/incubator-devlake/plugins/helper"
-	"github.com/mitchellh/mapstructure"
 	"github.com/spf13/viper"
 	"gorm.io/gorm"
 )
@@ -36,6 +35,7 @@ var _ core.PluginInit = (*Gitlab)(nil)
 var _ core.PluginTask = (*Gitlab)(nil)
 var _ core.PluginApi = (*Gitlab)(nil)
 var _ core.Migratable = (*Gitlab)(nil)
+var _ core.PluginBlueprintV100 = (*Gitlab)(nil)
 
 type Gitlab string
 
@@ -60,28 +60,27 @@ func (plugin Gitlab) SubTaskMetas() []core.SubTaskMeta {
 		tasks.ExtractApiIssuesMeta,
 		tasks.CollectApiMergeRequestsMeta,
 		tasks.ExtractApiMergeRequestsMeta,
-		tasks.CollectApiMergeRequestsNotesMeta,
-		tasks.ExtractApiMergeRequestsNotesMeta,
-		tasks.CollectApiMergeRequestsCommitsMeta,
-		tasks.ExtractApiMergeRequestsCommitsMeta,
+		tasks.CollectApiMrNotesMeta,
+		tasks.ExtractApiMrNotesMeta,
+		tasks.CollectApiMrCommitsMeta,
+		tasks.ExtractApiMrCommitsMeta,
 		tasks.CollectApiPipelinesMeta,
 		tasks.ExtractApiPipelinesMeta,
 		tasks.EnrichMergeRequestsMeta,
 		tasks.ConvertProjectMeta,
 		tasks.ConvertApiMergeRequestsMeta,
 		tasks.ConvertApiNotesMeta,
-		tasks.ConvertMergeRequestCommentMeta,
-		tasks.ConvertApiMergeRequestsCommitsMeta,
+		tasks.ConvertMrCommentMeta,
+		tasks.ConvertApiMrCommitsMeta,
 		tasks.ConvertIssuesMeta,
 		tasks.ConvertIssueLabelsMeta,
+		tasks.ConvertMrLabelsMeta,
 		tasks.ConvertCommitsMeta,
 	}
 }
 
 func (plugin Gitlab) PrepareTaskData(taskCtx core.TaskContext, options map[string]interface{}) (interface{}, error) {
-	var op tasks.GitlabOptions
-	var err error
-	err = mapstructure.Decode(options, &op)
+	op, err := tasks.DecodeAndValidateTaskOptions(options)
 	if err != nil {
 		return nil, err
 	}
@@ -107,7 +106,7 @@ func (plugin Gitlab) PrepareTaskData(taskCtx core.TaskContext, options map[strin
 	}
 
 	return &tasks.GitlabTaskData{
-		Options:   &op,
+		Options:   op,
 		ApiClient: apiClient,
 	}, nil
 }
@@ -120,6 +119,10 @@ func (plugin Gitlab) MigrationScripts() []migration.Script {
 	return []migration.Script{
 		new(migrationscripts.InitSchemas),
 	}
+}
+
+func (plugin Gitlab) MakePipelinePlan(connectionId uint64, scope []*core.BlueprintScopeV100) (core.PipelinePlan, error) {
+	return api.MakePipelinePlan(plugin.SubTaskMetas(), connectionId, scope)
 }
 
 func (plugin Gitlab) ApiResources() map[string]map[string]core.ApiResourceHandler {

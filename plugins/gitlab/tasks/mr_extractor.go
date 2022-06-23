@@ -19,6 +19,7 @@ package tasks
 
 import (
 	"encoding/json"
+	"regexp"
 
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/gitlab/models"
@@ -52,6 +53,7 @@ type MergeRequestRes struct {
 	}
 	Reviewers        []Reviewer
 	FirstCommentTime helper.Iso8601Time
+	Labels           []string `json:"labels"`
 }
 
 type Reviewer struct {
@@ -69,11 +71,22 @@ var ExtractApiMergeRequestsMeta = core.SubTaskMeta{
 	EntryPoint:       ExtractApiMergeRequests,
 	EnabledByDefault: true,
 	Description:      "Extract raw merge requests data into tool layer table GitlabMergeRequest and GitlabReviewer",
+	DomainTypes:      []string{core.DOMAIN_TYPE_CODE},
 }
 
 func ExtractApiMergeRequests(taskCtx core.SubTaskContext) error {
 	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_MERGE_REQUEST_TABLE)
-
+	config := data.Options.TransformationRules
+	var labelTypeRegex *regexp.Regexp
+	var labelComponentRegex *regexp.Regexp
+	var prType = config.PrType
+	if len(prType) > 0 {
+		labelTypeRegex = regexp.MustCompile(prType)
+	}
+	var prComponent = config.PrComponent
+	if len(prComponent) > 0 {
+		labelComponentRegex = regexp.MustCompile(prComponent)
+	}
 	extractor, err := helper.NewApiExtractor(helper.ApiExtractorArgs{
 		RawDataSubTaskArgs: *rawDataSubTaskArgs,
 		Extract: func(row *helper.RawData) ([]interface{}, error) {
@@ -90,7 +103,28 @@ func ExtractApiMergeRequests(taskCtx core.SubTaskContext) error {
 			results := make([]interface{}, 0, len(mr.Reviewers)+1)
 			gitlabMergeRequest.ConnectionId = data.Options.ConnectionId
 			results = append(results, gitlabMergeRequest)
+			for _, label := range mr.Labels {
+				results = append(results, &models.GitlabMrLabel{
+					MrId:         gitlabMergeRequest.GitlabId,
+					LabelName:    label,
+					ConnectionId: data.Options.ConnectionId,
+				})
+				// if pr.Type has not been set and prType is set in .env, process the below
+				if labelTypeRegex != nil {
+					groups := labelTypeRegex.FindStringSubmatch(label)
+					if len(groups) > 0 {
+						gitlabMergeRequest.Type = groups[1]
+					}
+				}
 
+				// if pr.Component has not been set and prComponent is set in .env, process
+				if labelComponentRegex != nil {
+					groups := labelComponentRegex.FindStringSubmatch(label)
+					if len(groups) > 0 {
+						gitlabMergeRequest.Component = groups[1]
+					}
+				}
+			}
 			for _, reviewer := range mr.Reviewers {
 				gitlabReviewer := &models.GitlabReviewer{
 					ConnectionId:   data.Options.ConnectionId,

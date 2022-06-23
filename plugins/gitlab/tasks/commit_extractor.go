@@ -30,6 +30,7 @@ var ExtractApiCommitsMeta = core.SubTaskMeta{
 	EntryPoint:       ExtractApiCommits,
 	EnabledByDefault: true,
 	Description:      "Extract raw commit data into tool layer table GitlabCommit,GitlabUser and GitlabProjectCommit",
+	DomainTypes:      []string{core.DOMAIN_TYPE_CODE},
 }
 
 func ExtractApiCommits(taskCtx core.SubTaskContext) error {

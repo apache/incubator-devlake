@@ -44,15 +44,16 @@ type ApiUserResponse struct {
 	Name string `json:"name"`
 }
 
-type Config struct {
-	MrType               string `mapstructure:"MrType" env:"GITLAB_PR_TYPE" json:"MrType"`
-	MrComponent          string `mapstructure:"MrComponent" env:"GITLAB_PR_COMPONENT" json:"MrComponent"`
-	IssueSeverity        string `mapstructure:"issueSeverity" env:"GITLAB_ISSUE_SEVERITY" json:"issueSeverity"`
-	IssuePriority        string `mapstructure:"issuePriority" env:"GITLAB_ISSUE_PRIORITY" json:"issuePriority"`
-	IssueComponent       string `mapstructure:"issueComponent" env:"GITLAB_ISSUE_COMPONENT" json:"issueComponent"`
-	IssueTypeBug         string `mapstructure:"issueTypeBug" env:"GITLAB_ISSUE_TYPE_BUG" json:"issueTypeBug"`
-	IssueTypeIncident    string `mapstructure:"issueTypeIncident" env:"GITLAB_ISSUE_TYPE_INCIDENT" json:"issueTypeIncident"`
-	IssueTypeRequirement string `mapstructure:"issueTypeRequirement" env:"GITLAB_ISSUE_TYPE_REQUIREMENT" json:"issueTypeRequirement"`
+type TransformationRules struct {
+	PrType               string `mapstructure:"prType" json:"prType"`
+	PrComponent          string `mapstructure:"prComponent" json:"prComponent"`
+	PrBodyClosePattern   string `mapstructure:"prBodyClosePattern" json:"prBodyClosePattern"`
+	IssueSeverity        string `mapstructure:"issueSeverity" json:"issueSeverity"`
+	IssuePriority        string `mapstructure:"issuePriority" json:"issuePriority"`
+	IssueComponent       string `mapstructure:"issueComponent" json:"issueComponent"`
+	IssueTypeBug         string `mapstructure:"issueTypeBug" json:"issueTypeBug"`
+	IssueTypeIncident    string `mapstructure:"issueTypeIncident" json:"issueTypeIncident"`
+	IssueTypeRequirement string `mapstructure:"issueTypeRequirement" json:"issueTypeRequirement"`
 }
 
 func (GitlabConnection) TableName() string {
