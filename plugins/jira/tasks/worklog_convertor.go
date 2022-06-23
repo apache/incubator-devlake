@@ -29,6 +29,13 @@ import (
 	"github.com/apache/incubator-devlake/plugins/jira/models"
 )
 
+var ConvertWorklogsMeta = core.SubTaskMeta{
+	Name:             "convertWorklogs",
+	EntryPoint:       ConvertWorklogs,
+	EnabledByDefault: true,
+	Description:      "convert Jira work logs",
+}
+
 func ConvertWorklogs(taskCtx core.SubTaskContext) error {
 	data := taskCtx.GetData().(*JiraTaskData)
 	db := taskCtx.GetDal()

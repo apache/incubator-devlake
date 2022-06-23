@@ -26,6 +26,13 @@ import (
 	"github.com/apache/incubator-devlake/plugins/jira/tasks/apiv2models"
 )
 
+var ExtractStatusMeta = core.SubTaskMeta{
+	Name:             "extractStatus",
+	EntryPoint:       ExtractStatus,
+	EnabledByDefault: true,
+	Description:      "extract Jira status",
+}
+
 func ExtractStatus(taskCtx core.SubTaskContext) error {
 	data := taskCtx.GetData().(*JiraTaskData)
 	connectionId := data.Options.ConnectionId

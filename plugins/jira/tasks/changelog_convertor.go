@@ -32,6 +32,13 @@ import (
 	"github.com/apache/incubator-devlake/plugins/jira/models"
 )
 
+var ConvertChangelogsMeta = core.SubTaskMeta{
+	Name:             "convertChangelogs",
+	EntryPoint:       ConvertChangelogs,
+	EnabledByDefault: true,
+	Description:      "convert Jira change logs",
+}
+
 type ChangelogItemResult struct {
 	models.JiraChangelogItem
 	IssueId           uint64 `gorm:"index"`

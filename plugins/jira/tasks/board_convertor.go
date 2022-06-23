@@ -29,6 +29,13 @@ import (
 	"github.com/apache/incubator-devlake/plugins/jira/models"
 )
 
+var ConvertBoardMeta = core.SubTaskMeta{
+	Name:             "convertBoard",
+	EntryPoint:       ConvertBoard,
+	EnabledByDefault: true,
+	Description:      "convert Jira board",
+}
+
 func ConvertBoard(taskCtx core.SubTaskContext) error {
 	data := taskCtx.GetData().(*JiraTaskData)
 	logger := taskCtx.GetLogger()

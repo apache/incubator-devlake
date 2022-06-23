@@ -26,6 +26,13 @@ import (
 
 var _ core.SubTaskEntryPoint = ExtractWorklogs
 
+var ExtractWorklogsMeta = core.SubTaskMeta{
+	Name:             "extractWorklogs",
+	EntryPoint:       ExtractWorklogs,
+	EnabledByDefault: true,
+	Description:      "extract Jira work logs",
+}
+
 func ExtractWorklogs(taskCtx core.SubTaskContext) error {
 	data := taskCtx.GetData().(*JiraTaskData)
 	extractor, err := helper.NewApiExtractor(helper.ApiExtractorArgs{

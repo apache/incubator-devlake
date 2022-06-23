@@ -31,6 +31,13 @@ import (
 
 var _ core.SubTaskEntryPoint = ExtractIssues
 
+var ExtractIssuesMeta = core.SubTaskMeta{
+	Name:             "extractIssues",
+	EntryPoint:       ExtractIssues,
+	EnabledByDefault: true,
+	Description:      "extract Jira issues",
+}
+
 func ExtractIssues(taskCtx core.SubTaskContext) error {
 	data := taskCtx.GetData().(*JiraTaskData)
 	connectionId := data.Options.ConnectionId

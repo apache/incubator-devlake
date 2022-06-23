@@ -32,6 +32,13 @@ const RAW_REMOTELINK_TABLE = "jira_api_remotelinks"
 
 var _ core.SubTaskEntryPoint = CollectRemotelinks
 
+var CollectRemotelinksMeta = core.SubTaskMeta{
+	Name:             "collectRemotelinks",
+	EntryPoint:       CollectRemotelinks,
+	EnabledByDefault: true,
+	Description:      "collect Jira remote links",
+}
+
 func CollectRemotelinks(taskCtx core.SubTaskContext) error {
 	data := taskCtx.GetData().(*JiraTaskData)
 	db := taskCtx.GetDal()

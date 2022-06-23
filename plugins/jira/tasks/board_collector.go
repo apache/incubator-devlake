@@ -30,6 +30,13 @@ const RAW_BOARD_TABLE = "jira_api_boards"
 
 var _ core.SubTaskEntryPoint = CollectBoard
 
+var CollectBoardMeta = core.SubTaskMeta{
+	Name:             "collectBoard",
+	EntryPoint:       CollectBoard,
+	EnabledByDefault: true,
+	Description:      "collect Jira board",
+}
+
 func CollectBoard(taskCtx core.SubTaskContext) error {
 	data := taskCtx.GetData().(*JiraTaskData)
 	logger := taskCtx.GetLogger()

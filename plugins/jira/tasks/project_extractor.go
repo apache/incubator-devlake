@@ -27,6 +27,13 @@ import (
 
 var _ core.SubTaskEntryPoint = ExtractProjects
 
+var ExtractProjectsMeta = core.SubTaskMeta{
+	Name:             "extractProjects",
+	EntryPoint:       ExtractProjects,
+	EnabledByDefault: true,
+	Description:      "extract Jira projects",
+}
+
 func ExtractProjects(taskCtx core.SubTaskContext) error {
 	data := taskCtx.GetData().(*JiraTaskData)
 	extractor, err := helper.NewApiExtractor(helper.ApiExtractorArgs{

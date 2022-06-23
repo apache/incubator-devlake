@@ -31,6 +31,13 @@ import (
 
 const RAW_USERS_TABLE = "jira_api_users"
 
+var CollectUsersMeta = core.SubTaskMeta{
+	Name:             "collectUsers",
+	EntryPoint:       CollectUsers,
+	EnabledByDefault: true,
+	Description:      "collect Jira users",
+}
+
 func CollectUsers(taskCtx core.SubTaskContext) error {
 	data := taskCtx.GetData().(*JiraTaskData)
 	db := taskCtx.GetDal()

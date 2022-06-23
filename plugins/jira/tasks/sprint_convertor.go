@@ -30,6 +30,13 @@ import (
 	"github.com/apache/incubator-devlake/plugins/jira/models"
 )
 
+var ConvertSprintsMeta = core.SubTaskMeta{
+	Name:             "convertSprints",
+	EntryPoint:       ConvertSprints,
+	EnabledByDefault: true,
+	Description:      "convert Jira sprints",
+}
+
 func ConvertSprints(taskCtx core.SubTaskContext) error {
 	data := taskCtx.GetData().(*JiraTaskData)
 	connectionId := data.Options.ConnectionId

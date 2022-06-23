@@ -30,6 +30,13 @@ import (
 
 const RAW_WORKLOGS_TABLE = "jira_api_worklogs"
 
+var CollectWorklogsMeta = core.SubTaskMeta{
+	Name:             "collectWorklogs",
+	EntryPoint:       CollectWorklogs,
+	EnabledByDefault: true,
+	Description:      "collect Jira work logs",
+}
+
 func CollectWorklogs(taskCtx core.SubTaskContext) error {
 	db := taskCtx.GetDal()
 	data := taskCtx.GetData().(*JiraTaskData)

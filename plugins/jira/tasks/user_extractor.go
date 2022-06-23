@@ -27,6 +27,13 @@ import (
 
 var _ core.SubTaskEntryPoint = ExtractUsers
 
+var ExtractUsersMeta = core.SubTaskMeta{
+	Name:             "extractUsers",
+	EntryPoint:       ExtractUsers,
+	EnabledByDefault: true,
+	Description:      "extract Jira users",
+}
+
 func ExtractUsers(taskCtx core.SubTaskContext) error {
 	data := taskCtx.GetData().(*JiraTaskData)
 	extractor, err := helper.NewApiExtractor(helper.ApiExtractorArgs{

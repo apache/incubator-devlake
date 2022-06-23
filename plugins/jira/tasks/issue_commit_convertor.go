@@ -28,6 +28,13 @@ import (
 	"github.com/apache/incubator-devlake/plugins/jira/models"
 )
 
+var ConvertIssueCommitsMeta = core.SubTaskMeta{
+	Name:             "convertIssueCommits",
+	EntryPoint:       ConvertIssueCommits,
+	EnabledByDefault: true,
+	Description:      "convert Jira issue commits",
+}
+
 func ConvertIssueCommits(taskCtx core.SubTaskContext) error {
 	data := taskCtx.GetData().(*JiraTaskData)
 	db := taskCtx.GetDal()

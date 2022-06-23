@@ -30,6 +30,13 @@ const RAW_PROJECT_TABLE = "jira_api_projects"
 
 var _ core.SubTaskEntryPoint = CollectProjects
 
+var CollectProjectsMeta = core.SubTaskMeta{
+	Name:             "collectProjects",
+	EntryPoint:       CollectProjects,
+	EnabledByDefault: true,
+	Description:      "collect Jira projects",
+}
+
 func CollectProjects(taskCtx core.SubTaskContext) error {
 	data := taskCtx.GetData().(*JiraTaskData)
 	logger := taskCtx.GetLogger()
