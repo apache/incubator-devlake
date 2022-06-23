@@ -93,8 +93,9 @@ func ExtractApiCommits(taskCtx core.SubTaskContext) error {
 			}
 
 			giteeRepoCommit := &models.GiteeRepoCommit{
-				RepoId:    data.Repo.GiteeId,
-				CommitSha: commit.Sha,
+				ConnectionId: data.Options.ConnectionId,
+				RepoId:       data.Repo.GiteeId,
+				CommitSha:    commit.Sha,
 			}
 			results = append(results, giteeCommit)
 			results = append(results, giteeRepoCommit)

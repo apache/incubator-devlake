@@ -53,6 +53,7 @@ func CollectApiCommits(taskCtx core.SubTaskContext) error {
 			dal.Orderby("committed_date DESC"),
 			dal.Limit(1),
 		)
+
 		if err != nil {
 			return fmt.Errorf("failed to get latest gitee commit record: %w", err)
 		}

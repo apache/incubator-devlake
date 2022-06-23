@@ -20,11 +20,12 @@ package tasks
 import (
 	"reflect"
 
+	"github.com/apache/incubator-devlake/plugins/core/dal"
+
 	"github.com/apache/incubator-devlake/models/domainlayer/code"
 	"github.com/apache/incubator-devlake/models/domainlayer/didgen"
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/gitee/models"
-	giteeModels "github.com/apache/incubator-devlake/plugins/gitee/models"
 	"github.com/apache/incubator-devlake/plugins/helper"
 )
 
@@ -38,25 +39,25 @@ var ConvertCommitsMeta = core.SubTaskMeta{
 func ConvertCommits(taskCtx core.SubTaskContext) error {
 
 	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_COMMIT_TABLE)
-	db := taskCtx.GetDb()
+	db := taskCtx.GetDal()
 	repoId := data.Repo.GiteeId
 
 	// select all commits belongs to the project
-	cursor, err := db.Table("_tool_gitee_commits gc").
-		Joins(`left join _tool_gitee_repo_commits gpc on (
-			gpc.commit_sha = gc.sha
-		)`).
-		Select("gc.*").
-		Where("gpc.repo_id = ?", repoId).
-		Rows()
+	cursor, err := db.Cursor(
+		dal.Select("gc.*"),
+		dal.From("_tool_gitee_commits gc"),
+		dal.Join(`left join _tool_gitee_repo_commits grc on (
+			grc.commit_sha = gc.sha
+		)`),
+		dal.Where("grc.repo_id = ? AND grc.connection_id = ?", repoId, data.Options.ConnectionId),
+	)
 	if err != nil {
 		return err
 	}
 	defer cursor.Close()
 
-	// TODO: adopt batch indate operation
 	userDidGen := didgen.NewDomainIdGenerator(&models.GiteeUser{})
-	repoDidGen := didgen.NewDomainIdGenerator(&giteeModels.GiteeRepo{})
+	repoDidGen := didgen.NewDomainIdGenerator(&models.GiteeRepo{})
 	domainRepoId := repoDidGen.Generate(repoId)
 
 	converter, err := helper.NewDataConverter(helper.DataConverterArgs{
