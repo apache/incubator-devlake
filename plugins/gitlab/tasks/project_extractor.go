@@ -29,6 +29,7 @@ var ExtractProjectMeta = core.SubTaskMeta{
 	EntryPoint:       ExtractApiProject,
 	EnabledByDefault: true,
 	Description:      "Extract raw project data into tool layer table GitlabProject",
+	DomainTypes:      core.DOMAIN_TYPES,
 }
 
 func ExtractApiProject(taskCtx core.SubTaskContext) error {

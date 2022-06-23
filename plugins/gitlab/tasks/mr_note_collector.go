@@ -24,11 +24,12 @@ import (
 
 const RAW_MERGE_REQUEST_NOTES_TABLE = "gitlab_api_merge_request_notes"
 
-var CollectApiMergeRequestsNotesMeta = core.SubTaskMeta{
+var CollectApiMrNotesMeta = core.SubTaskMeta{
 	Name:             "collectApiMergeRequestsNotes",
 	EntryPoint:       CollectApiMergeRequestsNotes,
 	EnabledByDefault: true,
 	Description:      "Collect merge requests notes data from gitlab api",
+	DomainTypes:      []string{core.DOMAIN_TYPE_CODE},
 }
 
 func CollectApiMergeRequestsNotes(taskCtx core.SubTaskContext) error {

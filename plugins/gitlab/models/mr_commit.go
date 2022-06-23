@@ -27,13 +27,13 @@ import (
 // exist on the main branch of a project.
 // Thus a "Merge Request Commit" needs to be considered as distinct from a "Commit"
 
-type GitlabMergeRequestCommit struct {
+type GitlabMrCommit struct {
 	ConnectionId   uint64 `gorm:"primaryKey"`
 	CommitSha      string `gorm:"primaryKey;type:varchar(40)"`
 	MergeRequestId int    `gorm:"primaryKey;autoIncrement:false"`
 	common.NoPKModel
 }
 
-func (GitlabMergeRequestCommit) TableName() string {
-	return "_tool_gitlab_merge_request_commits"
+func (GitlabMrCommit) TableName() string {
+	return "_tool_gitlab_mr_commits"
 }

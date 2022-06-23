@@ -24,11 +24,12 @@ import (
 	"github.com/apache/incubator-devlake/plugins/helper"
 )
 
-var ExtractApiMergeRequestsCommitsMeta = core.SubTaskMeta{
+var ExtractApiMrCommitsMeta = core.SubTaskMeta{
 	Name:             "extractApiMergeRequestsCommits",
 	EntryPoint:       ExtractApiMergeRequestsCommits,
 	EnabledByDefault: true,
-	Description:      "Extract raw merge requests commit data into tool layer table GitlabMergeRequestCommit and GitlabCommit",
+	Description:      "Extract raw merge requests commit data into tool layer table GitlabMrCommit and GitlabCommit",
+	DomainTypes:      []string{core.DOMAIN_TYPE_CODE},
 }
 
 func ExtractApiMergeRequestsCommits(taskCtx core.SubTaskContext) error {
@@ -54,7 +55,7 @@ func ExtractApiMergeRequestsCommits(taskCtx core.SubTaskContext) error {
 				return nil, err
 			}
 
-			gitlabMrCommit := &models.GitlabMergeRequestCommit{
+			gitlabMrCommit := &models.GitlabMrCommit{
 				CommitSha:      gitlabApiCommit.GitlabId,
 				MergeRequestId: input.GitlabId,
 				ConnectionId:   data.Options.ConnectionId,

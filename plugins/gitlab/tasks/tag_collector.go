@@ -29,6 +29,7 @@ var CollectTagMeta = core.SubTaskMeta{
 	EntryPoint:       CollectApiTag,
 	EnabledByDefault: false,
 	Description:      "Collect tag data from gitlab api",
+	DomainTypes:      []string{core.DOMAIN_TYPE_CODE},
 }
 
 func CollectApiTag(taskCtx core.SubTaskContext) error {

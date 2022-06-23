@@ -40,6 +40,7 @@ type GitlabMergeRequest struct {
 	MergedAt         *time.Time
 	GitlabCreatedAt  time.Time
 	ClosedAt         *time.Time
+	Type             string `gorm:"type:varchar(255)"`
 	MergedByUsername string `gorm:"type:varchar(255)"`
 	Description      string
 	AuthorUsername   string `gorm:"type:varchar(255)"`

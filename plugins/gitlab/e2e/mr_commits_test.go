@@ -88,8 +88,8 @@ func TestGitlabMrCommitDataFlow(t *testing.T) {
 	// verify extraction
 	dataflowTester.FlushTabler(&models.GitlabCommit{})
 	dataflowTester.FlushTabler(&models.GitlabProjectCommit{})
-	dataflowTester.FlushTabler(&models.GitlabMergeRequestCommit{})
-	dataflowTester.Subtask(tasks.ExtractApiMergeRequestsCommitsMeta, taskData)
+	dataflowTester.FlushTabler(&models.GitlabMrCommit{})
+	dataflowTester.Subtask(tasks.ExtractApiMrCommitsMeta, taskData)
 	dataflowTester.VerifyTable(
 		models.GitlabCommit{},
 		fmt.Sprintf("./snapshot_tables/%s.csv", models.GitlabCommit{}.TableName()),
@@ -127,8 +127,8 @@ func TestGitlabMrCommitDataFlow(t *testing.T) {
 	)
 
 	dataflowTester.VerifyTable(
-		models.GitlabMergeRequestCommit{},
-		fmt.Sprintf("./snapshot_tables/%s.csv", models.GitlabMergeRequestCommit{}.TableName()),
+		models.GitlabMrCommit{},
+		fmt.Sprintf("./snapshot_tables/%s.csv", models.GitlabMrCommit{}.TableName()),
 		[]string{"connection_id", "merge_request_id", "commit_sha"},
 		[]string{
 			"_raw_data_params",
@@ -140,7 +140,7 @@ func TestGitlabMrCommitDataFlow(t *testing.T) {
 
 	// verify conversion
 	dataflowTester.FlushTabler(&code.PullRequestCommit{})
-	dataflowTester.Subtask(tasks.ConvertApiMergeRequestsCommitsMeta, taskData)
+	dataflowTester.Subtask(tasks.ConvertApiMrCommitsMeta, taskData)
 	dataflowTester.VerifyTable(
 		code.PullRequestCommit{},
 		fmt.Sprintf("./snapshot_tables/%s.csv", code.PullRequestCommit{}.TableName()),

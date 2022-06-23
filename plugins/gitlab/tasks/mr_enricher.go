@@ -31,7 +31,8 @@ var EnrichMergeRequestsMeta = core.SubTaskMeta{
 	Name:             "enrichMrs",
 	EntryPoint:       EnrichMergeRequests,
 	EnabledByDefault: true,
-	Description:      "Enrich merge requests data from GitlabCommit, GitlabMergeRequestNote and GitlabMergeRequest",
+	Description:      "Enrich merge requests data from GitlabCommit, GitlabMrNote and GitlabMergeRequest",
+	DomainTypes:      []string{core.DOMAIN_TYPE_CODE},
 }
 
 func EnrichMergeRequests(taskCtx core.SubTaskContext) error {
@@ -57,10 +58,10 @@ func EnrichMergeRequests(taskCtx core.SubTaskContext) error {
 		Convert: func(inputRow interface{}) ([]interface{}, error) {
 			gitlabMr := inputRow.(*models.GitlabMergeRequest)
 			// enrich first_comment_time field
-			notes := make([]models.GitlabMergeRequestNote, 0)
+			notes := make([]models.GitlabMrNote, 0)
 			// `system` = 0 is needed since we only care about human comments
 			noteClauses := []dal.Clause{
-				dal.From(&models.GitlabMergeRequestNote{}),
+				dal.From(&models.GitlabMrNote{}),
 				dal.Where("merge_request_id = ? AND is_system = ? AND connection_id = ? ",
 					gitlabMr.GitlabId, false, data.Options.ConnectionId),
 				dal.Orderby("gitlab_created_at asc"),
@@ -73,7 +74,7 @@ func EnrichMergeRequests(taskCtx core.SubTaskContext) error {
 			commits := make([]models.GitlabCommit, 0)
 			commitClauses := []dal.Clause{
 				dal.From(&models.GitlabCommit{}),
-				dal.Join(`join _tool_gitlab_merge_request_commits gmrc 
+				dal.Join(`join _tool_gitlab_mr_commits gmrc 
 					on gmrc.commit_sha = _tool_gitlab_commits.sha`),
 				dal.Where("merge_request_id = ? AND gmrc.connection_id = ?",
 					gitlabMr.GitlabId, data.Options.ConnectionId),
@@ -109,8 +110,8 @@ func EnrichMergeRequests(taskCtx core.SubTaskContext) error {
 	return converter.Execute()
 }
 
-func findEarliestNote(notes []models.GitlabMergeRequestNote) (*models.GitlabMergeRequestNote, error) {
-	var earliestNote *models.GitlabMergeRequestNote
+func findEarliestNote(notes []models.GitlabMrNote) (*models.GitlabMrNote, error) {
+	var earliestNote *models.GitlabMrNote
 	earliestTime := time.Now()
 	for i := range notes {
 		if !notes[i].Resolvable {
@@ -125,7 +126,7 @@ func findEarliestNote(notes []models.GitlabMergeRequestNote) (*models.GitlabMerg
 	return earliestNote, nil
 }
 
-func getReviewRounds(commits []models.GitlabCommit, notes []models.GitlabMergeRequestNote) int {
+func getReviewRounds(commits []models.GitlabCommit, notes []models.GitlabMrNote) int {
 	i := 0
 	j := 0
 	reviewRounds := 0

@@ -33,7 +33,8 @@ var ConvertApiNotesMeta = core.SubTaskMeta{
 	Name:             "convertApiNotes",
 	EntryPoint:       ConvertApiNotes,
 	EnabledByDefault: true,
-	Description:      "Update domain layer Note according to GitlabMergeRequestNote",
+	Description:      "Update domain layer Note according to GitlabMrNote",
+	DomainTypes:      []string{core.DOMAIN_TYPE_CODE},
 }
 
 func ConvertApiNotes(taskCtx core.SubTaskContext) error {
@@ -41,12 +42,12 @@ func ConvertApiNotes(taskCtx core.SubTaskContext) error {
 	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_PROJECT_TABLE)
 	db := taskCtx.GetDal()
 	clauses := []dal.Clause{
-		dal.From(&models.GitlabMergeRequestNote{}),
+		dal.From(&models.GitlabMrNote{}),
 		dal.Join(`left join _tool_gitlab_merge_requests 
 			on _tool_gitlab_merge_requests.gitlab_id = 
-			_tool_gitlab_merge_request_notes.merge_request_id`),
+			_tool_gitlab_mr_notes.merge_request_id`),
 		dal.Where(`_tool_gitlab_merge_requests.project_id = ? 
-			and _tool_gitlab_merge_request_notes.connection_id = ? `,
+			and _tool_gitlab_mr_notes.connection_id = ? `,
 			data.Options.ProjectId, data.Options.ConnectionId),
 	}
 
@@ -56,17 +57,17 @@ func ConvertApiNotes(taskCtx core.SubTaskContext) error {
 	}
 	defer cursor.Close()
 
-	domainIdGeneratorNote := didgen.NewDomainIdGenerator(&models.GitlabMergeRequestNote{})
+	domainIdGeneratorNote := didgen.NewDomainIdGenerator(&models.GitlabMrNote{})
 	prIdGen := didgen.NewDomainIdGenerator(&models.GitlabMergeRequest{})
 	userIdGen := didgen.NewDomainIdGenerator(&models.GitlabUser{})
 
 	converter, err := helper.NewDataConverter(helper.DataConverterArgs{
 		RawDataSubTaskArgs: *rawDataSubTaskArgs,
-		InputRowType:       reflect.TypeOf(models.GitlabMergeRequestNote{}),
+		InputRowType:       reflect.TypeOf(models.GitlabMrNote{}),
 		Input:              cursor,
 
 		Convert: func(inputRow interface{}) ([]interface{}, error) {
-			gitlabNotes := inputRow.(*models.GitlabMergeRequestNote)
+			gitlabNotes := inputRow.(*models.GitlabMrNote)
 			domainNote := &code.Note{
 				DomainEntity: domainlayer.DomainEntity{
 					Id: domainIdGeneratorNote.Generate(data.Options.ConnectionId, gitlabNotes.GitlabId),

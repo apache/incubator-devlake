@@ -33,6 +33,7 @@ var ConvertCommitsMeta = core.SubTaskMeta{
 	EntryPoint:       ConvertApiCommits,
 	EnabledByDefault: true,
 	Description:      "Update domain layer commit according to GitlabCommit",
+	DomainTypes:      []string{core.DOMAIN_TYPE_CODE},
 }
 
 func ConvertApiCommits(taskCtx core.SubTaskContext) error {

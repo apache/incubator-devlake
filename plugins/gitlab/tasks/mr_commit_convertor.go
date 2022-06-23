@@ -28,11 +28,12 @@ import (
 	"github.com/apache/incubator-devlake/plugins/helper"
 )
 
-var ConvertApiMergeRequestsCommitsMeta = core.SubTaskMeta{
+var ConvertApiMrCommitsMeta = core.SubTaskMeta{
 	Name:             "convertApiMergeRequestsCommits",
 	EntryPoint:       ConvertApiMergeRequestsCommits,
 	EnabledByDefault: true,
-	Description:      "Update domain layer PullRequestCommit according to GitlabMergeRequestCommit",
+	Description:      "Update domain layer PullRequestCommit according to GitlabMrCommit",
+	DomainTypes:      []string{core.DOMAIN_TYPE_CODE},
 }
 
 func ConvertApiMergeRequestsCommits(taskCtx core.SubTaskContext) error {
@@ -40,10 +41,10 @@ func ConvertApiMergeRequestsCommits(taskCtx core.SubTaskContext) error {
 	db := taskCtx.GetDal()
 
 	clauses := []dal.Clause{
-		dal.From(&models.GitlabMergeRequestCommit{}),
+		dal.From(&models.GitlabMrCommit{}),
 		dal.Join(`left join _tool_gitlab_merge_requests 
 			on _tool_gitlab_merge_requests.gitlab_id = 
-			_tool_gitlab_merge_request_commits.merge_request_id`),
+			_tool_gitlab_mr_commits.merge_request_id`),
 		dal.Where(`_tool_gitlab_merge_requests.project_id = ? 
 			and _tool_gitlab_merge_requests.connection_id = ?`,
 			data.Options.ProjectId, data.Options.ConnectionId),
@@ -60,14 +61,14 @@ func ConvertApiMergeRequestsCommits(taskCtx core.SubTaskContext) error {
 
 	converter, err := helper.NewDataConverter(helper.DataConverterArgs{
 		RawDataSubTaskArgs: *rawDataSubTaskArgs,
-		InputRowType:       reflect.TypeOf(models.GitlabMergeRequestCommit{}),
+		InputRowType:       reflect.TypeOf(models.GitlabMrCommit{}),
 		Input:              cursor,
 
 		Convert: func(inputRow interface{}) ([]interface{}, error) {
-			gitlabMergeRequestCommit := inputRow.(*models.GitlabMergeRequestCommit)
+			GitlabMrCommit := inputRow.(*models.GitlabMrCommit)
 			domainPrcommit := &code.PullRequestCommit{
-				CommitSha:     gitlabMergeRequestCommit.CommitSha,
-				PullRequestId: domainIdGenerator.Generate(data.Options.ConnectionId, gitlabMergeRequestCommit.MergeRequestId),
+				CommitSha:     GitlabMrCommit.CommitSha,
+				PullRequestId: domainIdGenerator.Generate(data.Options.ConnectionId, GitlabMrCommit.MergeRequestId),
 			}
 			return []interface{}{
 				domainPrcommit,

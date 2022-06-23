@@ -55,6 +55,7 @@ var ExtractApiPipelinesMeta = core.SubTaskMeta{
 	EntryPoint:       ExtractApiPipelines,
 	EnabledByDefault: true,
 	Description:      "Extract raw pipelines data into tool layer table GitlabPipeline",
+	DomainTypes:      []string{core.DOMAIN_TYPE_CODE},
 }
 
 func ExtractApiPipelines(taskCtx core.SubTaskContext) error {

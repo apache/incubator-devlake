@@ -19,7 +19,7 @@ package e2e
 
 import (
 	"fmt"
-	"github.com/apache/incubator-devlake/models/domainlayer/ticket"
+	"github.com/apache/incubator-devlake/models/domainlayer/code"
 	"testing"
 
 	"github.com/apache/incubator-devlake/helpers/e2ehelper"
@@ -28,7 +28,7 @@ import (
 	"github.com/apache/incubator-devlake/plugins/gitlab/tasks"
 )
 
-func TestGitlabIssueDataFlow(t *testing.T) {
+func TestGitlabMrDataFlow(t *testing.T) {
 
 	var gitlab impl.Gitlab
 	dataflowTester := e2ehelper.NewDataFlowTester(t, "gitlab", gitlab)
@@ -40,48 +40,50 @@ func TestGitlabIssueDataFlow(t *testing.T) {
 		},
 	}
 	// import raw data table
-	dataflowTester.ImportCsvIntoRawTable("./raw_tables/_raw_gitlab_api_issues.csv",
-		"_raw_gitlab_api_issues")
+	dataflowTester.ImportCsvIntoRawTable("./raw_tables/_raw_gitlab_api_merge_requests.csv",
+		"_raw_gitlab_api_merge_requests")
 
 	// verify extraction
-	dataflowTester.FlushTabler(&models.GitlabIssue{})
-	dataflowTester.FlushTabler(&models.GitlabIssueLabel{})
-	dataflowTester.Subtask(tasks.ExtractApiIssuesMeta, taskData)
+	dataflowTester.FlushTabler(&models.GitlabMergeRequest{})
+	dataflowTester.FlushTabler(&models.GitlabMrLabel{})
+	dataflowTester.Subtask(tasks.ExtractApiMergeRequestsMeta, taskData)
 	dataflowTester.VerifyTable(
-		models.GitlabIssue{},
-		fmt.Sprintf("./snapshot_tables/%s.csv", models.GitlabIssue{}.TableName()),
+		models.GitlabMergeRequest{},
+		fmt.Sprintf("./snapshot_tables/%s.csv", models.GitlabMergeRequest{}.TableName()),
 		[]string{"connection_id", "gitlab_id"},
 		[]string{
+			"iid",
 			"project_id",
-			"number",
+			"source_project_id",
+			"target_project_id",
 			"state",
 			"title",
-			"body",
-			"priority",
-			"type",
-			"status",
-			"assignee_id",
-			"assignee_name",
-			"lead_time_minutes",
-			"url",
-			"closed_at",
+			"web_url",
+			"user_notes_count",
+			"work_in_progress",
+			"source_branch",
+			"target_branch",
+			"merge_commit_sha",
+			"merged_at",
 			"gitlab_created_at",
-			"gitlab_updated_at",
-			"severity",
+			"closed_at",
+			"merged_by_username",
+			"description",
+			"author_username",
+			"author_user_id",
 			"component",
-			"time_estimate",
-			"total_time_spent",
+			"first_comment_time",
+			"review_rounds",
 			"_raw_data_params",
 			"_raw_data_table",
 			"_raw_data_id",
 			"_raw_data_remark",
 		},
 	)
-
 	dataflowTester.VerifyTable(
-		models.GitlabIssueLabel{},
-		fmt.Sprintf("./snapshot_tables/%s.csv", models.GitlabIssueLabel{}.TableName()),
-		[]string{"connection_id", "issue_id", "label_name"},
+		models.GitlabMrLabel{},
+		fmt.Sprintf("./snapshot_tables/%s.csv", models.GitlabMrLabel{}.TableName()),
+		[]string{"connection_id", "mr_id", "label_name"},
 		[]string{
 			"_raw_data_params",
 			"_raw_data_table",
@@ -91,65 +93,48 @@ func TestGitlabIssueDataFlow(t *testing.T) {
 	)
 
 	// verify conversion
-	dataflowTester.FlushTabler(&ticket.Issue{})
-	dataflowTester.FlushTabler(&ticket.BoardIssue{})
-	dataflowTester.Subtask(tasks.ConvertIssuesMeta, taskData)
+	dataflowTester.FlushTabler(&code.PullRequest{})
+	dataflowTester.Subtask(tasks.ConvertApiMergeRequestsMeta, taskData)
 	dataflowTester.VerifyTable(
-		ticket.Issue{},
-		fmt.Sprintf("./snapshot_tables/%s.csv", ticket.Issue{}.TableName()),
+		code.PullRequest{},
+		fmt.Sprintf("./snapshot_tables/%s.csv", code.PullRequest{}.TableName()),
 		[]string{"id"},
 		[]string{
 			"_raw_data_params",
 			"_raw_data_table",
 			"_raw_data_id",
 			"_raw_data_remark",
-			"url",
-			"issue_key",
+			"base_repo_id",
+			"head_repo_id",
+			"status",
 			"title",
 			"description",
-			"epic_key",
-			"type",
-			"status",
-			"original_status",
-			"story_point",
-			"resolution_date",
+			"url",
+			"author_name",
+			"author_id",
+			"parent_pr_id",
+			"pull_request_key",
 			"created_date",
-			"updated_date",
-			"lead_time_minutes",
-			"parent_issue_id",
-			"priority",
-			"original_estimate_minutes",
-			"time_spent_minutes",
-			"time_remaining_minutes",
-			"creator_id",
-			"assignee_id",
-			"assignee_name",
-			"severity",
+			"merged_date",
+			"closed_date",
+			"type",
 			"component",
-			"icon_url",
-			"creator_name",
+			"merge_commit_sha",
+			"head_ref",
+			"base_ref",
+			"base_commit_sha",
+			"head_commit_sha",
 		},
 	)
 
-	dataflowTester.VerifyTable(
-		&ticket.BoardIssue{},
-		fmt.Sprintf("./snapshot_tables/%s.csv", ticket.BoardIssue{}.TableName()),
-		[]string{"board_id", "issue_id"},
-		[]string{
-			"_raw_data_params",
-			"_raw_data_table",
-			"_raw_data_id",
-			"_raw_data_remark",
-		},
-	)
 	// verify conversion
-	dataflowTester.FlushTabler(&ticket.IssueLabel{})
-	dataflowTester.Subtask(tasks.ConvertIssueLabelsMeta, taskData)
+	dataflowTester.FlushTabler(&code.PullRequestLabel{})
+	dataflowTester.Subtask(tasks.ConvertMrLabelsMeta, taskData)
 	dataflowTester.VerifyTable(
-		ticket.IssueLabel{},
-		fmt.Sprintf("./snapshot_tables/%s.csv", ticket.IssueLabel{}.TableName()),
+		code.PullRequestLabel{},
+		fmt.Sprintf("./snapshot_tables/%s.csv", code.PullRequestLabel{}.TableName()),
 		[]string{
-			"issue_id",
+			"pull_request_id",
 			"label_name",
 		},
 		[]string{

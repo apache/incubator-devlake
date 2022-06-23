@@ -22,7 +22,7 @@ import (
 	"time"
 )
 
-type GitlabMergeRequestComment struct {
+type GitlabMrComment struct {
 	ConnectionId uint64 `gorm:"primaryKey"`
 
 	GitlabId        int `gorm:"primaryKey"`
@@ -36,6 +36,6 @@ type GitlabMergeRequestComment struct {
 	archived.NoPKModel
 }
 
-func (GitlabMergeRequestComment) TableName() string {
-	return "_tool_gitlab_merge_request_comments"
+func (GitlabMrComment) TableName() string {
+	return "_tool_gitlab_mr_comments"
 }

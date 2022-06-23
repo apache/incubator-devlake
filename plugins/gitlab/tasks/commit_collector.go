@@ -29,6 +29,7 @@ var CollectApiCommitsMeta = core.SubTaskMeta{
 	EntryPoint:       CollectApiCommits,
 	EnabledByDefault: true,
 	Description:      "Collect commit data from gitlab api",
+	DomainTypes:      []string{core.DOMAIN_TYPE_CODE},
 }
 
 type GitlabApiCommit struct {
