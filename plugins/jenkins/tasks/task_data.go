@@ -18,10 +18,12 @@ limitations under the License.
 package tasks
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/apache/incubator-devlake/plugins/helper"
 	"github.com/apache/incubator-devlake/plugins/jenkins/models"
+	"github.com/mitchellh/mapstructure"
 )
 
 type JenkinsApiParams struct {
@@ -39,4 +41,17 @@ type JenkinsTaskData struct {
 	ApiClient  *helper.ApiAsyncClient
 	Connection *models.JenkinsConnection
 	Since      *time.Time
+}
+
+func DecodeAndValidateTaskOptions(options map[string]interface{}) (*JenkinsOptions, error) {
+	var op JenkinsOptions
+	err := mapstructure.Decode(options, &op)
+	if err != nil {
+		return nil, err
+	}
+	// find the needed Jenkins now
+	if op.ConnectionId == 0 {
+		return nil, fmt.Errorf("connectionId is invalid")
+	}
+	return &op, nil
 }

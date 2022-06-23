@@ -36,6 +36,7 @@ var CollectApiBuildsMeta = core.SubTaskMeta{
 	EntryPoint:       CollectApiBuilds,
 	EnabledByDefault: true,
 	Description:      "Collect builds data from jenkins api",
+	DomainTypes:      []string{core.DOMAIN_TYPE_CICD},
 }
 
 type SimpleJob struct {

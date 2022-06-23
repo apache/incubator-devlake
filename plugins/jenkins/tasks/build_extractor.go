@@ -34,6 +34,7 @@ var ExtractApiBuildsMeta = core.SubTaskMeta{
 	EntryPoint:       ExtractApiBuilds,
 	EnabledByDefault: true,
 	Description:      "Extract raw builds data into tool layer table jenkins_builds",
+	DomainTypes:      []string{core.DOMAIN_TYPE_CICD},
 }
 
 func ExtractApiBuilds(taskCtx core.SubTaskContext) error {

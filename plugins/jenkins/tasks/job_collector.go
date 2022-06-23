@@ -34,6 +34,7 @@ var CollectApiJobsMeta = core.SubTaskMeta{
 	EntryPoint:       CollectApiJobs,
 	EnabledByDefault: true,
 	Description:      "Collect jobs data from jenkins api",
+	DomainTypes:      []string{core.DOMAIN_TYPE_CICD},
 }
 
 func CollectApiJobs(taskCtx core.SubTaskContext) error {

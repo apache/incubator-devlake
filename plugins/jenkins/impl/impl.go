@@ -27,7 +27,6 @@ import (
 	"github.com/apache/incubator-devlake/plugins/jenkins/models"
 	"github.com/apache/incubator-devlake/plugins/jenkins/models/migrationscripts"
 	"github.com/apache/incubator-devlake/plugins/jenkins/tasks"
-	"github.com/mitchellh/mapstructure"
 	"github.com/spf13/viper"
 	"gorm.io/gorm"
 )
@@ -60,10 +59,9 @@ func (plugin Jenkins) SubTaskMetas() []core.SubTaskMeta {
 	}
 }
 func (plugin Jenkins) PrepareTaskData(taskCtx core.TaskContext, options map[string]interface{}) (interface{}, error) {
-	var op tasks.JenkinsOptions
-	err := mapstructure.Decode(options, &op)
+	op, err := tasks.DecodeAndValidateTaskOptions(options)
 	if err != nil {
-		return nil, fmt.Errorf("Failed to decode options: %v", err)
+		return nil, err
 	}
 	if op.ConnectionId == 0 {
 		return nil, fmt.Errorf("connectionId is invalid")
@@ -87,7 +85,7 @@ func (plugin Jenkins) PrepareTaskData(taskCtx core.TaskContext, options map[stri
 		return nil, err
 	}
 	return &tasks.JenkinsTaskData{
-		Options:    &op,
+		Options:    op,
 		ApiClient:  apiClient,
 		Connection: connection,
 	}, nil
@@ -101,6 +99,10 @@ func (plugin Jenkins) MigrationScripts() []migration.Script {
 	return []migration.Script{
 		new(migrationscripts.InitSchemas),
 	}
+}
+
+func (plugin Jenkins) MakePipelinePlan(connectionId uint64, scope []*core.BlueprintScopeV100) (core.PipelinePlan, error) {
+	return api.MakePipelinePlan(plugin.SubTaskMetas(), connectionId, scope)
 }
 
 func (plugin Jenkins) ApiResources() map[string]map[string]core.ApiResourceHandler {

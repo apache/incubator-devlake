@@ -34,6 +34,7 @@ var ConvertBuildsMeta = core.SubTaskMeta{
 	EntryPoint:       ConvertBuilds,
 	EnabledByDefault: true,
 	Description:      "Convert tool layer table jenkins_builds into  domain layer table builds",
+	DomainTypes:      []string{core.DOMAIN_TYPE_CICD},
 }
 
 func ConvertBuilds(taskCtx core.SubTaskContext) error {
