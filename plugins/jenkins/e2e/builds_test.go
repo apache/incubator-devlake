@@ -18,6 +18,7 @@ limitations under the License.
 package e2e
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/apache/incubator-devlake/models/domainlayer/devops"
@@ -40,14 +41,14 @@ func TestJenkinsBuildsDataFlow(t *testing.T) {
 	}
 
 	// import raw data table
-	dataflowTester.ImportCsvIntoRawTable("./tables/_raw_jenkins_api_builds.csv", "_raw_jenkins_api_builds")
+	dataflowTester.ImportCsvIntoRawTable("./raw_tables/_raw_jenkins_api_builds.csv", "_raw_jenkins_api_builds")
 
 	// verify extraction
 	dataflowTester.FlushTabler(&models.JenkinsBuild{})
 	dataflowTester.Subtask(tasks.ExtractApiBuildsMeta, taskData)
 	dataflowTester.VerifyTable(
 		models.JenkinsBuild{},
-		"tables/_tool_jenkins_builds.csv",
+		fmt.Sprintf("./snapshot_tables/%s.csv", models.JenkinsBuild{}.TableName()),
 		[]string{"connection_id", "job_name", "number"},
 		[]string{
 			"_raw_data_params",
@@ -72,7 +73,7 @@ func TestJenkinsBuildsDataFlow(t *testing.T) {
 	dataflowTester.Subtask(tasks.ConvertBuildsMeta, taskData)
 	dataflowTester.VerifyTable(
 		devops.Build{},
-		"tables/builds.csv",
+		fmt.Sprintf("./snapshot_tables/%s.csv", devops.Build{}.TableName()),
 		[]string{"id"},
 		[]string{
 			"id",
