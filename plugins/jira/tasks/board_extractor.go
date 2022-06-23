@@ -27,6 +27,12 @@ import (
 
 var _ core.SubTaskEntryPoint = ExtractBoard
 
+var ExtractBoardMeta = core.SubTaskMeta{Name: "extractBoard",
+	EntryPoint:       ExtractBoard,
+	EnabledByDefault: true,
+	Description:      "extract Jira board",
+}
+
 func ExtractBoard(taskCtx core.SubTaskContext) error {
 	data := taskCtx.GetData().(*JiraTaskData)
 

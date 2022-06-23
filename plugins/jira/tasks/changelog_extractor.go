@@ -28,6 +28,13 @@ import (
 
 var _ core.SubTaskEntryPoint = ExtractChangelogs
 
+var ExtractChangelogsMeta = core.SubTaskMeta{
+	Name:             "extractChangelogs",
+	EntryPoint:       ExtractChangelogs,
+	EnabledByDefault: true,
+	Description:      "extract Jira change logs",
+}
+
 func ExtractChangelogs(taskCtx core.SubTaskContext) error {
 	data := taskCtx.GetData().(*JiraTaskData)
 	if data.JiraServerInfo.DeploymentType == models.DeploymentServer {

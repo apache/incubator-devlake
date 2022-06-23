@@ -27,6 +27,13 @@ import (
 
 const RAW_STATUS_TABLE = "jira_api_status"
 
+var CollectStatusMeta = core.SubTaskMeta{
+	Name:             "collectStatus",
+	EntryPoint:       CollectStatus,
+	EnabledByDefault: true,
+	Description:      "collect Jira status",
+}
+
 func CollectStatus(taskCtx core.SubTaskContext) error {
 	data := taskCtx.GetData().(*JiraTaskData)
 

@@ -28,6 +28,13 @@ import (
 	"github.com/apache/incubator-devlake/plugins/jira/tasks/apiv2models"
 )
 
+var ExtractRemotelinksMeta = core.SubTaskMeta{
+	Name:             "extractRemotelinks",
+	EntryPoint:       ExtractRemotelinks,
+	EnabledByDefault: true,
+	Description:      "extract Jira remote links",
+}
+
 func ExtractRemotelinks(taskCtx core.SubTaskContext) error {
 	data := taskCtx.GetData().(*JiraTaskData)
 	connectionId := data.Options.ConnectionId

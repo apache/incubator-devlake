@@ -29,6 +29,13 @@ import (
 	"github.com/apache/incubator-devlake/plugins/jira/models"
 )
 
+var ConvertIssueRepoCommitsMeta = core.SubTaskMeta{
+	Name:             "convertIssueRepoCommits",
+	EntryPoint:       ConvertIssueRepoCommits,
+	EnabledByDefault: false,
+	Description:      "convert Jira issue repo commits",
+}
+
 // ConvertIssueRepoCommits is to extract issue_repo_commits from jira_issue_commits, nothing difference with
 // issue_commits but added a RepoUrl. This task is needed by EE group.
 func ConvertIssueRepoCommits(taskCtx core.SubTaskContext) error {

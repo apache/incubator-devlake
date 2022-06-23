@@ -28,6 +28,13 @@ import (
 
 var _ core.SubTaskEntryPoint = ExtractSprints
 
+var ExtractSprintsMeta = core.SubTaskMeta{
+	Name:             "extractSprints",
+	EntryPoint:       ExtractSprints,
+	EnabledByDefault: true,
+	Description:      "extract Jira sprints",
+}
+
 func ExtractSprints(taskCtx core.SubTaskContext) error {
 	data := taskCtx.GetData().(*JiraTaskData)
 	extractor, err := helper.NewApiExtractor(helper.ApiExtractorArgs{

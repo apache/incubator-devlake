@@ -28,6 +28,13 @@ import (
 	"reflect"
 )
 
+var ConvertUsersMeta = core.SubTaskMeta{
+	Name:             "convertUsers",
+	EntryPoint:       ConvertUsers,
+	EnabledByDefault: true,
+	Description:      "convert Jira users",
+}
+
 func ConvertUsers(taskCtx core.SubTaskContext) error {
 	data := taskCtx.GetData().(*JiraTaskData)
 	connectionId := data.Options.ConnectionId

@@ -41,6 +41,13 @@ type JiraApiParams struct {
 
 var _ core.SubTaskEntryPoint = CollectIssues
 
+var CollectIssuesMeta = core.SubTaskMeta{
+	Name:             "collectIssues",
+	EntryPoint:       CollectIssues,
+	EnabledByDefault: true,
+	Description:      "collect Jira issues",
+}
+
 func CollectIssues(taskCtx core.SubTaskContext) error {
 	db := taskCtx.GetDal()
 	data := taskCtx.GetData().(*JiraTaskData)

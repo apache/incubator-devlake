@@ -35,6 +35,13 @@ var _ core.SubTaskEntryPoint = CollectChangelogs
 
 const RAW_CHANGELOG_TABLE = "jira_api_changelogs"
 
+var CollectChangelogsMeta = core.SubTaskMeta{
+	Name:             "collectChangelogs",
+	EntryPoint:       CollectChangelogs,
+	EnabledByDefault: true,
+	Description:      "collect Jira change logs",
+}
+
 func CollectChangelogs(taskCtx core.SubTaskContext) error {
 	data := taskCtx.GetData().(*JiraTaskData)
 	if data.JiraServerInfo.DeploymentType == models.DeploymentServer {

@@ -31,6 +31,13 @@ const RAW_SPRINT_TABLE = "jira_api_sprints"
 
 var _ core.SubTaskEntryPoint = CollectSprints
 
+var CollectSprintsMeta = core.SubTaskMeta{
+	Name:             "collectSprints",
+	EntryPoint:       CollectSprints,
+	EnabledByDefault: true,
+	Description:      "collect Jira sprints",
+}
+
 func CollectSprints(taskCtx core.SubTaskContext) error {
 	data := taskCtx.GetData().(*JiraTaskData)
 	logger := taskCtx.GetLogger()
