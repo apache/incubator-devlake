@@ -118,7 +118,7 @@ func (*InitSchemas) Up(ctx context.Context, db *gorm.DB) error {
 }
 
 func (*InitSchemas) Version() uint64 {
-	return 20220617231243
+	return 20220617231268
 }
 
 func (*InitSchemas) Name() string {
