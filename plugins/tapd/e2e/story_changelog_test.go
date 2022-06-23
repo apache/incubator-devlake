@@ -69,6 +69,7 @@ func TestTapdStoryChangelogDataFlow(t *testing.T) {
 			"_raw_data_remark",
 		},
 	)
+
 	dataflowTester.VerifyTable(
 		models.TapdStoryChangelogItem{},
 		fmt.Sprintf("./snapshot_tables/%s.csv", models.TapdStoryChangelogItem{}.TableName()),

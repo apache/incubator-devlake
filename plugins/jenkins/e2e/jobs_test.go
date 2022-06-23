@@ -18,9 +18,9 @@ limitations under the License.
 package e2e
 
 import (
-	"testing"
-
+	"fmt"
 	"github.com/apache/incubator-devlake/models/domainlayer/devops"
+	"testing"
 
 	"github.com/apache/incubator-devlake/helpers/e2ehelper"
 	"github.com/apache/incubator-devlake/plugins/jenkins/impl"
@@ -40,14 +40,14 @@ func TestJenkinsJobsDataFlow(t *testing.T) {
 	}
 
 	// import raw data table
-	dataflowTester.ImportCsvIntoRawTable("./tables/_raw_jenkins_api_jobs.csv", "_raw_jenkins_api_jobs")
+	dataflowTester.ImportCsvIntoRawTable("./raw_tables/_raw_jenkins_api_jobs.csv", "_raw_jenkins_api_jobs")
 
 	// verify extraction
 	dataflowTester.FlushTabler(&models.JenkinsJob{})
 	dataflowTester.Subtask(tasks.ExtractApiJobsMeta, taskData)
 	dataflowTester.VerifyTable(
 		models.JenkinsJob{},
-		"tables/_tool_jenkins_jobs.csv",
+		fmt.Sprintf("./snapshot_tables/%s.csv", models.JenkinsJob{}.TableName()),
 		[]string{"connection_id", "name"},
 		[]string{
 			"connection_id",
@@ -67,7 +67,7 @@ func TestJenkinsJobsDataFlow(t *testing.T) {
 	dataflowTester.Subtask(tasks.ConvertJobsMeta, taskData)
 	dataflowTester.VerifyTable(
 		devops.Job{},
-		"tables/jobs.csv",
+		fmt.Sprintf("./snapshot_tables/%s.csv", devops.Job{}.TableName()),
 		[]string{"id"},
 		[]string{
 			"name",
