@@ -20,6 +20,8 @@ package tasks
 import (
 	"reflect"
 
+	"github.com/apache/incubator-devlake/plugins/core/dal"
+
 	"github.com/apache/incubator-devlake/models/domainlayer/didgen"
 	"github.com/apache/incubator-devlake/models/domainlayer/ticket"
 	"github.com/apache/incubator-devlake/plugins/core"
@@ -35,15 +37,17 @@ var ConvertIssueLabelsMeta = core.SubTaskMeta{
 }
 
 func ConvertIssueLabels(taskCtx core.SubTaskContext) error {
-	db := taskCtx.GetDb()
+	db := taskCtx.GetDal()
 	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_ISSUE_TABLE)
 	repoId := data.Repo.GiteeId
 
-	cursor, err := db.Model(&models.GiteeIssueLabel{}).
-		Joins(`left join _tool_gitee_issues on _tool_gitee_issues.gitee_id = _tool_gitee_issue_labels.issue_id`).
-		Where("_tool_gitee_issues.repo_id = ?", repoId).
-		Order("issue_id ASC").
-		Rows()
+	cursor, err := db.Cursor(
+		dal.From(&models.GiteeIssueLabel{}),
+		dal.Join(`left join _tool_gitee_issues on _tool_gitee_issues.gitee_id = _tool_gitee_issue_labels.issue_id`),
+		dal.Where("_tool_gitee_issues.repo_id = ? and _tool_gitee_issues.connection_id = ?", repoId, data.Options.ConnectionId),
+		dal.Orderby("issue_id ASC"),
+	)
+
 	if err != nil {
 		return err
 	}
@@ -57,7 +61,7 @@ func ConvertIssueLabels(taskCtx core.SubTaskContext) error {
 		Convert: func(inputRow interface{}) ([]interface{}, error) {
 			issueLabel := inputRow.(*models.GiteeIssueLabel)
 			domainIssueLabel := &ticket.IssueLabel{
-				IssueId:   issueIdGen.Generate(issueLabel.IssueId),
+				IssueId:   issueIdGen.Generate(data.Options.ConnectionId, issueLabel.IssueId),
 				LabelName: issueLabel.LabelName,
 			}
 			return []interface{}{
