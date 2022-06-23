@@ -36,7 +36,7 @@ func TestGitlabProjectDataFlow(t *testing.T) {
 	taskData := &tasks.GitlabTaskData{
 		Options: &tasks.GitlabOptions{
 			ConnectionId: 1,
-			ProjectId:    3472737,
+			ProjectId:    12955687,
 		},
 	}
 
