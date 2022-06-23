@@ -50,7 +50,7 @@ type ApiSingleCommitResponse struct {
 }
 
 func ExtractApiCommitStats(taskCtx core.SubTaskContext) error {
-	rawDataSubTaskArgs, _ := CreateRawDataSubTaskArgs(taskCtx, RAW_COMMIT_STATS_TABLE)
+	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_COMMIT_STATS_TABLE)
 
 	extractor, err := helper.NewApiExtractor(helper.ApiExtractorArgs{
 		RawDataSubTaskArgs: *rawDataSubTaskArgs,
@@ -75,6 +75,7 @@ func ExtractApiCommitStats(taskCtx core.SubTaskContext) error {
 			commit.Deletions = body.Stats.Deletions
 
 			commitStat := &models.GiteeCommitStat{
+				ConnectionId:  data.Options.ConnectionId,
 				Additions:     body.Stats.Additions,
 				Deletions:     body.Stats.Deletions,
 				CommittedDate: body.Commit.Committer.Date.ToTime(),
