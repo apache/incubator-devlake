@@ -30,6 +30,7 @@ var ExtractApiEventsMeta = core.SubTaskMeta{
 	EntryPoint:       ExtractApiEvents,
 	EnabledByDefault: true,
 	Description:      "Extract raw Events data into tool layer table github_issue_events",
+	DomainTypes:      []string{core.DOMAIN_TYPE_TICKET},
 }
 
 type IssueEvent struct {

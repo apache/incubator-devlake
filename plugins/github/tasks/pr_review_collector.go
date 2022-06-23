@@ -20,11 +20,12 @@ package tasks
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/apache/incubator-devlake/plugins/core/dal"
-	"github.com/apache/incubator-devlake/plugins/github/models"
 	"net/http"
 	"net/url"
 	"reflect"
+
+	"github.com/apache/incubator-devlake/plugins/core/dal"
+	"github.com/apache/incubator-devlake/plugins/github/models"
 
 	"github.com/apache/incubator-devlake/plugins/helper"
 
@@ -40,6 +41,7 @@ var CollectApiPullRequestReviewsMeta = core.SubTaskMeta{
 	EntryPoint:       CollectApiPullRequestReviews,
 	EnabledByDefault: true,
 	Description:      "Collect PullRequestReviews data from Github api",
+	DomainTypes:      []string{core.DOMAIN_TYPE_CODE},
 }
 
 func CollectApiPullRequestReviews(taskCtx core.SubTaskContext) error {

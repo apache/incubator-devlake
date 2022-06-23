@@ -18,6 +18,8 @@ limitations under the License.
 package tasks
 
 import (
+	"reflect"
+
 	"github.com/apache/incubator-devlake/models/domainlayer"
 	"github.com/apache/incubator-devlake/models/domainlayer/didgen"
 	"github.com/apache/incubator-devlake/models/domainlayer/ticket"
@@ -25,7 +27,6 @@ import (
 	"github.com/apache/incubator-devlake/plugins/core/dal"
 	githubModels "github.com/apache/incubator-devlake/plugins/github/models"
 	"github.com/apache/incubator-devlake/plugins/helper"
-	"reflect"
 )
 
 var ConvertIssueCommentsMeta = core.SubTaskMeta{
@@ -33,6 +34,7 @@ var ConvertIssueCommentsMeta = core.SubTaskMeta{
 	EntryPoint:       ConvertIssueComments,
 	EnabledByDefault: true,
 	Description:      "ConvertIssueComments data from Github api",
+	DomainTypes:      []string{core.DOMAIN_TYPE_TICKET},
 }
 
 func ConvertIssueComments(taskCtx core.SubTaskContext) error {

@@ -19,10 +19,11 @@ package api
 
 import (
 	"fmt"
-	"github.com/apache/incubator-devlake/plugins/github/models"
 	"net/http"
 	"strings"
 	"time"
+
+	"github.com/apache/incubator-devlake/plugins/github/models"
 
 	"github.com/apache/incubator-devlake/plugins/helper"
 	"github.com/mitchellh/mapstructure"

@@ -20,9 +20,10 @@ package tasks
 import (
 	"encoding/json"
 	"fmt"
-	. "github.com/apache/incubator-devlake/plugins/core/dal"
 	"net/http"
 	"net/url"
+
+	. "github.com/apache/incubator-devlake/plugins/core/dal"
 
 	"github.com/apache/incubator-devlake/plugins/helper"
 
@@ -130,4 +131,5 @@ var CollectApiCommentsMeta = core.SubTaskMeta{
 	EntryPoint:       CollectApiComments,
 	EnabledByDefault: true,
 	Description:      "Collect comments data from Github api",
+	DomainTypes:      []string{core.DOMAIN_TYPE_CODE, core.DOMAIN_TYPE_TICKET},
 }

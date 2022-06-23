@@ -31,6 +31,7 @@ var ExtractApiPullRequestsMeta = core.SubTaskMeta{
 	EntryPoint:       ExtractApiPullRequests,
 	EnabledByDefault: true,
 	Description:      "Extract raw PullRequests data into tool layer table github_pull_requests",
+	DomainTypes:      []string{core.DOMAIN_TYPE_CODE},
 }
 
 type GithubApiPullRequest struct {

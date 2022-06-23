@@ -20,9 +20,10 @@ package tasks
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/apache/incubator-devlake/plugins/core/dal"
 	"net/http"
 	"net/url"
+
+	"github.com/apache/incubator-devlake/plugins/core/dal"
 
 	"github.com/apache/incubator-devlake/plugins/helper"
 
@@ -39,6 +40,7 @@ var CollectApiEventsMeta = core.SubTaskMeta{
 	EntryPoint:       CollectApiEvents,
 	EnabledByDefault: true,
 	Description:      "Collect Events data from Github api",
+	DomainTypes:      []string{core.DOMAIN_TYPE_TICKET},
 }
 
 func CollectApiEvents(taskCtx core.SubTaskContext) error {

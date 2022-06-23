@@ -18,9 +18,10 @@ limitations under the License.
 package tasks
 
 import (
-	"github.com/apache/incubator-devlake/plugins/core/dal"
 	"reflect"
 	"strconv"
+
+	"github.com/apache/incubator-devlake/plugins/core/dal"
 
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/helper"
@@ -36,6 +37,7 @@ var ConvertIssuesMeta = core.SubTaskMeta{
 	EntryPoint:       ConvertIssues,
 	EnabledByDefault: true,
 	Description:      "Convert tool layer table github_issues into  domain layer table issues",
+	DomainTypes:      []string{core.DOMAIN_TYPE_TICKET},
 }
 
 func ConvertIssues(taskCtx core.SubTaskContext) error {

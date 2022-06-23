@@ -18,8 +18,9 @@ limitations under the License.
 package tasks
 
 import (
-	"github.com/apache/incubator-devlake/plugins/core/dal"
 	"reflect"
+
+	"github.com/apache/incubator-devlake/plugins/core/dal"
 
 	"github.com/apache/incubator-devlake/models/domainlayer/code"
 	"github.com/apache/incubator-devlake/models/domainlayer/didgen"
@@ -33,6 +34,7 @@ var ConvertCommitsMeta = core.SubTaskMeta{
 	EntryPoint:       ConvertCommits,
 	EnabledByDefault: false,
 	Description:      "Convert tool layer table github_commits into  domain layer table commits",
+	DomainTypes:      []string{core.DOMAIN_TYPE_CODE},
 }
 
 func ConvertCommits(taskCtx core.SubTaskContext) error {

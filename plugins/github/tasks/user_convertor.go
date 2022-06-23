@@ -18,8 +18,9 @@ limitations under the License.
 package tasks
 
 import (
-	"github.com/apache/incubator-devlake/plugins/core/dal"
 	"reflect"
+
+	"github.com/apache/incubator-devlake/plugins/core/dal"
 
 	"github.com/apache/incubator-devlake/models/domainlayer"
 	"github.com/apache/incubator-devlake/models/domainlayer/didgen"
@@ -34,6 +35,7 @@ var ConvertUsersMeta = core.SubTaskMeta{
 	EntryPoint:       ConvertUsers,
 	EnabledByDefault: false,
 	Description:      "Convert tool layer table github_users into  domain layer table users",
+	DomainTypes:      []string{core.DOMAIN_TYPE_CROSS},
 }
 
 func ConvertUsers(taskCtx core.SubTaskContext) error {

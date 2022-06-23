@@ -19,6 +19,7 @@ package tasks
 
 import (
 	"encoding/json"
+
 	"github.com/apache/incubator-devlake/plugins/core/dal"
 
 	"github.com/apache/incubator-devlake/plugins/core"
@@ -33,6 +34,7 @@ var ExtractApiCommentsMeta = core.SubTaskMeta{
 	EnabledByDefault: true,
 	Description: "Extract raw comment data  into tool layer table github_pull_request_comments" +
 		"and github_issue_comments",
+	DomainTypes: []string{core.DOMAIN_TYPE_CODE, core.DOMAIN_TYPE_TICKET},
 }
 
 type IssueComment struct {
