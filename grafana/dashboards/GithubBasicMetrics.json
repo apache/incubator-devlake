@@ -15,8 +15,8 @@
   "editable": true,
   "gnetId": null,
   "graphTooltip": 0,
-  "id": 13,
-  "iteration": 1650629880265,
+  "id": 10,
+  "iteration": 1655905249031,
   "links": [],
   "panels": [
     {
@@ -187,7 +187,7 @@
           "hide": false,
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "with _issues as(\n  SELECT\n    DATE_ADD(date(i.created_date), INTERVAL -DAY(date(i.created_date))+1 DAY) as time,\n    count(distinct i.id) as issue_count\n  FROM issues i\n  \tjoin board_issues bi on i.id = bi.issue_id\n  \tjoin boards b on bi.board_id = b.id\n  WHERE\n    $__timeFilter(i.created_date)\n    and b.id in ($repo_id)\n  group by 1\n)\n\nSELECT \n  date_format(time,'%M %Y') as month,\n  issue_count as \"Issue Count\"\nFROM _issues\nORDER BY time\n",
+          "rawSql": "with _issues as(\n  SELECT\n    DATE_ADD(date(i.created_date), INTERVAL -DAY(date(i.created_date))+1 DAY) as time,\n    count(distinct i.id) as issue_count\n  FROM issues i\n  \tjoin board_issues bi on i.id = bi.issue_id\n  \tjoin boards b on bi.board_id = b.id\n  WHERE\n    $__timeFilter(i.created_date)\n    and i.created_date >= DATE_ADD(DATE_ADD($__timeFrom(), INTERVAL -DAY($__timeFrom())+1 DAY), INTERVAL +1 MONTH)\n    and b.id in ($repo_id)\n  group by 1\n)\n\nSELECT \n  date_format(time,'%M %Y') as month,\n  issue_count as \"Issue Count\"\nFROM _issues\nORDER BY time\n",
           "refId": "A",
           "select": [
             [
@@ -215,93 +215,13 @@
       "type": "barchart"
     },
     {
-      "datasource": "mysql",
-      "description": "",
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "thresholds"
-          },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": null
-              },
-              {
-                "color": "red",
-                "value": 80
-              }
-            ]
-          }
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 6,
-        "w": 24,
-        "x": 0,
-        "y": 7
-      },
-      "id": 90,
-      "options": {
-        "orientation": "auto",
-        "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
-          "fields": "",
-          "values": false
-        },
-        "showThresholdLabels": false,
-        "showThresholdMarkers": true,
-        "text": {}
-      },
-      "pluginVersion": "8.0.6",
-      "targets": [
-        {
-          "format": "table",
-          "group": [],
-          "hide": false,
-          "metricColumn": "none",
-          "rawQuery": true,
-          "rawSql": "with _issues as(\n  SELECT\n    DATE_ADD(date(i.created_date), INTERVAL -DAY(date(i.created_date))+1 DAY) as time,\n    count(distinct i.id) as issue_count\n  FROM issues i\n  \tjoin board_issues bi on i.id = bi.issue_id\n  \tjoin boards b on bi.board_id = b.id\n  WHERE\n    $__timeFilter(i.created_date)\n    and b.id in ($repo_id)\n  group by 1\n)\n\nSELECT \n  avg(issue_count) as \"Mean Issue Count\",\n  std(issue_count) as \"STD\"\nFROM _issues",
-          "refId": "A",
-          "select": [
-            [
-              {
-                "params": [
-                  "id"
-                ],
-                "type": "column"
-              }
-            ]
-          ],
-          "table": "ae_projects",
-          "timeColumn": "ae_create_time",
-          "timeColumnType": "timestamp",
-          "where": [
-            {
-              "name": "$__timeFilter",
-              "params": [],
-              "type": "macro"
-            }
-          ]
-        }
-      ],
-      "title": "1.3 Mean New Issue Count and Standard Deviation",
-      "type": "gauge"
-    },
-    {
       "collapsed": false,
       "datasource": null,
       "gridPos": {
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 13
+        "y": 7
       },
       "id": 87,
       "panels": [],
@@ -337,7 +257,7 @@
         "h": 6,
         "w": 7,
         "x": 0,
-        "y": 14
+        "y": 8
       },
       "id": 43,
       "options": {
@@ -463,7 +383,7 @@
         "h": 6,
         "w": 17,
         "x": 7,
-        "y": 14
+        "y": 8
       },
       "id": 76,
       "options": {
@@ -486,7 +406,7 @@
           "hide": false,
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "SELECT\n  DATE_ADD(date(i.created_date), INTERVAL -DAYOFMONTH(date(i.created_date))+1 DAY) as time,\n  count(distinct case when status != 'DONE' then i.id else null end) as open_issue_count,\n  count(distinct case when status = 'DONE' then i.id else null end) as closed_issue_count\nFROM issues i\n\tjoin board_issues bi on i.id = bi.issue_id\n\tjoin boards b on bi.board_id = b.id\nWHERE\n  $__timeFilter(i.created_date)\n  and b.id in ($repo_id)\ngroup by 1\n",
+          "rawSql": "SELECT\n  DATE_ADD(date(i.created_date), INTERVAL -DAYOFMONTH(date(i.created_date))+1 DAY) as time,\n  count(distinct case when status != 'DONE' then i.id else null end) as open_issue_count,\n  count(distinct case when status = 'DONE' then i.id else null end) as closed_issue_count\nFROM issues i\n\tjoin board_issues bi on i.id = bi.issue_id\n\tjoin boards b on bi.board_id = b.id\nWHERE\n  $__timeFilter(i.created_date)\n  and i.created_date >= DATE_ADD(DATE_ADD($__timeFrom(), INTERVAL -DAY($__timeFrom())+1 DAY), INTERVAL +1 MONTH)\n  and b.id in ($repo_id)\ngroup by 1\n",
           "refId": "A",
           "select": [
             [
@@ -531,7 +451,7 @@
               },
               {
                 "color": "red",
-                "value": 80
+                "value": 14
               }
             ]
           }
@@ -542,7 +462,7 @@
         "h": 6,
         "w": 7,
         "x": 0,
-        "y": 20
+        "y": 14
       },
       "id": 64,
       "options": {
@@ -568,7 +488,7 @@
           "hide": false,
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "select \n\tAVG(i.lead_time_minutes/1440) issue_lead_time\nfrom \n\tissues i\n\tjoin board_issues bi on i.id = bi.issue_id\n\tjoin boards b on bi.board_id = b.id\nwhere\n  $__timeFilter(i.created_date)\n  and b.id in ($repo_id)\n  and i.status = \"DONE\"",
+          "rawSql": "select \n\tAVG(i.lead_time_minutes/1440) issue_lead_time_in_days\nfrom \n\tissues i\n\tjoin board_issues bi on i.id = bi.issue_id\n\tjoin boards b on bi.board_id = b.id\nwhere\n  $__timeFilter(i.resolution_date)\n  and i.resolution_date >= DATE_ADD(DATE_ADD($__timeFrom(), INTERVAL -DAY($__timeFrom())+1 DAY), INTERVAL +1 MONTH)\n  and b.id in ($repo_id)\n  and i.status = \"DONE\"",
           "refId": "A",
           "select": [
             [
@@ -592,7 +512,7 @@
           ]
         }
       ],
-      "title": "2.3 Mean Issue Lead Time in Days [Issues Created in Selected Time Range]",
+      "title": "2.3 Mean Issue Lead Time in Days [Issues Closed in Selected Time Range]",
       "type": "stat"
     },
     {
@@ -637,7 +557,7 @@
         "h": 6,
         "w": 17,
         "x": 7,
-        "y": 20
+        "y": 14
       },
       "id": 75,
       "options": {
@@ -665,7 +585,7 @@
           "hide": false,
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "with _issues as(\n  SELECT\n    DATE_ADD(date(i.created_date), INTERVAL -DAY(date(i.created_date))+1 DAY) as time,\n    AVG(i.lead_time_minutes/1440) as issue_lead_time\n  FROM issues i\n  \tjoin board_issues bi on i.id = bi.issue_id\n  \tjoin boards b on bi.board_id = b.id\n  WHERE\n    b.id in ($repo_id)\n    and i.status = \"DONE\"\n    and $__timeFilter(i.created_date)\n  group by 1\n)\n\nSELECT \n  date_format(time,'%M %Y') as month,\n  issue_lead_time as \"Issue Lead Time\"\nFROM _issues\nORDER BY time\n",
+          "rawSql": "with _issues as(\n  SELECT\n    DATE_ADD(date(i.resolution_date), INTERVAL -DAY(date(i.resolution_date))+1 DAY) as time,\n    AVG(i.lead_time_minutes/1440) as issue_lead_time\n  FROM issues i\n  \tjoin board_issues bi on i.id = bi.issue_id\n  \tjoin boards b on bi.board_id = b.id\n  WHERE\n    b.id in ($repo_id)\n    and i.status = \"DONE\"\n    and $__timeFilter(i.resolution_date)\n    and i.resolution_date >= DATE_ADD(DATE_ADD($__timeFrom(), INTERVAL -DAY($__timeFrom())+1 DAY), INTERVAL +1 MONTH)\n  group by 1\n)\n\nSELECT \n  date_format(time,'%M %Y') as month,\n  issue_lead_time as \"Mean Issue Lead Time in Days\"\nFROM _issues\nORDER BY time\n",
           "refId": "A",
           "select": [
             [
@@ -689,7 +609,7 @@
           ]
         }
       ],
-      "title": "2.4 Mean Issue Lead Time in Days [Issues Created in Each Month]",
+      "title": "2.4 Mean Issue Lead Time in Days [Issues Closed in Each Month]",
       "type": "barchart"
     },
     {
@@ -729,51 +649,22 @@
           },
           "unit": "none"
         },
-        "overrides": [
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "<avg_bug_age"
-            },
-            "properties": [
-              {
-                "id": "color",
-                "value": {
-                  "fixedColor": "semi-dark-green",
-                  "mode": "fixed"
-                }
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": ">=avg_bug_age"
-            },
-            "properties": [
-              {
-                "id": "color",
-                "value": {
-                  "fixedColor": "red",
-                  "mode": "fixed"
-                }
-              }
-            ]
-          }
-        ]
+        "overrides": []
       },
       "gridPos": {
         "h": 6,
         "w": 24,
         "x": 0,
-        "y": 26
+        "y": 20
       },
       "id": 93,
       "options": {
         "barWidth": 0.1,
         "groupWidth": 0.7,
         "legend": {
-          "calcs": [],
+          "calcs": [
+            "mean"
+          ],
           "displayMode": "list",
           "placement": "bottom"
         },
@@ -792,7 +683,7 @@
           "metricColumn": "none",
           "queryType": "randomWalk",
           "rawQuery": true,
-          "rawSql": "-- Get the queue time of all backlog bugs\nwith _outstanding_issues as(\n  select \n    b.name as repo_name,\n    i.issue_key as issue_key,\n    i.title,\n    i.created_date,\n    (TIMESTAMPDIFF(MINUTE, i.created_date,NOW()))/1440 as queue_time_in_days,\n    concat(b.url,'/',i.issue_key) as url\n  from \n    issues i\n    left join board_issues bi on i.id = bi.issue_id\n    left join boards b on bi.board_id = b.id\n  where\n    b.id in ($repo_id)\n    and $__timeFilter(i.created_date)\n    and i.status != 'DONE'\n)\n\nselect title, queue_time_in_days from _outstanding_issues\norder by 2 desc",
+          "rawSql": "-- Get the queue time of all backlog bugs\nwith _outstanding_issues as(\n  select \n    b.name as repo_name,\n    i.number as issue_key,\n    i.title,\n    i.created_date,\n    (TIMESTAMPDIFF(MINUTE, i.created_date,NOW()))/1440 as queue_time_in_days,\n    concat(b.url,'/',i.number) as url\n  from \n    issues i\n    left join board_issues bi on i.id = bi.issue_id\n    left join boards b on bi.board_id = b.id\n  where\n    b.id in ($repo_id)\n    and $__timeFilter(i.created_date)\n    and i.status != 'DONE'\n)\n\nselect title, queue_time_in_days from _outstanding_issues\norder by 2 desc",
           "refId": "A",
           "select": [
             [
@@ -944,7 +835,7 @@
         "h": 6,
         "w": 24,
         "x": 0,
-        "y": 32
+        "y": 26
       },
       "id": 92,
       "options": {
@@ -959,7 +850,7 @@
           "metricColumn": "none",
           "queryType": "randomWalk",
           "rawQuery": true,
-          "rawSql": "-- Get the queue time of all backlog bugs\nselect \n  b.name as repo_name,\n  i.issue_key as issue_key,\n  i.title,\n  i.created_date,\n  (TIMESTAMPDIFF(MINUTE, i.created_date,NOW()))/1440 as queue_time_in_days,\n  concat(b.url,'/',i.issue_key) as url\nfrom \n  issues i\n  left join board_issues bi on i.id = bi.issue_id\n  left join boards b on bi.board_id = b.id\nwhere\n  b.id in ($repo_id)\n  and $__timeFilter(i.created_date)\n  and i.status != 'DONE'\norder by queue_time_in_days desc",
+          "rawSql": "-- Get the queue time of all backlog bugs\nselect \n  b.name as repo_name,\n  i.number as issue_key,\n  i.title,\n  i.created_date,\n  (TIMESTAMPDIFF(MINUTE, i.created_date,NOW()))/1440 as queue_time_in_days,\n  concat(b.url,'/',i.number) as url\nfrom \n  issues i\n  left join board_issues bi on i.id = bi.issue_id\n  left join boards b on bi.board_id = b.id\nwhere\n  b.id in ($repo_id)\n  and $__timeFilter(i.created_date)\n  and i.status != 'DONE'\norder by queue_time_in_days desc",
           "refId": "A",
           "select": [
             [
@@ -993,7 +884,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 38
+        "y": 32
       },
       "id": 83,
       "panels": [],
@@ -1029,7 +920,7 @@
         "h": 6,
         "w": 6,
         "x": 0,
-        "y": 39
+        "y": 33
       },
       "id": 68,
       "options": {
@@ -1124,7 +1015,7 @@
         "h": 6,
         "w": 18,
         "x": 6,
-        "y": 39
+        "y": 33
       },
       "id": 77,
       "options": {
@@ -1152,7 +1043,7 @@
           "hide": false,
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "with _prs as(\n  SELECT\n    DATE_ADD(date(created_date), INTERVAL -DAY(date(created_date))+1 DAY) as time,\n    count(*) as pr_count\n  FROM pull_requests\n  WHERE\n    base_repo_id in ($repo_id)\n    and $__timeFilter(created_date)\n  group by 1\n)\n\nSELECT \n  date_format(time,'%M %Y') as month,\n  pr_count as \"Pull Request Count\"\nFROM _prs\nORDER BY time\n",
+          "rawSql": "with _prs as(\n  SELECT\n    DATE_ADD(date(created_date), INTERVAL -DAY(date(created_date))+1 DAY) as time,\n    count(*) as pr_count\n  FROM pull_requests\n  WHERE\n    base_repo_id in ($repo_id)\n    and $__timeFilter(created_date)\n    and created_date >= DATE_ADD(DATE_ADD($__timeFrom(), INTERVAL -DAY($__timeFrom())+1 DAY), INTERVAL +1 MONTH)\n  group by 1\n)\n\nSELECT \n  date_format(time,'%M %Y') as month,\n  pr_count as \"Pull Request Count\"\nFROM _prs\nORDER BY time\n",
           "refId": "A",
           "select": [
             [
@@ -1222,7 +1113,7 @@
         "h": 6,
         "w": 24,
         "x": 0,
-        "y": 45
+        "y": 39
       },
       "id": 59,
       "options": {
@@ -1284,7 +1175,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 51
+        "y": 45
       },
       "id": 85,
       "panels": [],
@@ -1321,7 +1212,7 @@
         "h": 6,
         "w": 6,
         "x": 0,
-        "y": 52
+        "y": 46
       },
       "id": 66,
       "options": {
@@ -1425,7 +1316,7 @@
         "h": 6,
         "w": 18,
         "x": 6,
-        "y": 52
+        "y": 46
       },
       "id": 79,
       "options": {
@@ -1448,7 +1339,7 @@
           "hide": false,
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "SELECT\n  DATE_ADD(date(created_date), INTERVAL -DAYOFMONTH(date(created_date))+1 DAY) as time,\n  count(distinct case when status != 'closed' then id else null end) as \"PR: Open\",\n  count(distinct case when status = 'closed' and merged_date is null then id else null end) as \"PR: Closed without merging\",\n  count(distinct case when status = 'closed' and merged_date is not null then id else null end) as \"PR: Closed and merged\"\nFROM pull_requests\nWHERE\n  $__timeFilter(created_date)\n  and base_repo_id in ($repo_id)\ngroup by 1\n",
+          "rawSql": "SELECT\n  DATE_ADD(date(created_date), INTERVAL -DAYOFMONTH(date(created_date))+1 DAY) as time,\n  count(distinct case when status != 'closed' then id else null end) as \"PR: Open\",\n  count(distinct case when status = 'closed' and merged_date is null then id else null end) as \"PR: Closed without merging\",\n  count(distinct case when status = 'closed' and merged_date is not null then id else null end) as \"PR: Closed and merged\"\nFROM pull_requests\nWHERE\n  $__timeFilter(created_date)\n  and created_date >= DATE_ADD(DATE_ADD($__timeFrom(), INTERVAL -DAY($__timeFrom())+1 DAY), INTERVAL +1 MONTH)\n  and base_repo_id in ($repo_id)\ngroup by 1\n",
           "refId": "A",
           "select": [
             [
@@ -1504,7 +1395,7 @@
         "h": 6,
         "w": 6,
         "x": 0,
-        "y": 58
+        "y": 52
       },
       "id": 80,
       "options": {
@@ -1570,7 +1461,7 @@
             "axisPlacement": "auto",
             "barAlignment": 1,
             "drawStyle": "line",
-            "fillOpacity": 50,
+            "fillOpacity": 1,
             "gradientMode": "opacity",
             "hideFrom": {
               "legend": false,
@@ -1582,7 +1473,7 @@
               "fill": "solid"
             },
             "lineWidth": 1,
-            "pointSize": 4,
+            "pointSize": 15,
             "scaleDistribution": {
               "type": "linear"
             },
@@ -1614,14 +1505,12 @@
         "h": 6,
         "w": 18,
         "x": 6,
-        "y": 58
+        "y": 52
       },
       "id": 81,
       "options": {
         "legend": {
-          "calcs": [
-            "mean"
-          ],
+          "calcs": [],
           "displayMode": "list",
           "placement": "bottom"
         },
@@ -1693,7 +1582,7 @@
         "h": 6,
         "w": 6,
         "x": 0,
-        "y": 64
+        "y": 58
       },
       "id": 72,
       "options": {
@@ -1788,7 +1677,7 @@
         "h": 6,
         "w": 18,
         "x": 6,
-        "y": 64
+        "y": 58
       },
       "id": 95,
       "options": {
@@ -1816,7 +1705,7 @@
           "hide": false,
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "with _prs as(\n  SELECT\n    DATE_ADD(date(created_date), INTERVAL -DAY(date(created_date))+1 DAY) as time,\n    avg(TIMESTAMPDIFF(Minute,created_date,merged_date)/1440) as time_to_merge\n  FROM pull_requests\n  WHERE\n    $__timeFilter(created_date)\n    and base_repo_id in ($repo_id)\n  group by 1\n)\n\nSELECT \n  date_format(time,'%M %Y') as month,\n  time_to_merge as \"Time to Merge\"\nFROM _prs\nORDER BY time\n",
+          "rawSql": "with _prs as(\n  SELECT\n    DATE_ADD(date(created_date), INTERVAL -DAY(date(created_date))+1 DAY) as time,\n    avg(TIMESTAMPDIFF(Minute,created_date,merged_date)/1440) as time_to_merge\n  FROM pull_requests\n  WHERE\n    $__timeFilter(created_date)\n    and created_date >= DATE_ADD(DATE_ADD($__timeFrom(), INTERVAL -DAY($__timeFrom())+1 DAY), INTERVAL +1 MONTH)\n    and base_repo_id in ($repo_id)\n  group by 1\n)\n\nSELECT \n  date_format(time,'%M %Y') as month,\n  time_to_merge as \"Time to Merge\"\nFROM _prs\nORDER BY time\n",
           "refId": "A",
           "select": [
             [
@@ -1872,7 +1761,7 @@
         "h": 6,
         "w": 6,
         "x": 0,
-        "y": 70
+        "y": 64
       },
       "id": 96,
       "options": {
@@ -1965,7 +1854,7 @@
         "h": 6,
         "w": 18,
         "x": 6,
-        "y": 70
+        "y": 64
       },
       "id": 97,
       "options": {
@@ -1993,7 +1882,7 @@
           "hide": false,
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "with _prs as(\n  SELECT\n    DATE_ADD(date(created_date), INTERVAL -DAY(date(created_date))+1 DAY) as time,\n    avg(TIMESTAMPDIFF(Minute,created_date,closed_date)/1440) as time_to_close\n  FROM pull_requests\n  WHERE\n    $__timeFilter(created_date)\n    and base_repo_id in ($repo_id)\n    and status = 'closed'\n  group by 1\n)\n\nSELECT \n  date_format(time,'%M %Y') as month,\n  time_to_close as \"Time to Close\"\nFROM _prs\nORDER BY time\n",
+          "rawSql": "with _prs as(\n  SELECT\n    DATE_ADD(date(created_date), INTERVAL -DAY(date(created_date))+1 DAY) as time,\n    avg(TIMESTAMPDIFF(Minute,created_date,closed_date)/1440) as time_to_close\n  FROM pull_requests\n  WHERE\n    $__timeFilter(created_date)\n    and created_date >= DATE_ADD(DATE_ADD($__timeFrom(), INTERVAL -DAY($__timeFrom())+1 DAY), INTERVAL +1 MONTH)\n    and base_repo_id in ($repo_id)\n    and status = 'closed'\n  group by 1\n)\n\nSELECT \n  date_format(time,'%M %Y') as month,\n  time_to_close as \"Time to Close\"\nFROM _prs\nORDER BY time\n",
           "refId": "A",
           "select": [
             [
@@ -2065,5 +1954,5 @@
   "timezone": "",
   "title": "Github_Basic_Metrics",
   "uid": "KXWvOFQnz",
-  "version": 7
+  "version": 13
 }

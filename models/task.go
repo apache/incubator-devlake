@@ -21,6 +21,7 @@ import (
 	"time"
 
 	"github.com/apache/incubator-devlake/models/common"
+	"github.com/apache/incubator-devlake/plugins/core"
 	"gorm.io/datatypes"
 )
 
@@ -61,12 +62,10 @@ type Task struct {
 
 type NewTask struct {
 	// Plugin name
-	Plugin      string                 `json:"plugin" binding:"required"`
-	Subtasks    []string               `json:"subtasks"`
-	Options     map[string]interface{} `json:"options"`
-	PipelineId  uint64                 `json:"-"`
-	PipelineRow int                    `json:"-"`
-	PipelineCol int                    `json:"-"`
+	*core.PipelineTask
+	PipelineId  uint64 `json:"-"`
+	PipelineRow int    `json:"-"`
+	PipelineCol int    `json:"-"`
 }
 
 func (Task) TableName() string {

@@ -53,7 +53,7 @@ func TestNewTask(t *testing.T) {
 	api.RegisterRouter(r)
 
 	w := httptest.NewRecorder()
-	params := strings.NewReader(`{"name": "hello", "tasks": [[{ "plugin": "jira", "options": { "host": "www.jira.com" } }]]}`)
+	params := strings.NewReader(`{"name": "hello", "plan": [[{ "plugin": "jira", "options": { "host": "www.jira.com" } }]]}`)
 	req, _ := http.NewRequest("POST", "/pipelines", params)
 	r.ServeHTTP(w, req)
 
@@ -68,7 +68,7 @@ func TestNewTask(t *testing.T) {
 	assert.Equal(t, pipeline.Name, "hello")
 
 	var tasks [][]*models.NewTask
-	err = json.Unmarshal(pipeline.Tasks, &tasks)
+	err = json.Unmarshal(pipeline.Plan, &tasks)
 	if err != nil {
 		t.Fatal(err)
 	}

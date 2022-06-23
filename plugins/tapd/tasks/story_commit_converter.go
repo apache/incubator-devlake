@@ -18,6 +18,7 @@ limitations under the License.
 package tasks
 
 import (
+	"github.com/apache/incubator-devlake/models/domainlayer/didgen"
 	"reflect"
 
 	"github.com/apache/incubator-devlake/models/domainlayer/crossdomain"
@@ -29,10 +30,7 @@ import (
 
 func ConvertStoryCommit(taskCtx core.SubTaskContext) error {
 	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_STORY_COMMIT_TABLE)
-	logger := taskCtx.GetLogger()
 	db := taskCtx.GetDal()
-	logger.Info("convert board:%d", data.Options.WorkspaceId)
-
 	clauses := []dal.Clause{
 		dal.From(&models.TapdStoryCommit{}),
 		dal.Where("connection_id = ? AND workspace_id = ?", data.Options.ConnectionId, data.Options.WorkspaceId),
@@ -42,6 +40,7 @@ func ConvertStoryCommit(taskCtx core.SubTaskContext) error {
 		return err
 	}
 	defer cursor.Close()
+	issueIdGen := didgen.NewDomainIdGenerator(&models.TapdIssue{})
 	converter, err := helper.NewDataConverter(helper.DataConverterArgs{
 		RawDataSubTaskArgs: *rawDataSubTaskArgs,
 		InputRowType:       reflect.TypeOf(models.TapdStoryCommit{}),
@@ -49,7 +48,7 @@ func ConvertStoryCommit(taskCtx core.SubTaskContext) error {
 		Convert: func(inputRow interface{}) ([]interface{}, error) {
 			toolL := inputRow.(*models.TapdStoryCommit)
 			domainL := &crossdomain.IssueCommit{
-				IssueId:   IssueIdGen.Generate(data.Options.ConnectionId, toolL.StoryId),
+				IssueId:   issueIdGen.Generate(data.Options.ConnectionId, toolL.StoryId),
 				CommitSha: toolL.CommitId,
 			}
 

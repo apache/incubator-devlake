@@ -16,8 +16,17 @@
 # limitations under the License.
 #
 
-# If you want to use this, you need to run `PLUGIN=github make dev`
-# to compile all plugins `make dev`
+# compile all plugins and fire up api server:
+#   make dev
+#
+# compile specific plugin and fire up api server:
+#   PLUGIN=<PLUGIN_NAME> make dev
+#
+# compile all plugins and fire up api server in DEBUG MODE with `delve`:
+#   make debug
+#
+# compile specific plugin and fire up api server in DEBUG MODE with `delve`:
+#   PLUGIN=<PLUGIN_NAME> make dev
 
 set -e
 
@@ -36,9 +45,15 @@ else
 fi
 
 rm -rf $PLUGIN_OUTPUT_DIR/*
+
+PIDS=""
 for PLUG in $PLUGINS; do
     NAME=$(basename $PLUG)
     echo "Building plugin $NAME to bin/plugins/$NAME/$NAME.so"
     go build -buildmode=plugin "$@" -o $PLUGIN_OUTPUT_DIR/$NAME/$NAME.so $PLUG/*.go &
+    PIDS="$PIDS $!"
 done
-wait
+
+for PID in $PIDS; do
+    wait $PID
+done

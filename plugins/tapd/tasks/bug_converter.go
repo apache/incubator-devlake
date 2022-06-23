@@ -80,7 +80,7 @@ func ConvertBug(taskCtx core.SubTaskContext) error {
 				OriginalStatus: toolL.Status,
 			}
 			if domainL.ResolutionDate != nil && domainL.CreatedDate != nil {
-				domainL.LeadTimeMinutes = uint(int64(domainL.ResolutionDate.Minute() - domainL.CreatedDate.Minute()))
+				domainL.LeadTimeMinutes = uint(domainL.ResolutionDate.Sub(*domainL.CreatedDate).Minutes())
 			}
 			results := make([]interface{}, 0, 2)
 			boardIssue := &ticket.BoardIssue{

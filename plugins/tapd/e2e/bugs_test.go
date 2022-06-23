@@ -40,6 +40,29 @@ func TestTapdBugDataFlow(t *testing.T) {
 			WorkspaceId:  991,
 		},
 	}
+
+	// bug status
+	// import raw data table
+	dataflowTester.ImportCsvIntoRawTable("./raw_tables/_raw_tapd_api_bug_status.csv",
+		"_raw_tapd_api_bug_status")
+
+	// verify extraction
+	dataflowTester.FlushTabler(&models.TapdBugStatus{})
+	dataflowTester.Subtask(tasks.ExtractBugStatusMeta, taskData)
+	dataflowTester.VerifyTable(
+		models.TapdBugStatus{},
+		fmt.Sprintf("./snapshot_tables/%s.csv", models.TapdBugStatus{}.TableName()),
+		[]string{"connection_id", "workspace_id", "english_name"},
+		[]string{
+			"chinese_name",
+			"is_last_step",
+			"_raw_data_params",
+			"_raw_data_table",
+			"_raw_data_id",
+			"_raw_data_remark",
+		},
+	)
+
 	// import raw data table
 	dataflowTester.ImportCsvIntoRawTable("./raw_tables/_raw_tapd_api_bugs.csv",
 		"_raw_tapd_api_bugs")
