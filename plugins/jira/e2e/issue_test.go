@@ -89,8 +89,6 @@ func TestIssueDataFlow(t *testing.T) {
 			"std_story_point",
 			"std_type",
 			"std_status",
-			"created_at",
-			"updated_at",
 			"_raw_data_params",
 			"_raw_data_table",
 			"_raw_data_id",
