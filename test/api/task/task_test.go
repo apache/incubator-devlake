@@ -53,7 +53,7 @@ func TestNewTask(t *testing.T) {
 	api.RegisterRouter(r)
 
 	w := httptest.NewRecorder()
-	params := strings.NewReader(`{"name": "hello", "tasks": [[{ "plugin": "jira", "options": { "host": "www.jira.com" } }]]}`)
+	params := strings.NewReader(`{"name": "hello", "plan": [[{ "plugin": "jira", "options": { "host": "www.jira.com" } }]]}`)
 	req, _ := http.NewRequest("POST", "/pipelines", params)
 	r.ServeHTTP(w, req)
 
