@@ -1,5 +1,5 @@
 import React from 'react'
-
+import { Icon } from '@blueprintjs/core'
 import { Providers, ProviderLabels, ProviderTypes } from '@/data/Providers'
 
 import JiraSettings from '@/pages/configure/settings/jira'
@@ -11,8 +11,8 @@ import { ReactComponent as GitlabProvider } from '@/images/integrations/gitlab.s
 import { ReactComponent as JenkinsProvider } from '@/images/integrations/jenkins.svg'
 import { ReactComponent as JiraProvider } from '@/images/integrations/jira.svg'
 import { ReactComponent as GitHubProvider } from '@/images/integrations/github.svg'
-import GitExtractorProvider from '@/images/git.png'
-import RefDiffProvider from '@/images/git-diff.png'
+// import GitExtractorProvider from '@/images/git.png'
+// import RefDiffProvider from '@/images/git-diff.png'
 // import { ReactComponent as NullProvider } from '@/images/integrations/null.svg'
 
 const integrationsData = [
@@ -97,8 +97,8 @@ const pluginsData = [
     enabled: true,
     multiConnection: false,
     name: ProviderLabels.GITEXTRACTOR,
-    icon: <img src={GitExtractorProvider} className='providerIconPng' width='30' height='30' style={{ float: 'left', marginTop: '5px' }} />,
-    iconDashboard: <img src={GitExtractorProvider} className='providerIconPng' width='48' height='48' />,
+    icon: <Icon icon='box' size={30} />,
+    iconDashboard: <Icon icon='box' size={42} />,
     settings: ({ activeProvider, activeConnection, isSaving, setSettings }) => (
       null
     )
@@ -109,8 +109,8 @@ const pluginsData = [
     enabled: true,
     multiConnection: false,
     name: ProviderLabels.REFDIFF,
-    icon: <img src={RefDiffProvider} className='providerIconPng' width='30' height='30' style={{ float: 'left', marginTop: '5px' }} />,
-    iconDashboard: <img src={RefDiffProvider} className='providerIconPng' width='48' height='48' />,
+    icon: <Icon icon='box' size={30} />,
+    iconDashboard: <Icon icon='box' size={42} />,
     settings: ({ activeProvider, activeConnection, isSaving, setSettings }) => (
       null
     )

@@ -4,11 +4,11 @@ import { ReactComponent as GitlabProviderIcon } from '@/images/integrations/gitl
 import { ReactComponent as JenkinsProviderIcon } from '@/images/integrations/jenkins.svg'
 import { ReactComponent as JiraProviderIcon } from '@/images/integrations/jira.svg'
 import { ReactComponent as GitHubProviderIcon } from '@/images/integrations/github.svg'
-import GitExtractorIcon from '@/images/git.png'
-import RefDiffIcon from '@/images/git-diff.png'
+// import GitExtractorIcon from '@/images/git.png'
+// import RefDiffIcon from '@/images/git-diff.png'
 import FeishuIcon from '@/images/feishu.png'
-import DBTIcon from '@/images/dbt.png'
-import AEIcon from '@/images/ae.png'
+// import DBTIcon from '@/images/dbt.png'
+// import AEIcon from '@/images/ae.png'
 
 const Providers = {
   NULL: 'null',
@@ -163,11 +163,11 @@ const ProviderIcons = {
   [Providers.JENKINS]: (w, h) => <JenkinsProviderIcon width={w || 24} height={h || 24} />,
   [Providers.JIRA]: (w, h) => <JiraProviderIcon width={w || 24} height={h || 24} />,
   [Providers.GITHUB]: (w, h) => <GitHubProviderIcon width={w || 24} height={h || 24} />,
-  [Providers.REFDIFF]: (w, h) => <img src={RefDiffIcon} width={w || 24} height={h || 24} />,
-  [Providers.GITEXTRACTOR]: (w, h) => <img src={GitExtractorIcon} width={w || 24} height={h || 24} />,
+  [Providers.REFDIFF]: (w, h) => <Icon icon='box' size={w || 24} />,
+  [Providers.GITEXTRACTOR]: (w, h) => <Icon icon='box' size={w || 24} />,
   [Providers.FEISHU]: (w, h) => <img src={FeishuIcon} width={w || 24} height={h || 24} />,
-  [Providers.AE]: (w, h) => <img src={AEIcon} width={w || 24} height={h || 24} />,
-  [Providers.DBT]: (w, h) => <img src={DBTIcon} width={w || 24} height={h || 24} />,
+  [Providers.AE]: (w, h) => <Icon icon='box' size={w || 24} />,
+  [Providers.DBT]: (w, h) => <Icon icon='box' size={w || 24} />,
 }
 
 export {
