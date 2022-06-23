@@ -21,6 +21,7 @@ import (
 	"encoding/json"
 
 	"github.com/apache/incubator-devlake/plugins/core/dal"
+	"gorm.io/gorm"
 
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/github/models"
@@ -83,7 +84,7 @@ func ExtractApiCommitStats(taskCtx core.SubTaskContext) error {
 			db := taskCtx.GetDal()
 			commit := &models.GithubCommit{}
 			err = db.First(commit, dal.Where("sha = ?", body.Sha), dal.Limit(1))
-			if err != nil {
+			if err != nil && err != gorm.ErrRecordNotFound {
 				return nil, err
 			}
 
