@@ -15,7 +15,6 @@ import {
 } from '@blueprintjs/core'
 import dayjs from '@/utils/time'
 import StageLane from '@/components/pipelines/StageLane'
-import InfinityIcon from '@/images/infinity-2.png'
 
 const TaskActivity = (props) => {
   const { activePipeline, stages = [] } = props
@@ -299,7 +298,7 @@ const TaskActivity = (props) => {
                           </span> /{' '}
                           <span>
                             {t.progressDetail.totalRecords === -1
-                              ? <img src={InfinityIcon} width={14} height={14} style={{ width: '14px', marginBottom: '-2px', maxWidth: '14px', display: 'inline', lineHeight: '15px' }} />
+                              ? '&infin;'
                               : t.progressDetail.totalRecords}
                           </span>
                         </td>

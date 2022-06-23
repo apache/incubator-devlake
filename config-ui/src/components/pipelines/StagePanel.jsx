@@ -10,9 +10,6 @@ import {
   Intent
   // Alignment, Classes, Spinner
 } from '@blueprintjs/core'
-import { ReactComponent as PipelineRunningIcon } from '@/images/synchronize.svg'
-import { ReactComponent as PipelineFailedIcon } from '@/images/no-synchronize.svg'
-import { ReactComponent as PipelineCompleteIcon } from '@/images/check-circle.svg'
 
 const StagePanel = (props) => {
   const { activePipeline, pipelineReady = false, stages, activeStageId = 1, isLoading = false } = props
@@ -91,13 +88,7 @@ const StagePanel = (props) => {
                   case 'TASK_COMPLETED':
                     statusIcon = (
                       <Icon
-                        icon={<PipelineCompleteIcon
-                          width={24} height={24} style={{
-                            margin: '0 0 0 0',
-                            display: 'flex',
-                            alignSelf: 'center'
-                          }}
-                              />}
+                        icon='tick-circle'
                         size={24}
                       />
                     )
@@ -105,14 +96,7 @@ const StagePanel = (props) => {
                   case 'TASK_FAILED':
                     statusIcon = (
                       <Icon
-                        icon={<PipelineFailedIcon
-                          width={24}
-                          height={24} style={{
-                            margin: '0 0 0 0',
-                            display: 'flex',
-                            alignSelf: 'center'
-                          }}
-                              />}
+                        icon='error'
                         size={24}
                       />
                     )
@@ -122,15 +106,7 @@ const StagePanel = (props) => {
                     statusIcon = (
                       <Icon
                         style={{ margin: 0, padding: 0, float: 'left' }}
-                        icon={<PipelineRunningIcon
-                          width={24}
-                          height={24} style={{
-                            margin: '0 0 0 0',
-                            padding: 0,
-                            display: 'inline',
-                            alignSelf: 'center'
-                          }}
-                              />}
+                        icon='refresh'
                         size={24}
                       />
                     )

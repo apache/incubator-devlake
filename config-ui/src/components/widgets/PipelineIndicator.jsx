@@ -10,9 +10,6 @@ import {
   Spinner,
   Position,
 } from '@blueprintjs/core'
-import { ReactComponent as PipelineRunningIcon } from '@/images/synchronize.svg'
-import { ReactComponent as PipelineFailedIcon } from '@/images/no-synchronize.svg'
-import { ReactComponent as PipelineCompleteIcon } from '@/images/check-circle.svg'
 
 const PipelineIndicator = (props) => {
   const { 
@@ -85,20 +82,20 @@ const PipelineIndicator = (props) => {
                   switch (pipeline.status){
                   case 'TASK_COMPLETED':
                     return <Icon
-                      icon={<PipelineCompleteIcon width={40} height={40} style={{ marginTop: '3px', display: 'flex', alignSelf: 'center' }} />}
+                      icon='tick-circle'
                       size={40}
                     />                    
                     break
                   case 'TASK_FAILED':
                     return <Icon
-                      icon={<PipelineFailedIcon width={40} height={40} style={{ marginTop: '3px', display: 'flex', alignSelf: 'center' }} />}
+                      icon='error'
                       size={40}
                     />                       
                     break
                   case 'TASK_RUNNING':
                   default:
                     return <Icon
-                      icon={<PipelineRunningIcon width={40} height={40} style={{ marginTop: '3px', display: 'flex', alignSelf: 'center' }} />}
+                      icon='refresh'
                       size={40}
                     />
                     break

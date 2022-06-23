@@ -105,7 +105,7 @@ export default function EditConnection () {
             />
             <div style={{ width: '100%' }}>
               <Link style={{ float: 'right', marginLeft: '10px', color: '#777777' }} to={`/integrations/${activeProvider.id}`}>
-                <Icon icon='fast-backward' size={16} /> Go Back
+                <Icon icon='undo' size={16} /> Go Back
               </Link>
               <div style={{ display: 'flex' }}>
                 <div>

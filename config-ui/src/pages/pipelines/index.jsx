@@ -25,7 +25,6 @@ import ContentLoader from '@/components/loaders/ContentLoader'
 import PipelineIndicator from '@/components/widgets/PipelineIndicator'
 import CodeInspector from '@/components/pipelines/CodeInspector'
 import { ReactComponent as HelpIcon } from '@/images/help.svg'
-import ManagePipelinesIcon from '@/images/synchronise.png'
 
 const Pipelines = (props) => {
   const history = useHistory()
@@ -209,11 +208,6 @@ const Pipelines = (props) => {
                 <Icon icon='fast-backward' size={16} /> Go Back
               </Link> */}
               <div style={{ display: 'flex' }}>
-                <div>
-                  <span style={{ marginRight: '10px' }}>
-                    <Icon icon={<img src={ManagePipelinesIcon} width='38' height='38' />} size={38} />
-                  </span>
-                </div>
                 <div>
                   <h1 style={{ margin: 0 }}>
                     All Pipeline Runs
