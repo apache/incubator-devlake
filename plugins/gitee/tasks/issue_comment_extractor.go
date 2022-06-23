@@ -96,6 +96,7 @@ func ExtractApiIssueComments(taskCtx core.SubTaskContext) error {
 					return nil, err
 				}
 				giteePrComment := &models.GiteePullRequestComment{
+					ConnectionId:   data.Options.ConnectionId,
 					GiteeId:        apiComment.GiteeId,
 					PullRequestId:  pr.GiteeId,
 					Body:           apiComment.Body,
@@ -107,6 +108,7 @@ func ExtractApiIssueComments(taskCtx core.SubTaskContext) error {
 				results = append(results, giteePrComment)
 			} else {
 				giteeIssueComment := &models.GiteeIssueComment{
+					ConnectionId:   data.Options.ConnectionId,
 					GiteeId:        apiComment.GiteeId,
 					IssueId:        issue.GiteeId,
 					Body:           apiComment.Body,

@@ -21,6 +21,7 @@ import (
 	"fmt"
 	"net/url"
 
+	. "github.com/apache/incubator-devlake/plugins/core/dal"
 	"github.com/apache/incubator-devlake/plugins/helper"
 
 	"github.com/apache/incubator-devlake/plugins/core"
@@ -37,7 +38,7 @@ var CollectApiIssueCommentsMeta = core.SubTaskMeta{
 }
 
 func CollectApiIssueComments(taskCtx core.SubTaskContext) error {
-	db := taskCtx.GetDb()
+	db := taskCtx.GetDal()
 	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_COMMENTS_TABLE)
 
 	since := data.Since
@@ -46,18 +47,26 @@ func CollectApiIssueComments(taskCtx core.SubTaskContext) error {
 	// actually, for gitee pull, since doesn't make any sense, gitee pull api doesn't support it
 	if since == nil {
 		var latestUpdatedIssueComment models.GiteeIssueComment
-		err := db.Model(&latestUpdatedIssueComment).
-			Joins("left join _tool_gitee_issues on _tool_gitee_issues.gitee_id = _tool_gitee_issue_comments.issue_id").
-			Where("_tool_gitee_issues.repo_id = ?", data.Repo.GiteeId).
-			Order("gitee_updated_at DESC").Limit(1).Find(&latestUpdatedIssueComment).Error
+		err := db.All(
+			&latestUpdatedIssueComment,
+			Join("left join _tool_gitee_issues on _tool_gitee_issues.gitee_id = _tool_gitee_issue_comments.issue_id"),
+			Where(
+				"_tool_gitee_issues.repo_id = ? AND _tool_gitee_issues.connection_id = ?", data.Repo.GiteeId, data.Repo.ConnectionId,
+			),
+			Orderby("gitee_updated_at DESC"),
+			Limit(1),
+		)
 		if err != nil {
 			return fmt.Errorf("failed to get latest gitee issue record: %w", err)
 		}
 		var latestUpdatedPrComt models.GiteePullRequestComment
-		err = db.Model(&latestUpdatedPrComt).
-			Joins("left join _tool_gitee_pull_requests on _tool_gitee_pull_requests.gitee_id = _tool_gitee_pull_request_comments.pull_request_id").
-			Where("_tool_gitee_pull_requests.repo_id = ?", data.Repo.GiteeId).
-			Order("gitee_updated_at DESC").Limit(1).Find(&latestUpdatedPrComt).Error
+		err = db.All(
+			&latestUpdatedPrComt,
+			Join("left join _tool_gitee_pull_requests on _tool_gitee_pull_requests.gitee_id = _tool_gitee_pull_request_comments.pull_request_id"),
+			Where("_tool_gitee_pull_requests.repo_id = ? AND _tool_gitee_pull_requests.connection_id = ?", data.Repo.GiteeId, data.Repo.ConnectionId),
+			Orderby("gitee_updated_at DESC"),
+			Limit(1),
+		)
 		if err != nil {
 			return fmt.Errorf("failed to get latest gitee issue record: %w", err)
 		}
