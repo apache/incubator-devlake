@@ -21,11 +21,13 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
+	"net/http"
+	"net/url"
 	"strings"
 	"time"
 
+	"github.com/apache/incubator-devlake/models/domainlayer/didgen"
 	"github.com/apache/incubator-devlake/plugins/core"
-	"github.com/apache/incubator-devlake/plugins/core/dal"
 	"github.com/apache/incubator-devlake/plugins/github/models"
 	"github.com/apache/incubator-devlake/plugins/github/tasks"
 	"github.com/apache/incubator-devlake/plugins/helper"
@@ -66,63 +68,57 @@ func MakePipelinePlan(subtaskMetas []core.SubTaskMeta, connectionId uint64, scop
 		// collect git data by gitextractor if CODE was requested
 		if utils.StringsContains(scopeElem.Entities, core.DOMAIN_TYPE_CODE) {
 			// here is the tricky part, we have to obtain the repo id beforehand
-			repoId := 0
-			//   first, try to get from db?
-			githubRepo := new(models.GithubRepo)
-			err = basicRes.GetDal().First(
-				githubRepo,
-				dal.Where(
-					"connection_id = ? AND owner_login = ? AND name = ?",
-					connectionId, op.Owner, op.Repo,
-				),
+			connection := new(models.GithubConnection)
+			err = connectionHelper.FirstById(connection, connectionId)
+			if err != nil {
+				return nil, err
+			}
+			token := strings.Split(connection.Token, ",")[0]
+			apiClient, err := helper.NewApiClient(
+				connection.Endpoint,
+				map[string]string{
+					"Authorization": fmt.Sprintf("Bearer %s", token),
+				},
+				10*time.Second,
+				connection.Proxy,
+				nil,
 			)
-			if err == nil {
-				repoId = githubRepo.GithubId
+			if err != nil {
+				return nil, err
 			}
-			// no luck, fetch it from api
-			if err == dal.ErrRecordNotFound {
-				connection := new(models.GithubConnection)
-				err = connectionHelper.FirstById(connection, connectionId)
-				if err != nil {
-					return nil, err
-				}
-				token := strings.Split(connection.Token, ",")[0]
-				apiClient, err := helper.NewApiClient(
-					connection.Endpoint,
-					map[string]string{
-						"Authorization": fmt.Sprintf("Bearer %s", token),
-					},
-					10*time.Second,
-					connection.Proxy,
-					nil,
+			res, err := apiClient.Get(fmt.Sprintf("repos/%s/%s", op.Owner, op.Repo), nil, nil)
+			if err != nil {
+				return nil, err
+			}
+			if res.StatusCode != http.StatusOK {
+				return nil, fmt.Errorf(
+					"unexpected status code when requesting repo detail %d %s",
+					res.StatusCode, res.Request.URL.String(),
 				)
-				if err != nil {
-					return nil, err
-				}
-				res, err := apiClient.Get(fmt.Sprintf("repos/%s/%s", op.Owner, op.Repo), nil, nil)
-				if err != nil {
-					return nil, err
-				}
-				defer res.Body.Close()
-				body, err := ioutil.ReadAll(res.Body)
-				if err != nil {
-					return nil, err
-				}
-				apiRepo := new(tasks.GithubApiRepo)
-				err = json.Unmarshal(body, apiRepo)
-				if err != nil {
-					return nil, err
-				}
-				repoId = apiRepo.GithubId
 			}
+			defer res.Body.Close()
+			body, err := ioutil.ReadAll(res.Body)
+			if err != nil {
+				return nil, err
+			}
+			apiRepo := new(tasks.GithubApiRepo)
+			err = json.Unmarshal(body, apiRepo)
+			if err != nil {
+				return nil, err
+			}
+			cloneUrl, err := url.Parse(apiRepo.CloneUrl)
+			if err != nil {
+				return nil, err
+			}
+			cloneUrl.User = url.UserPassword("git", token)
 			stage = append(stage, &core.PipelineTask{
 				Plugin: "gitextractor",
 				Options: map[string]interface{}{
 					// TODO: url should be configuration
 					// TODO: to support private repo: username is needed for repo cloning, and we have to take
 					//       multi-token support into consideration, this is hairy
-					"url":    fmt.Sprintf("https://github.com/%s/%s.git", op.Owner, op.Repo),
-					"repoId": fmt.Sprintf("github:GithubRepo:%d", repoId),
+					"url":    cloneUrl.String(),
+					"repoId": didgen.NewDomainIdGenerator(&models.GithubRepo{}).Generate(connectionId, apiRepo.GithubId),
 				},
 			})
 			// TODO, add refdiff in the future

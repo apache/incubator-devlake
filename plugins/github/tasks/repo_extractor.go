@@ -46,6 +46,7 @@ type GithubApiRepo struct {
 	Parent      *GithubApiRepo      `json:"parent"`
 	CreatedAt   helper.Iso8601Time  `json:"created_at"`
 	UpdatedAt   *helper.Iso8601Time `json:"updated_at"`
+	CloneUrl    string              `json:"clone_url"`
 }
 
 func ExtractApiRepositories(taskCtx core.SubTaskContext) error {

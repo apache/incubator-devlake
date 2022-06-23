@@ -184,17 +184,19 @@ func ReloadBlueprints(c *cron.Cron) error {
 	}
 	c.Stop()
 	for _, pp := range blueprints {
-		if pp.Mode == models.BLUEPRINT_MODE_NORMAL {
-			// for NORMAL mode, we have to generate the actual pipeline plan beforehand
-			pp.Plan, err = GeneratePlanJson(pp.Settings)
-			if err != nil {
-				return err
+		/*
+			if pp.Mode == models.BLUEPRINT_MODE_NORMAL {
+				// for NORMAL mode, we have to generate the actual pipeline plan beforehand
+				pp.Plan, err = GeneratePlanJson(pp.Settings)
+				if err != nil {
+					return err
+				}
+				err = db.Save(pp).Error
+				if err != nil {
+					return err
+				}
 			}
-			err = db.Save(pp).Error
-			if err != nil {
-				return err
-			}
-		}
+		*/
 		var plan core.PipelinePlan
 		err = json.Unmarshal(pp.Plan, &plan)
 		if err != nil {
