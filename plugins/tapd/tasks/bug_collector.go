@@ -19,6 +19,7 @@ package tasks
 
 import (
 	"fmt"
+	"gorm.io/gorm"
 	"net/url"
 	"time"
 
@@ -48,7 +49,7 @@ func CollectBugs(taskCtx core.SubTaskContext) error {
 			dal.Orderby("modified DESC"),
 		}
 		err := db.First(&latestUpdated, clauses...)
-		if err != nil && err.Error() != "record not found" {
+		if err != nil && err != gorm.ErrRecordNotFound {
 			return fmt.Errorf("failed to get latest tapd changelog record: %w", err)
 		}
 		if latestUpdated.Id > 0 {

@@ -20,22 +20,17 @@ package tasks
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/apache/incubator-devlake/plugins/core/dal"
+	"gorm.io/gorm"
 	"net/http"
 	"net/url"
 
-	"github.com/apache/incubator-devlake/plugins/helper"
-
 	"github.com/apache/incubator-devlake/plugins/core"
+	"github.com/apache/incubator-devlake/plugins/core/dal"
 	"github.com/apache/incubator-devlake/plugins/gitlab/models"
+	"github.com/apache/incubator-devlake/plugins/helper"
 )
 
 const RAW_ISSUE_TABLE = "gitlab_api_issues"
-
-//This Struct was declared in shared.go
-//type GitlabApiParams struct {
-//	ProjectId    int
-//}
 
 var CollectApiIssuesMeta = core.SubTaskMeta{
 	Name:             "collectApiIssues",
@@ -57,7 +52,7 @@ func CollectApiIssues(taskCtx core.SubTaskContext) error {
 			dal.Orderby("gitlab_updated_at DESC"),
 		}
 		err := db.First(&latestUpdated, clause...)
-		if err != nil && err.Error() != "record not found" {
+		if err != nil && err != gorm.ErrRecordNotFound {
 			return fmt.Errorf("failed to get latest gitlab issue record: %w", err)
 		}
 		if latestUpdated.GitlabId > 0 {
