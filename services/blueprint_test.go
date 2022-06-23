@@ -20,36 +20,36 @@ package services
 import (
 	"testing"
 
-	"github.com/apache/incubator-devlake/models"
+	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestMergePipelineTasks(t *testing.T) {
-	plan1 := models.PipelinePlan{
-		[]*models.NewTask{
+	plan1 := core.PipelinePlan{
+		{
 			{Plugin: "github"},
 			{Plugin: "gitlab"},
 		},
-		[]*models.NewTask{
+		{
 			{Plugin: "gitextractor1"},
 			{Plugin: "gitextractor2"},
 		},
 	}
 
-	plan2 := models.PipelinePlan{
-		[]*models.NewTask{
+	plan2 := core.PipelinePlan{
+		{
 			{Plugin: "jira"},
 		},
 	}
 
-	plan3 := models.PipelinePlan{
-		[]*models.NewTask{
+	plan3 := core.PipelinePlan{
+		{
 			{Plugin: "jenkins"},
 		},
-		[]*models.NewTask{
+		{
 			{Plugin: "jenkins"},
 		},
-		[]*models.NewTask{
+		{
 			{Plugin: "jenkins"},
 		},
 	}
@@ -58,13 +58,13 @@ func TestMergePipelineTasks(t *testing.T) {
 	assert.Equal(t, plan2, MergePipelinePlans(plan2))
 	assert.Equal(
 		t,
-		models.PipelinePlan{
-			[]*models.NewTask{
+		core.PipelinePlan{
+			{
 				{Plugin: "github"},
 				{Plugin: "gitlab"},
 				{Plugin: "jira"},
 			},
-			[]*models.NewTask{
+			{
 				{Plugin: "gitextractor1"},
 				{Plugin: "gitextractor2"},
 			},
@@ -73,19 +73,19 @@ func TestMergePipelineTasks(t *testing.T) {
 	)
 	assert.Equal(
 		t,
-		models.PipelinePlan{
-			[]*models.NewTask{
+		core.PipelinePlan{
+			{
 				{Plugin: "github"},
 				{Plugin: "gitlab"},
 				{Plugin: "jira"},
 				{Plugin: "jenkins"},
 			},
-			[]*models.NewTask{
+			{
 				{Plugin: "gitextractor1"},
 				{Plugin: "gitextractor2"},
 				{Plugin: "jenkins"},
 			},
-			[]*models.NewTask{
+			{
 				{Plugin: "jenkins"},
 			},
 		},
