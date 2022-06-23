@@ -22,8 +22,9 @@ import (
 )
 
 type GiteeRepoCommit struct {
-	RepoId    int    `gorm:"primaryKey"`
-	CommitSha string `gorm:"primaryKey;type:varchar(40)"`
+	ConnectionId uint64 `gorm:"primaryKey"`
+	RepoId       int    `gorm:"primaryKey"`
+	CommitSha    string `gorm:"primaryKey;type:varchar(40)"`
 	common.NoPKModel
 }
 
