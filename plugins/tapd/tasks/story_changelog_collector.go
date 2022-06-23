@@ -19,13 +19,13 @@ package tasks
 
 import (
 	"fmt"
-	"net/url"
-	"time"
-
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/core/dal"
 	"github.com/apache/incubator-devlake/plugins/helper"
 	"github.com/apache/incubator-devlake/plugins/tapd/models"
+	"gorm.io/gorm"
+	"net/url"
+	"time"
 )
 
 const RAW_STORY_CHANGELOG_TABLE = "tapd_api_story_changelogs"
@@ -47,7 +47,7 @@ func CollectStoryChangelogs(taskCtx core.SubTaskContext) error {
 			dal.Orderby("created DESC"),
 		}
 		err := db.First(&latestUpdated, clauses...)
-		if err != nil && err.Error() != "record not found" {
+		if err != nil && err != gorm.ErrRecordNotFound {
 			return fmt.Errorf("failed to get latest tapd changelog record: %w", err)
 		}
 		if latestUpdated.Id > 0 {

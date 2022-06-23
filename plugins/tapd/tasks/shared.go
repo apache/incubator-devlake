@@ -20,6 +20,7 @@ package tasks
 import (
 	"encoding/json"
 	"fmt"
+	"gorm.io/gorm"
 	"io/ioutil"
 	"net/http"
 	"net/url"
@@ -75,7 +76,7 @@ func parseIterationChangelog(taskCtx core.SubTaskContext, old string, new string
 			data.Options.ConnectionId, data.Options.WorkspaceId, old),
 	}
 	err := db.First(iterationFrom, clauses...)
-	if err != nil && err.Error() != "record not found" {
+	if err != nil && err != gorm.ErrRecordNotFound {
 		return 0, 0, err
 	}
 
@@ -86,7 +87,7 @@ func parseIterationChangelog(taskCtx core.SubTaskContext, old string, new string
 			data.Options.ConnectionId, data.Options.WorkspaceId, new),
 	}
 	err = db.First(iterationTo, clauses...)
-	if err != nil && err.Error() != "record not found" {
+	if err != nil && err != gorm.ErrRecordNotFound {
 		return 0, 0, err
 	}
 	return iterationFrom.Id, iterationTo.Id, nil

@@ -24,11 +24,11 @@ import (
 	"net/http"
 	"net/url"
 
-	"github.com/apache/incubator-devlake/plugins/core/dal"
-
 	"github.com/apache/incubator-devlake/plugins/core"
+	"github.com/apache/incubator-devlake/plugins/core/dal"
 	"github.com/apache/incubator-devlake/plugins/helper"
 	"github.com/apache/incubator-devlake/plugins/jira/models"
+	"gorm.io/gorm"
 )
 
 const RAW_ISSUE_TABLE = "jira_api_issues"
@@ -58,7 +58,7 @@ func CollectIssues(taskCtx core.SubTaskContext) error {
 			dal.Orderby("_tool_jira_issues.updated DESC"),
 		}
 		err := db.First(&latestUpdated, clauses...)
-		if err != nil {
+		if err != nil && err != gorm.ErrRecordNotFound {
 			return fmt.Errorf("failed to get latest jira issue record: %w", err)
 		}
 		if latestUpdated.IssueId > 0 {
