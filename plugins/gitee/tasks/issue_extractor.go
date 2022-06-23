@@ -96,7 +96,7 @@ type IssuesResponse struct {
 
 func ExtractApiIssues(taskCtx core.SubTaskContext) error {
 	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_ISSUE_TABLE)
-	config := data.Options.Config
+	config := data.Options.TransformationRules
 	var issueSeverityRegex *regexp.Regexp
 	var issueComponentRegex *regexp.Regexp
 	var issuePriorityRegex *regexp.Regexp
@@ -104,44 +104,26 @@ func ExtractApiIssues(taskCtx core.SubTaskContext) error {
 	var issueTypeRequirementRegex *regexp.Regexp
 	var issueTypeIncidentRegex *regexp.Regexp
 	var issueSeverity = config.IssueSeverity
-	if issueSeverity == "" {
-		issueSeverity = taskCtx.GetConfig("GITEE_ISSUE_SEVERITY")
-	}
-	var issueComponent = config.IssueComponent
-	if issueComponent == "" {
-		issueComponent = taskCtx.GetConfig("GITEE_ISSUE_COMPONENT")
-	}
-	var issuePriority = config.IssuePriority
-	if issuePriority == "" {
-		issuePriority = taskCtx.GetConfig("GITEE_ISSUE_PRIORITY")
-	}
-	var issueTypeBug = config.IssueTypeBug
-	if issueTypeBug == "" {
-		issueTypeBug = taskCtx.GetConfig("GITEE_ISSUE_TYPE_BUG")
-	}
-	var issueTypeRequirement = config.IssueTypeRequirement
-	if issueTypeRequirement == "" {
-		issueTypeRequirement = taskCtx.GetConfig("GITEE_ISSUE_TYPE_REQUIREMENT")
-	}
-	var issueTypeIncident = config.IssueTypeIncident
-	if issueTypeIncident == "" {
-		issueTypeIncident = taskCtx.GetConfig("GITEE_ISSUE_TYPE_INCIDENT")
-	}
 	if len(issueSeverity) > 0 {
 		issueSeverityRegex = regexp.MustCompile(issueSeverity)
 	}
+	var issueComponent = config.IssueComponent
 	if len(issueComponent) > 0 {
 		issueComponentRegex = regexp.MustCompile(issueComponent)
 	}
+	var issuePriority = config.IssuePriority
 	if len(issuePriority) > 0 {
 		issuePriorityRegex = regexp.MustCompile(issuePriority)
 	}
+	var issueTypeBug = config.IssueTypeBug
 	if len(issueTypeBug) > 0 {
 		issueTypeBugRegex = regexp.MustCompile(issueTypeBug)
 	}
+	var issueTypeRequirement = config.IssueTypeRequirement
 	if len(issueTypeRequirement) > 0 {
 		issueTypeRequirementRegex = regexp.MustCompile(issueTypeRequirement)
 	}
+	var issueTypeIncident = config.IssueTypeIncident
 	if len(issueTypeIncident) > 0 {
 		issueTypeIncidentRegex = regexp.MustCompile(issueTypeIncident)
 	}
@@ -163,14 +145,15 @@ func ExtractApiIssues(taskCtx core.SubTaskContext) error {
 				return nil, nil
 			}
 			results := make([]interface{}, 0, 2)
-			giteeIssue, err := convertGiteeIssue(body, data.Repo.GiteeId)
+			giteeIssue, err := convertGiteeIssue(body, data.Options.ConnectionId, data.Repo.GiteeId)
 			if err != nil {
 				return nil, err
 			}
 			for _, label := range body.Labels {
 				results = append(results, &models.GiteeIssueLabel{
-					IssueId:   giteeIssue.GiteeId,
-					LabelName: label.Name,
+					ConnectionId: data.Options.ConnectionId,
+					IssueId:      giteeIssue.GiteeId,
+					LabelName:    label.Name,
 				})
 				if issueSeverityRegex != nil {
 					groups := issueSeverityRegex.FindStringSubmatch(label.Name)
@@ -223,8 +206,9 @@ func ExtractApiIssues(taskCtx core.SubTaskContext) error {
 
 	return extractor.Execute()
 }
-func convertGiteeIssue(issue *IssuesResponse, repositoryId int) (*models.GiteeIssue, error) {
+func convertGiteeIssue(issue *IssuesResponse, connectionId uint64, repositoryId int) (*models.GiteeIssue, error) {
 	giteeIssue := &models.GiteeIssue{
+		ConnectionId:   connectionId,
 		GiteeId:        issue.GiteeId,
 		RepoId:         repositoryId,
 		Number:         issue.Number,
