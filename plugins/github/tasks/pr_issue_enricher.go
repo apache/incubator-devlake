@@ -18,14 +18,15 @@ limitations under the License.
 package tasks
 
 import (
-	"github.com/apache/incubator-devlake/plugins/core"
-	"github.com/apache/incubator-devlake/plugins/core/dal"
-	githubModels "github.com/apache/incubator-devlake/plugins/github/models"
-	"github.com/apache/incubator-devlake/plugins/helper"
 	"reflect"
 	"regexp"
 	"strconv"
 	"strings"
+
+	"github.com/apache/incubator-devlake/plugins/core"
+	"github.com/apache/incubator-devlake/plugins/core/dal"
+	githubModels "github.com/apache/incubator-devlake/plugins/github/models"
+	"github.com/apache/incubator-devlake/plugins/helper"
 )
 
 var EnrichPullRequestIssuesMeta = core.SubTaskMeta{
@@ -33,6 +34,7 @@ var EnrichPullRequestIssuesMeta = core.SubTaskMeta{
 	EntryPoint:       EnrichPullRequestIssues,
 	EnabledByDefault: true,
 	Description:      "Create tool layer table github_pull_request_issues from github_pull_reqeusts",
+	DomainTypes:      []string{core.DOMAIN_TYPE_CODE, core.DOMAIN_TYPE_TICKET},
 }
 
 func EnrichPullRequestIssues(taskCtx core.SubTaskContext) (err error) {

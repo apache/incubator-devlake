@@ -18,7 +18,6 @@ limitations under the License.
 package impl
 
 import (
-	"fmt"
 	"github.com/apache/incubator-devlake/migration"
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/github/api"
@@ -26,7 +25,6 @@ import (
 	"github.com/apache/incubator-devlake/plugins/github/models/migrationscripts"
 	"github.com/apache/incubator-devlake/plugins/github/tasks"
 	"github.com/apache/incubator-devlake/plugins/helper"
-	"github.com/mitchellh/mapstructure"
 	"github.com/spf13/viper"
 	"gorm.io/gorm"
 )
@@ -36,6 +34,7 @@ var _ core.PluginInit = (*Github)(nil)
 var _ core.PluginTask = (*Github)(nil)
 var _ core.PluginApi = (*Github)(nil)
 var _ core.Migratable = (*Github)(nil)
+var _ core.PluginBlueprintV100 = (*Github)(nil)
 
 type Github struct{}
 
@@ -84,48 +83,9 @@ func (plugin Github) SubTaskMetas() []core.SubTaskMeta {
 }
 
 func (plugin Github) PrepareTaskData(taskCtx core.TaskContext, options map[string]interface{}) (interface{}, error) {
-	var op tasks.GithubOptions
-	err := mapstructure.Decode(options, &op)
+	op, err := tasks.DecodeAndValidateTaskOptions(options)
 	if err != nil {
 		return nil, err
-	}
-	if op.Owner == "" {
-		return nil, fmt.Errorf("owner is required for GitHub execution")
-	}
-	if op.Repo == "" {
-		return nil, fmt.Errorf("repo is required for GitHub execution")
-	}
-	if op.PrType == "" {
-		op.PrType = "type/(.*)$"
-	}
-	if op.PrComponent == "" {
-		op.PrComponent = "component/(.*)$"
-	}
-	if op.PrBodyClosePattern == "" {
-		op.PrBodyClosePattern = "(?mi)(fix|close|resolve|fixes|closes|resolves|fixed|closed|resolved)[\\s]*.*(((and )?(#|https:\\/\\/github.com\\/%s\\/%s\\/issues\\/)\\d+[ ]*)+)"
-	}
-	if op.IssueSeverity == "" {
-		op.IssueSeverity = "severity/(.*)$"
-	}
-	if op.IssuePriority == "" {
-		op.IssuePriority = "^(highest|high|medium|low)$"
-	}
-	if op.IssueComponent == "" {
-		op.IssueComponent = "component/(.*)$"
-	}
-	if op.IssueTypeBug == "" {
-		op.IssueTypeBug = "^(bug|failure|error)$"
-	}
-	if op.IssueTypeIncident == "" {
-		op.IssueTypeIncident = ""
-	}
-	if op.IssueTypeRequirement == "" {
-		op.IssueTypeRequirement = "^(feat|feature|proposal|requirement)$"
-	}
-
-	// find the needed GitHub now
-	if op.ConnectionId == 0 {
-		return nil, fmt.Errorf("connectionId is invalid")
 	}
 	connectionHelper := helper.NewConnectionHelper(
 		taskCtx,
@@ -143,7 +103,7 @@ func (plugin Github) PrepareTaskData(taskCtx core.TaskContext, options map[strin
 	}
 
 	return &tasks.GithubTaskData{
-		Options:   &op,
+		Options:   op,
 		ApiClient: apiClient,
 	}, nil
 }
@@ -173,4 +133,8 @@ func (plugin Github) ApiResources() map[string]map[string]core.ApiResourceHandle
 			"DELETE": api.DeleteConnection,
 		},
 	}
+}
+
+func (plugin Github) MakePipelinePlan(connectionId uint64, scope []*core.BlueprintScopeV100) (core.PipelinePlan, error) {
+	return api.MakePipelinePlan(plugin.SubTaskMetas(), connectionId, scope)
 }

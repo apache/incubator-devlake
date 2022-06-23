@@ -19,8 +19,9 @@ package tasks
 
 import (
 	"fmt"
-	"github.com/apache/incubator-devlake/plugins/core/dal"
 	"reflect"
+
+	"github.com/apache/incubator-devlake/plugins/core/dal"
 
 	"github.com/apache/incubator-devlake/models/domainlayer"
 	"github.com/apache/incubator-devlake/models/domainlayer/code"
@@ -36,6 +37,7 @@ var ConvertRepoMeta = core.SubTaskMeta{
 	EntryPoint:       ConvertRepo,
 	EnabledByDefault: true,
 	Description:      "Convert tool layer table github_repos into  domain layer table repos and boards",
+	DomainTypes:      core.DOMAIN_TYPES,
 }
 
 func ConvertRepo(taskCtx core.SubTaskContext) error {

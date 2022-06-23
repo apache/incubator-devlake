@@ -31,6 +31,7 @@ var ExtractApiPullRequestReviewersMeta = core.SubTaskMeta{
 	EntryPoint:       ExtractApiPullRequestReviewers,
 	EnabledByDefault: true,
 	Description:      "Extract raw PullRequestReviewers data into tool layer table github_reviewers",
+	DomainTypes:      []string{core.DOMAIN_TYPE_CODE},
 }
 
 type PullRequestReview struct {

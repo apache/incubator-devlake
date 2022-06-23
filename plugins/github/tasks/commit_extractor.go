@@ -30,6 +30,7 @@ var ExtractApiCommitsMeta = core.SubTaskMeta{
 	EntryPoint:       ExtractApiCommits,
 	EnabledByDefault: false,
 	Description:      "Extract raw commit data into tool layer table github_commits",
+	DomainTypes:      []string{core.DOMAIN_TYPE_CODE},
 }
 
 type CommitsResponse struct {

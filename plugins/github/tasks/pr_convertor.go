@@ -18,8 +18,9 @@ limitations under the License.
 package tasks
 
 import (
-	"github.com/apache/incubator-devlake/plugins/core/dal"
 	"reflect"
+
+	"github.com/apache/incubator-devlake/plugins/core/dal"
 
 	"github.com/apache/incubator-devlake/models/domainlayer"
 	"github.com/apache/incubator-devlake/models/domainlayer/code"
@@ -34,6 +35,7 @@ var ConvertPullRequestsMeta = core.SubTaskMeta{
 	EntryPoint:       ConvertPullRequests,
 	EnabledByDefault: true,
 	Description:      "ConvertPullRequests data from Github api",
+	DomainTypes:      []string{core.DOMAIN_TYPE_CODE},
 }
 
 func ConvertPullRequests(taskCtx core.SubTaskContext) error {

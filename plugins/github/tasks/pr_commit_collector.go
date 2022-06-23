@@ -20,10 +20,11 @@ package tasks
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/apache/incubator-devlake/plugins/core/dal"
 	"net/http"
 	"net/url"
 	"reflect"
+
+	"github.com/apache/incubator-devlake/plugins/core/dal"
 
 	"github.com/apache/incubator-devlake/plugins/helper"
 
@@ -40,6 +41,7 @@ var CollectApiPullRequestCommitsMeta = core.SubTaskMeta{
 	EntryPoint:       CollectApiPullRequestCommits,
 	EnabledByDefault: true,
 	Description:      "Collect PullRequestCommits data from Github api",
+	DomainTypes:      []string{core.DOMAIN_TYPE_CODE},
 }
 
 type SimplePr struct {

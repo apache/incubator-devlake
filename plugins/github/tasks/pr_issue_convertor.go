@@ -18,8 +18,9 @@ limitations under the License.
 package tasks
 
 import (
-	"github.com/apache/incubator-devlake/plugins/core/dal"
 	"reflect"
+
+	"github.com/apache/incubator-devlake/plugins/core/dal"
 
 	"github.com/apache/incubator-devlake/models/domainlayer/crossdomain"
 	"github.com/apache/incubator-devlake/models/domainlayer/didgen"
@@ -33,6 +34,7 @@ var ConvertPullRequestIssuesMeta = core.SubTaskMeta{
 	EntryPoint:       ConvertPullRequestIssues,
 	EnabledByDefault: true,
 	Description:      "Convert tool layer table github_pull_request_issues into  domain layer table pull_request_issues",
+	DomainTypes:      []string{core.DOMAIN_TYPE_CODE},
 }
 
 func ConvertPullRequestIssues(taskCtx core.SubTaskContext) error {

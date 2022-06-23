@@ -19,6 +19,7 @@ package tasks
 
 import (
 	"encoding/json"
+
 	"github.com/apache/incubator-devlake/plugins/core/dal"
 
 	"github.com/apache/incubator-devlake/plugins/core"
@@ -31,6 +32,7 @@ var ExtractApiCommitStatsMeta = core.SubTaskMeta{
 	EntryPoint:       ExtractApiCommitStats,
 	EnabledByDefault: false,
 	Description:      "Extract raw commit stats data into tool layer table github_commit_stats",
+	DomainTypes:      []string{core.DOMAIN_TYPE_CODE},
 }
 
 type ApiSingleCommitResponse struct {

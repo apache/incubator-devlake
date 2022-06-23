@@ -39,6 +39,8 @@ func (*updateSchemas20220616) Up(ctx context.Context, db *gorm.DB) error {
 	if err != nil {
 		return err
 	}
+	db.Model(&Blueprint20220616{}).Where("mode is null").Update("mode", "ADVANCED")
+	db.Model(&Blueprint20220616{}).Where("is_manual is null").Update("is_manual", false)
 	return nil
 }
 
