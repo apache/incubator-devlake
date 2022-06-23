@@ -21,6 +21,8 @@ import (
 	"fmt"
 	"reflect"
 
+	"github.com/apache/incubator-devlake/plugins/core/dal"
+
 	"github.com/apache/incubator-devlake/models/domainlayer"
 	"github.com/apache/incubator-devlake/models/domainlayer/code"
 	"github.com/apache/incubator-devlake/models/domainlayer/didgen"
@@ -39,12 +41,13 @@ var ConvertRepoMeta = core.SubTaskMeta{
 
 func ConvertRepo(taskCtx core.SubTaskContext) error {
 	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_REPOSITORIES_TABLE)
-	db := taskCtx.GetDb()
+	db := taskCtx.GetDal()
 	repoId := data.Repo.GiteeId
 
-	cursor, err := db.Model(&models.GiteeRepo{}).
-		Where("gitee_id = ?", repoId).
-		Rows()
+	cursor, err := db.Cursor(
+		dal.From(&models.GiteeRepo{}),
+		dal.Where("gitee_id = ?", repoId),
+	)
 	if err != nil {
 		return err
 	}
@@ -60,7 +63,7 @@ func ConvertRepo(taskCtx core.SubTaskContext) error {
 			repository := inputRow.(*models.GiteeRepo)
 			domainRepository := &code.Repo{
 				DomainEntity: domainlayer.DomainEntity{
-					Id: repoIdGen.Generate(repository.GiteeId),
+					Id: repoIdGen.Generate(data.Options.ConnectionId, repository.GiteeId),
 				},
 				Name:        fmt.Sprintf("%s/%s", repository.OwnerLogin, repository.Name),
 				Url:         repository.HTMLUrl,
@@ -73,7 +76,7 @@ func ConvertRepo(taskCtx core.SubTaskContext) error {
 
 			domainBoard := &ticket.Board{
 				DomainEntity: domainlayer.DomainEntity{
-					Id: repoIdGen.Generate(repository.GiteeId),
+					Id: repoIdGen.Generate(data.Options.ConnectionId, repository.GiteeId),
 				},
 				Name:        fmt.Sprintf("%s/%s", repository.OwnerLogin, repository.Name),
 				Url:         fmt.Sprintf("%s/%s", repository.HTMLUrl, "issues"),
