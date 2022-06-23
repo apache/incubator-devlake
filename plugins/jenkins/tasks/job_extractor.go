@@ -32,6 +32,7 @@ var ExtractApiJobsMeta = core.SubTaskMeta{
 	EntryPoint:       ExtractApiJobs,
 	EnabledByDefault: true,
 	Description:      "Extract raw jobs data into tool layer table jenkins_jobs",
+	DomainTypes:      []string{core.DOMAIN_TYPE_CICD},
 }
 
 func ExtractApiJobs(taskCtx core.SubTaskContext) error {

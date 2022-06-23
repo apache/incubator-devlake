@@ -34,6 +34,7 @@ var ConvertJobsMeta = core.SubTaskMeta{
 	EntryPoint:       ConvertJobs,
 	EnabledByDefault: true,
 	Description:      "Convert tool layer table jenkins_jobs into  domain layer table jobs",
+	DomainTypes:      []string{core.DOMAIN_TYPE_CICD},
 }
 
 func ConvertJobs(taskCtx core.SubTaskContext) error {
