@@ -20,6 +20,8 @@ package tasks
 import (
 	"reflect"
 
+	"github.com/apache/incubator-devlake/plugins/core/dal"
+
 	"github.com/apache/incubator-devlake/models/domainlayer"
 	"github.com/apache/incubator-devlake/models/domainlayer/didgen"
 	"github.com/apache/incubator-devlake/models/domainlayer/user"
@@ -36,11 +38,10 @@ var ConvertUsersMeta = core.SubTaskMeta{
 }
 
 func ConvertUsers(taskCtx core.SubTaskContext) error {
-	db := taskCtx.GetDb()
-	rawDataSubTaskArgs, _ := CreateRawDataSubTaskArgs(taskCtx, RAW_COMMIT_TABLE)
+	db := taskCtx.GetDal()
+	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_COMMIT_TABLE)
 
-	cursor, err := db.Model(&models.GiteeUser{}).
-		Rows()
+	cursor, err := db.Cursor(dal.From(&models.GiteeUser{}))
 	if err != nil {
 		return err
 	}
@@ -55,7 +56,7 @@ func ConvertUsers(taskCtx core.SubTaskContext) error {
 		Convert: func(inputRow interface{}) ([]interface{}, error) {
 			GiteeUser := inputRow.(*models.GiteeUser)
 			domainUser := &user.User{
-				DomainEntity: domainlayer.DomainEntity{Id: userIdGen.Generate(GiteeUser.Id)},
+				DomainEntity: domainlayer.DomainEntity{Id: userIdGen.Generate(data.Options.ConnectionId, GiteeUser.Id)},
 				Name:         GiteeUser.Login,
 				AvatarUrl:    GiteeUser.AvatarUrl,
 			}
