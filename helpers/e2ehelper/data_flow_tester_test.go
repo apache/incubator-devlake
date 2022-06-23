@@ -33,7 +33,7 @@ func ExampleDataFlowTester() {
 
 	taskData := &tasks.GitlabTaskData{
 		Options: &tasks.GitlabOptions{
-			ProjectId: 3472737,
+			ProjectId: 666888,
 		},
 	}
 

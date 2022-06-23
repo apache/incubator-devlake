@@ -36,7 +36,7 @@ func TestGitlabMrCommitDataFlow(t *testing.T) {
 	taskData := &tasks.GitlabTaskData{
 		Options: &tasks.GitlabOptions{
 			ConnectionId: 1,
-			ProjectId:    20171709,
+			ProjectId:    12955687,
 		},
 	}
 
