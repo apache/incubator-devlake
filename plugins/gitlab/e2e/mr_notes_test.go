@@ -50,8 +50,9 @@ func TestGitlabMrNoteDataFlow(t *testing.T) {
 	dataflowTester.VerifyTable(
 		models.GitlabMergeRequest{},
 		fmt.Sprintf("./snapshot_tables/%s_for_mr_notes_test.csv", models.GitlabMergeRequest{}.TableName()),
-		[]string{"connection_id", "gitlab_id"},
 		[]string{
+			"connection_id",
+			"gitlab_id",
 			"iid",
 			"project_id",
 			"source_project_id",
@@ -91,8 +92,9 @@ func TestGitlabMrNoteDataFlow(t *testing.T) {
 	dataflowTester.VerifyTable(
 		models.GitlabMrNote{},
 		fmt.Sprintf("./snapshot_tables/%s.csv", models.GitlabMrNote{}.TableName()),
-		[]string{"connection_id", "gitlab_id"},
 		[]string{
+			"connection_id",
+			"gitlab_id",
 			"merge_request_id",
 			"merge_request_iid",
 			"noteable_type",
@@ -111,8 +113,9 @@ func TestGitlabMrNoteDataFlow(t *testing.T) {
 	dataflowTester.VerifyTable(
 		models.GitlabMrComment{},
 		fmt.Sprintf("./snapshot_tables/%s.csv", models.GitlabMrComment{}.TableName()),
-		[]string{"connection_id", "gitlab_id"},
 		[]string{
+			"connection_id",
+			"gitlab_id",
 			"merge_request_id",
 			"merge_request_iid",
 			"body",
@@ -133,12 +136,12 @@ func TestGitlabMrNoteDataFlow(t *testing.T) {
 	dataflowTester.VerifyTable(
 		code.Note{},
 		fmt.Sprintf("./snapshot_tables/%s.csv", code.Note{}.TableName()),
-		[]string{"id"},
 		[]string{
 			"_raw_data_params",
 			"_raw_data_table",
 			"_raw_data_id",
 			"_raw_data_remark",
+			"id",
 			"pr_id",
 			"type",
 			"author",
@@ -155,12 +158,12 @@ func TestGitlabMrNoteDataFlow(t *testing.T) {
 	dataflowTester.VerifyTable(
 		code.PullRequestComment{},
 		fmt.Sprintf("./snapshot_tables/%s.csv", code.PullRequestComment{}.TableName()),
-		[]string{"id"},
 		[]string{
 			"_raw_data_params",
 			"_raw_data_table",
 			"_raw_data_id",
 			"_raw_data_remark",
+			"id",
 			"pull_request_id",
 			"body",
 			"user_id",

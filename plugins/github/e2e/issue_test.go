@@ -64,8 +64,10 @@ func TestIssueDataFlow(t *testing.T) {
 	dataflowTester.VerifyTable(
 		models.GithubIssue{},
 		"./snapshot_tables/_tool_github_issues.csv",
-		[]string{"connection_id", "github_id", "repo_id"},
 		[]string{
+			"connection_id",
+			"github_id",
+			"repo_id",
 			"number",
 			"state",
 			"title",
@@ -93,8 +95,10 @@ func TestIssueDataFlow(t *testing.T) {
 	dataflowTester.VerifyTable(
 		models.GithubIssueLabel{},
 		"./snapshot_tables/_tool_github_issue_labels.csv",
-		[]string{"connection_id", "issue_id", "label_name"},
 		[]string{
+			"connection_id",
+			"issue_id",
+			"label_name",
 			"_raw_data_params",
 			"_raw_data_table",
 			"_raw_data_id",
@@ -109,8 +113,8 @@ func TestIssueDataFlow(t *testing.T) {
 	dataflowTester.VerifyTable(
 		ticket.Issue{},
 		"./snapshot_tables/issues.csv",
-		[]string{"id"},
 		[]string{
+			"id",
 			"url",
 			"icon_url",
 			"issue_key",
@@ -142,7 +146,6 @@ func TestIssueDataFlow(t *testing.T) {
 		ticket.BoardIssue{},
 		"./snapshot_tables/board_issues.csv",
 		[]string{"board_id", "issue_id"},
-		[]string{},
 	)
 
 	// verify issue labels conversion
@@ -152,6 +155,5 @@ func TestIssueDataFlow(t *testing.T) {
 		ticket.IssueLabel{},
 		"./snapshot_tables/issue_labels.csv",
 		[]string{"issue_id", "label_name"},
-		[]string{},
 	)
 }

@@ -52,8 +52,10 @@ func TestTapdBugChangelogDataFlow(t *testing.T) {
 	dataflowTester.VerifyTable(
 		models.TapdBugChangelog{},
 		fmt.Sprintf("./snapshot_tables/%s.csv", models.TapdBugChangelog{}.TableName()),
-		[]string{"connection_id", "id", "field"},
 		[]string{
+			"connection_id",
+			"id",
+			"field",
 			"workspace_id",
 			"bug_id",
 			"author",
@@ -74,8 +76,6 @@ func TestTapdBugChangelogDataFlow(t *testing.T) {
 			"connection_id",
 			"changelog_id",
 			"field",
-		},
-		[]string{
 			"value_before_parsed",
 			"value_after_parsed",
 			"iteration_id_from",
@@ -92,12 +92,12 @@ func TestTapdBugChangelogDataFlow(t *testing.T) {
 	dataflowTester.VerifyTable(
 		ticket.Changelog{},
 		fmt.Sprintf("./snapshot_tables/%s_bug.csv", ticket.Changelog{}.TableName()),
-		[]string{"id"},
 		[]string{
 			"_raw_data_params",
 			"_raw_data_table",
 			"_raw_data_id",
 			"_raw_data_remark",
+			"id",
 			"issue_id",
 			"author_id",
 			"author_name",

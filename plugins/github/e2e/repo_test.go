@@ -57,8 +57,9 @@ func TestRepoDataFlow(t *testing.T) {
 	dataflowTester.VerifyTable(
 		models.GithubRepo{},
 		"./snapshot_tables/_tool_github_repos.csv",
-		[]string{"connection_id", "github_id"},
 		[]string{
+			"connection_id",
+			"github_id",
 			"name",
 			"html_url",
 			"description",
@@ -81,8 +82,8 @@ func TestRepoDataFlow(t *testing.T) {
 	dataflowTester.VerifyTable(
 		code.Repo{},
 		"./snapshot_tables/repos.csv",
-		[]string{"id"},
 		[]string{
+			"id",
 			"name",
 			"url",
 			"description",
@@ -97,8 +98,8 @@ func TestRepoDataFlow(t *testing.T) {
 	dataflowTester.VerifyTable(
 		ticket.Board{},
 		"./snapshot_tables/boards.csv",
-		[]string{"id"},
 		[]string{
+			"id",
 			"name",
 			"description",
 			"url",

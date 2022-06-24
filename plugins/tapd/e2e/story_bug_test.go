@@ -54,8 +54,6 @@ func TestTapdStoryBugDataFlow(t *testing.T) {
 			"workspace_id",
 			"story_id",
 			"bug_id",
-		},
-		[]string{
 			"_raw_data_params",
 			"_raw_data_table",
 			"_raw_data_id",

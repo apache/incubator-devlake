@@ -69,8 +69,9 @@ func TestCommentDataFlow(t *testing.T) {
 	dataflowTester.VerifyTable(
 		models.GithubIssueComment{},
 		fmt.Sprintf("./snapshot_tables/%s.csv", models.GithubIssueComment{}.TableName()),
-		[]string{"connection_id", "github_id"},
 		[]string{
+			"connection_id",
+			"github_id",
 			"issue_id",
 			"body",
 			"author_username",
@@ -86,8 +87,9 @@ func TestCommentDataFlow(t *testing.T) {
 	dataflowTester.VerifyTable(
 		models.GithubPullRequestComment{},
 		fmt.Sprintf("./snapshot_tables/%s.csv", models.GithubPullRequestComment{}.TableName()),
-		[]string{"connection_id", "github_id"},
 		[]string{
+			"connection_id",
+			"github_id",
 			"pull_request_id",
 			"body",
 			"author_username",
@@ -107,8 +109,8 @@ func TestCommentDataFlow(t *testing.T) {
 	dataflowTester.VerifyTable(
 		ticket.IssueComment{},
 		fmt.Sprintf("./snapshot_tables/%s.csv", ticket.IssueComment{}.TableName()),
-		[]string{"id"},
 		[]string{
+			"id",
 			"issue_id",
 			"body",
 			"user_id",
@@ -122,8 +124,8 @@ func TestCommentDataFlow(t *testing.T) {
 	dataflowTester.VerifyTable(
 		code.PullRequestComment{},
 		fmt.Sprintf("./snapshot_tables/%s.csv", code.PullRequestComment{}.TableName()),
-		[]string{"id"},
 		[]string{
+			"id",
 			"pull_request_id",
 			"body",
 			"user_id",
