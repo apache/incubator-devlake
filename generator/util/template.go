@@ -74,8 +74,9 @@ func DetectExistVars(templates map[string]string, values map[string]string) (new
 	newValues = map[string]string{}
 	for varName, value := range values {
 		for _, template := range templates {
-			if strings.Index(template, varName) != -1 {
+			if strings.Contains(template, varName) {
 				newValues[varName] = value
+				break
 			}
 		}
 	}
