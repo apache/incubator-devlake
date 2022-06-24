@@ -96,9 +96,7 @@ func (plugin Jenkins) RootPkgPath() string {
 }
 
 func (plugin Jenkins) MigrationScripts() []migration.Script {
-	return []migration.Script{
-		new(migrationscripts.InitSchemas),
-	}
+	return migrationscripts.All()
 }
 
 func (plugin Jenkins) MakePipelinePlan(connectionId uint64, scope []*core.BlueprintScopeV100) (core.PipelinePlan, error) {

@@ -99,9 +99,7 @@ func (plugin AE) RootPkgPath() string {
 }
 
 func (plugin AE) MigrationScripts() []migration.Script {
-	return []migration.Script{
-		new(migrationscripts.InitSchemas),
-	}
+	return migrationscripts.All()
 }
 
 func (plugin AE) ApiResources() map[string]map[string]core.ApiResourceHandler {

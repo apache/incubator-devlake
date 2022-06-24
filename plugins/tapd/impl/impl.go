@@ -168,7 +168,7 @@ func (plugin Tapd) RootPkgPath() string {
 }
 
 func (plugin Tapd) MigrationScripts() []migration.Script {
-	return []migration.Script{new(migrationscripts.InitSchemas)}
+	return migrationscripts.All()
 }
 
 func (plugin Tapd) ApiResources() map[string]map[string]core.ApiResourceHandler {

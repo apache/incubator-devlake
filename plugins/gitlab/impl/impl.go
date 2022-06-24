@@ -116,9 +116,7 @@ func (plugin Gitlab) RootPkgPath() string {
 }
 
 func (plugin Gitlab) MigrationScripts() []migration.Script {
-	return []migration.Script{
-		new(migrationscripts.InitSchemas),
-	}
+	return migrationscripts.All()
 }
 
 func (plugin Gitlab) MakePipelinePlan(connectionId uint64, scope []*core.BlueprintScopeV100) (core.PipelinePlan, error) {
