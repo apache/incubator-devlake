@@ -33,8 +33,6 @@ import {
   Tag
 } from '@blueprintjs/core'
 import DeletePopover from '@/components/blueprints/DeletePopover'
-import EventIcon from '@/images/calendar-3.png'
-import EventOffIcon from '@/images/calendar-4.png'
 
 const BlueprintsGrid = (props) => {
   const {
@@ -220,14 +218,7 @@ const BlueprintsGrid = (props) => {
                     </div>
                     <Icon
                       size={16}
-                      icon={(
-                        <img
-                          src={b.enable ? EventIcon : EventOffIcon} width={16} height={16}
-                          style={{ float: 'left', marginRight: '5px' }}
-                        />)}
-                      style={{
-
-                      }}
+                      icon={b.enable ? 'calendar' : 'disable'}
                     />
                     {b.name}
                   </div>

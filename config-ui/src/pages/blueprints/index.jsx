@@ -36,7 +36,6 @@ import AppCrumbs from '@/components/Breadcrumbs'
 import Content from '@/components/Content'
 import AddBlueprintDialog from '@/components/blueprints/AddBlueprintDialog'
 import { ReactComponent as HelpIcon } from '@/images/help.svg'
-import ManageBlueprintsIcon from '@/images/blueprints.png'
 import BlueprintsGrid from '@/components/blueprints/BlueprintsGrid'
 
 const Blueprints = (props) => {
@@ -300,11 +299,6 @@ const Blueprints = (props) => {
             />
             <div className='headlineContainer'>
               <div style={{ display: 'flex' }}>
-                <div>
-                  <span style={{ marginRight: '10px' }}>
-                    <Icon icon={<img src={ManageBlueprintsIcon} width='38' height='38' />} size={38} />
-                  </span>
-                </div>
                 <div>
                   <h1 style={{ margin: 0 }}>
                     Pipeline Blueprints
