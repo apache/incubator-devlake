@@ -30,7 +30,9 @@ jobs:
           docker build -t ${{ env.IMAGE_LAKE }}:latest --file ./Dockerfile .
           docker tag ${{ env.IMAGE_LAKE }}:latest ${{ env.IMAGE_LAKE }}:${{ github.ref_name }}
           docker push ${{ env.IMAGE_LAKE }}:${{ github.ref_name }}
-          printf {{ github.ref_name }} | grep -Pq '^v(\d+).(\d+).(\d+)$' && docker push ${{ env.IMAGE_LAKE }}:latest
+          if printf {{ github.ref_name }} | grep -Pq '^v(\d+).(\d+).(\d+)$'; then
+            docker push ${{ env.IMAGE_LAKE }}:latest
+          fi
   build-configui:
     name: Build config-ui image
     runs-on: ubuntu-20.04
@@ -53,7 +55,9 @@ jobs:
           docker build -t ${{ env.IMAGE_CONFIG_UI }}:latest --file ./Dockerfile .
           docker tag ${{ env.IMAGE_CONFIG_UI }}:latest ${{ env.IMAGE_CONFIG_UI }}:${{ github.ref_name }}
           docker push ${{ env.IMAGE_CONFIG_UI }}:${{ github.ref_name }}
-          printf {{ github.ref_name }} | grep -Pq '^v(\d+).(\d+).(\d+)$' && docker push ${{ env.IMAGE_CONFIG_UI }}:latest
+          if printf {{ github.ref_name }} | grep -Pq '^v(\d+).(\d+).(\d+)$'; then
+            docker push ${{ env.IMAGE_CONFIG_UI }}:latest
+          fi
   build-grafana:
     name: Build grafana image
     runs-on: ubuntu-20.04
@@ -76,4 +80,6 @@ jobs:
           docker build -t ${{ env.IMAGE_GRAFANA }}:latest --file ./Dockerfile .
           docker tag ${{ env.IMAGE_GRAFANA }}:latest ${{ env.IMAGE_GRAFANA }}:${{ github.ref_name }}
           docker push ${{ env.IMAGE_GRAFANA }}:${{ github.ref_name }}
-          printf {{ github.ref_name }} | grep -Pq '^v(\d+).(\d+).(\d+)$' && docker push ${{ env.IMAGE_DASHBOARD }}:latest
+          if printf {{ github.ref_name }} | grep -Pq '^v(\d+).(\d+).(\d+)$'; then
+            docker push ${{ env.IMAGE_DASHBOARD }}:latest
+          fi
