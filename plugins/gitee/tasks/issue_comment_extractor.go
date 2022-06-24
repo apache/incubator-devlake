@@ -20,6 +20,8 @@ package tasks
 import (
 	"encoding/json"
 
+	"github.com/apache/incubator-devlake/plugins/core/dal"
+
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/gitee/models"
 	"github.com/apache/incubator-devlake/plugins/helper"
@@ -84,14 +86,14 @@ func ExtractApiIssueComments(taskCtx core.SubTaskContext) error {
 				return nil, err
 			}
 			issue := &models.GiteeIssue{}
-			err = taskCtx.GetDb().Where("number = ? and repo_id = ?", issueINumber, data.Repo.GiteeId).Limit(1).Find(issue).Error
+			err = taskCtx.GetDal().All(issue, dal.Where("connection_id = ? and number = ? and repo_id = ?", data.Options.ConnectionId, issueINumber, data.Repo.GiteeId))
 			if err != nil {
 				return nil, err
 			}
 			//if we can not find issues with issue number above, move the comments to gitee_pull_request_comments
 			if issue.GiteeId == 0 {
 				pr := &models.GiteePullRequest{}
-				err = taskCtx.GetDb().Where("number = ? and repo_id = ?", issueINumber, data.Repo.GiteeId).Limit(1).Find(pr).Error
+				err = taskCtx.GetDal().All(issue, dal.Where("connection_id = ? and number = ? and repo_id = ?", data.Options.ConnectionId, issueINumber, data.Repo.GiteeId))
 				if err != nil {
 					return nil, err
 				}

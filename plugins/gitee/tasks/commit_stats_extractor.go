@@ -20,6 +20,8 @@ package tasks
 import (
 	"encoding/json"
 
+	"github.com/apache/incubator-devlake/plugins/core/dal"
+
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/gitee/models"
 	"github.com/apache/incubator-devlake/plugins/helper"
@@ -64,9 +66,9 @@ func ExtractApiCommitStats(taskCtx core.SubTaskContext) error {
 				return nil, nil
 			}
 
-			db := taskCtx.GetDb()
+			db := taskCtx.GetDal()
 			commit := &models.GiteeCommit{}
-			err = db.Model(commit).Where("sha = ?", body.Sha).Limit(1).Find(commit).Error
+			err = db.First(commit, dal.Where("sha = ?", body.Sha), dal.Limit(1))
 			if err != nil {
 				return nil, err
 			}
