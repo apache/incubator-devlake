@@ -63,8 +63,14 @@ func (plugin {{ .PluginName }}) PrepareTaskData(taskCtx core.TaskContext, option
 		return nil, err
 	}
 
+	apiClient, err := tasks.New{{ .PluginName }}ApiClient(taskCtx)
+	if err != nil {
+		return nil, err
+	}
+
 	return &tasks.{{ .PluginName }}TaskData{
 		Options: &op,
+        ApiClient: apiClient,
 	}, nil
 }
 
