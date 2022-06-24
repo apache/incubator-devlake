@@ -39,17 +39,19 @@ func MakePipelinePlan(subtaskMetas []core.SubTaskMeta, connectionId uint64, scop
 	plan := make(core.PipelinePlan, len(scope))
 	for i, scopeElem := range scope {
 		// handle taskOptions and transformationRules, by dumping them to taskOptions
-		taskOptions := make(map[string]interface{})
-		err = json.Unmarshal(scopeElem.Options, &taskOptions)
+		transformationRules := make(map[string]interface{})
+		err = json.Unmarshal(scopeElem.Transformation, &transformationRules)
 		if err != nil {
 			return nil, err
 		}
-		err = json.Unmarshal(scopeElem.Transformation, &taskOptions)
+		options := make(map[string]interface{})
+		err = json.Unmarshal(scopeElem.Options, &options)
 		if err != nil {
 			return nil, err
 		}
-		taskOptions["connectionId"] = connectionId
-		op, err := tasks.DecodeAndValidateTaskOptions(taskOptions)
+		options["connectionId"] = connectionId
+		options["transformationRules"] = transformationRules
+		op, err := tasks.DecodeAndValidateTaskOptions(options)
 		if err != nil {
 			return nil, err
 		}
@@ -62,7 +64,7 @@ func MakePipelinePlan(subtaskMetas []core.SubTaskMeta, connectionId uint64, scop
 			{
 				Plugin:   "github",
 				Subtasks: subtasks,
-				Options:  taskOptions,
+				Options:  options,
 			},
 		}
 		// collect git data by gitextractor if CODE was requested
@@ -90,13 +92,13 @@ func MakePipelinePlan(subtaskMetas []core.SubTaskMeta, connectionId uint64, scop
 			if err != nil {
 				return nil, err
 			}
+			defer res.Body.Close()
 			if res.StatusCode != http.StatusOK {
 				return nil, fmt.Errorf(
 					"unexpected status code when requesting repo detail %d %s",
 					res.StatusCode, res.Request.URL.String(),
 				)
 			}
-			defer res.Body.Close()
 			body, err := ioutil.ReadAll(res.Body)
 			if err != nil {
 				return nil, err
@@ -114,14 +116,10 @@ func MakePipelinePlan(subtaskMetas []core.SubTaskMeta, connectionId uint64, scop
 			stage = append(stage, &core.PipelineTask{
 				Plugin: "gitextractor",
 				Options: map[string]interface{}{
-					// TODO: url should be configuration
-					// TODO: to support private repo: username is needed for repo cloning, and we have to take
-					//       multi-token support into consideration, this is hairy
 					"url":    cloneUrl.String(),
 					"repoId": didgen.NewDomainIdGenerator(&models.GithubRepo{}).Generate(connectionId, apiRepo.GithubId),
 				},
 			})
-			// TODO, add refdiff in the future
 		}
 		plan[i] = stage
 	}
