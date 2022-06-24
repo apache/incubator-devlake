@@ -56,7 +56,7 @@ func ConvertCommits(taskCtx core.SubTaskContext) error {
 	defer cursor.Close()
 
 	repoDidGen := didgen.NewDomainIdGenerator(&githubModels.GithubRepo{})
-	domainRepoId := repoDidGen.Generate(repoId)
+	domainRepoId := repoDidGen.Generate(data.Options.ConnectionId, repoId)
 	userDidGen := didgen.NewDomainIdGenerator(&githubModels.GithubUser{})
 
 	converter, err := helper.NewDataConverter(helper.DataConverterArgs{
@@ -79,14 +79,14 @@ func ConvertCommits(taskCtx core.SubTaskContext) error {
 				Message:        githubCommit.Message,
 				Additions:      githubCommit.Additions,
 				Deletions:      githubCommit.Deletions,
-				AuthorId:       userDidGen.Generate(githubCommit.AuthorId),
+				AuthorId:       userDidGen.Generate(data.Options.ConnectionId, githubCommit.AuthorId),
 				AuthorName:     githubCommit.AuthorName,
 				AuthorEmail:    githubCommit.AuthorEmail,
 				AuthoredDate:   githubCommit.AuthoredDate,
 				CommitterName:  githubCommit.CommitterName,
 				CommitterEmail: githubCommit.CommitterEmail,
 				CommittedDate:  githubCommit.CommittedDate,
-				CommitterId:    userDidGen.Generate(githubCommit.CommitterId),
+				CommitterId:    userDidGen.Generate(data.Options.ConnectionId, githubCommit.CommitterId),
 			}
 			repoCommit := &code.RepoCommit{
 				RepoId:    domainRepoId,
