@@ -40,15 +40,15 @@ func (GithubConnection20220615) TableName() string {
 	return "_tool_github_connections"
 }
 
-type InitSchemas struct {
+type initSchemas struct {
 	config core.ConfigGetter
 }
 
-func (u *InitSchemas) SetConfigGetter(config core.ConfigGetter) {
+func (u *initSchemas) SetConfigGetter(config core.ConfigGetter) {
 	u.config = config
 }
 
-func (u *InitSchemas) Up(ctx context.Context, db *gorm.DB) error {
+func (u *initSchemas) Up(ctx context.Context, db *gorm.DB) error {
 	if db.Migrator().HasTable(GithubConnection20220615{}) {
 		err := db.Migrator().DropTable(GithubConnection20220615{})
 		if err != nil {
@@ -128,10 +128,10 @@ func (u *InitSchemas) Up(ctx context.Context, db *gorm.DB) error {
 	)
 }
 
-func (*InitSchemas) Version() uint64 {
+func (*initSchemas) Version() uint64 {
 	return 20220615000001
 }
 
-func (*InitSchemas) Name() string {
+func (*initSchemas) Name() string {
 	return "Github init schemas 20220611"
 }

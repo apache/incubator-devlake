@@ -17,17 +17,22 @@ limitations under the License.
 
 package migrationscripts
 
-import "github.com/apache/incubator-devlake/migration"
+import (
+	"context"
+	"gorm.io/gorm"
+)
 
-// All return all the migration scripts of framework
-func All() []migration.Script {
-	return []migration.Script{
-		new(initSchemas),
-		new(updateSchemas20220505), new(updateSchemas20220507), new(updateSchemas20220510),
-		new(updateSchemas20220513), new(updateSchemas20220524), new(updateSchemas20220526),
-		new(updateSchemas20220527), new(updateSchemas20220528), new(updateSchemas20220601),
-		new(updateSchemas20220602), new(updateSchemas20220612), new(updateSchemas20220613),
-		new(updateSchemas20220614), new(updateSchemas2022061402), new(updateSchemas20220616),
-		new(blueprintNormalMode),
-	}
+type updateSchemas{{ .Date }}{{ .Count }} struct{}
+
+func (*updateSchemas{{ .Date }}{{ .Count }}) Up(ctx context.Context, db *gorm.DB) error {
+	db.Migrator()
+	return nil
+}
+
+func (*updateSchemas{{ .Date }}{{ .Count }}) Version() uint64 {
+	return {{ .Date }}{{ .Count }}
+}
+
+func (*updateSchemas{{ .Date }}{{ .Count }}) Name() string {
+	return "UpdateSchemas for {{ .Purpose }} in {{ .Date }}"
 }
