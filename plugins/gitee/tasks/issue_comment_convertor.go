@@ -20,6 +20,8 @@ package tasks
 import (
 	"reflect"
 
+	"github.com/apache/incubator-devlake/plugins/core/dal"
+
 	"github.com/apache/incubator-devlake/models/domainlayer"
 	"github.com/apache/incubator-devlake/models/domainlayer/didgen"
 	"github.com/apache/incubator-devlake/models/domainlayer/ticket"
@@ -36,14 +38,16 @@ var ConvertIssueCommentsMeta = core.SubTaskMeta{
 }
 
 func ConvertIssueComments(taskCtx core.SubTaskContext) error {
-	db := taskCtx.GetDb()
+	db := taskCtx.GetDal()
 	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_COMMENTS_TABLE)
 	repoId := data.Repo.GiteeId
 
-	cursor, err := db.Model(&models.GiteeIssueComment{}).
-		Joins("left join _tool_gitee_issues "+
-			"on _tool_gitee_issues.gitee_id = _tool_gitee_issue_comments.issue_id").
-		Where("repo_id = ?", repoId).Rows()
+	cursor, err := db.Cursor(
+		dal.From(&models.GiteeIssueComment{}),
+		dal.Join("left join _tool_gitee_issues "+
+			"on _tool_gitee_issues.gitee_id = _tool_gitee_issue_comments.issue_id"),
+		dal.Where("repo_id = ? and _tool_gitee_issues.connection_id = ?", repoId, data.Options.ConnectionId),
+	)
 	if err != nil {
 		return err
 	}
@@ -60,11 +64,11 @@ func ConvertIssueComments(taskCtx core.SubTaskContext) error {
 			giteeIssueComment := inputRow.(*models.GiteeIssueComment)
 			domainIssueComment := &ticket.IssueComment{
 				DomainEntity: domainlayer.DomainEntity{
-					Id: issueIdGen.Generate(giteeIssueComment.GiteeId),
+					Id: issueIdGen.Generate(data.Options.ConnectionId, giteeIssueComment.GiteeId),
 				},
-				IssueId:     issueIdGen.Generate(giteeIssueComment.IssueId),
+				IssueId:     issueIdGen.Generate(data.Options.ConnectionId, giteeIssueComment.IssueId),
 				Body:        giteeIssueComment.Body,
-				UserId:      userIdGen.Generate(giteeIssueComment.AuthorUserId),
+				UserId:      userIdGen.Generate(data.Options.ConnectionId, giteeIssueComment.AuthorUserId),
 				CreatedDate: giteeIssueComment.GiteeCreatedAt,
 			}
 			return []interface{}{

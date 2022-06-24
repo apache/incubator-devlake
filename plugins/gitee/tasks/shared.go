@@ -46,8 +46,9 @@ type RateLimitInfo struct {
 }
 
 type GiteeApiParams struct {
-	Repo  string
-	Owner string
+	ConnectionId uint64
+	Repo         string
+	Owner        string
 }
 
 type GiteeInput struct {
@@ -93,8 +94,9 @@ func CreateRawDataSubTaskArgs(taskCtx core.SubTaskContext, Table string) (*helpe
 	RawDataSubTaskArgs := &helper.RawDataSubTaskArgs{
 		Ctx: taskCtx,
 		Params: GiteeApiParams{
-			Repo:  data.Options.Repo,
-			Owner: data.Options.Owner,
+			ConnectionId: data.Options.ConnectionId,
+			Repo:         data.Options.Repo,
+			Owner:        data.Options.Owner,
 		},
 		Table: Table,
 	}

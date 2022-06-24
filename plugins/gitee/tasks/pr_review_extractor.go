@@ -46,7 +46,7 @@ type PullRequestReview struct {
 }
 
 func ExtractApiPullRequestReviews(taskCtx core.SubTaskContext) error {
-	rawDataSubTaskArgs, _ := CreateRawDataSubTaskArgs(taskCtx, RAW_PULL_REQUEST_REVIEW_TABLE)
+	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_PULL_REQUEST_REVIEW_TABLE)
 	extractor, err := helper.NewApiExtractor(helper.ApiExtractorArgs{
 		RawDataSubTaskArgs: *rawDataSubTaskArgs,
 		Extract: func(row *helper.RawData) ([]interface{}, error) {
@@ -66,6 +66,7 @@ func ExtractApiPullRequestReviews(taskCtx core.SubTaskContext) error {
 			results := make([]interface{}, 0, 1)
 
 			giteeReviewer := &models.GiteeReviewer{
+				ConnectionId:  data.Options.ConnectionId,
 				GiteeId:       apiPullRequestReview.User.Id,
 				Login:         apiPullRequestReview.User.Login,
 				PullRequestId: pull.GiteeId,

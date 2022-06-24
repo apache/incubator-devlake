@@ -24,6 +24,7 @@ import (
 )
 
 type GiteeRepo struct {
+	ConnectionId  uint64 `gorm:"primaryKey"`
 	GiteeId       int    `gorm:"primaryKey"`
 	Name          string `gorm:"type:varchar(255)"`
 	HTMLUrl       string `gorm:"type:varchar(255)"`
@@ -39,5 +40,5 @@ type GiteeRepo struct {
 }
 
 func (GiteeRepo) TableName() string {
-	return "_tool_gitee_repo"
+	return "_tool_gitee_repos"
 }

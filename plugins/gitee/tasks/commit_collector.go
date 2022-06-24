@@ -18,8 +18,12 @@ limitations under the License.
 package tasks
 
 import (
+	"fmt"
 	"net/url"
 	"strconv"
+
+	"github.com/apache/incubator-devlake/plugins/core/dal"
+	"github.com/apache/incubator-devlake/plugins/gitee/models"
 
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/helper"
@@ -35,18 +39,41 @@ var CollectCommitsMeta = core.SubTaskMeta{
 }
 
 func CollectApiCommits(taskCtx core.SubTaskContext) error {
+	db := taskCtx.GetDal()
 	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_COMMIT_TABLE)
+	since := data.Since
+	incremental := false
+	if since == nil {
+		latestUpdated := &models.GiteeCommit{}
+		err := db.All(
+			&latestUpdated,
+			dal.Join("left join _tool_gitee_repo_commits on _tool_gitee_commits.sha = _tool_gitee_repo_commits.commit_sha"),
+			dal.Join("left join _tool_gitee_repos on _tool_gitee_repo_commits.repo_id = _tool_gitee_repos.gitee_id"),
+			dal.Where("_tool_gitee_repo_commits.repo_id = ? AND _tool_gitee_repo_commits.connection_id = ?", data.Repo.GiteeId, data.Repo.ConnectionId),
+			dal.Orderby("committed_date DESC"),
+			dal.Limit(1),
+		)
+
+		if err != nil {
+			return fmt.Errorf("failed to get latest gitee commit record: %w", err)
+		}
+		if latestUpdated.Sha != "" {
+			since = &latestUpdated.CommittedDate
+			incremental = true
+		}
+	}
 
 	collector, err := helper.NewApiCollector(helper.ApiCollectorArgs{
 		RawDataSubTaskArgs: *rawDataSubTaskArgs,
 		ApiClient:          data.ApiClient,
 		PageSize:           100,
-		Incremental:        false,
+		Incremental:        incremental,
 		UrlTemplate:        "repos/{{ .Params.Owner }}/{{ .Params.Repo }}/commits",
 		Query: func(reqData *helper.RequestData) (url.Values, error) {
 			query := url.Values{}
-			query.Set("with_stats", "true")
-			query.Set("sort", "asc")
+			if since != nil {
+				query.Set("since", since.String())
+			}
 			query.Set("page", strconv.Itoa(reqData.Pager.Page))
 			query.Set("per_page", strconv.Itoa(reqData.Pager.Size))
 			return query, nil

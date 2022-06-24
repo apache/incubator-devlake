@@ -60,15 +60,16 @@ func ExtractApiRepositories(taskCtx core.SubTaskContext) error {
 			}
 			results := make([]interface{}, 0, 1)
 			giteeRepository := &models.GiteeRepo{
-				GiteeId:     repo.GiteeId,
-				Name:        repo.Name,
-				HTMLUrl:     repo.HTMLUrl,
-				Description: repo.Description,
-				OwnerId:     repo.Owner.Id,
-				OwnerLogin:  repo.Owner.Login,
-				Language:    repo.Language,
-				CreatedDate: repo.CreatedAt.ToTime(),
-				UpdatedDate: helper.Iso8601TimeToTime(repo.UpdatedAt),
+				ConnectionId: data.Options.ConnectionId,
+				GiteeId:      repo.GiteeId,
+				Name:         repo.Name,
+				HTMLUrl:      repo.HTMLUrl,
+				Description:  repo.Description,
+				OwnerId:      repo.Owner.Id,
+				OwnerLogin:   repo.Owner.Login,
+				Language:     repo.Language,
+				CreatedDate:  repo.CreatedAt.ToTime(),
+				UpdatedDate:  helper.Iso8601TimeToTime(repo.UpdatedAt),
 			}
 			data.Repo = giteeRepository
 

@@ -20,8 +20,9 @@ package models
 import "github.com/apache/incubator-devlake/models/common"
 
 type GiteePullRequestIssue struct {
-	PullRequestId     int `gorm:"primaryKey"`
-	IssueId           int `gorm:"primaryKey"`
+	ConnectionId      uint64 `gorm:"primaryKey"`
+	PullRequestId     int    `gorm:"primaryKey"`
+	IssueId           int    `gorm:"primaryKey"`
 	PullRequestNumber int
 	IssueNumber       string
 	common.NoPKModel

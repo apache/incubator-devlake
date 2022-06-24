@@ -20,7 +20,8 @@ package models
 import "github.com/apache/incubator-devlake/models/common"
 
 type GiteeUser struct {
-	Id                int    `json:"id" gorm:"primaryKey"`
+	ConnectionId      uint64 `gorm:"primaryKey"`
+	Id                int    `json:"id" gorm:"primaryKey;autoIncrement:false"`
 	Login             string `json:"login" gorm:"type:varchar(255)"`
 	Name              string `json:"name" gorm:"type:varchar(255)"`
 	AvatarUrl         string `json:"avatar_url" gorm:"type:varchar(255)"`
