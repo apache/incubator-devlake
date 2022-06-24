@@ -42,7 +42,8 @@ func ExtractProject(taskCtx core.SubTaskContext) error {
 		RawDataSubTaskArgs: helper.RawDataSubTaskArgs{
 			Ctx: taskCtx,
 			Params: AeApiParams{
-				ProjectId: data.Options.ProjectId,
+				ConnectionId: data.Options.ConnectionId,
+				ProjectId:    data.Options.ProjectId,
 			},
 			Table: RAW_PROJECT_TABLE,
 		},
@@ -53,6 +54,8 @@ func ExtractProject(taskCtx core.SubTaskContext) error {
 				return nil, err
 			}
 			aeProject := &models.AEProject{
+				ConnectionId: data.Options.ConnectionId,
+
 				Id:           strconv.Itoa(body.Id),
 				GitUrl:       body.GitUrl,
 				Priority:     body.Priority,

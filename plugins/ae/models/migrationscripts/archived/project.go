@@ -24,6 +24,7 @@ import (
 )
 
 type AEProject struct {
+	ConnectionId uint64 `gorm:"primaryKey"`
 	Id           int    `gorm:"primaryKey;type:varchar(255)"`
 	GitUrl       string `gorm:"type:varchar(255);comment:url of the repo in github"`
 	Priority     int

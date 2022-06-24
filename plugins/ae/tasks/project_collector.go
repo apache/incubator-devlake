@@ -34,7 +34,8 @@ func CollectProject(taskCtx core.SubTaskContext) error {
 		RawDataSubTaskArgs: helper.RawDataSubTaskArgs{
 			Ctx: taskCtx,
 			Params: AeApiParams{
-				ProjectId: data.Options.ProjectId,
+				ConnectionId: data.Options.ConnectionId,
+				ProjectId:    data.Options.ProjectId,
 			},
 			Table: RAW_PROJECT_TABLE,
 		},

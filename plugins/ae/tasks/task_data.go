@@ -29,5 +29,6 @@ type AeTaskData struct {
 	ApiClient *helper.ApiAsyncClient
 }
 type AeApiParams struct {
-	ProjectId int
+	ConnectionId uint64 `json:"connectionId"`
+	ProjectId    int
 }
