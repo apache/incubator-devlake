@@ -56,6 +56,10 @@ func CollectApiCommitStats(taskCtx core.SubTaskContext) error {
 		dal.Limit(1),
 	)
 
+	if err != nil {
+		return fmt.Errorf("failed to get latest gite commit record: %w", err)
+	}
+
 	cursor, err := db.Cursor(
 		dal.Join("left join _tool_gitee_repo_commits on _tool_gitee_commits.sha = _tool_gitee_repo_commits.commit_sha"),
 		dal.From(models.GiteeCommit{}.TableName()),
