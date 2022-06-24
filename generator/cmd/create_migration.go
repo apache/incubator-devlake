@@ -24,6 +24,7 @@ import (
 	"github.com/manifoldco/promptui"
 	"github.com/spf13/cobra"
 	"io/ioutil"
+	"os"
 	"path/filepath"
 	"regexp"
 	"time"
@@ -64,12 +65,19 @@ If framework passed, generator will create a new migration in models/migrationsc
 			_, pluginName, err = prompt.Run()
 			cobra.CheckErr(err)
 		}
+
+		// check if migrationscripts inited
 		var migrationPath string
 		if pluginName == `framework` {
 			migrationPath = filepath.Join(`models`, `migrationscripts`)
 		} else {
 			migrationPath = filepath.Join(`plugins`, pluginName, `models`, `migrationscripts`)
 		}
+		_, err = os.Stat(migrationPath)
+		if os.IsNotExist(err) {
+			cobra.CheckErr(errors.New(`migrationscripts not init. please run init-migration first`))
+		}
+		cobra.CheckErr(err)
 
 		prompt := promptui.Prompt{
 			Label: "purpose",
@@ -83,6 +91,13 @@ If framework passed, generator will create a new migration in models/migrationsc
 		purpose, err = prompt.Run()
 		cobra.CheckErr(err)
 
+		selector := promptui.Select{
+			Label: "with_config (is this migrations will use config?)",
+			Items: []string{"No", "Yes"},
+		}
+		_, withConfig, err := selector.Run()
+		cobra.CheckErr(err)
+
 		// create vars
 		values := map[string]string{}
 		values[`Date`] = time.Now().Format(`20060102`)
@@ -92,8 +107,11 @@ If framework passed, generator will create a new migration in models/migrationsc
 		values[`Count`] = fmt.Sprintf(`%06d`, len(existMigrations))
 
 		// read template
-		templates := map[string]string{
-			`updateSchemas` + values[`Date`] + values[`Count`] + `.go`: util.ReadTemplate("generator/template/plugin/migrationscripts/migration.go-template.go"),
+		templates := map[string]string{}
+		if withConfig == `Yes` {
+			templates[`updateSchemas`+values[`Date`]+values[`Count`]+`.go`] = util.ReadTemplate("generator/template/migrationscripts/migration_with_config.go-template")
+		} else {
+			templates[`updateSchemas`+values[`Date`]+values[`Count`]+`.go`] = util.ReadTemplate("generator/template/migrationscripts/migration.go-template")
 		}
 		values = util.DetectExistVars(templates, values)
 		println(`vars in template:`, fmt.Sprint(values))
@@ -104,7 +122,7 @@ If framework passed, generator will create a new migration in models/migrationsc
 		if modifyExistCode {
 			util.ReplaceVarInFile(
 				filepath.Join(migrationPath, `register.go`),
-				regexp.MustCompile(`(return +\[]migration\.Script ?\{ ?\n?)((\s*[\w.()]+,\n)*)(\s*})`),
+				regexp.MustCompile(`(return +\[]migration\.Script ?\{ ?\n?)((\s*[\w.()]+,\n?)*)(\s*})`),
 				fmt.Sprintf("$1$2\t\tnew(updateSchemas%s%s),\n$4", values[`Date`], values[`Count`]),
 			)
 		}

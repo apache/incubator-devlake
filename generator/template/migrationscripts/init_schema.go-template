@@ -22,17 +22,18 @@ import (
 	"gorm.io/gorm"
 )
 
-type updateSchemas{{ .Date }}{{ .Count }} struct{}
+type initSchemas struct {}
 
-func (*updateSchemas{{ .Date }}{{ .Count }}) Up(ctx context.Context, db *gorm.DB) error {
-	db.Migrator()
-	return nil
+func (u *initSchemas) Up(ctx context.Context, db *gorm.DB) error {
+	return db.Migrator().AutoMigrate(
+		// TODO add you models
+	)
 }
 
-func (*updateSchemas{{ .Date }}{{ .Count }}) Version() uint64 {
-	return {{ .Date }}{{ .Count }}
+func (*initSchemas) Version() uint64 {
+	return {{ .Date }}000001
 }
 
-func (*updateSchemas{{ .Date }}{{ .Count }}) Name() string {
-	return "UpdateSchemas for {{ .Purpose }} in {{ .Date }}"
+func (*initSchemas) Name() string {
+	return "{{ .pluginName }} init schemas {{ .Date }}"
 }
