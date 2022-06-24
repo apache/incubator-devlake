@@ -13,7 +13,7 @@ go run generator/main.go help
 ```
 
 Usage Gif:
-![usage](./usage.gif)
+![usage](https://user-images.githubusercontent.com/3294100/175464884-1dce09b0-fade-4c26-9a1b-b535d9651bc1.gif)
 
 ## Plugin Related
 
