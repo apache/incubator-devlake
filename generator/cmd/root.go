@@ -14,7 +14,10 @@ var (
 	cfgFile         string
 	modifyExistCode bool
 
-	rootCmd = &cobra.Command{}
+	rootCmd = &cobra.Command{
+		Use:   `generator [command]`,
+		Short: "Apache DevLake Cli Tool -- Code Generator",
+	}
 )
 
 // Execute executes the root command.
