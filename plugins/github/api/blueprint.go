@@ -40,10 +40,29 @@ func MakePipelinePlan(subtaskMetas []core.SubTaskMeta, connectionId uint64, scop
 	for i, scopeElem := range scope {
 		// handle taskOptions and transformationRules, by dumping them to taskOptions
 		transformationRules := make(map[string]interface{})
-		err = json.Unmarshal(scopeElem.Transformation, &transformationRules)
-		if err != nil {
-			return nil, err
+		if len(scopeElem.Transformation) > 0 {
+			err = json.Unmarshal(scopeElem.Transformation, &transformationRules)
+			if err != nil {
+				return nil, err
+			}
 		}
+		// refdiff
+		if refdiffRules, ok := transformationRules["refdiff"]; ok {
+			// add a new task to next stage
+			j := i + 1
+			if j == len(plan) {
+				plan = append(plan, nil)
+			}
+			plan[j] = core.PipelineStage{
+				{
+					Plugin:  "refdiff",
+					Options: refdiffRules.(map[string]interface{}),
+				},
+			}
+			// remove it from github transformationRules
+			delete(transformationRules, "refdiff")
+		}
+		// construct task options for github
 		options := make(map[string]interface{})
 		err = json.Unmarshal(scopeElem.Options, &options)
 		if err != nil {
@@ -51,22 +70,25 @@ func MakePipelinePlan(subtaskMetas []core.SubTaskMeta, connectionId uint64, scop
 		}
 		options["connectionId"] = connectionId
 		options["transformationRules"] = transformationRules
+		// make sure task options is valid
 		op, err := tasks.DecodeAndValidateTaskOptions(options)
 		if err != nil {
 			return nil, err
 		}
-		// subtasks
+		// construct subtasks
 		subtasks, err := helper.MakePipelinePlanSubtasks(subtaskMetas, scopeElem.Entities)
 		if err != nil {
 			return nil, err
 		}
-		stage := core.PipelineStage{
-			{
-				Plugin:   "github",
-				Subtasks: subtasks,
-				Options:  options,
-			},
+		stage := plan[i]
+		if stage == nil {
+			stage = core.PipelineStage{}
 		}
+		stage = append(stage, &core.PipelineTask{
+			Plugin:   "github",
+			Subtasks: subtasks,
+			Options:  options,
+		})
 		// collect git data by gitextractor if CODE was requested
 		if utils.StringsContains(scopeElem.Entities, core.DOMAIN_TYPE_CODE) {
 			// here is the tricky part, we have to obtain the repo id beforehand
