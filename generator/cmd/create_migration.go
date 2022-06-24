@@ -45,19 +45,13 @@ If framework passed, generator will create a new migration in models/migrationsc
 		var purpose string
 		var err error
 
-		// try to get plugin name and extractor name
+		// try to get plugin name
 		if len(args) > 0 {
 			pluginName = args[0]
 		}
 		if pluginName == `` {
-			files, err := ioutil.ReadDir(`plugins`)
-			cobra.CheckErr(err)
-			pluginItems := []string{"framework"}
-			for _, file := range files {
-				if file.IsDir() {
-					pluginItems = append(pluginItems, file.Name())
-				}
-			}
+			pluginItems, err := pluginNames(false)
+			cobra.CheckErr(true)
 			prompt := promptui.Select{
 				Label: "plugin_name",
 				Items: pluginItems,
