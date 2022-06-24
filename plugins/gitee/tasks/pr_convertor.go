@@ -20,6 +20,8 @@ package tasks
 import (
 	"reflect"
 
+	"github.com/apache/incubator-devlake/plugins/core/dal"
+
 	"github.com/apache/incubator-devlake/models/domainlayer"
 	"github.com/apache/incubator-devlake/models/domainlayer/code"
 	"github.com/apache/incubator-devlake/models/domainlayer/didgen"
@@ -36,11 +38,14 @@ var ConvertPullRequestsMeta = core.SubTaskMeta{
 }
 
 func ConvertPullRequests(taskCtx core.SubTaskContext) error {
-	db := taskCtx.GetDb()
+	db := taskCtx.GetDal()
 	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_PULL_REQUEST_TABLE)
 	repoId := data.Repo.GiteeId
 
-	cursor, err := db.Model(&models.GiteePullRequest{}).Where("repo_id = ?", repoId).Rows()
+	cursor, err := db.Cursor(
+		dal.From(&models.GiteePullRequest{}),
+		dal.Where("repo_id = ? and connection_id = ?", repoId, data.Options.ConnectionId),
+	)
 	if err != nil {
 		return err
 	}
@@ -58,13 +63,13 @@ func ConvertPullRequests(taskCtx core.SubTaskContext) error {
 			pr := inputRow.(*models.GiteePullRequest)
 			domainPr := &code.PullRequest{
 				DomainEntity: domainlayer.DomainEntity{
-					Id: prIdGen.Generate(pr.GiteeId),
+					Id: prIdGen.Generate(data.Options.ConnectionId, pr.GiteeId),
 				},
-				BaseRepoId:     repoIdGen.Generate(pr.RepoId),
+				BaseRepoId:     repoIdGen.Generate(data.Options.ConnectionId, pr.RepoId),
 				Status:         pr.State,
 				Title:          pr.Title,
 				Url:            pr.Url,
-				AuthorId:       userIdGen.Generate(pr.AuthorId),
+				AuthorId:       userIdGen.Generate(data.Options.ConnectionId, pr.AuthorId),
 				AuthorName:     pr.AuthorName,
 				Description:    pr.Body,
 				CreatedDate:    pr.GiteeCreatedAt,

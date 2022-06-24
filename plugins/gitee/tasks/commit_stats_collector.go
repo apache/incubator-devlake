@@ -25,6 +25,8 @@ import (
 	"net/url"
 	"reflect"
 
+	"github.com/apache/incubator-devlake/plugins/core/dal"
+
 	"github.com/apache/incubator-devlake/plugins/helper"
 
 	"github.com/apache/incubator-devlake/plugins/core"
@@ -41,26 +43,33 @@ var CollectApiCommitStatsMeta = core.SubTaskMeta{
 }
 
 func CollectApiCommitStats(taskCtx core.SubTaskContext) error {
-	db := taskCtx.GetDb()
+	db := taskCtx.GetDal()
 	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_COMMIT_STATS_TABLE)
 
 	var latestUpdated models.GiteeCommitStat
-	err := db.Model(&latestUpdated).Joins("left join _tool_gitee_repo_commits on _tool_gitee_commit_stats.sha = _tool_gitee_repo_commits.commit_sha").
-		Where("_tool_gitee_repo_commits.repo_id = ?", data.Repo.GiteeId).
-		Order("committed_date DESC").Limit(1).Find(&latestUpdated).Error
+
+	err := db.First(
+		&latestUpdated,
+		dal.Join("left join _tool_gitee_repo_commits on _tool_gitee_commit_stats.sha = _tool_gitee_repo_commits.commit_sha"),
+		dal.Where("_tool_gitee_repo_commits.repo_id = ? and _tool_gitee_repo_commits.connection_id = ?", data.Repo.GiteeId, data.Repo.ConnectionId),
+		dal.Orderby("committed_date DESC"),
+		dal.Limit(1),
+	)
+
 	if err != nil {
 		return fmt.Errorf("failed to get latest gitee commit record: %w", err)
 	}
 
-	cursor, err := db.Model(&models.GiteeCommit{}).
-		Joins("left join _tool_gitee_repo_commits on _tool_gitee_commits.sha = _tool_gitee_repo_commits.commit_sha").
-		Where("_tool_gitee_repo_commits.repo_id = ? and _tool_gitee_commits.committed_date >= ?",
-			data.Repo.GiteeId, latestUpdated.CommittedDate.String()).
-		Rows()
+	cursor, err := db.Cursor(
+		dal.Join("left join _tool_gitee_repo_commits on _tool_gitee_commits.sha = _tool_gitee_repo_commits.commit_sha"),
+		dal.From(models.GiteeCommit{}.TableName()),
+		dal.Where("_tool_gitee_repo_commits.repo_id = ? and _tool_gitee_repo_commits.connection_id = ? and _tool_gitee_commits.committed_date >= ?",
+			data.Repo.GiteeId, data.Repo.ConnectionId, latestUpdated.CommittedDate.String()),
+	)
 	if err != nil {
 		return err
 	}
-	iterator, err := helper.NewCursorIterator(db, cursor, reflect.TypeOf(models.GiteeCommit{}))
+	iterator, err := helper.NewDalCursorIterator(db, cursor, reflect.TypeOf(models.GiteeCommit{}))
 	if err != nil {
 		return err
 	}

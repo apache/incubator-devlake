@@ -24,6 +24,7 @@ import (
 )
 
 type GiteeIssue struct {
+	ConnectionId    uint64 `gorm:"primaryKey"`
 	GiteeId         int    `gorm:"primaryKey"`
 	RepoId          int    `gorm:"index"`
 	Number          string `gorm:"index;comment:Used in API requests ex. api/repo/1/issue/<THIS_NUMBER>"`

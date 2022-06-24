@@ -29,7 +29,7 @@ import (
 	"github.com/apache/incubator-devlake/plugins/core"
 )
 
-const RAW_REPOSITORIES_TABLE = "gitee_api_repo"
+const RAW_REPOSITORIES_TABLE = "gitee_api_repos"
 
 var CollectApiRepoMeta = core.SubTaskMeta{
 	Name:        "collectApiRepo",

@@ -24,8 +24,9 @@ import (
 )
 
 type GiteePullRequestComment struct {
-	GiteeId        int `gorm:"primaryKey"`
-	PullRequestId  int `gorm:"index"`
+	ConnectionId   uint64 `gorm:"primaryKey"`
+	GiteeId        int    `gorm:"primaryKey"`
+	PullRequestId  int    `gorm:"index"`
 	Body           string
 	AuthorUsername string `gorm:"type:varchar(255)"`
 	AuthorUserId   int

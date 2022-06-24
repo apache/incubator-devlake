@@ -20,11 +20,12 @@ package tasks
 import (
 	"reflect"
 
+	"github.com/apache/incubator-devlake/plugins/core/dal"
+
 	"github.com/apache/incubator-devlake/models/domainlayer/code"
 	"github.com/apache/incubator-devlake/models/domainlayer/didgen"
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/gitee/models"
-	giteeModels "github.com/apache/incubator-devlake/plugins/gitee/models"
 	"github.com/apache/incubator-devlake/plugins/helper"
 )
 
@@ -38,26 +39,26 @@ var ConvertCommitsMeta = core.SubTaskMeta{
 func ConvertCommits(taskCtx core.SubTaskContext) error {
 
 	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_COMMIT_TABLE)
-	db := taskCtx.GetDb()
+	db := taskCtx.GetDal()
 	repoId := data.Repo.GiteeId
 
 	// select all commits belongs to the project
-	cursor, err := db.Table("_tool_gitee_commits gc").
-		Joins(`left join _tool_gitee_repo_commits gpc on (
-			gpc.commit_sha = gc.sha
-		)`).
-		Select("gc.*").
-		Where("gpc.repo_id = ?", repoId).
-		Rows()
+	cursor, err := db.Cursor(
+		dal.Select("gc.*"),
+		dal.From("_tool_gitee_commits gc"),
+		dal.Join(`left join _tool_gitee_repo_commits grc on (
+			grc.commit_sha = gc.sha
+		)`),
+		dal.Where("grc.repo_id = ? AND grc.connection_id = ?", repoId, data.Options.ConnectionId),
+	)
 	if err != nil {
 		return err
 	}
 	defer cursor.Close()
 
-	// TODO: adopt batch indate operation
 	userDidGen := didgen.NewDomainIdGenerator(&models.GiteeUser{})
-	repoDidGen := didgen.NewDomainIdGenerator(&giteeModels.GiteeRepo{})
-	domainRepoId := repoDidGen.Generate(repoId)
+	repoDidGen := didgen.NewDomainIdGenerator(&models.GiteeRepo{})
+	domainRepoId := repoDidGen.Generate(data.Options.ConnectionId, repoId)
 
 	converter, err := helper.NewDataConverter(helper.DataConverterArgs{
 		RawDataSubTaskArgs: *rawDataSubTaskArgs,
@@ -73,14 +74,14 @@ func ConvertCommits(taskCtx core.SubTaskContext) error {
 			commit.Message = giteeCommit.Message
 			commit.Additions = giteeCommit.Additions
 			commit.Deletions = giteeCommit.Deletions
-			commit.AuthorId = userDidGen.Generate(giteeCommit.AuthorId)
+			commit.AuthorId = userDidGen.Generate(data.Options.ConnectionId, giteeCommit.AuthorId)
 			commit.AuthorName = giteeCommit.AuthorName
 			commit.AuthorEmail = giteeCommit.AuthorEmail
 			commit.AuthoredDate = giteeCommit.AuthoredDate
 			commit.CommitterName = giteeCommit.CommitterName
 			commit.CommitterEmail = giteeCommit.CommitterEmail
 			commit.CommittedDate = giteeCommit.CommittedDate
-			commit.CommitterId = userDidGen.Generate(giteeCommit.CommitterId)
+			commit.CommitterId = userDidGen.Generate(data.Options.ConnectionId, giteeCommit.CommitterId)
 
 			// convert repo / commits relationship
 			repoCommit := &code.RepoCommit{

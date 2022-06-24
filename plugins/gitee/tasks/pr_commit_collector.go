@@ -24,6 +24,8 @@ import (
 	"net/url"
 	"reflect"
 
+	"github.com/apache/incubator-devlake/plugins/core/dal"
+
 	"github.com/apache/incubator-devlake/plugins/helper"
 
 	"github.com/apache/incubator-devlake/plugins/core"
@@ -45,18 +47,20 @@ type SimplePr struct {
 }
 
 func CollectApiPullRequestCommits(taskCtx core.SubTaskContext) error {
-	db := taskCtx.GetDb()
+	db := taskCtx.GetDal()
 	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_PULL_REQUEST_COMMIT_TABLE)
 
 	incremental := false
 
-	cursor, err := db.Model(&models.GiteePullRequest{}).Select("number, gitee_id").
-		Where("repo_id = ?", data.Repo.GiteeId).
-		Rows()
+	cursor, err := db.Cursor(
+		dal.Select("number, gitee_id"),
+		dal.From(models.GiteePullRequest{}.TableName()),
+		dal.Where("repo_id = ? and connection_id=?", data.Repo.GiteeId, data.Options.ConnectionId),
+	)
 	if err != nil {
 		return err
 	}
-	iterator, err := helper.NewCursorIterator(db, cursor, reflect.TypeOf(SimplePr{}))
+	iterator, err := helper.NewDalCursorIterator(db, cursor, reflect.TypeOf(SimplePr{}))
 	if err != nil {
 		return err
 	}

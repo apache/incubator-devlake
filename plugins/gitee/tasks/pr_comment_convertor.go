@@ -20,6 +20,8 @@ package tasks
 import (
 	"reflect"
 
+	"github.com/apache/incubator-devlake/plugins/core/dal"
+
 	"github.com/apache/incubator-devlake/models/domainlayer"
 	"github.com/apache/incubator-devlake/models/domainlayer/code"
 	"github.com/apache/incubator-devlake/models/domainlayer/didgen"
@@ -36,14 +38,16 @@ var ConvertPullRequestCommentsMeta = core.SubTaskMeta{
 }
 
 func ConvertPullRequestComments(taskCtx core.SubTaskContext) error {
-	db := taskCtx.GetDb()
+	db := taskCtx.GetDal()
 	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_COMMENTS_TABLE)
 	repoId := data.Repo.GiteeId
 
-	cursor, err := db.Model(&models.GiteePullRequestComment{}).
-		Joins("left join _tool_gitee_pull_requests "+
-			"on _tool_gitee_pull_requests.gitee_id = _tool_gitee_pull_request_comments.pull_request_id").
-		Where("repo_id = ?", repoId).Rows()
+	cursor, err := db.Cursor(
+		dal.From(&models.GiteePullRequestComment{}),
+		dal.Join("left join _tool_gitee_pull_requests "+
+			"on _tool_gitee_pull_requests.gitee_id = _tool_gitee_pull_request_comments.pull_request_id"),
+		dal.Where("repo_id = ? and _tool_gitee_pull_requests.connection_id = ?", repoId, data.Options.ConnectionId),
+	)
 	if err != nil {
 		return err
 	}
@@ -60,11 +64,11 @@ func ConvertPullRequestComments(taskCtx core.SubTaskContext) error {
 			giteePullRequestComment := inputRow.(*models.GiteePullRequestComment)
 			domainPrComment := &code.PullRequestComment{
 				DomainEntity: domainlayer.DomainEntity{
-					Id: prIdGen.Generate(giteePullRequestComment.GiteeId),
+					Id: prIdGen.Generate(data.Options.ConnectionId, giteePullRequestComment.GiteeId),
 				},
-				PullRequestId: prIdGen.Generate(giteePullRequestComment.PullRequestId),
+				PullRequestId: prIdGen.Generate(data.Options.ConnectionId, giteePullRequestComment.PullRequestId),
 				Body:          giteePullRequestComment.Body,
-				UserId:        userIdGen.Generate(giteePullRequestComment.AuthorUserId),
+				UserId:        userIdGen.Generate(data.Options.ConnectionId, giteePullRequestComment.AuthorUserId),
 				CreatedDate:   giteePullRequestComment.GiteeCreatedAt,
 				CommitSha:     "",
 				Position:      0,

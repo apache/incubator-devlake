@@ -22,6 +22,7 @@ import (
 )
 
 type GiteeReviewer struct {
+	ConnectionId  uint64 `gorm:"primaryKey"`
 	GiteeId       int    `gorm:"primaryKey"`
 	Login         string `gorm:"type:varchar(255)"`
 	PullRequestId int    `gorm:"primaryKey"`

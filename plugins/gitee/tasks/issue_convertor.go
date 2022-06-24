@@ -20,6 +20,8 @@ package tasks
 import (
 	"reflect"
 
+	"github.com/apache/incubator-devlake/plugins/core/dal"
+
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/helper"
 
@@ -37,12 +39,15 @@ var ConvertIssuesMeta = core.SubTaskMeta{
 }
 
 func ConvertIssues(taskCtx core.SubTaskContext) error {
-	db := taskCtx.GetDb()
+	db := taskCtx.GetDal()
 	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_ISSUE_TABLE)
 	repoId := data.Repo.GiteeId
 
 	issue := &giteeModels.GiteeIssue{}
-	cursor, err := db.Model(issue).Where("repo_id = ?", repoId).Rows()
+	cursor, err := db.Cursor(
+		dal.From(issue),
+		dal.Where("repo_id = ? and connection_id=?", repoId, data.Options.ConnectionId),
+	)
 
 	if err != nil {
 		return err
@@ -60,15 +65,15 @@ func ConvertIssues(taskCtx core.SubTaskContext) error {
 		Convert: func(inputRow interface{}) ([]interface{}, error) {
 			issue := inputRow.(*giteeModels.GiteeIssue)
 			domainIssue := &ticket.Issue{
-				DomainEntity:    domainlayer.DomainEntity{Id: issueIdGen.Generate(issue.GiteeId)},
+				DomainEntity:    domainlayer.DomainEntity{Id: issueIdGen.Generate(data.Options.ConnectionId, issue.GiteeId)},
 				IssueKey:        issue.Number,
 				Title:           issue.Title,
 				Description:     issue.Body,
 				Priority:        issue.Priority,
 				Type:            issue.Type,
-				AssigneeId:      userIdGen.Generate(issue.AssigneeId),
+				AssigneeId:      userIdGen.Generate(data.Options.ConnectionId, issue.AssigneeId),
 				AssigneeName:    issue.AssigneeName,
-				CreatorId:       userIdGen.Generate(issue.AuthorId),
+				CreatorId:       userIdGen.Generate(data.Options.ConnectionId, issue.AuthorId),
 				CreatorName:     issue.AuthorName,
 				LeadTimeMinutes: issue.LeadTimeMinutes,
 				Url:             issue.Url,
@@ -84,7 +89,7 @@ func ConvertIssues(taskCtx core.SubTaskContext) error {
 				domainIssue.Status = ticket.TODO
 			}
 			boardIssue := &ticket.BoardIssue{
-				BoardId: boardIdGen.Generate(repoId),
+				BoardId: boardIdGen.Generate(data.Options.ConnectionId, repoId),
 				IssueId: domainIssue.Id,
 			}
 			return []interface{}{
