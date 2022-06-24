@@ -35,7 +35,7 @@ spec:
         devlakeComponent: mysql
     spec:
       containers:
-        - name: {{ .Chart.Name }}-mysql
+        - name: mysql
           image: "{{ .Values.mysql.image.repository }}:{{ .Values.mysql.image.tag }}"
           imagePullPolicy: {{ .Values.mysql.image.pullPolicy }}
           ports:
@@ -50,6 +50,14 @@ spec:
                 - "mysqladmin ping -u root -p{{ .Values.mysql.rootPassword }}"
             initialDelaySeconds: 60
             timeoutSeconds: 30
+          readinessProbe:
+            exec:
+              command:
+                - "sh"
+                - "-c"
+                - "mysqladmin ping -u root -p{{ .Values.mysql.rootPassword }}"
+            initialDelaySeconds: 5
+            timeoutSeconds: 10
           {{- with .Values.mysql.resources }}
           resources:
             {{- toYaml . | nindent 12 }}
@@ -87,7 +95,6 @@ spec:
 
 ---
 # devlake
-# TODO: graceful startup: init container for waiting mysql ready
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
@@ -106,8 +113,19 @@ spec:
         {{- include "devlake.selectorLabels" . | nindent 8 }}
         devlakeComponent: lake
     spec:
+      initContainers:
+        - name: waiting-mysql-ready
+          image: "{{ .Values.alpine.image.repository }}:{{ .Values.alpine.image.tag }}"
+          imagePullPolicy: {{ .Values.alpine.image.pullPolicy }}
+          command:
+            - 'sh'
+            - '-c'
+            - |
+              until nc -z -w 2 {{ include "devlake.fullname" . }}-mysql 3306 && echo mysql is ready ; do
+                sleep 2
+              done
       containers:
-        - name: {{ .Chart.Name }}-lake
+        - name: lake
           image: "{{ .Values.lake.image.repository }}:{{ .Values.lake.image.tag }}"
           imagePullPolicy: {{ .Values.lake.image.pullPolicy }}
           ports:

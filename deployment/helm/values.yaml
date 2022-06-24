@@ -116,6 +116,14 @@ ui:
 
   affinity: {}
 
+
+# alpine image for some init containers
+alpine:
+  image:
+    repository: alpine
+    tag: 3.16
+    pullPolicy: IfNotPresent
+
 service:
   type: NodePort
   # service port for grafana
