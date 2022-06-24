@@ -57,7 +57,7 @@ func CollectApiCommitStats(taskCtx core.SubTaskContext) error {
 	)
 
 	if err != nil {
-		return fmt.Errorf("failed to get latest gite commit record: %w", err)
+		return fmt.Errorf("failed to get latest gitee commit record: %w", err)
 	}
 
 	cursor, err := db.Cursor(
