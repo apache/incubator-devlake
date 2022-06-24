@@ -46,9 +46,11 @@ func New{{ .PluginName }}ApiClient(taskCtx core.TaskContext) (*helper.ApiAsyncCl
 		return nil, err
 	}
 	// set token
-	apiClient.SetHeaders(map[string]string{
-		"Authorization": fmt.Sprintf("Bearer %v", token),
-	})
+	if token != "" {
+		apiClient.SetHeaders(map[string]string{
+			"Authorization": fmt.Sprintf("Bearer %v", token),
+		})
+	}
 
 	// TODO add some check after request if necessary
 	// apiClient.SetAfterFunction(func(res *http.Response) error {

@@ -1,3 +1,20 @@
+/*
+Licensed to the Apache Software Foundation (ASF) under one or more
+contributor license agreements.  See the NOTICE file distributed with
+this work for additional information regarding copyright ownership.
+The ASF licenses this file to You under the Apache License, Version 2.0
+(the "License"); you may not use this file except in compliance with
+the License.  You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+*/
+
 package cmd
 
 import (
@@ -76,8 +93,17 @@ Type in what the name of plugin is, then generator will create a new plugin in p
 		templates := map[string]string{}
 		if withApiClient == `Yes` {
 			prompt := promptui.Prompt{
-				Label:   "Endpoint (which website/openapi would you want to request)",
+				Label:   "Endpoint (which host to request)",
 				Default: `https://open.example.cn/api/v1`,
+				Validate: func(input string) error {
+					if input == `` {
+						return errors.New("endpoint requite")
+					}
+					if !strings.HasPrefix(input, `http`) {
+						return errors.New("endpoint should start with http")
+					}
+					return nil
+				},
 			}
 			endpoint, err := prompt.Run()
 			cobra.CheckErr(err)
