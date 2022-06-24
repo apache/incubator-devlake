@@ -64,7 +64,7 @@ func TestWorklogDataFlow(t *testing.T) {
 	)
 
 	// verify worklog conversion
-	dataflowTester.ImportCsvIntoTabler("./snapshot_tables/_tool_jira_board_issues.csv", &models.JiraBoardIssue{})
+	dataflowTester.ImportCsvIntoTabler("./snapshot_tables/_tool_jira_board_issues_for_worklog.csv", &models.JiraBoardIssue{})
 	dataflowTester.FlushTabler(&ticket.IssueWorklog{})
 	dataflowTester.Subtask(tasks.ConvertWorklogsMeta, taskData)
 	dataflowTester.VerifyTable(

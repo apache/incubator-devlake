@@ -1,14 +1,14 @@
 id,issue_id,author_id,author_name,field_id,field_name,original_from_value,original_to_value,from_value,to_value,created_date
 jira:JiraChangelogItem:2:11646:assignee,jira:JiraIssue:2:10063,jira:JiraUser:2:5ecfbd0ba04d9c0c220c18d8,yanghui,,assignee,,jira:JiraUser:2:5ecfbd0ba04d9c0c220c18d8,,,2020-06-17T07:39:14.729+00:00
 jira:JiraChangelogItem:2:11648:assignee,jira:JiraIssue:2:10063,jira:JiraUser:2:5e9711ba34f7b90c0fbc37d3,Rankin Zheng,,assignee,jira:JiraUser:2:5ecfbd0ba04d9c0c220c18d8,jira:JiraUser:2:5ecfbd0c2490cf0c09e2e598,,,2020-06-17T07:40:05.335+00:00
-jira:JiraChangelogItem:2:11677:summary,jira:JiraIssue:2:10063,jira:JiraUser:2:5ecfbd0ba04d9c0c220c18d8,yanghui,,summary,[Industry Metrics]提供效率报表的行业指标,[Industry Metrics]提供效率报表的行业指标 （需求还不明确）,,,2020-06-17T07:46:44.006+00:00
-jira:JiraChangelogItem:2:11798:summary,jira:JiraIssue:2:10063,jira:JiraUser:2:5ecfbd0c2490cf0c09e2e598,Gerile Tu,,summary,[Industry Metrics]提供效率报表的行业指标 （需求还不明确）,[Industry Metrics] 提供效率报表的行业指标 （需求还不明确）,,,2020-06-18T05:58:14.769+00:00
+jira:JiraChangelogItem:2:11677:summary,jira:JiraIssue:2:10063,jira:JiraUser:2:5ecfbd0ba04d9c0c220c18d8,yanghui,,summary,[Industry Metrics],[Industry Metrics],,,2020-06-17T07:46:44.006+00:00
+jira:JiraChangelogItem:2:11798:summary,jira:JiraIssue:2:10063,jira:JiraUser:2:5ecfbd0c2490cf0c09e2e598,Gerile Tu,,summary,[Industry Metrics],[Industry Metrics] ,,,2020-06-18T05:58:14.769+00:00
 jira:JiraChangelogItem:2:11913:Component,jira:JiraIssue:2:10063,jira:JiraUser:2:5ecfbd0c2490cf0c09e2e598,Gerile Tu,,Component,,Industry Metrics,,,2020-06-19T01:07:20.709+00:00
 jira:JiraChangelogItem:2:11915:Component,jira:JiraIssue:2:10063,jira:JiraUser:2:5ecfbd0c2490cf0c09e2e598,Gerile Tu,,Component,,Charts,,,2020-06-19T01:07:59.090+00:00
 jira:JiraChangelogItem:2:11935:Component,jira:JiraIssue:2:10063,jira:JiraUser:2:5ecfbd0c2490cf0c09e2e598,Gerile Tu,,Component,Charts,,,,2020-06-19T01:31:52.567+00:00
 jira:JiraChangelogItem:2:11993:Rank,jira:JiraIssue:2:10063,jira:JiraUser:2:5e9711ba34f7b90c0fbc37d3,Rankin Zheng,,Rank,,Ranked higher,,,2020-06-19T05:30:01.576+00:00
 jira:JiraChangelogItem:2:12011:Epic Link,jira:JiraIssue:2:10063,jira:JiraUser:2:5e9711ba34f7b90c0fbc37d3,Rankin Zheng,,Epic Link,,EE-22,,,2020-06-19T06:25:41.732+00:00
-jira:JiraChangelogItem:2:12016:summary,jira:JiraIssue:2:10063,jira:JiraUser:2:5e9711ba34f7b90c0fbc37d3,Rankin Zheng,,summary,[Industry Metrics] 提供效率报表的行业指标 （需求还不明确）,提供效率报表的行业指标 （需求还不明确）,,,2020-06-19T06:26:00.014+00:00
+jira:JiraChangelogItem:2:12016:summary,jira:JiraIssue:2:10063,jira:JiraUser:2:5e9711ba34f7b90c0fbc37d3,Rankin Zheng,,summary,[Industry Metrics] ,,,,2020-06-19T06:26:00.014+00:00
 jira:JiraChangelogItem:2:12058:Rank,jira:JiraIssue:2:10063,jira:JiraUser:2:5e9711ba34f7b90c0fbc37d3,Rankin Zheng,,Rank,,Ranked higher,,,2020-06-19T08:37:40.933+00:00
 jira:JiraChangelogItem:2:12766:RemoteIssueLink,jira:JiraIssue:2:10063,jira:JiraUser:2:5e9711ba34f7b90c0fbc37d3,Rankin Zheng,,RemoteIssueLink,,"This issue links to ""Commit - #EE-160 add industry unittest (Web Link)""",,,2020-06-27T19:20:53.685+00:00
 jira:JiraChangelogItem:2:13012:RemoteIssueLink,jira:JiraIssue:2:10063,jira:JiraUser:2:5e9711ba34f7b90c0fbc37d3,Rankin Zheng,,RemoteIssueLink,,"This issue links to ""Commit - #EE-160 add IndustryQuery (getEfficiencyMetric) (Web Link)""",,,2020-06-28T19:33:53.703+00:00

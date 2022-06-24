@@ -79,7 +79,7 @@ func TestChangelogDataFlow(t *testing.T) {
 	)
 
 	// verify changelog conversion
-	dataflowTester.ImportCsvIntoTabler("./snapshot_tables/_tool_jira_board_issues.csv", &models.JiraBoardIssue{})
+	dataflowTester.ImportCsvIntoTabler("./snapshot_tables/_tool_jira_board_issues_for_changelog.csv", &models.JiraBoardIssue{})
 	dataflowTester.FlushTabler(&ticket.Changelog{})
 	dataflowTester.Subtask(tasks.ConvertChangelogsMeta, taskData)
 	dataflowTester.VerifyTable(
