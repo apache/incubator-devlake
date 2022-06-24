@@ -43,7 +43,7 @@ func ExtractRemotelinks(taskCtx core.SubTaskContext) error {
 	db := taskCtx.GetDal()
 	logger.Info("extract remote links")
 	var commitShaRegex *regexp.Regexp
-	if pattern := data.Connection.RemotelinkCommitShaPattern; pattern != "" {
+	if pattern := data.Options.TransformationRules.RemotelinkCommitShaPattern; pattern != "" {
 		commitShaRegex = regexp.MustCompile(pattern)
 	}
 

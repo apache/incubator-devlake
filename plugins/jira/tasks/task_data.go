@@ -44,7 +44,6 @@ type JiraOptions struct {
 type JiraTaskData struct {
 	Options        *JiraOptions
 	ApiClient      *helper.ApiAsyncClient
-	Connection     *models.JiraConnection
 	Since          *time.Time
 	JiraServerInfo models.JiraServerInfo
 }
