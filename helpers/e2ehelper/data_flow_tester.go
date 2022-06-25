@@ -283,13 +283,11 @@ func (t *DataFlowTester) ExportRawTable(rawTableName string, csvRelPath string) 
 
 func formatDbValue(value interface{}) string {
 	location, _ := time.LoadLocation(`UTC`)
-	switch value.(type) {
+	switch value := value.(type) {
 	case time.Time:
-		if value != nil {
-			return value.(time.Time).In(location).Format("2006-01-02T15:04:05.000-07:00")
-		}
+		return value.In(location).Format("2006-01-02T15:04:05.000-07:00")
 	case bool:
-		if value.(bool) {
+		if value {
 			return `1`
 		} else {
 			return `0`
