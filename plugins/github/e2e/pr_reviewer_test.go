@@ -28,7 +28,7 @@ import (
 
 func TestPrReviewerDataFlow(t *testing.T) {
 	var plugin impl.Github
-	dataflowTester := e2ehelper.NewDataFlowTester(t, "gitlab", plugin)
+	dataflowTester := e2ehelper.NewDataFlowTester(t, "github", plugin)
 
 	githubRepository := &models.GithubRepo{
 		GithubId: 134018330,
