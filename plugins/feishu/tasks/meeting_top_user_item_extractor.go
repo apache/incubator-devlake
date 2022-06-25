@@ -50,7 +50,7 @@ func ExtractMeetingTopUserItem(taskCtx core.SubTaskContext) error {
 			results := make([]interface{}, 0)
 			results = append(results, &models.FeishuMeetingTopUserItem{
 				ConnectionId:    data.Options.ConnectionId,
-				StartTime:       rawInput.PairStartTime.AddDate(0, 0, -1),
+				StartTime:       rawInput.PairStartTime,
 				MeetingCount:    body.MeetingCount,
 				MeetingDuration: body.MeetingDuration,
 				Name:            body.Name,

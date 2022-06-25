@@ -18,17 +18,17 @@ limitations under the License.
 package e2e
 
 import (
-	"github.com/apache/incubator-devlake/plugins/feishu/models"
 	"testing"
 
 	"github.com/apache/incubator-devlake/helpers/e2ehelper"
 	"github.com/apache/incubator-devlake/plugins/feishu/impl"
+	"github.com/apache/incubator-devlake/plugins/feishu/models"
 	"github.com/apache/incubator-devlake/plugins/feishu/tasks"
 )
 
-func TestEventDataFlow(t *testing.T) {
+func TestMeetingDataFlow(t *testing.T) {
 	var plugin impl.Feishu
-	dataflowTester := e2ehelper.NewDataFlowTester(t, "gitlab", plugin)
+	dataflowTester := e2ehelper.NewDataFlowTester(t, "feishu", plugin)
 
 	taskData := &tasks.FeishuTaskData{
 		Options: &tasks.FeishuOptions{
@@ -45,8 +45,10 @@ func TestEventDataFlow(t *testing.T) {
 	dataflowTester.VerifyTable(
 		models.FeishuMeetingTopUserItem{},
 		"./snapshot_tables/_tool_feishu_meeting_top_user_items.csv",
-		[]string{"connection_id", "start_time", "name"},
 		[]string{
+			"connection_id",
+			"start_time",
+			"name",
 			"meeting_count",
 			"meeting_duration",
 			"user_type",
