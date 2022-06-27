@@ -15,23 +15,17 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package models
+package apimodels
 
-import (
-	"github.com/apache/incubator-devlake/models/common"
-	"time"
-)
-
-type FeishuMeetingTopUserItem struct {
-	common.NoPKModel `json:"-"`
-	ConnectionId     uint64    `gorm:"primaryKey"`
-	StartTime        time.Time `gorm:"primaryKey"`
-	Name             string    `json:"name" gorm:"primaryKey;type:varchar(255)"`
-	MeetingCount     string    `json:"meeting_count" gorm:"type:varchar(255)"`
-	MeetingDuration  string    `json:"meeting_duration" gorm:"type:varchar(255)"`
-	UserType         int64     `json:"user_type"`
+type ApiAccessTokenRequest struct {
+	AppId     string `json:"app_id"`
+	AppSecret string `json:"app_secret"`
 }
 
-func (FeishuMeetingTopUserItem) TableName() string {
-	return "_tool_feishu_meeting_top_user_items"
+type ApiAccessTokenResponse struct {
+	Code              int    `json:"code"`
+	Msg               string `json:"msg"`
+	AppAccessToken    string `json:"app_access_token"`
+	TenantAccessToken string `json:"tenant_access_token"`
+	Expire            int    `json:"expire"`
 }

@@ -27,11 +27,12 @@ import (
 var _ core.SubTaskEntryPoint = ExtractMeetingTopUserItem
 
 func ExtractMeetingTopUserItem(taskCtx core.SubTaskContext) error {
+	data := taskCtx.GetData().(*FeishuTaskData)
 	extractor, err := helper.NewApiExtractor(helper.ApiExtractorArgs{
 		RawDataSubTaskArgs: helper.RawDataSubTaskArgs{
 			Ctx: taskCtx,
 			Params: FeishuApiParams{
-				ApiResName: "top_user_report",
+				ConnectionId: data.Options.ConnectionId,
 			},
 			Table: RAW_MEETING_TOP_USER_ITEM_TABLE,
 		},
@@ -48,7 +49,8 @@ func ExtractMeetingTopUserItem(taskCtx core.SubTaskContext) error {
 			}
 			results := make([]interface{}, 0)
 			results = append(results, &models.FeishuMeetingTopUserItem{
-				StartTime:       rawInput.PairStartTime.AddDate(0, 0, -1),
+				ConnectionId:    data.Options.ConnectionId,
+				StartTime:       rawInput.PairStartTime,
 				MeetingCount:    body.MeetingCount,
 				MeetingDuration: body.MeetingDuration,
 				Name:            body.Name,

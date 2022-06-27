@@ -18,79 +18,25 @@ limitations under the License.
 package main
 
 import (
-	"github.com/apache/incubator-devlake/migration"
-	"github.com/apache/incubator-devlake/plugins/core"
-	"github.com/apache/incubator-devlake/plugins/feishu/models/migrationscripts"
-	"github.com/apache/incubator-devlake/plugins/feishu/tasks"
+	"github.com/apache/incubator-devlake/plugins/feishu/impl"
 	"github.com/apache/incubator-devlake/runner"
-	"github.com/mitchellh/mapstructure"
 	"github.com/spf13/cobra"
-	"github.com/spf13/viper"
-	"gorm.io/gorm"
 )
 
-var _ core.PluginMeta = (*Feishu)(nil)
-var _ core.PluginInit = (*Feishu)(nil)
-var _ core.PluginTask = (*Feishu)(nil)
-var _ core.PluginApi = (*Feishu)(nil)
-var _ core.Migratable = (*Feishu)(nil)
-
-type Feishu struct{}
-
-func (plugin Feishu) Init(config *viper.Viper, logger core.Logger, db *gorm.DB) error {
-	return nil
-}
-
-func (plugin Feishu) Description() string {
-	return "To collect and enrich data from Feishu"
-}
-
-func (plugin Feishu) SubTaskMetas() []core.SubTaskMeta {
-	return []core.SubTaskMeta{
-		tasks.CollectMeetingTopUserItemMeta,
-		tasks.ExtractMeetingTopUserItemMeta,
-	}
-}
-
-func (plugin Feishu) PrepareTaskData(taskCtx core.TaskContext, options map[string]interface{}) (interface{}, error) {
-	var op tasks.FeishuOptions
-	err := mapstructure.Decode(options, &op)
-	if err != nil {
-		return nil, err
-	}
-	apiClient, err := tasks.NewFeishuApiClient(taskCtx)
-	if err != nil {
-		return nil, err
-	}
-	return &tasks.FeishuTaskData{
-		Options:   &op,
-		ApiClient: apiClient,
-	}, nil
-}
-
-func (plugin Feishu) RootPkgPath() string {
-	return "github.com/apache/incubator-devlake/plugins/feishu"
-}
-
-func (plugin Feishu) MigrationScripts() []migration.Script {
-	return migrationscripts.All()
-}
-
-func (plugin Feishu) ApiResources() map[string]map[string]core.ApiResourceHandler {
-	return map[string]map[string]core.ApiResourceHandler{}
-}
-
-var PluginEntry Feishu
+var PluginEntry impl.Feishu
 
 // standalone mode for debugging
 func main() {
-	feishuCmd := &cobra.Command{Use: "feishu"}
-	numOfDaysToCollect := feishuCmd.Flags().IntP("numOfDaysToCollect", "n", 8, "feishu collect days")
-	_ = feishuCmd.MarkFlagRequired("numOfDaysToCollect")
-	feishuCmd.Run = func(cmd *cobra.Command, args []string) {
+	cmd := &cobra.Command{Use: "feishu"}
+	connectionId := cmd.Flags().Uint64P("connectionId", "c", 0, "feishu connection id")
+	numOfDaysToCollect := cmd.Flags().IntP("numOfDaysToCollect", "n", 8, "feishu collect days")
+	_ = cmd.MarkFlagRequired("connectionId")
+	_ = cmd.MarkFlagRequired("numOfDaysToCollect")
+	cmd.Run = func(cmd *cobra.Command, args []string) {
 		runner.DirectRun(cmd, args, PluginEntry, map[string]interface{}{
+			"connectionId":       *connectionId,
 			"numOfDaysToCollect": *numOfDaysToCollect,
 		})
 	}
-	runner.RunCmd(feishuCmd)
+	runner.RunCmd(cmd)
 }

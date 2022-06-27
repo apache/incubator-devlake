@@ -19,60 +19,33 @@ package tasks
 
 import (
 	"fmt"
+	"github.com/apache/incubator-devlake/plugins/feishu/apimodels"
+	"github.com/apache/incubator-devlake/plugins/feishu/models"
 	"net/http"
 
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/helper"
-	"github.com/apache/incubator-devlake/utils"
 )
-
-type ApiAccessTokenRequest struct {
-	AppId     string `json:"app_id"`
-	AppSecret string `json:"app_secret"`
-}
-
-type ApiAccessTokenResponse struct {
-	Code              int    `json:"code"`
-	Msg               string `json:"msg"`
-	AppAccessToken    string `json:"app_access_token"`
-	TenantAccessToken string `json:"tenant_access_token"`
-	Expire            int    `json:"expire"`
-}
 
 const AUTH_ENDPOINT = "https://open.feishu.cn"
 const ENDPOINT = "https://open.feishu.cn/open-apis/vc/v1"
 
-func NewFeishuApiClient(taskCtx core.TaskContext) (*helper.ApiAsyncClient, error) {
-	// load and process cconfiguration
-	appId := taskCtx.GetConfig("FEISHU_APPID")
-	if appId == "" {
-		return nil, fmt.Errorf("invalid FEISHU_APPID")
-	}
-	secretKey := taskCtx.GetConfig("FEISHU_APPSCRECT")
-	if secretKey == "" {
-		return nil, fmt.Errorf("invalid FEISHU_APPSCRECT")
-	}
-	userRateLimit, err := utils.StrToIntOr(taskCtx.GetConfig("FEISHU_API_REQUESTS_PER_HOUR"), 18000)
-	if err != nil {
-		return nil, err
-	}
-	proxy := taskCtx.GetConfig("FEISHU_PROXY")
-
-	authApiClient, err := helper.NewApiClient(AUTH_ENDPOINT, nil, 0, proxy, taskCtx.GetContext())
+func NewFeishuApiClient(taskCtx core.TaskContext, connection *models.FeishuConnection) (*helper.ApiAsyncClient, error) {
+	authApiClient, err := helper.NewApiClient(AUTH_ENDPOINT, nil, 0, connection.Proxy, taskCtx.GetContext())
 	if err != nil {
 		return nil, err
 	}
 
 	// request for access token
-	tokenReqBody := &ApiAccessTokenRequest{
-		AppId:     appId,
-		AppSecret: secretKey,
+	tokenReqBody := &apimodels.ApiAccessTokenRequest{
+		AppId:     connection.AppId,
+		AppSecret: connection.SecretKey,
 	}
 	tokenRes, err := authApiClient.Post("open-apis/auth/v3/tenant_access_token/internal", nil, tokenReqBody, nil)
 	if err != nil {
 		return nil, err
 	}
-	tokenResBody := &ApiAccessTokenResponse{}
+	tokenResBody := &apimodels.ApiAccessTokenResponse{}
 	err = helper.UnmarshalResponse(tokenRes, tokenResBody)
 	if err != nil {
 		return nil, err
@@ -81,7 +54,7 @@ func NewFeishuApiClient(taskCtx core.TaskContext) (*helper.ApiAsyncClient, error
 		return nil, fmt.Errorf("failed to request access token")
 	}
 	// real request apiClient
-	apiClient, err := helper.NewApiClient(ENDPOINT, nil, 0, proxy, taskCtx.GetContext())
+	apiClient, err := helper.NewApiClient(ENDPOINT, nil, 0, connection.Proxy, taskCtx.GetContext())
 	if err != nil {
 		return nil, err
 	}
@@ -99,7 +72,7 @@ func NewFeishuApiClient(taskCtx core.TaskContext) (*helper.ApiAsyncClient, error
 
 	// create async api client
 	asyncApiCLient, err := helper.CreateAsyncApiClient(taskCtx, apiClient, &helper.ApiRateLimitCalculator{
-		UserRateLimitPerHour: userRateLimit,
+		UserRateLimitPerHour: connection.RateLimit,
 	})
 	if err != nil {
 		return nil, err

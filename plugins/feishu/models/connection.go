@@ -17,21 +17,20 @@ limitations under the License.
 
 package models
 
-import (
-	"github.com/apache/incubator-devlake/models/common"
-	"time"
-)
+import "github.com/apache/incubator-devlake/plugins/helper"
 
-type FeishuMeetingTopUserItem struct {
-	common.NoPKModel `json:"-"`
-	ConnectionId     uint64    `gorm:"primaryKey"`
-	StartTime        time.Time `gorm:"primaryKey"`
-	Name             string    `json:"name" gorm:"primaryKey;type:varchar(255)"`
-	MeetingCount     string    `json:"meeting_count" gorm:"type:varchar(255)"`
-	MeetingDuration  string    `json:"meeting_duration" gorm:"type:varchar(255)"`
-	UserType         int64     `json:"user_type"`
+type TestConnectionRequest struct {
+	Endpoint  string `json:"endpoint" validate:"required,url"`
+	AppId     string `mapstructure:"app_id" validate:"required" json:"app_id"`
+	SecretKey string `mapstructure:"secret_key" validate:"required" json:"secret_key"`
+	Proxy     string `json:"proxy"`
 }
 
-func (FeishuMeetingTopUserItem) TableName() string {
-	return "_tool_feishu_meeting_top_user_items"
+type FeishuConnection struct {
+	helper.RestConnection `mapstructure:",squash"`
+	helper.AppKey         `mapstructure:",squash"`
+}
+
+func (FeishuConnection) TableName() string {
+	return "_tool_feishu_connections"
 }

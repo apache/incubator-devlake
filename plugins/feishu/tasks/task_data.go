@@ -23,12 +23,12 @@ import (
 )
 
 type FeishuApiParams struct {
-	ApiResName string `json:"apiResName"`
+	ConnectionId uint64 `json:"connectionId"`
 }
 
 type FeishuOptions struct {
-	NumOfDaysToCollect float64  `json:"numOfDaysToCollect"`
-	Tasks              []string `json:"tasks,omitempty"`
+	ConnectionId       uint64  `json:"connectionId"`
+	NumOfDaysToCollect float64 `json:"numOfDaysToCollect"`
 }
 
 type FeishuTaskData struct {
