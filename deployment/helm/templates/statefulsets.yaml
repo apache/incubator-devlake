@@ -68,6 +68,12 @@ spec:
           volumeMounts:
             - mountPath: /var/lib/mysql
               name: {{ include "devlake.fullname" . }}-mysql-data
+          volumeMounts:
+            {{- if ne .Values.option.localtime "" }}
+            - name: {{ include "devlake.fullname" . }}-mysql-localtime
+              mountPath: /etc/localtime
+              readOnly: true
+            {{- end }}
       {{- with .Values.mysql.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}
@@ -80,6 +86,13 @@ spec:
       tolerations:
         {{- toYaml . | nindent 8 }}
       {{- end }}
+      volumes:
+        {{- if ne .Values.option.localtime "" }}
+        - name: {{ include "devlake.fullname" . }}-mysql-localtime
+          hostPath:
+            path: {{ .Values.option.localtime }}
+            type: File
+        {{- end }}
   volumeClaimTemplates:
     - metadata:
         name: {{ include "devlake.fullname" . }}-mysql-data
@@ -148,6 +161,18 @@ spec:
           volumeMounts:
             - mountPath: /app/config
               name: {{ include "devlake.fullname" . }}-lake-config
+            {{- if ne .Values.option.localtime "" }}
+            - name: {{ include "devlake.fullname" . }}-lake-localtime
+              mountPath: /etc/localtime
+              readOnly: true
+            {{- end }}
+      volumes:
+        {{- if ne .Values.option.localtime "" }}
+        - name: {{ include "devlake.fullname" . }}-lake-localtime
+          hostPath:
+            path: {{ .Values.option.localtime }}
+            type: File
+        {{- end }}
   volumeClaimTemplates:
     - metadata:
         name: {{ include "devlake.fullname" . }}-lake-config

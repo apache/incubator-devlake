@@ -61,6 +61,11 @@ spec:
             - mountPath: /etc/grafana/grafana.ini
               name: {{ include "devlake.fullname" . }}-grafana-config
               subPath: grafana.ini
+            {{- if ne .Values.option.localtime "" }}
+            - name: {{ include "devlake.fullname" . }}-grafana-localtime
+              mountPath: /etc/localtime
+              readOnly: true
+            {{- end }}
           envFrom:
             - configMapRef:
                 name: {{ include "devlake.fullname" . }}-config
@@ -78,6 +83,12 @@ spec:
             defaultMode: 420
             name: {{ include "devlake.fullname" . }}-grafana-config
           name: {{ include "devlake.fullname" . }}-grafana-config
+        {{- if ne .Values.option.localtime "" }}
+        - name: {{ include "devlake.fullname" . }}-grafana-localtime
+          hostPath:
+            path: {{ .Values.option.localtime }}
+            type: File
+        {{- end }}
 
 ---
 # devlake-ui
@@ -117,3 +128,16 @@ spec:
             #   value: "admin"
             # - name: ADMIN_PASS
             #   value: "admin"
+          volumeMounts:
+            {{- if ne .Values.option.localtime "" }}
+            - name: {{ include "devlake.fullname" . }}-ui-localtime
+              mountPath: /etc/localtime
+              readOnly: true
+            {{- end }}
+      volumes:
+        {{- if ne .Values.option.localtime "" }}
+        - name: {{ include "devlake.fullname" . }}-ui-localtime
+          hostPath:
+            path: {{ .Values.option.localtime }}
+            type: File
+        {{- end }}

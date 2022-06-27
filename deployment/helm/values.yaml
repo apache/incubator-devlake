@@ -150,3 +150,9 @@ ingress:
   httpPort: 80
   # ingress https port
   httpsPort: 443
+
+
+option:
+  # localtime zone info from host path.
+  localtime: /etc/localtime
+
