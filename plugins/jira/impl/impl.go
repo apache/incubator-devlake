@@ -141,7 +141,6 @@ func (plugin Jira) PrepareTaskData(taskCtx core.TaskContext, options map[string]
 	taskData := &tasks.JiraTaskData{
 		Options:        &op,
 		ApiClient:      jiraApiClient,
-		Connection:     connection,
 		JiraServerInfo: *info,
 	}
 	if !since.IsZero() {
