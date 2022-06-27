@@ -21,6 +21,7 @@ import (
 	"encoding/json"
 	"github.com/apache/incubator-devlake/models/domainlayer/ticket"
 	"regexp"
+	"strconv"
 
 	"github.com/apache/incubator-devlake/plugins/core"
 
@@ -54,8 +55,8 @@ type IssuesResponse struct {
 		WebUrl    string
 		AvatarUrl string
 		Username  string
-		Id        int
-		Name      string
+		Id        int    `json:"creator_id"`
+		Name      string `json:"creator_name"`
 	}
 	Description string
 	State       string
@@ -257,8 +258,13 @@ func convertGitlabIssue(issue *IssuesResponse, projectId int) (*models.GitlabIss
 	}
 
 	if issue.Assignee != nil {
-		gitlabIssue.AssigneeId = issue.Assignee.Id
+		gitlabIssue.AssigneeId = strconv.Itoa(issue.Assignee.Id)
 		gitlabIssue.AssigneeName = issue.Assignee.Username
+	}
+	if issue.Author.Username != "" {
+		gitlabIssue.CreatorId = strconv.Itoa(issue.Author.Id)
+		gitlabIssue.CreatorName = issue.Author.Username
+
 	}
 	if issue.GitlabClosedAt != nil {
 		gitlabIssue.LeadTimeMinutes = uint(issue.GitlabClosedAt.ToTime().Sub(issue.GitlabCreatedAt.ToTime()).Minutes())

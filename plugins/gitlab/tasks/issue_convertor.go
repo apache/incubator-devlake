@@ -56,6 +56,7 @@ func ConvertIssues(taskCtx core.SubTaskContext) error {
 	defer cursor.Close()
 
 	issueIdGen := didgen.NewDomainIdGenerator(&gitlabModels.GitlabIssue{})
+	userIdGen := didgen.NewDomainIdGenerator(&gitlabModels.GitlabUser{})
 	boardIdGen := didgen.NewDomainIdGenerator(&gitlabModels.GitlabProject{})
 
 	converter, err := helper.NewDataConverter(helper.DataConverterArgs{
@@ -71,6 +72,9 @@ func ConvertIssues(taskCtx core.SubTaskContext) error {
 				Description:             issue.Body,
 				Priority:                issue.Priority,
 				Type:                    issue.Type,
+				CreatorId:               issue.CreatorId,
+				CreatorName:             issue.CreatorName,
+				AssigneeId:              issue.AssigneeId,
 				AssigneeName:            issue.AssigneeName,
 				LeadTimeMinutes:         issue.LeadTimeMinutes,
 				Url:                     issue.Url,
@@ -87,6 +91,18 @@ func ConvertIssues(taskCtx core.SubTaskContext) error {
 				domainIssue.Status = ticket.TODO
 			} else {
 				domainIssue.Status = ticket.DONE
+			}
+			if issue.CreatorId != "" {
+				domainIssue.CreatorId = userIdGen.Generate(data.Options.ConnectionId, issue.CreatorId)
+			}
+			if issue.CreatorName != "" {
+				domainIssue.CreatorName = issue.CreatorName
+			}
+			if issue.AssigneeId != "" {
+				domainIssue.AssigneeId = userIdGen.Generate(data.Options.ConnectionId, issue.AssigneeId)
+			}
+			if issue.AssigneeName != "" {
+				domainIssue.AssigneeName = issue.AssigneeName
 			}
 			boardIssue := &ticket.BoardIssue{
 				BoardId: boardIdGen.Generate(data.Options.ConnectionId, projectId),

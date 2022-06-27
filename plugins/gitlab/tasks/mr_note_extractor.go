@@ -19,7 +19,6 @@ package tasks
 
 import (
 	"encoding/json"
-
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/gitlab/models"
 	"github.com/apache/incubator-devlake/plugins/helper"
@@ -38,6 +37,7 @@ type MergeRequestNote struct {
 	Author          struct {
 		Username string `json:"username"`
 	}
+	Type string `json:"type"`
 }
 
 var ExtractApiMrNotesMeta = core.SubTaskMeta{
@@ -75,6 +75,7 @@ func ExtractApiMergeRequestsNotes(taskCtx core.SubTaskContext) error {
 					AuthorUsername:  toolMrNote.AuthorUsername,
 					GitlabCreatedAt: toolMrNote.GitlabCreatedAt,
 					Resolvable:      toolMrNote.Resolvable,
+					Type:            toolMrNote.Type,
 					ConnectionId:    data.Options.ConnectionId,
 				}
 				results = append(results, toolMrComment)
@@ -105,6 +106,7 @@ func convertMergeRequestNote(mrNote *MergeRequestNote) (*models.GitlabMrNote, er
 		Confidential:    mrNote.Confidential,
 		Resolvable:      mrNote.Resolvable,
 		IsSystem:        mrNote.System,
+		Type:            mrNote.Type,
 	}
 	return GitlabMrNote, nil
 }

@@ -20,6 +20,7 @@ package tasks
 import (
 	"github.com/apache/incubator-devlake/plugins/core/dal"
 	"reflect"
+	"strconv"
 
 	"github.com/apache/incubator-devlake/models/domainlayer"
 	"github.com/apache/incubator-devlake/models/domainlayer/code"
@@ -75,6 +76,7 @@ func ConvertApiMergeRequests(taskCtx core.SubTaskContext) error {
 				Type:           gitlabMr.Type,
 				Url:            gitlabMr.WebUrl,
 				AuthorName:     gitlabMr.AuthorUsername,
+				AuthorId:       strconv.Itoa(gitlabMr.AuthorUserId),
 				CreatedDate:    gitlabMr.GitlabCreatedAt,
 				MergedDate:     gitlabMr.MergedAt,
 				ClosedDate:     gitlabMr.ClosedAt,

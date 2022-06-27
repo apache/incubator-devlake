@@ -77,6 +77,7 @@ func ConvertMergeRequestComment(taskCtx core.SubTaskContext) error {
 				Body:          gitlabComments.Body,
 				UserId:        userIdGen.Generate(data.Options.ConnectionId, gitlabComments.AuthorUsername),
 				CreatedDate:   gitlabComments.GitlabCreatedAt,
+				Type:          gitlabComments.Type,
 			}
 			return []interface{}{
 				domainComment,

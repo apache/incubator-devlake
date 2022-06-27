@@ -23,17 +23,20 @@ import (
 )
 
 type GitlabIssue struct {
-	ConnectionId    uint64 `gorm:"primaryKey"`
-	GitlabId        int    `gorm:"primaryKey"`
-	ProjectId       int    `gorm:"index"`
-	Number          int    `gorm:"index;comment:Used in API requests ex. api/repo/1/issue/<THIS_NUMBER>"`
-	State           string `gorm:"type:varchar(255)"`
-	Title           string
-	Body            string
-	Priority        string `gorm:"type:varchar(255)"`
-	Type            string `gorm:"type:varchar(100)"`
-	Status          string `gorm:"type:varchar(255)"`
-	AssigneeId      int
+	ConnectionId uint64 `gorm:"primaryKey"`
+	GitlabId     int    `gorm:"primaryKey"`
+	ProjectId    int    `gorm:"index"`
+	Number       int    `gorm:"index;comment:Used in API requests ex. api/repo/1/issue/<THIS_NUMBER>"`
+	State        string `gorm:"type:varchar(255)"`
+	Title        string
+	Body         string
+	Priority     string `gorm:"type:varchar(255)"`
+	Type         string `gorm:"type:varchar(100)"`
+	Status       string `gorm:"type:varchar(255)"`
+	//User 			domainUser.User `gorm:"foreignKey:CreatorId"`
+	CreatorId       string `gorm:"type:varchar(255)"`
+	CreatorName     string `gorm:"type:varchar(255)"`
+	AssigneeId      string `gorm:"type:varchar(255)"`
 	AssigneeName    string `gorm:"type:varchar(255)"`
 	LeadTimeMinutes uint
 	Url             string `gorm:"type:varchar(255)"`
