@@ -1,20 +1,20 @@
-## generator init-migration
+## generator create-e2e-raw
 
-Init migration for plugin
+Create _raw_table.csv for e2e test
 
 ### Synopsis
 
-Init migration for plugin
-Type in which plugin do you want init migrations in, then generator will create a init migration in plugins/$plugin_name/models/migrationscripts/ for you.
+Create _raw_table.csv for e2e test
+Type in what the raw_table is, then generator will export and save in plugins/$plugin_name/e2e/_raw_$raw_name.csv for you.
 
 ```
-generator init-migration [plugin_name] [flags]
+generator create-e2e-raw [plugin_name] [raw_table_name] [csv_file_name] [flags]
 ```
 
 ### Options
 
 ```
-  -h, --help   help for init-migration
+  -h, --help   help for create-e2e-raw
 ```
 
 ### Options inherited from parent commands

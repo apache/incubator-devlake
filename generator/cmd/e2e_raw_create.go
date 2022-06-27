@@ -18,10 +18,12 @@ limitations under the License.
 package cmd
 
 import (
+	"errors"
 	"github.com/apache/incubator-devlake/helpers/e2ehelper"
 	"github.com/manifoldco/promptui"
 	"github.com/spf13/cobra"
 	"path/filepath"
+	"strings"
 )
 
 func init() {
@@ -29,15 +31,15 @@ func init() {
 }
 
 var createE2eRawCmd = &cobra.Command{
-	Use:   "create-e2e-raw [plugin_name] [raw_table_name] [csv_file_name]",
+	Use:   "create-e2e-raw [plugin_name] [raw_table_name]",
 	Short: "Create _raw_table.csv for e2e test",
 	Long: `Create _raw_table.csv for e2e test
 Type in what the raw_table is, then generator will export and save in plugins/$plugin_name/e2e/_raw_$raw_name.csv for you.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		var pluginName string
-		//var err error
+		var pluginName, rawTableName, csvFileName string
+		var err error
 
-		// try to get plugin name and extractor name
+		// try to get plugin name
 		if len(args) > 0 {
 			pluginName = args[0]
 		}
@@ -52,26 +54,51 @@ Type in what the raw_table is, then generator will export and save in plugins/$p
 			cobra.CheckErr(err)
 		}
 
-		if len(args) > 0 {
-			pluginName = args[0]
+		// try to get rawTableName
+		if len(args) > 1 {
+			rawTableName = args[1]
 		}
-		if pluginName == `` {
-			pluginItems, err := pluginNames(false)
-			cobra.CheckErr(err)
-			prompt := promptui.Select{
-				Label: "plugin_name",
-				Items: pluginItems,
+		if rawTableName == `` {
+			prompt := promptui.Prompt{
+				Label:   "raw_table_name",
+				Default: `_raw_`,
+				Validate: func(input string) error {
+					if input == `` {
+						return errors.New("raw_table_name requite")
+					}
+					if !strings.HasPrefix(input, `_raw_`) {
+						return errors.New("raw_table_name should start with `_raw_`")
+					}
+					return nil
+				},
 			}
-			_, pluginName, err = prompt.Run()
+			rawTableName, err = prompt.Run()
 			cobra.CheckErr(err)
 		}
+
+		// try to get rawTableName
+		prompt := promptui.Prompt{
+			Label:   "csv_file_name",
+			Default: rawTableName + `.csv`,
+			Validate: func(input string) error {
+				if input == `` {
+					return errors.New("csv_file_name requite")
+				}
+				if !strings.HasSuffix(input, `.csv`) {
+					return errors.New("csv_file_name should end with `.csv`")
+				}
+				return nil
+			},
+		}
+		csvFileName, err = prompt.Run()
+		cobra.CheckErr(err)
 
 		rawTablesPath := filepath.Join(`plugins`, pluginName, `e2e`, `raw_tables`)
 		dataflowTester := e2ehelper.NewDataFlowTester(nil, "gitlab", nil)
 		dataflowTester.ExportRawTable(
-			`_raw_github_api_issues`,
-			filepath.Join(rawTablesPath, `_raw_github_api_issues.csv`),
+			rawTableName,
+			filepath.Join(rawTablesPath, csvFileName),
 		)
-		println(rawTablesPath, `_raw_github_api_issues.csv`, ` generated`)
+		println(csvFileName, ` generated in `, rawTablesPath)
 	},
 }
