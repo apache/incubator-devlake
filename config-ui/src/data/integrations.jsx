@@ -16,7 +16,7 @@
  *
  */
 import React from 'react'
-
+import { Icon } from '@blueprintjs/core'
 import { Providers, ProviderLabels, ProviderTypes } from '@/data/Providers'
 
 import JiraSettings from '@/pages/configure/settings/jira'
@@ -28,8 +28,8 @@ import { ReactComponent as GitlabProvider } from '@/images/integrations/gitlab.s
 import { ReactComponent as JenkinsProvider } from '@/images/integrations/jenkins.svg'
 import { ReactComponent as JiraProvider } from '@/images/integrations/jira.svg'
 import { ReactComponent as GitHubProvider } from '@/images/integrations/github.svg'
-import GitExtractorProvider from '@/images/git.png'
-import RefDiffProvider from '@/images/git-diff.png'
+// import GitExtractorProvider from '@/images/git.png'
+// import RefDiffProvider from '@/images/git-diff.png'
 // import { ReactComponent as NullProvider } from '@/images/integrations/null.svg'
 
 const integrationsData = [
@@ -40,7 +40,7 @@ const integrationsData = [
     multiConnection: false,
     name: ProviderLabels.GITLAB,
     icon: <GitlabProvider className='providerIconSvg' width='30' height='30' style={{ float: 'left', marginTop: '5px' }} />,
-    iconDashboard: <GitlabProvider className='providerIconSvg' width='48' height='48' />,
+    iconDashboard: <GitlabProvider className='providerIconSvg' width='40' height='40' />,
     settings: ({ activeProvider, activeConnection, isSaving, isSavingConnection, setSettings }) => (
       <GitlabSettings
         provider={activeProvider}
@@ -58,7 +58,7 @@ const integrationsData = [
     multiConnection: false,
     name: ProviderLabels.JENKINS,
     icon: <JenkinsProvider className='providerIconSvg' width='30' height='30' style={{ float: 'left', marginTop: '5px' }} />,
-    iconDashboard: <JenkinsProvider className='providerIconSvg' width='48' height='48' />,
+    iconDashboard: <JenkinsProvider className='providerIconSvg' width='40' height='40' />,
     settings: ({ activeProvider, activeConnection, isSaving, isSavingConnection, setSettings }) => (
       <JenkinsSettings
         provider={activeProvider}
@@ -76,7 +76,7 @@ const integrationsData = [
     multiConnection: true,
     name: ProviderLabels.JIRA,
     icon: <JiraProvider className='providerIconSvg' width='30' height='30' style={{ float: 'left', marginTop: '5px' }} />,
-    iconDashboard: <JiraProvider className='providerIconSvg' width='48' height='48' />,
+    iconDashboard: <JiraProvider className='providerIconSvg' width='40' height='40' />,
     settings: ({ activeProvider, activeConnection, isSaving, isSavingConnection, setSettings }) => (
       <JiraSettings
         provider={activeProvider}
@@ -94,7 +94,7 @@ const integrationsData = [
     multiConnection: false,
     name: ProviderLabels.GITHUB,
     icon: <GitHubProvider className='providerIconSvg' width='30' height='30' style={{ float: 'left', marginTop: '5px' }} />,
-    iconDashboard: <GitHubProvider className='providerIconSvg' width='48' height='48' />,
+    iconDashboard: <GitHubProvider className='providerIconSvg' width='40' height='40' />,
     settings: ({ activeProvider, activeConnection, isSaving, isSavingConnection, setSettings }) => (
       <GithubSettings
         provider={activeProvider}
@@ -114,8 +114,8 @@ const pluginsData = [
     enabled: true,
     multiConnection: false,
     name: ProviderLabels.GITEXTRACTOR,
-    icon: <img src={GitExtractorProvider} className='providerIconPng' width='30' height='30' style={{ float: 'left', marginTop: '5px' }} />,
-    iconDashboard: <img src={GitExtractorProvider} className='providerIconPng' width='48' height='48' />,
+    icon: <Icon icon='box' size={30} />,
+    iconDashboard: <Icon icon='box' size={32} />,
     settings: ({ activeProvider, activeConnection, isSaving, setSettings }) => (
       null
     )
@@ -126,8 +126,8 @@ const pluginsData = [
     enabled: true,
     multiConnection: false,
     name: ProviderLabels.REFDIFF,
-    icon: <img src={RefDiffProvider} className='providerIconPng' width='30' height='30' style={{ float: 'left', marginTop: '5px' }} />,
-    iconDashboard: <img src={RefDiffProvider} className='providerIconPng' width='48' height='48' />,
+    icon: <Icon icon='box' size={30} />,
+    iconDashboard: <Icon icon='box' size={32} />,
     settings: ({ activeProvider, activeConnection, isSaving, setSettings }) => (
       null
     )
