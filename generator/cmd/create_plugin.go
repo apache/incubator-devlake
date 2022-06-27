@@ -40,6 +40,9 @@ func pluginNameNotExistValidate(input string) error {
 	if !snakeNameReg.MatchString(input) {
 		return errors.New("plugin name invalid (start with a-z and consist with a-z0-9_)")
 	}
+	if strings.ToLower(input) == `framework` || strings.ToLower(input) == `core` || strings.ToLower(input) == `helper` {
+		return errors.New("plugin name cannot be `framework` or `core` or `helper`")
+	}
 	_, err := os.Stat(`plugins/` + input)
 	if os.IsNotExist(err) {
 		return nil

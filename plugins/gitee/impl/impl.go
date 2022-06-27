@@ -167,9 +167,7 @@ func (plugin Gitee) RootPkgPath() string {
 }
 
 func (plugin Gitee) MigrationScripts() []migration.Script {
-	return []migration.Script{
-		new(migrationscripts.InitSchemas),
-	}
+	return migrationscripts.All()
 }
 
 func (plugin Gitee) ApiResources() map[string]map[string]core.ApiResourceHandler {

@@ -156,20 +156,7 @@ func (plugin Jira) RootPkgPath() string {
 }
 
 func (plugin Jira) MigrationScripts() []migration.Script {
-	return []migration.Script{
-		new(migrationscripts.InitSchemas),
-		new(migrationscripts.UpdateSchemas20220505),
-		new(migrationscripts.UpdateSchemas20220507),
-		new(migrationscripts.UpdateSchemas20220518),
-		new(migrationscripts.UpdateSchemas20220525),
-		new(migrationscripts.UpdateSchemas20220526),
-		new(migrationscripts.UpdateSchemas20220527),
-		new(migrationscripts.UpdateSchemas20220601),
-		new(migrationscripts.UpdateSchemas20220614),
-		new(migrationscripts.UpdateSchemas20220615),
-		new(migrationscripts.UpdateSchemas20220616),
-		new(migrationscripts.UpdateSchemas20220620),
-	}
+	return migrationscripts.All()
 }
 
 func (plugin Jira) ApiResources() map[string]map[string]core.ApiResourceHandler {
