@@ -46,6 +46,7 @@ var CollectIssuesMeta = core.SubTaskMeta{
 	EntryPoint:       CollectIssues,
 	EnabledByDefault: true,
 	Description:      "collect Jira issues",
+	DomainTypes:      []string{core.DOMAIN_TYPE_TICKET},
 }
 
 func CollectIssues(taskCtx core.SubTaskContext) error {

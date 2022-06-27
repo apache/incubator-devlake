@@ -39,6 +39,7 @@ var _ core.PluginInit = (*Jira)(nil)
 var _ core.PluginTask = (*Jira)(nil)
 var _ core.PluginApi = (*Jira)(nil)
 var _ core.Migratable = (*Jira)(nil)
+var _ core.PluginBlueprintV100 = (*Jira)(nil)
 
 type Jira struct{}
 
@@ -148,6 +149,10 @@ func (plugin Jira) PrepareTaskData(taskCtx core.TaskContext, options map[string]
 		logger.Debug("collect data updated since %s", since)
 	}
 	return taskData, nil
+}
+
+func (plugin Jira) MakePipelinePlan(connectionId uint64, scope []*core.BlueprintScopeV100) (core.PipelinePlan, error) {
+	return api.MakePipelinePlan(plugin.SubTaskMetas(), connectionId, scope)
 }
 
 func (plugin Jira) RootPkgPath() string {

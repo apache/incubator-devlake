@@ -35,6 +35,7 @@ var CollectWorklogsMeta = core.SubTaskMeta{
 	EntryPoint:       CollectWorklogs,
 	EnabledByDefault: true,
 	Description:      "collect Jira work logs",
+	DomainTypes:      []string{core.DOMAIN_TYPE_TICKET},
 }
 
 func CollectWorklogs(taskCtx core.SubTaskContext) error {

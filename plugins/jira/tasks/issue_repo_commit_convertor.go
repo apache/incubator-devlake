@@ -34,6 +34,7 @@ var ConvertIssueRepoCommitsMeta = core.SubTaskMeta{
 	EntryPoint:       ConvertIssueRepoCommits,
 	EnabledByDefault: false,
 	Description:      "convert Jira issue repo commits",
+	DomainTypes:      []string{core.DOMAIN_TYPE_CROSS},
 }
 
 // ConvertIssueRepoCommits is to extract issue_repo_commits from jira_issue_commits, nothing difference with

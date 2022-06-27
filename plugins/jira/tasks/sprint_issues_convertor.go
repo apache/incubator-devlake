@@ -33,6 +33,7 @@ var ConvertSprintIssuesMeta = core.SubTaskMeta{
 	EntryPoint:       ConvertSprintIssues,
 	EnabledByDefault: true,
 	Description:      "convert Jira sprint_issues",
+	DomainTypes:      []string{core.DOMAIN_TYPE_TICKET},
 }
 
 func ConvertSprintIssues(taskCtx core.SubTaskContext) error {

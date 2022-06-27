@@ -37,6 +37,7 @@ var ConvertChangelogsMeta = core.SubTaskMeta{
 	EntryPoint:       ConvertChangelogs,
 	EnabledByDefault: true,
 	Description:      "convert Jira change logs",
+	DomainTypes:      []string{core.DOMAIN_TYPE_TICKET},
 }
 
 type ChangelogItemResult struct {
