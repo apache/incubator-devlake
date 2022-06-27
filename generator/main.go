@@ -15,18 +15,15 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package tasks
+package main
 
-type {{ .PluginName }}ApiParams struct {
-}
+import (
+	"github.com/apache/incubator-devlake/generator/cmd"
+	"os"
+)
 
-type {{ .PluginName }}Options struct {
-	// TODO add some custom options here if necessary
-	// options means some custom params required by plugin running.
-	// Such As How many rows do your want
-	// You can use it in sub tasks and you need pass it in main.go and pipelines.
-}
-
-type {{ .PluginName }}TaskData struct {
-	Options   *{{ .PluginName }}Options
+func main() {
+	if err := cmd.Execute(); err != nil {
+		os.Exit(1)
+	}
 }

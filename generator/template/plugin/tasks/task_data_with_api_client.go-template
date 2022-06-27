@@ -17,6 +17,10 @@ limitations under the License.
 
 package tasks
 
+import (
+	"github.com/apache/incubator-devlake/plugins/helper"
+)
+
 type {{ .PluginName }}ApiParams struct {
 }
 
@@ -29,4 +33,5 @@ type {{ .PluginName }}Options struct {
 
 type {{ .PluginName }}TaskData struct {
 	Options   *{{ .PluginName }}Options
+	ApiClient *helper.ApiAsyncClient
 }

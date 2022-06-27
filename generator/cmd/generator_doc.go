@@ -15,18 +15,21 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package tasks
+package cmd
 
-type {{ .PluginName }}ApiParams struct {
+import (
+	"github.com/spf13/cobra"
+	"github.com/spf13/cobra/doc"
+)
+
+func init() {
+	rootCmd.AddCommand(GeneratorDocCmd)
 }
 
-type {{ .PluginName }}Options struct {
-	// TODO add some custom options here if necessary
-	// options means some custom params required by plugin running.
-	// Such As How many rows do your want
-	// You can use it in sub tasks and you need pass it in main.go and pipelines.
-}
-
-type {{ .PluginName }}TaskData struct {
-	Options   *{{ .PluginName }}Options
+var GeneratorDocCmd = &cobra.Command{
+	Use:   "generator-doc",
+	Short: "generate document for generator",
+	RunE: func(cmd *cobra.Command, args []string) error {
+		return doc.GenMarkdownTree(rootCmd, "generator/docs")
+	},
 }
