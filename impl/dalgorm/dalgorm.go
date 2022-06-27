@@ -110,9 +110,6 @@ func (d *Dalgorm) All(dst interface{}, clauses ...dal.Clause) error {
 // First loads first matched row from database to `dst`, error will be returned if no records were found
 func (d *Dalgorm) First(dst interface{}, clauses ...dal.Clause) error {
 	err := buildTx(d.db, clauses).First(dst).Error
-	if err == gorm.ErrRecordNotFound {
-		return dal.ErrRecordNotFound
-	}
 	return err
 }
 
