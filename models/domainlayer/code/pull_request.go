@@ -25,13 +25,14 @@ import (
 
 type PullRequest struct {
 	domainlayer.DomainEntity
-	BaseRepoId     string `gorm:"index"`
-	HeadRepoId     string `gorm:"index"`
-	Status         string `gorm:"type:varchar(100);comment:open/closed or other"`
-	Title          string
-	Description    string
-	Url            string `gorm:"type:varchar(255)"`
-	AuthorName     string `gorm:"type:varchar(100)"`
+	BaseRepoId  string `gorm:"index"`
+	HeadRepoId  string `gorm:"index"`
+	Status      string `gorm:"type:varchar(100);comment:open/closed or other"`
+	Title       string
+	Description string
+	Url         string `gorm:"type:varchar(255)"`
+	AuthorName  string `gorm:"type:varchar(100)"`
+	//User		   domainUser.User `gorm:"foreignKey:AuthorId"`
 	AuthorId       string `gorm:"type:varchar(100)"`
 	ParentPrId     string `gorm:"index;type:varchar(100)"`
 	PullRequestKey int

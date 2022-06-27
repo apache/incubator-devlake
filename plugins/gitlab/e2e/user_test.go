@@ -52,6 +52,7 @@ func TestGitlabUserDataFlow(t *testing.T) {
 		fmt.Sprintf("./snapshot_tables/%s.csv", models.GitlabUser{}.TableName()),
 		[]string{
 			"connection_id",
+			"gitlab_id",
 			"username",
 			"email",
 			"name",

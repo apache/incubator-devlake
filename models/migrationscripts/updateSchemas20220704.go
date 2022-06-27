@@ -15,26 +15,36 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package models
+package migrationscripts
 
 import (
-	"github.com/apache/incubator-devlake/models/common"
+	"context"
+	"gorm.io/gorm"
 )
 
-type GitlabUser struct {
-	ConnectionId    uint64 `gorm:"primaryKey"`
-	GitlabId        int    `gorm:"primaryKey" json:"id"`
-	Username        string `gorm:"type:varchar(255)"`
-	Email           string `gorm:"type:varchar(255)"`
-	Name            string `gorm:"type:varchar(255)"`
-	State           string `gorm:"type:varchar(255)"`
-	MembershipState string `json:"membership_state" gorm:"type:varchar(255)"`
-	AvatarUrl       string `json:"avatar_url" gorm:"type:varchar(255)"`
-	WebUrl          string `json:"web_url" gorm:"type:varchar(255)"`
-
-	common.NoPKModel
+type PullRequestComment0704 struct {
+	Type string `gorm:"type:varchar(255)"`
 }
 
-func (GitlabUser) TableName() string {
-	return "_tool_gitlab_users"
+func (PullRequestComment0704) TableName() string {
+	return "pull_request_comments"
+}
+
+type UpdateSchemas20220704 struct {
+}
+
+func (u *UpdateSchemas20220704) Up(ctx context.Context, db *gorm.DB) error {
+	err := db.Migrator().AddColumn(&PullRequestComment0704{}, "type")
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (*UpdateSchemas20220704) Version() uint64 {
+	return 20220704110137
+}
+
+func (*UpdateSchemas20220704) Name() string {
+	return "add type to pr_comment"
 }

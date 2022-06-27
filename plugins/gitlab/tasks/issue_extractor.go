@@ -22,7 +22,6 @@ import (
 	"fmt"
 	"regexp"
 	"runtime/debug"
-	"strconv"
 
 	"github.com/apache/incubator-devlake/models/domainlayer/ticket"
 
@@ -53,13 +52,13 @@ type IssuesResponse struct {
 		CreatedAt   helper.Iso8601Time
 		UpdatedAt   helper.Iso8601Time
 	}
-	Author struct {
+	Author *struct {
 		State     string
 		WebUrl    string `json:"web_url"`
 		AvatarUrl string `json:"avatar_url"`
 		Username  string
-		Id        int
-		Name      string
+		Id        int    `json:"id"`
+		Name      string `json:"name"`
 	}
 	Description string
 	State       string
@@ -251,13 +250,14 @@ func ExtractApiIssues(taskCtx core.SubTaskContext) error {
 
 			}
 			gitlabIssue.ConnectionId = data.Options.ConnectionId
-
-			gitlabAuthor, err := convertGitlabAuthor(body, data.Options.ConnectionId)
-			if err != nil {
-				return nil, err
+			if body.Author != nil {
+				gitlabAuthor, err := convertGitlabAuthor(body, data.Options.ConnectionId)
+				if err != nil {
+					return nil, err
+				}
+				results = append(results, gitlabAuthor)
 			}
 			results = append(results, gitlabIssue)
-			results = append(results, gitlabAuthor)
 
 			for _, v := range body.Assignees {
 				GitlabAssignee := &models.GitlabAssignee{
@@ -296,7 +296,7 @@ func convertGitlabIssue(issue *IssuesResponse, projectId int) (*models.GitlabIss
 		GitlabUpdatedAt: issue.GitlabUpdatedAt.ToTime(),
 		TimeEstimate:    issue.TimeStats.TimeEstimate,
 		TotalTimeSpent:  issue.TimeStats.TotalTimeSpent,
-		CreatorId:       strconv.Itoa(issue.Author.Id),
+		CreatorId:       issue.Author.Id,
 		CreatorName:     issue.Author.Username,
 	}
 
@@ -304,7 +304,11 @@ func convertGitlabIssue(issue *IssuesResponse, projectId int) (*models.GitlabIss
 		gitlabIssue.AssigneeId = issue.Assignee.Id
 		gitlabIssue.AssigneeName = issue.Assignee.Username
 	}
+	if issue.Author != nil {
+		gitlabIssue.CreatorId = issue.Author.Id
+		gitlabIssue.CreatorName = issue.Author.Username
 
+	}
 	if issue.GitlabClosedAt != nil {
 		gitlabIssue.LeadTimeMinutes = uint(issue.GitlabClosedAt.ToTime().Sub(issue.GitlabCreatedAt.ToTime()).Minutes())
 	}
@@ -315,6 +319,7 @@ func convertGitlabIssue(issue *IssuesResponse, projectId int) (*models.GitlabIss
 func convertGitlabAuthor(issue *IssuesResponse, connectionId uint64) (*models.GitlabAuthor, error) {
 	gitlabAuthor := &models.GitlabAuthor{
 		ConnectionId: connectionId,
+		GitlabId:     issue.Author.Id,
 		Username:     issue.Author.Username,
 		Name:         issue.Author.Name,
 		State:        issue.Author.State,
