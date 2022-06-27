@@ -29,6 +29,6 @@ func All() []migration.Script {
 		new(updateSchemas20220602), new(updateSchemas20220612), new(updateSchemas20220613),
 		new(updateSchemas20220614), new(updateSchemas2022061402), new(updateSchemas20220616),
 		new(blueprintNormalMode),
-		new(UpdateSchemas20220630),
+		new(UpdateSchemas20220630), new(UpdateSchemas20220704),
 	}
 }

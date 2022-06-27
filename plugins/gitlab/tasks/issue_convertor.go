@@ -29,7 +29,6 @@ import (
 	"github.com/apache/incubator-devlake/models/domainlayer"
 	"github.com/apache/incubator-devlake/models/domainlayer/didgen"
 	"github.com/apache/incubator-devlake/models/domainlayer/ticket"
-	"github.com/apache/incubator-devlake/plugins/gitlab/models"
 	gitlabModels "github.com/apache/incubator-devlake/plugins/gitlab/models"
 )
 
@@ -58,8 +57,8 @@ func ConvertIssues(taskCtx core.SubTaskContext) error {
 	defer cursor.Close()
 
 	issueIdGen := didgen.NewDomainIdGenerator(&gitlabModels.GitlabIssue{})
+	userIdGen := didgen.NewDomainIdGenerator(&gitlabModels.GitlabUser{})
 	boardIdGen := didgen.NewDomainIdGenerator(&gitlabModels.GitlabProject{})
-	userIdGen := didgen.NewDomainIdGenerator(&models.GitlabUser{})
 
 	converter, err := helper.NewDataConverter(helper.DataConverterArgs{
 		RawDataSubTaskArgs: *rawDataSubTaskArgs,
@@ -74,7 +73,6 @@ func ConvertIssues(taskCtx core.SubTaskContext) error {
 				Description:             issue.Body,
 				Priority:                issue.Priority,
 				Type:                    issue.Type,
-				AssigneeName:            issue.AssigneeName,
 				LeadTimeMinutes:         issue.LeadTimeMinutes,
 				Url:                     issue.Url,
 				CreatedDate:             &issue.GitlabCreatedAt,
@@ -85,8 +83,10 @@ func ConvertIssues(taskCtx core.SubTaskContext) error {
 				OriginalStatus:          issue.Status,
 				OriginalEstimateMinutes: issue.TimeEstimate,
 				TimeSpentMinutes:        issue.TotalTimeSpent,
-				CreatorId:               userIdGen.Generate(data.Options.ConnectionId, issue.CreatorName),
+				CreatorId:               userIdGen.Generate(data.Options.ConnectionId, issue.CreatorId),
 				CreatorName:             issue.CreatorName,
+				AssigneeId:              userIdGen.Generate(data.Options.ConnectionId, issue.AssigneeId),
+				AssigneeName:            issue.AssigneeName,
 			}
 
 			if issue.State == "opened" {
@@ -94,6 +94,7 @@ func ConvertIssues(taskCtx core.SubTaskContext) error {
 			} else {
 				domainIssue.Status = ticket.DONE
 			}
+
 			boardIssue := &ticket.BoardIssue{
 				BoardId: boardIdGen.Generate(data.Options.ConnectionId, projectId),
 				IssueId: domainIssue.Id,

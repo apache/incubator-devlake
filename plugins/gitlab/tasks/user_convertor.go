@@ -64,7 +64,7 @@ func ConvertUsers(taskCtx core.SubTaskContext) error {
 		Convert: func(inputRow interface{}) ([]interface{}, error) {
 			gitlabUser := inputRow.(*gitlabModels.GitlabUser)
 			domainUser := &user.User{
-				DomainEntity: domainlayer.DomainEntity{Id: userIdGen.Generate(data.Options.ConnectionId, gitlabUser.Username)},
+				DomainEntity: domainlayer.DomainEntity{Id: userIdGen.Generate(data.Options.ConnectionId, gitlabUser.GitlabId)},
 				Name:         gitlabUser.Name,
 				Email:        gitlabUser.Email,
 				AvatarUrl:    gitlabUser.AvatarUrl,

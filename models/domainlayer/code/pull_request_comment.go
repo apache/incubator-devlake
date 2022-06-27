@@ -30,6 +30,7 @@ type PullRequestComment struct {
 	CreatedDate   time.Time
 	CommitSha     string `gorm:"type:varchar(255)"`
 	Position      int
+	Type          string `gorm:"type:varchar(255)"`
 }
 
 func (PullRequestComment) TableName() string {

@@ -19,7 +19,6 @@ package tasks
 
 import (
 	"encoding/json"
-
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/gitlab/models"
 	"github.com/apache/incubator-devlake/plugins/helper"
@@ -36,8 +35,10 @@ type MergeRequestNote struct {
 	Resolvable      bool `json:"resolvable"`
 	System          bool `json:"system"`
 	Author          struct {
+		Id       int    `json:"id"`
 		Username string `json:"username"`
 	}
+	Type string `json:"type"`
 }
 
 var ExtractApiMrNotesMeta = core.SubTaskMeta{
@@ -72,9 +73,11 @@ func ExtractApiMergeRequestsNotes(taskCtx core.SubTaskContext) error {
 					MergeRequestId:  toolMrNote.MergeRequestId,
 					MergeRequestIid: toolMrNote.MergeRequestIid,
 					Body:            toolMrNote.Body,
+					AuthorUserId:    toolMrNote.AuthorUserId,
 					AuthorUsername:  toolMrNote.AuthorUsername,
 					GitlabCreatedAt: toolMrNote.GitlabCreatedAt,
 					Resolvable:      toolMrNote.Resolvable,
+					Type:            toolMrNote.Type,
 					ConnectionId:    data.Options.ConnectionId,
 				}
 				results = append(results, toolMrComment)
@@ -96,6 +99,7 @@ func ExtractApiMergeRequestsNotes(taskCtx core.SubTaskContext) error {
 func convertMergeRequestNote(mrNote *MergeRequestNote) (*models.GitlabMrNote, error) {
 	GitlabMrNote := &models.GitlabMrNote{
 		GitlabId:        mrNote.GitlabId,
+		AuthorUserId:    mrNote.Author.Id,
 		MergeRequestId:  mrNote.MergeRequestId,
 		MergeRequestIid: mrNote.MergeRequestIid,
 		NoteableType:    mrNote.NoteableType,
@@ -105,6 +109,7 @@ func convertMergeRequestNote(mrNote *MergeRequestNote) (*models.GitlabMrNote, er
 		Confidential:    mrNote.Confidential,
 		Resolvable:      mrNote.Resolvable,
 		IsSystem:        mrNote.System,
+		Type:            mrNote.Type,
 	}
 	return GitlabMrNote, nil
 }

@@ -45,6 +45,7 @@ func TestGitlabIssueDataFlow(t *testing.T) {
 
 	// verify extraction
 	dataflowTester.FlushTabler(&models.GitlabIssue{})
+	dataflowTester.FlushTabler(&models.GitlabAuthor{})
 	dataflowTester.FlushTabler(&models.GitlabIssueLabel{})
 	dataflowTester.Subtask(tasks.ExtractApiIssuesMeta, taskData)
 	dataflowTester.VerifyTable(
@@ -63,6 +64,8 @@ func TestGitlabIssueDataFlow(t *testing.T) {
 			"status",
 			"assignee_id",
 			"assignee_name",
+			"creator_id",
+			"creator_name",
 			"lead_time_minutes",
 			"url",
 			"closed_at",
