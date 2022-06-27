@@ -64,8 +64,10 @@ func TestPrEnrichIssueDataFlow(t *testing.T) {
 	dataflowTester.VerifyTable(
 		models.GithubPullRequestIssue{},
 		"./snapshot_tables/_tool_github_pull_request_issues.csv",
-		[]string{"connection_id", "pull_request_id", "issue_id"},
 		[]string{
+			"connection_id",
+			"pull_request_id",
+			"issue_id",
 			"pull_request_number",
 			"issue_number",
 			"_raw_data_params",
@@ -81,8 +83,9 @@ func TestPrEnrichIssueDataFlow(t *testing.T) {
 	dataflowTester.VerifyTable(
 		crossdomain.PullRequestIssue{},
 		"./snapshot_tables/pull_request_issues.csv",
-		[]string{"pull_request_id", "issue_id"},
 		[]string{
+			"pull_request_id",
+			"issue_id",
 			"pull_request_number",
 			"issue_number",
 			"_raw_data_params",

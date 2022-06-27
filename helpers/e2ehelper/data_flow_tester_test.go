@@ -46,8 +46,8 @@ func ExampleDataFlowTester() {
 	dataflowTester.VerifyTable(
 		gitlabModels.GitlabProject{},
 		"tables/_tool_gitlab_projects.csv",
-		[]string{"gitlab_id"},
 		[]string{
+			"gitlab_id",
 			"name",
 			"description",
 			"default_branch",

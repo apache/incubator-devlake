@@ -46,12 +46,14 @@ func TestGitlabMrCommitDataFlow(t *testing.T) {
 		"_raw_gitlab_api_merge_requests")
 	// verify extraction
 	dataflowTester.FlushTabler(&models.GitlabMergeRequest{})
+	dataflowTester.FlushTabler(&models.GitlabMrLabel{})
 	dataflowTester.Subtask(tasks.ExtractApiMergeRequestsMeta, taskData)
 	dataflowTester.VerifyTable(
 		models.GitlabMergeRequest{},
 		fmt.Sprintf("./snapshot_tables/%s_for_mr_commit_test.csv", models.GitlabMergeRequest{}.TableName()),
-		[]string{"connection_id", "gitlab_id"},
 		[]string{
+			"connection_id",
+			"gitlab_id",
 			"iid",
 			"project_id",
 			"source_project_id",
@@ -93,8 +95,8 @@ func TestGitlabMrCommitDataFlow(t *testing.T) {
 	dataflowTester.VerifyTable(
 		models.GitlabCommit{},
 		fmt.Sprintf("./snapshot_tables/%s.csv", models.GitlabCommit{}.TableName()),
-		[]string{"sha"},
 		[]string{
+			"sha",
 			"title",
 			"message",
 			"short_id",
@@ -117,8 +119,10 @@ func TestGitlabMrCommitDataFlow(t *testing.T) {
 	dataflowTester.VerifyTable(
 		models.GitlabProjectCommit{},
 		fmt.Sprintf("./snapshot_tables/%s.csv", models.GitlabProjectCommit{}.TableName()),
-		[]string{"connection_id", "gitlab_project_id", "commit_sha"},
 		[]string{
+			"connection_id",
+			"gitlab_project_id",
+			"commit_sha",
 			"_raw_data_params",
 			"_raw_data_table",
 			"_raw_data_id",
@@ -129,8 +133,10 @@ func TestGitlabMrCommitDataFlow(t *testing.T) {
 	dataflowTester.VerifyTable(
 		models.GitlabMrCommit{},
 		fmt.Sprintf("./snapshot_tables/%s.csv", models.GitlabMrCommit{}.TableName()),
-		[]string{"connection_id", "merge_request_id", "commit_sha"},
 		[]string{
+			"connection_id",
+			"merge_request_id",
+			"commit_sha",
 			"_raw_data_params",
 			"_raw_data_table",
 			"_raw_data_id",
@@ -144,9 +150,9 @@ func TestGitlabMrCommitDataFlow(t *testing.T) {
 	dataflowTester.VerifyTable(
 		code.PullRequestCommit{},
 		fmt.Sprintf("./snapshot_tables/%s.csv", code.PullRequestCommit{}.TableName()),
-		[]string{"commit_sha",
-			"pull_request_id"},
 		[]string{
+			"commit_sha",
+			"pull_request_id",
 			"_raw_data_params",
 			"_raw_data_table",
 			"_raw_data_id",
@@ -161,8 +167,8 @@ func TestGitlabMrCommitDataFlow(t *testing.T) {
 	dataflowTester.VerifyTable(
 		code.Commit{},
 		fmt.Sprintf("./snapshot_tables/%s.csv", code.Commit{}.TableName()),
-		[]string{"sha"},
 		[]string{
+			"sha",
 			"_raw_data_params",
 			"_raw_data_table",
 			"_raw_data_id",
@@ -185,8 +191,9 @@ func TestGitlabMrCommitDataFlow(t *testing.T) {
 	dataflowTester.VerifyTable(
 		code.RepoCommit{},
 		fmt.Sprintf("./snapshot_tables/%s.csv", code.RepoCommit{}.TableName()),
-		[]string{"repo_id", "commit_sha"},
 		[]string{
+			"repo_id",
+			"commit_sha",
 			"_raw_data_params",
 			"_raw_data_table",
 			"_raw_data_id",

@@ -50,8 +50,10 @@ func TestTapdStoryAndBugStatusDataFlow(t *testing.T) {
 	dataflowTester.VerifyTable(
 		models.TapdStoryStatus{},
 		fmt.Sprintf("./snapshot_tables/%s.csv", models.TapdStoryStatus{}.TableName()),
-		[]string{"connection_id", "workspace_id", "english_name"},
 		[]string{
+			"connection_id",
+			"workspace_id",
+			"english_name",
 			"chinese_name",
 			"is_last_step",
 			"_raw_data_params",
@@ -72,8 +74,10 @@ func TestTapdStoryAndBugStatusDataFlow(t *testing.T) {
 	dataflowTester.VerifyTable(
 		models.TapdBugStatus{},
 		fmt.Sprintf("./snapshot_tables/%s.csv", models.TapdBugStatus{}.TableName()),
-		[]string{"connection_id", "workspace_id", "english_name"},
 		[]string{
+			"connection_id",
+			"workspace_id",
+			"english_name",
 			"chinese_name",
 			"is_last_step",
 			"_raw_data_params",

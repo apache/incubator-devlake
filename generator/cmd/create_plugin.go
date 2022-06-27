@@ -23,6 +23,7 @@ import (
 	"github.com/apache/incubator-devlake/generator/util"
 	"github.com/manifoldco/promptui"
 	"github.com/spf13/cobra"
+	"io/ioutil"
 	"os"
 	"regexp"
 	"strings"
@@ -59,6 +60,22 @@ func pluginNameExistValidate(input string) error {
 	}
 	_, err := os.Stat(`plugins/` + input)
 	return err
+}
+
+func pluginNames(withFramework bool) (pluginItems []string, err error) {
+	files, err := ioutil.ReadDir(`plugins`)
+	if err != nil {
+		return nil, err
+	}
+	if withFramework {
+		pluginItems = append(pluginItems, `framework`)
+	}
+	for _, file := range files {
+		if file.IsDir() {
+			pluginItems = append(pluginItems, file.Name())
+		}
+	}
+	return pluginItems, nil
 }
 
 var createPluginCmd = &cobra.Command{

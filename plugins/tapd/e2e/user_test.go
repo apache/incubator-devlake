@@ -50,8 +50,10 @@ func TestTapdUserDataFlow(t *testing.T) {
 	dataflowTester.VerifyTable(
 		models.TapdUser{},
 		fmt.Sprintf("./snapshot_tables/%s.csv", models.TapdUser{}.TableName()),
-		[]string{"connection_id", "workspace_id", "user"},
 		[]string{
+			"connection_id",
+			"workspace_id",
+			"user",
 			"name",
 			"_raw_data_params",
 			"_raw_data_table",
@@ -66,8 +68,8 @@ func TestTapdUserDataFlow(t *testing.T) {
 	dataflowTester.VerifyTable(
 		user.User{},
 		fmt.Sprintf("./snapshot_tables/%s.csv", user.User{}.TableName()),
-		[]string{"id"},
 		[]string{
+			"id",
 			"_raw_data_params",
 			"_raw_data_table",
 			"_raw_data_id",

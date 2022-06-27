@@ -46,7 +46,6 @@ func TestProjectDataFlow(t *testing.T) {
 	dataflowTester.VerifyTable(
 		models.JiraProject{},
 		"./snapshot_tables/_tool_jira_projects.csv",
-		[]string{"connection_id", "id"},
 		[]string{
 			"connection_id",
 			"id",

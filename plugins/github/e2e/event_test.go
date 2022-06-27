@@ -51,8 +51,9 @@ func TestEventDataFlow(t *testing.T) {
 	dataflowTester.VerifyTable(
 		models.GithubIssueEvent{},
 		"./snapshot_tables/_tool_github_issue_events.csv",
-		[]string{"connection_id", "github_id"},
 		[]string{
+			"connection_id",
+			"github_id",
 			"issue_id",
 			"type",
 			"author_username",

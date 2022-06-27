@@ -51,8 +51,9 @@ func TestTapdWorklogDataFlow(t *testing.T) {
 	dataflowTester.VerifyTable(
 		models.TapdWorklog{},
 		fmt.Sprintf("./snapshot_tables/%s.csv", models.TapdWorklog{}.TableName()),
-		[]string{"connection_id", "id"},
 		[]string{
+			"connection_id",
+			"id",
 			"workspace_id",
 			"entity_type",
 			"entity_id",
@@ -73,8 +74,8 @@ func TestTapdWorklogDataFlow(t *testing.T) {
 	dataflowTester.VerifyTable(
 		ticket.IssueWorklog{},
 		fmt.Sprintf("./snapshot_tables/%s.csv", ticket.IssueWorklog{}.TableName()),
-		[]string{"id"},
 		[]string{
+			"id",
 			"_raw_data_params",
 			"_raw_data_table",
 			"_raw_data_id",

@@ -52,8 +52,10 @@ func TestPrReviewerDataFlow(t *testing.T) {
 	dataflowTester.VerifyTable(
 		models.GithubReviewer{},
 		"./snapshot_tables/_tool_github_reviewers.csv",
-		[]string{"connection_id", "github_id", "pull_request_id"},
 		[]string{
+			"connection_id",
+			"github_id",
+			"pull_request_id",
 			"login",
 			"_raw_data_params",
 			"_raw_data_table",

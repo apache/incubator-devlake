@@ -24,7 +24,6 @@ import (
 	"github.com/manifoldco/promptui"
 	"github.com/spf13/cobra"
 	"github.com/stoewer/go-strcase"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 	"time"
@@ -42,19 +41,13 @@ Type in which plugin do you want init migrations in, then generator will create 
 	Run: func(cmd *cobra.Command, args []string) {
 		var pluginName string
 
-		// try to get plugin name and extractor name
+		// try to get plugin name
 		if len(args) > 0 {
 			pluginName = args[0]
 		}
 		if pluginName == `` {
-			files, err := ioutil.ReadDir(`plugins`)
+			pluginItems, err := pluginNames(false)
 			cobra.CheckErr(err)
-			var pluginItems []string
-			for _, file := range files {
-				if file.IsDir() {
-					pluginItems = append(pluginItems, file.Name())
-				}
-			}
 			prompt := promptui.Select{
 				Label: "plugin_name",
 				Items: pluginItems,

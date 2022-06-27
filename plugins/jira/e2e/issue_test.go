@@ -53,7 +53,6 @@ func TestIssueDataFlow(t *testing.T) {
 	dataflowTester.VerifyTable(
 		models.JiraIssue{},
 		"./snapshot_tables/_tool_jira_issues.csv",
-		[]string{"connection_id", "issue_id"},
 		[]string{
 			"connection_id",
 			"issue_id",
@@ -101,7 +100,6 @@ func TestIssueDataFlow(t *testing.T) {
 		models.JiraBoardIssue{},
 		"./snapshot_tables/_tool_jira_board_issues.csv",
 		[]string{"connection_id", "board_id", "issue_id"},
-		[]string{},
 	)
 
 	// verify issue conversion
@@ -111,8 +109,8 @@ func TestIssueDataFlow(t *testing.T) {
 	dataflowTester.VerifyTable(
 		ticket.Issue{},
 		"./snapshot_tables/issues.csv",
-		[]string{"id"},
 		[]string{
+			"id",
 			"url",
 			"icon_url",
 			"issue_key",
@@ -144,6 +142,5 @@ func TestIssueDataFlow(t *testing.T) {
 		ticket.BoardIssue{},
 		"./snapshot_tables/board_issues.csv",
 		[]string{"board_id", "issue_id"},
-		[]string{},
 	)
 }

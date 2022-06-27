@@ -50,8 +50,9 @@ func TestGitlabIssueDataFlow(t *testing.T) {
 	dataflowTester.VerifyTable(
 		models.GitlabIssue{},
 		fmt.Sprintf("./snapshot_tables/%s.csv", models.GitlabIssue{}.TableName()),
-		[]string{"connection_id", "gitlab_id"},
 		[]string{
+			"connection_id",
+			"gitlab_id",
 			"project_id",
 			"number",
 			"state",
@@ -81,8 +82,10 @@ func TestGitlabIssueDataFlow(t *testing.T) {
 	dataflowTester.VerifyTable(
 		models.GitlabIssueLabel{},
 		fmt.Sprintf("./snapshot_tables/%s.csv", models.GitlabIssueLabel{}.TableName()),
-		[]string{"connection_id", "issue_id", "label_name"},
 		[]string{
+			"connection_id",
+			"issue_id",
+			"label_name",
 			"_raw_data_params",
 			"_raw_data_table",
 			"_raw_data_id",
@@ -97,12 +100,12 @@ func TestGitlabIssueDataFlow(t *testing.T) {
 	dataflowTester.VerifyTable(
 		ticket.Issue{},
 		fmt.Sprintf("./snapshot_tables/%s.csv", ticket.Issue{}.TableName()),
-		[]string{"id"},
 		[]string{
 			"_raw_data_params",
 			"_raw_data_table",
 			"_raw_data_id",
 			"_raw_data_remark",
+			"id",
 			"url",
 			"issue_key",
 			"title",
@@ -134,8 +137,9 @@ func TestGitlabIssueDataFlow(t *testing.T) {
 	dataflowTester.VerifyTable(
 		&ticket.BoardIssue{},
 		fmt.Sprintf("./snapshot_tables/%s.csv", ticket.BoardIssue{}.TableName()),
-		[]string{"board_id", "issue_id"},
 		[]string{
+			"board_id",
+			"issue_id",
 			"_raw_data_params",
 			"_raw_data_table",
 			"_raw_data_id",
@@ -151,8 +155,6 @@ func TestGitlabIssueDataFlow(t *testing.T) {
 		[]string{
 			"issue_id",
 			"label_name",
-		},
-		[]string{
 			"_raw_data_params",
 			"_raw_data_table",
 			"_raw_data_id",

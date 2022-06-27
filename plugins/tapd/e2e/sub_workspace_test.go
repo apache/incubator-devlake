@@ -50,8 +50,9 @@ func TestTapdWorkspaceDataFlow(t *testing.T) {
 	dataflowTester.VerifyTable(
 		models.TapdSubWorkspace{},
 		fmt.Sprintf("./snapshot_tables/%s.csv", models.TapdSubWorkspace{}.TableName()),
-		[]string{"connection_id", "id"},
 		[]string{
+			"connection_id",
+			"id",
 			"name",
 			"pretty_name",
 			"category",
@@ -74,8 +75,8 @@ func TestTapdWorkspaceDataFlow(t *testing.T) {
 	dataflowTester.VerifyTable(
 		ticket.Board{},
 		fmt.Sprintf("./snapshot_tables/%s.csv", ticket.Board{}.TableName()),
-		[]string{"id"},
 		[]string{
+			"id",
 			"_raw_data_params",
 			"_raw_data_table",
 			"_raw_data_id",

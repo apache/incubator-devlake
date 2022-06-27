@@ -47,8 +47,9 @@ func TestAEProjectDataFlow(t *testing.T) {
 	dataflowTester.VerifyTable(
 		models.AEProject{},
 		fmt.Sprintf("./snapshot_tables/%s.csv", models.AEProject{}.TableName()),
-		[]string{"connection_id", "id"},
 		[]string{
+			"connection_id",
+			"id",
 			"git_url",
 			"priority",
 			"ae_create_time",

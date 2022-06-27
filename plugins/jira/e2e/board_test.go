@@ -47,7 +47,6 @@ func TestBoardDataFlow(t *testing.T) {
 	dataflowTester.VerifyTable(
 		models.JiraBoard{},
 		"./snapshot_tables/_tool_jira_boards.csv",
-		[]string{"connection_id", "board_id"},
 		[]string{
 			"connection_id",
 			"board_id",
@@ -68,7 +67,6 @@ func TestBoardDataFlow(t *testing.T) {
 	dataflowTester.VerifyTable(
 		ticket.Board{},
 		"./snapshot_tables/boards.csv",
-		[]string{"id"},
 		[]string{
 			"id",
 			"name",

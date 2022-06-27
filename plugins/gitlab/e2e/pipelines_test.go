@@ -48,8 +48,9 @@ func TestGitlabPipelineDataFlow(t *testing.T) {
 	dataflowTester.VerifyTable(
 		models.GitlabPipeline{},
 		fmt.Sprintf("./snapshot_tables/%s.csv", models.GitlabPipeline{}.TableName()),
-		[]string{"connection_id", "gitlab_id"},
 		[]string{
+			"connection_id",
+			"gitlab_id",
 			"project_id",
 			"gitlab_created_at",
 			"status",

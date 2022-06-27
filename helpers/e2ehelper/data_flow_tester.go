@@ -30,11 +30,13 @@ import (
 	"github.com/apache/incubator-devlake/plugins/core/dal"
 	"github.com/apache/incubator-devlake/plugins/helper"
 	"github.com/apache/incubator-devlake/runner"
+	"github.com/apache/incubator-devlake/utils"
 	"github.com/spf13/viper"
 	"github.com/stretchr/testify/assert"
 	"gorm.io/gorm"
 	"gorm.io/gorm/schema"
 	"os"
+	"strconv"
 	"strings"
 	"testing"
 	"time"
@@ -171,14 +173,30 @@ func (t *DataFlowTester) Subtask(subtaskMeta core.SubTaskMeta, taskData interfac
 	}
 }
 
+func (t *DataFlowTester) getPkFields(dst schema.Tabler) []string {
+	columnTypes, err := t.Db.Migrator().ColumnTypes(dst)
+	var pkFields []string
+	if err != nil {
+		panic(err)
+	}
+	for _, columnType := range columnTypes {
+		if isPrimaryKey, _ := columnType.PrimaryKey(); isPrimaryKey {
+			pkFields = append(pkFields, columnType.Name())
+		}
+	}
+	return pkFields
+}
+
 // CreateSnapshot reads rows from database and write them into .csv file.
-func (t *DataFlowTester) CreateSnapshot(dst schema.Tabler, csvRelPath string, pkfields []string, targetfields []string) {
+func (t *DataFlowTester) CreateSnapshot(dst schema.Tabler, csvRelPath string, targetfields []string) {
 	location, _ := time.LoadLocation(`UTC`)
-	allFields := append(pkfields, targetfields...)
+	pkFields := t.getPkFields(dst)
+	allFields := append(pkFields, targetfields...)
+	allFields = utils.StringsUniq(allFields)
 	dbCursor, err := t.Dal.Cursor(
 		dal.Select(strings.Join(allFields, `,`)),
 		dal.From(dst.TableName()),
-		dal.Orderby(strings.Join(pkfields, `,`)),
+		dal.Orderby(strings.Join(pkFields, `,`)),
 	)
 	if err != nil {
 		panic(err)
@@ -233,66 +251,100 @@ func (t *DataFlowTester) CreateSnapshot(dst schema.Tabler, csvRelPath string, pk
 	}
 }
 
-// VerifyTable reads rows from csv file and compare with records from database one by one. You must specified the
-// Primary Key Fields with `pkfields` so DataFlowTester could select the exact record from database, as well as which
-// fields to compare with by specifying `targetfields` parameter.
-func (t *DataFlowTester) VerifyTable(dst schema.Tabler, csvRelPath string, pkfields []string, targetfields []string) {
-	_, err := os.Stat(csvRelPath)
-	if os.IsNotExist(err) {
-		t.CreateSnapshot(dst, csvRelPath, pkfields, targetfields)
-		return
+// ExportRawTable reads rows from raw table and write them into .csv file.
+func (t *DataFlowTester) ExportRawTable(rawTableName string, csvRelPath string) {
+	location, _ := time.LoadLocation(`UTC`)
+	allFields := []string{`id`, `params`, `data`, `url`, `input`, `created_at`}
+	rawRows := &[]helper.RawData{}
+	err := t.Dal.All(
+		rawRows,
+		dal.Select(`id, params, data, url, input, created_at`),
+		dal.From(rawTableName),
+		dal.Orderby(`id`),
+	)
+	if err != nil {
+		panic(err)
 	}
 
-	csvIter := pluginhelper.NewCsvFileIterator(csvRelPath)
+	csvWriter := pluginhelper.NewCsvFileWriter(csvRelPath, allFields)
+	defer csvWriter.Close()
+
+	for _, rawRow := range *rawRows {
+		csvWriter.Write([]string{
+			strconv.FormatUint(rawRow.ID, 10),
+			rawRow.Params,
+			string(rawRow.Data),
+			rawRow.Url,
+			string(rawRow.Input),
+			rawRow.CreatedAt.In(location).Format("2006-01-02T15:04:05.000-07:00"),
+		})
+	}
+}
+
+func formatDbValue(value interface{}) string {
 	location, _ := time.LoadLocation(`UTC`)
+	switch value := value.(type) {
+	case time.Time:
+		return value.In(location).Format("2006-01-02T15:04:05.000-07:00")
+	case bool:
+		if value {
+			return `1`
+		} else {
+			return `0`
+		}
+	default:
+		if value != nil {
+			return fmt.Sprint(value)
+		}
+	}
+	return ``
+}
+
+// VerifyTable reads rows from csv file and compare with records from database one by one. You must specified the
+// Primary Key Fields with `pkFields` so DataFlowTester could select the exact record from database, as well as which
+// fields to compare with by specifying `targetFields` parameter.
+func (t *DataFlowTester) VerifyTable(dst schema.Tabler, csvRelPath string, targetFields []string) {
+	_, err := os.Stat(csvRelPath)
+	if os.IsNotExist(err) {
+		t.CreateSnapshot(dst, csvRelPath, targetFields)
+		return
+	}
+	pkFields := t.getPkFields(dst)
+
+	csvIter := pluginhelper.NewCsvFileIterator(csvRelPath)
 	defer csvIter.Close()
 
 	expectedTotal := int64(0)
+	csvMap := map[string]map[string]interface{}{}
 	for csvIter.HasNext() {
 		expected := csvIter.Fetch()
-		pkvalues := make([]interface{}, 0, len(pkfields))
-		for _, pkf := range pkfields {
-			pkvalues = append(pkvalues, expected[pkf])
+		pkValues := make([]string, 0, len(pkFields))
+		for _, pkf := range pkFields {
+			pkValues = append(pkValues, expected[pkf].(string))
 		}
-		actual := make(map[string]interface{})
-		where := []string{}
-		for _, field := range pkfields {
-			where = append(where, fmt.Sprintf(" %s = ?", field))
-		}
+		pkValueStr := strings.Join(pkValues, `-`)
+		_, ok := csvMap[pkValueStr]
+		assert.False(t.T, ok, fmt.Sprintf(`%s duplicated in csv (with params from csv %s)`, dst.TableName(), pkValues))
+		csvMap[pkValueStr] = expected
+	}
 
-		var actualCount int64
-		err := t.Db.Table(dst.TableName()).Where(strings.Join(where, ` AND `), pkvalues...).Count(&actualCount).Error
-		if err != nil {
-			panic(err)
+	dbRows := &[]map[string]interface{}{}
+	err = t.Db.Table(dst.TableName()).Find(dbRows).Error
+	if err != nil {
+		panic(err)
+	}
+	for _, actual := range *dbRows {
+		pkValues := make([]string, 0, len(pkFields))
+		for _, pkf := range pkFields {
+			pkValues = append(pkValues, formatDbValue(actual[pkf]))
 		}
-		assert.Equal(t.T, int64(1), actualCount, fmt.Sprintf(`%s found not eq 1 but %d (with params from csv %s)`, dst.TableName(), actualCount, pkvalues))
-		if actualCount != 1 {
+		expected, ok := csvMap[strings.Join(pkValues, `-`)]
+		assert.True(t.T, ok, fmt.Sprintf(`%s not found (with params from csv %s)`, dst.TableName(), pkValues))
+		if !ok {
 			continue
 		}
-
-		err = t.Db.Table(dst.TableName()).Where(strings.Join(where, ` AND `), pkvalues...).Find(actual).Error
-		if err != nil {
-			panic(err)
-		}
-		for _, field := range targetfields {
-			actualValue := ""
-			switch actual[field].(type) {
-			case time.Time:
-				if actual[field] != nil {
-					actualValue = actual[field].(time.Time).In(location).Format("2006-01-02T15:04:05.000-07:00")
-				}
-			case bool:
-				if actual[field].(bool) {
-					actualValue = `1`
-				} else {
-					actualValue = `0`
-				}
-			default:
-				if actual[field] != nil {
-					actualValue = fmt.Sprint(actual[field])
-				}
-			}
-			assert.Equal(t.T, expected[field], actualValue, fmt.Sprintf(`%s.%s not match (with params from csv %s)`, dst.TableName(), field, pkvalues))
+		for _, field := range targetFields {
+			assert.Equal(t.T, expected[field], formatDbValue(actual[field]), fmt.Sprintf(`%s.%s not match (with params from csv %s)`, dst.TableName(), field, pkValues))
 		}
 		expectedTotal++
 	}

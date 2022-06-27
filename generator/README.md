@@ -29,6 +29,13 @@ Usage Gif:
 Usage Gif:
 ![usage](https://user-images.githubusercontent.com/3294100/175537358-083809ce-9862-41f1-86e9-41448a44eaae.gif)
 
+## E2E Test Related
+
+* [create-e2e-raw](./docs/generator_create-e2e-raw.md)	     - Export raw table to csv in E2E test
+
+Usage Gif:
+![usage](https://user-images.githubusercontent.com/3294100/175849225-12af5251-6181-4cd9-ba72-26087b05ee73.gif)
+
 ## Others
 
 * [completion](./docs/generator_completion.md)               - Generate the autocompletion script for the specified shell

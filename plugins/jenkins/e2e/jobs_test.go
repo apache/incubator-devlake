@@ -48,7 +48,6 @@ func TestJenkinsJobsDataFlow(t *testing.T) {
 	dataflowTester.VerifyTable(
 		models.JenkinsJob{},
 		fmt.Sprintf("./snapshot_tables/%s.csv", models.JenkinsJob{}.TableName()),
-		[]string{"connection_id", "name"},
 		[]string{
 			"connection_id",
 			"name",
@@ -68,7 +67,6 @@ func TestJenkinsJobsDataFlow(t *testing.T) {
 	dataflowTester.VerifyTable(
 		devops.Job{},
 		fmt.Sprintf("./snapshot_tables/%s.csv", devops.Job{}.TableName()),
-		[]string{"id"},
 		[]string{
 			"name",
 			"id",
