@@ -49,8 +49,9 @@ func TestChangelogDataFlow(t *testing.T) {
 	dataflowTester.VerifyTable(
 		models.JiraChangelog{},
 		"./snapshot_tables/_tool_jira_changelogs.csv",
-		[]string{"connection_id", "changelog_id"},
 		[]string{
+			"connection_id",
+			"changelog_id",
 			"issue_id",
 			"author_account_id",
 			"author_display_name",
@@ -67,8 +68,10 @@ func TestChangelogDataFlow(t *testing.T) {
 	dataflowTester.VerifyTable(
 		models.JiraChangelogItem{},
 		"./snapshot_tables/_tool_jira_changelog_items.csv",
-		[]string{"connection_id", "changelog_id", "field"},
 		[]string{
+			"connection_id",
+			"changelog_id",
+			"field",
 			"field_type",
 			"field_id",
 			"from_value",
@@ -85,8 +88,8 @@ func TestChangelogDataFlow(t *testing.T) {
 	dataflowTester.VerifyTable(
 		ticket.Changelog{},
 		"./snapshot_tables/changelogs.csv",
-		[]string{"id"},
 		[]string{
+			"id",
 			"issue_id",
 			"author_id",
 			"author_name",

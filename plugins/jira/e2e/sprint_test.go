@@ -48,8 +48,9 @@ func TestSprintDataFlow(t *testing.T) {
 	dataflowTester.VerifyTable(
 		models.JiraSprint{},
 		"./snapshot_tables/_tool_jira_sprints.csv",
-		[]string{"connection_id", "sprint_id"},
 		[]string{
+			"connection_id",
+			"sprint_id",
 			"self",
 			"state",
 			"name",
@@ -68,7 +69,6 @@ func TestSprintDataFlow(t *testing.T) {
 		models.JiraBoardSprint{},
 		"./snapshot_tables/_tool_jira_board_sprints.csv",
 		[]string{"connection_id", "board_id", "sprint_id"},
-		[]string{},
 	)
 
 	// verify sprint conversion
@@ -78,8 +78,8 @@ func TestSprintDataFlow(t *testing.T) {
 	dataflowTester.VerifyTable(
 		ticket.Sprint{},
 		"./snapshot_tables/sprints.csv",
-		[]string{"id"},
 		[]string{
+			"id",
 			"url",
 			"status",
 			"name",
@@ -93,6 +93,5 @@ func TestSprintDataFlow(t *testing.T) {
 		ticket.BoardSprint{},
 		"./snapshot_tables/board_sprints.csv",
 		[]string{"board_id", "sprint_id"},
-		[]string{},
 	)
 }

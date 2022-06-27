@@ -48,7 +48,6 @@ func TestRemotelinkDataFlow(t *testing.T) {
 	dataflowTester.VerifyTable(
 		models.JiraRemotelink{},
 		"./snapshot_tables/_tool_jira_remotelinks.csv",
-		[]string{"connection_id", "remotelink_id"},
 		[]string{
 			"connection_id",
 			"remotelink_id",
@@ -66,8 +65,10 @@ func TestRemotelinkDataFlow(t *testing.T) {
 	dataflowTester.VerifyTable(
 		models.JiraIssueCommit{},
 		"./snapshot_tables/_tool_jira_issue_commits.csv",
-		[]string{"connection_id", "issue_id", "commit_sha"},
 		[]string{
+			"connection_id",
+			"issue_id",
+			"commit_sha",
 			"commit_url",
 			"_raw_data_params",
 			"_raw_data_table",

@@ -47,8 +47,10 @@ func TestWorklogDataFlow(t *testing.T) {
 	dataflowTester.VerifyTable(
 		models.JiraWorklog{},
 		"./snapshot_tables/_tool_jira_worklogs.csv",
-		[]string{"connection_id", "issue_id", "worklog_id"},
 		[]string{
+			"connection_id",
+			"issue_id",
+			"worklog_id",
 			"author_id",
 			"update_author_id",
 			"time_spent",
@@ -70,8 +72,8 @@ func TestWorklogDataFlow(t *testing.T) {
 	dataflowTester.VerifyTable(
 		ticket.IssueWorklog{},
 		"./snapshot_tables/worklogs.csv",
-		[]string{"id"},
 		[]string{
+			"id",
 			"author_id",
 			"comment",
 			"time_spent_minutes",
