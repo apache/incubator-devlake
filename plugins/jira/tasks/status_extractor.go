@@ -31,6 +31,7 @@ var ExtractStatusMeta = core.SubTaskMeta{
 	EntryPoint:       ExtractStatus,
 	EnabledByDefault: true,
 	Description:      "extract Jira status",
+	DomainTypes:      []string{core.DOMAIN_TYPE_TICKET},
 }
 
 func ExtractStatus(taskCtx core.SubTaskContext) error {

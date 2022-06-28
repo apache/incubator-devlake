@@ -31,6 +31,7 @@ var ExtractBoardMeta = core.SubTaskMeta{Name: "extractBoard",
 	EntryPoint:       ExtractBoard,
 	EnabledByDefault: true,
 	Description:      "extract Jira board",
+	DomainTypes:      []string{core.DOMAIN_TYPE_TICKET},
 }
 
 func ExtractBoard(taskCtx core.SubTaskContext) error {

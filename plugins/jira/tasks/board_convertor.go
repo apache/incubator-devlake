@@ -18,13 +18,13 @@ limitations under the License.
 package tasks
 
 import (
-	"github.com/apache/incubator-devlake/plugins/core/dal"
 	"reflect"
 
 	"github.com/apache/incubator-devlake/models/domainlayer"
 	"github.com/apache/incubator-devlake/models/domainlayer/didgen"
 	"github.com/apache/incubator-devlake/models/domainlayer/ticket"
 	"github.com/apache/incubator-devlake/plugins/core"
+	"github.com/apache/incubator-devlake/plugins/core/dal"
 	"github.com/apache/incubator-devlake/plugins/helper"
 	"github.com/apache/incubator-devlake/plugins/jira/models"
 )
@@ -34,6 +34,7 @@ var ConvertBoardMeta = core.SubTaskMeta{
 	EntryPoint:       ConvertBoard,
 	EnabledByDefault: true,
 	Description:      "convert Jira board",
+	DomainTypes:      []string{core.DOMAIN_TYPE_TICKET},
 }
 
 func ConvertBoard(taskCtx core.SubTaskContext) error {

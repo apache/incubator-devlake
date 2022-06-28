@@ -34,6 +34,7 @@ var ConvertWorklogsMeta = core.SubTaskMeta{
 	EntryPoint:       ConvertWorklogs,
 	EnabledByDefault: true,
 	Description:      "convert Jira work logs",
+	DomainTypes:      []string{core.DOMAIN_TYPE_TICKET},
 }
 
 func ConvertWorklogs(taskCtx core.SubTaskContext) error {

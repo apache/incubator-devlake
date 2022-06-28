@@ -33,6 +33,7 @@ var ExtractRemotelinksMeta = core.SubTaskMeta{
 	EntryPoint:       ExtractRemotelinks,
 	EnabledByDefault: true,
 	Description:      "extract Jira remote links",
+	DomainTypes:      []string{core.DOMAIN_TYPE_TICKET},
 }
 
 func ExtractRemotelinks(taskCtx core.SubTaskContext) error {

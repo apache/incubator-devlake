@@ -36,6 +36,7 @@ var CollectSprintsMeta = core.SubTaskMeta{
 	EntryPoint:       CollectSprints,
 	EnabledByDefault: true,
 	Description:      "collect Jira sprints",
+	DomainTypes:      []string{core.DOMAIN_TYPE_TICKET},
 }
 
 func CollectSprints(taskCtx core.SubTaskContext) error {

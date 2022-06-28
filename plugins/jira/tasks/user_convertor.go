@@ -33,6 +33,7 @@ var ConvertUsersMeta = core.SubTaskMeta{
 	EntryPoint:       ConvertUsers,
 	EnabledByDefault: true,
 	Description:      "convert Jira users",
+	DomainTypes:      []string{core.DOMAIN_TYPE_CROSS},
 }
 
 func ConvertUsers(taskCtx core.SubTaskContext) error {

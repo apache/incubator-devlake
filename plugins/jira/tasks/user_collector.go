@@ -36,6 +36,7 @@ var CollectUsersMeta = core.SubTaskMeta{
 	EntryPoint:       CollectUsers,
 	EnabledByDefault: true,
 	Description:      "collect Jira users",
+	DomainTypes:      []string{core.DOMAIN_TYPE_CROSS},
 }
 
 func CollectUsers(taskCtx core.SubTaskContext) error {

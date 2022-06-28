@@ -32,6 +32,7 @@ var CollectStatusMeta = core.SubTaskMeta{
 	EntryPoint:       CollectStatus,
 	EnabledByDefault: true,
 	Description:      "collect Jira status",
+	DomainTypes:      []string{core.DOMAIN_TYPE_TICKET},
 }
 
 func CollectStatus(taskCtx core.SubTaskContext) error {

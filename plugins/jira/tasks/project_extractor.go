@@ -32,6 +32,7 @@ var ExtractProjectsMeta = core.SubTaskMeta{
 	EntryPoint:       ExtractProjects,
 	EnabledByDefault: true,
 	Description:      "extract Jira projects",
+	DomainTypes:      []string{core.DOMAIN_TYPE_TICKET},
 }
 
 func ExtractProjects(taskCtx core.SubTaskContext) error {

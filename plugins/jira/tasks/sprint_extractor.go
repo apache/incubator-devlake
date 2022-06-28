@@ -33,6 +33,7 @@ var ExtractSprintsMeta = core.SubTaskMeta{
 	EntryPoint:       ExtractSprints,
 	EnabledByDefault: true,
 	Description:      "extract Jira sprints",
+	DomainTypes:      []string{core.DOMAIN_TYPE_TICKET},
 }
 
 func ExtractSprints(taskCtx core.SubTaskContext) error {

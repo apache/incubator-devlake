@@ -32,6 +32,7 @@ var ExtractUsersMeta = core.SubTaskMeta{
 	EntryPoint:       ExtractUsers,
 	EnabledByDefault: true,
 	Description:      "extract Jira users",
+	DomainTypes:      []string{core.DOMAIN_TYPE_CROSS},
 }
 
 func ExtractUsers(taskCtx core.SubTaskContext) error {
