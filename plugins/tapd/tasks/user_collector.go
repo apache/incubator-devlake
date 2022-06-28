@@ -32,7 +32,7 @@ const RAW_USER_TABLE = "tapd_api_users"
 var _ core.SubTaskEntryPoint = CollectUsers
 
 func CollectUsers(taskCtx core.SubTaskContext) error {
-	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_USER_TABLE)
+	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_USER_TABLE, false)
 	logger := taskCtx.GetLogger()
 	logger.Info("collect users")
 	collector, err := helper.NewApiCollector(helper.ApiCollectorArgs{

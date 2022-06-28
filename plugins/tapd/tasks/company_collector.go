@@ -32,7 +32,7 @@ const RAW_COMPANY_TABLE = "tapd_api_companies"
 var _ core.SubTaskEntryPoint = CollectCompanies
 
 func CollectCompanies(taskCtx core.SubTaskContext) error {
-	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_COMPANY_TABLE)
+	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_COMPANY_TABLE, true)
 	logger := taskCtx.GetLogger()
 	logger.Info("collect companies")
 	collector, err := helper.NewApiCollector(helper.ApiCollectorArgs{

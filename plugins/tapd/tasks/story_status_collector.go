@@ -30,7 +30,7 @@ const RAW_STORY_STATUS_TABLE = "tapd_api_story_status"
 var _ core.SubTaskEntryPoint = CollectStoryStatus
 
 func CollectStoryStatus(taskCtx core.SubTaskContext) error {
-	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_STORY_STATUS_TABLE)
+	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_STORY_STATUS_TABLE, false)
 	logger := taskCtx.GetLogger()
 	logger.Info("collect bugStatus")
 

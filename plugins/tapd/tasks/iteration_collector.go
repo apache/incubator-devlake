@@ -36,7 +36,7 @@ const RAW_ITERATION_TABLE = "tapd_api_iterations"
 var _ core.SubTaskEntryPoint = CollectIterations
 
 func CollectIterations(taskCtx core.SubTaskContext) error {
-	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_ITERATION_TABLE)
+	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_ITERATION_TABLE, false)
 	db := taskCtx.GetDal()
 	logger := taskCtx.GetLogger()
 	logger.Info("collect iterations")

@@ -39,7 +39,7 @@ var ExtractStoryMeta = core.SubTaskMeta{
 }
 
 func ExtractStories(taskCtx core.SubTaskContext) error {
-	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_STORY_TABLE)
+	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_STORY_TABLE, false)
 	db := taskCtx.GetDal()
 	statusList := make([]*models.TapdStoryStatus, 0)
 	clauses := []dal.Clause{

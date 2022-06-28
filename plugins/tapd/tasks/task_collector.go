@@ -34,7 +34,7 @@ const RAW_TASK_TABLE = "tapd_api_tasks"
 var _ core.SubTaskEntryPoint = CollectTasks
 
 func CollectTasks(taskCtx core.SubTaskContext) error {
-	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_TASK_TABLE)
+	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_TASK_TABLE, false)
 	db := taskCtx.GetDal()
 
 	logger := taskCtx.GetLogger()
