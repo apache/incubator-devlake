@@ -34,7 +34,7 @@ const RAW_TASK_CHANGELOG_TABLE = "tapd_api_task_changelogs"
 var _ core.SubTaskEntryPoint = CollectTaskChangelogs
 
 func CollectTaskChangelogs(taskCtx core.SubTaskContext) error {
-	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_TASK_CHANGELOG_TABLE)
+	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_TASK_CHANGELOG_TABLE, false)
 	db := taskCtx.GetDal()
 	logger := taskCtx.GetLogger()
 	logger.Info("collect taskChangelogs")

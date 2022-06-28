@@ -115,19 +115,24 @@ type TapdApiParams struct {
 	WorkspaceId  uint64
 }
 
-func CreateRawDataSubTaskArgs(taskCtx core.SubTaskContext, rawTable string) (*helper.RawDataSubTaskArgs, *TapdTaskData) {
+func CreateRawDataSubTaskArgs(taskCtx core.SubTaskContext, rawTable string, useCompanyId bool) (*helper.RawDataSubTaskArgs, *TapdTaskData) {
 	data := taskCtx.GetData().(*TapdTaskData)
+	filteredData := *data
+	filteredData.Options = &TapdOptions{}
+	*filteredData.Options = *data.Options
 	var params = TapdApiParams{
 		ConnectionId: data.Options.ConnectionId,
 		WorkspaceId:  data.Options.WorkspaceId,
 	}
-	if data.Options.CompanyId != 0 {
+	if data.Options.CompanyId != 0 && useCompanyId {
 		params.CompanyId = data.Options.CompanyId
+	} else {
+		filteredData.Options.CompanyId = 0
 	}
 	RawDataSubTaskArgs := &helper.RawDataSubTaskArgs{
 		Ctx:    taskCtx,
 		Params: params,
 		Table:  rawTable,
 	}
-	return RawDataSubTaskArgs, data
+	return RawDataSubTaskArgs, &filteredData
 }

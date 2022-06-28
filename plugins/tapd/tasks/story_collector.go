@@ -34,7 +34,7 @@ const RAW_STORY_TABLE = "tapd_api_stories"
 var _ core.SubTaskEntryPoint = CollectStorys
 
 func CollectStorys(taskCtx core.SubTaskContext) error {
-	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_STORY_TABLE)
+	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_STORY_TABLE, false)
 	db := taskCtx.GetDal()
 	logger := taskCtx.GetLogger()
 	logger.Info("collect stories")

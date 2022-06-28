@@ -37,7 +37,7 @@ var ConvertStoryLabelsMeta = core.SubTaskMeta{
 
 func ConvertStoryLabels(taskCtx core.SubTaskContext) error {
 	db := taskCtx.GetDal()
-	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_STORY_TABLE)
+	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_STORY_TABLE, false)
 
 	clauses := []dal.Clause{
 		dal.From(&models.TapdStoryLabel{}),

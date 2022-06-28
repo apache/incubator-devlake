@@ -34,7 +34,7 @@ const RAW_WORKLOG_TABLE = "tapd_api_worklogs"
 var _ core.SubTaskEntryPoint = CollectWorklogs
 
 func CollectWorklogs(taskCtx core.SubTaskContext) error {
-	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_WORKLOG_TABLE)
+	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_WORKLOG_TABLE, false)
 	db := taskCtx.GetDal()
 	logger := taskCtx.GetLogger()
 	logger.Info("collect worklogs")

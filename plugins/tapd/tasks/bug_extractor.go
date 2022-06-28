@@ -39,7 +39,7 @@ var ExtractBugMeta = core.SubTaskMeta{
 }
 
 func ExtractBugs(taskCtx core.SubTaskContext) error {
-	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_BUG_TABLE)
+	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_BUG_TABLE, false)
 	db := taskCtx.GetDal()
 	statusList := make([]*models.TapdBugStatus, 0)
 	clauses := []dal.Clause{

@@ -37,7 +37,7 @@ var ConvertTaskLabelsMeta = core.SubTaskMeta{
 
 func ConvertTaskLabels(taskCtx core.SubTaskContext) error {
 	db := taskCtx.GetDal()
-	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_TASK_TABLE)
+	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_TASK_TABLE, false)
 
 	clauses := []dal.Clause{
 		dal.From(&models.TapdTaskLabel{}),

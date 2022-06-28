@@ -32,7 +32,7 @@ const RAW_BUG_CUSTOM_FIELDS_TABLE = "tapd_api_bug_custom_fields"
 var _ core.SubTaskEntryPoint = CollectBugCustomFields
 
 func CollectBugCustomFields(taskCtx core.SubTaskContext) error {
-	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_BUG_CUSTOM_FIELDS_TABLE)
+	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_BUG_CUSTOM_FIELDS_TABLE, false)
 	logger := taskCtx.GetLogger()
 	logger.Info("collect bug_custom_fields")
 	collector, err := helper.NewApiCollector(helper.ApiCollectorArgs{
