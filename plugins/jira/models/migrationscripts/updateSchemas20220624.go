@@ -20,7 +20,6 @@ package migrationscripts
 import (
 	"context"
 
-	"github.com/apache/incubator-devlake/plugins/core"
 	"gorm.io/gorm"
 )
 
@@ -35,16 +34,6 @@ func (JiraConnection20220624) TableName() string {
 }
 
 type UpdateSchemas20220624 struct {
-	config core.ConfigGetter
-	logger core.Logger
-}
-
-func (u *UpdateSchemas20220624) SetConfigGetter(getter core.ConfigGetter) {
-	u.config = getter
-}
-
-func (u *UpdateSchemas20220624) SetLogger(logger core.Logger) {
-	u.logger = logger
 }
 
 func (u *UpdateSchemas20220624) Up(ctx context.Context, db *gorm.DB) error {
