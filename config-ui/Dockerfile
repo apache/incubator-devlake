@@ -40,7 +40,7 @@ COPY ./nginx.conf /etc/nginx/conf.d/default.conf.tpl
 WORKDIR /usr/share/nginx/html
 RUN rm -rf ./*
 COPY --from=builder /home/node/code/dist/. ./
-EXPOSE 80 443
+EXPOSE 4000 4443
 RUN apt update && apt install -y apache2-utils
 COPY ./nginx.sh /usr/bin/nginx.sh
 RUN chmod +x /usr/bin/nginx.sh
