@@ -18,12 +18,14 @@ limitations under the License.
 package tasks
 
 import (
-	"github.com/apache/incubator-devlake/plugins/core/dal"
 	"reflect"
+
+	"github.com/apache/incubator-devlake/plugins/core/dal"
 
 	"github.com/apache/incubator-devlake/models/domainlayer"
 	"github.com/apache/incubator-devlake/models/domainlayer/code"
 	"github.com/apache/incubator-devlake/models/domainlayer/didgen"
+	"github.com/apache/incubator-devlake/models/domainlayer/ticket"
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/gitlab/models"
 	"github.com/apache/incubator-devlake/plugins/helper"
@@ -60,9 +62,11 @@ func ConvertApiProjects(taskCtx core.SubTaskContext) error {
 			gitlabProject := inputRow.(*models.GitlabProject)
 
 			domainRepository := convertToRepositoryModel(gitlabProject)
+			domainBoard := convertToBoardModel(gitlabProject)
 
 			return []interface{}{
 				domainRepository,
+				domainBoard,
 			}, nil
 		},
 	})
@@ -71,29 +75,6 @@ func ConvertApiProjects(taskCtx core.SubTaskContext) error {
 	}
 
 	return converter.Execute()
-}
-
-// Convert the API response to our DB model instance
-func convertProject(gitlabApiProject *GitlabApiProject) *models.GitlabProject {
-	gitlabProject := &models.GitlabProject{
-		GitlabId:          gitlabApiProject.GitlabId,
-		Name:              gitlabApiProject.Name,
-		Description:       gitlabApiProject.Description,
-		DefaultBranch:     gitlabApiProject.DefaultBranch,
-		CreatorId:         gitlabApiProject.CreatorId,
-		PathWithNamespace: gitlabApiProject.PathWithNamespace,
-		WebUrl:            gitlabApiProject.WebUrl,
-		Visibility:        gitlabApiProject.Visibility,
-		OpenIssuesCount:   gitlabApiProject.OpenIssuesCount,
-		StarCount:         gitlabApiProject.StarCount,
-		CreatedDate:       gitlabApiProject.CreatedAt.ToTime(),
-		UpdatedDate:       helper.Iso8601TimeToTime(gitlabApiProject.LastActivityAt),
-	}
-	if gitlabApiProject.ForkedFromProject != nil {
-		gitlabProject.ForkedFromProjectId = gitlabApiProject.ForkedFromProject.GitlabId
-		gitlabProject.ForkedFromProjectWebUrl = gitlabApiProject.ForkedFromProject.WebUrl
-	}
-	return gitlabProject
 }
 
 func convertToRepositoryModel(project *models.GitlabProject) *code.Repo {
@@ -109,4 +90,17 @@ func convertToRepositoryModel(project *models.GitlabProject) *code.Repo {
 		UpdatedDate: project.UpdatedDate,
 	}
 	return domainRepository
+}
+
+func convertToBoardModel(project *models.GitlabProject) *ticket.Board {
+	domainBoard := &ticket.Board{
+		DomainEntity: domainlayer.DomainEntity{
+			Id: didgen.NewDomainIdGenerator(project).Generate(project.ConnectionId, project.GitlabId),
+		},
+		Name:        project.Name,
+		Url:         project.WebUrl,
+		Description: project.Description,
+		CreatedDate: &project.CreatedDate,
+	}
+	return domainBoard
 }
