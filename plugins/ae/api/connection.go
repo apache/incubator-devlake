@@ -25,26 +25,11 @@ import (
 	"github.com/apache/incubator-devlake/plugins/ae/models"
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/helper"
-	"github.com/go-playground/validator/v10"
 	"github.com/mitchellh/mapstructure"
-	"github.com/spf13/viper"
-	"gorm.io/gorm"
 )
 
 type ApiMeResponse struct {
 	Name string `json:"name"`
-}
-
-var vld *validator.Validate
-var connectionHelper *helper.ConnectionApiHelper
-
-func Init(config *viper.Viper, logger core.Logger, database *gorm.DB) {
-	basicRes := helper.NewDefaultBasicRes(config, logger, database)
-	vld = validator.New()
-	connectionHelper = helper.NewConnectionHelper(
-		basicRes,
-		vld,
-	)
 }
 
 /*
