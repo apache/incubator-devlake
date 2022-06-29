@@ -37,7 +37,7 @@ func CollectCommits(taskCtx core.SubTaskContext) error {
 			Ctx: taskCtx,
 			Params: AeApiParams{
 				ConnectionId: data.Options.ConnectionId,
-				ProjectId: data.Options.ProjectId,
+				ProjectId:    data.Options.ProjectId,
 			},
 			Table: RAW_COMMITS_TABLE,
 		},
