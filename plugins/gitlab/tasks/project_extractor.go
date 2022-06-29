@@ -21,6 +21,7 @@ import (
 	"encoding/json"
 
 	"github.com/apache/incubator-devlake/plugins/core"
+	"github.com/apache/incubator-devlake/plugins/gitlab/models"
 	"github.com/apache/incubator-devlake/plugins/helper"
 )
 
@@ -30,6 +31,29 @@ var ExtractProjectMeta = core.SubTaskMeta{
 	EnabledByDefault: true,
 	Description:      "Extract raw project data into tool layer table GitlabProject",
 	DomainTypes:      core.DOMAIN_TYPES,
+}
+
+// Convert the API response to our DB model instance
+func convertProject(gitlabApiProject *GitlabApiProject) *models.GitlabProject {
+	gitlabProject := &models.GitlabProject{
+		GitlabId:          gitlabApiProject.GitlabId,
+		Name:              gitlabApiProject.Name,
+		Description:       gitlabApiProject.Description,
+		DefaultBranch:     gitlabApiProject.DefaultBranch,
+		CreatorId:         gitlabApiProject.CreatorId,
+		PathWithNamespace: gitlabApiProject.PathWithNamespace,
+		WebUrl:            gitlabApiProject.WebUrl,
+		Visibility:        gitlabApiProject.Visibility,
+		OpenIssuesCount:   gitlabApiProject.OpenIssuesCount,
+		StarCount:         gitlabApiProject.StarCount,
+		CreatedDate:       gitlabApiProject.CreatedAt.ToTime(),
+		UpdatedDate:       helper.Iso8601TimeToTime(gitlabApiProject.LastActivityAt),
+	}
+	if gitlabApiProject.ForkedFromProject != nil {
+		gitlabProject.ForkedFromProjectId = gitlabApiProject.ForkedFromProject.GitlabId
+		gitlabProject.ForkedFromProjectWebUrl = gitlabApiProject.ForkedFromProject.WebUrl
+	}
+	return gitlabProject
 }
 
 func ExtractApiProject(taskCtx core.SubTaskContext) error {
