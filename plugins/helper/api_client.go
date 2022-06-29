@@ -222,6 +222,7 @@ func (apiClient *ApiClient) Do(
 	if apiClient.afterReponse != nil {
 		err = apiClient.afterReponse(res)
 		if err == ErrIgnoreAndContinue {
+			res.Body.Close()
 			return res, err
 		}
 		if err != nil {

@@ -74,6 +74,7 @@ func CollectSprints(taskCtx core.SubTaskContext) error {
 			}
 			return data.Values, nil
 		},
+		AfterResponse: ignoreHTTPStatus400,
 	})
 
 	if err != nil {
