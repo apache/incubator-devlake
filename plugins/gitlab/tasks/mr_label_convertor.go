@@ -29,7 +29,7 @@ import (
 )
 
 var ConvertMrLabelsMeta = core.SubTaskMeta{
-	Name:             "convertIssueLabels",
+	Name:             "convertMrLabels",
 	EntryPoint:       ConvertMrLabels,
 	EnabledByDefault: true,
 	Description:      "Convert tool layer table gitlab_mr_labels into  domain layer table pull_request_labels",
