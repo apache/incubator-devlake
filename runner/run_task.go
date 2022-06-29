@@ -164,7 +164,6 @@ func RunPluginSubTasks(
 	progress chan core.RunningProgress,
 ) error {
 	logger.Info("start plugin")
-
 	// find out all possible subtasks this plugin can offer
 	subtaskMetas := pluginTask.SubTaskMetas()
 	subtasksFlag := make(map[string]bool)
@@ -202,12 +201,14 @@ func RunPluginSubTasks(
 			}
 		}
 	}
+
 	// make sure `Required` subtasks are always enabled
 	for _, subtaskMeta := range subtaskMetas {
 		if subtaskMeta.Required {
 			subtasksFlag[subtaskMeta.Name] = true
 		}
 	}
+
 	// calculate total step(number of task to run)
 	steps := 0
 	for _, enabled := range subtasksFlag {
