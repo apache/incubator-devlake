@@ -19,7 +19,6 @@ package tasks
 
 import (
 	"encoding/json"
-	"fmt"
 	"strconv"
 	"strings"
 	"time"
@@ -101,8 +100,6 @@ func ExtractIssues(taskCtx core.SubTaskContext) error {
 				issue.LeadTimeMinutes = uint(issue.ResolutionDate.Unix()-issue.Created.Unix()) / 60
 			}
 			if data.Options.TransformationRules.StoryPointField != "" {
-				fmt.Println(apiIssue.Fields.AllFields[data.Options.TransformationRules.StoryPointField])
-				fmt.Println(apiIssue.Fields.AllFields)
 				strStoryPoint, _ := apiIssue.Fields.AllFields[data.Options.TransformationRules.StoryPointField].(string)
 				if strStoryPoint != "" {
 					issue.StoryPoint, _ = strconv.ParseFloat(strStoryPoint, 32)
