@@ -38,9 +38,8 @@ func ConvertIssues(taskCtx core.SubTaskContext) error {
 	// select all issues belongs to the board
 	cursor, err := db.Model(jiraIssue).
 		Select("_tool_jira_issues.*").
-		Joins("left join _tool_jira_board_issues on _tool_jira_board_issues.issue_id = _tool_jira_issues.issue_id").
-		Where(
-			"_tool_jira_board_issues.connection_id = ? AND _tool_jira_board_issues.board_id = ?",
+		Joins("left join _tool_jira_board_issues on _tool_jira_board_issues.issue_id = _tool_jira_issues.issue_id and _tool_jira_board_issues.connection_id = _tool_jira_issues.connection_id").
+		Where("_tool_jira_board_issues.connection_id = ? AND _tool_jira_board_issues.board_id = ?",
 			data.Options.ConnectionId,
 			data.Options.BoardId,
 		).
@@ -61,7 +60,7 @@ func ConvertIssues(taskCtx core.SubTaskContext) error {
 		RawDataSubTaskArgs: helper.RawDataSubTaskArgs{
 			Ctx: taskCtx,
 			Params: JiraApiParams{
-				ConnectionId: data.Connection.ID,
+				ConnectionId: data.Options.ConnectionId,
 				BoardId:      data.Options.BoardId,
 			},
 			Table: RAW_ISSUE_TABLE,
