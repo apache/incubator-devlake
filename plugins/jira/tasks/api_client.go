@@ -89,3 +89,10 @@ func ignoreHTTPStatus404(res *http.Response) error {
 	}
 	return nil
 }
+
+func ignoreHTTPStatus400(res *http.Response) error {
+	if res.StatusCode == http.StatusBadRequest {
+		return helper.ErrIgnoreAndContinue
+	}
+	return nil
+}
