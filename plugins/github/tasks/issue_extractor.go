@@ -51,67 +51,32 @@ type IssuesResponse struct {
 	Labels []struct {
 		Name string `json:"name"`
 	} `json:"labels"`
-
-	Assignee        *GithubUserResponse
-	User            *GithubUserResponse
+	Assignee  *GithubUserResponse
+	User      *GithubUserResponse
+	Milestone *struct {
+		Id int
+	}
 	ClosedAt        *helper.Iso8601Time `json:"closed_at"`
 	GithubCreatedAt helper.Iso8601Time  `json:"created_at"`
 	GithubUpdatedAt helper.Iso8601Time  `json:"updated_at"`
 }
 
+type IssueRegexes struct {
+	SeverityRegex        *regexp.Regexp
+	ComponentRegex       *regexp.Regexp
+	PriorityRegex        *regexp.Regexp
+	TypeBugRegex         *regexp.Regexp
+	TypeRequirementRegex *regexp.Regexp
+	TypeIncidentRegex    *regexp.Regexp
+}
+
 func ExtractApiIssues(taskCtx core.SubTaskContext) error {
 	data := taskCtx.GetData().(*GithubTaskData)
 	config := data.Options.TransformationRules
-	var issueSeverityRegex *regexp.Regexp
-	var issueComponentRegex *regexp.Regexp
-	var issuePriorityRegex *regexp.Regexp
-	var issueTypeBugRegex *regexp.Regexp
-	var issueTypeRequirementRegex *regexp.Regexp
-	var issueTypeIncidentRegex *regexp.Regexp
-	var issueSeverity = config.IssueSeverity
-	var err error
-	if len(issueSeverity) > 0 {
-		issueSeverityRegex, err = regexp.Compile(issueSeverity)
-		if err != nil {
-			return fmt.Errorf("regexp Compile issueSeverity failed:[%s] stack:[%s]", err.Error(), debug.Stack())
-		}
+	issueRegexes, err := NewIssueRegexes(config)
+	if err != nil {
+		return nil
 	}
-	var issueComponent = config.IssueComponent
-	if len(issueComponent) > 0 {
-		issueComponentRegex, err = regexp.Compile(issueComponent)
-		if err != nil {
-			return fmt.Errorf("regexp Compile issueComponent failed:[%s] stack:[%s]", err.Error(), debug.Stack())
-		}
-	}
-	var issuePriority = config.IssuePriority
-	if len(issuePriority) > 0 {
-		issuePriorityRegex, err = regexp.Compile(issuePriority)
-		if err != nil {
-			return fmt.Errorf("regexp Compile issuePriority failed:[%s] stack:[%s]", err.Error(), debug.Stack())
-		}
-	}
-	var issueTypeBug = config.IssueTypeBug
-	if len(issueTypeBug) > 0 {
-		issueTypeBugRegex, err = regexp.Compile(issueTypeBug)
-		if err != nil {
-			return fmt.Errorf("regexp Compile issueTypeBug failed:[%s] stack:[%s]", err.Error(), debug.Stack())
-		}
-	}
-	var issueTypeRequirement = config.IssueTypeRequirement
-	if len(issueTypeRequirement) > 0 {
-		issueTypeRequirementRegex, err = regexp.Compile(issueTypeRequirement)
-		if err != nil {
-			return fmt.Errorf("regexp Compile issueTypeRequirement failed:[%s] stack:[%s]", err.Error(), debug.Stack())
-		}
-	}
-	var issueTypeIncident = config.IssueTypeIncident
-	if len(issueTypeIncident) > 0 {
-		issueTypeIncidentRegex, err = regexp.Compile(issueTypeIncident)
-		if err != nil {
-			return fmt.Errorf("regexp Compile issueTypeIncident failed:[%s] stack:[%s]", err.Error(), debug.Stack())
-		}
-	}
-
 	extractor, err := helper.NewApiExtractor(helper.ApiExtractorArgs{
 		RawDataSubTaskArgs: helper.RawDataSubTaskArgs{
 			Ctx: taskCtx,
@@ -148,9 +113,13 @@ func ExtractApiIssues(taskCtx core.SubTaskContext) error {
 			if err != nil {
 				return nil, err
 			}
+			githubLabels, err := convertGithubLabels(issueRegexes, body, githubIssue)
+			if err != nil {
+				return nil, err
+			}
+			results = append(results, githubLabels...)
+			results = append(results, githubIssue)
 			if body.Assignee != nil {
-				githubIssue.AssigneeId = body.Assignee.Id
-				githubIssue.AssigneeName = body.Assignee.Login
 				relatedUser, err := convertUser(body.Assignee, data.Options.ConnectionId)
 				if err != nil {
 					return nil, err
@@ -158,71 +127,22 @@ func ExtractApiIssues(taskCtx core.SubTaskContext) error {
 				results = append(results, relatedUser)
 			}
 			if body.User != nil {
-				githubIssue.AuthorId = body.User.Id
-				githubIssue.AuthorName = body.User.Login
 				relatedUser, err := convertUser(body.User, data.Options.ConnectionId)
 				if err != nil {
 					return nil, err
 				}
 				results = append(results, relatedUser)
 			}
-			for _, label := range body.Labels {
-				results = append(results, &models.GithubIssueLabel{
-					ConnectionId: data.Options.ConnectionId,
-					IssueId:      githubIssue.GithubId,
-					LabelName:    label.Name,
-				})
-				if issueSeverityRegex != nil {
-					groups := issueSeverityRegex.FindStringSubmatch(label.Name)
-					if len(groups) > 0 {
-						githubIssue.Severity = groups[1]
-					}
-				}
-
-				if issueComponentRegex != nil {
-					groups := issueComponentRegex.FindStringSubmatch(label.Name)
-					if len(groups) > 0 {
-						githubIssue.Component = groups[1]
-					}
-				}
-
-				if issuePriorityRegex != nil {
-					groups := issuePriorityRegex.FindStringSubmatch(label.Name)
-					if len(groups) > 0 {
-						githubIssue.Priority = groups[1]
-					}
-				}
-
-				if issueTypeBugRegex != nil {
-					if ok := issueTypeBugRegex.MatchString(label.Name); ok {
-						githubIssue.Type = ticket.BUG
-					}
-				}
-
-				if issueTypeRequirementRegex != nil {
-					if ok := issueTypeRequirementRegex.MatchString(label.Name); ok {
-						githubIssue.Type = ticket.REQUIREMENT
-					}
-				}
-
-				if issueTypeIncidentRegex != nil {
-					if ok := issueTypeIncidentRegex.MatchString(label.Name); ok {
-						githubIssue.Type = ticket.INCIDENT
-					}
-				}
-			}
-			results = append(results, githubIssue)
-
 			return results, nil
 		},
 	})
-
 	if err != nil {
 		return err
 	}
 
 	return extractor.Execute()
 }
+
 func convertGithubIssue(issue *IssuesResponse, connectionId uint64, repositoryId int) (*models.GithubIssue, error) {
 	githubIssue := &models.GithubIssue{
 		ConnectionId:    connectionId,
@@ -233,13 +153,122 @@ func convertGithubIssue(issue *IssuesResponse, connectionId uint64, repositoryId
 		Title:           issue.Title,
 		Body:            string(issue.Body),
 		Url:             issue.HtmlUrl,
+		MilestoneId:     issue.Milestone.Id,
 		ClosedAt:        helper.Iso8601TimeToTime(issue.ClosedAt),
 		GithubCreatedAt: issue.GithubCreatedAt.ToTime(),
 		GithubUpdatedAt: issue.GithubUpdatedAt.ToTime(),
 	}
+	if issue.Assignee != nil {
+		githubIssue.AssigneeId = issue.Assignee.Id
+		githubIssue.AssigneeName = issue.Assignee.Login
+	}
+	if issue.User != nil {
+		githubIssue.AuthorId = issue.User.Id
+		githubIssue.AuthorName = issue.User.Login
+	}
 	if issue.ClosedAt != nil {
 		githubIssue.LeadTimeMinutes = uint(issue.ClosedAt.ToTime().Sub(issue.GithubCreatedAt.ToTime()).Minutes())
 	}
-
+	if issue.Assignee != nil {
+		githubIssue.AssigneeId = issue.Assignee.Id
+		githubIssue.AssigneeName = issue.Assignee.Login
+	}
+	if issue.User != nil {
+		githubIssue.AuthorId = issue.User.Id
+		githubIssue.AuthorName = issue.User.Login
+	}
 	return githubIssue, nil
+}
+
+func convertGithubLabels(issueRegexes *IssueRegexes, issue *IssuesResponse, githubIssue *models.GithubIssue) ([]interface{}, error) {
+	var results []interface{}
+	for _, label := range issue.Labels {
+		results = append(results, &models.GithubIssueLabel{
+			ConnectionId: githubIssue.ConnectionId,
+			IssueId:      githubIssue.GithubId,
+			LabelName:    label.Name,
+		})
+		if issueRegexes.SeverityRegex != nil {
+			groups := issueRegexes.SeverityRegex.FindStringSubmatch(label.Name)
+			if len(groups) > 0 {
+				githubIssue.Severity = groups[1]
+			}
+		}
+		if issueRegexes.ComponentRegex != nil {
+			groups := issueRegexes.ComponentRegex.FindStringSubmatch(label.Name)
+			if len(groups) > 0 {
+				githubIssue.Component = groups[1]
+			}
+		}
+		if issueRegexes.PriorityRegex != nil {
+			groups := issueRegexes.PriorityRegex.FindStringSubmatch(label.Name)
+			if len(groups) > 0 {
+				githubIssue.Priority = groups[1]
+			}
+		}
+		if issueRegexes.TypeBugRegex != nil {
+			if ok := issueRegexes.TypeBugRegex.MatchString(label.Name); ok {
+				githubIssue.Type = ticket.BUG
+			}
+		}
+		if issueRegexes.TypeRequirementRegex != nil {
+			if ok := issueRegexes.TypeRequirementRegex.MatchString(label.Name); ok {
+				githubIssue.Type = ticket.REQUIREMENT
+			}
+		}
+		if issueRegexes.TypeIncidentRegex != nil {
+			if ok := issueRegexes.TypeIncidentRegex.MatchString(label.Name); ok {
+				githubIssue.Type = ticket.INCIDENT
+			}
+		}
+	}
+	return results, nil
+}
+
+func NewIssueRegexes(config models.TransformationRules) (*IssueRegexes, error) {
+	var issueRegexes IssueRegexes
+	var issueSeverity = config.IssueSeverity
+	var err error
+	if len(issueSeverity) > 0 {
+		issueRegexes.SeverityRegex, err = regexp.Compile(issueSeverity)
+		if err != nil {
+			return nil, fmt.Errorf("regexp Compile issueSeverity failed:[%s] stack:[%s]", err.Error(), debug.Stack())
+		}
+	}
+	var issueComponent = config.IssueComponent
+	if len(issueComponent) > 0 {
+		issueRegexes.ComponentRegex, err = regexp.Compile(issueComponent)
+		if err != nil {
+			return nil, fmt.Errorf("regexp Compile issueComponent failed:[%s] stack:[%s]", err.Error(), debug.Stack())
+		}
+	}
+	var issuePriority = config.IssuePriority
+	if len(issuePriority) > 0 {
+		issueRegexes.PriorityRegex, err = regexp.Compile(issuePriority)
+		if err != nil {
+			return nil, fmt.Errorf("regexp Compile issuePriority failed:[%s] stack:[%s]", err.Error(), debug.Stack())
+		}
+	}
+	var issueTypeBug = config.IssueTypeBug
+	if len(issueTypeBug) > 0 {
+		issueRegexes.TypeBugRegex, err = regexp.Compile(issueTypeBug)
+		if err != nil {
+			return nil, fmt.Errorf("regexp Compile issueTypeBug failed:[%s] stack:[%s]", err.Error(), debug.Stack())
+		}
+	}
+	var issueTypeRequirement = config.IssueTypeRequirement
+	if len(issueTypeRequirement) > 0 {
+		issueRegexes.TypeRequirementRegex, err = regexp.Compile(issueTypeRequirement)
+		if err != nil {
+			return nil, fmt.Errorf("regexp Compile issueTypeRequirement failed:[%s] stack:[%s]", err.Error(), debug.Stack())
+		}
+	}
+	var issueTypeIncident = config.IssueTypeIncident
+	if len(issueTypeIncident) > 0 {
+		issueRegexes.TypeIncidentRegex, err = regexp.Compile(issueTypeIncident)
+		if err != nil {
+			return nil, fmt.Errorf("regexp Compile issueTypeIncident failed:[%s] stack:[%s]", err.Error(), debug.Stack())
+		}
+	}
+	return &issueRegexes, nil
 }
