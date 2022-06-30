@@ -33,7 +33,7 @@ See [demo](https://grafana-lake.demo.devlake.io/d/0Rjxknc7z/demo-homepage?orgId=
 
 ## What can be accomplished with Apache DevLake?
 1. Collect DevOps data across the entire Software Development Life Cycle (SDLC) and connect the siloed data with a standard [data model](https://devlake.apache.org/docs/DataModels/DevLakeDomainLayerSchema).
-2. Provide out-of-the-box engineering [metrics](https://devlake.apache.org/docs/EngineeringMetrics) to be visualized in a sereis of dashboards.
+2. Provide out-of-the-box engineering [metrics](https://devlake.apache.org/docs/EngineeringMetrics) to be visualized in a series of dashboards.
 3. Allow a flexible [framework](https://devlake.apache.org/docs/Overview/Architecture) for data collection ad ETL to support customizable data analysis.
 
 
