@@ -48,7 +48,9 @@ func ConvertIssues(taskCtx core.SubTaskContext) error {
 	clauses := []dal.Clause{
 		dal.Select("_tool_jira_issues.*"),
 		dal.From(jiraIssue),
-		dal.Join("left join _tool_jira_board_issues on _tool_jira_board_issues.issue_id = _tool_jira_issues.issue_id"),
+		dal.Join(`left join _tool_jira_board_issues 
+			on _tool_jira_board_issues.issue_id = _tool_jira_issues.issue_id 
+			and _tool_jira_board_issues.connection_id = _tool_jira_issues.connection_id`),
 		dal.Where(
 			"_tool_jira_board_issues.connection_id = ? AND _tool_jira_board_issues.board_id = ?",
 			data.Options.ConnectionId,
