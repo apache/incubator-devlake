@@ -37,5 +37,6 @@ func All() []migration.Script {
 		new(UpdateSchemas20220616),
 		new(UpdateSchemas20220620),
 		new(UpdateSchemas20220624),
+		new(UpdateSchemas20220630),
 	}
 }

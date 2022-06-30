@@ -34,7 +34,7 @@ type Issue struct {
 	Type                    string `gorm:"type:varchar(100)"`
 	Status                  string `gorm:"type:varchar(100)"`
 	OriginalStatus          string `gorm:"type:varchar(100)"`
-	StoryPoint              uint
+	StoryPoint              int64
 	ResolutionDate          *time.Time
 	CreatedDate             *time.Time
 	UpdatedDate             *time.Time

@@ -103,7 +103,7 @@ func ExtractIssues(taskCtx core.SubTaskContext) error {
 				strStoryPoint := apiIssue.Fields.AllFields[data.Options.TransformationRules.StoryPointField].(string)
 				issue.StoryPoint, _ = strconv.ParseFloat(strStoryPoint, 32)
 			}
-			issue.StdStoryPoint = uint(issue.StoryPoint)
+			issue.StdStoryPoint = int64(issue.StoryPoint)
 			issue.StdType = typeMappings[issue.Type]
 			if issue.StdType == "" {
 				issue.StdType = strings.ToUpper(issue.Type)

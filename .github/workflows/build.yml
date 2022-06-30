@@ -3,8 +3,8 @@ env:
   IMAGE_LAKE: ${{ secrets.DOCKERHUB_OWNER }}/devlake
   IMAGE_CONFIG_UI: ${{ secrets.DOCKERHUB_OWNER }}/devlake-config-ui
   IMAGE_GRAFANA: ${{ secrets.DOCKERHUB_OWNER }}/devlake-dashboard
-  DOCKERHUB_USERNAME: ${{ secrets.DOCKER_REGISTRY_USERNAME }}
-  DOCKERHUB_TOKEN: ${{ secrets.DOCKER_REGISTRY_PASSWORD }}
+  DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USER }}
+  DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
 on:
   push:
     tags:
