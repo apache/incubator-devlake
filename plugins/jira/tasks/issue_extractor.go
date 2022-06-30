@@ -111,7 +111,7 @@ func ExtractIssues(taskCtx core.SubTaskContext) error {
 			if issue.ResolutionDate != nil {
 				issue.LeadTimeMinutes = uint(issue.ResolutionDate.Unix()-issue.Created.Unix()) / 60
 			}
-			issue.StdStoryPoint = uint(issue.StoryPoint)
+			issue.StdStoryPoint = int64(issue.StoryPoint)
 			issue.StdType = getStdType(issue.Type)
 			issue.StdStatus = GetStdStatus(issue.StatusKey)
 			if len(changelogs) < 100 {

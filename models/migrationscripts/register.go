@@ -27,5 +27,6 @@ func RegisterAll() {
 		new(updateSchemas20220513), new(updateSchemas20220524), new(updateSchemas20220526),
 		new(updateSchemas20220527), new(updateSchemas20220528), new(updateSchemas20220602),
 		new(updateSchemas2022061402),
+		new(UpdateSchemas20220630),
 	}, "Framework")
 }

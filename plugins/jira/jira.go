@@ -158,6 +158,7 @@ func (plugin Jira) MigrationScripts() []migration.Script {
 		new(migrationscripts.UpdateSchemas20220527),
 		new(migrationscripts.UpdateSchemas20220614),
 		new(migrationscripts.UpdateSchemas20220616),
+		new(migrationscripts.UpdateSchemas20220630),
 	}
 }
 
