@@ -40,9 +40,8 @@ type BoardResponse struct {
 }
 
 type JiraConnection struct {
-	helper.RestConnection      `mapstructure:",squash"`
-	helper.BasicAuth           `mapstructure:",squash"`
-	RemotelinkCommitShaPattern string `gorm:"type:varchar(255);comment='golang regexp, the first group will be recognized as commit sha, ref https://github.com/google/re2/wiki/Syntax'" json:"remotelinkCommitShaPattern"`
+	helper.RestConnection `mapstructure:",squash"`
+	helper.BasicAuth      `mapstructure:",squash"`
 }
 
 func (JiraConnection) TableName() string {
