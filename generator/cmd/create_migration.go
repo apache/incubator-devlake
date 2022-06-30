@@ -77,7 +77,7 @@ If framework passed, generator will create a new migration in models/migrationsc
 			Label: "purpose",
 			Validate: func(input string) error {
 				if input == `` {
-					return errors.New("purpose requite")
+					return errors.New("purpose require")
 				}
 				return nil
 			},

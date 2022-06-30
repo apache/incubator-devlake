@@ -64,7 +64,7 @@ Type in what the raw_table is, then generator will export and save in plugins/$p
 				Default: `_raw_`,
 				Validate: func(input string) error {
 					if input == `` {
-						return errors.New("raw_table_name requite")
+						return errors.New("raw_table_name require")
 					}
 					if !strings.HasPrefix(input, `_raw_`) {
 						return errors.New("raw_table_name should start with `_raw_`")
@@ -82,7 +82,7 @@ Type in what the raw_table is, then generator will export and save in plugins/$p
 			Default: rawTableName + `.csv`,
 			Validate: func(input string) error {
 				if input == `` {
-					return errors.New("csv_file_name requite")
+					return errors.New("csv_file_name require")
 				}
 				if !strings.HasSuffix(input, `.csv`) {
 					return errors.New("csv_file_name should end with `.csv`")

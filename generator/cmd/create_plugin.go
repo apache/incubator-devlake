@@ -35,7 +35,7 @@ func init() {
 
 func pluginNameNotExistValidate(input string) error {
 	if input == `` {
-		return errors.New("plugin name requite")
+		return errors.New("plugin name require")
 	}
 	snakeNameReg := regexp.MustCompile(`^[A-Za-z][A-Za-z0-9_]*$`)
 	if !snakeNameReg.MatchString(input) {
@@ -56,7 +56,7 @@ func pluginNameNotExistValidate(input string) error {
 
 func pluginNameExistValidate(input string) error {
 	if input == `` {
-		return errors.New("plugin name requite")
+		return errors.New("plugin name require")
 	}
 	_, err := os.Stat(`plugins/` + input)
 	return err
@@ -103,7 +103,7 @@ Type in what the name of plugin is, then generator will create a new plugin in p
 		}
 
 		prompt := promptui.Select{
-			Label: "with_api_client (is this plugin will request HTTP APIs?)",
+			Label: "with_api_client (Will this plugin request HTTP APIs?)",
 			Items: []string{"Yes", "No"},
 		}
 		_, withApiClient, err := prompt.Run()
@@ -117,7 +117,7 @@ Type in what the name of plugin is, then generator will create a new plugin in p
 				Default: `https://open.example.cn/api/v1`,
 				Validate: func(input string) error {
 					if input == `` {
-						return errors.New("endpoint requite")
+						return errors.New("endpoint require")
 					}
 					if !strings.HasPrefix(input, `http`) {
 						return errors.New("endpoint should start with http")
