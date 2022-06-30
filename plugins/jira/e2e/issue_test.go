@@ -33,9 +33,9 @@ func TestIssueDataFlow(t *testing.T) {
 
 	taskData := &tasks.JiraTaskData{
 		Options: &tasks.JiraOptions{
-			ConnectionId: 2,
-			BoardId:      8,
-		},
+			ConnectionId:        2,
+			BoardId:             8,
+			TransformationRules: tasks.TransformationRules{StoryPointField: "customfield_10024"}},
 	}
 
 	// import raw data table

@@ -100,10 +100,12 @@ func ExtractIssues(taskCtx core.SubTaskContext) error {
 				issue.LeadTimeMinutes = uint(issue.ResolutionDate.Unix()-issue.Created.Unix()) / 60
 			}
 			if data.Options.TransformationRules.StoryPointField != "" {
-				strStoryPoint := apiIssue.Fields.AllFields[data.Options.TransformationRules.StoryPointField].(string)
-				issue.StoryPoint, _ = strconv.ParseFloat(strStoryPoint, 32)
+				strStoryPoint, _ := apiIssue.Fields.AllFields[data.Options.TransformationRules.StoryPointField].(string)
+				if strStoryPoint != "" {
+					issue.StoryPoint, _ = strconv.ParseFloat(strStoryPoint, 32)
+				}
 			}
-			issue.StdStoryPoint = uint(issue.StoryPoint)
+			issue.StdStoryPoint = int64(issue.StoryPoint)
 			issue.StdType = typeMappings[issue.Type]
 			if issue.StdType == "" {
 				issue.StdType = strings.ToUpper(issue.Type)
