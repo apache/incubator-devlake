@@ -26,16 +26,14 @@ type Clause struct {
 	Data interface{}
 }
 
-// Dal aims to facilitate an isolation of Database Access Layer by defining a set of operations should a
-// Database Access Layer provide
-// This is inroduced by the fact that mocking *gorm.DB is hard, and `gomonkey` is not working on macOS
+// Dal aims to facilitate an isolation between DBS and our System by defining a set of operations should a DBS provide
 type Dal interface {
-	// Raw executes raw sql query with sql.Rows and error return
-	Raw(query string, params ...interface{}) (*sql.Rows, error)
+	// AutoMigrate runs auto migration for given entity
+	AutoMigrate(entity interface{}, clauses ...Clause) error
 	// Exec executes raw sql query
 	Exec(query string, params ...interface{}) error
-	// CreateTable creates a table with gorm definition from `entity`R
-	AutoMigrate(entity interface{}, clauses ...Clause) error
+	// RawCursor executes raw sql query and returns a database cursor
+	RawCursor(query string, params ...interface{}) (*sql.Rows, error)
 	// Cursor returns a database cursor, cursor is especially useful when handling big amount of rows of data
 	Cursor(clauses ...Clause) (*sql.Rows, error)
 	// Fetch loads row data from `cursor` into `dst`
