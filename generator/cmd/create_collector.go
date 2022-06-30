@@ -101,6 +101,21 @@ Type in what the name of collector is, then generator will create a new collecto
 		cobra.CheckErr(err)
 		collectorName = strings.ToLower(collectorName)
 
+		prompt = promptui.Prompt{
+			Label: "http_path",
+			Validate: func(input string) error {
+				if input == `` {
+					return errors.New("http_path require")
+				}
+				if strings.HasPrefix(input, `/`) {
+					return errors.New("http_path shouldn't start with '/'")
+				}
+				return nil
+			},
+		}
+		httpPath, err := prompt.Run()
+		cobra.CheckErr(err)
+
 		// read template
 		templates := map[string]string{
 			collectorName + `_collector.go`: util.ReadTemplate("generator/template/plugin/tasks/api_collector.go-template"),
@@ -110,6 +125,7 @@ Type in what the name of collector is, then generator will create a new collecto
 		values := map[string]string{}
 		util.GenerateAllFormatVar(values, `plugin_name`, pluginName)
 		util.GenerateAllFormatVar(values, `collector_data_name`, collectorName)
+		values[`HttpPath`] = httpPath
 		collectorDataNameUpperCamel := strcase.UpperCamelCase(collectorName)
 		values = util.DetectExistVars(templates, values)
 		println(`vars in template:`, fmt.Sprint(values))
