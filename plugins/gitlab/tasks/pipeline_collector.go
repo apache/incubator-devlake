@@ -43,6 +43,7 @@ func CollectApiPipelines(taskCtx core.SubTaskContext) error {
 		UrlTemplate:        "projects/{{ .Params.ProjectId }}/pipelines",
 		Query:              GetQuery,
 		ResponseParser:     GetRawMessageFromResponse,
+		AfterResponse:      ignoreHTTPStatus403, // ignore 403 for CI/CD disable
 	})
 
 	if err != nil {
