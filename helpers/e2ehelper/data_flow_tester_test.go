@@ -19,7 +19,6 @@ package e2ehelper
 
 import (
 	"github.com/apache/incubator-devlake/models/common"
-	"github.com/apache/incubator-devlake/plugins/github/models"
 	gitlabModels "github.com/apache/incubator-devlake/plugins/gitlab/models"
 	"github.com/stretchr/testify/assert"
 	"gorm.io/gorm"
@@ -28,6 +27,17 @@ import (
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/gitlab/tasks"
 )
+
+type TestModel struct {
+	ConnectionId uint64 `gorm:"primaryKey"`
+	IssueId      int    `gorm:"primaryKey;autoIncrement:false"`
+	LabelName    string `gorm:"primaryKey;type:varchar(255)"`
+	common.NoPKModel
+}
+
+func (t TestModel) TableName() string {
+	return "_tool_test_model"
+}
 
 func ExampleDataFlowTester() {
 	var t *testing.T // stub
@@ -74,11 +84,11 @@ func ExampleDataFlowTester() {
 }
 
 func TestGetTableMetaData(t *testing.T) {
-	var gitlab core.PluginMeta
-	dataflowTester := NewDataFlowTester(t, "github", gitlab)
-
+	var meta core.PluginMeta
+	dataflowTester := NewDataFlowTester(t, "test_dataflow", meta)
+	dataflowTester.FlushTabler(&TestModel{})
 	t.Run("get_fields", func(t *testing.T) {
-		fields := dataflowTester.getFields(&models.GithubIssueLabel{}, func(column gorm.ColumnType) bool {
+		fields := dataflowTester.getFields(&TestModel{}, func(column gorm.ColumnType) bool {
 			return true
 		})
 		assert.Equal(t, 9, len(fields))
@@ -97,7 +107,7 @@ func TestGetTableMetaData(t *testing.T) {
 		}
 	})
 	t.Run("extract_columns", func(t *testing.T) {
-		columns := dataflowTester.extractColumns(&common.NoPKModel{})
+		columns := dataflowTester.extractColumns(&common.RawDataOrigin{})
 		assert.Equal(t, 4, len(columns))
 		for _, e := range []string{
 			"_raw_data_params",
@@ -109,7 +119,7 @@ func TestGetTableMetaData(t *testing.T) {
 		}
 	})
 	t.Run("get_pk_fields", func(t *testing.T) {
-		fields := dataflowTester.getPkFields(&models.GithubIssueLabel{})
+		fields := dataflowTester.getPkFields(&TestModel{})
 		assert.Equal(t, 3, len(fields))
 		for _, e := range []string{
 			"connection_id",
@@ -120,7 +130,7 @@ func TestGetTableMetaData(t *testing.T) {
 		}
 	})
 	t.Run("resolve_fields_targetFieldsOnly", func(t *testing.T) {
-		fields := dataflowTester.resolveTargetFields(&models.GithubIssueLabel{}, TableOptions{
+		fields := dataflowTester.resolveTargetFields(&TestModel{}, TableOptions{
 			TargetFields: []string{"connection_id"},
 			IgnoreFields: nil,
 			IgnoreTypes:  nil,
@@ -131,7 +141,7 @@ func TestGetTableMetaData(t *testing.T) {
 		}
 	})
 	t.Run("resolve_fields_ignoreFieldsOnly", func(t *testing.T) {
-		fields := dataflowTester.resolveTargetFields(&models.GithubIssueLabel{}, TableOptions{
+		fields := dataflowTester.resolveTargetFields(&TestModel{}, TableOptions{
 			TargetFields: nil,
 			IgnoreFields: []string{
 				"label_name",
@@ -150,7 +160,7 @@ func TestGetTableMetaData(t *testing.T) {
 		}
 	})
 	t.Run("resolve_fields_ignoreFieldsOnly", func(t *testing.T) {
-		fields := dataflowTester.resolveTargetFields(&models.GithubIssueLabel{}, TableOptions{
+		fields := dataflowTester.resolveTargetFields(&TestModel{}, TableOptions{
 			TargetFields: nil,
 			IgnoreFields: []string{
 				"label_name",
@@ -169,7 +179,7 @@ func TestGetTableMetaData(t *testing.T) {
 		}
 	})
 	t.Run("resolve_fields_ignoreType", func(t *testing.T) {
-		fields := dataflowTester.resolveTargetFields(&models.GithubIssueLabel{}, TableOptions{
+		fields := dataflowTester.resolveTargetFields(&TestModel{}, TableOptions{
 			TargetFields: nil,
 			IgnoreFields: nil,
 			IgnoreTypes:  []interface{}{&common.NoPKModel{}},
@@ -184,7 +194,7 @@ func TestGetTableMetaData(t *testing.T) {
 		}
 	})
 	t.Run("resolve_fields_ignoreType_ignoreFields", func(t *testing.T) {
-		fields := dataflowTester.resolveTargetFields(&models.GithubIssueLabel{}, TableOptions{
+		fields := dataflowTester.resolveTargetFields(&TestModel{}, TableOptions{
 			TargetFields: nil,
 			IgnoreFields: []string{"label_name"},
 			IgnoreTypes:  []interface{}{&common.NoPKModel{}},
@@ -198,7 +208,7 @@ func TestGetTableMetaData(t *testing.T) {
 		}
 	})
 	t.Run("resolve_fields_targetFields_ignoreType_ignoreFields", func(t *testing.T) {
-		fields := dataflowTester.resolveTargetFields(&models.GithubIssueLabel{}, TableOptions{
+		fields := dataflowTester.resolveTargetFields(&TestModel{}, TableOptions{
 			TargetFields: []string{"label_name", "createdAt", "connection_id"},
 			IgnoreFields: []string{"label_name"},
 			IgnoreTypes:  []interface{}{&common.NoPKModel{}},

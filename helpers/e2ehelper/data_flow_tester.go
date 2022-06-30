@@ -239,12 +239,12 @@ func (t *DataFlowTester) CreateSnapshot(dst schema.Tabler, opts TableOptions) {
 		dal.Orderby(strings.Join(pkFields, `,`)),
 	)
 	if err != nil {
-		panic(err)
+		panic(fmt.Errorf("unable to run select query on table %s: %v", dst.TableName(), err))
 	}
 
 	columns, err := dbCursor.Columns()
 	if err != nil {
-		panic(err)
+		panic(fmt.Errorf("unable to get columns from table %s: %v", dst.TableName(), err))
 	}
 	csvWriter := pluginhelper.NewCsvFileWriter(opts.CSVRelPath, columns)
 	defer csvWriter.Close()
@@ -265,7 +265,7 @@ func (t *DataFlowTester) CreateSnapshot(dst schema.Tabler, opts TableOptions) {
 	for dbCursor.Next() {
 		err = dbCursor.Scan(forScanValues...)
 		if err != nil {
-			panic(err)
+			panic(fmt.Errorf("unable to scan row on table %s: %v", dst.TableName(), err))
 		}
 		values := make([]string, len(allFields))
 		for i := range forScanValues {
