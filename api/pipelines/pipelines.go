@@ -51,10 +51,10 @@ POST /pipelines
 // @Description }
 // @Tags pipelines
 // @Accept application/json
-// @Param pipeline body string true "json"
+// @Param pipeline body models.NewPipeline true "json"
 // @Success 200  {object} models.Pipeline
 // @Failure 400  {string} errcode.Error "Bad Request"
-// @Failure 500  {string} errcode.Error "Internel Error"
+// @Failure 500  {string} errcode.Error "Internal Error"
 // @Router /pipelines [post]
 func Post(c *gin.Context) {
 	newPipeline := &models.NewPipeline{}

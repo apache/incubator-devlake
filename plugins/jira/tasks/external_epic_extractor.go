@@ -19,39 +19,32 @@ package tasks
 
 import (
 	"encoding/json"
-	"github.com/apache/incubator-devlake/plugins/core/dal"
-	"strconv"
-	"strings"
-	"time"
-
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/helper"
 	"github.com/apache/incubator-devlake/plugins/jira/models"
 	"github.com/apache/incubator-devlake/plugins/jira/tasks/apiv2models"
+	"strconv"
+	"strings"
+	"time"
 )
 
 var _ core.SubTaskEntryPoint = ExtractIssues
 
-var ExtractIssuesMeta = core.SubTaskMeta{
-	Name:             "extractIssues",
-	EntryPoint:       ExtractIssues,
+var ExtractExternalEpicsMeta = core.SubTaskMeta{
+	Name:             "extractExternalEpics",
+	EntryPoint:       ExtractExternalEpics,
 	EnabledByDefault: true,
-	Description:      "extract Jira issues",
+	Description:      "extract Jira epics from other boards",
 	DomainTypes:      []string{core.DOMAIN_TYPE_TICKET, core.DOMAIN_TYPE_CROSS},
 }
 
-type typeMappings struct {
-	typeIdMappings  map[string]string
-	stdTypeMappings map[string]string
-}
-
-func ExtractIssues(taskCtx core.SubTaskContext) error {
+func ExtractExternalEpics(taskCtx core.SubTaskContext) error {
 	data := taskCtx.GetData().(*JiraTaskData)
 	db := taskCtx.GetDal()
 	connectionId := data.Options.ConnectionId
 	boardId := data.Options.BoardId
 	logger := taskCtx.GetLogger()
-	logger.Info("extract Issues, connection_id=%d, board_id=%d", connectionId, boardId)
+	logger.Info("extract external epic Issues, connection_id=%d, board_id=%d", connectionId, boardId)
 	mappings, err := getTypeMappings(data, db)
 	if err != nil {
 		return err
@@ -59,22 +52,15 @@ func ExtractIssues(taskCtx core.SubTaskContext) error {
 	extractor, err := helper.NewApiExtractor(helper.ApiExtractorArgs{
 		RawDataSubTaskArgs: helper.RawDataSubTaskArgs{
 			Ctx: taskCtx,
-			/*
-				This struct will be JSONEncoded and stored into database along with raw data itself, to identity minimal
-				set of data to be process, for example, we process JiraIssues by Board
-			*/
-			Params: JiraApiParams{
+			Params: JiraEpicParams{
 				ConnectionId: data.Options.ConnectionId,
 				BoardId:      data.Options.BoardId,
 			},
-			/*
-				Table store raw data
-			*/
-			Table: RAW_ISSUE_TABLE,
+			Table: RAW_EXTERNAL_EPIC_TABLE,
 		},
 		Extract: func(row *helper.RawData) ([]interface{}, error) {
 			var apiIssue apiv2models.Issue
-			err := json.Unmarshal(row.Data, &apiIssue)
+			err = json.Unmarshal(row.Data, &apiIssue)
 			if err != nil {
 				return nil, err
 			}
@@ -131,11 +117,6 @@ func ExtractIssues(taskCtx core.SubTaskContext) error {
 			for _, user := range users {
 				results = append(results, user)
 			}
-			results = append(results, &models.JiraBoardIssue{
-				ConnectionId: connectionId,
-				BoardId:      boardId,
-				IssueId:      issue.IssueId,
-			})
 			labels := apiIssue.Fields.Labels
 			for _, v := range labels {
 				issueLabel := &models.JiraIssueLabel{
@@ -152,28 +133,4 @@ func ExtractIssues(taskCtx core.SubTaskContext) error {
 		return err
 	}
 	return extractor.Execute()
-}
-
-func getTypeMappings(data *JiraTaskData, db dal.Dal) (*typeMappings, error) {
-	typeIdMapping := make(map[string]string)
-	issueTypes := make([]models.JiraIssueType, 0)
-	clauses := []dal.Clause{
-		dal.From(&models.JiraIssueType{}),
-		dal.Where("connection_id = ?", data.Options.ConnectionId),
-	}
-	err := db.All(&issueTypes, clauses...)
-	if err != nil {
-		return nil, err
-	}
-	for _, issueType := range issueTypes {
-		typeIdMapping[issueType.Id] = issueType.UntranslatedName
-	}
-	stdTypeMappings := make(map[string]string)
-	for userType, stdType := range data.Options.TransformationRules.TypeMappings {
-		stdTypeMappings[userType] = strings.ToUpper(stdType.StandardType)
-	}
-	return &typeMappings{
-		typeIdMappings:  typeIdMapping,
-		stdTypeMappings: stdTypeMappings,
-	}, nil
 }
