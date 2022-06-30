@@ -19,6 +19,7 @@ package impl
 
 import (
 	"fmt"
+
 	"github.com/apache/incubator-devlake/migration"
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/gitlab/api"
@@ -67,6 +68,9 @@ func (plugin Gitlab) SubTaskMetas() []core.SubTaskMeta {
 		tasks.CollectApiPipelinesMeta,
 		tasks.ExtractApiPipelinesMeta,
 		tasks.EnrichMergeRequestsMeta,
+		tasks.CollectUserMeta,
+		tasks.ExtractUserMeta,
+		tasks.ConvertUsersMeta,
 		tasks.ConvertProjectMeta,
 		tasks.ConvertApiMergeRequestsMeta,
 		tasks.ConvertApiNotesMeta,
