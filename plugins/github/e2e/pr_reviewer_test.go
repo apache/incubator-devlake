@@ -48,6 +48,7 @@ func TestPrReviewerDataFlow(t *testing.T) {
 
 	// verify extraction
 	dataflowTester.FlushTabler(&models.GithubReviewer{})
+	dataflowTester.FlushTabler(&models.GithubUser{})
 	dataflowTester.Subtask(tasks.ExtractApiPullRequestReviewersMeta, taskData)
 	dataflowTester.VerifyTable(
 		models.GithubReviewer{},
@@ -61,6 +62,19 @@ func TestPrReviewerDataFlow(t *testing.T) {
 			"_raw_data_table",
 			"_raw_data_id",
 			"_raw_data_remark",
+		},
+	)
+	dataflowTester.VerifyTable(
+		models.GithubUser{},
+		"./snapshot_tables/_tool_github_users_in_review.csv",
+		[]string{
+			"connection_id",
+			"id",
+			"login",
+			"avatar_url",
+			"url",
+			"html_url",
+			"type",
 		},
 	)
 }

@@ -54,6 +54,7 @@ func TestPrDataFlow(t *testing.T) {
 	// verify pr extraction
 	dataflowTester.FlushTabler(&models.GithubPullRequest{})
 	dataflowTester.FlushTabler(&models.GithubPullRequestLabel{})
+	dataflowTester.FlushTabler(&models.GithubUser{})
 	dataflowTester.Subtask(tasks.ExtractApiPullRequestsMeta, taskData)
 	dataflowTester.VerifyTable(
 		models.GithubPullRequest{},
@@ -97,6 +98,20 @@ func TestPrDataFlow(t *testing.T) {
 		models.GithubPullRequestLabel{},
 		"./snapshot_tables/_tool_github_pull_request_labels.csv",
 		[]string{"connection_id", "pull_id", "label_name"},
+	)
+
+	dataflowTester.VerifyTable(
+		models.GithubUser{},
+		"./snapshot_tables/_tool_github_users_in_pr.csv",
+		[]string{
+			"connection_id",
+			"id",
+			"login",
+			"avatar_url",
+			"url",
+			"html_url",
+			"type",
+		},
 	)
 
 	// verify pr conversion
