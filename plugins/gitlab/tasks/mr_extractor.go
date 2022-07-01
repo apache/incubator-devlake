@@ -48,8 +48,8 @@ type MergeRequestRes struct {
 		Username string `json:"username"`
 	} `json:"merged_by"`
 	Author struct {
-		Id       int    `json:"id"`
-		Username string `json:"username"`
+		Id       int    `json:"author_id"`
+		Username string `json:"author_name"`
 	}
 	Reviewers        []Reviewer
 	FirstCommentTime helper.Iso8601Time
