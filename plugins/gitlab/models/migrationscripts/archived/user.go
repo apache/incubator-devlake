@@ -21,7 +21,7 @@ import "github.com/apache/incubator-devlake/models/migrationscripts/archived"
 
 type GitlabUser struct {
 	ConnectionId    uint64 `gorm:"primaryKey"`
-	ProjectId       int    `gorm:"primaryKey;type:BIGINT"`
+	ProjectId       int    `gorm:"primaryKey"`
 	Username        string `gorm:"primaryKey;type:varchar(255)"`
 	Email           string `gorm:"type:varchar(255)"`
 	Name            string `gorm:"type:varchar(255)"`

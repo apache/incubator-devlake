@@ -18,8 +18,9 @@ limitations under the License.
 package tasks
 
 import (
-	"github.com/apache/incubator-devlake/plugins/core/dal"
 	"reflect"
+
+	"github.com/apache/incubator-devlake/plugins/core/dal"
 
 	"github.com/apache/incubator-devlake/models/domainlayer"
 	"github.com/apache/incubator-devlake/models/domainlayer/code"
@@ -75,7 +76,7 @@ func ConvertMergeRequestComment(taskCtx core.SubTaskContext) error {
 				},
 				PullRequestId: prIdGen.Generate(data.Options.ConnectionId, gitlabComments.MergeRequestId),
 				Body:          gitlabComments.Body,
-				UserId:        userIdGen.Generate(data.Options.ConnectionId, gitlabComments.AuthorUsername),
+				UserId:        userIdGen.Generate(data.Options.ConnectionId, data.Options.ProjectId, gitlabComments.AuthorUsername),
 				CreatedDate:   gitlabComments.GitlabCreatedAt,
 			}
 			return []interface{}{

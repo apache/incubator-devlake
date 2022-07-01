@@ -1,65 +1,86 @@
 sha,_raw_data_params,_raw_data_table,_raw_data_id,_raw_data_remark,additions,deletions,dev_eq,message,author_name,author_email,authored_date,author_id,committer_name,committer_email,committed_date,committer_id
-05976c113b02fb71d5c43682bd2f9d96a3454efa,"{""ConnectionId"":1,""ProjectId"":12955687}",_raw_gitlab_api_merge_request_commits,17,,0,0,0,"tab refcatoring
-",Nehil Jain,nehil@snaptravel.com,2020-03-24T18:14:03.000+00:00,gitlab:GitlabUser:1:nehil@snaptravel.com,Nehil Jain,nehil@snaptravel.com,2020-03-24T18:14:03.000+00:00,gitlab:GitlabUser:1:nehil@snaptravel.com
-08973065d33c6fd2fb1f592b7a1e0fbe2ee72edd,"{""ConnectionId"":1,""ProjectId"":12955687}",_raw_gitlab_api_merge_request_commits,23,,0,0,0,"add usage day
-",Taylor A. Murphy,tmurphy@gitlab.com,2019-08-02T18:35:08.000+00:00,gitlab:GitlabUser:1:tmurphy@gitlab.com,Taylor A. Murphy,tmurphy@gitlab.com,2019-08-02T18:35:08.000+00:00,gitlab:GitlabUser:1:tmurphy@gitlab.com
-0a4574d52b5964c37bfcb2952f6c6a8a9c6d5bcf,"{""ConnectionId"":1,""ProjectId"":12955687}",_raw_gitlab_api_merge_request_commits,19,,0,0,0,"fix name
-",Taylor A. Murphy,tmurphy@gitlab.com,2019-08-02T19:00:50.000+00:00,gitlab:GitlabUser:1:tmurphy@gitlab.com,Taylor A. Murphy,tmurphy@gitlab.com,2019-08-02T19:00:50.000+00:00,gitlab:GitlabUser:1:tmurphy@gitlab.com
-0dbb8bfdbbf7373656fa3eb036bdcbb25ae162da,"{""ConnectionId"":1,""ProjectId"":12955687}",_raw_gitlab_api_merge_request_commits,9,,0,0,0,Apply suggestion to models/base/snowflake_query_history.sql,Nehil,nehil@getsnaptravel.com,2020-03-24T22:39:40.000+00:00,gitlab:GitlabUser:1:nehil@getsnaptravel.com,Nehil,nehil@getsnaptravel.com,2020-03-24T22:39:40.000+00:00,gitlab:GitlabUser:1:nehil@getsnaptravel.com
-1cba71b355d2bd4e1350602cfb9b98cce5a5cb4d,"{""ConnectionId"":1,""ProjectId"":12955687}",_raw_gitlab_api_merge_request_commits,20,,0,0,0,"update documentation
-",Taylor A. Murphy,tmurphy@gitlab.com,2019-08-02T18:53:44.000+00:00,gitlab:GitlabUser:1:tmurphy@gitlab.com,Taylor A. Murphy,tmurphy@gitlab.com,2019-08-02T18:53:44.000+00:00,gitlab:GitlabUser:1:tmurphy@gitlab.com
-1f16955d45cec904c8968bb27689d91a71e9a2f2,"{""ConnectionId"":1,""ProjectId"":12955687}",_raw_gitlab_api_merge_request_commits,24,,0,0,0,"change cte address
-",Taylor A. Murphy,tmurphy@gitlab.com,2019-08-02T17:28:44.000+00:00,gitlab:GitlabUser:1:tmurphy@gitlab.com,Taylor A. Murphy,tmurphy@gitlab.com,2019-08-02T17:28:44.000+00:00,gitlab:GitlabUser:1:tmurphy@gitlab.com
-211795deaaaaddb23b797261cdcd148e6083d5b2,"{""ConnectionId"":1,""ProjectId"":12955687}",_raw_gitlab_api_merge_request_commits,4,,0,0,0,Update snowflake_query_history.sql,Nehil,nehil@getsnaptravel.com,2020-03-24T22:44:07.000+00:00,gitlab:GitlabUser:1:nehil@getsnaptravel.com,Nehil,nehil@getsnaptravel.com,2020-03-24T22:44:07.000+00:00,gitlab:GitlabUser:1:nehil@getsnaptravel.com
-25f2b34099a3e1867fcf73a54e50f78f3c8d8f75,"{""ConnectionId"":1,""ProjectId"":12955687}",_raw_gitlab_api_merge_request_commits,21,,0,0,0,"add documentation
-",Taylor A. Murphy,tmurphy@gitlab.com,2019-08-02T18:47:28.000+00:00,gitlab:GitlabUser:1:tmurphy@gitlab.com,Taylor A. Murphy,tmurphy@gitlab.com,2019-08-02T18:47:28.000+00:00,gitlab:GitlabUser:1:tmurphy@gitlab.com
-382084b42697577d3a6adf71ce73d4b5ddd22977,"{""ConnectionId"":1,""ProjectId"":12955687}",_raw_gitlab_api_merge_request_commits,33,,0,0,0,"add info on dashboard
-",emilie,emilie.burke@gmail.com,2019-06-28T10:54:26.000+00:00,gitlab:GitlabUser:1:emilie.burke@gmail.com,emilie,emilie.burke@gmail.com,2019-06-28T10:54:26.000+00:00,gitlab:GitlabUser:1:emilie.burke@gmail.com
-3f04e0a61d0c4d2dd736a6bcaa3a06826269a533,"{""ConnectionId"":1,""ProjectId"":12955687}",_raw_gitlab_api_merge_request_commits,34,,0,0,0,"finish top level readme
-",emilie,emilie.burke@gmail.com,2019-06-28T10:48:49.000+00:00,gitlab:GitlabUser:1:emilie.burke@gmail.com,emilie,emilie.burke@gmail.com,2019-06-28T10:48:49.000+00:00,gitlab:GitlabUser:1:emilie.burke@gmail.com
-45bed79fcdc6ba3444245f55660f839db50d79c8,"{""ConnectionId"":1,""ProjectId"":12955687}",_raw_gitlab_api_merge_request_commits,16,,0,0,0,Update .gitignore,Nehil,nehil@getsnaptravel.com,2020-03-24T18:15:29.000+00:00,gitlab:GitlabUser:1:nehil@getsnaptravel.com,Nehil,nehil@getsnaptravel.com,2020-03-24T18:15:29.000+00:00,gitlab:GitlabUser:1:nehil@getsnaptravel.com
-48295660f8bd0c0a024849d4407830face57d4bc,"{""ConnectionId"":1,""ProjectId"":12955687}",_raw_gitlab_api_merge_request_commits,30,,0,0,0,"add docs and sources
-",emilie,emilie.burke@gmail.com,2020-04-05T14:39:43.000+00:00,gitlab:GitlabUser:1:emilie.burke@gmail.com,emilie,emilie.burke@gmail.com,2020-04-05T14:39:43.000+00:00,gitlab:GitlabUser:1:emilie.burke@gmail.com
-4f0d2f7b1a47d21b01a68e59c12d6f8885ab230e,"{""ConnectionId"":1,""ProjectId"":12955687}",_raw_gitlab_api_merge_request_commits,7,,0,0,0,"mr comments
-",Nehil Jain,nehil@snaptravel.com,2020-03-24T22:40:36.000+00:00,gitlab:GitlabUser:1:nehil@snaptravel.com,Nehil Jain,nehil@snaptravel.com,2020-03-24T22:40:36.000+00:00,gitlab:GitlabUser:1:nehil@snaptravel.com
-5a141ad0c28960b02c40e6c476d8df3cc76f58c4,"{""ConnectionId"":1,""ProjectId"":12955687}",_raw_gitlab_api_merge_request_commits,14,,0,0,0,"schema yml, untested
-",Nehil Jain,2761999+nehiljain@users.noreply.github.com,2020-03-24T21:18:16.000+00:00,gitlab:GitlabUser:1:2761999+nehiljain@users.noreply.github.com,Nehil Jain,2761999+nehiljain@users.noreply.github.com,2020-03-24T21:18:16.000+00:00,gitlab:GitlabUser:1:2761999+nehiljain@users.noreply.github.com
-5b6a2be437e0c66ba6276030a61a10583c3f83fa,"{""ConnectionId"":1,""ProjectId"":12955687}",_raw_gitlab_api_merge_request_commits,5,,0,0,0,"merging online changes
-",Nehil Jain,nehil@snaptravel.com,2020-03-24T22:42:54.000+00:00,gitlab:GitlabUser:1:nehil@snaptravel.com,Nehil Jain,nehil@snaptravel.com,2020-03-24T22:42:54.000+00:00,gitlab:GitlabUser:1:nehil@snaptravel.com
-5d6c369200c633b06d85c9375f61fef297761ef1,"{""ConnectionId"":1,""ProjectId"":12955687}",_raw_gitlab_api_merge_request_commits,2,,0,0,0,Apply suggestion to models/base/snowflake_query_history.sql,"Taylor A Murphy, PhD",tmurphy@gitlab.com,2020-03-25T13:22:42.000+00:00,gitlab:GitlabUser:1:tmurphy@gitlab.com,"Taylor A Murphy, PhD",tmurphy@gitlab.com,2020-03-25T13:22:42.000+00:00,gitlab:GitlabUser:1:tmurphy@gitlab.com
-645a724b558a7fa3885fa233d06f68f833d893fc,"{""ConnectionId"":1,""ProjectId"":12955687}",_raw_gitlab_api_merge_request_commits,10,,0,0,0,Apply suggestion to models/base/snowflake_query_history.sql,Nehil,nehil@getsnaptravel.com,2020-03-24T22:39:36.000+00:00,gitlab:GitlabUser:1:nehil@getsnaptravel.com,Nehil,nehil@getsnaptravel.com,2020-03-24T22:39:36.000+00:00,gitlab:GitlabUser:1:nehil@getsnaptravel.com
-64abdcdd9ee9c821f56faf93c5bb0ebc57f575e4,"{""ConnectionId"":1,""ProjectId"":12955687}",_raw_gitlab_api_merge_request_commits,11,,0,0,0,Apply suggestion to models/base/snowflake_query_history.sql,Nehil,nehil@getsnaptravel.com,2020-03-24T22:39:31.000+00:00,gitlab:GitlabUser:1:nehil@getsnaptravel.com,Nehil,nehil@getsnaptravel.com,2020-03-24T22:39:31.000+00:00,gitlab:GitlabUser:1:nehil@getsnaptravel.com
-6c70820c6f06a87619e5d1ddc8cd88ff01b5521c,"{""ConnectionId"":1,""ProjectId"":12955687}",_raw_gitlab_api_merge_request_commits,31,,0,0,0,Update packages.yml,Garrett Mcclintock,garrettjmcclintock@gmail.com,2021-08-03T15:02:12.000+00:00,gitlab:GitlabUser:1:garrettjmcclintock@gmail.com,Garrett Mcclintock,garrettjmcclintock@gmail.com,2021-08-03T15:02:12.000+00:00,gitlab:GitlabUser:1:garrettjmcclintock@gmail.com
-6ebf519f25328e49a004f5a574c8b69ba7420be1,"{""ConnectionId"":1,""ProjectId"":12955687}",_raw_gitlab_api_merge_request_commits,27,,0,0,0,"add contract rate and dbt-utils
-",Taylor A. Murphy,tmurphy@gitlab.com,2019-08-02T17:18:15.000+00:00,gitlab:GitlabUser:1:tmurphy@gitlab.com,Taylor A. Murphy,tmurphy@gitlab.com,2019-08-02T17:18:15.000+00:00,gitlab:GitlabUser:1:tmurphy@gitlab.com
-81b12c995b2fc12e20fd05113cf36dbd57b6e7b0,"{""ConnectionId"":1,""ProjectId"":12955687}",_raw_gitlab_api_merge_request_commits,3,,0,0,0,Apply suggestion to models/base/snowflake_query_history.sql,"Taylor A Murphy, PhD",tmurphy@gitlab.com,2020-03-25T13:21:04.000+00:00,gitlab:GitlabUser:1:tmurphy@gitlab.com,"Taylor A Murphy, PhD",tmurphy@gitlab.com,2020-03-25T13:21:04.000+00:00,gitlab:GitlabUser:1:tmurphy@gitlab.com
-846deac12a1263e4631ced45abbc5e157b23c1be,"{""ConnectionId"":1,""ProjectId"":12955687}",_raw_gitlab_api_merge_request_commits,13,,0,0,0,"testing
-",Nehil Jain,nehil@snaptravel.com,2020-03-24T21:27:46.000+00:00,gitlab:GitlabUser:1:nehil@snaptravel.com,Nehil Jain,nehil@snaptravel.com,2020-03-24T21:27:46.000+00:00,gitlab:GitlabUser:1:nehil@snaptravel.com
-8a40765e605966842b05b5d8cdf2dd6890556d09,"{""ConnectionId"":1,""ProjectId"":12955687}",_raw_gitlab_api_merge_request_commits,26,,0,0,0,"change dbt-util version
-",Taylor A. Murphy,tmurphy@gitlab.com,2019-08-02T17:22:09.000+00:00,gitlab:GitlabUser:1:tmurphy@gitlab.com,Taylor A. Murphy,tmurphy@gitlab.com,2019-08-02T17:22:09.000+00:00,gitlab:GitlabUser:1:tmurphy@gitlab.com
-8a96911c5350f7575215f02f0242f7e27ad3d1f4,"{""ConnectionId"":1,""ProjectId"":12955687}",_raw_gitlab_api_merge_request_commits,22,,0,0,0,"add documentation
-",Taylor A. Murphy,tmurphy@gitlab.com,2019-08-02T18:46:42.000+00:00,gitlab:GitlabUser:1:tmurphy@gitlab.com,Taylor A. Murphy,tmurphy@gitlab.com,2019-08-02T18:46:42.000+00:00,gitlab:GitlabUser:1:tmurphy@gitlab.com
-91e5666bdfe90e5ada3e65aaa9240b2b0b1a072f,"{""ConnectionId"":1,""ProjectId"":12955687}",_raw_gitlab_api_merge_request_commits,37,,0,0,0,"remove config
-",emilie,emilie.burke@gmail.com,2019-08-26T15:34:33.000+00:00,gitlab:GitlabUser:1:emilie.burke@gmail.com,emilie,emilie.burke@gmail.com,2019-08-26T15:34:33.000+00:00,gitlab:GitlabUser:1:emilie.burke@gmail.com
-93d13cf14a470995ec35186292bf165e1152dc2a,"{""ConnectionId"":1,""ProjectId"":12955687}",_raw_gitlab_api_merge_request_commits,15,,0,0,0,"comments on sql
-",Nehil Jain,nehiljain@Hansons-iMac.local,2020-03-24T18:55:11.000+00:00,gitlab:GitlabUser:1:nehiljain@Hansons-iMac.local,Nehil Jain,nehiljain@Hansons-iMac.local,2020-03-24T18:55:11.000+00:00,gitlab:GitlabUser:1:nehiljain@Hansons-iMac.local
-9a80506e158547d87e7ad2902c0196deff5b5c07,"{""ConnectionId"":1,""ProjectId"":12955687}",_raw_gitlab_api_merge_request_commits,18,,0,0,0,"base mmodel for query performance
-",Nehil Jain,nehil@snaptravel.com,2020-03-24T12:52:28.000+00:00,gitlab:GitlabUser:1:nehil@snaptravel.com,Nehil Jain,nehil@snaptravel.com,2020-03-24T12:52:28.000+00:00,gitlab:GitlabUser:1:nehil@snaptravel.com
-9e5ec04b0a8273b73936ea150275919b0602c260,"{""ConnectionId"":1,""ProjectId"":12955687}",_raw_gitlab_api_merge_request_commits,25,,0,0,0,"change names
-",Taylor A. Murphy,tmurphy@gitlab.com,2019-08-02T17:24:35.000+00:00,gitlab:GitlabUser:1:tmurphy@gitlab.com,Taylor A. Murphy,tmurphy@gitlab.com,2019-08-02T17:24:35.000+00:00,gitlab:GitlabUser:1:tmurphy@gitlab.com
-9ef8183140bae8c39a440d9c7eb47f3bc7dcab75,"{""ConnectionId"":1,""ProjectId"":12955687}",_raw_gitlab_api_merge_request_commits,1,,0,0,0,Apply suggestion to models/base/snowflake_query_history.sql,"Taylor A Murphy, PhD",tmurphy@gitlab.com,2020-03-25T13:22:47.000+00:00,gitlab:GitlabUser:1:tmurphy@gitlab.com,"Taylor A Murphy, PhD",tmurphy@gitlab.com,2020-03-25T13:22:47.000+00:00,gitlab:GitlabUser:1:tmurphy@gitlab.com
-a09f2d4ae88e78d7424fba1ae6d0c036b677271d,"{""ConnectionId"":1,""ProjectId"":12955687}",_raw_gitlab_api_merge_request_commits,29,,0,0,0,"update readme
-",emilie,emilie.burke@gmail.com,2020-04-05T14:43:47.000+00:00,gitlab:GitlabUser:1:emilie.burke@gmail.com,emilie,emilie.burke@gmail.com,2020-04-05T14:43:47.000+00:00,gitlab:GitlabUser:1:emilie.burke@gmail.com
-abbe0ab2c7bb1dc2cfaa3ef3062f378fb908ba71,"{""ConnectionId"":1,""ProjectId"":12955687}",_raw_gitlab_api_merge_request_commits,36,,0,0,0,"add first bit
-",emilie,emilie.burke@gmail.com,2019-06-28T05:40:36.000+00:00,gitlab:GitlabUser:1:emilie.burke@gmail.com,emilie,emilie.burke@gmail.com,2019-06-28T05:40:36.000+00:00,gitlab:GitlabUser:1:emilie.burke@gmail.com
-ad25fcda15e310a7eb34b3e38ff9b962b54f0e03,"{""ConnectionId"":1,""ProjectId"":12955687}",_raw_gitlab_api_merge_request_commits,32,,0,0,0,"add more info to readme
-",emilie,emilie.burke@gmail.com,2019-06-28T11:03:52.000+00:00,gitlab:GitlabUser:1:emilie.burke@gmail.com,emilie,emilie.burke@gmail.com,2019-06-28T11:03:52.000+00:00,gitlab:GitlabUser:1:emilie.burke@gmail.com
-bb6dfec8dcdacb5b6b37dbd8eb1aa6f9e8c06138,"{""ConnectionId"":1,""ProjectId"":12955687}",_raw_gitlab_api_merge_request_commits,6,,0,0,0,"merging online changes
-",Nehil Jain,nehil@snaptravel.com,2020-03-24T22:41:35.000+00:00,gitlab:GitlabUser:1:nehil@snaptravel.com,Nehil Jain,nehil@snaptravel.com,2020-03-24T22:41:35.000+00:00,gitlab:GitlabUser:1:nehil@snaptravel.com
-c4d406c077af582837d3611a46eded70151f93fb,"{""ConnectionId"":1,""ProjectId"":12955687}",_raw_gitlab_api_merge_request_commits,12,,0,0,0,"tested schema and the model
-",Nehil Jain,nehil@snaptravel.com,2020-03-24T22:37:23.000+00:00,gitlab:GitlabUser:1:nehil@snaptravel.com,Nehil Jain,nehil@snaptravel.com,2020-03-24T22:37:23.000+00:00,gitlab:GitlabUser:1:nehil@snaptravel.com
-e01d4f03811cd0da9949848731236e0aa261cf54,"{""ConnectionId"":1,""ProjectId"":12955687}",_raw_gitlab_api_merge_request_commits,35,,0,0,0,"move analyses
-",emilie,emilie.burke@gmail.com,2019-06-28T10:43:17.000+00:00,gitlab:GitlabUser:1:emilie.burke@gmail.com,emilie,emilie.burke@gmail.com,2019-06-28T10:43:17.000+00:00,gitlab:GitlabUser:1:emilie.burke@gmail.com
-e24fecacb1a2c85f904bef57ffd5598ca2df023c,"{""ConnectionId"":1,""ProjectId"":12955687}",_raw_gitlab_api_merge_request_commits,8,,0,0,0,Apply suggestion to models/base/snowflake_query_history.sql,Nehil,nehil@getsnaptravel.com,2020-03-24T22:39:42.000+00:00,gitlab:GitlabUser:1:nehil@getsnaptravel.com,Nehil,nehil@getsnaptravel.com,2020-03-24T22:39:42.000+00:00,gitlab:GitlabUser:1:nehil@getsnaptravel.com
-f1d0704d7c6a022d4cdd1cc6d519b69740f7e5b4,"{""ConnectionId"":1,""ProjectId"":12955687}",_raw_gitlab_api_merge_request_commits,28,,0,0,0,"Corrections for dbt 1
-",Paul Armstrong,parmstrong@gitlab.com,2022-06-03T09:23:49.000+00:00,gitlab:GitlabUser:1:parmstrong@gitlab.com,Paul Armstrong,parmstrong@gitlab.com,2022-06-03T09:23:49.000+00:00,gitlab:GitlabUser:1:parmstrong@gitlab.com
+026c81ced324bd07d50768301a95b7b0ee4c1f18,"{""ConnectionId"":1,""ProjectId"":12345678}",_raw_gitlab_api_merge_request_commits,25,,0,0,0,"added vars to dbt project yml
+",Nehil Jain,2761999+nehiljain@users.noreply.github.com,2020-05-11T11:56:31.000+00:00,gitlab:GitlabUser:1:12345678:Nehil Jain,Nehil Jain,2761999+nehiljain@users.noreply.github.com,2020-05-11T11:56:31.000+00:00,gitlab:GitlabUser:1:12345678:Nehil Jain
+08973065d33c6fd2fb1f592b7a1e0fbe2ee72edd,"{""ConnectionId"":1,""ProjectId"":12345678}",_raw_gitlab_api_merge_request_commits,11,,0,0,0,"add usage day
+",Taylor A. Murphy,tmurphy@gitlab.com,2019-08-02T18:35:08.000+00:00,gitlab:GitlabUser:1:12345678:Taylor A. Murphy,Taylor A. Murphy,tmurphy@gitlab.com,2019-08-02T18:35:08.000+00:00,gitlab:GitlabUser:1:12345678:Taylor A. Murphy
+090f4cd40f5ed0107fc7743edd2bff98b07144d9,"{""ConnectionId"":1,""ProjectId"":12345678}",_raw_gitlab_api_merge_request_commits,26,,0,0,0,"added data to seed the defaults
+",Nehil Jain,nehil@snaptravel.com,2020-05-06T23:11:02.000+00:00,gitlab:GitlabUser:1:12345678:Nehil Jain,Nehil Jain,nehil@snaptravel.com,2020-05-06T23:11:02.000+00:00,gitlab:GitlabUser:1:12345678:Nehil Jain
+0a4574d52b5964c37bfcb2952f6c6a8a9c6d5bcf,"{""ConnectionId"":1,""ProjectId"":12345678}",_raw_gitlab_api_merge_request_commits,7,,0,0,0,"fix name
+",Taylor A. Murphy,tmurphy@gitlab.com,2019-08-02T19:00:50.000+00:00,gitlab:GitlabUser:1:12345678:Taylor A. Murphy,Taylor A. Murphy,tmurphy@gitlab.com,2019-08-02T19:00:50.000+00:00,gitlab:GitlabUser:1:12345678:Taylor A. Murphy
+1cba71b355d2bd4e1350602cfb9b98cce5a5cb4d,"{""ConnectionId"":1,""ProjectId"":12345678}",_raw_gitlab_api_merge_request_commits,8,,0,0,0,"update documentation
+",Taylor A. Murphy,tmurphy@gitlab.com,2019-08-02T18:53:44.000+00:00,gitlab:GitlabUser:1:12345678:Taylor A. Murphy,Taylor A. Murphy,tmurphy@gitlab.com,2019-08-02T18:53:44.000+00:00,gitlab:GitlabUser:1:12345678:Taylor A. Murphy
+1d6089ec5ca3e114b041c85eadefb9bd8c356dfa,"{""ConnectionId"":1,""ProjectId"":12345678}",_raw_gitlab_api_merge_request_commits,32,,0,0,0,"Merge remote-tracking branch 'origin/issue_3_wip' into issue_3
+
+* origin/issue_3_wip:
+  pipfile to change to 3.7
+  transfer work to git
+",Nehil Jain,nehil@snaptravel.com,2020-03-25T17:31:50.000+00:00,gitlab:GitlabUser:1:12345678:Nehil Jain,Nehil Jain,nehil@snaptravel.com,2020-03-25T17:31:50.000+00:00,gitlab:GitlabUser:1:12345678:Nehil Jain
+1f16955d45cec904c8968bb27689d91a71e9a2f2,"{""ConnectionId"":1,""ProjectId"":12345678}",_raw_gitlab_api_merge_request_commits,12,,0,0,0,"change cte address
+",Taylor A. Murphy,tmurphy@gitlab.com,2019-08-02T17:28:44.000+00:00,gitlab:GitlabUser:1:12345678:Taylor A. Murphy,Taylor A. Murphy,tmurphy@gitlab.com,2019-08-02T17:28:44.000+00:00,gitlab:GitlabUser:1:12345678:Taylor A. Murphy
+25f2b34099a3e1867fcf73a54e50f78f3c8d8f75,"{""ConnectionId"":1,""ProjectId"":12345678}",_raw_gitlab_api_merge_request_commits,9,,0,0,0,"add documentation
+",Taylor A. Murphy,tmurphy@gitlab.com,2019-08-02T18:47:28.000+00:00,gitlab:GitlabUser:1:12345678:Taylor A. Murphy,Taylor A. Murphy,tmurphy@gitlab.com,2019-08-02T18:47:28.000+00:00,gitlab:GitlabUser:1:12345678:Taylor A. Murphy
+2c43ad85d5bbf81ab70ba504f5a4bfe6c573a20f,"{""ConnectionId"":1,""ProjectId"":12345678}",_raw_gitlab_api_merge_request_commits,37,,0,0,0,"added clustering metering and fixed bugs in schema yml for warehouse metering
+",Nehil Jain,jain.nehil@gmail.com,2020-06-24T12:16:11.000+00:00,gitlab:GitlabUser:1:12345678:Nehil Jain,Nehil Jain,jain.nehil@gmail.com,2020-06-24T12:16:11.000+00:00,gitlab:GitlabUser:1:12345678:Nehil Jain
+2fa7ed41e0081f529462ced2688ec36d824aff14,"{""ConnectionId"":1,""ProjectId"":12345678}",_raw_gitlab_api_merge_request_commits,24,,0,0,0,"fixed a bug in query and added vars
+",Nehil Jain,nehil@snaptravel.com,2020-05-11T12:45:52.000+00:00,gitlab:GitlabUser:1:12345678:Nehil Jain,Nehil Jain,nehil@snaptravel.com,2020-05-11T12:45:52.000+00:00,gitlab:GitlabUser:1:12345678:Nehil Jain
+382084b42697577d3a6adf71ce73d4b5ddd22977,"{""ConnectionId"":1,""ProjectId"":12345678}",_raw_gitlab_api_merge_request_commits,2,,0,0,0,"add info on dashboard
+",emilie,emilie.burke@gmail.com,2019-06-28T10:54:26.000+00:00,gitlab:GitlabUser:1:12345678:emilie,emilie,emilie.burke@gmail.com,2019-06-28T10:54:26.000+00:00,gitlab:GitlabUser:1:12345678:emilie
+3f04e0a61d0c4d2dd736a6bcaa3a06826269a533,"{""ConnectionId"":1,""ProjectId"":12345678}",_raw_gitlab_api_merge_request_commits,3,,0,0,0,"finish top level readme
+",emilie,emilie.burke@gmail.com,2019-06-28T10:48:49.000+00:00,gitlab:GitlabUser:1:12345678:emilie,emilie,emilie.burke@gmail.com,2019-06-28T10:48:49.000+00:00,gitlab:GitlabUser:1:12345678:emilie
+48295660f8bd0c0a024849d4407830face57d4bc,"{""ConnectionId"":1,""ProjectId"":12345678}",_raw_gitlab_api_merge_request_commits,18,,0,0,0,"add docs and sources
+",emilie,emilie.burke@gmail.com,2020-04-05T14:39:43.000+00:00,gitlab:GitlabUser:1:12345678:emilie,emilie,emilie.burke@gmail.com,2020-04-05T14:39:43.000+00:00,gitlab:GitlabUser:1:12345678:emilie
+4c6bbeefb7e2ee9b25e6f0367f85b75435a6a353,"{""ConnectionId"":1,""ProjectId"":12345678}",_raw_gitlab_api_merge_request_commits,23,,0,0,0,"added tests and more defaults for irrelevant queries
+",Nehil Jain,nehil@snaptravel.com,2020-05-11T19:58:33.000+00:00,gitlab:GitlabUser:1:12345678:Nehil Jain,Nehil Jain,nehil@snaptravel.com,2020-05-11T19:58:33.000+00:00,gitlab:GitlabUser:1:12345678:Nehil Jain
+553f7613b178301da4075202afe91ebda5d97ab5,"{""ConnectionId"":1,""ProjectId"":12345678}",_raw_gitlab_api_merge_request_commits,16,,0,0,0,Update schema.yml typo for docs,Nehil,nehil@getsnaptravel.com,2020-03-25T19:01:57.000+00:00,gitlab:GitlabUser:1:12345678:Nehil,Nehil,nehil@getsnaptravel.com,2020-03-25T19:01:57.000+00:00,gitlab:GitlabUser:1:12345678:Nehil
+59288acac87666b52daea68b3393d3d86f1abb25,"{""ConnectionId"":1,""ProjectId"":12345678}",_raw_gitlab_api_merge_request_commits,19,,0,0,0,Apply suggestion to README.md,Emilie Schario,eburke@gitlab.com,2020-04-08T20:51:31.000+00:00,gitlab:GitlabUser:1:12345678:Emilie Schario,Emilie Schario,eburke@gitlab.com,2020-04-08T20:51:31.000+00:00,gitlab:GitlabUser:1:12345678:Emilie Schario
+6ebf519f25328e49a004f5a574c8b69ba7420be1,"{""ConnectionId"":1,""ProjectId"":12345678}",_raw_gitlab_api_merge_request_commits,15,,0,0,0,"add contract rate and dbt-utils
+",Taylor A. Murphy,tmurphy@gitlab.com,2019-08-02T17:18:15.000+00:00,gitlab:GitlabUser:1:12345678:Taylor A. Murphy,Taylor A. Murphy,tmurphy@gitlab.com,2019-08-02T17:18:15.000+00:00,gitlab:GitlabUser:1:12345678:Taylor A. Murphy
+83b0e5f65a21dc631e0dda8303fd43017b483db0,"{""ConnectionId"":1,""ProjectId"":12345678}",_raw_gitlab_api_merge_request_commits,21,,0,0,0,"add release instructions for the package
+",Michael Walker,mwalker@gitlab.com,2020-04-08T20:33:12.000+00:00,gitlab:GitlabUser:1:12345678:Michael Walker,Michael Walker,mwalker@gitlab.com,2020-04-08T20:33:12.000+00:00,gitlab:GitlabUser:1:12345678:Michael Walker
+8a40765e605966842b05b5d8cdf2dd6890556d09,"{""ConnectionId"":1,""ProjectId"":12345678}",_raw_gitlab_api_merge_request_commits,14,,0,0,0,"change dbt-util version
+",Taylor A. Murphy,tmurphy@gitlab.com,2019-08-02T17:22:09.000+00:00,gitlab:GitlabUser:1:12345678:Taylor A. Murphy,Taylor A. Murphy,tmurphy@gitlab.com,2019-08-02T17:22:09.000+00:00,gitlab:GitlabUser:1:12345678:Taylor A. Murphy
+8a96911c5350f7575215f02f0242f7e27ad3d1f4,"{""ConnectionId"":1,""ProjectId"":12345678}",_raw_gitlab_api_merge_request_commits,10,,0,0,0,"add documentation
+",Taylor A. Murphy,tmurphy@gitlab.com,2019-08-02T18:46:42.000+00:00,gitlab:GitlabUser:1:12345678:Taylor A. Murphy,Taylor A. Murphy,tmurphy@gitlab.com,2019-08-02T18:46:42.000+00:00,gitlab:GitlabUser:1:12345678:Taylor A. Murphy
+8d7c748e10e8d35c3d0157c8fdd5b1b73e52132b,"{""ConnectionId"":1,""ProjectId"":12345678}",_raw_gitlab_api_merge_request_commits,35,,0,0,0,"moved line above
+",jainnehil,jain.nehil@gmail.com,2020-06-24T12:33:13.000+00:00,gitlab:GitlabUser:1:12345678:jainnehil,jainnehil,jain.nehil@gmail.com,2020-06-24T12:33:13.000+00:00,gitlab:GitlabUser:1:12345678:jainnehil
+8fc1f7e0d4c08b76764ff87d6d40fc0c3b37d6b4,"{""ConnectionId"":1,""ProjectId"":12345678}",_raw_gitlab_api_merge_request_commits,22,,0,0,0,"removed bad file
+",Nehil Jain,nehil@snaptravel.com,2020-05-11T20:22:03.000+00:00,gitlab:GitlabUser:1:12345678:Nehil Jain,Nehil Jain,nehil@snaptravel.com,2020-05-11T20:22:03.000+00:00,gitlab:GitlabUser:1:12345678:Nehil Jain
+91e5666bdfe90e5ada3e65aaa9240b2b0b1a072f,"{""ConnectionId"":1,""ProjectId"":12345678}",_raw_gitlab_api_merge_request_commits,6,,0,0,0,"remove config
+",emilie,emilie.burke@gmail.com,2019-08-26T15:34:33.000+00:00,gitlab:GitlabUser:1:12345678:emilie,emilie,emilie.burke@gmail.com,2019-08-26T15:34:33.000+00:00,gitlab:GitlabUser:1:12345678:emilie
+93fe62ea55e2c9201ae83f6e83e44eeadab3fd07,"{""ConnectionId"":1,""ProjectId"":12345678}",_raw_gitlab_api_merge_request_commits,20,,0,0,0,"fix formatting on numbering for how to release
+",Michael Walker,mwalker@gitlab.com,2020-04-08T20:36:43.000+00:00,gitlab:GitlabUser:1:12345678:Michael Walker,Michael Walker,mwalker@gitlab.com,2020-04-08T20:36:43.000+00:00,gitlab:GitlabUser:1:12345678:Michael Walker
+956fe8b4bb51a80b4771bc141f80ae3dbfc77dbd,"{""ConnectionId"":1,""ProjectId"":12345678}",_raw_gitlab_api_merge_request_commits,28,,0,0,0,"resolved simple comments
+",Nehil Jain,nehil@snaptravel.com,2020-05-05T12:30:44.000+00:00,gitlab:GitlabUser:1:12345678:Nehil Jain,Nehil Jain,nehil@snaptravel.com,2020-05-05T12:30:44.000+00:00,gitlab:GitlabUser:1:12345678:Nehil Jain
+9e5ec04b0a8273b73936ea150275919b0602c260,"{""ConnectionId"":1,""ProjectId"":12345678}",_raw_gitlab_api_merge_request_commits,13,,0,0,0,"change names
+",Taylor A. Murphy,tmurphy@gitlab.com,2019-08-02T17:24:35.000+00:00,gitlab:GitlabUser:1:12345678:Taylor A. Murphy,Taylor A. Murphy,tmurphy@gitlab.com,2019-08-02T17:24:35.000+00:00,gitlab:GitlabUser:1:12345678:Taylor A. Murphy
+a09f2d4ae88e78d7424fba1ae6d0c036b677271d,"{""ConnectionId"":1,""ProjectId"":12345678}",_raw_gitlab_api_merge_request_commits,17,,0,0,0,"update readme
+",emilie,emilie.burke@gmail.com,2020-04-05T14:43:47.000+00:00,gitlab:GitlabUser:1:12345678:emilie,emilie,emilie.burke@gmail.com,2020-04-05T14:43:47.000+00:00,gitlab:GitlabUser:1:12345678:emilie
+a211ac8c2422f8053c02dfe926c4cf2ac7dead99,"{""ConnectionId"":1,""ProjectId"":12345678}",_raw_gitlab_api_merge_request_commits,30,,0,0,0,"Early version of XF model for QRT
+",Nehil Jain,nehil@snaptravel.com,2020-04-08T20:04:29.000+00:00,gitlab:GitlabUser:1:12345678:Nehil Jain,Nehil Jain,nehil@snaptravel.com,2020-05-05T11:57:33.000+00:00,gitlab:GitlabUser:1:12345678:Nehil Jain
+abbe0ab2c7bb1dc2cfaa3ef3062f378fb908ba71,"{""ConnectionId"":1,""ProjectId"":12345678}",_raw_gitlab_api_merge_request_commits,5,,0,0,0,"add first bit
+",emilie,emilie.burke@gmail.com,2019-06-28T05:40:36.000+00:00,gitlab:GitlabUser:1:12345678:emilie,emilie,emilie.burke@gmail.com,2019-06-28T05:40:36.000+00:00,gitlab:GitlabUser:1:12345678:emilie
+ad25fcda15e310a7eb34b3e38ff9b962b54f0e03,"{""ConnectionId"":1,""ProjectId"":12345678}",_raw_gitlab_api_merge_request_commits,1,,0,0,0,"add more info to readme
+",emilie,emilie.burke@gmail.com,2019-06-28T11:03:52.000+00:00,gitlab:GitlabUser:1:12345678:emilie,emilie,emilie.burke@gmail.com,2019-06-28T11:03:52.000+00:00,gitlab:GitlabUser:1:12345678:emilie
+b4bf80f8d3ea3a2ecc73faf9121d35b427dd6941,"{""ConnectionId"":1,""ProjectId"":12345678}",_raw_gitlab_api_merge_request_commits,33,,0,0,0,"pipfile to change to 3.7
+",Nehil Jain,2761999+nehiljain@users.noreply.github.com,2020-03-25T17:17:02.000+00:00,gitlab:GitlabUser:1:12345678:Nehil Jain,Nehil Jain,2761999+nehiljain@users.noreply.github.com,2020-03-25T17:17:02.000+00:00,gitlab:GitlabUser:1:12345678:Nehil Jain
+bd75e664bda6e12e74c07369fab67556616b0eba,"{""ConnectionId"":1,""ProjectId"":12345678}",_raw_gitlab_api_merge_request_commits,29,,0,0,0,"Merge branch 'master' of gitlab.com:gitlab-data/snowflake_spend into issue_3
+
+* 'master' of gitlab.com:gitlab-data/snowflake_spend:
+  Apply suggestion to README.md
+  fix formatting on numbering for how to release
+  add release instructions for the package
+  Remove warehouse ID test
+  Remove rogue s
+  Resolve ""Add sources and cleanup structure""
+  Update schema.yml typo for docs
+",Nehil Jain,nehil@snaptravel.com,2020-05-05T11:58:13.000+00:00,gitlab:GitlabUser:1:12345678:Nehil Jain,Nehil Jain,nehil@snaptravel.com,2020-05-05T11:58:13.000+00:00,gitlab:GitlabUser:1:12345678:Nehil Jain
+cdaae504f83f75ae908f3beb718491f28c0e96e4,"{""ConnectionId"":1,""ProjectId"":12345678}",_raw_gitlab_api_merge_request_commits,36,,0,0,0,"fixed credits used in warehouse metering
+",jainnehil,jain.nehil@gmail.com,2020-06-24T12:30:05.000+00:00,gitlab:GitlabUser:1:12345678:jainnehil,jainnehil,jain.nehil@gmail.com,2020-06-24T12:30:05.000+00:00,gitlab:GitlabUser:1:12345678:jainnehil
+d1778a39fa4fed8de329805ef76f9b341fe43723,"{""ConnectionId"":1,""ProjectId"":12345678}",_raw_gitlab_api_merge_request_commits,27,,0,0,0,"added way to dynamically generate the query
+",Nehil Jain,nehil@snaptravel.com,2020-05-06T23:10:17.000+00:00,gitlab:GitlabUser:1:12345678:Nehil Jain,Nehil Jain,nehil@snaptravel.com,2020-05-06T23:10:17.000+00:00,gitlab:GitlabUser:1:12345678:Nehil Jain
+db7a1d80e399004e2e13b05b287857ddf87d42a0,"{""ConnectionId"":1,""ProjectId"":12345678}",_raw_gitlab_api_merge_request_commits,34,,0,0,0,"transfer work to git
+",Nehil Jain,nehil@snaptravel.com,2020-03-25T17:07:47.000+00:00,gitlab:GitlabUser:1:12345678:Nehil Jain,Nehil Jain,nehil@snaptravel.com,2020-03-25T17:07:47.000+00:00,gitlab:GitlabUser:1:12345678:Nehil Jain
+e01d4f03811cd0da9949848731236e0aa261cf54,"{""ConnectionId"":1,""ProjectId"":12345678}",_raw_gitlab_api_merge_request_commits,4,,0,0,0,"move analyses
+",emilie,emilie.burke@gmail.com,2019-06-28T10:43:17.000+00:00,gitlab:GitlabUser:1:12345678:emilie,emilie,emilie.burke@gmail.com,2019-06-28T10:43:17.000+00:00,gitlab:GitlabUser:1:12345678:emilie
+f1f7369bc49f9c0f387c7659a878c063101369f3,"{""ConnectionId"":1,""ProjectId"":12345678}",_raw_gitlab_api_merge_request_commits,31,,0,0,0,"added date spine to it
+",Nehil Jain,nehil@snaptravel.com,2020-04-08T19:01:12.000+00:00,gitlab:GitlabUser:1:12345678:Nehil Jain,Nehil Jain,nehil@snaptravel.com,2020-04-08T19:01:12.000+00:00,gitlab:GitlabUser:1:12345678:Nehil Jain

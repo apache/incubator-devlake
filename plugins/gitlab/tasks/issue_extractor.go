@@ -19,8 +19,10 @@ package tasks
 
 import (
 	"encoding/json"
-	"github.com/apache/incubator-devlake/models/domainlayer/ticket"
 	"regexp"
+	"strconv"
+
+	"github.com/apache/incubator-devlake/models/domainlayer/ticket"
 
 	"github.com/apache/incubator-devlake/plugins/core"
 
@@ -254,12 +256,15 @@ func convertGitlabIssue(issue *IssuesResponse, projectId int) (*models.GitlabIss
 		GitlabUpdatedAt: issue.GitlabUpdatedAt.ToTime(),
 		TimeEstimate:    issue.TimeStats.TimeEstimate,
 		TotalTimeSpent:  issue.TimeStats.TotalTimeSpent,
+		CreatorId:       strconv.Itoa(issue.Author.Id),
+		CreatorName:     issue.Author.Username,
 	}
 
 	if issue.Assignee != nil {
 		gitlabIssue.AssigneeId = issue.Assignee.Id
 		gitlabIssue.AssigneeName = issue.Assignee.Username
 	}
+
 	if issue.GitlabClosedAt != nil {
 		gitlabIssue.LeadTimeMinutes = uint(issue.GitlabClosedAt.ToTime().Sub(issue.GitlabCreatedAt.ToTime()).Minutes())
 	}

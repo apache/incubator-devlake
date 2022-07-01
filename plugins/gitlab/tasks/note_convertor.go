@@ -18,8 +18,9 @@ limitations under the License.
 package tasks
 
 import (
-	"github.com/apache/incubator-devlake/plugins/core/dal"
 	"reflect"
+
+	"github.com/apache/incubator-devlake/plugins/core/dal"
 
 	"github.com/apache/incubator-devlake/models/domainlayer"
 	"github.com/apache/incubator-devlake/models/domainlayer/code"
@@ -74,7 +75,7 @@ func ConvertApiNotes(taskCtx core.SubTaskContext) error {
 				},
 				PrId:        prIdGen.Generate(data.Options.ConnectionId, gitlabNotes.MergeRequestId),
 				Type:        gitlabNotes.NoteableType,
-				Author:      userIdGen.Generate(data.Options.ConnectionId, gitlabNotes.AuthorUsername),
+				Author:      userIdGen.Generate(data.Options.ConnectionId, data.Options.ProjectId, gitlabNotes.AuthorUsername),
 				Body:        gitlabNotes.Body,
 				Resolvable:  gitlabNotes.Resolvable,
 				IsSystem:    gitlabNotes.IsSystem,
