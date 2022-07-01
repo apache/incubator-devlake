@@ -73,8 +73,8 @@ func buildTx(tx *gorm.DB, clauses []dal.Clause) *gorm.DB {
 
 var _ dal.Dal = (*Dalgorm)(nil)
 
-// Exec executes raw sql query
-func (d *Dalgorm) Raw(query string, params ...interface{}) (*sql.Rows, error) {
+// RawCursor executes raw sql query and returns a database cursor
+func (d *Dalgorm) RawCursor(query string, params ...interface{}) (*sql.Rows, error) {
 	return d.db.Raw(query, params...).Rows()
 }
 
@@ -83,7 +83,7 @@ func (d *Dalgorm) Exec(query string, params ...interface{}) error {
 	return d.db.Exec(query, params...).Error
 }
 
-// CreateTable creates a table with gorm definition from `entity`
+// AutoMigrate runs auto migration for given models
 func (d *Dalgorm) AutoMigrate(entity interface{}, clauses ...dal.Clause) error {
 	return buildTx(d.db, clauses).AutoMigrate(entity)
 }

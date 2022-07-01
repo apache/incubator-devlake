@@ -21,11 +21,12 @@ import (
 	"database/sql"
 	"encoding/json"
 	"fmt"
-	"github.com/apache/incubator-devlake/plugins/core"
-	"github.com/apache/incubator-devlake/plugins/core/dal"
 	"io/ioutil"
 	"net/http"
 	"strings"
+
+	"github.com/apache/incubator-devlake/plugins/core"
+	"github.com/apache/incubator-devlake/plugins/core/dal"
 )
 
 func LoadData(c core.SubTaskContext) error {
@@ -55,7 +56,7 @@ func LoadData(c core.SubTaskContext) error {
 func loadData(starrocks *sql.DB, c core.SubTaskContext, table string, db dal.Dal, config *StarRocksConfig) error {
 	var data []map[string]interface{}
 	// select data from db
-	rows, err := db.Raw(fmt.Sprintf("select * from %s", table))
+	rows, err := db.RawCursor(fmt.Sprintf("select * from %s", table))
 	if err != nil {
 		return err
 	}

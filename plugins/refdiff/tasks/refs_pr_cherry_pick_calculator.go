@@ -110,7 +110,7 @@ func CalculatePrCherryPick(taskCtx core.SubTaskContext) error {
 		taskCtx.IncProgress(1)
 	}
 
-	cursor2, err := db.Raw(
+	cursor2, err := db.RawCursor(
 		`
 			SELECT pr2.pull_request_key                 AS parent_pr_key,
 			       pr1.parent_pr_id                     AS parent_pr_id,
