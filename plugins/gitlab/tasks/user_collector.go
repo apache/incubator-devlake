@@ -43,7 +43,7 @@ func CollectUsers(taskCtx core.SubTaskContext) error {
 	collector, err := helper.NewApiCollector(helper.ApiCollectorArgs{
 		RawDataSubTaskArgs: *rawDataSubTaskArgs,
 		ApiClient:          data.ApiClient,
-		UrlTemplate:        "/projects/{{ .Params.ProjectId }}/members",
+		UrlTemplate:        "/projects/{{ .Params.ProjectId }}/members/all",
 		//PageSize:           100,
 		Query: func(reqData *helper.RequestData) (url.Values, error) {
 			query := url.Values{}
