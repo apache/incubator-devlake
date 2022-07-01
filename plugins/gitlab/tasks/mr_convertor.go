@@ -54,6 +54,7 @@ func ConvertApiMergeRequests(taskCtx core.SubTaskContext) error {
 
 	domainMrIdGenerator := didgen.NewDomainIdGenerator(&models.GitlabMergeRequest{})
 	domainRepoIdGenerator := didgen.NewDomainIdGenerator(&models.GitlabProject{})
+	domainUserIdGen := didgen.NewDomainIdGenerator(&models.GitlabUser{})
 
 	converter, err := helper.NewDataConverter(helper.DataConverterArgs{
 		RawDataSubTaskArgs: *rawDataSubTaskArgs,
@@ -76,7 +77,7 @@ func ConvertApiMergeRequests(taskCtx core.SubTaskContext) error {
 				Type:           gitlabMr.Type,
 				Url:            gitlabMr.WebUrl,
 				AuthorName:     gitlabMr.AuthorUsername,
-				AuthorId:       strconv.Itoa(gitlabMr.AuthorUserId),
+				AuthorId:       domainUserIdGen.Generate(data.Options.ConnectionId, strconv.Itoa(gitlabMr.AuthorUserId)),
 				CreatedDate:    gitlabMr.GitlabCreatedAt,
 				MergedDate:     gitlabMr.MergedAt,
 				ClosedDate:     gitlabMr.ClosedAt,
