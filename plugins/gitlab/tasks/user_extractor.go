@@ -48,7 +48,6 @@ func ExtractUsers(taskCtx core.SubTaskContext) error {
 			for _, v := range userRes {
 				toolL := &models.GitlabUser{
 					ConnectionId:    data.Options.ConnectionId,
-					ProjectId:       data.Options.ProjectId,
 					Username:        v.Username,
 					Name:            v.Name,
 					State:           v.State,

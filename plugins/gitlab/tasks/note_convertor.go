@@ -75,7 +75,7 @@ func ConvertApiNotes(taskCtx core.SubTaskContext) error {
 				},
 				PrId:        prIdGen.Generate(data.Options.ConnectionId, gitlabNotes.MergeRequestId),
 				Type:        gitlabNotes.NoteableType,
-				Author:      userIdGen.Generate(data.Options.ConnectionId, data.Options.ProjectId, gitlabNotes.AuthorUsername),
+				Author:      userIdGen.Generate(data.Options.ConnectionId, gitlabNotes.AuthorUsername),
 				Body:        gitlabNotes.Body,
 				Resolvable:  gitlabNotes.Resolvable,
 				IsSystem:    gitlabNotes.IsSystem,

@@ -85,7 +85,7 @@ func ConvertIssues(taskCtx core.SubTaskContext) error {
 				OriginalStatus:          issue.Status,
 				OriginalEstimateMinutes: issue.TimeEstimate,
 				TimeSpentMinutes:        issue.TotalTimeSpent,
-				CreatorId:               userIdGen.Generate(data.Options.ConnectionId, data.Options.ProjectId, issue.CreatorName),
+				CreatorId:               userIdGen.Generate(data.Options.ConnectionId, issue.CreatorName),
 				CreatorName:             issue.CreatorName,
 			}
 

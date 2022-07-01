@@ -30,13 +30,16 @@ connection_id,gitlab_id,merge_request_id,merge_request_iid,noteable_type,author_
 [Compare with previous version](/gitlab-data/snowflake_spend/merge_requests/1/diffs?diff_id=46705949&start_sha=382084b42697577d3a6adf71ce73d4b5ddd22977)",2019-06-28T11:04:01.697+00:00,0,0,1,"{""ConnectionId"":1,""ProjectId"":12345678}",_raw_gitlab_api_merge_request_notes,9,
 1,186537187,32348491,1,MergeRequest,tayloramurphy,mentioned in commit da1d6dea48f5972ffc683da6cff30934e7d6c52c,2019-06-28T14:32:06.002+00:00,0,0,1,"{""ConnectionId"":1,""ProjectId"":12345678}",_raw_gitlab_api_merge_request_notes,10,
 1,186537191,32348491,1,MergeRequest,tayloramurphy,merged,2019-06-28T14:32:06.279+00:00,0,0,1,"{""ConnectionId"":1,""ProjectId"":12345678}",_raw_gitlab_api_merge_request_notes,11,
-1,208185588,35841926,4,MergeRequest,emilie,restored source branch `4-config-is-not-generic-enough`,2019-08-26T15:33:21.878+00:00,0,0,1,"{""ConnectionId"":1,""ProjectId"":12345678}",_raw_gitlab_api_merge_request_notes,12,
-1,208185663,35841926,4,MergeRequest,emilie,assigned to @emilie,2019-08-26T15:33:34.019+00:00,0,0,1,"{""ConnectionId"":1,""ProjectId"":12345678}",_raw_gitlab_api_merge_request_notes,13,
+1,208061122,35064956,3,MergeRequest,emilie,@mg12 This looks good to me. Want me to merge?,2019-08-26T12:14:39.003+00:00,0,0,0,"{""ConnectionId"":1,""ProjectId"":12345678}",_raw_gitlab_api_merge_request_notes,12,
+1,208092969,35064956,3,MergeRequest,martinguindon,@emilie Let's do it!,2019-08-26T13:17:51.707+00:00,0,0,0,"{""ConnectionId"":1,""ProjectId"":12345678}",_raw_gitlab_api_merge_request_notes,13,
+1,208121492,35064956,3,MergeRequest,emilie,assigned to @emilie,2019-08-26T14:14:59.344+00:00,0,0,1,"{""ConnectionId"":1,""ProjectId"":12345678}",_raw_gitlab_api_merge_request_notes,14,
+1,208121682,35064956,3,MergeRequest,emilie,merged,2019-08-26T14:15:27.936+00:00,0,0,1,"{""ConnectionId"":1,""ProjectId"":12345678}",_raw_gitlab_api_merge_request_notes,15,
+1,208121722,35064956,3,MergeRequest,emilie,mentioned in commit d678bea9d47b42eb13512d1c9d6a592d80b432d4,2019-08-26T14:15:33.136+00:00,0,0,1,"{""ConnectionId"":1,""ProjectId"":12345678}",_raw_gitlab_api_merge_request_notes,16,
+1,208121781,35064956,3,MergeRequest,emilie,Merged! Thanks for your contribution @mg12!,2019-08-26T14:15:40.464+00:00,0,0,0,"{""ConnectionId"":1,""ProjectId"":12345678}",_raw_gitlab_api_merge_request_notes,17,
+1,208185588,35841926,4,MergeRequest,emilie,restored source branch `4-config-is-not-generic-enough`,2019-08-26T15:33:21.878+00:00,0,0,1,"{""ConnectionId"":1,""ProjectId"":12345678}",_raw_gitlab_api_merge_request_notes,18,
+1,208185663,35841926,4,MergeRequest,emilie,assigned to @emilie,2019-08-26T15:33:34.019+00:00,0,0,1,"{""ConnectionId"":1,""ProjectId"":12345678}",_raw_gitlab_api_merge_request_notes,19,
 1,208186075,35841926,4,MergeRequest,emilie,"added 1 commit
 
 <ul><li>91e5666b - remove config</li></ul>
 
-[Compare with previous version](/gitlab-data/snowflake_spend/merge_requests/4/diffs?diff_id=52612655&start_sha=d678bea9d47b42eb13512d1c9d6a592d80b432d4)",2019-08-26T15:34:37.958+00:00,0,0,1,"{""ConnectionId"":1,""ProjectId"":12345678}",_raw_gitlab_api_merge_request_notes,14,
-1,208187177,35841926,4,MergeRequest,emilie,unmarked as a **Work In Progress**,2019-08-26T15:37:32.220+00:00,0,0,1,"{""ConnectionId"":1,""ProjectId"":12345678}",_raw_gitlab_api_merge_request_notes,15,
-1,208187300,35841926,4,MergeRequest,emilie,mentioned in commit e95b5db25e15a38e21d11cb45cc21bf17d5c407c,2019-08-26T15:37:49.841+00:00,0,0,1,"{""ConnectionId"":1,""ProjectId"":12345678}",_raw_gitlab_api_merge_request_notes,16,
-1,208187302,35841926,4,MergeRequest,emilie,merged,2019-08-26T15:37:50.123+00:00,0,0,1,"{""ConnectionId"":1,""ProjectId"":12345678}",_raw_gitlab_api_merge_request_notes,17,
+[Compare with previous version](/gitlab-data/snowflake_spend/merge_requests/4/diffs?diff_id=52612655&start_sha=d678bea9d47b42eb13512d1c9d6a592d80b432d4)",2019-08-26T15:34:37.958+00:00,0,0,1,"{""ConnectionId"":1,""ProjectId"":12345678}",_raw_gitlab_api_merge_request_notes,20,
