@@ -214,16 +214,16 @@ func filterColumn(column gorm.ColumnType, opts TableOptions) bool {
 
 func (t *DataFlowTester) getFields(dst schema.Tabler, filter func(column gorm.ColumnType) bool) []string {
 	columnTypes, err := t.Db.Migrator().ColumnTypes(dst)
-	var pkFields []string
+	var fields []string
 	if err != nil {
 		panic(err)
 	}
 	for _, columnType := range columnTypes {
 		if filter == nil || filter(columnType) {
-			pkFields = append(pkFields, columnType.Name())
+			fields = append(fields, columnType.Name())
 		}
 	}
-	return pkFields
+	return fields
 }
 
 // CreateSnapshot reads rows from database and write them into .csv file.
