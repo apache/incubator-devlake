@@ -169,7 +169,7 @@ func ExtractApiIssues(taskCtx core.SubTaskContext) error {
 			if err != nil {
 				return nil, err
 			}
-			
+
 			if body.ProjectId == 0 {
 				return nil, nil
 			}
