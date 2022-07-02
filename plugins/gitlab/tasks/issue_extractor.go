@@ -53,8 +53,8 @@ type IssuesResponse struct {
 	}
 	Author struct {
 		State     string
-		WebUrl    string
-		AvatarUrl string
+		WebUrl    string `json:"web_url"`
+		AvatarUrl string `json:"avatar_url"`
 		Username  string
 		Id        int
 		Name      string
@@ -63,8 +63,8 @@ type IssuesResponse struct {
 	State       string
 	Iid         int
 	Assignees   []struct {
-		AvatarUrl string
-		WebUrl    string
+		AvatarUrl string `json:"avatar_url"`
+		WebUrl    string `json:"web_url"`
 		State     string
 		Username  string
 		Id        int
@@ -169,7 +169,7 @@ func ExtractApiIssues(taskCtx core.SubTaskContext) error {
 			if err != nil {
 				return nil, err
 			}
-			// need to extract 2 kinds of entities here
+			
 			if body.ProjectId == 0 {
 				return nil, nil
 			}
@@ -230,7 +230,25 @@ func ExtractApiIssues(taskCtx core.SubTaskContext) error {
 
 			}
 			gitlabIssue.ConnectionId = data.Options.ConnectionId
+
+			gitlabAuthor, err := convertGitlabAuthor(body, data.Options.ConnectionId)
+			if err != nil {
+				return nil, err
+			}
 			results = append(results, gitlabIssue)
+			results = append(results, gitlabAuthor)
+
+			for _, v := range body.Assignees {
+				GitlabAssignee := &models.GitlabAssignee{
+					ConnectionId: data.Options.ConnectionId,
+					Username:     v.Username,
+					Name:         v.Name,
+					State:        v.State,
+					AvatarUrl:    v.AvatarUrl,
+					WebUrl:       v.WebUrl,
+				}
+				results = append(results, GitlabAssignee)
+			}
 
 			return results, nil
 		},
@@ -242,6 +260,7 @@ func ExtractApiIssues(taskCtx core.SubTaskContext) error {
 
 	return extractor.Execute()
 }
+
 func convertGitlabIssue(issue *IssuesResponse, projectId int) (*models.GitlabIssue, error) {
 	gitlabIssue := &models.GitlabIssue{
 		GitlabId:        issue.Id,
@@ -270,4 +289,17 @@ func convertGitlabIssue(issue *IssuesResponse, projectId int) (*models.GitlabIss
 	}
 
 	return gitlabIssue, nil
+}
+
+func convertGitlabAuthor(issue *IssuesResponse, connectionId uint64) (*models.GitlabAuthor, error) {
+	gitlabAuthor := &models.GitlabAuthor{
+		ConnectionId: connectionId,
+		Username:     issue.Author.Username,
+		Name:         issue.Author.Name,
+		State:        issue.Author.State,
+		AvatarUrl:    issue.Author.AvatarUrl,
+		WebUrl:       issue.Author.WebUrl,
+	}
+
+	return gitlabAuthor, nil
 }

@@ -54,12 +54,12 @@ func CollectUsers(taskCtx core.SubTaskContext) error {
 		},
 
 		ResponseParser: func(res *http.Response) ([]json.RawMessage, error) {
-			var result json.RawMessage
-			err := helper.UnmarshalResponse(res, &result)
+			var items []json.RawMessage
+			err := helper.UnmarshalResponse(res, &items)
 			if err != nil {
 				return nil, err
 			}
-			return []json.RawMessage{result}, nil
+			return items, nil
 		},
 	})
 

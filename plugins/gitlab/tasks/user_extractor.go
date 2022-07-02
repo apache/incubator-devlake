@@ -38,26 +38,23 @@ func ExtractUsers(taskCtx core.SubTaskContext) error {
 	extractor, err := helper.NewApiExtractor(helper.ApiExtractorArgs{
 		RawDataSubTaskArgs: *rawDataSubTaskArgs,
 		Extract: func(row *helper.RawData) ([]interface{}, error) {
-			var userRes []models.GitlabUser
+			var userRes models.GitlabUser
 			err := json.Unmarshal(row.Data, &userRes)
 			if err != nil {
 				return nil, err
 			}
 
 			results := make([]interface{}, 0)
-			for _, v := range userRes {
-				toolL := &models.GitlabUser{
-					ConnectionId:    data.Options.ConnectionId,
-					Username:        v.Username,
-					Name:            v.Name,
-					State:           v.State,
-					MembershipState: v.MembershipState,
-					AvatarUrl:       v.AvatarUrl,
-					WebUrl:          v.WebUrl,
-				}
-				results = append(results, toolL)
+			GitlabUser := &models.GitlabUser{
+				ConnectionId:    data.Options.ConnectionId,
+				Username:        userRes.Username,
+				Name:            userRes.Name,
+				State:           userRes.State,
+				MembershipState: userRes.MembershipState,
+				AvatarUrl:       userRes.AvatarUrl,
+				WebUrl:          userRes.WebUrl,
 			}
-
+			results = append(results, GitlabUser)
 			return results, nil
 		},
 	})
