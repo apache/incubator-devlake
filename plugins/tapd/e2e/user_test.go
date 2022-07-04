@@ -52,7 +52,6 @@ func TestTapdUserDataFlow(t *testing.T) {
 		fmt.Sprintf("./snapshot_tables/%s.csv", models.TapdUser{}.TableName()),
 		[]string{
 			"connection_id",
-			"workspace_id",
 			"user",
 			"name",
 			"_raw_data_params",

@@ -18,9 +18,10 @@ limitations under the License.
 package tasks
 
 import (
-	"github.com/apache/incubator-devlake/models/domainlayer/didgen"
 	"reflect"
 	"strconv"
+
+	"github.com/apache/incubator-devlake/models/domainlayer/didgen"
 
 	"github.com/apache/incubator-devlake/plugins/core/dal"
 
@@ -71,9 +72,9 @@ func ConvertBug(taskCtx core.SubTaskContext) error {
 				//UpdatedDate:    (*time.Time)(toolL.Modified),
 				ParentIssueId:  issueIdGen.Generate(toolL.ConnectionId, toolL.IssueId),
 				Priority:       toolL.Priority,
-				CreatorId:      userIdGen.Generate(data.Options.ConnectionId, toolL.WorkspaceId, toolL.Reporter),
+				CreatorId:      userIdGen.Generate(data.Options.ConnectionId, toolL.Reporter),
 				CreatorName:    toolL.Reporter,
-				AssigneeId:     userIdGen.Generate(data.Options.ConnectionId, toolL.WorkspaceId, toolL.CurrentOwner),
+				AssigneeId:     userIdGen.Generate(data.Options.ConnectionId, toolL.CurrentOwner),
 				AssigneeName:   toolL.CurrentOwner,
 				Severity:       toolL.Severity,
 				Component:      toolL.Feature, // todo not sure about this

@@ -57,7 +57,7 @@ func ConvertWorklog(taskCtx core.SubTaskContext) error {
 				DomainEntity: domainlayer.DomainEntity{
 					Id: worklogIdGen.Generate(data.Options.ConnectionId, toolL.Id),
 				},
-				AuthorId:         userIdGen.Generate(data.Options.ConnectionId, toolL.WorkspaceId, toolL.Owner),
+				AuthorId:         userIdGen.Generate(data.Options.ConnectionId, toolL.Owner),
 				Comment:          toolL.Memo,
 				TimeSpentMinutes: int(toolL.Timespent),
 				LoggedDate:       (*time.Time)(toolL.Created),
