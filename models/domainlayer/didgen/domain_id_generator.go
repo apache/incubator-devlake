@@ -96,8 +96,9 @@ func (g *DomainIdGenerator) Generate(pkValues ...interface{}) string {
 		if pkValueType == wildcardType {
 			break
 		} else if pkValueType != g.pkTypes[i] {
-			panic(fmt.Errorf("primary key type does not match: %s should be %s",
+			panic(fmt.Errorf("primary key type does not match: %s is %s type, and it should be %s type",
 				g.pkNames[i],
+				pkValueType.Name(),
 				g.pkTypes[i].Name(),
 			))
 		}

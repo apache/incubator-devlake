@@ -17,12 +17,20 @@ limitations under the License.
 
 package models
 
-import "github.com/apache/incubator-devlake/models/common"
+import (
+	"github.com/apache/incubator-devlake/models/common"
+)
 
 type GitlabUser struct {
-	ConnectionId uint64 `gorm:"primaryKey"`
-	Email        string `gorm:"primaryKey;type:varchar(255)"`
-	Name         string `gorm:"type:varchar(255)"`
+	ConnectionId    uint64 `gorm:"primaryKey"`
+	Username        string `gorm:"primaryKey;type:varchar(255)"`
+	Email           string `gorm:"type:varchar(255)"`
+	Name            string `gorm:"type:varchar(255)"`
+	State           string `gorm:"type:varchar(255)"`
+	MembershipState string `json:"membership_state" gorm:"type:varchar(255)"`
+	AvatarUrl       string `json:"avatar_url" gorm:"type:varchar(255)"`
+	WebUrl          string `json:"web_url" gorm:"type:varchar(255)"`
+
 	common.NoPKModel
 }
 

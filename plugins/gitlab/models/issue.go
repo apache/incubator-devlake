@@ -18,25 +18,25 @@ limitations under the License.
 package models
 
 import (
-	"github.com/apache/incubator-devlake/models/common"
 	"time"
+
+	"github.com/apache/incubator-devlake/models/common"
 )
 
 type GitlabIssue struct {
-	ConnectionId uint64 `gorm:"primaryKey"`
-	GitlabId     int    `gorm:"primaryKey"`
-	ProjectId    int    `gorm:"index"`
-	Number       int    `gorm:"index;comment:Used in API requests ex. api/repo/1/issue/<THIS_NUMBER>"`
-	State        string `gorm:"type:varchar(255)"`
-	Title        string
-	Body         string
-	Priority     string `gorm:"type:varchar(255)"`
-	Type         string `gorm:"type:varchar(100)"`
-	Status       string `gorm:"type:varchar(255)"`
-	//User 			domainUser.User `gorm:"foreignKey:CreatorId"`
+	ConnectionId    uint64 `gorm:"primaryKey"`
+	GitlabId        int    `gorm:"primaryKey"`
+	ProjectId       int    `gorm:"index"`
+	Number          int    `gorm:"index;comment:Used in API requests ex. api/repo/1/issue/<THIS_NUMBER>"`
+	State           string `gorm:"type:varchar(255)"`
+	Title           string
+	Body            string
+	Priority        string `gorm:"type:varchar(255)"`
+	Type            string `gorm:"type:varchar(100)"`
+	Status          string `gorm:"type:varchar(255)"`
 	CreatorId       string `gorm:"type:varchar(255)"`
 	CreatorName     string `gorm:"type:varchar(255)"`
-	AssigneeId      string `gorm:"type:varchar(255)"`
+	AssigneeId      int
 	AssigneeName    string `gorm:"type:varchar(255)"`
 	LeadTimeMinutes uint
 	Url             string `gorm:"type:varchar(255)"`
@@ -52,4 +52,38 @@ type GitlabIssue struct {
 
 func (GitlabIssue) TableName() string {
 	return "_tool_gitlab_issues"
+}
+
+type GitlabAuthor struct {
+	ConnectionId    uint64 `gorm:"primaryKey"`
+	Username        string `gorm:"primaryKey;type:varchar(255)"`
+	Email           string `gorm:"type:varchar(255)"`
+	Name            string `gorm:"type:varchar(255)"`
+	State           string `gorm:"type:varchar(255)"`
+	MembershipState string `json:"membership_state" gorm:"type:varchar(255)"`
+	AvatarUrl       string `json:"avatar_url" gorm:"type:varchar(255)"`
+	WebUrl          string `json:"web_url" gorm:"type:varchar(255)"`
+
+	common.NoPKModel
+}
+
+func (GitlabAuthor) TableName() string {
+	return "_tool_gitlab_users"
+}
+
+type GitlabAssignee struct {
+	ConnectionId    uint64 `gorm:"primaryKey"`
+	Username        string `gorm:"primaryKey;type:varchar(255)"`
+	Email           string `gorm:"type:varchar(255)"`
+	Name            string `gorm:"type:varchar(255)"`
+	State           string `gorm:"type:varchar(255)"`
+	MembershipState string `json:"membership_state" gorm:"type:varchar(255)"`
+	AvatarUrl       string `json:"avatar_url" gorm:"type:varchar(255)"`
+	WebUrl          string `json:"web_url" gorm:"type:varchar(255)"`
+
+	common.NoPKModel
+}
+
+func (GitlabAssignee) TableName() string {
+	return "_tool_gitlab_users"
 }

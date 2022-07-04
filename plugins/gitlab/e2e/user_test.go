@@ -22,12 +22,13 @@ import (
 	"testing"
 
 	"github.com/apache/incubator-devlake/helpers/e2ehelper"
+	"github.com/apache/incubator-devlake/models/domainlayer/user"
 	"github.com/apache/incubator-devlake/plugins/gitlab/impl"
 	"github.com/apache/incubator-devlake/plugins/gitlab/models"
 	"github.com/apache/incubator-devlake/plugins/gitlab/tasks"
 )
 
-func TestGitlabPipelineDataFlow(t *testing.T) {
+func TestGitlabUserDataFlow(t *testing.T) {
 
 	var gitlab impl.Gitlab
 	dataflowTester := e2ehelper.NewDataFlowTester(t, "gitlab", gitlab)
@@ -38,33 +39,49 @@ func TestGitlabPipelineDataFlow(t *testing.T) {
 			ProjectId:    12345678,
 		},
 	}
+
 	// import raw data table
-	dataflowTester.ImportCsvIntoRawTable("./raw_tables/_raw_gitlab_api_pipeline.csv",
-		"_raw_gitlab_api_pipeline")
+	dataflowTester.ImportCsvIntoRawTable("./raw_tables/_raw_gitlab_api_users.csv",
+		"_raw_gitlab_api_users")
 
 	// verify extraction
-	dataflowTester.FlushTabler(&models.GitlabPipeline{})
-	dataflowTester.Subtask(tasks.ExtractApiPipelinesMeta, taskData)
+	dataflowTester.FlushTabler(&models.GitlabUser{})
+	dataflowTester.Subtask(tasks.ExtractUserMeta, taskData)
 	dataflowTester.VerifyTable(
-		models.GitlabPipeline{},
-		fmt.Sprintf("./snapshot_tables/%s.csv", models.GitlabPipeline{}.TableName()),
+		models.GitlabUser{},
+		fmt.Sprintf("./snapshot_tables/%s.csv", models.GitlabUser{}.TableName()),
 		[]string{
 			"connection_id",
-			"gitlab_id",
-			"project_id",
-			"gitlab_created_at",
-			"status",
-			"ref",
-			"sha",
+			"username",
+			"email",
+			"name",
+			"state",
+			"membership_state",
+			"avatar_url",
 			"web_url",
-			"duration",
-			"started_at",
-			"finished_at",
-			"coverage",
 			"_raw_data_params",
 			"_raw_data_table",
 			"_raw_data_id",
 			"_raw_data_remark",
+		},
+	)
+
+	// verify conversion
+	dataflowTester.FlushTabler(&user.User{})
+	dataflowTester.Subtask(tasks.ConvertUsersMeta, taskData)
+	dataflowTester.VerifyTable(
+		user.User{},
+		fmt.Sprintf("./snapshot_tables/%s.csv", user.User{}.TableName()),
+		[]string{
+			"id",
+			"_raw_data_params",
+			"_raw_data_table",
+			"_raw_data_id",
+			"_raw_data_remark",
+			"name",
+			"email",
+			"avatar_url",
+			"timezone",
 		},
 	)
 }
