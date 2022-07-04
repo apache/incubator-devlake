@@ -21,9 +21,9 @@ import "github.com/apache/incubator-devlake/models/migrationscripts/archived"
 
 type TapdUser struct {
 	ConnectionId uint64 `gorm:"primaryKey;type:BIGINT"`
-	WorkspaceId  uint64 `gorm:"primaryKey;type:BIGINT"`
-	Name         string `gorm:"index;type:varchar(255)" json:"name"`
 	User         string `gorm:"primaryKey;type:varchar(255)" json:"user"`
+	Name         string `gorm:"index;type:varchar(255)" json:"name"`
+
 	archived.NoPKModel
 }
 

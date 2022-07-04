@@ -84,7 +84,7 @@ func ConvertBugChangelog(taskCtx core.SubTaskContext) error {
 					Id: clIdGen.Generate(data.Options.ConnectionId, cl.Id, cl.Field),
 				},
 				IssueId:           issueIdGen.Generate(data.Options.ConnectionId, cl.BugId),
-				AuthorId:          userIdGen.Generate(data.Options.ConnectionId, data.Options.WorkspaceId, cl.Author),
+				AuthorId:          userIdGen.Generate(data.Options.ConnectionId, cl.Author),
 				AuthorName:        cl.Author,
 				FieldId:           cl.Field,
 				FieldName:         cl.Field,
