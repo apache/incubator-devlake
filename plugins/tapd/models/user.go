@@ -23,7 +23,7 @@ type TapdUser struct {
 	ConnectionId uint64 `gorm:"primaryKey;type:BIGINT"`
 	User         string `gorm:"primaryKey;type:varchar(255)" json:"user"`
 	Name         string `gorm:"index;type:varchar(255)" json:"name"`
-	
+
 	common.NoPKModel
 }
 
