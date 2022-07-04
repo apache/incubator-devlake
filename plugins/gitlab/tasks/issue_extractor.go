@@ -19,12 +19,12 @@ package tasks
 
 import (
 	"encoding/json"
-	"regexp"
-	"strconv"
 	"github.com/apache/incubator-devlake/models/domainlayer/ticket"
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/gitlab/models"
 	"github.com/apache/incubator-devlake/plugins/helper"
+	"regexp"
+	"strconv"
 )
 
 var ExtractApiIssuesMeta = core.SubTaskMeta{
@@ -277,7 +277,7 @@ func convertGitlabIssue(issue *IssuesResponse, projectId int) (*models.GitlabIss
 	}
 
 	if issue.Assignee != nil {
-		gitlabIssue.AssigneeId = strconv.Itoa(issue.Assignee.Id)
+		gitlabIssue.AssigneeId = issue.Assignee.Id
 		gitlabIssue.AssigneeName = issue.Assignee.Username
 	}
 	if issue.Author.Username != "" {

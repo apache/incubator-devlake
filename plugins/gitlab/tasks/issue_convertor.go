@@ -29,7 +29,6 @@ import (
 	"github.com/apache/incubator-devlake/models/domainlayer"
 	"github.com/apache/incubator-devlake/models/domainlayer/didgen"
 	"github.com/apache/incubator-devlake/models/domainlayer/ticket"
-	"github.com/apache/incubator-devlake/plugins/gitlab/models"
 	gitlabModels "github.com/apache/incubator-devlake/plugins/gitlab/models"
 )
 
@@ -60,7 +59,6 @@ func ConvertIssues(taskCtx core.SubTaskContext) error {
 	issueIdGen := didgen.NewDomainIdGenerator(&gitlabModels.GitlabIssue{})
 	userIdGen := didgen.NewDomainIdGenerator(&gitlabModels.GitlabUser{})
 	boardIdGen := didgen.NewDomainIdGenerator(&gitlabModels.GitlabProject{})
-	userIdGen := didgen.NewDomainIdGenerator(&models.GitlabUser{})
 
 	converter, err := helper.NewDataConverter(helper.DataConverterArgs{
 		RawDataSubTaskArgs: *rawDataSubTaskArgs,
@@ -87,6 +85,8 @@ func ConvertIssues(taskCtx core.SubTaskContext) error {
 				TimeSpentMinutes:        issue.TotalTimeSpent,
 				CreatorId:               userIdGen.Generate(data.Options.ConnectionId, issue.CreatorName),
 				CreatorName:             issue.CreatorName,
+				AssigneeId:				 userIdGen.Generate(data.Options.ConnectionId, string(issue.AssigneeId)),
+				AssigneeName:			 issue.AssigneeName,
 			}
 
 			if issue.State == "opened" {
@@ -94,18 +94,7 @@ func ConvertIssues(taskCtx core.SubTaskContext) error {
 			} else {
 				domainIssue.Status = ticket.DONE
 			}
-			if issue.CreatorId != "" {
-				domainIssue.CreatorId = userIdGen.Generate(data.Options.ConnectionId, issue.CreatorId)
-			}
-			if issue.CreatorName != "" {
-				domainIssue.CreatorName = issue.CreatorName
-			}
-			if issue.AssigneeId != "" {
-				domainIssue.AssigneeId = userIdGen.Generate(data.Options.ConnectionId, issue.AssigneeId)
-			}
-			if issue.AssigneeName != "" {
-				domainIssue.AssigneeName = issue.AssigneeName
-			}
+
 			boardIssue := &ticket.BoardIssue{
 				BoardId: boardIdGen.Generate(data.Options.ConnectionId, projectId),
 				IssueId: domainIssue.Id,
