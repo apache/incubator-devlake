@@ -18,8 +18,9 @@ limitations under the License.
 package tasks
 
 import (
-	"github.com/apache/incubator-devlake/plugins/core/dal"
 	"reflect"
+
+	"github.com/apache/incubator-devlake/plugins/core/dal"
 
 	"github.com/apache/incubator-devlake/models/domainlayer/code"
 	"github.com/apache/incubator-devlake/models/domainlayer/didgen"
@@ -73,14 +74,14 @@ func ConvertApiCommits(taskCtx core.SubTaskContext) error {
 			commit.Message = gitlabCommit.Message
 			commit.Additions = gitlabCommit.Additions
 			commit.Deletions = gitlabCommit.Deletions
-			commit.AuthorId = userDidGen.Generate(data.Options.ConnectionId, gitlabCommit.AuthorEmail)
+			commit.AuthorId = userDidGen.Generate(data.Options.ConnectionId, gitlabCommit.AuthorName)
 			commit.AuthorName = gitlabCommit.AuthorName
 			commit.AuthorEmail = gitlabCommit.AuthorEmail
 			commit.AuthoredDate = gitlabCommit.AuthoredDate
 			commit.CommitterName = gitlabCommit.CommitterName
 			commit.CommitterEmail = gitlabCommit.CommitterEmail
 			commit.CommittedDate = gitlabCommit.CommittedDate
-			commit.CommitterId = userDidGen.Generate(data.Options.ConnectionId, gitlabCommit.AuthorEmail)
+			commit.CommitterId = userDidGen.Generate(data.Options.ConnectionId, gitlabCommit.AuthorName)
 
 			// convert repo / commits relationship
 			repoCommit := &code.RepoCommit{
