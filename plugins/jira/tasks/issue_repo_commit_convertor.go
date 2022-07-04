@@ -18,9 +18,12 @@ limitations under the License.
 package tasks
 
 import (
-	"github.com/apache/incubator-devlake/plugins/core/dal"
+	"fmt"
 	"reflect"
 	"regexp"
+	"runtime/debug"
+
+	"github.com/apache/incubator-devlake/plugins/core/dal"
 
 	"github.com/apache/incubator-devlake/models/domainlayer/crossdomain"
 	"github.com/apache/incubator-devlake/models/domainlayer/didgen"
@@ -47,8 +50,12 @@ func ConvertIssueRepoCommits(taskCtx core.SubTaskContext) error {
 	logger := taskCtx.GetLogger()
 	logger.Info("convert issue repo commits")
 	var commitRepoUrlRegex *regexp.Regexp
+	var err error
 	commitRepoUrlPattern := `(.*)\-\/commit`
-	commitRepoUrlRegex = regexp.MustCompile(commitRepoUrlPattern)
+	commitRepoUrlRegex, err = regexp.Compile(commitRepoUrlPattern)
+	if err != nil {
+		return fmt.Errorf("regexp Compile commitRepoUrlPattern failed:[%s] stack:[%s]", err.Error(), debug.Stack())
+	}
 
 	clause := []dal.Clause{
 		dal.From("_tool_jira_issue_commits jic"),

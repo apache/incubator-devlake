@@ -21,6 +21,7 @@ import (
 	"errors"
 	"fmt"
 	"os"
+	"runtime/debug"
 
 	"path/filepath"
 	"regexp"
@@ -88,9 +89,9 @@ func replaceNewEnvItemInOldContent(v *viper.Viper, envFileContent string) (error
 		encodeEnvName := encodeEnvNameReg.ReplaceAllStringFunc(envName, func(s string) string {
 			return fmt.Sprintf(`\%v`, s)
 		})
-		envItemReg := regexp.MustCompile(fmt.Sprintf(`(?im)^\s*%v\s*\=.*$`, encodeEnvName))
-		if envItemReg == nil {
-			return fmt.Errorf("regexp err"), ``
+		envItemReg, err := regexp.Compile(fmt.Sprintf(`(?im)^\s*%v\s*\=.*$`, encodeEnvName))
+		if err != nil {
+			return fmt.Errorf("regexp Compile failed:[%s] stack:[%s]", err.Error(), debug.Stack()), ``
 		}
 		envFileContent = envItemReg.ReplaceAllStringFunc(envFileContent, func(s string) string {
 			switch ret := val.(type) {
