@@ -44,14 +44,8 @@ type GithubApiPullRequest struct {
 	Labels   []struct {
 		Name string `json:"name"`
 	} `json:"labels"`
-	Assignee *struct {
-		Login string
-		Id    int
-	}
-	User *struct {
-		Id    int
-		Login string
-	}
+	Assignee        *GithubUserResponse
+	User            *GithubUserResponse
 	ClosedAt        *helper.Iso8601Time `json:"closed_at"`
 	MergedAt        *helper.Iso8601Time `json:"merged_at"`
 	GithubCreatedAt helper.Iso8601Time  `json:"created_at"`
@@ -114,6 +108,15 @@ func ExtractApiPullRequests(taskCtx core.SubTaskContext) error {
 			if err != nil {
 				return nil, err
 			}
+			if rawL.User != nil {
+				githubUser, err := convertUser(rawL.User, data.Options.ConnectionId)
+				if err != nil {
+					return nil, err
+				}
+				results = append(results, githubUser)
+				githubPr.AuthorName = githubUser.Login
+				githubPr.AuthorId = githubUser.Id
+			}
 			for _, label := range rawL.Labels {
 				results = append(results, &models.GithubPullRequestLabel{
 					ConnectionId: data.Options.ConnectionId,
@@ -157,8 +160,6 @@ func convertGithubPullRequest(pull *GithubApiPullRequest, connId uint64, repoId 
 		State:           pull.State,
 		Title:           pull.Title,
 		Url:             pull.HtmlUrl,
-		AuthorName:      pull.User.Login,
-		AuthorId:        pull.User.Id,
 		GithubCreatedAt: pull.GithubCreatedAt.ToTime(),
 		GithubUpdatedAt: pull.GithubUpdatedAt.ToTime(),
 		ClosedAt:        helper.Iso8601TimeToTime(pull.ClosedAt),

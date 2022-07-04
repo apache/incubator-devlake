@@ -50,14 +50,8 @@ type IssuesResponse struct {
 		Name string `json:"name"`
 	} `json:"labels"`
 
-	Assignee *struct {
-		Login string
-		Id    int
-	}
-	User *struct {
-		Login string
-		Id    int
-	}
+	Assignee        *GithubUserResponse
+	User            *GithubUserResponse
 	ClosedAt        *helper.Iso8601Time `json:"closed_at"`
 	GithubCreatedAt helper.Iso8601Time  `json:"created_at"`
 	GithubUpdatedAt helper.Iso8601Time  `json:"updated_at"`
@@ -133,6 +127,24 @@ func ExtractApiIssues(taskCtx core.SubTaskContext) error {
 			if err != nil {
 				return nil, err
 			}
+			if body.Assignee != nil {
+				githubIssue.AssigneeId = body.Assignee.Id
+				githubIssue.AssigneeName = body.Assignee.Login
+				relatedUser, err := convertUser(body.Assignee, data.Options.ConnectionId)
+				if err != nil {
+					return nil, err
+				}
+				results = append(results, relatedUser)
+			}
+			if body.User != nil {
+				githubIssue.AuthorId = body.User.Id
+				githubIssue.AuthorName = body.User.Login
+				relatedUser, err := convertUser(body.User, data.Options.ConnectionId)
+				if err != nil {
+					return nil, err
+				}
+				results = append(results, relatedUser)
+			}
 			for _, label := range body.Labels {
 				results = append(results, &models.GithubIssueLabel{
 					ConnectionId: data.Options.ConnectionId,
@@ -203,15 +215,6 @@ func convertGithubIssue(issue *IssuesResponse, connectionId uint64, repositoryId
 		ClosedAt:        helper.Iso8601TimeToTime(issue.ClosedAt),
 		GithubCreatedAt: issue.GithubCreatedAt.ToTime(),
 		GithubUpdatedAt: issue.GithubUpdatedAt.ToTime(),
-	}
-
-	if issue.Assignee != nil {
-		githubIssue.AssigneeId = issue.Assignee.Id
-		githubIssue.AssigneeName = issue.Assignee.Login
-	}
-	if issue.User != nil {
-		githubIssue.AuthorId = issue.User.Id
-		githubIssue.AuthorName = issue.User.Login
 	}
 	if issue.ClosedAt != nil {
 		githubIssue.LeadTimeMinutes = uint(issue.ClosedAt.ToTime().Sub(issue.GithubCreatedAt.ToTime()).Minutes())
