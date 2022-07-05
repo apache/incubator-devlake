@@ -52,7 +52,6 @@ type Team struct {
 	Name         string `gorm:"type:varchar(255)"`
 	Alias        string `gorm:"type:varchar(255)"`
 	ParentId     string `gorm:"type:varchar(255)"`
-	OrgId        string `gorm:"type:varchar(255)"`
 	SortingIndex int
 }
 
