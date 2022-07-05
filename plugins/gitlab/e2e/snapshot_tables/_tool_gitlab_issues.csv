@@ -1,28 +1,28 @@
-connection_id,gitlab_id,project_id,number,state,title,body,priority,type,status,assignee_id,assignee_name,lead_time_minutes,url,closed_at,gitlab_created_at,gitlab_updated_at,severity,component,time_estimate,total_time_spent,_raw_data_params,_raw_data_table,_raw_data_id,_raw_data_remark
-1,22097949,12345678,1,closed,Add documentation to snowflake spend package,,,,,2295562,emilie,11487,,2019-06-28T14:32:05.376+00:00,2019-06-20T15:04:58.946+00:00,2019-06-28T14:32:05.434+00:00,,,0,0,"{""ConnectionId"":1,""ProjectId"":12345678}",_raw_gitlab_api_issues,1,
-1,23413488,12345678,2,closed,Handle multiple prices and date ranges,https://gitlab.com/gitlab-data/analytics/issues/2098,,,,0,,4368,,2019-08-04T22:24:40.978+00:00,2019-08-01T21:36:28.766+00:00,2019-08-04T22:24:41.244+00:00,,,0,0,"{""ConnectionId"":1,""ProjectId"":12345678}",_raw_gitlab_api_issues,2,
-1,23577209,12345678,3,opened,Expand package,I wonder how much more we can do with this https://www.tableau.com/about/blog/2019/5/monitor-understand-snowflake-account-usage,,,,0,,0,,,2019-08-07T13:52:40.231+00:00,2020-04-08T20:53:43.146+00:00,,,0,0,"{""ConnectionId"":1,""ProjectId"":12345678}",_raw_gitlab_api_issues,3,
-1,23812433,12345678,4,closed,Config is not generic enough,Not everybody is going to have role reporter or schema analytics,,,,0,,15823,,2019-08-26T15:37:49.678+00:00,2019-08-15T15:54:17.378+00:00,2019-08-26T15:37:49.718+00:00,,,0,0,"{""ConnectionId"":1,""ProjectId"":12345678}",_raw_gitlab_api_issues,4,
+connection_id,gitlab_id,project_id,number,state,title,body,priority,type,status,assignee_id,assignee_name,creator_id,creator_name,lead_time_minutes,url,closed_at,gitlab_created_at,gitlab_updated_at,severity,component,time_estimate,total_time_spent,_raw_data_params,_raw_data_table,_raw_data_id,_raw_data_remark
+1,22097949,12345678,1,closed,Add documentation to snowflake spend package,,,,,2295562,emilie,2295562,emilie,11487,,2019-06-28T14:32:05.376+00:00,2019-06-20T15:04:58.946+00:00,2019-06-28T14:32:05.434+00:00,,,0,0,"{""ConnectionId"":1,""ProjectId"":12345678}",_raw_gitlab_api_issues,1,
+1,23413488,12345678,2,closed,Handle multiple prices and date ranges,https://gitlab.com/gitlab-data/analytics/issues/2098,,,,0,,1942272,tayloramurphy,4368,,2019-08-04T22:24:40.978+00:00,2019-08-01T21:36:28.766+00:00,2019-08-04T22:24:41.244+00:00,,,0,0,"{""ConnectionId"":1,""ProjectId"":12345678}",_raw_gitlab_api_issues,2,
+1,23577209,12345678,3,opened,Expand package,I wonder how much more we can do with this https://www.tableau.com/about/blog/2019/5/monitor-understand-snowflake-account-usage,,,,0,,2295562,emilie,0,,,2019-08-07T13:52:40.231+00:00,2020-04-08T20:53:43.146+00:00,,,0,0,"{""ConnectionId"":1,""ProjectId"":12345678}",_raw_gitlab_api_issues,3,
+1,23812433,12345678,4,closed,Config is not generic enough,Not everybody is going to have role reporter or schema analytics,,,,0,,1942272,tayloramurphy,15823,,2019-08-26T15:37:49.678+00:00,2019-08-15T15:54:17.378+00:00,2019-08-26T15:37:49.718+00:00,,,0,0,"{""ConnectionId"":1,""ProjectId"":12345678}",_raw_gitlab_api_issues,4,
 1,23816268,12345678,5,closed,Update README to include steps to resolve a potential dbt-utils conflict,"Depending on the main project configuration for packages, adding snowflake_spend may return an error about duplicate dbt-utils projects.
 
-I'll update the README to include details and how to resolve it.",,,,0,,15543,,2019-08-26T14:15:27.808+00:00,2019-08-15T19:11:30.169+00:00,2019-08-26T14:15:32.854+00:00,,,0,0,"{""ConnectionId"":1,""ProjectId"":12345678}",_raw_gitlab_api_issues,5,
-1,24172103,12345678,6,closed,Document release process,,,,,5212782,m_walker,325745,,2020-04-08T20:52:10.973+00:00,2019-08-26T15:46:58.045+00:00,2020-04-08T20:52:11.010+00:00,,,0,0,"{""ConnectionId"":1,""ProjectId"":12345678}",_raw_gitlab_api_issues,6,
-1,32460839,12345678,7,closed,Add sources and cleanup structure,,,,,2295562,emilie,18174,,2020-04-07T12:51:53.273+00:00,2020-03-25T21:56:57.084+00:00,2020-04-07T12:51:53.563+00:00,,,0,0,"{""ConnectionId"":1,""ProjectId"":12345678}",_raw_gitlab_api_issues,7,
-1,32667832,12345678,8,closed,Add reviewer roulette to the package,https://gitlab.com/gitlab-org/gitlab/-/tree/master/danger/roulette,,,,0,,166318,,2020-07-24T20:32:07.650+00:00,2020-03-31T08:33:30.240+00:00,2020-07-24T20:32:07.689+00:00,,,0,0,"{""ConnectionId"":1,""ProjectId"":12345678}",_raw_gitlab_api_issues,8,
-1,33004486,12345678,9,closed,Make sure I can run locally the models,,,,,4189780,mpeychet_,155740,,2020-07-24T20:31:52.819+00:00,2020-04-07T16:50:58.253+00:00,2020-07-24T20:31:52.872+00:00,,,0,0,"{""ConnectionId"":1,""ProjectId"":12345678}",_raw_gitlab_api_issues,9,
+I'll update the README to include details and how to resolve it.",,,,0,,3871284,martinguindon,15543,,2019-08-26T14:15:27.808+00:00,2019-08-15T19:11:30.169+00:00,2019-08-26T14:15:32.854+00:00,,,0,0,"{""ConnectionId"":1,""ProjectId"":12345678}",_raw_gitlab_api_issues,5,
+1,24172103,12345678,6,closed,Document release process,,,,,5212782,m_walker,2295562,emilie,325745,,2020-04-08T20:52:10.973+00:00,2019-08-26T15:46:58.045+00:00,2020-04-08T20:52:11.010+00:00,,,0,0,"{""ConnectionId"":1,""ProjectId"":12345678}",_raw_gitlab_api_issues,6,
+1,32460839,12345678,7,closed,Add sources and cleanup structure,,,,,2295562,emilie,1942272,tayloramurphy,18174,,2020-04-07T12:51:53.273+00:00,2020-03-25T21:56:57.084+00:00,2020-04-07T12:51:53.563+00:00,,,0,0,"{""ConnectionId"":1,""ProjectId"":12345678}",_raw_gitlab_api_issues,7,
+1,32667832,12345678,8,closed,Add reviewer roulette to the package,https://gitlab.com/gitlab-org/gitlab/-/tree/master/danger/roulette,,,,0,,2295562,emilie,166318,,2020-07-24T20:32:07.650+00:00,2020-03-31T08:33:30.240+00:00,2020-07-24T20:32:07.689+00:00,,,0,0,"{""ConnectionId"":1,""ProjectId"":12345678}",_raw_gitlab_api_issues,8,
+1,33004486,12345678,9,closed,Make sure I can run locally the models,,,,,4189780,mpeychet_,4189780,mpeychet_,155740,,2020-07-24T20:31:52.819+00:00,2020-04-07T16:50:58.253+00:00,2020-07-24T20:31:52.872+00:00,,,0,0,"{""ConnectionId"":1,""ProjectId"":12345678}",_raw_gitlab_api_issues,9,
 1,47175437,12345678,10,closed,Create alert for missing phone number and emergency contact in BambooHR,"Hi team, per this [issue](https://gitlab.com/gitlab-com/people-group/total-rewards/-/issues/140#note_362993437), can you please help us in creating an alert for missing phone numbers and emergency contacts. 
 
 Regarding phone number, we only require 1 of the 3 fields filled out (Work Home, Home Phone, Mobile Phone). Is there a way to create an alert for this **only** if all 3 fields are missing info? 
 
-Thanks!",,,,0,,29952,,2020-07-08T19:05:30.953+00:00,2020-06-17T23:52:31.133+00:00,2020-07-08T19:05:31.101+00:00,,,0,0,"{""ConnectionId"":1,""ProjectId"":12345678}",_raw_gitlab_api_issues,10,
+Thanks!",,,,0,,4582589,julie.samson,29952,,2020-07-08T19:05:30.953+00:00,2020-06-17T23:52:31.133+00:00,2020-07-08T19:05:31.101+00:00,,,0,0,"{""ConnectionId"":1,""ProjectId"":12345678}",_raw_gitlab_api_issues,10,
 1,59444322,12345678,11,closed,Upgrade package for dbt 0.17,"Check:
 
 * dbt_project.yml new version
-* packages",,,,0,,13223,,2020-07-24T21:13:37.403+00:00,2020-07-15T16:49:44.079+00:00,2020-07-24T21:13:37.533+00:00,,,0,0,"{""ConnectionId"":1,""ProjectId"":12345678}",_raw_gitlab_api_issues,11,
-1,69025114,12345678,12,closed,Mirror to GitHub,,,,,0,,82548,,2020-09-22T22:08:20.103+00:00,2020-07-27T14:19:40.700+00:00,2020-09-22T22:08:20.280+00:00,,,0,0,"{""ConnectionId"":1,""ProjectId"":12345678}",_raw_gitlab_api_issues,12,
+* packages",,,,0,,1942272,tayloramurphy,13223,,2020-07-24T21:13:37.403+00:00,2020-07-15T16:49:44.079+00:00,2020-07-24T21:13:37.533+00:00,,,0,0,"{""ConnectionId"":1,""ProjectId"":12345678}",_raw_gitlab_api_issues,11,
+1,69025114,12345678,12,closed,Mirror to GitHub,,,,,0,,1942272,tayloramurphy,82548,,2020-09-22T22:08:20.103+00:00,2020-07-27T14:19:40.700+00:00,2020-09-22T22:08:20.280+00:00,,,0,0,"{""ConnectionId"":1,""ProjectId"":12345678}",_raw_gitlab_api_issues,12,
 1,89051403,12345678,13,opened,The mirror at https://github.com/gitlabhq/snowflake_spend is managed with an expired personal access token,"Taylor Murphy indicated that the mirror from this repo to github may have been setup on his personal access token.  This mirror exists so it will show up on hub.getdbt.com .  We need somebody else to manage the mirror to github.com since Taylor's access is expired.
 
-cc @gitlab-data/engineers",,,,0,,0,,,2021-06-21T19:30:40.087+00:00,2021-10-08T14:26:35.650+00:00,,,0,0,"{""ConnectionId"":1,""ProjectId"":12345678}",_raw_gitlab_api_issues,13,
+cc @gitlab-data/engineers",,,,0,,5212782,m_walker,0,,,2021-06-21T19:30:40.087+00:00,2021-10-08T14:26:35.650+00:00,,,0,0,"{""ConnectionId"":1,""ProjectId"":12345678}",_raw_gitlab_api_issues,13,
 1,91069461,12345678,14,opened,packages.yml refers to a deprecated version of dbt_utils,"## Context 
 
 fishtown-analytics/* packages have been renamed dbt-labs/*
@@ -46,7 +46,7 @@ packages:
     revision: v1.2.0
   - package: dbt-labs/dbt_external_tables
     version: 0.7.0
-```",,,,0,,0,,,2021-07-29T07:58:08.871+00:00,2022-05-02T20:24:23.772+00:00,,,0,0,"{""ConnectionId"":1,""ProjectId"":12345678}",_raw_gitlab_api_issues,14,
+```",,,,0,,6214107,loicchesneau,0,,,2021-07-29T07:58:08.871+00:00,2022-05-02T20:24:23.772+00:00,,,0,0,"{""ConnectionId"":1,""ProjectId"":12345678}",_raw_gitlab_api_issues,14,
 1,106802088,12345678,15,opened,Getting issues and warning upgrading the new dbt version 1.0.4,"## Context
 Upgrade DBT version 1.0.4 
 
@@ -103,9 +103,9 @@ The `source-paths` config has been renamed to `model-paths`. Please update your
 The `data-paths` config has been renamed to `seed-paths`. Please update your
 `dbt_project.yml` configuration to reflect this change.
 22:42:59  Encountered an error:
-Found duplicate project ""dbt_utils"". This occurs when a dependency has the same project name as some other dependency.",,,,0,,0,,,2022-04-19T00:16:22.360+00:00,2022-04-19T00:16:22.360+00:00,,,0,0,"{""ConnectionId"":1,""ProjectId"":12345678}",_raw_gitlab_api_issues,15,
+Found duplicate project ""dbt_utils"". This occurs when a dependency has the same project name as some other dependency.",,,,0,,11386488,gerardoparticle,0,,,2022-04-19T00:16:22.360+00:00,2022-04-19T00:16:22.360+00:00,,,0,0,"{""ConnectionId"":1,""ProjectId"":12345678}",_raw_gitlab_api_issues,15,
 1,108497826,12345678,16,closed,Release new snowplow spend package,"I've been contacted by Doug Beatty from dbt labs regarding the open PR on out GitHub repo [here](https://github.com/gitlabhq/snowflake_spend/pull/2)
 
 This is a synched repo to the GitLab version [here](https://gitlab.com/gitlab-data/snowflake_spend/-/blob/master/packages.yml) where the change has already been made.
 
-I think the issue is that the tag wasn't applied to release this as a version. Release instructions [here](https://gitlab.com/gitlab-data/snowflake_spend/-/tree/master/#how-this-package-gets-released-for-maintainers-only).",,,,9386100,chrissharp,49408,,2022-06-16T16:23:09.759+00:00,2022-05-13T08:54:58.859+00:00,2022-06-16T16:23:09.779+00:00,,,0,0,"{""ConnectionId"":1,""ProjectId"":12345678}",_raw_gitlab_api_issues,16,
+I think the issue is that the tag wasn't applied to release this as a version. Release instructions [here](https://gitlab.com/gitlab-data/snowflake_spend/-/tree/master/#how-this-package-gets-released-for-maintainers-only).",,,,9386100,chrissharp,9386100,chrissharp,49408,,2022-06-16T16:23:09.759+00:00,2022-05-13T08:54:58.859+00:00,2022-06-16T16:23:09.779+00:00,,,0,0,"{""ConnectionId"":1,""ProjectId"":12345678}",_raw_gitlab_api_issues,16,

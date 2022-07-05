@@ -34,7 +34,7 @@ type GitlabIssue struct {
 	Priority        string `gorm:"type:varchar(255)"`
 	Type            string `gorm:"type:varchar(100)"`
 	Status          string `gorm:"type:varchar(255)"`
-	CreatorId       string `gorm:"type:varchar(255)"`
+	CreatorId       int
 	CreatorName     string `gorm:"type:varchar(255)"`
 	AssigneeId      int
 	AssigneeName    string `gorm:"type:varchar(255)"`
@@ -56,7 +56,8 @@ func (GitlabIssue) TableName() string {
 
 type GitlabAuthor struct {
 	ConnectionId    uint64 `gorm:"primaryKey"`
-	Username        string `gorm:"primaryKey;type:varchar(255)"`
+	GitlabId        int    `gorm:"primaryKey" json:"id"`
+	Username        string `gorm:"type:varchar(255)"`
 	Email           string `gorm:"type:varchar(255)"`
 	Name            string `gorm:"type:varchar(255)"`
 	State           string `gorm:"type:varchar(255)"`
@@ -73,7 +74,8 @@ func (GitlabAuthor) TableName() string {
 
 type GitlabAssignee struct {
 	ConnectionId    uint64 `gorm:"primaryKey"`
-	Username        string `gorm:"primaryKey;type:varchar(255)"`
+	GitlabId        int    `gorm:"primaryKey" json:"id"`
+	Username        string `gorm:"type:varchar(255)"`
 	Email           string `gorm:"type:varchar(255)"`
 	Name            string `gorm:"type:varchar(255)"`
 	State           string `gorm:"type:varchar(255)"`

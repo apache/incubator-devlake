@@ -32,7 +32,8 @@ type GitlabMrComment struct {
 	AuthorUsername  string `gorm:"type:varchar(255)"`
 	AuthorUserId    int
 	GitlabCreatedAt time.Time
-	Resolvable      bool `gorm:"comment:Is or is not review comment"`
+	Resolvable      bool   `gorm:"comment:Is or is not review comment"`
+	Type            string `gorm:"comment:if type=null, it is normal comment,if type=diffNote,it is diff comment"`
 	common.NoPKModel
 }
 
