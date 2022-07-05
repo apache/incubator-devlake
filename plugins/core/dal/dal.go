@@ -58,6 +58,8 @@ type Dal interface {
 	Delete(entity interface{}, clauses ...Clause) error
 	// AllTables returns all tables in database
 	AllTables() ([]string, error)
+	// GetTableColumns returns table columns in database
+	GetTableColumns(table string) (map[string]string, error)
 }
 
 type DalClause struct {

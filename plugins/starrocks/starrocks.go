@@ -66,15 +66,21 @@ func main() {
 	database := cmd.Flags().StringP("database", "d", "", "StarRocks database")
 	_ = cmd.MarkFlagRequired("table")
 	tables := cmd.Flags().StringArrayP("table", "t", []string{}, "StarRocks table")
+	_ = cmd.MarkFlagRequired("batch_size")
+	batchSize := cmd.Flags().StringP("batch_size", "b", "", "StarRocks insert batch size")
+	_ = cmd.MarkFlagRequired("batch_size")
+	extra := cmd.Flags().StringP("extra", "e", "", "StarRocks create table sql extra")
 	cmd.Run = func(cmd *cobra.Command, args []string) {
 		runner.DirectRun(cmd, args, PluginEntry, map[string]interface{}{
-			"host":     host,
-			"port":     port,
-			"user":     user,
-			"password": password,
-			"database": database,
-			"be_port":  bePort,
-			"tables":   tables,
+			"host":       host,
+			"port":       port,
+			"user":       user,
+			"password":   password,
+			"database":   database,
+			"be_port":    bePort,
+			"tables":     tables,
+			"batch_size": batchSize,
+			"extra":      extra,
 		})
 	}
 	runner.RunCmd(cmd)

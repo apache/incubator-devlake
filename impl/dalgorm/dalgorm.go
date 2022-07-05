@@ -19,6 +19,7 @@ package dalgorm
 
 import (
 	"database/sql"
+	"fmt"
 	"strings"
 
 	"github.com/apache/incubator-devlake/plugins/core/dal"
@@ -170,6 +171,42 @@ func (d *Dalgorm) AllTables() ([]string, error) {
 		}
 	}
 	return filteredTables, nil
+}
+
+// GetTableColumns returns table columns in database
+func (d *Dalgorm) GetTableColumns(table string) (map[string]string, error) {
+	var columnSql string
+	ret := make(map[string]string)
+	if d.db.Dialector.Name() == "mysql" {
+		type MySQLColumn struct {
+			Field string
+			Type  string
+		}
+		var result []MySQLColumn
+		columnSql = fmt.Sprintf("show columns from %s", table)
+		err := d.db.Raw(columnSql).Scan(&result).Error
+		if err != nil {
+			return nil, err
+		}
+		for _, item := range result {
+			ret[item.Field] = item.Type
+		}
+	} else {
+		columnSql = fmt.Sprintf("select column_name,data_type from information_schema.COLUMNS where TABLE_NAME='%s' and TABLE_SCHEMA='public'", table)
+		type PostgresColumn struct {
+			ColumnName string `gorm:"column_name"`
+			DataType   string `gorm:"data_type"`
+		}
+		var result []PostgresColumn
+		err := d.db.Raw(columnSql).Scan(&result).Error
+		if err != nil {
+			return nil, err
+		}
+		for _, item := range result {
+			ret[item.ColumnName] = item.DataType
+		}
+	}
+	return ret, nil
 }
 func NewDalgorm(db *gorm.DB) *Dalgorm {
 	return &Dalgorm{db}
