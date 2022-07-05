@@ -18,11 +18,11 @@ limitations under the License.
 package e2ehelper
 
 import (
+	"testing"
+
 	"github.com/apache/incubator-devlake/models/common"
 	gitlabModels "github.com/apache/incubator-devlake/plugins/gitlab/models"
 	"github.com/stretchr/testify/assert"
-	"gorm.io/gorm"
-	"testing"
 
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/gitlab/tasks"
@@ -87,11 +87,10 @@ func TestGetTableMetaData(t *testing.T) {
 	var meta core.PluginMeta
 	dataflowTester := NewDataFlowTester(t, "test_dataflow", meta)
 	dataflowTester.FlushTabler(&TestModel{})
-	t.Run("get_fields", func(t *testing.T) {
-		fields := dataflowTester.getFields(&TestModel{}, func(column gorm.ColumnType) bool {
-			return true
-		})
-		assert.Equal(t, 9, len(fields))
+	t.Run("dal_get_columns", func(t *testing.T) {
+		names, err := dataflowTester.Dal.GetColumnNames(&TestModel{}, nil)
+		assert.Equal(t, err, nil)
+		assert.Equal(t, 9, len(names))
 		for _, e := range []string{
 			"connection_id",
 			"issue_id",
@@ -103,7 +102,7 @@ func TestGetTableMetaData(t *testing.T) {
 			"_raw_data_id",
 			"_raw_data_remark",
 		} {
-			assert.Contains(t, fields, e)
+			assert.Contains(t, names, e)
 		}
 	})
 	t.Run("extract_columns", func(t *testing.T) {
@@ -118,8 +117,9 @@ func TestGetTableMetaData(t *testing.T) {
 			assert.Contains(t, columns, e)
 		}
 	})
-	t.Run("get_pk_fields", func(t *testing.T) {
-		fields := dataflowTester.getPkFields(&TestModel{})
+	t.Run("dal_get_pk_column_names", func(t *testing.T) {
+		fields, err := dataflowTester.Dal.GetPrimarykeyColumnNames(&TestModel{})
+		assert.Equal(t, err, nil)
 		assert.Equal(t, 3, len(fields))
 		for _, e := range []string{
 			"connection_id",

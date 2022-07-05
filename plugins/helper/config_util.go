@@ -21,6 +21,7 @@ import (
 	"fmt"
 	"reflect"
 
+	"github.com/apache/incubator-devlake/utils"
 	"github.com/go-playground/validator/v10"
 	"github.com/mitchellh/mapstructure"
 	"github.com/spf13/viper"
@@ -50,16 +51,11 @@ func DecodeStruct(output *viper.Viper, input interface{}, data map[string]interf
 	if vf.Kind() != reflect.Ptr {
 		return fmt.Errorf("input %v is not a pointer", input)
 	}
-	tf := reflect.Indirect(vf).Type()
-	fieldTags := make([]string, 0)
-	fieldNames := make([]string, 0)
-	fieldTypes := make([]reflect.Type, 0)
-	walkFields(tf, &fieldNames, &fieldTypes, &fieldTags, tag)
-	length := len(fieldNames)
-	for i := 0; i < length; i++ {
-		fieldName := fieldNames[i]
-		fieldType := fieldTypes[i]
-		fieldTag := fieldTags[i]
+
+	for _, f := range utils.WalkFields(reflect.Indirect(vf).Type(), nil) {
+		fieldName := f.Name
+		fieldType := f.Type
+		fieldTag := f.Tag.Get(tag)
 
 		// Check if the first letter is uppercase (indicates a public element, accessible)
 		ascii := rune(fieldName[0])
@@ -114,16 +110,11 @@ func EncodeStruct(input *viper.Viper, output interface{}, tag string) error {
 	if vf.Kind() != reflect.Ptr {
 		return fmt.Errorf("output %v is not a pointer", output)
 	}
-	tf := reflect.Indirect(vf).Type()
-	fieldTags := make([]string, 0)
-	fieldNames := make([]string, 0)
-	fieldTypes := make([]reflect.Type, 0)
-	walkFields(tf, &fieldNames, &fieldTypes, &fieldTags, tag)
-	length := len(fieldNames)
-	for i := 0; i < length; i++ {
-		fieldName := fieldNames[i]
-		fieldType := fieldTypes[i]
-		fieldTag := fieldTags[i]
+
+	for _, f := range utils.WalkFields(reflect.Indirect(vf).Type(), nil) {
+		fieldName := f.Name
+		fieldType := f.Type
+		fieldTag := f.Tag.Get(tag)
 
 		// Check if the first letter is uppercase (indicates a public element, accessible)
 		ascii := rune(fieldName[0])
@@ -185,18 +176,4 @@ func EncodeStruct(input *viper.Viper, output interface{}, tag string) error {
 		}
 	}
 	return nil
-}
-
-func walkFields(t reflect.Type, fieldNames *[]string, fieldTypes *[]reflect.Type, fieldTags *[]string, tag string) {
-	for i := 0; i < t.NumField(); i++ {
-		field := t.Field(i)
-		if field.Type.Kind() == reflect.Struct {
-			walkFields(field.Type, fieldNames, fieldTypes, fieldTags, tag)
-		} else {
-			fieldTag := field.Tag.Get(tag)
-			*fieldNames = append(*fieldNames, field.Name)
-			*fieldTypes = append(*fieldTypes, field.Type)
-			*fieldTags = append(*fieldTags, fieldTag)
-		}
-	}
 }

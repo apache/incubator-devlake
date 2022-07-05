@@ -19,11 +19,30 @@ package dal
 
 import (
 	"database/sql"
+	"reflect"
+
+	"gorm.io/gorm/schema"
 )
 
 type Clause struct {
 	Type string
 	Data interface{}
+}
+
+// ColumnType column type interface
+type ColumnMeta interface {
+	Name() string
+	DatabaseTypeName() string                 // varchar
+	ColumnType() (columnType string, ok bool) // varchar(64)
+	PrimaryKey() (isPrimaryKey bool, ok bool)
+	AutoIncrement() (isAutoIncrement bool, ok bool)
+	Length() (length int64, ok bool)
+	DecimalSize() (precision int64, scale int64, ok bool)
+	Nullable() (nullable bool, ok bool)
+	Unique() (unique bool, ok bool)
+	ScanType() reflect.Type
+	Comment() (value string, ok bool)
+	DefaultValue() (value string, ok bool)
 }
 
 // Dal aims to facilitate an isolation between DBS and our System by defining a set of operations should a DBS provide
@@ -58,8 +77,16 @@ type Dal interface {
 	Delete(entity interface{}, clauses ...Clause) error
 	// AllTables returns all tables in database
 	AllTables() ([]string, error)
-	// GetTableColumns returns table columns in database
-	GetTableColumns(table string) (map[string]string, error)
+	// GetColumns returns table columns in database
+	GetColumns(dst schema.Tabler, filter func(columnMeta ColumnMeta) bool) (cms []ColumnMeta, err error)
+	// GetPrimarykeyColumnNames returns table Column Names in database
+	GetColumnNames(dst schema.Tabler, filter func(columnMeta ColumnMeta) bool) (names []string, err error)
+	// GetPrimarykeyColumns get returns PrimaryKey table Meta in database
+	GetPrimarykeyColumns(dst schema.Tabler) ([]ColumnMeta, error)
+	// GetPrimarykeyColumnNames get returns PrimaryKey Column Names in database
+	GetPrimarykeyColumnNames(dst schema.Tabler) ([]string, error)
+	// GetPrimarykeyFields get the PrimaryKey from `gorm` tag
+	GetPrimarykeyFields(t reflect.Type) []reflect.StructField
 }
 
 type DalClause struct {
