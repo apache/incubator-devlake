@@ -53,7 +53,7 @@ func ConvertPullRequests(taskCtx core.SubTaskContext) error {
 
 	prIdGen := didgen.NewDomainIdGenerator(&models.GiteePullRequest{})
 	repoIdGen := didgen.NewDomainIdGenerator(&models.GiteeRepo{})
-	userIdGen := didgen.NewDomainIdGenerator(&models.GiteeUser{})
+	userIdGen := didgen.NewDomainIdGenerator(&models.GiteeAccount{})
 
 	converter, err := helper.NewDataConverter(helper.DataConverterArgs{
 		InputRowType:       reflect.TypeOf(models.GiteePullRequest{}),

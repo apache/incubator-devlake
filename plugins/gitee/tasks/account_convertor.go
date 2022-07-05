@@ -30,35 +30,35 @@ import (
 	"github.com/apache/incubator-devlake/plugins/helper"
 )
 
-var ConvertUsersMeta = core.SubTaskMeta{
-	Name:             "convertUsers",
-	EntryPoint:       ConvertUsers,
+var ConvertAccountsMeta = core.SubTaskMeta{
+	Name:             "convertAccounts",
+	EntryPoint:       ConvertAccounts,
 	EnabledByDefault: true,
-	Description:      "Convert tool layer table gitee_users into  domain layer table users",
+	Description:      "Convert tool layer table gitee_accountss into  domain layer table accountss",
 }
 
-func ConvertUsers(taskCtx core.SubTaskContext) error {
+func ConvertAccounts(taskCtx core.SubTaskContext) error {
 	db := taskCtx.GetDal()
 	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_COMMIT_TABLE)
 
-	cursor, err := db.Cursor(dal.From(&models.GiteeUser{}))
+	cursor, err := db.Cursor(dal.From(&models.GiteeAccount{}))
 	if err != nil {
 		return err
 	}
 	defer cursor.Close()
 
-	userIdGen := didgen.NewDomainIdGenerator(&models.GiteeUser{})
+	userIdGen := didgen.NewDomainIdGenerator(&models.GiteeAccount{})
 
 	converter, err := helper.NewDataConverter(helper.DataConverterArgs{
-		InputRowType:       reflect.TypeOf(models.GiteeUser{}),
+		InputRowType:       reflect.TypeOf(models.GiteeAccount{}),
 		Input:              cursor,
 		RawDataSubTaskArgs: *rawDataSubTaskArgs,
 		Convert: func(inputRow interface{}) ([]interface{}, error) {
-			GiteeUser := inputRow.(*models.GiteeUser)
+			GiteeAccount := inputRow.(*models.GiteeAccount)
 			domainUser := &user.User{
-				DomainEntity: domainlayer.DomainEntity{Id: userIdGen.Generate(data.Options.ConnectionId, GiteeUser.Id)},
-				Name:         GiteeUser.Login,
-				AvatarUrl:    GiteeUser.AvatarUrl,
+				DomainEntity: domainlayer.DomainEntity{Id: userIdGen.Generate(data.Options.ConnectionId, GiteeAccount.Id)},
+				Name:         GiteeAccount.Login,
+				AvatarUrl:    GiteeAccount.AvatarUrl,
 			}
 			return []interface{}{
 				domainUser,

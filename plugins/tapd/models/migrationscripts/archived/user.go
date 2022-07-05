@@ -28,5 +28,5 @@ type TapdUser struct {
 }
 
 func (TapdUser) TableName() string {
-	return "_tool_tapd_users"
+	return "_tool_tapd_accounts"
 }

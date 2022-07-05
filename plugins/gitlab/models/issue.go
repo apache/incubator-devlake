@@ -69,7 +69,7 @@ type GitlabAuthor struct {
 }
 
 func (GitlabAuthor) TableName() string {
-	return "_tool_gitlab_users"
+	return "_tool_gitlab_accounts"
 }
 
 type GitlabAssignee struct {
@@ -87,5 +87,5 @@ type GitlabAssignee struct {
 }
 
 func (GitlabAssignee) TableName() string {
-	return "_tool_gitlab_users"
+	return "_tool_gitlab_accounts"
 }

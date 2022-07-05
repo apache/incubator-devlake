@@ -33,5 +33,5 @@ type JiraUser struct {
 }
 
 func (JiraUser) TableName() string {
-	return "_tool_jira_users"
+	return "_tool_jira_accounts"
 }

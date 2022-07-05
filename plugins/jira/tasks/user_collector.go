@@ -46,7 +46,7 @@ func CollectUsers(taskCtx core.SubTaskContext) error {
 	logger.Info("collect user")
 	cursor, err := db.Cursor(
 		Select("account_id"),
-		From("_tool_jira_users"),
+		From("_tool_jira_accounts"),
 		Where("connection_id = ?", data.Options.ConnectionId),
 	)
 	if err != nil {

@@ -31,7 +31,7 @@ var ExtractUserMeta = core.SubTaskMeta{
 	Name:             "extractUsers",
 	EntryPoint:       ExtractUsers,
 	EnabledByDefault: true,
-	Description:      "Extract raw workspace data into tool layer table _tool_tapd_users",
+	Description:      "Extract raw workspace data into tool layer table _tool_tapd_accounts",
 }
 
 func ExtractUsers(taskCtx core.SubTaskContext) error {

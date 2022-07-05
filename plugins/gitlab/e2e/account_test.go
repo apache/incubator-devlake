@@ -28,7 +28,7 @@ import (
 	"github.com/apache/incubator-devlake/plugins/gitlab/tasks"
 )
 
-func TestGitlabUserDataFlow(t *testing.T) {
+func TestGitlabAccountDataFlow(t *testing.T) {
 
 	var gitlab impl.Gitlab
 	dataflowTester := e2ehelper.NewDataFlowTester(t, "gitlab", gitlab)

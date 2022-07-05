@@ -15,13 +15,11 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package archived
+package models
 
-import (
-	"github.com/apache/incubator-devlake/models/migrationscripts/archived"
-)
+import "github.com/apache/incubator-devlake/models/common"
 
-type GiteeUser struct {
+type GiteeAccount struct {
 	ConnectionId      uint64 `gorm:"primaryKey"`
 	Id                int    `json:"id" gorm:"primaryKey;autoIncrement:false"`
 	Login             string `json:"login" gorm:"type:varchar(255)"`
@@ -40,9 +38,9 @@ type GiteeUser struct {
 	SubscriptionsUrl  string `json:"subscriptions_url" gorm:"type:varchar(255)"`
 	Url               string `json:"url" gorm:"type:varchar(255)"`
 	Type              string `json:"type" gorm:"type:varchar(255)"`
-	archived.NoPKModel
+	common.NoPKModel
 }
 
-func (GiteeUser) TableName() string {
-	return "_tool_gitee_users"
+func (GiteeAccount) TableName() string {
+	return "_tool_gitee_accounts"
 }
