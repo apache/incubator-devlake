@@ -17,11 +17,13 @@ limitations under the License.
 package main
 
 type StarRocksConfig struct {
-	Host     string
-	Port     int
-	User     string
-	Password string
-	Database string
-	BePort   int `mapstructure:"be_port"`
-	Tables   []string
+	Host      string
+	Port      int
+	User      string
+	Password  string
+	Database  string
+	BePort    int `mapstructure:"be_port"`
+	Tables    []string
+	BatchSize int `mapstructure:"batch_size"`
+	Extra     string
 }
