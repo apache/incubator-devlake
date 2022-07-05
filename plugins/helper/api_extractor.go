@@ -19,6 +19,7 @@ package helper
 
 import (
 	"reflect"
+	"time"
 
 	"github.com/apache/incubator-devlake/models/common"
 
@@ -29,7 +30,7 @@ import (
 type ApiExtractorArgs struct {
 	RawDataSubTaskArgs
 	Params    interface{}
-	Extract   func(row *RawData) ([]interface{}, error)
+	Extract   func(row *RawData) (models []interface{}, latestUpdated *time.Time, err error)
 	BatchSize int
 }
 

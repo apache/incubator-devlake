@@ -22,6 +22,7 @@ import (
 	"fmt"
 	"regexp"
 	"runtime/debug"
+	"time"
 
 	"github.com/apache/incubator-devlake/models/domainlayer/ticket"
 	"github.com/apache/incubator-devlake/plugins/core"
@@ -129,31 +130,31 @@ func ExtractApiIssues(taskCtx core.SubTaskContext) error {
 			*/
 			Table: RAW_ISSUE_TABLE,
 		},
-		Extract: func(row *helper.RawData) ([]interface{}, error) {
+		Extract: func(row *helper.RawData) ([]interface{}, *time.Time, error) {
 			body := &IssuesResponse{}
 			err := json.Unmarshal(row.Data, body)
 			if err != nil {
-				return nil, err
+				return nil, nil, err
 			}
 			// need to extract 2 kinds of entities here
 			if body.GithubId == 0 {
-				return nil, nil
+				return nil, nil, nil
 			}
 			//If this is a pr, ignore
 			if body.PullRequest.Url != "" {
-				return nil, nil
+				return nil, nil, nil
 			}
 			results := make([]interface{}, 0, 2)
 			githubIssue, err := convertGithubIssue(body, data.Options.ConnectionId, data.Repo.GithubId)
 			if err != nil {
-				return nil, err
+				return nil, nil, err
 			}
 			if body.Assignee != nil {
 				githubIssue.AssigneeId = body.Assignee.Id
 				githubIssue.AssigneeName = body.Assignee.Login
 				relatedUser, err := convertUser(body.Assignee, data.Options.ConnectionId)
 				if err != nil {
-					return nil, err
+					return nil, nil, err
 				}
 				results = append(results, relatedUser)
 			}
@@ -162,7 +163,7 @@ func ExtractApiIssues(taskCtx core.SubTaskContext) error {
 				githubIssue.AuthorName = body.User.Login
 				relatedUser, err := convertUser(body.User, data.Options.ConnectionId)
 				if err != nil {
-					return nil, err
+					return nil, nil, err
 				}
 				results = append(results, relatedUser)
 			}
@@ -213,7 +214,7 @@ func ExtractApiIssues(taskCtx core.SubTaskContext) error {
 			}
 			results = append(results, githubIssue)
 
-			return results, nil
+			return results, &githubIssue.GithubUpdatedAt, nil
 		},
 	})
 

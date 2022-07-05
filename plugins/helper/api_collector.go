@@ -25,6 +25,7 @@ import (
 	"net/http"
 	"net/url"
 	"text/template"
+	"time"
 
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/core/dal"
@@ -40,6 +41,7 @@ type Pager struct {
 
 // RequestData is the input of `UrlTemplate` `Query` and `Header`, so we can generate them dynamically
 type RequestData struct {
+	Since     *time.Time
 	Pager     *Pager
 	Params    interface{}
 	Input     interface{}

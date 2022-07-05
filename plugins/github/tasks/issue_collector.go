@@ -23,12 +23,9 @@ import (
 	"net/http"
 	"net/url"
 
-	"github.com/apache/incubator-devlake/plugins/core/dal"
-
 	"github.com/apache/incubator-devlake/plugins/helper"
 
 	"github.com/apache/incubator-devlake/plugins/core"
-	"github.com/apache/incubator-devlake/plugins/github/models"
 )
 
 const RAW_ISSUE_TABLE = "github_api_issues"
@@ -49,29 +46,7 @@ var CollectApiIssuesMeta = core.SubTaskMeta{
 }
 
 func CollectApiIssues(taskCtx core.SubTaskContext) error {
-	db := taskCtx.GetDal()
 	data := taskCtx.GetData().(*GithubTaskData)
-
-	since := data.Since
-	incremental := false
-	// user didn't specify a time range to sync, try load from database
-	if since == nil {
-		var latestUpdated models.GithubIssue
-		err := db.All(
-			&latestUpdated,
-			dal.Where("repo_id = ? and connection_id = ?", data.Repo.GithubId, data.Repo.ConnectionId),
-			dal.Orderby("github_updated_at DESC"),
-			dal.Limit(1),
-		)
-		if err != nil {
-			return fmt.Errorf("failed to get latest github issue record: %w", err)
-		}
-		if latestUpdated.GithubId > 0 {
-			since = &latestUpdated.GithubUpdatedAt
-			incremental = true
-		}
-	}
-
 	collector, err := helper.NewApiCollector(helper.ApiCollectorArgs{
 		RawDataSubTaskArgs: helper.RawDataSubTaskArgs{
 			Ctx: taskCtx,
@@ -89,9 +64,8 @@ func CollectApiIssues(taskCtx core.SubTaskContext) error {
 			*/
 			Table: RAW_ISSUE_TABLE,
 		},
-		ApiClient:   data.ApiClient,
-		PageSize:    100,
-		Incremental: incremental,
+		ApiClient: data.ApiClient,
+		PageSize:  100,
 		/*
 			url may use arbitrary variables from different source in any order, we need GoTemplate to allow more
 			flexible for all kinds of possibility.
@@ -108,8 +82,8 @@ func CollectApiIssues(taskCtx core.SubTaskContext) error {
 		Query: func(reqData *helper.RequestData) (url.Values, error) {
 			query := url.Values{}
 			query.Set("state", "all")
-			if since != nil {
-				query.Set("since", since.String())
+			if reqData.Since != nil {
+				query.Set("since", reqData.Since.String())
 			}
 			query.Set("direction", "asc")
 			query.Set("page", fmt.Sprintf("%v", reqData.Pager.Page))
