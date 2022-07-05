@@ -56,7 +56,7 @@ func ConvertCommits(taskCtx core.SubTaskContext) error {
 	}
 	defer cursor.Close()
 
-	userDidGen := didgen.NewDomainIdGenerator(&models.GiteeUser{})
+	userDidGen := didgen.NewDomainIdGenerator(&models.GiteeAccount{})
 	repoDidGen := didgen.NewDomainIdGenerator(&models.GiteeRepo{})
 	domainRepoId := repoDidGen.Generate(data.Options.ConnectionId, repoId)
 

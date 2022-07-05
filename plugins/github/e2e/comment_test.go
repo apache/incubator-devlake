@@ -19,11 +19,12 @@ package e2e
 
 import (
 	"fmt"
+	"testing"
+
 	"github.com/apache/incubator-devlake/models/domainlayer/code"
 	"github.com/apache/incubator-devlake/models/domainlayer/ticket"
 	"github.com/apache/incubator-devlake/plugins/github/models"
 	"github.com/apache/incubator-devlake/plugins/github/tasks"
-	"testing"
 
 	"github.com/apache/incubator-devlake/helpers/e2ehelper"
 	"github.com/apache/incubator-devlake/plugins/github/impl"
@@ -105,7 +106,7 @@ func TestCommentDataFlow(t *testing.T) {
 	)
 	dataflowTester.VerifyTable(
 		models.GithubUser{},
-		"./snapshot_tables/_tool_github_users_in_comment.csv",
+		"./snapshot_tables/_tool_github_accounts_in_comment.csv",
 		[]string{
 			"connection_id",
 			"id",

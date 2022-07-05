@@ -29,7 +29,7 @@ var ExtractCommitsMeta = core.SubTaskMeta{
 	Name:             "extractApiCommits",
 	EntryPoint:       ExtractApiCommits,
 	EnabledByDefault: true,
-	Description:      "Extract raw commit data into tool layer table GiteeCommit,GiteeUser and GiteeRepoCommit",
+	Description:      "Extract raw commit data into tool layer table GiteeCommit,GiteeAccount and GiteeRepoCommit",
 }
 
 type GiteeCommit struct {
@@ -47,13 +47,13 @@ type GiteeCommit struct {
 }
 
 type GiteeApiCommitResponse struct {
-	Author      *models.GiteeUser `json:"author"`
-	CommentsUrl string            `json:"comments_url"`
-	Commit      GiteeCommit       `json:"commit"`
-	Committer   *models.GiteeUser `json:"committer"`
-	HtmlUrl     string            `json:"html_url"`
-	Sha         string            `json:"sha"`
-	Url         string            `json:"url"`
+	Author      *models.GiteeAccount `json:"author"`
+	CommentsUrl string               `json:"comments_url"`
+	Commit      GiteeCommit          `json:"commit"`
+	Committer   *models.GiteeAccount `json:"committer"`
+	HtmlUrl     string               `json:"html_url"`
+	Sha         string               `json:"sha"`
+	Url         string               `json:"url"`
 }
 
 func ExtractApiCommits(taskCtx core.SubTaskContext) error {

@@ -34,5 +34,5 @@ type GitlabUser struct {
 }
 
 func (GitlabUser) TableName() string {
-	return "_tool_gitlab_users"
+	return "_tool_gitlab_accounts"
 }

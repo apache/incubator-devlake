@@ -18,8 +18,9 @@ limitations under the License.
 package e2e
 
 import (
-	"github.com/apache/incubator-devlake/plugins/github/models"
 	"testing"
+
+	"github.com/apache/incubator-devlake/plugins/github/models"
 
 	"github.com/apache/incubator-devlake/helpers/e2ehelper"
 	"github.com/apache/incubator-devlake/plugins/github/impl"
@@ -67,7 +68,7 @@ func TestEventDataFlow(t *testing.T) {
 	)
 	dataflowTester.VerifyTable(
 		models.GithubUser{},
-		"./snapshot_tables/_tool_github_users_in_event.csv",
+		"./snapshot_tables/_tool_github_accounts_in_event.csv",
 		[]string{
 			"connection_id",
 			"id",

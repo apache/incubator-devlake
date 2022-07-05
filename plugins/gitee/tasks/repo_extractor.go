@@ -39,7 +39,7 @@ type GiteeApiRepoResponse struct {
 	HTMLUrl     string                `json:"html_url"`
 	Language    string                `json:"language"`
 	Description string                `json:"description"`
-	Owner       models.GiteeUser      `json:"owner"`
+	Owner       models.GiteeAccount   `json:"owner"`
 	Parent      *GiteeApiRepoResponse `json:"parent"`
 	CreatedAt   helper.Iso8601Time    `json:"created_at"`
 	UpdatedAt   *helper.Iso8601Time   `json:"updated_at"`

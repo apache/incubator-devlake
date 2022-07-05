@@ -55,7 +55,7 @@ func ConvertIssues(taskCtx core.SubTaskContext) error {
 	defer cursor.Close()
 
 	issueIdGen := didgen.NewDomainIdGenerator(&giteeModels.GiteeIssue{})
-	userIdGen := didgen.NewDomainIdGenerator(&giteeModels.GiteeUser{})
+	userIdGen := didgen.NewDomainIdGenerator(&giteeModels.GiteeAccount{})
 	boardIdGen := didgen.NewDomainIdGenerator(&giteeModels.GiteeRepo{})
 
 	converter, err := helper.NewDataConverter(helper.DataConverterArgs{
