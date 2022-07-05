@@ -111,7 +111,7 @@ func loadData(starrocks *sql.DB, c core.SubTaskContext, starrocksTable string, t
 	if execErr != nil {
 		return execErr
 	}
-	for true {
+	for {
 		var data []map[string]interface{}
 		// select data from db
 		rows, err := db.RawCursor(fmt.Sprintf("select * from %s limit %d offset %d", table, config.BatchSize, offset))
