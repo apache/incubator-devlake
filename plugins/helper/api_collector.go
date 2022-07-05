@@ -77,6 +77,8 @@ type ApiCollectorArgs struct {
 	Concurrency    int
 	ResponseParser func(res *http.Response) ([]json.RawMessage, error)
 	AfterResponse  common.ApiClientAfterResponse
+
+	Extract func(row *RawData) (models []interface{}, latestUpdated *time.Time, err error)
 }
 
 type ApiCollector struct {
