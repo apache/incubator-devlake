@@ -19,8 +19,8 @@ package tasks
 
 import (
 	"github.com/apache/incubator-devlake/models/domainlayer"
+	"github.com/apache/incubator-devlake/models/domainlayer/crossdomain"
 	"github.com/apache/incubator-devlake/models/domainlayer/didgen"
-	"github.com/apache/incubator-devlake/models/domainlayer/user"
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/core/dal"
 	"github.com/apache/incubator-devlake/plugins/helper"
@@ -68,14 +68,13 @@ func ConvertUsers(taskCtx core.SubTaskContext) error {
 		Input:        cursor,
 		Convert: func(inputRow interface{}) ([]interface{}, error) {
 			jiraUser := inputRow.(*models.JiraUser)
-			u := &user.User{
+			u := &crossdomain.Account{
 				DomainEntity: domainlayer.DomainEntity{
 					Id: userIdGen.Generate(connectionId, jiraUser.AccountId),
 				},
-				Name:      jiraUser.Name,
+				UserName:  jiraUser.Name,
 				Email:     jiraUser.Email,
 				AvatarUrl: jiraUser.AvatarUrl,
-				Timezone:  jiraUser.Timezone,
 			}
 			return []interface{}{u}, nil
 		},

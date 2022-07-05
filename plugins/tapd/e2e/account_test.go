@@ -19,10 +19,10 @@ package e2e
 
 import (
 	"fmt"
+	"github.com/apache/incubator-devlake/models/domainlayer/crossdomain"
 	"testing"
 
 	"github.com/apache/incubator-devlake/helpers/e2ehelper"
-	"github.com/apache/incubator-devlake/models/domainlayer/user"
 	"github.com/apache/incubator-devlake/plugins/tapd/impl"
 	"github.com/apache/incubator-devlake/plugins/tapd/models"
 	"github.com/apache/incubator-devlake/plugins/tapd/tasks"
@@ -62,11 +62,11 @@ func TestTapdAccountDataFlow(t *testing.T) {
 	)
 
 	// verify conversion{
-	dataflowTester.FlushTabler(&user.User{})
+	dataflowTester.FlushTabler(&crossdomain.Account{})
 	dataflowTester.Subtask(tasks.ConvertUserMeta, taskData)
 	dataflowTester.VerifyTable(
-		user.User{},
-		fmt.Sprintf("./snapshot_tables/%s.csv", user.User{}.TableName()),
+		crossdomain.Account{},
+		fmt.Sprintf("./snapshot_tables/%s.csv", crossdomain.Account{}.TableName()),
 		[]string{
 			"id",
 			"_raw_data_params",
