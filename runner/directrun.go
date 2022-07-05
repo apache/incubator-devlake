@@ -19,9 +19,7 @@ package runner
 
 import (
 	"context"
-	"os"
-	"os/signal"
-	"syscall"
+	"fmt"
 
 	"github.com/apache/incubator-devlake/config"
 	"github.com/apache/incubator-devlake/logger"
@@ -76,25 +74,20 @@ func DirectRun(cmd *cobra.Command, args []string, pluginTask core.PluginTask, op
 	}
 
 	ctx, cancel := context.WithCancel(context.Background())
-	sigc := make(chan os.Signal, 1)
-	signal.Notify(sigc, syscall.SIGTSTP)
 	go func() {
-		<-sigc
-		cancel()
-	}()
+		var buf string
 
-	go func() {
-		buf := make([]byte, 1)
-		n, err := os.Stdin.Read(buf)
+		n, err := fmt.Scan(&buf)
 		if err != nil {
 			panic(err)
-		} else if n == 1 && buf[0] == 99 {
+		} else if n == 1 && buf == "c" {
 			cancel()
 		} else {
-			println("unknown key press, code: ", buf[0])
+			println("unknown key press, code: ", buf)
+			println("press `c` and enter to send cancel signal")
 		}
 	}()
-	println("press `c` to send cancel signal")
+	println("press `c` and enter to send cancel signal")
 
 	err = RunPluginSubTasks(
 		cfg,
