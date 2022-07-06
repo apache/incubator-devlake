@@ -79,14 +79,40 @@ type Dal interface {
 	AllTables() ([]string, error)
 	// GetColumns returns table columns in database
 	GetColumns(dst schema.Tabler, filter func(columnMeta ColumnMeta) bool) (cms []ColumnMeta, err error)
-	// GetPrimarykeyColumnNames returns table Column Names in database
-	GetColumnNames(dst schema.Tabler, filter func(columnMeta ColumnMeta) bool) (names []string, err error)
-	// GetPrimarykeyColumns get returns PrimaryKey table Meta in database
-	GetPrimarykeyColumns(dst schema.Tabler) ([]ColumnMeta, error)
-	// GetPrimarykeyColumnNames get returns PrimaryKey Column Names in database
-	GetPrimarykeyColumnNames(dst schema.Tabler) ([]string, error)
 	// GetPrimarykeyFields get the PrimaryKey from `gorm` tag
 	GetPrimarykeyFields(t reflect.Type) []reflect.StructField
+}
+
+// GetPrimarykeyColumnNames returns table Column Names in database
+func GetColumnNames(d Dal, dst schema.Tabler, filter func(columnMeta ColumnMeta) bool) (names []string, err error) {
+	columns, err := d.GetColumns(dst, filter)
+	if err != nil {
+		return
+	}
+	for _, pkColumn := range columns {
+		names = append(names, pkColumn.Name())
+	}
+	return
+}
+
+// GetPrimarykeyColumns get returns PrimaryKey table Meta in database
+func GetPrimarykeyColumns(d Dal, dst schema.Tabler) ([]ColumnMeta, error) {
+	return d.GetColumns(dst, func(columnMeta ColumnMeta) bool {
+		isPrimaryKey, ok := columnMeta.PrimaryKey()
+		return isPrimaryKey && ok
+	})
+}
+
+// GetPrimarykeyColumnNames get returns PrimaryKey Column Names in database
+func GetPrimarykeyColumnNames(d Dal, dst schema.Tabler) (names []string, err error) {
+	pkColumns, err := GetPrimarykeyColumns(d, dst)
+	if err != nil {
+		return
+	}
+	for _, pkColumn := range pkColumns {
+		names = append(names, pkColumn.Name())
+	}
+	return
 }
 
 type DalClause struct {

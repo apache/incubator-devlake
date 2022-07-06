@@ -54,13 +54,19 @@ func TestBatchSaveDivider(t *testing.T) {
 
 	mockLog := unithelper.DummyLogger()
 	mockRes := new(mocks.BasicRes)
+
 	mockRes.On("GetDal").Return(mockDal)
 	mockRes.On("GetLogger").Return(mockLog)
 
-	divider := NewBatchSaveDivider(mockRes, 10, "", "")
-
 	// we expect total 2 deletion calls after all code got carried out
 	mockDal.On("Delete", mock.Anything, mock.Anything).Return(nil).Twice()
+	mockDal.On("GetPrimarykeyFields", mock.Anything).Return(
+		[]reflect.StructField{
+			{Name: "ID", Type: reflect.TypeOf("")},
+		},
+	)
+
+	divider := NewBatchSaveDivider(mockRes, 10, "", "")
 
 	// for same type should return the same BatchSave
 	jiraIssue1, err := divider.ForType(reflect.TypeOf(&MockJirIssueBsd{}))

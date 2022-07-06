@@ -211,13 +211,9 @@ func (t *DataFlowTester) CreateSnapshot(dst schema.Tabler, opts TableOptions) {
 	location, _ := time.LoadLocation(`UTC`)
 
 	targetFields := t.resolveTargetFields(dst, opts)
-	pkColumns, err := t.Dal.GetPrimarykeyColumns(dst)
+	pkColumnNames, err := dal.GetPrimarykeyColumnNames(t.Dal, dst)
 	if err != nil {
 		panic(err)
-	}
-	var pkColumnNames []string
-	for _, pkc := range pkColumns {
-		pkColumnNames = append(pkColumnNames, pkc.Name())
 	}
 	allFields := append(pkColumnNames, targetFields...)
 	allFields = utils.StringsUniq(allFields)
@@ -357,7 +353,7 @@ func (t *DataFlowTester) resolveTargetFields(dst schema.Tabler, opts TableOption
 	}
 	var targetFields []string
 	if len(opts.TargetFields) == 0 || len(opts.IgnoreFields) > 0 {
-		names, err := t.Dal.GetColumnNames(dst, func(cm dal.ColumnMeta) bool {
+		names, err := dal.GetColumnNames(t.Dal, dst, func(cm dal.ColumnMeta) bool {
 			return filterColumn(cm, opts)
 		})
 		if err != nil {
@@ -382,7 +378,7 @@ func (t *DataFlowTester) VerifyTableWithOptions(dst schema.Tabler, opts TableOpt
 	}
 
 	targetFields := t.resolveTargetFields(dst, opts)
-	pkColumns, err := t.Dal.GetPrimarykeyColumns(dst)
+	pkColumns, err := dal.GetPrimarykeyColumns(t.Dal, dst)
 	if err != nil {
 		panic(err)
 	}

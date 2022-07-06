@@ -21,6 +21,7 @@ import (
 	"testing"
 
 	"github.com/apache/incubator-devlake/models/common"
+	"github.com/apache/incubator-devlake/plugins/core/dal"
 	gitlabModels "github.com/apache/incubator-devlake/plugins/gitlab/models"
 	"github.com/stretchr/testify/assert"
 
@@ -88,7 +89,7 @@ func TestGetTableMetaData(t *testing.T) {
 	dataflowTester := NewDataFlowTester(t, "test_dataflow", meta)
 	dataflowTester.FlushTabler(&TestModel{})
 	t.Run("dal_get_columns", func(t *testing.T) {
-		names, err := dataflowTester.Dal.GetColumnNames(&TestModel{}, nil)
+		names, err := dal.GetColumnNames(dataflowTester.Dal, &TestModel{}, nil)
 		assert.Equal(t, err, nil)
 		assert.Equal(t, 9, len(names))
 		for _, e := range []string{
@@ -118,7 +119,7 @@ func TestGetTableMetaData(t *testing.T) {
 		}
 	})
 	t.Run("dal_get_pk_column_names", func(t *testing.T) {
-		fields, err := dataflowTester.Dal.GetPrimarykeyColumnNames(&TestModel{})
+		fields, err := dal.GetPrimarykeyColumnNames(dataflowTester.Dal, &TestModel{})
 		assert.Equal(t, err, nil)
 		assert.Equal(t, 3, len(fields))
 		for _, e := range []string{

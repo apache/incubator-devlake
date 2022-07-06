@@ -159,35 +159,6 @@ func (d *Dalgorm) GetColumns(dst schema.Tabler, filter func(columnMeta dal.Colum
 	return
 }
 
-func (d *Dalgorm) GetColumnNames(dst schema.Tabler, filter func(columnMeta dal.ColumnMeta) bool) (names []string, err error) {
-	columns, err := d.GetColumns(dst, filter)
-	if err != nil {
-		return
-	}
-	for _, pkColumn := range columns {
-		names = append(names, pkColumn.Name())
-	}
-	return
-}
-
-func (d *Dalgorm) GetPrimarykeyColumns(dst schema.Tabler) ([]dal.ColumnMeta, error) {
-	return d.GetColumns(dst, func(columnMeta dal.ColumnMeta) bool {
-		isPrimaryKey, ok := columnMeta.PrimaryKey()
-		return isPrimaryKey && ok
-	})
-}
-
-func (d *Dalgorm) GetPrimarykeyColumnNames(dst schema.Tabler) (names []string, err error) {
-	pkColumns, err := d.GetPrimarykeyColumns(dst)
-	if err != nil {
-		return
-	}
-	for _, pkColumn := range pkColumns {
-		names = append(names, pkColumn.Name())
-	}
-	return
-}
-
 // GetPrimaryKey get the PrimaryKey from `gorm` tag
 func (d *Dalgorm) GetPrimarykeyFields(t reflect.Type) []reflect.StructField {
 	return utils.WalkFields(t, func(field *reflect.StructField) bool {
