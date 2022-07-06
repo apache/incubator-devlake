@@ -18,6 +18,7 @@ limitations under the License.
 package impl
 
 import (
+	"fmt"
 	"github.com/apache/incubator-devlake/migration"
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/github/api"
@@ -67,6 +68,8 @@ func (plugin Github) SubTaskMetas() []core.SubTaskMeta {
 		tasks.ExtractApiCommitsMeta,
 		tasks.CollectApiCommitStatsMeta,
 		tasks.ExtractApiCommitStatsMeta,
+		tasks.CollectMilestonesMeta,
+		tasks.ExtractMilestonesMeta,
 		tasks.EnrichPullRequestIssuesMeta,
 		tasks.ConvertRepoMeta,
 		tasks.ConvertIssuesMeta,
@@ -79,6 +82,7 @@ func (plugin Github) SubTaskMetas() []core.SubTaskMeta {
 		tasks.ConvertAccountsMeta,
 		tasks.ConvertIssueCommentsMeta,
 		tasks.ConvertPullRequestCommentsMeta,
+		tasks.ConvertMilestonesMeta,
 	}
 }
 
@@ -94,12 +98,12 @@ func (plugin Github) PrepareTaskData(taskCtx core.TaskContext, options map[strin
 	connection := &models.GithubConnection{}
 	err = connectionHelper.FirstById(connection, op.ConnectionId)
 	if err != nil {
-		return err, nil
+		return nil, fmt.Errorf("unable to get github connection by the given connection ID: %v", err)
 	}
 
 	apiClient, err := tasks.CreateApiClient(taskCtx, connection)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("unable to get github API client instance: %v", err)
 	}
 
 	return &tasks.GithubTaskData{

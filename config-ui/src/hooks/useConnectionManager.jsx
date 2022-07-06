@@ -86,7 +86,7 @@ function useConnectionManager ({
           connectionPayload = { endpoint: endpointUrl, username: username, password: password, proxy: proxy }
           break
         case Providers.GITHUB:
-          connectionPayload = { endpoint: endpointUrl, auth: token, proxy: proxy }
+          connectionPayload = { endpoint: endpointUrl, token: token, proxy: proxy }
           break
         case Providers.JENKINS:
           connectionPayload = { endpoint: endpointUrl, username: username, password: password }

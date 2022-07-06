@@ -81,6 +81,7 @@ func TestIssueDataFlow(t *testing.T) {
 			"author_name",
 			"assignee_id",
 			"assignee_name",
+			"milestone_id",
 			"lead_time_minutes",
 			"url",
 			"closed_at",

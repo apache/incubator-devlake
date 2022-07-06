@@ -14,16 +14,30 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
-package main
 
-type StarRocksConfig struct {
-	Host      string
-	Port      int
-	User      string
-	Password  string
-	Database  string
-	BePort    int `mapstructure:"be_port"`
-	Tables    []string
-	BatchSize int `mapstructure:"batch_size"`
-	Extra     string
+package models
+
+import (
+	"github.com/apache/incubator-devlake/models/common"
+	"time"
+)
+
+type GithubMilestone struct {
+	ConnectionId uint64 `gorm:"primaryKey"`
+	MilestoneId  int    `gorm:"primaryKey;autoIncrement:false"`
+	RepoId       int
+	Number       int
+	URL          string
+	Title        string
+	OpenIssues   int
+	ClosedIssues int
+	State        string
+	CreatedAt    time.Time
+	UpdatedAt    time.Time
+	ClosedAt     *time.Time
+	common.NoPKModel
+}
+
+func (GithubMilestone) TableName() string {
+	return "_tool_github_milestones"
 }

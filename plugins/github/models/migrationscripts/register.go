@@ -17,11 +17,14 @@ limitations under the License.
 
 package migrationscripts
 
-import "github.com/apache/incubator-devlake/migration"
+import (
+	"github.com/apache/incubator-devlake/migration"
+)
 
 // All return all the migration scripts
 func All() []migration.Script {
 	return []migration.Script{
 		new(initSchemas),
+		new(UpdateSchemas20220620),
 	}
 }

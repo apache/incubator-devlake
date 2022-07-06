@@ -19,13 +19,18 @@ package runner
 
 import (
 	"context"
+	"errors"
 	"fmt"
-
 	"github.com/apache/incubator-devlake/config"
 	"github.com/apache/incubator-devlake/logger"
 	"github.com/apache/incubator-devlake/migration"
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/spf13/cobra"
+	"io"
+	"os"
+	"os/signal"
+	"runtime"
+	"syscall"
 )
 
 func RunCmd(cmd *cobra.Command) {
@@ -72,23 +77,7 @@ func DirectRun(cmd *cobra.Command, args []string, pluginTask core.PluginTask, op
 	if err != nil {
 		panic(err)
 	}
-
-	ctx, cancel := context.WithCancel(context.Background())
-	go func() {
-		var buf string
-
-		n, err := fmt.Scan(&buf)
-		if err != nil {
-			panic(err)
-		} else if n == 1 && buf == "c" {
-			cancel()
-		} else {
-			println("unknown key press, code: ", buf)
-			println("press `c` and enter to send cancel signal")
-		}
-	}()
-	println("press `c` and enter to send cancel signal")
-
+	ctx := createContext()
 	err = RunPluginSubTasks(
 		cfg,
 		log,
@@ -102,5 +91,44 @@ func DirectRun(cmd *cobra.Command, args []string, pluginTask core.PluginTask, op
 	)
 	if err != nil {
 		panic(err)
+	}
+}
+
+func createContext() context.Context {
+	ctx, cancel := context.WithCancel(context.Background())
+	sigc := make(chan os.Signal, 1)
+	signal.Notify(sigc, getStopSignals()...)
+	go func() {
+		<-sigc
+		cancel()
+	}()
+	go func() {
+		var buf string
+
+		n, err := fmt.Scan(&buf)
+		if err != nil {
+			if errors.Is(err, io.EOF) {
+				return
+			}
+			panic(err)
+		} else if n == 1 && buf == "c" {
+			cancel()
+		} else {
+			println("unknown key press, code: ", buf)
+			println("press `c` and enter to send cancel signal")
+		}
+	}()
+	println("press `c` and enter to send cancel signal")
+	return ctx
+}
+
+func getStopSignals() []os.Signal {
+	if runtime.GOOS == "windows" {
+		return []os.Signal{
+			syscall.Signal(0x6), //syscall.SIGABRT for windows
+		}
+	}
+	return []os.Signal{
+		syscall.Signal(0x14), //syscall.SIGTSTP for posix
 	}
 }
