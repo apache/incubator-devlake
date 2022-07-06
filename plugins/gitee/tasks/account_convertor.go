@@ -47,7 +47,7 @@ func ConvertAccounts(taskCtx core.SubTaskContext) error {
 	}
 	defer cursor.Close()
 
-	userIdGen := didgen.NewDomainIdGenerator(&models.GiteeAccount{})
+	accountIdGen := didgen.NewDomainIdGenerator(&models.GiteeAccount{})
 
 	converter, err := helper.NewDataConverter(helper.DataConverterArgs{
 		InputRowType:       reflect.TypeOf(models.GiteeAccount{}),
@@ -56,7 +56,7 @@ func ConvertAccounts(taskCtx core.SubTaskContext) error {
 		Convert: func(inputRow interface{}) ([]interface{}, error) {
 			GiteeAccount := inputRow.(*models.GiteeAccount)
 			domainUser := &crossdomain.Account{
-				DomainEntity: domainlayer.DomainEntity{Id: userIdGen.Generate(data.Options.ConnectionId, GiteeAccount.Id)},
+				DomainEntity: domainlayer.DomainEntity{Id: accountIdGen.Generate(data.Options.ConnectionId, GiteeAccount.Id)},
 				UserName:     GiteeAccount.Login,
 				AvatarUrl:    GiteeAccount.AvatarUrl,
 			}

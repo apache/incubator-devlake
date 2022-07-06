@@ -76,7 +76,7 @@ func (plugin Github) SubTaskMetas() []core.SubTaskMeta {
 		tasks.ConvertPullRequestsMeta,
 		tasks.ConvertPullRequestLabelsMeta,
 		tasks.ConvertPullRequestIssuesMeta,
-		tasks.ConvertUsersMeta,
+		tasks.ConvertAccountsMeta,
 		tasks.ConvertIssueCommentsMeta,
 		tasks.ConvertPullRequestCommentsMeta,
 	}

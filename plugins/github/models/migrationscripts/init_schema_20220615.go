@@ -19,6 +19,7 @@ package migrationscripts
 
 import (
 	"context"
+
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/helper"
 
@@ -68,7 +69,7 @@ func (u *initSchemas) Up(ctx context.Context, db *gorm.DB) error {
 		&archived.GithubIssueComment{},
 		&archived.GithubIssueEvent{},
 		&archived.GithubIssueLabel{},
-		&archived.GithubUser{},
+		&archived.GithubAccount{},
 		&archived.GithubPullRequestIssue{},
 		&archived.GithubCommitStat{},
 		"_raw_github_api_issues",
@@ -122,7 +123,7 @@ func (u *initSchemas) Up(ctx context.Context, db *gorm.DB) error {
 		&archived.GithubIssueComment{},
 		&archived.GithubIssueEvent{},
 		&archived.GithubIssueLabel{},
-		&archived.GithubUser{},
+		&archived.GithubAccount{},
 		&archived.GithubPullRequestIssue{},
 		&archived.GithubCommitStat{},
 	)

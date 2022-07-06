@@ -36,7 +36,7 @@ var ExtractApiPullRequestReviewersMeta = core.SubTaskMeta{
 
 type PullRequestReview struct {
 	GithubId    int `json:"id"`
-	User        *GithubUserResponse
+	User        *GithubAccountResponse
 	Body        string
 	State       string
 	SubmittedAt helper.Iso8601Time `json:"submitted_at"`
@@ -85,7 +85,7 @@ func ExtractApiPullRequestReviewers(taskCtx core.SubTaskContext) error {
 				PullRequestId: pull.GithubId,
 			}
 			results = append(results, githubReviewer)
-			githubUser, err := convertUser(apiPullRequestReview.User, data.Options.ConnectionId)
+			githubUser, err := convertAccount(apiPullRequestReview.User, data.Options.ConnectionId)
 			if err != nil {
 				return nil, err
 			}

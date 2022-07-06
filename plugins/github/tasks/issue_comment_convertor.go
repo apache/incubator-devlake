@@ -54,7 +54,7 @@ func ConvertIssueComments(taskCtx core.SubTaskContext) error {
 	defer cursor.Close()
 
 	issueIdGen := didgen.NewDomainIdGenerator(&githubModels.GithubIssue{})
-	userIdGen := didgen.NewDomainIdGenerator(&githubModels.GithubUser{})
+	accountIdGen := didgen.NewDomainIdGenerator(&githubModels.GithubAccount{})
 
 	converter, err := helper.NewDataConverter(helper.DataConverterArgs{
 		InputRowType: reflect.TypeOf(githubModels.GithubIssueComment{}),
@@ -76,7 +76,7 @@ func ConvertIssueComments(taskCtx core.SubTaskContext) error {
 				},
 				IssueId:     issueIdGen.Generate(data.Options.ConnectionId, githubIssueComment.IssueId),
 				Body:        githubIssueComment.Body,
-				UserId:      userIdGen.Generate(data.Options.ConnectionId, githubIssueComment.AuthorUserId),
+				UserId:      accountIdGen.Generate(data.Options.ConnectionId, githubIssueComment.AuthorUserId),
 				CreatedDate: githubIssueComment.GithubCreatedAt,
 			}
 			return []interface{}{

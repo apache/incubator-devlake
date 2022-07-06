@@ -46,8 +46,8 @@ type GithubApiPullRequest struct {
 	Labels   []struct {
 		Name string `json:"name"`
 	} `json:"labels"`
-	Assignee        *GithubUserResponse
-	User            *GithubUserResponse
+	Assignee        *GithubAccountResponse
+	User            *GithubAccountResponse
 	ClosedAt        *helper.Iso8601Time `json:"closed_at"`
 	MergedAt        *helper.Iso8601Time `json:"merged_at"`
 	GithubCreatedAt helper.Iso8601Time  `json:"created_at"`
@@ -118,7 +118,7 @@ func ExtractApiPullRequests(taskCtx core.SubTaskContext) error {
 				return nil, err
 			}
 			if rawL.User != nil {
-				githubUser, err := convertUser(rawL.User, data.Options.ConnectionId)
+				githubUser, err := convertAccount(rawL.User, data.Options.ConnectionId)
 				if err != nil {
 					return nil, err
 				}

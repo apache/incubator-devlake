@@ -54,7 +54,7 @@ func ConvertPullRequestComments(taskCtx core.SubTaskContext) error {
 	defer cursor.Close()
 
 	prIdGen := didgen.NewDomainIdGenerator(&githubModels.GithubPullRequest{})
-	userIdGen := didgen.NewDomainIdGenerator(&githubModels.GithubUser{})
+	accountIdGen := didgen.NewDomainIdGenerator(&githubModels.GithubAccount{})
 
 	converter, err := helper.NewDataConverter(helper.DataConverterArgs{
 		InputRowType: reflect.TypeOf(githubModels.GithubPullRequestComment{}),
@@ -76,7 +76,7 @@ func ConvertPullRequestComments(taskCtx core.SubTaskContext) error {
 				},
 				PullRequestId: prIdGen.Generate(data.Options.ConnectionId, githubPullRequestComment.PullRequestId),
 				Body:          githubPullRequestComment.Body,
-				UserId:        userIdGen.Generate(data.Options.ConnectionId, githubPullRequestComment.AuthorUserId),
+				UserId:        accountIdGen.Generate(data.Options.ConnectionId, githubPullRequestComment.AuthorUserId),
 				CreatedDate:   githubPullRequestComment.GithubCreatedAt,
 				CommitSha:     "",
 				Position:      0,
