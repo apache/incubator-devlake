@@ -19,7 +19,6 @@ package archived
 
 import "github.com/apache/incubator-devlake/models/migrationscripts/archived"
 
-
 type JiraBoardIssue struct {
 	ConnectionId uint64 `gorm:"primaryKey"`
 	BoardId      uint64 `gorm:"primaryKey"`
