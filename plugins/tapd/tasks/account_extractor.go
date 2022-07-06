@@ -25,28 +25,28 @@ import (
 	"github.com/apache/incubator-devlake/plugins/tapd/models"
 )
 
-var _ core.SubTaskEntryPoint = ExtractUsers
+var _ core.SubTaskEntryPoint = ExtractAccounts
 
-var ExtractUserMeta = core.SubTaskMeta{
-	Name:             "extractUsers",
-	EntryPoint:       ExtractUsers,
+var ExtractAccountsMeta = core.SubTaskMeta{
+	Name:             "extractAccounts",
+	EntryPoint:       ExtractAccounts,
 	EnabledByDefault: true,
 	Description:      "Extract raw workspace data into tool layer table _tool_tapd_accounts",
 }
 
-func ExtractUsers(taskCtx core.SubTaskContext) error {
+func ExtractAccounts(taskCtx core.SubTaskContext) error {
 	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_USER_TABLE, false)
 	extractor, err := helper.NewApiExtractor(helper.ApiExtractorArgs{
 		RawDataSubTaskArgs: *rawDataSubTaskArgs,
 		Extract: func(row *helper.RawData) ([]interface{}, error) {
 			var userRes struct {
-				UserWorkspace models.TapdUser
+				UserWorkspace models.TapdAccount
 			}
 			err := json.Unmarshal(row.Data, &userRes)
 			if err != nil {
 				return nil, err
 			}
-			toolL := models.TapdUser{
+			toolL := models.TapdAccount{
 				ConnectionId: data.Options.ConnectionId,
 				User:         userRes.UserWorkspace.User,
 				Name:         userRes.UserWorkspace.Name,
