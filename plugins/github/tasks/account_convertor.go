@@ -20,38 +20,39 @@ package tasks
 import (
 	"reflect"
 
+	"github.com/apache/incubator-devlake/models/domainlayer/crossdomain"
+
 	"github.com/apache/incubator-devlake/plugins/core/dal"
 
 	"github.com/apache/incubator-devlake/models/domainlayer"
 	"github.com/apache/incubator-devlake/models/domainlayer/didgen"
-	"github.com/apache/incubator-devlake/models/domainlayer/user"
 	"github.com/apache/incubator-devlake/plugins/core"
 	githubModels "github.com/apache/incubator-devlake/plugins/github/models"
 	"github.com/apache/incubator-devlake/plugins/helper"
 )
 
-var ConvertUsersMeta = core.SubTaskMeta{
-	Name:             "convertUsers",
-	EntryPoint:       ConvertUsers,
+var ConvertAccountsMeta = core.SubTaskMeta{
+	Name:             "convertAccounts",
+	EntryPoint:       ConvertAccounts,
 	EnabledByDefault: true,
-	Description:      "Convert tool layer table github_users into  domain layer table users",
+	Description:      "Convert tool layer table github_accounts into  domain layer table accounts",
 	DomainTypes:      []string{core.DOMAIN_TYPE_CROSS},
 }
 
-func ConvertUsers(taskCtx core.SubTaskContext) error {
+func ConvertAccounts(taskCtx core.SubTaskContext) error {
 	db := taskCtx.GetDal()
 	data := taskCtx.GetData().(*GithubTaskData)
 
-	cursor, err := db.Cursor(dal.From(&githubModels.GithubUser{}))
+	cursor, err := db.Cursor(dal.From(&githubModels.GithubAccount{}))
 	if err != nil {
 		return err
 	}
 	defer cursor.Close()
 
-	userIdGen := didgen.NewDomainIdGenerator(&githubModels.GithubUser{})
+	accountIdGen := didgen.NewDomainIdGenerator(&githubModels.GithubAccount{})
 
 	converter, err := helper.NewDataConverter(helper.DataConverterArgs{
-		InputRowType: reflect.TypeOf(githubModels.GithubUser{}),
+		InputRowType: reflect.TypeOf(githubModels.GithubAccount{}),
 		Input:        cursor,
 		RawDataSubTaskArgs: helper.RawDataSubTaskArgs{
 			Ctx: taskCtx,
@@ -63,10 +64,10 @@ func ConvertUsers(taskCtx core.SubTaskContext) error {
 			Table: RAW_COMMIT_TABLE,
 		},
 		Convert: func(inputRow interface{}) ([]interface{}, error) {
-			githubUser := inputRow.(*githubModels.GithubUser)
-			domainUser := &user.User{
-				DomainEntity: domainlayer.DomainEntity{Id: userIdGen.Generate(data.Options.ConnectionId, githubUser.Id)},
-				Name:         githubUser.Login,
+			githubUser := inputRow.(*githubModels.GithubAccount)
+			domainUser := &crossdomain.Account{
+				DomainEntity: domainlayer.DomainEntity{Id: accountIdGen.Generate(data.Options.ConnectionId, githubUser.Id)},
+				UserName:     githubUser.Login,
 				AvatarUrl:    githubUser.AvatarUrl,
 			}
 			return []interface{}{

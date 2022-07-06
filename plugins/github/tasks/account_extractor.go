@@ -21,7 +21,7 @@ import (
 	"github.com/apache/incubator-devlake/plugins/github/models"
 )
 
-type GithubUserResponse struct {
+type GithubAccountResponse struct {
 	Login             string `json:"login"`
 	Id                int    `json:"id"`
 	NodeId            string `json:"node_id"`
@@ -42,8 +42,8 @@ type GithubUserResponse struct {
 	SiteAdmin         bool   `json:"site_admin"`
 }
 
-func convertUser(res *GithubUserResponse, connId uint64) (*models.GithubUser, error) {
-	githubUser := &models.GithubUser{
+func convertAccount(res *GithubAccountResponse, connId uint64) (*models.GithubAccount, error) {
+	githubAccount := &models.GithubAccount{
 		ConnectionId: connId,
 		Id:           res.Id,
 		Login:        res.Login,
@@ -52,5 +52,5 @@ func convertUser(res *GithubUserResponse, connId uint64) (*models.GithubUser, er
 		HtmlUrl:      res.HtmlUrl,
 		Type:         res.Type,
 	}
-	return githubUser, nil
+	return githubAccount, nil
 }

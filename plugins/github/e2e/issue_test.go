@@ -61,7 +61,7 @@ func TestIssueDataFlow(t *testing.T) {
 	// verify issue extraction
 	dataflowTester.FlushTabler(&models.GithubIssue{})
 	dataflowTester.FlushTabler(&models.GithubIssueLabel{})
-	dataflowTester.FlushTabler(&models.GithubUser{})
+	dataflowTester.FlushTabler(&models.GithubAccount{})
 	dataflowTester.Subtask(tasks.ExtractApiIssuesMeta, taskData)
 	dataflowTester.VerifyTable(
 		models.GithubIssue{},
@@ -109,7 +109,7 @@ func TestIssueDataFlow(t *testing.T) {
 		},
 	)
 	dataflowTester.VerifyTable(
-		models.GithubUser{},
+		models.GithubAccount{},
 		"./snapshot_tables/_tool_github_accounts_in_issue.csv",
 		[]string{
 			"connection_id",

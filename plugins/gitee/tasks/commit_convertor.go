@@ -56,7 +56,7 @@ func ConvertCommits(taskCtx core.SubTaskContext) error {
 	}
 	defer cursor.Close()
 
-	userDidGen := didgen.NewDomainIdGenerator(&models.GiteeAccount{})
+	accountIdGen := didgen.NewDomainIdGenerator(&models.GiteeAccount{})
 	repoDidGen := didgen.NewDomainIdGenerator(&models.GiteeRepo{})
 	domainRepoId := repoDidGen.Generate(data.Options.ConnectionId, repoId)
 
@@ -74,14 +74,14 @@ func ConvertCommits(taskCtx core.SubTaskContext) error {
 			commit.Message = giteeCommit.Message
 			commit.Additions = giteeCommit.Additions
 			commit.Deletions = giteeCommit.Deletions
-			commit.AuthorId = userDidGen.Generate(data.Options.ConnectionId, giteeCommit.AuthorId)
+			commit.AuthorId = accountIdGen.Generate(data.Options.ConnectionId, giteeCommit.AuthorId)
 			commit.AuthorName = giteeCommit.AuthorName
 			commit.AuthorEmail = giteeCommit.AuthorEmail
 			commit.AuthoredDate = giteeCommit.AuthoredDate
 			commit.CommitterName = giteeCommit.CommitterName
 			commit.CommitterEmail = giteeCommit.CommitterEmail
 			commit.CommittedDate = giteeCommit.CommittedDate
-			commit.CommitterId = userDidGen.Generate(data.Options.ConnectionId, giteeCommit.CommitterId)
+			commit.CommitterId = accountIdGen.Generate(data.Options.ConnectionId, giteeCommit.CommitterId)
 
 			// convert repo / commits relationship
 			repoCommit := &code.RepoCommit{

@@ -18,11 +18,11 @@ limitations under the License.
 package tasks
 
 import (
+	"github.com/apache/incubator-devlake/models/domainlayer/crossdomain"
 	"reflect"
 
 	"github.com/apache/incubator-devlake/models/domainlayer"
 	"github.com/apache/incubator-devlake/models/domainlayer/didgen"
-	"github.com/apache/incubator-devlake/models/domainlayer/user"
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/core/dal"
 	"github.com/apache/incubator-devlake/plugins/helper"
@@ -49,11 +49,11 @@ func ConvertUser(taskCtx core.SubTaskContext) error {
 		Input:              cursor,
 		Convert: func(inputRow interface{}) ([]interface{}, error) {
 			userTool := inputRow.(*models.TapdUser)
-			issue := &user.User{
+			issue := &crossdomain.Account{
 				DomainEntity: domainlayer.DomainEntity{
 					Id: userIdGen.Generate(data.Options.ConnectionId, userTool.User),
 				},
-				Name: userTool.Name,
+				UserName: userTool.Name,
 			}
 
 			return []interface{}{
@@ -72,5 +72,5 @@ var ConvertUserMeta = core.SubTaskMeta{
 	Name:             "convertUser",
 	EntryPoint:       ConvertUser,
 	EnabledByDefault: true,
-	Description:      "convert Tapd User",
+	Description:      "convert Tapd Account",
 }

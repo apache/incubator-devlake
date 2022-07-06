@@ -18,13 +18,13 @@ limitations under the License.
 package tasks
 
 import (
+	"github.com/apache/incubator-devlake/models/domainlayer/crossdomain"
 	"reflect"
 
 	"github.com/apache/incubator-devlake/plugins/core/dal"
 
 	"github.com/apache/incubator-devlake/models/domainlayer"
 	"github.com/apache/incubator-devlake/models/domainlayer/didgen"
-	"github.com/apache/incubator-devlake/models/domainlayer/user"
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/gitee/models"
 	"github.com/apache/incubator-devlake/plugins/helper"
@@ -47,7 +47,7 @@ func ConvertAccounts(taskCtx core.SubTaskContext) error {
 	}
 	defer cursor.Close()
 
-	userIdGen := didgen.NewDomainIdGenerator(&models.GiteeAccount{})
+	accountIdGen := didgen.NewDomainIdGenerator(&models.GiteeAccount{})
 
 	converter, err := helper.NewDataConverter(helper.DataConverterArgs{
 		InputRowType:       reflect.TypeOf(models.GiteeAccount{}),
@@ -55,9 +55,9 @@ func ConvertAccounts(taskCtx core.SubTaskContext) error {
 		RawDataSubTaskArgs: *rawDataSubTaskArgs,
 		Convert: func(inputRow interface{}) ([]interface{}, error) {
 			GiteeAccount := inputRow.(*models.GiteeAccount)
-			domainUser := &user.User{
-				DomainEntity: domainlayer.DomainEntity{Id: userIdGen.Generate(data.Options.ConnectionId, GiteeAccount.Id)},
-				Name:         GiteeAccount.Login,
+			domainUser := &crossdomain.Account{
+				DomainEntity: domainlayer.DomainEntity{Id: accountIdGen.Generate(data.Options.ConnectionId, GiteeAccount.Id)},
+				UserName:     GiteeAccount.Login,
 				AvatarUrl:    GiteeAccount.AvatarUrl,
 			}
 			return []interface{}{

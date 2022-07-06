@@ -55,7 +55,7 @@ func ConvertIssues(taskCtx core.SubTaskContext) error {
 	defer cursor.Close()
 
 	issueIdGen := didgen.NewDomainIdGenerator(&giteeModels.GiteeIssue{})
-	userIdGen := didgen.NewDomainIdGenerator(&giteeModels.GiteeAccount{})
+	accountIdGen := didgen.NewDomainIdGenerator(&giteeModels.GiteeAccount{})
 	boardIdGen := didgen.NewDomainIdGenerator(&giteeModels.GiteeRepo{})
 
 	converter, err := helper.NewDataConverter(helper.DataConverterArgs{
@@ -71,9 +71,9 @@ func ConvertIssues(taskCtx core.SubTaskContext) error {
 				Description:     issue.Body,
 				Priority:        issue.Priority,
 				Type:            issue.Type,
-				AssigneeId:      userIdGen.Generate(data.Options.ConnectionId, issue.AssigneeId),
+				AssigneeId:      accountIdGen.Generate(data.Options.ConnectionId, issue.AssigneeId),
 				AssigneeName:    issue.AssigneeName,
-				CreatorId:       userIdGen.Generate(data.Options.ConnectionId, issue.AuthorId),
+				CreatorId:       accountIdGen.Generate(data.Options.ConnectionId, issue.AuthorId),
 				CreatorName:     issue.AuthorName,
 				LeadTimeMinutes: issue.LeadTimeMinutes,
 				Url:             issue.Url,

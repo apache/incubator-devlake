@@ -56,7 +56,7 @@ func ConvertIssues(taskCtx core.SubTaskContext) error {
 	defer cursor.Close()
 
 	issueIdGen := didgen.NewDomainIdGenerator(&githubModels.GithubIssue{})
-	userIdGen := didgen.NewDomainIdGenerator(&githubModels.GithubUser{})
+	accountIdGen := didgen.NewDomainIdGenerator(&githubModels.GithubAccount{})
 	boardIdGen := didgen.NewDomainIdGenerator(&githubModels.GithubRepo{})
 
 	converter, err := helper.NewDataConverter(helper.DataConverterArgs{
@@ -80,9 +80,9 @@ func ConvertIssues(taskCtx core.SubTaskContext) error {
 				Description:     issue.Body,
 				Priority:        issue.Priority,
 				Type:            issue.Type,
-				AssigneeId:      userIdGen.Generate(data.Options.ConnectionId, issue.AssigneeId),
+				AssigneeId:      accountIdGen.Generate(data.Options.ConnectionId, issue.AssigneeId),
 				AssigneeName:    issue.AssigneeName,
-				CreatorId:       userIdGen.Generate(data.Options.ConnectionId, issue.AuthorId),
+				CreatorId:       accountIdGen.Generate(data.Options.ConnectionId, issue.AuthorId),
 				CreatorName:     issue.AuthorName,
 				LeadTimeMinutes: issue.LeadTimeMinutes,
 				Url:             issue.Url,

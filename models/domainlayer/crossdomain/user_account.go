@@ -15,20 +15,13 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package user
+package crossdomain
 
-import (
-	"github.com/apache/incubator-devlake/models/domainlayer"
-)
-
-type User struct {
-	domainlayer.DomainEntity
-	Name      string `gorm:"type:varchar(255)"`
-	Email     string `gorm:"type:varchar(255)"`
-	AvatarUrl string `gorm:"type:varchar(255)"`
-	Timezone  string `gorm:"type:varchar(255)"`
+type UserAccount struct {
+	UserId    string `gorm:"primaryKey;type:varchar(255)"`
+	AccountId string `gorm:"primaryKey;type:varchar(255)"`
 }
 
-func (User) TableName() string {
-	return "users"
+func (UserAccount) TableName() string {
+	return "user_accounts"
 }

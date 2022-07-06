@@ -15,22 +15,21 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package migrationscripts
+package archived
 
-import "github.com/apache/incubator-devlake/migration"
+import "github.com/apache/incubator-devlake/models/migrationscripts/archived"
 
-// All return all the migration scripts of framework
-func All() []migration.Script {
-	return []migration.Script{
-		new(initSchemas),
-		new(updateSchemas20220505), new(updateSchemas20220507), new(updateSchemas20220510),
-		new(updateSchemas20220513), new(updateSchemas20220524), new(updateSchemas20220526),
-		new(updateSchemas20220527), new(updateSchemas20220528), new(updateSchemas20220601),
-		new(updateSchemas20220602), new(updateSchemas20220612), new(updateSchemas20220613),
-		new(updateSchemas20220614), new(updateSchemas2022061402), new(updateSchemas20220616),
-		new(blueprintNormalMode),
-		new(UpdateSchemas20220630),
-		new(UpdateSchemas20220704),
-		new(UpdateSchemas20220705),
-	}
+type GithubAccount struct {
+	ConnectionId uint64 `gorm:"primaryKey"`
+	Id           int    `json:"id" gorm:"primaryKey;autoIncrement:false"`
+	Login        string `json:"login" gorm:"type:varchar(255)"`
+	AvatarUrl    string `json:"avatar_url" gorm:"type:varchar(255)"`
+	Url          string `json:"url" gorm:"type:varchar(255)"`
+	HtmlUrl      string `json:"html_url" gorm:"type:varchar(255)"`
+	Type         string `json:"type" gorm:"type:varchar(255)"`
+	archived.NoPKModel
+}
+
+func (GithubAccount) TableName() string {
+	return "_tool_github_accounts"
 }

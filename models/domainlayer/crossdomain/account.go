@@ -15,21 +15,25 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package archived
+package crossdomain
 
-import "github.com/apache/incubator-devlake/models/migrationscripts/archived"
+import (
+	"time"
 
-type GithubUser struct {
-	ConnectionId uint64 `gorm:"primaryKey"`
-	Id           int    `json:"id" gorm:"primaryKey;autoIncrement:false"`
-	Login        string `json:"login" gorm:"type:varchar(255)"`
-	AvatarUrl    string `json:"avatar_url" gorm:"type:varchar(255)"`
-	Url          string `json:"url" gorm:"type:varchar(255)"`
-	HtmlUrl      string `json:"html_url" gorm:"type:varchar(255)"`
-	Type         string `json:"type" gorm:"type:varchar(255)"`
-	archived.NoPKModel
+	"github.com/apache/incubator-devlake/models/domainlayer"
+)
+
+type Account struct {
+	domainlayer.DomainEntity
+	Email        string `gorm:"type:varchar(255)"`
+	FullName     string `gorm:"type:varchar(255)"`
+	UserName     string `gorm:"type:varchar(255)"`
+	AvatarUrl    string `gorm:"type:varchar(255)"`
+	Organization string `gorm:"type:varchar(255)"`
+	CreatedDate  *time.Time
+	Status       int
 }
 
-func (GithubUser) TableName() string {
-	return "_tool_github_accounts"
+func (Account) TableName() string {
+	return "accounts"
 }

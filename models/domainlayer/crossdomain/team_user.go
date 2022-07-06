@@ -15,23 +15,13 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package models
+package crossdomain
 
-import (
-	"github.com/apache/incubator-devlake/models/common"
-)
-
-type GithubUser struct {
-	ConnectionId uint64 `gorm:"primaryKey"`
-	Id           int    `json:"id" gorm:"primaryKey;autoIncrement:false"`
-	Login        string `json:"login" gorm:"type:varchar(255)"`
-	AvatarUrl    string `json:"avatar_url" gorm:"type:varchar(255)"`
-	Url          string `json:"url" gorm:"type:varchar(255)"`
-	HtmlUrl      string `json:"html_url" gorm:"type:varchar(255)"`
-	Type         string `json:"type" gorm:"type:varchar(255)"`
-	common.NoPKModel
+type TeamUser struct {
+	TeamId string `gorm:"primaryKey;type:varchar(255)"`
+	UserId string `gorm:"primaryKey;type:varchar(255)"`
 }
 
-func (GithubUser) TableName() string {
-	return "_tool_github_accounts"
+func (TeamUser) TableName() string {
+	return "team_users"
 }

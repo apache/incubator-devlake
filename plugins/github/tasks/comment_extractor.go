@@ -40,7 +40,7 @@ var ExtractApiCommentsMeta = core.SubTaskMeta{
 type IssueComment struct {
 	GithubId        int `json:"id"`
 	Body            json.RawMessage
-	User            *GithubUserResponse
+	User            *GithubAccountResponse
 	IssueUrl        string             `json:"issue_url"`
 	GithubCreatedAt helper.Iso8601Time `json:"created_at"`
 	GithubUpdatedAt helper.Iso8601Time `json:"updated_at"`
@@ -111,11 +111,11 @@ func ExtractApiComments(taskCtx core.SubTaskContext) error {
 				}
 				results = append(results, githubIssueComment)
 			}
-			githubUser, err := convertUser(apiComment.User, data.Options.ConnectionId)
+			githubAccount, err := convertAccount(apiComment.User, data.Options.ConnectionId)
 			if err != nil {
 				return nil, err
 			}
-			results = append(results, githubUser)
+			results = append(results, githubAccount)
 			return results, nil
 		},
 	})

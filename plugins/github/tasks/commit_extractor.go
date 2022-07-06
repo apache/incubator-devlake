@@ -37,8 +37,8 @@ type CommitsResponse struct {
 	Sha       string `json:"sha"`
 	Commit    Commit
 	Url       string
-	Author    *models.GithubUser
-	Committer *models.GithubUser
+	Author    *models.GithubAccount
+	Committer *models.GithubAccount
 }
 
 type Commit struct {

@@ -54,7 +54,7 @@ func ConvertPullRequestComments(taskCtx core.SubTaskContext) error {
 	defer cursor.Close()
 
 	prIdGen := didgen.NewDomainIdGenerator(&models.GiteePullRequest{})
-	userIdGen := didgen.NewDomainIdGenerator(&models.GiteeAccount{})
+	accountIdGen := didgen.NewDomainIdGenerator(&models.GiteeAccount{})
 
 	converter, err := helper.NewDataConverter(helper.DataConverterArgs{
 		InputRowType:       reflect.TypeOf(models.GiteePullRequestComment{}),
@@ -68,7 +68,7 @@ func ConvertPullRequestComments(taskCtx core.SubTaskContext) error {
 				},
 				PullRequestId: prIdGen.Generate(data.Options.ConnectionId, giteePullRequestComment.PullRequestId),
 				Body:          giteePullRequestComment.Body,
-				UserId:        userIdGen.Generate(data.Options.ConnectionId, giteePullRequestComment.AuthorUserId),
+				UserId:        accountIdGen.Generate(data.Options.ConnectionId, giteePullRequestComment.AuthorUserId),
 				CreatedDate:   giteePullRequestComment.GiteeCreatedAt,
 				CommitSha:     "",
 				Position:      0,

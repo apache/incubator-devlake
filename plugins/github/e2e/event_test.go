@@ -48,7 +48,7 @@ func TestEventDataFlow(t *testing.T) {
 
 	// verify extraction
 	dataflowTester.FlushTabler(&models.GithubIssueEvent{})
-	dataflowTester.FlushTabler(&models.GithubUser{})
+	dataflowTester.FlushTabler(&models.GithubAccount{})
 	dataflowTester.Subtask(tasks.ExtractApiEventsMeta, taskData)
 	dataflowTester.VerifyTable(
 		models.GithubIssueEvent{},
@@ -67,7 +67,7 @@ func TestEventDataFlow(t *testing.T) {
 		},
 	)
 	dataflowTester.VerifyTable(
-		models.GithubUser{},
+		models.GithubAccount{},
 		"./snapshot_tables/_tool_github_accounts_in_event.csv",
 		[]string{
 			"connection_id",
