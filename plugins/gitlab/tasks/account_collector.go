@@ -19,49 +19,54 @@ package tasks
 
 import (
 	"encoding/json"
+	"net/http"
+	"net/url"
 
 	"github.com/apache/incubator-devlake/plugins/core"
-	"github.com/apache/incubator-devlake/plugins/gitlab/models"
 	"github.com/apache/incubator-devlake/plugins/helper"
 )
 
-var ExtractUserMeta = core.SubTaskMeta{
-	Name:             "extractUsers",
-	EntryPoint:       ExtractUsers,
+const RAW_USER_TABLE = "gitlab_api_users"
+
+var CollectAccountMeta = core.SubTaskMeta{
+	Name:             "collectAccounts",
+	EntryPoint:       CollectAccounts,
 	EnabledByDefault: true,
-	Description:      "Extract raw workspace data into tool layer table _tool_gitlab_accounts",
+	Description:      "collect gitlab users",
 }
 
-func ExtractUsers(taskCtx core.SubTaskContext) error {
+func CollectAccounts(taskCtx core.SubTaskContext) error {
 	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_USER_TABLE)
+	logger := taskCtx.GetLogger()
+	logger.Info("collect gitlab users")
 
-	extractor, err := helper.NewApiExtractor(helper.ApiExtractorArgs{
+	collector, err := helper.NewApiCollector(helper.ApiCollectorArgs{
 		RawDataSubTaskArgs: *rawDataSubTaskArgs,
-		Extract: func(row *helper.RawData) ([]interface{}, error) {
-			var userRes models.GitlabUser
-			err := json.Unmarshal(row.Data, &userRes)
+		ApiClient:          data.ApiClient,
+		UrlTemplate:        "/projects/{{ .Params.ProjectId }}/members/all",
+		//PageSize:           100,
+		Query: func(reqData *helper.RequestData) (url.Values, error) {
+			query := url.Values{}
+			// query.Set("sort", "asc")
+			// query.Set("page", fmt.Sprintf("%v", reqData.Pager.Page))
+			// query.Set("per_page", fmt.Sprintf("%v", reqData.Pager.Size))
+			return query, nil
+		},
+
+		ResponseParser: func(res *http.Response) ([]json.RawMessage, error) {
+			var items []json.RawMessage
+			err := helper.UnmarshalResponse(res, &items)
 			if err != nil {
 				return nil, err
 			}
-
-			results := make([]interface{}, 0)
-			GitlabUser := &models.GitlabUser{
-				ConnectionId:    data.Options.ConnectionId,
-				Username:        userRes.Username,
-				Name:            userRes.Name,
-				State:           userRes.State,
-				MembershipState: userRes.MembershipState,
-				AvatarUrl:       userRes.AvatarUrl,
-				WebUrl:          userRes.WebUrl,
-			}
-			results = append(results, GitlabUser)
-			return results, nil
+			return items, nil
 		},
 	})
 
 	if err != nil {
+		logger.Error("collect user error:", err)
 		return err
 	}
 
-	return extractor.Execute()
+	return collector.Execute()
 }

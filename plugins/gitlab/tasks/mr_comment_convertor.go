@@ -60,7 +60,7 @@ func ConvertMergeRequestComment(taskCtx core.SubTaskContext) error {
 
 	domainIdGeneratorComment := didgen.NewDomainIdGenerator(&models.GitlabMrComment{})
 	prIdGen := didgen.NewDomainIdGenerator(&models.GitlabMergeRequest{})
-	userIdGen := didgen.NewDomainIdGenerator(&models.GitlabUser{})
+	accountIdGen := didgen.NewDomainIdGenerator(&models.GitlabAccount{})
 
 	converter, err := helper.NewDataConverter(helper.DataConverterArgs{
 		RawDataSubTaskArgs: *rawDataSubTaskArgs,
@@ -76,7 +76,7 @@ func ConvertMergeRequestComment(taskCtx core.SubTaskContext) error {
 				},
 				PullRequestId: prIdGen.Generate(data.Options.ConnectionId, gitlabComments.MergeRequestId),
 				Body:          gitlabComments.Body,
-				UserId:        userIdGen.Generate(data.Options.ConnectionId, gitlabComments.AuthorUserId),
+				UserId:        accountIdGen.Generate(data.Options.ConnectionId, gitlabComments.AuthorUserId),
 				CreatedDate:   gitlabComments.GitlabCreatedAt,
 				Type:          gitlabComments.Type,
 			}

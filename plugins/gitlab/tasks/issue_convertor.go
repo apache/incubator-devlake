@@ -57,7 +57,7 @@ func ConvertIssues(taskCtx core.SubTaskContext) error {
 	defer cursor.Close()
 
 	issueIdGen := didgen.NewDomainIdGenerator(&gitlabModels.GitlabIssue{})
-	userIdGen := didgen.NewDomainIdGenerator(&gitlabModels.GitlabUser{})
+	accountIdGen := didgen.NewDomainIdGenerator(&gitlabModels.GitlabAccount{})
 	boardIdGen := didgen.NewDomainIdGenerator(&gitlabModels.GitlabProject{})
 
 	converter, err := helper.NewDataConverter(helper.DataConverterArgs{
@@ -83,9 +83,9 @@ func ConvertIssues(taskCtx core.SubTaskContext) error {
 				OriginalStatus:          issue.Status,
 				OriginalEstimateMinutes: issue.TimeEstimate,
 				TimeSpentMinutes:        issue.TotalTimeSpent,
-				CreatorId:               userIdGen.Generate(data.Options.ConnectionId, issue.CreatorId),
+				CreatorId:               accountIdGen.Generate(data.Options.ConnectionId, issue.CreatorId),
 				CreatorName:             issue.CreatorName,
-				AssigneeId:              userIdGen.Generate(data.Options.ConnectionId, issue.AssigneeId),
+				AssigneeId:              accountIdGen.Generate(data.Options.ConnectionId, issue.AssigneeId),
 				AssigneeName:            issue.AssigneeName,
 			}
 
