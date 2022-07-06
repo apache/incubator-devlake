@@ -15,16 +15,29 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package migrationscripts
+package models
 
 import (
-	"github.com/apache/incubator-devlake/migration"
+	"github.com/apache/incubator-devlake/models/common"
+	"time"
 )
 
-// All return all the migration scripts
-func All() []migration.Script {
-	return []migration.Script{
-		new(initSchemas),
-		new(UpdateSchemas20220620),
-	}
+type GithubMilestone struct {
+	ConnectionId uint64 `gorm:"primaryKey"`
+	MilestoneId  int    `gorm:"primaryKey;autoIncrement:false"`
+	RepoId       int
+	Number       int
+	URL          string
+	Title        string
+	OpenIssues   int
+	ClosedIssues int
+	State        string
+	CreatedAt    time.Time
+	UpdatedAt    time.Time
+	ClosedAt     *time.Time
+	common.NoPKModel
+}
+
+func (GithubMilestone) TableName() string {
+	return "_tool_github_milestones"
 }

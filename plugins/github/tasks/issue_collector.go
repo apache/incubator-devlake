@@ -114,7 +114,7 @@ func CollectApiIssues(taskCtx core.SubTaskContext) error {
 			query.Set("direction", "asc")
 			query.Set("page", fmt.Sprintf("%v", reqData.Pager.Page))
 			query.Set("per_page", fmt.Sprintf("%v", reqData.Pager.Size))
-
+			query.Set("milestone", "*")
 			return query, nil
 		},
 		/*
