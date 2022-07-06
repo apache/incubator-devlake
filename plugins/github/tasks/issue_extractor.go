@@ -51,8 +51,8 @@ type IssuesResponse struct {
 	Labels []struct {
 		Name string `json:"name"`
 	} `json:"labels"`
-	Assignee        *GithubAccountResponse
-	User            *GithubAccountResponse
+	Assignee  *GithubAccountResponse
+	User      *GithubAccountResponse
 	Milestone *struct {
 		Id int
 	}
