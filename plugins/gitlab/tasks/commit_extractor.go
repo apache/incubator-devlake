@@ -29,7 +29,7 @@ var ExtractApiCommitsMeta = core.SubTaskMeta{
 	Name:             "extractApiCommits",
 	EntryPoint:       ExtractApiCommits,
 	EnabledByDefault: true,
-	Description:      "Extract raw commit data into tool layer table GitlabCommit,GitlabUser and GitlabProjectCommit",
+	Description:      "Extract raw commit data into tool layer table GitlabCommit,GitlabAccount and GitlabProjectCommit",
 	DomainTypes:      []string{core.DOMAIN_TYPE_CODE},
 }
 
@@ -58,23 +58,23 @@ func ExtractApiCommits(taskCtx core.SubTaskContext) error {
 			gitlabProjectCommit.CommitSha = gitlabCommit.Sha
 
 			// create gitlab user
-			gitlabUserAuthor := &models.GitlabUser{}
-			gitlabUserAuthor.Email = gitlabCommit.AuthorEmail
-			gitlabUserAuthor.Name = gitlabCommit.AuthorName
+			GitlabAccountAuthor := &models.GitlabAccount{}
+			GitlabAccountAuthor.Email = gitlabCommit.AuthorEmail
+			GitlabAccountAuthor.Name = gitlabCommit.AuthorName
 
 			gitlabProjectCommit.ConnectionId = data.Options.ConnectionId
-			gitlabUserAuthor.ConnectionId = data.Options.ConnectionId
+			GitlabAccountAuthor.ConnectionId = data.Options.ConnectionId
 			results = append(results, gitlabCommit)
 			results = append(results, gitlabProjectCommit)
-			results = append(results, gitlabUserAuthor)
+			results = append(results, GitlabAccountAuthor)
 
 			// For Commiter Email is not same as AuthorEmail
-			if gitlabCommit.CommitterEmail != gitlabUserAuthor.Email {
-				gitlabUserCommitter := &models.GitlabUser{}
-				gitlabUserCommitter.Email = gitlabCommit.CommitterEmail
-				gitlabUserCommitter.Name = gitlabCommit.CommitterName
-				gitlabUserCommitter.ConnectionId = data.Options.ConnectionId
-				results = append(results, gitlabUserCommitter)
+			if gitlabCommit.CommitterEmail != GitlabAccountAuthor.Email {
+				GitlabAccountCommitter := &models.GitlabAccount{}
+				GitlabAccountCommitter.Email = gitlabCommit.CommitterEmail
+				GitlabAccountCommitter.Name = gitlabCommit.CommitterName
+				GitlabAccountCommitter.ConnectionId = data.Options.ConnectionId
+				results = append(results, GitlabAccountCommitter)
 			}
 
 			return results, nil

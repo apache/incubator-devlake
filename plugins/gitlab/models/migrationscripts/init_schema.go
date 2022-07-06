@@ -19,6 +19,7 @@ package migrationscripts
 
 import (
 	"context"
+
 	"github.com/apache/incubator-devlake/config"
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/gitlab/models/migrationscripts/archived"
@@ -40,7 +41,7 @@ func (*InitSchemas) Up(ctx context.Context, db *gorm.DB) error {
 		&archived.GitlabMrNote{},
 		&archived.GitlabMrCommit{},
 		&archived.GitlabMrComment{},
-		&archived.GitlabUser{},
+		&archived.GitlabAccount{},
 		&archived.GitlabConnection{},
 		&archived.GitlabIssue{},
 		&archived.GitlabIssueLabel{},
@@ -74,7 +75,7 @@ func (*InitSchemas) Up(ctx context.Context, db *gorm.DB) error {
 		&archived.GitlabMrNote{},
 		&archived.GitlabMrCommit{},
 		&archived.GitlabMrComment{},
-		&archived.GitlabUser{},
+		&archived.GitlabAccount{},
 		&archived.GitlabConnection{},
 		&archived.GitlabIssue{},
 		&archived.GitlabIssueLabel{},

@@ -18,6 +18,8 @@ limitations under the License.
 package tasks
 
 import (
+	"reflect"
+
 	"github.com/apache/incubator-devlake/models/domainlayer"
 	"github.com/apache/incubator-devlake/models/domainlayer/code"
 	"github.com/apache/incubator-devlake/models/domainlayer/didgen"
@@ -25,7 +27,6 @@ import (
 	"github.com/apache/incubator-devlake/plugins/core/dal"
 	"github.com/apache/incubator-devlake/plugins/gitlab/models"
 	"github.com/apache/incubator-devlake/plugins/helper"
-	"reflect"
 )
 
 var ConvertApiMergeRequestsMeta = core.SubTaskMeta{
@@ -52,7 +53,7 @@ func ConvertApiMergeRequests(taskCtx core.SubTaskContext) error {
 
 	domainMrIdGenerator := didgen.NewDomainIdGenerator(&models.GitlabMergeRequest{})
 	domainRepoIdGenerator := didgen.NewDomainIdGenerator(&models.GitlabProject{})
-	domainUserIdGen := didgen.NewDomainIdGenerator(&models.GitlabUser{})
+	domainUserIdGen := didgen.NewDomainIdGenerator(&models.GitlabAccount{})
 
 	converter, err := helper.NewDataConverter(helper.DataConverterArgs{
 		RawDataSubTaskArgs: *rawDataSubTaskArgs,

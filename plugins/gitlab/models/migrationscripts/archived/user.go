@@ -19,7 +19,7 @@ package archived
 
 import "github.com/apache/incubator-devlake/models/migrationscripts/archived"
 
-type GitlabUser struct {
+type GitlabAccount struct {
 	ConnectionId    uint64 `gorm:"primaryKey"`
 	GitlabId        int    `gorm:"primaryKey"`
 	Username        string `gorm:"type:varchar(255)"`
@@ -33,6 +33,6 @@ type GitlabUser struct {
 	archived.NoPKModel
 }
 
-func (GitlabUser) TableName() string {
+func (GitlabAccount) TableName() string {
 	return "_tool_gitlab_accounts"
 }

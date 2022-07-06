@@ -21,7 +21,7 @@ import (
 	"github.com/apache/incubator-devlake/models/common"
 )
 
-type GitlabUser struct {
+type GitlabAccount struct {
 	ConnectionId    uint64 `gorm:"primaryKey"`
 	GitlabId        int    `gorm:"primaryKey" json:"id"`
 	Username        string `gorm:"type:varchar(255)"`
@@ -35,6 +35,6 @@ type GitlabUser struct {
 	common.NoPKModel
 }
 
-func (GitlabUser) TableName() string {
+func (GitlabAccount) TableName() string {
 	return "_tool_gitlab_accounts"
 }

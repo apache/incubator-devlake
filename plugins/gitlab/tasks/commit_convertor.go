@@ -58,7 +58,7 @@ func ConvertApiCommits(taskCtx core.SubTaskContext) error {
 	defer cursor.Close()
 
 	// TODO: adopt batch indate operation
-	//userDidGen := didgen.NewDomainIdGenerator(&models.GitlabUser{})
+	//userDidGen := didgen.NewDomainIdGenerator(&models.GitlabAccount{})
 
 	converter, err := helper.NewDataConverter(helper.DataConverterArgs{
 		RawDataSubTaskArgs: *rawDataSubTaskArgs,

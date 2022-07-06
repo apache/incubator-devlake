@@ -18,40 +18,39 @@ limitations under the License.
 package tasks
 
 import (
-	"github.com/apache/incubator-devlake/models/domainlayer/crossdomain"
 	"reflect"
 
-	"github.com/apache/incubator-devlake/plugins/core/dal"
-
 	"github.com/apache/incubator-devlake/models/domainlayer"
+	"github.com/apache/incubator-devlake/models/domainlayer/crossdomain"
 	"github.com/apache/incubator-devlake/models/domainlayer/didgen"
 	"github.com/apache/incubator-devlake/plugins/core"
+	"github.com/apache/incubator-devlake/plugins/core/dal"
 	gitlabModels "github.com/apache/incubator-devlake/plugins/gitlab/models"
 	"github.com/apache/incubator-devlake/plugins/helper"
 )
 
-var ConvertUsersMeta = core.SubTaskMeta{
-	Name:             "convertUsers",
-	EntryPoint:       ConvertUsers,
+var ConvertAccountMeta = core.SubTaskMeta{
+	Name:             "convertAccounts",
+	EntryPoint:       ConvertAccounts,
 	EnabledByDefault: true,
 	Description:      "Convert tool layer table gitlab_users into  domain layer table users",
 	DomainTypes:      []string{core.DOMAIN_TYPE_CROSS},
 }
 
-func ConvertUsers(taskCtx core.SubTaskContext) error {
+func ConvertAccounts(taskCtx core.SubTaskContext) error {
 
 	db := taskCtx.GetDal()
 	data := taskCtx.GetData().(*GitlabTaskData)
 
-	cursor, err := db.Cursor(dal.From(gitlabModels.GitlabUser{}))
+	cursor, err := db.Cursor(dal.From(gitlabModels.GitlabAccount{}))
 	if err != nil {
 		return err
 	}
 	defer cursor.Close()
 
-	userIdGen := didgen.NewDomainIdGenerator(&gitlabModels.GitlabUser{})
+	accountIdGen := didgen.NewDomainIdGenerator(&gitlabModels.GitlabAccount{})
 	converter, err := helper.NewDataConverter(helper.DataConverterArgs{
-		InputRowType: reflect.TypeOf(gitlabModels.GitlabUser{}),
+		InputRowType: reflect.TypeOf(gitlabModels.GitlabAccount{}),
 		Input:        cursor,
 		RawDataSubTaskArgs: helper.RawDataSubTaskArgs{
 			Ctx: taskCtx,
@@ -62,12 +61,12 @@ func ConvertUsers(taskCtx core.SubTaskContext) error {
 			Table: RAW_COMMIT_TABLE,
 		},
 		Convert: func(inputRow interface{}) ([]interface{}, error) {
-			gitlabUser := inputRow.(*gitlabModels.GitlabUser)
+			GitlabAccount := inputRow.(*gitlabModels.GitlabAccount)
 			domainUser := &crossdomain.Account{
-				DomainEntity: domainlayer.DomainEntity{Id: userIdGen.Generate(data.Options.ConnectionId, gitlabUser.GitlabId)},
-				UserName:     gitlabUser.Name,
-				Email:        gitlabUser.Email,
-				AvatarUrl:    gitlabUser.AvatarUrl,
+				DomainEntity: domainlayer.DomainEntity{Id: accountIdGen.Generate(data.Options.ConnectionId, GitlabAccount.GitlabId)},
+				UserName:     GitlabAccount.Name,
+				Email:        GitlabAccount.Email,
+				AvatarUrl:    GitlabAccount.AvatarUrl,
 			}
 
 			return []interface{}{
