@@ -18,16 +18,17 @@ limitations under the License.
 package apiv2models
 
 import (
-	"github.com/apache/incubator-devlake/plugins/helper"
 	"time"
+
+	"github.com/apache/incubator-devlake/plugins/helper"
 
 	"github.com/apache/incubator-devlake/plugins/jira/models"
 )
 
 type Worklog struct {
 	Self             string             `json:"self"`
-	Author           *User              `json:"author"`
-	UpdateAuthor     *User              `json:"updateAuthor"`
+	Author           *Account           `json:"author"`
+	UpdateAuthor     *Account           `json:"updateAuthor"`
 	Comment          string             `json:"comment"`
 	Created          string             `json:"created"`
 	Updated          helper.Iso8601Time `json:"updated"`

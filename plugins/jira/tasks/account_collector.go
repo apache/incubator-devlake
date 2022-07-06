@@ -31,19 +31,19 @@ import (
 
 const RAW_USERS_TABLE = "jira_api_users"
 
-var CollectUsersMeta = core.SubTaskMeta{
-	Name:             "collectUsers",
-	EntryPoint:       CollectUsers,
+var CollectAccountsMeta = core.SubTaskMeta{
+	Name:             "collectAccounts",
+	EntryPoint:       CollectAccounts,
 	EnabledByDefault: true,
-	Description:      "collect Jira users",
+	Description:      "collect Jira accounts",
 	DomainTypes:      []string{core.DOMAIN_TYPE_CROSS},
 }
 
-func CollectUsers(taskCtx core.SubTaskContext) error {
+func CollectAccounts(taskCtx core.SubTaskContext) error {
 	data := taskCtx.GetData().(*JiraTaskData)
 	db := taskCtx.GetDal()
 	logger := taskCtx.GetLogger()
-	logger.Info("collect user")
+	logger.Info("collect account")
 	cursor, err := db.Cursor(
 		Select("account_id"),
 		From("_tool_jira_accounts"),
@@ -52,7 +52,7 @@ func CollectUsers(taskCtx core.SubTaskContext) error {
 	if err != nil {
 		return err
 	}
-	iterator, err := helper.NewDalCursorIterator(db, cursor, reflect.TypeOf(models.JiraUser{}))
+	iterator, err := helper.NewDalCursorIterator(db, cursor, reflect.TypeOf(models.JiraAccount{}))
 	if err != nil {
 		return err
 	}
@@ -73,7 +73,7 @@ func CollectUsers(taskCtx core.SubTaskContext) error {
 		Input:       iterator,
 		UrlTemplate: "api/2/user",
 		Query: func(reqData *helper.RequestData) (url.Values, error) {
-			user := reqData.Input.(*models.JiraUser)
+			user := reqData.Input.(*models.JiraAccount)
 			query := url.Values{}
 			query.Set(queryKey, user.AccountId)
 			return query, nil
@@ -88,7 +88,7 @@ func CollectUsers(taskCtx core.SubTaskContext) error {
 		},
 	})
 	if err != nil {
-		logger.Error("collect user error:", err)
+		logger.Error("collect account error:", err)
 		return err
 	}
 

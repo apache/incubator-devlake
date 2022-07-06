@@ -18,11 +18,12 @@ limitations under the License.
 package tasks
 
 import (
-	"github.com/apache/incubator-devlake/plugins/core/dal"
 	"reflect"
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/apache/incubator-devlake/plugins/core/dal"
 
 	"github.com/apache/incubator-devlake/models/domainlayer"
 	"github.com/apache/incubator-devlake/models/domainlayer/didgen"
@@ -78,7 +79,7 @@ func ConvertChangelogs(taskCtx core.SubTaskContext) error {
 	issueIdGenerator := didgen.NewDomainIdGenerator(&models.JiraIssue{})
 	sprintIdGenerator := didgen.NewDomainIdGenerator(&models.JiraSprint{})
 	changelogIdGenerator := didgen.NewDomainIdGenerator(&models.JiraChangelogItem{})
-	userIdGen := didgen.NewDomainIdGenerator(&models.JiraUser{})
+	accountIdGen := didgen.NewDomainIdGenerator(&models.JiraAccount{})
 	converter, err := helper.NewDataConverter(helper.DataConverterArgs{
 		RawDataSubTaskArgs: helper.RawDataSubTaskArgs{
 			Ctx: taskCtx,
@@ -99,7 +100,7 @@ func ConvertChangelogs(taskCtx core.SubTaskContext) error {
 					row.Field,
 				)},
 				IssueId:           issueIdGenerator.Generate(row.ConnectionId, row.IssueId),
-				AuthorId:          userIdGen.Generate(connectionId, row.AuthorAccountId),
+				AuthorId:          accountIdGen.Generate(connectionId, row.AuthorAccountId),
 				AuthorName:        row.AuthorDisplayName,
 				FieldId:           row.FieldId,
 				FieldName:         row.Field,
@@ -109,10 +110,10 @@ func ConvertChangelogs(taskCtx core.SubTaskContext) error {
 			}
 			if row.Field == "assignee" {
 				if row.ToValue != "" {
-					changelog.OriginalToValue = userIdGen.Generate(connectionId, row.ToValue)
+					changelog.OriginalToValue = accountIdGen.Generate(connectionId, row.ToValue)
 				}
 				if row.FromValue != "" {
-					changelog.OriginalFromValue = userIdGen.Generate(connectionId, row.FromValue)
+					changelog.OriginalFromValue = accountIdGen.Generate(connectionId, row.FromValue)
 				}
 			}
 			if row.Field == "Sprint" {

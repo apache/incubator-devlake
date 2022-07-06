@@ -25,17 +25,17 @@ import (
 	"github.com/apache/incubator-devlake/plugins/jira/tasks/apiv2models"
 )
 
-var _ core.SubTaskEntryPoint = ExtractUsers
+var _ core.SubTaskEntryPoint = ExtractAccounts
 
-var ExtractUsersMeta = core.SubTaskMeta{
-	Name:             "extractUsers",
-	EntryPoint:       ExtractUsers,
+var ExtractAccountsMeta = core.SubTaskMeta{
+	Name:             "extractAccounts",
+	EntryPoint:       ExtractAccounts,
 	EnabledByDefault: true,
 	Description:      "extract Jira users",
 	DomainTypes:      []string{core.DOMAIN_TYPE_CROSS},
 }
 
-func ExtractUsers(taskCtx core.SubTaskContext) error {
+func ExtractAccounts(taskCtx core.SubTaskContext) error {
 	data := taskCtx.GetData().(*JiraTaskData)
 	extractor, err := helper.NewApiExtractor(helper.ApiExtractorArgs{
 		RawDataSubTaskArgs: helper.RawDataSubTaskArgs{
@@ -47,7 +47,7 @@ func ExtractUsers(taskCtx core.SubTaskContext) error {
 			Table: RAW_USERS_TABLE,
 		},
 		Extract: func(row *helper.RawData) ([]interface{}, error) {
-			var user apiv2models.User
+			var user apiv2models.Account
 			err := json.Unmarshal(row.Data, &user)
 			if err != nil {
 				return nil, err

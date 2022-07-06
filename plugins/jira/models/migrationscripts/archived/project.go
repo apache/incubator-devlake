@@ -21,10 +21,12 @@ import "github.com/apache/incubator-devlake/models/migrationscripts/archived"
 
 type JiraProject struct {
 	archived.NoPKModel
-	SourceId uint64 `gorm:"primarykey"`
-	Id       string `gorm:"primaryKey;type:varchar(255)"`
-	Key      string `gorm:"type:varchar(255)"`
-	Name     string `gorm:"type:varchar(255)"`
+
+	// collected fields
+	ConnectionId uint64 `gorm:"primarykey"`
+	Id           string `gorm:"primaryKey;type:varchar(255)"`
+	ProjectKey   string `gorm:"type:varchar(255)"`
+	Name         string `gorm:"type:varchar(255)"`
 }
 
 func (JiraProject) TableName() string {

@@ -44,7 +44,7 @@ func TestChangelogDataFlow(t *testing.T) {
 	// verify changelog extraction
 	dataflowTester.FlushTabler(&models.JiraChangelog{})
 	dataflowTester.FlushTabler(&models.JiraChangelogItem{})
-	dataflowTester.FlushTabler(&models.JiraUser{})
+	dataflowTester.FlushTabler(&models.JiraAccount{})
 	dataflowTester.Subtask(tasks.ExtractChangelogsMeta, taskData)
 	dataflowTester.VerifyTable(
 		models.JiraChangelog{},

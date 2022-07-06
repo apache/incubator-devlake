@@ -27,28 +27,29 @@ type JiraChangelog struct {
 	archived.NoPKModel
 
 	// collected fields
-	SourceId          uint64 `gorm:"primaryKey"`
+	ConnectionId      uint64 `gorm:"primaryKey"`
 	ChangelogId       uint64 `gorm:"primarykey"`
 	IssueId           uint64 `gorm:"index"`
 	AuthorAccountId   string `gorm:"type:varchar(255)"`
 	AuthorDisplayName string `gorm:"type:varchar(255)"`
 	AuthorActive      bool
-	Created           time.Time `gorm:"index"`
+	Created           time.Time  `gorm:"index"`
+	IssueUpdated      *time.Time `comment:"corresponding issue.updated time, changelog might need update IFF changelog.issue_updated < issue.updated"`
 }
 
 type JiraChangelogItem struct {
 	archived.NoPKModel
 
 	// collected fields
-	SourceId    uint64 `gorm:"primaryKey"`
-	ChangelogId uint64 `gorm:"primaryKey"`
-	Field       string `gorm:"primaryKey"`
-	FieldType   string
-	FieldId     string
-	From        string
-	FromString  string
-	To          string
-	ToString    string
+	ConnectionId uint64 `gorm:"primaryKey"`
+	ChangelogId  uint64 `gorm:"primaryKey"`
+	Field        string `gorm:"primaryKey"`
+	FieldType    string
+	FieldId      string
+	FromValue    string
+	FromString   string
+	ToValue      string
+	ToString     string
 }
 
 func (JiraChangelog) TableName() string {

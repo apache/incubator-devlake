@@ -28,21 +28,21 @@ type InitSchemas struct{}
 
 func (*InitSchemas) Up(ctx context.Context, db *gorm.DB) error {
 	return db.Migrator().AutoMigrate(
-		&archived.JiraProject{},
-		&archived.JiraUser{},
-		&archived.JiraIssue{},
-		&archived.JiraBoard{},
+		&archived.JiraAccount{},
 		&archived.JiraBoardIssue{},
-		&archived.JiraChangelog{},
+		&archived.JiraBoard{},
 		&archived.JiraChangelogItem{},
-		&archived.JiraRemotelink{},
+		&archived.JiraChangelog{},
+		&archived.JiraConnection{},
 		&archived.JiraIssueCommit{},
-		&archived.JiraSource{},
-		&archived.JiraIssueTypeMapping{},
-		&archived.JiraIssueStatusMapping{},
+		&archived.JiraIssueLabel{},
+		&archived.JiraIssue{},
+		&archived.JiraProject{},
+		&archived.JiraRemotelink{},
 		&archived.JiraSprint{},
 		&archived.JiraBoardSprint{},
 		&archived.JiraSprintIssue{},
+		&archived.JiraStatus{},
 		&archived.JiraWorklog{},
 	)
 }
