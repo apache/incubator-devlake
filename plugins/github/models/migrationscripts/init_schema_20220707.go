@@ -72,6 +72,7 @@ func (u *initSchemas) Up(ctx context.Context, db *gorm.DB) error {
 		&archived.GithubPullRequestIssue{},
 		&archived.GithubCommitStat{},
 		"_tool_github_users",
+		"_tool_github_milestones",
 		"_raw_github_api_issues",
 		"_raw_github_api_comments",
 		"_raw_github_api_commits",
@@ -126,6 +127,7 @@ func (u *initSchemas) Up(ctx context.Context, db *gorm.DB) error {
 		&archived.GithubAccount{},
 		&archived.GithubPullRequestIssue{},
 		&archived.GithubCommitStat{},
+		&archived.GithubMilestone{},
 	)
 }
 
