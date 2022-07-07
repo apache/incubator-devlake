@@ -225,11 +225,11 @@ func (i *Issue) SetAllFields(raw datatypes.JSON) error {
 	return nil
 }
 
-func (i Issue) ExtractEntities(connectionId uint64) ([]uint64, *models.JiraIssue, []*models.JiraWorklog, []*models.JiraChangelog, []*models.JiraChangelogItem, []*models.JiraAccount) {
+func (i Issue) ExtractEntities(connectionId uint64) ([]uint64, *models.JiraIssue, []*models.JiraWorklog, []*models.JiraIssueChangelogs, []*models.JiraIssueChangelogItems, []*models.JiraAccount) {
 	issue := i.toToolLayer(connectionId)
 	var worklogs []*models.JiraWorklog
-	var changelogs []*models.JiraChangelog
-	var changelogItems []*models.JiraChangelogItem
+	var changelogs []*models.JiraIssueChangelogs
+	var changelogItems []*models.JiraIssueChangelogItems
 	var users []*models.JiraAccount
 	var sprints []uint64
 

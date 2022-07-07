@@ -31,8 +31,8 @@ type Changelog struct {
 	Items   []ChangelogItem    `json:"items"`
 }
 
-func (c Changelog) ToToolLayer(connectionId, issueId uint64, issueUpdated *time.Time) (*models.JiraChangelog, *models.JiraAccount) {
-	return &models.JiraChangelog{
+func (c Changelog) ToToolLayer(connectionId, issueId uint64, issueUpdated *time.Time) (*models.JiraIssueChangelogs, *models.JiraAccount) {
+	return &models.JiraIssueChangelogs{
 		ConnectionId:      connectionId,
 		ChangelogId:       c.ID,
 		IssueId:           issueId,
@@ -53,8 +53,8 @@ type ChangelogItem struct {
 	ToString   string `json:"toString"`
 }
 
-func (c ChangelogItem) ToToolLayer(connectionId, changelogId uint64) *models.JiraChangelogItem {
-	return &models.JiraChangelogItem{
+func (c ChangelogItem) ToToolLayer(connectionId, changelogId uint64) *models.JiraIssueChangelogItems {
+	return &models.JiraIssueChangelogItems{
 		ConnectionId: connectionId,
 		ChangelogId:  changelogId,
 		Field:        c.Field,

@@ -42,7 +42,7 @@ var ConvertChangelogsMeta = core.SubTaskMeta{
 }
 
 type ChangelogItemResult struct {
-	models.JiraChangelogItem
+	models.JiraIssueChangelogItems
 	IssueId           uint64 `gorm:"index"`
 	AuthorAccountId   string
 	AuthorDisplayName string
@@ -78,7 +78,7 @@ func ConvertChangelogs(taskCtx core.SubTaskContext) error {
 	defer cursor.Close()
 	issueIdGenerator := didgen.NewDomainIdGenerator(&models.JiraIssue{})
 	sprintIdGenerator := didgen.NewDomainIdGenerator(&models.JiraSprint{})
-	changelogIdGenerator := didgen.NewDomainIdGenerator(&models.JiraChangelogItem{})
+	changelogIdGenerator := didgen.NewDomainIdGenerator(&models.JiraIssueChangelogItems{})
 	accountIdGen := didgen.NewDomainIdGenerator(&models.JiraAccount{})
 	converter, err := helper.NewDataConverter(helper.DataConverterArgs{
 		RawDataSubTaskArgs: helper.RawDataSubTaskArgs{
