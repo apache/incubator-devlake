@@ -30,6 +30,14 @@ import (
 	"github.com/apache/incubator-devlake/plugins/core/dal"
 )
 
+type Table struct {
+	name string
+}
+
+func (t *Table) TableName() string {
+	return t.name
+}
+
 func LoadData(c core.SubTaskContext) error {
 	config := c.GetData().(*StarRocksConfig)
 	db := c.GetDal()
@@ -76,33 +84,47 @@ func LoadData(c core.SubTaskContext) error {
 	return nil
 }
 func createTable(starrocks *sql.DB, db dal.Dal, starrocksTable string, table string, c core.SubTaskContext, extra string) error {
-	columnMap, err := db.GetTableColumns(table)
+
+	columeMetas, err := db.GetColumns(&Table{name: table}, nil)
 	if err != nil {
 		return err
 	}
-	var pk string
-	if _, ok := columnMap["id"]; ok {
-		pk = "id"
-	} else {
-		for k := range columnMap {
-			pk = k
-			break
+	var pks string
+	var columns []string
+	firstcm := ""
+	for _, cm := range columeMetas {
+		name := cm.Name()
+		starrocksDatatype, ok := cm.ColumnType()
+		if !ok {
+			return fmt.Errorf("Get [%s] ColumeType Failed", name)
+		}
+		column := fmt.Sprintf("%s %s", name, starrocksDatatype)
+		columns = append(columns, column)
+		isPrimaryKey, ok := cm.PrimaryKey()
+		if isPrimaryKey && ok {
+			if pks != "" {
+				pks += ","
+			}
+			pks += name
+		}
+		if firstcm == "" {
+			firstcm = name
 		}
 	}
-	var columns []string
-	for field, dataType := range columnMap {
-		starrocksDatatype := getDataType(dataType)
-		column := fmt.Sprintf("%s %s", field, starrocksDatatype)
-		columns = append(columns, column)
+
+	if pks == "" {
+		pks = firstcm
 	}
+
 	if extra == "" {
-		extra = fmt.Sprintf(`engine=olap distributed by hash(%s) properties("replication_num" = "1")`, pk)
+		extra = fmt.Sprintf(`engine=olap distributed by hash(%s) properties("replication_num" = "1")`, pks)
 	}
 	tableSql := fmt.Sprintf(`create table if not exists %s ( %s ) %s`, starrocksTable, strings.Join(columns, ","), extra)
 	c.GetLogger().Info(tableSql)
 	_, err = starrocks.Exec(tableSql)
 	return err
 }
+
 func loadData(starrocks *sql.DB, c core.SubTaskContext, starrocksTable string, table string, db dal.Dal, config *StarRocksConfig) error {
 	offset := 0
 	starrocksTmpTable := starrocksTable + "_tmp"

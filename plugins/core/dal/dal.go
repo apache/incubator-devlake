@@ -19,11 +19,30 @@ package dal
 
 import (
 	"database/sql"
+	"reflect"
+
+	"gorm.io/gorm/schema"
 )
 
 type Clause struct {
 	Type string
 	Data interface{}
+}
+
+// ColumnType column type interface
+type ColumnMeta interface {
+	Name() string
+	DatabaseTypeName() string                 // varchar
+	ColumnType() (columnType string, ok bool) // varchar(64)
+	PrimaryKey() (isPrimaryKey bool, ok bool)
+	AutoIncrement() (isAutoIncrement bool, ok bool)
+	Length() (length int64, ok bool)
+	DecimalSize() (precision int64, scale int64, ok bool)
+	Nullable() (nullable bool, ok bool)
+	Unique() (unique bool, ok bool)
+	ScanType() reflect.Type
+	Comment() (value string, ok bool)
+	DefaultValue() (value string, ok bool)
 }
 
 // Dal aims to facilitate an isolation between DBS and our System by defining a set of operations should a DBS provide
@@ -58,8 +77,42 @@ type Dal interface {
 	Delete(entity interface{}, clauses ...Clause) error
 	// AllTables returns all tables in database
 	AllTables() ([]string, error)
-	// GetTableColumns returns table columns in database
-	GetTableColumns(table string) (map[string]string, error)
+	// GetColumns returns table columns in database
+	GetColumns(dst schema.Tabler, filter func(columnMeta ColumnMeta) bool) (cms []ColumnMeta, err error)
+	// GetPrimarykeyFields get the PrimaryKey from `gorm` tag
+	GetPrimarykeyFields(t reflect.Type) []reflect.StructField
+}
+
+// GetPrimarykeyColumnNames returns table Column Names in database
+func GetColumnNames(d Dal, dst schema.Tabler, filter func(columnMeta ColumnMeta) bool) (names []string, err error) {
+	columns, err := d.GetColumns(dst, filter)
+	if err != nil {
+		return
+	}
+	for _, pkColumn := range columns {
+		names = append(names, pkColumn.Name())
+	}
+	return
+}
+
+// GetPrimarykeyColumns get returns PrimaryKey table Meta in database
+func GetPrimarykeyColumns(d Dal, dst schema.Tabler) ([]ColumnMeta, error) {
+	return d.GetColumns(dst, func(columnMeta ColumnMeta) bool {
+		isPrimaryKey, ok := columnMeta.PrimaryKey()
+		return isPrimaryKey && ok
+	})
+}
+
+// GetPrimarykeyColumnNames get returns PrimaryKey Column Names in database
+func GetPrimarykeyColumnNames(d Dal, dst schema.Tabler) (names []string, err error) {
+	pkColumns, err := GetPrimarykeyColumns(d, dst)
+	if err != nil {
+		return
+	}
+	for _, pkColumn := range pkColumns {
+		names = append(names, pkColumn.Name())
+	}
+	return
 }
 
 type DalClause struct {

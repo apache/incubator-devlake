@@ -22,6 +22,13 @@ import (
 	"database/sql"
 	"encoding/json"
 	"fmt"
+	"os"
+	"strconv"
+	"strings"
+	"sync"
+	"testing"
+	"time"
+
 	"github.com/apache/incubator-devlake/config"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper"
 	"github.com/apache/incubator-devlake/impl/dalgorm"
@@ -35,12 +42,6 @@ import (
 	"github.com/stretchr/testify/assert"
 	"gorm.io/gorm"
 	"gorm.io/gorm/schema"
-	"os"
-	"strconv"
-	"strings"
-	"sync"
-	"testing"
-	"time"
 )
 
 // DataFlowTester provides a universal data integrity validation facility to help `Plugin` verifying records between
@@ -186,14 +187,7 @@ func (t *DataFlowTester) Subtask(subtaskMeta core.SubTaskMeta, taskData interfac
 	}
 }
 
-func (t *DataFlowTester) getPkFields(dst schema.Tabler) []string {
-	return t.getFields(dst, func(column gorm.ColumnType) bool {
-		isPk, _ := column.PrimaryKey()
-		return isPk
-	})
-}
-
-func filterColumn(column gorm.ColumnType, opts TableOptions) bool {
+func filterColumn(column dal.ColumnMeta, opts TableOptions) bool {
 	for _, ignore := range opts.IgnoreFields {
 		if column.Name() == ignore {
 			return false
@@ -212,31 +206,21 @@ func filterColumn(column gorm.ColumnType, opts TableOptions) bool {
 	return targetFound
 }
 
-func (t *DataFlowTester) getFields(dst schema.Tabler, filter func(column gorm.ColumnType) bool) []string {
-	columnTypes, err := t.Db.Migrator().ColumnTypes(dst)
-	var fields []string
-	if err != nil {
-		panic(err)
-	}
-	for _, columnType := range columnTypes {
-		if filter == nil || filter(columnType) {
-			fields = append(fields, columnType.Name())
-		}
-	}
-	return fields
-}
-
 // CreateSnapshot reads rows from database and write them into .csv file.
 func (t *DataFlowTester) CreateSnapshot(dst schema.Tabler, opts TableOptions) {
 	location, _ := time.LoadLocation(`UTC`)
-	pkFields := t.getPkFields(dst)
+
 	targetFields := t.resolveTargetFields(dst, opts)
-	allFields := append(pkFields, targetFields...)
+	pkColumnNames, err := dal.GetPrimarykeyColumnNames(t.Dal, dst)
+	if err != nil {
+		panic(err)
+	}
+	allFields := append(pkColumnNames, targetFields...)
 	allFields = utils.StringsUniq(allFields)
 	dbCursor, err := t.Dal.Cursor(
 		dal.Select(strings.Join(allFields, `,`)),
 		dal.From(dst.TableName()),
-		dal.Orderby(strings.Join(pkFields, `,`)),
+		dal.Orderby(strings.Join(pkColumnNames, `,`)),
 	)
 	if err != nil {
 		panic(fmt.Errorf("unable to run select query on table %s: %v", dst.TableName(), err))
@@ -369,9 +353,13 @@ func (t *DataFlowTester) resolveTargetFields(dst schema.Tabler, opts TableOption
 	}
 	var targetFields []string
 	if len(opts.TargetFields) == 0 || len(opts.IgnoreFields) > 0 {
-		targetFields = append(targetFields, t.getFields(dst, func(column gorm.ColumnType) bool {
-			return filterColumn(column, opts)
-		})...)
+		names, err := dal.GetColumnNames(t.Dal, dst, func(cm dal.ColumnMeta) bool {
+			return filterColumn(cm, opts)
+		})
+		if err != nil {
+			panic(err)
+		}
+		targetFields = append(targetFields, names...)
 	} else {
 		targetFields = opts.TargetFields
 	}
@@ -388,17 +376,22 @@ func (t *DataFlowTester) VerifyTableWithOptions(dst schema.Tabler, opts TableOpt
 		t.CreateSnapshot(dst, opts)
 		return
 	}
+
 	targetFields := t.resolveTargetFields(dst, opts)
-	pkFields := t.getPkFields(dst)
+	pkColumns, err := dal.GetPrimarykeyColumns(t.Dal, dst)
+	if err != nil {
+		panic(err)
+	}
+
 	csvIter := pluginhelper.NewCsvFileIterator(opts.CSVRelPath)
 	defer csvIter.Close()
 	expectedTotal := int64(0)
 	csvMap := map[string]map[string]interface{}{}
 	for csvIter.HasNext() {
 		expected := csvIter.Fetch()
-		pkValues := make([]string, 0, len(pkFields))
-		for _, pkf := range pkFields {
-			pkValues = append(pkValues, expected[pkf].(string))
+		pkValues := make([]string, 0, len(pkColumns))
+		for _, pkc := range pkColumns {
+			pkValues = append(pkValues, expected[pkc.Name()].(string))
 		}
 		pkValueStr := strings.Join(pkValues, `-`)
 		_, ok := csvMap[pkValueStr]
@@ -414,9 +407,9 @@ func (t *DataFlowTester) VerifyTableWithOptions(dst schema.Tabler, opts TableOpt
 		panic(err)
 	}
 	for _, actual := range *dbRows {
-		pkValues := make([]string, 0, len(pkFields))
-		for _, pkf := range pkFields {
-			pkValues = append(pkValues, formatDbValue(actual[pkf]))
+		pkValues := make([]string, 0, len(pkColumns))
+		for _, pkc := range pkColumns {
+			pkValues = append(pkValues, formatDbValue(actual[pkc.Name()]))
 		}
 		expected, ok := csvMap[strings.Join(pkValues, `-`)]
 		assert.True(t.T, ok, fmt.Sprintf(`%s not found (with params from csv %s)`, dst.TableName(), pkValues))

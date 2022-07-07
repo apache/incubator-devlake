@@ -19,26 +19,19 @@ package dalgorm
 
 import (
 	"database/sql"
-	"fmt"
+	"reflect"
 	"strings"
 
 	"github.com/apache/incubator-devlake/plugins/core/dal"
+	"github.com/apache/incubator-devlake/utils"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
+	"gorm.io/gorm/schema"
 )
 
 type Dalgorm struct {
 	db *gorm.DB
 }
-
-// To accommodate gorm
-//type stubTable struct {
-//name string
-//}
-
-//func (s *stubTable) TableName() string {
-//return s.name
-//}
 
 func buildTx(tx *gorm.DB, clauses []dal.Clause) *gorm.DB {
 	for _, c := range clauses {
@@ -151,6 +144,28 @@ func (d *Dalgorm) Delete(entity interface{}, clauses ...dal.Clause) error {
 	return buildTx(d.db, clauses).Delete(entity).Error
 }
 
+func (d *Dalgorm) GetColumns(dst schema.Tabler, filter func(columnMeta dal.ColumnMeta) bool) (cms []dal.ColumnMeta, err error) {
+	columnTypes, err := d.db.Migrator().ColumnTypes(dst.TableName())
+	if err != nil {
+		return
+	}
+	for _, columnType := range columnTypes {
+		if filter == nil {
+			cms = append(cms, columnType)
+		} else if filter(columnType) {
+			cms = append(cms, columnType)
+		}
+	}
+	return
+}
+
+// GetPrimaryKey get the PrimaryKey from `gorm` tag
+func (d *Dalgorm) GetPrimarykeyFields(t reflect.Type) []reflect.StructField {
+	return utils.WalkFields(t, func(field *reflect.StructField) bool {
+		return strings.Contains(strings.ToLower(field.Tag.Get("gorm")), "primarykey")
+	})
+}
+
 // AllTables returns all tables in the database
 func (d *Dalgorm) AllTables() ([]string, error) {
 	var tableSql string
@@ -173,41 +188,6 @@ func (d *Dalgorm) AllTables() ([]string, error) {
 	return filteredTables, nil
 }
 
-// GetTableColumns returns table columns in database
-func (d *Dalgorm) GetTableColumns(table string) (map[string]string, error) {
-	var columnSql string
-	ret := make(map[string]string)
-	if d.db.Dialector.Name() == "mysql" {
-		type MySQLColumn struct {
-			Field string
-			Type  string
-		}
-		var result []MySQLColumn
-		columnSql = fmt.Sprintf("show columns from %s", table)
-		err := d.db.Raw(columnSql).Scan(&result).Error
-		if err != nil {
-			return nil, err
-		}
-		for _, item := range result {
-			ret[item.Field] = item.Type
-		}
-	} else {
-		columnSql = fmt.Sprintf("select column_name,data_type from information_schema.COLUMNS where TABLE_NAME='%s' and TABLE_SCHEMA='public'", table)
-		type PostgresColumn struct {
-			ColumnName string `gorm:"column_name"`
-			DataType   string `gorm:"data_type"`
-		}
-		var result []PostgresColumn
-		err := d.db.Raw(columnSql).Scan(&result).Error
-		if err != nil {
-			return nil, err
-		}
-		for _, item := range result {
-			ret[item.ColumnName] = item.DataType
-		}
-	}
-	return ret, nil
-}
 func NewDalgorm(db *gorm.DB) *Dalgorm {
 	return &Dalgorm{db}
 }
