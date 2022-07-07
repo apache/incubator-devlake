@@ -33,15 +33,15 @@ import (
 	"github.com/apache/incubator-devlake/plugins/jira/models"
 )
 
-var ConvertChangelogsMeta = core.SubTaskMeta{
-	Name:             "convertChangelogs",
-	EntryPoint:       ConvertChangelogs,
+var ConvertIssueChangelogsMeta = core.SubTaskMeta{
+	Name:             "convertIssueChangelogs",
+	EntryPoint:       ConvertIssueChangelogs,
 	EnabledByDefault: true,
-	Description:      "convert Jira change logs",
+	Description:      "convert Jira Issue change logs",
 	DomainTypes:      []string{core.DOMAIN_TYPE_TICKET},
 }
 
-type ChangelogItemResult struct {
+type IssueChangelogItemResult struct {
 	models.JiraIssueChangelogItems
 	IssueId           uint64 `gorm:"index"`
 	AuthorAccountId   string
@@ -49,7 +49,7 @@ type ChangelogItemResult struct {
 	Created           time.Time
 }
 
-func ConvertChangelogs(taskCtx core.SubTaskContext) error {
+func ConvertIssueChangelogs(taskCtx core.SubTaskContext) error {
 	data := taskCtx.GetData().(*JiraTaskData)
 	connectionId := data.Options.ConnectionId
 	boardId := data.Options.BoardId
@@ -89,10 +89,10 @@ func ConvertChangelogs(taskCtx core.SubTaskContext) error {
 			},
 			Table: RAW_CHANGELOG_TABLE,
 		},
-		InputRowType: reflect.TypeOf(ChangelogItemResult{}),
+		InputRowType: reflect.TypeOf(IssueChangelogItemResult{}),
 		Input:        cursor,
 		Convert: func(inputRow interface{}) ([]interface{}, error) {
-			row := inputRow.(*ChangelogItemResult)
+			row := inputRow.(*IssueChangelogItemResult)
 			changelog := &ticket.Changelog{
 				DomainEntity: domainlayer.DomainEntity{Id: changelogIdGenerator.Generate(
 					row.ConnectionId,

@@ -39,16 +39,16 @@ func TestChangelogDataFlow(t *testing.T) {
 	}
 
 	// import raw data table
-	dataflowTester.ImportCsvIntoRawTable("./raw_tables/_raw_jira_api_changelogs.csv", "_raw_jira_api_changelogs")
+	dataflowTester.ImportCsvIntoRawTable("./raw_tables/_raw_jira_api_issue_changelogs.csv", "_raw_jira_api_issue_changelogs")
 
 	// verify changelog extraction
 	dataflowTester.FlushTabler(&models.JiraIssueChangelogs{})
 	dataflowTester.FlushTabler(&models.JiraIssueChangelogItems{})
 	dataflowTester.FlushTabler(&models.JiraAccount{})
-	dataflowTester.Subtask(tasks.ExtractChangelogsMeta, taskData)
+	dataflowTester.Subtask(tasks.ExtractIssueChangelogsMeta, taskData)
 	dataflowTester.VerifyTable(
 		models.JiraIssueChangelogs{},
-		"./snapshot_tables/_tool_jira_changelogs.csv",
+		"./snapshot_tables/_tool_jira_issue_changelogs.csv",
 		[]string{
 			"connection_id",
 			"changelog_id",
@@ -67,7 +67,7 @@ func TestChangelogDataFlow(t *testing.T) {
 
 	dataflowTester.VerifyTable(
 		models.JiraIssueChangelogItems{},
-		"./snapshot_tables/_tool_jira_changelog_items.csv",
+		"./snapshot_tables/_tool_jira_issue_changelog_items.csv",
 		[]string{
 			"connection_id",
 			"changelog_id",
@@ -84,10 +84,10 @@ func TestChangelogDataFlow(t *testing.T) {
 	// verify changelog conversion
 	dataflowTester.ImportCsvIntoTabler("./snapshot_tables/_tool_jira_board_issues_for_changelog.csv", &models.JiraBoardIssue{})
 	dataflowTester.FlushTabler(&ticket.Changelog{})
-	dataflowTester.Subtask(tasks.ConvertChangelogsMeta, taskData)
+	dataflowTester.Subtask(tasks.ConvertIssueChangelogsMeta, taskData)
 	dataflowTester.VerifyTable(
 		ticket.Changelog{},
-		"./snapshot_tables/changelogs.csv",
+		"./snapshot_tables/issue_changelogs.csv",
 		[]string{
 			"id",
 			"issue_id",

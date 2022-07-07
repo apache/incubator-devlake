@@ -26,17 +26,17 @@ import (
 	"github.com/apache/incubator-devlake/plugins/jira/tasks/apiv2models"
 )
 
-var _ core.SubTaskEntryPoint = ExtractChangelogs
+var _ core.SubTaskEntryPoint = ExtractIssueChangelogs
 
-var ExtractChangelogsMeta = core.SubTaskMeta{
-	Name:             "extractChangelogs",
-	EntryPoint:       ExtractChangelogs,
+var ExtractIssueChangelogsMeta = core.SubTaskMeta{
+	Name:             "extractIssueChangelogs",
+	EntryPoint:       ExtractIssueChangelogs,
 	EnabledByDefault: true,
-	Description:      "extract Jira change logs",
+	Description:      "extract Jira Issue change logs",
 	DomainTypes:      []string{core.DOMAIN_TYPE_TICKET},
 }
 
-func ExtractChangelogs(taskCtx core.SubTaskContext) error {
+func ExtractIssueChangelogs(taskCtx core.SubTaskContext) error {
 	data := taskCtx.GetData().(*JiraTaskData)
 	if data.JiraServerInfo.DeploymentType == models.DeploymentServer {
 		return nil

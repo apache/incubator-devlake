@@ -66,8 +66,8 @@ func (plugin Jira) SubTaskMetas() []core.SubTaskMeta {
 		tasks.CollectIssuesMeta,
 		tasks.ExtractIssuesMeta,
 
-		tasks.CollectChangelogsMeta,
-		tasks.ExtractChangelogsMeta,
+		tasks.CollectIssueChangelogsMeta,
+		tasks.ExtractIssueChangelogsMeta,
 
 		tasks.CollectAccountsMeta,
 
@@ -86,7 +86,7 @@ func (plugin Jira) SubTaskMetas() []core.SubTaskMeta {
 
 		tasks.ConvertWorklogsMeta,
 
-		tasks.ConvertChangelogsMeta,
+		tasks.ConvertIssueChangelogsMeta,
 
 		tasks.ConvertSprintsMeta,
 		tasks.ConvertSprintIssuesMeta,
