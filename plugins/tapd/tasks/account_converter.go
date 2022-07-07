@@ -18,8 +18,9 @@ limitations under the License.
 package tasks
 
 import (
-	"github.com/apache/incubator-devlake/models/domainlayer/crossdomain"
 	"reflect"
+
+	"github.com/apache/incubator-devlake/models/domainlayer/crossdomain"
 
 	"github.com/apache/incubator-devlake/models/domainlayer"
 	"github.com/apache/incubator-devlake/models/domainlayer/didgen"
@@ -29,11 +30,18 @@ import (
 	"github.com/apache/incubator-devlake/plugins/tapd/models"
 )
 
-func ConvertUser(taskCtx core.SubTaskContext) error {
+var ConvertAccountsMeta = core.SubTaskMeta{
+	Name:             "convertAccounts",
+	EntryPoint:       ConvertAccounts,
+	EnabledByDefault: true,
+	Description:      "convert tapd account",
+}
+
+func ConvertAccounts(taskCtx core.SubTaskContext) error {
 	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_USER_TABLE, false)
 	db := taskCtx.GetDal()
 	clauses := []dal.Clause{
-		dal.From(&models.TapdUser{}),
+		dal.From(&models.TapdAccount{}),
 		dal.Where("connection_id = ?", data.Options.ConnectionId),
 	}
 
@@ -42,16 +50,16 @@ func ConvertUser(taskCtx core.SubTaskContext) error {
 		return err
 	}
 	defer cursor.Close()
-	userIdGen := didgen.NewDomainIdGenerator(&models.TapdUser{})
+	accountIdGen := didgen.NewDomainIdGenerator(&models.TapdAccount{})
 	converter, err := helper.NewDataConverter(helper.DataConverterArgs{
 		RawDataSubTaskArgs: *rawDataSubTaskArgs,
-		InputRowType:       reflect.TypeOf(models.TapdUser{}),
+		InputRowType:       reflect.TypeOf(models.TapdAccount{}),
 		Input:              cursor,
 		Convert: func(inputRow interface{}) ([]interface{}, error) {
-			userTool := inputRow.(*models.TapdUser)
+			userTool := inputRow.(*models.TapdAccount)
 			issue := &crossdomain.Account{
 				DomainEntity: domainlayer.DomainEntity{
-					Id: userIdGen.Generate(data.Options.ConnectionId, userTool.User),
+					Id: accountIdGen.Generate(data.Options.ConnectionId, userTool.User),
 				},
 				UserName: userTool.Name,
 			}
@@ -66,11 +74,4 @@ func ConvertUser(taskCtx core.SubTaskContext) error {
 	}
 
 	return converter.Execute()
-}
-
-var ConvertUserMeta = core.SubTaskMeta{
-	Name:             "convertUser",
-	EntryPoint:       ConvertUser,
-	EnabledByDefault: true,
-	Description:      "convert Tapd Account",
 }

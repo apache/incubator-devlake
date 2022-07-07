@@ -48,7 +48,7 @@ func ConvertBug(taskCtx core.SubTaskContext) error {
 	}
 	defer cursor.Close()
 	issueIdGen := didgen.NewDomainIdGenerator(&models.TapdIssue{})
-	userIdGen := didgen.NewDomainIdGenerator(&models.TapdUser{})
+	accountIdGen := didgen.NewDomainIdGenerator(&models.TapdAccount{})
 	workspaceIdGen := didgen.NewDomainIdGenerator(&models.TapdWorkspace{})
 	iterIdGen := didgen.NewDomainIdGenerator(&models.TapdIteration{})
 	converter, err := helper.NewDataConverter(helper.DataConverterArgs{
@@ -72,9 +72,9 @@ func ConvertBug(taskCtx core.SubTaskContext) error {
 				//UpdatedDate:    (*time.Time)(toolL.Modified),
 				ParentIssueId:  issueIdGen.Generate(toolL.ConnectionId, toolL.IssueId),
 				Priority:       toolL.Priority,
-				CreatorId:      userIdGen.Generate(data.Options.ConnectionId, toolL.Reporter),
+				CreatorId:      accountIdGen.Generate(data.Options.ConnectionId, toolL.Reporter),
 				CreatorName:    toolL.Reporter,
-				AssigneeId:     userIdGen.Generate(data.Options.ConnectionId, toolL.CurrentOwner),
+				AssigneeId:     accountIdGen.Generate(data.Options.ConnectionId, toolL.CurrentOwner),
 				AssigneeName:   toolL.CurrentOwner,
 				Severity:       toolL.Severity,
 				Component:      toolL.Feature, // todo not sure about this

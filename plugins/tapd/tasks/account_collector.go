@@ -29,9 +29,16 @@ import (
 
 const RAW_USER_TABLE = "tapd_api_users"
 
-var _ core.SubTaskEntryPoint = CollectUsers
+var _ core.SubTaskEntryPoint = CollectAccounts
 
-func CollectUsers(taskCtx core.SubTaskContext) error {
+var CollectAccountsMeta = core.SubTaskMeta{
+	Name:             "collectAccounts",
+	EntryPoint:       CollectAccounts,
+	EnabledByDefault: true,
+	Description:      "collect tapd accounts",
+}
+
+func CollectAccounts(taskCtx core.SubTaskContext) error {
 	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_USER_TABLE, false)
 	logger := taskCtx.GetLogger()
 	logger.Info("collect users")
@@ -60,11 +67,4 @@ func CollectUsers(taskCtx core.SubTaskContext) error {
 		return err
 	}
 	return collector.Execute()
-}
-
-var CollectUserMeta = core.SubTaskMeta{
-	Name:             "collectUsers",
-	EntryPoint:       CollectUsers,
-	EnabledByDefault: true,
-	Description:      "collect Tapd users",
 }
