@@ -15,33 +15,21 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package migrationscripts
+package archived
 
-import (
-	"context"
-	"github.com/apache/incubator-devlake/models/migrationscripts/archived"
-	"gorm.io/gorm"
-)
+import "time"
 
-type updateSchemas20220510 struct{}
-
-func (*updateSchemas20220510) Up(ctx context.Context, db *gorm.DB) error {
-	err := db.Migrator().RenameColumn(archived.Note{}, "system", "is_system")
-	if err != nil {
-		return err
-	}
-
-	return nil
+type Account struct {
+	DomainEntity
+	Email        string `gorm:"type:varchar(255)"`
+	FullName     string `gorm:"type:varchar(255)"`
+	UserName     string `gorm:"type:varchar(255)"`
+	AvatarUrl    string `gorm:"type:varchar(255)"`
+	Organization string `gorm:"type:varchar(255)"`
+	CreatedDate  *time.Time
+	Status       int
 }
 
-func (*updateSchemas20220510) Version() uint64 {
-	return 20220510212399
-}
-
-func (*updateSchemas20220510) Owner() string {
-	return "Framework"
-}
-
-func (*updateSchemas20220510) Name() string {
-	return "Change key word system to is_system"
+func (Account) TableName() string {
+	return "accounts"
 }

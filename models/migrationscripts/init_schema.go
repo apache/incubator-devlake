@@ -27,6 +27,50 @@ import (
 type initSchemas struct{}
 
 func (*initSchemas) Up(ctx context.Context, db *gorm.DB) error {
+	err := db.Migrator().DropTable(
+		"issue_assignee_history",
+		"issue_status_history",
+		"issue_sprints_history",
+		&archived.Task{},
+		&archived.Notification{},
+		&archived.Pipeline{},
+		&archived.Blueprint{},
+		&archived.User{},
+		&archived.Repo{},
+		&archived.Commit{},
+		&archived.CommitParent{},
+		&archived.PullRequest{},
+		&archived.PullRequestCommit{},
+		&archived.PullRequestComment{},
+		&archived.PullRequestLabel{},
+		&archived.Note{},
+		&archived.RepoCommit{},
+		&archived.Ref{},
+		&archived.RefsCommitsDiff{},
+		&archived.CommitFile{},
+		&archived.Board{},
+		&archived.Issue{},
+		&archived.IssueLabel{},
+		&archived.IssueComment{},
+		&archived.BoardIssue{},
+		&archived.BoardSprint{},
+		&archived.IssueChangelogs{},
+		&archived.Sprint{},
+		&archived.SprintIssue{},
+		&archived.Job{},
+		&archived.Build{},
+		&archived.IssueWorklog{},
+		&archived.BoardRepo{},
+		&archived.PullRequestIssue{},
+		&archived.IssueCommit{},
+		&archived.IssueRepoCommit{},
+		&archived.RefsIssuesDiffs{},
+		&archived.RefsPrCherrypick{},
+	)
+	if err != nil {
+		return err
+	}
+
 	return db.Migrator().AutoMigrate(
 		&archived.Task{},
 		&archived.Notification{},
@@ -51,12 +95,9 @@ func (*initSchemas) Up(ctx context.Context, db *gorm.DB) error {
 		&archived.IssueComment{},
 		&archived.BoardIssue{},
 		&archived.BoardSprint{},
-		&archived.Changelog{},
+		&archived.IssueChangelogs{},
 		&archived.Sprint{},
 		&archived.SprintIssue{},
-		&archived.IssueStatusHistory{},
-		&archived.IssueSprintsHistory{},
-		&archived.IssueAssigneeHistory{},
 		&archived.Job{},
 		&archived.Build{},
 		&archived.IssueWorklog{},
@@ -70,7 +111,7 @@ func (*initSchemas) Up(ctx context.Context, db *gorm.DB) error {
 }
 
 func (*initSchemas) Version() uint64 {
-	return 20220406212344
+	return 20220707232344
 }
 
 func (*initSchemas) Owner() string {

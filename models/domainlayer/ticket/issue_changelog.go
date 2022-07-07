@@ -15,28 +15,30 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package migrationscripts
+package ticket
 
 import (
-	"context"
-	"github.com/apache/incubator-devlake/models/migrationscripts/archived"
-	"gorm.io/gorm"
+	"time"
+
+	"github.com/apache/incubator-devlake/models/domainlayer"
 )
 
-type updateSchemas20220505 struct{}
+type IssueChangelogs struct {
+	domainlayer.DomainEntity
 
-func (*updateSchemas20220505) Up(ctx context.Context, db *gorm.DB) error {
-	err := db.Migrator().RenameColumn(archived.Pipeline{}, "step", "stage")
-	if err != nil {
-		return err
-	}
-	return nil
+	// collected fields
+	IssueId           string `gorm:"index;type:varchar(255)"`
+	AuthorId          string `gorm:"type:varchar(255)"`
+	AuthorName        string `gorm:"type:varchar(255)"`
+	FieldId           string `gorm:"type:varchar(255)"`
+	FieldName         string `gorm:"type:varchar(255)"`
+	OriginalFromValue string
+	OriginalToValue   string
+	FromValue         string
+	ToValue           string
+	CreatedDate       time.Time
 }
 
-func (*updateSchemas20220505) Version() uint64 {
-	return 20220505212344
-}
-
-func (*updateSchemas20220505) Name() string {
-	return "Rename step to stage "
+func (IssueChangelogs) TableName() string {
+	return "issue_changelogs"
 }

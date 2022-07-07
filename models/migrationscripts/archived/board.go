@@ -29,10 +29,18 @@ type Board struct {
 	CreatedDate *time.Time
 }
 
+func (Board) TableName() string {
+	return "boards"
+}
+
 type BoardSprint struct {
 	NoPKModel
 	BoardId  string `gorm:"primaryKey;type:varchar(255)"`
 	SprintId string `gorm:"primaryKey;type:varchar(255)"`
+}
+
+func (BoardSprint) TableName() string {
+	return "board_sprints"
 }
 
 type BoardIssue struct {
@@ -41,7 +49,15 @@ type BoardIssue struct {
 	NoPKModel
 }
 
+func (BoardIssue) TableName() string {
+	return "board_issues"
+}
+
 type BoardRepo struct {
 	BoardId string `gorm:"primaryKey;type:varchar(255)"`
 	RepoId  string `gorm:"primaryKey;type:varchar(255)"`
+}
+
+func (BoardRepo) TableName() string {
+	return "board_repos"
 }

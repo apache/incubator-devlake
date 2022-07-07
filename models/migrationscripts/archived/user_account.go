@@ -15,36 +15,13 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package migrationscripts
+package archived
 
-import (
-	"context"
-	"gorm.io/gorm"
-)
-
-type PullRequestComment0704 struct {
-	Type string `gorm:"type:varchar(255)"`
+type UserAccount struct {
+	UserId    string `gorm:"primaryKey;type:varchar(255)"`
+	AccountId string `gorm:"primaryKey;type:varchar(255)"`
 }
 
-func (PullRequestComment0704) TableName() string {
-	return "pull_request_comments"
-}
-
-type UpdateSchemas20220704 struct {
-}
-
-func (u *UpdateSchemas20220704) Up(ctx context.Context, db *gorm.DB) error {
-	err := db.Migrator().AddColumn(&PullRequestComment0704{}, "type")
-	if err != nil {
-		return err
-	}
-	return nil
-}
-
-func (*UpdateSchemas20220704) Version() uint64 {
-	return 20220704110137
-}
-
-func (*UpdateSchemas20220704) Name() string {
-	return "add type to pr_comment"
+func (UserAccount) TableName() string {
+	return "user_accounts"
 }

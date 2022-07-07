@@ -15,34 +15,13 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package migrationscripts
+package archived
 
-import (
-	"context"
-
-	"github.com/apache/incubator-devlake/models/migrationscripts/archived"
-	"gorm.io/gorm"
-)
-
-type updateSchemas20220612 struct{}
-
-func (*updateSchemas20220612) Up(ctx context.Context, db *gorm.DB) error {
-	err := db.Migrator().DropTable(&archived.Job{}, &archived.Build{})
-	if err != nil {
-		return err
-	}
-	err = db.Migrator().CreateTable(&archived.Job{}, &archived.Build{})
-	if err != nil {
-		return err
-	}
-
-	return nil
+type TeamUser struct {
+	TeamId string `gorm:"primaryKey;type:varchar(255)"`
+	UserId string `gorm:"primaryKey;type:varchar(255)"`
 }
 
-func (*updateSchemas20220612) Version() uint64 {
-	return 20220612154333
-}
-
-func (*updateSchemas20220612) Name() string {
-	return "Regenerate tables jobs and builds"
+func (TeamUser) TableName() string {
+	return "team_users"
 }
