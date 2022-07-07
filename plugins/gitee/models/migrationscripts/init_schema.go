@@ -57,7 +57,6 @@ func (*InitSchemas) Up(ctx context.Context, db *gorm.DB) error {
 		&archived.GiteeRepoCommit{},
 		&archived.GiteePullRequest{},
 		&archived.GiteePullRequestLabel{},
-		&archived.GiteeAccount{},
 		&archived.GiteePullRequestComment{},
 		&archived.GiteeIssue{},
 		&archived.GiteeIssueComment{},
@@ -67,6 +66,7 @@ func (*InitSchemas) Up(ctx context.Context, db *gorm.DB) error {
 		&archived.GiteePullRequestIssue{},
 		&archived.GiteeReviewer{},
 		&archived.GiteeConnection{},
+		"_tool_gitee_users",
 	)
 
 	if err != nil {
@@ -118,7 +118,7 @@ func (*InitSchemas) Up(ctx context.Context, db *gorm.DB) error {
 }
 
 func (*InitSchemas) Version() uint64 {
-	return 20220617231268
+	return 20220707231268
 }
 
 func (*InitSchemas) Name() string {
