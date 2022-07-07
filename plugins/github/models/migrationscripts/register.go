@@ -25,6 +25,6 @@ import (
 func All() []migration.Script {
 	return []migration.Script{
 		new(initSchemas),
-		new(UpdateSchemas20220620),
+		new(UpdateSchemas20220708),
 	}
 }

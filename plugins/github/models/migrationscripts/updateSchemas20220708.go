@@ -41,33 +41,33 @@ type GithubMilestone20220620 struct {
 	ClosedAt     time.Time
 }
 
-// GithubIssue20220620 new field for models.GithubIssue
-type GithubIssue20220620 struct {
+// GithubIssue20220708 new field for models.GithubIssue
+type GithubIssue20220708 struct {
 	MilestoneId int
 }
 
-type UpdateSchemas20220620 struct{}
+type UpdateSchemas20220708 struct{}
 
 func (GithubMilestone20220620) TableName() string {
 	return "_tool_github_milestones"
 }
 
-func (GithubIssue20220620) TableName() string {
+func (GithubIssue20220708) TableName() string {
 	return "_tool_github_issues"
 }
 
-func (*UpdateSchemas20220620) Up(_ context.Context, db *gorm.DB) error {
-	err := db.Migrator().AddColumn(GithubIssue20220620{}, "milestone_id")
+func (*UpdateSchemas20220708) Up(_ context.Context, db *gorm.DB) error {
+	err := db.Migrator().AddColumn(GithubIssue20220708{}, "milestone_id")
 	if err != nil {
 		return err
 	}
 	return db.Migrator().CreateTable(GithubMilestone20220620{})
 }
 
-func (*UpdateSchemas20220620) Version() uint64 {
-	return 20220620000001
+func (*UpdateSchemas20220708) Version() uint64 {
+	return 20220708000001
 }
 
-func (*UpdateSchemas20220620) Name() string {
+func (*UpdateSchemas20220708) Name() string {
 	return "Add milestone for github"
 }

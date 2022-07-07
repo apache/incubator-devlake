@@ -28,7 +28,7 @@ import (
 	"gorm.io/gorm"
 )
 
-type GithubConnection20220615 struct {
+type GithubConnection20220707 struct {
 	commonArchived.Model
 	Name      string `gorm:"type:varchar(100);uniqueIndex" json:"name" validate:"required"`
 	Endpoint  string `mapstructure:"endpoint" env:"GITHUB_ENDPOINT" validate:"required"`
@@ -37,7 +37,7 @@ type GithubConnection20220615 struct {
 	Token     string `mapstructure:"token" env:"GITHUB_AUTH" validate:"required" encrypt:"yes"`
 }
 
-func (GithubConnection20220615) TableName() string {
+func (GithubConnection20220707) TableName() string {
 	return "_tool_github_connections"
 }
 
@@ -50,8 +50,8 @@ func (u *initSchemas) SetConfigGetter(config core.ConfigGetter) {
 }
 
 func (u *initSchemas) Up(ctx context.Context, db *gorm.DB) error {
-	if db.Migrator().HasTable(GithubConnection20220615{}) {
-		err := db.Migrator().DropTable(GithubConnection20220615{})
+	if db.Migrator().HasTable(GithubConnection20220707{}) {
+		err := db.Migrator().DropTable(GithubConnection20220707{})
 		if err != nil {
 			return err
 		}
@@ -88,12 +88,12 @@ func (u *initSchemas) Up(ctx context.Context, db *gorm.DB) error {
 	if err != nil {
 		return err
 	}
-	err = db.Migrator().CreateTable(GithubConnection20220615{})
+	err = db.Migrator().CreateTable(GithubConnection20220707{})
 	if err != nil {
 		return err
 	}
 	encodeKey := u.config.GetString(core.EncodeKeyEnvStr)
-	connection := &GithubConnection20220615{}
+	connection := &GithubConnection20220707{}
 	connection.Endpoint = u.config.GetString(`GITHUB_ENDPOINT`)
 	connection.Proxy = u.config.GetString(`GITHUB_PROXY`)
 	connection.Token = u.config.GetString(`GITHUB_AUTH`)
@@ -130,9 +130,9 @@ func (u *initSchemas) Up(ctx context.Context, db *gorm.DB) error {
 }
 
 func (*initSchemas) Version() uint64 {
-	return 20220615000001
+	return 20220707000001
 }
 
 func (*initSchemas) Name() string {
-	return "Github init schemas 20220611"
+	return "Github init schemas 20220707"
 }
