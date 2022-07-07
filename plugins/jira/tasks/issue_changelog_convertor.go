@@ -58,17 +58,17 @@ func ConvertIssueChangelogs(taskCtx core.SubTaskContext) error {
 	logger.Info("covert changelog")
 	// select all changelogs belongs to the board
 	clauses := []dal.Clause{
-		dal.Select("_tool_jira_changelog_items.*, _tool_jira_changelogs.issue_id, author_account_id, author_display_name, created"),
-		dal.From("_tool_jira_changelog_items"),
-		dal.Join(`left join _tool_jira_changelogs on (
-			_tool_jira_changelogs.connection_id = _tool_jira_changelog_items.connection_id
-			AND _tool_jira_changelogs.changelog_id = _tool_jira_changelog_items.changelog_id
+		dal.Select("_tool_jira_issue_changelog_items.*, _tool_jira_issue_changelogs.issue_id, author_account_id, author_display_name, created"),
+		dal.From("_tool_jira_issue_changelog_items"),
+		dal.Join(`left join _tool_jira_issue_changelogs on (
+			_tool_jira_issue_changelogs.connection_id = _tool_jira_issue_changelog_items.connection_id
+			AND _tool_jira_issue_changelogs.changelog_id = _tool_jira_issue_changelog_items.changelog_id
 		)`),
 		dal.Join(`left join _tool_jira_board_issues on (
-			_tool_jira_board_issues.connection_id = _tool_jira_changelogs.connection_id
-			AND _tool_jira_board_issues.issue_id = _tool_jira_changelogs.issue_id
+			_tool_jira_board_issues.connection_id = _tool_jira_issue_changelogs.connection_id
+			AND _tool_jira_board_issues.issue_id = _tool_jira_issue_changelogs.issue_id
 		)`),
-		dal.Where("_tool_jira_changelog_items.connection_id = ? AND _tool_jira_board_issues.board_id = ?", connectionId, boardId),
+		dal.Where("_tool_jira_issue_changelog_items.connection_id = ? AND _tool_jira_board_issues.board_id = ?", connectionId, boardId),
 	}
 	cursor, err := db.Cursor(clauses...)
 	if err != nil {
