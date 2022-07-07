@@ -41,11 +41,11 @@ func (*InitSchemas) Up(ctx context.Context, db *gorm.DB) error {
 		&archived.GitlabMrNote{},
 		&archived.GitlabMrCommit{},
 		&archived.GitlabMrComment{},
-		&archived.GitlabAccount{},
 		&archived.GitlabConnection{},
 		&archived.GitlabIssue{},
 		&archived.GitlabIssueLabel{},
 		&archived.GitlabMrLabel{},
+		"_tool_gitlab_users",
 		"_raw_gitlab_api_children_on_pipeline",
 		"_raw_gitlab_api_commit",
 		"_raw_gitlab_api_issues",
@@ -116,7 +116,7 @@ func (*InitSchemas) Up(ctx context.Context, db *gorm.DB) error {
 }
 
 func (*InitSchemas) Version() uint64 {
-	return 20220614231236
+	return 20220707231236
 }
 
 func (*InitSchemas) Name() string {
