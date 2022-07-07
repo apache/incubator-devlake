@@ -15,59 +15,30 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package migrationscripts
+package archived
 
 import (
-	"context"
-	"github.com/apache/incubator-devlake/models/migrationscripts/archived"
-	"gorm.io/gorm"
 	"time"
+
+	"github.com/apache/incubator-devlake/models/migrationscripts/archived"
 )
 
-// GithubMilestone20220620 new struct for milestones
-type GithubMilestone20220620 struct {
-	archived.NoPKModel
+type GithubMilestone struct {
 	ConnectionId uint64 `gorm:"primaryKey"`
 	MilestoneId  int    `gorm:"primaryKey;autoIncrement:false"`
 	RepoId       int
 	Number       int
 	URL          string
+	Title        string
 	OpenIssues   int
 	ClosedIssues int
 	State        string
-	Title        string
 	CreatedAt    time.Time
 	UpdatedAt    time.Time
-	ClosedAt     time.Time
+	ClosedAt     *time.Time
+	archived.NoPKModel
 }
 
-// GithubIssue20220708 new field for models.GithubIssue
-type GithubIssue20220708 struct {
-	MilestoneId int
-}
-
-type UpdateSchemas20220708 struct{}
-
-func (GithubMilestone20220620) TableName() string {
+func (GithubMilestone) TableName() string {
 	return "_tool_github_milestones"
-}
-
-func (GithubIssue20220708) TableName() string {
-	return "_tool_github_issues"
-}
-
-func (*UpdateSchemas20220708) Up(_ context.Context, db *gorm.DB) error {
-	err := db.Migrator().AddColumn(GithubIssue20220708{}, "milestone_id")
-	if err != nil {
-		return err
-	}
-	return db.Migrator().CreateTable(GithubMilestone20220620{})
-}
-
-func (*UpdateSchemas20220708) Version() uint64 {
-	return 20220708000001
-}
-
-func (*UpdateSchemas20220708) Name() string {
-	return "Add milestone for github"
 }
