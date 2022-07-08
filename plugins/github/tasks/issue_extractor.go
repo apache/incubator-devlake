@@ -175,14 +175,6 @@ func convertGithubIssue(issue *IssuesResponse, connectionId uint64, repositoryId
 	if issue.ClosedAt != nil {
 		githubIssue.LeadTimeMinutes = uint(issue.ClosedAt.ToTime().Sub(issue.GithubCreatedAt.ToTime()).Minutes())
 	}
-	if issue.Assignee != nil {
-		githubIssue.AssigneeId = issue.Assignee.Id
-		githubIssue.AssigneeName = issue.Assignee.Login
-	}
-	if issue.User != nil {
-		githubIssue.AuthorId = issue.User.Id
-		githubIssue.AuthorName = issue.User.Login
-	}
 	return githubIssue, nil
 }
 
