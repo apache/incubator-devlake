@@ -207,16 +207,24 @@ func (apiClient *ApiAsyncClient) WaitAsync() error {
 	return apiClient.scheduler.Wait()
 }
 
+// HasError to return if the scheduler has Error
 func (apiClient *ApiAsyncClient) HasError() bool {
 	return apiClient.scheduler.HasError()
 }
 
+// NextTick to return the NextTick of scheduler
 func (apiClient *ApiAsyncClient) NextTick(task func() error) {
 	apiClient.scheduler.NextTick(task)
 }
 
+// GetNumOfWorkers to return the Workers count if scheduler.
 func (apiClient *ApiAsyncClient) GetNumOfWorkers() int {
 	return apiClient.numOfWorkers
+}
+
+// Release will release the ApiAsyncClient with scheduler
+func (apiClient *ApiAsyncClient) Release() {
+	apiClient.scheduler.Release()
 }
 
 type RateLimitedApiClient interface {
@@ -226,6 +234,7 @@ type RateLimitedApiClient interface {
 	NextTick(task func() error)
 	GetNumOfWorkers() int
 	SetAfterFunction(callback common.ApiClientAfterResponse)
+	Release()
 }
 
 var _ RateLimitedApiClient = (*ApiAsyncClient)(nil)

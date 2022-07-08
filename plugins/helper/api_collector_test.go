@@ -76,6 +76,7 @@ func TestFetchPageUndetermined(t *testing.T) {
 	params := struct {
 		Name string
 	}{Name: "testparams"}
+	mockApi.On("Release").Return()
 
 	collector, err := NewApiCollector(ApiCollectorArgs{
 		RawDataSubTaskArgs: RawDataSubTaskArgs{
