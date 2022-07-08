@@ -32,9 +32,14 @@ type ApiMeResponse struct {
 	Name string `json:"name"`
 }
 
-/*
-GET /plugins/ae/test/
-*/
+// @Summary test ae connection
+// @Description Test AE Connection
+// @Tags plugins/AE
+// @Param body body models.TestConnectionRequest true "json body"
+// @Success 200
+// @Failure 400  {string} errcode.Error "Bad Request"
+// @Failure 500  {string} errcode.Error "Internel Error"
+// @Router /plugins/ae/test [POST]
 func TestConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, error) {
 	// decode
 	var err error
@@ -84,9 +89,14 @@ func TestConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, erro
 	}
 }
 
-/*
-POST /plugins/ae/connections
-*/
+// @Summary create ae connection
+// @Description Create AE connection
+// @Tags plugins/AE
+// @Param body body models.AeConnection true "json body"
+// @Success 200
+// @Failure 400  {string} errcode.Error "Bad Request"
+// @Failure 500  {string} errcode.Error "Internel Error"
+// @Router /plugins/ae/connections [POST]
 func PostConnections(input *core.ApiResourceInput) (*core.ApiResourceOutput, error) {
 	connection := &models.AeConnection{}
 	err := connectionHelper.Create(connection, input)
@@ -96,9 +106,13 @@ func PostConnections(input *core.ApiResourceInput) (*core.ApiResourceOutput, err
 	return &core.ApiResourceOutput{Body: connection, Status: http.StatusOK}, nil
 }
 
-/*
-GET /plugins/ae/connections
-*/
+// @Summary get all ae connections
+// @Description Get all AE connections
+// @Tags plugins/AE
+// @Success 200
+// @Failure 400  {string} errcode.Error "Bad Request"
+// @Failure 500  {string} errcode.Error "Internel Error"
+// @Router /plugins/ae/connections [GET]
 func ListConnections(input *core.ApiResourceInput) (*core.ApiResourceOutput, error) {
 	var connections []models.AeConnection
 	err := connectionHelper.List(&connections)
@@ -108,18 +122,27 @@ func ListConnections(input *core.ApiResourceInput) (*core.ApiResourceOutput, err
 	return &core.ApiResourceOutput{Body: connections, Status: http.StatusOK}, nil
 }
 
-/*
-GET /plugins/ae/connections/:connectionId
-*/
+// @Summary get ae connection detail
+// @Description Get AE connection detail
+// @Tags plugins/AE
+// @Success 200
+// @Failure 400  {string} errcode.Error "Bad Request"
+// @Failure 500  {string} errcode.Error "Internel Error"
+// @Router /plugins/ae/connections/{connectionId} [GET]
 func GetConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, error) {
 	connection := &models.AeConnection{}
 	err := connectionHelper.First(connection, input.Params)
 	return &core.ApiResourceOutput{Body: connection}, err
 }
 
-/*
-PATCH /plugins/ae/connections/:connectionId
-*/
+// @Summary patch ae connection
+// @Description Patch AE connection
+// @Tags plugins/AE
+// @Param body body models.AeConnection true "json body"
+// @Success 200
+// @Failure 400  {string} errcode.Error "Bad Request"
+// @Failure 500  {string} errcode.Error "Internel Error"
+// @Router /plugins/ae/connections/{connectionId} [PATCH]
 func PatchConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, error) {
 	connection := &models.AeConnection{}
 	err := connectionHelper.Patch(connection, input)
@@ -129,9 +152,13 @@ func PatchConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, err
 	return &core.ApiResourceOutput{Body: connection, Status: http.StatusOK}, nil
 }
 
-/*
-DELETE /plugins/ae/connections/:connectionId
-*/
+// @Summary delete a ae connection
+// @Description Delete a AE connection
+// @Tags plugins/AE
+// @Success 200
+// @Failure 400  {string} errcode.Error "Bad Request"
+// @Failure 500  {string} errcode.Error "Internel Error"
+// @Router /plugins/ae/connections/{connectionId} [DELETE]
 func DeleteConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, error) {
 	connection := &models.AeConnection{}
 	err := connectionHelper.First(connection, input.Params)
