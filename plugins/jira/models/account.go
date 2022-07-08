@@ -15,38 +15,25 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package migrationscripts
+package models
 
 import (
-	"context"
-	"github.com/apache/incubator-devlake/models/migrationscripts/archived"
-
-	"gorm.io/gorm"
+	"github.com/apache/incubator-devlake/models/common"
 )
 
-type JiraIssueLabel0616 struct {
-	ConnectionId uint64 `gorm:"primaryKey;autoIncrement:false"`
-	IssueId      uint64 `gorm:"primaryKey;autoIncrement:false"`
-	LabelName    string `gorm:"primaryKey;type:varchar(255)"`
-	archived.NoPKModel
+type JiraAccount struct {
+	common.NoPKModel
+
+	// collected fields
+	ConnectionId uint64 `gorm:"primarykey"`
+	AccountId    string `gorm:"primaryKey;type:varchar(100)"`
+	AccountType  string `gorm:"type:varchar(100)"`
+	Name         string `gorm:"type:varchar(255)"`
+	Email        string `gorm:"type:varchar(255)"`
+	AvatarUrl    string `gorm:"type:varchar(255)"`
+	Timezone     string `gorm:"type:varchar(255)"`
 }
 
-func (JiraIssueLabel0616) TableName() string {
-	return "_tool_jira_issue_labels"
-}
-
-type UpdateSchemas20220616 struct{}
-
-func (*UpdateSchemas20220616) Up(ctx context.Context, db *gorm.DB) error {
-
-	err := db.Migrator().AutoMigrate(JiraIssueLabel0616{})
-	return err
-}
-
-func (*UpdateSchemas20220616) Version() uint64 {
-	return 20220616154646
-}
-
-func (*UpdateSchemas20220616) Name() string {
-	return "add jira issue labels"
+func (JiraAccount) TableName() string {
+	return "_tool_jira_accounts"
 }

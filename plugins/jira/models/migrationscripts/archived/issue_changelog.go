@@ -15,16 +15,16 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package models
+package archived
 
 import (
 	"time"
 
-	"github.com/apache/incubator-devlake/models/common"
+	"github.com/apache/incubator-devlake/models/migrationscripts/archived"
 )
 
-type JiraChangelog struct {
-	common.NoPKModel
+type JiraIssueChangelogs struct {
+	archived.NoPKModel
 
 	// collected fields
 	ConnectionId      uint64 `gorm:"primaryKey"`
@@ -37,8 +37,8 @@ type JiraChangelog struct {
 	IssueUpdated      *time.Time `comment:"corresponding issue.updated time, changelog might need update IFF changelog.issue_updated < issue.updated"`
 }
 
-type JiraChangelogItem struct {
-	common.NoPKModel
+type JiraIssueChangelogItems struct {
+	archived.NoPKModel
 
 	// collected fields
 	ConnectionId uint64 `gorm:"primaryKey"`
@@ -52,10 +52,10 @@ type JiraChangelogItem struct {
 	ToString     string
 }
 
-func (JiraChangelog) TableName() string {
-	return "_tool_jira_changelogs"
+func (JiraIssueChangelogs) TableName() string {
+	return "_tool_jira_issue_changelogs"
 }
 
-func (JiraChangelogItem) TableName() string {
-	return "_tool_jira_changelog_items"
+func (JiraIssueChangelogItems) TableName() string {
+	return "_tool_jira_issue_changelog_items"
 }

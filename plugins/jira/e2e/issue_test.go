@@ -45,10 +45,10 @@ func TestIssueDataFlow(t *testing.T) {
 	dataflowTester.FlushTabler(&models.JiraIssue{})
 	dataflowTester.FlushTabler(&models.JiraBoardIssue{})
 	dataflowTester.FlushTabler(&models.JiraSprintIssue{})
-	dataflowTester.FlushTabler(&models.JiraChangelog{})
-	dataflowTester.FlushTabler(&models.JiraChangelogItem{})
+	dataflowTester.FlushTabler(&models.JiraIssueChangelogs{})
+	dataflowTester.FlushTabler(&models.JiraIssueChangelogItems{})
 	dataflowTester.FlushTabler(&models.JiraWorklog{})
-	dataflowTester.FlushTabler(&models.JiraUser{})
+	dataflowTester.FlushTabler(&models.JiraAccount{})
 	dataflowTester.Subtask(tasks.ExtractIssuesMeta, taskData)
 	dataflowTester.VerifyTable(
 		models.JiraIssue{},

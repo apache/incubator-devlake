@@ -18,8 +18,9 @@ limitations under the License.
 package tasks
 
 import (
-	"github.com/apache/incubator-devlake/plugins/core/dal"
 	"reflect"
+
+	"github.com/apache/incubator-devlake/plugins/core/dal"
 
 	"github.com/apache/incubator-devlake/models/domainlayer"
 	"github.com/apache/incubator-devlake/models/domainlayer/didgen"
@@ -59,7 +60,7 @@ func ConvertWorklogs(taskCtx core.SubTaskContext) error {
 	defer cursor.Close()
 
 	worklogIdGen := didgen.NewDomainIdGenerator(&models.JiraWorklog{})
-	userIdGen := didgen.NewDomainIdGenerator(&models.JiraUser{})
+	accountIdGen := didgen.NewDomainIdGenerator(&models.JiraAccount{})
 	issueIdGen := didgen.NewDomainIdGenerator(&models.JiraIssue{})
 	converter, err := helper.NewDataConverter(helper.DataConverterArgs{
 		RawDataSubTaskArgs: helper.RawDataSubTaskArgs{
@@ -82,7 +83,7 @@ func ConvertWorklogs(taskCtx core.SubTaskContext) error {
 				LoggedDate:       &jiraWorklog.Updated,
 			}
 			if jiraWorklog.AuthorId != "" {
-				worklog.AuthorId = userIdGen.Generate(connectionId, jiraWorklog.AuthorId)
+				worklog.AuthorId = accountIdGen.Generate(connectionId, jiraWorklog.AuthorId)
 			}
 			return []interface{}{worklog}, nil
 		},

@@ -18,11 +18,12 @@ limitations under the License.
 package tasks
 
 import (
-	"github.com/apache/incubator-devlake/plugins/core/dal"
 	"reflect"
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/apache/incubator-devlake/plugins/core/dal"
 
 	"github.com/apache/incubator-devlake/models/domainlayer"
 	"github.com/apache/incubator-devlake/models/domainlayer/didgen"
@@ -32,23 +33,23 @@ import (
 	"github.com/apache/incubator-devlake/plugins/jira/models"
 )
 
-var ConvertChangelogsMeta = core.SubTaskMeta{
-	Name:             "convertChangelogs",
-	EntryPoint:       ConvertChangelogs,
+var ConvertIssueChangelogsMeta = core.SubTaskMeta{
+	Name:             "convertIssueChangelogs",
+	EntryPoint:       ConvertIssueChangelogs,
 	EnabledByDefault: true,
-	Description:      "convert Jira change logs",
+	Description:      "convert Jira Issue change logs",
 	DomainTypes:      []string{core.DOMAIN_TYPE_TICKET},
 }
 
-type ChangelogItemResult struct {
-	models.JiraChangelogItem
+type IssueChangelogItemResult struct {
+	models.JiraIssueChangelogItems
 	IssueId           uint64 `gorm:"index"`
 	AuthorAccountId   string
 	AuthorDisplayName string
 	Created           time.Time
 }
 
-func ConvertChangelogs(taskCtx core.SubTaskContext) error {
+func ConvertIssueChangelogs(taskCtx core.SubTaskContext) error {
 	data := taskCtx.GetData().(*JiraTaskData)
 	connectionId := data.Options.ConnectionId
 	boardId := data.Options.BoardId
@@ -57,17 +58,17 @@ func ConvertChangelogs(taskCtx core.SubTaskContext) error {
 	logger.Info("covert changelog")
 	// select all changelogs belongs to the board
 	clauses := []dal.Clause{
-		dal.Select("_tool_jira_changelog_items.*, _tool_jira_changelogs.issue_id, author_account_id, author_display_name, created"),
-		dal.From("_tool_jira_changelog_items"),
-		dal.Join(`left join _tool_jira_changelogs on (
-			_tool_jira_changelogs.connection_id = _tool_jira_changelog_items.connection_id
-			AND _tool_jira_changelogs.changelog_id = _tool_jira_changelog_items.changelog_id
+		dal.Select("_tool_jira_issue_changelog_items.*, _tool_jira_issue_changelogs.issue_id, author_account_id, author_display_name, created"),
+		dal.From("_tool_jira_issue_changelog_items"),
+		dal.Join(`left join _tool_jira_issue_changelogs on (
+			_tool_jira_issue_changelogs.connection_id = _tool_jira_issue_changelog_items.connection_id
+			AND _tool_jira_issue_changelogs.changelog_id = _tool_jira_issue_changelog_items.changelog_id
 		)`),
 		dal.Join(`left join _tool_jira_board_issues on (
-			_tool_jira_board_issues.connection_id = _tool_jira_changelogs.connection_id
-			AND _tool_jira_board_issues.issue_id = _tool_jira_changelogs.issue_id
+			_tool_jira_board_issues.connection_id = _tool_jira_issue_changelogs.connection_id
+			AND _tool_jira_board_issues.issue_id = _tool_jira_issue_changelogs.issue_id
 		)`),
-		dal.Where("_tool_jira_changelog_items.connection_id = ? AND _tool_jira_board_issues.board_id = ?", connectionId, boardId),
+		dal.Where("_tool_jira_issue_changelog_items.connection_id = ? AND _tool_jira_board_issues.board_id = ?", connectionId, boardId),
 	}
 	cursor, err := db.Cursor(clauses...)
 	if err != nil {
@@ -77,8 +78,8 @@ func ConvertChangelogs(taskCtx core.SubTaskContext) error {
 	defer cursor.Close()
 	issueIdGenerator := didgen.NewDomainIdGenerator(&models.JiraIssue{})
 	sprintIdGenerator := didgen.NewDomainIdGenerator(&models.JiraSprint{})
-	changelogIdGenerator := didgen.NewDomainIdGenerator(&models.JiraChangelogItem{})
-	userIdGen := didgen.NewDomainIdGenerator(&models.JiraUser{})
+	changelogIdGenerator := didgen.NewDomainIdGenerator(&models.JiraIssueChangelogItems{})
+	accountIdGen := didgen.NewDomainIdGenerator(&models.JiraAccount{})
 	converter, err := helper.NewDataConverter(helper.DataConverterArgs{
 		RawDataSubTaskArgs: helper.RawDataSubTaskArgs{
 			Ctx: taskCtx,
@@ -88,10 +89,10 @@ func ConvertChangelogs(taskCtx core.SubTaskContext) error {
 			},
 			Table: RAW_CHANGELOG_TABLE,
 		},
-		InputRowType: reflect.TypeOf(ChangelogItemResult{}),
+		InputRowType: reflect.TypeOf(IssueChangelogItemResult{}),
 		Input:        cursor,
 		Convert: func(inputRow interface{}) ([]interface{}, error) {
-			row := inputRow.(*ChangelogItemResult)
+			row := inputRow.(*IssueChangelogItemResult)
 			changelog := &ticket.Changelog{
 				DomainEntity: domainlayer.DomainEntity{Id: changelogIdGenerator.Generate(
 					row.ConnectionId,
@@ -99,7 +100,7 @@ func ConvertChangelogs(taskCtx core.SubTaskContext) error {
 					row.Field,
 				)},
 				IssueId:           issueIdGenerator.Generate(row.ConnectionId, row.IssueId),
-				AuthorId:          userIdGen.Generate(connectionId, row.AuthorAccountId),
+				AuthorId:          accountIdGen.Generate(connectionId, row.AuthorAccountId),
 				AuthorName:        row.AuthorDisplayName,
 				FieldId:           row.FieldId,
 				FieldName:         row.Field,
@@ -109,10 +110,10 @@ func ConvertChangelogs(taskCtx core.SubTaskContext) error {
 			}
 			if row.Field == "assignee" {
 				if row.ToValue != "" {
-					changelog.OriginalToValue = userIdGen.Generate(connectionId, row.ToValue)
+					changelog.OriginalToValue = accountIdGen.Generate(connectionId, row.ToValue)
 				}
 				if row.FromValue != "" {
-					changelog.OriginalFromValue = userIdGen.Generate(connectionId, row.FromValue)
+					changelog.OriginalFromValue = accountIdGen.Generate(connectionId, row.FromValue)
 				}
 			}
 			if row.Field == "Sprint" {

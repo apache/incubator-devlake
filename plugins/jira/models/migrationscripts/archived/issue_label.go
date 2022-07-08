@@ -18,43 +18,19 @@ limitations under the License.
 package archived
 
 import (
-	"time"
-
 	"github.com/apache/incubator-devlake/models/migrationscripts/archived"
 )
 
-type JiraChangelog struct {
+// Please note that Issue Labels can also apply to Pull Requests.
+// Pull Requests are considered Issues in GitHub.
+
+type JiraIssueLabel struct {
+	ConnectionId uint64 `gorm:"primaryKey;autoIncrement:false"`
+	IssueId      uint64 `gorm:"primaryKey;autoIncrement:false"`
+	LabelName    string `gorm:"primaryKey;type:varchar(255)"`
 	archived.NoPKModel
-
-	// collected fields
-	SourceId          uint64 `gorm:"primaryKey"`
-	ChangelogId       uint64 `gorm:"primarykey"`
-	IssueId           uint64 `gorm:"index"`
-	AuthorAccountId   string `gorm:"type:varchar(255)"`
-	AuthorDisplayName string `gorm:"type:varchar(255)"`
-	AuthorActive      bool
-	Created           time.Time `gorm:"index"`
 }
 
-type JiraChangelogItem struct {
-	archived.NoPKModel
-
-	// collected fields
-	SourceId    uint64 `gorm:"primaryKey"`
-	ChangelogId uint64 `gorm:"primaryKey"`
-	Field       string `gorm:"primaryKey"`
-	FieldType   string
-	FieldId     string
-	From        string
-	FromString  string
-	To          string
-	ToString    string
-}
-
-func (JiraChangelog) TableName() string {
-	return "_tool_jira_changelogs"
-}
-
-func (JiraChangelogItem) TableName() string {
-	return "_tool_jira_changelog_items"
+func (JiraIssueLabel) TableName() string {
+	return "_tool_jira_issue_labels"
 }

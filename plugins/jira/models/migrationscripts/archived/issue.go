@@ -26,11 +26,12 @@ import (
 
 type JiraIssue struct {
 	// collected fields
-	SourceId                 uint64 `gorm:"primaryKey"`
+	ConnectionId             uint64 `gorm:"primaryKey"`
 	IssueId                  uint64 `gorm:"primarykey"`
 	ProjectId                uint64
 	Self                     string `gorm:"type:varchar(255)"`
-	Key                      string `gorm:"type:varchar(255)"`
+	IconURL                  string `gorm:"type:varchar(255);column:icon_url"`
+	IssueKey                 string `gorm:"type:varchar(255)"`
 	Summary                  string
 	Type                     string `gorm:"type:varchar(255)"`
 	EpicKey                  string `gorm:"type:varchar(255)"`
@@ -57,29 +58,13 @@ type JiraIssue struct {
 	Updated                  time.Time `gorm:"index"`
 	SpentMinutes             int64
 	LeadTimeMinutes          uint
-	StdStoryPoint            uint
+	StdStoryPoint            int64
 	StdType                  string `gorm:"type:varchar(255)"`
 	StdStatus                string `gorm:"type:varchar(255)"`
 	AllFields                datatypes.JSONMap
-
-	// internal status tracking
-	ChangelogUpdated  *time.Time
-	RemotelinkUpdated *time.Time
 	archived.NoPKModel
-}
-
-type JiraIssueCommit struct {
-	archived.NoPKModel
-	SourceId  uint64 `gorm:"primaryKey"`
-	IssueId   uint64 `gorm:"primaryKey"`
-	CommitSha string `gorm:"primaryKey;type:varchar(40)"`
-	CommitUrl string `gorm:"type:varchar(255)"`
 }
 
 func (JiraIssue) TableName() string {
 	return "_tool_jira_issues"
-}
-
-func (JiraIssueCommit) TableName() string {
-	return "_tool_jira_issue_commits"
 }

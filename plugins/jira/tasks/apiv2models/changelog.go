@@ -18,20 +18,21 @@ limitations under the License.
 package apiv2models
 
 import (
+	"time"
+
 	"github.com/apache/incubator-devlake/plugins/helper"
 	"github.com/apache/incubator-devlake/plugins/jira/models"
-	"time"
 )
 
 type Changelog struct {
 	ID      uint64             `json:"id,string"`
-	Author  User               `json:"author"`
+	Author  Account            `json:"author"`
 	Created helper.Iso8601Time `json:"created"`
 	Items   []ChangelogItem    `json:"items"`
 }
 
-func (c Changelog) ToToolLayer(connectionId, issueId uint64, issueUpdated *time.Time) (*models.JiraChangelog, *models.JiraUser) {
-	return &models.JiraChangelog{
+func (c Changelog) ToToolLayer(connectionId, issueId uint64, issueUpdated *time.Time) (*models.JiraIssueChangelogs, *models.JiraAccount) {
+	return &models.JiraIssueChangelogs{
 		ConnectionId:      connectionId,
 		ChangelogId:       c.ID,
 		IssueId:           issueId,
@@ -52,8 +53,8 @@ type ChangelogItem struct {
 	ToString   string `json:"toString"`
 }
 
-func (c ChangelogItem) ToToolLayer(connectionId, changelogId uint64) *models.JiraChangelogItem {
-	return &models.JiraChangelogItem{
+func (c ChangelogItem) ToToolLayer(connectionId, changelogId uint64) *models.JiraIssueChangelogItems {
+	return &models.JiraIssueChangelogItems{
 		ConnectionId: connectionId,
 		ChangelogId:  changelogId,
 		Field:        c.Field,
@@ -65,16 +66,16 @@ func (c ChangelogItem) ToToolLayer(connectionId, changelogId uint64) *models.Jir
 	}
 }
 
-func (c ChangelogItem) ExtractUser(connectionId uint64) []*models.JiraUser {
+func (c ChangelogItem) ExtractUser(connectionId uint64) []*models.JiraAccount {
 	if c.Field != "assignee" {
 		return nil
 	}
-	var result []*models.JiraUser
+	var result []*models.JiraAccount
 	if c.FromValue != "" {
-		result = append(result, &models.JiraUser{ConnectionId: connectionId, AccountId: c.FromValue})
+		result = append(result, &models.JiraAccount{ConnectionId: connectionId, AccountId: c.FromValue})
 	}
 	if c.ToValue != "" {
-		result = append(result, &models.JiraUser{ConnectionId: connectionId, AccountId: c.ToValue})
+		result = append(result, &models.JiraAccount{ConnectionId: connectionId, AccountId: c.ToValue})
 	}
 	return result
 }
