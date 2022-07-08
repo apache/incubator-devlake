@@ -19,7 +19,11 @@ package common
 
 import "net/http"
 
+// ApiAsyncCallback FIXME ...
 type ApiAsyncCallback func(*http.Response) error
 
+// ApiClientBeforeRequest FIXME ...
 type ApiClientBeforeRequest func(req *http.Request) error
+
+// ApiClientAfterResponse FIXME ...
 type ApiClientAfterResponse func(res *http.Response) error

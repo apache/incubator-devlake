@@ -29,6 +29,7 @@ import (
 	"gorm.io/gorm/schema"
 )
 
+// Dalgorm FIXME ...
 type Dalgorm struct {
 	db *gorm.DB
 }
@@ -87,6 +88,7 @@ func (d *Dalgorm) Cursor(clauses ...dal.Clause) (*sql.Rows, error) {
 	return buildTx(d.db, clauses).Rows()
 }
 
+// CursorTx FIXME ...
 func (d *Dalgorm) CursorTx(clauses ...dal.Clause) *gorm.DB {
 	return buildTx(d.db, clauses)
 }
@@ -144,6 +146,7 @@ func (d *Dalgorm) Delete(entity interface{}, clauses ...dal.Clause) error {
 	return buildTx(d.db, clauses).Delete(entity).Error
 }
 
+// GetColumns FIXME ...
 func (d *Dalgorm) GetColumns(dst schema.Tabler, filter func(columnMeta dal.ColumnMeta) bool) (cms []dal.ColumnMeta, err error) {
 	columnTypes, err := d.db.Migrator().ColumnTypes(dst.TableName())
 	if err != nil {
@@ -188,6 +191,7 @@ func (d *Dalgorm) AllTables() ([]string, error) {
 	return filteredTables, nil
 }
 
+// NewDalgorm FIXME ...
 func NewDalgorm(db *gorm.DB) *Dalgorm {
 	return &Dalgorm{db}
 }

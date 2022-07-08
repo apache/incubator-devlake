@@ -22,6 +22,7 @@ import (
 	"github.com/apache/incubator-devlake/plugins/core"
 )
 
+// RegisterMigrationScripts FIXME ...
 func RegisterMigrationScripts(scripts []migration.Script, comment string, config core.ConfigGetter, logger core.Logger) {
 	for _, script := range scripts {
 		if s, ok := script.(core.InjectConfigGetter); ok {

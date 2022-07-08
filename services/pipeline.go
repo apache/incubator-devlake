@@ -39,6 +39,7 @@ var notificationService *NotificationService
 var temporalClient client.Client
 var pipelineLog = logger.Global.Nested("pipeline service")
 
+// PipelineQuery FIXME ...
 type PipelineQuery struct {
 	Status   string `form:"status"`
 	Pending  int    `form:"pending"`
@@ -78,6 +79,7 @@ func pipelineServiceInit() {
 	}
 }
 
+// CreatePipeline FIXME ...
 func CreatePipeline(newPipeline *models.NewPipeline) (*models.Pipeline, error) {
 	// create pipeline object from posted data
 	pipeline := &models.Pipeline{
@@ -142,6 +144,7 @@ func CreatePipeline(newPipeline *models.NewPipeline) (*models.Pipeline, error) {
 	return pipeline, nil
 }
 
+// GetPipelines FIXME ...
 func GetPipelines(query *PipelineQuery) ([]*models.Pipeline, int64, error) {
 	pipelines := make([]*models.Pipeline, 0)
 	db := db.Model(pipelines).Order("id DESC")
@@ -167,6 +170,7 @@ func GetPipelines(query *PipelineQuery) ([]*models.Pipeline, int64, error) {
 	return pipelines, count, nil
 }
 
+// GetPipeline FIXME ...
 func GetPipeline(pipelineId uint64) (*models.Pipeline, error) {
 	pipeline := &models.Pipeline{}
 	err := db.First(pipeline, pipelineId).Error
@@ -179,6 +183,7 @@ func GetPipeline(pipelineId uint64) (*models.Pipeline, error) {
 	return pipeline, nil
 }
 
+// RunPipeline FIXME ...
 func RunPipeline(pipelineId uint64) error {
 	var err error
 	// run
@@ -346,6 +351,7 @@ func runPipelineStandalone(pipelineId uint64) error {
 	)
 }
 
+// NotifyExternal FIXME ...
 func NotifyExternal(pipelineId uint64) error {
 	if notificationService == nil {
 		return nil
@@ -370,6 +376,7 @@ func NotifyExternal(pipelineId uint64) error {
 	return nil
 }
 
+// CancelPipeline FIXME ...
 func CancelPipeline(pipelineId uint64) error {
 	if temporalClient != nil {
 		return temporalClient.CancelWorkflow(context.Background(), getTemporalWorkflowId(pipelineId), "")

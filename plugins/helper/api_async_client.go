@@ -32,6 +32,7 @@ import (
 	"github.com/apache/incubator-devlake/utils"
 )
 
+// HttpMinStatusRetryCode is which status will retry
 var HttpMinStatusRetryCode = http.StatusBadRequest
 
 // ApiAsyncClient is built on top of ApiClient, to provide a asynchronous semantic
@@ -192,7 +193,7 @@ func (apiClient *ApiAsyncClient) DoAsync(
 	apiClient.scheduler.SubmitBlocking(request)
 }
 
-// Enqueue an api get request, the request may be sent sometime in future in parallel with other api requests
+// DoGetAsync Enqueue an api get request, the request may be sent sometime in future in parallel with other api requests
 func (apiClient *ApiAsyncClient) DoGetAsync(
 	path string,
 	query url.Values,
@@ -227,6 +228,7 @@ func (apiClient *ApiAsyncClient) Release() {
 	apiClient.scheduler.Release()
 }
 
+// RateLimitedApiClient FIXME ...
 type RateLimitedApiClient interface {
 	DoGetAsync(path string, query url.Values, header http.Header, handler common.ApiAsyncCallback)
 	WaitAsync() error

@@ -26,6 +26,7 @@ import (
 	"github.com/apache/incubator-devlake/plugins/core/dal"
 )
 
+// ApiExtractorArgs FIXME ...
 type ApiExtractorArgs struct {
 	RawDataSubTaskArgs
 	Params    interface{}

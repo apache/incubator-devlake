@@ -23,6 +23,7 @@ import (
 	"strings"
 )
 
+// GatherCallFrames FIXME ...
 func GatherCallFrames(delta int) string {
 	var name, file string
 	var line int

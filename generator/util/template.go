@@ -90,6 +90,7 @@ func ReplaceVarInTemplates(templates map[string]string, valueMap map[string]stri
 	}
 }
 
+// ReplaceVars will replace s with valueMap and return it
 func ReplaceVars(s string, valueMap map[string]string) string {
 	for varName, value := range valueMap {
 		s = ReplaceVar(s, varName, value)
@@ -97,6 +98,7 @@ func ReplaceVars(s string, valueMap map[string]string) string {
 	return s
 }
 
+// ReplaceVar will replace s with value and return it
 func ReplaceVar(s, varName, value string) string {
 	return strings.ReplaceAll(s, fmt.Sprintf(`{{ .%s }}`, varName), value)
 }

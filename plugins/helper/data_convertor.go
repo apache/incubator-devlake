@@ -24,9 +24,10 @@ import (
 	"github.com/apache/incubator-devlake/plugins/core"
 )
 
-// Accept row from source cursor, return list of entities that need to be stored
+// DataConvertHandler Accept row from source cursor, return list of entities that need to be stored
 type DataConvertHandler func(row interface{}) ([]interface{}, error)
 
+// DataConverterArgs FIXME ...
 type DataConverterArgs struct {
 	RawDataSubTaskArgs
 	// Domain layer entity Id prefix, i.e. `jira:JiraIssue:1`, `github:GithubIssue`
@@ -47,6 +48,7 @@ type DataConverter struct {
 	args *DataConverterArgs
 }
 
+// NewDataConverter FIXME ...
 func NewDataConverter(args DataConverterArgs) (*DataConverter, error) {
 	rawDataSubTask, err := newRawDataSubTask(args.RawDataSubTaskArgs)
 	if err != nil {
@@ -62,6 +64,7 @@ func NewDataConverter(args DataConverterArgs) (*DataConverter, error) {
 	}, nil
 }
 
+// Execute FIXME ...
 func (converter *DataConverter) Execute() error {
 	// load data from database
 	db := converter.args.Ctx.GetDal()

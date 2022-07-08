@@ -35,18 +35,21 @@ import (
 )
 
 var taskLog = logger.Global.Nested("task service")
-var ACTIVITY_PATTERN = regexp.MustCompile(`task #(\d+)`)
+var activityPattern = regexp.MustCompile(`task #(\d+)`)
 
+// RunningTaskData FIXME ...
 type RunningTaskData struct {
 	Cancel         context.CancelFunc
 	ProgressDetail *models.TaskProgressDetail
 }
 
+// RunningTask FIXME ...
 type RunningTask struct {
 	mu    sync.Mutex
 	tasks map[uint64]*RunningTaskData
 }
 
+// Add FIXME ...
 func (rt *RunningTask) Add(taskId uint64, cancel context.CancelFunc) error {
 	rt.mu.Lock()
 	defer rt.mu.Unlock()
@@ -77,7 +80,7 @@ func (rt *RunningTask) setAll(progressDetails map[uint64]*models.TaskProgressDet
 	}
 }
 
-// less lock times than GetProgressDetail
+// FillProgressDetailToTasks lock less times than GetProgressDetail
 func (rt *RunningTask) FillProgressDetailToTasks(tasks []models.Task) {
 	rt.mu.Lock()
 	defer rt.mu.Unlock()
@@ -90,6 +93,7 @@ func (rt *RunningTask) FillProgressDetailToTasks(tasks []models.Task) {
 	}
 }
 
+// GetProgressDetail FIXME ...
 func (rt *RunningTask) GetProgressDetail(taskId uint64) *models.TaskProgressDetail {
 	rt.mu.Lock()
 	defer rt.mu.Unlock()
@@ -100,6 +104,7 @@ func (rt *RunningTask) GetProgressDetail(taskId uint64) *models.TaskProgressDeta
 	return nil
 }
 
+// Remove FIXME ...
 func (rt *RunningTask) Remove(taskId uint64) (context.CancelFunc, error) {
 	rt.mu.Lock()
 	defer rt.mu.Unlock()
@@ -112,6 +117,7 @@ func (rt *RunningTask) Remove(taskId uint64) (context.CancelFunc, error) {
 
 var runningTasks RunningTask
 
+// TaskQuery FIXME ...
 type TaskQuery struct {
 	Status     string `form:"status"`
 	Page       int    `form:"page"`
@@ -126,6 +132,7 @@ func init() {
 	runningTasks.tasks = make(map[uint64]*RunningTaskData)
 }
 
+// CreateTask FIXME ...
 func CreateTask(newTask *models.NewTask) (*models.Task, error) {
 	b, err := json.Marshal(newTask.Options)
 	if err != nil {
@@ -154,6 +161,7 @@ func CreateTask(newTask *models.NewTask) (*models.Task, error) {
 	return &task, nil
 }
 
+// GetTasks FIXME ...
 func GetTasks(query *TaskQuery) ([]models.Task, int64, error) {
 	db := db.Model(&models.Task{}).Order("id DESC")
 	if query.Status != "" {
@@ -188,6 +196,7 @@ func GetTasks(query *TaskQuery) ([]models.Task, int64, error) {
 	return tasks, count, nil
 }
 
+// GetTask FIXME ...
 func GetTask(taskId uint64) (*models.Task, error) {
 	task := &models.Task{}
 	err := db.First(task, taskId).Error
@@ -200,6 +209,7 @@ func GetTask(taskId uint64) (*models.Task, error) {
 	return task, nil
 }
 
+// CancelTask FIXME ...
 func CancelTask(taskId uint64) error {
 	cancel, err := runningTasks.Remove(taskId)
 	if err != nil {
@@ -275,7 +285,7 @@ func updateTaskProgress(taskId uint64, progress chan core.RunningProgress) {
 }
 
 func getTaskIdFromActivityId(activityId string) (uint64, error) {
-	submatches := ACTIVITY_PATTERN.FindStringSubmatch(activityId)
+	submatches := activityPattern.FindStringSubmatch(activityId)
 	if len(submatches) < 2 {
 		return 0, fmt.Errorf("activityId does not match")
 	}

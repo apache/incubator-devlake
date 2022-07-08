@@ -21,8 +21,8 @@ import (
 	"github.com/apache/incubator-devlake/plugins/core"
 )
 
-/**
-return value
+/*
+GetPluginsApiResources return value
 {
 	"jira": {
 		"connections": {

@@ -39,6 +39,7 @@ var db *gorm.DB
 var cronManager *cron.Cron
 var log core.Logger
 
+// Init FIXME ...
 func Init() {
 	var err error
 	cfg = config.GetConfig()

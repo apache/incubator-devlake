@@ -26,6 +26,7 @@ import (
 	"go.temporal.io/sdk/workflow"
 )
 
+// DevLakePipelineWorkflow FIXME ...
 func DevLakePipelineWorkflow(ctx workflow.Context, configJson []byte, pipelineId uint64) error {
 	cfg, logger, db, err := loadResources(configJson)
 	if err != nil {

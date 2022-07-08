@@ -26,6 +26,7 @@ import (
 	"go.temporal.io/sdk/activity"
 )
 
+// DevLakeTaskActivity FIXME ...
 func DevLakeTaskActivity(ctx context.Context, configJson []byte, taskId uint64) error {
 	cfg, log, db, err := loadResources(configJson)
 	if err != nil {

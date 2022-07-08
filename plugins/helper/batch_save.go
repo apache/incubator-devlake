@@ -41,8 +41,6 @@ type BatchSave struct {
 	primaryKey []reflect.StructField
 }
 
-const BATCH_SAVE_UPDATE_ONLY = 0
-
 // NewBatchSave creates a new BatchSave instance
 func NewBatchSave(basicRes core.BasicRes, slotType reflect.Type, size int) (*BatchSave, error) {
 	if slotType.Kind() != reflect.Ptr {

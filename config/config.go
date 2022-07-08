@@ -32,11 +32,12 @@ import (
 	"github.com/spf13/viper"
 )
 
-const CONFIG_NAME = ".env"
+const defaultConfigName = ".env"
 
 // Lowcase V for private this. You can use it by call GetConfig.
 var v *viper.Viper
 
+// GetConfig return a viper.Viper
 func GetConfig() *viper.Viper {
 	return v
 }
@@ -54,7 +55,7 @@ func initConfig(v *viper.Viper) {
 }
 
 func getConfigName() string {
-	return CONFIG_NAME
+	return defaultConfigName
 }
 
 // return the env path

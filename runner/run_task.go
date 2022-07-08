@@ -36,6 +36,7 @@ import (
 	"github.com/apache/incubator-devlake/plugins/helper"
 )
 
+// RunTask FIXME ...
 func RunTask(
 	cfg *viper.Viper,
 	logger core.Logger,
@@ -120,6 +121,7 @@ func RunTask(
 	return err
 }
 
+// RunPluginTask FIXME ...
 func RunPluginTask(
 	cfg *viper.Viper,
 	logger core.Logger,
@@ -152,6 +154,7 @@ func RunPluginTask(
 	)
 }
 
+// RunPluginSubTasks FIXME ...
 func RunPluginSubTasks(
 	cfg *viper.Viper,
 	logger core.Logger,
@@ -264,6 +267,7 @@ func RunPluginSubTasks(
 	return nil
 }
 
+// UpdateProgressDetail FIXME ...
 func UpdateProgressDetail(db *gorm.DB, taskId uint64, progressDetail *models.TaskProgressDetail, p *core.RunningProgress) {
 	task := &models.Task{}
 	task.ID = taskId

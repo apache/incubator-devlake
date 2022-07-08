@@ -35,11 +35,13 @@ func init() {
 	rand.Seed(time.Now().UnixNano())
 }
 
+// NotificationService FIXME ...
 type NotificationService struct {
 	EndPoint string
 	Secret   string
 }
 
+// NewNotificationService FIXME ...
 func NewNotificationService(endpoint, secret string) *NotificationService {
 	return &NotificationService{
 		EndPoint: endpoint,
@@ -47,6 +49,7 @@ func NewNotificationService(endpoint, secret string) *NotificationService {
 	}
 }
 
+// PipelineNotification FIXME ...
 type PipelineNotification struct {
 	PipelineID uint64
 	CreatedAt  time.Time
@@ -56,6 +59,7 @@ type PipelineNotification struct {
 	Status     string
 }
 
+// PipelineStatusChanged FIXME ...
 func (n *NotificationService) PipelineStatusChanged(params PipelineNotification) error {
 	return n.sendNotification(models.NotificationPipelineStatusChanged, params)
 }

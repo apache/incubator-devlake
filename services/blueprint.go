@@ -32,6 +32,7 @@ import (
 	"gorm.io/gorm"
 )
 
+// BlueprintQuery FIXME ...
 type BlueprintQuery struct {
 	Enable   *bool `form:"enable,omitempty"`
 	Page     int   `form:"page"`
@@ -41,6 +42,7 @@ type BlueprintQuery struct {
 var blueprintLog = logger.Global.Nested("blueprint")
 var vld = validator.New()
 
+// CreateBlueprint FIXME ...
 func CreateBlueprint(blueprint *models.Blueprint) error {
 	err := validateBlueprint(blueprint)
 	if err != nil {
@@ -57,6 +59,7 @@ func CreateBlueprint(blueprint *models.Blueprint) error {
 	return nil
 }
 
+// GetBlueprints FIXME ...
 func GetBlueprints(query *BlueprintQuery) ([]*models.Blueprint, int64, error) {
 	blueprints := make([]*models.Blueprint, 0)
 	db := db.Model(blueprints).Order("id DESC")
@@ -80,6 +83,7 @@ func GetBlueprints(query *BlueprintQuery) ([]*models.Blueprint, int64, error) {
 	return blueprints, count, nil
 }
 
+// GetBlueprint FIXME ...
 func GetBlueprint(blueprintId uint64) (*models.Blueprint, error) {
 	blueprint := &models.Blueprint{}
 	err := db.First(blueprint, blueprintId).Error
@@ -125,6 +129,7 @@ func validateBlueprint(blueprint *models.Blueprint) error {
 	return nil
 }
 
+// PatchBlueprint FIXME ...
 func PatchBlueprint(id uint64, body map[string]interface{}) (*models.Blueprint, error) {
 	// load record from db
 	blueprint, err := GetBlueprint(id)
@@ -159,6 +164,7 @@ func PatchBlueprint(id uint64, body map[string]interface{}) (*models.Blueprint, 
 	return blueprint, nil
 }
 
+// DeleteBlueprint FIXME ...
 func DeleteBlueprint(id uint64) error {
 	err := db.Delete(&models.Blueprint{}, "id = ?", id).Error
 	if err != nil {
@@ -171,6 +177,7 @@ func DeleteBlueprint(id uint64) error {
 	return nil
 }
 
+// ReloadBlueprints FIXME ...
 func ReloadBlueprints(c *cron.Cron) error {
 	blueprints := make([]*models.Blueprint, 0)
 	err := db.Model(&models.Blueprint{}).
@@ -234,7 +241,7 @@ func ReloadBlueprints(c *cron.Cron) error {
 	return nil
 }
 
-// GeneratePlan generates pipeline plan by version
+// GeneratePlanJson generates pipeline plan by version
 func GeneratePlanJson(settings datatypes.JSON) (datatypes.JSON, error) {
 	bpSettings := new(models.BlueprintSettings)
 	err := json.Unmarshal(settings, bpSettings)

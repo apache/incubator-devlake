@@ -26,6 +26,7 @@ func init() {
 	rootCmd.AddCommand(GeneratorDocCmd)
 }
 
+// GeneratorDocCmd FIXME ...
 var GeneratorDocCmd = &cobra.Command{
 	Use:   "generator-doc",
 	Short: "generate document for generator",
