@@ -31,19 +31,19 @@ import (
 	"github.com/apache/incubator-devlake/plugins/jira/tasks/apiv2models"
 )
 
-var _ core.SubTaskEntryPoint = CollectChangelogs
+var _ core.SubTaskEntryPoint = CollectIssueChangelogs
 
-const RAW_CHANGELOG_TABLE = "jira_api_changelogs"
+const RAW_CHANGELOG_TABLE = "jira_api_issue_changelogs"
 
-var CollectChangelogsMeta = core.SubTaskMeta{
-	Name:             "collectChangelogs",
-	EntryPoint:       CollectChangelogs,
+var CollectIssueChangelogsMeta = core.SubTaskMeta{
+	Name:             "collectIssueChangelogs",
+	EntryPoint:       CollectIssueChangelogs,
 	EnabledByDefault: true,
-	Description:      "collect Jira change logs",
+	Description:      "collect Jira Issue change logs",
 	DomainTypes:      []string{core.DOMAIN_TYPE_TICKET},
 }
 
-func CollectChangelogs(taskCtx core.SubTaskContext) error {
+func CollectIssueChangelogs(taskCtx core.SubTaskContext) error {
 	data := taskCtx.GetData().(*JiraTaskData)
 	if data.JiraServerInfo.DeploymentType == models.DeploymentServer {
 		return nil
@@ -56,7 +56,7 @@ func CollectChangelogs(taskCtx core.SubTaskContext) error {
 		dal.Select("i.issue_id, i.updated AS update_time"),
 		dal.From("_tool_jira_board_issues bi"),
 		dal.Join("LEFT JOIN _tool_jira_issues i ON (bi.connection_id = i.connection_id AND bi.issue_id = i.issue_id)"),
-		dal.Join("LEFT JOIN _tool_jira_changelogs c ON (c.connection_id = i.connection_id AND c.issue_id = i.issue_id)"),
+		dal.Join("LEFT JOIN _tool_jira_issue_changelogs c ON (c.connection_id = i.connection_id AND c.issue_id = i.issue_id)"),
 		dal.Where(`i.updated > i.created AND bi.connection_id = ?  AND bi.board_id = ?  `, data.Options.ConnectionId, data.Options.BoardId),
 		dal.Groupby("i.issue_id, i.updated"),
 		dal.Having("i.updated > max(c.issue_updated) OR  max(c.issue_updated) IS NULL"),

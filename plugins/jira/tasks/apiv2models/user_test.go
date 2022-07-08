@@ -59,7 +59,7 @@ func TestUser_getAccountId(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			u := &User{
+			u := &Account{
 				Self:         tt.fields.Self,
 				Key:          tt.fields.Key,
 				Name:         tt.fields.Name,

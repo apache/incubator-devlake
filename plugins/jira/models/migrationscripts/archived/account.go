@@ -15,14 +15,12 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package models
+package archived
 
-import (
-	"github.com/apache/incubator-devlake/models/common"
-)
+import "github.com/apache/incubator-devlake/models/migrationscripts/archived"
 
-type JiraUser struct {
-	common.NoPKModel
+type JiraAccount struct {
+	archived.NoPKModel
 
 	// collected fields
 	ConnectionId uint64 `gorm:"primarykey"`
@@ -34,6 +32,6 @@ type JiraUser struct {
 	Timezone     string `gorm:"type:varchar(255)"`
 }
 
-func (JiraUser) TableName() string {
+func (JiraAccount) TableName() string {
 	return "_tool_jira_accounts"
 }

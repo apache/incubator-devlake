@@ -260,7 +260,7 @@ func ExtractApiIssues(taskCtx core.SubTaskContext) error {
 			results = append(results, gitlabIssue)
 
 			for _, v := range body.Assignees {
-				GitlabAssignee := &models.GitlabAssignee{
+				GitlabAssignee := &models.GitlabAccount{
 					ConnectionId: data.Options.ConnectionId,
 					Username:     v.Username,
 					Name:         v.Name,
@@ -316,8 +316,8 @@ func convertGitlabIssue(issue *IssuesResponse, projectId int) (*models.GitlabIss
 	return gitlabIssue, nil
 }
 
-func convertGitlabAuthor(issue *IssuesResponse, connectionId uint64) (*models.GitlabAuthor, error) {
-	gitlabAuthor := &models.GitlabAuthor{
+func convertGitlabAuthor(issue *IssuesResponse, connectionId uint64) (*models.GitlabAccount, error) {
+	gitlabAuthor := &models.GitlabAccount{
 		ConnectionId: connectionId,
 		GitlabId:     issue.Author.Id,
 		Username:     issue.Author.Username,

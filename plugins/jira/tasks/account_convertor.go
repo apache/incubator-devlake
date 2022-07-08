@@ -18,6 +18,8 @@ limitations under the License.
 package tasks
 
 import (
+	"reflect"
+
 	"github.com/apache/incubator-devlake/models/domainlayer"
 	"github.com/apache/incubator-devlake/models/domainlayer/crossdomain"
 	"github.com/apache/incubator-devlake/models/domainlayer/didgen"
@@ -25,27 +27,26 @@ import (
 	"github.com/apache/incubator-devlake/plugins/core/dal"
 	"github.com/apache/incubator-devlake/plugins/helper"
 	"github.com/apache/incubator-devlake/plugins/jira/models"
-	"reflect"
 )
 
-var ConvertUsersMeta = core.SubTaskMeta{
-	Name:             "convertUsers",
-	EntryPoint:       ConvertUsers,
+var ConvertAccountsMeta = core.SubTaskMeta{
+	Name:             "convertAccounts",
+	EntryPoint:       ConvertAccounts,
 	EnabledByDefault: true,
-	Description:      "convert Jira users",
+	Description:      "convert Jira accounts",
 	DomainTypes:      []string{core.DOMAIN_TYPE_CROSS},
 }
 
-func ConvertUsers(taskCtx core.SubTaskContext) error {
+func ConvertAccounts(taskCtx core.SubTaskContext) error {
 	data := taskCtx.GetData().(*JiraTaskData)
 	connectionId := data.Options.ConnectionId
 	boardId := data.Options.BoardId
 	logger := taskCtx.GetLogger()
 	db := taskCtx.GetDal()
-	logger.Info("convert user")
+	logger.Info("convert account")
 	clauses := []dal.Clause{
 		dal.Select("*"),
-		dal.From(&models.JiraUser{}),
+		dal.From(&models.JiraAccount{}),
 		dal.Where("connection_id = ?", connectionId),
 	}
 	cursor, err := db.Cursor(clauses...)
@@ -54,7 +55,7 @@ func ConvertUsers(taskCtx core.SubTaskContext) error {
 	}
 	defer cursor.Close()
 
-	userIdGen := didgen.NewDomainIdGenerator(&models.JiraUser{})
+	accountIdGen := didgen.NewDomainIdGenerator(&models.JiraAccount{})
 	converter, err := helper.NewDataConverter(helper.DataConverterArgs{
 		RawDataSubTaskArgs: helper.RawDataSubTaskArgs{
 			Ctx: taskCtx,
@@ -64,17 +65,17 @@ func ConvertUsers(taskCtx core.SubTaskContext) error {
 			},
 			Table: RAW_USERS_TABLE,
 		},
-		InputRowType: reflect.TypeOf(models.JiraUser{}),
+		InputRowType: reflect.TypeOf(models.JiraAccount{}),
 		Input:        cursor,
 		Convert: func(inputRow interface{}) ([]interface{}, error) {
-			jiraUser := inputRow.(*models.JiraUser)
+			jiraAccount := inputRow.(*models.JiraAccount)
 			u := &crossdomain.Account{
 				DomainEntity: domainlayer.DomainEntity{
-					Id: userIdGen.Generate(connectionId, jiraUser.AccountId),
+					Id: accountIdGen.Generate(connectionId, jiraAccount.AccountId),
 				},
-				UserName:  jiraUser.Name,
-				Email:     jiraUser.Email,
-				AvatarUrl: jiraUser.AvatarUrl,
+				UserName:  jiraAccount.Name,
+				Email:     jiraAccount.Email,
+				AvatarUrl: jiraAccount.AvatarUrl,
 			}
 			return []interface{}{u}, nil
 		},
