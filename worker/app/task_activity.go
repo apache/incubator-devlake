@@ -38,7 +38,7 @@ func DevLakeTaskActivity(ctx context.Context, configJson []byte, taskId uint64) 
 	defer close(progChan)
 	go func() {
 		for p := range progChan {
-			runner.UpdateProgressDetail(db, taskId, progressDetail, &p)
+			runner.UpdateProgressDetail(db, log, taskId, progressDetail, &p)
 			activity.RecordHeartbeat(ctx, progressDetail)
 		}
 	}()

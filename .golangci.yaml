@@ -156,10 +156,10 @@ linters-settings:
       - name: error-return
         severity: warning
         disabled: false
-#      # https://github.com/mgechev/revive/blob/master/RULES_DESCRIPTIONS.md#error-strings
-#      - name: error-strings
-#        severity: warning
-#        disabled: false
+      # https://github.com/mgechev/revive/blob/master/RULES_DESCRIPTIONS.md#error-strings
+      - name: error-strings
+        severity: warning
+        disabled: false
       # https://github.com/mgechev/revive/blob/master/RULES_DESCRIPTIONS.md#errorf
       - name: errorf
         severity: warning
@@ -172,26 +172,6 @@ linters-settings:
           - "disableStutteringCheck"
 #          - "checkPrivateReceivers"
 #          - "sayRepetitiveInsteadOfStutters"
-      # https://github.com/mgechev/revive/blob/master/RULES_DESCRIPTIONS.md#file-header
-      - name: file-header
-        severity: warning
-        disabled: true
-        arguments:
-          - This is the text that must appear at the top of source files.
-#      # https://github.com/mgechev/revive/blob/master/RULES_DESCRIPTIONS.md#flag-parameter
-#      - name: flag-parameter
-#        severity: warning
-#        disabled: false
-#      # https://github.com/mgechev/revive/blob/master/RULES_DESCRIPTIONS.md#function-result-limit
-#      - name: function-result-limit
-#        severity: warning
-#        disabled: false
-#        arguments: [2]
-#      # https://github.com/mgechev/revive/blob/master/RULES_DESCRIPTIONS.md#function-length
-#      - name: function-length
-#        severity: warning
-#        disabled: false
-#        arguments: [10, 0]
       # https://github.com/mgechev/revive/blob/master/RULES_DESCRIPTIONS.md#get-return
       - name: get-return
         severity: warning
@@ -200,39 +180,14 @@ linters-settings:
       - name: identical-branches
         severity: warning
         disabled: false
-#      # https://github.com/mgechev/revive/blob/master/RULES_DESCRIPTIONS.md#if-return
-#      - name: if-return
-#        severity: warning
-#        disabled: false
-#      # https://github.com/mgechev/revive/blob/master/RULES_DESCRIPTIONS.md#increment-decrement
-#      - name: increment-decrement
-#        severity: warning
-#        disabled: false
 #      # https://github.com/mgechev/revive/blob/master/RULES_DESCRIPTIONS.md#indent-error-flow
 #      - name: indent-error-flow
 #        severity: warning
 #        disabled: false
-#      # https://github.com/mgechev/revive/blob/master/RULES_DESCRIPTIONS.md#imports-blacklist
-#      - name: imports-blacklist
-#        severity: warning
-#        disabled: false
-#        arguments:
-#          - "crypto/md5"
-#          - "crypto/sha1"
-#      # https://github.com/mgechev/revive/blob/master/RULES_DESCRIPTIONS.md#import-shadowing
-#      - name: import-shadowing
-#        severity: warning
-#        disabled: false
-#      # https://github.com/mgechev/revive/blob/master/RULES_DESCRIPTIONS.md#line-length-limit
-#      - name: line-length-limit
-#        severity: warning
-#        disabled: false
-#        arguments: [80]
-      # https://github.com/mgechev/revive/blob/master/RULES_DESCRIPTIONS.md#max-public-structs
-#      - name: max-public-structs
-#        severity: warning
-#        disabled: false
-#        arguments: [3]
+      # https://github.com/mgechev/revive/blob/master/RULES_DESCRIPTIONS.md#import-shadowing
+      - name: import-shadowing
+        severity: warning
+        disabled: false
       # https://github.com/mgechev/revive/blob/master/RULES_DESCRIPTIONS.md#modifies-parameter
       - name: modifies-parameter
         severity: warning
@@ -241,10 +196,6 @@ linters-settings:
       - name: modifies-value-receiver
         severity: warning
         disabled: false
-#      # https://github.com/mgechev/revive/blob/master/RULES_DESCRIPTIONS.md#nested-structs
-#      - name: nested-structs
-#        severity: warning
-#        disabled: false
       # https://github.com/mgechev/revive/blob/master/RULES_DESCRIPTIONS.md#optimize-operands-order
       - name: optimize-operands-order
         severity: warning
@@ -330,14 +281,16 @@ linters-settings:
       - name: unexported-return
         severity: warning
         disabled: false
-#      # https://github.com/mgechev/revive/blob/master/RULES_DESCRIPTIONS.md#unhandled-error
-#      - name: unhandled-error
-#        severity: warning
-#        disabled: false
-#        arguments:
-#          - "fmt.Printf"
-#          - "fmt.Println"
-#          - "*Close()"
+      # https://github.com/mgechev/revive/blob/master/RULES_DESCRIPTIONS.md#unhandled-error
+      - name: unhandled-error
+        severity: warning
+        disabled: false
+        arguments:
+          - "fmt.Printf"
+          - "fmt.Println"
+          - "fmt.Fprintln"
+          - "res.Body.Close"
+          - "body.Close"
       # https://github.com/mgechev/revive/blob/master/RULES_DESCRIPTIONS.md#unnecessary-stmt
       - name: unnecessary-stmt
         severity: warning
@@ -346,10 +299,6 @@ linters-settings:
       - name: unreachable-code
         severity: warning
         disabled: false
-#      # https://github.com/mgechev/revive/blob/master/RULES_DESCRIPTIONS.md#unused-receiver
-#      - name: unused-receiver
-#        severity: warning
-#        disabled: false
       # https://github.com/mgechev/revive/blob/master/RULES_DESCRIPTIONS.md#useless-break
       - name: useless-break
         severity: warning

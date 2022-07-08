@@ -36,10 +36,10 @@ func loadResources(configJson []byte) (*viper.Viper, core.Logger, *gorm.DB, erro
 		return nil, nil, nil, err
 	}
 	// TODO: should be redirected to server
-	logger := logger.Global.Nested("worker")
-	db, err := runner.NewGormDb(cfg, logger)
+	globalLogger := logger.Global.Nested("worker")
+	db, err := runner.NewGormDb(cfg, globalLogger)
 	if err != nil {
 		return nil, nil, nil, err
 	}
-	return cfg, logger, db, err
+	return cfg, globalLogger, db, err
 }

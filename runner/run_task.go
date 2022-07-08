@@ -25,7 +25,6 @@ import (
 
 	"github.com/apache/incubator-devlake/config"
 	"github.com/apache/incubator-devlake/errors"
-	"github.com/apache/incubator-devlake/logger"
 	"github.com/apache/incubator-devlake/models"
 	"github.com/apache/incubator-devlake/utils"
 	"github.com/mitchellh/mapstructure"
@@ -268,7 +267,7 @@ func RunPluginSubTasks(
 }
 
 // UpdateProgressDetail FIXME ...
-func UpdateProgressDetail(db *gorm.DB, taskId uint64, progressDetail *models.TaskProgressDetail, p *core.RunningProgress) {
+func UpdateProgressDetail(db *gorm.DB, logger core.Logger, taskId uint64, progressDetail *models.TaskProgressDetail, p *core.RunningProgress) {
 	task := &models.Task{}
 	task.ID = taskId
 	switch p.Type {
@@ -281,7 +280,7 @@ func UpdateProgressDetail(db *gorm.DB, taskId uint64, progressDetail *models.Tas
 		pct := float32(p.Current) / float32(p.Total)
 		err := db.Model(task).Update("progress", pct).Error
 		if err != nil {
-			logger.Global.Error("failed to update progress: %w", err)
+			logger.Error("failed to update progress: %w", err)
 		}
 	case core.SubTaskSetProgress:
 		progressDetail.TotalRecords = p.Total

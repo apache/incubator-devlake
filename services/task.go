@@ -280,7 +280,7 @@ func updateTaskProgress(taskId uint64, progress chan core.RunningProgress) {
 	}
 	progressDetail := data.ProgressDetail
 	for p := range progress {
-		runner.UpdateProgressDetail(db, taskId, progressDetail, &p)
+		runner.UpdateProgressDetail(db, log, taskId, progressDetail, &p)
 	}
 }
 
