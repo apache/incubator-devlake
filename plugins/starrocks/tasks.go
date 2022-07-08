@@ -20,7 +20,6 @@ import (
 	"bytes"
 	"database/sql"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"io/ioutil"
 	"net/http"
@@ -46,7 +45,7 @@ func LoadData(c core.SubTaskContext) error {
 	if config.DomainLayer != "" {
 		starrocksTables = getTablesByDomainLayer(config.DomainLayer)
 		if starrocksTables == nil {
-			return errors.New(fmt.Sprintf("no table found by domain layer: %s", config.DomainLayer))
+			return fmt.Errorf("no table found by domain layer: %s", config.DomainLayer)
 		}
 	} else {
 		tables := config.Tables
