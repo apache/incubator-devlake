@@ -31,11 +31,11 @@ func (*initSchemas) Up(ctx context.Context, db *gorm.DB) error {
 		"issue_assignee_history",
 		"issue_status_history",
 		"issue_sprints_history",
+		"users",
 		&archived.Task{},
 		&archived.Notification{},
 		&archived.Pipeline{},
 		&archived.Blueprint{},
-		&archived.User{},
 		&archived.Repo{},
 		&archived.Commit{},
 		&archived.CommitParent{},
@@ -76,7 +76,6 @@ func (*initSchemas) Up(ctx context.Context, db *gorm.DB) error {
 		&archived.Notification{},
 		&archived.Pipeline{},
 		&archived.Blueprint{},
-		&archived.User{},
 		&archived.Repo{},
 		&archived.Commit{},
 		&archived.CommitParent{},
@@ -107,6 +106,11 @@ func (*initSchemas) Up(ctx context.Context, db *gorm.DB) error {
 		&archived.IssueRepoCommit{},
 		&archived.RefsIssuesDiffs{},
 		&archived.RefsPrCherrypick{},
+		&archived.Account{},
+		&archived.User{},
+		&archived.Team{},
+		&archived.UserAccount{},
+		&archived.TeamUser{},
 	)
 }
 
