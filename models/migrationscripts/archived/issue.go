@@ -21,17 +21,28 @@ import (
 	"time"
 )
 
+const (
+	BUG         = "BUG"
+	REQUIREMENT = "REQUIREMENT"
+	INCIDENT    = "INCIDENT"
+
+	TODO        = "TODO"
+	DONE        = "DONE"
+	IN_PROGRESS = "IN_PROGRESS"
+)
+
 type Issue struct {
 	DomainEntity
 	Url                     string `gorm:"type:varchar(255)"`
-	Number                  string `gorm:"type:varchar(255)"`
+	IconURL                 string `gorm:"type:varchar(255);column:icon_url"`
+	IssueKey                string `gorm:"type:varchar(255)"`
 	Title                   string
 	Description             string
 	EpicKey                 string `gorm:"type:varchar(255)"`
 	Type                    string `gorm:"type:varchar(100)"`
 	Status                  string `gorm:"type:varchar(100)"`
 	OriginalStatus          string `gorm:"type:varchar(100)"`
-	StoryPoint              uint
+	StoryPoint              int64
 	ResolutionDate          *time.Time
 	CreatedDate             *time.Time
 	UpdatedDate             *time.Time
@@ -42,10 +53,15 @@ type Issue struct {
 	TimeSpentMinutes        int64
 	TimeRemainingMinutes    int64
 	CreatorId               string `gorm:"type:varchar(255)"`
+	CreatorName             string `gorm:"type:varchar(255)"`
 	AssigneeId              string `gorm:"type:varchar(255)"`
 	AssigneeName            string `gorm:"type:varchar(255)"`
 	Severity                string `gorm:"type:varchar(255)"`
 	Component               string `gorm:"type:varchar(255)"`
+}
+
+func (Issue) TableName() string {
+	return "issues"
 }
 
 type IssueCommit struct {
@@ -54,10 +70,18 @@ type IssueCommit struct {
 	CommitSha string `gorm:"primaryKey;type:varchar(255)"`
 }
 
+func (IssueCommit) TableName() string {
+	return "issue_commits"
+}
+
 type IssueLabel struct {
 	IssueId   string `json:"id" gorm:"primaryKey;type:varchar(255);comment:This key is generated based on details from the original plugin"` // format: <Plugin>:<Entity>:<PK0>:<PK1>
 	LabelName string `gorm:"primaryKey;type:varchar(255)"`
 	NoPKModel
+}
+
+func (IssueLabel) TableName() string {
+	return "issue_labels"
 }
 
 type IssueComment struct {
@@ -66,4 +90,8 @@ type IssueComment struct {
 	Body        string
 	UserId      string `gorm:"type:varchar(255)"`
 	CreatedDate time.Time
+}
+
+func (IssueComment) TableName() string {
+	return "issue_comments"
 }

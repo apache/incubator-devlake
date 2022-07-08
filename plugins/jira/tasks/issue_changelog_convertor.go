@@ -93,7 +93,7 @@ func ConvertIssueChangelogs(taskCtx core.SubTaskContext) error {
 		Input:        cursor,
 		Convert: func(inputRow interface{}) ([]interface{}, error) {
 			row := inputRow.(*IssueChangelogItemResult)
-			changelog := &ticket.Changelog{
+			changelog := &ticket.IssueChangelogs{
 				DomainEntity: domainlayer.DomainEntity{Id: changelogIdGenerator.Generate(
 					row.ConnectionId,
 					row.ChangelogId,

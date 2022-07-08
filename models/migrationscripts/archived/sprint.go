@@ -21,6 +21,12 @@ import (
 	"time"
 )
 
+var (
+	BeforeSprint = "BEFORE_SPRINT"
+	DuringSprint = "DURING_SPRINT"
+	AfterSprint  = "AFTER_SPRINT"
+)
+
 type Sprint struct {
 	DomainEntity
 	Name            string `gorm:"type:varchar(255)"`
@@ -32,13 +38,16 @@ type Sprint struct {
 	OriginalBoardID string `gorm:"type:varchar(255)"`
 }
 
+func (Sprint) TableName() string {
+	return "sprints"
+}
+
 type SprintIssue struct {
 	NoPKModel
-	SprintId      string `gorm:"primaryKey;type:varchar(255)"`
-	IssueId       string `gorm:"primaryKey;type:varchar(255)"`
-	IsRemoved     bool
-	AddedDate     *time.Time
-	RemovedDate   *time.Time
-	AddedStage    *string `gorm:"type:varchar(255)"`
-	ResolvedStage *string `gorm:"type:varchar(255)"`
+	SprintId string `gorm:"primaryKey;type:varchar(255)"`
+	IssueId  string `gorm:"primaryKey;type:varchar(255)"`
+}
+
+func (SprintIssue) TableName() string {
+	return "sprint_issues"
 }

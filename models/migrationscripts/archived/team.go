@@ -15,37 +15,16 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package migrationscripts
+package archived
 
-import (
-	"context"
-	"github.com/apache/incubator-devlake/models/migrationscripts/archived"
-	"gorm.io/gorm"
-)
-
-type Issue20220524 struct {
-	archived.DomainEntity
-	CreatorName string `gorm:"type:varchar(255)"`
+type Team struct {
+	DomainEntity
+	Name         string `gorm:"type:varchar(255)"`
+	Alias        string `gorm:"type:varchar(255)"`
+	ParentId     string `gorm:"type:varchar(255)"`
+	SortingIndex int
 }
 
-func (Issue20220524) TableName() string {
-	return "issues"
-}
-
-type updateSchemas20220524 struct{}
-
-func (*updateSchemas20220524) Up(ctx context.Context, db *gorm.DB) error {
-	err := db.Migrator().AddColumn(&Issue20220524{}, "creator_name")
-	if err != nil {
-		return err
-	}
-	return nil
-}
-
-func (*updateSchemas20220524) Version() uint64 {
-	return 20220524000005
-}
-
-func (*updateSchemas20220524) Name() string {
-	return "Add creator_name column to Issue"
+func (Team) TableName() string {
+	return "teams"
 }
