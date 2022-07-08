@@ -82,7 +82,7 @@ func ConvertStoryChangelog(taskCtx core.SubTaskContext) error {
 		Input:              cursor,
 		Convert: func(inputRow interface{}) ([]interface{}, error) {
 			cl := inputRow.(*StoryChangelogItemResult)
-			domainCl := &ticket.Changelog{
+			domainCl := &ticket.IssueChangelogs{
 				DomainEntity: domainlayer.DomainEntity{
 					Id: fmt.Sprintf("%s:%s", clIdGen.Generate(data.Options.ConnectionId, cl.Id), cl.Field),
 				},

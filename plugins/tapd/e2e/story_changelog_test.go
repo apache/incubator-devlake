@@ -89,11 +89,11 @@ func TestTapdStoryChangelogDataFlow(t *testing.T) {
 		},
 	)
 
-	dataflowTester.FlushTabler(&ticket.Changelog{})
+	dataflowTester.FlushTabler(&ticket.IssueChangelogs{})
 	dataflowTester.Subtask(tasks.ConvertStoryChangelogMeta, taskData)
 	dataflowTester.VerifyTable(
-		ticket.Changelog{},
-		fmt.Sprintf("./snapshot_tables/%s_story.csv", ticket.Changelog{}.TableName()),
+		ticket.IssueChangelogs{},
+		fmt.Sprintf("./snapshot_tables/%s_story.csv", ticket.IssueChangelogs{}.TableName()),
 		[]string{
 			"id",
 			"_raw_data_params",

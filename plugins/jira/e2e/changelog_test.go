@@ -27,7 +27,7 @@ import (
 	"github.com/apache/incubator-devlake/plugins/jira/tasks"
 )
 
-func TestChangelogDataFlow(t *testing.T) {
+func TestIssueChangelogDataFlow(t *testing.T) {
 	var plugin impl.Jira
 	dataflowTester := e2ehelper.NewDataFlowTester(t, "jira", plugin)
 
@@ -83,10 +83,10 @@ func TestChangelogDataFlow(t *testing.T) {
 
 	// verify changelog conversion
 	dataflowTester.ImportCsvIntoTabler("./snapshot_tables/_tool_jira_board_issues_for_changelog.csv", &models.JiraBoardIssue{})
-	dataflowTester.FlushTabler(&ticket.Changelog{})
+	dataflowTester.FlushTabler(&ticket.IssueChangelogs{})
 	dataflowTester.Subtask(tasks.ConvertIssueChangelogsMeta, taskData)
 	dataflowTester.VerifyTable(
-		ticket.Changelog{},
+		ticket.IssueChangelogs{},
 		"./snapshot_tables/issue_changelogs.csv",
 		[]string{
 			"id",
