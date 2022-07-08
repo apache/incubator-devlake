@@ -10,6 +10,9 @@ on:
       - 'go.sum'
       - '.github/workflows/*.yml'
       - 'test/**'
+  schedule:
+    - cron: '0 0 * * *' # run ci every night
+
 jobs:
   test:
     strategy:
