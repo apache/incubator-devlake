@@ -19,14 +19,11 @@ package api
 
 import (
 	"github.com/apache/incubator-devlake/plugins/core"
-	"github.com/apache/incubator-devlake/plugins/github/models"
 	"github.com/apache/incubator-devlake/plugins/helper"
 	"github.com/go-playground/validator/v10"
 	"github.com/spf13/viper"
 	"gorm.io/gorm"
 )
-
-type ApiUserPublicEmailResponse []models.PublicEmail
 
 var vld *validator.Validate
 var connectionHelper *helper.ConnectionApiHelper

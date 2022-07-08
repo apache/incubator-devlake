@@ -17,7 +17,9 @@ limitations under the License.
 
 package models
 
-import "github.com/apache/incubator-devlake/plugins/helper"
+import (
+	"github.com/apache/incubator-devlake/plugins/helper"
+)
 
 type TestConnectionRequest struct {
 	Endpoint string `json:"endpoint" validate:"required,url"`
@@ -46,11 +48,7 @@ func (GithubConnection) TableName() string {
 	return "_tool_github_connections"
 }
 
-// Using Public Email because it requires authentication, and it is public information anyway.
-// We're not using email information for anything here.
-type PublicEmail struct {
-	Email      string
-	Primary    bool
-	Verified   bool
-	Visibility string
+// Using GithubUserOfToken because it requires authentication, and it is public information anyway.
+type GithubUserOfToken struct {
+	Login string `json:"login"`
 }
