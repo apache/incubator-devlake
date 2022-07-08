@@ -15,15 +15,17 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package migrationscripts
+package archived
 
-import (
-	"github.com/apache/incubator-devlake/migration"
-)
+import "github.com/apache/incubator-devlake/models/migrationscripts/archived"
 
-// All return all the migration scripts
-func All() []migration.Script {
-	return []migration.Script{
-		new(InitSchemas),
-	}
+type JiraBoardIssue struct {
+	ConnectionId uint64 `gorm:"primaryKey"`
+	BoardId      uint64 `gorm:"primaryKey"`
+	IssueId      uint64 `gorm:"primaryKey"`
+	archived.NoPKModel
+}
+
+func (JiraBoardIssue) TableName() string {
+	return "_tool_jira_board_issues"
 }
