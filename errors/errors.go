@@ -18,7 +18,6 @@ limitations under the License.
 package errors
 
 import (
-	"fmt"
 	"net/http"
 )
 
@@ -47,6 +46,3 @@ func NewNotFound(message string) *Error {
 }
 
 var InternalError = NewError(http.StatusInternalServerError, "Server Internal Error")
-
-// Deprecated: use ctx.Err() instead
-var TaskCanceled = fmt.Errorf("task got canceled")

@@ -27,7 +27,6 @@ import (
 type InitSchemas struct{}
 
 func (*InitSchemas) Up(ctx context.Context, db *gorm.DB) error {
-
 	err := db.Migrator().DropTable(
 		"_raw_tapd_api_bug_changelogs",
 		"_raw_tapd_api_bugs",

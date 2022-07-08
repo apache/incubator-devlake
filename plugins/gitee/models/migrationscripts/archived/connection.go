@@ -42,7 +42,7 @@ type AccessToken struct {
 	Token string `mapstructure:"token" validate:"required" json:"token" encrypt:"yes"`
 }
 
-// This object conforms to what the frontend currently expects.
+// GitlabResponse is this object conforms to what the frontend currently expects.
 type GitlabResponse struct {
 	Name string `json:"name"`
 	ID   int    `json:"id"`

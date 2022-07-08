@@ -38,7 +38,6 @@ var ConvertAccountMeta = core.SubTaskMeta{
 }
 
 func ConvertAccounts(taskCtx core.SubTaskContext) error {
-
 	db := taskCtx.GetDal()
 	data := taskCtx.GetData().(*GitlabTaskData)
 

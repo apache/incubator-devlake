@@ -93,23 +93,22 @@ func (*InitSchemas) Up(ctx context.Context, db *gorm.DB) error {
 
 	if encKey == "" || endPoint == "" || gitlabAuth == "" {
 		return nil
-	} else {
-		conn := &archived.GitlabConnection{}
-		conn.Name = "init gitlab connection"
-		conn.ID = 1
-		conn.Endpoint = endPoint
-		conn.Token, err = core.Encrypt(encKey, gitlabAuth)
-		if err != nil {
-			return err
-		}
-		conn.Proxy = v.GetString("GITLAB_PROXY")
-		conn.RateLimit = v.GetInt("GITLAB_API_REQUESTS_PER_HOUR")
+	}
+	conn := &archived.GitlabConnection{}
+	conn.Name = "init gitlab connection"
+	conn.ID = 1
+	conn.Endpoint = endPoint
+	conn.Token, err = core.Encrypt(encKey, gitlabAuth)
+	if err != nil {
+		return err
+	}
+	conn.Proxy = v.GetString("GITLAB_PROXY")
+	conn.RateLimit = v.GetInt("GITLAB_API_REQUESTS_PER_HOUR")
 
-		err = db.Clauses(clause.OnConflict{DoNothing: true}).Create(conn).Error
+	err = db.Clauses(clause.OnConflict{DoNothing: true}).Create(conn).Error
 
-		if err != nil {
-			return err
-		}
+	if err != nil {
+		return err
 	}
 
 	return nil

@@ -35,7 +35,7 @@ import (
 const CONFIG_NAME = ".env"
 
 // Lowcase V for private this. You can use it by call GetConfig.
-var v *viper.Viper = nil
+var v *viper.Viper
 
 func GetConfig() *viper.Viper {
 	return v
@@ -51,7 +51,6 @@ func initConfig(v *viper.Viper) {
 	v.AddConfigPath("./../")
 	v.AddConfigPath("./")
 	v.AddConfigPath(envPath)
-
 }
 
 func getConfigName() string {
@@ -76,11 +75,11 @@ func setDefaultValue(v *viper.Viper) {
 }
 
 // replaceNewEnvItemInOldContent replace old config to new config in env file content
-func replaceNewEnvItemInOldContent(v *viper.Viper, envFileContent string) (error, string) {
+func replaceNewEnvItemInOldContent(v *viper.Viper, envFileContent string) (string, error) {
 	// prepare reg exp
 	encodeEnvNameReg := regexp.MustCompile(`[^a-zA-Z0-9]`)
 	if encodeEnvNameReg == nil {
-		return fmt.Errorf("encodeEnvNameReg err"), ``
+		return ``, fmt.Errorf("encodeEnvNameReg err")
 	}
 
 	for _, key := range v.AllKeys() {
@@ -91,7 +90,7 @@ func replaceNewEnvItemInOldContent(v *viper.Viper, envFileContent string) (error
 		})
 		envItemReg, err := regexp.Compile(fmt.Sprintf(`(?im)^\s*%v\s*\=.*$`, encodeEnvName))
 		if err != nil {
-			return fmt.Errorf("regexp Compile failed:[%s] stack:[%s]", err.Error(), debug.Stack()), ``
+			return ``, fmt.Errorf("regexp Compile failed:[%s] stack:[%s]", err.Error(), debug.Stack())
 		}
 		envFileContent = envItemReg.ReplaceAllStringFunc(envFileContent, func(s string) string {
 			switch ret := val.(type) {
@@ -109,7 +108,7 @@ func replaceNewEnvItemInOldContent(v *viper.Viper, envFileContent string) (error
 			}
 		})
 	}
-	return nil, envFileContent
+	return envFileContent, nil
 }
 
 // WriteConfig save viper to .env file
@@ -159,7 +158,7 @@ func WriteConfigAs(v *viper.Viper, filename string) error {
 			envFileContent = fmt.Sprintf("%s\n%s=", envFileContent, envName)
 		}
 	}
-	err, envFileContent = replaceNewEnvItemInOldContent(v, envFileContent)
+	envFileContent, err = replaceNewEnvItemInOldContent(v, envFileContent)
 	if err != nil {
 		return err
 	}

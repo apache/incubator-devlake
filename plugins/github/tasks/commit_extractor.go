@@ -105,7 +105,6 @@ func ExtractApiCommits(taskCtx core.SubTaskContext) error {
 			if commit.Committer != nil {
 				githubCommit.CommitterId = commit.Committer.Id
 				results = append(results, commit.Committer)
-
 			}
 
 			githubRepoCommit := &models.GithubRepoCommit{

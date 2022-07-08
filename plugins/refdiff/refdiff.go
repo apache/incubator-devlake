@@ -34,7 +34,7 @@ var _ core.PluginInit = (*RefDiff)(nil)
 var _ core.PluginTask = (*RefDiff)(nil)
 var _ core.PluginApi = (*RefDiff)(nil)
 
-// Export a variable named PluginEntry for Framework to search and load
+// PluginEntry is a variable exported for Framework to search and load
 var PluginEntry RefDiff //nolint
 
 type RefDiff struct{}

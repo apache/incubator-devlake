@@ -28,9 +28,9 @@ type TemporalLogger struct {
 	log core.Logger
 }
 
-func NewTemporalLogger(log core.Logger) log.Logger {
+func NewTemporalLogger(coreLogger core.Logger) log.Logger {
 	return &TemporalLogger{
-		log,
+		coreLogger,
 	}
 }
 
@@ -48,12 +48,10 @@ func (l *TemporalLogger) Debug(msg string, keyvals ...interface{}) {
 }
 
 func (l *TemporalLogger) Info(msg string, keyvals ...interface{}) {
-
 	l.Log(core.LOG_INFO, msg, keyvals...)
 }
 
 func (l *TemporalLogger) Warn(msg string, keyvals ...interface{}) {
-
 	l.Log(core.LOG_WARN, msg, keyvals...)
 }
 

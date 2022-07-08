@@ -81,7 +81,6 @@ func CreateApiClient(taskCtx core.TaskContext, connection *models.GithubConnecti
 			// simplify the algorithm for now
 			// TODO: consider different token has different rate-limit
 			return rateLimit * len(tokens), 1 * time.Hour, nil
-
 		},
 	}
 	asyncApiClient, err := helper.CreateAsyncApiClient(

@@ -38,7 +38,7 @@ type NoPKModel struct {
 	RawDataOrigin
 }
 
-// embedded fields for tool layer tables
+// RawDataOrigin is embedded fields for tool layer tables
 type RawDataOrigin struct {
 	// can be used for flushing outdated records from table
 	RawDataParams string `gorm:"column:_raw_data_params;type:varchar(255);index" json:"_raw_data_params"`

@@ -29,7 +29,6 @@ import (
 )
 
 func TestConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, error) {
-
 	// decode
 	var err error
 	var connection models.TestConnectionRequest

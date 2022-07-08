@@ -159,8 +159,8 @@ func (d *Dalgorm) GetColumns(dst schema.Tabler, filter func(columnMeta dal.Colum
 	return
 }
 
-// GetPrimaryKey get the PrimaryKey from `gorm` tag
-func (d *Dalgorm) GetPrimarykeyFields(t reflect.Type) []reflect.StructField {
+// GetPrimaryKeyFields get the PrimaryKey from `gorm` tag
+func (d *Dalgorm) GetPrimaryKeyFields(t reflect.Type) []reflect.StructField {
 	return utils.WalkFields(t, func(field *reflect.StructField) bool {
 		return strings.Contains(strings.ToLower(field.Tag.Get("gorm")), "primarykey")
 	})

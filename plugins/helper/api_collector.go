@@ -245,11 +245,9 @@ func (collector *ApiCollector) fetchPagesUndetermined(reqData *RequestData) {
 		if collector.args.Input != nil {
 			concurrency = 2
 		} else {
-			cap := apiClient.GetNumOfWorkers() / 10
-			if cap < 10 {
+			concurrency = apiClient.GetNumOfWorkers() / 10
+			if concurrency < 10 {
 				concurrency = 10
-			} else {
-				concurrency = cap
 			}
 		}
 	}
@@ -328,7 +326,7 @@ func (collector *ApiCollector) fetchAsync(reqData *RequestData, handler func(int
 	}
 	logger := collector.args.Ctx.GetLogger()
 	logger.Debug("fetchAsync <<< enqueueing for %s %v", apiUrl, apiQuery)
-	collector.args.ApiClient.GetAsync(apiUrl, apiQuery, apiHeader, func(res *http.Response) error {
+	collector.args.ApiClient.DoGetAsync(apiUrl, apiQuery, apiHeader, func(res *http.Response) error {
 		defer logger.Debug("fetchAsync >>> done for %s %v", apiUrl, apiQuery)
 		logger := collector.args.Ctx.GetLogger()
 		// read body to buffer

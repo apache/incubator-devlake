@@ -254,7 +254,7 @@ func GeneratePlanJson(settings datatypes.JSON) (datatypes.JSON, error) {
 	return json.Marshal(plan)
 }
 
-// GenerateTasksBySettingsV100 generates pipeline plan according v1.0.0 definition
+// GeneratePlanJsonV100 generates pipeline plan according v1.0.0 definition
 func GeneratePlanJsonV100(settings *models.BlueprintSettings) (core.PipelinePlan, error) {
 	connections := make([]*core.BlueprintConnectionV100, 0)
 	err := json.Unmarshal(settings.Connections, &connections)

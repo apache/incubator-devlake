@@ -21,7 +21,7 @@ import (
 	"reflect"
 )
 
-// WalkFiled get the field data by tag
+// WalkFields get the field data by tag
 func WalkFields(t reflect.Type, filter func(field *reflect.StructField) bool) (f []reflect.StructField) {
 	if t.Kind() == reflect.Ptr {
 		t = t.Elem()

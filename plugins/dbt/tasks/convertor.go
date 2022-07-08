@@ -33,7 +33,6 @@ import (
 )
 
 func DbtConverter(taskCtx core.SubTaskContext) error {
-
 	taskCtx.SetProgress(0, -1)
 	data := taskCtx.GetData().(*DbtTaskData)
 	models := data.Options.SelectedModels

@@ -110,8 +110,8 @@ func (apiClient *ApiClient) GetEndpoint() string {
 	return apiClient.endpoint
 }
 
-func (ApiClient *ApiClient) SetTimeout(timeout time.Duration) {
-	ApiClient.client.Timeout = timeout
+func (apiClient *ApiClient) SetTimeout(timeout time.Duration) {
+	apiClient.client.Timeout = timeout
 }
 
 func (apiClient *ApiClient) SetHeaders(headers map[string]string) {

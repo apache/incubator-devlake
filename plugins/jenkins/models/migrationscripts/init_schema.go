@@ -30,7 +30,6 @@ import (
 type InitSchemas struct{}
 
 func (*InitSchemas) Up(ctx context.Context, db *gorm.DB) error {
-
 	err := db.Migrator().DropTable(
 		"_raw_jenkins_api_jobs",
 		"_raw_jenkins_api_builds",
@@ -58,27 +57,25 @@ func (*InitSchemas) Up(ctx context.Context, db *gorm.DB) error {
 	passWord := v.GetString("JENKINS_PASSWORD")
 	if encKey == "" || endPoint == "" || useName == "" || passWord == "" {
 		return nil
-	} else {
-		conn := &archived.JenkinsConnection{}
-		conn.Name = "init jenkins connection"
-		conn.ID = 1
-		conn.Endpoint = endPoint
-		conn.Proxy = v.GetString("JENKINS_PROXY")
-		conn.RateLimit = v.GetInt("JENKINS_API_REQUESTS_PER_HOUR")
-		conn.Username = useName
-		conn.Password, err = core.Encrypt(encKey, passWord)
-		if err != nil {
-			return err
-		}
-		err = db.Clauses(clause.OnConflict{DoNothing: true}).Create(conn).Error
+	}
+	conn := &archived.JenkinsConnection{}
+	conn.Name = "init jenkins connection"
+	conn.ID = 1
+	conn.Endpoint = endPoint
+	conn.Proxy = v.GetString("JENKINS_PROXY")
+	conn.RateLimit = v.GetInt("JENKINS_API_REQUESTS_PER_HOUR")
+	conn.Username = useName
+	conn.Password, err = core.Encrypt(encKey, passWord)
+	if err != nil {
+		return err
+	}
+	err = db.Clauses(clause.OnConflict{DoNothing: true}).Create(conn).Error
 
-		if err != nil {
-			return err
-		}
+	if err != nil {
+		return err
 	}
 
 	return nil
-
 }
 
 func (*InitSchemas) Version() uint64 {

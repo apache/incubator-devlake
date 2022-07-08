@@ -124,7 +124,6 @@ func (c *DateIterator) Fetch() (interface{}, error) {
 		PairStartTime: c.startTime.AddDate(0, 0, c.Current),
 		PairEndTime:   c.endTime.AddDate(0, 0, c.Current),
 	}, nil
-
 }
 
 func (c *DateIterator) Close() error {

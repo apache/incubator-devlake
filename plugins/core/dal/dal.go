@@ -29,7 +29,7 @@ type Clause struct {
 	Data interface{}
 }
 
-// ColumnType column type interface
+// ColumnMeta column type interface
 type ColumnMeta interface {
 	Name() string
 	DatabaseTypeName() string                 // varchar
@@ -80,10 +80,10 @@ type Dal interface {
 	// GetColumns returns table columns in database
 	GetColumns(dst schema.Tabler, filter func(columnMeta ColumnMeta) bool) (cms []ColumnMeta, err error)
 	// GetPrimarykeyFields get the PrimaryKey from `gorm` tag
-	GetPrimarykeyFields(t reflect.Type) []reflect.StructField
+	GetPrimaryKeyFields(t reflect.Type) []reflect.StructField
 }
 
-// GetPrimarykeyColumnNames returns table Column Names in database
+// GetColumnNames returns table Column Names in database
 func GetColumnNames(d Dal, dst schema.Tabler, filter func(columnMeta ColumnMeta) bool) (names []string, err error) {
 	columns, err := d.GetColumns(dst, filter)
 	if err != nil {
@@ -178,7 +178,7 @@ func Groupby(expr string) Clause {
 
 const HavingClause string = "Having"
 
-// Groupby creates a new Groupby clause
+// Having creates a new Having clause
 func Having(clause string, params ...interface{}) Clause {
 	return Clause{Type: HavingClause, Data: DalClause{clause, params}}
 }

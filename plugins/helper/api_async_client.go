@@ -193,7 +193,7 @@ func (apiClient *ApiAsyncClient) DoAsync(
 }
 
 // Enqueue an api get request, the request may be sent sometime in future in parallel with other api requests
-func (apiClient *ApiAsyncClient) GetAsync(
+func (apiClient *ApiAsyncClient) DoGetAsync(
 	path string,
 	query url.Values,
 	header http.Header,
@@ -228,7 +228,7 @@ func (apiClient *ApiAsyncClient) Release() {
 }
 
 type RateLimitedApiClient interface {
-	GetAsync(path string, query url.Values, header http.Header, handler common.ApiAsyncCallback)
+	DoGetAsync(path string, query url.Values, header http.Header, handler common.ApiAsyncCallback)
 	WaitAsync() error
 	HasError() bool
 	NextTick(task func() error)

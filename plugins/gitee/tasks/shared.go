@@ -184,7 +184,6 @@ func GetPagingFromLinkHeader(link string) (PagingInfo, error) {
 				case "prev":
 					result.Prev = pageNumberInt
 				}
-
 			} else {
 				return result, errors.New("parsed string values aren't long enough")
 			}

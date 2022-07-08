@@ -145,12 +145,12 @@ func AesDecrypt(crypted, key []byte) ([]byte, error) {
 // A random string of length len uppercase characters
 func RandomCapsStr(len int) string {
 	r := rand.New(rand.NewSource(time.Now().Unix()))
-	bytes := make([]byte, len)
+	randomBytes := make([]byte, len)
 	for i := 0; i < len; i++ {
 		b := r.Intn(26) + 65
-		bytes[i] = byte(b)
+		randomBytes[i] = byte(b)
 	}
-	return string(bytes)
+	return string(randomBytes)
 }
 
 func RandomEncKey() string {

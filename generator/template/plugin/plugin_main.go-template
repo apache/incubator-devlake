@@ -19,7 +19,7 @@ package main
 
 import (
 	"github.com/apache/incubator-devlake/plugins/core"
-	"github.com/apache/incubator-devlake/plugins/{{ .pluginName }}/tasks"
+	"github.com/apache/incubator-devlake/plugins/{{ .plugin_name }}/tasks"
 	"github.com/apache/incubator-devlake/runner"
 	"github.com/mitchellh/mapstructure"
 	"github.com/spf13/cobra"

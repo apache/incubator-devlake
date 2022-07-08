@@ -31,7 +31,6 @@ import (
 type InitSchemas struct{}
 
 func (*InitSchemas) Up(ctx context.Context, db *gorm.DB) error {
-
 	err := db.Migrator().DropTable(
 		// history table
 		"_raw_jira_api_users",

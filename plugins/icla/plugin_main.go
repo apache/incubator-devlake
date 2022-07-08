@@ -34,7 +34,7 @@ var _ core.PluginInit = (*Icla)(nil)
 var _ core.PluginTask = (*Icla)(nil)
 var _ core.PluginApi = (*Icla)(nil)
 
-// Export a variable named PluginEntry for Framework to search and load
+// PluginEntry is a variable exported for Framework to search and load
 var PluginEntry Icla //nolint
 
 type Icla struct{}

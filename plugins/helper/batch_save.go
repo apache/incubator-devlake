@@ -48,8 +48,8 @@ func NewBatchSave(basicRes core.BasicRes, slotType reflect.Type, size int) (*Bat
 	if slotType.Kind() != reflect.Ptr {
 		return nil, fmt.Errorf("slotType must be a pointer")
 	}
-	dal := basicRes.GetDal()
-	primaryKey := dal.GetPrimarykeyFields(slotType)
+	db := basicRes.GetDal()
+	primaryKey := db.GetPrimaryKeyFields(slotType)
 	// check if it have primaryKey
 	if len(primaryKey) == 0 {
 		return nil, fmt.Errorf("%s no primary key", slotType.String())
@@ -59,7 +59,7 @@ func NewBatchSave(basicRes core.BasicRes, slotType reflect.Type, size int) (*Bat
 	return &BatchSave{
 		basicRes:   basicRes,
 		log:        log,
-		db:         dal,
+		db:         db,
 		slotType:   slotType,
 		slots:      reflect.MakeSlice(reflect.SliceOf(slotType), size, size),
 		size:       size,
