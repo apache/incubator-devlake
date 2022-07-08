@@ -150,7 +150,7 @@ func (d *Dalgorm) Delete(entity interface{}, clauses ...dal.Clause) error {
 func (d *Dalgorm) GetColumns(dst schema.Tabler, filter func(columnMeta dal.ColumnMeta) bool) (cms []dal.ColumnMeta, err error) {
 	columnTypes, err := d.db.Migrator().ColumnTypes(dst.TableName())
 	if err != nil {
-		return
+		return nil, err
 	}
 	for _, columnType := range columnTypes {
 		if filter == nil {
@@ -159,7 +159,7 @@ func (d *Dalgorm) GetColumns(dst schema.Tabler, filter func(columnMeta dal.Colum
 			cms = append(cms, columnType)
 		}
 	}
-	return
+	return cms, nil
 }
 
 // GetPrimaryKeyFields get the PrimaryKey from `gorm` tag

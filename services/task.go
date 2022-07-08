@@ -262,10 +262,10 @@ func runTaskStandalone(taskId uint64) error {
 	progress := make(chan core.RunningProgress, 100)
 	go updateTaskProgress(taskId, progress)
 	err = runner.RunTask(
+		ctx,
 		cfg,
 		logger.Global.Nested(fmt.Sprintf("task #%d", taskId)),
 		db,
-		ctx,
 		progress,
 		taskId,
 	)

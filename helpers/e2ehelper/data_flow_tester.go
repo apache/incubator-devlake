@@ -180,7 +180,7 @@ func (t *DataFlowTester) FlushTabler(dst schema.Tabler) {
 
 // Subtask executes specified subtasks
 func (t *DataFlowTester) Subtask(subtaskMeta core.SubTaskMeta, taskData interface{}) {
-	subtaskCtx := helper.NewStandaloneSubTaskContext(t.Cfg, t.Log, t.Db, context.Background(), t.Name, taskData)
+	subtaskCtx := helper.NewStandaloneSubTaskContext(context.Background(), t.Cfg, t.Log, t.Db, t.Name, taskData)
 	err := subtaskMeta.EntryPoint(subtaskCtx)
 	if err != nil {
 		panic(err)

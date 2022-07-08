@@ -89,10 +89,10 @@ type defaultExecContext struct {
 }
 
 func newDefaultExecContext(
+	ctx context.Context,
 	cfg *viper.Viper,
 	logger core.Logger,
 	db *gorm.DB,
-	ctx context.Context,
 	name string,
 	data interface{},
 	progress chan core.RunningProgress,
@@ -155,10 +155,10 @@ func (c *defaultExecContext) IncProgress(progressType core.ProgressType, quantit
 
 func (c *defaultExecContext) fork(name string) *defaultExecContext {
 	return newDefaultExecContext(
+		c.ctx,
 		c.cfg,
 		c.logger.Nested(name),
 		c.db,
-		c.ctx,
 		name,
 		c.data,
 		c.progress,
@@ -212,16 +212,16 @@ func (c *DefaultSubTaskContext) IncProgress(quantity int) {
 
 // NewDefaultTaskContext FIXME ...
 func NewDefaultTaskContext(
+	ctx context.Context,
 	cfg *viper.Viper,
 	logger core.Logger,
 	db *gorm.DB,
-	ctx context.Context,
 	name string,
 	subtasks map[string]bool,
 	progress chan core.RunningProgress,
 ) core.TaskContext {
 	return &DefaultTaskContext{
-		newDefaultExecContext(cfg, logger, db, ctx, name, nil, progress),
+		newDefaultExecContext(ctx, cfg, logger, db, name, nil, progress),
 		subtasks,
 		make(map[string]*DefaultSubTaskContext),
 	}
@@ -256,15 +256,15 @@ func (c *DefaultTaskContext) SubTaskContext(subtask string) (core.SubTaskContext
 // Use this if you need to run/debug a subtask without
 // going through the usual workflow.
 func NewStandaloneSubTaskContext(
+	ctx context.Context,
 	cfg *viper.Viper,
 	logger core.Logger,
 	db *gorm.DB,
-	ctx context.Context,
 	name string,
 	data interface{},
 ) core.SubTaskContext {
 	return &DefaultSubTaskContext{
-		newDefaultExecContext(cfg, logger, db, ctx, name, data, nil),
+		newDefaultExecContext(ctx, cfg, logger, db, name, data, nil),
 		nil,
 		time.Time{},
 	}

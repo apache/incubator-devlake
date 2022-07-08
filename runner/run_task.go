@@ -38,10 +38,10 @@ import (
 
 // RunTask FIXME ...
 func RunTask(
+	ctx context.Context,
 	cfg *viper.Viper,
 	logger core.Logger,
 	db *gorm.DB,
-	ctx context.Context,
 	progress chan core.RunningProgress,
 	taskId uint64,
 ) error {
@@ -109,10 +109,10 @@ func RunTask(
 	}
 
 	err = RunPluginTask(
+		ctx,
 		config.GetConfig(),
 		logger.Nested(task.Plugin),
 		db,
-		ctx,
 		task.Plugin,
 		subtasks,
 		options,
@@ -123,10 +123,10 @@ func RunTask(
 
 // RunPluginTask FIXME ...
 func RunPluginTask(
+	ctx context.Context,
 	cfg *viper.Viper,
 	logger core.Logger,
 	db *gorm.DB,
-	ctx context.Context,
 	name string,
 	subtasks []string,
 	options map[string]interface{},
@@ -142,10 +142,10 @@ func RunPluginTask(
 	}
 
 	return RunPluginSubTasks(
+		ctx,
 		cfg,
 		logger,
 		db,
-		ctx,
 		name,
 		subtasks,
 		options,
@@ -156,10 +156,10 @@ func RunPluginTask(
 
 // RunPluginSubTasks FIXME ...
 func RunPluginSubTasks(
+	ctx context.Context,
 	cfg *viper.Viper,
 	logger core.Logger,
 	db *gorm.DB,
-	ctx context.Context,
 	name string,
 	subtasks []string,
 	options map[string]interface{},
@@ -220,7 +220,7 @@ func RunPluginSubTasks(
 		}
 	}
 
-	taskCtx := helper.NewDefaultTaskContext(cfg, logger, db, ctx, name, subtasksFlag, progress)
+	taskCtx := helper.NewDefaultTaskContext(ctx, cfg, logger, db, name, subtasksFlag, progress)
 	if closeablePlugin, ok := pluginTask.(core.CloseablePluginTask); ok {
 		defer closeablePlugin.Close(taskCtx)
 	}

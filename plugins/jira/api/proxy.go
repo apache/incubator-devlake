@@ -18,6 +18,7 @@ limitations under the License.
 package api
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
@@ -39,13 +40,13 @@ func Proxy(input *core.ApiResourceInput) (*core.ApiResourceOutput, error) {
 		return nil, err
 	}
 	apiClient, err := helper.NewApiClient(
+		context.TODO(),
 		connection.Endpoint,
 		map[string]string{
 			"Authorization": fmt.Sprintf("Basic %v", connection.GetEncodedToken()),
 		},
 		30*time.Second,
 		connection.Proxy,
-		nil,
 	)
 	if err != nil {
 		return nil, err

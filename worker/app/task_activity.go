@@ -42,7 +42,7 @@ func DevLakeTaskActivity(ctx context.Context, configJson []byte, taskId uint64) 
 			activity.RecordHeartbeat(ctx, progressDetail)
 		}
 	}()
-	err = runner.RunTask(cfg, log, db, ctx, progChan, taskId)
+	err = runner.RunTask(ctx, cfg, log, db, progChan, taskId)
 	if err != nil {
 		log.Error("failed to execute task #%d: %w", taskId, err)
 	}

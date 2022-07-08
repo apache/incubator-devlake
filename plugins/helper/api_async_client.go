@@ -95,10 +95,10 @@ func CreateAsyncApiClient(
 		duration,
 	)
 	scheduler, err := NewWorkerScheduler(
+		taskCtx.GetContext(),
 		numOfWorkers,
 		requests,
 		duration,
-		taskCtx.GetContext(),
 		retry,
 		logger,
 	)

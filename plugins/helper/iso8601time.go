@@ -120,12 +120,10 @@ func (jt *Iso8601Time) ToNullableTime() *time.Time {
 func ConvertStringToTime(timeString string) (t time.Time, err error) {
 	for _, formatItem := range DateTimeFormats {
 		if formatItem.Matcher.MatchString(timeString) {
-			t, err = time.Parse(formatItem.Format, timeString)
-			return
+			return time.Parse(formatItem.Format, timeString)
 		}
 	}
-	t, err = time.Parse(time.RFC3339, timeString)
-	return
+	return time.Parse(time.RFC3339, timeString)
 }
 
 // Iso8601TimeToTime FIXME ...

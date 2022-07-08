@@ -69,22 +69,17 @@ linters-settings:
 
     rules:
       # https://github.com/mgechev/revive/blob/master/RULES_DESCRIPTIONS.md#atomic
-#      - name: argument-limit
-#        severity: warning
-#        disabled: false
-#        arguments: [4]
-      # https://github.com/mgechev/revive/blob/master/RULES_DESCRIPTIONS.md#atomic
       - name: atomic
         severity: warning
         disabled: false
-#      # https://github.com/mgechev/revive/blob/master/RULES_DESCRIPTIONS.md#bare-return
-#      - name: bare-return
-#        severity: warning
-#        disabled: false
-#      # https://github.com/mgechev/revive/blob/master/RULES_DESCRIPTIONS.md#blank-imports
-#      - name: blank-imports
-#        severity: warning
-#        disabled: false
+      # https://github.com/mgechev/revive/blob/master/RULES_DESCRIPTIONS.md#bare-return
+      - name: bare-return
+        severity: warning
+        disabled: false
+      # https://github.com/mgechev/revive/blob/master/RULES_DESCRIPTIONS.md#blank-imports
+      - name: blank-imports
+        severity: warning
+        disabled: false
       # https://github.com/mgechev/revive/blob/master/RULES_DESCRIPTIONS.md#bool-literal-in-expr
       - name: bool-literal-in-expr
         severity: warning
@@ -110,10 +105,10 @@ linters-settings:
       - name: constant-logical-expr
         severity: warning
         disabled: false
-#      # https://github.com/mgechev/revive/blob/master/RULES_DESCRIPTIONS.md#context-as-argument
-#      - name: context-as-argument
-#        severity: warning
-#        disabled: false
+      # https://github.com/mgechev/revive/blob/master/RULES_DESCRIPTIONS.md#context-as-argument
+      - name: context-as-argument
+        severity: warning
+        disabled: false
       # https://github.com/mgechev/revive/blob/master/RULES_DESCRIPTIONS.md#context-keys-type
       - name: context-keys-type
         severity: warning

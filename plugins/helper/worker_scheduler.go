@@ -44,10 +44,10 @@ type WorkerScheduler struct {
 
 // NewWorkerScheduler creates a WorkerScheduler
 func NewWorkerScheduler(
+	ctx context.Context,
 	workerNum int,
 	maxWork int,
 	maxWorkDuration time.Duration,
-	ctx context.Context,
 	maxRetry int,
 	logger core.Logger,
 ) (*WorkerScheduler, error) {

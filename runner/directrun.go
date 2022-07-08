@@ -80,10 +80,10 @@ func DirectRun(cmd *cobra.Command, args []string, pluginTask core.PluginTask, op
 	}
 	ctx := createContext()
 	err = RunPluginSubTasks(
+		ctx,
 		cfg,
 		log,
 		db,
-		ctx,
 		cmd.Use,
 		tasks,
 		options,

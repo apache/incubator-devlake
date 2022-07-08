@@ -53,11 +53,11 @@ type ApiClient struct {
 
 // NewApiClient FIXME ...
 func NewApiClient(
+	ctx context.Context,
 	endpoint string,
 	headers map[string]string,
 	timeout time.Duration,
 	proxy string,
-	ctx context.Context,
 ) (*ApiClient, error) {
 	parsedUrl, err := url.Parse(endpoint)
 	if err != nil {

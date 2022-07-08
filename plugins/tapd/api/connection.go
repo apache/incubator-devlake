@@ -18,6 +18,7 @@ limitations under the License.
 package api
 
 import (
+	"context"
 	"fmt"
 	"net/http"
 	"time"
@@ -48,13 +49,13 @@ func TestConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, erro
 	// PLEASE NOTE: This works because GitHub API Client rotates tokens on each request
 	token := params.Auth
 	apiClient, err := helper.NewApiClient(
+		context.TODO(),
 		params.Endpoint,
 		map[string]string{
 			"Authorization": fmt.Sprintf("Basic %s", token),
 		},
 		3*time.Second,
 		params.Proxy,
-		nil,
 	)
 	if err != nil {
 		return nil, fmt.Errorf("verify token failed for %s %w", token, err)

@@ -18,6 +18,7 @@ limitations under the License.
 package api
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
@@ -99,13 +100,13 @@ func MakePipelinePlan(subtaskMetas []core.SubTaskMeta, connectionId uint64, scop
 			}
 			token := strings.Split(connection.Token, ",")[0]
 			apiClient, err := helper.NewApiClient(
+				context.TODO(),
 				connection.Endpoint,
 				map[string]string{
 					"Authorization": fmt.Sprintf("Bearer %s", token),
 				},
 				10*time.Second,
 				connection.Proxy,
-				nil,
 			)
 			if err != nil {
 				return nil, err
