@@ -41,28 +41,36 @@ func (t *Table) TableName() string {
 func LoadData(c core.SubTaskContext) error {
 	config := c.GetData().(*StarRocksConfig)
 	db := c.GetDal()
-	tables := config.Tables
-	allTables, err := db.AllTables()
-	if err != nil {
-		return err
-	}
 	var starrocksTables []string
-	if len(tables) == 0 {
-		starrocksTables = allTables
+	if config.DomainLayer != "" {
+		starrocksTables = getTablesByDomainLayer(config.DomainLayer)
+		if starrocksTables == nil {
+			return fmt.Errorf("no table found by domain layer: %s", config.DomainLayer)
+		}
 	} else {
-		for _, table := range allTables {
-			for _, r := range tables {
-				var ok bool
-				ok, err = regexp.Match(r, []byte(table))
-				if err != nil {
-					return err
-				}
-				if ok {
-					starrocksTables = append(starrocksTables, table)
+		tables := config.Tables
+		allTables, err := db.AllTables()
+		if err != nil {
+			return err
+		}
+		if len(tables) == 0 {
+			starrocksTables = allTables
+		} else {
+			for _, table := range allTables {
+				for _, r := range tables {
+					var ok bool
+					ok, err = regexp.Match(r, []byte(table))
+					if err != nil {
+						return err
+					}
+					if ok {
+						starrocksTables = append(starrocksTables, table)
+					}
 				}
 			}
 		}
 	}
+
 	starrocks, err := sql.Open("mysql", fmt.Sprintf("%s:%s@tcp(%s:%d)/%s?charset=utf8mb4&parseTime=True&loc=Local", config.User, config.Password, config.Host, config.Port, config.Database))
 	if err != nil {
 		return err
@@ -84,7 +92,6 @@ func LoadData(c core.SubTaskContext) error {
 	return nil
 }
 func createTable(starrocks *sql.DB, db dal.Dal, starrocksTable string, table string, c core.SubTaskContext, extra string) error {
-
 	columeMetas, err := db.GetColumns(&Table{name: table}, nil)
 	if err != nil {
 		return err
@@ -98,7 +105,7 @@ func createTable(starrocks *sql.DB, db dal.Dal, starrocksTable string, table str
 		if !ok {
 			return fmt.Errorf("Get [%s] ColumeType Failed", name)
 		}
-		column := fmt.Sprintf("%s %s", name, starrocksDatatype)
+		column := fmt.Sprintf("%s %s", name, getDataType(starrocksDatatype))
 		columns = append(columns, column)
 		isPrimaryKey, ok := cm.PrimaryKey()
 		if isPrimaryKey && ok {
