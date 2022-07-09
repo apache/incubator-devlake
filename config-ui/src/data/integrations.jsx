@@ -40,7 +40,7 @@ const integrationsData = [
     multiConnection: true,
     name: ProviderLabels.GITLAB,
     icon: <GitlabProvider className='providerIconSvg' width='30' height='30' style={{ float: 'left', marginTop: '5px' }} />,
-    iconDashboard: <GitlabProvider className='providerIconSvg' width='48' height='48' />,
+    iconDashboard: <GitlabProvider className='providerIconSvg' width='40' height='40' />,
     settings: ({ activeProvider, activeConnection, isSaving, isSavingConnection, setSettings }) => (
       <GitlabSettings
         provider={activeProvider}
@@ -58,7 +58,7 @@ const integrationsData = [
     multiConnection: false,
     name: ProviderLabels.JENKINS,
     icon: <JenkinsProvider className='providerIconSvg' width='30' height='30' style={{ float: 'left', marginTop: '5px' }} />,
-    iconDashboard: <JenkinsProvider className='providerIconSvg' width='48' height='48' />,
+    iconDashboard: <JenkinsProvider className='providerIconSvg' width='40' height='40' />,
     settings: ({ activeProvider, activeConnection, isSaving, isSavingConnection, setSettings }) => (
       <JenkinsSettings
         provider={activeProvider}
@@ -76,7 +76,7 @@ const integrationsData = [
     multiConnection: true,
     name: ProviderLabels.JIRA,
     icon: <JiraProvider className='providerIconSvg' width='30' height='30' style={{ float: 'left', marginTop: '5px' }} />,
-    iconDashboard: <JiraProvider className='providerIconSvg' width='48' height='48' />,
+    iconDashboard: <JiraProvider className='providerIconSvg' width='40' height='40' />,
     settings: ({ activeProvider, activeConnection, isSaving, isSavingConnection, setSettings }) => (
       <JiraSettings
         provider={activeProvider}
@@ -94,7 +94,7 @@ const integrationsData = [
     multiConnection: true,
     name: ProviderLabels.GITHUB,
     icon: <GitHubProvider className='providerIconSvg' width='30' height='30' style={{ float: 'left', marginTop: '5px' }} />,
-    iconDashboard: <GitHubProvider className='providerIconSvg' width='48' height='48' />,
+    iconDashboard: <GitHubProvider className='providerIconSvg' width='40' height='40' />,
     settings: ({ activeProvider, activeConnection, isSaving, isSavingConnection, setSettings }) => (
       <GithubSettings
         provider={activeProvider}
@@ -115,7 +115,7 @@ const pluginsData = [
     multiConnection: false,
     name: ProviderLabels.GITEXTRACTOR,
     icon: <Icon icon='box' size={30} />,
-    iconDashboard: <Icon icon='box' size={42} />,
+    iconDashboard: <Icon icon='box' size={32} />,
     settings: ({ activeProvider, activeConnection, isSaving, setSettings }) => (
       null
     )
@@ -127,7 +127,7 @@ const pluginsData = [
     multiConnection: false,
     name: ProviderLabels.REFDIFF,
     icon: <Icon icon='box' size={30} />,
-    iconDashboard: <Icon icon='box' size={42} />,
+    iconDashboard: <Icon icon='box' size={32} />,
     settings: ({ activeProvider, activeConnection, isSaving, setSettings }) => (
       null
     )
