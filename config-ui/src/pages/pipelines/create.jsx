@@ -58,8 +58,6 @@ import Content from '@/components/Content'
 import AddBlueprintDialog from '@/components/blueprints/AddBlueprintDialog'
 // import CodeEditor from '@uiw/react-textarea-code-editor'
 import { ReactComponent as HelpIcon } from '@/images/help.svg'
-import { ReactComponent as BackArrowIcon } from '@/images/undo.svg'
-import RunPipelineIcon from '@/images/duplicate.png'
 
 import GitlabHelpNote from '@/images/help/gitlab-help.png'
 import JiraHelpNote from '@/images/help/jira-help.png'
@@ -672,23 +670,12 @@ const CreatePipeline = (props) => {
             <div className='headlineContainer'>
               <Link style={{ display: 'flex', fontSize: '14px', float: 'right', marginLeft: '10px', color: '#777777' }} to='/pipelines'>
                 <Icon
-                  icon={
-                    <BackArrowIcon
-                      width={16} height={16}
-                      fill='rgba(0,0,0,0.25)'
-                      style={{
-                        marginRight: '6px'
-                      }}
-                    />
-                  } size={16}
+                  icon='undo'
+                  size={16}
+                  style={{ marginRight: '5px', opacity: 0.6 }}
                 /> Go Back
               </Link>
               <div style={{ display: 'flex' }}>
-                <div>
-                  <span style={{ marginRight: '10px' }}>
-                    <Icon icon={<img src={RunPipelineIcon} width='38' height='38' />} size={38} />
-                  </span>
-                </div>
                 <div>
                   <h1 style={{ margin: 0 }}>
                     Create Pipeline Run
