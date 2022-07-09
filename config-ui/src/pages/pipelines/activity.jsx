@@ -48,10 +48,10 @@ import { ReactComponent as JiraProviderIcon } from '@/images/integrations/jira.s
 import { ReactComponent as GitHubProviderIcon } from '@/images/integrations/github.svg'
 import { ReactComponent as HelpIcon } from '@/images/help.svg'
 
-import GitExtractorIcon from '@/images/git.png'
-import RefDiffIcon from '@/images/git-diff.png'
-import AEIcon from '@/images/ae.png'
-import DBTIcon from '@/images/dbt.png'
+// import GitExtractorIcon from '@/images/git.png'
+// import RefDiffIcon from '@/images/git-diff.png'
+// import AEIcon from '@/images/ae.png'
+// import DBTIcon from '@/images/dbt.png'
 
 const PipelineActivity = (props) => {
   const history = useHistory()
@@ -602,7 +602,7 @@ const PipelineActivity = (props) => {
                     {pipelineHasProvider('gitextractor') && (
                       <div className='gitextractor-settings' style={{ display: 'flex', paddingLeft: '20px', justifySelf: 'flex-start' }}>
                         <div style={{ display: 'flex', padding: '2px 6px' }}>
-                          <img src={GitExtractorIcon} width={24} height={24} />
+                          <Icon icon='box' size={24} />
                         </div>
                         <div>
                           <label style={{ lineHeight: '100%', display: 'block', fontSize: '10px', marginTop: '2px', marginBottom: '0px' }}>
@@ -632,7 +632,7 @@ const PipelineActivity = (props) => {
                     {pipelineHasProvider('refdiff') && (
                       <div className='refdiff-settings' style={{ display: 'flex', paddingLeft: '20px', justifySelf: 'flex-start' }}>
                         <div style={{ display: 'flex', padding: '2px 6px' }}>
-                          <img src={RefDiffIcon} width={24} height={24} />
+                          <Icon icon='box' size={24} />
                         </div>
                         <div>
                           <label style={{ lineHeight: '100%', display: 'block', fontSize: '10px', marginTop: '2px', marginBottom: '0px' }}>
@@ -668,7 +668,7 @@ const PipelineActivity = (props) => {
                     {pipelineHasProvider('ae') && (
                       <div className='ae-settings' style={{ display: 'flex', paddingLeft: '20px', justifySelf: 'flex-start' }}>
                         <div style={{ display: 'flex', padding: '2px 6px' }}>
-                          <img src={AEIcon} width={24} height={24} />
+                          <Icon icon='box' size={24} />
                         </div>
                         <div>
                           <label style={{ lineHeight: '100%', display: 'block', fontSize: '10px', marginTop: '2px', marginBottom: '0px' }}>
@@ -693,7 +693,7 @@ const PipelineActivity = (props) => {
                     {pipelineHasProvider('dbt') && (
                       <div className='dbt-settings' style={{ display: 'flex', paddingLeft: '20px', justifySelf: 'flex-start' }}>
                         <div style={{ display: 'flex', padding: '2px 6px' }}>
-                          <img src={DBTIcon} width={24} height={24} />
+                          <Icon icon='box' size={24} />
                         </div>
                         <div>
                           <label style={{ lineHeight: '100%', display: 'block', fontSize: '10px', marginTop: '2px', marginBottom: '0px' }}>
