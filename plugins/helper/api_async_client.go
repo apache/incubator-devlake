@@ -36,7 +36,7 @@ import (
 var HttpMinStatusRetryCode = http.StatusBadRequest
 
 // ApiAsyncClient is built on top of ApiClient, to provide a asynchronous semantic
-// You may submit multiple requests at once by calling `GetAsync`, and those requests
+// You may submit multiple requests at once by calling `DoGetAsync`, and those requests
 // will be performed in parallel with rate-limit support
 type ApiAsyncClient struct {
 	*ApiClient
