@@ -58,7 +58,7 @@ func ConvertAccounts(taskCtx core.SubTaskContext) error {
 				ConnectionId: data.Options.ConnectionId,
 				ProjectId:    data.Options.ProjectId,
 			},
-			Table: RAW_COMMIT_TABLE,
+			Table: RAW_USER_TABLE,
 		},
 		Convert: func(inputRow interface{}) ([]interface{}, error) {
 			GitlabAccount := inputRow.(*gitlabModels.GitlabAccount)
