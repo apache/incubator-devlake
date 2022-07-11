@@ -107,49 +107,52 @@ func (*InitSchemas) Up(ctx context.Context, db *gorm.DB) error {
 					db.Create(&conn)
 				}
 			}
-		} else if m.HasTable(&archived.JiraConnectionV10{}) {
-			var jiraConns []archived.JiraConnectionV10
-			result = db.Find(&jiraConns)
+		}
+	} else if m.HasTable(&archived.JiraConnectionV10{}) {
+		var jiraConns []archived.JiraConnectionV10
+		result = db.Find(&jiraConns)
 
-			if result.Error == nil {
-				err := db.Migrator().DropTable(&archived.JiraConnectionV10{})
+		if result.Error == nil {
+			err := db.Migrator().DropTable(&archived.JiraConnectionV10{})
+			if err != nil {
+				return err
+			}
+			err = db.Migrator().AutoMigrate(&archived.JiraConnection{})
+			if err != nil {
+				return err
+			}
+
+			for _, v := range jiraConns {
+				conn := &archived.JiraConnection{}
+				conn.ID = v.ID
+				conn.Name = v.Name
+				conn.Endpoint = v.Endpoint
+				conn.Proxy = v.Proxy
+				conn.RateLimit = v.RateLimit
+
+				c := config.GetConfig()
+				encKey := c.GetString("ENCODE_KEY")
+				auth, err := core.Decrypt(encKey, v.BasicAuthEncoded)
 				if err != nil {
 					return err
 				}
-				err = db.Migrator().AutoMigrate(&archived.JiraConnection{})
+				pk, err := base64.StdEncoding.DecodeString(auth)
 				if err != nil {
 					return err
 				}
-
-				for _, v := range jiraConns {
-					conn := &archived.JiraConnection{}
-					conn.ID = v.ID
-					conn.Name = v.Name
-					conn.Endpoint = v.Endpoint
-					conn.Proxy = v.Proxy
-					conn.RateLimit = v.RateLimit
-
-					c := config.GetConfig()
-					encKey := c.GetString("ENCODE_KEY")
-					auth, err := core.Decrypt(encKey, v.BasicAuthEncoded)
-					if err != nil {
-						return err
-					}
-					pk, err := base64.StdEncoding.DecodeString(auth)
-					if err != nil {
-						return err
-					}
-					originInfo := strings.Split(string(pk), ":")
-					if len(originInfo) == 2 {
-						conn.Username = originInfo[0]
-						conn.Password = originInfo[1]
-						// create
-						db.Create(&conn)
-					}
+				originInfo := strings.Split(string(pk), ":")
+				if len(originInfo) == 2 {
+					conn.Username = originInfo[0]
+					conn.Password = originInfo[1]
+					// create
+					db.Create(&conn)
 				}
 			}
-		} else {
-			return result.Error
+		}
+	} else {
+		err := db.Migrator().AutoMigrate(&archived.JiraConnection{})
+		if err != nil {
+			return err
 		}
 	}
 
