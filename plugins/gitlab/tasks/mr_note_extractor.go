@@ -81,7 +81,6 @@ func ExtractApiMergeRequestsNotes(taskCtx core.SubTaskContext) error {
 					ConnectionId:    data.Options.ConnectionId,
 				}
 				results = append(results, toolMrComment)
-
 			}
 			results = append(results, toolMrNote)
 

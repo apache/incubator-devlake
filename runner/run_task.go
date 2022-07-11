@@ -25,7 +25,6 @@ import (
 
 	"github.com/apache/incubator-devlake/config"
 	"github.com/apache/incubator-devlake/errors"
-	"github.com/apache/incubator-devlake/logger"
 	"github.com/apache/incubator-devlake/models"
 	"github.com/apache/incubator-devlake/utils"
 	"github.com/mitchellh/mapstructure"
@@ -36,11 +35,12 @@ import (
 	"github.com/apache/incubator-devlake/plugins/helper"
 )
 
+// RunTask FIXME ...
 func RunTask(
+	ctx context.Context,
 	cfg *viper.Viper,
 	logger core.Logger,
 	db *gorm.DB,
-	ctx context.Context,
 	progress chan core.RunningProgress,
 	taskId uint64,
 ) error {
@@ -108,10 +108,10 @@ func RunTask(
 	}
 
 	err = RunPluginTask(
+		ctx,
 		config.GetConfig(),
 		logger.Nested(task.Plugin),
 		db,
-		ctx,
 		task.Plugin,
 		subtasks,
 		options,
@@ -120,11 +120,12 @@ func RunTask(
 	return err
 }
 
+// RunPluginTask FIXME ...
 func RunPluginTask(
+	ctx context.Context,
 	cfg *viper.Viper,
 	logger core.Logger,
 	db *gorm.DB,
-	ctx context.Context,
 	name string,
 	subtasks []string,
 	options map[string]interface{},
@@ -140,10 +141,10 @@ func RunPluginTask(
 	}
 
 	return RunPluginSubTasks(
+		ctx,
 		cfg,
 		logger,
 		db,
-		ctx,
 		name,
 		subtasks,
 		options,
@@ -152,11 +153,12 @@ func RunPluginTask(
 	)
 }
 
+// RunPluginSubTasks FIXME ...
 func RunPluginSubTasks(
+	ctx context.Context,
 	cfg *viper.Viper,
 	logger core.Logger,
 	db *gorm.DB,
-	ctx context.Context,
 	name string,
 	subtasks []string,
 	options map[string]interface{},
@@ -217,7 +219,7 @@ func RunPluginSubTasks(
 		}
 	}
 
-	taskCtx := helper.NewDefaultTaskContext(cfg, logger, db, ctx, name, subtasksFlag, progress)
+	taskCtx := helper.NewDefaultTaskContext(ctx, cfg, logger, db, name, subtasksFlag, progress)
 	if closeablePlugin, ok := pluginTask.(core.CloseablePluginTask); ok {
 		defer closeablePlugin.Close(taskCtx)
 	}
@@ -264,7 +266,8 @@ func RunPluginSubTasks(
 	return nil
 }
 
-func UpdateProgressDetail(db *gorm.DB, taskId uint64, progressDetail *models.TaskProgressDetail, p *core.RunningProgress) {
+// UpdateProgressDetail FIXME ...
+func UpdateProgressDetail(db *gorm.DB, logger core.Logger, taskId uint64, progressDetail *models.TaskProgressDetail, p *core.RunningProgress) {
 	task := &models.Task{}
 	task.ID = taskId
 	switch p.Type {
@@ -277,7 +280,7 @@ func UpdateProgressDetail(db *gorm.DB, taskId uint64, progressDetail *models.Tas
 		pct := float32(p.Current) / float32(p.Total)
 		err := db.Model(task).Update("progress", pct).Error
 		if err != nil {
-			logger.Global.Error("failed to update progress: %w", err)
+			logger.Error("failed to update progress: %w", err)
 		}
 	case core.SubTaskSetProgress:
 		progressDetail.TotalRecords = p.Total

@@ -37,7 +37,6 @@ var ConvertCommitsMeta = core.SubTaskMeta{
 }
 
 func ConvertCommits(taskCtx core.SubTaskContext) error {
-
 	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_COMMIT_TABLE)
 	db := taskCtx.GetDal()
 	repoId := data.Repo.GiteeId

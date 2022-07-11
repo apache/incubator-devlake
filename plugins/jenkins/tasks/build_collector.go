@@ -25,7 +25,7 @@ import (
 	"reflect"
 
 	"github.com/apache/incubator-devlake/plugins/core"
-	. "github.com/apache/incubator-devlake/plugins/core/dal"
+	"github.com/apache/incubator-devlake/plugins/core/dal"
 	"github.com/apache/incubator-devlake/plugins/helper"
 )
 
@@ -46,10 +46,10 @@ type SimpleJob struct {
 func CollectApiBuilds(taskCtx core.SubTaskContext) error {
 	db := taskCtx.GetDal()
 	data := taskCtx.GetData().(*JenkinsTaskData)
-	clauses := []Clause{
-		Select("tjj.name"),
-		From("_tool_jenkins_jobs tjj"),
-		Where(`tjj.connection_id = ?`, data.Options.ConnectionId),
+	clauses := []dal.Clause{
+		dal.Select("tjj.name"),
+		dal.From("_tool_jenkins_jobs tjj"),
+		dal.Where(`tjj.connection_id = ?`, data.Options.ConnectionId),
 	}
 
 	cursor, err := db.Cursor(clauses...)

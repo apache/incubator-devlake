@@ -23,6 +23,7 @@ import (
 	"time"
 )
 
+// CheckDNS FIXME ...
 func CheckDNS(domain string) error {
 	ips, err := net.LookupIP(domain)
 	if err != nil {
@@ -34,6 +35,7 @@ func CheckDNS(domain string) error {
 	return fmt.Errorf("failed to resolve host: %s", domain)
 }
 
+// CheckNetwork FIXME ...
 func CheckNetwork(host, port string, timeout time.Duration) error {
 	var target = fmt.Sprintf("%s:%s", host, port)
 	_, err := net.DialTimeout("tcp", target, timeout)
@@ -43,6 +45,7 @@ func CheckNetwork(host, port string, timeout time.Duration) error {
 	return nil
 }
 
+// ResolvePort FIXME ...
 func ResolvePort(port string, schema string) (string, error) {
 	var defaultPorts = map[string]string{
 		"http":  "80",

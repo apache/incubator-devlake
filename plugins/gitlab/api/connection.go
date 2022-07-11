@@ -18,6 +18,7 @@ limitations under the License.
 package api
 
 import (
+	"context"
 	"fmt"
 	"net/http"
 	"time"
@@ -29,7 +30,6 @@ import (
 )
 
 func TestConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, error) {
-
 	// decode
 	var err error
 	var connection models.TestConnectionRequest
@@ -45,13 +45,13 @@ func TestConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, erro
 
 	// test connection
 	apiClient, err := helper.NewApiClient(
+		context.TODO(),
 		connection.Endpoint,
 		map[string]string{
 			"Authorization": fmt.Sprintf("Bearer %v", connection.Token),
 		},
 		3*time.Second,
 		connection.Proxy,
-		nil,
 	)
 	if err != nil {
 		return nil, err

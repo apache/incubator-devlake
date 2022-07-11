@@ -18,6 +18,7 @@ limitations under the License.
 package api
 
 import (
+	"context"
 	"fmt"
 	"net/http"
 	"time"
@@ -62,13 +63,13 @@ func TestConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, erro
 	// verify multiple token in parallel
 	// PLEASE NOTE: This works because GitHub API Client rotates tokens on each request
 	apiClient, err := helper.NewApiClient(
+		context.TODO(),
 		params.Endpoint,
 		map[string]string{
 			"Authorization": fmt.Sprintf("Bearer %s", params.Token),
 		},
 		3*time.Second,
 		params.Proxy,
-		nil,
 	)
 	if err != nil {
 		return nil, err

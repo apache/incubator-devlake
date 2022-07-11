@@ -18,6 +18,7 @@ limitations under the License.
 package api
 
 import (
+	"context"
 	"fmt"
 	"net/http"
 	"time"
@@ -46,13 +47,13 @@ func TestConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, erro
 	// test connection
 	encodedToken := utils.GetEncodedToken(connection.Username, connection.Password)
 	apiClient, err := helper.NewApiClient(
+		context.TODO(),
 		connection.Endpoint,
 		map[string]string{
 			"Authorization": fmt.Sprintf("Basic %v", encodedToken),
 		},
 		3*time.Second,
 		connection.Proxy,
-		nil,
 	)
 	if err != nil {
 		return nil, err

@@ -60,7 +60,7 @@ func TestBatchSaveDivider(t *testing.T) {
 
 	// we expect total 2 deletion calls after all code got carried out
 	mockDal.On("Delete", mock.Anything, mock.Anything).Return(nil).Twice()
-	mockDal.On("GetPrimarykeyFields", mock.Anything).Return(
+	mockDal.On("GetPrimaryKeyFields", mock.Anything).Return(
 		[]reflect.StructField{
 			{Name: "ID", Type: reflect.TypeOf("")},
 		},

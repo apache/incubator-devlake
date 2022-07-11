@@ -23,57 +23,23 @@ import (
 	"time"
 
 	"github.com/apache/incubator-devlake/plugins/core/dal"
-	"gorm.io/gorm"
 )
 
+// Iterator FIXME ...
 type Iterator interface {
 	HasNext() bool
 	Fetch() (interface{}, error)
 	Close() error
 }
 
-// Deprecated: use DalCursorIterator instead
-type CursorIterator struct {
-	db       *gorm.DB
-	cursor   *sql.Rows
-	elemType reflect.Type
-}
-
-// Deprecated: use NewDalCursorIterator instead
-func NewCursorIterator(db *gorm.DB, cursor *sql.Rows, elemType reflect.Type) (*CursorIterator, error) {
-	return &CursorIterator{
-		db:       db,
-		cursor:   cursor,
-		elemType: elemType,
-	}, nil
-}
-
-func (c *CursorIterator) HasNext() bool {
-	return c.cursor.Next()
-}
-
-func (c *CursorIterator) Fetch() (interface{}, error) {
-	elem := reflect.New(c.elemType).Interface()
-	err := c.db.ScanRows(c.cursor, elem)
-	if err != nil {
-		return nil, err
-	}
-	return elem, nil
-}
-
-func (c *CursorIterator) Close() error {
-	return c.cursor.Close()
-}
-
-var _ Iterator = (*CursorIterator)(nil)
-
-// DalCursorIterator
+// DalCursorIterator FIXME ...
 type DalCursorIterator struct {
 	db       dal.Dal
 	cursor   *sql.Rows
 	elemType reflect.Type
 }
 
+// NewDalCursorIterator FIXME ...
 func NewDalCursorIterator(db dal.Dal, cursor *sql.Rows, elemType reflect.Type) (*DalCursorIterator, error) {
 	return &DalCursorIterator{
 		db:       db,
@@ -82,10 +48,12 @@ func NewDalCursorIterator(db dal.Dal, cursor *sql.Rows, elemType reflect.Type) (
 	}, nil
 }
 
+// HasNext FIXME ...
 func (c *DalCursorIterator) HasNext() bool {
 	return c.cursor.Next()
 }
 
+// Fetch FIXME ...
 func (c *DalCursorIterator) Fetch() (interface{}, error) {
 	elem := reflect.New(c.elemType).Interface()
 	err := c.db.Fetch(c.cursor, elem)
@@ -95,13 +63,14 @@ func (c *DalCursorIterator) Fetch() (interface{}, error) {
 	return elem, nil
 }
 
+// Close interator
 func (c *DalCursorIterator) Close() error {
 	return c.cursor.Close()
 }
 
 var _ Iterator = (*DalCursorIterator)(nil)
 
-// DateIterator
+// DateIterator FIXME ...
 type DateIterator struct {
 	startTime time.Time
 	endTime   time.Time
@@ -109,28 +78,32 @@ type DateIterator struct {
 	Current   int
 }
 
+// DatePair FIXME ...
 type DatePair struct {
 	PairStartTime time.Time
 	PairEndTime   time.Time
 }
 
+// HasNext FIXME ...
 func (c *DateIterator) HasNext() bool {
 	return c.Current < c.Days
 }
 
+// Fetch FIXME ...
 func (c *DateIterator) Fetch() (interface{}, error) {
 	c.Current++
 	return &DatePair{
 		PairStartTime: c.startTime.AddDate(0, 0, c.Current),
 		PairEndTime:   c.endTime.AddDate(0, 0, c.Current),
 	}, nil
-
 }
 
+// Close iterator
 func (c *DateIterator) Close() error {
 	return nil
 }
 
+// NewDateIterator FIXME ...
 func NewDateIterator(days int) (*DateIterator, error) {
 	endTime := time.Now().Truncate(24 * time.Hour)
 	return &DateIterator{

@@ -52,7 +52,7 @@ func NewDomainIdGenerator(entityPtr interface{}) *DomainIdGenerator {
 	structName := t.Name()
 
 	dal := &dalgorm.Dalgorm{}
-	pk := dal.GetPrimarykeyFields(t)
+	pk := dal.GetPrimaryKeyFields(t)
 
 	if len(pk) == 0 {
 		panic(fmt.Errorf("no primary key found for %s:%s", pluginName, structName))

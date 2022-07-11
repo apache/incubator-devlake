@@ -89,7 +89,6 @@ func ExtractApiCommits(taskCtx core.SubTaskContext) error {
 			if commit.Committer != nil {
 				giteeCommit.CommitterId = commit.Committer.Id
 				results = append(results, commit.Committer)
-
 			}
 
 			giteeRepoCommit := &models.GiteeRepoCommit{

@@ -46,8 +46,10 @@ type RequestData struct {
 	InputJSON []byte
 }
 
+// AsyncResponseHandler FIXME ...
 type AsyncResponseHandler func(res *http.Response) error
 
+// ApiCollectorArgs FIXME ...
 type ApiCollectorArgs struct {
 	RawDataSubTaskArgs
 	// UrlTemplate is used to generate the final URL for Api Collector to request
@@ -77,6 +79,7 @@ type ApiCollectorArgs struct {
 	AfterResponse  common.ApiClientAfterResponse
 }
 
+// ApiCollector FIXME ...
 type ApiCollector struct {
 	*RawDataSubTask
 	args        *ApiCollectorArgs
@@ -124,7 +127,7 @@ func NewApiCollector(args ApiCollectorArgs) (*ApiCollector, error) {
 	return apicllector, nil
 }
 
-// Start collection
+// Execute will start collection
 func (collector *ApiCollector) Execute() error {
 	logger := collector.args.Ctx.GetLogger()
 	logger.Info("start api collection")
@@ -245,11 +248,9 @@ func (collector *ApiCollector) fetchPagesUndetermined(reqData *RequestData) {
 		if collector.args.Input != nil {
 			concurrency = 2
 		} else {
-			cap := apiClient.GetNumOfWorkers() / 10
-			if cap < 10 {
+			concurrency = apiClient.GetNumOfWorkers() / 10
+			if concurrency < 10 {
 				concurrency = 10
-			} else {
-				concurrency = cap
 			}
 		}
 	}
@@ -295,6 +296,7 @@ func (collector *ApiCollector) generateUrl(pager *Pager, input interface{}) (str
 	return buf.String(), nil
 }
 
+// SetAfterResponse FIXME ...
 func (collector *ApiCollector) SetAfterResponse(f common.ApiClientAfterResponse) {
 	collector.args.ApiClient.SetAfterFunction(f)
 }
@@ -328,7 +330,7 @@ func (collector *ApiCollector) fetchAsync(reqData *RequestData, handler func(int
 	}
 	logger := collector.args.Ctx.GetLogger()
 	logger.Debug("fetchAsync <<< enqueueing for %s %v", apiUrl, apiQuery)
-	collector.args.ApiClient.GetAsync(apiUrl, apiQuery, apiHeader, func(res *http.Response) error {
+	collector.args.ApiClient.DoGetAsync(apiUrl, apiQuery, apiHeader, func(res *http.Response) error {
 		defer logger.Debug("fetchAsync >>> done for %s %v", apiUrl, apiQuery)
 		logger := collector.args.Ctx.GetLogger()
 		// read body to buffer

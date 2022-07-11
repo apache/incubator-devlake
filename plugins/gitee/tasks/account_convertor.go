@@ -54,11 +54,11 @@ func ConvertAccounts(taskCtx core.SubTaskContext) error {
 		Input:              cursor,
 		RawDataSubTaskArgs: *rawDataSubTaskArgs,
 		Convert: func(inputRow interface{}) ([]interface{}, error) {
-			GiteeAccount := inputRow.(*models.GiteeAccount)
+			giteeAccount := inputRow.(*models.GiteeAccount)
 			domainUser := &crossdomain.Account{
-				DomainEntity: domainlayer.DomainEntity{Id: accountIdGen.Generate(data.Options.ConnectionId, GiteeAccount.Id)},
-				UserName:     GiteeAccount.Login,
-				AvatarUrl:    GiteeAccount.AvatarUrl,
+				DomainEntity: domainlayer.DomainEntity{Id: accountIdGen.Generate(data.Options.ConnectionId, giteeAccount.Id)},
+				UserName:     giteeAccount.Login,
+				AvatarUrl:    giteeAccount.AvatarUrl,
 			}
 			return []interface{}{
 				domainUser,

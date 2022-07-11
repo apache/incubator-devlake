@@ -23,7 +23,7 @@ import (
 	"net/http"
 	"net/url"
 
-	. "github.com/apache/incubator-devlake/plugins/core/dal"
+	"github.com/apache/incubator-devlake/plugins/core/dal"
 
 	"github.com/apache/incubator-devlake/plugins/helper"
 
@@ -45,12 +45,12 @@ func CollectApiComments(taskCtx core.SubTaskContext) error {
 		var latestUpdatedIssueComt models.GithubIssueComment
 		err := db.All(
 			&latestUpdatedIssueComt,
-			Join("left join _tool_github_issues on _tool_github_issues.github_id = _tool_github_issue_comments.issue_id"),
-			Where(
+			dal.Join("left join _tool_github_issues on _tool_github_issues.github_id = _tool_github_issue_comments.issue_id"),
+			dal.Where(
 				"_tool_github_issues.repo_id = ? AND _tool_github_issues.connection_id = ?", data.Repo.GithubId, data.Repo.ConnectionId,
 			),
-			Orderby("github_updated_at DESC"),
-			Limit(1),
+			dal.Orderby("github_updated_at DESC"),
+			dal.Limit(1),
 		)
 		if err != nil {
 			return fmt.Errorf("failed to get latest github issue record: %w", err)
@@ -58,10 +58,10 @@ func CollectApiComments(taskCtx core.SubTaskContext) error {
 		var latestUpdatedPrComt models.GithubPullRequestComment
 		err = db.All(
 			&latestUpdatedPrComt,
-			Join("left join _tool_github_pull_requests on _tool_github_pull_requests.github_id = _tool_github_pull_request_comments.pull_request_id"),
-			Where("_tool_github_pull_requests.repo_id = ? AND _tool_github_pull_requests.connection_id = ?", data.Repo.GithubId, data.Repo.ConnectionId),
-			Orderby("github_updated_at DESC"),
-			Limit(1),
+			dal.Join("left join _tool_github_pull_requests on _tool_github_pull_requests.github_id = _tool_github_pull_request_comments.pull_request_id"),
+			dal.Where("_tool_github_pull_requests.repo_id = ? AND _tool_github_pull_requests.connection_id = ?", data.Repo.GithubId, data.Repo.ConnectionId),
+			dal.Orderby("github_updated_at DESC"),
+			dal.Limit(1),
 		)
 		if err != nil {
 			return fmt.Errorf("failed to get latest github issue record: %w", err)

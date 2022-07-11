@@ -70,11 +70,11 @@ func ExtractApiCommits(taskCtx core.SubTaskContext) error {
 
 			// For Commiter Email is not same as AuthorEmail
 			if gitlabCommit.CommitterEmail != GitlabAccountAuthor.Email {
-				GitlabAccountCommitter := &models.GitlabAccount{}
-				GitlabAccountCommitter.Email = gitlabCommit.CommitterEmail
-				GitlabAccountCommitter.Name = gitlabCommit.CommitterName
-				GitlabAccountCommitter.ConnectionId = data.Options.ConnectionId
-				results = append(results, GitlabAccountCommitter)
+				gitlabAccountCommitter := &models.GitlabAccount{}
+				gitlabAccountCommitter.Email = gitlabCommit.CommitterEmail
+				gitlabAccountCommitter.Name = gitlabCommit.CommitterName
+				gitlabAccountCommitter.ConnectionId = data.Options.ConnectionId
+				results = append(results, gitlabAccountCommitter)
 			}
 
 			return results, nil

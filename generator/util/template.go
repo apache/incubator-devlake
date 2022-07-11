@@ -47,12 +47,12 @@ func ReadTemplate(templateFile string) string {
 
 // WriteTemplates write some strings to files
 func WriteTemplates(path string, templates map[string]string) {
-	err := os.MkdirAll(path, 0777)
+	err := os.MkdirAll(path, 0600)
 	cobra.CheckErr(err)
 	for name, template := range templates {
-		err := os.MkdirAll(filepath.Dir(filepath.Join(path, name)), 0777)
+		err := os.MkdirAll(filepath.Dir(filepath.Join(path, name)), 0600)
 		cobra.CheckErr(err)
-		err = ioutil.WriteFile(filepath.Join(path, name), []byte(template), 0777)
+		err = ioutil.WriteFile(filepath.Join(path, name), []byte(template), 0600)
 		cobra.CheckErr(err)
 		println(filepath.Join(path, name), ` generated`)
 	}
@@ -90,6 +90,7 @@ func ReplaceVarInTemplates(templates map[string]string, valueMap map[string]stri
 	}
 }
 
+// ReplaceVars will replace s with valueMap and return it
 func ReplaceVars(s string, valueMap map[string]string) string {
 	for varName, value := range valueMap {
 		s = ReplaceVar(s, varName, value)
@@ -97,6 +98,7 @@ func ReplaceVars(s string, valueMap map[string]string) string {
 	return s
 }
 
+// ReplaceVar will replace s with value and return it
 func ReplaceVar(s, varName, value string) string {
 	return strings.ReplaceAll(s, fmt.Sprintf(`{{ .%s }}`, varName), value)
 }

@@ -247,7 +247,6 @@ func ExtractApiIssues(taskCtx core.SubTaskContext) error {
 						gitlabIssue.Type = ticket.INCIDENT
 					}
 				}
-
 			}
 			gitlabIssue.ConnectionId = data.Options.ConnectionId
 			if body.Author != nil {
@@ -307,7 +306,6 @@ func convertGitlabIssue(issue *IssuesResponse, projectId int) (*models.GitlabIss
 	if issue.Author != nil {
 		gitlabIssue.CreatorId = issue.Author.Id
 		gitlabIssue.CreatorName = issue.Author.Username
-
 	}
 	if issue.GitlabClosedAt != nil {
 		gitlabIssue.LeadTimeMinutes = uint(issue.GitlabClosedAt.ToTime().Sub(issue.GitlabCreatedAt.ToTime()).Minutes())

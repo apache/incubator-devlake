@@ -22,7 +22,7 @@ import (
 	"time"
 )
 
-// A helper to calculate api rate limit dynamically, assuming api returning remaining/resettime information
+// ApiRateLimitCalculator is A helper to calculate api rate limit dynamically, assuming api returning remaining/resettime information
 type ApiRateLimitCalculator struct {
 	UserRateLimitPerHour   int
 	GlobalRateLimitPerHour int
@@ -32,6 +32,7 @@ type ApiRateLimitCalculator struct {
 	DynamicRateLimit       func(res *http.Response) (int, time.Duration, error)
 }
 
+// Calculate FIXME ...
 func (c *ApiRateLimitCalculator) Calculate(apiClient *ApiClient) (int, time.Duration, error) {
 	// user specified rate limit has the highest priority
 	if c.UserRateLimitPerHour > 0 {

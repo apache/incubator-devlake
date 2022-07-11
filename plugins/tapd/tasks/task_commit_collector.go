@@ -105,7 +105,6 @@ func CollectTaskCommits(taskCtx core.SubTaskContext) error {
 				fmt.Println(len(data.Stories))
 				num += len(data.Stories)
 				fmt.Printf("num is %d", num)
-
 			}
 			err := helper.UnmarshalResponse(res, &data)
 			return data.Stories, err

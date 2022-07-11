@@ -29,6 +29,7 @@ import (
 	"gorm.io/gorm/schema"
 )
 
+// Dalgorm FIXME ...
 type Dalgorm struct {
 	db *gorm.DB
 }
@@ -87,6 +88,7 @@ func (d *Dalgorm) Cursor(clauses ...dal.Clause) (*sql.Rows, error) {
 	return buildTx(d.db, clauses).Rows()
 }
 
+// CursorTx FIXME ...
 func (d *Dalgorm) CursorTx(clauses ...dal.Clause) *gorm.DB {
 	return buildTx(d.db, clauses)
 }
@@ -144,10 +146,11 @@ func (d *Dalgorm) Delete(entity interface{}, clauses ...dal.Clause) error {
 	return buildTx(d.db, clauses).Delete(entity).Error
 }
 
+// GetColumns FIXME ...
 func (d *Dalgorm) GetColumns(dst schema.Tabler, filter func(columnMeta dal.ColumnMeta) bool) (cms []dal.ColumnMeta, err error) {
 	columnTypes, err := d.db.Migrator().ColumnTypes(dst.TableName())
 	if err != nil {
-		return
+		return nil, err
 	}
 	for _, columnType := range columnTypes {
 		if filter == nil {
@@ -156,11 +159,11 @@ func (d *Dalgorm) GetColumns(dst schema.Tabler, filter func(columnMeta dal.Colum
 			cms = append(cms, columnType)
 		}
 	}
-	return
+	return cms, nil
 }
 
-// GetPrimaryKey get the PrimaryKey from `gorm` tag
-func (d *Dalgorm) GetPrimarykeyFields(t reflect.Type) []reflect.StructField {
+// GetPrimaryKeyFields get the PrimaryKey from `gorm` tag
+func (d *Dalgorm) GetPrimaryKeyFields(t reflect.Type) []reflect.StructField {
 	return utils.WalkFields(t, func(field *reflect.StructField) bool {
 		return strings.Contains(strings.ToLower(field.Tag.Get("gorm")), "primarykey")
 	})
@@ -188,6 +191,7 @@ func (d *Dalgorm) AllTables() ([]string, error) {
 	return filteredTables, nil
 }
 
+// NewDalgorm FIXME ...
 func NewDalgorm(db *gorm.DB) *Dalgorm {
 	return &Dalgorm{db}
 }

@@ -56,6 +56,7 @@ import (
 //
 // Recommended Usage:
 
+// DataFlowTester use `N`
 //   1. Create a folder under your plugin root folder. i.e. `plugins/gitlab/e2e/ to host all your e2e-tests`
 //   2. Create a folder named `tables` to hold all data in `csv` format
 //   3. Create e2e test-cases to cover all possible data-flow routes
@@ -63,8 +64,6 @@ import (
 // Example code:
 //
 //   See [Gitlab Project Data Flow Test](plugins/gitlab/e2e/project_test.go) for detail
-//
-// DataFlowTester use `N`
 type DataFlowTester struct {
 	Cfg    *viper.Viper
 	Db     *gorm.DB
@@ -75,6 +74,7 @@ type DataFlowTester struct {
 	Log    core.Logger
 }
 
+// TableOptions FIXME ...
 type TableOptions struct {
 	// CSVRelPath relative path to the CSV file that contains the seeded data
 	CSVRelPath string
@@ -152,7 +152,7 @@ func (t *DataFlowTester) ImportCsvIntoTabler(csvRelPath string, dst schema.Table
 	}
 }
 
-// MigrateRawTableAndFlush migrate table and deletes all records from specified table
+// FlushRawTable migrate table and deletes all records from specified table
 func (t *DataFlowTester) FlushRawTable(rawTableName string) {
 	// flush target table
 	err := t.Db.Migrator().DropTable(rawTableName)
@@ -180,7 +180,7 @@ func (t *DataFlowTester) FlushTabler(dst schema.Tabler) {
 
 // Subtask executes specified subtasks
 func (t *DataFlowTester) Subtask(subtaskMeta core.SubTaskMeta, taskData interface{}) {
-	subtaskCtx := helper.NewStandaloneSubTaskContext(t.Cfg, t.Log, t.Db, context.Background(), t.Name, taskData)
+	subtaskCtx := helper.NewStandaloneSubTaskContext(context.Background(), t.Cfg, t.Log, t.Db, t.Name, taskData)
 	err := subtaskMeta.EntryPoint(subtaskCtx)
 	if err != nil {
 		panic(err)

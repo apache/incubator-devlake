@@ -70,7 +70,6 @@ func initConfig() {
 		cobra.CheckErr(err)
 	case err != nil && errors.As(err, notFound):
 		// The config file is optional, we shouldn't exit when the config is not found
-		break
 	default:
 		fmt.Fprintln(os.Stderr, "Using config file:", viper.ConfigFileUsed())
 	}

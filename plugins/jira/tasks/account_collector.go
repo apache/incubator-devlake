@@ -24,7 +24,7 @@ import (
 	"reflect"
 
 	"github.com/apache/incubator-devlake/plugins/core"
-	. "github.com/apache/incubator-devlake/plugins/core/dal"
+	"github.com/apache/incubator-devlake/plugins/core/dal"
 	"github.com/apache/incubator-devlake/plugins/helper"
 	"github.com/apache/incubator-devlake/plugins/jira/models"
 )
@@ -45,9 +45,9 @@ func CollectAccounts(taskCtx core.SubTaskContext) error {
 	logger := taskCtx.GetLogger()
 	logger.Info("collect account")
 	cursor, err := db.Cursor(
-		Select("account_id"),
-		From("_tool_jira_accounts"),
-		Where("connection_id = ?", data.Options.ConnectionId),
+		dal.Select("account_id"),
+		dal.From("_tool_jira_accounts"),
+		dal.Where("connection_id = ?", data.Options.ConnectionId),
 	)
 	if err != nil {
 		return err

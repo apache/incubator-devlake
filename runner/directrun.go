@@ -33,6 +33,7 @@ import (
 	"syscall"
 )
 
+// RunCmd FIXME ...
 func RunCmd(cmd *cobra.Command) {
 	cmd.Flags().StringSliceP("subtasks", "t", nil, "specify what tasks to run, --subtasks=collectIssues,extractIssues")
 	err := cmd.Execute()
@@ -79,10 +80,10 @@ func DirectRun(cmd *cobra.Command, args []string, pluginTask core.PluginTask, op
 	}
 	ctx := createContext()
 	err = RunPluginSubTasks(
+		ctx,
 		cfg,
 		log,
 		db,
-		ctx,
 		cmd.Use,
 		tasks,
 		options,

@@ -26,7 +26,7 @@ import (
 	"gorm.io/datatypes"
 )
 
-// Table structure for raw data storage
+// RawData is raw data structure in DB storage
 type RawData struct {
 	ID        uint64 `gorm:"primaryKey"`
 	Params    string `gorm:"type:varchar(255);index"`
@@ -36,6 +36,7 @@ type RawData struct {
 	CreatedAt time.Time
 }
 
+// RawDataSubTaskArgs FIXME ...
 type RawDataSubTaskArgs struct {
 	Ctx core.SubTaskContext
 
@@ -47,7 +48,7 @@ type RawDataSubTaskArgs struct {
 	Params interface{} `comment:"To identify a set of records with same UrlTemplate, i.e. {ConnectionId, BoardId} for jira entities"`
 }
 
-// Common features for raw data sub tasks
+// RawDataSubTask is Common features for raw data sub-tasks
 type RawDataSubTask struct {
 	args   *RawDataSubTaskArgs
 	table  string

@@ -17,6 +17,7 @@ limitations under the License.
 
 package services
 
+// InsertRow FIXME ...
 func InsertRow(table string, rows []map[string]interface{}) (int64, error) {
 	tx := db.Table(table).Create(rows)
 	if tx.Error != nil {

@@ -32,10 +32,11 @@ import (
 	"github.com/apache/incubator-devlake/utils"
 )
 
+// HttpMinStatusRetryCode is which status will retry
 var HttpMinStatusRetryCode = http.StatusBadRequest
 
 // ApiAsyncClient is built on top of ApiClient, to provide a asynchronous semantic
-// You may submit multiple requests at once by calling `GetAsync`, and those requests
+// You may submit multiple requests at once by calling `DoGetAsync`, and those requests
 // will be performed in parallel with rate-limit support
 type ApiAsyncClient struct {
 	*ApiClient
@@ -94,10 +95,10 @@ func CreateAsyncApiClient(
 		duration,
 	)
 	scheduler, err := NewWorkerScheduler(
+		taskCtx.GetContext(),
 		numOfWorkers,
 		requests,
 		duration,
-		taskCtx.GetContext(),
 		retry,
 		logger,
 	)
@@ -192,8 +193,8 @@ func (apiClient *ApiAsyncClient) DoAsync(
 	apiClient.scheduler.SubmitBlocking(request)
 }
 
-// Enqueue an api get request, the request may be sent sometime in future in parallel with other api requests
-func (apiClient *ApiAsyncClient) GetAsync(
+// DoGetAsync Enqueue an api get request, the request may be sent sometime in future in parallel with other api requests
+func (apiClient *ApiAsyncClient) DoGetAsync(
 	path string,
 	query url.Values,
 	header http.Header,
@@ -227,8 +228,9 @@ func (apiClient *ApiAsyncClient) Release() {
 	apiClient.scheduler.Release()
 }
 
+// RateLimitedApiClient FIXME ...
 type RateLimitedApiClient interface {
-	GetAsync(path string, query url.Values, header http.Header, handler common.ApiAsyncCallback)
+	DoGetAsync(path string, query url.Values, header http.Header, handler common.ApiAsyncCallback)
 	WaitAsync() error
 	HasError() bool
 	NextTick(task func() error)

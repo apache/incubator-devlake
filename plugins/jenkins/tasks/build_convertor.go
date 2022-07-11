@@ -24,9 +24,9 @@ import (
 	"github.com/apache/incubator-devlake/models/domainlayer/devops"
 	"github.com/apache/incubator-devlake/models/domainlayer/didgen"
 	"github.com/apache/incubator-devlake/plugins/core"
-	. "github.com/apache/incubator-devlake/plugins/core/dal"
+	"github.com/apache/incubator-devlake/plugins/core/dal"
 	"github.com/apache/incubator-devlake/plugins/helper"
-	models "github.com/apache/incubator-devlake/plugins/jenkins/models"
+	"github.com/apache/incubator-devlake/plugins/jenkins/models"
 )
 
 var ConvertBuildsMeta = core.SubTaskMeta{
@@ -41,10 +41,10 @@ func ConvertBuilds(taskCtx core.SubTaskContext) error {
 	db := taskCtx.GetDal()
 	data := taskCtx.GetData().(*JenkinsTaskData)
 
-	clauses := []Clause{
-		Select("*"),
-		From("_tool_jenkins_builds"),
-		Where("connection_id = ?", data.Options.ConnectionId),
+	clauses := []dal.Clause{
+		dal.Select("*"),
+		dal.From("_tool_jenkins_builds"),
+		dal.Where("connection_id = ?", data.Options.ConnectionId),
 	}
 	cursor, err := db.Cursor(clauses...)
 	if err != nil {

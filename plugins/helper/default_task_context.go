@@ -34,6 +34,7 @@ import (
 // bridge to current implementation at this point
 // TODO: implement another TaskContext for distributed runner/worker
 
+// DefaultBasicRes FIXME ...
 type DefaultBasicRes struct {
 	cfg    *viper.Viper
 	logger core.Logger
@@ -41,22 +42,27 @@ type DefaultBasicRes struct {
 	dal    dal.Dal
 }
 
+// GetConfig FIXME ...
 func (c *DefaultBasicRes) GetConfig(name string) string {
 	return c.cfg.GetString(name)
 }
 
+// GetDb FIXME ...
 func (c *DefaultBasicRes) GetDb() *gorm.DB {
 	return c.db
 }
 
+// GetDal FIXME ...
 func (c *DefaultBasicRes) GetDal() dal.Dal {
 	return c.dal
 }
 
+// GetLogger FIXME ...
 func (c *DefaultBasicRes) GetLogger() core.Logger {
 	return c.logger
 }
 
+// NewDefaultBasicRes FIXME ...
 func NewDefaultBasicRes(
 	cfg *viper.Viper,
 	logger core.Logger,
@@ -83,10 +89,10 @@ type defaultExecContext struct {
 }
 
 func newDefaultExecContext(
+	ctx context.Context,
 	cfg *viper.Viper,
 	logger core.Logger,
 	db *gorm.DB,
-	ctx context.Context,
 	name string,
 	data interface{},
 	progress chan core.RunningProgress,
@@ -149,40 +155,43 @@ func (c *defaultExecContext) IncProgress(progressType core.ProgressType, quantit
 
 func (c *defaultExecContext) fork(name string) *defaultExecContext {
 	return newDefaultExecContext(
+		c.ctx,
 		c.cfg,
 		c.logger.Nested(name),
 		c.db,
-		c.ctx,
 		name,
 		c.data,
 		c.progress,
 	)
 }
 
-// TaskContext default implementation
+// DefaultTaskContext is TaskContext default implementation
 type DefaultTaskContext struct {
 	*defaultExecContext
 	subtasks    map[string]bool
 	subtaskCtxs map[string]*DefaultSubTaskContext
 }
 
+// SetProgress FIXME ...
 func (c *DefaultTaskContext) SetProgress(current int, total int) {
 	c.defaultExecContext.SetProgress(core.TaskSetProgress, current, total)
 	c.logger.Info("total step: %d", c.total)
 }
 
+// IncProgress FIXME ...
 func (c *DefaultTaskContext) IncProgress(quantity int) {
 	c.defaultExecContext.IncProgress(core.TaskIncProgress, quantity)
 	c.logger.Info("finished step: %d / %d", c.current, c.total)
 }
 
-// SubTaskContext default implementation
+// DefaultSubTaskContext is default implementation
 type DefaultSubTaskContext struct {
 	*defaultExecContext
 	taskCtx          *DefaultTaskContext
 	LastProgressTime time.Time
 }
 
+// SetProgress FIXME ...
 func (c *DefaultSubTaskContext) SetProgress(current int, total int) {
 	c.defaultExecContext.SetProgress(core.SubTaskSetProgress, current, total)
 	if total > -1 {
@@ -190,6 +199,7 @@ func (c *DefaultSubTaskContext) SetProgress(current int, total int) {
 	}
 }
 
+// IncProgress FIXME ...
 func (c *DefaultSubTaskContext) IncProgress(quantity int) {
 	c.defaultExecContext.IncProgress(core.SubTaskIncProgress, quantity)
 	if c.LastProgressTime.IsZero() || c.LastProgressTime.Add(3*time.Second).Before(time.Now()) || c.current%1000 == 0 {
@@ -200,22 +210,24 @@ func (c *DefaultSubTaskContext) IncProgress(quantity int) {
 	}
 }
 
+// NewDefaultTaskContext FIXME ...
 func NewDefaultTaskContext(
+	ctx context.Context,
 	cfg *viper.Viper,
 	logger core.Logger,
 	db *gorm.DB,
-	ctx context.Context,
 	name string,
 	subtasks map[string]bool,
 	progress chan core.RunningProgress,
 ) core.TaskContext {
 	return &DefaultTaskContext{
-		newDefaultExecContext(cfg, logger, db, ctx, name, nil, progress),
+		newDefaultExecContext(ctx, cfg, logger, db, name, nil, progress),
 		subtasks,
 		make(map[string]*DefaultSubTaskContext),
 	}
 }
 
+// SubTaskContext FIXME ...
 func (c *DefaultTaskContext) SubTaskContext(subtask string) (core.SubTaskContext, error) {
 	// no need to lock at this point because subtasks is written only once
 	if run, ok := c.subtasks[subtask]; ok {
@@ -244,26 +256,28 @@ func (c *DefaultTaskContext) SubTaskContext(subtask string) (core.SubTaskContext
 // Use this if you need to run/debug a subtask without
 // going through the usual workflow.
 func NewStandaloneSubTaskContext(
+	ctx context.Context,
 	cfg *viper.Viper,
 	logger core.Logger,
 	db *gorm.DB,
-	ctx context.Context,
 	name string,
 	data interface{},
 ) core.SubTaskContext {
 	return &DefaultSubTaskContext{
-		newDefaultExecContext(cfg, logger, db, ctx, name, data, nil),
+		newDefaultExecContext(ctx, cfg, logger, db, name, data, nil),
 		nil,
 		time.Time{},
 	}
 }
 
+// SetData FIXME ...
 func (c *DefaultTaskContext) SetData(data interface{}) {
 	c.data = data
 }
 
 var _ core.TaskContext = (*DefaultTaskContext)(nil)
 
+// TaskContext FIXME ...
 func (c *DefaultSubTaskContext) TaskContext() core.TaskContext {
 	if c.taskCtx == nil {
 		return nil

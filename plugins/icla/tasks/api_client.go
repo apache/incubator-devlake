@@ -40,7 +40,7 @@ func NewIclaApiClient(taskCtx core.TaskContext) (*helper.ApiAsyncClient, error) 
 	proxy := taskCtx.GetConfig("ICLA_PROXY")
 
 	// real request apiClient
-	apiClient, err := helper.NewApiClient(ENDPOINT, nil, 0, proxy, taskCtx.GetContext())
+	apiClient, err := helper.NewApiClient(taskCtx.GetContext(), ENDPOINT, nil, 0, proxy)
 	if err != nil {
 		return nil, err
 	}

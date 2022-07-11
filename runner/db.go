@@ -31,6 +31,7 @@ import (
 	gormLogger "gorm.io/gorm/logger"
 )
 
+// NewGormDb FIXME ...
 func NewGormDb(config *viper.Viper, logger core.Logger) (*gorm.DB, error) {
 	dbLoggingLevel := gormLogger.Error
 	switch strings.ToLower(config.GetString("DB_LOGGING_LEVEL")) {

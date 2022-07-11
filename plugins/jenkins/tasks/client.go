@@ -27,13 +27,12 @@ import (
 )
 
 func CreateApiClient(taskCtx core.TaskContext, connection *models.JenkinsConnection) (*helper.ApiAsyncClient, error) {
-
 	// create synchronize api client so we can calculate api rate limit dynamically
 	headers := map[string]string{
 		"Authorization": fmt.Sprintf("Basic %v", connection.GetEncodedToken()),
 	}
 
-	apiClient, err := helper.NewApiClient(connection.Endpoint, headers, 0, connection.Proxy, taskCtx.GetContext())
+	apiClient, err := helper.NewApiClient(taskCtx.GetContext(), connection.Endpoint, headers, 0, connection.Proxy)
 	if err != nil {
 		return nil, err
 	}

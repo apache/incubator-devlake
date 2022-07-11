@@ -27,7 +27,7 @@ import (
 	"github.com/apache/incubator-devlake/plugins/helper"
 )
 
-const RAW_{{ .COLLECTOR_DATA_NAME }}_TABLE = "{{ .pluginName }}_{{ .collector_data_name }}"
+const RAW_{{ .COLLECTOR_DATA_NAME }}_TABLE = "{{ .plugin_name }}_{{ .collector_data_name }}"
 
 var _ core.SubTaskEntryPoint = Collect{{ .CollectorDataName }}
 

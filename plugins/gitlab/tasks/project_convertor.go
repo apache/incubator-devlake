@@ -40,7 +40,6 @@ var ConvertProjectMeta = core.SubTaskMeta{
 }
 
 func ConvertApiProjects(taskCtx core.SubTaskContext) error {
-
 	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_PROJECT_TABLE)
 	db := taskCtx.GetDal()
 	clauses := []dal.Clause{

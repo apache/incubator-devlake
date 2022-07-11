@@ -39,7 +39,6 @@ var ConvertMrCommentMeta = core.SubTaskMeta{
 }
 
 func ConvertMergeRequestComment(taskCtx core.SubTaskContext) error {
-
 	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_PROJECT_TABLE)
 	db := taskCtx.GetDal()
 	clauses := []dal.Clause{

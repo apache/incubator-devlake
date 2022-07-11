@@ -47,10 +47,10 @@ func TestFetchPageUndetermined(t *testing.T) {
 
 	// simulate fetching all pages of jira changelogs for 1 issue id with 1 concurrency,
 	// assuming api doesn't return total number of pages.
-	// then, we are expecting 2 calls for GetAsync and NextTick each, otherwise, deadlock happens
+	// then, we are expecting 2 calls for DoGetAsync and NextTick each, otherwise, deadlock happens
 	getAsyncCounter := 0
 	mockApi := new(mocks.RateLimitedApiClient)
-	mockApi.On("GetAsync", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Run(func(args mock.Arguments) {
+	mockApi.On("DoGetAsync", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Run(func(args mock.Arguments) {
 		// fake records for first page, no records for second page
 		body := "[1,2,3]"
 		if getAsyncCounter > 0 {

@@ -30,29 +30,35 @@ import (
 	"github.com/mitchellh/mapstructure"
 )
 
+// BaseConnection FIXME ...
 type BaseConnection struct {
 	Name string `gorm:"type:varchar(100);uniqueIndex" json:"name" validate:"required"`
 	common.Model
 }
 
+// BasicAuth FIXME ...
 type BasicAuth struct {
 	Username string `mapstructure:"username" validate:"required" json:"username"`
 	Password string `mapstructure:"password" validate:"required" json:"password" encrypt:"yes"`
 }
 
+// GetEncodedToken FIXME ...
 func (ba BasicAuth) GetEncodedToken() string {
 	return base64.StdEncoding.EncodeToString([]byte(fmt.Sprintf("%v:%v", ba.Username, ba.Password)))
 }
 
+// AccessToken FIXME ...
 type AccessToken struct {
 	Token string `mapstructure:"token" validate:"required" json:"token" encrypt:"yes"`
 }
 
+// AppKey FIXME ...
 type AppKey struct {
 	AppId     string `mapstructure:"app_id" validate:"required" json:"app_id"`
 	SecretKey string `mapstructure:"secret_key" validate:"required" json:"secret_key" encrypt:"yes"`
 }
 
+// RestConnection FIXME ...
 type RestConnection struct {
 	BaseConnection `mapstructure:",squash"`
 	Endpoint       string `mapstructure:"endpoint" validate:"required" json:"endpoint"`
@@ -60,6 +66,7 @@ type RestConnection struct {
 	RateLimit      int    `comment:"api request rate limit per hour" json:"rateLimit"`
 }
 
+// ConnectionApiHelper is used to write the CURD of connection
 type ConnectionApiHelper struct {
 	encKey    string
 	log       core.Logger
@@ -67,6 +74,7 @@ type ConnectionApiHelper struct {
 	validator *validator.Validate
 }
 
+// NewConnectionHelper FIXME ...
 func NewConnectionHelper(
 	basicRes core.BasicRes,
 	vld *validator.Validate,
@@ -92,6 +100,7 @@ func (c *ConnectionApiHelper) Create(connection interface{}, input *core.ApiReso
 	return c.save(connection)
 }
 
+// Patch (Modify) a connection record based on request body
 func (c *ConnectionApiHelper) Patch(connection interface{}, input *core.ApiResourceInput) error {
 	err := c.First(connection, input.Params)
 	if err != nil {
@@ -118,6 +127,7 @@ func (c *ConnectionApiHelper) First(connection interface{}, params map[string]st
 	return c.FirstById(connection, id)
 }
 
+// FirstById finds connection from db by id and decrypt it
 func (c *ConnectionApiHelper) FirstById(connection interface{}, id uint64) error {
 	err := c.db.First(connection, dal.Where("id = ?", id))
 	if err != nil {
