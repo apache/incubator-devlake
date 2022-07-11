@@ -150,7 +150,10 @@ func (*InitSchemas) Up(ctx context.Context, db *gorm.DB) error {
 			}
 		}
 	} else {
-		return db.Migrator().AutoMigrate(&archived.JiraConnection{})
+		err := db.Migrator().AutoMigrate(&archived.JiraConnection{})
+		if err != nil {
+			return err
+		}
 	}
 
 	return db.Migrator().AutoMigrate(
