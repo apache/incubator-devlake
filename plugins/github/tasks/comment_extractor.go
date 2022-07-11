@@ -21,6 +21,7 @@ import (
 	"encoding/json"
 
 	"github.com/apache/incubator-devlake/plugins/core/dal"
+	"gorm.io/gorm"
 
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/github/models"
@@ -84,7 +85,7 @@ func ExtractApiComments(taskCtx core.SubTaskContext) error {
 			if issue.GithubId == 0 {
 				pr := &models.GithubPullRequest{}
 				err = taskCtx.GetDal().First(pr, dal.Where("connection_id = ? and number = ? and repo_id = ?", data.Options.ConnectionId, issueINumber, data.Repo.GithubId))
-				if err != nil {
+				if err != nil && err != gorm.ErrRecordNotFound {
 					return nil, err
 				}
 				githubPrComment := &models.GithubPullRequestComment{
