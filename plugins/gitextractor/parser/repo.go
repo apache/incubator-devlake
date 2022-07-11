@@ -23,8 +23,10 @@ import (
 	"github.com/apache/incubator-devlake/models/domainlayer"
 	"github.com/apache/incubator-devlake/models/domainlayer/code"
 	"github.com/apache/incubator-devlake/plugins/core"
+	"github.com/apache/incubator-devlake/plugins/core/dal"
 	"github.com/apache/incubator-devlake/plugins/gitextractor/models"
 	git "github.com/libgit2/git2go/v33"
+	"regexp"
 )
 
 type GitRepo struct {
@@ -184,13 +186,25 @@ func (r *GitRepo) CollectBranches(subtaskCtx core.SubTaskContext) error {
 
 func (r *GitRepo) CollectCommits(subtaskCtx core.SubTaskContext) error {
 	opts, err := getDiffOpts()
+
 	if err != nil {
 		return err
+	}
+	db := subtaskCtx.GetDal()
+	components := make([]code.FileComponent, 0)
+	err = db.All(&components, dal.From(components), dal.Where("repo_id= ?", r.id))
+	if err != nil {
+		return err
+	}
+	componentMap := make(map[string]*regexp.Regexp)
+	for _, component := range components {
+		componentMap[component.Component] = regexp.MustCompile(component.PathRegex)
 	}
 	odb, err := r.repo.Odb()
 	if err != nil {
 		return err
 	}
+
 	return odb.ForEach(func(id *git.Oid) error {
 		select {
 		case <-subtaskCtx.GetContext().Done():
@@ -228,7 +242,7 @@ func (r *GitRepo) CollectCommits(subtaskCtx core.SubTaskContext) error {
 			parent := commit.Parent(0)
 			if parent != nil {
 				var stats *git.DiffStats
-				if stats, err = r.getDiffComparedToParent(c.Sha, commit, parent, opts); err != nil {
+				if stats, err = r.getDiffComparedToParent(c.Sha, commit, parent, opts, componentMap); err != nil {
 					return err
 				}
 				c.Additions += stats.Insertions()
@@ -268,7 +282,7 @@ func (r *GitRepo) storeParentCommits(commitSha string, commit *git.Commit) error
 	return r.store.CommitParents(commitParents)
 }
 
-func (r *GitRepo) getDiffComparedToParent(commitSha string, commit *git.Commit, parent *git.Commit, opts *git.DiffOptions) (*git.DiffStats, error) {
+func (r *GitRepo) getDiffComparedToParent(commitSha string, commit *git.Commit, parent *git.Commit, opts *git.DiffOptions, componentMap map[string]*regexp.Regexp) (*git.DiffStats, error) {
 	var err error
 	var parentTree, tree *git.Tree
 	parentTree, err = parent.Tree()
@@ -284,7 +298,7 @@ func (r *GitRepo) getDiffComparedToParent(commitSha string, commit *git.Commit, 
 	if err != nil {
 		return nil, err
 	}
-	err = r.storeCommitFilesFromDiff(commitSha, diff)
+	err = r.storeCommitFilesFromDiff(commitSha, diff, componentMap)
 	if err != nil {
 		return nil, err
 	}
@@ -296,7 +310,7 @@ func (r *GitRepo) getDiffComparedToParent(commitSha string, commit *git.Commit, 
 	return stats, nil
 }
 
-func (r *GitRepo) storeCommitFilesFromDiff(commitSha string, diff *git.Diff) error {
+func (r *GitRepo) storeCommitFilesFromDiff(commitSha string, diff *git.Diff, componentMap map[string]*regexp.Regexp) error {
 	var commitFile *code.CommitFile
 	var err error
 	err = diff.ForEach(func(file git.DiffDelta, progress float64) (
@@ -311,6 +325,15 @@ func (r *GitRepo) storeCommitFilesFromDiff(commitSha string, diff *git.Diff) err
 		commitFile = new(code.CommitFile)
 		commitFile.CommitSha = commitSha
 		commitFile.FilePath = file.NewFile.Path
+		for component, reg := range componentMap {
+			if reg.MatchString(commitFile.FilePath) {
+				commitFile.Component = component
+				break
+			}
+		}
+		if commitFile.Component == "" {
+			commitFile.Component = "Default"
+		}
 		return func(hunk git.DiffHunk) (git.DiffForEachLineCallback, error) {
 			return func(line git.DiffLine) error {
 				if line.Origin == git.DiffLineAddition {

@@ -15,33 +15,31 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package code
+package migrationscripts
 
 import (
-	"time"
-
+	"context"
 	"github.com/apache/incubator-devlake/models/common"
+	"gorm.io/gorm"
 )
 
-type Commit struct {
-	common.NoPKModel
-	Sha            string `json:"sha" gorm:"primaryKey;type:varchar(40);comment:commit hash"`
-	Additions      int    `json:"additions" gorm:"comment:Added lines of code"`
-	Deletions      int    `json:"deletions" gorm:"comment:Deleted lines of code"`
-	DevEq          int    `json:"deveq" gorm:"comment:Merico developer equivalent from analysis engine"`
-	Message        string
-	AuthorName     string `gorm:"type:varchar(255)"`
-	AuthorEmail    string `gorm:"type:varchar(255)"`
-	AuthoredDate   time.Time
-	AuthorId       string `gorm:"type:varchar(255)"`
-	CommitterName  string `gorm:"type:varchar(255)"`
-	CommitterEmail string `gorm:"type:varchar(255)"`
-	CommittedDate  time.Time
-	CommitterId    string `gorm:"index;type:varchar(255)"`
+//type CodeComponent20220711 struct {
+//	ComponentId string `gorm:"primaryKey;type:varchar(255)"`
+//	PathRegex   string `gorm:"type:varchar(255)"`
+//}
+//
+//func (CodeComponent20220711) TableName() string {
+//	return "code_component_20220711"
+//}
+
+type FileComponent struct {
+	RepoId    string `gorm:"primaryKey;type:varchar(255)"`
+	Component string `gorm:"primaryKey;type:varchar(255)"`
+	PathRegex string `gorm:"type:varchar(255)"`
 }
 
-func (Commit) TableName() string {
-	return "commits"
+func (FileComponent) TableName() string {
+	return "file_component"
 }
 
 type CommitFile struct {
@@ -57,12 +55,22 @@ func (CommitFile) TableName() string {
 	return "commit_files"
 }
 
-type FileComponent struct {
-	RepoId    string `gorm:"primaryKey;type:varchar(255)"`
-	Component string `gorm:"primaryKey;type:varchar(255)"`
-	PathRegex string `gorm:"type:varchar(255)"`
+type updateSchemas20220711 struct{}
+
+func (*updateSchemas20220711) Up(ctx context.Context, db *gorm.DB) error {
+
+	err := db.Migrator().AutoMigrate(FileComponent{}, CommitFile{})
+	if err != nil {
+		return err
+	}
+	return nil
+
 }
 
-func (FileComponent) TableName() string {
-	return "file_component"
+func (*updateSchemas20220711) Version() uint64 {
+	return 20220711122512
+}
+
+func (*updateSchemas20220711) Name() string {
+	return "file_component table"
 }
