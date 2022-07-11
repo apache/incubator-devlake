@@ -47,6 +47,7 @@ func ExtractAccounts(taskCtx core.SubTaskContext) error {
 			results := make([]interface{}, 0)
 			GitlabAccount := &models.GitlabAccount{
 				ConnectionId:    data.Options.ConnectionId,
+				GitlabId:        userRes.GitlabId,
 				Username:        userRes.Username,
 				Name:            userRes.Name,
 				State:           userRes.State,
