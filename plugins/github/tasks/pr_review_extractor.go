@@ -104,7 +104,7 @@ func ExtractApiPullRequestReviews(taskCtx core.SubTaskContext) error {
 
 			results = append(results, githubReviewer)
 			results = append(results, githubPrReview)
-			githubUser, err := convertAccount(apiPullRequestReview.User, data.Options.ConnectionId)
+			githubUser, err := convertAccount(apiPullRequestReview.User, data.Repo.GithubId, data.Options.ConnectionId)
 			if err != nil {
 				return nil, err
 			}

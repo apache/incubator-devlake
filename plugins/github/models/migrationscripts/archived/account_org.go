@@ -17,24 +17,16 @@ limitations under the License.
 
 package archived
 
-import (
-	"time"
+import "github.com/apache/incubator-devlake/models/migrationscripts/archived"
 
-	"github.com/apache/incubator-devlake/models/migrationscripts/archived"
-)
-
-type GithubPullRequestComment struct {
-	ConnectionId    uint64 `gorm:"primaryKey"`
-	GithubId        int    `gorm:"primaryKey"`
-	PullRequestId   int    `gorm:"index"`
-	Body            string
-	AuthorUsername  string `gorm:"type:varchar(255)"`
-	AuthorUserId    int
-	GithubCreatedAt time.Time
-	GithubUpdatedAt time.Time `gorm:"index"`
+type GithubAccountOrg struct {
+	ConnectionId uint64 `gorm:"primaryKey"`
+	AccountId    int    `gorm:"primaryKey;autoIncrement:false"`
+	OrgId        int    `gorm:"primaryKey;autoIncrement:false"`
+	OrgLogin     string `json:"org_login" gorm:"type:varchar(255)"`
 	archived.NoPKModel
 }
 
-func (GithubPullRequestComment) TableName() string {
-	return "_tool_github_pull_request_comments"
+func (GithubAccountOrg) TableName() string {
+	return "_tool_github_account_orgs"
 }

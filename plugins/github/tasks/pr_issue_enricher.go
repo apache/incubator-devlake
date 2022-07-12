@@ -113,7 +113,7 @@ func EnrichPullRequestIssues(taskCtx core.SubTaskContext) (err error) {
 				if issue.Number == 0 {
 					continue
 				}
-				githubPullRequstIssue := &githubModels.GithubPullRequestIssue{
+				githubPullRequstIssue := &githubModels.GithubPrIssue{
 					ConnectionId:      data.Options.ConnectionId,
 					PullRequestId:     githubPullRequst.GithubId,
 					IssueId:           issue.GithubId,

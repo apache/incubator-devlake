@@ -32,7 +32,7 @@ import (
 	"github.com/apache/incubator-devlake/plugins/github/models"
 )
 
-const RAW_PULL_REQUEST_COMMIT_TABLE = "github_api_pull_request_commits"
+const RAW_PR_COMMIT_TABLE = "github_api_pull_request_commits"
 
 // this struct should be moved to `gitub_api_common.go`
 
@@ -83,7 +83,7 @@ func CollectApiPullRequestCommits(taskCtx core.SubTaskContext) error {
 			/*
 				Table store raw data
 			*/
-			Table: RAW_PULL_REQUEST_COMMIT_TABLE,
+			Table: RAW_PR_COMMIT_TABLE,
 		},
 		ApiClient:   data.ApiClient,
 		PageSize:    100,

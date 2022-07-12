@@ -19,7 +19,6 @@ package e2e
 
 import (
 	"fmt"
-	"github.com/apache/incubator-devlake/models/domainlayer/code"
 	"testing"
 
 	"github.com/apache/incubator-devlake/plugins/github/models"

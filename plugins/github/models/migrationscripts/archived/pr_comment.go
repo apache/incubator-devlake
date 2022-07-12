@@ -18,7 +18,7 @@ limitations under the License.
 package archived
 
 import (
-	"github.com/apache/incubator-devlake/models/common"
+	"github.com/apache/incubator-devlake/models/migrationscripts/archived"
 	"time"
 )
 
@@ -34,7 +34,7 @@ type GithubPrComment struct {
 	GithubUpdatedAt time.Time `gorm:"index"`
 	ReviewId        int
 	Type            string `gorm:"index;type:varchar(255)"`
-	common.NoPKModel
+	archived.NoPKModel
 }
 
 func (GithubPrComment) TableName() string {

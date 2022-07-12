@@ -24,9 +24,9 @@ import (
 	"gorm.io/gorm"
 )
 
-type initSchemas struct{}
+type initDomainSchemas struct{}
 
-func (*initSchemas) Up(ctx context.Context, db *gorm.DB) error {
+func (*initDomainSchemas) Up(ctx context.Context, db *gorm.DB) error {
 	err := db.Migrator().DropTable(
 		"issue_assignee_history",
 		"issue_status_history",
@@ -106,14 +106,14 @@ func (*initSchemas) Up(ctx context.Context, db *gorm.DB) error {
 	)
 }
 
-func (*initSchemas) Version() uint64 {
-	return 20220711232344
+func (*initDomainSchemas) Version() uint64 {
+	return 20220707232344
 }
 
-func (*initSchemas) Owner() string {
+func (*initDomainSchemas) Owner() string {
 	return "Framework"
 }
 
-func (*initSchemas) Name() string {
+func (*initDomainSchemas) Name() string {
 	return "create init schemas"
 }

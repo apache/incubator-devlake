@@ -24,13 +24,13 @@ import (
 // Please note that Issue Labels can also apply to Pull Requests.
 // Pull Requests are considered Issues in GitHub.
 
-type GithubPullRequestLabel struct {
+type GithubPrLabel struct {
 	ConnectionId uint64 `gorm:"primaryKey"`
 	PullId       int    `gorm:"primaryKey;autoIncrement:false"`
 	LabelName    string `gorm:"primaryKey;type:varchar(255)"`
 	common.NoPKModel
 }
 
-func (GithubPullRequestLabel) TableName() string {
+func (GithubPrLabel) TableName() string {
 	return "_tool_github_pull_request_labels"
 }

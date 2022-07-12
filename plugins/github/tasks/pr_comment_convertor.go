@@ -82,7 +82,6 @@ func ConvertPullRequestComments(taskCtx core.SubTaskContext) error {
 				CommitSha:     githubPullRequestComment.CommitSha,
 				Type:          githubPullRequestComment.Type,
 				ReviewId:      prReviewIdGen.Generate(data.Options.ConnectionId, githubPullRequestComment.ReviewId),
-				Position:      0,
 			}
 			return []interface{}{
 				domainPrComment,

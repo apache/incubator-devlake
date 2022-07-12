@@ -17,24 +17,18 @@ limitations under the License.
 
 package archived
 
-import (
-	"github.com/apache/incubator-devlake/models/migrationscripts/archived"
-	"time"
-)
+import "github.com/apache/incubator-devlake/models/migrationscripts/archived"
 
-type GithubPrReview struct {
-	ConnectionId   uint64 `gorm:"primaryKey"`
-	GithubId       int    `gorm:"primaryKey"`
-	PullRequestId  int    `gorm:"index"`
-	Body           string
-	AuthorUsername string `gorm:"type:varchar(255)"`
-	AuthorUserId   int
-	GithubSubmitAt time.Time
-	CommitSha      string `gorm:"type:varchar(255)"`
-	State          string `gorm:"type:varchar(255)"`
+// Please note that Issue Labels can also apply to Pull Requests.
+// Pull Requests are considered Issues in GitHub.
+
+type GithubPrLabel struct {
+	ConnectionId uint64 `gorm:"primaryKey"`
+	PullId       int    `gorm:"primaryKey;autoIncrement:false"`
+	LabelName    string `gorm:"primaryKey;type:varchar(255)"`
 	archived.NoPKModel
 }
 
-func (GithubPrReview) TableName() string {
-	return "_tool_github_pull_request_reviews"
+func (GithubPrLabel) TableName() string {
+	return "_tool_github_pull_request_labels"
 }

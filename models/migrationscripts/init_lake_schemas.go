@@ -24,9 +24,9 @@ import (
 	"gorm.io/gorm"
 )
 
-type initPreSchemas struct{}
+type initLakeSchemas struct{}
 
-func (*initPreSchemas) Up(ctx context.Context, db *gorm.DB) error {
+func (*initLakeSchemas) Up(ctx context.Context, db *gorm.DB) error {
 	return db.Migrator().AutoMigrate(
 		&archived.Task{},
 		&archived.Notification{},
@@ -35,14 +35,14 @@ func (*initPreSchemas) Up(ctx context.Context, db *gorm.DB) error {
 	)
 }
 
-func (*initPreSchemas) Version() uint64 {
+func (*initLakeSchemas) Version() uint64 {
 	return 20220406212344
 }
 
-func (*initPreSchemas) Owner() string {
+func (*initLakeSchemas) Owner() string {
 	return "Framework"
 }
 
-func (*initPreSchemas) Name() string {
+func (*initLakeSchemas) Name() string {
 	return "create init pre-schemas"
 }

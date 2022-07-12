@@ -127,7 +127,7 @@ func ExtractApiPullRequests(taskCtx core.SubTaskContext) error {
 				githubPr.AuthorId = githubUser.AccountId
 			}
 			for _, label := range rawL.Labels {
-				results = append(results, &models.GithubPullRequestLabel{
+				results = append(results, &models.GithubPrLabel{
 					ConnectionId: data.Options.ConnectionId,
 					PullId:       githubPr.GithubId,
 					LabelName:    label.Name,

@@ -97,7 +97,7 @@ func ExtractApiPrReviewComments(taskCtx core.SubTaskContext) error {
 				}
 			}
 			results = append(results, githubPrComment)
-			githubAccount, err := convertAccount(prReviewComment.User, data.Options.ConnectionId)
+			githubAccount, err := convertAccount(prReviewComment.User, data.Repo.GithubId, data.Options.ConnectionId)
 			if err != nil {
 				return nil, err
 			}
