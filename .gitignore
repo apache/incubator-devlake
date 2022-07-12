@@ -152,5 +152,6 @@ libgit2
 api/docs/swagger.json
 api/docs/swagger.yaml
 
-# mocks
+# auto generated code
 mocks/
+api/docs/docs.go
