@@ -48,7 +48,7 @@ type BlueprintSettings struct {
 	Connections json.RawMessage `json:"connections" validate:"required"`
 }
 
-// GetPipelinePlan unmarshal Plan in JSON to strong-typed core.PipelinePlan
+// UnmarshalPlan unmarshals Plan in JSON to strong-typed core.PipelinePlan
 func (bp *Blueprint) UnmarshalPlan() (core.PipelinePlan, error) {
 		var plan core.PipelinePlan
 		err := json.Unmarshal(bp.Plan, &plan)
