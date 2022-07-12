@@ -18,6 +18,8 @@ limitations under the License.
 package impl
 
 import (
+	"fmt"
+
 	"github.com/mitchellh/mapstructure"
 	"github.com/spf13/viper"
 	"gorm.io/gorm"
@@ -36,6 +38,7 @@ var _ core.PluginInit = (*Feishu)(nil)
 var _ core.PluginTask = (*Feishu)(nil)
 var _ core.PluginApi = (*Feishu)(nil)
 var _ core.Migratable = (*Feishu)(nil)
+var _ core.CloseablePluginTask = (*Feishu)(nil)
 
 type Feishu struct{}
 
@@ -121,4 +124,13 @@ func (plugin Feishu) MigrationScripts() []migration.Script {
 
 func (plugin Feishu) ApiResources() map[string]map[string]core.ApiResourceHandler {
 	return map[string]map[string]core.ApiResourceHandler{}
+}
+
+func (plugin Feishu) Close(taskCtx core.TaskContext) error {
+	data, ok := taskCtx.GetData().(*tasks.FeishuTaskData)
+	if !ok {
+		return fmt.Errorf("GetData failed when try to close %+v", taskCtx)
+	}
+	data.ApiClient.Release()
+	return nil
 }

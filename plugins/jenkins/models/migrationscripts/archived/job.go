@@ -26,7 +26,7 @@ type JenkinsJobProps struct {
 	// collected fields
 	ConnectionId uint64 `gorm:"primaryKey"`
 	Name         string `gorm:"primaryKey;type:varchar(255)"`
-	Path         string `gorm:"primaryKey;type:varchar(512)"`
+	Path         string `gorm:"primaryKey;type:varchar(511)"`
 	Class        string `gorm:"type:varchar(255)"`
 	Color        string `gorm:"type:varchar(255)"`
 	Base         string `gorm:"type:varchar(255)"`
