@@ -28,7 +28,7 @@
       "title": "Homepage",
       "tooltip": "",
       "type": "link",
-      "url": "/d/RXJZNpMnz/user-value-specific-dashboards-homepage?orgId=1"
+      "url": "/grafana/d/RXJZNpMnz/user-value-specific-dashboards-homepage?orgId=1"
     },
     {
       "asDropdown": false,
@@ -59,7 +59,7 @@
       "interval": null,
       "links": [],
       "options": {
-        "content": "<div style=\"text-align:center;\">\n    <div style=\"display:inline-block;text-align:center;padding-top:10px;\">\n        <img border=\"0\" src=\"/public/img/lake/practice_process_delivery_quality.png\" alt=\"R&D Process\" width=\"50%\">\n    </div>\n</div>",
+        "content": "<div style=\"text-align:center;\">\n    <div style=\"display:inline-block;text-align:center;padding-top:10px;\">\n        <img border=\"0\" src=\"/grafana/public/img/lake/practice_process_delivery_quality.png\" alt=\"R&D Process\" width=\"50%\">\n    </div>\n</div>",
         "mode": "html"
       },
       "pluginVersion": "8.0.6",

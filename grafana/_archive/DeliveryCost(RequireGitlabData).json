@@ -28,7 +28,7 @@
       "title": "Homepage",
       "tooltip": "",
       "type": "link",
-      "url": "/d/RXJZNpMnz/user-value-specific-dashboards-homepage?orgId=1"
+      "url": "/grafana/d/RXJZNpMnz/user-value-specific-dashboards-homepage?orgId=1"
     },
     {
       "asDropdown": false,
