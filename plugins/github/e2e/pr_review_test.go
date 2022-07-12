@@ -18,6 +18,8 @@ limitations under the License.
 package e2e
 
 import (
+	"fmt"
+	"github.com/apache/incubator-devlake/models/domainlayer/code"
 	"testing"
 
 	"github.com/apache/incubator-devlake/plugins/github/models"
@@ -27,7 +29,7 @@ import (
 	"github.com/apache/incubator-devlake/plugins/github/tasks"
 )
 
-func TestPrReviewerDataFlow(t *testing.T) {
+func TestPrReviewDataFlow(t *testing.T) {
 	var plugin impl.Github
 	dataflowTester := e2ehelper.NewDataFlowTester(t, "github", plugin)
 
@@ -49,8 +51,28 @@ func TestPrReviewerDataFlow(t *testing.T) {
 
 	// verify extraction
 	dataflowTester.FlushTabler(&models.GithubReviewer{})
-	dataflowTester.FlushTabler(&models.GithubRepoAccount{})
-	dataflowTester.Subtask(tasks.ExtractApiPullRequestReviewersMeta, taskData)
+	dataflowTester.FlushTabler(&models.GithubAccount{})
+	dataflowTester.FlushTabler(&models.GithubPrReview{})
+	dataflowTester.Subtask(tasks.ExtractApiPullRequestReviewsMeta, taskData)
+	dataflowTester.VerifyTable(
+		models.GithubPrReview{},
+		fmt.Sprintf("./snapshot_tables/%s.csv", models.GithubPrReview{}.TableName()),
+		[]string{
+			"connection_id",
+			"github_id",
+			"pull_request_id",
+			"body",
+			"author_username",
+			"author_user_id",
+			"github_submit_at",
+			"commit_sha",
+			"state",
+			"_raw_data_params",
+			"_raw_data_table",
+			"_raw_data_id",
+			"_raw_data_remark",
+		},
+	)
 	dataflowTester.VerifyTable(
 		models.GithubReviewer{},
 		"./snapshot_tables/_tool_github_reviewers.csv",

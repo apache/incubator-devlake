@@ -15,26 +15,28 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package code
+package archived
 
 import (
-	"github.com/apache/incubator-devlake/models/domainlayer"
+	"github.com/apache/incubator-devlake/models/common"
 	"time"
 )
 
-type PullRequestComment struct {
-	domainlayer.DomainEntity
-	PullRequestId string `gorm:"index"`
-	Body          string
-	UserId        string `gorm:"type:varchar(255)"`
-	CreatedDate   time.Time
-	CommitSha     string `gorm:"type:varchar(255)"`
-	Position      int
-	Type          string `gorm:"type:varchar(255)"`
-	ReviewId      string `gorm:"type:varchar(255)"`
-	Status        string `gorm:"type:varchar(255)"`
+type GithubPrComment struct {
+	ConnectionId    uint64 `gorm:"primaryKey"`
+	GithubId        int    `gorm:"primaryKey"`
+	PullRequestId   int    `gorm:"index"`
+	Body            string
+	AuthorUsername  string `gorm:"type:varchar(255)"`
+	AuthorUserId    int
+	CommitSha       string `gorm:"type:varchar(255)"`
+	GithubCreatedAt time.Time
+	GithubUpdatedAt time.Time `gorm:"index"`
+	ReviewId        int
+	Type            string `gorm:"index;type:varchar(255)"`
+	common.NoPKModel
 }
 
-func (PullRequestComment) TableName() string {
-	return "pull_request_comments"
+func (GithubPrComment) TableName() string {
+	return "_tool_github_pull_request_comments"
 }

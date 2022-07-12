@@ -127,7 +127,7 @@ func (apiClient *ApiAsyncClient) SetMaxRetry(
 	apiClient.maxRetry = maxRetry
 }
 
-// DoAsync would carry out a asynchronous request
+// DoAsync would carry out an asynchronous request
 func (apiClient *ApiAsyncClient) DoAsync(
 	method string,
 	path string,

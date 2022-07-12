@@ -30,11 +30,11 @@ import (
 
 type GithubConnection struct {
 	commonArchived.Model
-	Name             string `gorm:"type:varchar(100);uniqueIndex" json:"name" validate:"required"`
-	Endpoint         string `mapstructure:"endpoint" env:"GITHUB_ENDPOINT" validate:"required"`
-	Proxy            string `mapstructure:"proxy" env:"GITHUB_PROXY"`
-	RateLimitPerHour int    `comment:"api request rate limit per hour"`
-	Token            string `mapstructure:"token" env:"GITHUB_AUTH" validate:"required" encrypt:"yes"`
+	Name      string `gorm:"type:varchar(100);uniqueIndex" json:"name" validate:"required"`
+	Endpoint  string `mapstructure:"endpoint" env:"GITHUB_ENDPOINT" validate:"required"`
+	Proxy     string `mapstructure:"proxy" env:"GITHUB_PROXY"`
+	RateLimit int    `comment:"api request rate limit per hour"`
+	Token     string `mapstructure:"token" env:"GITHUB_AUTH" validate:"required" encrypt:"yes"`
 }
 
 func (GithubConnection) TableName() string {
@@ -71,6 +71,8 @@ func (u *initSchemas) Up(ctx context.Context, db *gorm.DB) error {
 		&archived.GithubIssueLabel{},
 		&archived.GithubPullRequestIssue{},
 		&archived.GithubCommitStat{},
+		&archived.GithubPrComment{},
+		&archived.GithubPrReview{},
 		"_tool_github_users",
 		"_tool_github_milestones",
 		"_raw_github_api_issues",
@@ -83,6 +85,7 @@ func (u *initSchemas) Up(ctx context.Context, db *gorm.DB) error {
 		"_raw_github_api_pull_request_commits",
 		"_raw_github_api_pull_request_reviews",
 		"_raw_github_api_repositories",
+		"_tool_github_pull_request_comments",
 	)
 
 	// create connection
@@ -117,7 +120,6 @@ func (u *initSchemas) Up(ctx context.Context, db *gorm.DB) error {
 		&archived.GithubRepoCommit{},
 		&archived.GithubPullRequest{},
 		&archived.GithubReviewer{},
-		&archived.GithubPullRequestComment{},
 		&archived.GithubPullRequestCommit{},
 		&archived.GithubPullRequestLabel{},
 		&archived.GithubIssue{},
@@ -128,6 +130,8 @@ func (u *initSchemas) Up(ctx context.Context, db *gorm.DB) error {
 		&archived.GithubPullRequestIssue{},
 		&archived.GithubCommitStat{},
 		&archived.GithubMilestone{},
+		&archived.GithubPrComment{},
+		&archived.GithubPrReview{},
 	)
 }
 

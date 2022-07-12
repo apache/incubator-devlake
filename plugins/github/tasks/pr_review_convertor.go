@@ -29,23 +29,23 @@ import (
 	"github.com/apache/incubator-devlake/plugins/helper"
 )
 
-var ConvertPullRequestCommentsMeta = core.SubTaskMeta{
-	Name:             "convertPullRequestComments",
-	EntryPoint:       ConvertPullRequestComments,
+var ConvertPullRequestReviewsMeta = core.SubTaskMeta{
+	Name:             "convertPullRequestReviews",
+	EntryPoint:       ConvertPullRequestReviews,
 	EnabledByDefault: true,
-	Description:      "ConvertPullRequestComments data from Github api",
+	Description:      "ConvertPullRequestReviews data from Github api",
 	DomainTypes:      []string{core.DOMAIN_TYPE_CODE},
 }
 
-func ConvertPullRequestComments(taskCtx core.SubTaskContext) error {
+func ConvertPullRequestReviews(taskCtx core.SubTaskContext) error {
 	db := taskCtx.GetDal()
 	data := taskCtx.GetData().(*GithubTaskData)
 	repoId := data.Repo.GithubId
 
 	cursor, err := db.Cursor(
-		dal.From(&githubModels.GithubPrComment{}),
+		dal.From(&githubModels.GithubPrReview{}),
 		dal.Join("left join _tool_github_pull_requests "+
-			"on _tool_github_pull_requests.github_id = _tool_github_pull_request_comments.pull_request_id"),
+			"on _tool_github_pull_requests.github_id = _tool_github_pull_request_reviews.pull_request_id"),
 		dal.Where("repo_id = ? and _tool_github_pull_requests.connection_id = ?", repoId, data.Options.ConnectionId),
 	)
 	if err != nil {
@@ -53,12 +53,12 @@ func ConvertPullRequestComments(taskCtx core.SubTaskContext) error {
 	}
 	defer cursor.Close()
 
-	prCommentIdGen := didgen.NewDomainIdGenerator(&githubModels.GithubPrComment{})
+	prReviewUIdGen := didgen.NewDomainIdGenerator(&githubModels.GithubPrReview{})
 	prIdGen := didgen.NewDomainIdGenerator(&githubModels.GithubPullRequest{})
 	accountIdGen := didgen.NewDomainIdGenerator(&githubModels.GithubAccount{})
-	prReviewIdGen := didgen.NewDomainIdGenerator(&githubModels.GithubPrReview{})
+
 	converter, err := helper.NewDataConverter(helper.DataConverterArgs{
-		InputRowType: reflect.TypeOf(githubModels.GithubPrComment{}),
+		InputRowType: reflect.TypeOf(githubModels.GithubPrReview{}),
 		Input:        cursor,
 		RawDataSubTaskArgs: helper.RawDataSubTaskArgs{
 			Ctx: taskCtx,
@@ -67,25 +67,26 @@ func ConvertPullRequestComments(taskCtx core.SubTaskContext) error {
 				Owner:        data.Options.Owner,
 				Repo:         data.Options.Repo,
 			},
-			Table: RAW_COMMENTS_TABLE,
+			Table: RAW_PR_REVIEW_TABLE,
 		},
 		Convert: func(inputRow interface{}) ([]interface{}, error) {
-			githubPullRequestComment := inputRow.(*githubModels.GithubPrComment)
-			domainPrComment := &code.PullRequestComment{
+			githubPullRequestReview := inputRow.(*githubModels.GithubPrReview)
+			domainPrReview := &code.PullRequestComment{
 				DomainEntity: domainlayer.DomainEntity{
-					Id: prCommentIdGen.Generate(data.Options.ConnectionId, githubPullRequestComment.GithubId),
+					Id: prReviewUIdGen.Generate(data.Options.ConnectionId, githubPullRequestReview.GithubId),
 				},
-				PullRequestId: prIdGen.Generate(data.Options.ConnectionId, githubPullRequestComment.PullRequestId),
-				Body:          githubPullRequestComment.Body,
-				UserId:        accountIdGen.Generate(data.Options.ConnectionId, githubPullRequestComment.AuthorUserId),
-				CreatedDate:   githubPullRequestComment.GithubCreatedAt,
-				CommitSha:     githubPullRequestComment.CommitSha,
-				Type:          githubPullRequestComment.Type,
-				ReviewId:      prReviewIdGen.Generate(data.Options.ConnectionId, githubPullRequestComment.ReviewId),
-				Position:      0,
+				PullRequestId: prIdGen.Generate(data.Options.ConnectionId, githubPullRequestReview.PullRequestId),
+				Body:          githubPullRequestReview.Body,
+				UserId:        accountIdGen.Generate(data.Options.ConnectionId, githubPullRequestReview.AuthorUserId),
+				CommitSha:     githubPullRequestReview.CommitSha,
+				Type:          "REVIEW",
+				Status:        githubPullRequestReview.State,
+			}
+			if githubPullRequestReview.GithubSubmitAt != nil {
+				domainPrReview.CreatedDate = *githubPullRequestReview.GithubSubmitAt
 			}
 			return []interface{}{
-				domainPrComment,
+				domainPrReview,
 			}, nil
 		},
 	})
