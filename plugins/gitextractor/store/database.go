@@ -21,7 +21,9 @@ import (
 	"fmt"
 	"reflect"
 
+	"github.com/apache/incubator-devlake/models/domainlayer"
 	"github.com/apache/incubator-devlake/models/domainlayer/code"
+	"github.com/apache/incubator-devlake/models/domainlayer/crossdomain"
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/helper"
 )
@@ -29,7 +31,6 @@ import (
 const BathSize = 100
 
 type Database struct {
-	//db     *gorm.DB
 	driver *helper.BatchSaveDivider
 }
 
@@ -53,11 +54,25 @@ func (d *Database) RepoCommits(repoCommit *code.RepoCommit) error {
 }
 
 func (d *Database) Commits(commit *code.Commit) error {
-	batch, err := d.driver.ForType(reflect.TypeOf(commit))
+	account := &crossdomain.Account{
+		DomainEntity: domainlayer.DomainEntity{Id: commit.AuthorEmail},
+		Email:        commit.AuthorEmail,
+		FullName:     commit.AuthorName,
+		UserName:     commit.AuthorName,
+	}
+	accountBatch, err := d.driver.ForType(reflect.TypeOf(account))
 	if err != nil {
 		return err
 	}
-	return batch.Add(commit)
+	err = accountBatch.Add(account)
+	if err != nil {
+		return err
+	}
+	commitBatch, err := d.driver.ForType(reflect.TypeOf(commit))
+	if err != nil {
+		return err
+	}
+	return commitBatch.Add(commit)
 }
 
 func (d *Database) Refs(ref *code.Ref) error {
