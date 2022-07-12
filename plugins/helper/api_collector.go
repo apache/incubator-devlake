@@ -155,13 +155,18 @@ func (collector *ApiCollector) Execute() error {
 		if apiClient == nil {
 			return fmt.Errorf("api_collector can not Execute with nil apiClient")
 		}
-		defer apiClient.Release()
-		for iterator.HasNext() && !apiClient.HasError() {
-			input, err := iterator.Fetch()
-			if err != nil {
-				break
+		//defer apiClient.Release()
+
+	NextCheck:
+		for iterator.HasNext() {
+			for iterator.HasNext() && !apiClient.HasError() {
+				input, err := iterator.Fetch()
+				if err != nil {
+					break NextCheck
+				}
+				collector.exec(input)
 			}
-			collector.exec(input)
+			collector.args.ApiClient.WaitAsync()
 		}
 	} else {
 		// or we just did it once

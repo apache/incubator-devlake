@@ -15,29 +15,29 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package archived
+package models
 
-import (
-	"github.com/apache/incubator-devlake/models/migrationscripts/archived"
-)
-
-// JenkinsJobProps current used jenkins job props
-type JenkinsJobProps struct {
-	// collected fields
-	ConnectionId uint64 `gorm:"primaryKey"`
-	Name         string `gorm:"primaryKey;type:varchar(255)"`
-	Path         string `gorm:"primaryKey;type:varchar(512)"`
-	Class        string `gorm:"type:varchar(255)"`
-	Color        string `gorm:"type:varchar(255)"`
-	Base         string `gorm:"type:varchar(255)"`
+type ListBaseNode struct {
+	next interface{}
 }
 
-// JenkinsJob db entity for jenkins job
-type JenkinsJob struct {
-	JenkinsJobProps
-	archived.NoPKModel
+func (l *ListBaseNode) Next() interface{} {
+	if l.next == nil {
+		return nil
+	}
+	return l.next
 }
 
-func (JenkinsJob) TableName() string {
-	return "_tool_jenkins_jobs"
+func (l *ListBaseNode) SetNext(next interface{}) {
+	l.next = next
 }
+
+// NewListBaseNode create and init a new node
+func NewListBaseNode() *ListBaseNode {
+	return &ListBaseNode{
+		next: nil,
+	}
+}
+
+// check if is all right for interface QueueNode
+var _ QueueNode = (*ListBaseNode)(nil)

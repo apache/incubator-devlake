@@ -22,6 +22,7 @@ import (
 	"reflect"
 	"time"
 
+	"github.com/apache/incubator-devlake/models"
 	"github.com/apache/incubator-devlake/plugins/core/dal"
 )
 
@@ -112,4 +113,47 @@ func NewDateIterator(days int) (*DateIterator, error) {
 		Days:      days,
 		Current:   0,
 	}, nil
+}
+
+type QueueIteratorNode struct {
+	data interface{}
+	next *QueueIteratorNode
+}
+
+func (q *QueueIteratorNode) Next() interface{} {
+	if q.next == nil {
+		return nil
+	}
+	return q.next
+}
+
+func (q *QueueIteratorNode) SetNext(next interface{}) {
+	q.next, _ = next.(*QueueIteratorNode)
+}
+
+type QueueIterator struct {
+	queue *models.Queue
+}
+
+func (q *QueueIterator) HasNext() bool {
+	return q.queue.GetCount() > 0
+}
+
+func (q *QueueIterator) Fetch() (interface{}, error) {
+	return q.queue.PullWithOutLock(), nil
+}
+
+func (q *QueueIterator) Push(data models.QueueNode) {
+	q.queue.PushWitouLock(data)
+}
+
+func (q *QueueIterator) Close() error {
+	q.queue.CleanWithOutLock()
+	return nil
+}
+
+func NewQueueIterator() *QueueIterator {
+	return &QueueIterator{
+		queue: models.NewQueue(),
+	}
 }
