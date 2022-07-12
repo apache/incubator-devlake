@@ -67,18 +67,38 @@ func getTablesByDomainLayer(domainLayer string) []string {
 	}
 	return nil
 }
+func hasPrefixes(s string, prefixes ...string) bool {
+	for _, prefix := range prefixes {
+		if strings.HasPrefix(s, prefix) {
+			return true
+		}
+	}
+	return false
+}
+func stringIn(s string, l ...string) bool {
+	for _, item := range l {
+		if s == item {
+			return true
+		}
+	}
+	return false
+}
 func getDataType(dataType string) string {
 	starrocksDatatype := dataType
-	if strings.HasPrefix(dataType, "varchar") {
+	if hasPrefixes(dataType, "varchar", "varying", "character", "bytea") {
 		starrocksDatatype = "string"
-	} else if strings.HasPrefix(dataType, "datetime") {
+	} else if hasPrefixes(dataType, "datetime", "timestamp") {
 		starrocksDatatype = "datetime"
 	} else if strings.HasPrefix(dataType, "bigint") {
 		starrocksDatatype = "bigint"
-	} else if dataType == "longtext" || dataType == "text" || dataType == "longblob" {
+	} else if stringIn(dataType, "longtext", "text", "longblob") {
 		starrocksDatatype = "string"
 	} else if dataType == "tinyint(1)" {
 		starrocksDatatype = "boolean"
+	} else if dataType == "numeric" {
+		starrocksDatatype = "double"
+	} else if stringIn(dataType, "json", "jsonb") {
+		starrocksDatatype = "json"
 	}
 	return starrocksDatatype
 }
