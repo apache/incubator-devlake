@@ -38,6 +38,9 @@ func MakePipelinePlanSubtasks(subtaskMetas []core.SubTaskMeta, entities []string
 		wanted[entity] = true
 	}
 	for _, subtaskMeta := range subtaskMetas {
+		if !subtaskMeta.EnabledByDefault {
+			continue
+		}
 		for _, neededBy := range subtaskMeta.DomainTypes {
 			if wanted[neededBy] {
 				subtasks = append(subtasks, subtaskMeta.Name)
