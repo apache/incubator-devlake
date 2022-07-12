@@ -51,6 +51,8 @@ services:
       - grafana-storage:/var/lib/grafana
     environment:
       GF_USERS_ALLOW_SIGN_UP: 'false'
+      GF_SERVER_ROOT_URL: "http://localhost:4000/grafana"
+      GF_SERVER_SERVE_FROM_SUB_PATH: 'true'
       GF_DASHBOARDS_JSON_ENABLED: 'true'
       GF_LIVE_ALLOWED_ORIGINS: '*'
       MYSQL_URL: mysql:3306
@@ -86,7 +88,7 @@ services:
       - ./.env
     environment:
       DEVLAKE_ENDPOINT: devlake:8080
-      GRAFANA_ENDPOINT: http://localhost:3002
+      GRAFANA_ENDPOINT: grafana:3000
       #ADMIN_USER: devlake
       #ADMIN_PASS: merico
     depends_on:

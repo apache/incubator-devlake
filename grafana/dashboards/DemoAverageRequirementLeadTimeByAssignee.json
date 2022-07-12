@@ -27,7 +27,7 @@
       "title": "Homepage",
       "tooltip": "",
       "type": "link",
-      "url": "/d/0Rjxknc7z/demo-homepage?orgId=1"
+      "url": "/grafana/d/0Rjxknc7z/demo-homepage?orgId=1"
     },
     {
       "asDropdown": false,
@@ -39,7 +39,7 @@
       "title": "Back to previous page",
       "tooltip": "",
       "type": "link",
-      "url": "/d/SupYz7c7z/demo-how-fast-do-we-respond-to-customer-requirements?orgId=1"
+      "url": "/grafana/d/SupYz7c7z/demo-how-fast-do-we-respond-to-customer-requirements?orgId=1"
     }
   ],
   "panels": [

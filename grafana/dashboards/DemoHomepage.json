@@ -31,7 +31,7 @@
       "interval": null,
       "links": [],
       "options": {
-        "content": "<a href=\"/d/SupYz7c7z/demo-how-fast-do-we-respond-to-customer-requirements?orgId=1\">\n    <div style=\"vertical-align:center;text-align:center;margin:15px;padding-top:60px;\">\n        <img border=\"0\" src=\"/public/img/lake/customer.png\" alt=\"customer\" width=\"50\">\n        <p style=\"text-align:center;font-size:18px;margin:20px; color:#BFC1C8\"><b>How fast do we respond to customer requirements?<b></p>\n    </div>\n</a>",
+        "content": "<a href=\"/grafana/d/SupYz7c7z/demo-how-fast-do-we-respond-to-customer-requirements?orgId=1\">\n    <div style=\"vertical-align:center;text-align:center;margin:15px;padding-top:60px;\">\n        <img border=\"0\" src=\"/grafana/public/img/lake/customer.png\" alt=\"customer\" width=\"50\">\n        <p style=\"text-align:center;font-size:18px;margin:20px; color:#BFC1C8\"><b>How fast do we respond to customer requirements?<b></p>\n    </div>\n</a>",
         "mode": "html"
       },
       "pluginVersion": "8.0.6",
@@ -82,7 +82,7 @@
       "interval": null,
       "links": [],
       "options": {
-        "content": "<a href=\"/d/G4DEk75nz/demo-was-our-quality-improved-or-not?orgId=1\">\n    <div style=\"vertical-align:center;text-align:center;margin:15px;padding-top:60px;\">\n        <img border=\"0\" src=\"/public/img/lake/demo_quality.png\" alt=\"quality\" width=\"50\">\n        <p style=\"text-align:center;font-size:18px;margin:20px; color:#BFC1C8\"><b>Was our quality improved or not?<b></p>\n    </div>\n</a>",
+        "content": "<a href=\"/grafana/d/G4DEk75nz/demo-was-our-quality-improved-or-not?orgId=1\">\n    <div style=\"vertical-align:center;text-align:center;margin:15px;padding-top:60px;\">\n        <img border=\"0\" src=\"/grafana/public/img/lake/demo_quality.png\" alt=\"quality\" width=\"50\">\n        <p style=\"text-align:center;font-size:18px;margin:20px; color:#BFC1C8\"><b>Was our quality improved or not?<b></p>\n    </div>\n</a>",
         "mode": "html"
       },
       "pluginVersion": "8.0.6",
@@ -133,7 +133,7 @@
       "interval": null,
       "links": [],
       "options": {
-        "content": "<a href=\"/d/ddREk75nk/demo-is-this-month-more-productive-than-last?orgId=1\">\n    <div style=\"vertical-align:center;text-align:center;margin:15px;padding-top:60px;\">\n        <img border=\"0\" src=\"/public/img/lake/trend.png\" alt=\"customer\" width=\"50\">\n        <p style=\"text-align:center;font-size:18px;margin:20px; color:#BFC1C8\"><b>Is this month more productive than last?<b></p>\n    </div>\n</a>",
+        "content": "<a href=\"/d/ddREk75nk/demo-is-this-month-more-productive-than-last?orgId=1\">\n    <div style=\"vertical-align:center;text-align:center;margin:15px;padding-top:60px;\">\n        <img border=\"0\" src=\"/grafana/public/img/lake/trend.png\" alt=\"customer\" width=\"50\">\n        <p style=\"text-align:center;font-size:18px;margin:20px; color:#BFC1C8\"><b>Is this month more productive than last?<b></p>\n    </div>\n</a>",
         "mode": "html"
       },
       "pluginVersion": "8.0.6",
