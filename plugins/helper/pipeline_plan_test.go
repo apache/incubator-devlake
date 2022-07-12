@@ -29,16 +29,19 @@ func TestMakePipelinePlanSubtasks(t *testing.T) {
 	subtasks1, err := MakePipelinePlanSubtasks(
 		[]core.SubTaskMeta{
 			{
-				Name:        "collectApiIssues",
-				DomainTypes: []string{core.DOMAIN_TYPE_TICKET},
+				Name:             "collectApiIssues",
+				EnabledByDefault: true,
+				DomainTypes:      []string{core.DOMAIN_TYPE_TICKET},
 			},
 			{
-				Name:        "extractApiIssues",
-				DomainTypes: []string{core.DOMAIN_TYPE_TICKET},
+				Name:             "extractApiIssues",
+				EnabledByDefault: true,
+				DomainTypes:      []string{core.DOMAIN_TYPE_TICKET},
 			},
 			{
-				Name:        "collectApiPullRequests",
-				DomainTypes: []string{core.DOMAIN_TYPE_CODE},
+				Name:             "collectApiPullRequests",
+				EnabledByDefault: true,
+				DomainTypes:      []string{core.DOMAIN_TYPE_CODE},
 			},
 		},
 		[]string{core.DOMAIN_TYPE_TICKET},
@@ -53,16 +56,19 @@ func TestMakePipelinePlanSubtasks(t *testing.T) {
 	subtasks2, err := MakePipelinePlanSubtasks(
 		[]core.SubTaskMeta{
 			{
-				Name:        "collectApiRepo",
-				DomainTypes: []string{core.DOMAIN_TYPE_TICKET, core.DOMAIN_TYPE_CODE},
+				Name:             "collectApiRepo",
+				EnabledByDefault: true,
+				DomainTypes:      []string{core.DOMAIN_TYPE_TICKET, core.DOMAIN_TYPE_CODE},
 			},
 			{
-				Name:        "collectApiIssues",
-				DomainTypes: []string{core.DOMAIN_TYPE_TICKET},
+				Name:             "collectApiIssues",
+				EnabledByDefault: true,
+				DomainTypes:      []string{core.DOMAIN_TYPE_TICKET},
 			},
 			{
-				Name:        "collectApiPullRequests",
-				DomainTypes: []string{core.DOMAIN_TYPE_CODE},
+				Name:             "collectApiPullRequests",
+				EnabledByDefault: true,
+				DomainTypes:      []string{core.DOMAIN_TYPE_CODE},
 			},
 		},
 		[]string{core.DOMAIN_TYPE_TICKET},

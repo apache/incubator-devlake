@@ -177,3 +177,27 @@ func Patch(c *gin.Context) {
 	}
 	shared.ApiOutputSuccess(c, blueprint, http.StatusOK)
 }
+
+// @Summary trigger blueprint
+// @Description trigger a blueprint immediately
+// @Tags Blueprints
+// @Accept application/json
+// @Param blueprintId path string true "blueprintId"
+// @Success 200  {object} models.Pipeline
+// @Failure 400  {string} errcode.Error "Bad Request"
+// @Failure 500  {string} errcode.Error "Internel Error"
+// @Router /blueprints/{blueprintId}/trigger [Post]
+func Trigger(c *gin.Context) {
+	blueprintId := c.Param("blueprintId")
+	id, err := strconv.ParseUint(blueprintId, 10, 64)
+	if err != nil {
+		shared.ApiOutputError(c, err, http.StatusBadRequest)
+		return
+	}
+	pipeline, err := services.TriggerBlueprint(id)
+	if err != nil {
+		shared.ApiOutputError(c, err, http.StatusBadRequest)
+		return
+	}
+	shared.ApiOutputSuccess(c, pipeline, http.StatusOK)
+}

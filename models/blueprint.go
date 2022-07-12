@@ -21,6 +21,7 @@ import (
 	"encoding/json"
 
 	"github.com/apache/incubator-devlake/models/common"
+	"github.com/apache/incubator-devlake/plugins/core"
 	"gorm.io/datatypes"
 )
 
@@ -45,4 +46,14 @@ func (Blueprint) TableName() string {
 type BlueprintSettings struct {
 	Version     string          `json:"version" validate:"required,semver,oneof=1.0.0"`
 	Connections json.RawMessage `json:"connections" validate:"required"`
+}
+
+// UnmarshalPlan unmarshals Plan in JSON to strong-typed core.PipelinePlan
+func (bp *Blueprint) UnmarshalPlan() (core.PipelinePlan, error) {
+		var plan core.PipelinePlan
+		err := json.Unmarshal(bp.Plan, &plan)
+		if err != nil {
+			return nil, err
+		}
+		return plan, nil
 }

@@ -37,15 +37,18 @@ import (
 
 func RegisterRouter(r *gin.Engine) {
 	r.GET("/pipelines", pipelines.Index)
-	r.GET("/blueprints", blueprints.Index)
-	r.GET("/pipelines/:pipelineId", pipelines.Get)
-	r.GET("/blueprints/:blueprintId", blueprints.Get)
 	r.POST("/pipelines", pipelines.Post)
-	r.POST("/blueprints", blueprints.Post)
-	r.DELETE("/pipelines/:pipelineId", pipelines.Delete)
-	r.DELETE("/blueprints/:blueprintId", blueprints.Delete)
+	r.GET("/pipelines/:pipelineId", pipelines.Get)
 	r.PATCH("/blueprints/:blueprintId", blueprints.Patch)
+	r.POST("/blueprints/:blueprintId/trigger", blueprints.Trigger)
+	// r.DELETE("/blueprints/:blueprintId", blueprints.Delete)
+
+	r.GET("/blueprints", blueprints.Index)
+	r.POST("/blueprints", blueprints.Post)
+	r.GET("/blueprints/:blueprintId", blueprints.Get)
+	r.DELETE("/pipelines/:pipelineId", pipelines.Delete)
 	r.GET("/pipelines/:pipelineId/tasks", task.Index)
+
 	r.GET("/ping", ping.Get)
 	r.GET("/version", version.Get)
 	r.POST("/push/:tableName", push.Post)
