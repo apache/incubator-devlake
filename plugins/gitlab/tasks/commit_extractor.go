@@ -28,7 +28,7 @@ import (
 var ExtractApiCommitsMeta = core.SubTaskMeta{
 	Name:             "extractApiCommits",
 	EntryPoint:       ExtractApiCommits,
-	EnabledByDefault: true,
+	EnabledByDefault: false,
 	Description:      "Extract raw commit data into tool layer table GitlabCommit,GitlabAccount and GitlabProjectCommit",
 	DomainTypes:      []string{core.DOMAIN_TYPE_CODE},
 }

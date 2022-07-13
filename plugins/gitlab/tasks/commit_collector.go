@@ -27,7 +27,7 @@ const RAW_COMMIT_TABLE = "gitlab_api_commit"
 var CollectApiCommitsMeta = core.SubTaskMeta{
 	Name:             "collectApiCommits",
 	EntryPoint:       CollectApiCommits,
-	EnabledByDefault: true,
+	EnabledByDefault: false,
 	Description:      "Collect commit data from gitlab api",
 	DomainTypes:      []string{core.DOMAIN_TYPE_CODE},
 }
