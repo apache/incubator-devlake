@@ -52,7 +52,7 @@ func NewGiteeApiClient(taskCtx core.TaskContext, connection *models.GiteeConnect
 	rateLimiter := &helper.ApiRateLimitCalculator{
 		UserRateLimitPerHour: connection.RateLimitPerHour,
 		DynamicRateLimit: func(res *http.Response) (int, time.Duration, error) {
-			rateLimitHeader := res.Header.Get("RateLimitPerHour-Limit")
+			rateLimitHeader := res.Header.Get("RateLimit-Limit")
 			if rateLimitHeader == "" {
 				// use default
 				return 0, 0, nil
