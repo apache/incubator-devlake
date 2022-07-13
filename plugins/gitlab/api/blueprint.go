@@ -86,7 +86,7 @@ func MakePipelinePlan(subtaskMetas []core.SubTaskMeta, connectionId uint64, scop
 			stage = core.PipelineStage{}
 		}
 		stage = append(stage, &core.PipelineTask{
-			Plugin:   "github",
+			Plugin:   "gitlab",
 			Subtasks: subtasks,
 			Options:  options,
 		})
