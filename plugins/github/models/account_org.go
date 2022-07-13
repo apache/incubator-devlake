@@ -15,17 +15,20 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package migrationscripts
+package models
 
 import (
-	"github.com/apache/incubator-devlake/migration"
+	"github.com/apache/incubator-devlake/models/common"
 )
 
-// All return all the migration scripts
-func All() []migration.Script {
-	return []migration.Script{
-		new(initSchemas),
-		new(updateSchemas20220713000003),
-		new(updateSchemas20220713000004),
-	}
+type GithubAccountOrg struct {
+	ConnectionId uint64 `gorm:"primaryKey"`
+	AccountId    int    `gorm:"primaryKey;autoIncrement:false"`
+	OrgId        int    `gorm:"primaryKey;autoIncrement:false"`
+	OrgLogin     string `json:"org_login" gorm:"type:varchar(255)"`
+	common.NoPKModel
+}
+
+func (GithubAccountOrg) TableName() string {
+	return "_tool_github_account_orgs"
 }

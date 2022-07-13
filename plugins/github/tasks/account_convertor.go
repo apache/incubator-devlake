@@ -18,7 +18,9 @@ limitations under the License.
 package tasks
 
 import (
+	"github.com/apache/incubator-devlake/models/common"
 	"reflect"
+	"strings"
 
 	"github.com/apache/incubator-devlake/models/domainlayer/crossdomain"
 
@@ -37,6 +39,12 @@ var ConvertAccountsMeta = core.SubTaskMeta{
 	EnabledByDefault: true,
 	Description:      "Convert tool layer table github_accounts into  domain layer table accounts",
 	DomainTypes:      core.DOMAIN_TYPES,
+}
+
+type GithubAccountWithOrg struct {
+	githubModels.GithubAccount
+	Login string `json:"login" gorm:"type:varchar(255)"`
+	common.NoPKModel
 }
 
 func ConvertAccounts(taskCtx core.SubTaskContext) error {
@@ -61,16 +69,37 @@ func ConvertAccounts(taskCtx core.SubTaskContext) error {
 				Owner:        data.Options.Owner,
 				Repo:         data.Options.Repo,
 			},
-			Table: RAW_COMMIT_TABLE,
+			Table: RAW_ACCOUNT_TABLE,
 		},
 		Convert: func(inputRow interface{}) ([]interface{}, error) {
 			githubUser := inputRow.(*githubModels.GithubAccount)
+
+			// query related orgs
+			var orgs []string
+			err := db.Pluck(`org_login`, &orgs,
+				dal.From(&githubModels.GithubAccountOrg{}),
+				dal.Where(`account_id = ? and connection_id = ?`, githubUser.Id, data.Options.ConnectionId),
+			)
+			if err != nil {
+				return nil, err
+			}
+			var orgStr string
+			if len(orgs) == 0 {
+				orgStr = ``
+			} else {
+				orgStr = strings.Join(orgs, `,`)
+				if len(orgStr) > 255 {
+					orgStr = orgStr[:255]
+				}
+			}
+
 			domainUser := &crossdomain.Account{
 				DomainEntity: domainlayer.DomainEntity{Id: accountIdGen.Generate(data.Options.ConnectionId, githubUser.Id)},
 				Email:        githubUser.Email,
 				FullName:     githubUser.Name,
 				UserName:     githubUser.Login,
 				AvatarUrl:    githubUser.AvatarUrl,
+				Organization: orgStr,
 			}
 			return []interface{}{
 				domainUser,
