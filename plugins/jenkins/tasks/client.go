@@ -46,7 +46,7 @@ func CreateApiClient(taskCtx core.TaskContext, connection *models.JenkinsConnect
 
 	// create rate limit calculator
 	rateLimiter := &helper.ApiRateLimitCalculator{
-		UserRateLimitPerHour: connection.RateLimit,
+		UserRateLimitPerHour: connection.RateLimitPerHour,
 	}
 	asyncApiClient, err := helper.CreateAsyncApiClient(
 		taskCtx,

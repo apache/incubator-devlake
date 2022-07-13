@@ -32,10 +32,10 @@ type BaseConnection struct {
 }
 
 type RestConnection struct {
-	BaseConnection `mapstructure:",squash"`
-	Endpoint       string `mapstructure:"endpoint" validate:"required" json:"endpoint"`
-	Proxy          string `mapstructure:"proxy" json:"proxy"`
-	RateLimit      int    `comment:"api request rate limit per hour" json:"rateLimit"`
+	BaseConnection   `mapstructure:",squash"`
+	Endpoint         string `mapstructure:"endpoint" validate:"required" json:"endpoint"`
+	Proxy            string `mapstructure:"proxy" json:"proxy"`
+	RateLimitPerHour int    `comment:"api request rate limit per hour" json:"rateLimit"`
 }
 
 type TestConnectionRequest struct {
