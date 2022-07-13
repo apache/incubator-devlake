@@ -41,6 +41,7 @@ type Job struct {
 	Name  string `json:"name"`
 	Color string `json:"color"`
 	Class string `json:"_class"`
+	Jobs  *[]Job `json:"jobs"`
 }
 type Views struct {
 	URL   string `json:"url"`

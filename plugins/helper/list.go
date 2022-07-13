@@ -15,23 +15,29 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package main
+package helper
 
-import (
-	"github.com/apache/incubator-devlake/plugins/jenkins/impl"
-	"github.com/apache/incubator-devlake/runner"
-	"github.com/spf13/cobra"
-)
-
-var PluginEntry impl.Jenkins
-
-func main() {
-	jenkinsCmd := &cobra.Command{Use: "jenkins"}
-	connectionId := jenkinsCmd.Flags().Uint64P("connection", "c", 1, "jenkins connection id")
-	jenkinsCmd.Run = func(cmd *cobra.Command, args []string) {
-		runner.DirectRun(cmd, args, PluginEntry, map[string]interface{}{
-			"connectionId": *connectionId,
-		})
-	}
-	runner.RunCmd(jenkinsCmd)
+type ListBaseNode struct {
+	next interface{}
 }
+
+func (l *ListBaseNode) Next() interface{} {
+	if l.next == nil {
+		return nil
+	}
+	return l.next
+}
+
+func (l *ListBaseNode) SetNext(next interface{}) {
+	l.next = next
+}
+
+// NewListBaseNode create and init a new node
+func NewListBaseNode() *ListBaseNode {
+	return &ListBaseNode{
+		next: nil,
+	}
+}
+
+// check if is all right for interface QueueNode
+var _ QueueNode = (*ListBaseNode)(nil)

@@ -25,6 +25,7 @@ import (
 
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/helper"
+	models "github.com/apache/incubator-devlake/plugins/jenkins/models"
 )
 
 const RAW_JOB_TABLE = "jenkins_api_jobs"
@@ -38,6 +39,8 @@ var CollectApiJobsMeta = core.SubTaskMeta{
 }
 
 func CollectApiJobs(taskCtx core.SubTaskContext) error {
+	it := helper.NewQueueIterator()
+	it.Push(models.NewFolderInput(""))
 	data := taskCtx.GetData().(*JenkinsTaskData)
 	incremental := false
 	collector, err := helper.NewApiCollector(helper.ApiCollectorArgs{
@@ -61,14 +64,27 @@ func CollectApiJobs(taskCtx core.SubTaskContext) error {
 		// jenkins api is special, 1. If the concurrency is larger than 1, then it will report 500.
 		Concurrency: 1,
 
-		UrlTemplate: "api/json",
+		UrlTemplate: "{{ .Input.Path }}api/json",
+		Input:       it,
 		Query: func(reqData *helper.RequestData) (url.Values, error) {
 			query := url.Values{}
 			treeValue := fmt.Sprintf(
-				"jobs[name,class,color,base]{%d,%d}",
+				"jobs[name,class,url,color,base,jobs]{%d,%d}",
 				reqData.Pager.Skip, reqData.Pager.Skip+reqData.Pager.Size)
 			query.Set("tree", treeValue)
 			return query, nil
+		},
+		Header: func(reqData *helper.RequestData) (http.Header, error) {
+			input, ok := reqData.Input.(*models.FolderInput)
+			if ok {
+				return http.Header{
+					"Path": {
+						input.Path,
+					},
+				}, nil
+			} else {
+				return nil, fmt.Errorf("empty FolderInput")
+			}
 		},
 
 		ResponseParser: func(res *http.Response) ([]json.RawMessage, error) {
@@ -78,6 +94,18 @@ func CollectApiJobs(taskCtx core.SubTaskContext) error {
 			err := helper.UnmarshalResponse(res, &data)
 			if err != nil {
 				return nil, err
+			}
+			BasePath := res.Request.Header.Get("Path")
+			for _, rawJobs := range data.Jobs {
+				job := &models.Job{}
+				err := json.Unmarshal(rawJobs, job)
+				if err != nil {
+					return nil, err
+				}
+
+				if job.Jobs != nil {
+					it.Push(models.NewFolderInput(BasePath + "job/" + job.Name + "/"))
+				}
 			}
 			return data.Jobs, nil
 		},

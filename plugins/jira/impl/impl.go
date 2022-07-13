@@ -40,6 +40,7 @@ var _ core.PluginTask = (*Jira)(nil)
 var _ core.PluginApi = (*Jira)(nil)
 var _ core.Migratable = (*Jira)(nil)
 var _ core.PluginBlueprintV100 = (*Jira)(nil)
+var _ core.CloseablePluginTask = (*Jira)(nil)
 
 type Jira struct{}
 
@@ -186,4 +187,13 @@ func (plugin Jira) ApiResources() map[string]map[string]core.ApiResourceHandler 
 			"GET": api.Proxy,
 		},
 	}
+}
+
+func (plugin Jira) Close(taskCtx core.TaskContext) error {
+	data, ok := taskCtx.GetData().(*tasks.JiraTaskData)
+	if !ok {
+		return fmt.Errorf("GetData failed when try to close %+v", taskCtx)
+	}
+	data.ApiClient.Release()
+	return nil
 }

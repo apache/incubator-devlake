@@ -18,6 +18,8 @@ limitations under the License.
 package main
 
 import (
+	"fmt"
+
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/icla/models"
 	"github.com/apache/incubator-devlake/plugins/icla/tasks"
@@ -33,6 +35,7 @@ var _ core.PluginMeta = (*Icla)(nil)
 var _ core.PluginInit = (*Icla)(nil)
 var _ core.PluginTask = (*Icla)(nil)
 var _ core.PluginApi = (*Icla)(nil)
+var _ core.CloseablePluginTask = (*Icla)(nil)
 
 // PluginEntry is a variable exported for Framework to search and load
 var PluginEntry Icla //nolint
@@ -83,6 +86,15 @@ func (plugin Icla) RootPkgPath() string {
 }
 
 func (plugin Icla) ApiResources() map[string]map[string]core.ApiResourceHandler {
+	return nil
+}
+
+func (plugin Icla) Close(taskCtx core.TaskContext) error {
+	data, ok := taskCtx.GetData().(*tasks.IclaTaskData)
+	if !ok {
+		return fmt.Errorf("GetData failed when try to close %+v", taskCtx)
+	}
+	data.ApiClient.Release()
 	return nil
 }
 

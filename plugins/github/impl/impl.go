@@ -19,6 +19,7 @@ package impl
 
 import (
 	"fmt"
+
 	"github.com/apache/incubator-devlake/migration"
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/github/api"
@@ -36,6 +37,7 @@ var _ core.PluginTask = (*Github)(nil)
 var _ core.PluginApi = (*Github)(nil)
 var _ core.Migratable = (*Github)(nil)
 var _ core.PluginBlueprintV100 = (*Github)(nil)
+var _ core.CloseablePluginTask = (*Github)(nil)
 
 type Github struct{}
 
@@ -139,4 +141,13 @@ func (plugin Github) ApiResources() map[string]map[string]core.ApiResourceHandle
 
 func (plugin Github) MakePipelinePlan(connectionId uint64, scope []*core.BlueprintScopeV100) (core.PipelinePlan, error) {
 	return api.MakePipelinePlan(plugin.SubTaskMetas(), connectionId, scope)
+}
+
+func (plugin Github) Close(taskCtx core.TaskContext) error {
+	data, ok := taskCtx.GetData().(*tasks.GithubTaskData)
+	if !ok {
+		return fmt.Errorf("GetData failed when try to close %+v", taskCtx)
+	}
+	data.ApiClient.Release()
+	return nil
 }

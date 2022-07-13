@@ -41,13 +41,14 @@ var CollectApiBuildsMeta = core.SubTaskMeta{
 
 type SimpleJob struct {
 	Name string
+	Path string
 }
 
 func CollectApiBuilds(taskCtx core.SubTaskContext) error {
 	db := taskCtx.GetDal()
 	data := taskCtx.GetData().(*JenkinsTaskData)
 	clauses := []dal.Clause{
-		dal.Select("tjj.name"),
+		dal.Select("tjj.name,tjj.path"),
 		dal.From("_tool_jenkins_jobs tjj"),
 		dal.Where(`tjj.connection_id = ?`, data.Options.ConnectionId),
 	}
@@ -74,7 +75,7 @@ func CollectApiBuilds(taskCtx core.SubTaskContext) error {
 		ApiClient:   data.ApiClient,
 		PageSize:    100,
 		Input:       iterator,
-		UrlTemplate: "job/{{ .Input.Name }}/api/json",
+		UrlTemplate: "{{ .Input.Path }}job/{{ .Input.Name }}/api/json",
 		/*
 			(Optional) Return query string for request, or you can plug them into UrlTemplate directly
 		*/
