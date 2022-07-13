@@ -142,8 +142,8 @@ func (plugin Tapd) PrepareTaskData(taskCtx core.TaskContext, options map[string]
 			return nil, fmt.Errorf("invalid value for `since`: %w", err)
 		}
 	}
-	if connection.RateLimit == 0 {
-		connection.RateLimit = 6000
+	if connection.RateLimitPerHour == 0 {
+		connection.RateLimitPerHour = 6000
 	}
 	tapdApiClient, err := tasks.NewTapdApiClient(taskCtx, connection)
 	if err != nil {

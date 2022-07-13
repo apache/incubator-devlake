@@ -32,10 +32,10 @@ type BasicAuth struct {
 }
 
 type RestConnection struct {
-	BaseConnection `mapstructure:",squash"`
-	Endpoint       string `mapstructure:"endpoint" validate:"required" json:"endpoint"`
-	Proxy          string `mapstructure:"proxy" json:"proxy"`
-	RateLimit      int    `comment:"api request rate limt per hour" json:"rateLimit"`
+	BaseConnection   `mapstructure:",squash"`
+	Endpoint         string `mapstructure:"endpoint" validate:"required" json:"endpoint"`
+	Proxy            string `mapstructure:"proxy" json:"proxy"`
+	RateLimitPerHour int    `comment:"api request rate limt per hour" json:"rateLimit"`
 }
 
 // This object conforms to what the frontend currently sends.

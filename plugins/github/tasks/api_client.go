@@ -19,11 +19,12 @@ package tasks
 
 import (
 	"fmt"
-	"github.com/apache/incubator-devlake/plugins/github/models"
 	"net/http"
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/apache/incubator-devlake/plugins/github/models"
 
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/helper"
@@ -54,17 +55,17 @@ func CreateApiClient(taskCtx core.TaskContext, connection *models.GithubConnecti
 
 	// create rate limit calculator
 	rateLimiter := &helper.ApiRateLimitCalculator{
-		UserRateLimitPerHour: connection.RateLimit,
+		UserRateLimitPerHour: connection.RateLimitPerHour,
 		Method:               http.MethodGet,
 		DynamicRateLimit: func(res *http.Response) (int, time.Duration, error) {
 			/* calculate by number of remaining requests
-			remaining, err := strconv.Atoi(res.Header.Get("X-RateLimit-Remaining"))
+			remaining, err := strconv.Atoi(res.Header.Get("X-RateLimitPerHour-Remaining"))
 			if err != nil {
-				return 0,0, fmt.Errorf("failed to parse X-RateLimit-Remaining header: %w", err)
+				return 0,0, fmt.Errorf("failed to parse X-RateLimitPerHour-Remaining header: %w", err)
 			}
-			reset, err := strconv.Atoi(res.Header.Get("X-RateLimit-Reset"))
+			reset, err := strconv.Atoi(res.Header.Get("X-RateLimitPerHour-Reset"))
 			if err != nil {
-				return 0, 0, fmt.Errorf("failed to parse X-RateLimit-Reset header: %w", err)
+				return 0, 0, fmt.Errorf("failed to parse X-RateLimitPerHour-Reset header: %w", err)
 			}
 			date, err := http.ParseTime(res.Header.Get("Date"))
 			if err != nil {
@@ -72,9 +73,9 @@ func CreateApiClient(taskCtx core.TaskContext, connection *models.GithubConnecti
 			}
 			return remaining * len(tokens), time.Unix(int64(reset), 0).Sub(date), nil
 			*/
-			rateLimit, err := strconv.Atoi(res.Header.Get("X-RateLimit-Limit"))
+			rateLimit, err := strconv.Atoi(res.Header.Get("X-RateLimitPerHour-Limit"))
 			if err != nil {
-				return 0, 0, fmt.Errorf("failed to parse X-RateLimit-Limit header: %w", err)
+				return 0, 0, fmt.Errorf("failed to parse X-RateLimitPerHour-Limit header: %w", err)
 			}
 			// even though different token could have different rate limit, but it is hard to support it
 			// so, we calculate the rate limit of a single token, and presume all tokens are the same, to

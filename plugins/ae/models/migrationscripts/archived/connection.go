@@ -28,9 +28,9 @@ type AeConnection struct {
 	CreatedAt time.Time `json:"createdAt"`
 	UpdatedAt time.Time `json:"updatedAt"`
 
-	Endpoint  string `mapstructure:"endpoint" validate:"required" json:"endpoint"`
-	Proxy     string `mapstructure:"proxy" json:"proxy"`
-	RateLimit int    `comment:"api request rate limit per hour" json:"rateLimit"`
+	Endpoint         string `mapstructure:"endpoint" validate:"required" json:"endpoint"`
+	Proxy            string `mapstructure:"proxy" json:"proxy"`
+	RateLimitPerHour int    `comment:"api request rate limit per hour" json:"rateLimit"`
 
 	AppId     string `mapstructure:"app_id" validate:"required" json:"app_id"`
 	SecretKey string `mapstructure:"secret_key" validate:"required" json:"secret_key" encrypt:"yes"`

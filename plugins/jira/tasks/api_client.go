@@ -44,7 +44,7 @@ func NewJiraApiClient(taskCtx core.TaskContext, connection *models.JiraConnectio
 
 	// create rate limit calculator
 	rateLimiter := &helper.ApiRateLimitCalculator{
-		UserRateLimitPerHour: connection.RateLimit,
+		UserRateLimitPerHour: connection.RateLimitPerHour,
 	}
 	asyncApiClient, err := helper.CreateAsyncApiClient(
 		taskCtx,

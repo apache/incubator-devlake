@@ -30,7 +30,7 @@ type JiraConnectionV11 struct {
 	StoryPointField            string    `gorm:"type:varchar(50);" json:"storyPointField"`
 	RemotelinkCommitShaPattern string    `gorm:"type:varchar(255);comment='golang regexp, the first group will be recognized as commit sha, ref https://github.com/google/re2/wiki/Syntax'" json:"remotelinkCommitShaPattern"`
 	Proxy                      string    `json:"proxy"`
-	RateLimit                  int       `comment:"api request rate limt per hour" json:"rateLimit"`
+	RateLimitPerHour           int       `comment:"api request rate limt per hour" json:"rateLimit"`
 }
 
 func (JiraConnectionV11) TableName() string {
@@ -48,7 +48,7 @@ type JiraConnectionV10 struct {
 	StoryPointField            string    `gorm:"type:varchar(50);" json:"storyPointField"`
 	RemotelinkCommitShaPattern string    `gorm:"type:varchar(255);comment='golang regexp, the first group will be recognized as commit sha, ref https://github.com/google/re2/wiki/Syntax'" json:"remotelinkCommitShaPattern"`
 	Proxy                      string    `json:"proxy"`
-	RateLimit                  int       `comment:"api request rate limt per hour" json:"rateLimit"`
+	RateLimitPerHour           int       `comment:"api request rate limt per hour" json:"rateLimit"`
 }
 
 func (JiraConnectionV10) TableName() string {

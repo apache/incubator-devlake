@@ -86,7 +86,7 @@ func (*InitSchemas) Up(ctx context.Context, db *gorm.DB) error {
 				conn.Name = v.Name
 				conn.Endpoint = v.Endpoint
 				conn.Proxy = v.Proxy
-				conn.RateLimit = v.RateLimit
+				conn.RateLimitPerHour = v.RateLimitPerHour
 
 				c := config.GetConfig()
 				encKey := c.GetString("ENCODE_KEY")
@@ -127,7 +127,7 @@ func (*InitSchemas) Up(ctx context.Context, db *gorm.DB) error {
 				conn.Name = v.Name
 				conn.Endpoint = v.Endpoint
 				conn.Proxy = v.Proxy
-				conn.RateLimit = v.RateLimit
+				conn.RateLimitPerHour = v.RateLimitPerHour
 
 				c := config.GetConfig()
 				encKey := c.GetString("ENCODE_KEY")
