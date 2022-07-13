@@ -67,6 +67,8 @@ func ConvertAccounts(taskCtx core.SubTaskContext) error {
 			githubUser := inputRow.(*githubModels.GithubAccount)
 			domainUser := &crossdomain.Account{
 				DomainEntity: domainlayer.DomainEntity{Id: accountIdGen.Generate(data.Options.ConnectionId, githubUser.Id)},
+				Email:        githubUser.Email,
+				FullName:     githubUser.Name,
 				UserName:     githubUser.Login,
 				AvatarUrl:    githubUser.AvatarUrl,
 			}

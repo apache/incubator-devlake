@@ -70,6 +70,8 @@ func (plugin Github) SubTaskMetas() []core.SubTaskMeta {
 		tasks.ExtractApiCommitStatsMeta,
 		tasks.CollectMilestonesMeta,
 		tasks.ExtractMilestonesMeta,
+		tasks.CollectAccountMeta,
+		tasks.ExtractAccountMeta,
 		tasks.EnrichPullRequestIssuesMeta,
 		tasks.ConvertRepoMeta,
 		tasks.ConvertIssuesMeta,

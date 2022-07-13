@@ -33,8 +33,6 @@ import (
 
 const RAW_COMMENTS_TABLE = "github_api_comments"
 
-// this struct should be moved to `github_api_common.go`
-
 func CollectApiComments(taskCtx core.SubTaskContext) error {
 	db := taskCtx.GetDal()
 	data := taskCtx.GetData().(*GithubTaskData)

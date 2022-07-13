@@ -112,7 +112,7 @@ func ExtractApiComments(taskCtx core.SubTaskContext) error {
 				}
 				results = append(results, githubIssueComment)
 			}
-			githubAccount, err := convertAccount(apiComment.User, data.Options.ConnectionId)
+			githubAccount, err := convertAccount(apiComment.User, data.Repo.GithubId, data.Options.ConnectionId)
 			if err != nil {
 				return nil, err
 			}

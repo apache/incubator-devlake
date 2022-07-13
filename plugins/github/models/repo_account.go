@@ -21,20 +21,14 @@ import (
 	"github.com/apache/incubator-devlake/models/common"
 )
 
-type GithubAccount struct {
+type GithubRepoAccount struct {
 	ConnectionId uint64 `gorm:"primaryKey"`
-	Id           int    `json:"id" gorm:"primaryKey;autoIncrement:false"`
+	AccountId    int    `gorm:"primaryKey;autoIncrement:false"`
+	RepoGithubId int    `gorm:"primaryKey"`
 	Login        string `json:"login" gorm:"type:varchar(255)"`
-	Name         string `json:"name" gorm:"type:varchar(255)"`
-	Company      string `json:"company" gorm:"type:varchar(255)"`
-	Email        string `json:"Email" gorm:"type:varchar(255)"`
-	AvatarUrl    string `json:"avatar_url" gorm:"type:varchar(255)"`
-	Url          string `json:"url" gorm:"type:varchar(255)"`
-	HtmlUrl      string `json:"html_url" gorm:"type:varchar(255)"`
-	Type         string `json:"type" gorm:"type:varchar(255)"`
 	common.NoPKModel
 }
 
-func (GithubAccount) TableName() string {
-	return "_tool_github_accounts"
+func (GithubRepoAccount) TableName() string {
+	return "_tool_github_repo_accounts"
 }

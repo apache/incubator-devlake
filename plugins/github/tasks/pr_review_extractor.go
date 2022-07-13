@@ -85,7 +85,7 @@ func ExtractApiPullRequestReviewers(taskCtx core.SubTaskContext) error {
 				PullRequestId: pull.GithubId,
 			}
 			results = append(results, githubReviewer)
-			githubUser, err := convertAccount(apiPullRequestReview.User, data.Options.ConnectionId)
+			githubUser, err := convertAccount(apiPullRequestReview.User, data.Repo.GithubId, data.Options.ConnectionId)
 			if err != nil {
 				return nil, err
 			}
