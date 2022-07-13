@@ -59,7 +59,7 @@ func NewGiteeApiClient(taskCtx core.TaskContext, connection *models.GiteeConnect
 			}
 			rateLimit, err := strconv.Atoi(rateLimitHeader)
 			if err != nil {
-				return 0, 0, fmt.Errorf("failed to parse RateLimitPerHour-Limit header: %w", err)
+				return 0, 0, fmt.Errorf("failed to parse RateLimit-Limit header: %w", err)
 			}
 			// seems like gitlab rate limit is on minute basis
 			return rateLimit, 1 * time.Minute, nil
