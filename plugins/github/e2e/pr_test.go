@@ -18,9 +18,10 @@ limitations under the License.
 package e2e
 
 import (
+	"testing"
+
 	"github.com/apache/incubator-devlake/models/domainlayer/code"
 	"github.com/apache/incubator-devlake/plugins/github/models"
-	"testing"
 
 	"github.com/apache/incubator-devlake/helpers/e2ehelper"
 	"github.com/apache/incubator-devlake/plugins/github/impl"
@@ -29,7 +30,7 @@ import (
 
 func TestPrDataFlow(t *testing.T) {
 	var plugin impl.Github
-	dataflowTester := e2ehelper.NewDataFlowTester(t, "gitlab", plugin)
+	dataflowTester := e2ehelper.NewDataFlowTester(t, "github", plugin)
 
 	githubRepository := &models.GithubRepo{
 		GithubId: 134018330,
@@ -54,12 +55,15 @@ func TestPrDataFlow(t *testing.T) {
 	// verify pr extraction
 	dataflowTester.FlushTabler(&models.GithubPullRequest{})
 	dataflowTester.FlushTabler(&models.GithubPullRequestLabel{})
+	dataflowTester.FlushTabler(&models.GithubAccount{})
 	dataflowTester.Subtask(tasks.ExtractApiPullRequestsMeta, taskData)
 	dataflowTester.VerifyTable(
 		models.GithubPullRequest{},
 		"./snapshot_tables/_tool_github_pull_requests.csv",
-		[]string{"connection_id", "github_id", "repo_id"},
 		[]string{
+			"connection_id",
+			"github_id",
+			"repo_id",
 			"number",
 			"state",
 			"title",
@@ -95,7 +99,20 @@ func TestPrDataFlow(t *testing.T) {
 		models.GithubPullRequestLabel{},
 		"./snapshot_tables/_tool_github_pull_request_labels.csv",
 		[]string{"connection_id", "pull_id", "label_name"},
-		[]string{},
+	)
+
+	dataflowTester.VerifyTable(
+		models.GithubAccount{},
+		"./snapshot_tables/_tool_github_accounts_in_pr.csv",
+		[]string{
+			"connection_id",
+			"id",
+			"login",
+			"avatar_url",
+			"url",
+			"html_url",
+			"type",
+		},
 	)
 
 	// verify pr conversion
@@ -104,8 +121,8 @@ func TestPrDataFlow(t *testing.T) {
 	dataflowTester.VerifyTable(
 		code.PullRequest{},
 		"./snapshot_tables/pull_requests.csv",
-		[]string{"id"},
 		[]string{
+			"id",
 			"base_repo_id",
 			"head_repo_id",
 			"status",
@@ -136,6 +153,5 @@ func TestPrDataFlow(t *testing.T) {
 		code.PullRequestLabel{},
 		"./snapshot_tables/pull_request_labels.csv",
 		[]string{"pull_request_id", "label_name"},
-		[]string{},
 	)
 }

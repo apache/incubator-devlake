@@ -18,10 +18,11 @@ limitations under the License.
 package tasks
 
 import (
-	"github.com/apache/incubator-devlake/plugins/core/dal"
 	"net/url"
 	"path/filepath"
 	"reflect"
+
+	"github.com/apache/incubator-devlake/plugins/core/dal"
 
 	"github.com/apache/incubator-devlake/models/domainlayer"
 	"github.com/apache/incubator-devlake/models/domainlayer/didgen"
@@ -36,6 +37,7 @@ var ConvertIssuesMeta = core.SubTaskMeta{
 	EntryPoint:       ConvertIssues,
 	EnabledByDefault: true,
 	Description:      "convert Jira issues",
+	DomainTypes:      []string{core.DOMAIN_TYPE_TICKET},
 }
 
 func ConvertIssues(taskCtx core.SubTaskContext) error {
@@ -47,7 +49,9 @@ func ConvertIssues(taskCtx core.SubTaskContext) error {
 	clauses := []dal.Clause{
 		dal.Select("_tool_jira_issues.*"),
 		dal.From(jiraIssue),
-		dal.Join("left join _tool_jira_board_issues on _tool_jira_board_issues.issue_id = _tool_jira_issues.issue_id"),
+		dal.Join(`left join _tool_jira_board_issues 
+			on _tool_jira_board_issues.issue_id = _tool_jira_issues.issue_id 
+			and _tool_jira_board_issues.connection_id = _tool_jira_issues.connection_id`),
 		dal.Where(
 			"_tool_jira_board_issues.connection_id = ? AND _tool_jira_board_issues.board_id = ?",
 			data.Options.ConnectionId,
@@ -61,7 +65,7 @@ func ConvertIssues(taskCtx core.SubTaskContext) error {
 	defer cursor.Close()
 
 	issueIdGen := didgen.NewDomainIdGenerator(&jiraModels.JiraIssue{})
-	userIdGen := didgen.NewDomainIdGenerator(&jiraModels.JiraUser{})
+	accountIdGen := didgen.NewDomainIdGenerator(&jiraModels.JiraAccount{})
 	boardIdGen := didgen.NewDomainIdGenerator(&jiraModels.JiraBoard{})
 	boardId := boardIdGen.Generate(data.Options.ConnectionId, data.Options.BoardId)
 
@@ -100,13 +104,13 @@ func ConvertIssues(taskCtx core.SubTaskContext) error {
 				TimeSpentMinutes:        jiraIssue.SpentMinutes,
 			}
 			if jiraIssue.CreatorAccountId != "" {
-				issue.CreatorId = userIdGen.Generate(data.Options.ConnectionId, jiraIssue.CreatorAccountId)
+				issue.CreatorId = accountIdGen.Generate(data.Options.ConnectionId, jiraIssue.CreatorAccountId)
 			}
 			if jiraIssue.CreatorDisplayName != "" {
 				issue.CreatorName = jiraIssue.CreatorDisplayName
 			}
 			if jiraIssue.AssigneeAccountId != "" {
-				issue.AssigneeId = userIdGen.Generate(data.Options.ConnectionId, jiraIssue.AssigneeAccountId)
+				issue.AssigneeId = accountIdGen.Generate(data.Options.ConnectionId, jiraIssue.AssigneeAccountId)
 			}
 			if jiraIssue.AssigneeDisplayName != "" {
 				issue.AssigneeName = jiraIssue.AssigneeDisplayName

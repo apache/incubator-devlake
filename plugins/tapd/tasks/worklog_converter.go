@@ -31,12 +31,12 @@ import (
 )
 
 func ConvertWorklog(taskCtx core.SubTaskContext) error {
-	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_WORKLOG_TABLE)
+	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_WORKLOG_TABLE, false)
 	logger := taskCtx.GetLogger()
 	db := taskCtx.GetDal()
 	logger.Info("convert board:%d", data.Options.WorkspaceId)
 	worklogIdGen := didgen.NewDomainIdGenerator(&models.TapdWorklog{})
-	userIdGen := didgen.NewDomainIdGenerator(&models.TapdUser{})
+	accountIdGen := didgen.NewDomainIdGenerator(&models.TapdAccount{})
 	clauses := []dal.Clause{
 		dal.From(&models.TapdWorklog{}),
 		dal.Where("connection_id = ? AND workspace_id = ?", data.Options.ConnectionId, data.Options.WorkspaceId),
@@ -57,7 +57,7 @@ func ConvertWorklog(taskCtx core.SubTaskContext) error {
 				DomainEntity: domainlayer.DomainEntity{
 					Id: worklogIdGen.Generate(data.Options.ConnectionId, toolL.Id),
 				},
-				AuthorId:         userIdGen.Generate(data.Options.ConnectionId, toolL.WorkspaceId, toolL.Owner),
+				AuthorId:         accountIdGen.Generate(data.Options.ConnectionId, toolL.Owner),
 				Comment:          toolL.Memo,
 				TimeSpentMinutes: int(toolL.Timespent),
 				LoggedDate:       (*time.Time)(toolL.Created),

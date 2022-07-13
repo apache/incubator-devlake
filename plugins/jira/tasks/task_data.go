@@ -18,30 +18,48 @@ limitations under the License.
 package tasks
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/apache/incubator-devlake/plugins/helper"
 	"github.com/apache/incubator-devlake/plugins/jira/models"
+	"github.com/mitchellh/mapstructure"
 )
 
+type TransformationRules struct {
+	RequirementTypeMapping     []string
+	BugTypeMapping             []string
+	IncidentTypeMapping        []string
+	EpicKeyField               string
+	StoryPointField            string
+	RemotelinkCommitShaPattern string
+}
+
 type JiraOptions struct {
-	ConnectionId    uint64   `json:"connectionId"`
-	BoardId         uint64   `json:"boardId"`
-	Tasks           []string `json:"tasks,omitempty"`
-	Since           string
-	IssueExtraction struct {
-		RequirementTypeMapping []string
-		BugTypeMapping         []string
-		IncidentTypeMapping    []string
-		//EpicKeyField           string
-		StoryPointField string
-	}
+	ConnectionId        uint64 `json:"connectionId"`
+	BoardId             uint64 `json:"boardId"`
+	Since               string
+	TransformationRules TransformationRules `json:"transformationRules"`
 }
 
 type JiraTaskData struct {
 	Options        *JiraOptions
 	ApiClient      *helper.ApiAsyncClient
-	Connection     *models.JiraConnection
 	Since          *time.Time
 	JiraServerInfo models.JiraServerInfo
+}
+
+func DecodeAndValidateTaskOptions(options map[string]interface{}) (*JiraOptions, error) {
+	var op JiraOptions
+	err := mapstructure.Decode(options, &op)
+	if err != nil {
+		return nil, err
+	}
+	if op.ConnectionId == 0 {
+		return nil, fmt.Errorf("invalid connectionId:%d", op.ConnectionId)
+	}
+	if op.BoardId == 0 {
+		return nil, fmt.Errorf("invalid boardId:%d", op.BoardId)
+	}
+	return &op, nil
 }

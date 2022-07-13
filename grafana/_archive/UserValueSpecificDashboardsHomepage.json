@@ -31,7 +31,7 @@
       "interval": null,
       "links": [],
       "options": {
-        "content": "<a href=\"/d/ZfaFQeM7k/delivery-velocity-require-jira-and-gitlab-data?orgId=1\">\n    <div style=\"vertical-align:center;text-align:center;margin:15px;padding-top:60px;\">\n        <img border=\"0\" src=\"/public/img/lake/delivery_velocity.png\" alt=\"velocity\" width=\"120\">\n        <p style=\"text-align:center;font-size:20px;margin:20px; color:#BFC1C8\"><b>Delivery Velocity<b></p>\n    </div>\n</a>",
+        "content": "<a href=\"/grafana/d/ZfaFQeM7k/delivery-velocity-require-jira-and-gitlab-data?orgId=1\">\n    <div style=\"vertical-align:center;text-align:center;margin:15px;padding-top:60px;\">\n        <img border=\"0\" src=\"/grafana/public/img/lake/delivery_velocity.png\" alt=\"velocity\" width=\"120\">\n        <p style=\"text-align:center;font-size:20px;margin:20px; color:#BFC1C8\"><b>Delivery Velocity<b></p>\n    </div>\n</a>",
         "mode": "html"
       },
       "pluginVersion": "8.0.6",
@@ -82,7 +82,7 @@
       "interval": null,
       "links": [],
       "options": {
-        "content": "<a href=\"/d/nUC-7tGnk/delivery-quality-require-jira-and-gitlab-data?orgId=1\">\n    <div style=\"vertical-align:center;text-align:center;margin:15px;padding-top:60px;\">\n        <img border=\"0\" src=\"/public/img/lake/delivery_quality.png\" alt=\"quality\" width=\"120\">\n        <p style=\"text-align:center;font-size:20px;margin:20px;color:#BFC1C8\"><b>Delivery Quality<b></p>\n    </div>\n</a>",
+        "content": "<a href=\"/grafana/d/nUC-7tGnk/delivery-quality-require-jira-and-gitlab-data?orgId=1\">\n    <div style=\"vertical-align:center;text-align:center;margin:15px;padding-top:60px;\">\n        <img border=\"0\" src=\"/public/img/lake/delivery_quality.png\" alt=\"quality\" width=\"120\">\n        <p style=\"text-align:center;font-size:20px;margin:20px;color:#BFC1C8\"><b>Delivery Quality<b></p>\n    </div>\n</a>",
         "mode": "html"
       },
       "pluginVersion": "8.0.6",
@@ -182,7 +182,7 @@
       "interval": null,
       "links": [],
       "options": {
-        "content": "<a href=\"/d/TV-BnpM7k/delivery-cost-require-gitlab-data?orgId=1\"> \n    <div style=\"vertical-align:center;text-align:center;margin:15px;padding-top:60px;\">\n        <img border=\"0\" src=\"/public/img/lake/delivery_cost.png\" alt=\"cost\" width=\"120\">\n        <p style=\"text-align:center;font-size:20px;margin:20px;color:#BFC1C8\"><b>Delivery Cost<b></p>\n    </div>\n</a>",
+        "content": "<a href=\"/grafana/d/TV-BnpM7k/delivery-cost-require-gitlab-data?orgId=1\"> \n    <div style=\"vertical-align:center;text-align:center;margin:15px;padding-top:60px;\">\n        <img border=\"0\" src=\"/public/img/lake/delivery_cost.png\" alt=\"cost\" width=\"120\">\n        <p style=\"text-align:center;font-size:20px;margin:20px;color:#BFC1C8\"><b>Delivery Cost<b></p>\n    </div>\n</a>",
         "mode": "html"
       },
       "pluginVersion": "8.0.6",
@@ -233,7 +233,7 @@
       "interval": null,
       "links": [],
       "options": {
-        "content": "<a href=\"/d/3Lv1ImSnk/delivery-capability-require-jenkins-data?orgId=1\"> \n    <div style=\"vertical-align:center;text-align:center;margin:15px;padding-top:60px;\">\n        <img border=\"0\" src=\"/public/img/lake/delivery_capability.png\" alt=\"capability\" width=\"120\">\n        <p style=\"text-align:center;font-size:20px;margin:20px;color:#BFC1C8\"><b>Delivery Capability<b></p>\n    </div>\n</a>",
+        "content": "<a href=\"/grafana/d/3Lv1ImSnk/delivery-capability-require-jenkins-data?orgId=1\"> \n    <div style=\"vertical-align:center;text-align:center;margin:15px;padding-top:60px;\">\n        <img border=\"0\" src=\"/public/img/lake/delivery_capability.png\" alt=\"capability\" width=\"120\">\n        <p style=\"text-align:center;font-size:20px;margin:20px;color:#BFC1C8\"><b>Delivery Capability<b></p>\n    </div>\n</a>",
         "mode": "html"
       },
       "pluginVersion": "8.0.6",

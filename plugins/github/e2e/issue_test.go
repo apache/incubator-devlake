@@ -18,9 +18,10 @@ limitations under the License.
 package e2e
 
 import (
+	"testing"
+
 	"github.com/apache/incubator-devlake/models/domainlayer/ticket"
 	"github.com/apache/incubator-devlake/plugins/github/models"
-	"testing"
 
 	"github.com/apache/incubator-devlake/helpers/e2ehelper"
 	"github.com/apache/incubator-devlake/plugins/github/impl"
@@ -29,7 +30,7 @@ import (
 
 func TestIssueDataFlow(t *testing.T) {
 	var plugin impl.Github
-	dataflowTester := e2ehelper.NewDataFlowTester(t, "gitlab", plugin)
+	dataflowTester := e2ehelper.NewDataFlowTester(t, "github", plugin)
 
 	githubRepository := &models.GithubRepo{
 		GithubId: 134018330,
@@ -60,12 +61,15 @@ func TestIssueDataFlow(t *testing.T) {
 	// verify issue extraction
 	dataflowTester.FlushTabler(&models.GithubIssue{})
 	dataflowTester.FlushTabler(&models.GithubIssueLabel{})
+	dataflowTester.FlushTabler(&models.GithubAccount{})
 	dataflowTester.Subtask(tasks.ExtractApiIssuesMeta, taskData)
 	dataflowTester.VerifyTable(
 		models.GithubIssue{},
 		"./snapshot_tables/_tool_github_issues.csv",
-		[]string{"connection_id", "github_id", "repo_id"},
 		[]string{
+			"connection_id",
+			"github_id",
+			"repo_id",
 			"number",
 			"state",
 			"title",
@@ -77,6 +81,7 @@ func TestIssueDataFlow(t *testing.T) {
 			"author_name",
 			"assignee_id",
 			"assignee_name",
+			"milestone_id",
 			"lead_time_minutes",
 			"url",
 			"closed_at",
@@ -93,12 +98,27 @@ func TestIssueDataFlow(t *testing.T) {
 	dataflowTester.VerifyTable(
 		models.GithubIssueLabel{},
 		"./snapshot_tables/_tool_github_issue_labels.csv",
-		[]string{"connection_id", "issue_id", "label_name"},
 		[]string{
+			"connection_id",
+			"issue_id",
+			"label_name",
 			"_raw_data_params",
 			"_raw_data_table",
 			"_raw_data_id",
 			"_raw_data_remark",
+		},
+	)
+	dataflowTester.VerifyTable(
+		models.GithubAccount{},
+		"./snapshot_tables/_tool_github_accounts_in_issue.csv",
+		[]string{
+			"connection_id",
+			"id",
+			"login",
+			"avatar_url",
+			"url",
+			"html_url",
+			"type",
 		},
 	)
 
@@ -109,8 +129,8 @@ func TestIssueDataFlow(t *testing.T) {
 	dataflowTester.VerifyTable(
 		ticket.Issue{},
 		"./snapshot_tables/issues.csv",
-		[]string{"id"},
 		[]string{
+			"id",
 			"url",
 			"icon_url",
 			"issue_key",
@@ -142,7 +162,6 @@ func TestIssueDataFlow(t *testing.T) {
 		ticket.BoardIssue{},
 		"./snapshot_tables/board_issues.csv",
 		[]string{"board_id", "issue_id"},
-		[]string{},
 	)
 
 	// verify issue labels conversion
@@ -152,6 +171,5 @@ func TestIssueDataFlow(t *testing.T) {
 		ticket.IssueLabel{},
 		"./snapshot_tables/issue_labels.csv",
 		[]string{"issue_id", "label_name"},
-		[]string{},
 	)
 }

@@ -36,6 +36,7 @@ var ExtractIssuesMeta = core.SubTaskMeta{
 	EntryPoint:       ExtractIssues,
 	EnabledByDefault: true,
 	Description:      "extract Jira issues",
+	DomainTypes:      []string{core.DOMAIN_TYPE_TICKET},
 }
 
 func ExtractIssues(taskCtx core.SubTaskContext) error {
@@ -47,13 +48,13 @@ func ExtractIssues(taskCtx core.SubTaskContext) error {
 	// prepare getStdType function
 	// TODO: implement type mapping
 	typeMappings := make(map[string]string)
-	for _, userType := range data.Options.IssueExtraction.RequirementTypeMapping {
+	for _, userType := range data.Options.TransformationRules.RequirementTypeMapping {
 		typeMappings[userType] = "REQUIREMENT"
 	}
-	for _, userType := range data.Options.IssueExtraction.BugTypeMapping {
+	for _, userType := range data.Options.TransformationRules.BugTypeMapping {
 		typeMappings[userType] = "BUG"
 	}
-	for _, userType := range data.Options.IssueExtraction.IncidentTypeMapping {
+	for _, userType := range data.Options.TransformationRules.IncidentTypeMapping {
 		typeMappings[userType] = "INCIDENT"
 	}
 
@@ -98,11 +99,13 @@ func ExtractIssues(taskCtx core.SubTaskContext) error {
 			if issue.ResolutionDate != nil {
 				issue.LeadTimeMinutes = uint(issue.ResolutionDate.Unix()-issue.Created.Unix()) / 60
 			}
-			if data.Options.IssueExtraction.StoryPointField != "" {
-				strStoryPoint := apiIssue.Fields.AllFields[data.Options.IssueExtraction.StoryPointField].(string)
-				issue.StoryPoint, _ = strconv.ParseFloat(strStoryPoint, 32)
+			if data.Options.TransformationRules.StoryPointField != "" {
+				strStoryPoint, _ := apiIssue.Fields.AllFields[data.Options.TransformationRules.StoryPointField].(string)
+				if strStoryPoint != "" {
+					issue.StoryPoint, _ = strconv.ParseFloat(strStoryPoint, 32)
+				}
 			}
-			issue.StdStoryPoint = uint(issue.StoryPoint)
+			issue.StdStoryPoint = int64(issue.StoryPoint)
 			issue.StdType = typeMappings[issue.Type]
 			if issue.StdType == "" {
 				issue.StdType = strings.ToUpper(issue.Type)

@@ -49,8 +49,10 @@ func TestTapdStoryDataFlow(t *testing.T) {
 	dataflowTester.VerifyTable(
 		models.TapdStoryStatus{},
 		fmt.Sprintf("./snapshot_tables/%s.csv", models.TapdStoryStatus{}.TableName()),
-		[]string{"connection_id", "workspace_id", "english_name"},
 		[]string{
+			"connection_id",
+			"workspace_id",
+			"english_name",
 			"chinese_name",
 			"is_last_step",
 			"_raw_data_params",
@@ -73,8 +75,9 @@ func TestTapdStoryDataFlow(t *testing.T) {
 	dataflowTester.VerifyTable(
 		models.TapdStory{},
 		fmt.Sprintf("./snapshot_tables/%s.csv", models.TapdStory{}.TableName()),
-		[]string{"connection_id", "id"},
 		[]string{
+			"connection_id",
+			"id",
 			"workitem_type_id",
 			"name",
 			"description",
@@ -189,8 +192,6 @@ func TestTapdStoryDataFlow(t *testing.T) {
 			"connection_id",
 			"workspace_id",
 			"story_id",
-		},
-		[]string{
 			"_raw_data_params",
 			"_raw_data_table",
 			"_raw_data_id",
@@ -205,8 +206,6 @@ func TestTapdStoryDataFlow(t *testing.T) {
 			"workspace_id",
 			"iteration_id",
 			"story_id",
-		},
-		[]string{
 			"resolution_date",
 			"story_created_date",
 			"_raw_data_params",
@@ -221,8 +220,6 @@ func TestTapdStoryDataFlow(t *testing.T) {
 		[]string{
 			"label_name",
 			"story_id",
-		},
-		[]string{
 			"_raw_data_params",
 			"_raw_data_table",
 			"_raw_data_id",
@@ -238,8 +235,8 @@ func TestTapdStoryDataFlow(t *testing.T) {
 	dataflowTester.VerifyTable(
 		ticket.Issue{},
 		fmt.Sprintf("./snapshot_tables/%s_story.csv", ticket.Issue{}.TableName()),
-		[]string{"id"},
 		[]string{
+			"id",
 			"_raw_data_params",
 			"_raw_data_table",
 			"_raw_data_id",
@@ -277,8 +274,6 @@ func TestTapdStoryDataFlow(t *testing.T) {
 		[]string{
 			"board_id",
 			"issue_id",
-		},
-		[]string{
 			"_raw_data_params",
 			"_raw_data_table",
 			"_raw_data_id",
@@ -291,8 +286,6 @@ func TestTapdStoryDataFlow(t *testing.T) {
 		[]string{
 			"issue_id",
 			"sprint_id",
-		},
-		[]string{
 			"_raw_data_params",
 			"_raw_data_table",
 			"_raw_data_id",
@@ -306,8 +299,6 @@ func TestTapdStoryDataFlow(t *testing.T) {
 		[]string{
 			"issue_id",
 			"label_name",
-		},
-		[]string{
 			"_raw_data_params",
 			"_raw_data_table",
 			"_raw_data_id",

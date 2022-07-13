@@ -66,7 +66,7 @@ func GetTotalPagesFromResponse(r *http.Response, args *helper.ApiCollectorArgs) 
 	return totalPage, err
 }
 
-func parseIterationChangelog(taskCtx core.SubTaskContext, old string, new string) (uint64, uint64, error) {
+func parseIterationChangelog(taskCtx core.SubTaskContext, old string, new string) (iterationFromId uint64, iterationToId uint64, err error) {
 	data := taskCtx.GetData().(*TapdTaskData)
 	db := taskCtx.GetDal()
 	iterationFrom := &models.TapdIteration{}
@@ -75,7 +75,7 @@ func parseIterationChangelog(taskCtx core.SubTaskContext, old string, new string
 		dal.Where("connection_id = ? and workspace_id = ? and name = ?",
 			data.Options.ConnectionId, data.Options.WorkspaceId, old),
 	}
-	err := db.First(iterationFrom, clauses...)
+	err = db.First(iterationFrom, clauses...)
 	if err != nil && err != gorm.ErrRecordNotFound {
 		return 0, 0, err
 	}
@@ -115,19 +115,24 @@ type TapdApiParams struct {
 	WorkspaceId  uint64
 }
 
-func CreateRawDataSubTaskArgs(taskCtx core.SubTaskContext, rawTable string) (*helper.RawDataSubTaskArgs, *TapdTaskData) {
+func CreateRawDataSubTaskArgs(taskCtx core.SubTaskContext, rawTable string, useCompanyId bool) (*helper.RawDataSubTaskArgs, *TapdTaskData) {
 	data := taskCtx.GetData().(*TapdTaskData)
+	filteredData := *data
+	filteredData.Options = &TapdOptions{}
+	*filteredData.Options = *data.Options
 	var params = TapdApiParams{
 		ConnectionId: data.Options.ConnectionId,
 		WorkspaceId:  data.Options.WorkspaceId,
 	}
-	if data.Options.CompanyId != 0 {
+	if data.Options.CompanyId != 0 && useCompanyId {
 		params.CompanyId = data.Options.CompanyId
+	} else {
+		filteredData.Options.CompanyId = 0
 	}
-	RawDataSubTaskArgs := &helper.RawDataSubTaskArgs{
+	rawDataSubTaskArgs := &helper.RawDataSubTaskArgs{
 		Ctx:    taskCtx,
 		Params: params,
 		Table:  rawTable,
 	}
-	return RawDataSubTaskArgs, data
+	return rawDataSubTaskArgs, &filteredData
 }

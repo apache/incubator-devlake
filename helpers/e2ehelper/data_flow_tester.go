@@ -22,6 +22,13 @@ import (
 	"database/sql"
 	"encoding/json"
 	"fmt"
+	"os"
+	"strconv"
+	"strings"
+	"sync"
+	"testing"
+	"time"
+
 	"github.com/apache/incubator-devlake/config"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper"
 	"github.com/apache/incubator-devlake/impl/dalgorm"
@@ -30,14 +37,11 @@ import (
 	"github.com/apache/incubator-devlake/plugins/core/dal"
 	"github.com/apache/incubator-devlake/plugins/helper"
 	"github.com/apache/incubator-devlake/runner"
+	"github.com/apache/incubator-devlake/utils"
 	"github.com/spf13/viper"
 	"github.com/stretchr/testify/assert"
 	"gorm.io/gorm"
 	"gorm.io/gorm/schema"
-	"os"
-	"strings"
-	"testing"
-	"time"
 )
 
 // DataFlowTester provides a universal data integrity validation facility to help `Plugin` verifying records between
@@ -52,6 +56,7 @@ import (
 //
 // Recommended Usage:
 
+// DataFlowTester use `N`
 //   1. Create a folder under your plugin root folder. i.e. `plugins/gitlab/e2e/ to host all your e2e-tests`
 //   2. Create a folder named `tables` to hold all data in `csv` format
 //   3. Create e2e test-cases to cover all possible data-flow routes
@@ -59,8 +64,6 @@ import (
 // Example code:
 //
 //   See [Gitlab Project Data Flow Test](plugins/gitlab/e2e/project_test.go) for detail
-//
-// DataFlowTester use `N`
 type DataFlowTester struct {
 	Cfg    *viper.Viper
 	Db     *gorm.DB
@@ -69,6 +72,19 @@ type DataFlowTester struct {
 	Name   string
 	Plugin core.PluginMeta
 	Log    core.Logger
+}
+
+// TableOptions FIXME ...
+type TableOptions struct {
+	// CSVRelPath relative path to the CSV file that contains the seeded data
+	CSVRelPath string
+	// TargetFields the fields (columns) to consider for verification. Leave empty to default to all.
+	TargetFields []string
+	// IgnoreFields the fields (columns) to ignore/skip.
+	IgnoreFields []string
+	// IgnoreTypes similar to IgnoreFields, this will ignore the fields contained in the type. Useful for ignoring embedded
+	// types and their fields in the target model
+	IgnoreTypes []interface{}
 }
 
 // NewDataFlowTester create a *DataFlowTester to help developer test their subtasks data flow
@@ -136,7 +152,7 @@ func (t *DataFlowTester) ImportCsvIntoTabler(csvRelPath string, dst schema.Table
 	}
 }
 
-// MigrateRawTableAndFlush migrate table and deletes all records from specified table
+// FlushRawTable migrate table and deletes all records from specified table
 func (t *DataFlowTester) FlushRawTable(rawTableName string) {
 	// flush target table
 	err := t.Db.Migrator().DropTable(rawTableName)
@@ -164,31 +180,57 @@ func (t *DataFlowTester) FlushTabler(dst schema.Tabler) {
 
 // Subtask executes specified subtasks
 func (t *DataFlowTester) Subtask(subtaskMeta core.SubTaskMeta, taskData interface{}) {
-	subtaskCtx := helper.NewStandaloneSubTaskContext(t.Cfg, t.Log, t.Db, context.Background(), t.Name, taskData)
+	subtaskCtx := helper.NewStandaloneSubTaskContext(context.Background(), t.Cfg, t.Log, t.Db, t.Name, taskData)
 	err := subtaskMeta.EntryPoint(subtaskCtx)
 	if err != nil {
 		panic(err)
 	}
 }
 
+func filterColumn(column dal.ColumnMeta, opts TableOptions) bool {
+	for _, ignore := range opts.IgnoreFields {
+		if column.Name() == ignore {
+			return false
+		}
+	}
+	if len(opts.TargetFields) == 0 {
+		return true
+	}
+	targetFound := false
+	for _, target := range opts.TargetFields {
+		if column.Name() == target {
+			targetFound = true
+			break
+		}
+	}
+	return targetFound
+}
+
 // CreateSnapshot reads rows from database and write them into .csv file.
-func (t *DataFlowTester) CreateSnapshot(dst schema.Tabler, csvRelPath string, pkfields []string, targetfields []string) {
+func (t *DataFlowTester) CreateSnapshot(dst schema.Tabler, opts TableOptions) {
 	location, _ := time.LoadLocation(`UTC`)
-	allFields := append(pkfields, targetfields...)
+
+	targetFields := t.resolveTargetFields(dst, opts)
+	pkColumnNames, err := dal.GetPrimarykeyColumnNames(t.Dal, dst)
+	if err != nil {
+		panic(err)
+	}
+	allFields := append(pkColumnNames, targetFields...)
+	allFields = utils.StringsUniq(allFields)
 	dbCursor, err := t.Dal.Cursor(
 		dal.Select(strings.Join(allFields, `,`)),
 		dal.From(dst.TableName()),
-		dal.Orderby(strings.Join(pkfields, `,`)),
+		dal.Orderby(strings.Join(pkColumnNames, `,`)),
 	)
 	if err != nil {
-		panic(err)
+		panic(fmt.Errorf("unable to run select query on table %s: %v", dst.TableName(), err))
 	}
 
 	columns, err := dbCursor.Columns()
 	if err != nil {
-		panic(err)
+		panic(fmt.Errorf("unable to get columns from table %s: %v", dst.TableName(), err))
 	}
-	csvWriter := pluginhelper.NewCsvFileWriter(csvRelPath, columns)
+	csvWriter := pluginhelper.NewCsvFileWriter(opts.CSVRelPath, columns)
 	defer csvWriter.Close()
 
 	// define how to scan value
@@ -207,7 +249,7 @@ func (t *DataFlowTester) CreateSnapshot(dst schema.Tabler, csvRelPath string, pk
 	for dbCursor.Next() {
 		err = dbCursor.Scan(forScanValues...)
 		if err != nil {
-			panic(err)
+			panic(fmt.Errorf("unable to scan row on table %s: %v", dst.TableName(), err))
 		}
 		values := make([]string, len(allFields))
 		for i := range forScanValues {
@@ -231,72 +273,154 @@ func (t *DataFlowTester) CreateSnapshot(dst schema.Tabler, csvRelPath string, pk
 		}
 		csvWriter.Write(values)
 	}
+	fmt.Printf("created CSV file: %s\n", opts.CSVRelPath)
 }
 
-// VerifyTable reads rows from csv file and compare with records from database one by one. You must specified the
-// Primary Key Fields with `pkfields` so DataFlowTester could select the exact record from database, as well as which
-// fields to compare with by specifying `targetfields` parameter.
-func (t *DataFlowTester) VerifyTable(dst schema.Tabler, csvRelPath string, pkfields []string, targetfields []string) {
-	_, err := os.Stat(csvRelPath)
+// ExportRawTable reads rows from raw table and write them into .csv file.
+func (t *DataFlowTester) ExportRawTable(rawTableName string, csvRelPath string) {
+	location, _ := time.LoadLocation(`UTC`)
+	allFields := []string{`id`, `params`, `data`, `url`, `input`, `created_at`}
+	rawRows := &[]helper.RawData{}
+	err := t.Dal.All(
+		rawRows,
+		dal.Select(`id, params, data, url, input, created_at`),
+		dal.From(rawTableName),
+		dal.Orderby(`id`),
+	)
+	if err != nil {
+		panic(err)
+	}
+
+	csvWriter := pluginhelper.NewCsvFileWriter(csvRelPath, allFields)
+	defer csvWriter.Close()
+
+	for _, rawRow := range *rawRows {
+		csvWriter.Write([]string{
+			strconv.FormatUint(rawRow.ID, 10),
+			rawRow.Params,
+			string(rawRow.Data),
+			rawRow.Url,
+			string(rawRow.Input),
+			rawRow.CreatedAt.In(location).Format("2006-01-02T15:04:05.000-07:00"),
+		})
+	}
+}
+
+func formatDbValue(value interface{}) string {
+	location, _ := time.LoadLocation(`UTC`)
+	switch value := value.(type) {
+	case time.Time:
+		return value.In(location).Format("2006-01-02T15:04:05.000-07:00")
+	case bool:
+		if value {
+			return `1`
+		} else {
+			return `0`
+		}
+	default:
+		if value != nil {
+			return fmt.Sprint(value)
+		}
+	}
+	return ``
+}
+
+// VerifyTable reads rows from csv file and compare with records from database one by one. You must specify the
+// Primary Key Fields with `pkFields` so DataFlowTester could select the exact record from database, as well as which
+// fields to compare with by specifying `targetFields` parameter. Leaving `targetFields` empty/nil will compare all fields.
+func (t *DataFlowTester) VerifyTable(dst schema.Tabler, csvRelPath string, targetFields []string) {
+	t.VerifyTableWithOptions(dst, TableOptions{
+		CSVRelPath:   csvRelPath,
+		TargetFields: targetFields,
+	})
+}
+
+func (t *DataFlowTester) extractColumns(ifc interface{}) []string {
+	sch, err := schema.Parse(ifc, &sync.Map{}, schema.NamingStrategy{})
+	if err != nil {
+		panic(fmt.Sprintf("error getting object schema: %v", err))
+	}
+	var columns []string
+	for _, f := range sch.Fields {
+		columns = append(columns, f.DBName)
+	}
+	return columns
+}
+
+func (t *DataFlowTester) resolveTargetFields(dst schema.Tabler, opts TableOptions) []string {
+	for _, ignore := range opts.IgnoreTypes {
+		opts.IgnoreFields = append(opts.IgnoreFields, t.extractColumns(ignore)...)
+	}
+	var targetFields []string
+	if len(opts.TargetFields) == 0 || len(opts.IgnoreFields) > 0 {
+		names, err := dal.GetColumnNames(t.Dal, dst, func(cm dal.ColumnMeta) bool {
+			return filterColumn(cm, opts)
+		})
+		if err != nil {
+			panic(err)
+		}
+		targetFields = append(targetFields, names...)
+	} else {
+		targetFields = opts.TargetFields
+	}
+	return targetFields
+}
+
+// VerifyTableWithOptions extends VerifyTable and allows for more advanced usages using TableOptions
+func (t *DataFlowTester) VerifyTableWithOptions(dst schema.Tabler, opts TableOptions) {
+	if opts.CSVRelPath == "" {
+		panic("CSV relative path missing")
+	}
+	_, err := os.Stat(opts.CSVRelPath)
 	if os.IsNotExist(err) {
-		t.CreateSnapshot(dst, csvRelPath, pkfields, targetfields)
+		t.CreateSnapshot(dst, opts)
 		return
 	}
 
-	csvIter := pluginhelper.NewCsvFileIterator(csvRelPath)
-	location, _ := time.LoadLocation(`UTC`)
-	defer csvIter.Close()
+	targetFields := t.resolveTargetFields(dst, opts)
+	pkColumns, err := dal.GetPrimarykeyColumns(t.Dal, dst)
+	if err != nil {
+		panic(err)
+	}
 
+	csvIter := pluginhelper.NewCsvFileIterator(opts.CSVRelPath)
+	defer csvIter.Close()
 	expectedTotal := int64(0)
+	csvMap := map[string]map[string]interface{}{}
 	for csvIter.HasNext() {
 		expected := csvIter.Fetch()
-		pkvalues := make([]interface{}, 0, len(pkfields))
-		for _, pkf := range pkfields {
-			pkvalues = append(pkvalues, expected[pkf])
+		pkValues := make([]string, 0, len(pkColumns))
+		for _, pkc := range pkColumns {
+			pkValues = append(pkValues, expected[pkc.Name()].(string))
 		}
-		actual := make(map[string]interface{})
-		where := []string{}
-		for _, field := range pkfields {
-			where = append(where, fmt.Sprintf(" %s = ?", field))
+		pkValueStr := strings.Join(pkValues, `-`)
+		_, ok := csvMap[pkValueStr]
+		assert.False(t.T, ok, fmt.Sprintf(`%s duplicated in csv (with params from csv %s)`, dst.TableName(), pkValues))
+		for _, ignore := range opts.IgnoreFields {
+			delete(expected, ignore)
 		}
-
-		var actualCount int64
-		err := t.Db.Table(dst.TableName()).Where(strings.Join(where, ` AND `), pkvalues...).Count(&actualCount).Error
-		if err != nil {
-			panic(err)
+		csvMap[pkValueStr] = expected
+	}
+	dbRows := &[]map[string]interface{}{}
+	err = t.Db.Table(dst.TableName()).Find(dbRows).Error
+	if err != nil {
+		panic(err)
+	}
+	for _, actual := range *dbRows {
+		pkValues := make([]string, 0, len(pkColumns))
+		for _, pkc := range pkColumns {
+			pkValues = append(pkValues, formatDbValue(actual[pkc.Name()]))
 		}
-		assert.Equal(t.T, int64(1), actualCount, fmt.Sprintf(`%s found not eq 1 but %d (with params from csv %s)`, dst.TableName(), actualCount, pkvalues))
-		if actualCount != 1 {
+		expected, ok := csvMap[strings.Join(pkValues, `-`)]
+		assert.True(t.T, ok, fmt.Sprintf(`%s not found (with params from csv %s)`, dst.TableName(), pkValues))
+		if !ok {
 			continue
 		}
-
-		err = t.Db.Table(dst.TableName()).Where(strings.Join(where, ` AND `), pkvalues...).Find(actual).Error
-		if err != nil {
-			panic(err)
-		}
-		for _, field := range targetfields {
-			actualValue := ""
-			switch actual[field].(type) {
-			case time.Time:
-				if actual[field] != nil {
-					actualValue = actual[field].(time.Time).In(location).Format("2006-01-02T15:04:05.000-07:00")
-				}
-			case bool:
-				if actual[field].(bool) {
-					actualValue = `1`
-				} else {
-					actualValue = `0`
-				}
-			default:
-				if actual[field] != nil {
-					actualValue = fmt.Sprint(actual[field])
-				}
-			}
-			assert.Equal(t.T, expected[field], actualValue, fmt.Sprintf(`%s.%s not match (with params from csv %s)`, dst.TableName(), field, pkvalues))
+		for _, field := range targetFields {
+			assert.Equal(t.T, expected[field], formatDbValue(actual[field]), fmt.Sprintf(`%s.%s not match (with params from csv %s)`, dst.TableName(), field, pkValues))
 		}
 		expectedTotal++
 	}
-
 	var actualTotal int64
 	err = t.Db.Table(dst.TableName()).Count(&actualTotal).Error
 	if err != nil {

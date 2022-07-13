@@ -19,25 +19,20 @@ package dalgorm
 
 import (
 	"database/sql"
+	"reflect"
 	"strings"
 
 	"github.com/apache/incubator-devlake/plugins/core/dal"
+	"github.com/apache/incubator-devlake/utils"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
+	"gorm.io/gorm/schema"
 )
 
+// Dalgorm FIXME ...
 type Dalgorm struct {
 	db *gorm.DB
 }
-
-// To accommodate gorm
-//type stubTable struct {
-//name string
-//}
-
-//func (s *stubTable) TableName() string {
-//return s.name
-//}
 
 func buildTx(tx *gorm.DB, clauses []dal.Clause) *gorm.DB {
 	for _, c := range clauses {
@@ -73,8 +68,8 @@ func buildTx(tx *gorm.DB, clauses []dal.Clause) *gorm.DB {
 
 var _ dal.Dal = (*Dalgorm)(nil)
 
-// Exec executes raw sql query
-func (d *Dalgorm) Raw(query string, params ...interface{}) (*sql.Rows, error) {
+// RawCursor executes raw sql query and returns a database cursor
+func (d *Dalgorm) RawCursor(query string, params ...interface{}) (*sql.Rows, error) {
 	return d.db.Raw(query, params...).Rows()
 }
 
@@ -83,7 +78,7 @@ func (d *Dalgorm) Exec(query string, params ...interface{}) error {
 	return d.db.Exec(query, params...).Error
 }
 
-// CreateTable creates a table with gorm definition from `entity`
+// AutoMigrate runs auto migration for given models
 func (d *Dalgorm) AutoMigrate(entity interface{}, clauses ...dal.Clause) error {
 	return buildTx(d.db, clauses).AutoMigrate(entity)
 }
@@ -93,6 +88,7 @@ func (d *Dalgorm) Cursor(clauses ...dal.Clause) (*sql.Rows, error) {
 	return buildTx(d.db, clauses).Rows()
 }
 
+// CursorTx FIXME ...
 func (d *Dalgorm) CursorTx(clauses ...dal.Clause) *gorm.DB {
 	return buildTx(d.db, clauses)
 }
@@ -110,9 +106,6 @@ func (d *Dalgorm) All(dst interface{}, clauses ...dal.Clause) error {
 // First loads first matched row from database to `dst`, error will be returned if no records were found
 func (d *Dalgorm) First(dst interface{}, clauses ...dal.Clause) error {
 	err := buildTx(d.db, clauses).First(dst).Error
-	if err == gorm.ErrRecordNotFound {
-		return dal.ErrRecordNotFound
-	}
 	return err
 }
 
@@ -153,6 +146,29 @@ func (d *Dalgorm) Delete(entity interface{}, clauses ...dal.Clause) error {
 	return buildTx(d.db, clauses).Delete(entity).Error
 }
 
+// GetColumns FIXME ...
+func (d *Dalgorm) GetColumns(dst schema.Tabler, filter func(columnMeta dal.ColumnMeta) bool) (cms []dal.ColumnMeta, err error) {
+	columnTypes, err := d.db.Migrator().ColumnTypes(dst.TableName())
+	if err != nil {
+		return nil, err
+	}
+	for _, columnType := range columnTypes {
+		if filter == nil {
+			cms = append(cms, columnType)
+		} else if filter(columnType) {
+			cms = append(cms, columnType)
+		}
+	}
+	return cms, nil
+}
+
+// GetPrimaryKeyFields get the PrimaryKey from `gorm` tag
+func (d *Dalgorm) GetPrimaryKeyFields(t reflect.Type) []reflect.StructField {
+	return utils.WalkFields(t, func(field *reflect.StructField) bool {
+		return strings.Contains(strings.ToLower(field.Tag.Get("gorm")), "primarykey")
+	})
+}
+
 // AllTables returns all tables in the database
 func (d *Dalgorm) AllTables() ([]string, error) {
 	var tableSql string
@@ -174,6 +190,8 @@ func (d *Dalgorm) AllTables() ([]string, error) {
 	}
 	return filteredTables, nil
 }
+
+// NewDalgorm FIXME ...
 func NewDalgorm(db *gorm.DB) *Dalgorm {
 	return &Dalgorm{db}
 }

@@ -35,6 +35,7 @@ var ConvertSprintsMeta = core.SubTaskMeta{
 	EntryPoint:       ConvertSprints,
 	EnabledByDefault: true,
 	Description:      "convert Jira sprints",
+	DomainTypes:      []string{core.DOMAIN_TYPE_TICKET},
 }
 
 func ConvertSprints(taskCtx core.SubTaskContext) error {
@@ -45,7 +46,8 @@ func ConvertSprints(taskCtx core.SubTaskContext) error {
 	db := taskCtx.GetDal()
 	logger.Info("convert sprints")
 	clauses := []dal.Clause{
-		dal.Select("_tool_jira_sprints.*"),
+		dal.Select("*"),
+		dal.From(&models.JiraSprint{}),
 		dal.Join("left join _tool_jira_board_sprints on _tool_jira_board_sprints.sprint_id = _tool_jira_sprints.sprint_id"),
 		dal.Where("_tool_jira_board_sprints.connection_id = ? AND _tool_jira_board_sprints.board_id = ?", connectionId, boardId),
 	}

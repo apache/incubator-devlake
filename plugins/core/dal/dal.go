@@ -19,7 +19,9 @@ package dal
 
 import (
 	"database/sql"
-	"errors"
+	"reflect"
+
+	"gorm.io/gorm/schema"
 )
 
 type Clause struct {
@@ -27,16 +29,30 @@ type Clause struct {
 	Data interface{}
 }
 
-// Dal aims to facilitate an isolation of Database Access Layer by defining a set of operations should a
-// Database Access Layer provide
-// This is inroduced by the fact that mocking *gorm.DB is hard, and `gomonkey` is not working on macOS
+// ColumnMeta column type interface
+type ColumnMeta interface {
+	Name() string
+	DatabaseTypeName() string                 // varchar
+	ColumnType() (columnType string, ok bool) // varchar(64)
+	PrimaryKey() (isPrimaryKey bool, ok bool)
+	AutoIncrement() (isAutoIncrement bool, ok bool)
+	Length() (length int64, ok bool)
+	DecimalSize() (precision int64, scale int64, ok bool)
+	Nullable() (nullable bool, ok bool)
+	Unique() (unique bool, ok bool)
+	ScanType() reflect.Type
+	Comment() (value string, ok bool)
+	DefaultValue() (value string, ok bool)
+}
+
+// Dal aims to facilitate an isolation between DBS and our System by defining a set of operations should a DBS provide
 type Dal interface {
-	// Raw executes raw sql query with sql.Rows and error return
-	Raw(query string, params ...interface{}) (*sql.Rows, error)
+	// AutoMigrate runs auto migration for given entity
+	AutoMigrate(entity interface{}, clauses ...Clause) error
 	// Exec executes raw sql query
 	Exec(query string, params ...interface{}) error
-	// CreateTable creates a table with gorm definition from `entity`R
-	AutoMigrate(entity interface{}, clauses ...Clause) error
+	// RawCursor executes raw sql query and returns a database cursor
+	RawCursor(query string, params ...interface{}) (*sql.Rows, error)
 	// Cursor returns a database cursor, cursor is especially useful when handling big amount of rows of data
 	Cursor(clauses ...Clause) (*sql.Rows, error)
 	// Fetch loads row data from `cursor` into `dst`
@@ -61,6 +77,42 @@ type Dal interface {
 	Delete(entity interface{}, clauses ...Clause) error
 	// AllTables returns all tables in database
 	AllTables() ([]string, error)
+	// GetColumns returns table columns in database
+	GetColumns(dst schema.Tabler, filter func(columnMeta ColumnMeta) bool) (cms []ColumnMeta, err error)
+	// GetPrimarykeyFields get the PrimaryKey from `gorm` tag
+	GetPrimaryKeyFields(t reflect.Type) []reflect.StructField
+}
+
+// GetColumnNames returns table Column Names in database
+func GetColumnNames(d Dal, dst schema.Tabler, filter func(columnMeta ColumnMeta) bool) (names []string, err error) {
+	columns, err := d.GetColumns(dst, filter)
+	if err != nil {
+		return
+	}
+	for _, pkColumn := range columns {
+		names = append(names, pkColumn.Name())
+	}
+	return
+}
+
+// GetPrimarykeyColumns get returns PrimaryKey table Meta in database
+func GetPrimarykeyColumns(d Dal, dst schema.Tabler) ([]ColumnMeta, error) {
+	return d.GetColumns(dst, func(columnMeta ColumnMeta) bool {
+		isPrimaryKey, ok := columnMeta.PrimaryKey()
+		return isPrimaryKey && ok
+	})
+}
+
+// GetPrimarykeyColumnNames get returns PrimaryKey Column Names in database
+func GetPrimarykeyColumnNames(d Dal, dst schema.Tabler) (names []string, err error) {
+	pkColumns, err := GetPrimarykeyColumns(d, dst)
+	if err != nil {
+		return
+	}
+	for _, pkColumn := range pkColumns {
+		names = append(names, pkColumn.Name())
+	}
+	return
 }
 
 type DalClause struct {
@@ -126,9 +178,7 @@ func Groupby(expr string) Clause {
 
 const HavingClause string = "Having"
 
-// Groupby creates a new Groupby clause
+// Having creates a new Having clause
 func Having(clause string, params ...interface{}) Clause {
 	return Clause{Type: HavingClause, Data: DalClause{clause, params}}
 }
-
-var ErrRecordNotFound = errors.New("record not found")

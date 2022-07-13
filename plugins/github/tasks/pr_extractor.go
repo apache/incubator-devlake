@@ -19,7 +19,9 @@ package tasks
 
 import (
 	"encoding/json"
+	"fmt"
 	"regexp"
+	"runtime/debug"
 
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/github/models"
@@ -44,14 +46,8 @@ type GithubApiPullRequest struct {
 	Labels   []struct {
 		Name string `json:"name"`
 	} `json:"labels"`
-	Assignee *struct {
-		Login string
-		Id    int
-	}
-	User *struct {
-		Id    int
-		Login string
-	}
+	Assignee        *GithubAccountResponse
+	User            *GithubAccountResponse
 	ClosedAt        *helper.Iso8601Time `json:"closed_at"`
 	MergedAt        *helper.Iso8601Time `json:"merged_at"`
 	GithubCreatedAt helper.Iso8601Time  `json:"created_at"`
@@ -73,12 +69,19 @@ func ExtractApiPullRequests(taskCtx core.SubTaskContext) error {
 	var labelTypeRegex *regexp.Regexp
 	var labelComponentRegex *regexp.Regexp
 	var prType = config.PrType
+	var err error
 	if len(prType) > 0 {
-		labelTypeRegex = regexp.MustCompile(prType)
+		labelTypeRegex, err = regexp.Compile(prType)
+		if err != nil {
+			return fmt.Errorf("regexp Compile prType failed:[%s] stack:[%s]", err.Error(), debug.Stack())
+		}
 	}
 	var prComponent = config.PrComponent
 	if len(prComponent) > 0 {
-		labelComponentRegex = regexp.MustCompile(prComponent)
+		labelComponentRegex, err = regexp.Compile(prComponent)
+		if err != nil {
+			return fmt.Errorf("regexp Compile prComponent failed:[%s] stack:[%s]", err.Error(), debug.Stack())
+		}
 	}
 
 	extractor, err := helper.NewApiExtractor(helper.ApiExtractorArgs{
@@ -113,6 +116,15 @@ func ExtractApiPullRequests(taskCtx core.SubTaskContext) error {
 			githubPr, err := convertGithubPullRequest(rawL, data.Options.ConnectionId, data.Repo.GithubId)
 			if err != nil {
 				return nil, err
+			}
+			if rawL.User != nil {
+				githubUser, err := convertAccount(rawL.User, data.Options.ConnectionId)
+				if err != nil {
+					return nil, err
+				}
+				results = append(results, githubUser)
+				githubPr.AuthorName = githubUser.Login
+				githubPr.AuthorId = githubUser.Id
 			}
 			for _, label := range rawL.Labels {
 				results = append(results, &models.GithubPullRequestLabel{
@@ -157,8 +169,6 @@ func convertGithubPullRequest(pull *GithubApiPullRequest, connId uint64, repoId 
 		State:           pull.State,
 		Title:           pull.Title,
 		Url:             pull.HtmlUrl,
-		AuthorName:      pull.User.Login,
-		AuthorId:        pull.User.Id,
 		GithubCreatedAt: pull.GithubCreatedAt.ToTime(),
 		GithubUpdatedAt: pull.GithubUpdatedAt.ToTime(),
 		ClosedAt:        helper.Iso8601TimeToTime(pull.ClosedAt),

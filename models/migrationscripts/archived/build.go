@@ -30,3 +30,7 @@ type Build struct {
 	Status      string `gorm:"type:varchar(100)"`
 	StartedDate time.Time
 }
+
+func (Build) TableName() string {
+	return "builds"
+}

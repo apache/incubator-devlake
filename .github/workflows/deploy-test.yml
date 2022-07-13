@@ -48,10 +48,11 @@ jobs:
         run: |
           export NODE_IP=$(kubectl get nodes --namespace default -o jsonpath="{.items[0].status.addresses[0].address}")
           echo Node IP: ${NODE_IP}
-          helm install --wait --timeout 600s deploy-test deployment/helm \
+          helm install --wait --timeout 300s deploy-test deployment/helm \
             --set service.uiPort=30000 \
             --set service.grafanaPort=30001 \
-            --set service.grafanaEndpoint=http://${NODE_IP}:30001
+            --set service.grafanaEndpoint=http://${NODE_IP}:30001 \
+            --set option.localtime=""
           kubectl get pods -o wide
           kubectl get services -o wide
 
@@ -59,20 +60,33 @@ jobs:
       - name: Curl with endpoints
         run: |
           export NODE_IP=$(kubectl get nodes --namespace default -o jsonpath="{.items[0].status.addresses[0].address}")
-          # home
-          curl --fail http://${NODE_IP}:30000
-          # API for devlake
-          curl --fail --silent --retry 10 --retry-delay 5 \
-            http://${NODE_IP}:30000/api/blueprints
-          # API for grafana
-          curl --fail --silent --retry 10 --retry-delay 5 \
-            http://${NODE_IP}:30001/api/health
-      
+          failed=0
+          for retry in {1..10} ; do
+            failed=0
+            # home
+            curl --fail http://${NODE_IP}:30000 || failed=1
+            # API for devlake
+            curl --fail http://${NODE_IP}:30000/api/blueprints || failed=1
+            # API for grafana
+            curl --fail http://${NODE_IP}:30001/api/health || failed=1
+            if [ $failed -eq 0 ] ; then
+              break
+            else
+              sleep 3
+            fi
+          done
+          if [ $failed -ne 0 ] ; then
+            echo 'Test apis failed, please check logs from the PODS'
+            exit 1
+          fi
+
       - name: Show logs for pods
         if: ${{ always() }}
         run: |
           for pod in $(kubectl get pods -o jsonpath='{.items[*].metadata.name}') ; do
+            echo describe for $pod
+            kubectl describe pod $pod
             echo logs for $pod
-            kubectl logs $pod
+            kubectl logs $pod || echo ""
           done
 

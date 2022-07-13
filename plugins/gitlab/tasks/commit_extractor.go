@@ -28,8 +28,8 @@ import (
 var ExtractApiCommitsMeta = core.SubTaskMeta{
 	Name:             "extractApiCommits",
 	EntryPoint:       ExtractApiCommits,
-	EnabledByDefault: true,
-	Description:      "Extract raw commit data into tool layer table GitlabCommit,GitlabUser and GitlabProjectCommit",
+	EnabledByDefault: false,
+	Description:      "Extract raw commit data into tool layer table GitlabCommit,GitlabAccount and GitlabProjectCommit",
 	DomainTypes:      []string{core.DOMAIN_TYPE_CODE},
 }
 
@@ -58,23 +58,23 @@ func ExtractApiCommits(taskCtx core.SubTaskContext) error {
 			gitlabProjectCommit.CommitSha = gitlabCommit.Sha
 
 			// create gitlab user
-			gitlabUserAuthor := &models.GitlabUser{}
-			gitlabUserAuthor.Email = gitlabCommit.AuthorEmail
-			gitlabUserAuthor.Name = gitlabCommit.AuthorName
+			GitlabAccountAuthor := &models.GitlabAccount{}
+			GitlabAccountAuthor.Email = gitlabCommit.AuthorEmail
+			GitlabAccountAuthor.Name = gitlabCommit.AuthorName
 
 			gitlabProjectCommit.ConnectionId = data.Options.ConnectionId
-			gitlabUserAuthor.ConnectionId = data.Options.ConnectionId
+			GitlabAccountAuthor.ConnectionId = data.Options.ConnectionId
 			results = append(results, gitlabCommit)
 			results = append(results, gitlabProjectCommit)
-			results = append(results, gitlabUserAuthor)
+			results = append(results, GitlabAccountAuthor)
 
 			// For Commiter Email is not same as AuthorEmail
-			if gitlabCommit.CommitterEmail != gitlabUserAuthor.Email {
-				gitlabUserCommitter := &models.GitlabUser{}
-				gitlabUserCommitter.Email = gitlabCommit.CommitterEmail
-				gitlabUserCommitter.Name = gitlabCommit.CommitterName
-				gitlabUserCommitter.ConnectionId = data.Options.ConnectionId
-				results = append(results, gitlabUserCommitter)
+			if gitlabCommit.CommitterEmail != GitlabAccountAuthor.Email {
+				gitlabAccountCommitter := &models.GitlabAccount{}
+				gitlabAccountCommitter.Email = gitlabCommit.CommitterEmail
+				gitlabAccountCommitter.Name = gitlabCommit.CommitterName
+				gitlabAccountCommitter.ConnectionId = data.Options.ConnectionId
+				results = append(results, gitlabAccountCommitter)
 			}
 
 			return results, nil

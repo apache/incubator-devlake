@@ -34,8 +34,19 @@ spec:
         {{- include "devlake.selectorLabels" . | nindent 8 }}
         devlakeComponent: grafana
     spec:
+      initContainers:
+        - name: waiting-mysql-ready
+          image: "{{ .Values.alpine.image.repository }}:{{ .Values.alpine.image.tag }}"
+          imagePullPolicy: {{ .Values.alpine.image.pullPolicy }}
+          command:
+            - 'sh'
+            - '-c'
+            - |
+              until nc -z -w 2 {{ include "devlake.fullname" . }}-mysql 3306 && echo mysql is ready ; do
+                sleep 2
+              done
       containers:
-        - name: {{ .Chart.Name }}-grafana
+        - name: grafana
           image: "{{ .Values.grafana.image.repository }}:{{ .Values.grafana.image.tag }}"
           imagePullPolicy: {{ .Values.grafana.image.pullPolicy }}
           ports:
@@ -50,6 +61,11 @@ spec:
             - mountPath: /etc/grafana/grafana.ini
               name: {{ include "devlake.fullname" . }}-grafana-config
               subPath: grafana.ini
+            {{- if ne .Values.option.localtime "" }}
+            - name: {{ include "devlake.fullname" . }}-grafana-localtime
+              mountPath: /etc/localtime
+              readOnly: true
+            {{- end }}
           envFrom:
             - configMapRef:
                 name: {{ include "devlake.fullname" . }}-config
@@ -67,6 +83,12 @@ spec:
             defaultMode: 420
             name: {{ include "devlake.fullname" . }}-grafana-config
           name: {{ include "devlake.fullname" . }}-grafana-config
+        {{- if ne .Values.option.localtime "" }}
+        - name: {{ include "devlake.fullname" . }}-grafana-localtime
+          hostPath:
+            path: {{ .Values.option.localtime }}
+            type: File
+        {{- end }}
 
 ---
 # devlake-ui
@@ -88,11 +110,11 @@ spec:
         devlakeComponent: ui
     spec:
       containers:
-        - name: {{ .Chart.Name }}-ui
+        - name: config-ui
           image: "{{ .Values.ui.image.repository }}:{{ .Values.ui.image.tag }}"
           imagePullPolicy: {{ .Values.ui.image.pullPolicy }}
           ports:
-            - containerPort: 80
+            - containerPort: 4000
           envFrom:
             - configMapRef:
                 name: {{ include "devlake.fullname" . }}-config
@@ -106,3 +128,16 @@ spec:
             #   value: "admin"
             # - name: ADMIN_PASS
             #   value: "admin"
+          volumeMounts:
+            {{- if ne .Values.option.localtime "" }}
+            - name: {{ include "devlake.fullname" . }}-ui-localtime
+              mountPath: /etc/localtime
+              readOnly: true
+            {{- end }}
+      volumes:
+        {{- if ne .Values.option.localtime "" }}
+        - name: {{ include "devlake.fullname" . }}-ui-localtime
+          hostPath:
+            path: {{ .Values.option.localtime }}
+            type: File
+        {{- end }}

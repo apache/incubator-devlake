@@ -91,7 +91,7 @@ spec:
     - protocol: TCP
       name: ui
       port: {{ .Values.service.uiPort }}
-      targetPort: 80
+      targetPort: 4000
       {{- if eq .Values.service.type "NodePort" }}
       nodePort: {{ .Values.service.uiPort }}
       {{- end }}

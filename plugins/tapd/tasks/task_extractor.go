@@ -38,7 +38,7 @@ var ExtractTaskMeta = core.SubTaskMeta{
 }
 
 func ExtractTasks(taskCtx core.SubTaskContext) error {
-	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_TASK_TABLE)
+	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_TASK_TABLE, false)
 	getStdStatus := func(statusKey string) string {
 		if statusKey == "done" {
 			return ticket.DONE

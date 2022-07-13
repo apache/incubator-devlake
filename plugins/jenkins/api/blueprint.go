@@ -19,7 +19,6 @@ package api
 
 import (
 	"encoding/json"
-	"fmt"
 
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/helper"
@@ -34,7 +33,6 @@ func MakePipelinePlan(subtaskMetas []core.SubTaskMeta, connectionId uint64, scop
 		taskOptions := make(map[string]interface{})
 		err = json.Unmarshal(scopeElem.Options, &taskOptions)
 		if err != nil {
-			fmt.Println("1111")
 			return nil, err
 		}
 		taskOptions["connectionId"] = connectionId

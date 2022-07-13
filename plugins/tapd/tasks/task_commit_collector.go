@@ -41,7 +41,7 @@ type SimpleTask struct {
 }
 
 func CollectTaskCommits(taskCtx core.SubTaskContext) error {
-	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_TASK_COMMIT_TABLE)
+	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_TASK_COMMIT_TABLE, false)
 	db := taskCtx.GetDal()
 	logger := taskCtx.GetLogger()
 	logger.Info("collect issueCommits")
@@ -105,7 +105,6 @@ func CollectTaskCommits(taskCtx core.SubTaskContext) error {
 				fmt.Println(len(data.Stories))
 				num += len(data.Stories)
 				fmt.Printf("num is %d", num)
-
 			}
 			err := helper.UnmarshalResponse(res, &data)
 			return data.Stories, err

@@ -24,16 +24,19 @@ import (
 	"go.temporal.io/sdk/log"
 )
 
+// TemporalLogger FIXME ...
 type TemporalLogger struct {
 	log core.Logger
 }
 
-func NewTemporalLogger(log core.Logger) log.Logger {
+// NewTemporalLogger FIXME ...
+func NewTemporalLogger(coreLogger core.Logger) log.Logger {
 	return &TemporalLogger{
-		log,
+		coreLogger,
 	}
 }
 
+// Log FIXME ...
 func (l *TemporalLogger) Log(lv core.LogLevel, msg string, keyvals ...interface{}) {
 	if l.log.IsLevelEnabled(lv) {
 		for i := 0; i < len(keyvals); i += 2 {
@@ -43,20 +46,22 @@ func (l *TemporalLogger) Log(lv core.LogLevel, msg string, keyvals ...interface{
 	}
 }
 
+// Debug FIXME ...
 func (l *TemporalLogger) Debug(msg string, keyvals ...interface{}) {
 	l.Log(core.LOG_DEBUG, msg, keyvals...)
 }
 
+// Info FIXME ...
 func (l *TemporalLogger) Info(msg string, keyvals ...interface{}) {
-
 	l.Log(core.LOG_INFO, msg, keyvals...)
 }
 
+// Warn FIXME ...
 func (l *TemporalLogger) Warn(msg string, keyvals ...interface{}) {
-
 	l.Log(core.LOG_WARN, msg, keyvals...)
 }
 
+// Error FIXME ...
 func (l *TemporalLogger) Error(msg string, keyvals ...interface{}) {
 	l.Log(core.LOG_ERROR, msg, keyvals...)
 }

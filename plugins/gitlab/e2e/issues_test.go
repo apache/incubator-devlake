@@ -19,8 +19,9 @@ package e2e
 
 import (
 	"fmt"
-	"github.com/apache/incubator-devlake/models/domainlayer/ticket"
 	"testing"
+
+	"github.com/apache/incubator-devlake/models/domainlayer/ticket"
 
 	"github.com/apache/incubator-devlake/helpers/e2ehelper"
 	"github.com/apache/incubator-devlake/plugins/gitlab/impl"
@@ -36,7 +37,7 @@ func TestGitlabIssueDataFlow(t *testing.T) {
 	taskData := &tasks.GitlabTaskData{
 		Options: &tasks.GitlabOptions{
 			ConnectionId: 1,
-			ProjectId:    12955687,
+			ProjectId:    12345678,
 		},
 	}
 	// import raw data table
@@ -45,13 +46,15 @@ func TestGitlabIssueDataFlow(t *testing.T) {
 
 	// verify extraction
 	dataflowTester.FlushTabler(&models.GitlabIssue{})
+	dataflowTester.FlushTabler(&models.GitlabAccount{})
 	dataflowTester.FlushTabler(&models.GitlabIssueLabel{})
 	dataflowTester.Subtask(tasks.ExtractApiIssuesMeta, taskData)
 	dataflowTester.VerifyTable(
 		models.GitlabIssue{},
 		fmt.Sprintf("./snapshot_tables/%s.csv", models.GitlabIssue{}.TableName()),
-		[]string{"connection_id", "gitlab_id"},
 		[]string{
+			"connection_id",
+			"gitlab_id",
 			"project_id",
 			"number",
 			"state",
@@ -62,6 +65,8 @@ func TestGitlabIssueDataFlow(t *testing.T) {
 			"status",
 			"assignee_id",
 			"assignee_name",
+			"creator_id",
+			"creator_name",
 			"lead_time_minutes",
 			"url",
 			"closed_at",
@@ -81,8 +86,10 @@ func TestGitlabIssueDataFlow(t *testing.T) {
 	dataflowTester.VerifyTable(
 		models.GitlabIssueLabel{},
 		fmt.Sprintf("./snapshot_tables/%s.csv", models.GitlabIssueLabel{}.TableName()),
-		[]string{"connection_id", "issue_id", "label_name"},
 		[]string{
+			"connection_id",
+			"issue_id",
+			"label_name",
 			"_raw_data_params",
 			"_raw_data_table",
 			"_raw_data_id",
@@ -97,12 +104,12 @@ func TestGitlabIssueDataFlow(t *testing.T) {
 	dataflowTester.VerifyTable(
 		ticket.Issue{},
 		fmt.Sprintf("./snapshot_tables/%s.csv", ticket.Issue{}.TableName()),
-		[]string{"id"},
 		[]string{
 			"_raw_data_params",
 			"_raw_data_table",
 			"_raw_data_id",
 			"_raw_data_remark",
+			"id",
 			"url",
 			"issue_key",
 			"title",
@@ -134,8 +141,9 @@ func TestGitlabIssueDataFlow(t *testing.T) {
 	dataflowTester.VerifyTable(
 		&ticket.BoardIssue{},
 		fmt.Sprintf("./snapshot_tables/%s.csv", ticket.BoardIssue{}.TableName()),
-		[]string{"board_id", "issue_id"},
 		[]string{
+			"board_id",
+			"issue_id",
 			"_raw_data_params",
 			"_raw_data_table",
 			"_raw_data_id",
@@ -151,8 +159,6 @@ func TestGitlabIssueDataFlow(t *testing.T) {
 		[]string{
 			"issue_id",
 			"label_name",
-		},
-		[]string{
 			"_raw_data_params",
 			"_raw_data_table",
 			"_raw_data_id",

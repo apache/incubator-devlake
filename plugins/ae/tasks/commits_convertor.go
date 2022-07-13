@@ -18,21 +18,23 @@ limitations under the License.
 package tasks
 
 import (
-	"github.com/apache/incubator-devlake/models/domainlayer/code"
 	aeModels "github.com/apache/incubator-devlake/plugins/ae/models"
 	"github.com/apache/incubator-devlake/plugins/core"
+	"github.com/apache/incubator-devlake/plugins/core/dal"
 )
 
 // NOTE: This only works on Commits in the Domain layer. You need to run Github or Gitlab collection and Domain layer enrichemnt first.
 func ConvertCommits(taskCtx core.SubTaskContext) error {
-	db := taskCtx.GetDb()
+	db := taskCtx.GetDal()
 	data := taskCtx.GetData().(*AeTaskData)
 
-	commit := &code.Commit{}
 	aeCommit := &aeModels.AECommit{}
 
 	// Get all the commits from the domain layer
-	cursor, err := db.Model(aeCommit).Where("ae_project_id = ?", data.Options.ProjectId).Rows()
+	cursor, err := db.Cursor(
+		dal.From(aeCommit),
+		dal.Where("ae_project_id = ?", data.Options.ProjectId),
+	)
 	if err != nil {
 		return err
 	}
@@ -51,15 +53,16 @@ func ConvertCommits(taskCtx core.SubTaskContext) error {
 		// uncomment following line if you want to test out canceling feature for this task
 		//time.Sleep(1 * time.Second)
 
-		err = db.ScanRows(cursor, aeCommit)
+		err = db.Fetch(cursor, aeCommit)
 		if err != nil {
 			return err
 		}
 
-		err := db.Model(commit).Where("sha = ?", aeCommit.HexSha).Update("dev_eq", aeCommit.DevEq).Error
+		err = db.Exec("UPDATE commits SET dev_eq = ? WHERE sha = ? ", aeCommit.DevEq, aeCommit.HexSha)
 		if err != nil {
 			return err
 		}
+
 		taskCtx.IncProgress(1)
 	}
 

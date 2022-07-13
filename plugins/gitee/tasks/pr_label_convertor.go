@@ -20,6 +20,8 @@ package tasks
 import (
 	"reflect"
 
+	"github.com/apache/incubator-devlake/plugins/core/dal"
+
 	"github.com/apache/incubator-devlake/models/domainlayer/code"
 	"github.com/apache/incubator-devlake/models/domainlayer/didgen"
 	"github.com/apache/incubator-devlake/plugins/core"
@@ -35,15 +37,17 @@ var ConvertPullRequestLabelsMeta = core.SubTaskMeta{
 }
 
 func ConvertPullRequestLabels(taskCtx core.SubTaskContext) error {
-	db := taskCtx.GetDb()
+	db := taskCtx.GetDal()
 	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_PULL_REQUEST_TABLE)
 	repoId := data.Repo.GiteeId
 
-	cursor, err := db.Model(&models.GiteePullRequestLabel{}).
-		Joins(`left join _tool_gitee_pull_requests on _tool_gitee_pull_requests.gitee_id = _tool_gitee_pull_request_labels.pull_id`).
-		Where("_tool_gitee_pull_requests.repo_id = ?", repoId).
-		Order("pull_id ASC").
-		Rows()
+	cursor, err := db.Cursor(
+		dal.From(&models.GiteePullRequestLabel{}),
+		dal.Join(`left join _tool_gitee_pull_requests on _tool_gitee_pull_requests.gitee_id = _tool_gitee_pull_request_labels.pull_id`),
+		dal.Where("_tool_gitee_pull_requests.repo_id = ? and _tool_gitee_pull_requests.connection_id = ?", repoId, data.Options.ConnectionId),
+		dal.Orderby("pull_id ASC"),
+	)
+
 	if err != nil {
 		return err
 	}
@@ -57,7 +61,7 @@ func ConvertPullRequestLabels(taskCtx core.SubTaskContext) error {
 		Convert: func(inputRow interface{}) ([]interface{}, error) {
 			prLabel := inputRow.(*models.GiteePullRequestLabel)
 			domainPrLabel := &code.PullRequestLabel{
-				PullRequestId: prIdGen.Generate(prLabel.PullId),
+				PullRequestId: prIdGen.Generate(data.Options.ConnectionId, prLabel.PullId),
 				LabelName:     prLabel.LabelName,
 			}
 			return []interface{}{

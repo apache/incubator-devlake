@@ -19,10 +19,11 @@ package tasks
 
 import (
 	"fmt"
-	"github.com/apache/incubator-devlake/plugins/gitlab/models"
 	"net/http"
 	"strconv"
 	"time"
+
+	"github.com/apache/incubator-devlake/plugins/gitlab/models"
 
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/helper"
@@ -33,8 +34,7 @@ func NewGitlabApiClient(taskCtx core.TaskContext, connection *models.GitlabConne
 	headers := map[string]string{
 		"Authorization": fmt.Sprintf("Bearer %v", connection.Token),
 	}
-	apiClient, err := helper.NewApiClient(
-		connection.Endpoint, headers, 0, connection.Proxy, taskCtx.GetContext())
+	apiClient, err := helper.NewApiClient(taskCtx.GetContext(), connection.Endpoint, headers, 0, connection.Proxy)
 	if err != nil {
 		return nil, err
 	}
@@ -71,4 +71,11 @@ func NewGitlabApiClient(taskCtx core.TaskContext, connection *models.GitlabConne
 		return nil, err
 	}
 	return asyncApiClient, nil
+}
+
+func ignoreHTTPStatus403(res *http.Response) error {
+	if res.StatusCode == http.StatusForbidden {
+		return helper.ErrIgnoreAndContinue
+	}
+	return nil
 }

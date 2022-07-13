@@ -24,6 +24,7 @@ import (
 )
 
 type GiteePullRequest struct {
+	ConnectionId   uint64 `gorm:"primaryKey"`
 	GiteeId        int    `gorm:"primaryKey"`
 	RepoId         int    `gorm:"index"`
 	Number         int    `gorm:"index"` // This number is used in GET requests to the API associated to reviewers / comments / etc.

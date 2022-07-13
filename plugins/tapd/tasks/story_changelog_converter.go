@@ -55,13 +55,13 @@ type StoryChangelogItemResult struct {
 }
 
 func ConvertStoryChangelog(taskCtx core.SubTaskContext) error {
-	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_STORY_CHANGELOG_TABLE)
+	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_STORY_CHANGELOG_TABLE, false)
 	logger := taskCtx.GetLogger()
 	db := taskCtx.GetDal()
 	logger.Info("convert changelog :%d", data.Options.WorkspaceId)
 	clIdGen := didgen.NewDomainIdGenerator(&models.TapdStoryChangelog{})
 	issueIdGen := didgen.NewDomainIdGenerator(&models.TapdIssue{})
-	userIdGen := didgen.NewDomainIdGenerator(&models.TapdUser{})
+	accountIdGen := didgen.NewDomainIdGenerator(&models.TapdAccount{})
 
 	clauses := []dal.Clause{
 		dal.Select("tc.created, tc.id, tc.workspace_id, tc.story_id, tc.creator, _tool_tapd_story_changelog_items.*"),
@@ -82,12 +82,12 @@ func ConvertStoryChangelog(taskCtx core.SubTaskContext) error {
 		Input:              cursor,
 		Convert: func(inputRow interface{}) ([]interface{}, error) {
 			cl := inputRow.(*StoryChangelogItemResult)
-			domainCl := &ticket.Changelog{
+			domainCl := &ticket.IssueChangelogs{
 				DomainEntity: domainlayer.DomainEntity{
 					Id: fmt.Sprintf("%s:%s", clIdGen.Generate(data.Options.ConnectionId, cl.Id), cl.Field),
 				},
 				IssueId:           issueIdGen.Generate(data.Options.ConnectionId, cl.StoryId),
-				AuthorId:          userIdGen.Generate(data.Options.ConnectionId, data.Options.WorkspaceId, cl.Creator),
+				AuthorId:          accountIdGen.Generate(data.Options.ConnectionId, cl.Creator),
 				AuthorName:        cl.Creator,
 				FieldId:           cl.Field,
 				FieldName:         cl.Field,

@@ -36,7 +36,7 @@ func TestGitlabProjectDataFlow(t *testing.T) {
 	taskData := &tasks.GitlabTaskData{
 		Options: &tasks.GitlabOptions{
 			ConnectionId: 1,
-			ProjectId:    12955687,
+			ProjectId:    12345678,
 		},
 	}
 
@@ -50,8 +50,9 @@ func TestGitlabProjectDataFlow(t *testing.T) {
 	dataflowTester.VerifyTable(
 		models.GitlabProject{},
 		fmt.Sprintf("./snapshot_tables/%s.csv", models.GitlabProject{}.TableName()),
-		[]string{"connection_id", "gitlab_id"},
 		[]string{
+			"connection_id",
+			"gitlab_id",
 			"name",
 			"description",
 			"default_branch",
@@ -78,8 +79,8 @@ func TestGitlabProjectDataFlow(t *testing.T) {
 	dataflowTester.VerifyTable(
 		code.Repo{},
 		fmt.Sprintf("./snapshot_tables/%s.csv", code.Repo{}.TableName()),
-		[]string{"id"},
 		[]string{
+			"id",
 			"_raw_data_params",
 			"_raw_data_table",
 			"_raw_data_id",

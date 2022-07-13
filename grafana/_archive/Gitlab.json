@@ -28,7 +28,7 @@
       "title": "Homepage",
       "tooltip": "",
       "type": "link",
-      "url": "/d/Lv1XbLHnk/data-specific-dashboards-homepage"
+      "url": "/grafana/d/Lv1XbLHnk/data-specific-dashboards-homepage"
     },
     {
       "asDropdown": false,
@@ -56,7 +56,7 @@
       },
       "id": 48,
       "options": {
-        "content": "<div style=\"display: block;text-align: center;margin-top: 56px;\">\n  <div style=\"display: inline-flex;\">\n    <img src=\"/public/img/lake/1.png\" alt=\"No.1\" width=\"56\">\n    <p style=\"font-size:24px; margin:10px; color:#BFC1C8;\"><b>MR Troughput and Pass Rate<b></b></b></p><b><b>\n  </div>\n</div>",
+        "content": "<div style=\"display: block;text-align: center;margin-top: 56px;\">\n  <div style=\"display: inline-flex;\">\n    <img src=\"/grafana/public/img/lake/1.png\" alt=\"No.1\" width=\"56\">\n    <p style=\"font-size:24px; margin:10px; color:#BFC1C8;\"><b>MR Troughput and Pass Rate<b></b></b></p><b><b>\n  </div>\n</div>",
         "mode": "html"
       },
       "pluginVersion": "8.0.6",

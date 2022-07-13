@@ -40,6 +40,7 @@ var _ core.PluginInit = (*Tapd)(nil)
 var _ core.PluginTask = (*Tapd)(nil)
 var _ core.PluginApi = (*Tapd)(nil)
 var _ core.Migratable = (*Tapd)(nil)
+var _ core.CloseablePluginTask = (*Tapd)(nil)
 
 type Tapd struct{}
 
@@ -70,8 +71,8 @@ func (plugin Tapd) SubTaskMetas() []core.SubTaskMeta {
 		tasks.ExtractStoryStatusMeta,
 		tasks.CollectBugStatusMeta,
 		tasks.ExtractBugStatusMeta,
-		tasks.CollectUserMeta,
-		tasks.ExtractUserMeta,
+		tasks.CollectAccountsMeta,
+		tasks.ExtractAccountsMeta,
 		tasks.CollectIterationMeta,
 		tasks.ExtractIterationMeta,
 		tasks.CollectStoryMeta,
@@ -97,7 +98,7 @@ func (plugin Tapd) SubTaskMetas() []core.SubTaskMeta {
 		tasks.CollectStoryBugMeta,
 		tasks.ExtractStoryBugsMeta,
 		tasks.ConvertSubWorkspaceMeta,
-		tasks.ConvertUserMeta,
+		tasks.ConvertAccountsMeta,
 		tasks.ConvertIterationMeta,
 		tasks.ConvertStoryMeta,
 		tasks.ConvertBugMeta,
@@ -168,7 +169,7 @@ func (plugin Tapd) RootPkgPath() string {
 }
 
 func (plugin Tapd) MigrationScripts() []migration.Script {
-	return []migration.Script{new(migrationscripts.InitSchemas)}
+	return migrationscripts.All()
 }
 
 func (plugin Tapd) ApiResources() map[string]map[string]core.ApiResourceHandler {
@@ -186,4 +187,13 @@ func (plugin Tapd) ApiResources() map[string]map[string]core.ApiResourceHandler 
 			"GET":    api.GetConnection,
 		},
 	}
+}
+
+func (plugin Tapd) Close(taskCtx core.TaskContext) error {
+	data, ok := taskCtx.GetData().(*tasks.TapdTaskData)
+	if !ok {
+		return fmt.Errorf("GetData failed when try to close %+v", taskCtx)
+	}
+	data.ApiClient.Release()
+	return nil
 }

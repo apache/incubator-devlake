@@ -19,17 +19,21 @@ package runner
 
 import (
 	"context"
-	"os"
-	"os/signal"
-	"syscall"
-
+	"errors"
+	"fmt"
 	"github.com/apache/incubator-devlake/config"
 	"github.com/apache/incubator-devlake/logger"
 	"github.com/apache/incubator-devlake/migration"
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/spf13/cobra"
+	"io"
+	"os"
+	"os/signal"
+	"runtime"
+	"syscall"
 )
 
+// RunCmd FIXME ...
 func RunCmd(cmd *cobra.Command) {
 	cmd.Flags().StringSliceP("subtasks", "t", nil, "specify what tasks to run, --subtasks=collectIssues,extractIssues")
 	err := cmd.Execute()
@@ -74,33 +78,12 @@ func DirectRun(cmd *cobra.Command, args []string, pluginTask core.PluginTask, op
 	if err != nil {
 		panic(err)
 	}
-
-	ctx, cancel := context.WithCancel(context.Background())
-	sigc := make(chan os.Signal, 1)
-	signal.Notify(sigc, syscall.SIGTSTP)
-	go func() {
-		<-sigc
-		cancel()
-	}()
-
-	go func() {
-		buf := make([]byte, 1)
-		n, err := os.Stdin.Read(buf)
-		if err != nil {
-			panic(err)
-		} else if n == 1 && buf[0] == 99 {
-			cancel()
-		} else {
-			println("unknown key press, code: ", buf[0])
-		}
-	}()
-	println("press `c` to send cancel signal")
-
+	ctx := createContext()
 	err = RunPluginSubTasks(
+		ctx,
 		cfg,
 		log,
 		db,
-		ctx,
 		cmd.Use,
 		tasks,
 		options,
@@ -109,5 +92,44 @@ func DirectRun(cmd *cobra.Command, args []string, pluginTask core.PluginTask, op
 	)
 	if err != nil {
 		panic(err)
+	}
+}
+
+func createContext() context.Context {
+	ctx, cancel := context.WithCancel(context.Background())
+	sigc := make(chan os.Signal, 1)
+	signal.Notify(sigc, getStopSignals()...)
+	go func() {
+		<-sigc
+		cancel()
+	}()
+	go func() {
+		var buf string
+
+		n, err := fmt.Scan(&buf)
+		if err != nil {
+			if errors.Is(err, io.EOF) {
+				return
+			}
+			panic(err)
+		} else if n == 1 && buf == "c" {
+			cancel()
+		} else {
+			println("unknown key press, code: ", buf)
+			println("press `c` and enter to send cancel signal")
+		}
+	}()
+	println("press `c` and enter to send cancel signal")
+	return ctx
+}
+
+func getStopSignals() []os.Signal {
+	if runtime.GOOS == "windows" {
+		return []os.Signal{
+			syscall.Signal(0x6), //syscall.SIGABRT for windows
+		}
+	}
+	return []os.Signal{
+		syscall.Signal(0x14), //syscall.SIGTSTP for posix
 	}
 }

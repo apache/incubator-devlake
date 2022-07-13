@@ -52,8 +52,9 @@ func TestTapdStoryChangelogDataFlow(t *testing.T) {
 	dataflowTester.VerifyTable(
 		models.TapdStoryChangelog{},
 		fmt.Sprintf("./snapshot_tables/%s.csv", models.TapdStoryChangelog{}.TableName()),
-		[]string{"connection_id", "id"},
 		[]string{
+			"connection_id",
+			"id",
 			"workspace_id",
 			"workitem_type_id",
 			"creator",
@@ -77,8 +78,6 @@ func TestTapdStoryChangelogDataFlow(t *testing.T) {
 			"connection_id",
 			"changelog_id",
 			"field",
-		},
-		[]string{
 			"value_before_parsed",
 			"value_after_parsed",
 			"iteration_id_from",
@@ -90,13 +89,13 @@ func TestTapdStoryChangelogDataFlow(t *testing.T) {
 		},
 	)
 
-	dataflowTester.FlushTabler(&ticket.Changelog{})
+	dataflowTester.FlushTabler(&ticket.IssueChangelogs{})
 	dataflowTester.Subtask(tasks.ConvertStoryChangelogMeta, taskData)
 	dataflowTester.VerifyTable(
-		ticket.Changelog{},
-		fmt.Sprintf("./snapshot_tables/%s_story.csv", ticket.Changelog{}.TableName()),
-		[]string{"id"},
+		ticket.IssueChangelogs{},
+		fmt.Sprintf("./snapshot_tables/%s_story.csv", ticket.IssueChangelogs{}.TableName()),
 		[]string{
+			"id",
 			"_raw_data_params",
 			"_raw_data_table",
 			"_raw_data_id",

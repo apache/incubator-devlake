@@ -25,7 +25,7 @@ import (
 	"reflect"
 
 	"github.com/apache/incubator-devlake/plugins/core"
-	. "github.com/apache/incubator-devlake/plugins/core/dal"
+	"github.com/apache/incubator-devlake/plugins/core/dal"
 	"github.com/apache/incubator-devlake/plugins/helper"
 )
 
@@ -41,15 +41,16 @@ var CollectApiBuildsMeta = core.SubTaskMeta{
 
 type SimpleJob struct {
 	Name string
+	Path string
 }
 
 func CollectApiBuilds(taskCtx core.SubTaskContext) error {
 	db := taskCtx.GetDal()
 	data := taskCtx.GetData().(*JenkinsTaskData)
-	clauses := []Clause{
-		Select("tjj.name"),
-		From("_tool_jenkins_jobs tjj"),
-		Where(`tjj.connection_id = ?`, data.Options.ConnectionId),
+	clauses := []dal.Clause{
+		dal.Select("tjj.name,tjj.path"),
+		dal.From("_tool_jenkins_jobs tjj"),
+		dal.Where(`tjj.connection_id = ?`, data.Options.ConnectionId),
 	}
 
 	cursor, err := db.Cursor(clauses...)
@@ -74,7 +75,7 @@ func CollectApiBuilds(taskCtx core.SubTaskContext) error {
 		ApiClient:   data.ApiClient,
 		PageSize:    100,
 		Input:       iterator,
-		UrlTemplate: "job/{{ .Input.Name }}/api/json",
+		UrlTemplate: "{{ .Input.Path }}job/{{ .Input.Name }}/api/json",
 		/*
 			(Optional) Return query string for request, or you can plug them into UrlTemplate directly
 		*/

@@ -18,8 +18,9 @@ limitations under the License.
 package tasks
 
 import (
-	"github.com/apache/incubator-devlake/plugins/core/dal"
 	"reflect"
+
+	"github.com/apache/incubator-devlake/plugins/core/dal"
 
 	"github.com/apache/incubator-devlake/models/domainlayer"
 	"github.com/apache/incubator-devlake/models/domainlayer/code"
@@ -38,7 +39,6 @@ var ConvertApiNotesMeta = core.SubTaskMeta{
 }
 
 func ConvertApiNotes(taskCtx core.SubTaskContext) error {
-
 	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_PROJECT_TABLE)
 	db := taskCtx.GetDal()
 	clauses := []dal.Clause{
@@ -59,7 +59,7 @@ func ConvertApiNotes(taskCtx core.SubTaskContext) error {
 
 	domainIdGeneratorNote := didgen.NewDomainIdGenerator(&models.GitlabMrNote{})
 	prIdGen := didgen.NewDomainIdGenerator(&models.GitlabMergeRequest{})
-	userIdGen := didgen.NewDomainIdGenerator(&models.GitlabUser{})
+	accountIdGen := didgen.NewDomainIdGenerator(&models.GitlabAccount{})
 
 	converter, err := helper.NewDataConverter(helper.DataConverterArgs{
 		RawDataSubTaskArgs: *rawDataSubTaskArgs,
@@ -74,7 +74,7 @@ func ConvertApiNotes(taskCtx core.SubTaskContext) error {
 				},
 				PrId:        prIdGen.Generate(data.Options.ConnectionId, gitlabNotes.MergeRequestId),
 				Type:        gitlabNotes.NoteableType,
-				Author:      userIdGen.Generate(data.Options.ConnectionId, gitlabNotes.AuthorUsername),
+				Author:      accountIdGen.Generate(data.Options.ConnectionId, gitlabNotes.AuthorUserId),
 				Body:        gitlabNotes.Body,
 				Resolvable:  gitlabNotes.Resolvable,
 				IsSystem:    gitlabNotes.IsSystem,

@@ -48,8 +48,8 @@ func TestAECommitDataFlow(t *testing.T) {
 	dataflowTester.VerifyTable(
 		models.AECommit{},
 		fmt.Sprintf("./snapshot_tables/%s.csv", models.AECommit{}.TableName()),
-		[]string{"hex_sha"},
 		[]string{
+			"hex_sha",
 			"analysis_id",
 			"author_email",
 			"dev_eq",
@@ -69,8 +69,8 @@ func TestAECommitDataFlow(t *testing.T) {
 	dataflowTester.VerifyTable(
 		code.Commit{},
 		fmt.Sprintf("./snapshot_tables/%s.csv", code.Commit{}.TableName()),
-		[]string{"sha"},
 		[]string{
+			"sha",
 			"_raw_data_params",
 			"_raw_data_table",
 			"_raw_data_id",

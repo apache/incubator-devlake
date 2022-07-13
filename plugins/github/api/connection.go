@@ -18,9 +18,9 @@ limitations under the License.
 package api
 
 import (
+	"context"
 	"fmt"
 	"net/http"
-	"strings"
 	"time"
 
 	"github.com/apache/incubator-devlake/plugins/github/models"
@@ -33,6 +33,21 @@ import (
 
 /*
 POST /plugins/github/test
+REQUEST BODY:
+{
+	"endpoint": "https://api.github.com/",
+	"token": "github api access token"
+}
+RESPONSE BODY:
+Success:
+{
+	"login": "xxx"
+}
+Failure:
+{
+	"success": false,
+	"message": "invalid token"
+}
 */
 func TestConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, error) {
 	// process input
@@ -45,62 +60,34 @@ func TestConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, erro
 	if err != nil {
 		return nil, err
 	}
-	tokens := strings.Split(params.Token, ",")
-
 	// verify multiple token in parallel
 	// PLEASE NOTE: This works because GitHub API Client rotates tokens on each request
-	results := make(chan error)
-	for i := 0; i < len(tokens); i++ {
-		token := tokens[i]
-		j := i + 1
-		go func() {
-			apiClient, err := helper.NewApiClient(
-				params.Endpoint,
-				map[string]string{
-					"Authorization": fmt.Sprintf("Bearer %s", token),
-				},
-				3*time.Second,
-				params.Proxy,
-				nil,
-			)
-			if err != nil {
-				results <- fmt.Errorf("verify token failed for #%v %s %w", j, token, err)
-				return
-			}
-			res, err := apiClient.Get("user/public_emails", nil, nil)
-			if err != nil {
-				results <- fmt.Errorf("verify token failed for #%v %s %w", j, token, err)
-				return
-			}
-			githubApiResponse := &ApiUserPublicEmailResponse{}
-			err = helper.UnmarshalResponse(res, githubApiResponse)
-			if err != nil {
-				results <- fmt.Errorf("verify token failed for #%v %s %w", j, token, err)
-			} else {
-				results <- nil
-			}
-		}()
+	apiClient, err := helper.NewApiClient(
+		context.TODO(),
+		params.Endpoint,
+		map[string]string{
+			"Authorization": fmt.Sprintf("Bearer %s", params.Token),
+		},
+		3*time.Second,
+		params.Proxy,
+	)
+	if err != nil {
+		return nil, err
 	}
-
-	// collect verification results
-	msgs := make([]string, 0)
-	i := 0
-	for err := range results {
-		if err != nil {
-			msgs = append(msgs, err.Error())
-		}
-		i++
-		if i == len(tokens) {
-			close(results)
-		}
+	res, err := apiClient.Get("user", nil, nil)
+	if err != nil {
+		return nil, err
 	}
-
-	if len(msgs) > 0 {
-		return nil, fmt.Errorf(strings.Join(msgs, "\n"))
+	githubApiResponse := &models.GithubUserOfToken{}
+	err = helper.UnmarshalResponse(res, githubApiResponse)
+	if err != nil {
+		return nil, err
+	} else if githubApiResponse.Login == "" {
+		return nil, fmt.Errorf("invalid token")
 	}
 
 	// output
-	return nil, nil
+	return &core.ApiResourceOutput{Body: githubApiResponse, Status: http.StatusOK}, nil
 }
 
 /*

@@ -24,21 +24,28 @@ import (
 	"github.com/apache/incubator-devlake/plugins/core"
 )
 
-// Accept row from source cursor, return list of entities that need to be stored
+// DataConvertHandler Accept row from source cursor, return list of entities that need to be stored
 type DataConvertHandler func(row interface{}) ([]interface{}, error)
 
+// DataConverterArgs includes the arguments about DataConverter.
+// This will be used in Creating a DataConverter.
+// DataConverterArgs {
+//			InputRowType: 		type of inputRow ,
+//			Input:        		dal cursor,
+//			RawDataSubTaskArgs: args about raw data task
+//			Convert: 			main function including conversion logic
+//			BatchSize: 			batch size
 type DataConverterArgs struct {
 	RawDataSubTaskArgs
 	// Domain layer entity Id prefix, i.e. `jira:JiraIssue:1`, `github:GithubIssue`
 	InputRowType reflect.Type
-	// Cursor to a set of Tool Layer Records
-	Input     *sql.Rows
-	Convert   DataConvertHandler
-	BatchSize int
+	Input        *sql.Rows
+	Convert      DataConvertHandler
+	BatchSize    int
 }
 
 // DataConverter helps you convert Data from Tool Layer Tables to Domain Layer Tables
-// It reads rows from specified Iterator, and feed it into `Convter` handler
+// It reads rows from specified Iterator, and feed it into `Converter` handler
 // you can return arbitrary domain layer entities from this handler, ApiConverter would
 // first delete old data by their RawDataOrigin information, and then perform a
 // batch save operation for you.
@@ -47,6 +54,8 @@ type DataConverter struct {
 	args *DataConverterArgs
 }
 
+// NewDataConverter function helps you create a DataConverter using DataConverterArgs.
+// You can see the usage in plugins/github/tasks/pr_issue_convertor.go or other convertor file.
 func NewDataConverter(args DataConverterArgs) (*DataConverter, error) {
 	rawDataSubTask, err := newRawDataSubTask(args.RawDataSubTaskArgs)
 	if err != nil {
@@ -62,6 +71,9 @@ func NewDataConverter(args DataConverterArgs) (*DataConverter, error) {
 	}, nil
 }
 
+// Execute function implements Subtask interface.
+// It loads data from Tool Layer Tables using `Ctx.GetDal()`, convert Data using `converter.args.Convert` handler
+// Then save data to Domain Layer Tables using BatchSaveDivider
 func (converter *DataConverter) Execute() error {
 	// load data from database
 	db := converter.args.Ctx.GetDal()
@@ -70,7 +82,7 @@ func (converter *DataConverter) Execute() error {
 	RAW_DATA_ORIGIN := "RawDataOrigin"
 	divider := NewBatchSaveDivider(converter.args.Ctx, converter.args.BatchSize, converter.table, converter.params)
 
-	// prgress
+	// set progress
 	converter.args.Ctx.SetProgress(0, -1)
 
 	cursor := converter.args.Input
@@ -118,4 +130,5 @@ func (converter *DataConverter) Execute() error {
 	return divider.Close()
 }
 
+//Check if DataConverter implements SubTask interface
 var _ core.SubTask = (*DataConverter)(nil)

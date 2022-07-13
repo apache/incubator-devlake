@@ -51,8 +51,9 @@ func TestTapdBugCommitDataFlow(t *testing.T) {
 	dataflowTester.VerifyTable(
 		models.TapdBugCommit{},
 		fmt.Sprintf("./snapshot_tables/%s.csv", models.TapdBugCommit{}.TableName()),
-		[]string{"connection_id", "id"},
 		[]string{
+			"connection_id",
+			"id",
 			"user_id",
 			"hook_user_name",
 			"commit_id",
@@ -83,8 +84,6 @@ func TestTapdBugCommitDataFlow(t *testing.T) {
 		[]string{
 			"issue_id",
 			"commit_sha",
-		},
-		[]string{
 			"_raw_data_params",
 			"_raw_data_table",
 			"_raw_data_id",

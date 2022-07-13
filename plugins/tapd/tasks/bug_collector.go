@@ -34,7 +34,7 @@ const RAW_BUG_TABLE = "tapd_api_bugs"
 var _ core.SubTaskEntryPoint = CollectBugs
 
 func CollectBugs(taskCtx core.SubTaskContext) error {
-	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_BUG_TABLE)
+	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_BUG_TABLE, false)
 	db := taskCtx.GetDal()
 	logger := taskCtx.GetLogger()
 	logger.Info("collect bugs")

@@ -17,13 +17,17 @@ limitations under the License.
 
 package models
 
-import "github.com/apache/incubator-devlake/models/common"
+import (
+	"github.com/apache/incubator-devlake/models/common"
+	"github.com/apache/incubator-devlake/plugins/helper"
+)
 
 // JenkinsJobProps current used jenkins job props
 type JenkinsJobProps struct {
 	// collected fields
 	ConnectionId uint64 `gorm:"primaryKey"`
 	Name         string `gorm:"primaryKey;type:varchar(255)"`
+	Path         string `gorm:"primaryKey;type:varchar(511)"`
 	Class        string `gorm:"type:varchar(255)"`
 	Color        string `gorm:"type:varchar(255)"`
 	Base         string `gorm:"type:varchar(255)"`
@@ -37,4 +41,16 @@ type JenkinsJob struct {
 
 func (JenkinsJob) TableName() string {
 	return "_tool_jenkins_jobs"
+}
+
+type FolderInput struct {
+	Path string
+	*helper.ListBaseNode
+}
+
+func NewFolderInput(path string) *FolderInput {
+	return &FolderInput{
+		Path:         path,
+		ListBaseNode: helper.NewListBaseNode(),
+	}
 }

@@ -37,7 +37,7 @@ var ConvertBugLabelsMeta = core.SubTaskMeta{
 
 func ConvertBugLabels(taskCtx core.SubTaskContext) error {
 	db := taskCtx.GetDal()
-	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_BUG_TABLE)
+	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_BUG_TABLE, false)
 	clauses := []dal.Clause{
 		dal.From(&models.TapdBugLabel{}),
 		dal.Join("left join _tool_tapd_workspace_bugs on _tool_tapd_workspace_bugs.bug_id = _tool_tapd_bug_labels.bug_id"),

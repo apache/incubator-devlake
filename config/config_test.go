@@ -85,7 +85,7 @@ func TestReplaceNewEnvItemInOldContent(t *testing.T) {
 	v.Set(`ff`, 1.01)
 	v.Set(`gGg`, `gggg`)
 	v.Set(`h.278`, 278)
-	err, s := replaceNewEnvItemInOldContent(v, `
+	s, err := replaceNewEnvItemInOldContent(v, `
 some unuseful message
 # comment
 a blank

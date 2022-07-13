@@ -18,8 +18,10 @@ limitations under the License.
 package tasks
 
 import (
+	"fmt"
 	"reflect"
 	"regexp"
+	"runtime/debug"
 	"strconv"
 	"strings"
 
@@ -48,7 +50,10 @@ func EnrichPullRequestIssues(taskCtx core.SubTaskContext) (err error) {
 	prBodyClosePattern = strings.Replace(prBodyClosePattern, "%s", data.Options.Owner, 1)
 	prBodyClosePattern = strings.Replace(prBodyClosePattern, "%s", data.Options.Repo, 1)
 	if len(prBodyClosePattern) > 0 {
-		prBodyCloseRegex = regexp.MustCompile(prBodyClosePattern)
+		prBodyCloseRegex, err = regexp.Compile(prBodyClosePattern)
+		if err != nil {
+			return fmt.Errorf("regexp Compile prBodyClosePattern failed:[%s] stack:[%s]", err.Error(), debug.Stack())
+		}
 	}
 	charPattern := regexp.MustCompile(`[a-zA-Z\s,]+`)
 	cursor, err := db.Cursor(dal.From(&githubModels.GithubPullRequest{}), dal.Where("repo_id = ?", repoId))

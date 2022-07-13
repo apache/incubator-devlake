@@ -18,8 +18,9 @@ limitations under the License.
 package e2e
 
 import (
-	"github.com/apache/incubator-devlake/plugins/github/models"
 	"testing"
+
+	"github.com/apache/incubator-devlake/plugins/github/models"
 
 	"github.com/apache/incubator-devlake/helpers/e2ehelper"
 	"github.com/apache/incubator-devlake/plugins/github/impl"
@@ -28,7 +29,7 @@ import (
 
 func TestEventDataFlow(t *testing.T) {
 	var plugin impl.Github
-	dataflowTester := e2ehelper.NewDataFlowTester(t, "gitlab", plugin)
+	dataflowTester := e2ehelper.NewDataFlowTester(t, "github", plugin)
 
 	githubRepository := &models.GithubRepo{
 		GithubId: 134018330,
@@ -47,12 +48,14 @@ func TestEventDataFlow(t *testing.T) {
 
 	// verify extraction
 	dataflowTester.FlushTabler(&models.GithubIssueEvent{})
+	dataflowTester.FlushTabler(&models.GithubAccount{})
 	dataflowTester.Subtask(tasks.ExtractApiEventsMeta, taskData)
 	dataflowTester.VerifyTable(
 		models.GithubIssueEvent{},
 		"./snapshot_tables/_tool_github_issue_events.csv",
-		[]string{"connection_id", "github_id"},
 		[]string{
+			"connection_id",
+			"github_id",
 			"issue_id",
 			"type",
 			"author_username",
@@ -61,6 +64,19 @@ func TestEventDataFlow(t *testing.T) {
 			"_raw_data_table",
 			"_raw_data_id",
 			"_raw_data_remark",
+		},
+	)
+	dataflowTester.VerifyTable(
+		models.GithubAccount{},
+		"./snapshot_tables/_tool_github_accounts_in_event.csv",
+		[]string{
+			"connection_id",
+			"id",
+			"login",
+			"avatar_url",
+			"url",
+			"html_url",
+			"type",
 		},
 	)
 }

@@ -26,6 +26,7 @@ import (
 	"go.temporal.io/sdk/activity"
 )
 
+// DevLakeTaskActivity FIXME ...
 func DevLakeTaskActivity(ctx context.Context, configJson []byte, taskId uint64) error {
 	cfg, log, db, err := loadResources(configJson)
 	if err != nil {
@@ -37,11 +38,11 @@ func DevLakeTaskActivity(ctx context.Context, configJson []byte, taskId uint64) 
 	defer close(progChan)
 	go func() {
 		for p := range progChan {
-			runner.UpdateProgressDetail(db, taskId, progressDetail, &p)
+			runner.UpdateProgressDetail(db, log, taskId, progressDetail, &p)
 			activity.RecordHeartbeat(ctx, progressDetail)
 		}
 	}()
-	err = runner.RunTask(cfg, log, db, ctx, progChan, taskId)
+	err = runner.RunTask(ctx, cfg, log, db, progChan, taskId)
 	if err != nil {
 		log.Error("failed to execute task #%d: %w", taskId, err)
 	}

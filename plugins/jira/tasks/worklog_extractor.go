@@ -31,6 +31,7 @@ var ExtractWorklogsMeta = core.SubTaskMeta{
 	EntryPoint:       ExtractWorklogs,
 	EnabledByDefault: true,
 	Description:      "extract Jira work logs",
+	DomainTypes:      []string{core.DOMAIN_TYPE_TICKET},
 }
 
 func ExtractWorklogs(taskCtx core.SubTaskContext) error {

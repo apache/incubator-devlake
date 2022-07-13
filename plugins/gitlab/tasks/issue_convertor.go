@@ -18,9 +18,10 @@ limitations under the License.
 package tasks
 
 import (
-	"github.com/apache/incubator-devlake/plugins/core/dal"
 	"reflect"
 	"strconv"
+
+	"github.com/apache/incubator-devlake/plugins/core/dal"
 
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/helper"
@@ -56,6 +57,7 @@ func ConvertIssues(taskCtx core.SubTaskContext) error {
 	defer cursor.Close()
 
 	issueIdGen := didgen.NewDomainIdGenerator(&gitlabModels.GitlabIssue{})
+	accountIdGen := didgen.NewDomainIdGenerator(&gitlabModels.GitlabAccount{})
 	boardIdGen := didgen.NewDomainIdGenerator(&gitlabModels.GitlabProject{})
 
 	converter, err := helper.NewDataConverter(helper.DataConverterArgs{
@@ -71,7 +73,6 @@ func ConvertIssues(taskCtx core.SubTaskContext) error {
 				Description:             issue.Body,
 				Priority:                issue.Priority,
 				Type:                    issue.Type,
-				AssigneeName:            issue.AssigneeName,
 				LeadTimeMinutes:         issue.LeadTimeMinutes,
 				Url:                     issue.Url,
 				CreatedDate:             &issue.GitlabCreatedAt,
@@ -82,12 +83,18 @@ func ConvertIssues(taskCtx core.SubTaskContext) error {
 				OriginalStatus:          issue.Status,
 				OriginalEstimateMinutes: issue.TimeEstimate,
 				TimeSpentMinutes:        issue.TotalTimeSpent,
+				CreatorId:               accountIdGen.Generate(data.Options.ConnectionId, issue.CreatorId),
+				CreatorName:             issue.CreatorName,
+				AssigneeId:              accountIdGen.Generate(data.Options.ConnectionId, issue.AssigneeId),
+				AssigneeName:            issue.AssigneeName,
 			}
+
 			if issue.State == "opened" {
 				domainIssue.Status = ticket.TODO
 			} else {
 				domainIssue.Status = ticket.DONE
 			}
+
 			boardIssue := &ticket.BoardIssue{
 				BoardId: boardIdGen.Generate(data.Options.ConnectionId, projectId),
 				IssueId: domainIssue.Id,

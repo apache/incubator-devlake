@@ -29,7 +29,7 @@ import (
 )
 
 func ConvertStoryCommit(taskCtx core.SubTaskContext) error {
-	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_STORY_COMMIT_TABLE)
+	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_STORY_COMMIT_TABLE, false)
 	db := taskCtx.GetDal()
 	clauses := []dal.Clause{
 		dal.From(&models.TapdStoryCommit{}),

@@ -20,15 +20,14 @@ package didgen
 import (
 	"fmt"
 	"reflect"
-	"strings"
 
+	"github.com/apache/incubator-devlake/impl/dalgorm"
 	"github.com/apache/incubator-devlake/plugins/core"
 )
 
 type DomainIdGenerator struct {
-	prefix  string
-	pkNames []string
-	pkTypes []reflect.Type
+	prefix string
+	pk     []reflect.StructField
 }
 
 type WildCard string
@@ -36,23 +35,6 @@ type WildCard string
 const WILDCARD WildCard = "%"
 
 var wildcardType = reflect.TypeOf(WILDCARD)
-
-func walkFields(t reflect.Type, pkNames *[]string, pkTypes *[]reflect.Type) {
-	for i := 0; i < t.NumField(); i++ {
-		field := t.Field(i)
-		if field.Type.Kind() == reflect.Struct {
-			walkFields(field.Type, pkNames, pkTypes)
-		} else {
-			gormTag := field.Tag.Get("gorm")
-
-			// TODO: regex?
-			if gormTag != "" && strings.Contains(strings.ToLower(gormTag), "primarykey") {
-				*pkNames = append(*pkNames, field.Name)
-				*pkTypes = append(*pkTypes, field.Type)
-			}
-		}
-	}
-}
 
 func NewDomainIdGenerator(entityPtr interface{}) *DomainIdGenerator {
 	v := reflect.ValueOf(entityPtr)
@@ -69,20 +51,16 @@ func NewDomainIdGenerator(entityPtr interface{}) *DomainIdGenerator {
 	// find out entity type name
 	structName := t.Name()
 
-	// find out all primkary keys and their types
-	pkNames := make([]string, 0, 1)
-	pkTypes := make([]reflect.Type, 0, 1)
+	dal := &dalgorm.Dalgorm{}
+	pk := dal.GetPrimaryKeyFields(t)
 
-	walkFields(t, &pkNames, &pkTypes)
-
-	if len(pkNames) == 0 {
+	if len(pk) == 0 {
 		panic(fmt.Errorf("no primary key found for %s:%s", pluginName, structName))
 	}
 
 	return &DomainIdGenerator{
-		prefix:  fmt.Sprintf("%s:%s", pluginName, structName),
-		pkNames: pkNames,
-		pkTypes: pkTypes,
+		prefix: fmt.Sprintf("%s:%s", pluginName, structName),
+		pk:     pk,
 	}
 }
 
@@ -95,10 +73,11 @@ func (g *DomainIdGenerator) Generate(pkValues ...interface{}) string {
 		pkValueType := reflect.TypeOf(pkValue)
 		if pkValueType == wildcardType {
 			break
-		} else if pkValueType != g.pkTypes[i] {
-			panic(fmt.Errorf("primary key type does not match: %s should be %s",
-				g.pkNames[i],
-				g.pkTypes[i].Name(),
+		} else if pkValueType != g.pk[i].Type {
+			panic(fmt.Errorf("primary key type does not match: %s is %s type, and it should be %s type",
+				g.pk[i].Name,
+				pkValueType.Name(),
+				g.pk[i].Type.Name(),
 			))
 		}
 	}

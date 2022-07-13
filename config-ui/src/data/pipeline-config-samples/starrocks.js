@@ -26,7 +26,10 @@ const starRocksConfig = [
         password: '',
         database: 'lake',
         be_port: 8040,
-        tables: ['_tool_github_commits']
+        tables: ['_tool_.*'], // support regexp
+        batch_size: 10000,
+        extra: '', // will append to create table sql
+        domain_layer: '' // priority over tables
       }
     }
   ]

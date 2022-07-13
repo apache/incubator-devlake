@@ -78,7 +78,6 @@ func (r *GitRepo) CountBranches() (int, error) {
 		case <-r.ctx.Done():
 			return r.ctx.Err()
 		default:
-			break
 		}
 		if branch.IsBranch() || branch.IsRemote() {
 			count++
@@ -99,7 +98,6 @@ func (r *GitRepo) CountCommits() (int, error) {
 		case <-r.ctx.Done():
 			return r.ctx.Err()
 		default:
-			break
 		}
 		commit, _ := r.repo.LookupCommit(id)
 		if commit != nil {
@@ -116,7 +114,6 @@ func (r *GitRepo) CollectTags(subtaskCtx core.SubTaskContext) error {
 		case <-r.ctx.Done():
 			return r.ctx.Err()
 		default:
-			break
 		}
 		var err1 error
 		var tag *git.Tag
@@ -157,7 +154,6 @@ func (r *GitRepo) CollectBranches(subtaskCtx core.SubTaskContext) error {
 		case <-r.ctx.Done():
 			return r.ctx.Err()
 		default:
-			break
 		}
 		if branch.IsBranch() || branch.IsRemote() {
 			name, err1 := branch.Name()
@@ -201,7 +197,6 @@ func (r *GitRepo) CollectCommits(subtaskCtx core.SubTaskContext) error {
 		case <-r.ctx.Done():
 			return r.ctx.Err()
 		default:
-			break
 		}
 		commit, _ := r.repo.LookupCommit(id)
 		if commit == nil {
@@ -236,10 +231,9 @@ func (r *GitRepo) CollectCommits(subtaskCtx core.SubTaskContext) error {
 				var stats *git.DiffStats
 				if stats, err = r.getDiffComparedToParent(c.Sha, commit, parent, opts); err != nil {
 					return err
-				} else {
-					c.Additions += stats.Insertions()
-					c.Deletions += stats.Deletions()
 				}
+				c.Additions += stats.Insertions()
+				c.Deletions += stats.Deletions()
 			}
 		}
 		err = r.store.Commits(c)

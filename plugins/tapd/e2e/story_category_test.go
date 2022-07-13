@@ -49,8 +49,9 @@ func TestTapdStoryCategoriesDataFlow(t *testing.T) {
 	dataflowTester.VerifyTable(
 		models.TapdStoryCategory{},
 		fmt.Sprintf("./snapshot_tables/%s.csv", models.TapdStoryCategory{}.TableName()),
-		[]string{"connection_id", "id"},
 		[]string{
+			"connection_id",
+			"id",
 			"name",
 			"description",
 			"parent_id",

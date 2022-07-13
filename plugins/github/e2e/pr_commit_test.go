@@ -29,7 +29,7 @@ import (
 
 func TestPrCommitDataFlow(t *testing.T) {
 	var plugin impl.Github
-	dataflowTester := e2ehelper.NewDataFlowTester(t, "gitlab", plugin)
+	dataflowTester := e2ehelper.NewDataFlowTester(t, "github", plugin)
 
 	githubRepository := &models.GithubRepo{
 		GithubId: 134018330,
@@ -54,8 +54,8 @@ func TestPrCommitDataFlow(t *testing.T) {
 	dataflowTester.VerifyTable(
 		models.GithubCommit{},
 		"./snapshot_tables/_tool_github_commits.csv",
-		[]string{"sha"},
 		[]string{
+			"sha",
 			"author_id",
 			"author_name",
 			"author_email",
@@ -78,8 +78,9 @@ func TestPrCommitDataFlow(t *testing.T) {
 	dataflowTester.VerifyTable(
 		models.GithubPullRequestCommit{},
 		"./snapshot_tables/_tool_github_pull_request_commits.csv",
-		[]string{"connection_id", "commit_sha"},
 		[]string{
+			"connection_id",
+			"commit_sha",
 			"pull_request_id",
 			"_raw_data_params",
 			"_raw_data_table",
@@ -95,6 +96,5 @@ func TestPrCommitDataFlow(t *testing.T) {
 		code.PullRequestCommit{},
 		"./snapshot_tables/pull_request_commits.csv",
 		[]string{"commit_sha", "pull_request_id"},
-		[]string{},
 	)
 }

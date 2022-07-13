@@ -19,6 +19,7 @@ package impl
 
 import (
 	"fmt"
+
 	"github.com/apache/incubator-devlake/migration"
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/gitlab/api"
@@ -36,6 +37,7 @@ var _ core.PluginTask = (*Gitlab)(nil)
 var _ core.PluginApi = (*Gitlab)(nil)
 var _ core.Migratable = (*Gitlab)(nil)
 var _ core.PluginBlueprintV100 = (*Gitlab)(nil)
+var _ core.CloseablePluginTask = (*Gitlab)(nil)
 
 type Gitlab string
 
@@ -67,6 +69,9 @@ func (plugin Gitlab) SubTaskMetas() []core.SubTaskMeta {
 		tasks.CollectApiPipelinesMeta,
 		tasks.ExtractApiPipelinesMeta,
 		tasks.EnrichMergeRequestsMeta,
+		tasks.CollectAccountMeta,
+		tasks.ExtractAccountMeta,
+		tasks.ConvertAccountMeta,
 		tasks.ConvertProjectMeta,
 		tasks.ConvertApiMergeRequestsMeta,
 		tasks.ConvertApiNotesMeta,
@@ -116,9 +121,7 @@ func (plugin Gitlab) RootPkgPath() string {
 }
 
 func (plugin Gitlab) MigrationScripts() []migration.Script {
-	return []migration.Script{
-		new(migrationscripts.InitSchemas),
-	}
+	return migrationscripts.All()
 }
 
 func (plugin Gitlab) MakePipelinePlan(connectionId uint64, scope []*core.BlueprintScopeV100) (core.PipelinePlan, error) {
@@ -140,4 +143,13 @@ func (plugin Gitlab) ApiResources() map[string]map[string]core.ApiResourceHandle
 			"GET":    api.GetConnection,
 		},
 	}
+}
+
+func (plugin Gitlab) Close(taskCtx core.TaskContext) error {
+	data, ok := taskCtx.GetData().(*tasks.GitlabTaskData)
+	if !ok {
+		return fmt.Errorf("GetData failed when try to close %+v", taskCtx)
+	}
+	data.ApiClient.Release()
+	return nil
 }

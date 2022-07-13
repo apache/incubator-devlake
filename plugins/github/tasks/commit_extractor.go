@@ -37,8 +37,8 @@ type CommitsResponse struct {
 	Sha       string `json:"sha"`
 	Commit    Commit
 	Url       string
-	Author    *models.GithubUser
-	Committer *models.GithubUser
+	Author    *models.GithubAccount
+	Committer *models.GithubAccount
 }
 
 type Commit struct {
@@ -105,7 +105,6 @@ func ExtractApiCommits(taskCtx core.SubTaskContext) error {
 			if commit.Committer != nil {
 				githubCommit.CommitterId = commit.Committer.Id
 				results = append(results, commit.Committer)
-
 			}
 
 			githubRepoCommit := &models.GithubRepoCommit{

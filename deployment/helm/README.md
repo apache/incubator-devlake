@@ -109,3 +109,5 @@ Some useful parameters for the chart, you could also check them in values.yaml
 | service.ingress.tlsSecretName  | The secret name for tls's certificate, required when https enabled  | ""  |
 | service.ingress.httpPort  | The http port for ingress  | 80  |
 | service.ingress.httpsPort  | The https port for ingress  | 443  |
+| option.localtime  | The hostpath for mount as /etc/localtime | /etc/localtime  |
+

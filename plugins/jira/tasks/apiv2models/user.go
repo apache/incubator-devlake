@@ -19,7 +19,7 @@ package apiv2models
 
 import "github.com/apache/incubator-devlake/plugins/jira/models"
 
-type User struct {
+type Account struct {
 	Self         string `json:"self"`
 	Key          string `json:"key"`
 	Name         string `json:"name"`
@@ -39,7 +39,7 @@ type User struct {
 	Locale      string `json:"locale"`
 }
 
-func (u *User) getAccountId() string {
+func (u *Account) getAccountId() string {
 	if u == nil {
 		return ""
 	}
@@ -49,8 +49,8 @@ func (u *User) getAccountId() string {
 	return u.EmailAddress
 }
 
-func (u *User) ToToolLayer(connectionId uint64) *models.JiraUser {
-	return &models.JiraUser{
+func (u *Account) ToToolLayer(connectionId uint64) *models.JiraAccount {
+	return &models.JiraAccount{
 		ConnectionId: connectionId,
 		AccountId:    u.getAccountId(),
 		AccountType:  u.AccountType,

@@ -178,7 +178,6 @@ func CaculateTagPattern(db dal.Dal, tagsPattern string, tagsLimit int, tagsOrder
 	case "reverse semver":
 		sort.Sort(RefsReverseSemver(rs))
 	default:
-		break
 	}
 
 	if tagsLimit < rs.Len() {

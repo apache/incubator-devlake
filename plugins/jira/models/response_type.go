@@ -36,6 +36,10 @@ type JiraServerInfo struct {
 	VersionNumbers []int          `json:"versionNumbers"`
 }
 
+type JiraErrorInfo struct {
+	ErrorMessages []string `json:"errorMessages"`
+}
+
 type ApiMyselfResponse struct {
 	AccountId   string
 	DisplayName string

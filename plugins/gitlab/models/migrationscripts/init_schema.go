@@ -19,6 +19,7 @@ package migrationscripts
 
 import (
 	"context"
+
 	"github.com/apache/incubator-devlake/config"
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/gitlab/models/migrationscripts/archived"
@@ -40,11 +41,11 @@ func (*InitSchemas) Up(ctx context.Context, db *gorm.DB) error {
 		&archived.GitlabMrNote{},
 		&archived.GitlabMrCommit{},
 		&archived.GitlabMrComment{},
-		&archived.GitlabUser{},
 		&archived.GitlabConnection{},
 		&archived.GitlabIssue{},
 		&archived.GitlabIssueLabel{},
 		&archived.GitlabMrLabel{},
+		"_tool_gitlab_users",
 		"_raw_gitlab_api_children_on_pipeline",
 		"_raw_gitlab_api_commit",
 		"_raw_gitlab_api_issues",
@@ -74,7 +75,7 @@ func (*InitSchemas) Up(ctx context.Context, db *gorm.DB) error {
 		&archived.GitlabMrNote{},
 		&archived.GitlabMrCommit{},
 		&archived.GitlabMrComment{},
-		&archived.GitlabUser{},
+		&archived.GitlabAccount{},
 		&archived.GitlabConnection{},
 		&archived.GitlabIssue{},
 		&archived.GitlabIssueLabel{},
@@ -92,30 +93,29 @@ func (*InitSchemas) Up(ctx context.Context, db *gorm.DB) error {
 
 	if encKey == "" || endPoint == "" || gitlabAuth == "" {
 		return nil
-	} else {
-		conn := &archived.GitlabConnection{}
-		conn.Name = "init gitlab connection"
-		conn.ID = 1
-		conn.Endpoint = endPoint
-		conn.Token, err = core.Encrypt(encKey, gitlabAuth)
-		if err != nil {
-			return err
-		}
-		conn.Proxy = v.GetString("GITLAB_PROXY")
-		conn.RateLimit = v.GetInt("GITLAB_API_REQUESTS_PER_HOUR")
+	}
+	conn := &archived.GitlabConnection{}
+	conn.Name = "init gitlab connection"
+	conn.ID = 1
+	conn.Endpoint = endPoint
+	conn.Token, err = core.Encrypt(encKey, gitlabAuth)
+	if err != nil {
+		return err
+	}
+	conn.Proxy = v.GetString("GITLAB_PROXY")
+	conn.RateLimit = v.GetInt("GITLAB_API_REQUESTS_PER_HOUR")
 
-		err = db.Clauses(clause.OnConflict{DoNothing: true}).Create(conn).Error
+	err = db.Clauses(clause.OnConflict{DoNothing: true}).Create(conn).Error
 
-		if err != nil {
-			return err
-		}
+	if err != nil {
+		return err
 	}
 
 	return nil
 }
 
 func (*InitSchemas) Version() uint64 {
-	return 20220614231236
+	return 20220707231236
 }
 
 func (*InitSchemas) Name() string {

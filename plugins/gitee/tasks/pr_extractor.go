@@ -19,7 +19,9 @@ package tasks
 
 import (
 	"encoding/json"
+	"fmt"
 	"regexp"
+	"runtime/debug"
 
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/gitee/models"
@@ -77,22 +79,23 @@ type GiteeApiPullResponse struct {
 
 func ExtractApiPullRequests(taskCtx core.SubTaskContext) error {
 	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_PULL_REQUEST_TABLE)
-	config := data.Options.Config
+	config := data.Options.TransformationRules
 	var labelTypeRegex *regexp.Regexp
 	var labelComponentRegex *regexp.Regexp
 	var prType = config.PrType
-	if prType == "" {
-		prType = taskCtx.GetConfig("GITEE_PR_TYPE")
+	var err error
+	if len(prType) > 0 {
+		labelTypeRegex, err = regexp.Compile(prType)
+		if err != nil {
+			return fmt.Errorf("regexp Compile prType failed:[%s] stack:[%s]", err.Error(), debug.Stack())
+		}
 	}
 	var prComponent = config.PrComponent
-	if prComponent == "" {
-		prComponent = taskCtx.GetConfig("GITEE_PR_COMPONENT")
-	}
-	if len(prType) > 0 {
-		labelTypeRegex = regexp.MustCompile(prType)
-	}
 	if len(prComponent) > 0 {
-		labelComponentRegex = regexp.MustCompile(prComponent)
+		labelComponentRegex, err = regexp.Compile(prComponent)
+		if err != nil {
+			return fmt.Errorf("regexp Compile prComponent failed:[%s] stack:[%s]", err.Error(), debug.Stack())
+		}
 	}
 
 	extractor, err := helper.NewApiExtractor(helper.ApiExtractorArgs{
@@ -109,14 +112,15 @@ func ExtractApiPullRequests(taskCtx core.SubTaskContext) error {
 			if pullResponse.GiteeId == 0 {
 				return nil, nil
 			}
-			giteePr, err := convertGiteePullRequest(pullResponse, data.Repo.GiteeId)
+			giteePr, err := convertGiteePullRequest(pullResponse, data.Options.ConnectionId, data.Repo.GiteeId)
 			if err != nil {
 				return nil, err
 			}
 			for _, label := range pullResponse.Labels {
 				results = append(results, &models.GiteePullRequestLabel{
-					PullId:    giteePr.GiteeId,
-					LabelName: label.Name,
+					ConnectionId: data.Options.ConnectionId,
+					PullId:       giteePr.GiteeId,
+					LabelName:    label.Name,
 				})
 				// if pr.Type has not been set and prType is set in .env, process the below
 				if labelTypeRegex != nil {
@@ -146,8 +150,9 @@ func ExtractApiPullRequests(taskCtx core.SubTaskContext) error {
 
 	return extractor.Execute()
 }
-func convertGiteePullRequest(pull *GiteeApiPullResponse, repoId int) (*models.GiteePullRequest, error) {
+func convertGiteePullRequest(pull *GiteeApiPullResponse, connId uint64, repoId int) (*models.GiteePullRequest, error) {
 	giteePull := &models.GiteePullRequest{
+		ConnectionId:   connId,
 		GiteeId:        pull.GiteeId,
 		RepoId:         repoId,
 		Number:         pull.Number,

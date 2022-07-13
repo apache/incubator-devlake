@@ -24,7 +24,6 @@ import {
   Icon,
 } from '@blueprintjs/core'
 import '@/styles/nav.scss'
-// import { ReactComponent as DiscordIcon } from '@/images/discord.svg'
 import { ReactComponent as SlackIcon } from '@/images/slack-mark-monochrome-black.svg'
 import { ReactComponent as SlackLogo } from '@/images/slack-rgb.svg'
 

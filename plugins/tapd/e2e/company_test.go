@@ -49,8 +49,9 @@ func TestTapdCompanyDataFlow(t *testing.T) {
 	dataflowTester.VerifyTable(
 		models.TapdWorkspace{},
 		fmt.Sprintf("./snapshot_tables/%s.csv", models.TapdWorkspace{}.TableName()),
-		[]string{"connection_id", "id"},
 		[]string{
+			"connection_id",
+			"id",
 			"name",
 			"pretty_name",
 			"category",

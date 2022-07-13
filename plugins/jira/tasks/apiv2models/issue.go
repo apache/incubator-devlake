@@ -19,8 +19,9 @@ package apiv2models
 
 import (
 	"encoding/json"
-	"gorm.io/datatypes"
 	"time"
+
+	"gorm.io/datatypes"
 
 	"github.com/apache/incubator-devlake/plugins/helper"
 	"github.com/apache/incubator-devlake/plugins/jira/models"
@@ -96,7 +97,7 @@ type Issue struct {
 		Aggregatetimeoriginalestimate interface{}        `json:"aggregatetimeoriginalestimate"`
 		Versions                      []interface{}      `json:"versions"`
 		Issuelinks                    []interface{}      `json:"issuelinks"`
-		Assignee                      *User              `json:"assignee"`
+		Assignee                      *Account           `json:"assignee"`
 		Updated                       helper.Iso8601Time `json:"updated"`
 		Status                        struct {
 			Self           string `json:"self"`
@@ -123,9 +124,9 @@ type Issue struct {
 		Archiveddate          interface{}   `json:"archiveddate"`
 		Aggregatetimeestimate *int64        `json:"aggregatetimeestimate"`
 		Summary               string        `json:"summary"`
-		Creator               User          `json:"creator"`
+		Creator               Account       `json:"creator"`
 		Subtasks              []interface{} `json:"subtasks"`
-		Reporter              User          `json:"reporter"`
+		Reporter              Account       `json:"reporter"`
 		Aggregateprogress     struct {
 			Progress int `json:"progress"`
 			Total    int `json:"total"`
@@ -224,12 +225,12 @@ func (i *Issue) SetAllFields(raw datatypes.JSON) error {
 	return nil
 }
 
-func (i Issue) ExtractEntities(connectionId uint64) ([]uint64, *models.JiraIssue, []*models.JiraWorklog, []*models.JiraChangelog, []*models.JiraChangelogItem, []*models.JiraUser) {
+func (i Issue) ExtractEntities(connectionId uint64) ([]uint64, *models.JiraIssue, []*models.JiraWorklog, []*models.JiraIssueChangelogs, []*models.JiraIssueChangelogItems, []*models.JiraAccount) {
 	issue := i.toToolLayer(connectionId)
 	var worklogs []*models.JiraWorklog
-	var changelogs []*models.JiraChangelog
-	var changelogItems []*models.JiraChangelogItem
-	var users []*models.JiraUser
+	var changelogs []*models.JiraIssueChangelogs
+	var changelogItems []*models.JiraIssueChangelogItems
+	var users []*models.JiraAccount
 	var sprints []uint64
 
 	if i.Fields.Worklog != nil {

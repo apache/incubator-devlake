@@ -18,10 +18,11 @@ limitations under the License.
 package e2e
 
 import (
+	"testing"
+
 	"github.com/apache/incubator-devlake/models/domainlayer/code"
 	"github.com/apache/incubator-devlake/models/domainlayer/ticket"
 	"github.com/apache/incubator-devlake/plugins/github/models"
-	"testing"
 
 	"github.com/apache/incubator-devlake/helpers/e2ehelper"
 	"github.com/apache/incubator-devlake/plugins/github/impl"
@@ -30,7 +31,7 @@ import (
 
 func TestRepoDataFlow(t *testing.T) {
 	var plugin impl.Github
-	dataflowTester := e2ehelper.NewDataFlowTester(t, "gitlab", plugin)
+	dataflowTester := e2ehelper.NewDataFlowTester(t, "github", plugin)
 
 	githubRepository := &models.GithubRepo{
 		GithubId: 134018330,
@@ -53,12 +54,14 @@ func TestRepoDataFlow(t *testing.T) {
 
 	// verify extraction
 	dataflowTester.FlushTabler(&models.GithubRepo{})
+	dataflowTester.FlushTabler(&models.GithubAccount{})
 	dataflowTester.Subtask(tasks.ExtractApiRepoMeta, taskData)
 	dataflowTester.VerifyTable(
 		models.GithubRepo{},
 		"./snapshot_tables/_tool_github_repos.csv",
-		[]string{"connection_id", "github_id"},
 		[]string{
+			"connection_id",
+			"github_id",
 			"name",
 			"html_url",
 			"description",
@@ -73,6 +76,19 @@ func TestRepoDataFlow(t *testing.T) {
 			"_raw_data_remark",
 		},
 	)
+	dataflowTester.VerifyTable(
+		models.GithubAccount{},
+		"./snapshot_tables/_tool_github_accounts_in_repo.csv",
+		[]string{
+			"connection_id",
+			"id",
+			"login",
+			"avatar_url",
+			"url",
+			"html_url",
+			"type",
+		},
+	)
 
 	// verify extraction
 	dataflowTester.FlushTabler(&code.Repo{})
@@ -81,8 +97,8 @@ func TestRepoDataFlow(t *testing.T) {
 	dataflowTester.VerifyTable(
 		code.Repo{},
 		"./snapshot_tables/repos.csv",
-		[]string{"id"},
 		[]string{
+			"id",
 			"name",
 			"url",
 			"description",
@@ -97,8 +113,8 @@ func TestRepoDataFlow(t *testing.T) {
 	dataflowTester.VerifyTable(
 		ticket.Board{},
 		"./snapshot_tables/boards.csv",
-		[]string{"id"},
 		[]string{
+			"id",
 			"name",
 			"description",
 			"url",

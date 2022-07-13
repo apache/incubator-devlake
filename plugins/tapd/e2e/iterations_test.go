@@ -51,8 +51,9 @@ func TestTapdIterationDataFlow(t *testing.T) {
 	dataflowTester.VerifyTable(
 		models.TapdIteration{},
 		fmt.Sprintf("./snapshot_tables/%s.csv", models.TapdIteration{}.TableName()),
-		[]string{"connection_id", "id"},
 		[]string{
+			"connection_id",
+			"id",
 			"name",
 			"workspace_id",
 			"startdate",
@@ -81,8 +82,6 @@ func TestTapdIterationDataFlow(t *testing.T) {
 			"connection_id",
 			"workspace_id",
 			"iteration_id",
-		},
-		[]string{
 			"_raw_data_params",
 			"_raw_data_table",
 			"_raw_data_id",
@@ -95,12 +94,12 @@ func TestTapdIterationDataFlow(t *testing.T) {
 	dataflowTester.VerifyTable(
 		ticket.Sprint{},
 		fmt.Sprintf("./snapshot_tables/%s.csv", ticket.Sprint{}.TableName()),
-		[]string{"id"},
 		[]string{
 			"_raw_data_params",
 			"_raw_data_table",
 			"_raw_data_id",
 			"_raw_data_remark",
+			"id",
 			"name",
 			"url",
 			"status",
@@ -116,8 +115,6 @@ func TestTapdIterationDataFlow(t *testing.T) {
 		[]string{
 			"board_id",
 			"sprint_id",
-		},
-		[]string{
 			"_raw_data_params",
 			"_raw_data_table",
 			"_raw_data_id",

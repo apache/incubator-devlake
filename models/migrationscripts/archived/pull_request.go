@@ -23,17 +23,17 @@ import (
 
 type PullRequest struct {
 	DomainEntity
-	BaseRepoId     string `gorm:"index"`
-	HeadRepoId     string `gorm:"index"`
-	Status         string `gorm:"type:varchar(100);comment:open/closed or other"`
-	Number         int
-	Title          string
-	Description    string
-	Url            string `gorm:"type:varchar(255)"`
-	AuthorName     string `gorm:"type:varchar(100)"`
+	BaseRepoId  string `gorm:"index"`
+	HeadRepoId  string `gorm:"index"`
+	Status      string `gorm:"type:varchar(100);comment:open/closed or other"`
+	Title       string
+	Description string
+	Url         string `gorm:"type:varchar(255)"`
+	AuthorName  string `gorm:"type:varchar(100)"`
+	//User		   domainUser.User `gorm:"foreignKey:AuthorId"`
 	AuthorId       string `gorm:"type:varchar(100)"`
 	ParentPrId     string `gorm:"index;type:varchar(100)"`
-	Key            int
+	PullRequestKey int
 	CreatedDate    time.Time
 	MergedDate     *time.Time
 	ClosedDate     *time.Time
@@ -46,18 +46,18 @@ type PullRequest struct {
 	HeadCommitSha  string `gorm:"type:varchar(40)"`
 }
 
+func (PullRequest) TableName() string {
+	return "pull_requests"
+}
+
 type PullRequestCommit struct {
 	CommitSha     string `gorm:"primaryKey;type:varchar(40)"`
 	PullRequestId string `json:"id" gorm:"primaryKey;type:varchar(255);comment:This key is generated based on details from the original plugin"` // format: <Plugin>:<Entity>:<PK0>:<PK1>
 	NoPKModel
 }
 
-type PullRequestIssue struct {
-	PullRequestId     string `json:"id" gorm:"primaryKey;type:varchar(255);comment:This key is generated based on details from the original plugin"` // format: <Plugin>:<Entity>:<PK0>:<PK1>
-	IssueId           string `gorm:"primaryKey;type:varchar(255)"`
-	PullRequestNumber int
-	IssueNumber       int
-	NoPKModel
+func (PullRequestCommit) TableName() string {
+	return "pull_request_commits"
 }
 
 // Please note that Issue Labels can also apply to Pull Requests.
@@ -69,6 +69,10 @@ type PullRequestLabel struct {
 	NoPKModel
 }
 
+func (PullRequestLabel) TableName() string {
+	return "pull_request_labels"
+}
+
 type PullRequestComment struct {
 	DomainEntity
 	PullRequestId string `gorm:"index"`
@@ -77,4 +81,21 @@ type PullRequestComment struct {
 	CreatedDate   time.Time
 	CommitSha     string `gorm:"type:varchar(255)"`
 	Position      int
+	Type          string `gorm:"type:varchar(255)"`
+}
+
+func (PullRequestComment) TableName() string {
+	return "pull_request_comments"
+}
+
+type PullRequestIssue struct {
+	PullRequestId     string `json:"id" gorm:"primaryKey;type:varchar(255);comment:This key is generated based on details from the original plugin"` // format: <Plugin>:<Entity>:<PK0>:<PK1>
+	IssueId           string `gorm:"primaryKey;type:varchar(255)"`
+	PullRequestNumber int
+	IssueNumber       int
+	NoPKModel
+}
+
+func (PullRequestIssue) TableName() string {
+	return "pull_request_issues"
 }

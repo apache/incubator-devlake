@@ -18,8 +18,9 @@ limitations under the License.
 package tasks
 
 import (
-	"github.com/apache/incubator-devlake/plugins/core/dal"
 	"reflect"
+
+	"github.com/apache/incubator-devlake/plugins/core/dal"
 
 	"github.com/apache/incubator-devlake/models/domainlayer/code"
 	"github.com/apache/incubator-devlake/models/domainlayer/didgen"
@@ -31,7 +32,7 @@ import (
 var ConvertCommitsMeta = core.SubTaskMeta{
 	Name:             "convertApiCommits",
 	EntryPoint:       ConvertApiCommits,
-	EnabledByDefault: true,
+	EnabledByDefault: false,
 	Description:      "Update domain layer commit according to GitlabCommit",
 	DomainTypes:      []string{core.DOMAIN_TYPE_CODE},
 }
@@ -57,7 +58,7 @@ func ConvertApiCommits(taskCtx core.SubTaskContext) error {
 	defer cursor.Close()
 
 	// TODO: adopt batch indate operation
-	userDidGen := didgen.NewDomainIdGenerator(&models.GitlabUser{})
+	//userDidGen := didgen.NewDomainIdGenerator(&models.GitlabAccount{})
 
 	converter, err := helper.NewDataConverter(helper.DataConverterArgs{
 		RawDataSubTaskArgs: *rawDataSubTaskArgs,
@@ -73,14 +74,14 @@ func ConvertApiCommits(taskCtx core.SubTaskContext) error {
 			commit.Message = gitlabCommit.Message
 			commit.Additions = gitlabCommit.Additions
 			commit.Deletions = gitlabCommit.Deletions
-			commit.AuthorId = userDidGen.Generate(data.Options.ConnectionId, gitlabCommit.AuthorEmail)
+			commit.AuthorId = gitlabCommit.AuthorEmail
 			commit.AuthorName = gitlabCommit.AuthorName
 			commit.AuthorEmail = gitlabCommit.AuthorEmail
 			commit.AuthoredDate = gitlabCommit.AuthoredDate
 			commit.CommitterName = gitlabCommit.CommitterName
 			commit.CommitterEmail = gitlabCommit.CommitterEmail
 			commit.CommittedDate = gitlabCommit.CommittedDate
-			commit.CommitterId = userDidGen.Generate(data.Options.ConnectionId, gitlabCommit.AuthorEmail)
+			commit.CommitterId = gitlabCommit.CommitterEmail
 
 			// convert repo / commits relationship
 			repoCommit := &code.RepoCommit{

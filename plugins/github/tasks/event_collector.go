@@ -68,7 +68,6 @@ func CollectApiEvents(taskCtx core.SubTaskContext) error {
 			since = &latestUpdatedIssueEvent.GithubCreatedAt
 			incremental = true
 		}
-
 	}
 
 	collector, err := helper.NewApiCollector(helper.ApiCollectorArgs{

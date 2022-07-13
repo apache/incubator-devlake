@@ -49,8 +49,9 @@ func TestTapdStoryCustomFieldDataFlow(t *testing.T) {
 	dataflowTester.VerifyTable(
 		models.TapdStoryCustomFields{},
 		fmt.Sprintf("./snapshot_tables/%s.csv", models.TapdStoryCustomFields{}.TableName()),
-		[]string{"connection_id", "id"},
 		[]string{
+			"connection_id",
+			"id",
 			"workspace_id",
 			"entry_type",
 			"custom_field",

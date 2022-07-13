@@ -25,7 +25,7 @@ type Repo struct {
 	DomainEntity
 	Name        string     `json:"name"`
 	Url         string     `json:"url"`
-	Description string     `json:"Description"`
+	Description string     `json:"description"`
 	OwnerId     string     `json:"ownerId" gorm:"type:varchar(255)"`
 	Language    string     `json:"language" gorm:"type:varchar(255)"`
 	ForkedFrom  string     `json:"forkedFrom"`
@@ -34,14 +34,26 @@ type Repo struct {
 	Deleted     bool       `json:"deleted"`
 }
 
+func (Repo) TableName() string {
+	return "repos"
+}
+
 type RepoLanguage struct {
 	RepoId   string `json:"repoId" gorm:"index;type:varchar(255)"`
 	Language string `json:"language" gorm:"type:varchar(255)"`
 	Bytes    int
 }
 
+func (RepoLanguage) TableName() string {
+	return "repo_languages"
+}
+
 type RepoCommit struct {
 	RepoId    string `json:"repoId" gorm:"primaryKey;type:varchar(255)"`
 	CommitSha string `json:"commitSha" gorm:"primaryKey;type:varchar(40)"`
 	NoPKModel
+}
+
+func (RepoCommit) TableName() string {
+	return "repo_commits"
 }

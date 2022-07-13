@@ -41,16 +41,16 @@ func TestFetchPageUndetermined(t *testing.T) {
 
 	mockInput := new(mocks.Iterator)
 	mockInput.On("HasNext").Return(true).Once()
-	mockInput.On("HasNext").Return(false).Once()
+	mockInput.On("HasNext").Return(false).Twice()
 	mockInput.On("Fetch").Return(nil, nil).Once()
 	mockInput.On("Close").Return(nil)
 
 	// simulate fetching all pages of jira changelogs for 1 issue id with 1 concurrency,
 	// assuming api doesn't return total number of pages.
-	// then, we are expecting 2 calls for GetAsync and NextTick each, otherwise, deadlock happens
+	// then, we are expecting 2 calls for DoGetAsync and NextTick each, otherwise, deadlock happens
 	getAsyncCounter := 0
 	mockApi := new(mocks.RateLimitedApiClient)
-	mockApi.On("GetAsync", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Run(func(args mock.Arguments) {
+	mockApi.On("DoGetAsync", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Run(func(args mock.Arguments) {
 		// fake records for first page, no records for second page
 		body := "[1,2,3]"
 		if getAsyncCounter > 0 {
@@ -76,6 +76,7 @@ func TestFetchPageUndetermined(t *testing.T) {
 	params := struct {
 		Name string
 	}{Name: "testparams"}
+	mockApi.On("Release").Return()
 
 	collector, err := NewApiCollector(ApiCollectorArgs{
 		RawDataSubTaskArgs: RawDataSubTaskArgs{

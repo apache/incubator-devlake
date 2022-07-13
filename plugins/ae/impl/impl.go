@@ -37,6 +37,7 @@ var _ core.PluginInit = (*AE)(nil)
 var _ core.PluginTask = (*AE)(nil)
 var _ core.PluginApi = (*AE)(nil)
 var _ core.Migratable = (*AE)(nil)
+var _ core.CloseablePluginTask = (*AE)(nil)
 
 type AE struct{}
 
@@ -99,16 +100,13 @@ func (plugin AE) RootPkgPath() string {
 }
 
 func (plugin AE) MigrationScripts() []migration.Script {
-	return []migration.Script{
-		new(migrationscripts.InitSchemas),
-		new(migrationscripts.UpdateSchemas20220615),
-	}
+	return migrationscripts.All()
 }
 
 func (plugin AE) ApiResources() map[string]map[string]core.ApiResourceHandler {
 	return map[string]map[string]core.ApiResourceHandler{
 		"test": {
-			"GET": api.TestConnection,
+			"POST": api.TestConnection,
 		},
 		"connections": {
 			"GET":  api.ListConnections,
@@ -120,4 +118,13 @@ func (plugin AE) ApiResources() map[string]map[string]core.ApiResourceHandler {
 			"DELETE": api.DeleteConnection,
 		},
 	}
+}
+
+func (plugin AE) Close(taskCtx core.TaskContext) error {
+	data, ok := taskCtx.GetData().(*tasks.AeTaskData)
+	if !ok {
+		return fmt.Errorf("GetData failed when try to close %+v", taskCtx)
+	}
+	data.ApiClient.Release()
+	return nil
 }

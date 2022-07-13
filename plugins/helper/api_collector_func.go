@@ -24,6 +24,7 @@ import (
 	"net/http"
 )
 
+// GetRawMessageDirectFromResponse FIXME ...
 func GetRawMessageDirectFromResponse(res *http.Response) ([]json.RawMessage, error) {
 	body, err := ioutil.ReadAll(res.Body)
 	res.Body.Close()
@@ -33,6 +34,7 @@ func GetRawMessageDirectFromResponse(res *http.Response) ([]json.RawMessage, err
 	return []json.RawMessage{body}, nil
 }
 
+// GetRawMessageArrayFromResponse FIXME ...
 func GetRawMessageArrayFromResponse(res *http.Response) ([]json.RawMessage, error) {
 	rawMessages := []json.RawMessage{}
 

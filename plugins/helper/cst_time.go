@@ -24,8 +24,10 @@ import (
 	"time"
 )
 
+// CSTTime FIXME ...
 type CSTTime time.Time
 
+// UnmarshalJSON FIXME ...
 func (jt *CSTTime) UnmarshalJSON(b []byte) error {
 	timeString := string(b)
 	if timeString == "null" {
@@ -50,6 +52,7 @@ func (jt *CSTTime) UnmarshalJSON(b []byte) error {
 	return nil
 }
 
+// Value FIXME ...
 func (jt CSTTime) Value() (driver.Value, error) {
 	var zeroTime time.Time
 	t := (time.Time)(jt)
@@ -59,6 +62,7 @@ func (jt CSTTime) Value() (driver.Value, error) {
 	return t, nil
 }
 
+// Scan FIXME ...
 func (jt *CSTTime) Scan(v interface{}) error {
 	value, ok := v.(time.Time)
 	if ok {

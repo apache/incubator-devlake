@@ -27,7 +27,6 @@ import (
 type InitSchemas struct{}
 
 func (*InitSchemas) Up(ctx context.Context, db *gorm.DB) error {
-
 	err := db.Migrator().DropTable(
 		"_raw_tapd_api_bug_changelogs",
 		"_raw_tapd_api_bugs",
@@ -50,11 +49,11 @@ func (*InitSchemas) Up(ctx context.Context, db *gorm.DB) error {
 		"_raw_tapd_api_users",
 		"_raw_tapd_api_worklogs",
 		"_raw_tapd_api_sub_workspaces",
+		"_tool_tapd_users",
 		&archived.TapdWorkspace{},
 		&archived.TapdSubWorkspace{},
 		&archived.TapdWorklog{},
 		&archived.TapdWorkspaceIteration{},
-		&archived.TapdUser{},
 		&archived.TapdBugChangelog{},
 		&archived.TapdBugChangelogItem{},
 		&archived.TapdStoryChangelog{},
@@ -96,7 +95,7 @@ func (*InitSchemas) Up(ctx context.Context, db *gorm.DB) error {
 		&archived.TapdSubWorkspace{},
 		&archived.TapdWorklog{},
 		&archived.TapdWorkspaceIteration{},
-		&archived.TapdUser{},
+		&archived.TapdAccount{},
 		&archived.TapdBugChangelog{},
 		&archived.TapdBugChangelogItem{},
 		&archived.TapdStoryChangelog{},
@@ -132,7 +131,7 @@ func (*InitSchemas) Up(ctx context.Context, db *gorm.DB) error {
 }
 
 func (*InitSchemas) Version() uint64 {
-	return 20220620231138
+	return 20220707201138
 }
 
 func (*InitSchemas) Name() string {

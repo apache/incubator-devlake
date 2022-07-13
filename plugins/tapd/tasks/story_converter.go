@@ -18,10 +18,11 @@ limitations under the License.
 package tasks
 
 import (
-	"github.com/apache/incubator-devlake/models/domainlayer/didgen"
 	"reflect"
 	"strconv"
 	"time"
+
+	"github.com/apache/incubator-devlake/models/domainlayer/didgen"
 
 	"github.com/apache/incubator-devlake/plugins/core/dal"
 
@@ -33,7 +34,7 @@ import (
 )
 
 func ConvertStory(taskCtx core.SubTaskContext) error {
-	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_STORY_TABLE)
+	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_STORY_TABLE, false)
 	logger := taskCtx.GetLogger()
 	db := taskCtx.GetDal()
 	logger.Info("convert board:%d", data.Options.WorkspaceId)
@@ -49,7 +50,7 @@ func ConvertStory(taskCtx core.SubTaskContext) error {
 	}
 	defer cursor.Close()
 	issueIdGen := didgen.NewDomainIdGenerator(&models.TapdIssue{})
-	userIdGen := didgen.NewDomainIdGenerator(&models.TapdUser{})
+	accountIdGen := didgen.NewDomainIdGenerator(&models.TapdAccount{})
 	workspaceIdGen := didgen.NewDomainIdGenerator(&models.TapdWorkspace{})
 	iterIdGen := didgen.NewDomainIdGenerator(&models.TapdIteration{})
 	converter, err := helper.NewDataConverter(helper.DataConverterArgs{
@@ -67,7 +68,7 @@ func ConvertStory(taskCtx core.SubTaskContext) error {
 				Title:                toolL.Name,
 				Type:                 toolL.StdType,
 				Status:               toolL.StdStatus,
-				StoryPoint:           uint(toolL.Size),
+				StoryPoint:           int64(toolL.Size),
 				OriginalStatus:       toolL.Status,
 				ResolutionDate:       (*time.Time)(toolL.Completed),
 				CreatedDate:          (*time.Time)(toolL.Created),
@@ -75,9 +76,9 @@ func ConvertStory(taskCtx core.SubTaskContext) error {
 				ParentIssueId:        issueIdGen.Generate(toolL.ConnectionId, toolL.ParentId),
 				Priority:             toolL.Priority,
 				TimeRemainingMinutes: int64(toolL.Remain),
-				CreatorId:            userIdGen.Generate(data.Options.ConnectionId, toolL.WorkspaceId, toolL.Creator),
+				CreatorId:            accountIdGen.Generate(data.Options.ConnectionId, toolL.Creator),
 				CreatorName:          toolL.Creator,
-				AssigneeId:           userIdGen.Generate(data.Options.ConnectionId, toolL.WorkspaceId, toolL.Owner),
+				AssigneeId:           accountIdGen.Generate(data.Options.ConnectionId, toolL.Owner),
 				AssigneeName:         toolL.Owner,
 				Severity:             "",
 				Component:            toolL.Feature,

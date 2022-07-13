@@ -40,18 +40,17 @@ func CollectMeetingTopUserItem(taskCtx core.SubTaskContext) error {
 	if err != nil {
 		return err
 	}
-	incremental := false
 
 	collector, err := helper.NewApiCollector(helper.ApiCollectorArgs{
 		RawDataSubTaskArgs: helper.RawDataSubTaskArgs{
 			Ctx: taskCtx,
 			Params: FeishuApiParams{
-				ApiResName: "top_user_report",
+				ConnectionId: data.Options.ConnectionId,
 			},
 			Table: RAW_MEETING_TOP_USER_ITEM_TABLE,
 		},
 		ApiClient:   data.ApiClient,
-		Incremental: incremental,
+		Incremental: false,
 		Input:       iterator,
 		UrlTemplate: "/reports/get_top_user",
 		Query: func(reqData *helper.RequestData) (url.Values, error) {

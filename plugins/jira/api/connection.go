@@ -18,6 +18,7 @@ limitations under the License.
 package api
 
 import (
+	"context"
 	"fmt"
 	"net/http"
 	"net/url"
@@ -32,7 +33,6 @@ import (
 )
 
 func TestConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, error) {
-
 	// decode
 	var err error
 	var connection models.TestConnectionRequest
@@ -48,21 +48,23 @@ func TestConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, erro
 
 	// test connection
 	apiClient, err := helper.NewApiClient(
+		context.TODO(),
 		connection.Endpoint,
 		map[string]string{
 			"Authorization": fmt.Sprintf("Basic %v", connection.GetEncodedToken()),
 		},
 		3*time.Second,
 		connection.Proxy,
-		nil,
 	)
 	if err != nil {
 		return nil, err
 	}
+	// serverInfo checking
 	res, err := apiClient.Get("api/2/serverInfo", nil, nil)
 	if err != nil {
 		return nil, err
 	}
+	serverInfoFail := "You are failed on test the serverInfo: [ " + res.Request.URL.String() + " ]"
 	// check if `/rest/` was missing
 	if res.StatusCode == http.StatusNotFound && !strings.HasSuffix(connection.Endpoint, "/rest/") {
 		endpointUrl, err := url.Parse(connection.Endpoint)
@@ -85,12 +87,40 @@ func TestConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, erro
 	if resBody.DeploymentType == models.DeploymentServer {
 		// only support 8.x.x or higher
 		if versions := resBody.VersionNumbers; len(versions) == 3 && versions[0] < 8 {
-			return nil, fmt.Errorf("Support JIRA Server 8+ only")
+			return nil, fmt.Errorf("%s Support JIRA Server 8+ only", serverInfoFail)
 		}
 	}
 	if res.StatusCode != http.StatusOK {
-		return nil, fmt.Errorf("unexpected status code: %d", res.StatusCode)
+		return nil, fmt.Errorf("%s unexpected status code: %d", serverInfoFail, res.StatusCode)
 	}
+
+	// usersSearch checking
+	usersSearchFail := "You are suceess on test the serverInfo but failed to test on userSearch"
+	res, err = apiClient.Get("api/3/users/search", nil, nil)
+	if err != nil {
+		return nil, fmt.Errorf("%s %s", usersSearchFail, err)
+	}
+	usersSearchFail += ": [ " + res.Request.URL.String() + " ]"
+
+	errMsg := ""
+	if res.StatusCode == http.StatusForbidden {
+		resErrBody := &models.JiraErrorInfo{}
+		err = helper.UnmarshalResponse(res, resErrBody)
+		if err != nil {
+			return nil, fmt.Errorf("%s Unexpected status code: %d,and UnmarshalResponse error %s", usersSearchFail, res.StatusCode, err)
+		}
+		for _, em := range resErrBody.ErrorMessages {
+			if em == "error.no-permission" {
+				return nil, fmt.Errorf("%s We get the error %s ,it might you use the right token(password) but with the wrong username.please check your password", usersSearchFail, em)
+			}
+			errMsg += em + " \r\n"
+		}
+	}
+
+	if res.StatusCode != http.StatusOK {
+		return nil, fmt.Errorf("%s Unexpected [%s] status code: %d %s", usersSearchFail, res.Request.URL, res.StatusCode, errMsg)
+	}
+
 	return nil, nil
 }
 

@@ -36,7 +36,7 @@ func TestGitlabMrDataFlow(t *testing.T) {
 	taskData := &tasks.GitlabTaskData{
 		Options: &tasks.GitlabOptions{
 			ConnectionId: 1,
-			ProjectId:    12955687,
+			ProjectId:    12345678,
 		},
 	}
 	// import raw data table
@@ -50,8 +50,9 @@ func TestGitlabMrDataFlow(t *testing.T) {
 	dataflowTester.VerifyTable(
 		models.GitlabMergeRequest{},
 		fmt.Sprintf("./snapshot_tables/%s.csv", models.GitlabMergeRequest{}.TableName()),
-		[]string{"connection_id", "gitlab_id"},
 		[]string{
+			"connection_id",
+			"gitlab_id",
 			"iid",
 			"project_id",
 			"source_project_id",
@@ -83,8 +84,10 @@ func TestGitlabMrDataFlow(t *testing.T) {
 	dataflowTester.VerifyTable(
 		models.GitlabMrLabel{},
 		fmt.Sprintf("./snapshot_tables/%s.csv", models.GitlabMrLabel{}.TableName()),
-		[]string{"connection_id", "mr_id", "label_name"},
 		[]string{
+			"connection_id",
+			"mr_id",
+			"label_name",
 			"_raw_data_params",
 			"_raw_data_table",
 			"_raw_data_id",
@@ -98,8 +101,8 @@ func TestGitlabMrDataFlow(t *testing.T) {
 	dataflowTester.VerifyTable(
 		code.PullRequest{},
 		fmt.Sprintf("./snapshot_tables/%s.csv", code.PullRequest{}.TableName()),
-		[]string{"id"},
 		[]string{
+			"id",
 			"_raw_data_params",
 			"_raw_data_table",
 			"_raw_data_id",
@@ -136,8 +139,6 @@ func TestGitlabMrDataFlow(t *testing.T) {
 		[]string{
 			"pull_request_id",
 			"label_name",
-		},
-		[]string{
 			"_raw_data_params",
 			"_raw_data_table",
 			"_raw_data_id",

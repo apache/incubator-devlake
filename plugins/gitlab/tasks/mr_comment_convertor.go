@@ -18,8 +18,9 @@ limitations under the License.
 package tasks
 
 import (
-	"github.com/apache/incubator-devlake/plugins/core/dal"
 	"reflect"
+
+	"github.com/apache/incubator-devlake/plugins/core/dal"
 
 	"github.com/apache/incubator-devlake/models/domainlayer"
 	"github.com/apache/incubator-devlake/models/domainlayer/code"
@@ -38,7 +39,6 @@ var ConvertMrCommentMeta = core.SubTaskMeta{
 }
 
 func ConvertMergeRequestComment(taskCtx core.SubTaskContext) error {
-
 	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_PROJECT_TABLE)
 	db := taskCtx.GetDal()
 	clauses := []dal.Clause{
@@ -59,7 +59,7 @@ func ConvertMergeRequestComment(taskCtx core.SubTaskContext) error {
 
 	domainIdGeneratorComment := didgen.NewDomainIdGenerator(&models.GitlabMrComment{})
 	prIdGen := didgen.NewDomainIdGenerator(&models.GitlabMergeRequest{})
-	userIdGen := didgen.NewDomainIdGenerator(&models.GitlabUser{})
+	accountIdGen := didgen.NewDomainIdGenerator(&models.GitlabAccount{})
 
 	converter, err := helper.NewDataConverter(helper.DataConverterArgs{
 		RawDataSubTaskArgs: *rawDataSubTaskArgs,
@@ -75,8 +75,9 @@ func ConvertMergeRequestComment(taskCtx core.SubTaskContext) error {
 				},
 				PullRequestId: prIdGen.Generate(data.Options.ConnectionId, gitlabComments.MergeRequestId),
 				Body:          gitlabComments.Body,
-				UserId:        userIdGen.Generate(data.Options.ConnectionId, gitlabComments.AuthorUsername),
+				UserId:        accountIdGen.Generate(data.Options.ConnectionId, gitlabComments.AuthorUserId),
 				CreatedDate:   gitlabComments.GitlabCreatedAt,
+				Type:          gitlabComments.Type,
 			}
 			return []interface{}{
 				domainComment,

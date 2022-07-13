@@ -21,6 +21,7 @@ import (
 	"encoding/json"
 
 	"github.com/apache/incubator-devlake/plugins/core/dal"
+	"gorm.io/gorm"
 
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/github/models"
@@ -38,12 +39,9 @@ var ExtractApiCommentsMeta = core.SubTaskMeta{
 }
 
 type IssueComment struct {
-	GithubId int `json:"id"`
-	Body     json.RawMessage
-	User     struct {
-		Login string
-		Id    int
-	}
+	GithubId        int `json:"id"`
+	Body            json.RawMessage
+	User            *GithubAccountResponse
 	IssueUrl        string             `json:"issue_url"`
 	GithubCreatedAt helper.Iso8601Time `json:"created_at"`
 	GithubUpdatedAt helper.Iso8601Time `json:"updated_at"`
@@ -87,7 +85,7 @@ func ExtractApiComments(taskCtx core.SubTaskContext) error {
 			if issue.GithubId == 0 {
 				pr := &models.GithubPullRequest{}
 				err = taskCtx.GetDal().First(pr, dal.Where("connection_id = ? and number = ? and repo_id = ?", data.Options.ConnectionId, issueINumber, data.Repo.GithubId))
-				if err != nil {
+				if err != nil && err != gorm.ErrRecordNotFound {
 					return nil, err
 				}
 				githubPrComment := &models.GithubPullRequestComment{
@@ -114,6 +112,11 @@ func ExtractApiComments(taskCtx core.SubTaskContext) error {
 				}
 				results = append(results, githubIssueComment)
 			}
+			githubAccount, err := convertAccount(apiComment.User, data.Options.ConnectionId)
+			if err != nil {
+				return nil, err
+			}
+			results = append(results, githubAccount)
 			return results, nil
 		},
 	})

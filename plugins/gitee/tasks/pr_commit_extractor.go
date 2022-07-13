@@ -65,7 +65,7 @@ type PullRequestCommit struct {
 }
 
 func ExtractApiPullRequestCommits(taskCtx core.SubTaskContext) error {
-	rawDataSubTaskArgs, _ := CreateRawDataSubTaskArgs(taskCtx, RAW_PULL_REQUEST_COMMIT_TABLE)
+	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_PULL_REQUEST_COMMIT_TABLE)
 	extractor, err := helper.NewApiExtractor(helper.ApiExtractorArgs{
 		RawDataSubTaskArgs: *rawDataSubTaskArgs,
 		Extract: func(row *helper.RawData) ([]interface{}, error) {
@@ -92,6 +92,7 @@ func ExtractApiPullRequestCommits(taskCtx core.SubTaskContext) error {
 			results = append(results, giteeCommit)
 
 			giteePullRequestCommit := &models.GiteePullRequestCommit{
+				ConnectionId:  data.Options.ConnectionId,
 				CommitSha:     apiPullRequestCommit.Sha,
 				PullRequestId: pull.GiteeId,
 			}

@@ -36,10 +36,8 @@ var ExtractApiEventsMeta = core.SubTaskMeta{
 type IssueEvent struct {
 	GithubId int `json:"id"`
 	Event    string
-	Actor    struct {
-		Login string
-	}
-	Issue struct {
+	Actor    *GithubAccountResponse
+	Issue    struct {
 		Id int
 	}
 	GithubCreatedAt helper.Iso8601Time `json:"created_at"`
@@ -73,6 +71,11 @@ func ExtractApiEvents(taskCtx core.SubTaskContext) error {
 				return nil, err
 			}
 			results = append(results, githubIssueEvent)
+			githubAccount, err := convertAccount(body.Actor, data.Options.ConnectionId)
+			if err != nil {
+				return nil, err
+			}
+			results = append(results, githubAccount)
 
 			return results, nil
 		},

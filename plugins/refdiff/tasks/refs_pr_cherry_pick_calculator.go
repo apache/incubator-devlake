@@ -18,7 +18,9 @@ limitations under the License.
 package tasks
 
 import (
+	"fmt"
 	"regexp"
+	"runtime/debug"
 	"strconv"
 	"strings"
 	"time"
@@ -44,10 +46,13 @@ func CalculatePrCherryPick(taskCtx core.SubTaskContext) error {
 	ctx := taskCtx.GetContext()
 	db := taskCtx.GetDal()
 	var prTitleRegex *regexp.Regexp
-
+	var err error
 	prTitlePattern := taskCtx.GetConfig("GITHUB_PR_TITLE_PATTERN")
 	if len(prTitlePattern) > 0 {
-		prTitleRegex = regexp.MustCompile(prTitlePattern)
+		prTitleRegex, err = regexp.Compile(prTitlePattern)
+		if err != nil {
+			return fmt.Errorf("regexp Compile prTitlePattern failed:[%s] stack:[%s]", err.Error(), debug.Stack())
+		}
 	}
 
 	cursor, err := db.Cursor(
@@ -110,7 +115,7 @@ func CalculatePrCherryPick(taskCtx core.SubTaskContext) error {
 		taskCtx.IncProgress(1)
 	}
 
-	cursor2, err := db.Raw(
+	cursor2, err := db.RawCursor(
 		`
 			SELECT pr2.pull_request_key                 AS parent_pr_key,
 			       pr1.parent_pr_id                     AS parent_pr_id,

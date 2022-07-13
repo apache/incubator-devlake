@@ -31,6 +31,10 @@ type Ref struct {
 	CreatedDate *time.Time
 }
 
+func (Ref) TableName() string {
+	return "refs"
+}
+
 type RefsCommitsDiff struct {
 	NewRefId        string `gorm:"primaryKey;type:varchar(255)"`
 	OldRefId        string `gorm:"primaryKey;type:varchar(255)"`
@@ -40,16 +44,25 @@ type RefsCommitsDiff struct {
 	SortingIndex    int
 }
 
+func (RefsCommitsDiff) TableName() string {
+	return "refs_commits_diffs"
+}
+
 type RefsIssuesDiffs struct {
-	NewRefId        string `gorm:"type:varchar(255)"`
-	OldRefId        string `gorm:"type:varchar(255)"`
+	NewRefId        string `gorm:"primaryKey;type:varchar(255)"`
+	OldRefId        string `gorm:"primaryKey;type:varchar(255)"`
 	NewRefCommitSha string `gorm:"type:varchar(40)"`
 	OldRefCommitSha string `gorm:"type:varchar(40)"`
 	IssueNumber     string `gorm:"type:varchar(255)"`
-	IssueId         string `gorm:";type:varchar(255)"`
+	IssueId         string `gorm:"primaryKey;type:varchar(255)"`
 	NoPKModel
 }
 
+func (RefsIssuesDiffs) TableName() string {
+	return "refs_issues_diffs"
+}
+
+// multi pk
 type RefsPrCherrypick struct {
 	RepoName               string `gorm:"type:varchar(255)"`
 	ParentPrKey            int
@@ -58,4 +71,8 @@ type RefsPrCherrypick struct {
 	ParentPrUrl            string `gorm:"type:varchar(255)"`
 	ParentPrId             string `json:"parent_pr_id" gorm:"primaryKey;type:varchar(255);comment:This key is generated based on details from the original plugin"` // format: <Plugin>:<Entity>:<PK0>:<PK1>
 	NoPKModel
+}
+
+func (RefsPrCherrypick) TableName() string {
+	return "refs_pr_cherrypicks"
 }

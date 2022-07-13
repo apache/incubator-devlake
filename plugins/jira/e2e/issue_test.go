@@ -33,9 +33,9 @@ func TestIssueDataFlow(t *testing.T) {
 
 	taskData := &tasks.JiraTaskData{
 		Options: &tasks.JiraOptions{
-			ConnectionId: 2,
-			BoardId:      8,
-		},
+			ConnectionId:        2,
+			BoardId:             8,
+			TransformationRules: tasks.TransformationRules{StoryPointField: "customfield_10024"}},
 	}
 
 	// import raw data table
@@ -45,15 +45,14 @@ func TestIssueDataFlow(t *testing.T) {
 	dataflowTester.FlushTabler(&models.JiraIssue{})
 	dataflowTester.FlushTabler(&models.JiraBoardIssue{})
 	dataflowTester.FlushTabler(&models.JiraSprintIssue{})
-	dataflowTester.FlushTabler(&models.JiraChangelog{})
-	dataflowTester.FlushTabler(&models.JiraChangelogItem{})
+	dataflowTester.FlushTabler(&models.JiraIssueChangelogs{})
+	dataflowTester.FlushTabler(&models.JiraIssueChangelogItems{})
 	dataflowTester.FlushTabler(&models.JiraWorklog{})
-	dataflowTester.FlushTabler(&models.JiraUser{})
+	dataflowTester.FlushTabler(&models.JiraAccount{})
 	dataflowTester.Subtask(tasks.ExtractIssuesMeta, taskData)
 	dataflowTester.VerifyTable(
 		models.JiraIssue{},
 		"./snapshot_tables/_tool_jira_issues.csv",
-		[]string{"connection_id", "issue_id"},
 		[]string{
 			"connection_id",
 			"issue_id",
@@ -101,7 +100,6 @@ func TestIssueDataFlow(t *testing.T) {
 		models.JiraBoardIssue{},
 		"./snapshot_tables/_tool_jira_board_issues.csv",
 		[]string{"connection_id", "board_id", "issue_id"},
-		[]string{},
 	)
 
 	// verify issue conversion
@@ -111,8 +109,8 @@ func TestIssueDataFlow(t *testing.T) {
 	dataflowTester.VerifyTable(
 		ticket.Issue{},
 		"./snapshot_tables/issues.csv",
-		[]string{"id"},
 		[]string{
+			"id",
 			"url",
 			"icon_url",
 			"issue_key",
@@ -144,6 +142,5 @@ func TestIssueDataFlow(t *testing.T) {
 		ticket.BoardIssue{},
 		"./snapshot_tables/board_issues.csv",
 		[]string{"board_id", "issue_id"},
-		[]string{},
 	)
 }

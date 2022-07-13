@@ -37,6 +37,7 @@ import (
 	"github.com/apache/incubator-devlake/utils"
 )
 
+// ErrIgnoreAndContinue is a error which should be ignored
 var ErrIgnoreAndContinue = errors.New("ignore and continue")
 
 // ApiClient is designed for simple api requests
@@ -50,12 +51,13 @@ type ApiClient struct {
 	logger        core.Logger
 }
 
+// NewApiClient FIXME ...
 func NewApiClient(
+	ctx context.Context,
 	endpoint string,
 	headers map[string]string,
 	timeout time.Duration,
 	proxy string,
-	ctx context.Context,
 ) (*ApiClient, error) {
 	parsedUrl, err := url.Parse(endpoint)
 	if err != nil {
@@ -92,6 +94,7 @@ func NewApiClient(
 	return apiClient, nil
 }
 
+// Setup FIXME ...
 func (apiClient *ApiClient) Setup(
 	endpoint string,
 	headers map[string]string,
@@ -103,36 +106,47 @@ func (apiClient *ApiClient) Setup(
 	apiClient.SetHeaders(headers)
 }
 
+// SetEndpoint FIXME ...
 func (apiClient *ApiClient) SetEndpoint(endpoint string) {
 	apiClient.endpoint = endpoint
 }
+
+// GetEndpoint FIXME ...
 func (apiClient *ApiClient) GetEndpoint() string {
 	return apiClient.endpoint
 }
 
-func (ApiClient *ApiClient) SetTimeout(timeout time.Duration) {
-	ApiClient.client.Timeout = timeout
+// SetTimeout FIXME ...
+func (apiClient *ApiClient) SetTimeout(timeout time.Duration) {
+	apiClient.client.Timeout = timeout
 }
 
+// SetHeaders FIXME ...
 func (apiClient *ApiClient) SetHeaders(headers map[string]string) {
 	apiClient.headers = headers
 }
+
+// GetHeaders FIXME ...
 func (apiClient *ApiClient) GetHeaders() map[string]string {
 	return apiClient.headers
 }
 
+// SetBeforeFunction FIXME ...
 func (apiClient *ApiClient) SetBeforeFunction(callback common.ApiClientBeforeRequest) {
 	apiClient.beforeRequest = callback
 }
 
+// SetAfterFunction FIXME ...
 func (apiClient *ApiClient) SetAfterFunction(callback common.ApiClientAfterResponse) {
 	apiClient.afterReponse = callback
 }
 
+// SetContext FIXME ...
 func (apiClient *ApiClient) SetContext(ctx context.Context) {
 	apiClient.ctx = ctx
 }
 
+// SetProxy FIXME ...
 func (apiClient *ApiClient) SetProxy(proxyUrl string) error {
 	pu, err := url.Parse(proxyUrl)
 	if err != nil {
@@ -144,6 +158,7 @@ func (apiClient *ApiClient) SetProxy(proxyUrl string) error {
 	return nil
 }
 
+// SetLogger FIXME ...
 func (apiClient *ApiClient) SetLogger(logger core.Logger) {
 	apiClient.logger = logger
 }
@@ -160,6 +175,7 @@ func (apiClient *ApiClient) logError(format string, a ...interface{}) {
 	}
 }
 
+// Do FIXME ...
 func (apiClient *ApiClient) Do(
 	method string,
 	path string,
@@ -222,6 +238,7 @@ func (apiClient *ApiClient) Do(
 	if apiClient.afterReponse != nil {
 		err = apiClient.afterReponse(res)
 		if err == ErrIgnoreAndContinue {
+			res.Body.Close()
 			return res, err
 		}
 		if err != nil {
@@ -233,6 +250,7 @@ func (apiClient *ApiClient) Do(
 	return res, err
 }
 
+// Get FIXME ...
 func (apiClient *ApiClient) Get(
 	path string,
 	query url.Values,
@@ -241,6 +259,7 @@ func (apiClient *ApiClient) Get(
 	return apiClient.Do(http.MethodGet, path, query, nil, headers)
 }
 
+// Post FIXME ...
 func (apiClient *ApiClient) Post(
 	path string,
 	query url.Values,
@@ -250,6 +269,7 @@ func (apiClient *ApiClient) Post(
 	return apiClient.Do(http.MethodPost, path, query, body, headers)
 }
 
+// UnmarshalResponse FIXME ...
 func UnmarshalResponse(res *http.Response, v interface{}) error {
 	defer res.Body.Close()
 	resBody, err := ioutil.ReadAll(res.Body)
@@ -263,6 +283,7 @@ func UnmarshalResponse(res *http.Response, v interface{}) error {
 	return nil
 }
 
+// GetURIStringPointer FIXME ...
 func GetURIStringPointer(baseUrl string, relativePath string, query url.Values) (*string, error) {
 	// If the base URL doesn't end with a slash, and has a relative path attached
 	// the values will be removed by the Go package, therefore we need to add a missing slash.
@@ -289,6 +310,7 @@ func GetURIStringPointer(baseUrl string, relativePath string, query url.Values) 
 	return &uri, nil
 }
 
+// AddMissingSlashToURL FIXME ...
 func AddMissingSlashToURL(baseUrl *string) {
 	pattern := `\/$`
 	isMatch, _ := regexp.Match(pattern, []byte(*baseUrl))
@@ -297,6 +319,7 @@ func AddMissingSlashToURL(baseUrl *string) {
 	}
 }
 
+// RemoveStartingSlashFromPath FIXME ...
 func RemoveStartingSlashFromPath(relativePath string) string {
 	pattern := `^\/`
 	byteArrayOfPath := []byte(relativePath)

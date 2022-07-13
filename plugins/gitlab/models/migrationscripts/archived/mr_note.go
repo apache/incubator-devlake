@@ -18,8 +18,9 @@ limitations under the License.
 package archived
 
 import (
-	"github.com/apache/incubator-devlake/models/migrationscripts/archived"
 	"time"
+
+	"github.com/apache/incubator-devlake/models/migrationscripts/archived"
 )
 
 type GitlabMrNote struct {
@@ -29,13 +30,14 @@ type GitlabMrNote struct {
 	MergeRequestId  int    `gorm:"index"`
 	MergeRequestIid int    `gorm:"comment:Used in API requests ex. /api/merge_requests/<THIS_IID>"`
 	NoteableType    string `gorm:"type:varchar(100)"`
+	AuthorUserId    int
 	AuthorUsername  string `gorm:"type:varchar(255)"`
 	Body            string
 	GitlabCreatedAt time.Time
 	Confidential    bool
-	Resolvable      bool `gorm:"comment:Is or is not review comment"`
-	IsSystem        bool `gorm:"comment:Is or is not auto-generated vs. human generated"`
-
+	Resolvable      bool   `gorm:"comment:Is or is not review comment"`
+	IsSystem        bool   `gorm:"comment:Is or is not auto-generated vs. human generated"`
+	Type            string `gorm:"comment:if type=null, it is normal comment,if type=diffNote,it is diff comment"`
 	archived.NoPKModel
 }
 

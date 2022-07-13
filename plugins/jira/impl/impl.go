@@ -39,6 +39,8 @@ var _ core.PluginInit = (*Jira)(nil)
 var _ core.PluginTask = (*Jira)(nil)
 var _ core.PluginApi = (*Jira)(nil)
 var _ core.Migratable = (*Jira)(nil)
+var _ core.PluginBlueprintV100 = (*Jira)(nil)
+var _ core.CloseablePluginTask = (*Jira)(nil)
 
 type Jira struct{}
 
@@ -65,10 +67,10 @@ func (plugin Jira) SubTaskMetas() []core.SubTaskMeta {
 		tasks.CollectIssuesMeta,
 		tasks.ExtractIssuesMeta,
 
-		tasks.CollectChangelogsMeta,
-		tasks.ExtractChangelogsMeta,
+		tasks.CollectIssueChangelogsMeta,
+		tasks.ExtractIssueChangelogsMeta,
 
-		tasks.CollectUsersMeta,
+		tasks.CollectAccountsMeta,
 
 		tasks.CollectWorklogsMeta,
 		tasks.ExtractWorklogsMeta,
@@ -85,7 +87,7 @@ func (plugin Jira) SubTaskMetas() []core.SubTaskMeta {
 
 		tasks.ConvertWorklogsMeta,
 
-		tasks.ConvertChangelogsMeta,
+		tasks.ConvertIssueChangelogsMeta,
 
 		tasks.ConvertSprintsMeta,
 		tasks.ConvertSprintIssuesMeta,
@@ -93,8 +95,8 @@ func (plugin Jira) SubTaskMetas() []core.SubTaskMeta {
 		tasks.ConvertIssueCommitsMeta,
 		tasks.ConvertIssueRepoCommitsMeta,
 
-		tasks.ExtractUsersMeta,
-		tasks.ConvertUsersMeta,
+		tasks.ExtractAccountsMeta,
+		tasks.ConvertAccountsMeta,
 	}
 }
 
@@ -141,7 +143,6 @@ func (plugin Jira) PrepareTaskData(taskCtx core.TaskContext, options map[string]
 	taskData := &tasks.JiraTaskData{
 		Options:        &op,
 		ApiClient:      jiraApiClient,
-		Connection:     connection,
 		JiraServerInfo: *info,
 	}
 	if !since.IsZero() {
@@ -151,25 +152,16 @@ func (plugin Jira) PrepareTaskData(taskCtx core.TaskContext, options map[string]
 	return taskData, nil
 }
 
+func (plugin Jira) MakePipelinePlan(connectionId uint64, scope []*core.BlueprintScopeV100) (core.PipelinePlan, error) {
+	return api.MakePipelinePlan(plugin.SubTaskMetas(), connectionId, scope)
+}
+
 func (plugin Jira) RootPkgPath() string {
 	return "github.com/apache/incubator-devlake/plugins/jira"
 }
 
 func (plugin Jira) MigrationScripts() []migration.Script {
-	return []migration.Script{
-		new(migrationscripts.InitSchemas),
-		new(migrationscripts.UpdateSchemas20220505),
-		new(migrationscripts.UpdateSchemas20220507),
-		new(migrationscripts.UpdateSchemas20220518),
-		new(migrationscripts.UpdateSchemas20220525),
-		new(migrationscripts.UpdateSchemas20220526),
-		new(migrationscripts.UpdateSchemas20220527),
-		new(migrationscripts.UpdateSchemas20220601),
-		new(migrationscripts.UpdateSchemas20220614),
-		new(migrationscripts.UpdateSchemas20220615),
-		new(migrationscripts.UpdateSchemas20220616),
-		new(migrationscripts.UpdateSchemas20220620),
-	}
+	return migrationscripts.All()
 }
 
 func (plugin Jira) ApiResources() map[string]map[string]core.ApiResourceHandler {
@@ -195,4 +187,13 @@ func (plugin Jira) ApiResources() map[string]map[string]core.ApiResourceHandler 
 			"GET": api.Proxy,
 		},
 	}
+}
+
+func (plugin Jira) Close(taskCtx core.TaskContext) error {
+	data, ok := taskCtx.GetData().(*tasks.JiraTaskData)
+	if !ok {
+		return fmt.Errorf("GetData failed when try to close %+v", taskCtx)
+	}
+	data.ApiClient.Release()
+	return nil
 }

@@ -18,9 +18,10 @@ limitations under the License.
 package tasks
 
 import (
-	"github.com/apache/incubator-devlake/models/domainlayer/didgen"
 	"reflect"
 	"strconv"
+
+	"github.com/apache/incubator-devlake/models/domainlayer/didgen"
 
 	"github.com/apache/incubator-devlake/plugins/core/dal"
 
@@ -32,7 +33,7 @@ import (
 )
 
 func ConvertBug(taskCtx core.SubTaskContext) error {
-	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_BUG_TABLE)
+	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_BUG_TABLE, false)
 	logger := taskCtx.GetLogger()
 	db := taskCtx.GetDal()
 	logger.Info("convert board:%d", data.Options.WorkspaceId)
@@ -47,7 +48,7 @@ func ConvertBug(taskCtx core.SubTaskContext) error {
 	}
 	defer cursor.Close()
 	issueIdGen := didgen.NewDomainIdGenerator(&models.TapdIssue{})
-	userIdGen := didgen.NewDomainIdGenerator(&models.TapdUser{})
+	accountIdGen := didgen.NewDomainIdGenerator(&models.TapdAccount{})
 	workspaceIdGen := didgen.NewDomainIdGenerator(&models.TapdWorkspace{})
 	iterIdGen := didgen.NewDomainIdGenerator(&models.TapdIteration{})
 	converter, err := helper.NewDataConverter(helper.DataConverterArgs{
@@ -71,9 +72,9 @@ func ConvertBug(taskCtx core.SubTaskContext) error {
 				//UpdatedDate:    (*time.Time)(toolL.Modified),
 				ParentIssueId:  issueIdGen.Generate(toolL.ConnectionId, toolL.IssueId),
 				Priority:       toolL.Priority,
-				CreatorId:      userIdGen.Generate(data.Options.ConnectionId, toolL.WorkspaceId, toolL.Reporter),
+				CreatorId:      accountIdGen.Generate(data.Options.ConnectionId, toolL.Reporter),
 				CreatorName:    toolL.Reporter,
-				AssigneeId:     userIdGen.Generate(data.Options.ConnectionId, toolL.WorkspaceId, toolL.CurrentOwner),
+				AssigneeId:     accountIdGen.Generate(data.Options.ConnectionId, toolL.CurrentOwner),
 				AssigneeName:   toolL.CurrentOwner,
 				Severity:       toolL.Severity,
 				Component:      toolL.Feature, // todo not sure about this

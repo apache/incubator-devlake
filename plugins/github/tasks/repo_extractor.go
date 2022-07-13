@@ -42,7 +42,7 @@ type GithubApiRepo struct {
 	HTMLUrl     string `json:"html_url"`
 	Language    string `json:"language"`
 	Description string `json:"description"`
-	Owner       models.GithubUser
+	Owner       *GithubAccountResponse
 	Parent      *GithubApiRepo      `json:"parent"`
 	CreatedAt   helper.Iso8601Time  `json:"created_at"`
 	UpdatedAt   *helper.Iso8601Time `json:"updated_at"`
@@ -97,6 +97,12 @@ func ExtractApiRepositories(taskCtx core.SubTaskContext) error {
 				githubRepository.ParentHTMLUrl = body.Parent.HTMLUrl
 			}
 			results = append(results, githubRepository)
+
+			githubUser, err := convertAccount(body.Owner, data.Options.ConnectionId)
+			if err != nil {
+				return nil, err
+			}
+			results = append(results, githubUser)
 
 			parentTaskContext := taskCtx.TaskContext()
 			if parentTaskContext != nil {

@@ -26,7 +26,7 @@ import (
 )
 
 // TODO add what host would want to requist
-const ENDPOINT = "https://open.example.cn/api/v1"
+const ENDPOINT = "{{ .Endpoint }}"
 
 func New{{ .PluginName }}ApiClient(taskCtx core.TaskContext) (*helper.ApiAsyncClient, error) {
 	// load and process configuration
@@ -46,9 +46,11 @@ func New{{ .PluginName }}ApiClient(taskCtx core.TaskContext) (*helper.ApiAsyncCl
 		return nil, err
 	}
 	// set token
-	apiClient.SetHeaders(map[string]string{
-		"Authorization": fmt.Sprintf("Bearer %v", token),
-	})
+	if token != "" {
+		apiClient.SetHeaders(map[string]string{
+			"Authorization": fmt.Sprintf("Bearer %v", token),
+		})
+	}
 
 	// TODO add some check after request if necessary
 	// apiClient.SetAfterFunction(func(res *http.Response) error {

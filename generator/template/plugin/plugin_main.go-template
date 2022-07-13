@@ -19,7 +19,7 @@ package main
 
 import (
 	"github.com/apache/incubator-devlake/plugins/core"
-	"github.com/apache/incubator-devlake/plugins/{{ .pluginName }}/tasks"
+	"github.com/apache/incubator-devlake/plugins/{{ .plugin_name }}/tasks"
 	"github.com/apache/incubator-devlake/runner"
 	"github.com/mitchellh/mapstructure"
 	"github.com/spf13/cobra"
@@ -51,8 +51,8 @@ func (plugin {{ .PluginName }}) Init(config *viper.Viper, logger core.Logger, db
 }
 
 func (plugin {{ .PluginName }}) SubTaskMetas() []core.SubTaskMeta {
+	// TODO add your sub task here
 	return []core.SubTaskMeta{
-		// TODO add your sub task here
 	}
 }
 
@@ -63,16 +63,8 @@ func (plugin {{ .PluginName }}) PrepareTaskData(taskCtx core.TaskContext, option
 		return nil, err
 	}
 
-	// apiClient, err := tasks.New{{ .PluginName }}ApiClient(taskCtx)
-	// if err != nil {
-	// 	return nil, err
-	// }
-
 	return &tasks.{{ .PluginName }}TaskData{
 		Options: &op,
-		// TODO you can init and stash some handler to deal data at all subtasks, Such as apiClient as below.
-		// NOTES: In task_data.go/TaskData should declare `ApiClient`
-        // ApiClient: apiClient,
 	}, nil
 }
 

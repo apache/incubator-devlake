@@ -52,12 +52,12 @@ type BugChangelogItemResult struct {
 }
 
 func ConvertBugChangelog(taskCtx core.SubTaskContext) error {
-	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_BUG_CHANGELOG_TABLE)
+	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_BUG_CHANGELOG_TABLE, false)
 	logger := taskCtx.GetLogger()
 	db := taskCtx.GetDal()
 	logger.Info("convert changelog :%d", data.Options.WorkspaceId)
 	issueIdGen := didgen.NewDomainIdGenerator(&models.TapdIssue{})
-	userIdGen := didgen.NewDomainIdGenerator(&models.TapdUser{})
+	accountIdGen := didgen.NewDomainIdGenerator(&models.TapdAccount{})
 	clIdGen := didgen.NewDomainIdGenerator(&models.TapdBugChangelog{})
 	clauses := []dal.Clause{
 		dal.Select("tc.created, tc.id, tc.workspace_id, tc.bug_id, tc.author, _tool_tapd_bug_changelog_items.*"),
@@ -79,12 +79,12 @@ func ConvertBugChangelog(taskCtx core.SubTaskContext) error {
 		Input:              cursor,
 		Convert: func(inputRow interface{}) ([]interface{}, error) {
 			cl := inputRow.(*BugChangelogItemResult)
-			domainCl := &ticket.Changelog{
+			domainCl := &ticket.IssueChangelogs{
 				DomainEntity: domainlayer.DomainEntity{
 					Id: clIdGen.Generate(data.Options.ConnectionId, cl.Id, cl.Field),
 				},
 				IssueId:           issueIdGen.Generate(data.Options.ConnectionId, cl.BugId),
-				AuthorId:          userIdGen.Generate(data.Options.ConnectionId, data.Options.WorkspaceId, cl.Author),
+				AuthorId:          accountIdGen.Generate(data.Options.ConnectionId, cl.Author),
 				AuthorName:        cl.Author,
 				FieldId:           cl.Field,
 				FieldName:         cl.Field,

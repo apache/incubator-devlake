@@ -18,10 +18,14 @@ limitations under the License.
 package tasks
 
 import (
+	"fmt"
 	"reflect"
 	"regexp"
+	"runtime/debug"
 	"strconv"
 	"strings"
+
+	"github.com/apache/incubator-devlake/plugins/core/dal"
 
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/gitee/models"
@@ -36,22 +40,23 @@ var EnrichPullRequestIssuesMeta = core.SubTaskMeta{
 }
 
 func EnrichPullRequestIssues(taskCtx core.SubTaskContext) (err error) {
-	db := taskCtx.GetDb()
+	db := taskCtx.GetDal()
 	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_PULL_REQUEST_TABLE)
 	repoId := data.Repo.GiteeId
 
 	var prBodyCloseRegex *regexp.Regexp
-	prBodyClosePattern := taskCtx.GetConfig("GITEE_PR_BODY_CLOSE_PATTERN")
+	prBodyClosePattern := data.Options.PrBodyClosePattern
 	//the pattern before the issue number, sometimes, the issue number is #1098, sometimes it is https://xxx/#1098
 	prBodyClosePattern = strings.Replace(prBodyClosePattern, "%s", data.Options.Owner, 1)
 	prBodyClosePattern = strings.Replace(prBodyClosePattern, "%s", data.Options.Repo, 1)
 	if len(prBodyClosePattern) > 0 {
-		prBodyCloseRegex = regexp.MustCompile(prBodyClosePattern)
+		prBodyCloseRegex, err = regexp.Compile(prBodyClosePattern)
+		if err != nil {
+			return fmt.Errorf("regexp Compile prBodyClosePattern failed:[%s] stack:[%s]", err.Error(), debug.Stack())
+		}
 	}
 	charPattern := regexp.MustCompile(`[a-zA-Z\s,]+`)
-	cursor, err := db.Model(&models.GiteePullRequest{}).
-		Where("repo_id = ?", repoId).
-		Rows()
+	cursor, err := db.Cursor(dal.From(&models.GiteePullRequest{}), dal.Where("repo_id = ?", repoId))
 	if err != nil {
 		return err
 	}
@@ -89,8 +94,11 @@ func EnrichPullRequestIssues(taskCtx core.SubTaskContext) (err error) {
 				if numFormatErr != nil {
 					continue
 				}
-				err = db.Where("number = ? and repo_id = ?", issueNumber, repoId).
-					Limit(1).Find(issue).Error
+				err = db.All(
+					issue,
+					dal.Where("number = ? and repo_id = ? and connection_id = ?", issueNumber, repoId, data.Options.ConnectionId),
+					dal.Limit(1),
+				)
 				if err != nil {
 					return nil, err
 				}
@@ -98,6 +106,7 @@ func EnrichPullRequestIssues(taskCtx core.SubTaskContext) (err error) {
 					continue
 				}
 				giteePullRequstIssue := &models.GiteePullRequestIssue{
+					ConnectionId:      data.Options.ConnectionId,
 					PullRequestId:     giteePullRequst.GiteeId,
 					IssueId:           issue.GiteeId,
 					PullRequestNumber: giteePullRequst.Number,

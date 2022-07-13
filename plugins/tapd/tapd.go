@@ -46,7 +46,7 @@ func main() {
 			"workspaceId":  *workspaceId,
 			"companyId":    *companyId,
 		})
-
+		//
 		// cfg := config.GetConfig()
 		// log := logger.Global.Nested(cmd.Use)
 		// db, err := runner.NewGormDb(cfg, log)

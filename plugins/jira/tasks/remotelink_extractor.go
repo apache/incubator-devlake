@@ -19,7 +19,9 @@ package tasks
 
 import (
 	"encoding/json"
+	"fmt"
 	"regexp"
+	"runtime/debug"
 
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/core/dal"
@@ -33,6 +35,7 @@ var ExtractRemotelinksMeta = core.SubTaskMeta{
 	EntryPoint:       ExtractRemotelinks,
 	EnabledByDefault: true,
 	Description:      "extract Jira remote links",
+	DomainTypes:      []string{core.DOMAIN_TYPE_TICKET},
 }
 
 func ExtractRemotelinks(taskCtx core.SubTaskContext) error {
@@ -43,8 +46,12 @@ func ExtractRemotelinks(taskCtx core.SubTaskContext) error {
 	db := taskCtx.GetDal()
 	logger.Info("extract remote links")
 	var commitShaRegex *regexp.Regexp
-	if pattern := data.Connection.RemotelinkCommitShaPattern; pattern != "" {
-		commitShaRegex = regexp.MustCompile(pattern)
+	var err error
+	if pattern := data.Options.TransformationRules.RemotelinkCommitShaPattern; pattern != "" {
+		commitShaRegex, err = regexp.Compile(pattern)
+		if err != nil {
+			return fmt.Errorf("regexp Compile pattern failed:[%s] stack:[%s]", err.Error(), debug.Stack())
+		}
 	}
 
 	// select all remotelinks belongs to the board, cursor is important for low memory footprint

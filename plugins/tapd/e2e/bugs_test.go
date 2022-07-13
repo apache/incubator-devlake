@@ -52,8 +52,10 @@ func TestTapdBugDataFlow(t *testing.T) {
 	dataflowTester.VerifyTable(
 		models.TapdBugStatus{},
 		fmt.Sprintf("./snapshot_tables/%s.csv", models.TapdBugStatus{}.TableName()),
-		[]string{"connection_id", "workspace_id", "english_name"},
 		[]string{
+			"connection_id",
+			"workspace_id",
+			"english_name",
 			"chinese_name",
 			"is_last_step",
 			"_raw_data_params",
@@ -76,8 +78,9 @@ func TestTapdBugDataFlow(t *testing.T) {
 	dataflowTester.VerifyTable(
 		models.TapdBug{},
 		fmt.Sprintf("./snapshot_tables/%s.csv", models.TapdBug{}.TableName()),
-		[]string{"connection_id", "id"},
 		[]string{
+			"connection_id",
+			"id",
 			"epic_key",
 			"title",
 			"description",
@@ -219,8 +222,6 @@ func TestTapdBugDataFlow(t *testing.T) {
 			"connection_id",
 			"workspace_id",
 			"bug_id",
-		},
-		[]string{
 			"_raw_data_params",
 			"_raw_data_table",
 			"_raw_data_id",
@@ -235,8 +236,6 @@ func TestTapdBugDataFlow(t *testing.T) {
 			"workspace_id",
 			"iteration_id",
 			"bug_id",
-		},
-		[]string{
 			"resolution_date",
 			"bug_created_date",
 			"_raw_data_params",
@@ -251,8 +250,6 @@ func TestTapdBugDataFlow(t *testing.T) {
 		[]string{
 			"label_name",
 			"bug_id",
-		},
-		[]string{
 			"_raw_data_params",
 			"_raw_data_table",
 			"_raw_data_id",
@@ -268,8 +265,8 @@ func TestTapdBugDataFlow(t *testing.T) {
 	dataflowTester.VerifyTable(
 		ticket.Issue{},
 		fmt.Sprintf("./snapshot_tables/%s_bug.csv", ticket.Issue{}.TableName()),
-		[]string{"id"},
 		[]string{
+			"id",
 			"_raw_data_params",
 			"_raw_data_table",
 			"_raw_data_id",
@@ -307,8 +304,6 @@ func TestTapdBugDataFlow(t *testing.T) {
 		[]string{
 			"board_id",
 			"issue_id",
-		},
-		[]string{
 			"_raw_data_params",
 			"_raw_data_table",
 			"_raw_data_id",
@@ -321,8 +316,6 @@ func TestTapdBugDataFlow(t *testing.T) {
 		[]string{
 			"issue_id",
 			"sprint_id",
-		},
-		[]string{
 			"_raw_data_params",
 			"_raw_data_table",
 			"_raw_data_id",
@@ -336,8 +329,6 @@ func TestTapdBugDataFlow(t *testing.T) {
 		[]string{
 			"issue_id",
 			"label_name",
-		},
-		[]string{
 			"_raw_data_params",
 			"_raw_data_table",
 			"_raw_data_id",

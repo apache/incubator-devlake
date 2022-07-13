@@ -19,8 +19,11 @@ package tasks
 
 import (
 	"encoding/json"
-	"github.com/apache/incubator-devlake/models/domainlayer/ticket"
+	"fmt"
 	"regexp"
+	"runtime/debug"
+
+	"github.com/apache/incubator-devlake/models/domainlayer/ticket"
 
 	"github.com/apache/incubator-devlake/plugins/core"
 
@@ -49,20 +52,20 @@ type IssuesResponse struct {
 		CreatedAt   helper.Iso8601Time
 		UpdatedAt   helper.Iso8601Time
 	}
-	Author struct {
+	Author *struct {
 		State     string
-		WebUrl    string
-		AvatarUrl string
+		WebUrl    string `json:"web_url"`
+		AvatarUrl string `json:"avatar_url"`
 		Username  string
-		Id        int
-		Name      string
+		Id        int    `json:"id"`
+		Name      string `json:"name"`
 	}
 	Description string
 	State       string
 	Iid         int
 	Assignees   []struct {
-		AvatarUrl string
-		WebUrl    string
+		AvatarUrl string `json:"avatar_url"`
+		WebUrl    string `json:"web_url"`
 		State     string
 		Username  string
 		Id        int
@@ -136,28 +139,47 @@ func ExtractApiIssues(taskCtx core.SubTaskContext) error {
 	var issueTypeRequirementRegex *regexp.Regexp
 	var issueTypeIncidentRegex *regexp.Regexp
 	var issueSeverity = config.IssueSeverity
+	var err error
 	if len(issueSeverity) > 0 {
-		issueSeverityRegex = regexp.MustCompile(issueSeverity)
+		issueSeverityRegex, err = regexp.Compile(issueSeverity)
+		if err != nil {
+			return fmt.Errorf("regexp Compile issueSeverity failed:[%s] stack:[%s]", err.Error(), debug.Stack())
+		}
 	}
 	var issueComponent = config.IssueComponent
 	if len(issueComponent) > 0 {
-		issueComponentRegex = regexp.MustCompile(issueComponent)
+		issueComponentRegex, err = regexp.Compile(issueComponent)
+		if err != nil {
+			return fmt.Errorf("regexp Compile issueComponent failed:[%s] stack:[%s]", err.Error(), debug.Stack())
+		}
 	}
 	var issuePriority = config.IssuePriority
 	if len(issuePriority) > 0 {
-		issuePriorityRegex = regexp.MustCompile(issuePriority)
+		issuePriorityRegex, err = regexp.Compile(issuePriority)
+		if err != nil {
+			return fmt.Errorf("regexp Compile issuePriority failed:[%s] stack:[%s]", err.Error(), debug.Stack())
+		}
 	}
 	var issueTypeBug = config.IssueTypeBug
 	if len(issueTypeBug) > 0 {
-		issueTypeBugRegex = regexp.MustCompile(issueTypeBug)
+		issueTypeBugRegex, err = regexp.Compile(issueTypeBug)
+		if err != nil {
+			return fmt.Errorf("regexp Compile issueTypeBug failed:[%s] stack:[%s]", err.Error(), debug.Stack())
+		}
 	}
 	var issueTypeRequirement = config.IssueTypeRequirement
 	if len(issueTypeRequirement) > 0 {
-		issueTypeRequirementRegex = regexp.MustCompile(issueTypeRequirement)
+		issueTypeRequirementRegex, err = regexp.Compile(issueTypeRequirement)
+		if err != nil {
+			return fmt.Errorf("regexp Compile issueTypeRequirement failed:[%s] stack:[%s]", err.Error(), debug.Stack())
+		}
 	}
 	var issueTypeIncident = config.IssueTypeIncident
 	if len(issueTypeIncident) > 0 {
-		issueTypeIncidentRegex = regexp.MustCompile(issueTypeIncident)
+		issueTypeIncidentRegex, err = regexp.Compile(issueTypeIncident)
+		if err != nil {
+			return fmt.Errorf("regexp Compile issueTypeIncident failed:[%s] stack:[%s]", err.Error(), debug.Stack())
+		}
 	}
 	extractor, err := helper.NewApiExtractor(helper.ApiExtractorArgs{
 		RawDataSubTaskArgs: *rawDataSubTaskArgs,
@@ -167,7 +189,7 @@ func ExtractApiIssues(taskCtx core.SubTaskContext) error {
 			if err != nil {
 				return nil, err
 			}
-			// need to extract 2 kinds of entities here
+
 			if body.ProjectId == 0 {
 				return nil, nil
 			}
@@ -225,10 +247,28 @@ func ExtractApiIssues(taskCtx core.SubTaskContext) error {
 						gitlabIssue.Type = ticket.INCIDENT
 					}
 				}
-
 			}
 			gitlabIssue.ConnectionId = data.Options.ConnectionId
+			if body.Author != nil {
+				gitlabAuthor, err := convertGitlabAuthor(body, data.Options.ConnectionId)
+				if err != nil {
+					return nil, err
+				}
+				results = append(results, gitlabAuthor)
+			}
 			results = append(results, gitlabIssue)
+
+			for _, v := range body.Assignees {
+				GitlabAssignee := &models.GitlabAccount{
+					ConnectionId: data.Options.ConnectionId,
+					Username:     v.Username,
+					Name:         v.Name,
+					State:        v.State,
+					AvatarUrl:    v.AvatarUrl,
+					WebUrl:       v.WebUrl,
+				}
+				results = append(results, GitlabAssignee)
+			}
 
 			return results, nil
 		},
@@ -240,6 +280,7 @@ func ExtractApiIssues(taskCtx core.SubTaskContext) error {
 
 	return extractor.Execute()
 }
+
 func convertGitlabIssue(issue *IssuesResponse, projectId int) (*models.GitlabIssue, error) {
 	gitlabIssue := &models.GitlabIssue{
 		GitlabId:        issue.Id,
@@ -254,15 +295,35 @@ func convertGitlabIssue(issue *IssuesResponse, projectId int) (*models.GitlabIss
 		GitlabUpdatedAt: issue.GitlabUpdatedAt.ToTime(),
 		TimeEstimate:    issue.TimeStats.TimeEstimate,
 		TotalTimeSpent:  issue.TimeStats.TotalTimeSpent,
+		CreatorId:       issue.Author.Id,
+		CreatorName:     issue.Author.Username,
 	}
 
 	if issue.Assignee != nil {
 		gitlabIssue.AssigneeId = issue.Assignee.Id
 		gitlabIssue.AssigneeName = issue.Assignee.Username
 	}
+	if issue.Author != nil {
+		gitlabIssue.CreatorId = issue.Author.Id
+		gitlabIssue.CreatorName = issue.Author.Username
+	}
 	if issue.GitlabClosedAt != nil {
 		gitlabIssue.LeadTimeMinutes = uint(issue.GitlabClosedAt.ToTime().Sub(issue.GitlabCreatedAt.ToTime()).Minutes())
 	}
 
 	return gitlabIssue, nil
+}
+
+func convertGitlabAuthor(issue *IssuesResponse, connectionId uint64) (*models.GitlabAccount, error) {
+	gitlabAuthor := &models.GitlabAccount{
+		ConnectionId: connectionId,
+		GitlabId:     issue.Author.Id,
+		Username:     issue.Author.Username,
+		Name:         issue.Author.Name,
+		State:        issue.Author.State,
+		AvatarUrl:    issue.Author.AvatarUrl,
+		WebUrl:       issue.Author.WebUrl,
+	}
+
+	return gitlabAuthor, nil
 }

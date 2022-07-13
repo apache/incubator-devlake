@@ -32,6 +32,7 @@ import (
 	"gorm.io/gorm"
 )
 
+// BlueprintQuery FIXME ...
 type BlueprintQuery struct {
 	Enable   *bool `form:"enable,omitempty"`
 	Page     int   `form:"page"`
@@ -41,6 +42,7 @@ type BlueprintQuery struct {
 var blueprintLog = logger.Global.Nested("blueprint")
 var vld = validator.New()
 
+// CreateBlueprint FIXME ...
 func CreateBlueprint(blueprint *models.Blueprint) error {
 	err := validateBlueprint(blueprint)
 	if err != nil {
@@ -57,6 +59,7 @@ func CreateBlueprint(blueprint *models.Blueprint) error {
 	return nil
 }
 
+// GetBlueprints FIXME ...
 func GetBlueprints(query *BlueprintQuery) ([]*models.Blueprint, int64, error) {
 	blueprints := make([]*models.Blueprint, 0)
 	db := db.Model(blueprints).Order("id DESC")
@@ -80,6 +83,7 @@ func GetBlueprints(query *BlueprintQuery) ([]*models.Blueprint, int64, error) {
 	return blueprints, count, nil
 }
 
+// GetBlueprint FIXME ...
 func GetBlueprint(blueprintId uint64) (*models.Blueprint, error) {
 	blueprint := &models.Blueprint{}
 	err := db.First(blueprint, blueprintId).Error
@@ -125,6 +129,7 @@ func validateBlueprint(blueprint *models.Blueprint) error {
 	return nil
 }
 
+// PatchBlueprint FIXME ...
 func PatchBlueprint(id uint64, body map[string]interface{}) (*models.Blueprint, error) {
 	// load record from db
 	blueprint, err := GetBlueprint(id)
@@ -159,6 +164,7 @@ func PatchBlueprint(id uint64, body map[string]interface{}) (*models.Blueprint, 
 	return blueprint, nil
 }
 
+// DeleteBlueprint FIXME ...
 func DeleteBlueprint(id uint64) error {
 	err := db.Delete(&models.Blueprint{}, "id = ?", id).Error
 	if err != nil {
@@ -171,6 +177,7 @@ func DeleteBlueprint(id uint64) error {
 	return nil
 }
 
+// ReloadBlueprints FIXME ...
 func ReloadBlueprints(c *cron.Cron) error {
 	blueprints := make([]*models.Blueprint, 0)
 	err := db.Model(&models.Blueprint{}).
@@ -184,43 +191,19 @@ func ReloadBlueprints(c *cron.Cron) error {
 	}
 	c.Stop()
 	for _, pp := range blueprints {
-		/*
-			if pp.Mode == models.BLUEPRINT_MODE_NORMAL {
-				// for NORMAL mode, we have to generate the actual pipeline plan beforehand
-				pp.Plan, err = GeneratePlanJson(pp.Settings)
-				if err != nil {
-					return err
-				}
-				err = db.Save(pp).Error
-				if err != nil {
-					return err
-				}
-			}
-		*/
-		var plan core.PipelinePlan
-		err = json.Unmarshal(pp.Plan, &plan)
+		blueprint := pp
+		plan, err := pp.UnmarshalPlan()
 		if err != nil {
 			blueprintLog.Error("created cron job failed: %s", err)
 			return err
 		}
-		blueprint := pp
-		_, err := c.AddFunc(pp.CronConfig, func() {
-			newPipeline := models.NewPipeline{}
-			newPipeline.Plan = plan
-			newPipeline.Name = blueprint.Name
-			newPipeline.BlueprintId = blueprint.ID
-			pipeline, err := CreatePipeline(&newPipeline)
-			// Return all created tasks to the User
-			if err != nil {
-				blueprintLog.Error("created cron job failed: %s", err)
-				return
-			}
-			err = RunPipeline(pipeline.ID)
+		_, err = c.AddFunc(pp.CronConfig, func() {
+			pipeline, err := createAndRunPipelineByBlueprint(blueprint.ID, blueprint.Name, plan)
 			if err != nil {
 				blueprintLog.Error("run cron job failed: %s", err)
-				return
+			} else {
+				blueprintLog.Info("Run new cron job successfully, pipeline id: %d", pipeline.ID)
 			}
-			blueprintLog.Info("Run new cron job successfully")
 		})
 		if err != nil {
 			blueprintLog.Error("created cron job failed: %s", err)
@@ -234,7 +217,22 @@ func ReloadBlueprints(c *cron.Cron) error {
 	return nil
 }
 
-// GeneratePlan generates pipeline plan by version
+func createAndRunPipelineByBlueprint(blueprintId uint64, name string, plan core.PipelinePlan) (*models.Pipeline, error) {
+	newPipeline := models.NewPipeline{}
+	newPipeline.Plan = plan
+	newPipeline.Name = name
+	newPipeline.BlueprintId = blueprintId
+	pipeline, err := CreatePipeline(&newPipeline)
+	// Return all created tasks to the User
+	if err != nil {
+		blueprintLog.Error("created cron job failed: %s", err)
+		return nil, err
+	}
+	go RunPipeline(pipeline.ID)
+	return pipeline, err
+}
+
+// GeneratePlanJson generates pipeline plan by version
 func GeneratePlanJson(settings datatypes.JSON) (datatypes.JSON, error) {
 	bpSettings := new(models.BlueprintSettings)
 	err := json.Unmarshal(settings, bpSettings)
@@ -254,7 +252,7 @@ func GeneratePlanJson(settings datatypes.JSON) (datatypes.JSON, error) {
 	return json.Marshal(plan)
 }
 
-// GenerateTasksBySettingsV100 generates pipeline plan according v1.0.0 definition
+// GeneratePlanJsonV100 generates pipeline plan according v1.0.0 definition
 func GeneratePlanJsonV100(settings *models.BlueprintSettings) (core.PipelinePlan, error) {
 	connections := make([]*core.BlueprintConnectionV100, 0)
 	err := json.Unmarshal(settings.Connections, &connections)
@@ -297,4 +295,20 @@ func MergePipelinePlans(plans ...core.PipelinePlan) core.PipelinePlan {
 		}
 	}
 	return merged
+}
+
+// TriggerBlueprint triggers blueprint immediately
+func TriggerBlueprint(id uint64) (*models.Pipeline, error) {
+	// load record from db
+	blueprint, err := GetBlueprint(id)
+	if err != nil {
+		return nil, err
+	}
+	plan, err := blueprint.UnmarshalPlan()
+	if err != nil {
+		return nil, err
+	}
+	pipeline, err := createAndRunPipelineByBlueprint(blueprint.ID, blueprint.Name, plan)
+	// done
+	return  pipeline, err
 }

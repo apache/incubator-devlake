@@ -37,6 +37,7 @@ type GithubIssue struct {
 	AuthorName      string `gorm:"type:varchar(255)"`
 	AssigneeId      int
 	AssigneeName    string `gorm:"type:varchar(255)"`
+	MilestoneId     int    `gorm:"index"`
 	LeadTimeMinutes uint
 	Url             string `gorm:"type:varchar(255)"`
 	ClosedAt        *time.Time

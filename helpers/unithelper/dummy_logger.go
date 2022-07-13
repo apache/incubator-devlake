@@ -22,6 +22,7 @@ import (
 	"github.com/stretchr/testify/mock"
 )
 
+// DummyLogger FIXME ...
 func DummyLogger() *mocks.Logger {
 	logger := new(mocks.Logger)
 	logger.On("IsLevelEnabled", mock.Anything).Return(false).Maybe()

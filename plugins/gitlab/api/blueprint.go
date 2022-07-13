@@ -18,6 +18,7 @@ limitations under the License.
 package api
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
@@ -39,32 +40,56 @@ func MakePipelinePlan(subtaskMetas []core.SubTaskMeta, connectionId uint64, scop
 	plan := make(core.PipelinePlan, len(scope))
 	for i, scopeElem := range scope {
 		// handle taskOptions and transformationRules, by dumping them to taskOptions
-		taskOptions := make(map[string]interface{})
-		err = json.Unmarshal(scopeElem.Options, &taskOptions)
+		transformationRules := make(map[string]interface{})
+		if len(scopeElem.Transformation) > 0 {
+			err = json.Unmarshal(scopeElem.Transformation, &transformationRules)
+			if err != nil {
+				return nil, err
+			}
+		}
+		// refdiff
+		if refdiffRules, ok := transformationRules["refdiff"]; ok {
+			// add a new task to next stage
+			j := i + 1
+			if j == len(plan) {
+				plan = append(plan, nil)
+			}
+			plan[j] = core.PipelineStage{
+				{
+					Plugin:  "refdiff",
+					Options: refdiffRules.(map[string]interface{}),
+				},
+			}
+			// remove it from github transformationRules
+			delete(transformationRules, "refdiff")
+		}
+		// construct task options for github
+		options := make(map[string]interface{})
+		err = json.Unmarshal(scopeElem.Options, &options)
 		if err != nil {
 			return nil, err
 		}
-		err = json.Unmarshal(scopeElem.Transformation, &taskOptions)
+		options["connectionId"] = connectionId
+		options["transformationRules"] = transformationRules
+		// make sure task options is valid
+		op, err := tasks.DecodeAndValidateTaskOptions(options)
 		if err != nil {
 			return nil, err
 		}
-		taskOptions["connectionId"] = connectionId
-		op, err := tasks.DecodeAndValidateTaskOptions(taskOptions)
-		if err != nil {
-			return nil, err
-		}
-		// subtasks
+		// construct subtasks
 		subtasks, err := helper.MakePipelinePlanSubtasks(subtaskMetas, scopeElem.Entities)
 		if err != nil {
 			return nil, err
 		}
-		stage := core.PipelineStage{
-			{
-				Plugin:   "gitlab",
-				Subtasks: subtasks,
-				Options:  taskOptions,
-			},
+		stage := plan[i]
+		if stage == nil {
+			stage = core.PipelineStage{}
 		}
+		stage = append(stage, &core.PipelineTask{
+			Plugin:   "gitlab",
+			Subtasks: subtasks,
+			Options:  options,
+		})
 		// collect git data by gitextractor if CODE was requested
 		if utils.StringsContains(scopeElem.Entities, core.DOMAIN_TYPE_CODE) {
 			// here is the tricky part, we have to obtain the repo id beforehand
@@ -75,13 +100,13 @@ func MakePipelinePlan(subtaskMetas []core.SubTaskMeta, connectionId uint64, scop
 			}
 			token := strings.Split(connection.Token, ",")[0]
 			apiClient, err := helper.NewApiClient(
+				context.TODO(),
 				connection.Endpoint,
 				map[string]string{
 					"Authorization": fmt.Sprintf("Bearer %s", token),
 				},
 				10*time.Second,
 				connection.Proxy,
-				nil,
 			)
 			if err != nil {
 				return nil, err
@@ -90,13 +115,13 @@ func MakePipelinePlan(subtaskMetas []core.SubTaskMeta, connectionId uint64, scop
 			if err != nil {
 				return nil, err
 			}
+			defer res.Body.Close()
 			if res.StatusCode != http.StatusOK {
 				return nil, fmt.Errorf(
 					"unexpected status code when requesting repo detail %d %s",
 					res.StatusCode, res.Request.URL.String(),
 				)
 			}
-			defer res.Body.Close()
 			body, err := ioutil.ReadAll(res.Body)
 			if err != nil {
 				return nil, err
@@ -114,9 +139,6 @@ func MakePipelinePlan(subtaskMetas []core.SubTaskMeta, connectionId uint64, scop
 			stage = append(stage, &core.PipelineTask{
 				Plugin: "gitextractor",
 				Options: map[string]interface{}{
-					// TODO: url should be configuration
-					// TODO: to support private repo: username is needed for repo cloning, and we have to take
-					//       multi-token support into consideration, this is hairy
 					"url":    cloneUrl.String(),
 					"repoId": didgen.NewDomainIdGenerator(&models.GitlabProject{}).Generate(connectionId, apiRepo.GitlabId),
 				},

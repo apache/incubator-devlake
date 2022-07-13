@@ -19,11 +19,12 @@ package e2e
 
 import (
 	"fmt"
+	"testing"
+
 	"github.com/apache/incubator-devlake/models/domainlayer/code"
 	"github.com/apache/incubator-devlake/models/domainlayer/ticket"
 	"github.com/apache/incubator-devlake/plugins/github/models"
 	"github.com/apache/incubator-devlake/plugins/github/tasks"
-	"testing"
 
 	"github.com/apache/incubator-devlake/helpers/e2ehelper"
 	"github.com/apache/incubator-devlake/plugins/github/impl"
@@ -31,7 +32,7 @@ import (
 
 func TestCommentDataFlow(t *testing.T) {
 	var plugin impl.Github
-	dataflowTester := e2ehelper.NewDataFlowTester(t, "gitlab", plugin)
+	dataflowTester := e2ehelper.NewDataFlowTester(t, "github", plugin)
 
 	githubRepository := &models.GithubRepo{
 		GithubId: 134018330,
@@ -65,12 +66,14 @@ func TestCommentDataFlow(t *testing.T) {
 	// verify extraction
 	dataflowTester.FlushTabler(&models.GithubIssueComment{})
 	dataflowTester.FlushTabler(&models.GithubPullRequestComment{})
+	dataflowTester.FlushTabler(&models.GithubAccount{})
 	dataflowTester.Subtask(tasks.ExtractApiCommentsMeta, taskData)
 	dataflowTester.VerifyTable(
 		models.GithubIssueComment{},
 		fmt.Sprintf("./snapshot_tables/%s.csv", models.GithubIssueComment{}.TableName()),
-		[]string{"connection_id", "github_id"},
 		[]string{
+			"connection_id",
+			"github_id",
 			"issue_id",
 			"body",
 			"author_username",
@@ -86,8 +89,9 @@ func TestCommentDataFlow(t *testing.T) {
 	dataflowTester.VerifyTable(
 		models.GithubPullRequestComment{},
 		fmt.Sprintf("./snapshot_tables/%s.csv", models.GithubPullRequestComment{}.TableName()),
-		[]string{"connection_id", "github_id"},
 		[]string{
+			"connection_id",
+			"github_id",
 			"pull_request_id",
 			"body",
 			"author_username",
@@ -100,6 +104,19 @@ func TestCommentDataFlow(t *testing.T) {
 			"_raw_data_remark",
 		},
 	)
+	dataflowTester.VerifyTable(
+		models.GithubAccount{},
+		"./snapshot_tables/_tool_github_accounts_in_comment.csv",
+		[]string{
+			"connection_id",
+			"id",
+			"login",
+			"avatar_url",
+			"url",
+			"html_url",
+			"type",
+		},
+	)
 
 	// verify comment conversion
 	dataflowTester.FlushTabler(&ticket.IssueComment{})
@@ -107,8 +124,8 @@ func TestCommentDataFlow(t *testing.T) {
 	dataflowTester.VerifyTable(
 		ticket.IssueComment{},
 		fmt.Sprintf("./snapshot_tables/%s.csv", ticket.IssueComment{}.TableName()),
-		[]string{"id"},
 		[]string{
+			"id",
 			"issue_id",
 			"body",
 			"user_id",
@@ -122,8 +139,8 @@ func TestCommentDataFlow(t *testing.T) {
 	dataflowTester.VerifyTable(
 		code.PullRequestComment{},
 		fmt.Sprintf("./snapshot_tables/%s.csv", code.PullRequestComment{}.TableName()),
-		[]string{"id"},
 		[]string{
+			"id",
 			"pull_request_id",
 			"body",
 			"user_id",

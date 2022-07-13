@@ -38,27 +38,31 @@ type BatchSave struct {
 	current    int
 	size       int
 	valueIndex map[string]int
+	primaryKey []reflect.StructField
 }
-
-const BATCH_SAVE_UPDATE_ONLY = 0
 
 // NewBatchSave creates a new BatchSave instance
 func NewBatchSave(basicRes core.BasicRes, slotType reflect.Type, size int) (*BatchSave, error) {
 	if slotType.Kind() != reflect.Ptr {
 		return nil, fmt.Errorf("slotType must be a pointer")
 	}
-	if !hasPrimaryKey(slotType) {
+	db := basicRes.GetDal()
+	primaryKey := db.GetPrimaryKeyFields(slotType)
+	// check if it have primaryKey
+	if len(primaryKey) == 0 {
 		return nil, fmt.Errorf("%s no primary key", slotType.String())
 	}
+
 	log := basicRes.GetLogger().Nested(slotType.String())
 	return &BatchSave{
 		basicRes:   basicRes,
 		log:        log,
-		db:         basicRes.GetDal(),
+		db:         db,
 		slotType:   slotType,
 		slots:      reflect.MakeSlice(reflect.SliceOf(slotType), size, size),
 		size:       size,
 		valueIndex: make(map[string]int),
+		primaryKey: primaryKey,
 	}, nil
 }
 
@@ -72,7 +76,7 @@ func (c *BatchSave) Add(slot interface{}) error {
 		return fmt.Errorf("slot is not a pointer")
 	}
 	// deduplication
-	key := getPrimaryKeyValue(slot)
+	key := getKeyValue(slot, c.primaryKey)
 
 	if key != "" {
 		if index, ok := c.valueIndex[key]; !ok {
@@ -113,46 +117,17 @@ func (c *BatchSave) Close() error {
 	return nil
 }
 
-func isPrimaryKey(f reflect.StructField) bool {
-	tag := strings.TrimSpace(f.Tag.Get("gorm"))
-	return strings.HasPrefix(strings.ToLower(tag), "primarykey")
-}
-
-func hasPrimaryKey(ifv reflect.Type) bool {
-	if ifv.Kind() == reflect.Ptr {
-		ifv = ifv.Elem()
-	}
-	for i := 0; i < ifv.NumField(); i++ {
-		v := ifv.Field(i)
-		if ok := isPrimaryKey(v); ok {
-			return true
-		} else if v.Type.Kind() == reflect.Struct {
-			if ok := hasPrimaryKey(v.Type); ok {
-				return true
-			}
-		}
-	}
-	return false
-}
-
-func getPrimaryKeyValue(iface interface{}) string {
+func getKeyValue(iface interface{}, primaryKey []reflect.StructField) string {
 	var ss []string
 	ifv := reflect.ValueOf(iface)
 	if ifv.Kind() == reflect.Ptr {
 		ifv = ifv.Elem()
 	}
-	for i := 0; i < ifv.NumField(); i++ {
-		v := ifv.Field(i)
-		if isPrimaryKey(ifv.Type().Field(i)) {
-			s := fmt.Sprintf("%v", v.Interface())
-			if s != "" {
-				ss = append(ss, s)
-			}
-		} else if v.Kind() == reflect.Struct {
-			s := getPrimaryKeyValue(v.Interface())
-			if s != "" {
-				ss = append(ss, s)
-			}
+	for _, key := range primaryKey {
+		v := ifv.FieldByName(key.Name)
+		s := fmt.Sprintf("%v", v.Interface())
+		if s != "" {
+			ss = append(ss, s)
 		}
 	}
 	return strings.Join(ss, ":")

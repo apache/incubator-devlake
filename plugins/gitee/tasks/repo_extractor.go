@@ -39,7 +39,7 @@ type GiteeApiRepoResponse struct {
 	HTMLUrl     string                `json:"html_url"`
 	Language    string                `json:"language"`
 	Description string                `json:"description"`
-	Owner       models.GiteeUser      `json:"owner"`
+	Owner       models.GiteeAccount   `json:"owner"`
 	Parent      *GiteeApiRepoResponse `json:"parent"`
 	CreatedAt   helper.Iso8601Time    `json:"created_at"`
 	UpdatedAt   *helper.Iso8601Time   `json:"updated_at"`
@@ -60,15 +60,16 @@ func ExtractApiRepositories(taskCtx core.SubTaskContext) error {
 			}
 			results := make([]interface{}, 0, 1)
 			giteeRepository := &models.GiteeRepo{
-				GiteeId:     repo.GiteeId,
-				Name:        repo.Name,
-				HTMLUrl:     repo.HTMLUrl,
-				Description: repo.Description,
-				OwnerId:     repo.Owner.Id,
-				OwnerLogin:  repo.Owner.Login,
-				Language:    repo.Language,
-				CreatedDate: repo.CreatedAt.ToTime(),
-				UpdatedDate: helper.Iso8601TimeToTime(repo.UpdatedAt),
+				ConnectionId: data.Options.ConnectionId,
+				GiteeId:      repo.GiteeId,
+				Name:         repo.Name,
+				HTMLUrl:      repo.HTMLUrl,
+				Description:  repo.Description,
+				OwnerId:      repo.Owner.Id,
+				OwnerLogin:   repo.Owner.Login,
+				Language:     repo.Language,
+				CreatedDate:  repo.CreatedAt.ToTime(),
+				UpdatedDate:  helper.Iso8601TimeToTime(repo.UpdatedAt),
 			}
 			data.Repo = giteeRepository
 

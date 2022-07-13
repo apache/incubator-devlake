@@ -53,8 +53,9 @@ func TestTapdTaskDataFlow(t *testing.T) {
 	dataflowTester.VerifyTable(
 		models.TapdTask{},
 		fmt.Sprintf("./snapshot_tables/%s.csv", models.TapdTask{}.TableName()),
-		[]string{"connection_id", "id"},
 		[]string{
+			"connection_id",
+			"id",
 			"name",
 			"description",
 			"workspace_id",
@@ -151,8 +152,6 @@ func TestTapdTaskDataFlow(t *testing.T) {
 			"connection_id",
 			"workspace_id",
 			"task_id",
-		},
-		[]string{
 			"_raw_data_params",
 			"_raw_data_table",
 			"_raw_data_id",
@@ -167,8 +166,6 @@ func TestTapdTaskDataFlow(t *testing.T) {
 			"workspace_id",
 			"iteration_id",
 			"task_id",
-		},
-		[]string{
 			"resolution_date",
 			"task_created_date",
 			"_raw_data_params",
@@ -183,8 +180,6 @@ func TestTapdTaskDataFlow(t *testing.T) {
 		[]string{
 			"label_name",
 			"task_id",
-		},
-		[]string{
 			"_raw_data_params",
 			"_raw_data_table",
 			"_raw_data_id",
@@ -200,8 +195,8 @@ func TestTapdTaskDataFlow(t *testing.T) {
 	dataflowTester.VerifyTable(
 		ticket.Issue{},
 		fmt.Sprintf("./snapshot_tables/%s_task.csv", ticket.Issue{}.TableName()),
-		[]string{"id"},
 		[]string{
+			"id",
 			"_raw_data_params",
 			"_raw_data_table",
 			"_raw_data_id",
@@ -239,8 +234,6 @@ func TestTapdTaskDataFlow(t *testing.T) {
 		[]string{
 			"board_id",
 			"issue_id",
-		},
-		[]string{
 			"_raw_data_params",
 			"_raw_data_table",
 			"_raw_data_id",
@@ -253,8 +246,6 @@ func TestTapdTaskDataFlow(t *testing.T) {
 		[]string{
 			"issue_id",
 			"sprint_id",
-		},
-		[]string{
 			"_raw_data_params",
 			"_raw_data_table",
 			"_raw_data_id",
@@ -268,8 +259,6 @@ func TestTapdTaskDataFlow(t *testing.T) {
 		[]string{
 			"issue_id",
 			"label_name",
-		},
-		[]string{
 			"_raw_data_params",
 			"_raw_data_table",
 			"_raw_data_id",

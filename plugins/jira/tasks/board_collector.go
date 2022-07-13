@@ -35,6 +35,7 @@ var CollectBoardMeta = core.SubTaskMeta{
 	EntryPoint:       CollectBoard,
 	EnabledByDefault: true,
 	Description:      "collect Jira board",
+	DomainTypes:      []string{core.DOMAIN_TYPE_TICKET},
 }
 
 func CollectBoard(taskCtx core.SubTaskContext) error {

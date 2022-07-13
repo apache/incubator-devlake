@@ -91,5 +91,5 @@ func newGitRepo(ctx core.TaskContext, storage models.Store, op tasks.GitExtracto
 	return repo, err
 }
 
-// Export a variable named PluginEntry for Framework to search and load
+// PluginEntry is a variable exported for Framework to search and load
 var PluginEntry GitExtractor //nolint

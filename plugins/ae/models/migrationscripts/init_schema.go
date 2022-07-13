@@ -21,20 +21,62 @@ import (
 	"context"
 
 	"github.com/apache/incubator-devlake/plugins/ae/models/migrationscripts/archived"
+	"github.com/apache/incubator-devlake/plugins/core"
+	"github.com/apache/incubator-devlake/plugins/helper"
 	"gorm.io/gorm"
 )
 
-type InitSchemas struct{}
+type InitSchemas struct {
+	config core.ConfigGetter
+}
 
-func (*InitSchemas) Up(ctx context.Context, db *gorm.DB) error {
-	return db.Migrator().AutoMigrate(
+func (u *InitSchemas) SetConfigGetter(config core.ConfigGetter) {
+	u.config = config
+}
+
+func (u *InitSchemas) Up(ctx context.Context, db *gorm.DB) error {
+	err := db.Migrator().DropTable(
 		&archived.AECommit{},
 		&archived.AEProject{},
+		"_raw_ae_project",
+		"_raw_ae_commits",
 	)
+	if err != nil {
+		return err
+	}
+
+	err = db.Migrator().AutoMigrate(
+		&archived.AECommit{},
+		&archived.AEProject{},
+		&archived.AeConnection{},
+	)
+	if err != nil {
+		return err
+	}
+
+	encodeKey := u.config.GetString(core.EncodeKeyEnvStr)
+	connection := &archived.AeConnection{}
+	connection.Endpoint = u.config.GetString("AE_ENDPOINT")
+	connection.Proxy = u.config.GetString("AE_PROXY")
+	connection.SecretKey = u.config.GetString("AE_SECRET_KEY")
+	connection.AppId = u.config.GetString("AE_APP_ID")
+	connection.Name = "AE"
+	if connection.Endpoint != "" && connection.AppId != "" && connection.SecretKey != "" && encodeKey != "" {
+		err = helper.UpdateEncryptFields(connection, func(plaintext string) (string, error) {
+			return core.Encrypt(encodeKey, plaintext)
+		})
+		if err != nil {
+			return err
+		}
+		// update from .env and save to db
+		db.Create(connection)
+	}
+
+	return nil
 }
 
 func (*InitSchemas) Version() uint64 {
-	return 20220407201133
+	return 20220624201133
 }
 
 func (*InitSchemas) Name() string {

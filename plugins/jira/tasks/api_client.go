@@ -31,7 +31,7 @@ func NewJiraApiClient(taskCtx core.TaskContext, connection *models.JiraConnectio
 	headers := map[string]string{
 		"Authorization": fmt.Sprintf("Basic %v", connection.GetEncodedToken()),
 	}
-	apiClient, err := helper.NewApiClient(connection.Endpoint, headers, 0, connection.Proxy, taskCtx.GetContext())
+	apiClient, err := helper.NewApiClient(taskCtx.GetContext(), connection.Endpoint, headers, 0, connection.Proxy)
 	if err != nil {
 		return nil, err
 	}
@@ -85,6 +85,13 @@ func ignoreHTTPStatus404(res *http.Response) error {
 		return fmt.Errorf("authentication failed, please check your AccessToken")
 	}
 	if res.StatusCode == http.StatusNotFound {
+		return helper.ErrIgnoreAndContinue
+	}
+	return nil
+}
+
+func ignoreHTTPStatus400(res *http.Response) error {
+	if res.StatusCode == http.StatusBadRequest {
 		return helper.ErrIgnoreAndContinue
 	}
 	return nil

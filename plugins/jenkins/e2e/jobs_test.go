@@ -19,8 +19,9 @@ package e2e
 
 import (
 	"fmt"
-	"github.com/apache/incubator-devlake/models/domainlayer/devops"
 	"testing"
+
+	"github.com/apache/incubator-devlake/models/domainlayer/devops"
 
 	"github.com/apache/incubator-devlake/helpers/e2ehelper"
 	"github.com/apache/incubator-devlake/plugins/jenkins/impl"
@@ -48,10 +49,10 @@ func TestJenkinsJobsDataFlow(t *testing.T) {
 	dataflowTester.VerifyTable(
 		models.JenkinsJob{},
 		fmt.Sprintf("./snapshot_tables/%s.csv", models.JenkinsJob{}.TableName()),
-		[]string{"connection_id", "name"},
 		[]string{
 			"connection_id",
 			"name",
+			"path",
 			"class",
 			"color",
 			"base",
@@ -68,7 +69,6 @@ func TestJenkinsJobsDataFlow(t *testing.T) {
 	dataflowTester.VerifyTable(
 		devops.Job{},
 		fmt.Sprintf("./snapshot_tables/%s.csv", devops.Job{}.TableName()),
-		[]string{"id"},
 		[]string{
 			"name",
 			"id",
