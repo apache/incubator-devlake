@@ -55,6 +55,16 @@ func TestAccountDataFlow(t *testing.T) {
 		IgnoreTypes: []interface{}{common.NoPKModel{}},
 	})
 
+	// import raw data table
+	dataflowTester.ImportCsvIntoRawTable("./raw_tables/_raw_github_api_account_orgs.csv", "_raw_github_api_account_orgs")
+	// verify extraction
+	dataflowTester.FlushTabler(&models.GithubAccountOrg{})
+	dataflowTester.Subtask(tasks.ExtractAccountOrgMeta, taskData)
+	dataflowTester.VerifyTableWithOptions(&models.GithubAccountOrg{}, e2ehelper.TableOptions{
+		CSVRelPath:  "./snapshot_tables/_tool_github_account_orgs.csv",
+		IgnoreTypes: []interface{}{common.NoPKModel{}},
+	})
+
 	// verify converter
 	dataflowTester.FlushTabler(&crossdomain.Account{})
 	dataflowTester.Subtask(tasks.ConvertAccountsMeta, taskData)
