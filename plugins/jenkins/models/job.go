@@ -18,8 +18,8 @@ limitations under the License.
 package models
 
 import (
-	"github.com/apache/incubator-devlake/models"
 	"github.com/apache/incubator-devlake/models/common"
+	"github.com/apache/incubator-devlake/plugins/helper"
 )
 
 // JenkinsJobProps current used jenkins job props
@@ -45,12 +45,12 @@ func (JenkinsJob) TableName() string {
 
 type FolderInput struct {
 	Path string
-	*models.ListBaseNode
+	*helper.ListBaseNode
 }
 
 func NewFolderInput(path string) *FolderInput {
 	return &FolderInput{
 		Path:         path,
-		ListBaseNode: models.NewListBaseNode(),
+		ListBaseNode: helper.NewListBaseNode(),
 	}
 }

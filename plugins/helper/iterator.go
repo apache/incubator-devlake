@@ -22,7 +22,6 @@ import (
 	"reflect"
 	"time"
 
-	"github.com/apache/incubator-devlake/models"
 	"github.com/apache/incubator-devlake/plugins/core/dal"
 )
 
@@ -132,7 +131,7 @@ func (q *QueueIteratorNode) SetNext(next interface{}) {
 }
 
 type QueueIterator struct {
-	queue *models.Queue
+	queue *Queue
 }
 
 func (q *QueueIterator) HasNext() bool {
@@ -143,7 +142,7 @@ func (q *QueueIterator) Fetch() (interface{}, error) {
 	return q.queue.PullWithOutLock(), nil
 }
 
-func (q *QueueIterator) Push(data models.QueueNode) {
+func (q *QueueIterator) Push(data QueueNode) {
 	q.queue.PushWitouLock(data)
 }
 
@@ -154,6 +153,6 @@ func (q *QueueIterator) Close() error {
 
 func NewQueueIterator() *QueueIterator {
 	return &QueueIterator{
-		queue: models.NewQueue(),
+		queue: NewQueue(),
 	}
 }
