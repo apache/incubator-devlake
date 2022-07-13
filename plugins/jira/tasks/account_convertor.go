@@ -73,6 +73,7 @@ func ConvertAccounts(taskCtx core.SubTaskContext) error {
 				DomainEntity: domainlayer.DomainEntity{
 					Id: accountIdGen.Generate(connectionId, jiraAccount.AccountId),
 				},
+				FullName:  jiraAccount.Name,
 				UserName:  jiraAccount.Name,
 				Email:     jiraAccount.Email,
 				AvatarUrl: jiraAccount.AvatarUrl,
