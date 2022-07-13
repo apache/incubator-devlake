@@ -81,10 +81,10 @@ func (plugin Github) SubTaskMetas() []core.SubTaskMeta {
 		tasks.ConvertPullRequestsMeta,
 		tasks.ConvertPullRequestLabelsMeta,
 		tasks.ConvertPullRequestIssuesMeta,
-		tasks.ConvertAccountsMeta,
 		tasks.ConvertIssueCommentsMeta,
 		tasks.ConvertPullRequestCommentsMeta,
 		tasks.ConvertMilestonesMeta,
+		tasks.ConvertAccountsMeta,
 	}
 }
 

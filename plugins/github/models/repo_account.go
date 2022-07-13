@@ -24,7 +24,7 @@ import (
 type GithubRepoAccount struct {
 	ConnectionId uint64 `gorm:"primaryKey"`
 	AccountId    int    `gorm:"primaryKey;autoIncrement:false"`
-	RepoGithubId int    `gorm:"primaryKey"`
+	RepoGithubId int    `gorm:"primaryKey;autoIncrement:false"`
 	Login        string `json:"login" gorm:"type:varchar(255)"`
 	common.NoPKModel
 }

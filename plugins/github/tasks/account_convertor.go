@@ -36,7 +36,7 @@ var ConvertAccountsMeta = core.SubTaskMeta{
 	EntryPoint:       ConvertAccounts,
 	EnabledByDefault: true,
 	Description:      "Convert tool layer table github_accounts into  domain layer table accounts",
-	DomainTypes:      []string{core.DOMAIN_TYPE_CROSS},
+	DomainTypes:      core.DOMAIN_TYPES,
 }
 
 func ConvertAccounts(taskCtx core.SubTaskContext) error {
