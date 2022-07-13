@@ -18,16 +18,17 @@ limitations under the License.
 package e2e
 
 import (
-	"testing"
-
+	"github.com/apache/incubator-devlake/models/common"
+	"github.com/apache/incubator-devlake/models/domainlayer/crossdomain"
 	"github.com/apache/incubator-devlake/plugins/github/models"
+	"testing"
 
 	"github.com/apache/incubator-devlake/helpers/e2ehelper"
 	"github.com/apache/incubator-devlake/plugins/github/impl"
 	"github.com/apache/incubator-devlake/plugins/github/tasks"
 )
 
-func TestEventDataFlow(t *testing.T) {
+func TestAccountDataFlow(t *testing.T) {
 	var plugin impl.Github
 	dataflowTester := e2ehelper.NewDataFlowTester(t, "github", plugin)
 
@@ -44,36 +45,21 @@ func TestEventDataFlow(t *testing.T) {
 	}
 
 	// import raw data table
-	dataflowTester.ImportCsvIntoRawTable("./raw_tables/_raw_github_api_events.csv", "_raw_github_api_events")
+	dataflowTester.ImportCsvIntoRawTable("./raw_tables/_raw_github_api_accounts.csv", "_raw_github_api_accounts")
 
 	// verify extraction
-	dataflowTester.FlushTabler(&models.GithubIssueEvent{})
-	dataflowTester.FlushTabler(&models.GithubRepoAccount{})
-	dataflowTester.Subtask(tasks.ExtractApiEventsMeta, taskData)
-	dataflowTester.VerifyTable(
-		models.GithubIssueEvent{},
-		"./snapshot_tables/_tool_github_issue_events.csv",
-		[]string{
-			"connection_id",
-			"github_id",
-			"issue_id",
-			"type",
-			"author_username",
-			"github_created_at",
-			"_raw_data_params",
-			"_raw_data_table",
-			"_raw_data_id",
-			"_raw_data_remark",
-		},
-	)
-	dataflowTester.VerifyTable(
-		models.GithubRepoAccount{},
-		"./snapshot_tables/_tool_github_accounts_in_event.csv",
-		[]string{
-			"connection_id",
-			"account_id",
-			"repo_github_id",
-			"login",
-		},
-	)
+	dataflowTester.FlushTabler(&models.GithubAccount{})
+	dataflowTester.Subtask(tasks.ExtractAccountMeta, taskData)
+	dataflowTester.VerifyTableWithOptions(&models.GithubAccount{}, e2ehelper.TableOptions{
+		CSVRelPath:  "./snapshot_tables/_tool_github_account.csv",
+		IgnoreTypes: []interface{}{common.NoPKModel{}},
+	})
+
+	// verify converter
+	dataflowTester.FlushTabler(&crossdomain.Account{})
+	dataflowTester.Subtask(tasks.ConvertAccountsMeta, taskData)
+	dataflowTester.VerifyTableWithOptions(&crossdomain.Account{}, e2ehelper.TableOptions{
+		CSVRelPath:  "./snapshot_tables/account.csv",
+		IgnoreTypes: []interface{}{common.NoPKModel{}},
+	})
 }
