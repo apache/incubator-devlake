@@ -37,10 +37,13 @@ func TestUserAccountDataFlow(t *testing.T) {
 	}
 
 	// import raw data table
+	dataflowTester.FlushTabler(&crossdomain.User{})
+	dataflowTester.FlushTabler(&crossdomain.Account{})
+	dataflowTester.FlushTabler(&crossdomain.UserAccount{})
 	dataflowTester.ImportCsvIntoTabler("./raw_tables/users.csv", &crossdomain.User{})
 	dataflowTester.ImportCsvIntoTabler("./raw_tables/accounts.csv", &crossdomain.Account{})
+	dataflowTester.ImportCsvIntoTabler("./raw_tables/user_accounts.csv", &crossdomain.UserAccount{})
 
-	dataflowTester.FlushTabler(&crossdomain.UserAccount{})
 	dataflowTester.Subtask(tasks.ConnectUserAccountsExactMeta, taskData)
 	dataflowTester.VerifyTable(
 		crossdomain.UserAccount{},

@@ -48,10 +48,6 @@ func ConnectUserAccountsExact(taskCtx core.SubTaskContext) error {
 	if err != nil {
 		return err
 	}
-	err = db.Delete(&crossdomain.UserAccount{}, dal.Where("1=1"))
-	if err != nil {
-		return err
-	}
 	emails := make(map[string]string)
 	names := make(map[string]string)
 	for _, user := range users {
@@ -65,6 +61,7 @@ func ConnectUserAccountsExact(taskCtx core.SubTaskContext) error {
 	clauses := []dal.Clause{
 		dal.Select("*"),
 		dal.From(&crossdomain.Account{}),
+		dal.Where("id NOT IN (SELECT account_id FROM user_accounts)"),
 	}
 	cursor, err := db.Cursor(clauses...)
 	if err != nil {

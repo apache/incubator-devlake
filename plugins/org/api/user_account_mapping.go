@@ -18,6 +18,7 @@ limitations under the License.
 package api
 
 import (
+	"github.com/apache/incubator-devlake/models/domainlayer/crossdomain"
 	"net/http"
 
 	"github.com/apache/incubator-devlake/plugins/core"
@@ -73,6 +74,10 @@ func (h *Handlers) CreateUserAccountMapping(input *core.ApiResourceInput) (*core
 	userAccounts := a.toDomainLayer(aa)
 	for _, userAccount := range userAccounts {
 		items = append(items, userAccount)
+	}
+	err = h.store.deleteAll(&crossdomain.UserAccount{})
+	if err != nil {
+		return nil, err
 	}
 	err = h.store.save(items)
 	if err != nil {
