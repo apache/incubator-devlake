@@ -32,10 +32,6 @@ func (*initSchemas) Up(ctx context.Context, db *gorm.DB) error {
 		"issue_status_history",
 		"issue_sprints_history",
 		"users",
-		&archived.Task{},
-		&archived.Notification{},
-		&archived.Pipeline{},
-		&archived.Blueprint{},
 		&archived.Repo{},
 		&archived.Commit{},
 		&archived.CommitParent{},
@@ -72,10 +68,6 @@ func (*initSchemas) Up(ctx context.Context, db *gorm.DB) error {
 	}
 
 	return db.Migrator().AutoMigrate(
-		&archived.Task{},
-		&archived.Notification{},
-		&archived.Pipeline{},
-		&archived.Blueprint{},
 		&archived.Repo{},
 		&archived.Commit{},
 		&archived.CommitParent{},

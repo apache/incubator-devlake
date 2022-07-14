@@ -15,30 +15,28 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package archived
+package migrationscripts
 
 import (
-	"time"
-
-	"gorm.io/datatypes"
+	"context"
+	"github.com/apache/incubator-devlake/models/migrationscripts/archived"
+	"gorm.io/gorm"
 )
 
-type Pipeline struct {
-	Model
-	Name        string `json:"name" gorm:"index"`
-	BlueprintId uint64
-	Tasks       datatypes.JSON
-	TotalTasks  int
-	// Deprecated
-	FinishedTasks int
-	BeganAt       *time.Time
-	FinishedAt    *time.Time `gorm:"index"`
-	Status        string
-	Message       string
-	SpentSeconds  int
-	Step          int
+type updateSchemas20220505 struct{}
+
+func (*updateSchemas20220505) Up(ctx context.Context, db *gorm.DB) error {
+	err := db.Migrator().RenameColumn(archived.Pipeline{}, "step", "stage")
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
-func (Pipeline) TableName() string {
-	return "_devlake_pipelines"
+func (*updateSchemas20220505) Version() uint64 {
+	return 20220505212344
+}
+
+func (*updateSchemas20220505) Name() string {
+	return "Rename step to stage "
 }
