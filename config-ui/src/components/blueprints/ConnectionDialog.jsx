@@ -116,6 +116,7 @@ const ConnectionDialog = (props) => {
     showConnectionError = false,
     testStatus,
     testResponse,
+    allTestResponses,
     errors = [],
     validationErrors = [],
     canOutsideClickClose = false,
@@ -298,6 +299,7 @@ const ConnectionDialog = (props) => {
                     isTesting={isTesting}
                     testStatus={testStatus}
                     testResponse={testResponse}
+                    allTestResponses={allTestResponses}
                     errors={errors}
                     showError={showConnectionError}
                     authType={

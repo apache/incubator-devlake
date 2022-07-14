@@ -63,6 +63,7 @@ function useConnectionManager (
   const [showError, setShowError] = useState(false)
   const [testStatus, setTestStatus] = useState(0) //  0=Pending, 1=Success, 2=Failed
   const [testResponse, setTestResponse] = useState()
+  const [allTestResponses, setAllTestResponses] = useState({})
   const [sourceLimits, setConnectionLimits] = useState(ProviderConnectionLimits)
 
   const [activeConnection, setActiveConnection] = useState(NullConnection)
@@ -86,14 +87,14 @@ function useConnectionManager (
       setIsTesting(true)
       setShowError(false)
       ToastNotification.clear()
-      // TODO: run Save first
+      setTestResponse(null)
+
       const runTest = async () => {
         let connectionPayload
         switch (provider.id) {
           case Providers.JIRA:
             connectionPayload = {
               endpoint: endpointUrl,
-              // token: token,
               username: username,
               password: password,
               proxy: proxy,
@@ -103,8 +104,6 @@ function useConnectionManager (
             connectionPayload = {
               endpoint: endpointUrl,
               token: token,
-              // @todo: remove auth, testing only
-              auth: token,
               proxy: proxy,
             }
             break
@@ -123,7 +122,7 @@ function useConnectionManager (
             }
             break
         }
-        connectionPayload = { ...connectionPayload, ...manualPayload }
+        connectionPayload = Object.keys(manualPayload).length > 0 ? manualPayload : connectionPayload
         const testUrl = `${DEVLAKE_ENDPOINT}/plugins/${provider.id}/test`
         console.log(
           'INFO >>> Endopoint URL & Payload for testing: ',
@@ -132,7 +131,10 @@ function useConnectionManager (
         )
         const res = await request.post(testUrl, connectionPayload)
         setTestResponse(res.data)
-        console.log('res.data', res.data)
+        if([Providers.GITHUB].includes(provider.id)) {
+          console.log('>>> SETTING TOKEN TEST RESPONSE FOR TOKEN >>>', manualPayload?.token || token)
+          setAllTestResponses(tRs => ({...tRs, [manualPayload.token]: res.data}))
+        }
         if (res.data?.success && res.status === 200) {
           setIsTesting(false)
           setTestStatus(1)
@@ -506,7 +508,8 @@ function useConnectionManager (
           endpoint: c.Endpoint || c.endpoint,
           username: c.username,
           password: c.password,
-          token: c.basicAuthEncoded || c.auth,
+          // @todo: cleanup legacy auth fields and only use $token value
+          token: c.token || c.basicAuthEncoded || c.auth,
           proxy: c.Proxy || c.Proxy,
         }
         const onSuccess = (res) => {
@@ -683,6 +686,7 @@ function useConnectionManager (
     setShowError,
     setTestStatus,
     setTestResponse,
+    setAllTestResponses,
     setConnectionLimits,
     setSaveComplete,
     allConnections,
@@ -697,7 +701,8 @@ function useConnectionManager (
     deleteComplete,
     getConnectionName,
     clearConnection,
-    testResponse
+    testResponse,
+    allTestResponses
   }
 }
 
