@@ -64,6 +64,7 @@ export default function ConfigureConnection () {
     errors,
     testStatus,
     testResponse,
+    allTestResponses,
     isSaving: isSavingConnection,
     isTesting: isTestingConnection,
     isFetching: isLoadingConnection,
@@ -268,6 +269,7 @@ export default function ConfigureConnection () {
                             isTesting={isTestingConnection}
                             testStatus={testStatus}
                             testResponse={testResponse}
+                            allTestResponses={allTestResponses}
                             errors={errors}
                             showError={showConnectionError}
                             authType={[Providers.JENKINS, Providers.JIRA].includes(activeProvider.id) ? 'plain' : 'token'}
