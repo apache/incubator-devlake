@@ -46,7 +46,7 @@ func NewTapdApiClient(taskCtx core.TaskContext, connection *models.TapdConnectio
 
 	// create rate limit calculator
 	rateLimiter := &helper.ApiRateLimitCalculator{
-		UserRateLimitPerHour: connection.RateLimit,
+		UserRateLimitPerHour: connection.RateLimitPerHour,
 	}
 	asyncApiClient, err := helper.CreateAsyncApiClient(
 		taskCtx,

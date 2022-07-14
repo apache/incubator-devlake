@@ -63,7 +63,7 @@ func (*InitSchemas) Up(ctx context.Context, db *gorm.DB) error {
 	conn.ID = 1
 	conn.Endpoint = endPoint
 	conn.Proxy = v.GetString("JENKINS_PROXY")
-	conn.RateLimit = v.GetInt("JENKINS_API_REQUESTS_PER_HOUR")
+	conn.RateLimitPerHour = v.GetInt("JENKINS_API_REQUESTS_PER_HOUR")
 	conn.Username = useName
 	conn.Password, err = core.Encrypt(encKey, passWord)
 	if err != nil {
@@ -79,7 +79,7 @@ func (*InitSchemas) Up(ctx context.Context, db *gorm.DB) error {
 }
 
 func (*InitSchemas) Version() uint64 {
-	return 20220712201237
+	return 20220714201237
 }
 
 func (*InitSchemas) Name() string {

@@ -19,9 +19,10 @@ package tasks
 
 import (
 	"fmt"
+	"net/http"
+
 	"github.com/apache/incubator-devlake/plugins/feishu/apimodels"
 	"github.com/apache/incubator-devlake/plugins/feishu/models"
-	"net/http"
 
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/helper"
@@ -72,7 +73,7 @@ func NewFeishuApiClient(taskCtx core.TaskContext, connection *models.FeishuConne
 
 	// create async api client
 	asyncApiCLient, err := helper.CreateAsyncApiClient(taskCtx, apiClient, &helper.ApiRateLimitCalculator{
-		UserRateLimitPerHour: connection.RateLimit,
+		UserRateLimitPerHour: connection.RateLimitPerHour,
 	})
 	if err != nil {
 		return nil, err

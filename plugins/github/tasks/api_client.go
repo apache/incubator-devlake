@@ -19,11 +19,12 @@ package tasks
 
 import (
 	"fmt"
-	"github.com/apache/incubator-devlake/plugins/github/models"
 	"net/http"
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/apache/incubator-devlake/plugins/github/models"
 
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/helper"
@@ -54,7 +55,7 @@ func CreateApiClient(taskCtx core.TaskContext, connection *models.GithubConnecti
 
 	// create rate limit calculator
 	rateLimiter := &helper.ApiRateLimitCalculator{
-		UserRateLimitPerHour: connection.RateLimit,
+		UserRateLimitPerHour: connection.RateLimitPerHour,
 		Method:               http.MethodGet,
 		DynamicRateLimit: func(res *http.Response) (int, time.Duration, error) {
 			/* calculate by number of remaining requests
