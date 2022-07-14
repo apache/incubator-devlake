@@ -24,6 +24,7 @@ import (
 	"time"
 
 	"github.com/apache/incubator-devlake/plugins/gitlab/models"
+	"github.com/apache/incubator-devlake/utils"
 
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/helper"
@@ -34,7 +35,12 @@ func NewGitlabApiClient(taskCtx core.TaskContext, connection *models.GitlabConne
 	headers := map[string]string{
 		"Authorization": fmt.Sprintf("Bearer %v", connection.Token),
 	}
-	apiClient, err := helper.NewApiClient(taskCtx.GetContext(), connection.Endpoint, headers, 0, connection.Proxy)
+	// set InsecureSkipVerify
+	insecureSkipVerify, err := utils.StrToBoolOr(taskCtx.GetConfig("IN_SECURE_SKIP_VERIFY"), false)
+	if err != nil {
+		return nil, fmt.Errorf("failt to parse IN_SECURE_SKIP_VERIFY: %w", err)
+	}
+	apiClient, err := helper.NewApiClient(taskCtx.GetContext(), connection.Endpoint, headers, 0, connection.Proxy, insecureSkipVerify)
 	if err != nil {
 		return nil, err
 	}

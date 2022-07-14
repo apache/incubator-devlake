@@ -24,6 +24,7 @@ import (
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/helper"
 	"github.com/apache/incubator-devlake/plugins/jira/models"
+	"github.com/apache/incubator-devlake/utils"
 )
 
 func NewJiraApiClient(taskCtx core.TaskContext, connection *models.JiraConnection) (*helper.ApiAsyncClient, error) {
@@ -31,7 +32,12 @@ func NewJiraApiClient(taskCtx core.TaskContext, connection *models.JiraConnectio
 	headers := map[string]string{
 		"Authorization": fmt.Sprintf("Basic %v", connection.GetEncodedToken()),
 	}
-	apiClient, err := helper.NewApiClient(taskCtx.GetContext(), connection.Endpoint, headers, 0, connection.Proxy)
+	// set InsecureSkipVerify
+	insecureSkipVerify, err := utils.StrToBoolOr(taskCtx.GetConfig("IN_SECURE_SKIP_VERIFY"), false)
+	if err != nil {
+		return nil, fmt.Errorf("failt to parse IN_SECURE_SKIP_VERIFY: %w", err)
+	}
+	apiClient, err := helper.NewApiClient(taskCtx.GetContext(), connection.Endpoint, headers, 0, connection.Proxy, insecureSkipVerify)
 	if err != nil {
 		return nil, err
 	}

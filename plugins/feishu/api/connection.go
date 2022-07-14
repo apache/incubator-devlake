@@ -20,11 +20,14 @@ package api
 import (
 	"context"
 	"fmt"
+	"net/http"
+
+	"github.com/apache/incubator-devlake/config"
 	"github.com/apache/incubator-devlake/plugins/feishu/apimodels"
 	"github.com/apache/incubator-devlake/plugins/feishu/models"
 	"github.com/apache/incubator-devlake/plugins/helper"
+	"github.com/apache/incubator-devlake/utils"
 	"github.com/mitchellh/mapstructure"
-	"net/http"
 
 	"github.com/apache/incubator-devlake/plugins/core"
 )
@@ -44,7 +47,12 @@ func TestConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, erro
 		return nil, err
 	}
 
-	authApiClient, err := helper.NewApiClient(context.TODO(), params.Endpoint, nil, 0, params.Proxy)
+	// set InsecureSkipVerify
+	insecureSkipVerify, err := utils.StrToBoolOr(config.GetConfig().GetString("IN_SECURE_SKIP_VERIFY"), false)
+	if err != nil {
+		return nil, fmt.Errorf("failt to parse IN_SECURE_SKIP_VERIFY: %w", err)
+	}
+	authApiClient, err := helper.NewApiClient(context.TODO(), params.Endpoint, nil, 0, params.Proxy, insecureSkipVerify)
 	if err != nil {
 		return nil, err
 	}

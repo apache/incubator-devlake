@@ -62,6 +62,7 @@ func CreateAsyncApiClient(
 	}
 	apiClient.SetTimeout(timeout)
 	apiClient.SetLogger(taskCtx.GetLogger())
+
 	globalRateLimitPerHour, err := utils.StrToIntOr(taskCtx.GetConfig("API_REQUESTS_PER_HOUR"), 18000)
 	if err != nil {
 		return nil, fmt.Errorf("failed to parse API_REQUESTS_PER_HOUR: %w", err)

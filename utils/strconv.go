@@ -37,3 +37,11 @@ func StrToDurationOr(text string, defaultValue time.Duration) (time.Duration, er
 	}
 	return time.ParseDuration(text)
 }
+
+// StrToBoolOr Return defaultValue if text is empty, or try to convert it to bool
+func StrToBoolOr(text string, defaultValue bool) (bool, error) {
+	if text == "" {
+		return defaultValue, nil
+	}
+	return strconv.ParseBool(text)
+}

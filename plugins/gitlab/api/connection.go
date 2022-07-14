@@ -23,9 +23,11 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/apache/incubator-devlake/config"
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/gitlab/models"
 	"github.com/apache/incubator-devlake/plugins/helper"
+	"github.com/apache/incubator-devlake/utils"
 	"github.com/mitchellh/mapstructure"
 )
 
@@ -42,7 +44,11 @@ func TestConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, erro
 	if err != nil {
 		return nil, err
 	}
-
+	// set InsecureSkipVerify
+	insecureSkipVerify, err := utils.StrToBoolOr(config.GetConfig().GetString("IN_SECURE_SKIP_VERIFY"), false)
+	if err != nil {
+		return nil, fmt.Errorf("failt to parse IN_SECURE_SKIP_VERIFY: %w", err)
+	}
 	// test connection
 	apiClient, err := helper.NewApiClient(
 		context.TODO(),
@@ -52,6 +58,7 @@ func TestConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, erro
 		},
 		3*time.Second,
 		connection.Proxy,
+		insecureSkipVerify,
 	)
 	if err != nil {
 		return nil, err

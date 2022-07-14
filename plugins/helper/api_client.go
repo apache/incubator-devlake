@@ -20,6 +20,7 @@ package helper
 import (
 	"bytes"
 	"context"
+	"crypto/tls"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -58,6 +59,7 @@ func NewApiClient(
 	headers map[string]string,
 	timeout time.Duration,
 	proxy string,
+	insecureSkipVerify bool,
 ) (*ApiClient, error) {
 	parsedUrl, err := url.Parse(endpoint)
 	if err != nil {
@@ -84,6 +86,13 @@ func NewApiClient(
 		headers,
 		timeout,
 	)
+	// create the Transport
+	apiClient.client.Transport = &http.Transport{}
+	// set insecureSkipVerify
+	if insecureSkipVerify {
+		apiClient.client.Transport.(*http.Transport).TLSClientConfig = &tls.Config{InsecureSkipVerify: true}
+	}
+
 	if proxy != "" {
 		err = apiClient.SetProxy(proxy)
 		if err != nil {
@@ -153,7 +162,7 @@ func (apiClient *ApiClient) SetProxy(proxyUrl string) error {
 		return err
 	}
 	if pu.Scheme == "http" || pu.Scheme == "socks5" {
-		apiClient.client.Transport = &http.Transport{Proxy: http.ProxyURL(pu)}
+		apiClient.client.Transport.(*http.Transport).Proxy = http.ProxyURL(pu)
 	}
 	return nil
 }

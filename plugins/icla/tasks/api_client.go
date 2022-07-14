@@ -19,10 +19,11 @@ package tasks
 
 import (
 	"fmt"
+	"net/http"
+
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/helper"
 	"github.com/apache/incubator-devlake/utils"
-	"net/http"
 )
 
 const ENDPOINT = "https://people.apache.org/"
@@ -39,8 +40,13 @@ func NewIclaApiClient(taskCtx core.TaskContext) (*helper.ApiAsyncClient, error) 
 	}
 	proxy := taskCtx.GetConfig("ICLA_PROXY")
 
+	// set InsecureSkipVerify
+	insecureSkipVerify, err := utils.StrToBoolOr(taskCtx.GetConfig("IN_SECURE_SKIP_VERIFY"), false)
+	if err != nil {
+		return nil, fmt.Errorf("failt to parse IN_SECURE_SKIP_VERIFY: %w", err)
+	}
 	// real request apiClient
-	apiClient, err := helper.NewApiClient(taskCtx.GetContext(), ENDPOINT, nil, 0, proxy)
+	apiClient, err := helper.NewApiClient(taskCtx.GetContext(), ENDPOINT, nil, 0, proxy, insecureSkipVerify)
 	if err != nil {
 		return nil, err
 	}

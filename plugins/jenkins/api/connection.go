@@ -23,6 +23,7 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/apache/incubator-devlake/config"
 	"github.com/apache/incubator-devlake/plugins/jenkins/models"
 
 	"github.com/apache/incubator-devlake/plugins/core"
@@ -46,6 +47,11 @@ func TestConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, erro
 	}
 	// test connection
 	encodedToken := utils.GetEncodedToken(connection.Username, connection.Password)
+	// set InsecureSkipVerify
+	insecureSkipVerify, err := utils.StrToBoolOr(config.GetConfig().GetString("IN_SECURE_SKIP_VERIFY"), false)
+	if err != nil {
+		return nil, fmt.Errorf("failt to parse IN_SECURE_SKIP_VERIFY: %w", err)
+	}
 	apiClient, err := helper.NewApiClient(
 		context.TODO(),
 		connection.Endpoint,
@@ -54,6 +60,7 @@ func TestConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, erro
 		},
 		3*time.Second,
 		connection.Proxy,
+		insecureSkipVerify,
 	)
 	if err != nil {
 		return nil, err

@@ -25,6 +25,7 @@ import (
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/helper"
 	"github.com/apache/incubator-devlake/plugins/tapd/models"
+	"github.com/apache/incubator-devlake/utils"
 )
 
 func NewTapdApiClient(taskCtx core.TaskContext, connection *models.TapdConnection) (*helper.ApiAsyncClient, error) {
@@ -33,7 +34,12 @@ func NewTapdApiClient(taskCtx core.TaskContext, connection *models.TapdConnectio
 	headers := map[string]string{
 		"Authorization": fmt.Sprintf("Basic %v", auth),
 	}
-	apiClient, err := helper.NewApiClient(taskCtx.GetContext(), connection.Endpoint, headers, 0, "")
+	// set InsecureSkipVerify
+	insecureSkipVerify, err := utils.StrToBoolOr(taskCtx.GetConfig("IN_SECURE_SKIP_VERIFY"), false)
+	if err != nil {
+		return nil, fmt.Errorf("failt to parse IN_SECURE_SKIP_VERIFY: %w", err)
+	}
+	apiClient, err := helper.NewApiClient(taskCtx.GetContext(), connection.Endpoint, headers, 0, "", insecureSkipVerify)
 	if err != nil {
 		return nil, err
 	}

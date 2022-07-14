@@ -24,13 +24,19 @@ import (
 	"time"
 
 	"github.com/apache/incubator-devlake/plugins/gitee/models"
+	"github.com/apache/incubator-devlake/utils"
 
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/helper"
 )
 
 func NewGiteeApiClient(taskCtx core.TaskContext, connection *models.GiteeConnection) (*helper.ApiAsyncClient, error) {
-	apiClient, err := helper.NewApiClient(taskCtx.GetContext(), connection.Endpoint, nil, 0, connection.Proxy)
+	// set InsecureSkipVerify
+	insecureSkipVerify, err := utils.StrToBoolOr(taskCtx.GetConfig("IN_SECURE_SKIP_VERIFY"), false)
+	if err != nil {
+		return nil, fmt.Errorf("failt to parse IN_SECURE_SKIP_VERIFY: %w", err)
+	}
+	apiClient, err := helper.NewApiClient(taskCtx.GetContext(), connection.Endpoint, nil, 0, connection.Proxy, insecureSkipVerify)
 	if err != nil {
 		return nil, err
 	}
