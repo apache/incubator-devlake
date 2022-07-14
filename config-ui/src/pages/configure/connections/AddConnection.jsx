@@ -53,6 +53,7 @@ export default function AddConnection () {
     showError,
     testStatus,
     testResponse,
+    allTestResponses,
     name,
     endpointUrl,
     proxy,
@@ -180,6 +181,7 @@ export default function AddConnection () {
                   isTesting={isTesting}
                   testStatus={testStatus}
                   testResponse={testResponse}
+                  allTestResponses={allTestResponses}
                   errors={errors}
                   showError={showError}
                   authType={[Providers.JENKINS, Providers.JIRA].includes(activeProvider.id) ? 'plain' : 'token'}
