@@ -62,6 +62,7 @@ export default function ConnectionForm (props) {
     errors,
     testStatus,
     testResponse,
+    allTestResponses,
     onSave = () => {},
     onCancel = () => {},
     onTest = () => {},
@@ -91,6 +92,7 @@ export default function ConnectionForm (props) {
   const [stateErrored, setStateErrored] = useState(false)
   const [tokenStore, setTokenStore] = useState(initialTokenStore)
   const [personalAccessTokens, setPersonalAccessTokens] = useState([])
+  const [tokenTests, setTokenTests] = useState([])
 
   const getConnectionStatusIcon = () => {
     let statusIcon = <Icon icon='full-circle' size='10' color={Colors.RED3} />
@@ -125,6 +127,17 @@ export default function ConnectionForm (props) {
   const getFieldError = (fieldId) => {
     return validationErrors.find((e) => e.includes(fieldId))
   }
+
+  const getValidityStatus = useCallback((token, testResponse, allTestResponses) => {
+    let status = 'Invalid'
+    // @todo: add duplicate user check
+    if (testResponse?.success) {
+      status = 'Valid'
+    } else {
+      status = 'Invalid'
+    }
+    return status
+  }, [])
 
   const activateErrorStates = (elementId) => {
     setStateErrored(elementId || false)
@@ -176,6 +189,14 @@ export default function ConnectionForm (props) {
   useEffect(() => {
     console.log('>> PERSONAL ACCESS TOKENS ENTERED...', personalAccessTokens)
     onTokenChange(personalAccessTokens.join(',').trim())
+    const tokenTestResponses = personalAccessTokens.filter(t => t !== '').map((t,tIdx) => {
+      const withAlert = false
+      const testPayload = {
+        endpoint: endpointUrl,
+        token: t
+      }
+      onTest(withAlert, testPayload)
+    })
   }, [personalAccessTokens, onTokenChange])
 
   useEffect(() => {
@@ -185,6 +206,26 @@ export default function ConnectionForm (props) {
     )
     setTokenStore(initialTokenStore)
   }, [initialTokenStore])
+
+  useEffect(() => {
+    console.log('>> PERSONAL ACCESS TOKENS TEST RESULTS...', tokenTests)
+  }, [tokenTests])
+
+  useEffect(() => {
+    console.log('>> ALL TEST RESPONSES FROM CONN MGR...', allTestResponses)
+    setTokenTests(personalAccessTokens.filter(t => t !== '').map((t, tIdx) => {
+      return {
+        id: tIdx,
+        token: t,
+        response: allTestResponses ? allTestResponses[t] : null,
+        success: allTestResponses ? allTestResponses[t]?.success : false,
+        message: allTestResponses ? allTestResponses[t]?.message : 'invalid token',
+        username: allTestResponses ? allTestResponses[t]?.login : '',
+        status: getValidityStatus(t, allTestResponses ? allTestResponses[t] : null, allTestResponses),
+        isDuplicate: allTestResponses && allTestResponses[t] ? true : false
+      }
+    }))
+  }, [allTestResponses])
 
   return (
     <>
@@ -425,25 +466,19 @@ export default function ConnectionForm (props) {
                                 autoComplete='false'
                               />
                             </div>
-                            {testResponse?.message && (
+                            {tokenTests[patIdx] && (
                               <div
                                 className='token-info-status'
                                 style={{ display: 'flex', padding: '0 10px' }}
                               >
-                                {/* @todo: add username & duplicated status info by token after api changes integrated */}
-                                {/* <span color={Colors.GRAY4}>From: username</span> &nbsp; &nbsp; */}
-                                {(testResponse?.success && pat !== '') ||
-                                (pat !== '' &&
-                                  testResponse?.message.includes('token') &&
-                                  !testResponse?.message?.includes(
-                                    `token failed for #${patIdx + 1}`
-                                  )) ? (
+                                {(tokenTests[patIdx]?.success && pat !== '') ? (
                                     <>
+                                      {<span style={{ color: Colors.GRAY4, marginRight: '10px'}}>From: {tokenTests[patIdx]?.username}</span>}
                                       <span
                                         className='token-validation-status'
                                         style={{ color: Colors.GREEN4 }}
                                       >
-                                        Valid
+                                        {tokenTests[patIdx].status}
                                       </span>
                                     </>
                                     ) : (

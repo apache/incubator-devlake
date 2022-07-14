@@ -310,11 +310,13 @@ const CreateBlueprint = (props) => {
     setInitialTokenStore,
     setTestStatus,
     setTestResponse,
+    setAllTestResponses,
     setSaveComplete: setSaveConnectionComplete,
     fetchAllConnections,
     connectionLimitReached,
     clearConnection: clearActiveConnection,
     testResponse,
+    allTestResponses,
     saveComplete: saveConnectionComplete
   } = useConnectionManager(
     {
@@ -381,6 +383,7 @@ const CreateBlueprint = (props) => {
     setManagedConnection(NullBlueprintConnection)
     setTestStatus(0)
     setTestResponse(null)
+    setAllTestResponses({})
     setInitialTokenStore({})
     clearActiveConnection()
     setActiveConnection(NullConnection)
@@ -1117,6 +1120,7 @@ const CreateBlueprint = (props) => {
         onPasswordChange={setPassword}
         testStatus={testStatus}
         testResponse={testResponse}
+        allTestResponses={allTestResponses}
       />
 
       <CodeInspector
