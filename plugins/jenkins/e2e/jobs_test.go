@@ -19,8 +19,9 @@ package e2e
 
 import (
 	"fmt"
-	"github.com/apache/incubator-devlake/models/domainlayer/devops"
 	"testing"
+
+	"github.com/apache/incubator-devlake/models/domainlayer/devops"
 
 	"github.com/apache/incubator-devlake/helpers/e2ehelper"
 	"github.com/apache/incubator-devlake/plugins/jenkins/impl"
@@ -51,6 +52,7 @@ func TestJenkinsJobsDataFlow(t *testing.T) {
 		[]string{
 			"connection_id",
 			"name",
+			"path",
 			"class",
 			"color",
 			"base",

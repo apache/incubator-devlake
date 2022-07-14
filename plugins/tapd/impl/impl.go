@@ -40,6 +40,7 @@ var _ core.PluginInit = (*Tapd)(nil)
 var _ core.PluginTask = (*Tapd)(nil)
 var _ core.PluginApi = (*Tapd)(nil)
 var _ core.Migratable = (*Tapd)(nil)
+var _ core.CloseablePluginTask = (*Tapd)(nil)
 
 type Tapd struct{}
 
@@ -186,4 +187,13 @@ func (plugin Tapd) ApiResources() map[string]map[string]core.ApiResourceHandler 
 			"GET":    api.GetConnection,
 		},
 	}
+}
+
+func (plugin Tapd) Close(taskCtx core.TaskContext) error {
+	data, ok := taskCtx.GetData().(*tasks.TapdTaskData)
+	if !ok {
+		return fmt.Errorf("GetData failed when try to close %+v", taskCtx)
+	}
+	data.ApiClient.Release()
+	return nil
 }

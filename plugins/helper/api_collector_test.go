@@ -41,7 +41,7 @@ func TestFetchPageUndetermined(t *testing.T) {
 
 	mockInput := new(mocks.Iterator)
 	mockInput.On("HasNext").Return(true).Once()
-	mockInput.On("HasNext").Return(false).Once()
+	mockInput.On("HasNext").Return(false).Twice()
 	mockInput.On("Fetch").Return(nil, nil).Once()
 	mockInput.On("Close").Return(nil)
 

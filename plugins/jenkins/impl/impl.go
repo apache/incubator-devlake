@@ -36,6 +36,7 @@ var _ core.PluginInit = (*Jenkins)(nil)
 var _ core.PluginTask = (*Jenkins)(nil)
 var _ core.PluginApi = (*Jenkins)(nil)
 var _ core.Migratable = (*Jenkins)(nil)
+var _ core.CloseablePluginTask = (*Jenkins)(nil)
 
 type Jenkins struct{}
 
@@ -118,4 +119,13 @@ func (plugin Jenkins) ApiResources() map[string]map[string]core.ApiResourceHandl
 			"GET":    api.GetConnection,
 		},
 	}
+}
+
+func (plugin Jenkins) Close(taskCtx core.TaskContext) error {
+	data, ok := taskCtx.GetData().(*tasks.JenkinsTaskData)
+	if !ok {
+		return fmt.Errorf("GetData failed when try to close %+v", taskCtx)
+	}
+	data.ApiClient.Release()
+	return nil
 }

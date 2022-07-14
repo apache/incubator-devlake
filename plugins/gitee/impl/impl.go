@@ -37,6 +37,7 @@ var _ core.PluginInit = (*Gitee)(nil)
 var _ core.PluginTask = (*Gitee)(nil)
 var _ core.PluginApi = (*Gitee)(nil)
 var _ core.Migratable = (*Gitee)(nil)
+var _ core.CloseablePluginTask = (*Gitee)(nil)
 
 type Gitee string
 
@@ -185,4 +186,13 @@ func (plugin Gitee) ApiResources() map[string]map[string]core.ApiResourceHandler
 			"DELETE": api.DeleteConnection,
 		},
 	}
+}
+
+func (plugin Gitee) Close(taskCtx core.TaskContext) error {
+	data, ok := taskCtx.GetData().(*tasks.GiteeTaskData)
+	if !ok {
+		return fmt.Errorf("GetData failed when try to close %+v", taskCtx)
+	}
+	data.ApiClient.Release()
+	return nil
 }

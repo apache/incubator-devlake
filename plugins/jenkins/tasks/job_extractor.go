@@ -58,12 +58,20 @@ func ExtractApiJobs(taskCtx core.SubTaskContext) error {
 			if err != nil {
 				return nil, err
 			}
+
+			input := &models.FolderInput{}
+			err = json.Unmarshal(row.Input, input)
+			if err != nil {
+				return nil, err
+			}
+
 			results := make([]interface{}, 0, 1)
 
 			job := &models.JenkinsJob{
 				JenkinsJobProps: models.JenkinsJobProps{
 					ConnectionId: data.Options.ConnectionId,
 					Name:         body.Name,
+					Path:         input.Path,
 					Class:        body.Class,
 					Color:        body.Color,
 				},
