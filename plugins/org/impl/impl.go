@@ -63,9 +63,6 @@ func (plugin Org) PrepareTaskData(taskCtx core.TaskContext, options map[string]i
 	}
 	return taskData, nil
 }
-func (plugin Org) MakePipelinePlan(connectionId uint64, scope []*core.BlueprintScopeV100) (core.PipelinePlan, error) {
-	return api.MakePipelinePlan(plugin.SubTaskMetas(), connectionId, scope)
-}
 
 func (plugin Org) RootPkgPath() string {
 	return "github.com/apache/incubator-devlake/plugins/org"

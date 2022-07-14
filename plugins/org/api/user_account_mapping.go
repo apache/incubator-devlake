@@ -20,7 +20,6 @@ package api
 import (
 	"net/http"
 
-	"github.com/apache/incubator-devlake/models/domainlayer/crossdomain"
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/gocarina/gocsv"
 )
@@ -33,7 +32,7 @@ import (
 // @Success      200
 // @Failure 400  {object} shared.ApiBody "Bad Request"
 // @Failure 500  {object} shared.ApiBody "Internal Error"
-// @Router       /plugins/org/accounts.csv [get]
+// @Router       /plugins/org/user_account_mapping.csv [get]
 func (h *Handlers) GetUserAccountMapping(input *core.ApiResourceInput) (*core.ApiResourceOutput, error) {
 	accounts, err := h.store.findAllAccounts()
 	if err != nil {
@@ -62,7 +61,7 @@ func (h *Handlers) GetUserAccountMapping(input *core.ApiResourceInput) (*core.Ap
 // @Success      200
 // @Failure 400  {object} shared.ApiBody "Bad Request"
 // @Failure 500  {object} shared.ApiBody "Internal Error"
-// @Router       /plugins/org/accounts.csv [put]
+// @Router       /plugins/org/user_account_mapping.csv [put]
 func (h *Handlers) CreateUserAccountMapping(input *core.ApiResourceInput) (*core.ApiResourceOutput, error) {
 	var aa []account
 	err := h.unmarshal(input.Request, &aa)
@@ -74,10 +73,6 @@ func (h *Handlers) CreateUserAccountMapping(input *core.ApiResourceInput) (*core
 	userAccounts := a.toDomainLayer(aa)
 	for _, userAccount := range userAccounts {
 		items = append(items, userAccount)
-	}
-	err = h.store.deleteAll(&crossdomain.UserAccount{})
-	if err != nil {
-		return nil, err
 	}
 	err = h.store.save(items)
 	if err != nil {
