@@ -23,55 +23,20 @@ import (
 	"gorm.io/datatypes"
 )
 
-const (
-	TASK_CREATED   = "TASK_CREATED"
-	TASK_RUNNING   = "TASK_RUNNING"
-	TASK_COMPLETED = "TASK_COMPLETED"
-	TASK_FAILED    = "TASK_FAILED"
-)
-
-type TaskProgressDetail struct {
-	TotalSubTasks    int    `json:"totalSubTasks"`
-	FinishedSubTasks int    `json:"finishedSubTasks"`
-	TotalRecords     int    `json:"totalRecords"`
-	FinishedRecords  int    `json:"finishedRecords"`
-	SubTaskName      string `json:"subTaskName"`
-	SubTaskNumber    int    `json:"subTaskNumber"`
-}
-
 type Task struct {
 	Model
-	Plugin         string              `json:"plugin" gorm:"index"`
-	Subtasks       datatypes.JSON      `json:"subtasks"`
-	Options        datatypes.JSON      `json:"options"`
-	Status         string              `json:"status"`
-	Message        string              `json:"message"`
-	Progress       float32             `json:"progress"`
-	ProgressDetail *TaskProgressDetail `json:"progressDetail" gorm:"-"`
-
-	FailedSubTask string     `json:"failedSubTask"`
-	PipelineId    uint64     `json:"pipelineId" gorm:"index"`
-	PipelineRow   int        `json:"pipelineRow"`
-	PipelineCol   int        `json:"pipelineCol"`
-	BeganAt       *time.Time `json:"beganAt"`
-	FinishedAt    *time.Time `json:"finishedAt" gorm:"index"`
-	SpentSeconds  int        `json:"spentSeconds"`
-}
-
-// PipelineTask represents a smallest unit of execution inside a PipelinePlan
-type PipelineTask struct {
-	// Plugin name
-	Plugin   string                 `json:"plugin" binding:"required"`
-	Subtasks []string               `json:"subtasks"`
-	Options  map[string]interface{} `json:"options"`
-}
-
-type NewTask struct {
-	// Plugin name
-	*PipelineTask
-	PipelineId  uint64 `json:"-"`
-	PipelineRow int    `json:"-"`
-	PipelineCol int    `json:"-"`
+	Plugin        string `gorm:"index"`
+	Options       datatypes.JSON
+	Status        string
+	Message       string
+	Progress      float32
+	FailedSubTask string
+	PipelineId    uint64 `gorm:"index"`
+	PipelineRow   int
+	PipelineCol   int
+	BeganAt       *time.Time
+	FinishedAt    *time.Time `gorm:"index"`
+	SpentSeconds  int
 }
 
 func (Task) TableName() string {
