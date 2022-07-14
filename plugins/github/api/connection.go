@@ -20,6 +20,7 @@ package api
 import (
 	"context"
 	"fmt"
+	"github.com/apache/incubator-devlake/api/shared"
 	"net/http"
 	"time"
 
@@ -60,8 +61,6 @@ func TestConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, erro
 	if err != nil {
 		return nil, err
 	}
-	// verify multiple token in parallel
-	// PLEASE NOTE: This works because GitHub API Client rotates tokens on each request
 	apiClient, err := helper.NewApiClient(
 		context.TODO(),
 		params.Endpoint,
@@ -78,13 +77,20 @@ func TestConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, erro
 	if err != nil {
 		return nil, err
 	}
-	githubApiResponse := &models.GithubUserOfToken{}
-	err = helper.UnmarshalResponse(res, githubApiResponse)
+	var githubApiResponse struct {
+		shared.ApiBody
+		Login string `json:"login"`
+	}
+	githubUserOfToken := &models.GithubUserOfToken{}
+	err = helper.UnmarshalResponse(res, githubUserOfToken)
 	if err != nil {
 		return nil, err
-	} else if githubApiResponse.Login == "" {
+	} else if githubUserOfToken.Login == "" {
 		return nil, fmt.Errorf("invalid token")
 	}
+	githubApiResponse.Success = true
+	githubApiResponse.Message = "success"
+	githubApiResponse.Login = githubUserOfToken.Login
 
 	// output
 	return &core.ApiResourceOutput{Body: githubApiResponse, Status: http.StatusOK}, nil
